@@ -265,7 +265,7 @@ void cmd_chat(char *argbuf)
 
 		retval = client_read_to(&cmdbuf[linelen], 1, 2);
 
-		if (retval < 0) {	/* socket broken? */
+		if (retval < 0 || CC->kill_me) {	/* socket broken? */
 			if ((CC->cs_flags & CS_STEALTH) == 0) {
 				allwrite("<disconnected>", 0, NULL);
 			}
