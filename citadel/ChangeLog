@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.88  2004/03/21 17:13:15  error
+ * configure.ac: Fix for defines for pthreads not being included properly
+
  Revision 614.87  2004/03/21 06:15:06  ajc
  * docs/citadel.html: documented TLS support and administration procedures
 
@@ -5556,3 +5559,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

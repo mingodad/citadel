@@ -54,6 +54,7 @@ TARGETS=client
 
 AC_CANONICAL_HOST
 PTHREAD_DEFS=-D_REENTRANT
+AC_MSG_CHECKING([how to compile with POSIX threads])
 case "$host" in
 	dnl BSDI 3.0 wants relocatable object modules instead of shared libs
 	dnl for dlopen(), and has a wrapper script to link with shared libs.
@@ -61,13 +62,16 @@ case "$host" in
 	*-*-bsdi[123]*)
 		test -z "$CC" -a -x /usr/bin/shlicc2 && CC=shlicc2
 		AC_DEFINE(HAVE_NONREENTRANT_NETDB)
+		AC_MSG_RESULT([Old BSDI])
 	;;
 	*-*-bsdi*)
 		AC_DEFINE(HAVE_NONREENTRANT_NETDB)
+		AC_MSG_RESULT([BSD/OS])
 	;;
 	dnl Curses support on Mac OS X is kind of screwed at the moment.
 	*-*-darwin*)
 		AC_DEFINE(DISABLE_CURSES)
+		AC_MSG_RESULT([Mac OS X])
 	;;
 	dnl Digital Unix has an odd way to build for pthreads, and we can't
 	dnl build pthreads programs with gcc due to header problems.
@@ -75,6 +79,7 @@ case "$host" in
 		test -z "$CC" && CC=cc
 		LIBS="-lpthread -lexc $LIBS"
 		check_pthread=no
+		AC_MSG_RESULT([Tru64 or Digital UNIX])
 	;;
 	dnl FreeBSD is similar to Digital UNIX with DEC C, which has a -pthread flag:
 	*-*-freebsd*)
@@ -85,20 +90,31 @@ case "$host" in
 		fi
 		check_pthread=no
 		PTHREAD_DEFS=-D_THREAD_SAFE
+		AC_MSG_RESULT([FreeBSD])
 	;;
 	*-*-openbsd*)
 		LIBS="-pthread $LIBS"
 		check_pthread=no
 		PTHREAD_DEFS=-pthread
+		AC_MSG_RESULT([OpenBSD])
+	;;
+	*-*-linux*)
+		PTHREAD_DEFS="-D_REENTRANT -pthread"
+		AC_MSG_RESULT([Linux])
 	;;
 	*-*-solaris*)
 		PTHREAD_DEFS="-D_REENTRANT -D_PTHREADS"
+		AC_MSG_RESULT([Solaris])
 	;;
 	*-*-cygwin*)
 		SERVER_LDFLAGS="-Wl,-subsystem,windows"
+		AC_MSG_RESULT([Cygwin])
+	;;
+	*)
+		AC_MSG_RESULT([default])
 	;;
 esac
-DEFS="$DEFS $PTHREAD_DEFS"
+dnl DEFS="$DEFS $PTHREAD_DEFS"
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -107,10 +123,10 @@ dnl Set up system-dependent compiler flags.
 if test "$GCC" = yes; then
 	case "$host" in
 		*-*-solaris*|alpha*-dec-osf*)
-			CFLAGS="$CFLAGS -Wall -Wcast-qual -Wcast-align -Wno-char-subscripts"
+			CFLAGS="$CFLAGS -Wall -Wcast-qual -Wcast-align -Wno-char-subscripts $PTHREAD_DEFS"
 		;;
 		*)
-			CFLAGS="$CFLAGS -Wall -Wcast-qual -Wcast-align -Wstrict-prototypes"
+			CFLAGS="$CFLAGS -Wall -Wcast-qual -Wcast-align -Wstrict-prototypes $PTHREAD_DEFS"
 		;;
 	esac
 fi
