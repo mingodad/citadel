@@ -68,6 +68,7 @@ INSTALL_DATA=@INSTALL_DATA@
 RESOLV=@RESOLV@
 SHELL=/bin/sh
 SERVER_LDFLAGS=@SERVER_LDFLAGS@
+SETUP_LIBS=@SETUP_LIBS@
 YACC=@YACC@
 
 # End configuration section
@@ -140,7 +141,7 @@ citmail: citmail.o config.o
 	$(CC) citmail.o config.o $(LDFLAGS) -o citmail $(LIBS)
 
 setup: setup.o tools.o
-	$(CC) setup.o tools.o $(LIBS) $(LDFLAGS) -o setup
+	$(CC) setup.o tools.o $(SETUP_LIBS) $(LDFLAGS) -o setup
 
 chkpwd: chkpwd.o auth.o config.o
 	$(CC) chkpwd.o auth.o config.o $(LDFLAGS) -o chkpwd $(chkpwd_LIBS)

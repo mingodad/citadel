@@ -34,5 +34,8 @@
 /* define this if you have the libical calendaring library available */
 #undef HAVE_LIBICAL
 
+/* define this if you have the newt window library available */
+#undef HAVE_NEWT
+
 /* define this if you have the resolv.h header file. */
 #undef HAVE_RESOLV_H

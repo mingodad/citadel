@@ -1,4 +1,8 @@
  $Log$
+ Revision 607.7  2003/06/25 15:40:57  ajc
+ * setup now uses "newt" instead of "curses" to draw its pretty screens.
+   Changes were made to setup.c as well as all the autoconf stuff.
+
  Revision 607.6  2003/06/25 02:40:05  ajc
  * Per-user and global flags calling for validation need to be set in the
    vCard upload thingie, not in the wrapper function that emulates the
@@ -4785,3 +4789,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

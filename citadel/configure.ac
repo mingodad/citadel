@@ -32,6 +32,7 @@ AC_ARG_WITH(ncurses, [  --without-ncurses       don't use ncurses])
 
 AC_ARG_WITH(with_zlib, [  --with-zlib             use zlib compression if present])
 AC_ARG_WITH(with_libical, [  --with-libical          use libical calendaring library])
+AC_ARG_WITH(with_newt, [  --with-newt          use newt window library])
 
 if test "x$with_db" != xno -a "x$with_db" != xyes -a "$with_db"; then
 	db_dir="$with_db"
@@ -354,6 +355,25 @@ fi
 
 
 
+
+dnl Checks for the newt window library.
+if test "x$with_newt" != xno ; then
+	AC_CHECK_HEADERS(newt.h,
+		[AC_CHECK_LIB(newt, newtInit,
+			[ok_newt=yes],,
+	)])
+fi
+
+if test "x$ok_newt" = xyes ; then
+	SETUP_LIBS="-lnewt $SETUP_LIBS"
+	AC_DEFINE(HAVE_NEWT)
+fi
+
+
+
+
+
+
 dnl Checks for the libical calendaring library.
 if test "x$with_libical" != xno ; then
 	AC_CHECK_HEADERS(ical.h,
@@ -389,6 +409,7 @@ main() {
 		]
 	)
 fi
+
 
 
 
@@ -541,6 +562,7 @@ AC_SUBST(chkpwd_LIBS)
 AC_SUBST(TARGETS)
 AC_SUBST(DATABASE)
 AC_SUBST(SERVER_LDFLAGS)
+AC_SUBST(SETUP_LIBS)
 AC_CONFIG_HEADER(sysdep.h)
 AC_CONFIG_FILES([Makefile weekly])
 AC_OUTPUT

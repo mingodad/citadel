@@ -27,22 +27,16 @@
 #include "config.h"
 #include "tools.h"
 
-#ifndef DISABLE_CURSES
-#if defined(HAVE_CURSES_H) || defined(HAVE_NCURSES_H)
-#ifdef HAVE_NCURSES_H
-#include <ncurses.h>
-#else
-#include <curses.h>
+#ifdef HAVE_NEWT
+#include <newt.h>
 #endif
-#endif
-#endif
+
 
 #define MAXSETUP 3	/* How many setup questions to ask */
 
 #define UI_TEXT		0	/* Default setup type -- text only */
-#define UI_DIALOG	1	/* Use the 'dialog' program (REMOVED) */
-#define UI_CURSES	2	/* Use curses */
 #define UI_SILENT	3	/* Silent running, for use in scripts */
+#define UI_NEWT		4	/* Use the "newt" window library */
 
 #define SERVICE_NAME	"citadel"
 #define PROTO_NAME	"tcp"
@@ -204,79 +198,13 @@ void start_the_service(void) {
 
 void cleanup(int exitcode)
 {
-#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
-	if (setup_type == UI_CURSES) {
-		clear();
-		refresh();
-		endwin();
-	}
+#ifdef HAVE_NEWT
+	newtCls();
+	newtRefresh();
+	newtFinished();
 #endif
-
 	exit(exitcode);
 }
-
-
-/* Gets a line from the terminal */
-/* Where on the screen to start */
-/* Pointer to string buffer */
-/* Maximum length - if negative, no-show */
-#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
-void getlin(int yp, int xp, char *string, int lim) {
-	int a, b;
-	char flag;
-
-	flag = 0;
-	if (lim < 0) {
-		lim = (0 - lim);
-		flag = 1;
-	}
-	move(yp, xp);
-	standout();
-	for (a = 0; a < lim; ++a)
-		addch('-');
-	refresh();
-	move(yp, xp);
-	for (a = 0; a < lim; ++a)
-		addch(' ');
-	move(yp, xp);
-	printw("%s", string);
-      GLA:move(yp, xp + strlen(string));
-	refresh();
-	a = getch();
-	if (a == 127)
-		a = 8;
-	a = (a & 127);
-	if (a == 10)
-		a = 13;
-	if ((a == 8) && (strlen(string) == 0))
-		goto GLA;
-	if ((a != 13) && (a != 8) && (strlen(string) == lim))
-		goto GLA;
-	if ((a == 8) && (string[0] != 0)) {
-		string[strlen(string) - 1] = 0;
-		move(yp, xp + strlen(string));
-		addch(' ');
-		goto GLA;
-	}
-	if ((a == 13) || (a == 10)) {
-		standend();
-		move(yp, xp);
-		for (a = 0; a < lim; ++a)
-			addch(' ');
-		mvprintw(yp, xp, "%s", string);
-		refresh();
-		return;
-	}
-	b = strlen(string);
-	string[b] = a;
-	string[b + 1] = 0;
-	if (flag == 0)
-		addch(a);
-	if (flag == 1)
-		addch('*');
-	goto GLA;
-}
-#endif
 
 
 
@@ -288,35 +216,25 @@ void title(char *text)
 }
 
 
-void hit_any_key(void)
-{
-	char junk[5];
-
-#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
-	if (setup_type == UI_CURSES) {
-		mvprintw(20, 0, "Press any key to continue... ");
-		refresh();
-		getch();
-		return;
-	}
-#endif
-	if (setup_type == UI_TEXT) {
-		printf("Press return to continue...");
-		fgets(junk, 5, stdin);
-	}
-}
 
 int yesno(char *question)
 {
+#ifdef HAVE_NEWT
+	newtComponent form = NULL;
+	newtComponent yesbutton = NULL;
+	newtComponent nobutton = NULL;
+#endif
+
 	int answer = 0;
-	char buf[4096];
+	int i = 0;
+	char buf[SIZ];
 
 	switch (setup_type) {
 
 	case UI_TEXT:
 		do {
 			printf("%s\nYes/No --> ", question);
-			fgets(buf, 4096, stdin);
+			fgets(buf, sizeof buf, stdin);
 			answer = tolower(buf[0]);
 			if (answer == 'y')
 				answer = 1;
@@ -325,24 +243,27 @@ int yesno(char *question)
 		} while ((answer < 0) || (answer > 1));
 		break;
 
-#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
-	case UI_CURSES:
-		do {
-			clear();
-			standout();
-			mvprintw(1, 20, "Question");
-			standend();
-			mvprintw(10, 0, "%-80s", question);
-			mvprintw(20, 0, "%80s", "");
-			mvprintw(20, 0, "Yes/No -> ");
-			refresh();
-			answer = getch();
-			answer = tolower(answer);
-			if (answer == 'y')
-				answer = 1;
-			else if (answer == 'n')
-				answer = 0;
-		} while ((answer < 0) || (answer > 1));
+#ifdef HAVE_NEWT
+	case UI_NEWT:
+		newtCenteredWindow(76, 10, "Question");
+		form = newtForm(NULL, NULL, 0);
+		for (i=0; i<num_tokens(question, '\n'); ++i) {
+			extract_token(buf, question, i, '\n');
+			newtFormAddComponent(form, newtLabel(1, 1+i, buf));
+		}
+		yesbutton = newtButton(10, 5, "Yes");
+		nobutton = newtButton(60, 5, "No");
+		newtFormAddComponent(form, yesbutton);
+		newtFormAddComponent(form, nobutton);
+		if (newtRunForm(form) == yesbutton) {
+			answer = 1;
+		}
+		else {
+			answer = 0;
+		}
+		newtPopWindow();
+		newtFormDestroy(form);	
+
 		break;
 #endif
 
@@ -353,26 +274,33 @@ int yesno(char *question)
 
 void important_message(char *title, char *msgtext)
 {
+#ifdef HAVE_NEWT
+	newtComponent form = NULL;
+#endif
+	char buf[SIZ];
+	int i = 0;
 
 	switch (setup_type) {
 
 	case UI_TEXT:
 		printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 		printf("       %s \n\n%s\n\n", title, msgtext);
-		hit_any_key();
+		printf("Press return to continue...");
+		fgets(buf, sizeof buf, stdin);
 		break;
 
-#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
-	case UI_CURSES:
-		clear();
-		move(1, 20);
-		standout();
-		printw("  Important Message  ");
-		standend();
-		move(3, 0);
-		printw("%s", msgtext);
-		refresh();
-		hit_any_key();
+#ifdef HAVE_NEWT
+	case UI_NEWT:
+		newtCenteredWindow(76, 10, title);
+		form = newtForm(NULL, NULL, 0);
+		for (i=0; i<num_tokens(msgtext, '\n'); ++i) {
+			extract_token(buf, msgtext, i, '\n');
+			newtFormAddComponent(form, newtLabel(1, 1+i, buf));
+		}
+		newtFormAddComponent(form, newtButton(35, 5, "OK"));
+		newtRunForm(form);
+		newtPopWindow();
+		newtFormDestroy(form);	
 		break;
 #endif
 
@@ -391,8 +319,18 @@ void display_error(char *error_message)
 
 void progress(char *text, long int curr, long int cmax)
 {
-	static long dots_printed;
-	long a;
+#ifdef HAVE_NEWT
+
+	/* These variables are static because progress() gets called
+	 * multiple times during the course of whatever operation is
+	 * being performed.  This makes setup non-threadsafe, but who
+	 * cares?
+	 */
+	static newtComponent form = NULL;
+	static newtComponent scale = NULL;
+#endif
+	static long dots_printed = 0L;
+	long a = 0;
 
 	switch (setup_type) {
 
@@ -418,32 +356,24 @@ void progress(char *text, long int curr, long int cmax)
 		}
 		break;
 
-#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
-	case UI_CURSES:
+#ifdef HAVE_NEWT
+	case UI_NEWT:
 		if (curr == 0) {
-			clear();
-			move(5, 20);
-			printw("%s\n", text);
-			move(10, 1);
-			printf("..........................");
-			printf("..........................");
-			printf("..........................\r");
-			refresh();
-			dots_printed = 0;
-		} else if (curr == cmax) {
-			clear();
-			refresh();
-		} else {
-			a = (curr * 100) / cmax;
-			a = a * 78;
-			a = a / 100;
-			move(10, 1);
-			dots_printed = 0;
-			while (dots_printed < a) {
-				printw("*");
-				++dots_printed;
-			}
-			refresh();
+			newtCenteredWindow(76, 8, text);
+			form = newtForm(NULL, NULL, 0);
+			scale = newtScale(1, 3, 74, cmax);
+			newtFormAddComponent(form, scale);
+			newtDrawForm(form);
+			newtRefresh();
+		}
+		if ((curr > 0) && (curr <= cmax)) {
+			newtScaleSet(scale, curr);
+			newtRefresh();
+		}
+		if (curr == cmax) {
+			newtFormDestroy(form);	
+			newtPopWindow();
+			newtRefresh();
 		}
 		break;
 #endif
@@ -543,9 +473,14 @@ void check_inittab_entry(void)
 
 void set_str_val(int msgpos, char str[])
 {
-	char buf[4096];
+#ifdef HAVE_NEWT
+	newtComponent form;
+	char *result;
+#endif
+	char buf[SIZ];
 	char tempfile[PATH_MAX];
 	char setupmsg[SIZ];
+	int i;
 
 	strcpy(tempfile, tmpnam(NULL));
 	strcpy(setupmsg, "");
@@ -556,23 +491,28 @@ void set_str_val(int msgpos, char str[])
 		printf("\n%s\n", setup_text[msgpos]);
 		printf("This is currently set to:\n%s\n", str);
 		printf("Enter new value or press return to leave unchanged:\n");
-		fgets(buf, 4096, stdin);
+		fgets(buf, sizeof buf, stdin);
 		buf[strlen(buf) - 1] = 0;
 		if (strlen(buf) != 0)
 			strcpy(str, buf);
 		break;
-#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
-	case UI_CURSES:
-		clear();
-		move(1, ((80 - strlen(setup_titles[msgpos])) / 2));
-		standout();
-		printw("%s", setup_titles[msgpos]);
-		standend();
-		move(3, 0);
-		printw("%s", setup_text[msgpos]);
-		refresh();
-		getlin(20, 0, str, 80);
-		break;
+#ifdef HAVE_NEWT
+	case UI_NEWT:
+
+		newtCenteredWindow(76, 10, setup_titles[msgpos]);
+		form = newtForm(NULL, NULL, 0);
+		for (i=0; i<num_tokens(setup_text[msgpos], '\n'); ++i) {
+			extract_token(buf, setup_text[msgpos], i, '\n');
+			newtFormAddComponent(form, newtLabel(1, 1+i, buf));
+		}
+		newtFormAddComponent(form, newtEntry(1, 8, str, 74, &result,
+					NEWT_FLAG_RETURNEXIT));
+		newtRunForm(form);
+		strcpy(str, result);
+
+		newtPopWindow();
+		newtFormDestroy(form);	
+
 #endif
 	}
 }
@@ -678,8 +618,11 @@ void write_config_to_disk(void)
 int discover_ui(void)
 {
 
-#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
-	return UI_CURSES;
+#ifdef HAVE_NEWT
+	newtInit();
+	newtCls();
+	newtDrawRootText(0, 0, "Citadel/UX Setup");
+	return UI_NEWT;
 #endif
 	return UI_TEXT;
 }
@@ -726,14 +669,6 @@ int main(int argc, char *argv[])
 	if (setup_type < 0) {
 		setup_type = discover_ui();
 	}
-#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
-	if (setup_type == UI_CURSES) {
-		initscr();
-		raw();
-		noecho();
-	}
-#endif
-
 	if (info_only == 1) {
 		important_message("Citadel/UX Setup", CITADEL);
 		cleanup(0);
