@@ -690,10 +690,10 @@ void *context_loop(struct CitContext *con)
 	time(&CC->lastidle);
 	strcpy(CC->lastcmdname, "    ");
 	strcpy(CC->cs_clientname, "(unknown)");
-	strcpy(CC->curr_user,"");
+	strcpy(CC->curr_user,"(not logged in)");
 	strcpy(CC->net_node,"");
 	snprintf(CC->temp, sizeof CC->temp, "/tmp/CitServer.%d.%d", getpid(), CC->cs_pid);
-	strcpy(CC->cs_room, "");
+	strcpy(CC->cs_room, "(no room)");
 	strncpy(CC->cs_host, config.c_fqdn, sizeof CC->cs_host);
 	CC->cs_host[sizeof CC->cs_host - 1] = 0;
 	locate_host(CC->cs_host);

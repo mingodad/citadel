@@ -1,3 +1,7 @@
+Sat Mar 13 21:33:19 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* commands.c: use bright colors by default in color mode
+	* citserver.c: initialize wholist fields with (not logged in) etc.
+
 1999-03-08 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* sysdep.c: call DLoader_Init() with an absolute path so that gdb can
 	  find module symbols
