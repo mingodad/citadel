@@ -103,6 +103,7 @@ struct serv_info {
 	char serv_sysadm[64];
 	char serv_moreprompt[SIZ];
 	int serv_ok_floors;
+	int serv_supports_ldap;
 };
 
 

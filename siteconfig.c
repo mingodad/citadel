@@ -458,6 +458,26 @@ void display_siteconfig(void)
 				wprintf("<INPUT TYPE=\"hidden\" NAME=\"c_purge_hour\" VALUE=\"%s\">", buf);
 			}
 			break;
+		case 33:
+			if ( (serv_info.serv_supports_ldap) && (!strcasecmp(whichmenu, "network")) ) {
+				wprintf("<TR><TD>Host name of LDAP server (blank to disable)</TD><TD>");
+				wprintf("<INPUT TYPE=\"text\" NAME=\"c_ldap_host\" MAXLENGTH=\"127\" VALUE=\"%s\">", buf);
+				wprintf("</TD></TR>\n");
+			}
+			else {
+				wprintf("<INPUT TYPE=\"hidden\" NAME=\"c_ldap_host\" VALUE=\"%s\">", buf);
+			}
+			break;
+		case 34:
+			if ( (serv_info.serv_supports_ldap) && (!strcasecmp(whichmenu, "network")) ) {
+				wprintf("<TR><TD>Port number of LDAP server (blank to disable)</TD><TD>");
+				wprintf("<INPUT TYPE=\"text\" NAME=\"c_ldap_port\" MAXLENGTH=\"127\" VALUE=\"%d\">", atoi(buf));
+				wprintf("</TD></TR>\n");
+			}
+			else {
+				wprintf("<INPUT TYPE=\"hidden\" NAME=\"c_ldap_port\" VALUE=\"%d\">", atoi(buf));
+			}
+			break;
 		}
 	}
 
@@ -517,6 +537,8 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_disable_newu"));
 	serv_printf("%s", bstr("c_aide_mailboxes"));
 	serv_printf("%s", bstr("c_purge_hour"));
+	serv_printf("%s", bstr("c_ldap_host"));
+	serv_printf("%s", bstr("c_ldap_port"));
 	serv_printf("000");
 	strcpy(WC->ImportantMessage, "System configuration has been updated.");
 	display_siteconfig();
