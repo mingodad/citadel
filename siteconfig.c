@@ -144,6 +144,11 @@ void display_siteconfig(void)
 			wprintf("<INPUT TYPE=\"text\" NAME=\"c_createax\" MAXLENGTH=\"1\" VALUE=\"%s\">", buf);
 			wprintf("</TD></TR>\n");
 			break;
+		case 21:
+			wprintf("<TR><TD>Maximum message length</TD><TD>");
+			wprintf("<INPUT TYPE=\"text\" NAME=\"c_maxmsglen\" MAXLENGTH=\"20\" VALUE=\"%s\">", buf);
+			wprintf("</TD></TR>\n");
+			break;
 		}
 	}
 
@@ -189,6 +194,7 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_roompurge"));
 	serv_printf("%s", bstr("c_logpages"));
 	serv_printf("%d", bstr("c_createax"));
+	serv_printf("%d", bstr("c_maxmsglen"));
 	serv_printf("000");
 	display_success("System configuration has been updated.");
 }
