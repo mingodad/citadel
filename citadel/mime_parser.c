@@ -319,8 +319,14 @@ void the_mime_parser(char *partnum,
 			if ((!strcasecmp(buf, startary))
 			    || (!strcasecmp(buf, endary))) {
 				if (part_start != NULL) {
-					sprintf(nested_partnum, "%s.%d",
-						partnum, ++part_seq);
+					if (strlen(partnum) > 0) {
+						sprintf(nested_partnum, "%s.%d",
+							partnum, ++part_seq);
+					}
+					else {
+						sprintf(nested_partnum, "%d",
+							++part_seq);
+					}
 					the_mime_parser(nested_partnum,
 						    part_start, part_end,
 							CallBack);
@@ -369,5 +375,5 @@ void mime_parser(char *content_start, char *content_end,
 {
 
 	lprintf(9, "mime_parser() called\n");
-	the_mime_parser("1", content_start, content_end, CallBack);
+	the_mime_parser("", content_start, content_end, CallBack);
 }
