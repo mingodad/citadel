@@ -424,6 +424,7 @@ void session_startup(void)
 
 	lgetuser(&CC->usersupp, CC->curr_user);
 	++(CC->usersupp.timescalled);
+	CC->previous_login = CC->usersupp.lastcall;
 	time(&CC->usersupp.lastcall);
 
 	/* If this user's name is the name of the system administrator
@@ -470,7 +471,7 @@ void logged_in_response(void)
 		CIT_OK, CC->usersupp.fullname, CC->usersupp.axlevel,
 		CC->usersupp.timescalled, CC->usersupp.posted,
 		CC->usersupp.flags, CC->usersupp.usernum,
-		CC->usersupp.lastcall);
+		CC->previous_login);
 }
 
 

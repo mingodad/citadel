@@ -83,9 +83,9 @@ struct CitContext {
 	char net_node[PATH_MAX];/* Is the client another Citadel server? */
 	int client_socket;
 	int cs_pid;		/* session ID */
-	time_t cs_lastupdt;	/* time of last update */
 	time_t lastcmd;		/* time of last command executed */
 	time_t lastidle;	/* For computing idle time */
+	time_t previous_login;	/* Date/time of previous login */
 	char lastcmdname[5];	/* name of last command executed */
 	unsigned cs_flags;	/* miscellaneous flags */
 	void (*h_command_function) (void) ;	/* service command function */
