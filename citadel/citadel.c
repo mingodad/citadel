@@ -823,10 +823,12 @@ void who_is_online(CtdlIPC *ipc, int longlist)
 			idlesecs = (idletime - (idlehours * 3600) - (idlemins * 60));
 
 			if (idletime > rc_idle_threshold) {
+				/*
 				while (strlen(roomname) < 20) {
 					strcat(roomname, " ");
 				}
 				strcpy(&roomname[14], "[idle]");
+				*/
 				if (skipidle)
 					isidle = 1;
 			}
@@ -870,8 +872,26 @@ void who_is_online(CtdlIPC *ipc, int longlist)
     				color(BRIGHT_CYAN);
     				pprintf("%-25s ", username);
     				color(BRIGHT_MAGENTA);
-    				roomname[20] = 0;
-    				pprintf("%-20s ", roomname);
+				if (idletime > rc_idle_threshold) {
+					roomname[14] = 0;
+					pprintf("%-14s", roomname);
+					/* over 10 days, must be gone fishing */
+					if (idlehours > 239) {
+						pprintf("[fish] ");
+					/* over 10 hours */
+					} else if (idlehours > 9) {
+						pprintf("[%1ldd%02ld] ",
+							idlehours / 24,
+							idlehours % 24);
+					/* less than 10 hours */
+					} else {
+						pprintf("[%1ld:%02ld] ",
+							idlehours, idlemins);
+					}
+				} else {
+    					roomname[20] = 0;
+    					pprintf("%-20s ", roomname);
+				}
     				color(BRIGHT_CYAN);
     				fromhost[24] = '\0';
     				pprintf("%-24s\n", fromhost);

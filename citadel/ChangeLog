@@ -1,4 +1,8 @@
  $Log$
+ Revision 606.1  2003/05/20 01:28:50  error
+ * citadel.c: don't truncate roomname when user is idle, in long who list;
+   display idle time in short who list
+
  Revision 606.0  2003/05/16 15:17:11  ajc
  * THIS IS 6.06
 
@@ -4710,4 +4714,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
