@@ -464,6 +464,10 @@ void session_loop() {
 
 	/* Various commands... */
 	
+	else if (!strncasecmp(cmd, "GET /do_welcome", 15)) {
+		do_welcome();
+		}
+
 	else if (!strncasecmp(cmd, "GET /display_main_menu", 22)) {
 		display_main_menu();
 		}

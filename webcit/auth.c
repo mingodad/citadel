@@ -57,3 +57,16 @@ void do_login() {
 		}
 
 	}
+
+void do_welcome() {
+	printf("HTTP/1.0 200 OK\n");
+	output_headers();
+	wprintf("<HTML><BODY>\n");
+	wprintf("<CENTER><H1>");
+	escputs(wc_username);
+	wprintf("</H1>\n");
+	/* other stuff here */
+	wprintf("</BODY></HTML>\n");
+	wDumpContent();
+	}
+	}
