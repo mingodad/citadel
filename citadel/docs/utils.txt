@@ -128,5 +128,5 @@ properly restricted.
    
    That should cover all of the included utilities.
  For more information, visit the Citadel/UX web site at UNCENSORED! BBS
- http://uncnsrd.mt-kisco.ny.us
+ http://uncensored.citadel.org
 

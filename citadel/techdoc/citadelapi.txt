@@ -1,7 +1,7 @@
  Citadel/UX Server Extension API Documentation
  ---------------------------------------------
  
-  This is a (very) incomplete documentation of the API for extending the
+  This is a VERY INCOMPLETE documentation of the API for extending the
 Citadel server using dynamically loaded modules.  It really isn't an API at
 all, but rather a list of some of the functions available in the server which
 are likely to be of use to module writers.  

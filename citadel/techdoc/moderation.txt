@@ -1,6 +1,9 @@
+(NOTE: the moderation system is not finished yet, and as such, as been
+disabled in the current release.)
+
  TECHNICAL DISCUSSION OF THE CITADEL/UX MODERATION SYSTEM
  
- Starting with version 5.73, the Citadel system supports moderation of
+ Starting with version ?.??, the Citadel system supports moderation of
 messages.  This is used for both internal processing and for the more
 traditional filtering purposes.
  

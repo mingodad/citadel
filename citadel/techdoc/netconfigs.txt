@@ -1,3 +1,6 @@
+(NOTE: the new networker is not finished yet, and as such, has been disabled
+in the current release.)
+ 
            Description of the files in the "netconfigs" directory
 
  These files contain a set of network configurations for a room.  They are

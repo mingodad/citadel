@@ -25,7 +25,7 @@ Unix and Unix-like platforms.  The author's current development environment
 system. It is mandatory that the sysop have "root" access to the operating
 system. The following are required to install Citadel/UX:
 
-    - A Unix operating system (Linux, BSD, Solaris, DEC Unix, etc.)
+    - A Unix operating system (Linux, BSD, Solaris, Tru64, HP/UX)
     - C compiler (such as gcc or egcs) and "make"
     - POSIX threads (the "pthreads" library)
     - TCP/IP

@@ -2,7 +2,7 @@
 
 
 Site Configuration
-by IGnatius T Foobar 
+by IGnatius T Foobar (Art Cancro)
 
     Once your Citadel server is up and running, the first thing you'll
 want to do is customize and tune it.  This can be done from the

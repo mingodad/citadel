@@ -50,4 +50,4 @@ network nodes, and to share and unshare rooms.
  --------
   
  By now you already know where I hang out.  :)  You can find me at
-UNCENSORED! BBS at uncnsrd.mt-kisco.ny.us (telnet, www, citadel-client, etc.)
+UNCENSORED! BBS at uncensored.citadel.org (telnet, www, citadel-client, etc.)
