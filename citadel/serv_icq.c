@@ -53,6 +53,7 @@ struct CtdlICQ_CL {
 	DWORD uin;
 	char name[32];
 	DWORD status;
+	char host[25];
 };
 
 
@@ -2277,7 +2278,7 @@ void CtdlICQ_rwho(void) {
 			0,	/* no session ID */
 			ThisICQ->icq_cl[i].name,
 			icq_ConvertStatus2Str(ThisICQ->icq_cl[i].status),
-			" ",	/* FIX add host */
+			ThisICQ->icq_cl[i].host,
 			" ",	/* no client */
 			time(NULL),	/* now? */
 			" ",	/* no last command */
@@ -2303,7 +2304,11 @@ void CtdlICQ_Logged(void) {
 void CtdlICQ_UserOnline(DWORD uin, DWORD status, DWORD ip,
 			DWORD port, DWORD realip) {
 
+	DWORD decoded_ip;
+	
 	CtdlICQ_Status_Update(uin, status);
+	decoded_ip = ntohl(ip);
+	locate_host(CtdlICQ_CLent(uin)->host, &decoded_ip);
 }
 
 

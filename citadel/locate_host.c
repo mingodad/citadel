@@ -45,9 +45,9 @@ void locate_host(char *tbuf, const struct in_addr *addr)
 				   section */
 	}
 	/* check if the forward DNS agrees; if not, they're spoofing */
-	i = strdup(ch->h_name);
+	i = strdoop(ch->h_name);
 	ch = gethostbyname(i);
-	free(i);
+	phree(i);
 	if (ch == NULL)
 		goto bad_dns;
 
@@ -55,7 +55,7 @@ void locate_host(char *tbuf, const struct in_addr *addr)
 	for (; *ch->h_addr_list; ch->h_addr_list++)
 		if (!memcmp(*ch->h_addr_list, addr,
 			    sizeof *addr)) {
-			strncpy(tbuf, ch->h_name, 24);
+			safestrncpy(tbuf, ch->h_name, 24);
 			goto end;
 		}
 	goto bad_dns;		/* they were spoofing. report a numeric IP
