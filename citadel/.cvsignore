@@ -53,3 +53,7 @@ useradmin
 userlist
 weekly
 whobbs
+ltmain.sh
+configure.lineno
+config.sub
+config.guess
