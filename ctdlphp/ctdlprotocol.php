@@ -305,5 +305,29 @@ function ctdl_knrooms() {
 }
 
 
+//
+// Fetch the list of messages in this room.
+// Returns: count, response, message array
+//
+function ctdl_msgs($mode, $count) {
+	global $clientsocket;
+
+	serv_puts("MSGS " . $mode . "|" . $count);
+	$response = serv_gets();
+
+	if (substr($response, 0, 1) != "1") {
+		return array(0, substr($response, 4), NULL);
+	}
+	
+	$msgs = array();
+	$num_msgs = 0;
+
+	while (strcmp($buf = serv_gets(), "000")) {
+		$num_msgs = array_push($msgs, $buf);
+	}
+
+	return array($num_msgs, substr($response, 4), $msgs);
+}
+
 
 ?>

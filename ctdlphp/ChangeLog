@@ -1,4 +1,7 @@
  $Log$
+ Revision 1.16  2003/11/14 17:09:04  ajc
+ * Added a basic read loop ... currently only fetches message numbers
+
  Revision 1.15  2003/11/09 17:53:47  ajc
  * Moved all of the session-management code from ctdlheader.php to
    ctdlsession.php, leaving only a single function call.  This will
@@ -66,4 +69,3 @@
 
  Revision 1.1  2003/10/31 03:47:13  ajc
  * Initial CVS import
-
