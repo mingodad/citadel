@@ -1,4 +1,8 @@
  $Log$
+ Revision 605.26  2003/03/22 05:38:23  ajc
+ * During startup, display the version string from the Berkeley DB library.
+ * When deleting a mailbox, don't reveal the namespace prefix to the user.
+
  Revision 605.25  2003/03/20 08:37:04  error
  * connection_died(): Don't crash before printing message, crash afterward.
    (Bugzilla id 111)
@@ -4584,4 +4588,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

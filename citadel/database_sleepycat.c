@@ -279,6 +279,7 @@ void open_databases(void)
 	u_int32_t flags = 0;
 
 	lprintf(9, "cdb_*: open_databases() starting\n");
+	lprintf(5, "%s\n", db_version(NULL, NULL, NULL));
 #ifdef HAVE_ZLIB
 	lprintf(5, "zlib compression version %s\n", zlibVersion());
 #endif

@@ -1508,8 +1508,8 @@ int CtdlDoIHavePermissionToDeleteThisRoom(struct quickroom *qr) {
  */
 void cmd_kill(char *argbuf)
 {
-	char aaa[100];
 	char deleted_room_name[ROOMNAMELEN];
+	char msg[SIZ];
 	int kill_ok;
 
 	kill_ok = extract_int(argbuf, 0);
@@ -1519,14 +1519,23 @@ void cmd_kill(char *argbuf)
 		return;
 	}
 	if (kill_ok) {
-		strcpy(deleted_room_name, CC->quickroom.QRname);
-		delete_room(&CC->quickroom);	/* Do the dirty work */
-		usergoto(config.c_baseroom, 0, 0, NULL, NULL); /* Return to the Lobby */
+		if (CC->quickroom.QRflags & QR_MAILBOX) {
+			strcpy(deleted_room_name, &CC->quickroom.QRname[11]);
+		}
+		else {
+			strcpy(deleted_room_name, CC->quickroom.QRname);
+		}
+
+		/* Do the dirty work */
+		delete_room(&CC->quickroom);
+
+		/* Return to the Lobby */
+		usergoto(config.c_baseroom, 0, 0, NULL, NULL);
 
 		/* tell the world what we did */
-		snprintf(aaa, sizeof aaa, "%s> killed by %s\n",
+		snprintf(msg, sizeof msg, "%s> killed by %s\n",
 			 deleted_room_name, CC->curr_user);
-		aide_message(aaa);
+		aide_message(msg);
 		cprintf("%d '%s' deleted.\n", CIT_OK, deleted_room_name);
 	} else {
 		cprintf("%d ok to delete.\n", CIT_OK);
