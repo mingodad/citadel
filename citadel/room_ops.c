@@ -998,9 +998,11 @@ void cmd_setr(char *args) {
 			}
 		}
 
-	new_order = extract_int(args, 6);
-	if (new_order < 1) new_order = 1;
-	if (new_order > 127) new_order = 127;
+	if (num_parms(args)>=7) {
+		new_order = extract_int(args, 6);
+		if (new_order < 1) new_order = 1;
+		if (new_order > 127) new_order = 127;
+		}
 
 	lgetroom(&CC->quickroom, CC->quickroom.QRname);
 	strcpy(old_name, CC->quickroom.QRname);
@@ -1011,7 +1013,8 @@ void cmd_setr(char *args) {
 	extract(buf,args,2); buf[15]=0;
 	strncpy(CC->quickroom.QRdirname,buf,19);
 	CC->quickroom.QRflags = ( extract_int(args,3) | QR_INUSE);
-	CC->quickroom.QRorder = (char)new_order;
+	if (num_parms(args)>=7)
+		CC->quickroom.QRorder = (char)new_order;
 
 	/* Clean up a client boo-boo: if the client set the room to
 	 * guess-name or passworded, ensure that the private flag is

@@ -35,6 +35,7 @@
 extern struct CtdlServInfo serv_info;
 extern char temp[];
 void citedit(FILE *fp, long int base_pos);
+void getline(char *, int);
 
 void chatmode(void) {
 	char wbuf[256];
@@ -198,7 +199,8 @@ RCL:	    if (send_complete_line) {
 void page_user() {
 	static char last_paged[32] = "";
 	char buf[256], touser[256], msg[256];
-	FILE *fp;
+	char longmsg[5][80];
+	int i;
 
 	strcpy(touser, last_paged);
 	strprompt("Page who", touser, 30);
@@ -225,30 +227,28 @@ void page_user() {
 			printf("%s\n", &buf[4]);
 			return;
 			}
-		fp = fopen(temp, "w");
-		fp = freopen(temp, "rb+", fp);
-		if (fp==NULL) printf("Error: %s\n", strerror(errno));
-		unlink(temp);
+
 		printf("Type message to send.  Enter a blank line when finished.\n");
-		citedit(fp, 0);
+		bzero(longmsg, sizeof longmsg);
+		for (i=0; i<5; ++i) {
+			printf("> ");
+			getline(&longmsg[i][0], 77);
+			if (strlen(&longmsg[i][0])==0) i=5;
+			}
 		snprintf(buf, sizeof buf, "SEXP %s|-", touser);
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0]=='4') {
 	   		strcpy(last_paged, touser);
-			rewind(fp);
-			while (fgets(buf, sizeof buf, fp) != NULL) {
-				buf[strlen(buf)-1] = 0;
-				if (strcmp(buf, "000")) serv_puts(buf);
-			unlink(temp);
-			}
+			for (i=0; i<5; ++i)
+				if (strlen(&longmsg[i][0])>0)
+					serv_puts(&longmsg[i][0]);
 			serv_puts("000");
 			printf("Message sent.\n");
 		}
 		else {
 			printf("%s\n", &buf[4]);
 		}
-		fclose(fp);
 	}
 }
 
