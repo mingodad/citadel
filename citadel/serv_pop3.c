@@ -89,7 +89,7 @@ void pop3_greeting(void) {
 	POP3->msgs = NULL;
 	POP3->num_msgs = 0;
 
-	cprintf("+OK Welcome to the Citadel/UX POP3 server %s\r\n",
+	cprintf("+OK Citadel/UX POP3 server %s\r\n",
 		CC->cs_nonce, config.c_fqdn);
 }
 
@@ -236,7 +236,7 @@ void pop3_apop(char *argbuf)
    }
    else
    {
-	cprintf("-ERR That is NOT the password!  Go away!\r\n");
+	cprintf("-ERR That is NOT the password.\r\n");
    }
 }
 
@@ -255,7 +255,7 @@ void pop3_pass(char *argbuf) {
 		pop3_login();
 	}
 	else {
-		cprintf("-ERR That is NOT the password!  Go away!\r\n");
+		cprintf("-ERR That is NOT the password.\r\n");
 	}
 }
 
@@ -344,7 +344,7 @@ void pop3_retr(char *argbuf) {
 		return;
 	}
 
-	cprintf("+OK Whoop, there it is:\r\n");
+	cprintf("+OK Message %d:\r\n", which_one);
 	bytes_remaining = POP3->msgs[which_one -1].rfc822_length;
 	rewind(POP3->msgs[which_one - 1].temp);
 	while (bytes_remaining-- > 0) {
@@ -381,7 +381,7 @@ void pop3_top(char *argbuf) {
 		return;
 	}
 
-	cprintf("+OK Whoop, there it is:\r\n");
+	cprintf("+OK Message %d:\r\n", which_one);
 	rewind(POP3->msgs[which_one - 1].temp);
 	while (ptr = fgets(buf, sizeof buf, POP3->msgs[which_one - 1].temp),
 	      ( (ptr!=NULL) && (done == 0))) {
@@ -416,7 +416,7 @@ void pop3_dele(char *argbuf) {
 
 	/* Flag the message as deleted.  Will expunge during QUIT command. */
 	POP3->msgs[which_one - 1].deleted = 1;
-	cprintf("+OK Message %d disappears in a cloud of orange smoke.\r\n",
+	cprintf("+OK Message %d deleted.\r\n",
 		which_one);
 }
 
@@ -460,7 +460,7 @@ void pop3_rset(char *argbuf) {
 			POP3->msgs[i].deleted = 0;
 		}
 	}
-	cprintf("+OK all that has come to pass, has now gone away.\r\n");
+	cprintf("+OK Reset completed.\r\n");
 }
 
 
@@ -538,7 +538,7 @@ void pop3_command_loop(void) {
 	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
 
 	if (!strncasecmp(cmdbuf, "NOOP", 4)) {
-		cprintf("+OK This command successfully did nothing.\r\n");
+		cprintf("+OK No operation.\r\n");
 	}
 
 	else if (!strncasecmp(cmdbuf, "QUIT", 4)) {
@@ -598,7 +598,7 @@ void pop3_command_loop(void) {
 	}
 
 	else {
-		cprintf("500 I'm afraid I can't do that, Dave.\r\n");
+		cprintf("500 I'm afraid I can't do that.\r\n");
 	}
 
 }

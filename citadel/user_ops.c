@@ -624,7 +624,6 @@ int create_user(char *newusername)
 	int a;
 	struct passwd *p = NULL;
 	char username[64];
-	char mailboxname[ROOMNAMELEN];
 
 	strcpy(username, newusername);
 	strproc(username);
@@ -674,8 +673,7 @@ int create_user(char *newusername)
 		return (ERROR + INTERNAL_ERROR);
 	}
 	/* give the user a private mailbox */
-	MailboxName(mailboxname, &CC->usersupp, MAILROOM);
-	create_room(mailboxname, 4, "", 0, 1);
+	create_room(MAILROOM, 4, "", 0, 1);
 
 	rec_log(CL_NEWUSER, CC->curr_user);
 	return (0);

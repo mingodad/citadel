@@ -1,4 +1,11 @@
  $Log$
+ Revision 573.86  2001/02/08 04:45:58  ajc
+ * Fixed namespace problems resulting from the automatic namespece prefixing
+   added to create_room().  Also added the ability to specify "create a mailbox
+   but I've already supplied the namespace prefix" for situations where the
+   namespace isn't that of the logged in user.
+ * Made the POP3 server response messages slightly less humorous
+
  Revision 573.85  2001/02/06 04:44:12  ajc
  * Added a floor listing (complete with \NoSelect flag) to LIST and LSUB
 
@@ -2387,3 +2394,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

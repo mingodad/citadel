@@ -1223,7 +1223,8 @@ void cmd_kill(char *argbuf)
 /*
  * Internal code to create a new room (returns room flags)
  *
- * Room types:  0=public, 1=guessname, 2=passworded, 3=inv-only, 4=mailbox
+ * Room types:  0=public, 1=guessname, 2=passworded, 3=inv-only,
+ *              4=mailbox, 5=mailbox, but caller supplies namespace
  */
 unsigned create_room(char *new_room_name,
 		     int new_room_type,
@@ -1252,7 +1253,7 @@ unsigned create_room(char *new_room_name,
 		qrbuf.QRflags = (qrbuf.QRflags | QR_GUESSNAME);
 	if (new_room_type == 2)
 		qrbuf.QRflags = (qrbuf.QRflags | QR_PASSWORDED);
-	if (new_room_type == 4)
+	if ( (new_room_type == 4) || (new_room_type == 5) )
 		qrbuf.QRflags = (qrbuf.QRflags | QR_MAILBOX);
 
 	/* If the user is requesting a personal room, set up the room
