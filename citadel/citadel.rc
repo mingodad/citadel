@@ -150,6 +150,7 @@ cmd=19,0,&.,list &Zapped rooms
 cmd=52,0,&.,&Skip ^r^c goto:
 cmd=56,0,&Page a user
 cmd=58,0,&Mail
+cmd=84,0,&Quiet mode
 #
 # We implement both <.G>oto and <J>ump commands which do the same thing, in
 # order to please a wider audience of users.  Remove one if you want to.

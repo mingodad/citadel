@@ -41,6 +41,7 @@ void progress(long int curr, long int cmax);
 int pattern(char *search, char *patn);
 int file_checksum(char *filename);
 int nukedir(char *dirname);
+int checkpagin(int lp, int pagin, int height); 
 
 extern unsigned room_flags;
 extern char room_name[];
@@ -62,6 +63,8 @@ extern long uglsn;
 extern char ugname[];
 
 extern char floorlist[128][256];
+
+int knlinecount;
 
 
 void load_floorlist(void) {
@@ -100,7 +103,14 @@ void room_tree_list(struct roomlisting *rp) {
 		strcpy(rmname, rp->rlname);
 		f = rp->rlflags;
 		if ((c + strlen(rmname) + 4) > screenwidth) {
+
+			/* line break, check the paginator */
 			printf("\n");
+			knlinecount = knlinecount + 1;
+			knlinecount = checkpagin(knlinecount,
+				    ((userflags & US_PAGINATOR) ? 1 : 0),
+					       screenheight);
+
 			c = 1;
 			}
                	if (f & QR_MAILBOX) {
@@ -229,41 +239,51 @@ void knrooms(int kn_floor_mode)
 	int a;
 
 	load_floorlist();
+	knlinecount = 0;
 
 	if (kn_floor_mode == 0) {
 		color(BRIGHT_CYAN);
 		printf("\n   Rooms with unread messages:\n");
+		knlinecount = knlinecount + 2;
 		listrms("LKRN");
 		color(BRIGHT_CYAN);
 		printf("\n\n   No unseen messages in:\n");
+		knlinecount = knlinecount + 3;
 		listrms("LKRO");
 		printf("\n");
+		knlinecount = knlinecount + 1;
 		}
 
 	if (kn_floor_mode == 1) {
 		color(BRIGHT_CYAN);
 		printf("\n   Rooms with unread messages on %s:\n",
 			floorlist[(int)curr_floor]);
+		knlinecount = knlinecount + 2;
 		sprintf(buf,"LKRN %d",curr_floor);
 		listrms(buf);
 		color(BRIGHT_CYAN);
 		printf("\n\n   Rooms with no new messages on %s:\n",
 			floorlist[(int)curr_floor]);
+		knlinecount = knlinecount + 3;
 		sprintf(buf,"LKRO %d",curr_floor);
 		listrms(buf);
 		color(BRIGHT_CYAN);
 		printf("\n\n   Other floors:\n");
+		knlinecount = knlinecount + 3;
 		list_other_floors();
 		printf("\n");
+		knlinecount = knlinecount + 1;
 		}
 
 	if (kn_floor_mode == 2) {
 		for (a=0; a<128; ++a) if (floorlist[a][0]!=0) {
 			color(BRIGHT_CYAN);
 			printf("\n   Rooms on %s:\n",floorlist[a]);
+			knlinecount = knlinecount + 2;
 			sprintf(buf,"LKRA %d",a);
 			listrms(buf);
 			printf("\n");
+			knlinecount = knlinecount + 1;
 			}
 		}
 	

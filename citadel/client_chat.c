@@ -273,3 +273,32 @@ void page_user() {
 
 
 
+
+void quiet_mode(void) {
+	int qstate;
+	char buf[256];
+
+	serv_puts("DEXP 2");
+	serv_gets(buf);
+	if (buf[0]!='2') {
+		printf("%s\n", &buf[4]);
+		return;
+	}
+	qstate = atoi(&buf[4]);
+	if (qstate == 0) qstate = 1;
+	else qstate = 0;
+	sprintf(buf, "DEXP %d", qstate);
+	serv_puts(buf);
+	serv_gets(buf);
+	if (buf[0]!='2') {
+		printf("%s\n", &buf[4]);
+		return;
+	}
+	qstate = atoi(&buf[4]);
+	if (qstate) {
+		printf("Quiet mode enabled (no other users may page you)\n");
+	}
+	else {
+		printf("Quiet mode disabled (other users may page you)\n");
+	}
+}

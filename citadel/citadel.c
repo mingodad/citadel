@@ -1263,6 +1263,10 @@ GSTA:	termn8 = 0;
 				check_message_base();
 				break;
 
+			case 84:
+				quiet_mode();
+				break;
+
 			case 50:
 				enter_config(2);
 				break;

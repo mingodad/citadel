@@ -1499,9 +1499,10 @@ the client program should expect the connection to be immediately broken.
 0 to respectively set or clear the flag.  When the "scheduled shutdown" flag is
 set, the server will be shut down when there are no longer any users logged in.
 Any value other than 0 or 1 will not change the flag, only report its state.
-No users will be kicked off the system, and in fact the server is still available
-for new connections.  The command returns ERROR if it fails; otherwise, it
-returns OK followed by a number representing the current state of the flag.
+No users will be kicked off the system, and in fact the server is still
+available for new connections.  The command returns ERROR if it fails;
+otherwise, it returns OK followed by a number representing the current state
+of the flag.
  
  
  EMSG   (Enter a system MeSsaGe)
@@ -1787,4 +1788,15 @@ and statuses.
  Verify, via the long way, that all message referenmce counts are correct.  If
 the user has permission to do this then LISTING_FOLLOWS is returned, followed
 by a transcript of the run.  Otherwise ERROR is returned.
+   
+ 
+ DEXP   (Disable EXPress messages)
   
+ DEXP sets or clears the "disable express messages" flag.  Pass this command a
+1 or 0 to respectively set or clear the flag.  When the "disable express
+messages" flag is set, no one except Aides may send the user express messages.
+Any value other than 0 or 1 will not change the flag, only report its state.
+The command returns ERROR if it fails; otherwise, it returns OK followed by a
+number representing the current state of the flag.
+ 
+ 

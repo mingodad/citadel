@@ -38,17 +38,6 @@ extern struct CitContext *ContextList;
 
 
 
-char *Dynamic_Module_Init(void)
-{
-	CtdlRegisterProtoHook(cmd_chat, "CHAT", "Begin real-time chat");
-	CtdlRegisterProtoHook(cmd_pexp, "PEXP", "Poll for express messages");
-	CtdlRegisterProtoHook(cmd_gexp, "GEXP", "Get express messages");
-	CtdlRegisterProtoHook(cmd_sexp, "SEXP", "Send an express message");
-	CtdlRegisterSessionHook(delete_express_messages, EVT_STOP);
-	CtdlRegisterXmsgHook(send_express_message, XMSG_PRI_LOCAL);
-	return "$Id$";
-}
-
 void allwrite(char *cmdbuf, int flag, char *username)
 {
 	FILE *fp;
@@ -485,8 +474,10 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 		else
 			un = ccptr->usersupp.fullname;
 
-		if ((!strcasecmp(un, x_user))
-		    || (!strcasecmp(x_user, "broadcast"))) {
+		if ( ((!strcasecmp(un, x_user))
+		    || (!strcasecmp(x_user, "broadcast")))
+		    && ((ccptr->disable_exp == 0)
+		    || (CC->usersupp.axlevel >= 6)) ) {
 			if (do_send) {
 				newmsg = (struct ExpressMessage *)
 					mallok(sizeof (struct ExpressMessage));
@@ -558,7 +549,9 @@ void cmd_sexp(char *argbuf)
 	if (!strcmp(x_msg, "-")) {
 		message_sent = PerformXmsgHooks(lun, x_user, "");
 		if (message_sent == 0) {
-			cprintf("%d No user '%s' logged in.\n", ERROR, x_user);
+			cprintf("%d '%s' is not logged in "
+				"or is not accepting pages.\n",
+				ERROR, x_user);
 			return;
 		}
 		cprintf("%d Transmit message (will deliver to %d users)\n",
@@ -595,3 +588,41 @@ void cmd_sexp(char *argbuf)
 
 	}
 }
+
+
+
+/*
+ * Enter or exit paging-disabled mode
+ */
+void cmd_dexp(char *argbuf)
+{
+	int new_state;
+
+	if (!CC->logged_in) {
+		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
+		return;
+		}
+
+	new_state = extract_int(argbuf, 0);
+	if ((new_state == 0) || (new_state == 1)) {
+		CC->disable_exp = new_state;
+		}
+	cprintf("%d %d\n", OK, CC->disable_exp);
+	}
+
+
+
+
+
+char *Dynamic_Module_Init(void)
+{
+	CtdlRegisterProtoHook(cmd_chat, "CHAT", "Begin real-time chat");
+	CtdlRegisterProtoHook(cmd_pexp, "PEXP", "Poll for express messages");
+	CtdlRegisterProtoHook(cmd_gexp, "GEXP", "Get express messages");
+	CtdlRegisterProtoHook(cmd_sexp, "SEXP", "Send an express message");
+	CtdlRegisterProtoHook(cmd_dexp, "DEXP", "Disable express messages");
+	CtdlRegisterSessionHook(delete_express_messages, EVT_STOP);
+	CtdlRegisterXmsgHook(send_express_message, XMSG_PRI_LOCAL);
+	return "$Id$";
+}
+

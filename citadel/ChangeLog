@@ -1,4 +1,9 @@
 $Log$
+Revision 1.488  2000/03/15 03:04:51  ajc
+* Added DEXP server command to disable incoming express messages.
+* <Q>uiet mode client side command to set/clear DEXP mode.
+* <K>nown rooms list displays through the paginator.
+
 Revision 1.487  2000/03/12 00:21:35  ajc
 * Removed the semi-broken "chat room" functionality in the chat system, and
   replaced it with direct mapping to the actual Citadel room the user is in.
@@ -1734,4 +1739,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
