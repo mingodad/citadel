@@ -1778,10 +1778,10 @@ void room_to_folder(char *folder, char *room, int floor, int is_mailbox)
 	}
 
 	/*
-	 * Replace "/" characters with "|" for pseudo-folder-delimiting
+	 * Replace "\" characters with "|" for pseudo-folder-delimiting
 	 */
 	for (i=0; i<strlen(folder); ++i) {
-		if (folder[i] == '/') folder[i] = '|';
+		if (folder[i] == '\\') folder[i] = '|';
 	}
 }
 
