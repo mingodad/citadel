@@ -137,6 +137,7 @@ void smtp_hello(char *argbuf, int is_esmtp) {
 		cprintf("250-SIZE %ld\r\n", config.c_maxmsglen);
 		cprintf("250-PIPELINING\r\n");
 		cprintf("250 AUTH=LOGIN\r\n");
+		cprintf("250 ENHANCEDSTATUSCODES\r\n");
 	}
 }
 
@@ -176,7 +177,7 @@ void smtp_get_user(char *argbuf) {
 		SMTP->command_state = smtp_password;
 	}
 	else {
-		cprintf("500 No such user.\r\n");
+		cprintf("500 5.7.0 No such user.\r\n");
 		SMTP->command_state = smtp_command;
 	}
 }
@@ -191,13 +192,13 @@ void smtp_get_pass(char *argbuf) {
 	CtdlDecodeBase64(password, argbuf, SIZ);
 	lprintf(9, "Trying <%s>\n", password);
 	if (CtdlTryPassword(password) == pass_ok) {
-		cprintf("235 Hello, %s\r\n", CC->usersupp.fullname);
+		cprintf("235 2.0.0 Hello, %s\r\n", CC->usersupp.fullname);
 		lprintf(9, "SMTP authenticated login successful\n");
 		CC->internal_pgm = 0;
 		CC->cs_flags &= ~CS_STEALTH;
 	}
 	else {
-		cprintf("500 Authentication failed.\r\n");
+		cprintf("500 5.7.0 Authentication failed.\r\n");
 	}
 	SMTP->command_state = smtp_command;
 }
@@ -210,7 +211,7 @@ void smtp_auth(char *argbuf) {
 	char buf[SIZ];
 
 	if (strncasecmp(argbuf, "login", 5) ) {
-		cprintf("550 We only support LOGIN authentication.\r\n");
+		cprintf("550 5.7.4 We only support LOGIN authentication.\r\n");
 		return;
 	}
 
@@ -248,7 +249,7 @@ void smtp_vrfy(char *argbuf) {
 	ForEachUser(smtp_vrfy_backend, NULL);
 
 	if (SMTP->vrfy_count < 1) {
-		cprintf("550 String does not match anything.\r\n");
+		cprintf("550 5.1.1 String does not match anything.\r\n");
 	}
 	else if (SMTP->vrfy_count == 1) {
 		cprintf("250 %s <cit%ld@%s>\r\n",
@@ -257,7 +258,7 @@ void smtp_vrfy(char *argbuf) {
 			config.c_fqdn);
 	}
 	else if (SMTP->vrfy_count > 1) {
-		cprintf("553 Request ambiguous: %d users matched.\r\n",
+		cprintf("553 5.1.4 Request ambiguous: %d users matched.\r\n",
 			SMTP->vrfy_count);
 	}
 
@@ -295,7 +296,7 @@ void smtp_expn(char *argbuf) {
 	ForEachUser(smtp_expn_backend, NULL);
 
 	if (SMTP->vrfy_count < 1) {
-		cprintf("550 String does not match anything.\r\n");
+		cprintf("550 5.1.1 String does not match anything.\r\n");
 	}
 	else if (SMTP->vrfy_count >= 1) {
 		cprintf("250 %s <cit%ld@%s>\r\n",
@@ -326,7 +327,7 @@ void smtp_rset(void) {
 	 * }
 	 */
 
-	cprintf("250 Zap!\r\n");
+	cprintf("250 2.0.0 Zap!\r\n");
 }
 
 /*
@@ -352,12 +353,12 @@ void smtp_mail(char *argbuf) {
 	char name[SIZ];
 
 	if (strlen(SMTP->from) != 0) {
-		cprintf("503 Only one sender permitted\r\n");
+		cprintf("503 5.1.0 Only one sender permitted\r\n");
 		return;
 	}
 
 	if (strncasecmp(argbuf, "From:", 5)) {
-		cprintf("501 Syntax error\r\n");
+		cprintf("501 5.1.7 Syntax error\r\n");
 		return;
 	}
 
@@ -366,7 +367,7 @@ void smtp_mail(char *argbuf) {
 	stripallbut(SMTP->from, '<', '>');
 
 	if (strlen(SMTP->from) == 0) {
-		cprintf("501 Empty sender name is not permitted\r\n");
+		cprintf("501 5.1.7 Empty sender name is not permitted\r\n");
 		return;
 	}
 
@@ -375,7 +376,7 @@ void smtp_mail(char *argbuf) {
 	 */
 	if (CC->logged_in) {
 		strcpy(SMTP->from, CC->cs_inet_email);
-		cprintf("250 Sender ok <%s>\r\n", SMTP->from);
+		cprintf("250 2.0.0 Sender ok <%s>\r\n", SMTP->from);
 		SMTP->message_originated_locally = 1;
 		return;
 	}
@@ -386,14 +387,15 @@ void smtp_mail(char *argbuf) {
 	else {
 		process_rfc822_addr(SMTP->from, user, node, name);
 		if (CtdlHostAlias(node) != hostalias_nomatch) {
-			cprintf("550 You must log in to send mail from %s\r\n",
+			cprintf("550 5.1.8 "
+				"You must log in to send mail from %s\r\n",
 				node);
 			strcpy(SMTP->from, "");
 			return;
 		}
 	}
 
-	cprintf("250 Sender ok\r\n");
+	cprintf("250 2.0.0 Sender ok\r\n");
 }
 
 
@@ -407,12 +409,12 @@ void smtp_rcpt(char *argbuf) {
 	struct recptypes *valid = NULL;
 
 	if (strlen(SMTP->from) == 0) {
-		cprintf("503 Need MAIL before RCPT\r\n");
+		cprintf("503 5.5.1 Need MAIL before RCPT\r\n");
 		return;
 	}
 
 	if (strncasecmp(argbuf, "To:", 3)) {
-		cprintf("501 Syntax error\r\n");
+		cprintf("501 5.1.7 Syntax error\r\n");
 		return;
 	}
 
@@ -421,7 +423,7 @@ void smtp_rcpt(char *argbuf) {
 	stripallbut(recp, '<', '>');
 
 	if ( (strlen(recp) + strlen(SMTP->recipients) + 1 ) >= SIZ) {
-		cprintf("452 Too many recipients\r\n");
+		cprintf("452 4.5.3 Too many recipients\r\n");
 		return;
 	}
 
@@ -436,20 +438,20 @@ void smtp_rcpt(char *argbuf) {
 
 	valid = validate_recipients(recp);
 	if (valid->num_error > 0) {
-		cprintf("599 Error: %s\r\n", valid->errormsg);
+		cprintf("599 5.1.1 Error: %s\r\n", valid->errormsg);
 		phree(valid);
 		return;
 	}
 
 	if (valid->num_internet > 0) {
 		if (SMTP->message_originated_locally == 0) {
-			cprintf("551 Relaying denied <%s>\r\n", recp);
+			cprintf("551 5.7.1 Relaying denied <%s>\r\n", recp);
 			phree(valid);
 			return;
 		}
 	}
 
-	cprintf("250 RCPT ok <%s>\r\n", recp);
+	cprintf("250 2.0.0 RCPT ok <%s>\r\n", recp);
 	if (strlen(SMTP->recipients) > 0) {
 		strcat(SMTP->recipients, ",");
 	}
@@ -472,12 +474,12 @@ void smtp_data(void) {
 	int scan_errors;
 
 	if (strlen(SMTP->from) == 0) {
-		cprintf("503 Need MAIL command first.\r\n");
+		cprintf("503 5.5.1 Need MAIL command first.\r\n");
 		return;
 	}
 
 	if (SMTP->number_of_recipients < 1) {
-		cprintf("503 Need RCPT command first.\r\n");
+		cprintf("503 5.5.1 Need RCPT command first.\r\n");
 		return;
 	}
 
@@ -499,7 +501,8 @@ void smtp_data(void) {
 	
 	body = CtdlReadMessageBody(".", config.c_maxmsglen, body, 1);
 	if (body == NULL) {
-		cprintf("550 Unable to save message: internal error.\r\n");
+		cprintf("550 5.6.5 "
+			"Unable to save message: internal error.\r\n");
 		return;
 	}
 
@@ -542,7 +545,7 @@ void smtp_data(void) {
 
 		if (msg->cm_fields['0'] == NULL) {
 			msg->cm_fields['0'] = strdoop(
-				"Message rejected by filter");
+				"5.7.1 Message rejected by filter");
 		}
 
 		cprintf("550 %s\r\n", msg->cm_fields['0']);
@@ -551,10 +554,10 @@ void smtp_data(void) {
 	else {			/* Ok, we'll accept this message. */
 		msgnum = CtdlSubmitMsg(msg, valid, "");
 		if (msgnum > 0L) {
-			cprintf("250 Message accepted.\r\n");
+			cprintf("250 2.0.0 Message accepted.\r\n");
 		}
 		else {
-			cprintf("550 Internal delivery error\r\n");
+			cprintf("550 5.5.0 Internal delivery error\r\n");
 		}
 	}
 
@@ -643,7 +646,7 @@ void smtp_command_loop(void) {
 	}
 
 	else {
-		cprintf("502 I'm afraid I can't do that.\r\n");
+		cprintf("502 5.0.0 I'm afraid I can't do that.\r\n");
 	}
 
 }

@@ -167,7 +167,7 @@ int spam_assassin(struct CtdlMessage *msg) {
 			phree(msg->cm_fields['0']);
 		}
 		msg->cm_fields['0'] = strdoop(
-			"Message rejected by SpamAssassin");
+			"5.7.1 Message rejected by SpamAssassin");
 	}
 
 bail:	close(sock);
