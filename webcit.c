@@ -34,6 +34,8 @@ int logged_in = 0;
 int axlevel;
 char *ExpressMessages = NULL;
 int noframes = 0;
+int new_mail = 0;
+int need_vali = 0;
 
 struct webcontent *wlist = NULL;
 struct webcontent *wlast = NULL;
@@ -209,7 +211,7 @@ void wDumpContent(int print_standard_html_footer)
 	if (fake_frames) {
 		wprintf("</TD></TR></TABLE></TABLE>\n");
 		fake_frames = 0;
-		}
+	}
 
 	if (print_standard_html_footer) {
 		if ((noframes) && (print_standard_html_footer != 2)) {
