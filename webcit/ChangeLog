@@ -1,4 +1,7 @@
 $Log$
+Revision 1.114  1999/12/05 17:38:41  ajc
+* Additional debugging and cleanup
+
 Revision 1.113  1999/12/04 22:16:05  ajc
 * Moved all diagnostic output to stderr
 * Moved "HTTP/1.0 200 OK" output to output_headers()
@@ -338,4 +341,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

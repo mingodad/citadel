@@ -321,7 +321,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	/* now become a worker thread too */
+	/* now the original thread becomes an ordinary worker thread */
 	worker_entry();
 	pthread_exit(NULL);
 }
