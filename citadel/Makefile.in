@@ -37,7 +37,8 @@ SERV_MODULES=modules/serv_chat$(SO) modules/serv_vcard$(SO) \
 	modules/serv_moderate$(SO) \
 	modules/serv_bio$(SO) \
 	modules/serv_expire$(SO) \
-	modules/serv_vandelay$(SO)
+	modules/serv_vandelay$(SO) \
+	modules/serv_ical$(SO)
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform readlog rcit \
 	stats citmail netpoll mailinglist userlist sendcommand \
 	base64 qpdecode
@@ -90,7 +91,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	domain.c clientsocket.c serv_inetcfg.c serv_rwho.c serv_bio.c \
 	serv_moderate.c client_passwords.c \
 	serv_imap.c imap_tools.c imap_fetch.c imap_search.c \
-	serv_network.c serv_pas2.c md5.c
+	serv_network.c serv_pas2.c serv_ical.c md5.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
@@ -146,7 +147,7 @@ citserver: $(SERV_OBJS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c $< -o $@
 
 .c.mo:
-	@mkdir -p modules
+	@test -d modules || mkdir -p modules
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) $(PICFLAGS) -DPIC -c $< -o $@
 
 modules/serv_chat.so: serv_chat.mo
@@ -260,6 +261,12 @@ modules/serv_pas2.mo: serv_pas2.mo
 
 modules/md5.mo: md5.mo
 	ln -f md5.mo modules
+
+modules/serv_ical.so: serv_ical.mo
+	$(LINK_SHARED) -o modules/serv_ical.so serv_ical.mo
+
+modules/serv_ical.mo: serv_ical.mo
+	ln -f serv_ical.mo modules
 
 
 

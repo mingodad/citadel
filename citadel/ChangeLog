@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.78  2001/02/03 08:21:00  error
+ * serv_ical.c and serv_ical.h added; skeleton code for now
+
  Revision 573.77  2001/02/02 20:18:18  ajc
  * Changed the error message in cdb_delete() to actually *say* cdb_delete
    instead of cdb_store.  Useful to know which function failed...
@@ -2355,3 +2358,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
