@@ -69,4 +69,3 @@ void do_welcome() {
 	wprintf("</BODY></HTML>\n");
 	wDumpContent();
 	}
-	}
