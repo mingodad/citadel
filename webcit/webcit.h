@@ -319,3 +319,4 @@ void display_floorconfig(char *);
 void delete_floor(void);
 void create_floor(void);
 void rename_floor(void);
+void do_listsub(void);
