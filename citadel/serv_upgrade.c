@@ -470,6 +470,47 @@ void do_import(char *argbuf) {
 	}
 
 
+void export_a_room(struct quickroom *qr) {
+	int b = 0;
+	int msgcount = 0;
+
+	lprintf(9,"<%s>\n", qr->QRname);
+	fprintf(exfp, "room%c", 0);
+	fprintf(exfp, "qrname%c%s%c", 0, qr->QRname, 0);
+	fprintf(exfp, "qrpasswd%c%s%c", 0, qr->QRpasswd, 0);
+	fprintf(exfp, "qrroomaide%c%ld%c", 0, qr->QRroomaide, 0);
+	fprintf(exfp, "qrhighest%c%ld%c", 0, qr->QRhighest, 0);
+	fprintf(exfp, "qrgen%c%ld%c", 0, qr->QRgen, 0);
+	fprintf(exfp, "qrflags%c%d%c", 0, qr->QRflags, 0);
+	fprintf(exfp, "qrdirname%c%s%c", 0, qr->QRdirname, 0);
+	fprintf(exfp, "qrinfo%c%ld%c", 0, qr->QRinfo, 0);
+	fprintf(exfp, "qrfloor%c%d%c", 0, qr->QRfloor, 0);
+
+	/*
+	for (b=0; b<MSGSPERRM; ++b) if (fr.FRnum[b]>=mm.MMlowest) {
+		++msgcount;
+		fprintf(exfp, "message%c%ld%c", 0, fr.FRnum[b], 0);
+		dump_message(exfp, fr.FRnum[b], fr.FRpos[b]);
+		}
+	*/
+
+	fprintf(exfp, "endroom%c", 0);
+	}
+
+
+void export_rooms() {
+
+	lprintf(9,"Rooms\n");
+	fprintf(exfp, "rooms%c", 0);
+	ForEachRoom(export_a_room);
+	fprintf(exfp, "endsection%c", 0);
+	}
+
+
+
+
+
+
 
 void do_export(char *argbuf) {
 	char export_filename[PATH_MAX];
@@ -524,7 +565,7 @@ void do_export(char *argbuf) {
 	fprintf(exfp, "mmflags%c%d%c", 0, CitControl.MMflags, 0);
 	fprintf(exfp, "endsection%c", 0);
 
-	/* export_rooms(exfp); */
+	export_rooms();
 	/* export_floors(exfp); */
 	/* export_usersupp(exfp); */
 	fprintf(exfp, "endfile%c", 0);
