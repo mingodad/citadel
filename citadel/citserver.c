@@ -132,8 +132,8 @@ void cleanup_stuff(void *arg)
  */
 void set_wtmpsupp(char *newtext)
 {
-	strncpy(CC->cs_room,newtext,ROOMNAMELEN-1);
-	CC->cs_room[ROOMNAMELEN-1] = 0;
+	strncpy(CC->cs_room,newtext,sizeof CC->cs_room);
+	CC->cs_room[sizeof CC->cs_room - 1] = 0;
 	time(&CC->cs_lastupdt);
 
 	/* Run any routines registered by loadable modules */
@@ -278,7 +278,8 @@ void cmd_iden(char *argbuf)
 	rev_level = extract_int(argbuf,2);
 	extract(desc,argbuf,3);
 
-	strcpy(from_host,config.c_fqdn);
+	strncpy(from_host,config.c_fqdn,sizeof from_host);
+	from_host[sizeof from_host - 1] = 0;
 	if (num_parms(argbuf)>=5) extract(from_host,argbuf,4);
 
 	CC->cs_clientdev = dev_code;
