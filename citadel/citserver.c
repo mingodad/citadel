@@ -409,9 +409,11 @@ int is_public_client(void)
 		begin_critical_section(S_PUBLIC_CLIENTS);
 		lprintf(7, "Loading %s\n", PUBLIC_CLIENTS);
 
-		strcpy(public_clients, "");
-		/* FIXME add localhost */
-		/* FIXME add config.c_fqdn */
+		strcpy(public_clients, "127.0.0.1");
+		if (hostname_to_dotted_quad(addrbuf, config.c_fqdn) == 0) {
+			strcat(public_clients, "|");
+			strcat(public_clients, addrbuf);
+		}
 
 		fp = fopen("public_clients", "r");
 		if (fp != NULL) while (fgets(buf, sizeof buf, fp)!=NULL) {
@@ -422,9 +424,6 @@ int is_public_client(void)
 				if ((strlen(public_clients) +
 				   strlen(addrbuf) + 2)
 				   < sizeof(public_clients)) {
-					if (strlen(public_clients) != 0) {
-						strcat(public_clients, "|");
-					}
 					strcat(public_clients, addrbuf);
 				}
 			}
