@@ -961,7 +961,13 @@ DONE:
 	}
 
 	if (is_calendar) {
-		do_calendar_view();
+		do_calendar_view();	/* Render the calendar */
+
+		wprintf("<A HREF=\"/display_edit_event?msgnum=0\">"
+			"Add new calendar event</A>\n"
+		);
+
+
 	}
 
 	wDumpContent(1);
