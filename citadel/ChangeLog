@@ -1,7 +1,10 @@
+Mon Nov 30 19:48:52 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* room_ops.c: added sort_msglist() to move and save operations
+	* sendcommand.c: added
+
 Sun Nov 29 23:57:39 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Fixed cmd_regi() to not display a second result code after xfer
 	* Makefile.in: Removed "chmod 4755 citmail netmailer"
-	* room_ops.c: added sort_msglist() to move and save operations
 
 1998-11-23 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* citadel.spec: added

@@ -1,7 +1,6 @@
 Citadel/UX v5.50 showstoppers list
 ----------------------------------
 * Figure out a way to auto-launch expire functions (and other functions)
-* Re-establish the sorting of msglists in target room when messages move
 
 Other things that might be nice to take care of:
 ------------------------------------------------

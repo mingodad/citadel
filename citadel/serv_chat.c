@@ -397,7 +397,7 @@ void cmd_sexp(char *argbuf)
 	struct ExpressMessage *emptr, *emnew;
 	char *lun;		/* <bc> */
 
-	if (!(CC->logged_in)) {
+	if ((!(CC->logged_in))&&(!(CC->internal_pgm))) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
 		return;
 		}

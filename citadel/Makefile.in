@@ -21,7 +21,7 @@ SERVER_TARGETS=citserver setup
 SERV_MODULES=modules/serv_chat.so modules/serv_test.so \
 	modules/serv_upgrade.so modules/serv_expire.so
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform \
-	readlog rcit stats citmail netpoll mailinglist userlist
+	readlog rcit stats citmail netpoll mailinglist userlist sendcommand
 PROXY_TARGETS=proxy
 
 prefix=@prefix@
@@ -55,7 +55,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	room_ops.c rooms.c routines.c routines2.c serv_chat.c \
 	serv_info.c serv_test.c serv_upgrade.c setup.c snprintf.c stats.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
-	whobbs.c
+	whobbs.c sendcommand.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
@@ -152,6 +152,10 @@ proxy: proxy.o ipc_c_tcp.o
 
 whobbs: whobbs.o ipc_c_tcp.o tools.o $(SNPRINTF)
 	$(CC) whobbs.o ipc_c_tcp.o tools.o $(SNPRINTF) $(LDFLAGS) -o whobbs
+
+sendcommand: sendcommand.o ipc_c_tcp.o tools.o $(SNPRINTF)
+	$(CC) sendcommand.o ipc_c_tcp.o tools.o $(SNPRINTF) $(LDFLAGS) \
+	-o sendcommand
 
 userlist: userlist.o ipc_c_tcp.o tools.o $(SNPRINTF)
 	$(CC) userlist.o ipc_c_tcp.o tools.o \
