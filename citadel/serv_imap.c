@@ -527,11 +527,7 @@ void imap_lsub_listroom(struct quickroom *qrbuf, void *data) {
 	if (ra & UA_KNOWN) {
 		imap_mailboxname(buf, sizeof buf, qrbuf);
 		if (imap_mailbox_matches_pattern(pattern, buf)) {
-			cprintf("* LSUB (");
-			if (!strcasecmp(buf, "INBOX")) {
-				cprintf("\\NoInferiors");
-			}
-			cprintf(") \"|\" ");
+			cprintf("* LSUB () \"|\" ");
 			imap_strout(buf);
 			cprintf("\r\n");
 		}
@@ -580,11 +576,7 @@ void imap_list_listroom(struct quickroom *qrbuf, void *data) {
 	  || ((ra & UA_GOTOALLOWED) && (ra & UA_ZAPPED))) {
 		imap_mailboxname(buf, sizeof buf, qrbuf);
 		if (imap_mailbox_matches_pattern(pattern, buf)) {
-			cprintf("* LIST (");
-			if (!strcasecmp(buf, "INBOX")) {
-				cprintf("\\NoInferiors");
-			}
-			cprintf(") \"|\" ");
+			cprintf("* LIST () \"|\" ");
 			imap_strout(buf);
 			cprintf("\r\n");
 		}
