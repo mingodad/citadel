@@ -117,7 +117,7 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 	char buf[SIZ];
 	char *ptr;
 	size_t headers_size, text_size, total_size;
-	size_t bytes_to_send;
+	size_t bytes_to_send = 0;
 	struct MetaData smi;
 	int need_to_rewrite_metadata = 0;
 

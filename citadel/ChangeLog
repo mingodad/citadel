@@ -1,4 +1,9 @@
  $Log$
+ Revision 641.25  2005/03/10 03:36:25  ajc
+ * Silenced a compiler warning
+ * Our graceful cleanup handler no longer gracefully cleans up after
+   receiving SIGSEGV or its friends.  Unfortunately we need the core dump.
+
  Revision 641.24  2005/03/10 03:11:07  ajc
  * Altered the algorithm by which the doubly-linked session list is
    amended and culled.  Decided that performance is better than cute
@@ -6530,4 +6535,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
