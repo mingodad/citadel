@@ -1,6 +1,5 @@
 Citadel/UX v5.50 showstoppers list
 ----------------------------------
-* Write expire function for visits
 * Fix room expire time entry in client
 * Figure out a way to auto-launch expire functions (and other functions)
 * Fix the way netproc handles incoming file transfers. (marked)

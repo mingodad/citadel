@@ -6,6 +6,23 @@
  */
 /* $Id$ */
 
+
+/*
+ * A brief technical discussion:
+ *
+ * Several of the purge operations found in this module operate in two
+ * stages: the first stage generates a linked list of objects to be deleted,
+ * then the second stage deletes all listed objects from the database.
+ *
+ * At first glance this may seem cumbersome and unnecessary.  The reason it is
+ * implemented in this way is because GDBM (and perhaps some other backends we
+ * may hook into in the future) explicitly do _not_ support the deletion of
+ * records from a file while the file is being traversed.  The delete operation
+ * will succeed, but the traversal is not guaranteed to visit every object if
+ * this is done.  Therefore we utilize the two-stage purge.
+ */
+
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -48,8 +65,29 @@ struct PurgeList {
 	char name[ROOMNAMELEN];	/* use the larger of username or roomname */
 	};
 
+struct VPurgeList {
+	struct VPurgeList *next;
+	long vp_roomnum;
+	long vp_roomgen;
+	long vp_usernum;
+	};
+
+struct ValidRoom {
+	struct ValidRoom *next;
+	long vr_roomnum;
+	long vr_roomgen;
+	};
+
+struct ValidUser {
+	struct ValidUser *next;
+	long vu_usernum;
+	};
+
 struct PurgeList *UserPurgeList = NULL;
 struct PurgeList *RoomPurgeList = NULL;
+struct ValidRoom *ValidRoomList = NULL;
+struct ValidUser *ValidUserList = NULL;
+int messages_purged;
 
 extern struct CitContext *ContextList;
 
@@ -74,6 +112,7 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 	char msgid[64];
 	int a;
 
+	messages_purged = 0;
 	time(&now);
 	GetExpirePolicy(&epbuf, qrbuf);
 	
@@ -104,6 +143,7 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 			memcpy(&CC->msglist[0], &CC->msglist[1],
 				(sizeof(long)*(CC->num_msgs - 1)));
 			CC->num_msgs = CC->num_msgs - 1;
+			++messages_purged;
 			}
 		}
 
@@ -260,16 +300,57 @@ int PurgeUsers(void) {
 	return(num_users_purged);
 	}
 
+void AddValidUser(struct usersupp *usbuf) {
+	struct ValidUser *vuptr;
+
+	vuptr = (struct ValidUser *)malloc(sizeof(struct ValidUser));
+	vuptr->next = ValidUserList;
+	vuptr->vu_usernum = usbuf->usernum;
+	ValidUserList = vuptr;
+	}
+
+void AddValidRoom(struct quickroom *qrbuf) {
+	struct ValidRoom *vrptr;
+
+	vrptr = (struct ValidRoom *)malloc(sizeof(struct ValidRoom));
+	vrptr->next = ValidRoomList;
+	vrptr->vr_roomnum = qrbuf->QRnumber;
+	vrptr->vr_roomgen = qrbuf->QRgen;
+	ValidRoomList = vrptr;
+	}
 
 
+/*
+ * Purge visits
+ *
+ * This is a really cumbersome "garbage collection" function.  We have to
+ * delete visits which refer to rooms and/or users which no longer exist.  In
+ * order to prevent endless traversals of the room and user files, we first
+ * build linked lists of rooms and users which _do_ exist on the system, then
+ * traverse the visit file, checking each record against those two lists and
+ * purging the ones that do not have a match on _both_ lists.  (Remember, if
+ * either the room or user being referred to is no longer on the system, the
+ * record is completely useless.)
+ */
 int PurgeVisits(void) {
 	struct cdbdata *cdbvisit;
 	struct visit vbuf;
+	struct VPurgeList *VisitPurgeList = NULL;
+	struct VPurgeList *vptr;
 	int purged = 0;
+	char IndexBuf[32];
+	int IndexLen;
+	struct ValidRoom *vrptr;
+	struct ValidUser *vuptr;
+	int RoomIsValid, UserIsValid;
 
-	struct quickroom qr;
-	struct usersupp us;
+	/* First, load up a table full of valid room/gen combinations */
+	ForEachRoom(AddValidRoom);
 
+	/* Then load up a table full of valid user numbers */
+	ForEachUser(AddValidUser);
+
+	/* Now traverse through the visits, purging irrelevant records... */
 	cdb_rewind(CDB_VISIT);
 	while(cdbvisit = cdb_next_item(CDB_VISIT), cdbvisit != NULL) {
 		memset(&vbuf, 0, sizeof(struct visit));
@@ -278,8 +359,62 @@ int PurgeVisits(void) {
 			sizeof(struct visit) : cdbvisit->len) );
 		cdb_free(cdbvisit);
 
+		RoomIsValid = 0;
+		UserIsValid = 0;
+
+		/* Check to see if the room exists */
+		for (vrptr=ValidRoomList; vrptr!=NULL; vrptr=vrptr->next) {
+			if ( (vrptr->vr_roomnum==vbuf.v_roomnum)
+			     && (vrptr->vr_roomgen==vbuf.v_roomgen))
+				RoomIsValid = 1;
+			}
+
+		/* Check to see if the user exists */
+		for (vuptr=ValidUserList; vuptr!=NULL; vuptr=vuptr->next) {
+			if (vuptr->vu_usernum == vbuf.v_usernum)
+				UserIsValid = 1;
+			}
+
+		/* Put the record on the purge list if it's dead */
+		if ((RoomIsValid==0) || (UserIsValid==0)) {
+			vptr = (struct VPurgeList *)
+				malloc(sizeof(struct VPurgeList));
+			vptr->next = VisitPurgeList;
+			vptr->vp_roomnum = vbuf.v_roomnum;
+			vptr->vp_roomgen = vbuf.v_roomgen;
+			vptr->vp_usernum = vbuf.v_usernum;
+			VisitPurgeList = vptr;
+			}
+
+		}
+
+	/* Free the valid room/gen combination list */
+	while (ValidRoomList != NULL) {
+		vrptr = ValidRoomList->next;
+		free(ValidRoomList);
+		ValidRoomList = vrptr;
+		}
+
+	/* Free the valid user list */
+	while (ValidUserList != NULL) {
+		vuptr = ValidUserList->next;
+		free(ValidUserList);
+		ValidUserList = vuptr;
+		}
+
+	/* Now delete every visit on the purged list */
+	while (VisitPurgeList != NULL) {
+		IndexLen = GenerateRelationshipIndex(IndexBuf,
+				VisitPurgeList->vp_roomnum,
+				VisitPurgeList->vp_roomgen,
+				VisitPurgeList->vp_usernum);
+		cdb_delete(CDB_VISIT, IndexBuf, IndexLen);
+		vptr = VisitPurgeList->next;
+		free(VisitPurgeList);
+		VisitPurgeList = vptr;
 		++purged;
 		}
+	
 	return(purged);
 	}
 
@@ -308,17 +443,17 @@ void cmd_expi(char *argbuf) {
 		}
 	else if (!strcasecmp(cmd, "messages")) {
 		PurgeMessages();
-		cprintf("%d Finished purging messages.\n", OK);
+		cprintf("%d Expired %d messages.\n", OK, messages_purged);
 		return;
 		}
 	else if (!strcasecmp(cmd, "rooms")) {
 		retval = PurgeRooms();
-		cprintf("%d Purged %d rooms.\n", OK, retval);
+		cprintf("%d Expired %d rooms.\n", OK, retval);
 		return;
 		}
 	else if (!strcasecmp(cmd, "visits")) {
 		retval = PurgeVisits();
-		cprintf("%d There are %d visits...\n", OK, retval);
+		cprintf("%d Purged %d visits.\n", OK, retval);
 		}
 	else if (!strcasecmp(cmd, "defrag")) {
 		defrag_databases();
