@@ -1,4 +1,9 @@
 $Log$
+Revision 505.12  2004/03/07 21:31:17  ajc
+* serv_read() now zeroes out the supplied buffer (with the supplied
+  length) if a server read fails.  This causes serv_gets() to return
+  instead of looping endlessly.  Fixes chat problem found on linux-ppc.
+
 Revision 505.11  2004/03/03 05:21:36  ajc
 * Made the chat screen totally kick-ass sweet.  The flickering reload
   i-frame is now tiny and hidden, and it *appends* new chat data to
@@ -1706,4 +1711,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

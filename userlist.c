@@ -39,6 +39,7 @@ void userlist(void)
 	struct namelist *bio = NULL;
 	struct namelist *bptr;
 	int has_bio;
+	int bg = 0;
 
 	serv_puts("LBIO");
 	serv_gets(buf);
@@ -63,7 +64,7 @@ void userlist(void)
 
 	do_template("beginbox");
 	wprintf("<CENTER>");
-	wprintf("<TABLE border>");
+	wprintf("<TABLE border=0 width=100%%>");
 	wprintf("<TR><TH>User Name</TH><TH>Number</TH><TH>Access Level</TH>");
 	wprintf("<TH>Last Call</TH><TH>Total Calls</TH><TH>Total Posts</TH></TR>\n");
 
@@ -74,7 +75,10 @@ void userlist(void)
 			if (!strcasecmp(fl, bptr->name))
 				has_bio = 1;
 		}
-		wprintf("<TR><TD>");
+		bg = 1 - bg;
+		wprintf("<TR BGCOLOR=\"#%s\"><TD>",
+			(bg ? "DDDDDD" : "FFFFFF")
+		);
 		if (has_bio) {
 			wprintf("<A HREF=\"/showuser&who=");
 			urlescputs(fl);
