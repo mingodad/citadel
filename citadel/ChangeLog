@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.39  2002/10/19 21:35:34  ajc
+ * Moved some of the calendar logic over from WebCit
+
  Revision 601.38  2002/10/19 08:30:03  error
  * dynloader.c:  Darwin places underscores in front of symbol names, just
    like OpenBSD.
@@ -4117,3 +4120,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

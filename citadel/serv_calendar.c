@@ -26,20 +26,206 @@
 #include "dynloader.h"
 #include "user_ops.h"
 #include "room_ops.h"
+#include "tools.h"
+#include "msgbase.h"
+#include "mime_parser.h"
+#ifdef HAVE_ICAL_H
+#include <ical.h>
+#endif
 
 
-/* Tell clients what level of support to expect */
-void cmd_ical(char *argbuf)
-{
-	/* argbuf is not used */
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n", ERROR+NOT_LOGGED_IN);
+#ifdef HAVE_ICAL_H
+
+struct ical_respond_data {
+	char desired_partnum[SIZ];
+	icalcomponent *cal;
+};
+
+
+
+
+
+/*
+ * Write our config to disk
+ */
+void ical_write_to_cal(struct usersupp *u, icalcomponent *cal) {
+        char temp[PATH_MAX];
+        FILE *fp;
+	char *ser;
+
+        strcpy(temp, tmpnam(NULL));
+	ser = icalcomponent_as_ical_string(cal);
+	if (ser == NULL) return;
+
+	/* Make a temp file out of it */
+        fp = fopen(temp, "w");
+        if (fp == NULL) return;
+	fwrite(ser, strlen(ser), 1, fp);
+        fclose(fp);
+
+        /* This handy API function does all the work for us.
+	 * NOTE: normally we would want to set that last argument to 1, to
+	 * force the system to delete the user's old vCard.  But it doesn't
+	 * have to, because the vcard_upload_beforesave() hook above
+	 * is going to notice what we're trying to do, and delete the old vCard.
+	 */
+        CtdlWriteObject(USERCALENDARROOM,	/* which room */
+			"text/calendar",	/* MIME type */
+			temp,			/* temp file */
+			u,			/* which user */
+			0,			/* not binary */
+			0,		/* don't delete others of this type */
+			0);			/* no flags */
+
+        unlink(temp);
+}
+
+
+/*
+ * Add a calendar object to the user's calendar
+ */
+void ical_add(icalcomponent *cal, int recursion_level) {
+	icalcomponent *c;
+
+	/*
+ 	 * The VEVENT subcomponent is the one we're interested in saving.
+	 */
+	if (icalcomponent_isa(cal) == ICAL_VEVENT_COMPONENT) {
+	
+		ical_write_to_cal(&CC->usersupp, cal);
+
+	}
+
+	/* If the component has subcomponents, recurse through them. */
+	for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
+	    (c != 0);
+	    c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
+		/* Recursively process subcomponent */
+		ical_add(c, recursion_level+1);
+	}
+
+}
+
+
+
+/*
+ * Callback function for mime parser that hunts for calendar content types
+ * and turns them into calendar objects
+ */
+void ical_process_request(char *name, char *filename, char *partnum, char *disp,
+		void *content, char *cbtype, size_t length, char *encoding,
+		void *cbuserdata) {
+
+	struct ical_respond_data *ird;
+
+	ird = (struct ical_respond_data *) cbuserdata;
+	if (strcasecmp(partnum, ird->desired_partnum)) return;
+	ird->cal = icalcomponent_new_from_string(content);
+}
+
+
+/*
+ * Respond to a meeting request.
+ */
+void ical_respond(long msgnum, char *partnum, char *action) {
+	struct CtdlMessage *msg;
+	struct ical_respond_data ird;
+
+	if (
+	   (strcasecmp(action, "accept"))
+	   && (strcasecmp(action, "decline"))
+	) {
+		cprintf("%d Action must be 'accept' or 'decline'\n",
+			ERROR + ILLEGAL_VALUE
+		);
 		return;
 	}
 
-	cprintf("%d I support|ICAL\n", CIT_OK);
-	return;
+	msg = CtdlFetchMessage(msgnum);
+	if (msg == NULL) {
+		cprintf("%d Message %ld not found.\n",
+			ERROR+ILLEGAL_VALUE,
+			(long)msgnum
+		);
+		return;
+	}
+
+	memset(&ird, 0, sizeof ird);
+	strcpy(ird.desired_partnum, partnum);
+	mime_parser(msg->cm_fields['M'],
+		NULL,
+		*ical_process_request,		/* callback function */
+		NULL, NULL,
+		(void *) &ird,			/* user data */
+		0
+	);
+
+	CtdlFreeMessage(msg);
+
+	if (ird.cal != NULL) {
+		/* FIXME do something with it */
+
+		/* Save this in the user's calendar if necessary */
+		if (!strcasecmp(action, "accept")) {
+			ical_add(ird.cal, 0);
+		}
+
+		/* Send a reply if necessary */
+		/* FIXME ... do this */
+
+		/* Delete the message from the inbox */
+		/* FIXME ... do this */
+
+		icalcomponent_free(ird.cal);
+		cprintf("%d ok\n", CIT_OK);
+		return;
+	}
+	else {
+		cprintf("%d No calendar object found\n", ERROR);
+		return;
+	}
+
+	/* should never get here */
 }
+
+
+
+
+/*
+ * All Citadel calendar commands from the client come through here.
+ */
+void cmd_ical(char *argbuf)
+{
+	char subcmd[SIZ];
+	long msgnum;
+	char partnum[SIZ];
+	char action[SIZ];
+
+	if (CtdlAccessCheck(ac_logged_in)) return;
+
+	extract(subcmd, argbuf, 0);
+
+	if (!strcmp(subcmd, "test")) {
+		cprintf("%d This server supports calendaring\n", CIT_OK);
+		return;
+	}
+
+	if (!strcmp(subcmd, "respond")) {
+		msgnum = extract_long(argbuf, 1);
+		extract(partnum, argbuf, 2);
+		extract(action, argbuf, 3);
+		ical_respond(msgnum, partnum, action);
+	}
+
+	else {
+		cprintf("%d Invalid subcommand\n", ERROR+CMD_NOT_SUPPORTED);
+		return;
+	}
+
+	/* should never get here */
+}
+
+#endif /* HAVE_ICAL_H */
 
 
 /*
@@ -136,8 +322,10 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 /* Register this module with the Citadel server. */
 char *Dynamic_Module_Init(void)
 {
-	CtdlRegisterSessionHook(ical_create_room, EVT_LOGIN);
 	CtdlRegisterMessageHook(ical_obj_beforesave, EVT_BEFORESAVE);
-	CtdlRegisterProtoHook(cmd_ical, "ICAL", "Register iCalendar support");
+#ifdef HAVE_ICAL_H
+	CtdlRegisterSessionHook(ical_create_room, EVT_LOGIN);
+	CtdlRegisterProtoHook(cmd_ical, "ICAL", "Citadel iCal commands");
+#endif
 	return "$Id$";
 }
