@@ -1,13 +1,13 @@
 # $Id$
 Summary: Citadel/UX, the flexible, powerful way to build online communities
 Name: citadel
-Version: 6.00
+Version: 6.01a
 Release: 1
 Copyright: GPL
 Group: Applications/Communications
 Source0: http://uncensored.citadel.org/pub/citadel/citadel-ux-%{PACKAGE_VERSION}.tar.gz
 Buildroot: /var/tmp/citadel-%{PACKAGE_VERSION}-root
-#Icon: citux-64x64.xpm
+Icon: citux-64x64.xpm
 Vendor: Citadel/UX Development Team
 URL:  http://uncensored.citadel.org/citadel/
 #Autoprov: false
@@ -83,39 +83,32 @@ upgrading this package.
 /usr/local/citadel/userlist
 /usr/local/citadel/utilsmenu
 /usr/local/citadel/weekly
+/usr/local/citadel/modules/libbio.so
+/usr/local/citadel/modules/libbio.la
 /usr/local/citadel/modules/libchat.so
 /usr/local/citadel/modules/libchat.la
-/usr/local/citadel/modules/libvcard.so
-/usr/local/citadel/modules/libvcard.la
-/usr/local/citadel/modules/libupgrade.so
-/usr/local/citadel/modules/libupgrade.la
+/usr/local/citadel/modules/libexpire.so
+/usr/local/citadel/modules/libexpire.la
+/usr/local/citadel/modules/libinetcfg.so
+/usr/local/citadel/modules/libinetcfg.la
+/usr/local/citadel/modules/liblistsub.so
+/usr/local/citadel/modules/liblistsub.la
+/usr/local/citadel/modules/libnetfilter.so
+/usr/local/citadel/modules/libnetfilter.la
 /usr/local/citadel/modules/libnetwork.so
 /usr/local/citadel/modules/libnetwork.la
 /usr/local/citadel/modules/libpas2.so
 /usr/local/citadel/modules/libpas2.la
-/usr/local/citadel/modules/libinetcfg.so
-/usr/local/citadel/modules/libinetcfg.la
 /usr/local/citadel/modules/librwho.so
 /usr/local/citadel/modules/librwho.la
-/usr/local/citadel/modules/libmoderate.so
-/usr/local/citadel/modules/libmoderate.la
-/usr/local/citadel/modules/libbio.so
-/usr/local/citadel/modules/libbio.la
-/usr/local/citadel/modules/libexpire.so
-/usr/local/citadel/modules/libexpire.la
+/usr/local/citadel/modules/libspam.so
+/usr/local/citadel/modules/libspam.la
+/usr/local/citadel/modules/libupgrade.so
+/usr/local/citadel/modules/libupgrade.la
 /usr/local/citadel/modules/libvandelay.so
 /usr/local/citadel/modules/libvandelay.la
-/usr/local/citadel/modules/libcalendar.so
-/usr/local/citadel/modules/libcalendar.la
-/usr/local/citadel/modules/liblistsub.so
-/usr/local/citadel/modules/liblistsub.la
-/usr/local/citadel/modules/libmrtg.so
-/usr/local/citadel/modules/libmrtg.la
-/usr/local/citadel/modules/libnetfilter.so
-/usr/local/citadel/modules/libnetfilter.la
-# Not in use yet
-#/usr/local/citadel/modules/libspam.so
-#/usr/local/citadel/modules/libspam.la
+/usr/local/citadel/modules/libvcard.so
+/usr/local/citadel/modules/libvcard.la
 %pre server
 # Add the "bbs" user
 /usr/sbin/useradd -c "Citadel" -s /bin/false -r -d /usr/local/citadel \
@@ -137,7 +130,7 @@ cd /usr/local/citadel
 %postun server
 if [ -f /etc/inittab ]; then
 	grep -v 'citserver' < /etc/inittab > /etc/inittab.new && \
-	mv /etc/inittab.new /etc/inittab
+	mv -f /etc/inittab.new /etc/inittab
 	/sbin/init q
 fi
 
@@ -160,23 +153,19 @@ required by the Citadel/UX server.
 %config(noreplace) /usr/local/citadel/network/mailinglists
 %config(noreplace) /usr/local/citadel/network/rnews.xref
 %config(noreplace) /usr/local/citadel/public_clients
-# KLUDGE!!!!  This catches help/? otherwise RPM barfs on it
-# Drawback, it's not marked as a config file, oh well
-/usr/local/citadel/help
-#%config /usr/local/citadel/help/?
-#%config /usr/local/citadel/help/aide
-#%config /usr/local/citadel/help/software
-#%config /usr/local/citadel/help/floors
-#%config(noreplace) /usr/local/citadel/help/hours
-#%config /usr/local/citadel/help/intro
-#%config /usr/local/citadel/help/mail
-#%config /usr/local/citadel/help/network
-#%config /usr/local/citadel/help/nice
-#%config(noreplace) /usr/local/citadel/help/policy
-#%config /usr/local/citadel/help/summary
-%config /usr/local/citadel/messages/changepw
+%config /usr/local/citadel/help/aide
+%config /usr/local/citadel/help/software
+%config /usr/local/citadel/help/floors
+%config(noreplace) /usr/local/citadel/help/hours
+%config /usr/local/citadel/help/intro
+%config /usr/local/citadel/help/mail
+%config /usr/local/citadel/help/network
+%config /usr/local/citadel/help/nice
+%config(noreplace) /usr/local/citadel/help/policy
+%config /usr/local/citadel/help/summary
+%config(noreplace) /usr/local/citadel/messages/changepw
 %config /usr/local/citadel/messages/aideopt
-%config /usr/local/citadel/messages/entermsg
+%config(noreplace) /usr/local/citadel/messages/entermsg
 %config /usr/local/citadel/messages/dotopt
 %config /usr/local/citadel/messages/mainmenu
 %config /usr/local/citadel/messages/entopt
@@ -186,8 +175,13 @@ required by the Citadel/UX server.
 %config(noreplace) /usr/local/citadel/messages/register
 %config(noreplace) /usr/local/citadel/messages/newuser
 %config /usr/local/citadel/messages/readopt
-%config /usr/local/citadel/messages/roomaccess
+%config(noreplace) /usr/local/citadel/messages/roomaccess
 %config(noreplace) /usr/local/citadel/messages/unlisted
+%post data
+# Yes, this is supposed to be executed twice; as ? might not yet exist
+# but we want it to be listed.  It's kludgey; sue me.
+ls /usr/local/citadel/help > "/usr/local/citadel/help/?"
+ls /usr/local/citadel/help > "/usr/local/citadel/help/?"
 
 %package client
 Summary: Client for the Citadel/UX messaging system
@@ -210,6 +204,7 @@ fi
 %package smtp
 Summary: SMTP server for the Citadel/UX messaging system
 Group: System Environment/Daemons
+Requires: citadel-server
 %description smtp
 This package provides the Citadel/UX SMTP service, which provides inbound
 and outbound SMTP service for the Citadel/UX messaging system.  Install this
@@ -226,6 +221,7 @@ docs/inetmailsetupmx.txt to configure SMTP service.
 %package imap
 Summary: IMAP server for the Citadel/UX messaging system
 Group: System Environment/Daemons
+Requires: citadel-server
 %description imap
 This package provides the Citadel/UX IMAP service, which provides IMAP
 connectivity.  Install this package if you want to connect to the Citadel/UX
@@ -239,6 +235,7 @@ access method, users can access both e-mail and all public rooms on the server.
 %package pop3
 Summary: POP3 server for the Citadel/UX messaging system
 Group: System Environment/Daemons
+Requires: citadel-server
 %description pop3
 This package provides the Citadel/UX POP3 service, which provides POP3
 connectivity.  Install this package if you want to connect to the Citadel/UX
@@ -249,4 +246,30 @@ users to be able to send mail.
 %files pop3
 /usr/local/citadel/modules/libpop3.so
 /usr/local/citadel/modules/libpop3.la
+
+%package mrtg
+Summary: Export Citadel/UX statistics to MRTG
+Group: System Environment/Daemons
+Requires: citadel-server
+Requires: mrtg
+%description mrtg
+This package allows Citadel/UX to export server statistics in a format
+compatible with the Multi Router Traffic Grapher.
+%files mrtg
+/usr/local/citadel/modules/libmrtg.so
+/usr/local/citadel/modules/libmrtg.la
+
+%package calendar
+Summary: Citadel/UX calendaring and scheduling services
+Group: System Environment/Daemons
+Requires: citadel-server
+Requires: libical.so
+%description calendar
+This package provides calendaring and scheduling services for Citadel/UX.
+It will interoperate with other calendaring packages that support the Internet
+standard vCalendar formats.  Currently only meeting scheduling is supported.
+(This is an experimental package!)
+%files calendar
+/usr/local/citadel/modules/libcalendar.so
+/usr/local/citadel/modules/libcalendar.la
 

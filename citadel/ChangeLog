@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.61  2002/11/10 09:14:16  error
+ * citadel.spec: updated for post-6.01
+
  Revision 601.60  2002/11/10 09:12:06  error
  * citadel.c: When terminating, don't mark messages new when using new
    message semantics
@@ -4194,3 +4197,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
