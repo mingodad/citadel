@@ -100,7 +100,7 @@ void display_netconf(void)
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Currently configured nodes</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
-	serv_puts("NSET nodelist");
+	serv_puts("CONF getsys|application/x-citadel-ignet-config");
 	serv_gets(buf);
 	if (buf[0] == '1') {
 		wprintf("<CENTER><TABLE border=0>\n");
