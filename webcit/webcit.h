@@ -253,7 +253,6 @@ void serv_write(char *buf, int nbytes);
 void serv_puts(char *string);
 void serv_printf(const char *format,...);
 void load_floorlist(void);
-void select_floor_to_edit_pic(void);
 void display_reg(int);
 void register_user(void);
 void display_changepw(void);

@@ -1,4 +1,7 @@
 $Log$
+Revision 323.55  2002/08/05 16:07:30  ajc
+* Moved "edit floor label pic" to the floor editing screen
+
 Revision 323.54  2002/08/05 15:53:00  ajc
 * Commands to add, change, delete floors
 
@@ -887,3 +890,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
