@@ -128,12 +128,22 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf)
 		retval = retval & ~UA_KNOWN & ~UA_GOTOALLOWED;
 	}
 
-	/* Aides get access to everything */
+	/* Aides get access to all private rooms */
 	if ( (userbuf->axlevel >= 6)
 	   && ((roombuf->QRflags & QR_MAILBOX) == 0) ) {
 		if (vbuf.v_flags & V_FORGET) {
 			retval = retval | UA_GOTOALLOWED;
 		}
+		else {
+			retval = retval | UA_KNOWN | UA_GOTOALLOWED;
+		}
+	}
+
+	/* On some systems, Aides can gain access to mailboxes as well */
+	if ( (config.c_aide_mailboxes)
+	   && (userbuf->axlevel >= 6)
+	   && (roombuf->QRflags & QR_MAILBOX) ) {
+		retval = retval | UA_GOTOALLOWED;
 	}
 
 NEWMSG:	/* By the way, we also check for the presence of new messages */

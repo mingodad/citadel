@@ -188,6 +188,7 @@ void cmd_conf(char *argbuf) {
 		cprintf("%d\n", config.c_imap_port);
 		cprintf("%ld\n", config.c_net_freq);
 		cprintf("%d\n", config.c_disable_newu);
+		cprintf("%d\n", config.c_aide_mailboxes);
 		cprintf("000\n");
 		}
 
@@ -284,6 +285,10 @@ void cmd_conf(char *argbuf) {
 			case 29: config.c_disable_newu = atoi(buf);
 				if (config.c_disable_newu != 0)
 					config.c_disable_newu = 1;
+				break;
+			case 30: config.c_aide_mailboxes = atoi(buf);
+				if (config.c_aide_mailboxes != 0)
+					config.c_aide_mailboxes = 1;
 				break;
 			}
 		    ++a;

@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.151  2002/03/13 03:58:29  ajc
+ * Site-configurable option "Allow system Aides to gain access to mailboxes"
+
  Revision 590.150  2002/03/13 03:34:38  nbryant
  /* when running in curses mode, the scroll bar in most
     xterm-style programs becomes useless, so it makes sense to
@@ -3496,4 +3499,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

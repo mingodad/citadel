@@ -690,7 +690,7 @@ void read_bio(void)
 void do_system_configuration(void)
 {
 	char buf[SIZ];
-	char sc[30][SIZ];
+	char sc[31][SIZ];
 	int expire_mode = 0;
 	int expire_value = 0;
 	int a;
@@ -705,7 +705,7 @@ void do_system_configuration(void)
 	if (buf[0] == '1') {
 		a = 0;
 		while (serv_gets(buf), strcmp(buf, "000")) {
-			if (a < 30) {
+			if (a < 31) {
 				strcpy(&sc[a][0], buf);
 			}
 			++a;
@@ -761,6 +761,9 @@ void do_system_configuration(void)
 	snprintf(sc[26], sizeof sc[26], "%d", (boolprompt(
 	      "Allow Aides to Zap (forget) rooms",
 						     atoi(&sc[26][0]))));
+	snprintf(sc[30], sizeof sc[29], "%d", (boolprompt(
+	      "Allow system Aides access to user mailboxes",
+						     atoi(&sc[30][0]))));
 
 	if (strlen(&sc[18][0]) > 0) logpages = 1;
 	else logpages = 0;
@@ -825,7 +828,7 @@ void do_system_configuration(void)
 		serv_puts("CONF set");
 		serv_gets(buf);
 		if (buf[0] == '4') {
-			for (a = 0; a < 30; ++a)
+			for (a = 0; a < 31; ++a)
 				serv_puts(&sc[a][0]);
 			serv_puts("000");
 		}

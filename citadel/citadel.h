@@ -119,6 +119,7 @@ struct config {
 	int c_imap_port;		/* IMAP listener port (usually 143) */
 	time_t c_net_freq;		/* how often to run the networker   */
 	char c_disable_newu;		/* disable NEWU command             */
+	char c_aide_mailboxes;		/* give Aides access to mailboxes   */
 };
 
 #define NODENAME		config.c_nodename
