@@ -63,6 +63,8 @@ void do_housekeeping(void)
 			/* Remove sessions flagged for kill */
 			if (sptr->killthis) {
 
+				lprintf(3, "Destroying session\n");
+
 				/* remove session from linked list */
 				if (sptr == SessionList) {
 					SessionList = SessionList->next;
