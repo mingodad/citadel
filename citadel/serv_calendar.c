@@ -7,6 +7,8 @@
  *
  */
 
+#define PRODID "-//Citadel//NONSGML Citadel Calendar//EN"
+
 #include "sysdep.h"
 #include <unistd.h>
 #include <sys/types.h>
@@ -29,7 +31,6 @@
 #include "tools.h"
 #include "msgbase.h"
 #include "mime_parser.h"
-
 
 #ifdef HAVE_ICAL_H
 
@@ -684,8 +685,9 @@ void ical_send_out_invitations(icalcomponent *cal) {
 	char attendees_string[SIZ];
 	char this_attendee[SIZ];
 	icalproperty *attendee = NULL;
-	char *summary_string = NULL;
+	char summary_string[SIZ];
 	icalproperty *summary = NULL;
+	icalcomponent *encaps = NULL;
 
 	if (cal == NULL) {
 		lprintf(3, "ERROR: trying to reply to NULL event?\n");
@@ -711,9 +713,6 @@ void ical_send_out_invitations(icalcomponent *cal) {
 		}
 	}
 
-	/* Set the method to REQUEST */
-	icalcomponent_set_method(the_request, ICAL_METHOD_REQUEST);
-
 	/* Determine who the recipients of this message are (the attendees) */
 	strcpy(attendees_string, "");
 	for (attendee = icalcomponent_get_first_property(the_request, ICAL_ATTENDEE_PROPERTY); attendee != NULL; attendee = icalcomponent_get_next_property(the_request, ICAL_ATTENDEE_PROPERTY)) {
@@ -732,9 +731,35 @@ void ical_send_out_invitations(icalcomponent *cal) {
 
 	lprintf(9, "attendees_string: <%s>\n", attendees_string);
 
+	/* Encapsulate the VEVENT component into a complete VCALENDAR */
+	encaps = icalcomponent_new(ICAL_VCALENDAR_COMPONENT);
+	if (encaps == NULL) {
+		lprintf(3, "Error at %s:%d - could not allocate component!\n",
+			__FILE__, __LINE__);
+		icalcomponent_free(the_request);
+		return;
+	}
+
+	/* Set the Product ID */
+	icalcomponent_add_property(encaps, icalproperty_new_prodid(PRODID));
+
+	/* Set the Version Number */
+	icalcomponent_add_property(encaps, icalproperty_new_version("2.0"));
+
+	/* Set the method to REQUEST */
+	icalcomponent_set_method(encaps, ICAL_METHOD_REQUEST);
+
+	/* FIXME: here we need to insert a VTIMEZONE object. */
+
+	/* Here we go: put the VEVENT into the VCALENDAR.  We now no longer
+	 * are responsible for "the_request"'s memory -- it will be freed
+	 * when we free "encaps".
+	 */
+	icalcomponent_add_component(encaps, the_request);
+
 	/* Serialize it */
-	serialized_request = strdoop(icalcomponent_as_ical_string(the_request));
-	icalcomponent_free(the_request);	/* don't need this anymore */
+	serialized_request = strdoop(icalcomponent_as_ical_string(encaps));
+	icalcomponent_free(encaps);	/* Don't need this anymore. */
 	if (serialized_request == NULL) return;
 
 	request_message_text = mallok(strlen(serialized_request) + SIZ);

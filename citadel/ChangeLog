@@ -1,4 +1,10 @@
  $Log$
+ Revision 601.83  2002/12/04 05:01:18  ajc
+ * When sending out invitations, encapsulate the VEVENT component inside a
+   VCALENDAR component, along with proper metadata such as product ID and
+   vcalendar version.  Move the METHOD:REQUEST property to the encapsulating
+   component rather than the event itself.  (Still need to add a VTIMEZONE).
+
  Revision 601.82  2002/12/03 04:49:15  ajc
  * Send out meeting requests!  (Need to test with various clients.)
 
@@ -4277,3 +4283,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
