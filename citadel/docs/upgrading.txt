@@ -28,8 +28,8 @@ a one-step migration path.
  
  
   
- Version 5.50 and up
- -------------------
+ Version 5.50 thru 5.69
+ ----------------------
  
  Upgrading from 5.50 and up is easy.  Unpack the source and run the
 configure script using "--with-prefix=/your/citadel/directory" just like you
@@ -41,11 +41,18 @@ banners, or anything else.
  
  
  
- ALL VERSIONS
- ------------
+ All versions up to 5.69
+ -----------------------
  
  After you upgrade, you MUST run "setup" before starting citserver!  If you do
 not do so, the server will notice the older version stamp on your data files
 and refuse to run.  Run setup, then start citserver.
+  
+  
+  
+ Versions 5.70 and up
+ --------------------
  
- 
+ No special action is necessary.  Just compile the code, make install-exec, and start
+up the Citadel server again.  The server will recognize what you are doing and perform
+some database upgrades internally during startup.

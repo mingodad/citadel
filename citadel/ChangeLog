@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.167  2002/03/29 04:43:15  ajc
+ * Removed the BMBX command.  Mailbox security update now runs automatically when the
+   server starts and it sees data files version <5.91.
+
  Revision 590.166  2002/03/26 05:58:35  nbryant
  don't check for a database driver until after the openssl check is
  complete. if the ld paths aren't set up for the db installation this
@@ -3562,4 +3566,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

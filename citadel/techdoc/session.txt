@@ -1896,12 +1896,8 @@ call QDIR with one parameter, the Internet e-mail address to look up.  QDIR
 returns OK followed by a Citadel address if there is a match, otherwise it
 returns ERROR+NOT_LOGGED_IN.
  
- 
- BMBX   (Bump MailBoX generation numbers)
- 
- This is a sooper-seekrit undocumented command.
   
-  
+   
  ASYN   (ASYNchronous message support)
  
  Negotiate the use of asynchronous, or unsolicited, protocol messages.  The

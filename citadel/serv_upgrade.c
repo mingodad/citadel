@@ -130,37 +130,6 @@ void do_pre555_usersupp_upgrade(void) {
 
 
 
-void check_server_upgrades(void) {
-
-	get_control();
-	lprintf(5, "Server-hosted upgrade level is %d.%02d\n",
-		(CitControl.version / 100),
-		(CitControl.version % 100) );
-
-	if (CitControl.version < REV_LEVEL) {
-		lprintf(5, "Server hosted updates need to be processed at "
-				"this time.  Please wait...\n");
-	}
-	else {
-		return;
-	}
-
-	if (CitControl.version < 555) do_pre555_usersupp_upgrade();
-
-	CitControl.version = REV_LEVEL;
-	put_control();
-}
-
-
-
-
-
-
-
-
-
-
-
 /* 
  * Back end processing function for cmd_bmbx
  */
@@ -194,7 +163,7 @@ void cmd_bmbx_backend(struct quickroom *qrbuf, void *data) {
 			else {
 
 				qr.QRgen = time(NULL);
-				lprintf(9, "  -- bumped!\n");
+				lprintf(9, "  -- fixed!\n");
 			}
 			lputroom(&qr);
 		}
@@ -206,28 +175,41 @@ void cmd_bmbx_backend(struct quickroom *qrbuf, void *data) {
 }
 
 /*
- * quick fix command to bump mailbox generation numbers
+ * quick fix to bump mailbox generation numbers
  */
-void cmd_bmbx(char *argbuf) {
-	int really_do_this  = 0;
-
-	if (CtdlAccessCheck(ac_internal)) return;
-	really_do_this = extract_int(argbuf, 0);
-
-	if (really_do_this != 1) {
-		cprintf("%d You didn't really want to do that.\n", CIT_OK);
-		return;
-	}
-
+void bump_mailbox_generation_numbers(void) {
+	lprintf(5, "Applying security fix to mailbox rooms\n");
 	ForEachRoom(cmd_bmbx_backend, NULL);
 	cmd_bmbx_backend(NULL, NULL);
-
-	cprintf("%d Mailbox generation numbers bumped.\n", CIT_OK);
 	return;
-
 }
 
 
+
+
+
+
+void check_server_upgrades(void) {
+
+	get_control();
+	lprintf(5, "Server-hosted upgrade level is %d.%02d\n",
+		(CitControl.version / 100),
+		(CitControl.version % 100) );
+
+	if (CitControl.version < REV_LEVEL) {
+		lprintf(5, "Server hosted updates need to be processed at "
+				"this time.  Please wait...\n");
+	}
+	else {
+		return;
+	}
+
+	if (CitControl.version < 555) do_pre555_usersupp_upgrade();
+	if (CitControl.version < 591) bump_mailbox_generation_numbers();
+
+	CitControl.version = REV_LEVEL;
+	put_control();
+}
 
 
 
@@ -242,6 +224,5 @@ void cmd_bmbx(char *argbuf) {
 char *Dynamic_Module_Init(void)
 {
 	check_server_upgrades();
-	CtdlRegisterProtoHook(cmd_bmbx, "BMBX", "Bump mailboxes");
 	return "$Id$";
 }
