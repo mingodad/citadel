@@ -1,4 +1,8 @@
  $Log$
+ Revision 580.24  2001/08/14 02:41:57  ajc
+ * Began the migration of netproc into part of the serv_network.c module instead
+   of a standalone program.
+
  Revision 580.23  2001/08/11 22:35:40  nbryant
  updated citadel-with-berkeley-db.txt.
   - updated build instructions
@@ -2677,4 +2681,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

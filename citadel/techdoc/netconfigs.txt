@@ -26,3 +26,14 @@ out messages should do stuff.
  DESCRIPTION:
     Defines a recipient to whom all messages in this room should be sent.  This
 is used for "list serve" applications.
+ 
+ 
+ INSTRUCTION:  ignet_push_share
+ SYNTAX:       ignet_push_share|uncnsrd
+ DESCRIPTION:
+    Specifies that the second argument is the name of a neighboring node on an
+IGnet (Citadel/UX networking) network, to which this room should be pushed
+(spooled).  Conceptually, this node will have a corresponding record pushing
+data in the other direction.
+ 
+ 

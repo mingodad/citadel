@@ -133,67 +133,131 @@ void network_spool_msg(long msgnum, void *userdata) {
 	struct namelist *nptr;
 	int err;
 	char *instr = NULL;
+	char *newpath = NULL;
 	size_t instr_len = SIZ;
+	struct CtdlMessage *msg;
 	struct CtdlMessage *imsg;
+	struct ser_ret sermsg;
+	FILE *fp;
+	char filename[SIZ];
 
 	sc = (struct SpoolControl *)userdata;
 
-	/* If no recipients, bail out now.
-	 * (May need to tweak this when we add other types of targets)
+	/*
+	 * Process mailing list recipients
 	 */
-	if (sc->listrecps == NULL) return;
+	if (sc->listrecps != NULL) {
 	
-	/* First, copy it to the spoolout room */
-	err = CtdlSaveMsgPointerInRoom(SMTP_SPOOLOUT_ROOM, msgnum, 0);
-	if (err != 0) return;
+		/* First, copy it to the spoolout room */
+		err = CtdlSaveMsgPointerInRoom(SMTP_SPOOLOUT_ROOM, msgnum, 0);
+		if (err != 0) return;
 
-	/* 
-	 * Figure out how big a buffer we need to allocate
-	 */
-	for (nptr = sc->listrecps; nptr != NULL; nptr = nptr->next) {
-		instr_len = instr_len + strlen(nptr->name);
+		/* 
+		 * Figure out how big a buffer we need to allocate
+	 	 */
+		for (nptr = sc->listrecps; nptr != NULL; nptr = nptr->next) {
+			instr_len = instr_len + strlen(nptr->name);
+		}
+	
+		/*
+	 	 * allocate...
+	 	 */
+		lprintf(9, "Generating delivery instructions\n");
+		instr = mallok(instr_len);
+		if (instr == NULL) {
+			lprintf(1, "Cannot allocate %d bytes for instr...\n",
+				instr_len);
+			abort();
+		}
+		sprintf(instr,
+			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
+			"bounceto|postmaster@%s\n" ,
+			SPOOLMIME, msgnum, time(NULL), config.c_fqdn );
+	
+		/* Generate delivery instructions for each recipient */
+		for (nptr = sc->listrecps; nptr != NULL; nptr = nptr->next) {
+			sprintf(&instr[strlen(instr)], "remote|%s|0||\n",
+				nptr->name);
+		}
+	
+		/*
+	 	 * Generate a message from the instructions
+	 	 */
+       		imsg = mallok(sizeof(struct CtdlMessage));
+		memset(imsg, 0, sizeof(struct CtdlMessage));
+		imsg->cm_magic = CTDLMESSAGE_MAGIC;
+		imsg->cm_anon_type = MES_NORMAL;
+		imsg->cm_format_type = FMT_RFC822;
+		imsg->cm_fields['A'] = strdoop("Citadel");
+		imsg->cm_fields['M'] = instr;
+	
+		/* Save delivery instructions in spoolout room */
+		CtdlSaveMsg(imsg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL);
+		CtdlFreeMessage(imsg);
 	}
-
+	
 	/*
-	 * allocate...
+	 * Process IGnet push shares
 	 */
-	lprintf(9, "Generating delivery instructions\n");
-	instr = mallok(instr_len);
-	if (instr == NULL) {
-		lprintf(1, "Cannot allocate %d bytes for instr...\n",
-			instr_len);
-		abort();
+	if (sc->ignet_push_shares != NULL) {
+	
+		msg = CtdlFetchMessage(msgnum);
+		if (msg != NULL) {
+
+			/* Prepend our node name to the Path field whenever
+			 * sending a message to another IGnet node
+			 */
+			if (msg->cm_fields['P'] == NULL) {
+				msg->cm_fields['P'] = strdoop("username");
+			}
+			newpath = mallok(strlen(msg->cm_fields['P']) + 
+					strlen(config.c_nodename) + 2);
+			sprintf(newpath, "%s!%s", config.c_nodename,
+					msg->cm_fields['P']);
+			phree(msg->cm_fields['P']);
+			msg->cm_fields['P'] = newpath;
+
+			/*
+			 * Force the message to appear in the correct room
+			 * on the far end by setting the C field correctly
+			 */
+			if (msg->cm_fields['C'] != NULL) {
+				phree(msg->cm_fields['C']);
+			}
+			msg->cm_fields['C'] = strdoop(CC->quickroom.QRname);
+
+			/* 
+			 * Now serialize it for transmission
+			 */
+			serialize_message(&sermsg, msg);
+			CtdlFreeMessage(msg);
+
+			/* Now send it to every node */
+			for (nptr = sc->ignet_push_shares; nptr != NULL;
+			    nptr = nptr->next) {
+
+				/* FIXME check for valid node name */
+				/* FIXME check for split horizon */
+
+				/* Send the message */
+				sprintf(filename, "./network/spoolout/%s",
+					nptr->name);
+				fp = fopen(filename, "ab");
+				if (fp != NULL) {
+					fwrite(sermsg.ser, sermsg.len, 1, fp);
+					fclose(fp);
+				}
+			}
+
+
+		}
+
 	}
-	sprintf(instr,
-		"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
-		"bounceto|postmaster@%s\n" ,
-		SPOOLMIME, msgnum, time(NULL), config.c_fqdn );
-
-	/* Generate delivery instructions for each recipient */
-	for (nptr = sc->listrecps; nptr != NULL; nptr = nptr->next) {
-		sprintf(&instr[strlen(instr)], "remote|%s|0||\n",
-			nptr->name);
-	}
-
-	/*
-	 * Generate a message from the instructions
-	 */
-       	imsg = mallok(sizeof(struct CtdlMessage));
-	memset(imsg, 0, sizeof(struct CtdlMessage));
-	imsg->cm_magic = CTDLMESSAGE_MAGIC;
-	imsg->cm_anon_type = MES_NORMAL;
-	imsg->cm_format_type = FMT_RFC822;
-	imsg->cm_fields['A'] = strdoop("Citadel");
-	imsg->cm_fields['M'] = instr;
-
-	/* Save delivery instructions in spoolout room */
-	CtdlSaveMsg(imsg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL);
-	CtdlFreeMessage(imsg);
 
 	/* update lastsent */
 	sc->lastsent = msgnum;
 }
-
+	
 
 
 
@@ -242,6 +306,13 @@ void network_spoolout_room(char *room_to_spool) {
 			extract(nptr->name, buf, 1);
 			sc.listrecps = nptr;
 		}
+		else if (!strcasecmp(instr, "ignet_push_share")) {
+			nptr = (struct namelist *)
+				mallok(sizeof(struct namelist));
+			nptr->next = sc.ignet_push_shares;
+			extract(nptr->name, buf, 1);
+			sc.ignet_push_shares = nptr;
+		}
 
 
 	}
@@ -270,6 +341,13 @@ void network_spoolout_room(char *room_to_spool) {
 			nptr = sc.listrecps->next;
 			phree(sc.listrecps);
 			sc.listrecps = nptr;
+		}
+		while (sc.ignet_push_shares != NULL) {
+			fprintf(fp, "ignet_push_share|%s\n",
+				sc.ignet_push_shares->name);
+			nptr = sc.ignet_push_shares->next;
+			phree(sc.ignet_push_shares);
+			sc.ignet_push_shares = nptr;
 		}
 
 		fclose(fp);
