@@ -13,6 +13,8 @@
 	  don't call master_cleanup() directly from signal handler.
 	* routines.c: prototype getutline() if necessary
 	* getutline.c: stupid bugfix
+	* acconfig.h, configure.in, locate_host.c, server.h: work around
+	  nonreentrant gethostbyaddr() on BSDI
 
 Mon Feb 15 22:59:00 EST 1999 Vaggelis Tsirkas
 	* citadel.c: increased hostname buffer size to handle very big names

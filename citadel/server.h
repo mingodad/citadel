@@ -119,7 +119,8 @@ struct ChatLine {
 #define S_CONTROL	8
 #define S_HOUSEKEEPING	9
 #define S_DATABASE	10
-#define MAX_SEMAPHORES	11
+#define S_NETDB		11
+#define MAX_SEMAPHORES	12
 
 
 /*

@@ -35,6 +35,10 @@ void locate_host(char *tbuf)
 	strcpy(tbuf,config.c_fqdn);
 	return;
 	}
+
+#ifdef HAVE_NONREENTRANT_NETDB
+    begin_critical_section(S_NETDB);
+#endif
      
     if((ch = gethostbyaddr((char *) &cs.sin_addr, sizeof(cs.sin_addr),  
 	  AF_INET)) == NULL) { 
@@ -48,5 +52,10 @@ void locate_host(char *tbuf)
 		}
 
 	strncpy(tbuf,ch->h_name, 24);
+
+#ifdef HAVE_NONREENTRANT_NETDB
+	end_critical_section(S_NETDB);
+#endif
+
 	tbuf[24] = 0;
 	}
