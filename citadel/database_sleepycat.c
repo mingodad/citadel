@@ -42,14 +42,14 @@ DB_ENV *dbenv;			/* The DB environment (global) */
 
 struct cdbtsd {			/* Thread-specific DB stuff */
 	DB_TXN *tid;		/* Transaction handle */
-	DBC *cursor;		/* Cursor, for traversals... */
+	DBC *cursors[MAXCDB];	/* Cursors, for traversals... */
 };
 
 int num_ssd = 0;
 
 static pthread_key_t tsdkey;
 
-#define MYCURSOR	(((struct cdbtsd*)pthread_getspecific(tsdkey))->cursor)
+#define MYCURSORS	(((struct cdbtsd*)pthread_getspecific(tsdkey))->cursors)
 #define MYTID		(((struct cdbtsd*)pthread_getspecific(tsdkey))->tid)
 
 /* just a little helper function */
@@ -94,11 +94,14 @@ static void cclose(DBC *cursor) {
 static void check_handles(void *arg) {
 	if (arg != NULL) {
 		struct cdbtsd *tsd = (struct cdbtsd *)arg;
+		int i;
 
-		if (tsd->cursor != NULL) {
-			lprintf(1, "cdb_*: cursor still in progress!");
-			abort();
-		}
+		for (i = 0; i < MAXCDB; i++)
+		  if (tsd->cursors[i] != NULL)
+		    {
+		      lprintf(1, "cdb_*: cursor still in progress on cdb %s!", i);
+		      abort();
+		    }
 
 		if (tsd->tid != NULL) {
 			lprintf(1, "cdb_*: transaction still in progress!");
@@ -131,7 +134,8 @@ void cdb_allocate_tsd(void) {
 	tsd = mallok(sizeof *tsd);
 
 	tsd->tid = NULL;
-	tsd->cursor = NULL;
+
+	memset(tsd->cursors, 0, sizeof tsd->cursors);
 	pthread_setspecific(tsdkey, tsd);
 }
 
@@ -519,8 +523,8 @@ void cdb_rewind(int cdb)
 {
 	int ret = 0;
 
-	if (MYCURSOR != NULL)
-		cclose(MYCURSOR);
+	if (MYCURSORS[cdb] != NULL)
+		cclose(MYCURSORS[cdb]);
 
 	if (MYTID == NULL) {
 		lprintf(1, "cdb_rewind: ERROR: cursor use outside transaction\n");
@@ -530,7 +534,7 @@ void cdb_rewind(int cdb)
 	/*
 	 * Now initialize the cursor
 	 */
-	ret = dbp[cdb]->cursor(dbp[cdb], MYTID, &MYCURSOR, 0);
+	ret = dbp[cdb]->cursor(dbp[cdb], MYTID, &MYCURSORS[cdb], 0);
 	if (ret) {
 		lprintf(1, "cdb_rewind: db_cursor: %s\n", db_strerror(ret));
 		abort();
@@ -553,7 +557,7 @@ struct cdbdata *cdb_next_item(int cdb)
         memset(&data, 0, sizeof(data));
 	data.flags = DB_DBT_MALLOC;
 
-	ret = MYCURSOR->c_get(MYCURSOR,
+	ret = MYCURSORS[cdb]->c_get(MYCURSORS[cdb],
 		&key, &data, DB_NEXT);
 	
 	if (ret) {
@@ -562,8 +566,8 @@ struct cdbdata *cdb_next_item(int cdb)
 				cdb, db_strerror(ret));
 			abort();
 		}
-		cclose(MYCURSOR);
-		MYCURSOR = NULL;
+		cclose(MYCURSORS[cdb]);
+		MYCURSORS[cdb] = NULL;
 		return NULL;		/* presumably, end of file */
 	}
 
@@ -592,17 +596,23 @@ void cdb_begin_transaction(void) {
 }
 
 void cdb_end_transaction(void) {
-	if (MYCURSOR != NULL) {
-		lprintf(1, "cdb_end_transaction: WARNING: cursor still open at transaction end\n");
-		cclose(MYCURSOR);
-		MYCURSOR = NULL;
-	}
-	if (MYTID == NULL) {
-		lprintf(1, "cdb_end_transaction: ERROR: txcommit(NULL) !!\n");
-		abort();
-	} else
-		txcommit(MYTID);
+  int i;
 
-	MYTID = NULL;
+  for (i = 0; i < MAXCDB; i++)
+    if (MYCURSORS[i] != NULL) {
+      lprintf(1, "cdb_end_transaction: WARNING: cursor %s still open at transaction end\n", i);
+      cclose(MYCURSORS[i]);
+      MYCURSORS[i] = NULL;
+    }
+
+  if (MYTID == NULL)
+    {
+      lprintf(1, "cdb_end_transaction: ERROR: txcommit(NULL) !!\n");
+      abort();
+    }
+  else
+    txcommit(MYTID);
+
+  MYTID = NULL;
 }
 

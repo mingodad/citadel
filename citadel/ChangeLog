@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.9  2001/07/27 02:57:43  nbryant
+ support one cursor per database rather than one global cursor
+
  Revision 580.8  2001/07/27 01:32:07  nbryant
  remove the automatic transaction demarcation on singleton read operations
 
@@ -2591,3 +2594,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
