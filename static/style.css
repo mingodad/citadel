@@ -83,6 +83,14 @@ a:active {
 	color: #000044;
 }
 
+.customize {
+	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
+	font-size: 6pt;
+	font-style: italic;
+	color: #000044;
+	background-color: #DDDDCC;
+}
+
 .room_banner_room_name {
 	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
 	font-size: 14pt;
