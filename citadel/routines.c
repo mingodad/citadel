@@ -454,9 +454,11 @@ void locate_host(char *hbuf)
 #ifdef HAVE_UT_TYPE
 	if (put->ut_type == USER_PROCESS) {
 #endif
+#ifdef HAVE_UT_HOST
 		if (*put->ut_host)
 			safestrncpy(hbuf, put->ut_host, 24);
 		else
+#endif
 			safestrncpy(hbuf, put->ut_line, 24);
 #ifdef HAVE_UT_TYPE
 		}
