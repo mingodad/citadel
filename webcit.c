@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <errno.h>
 
 int wc_session;
 char wc_host[256];
@@ -39,35 +40,81 @@ void output_reconnect_cookies() {
 		wc_roomname);
 	}
 
+void output_static(char *what) {
+	char buf[256];
+	FILE *fp;
+
+	sprintf(buf, "static/%s", what);
+	fp = fopen(buf, "rb");
+	if (fp == NULL) {
+		printf("HTTP/1.0 404 %s\n", strerror(errno));
+		printf("Server: WebCit v2 (Velma)\n");
+		printf("Connection: close\n");
+		output_reconnect_cookies();
+		printf("Content-Type: text/plain\n");
+		sprintf(buf, "%s: %s\n", what, strerror(errno));
+		printf("Content-length: %d\n", strlen(buf));
+		printf("\n");
+		fwrite(buf, strlen(buf), 1, stdout);
+		}
+	else {
+		printf("HTTP/1.0 200 OK\n");
+		printf("Server: WebCit v2 (Velma)\n");
+		printf("Connection: close\n");
+		output_reconnect_cookies();
+		printf("Content-Type: text/plain\n");
+		printf("Content-length: 11\n");
+		printf("\n");
+		printf("Hi from IG\n");
+		fclose(fp);
+		}
+	}
+
+
 void session_loop() {
+	char cmd[256];
 	char buf[256];
 	char content[4096];
 	static int TransactionCount = 0;
+	int a;
 
+	getz(cmd);
 	do {
 		getz(buf);
 		} while(strlen(buf)>0);
 
-	printf("HTTP/1.0 200 OK\n");
-	printf("Server: WebCit v2 (Velma)\n");
-	printf("Connection: close\n");
-	output_reconnect_cookies();
-	printf("Content-Type: text/html\n");
+	fprintf(stderr, "Command: %s\n", cmd);
+	fflush(stderr);
 
-	strcpy(content, "");
+	if (!strncasecmp(cmd, "GET /static/", 12)) {
+		strcpy(buf, &cmd[12]);
+		for (a=0; a<strlen(buf); ++a) if (isspace(buf[a])) buf[a]=0;
+		output_static(buf);
+		}
 
-	sprintf(&content[strlen(content)],
-		"<HTML><HEAD><TITLE>WebCit</TITLE></HEAD><BODY>\n");
-	sprintf(&content[strlen(content)],
-		"TransactionCount is %d<HR>\n", ++TransactionCount);
-	sprintf(&content[strlen(content)],
-		"You're in session %d<BR>\n", wc_session);
-	sprintf(&content[strlen(content)],
-		"</BODY></HTML>\n");
+	else {
+		printf("HTTP/1.0 200 OK\n");
+		printf("Server: WebCit v2 (Velma)\n");
+		printf("Connection: close\n");
+		output_reconnect_cookies();
+		printf("Content-Type: text/html\n");
+	
+		strcpy(content, "");
+	
+		sprintf(&content[strlen(content)],
+			"<HTML><HEAD><TITLE>WebCit</TITLE></HEAD><BODY>\n");
+		sprintf(&content[strlen(content)],
+			"TransactionCount is %d<HR>\n", ++TransactionCount);
+		sprintf(&content[strlen(content)],
+			"You're in session %d<BR>\n", wc_session);
+		sprintf(&content[strlen(content)],
+			"</BODY></HTML>\n");
+	
+		printf("Content-length: %d\n", strlen(content));
+		printf("\n");
+		fwrite(content, strlen(content), 1, stdout);
+		}
 
-	printf("Content-length: %d\n", strlen(content));
-	printf("\n");
-	fwrite(content, strlen(content), 1, stdout);
 	fflush(stdout);
 	}
 

@@ -33,6 +33,7 @@ struct wc_session {
 	int session_id;			/* Session ID */
 	int inpipe[2];			/* Data from webserver to session */
 	int outpipe[2];			/* Data from session to webserver */
+	pthread_mutex_t critter;	/* Critical section uses pipes */
 	};
 
 struct wc_session *SessionList = NULL;
@@ -104,6 +105,7 @@ void *context_loop(int *socknumptr) {
 		TheSession = (struct wc_session *)
 			malloc(sizeof(struct wc_session));
 		TheSession->session_id = GenerateSessionID();
+		pthread_mutex_init(&TheSession->critter, NULL);
 		pipe(TheSession->inpipe);
 		pipe(TheSession->outpipe);
 		TheSession->next = SessionList;
@@ -128,6 +130,7 @@ void *context_loop(int *socknumptr) {
 	/* 
 	 * Send the request to the appropriate session
 	 */
+	pthread_mutex_lock(&TheSession->critter);
 	for (a=0; a<num_lines; ++a) {
 		write(TheSession->inpipe[1], &req[a][0], strlen(&req[a][0]));
 		write(TheSession->inpipe[1], "\n", 1);
@@ -150,6 +153,8 @@ void *context_loop(int *socknumptr) {
 		read(TheSession->outpipe[0], buf, 1);
 		write(sock, buf, 1);
 		}
+
+	pthread_mutex_unlock(&TheSession->critter);
 
 	/*
 	 * Now our HTTP connection is done.  It would be relatively easy
