@@ -34,23 +34,51 @@ void display_inetconf(void)
 	char buf[SIZ];
 	char ename[SIZ];
 	char etype[SIZ];
+	int i;
+	int which;
 
-	char *ic_localhost;
-	char *ic_gwdom;
-	char *ic_directory;
-	char *ic_spamass;
-	char *ic_rbl;
-	char *ic_smarthost;
+	enum {
+		ic_localhost,
+		ic_gwdom,
+		ic_directory,
+		ic_spamass,
+		ic_rbl,
+		ic_smarthost,
+		ic_max
+	};
+	char *ic_spec[ic_max];
 	char *ic_misc;
 
-	char *which = NULL;
+	char *ic_keyword[] = {
+		"localhost",
+		"gatewaydomain",
+		"directory",
+		"spamassassin",
+		"rbl",
+		"smarthost"
+	};
 
-	ic_localhost = strdup("");
-	ic_gwdom = strdup("");
-	ic_directory = strdup("");
-	ic_spamass = strdup("");
-	ic_rbl = strdup("");
-	ic_smarthost = strdup("");
+	char *ic_boxtitle[] = {
+		"Local host aliases",
+		"Gateway domains",
+		"Directory domains",
+		"SpamAssassin hosts",
+		"RBL hosts",
+		"Smart hosts"
+	};
+
+	char *ic_desc[] = {
+		"(domains for which this host receives mail)",
+		"(domains whose subdomains match Citadel hosts)",
+		"(domains mapped with the Global Address Book)",
+		"(hosts running the SpamAssassin service)",
+		"(hosts running a Realtime Blackhole List)",
+		"(if present, forward all outbound mail to one of these hosts)"
+	};
+
+	for (i=0; i<ic_max; ++i) {
+		ic_spec[i] = strdup("");
+	}
 	ic_misc = strdup("");
 
 	output_headers(3);
@@ -63,39 +91,59 @@ void display_inetconf(void)
 	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
 
 		extract(ename, buf, 0);
-		extract(etype, buf, 0);
-		which = NULL;
-		if (!strcasecmp(etype, "localhost")) which = ic_localhost;
-		else if (!strcasecmp(etype, "gatewaydomain")) which = ic_gwdom;
-		else if (!strcasecmp(etype, "directory")) which = ic_directory;
-		else if (!strcasecmp(etype, "spamassassin")) which = ic_directory;
-		else if (!strcasecmp(etype, "rbl")) which = ic_rbl;
-		else if (!strcasecmp(etype, "smarthost")) which = ic_smarthost;
+		extract(etype, buf, 1);
+		which = (-1);
+		for (i=0; i<ic_max; ++i) {
+			if (!strcasecmp(etype, ic_keyword[i])) {
+				which = i;
+			}
+		}
 
-		if (which != NULL) {
-			which = realloc(which, strlen(which) + strlen(ename) + 2);
-			if (strlen(which) > 0) strcat(which, "\n");
-			strcat(which, ename);
+		if (which >= 0) {
+			ic_spec[which] = realloc(ic_spec[which], strlen(ic_spec[which]) + strlen(ename) + 2);
+			if (strlen(ic_spec[which]) > 0) strcat(ic_spec[which], "\n");
+			strcat(ic_spec[which], ename);
 		}
 		else {
 			ic_misc = realloc(ic_misc, strlen(ic_misc) + strlen(buf) + 2);
 			if (strlen(ic_misc) > 0) strcat(ic_misc, "\n");
-			strcat(which, buf);
+			strcat(ic_misc, buf);
 		}
 
-		/* FIXME finish this */
-		escputs(buf);
-		wprintf("<BR>\n");
 	}
+
+	wprintf("<TABLE border=0 width=100%%>\n");
+	for (which=0; which<ic_max; ++which) {
+		if (which % 2 == 0) {
+			wprintf("<TR>");
+		}
+		wprintf("<TD>");
+		svprintf("BOXTITLE", WCS_STRING, ic_boxtitle[which]);
+		do_template("beginbox");
+		wprintf("<span class=\"menudesc\">");
+		escputs(ic_desc[which]);
+		wprintf("</span><br>");
+		if (strlen(ic_spec[which]) > 0) {
+			for (i=0; i<num_tokens(ic_spec[which], '\n'); ++i) {
+				extract_token(buf, ic_spec[which], i, '\n');
+				escputs(buf);
+				wprintf("<BR>\n");
+			}
+		}
+		wprintf("<div align=right>(add)</div>\n");
+		do_template("endbox");
+		wprintf("</TD>");
+		if (which % 2 != 0) {
+			wprintf("</TR>");
+		}
+	}
+	wprintf("</TABLE>\n");
 
 	wDumpContent(1);
 
-	free(ic_localhost);
-	free(ic_gwdom);
-	free(ic_directory);
-	free(ic_spamass);
-	free(ic_rbl);
-	free(ic_smarthost);
+	for (i=0; i<ic_max; ++i) {
+		free(ic_spec[i]);
+	}
 	free(ic_misc);
 }
 
