@@ -111,7 +111,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	while (bytes < total_len) {
 		thisblock = 4000;
 		if ((total_len - bytes) < thisblock) thisblock = total_len - bytes;
-		sprintf(buf, "READ %d|%d", bytes, thisblock);
+		sprintf(buf, "READ %d|%d", (int)bytes, (int)thisblock);
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] == '6') {
