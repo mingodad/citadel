@@ -161,15 +161,17 @@ int set_attr(int sval, char *prompt, unsigned int sbit)
 	int temp;
 
 	temp = sval;
-	color(3);
-	printf("%45s [", prompt);
-	color(1);
+	color(DIM_WHITE);
+	printf("%45s ", prompt);
+	color(DIM_MAGENTA);
+	printf("[");
+	color(BRIGHT_MAGENTA);
 	printf("%3s", ((temp&sbit) ? "Yes":"No"));
-	color(3);
+	color(DIM_MAGENTA);
 	printf("]? ");
-	color(2);
+	color(BRIGHT_CYAN);
 	a=yesno_d(temp&sbit);
-	color(7);
+	color(DIM_WHITE);
 	temp=(temp|sbit);
 	if (!a) temp=(temp^sbit);
 	return(temp);

@@ -1,4 +1,28 @@
 /* $Id$ */
+
+/*
+ * Colors for color() command
+ */
+#define DIM_BLACK	0
+#define DIM_RED		1
+#define DIM_GREEN	2
+#define DIM_YELLOW	3
+#define DIM_BLUE	4
+#define DIM_MAGENTA	5
+#define DIM_CYAN	6
+#define DIM_WHITE	7
+#define BRIGHT_BLACK	8
+#define BRIGHT_RED	9
+#define BRIGHT_GREEN	10
+#define BRIGHT_YELLOW	11
+#define BRIGHT_BLUE	12
+#define BRIGHT_MAGENTA	13
+#define BRIGHT_CYAN	14
+#define BRIGHT_WHITE	15
+
+/*
+ * declarations
+ */
 void load_command_set(void);
 void sttybbs(int cmd);
 void newprompt(char *prompt, char *str, int len);

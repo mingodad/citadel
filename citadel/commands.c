@@ -48,7 +48,7 @@ struct citcmd {
 	int c_cmdnum;
 	int c_axlevel;
 	char c_keys[5][64];
-	};
+};
 
 #define IFNEXPERT if ((userflags&US_EXPERT)==0)
 
@@ -76,56 +76,60 @@ int enable_color = 0;			/* nonzero for ANSI color */
 /*
  * print_express()  -  print express messages if there are any
  */
-void print_express(void) {
+void print_express(void)
+{
 	char buf[256];
 	FILE *outpipe;
 
-	if (express_msgs == 0) return;
+	if (express_msgs == 0)
+		return;
 	express_msgs = 0;
 	serv_puts("PEXP");
 	serv_gets(buf);
-	if (buf[0]!='1') return;
+	if (buf[0] != '1')
+		return;
 
 	if (strlen(rc_exp_cmd) > 0) {
 		outpipe = popen(rc_exp_cmd, "w");
 		if (outpipe != NULL) {
-			while (serv_gets(buf), strcmp(buf,"000")) {
+			while (serv_gets(buf), strcmp(buf, "000")) {
 				fprintf(outpipe, "%s\n", buf);
-				}
+			}
 			pclose(outpipe);
 			return;
-			}
 		}
-
+	}
 	/* fall back to built-in express message display */
 	if (rc_exp_beep) {
-		putc(7,stdout);
-		}
-	color(1);
-	printf("---\n");
-	while (serv_gets(buf), strcmp(buf,"000")) {
-		printf("%s\n",buf);
-		}
-	printf("---\n");
-	color(7);
+		putc(7, stdout);
 	}
+	color(BRIGHT_RED);
+	printf("---\n");
+	while (serv_gets(buf), strcmp(buf, "000")) {
+		printf("%s\n", buf);
+	}
+	printf("---\n");
+	color(DIM_WHITE);
+}
 
 
 void set_keepalives(int s)
 {
-	keepalives_enabled = (char)s;
-	}
+	keepalives_enabled = (char) s;
+}
 
 /* 
  * This loop handles the "keepalive" messages sent to the server when idling.
  */
-void do_keepalive(void) {
+void do_keepalive(void)
+{
 	char buf[256];
 	static time_t idlet = 0;
 	time_t now;
 
 	time(&now);
-	if ((now - idlet) < ((long)S_KEEPALIVE)) return;
+	if ((now - idlet) < ((long) S_KEEPALIVE))
+		return;
 	time(&idlet);
 
 	/* Do a space-backspace to keep socksified telnet sessions open */
@@ -136,31 +140,32 @@ void do_keepalive(void) {
 		serv_puts("NOOP");
 		if (keepalives_enabled == KA_YES) {
 			serv_gets(buf);
-			if (buf[3]=='*') {
+			if (buf[3] == '*') {
 				express_msgs = 1;
 				if (ok_to_interrupt == 1) {
 					printf("\r%64s\r", "");
 					print_express();
-					printf("%s%c ",room_name,
-						room_prompt(room_flags));
-					fflush(stdout);	
-					}
+					printf("%s%c ", room_name,
+					       room_prompt(room_flags));
+					fflush(stdout);
 				}
 			}
 		}
 	}
+}
 
 
-int inkey(void) {		/* get a character from the keyboard, with   */
-	int a;		/* the watchdog timer in effect if necessary */
-        fd_set rfds;
-        struct timeval tv;
+int inkey(void)
+{				/* get a character from the keyboard, with   */
+	int a;			/* the watchdog timer in effect if necessary */
+	fd_set rfds;
+	struct timeval tv;
 	time_t start_time, now;
 	char inbuf[2];
 
 	fflush(stdout);
 	time(&start_time);
-	
+
 	do {
 
 		/* This loop waits for keyboard input.  If the keepalive
@@ -170,19 +175,18 @@ int inkey(void) {		/* get a character from the keyboard, with   */
 		do {
 			do_keepalive();
 			FD_ZERO(&rfds);
-			FD_SET(0,&rfds);
+			FD_SET(0, &rfds);
 			tv.tv_sec = S_KEEPALIVE;
 			tv.tv_usec = 0;
 
 			time(&now);
-			if (((now-start_time) > SLEEPING)
-			   && (SLEEPING != 0) && (getppid()==1)) {
+			if (((now - start_time) > SLEEPING)
+			    && (SLEEPING != 0) && (getppid() == 1)) {
 				printf("Sleeping? Call again.\n");
 				logoff(SIGALRM);
-				}
-
+			}
 			select(1, &rfds, NULL, NULL, &tv);
-			} while (!FD_ISSET(0, &rfds));
+		} while (!FD_ISSET(0, &rfds));
 
 
 
@@ -192,68 +196,103 @@ int inkey(void) {		/* get a character from the keyboard, with   */
 		 */
 		read(0, inbuf, 1);
 		a = inbuf[0];
-		if (a==127) a=8;
-		if (a>126) a=0;
-		if (a==10) a=13;
-		if (((a!=4)&&(a!=13)&&(a!=8)&&(a!=NEXT_KEY)&&(a!=STOP_KEY))
-			&& ((a<32)||(a>126))) a=0;
-		} while(a==0);
-	return(a);
-	}
+		if (a == 127)
+			a = 8;
+		if (a > 126)
+			a = 0;
+		if (a == 10)
+			a = 13;
+		if (((a != 4) && (a != 13) && (a != 8) && (a != NEXT_KEY) && (a != STOP_KEY))
+		    && ((a < 32) || (a > 126)))
+			a = 0;
+	} while (a == 0);
+	return (a);
+}
 
 
-int yesno(void) { /* Returns 1 for yes, 0 for no */
-int a;
+int yesno(void)
+{				/* Returns 1 for yes, 0 for no */
+	int a;
 	while (1) {
-		a=inkey(); a=tolower(a);
-		if (a=='y') { printf("Yes\n"); return(1); }
-		if (a=='n') { printf("No\n");  return(0); }
+		a = inkey();
+		a = tolower(a);
+		if (a == 'y') {
+			printf("Yes\n");
+			return (1);
+		}
+		if (a == 'n') {
+			printf("No\n");
+			return (0);
 		}
 	}
+}
 
-int yesno_d(int d) /* Returns 1 for yes, 0 for no, arg is default value */
-       {
-int a;
-	while (1) {
-		a=inkey(); a=tolower(a);
-		if (a==13) a=(d ? 'y' : 'n');
-		if (a=='y') { printf("Yes\n"); return(1); }
-		if (a=='n') { printf("No\n");  return(0); }
-		}
-	}
-
-
-
-
-void getline(char *string, int lim)	/* Gets a line from the terminal */
-               		/* Pointer to string buffer */
-        		/* Maximum length - if negative, no-show */
+/* Returns 1 for yes, 0 for no, arg is default value */
+int yesno_d(int d)
 {
-	int a,b;
+	int a;
+	while (1) {
+		a = inkey();
+		a = tolower(a);
+		if (a == 13)
+			a = (d ? 'y' : 'n');
+		if (a == 'y') {
+			printf("Yes\n");
+			return (1);
+		}
+		if (a == 'n') {
+			printf("No\n");
+			return (0);
+		}
+	}
+}
+
+
+
+
+/* Gets a line from the terminal */
+/* string == Pointer to string buffer */
+/* lim == Maximum length - if negative, no-show */
+void getline(char *string, int lim) 
+{
+	int a, b;
 	char flag = 0;
 
-	if (lim<0) { lim=(0-lim); flag=1; }
-	strcpy(string,"");
-	gl_string = string;
-GLA:	a=inkey(); a=(a&127);
-	if ((a==8)&&(strlen(string)==0)) goto GLA;
-	if ((a!=13)&&(a!=8)&&(strlen(string)==lim)) goto GLA;
-	if ((a==8)&&(string[0]!=0)) {
-		string[strlen(string)-1]=0;
-		putc(8,stdout); putc(32,stdout); putc(8,stdout); goto GLA; }
-	if ((a==13)||(a==10)) {
-		putc(13,stdout);
-		putc(10,stdout);
-		return;
-		}
-	if (a<32) a='.';
-	b=strlen(string);
-	string[b]=a;
-	string[b+1]=0;
-	if (flag==0) putc(a,stdout);
-	if (flag==1) putc('*',stdout);
-	goto GLA;
+	if (lim < 0) {
+		lim = (0 - lim);
+		flag = 1;
 	}
+	strcpy(string, "");
+	gl_string = string;
+      GLA:a = inkey();
+	a = (a & 127);
+	if ((a == 8) && (strlen(string) == 0))
+		goto GLA;
+	if ((a != 13) && (a != 8) && (strlen(string) == lim))
+		goto GLA;
+	if ((a == 8) && (string[0] != 0)) {
+		string[strlen(string) - 1] = 0;
+		putc(8, stdout);
+		putc(32, stdout);
+		putc(8, stdout);
+		goto GLA;
+	}
+	if ((a == 13) || (a == 10)) {
+		putc(13, stdout);
+		putc(10, stdout);
+		return;
+	}
+	if (a < 32)
+		a = '.';
+	b = strlen(string);
+	string[b] = a;
+	string[b + 1] = 0;
+	if (flag == 0)
+		putc(a, stdout);
+	if (flag == 1)
+		putc('*', stdout);
+	goto GLA;
+}
 
 
 /*
@@ -264,32 +303,43 @@ void strprompt(char *prompt, char *str, int len)
 {
 	char buf[128];
 	print_express();
-	color(3);
-	printf("%s [", prompt);
-	color(1);
+	color(DIM_WHITE);
+	printf("%s ", prompt);
+	color(DIM_MAGENTA);
+	printf("[");
+	color(BRIGHT_MAGENTA);
 	printf("%s", str);
-	color(3);
+	color(DIM_MAGENTA);
 	printf("]: ");
-	color(2);
-	getline(buf,len);
-	color(7);
-	if (buf[0]!=0) strcpy(str,buf);
-	}
+	color(DIM_WHITE);
+	getline(buf, len);
+	color(BRIGHT_CYAN);
+	if (buf[0] != 0)
+		strcpy(str, buf);
+	color(DIM_WHITE);
+}
 
 /*
  * boolprompt()  -  prompt for a yes/no, print the existing value and
  *                  allow the user to press return to keep it...
  */
-int boolprompt(char *prompt, int prev_val) {
-	color(3);
-	printf("%s [", prompt);
-	color(1);
+int boolprompt(char *prompt, int prev_val)
+{
+	int r;
+
+	color(DIM_WHITE);
+	printf("%s ", prompt);
+	color(DIM_MAGENTA);
+	printf(" [");
+	color(BRIGHT_MAGENTA);
 	printf("%s", (prev_val ? "Yes" : "No"));
-	color(3);
+	color(DIM_MAGENTA);
 	printf("]: ");
-	color(7);
-	return(yesno_d(prev_val));
-	}
+	color(BRIGHT_CYAN);
+	r = (yesno_d(prev_val));
+	color(DIM_WHITE);
+	return r;
+}
 
 /* 
  * intprompt()  -  like strprompt(), except for an integer
@@ -301,14 +351,16 @@ int intprompt(char *prompt, int ival, int imin, int imax)
 	int i;
 	i = ival;
 	do {
-		snprintf(buf,sizeof buf,"%d",i);
-		strprompt(prompt,buf,15);
-		i=atoi(buf);
-		if (i<imin) printf("*** Must be no less than %d.\n",imin);
-		if (i>imax) printf("*** Must be no more than %d.\n",imax);
-		} while((i<imin)||(i>imax));
-	return(i);
-	}
+		snprintf(buf, sizeof buf, "%d", i);
+		strprompt(prompt, buf, 15);
+		i = atoi(buf);
+		if (i < imin)
+			printf("*** Must be no less than %d.\n", imin);
+		if (i > imax)
+			printf("*** Must be no more than %d.\n", imax);
+	} while ((i < imin) || (i > imax));
+	return (i);
+}
 
 /* 
  * newprompt()  -  prompt for a string with no existing value
@@ -316,39 +368,42 @@ int intprompt(char *prompt, int ival, int imin, int imax)
  */
 void newprompt(char *prompt, char *str, int len)
 {
-	color(3);
-	printf("%s",prompt);
-	color(2);
-	getline(str,len);
-	color(7);
-	}
+	color(BRIGHT_MAGENTA);
+	printf("%s", prompt);
+	color(DIM_MAGENTA);
+	getline(str, len);
+	color(DIM_WHITE);
+}
 
 
-int lkey(void) {	/* returns a lower case value */
+int lkey(void)
+{				/* returns a lower case value */
 	int a;
-	a=inkey();
-	if (isupper(a)) a=tolower(a);
-	return(a);
-	}
+	a = inkey();
+	if (isupper(a))
+		a = tolower(a);
+	return (a);
+}
 
 /*
  * parse the citadel.rc file
  */
-void load_command_set(void) {
+void load_command_set(void)
+{
 	FILE *ccfile;
 	char buf[256];
 	struct citcmd *cptr;
 	struct citcmd *lastcmd = NULL;
-	int a,d;
+	int a, d;
 	int b = 0;
 
 
 	/* first, set up some defaults for non-required variables */
 
-	strcpy(editor_path,"");
-	strcpy(printcmd,"");
-	strcpy(rc_username,"");
-	strcpy(rc_password,"");
+	strcpy(editor_path, "");
+	strcpy(printcmd, "");
+	strcpy(rc_username, "");
+	strcpy(rc_password, "");
 	rc_floor_mode = 0;
 	rc_exp_beep = 1;
 	rc_allow_attachments = 0;
@@ -361,117 +416,120 @@ void load_command_set(void) {
 
 	ccfile = NULL;
 	if (getenv("HOME") != NULL) {
-		snprintf(buf,sizeof buf,"%s/.citadelrc",getenv("HOME"));
-		ccfile = fopen(buf,"r");
-		}
-	if (ccfile==NULL) {
-		ccfile = fopen("/usr/local/lib/citadel.rc","r");
-		}
-	if (ccfile==NULL) {
-		snprintf(buf,sizeof buf,"%s/citadel.rc",BBSDIR);
-		ccfile = fopen(buf,"r");
-		}
-	if (ccfile==NULL) {
-		ccfile = fopen("./citadel.rc","r");
-		}
-	if (ccfile==NULL) {
+		snprintf(buf, sizeof buf, "%s/.citadelrc", getenv("HOME"));
+		ccfile = fopen(buf, "r");
+	}
+	if (ccfile == NULL) {
+		ccfile = fopen("/usr/local/lib/citadel.rc", "r");
+	}
+	if (ccfile == NULL) {
+		snprintf(buf, sizeof buf, "%s/citadel.rc", BBSDIR);
+		ccfile = fopen(buf, "r");
+	}
+	if (ccfile == NULL) {
+		ccfile = fopen("./citadel.rc", "r");
+	}
+	if (ccfile == NULL) {
 		perror("commands: cannot open citadel.rc");
 		logoff(errno);
-		}
-
+	}
 	while (fgets(buf, 256, ccfile) != NULL) {
-            while ( (strlen(buf)>0) ? (isspace(buf[strlen(buf)-1])) : 0 )
-		buf[strlen(buf)-1] = 0;
+		while ((strlen(buf) > 0) ? (isspace(buf[strlen(buf) - 1])) : 0)
+			buf[strlen(buf) - 1] = 0;
 
-	    if (!struncmp(buf,"editor=",7))
-		strcpy(editor_path,&buf[7]);
+		if (!struncmp(buf, "editor=", 7))
+			strcpy(editor_path, &buf[7]);
 
-	    if (!struncmp(buf,"printcmd=",9))
-		strcpy(printcmd,&buf[9]);
+		if (!struncmp(buf, "printcmd=", 9))
+			strcpy(printcmd, &buf[9]);
 
-	    if (!struncmp(buf,"expcmd=",7))
-		strcpy(rc_exp_cmd,&buf[7]);
+		if (!struncmp(buf, "expcmd=", 7))
+			strcpy(rc_exp_cmd, &buf[7]);
 
-	    if (!struncmp(buf,"local_screen_dimensions=",24))
-		have_xterm = (char)atoi(&buf[24]);
+		if (!struncmp(buf, "local_screen_dimensions=", 24))
+			have_xterm = (char) atoi(&buf[24]);
 
-	    if (!struncmp(buf,"use_floors=",11)) {
-		if (!strucmp(&buf[11],"yes")) rc_floor_mode = RC_YES;
-		if (!strucmp(&buf[11],"no")) rc_floor_mode = RC_NO;
-		if (!strucmp(&buf[11],"default")) rc_floor_mode = RC_DEFAULT;
+		if (!struncmp(buf, "use_floors=", 11)) {
+			if (!strucmp(&buf[11], "yes"))
+				rc_floor_mode = RC_YES;
+			if (!strucmp(&buf[11], "no"))
+				rc_floor_mode = RC_NO;
+			if (!strucmp(&buf[11], "default"))
+				rc_floor_mode = RC_DEFAULT;
 		}
-
-	    if (!struncmp(buf,"beep=",5)) {
-		rc_exp_beep = atoi(&buf[5]);
+		if (!struncmp(buf, "beep=", 5)) {
+			rc_exp_beep = atoi(&buf[5]);
 		}
-
-	    if (!struncmp(buf,"allow_attachments=", 18)) {
-		rc_allow_attachments = atoi(&buf[18]);
+		if (!struncmp(buf, "allow_attachments=", 18)) {
+			rc_allow_attachments = atoi(&buf[18]);
 		}
-
-	    if (!struncmp(buf,"display_message_numbers=", 24)) {
-		rc_display_message_numbers = atoi(&buf[24]);
+		if (!struncmp(buf, "display_message_numbers=", 24)) {
+			rc_display_message_numbers = atoi(&buf[24]);
 		}
-
-	    if (!struncmp(buf,"force_mail_prompts=", 19)) {
-		rc_force_mail_prompts = atoi(&buf[19]);
+		if (!struncmp(buf, "force_mail_prompts=", 19)) {
+			rc_force_mail_prompts = atoi(&buf[19]);
 		}
-
-	    if (!struncmp(buf,"ansi_color=", 11)) {
-		if (!strncasecmp(&buf[11], "on", 2)) 
-			rc_ansi_color = 1;
-		if (!strncasecmp(&buf[11], "auto", 4)) 
-			rc_ansi_color = 2;	/* autodetect */
-		if (!strncasecmp(&buf[11], "user", 4)) 
-			rc_ansi_color = 3;	/* user config */
+		if (!struncmp(buf, "ansi_color=", 11)) {
+			if (!strncasecmp(&buf[11], "on", 2))
+				rc_ansi_color = 1;
+			if (!strncasecmp(&buf[11], "auto", 4))
+				rc_ansi_color = 2;	/* autodetect */
+			if (!strncasecmp(&buf[11], "user", 4))
+				rc_ansi_color = 3;	/* user config */
 		}
+		if (!struncmp(buf, "username=", 9))
+			strcpy(rc_username, &buf[9]);
 
-	    if (!struncmp(buf,"username=",9))
-		strcpy(rc_username,&buf[9]);
+		if (!struncmp(buf, "password=", 9))
+			strcpy(rc_password, &buf[9]);
 
-	    if (!struncmp(buf,"password=",9))
-		strcpy(rc_password,&buf[9]);
+		if (!struncmp(buf, "cmd=", 4)) {
+			strcpy(buf, &buf[4]);
 
-	    if (!struncmp(buf,"cmd=",4)) {
-		strcpy(buf,&buf[4]);
+			cptr = (struct citcmd *) malloc(sizeof(struct citcmd));
 
-		cptr = (struct citcmd *) malloc (sizeof(struct citcmd));
-		
-		cptr->c_cmdnum = atoi (buf);
-		for (d=strlen(buf); d>=0; --d)
-			if (buf[d]==',') b=d;
-		strcpy (buf, &buf[b+1]);
+			cptr->c_cmdnum = atoi(buf);
+			for (d = strlen(buf); d >= 0; --d)
+				if (buf[d] == ',')
+					b = d;
+			strcpy(buf, &buf[b + 1]);
 
-		cptr->c_axlevel = atoi (buf);
-		for (d=strlen(buf); d>=0; --d)
-			if (buf[d]==',') b=d;
-		strcpy (buf, &buf[b+1]);
+			cptr->c_axlevel = atoi(buf);
+			for (d = strlen(buf); d >= 0; --d)
+				if (buf[d] == ',')
+					b = d;
+			strcpy(buf, &buf[b + 1]);
 
-		for (a=0; a<5; ++a) cptr->c_keys[a][0] = 0;
+			for (a = 0; a < 5; ++a)
+				cptr->c_keys[a][0] = 0;
 
-		a = 0;  b = 0;
-		buf[strlen(buf)+1] = 0;
-		while (strlen(buf) > 0) {
-			b = strlen(buf);
-			for (d=strlen(buf); d>=0; --d)
-				if (buf[d]==',') b=d;
-			strncpy(cptr->c_keys[a],buf,b);
-			cptr->c_keys[a][b] = 0;
-			if (buf[b]==',')
-				strcpy(buf,&buf[b+1]);
-			else
-				strcpy(buf,"");
-			++a;
+			a = 0;
+			b = 0;
+			buf[strlen(buf) + 1] = 0;
+			while (strlen(buf) > 0) {
+				b = strlen(buf);
+				for (d = strlen(buf); d >= 0; --d)
+					if (buf[d] == ',')
+						b = d;
+				strncpy(cptr->c_keys[a], buf, b);
+				cptr->c_keys[a][b] = 0;
+				if (buf[b] == ',')
+					strcpy(buf, &buf[b + 1]);
+				else
+					strcpy(buf, "");
+				++a;
 			}
 
-		cptr->next = NULL;
-		if (cmdlist == NULL) cmdlist = cptr;
-		else lastcmd->next = cptr;
-		lastcmd = cptr;
+			cptr->next = NULL;
+			if (cmdlist == NULL)
+				cmdlist = cptr;
+			else
+				lastcmd->next = cptr;
+			lastcmd = cptr;
 		}
-	    }
-	fclose(ccfile);
 	}
+	fclose(ccfile);
+}
 
 
 
@@ -482,11 +540,11 @@ char keycmd(char *cmdstr)
 {
 	int a;
 
-	for (a=0; a<strlen(cmdstr); ++a)
-		if (cmdstr[a]=='&')
-			return(tolower(cmdstr[a+1]));
-	return(0);
-	}
+	for (a = 0; a < strlen(cmdstr); ++a)
+		if (cmdstr[a] == '&')
+			return (tolower(cmdstr[a + 1]));
+	return (0);
+}
 
 
 /*
@@ -498,41 +556,36 @@ char *cmd_expand(char *strbuf, int mode)
 	int a;
 	static char exp[64];
 	char buf[256];
-		
-	strcpy(exp,strbuf);
-	
-	for (a=0; a<strlen(exp); ++a) {
+
+	strcpy(exp, strbuf);
+
+	for (a = 0; a < strlen(exp); ++a) {
 		if (strbuf[a] == '&') {
 
-		    if (mode == 0) {
-			strcpy(&exp[a],&exp[a+1]);
+			if (mode == 0) {
+				strcpy(&exp[a], &exp[a + 1]);
 			}
-
-		    if (mode == 1) {
-			exp[a] = '<';
-			strcpy(buf,&exp[a+2]);
-			exp[a+2] = '>';
-			exp[a+3] = 0;
-			strcat(exp,buf);
+			if (mode == 1) {
+				exp[a] = '<';
+				strcpy(buf, &exp[a + 2]);
+				exp[a + 2] = '>';
+				exp[a + 3] = 0;
+				strcat(exp, buf);
 			}
-
-		    }
-
-		if (!strncmp(&exp[a],"^r",2)) {
-			strcpy(buf,exp);
-			strcpy(&exp[a],room_name);
-			strcat(exp,&buf[a+2]);
-			}
-
-		if (!strncmp(&exp[a],"^c",2)) {
-			exp[a] = ',';
-			strcpy(&exp[a+1],&exp[a+2]);
-			}
-
 		}
-
-	return(exp);
+		if (!strncmp(&exp[a], "^r", 2)) {
+			strcpy(buf, exp);
+			strcpy(&exp[a], room_name);
+			strcat(exp, &buf[a + 2]);
+		}
+		if (!strncmp(&exp[a], "^c", 2)) {
+			exp[a] = ',';
+			strcpy(&exp[a + 1], &exp[a + 2]);
+		}
 	}
+
+	return (exp);
+}
 
 
 
@@ -546,16 +599,18 @@ int cmdmatch(char *cmdbuf, struct citcmd *cptr, int ncomp)
 	int cmdax;
 
 	cmdax = 0;
-	if (is_room_aide) cmdax = 1;
-	if (axlevel >=6) cmdax = 2;
+	if (is_room_aide)
+		cmdax = 1;
+	if (axlevel >= 6)
+		cmdax = 2;
 
-	for (a=0; a<ncomp; ++a) {
-		if ( (tolower(cmdbuf[a]) != keycmd(cptr->c_keys[a]))
-		   || (cptr->c_axlevel > cmdax) )
-			return(0);
-		}
-	return(1);
+	for (a = 0; a < ncomp; ++a) {
+		if ((tolower(cmdbuf[a]) != keycmd(cptr->c_keys[a]))
+		    || (cptr->c_axlevel > cmdax))
+			return (0);
 	}
+	return (1);
+}
 
 
 /*
@@ -565,13 +620,14 @@ int requires_string(struct citcmd *cptr, int ncomp)
 {
 	int a;
 	char buf[64];
-	
-	strcpy(buf,cptr->c_keys[ncomp-1]);
-	for (a=0; a<strlen(buf); ++a) {
-		if (buf[a]==':') return(1);
-		}
-	return(0);
+
+	strcpy(buf, cptr->c_keys[ncomp - 1]);
+	for (a = 0; a < strlen(buf); ++a) {
+		if (buf[a] == ':')
+			return (1);
 	}
+	return (0);
+}
 
 
 /*
@@ -592,124 +648,124 @@ int getcmd(char *argbuf)
 
 	/* Switch color support on or off if we're in user mode */
 	if (rc_ansi_color == 3) {
-		if (userflags & US_COLOR) enable_color = 1;
-		else enable_color = 0;
-		}
-
+		if (userflags & US_COLOR)
+			enable_color = 1;
+		else
+			enable_color = 0;
+	}
 	/* if we're running in idiot mode, display a cute little menu */
 	IFNEXPERT formout("mainmenu");
 
-	print_express(); /* print express messages if there are any */
+	print_express();	/* print express messages if there are any */
 	strcpy(argbuf, "");
 	cmdpos = 0;
-	for (a=0; a<5; ++a) cmdbuf[a]=0;
+	for (a = 0; a < 5; ++a)
+		cmdbuf[a] = 0;
 	/* now the room prompt... */
 	ok_to_interrupt = 1;
-	printf("\n%s%c ",room_name,room_prompt(room_flags));
+	printf("\n%s%c ", room_name, room_prompt(room_flags));
 	fflush(stdout);
-	
-	while(1) {
+
+	while (1) {
 		ch = inkey();
 		ok_to_interrupt = 0;
 
 		/* Handle the backspace key, but only if there's something
 		 * to backspace over...
 		 */
-		if ( (ch == 8) && (cmdpos > 0) ) {
-			back(cmdspaces[cmdpos-1] + 1);
+		if ((ch == 8) && (cmdpos > 0)) {
+			back(cmdspaces[cmdpos - 1] + 1);
 			cmdbuf[cmdpos] = 0;
 			--cmdpos;
-			}
-
+		}
 		/* Spacebar invokes "lazy traversal" commands */
-		if ( (ch == 32) && (cmdpos == 0) ) {
+		if ((ch == 32) && (cmdpos == 0)) {
 			this_lazy_cmd = next_lazy_cmd;
-			if (this_lazy_cmd == 13) next_lazy_cmd = 5;
-			if (this_lazy_cmd == 5) next_lazy_cmd = 13;
+			if (this_lazy_cmd == 13)
+				next_lazy_cmd = 5;
+			if (this_lazy_cmd == 5)
+				next_lazy_cmd = 13;
 			for (cptr = cmdlist; cptr != NULL; cptr = cptr->next) {
 				if (cptr->c_cmdnum == this_lazy_cmd) {
-					for (a=0; a<5; ++a)
-					    if (cptr->c_keys[a][0] != 0)
-						printf("%s ", cmd_expand(
-							cptr->c_keys[a], 0));
+					for (a = 0; a < 5; ++a)
+						if (cptr->c_keys[a][0] != 0)
+							printf("%s ", cmd_expand(
+											cptr->c_keys[a], 0));
 					printf("\n");
-					return(this_lazy_cmd);
-					}
+					return (this_lazy_cmd);
 				}
-			printf("\n");
-			return(this_lazy_cmd);
 			}
-
+			printf("\n");
+			return (this_lazy_cmd);
+		}
 		/* Otherwise, process the command */
 		cmdbuf[cmdpos] = tolower(ch);
 
 		for (cptr = cmdlist; cptr != NULL; cptr = cptr->next) {
-			if (cmdmatch(cmdbuf,cptr,cmdpos+1)) {
-				
-				printf("%s",cmd_expand(cptr->c_keys[cmdpos],0));
+			if (cmdmatch(cmdbuf, cptr, cmdpos + 1)) {
+
+				printf("%s", cmd_expand(cptr->c_keys[cmdpos], 0));
 				cmdspaces[cmdpos] = strlen(
-					cmd_expand(cptr->c_keys[cmdpos],0) );
-				if (cmdpos<4) 
-					if ((cptr->c_keys[cmdpos+1]) != 0)
-						putc(' ',stdout);
+				    cmd_expand(cptr->c_keys[cmdpos], 0));
+				if (cmdpos < 4)
+					if ((cptr->c_keys[cmdpos + 1]) != 0)
+						putc(' ', stdout);
 				++cmdpos;
-				}
 			}
+		}
 
 		for (cptr = cmdlist; cptr != NULL; cptr = cptr->next) {
-			if (cmdmatch(cmdbuf,cptr,5)) {
+			if (cmdmatch(cmdbuf, cptr, 5)) {
 				/* We've found our command. */
-				if (requires_string(cptr,cmdpos)) {
-					getline(argbuf,32);
-					}
-				else {
+				if (requires_string(cptr, cmdpos)) {
+					getline(argbuf, 32);
+				} else {
 					printf("\n");
-					}
+				}
 
 				/* If this command is one that changes rooms,
 				 * then the next lazy-command (space bar)
 				 * should be "read new" instead of "goto"
 				 */
-				if ((cptr->c_cmdnum==5)
-					||(cptr->c_cmdnum==6)
-					||(cptr->c_cmdnum==47)
-					||(cptr->c_cmdnum==52)
-					||(cptr->c_cmdnum==16)
-					||(cptr->c_cmdnum==20))
-						next_lazy_cmd = 13;
+				if ((cptr->c_cmdnum == 5)
+				    || (cptr->c_cmdnum == 6)
+				    || (cptr->c_cmdnum == 47)
+				    || (cptr->c_cmdnum == 52)
+				    || (cptr->c_cmdnum == 16)
+				    || (cptr->c_cmdnum == 20))
+					next_lazy_cmd = 13;
 
-				return(cptr->c_cmdnum);
+				return (cptr->c_cmdnum);
 
-				}
 			}
+		}
 
 		if (ch == '?') {
 			printf("\rOne of ...                         \n");
 			for (cptr = cmdlist; cptr != NULL; cptr = cptr->next) {
-			    if (cmdmatch(cmdbuf,cptr,cmdpos)) {
-				for (a=0; a<5; ++a) {
-				    printf("%s ",cmd_expand(cptr->c_keys[a],1));
-				    }
-				printf("\n");
+				if (cmdmatch(cmdbuf, cptr, cmdpos)) {
+					for (a = 0; a < 5; ++a) {
+						printf("%s ", cmd_expand(cptr->c_keys[a], 1));
+					}
+					printf("\n");
 				}
-			    }
-
-			printf("\n%s%c ",room_name,room_prompt(room_flags));
-			got = 0;
-			for (cptr = cmdlist; cptr != NULL; cptr = cptr->next) {
-			    if ((got==0)&&(cmdmatch(cmdbuf,cptr,cmdpos))) {
-				for (a=0; a<cmdpos; ++a) {
-				    printf("%s ",
-					cmd_expand(cptr->c_keys[a],0));
-				    }
-				got = 1;
-				}
-			    }
 			}
 
+			printf("\n%s%c ", room_name, room_prompt(room_flags));
+			got = 0;
+			for (cptr = cmdlist; cptr != NULL; cptr = cptr->next) {
+				if ((got == 0) && (cmdmatch(cmdbuf, cptr, cmdpos))) {
+					for (a = 0; a < cmdpos; ++a) {
+						printf("%s ",
+						       cmd_expand(cptr->c_keys[a], 0));
+					}
+					got = 1;
+				}
+			}
 		}
-
 	}
+
+}
 
 
 
@@ -724,8 +780,8 @@ int getcmd(char *argbuf)
  * 3 - restore saved settings
  */
 #ifdef HAVE_TERMIOS_H
-void sttybbs(int cmd) 		/* SysV version of sttybbs() */
-         {
+void sttybbs(int cmd)
+{				/* SysV version of sttybbs() */
 	struct termios live;
 	static struct termios saved_settings;
 	static int last_cmd = 0;
@@ -735,64 +791,64 @@ void sttybbs(int cmd) 		/* SysV version of sttybbs() */
 	else
 		last_cmd = cmd;
 
-	if ( (cmd == 0) || (cmd == 1) ) {
-		tcgetattr(0,&live);
-		live.c_iflag=ISTRIP|IXON|IXANY;
-		live.c_oflag=OPOST|ONLCR;
-		live.c_lflag=ISIG|NOFLSH;
+	if ((cmd == 0) || (cmd == 1)) {
+		tcgetattr(0, &live);
+		live.c_iflag = ISTRIP | IXON | IXANY;
+		live.c_oflag = OPOST | ONLCR;
+		live.c_lflag = ISIG | NOFLSH;
 
-		if (cmd==SB_YES_INTR) {
-			live.c_cc[VINTR]=NEXT_KEY;
-			live.c_cc[VQUIT]=STOP_KEY;
-			signal(SIGINT,*sighandler);
-			signal(SIGQUIT,*sighandler);
-			}
-		else {
-			signal(SIGINT,SIG_IGN);
-			signal(SIGQUIT,SIG_IGN);
-			live.c_cc[VINTR]=(-1);
-			live.c_cc[VQUIT]=(-1);
-			}
+		if (cmd == SB_YES_INTR) {
+			live.c_cc[VINTR] = NEXT_KEY;
+			live.c_cc[VQUIT] = STOP_KEY;
+			signal(SIGINT, *sighandler);
+			signal(SIGQUIT, *sighandler);
+		} else {
+			signal(SIGINT, SIG_IGN);
+			signal(SIGQUIT, SIG_IGN);
+			live.c_cc[VINTR] = (-1);
+			live.c_cc[VQUIT] = (-1);
+		}
 
 		/* do we even need this stuff anymore? */
 		/* live.c_line=0; */
-		live.c_cc[VERASE]=8;
-		live.c_cc[VKILL]=24;
-		live.c_cc[VEOF]=1;
-		live.c_cc[VEOL]=255;
-		live.c_cc[VEOL2]=0;
-		live.c_cc[VSTART]=0;
-		tcsetattr(0,TCSADRAIN,&live);
-		}
-	if (cmd == 2) {
-		tcgetattr(0,&saved_settings);
-		}
-	if (cmd == 3) {
-		tcsetattr(0,TCSADRAIN,&saved_settings);
-		}
+		live.c_cc[VERASE] = 8;
+		live.c_cc[VKILL] = 24;
+		live.c_cc[VEOF] = 1;
+		live.c_cc[VEOL] = 255;
+		live.c_cc[VEOL2] = 0;
+		live.c_cc[VSTART] = 0;
+		tcsetattr(0, TCSADRAIN, &live);
 	}
+	if (cmd == 2) {
+		tcgetattr(0, &saved_settings);
+	}
+	if (cmd == 3) {
+		tcsetattr(0, TCSADRAIN, &saved_settings);
+	}
+}
 #else
-void sttybbs(int cmd) 		/* BSD version of sttybbs() */
-{
+void sttybbs(int cmd)
+{				/* BSD version of sttybbs() */
 	struct sgttyb live;
 	static struct sgttyb saved_settings;
 
-	if ( (cmd == 0) || (cmd == 1) ) {
-		gtty(0,&live);
+	if ((cmd == 0) || (cmd == 1)) {
+		gtty(0, &live);
 		live.sg_flags |= CBREAK;
 		live.sg_flags |= CRMOD;
 		live.sg_flags |= NL1;
 		live.sg_flags &= ~ECHO;
-		if (cmd==1) live.sg_flags |= NOFLSH;
-		stty(0,&live);
-		}
-	if (cmd == 2) {
-		gtty(0,&saved_settings);
-		}
-	if (cmd == 3) {
-		stty(0,&saved_settings);
-		}
+		if (cmd == 1)
+			live.sg_flags |= NOFLSH;
+		stty(0, &live);
 	}
+	if (cmd == 2) {
+		gtty(0, &saved_settings);
+	}
+	if (cmd == 3) {
+		stty(0, &saved_settings);
+	}
+}
 #endif
 
 
@@ -802,118 +858,129 @@ void sttybbs(int cmd) 		/* BSD version of sttybbs() */
 void display_help(char *name)
 {
 	formout(name);
-	}
+}
 
 
 /*
  * fmout()  -  Citadel text formatter and paginator
  */
-int fmout(int width, FILE *fp, char pagin, int height, int starting_lp, char subst)
-          		/* screen width to use */
-         		/* file to read from, or NULL to read from server */
-           		/* nonzero if we should use the paginator */
-           		/* screen height to use */
-                	/* starting value for lines_printed, -1 for global */
-           		/* nonzero if we should use hypertext mode */
-	{
-	int a,b,c,d,old;
+int fmout(int width, FILE * fp, char pagin, int height, int starting_lp, char subst)
+			/* screen width to use */
+			/* file to read from, or NULL to read from server */
+			/* nonzero if we should use the paginator */
+			/* screen height to use */
+			/* starting value for lines_printed, -1 for global */
+			/* nonzero if we should use hypertext mode */
+{
+	int a, b, c, d, old;
 	int real = (-1);
 	char aaa[140];
 	char buffer[512];
 	int eof_flag = 0;
 
-	if (starting_lp >= 0) {	
+	if (starting_lp >= 0) {
 		lines_printed = starting_lp;
-		}
-	strcpy(aaa,""); old=255;
-	strcpy(buffer,"");
-	c=1; /* c is the current pos */
+	}
+	strcpy(aaa, "");
+	old = 255;
+	strcpy(buffer, "");
+	c = 1;			/* c is the current pos */
 
 	sigcaught = 0;
 	sttybbs(1);
 
-FMTA:	while ( (eof_flag==0) && (strlen(buffer)<126) ) {
-		if (sigcaught) goto OOPS;
-		if (fp!=NULL) { /* read from file */
-			if (feof(fp)) eof_flag = 1;
-			if (eof_flag==0) {
-				a=getc(fp);
-				buffer[strlen(buffer)+1] = 0;
+      FMTA:while ((eof_flag == 0) && (strlen(buffer) < 126)) {
+		if (sigcaught)
+			goto OOPS;
+		if (fp != NULL) {	/* read from file */
+			if (feof(fp))
+				eof_flag = 1;
+			if (eof_flag == 0) {
+				a = getc(fp);
+				buffer[strlen(buffer) + 1] = 0;
 				buffer[strlen(buffer)] = a;
-				}
 			}
-		else {		/* read from server */
-			d=strlen(buffer);
+		} else {	/* read from server */
+			d = strlen(buffer);
 			serv_gets(&buffer[d]);
-while ( (!isspace(buffer[d])) && (isspace(buffer[strlen(buffer)-1])) )
-	buffer[strlen(buffer)-1]=0;
-			if (!strcmp(&buffer[d],"000")) {
+			while ((!isspace(buffer[d])) && (isspace(buffer[strlen(buffer) - 1])))
+				buffer[strlen(buffer) - 1] = 0;
+			if (!strcmp(&buffer[d], "000")) {
 				buffer[d] = 0;
 				eof_flag = 1;
-				while(isspace(buffer[strlen(buffer)-1]))
-					buffer[strlen(buffer)-1] = 0;
-				}
-			d=strlen(buffer);
-			buffer[d] = 10;
-			buffer[d+1] = 0;
+				while (isspace(buffer[strlen(buffer) - 1]))
+					buffer[strlen(buffer) - 1] = 0;
 			}
+			d = strlen(buffer);
+			buffer[d] = 10;
+			buffer[d + 1] = 0;
 		}
+	}
 
-	buffer[strlen(buffer)+1] = 0;
-	a=buffer[0];
-	strcpy(buffer,&buffer[1]);
-	
-	old=real;
-	real=a;
-	if (a<=0) goto FMTEND;
-	
-	if ( ((a==13)||(a==10)) && (old!=13) && (old!=10) ) a=32;
-	if ( ((old==13)||(old==10)) && (isspace(real)) ) {
+	buffer[strlen(buffer) + 1] = 0;
+	a = buffer[0];
+	strcpy(buffer, &buffer[1]);
+
+	old = real;
+	real = a;
+	if (a <= 0)
+		goto FMTEND;
+
+	if (((a == 13) || (a == 10)) && (old != 13) && (old != 10))
+		a = 32;
+	if (((old == 13) || (old == 10)) && (isspace(real))) {
 		printf("\n");
 		++lines_printed;
-		lines_printed = checkpagin(lines_printed,pagin,height);
-		c=1;
-		}
-	if (a>126) goto FMTA;
+		lines_printed = checkpagin(lines_printed, pagin, height);
+		c = 1;
+	}
+	if (a > 126)
+		goto FMTA;
 
-	if (a>32) {
-	if ( ((strlen(aaa)+c)>(width-5)) && (strlen(aaa)>(width-5)) ) {
-		printf("\n%s",aaa); c=strlen(aaa); aaa[0]=0;
-		++lines_printed;
-		lines_printed = checkpagin(lines_printed,pagin,height);
+	if (a > 32) {
+		if (((strlen(aaa) + c) > (width - 5)) && (strlen(aaa) > (width - 5))) {
+			printf("\n%s", aaa);
+			c = strlen(aaa);
+			aaa[0] = 0;
+			++lines_printed;
+			lines_printed = checkpagin(lines_printed, pagin, height);
 		}
-	    b=strlen(aaa); aaa[b]=a; aaa[b+1]=0;
-	    }
-	if (a==32) {
-		if ((strlen(aaa)+c)>(width-5)) { 
-			c=1;
+		b = strlen(aaa);
+		aaa[b] = a;
+		aaa[b + 1] = 0;
+	}
+	if (a == 32) {
+		if ((strlen(aaa) + c) > (width - 5)) {
+			c = 1;
 			printf("\n");
 			++lines_printed;
-			lines_printed = checkpagin(lines_printed,pagin,height);
-			}
-		printf("%s ",aaa); ++c; c=c+strlen(aaa);
-		strcpy(aaa,"");
-		goto FMTA;
+			lines_printed = checkpagin(lines_printed, pagin, height);
 		}
-	if ((a==13)||(a==10)) {
-		printf("%s\n",aaa);
-		c=1;
+		printf("%s ", aaa);
+		++c;
+		c = c + strlen(aaa);
+		strcpy(aaa, "");
+		goto FMTA;
+	}
+	if ((a == 13) || (a == 10)) {
+		printf("%s\n", aaa);
+		c = 1;
 		++lines_printed;
-		lines_printed = checkpagin(lines_printed,pagin,height);
-		strcpy(aaa,"");
+		lines_printed = checkpagin(lines_printed, pagin, height);
+		strcpy(aaa, "");
 		goto FMTA;
-		}
+	}
 	goto FMTA;
 
 	/* signal caught; drain the server */
-OOPS:	do {
+      OOPS:do {
 		serv_gets(aaa);
-		} while(strcmp(aaa,"000"));
+	} while (strcmp(aaa, "000"));
 
-FMTEND:	printf("\n");
+      FMTEND:printf("\n");
 	++lines_printed;
-	lines_printed = checkpagin(lines_printed,pagin,height);
-	return(sigcaught);
+	lines_printed = checkpagin(lines_printed, pagin, height);
+	return (sigcaught);
 }
 
 
@@ -922,78 +989,82 @@ FMTEND:	printf("\n");
  */
 void color(int colornum)
 {
+	static int is_bold = 0;
+
 	if (enable_color) {
-		printf("\033[3%dm", colornum);
-		fflush(stdout);
+		printf("\033[3%dm", (colornum % 8));
+		if ((colornum >= 8) && (is_bold == 0)) {
+			printf("\033[1m");
+			is_bold = 1;
+		} else if ((colornum < 8) && (is_bold == 1)) {
+			printf("\033[0m");
+			is_bold = 0;
 		}
+		fflush(stdout);
 	}
+}
 
-void cls(int colornum) {
+void cls(int colornum)
+{
 	if (enable_color) {
-		printf("\033[4%dm\033[2J\033[H", colornum);
-
-		printf("\033[1m");		/* bold colors */
-		/* printf("\033[0m"); */	/* non-bold colors */
-
-
+		printf("\033[4%dm\033[2J\033[H\033[0m", colornum);
 		fflush(stdout);
-		}
 	}
+}
 
 
 /*
  * Detect whether ANSI color is available (answerback)
  */
-void send_ansi_detect(void) {
+void send_ansi_detect(void)
+{
 	if (rc_ansi_color == 2) {
 		printf("\033[c");
 		fflush(stdout);
 		time(&AnsiDetect);
-		}
 	}
+}
 
-void look_for_ansi(void) {
-        fd_set rfds;
-        struct timeval tv;
+void look_for_ansi(void)
+{
+	fd_set rfds;
+	struct timeval tv;
 	char abuf[512];
 	time_t now;
 	int a;
 
 	if (rc_ansi_color == 0) {
 		enable_color = 0;
-		}
-	else if (rc_ansi_color == 1) {
+	} else if (rc_ansi_color == 1) {
 		enable_color = 1;
-		}
-	else if (rc_ansi_color == 2) {
+	} else if (rc_ansi_color == 2) {
 
 		/* otherwise, do the auto-detect */
 
 		strcpy(abuf, "");
 
 		time(&now);
-		if ( (now - AnsiDetect) < 2 ) sleep(1);
+		if ((now - AnsiDetect) < 2)
+			sleep(1);
 
 		do {
 			FD_ZERO(&rfds);
-			FD_SET(0,&rfds);
+			FD_SET(0, &rfds);
 			tv.tv_sec = 0;
 			tv.tv_usec = 1;
 
 			select(1, &rfds, NULL, NULL, &tv);
 			if (FD_ISSET(0, &rfds)) {
-				abuf[strlen(abuf)+1] = 0;
+				abuf[strlen(abuf) + 1] = 0;
 				read(0, &abuf[strlen(abuf)], 1);
-				}
-	
-			} while (FD_ISSET(0, &rfds));
-	
-		for (a=0; a<strlen(abuf); ++a) {
-			if ( (abuf[a] == 27) && (abuf[a+1] == '[')
-		   	&& (abuf[a+2] == '?') ) {
+			}
+		} while (FD_ISSET(0, &rfds));
+
+		for (a = 0; a < strlen(abuf); ++a) {
+			if ((abuf[a] == 27) && (abuf[a + 1] == '[')
+			    && (abuf[a + 2] == '?')) {
 				enable_color = 1;
-				}
 			}
 		}
-
 	}
+}

@@ -1,3 +1,6 @@
+Wed May 19 19:30:28 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* commands.c, commands.h, routines.c: began color scheme changes
+
 1999-05-15 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* configure.in: Added untested support for BSDI 4.x.
 

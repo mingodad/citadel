@@ -749,9 +749,9 @@ void who_is_online(int longlist)
 		}
 	}
 	else {
-	color(3);
+	color(BRIGHT_WHITE);
 	printf("FLG ###        User Name                 Room                 From host\n");
-	color(6);
+	color(DIM_WHITE);
 	printf("--- --- ------------------------- -------------------- ------------------------\n");
 		}
 	serv_puts("RWHO");
@@ -783,14 +783,19 @@ void who_is_online(int longlist)
 					printf("        ");
 					}
 				else {
-					color(1); printf("%-3s ", flags);
-					color(2); printf("%-3d ", extract_int(buf,0));
+					color(BRIGHT_MAGENTA);
+					printf("%-3s ", flags);
+					color(DIM_WHITE);
+					printf("%-3d ", extract_int(buf,0));
 					}
 				last_session=extract_int(buf,0);
-				color(3); printf("%-25s ", username);
-				color(4); printf("%-20s ", roomname);
-				color(5); printf("%-24s\n", fromhost);
-				color(7);
+				color(BRIGHT_CYAN);
+				printf("%-25s ", username);
+				color(BRIGHT_MAGENTA);
+				printf("%-20s ", roomname);
+				color(BRIGHT_CYAN);
+				printf("%-24s\n", fromhost);
+				color(DIM_WHITE);
 				}
 			}
 		}
