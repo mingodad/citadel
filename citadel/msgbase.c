@@ -310,7 +310,6 @@ void output_message(char *msgid, int mode, int headers_only)
 	long msg_num;
 	int a,och,len;
 	CIT_UBYTE ch, rch;
-	FILE *msg;
 	CIT_UBYTE format_type,anon_flag;
 	char buf[1024];
 	long msg_len;
@@ -483,7 +482,6 @@ void output_message(char *msgid, int mode, int headers_only)
 
 	if (ch==0) {
 		cprintf("text\n*** ?Message truncated\n000\n");
-		fclose(msg);
 		cdb_free(dmsgtext);
 		return;
 		}
@@ -496,7 +494,6 @@ void output_message(char *msgid, int mode, int headers_only)
 			}
 		cprintf("mlen=%ld\n", msg_len);
 		cprintf("000\n");
-		fclose(msg);
 		cdb_free(dmsgtext);
 		return;
 		}
