@@ -923,12 +923,12 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	/* At this point we know we are talking to a real SMTP server */
 
 	/* Do a HELO command */
-	snprintf(buf, sizeof buf, "HELO %s", config.c_fqdn);
-	lprintf(9, ">%s\n", buf);
-	sock_puts_crlf(sock, buf);
+	snprintf(buf, sizeof buf, "HELO %s\r\n", config.c_fqdn);
+	lprintf(9, ">%s", buf);
+	sock_write(sock, buf, strlen(buf));
 	if (ml_sock_gets(sock, buf) < 0) {
 		*status = 4;
-		strcpy(dsn, "Connection broken during SMTP conversation");
+		strcpy(dsn, "Connection broken during SMTP HELO");
 		goto bail;
 	}
 	lprintf(9, "<%s\n", buf);
@@ -947,12 +947,12 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 
 
 	/* HELO succeeded, now try the MAIL From: command */
-	snprintf(buf, sizeof buf, "MAIL From: <%s>", mailfrom);
-	lprintf(9, ">%s\n", buf);
-	sock_puts_crlf(sock, buf);
+	snprintf(buf, sizeof buf, "MAIL From: <%s>\r\n", mailfrom);
+	lprintf(9, ">%s", buf);
+	sock_write(sock, buf, strlen(buf));
 	if (ml_sock_gets(sock, buf) < 0) {
 		*status = 4;
-		strcpy(dsn, "Connection broken during SMTP conversation");
+		strcpy(dsn, "Connection broken during SMTP MAIL");
 		goto bail;
 	}
 	lprintf(9, "<%s\n", buf);
@@ -971,12 +971,12 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 
 
 	/* MAIL succeeded, now try the RCPT To: command */
-	snprintf(buf, sizeof buf, "RCPT To: <%s>", addr);
-	lprintf(9, ">%s\n", buf);
-	sock_puts_crlf(sock, buf);
+	snprintf(buf, sizeof buf, "RCPT To: <%s>\r\n", addr);
+	lprintf(9, ">%s", buf);
+	sock_write(sock, buf, strlen(buf));
 	if (ml_sock_gets(sock, buf) < 0) {
 		*status = 4;
-		strcpy(dsn, "Connection broken during SMTP conversation");
+		strcpy(dsn, "Connection broken during SMTP RCPT");
 		goto bail;
 	}
 	lprintf(9, "<%s\n", buf);
@@ -996,10 +996,10 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 
 	/* RCPT succeeded, now try the DATA command */
 	lprintf(9, ">DATA\n");
-	sock_puts_crlf(sock, "DATA");
+	sock_write(sock, "DATA\r\n", 6);
 	if (ml_sock_gets(sock, buf) < 0) {
 		*status = 4;
-		strcpy(dsn, "Connection broken during SMTP conversation");
+		strcpy(dsn, "Connection broken during SMTP DATA");
 		goto bail;
 	}
 	lprintf(9, "<%s\n", buf);
@@ -1034,7 +1034,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	sock_write(sock, ".\r\n", 3);
 	if (ml_sock_gets(sock, buf) < 0) {
 		*status = 4;
-		strcpy(dsn, "Connection broken during SMTP conversation");
+		strcpy(dsn, "Connection broken during SMTP message transmit");
 		goto bail;
 	}
 	lprintf(9, "%s\n", buf);
@@ -1056,7 +1056,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	*status = 2;
 
 	lprintf(9, ">QUIT\n");
-	sock_puts_crlf(sock, "QUIT");
+	sock_write(sock, "QUIT\r\n", 6);
 	ml_sock_gets(sock, buf);
 	lprintf(9, "<%s\n", buf);
 

@@ -1,4 +1,10 @@
  $Log$
+ Revision 580.76  2001/11/16 04:43:12  ajc
+ * Eliminated the sock_puts_crlf() function and ensured that all SMTP client
+   commands are sent out using a single sock_write() call.  There are broken
+   SMTP server implementations that can't handle SMTP commands split across
+   multiple writes.  (Thanks to Andru Luvisi and Ben Mehlman for the idea.)
+
  Revision 580.75  2001/11/15 04:11:30  ajc
  * hack.doc: updated to reflect Cit86Net compatibility fields removed from the
    file format (since we dumbed down the gateway software)
@@ -2862,3 +2868,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
