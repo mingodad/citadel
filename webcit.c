@@ -514,7 +514,7 @@ void output_static(char *what)
 void output_image()
 {
 	char buf[SIZ];
-	char xferbuf[4096];
+	char *xferbuf = NULL;
 	off_t bytes;
 	off_t thisblock;
 	off_t accomplished = 0L;
@@ -524,11 +524,9 @@ void output_image()
 	serv_gets(buf);
 	if (buf[0] == '2') {
 		bytes = extract_long(&buf[4], 0);
-		output_headers(0);
-		wprintf("Content-type: image/gif\n");
-		wprintf("Content-length: %ld\n", (long) bytes);
-		wprintf("\n");
+		xferbuf = malloc(bytes);
 
+		/* Read it from the server */
 		while (bytes > (off_t) 0) {
 			thisblock = (off_t) sizeof(xferbuf);
 			if (thisblock > bytes) {
@@ -538,23 +536,35 @@ void output_image()
 			serv_gets(buf);
 			if (buf[0] == '6') {
 				thisblock = extract_long(&buf[4], 0);
-				serv_read(xferbuf, (int) thisblock);
+				serv_read(&xferbuf[accomplished],
+					(int) thisblock);
 			}
 			else {
-				memset(xferbuf, 0, thisblock);
+				memset(&xferbuf[accomplished], 0, thisblock);
 			}
-			http_write(WC->http_sock, xferbuf, thisblock);
 			bytes = bytes - thisblock;
-			accomplished = accomplished + thisblock;
+			accomplished += thisblock;
 		}
 		serv_puts("CLOS");
 		serv_gets(buf);
+
+		/* Now write it to the browser */
+		output_headers(0);
+		wprintf("Content-type: image/gif\n");
+		wprintf("Content-length: %ld\n", (long) accomplished);
+		wprintf("\n");
+		http_write(WC->http_sock, xferbuf, accomplished);
+
 	} else {
 		wprintf("HTTP/1.0 404 %s\n", &buf[4]);
 		output_headers(0);
 		wprintf("Content-Type: text/plain\n");
 		wprintf("\n");
 		wprintf("Error retrieving image: %s\n", &buf[4]);
+	}
+
+	if (xferbuf) {
+		free(xferbuf);
 	}
 
 }
