@@ -97,13 +97,27 @@ void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
 	int i;
 
 	/*
-	 * For mailboxes, just do it straight...
+	 * For mailboxes, just do it straight.
+	 * Also handle Kolab-compatible groupware folder names.
 	 */
 	if (qrbuf->QRflags & QR_MAILBOX) {
 		safestrncpy(buf, qrbuf->QRname, bufsize);
 		strcpy(buf, &buf[11]);
-		if (!strcasecmp(buf, MAILROOM))
+		if (!strcasecmp(buf, MAILROOM)) {
 			strcpy(buf, "INBOX");
+		}
+		if (!strcasecmp(buf, USERCALENDARROOM)) {
+			sprintf(buf, "INBOX|%s", USERCALENDARROOM);
+		}
+		if (!strcasecmp(buf, USERCONTACTSROOM)) {
+			sprintf(buf, "INBOX|%s", USERCONTACTSROOM);
+		}
+		if (!strcasecmp(buf, USERTASKSROOM)) {
+			sprintf(buf, "INBOX|%s", USERTASKSROOM);
+		}
+		if (!strcasecmp(buf, USERNOTESROOM)) {
+			sprintf(buf, "INBOX|%s", USERNOTESROOM);
+		}
 	}
 	/*
 	 * Otherwise, prefix the floor name as a "public folders" moniker
@@ -149,9 +163,30 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 
 	/*
 	 * Convert the crispy idiot's reserved names to our reserved names.
+	 * Also handle Kolab-compatible groupware folder names.
 	 */
 	if (!strcasecmp(foldername, "INBOX")) {
 		safestrncpy(rbuf, MAILROOM, bufsize);
+		ret = (0 | IR_MAILBOX);
+	}
+	else if ( (!strncasecmp(foldername, "INBOX", 5))
+	      && (!strcasecmp(&foldername[6], USERCALENDARROOM)) ) {
+		safestrncpy(rbuf, USERCALENDARROOM, bufsize);
+		ret = (0 | IR_MAILBOX);
+	}
+	else if ( (!strncasecmp(foldername, "INBOX", 5))
+	      && (!strcasecmp(&foldername[6], USERCONTACTSROOM)) ) {
+		safestrncpy(rbuf, USERCONTACTSROOM, bufsize);
+		ret = (0 | IR_MAILBOX);
+	}
+	else if ( (!strncasecmp(foldername, "INBOX", 5))
+	      && (!strcasecmp(&foldername[6], USERTASKSROOM)) ) {
+		safestrncpy(rbuf, USERTASKSROOM, bufsize);
+		ret = (0 | IR_MAILBOX);
+	}
+	else if ( (!strncasecmp(foldername, "INBOX", 5))
+	      && (!strcasecmp(&foldername[6], USERNOTESROOM)) ) {
+		safestrncpy(rbuf, USERNOTESROOM, bufsize);
 		ret = (0 | IR_MAILBOX);
 	}
 	else if (levels > 1) {

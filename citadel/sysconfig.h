@@ -100,6 +100,7 @@
 #define USERCALENDARROOM	"Calendar"
 #define USERTASKSROOM		"Tasks"
 #define USERCONTACTSROOM	"Contacts"
+#define USERNOTESROOM		"Notes"
 #define PAGELOGROOM		"Sent/Received Pages"
 #define SYSCONFIGROOM		"Local System Configuration"
 #define SMTP_SPOOLOUT_ROOM	"__CitadelSMTPspoolout__"
