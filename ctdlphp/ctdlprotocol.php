@@ -53,6 +53,7 @@ function login_existing_user($user, $pass) {
 
 	$_SESSION["username"] = $user;
 	$_SESSION["password"] = $pass;
+	become_logged_in(substr($resp, 4));
 
 	return array(TRUE, "Login successful.  Have fun.");
 }
@@ -82,8 +83,17 @@ function create_new_user($user, $pass) {
 
 	$_SESSION["username"] = $user;
 	$_SESSION["password"] = $pass;
+	become_logged_in(substr($resp, 4));
 
 	return array(TRUE, "Login successful.  Have fun.");
+}
+
+
+//
+// Code common to both existing-user and new-user logins
+//
+function become_logged_in($server_parms) {
+	$_SESSION["logged_in"] = 1;
 }
 
 
@@ -108,19 +118,25 @@ function ctdl_get_serv_info() {
 }
 
 
-
+//
+// Temporary function to verify communication with the Citadel server.
+//
 function test_for_echo() {
-
 	global $clientsocket, $session;
 
 	$command = "ECHO Video vertigo ... test for echo.";
-
 	serv_puts($command);
 	$response = serv_gets();
 	echo $response, "<BR>";
 	flush();
 }
 
+
+//
+// Display a system banner.
+// (This is probably temporary because it outputs more or less finalized
+// markup.  For now it's just usable.)
+//
 function ctdl_mesg($msgname) {
 	global $clientsocket;
 
@@ -141,5 +157,6 @@ function ctdl_mesg($msgname) {
 		echo "<B><I>", substr($response, 4), "</I></B><BR>\n";
 	}
 }
+
 
 ?>

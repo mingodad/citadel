@@ -1,4 +1,10 @@
  $Log$
+ Revision 1.7  2003/11/02 04:02:36  ajc
+ * Firmed up the login/logout process
+ * Don't allow load of pages other than login.php logout.php do_login.php
+   if the session is not logged in.
+ * Removed sessionproxy.c
+
  Revision 1.6  2003/11/02 02:39:30  ajc
  * Added a proper CVS ID and Copyright disclaimer to every file.  Other
    developers and webmasters working on the project, please add your own
@@ -25,3 +31,4 @@
 
  Revision 1.1  2003/10/31 03:47:13  ajc
  * Initial CVS import
+

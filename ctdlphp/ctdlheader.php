@@ -15,11 +15,26 @@ include "ctdlprotocol.php";
 function bbs_page_header() {
 	global $session;
 
-	if(strcmp('4.3.0', phpversion()) > 0) {
+	if (strcmp('4.3.0', phpversion()) > 0) {
 		die("This program requires PHP 4.3.0 or newer.");
 	}
 
 	establish_citadel_session();
+
+	// If the user is trying to call up any page other than
+	// login.php logout.php do_login.php,
+	// and the session is not logged in, redirect to login.php
+	//
+	if ($_SESSION["logged_in"] != 1) {
+		$filename = basename(getenv('SCRIPT_NAME'));
+		if (	(strcmp($filename, "login.php"))
+		   &&	(strcmp($filename, "logout.php"))
+		   &&	(strcmp($filename, "do_login.php"))
+		) {
+			header("Location: login.php");
+			exit(0);
+		}
+	}
 
 	echo <<<LITERAL
 

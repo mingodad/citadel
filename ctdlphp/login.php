@@ -26,15 +26,12 @@
 	<tr><td align=center COLSPAN=2>
 	<input type="submit" name="action" value="Login">
 	<input type="submit" name="action" value="New User">
-	<input type="submit" name="action" value="Exit">
+	<a href="logout.php">Exit</A>
 	</td></tr>
 
 	</table>
 	</form>
 	</div>
-
-<a href="page2.php">Page Two</a><BR>
-<a href="page3.php">Page Three</a><BR>
 
 <?PHP
 	bbs_page_footer();

@@ -8,31 +8,34 @@
 // This program is released under the terms of the GNU General Public License.
 //
 
-	include "ctdlheader.php";
-	bbs_page_header();
+include "ctdlheader.php";
+
+bbs_page_header();
+
+if ($_POST["action"] == "Login") {
+	list($retval, $msg) =
+		login_existing_user($_POST["user"], $_POST["pass"]);
+}
+else if ($_POST["action"] == "New User") {
+	list($retval, $msg) =
+		create_new_user($_POST["user"], $_POST["pass"]);
+}
+else {
+	echo "uuuuhhhhhhhhh....<BR>\n" ;
+}
 
 
-	if ($_POST["action"] == "Login") {
-		list($retval, $msg) =
-			login_existing_user($_POST["user"], $_POST["pass"]);
-			echo $msg, "<BR>\n";
-	}
-	if ($_POST["action"] == "New User") {
-		list($retval, $msg) =
-			create_new_user($_POST["user"], $_POST["pass"]);
-			echo $msg, "<BR>\n";
-	}
-	else {
-		echo "uuuuhhhhhhhh....<BR>\n";
-	}
+if ($retval == FALSE) {
+	echo "<DIV ALIGN=CENTER>", $msg, "<BR><BR>\n" ;
+	echo "<a href=\"login.php\">Try again</A><BR>\n" ;
+	echo "<a href=\"logout.php\">Log out</A><BR>\n" ;
+}
+else {
+	echo "Hi there.  You're online.<BR>\n" ;
+	echo "<a href=\"page2.php\">Page Two</a><BR>\n" ;
+}
 
-?>
+bbs_page_footer();
 
-
-<a href="page2.php">Page Two</a><BR>
-<a href="page3.php">Page Three</a><BR>
-
-<?PHP
-	bbs_page_footer();
 ?>
 
