@@ -354,9 +354,12 @@ void smtp_mail(char *argbuf) {
 	 * this system.
 	 */
 	else {
+		TRACE;
 		cvt = convert_internet_address(user, node, SMTP->from);
+		TRACE;
 		lprintf(9, "cvt=%d, citaddr=<%s@%s>\n", cvt, user, node);
 		if (CtdlHostAlias(node) == hostalias_localhost) {
+			TRACE;
 			cprintf("550 You must log in to send mail from %s\r\n",
 				node);
 			strcpy(SMTP->from, "");
