@@ -923,7 +923,6 @@ void imap_rename(int num_parms, char *parms[]) {
 		char newfoldername[SIZ];
 		char newroomname[ROOMNAMELEN];
 		int newfloor;
-		int r;
 	
 		imap_mailboxname(foldername, sizeof foldername, qrbuf);
 	
@@ -998,7 +997,10 @@ void imap_rename(int num_parms, char *parms[]) {
 		while (irl != NULL) {
 			r = CtdlRenameRoom(irl->irl_oldroom,
 				irl->irl_newroom, irl->irl_newfloor);
-			/* FIXME handle error returns */
+			if (r != crr_ok) {
+				/* FIXME handle error returns better */
+				lprintf(5, "CtdlRenameRoom() error %d\n", r);
+			}
 			irlp = irl;
 			irl = irl->next;
 			phree(irlp);

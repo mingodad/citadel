@@ -1008,8 +1008,8 @@ void cmd_getr(void)
  * You can also specify which floor to move the room to, or specify -1 to
  * keep the room on the same floor it was on.
  *
- * This function is unaware of namespaces.  If you are renaming a mailbox
- * room, you must supply the namespace prefix in both the old and new names!
+ * If you are renaming a mailbox room, you must supply the namespace prefix
+ * in *at least* the old name!
  */
 int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 	int old_floor = 0;
@@ -1018,7 +1018,7 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 	int ret = 0;
 	struct floor *fl;
 	struct floor flbuf;
-
+	long owner = 0L;
 
 	lprintf(9, "CtdlRenameRoom(%s, %s, %d)\n",
 		old_name, new_name, new_floor);
@@ -1052,7 +1052,20 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 	}
 
 	else {
-		safestrncpy(qrbuf.QRname, new_name, sizeof(qrbuf.QRname));
+		/* Rename it */
+		if (qrbuf.QRflags & QR_MAILBOX) {
+			owner = atol(qrbuf.QRname);
+		}
+		if ( (owner > 0L) && (atol(new_name) == 0L) ) {
+			snprintf(qrbuf.QRname, sizeof(qrbuf.QRname),
+					"%010ld.%s", owner, new_name);
+		}
+		else {
+			safestrncpy(qrbuf.QRname, new_name,
+						sizeof(qrbuf.QRname));
+		}
+
+		/* Take care of floor stuff */
 		old_floor = qrbuf.QRfloor;
 		if (new_floor < 0) {
 			new_floor = old_floor;
