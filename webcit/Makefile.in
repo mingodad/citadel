@@ -33,9 +33,9 @@ snprintf.o: snprintf.c
 
 
 webcit: webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
-	roomops.o tools.o messages.o
+	roomops.o tools.o messages.o userlist.o
 	$(CC) webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
-	tools.o roomops.o messages.o -o webcit
+	tools.o roomops.o messages.o userlist.o -o webcit
 
 webcit.o: webcit.c webcit.h child.h
 	$(CC) $(CFLAGS) $(DEFS) -c webcit.c
@@ -54,6 +54,9 @@ serv_func.o: serv_func.c webcit.h child.h
 
 who.o: who.c webcit.h child.h
 	$(CC) $(CFLAGS) $(DEFS) -c who.c
+
+userlist.o: userlist.c webcit.h child.h
+	$(CC) $(CFLAGS) $(DEFS) -c userlist.c
 
 tools.o: tools.c webcit.h
 	$(CC) $(CFLAGS) $(DEFS) -c tools.c
