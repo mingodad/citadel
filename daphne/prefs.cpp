@@ -3,7 +3,6 @@
 // =========================================================================
 
 #include "includes.hpp"
-#include <wx/notebook.h>
 
 // ----------------------------------------------------------------------------
 // constants
@@ -93,63 +92,43 @@ Preferences::Preferences(	CitClient *sock,
 	c3->height.AsIs(); c3->width.AsIs();
 	cancel_button->SetConstraints(c3);
 
-	wxNotebook *MyNotebook = new wxNotebook(this, -1);
-
-	wxLayoutConstraints *n1 = new wxLayoutConstraints;
-	n1->top.SameAs(this, wxTop, 50); // FIX we're here
-	n1->left.SameAs(this, wxLeft);
-	n1->right.SameAs(this, wxRight);
-	n1->bottom.Above(cancel_button, -3);
-	MyNotebook->SetConstraints(n1);
-
-	wxPanel *HostPanel = new wxPanel(this);
-
-	wxLayoutConstraints *n2 = new wxLayoutConstraints;
-	n2->width.PercentOf(MyNotebook, wxWidth, 50);
-	n2->height.PercentOf(MyNotebook, wxHeight, 50);
-	n2->centreX.SameAs(MyNotebook, wxCentreX);
-	n2->centreY.SameAs(MyNotebook, wxCentreY);
-	HostPanel->SetConstraints(n2);
-
-	MyNotebook->AddPage(HostPanel, "Citadel server");
-
 	wxStaticText *server_host_label = new wxStaticText(
-		HostPanel, -1, "Server host");
+		this, -1, "Server host");
 
-	server_host = new wxTextCtrl(HostPanel, -1);
+	server_host = new wxTextCtrl(this, -1);
 	
 	wxStaticText *server_port_label = new wxStaticText(
-		HostPanel, -1, "Server port");
+		this, -1, "Server port");
 	
-	server_port = new wxTextCtrl(HostPanel, -1);
+	server_port = new wxTextCtrl(this, -1);
 
 	wxLayoutConstraints *c4 = new wxLayoutConstraints;
-	c4->top.SameAs(HostPanel, wxTop, 10);
-	c4->left.SameAs(HostPanel, wxLeft, 10);
+	c4->top.SameAs(this, wxTop, 10);
+	c4->left.SameAs(this, wxLeft, 10);
 	c4->height.AsIs(); c4->width.AsIs();
 	server_host_label->SetConstraints(c4);
 
 	wxLayoutConstraints *c5 = new wxLayoutConstraints;
 	c5->centreY.SameAs(server_host_label, wxCentreY);
 	c5->left.RightOf(server_host_label, 10);
-	c5->right.SameAs(HostPanel, wxRight, 10);
+	c5->right.SameAs(this, wxRight, 10);
 	c5->height.AsIs();
 	server_host->SetConstraints(c5);
 
 	wxLayoutConstraints *c6 = new wxLayoutConstraints;
 	c6->top.Below(server_host_label, 15);
-	c6->left.SameAs(HostPanel, wxLeft, 10);
+	c6->left.SameAs(this, wxLeft, 10);
 	c6->height.AsIs(); c6->width.AsIs();
 	server_port_label->SetConstraints(c6);
 
 	wxLayoutConstraints *c7 = new wxLayoutConstraints;
 	c7->centreY.SameAs(server_port_label, wxCentreY);
 	c7->left.SameAs(server_host, wxLeft);
-	c7->right.PercentOf(HostPanel, wxWidth, 50);
+	c7->right.PercentOf(this, wxWidth, 50);
 	c7->height.AsIs();
 	server_port->SetConstraints(c7);
 
-	server_autoconnect = new wxCheckBox(HostPanel, -1,
+	server_autoconnect = new wxCheckBox(this, -1,
 		"Automatically connect at startup");
 
 	wxLayoutConstraints *c8 = new wxLayoutConstraints;
@@ -157,9 +136,6 @@ Preferences::Preferences(	CitClient *sock,
 	c8->left.RightOf(server_port, 5);
 	c8->width.AsIs(); c8->height.AsIs();
 	server_autoconnect->SetConstraints(c8);
-
-
-
 
 
 
