@@ -1,4 +1,8 @@
  $Log$
+ Revision 630.10  2005/02/01 19:46:12  ajc
+ * Added an SMTP-like calling syntax to ENT0 to allow a confirmation message
+   to be sent back to the client after a message is transmitted.
+
  Revision 630.9  2005/02/01 03:33:22  ajc
  * Changed CtdlRoomAccess() calling syntax in order to return both
    the access bits and the current view
@@ -6335,3 +6339,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

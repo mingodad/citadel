@@ -2670,6 +2670,8 @@ void cmd_ent0(char *entargs)
 	int err = 0;
 	struct recptypes *valid = NULL;
 	char subject[SIZ];
+	int do_confirm = 0;
+	long msgnum;
 
 	unbuffer_output();
 
@@ -2678,6 +2680,7 @@ void cmd_ent0(char *entargs)
 	anon_flag = extract_int(entargs, 2);
 	format_type = extract_int(entargs, 3);
 	extract(subject, entargs, 4);
+	do_confirm = extract_int(entargs, 6);
 
 	/* first check to make sure the request is valid. */
 
@@ -2788,13 +2791,29 @@ void cmd_ent0(char *entargs)
 	}
 
 	/* Read in the message from the client. */
-	cprintf("%d send message\n", SEND_LISTING);
+	if (do_confirm) {
+		cprintf("%d send message\n", START_CHAT_MODE);
+	} else {
+		cprintf("%d send message\n", SEND_LISTING);
+	}
 	msg = CtdlMakeMessage(&CC->user, recp,
 		CC->room.QRname, anonymous, format_type,
 		masquerade_as, subject, NULL);
 
 	if (msg != NULL) {
-		CtdlSubmitMsg(msg, valid, "");
+		msgnum = CtdlSubmitMsg(msg, valid, "");
+
+		if (do_confirm) {
+			cprintf("%ld\n", msgnum);
+			if (msgnum >= 0L) {
+				cprintf("Message accepted.\n");
+			}
+			else {
+				cprintf("Internal error.\n");
+			}
+			cprintf("000\n");
+		}
+
 		CtdlFreeMessage(msg);
 	}
 	CC->fake_postname[0] = '\0';

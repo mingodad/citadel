@@ -792,6 +792,10 @@ typically be 0; see the MSG0 command above).
 the message.
   5  -  Post name.  When postflag is 2, this is the name you are posting as.
 This is an Aide only command.
+  6  -  Do Confirmation.  NOTE: this changes the protocol semantics!  When
+you set this to nonzero, ENT0 will reply with a confirmation message after
+you submit the message text.  The reply code for the ENT0 command will be
+START_CHAT_MODE instead of SEND_LISTING.
 
  Possible result codes:
   OK  -  The request is valid.  (Client did not set the "post" flag, so the
@@ -803,10 +807,24 @@ correct upper and lower case characters.  In addition, if the recipient is
 having his/her mail forwarded, the forwarding address will be returned.
   SEND_LISTING  -  The request is valid.  The client should now transmit
 the text of the message (ending with a 000 on a line by itself, as usual).
+  START_CHAT_MODE  -  The request is valid.  The client should now transmit
+the text of the message, ending with a 000 on a line by itself.  After
+transmitting the 000 terminator, the client MUST read in the confirmation
+from the server, which will also end with 000 on a line by itself.  The format
+of the confirmation appears below.
   ERROR + NOT_LOGGED_IN  -  Not logged in.
   ERROR + HIGHER_ACCESS_REQUIRED  -  Higher access is required.  An
 explanation follows, worded in a form that can be displayed to the user.
   ERROR + NO_SUCH_USER  -  The specified recipient does not exist.
+
+The format of the confirmation message, if requested, is as follows:
+Line 1: The new message number on the server for the message.  It will be
+        positive for a real message number, or negative to denote
+        that an error occurred.  If an error occurred, the message was
+        not saved.
+Line 2: A human-readable confirmation or error message.
+(More may be added to this in the future, so do not assume that there will
+only be two lines output.  Keep reading until 000 is received.)
 
 
  RINF   (read Room INFormation file)
