@@ -1,9 +1,16 @@
+1999-04-18 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* serv_chat.c: fixed some potential buffer overruns (thanks dme)
+
 Wed Apr 14 21:32:28 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Makefile.in: chmod 4755 citmail to prevent citmail from aborting
 	  when called from sendmail due to citadel.config security check
 
 1999-04-13 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* dynloader.c: OpenBSD places underscores in front of symbol names
+	* Makefile.in: fixed a few sillies
+	* aidepost.c, citmail.c, file_ops.c, logging.c, msgbase.c, netmailer.c,
+	  netproc.c, rcit.c, routines.c, serv_upgrade.c: fixed time_t handling
+	  (have to cast it to long for printf/scanf)
 
 Mon Apr 12 22:13:26 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* aidepost.c: rewrote to unlink temp file before writing to it so that

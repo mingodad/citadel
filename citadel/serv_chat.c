@@ -80,11 +80,11 @@ void allwrite(char *cmdbuf, int flag, char *roomname, char *username)
 	else
 		un = CC->usersupp.fullname;
 	if (flag == 1) {
-		sprintf(bcast, ":|<%s %s>", un, cmdbuf);
+		snprintf(bcast, sizeof bcast, ":|<%s %s>", un, cmdbuf);
 	} else if (flag == 0) {
-		sprintf(bcast, "%s|%s", un, cmdbuf);
+		snprintf(bcast, sizeof bcast, "%s|%s", un, cmdbuf);
 	} else if (flag == 2) {
-		sprintf(bcast, ":|<%s whispers %s>", un, cmdbuf);
+		snprintf(bcast, sizeof bcast, ":|<%s whispers %s>", un, cmdbuf);
 	}
 	if ((strcasecmp(cmdbuf, "NOOP")) && (flag != 2)) {
 		fp = fopen(CHATLOG, "a");
@@ -109,7 +109,7 @@ void allwrite(char *cmdbuf, int flag, char *roomname, char *username)
 		clnew->chat_username[sizeof clnew->chat_username - 1] = 0;
 	} else
 		clnew->chat_username[0] = '\0';
-	strcpy(clnew->chat_text, bcast);
+	safestrncpy(clnew->chat_text, bcast, sizeof clnew->chat_text);
 
 	/* Here's the critical section.
 	 * First, add the new message to the queue...
@@ -211,7 +211,7 @@ void cmd_chat(char *argbuf)
 	}
 	strcpy(CC->chat_room, "Main room");
 
-	strcpy(hold_cs_room, CC->cs_room);
+	safestrncpy(hold_cs_room, CC->cs_room, sizeof hold_cs_room);
 	CC->cs_flags = CC->cs_flags | CS_CHAT;
 	set_wtmpsupp("<chat>");
 	cprintf("%d Entering chat mode (type '/help' for available commands)\n",
@@ -472,7 +472,8 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 					mallok(sizeof (struct ExpressMessage));
 				memset(newmsg, 0,
 					sizeof (struct ExpressMessage));
-				strcpy(newmsg->sender, lun);
+				safestrncpy(newmsg->sender, lun,
+					    sizeof newmsg->sender);
 				if (!strcasecmp(x_user, "broadcast"))
 					newmsg->flags |= EM_BROADCAST;
 				newmsg->text = mallok(msglen);
