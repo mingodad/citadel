@@ -17,6 +17,10 @@
 #include "tools.h"
 #include "config.h"
 
+struct mn_roomlist {
+	struct mn_roomlist *next;
+	char roomname[SIZ];
+};
 
 void logoff(int code)
 {
@@ -39,6 +43,8 @@ int main(int argc, char **argv)
 	char roomfilename[SIZ];
 	FILE *nodefp;
 	char nodefilename[SIZ];
+	struct mn_roomlist *mn = NULL;
+	struct mn_roomlist *mnptr = NULL;
 
 	printf("\n\n\n\n\n"
 "This utility migrates your network settings (room sharing with other\n"
@@ -104,23 +110,29 @@ int main(int argc, char **argv)
 			fprintf(nodefp, "%s|", d->d_name);
 			printf("Enter shared secret: ");
 			gets(buf);
+			if (buf[0] == 0) strcpy(buf, config.c_net_password);
 			fprintf(nodefp, "%s|", buf);
 			printf("Enter host name/IP : ");
 			gets(buf);
+			if (buf[0] == 0) sprintf(buf, "%s.citadel.org",
+				d->d_name);
 			fprintf(nodefp, "%s|", buf);
 			printf("Enter port number  : ");
 			gets(buf);
+			if (buf[0] == 0) strcpy(buf, "504");
 			fprintf(nodefp, "%s\n", buf);
 
+			fgets(buf, sizeof buf, fp);
+			printf("skipping: %s", buf);
 			while (fgets(room, sizeof room, fp),
-				fscanf(fp, "%ld\n", &thighest),
-				!feof(fp) ) {
-					room[strlen(room) - 1] = 0;
-					fprintf(roomfp, "%s|%s\n",
-						d->d_name, room);
-					if (thighest > highest) {
-						highest = thighest;
-					}
+			      (fgets(buf, sizeof buf, fp) != NULL) ) {
+				thighest = atol(buf),
+				room[strlen(room) - 1] = 0;
+				fprintf(roomfp, "%s|%s\n",
+					d->d_name, room);
+				if (thighest > highest) {
+					highest = thighest;
+				}
 			}
 			fclose(fp);
 		}
@@ -166,16 +178,56 @@ int main(int argc, char **argv)
 	while (fgets(room, sizeof room, roomfp) != NULL) {
 		room[strlen(room)-1] = 0;
 		if (strlen(room) > 0) {
-			printf("Room <%s>\n", room);
+			mnptr = (struct mn_roomlist *)
+				malloc(sizeof (struct mn_roomlist));
+			strcpy(mnptr->roomname, room);
+			mnptr->next = mn;
+			mn = mnptr;
 		}
 	}
 
 	pclose(roomfp);
 
+	/* Enter configurations for each room... */
+	while (mn != NULL) {
+		printf("Room <%s>\n", mn->roomname);
+
+		sprintf(buf, "GOTO %s", mn->roomname);
+		serv_puts(buf);
+		serv_gets(buf);
+		if (buf[0] != '2') goto roomerror;
+
+		serv_puts("SNET");
+		serv_gets(buf);
+		if (buf[0] != '4') goto roomerror;
+
+		sprintf(buf, "lastsent|%ld", highest);
+		serv_puts(buf);
+
+		roomfp = fopen(roomfilename, "r");
+		if (roomfp != NULL) {
+			while (fgets(buf, sizeof buf, roomfp) != NULL) {
+				buf[strlen(buf)-1] = 0;
+				extract(node, buf, 0);
+				extract(room, buf, 1);
+				if (!strcasecmp(room, mn->roomname)) {
+					sprintf(buf, 
+						"ignet_push_share|%s", node);
+					serv_puts(buf);
+				}
+			}
+			fclose(roomfp);
+		}
+
+		serv_puts("000");
+
+roomerror:	/* free this record */
+		mnptr = mn->next;
+		free(mn);
+		mn = mnptr;
+	}
+
 	unlink(roomfilename);
 	unlink(nodefilename);
 	return(0);
 }
-
-
-

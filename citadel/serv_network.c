@@ -1387,7 +1387,7 @@ void cmd_netp(char *cmdbuf)
 char *Dynamic_Module_Init(void)
 {
 	CtdlRegisterProtoHook(cmd_gnet, "GNET", "Get network config");
-	CtdlRegisterProtoHook(cmd_snet, "SNET", "Get network config");
+	CtdlRegisterProtoHook(cmd_snet, "SNET", "Set network config");
 	CtdlRegisterProtoHook(cmd_netp, "NETP", "Identify as network poller");
 	CtdlRegisterSessionHook(network_do_queue, EVT_TIMER);
 	return "$Id$";
