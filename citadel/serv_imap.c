@@ -365,6 +365,11 @@ void imap_greeting(void)
  */
 void imap_login(int num_parms, char *parms[])
 {
+	if (num_parms != 4) {
+		cprintf("%s BAD incorrect number of parameters\r\n", parms[0]);
+		return;
+	}
+
 	if (CtdlLoginExistingUser(parms[2]) == login_ok) {
 		if (CtdlTryPassword(parms[3]) == pass_ok) {
 			cprintf("%s OK login successful\r\n", parms[0]);

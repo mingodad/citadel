@@ -1,4 +1,11 @@
  $Log$
+ Revision 629.1  2005/01/07 03:05:04  ajc
+ * serv_imap.c: fail with a "BAD" error response if the LOGIN command is
+   called with the wrong number of parameters (otherwise it goes boom)
+ * user_ops.c: CtdlLoginExistingUser() was calling strproc() on the supplied
+   name, which killed the ability to log in with your email address (because
+   it stripped the @ symbol).  Changed it to striplt() instead.
+
  Revision 629.0  2005/01/04 03:57:32  ajc
  * THIS IS 6.29
 
@@ -6251,4 +6258,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -359,7 +359,7 @@ int CtdlLoginExistingUser(char *trythisname)
 
 	if (trythisname == NULL) return login_not_found;
 	safestrncpy(username, trythisname, USERNAME_SIZE);
-	strproc(username);
+	striplt(username);
 
 	if ((CC->logged_in)) {
 		return login_already_logged_in;
