@@ -24,4 +24,4 @@ inline void become_session(struct CitContext *which_con);
 void CtdlRedirectOutput(FILE *fp, int sock);
 
 extern int num_sessions;
-extern int time_to_die;
+extern volatile int time_to_die;

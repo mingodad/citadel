@@ -1,4 +1,8 @@
  $Log$
+ Revision 580.5  2001/07/20 23:48:23  nbryant
+ fix build on solaris, check default install location for db 3.2, and silence
+ gcc 3.0
+
  Revision 580.4  2001/07/16 14:24:30  ajc
  * Silly cosmetic change to keep the wholist ordered by ascending session number
 
@@ -2574,3 +2578,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

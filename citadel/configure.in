@@ -32,6 +32,7 @@ if test "x$with_db" != xno -a "x$with_db" != xyes -a "$with_db"; then
 	with_db=yes
 else
 	test -d /usr/local/BerkeleyDB.3.1 && db_dir=/usr/local/BerkeleyDB.3.1
+	test -d /usr/local/BerkeleyDB.3.2 && db_dir=/usr/local/BerkeleyDB.3.2
 fi
 
 if test "x$with_gdbm" = xyes -a "x$with_db" = xyes; then
@@ -152,6 +153,9 @@ fi
 dnl Check for HP/UX dyanmic loader. This should only be in -ldld.
 AC_CHECK_LIB(dld, shl_load, LIBS="-ldld $LIBS")
 
+dnl Check for Solaris realtime support
+AC_CHECK_LIB(rt, sched_yield)
+
 dnl Determine the system's authentication capabilities, if autologin is
 dnl requested. We currently support PAM, standard getpwnam(), and getspnam()
 dnl (Linux shadow passwords)
@@ -193,7 +197,7 @@ if test "x$with_db" != xno -a "x$with_gdbm" != xyes; then
 	AC_CHECK_LIB(db, db_env_create,
 		[GDBM="$GDBM -ldb"
 		DATABASE=database_sleepycat.c
-		with_gdbm=no])
+		with_gdbm=no], [], [$NETLIBS])
 fi
 
 if test "x$with_gdbm" != xno -a "x$with_db" != xyes; then

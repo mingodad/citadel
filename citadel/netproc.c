@@ -596,7 +596,7 @@ BONFGM:	b = getc(fp);
 		strcpy(buffer->Z, bbb);
 	goto BONFGM;
 
-END:
+END:;
 
 }
 
