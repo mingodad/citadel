@@ -1027,6 +1027,9 @@ NEW_INST:
 	disable_other_mta("courier-pop");
 	disable_other_mta("vmailmgrd");
 	disable_other_mta("imapd");
+	disable_other_mta("popd");
+	disable_other_mta("pop3d");
+	disable_other_mta("exim");
 #endif
 
 	if ((pw = getpwuid(config.c_bbsuid)) == NULL)
