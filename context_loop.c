@@ -244,6 +244,7 @@ void *context_loop(int sock)
 	int a;
 	int f;
 	int desired_session = 0;
+	int got_cookie = 0;
 	char str_session[256];
 	struct wc_session *sptr;
 	struct wc_session *TheSession;
@@ -269,7 +270,9 @@ void *context_loop(int sock)
 	do {
 		req_gets(sock, buf, hold);
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
-			cookie_to_stuff(&buf[15], &desired_session, NULL, NULL, NULL, NULL);
+			cookie_to_stuff(&buf[15], &desired_session,
+				NULL, NULL, NULL, NULL);
+			got_cookie = 1;
 		}
 		else if (!strncasecmp(buf, "Content-length: ", 16)) {
 			ContentLength = atoi(&buf[16]);
@@ -279,6 +282,21 @@ void *context_loop(int sock)
 		}
 		strcpy(&req[num_lines++][0], buf);
 	} while (strlen(buf) > 0);
+
+
+	/*
+	 * If requesting a non-root page, there should already be a cookie
+	 * set.  If there isn't, the client browser has cookies turned off
+	 * (or doesn't support them) and we have to barf & bail.
+	 */
+	strcpy(buf, &req[0][0]);
+	if (!strncasecmp(buf, "GET ", 4)) strcpy(buf, &buf[4]);
+	else if (!strncasecmp(buf, "HEAD ", 5)) strcpy(buf, &buf[5]);
+	if (buf[1]==' ') buf[1]=0;
+	if ( (strcmp(buf, "/")) && (got_cookie == 0)) {
+		strcpy(&req[0][0], "GET /static/nocookies.html HTTP/1.0");
+	}
+
 
 	/*
 	 * See if there's an existing session open with the desired ID
@@ -416,7 +434,7 @@ void *context_loop(int sock)
 	} else {
 end:		unlock_session(TheSession);
 	}
-	free(req);
+end2:	free(req);
 
 
 	/*
