@@ -82,7 +82,7 @@ void listsub_generate_token(char *buf) {
 /*
  * Enter a subscription request
  */
-void do_subscribe(char *room, char *email, char *subtype) {
+void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 	struct quickroom qrbuf;
 	FILE *ncfp;
 	char filename[SIZ];
@@ -100,11 +100,12 @@ void do_subscribe(char *room, char *email, char *subtype) {
 	assoc_file_name(filename, sizeof filename, &qrbuf, "netconfigs");
 	ncfp = fopen(filename, "a");
 	if (ncfp != NULL) {
-		fprintf(ncfp, "subpending|%s|%s|%s|%ld\n",
+		fprintf(ncfp, "subpending|%s|%s|%s|%ld|%s\n",
 			email,
 			subtype,
 			token,
-			time(NULL)
+			time(NULL),
+			webpage
 		);
 		fclose(ncfp);
 	}
@@ -117,12 +118,12 @@ void do_subscribe(char *room, char *email, char *subtype) {
 		"<%s> to the '%s' mailing list.\n\n"
 		"In order to confirm this subscription request, please\n"
 		"point your web browser at the following location:\n\n"
-		"http://FIXME.com:FIXME/blah?room=%s&token=%s\n\n"
+		"http://%s?room=%s&token=%s\n\n"
 		"If this request has been submitted in error and you do not\n"
 		"wish to receive the '%s' mailing list, simply do nothing,\n"
 		"and you will not receive any further mailings.\n",
 
-		email, qrbuf.QRname, qrbuf.QRname, token, qrbuf.QRname
+		email, qrbuf.QRname, webpage, qrbuf.QRname, token, qrbuf.QRname
 	);
 
 	quickie_message(
@@ -218,6 +219,7 @@ void cmd_subs(char *cmdbuf) {
 	char email[SIZ];
 	char subtype[SIZ];
 	char token[SIZ];
+	char webpage[SIZ];
 
 	extract(opr, cmdbuf, 0);
 	if (!strcasecmp(opr, "subscribe")) {
@@ -229,7 +231,8 @@ void cmd_subs(char *cmdbuf) {
 		else {
 			extract(room, cmdbuf, 1);
 			extract(email, cmdbuf, 2);
-			do_subscribe(room, email, subtype);
+			extract(webpage, cmdbuf, 3);
+			do_subscribe(room, email, subtype, webpage);
 		}
 	}
 	else if (!strcasecmp(opr, "unsubscribe")) {

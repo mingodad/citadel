@@ -48,7 +48,7 @@ data in the other direction.
  
   
  INSTRUCTION:  subpending
- SYNTAX:       subpending|friko@mumjiboolean.com|listrecp|A234Z|1234567890
+ SYNTAX:       subpending|friko@mumjiboolean.com|listrecp|A234Z|1234567890|http://foo.com/lists
     "Subscription pending" for the specified address.  This means that
 someone has requested to subscribe an e-mail address (in this case,
 friko@mumjiboolean.com) to the list.  The third parameter is either "list"
@@ -58,7 +58,10 @@ and e-mailed to the specified address.  When the user comes back and supplies
 this token, the subscription is complete.  The fifth parameter is a simple
 timestamp, so that we may purge old records which were never confirmed.
  
+ The sixth field is the URL of the web page used to enter the subscription
+request, minus any parameters.
+ 
  INSTRUCTION:  unsubpending
- SYNTAX:       unsubpending|friko@mumjiboolean.com|A234Z|1234567890
+ SYNTAX:       unsubpending|friko@mumjiboolean.com|A234Z|1234567890|http://foo.com/lists
     Similar to the 'subpending' command, except this one is for unsubscribe
-requests.  The same rules apply with regard to the token.
+requests.  The same rules apply with regard to the token and the web page.
