@@ -1,5 +1,4 @@
 #include "includes.hpp"
-#include <time.h>
 
 
 enum {
@@ -219,16 +218,8 @@ void RoomView::do_readloop(wxString readcmd) {
 		sendcmd = "MSG0 " + buf;
 		message = new CitMessage(citsock, sendcmd, ThisRoom);
 
-		allmsgs += "&nbsp;&nbsp;&nbsp;<H3>";
-		allmsgs += asctime(localtime(&message->timestamp));
-		allmsgs += " from " + message->author;
-		if (message->room.CmpNoCase(ThisRoom))
-			allmsgs += " in " + message->room + "> ";
-		if (message->nodename.CmpNoCase(citsock->NodeName))
-			allmsgs += " @ " + message->nodename;
-		if (message->recipient.Length() > 0)
-			allmsgs += " to " + message->recipient;
-		allmsgs += "</h3><br>";
+		allmsgs += generate_html_header(message, ThisRoom,
+						citsock->NodeName);
 		allmsgs += message->msgtext;
 
 		delete message;

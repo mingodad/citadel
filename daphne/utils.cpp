@@ -1,6 +1,7 @@
 // utility functions not belonging to any particular class
 
 #include "includes.hpp"
+#include <time.h>
 
 
 // Extract a field from a string returned by the server
@@ -59,6 +60,46 @@ void variformat_to_html(wxString& outputbuf,
 		outputbuf.Append("</BODY></HTML>\n");
 	}
 }
+
+
+wxString generate_html_header(CitMessage *message,
+			wxString ThisRoom,
+			wxString ThisNode) {
+
+	wxString ret;
+	int verbosity = 3;
+
+	switch(verbosity) {
+
+	case 2:
+		ret = "&nbsp;&nbsp;&nbsp;<H3>";
+		ret += asctime(localtime(&message->timestamp));
+		ret += " from " + message->author;
+		if (message->room.CmpNoCase(ThisRoom))
+			ret += " in " + message->room + "> ";
+		if (message->nodename.CmpNoCase(ThisNode))
+			ret += " @ " + message->nodename;
+		if (message->recipient.Length() > 0)
+			ret += " to " + message->recipient;
+		ret += "</h3><br>";
+		return ret;
+
+	case 3:
+		ret = "" ;
+		ret += "<TT>Date: </TT>";
+		ret += asctime(localtime(&message->timestamp));
+		ret += "<BR>";
+		ret += "<TT>From: </TT>" + message->author;
+		ret += " @ " + message->nodename + "<BR>";
+		if (message->recipient.Length() > 0)
+			ret += "<TT>To:   </TT>" + message->recipient + "<BR>";
+		ret += "<BR>\n";
+		return ret;
+		
+	}
+}
+
+
 
 
 
