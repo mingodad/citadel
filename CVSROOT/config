@@ -9,3 +9,5 @@ PreservePermissions=no
 # level of the new working directory when using the `cvs checkout'
 # command.
 TopLevelAdmin=no
+
+LockDir=/var/lock/cvs
