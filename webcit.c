@@ -285,7 +285,7 @@ void output_headers(int print_standard_html_head) {
 
 	if (print_standard_html_head) {
         	wprintf("<HTML><HEAD><TITLE>");
-		escputs("WebCit");
+		escputs("WebCit");	 /* FIX -- add BBS name here */
 		wprintf("</TITLE></HEAD>");
 		if (ExpressMessages != NULL) {
 			wprintf("<SCRIPT language=\"javascript\">\n");
@@ -419,6 +419,25 @@ void output_image() {
 		}
 
 	}
+
+
+/*
+ * Convenience function to display a page containing only an error string
+ */
+void display_error(char *errormessage) {
+        printf("HTTP/1.0 200 OK\n");
+        output_headers(1);
+        wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+        wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+        wprintf("<B>Error</B>\n");
+        wprintf("</FONT></TD></TR></TABLE><BR>\n");
+	escputs(errormessage);
+        wprintf("</BODY></HTML>\n");
+        wDumpContent();
+	}
+
+
+
 
 void extract_action(char *actbuf, char *cmdbuf) {
 	int i;
@@ -674,6 +693,18 @@ fclose(fp);
 
 	else if (!strcasecmp(action, "goto_private")) {
 		goto_private();
+		}
+
+	else if (!strcasecmp(action, "zapped_list")) {
+		zapped_list();
+		}
+
+	else if (!strcasecmp(action, "display_zap")) {
+		display_zap();
+		}
+
+	else if (!strcasecmp(action, "zap")) {
+		zap();
 		}
 
 	/* When all else fails... */

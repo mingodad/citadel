@@ -214,6 +214,7 @@ void readloop(char *oper) {
 	int nummsgs;
 
 	printf("HTTP/1.0 200 OK\n");
+	printf("Window-target: bottom\n");
 	output_headers(1);
 
 	wprintf("<CENTER><B>%s - ",wc_roomname);

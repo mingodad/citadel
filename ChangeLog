@@ -1,3 +1,8 @@
+Tue Dec 22 22:35:50 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Got the Zap and List-Zapped commands working
+	* Added a convenience function to display a page with an error string
+	* Automatically do a read-new-msgs whenever a new room banner is loaded
+
 Thu Dec 17 20:38:00 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Added the screens to send pages
 	* Changed message headers to display in bigger font, non-boldface

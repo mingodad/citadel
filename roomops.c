@@ -127,7 +127,7 @@ void list_all_rooms_by_floor(void) {
 		/* Floor name column */
 		wprintf("<TR><TD>");
 	
-/*	
+/* FIX ... don't link to a floor pic that doesn't exist
 		wprintf("<IMG SRC=\"/dynamic/_floorpic_/%d\" ALT=\"%s\">",
 			&floorlist[a][0]);
  */
@@ -156,9 +156,17 @@ void list_all_rooms_by_floor(void) {
  * list all forgotten rooms
  */
 void zapped_list(void) {
-	wprintf("<CENTER><H1>Forgotten rooms</H1>\n");
+        printf("HTTP/1.0 200 OK\n");
+        output_headers(1);
+        wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+        wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+        wprintf("<B>Zapped (forgotten) rooms</B>\n");
+        wprintf("</FONT></TD></TR></TABLE><BR>\n");
 	listrms("LZRM -1");
-	wprintf("</CENTER><HR>\n");
+	wprintf("<BR><BR>\n");
+	wprintf("Click on any room to un-zap it and goto that room.\n");
+	wprintf("</BODY></HTML>\n");
+	wDumpContent();
 	}
 	
 
@@ -193,7 +201,15 @@ void gotoroom(char *gname, int display_name)
 
 	printf("HTTP/1.0 200 OK\n");
 	printf("Window-target: top\n");
-	output_headers(1);
+	output_headers(0);
+
+        wprintf("<HTML><HEAD>\n");
+
+	/* automatically fire up a read-new-msgs in the bottom frame */
+	wprintf("<META HTTP-EQUIV=\"Refresh\" CONTENT=\"0;URL=/readnew\">\n");
+
+        wprintf("</HEAD><BODY ");
+        wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
 
 	if (display_name != 2) {
 		/* store ungoto information */
@@ -816,10 +832,7 @@ void goto_private(void) {
 	char buf[256];
 	
 	if (strcasecmp(bstr("sc"),"OK")) {
-        	printf("HTTP/1.0 200 OK\n");
-        	output_headers(1);
-		wprintf("Cancelled.</HTML>\n");
-		wDumpContent();
+		display_main_menu();
 		return;
 		}
 
@@ -853,53 +866,50 @@ void goto_private(void) {
  * display the screen to zap a room
  */
 void display_zap(void) {
-	char zaproom[32];
-	
-	strcpy(zaproom, bstr("room"));
+        printf("HTTP/1.0 200 OK\n");
+        output_headers(1);
 	
         wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
         wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
         wprintf("<B>Zap (forget) the current room</B>\n");
         wprintf("</FONT></TD></TR></TABLE>\n");
 
-	wprintf("If you select this option, <em>%s</em> will ", zaproom);
+	wprintf("If you select this option, <em>%s</em> will ", wc_roomname);
 	wprintf("disappear from your room list.  Is this what you wish ");
 	wprintf("to do?<BR>\n");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/zap\">\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
-	wprintf("</FORM>");
+	wprintf("</FORM></HTML>\n");
+	wDumpContent();
 	}
 
 
 /* 
  * zap a room
  */
-int zap(void) {
-	char zaproom[32];
+void zap(void) {
 	char buf[256];
 
 	if (strcmp(bstr("sc"),"OK")) {
-		return(2);
+		display_main_menu();
+		return;
 		}
 
-	strcpy(zaproom, bstr("room"));
-	sprintf(buf, "GOTO %s", zaproom);
-	serv_puts(buf);
+	serv_printf("GOTO %s", wc_roomname);
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		wprintf("<EM>%s</EM>\n",&buf[4]);
-		return(2);
+		display_error(&buf[4]);
+		return;
 		}
 
 	serv_puts("FORG");
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		wprintf("<EM>%s</EM>\n",&buf[4]);
-		return(2);
+		display_error(&buf[4]);
+		return;
 		}
 
 	gotoroom(bstr("_BASEROOM_"),1);
-	return(0);
 	}
