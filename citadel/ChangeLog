@@ -1,4 +1,7 @@
  $Log$
+ Revision 624.8  2004/08/27 20:16:51  ajc
+ * Update internal version number to 6.25
+
  Revision 624.7  2004/08/26 04:13:55  ajc
  * newinstall.sh: updated with some new goodies
  * setup.c: when run from Easy Install, offer to set up LDAP.  (Not finished.)
@@ -5994,4 +5997,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
