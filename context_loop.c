@@ -34,6 +34,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <pthread.h>
+#include <signal.h>
 #include "webcit.h"
 #include "webserver.h"
 
@@ -43,6 +44,7 @@
 struct wc_session {
 	struct wc_session *next;	/* Next session in list */
 	int session_id;			/* Session ID */
+	pid_t webcit_pid;		/* PID of the webcit process */
 	int inpipe[2];			/* Data from webserver to session */
 	int outpipe[2];			/* Data from session to webserver */
 	pthread_mutex_t critter;	/* Critical section uses pipes */
@@ -234,6 +236,18 @@ void *context_loop(int sock) {
 		}
 
 	/*
+	 * Before we trumpet to the universe that the session we're looking
+	 * for actually exists, check first to make sure it's still there.
+	 */
+	if (TheSession != NULL) {
+		if (kill(TheSession->webcit_pid, 0)) {
+			printf("   Session is *DEAD* !!\n");
+			remove_session(TheSession);
+			TheSession = NULL;
+			}
+		}
+
+	/*
 	 * Create a new session if we have to
 	 */
 	if (TheSession == NULL) {
@@ -251,18 +265,30 @@ void *context_loop(int sock) {
 		pthread_mutex_unlock(&MasterCritter);
 		sprintf(str_session, "%d", TheSession->session_id);
 		f = fork();
+		if (f > 0) TheSession->webcit_pid = f;
+		
 		fflush(stdout); fflush(stdin);
 		if (f==0) {
+
+			/* Hook stdio to the ends of the pipe we're using */
 			dup2(TheSession->inpipe[0], 0);
 			dup2(TheSession->outpipe[1], 1);
+
 			/* Close the ends of the pipes that we're not using */
 			close(TheSession->inpipe[1]);
 			close(TheSession->outpipe[0]);
+	
+			/* Close the HTTP socket in this pid; don't need it */
 			close(sock);
+
+			/* Run the actual WebCit session */
 			execlp("./webcit", "webcit", str_session, defaulthost,
 			       defaultport, NULL);
+
+			/* Simple page to display if exec fails */
 			printf("HTTP/1.0 404 WebCit Failure\n\n");
 			printf("Server: %s\n", SERVER);
+			printf("X-WebCit-Session: close\n");
 			printf("Content-type: text/html\n");
 			printf("Content-length: 76\n");
 			printf("\n");
@@ -270,9 +296,11 @@ void *context_loop(int sock) {
 			printf("<BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">execlp() failed</BODY></HTML>\n");
 			exit(0);
 			}
-		/* Close the ends of the pipes that we're not using */
-		close(TheSession->inpipe[0]);
-		close(TheSession->outpipe[1]);
+		else {
+			/* Close the ends of the pipes that we're not using */
+			close(TheSession->inpipe[0]);
+			close(TheSession->outpipe[1]);
+			}
 		}
 
 	/* 
@@ -333,6 +361,7 @@ end:		unlock_session(TheSession);
          * to support HTTP/1.1 "persistent" connections by looping back to
          * the top of this function.  For now, we'll just close.
          */
+	printf("   Remember, the pid is %d\n", TheSession->webcit_pid);
 	printf("   Closing socket %d ... ret=%d\n", sock,
 	       lingering_close(sock));
 
