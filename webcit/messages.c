@@ -577,11 +577,11 @@ void read_message(long msgnum) {
 				buf[strlen(buf) - 1] = 0;
 			if ((bq == 0) &&
 		    	((!strncmp(buf, ">", 1)) || (!strncmp(buf, " >", 2)) || (!strncmp(buf, " :-)", 4)))) {
-				wprintf("<SPAN CLASS=\"pull_quote\">");
+				wprintf("<BLOCKQUOTE>");
 				bq = 1;
 			} else if ((bq == 1) &&
 			   	(strncmp(buf, ">", 1)) && (strncmp(buf, " >", 2)) && (strncmp(buf, " :-)", 4))) {
-				wprintf("</SPAN>");
+				wprintf("</BLOCKQUOTE>");
 				bq = 0;
 			}
 			wprintf("<TT>");

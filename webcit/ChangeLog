@@ -1,4 +1,9 @@
 $Log$
+Revision 522.22  2004/08/05 02:47:21  ajc
+* Removed the "pull_quote" style and used the <BLOCKQUOTE> tag instead.  It
+  has a more predictable and attractive behavior, and can still be
+  overridden in the style sheet if the site operator wants to.
+
 Revision 522.21  2004/08/04 03:52:23  ajc
 * Tasks view is now pretty.
 * Tasks view now displays date due for each task.
@@ -2000,3 +2005,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

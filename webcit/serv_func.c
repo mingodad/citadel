@@ -140,17 +140,18 @@ void fmout(FILE *fp, char *align)
 		intext = 1;
 
 		/* Quoted text should be displayed in italics and in a
-		 * different colour.  This code understands both Citadel/UX
-		 * style " >" quotes and FordBoard-style " :-)" quotes.
+		 * different colour.  This code understands Citadel/UX
+		 * style " >" quotes and will convert to <BLOCKQUOTE> tags.
 		 */
-		if ((bq == 0) &&
-		    ((!strncmp(buf, " >", 2)) || (!strncmp(buf, " :-)", 4)))) {
-			wprintf("<SPAN CLASS=\"pull_quote\">");
+		if ((bq == 0) && (!strncmp(buf, " >", 2))) {
+			wprintf("<BLOCKQUOTE>");
 			bq = 1;
-		} else if ((bq == 1) &&
-		  (strncmp(buf, " >", 2)) && (strncmp(buf, " :-)", 4))) {
-			wprintf("</SPAN>");
+		} else if ((bq == 1) && (strncmp(buf, " >", 2))) {
+			wprintf("</BLOCKQUOTE>");
 			bq = 0;
+		}
+		if ((bq == 1) && (!strncmp(buf, " >", 2))) {
+			strcpy(buf, &buf[2]);
 		}
 		/* Activate embedded URL's */
 		url(buf);
