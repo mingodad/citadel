@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.8  2002/09/22 02:48:04  ajc
+ * axdefs.h: add "Notes" view
+
  Revision 601.7  2002/09/17 03:18:15  ajc
  * Create the Calendar> and Tasks> rooms at login time, and set their default
    views to calendar and tasklist views.  Renamed "My Calendar>" to "Calendar>"
@@ -4009,4 +4012,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
