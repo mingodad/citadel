@@ -245,7 +245,7 @@ void cmd_subs(char *cmdbuf) {
 		else {
 			extract(room, cmdbuf, 1);
 			extract(email, cmdbuf, 2);
-			extract(webpage, cmdbuf, 3);
+			extract(webpage, cmdbuf, 4);
 			do_subscribe(room, email, subtype, webpage);
 		}
 	}
