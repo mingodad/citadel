@@ -28,6 +28,11 @@
 
 /*
  * Output HTTP headers which are common to all requests.
+ *
+ * Please observe that we don't use the usual output_headers()
+ * and wDumpContent() functions in the GroupDAV subsystem, so we
+ * do our own header stuff here.
+ *
  */
 void groupdav_common_headers(void) {
 	wprintf(

@@ -202,6 +202,8 @@ void end_burst(void) {
 	size_t the_len;
 	char *the_data;
 
+	if (WC->burst == NULL) return;
+
 	the_len = WC->burst_len;
 	the_data = WC->burst;
 

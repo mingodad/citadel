@@ -180,6 +180,10 @@ void wDumpContent(int print_standard_html_footer)
 		do_template("trailing");
 	}
 
+	/* If we've been saving it all up for one big output burst,
+	 * go ahead and do that now.
+	 */
+	end_burst();
 }
 
 
@@ -382,7 +386,8 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 	}
 
 	if (do_htmlhead) {
-		wprintf("\n");
+		/* wprintf("\n"); */
+		begin_burst();
 
 		if (refresh30) {
 			svprintf("REFRESHTAG", WCS_STRING, "%s",
