@@ -34,6 +34,9 @@
 #include <stdarg.h>
 #include <syslog.h>
 #include <grp.h>
+#ifdef __GNUC__
+#include <malloc.h>
+#endif
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
@@ -160,6 +163,10 @@ void dump_tracked() {
 		cprintf("%20s %5d\n",
 			hptr->h_file, hptr->h_line);
 		}
+#ifdef __GNUC__
+        malloc_stats();
+#endif
+
 	cprintf("000\n");
 	}
 #endif
