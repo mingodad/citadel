@@ -305,7 +305,7 @@ void do_generic(void)
 	if (buf[0] == '7') {
 		len = atol(&buf[4]);
 		junk = malloc(len);
-		bzero(junk, len);
+		memset(junk, 0, len);
 		serv_write(junk, len);
 		free(junk);
 	}

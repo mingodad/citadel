@@ -28,7 +28,19 @@ AC_SUBST(PTHREAD_DEFS)
 
 dnl Checks for programs.
 AC_PROG_CC
-test "$GCC" = yes && CFLAGS="$CFLAGS -Wall"
+
+dnl Configure compiler flags for GCC
+if test "$GCC" = yes; then
+	case "$host" in
+		*-*-solaris*)
+			CFLAGS="$CFLAGS -Wall -Wno-char-subscripts"
+		;;
+		*)
+			CFLAGS="$CFLAGS -Wall"
+		;;
+	esac
+fi
+
 missing_dir=`cd $ac_aux_dir && pwd`
 AM_MISSING_PROG(AUTOCONF, autoconf, $missing_dir)
 

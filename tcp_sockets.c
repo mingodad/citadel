@@ -47,12 +47,12 @@ RETSIGTYPE timeout(int signum)
  */
 int uds_connectsock(char *sockpath)
 {
-	struct sockaddr_un sun;
+	struct sockaddr_un addr;
 	int s;
 
-	memset(&sun, 0, sizeof(sun));
-	sun.sun_family = AF_UNIX;
-	strncpy(sun.sun_path, sockpath, sizeof sun.sun_path);
+	memset(&addr, 0, sizeof(addr));
+	addr.sun_family = AF_UNIX;
+	strncpy(addr.sun_path, sockpath, sizeof addr.sun_path);
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
@@ -61,7 +61,7 @@ int uds_connectsock(char *sockpath)
 		return(-1);
 	}
 
-	if (connect(s, (struct sockaddr *) &sun, sizeof(sun)) < 0) {
+	if (connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
 		fprintf(stderr, "can't connect: %s\n",
 			strerror(errno));
 		return(-1);
@@ -82,7 +82,7 @@ int tcp_connectsock(char *host, char *service)
 	struct sockaddr_in sin;
 	int s;
 
-	bzero((char *) &sin, sizeof(sin));
+	memcpy(&sin, 0, sizeof(sin));
 	sin.sin_family = AF_INET;
 
 	pse = getservbyname(service, "tcp");
@@ -94,7 +94,7 @@ int tcp_connectsock(char *host, char *service)
 	}
 	phe = gethostbyname(host);
 	if (phe) {
-		bcopy(phe->h_addr, (char *) &sin.sin_addr, phe->h_length);
+		memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
 	} else if ((sin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE) {
 		fprintf(stderr, "Can't get %s host entry: %s\n",
 			host, strerror(errno));
