@@ -35,11 +35,6 @@
 #include <stdarg.h>
 #include <pthread.h>
 #include <signal.h>
-
-#ifdef WITH_ZLIB
-#include <zlib.h>
-#endif
-
 #include "webcit.h"
 #include "webserver.h"
 
@@ -255,6 +250,7 @@ void context_loop(int sock)
 			got_cookie = 1;
 		}
 
+#ifdef WITH_ZLIB
 		if (!strncasecmp(buf, "Accept-encoding: ", 17)) {
 			extract_token(encodings, &buf[17], 0, ';');
 			for (i=0; i<num_tokens(encodings, ','); ++i) {
@@ -264,6 +260,7 @@ void context_loop(int sock)
 				}
 			}
 		}
+#endif
 
 		hptr = (struct httprequest *)
 			malloc(sizeof(struct httprequest));

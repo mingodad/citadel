@@ -1,5 +1,9 @@
 /* $Id$ */
 
+#ifdef WITH_ZLIB
+#include <zlib.h>
+#endif
+
 #define SIZ			4096		/* generic buffer size */
 
 #define TRACE fprintf(stderr, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
@@ -164,6 +168,10 @@ struct wcsession {
 	char this_page[SIZ];		/* address of current page */
 	char http_host[SIZ];		/* HTTP Host: header */
 	char *preferences;
+#ifdef WITH_ZLIB
+	int gzcompressed;		/* nonzero if compressed output */
+	gzFile gzfd;			/* stream to send compressed */
+#endif
 };
 
 #define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
@@ -332,3 +340,4 @@ void rename_floor(void);
 void do_listsub(void);
 void toggle_self_service(void);
 void summary(void);
+ssize_t write(int fd, const void *buf, size_t count);

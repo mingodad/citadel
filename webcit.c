@@ -152,6 +152,31 @@ char *bstr(char *key)
 }
 
 
+#ifdef WITH_ZLIB
+
+ssize_t http_write(int fd, const void *buf, size_t count) {
+
+	if (WC->gzfd) {
+		return gzwrite(WC->gzfd, buf, count);
+	}
+	else {
+		return write(fd, buf, count);
+	}
+
+
+}
+
+#else
+
+ssize_t http_write(int fd, const void *buf, size_t count) {
+	return write(fd, buf, count);
+}
+
+#endif
+
+
+
+
 void wprintf(const char *format,...)
 {
 	va_list arg_ptr;
@@ -161,7 +186,7 @@ void wprintf(const char *format,...)
 	vsprintf(wbuf, format, arg_ptr);
 	va_end(arg_ptr);
 
-	write(WC->http_sock, wbuf, strlen(wbuf));
+	http_write(WC->http_sock, wbuf, strlen(wbuf));
 }
 
 
@@ -295,6 +320,9 @@ void output_headers(int controlcode)
 	int suppress_check = 0;
 	char httpnow[SIZ];
 	static int pageseq = 0;
+#ifdef WITH_ZLIB
+	gzFile temp_gzfd = NULL;
+#endif
 
 	print_standard_html_head	=	controlcode & 0x03;
 	refresh30			=	((controlcode & 0x04) >> 2);
@@ -304,12 +332,23 @@ void output_headers(int controlcode)
 
 	httpdate(httpnow, time(NULL));
 
+#ifdef WITH_ZLIB
+	if (WC->gzcompressed) {
+		temp_gzfd = gzdopen(WC->http_sock, "wb9");
+	}
+#endif
+
 	if (print_standard_html_head > 0) {
 		wprintf("Content-type: text/html\n");
 		wprintf("Server: %s\n", SERVER);
 		wprintf("Connection: close\n");
 		wprintf("Pragma: no-cache\n");
 		wprintf("Cache-Control: no-store\n");
+#ifdef WITH_ZLIB
+		if (temp_gzfd != NULL) {
+			wprintf("Content-Encoding: gzip\n");
+		}
+#endif
 	}
 	stuff_to_cookie(cookie, WC->wc_session, WC->wc_username,
 			WC->wc_password, WC->wc_roomname);
@@ -324,6 +363,13 @@ void output_headers(int controlcode)
 
 	if (print_standard_html_head > 0) {
 		wprintf("\n");
+
+#ifdef WITH_ZLIB
+		if (temp_gzfd != NULL) {
+			WC->gzfd = temp_gzfd;
+		}
+#endif
+
 		wprintf("<HTML><HEAD><TITLE>");
 		escputs(serv_info.serv_humannode);
 		wprintf("</TITLE>\n"
@@ -452,7 +498,7 @@ void output_static(char *what)
 		bigbuffer = malloc(bytes);
 		fread(bigbuffer, bytes, 1, fp);
 		fclose(fp);
-		write(WC->http_sock, bigbuffer, bytes);
+		http_write(WC->http_sock, bigbuffer, bytes);
 		free(bigbuffer);
 	}
 	if (!strcasecmp(bstr("force_close_session"), "yes")) {
@@ -497,7 +543,7 @@ void output_image()
 			else {
 				memset(xferbuf, 0, thisblock);
 			}
-			write(WC->http_sock, xferbuf, thisblock);
+			http_write(WC->http_sock, xferbuf, thisblock);
 			bytes = bytes - thisblock;
 			accomplished = accomplished + thisblock;
 		}
@@ -548,7 +594,7 @@ void output_mimepart()
 			else {
 				memset(xferbuf, 0, thisblock);
 			}
-			write(WC->http_sock, xferbuf, thisblock);
+			http_write(WC->http_sock, xferbuf, thisblock);
 			bytes = bytes - thisblock;
 			accomplished = accomplished + thisblock;
 		}
@@ -803,6 +849,13 @@ void session_loop(struct httprequest *req, int gzip)
 	WC->upload = NULL;
 
 	WC->is_wap = 0;
+
+	if (gzip) {
+		WC->gzcompressed = 1;
+	}
+	else {
+		WC->gzcompressed = 0;
+	}
 
 	hptr = req;
 	if (hptr == NULL) return;
@@ -1183,4 +1236,12 @@ SKIP_ALL_THIS_CRAP:
 		free(WC->upload);
 		WC->upload_length = 0;
 	}
+
+#ifdef WITH_ZLIB
+	if (WC->gzfd) {
+		gzclose(WC->gzfd);
+		WC->gzfd = NULL;
+		WC->gzcompressed = 0;
+	}
+#endif
 }
