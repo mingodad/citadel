@@ -149,7 +149,7 @@ int main(void)
 		in_header = 0;
 		fclose(nm);
 		if (is_good) {
-		    sprintf(mailcmd, "exec netmailer %s mlist", tempfile);
+		    sprintf(mailcmd, "exec ./netmailer %s mlist", tempfile);
 		    system(mailcmd);
 		    is_good = 0;
 		}
