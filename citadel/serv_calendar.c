@@ -53,7 +53,7 @@ long SYM_CIT_ICAL;
 icalcomponent *icalcomponent_new_citadel_vcalendar(void) {
 	icalcomponent *encaps;
 
-	encaps = icalcomponent_new(ICAL_VCALENDAR_COMPONENT);
+	encaps = icalcomponent_new_vcalendar();
 	if (encaps == NULL) {
 		lprintf(3, "Error at %s:%d - could not allocate component!\n",
 			__FILE__, __LINE__);
@@ -1156,18 +1156,9 @@ void ical_freebusy(char *who) {
 		return;
 	}
 
-
-	/* Create a VCALENDAR in which we will encapsulate all the VFREEBUSYs */
-	encaps = icalcomponent_new_citadel_vcalendar();
-	if (encaps == NULL) {
-		cprintf("%d Internal error: cannot allocate memory.\n",
-			ERROR+INTERNAL_ERROR);
-		getroom(&CC->quickroom, hold_rm);
-		return;
-	}
-
 	/* Create a VFREEBUSY subcomponent */
-	fb = icalcomponent_new(ICAL_VFREEBUSY_COMPONENT);
+	lprintf(9, "Creating VFREEBUSY component\n");
+	fb = icalcomponent_new_vfreebusy();
 	if (fb == NULL) {
 		cprintf("%d Internal error: cannot allocate memory.\n",
 			ERROR+INTERNAL_ERROR);
@@ -1176,27 +1167,43 @@ void ical_freebusy(char *who) {
 		return;
 	}
 
-	/* Put the freebusy component into the calendar component */
-	icalcomponent_add_component(encaps, fb);
-
+	lprintf(9, "Adding busy time from events\n");
 	CtdlForEachMessage(MSGS_ALL, 0, "text/calendar",
 		NULL, ical_freebusy_backend, (void *)fb
 	);
 
+	lprintf(9, "Before encapsulation:\n---------\n%s\n----------\n",
+		icalcomponent_as_ical_string(fb));
+
+	/* Put the freebusy component into the calendar component */
+	lprintf(9, "Encapsulating\n");
+	encaps = ical_encapsulate_subcomponent(fb);
+	if (encaps == NULL) {
+		icalcomponent_free(fb);
+		cprintf("%d Internal error: cannot allocate memory.\n",
+			ERROR+INTERNAL_ERROR);
+		getroom(&CC->quickroom, hold_rm);
+		return;
+	}
+
+	/* Set the method to PUBLISH */
+	lprintf(9, "Setting method\n");
+	icalcomponent_set_method(encaps, ICAL_METHOD_PUBLISH);
+
 	/* Serialize it */
+	lprintf(9, "Serializing\n");
 	serialized_request = strdoop(icalcomponent_as_ical_string(encaps));
 	icalcomponent_free(encaps);	/* Don't need this anymore. */
 
 	cprintf("%d Here is the free/busy data:\n", LISTING_FOLLOWS);
 	if (serialized_request != NULL) {
 		client_write(serialized_request, strlen(serialized_request));
+		phree(serialized_request);
 	}
 	cprintf("\n000\n");
 
 	/* Go back to the room from which we came... */
 	getroom(&CC->quickroom, hold_rm);
-
-	cprintf("%d not implemented yet\n", ERROR);
 }
 
 
@@ -1384,7 +1391,7 @@ void ical_send_out_invitations(icalcomponent *cal) {
 	}
 
 	/* Encapsulate the VEVENT component into a complete VCALENDAR */
-	encaps = icalcomponent_new(ICAL_VCALENDAR_COMPONENT);
+	encaps = icalcomponent_new_vcalendar();
 	if (encaps == NULL) {
 		lprintf(3, "Error at %s:%d - could not allocate component!\n",
 			__FILE__, __LINE__);
