@@ -54,6 +54,15 @@
 #define DEFAULT_ENTRY	4
 
 
+
+/*
+ * HOUSEKEEPING_WAKEUP is the number of seconds which pass between each pass
+ * of the housekeeping thread.  This normally happens once per minute and there
+ * isn't any good reason to change it.
+ */
+#define HOUSEKEEPING_WAKEUP	60
+
+
 /*** STRUCTURE SIZE VARIABLES ***/
 
 /* You may NOT change this value once you set up your system.	    */

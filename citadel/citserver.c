@@ -146,10 +146,8 @@ void cleanup_stuff(void *arg)
 	lprintf(7, "cleanup_stuff() calling RemoveContext(%d)\n", CC->cs_pid);
 	RemoveContext(CC);
 
-	/* While we still have an extra thread with no user attached to it,
-	 * take the opportunity to do some housekeeping before exiting.
-	 */
-	do_housekeeping();
+	/* Wake up the housekeeping thread */
+	enter_housekeeping_cmd("SCHED_SHUTDOWN");
 	}
 
 

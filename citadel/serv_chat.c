@@ -25,9 +25,6 @@
 #include "citadel.h"
 #include "server.h"
 #include <syslog.h>
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#endif
 #include "serv_chat.h"
 #include "sysdep_decls.h"
 #include "citserver.h"

@@ -392,7 +392,6 @@ struct CitContext *MyContext(void) {
 struct CitContext *CreateNewContext(void) {
 	struct CitContext *me;
 
-	lprintf(9, "CreateNewContext: calling malloc()\n");
 	me = (struct CitContext *) mallok(sizeof(struct CitContext));
 	if (me == NULL) {
 		lprintf(1, "citserver: can't allocate memory!!\n");
@@ -435,8 +434,6 @@ void RemoveContext(struct CitContext *con)
 	struct CitContext *ptr;
 
 	lprintf(7, "Starting RemoveContext()\n");
-	lprintf(9, "Session count before RemoveContext is %d\n",
-		session_count());
 	if (con==NULL) {
 		lprintf(7, "WARNING: RemoveContext() called with null!\n");
 		return;
@@ -450,7 +447,6 @@ void RemoveContext(struct CitContext *con)
 	lprintf(7, "Closing socket %d\n", con->client_socket);
 	close(con->client_socket);
 
-	lprintf(9, "Dereferencing session context\n");
 	if (ContextList==con) {
 		ContextList = ContextList->next;
 		}
@@ -462,14 +458,8 @@ void RemoveContext(struct CitContext *con)
 			}
 		}
 
-	lprintf(9, "Freeing session context...\n");	
 	phree(con);
-	lprintf(9, "...done.\n");
 	end_critical_section(S_SESSION_TABLE);
-
-	lprintf(9, "Session count after RemoveContext is %d\n",
-		session_count());
-
 	lprintf(7, "Done with RemoveContext\n");
 	}
 
@@ -482,15 +472,12 @@ int session_count(void) {
 	struct CitContext *ptr;
 	int TheCount = 0;
 
-	lprintf(9, "session_count() starting\n");
 	begin_critical_section(S_SESSION_TABLE);
 	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 		++TheCount;
-		lprintf(9, "Counted session %3d (%d)\n", ptr->cs_pid, TheCount);
 		}
 	end_critical_section(S_SESSION_TABLE);
 
-	lprintf(9, "session_count() finishing\n");
 	return(TheCount);
 	}
 
@@ -641,7 +628,6 @@ void kill_session(int session_to_kill) {
 	struct CitContext *ptr;
 	THREAD killme = 0;
 
-	lprintf(9, "kill_session() scanning for thread to cancel...\n");
 	begin_critical_section(S_SESSION_TABLE);
 	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 		if (ptr->cs_pid == session_to_kill) {
@@ -649,11 +635,9 @@ void kill_session(int session_to_kill) {
 			}
 		}
 	end_critical_section(S_SESSION_TABLE);
-	lprintf(9, "kill_session() finished scanning.\n");
 
 	if (killme != 0) {
 #ifdef HAVE_PTHREAD_CANCEL
-		lprintf(9, "calling pthread_cancel()\n");
 		pthread_cancel(killme);
 #else
 		pthread_kill(killme, SIGUSR1);
@@ -800,6 +784,7 @@ int main(int argc, char **argv)
 	int alen;			/* Data for master socket */
 	int ssock;			/* Descriptor for master socket */
 	THREAD SessThread;		/* Thread descriptor */
+	THREAD HousekeepingThread;	/* Thread descriptor */
         pthread_attr_t attr;		/* Thread attributes */
 	struct CitContext *con;		/* Temporary context pointer */
 	char tracefile[128];		/* Name of file to log traces to */
@@ -921,7 +906,15 @@ int main(int argc, char **argv)
 		DLoader_Init(moddir);
 		free(moddir);
 		}
-	lprintf(9, "Modules done initializing.\n");
+
+	lprintf(7, "Starting housekeeper thread\n");
+	pthread_attr_init(&attr);
+       	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+	if (pthread_create(&HousekeepingThread, &attr,
+	   (void* (*)(void*)) housekeeping_loop, NULL) != 0) {
+		lprintf(1, "Can't create housekeeping thead: %s\n",
+			strerror(errno));
+	}
 
 	/* 
 	 * Endless loop.  Listen on the master socket.  When a connection
@@ -946,24 +939,20 @@ int main(int argc, char **argv)
 			}
 		else {
 			lprintf(7, "citserver: Client socket %d\n", ssock);
-			lprintf(9, "creating context\n");
 			con = CreateNewContext();
 			con->client_socket = ssock;
 
 			/* Set the SO_REUSEADDR socket option */
-			lprintf(9, "setting socket options\n");
 			i = 1;
 			setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR,
 				&i, sizeof(i));
 
 			/* set attributes for the new thread */
-			lprintf(9, "setting thread attributes\n");
 		        pthread_attr_init(&attr);
         		pthread_attr_setdetachstate(&attr,
 				PTHREAD_CREATE_DETACHED);
 
 			/* now create the thread */
-			lprintf(9, "creating thread\n");
 			if (pthread_create(&SessThread, &attr,
 					   (void* (*)(void*)) sd_context_loop,
 					   con)
@@ -973,15 +962,6 @@ int main(int argc, char **argv)
 					strerror(errno));
 				}
 
-			/* detach the thread 
-   			 * (defunct -- now done at thread creation time)
-			 * if (pthread_detach(&SessThread) != 0) {
-			 *	lprintf(1,
-			 *		"citserver: can't detach thread: %s\n",
-			 *		strerror(errno));
-			 *	}
-			 */
-			lprintf(9, "done!\n");
 			}
 		}
 	master_cleanup();

@@ -1,4 +1,7 @@
 $Log$
+Revision 1.377  1999/10/04 03:19:52  ajc
+* We now have a housekeeping thread and a housekeeping queue.
+
 Revision 1.376  1999/10/03 21:48:21  ajc
 * Added serv_upgrade.h to automagically convert pre-5.55 format user records
   to 5.55 format user records and generate vCards.
@@ -1291,4 +1294,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

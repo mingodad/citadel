@@ -1,6 +1,6 @@
 /*
  * This file contains housekeeping tasks which periodically
- * need to be executed.
+ * need to be executed.  It keeps a nice little queue...
  *
  * $Id$
  */
@@ -9,14 +9,21 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <fcntl.h>
 #include <time.h>
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
+#include <sys/types.h>
+#include <sys/time.h>
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
+#include "tools.h"
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
@@ -24,6 +31,10 @@
 #include "housekeeping.h"
 #include "sysdep_decls.h"
 #include "room_ops.h"
+
+
+int housepipe[2];	/* This is the queue for housekeeping tasks */
+
 
 /*
  * Terminate idle sessions.  This function pounds through the session table
@@ -39,7 +50,6 @@ void terminate_idle_sessions(void) {
 	do {
 		now = time(NULL);
 		session_to_kill = 0;
-		lprintf(9, "Scanning for timed out sessions...\n");
 		begin_critical_section(S_SESSION_TABLE);
 		for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 			if (  (ccptr!=CC)
@@ -49,43 +59,98 @@ void terminate_idle_sessions(void) {
 				}
 			}
 		end_critical_section(S_SESSION_TABLE);
-		lprintf(9, "...done scanning.\n");
 		if (session_to_kill > 0) {
 			lprintf(3, "Session %d timed out.  Terminating it...\n",
 				session_to_kill);
 			kill_session(session_to_kill);
-			lprintf(9, "...done terminating it.\n");
 			}
 		} while(session_to_kill > 0);
 	}
 
 
-/*
- * Main housekeeping function.  This gets run whenever a session terminates.
- */
-void do_housekeeping(void) {
 
-	lprintf(9, "--- begin housekeeping ---\n");
-	begin_critical_section(S_HOUSEKEEPING);
-	/*
-	 * Terminate idle sessions.
-	 */
-	lprintf(7, "Calling terminate_idle_sessions()\n");
-	terminate_idle_sessions();
-	lprintf(9, "Done with terminate_idle_sessions()\n");
-
-	/*
-	 * If the server is scheduled to shut down the next time all
-	 * users are logged out, now's the time to do it.
-	 */
+void check_sched_shutdown(void) {
 	if ((ScheduledShutdown == 1) && (ContextList == NULL)) {
 		lprintf(3, "Scheduled shutdown initiating.\n");
 		master_cleanup();
-		}
-	end_critical_section(S_HOUSEKEEPING);
-	lprintf(9, "--- end housekeeping ---\n");
+	}
+}
+
+
+
+/*
+ * This is the main loop for the housekeeping thread.  It remains active
+ * during the entire run of the server.
+ */
+void housekeeping_loop(void) {
+	long flags;
+        struct timeval tv;
+        fd_set readfds;
+        int did_something;
+	char house_cmd[256];	/* Housekeep cmds are always 256 bytes long */
+
+	if (pipe(housepipe) != 0) {
+		lprintf(1, "FATAL ERROR: can't create housekeeping pipe: %s\n",
+			strerror(errno));
+		exit(0);
 	}
 
+	flags = (long) fcntl(housepipe[1], F_GETFL);
+	flags |= O_NONBLOCK;
+	fcntl(housepipe[1], F_SETFL, flags);
+
+	while(1) {
+		do {
+			did_something = 0;
+			tv.tv_sec = HOUSEKEEPING_WAKEUP;
+			tv.tv_usec = 0;
+                	FD_ZERO(&readfds);
+                	FD_SET(housepipe[0], &readfds);
+                	select(housepipe[0] + 1, &readfds, 0L, 0L, &tv);
+                	if (FD_ISSET(housepipe[0], &readfds)) {
+                        	did_something = 1;
+			}
+
+			if (did_something) {
+				read(housepipe[0], house_cmd, 256);
+			}
+			else {
+				memset(house_cmd, 0, 256);
+				strcpy(house_cmd, "MINUTE");
+			}
+
+
+			/* Do whatever this cmd requires */
+			if (!strcmp(house_cmd, "MINUTE")) {
+				terminate_idle_sessions();
+			}
+
+			else if (!strcmp(house_cmd, "SCHED_SHUTDOWN")) {
+				check_sched_shutdown();
+			}
+
+			else {
+				lprintf(7, "Unknown housekeeping command\n");
+			}
+
+		} while (did_something);
+	}
+}
+
+
+
+
+
+
+void enter_housekeeping_cmd(char *cmd) {
+	char cmdbuf[256];
+
+	safestrncpy(cmdbuf, cmd, 256);
+	begin_critical_section(S_HOUSEKEEPING);
+	write(housepipe[1], cmdbuf, 256);
+	end_critical_section(S_HOUSEKEEPING);
+}
+	
 
 
 /*
