@@ -1,4 +1,7 @@
 $Log$
+Revision 400.0  2002/09/09 03:56:11  ajc
+* This is version 4.00
+
 Revision 323.68  2002/09/09 03:51:01  ajc
 * In the HTML-to-HTML converter:
   --> Open links in new window (as with text msgs)
