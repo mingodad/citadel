@@ -220,8 +220,8 @@ AC_CHECK_LIB(resolv, res_query, RESOLV="$RESOLV -lresolv")
 
 save_LIBS=$LIBS
 LIBS=$CURSES
-AC_SEARCH_LIBS(tgetent, [curses termcap])
-AC_SEARCH_LIBS(initscr, [curses ncurses])
+AC_SEARCH_LIBS(tgetent, [ncurses curses termcap])
+AC_SEARCH_LIBS(initscr, [ncurses curses])
 AC_CHECK_FUNCS(vw_printw wcolor_set)
 CURSES=$LIBS
 LIBS=$save_LIBS
@@ -355,7 +355,7 @@ dnl
 dnl TODO: for the DB header checks, we should check whether the headers
 dnl define db_env_create, somehow
 dnl
-AC_CHECK_HEADERS(curses.h dl.h fcntl.h limits.h termios.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h utmp.h utmpx.h paths.h db.h db3/db.h db4/db.h)
+AC_CHECK_HEADERS(curses.h ncurses.h dl.h fcntl.h limits.h termios.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h utmp.h utmpx.h paths.h db.h db3/db.h db4/db.h)
 
 AC_CHECK_HEADER(resolv.h, [SMTP=modules/libsmtp.la; DOMAIN=domain.c])
 AC_SUBST(SMTP)

@@ -5,7 +5,9 @@
  */
 
 #include "sysdep.h"
-#ifdef HAVE_CURSES_H
+#ifdef HAVE_NCURSES_H
+#include <ncurses.h>
+#elif defined(HAVE_CURSES_H)
 #include <curses.h>
 #endif
 #include <stdio.h>

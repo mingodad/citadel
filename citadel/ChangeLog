@@ -1,4 +1,9 @@
  $Log$
+ Revision 590.149  2002/03/12 23:34:37  nbryant
+ use ncurses in preference to curses if it's installed; it handles
+ background colors properly on dtterm, has a larger color pair palette,
+ and has a bigger terminal database than solaris curses
+
  Revision 590.148  2002/03/12 22:47:17  nbryant
  curses fix: map our normal color pairs into the 0-7 range instead of 1-8,
  in order to make our pairs fit on terminals such as dtterm where COLOR_PAIRS=8.
@@ -3477,4 +3482,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
