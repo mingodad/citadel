@@ -9,6 +9,8 @@ Sun Dec 13 13:35:12 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* messages.c: added "move message" functionality
 	* userlist.c: added.  This adds "userlist" and "show user" functions.
 	* roomops.c: fixed buggy implementation of ungoto
+	* Set up an option in output_headers() to optionally print the most
+	  often used opening HTML as well as the HTTP headers.
 
 Fri Dec 11 21:14:36 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Brought over message reading and entry functions from old WebCit

@@ -256,7 +256,7 @@ void getz(char *buf) {
 /*
  * Output all that important stuff that the browser will want to see
  */
-void output_headers(void) {
+void output_headers(int print_standard_html_head) {
 
 	static char *unset = "; expires=28-May-1971 18:10:00 GMT";
 
@@ -281,6 +281,14 @@ void output_headers(void) {
 	if (strlen(wc_roomname)>0) printf("Set-cookie: wc_roomname=%s\n",
 		wc_roomname);
 	else printf("Set-cookie: wc_roomname=%s\n", unset);
+
+	if (print_standard_html_head) {
+        	wprintf("<HTML><HEAD><TITLE>");
+		escputs("WebCit");
+		wprintf("</TITLE></HEAD>");
+		wprintf("<BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+		}
+
 	}
 
 void output_static(char *what) {
@@ -293,7 +301,7 @@ void output_static(char *what) {
 	fp = fopen(buf, "rb");
 	if (fp == NULL) {
 		printf("HTTP/1.0 404 %s\n", strerror(errno));
-		output_headers();
+		output_headers(0);
 		printf("Content-Type: text/plain\n");
 		sprintf(buf, "%s: %s\n", what, strerror(errno));
 		printf("Content-length: %d\n", strlen(buf));
@@ -302,7 +310,7 @@ void output_static(char *what) {
 		}
 	else {
 		printf("HTTP/1.0 200 OK\n");
-		output_headers();
+		output_headers(0);
 
 		if (!strncasecmp(&what[strlen(what)-4], ".gif", 4))
 			printf("Content-type: image/gif\n");
@@ -336,7 +344,7 @@ void output_image() {
 	if (buf[0]=='2') {
 		bytes = extract_long(&buf[4], 0);
 		printf("HTTP/1.0 200 OK\n");
-		output_headers();
+		output_headers(0);
 		printf("Content-type: image/gif\n");
 		printf("Content-length: %ld\n", bytes);
 		printf("\n");
@@ -358,7 +366,7 @@ void output_image() {
 		}
 	else {
 		printf("HTTP/1.0 404 %s\n", strerror(errno));
-		output_headers();
+		output_headers(0);
 		printf("Content-Type: text/plain\n");
 		sprintf(buf, "Error retrieving image\n");
 		printf("Content-length: %d\n", strlen(buf));
@@ -606,9 +614,8 @@ fclose(fp);
 	/* When all else fails... */
 	else {
 		printf("HTTP/1.0 200 OK\n");
-		output_headers();
+		output_headers(1);
 	
-		wprintf("<HTML><HEAD><TITLE>WebCit</TITLE></HEAD><BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
 		wprintf("TransactionCount is %d<BR>\n", TransactionCount);
 		wprintf("You're in session %d<HR>\n", wc_session);
 		wprintf("Command: <BR><PRE>\n");

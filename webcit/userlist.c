@@ -37,9 +37,7 @@ void userlist(void) {
 
 
         printf("HTTP/1.0 200 OK\n");
-        output_headers();
-        wprintf("<HTML><HEAD><TITLE>User list</TITLE>\n");
-        wprintf("</HEAD><BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+        output_headers(1);
 
 	serv_puts("LIST");
 	serv_gets(buf);
@@ -106,9 +104,7 @@ void showuser(void) {
 	int have_pic;
 
         printf("HTTP/1.0 200 OK\n");
-        output_headers();
-        wprintf("<HTML><HEAD><TITLE>User profile</TITLE>\n");
-        wprintf("</HEAD><BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+        output_headers(1);
 
 
         wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");

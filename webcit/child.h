@@ -27,7 +27,7 @@ void serv_printf(const char *format, ...);
 char *bstr(char *key);
 char *urlesc(char *);
 void urlescputs(char *);
-void output_headers(void);
+void output_headers(int);
 void wprintf(const char *format, ...);
 void extract(char *dest, char *source, int parmnum);
 int extract_int(char *source, int parmnum);

@@ -195,8 +195,7 @@ wprintf("</FONT></TD></TR></TABLE>\n");
  */
 void display_main_menu(void) {
 	printf("HTTP/1.0 200 OK\n");
-	output_headers();
-	wprintf("<HTML><HEAD><TITLE>WebCit main menu</TITLE></HEAD><BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+	output_headers(1);
 	embed_main_menu();
 	wprintf("</BODY></HTML>\n");
 	wDumpContent();
@@ -205,8 +204,7 @@ void display_main_menu(void) {
 
 void display_advanced_menu(void) {
 	printf("HTTP/1.0 200 OK\n");
-	output_headers();
-	wprintf("<HTML><HEAD><TITLE>WebCit main menu</TITLE></HEAD><BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+	output_headers(1);
 	embed_advanced_menu();
 	embed_main_menu();
 	wprintf("</BODY></HTML>\n");
