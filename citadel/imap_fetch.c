@@ -379,7 +379,12 @@ void imap_fetch(int num_parms, char *parms[]) {
 	extract_token(lostr, parms[2], 0, ':');
 	lo = atoi(lostr);
 	extract_token(histr, parms[2], 1, ':');
-	hi = atoi(histr);
+	if (!strcmp(histr, "*")) {
+		hi = IMAP->num_msgs;
+	}
+	else {
+		hi = atoi(histr);
+	}
 
 	if ( (lo < 1) || (hi < 1) || (lo > hi) || (hi > IMAP->num_msgs) ) {
 		cprintf("%s BAD invalid sequence numbers %d:%d\r\n",
@@ -401,6 +406,73 @@ void imap_fetch(int num_parms, char *parms[]) {
 
 	imap_do_fetch(lo, hi, num_items, itemlist);
 	cprintf("%s OK FETCH completed\r\n", parms[0]);
+}
+
+
+
+/*
+ * This function is called by the main command loop.
+ */
+void imap_uidfetch(int num_parms, char *parms[]) {
+	int lo = 0;
+	int hi = 0;
+	long louid, hiuid;
+	char lostr[1024], histr[1024], items[1024];
+	char *itemlist[256];
+	int num_items;
+	int i;
+	int have_uiditem = 0;
+
+	if (num_parms < 4) {
+		cprintf("%s BAD invalid parameters\r\n", parms[0]);
+		return;
+	}
+
+	extract_token(lostr, parms[3], 0, ':');
+	louid = atol(lostr);
+	extract_token(histr, parms[3], 1, ':');
+	if (!strcmp(histr, "*")) {
+		hiuid = IMAP->msgids[IMAP->num_msgs - 1];
+	}
+	else {
+		hiuid = atol(histr);
+	}
+
+	/* Convert uid to sequence nums */
+	for (i=0; i < IMAP->num_msgs; ++i) {
+		if (IMAP->msgids[i] < louid) lo = i+2;
+		if (IMAP->msgids[i] < hiuid) hi = i+2;
+	}
+
+	if (lo < 1) lo = 1;
+	if (hi > IMAP->num_msgs) hi = IMAP->num_msgs;
+
+	strcpy(items, "");
+	for (i=4; i<num_parms; ++i) {
+		strcat(items, parms[i]);
+		if (i < (num_parms-1)) strcat(items, " ");
+	}
+
+	num_items = imap_extract_data_items(itemlist, items);
+	if (num_items < 1) {
+		cprintf("%s BAD invalid data item list\r\n", parms[0]);
+		return;
+	}
+
+	/*
+	 * If the "UID" item was not specified by the client, we have to
+	 * implicitly add it, because this is a UID FETCH command.  We'll
+	 * add it at the end.
+	 */
+	for (i=0; i<num_items; ++i) {
+		if (!strcasecmp(itemlist[i], "UID")) ++have_uiditem;
+	}
+	if (have_uiditem < 1) {
+		itemlist[num_items++] = "UID";
+	}
+
+	imap_do_fetch(lo, hi, num_items, itemlist);
+	cprintf("%s OK UID FETCH completed\r\n", parms[0]);
 }
 
 
