@@ -913,10 +913,10 @@ ME1:	switch (mode) {
 	case 2:
 	default:	/* allow 2+ modes */
 		e_ex_code = 1;	/* start with a failed exit code */
-		editor_pid = fork();
-		cksum = file_checksum(filename);
 		screen_reset();
 		sttybbs(SB_RESTORE);
+		editor_pid = fork();
+		cksum = file_checksum(filename);
 		if (editor_pid == 0) {
 			char tmp[SIZ];
 

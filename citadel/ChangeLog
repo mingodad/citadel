@@ -1,4 +1,8 @@
  $Log$
+ Revision 614.28  2004/02/13 20:51:13  error
+ * Reset screen attributes before fork() so that external programs do the
+   right thing
+
  Revision 614.27  2004/02/12 04:16:38  ajc
  * Support for PLAIN logins in IMAP (need to test!)
 
@@ -5316,3 +5320,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

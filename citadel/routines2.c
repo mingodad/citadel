@@ -510,10 +510,11 @@ void validate(CtdlIPC *ipc)
 void subshell(void)
 {
 	int a, b;
+
+	screen_reset();
+	sttybbs(SB_RESTORE);
 	a = fork();
 	if (a == 0) {
-		screen_reset();
-		sttybbs(SB_RESTORE);
 		signal(SIGINT, SIG_DFL);
 		signal(SIGQUIT, SIG_DFL);
 		execlp(getenv("SHELL"), getenv("SHELL"), NULL);
