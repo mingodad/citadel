@@ -141,8 +141,6 @@ void init_ssl(void)
 			 SSL_MODE_AUTO_RETRY);
 #endif
 #endif
-	SSL_CTX_set_mode(ssl_ctx, SSL_CTX_get_mode(ssl_ctx) |
-			SSL_MODE_AUTO_RETRY);
 
 	CRYPTO_set_locking_callback(ssl_lock);
 	CRYPTO_set_id_callback(id_callback);
