@@ -1271,7 +1271,8 @@ void dump_heap(void) {
 	struct igheap *thisheap;
 
 	for (thisheap = igheap; thisheap != NULL; thisheap = thisheap->next) {
-		lprintf(CTDL_DEBUG, "%30s : %d\n", thisheap->file, thisheap->line);
+		lprintf(CTDL_CRIT, "UNFREED: %30s : %d\n",
+			thisheap->file, thisheap->line);
 	}
 }
 

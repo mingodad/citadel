@@ -1667,6 +1667,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 			lputroom(&CC->room);	/* unlock the room */
 			getroom(&CC->room, hold_rm);
 			if (msg != NULL) CtdlFreeMessage(msg);
+			free(msglist);
 			return(ERROR + ALREADY_EXISTS);
 		}
 	}

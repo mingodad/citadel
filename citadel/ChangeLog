@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.100  2004/03/24 21:23:50  ajc
+ * msgbase.c: repaired a memory leak
+
  Revision 614.99  2004/03/24 17:07:11  ajc
  * Put a new memory leak checker into the server because it turns out that
    the third-party ones all suck.  :)  This one doesn't involve renaming
@@ -5609,3 +5612,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
