@@ -1,4 +1,7 @@
 $Log$
+Revision 400.44  2002/10/21 20:16:38  ajc
+* Display conflicts nicely
+
 Revision 400.43  2002/10/21 18:29:14  ajc
 * Ask server to hunt for conflicts when displaying a meeting invitation
 
@@ -1087,4 +1090,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
