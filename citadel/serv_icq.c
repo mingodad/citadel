@@ -8,6 +8,9 @@
 
  $Id$
  $Log$
+ Revision 1.3  1999/07/24 21:26:01  ajc
+ n more log
+
  Revision 1.2  1999/07/23 04:27:45  ajc
  Added CtdlWriteObject() to store generic data in the msgbase
 
@@ -1185,7 +1188,7 @@ void icq_Main()
 		if (FD_ISSET((ThisICQ->icq_Sok), &readfds)) {
 			icq_HandleServerResponse();
 			did_something = 1;
-			sleep(1);
+			/* sleep(1); */
 		}
 	} while (did_something);
 }
