@@ -13,7 +13,7 @@
  L         Reads the last five messages in the room.
  N         Reads all new messages in the room.
  O         Reads all old messages, backwards.
- P         Page another user (send an express message)
+ P         Page another user (send an instant message)
  R         Reads all messages in the room, in reverse order.
  S         Skips current room without making its messages old.
  T         Terminate (logout)
