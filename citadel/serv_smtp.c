@@ -58,6 +58,13 @@ enum {				/* Delivery modes */
 long SYM_SMTP;
 long SYM_SMTP_RECP;
 
+
+
+/*****************************************************************************/
+/*                      SMTP SERVER (INBOUND) STUFF                          */
+/*****************************************************************************/
+
+
 /*
  * Here's where our SMTP session begins its happy day.
  */
@@ -143,7 +150,7 @@ void smtp_get_pass(char *argbuf) {
 	lprintf(9, "Trying <%s>\n", password);
 	if (CtdlTryPassword(password) == pass_ok) {
 		cprintf("235 Authentication successful.\r\n");
-		lprintf(9, "SMTP auth login successful\n");
+		lprintf(9, "SMTP authenticated login successful\n");
 		CC->internal_pgm = 0;
 		CC->cs_flags &= ~CS_STEALTH;
 	}
@@ -376,7 +383,7 @@ void smtp_rcpt(char *argbuf) {
 				strlen(SMTP_RECP) + 1024 );
 			strcat(SMTP_RECP, "room|");
 			strcat(SMTP_RECP, user);
-			strcat(SMTP_RECP, "|0\n");
+			strcat(SMTP_RECP, "|0|\n");
 			return;
 
 		case rfc822_no_such_user:
@@ -394,7 +401,7 @@ void smtp_rcpt(char *argbuf) {
 					strlen(SMTP_RECP) + 1024 );
 				strcat(SMTP_RECP, "remote|");
 				strcat(SMTP_RECP, recp);
-				strcat(SMTP_RECP, "|0\n");
+				strcat(SMTP_RECP, "|0|\n");
 				return;
 			}
 			return;
@@ -444,8 +451,8 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 	++successful_saves;
 
 	instr = mallok(1024);
-	sprintf(instr, "Content-type: %s\n\nmsgid|%ld\n",
-		SPOOLMIME, msgid);
+	sprintf(instr, "Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n",
+		SPOOLMIME, msgid, time(NULL) );
 
 	for (i=0; i<SMTP->number_of_recipients; ++i) {
 		extract_token(buf, SMTP_RECP, i, '\n');
@@ -652,6 +659,29 @@ void smtp_command_loop(void) {
 	}
 
 }
+
+
+
+
+/*****************************************************************************/
+/*               SMTP CLIENT (OUTBOUND PROCESSING) STUFF                     */
+/*****************************************************************************/
+
+/*
+ * smtp_do_queue()
+ * 
+ * Run through the queue sending out messages.
+ */
+void smtp_do_queue(void) {
+}
+
+
+
+
+
+/*****************************************************************************/
+/*                      MODULE INITIALIZATION STUFF                          */
+/*****************************************************************************/
 
 
 char *Dynamic_Module_Init(void)

@@ -33,6 +33,13 @@ each line.
     second parameter specifies the message ID in the local database.
  
  
+ INSTRUCTION:  submitted
+ SYNTAX:       submitted|999999999
+ DESCRIPTION:
+    Contains a timestamp designating when this message was first entered into
+    the system.
+ 
+ 
  INSTRUCTION:  local
  SYNTAX:       local|Friko Mumjiboolean|0
  DESCRIPTION:
@@ -49,15 +56,20 @@ each line.
  
  
  INSTRUCTION:  remote
- SYNTAX:       remote|billg@microsoft.com|0
+ SYNTAX:       remote|billg@microsoft.com|0|delivery status message
  DESCRIPTION:
     Names a recipient on a remote system to which the message should be
-    delivered.  (FIX ... this is where we have to keep track of multiple
-    delivery attempts and transient errors)
+    delivered.  The third parameter may contain any of the following values:
+       0 = No delivery has yet been attempted
+       2 = Delivery was successful
+       3 = A transient error was experienced ... try again later
+       5 = Delivery to this address failed permanently.  The error message
+           should be placed in the fourth field so that a bounce message may
+           be generated.
  
  
  INSTRUCTION:  ignet
- SYNTAX:       ignet|uncnsrd|Lobby|0
+ SYNTAX:       ignet|uncnsrd|Lobby|0|delivery status message
  DESCRIPTION:
     Names a room on another Citadel node to which this message needs to be
     spooled over the network.
