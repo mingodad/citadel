@@ -538,7 +538,6 @@ void check_inittab_entry(void)
 void set_str_val(int msgpos, char str[])
 {
 	char buf[4096];
-	char setupmsg[4096];
 	char tempfile[64];
 
 	sprintf(tempfile, tmpnam(NULL));
