@@ -1,4 +1,7 @@
  $Log$
+ Revision 607.19  2003/07/11 22:33:02  ajc
+ * Ignore comments in public_clients file
+
  Revision 607.18  2003/07/11 22:30:19  ajc
  * Automatically add 127.0.0.1 and config.c_fqdn to public_clients
 
@@ -4845,3 +4848,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

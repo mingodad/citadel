@@ -417,6 +417,9 @@ int is_public_client(void)
 
 		fp = fopen("public_clients", "r");
 		if (fp != NULL) while (fgets(buf, sizeof buf, fp)!=NULL) {
+			for (i=0; i<strlen(buf); ++i) {
+				if (buf[i] == '#') buf[i] = 0;
+			}
 			while (isspace((buf[strlen(buf)-1]))) {
 				buf[strlen(buf)-1] = 0;
 			}
