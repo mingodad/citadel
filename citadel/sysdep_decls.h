@@ -20,6 +20,8 @@ int ig_uds_server(char *sockpath, int queue_len);
 inline struct CitContext *MyContext (void);
 struct CitContext *CreateNewContext (void);
 void InitMyContext (struct CitContext *con);
+void buffer_output(void);
+void unbuffer_output(void);
 void client_write (char *buf, int nbytes);
 int client_read_to (char *buf, int bytes, int timeout);
 int client_read (char *buf, int bytes);

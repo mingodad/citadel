@@ -485,6 +485,33 @@ DONE:	++num_sessions;
 
 
 /*
+ * buffer_output() ... tell client_write to buffer all output until
+ *                     instructed to dump it all out later
+ */
+void buffer_output(void) {
+	if (CC->buffering == 0) {
+		CC->buffering = 1;
+		CC->buffer_len = 0;
+		CC->output_buffer = mallok(SIZ);
+	}
+}
+
+/*
+ * unbuffer_output()  ...  dump out all that output we've been buffering.
+ */
+void unbuffer_output(void) {
+	if (CC->buffering == 1) {
+		CC->buffering = 0;
+		client_write(CC->output_buffer, CC->buffer_len);
+		phree(CC->output_buffer);
+		CC->output_buffer = NULL;
+		CC->buffer_len = 0;
+	}
+}
+
+
+
+/*
  * client_write()   ...    Send binary data to the client.
  */
 void client_write(char *buf, int nbytes)
@@ -492,6 +519,7 @@ void client_write(char *buf, int nbytes)
 	int bytes_written = 0;
 	int retval;
 	int sock;
+	int old_buffer_len = 0;
 
 	if (CC->redirect_fp != NULL) {
 		fwrite(buf, nbytes, 1, CC->redirect_fp);
@@ -504,6 +532,17 @@ void client_write(char *buf, int nbytes)
 	else {
 		sock = CC->client_socket;
 	}
+
+	/* If we're buffering for later, do that now. */
+	if (CC->buffering) {
+		old_buffer_len = CC->buffer_len;
+		CC->buffer_len += nbytes;
+		CC->output_buffer = reallok(CC->output_buffer, CC->buffer_len);
+		memcpy(&CC->output_buffer[old_buffer_len], buf, nbytes);
+		return;
+	}
+
+	/* Ok, at this point we're not buffering.  Go ahead and write. */
 
 #ifdef HAVE_OPENSSL
 	if (CC->redirect_ssl) {

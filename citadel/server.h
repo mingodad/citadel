@@ -130,6 +130,10 @@ struct CitContext {
 	int redirect_ssl;
 #endif
 
+	int buffering;
+	char *output_buffer;	/* hold output for one big dump */
+	int buffer_len;
+
 	/* A linked list of all express messages sent to us. */
 	struct ExpressMessage *FirstExpressMessage;
 	int disable_exp;	/* Set to 1 to disable incoming pages */

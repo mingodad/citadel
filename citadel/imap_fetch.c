@@ -773,14 +773,20 @@ void imap_do_fetch_msg(int seq, struct CtdlMessage *msg,
 					1, msg);
 		}
 		else if (!strcasecmp(itemlist[i], "BODYSTRUCTURE")) {
+			buffer_output();
 			imap_fetch_bodystructure(IMAP->msgids[seq-1],
 					itemlist[i], msg);
+			unbuffer_output();
 		}
 		else if (!strcasecmp(itemlist[i], "ENVELOPE")) {
+			buffer_output();
 			imap_fetch_envelope(IMAP->msgids[seq-1], msg);
+			unbuffer_output();
 		}
 		else if (!strcasecmp(itemlist[i], "FLAGS")) {
+			buffer_output();
 			imap_fetch_flags(seq-1);
+			unbuffer_output();
 		}
 		else if (!strcasecmp(itemlist[i], "INTERNALDATE")) {
 			imap_fetch_internaldate(msg);

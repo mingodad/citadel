@@ -532,6 +532,11 @@ void logout(struct CitContext *who)
 
 	/* Do modular stuff... */
 	PerformSessionHooks(EVT_LOGOUT);
+
+	/* Free any output buffers */
+	if (who->output_buffer != NULL) {
+		unbuffer_output();
+	}
 }
 
 #ifdef ENABLE_CHKPWD

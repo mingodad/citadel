@@ -1,4 +1,11 @@
  $Log$
+ Revision 611.1  2003/11/06 04:25:30  ajc
+ * For certain IMAP outputs (such as BODYSTRUCTURE), buffer all output until
+   we've got the whole thing, then spew it all at once to avoid lots of
+   tiny TCP packets.
+ * New API calls buffer_output() (to start buffering) and unbuffer_output()
+   (to dump the buffer and stop buffering) are available to do this.
+
  Revision 611.0  2003/10/21 04:20:41  ajc
  * THIS IS 6.11
 
@@ -5055,3 +5062,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
