@@ -1082,7 +1082,7 @@ NEW_INST:
 	progress("Setting file permissions", 4, 4);
 
 	/* Contemplate the possibility of auto-configuring OpenLDAP */
-	contemplate_ldap();
+	/* contemplate_ldap(); */
 
 	/* See if we can start the Citadel service. */
 	if (strlen(init_entry) > 0) {

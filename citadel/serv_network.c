@@ -87,6 +87,25 @@ struct NetMap *the_netmap = NULL;
 char *working_ignetcfg = NULL;
 
 /*
+ * Load or refresh the Citadel network (IGnet) configuration for this node.
+ */
+void load_working_ignetcfg(void) {
+	char *cfg;
+
+	cfg = CtdlGetSysConfig(IGNETCFG);
+	if (cfg == NULL) {
+		cfg = strdup("");
+	}
+
+	working_ignetcfg = realloc(working_ignetcfg, strlen(cfg) + 1 );
+	strcpy(working_ignetcfg, cfg);
+}
+
+
+
+
+
+/*
  * Keep track of what messages to reject
  */
 struct FilterList *load_filter_list(void) {
@@ -1607,7 +1626,7 @@ void network_do_queue(void) {
 	doing_queue = 1;
 
 	/* Load the IGnet Configuration into memory */
-	working_ignetcfg = CtdlGetSysConfig(IGNETCFG);
+	load_working_ignetcfg();
 
 	/*
 	 * Poll other Citadel nodes.  Maybe.  If "full_processing" is set
@@ -1657,8 +1676,6 @@ void network_do_queue(void) {
 	}
 
 	doing_queue = 0;
-	free(working_ignetcfg);
-	working_ignetcfg = NULL;
 }
 
 
@@ -1686,11 +1703,9 @@ void cmd_netp(char *cmdbuf)
 	extract(node, cmdbuf, 0);
 	extract(pass, cmdbuf, 1);
 
-	/* Briefly load the IGnet Configuration to check node validity */
-	working_ignetcfg = CtdlGetSysConfig(IGNETCFG);
+	/* load the IGnet Configuration to check node validity */
+	load_working_ignetcfg();
 	v = is_valid_node(nexthop, secret, node);
-	free(working_ignetcfg);
-	working_ignetcfg = NULL;
 
 	if (v != 0) {
 		lprintf(CTDL_DEBUG, "authentication failed (node)");
