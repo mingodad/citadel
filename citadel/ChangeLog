@@ -1,4 +1,7 @@
  $Log$
+ Revision 641.28  2005/03/18 21:40:36  ajc
+ * Minor bugfix to previous checkin
+
  Revision 641.27  2005/03/18 21:25:06  ajc
  * Finished removing all the "dynamic session data" stuff in order to
    boost reliability, improve performance, and reduce complexity.
@@ -6545,3 +6548,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -1479,23 +1479,24 @@ START_TEXT:
 	 * we use will display those parts as-is.
 	 */
 	if (TheMessage->cm_format_type == FMT_RFC822) {
+		ma = malloc(sizeof(struct ma_info));
+		memset(ma, 0, sizeof(struct ma_info));
 
 		if (mode == MT_MIME) {
-			ma = malloc(sizeof(struct ma_info));
-			memset(ma, 0, sizeof(struct ma_info));
 			strcpy(ma->chosen_part, "1");
 			mime_parser(mptr, NULL,
 				*choose_preferred, *fixed_output_pre,
 				*fixed_output_post, (void *)ma, 0);
 			mime_parser(mptr, NULL,
 				*output_preferred, NULL, NULL, (void *)ma, 0);
-			free(ma);
 		}
 		else {
 			mime_parser(mptr, NULL,
 				*fixed_output, *fixed_output_pre,
-				*fixed_output_post, NULL, 0);
+				*fixed_output_post, (void *)ma, 0);
 		}
+
+		free(ma);
 	}
 
 DONE:	/* now we're done */
