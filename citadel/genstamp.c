@@ -58,11 +58,11 @@ void datestring(char *buf, size_t n, time_t xtime, int which_format) {
 	offset = timezone;
 #endif
 	if (offset > 0) {
-		offsign = '-';
+		offsign = '+';
 	}
 	else {
 		offset = 0L - offset;
-		offsign = '+';
+		offsign = '-';
 	}
 	offset = ( (offset / 3600) * 100 ) + ( offset % 60 );
 
