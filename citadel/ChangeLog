@@ -1,3 +1,10 @@
+Mon Nov  2 12:59:03 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* setup.c: looks for 'citadel', 'bbs', or 'guest' in /etc/passwd to
+	  try to get a default for bbsuid if it's currently set to 0
+	* citmail.c: changed usersupp.eternal to usersupp.usernum (why didn't
+	  it complain about this before?)
+	* serv_upgrade.c: began writing an "export" command to do sidegrades
+
 Sun Nov  1 18:47:42 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* serv_upgrade.c: cosmetic changes
 	* Implemented message expiry by date (this really needs to be moved

@@ -16,6 +16,7 @@
 #include <netdb.h>
 #include <errno.h>
 #include <limits.h>
+#include <pwd.h>
 
 #include "citadel.h"
 #include "axdefs.h"
@@ -861,6 +862,7 @@ int main(int argc, char *argv[]) {
 	int old_setup_level = 0;
 	int info_only = 0;
 	struct utsname my_utsname;
+	struct passwd *pw;
 
 	/* set an invalid setup type */
 	setup_type = (-1);
@@ -980,6 +982,18 @@ int main(int argc, char *argv[]) {
 		}
 	if (config.c_sleeping == 0) {
 		config.c_sleeping = 900;
+		}
+	if (config.c_bbsuid == 0) {
+		pw = getpwnam("citadel");
+		if (pw != NULL) config.c_bbsuid = pw->pw_uid;
+		}
+	if (config.c_bbsuid == 0) {
+		pw = getpwnam("bbs");
+		if (pw != NULL) config.c_bbsuid = pw->pw_uid;
+		}
+	if (config.c_bbsuid == 0) {
+		pw = getpwnam("guest");
+		if (pw != NULL) config.c_bbsuid = pw->pw_uid;
 		}
 
 	/* We need a system default message expiry policy, because this is

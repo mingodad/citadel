@@ -32,7 +32,7 @@
 #include "control.h"
 
 extern struct CitContext *ContextList;
-FILE *imfp;
+FILE *imfp, *exfp;
 
 #define MODULE_NAME 	"Import an unpacked system"
 #define MODULE_AUTHOR	"Art Cancro"
@@ -470,9 +470,78 @@ void do_import(char *argbuf) {
 	}
 
 
+
+void do_export(char *argbuf) {
+	char export_filename[PATH_MAX];
+	
+	extract(export_filename, argbuf, 0);
+	exfp = fopen(export_filename, "wb");
+	if (exfp == NULL) {
+		lprintf(9, "Cannot open %s: %s\n",
+			export_filename, strerror(errno));
+		cprintf("%d Cannot open file\n", ERROR);
+		return;
+		}
+
+	/* structure size variables */
+	lprintf(9, "Structure size variables\n");
+	fprintf(exfp, "ssv%c", 0);
+	fprintf(exfp, "maxfloors%c%d%c", 0, MAXFLOORS, 0);
+	fprintf(exfp, "endsection%c", 0);
+
+	/* Write out the server config */
+	lprintf(9,"Server config\n");
+	fprintf(exfp, "config%c", 0);
+	fprintf(exfp, "c_nodename%c%s%c", 0, config.c_nodename, 0);
+	fprintf(exfp, "c_fqdn%c%s%c", 0, config.c_fqdn, 0);
+	fprintf(exfp, "c_humannode%c%s%c", 0, config.c_humannode, 0);
+	fprintf(exfp, "c_phonenum%c%s%c", 0, config.c_phonenum, 0);
+	fprintf(exfp, "c_bbsuid%c%d%c", 0, config.c_bbsuid, 0);
+	fprintf(exfp, "c_creataide%c%d%c", 0, config.c_creataide, 0);
+	fprintf(exfp, "c_sleeping%c%d%c", 0, config.c_sleeping, 0);
+	fprintf(exfp, "c_initax%c%d%c", 0, config.c_initax, 0);
+	fprintf(exfp, "c_regiscall%c%d%c", 0, config.c_regiscall, 0);
+	fprintf(exfp, "c_twitdetect%c%d%c", 0, config.c_twitdetect, 0);
+	fprintf(exfp, "c_twitroom%c%s%c", 0, config.c_twitroom, 0);
+	fprintf(exfp, "c_defent%c%d%c", 0, config.c_defent, 0);
+	fprintf(exfp, "c_moreprompt%c%s%c", 0, config.c_moreprompt, 0);
+	fprintf(exfp, "c_restrict%c%d%c", 0, config.c_restrict, 0);
+	fprintf(exfp, "c_bbs_city%c%s%c", 0, config.c_bbs_city, 0);
+	fprintf(exfp, "c_sysadm%c%s%c", 0, config.c_sysadm, 0);
+	fprintf(exfp, "c_bucket_dir%c%s%c", 0, config.c_bucket_dir, 0);
+	fprintf(exfp, "c_setup_level%c%d%c", 0, config.c_setup_level, 0);
+	fprintf(exfp, "c_maxsessions%c%d%c", 0, config.c_maxsessions, 0);
+	fprintf(exfp, "c_net_password%c%s%c", 0, config.c_net_password, 0);
+	fprintf(exfp, "c_port_number%c%d%c", 0, config.c_port_number, 0);
+	fprintf(exfp, "endsection%c", 0);
+
+	/* Now some global stuff */
+	lprintf(9, "Globals\n");
+	get_control();
+	fprintf(exfp, "globals%c", 0);
+	fprintf(exfp, "mmhighest%c%ld%c", 0, CitControl.MMhighest, 0);
+	fprintf(exfp, "mmnextuser%c%ld%c", 0, CitControl.MMnextuser, 0);
+	fprintf(exfp, "mmflags%c%d%c", 0, CitControl.MMflags, 0);
+	fprintf(exfp, "endsection%c", 0);
+
+	/* export_rooms(exfp); */
+	/* export_floors(exfp); */
+	/* export_usersupp(exfp); */
+	fprintf(exfp, "endfile%c", 0);
+
+	fclose(exfp);
+	lprintf(1, "Export is finished.\n");
+	cprintf("%d Export is finished.\n", OK);
+	}
+
+
+
 struct DLModule_Info *Dynamic_Module_Init(void) {
 	CtdlRegisterProtoHook(do_import,
 				"IMPO",
 				"Import an unpacked system");
+	CtdlRegisterProtoHook(do_export,
+				"EXPO",
+				"Export the system");
 	return &info;
 	}
