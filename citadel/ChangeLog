@@ -1,3 +1,6 @@
+1998-11-23 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* citadel.spec: added
+
 1998-11-22 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* Makefile.in: split install target into install-exec, install-data,
 	  and install-doc subtargets
