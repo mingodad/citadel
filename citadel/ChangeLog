@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.10  2001/07/27 03:29:04  nbryant
+ missed one thing in the autoconf move
+
  Revision 580.9  2001/07/27 02:57:43  nbryant
  support one cursor per database rather than one global cursor
 
@@ -2594,4 +2597,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
