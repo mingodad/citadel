@@ -104,6 +104,9 @@ void listrms(char *variety)
 		if (f & QR_PRIVATE) {
 			color(1);
 			}
+		else if (f & QR_MAILBOX) {
+			color(6);
+			}
 		else {
 			color(2);
 			}

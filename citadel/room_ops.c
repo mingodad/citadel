@@ -25,17 +25,9 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf) {
 	int retval = 0;
 	struct visit vbuf;
 
-	/* Make sure we're dealing with a real, existing room */
-	if (roombuf->QRflags & QR_INUSE) {
-		retval = retval | UA_INUSE;
-		}
-	else {
-		return(0);
-		}
-
 	/* for internal programs, always do everything */
 	if (((CC->internal_pgm))&&(roombuf->QRflags & QR_INUSE)) {
-		return(UA_INUSE | UA_KNOWN | UA_GOTOALLOWED);
+		return(UA_KNOWN | UA_GOTOALLOWED);
 		}
 
 	/* For mailbox rooms, only allow access to the owner */
@@ -47,6 +39,15 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf) {
 
 	/* Locate any applicable user/room relationships */
 	CtdlGetRelationship(&vbuf, userbuf, roombuf);
+
+	/* For mailboxes, we skip all the access stuff (and we've
+	 * already checked by this point that the mailbox belongs
+	 * to the user)
+	 */
+	if (roombuf->QRflags & QR_MAILBOX) {
+		retval = UA_KNOWN | UA_GOTOALLOWED;
+		goto NEWMSG;
+		}
 
 	/* If this is a public room, it's accessible... */
 	if ((roombuf->QRflags & QR_PRIVATE) == 0) {
@@ -90,11 +91,11 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf) {
 
 	/* Aides get access to everything */
 	if (userbuf->axlevel >= 6) {
-		retval = retval | UA_INUSE | UA_KNOWN | UA_GOTOALLOWED;
+		retval = retval | UA_KNOWN | UA_GOTOALLOWED;
 		retval = retval & ~UA_ZAPPED;
 		}
 
-	/* By the way, we also check for the presence of new messages */
+NEWMSG:	/* By the way, we also check for the presence of new messages */
 	if ( (roombuf->QRhighest) > (vbuf.v_lastseen) ) {
 		retval = retval | UA_HASNEWMSGS;
 		}
@@ -447,9 +448,8 @@ void list_roomname(struct quickroom *qrbuf) {
 		strcpy(truncated_roomname, &truncated_roomname[11]);
 		cprintf("%s", truncated_roomname);
 		}
-
 	/* For all other rooms, just display the name in its entirety */
-	else {	
+	else {
 		cprintf("%s", qrbuf->QRname);
 		}
 
