@@ -1,4 +1,7 @@
 $Log$
+Revision 1.453  2000/01/26 02:41:27  ajc
+* SMTP delivery is working but still *very* rough.
+
 Revision 1.452  2000/01/25 04:45:50  ajc
 * Wrote enough of the SMTP sender to get Patriot drooling over it, but not
   enough to complete the transmission of mail.
@@ -1590,3 +1593,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

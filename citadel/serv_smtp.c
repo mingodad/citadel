@@ -677,7 +677,8 @@ void smtp_command_loop(void) {
  * Called by smtp_do_procmsg() to attempt delivery to one SMTP host
  *
  */
-void smtp_try(char *key, char *addr, int *status, char *dsn) {
+void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
+{
 	char buf[256];
 	int sock = (-1);
 	char mxhosts[1024];
@@ -722,7 +723,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn) {
 	}
 	lprintf(9, "%s\n", buf);
 	if (buf[0] != '2') {
-		if (buf[0] == '3') {
+		if (buf[0] == '4') {
 			*status = 3;
 			strcpy(dsn, &buf[4]);
 			sock_close(sock);
@@ -749,7 +750,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn) {
 	}
 	lprintf(9, "%s\n", buf);
 	if (buf[0] != '2') {
-		if (buf[0] == '3') {
+		if (buf[0] == '4') {
 			*status = 3;
 			strcpy(dsn, &buf[4]);
 			sock_close(sock);
@@ -763,15 +764,116 @@ void smtp_try(char *key, char *addr, int *status, char *dsn) {
 		}
 	}
 
+
+	/* HELO succeeded, now try the MAIL From: command */
+	sprintf(buf, "MAIL From: ajc@uncnsrd.mt-kisco.ny.us"); /* FIX */
+	sock_puts(sock, buf);
+	if (sock_gets(sock, buf) < 0) {
+		*status = 3;
+		strcpy(dsn, "Connection broken during SMTP conversation");
+		sock_close(sock);
+		return;
+	}
+	lprintf(9, "%s\n", buf);
+	if (buf[0] != '2') {
+		if (buf[0] == '4') {
+			*status = 3;
+			strcpy(dsn, &buf[4]);
+			sock_close(sock);
+			return;
+		}
+		else {
+			*status = 5;
+			strcpy(dsn, &buf[4]);
+			sock_close(sock);
+			return;
+		}
+	}
+
+
+	/* MAIL succeeded, now try the RCPT To: command */
+	sprintf(buf, "RCPT To: %s", addr);
+	sock_puts(sock, buf);
+	if (sock_gets(sock, buf) < 0) {
+		*status = 3;
+		strcpy(dsn, "Connection broken during SMTP conversation");
+		sock_close(sock);
+		return;
+	}
+	lprintf(9, "%s\n", buf);
+	if (buf[0] != '2') {
+		if (buf[0] == '4') {
+			*status = 3;
+			strcpy(dsn, &buf[4]);
+			sock_close(sock);
+			return;
+		}
+		else {
+			*status = 5;
+			strcpy(dsn, &buf[4]);
+			sock_close(sock);
+			return;
+		}
+	}
+
+
+	/* RCPT succeeded, now try the DATA command */
+	sock_puts(sock, "DATA");
+	if (sock_gets(sock, buf) < 0) {
+		*status = 3;
+		strcpy(dsn, "Connection broken during SMTP conversation");
+		sock_close(sock);
+		return;
+	}
+	lprintf(9, "%s\n", buf);
+	if (buf[0] != '3') {
+		if (buf[0] == '4') {
+			*status = 3;
+			strcpy(dsn, &buf[4]);
+			sock_close(sock);
+			return;
+		}
+		else {
+			*status = 5;
+			strcpy(dsn, &buf[4]);
+			sock_close(sock);
+			return;
+		}
+	}
+
+	/* If we reach this point, the server is expecting data */
+	CtdlOutputMsg(msgnum, MT_RFC822, 0, 0, NULL, sock, 1);
+	sock_puts(sock, ".");
+	if (sock_gets(sock, buf) < 0) {
+		*status = 3;
+		strcpy(dsn, "Connection broken during SMTP conversation");
+		sock_close(sock);
+		return;
+	}
+	lprintf(9, "%s\n", buf);
+	if (buf[0] != '2') {
+		if (buf[0] == '4') {
+			*status = 3;
+			strcpy(dsn, &buf[4]);
+			sock_close(sock);
+			return;
+		}
+		else {
+			*status = 5;
+			strcpy(dsn, &buf[4]);
+			sock_close(sock);
+			return;
+		}
+	}
+
+	/* We did it! */
+	strcpy(dsn, &buf[4]);
+	*status = 2;
+
 	sock_puts(sock, "QUIT");
 	sock_gets(sock, buf);
 	lprintf(9, "%s\n", buf);
 	sock_close(sock);
-
-	/* temporary hook to make things not go kerblooie */
-	*status = 3;
-	strcpy(dsn, "smtp_try() is not finished yet");
-	/*                                                */
 }
 
 
@@ -827,7 +929,7 @@ void smtp_do_procmsg(long msgnum) {
 	}
 
 	if (text_msgid < 0L) {
-		lprintf(3, "SMTP: no 'msgid' directive found!\n", msgnum);
+		lprintf(3, "SMTP: no 'msgid' directive found!\n");
 		phree(instr);
 		return;
 	}
@@ -849,7 +951,7 @@ void smtp_do_procmsg(long msgnum) {
 			--i;
 			--lines;
 			lprintf(9, "SMTP: Trying <%s>\n", addr);
-			smtp_try(key, addr, &status, dsn);
+			smtp_try(key, addr, &status, dsn, text_msgid);
 			if (status != 2) {
 				if (results == NULL) {
 					results = mallok(1024);
