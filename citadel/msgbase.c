@@ -1620,7 +1620,7 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 		/* advance past header fields */
 		mptr = msg->cm_fields['M'];
 		a = strlen(mptr);
-		while (--a) {
+		while ((--a) > 0) {
 			if (!strncasecmp(mptr, "Content-type: ", 14)) {
 				safestrncpy(content_type, mptr,
 					    sizeof(content_type));
