@@ -1,5 +1,0 @@
-Open items:
- 
-1. Find some way to alert the user when there is new mail, both at login
-   and during the session.
-2. Make sure the busy loop bug is fixed.
