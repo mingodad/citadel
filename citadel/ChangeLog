@@ -1,4 +1,8 @@
  $Log$
+ Revision 591.84  2002/08/08 03:25:56  ajc
+ * Bugfix for above
+ * Started writing some infrastructure for sub/unsub
+
  Revision 591.83  2002/08/08 02:49:12  ajc
  * serv_network.c: retain unknown commands in netconfigs and write them back
  * techdoc/netconfigs.txt: specify commands for subscribe/unsubscribe pending
@@ -3873,4 +3877,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

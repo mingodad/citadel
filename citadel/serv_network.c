@@ -7,6 +7,13 @@
  * Copyright (C) 2000-2002 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.
  *
+ * ** NOTE **   A word on the S_NETCONFIGS semaphore:
+ * This is a fairly high-level type of critical section.  It ensures that no
+ * two threads work on the netconfigs files at the same time.  Since we do
+ * so many things inside these, here are the rules:
+ *  1. begin_critical_section(S_NETCONFIGS) *before* begin_ any others.
+ *  2. Do *not* perform any I/O with the client during these sections.
+ *
  */
 
 /*
@@ -372,7 +379,9 @@ void cmd_snet(char *argbuf) {
 	 */
 	unlink(filename);
 	snprintf(buf, sizeof buf, "/bin/mv %s %s", tempfilename, filename);
+	begin_critical_section(S_NETCONFIGS);
 	system(buf);
+	end_critical_section(S_NETCONFIGS);
 }
 
 
@@ -688,10 +697,14 @@ void network_spoolout_room(char *room_to_spool) {
 	memset(&sc, 0, sizeof(struct SpoolControl));
 	assoc_file_name(filename, sizeof filename, &CC->quickroom, "netconfigs");
 
+	begin_critical_section(S_NETCONFIGS);
+	end_critical_section(S_NETCONFIGS);
+
 	fp = fopen(filename, "r");
 	if (fp == NULL) {
 		lprintf(7, "Outbound batch processing skipped for <%s>\n",
 			CC->quickroom.QRname);
+		end_critical_section(S_NETCONFIGS);
 		return;
 	}
 
@@ -792,11 +805,14 @@ void network_spoolout_room(char *room_to_spool) {
 			phree(sc.ignet_push_shares);
 			sc.ignet_push_shares = nptr;
 		}
-		fwrite(sc.misc, strlen(sc.misc), 1, fp);
+		if (sc.misc != NULL) {
+			fwrite(sc.misc, strlen(sc.misc), 1, fp);
+		}
 		phree(sc.misc);
 
 		fclose(fp);
 	}
+	end_critical_section(S_NETCONFIGS);
 
 	lprintf(5, "Outbound batch processing finished for <%s>\n",
 		CC->quickroom.QRname);

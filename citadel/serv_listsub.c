@@ -56,6 +56,28 @@
 #endif
 
 
+/*
+ * Generate a randomizationalisticized token to use for authentication of
+ * a subscribe or unsubscribe request.
+ */
+void listsub_generate_token(char *buf) {
+	char sourcebuf[SIZ];
+
+	/* Theo, please sit down and shut up.  This key doesn't have to be
+	 * tinfoil-hat secure, it just needs to be reasonably unguessable.
+	 */
+	sprintf(sourcebuf, "%d%d%ld",
+		rand,
+		getpid(),
+		time(NULL)
+	);
+
+	/* Convert it to base64 so it looks cool */	
+	encode_base64(buf, sourcebuf);
+}
+
+
+
 void cmd_subs(char *cmdbuf) {
 	cprintf("%d not yet implemented, dumbass...\n", ERROR);
 }
