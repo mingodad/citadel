@@ -751,7 +751,7 @@ perform this operation at the beginning of an "enter message" command
 *before* starting up its editor, so the user does not end up typing a message
 in vain that will not be permitted to be saved.  If it is set to 2, the
 server will accept an "apparent" post name if the user is privileged enough.
-This post name is arg 4.
+This post name is arg 5.
   1  -  Recipient.  This argument is utilized only for private mail messages.
 It is ignored for public messages.  It contains, of course, the name of the
 recipient of the message.
@@ -760,7 +760,9 @@ anonymous messages.  In such rooms, this flag may be set to 1 to flag a
 message as anonymous, otherwise 0 for a normal message.
   3  -  Format type.  Any valid Citadel/UX format type may be used (this will
 typically be 0; see the MSG0 command above).
-  4  -  Post name.  When postflag is 2, this is the name you are posting as.
+  4  -  Subject.  If present, this argument will be used as the subject of
+the message.
+  5  -  Post name.  When postflag is 2, this is the name you are posting as.
 This is an Aide only command.
 
  Possible result codes:

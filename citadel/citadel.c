@@ -1268,9 +1268,9 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 	uglistsize = 0;
 
 	if (newnow == 1)
-		readmsgs(ipc, 3, 1, 5);
+		readmsgs(ipc, LastMessages, ReadForward, 5);
 	else
-		readmsgs(ipc, 1, 1, 0);
+		readmsgs(ipc, NewMessages, ReadForward, 0);
 
 	/* MAIN COMMAND LOOP */
 	do {
@@ -1335,22 +1335,23 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 				dotungoto(ipc, argbuf);
 				break;
 			case 10:
-				readmsgs(ipc, 0, 1, 0);
+				readmsgs(ipc, AllMessages, ReadForward, 0);
 				break;
 			case 9:
-				readmsgs(ipc, 3, 1, 5);
+				readmsgs(ipc, LastMessages, ReadForward, 5);
 				break;
 			case 13:
-				readmsgs(ipc, 1, 1, 0);
+				readmsgs(ipc, NewMessages, ReadForward, 0);
 				break;
 			case 11:
-				readmsgs(ipc, 0, (-1), 0);
+				readmsgs(ipc, AllMessages, ReadReverse, 0);
 				break;
 			case 12:
-				readmsgs(ipc, 2, (-1), 0);
+				readmsgs(ipc, OldMessages, ReadReverse, 0);
 				break;
 			case 71:
-				readmsgs(ipc, 3, 1, atoi(argbuf));
+				readmsgs(ipc, LastMessages, ReadForward,
+						atoi(argbuf));
 				break;
 			case 7:
 				forget(ipc);

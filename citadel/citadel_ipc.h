@@ -132,7 +132,20 @@ enum RoomList {
 	AllPublicRooms,
 };
 #define AllFloors -1
-	
+enum MessageList {
+	AllMessages,
+	OldMessages,
+	NewMessages,
+	LastMessages,
+	FirstMessages,
+	MessagesGreaterThan,
+	MessagesLessThan,
+};
+enum MessageDirection {
+	ReadReverse = -1,
+	ReadForward = 1,
+};
+
 /* Shared Diffie-Hellman parameters */
 #define DH_P		"1A74527AEE4EE2568E85D4FB2E65E18C9394B9C80C42507D7A6A0DBE9A9A54B05A9A96800C34C7AA5297095B69C88901EEFD127F969DCA26A54C0E0B5C5473EBAEB00957D2633ECAE3835775425DE66C0DE6D024DBB17445E06E6B0C78415E589B8814F08531D02FD43778451E7685541079CFFB79EF0D26EFEEBBB69D1E80383"
 #define DH_G		"2"
@@ -155,9 +168,8 @@ int CtdlIPCGetConfig(CtdlIPC *ipc, struct usersupp **uret, char *cret);
 int CtdlIPCSetConfig(CtdlIPC *ipc, struct usersupp *uret, char *cret);
 int CtdlIPCGotoRoom(CtdlIPC *ipc, const char *room, const char *passwd,
 		struct ctdlipcroom **rret, char *cret);
-int CtdlIPCGetMessages(CtdlIPC *ipc, int which, int whicharg,
-		const char *mtemplate,
-		long **mret, char *cret);
+int CtdlIPCGetMessages(CtdlIPC *ipc, enum MessageList which, int whicharg,
+		const char *mtemplate, unsigned long **mret, char *cret);
 int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 		struct ctdlipcmessage **mret, char *cret);
 int CtdlIPCWhoKnowsRoom(CtdlIPC *ipc, char **listing, char *cret);
@@ -266,6 +278,7 @@ int CtdlIPCStartEncryption(CtdlIPC *ipc, char *cret);
 int CtdlIPCDirectoryLookup(CtdlIPC *ipc, const char *address, char *cret);
 int CtdlIPCSpecifyPreferredFormats(CtdlIPC *ipc, char *cret, char *formats);
 int CtdlIPCInternalProgram(CtdlIPC *ipc, int secret, char *cret);
+int CtdlIPCMessageBaseCheck(CtdlIPC *ipc, char **mret, char *cret);
 
 /* ************************************************************************** */
 /*             Stuff below this line is not for public consumption            */

@@ -913,6 +913,8 @@ MEABT2:	unlink(filename);
 	return (2);
 }
 
+
+#if 0
 /*
  * Transmit message text to the server.
  * 
@@ -968,6 +970,8 @@ void transmit_message(CtdlIPC *ipc, FILE *fp)
 	scr_printf("                \r");
 	scr_flush();
 }
+#endif
+
 
 /*
  * Make sure there's room in msg_arr[] for at least one more.
@@ -988,16 +992,17 @@ void check_msg_arr_size(void) {
  */
 int entmsg(CtdlIPC *ipc,
 		int is_reply,	/* nonzero if this was a <R>eply command */
-		int c)		/* */
+		int c)		/* mode */
 {
-	char buf[300];
-	char cmd[SIZ];
+	char buf[SIZ];
 	int a, b;
 	int need_recp = 0;
 	int mode;
 	long highmsg = 0L;
 	FILE *fp;
 	char subject[SIZ];
+	struct ctdlipcmessage message;
+	int r;			/* IPC response code */
 
 	if (c > 0)
 		mode = 1;
@@ -1010,12 +1015,16 @@ int entmsg(CtdlIPC *ipc,
 	 * First, check to see if we have permission to enter a message in
 	 * this room.  The server will return an error code if we can't.
 	 */
-	snprintf(cmd, sizeof cmd, "ENT0 0||0|%d", mode);
-	CtdlIPC_putline(ipc, cmd);
-	CtdlIPC_getline(ipc, cmd);
+	strcpy(message.recipient, "");
+	strcpy(message.author, "");
+	strcpy(message.subject, "");
+	message.text = message.author;	/* point to "", changes later */
+	message.anonymous = 0;
+	message.type = mode;
+	r = CtdlIPCPostMessage(ipc, 0, &message, buf);
 
-	if ((strncmp(cmd, "570", 3)) && (strncmp(cmd, "200", 3))) {
-		scr_printf("%s\n", &cmd[4]);
+	if (r / 100 != 2 && r / 10 != 57) {
+		scr_printf("%s\n", buf);
 		return (1);
 	}
 
@@ -1023,7 +1032,7 @@ int entmsg(CtdlIPC *ipc,
 	 * in this room, but a recipient needs to be specified.
 	 */
 	need_recp = 0;
-	if (!strncmp(cmd, "570", 3))
+	if (r / 10 == 57)
 		need_recp = 1;
 
 	/* If the user is a dumbass, tell them how to type. */
@@ -1046,36 +1055,34 @@ int entmsg(CtdlIPC *ipc,
 		} else
 			strcpy(buf, "sysop");
 	}
+	strcpy(message.recipient, buf);
 
 	if (is_reply) {
 		if (strlen(reply_subject) > 0) {
 			if (!strncasecmp(reply_subject,
 			   "Re: ", 3)) {
-				strcpy(subject, reply_subject);
+				strcpy(message.subject, reply_subject);
 			}
 			else {
-				snprintf(subject,
-					sizeof subject,
+				snprintf(message.subject,
+					sizeof message.subject,
 					"Re: %s",
 					reply_subject);
 			}
 		}
 	}
 
-	b = 0;
 	if (room_flags & QR_ANONOPT) {
 		scr_printf("Anonymous (Y/N)? ");
 		if (yesno() == 1)
-			b = 1;
+			message.anonymous = 1;
 	}
 
 	/* If it's mail, we've got to check the validity of the recipient... */
-	if (strlen(buf) > 0) {
-		snprintf(cmd, sizeof cmd, "ENT0 0|%s|%d|%d|%s", buf, b, mode, subject);
-		CtdlIPC_putline(ipc, cmd);
-		CtdlIPC_getline(ipc, cmd);
-		if (cmd[0] != '2') {
-			scr_printf("%s\n", &cmd[4]);
+	if (strlen(message.recipient) > 0) {
+		r = CtdlIPCPostMessage(ipc, 0, &message, buf);
+		if (r / 100 != 2) {
+			scr_printf("%s\n", buf);
 			return (1);
 		}
 	}
@@ -1084,19 +1091,17 @@ int entmsg(CtdlIPC *ipc,
  	 * tell upon saving whether someone else has posted too.
  	 */
 	num_msgs = 0;
-	CtdlIPC_putline(ipc, "MSGS LAST|1");
-	CtdlIPC_getline(ipc, cmd);
-	if (cmd[0] != '1') {
-		scr_printf("%s\n", &cmd[5]);
+	free(msg_arr); msg_arr = NULL;
+	r = CtdlIPCGetMessages(ipc, LastMessages, 1, NULL, &msg_arr, buf);
+	if (r / 100 != 1) {
+		scr_printf("%s\n", buf);
 	} else {
-		while (CtdlIPC_getline(ipc, cmd), strcmp(cmd, "000")) {
-			check_msg_arr_size();
-			msg_arr[num_msgs++] = atol(cmd);
-		}
+		for (num_msgs = 0; msg_arr[num_msgs]; num_msgs++)
+			;
 	}
 
 	/* Now compose the message... */
-	if (client_make_message(ipc, temp, buf, b, 0, c, subject) != 0) {
+	if (client_make_message(ipc, temp, message.recipient, message.anonymous, 0, c, message.subject) != 0) {
 		return (2);
 	}
 
@@ -1106,38 +1111,31 @@ int entmsg(CtdlIPC *ipc,
 	/* Yes, unlink it now, so it doesn't stick around if we crash */
 	unlink(temp);
 
-	if (fp == NULL) {
+	if (!fp || !(message.text = load_message_from_file(fp))) {
 		err_printf("*** Internal error while trying to save message!\n"
-			"    %s: %s\n",
+			"%s: %s\n",
 			temp, strerror(errno));
 		return(errno);
 	}
 
+	if (fp) fclose(fp);
+
 	/* Transmit message to the server */
-	snprintf(cmd, sizeof cmd, "ENT0 1|%s|%d|%d|%s|", buf, b, mode, subject);
-	CtdlIPC_putline(ipc, cmd);
-	CtdlIPC_getline(ipc, cmd);
-	if (cmd[0] != '4') {
-		scr_printf("%s\n", &cmd[4]);
+	r = CtdlIPCPostMessage(ipc, 1, &message, buf);
+	if (r / 100 != 4) {
+		scr_printf("%s\n", buf);
 		return (1);
 	}
 
-	transmit_message(ipc, fp);
-	CtdlIPC_putline(ipc, "000");
-
-	fclose(fp);
-
 	if (num_msgs >= 1) highmsg = msg_arr[num_msgs - 1];
-	num_msgs = 0;
-	CtdlIPC_putline(ipc, "MSGS NEW");
-	CtdlIPC_getline(ipc, cmd);
-	if (cmd[0] != '1') {
-		scr_printf("%s\n", &cmd[5]);
+
+	free(msg_arr); msg_arr = NULL;
+	r = CtdlIPCGetMessages(ipc, NewMessages, 0, NULL, &msg_arr, buf);
+	if (r / 100 != 1) {
+		scr_printf("%s\n", buf);
 	} else {
-		while (CtdlIPC_getline(ipc, cmd), strcmp(cmd, "000")) {
-			check_msg_arr_size();
-			msg_arr[num_msgs++] = atol(cmd);
-		}
+		for (num_msgs = 0; msg_arr[num_msgs]; num_msgs++)
+			;
 	}
 
 	/* get new highest message number in room to set lrp for goto... */
@@ -1242,8 +1240,8 @@ void list_urls(CtdlIPC *ipc)
  * Read the messages in the current room
  */
 void readmsgs(CtdlIPC *ipc,
-	int c,		/* 0=Read all  1=Read new  2=Read old 3=Read last q */
-	int rdir,	/* 1=Forward (-1)=Reverse */
+	enum MessageList c,		/* see listing in citadel_ipc.h */
+	enum MessageDirection rdir,	/* 1=Forward (-1)=Reverse */
 	int q		/* Number of msgs to read (if c==3) */
 ) {
 	int a, b, e, f, g, start;
@@ -1269,31 +1267,16 @@ void readmsgs(CtdlIPC *ipc,
 
 	strcpy(prtfile, tmpnam(NULL));
 
-	num_msgs = 0;
-	strcpy(cmd, "MSGS ");
-	switch (c) {
-	case 0:
-		strcat(cmd, "ALL");
-		break;
-	case 1:
-		strcat(cmd, "NEW");
-		break;
-	case 2:
-		strcat(cmd, "OLD");
-		break;
-	case 3:
-		snprintf(&cmd[5], sizeof cmd - 5, "LAST|%d", q);
-		break;
+	if (msg_arr) {
+		free(msg_arr);
+		msg_arr = NULL;
 	}
-	CtdlIPC_putline(ipc, cmd);
-	CtdlIPC_getline(ipc, cmd);
-	if (cmd[0] != '1') {
-		scr_printf("%s\n", &cmd[5]);
+	r = CtdlIPCGetMessages(ipc, c, q, NULL, &msg_arr, cmd);
+	if (r / 100 != 1) {
+		scr_printf("%s\n", cmd);
 	} else {
-		while (CtdlIPC_getline(ipc, cmd), strcmp(cmd, "000")) {
-			check_msg_arr_size();
-			msg_arr[num_msgs++] = atol(cmd);
-		}
+		for (num_msgs = 0; msg_arr[num_msgs]; num_msgs++)
+			;
 	}
 
 	if (num_msgs == 0) {
@@ -1647,6 +1630,8 @@ void edit_system_message(CtdlIPC *ipc, char *which_message)
 void check_message_base(CtdlIPC *ipc)
 {
 	char buf[SIZ];
+	char *transcript = NULL;
+	int r;		/* IPC response code */
 
 	scr_printf
 	    ("Please read the documentation before running this command.\n"
@@ -1654,14 +1639,56 @@ void check_message_base(CtdlIPC *ipc)
 	if (yesno() == 0)
 		return;
 
-	CtdlIPC_putline(ipc, "FSCK");
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] != '1') {
-		scr_printf("%s\n", &buf[4]);
+	r = CtdlIPCMessageBaseCheck(ipc, &transcript, buf);
+	if (r / 100 != 1) {
+		scr_printf("%s\n", buf);
 		return;
 	}
 
-	while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
-		scr_printf("%s\n", buf);
+	while (transcript && strlen(transcript)) {
+		lines_printed = 1;
+		extract_token(buf, transcript, 0, '\n');
+		remove_token(transcript, 0, '\n');
+		pprintf("%s\n", buf);
 	}
+	if (transcript) free(transcript);
+	return;
+}
+
+
+/*
+ * Loads the contents of a file into memory.  Caller must free the allocated
+ * memory.
+ */
+char *load_message_from_file(FILE *src)
+{
+	size_t i;
+	size_t got = 0;
+	char *dest = NULL;
+
+	fseek(src, 0, SEEK_END);
+	i = ftell(src);
+	rewind(src);
+
+	dest = (char *)calloc(1, i + 1);
+	if (!dest)
+		return NULL;
+
+	while (got < i) {
+		size_t g;
+
+		g = fread(dest + got, 1, i - got, src);
+		got += g;
+		if (g < i - got) {
+			/* Interrupted system call, keep going */
+			if (errno == EINTR)
+				continue;
+			/* At this point we have either EOF or error */
+			i = got;
+			break;
+		}
+		dest[i] = 0;
+	}
+
+	return dest;
 }

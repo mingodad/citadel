@@ -1299,32 +1299,11 @@ int fmout(
 
 	/* Read the entire message body into memory */
 	if (fpin) {
-		size_t got = 0;
-
-		fseek(fpin, 0, SEEK_END);
-		i = ftell(fpin);
-		rewind(fpin);
-		buffer = (char *)calloc(1, i + 1);
+		buffer = load_message_from_file(fpin);
 		if (!buffer) {
-			err_printf("Can't alloc memory for message: %s!\n",
+			err_printf("Can't print message: %s!\n",
 					strerror(errno));
 			logoff(NULL, 3);
-		}
-
-		while (got < i) {
-			size_t g;
-
-			g = fread(buffer + got, 1, i - got, fpin);
-			got += g;
-			if (g < i - got) {
-				/* Interrupted system call, keep going */
-				if (errno == EINTR)
-					continue;
-				/* At this point we have either EOF or error */
-				i = got;
-				break;
-			}
-			buffer[i] = 0;
 		}
 	} else {
 		buffer = text;

@@ -2588,7 +2588,7 @@ void cmd_ent0(char *entargs)
 				ERROR + HIGHER_ACCESS_REQUIRED);
 			return;
 		}
-		extract(newusername, entargs, 4);
+		extract(newusername, entargs, 5);
 		memset(CC->fake_postname, 0, sizeof(CC->fake_postname) );
 		safestrncpy(CC->fake_postname, newusername,
 			sizeof(CC->fake_postname) );

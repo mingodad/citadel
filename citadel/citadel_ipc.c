@@ -407,15 +407,15 @@ int CtdlIPCGotoRoom(CtdlIPC *ipc, const char *room, const char *passwd,
 /* MSGS */
 /* which is 0 = all, 1 = old, 2 = new, 3 = last, 4 = first, 5 = gt, 6 = lt */
 /* whicharg is number of messages, applies to last, first, gt, lt */
-int CtdlIPCGetMessages(CtdlIPC *ipc, int which, int whicharg,
-		const char *mtemplate, long **mret, char *cret)
+int CtdlIPCGetMessages(CtdlIPC *ipc, enum MessageList which, int whicharg,
+		const char *mtemplate, unsigned long **mret, char *cret)
 {
 	register int ret;
 	register unsigned long count = 0;
 	static char *proto[] =
 		{ "ALL", "OLD", "NEW", "LAST", "FIRST", "GT", "LT" };
 	char aaa[33];
-	char *bbb;
+	char *bbb = NULL;
 	size_t bbbsize;
 
 	if (!cret) return -2;
@@ -431,19 +431,25 @@ int CtdlIPCGetMessages(CtdlIPC *ipc, int which, int whicharg,
 				(mtemplate) ? 1 : 0);
 	if (mtemplate) count = strlen(mtemplate);
 	ret = CtdlIPCGenericCommand(ipc, aaa, mtemplate, count, &bbb, &bbbsize, cret);
+	if (ret / 100 != 1)
+		return ret;
 	count = 0;
-	while (strlen(bbb)) {
-		int a;
-
+	*mret = (unsigned long *)malloc(sizeof(unsigned long));
+	if (!*mret)
+		return -1;
+	while (bbb && strlen(bbb)) {
 		extract_token(aaa, bbb, 0, '\n');
-		a = strlen(aaa);
-		memmove(aaa, bbb + a + 1, strlen(bbb) - a - 1);
-		*mret = (long *)realloc(mret,
-					(size_t)((count + 1) * sizeof (long)));
-		if (*mret)
-			*mret[count++] = atol(aaa);
-		*mret[count] = 0L;
+		remove_token(bbb, 0, '\n');
+		*mret = (unsigned long *)realloc(*mret, (size_t)((count + 2) *
+					sizeof (unsigned long)));
+		if (*mret) {
+			(*mret)[count++] = atol(aaa);
+			(*mret)[count] = 0L;
+		} else {
+			break;
+		}
 	}
+	if (bbb) free(bbb);
 	return ret;
 }
 
@@ -809,8 +815,8 @@ int CtdlIPCPostMessage(CtdlIPC *ipc, int flag, const struct ctdlipcmessage *mr, 
 	aaa = (char *)malloc(strlen(mr->recipient) + strlen(mr->author) + 40);
 	if (!aaa) return -1;
 
-	sprintf(aaa, "ENT0 %d|%s|%d|%d|%s", flag, mr->recipient, mr->anonymous,
-			mr->type, mr->author);
+	sprintf(aaa, "ENT0 %d|%s|%d|%d|%s|%s", flag, mr->recipient,
+			mr->anonymous, mr->type, mr->subject, mr->author);
 	ret = CtdlIPCGenericCommand(ipc, aaa, mr->text, strlen(mr->text), NULL,
 			NULL, cret);
 	free(aaa);
@@ -1972,6 +1978,19 @@ int CtdlIPCInternalProgram(CtdlIPC *ipc, int secret, char *cret)
 }
 
 
+/* FSCK */
+int CtdlIPCMessageBaseCheck(CtdlIPC *ipc, char **mret, char *cret)
+{
+	size_t size = 0;
+
+	if (!cret) return -2;
+	if (!mret) return -2;
+	if (*mret) return -2;
+
+	return CtdlIPCGenericCommand(ipc, "FSCK", NULL, 0, mret, &size, cret);
+}
+
+
 /*
  * Not implemented:
  * 
@@ -2017,15 +2036,13 @@ char *CtdlIPCReadListing(CtdlIPC *ipc, char *dest)
 {
 	size_t length = 0;
 	size_t linelength;
-	char *ret;
+	char *ret = NULL;
 	char aaa[SIZ];
 
 	ret = dest;
 	if (ret != NULL) {
 		length = strlen(ret);
-	}
-	else {
-		ret = strdup("");
+	} else {
 		length = 0;
 	}
 

@@ -1,4 +1,10 @@
  $Log$
+ Revision 601.113  2003/01/16 10:04:03  error
+ * ENT0 command: changed post-as username from arg 4 to arg 5; 4 was already
+   used as the message subject
+ * Convert message entry and reading to new IPC code
+ * Minor bugfixes throughout IPC code
+
  Revision 601.112  2003/01/16 04:17:02  ajc
  * citadel_ipc.c: when issuing a SPEX command, send the string value for
    room/floor/site instead of the number.  citserver wants a string.
@@ -4396,3 +4402,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

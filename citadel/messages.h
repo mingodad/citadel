@@ -1,7 +1,7 @@
 /* $Id$ */
 int ka_system(char *shc);
 int entmsg(CtdlIPC *ipc, int is_reply, int c);
-void readmsgs(CtdlIPC *ipc, int c, int rdir, int q);
+void readmsgs(CtdlIPC *ipc, enum MessageList c, enum MessageDirection rdir, int q);
 void edit_system_message(CtdlIPC *ipc, char *which_message);
 pid_t ka_wait(int *kstatus);
 void list_urls(CtdlIPC *ipc);
@@ -14,4 +14,5 @@ int client_make_message(CtdlIPC *ipc,
 		int mode,
 		char *subject);
 void citedit(CtdlIPC *ipc, FILE *);
+char *load_message_from_file(FILE *src);
 int file_checksum(char *filename);
