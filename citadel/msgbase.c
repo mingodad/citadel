@@ -636,11 +636,15 @@ time_t output_message(char *msgid, int mode, int headers_only) {
 		}
 
 	/* do some sort of MIME output */
-	if ( (mode == MT_MIME) && (format_type == 4) ) {
-		mime_parser(mptr, NULL, *list_this_part);
-		cprintf("000\n");
-		cdb_free(dmsgtext);
-		return(xtime);
+	if (format_type == 4) {
+		if ((mode == MT_CITADEL)||(mode == MT_MIME)) {
+			mime_parser(mptr, NULL, *list_this_part);
+			}
+		if (mode == MT_MIME) { /* If MT_MIME then it's parts only */
+			cprintf("000\n");
+			cdb_free(dmsgtext);
+			return(xtime);
+			}
 		}
 
 	if (headers_only) {
