@@ -56,14 +56,15 @@ void cmd_ebio(char *cmdbuf) {
 	FILE *fp;
 
 	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
+		cprintf("%d Not logged in.\n",ERROR + NOT_LOGGED_IN);
 		return;
 	}
 
 	snprintf(buf, sizeof buf, "./bio/%ld",CC->user.usernum);
 	fp = fopen(buf,"w");
 	if (fp == NULL) {
-		cprintf("%d Cannot create file\n",ERROR);
+		cprintf("%d Cannot create file: %s\n", ERROR + INTERNAL_ERROR,
+				strerror(errno));
 		return;
 	}
 	cprintf("%d  \n",SEND_LISTING);
@@ -86,7 +87,7 @@ void cmd_rbio(char *cmdbuf)
 
 	extract(buf,cmdbuf,0);
 	if (getuser(&ruser,buf)!=0) {
-		cprintf("%d No such user.\n",ERROR+NO_SUCH_USER);
+		cprintf("%d No such user.\n",ERROR + NO_SUCH_USER);
 		return;
 	}
 	snprintf(buf, sizeof buf, "./bio/%ld",ruser.usernum);
@@ -114,7 +115,7 @@ void cmd_lbio(char *cmdbuf) {
 
 	ls=popen("cd ./bio; ls","r");
 	if (ls==NULL) {
-		cprintf("%d Cannot open listing.\n",ERROR+FILE_NOT_FOUND);
+		cprintf("%d Cannot open listing.\n",ERROR + FILE_NOT_FOUND);
 		return;
 	}
 

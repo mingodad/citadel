@@ -193,7 +193,7 @@ void cmd_igab(char *argbuf) {
 
         if (getroom(&CC->room, ADDRESS_BOOK_ROOM) != 0) {
                 getroom(&CC->room, hold_rm);
-		cprintf("%d cannot get address book room\n", ERROR);
+		cprintf("%d cannot get address book room\n", ERROR + ROOM_NOT_FOUND);
 		return;
         }
 
@@ -517,7 +517,7 @@ void cmd_regi(char *argbuf) {
 	char tmpcountry[SIZ];
 
 	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
+		cprintf("%d Not logged in.\n",ERROR + NOT_LOGGED_IN);
 		return;
 	}
 
@@ -573,7 +573,7 @@ void cmd_greg(char *argbuf)
 	extract(who, argbuf, 0);
 
 	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n", ERROR+NOT_LOGGED_IN);
+		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
 		return;
 	}
 
@@ -581,12 +581,12 @@ void cmd_greg(char *argbuf)
 
 	if ((CC->user.axlevel < 6) && (strcasecmp(who,CC->curr_user))) {
 		cprintf("%d Higher access required.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
+			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;
 	}
 
 	if (getuser(&usbuf, who) != 0) {
-		cprintf("%d '%s' not found.\n", ERROR+NO_SUCH_USER, who);
+		cprintf("%d '%s' not found.\n", ERROR + NO_SUCH_USER, who);
 		return;
 	}
 
@@ -757,7 +757,7 @@ void cmd_qdir(char *argbuf) {
 
 	if (CtdlDirectoryLookup(citadel_addr, internet_addr) != 0) {
 		cprintf("%d %s was not found.\n",
-			ERROR+NO_SUCH_USER, internet_addr);
+			ERROR + NO_SUCH_USER, internet_addr);
 		return;
 	}
 

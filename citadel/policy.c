@@ -103,7 +103,7 @@ void cmd_gpex(char *argbuf) {
 		memcpy(&exp, &config.c_ep, sizeof(struct ExpirePolicy));
 	}
 	else {
-		cprintf("%d Invalid keyword \"%s\"\n", ERROR, which);
+		cprintf("%d Invalid keyword \"%s\"\n", ERROR + ILLEGAL_VALUE, which);
 		return;
 	}
 
@@ -125,14 +125,14 @@ void cmd_spex(char *argbuf) {
 	exp.expire_value = extract_int(argbuf, 2);
 
 	if ((exp.expire_mode < 0) || (exp.expire_mode > 3)) {
-		cprintf("%d Invalid policy.\n", ERROR);
+		cprintf("%d Invalid policy.\n", ERROR + ILLEGAL_VALUE);
 		return;
 	}
 
 	if (!strcasecmp(which, "room")) {
 		if (!is_room_aide()) {
 			cprintf("%d Higher access required.\n",
-				ERROR+HIGHER_ACCESS_REQUIRED);
+				ERROR + HIGHER_ACCESS_REQUIRED);
 			return;
 		}
 		lgetroom(&CC->room, CC->room.QRname);
@@ -144,7 +144,7 @@ void cmd_spex(char *argbuf) {
 
 	if (CC->user.axlevel < 6) {
 		cprintf("%d Higher access required.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
+			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;
 	}
 
@@ -167,7 +167,7 @@ void cmd_spex(char *argbuf) {
 	else if (!strcasecmp(which, "site")) {
 		if (exp.expire_mode == EXPIRE_NEXTLEVEL) {
 			cprintf("%d Invalid policy (no higher level)\n",
-				ERROR);
+				ERROR + ILLEGAL_VALUE);
 			return;
 		}
 		memcpy(&config.c_ep, &exp, sizeof(struct ExpirePolicy));
@@ -177,7 +177,7 @@ void cmd_spex(char *argbuf) {
 	}
 
 	else {
-		cprintf("%d Invalid keyword \"%s\"\n", ERROR, which);
+		cprintf("%d Invalid keyword \"%s\"\n", ERROR + ILLEGAL_VALUE, which);
 		return;
 	}
 

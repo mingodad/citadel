@@ -93,14 +93,14 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 	int found_sub = 0;
 
 	if (getroom(&qrbuf, room) != 0) {
-		cprintf("%d There is no list called '%s'\n", ERROR, room);
+		cprintf("%d There is no list called '%s'\n", ERROR + ROOM_NOT_FOUND, room);
 		return;
 	}
 
 	if ((qrbuf.QRflags2 & QR2_SELFLIST) == 0) {
 		cprintf("%d '%s' "
 			"does not accept subscribe/unsubscribe requests.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED, qrbuf.QRname);
+			ERROR + HIGHER_ACCESS_REQUIRED, qrbuf.QRname);
 		return;
 	}
 
@@ -131,7 +131,7 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 
 	if (found_sub != 0) {
 		cprintf("%d '%s' is already subscribed to '%s'.\n",
-			ERROR,
+			ERROR + ALREADY_EXISTS,
 			email, qrbuf.QRname);
 		return;
 	}
@@ -206,14 +206,14 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
 
 	if (getroom(&qrbuf, room) != 0) {
 		cprintf("%d There is no list called '%s'\n",
-			ERROR+ROOM_NOT_FOUND, room);
+			ERROR + ROOM_NOT_FOUND, room);
 		return;
 	}
 
 	if ((qrbuf.QRflags2 & QR2_SELFLIST) == 0) {
 		cprintf("%d '%s' "
 			"does not accept subscribe/unsubscribe requests.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED, qrbuf.QRname);
+			ERROR + HIGHER_ACCESS_REQUIRED, qrbuf.QRname);
 		return;
 	}
 
@@ -244,7 +244,7 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
 
 	if (found_sub == 0) {
 		cprintf("%d '%s' is not subscribed to '%s'.\n",
-			ERROR+NO_SUCH_USER,
+			ERROR + NO_SUCH_USER,
 			email, qrbuf.QRname);
 		return;
 	}
@@ -329,14 +329,14 @@ void do_confirm(char *room, char *token) {
 
 	if (getroom(&qrbuf, room) != 0) {
 		cprintf("%d There is no list called '%s'\n",
-			ERROR+ROOM_NOT_FOUND, room);
+			ERROR + ROOM_NOT_FOUND, room);
 		return;
 	}
 
 	if ((qrbuf.QRflags2 & QR2_SELFLIST) == 0) {
 		cprintf("%d '%s' "
 			"does not accept subscribe/unsubscribe requests.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED, qrbuf.QRname);
+			ERROR + HIGHER_ACCESS_REQUIRED, qrbuf.QRname);
 		return;
 	}
 
@@ -452,7 +452,7 @@ void do_confirm(char *room, char *token) {
 		cprintf("%d %d operation(s) confirmed.\n", CIT_OK, success);
 	}
 	else {
-		cprintf("%d Invalid token.\n", ERROR);
+		cprintf("%d Invalid token.\n", ERROR + ILLEGAL_VALUE);
 	}
 
 }
@@ -477,7 +477,7 @@ void cmd_subs(char *cmdbuf) {
 		if ( (strcasecmp(subtype, "list"))
 		   && (strcasecmp(subtype, "digest")) ) {
 			cprintf("%d Invalid subscription type '%s'\n",
-				ERROR+ILLEGAL_VALUE, subtype);
+				ERROR + ILLEGAL_VALUE, subtype);
 		}
 		else {
 			extract(room, cmdbuf, 1);
@@ -498,7 +498,7 @@ void cmd_subs(char *cmdbuf) {
 		do_confirm(room, token);
 	}
 	else {
-		cprintf("%d Invalid command\n", ERROR);
+		cprintf("%d Invalid command\n", ERROR + ILLEGAL_VALUE);
 	}
 }
 

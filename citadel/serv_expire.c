@@ -663,7 +663,7 @@ void cmd_fsck(char *argbuf) {
 
 	/* Lame way of checking whether anyone else is doing this now */
 	if (rr != NULL) {
-		cprintf("%d Another FSCK is already running.\n", ERROR);
+		cprintf("%d Another FSCK is already running.\n", ERROR + RESOURCE_BUSY);
 		return;
 	}
 

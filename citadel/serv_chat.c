@@ -397,7 +397,7 @@ void cmd_pexp(char *argbuf)
 	struct ExpressMessage *ptr, *holdptr;
 
 	if (CC->FirstExpressMessage == NULL) {
-		cprintf("%d No express messages waiting.\n", ERROR);
+		cprintf("%d No express messages waiting.\n", ERROR + MESSAGE_NOT_FOUND);
 		return;
 	}
 	begin_critical_section(S_SESSION_TABLE);
@@ -435,7 +435,7 @@ void cmd_gexp(char *argbuf) {
 	struct ExpressMessage *ptr;
 
 	if (CC->FirstExpressMessage == NULL) {
-		cprintf("%d No express messages waiting.\n", ERROR);
+		cprintf("%d No express messages waiting.\n", ERROR + MESSAGE_NOT_FOUND);
 		return;
 	}
 
@@ -638,7 +638,7 @@ void cmd_sexp(char *argbuf)
 	extract(x_msg, argbuf, 1);
 
 	if (!x_user[0]) {
-		cprintf("%d You were not previously paged.\n", ERROR);
+		cprintf("%d You were not previously paged.\n", ERROR + NO_SUCH_USER);
 		return;
 	}
 	if ((!strcasecmp(x_user, "broadcast")) && (CC->user.axlevel < 6)) {
@@ -652,7 +652,7 @@ void cmd_sexp(char *argbuf)
 		if (message_sent == 0) {
 			cprintf("%d '%s' is not logged in "
 				"or is not accepting pages.\n",
-				ERROR, x_user);
+				ERROR + NO_SUCH_USER, x_user);
 			return;
 		}
 		cprintf("%d Transmit message (will deliver to %d users)\n",
@@ -685,7 +685,7 @@ void cmd_sexp(char *argbuf)
 		} else {
 			cprintf("%d '%s' is not logged in "
 				"or is not accepting pages.\n",
-				ERROR, x_user);
+				ERROR + NO_SUCH_USER, x_user);
 		}
 
 

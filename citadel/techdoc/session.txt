@@ -158,7 +158,7 @@ OK even if no user is logged in.
  The first step in logging in a user.  This command takes one argument: the
 name of the user to be logged in.  If the user exists, a MORE_DATA return
 code will be sent, which means the client should execute PASS as the next
-command.  If the user does not exist, ERROR is returned.
+command.  If the user does not exist, ERROR + NO_SUCH_USER is returned.
 
 
  PASS   (send PASSword)
@@ -166,10 +166,12 @@ command.  If the user does not exist, ERROR is returned.
  The second step in logging in a user.  This command takes one argument: the
 password for the user we are attempting to log in.  If the password doesn't
 match the correct password for the user we specified for the USER command,
-or if a USER command has not been executed yet, ERROR is returned.  If the
-password is correct, OK is returned and the user is now logged in... and
-most of the other server commands can now be executed.  Along with OK, the
-following parameters are returned:
+ERROR + PASSWORD_REQUIRED is returned.  If a USER command has not been
+executed yet, ERROR + USERNAME_REQUIRED is returned.  If a user is already
+logged in, ERROR + ALREADY_LOGGED_IN is returned.  If the password is
+correct, OK is returned and the user is now logged in... and most of the
+other server commands can now be executed.  Along with OK, the following
+parameters are returned:
 
  0 - The user's name (in case the client wants the right upper/lower casing)
  1 - The user's current access level
@@ -188,11 +190,16 @@ on the name.  Note that the new account is installed with a default
 configuration, and no password, so the client should immediately prompt the
 user for a password and install it with the SETP command as soon as this
 command completes.  This command returns OK if the account was created and
-logged in, or ERROR if another user already exists with this name.  If OK,
-it will also return the same parameters that PASS returns.
+logged in, ERROR + ALREADY_EXISTS if another user already exists with this
+name, ERROR + NOT_HERE if self-service account creation is disabled,
+ERROR + MAX_SESSIONS_EXCEEDED if too many users are logged in, ERROR +
+USERNAME_REQUIRED if a username was not provided, or ERROR + ILELGAL_VALUE
+if the username provided is invalid.  If OK, it will also return the same
+parameters that PASS returns.
 
- Please note that the NEWU command should only be used for self-service user account
-creation.  For administratively creating user accounts, please use the CREU command.
+ Please note that the NEWU command should only be used for self-service
+user account creation.  For administratively creating user accounts, please
+use the CREU command.
 
 
  SETP   (SET new Password)
@@ -200,7 +207,8 @@ creation.  For administratively creating user accounts, please use the CREU comm
  This command sets a new password for the currently logged in user.  The
 argument to this command will be the new password.  The command always
 returns OK, unless the client is not logged in, in which case it will return
-ERROR.
+ERROR + NOT_LOGGED_IN, or if the user is an auto-login user, in which case
+it will return ERROR + NOT_HERE.
 
 
  CREU   (CREate new User account)
@@ -210,20 +218,22 @@ argument to this command will be the name of the account.  No case conversion
 is done on the name.  Note that the new account is installed with a default
 configuration, and no password.  The second argument is optional, and will be
 an initial password for the user.  This command returns OK if the account was
-created, or ERROR if another user already exists with this name.
+created, ERROR + HIGHER_ACCESS_REQUIRED if the user is not an Aide, ERROR +
+USERNAME_REQUIRED if no username was specified, or ERROR + ALREADY_EXISTS if
+another user already exists with this name.
 
- Please note that CREU is intended to be used for activities in which a system
-administrator is creating user accounts.  For self-service user account
-creation, use the NEWU command.
+ Please note that CREU is intended to be used for activities in which a
+system administrator is creating user accounts.  For self-service user
+account creation, use the NEWU command.
 
 
  LKRN   (List Known Rooms with New messages)
 
- List known rooms with new messages.  If the client is not logged in, ERROR
-is returned.  Otherwise, LISTING_FOLLOWS is returned, followed by the room
-listing.  Each line in the listing contains the full name of a room, followed
-by the '|' symbol, and then a number that may contain the following bits:
-
+ List known rooms with new messages.  If the client is not logged in, ERROR +
+NOT_LOGGED_IN is returned.  Otherwise, LISTING_FOLLOWS is returned, followed
+by the room listing.  Each line in the listing contains the full name of a
+room, followed by the '|' symbol, and then a number that may contain the
+following bits:
 
 #define QR_PERMANENT	1		/* Room does not purge              */
 #define QR_PRIVATE	4		/* Set for any type of private room */
@@ -241,6 +251,7 @@ by the '|' symbol, and then a number that may contain the following bits:
 
  Then it returns another '|' symbol, followed by a second set of bits comprised
 of the following:
+
 #define QR2_SYSTEM	1		/* System room; hide by default     */
 #define QR2_SELFLIST	2		/* Self-service mailing list mgmt   */
 
@@ -303,11 +314,11 @@ in.
  GETU   (GET User configuration)
 
  This command retrieves the screen dimensions and user options for the
-currently logged in account.  ERROR will be returned if no user is logged
-in, of course.  Otherwise, OK will be returned, followed by four parameters.
-The first parameter is the user's screen width, the second parameter is the
-user's screen height, and the third parameter is a bag of bits with the
-following meanings:
+currently logged in account.  ERROR + NOT_LOGGED_IN will be returned if no
+user is logged in, of course.  Otherwise, OK will be returned, followed by
+four parameters.  The first parameter is the user's screen width, the second
+parameter is the user's screen height, and the third parameter is a bag of
+bits with the following meanings:
 
  #define US_LASTOLD	16		/* Print last old message with new  */
  #define US_EXPERT	32		/* Experienced user		    */
@@ -325,7 +336,8 @@ following meanings:
 user options (which were probably obtained with a GETU command, and perhaps
 modified by the user) and writes them to the user account.  This command
 should be passed three parameters: the screen width, the screen height, and
-the option bits (see above).
+the option bits (see above).  It returns ERROR + NOT_LOGGED_IN if no user is
+logged in, and ERROR + ILLEGAL_VALUE if the parameters are incorrect.
 
  Note that there exist bits here which are not listed in this document.  Some
 are flags that can only be set by Aides or the system administrator.  SETU
@@ -394,16 +406,16 @@ third positions of the result code to find out what happened:
    NOT_LOGGED_IN     -  Of course you can't go there.  You didn't log in.
    PASSWORD_REQUIRED -  Either a password was not supplied, or the supplied
 password was incorrect.
-   NO_SUCH_ROOM      -  The requested room does not exist.
+   ROOM_NOT_FOUND    -  The requested room does not exist.
 
  The typical procedure for entering a passworded room would be:
 
  1. Execute a GOTO command without supplying any password.
- 2. ERROR+PASSWORD_REQUIRED will be returned.  The client now knows that
+ 2. ERROR + PASSWORD_REQUIRED will be returned.  The client now knows that
 the room is passworded, and prompts the user for a password.
  3. Execute a GOTO command, supplying both the room name and the password.
  4. If OK is returned, the command is complete.  If, however,
-ERROR+PASSWORD_REQUIRED is still returned, tell the user that the supplied
+ERROR + PASSWORD_REQUIRED is still returned, tell the user that the supplied
 password was incorrect.  The user remains in the room he/she was previously
 in.
 
@@ -450,14 +462,14 @@ the one specified.
 returned, the client must transmit a list of fields to search for.  The field
 headers are listed below in the writeup for the "MSG0" command.
 
- This command can return three possible results.  An ERROR code may be returned
-if no user is currently logged in or if something else went wrong.  Otherwise,
-LISTING_FOLLOWS will be returned, and the listing will consist of zero or
-more message numbers, one per line.  The listing ends, as always, with the
-string "000" alone on a line by itself.  The listed message numbers can be used
-to request messages from the system.  If "search mode" is being used, the
-server will return START_CHAT_MODE, and the client is expected to transmit
-the search criteria, and then read the message list.
+ This command can return three possible results.  ERROR + NOT_LOGGED_IN will
+be returned if no user is currently logged in.  Otherwise, LISTING_FOLLOWS
+will be returned, and the listing will consist of zero or more message
+numbers, one per line.  The listing ends, as always, with the string "000"
+alone on a line by itself.  The listed message numbers can be used to request
+messages from the system.  If "search mode" is being used, the server will
+return START_CHAT_MODE, and the client is expected to transmit the search
+criteria, and then read the message list.
 
  Since this is somewhat complex, here are some examples:
 
@@ -503,7 +515,6 @@ the search criteria, and then read the message list.
 criteria.  These criteria are applied with an AND logic.
 
 
-
  MSG0   (read MeSsaGe, mode 0)
 
  This is a command used to read the text of a message.  "Mode 0" implies that
@@ -515,9 +526,9 @@ argument specifies whether the client wants headers and/or message body:
  1 = Headers only
  2 = Body only
 
- If the request is denied, an ERROR code will be returned.  Otherwise, the
-LISTING_FOLLOWS code will be returned, followed by the contents of the message.
-The following fields may be sent:
+ If the request is denied, ERROR + NOT_LOGGED_IN or ERROR + MESSAGE_NOT_FOUND
+will be returned.  Otherwise, LISTING_FOLLOWS will be returned, followed by
+the contents of the message.  The following fields may be sent:
 
  type=   Formatting type.  The currently defined types are:
   0 = "traditional" Citadel formatting.  This means that newlines should be
@@ -558,8 +569,8 @@ signifies that the message text begins on the next line.
 
  WHOK   (WHO Knows room)
 
- This command is available only to Aides.  ERROR+HIGHER_ACCESS_REQUIRED will
-be returned if the user is not an Aide.  Otherwise, it returns
+ This command is available only to Aides.  ERROR + HIGHER_ACCESS_REQUIRED 
+will be returned if the user is not an Aide.  Otherwise, it returns
 LISTING_FOLLOWS and then lists, one user per line, every user who has
 access to the current room.
 
@@ -621,32 +632,33 @@ to determine ahead of time what commands may be utilized.
 
  RDIR   (Read room DIRectory)
 
- Use this command to read the directory of a directory room.  ERROR+NOT_HERE
-will be returned if the room has no directory, or some other error; ERROR +
-HIGHER_ACCESS_REQUIRED will be returned if the room's directory is not
-visible and the user does not have Aide or Room Aide privileges; otherwise
-LISTING_FOLLOWS will be returned, followed by the room's directory.  Each
-line of the directory listing will contain three fields: a filename, the
-length of the file, and a description.
+ Use this command to read the directory of a directory room.  ERROR + NOT_HERE
+will be returned if the room has no directory, ERROR + HIGHER_ACCESS_REQUIRED
+will be returned if the room's directory is not visible and the user does not
+have Aide or Room Aide privileges, ERROR + NOT_LOGGED_IN will be returned if
+the user is not logged in; otherwise LISTING_FOLLOWS will be returned,
+followed by the room's directory.  Each line of the directory listing will
+contain three fields: a filename, the length of the file, and a description.
 
  The server message contained on the same line with LISTING_FOLLOWS will
 contain the name of the system and the name of the directory, such as:
+
   uncensored.citadel.org|/usr/bbs/files/my_room_directory
 
 
  SLRP   (Set Last-message-Read Pointer)
 
  This command marks all messages in the current room as read (seen) up to and
-including the specified number.  Its sole parameter
-is the number of the last message that has been read.  This allows the pointer
-to be set at any arbitrary point in the room.  Optionally, the parameter
-"highest" may be used instead of a message number, to set the pointer to the
-number of the highest message in the room, effectively marking all messages
-in the room as having been read (ala the Citadel <G>oto command).
+including the specified number.  Its sole parameter is the number of the last
+message that has been read.  This allows the pointer to be set at any
+arbitrary point in the room.  Optionally, the parameter "highest" may be used
+instead of a message number, to set the pointer to the number of the highest
+message in the room, effectively marking all messages in the room as having
+been read (ala the Citadel <G>oto command).
 
- The command will return OK if the pointer was set, or ERROR if something
-went wrong.  If OK is returned, it will be followed by a single argument
-containing the message number the last-read-pointer was set to.
+ The command will return OK if the pointer was set, or ERROR + NOT_LOGGED_IN
+if the user is not logged in.  If OK is returned, it will be followed by a
+single argument containing the message number the last-read-pointer was set to.
 
 
  INVT   (INViTe a user to a room)
@@ -656,10 +668,11 @@ current room.  It is used primarily to add users to invitation-only rooms,
 but it may also be used in other types of private rooms as well.  Its sole
 parameter is the name of the user to invite.
 
- The command will return OK if the operation succeeded, or ERROR if it did
-not.  ERROR+HIGHER_ACCESS_REQUIRED may also be returned if the operation
-would have been possible if the user had higher access, and ERROR+NOT_HERE
-may be returned if the room is not a private room.
+ The command will return OK if the operation succeeded.  ERROR + NO_SUCH_USER
+will be returned if the user does not exist, ERROR + HIGHER_ACCESS_REQUIRED
+will be returned if the operation would have been possible if the user had
+higher access, and ERROR + NOT_HERE may be returned if the room is not a
+private room.
 
 
  KICK   (KICK a user out of a room)
@@ -687,7 +700,6 @@ editing.  Possible return codes are:
  ERROR+NOT_LOGGED_IN          - No user is logged in.
  ERROR+HIGHER_ACCESS_REQUIRED - Not enough access.  Typically, only aides
 and the room aide associated with the current room, can access this command.
- ERROR+NOT_HERE               - Lobby>, Mail>, and Aide> cannot be edited.
  OK                           - Command succeeded.  Parameters are returned.
 
  If OK is returned, the following parameters will be returned as well:
@@ -715,7 +727,7 @@ should be passed the following arguments:
  5. The floor number on which the room should reside
  6. The room listing order
  7. The default view for the room (see views.txt)
- 8. A second set of flags (buts) associated with the room
+ 8. A second set of flags (bits) associated with the room
 
  *Important: You should always use GETR to retrieve the current attributes of
 the room, then change what you want to change, and then use SETR to write it
@@ -723,6 +735,9 @@ all back.  This is particularly important with respect to the flags: if a
 particular bit is set, and you don't know what it means, LEAVE IT ALONE and
 only toggle the bits you want to toggle.  This will allow for upward
 compatibility.
+
+ The _BASEROOM_, user's Mail> and Aide> rooms can only be partially edited.
+Any changes which cannot be made will be silently ignored.
 
  If the room is a private room, you have the option of causing all users who
 currently have access, to forget the room.  If you want to do this, set the
@@ -732,9 +747,10 @@ currently have access, to forget the room.  If you want to do this, set the
  GETA
 
  This command is used to get the name of the Room Aide for the current room.
-It will return ERROR+NOT_LOGGED_IN if no user is logged in, ERROR if there
-is no current room, or OK if the command succeeded.  Along with OK there will
-be returned one parameter: the name of the Room Aide.
+It will return ERROR + NOT_LOGGED_IN if no user is logged in, or OK if the
+command succeeded.  Along with OK there will be returned one parameter: the
+name of the Room Aide.  A conforming server must guarantee that the user is
+always in some room.
 
 
  SETA
@@ -743,10 +759,9 @@ be returned one parameter: the name of the Room Aide.
 parameter should be passed, which is the name of the user who is to be the
 new Room Aide.  Under Citadel/UX, this command may only be executed by Aides
 and by the *current* Room Aide for the room.  Return codes possible are:
- ERROR+NOT_LOGGED_IN            (Not logged in.)
- ERROR+HIGHER_ACCESS_REQUIRED   (Higher access required.)
- ERROR+NOT_HERE                 (No current room, or room cannot be edited.
-Under Citadel/UX, the Lobby> Mail> and Aide> rooms are non-editable.)
+ ERROR + NOT_LOGGED_IN          (Not logged in.)
+ ERROR + HIGHER_ACCESS_REQUIRED (Higher access required.)
+ ERROR + NOT_HERE               (Room cannot be edited.)
  OK                             (Command succeeded.)
 
 
@@ -786,7 +801,6 @@ correct upper and lower case characters.  In addition, if the recipient is
 having his/her mail forwarded, the forwarding address will be returned.
   SEND_LISTING  -  The request is valid.  The client should now transmit
 the text of the message (ending with a 000 on a line by itself, as usual).
-  ERROR  -  Miscellaneous error.  (Explanation probably follows.)
   ERROR + NOT_LOGGED_IN  -  Not logged in.
   ERROR + HIGHER_ACCESS_REQUIRED  -  Higher access is required.  An
 explanation follows, worded in a form that can be displayed to the user.

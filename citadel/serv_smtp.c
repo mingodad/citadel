@@ -1482,7 +1482,7 @@ void cmd_smtp(char *argbuf) {
 	}
 
 	else {
-		cprintf("%d Invalid command.\n", ERROR+ILLEGAL_VALUE);
+		cprintf("%d Invalid command.\n", ERROR + ILLEGAL_VALUE);
 	}
 
 }

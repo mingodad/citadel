@@ -473,7 +473,7 @@ void cmd_iden(char *argbuf)
 	int do_lookup = 0;
 
 	if (num_parms(argbuf)<4) {
-		cprintf("%d usage error\n",ERROR);
+		cprintf("%d usage error\n", ERROR + ILLEGAL_VALUE);
 		return;
 	}
 
@@ -552,14 +552,14 @@ void cmd_mesg(char *mname)
 	phree(dirs[1]);
 
 	if (strlen(targ)==0) {
-		cprintf("%d '%s' not found.\n",ERROR,mname);
+		cprintf("%d '%s' not found.\n",ERROR + FILE_NOT_FOUND, mname);
 		return;
 	}
 
 	mfp = fopen(targ,"r");
 	if (mfp==NULL) {
 		cprintf("%d Cannot open '%s': %s\n",
-			ERROR,targ,strerror(errno));
+			ERROR + INTERNAL_ERROR, targ, strerror(errno));
 		return;
 	}
 	cprintf("%d %s\n",LISTING_FOLLOWS,buf);
@@ -608,7 +608,7 @@ void cmd_emsg(char *mname)
 	mfp = fopen(targ,"w");
 	if (mfp==NULL) {
 		cprintf("%d Cannot open '%s': %s\n",
-			ERROR,targ,strerror(errno));
+			ERROR + INTERNAL_ERROR, targ, strerror(errno));
 		return;
 	}
 	cprintf("%d %s\n", SEND_LISTING, targ);
@@ -656,14 +656,14 @@ int CtdlAccessCheck(int required_level) {
 	if (CC->internal_pgm) return(0);
 	if (required_level >= ac_internal) {
 		cprintf("%d This is not a user-level command.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
+			ERROR + HIGHER_ACCESS_REQUIRED);
 		return(-1);
 	}
 
 	if (CC->user.axlevel >= 6) return(0);
  	if (required_level >= ac_aide) {
 		cprintf("%d This command requires Aide access.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
+			ERROR + HIGHER_ACCESS_REQUIRED);
 		return(-1);
 	}
 
@@ -676,7 +676,7 @@ int CtdlAccessCheck(int required_level) {
 
 	if (CC->logged_in) return(0);
 	if (required_level >= ac_logged_in) {
-		cprintf("%d Not logged in.\n", ERROR+NOT_LOGGED_IN);
+		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
 		return(-1);
 	}
 
@@ -698,7 +698,7 @@ void cmd_term(char *cmdbuf)
 
 	session_num = extract_int(cmdbuf, 0);
 	if (session_num == CC->cs_pid) {
-		cprintf("%d You can't kill your own session.\n", ERROR);
+		cprintf("%d You can't kill your own session.\n", ERROR + ILLEGAL_VALUE);
 		return;
 	}
 
@@ -729,7 +729,7 @@ void cmd_term(char *cmdbuf)
 		}
 	}
 	else {
-		cprintf("%d No such session.\n", ERROR);
+		cprintf("%d No such session.\n", ERROR + ILLEGAL_VALUE);
 	}
 }
 
@@ -768,7 +768,7 @@ void cmd_ipgm(char *argbuf)
 	 */
 	if (!CC->is_local_socket) {
 		sleep(5);
-		cprintf("%d Authentication failed.\n",ERROR);
+		cprintf("%d Authentication failed.\n", ERROR + PASSWORD_REQUIRED);
 	}
 	else if (secret == config.c_ipgm_secret) {
 		CC->internal_pgm = 1;
@@ -778,7 +778,7 @@ void cmd_ipgm(char *argbuf)
 	}
 	else {
 		sleep(5);
-		cprintf("%d Authentication failed.\n",ERROR);
+		cprintf("%d Authentication failed.\n", ERROR + PASSWORD_REQUIRED);
 		lprintf(3, "Warning: ipgm authentication failed.\n");
 		CC->kill_me = 1;
 	}
@@ -914,7 +914,7 @@ void citproto_begin_session() {
 	if (CC->nologin==1) {
 		cprintf("%d %s: Too many users are already online "
 			"(maximum is %d)\n",
-			ERROR+MAX_SESSIONS_EXCEEDED,
+			ERROR + MAX_SESSIONS_EXCEEDED,
 			config.c_nodename, config.c_maxsessions);
 	}
 	else {
@@ -1311,7 +1311,7 @@ void do_command_loop(void) {
 #endif
 
 	else if (!DLoader_Exec_Cmd(cmdbuf)) {
-		cprintf("%d Unrecognized or unsupported command.\n", ERROR);
+		cprintf("%d Unrecognized or unsupported command.\n", ERROR + CMD_NOT_SUPPORTED);
 	       }
 
 	/* Run any after-each-command outines registered by modules */

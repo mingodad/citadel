@@ -1066,7 +1066,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	 *
 	 if (!msg_ok) {
 	 if (do_proto) cprintf("%d Message %ld is not in this room.\n",
-	 ERROR, msg_num);
+	 ERROR + MESSAGE_NOT_FOUND, msg_num);
 	 return(om_no_such_msg);
 	 }
 	 */
@@ -1078,7 +1078,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 
 	if (TheMessage == NULL) {
 		if (do_proto) cprintf("%d Can't locate msg %ld on disk\n",
-			ERROR, msg_num);
+			ERROR + MESSAGE_NOT_FOUND, msg_num);
 		return(om_no_such_msg);
 	}
 	
@@ -1136,11 +1136,11 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 		if (TheMessage->cm_format_type != FMT_RFC822) {
 			if (do_proto)
 				cprintf("%d This is not a MIME message.\n",
-				ERROR);
+				ERROR + ILLEGAL_VALUE);
 		} else if (CC->download_fp != NULL) {
 			if (do_proto) cprintf(
 				"%d You already have a download open.\n",
-				ERROR);
+				ERROR + RESOURCE_BUSY);
 		} else {
 			/* Parse the message text component */
 			mptr = TheMessage->cm_fields['M'];
@@ -1519,7 +1519,7 @@ void cmd_msg3(char *cmdbuf)
 
 	if (CC->internal_pgm == 0) {
 		cprintf("%d This command is for internal programs only.\n",
-			ERROR);
+			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;
 	}
 
@@ -1527,7 +1527,7 @@ void cmd_msg3(char *cmdbuf)
 	msg = CtdlFetchMessage(msgnum);
 	if (msg == NULL) {
 		cprintf("%d Message %ld not found.\n", 
-			ERROR, msgnum);
+			ERROR + MESSAGE_NOT_FOUND, msgnum);
 		return;
 	}
 
@@ -1536,7 +1536,7 @@ void cmd_msg3(char *cmdbuf)
 
 	if (smr.len == 0) {
 		cprintf("%d Unable to serialize message\n",
-			ERROR+INTERNAL_ERROR);
+			ERROR + INTERNAL_ERROR);
 		return;
 	}
 
@@ -1738,7 +1738,7 @@ long send_message(struct CtdlMessage *msg,	/* pointer to buffer */
 
         if (smr.len == 0) {
                 cprintf("%d Unable to serialize message\n",
-                        ERROR+INTERNAL_ERROR);
+                        ERROR + INTERNAL_ERROR);
                 return (-1L);
         }
 
@@ -2899,7 +2899,7 @@ void cmd_dele(char *delstr)
 		cprintf("%d %d message%s deleted.\n", CIT_OK,
 			num_deleted, ((num_deleted != 1) ? "s" : ""));
 	} else {
-		cprintf("%d Message %ld not found.\n", ERROR, delnum);
+		cprintf("%d Message %ld not found.\n", ERROR + MESSAGE_NOT_FOUND, delnum);
 	}
 }
 
@@ -2936,7 +2936,7 @@ void cmd_move(char *args)
 	is_copy = extract_int(args, 2);
 
 	if (getroom(&qtemp, targ) != 0) {
-		cprintf("%d '%s' does not exist.\n", ERROR, targ);
+		cprintf("%d '%s' does not exist.\n", ERROR + ROOM_NOT_FOUND, targ);
 		return;
 	}
 
@@ -3292,7 +3292,7 @@ void cmd_isme(char *argbuf) {
 		cprintf("%d %s\n", CIT_OK, addr);
 	}
 	else {
-		cprintf("%d Not you.\n", ERROR);
+		cprintf("%d Not you.\n", ERROR + ILLEGAL_VALUE);
 	}
 
 }

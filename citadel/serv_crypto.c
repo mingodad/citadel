@@ -288,14 +288,14 @@ void cmd_stls(char *params)
 	int retval, bits, alg_bits;
 
 	if (!ssl_ctx) {
-		cprintf("%d No SSL_CTX available\n", ERROR);
+		cprintf("%d No SSL_CTX available\n", ERROR + CMD_NOT_SUPPORTED);
 		return;
 	}
 	if (!(CC->ssl = SSL_new(ssl_ctx))) {
 		lprintf(2, "SSL_new failed: %s\n",
-			ERR_reason_error_string(ERR_peek_error()));
-		cprintf("%d SSL_new: %s\n", ERROR,
-			ERR_reason_error_string(ERR_get_error()));
+				ERR_reason_error_string(ERR_peek_error()));
+		cprintf("%d SSL_new: %s\n", ERROR + INTERNAL_ERROR,
+				ERR_reason_error_string(ERR_get_error()));
 		return;
 	}
 	if (!(SSL_set_fd(CC->ssl, CC->client_socket))) {
@@ -303,8 +303,8 @@ void cmd_stls(char *params)
 			ERR_reason_error_string(ERR_peek_error()));
 		SSL_free(CC->ssl);
 		CC->ssl = NULL;
-		cprintf("%d SSL_set_fd: %s\n", ERROR,
-			ERR_reason_error_string(ERR_get_error()));
+		cprintf("%d SSL_set_fd: %s\n", ERROR + INTERNAL_ERROR,
+				ERR_reason_error_string(ERR_get_error()));
 		return;
 	}
 	cprintf("%d \n", CIT_OK);

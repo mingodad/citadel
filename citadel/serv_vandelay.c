@@ -562,7 +562,7 @@ void cmd_artv(char *cmdbuf) {
 	if (CtdlAccessCheck(ac_internal)) return;
 	if (is_running) {
 		cprintf("%d The importer/exporter is already running.\n",
-			ERROR);
+			ERROR + RESOURCE_BUSY);
 		return;
 	}
 	is_running = 1;
@@ -572,7 +572,7 @@ void cmd_artv(char *cmdbuf) {
 	extract(cmd, cmdbuf, 0);
 	if (!strcasecmp(cmd, "export")) artv_do_export();
 	else if (!strcasecmp(cmd, "import")) artv_do_import();
-	else cprintf("%d illegal command\n", ERROR);
+	else cprintf("%d illegal command\n", ERROR + ILLEGAL_VALUE);
 
 	unlink(artv_tempfilename1);
 	unlink(artv_tempfilename2);

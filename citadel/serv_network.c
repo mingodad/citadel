@@ -364,7 +364,7 @@ void cmd_snet(char *argbuf) {
 	fp = fopen(tempfilename, "w");
 	if (fp == NULL) {
 		cprintf("%d Cannot open %s: %s\n",
-			ERROR+INTERNAL_ERROR,
+			ERROR + INTERNAL_ERROR,
 			tempfilename,
 			strerror(errno));
 	}
@@ -1641,7 +1641,7 @@ void cmd_netp(char *cmdbuf)
 	char nexthop[SIZ];
 
 	if (doing_queue) {
-		cprintf("%d spooling - try again in a few minutes\n", ERROR);
+		cprintf("%d spooling - try again in a few minutes\n", ERROR + RESOURCE_BUSY);
 		return;
 	}
 
@@ -1649,17 +1649,17 @@ void cmd_netp(char *cmdbuf)
 	extract(pass, cmdbuf, 1);
 
 	if (is_valid_node(nexthop, secret, node) != 0) {
-		cprintf("%d authentication failed\n", ERROR);
+		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
 		return;
 	}
 
 	if (strcasecmp(pass, secret)) {
-		cprintf("%d authentication failed\n", ERROR);
+		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
 		return;
 	}
 
 	if (network_talking_to(node, NTT_CHECK)) {
-		cprintf("%d Already talking to %s right now\n", ERROR, node);
+		cprintf("%d Already talking to %s right now\n", ERROR + RESOURCE_BUSY, node);
 		return;
 	}
 

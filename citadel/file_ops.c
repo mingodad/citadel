@@ -195,7 +195,7 @@ void cmd_movf(char *cmdbuf)
 	}
 
 	if (getroom(&qrbuf, newroom) != 0) {
-		cprintf("%d '%s' does not exist.\n", ERROR, newroom);
+		cprintf("%d '%s' does not exist.\n", ERROR + ROOM_NOT_FOUND, newroom);
 		return;
 	}
 	if ((qrbuf.QRflags & QR_DIRECTORY) == 0) {
@@ -206,7 +206,7 @@ void cmd_movf(char *cmdbuf)
 	snprintf(newpath, sizeof newpath, "./files/%s/%s", qrbuf.QRdirname,
 		 filename);
 	if (link(pathname, newpath) != 0) {
-		cprintf("%d Couldn't move file: %s\n", ERROR,
+		cprintf("%d Couldn't move file: %s\n", ERROR + INTERNAL_ERROR,
 			strerror(errno));
 		return;
 	}
@@ -274,7 +274,7 @@ void cmd_netf(char *cmdbuf)
 		 BBSDIR, (long)getpid(), ++seq);
 	ofp = fopen(outfile, "a");
 	if (ofp == NULL) {
-		cprintf("%d internal error\n", ERROR);
+		cprintf("%d internal error\n", ERROR + INTERNAL_ERROR);
 		return;
 	}
 
@@ -363,7 +363,7 @@ void cmd_open(char *cmdbuf)
 
 	if (CC->download_fp != NULL) {
 		cprintf("%d You already have a download file open.\n",
-			ERROR);
+			ERROR + RESOURCE_BUSY);
 		return;
 	}
 
@@ -379,7 +379,7 @@ void cmd_open(char *cmdbuf)
 
 	if (CC->download_fp == NULL) {
 		cprintf("%d cannot open %s: %s\n",
-			ERROR, pathname, strerror(errno));
+			ERROR + INTERNAL_ERROR, pathname, strerror(errno));
 		return;
 	}
 
@@ -408,7 +408,7 @@ void cmd_oimg(char *cmdbuf)
 
 	if (CC->download_fp != NULL) {
 		cprintf("%d You already have a download file open.\n",
-			ERROR);
+			ERROR + RESOURCE_BUSY);
 		return;
 	}
 
@@ -474,7 +474,7 @@ void cmd_uopn(char *cmdbuf)
 
 	if (CC->upload_fp != NULL) {
 		cprintf("%d You already have a upload file open.\n",
-			ERROR);
+			ERROR + RESOURCE_BUSY);
 		return;
 	}
 
@@ -500,7 +500,7 @@ void cmd_uopn(char *cmdbuf)
 	CC->upload_fp = fopen(CC->upl_path, "wb");
 	if (CC->upload_fp == NULL) {
 		cprintf("%d Cannot open %s: %s\n",
-			ERROR, CC->upl_path, strerror(errno));
+			ERROR + INTERNAL_ERROR, CC->upl_path, strerror(errno));
 		return;
 	}
 	cprintf("%d Ok\n", CIT_OK);
@@ -519,7 +519,7 @@ void cmd_uimg(char *cmdbuf)
 	int a;
 
 	if (num_parms(cmdbuf) < 2) {
-		cprintf("%d Usage error.\n", ERROR);
+		cprintf("%d Usage error.\n", ERROR + ILLEGAL_VALUE);
 		return;
 	}
 
@@ -527,7 +527,7 @@ void cmd_uimg(char *cmdbuf)
 	extract(basenm, cmdbuf, 1);
 	if (CC->upload_fp != NULL) {
 		cprintf("%d You already have an upload file open.\n",
-			ERROR);
+			ERROR + RESOURCE_BUSY);
 		return;
 	}
 
@@ -575,7 +575,7 @@ void cmd_uimg(char *cmdbuf)
 	CC->upload_fp = fopen(CC->upl_path, "wb");
 	if (CC->upload_fp == NULL) {
 		cprintf("%d Cannot open %s: %s\n",
-			ERROR, CC->upl_path, strerror(errno));
+			ERROR + INTERNAL_ERROR, CC->upl_path, strerror(errno));
 		return;
 	}
 	cprintf("%d Ok\n", CIT_OK);
@@ -592,7 +592,7 @@ void cmd_clos(void)
 
 	if (CC->download_fp == NULL) {
 		cprintf("%d You don't have a download file open.\n",
-			ERROR);
+			ERROR + RESOURCE_NOT_OPEN);
 		return;
 	}
 
@@ -633,7 +633,7 @@ void cmd_ucls(char *cmd)
 	char upload_notice[512];
 
 	if (CC->upload_fp == NULL) {
-		cprintf("%d You don't have an upload file open.\n", ERROR);
+		cprintf("%d You don't have an upload file open.\n", ERROR + RESOURCE_NOT_OPEN);
 		return;
 	}
 
@@ -690,7 +690,7 @@ void cmd_read(char *cmdbuf)
 
 	if (CC->download_fp == NULL) {
 		cprintf("%d You don't have a download file open.\n",
-			ERROR);
+			ERROR + RESOURCE_NOT_OPEN);
 		return;
 	}
 
@@ -715,13 +715,13 @@ void cmd_writ(char *cmdbuf)
 	bytes = extract_int(cmdbuf, 0);
 
 	if (CC->upload_fp == NULL) {
-		cprintf("%d You don't have an upload file open.\n", ERROR);
+		cprintf("%d You don't have an upload file open.\n", ERROR + RESOURCE_NOT_OPEN);
 		return;
 	}
 
 	if (bytes > 4096) {
 		cprintf("%d You may not write more than 4096 bytes.\n",
-			ERROR);
+			ERROR + TOO_BIG);
 		return;
 	}
 
@@ -749,7 +749,7 @@ void cmd_ndop(char *cmdbuf)
 
 	if (CC->download_fp != NULL) {
 		cprintf("%d You already have a download file open.\n",
-			ERROR);
+			ERROR + RESOURCE_BUSY);
 		return;
 	}
 
@@ -767,7 +767,7 @@ void cmd_ndop(char *cmdbuf)
 	CC->download_fp = fopen(pathname, "r");
 	if (CC->download_fp == NULL) {
 		cprintf("%d cannot open %s: %s\n",
-			ERROR, pathname, strerror(errno));
+			ERROR + INTERNAL_ERROR, pathname, strerror(errno));
 		return;
 	}
 
@@ -796,7 +796,7 @@ void cmd_nuop(char *cmdbuf)
 
 	if (CC->upload_fp != NULL) {
 		cprintf("%d You already have an upload file open.\n",
-			ERROR);
+			ERROR + RESOURCE_BUSY);
 		return;
 	}
 
@@ -816,7 +816,7 @@ void cmd_nuop(char *cmdbuf)
 	CC->upload_fp = fopen(CC->upl_path, "w");
 	if (CC->upload_fp == NULL) {
 		cprintf("%d Cannot open %s: %s\n",
-			ERROR, CC->upl_path, strerror(errno));
+			ERROR + INTERNAL_ERROR, CC->upl_path, strerror(errno));
 		return;
 	}
 

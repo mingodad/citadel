@@ -388,7 +388,7 @@ void ical_respond(long msgnum, char *partnum, char *action) {
 	msg = CtdlFetchMessage(msgnum);
 	if (msg == NULL) {
 		cprintf("%d Message %ld not found.\n",
-			ERROR+ILLEGAL_VALUE,
+			ERROR + ILLEGAL_VALUE,
 			(long)msgnum
 		);
 		return;
@@ -435,7 +435,7 @@ void ical_respond(long msgnum, char *partnum, char *action) {
 		return;
 	}
 	else {
-		cprintf("%d No calendar object found\n", ERROR);
+		cprintf("%d No calendar object found\n", ERROR + ROOM_NOT_FOUND);
 		return;
 	}
 
@@ -734,7 +734,7 @@ void ical_handle_rsvp(long msgnum, char *partnum, char *action) {
 	msg = CtdlFetchMessage(msgnum);
 	if (msg == NULL) {
 		cprintf("%d Message %ld not found.\n",
-			ERROR+ILLEGAL_VALUE,
+			ERROR + ILLEGAL_VALUE,
 			(long)msgnum
 		);
 		return;
@@ -790,7 +790,7 @@ void ical_handle_rsvp(long msgnum, char *partnum, char *action) {
 		return;
 	}
 	else {
-		cprintf("%d No calendar object found\n", ERROR);
+		cprintf("%d No calendar object found\n", ERROR + ROOM_NOT_FOUND);
 		return;
 	}
 
@@ -975,7 +975,7 @@ void ical_hunt_for_conflicts(icalcomponent *cal) {
 
 	if (getroom(&CC->room, USERCALENDARROOM) != 0) {
 		getroom(&CC->room, hold_rm);
-		cprintf("%d You do not have a calendar.\n", ERROR);
+		cprintf("%d You do not have a calendar.\n", ERROR + ROOM_NOT_FOUND);
 		return;
 	}
 
@@ -1004,7 +1004,7 @@ void ical_conflicts(long msgnum, char *partnum) {
 	msg = CtdlFetchMessage(msgnum);
 	if (msg == NULL) {
 		cprintf("%d Message %ld not found.\n",
-			ERROR+ILLEGAL_VALUE,
+			ERROR + ILLEGAL_VALUE,
 			(long)msgnum
 		);
 		return;
@@ -1028,7 +1028,7 @@ void ical_conflicts(long msgnum, char *partnum) {
 		return;
 	}
 	else {
-		cprintf("%d No calendar object found\n", ERROR);
+		cprintf("%d No calendar object found\n", ERROR + ROOM_NOT_FOUND);
 		return;
 	}
 
@@ -1152,7 +1152,7 @@ void ical_freebusy(char *who) {
 	strcpy(hold_rm, CC->room.QRname);	/* save current room */
 
 	if (getroom(&CC->room, calendar_room_name) != 0) {
-		cprintf("%d Cannot open calendar\n", ERROR+ROOM_NOT_FOUND);
+		cprintf("%d Cannot open calendar\n", ERROR + ROOM_NOT_FOUND);
 		getroom(&CC->room, hold_rm);
 		return;
 	}
@@ -1162,7 +1162,7 @@ void ical_freebusy(char *who) {
 	fb = icalcomponent_new_vfreebusy();
 	if (fb == NULL) {
 		cprintf("%d Internal error: cannot allocate memory.\n",
-			ERROR+INTERNAL_ERROR);
+			ERROR + INTERNAL_ERROR);
 		icalcomponent_free(encaps);
 		getroom(&CC->room, hold_rm);
 		return;
@@ -1189,7 +1189,7 @@ void ical_freebusy(char *who) {
 	if (encaps == NULL) {
 		icalcomponent_free(fb);
 		cprintf("%d Internal error: cannot allocate memory.\n",
-			ERROR+INTERNAL_ERROR);
+			ERROR + INTERNAL_ERROR);
 		getroom(&CC->room, hold_rm);
 		return;
 	}
@@ -1268,7 +1268,7 @@ void cmd_ical(char *argbuf)
 		return;
 	}
 
-	cprintf("%d Invalid subcommand\n", ERROR+CMD_NOT_SUPPORTED);
+	cprintf("%d Invalid subcommand\n", ERROR + CMD_NOT_SUPPORTED);
 }
 
 

@@ -407,7 +407,7 @@ void cmd_user(char *cmdbuf)
 	a = CtdlLoginExistingUser(username);
 	switch (a) {
 	case login_already_logged_in:
-		cprintf("%d Already logged in.\n", ERROR);
+		cprintf("%d Already logged in.\n", ERROR + ALREADY_LOGGED_IN);
 		return;
 	case login_too_many_users:
 		cprintf("%d %s: "
@@ -421,9 +421,9 @@ void cmd_user(char *cmdbuf)
 			MORE_DATA, CC->curr_user);
 		return;
 	case login_not_found:
-		cprintf("%d %s not found.\n", ERROR, username);
+		cprintf("%d %s not found.\n", ERROR + NO_SUCH_USER, username);
 		return;
-		cprintf("%d Internal error\n", ERROR);
+		cprintf("%d Internal error\n", ERROR + INTERNAL_ERROR);
 	}
 }
 
@@ -673,14 +673,14 @@ void cmd_pass(char *buf)
 
 	switch (a) {
 	case pass_already_logged_in:
-		cprintf("%d Already logged in.\n", ERROR);
+		cprintf("%d Already logged in.\n", ERROR + ALREADY_LOGGED_IN);
 		return;
 	case pass_no_user:
 		cprintf("%d You must send a name with USER first.\n",
-			ERROR);
+			ERROR + USERNAME_REQUIRED);
 		return;
 	case pass_wrong_password:
-		cprintf("%d Wrong password.\n", ERROR);
+		cprintf("%d Wrong password.\n", ERROR + PASSWORD_REQUIRED);
 		return;
 	case pass_ok:
 		logged_in_response();
@@ -859,12 +859,12 @@ void cmd_newu(char *cmdbuf)
 
 	if (config.c_disable_newu) {
 		cprintf("%d Self-service user account creation "
-			"is disabled on this system.\n", ERROR);
+			"is disabled on this system.\n", ERROR + NOT_HERE);
 		return;
 	}
 
 	if (CC->logged_in) {
-		cprintf("%d Already logged in.\n", ERROR);
+		cprintf("%d Already logged in.\n", ERROR + ALREADY_LOGGED_IN);
 		return;
 	}
 	if (CC->nologin) {
@@ -877,14 +877,14 @@ void cmd_newu(char *cmdbuf)
 	strproc(username);
 
 	if (strlen(username) == 0) {
-		cprintf("%d You must supply a user name.\n", ERROR);
+		cprintf("%d You must supply a user name.\n", ERROR + USERNAME_REQUIRED);
 		return;
 	}
 
 	if ((!strcasecmp(username, "bbs")) ||
 	    (!strcasecmp(username, "new")) ||
 	    (!strcasecmp(username, "."))) {
-		cprintf("%d '%s' is an invalid login name.\n", ERROR, username);
+		cprintf("%d '%s' is an invalid login name.\n", ERROR + ILLEGAL_VALUE, username);
 		return;
 	}
 
@@ -902,7 +902,7 @@ void cmd_newu(char *cmdbuf)
 			ERROR + INTERNAL_ERROR);
 		return;
 	} else {
-		cprintf("%d unknown error\n", ERROR);
+		cprintf("%d unknown error\n", ERROR + INTERNAL_ERROR);
 	}
 }
 
@@ -917,7 +917,7 @@ void cmd_setp(char *new_pw)
 		return;
 	}
 	if ( (CC->user.uid != BBSUID) && (CC->user.uid != (-1)) ) {
-		cprintf("%d Not allowed.  Use the 'passwd' command.\n", ERROR);
+		cprintf("%d Not allowed.  Use the 'passwd' command.\n", ERROR + NOT_HERE);
 		return;
 	}
 	strproc(new_pw);
@@ -956,7 +956,7 @@ void cmd_creu(char *cmdbuf)
 	strproc(password);
 
 	if (strlen(username) == 0) {
-		cprintf("%d You must supply a user name.\n", ERROR);
+		cprintf("%d You must supply a user name.\n", ERROR + USERNAME_REQUIRED);
 		return;
 	}
 
@@ -977,7 +977,7 @@ void cmd_creu(char *cmdbuf)
 			ERROR + ALREADY_EXISTS, username);
 		return;
 	} else {
-		cprintf("%d An error occured creating the user account.\n", ERROR);
+		cprintf("%d An error occured creating the user account.\n", ERROR + INTERNAL_ERROR);
 	}
 }
 
@@ -1010,7 +1010,7 @@ void cmd_setu(char *new_parms)
 		return;
 
 	if (num_parms(new_parms) < 3) {
-		cprintf("%d Usage error.\n", ERROR);
+		cprintf("%d Usage error.\n", ERROR + ILLEGAL_VALUE);
 		return;
 	}
 	lgetuser(&CC->user, CC->curr_user);
@@ -1070,7 +1070,7 @@ void cmd_seen(char *argbuf) {
 	}
 
 	if (num_parms(argbuf) != 2) {
-		cprintf("%d Invalid parameters\n", ERROR);
+		cprintf("%d Invalid parameters\n", ERROR + ILLEGAL_VALUE);
 		return;
 	}
 
@@ -1127,7 +1127,7 @@ void cmd_invt_kick(char *iuser, int op)
 	}
 
 	if (lgetuser(&USscratch, iuser) != 0) {
-		cprintf("%d No such user.\n", ERROR);
+		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
 		return;
 	}
 	CtdlGetRelationship(&vbuf, &USscratch, &CC->room);
@@ -1203,7 +1203,7 @@ void cmd_forg(void)
 		cprintf("%d Ok\n", CIT_OK);
 	}
 	else {
-		cprintf("%d You may not forget this room.\n", ERROR);
+		cprintf("%d You may not forget this room.\n", ERROR + NOT_HERE);
 	}
 }
 

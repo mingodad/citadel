@@ -122,7 +122,7 @@ void cmd_mrtg(char *argbuf) {
 	}
 	else {
 		cprintf("%d Unrecognized keyword '%s'\n",
-			ERROR+ILLEGAL_VALUE, which);
+			ERROR + ILLEGAL_VALUE, which);
 	}
 }
 

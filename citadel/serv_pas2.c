@@ -40,13 +40,13 @@ void cmd_pas2(char *argbuf)
 
 	if (!strcmp(CC->curr_user, NLI))
 	{
-		cprintf("%d You must enter a user with the USER command first.\n", ERROR);
+		cprintf("%d You must enter a user with the USER command first.\n", ERROR + USERNAME_REQUIRED);
 		return;
 	}
 	
 	if (CC->logged_in)
 	{
-		cprintf("%d Already logged in.\n", ERROR);
+		cprintf("%d Already logged in.\n", ERROR + ALREADY_LOGGED_IN);
 		return;
 	}
 	
@@ -54,7 +54,7 @@ void cmd_pas2(char *argbuf)
 	
 	if (getuser(&CC->user, CC->curr_user))
 	{
-		cprintf("%d Unable to find user record for %s.\n", ERROR, CC->curr_user);
+		cprintf("%d Unable to find user record for %s.\n", ERROR + NO_SUCH_USER, CC->curr_user);
 		return;
 	}
 	
@@ -63,7 +63,7 @@ void cmd_pas2(char *argbuf)
 	
 	if (strlen(pw) != (MD5_HEXSTRING_SIZE-1))
 	{
-		cprintf("%d Auth string of length %ld is the wrong length (should be %d).\n", ERROR, (long)strlen(pw), MD5_HEXSTRING_SIZE-1);
+		cprintf("%d Auth string of length %ld is the wrong length (should be %d).\n", ERROR + ILLEGAL_VALUE, (long)strlen(pw), MD5_HEXSTRING_SIZE-1);
 		return;
 	}
 	
@@ -76,7 +76,7 @@ void cmd_pas2(char *argbuf)
 	}
 	else
 	{
-		cprintf("%d Wrong password.\n", ERROR);
+		cprintf("%d Wrong password.\n", ERROR + PASSWORD_REQUIRED);
 		return;
 	}
 }

@@ -935,7 +935,6 @@ void cmd_goto(char *gargs)
 			           (CC->user.axlevel < 6)
                                   ) {
 				lprintf(9, "Failed to acquire private room\n");
-				goto NOPE;
 			} else {
 				memcpy(&CC->room, &QRscratch,
 					sizeof(struct ctdlroom));
@@ -945,7 +944,7 @@ void cmd_goto(char *gargs)
 		}
 	}
 
-NOPE:	cprintf("%d room '%s' not found\n", ERROR + ROOM_NOT_FOUND, towhere);
+	cprintf("%d room '%s' not found\n", ERROR + ROOM_NOT_FOUND, towhere);
 }
 
 
@@ -1237,12 +1236,12 @@ void cmd_setr(char *args)
 	r = CtdlRenameRoom(CC->room.QRname, new_name, new_floor);
 
 	if (r == crr_room_not_found) {
-		cprintf("%d Internal error - room not found?\n", ERROR);
+		cprintf("%d Internal error - room not found?\n", ERROR + INTERNAL_ERROR);
 	} else if (r == crr_already_exists) {
 		cprintf("%d '%s' already exists.\n",
 			ERROR + ALREADY_EXISTS, new_name);
 	} else if (r == crr_noneditable) {
-		cprintf("%d Cannot edit this room.\n", ERROR);
+		cprintf("%d Cannot edit this room.\n", ERROR + NOT_HERE);
 	} else if (r == crr_invalid_floor) {
 		cprintf("%d Target floor does not exist.\n",
 			ERROR + INVALID_FLOOR_OPERATION);
@@ -1252,7 +1251,7 @@ void cmd_setr(char *args)
 			CC->room.QRname);
 	} else if (r != crr_ok) {
 		cprintf("%d Error: CtdlRenameRoom() returned %d\n",
-			ERROR, r);
+			ERROR + INTERNAL_ERROR, r);
 	}
 
 	if (r != crr_ok) {
@@ -1430,7 +1429,7 @@ void cmd_rinf(void)
 	info_fp = fopen(filename, "r");
 
 	if (info_fp == NULL) {
-		cprintf("%d No info file.\n", ERROR);
+		cprintf("%d No info file.\n", ERROR + FILE_NOT_FOUND);
 		return;
 	}
 	cprintf("%d Info:\n", LISTING_FOLLOWS);
@@ -1681,7 +1680,7 @@ void cmd_cre8(char *args)
 	new_room_floor = 0;
 
 	if ((strlen(new_room_name) == 0) && (cre8_ok == 1)) {
-		cprintf("%d Invalid room name.\n", ERROR);
+		cprintf("%d Invalid room name.\n", ERROR + ILLEGAL_VALUE);
 		return;
 	}
 
@@ -1716,7 +1715,7 @@ void cmd_cre8(char *args)
 	}
 
 	if ((new_room_type < 0) || (new_room_type > 5)) {
-		cprintf("%d Invalid room type.\n", ERROR);
+		cprintf("%d Invalid room type.\n", ERROR + ILLEGAL_VALUE);
 		return;
 	}
 
@@ -1724,7 +1723,7 @@ void cmd_cre8(char *args)
 		if ((config.c_aide_mailboxes == 0)
 		   || (CC->user.axlevel < 6)) {
 			cprintf("%d Higher access required\n", 
-				ERROR+HIGHER_ACCESS_REQUIRED);
+				ERROR + HIGHER_ACCESS_REQUIRED);
 			return;
 		}
 	}
@@ -1852,7 +1851,7 @@ void cmd_cflr(char *argbuf)
 
 	if (strlen(new_floor_name) == 0) {
 		cprintf("%d Blank floor name not allowed.\n",
-			ERROR+ILLEGAL_VALUE);
+			ERROR + ILLEGAL_VALUE);
 		return;
 	}
 
@@ -1948,7 +1947,7 @@ void cmd_eflr(char *argbuf)
 
 	np = num_parms(argbuf);
 	if (np < 1) {
-		cprintf("%d Usage error.\n", ERROR);
+		cprintf("%d Usage error.\n", ERROR + ILLEGAL_VALUE);
 		return;
 	}
 
