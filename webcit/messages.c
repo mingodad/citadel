@@ -528,14 +528,18 @@ void read_message(long msgnum) {
 		wprintf("\">\n");
 	}
 
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"msg_oper\" VALUE=\"Reply\">\n"
-		"<INPUT TYPE=\"submit\" NAME=\"msg_oper\" VALUE=\"Move\">\n"
-		"<INPUT TYPE=\"submit\" NAME=\"msg_oper\" VALUE=\"Delete\""
-		"onClick=\"return confirm('Delete this message?');\">\n"
-		"</FORM>\n");
+	wprintf("<INPUT TYPE=\"image\" NAME=\"msg_oper\" "
+		"SRC=\"static/reply.gif\" VALUE=\"Reply\">\n");
 
+	wprintf("<INPUT TYPE=\"image\" NAME=\"msg_oper\" "
+		"SRC=\"static/move.gif\" VALUE=\"Move\">\n");
 
-	wprintf("</TD></TR></TABLE>\n");
+	wprintf("<INPUT TYPE=\"image\" NAME=\"msg_oper\" "
+		"SRC=\"static/delete.gif\" VALUE=\"Delete\""
+		"onClick=\"return confirm('Delete this message?');\">\n");
+	
+	wprintf("</FORM>\n"
+		"</TD></TR></TABLE>\n");
 
 	/* Begin body */
 	wprintf("<TABLE BORDER=0 WIDTH=100%% BGCOLOR=#FFFFFF "
