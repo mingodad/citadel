@@ -1,4 +1,4 @@
-                         Citadel/UX release DR1998xxxx
+                         Citadel/UX release 5.50
 
 Copyright (c) 1987-1998 by:
         Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
