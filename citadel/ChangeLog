@@ -2,6 +2,7 @@ Sat Oct 31 20:48:44 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* More stoopid ANSI colour additions here and there.
 	* ANSI colour selection is now in citadel.rc instead of an option in
 	  the configure script.  "on" "off" and "auto" are available.
+	* added "build.txt" to the techdoc directory, with LS's build notes
 
 1998-10-31 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* citadel.c, commands.c, commands.h: set background color to black
