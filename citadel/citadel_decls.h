@@ -13,10 +13,14 @@ extern char have_xterm;
 extern char rc_username[32];
 extern char rc_password[32];
 extern char rc_floor_mode;
+#ifdef HAVE_OPENSSL
 extern char rc_encrypt;			/* from the citadel.rc file */
 extern char arg_encrypt;		/* from the command line */
+#endif
+#ifdef HAVE_CURSES_H
 extern char rc_screen;
 extern char arg_screen;
+#endif
 extern char rc_alt_semantics;
 extern char express_msgs;
 void logoff(int code);

@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.83  2002/01/24 06:52:54  error
+ * citadel_decls.h: fix unresolved extern errors
+
  Revision 590.82  2002/01/23 05:04:05  ajc
  * Add vCards from incoming network messages in the GAB to the directory.
 
@@ -3223,4 +3226,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
