@@ -53,7 +53,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	netpoll.c netproc.c netsetup.c policy.c proxy.c rcit.c readlog.c \
 	room_ops.c rooms.c roomutil.c routines.c routines2.c serv_chat.c \
 	serv_info.c serv_test.c serv_upgrade.c setup.c snprintf.c stats.c \
-	support.c sysdep.c tools.c user_ops.c useradmin.c userlist.c \
+	support.c sysdep.c tools.c user_ops.c userlist.c \
 	userpurge.c whobbs.c
 
 DEP_FILES=$(SOURCES:.c=.d)

@@ -11,8 +11,6 @@
  msgform    Format a binary message to the screen (stdin or in a file)
  userlist   Print the userlist.
  readlog    Read the caller log
- useradmin  Full-screen user account editor. NOTE: requires the "curses" lib
- sysoputil  Various and sundry sysop utilities.
    
    It is up to you to decide which utilities should be made accessible only
 to sysops. It is important that you set the file permissions correctly. All
@@ -27,8 +25,8 @@ address each program individually.
    The nature of this program is rather simple. Standard input (stdin) is
 converted into a message, filed in the main message file (msgmain), and posted
 in the Aide> room. This is useful for keeping transcripts of system activity
-that has to do with the BBS. You may also wish to have a really BIG msgmain
-file, and have all of your normal system logs go in there also. 
+that has to do with the BBS. You might even elect to send all of your system
+logs there, too.
    
     
   WHOBBS
@@ -100,73 +98,9 @@ into a standalone utility for convenience.
 file. This file records all times the Citadel/UX program has been started, and
 at what baud rate, as well as logins, proper logouts, loss of carrier (SIGHUP),
 bad password attempts, and new user logins.
-   
-    
-  USERADMIN
-  
-   Useradmin is a full-screen program to view and edit any user's account.
-The program will prompt for a user name. After you enter the name, various
-parameters of the user's account will appear on the screen. To change one
-of the parameters, simply enter its number.
+     
  
-  1. User name - you may change a user's name at any time.  If you do this,
-the hash table to the user file will be rewritten when you exit useradmin.
-  2. User number - if you change a user's number, keep in mind that the user's
-account will no longer be attached to any other records which are indexed by
-user number, such as registration, room aide assignments, etc.  These must be
-changed as well.
-  3. UID attachment - if you wish to attach a BBS account to an /etc/passwd
-account, simply make the uid's the same. Likewise, if a user is to no longer
-have an account in /etc/passwd, simply set this to the same as BBSUID. Note
-that the user's "full name" in /etc/passwd MUST be the same as their BBS login
-name, otherwise a new (and probably unwanted) account will be created.
-  4. Password          - these four fields are self explanatory.
-  5. Screen width
-  6. Times called
-  7. Messages posted
-  8. Last call - Date and time of last call. If you select this,
-it will not prompt for a new time, but set it to the current time.
-  9. Access Level - choose from the standard access levels:
-       0 = Marked for deletion
-       1 = New unvalidated user
-       2 = Problem user
-       3 = Validated user without network privileges
-       4 = Validated user with network privileges
-       5 = Preferred user
-       6 = Aide
-   
-  The rest are boolean flags. Selecting them will toggle the options.
- 10. Permanent user (do not scroll off)
- 11. Print last old message on new message request
- 12. Expert mode (supress automatic hints)
- 13. Do not list in .RU command
- 14. Prompting after each message
- 15. Registered in the registration file
- 16. Pause after each screenful of text
-   
-  In addition, if the user is registered, you can type -1 to make the
-corresponding record in the registration file appear on the screen. 
-   When you are finished examining or editing an account, type 0 to exit. It
-will ask you if you wish to save the changes.
-   
-   
-  SYSOPUTIL
-   
-   This program handles some of the sysop functions of the system. It can
-be called three ways: sysoputil by itself brings up the menu. Also:
- sysoputil -u      Execute option 7 (user purge) and exit
- sysoputil -r      Execute option 1 (room purge) and exit
-  
-  The menu choices are as follows:
- 
-  1. Purge old rooms. This will delete any rooms which have not been written
-to (posted in) in two weeks. Notification of purged rooms is posted in the
-Aide> room (using the aidepost utility).
- 7. Purge old users. This will delete any users which have not called in
-two months. Notification of purged users is posted in the Aide> room (using
-the aidepost utility).
- 9. Quit
-   
+  --------------------------------------------------------------------------
    
    That should cover all of the included utilities. Comments, suggestions,
 etc. may be sent to ajc@uncnsrd.mt-kisco.ny.us or call UNCENSORED! BBS at
