@@ -140,9 +140,10 @@ int CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf)
 		}
 	}
 
-	/* On some systems, Aides can gain access to mailboxes as well */
-	if ( (config.c_aide_mailboxes)
-	   && (userbuf->axlevel >= 6)
+	/* Aides can gain access to mailboxes as well, but they don't show
+	 * by default.
+	 */
+	if ( (userbuf->axlevel >= 6)
 	   && (roombuf->QRflags & QR_MAILBOX) ) {
 		retval = retval | UA_GOTOALLOWED;
 	}
@@ -1742,8 +1743,7 @@ void cmd_cre8(char *args)
 	}
 
 	if (new_room_type == 5) {
-		if ((config.c_aide_mailboxes == 0)
-		   || (CC->user.axlevel < 6)) {
+		if (CC->user.axlevel < 6) {
 			cprintf("%d Higher access required\n", 
 				ERROR + HIGHER_ACCESS_REQUIRED);
 			return;

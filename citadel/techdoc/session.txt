@@ -1788,13 +1788,13 @@ fails for any reason, ERROR is returned.
  28. Port number for IMAP service
  29. How often (in seconds) to run the networker
  30. Flag (0 or 1) - disable self-service new user registration
- 31. Flag (0 or 1) - Aides are allowed access to all mailboxes
+ 31. (placeholder -- this field is no longer in use)
  32. Hour (0 through 23) during which database auto-purge jobs are run
  33. Name of host where an LDAP service may be found
  34. Port number of LDAP service on above host
  35. LDAP Base DN
  36. LDAP Bind DN
- 37. PAssword for LDAP Bind DN
+ 37. Password for LDAP Bind DN
 
  CONF also accepts two additional commands: GETSYS and PUTSYS followed by an
 arbitrary MIME type (such as application/x-citadel-internet-config) which

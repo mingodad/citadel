@@ -1,4 +1,9 @@
  $Log$
+ Revision 621.17  2004/06/19 02:33:54  ajc
+ * Removed the configuration option "Allow Aides access to all mailboxes."
+   This functionality *must* always be enabled for administrative create/edit
+   of vCards, which live in the user's My Citadel Config> room.
+
  Revision 621.16  2004/06/16 04:17:43  ajc
  * More scheduler changes.  Removed the rescan pipe again, and also
    removed the mutex wrapper around select().  In my initial testing I am
@@ -5855,3 +5860,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

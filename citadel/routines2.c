@@ -714,9 +714,6 @@ void do_system_configuration(CtdlIPC *ipc)
 	snprintf(sc[26], sizeof sc[26], "%d", (boolprompt(
 	      "Allow Aides to Zap (forget) rooms",
 						     atoi(&sc[26][0]))));
-	snprintf(sc[30], sizeof sc[30], "%d", (boolprompt(
-	      "Allow system Aides access to user mailboxes",
-						     atoi(&sc[30][0]))));
 
 	if (strlen(&sc[18][0]) > 0) logpages = 1;
 	else logpages = 0;

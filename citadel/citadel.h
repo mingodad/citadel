@@ -125,7 +125,7 @@ struct config {
 	int c_imap_port;		/* IMAP listener port (usually 143) */
 	time_t c_net_freq;		/* how often to run the networker   */
 	char c_disable_newu;		/* disable NEWU command             */
-	char c_aide_mailboxes;		/* give Aides access to mailboxes   */
+	char c_niu_4;			/* (not in use)                     */
 	char c_baseroom[ROOMNAMELEN];	/* Name of baseroom (Lobby)	    */
 	char c_aideroom[ROOMNAMELEN];	/* Name of aideroom (Aide)	    */
 	int c_purge_hour;		/* Hour during which db purges run  */
