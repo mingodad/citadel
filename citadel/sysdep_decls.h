@@ -64,7 +64,7 @@ void cmd_nset (char *cmdbuf);
 int convert_login (char *NameToConvert);
 void *worker_thread (void *arg);
 void become_session(struct CitContext *which_con);
-void CtdlRedirectOutput(FILE *fp, int sock);
+void CtdlRedirectOutput(FILE *fp);
 void InitializeMasterCC(void);
 void init_master_fdset(void);
 void create_worker(void);

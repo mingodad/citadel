@@ -105,6 +105,8 @@ int spam_assassin(struct CtdlMessage *msg) {
 	char buf[SIZ];
 	int is_spam = 0;
 	int sa;
+	char *msgtext;
+	size_t msglen;
 
 	/* For users who have authenticated to this server we never want to
 	 * apply spam filtering, because presumably they're trustworthy.
@@ -136,9 +138,19 @@ int spam_assassin(struct CtdlMessage *msg) {
 	sock_write(sock, buf, strlen(buf));
 
 	/* Message */
-	CtdlRedirectOutput(NULL, sock);
+	CC->redirect_buffer = malloc(SIZ);
+	CC->redirect_len = 0;
+	CC->redirect_alloc = SIZ;
 	CtdlOutputPreLoadedMsg(msg, 0L, MT_RFC822, HEADERS_ALL, 0, 1);
-	CtdlRedirectOutput(NULL, -1);
+	CC->redirect_buffer[CC->redirect_len] = 0;
+	msgtext = CC->redirect_buffer;
+	msglen = CC->redirect_len;
+	CC->redirect_buffer = NULL;
+	CC->redirect_len = 0;
+	CC->redirect_alloc = 0;
+
+	sock_write(sock, msgtext, msglen);
+	free(msgtext);
 
 	/* Close one end of the socket connection; this tells SpamAssassin
 	 * that we're done.

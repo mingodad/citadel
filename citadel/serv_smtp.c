@@ -922,9 +922,9 @@ void smtp_try(const char *key, const char *addr, int *status,
 		return;
 	}
 	else {
-		CtdlRedirectOutput(msg_fp, -1);
+		CtdlRedirectOutput(msg_fp);
 		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
-		CtdlRedirectOutput(NULL, -1);
+		CtdlRedirectOutput(NULL);
 		fseek(msg_fp, 0L, SEEK_END);
 		msg_size = ftell(msg_fp);
 	}

@@ -501,9 +501,9 @@ void network_spool_msg(long msgnum, void *userdata) {
 		fprintf(sc->digestfp,	" -----------------------------------"
 					"------------------------------------"
 					"-------\n");
-		CtdlRedirectOutput(sc->digestfp, -1);
+		CtdlRedirectOutput(sc->digestfp);
 		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 0);
-		CtdlRedirectOutput(NULL, -1);
+		CtdlRedirectOutput(NULL);
 		sc->num_msgs_spooled += 1;
 	}
 

@@ -542,7 +542,6 @@ void client_write(char *buf, int nbytes)
 {
 	int bytes_written = 0;
 	int retval;
-	int sock;
 #ifndef HAVE_TCP_BUFFERING
 	int old_buffer_len = 0;
 #endif
@@ -561,13 +560,6 @@ void client_write(char *buf, int nbytes)
 	if (CC->redirect_fp != NULL) {
 		fwrite(buf, (size_t)nbytes, (size_t)1, CC->redirect_fp);
 		return;
-	}
-
-	if (CC->redirect_sock > 0) {
-		sock = CC->redirect_sock;	/* and continue below... */
-	}
-	else {
-		sock = CC->client_socket;
 	}
 
 #ifndef HAVE_TCP_BUFFERING
@@ -591,12 +583,12 @@ void client_write(char *buf, int nbytes)
 #endif
 
 	while (bytes_written < nbytes) {
-		retval = write(sock, &buf[bytes_written],
+		retval = write(CC->client_socket, &buf[bytes_written],
 			nbytes - bytes_written);
 		if (retval < 1) {
 			lprintf(CTDL_ERR, "client_write() failed: %s\n",
 				strerror(errno));
-			if (sock == CC->client_socket) CC->kill_me = 1;
+			CC->kill_me = 1;
 			return;
 		}
 		bytes_written = bytes_written + retval;
@@ -903,18 +895,14 @@ void dead_session_purge(int force) {
 
 
 /*
- * Redirect a session's output to a file or socket.
- * This function may be called with a file handle *or* a socket (but not
- * both).  Call with neither to return output to its normal client socket.
+ * Redirect a session's output to a file.
+ * This function may be called with a file handle.
+ * Call with NULL to return output to its normal client socket.
  */
-void CtdlRedirectOutput(FILE *fp, int sock) {
-
+void CtdlRedirectOutput(FILE *fp)
+{
 	if (fp != NULL) CC->redirect_fp = fp;
 	else CC->redirect_fp = NULL;
-
-	if (sock > 0) CC->redirect_sock = sock;
-	else CC->redirect_sock = (-1);
-
 }
 
 
