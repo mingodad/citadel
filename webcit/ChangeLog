@@ -1,4 +1,7 @@
 $Log$
+Revision 1.116  1999/12/06 02:05:33  ajc
+* Moved global march list into per-session context
+
 Revision 1.115  1999/12/05 18:38:02  ajc
 * Auto-scaling worker thread pool size
 
@@ -344,4 +347,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -28,34 +28,8 @@
 
 
 
-
-/*
- * This struct holds a list of rooms for <G>oto operations.
- */
-struct march {
-	struct march *next;
-	char march_name[32];
-	int march_floor;
-	int march_order;
-};
-
-/* 
- * This struct holds a list of rooms for client display.
- * (oooh, a tree!)
- */
-struct roomlisting {
-	struct roomlisting *lnext;
-	struct roomlisting *rnext;
-	char rlname[64];
-	unsigned rlflags;
-	int rlfloor;
-	int rlorder;
-};
-
-
 char floorlist[128][256];
 
-struct march *march = NULL;
 
 /*
  * load the list of floors
@@ -87,17 +61,17 @@ void remove_march(char *aaa)
 {
 	struct march *mptr, *mptr2;
 
-	if (march == NULL)
+	if (WC->march == NULL)
 		return;
 
-	if (!strcasecmp(march->march_name, aaa)) {
-		mptr = march->next;
-		free(march);
-		march = mptr;
+	if (!strcasecmp(WC->march->march_name, aaa)) {
+		mptr = WC->march->next;
+		free(WC->march);
+		WC->march = mptr;
 		return;
 	}
-	mptr2 = march;
-	for (mptr = march; mptr != NULL; mptr = mptr->next) {
+	mptr2 = WC->march;
+	for (mptr = WC->march; mptr != NULL; mptr = mptr->next) {
 		if (!strcasecmp(mptr->march_name, aaa)) {
 			mptr2->next = mptr->next;
 			free(mptr);
@@ -474,10 +448,10 @@ char *pop_march(int desired_floor)
 	struct march *mptr = NULL;
 
 	strcpy(TheRoom, "_BASEROOM_");
-	if (march == NULL)
+	if (WC->march == NULL)
 		return (TheRoom);
 
-	for (mptr = march; mptr != NULL; mptr = mptr->next) {
+	for (mptr = WC->march; mptr != NULL; mptr = mptr->next) {
 		weight = 0;
 		if ((strcasecmp(mptr->march_name, "_BASEROOM_")))
 			weight = weight + 10000;
@@ -516,7 +490,7 @@ void gotonext(void)
 	 * If it is, pop the first room off the list and go there.
 	 */
 
-	if (march == NULL) {
+	if (WC->march == NULL) {
 		serv_puts("LKRN");
 		serv_gets(buf);
 		if (buf[0] == '1')
@@ -526,10 +500,10 @@ void gotonext(void)
 				extract(mptr->march_name, buf, 0);
 				mptr->march_floor = extract_int(buf, 2);
 				mptr->march_order = extract_int(buf, 3);
-				if (march == NULL) {
-					march = mptr;
+				if (WC->march == NULL) {
+					WC->march = mptr;
 				} else {
-					mptr2 = march;
+					mptr2 = WC->march;
 					while (mptr2->next != NULL)
 						mptr2 = mptr2->next;
 					mptr2->next = mptr;
@@ -541,10 +515,10 @@ void gotonext(void)
 		mptr = (struct march *) malloc(sizeof(struct march));
 		mptr->next = NULL;
 		strcpy(mptr->march_name, "_BASEROOM_");
-		if (march == NULL) {
-			march = mptr;
+		if (WC->march == NULL) {
+			WC->march = mptr;
 		} else {
-			mptr2 = march;
+			mptr2 = WC->march;
 			while (mptr2->next != NULL)
 				mptr2 = mptr2->next;
 			mptr2->next = mptr;
@@ -555,7 +529,7 @@ void gotonext(void)
  */
 		remove_march(WC->wc_roomname);
 	}
-	if (march != NULL) {
+	if (WC->march != NULL) {
 		strcpy(next_room, pop_march(-1));
 	} else {
 		strcpy(next_room, "_BASEROOM_");
