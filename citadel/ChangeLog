@@ -1,4 +1,8 @@
  $Log$
+ Revision 620.7  2004/04/03 15:42:35  ajc
+ * stress.c: include <stdlib.h> in order to get RAND_MAX
+   (Submitted by Thomas.Lotterer@cw.com, Cable & Wireless / OpenPKG)
+
  Revision 620.6  2004/04/01 04:41:55  ajc
  * Put some blankety-blank values in the default generated vCard so it's
    more acceptable to LDAP conversion
@@ -5660,4 +5664,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

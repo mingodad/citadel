@@ -60,8 +60,9 @@ const char* const message =
  * Once all threads have exited, the program exits.
  */
 
-#include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
+#include <stdio.h>
 #include <sys/types.h>
 #include <string.h>
 #include "sysdep.h"
