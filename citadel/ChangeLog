@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.0  2002/09/08 03:51:30  ajc
+ * Let's call this 6.01, shall we?
+
  Revision 600.2  2002/09/08 03:48:48  ajc
  * Fixed a crashy crashy bug in the AGUP protocol function in the client
 
