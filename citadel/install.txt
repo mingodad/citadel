@@ -27,16 +27,12 @@ Unix and Unix-like platforms.  The author's current development environment
 system. It is preferable that the sysop have superuser access to the operating
 system. The following are required to install Citadel/UX:
 
-    - Some sort of Unix (or Unix look-alike) operating system
-    - C compiler
+    - A Unix operating system (Linux, Solaris, DEC Unix, etc.)
+    - C compiler (such as gcc or egcs) and "make"
     - POSIX threads
     - TCP/IP
-    - the "make" utility (you don't want to try compiling it manually!)
+    - The "gdbm" record manager
     - Enough disk space to hold all of the programs and data
-    - A record manager or database capable of handling binary large objects
-      (blobs).  The current distribution is designed to work with the free
-      GDBM record manager; however, modifying it to work with others should
-      be straightforward.
  
    
  NOW AVAILABLE:
@@ -61,6 +57,11 @@ This is the directory in which all Citadel files are located and in which all
 BBS activity will take place. Several subdirectories have already been created
 during the unpacking process, and others may be created by the software if
 needed.
+ 
+   Make sure you have the "gdbm" record manager installed on your system, and
+that you have installed the libraries and headers required to compile gdbm
+programs.  Likewise, if your operating system uses a separate library to
+support POSIX threads, make sure that library is installed as well.
    
   
  THE BBS LOGIN
@@ -79,7 +80,9 @@ citadel (you may wish to set up an external text editor; see below).  Example:
  bbs::100:1:BBS Login:/usr/citadel:/usr/citadel/citadel
   
  When you run setup later, you will be required to tell it what the BBS
-login's numeric user ID is, so it knows what user to run as.
+login's numeric user ID is, so it knows what user to run as.  If you create
+an account called bbs, guest, or citadel, the setup program will automatically
+pick up the user ID by default.
 
   For all other users in /etc/passwd, Citadel will automatically set up an
 account using the "full name" field. No password is required, since it
@@ -91,33 +94,18 @@ or their login name on the host computer, and their password on the host
 computer.
    
   
- EDITING STUFF BEFORE COMPILING...
-
-   If you are upgrading an existing installation, be sure to check the
-sysconfig.h header, to make sure the values there are the same as in your
-previous installation.  For a new system, it's best to leave these values
-alone, so you won't have to worry about it the next time you upgrade.
- 
-   You might also want to check the "Configure" script for platform-specific
-stuff.  Any platforms which have been tested will be auto-detected by the
-script and the compiler and linker directives set accordingly.  If your
-platform isn't autodetected, you'll have to figure out the flags yourself (but
-please get in touch so your platform can be supported in the next release!).
- 
- 
  COMPILING THE PROGRAMS
    
  
-   As with most Unix programs, you compile it using these two commands:
+   You can easily compile Citadel with the following two commands:
  
-   ./Configure
+   ./configure --prefix=`pwd`
    make
  
-   The 'Configure' script will generate a Makefile from the Makefile.in, and
+   The 'configure' script will generate a Makefile from the Makefile.in, and
 it will also write the file "sysdep.h" to your Citadel directory.  Please do
-not edit sysdep.h or Makefile.in yourself.  The Configure script will figure
-out your system dependencies and set everything correctly.  The ONLY places
-you should be editing, if anywhere at all, are sysconfig.h and Configure.
+not edit sysdep.h or Makefile.in yourself.  The configure script will figure
+out your system dependencies and set everything correctly.
  
    File permissions are always a bother to work with. You don't want the
 board to crash because someone couldn't access a file, but you also don't
@@ -162,9 +150,6 @@ way, be VERY careful what editor you choose and how you set up its options.
 Giving the general public to an editor like vi or emacs can open up lots of
 security holes.
 
- Citadel runs the external editor using the REAL uid and gid of the user, if
-you are running it in setuid mode.
-
 
  PRINTING MESSAGES
  
@@ -185,25 +170,28 @@ of important messages in a textfile.
  SETUP AND LOGIN
   
    Before logging in for the first time, you must run the setup program.  Type
-"./setup" to begin this procedure.  (Be sure to use the "./" because some
-systems, most notably the Slackware distribution of Linux, will run the
-operating system's own setup program if you just type the word "setup".)
-Sit back and relax; there are a slew of options here that will allow you to
-customize the BBS to your liking.
+"./setup" to begin this procedure.
  
    The setup program will ask you what directory to place your data files in.
 You can use this functionality to keep your programs and data in different
 directories, or to run more than one BBS on the same computer.  If you don't
 use the default directory (the one specified in the Makefile), remember to
 specify the directory name again when you start up the server later on.
-  
-   Unlike in previous versions of Citadel/UX, the setup program is no longer
-responsible for creating empty data files.  This is now done automatically by
-the server the first time it is started.
+   
+   If you've used older versions of Citadel/UX before, you'll notice that the
+setup program does much less than it did before.  It won't create any empty
+data files; that's now done automatically by the server the first time it
+starts.  It also asks only a few questions; that's because the rest of the
+global configuration is now done from within Citadel.
   
       
  PREPARING TO START THE SERVER
-   
+  
+   The files /etc/services and /etc/inittab must be modified in order to run
+the Citadel server.  The setup program will perform the correct modifications
+for you if you allow it to.  If you'd prefer to do it manually, or if you're
+interested in what these modifications are, then read on...
+ 
    Before you can use Citadel, you must define the "citadel" service to your 
 system.  This is accomplished by adding a line to your /etc/services file that
 looks something like this:
@@ -243,7 +231,8 @@ Normally it is sent to stdout.
  
  -d            - Run as a daemon.  This switch would be necessary if you were 
 starting the Citadel server, for example, from an rc.local script (which is 
-not recommended).
+not recommended, because this won't allow the server to automatically restart
+when it is shut down).
  
  
    The preferred method of starting the Citadel server is to place an entry in
@@ -268,8 +257,7 @@ the shell and it will automatically create your account.  NOTE: the first
 user account to be created will automatically be set to access level 6
 (Aide).  This overcomes some obvious logistical problems - normally, Aide
 access is given by another Aide, but since there aren't any on your system
-yet, this isn't possible.  You could also use the useradmin utility to
-accomplish the same thing, but this makes it a bit easier.
+yet, this isn't possible.
     
    
  SPACE FOR ADDING YOUR OWN FEATURES (doors)
