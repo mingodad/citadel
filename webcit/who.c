@@ -47,7 +47,9 @@ void whobbs(void)
 	wprintf("<IMG SRC=\"/static/users-icon.gif\" ALT=\" \" ALIGN=MIDDLE>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\">&nbsp;&nbsp;<B>Users currently on ");
 	escputs(serv_info.serv_humannode);
-	wprintf("</B></FONT></TD></TR></TABLE>\n");
+	wprintf("</B></FONT></TD><TD>");
+	offer_start_page();
+	wprintf("</TD></TR></TABLE>\n");
 
 	wprintf("<CENTER><TABLE BORDER=1 WIDTH=100%%>\n<TR>\n");
 	wprintf("<TH>Session ID</TH>\n");

@@ -33,11 +33,13 @@ void display_main_menu(void)
 {
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770077><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Basic commands</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
-	wprintf("<CENTER><TABLE border=0><TR>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770077><TR><TD>"
+		"<FONT SIZE=+1 COLOR=\"FFFFFF\""
+		"<B>Basic commands</B>\n"
+		"</FONT></TD>"
+		"</TD></TR></TABLE>\n"
+		"<CENTER><TABLE border=0><TR>"
+	);
 
 	wprintf("<TD>");	/* start of first column */
 

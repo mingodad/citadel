@@ -148,7 +148,18 @@ void do_login(void)
 
 void do_welcome(void)
 {
-	http_redirect("/static/mainframeset.html");
+	char startpage[SIZ];
+
+	get_preference("startpage", startpage);
+	if (strlen(startpage)==0) {
+		strcpy(startpage, "/dotskip&room=_BASEROOM_");
+		set_preference("startpage", startpage);
+	}
+
+        svprintf("STARTPAGE", WCS_STRING, startpage);
+
+        do_template("mainframeset");
+        clear_local_substs();
 }
 
 
