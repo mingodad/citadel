@@ -320,13 +320,21 @@ void readinfo(int v)
 void embed_room_banner(char *got) {
 	char buf[256];
 	char fakegot[256];
+	static int remember_new_mail = (-1);
 
+	/* We need to have the information returned by a GOTO server command.
+	 * If it isn't supplied, we fake it by issuing our own GOTO.
+	 */
 	if (got == NULL) {
 		serv_printf("GOTO %s", wc_roomname);
 		serv_gets(fakegot);
 		got = fakegot;
 	}
 
+	/* Check for new mail. */
+	new_mail = extract_int(&got[4], 9);
+
+	/* Now start spewing HTML. */
 	wprintf("<CENTER><TABLE border=0><TR>");
 
 	if ((strlen(ugname) > 0) && (strcasecmp(ugname, wc_roomname))) {
@@ -356,6 +364,15 @@ void embed_room_banner(char *got) {
 	wprintf("<TD VALIGN=TOP><FONT FACE=\"Arial,Helvetica,sans-serif\">");
 	readinfo(0);
 	wprintf("</FONT></TD>");
+
+	/* Let the user know if new mail has arrived */
+	if (new_mail > remember_new_mail) {
+		wprintf("<TD VALIGN=TOP>"
+			"<IMG SRC=\"/static/mail.gif\" border=0 "
+			"ALT=\"You have new mail\">"
+			"<BR><BLINK>%d</BLINK></TD>", new_mail);
+		remember_new_mail = new_mail;
+	}
 
 	wprintf("<TD VALIGN=TOP><A HREF=\"/gotonext\">");
 	wprintf("<IMG SRC=\"/static/forward.gif\" border=0></A></TD>");

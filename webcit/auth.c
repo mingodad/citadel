@@ -158,8 +158,9 @@ void do_login(void)
 		serv_puts("CHEK");
 		serv_gets(buf);
 		if (buf[0] == '2') {
+			new_mail = extract_int(&buf[4], 0);
 			need_regi = extract_int(&buf[4], 1);
-			/* FIX also check for new mail etc. here */
+			need_vali = extract_int(&buf[4], 2);
 		}
 		if (need_regi) {
 			display_reg(1);
