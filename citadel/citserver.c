@@ -177,9 +177,10 @@ void cmd_info(void) {
 
 void cmd_rchg(char *argbuf)
 {
-	char newroomname[ROOMNAMELEN];
+	char newroomname[256]; /* set to 256 to prevent buffer overruns <dme>*/
 
 	extract(newroomname, argbuf, 0);
+	newroomname[ROOMNAMELEN] = 0;
 	if (strlen(newroomname) > 0) {
 		strncpy(CC->fake_roomname, newroomname, ROOMNAMELEN);
 		CC->fake_roomname[ROOMNAMELEN - 1] = 0;
