@@ -56,7 +56,6 @@ public:
 private:
 	void OnUsersMenu(wxCommandEvent& cmd);
 	void OnWindowMenu(wxCommandEvent& cmd);
-	void OnSize(wxSizeEvent& WXUNUSED(event) );
 	wxTextCtrl *textWindow;
 	wxButton *do_cmd;
 	void InitToolBar(wxToolBar* toolBar);
@@ -106,7 +105,6 @@ BEGIN_EVENT_TABLE(	MyFrame, wxMDIParentFrame)
 	EVT_MENU(	WMENU_ARRANGE,		MyFrame::OnWindowMenu)
 	EVT_MENU(	WMENU_NEXT,		MyFrame::OnWindowMenu)
 	EVT_MENU(	WMENU_PREVIOUS,		MyFrame::OnWindowMenu)
-	EVT_SIZE(				MyFrame::OnSize)
 	EVT_BUTTON(	BUTTON_DO_CMD,		MyFrame::OnDoCmd)
 END_EVENT_TABLE()
 
@@ -142,6 +140,7 @@ bool Daphne::OnInit()
 
     // Show it and tell the application that it's our main window
     // @@@ what does it do exactly, in fact? is it necessary here?
+    frame->SetAutoLayout(TRUE);
     frame->Show(TRUE);
     SetTopWindow(frame);
 
@@ -172,6 +171,21 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 			this, -1, "", wxDefaultPosition, wxDefaultSize,
 			wxTE_MULTILINE|wxSUNKEN_BORDER);
 	textWindow->SetValue("Hic!  A maus!");
+
+        wxLayoutConstraints *t2 = new wxLayoutConstraints;
+        t2->top.SameAs(this, wxTop, 4);
+        t2->left.SameAs(this, wxLeft, 0);
+	t2->right.PercentOf(this, wxWidth, 25);
+        t2->bottom.SameAs(this, wxBottom, 0);
+        textWindow->SetConstraints(t2);
+
+	wxLayoutConstraints *t3 = new wxLayoutConstraints;
+	t3->top.SameAs(this, wxTop, 4);
+	t3->left.PercentOf(this, wxWidth, 25);
+	t3->right.SameAs(this, wxRight, 0);
+	t3->bottom.SameAs(this, wxBottom, 0);
+	wxMDIClientWindow *children = GetClientWindow();
+	children->SetConstraints(t3);
 
 
 	// Set up the toolbar
@@ -355,13 +369,3 @@ void MyFrame::OnConnect(wxCommandEvent& unused) {
 	}
 }
 
-
-void MyFrame::OnSize(wxSizeEvent& WXUNUSED(event) ) {
-
-    int w, h;
-    GetClientSize(&w, &h);
-
-    textWindow->SetSize(0, 0, 200, h);
-    GetClientWindow()->SetSize(200, 0, w - 200, h);
-
-}
