@@ -414,6 +414,7 @@ void check_attendee_availability(icalcomponent *supplied_vevent);
 extern char *months[];
 extern char *days[];
 void read_server_binary(char *buffer, size_t total_len);
+char *read_server_text(void);
 int goto_config_room(void);
 long locate_user_vcard(char *username, long usernum);
 void sleeeeeeeeeep(int);
