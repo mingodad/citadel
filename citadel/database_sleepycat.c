@@ -99,7 +99,7 @@ static void check_handles(void *arg) {
 		for (i = 0; i < MAXCDB; i++)
 		  if (tsd->cursors[i] != NULL)
 		    {
-		      lprintf(1, "cdb_*: cursor still in progress on cdb %s!", i);
+		      lprintf(1, "cdb_*: cursor still in progress on cdb %d!", i);
 		      abort();
 		    }
 
@@ -600,7 +600,7 @@ void cdb_end_transaction(void) {
 
   for (i = 0; i < MAXCDB; i++)
     if (MYCURSORS[i] != NULL) {
-      lprintf(1, "cdb_end_transaction: WARNING: cursor %s still open at transaction end\n", i);
+      lprintf(1, "cdb_end_transaction: WARNING: cursor %d still open at transaction end\n", i);
       cclose(MYCURSORS[i]);
       MYCURSORS[i] = NULL;
     }
