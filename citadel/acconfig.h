@@ -21,3 +21,6 @@
 
 /* define this if you want to enable the multithreaded client */
 #undef THREADED_CLIENT
+
+/* Define if you have OpenSSL. */
+#undef HAVE_OPENSSL

@@ -21,6 +21,14 @@ AC_ARG_WITH(pam, [  --with-pam              use PAM if present (see PAM.txt befo
 AC_ARG_WITH(kthread, [  --with-kthread          use kernel threads (on FreeBSD) (not recommended yet)])
 AC_ARG_WITH(gdbm, [  --with-gdbm@<:@=DIR@:>@       use GDBM @<:@DIR=/usr/local@:>@])
 AC_ARG_WITH(db, [  --with-db@<:@=DIR@:>@         use Sleepycat DB 3.x @<:@DIR=/usr/local/BerkeleyDB.3.@<:@123@:>@@:>@])
+AC_ARG_WITH(ssl,
+	[  --with-ssl=PATH     Specify path to OpenSSL installation ],
+	[
+		if test "x$withval" != "xno" ; then
+			tryssldir=$withval
+		fi
+	]
+)
 
 if test "x$with_gdbm" != xno -a "x$with_gdbm" != xyes -a "$with_gdbm"; then
 	db_dir="$with_gdbm"
@@ -225,6 +233,116 @@ if test "$check_pthread" != no; then
 		PTHREAD_LIBS="-lpthreads $PTHREAD_LIBS")
 fi
 
+# The big search for OpenSSL
+if test "$with_ssl" != "no"; then
+	saved_LIBS="$LIBS"
+	saved_LDFLAGS="$LDFLAGS"
+	saved_CFLAGS="$CFLAGS"
+	if test "x$prefix" != "xNONE"; then
+		tryssldir="$tryssldir $prefix"
+	fi
+	AC_CACHE_CHECK([for OpenSSL], ac_cv_openssldir, [
+		for ssldir in $tryssldir "" /usr /usr/local/openssl /usr/lib/openssl /usr/local/ssl /usr/lib/ssl /usr/local /usr/pkg /opt /opt/openssl ; do
+			CFLAGS="$saved_CFLAGS"
+			LDFLAGS="$saved_LDFLAGS"
+			LIBS="$saved_LIBS -lssl -lcrypto"
+	
+			# Skip directories if they don't exist
+			if test ! -z "$ssldir" -a ! -d "$ssldir" ; then
+				continue;
+			fi
+			if test ! -z "$ssldir" -a "x$ssldir" != "x/usr"; then
+				# Try to use $ssldir/lib if it exists, otherwise
+				# $ssldir
+				if test -d "$ssldir/lib" ; then
+					LDFLAGS="-L$ssldir/lib $saved_LDFLAGS"
+					if test ! -z "$need_dash_r" ; then
+						LDFLAGS="-R$ssldir/lib $LDFLAGS"
+					fi
+				else
+					LDFLAGS="-L$ssldir $saved_LDFLAGS"
+					if test ! -z "$need_dash_r" ; then
+						LDFLAGS="-R$ssldir $LDFLAGS"
+					fi
+				fi
+				# Try to use $ssldir/include if it exists, otherwise
+				# $ssldir
+				if test -d "$ssldir/include" ; then
+					CFLAGS="-I$ssldir/include $saved_CFLAGS"
+				else
+					CFLAGS="-I$ssldir $saved_CFLAGS"
+				fi
+			fi
+	
+			# Basic test to check for compatible version and correct linking
+			# *does not* test for RSA - that comes later.
+			AC_TRY_RUN(
+				[
+	#include <string.h>
+	#include <openssl/rand.h>
+	int main(void)
+	{
+		char a[2048];
+		memset(a, 0, sizeof(a));
+		RAND_add(a, sizeof(a), sizeof(a));
+		return(RAND_status() <= 0);
+	}
+				],
+				[
+					found_crypto=1
+					break;
+				], []
+			)
+	
+			if test ! -z "$found_crypto" ; then
+				break;
+			fi
+		done
+	
+		if test -z "$ssldir" ; then
+			ssldir="(system)"
+		fi
+	
+		if test ! -z "$found_crypto" ; then
+			ac_cv_openssldir=$ssldir
+		else
+			ac_cv_openssldir="no"
+		fi
+	])
+	LIBS="$saved_LIBS"
+	LDFLAGS="$saved_LDFLAGS"
+	CFLAGS="$saved_CFLAGS"
+	
+	if test "x$ac_cv_openssldir" != "xno" ; then
+		AC_DEFINE(HAVE_OPENSSL)
+		LIBS="$saved_LIBS -lssl -lcrypto"
+		dnl Need to recover ssldir - test above runs in subshell
+		ssldir=$ac_cv_openssldir
+		if test ! -z "$ssldir" -a "x$ssldir" != "x/usr" -a "x$ssldir" != "x(system)"; then
+			# Try to use $ssldir/lib if it exists, otherwise
+			# $ssldir
+			if test -d "$ssldir/lib" ; then
+				LDFLAGS="-L$ssldir/lib $saved_LDFLAGS"
+				if test ! -z "$need_dash_r" ; then
+					LDFLAGS="-R$ssldir/lib $LDFLAGS"
+				fi
+			else
+				LDFLAGS="-L$ssldir $saved_LDFLAGS"
+				if test ! -z "$need_dash_r" ; then
+					LDFLAGS="-R$ssldir $LDFLAGS"
+				fi
+			fi
+			# Try to use $ssldir/include if it exists, otherwise
+			# $ssldir
+			if test -d "$ssldir/include" ; then
+				CFLAGS="-I$ssldir/include $saved_CFLAGS"
+			else
+				CFLAGS="-I$ssldir $saved_CFLAGS"
+			fi
+		fi
+	fi
+fi
+	
 dnl Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC

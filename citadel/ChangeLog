@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.30  2002/01/03 12:21:02  error
+ * Autoconf support for recognizing OpenSSL
+
  Revision 590.29  2002/01/03 04:52:28  ajc
  * serv_network.c: migrated deliveries and bounces to the new message
    submission subsystem.  NOT TESTED.
@@ -3049,3 +3052,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
