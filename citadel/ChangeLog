@@ -1,4 +1,7 @@
  $Log$
+ Revision 611.8  2003/11/14 20:15:44  ajc
+ * Reversed the previous change because it made things b0rken
+
  Revision 611.7  2003/11/14 20:04:28  ajc
  * IMAP FETCH ENVELOPE now outputs more fields correctly.
 
@@ -5084,4 +5087,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -316,20 +316,16 @@ void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
 	imap_output_envelope_from(msg);
 
 	/* Sender */
-	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Sender");
-	if (fieldptr != NULL) {
-		imap_strout(fieldptr);
-		phree(fieldptr);
+	if (0) {
+		/* FIXME */
 	}
 	else {
 		imap_output_envelope_from(msg);
 	}
 
 	/* Reply-to */
-	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Reply-to");
-	if (fieldptr != NULL) {
-		imap_strout(fieldptr);
-		phree(fieldptr);
+	if (0) {
+		/* FIXME */
 	}
 	else {
 		imap_output_envelope_from(msg);
