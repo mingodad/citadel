@@ -271,11 +271,10 @@ void cmd_rchg(char *argbuf)
 	char newroomname[ROOMNAMELEN];
 
 	extract(newroomname, argbuf, 0);
-	newroomname[ROOMNAMELEN] = 0;
+	newroomname[ROOMNAMELEN-1] = 0;
 	if (strlen(newroomname) > 0) {
-		safestrncpy(CC->fake_roomname, newroomname, 
+		safestrncpy(CC->fake_roomname, newroomname,
 			sizeof(CC->fake_roomname) );
-		CC->fake_roomname[ROOMNAMELEN - 1] = 0;
 		}
 	else {
 		strcpy(CC->fake_roomname, "");
@@ -283,16 +282,20 @@ void cmd_rchg(char *argbuf)
 	cprintf("%d OK\n", OK);
 }
 
-void cmd_hchg(char *newhostname)
+void cmd_hchg(char *argbuf)
 {
-   if ((newhostname) && (newhostname[0]))
-   {
-      memset(CC->fake_hostname, 0, 25);
-      safestrncpy(CC->fake_hostname, newhostname, sizeof(CC->fake_hostname));
-   }
-   else
-      strcpy(CC->fake_hostname, "");
-   cprintf("%d OK\n",OK);
+	char newhostname[25];
+
+	extract(newhostname, argbuf, 0);
+	newhostname[24] = 0;
+	if (strlen(newhostname) > 0) {
+		safestrncpy(CC->fake_hostname, newhostname,
+			sizeof(CC->fake_hostname) );
+		}
+	else {
+		strcpy(CC->fake_hostname, "");
+		}
+	cprintf("%d OK\n", OK);
 }
 
 void cmd_uchg(char *newusername)

@@ -69,6 +69,7 @@ int verbosity = DEFAULT_VERBOSITY;		/* Logging level */
 
 struct CitContext masterCC;
 int rescan[2];					/* The Rescan Pipe */
+time_t last_purge = 0;				/* Last dead session purge */
 
 /*
  * lprintf()  ...   Write logging information
@@ -633,10 +634,10 @@ int convert_login(char NameToConvert[]) {
  * of CPU time and keep the context list locked too much.
  */
 void dead_session_purge(void) {
-	static time_t last_purge = 0;
 	struct CitContext *ptr, *rem;
 	
 	if ( (time(NULL) - last_purge) < 5 ) return;	/* Too soon, go away */
+	time(&last_purge);
 
 	do {
 		rem = NULL;
@@ -978,6 +979,8 @@ SETUP_FD:	FD_ZERO(&readfds);
 		dead_session_purge();
 	}
 
+	/* If control reaches this point, the server is shutting down */	
+	master_cleanup();
 	pthread_exit(NULL);
 }
 
