@@ -1,0 +1,8 @@
+Open items:
+   
+ 1. aIEeeeeee 3.02 doesn't understand the HTTP "Window-target:" directive.  As
+usual, Micro$oft was more concerned with protecting and extending monopolies
+than with designing a good product.  As a result, "auto read new" when you
+goto a new room causes the messages to show up in the room banner frame.  
+   The easiest fix would probably be to detect IE <4.0 and disable the
+auto-read-new function.
