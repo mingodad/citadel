@@ -16,6 +16,8 @@ AC_ARG_ENABLE(ansi-color, [  --enable-ansi-color     enable ANSI color (default 
 	AC_DEFINE(ANSI_COLOR)
 fi])
 
+TARGETS=client
+
 AC_CANONICAL_HOST
 case "$host" in
 	alpha*-dec-osf*)
@@ -23,6 +25,8 @@ case "$host" in
 		if test -z "$CC"; then
 			CC=cc
 		fi
+		SERVER_LDFLAGS=-pthread
+		TARGETS="client server utils serv_modules"
 	;;
 esac
 
@@ -34,17 +38,17 @@ if test "$GCC" = yes; then
 fi
 AC_PROG_RANLIB
 
-TARGETS=client
-
 dnl Checks for libraries.
 AC_CHECK_LIB(crypt, crypt)
 AC_CHECK_LIB(dl, dlopen)
 AC_CHECK_LIB(gdbm, gdbm_open)
 AC_CHECK_LIB(curses, initscr, CURSES=-lcurses)
-AC_CHECK_LIB(pthread, pthread_create, [LIBS="$LIBS -lpthread"
-	TARGETS="client server utils serv_modules"])
-AC_CHECK_LIB(pthreads, pthread_create, [LIBS="$LIBS -lpthreads"
-	TARGETS="client server utils serv_modules"])
+if test "$SERVER_LDFLAGS" != -pthread; then
+	AC_CHECK_LIB(pthread, pthread_create, [LIBS="$LIBS -lpthread"
+		TARGETS="client server utils serv_modules"])
+	AC_CHECK_LIB(pthreads, pthread_create, [LIBS="$LIBS -lpthreads"
+		TARGETS="client server utils serv_modules"])
+fi
 
 dnl Checks for header files.
 AC_HEADER_DIRENT
