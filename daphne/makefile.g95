@@ -1,0 +1,21 @@
+########################################################################
+#                                                                      #
+#                    wxHTML / Cygwin makefile                          #
+#                                                                      #
+########################################################################
+
+WXDIR           = /wx
+WXHTMLDIR       = /wxhtml
+
+TARGET          = daphne
+MY_OBJECTS      = citclient.o roomtree.o userlogin.o \
+                enter.o roomview.o utils.o \
+                express_message.o send_express.o who.o \
+                main.o tcp_sockets.o message.o testwindow.o
+MY_LIBS         = $(WXHTMLDIR)/lib/libwxhtml.a
+
+EXTRAINC        = -I$(WXHTMLDIR)/include
+OBJECTS         = $(MY_OBJECTS) $(MY_LIBS)
+
+include $(WXDIR)/src/makeprog.g95
+
