@@ -414,7 +414,7 @@ int create_user(char *newusername)
 
 	CC->usersupp.timescalled = 0;
 	CC->usersupp.posted = 0;
-	CC->usersupp.axlevel = INITAX;
+	CC->usersupp.axlevel = config.c_initax;
 	CC->usersupp.USscreenwidth = 80;
 	CC->usersupp.USscreenheight = 24;
 	time(&CC->usersupp.lastcall);

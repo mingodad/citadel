@@ -99,7 +99,7 @@ void getroom(struct quickroom *qrbuf, int room_num)
 	else {
 		if (room_num < 3) {
 			qrbuf->QRflags = QR_INUSE;
-			qrbuf->QRgen = 1;
+			time(&qrbuf->QRgen);
 			switch(room_num) {
 				case 0:	strcpy(qrbuf->QRname, "Lobby");
 					break;
@@ -829,7 +829,8 @@ void cmd_setr(char *args) {
 	/* Kick everyone out if the client requested it */
 	if (extract_int(args,4)) {
 		++CC->quickroom.QRgen;
-		if (CC->quickroom.QRgen==100) CC->quickroom.QRgen=1;
+		if (CC->quickroom.QRgen==100) time(&CC->quickroom.QRgen);
+
 		}
 
 	old_floor = CC->quickroom.QRfloor;
@@ -1071,7 +1072,7 @@ unsigned create_room(int free_slot, char *new_room_name, int new_room_type, char
 	if ((new_room_type > 0)&&(CREATAIDE==1))
 		qrbuf.QRroomaide=CC->usersupp.usernum;
 	qrbuf.QRhighest = 0L;
-	++qrbuf.QRgen; if (qrbuf.QRgen>=126) qrbuf.QRgen=10;
+	time(&qrbuf.QRgen);
 	qrbuf.QRfloor = new_room_floor;
 
 	/* save what we just did... */

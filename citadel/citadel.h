@@ -59,20 +59,31 @@ struct config {
 #define PHONENUM		config.c_phonenum
 #define BBSUID			config.c_bbsuid
 #define CREATAIDE		config.c_creataide
-#define INITAX			config.c_initax
 #define REGISCALL		config.c_regiscall
 #define TWITDETECT		config.c_twitdetect
 #define TWITROOM		config.c_twitroom
-#define MORE_PROMPT		config.c_moreprompt
 #define RESTRICT_INTERNET	config.c_restrict
-#define MM_FILELEN		config.c_msgbase
 
+
+/* Defines the relationship of a user to a particular room */
+struct visit {
+	char v_roomname[20];
+	long v_generation;
+	long v_lastseen;
+	unsigned int v_flags;
+	};
+
+#define V_FORGET	1		/* User has zapped this room        */
+#define V_LOCKOUT	2		/* User is locked out of this room  */
+
+
+/* Defines the actual user record */
 struct usersupp {			/* User record                      */
 	int USuid;			/* userid (==BBSUID for bbs only)   */
 	char password[20];		/* password (for BBS-only users)    */
 	long lastseen[MAXROOMS];	/* Last message seen in each room   */
-	char generation[MAXROOMS];	/* Generation # (for private rooms) */
-	char forget[MAXROOMS];		/* Forgotten generation number      */
+	long generation[MAXROOMS];	/* Generation # (for private rooms) */
+	long forget[MAXROOMS];		/* Forgotten generation number      */
 	unsigned flags;			/* See US_ flags below              */
 	int timescalled;		/* Total number of logins           */
 	int posted;			/* Number of messages posted (ever) */
@@ -119,7 +130,7 @@ struct quickroom {
 	char QRpasswd[10];		/* Only valid if it's a private rm  */
 	long QRroomaide;		/* User number of room aide         */
 	long QRhighest;			/* Highest message NUMBER in room   */
-	char QRgen;			/* Generation number of room        */
+	long QRgen;			/* Generation number of room        */
 	unsigned QRflags;		/* See flag values below            */
 	char QRdirname[15];		/* Directory name, if applicable    */
 	long QRinfo;			/* Info file update relative to msgs*/

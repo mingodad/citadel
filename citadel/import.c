@@ -221,7 +221,7 @@ void import_a_user() {
 		if (!strcasecmp(key, "generation"))
 			for (a=0; a<ssv_maxrooms; ++a) {
 				fpgetfield(imfp, list);
-				us.generation[a] = atoi(list);
+				us.generation[a] = atol(list);
 				}
 		if (!strcasecmp(key, "forget"))
 			for (a=0; a<ssv_maxrooms; ++a) {
@@ -387,7 +387,7 @@ void imp_rooms() {
 				if (!strcasecmp(tag, "qrhighest"))
 					qr.QRhighest = atol(tval);
 				if (!strcasecmp(tag, "qrgen"))
-					qr.QRgen = atoi(tval);
+					qr.QRgen = atol(tval);
 				if (!strcasecmp(tag, "qrflags"))
 					qr.QRflags = atoi(tval);
 				if (!strcasecmp(tag, "qrdirname"))
