@@ -539,6 +539,7 @@ char *Dynamic_Module_Init(void)
 {
 	SYM_POP3 = CtdlGetDynamicSymbol();
 	CtdlRegisterServiceHook(POP3_PORT,
+				NULL,
 				pop3_greeting,
 				pop3_command_loop);
 	CtdlRegisterSessionHook(pop3_cleanup_function, EVT_STOP);

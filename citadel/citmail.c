@@ -17,8 +17,6 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <sys/un.h>
 #include <netdb.h>
 #include <string.h>
@@ -32,10 +30,6 @@
 #include "snprintf.h"
 #endif
 
-#ifndef INADDR_NONE
-#define INADDR_NONE 0xffffffff
-#endif
-
 int serv_sock;
 
 
@@ -46,135 +40,37 @@ void strip_trailing_nonprint(char *buf)
 }
 
 
-
-
-
-
 void timeout(int signum)
 {
 	exit(signum);
 }
 
 
-int connectsock(char *host, char *service, char *protocol)
+int uds_connectsock(char *sockpath)
 {
-	struct hostent *phe;
-	struct servent *pse;
-	struct protoent *ppe;
-	struct sockaddr_in sin;
-	int s, type;
+	int s;
 	struct sockaddr_un sun;
 
-	if ( (!strcmp(protocol, "unix")) || (atoi(service)<0) ) {
-		memset(&sun, 0, sizeof(sun));
-		sun.sun_family = AF_UNIX;
-		sprintf(sun.sun_path, USOCKPATH, 0-atoi(service) );
+	memset(&sun, 0, sizeof(sun));
+	sun.sun_family = AF_UNIX;
+	strncpy(sun.sun_path, sockpath, sizeof sun.sun_path);
 
-		s = socket(AF_UNIX, SOCK_STREAM, 0);
-		if (s < 0) {
-			fprintf(stderr, "Can't create socket: %s\n",
-				strerror(errno));
-			exit(3);
-		}
-
-		if (connect(s, (struct sockaddr *) &sun, sizeof(sun)) < 0) {
-			fprintf(stderr, "can't connect: %s\n",
-				strerror(errno));
-			exit(3);
-		}
-
-		return s;
-	}
-
-
-	/* otherwise it's a network connection */
-
-	memset(&sin, 0, sizeof(sin));
-	sin.sin_family = AF_INET;
-
-	pse = getservbyname(service, protocol);
-	if (pse) {
-		sin.sin_port = pse->s_port;
-	} else if ((sin.sin_port = htons((u_short) atoi(service))) == 0) {
-		fprintf(stderr, "Can't get %s service entry: %s\n",
-			service, strerror(errno));
-		exit(3);
-	}
-	phe = gethostbyname(host);
-	if (phe) {
-		memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
-	} else if ((sin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE) {
-		fprintf(stderr, "Can't get %s host entry: %s\n",
-			host, strerror(errno));
-		exit(3);
-	}
-	if ((ppe = getprotobyname(protocol)) == 0) {
-		fprintf(stderr, "Can't get %s protocol entry: %s\n",
-			protocol, strerror(errno));
-		exit(3);
-	}
-	if (!strcmp(protocol, "udp")) {
-		type = SOCK_DGRAM;
-	} else {
-		type = SOCK_STREAM;
-	}
-
-	s = socket(PF_INET, type, ppe->p_proto);
+	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
-		fprintf(stderr, "Can't create socket: %s\n", strerror(errno));
+		fprintf(stderr, "Can't create socket: %s\n",
+			strerror(errno));
 		exit(3);
 	}
-	signal(SIGALRM, timeout);
-	alarm(30);
 
-	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-		fprintf(stderr, "can't connect to %s.%s: %s\n",
-			host, service, strerror(errno));
+	if (connect(s, (struct sockaddr *) &sun, sizeof(sun)) < 0) {
+		fprintf(stderr, "can't connect: %s\n",
+			strerror(errno));
 		exit(3);
 	}
-	alarm(0);
-	signal(SIGALRM, SIG_IGN);
 
-	return (s);
+	return s;
 }
 
-/*
- * convert service and host entries into a six-byte numeric in the format
- * expected by a SOCKS v4 server
- */
-void numericize(char *buf, char *host, char *service, char *protocol)
-{
-	struct hostent *phe;
-	struct servent *pse;
-	struct sockaddr_in sin;
-
-	memset(&sin, 0, sizeof(sin));
-	sin.sin_family = AF_INET;
-
-	pse = getservbyname(service, protocol);
-	if (pse) {
-		sin.sin_port = pse->s_port;
-	} else if ((sin.sin_port = htons((u_short) atoi(service))) == 0) {
-		fprintf(stderr, "Can't get %s service entry: %s\n",
-			service, strerror(errno));
-		exit(3);
-	}
-	buf[1] = (((sin.sin_port) & 0xFF00) >> 8);
-	buf[0] = ((sin.sin_port) & 0x00FF);
-
-	phe = gethostbyname(host);
-	if (phe) {
-		memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
-	} else if ((sin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE) {
-		fprintf(stderr, "Can't get %s host entry: %s\n",
-			host, strerror(errno));
-		exit(3);
-	}
-	buf[5] = ((sin.sin_addr.s_addr) & 0xFF000000) >> 24;
-	buf[4] = ((sin.sin_addr.s_addr) & 0x00FF0000) >> 16;
-	buf[3] = ((sin.sin_addr.s_addr) & 0x0000FF00) >> 8;
-	buf[2] = ((sin.sin_addr.s_addr) & 0x000000FF);
-}
 
 /*
  * input binary data from socket
@@ -281,7 +177,7 @@ int main(int argc, char **argv) {
 	strip_trailing_nonprint(fromline);
 
 	sprintf(buf, "%d", SMTP_PORT);
-	serv_sock = connectsock("localhost", buf, "tcp");
+	serv_sock = uds_connectsock("smtp.socket");
 	serv_gets(buf);
 	fprintf(stderr, "%s\n", buf);
 	if (buf[0]!='2') cleanup(1);

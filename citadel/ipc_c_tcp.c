@@ -7,8 +7,10 @@
  *
  */
 
-#define DEFAULT_HOST	"127.0.0.1"
-#define DEFAULT_PORT	"citadel"
+#define	UDS			"citadel unix domain socket type of thing"
+
+#define DEFAULT_HOST		UDS
+#define DEFAULT_PORT		"citadel"
 
 
 #include "sysdep.h"
@@ -73,33 +75,7 @@ int connectsock(char *host, char *service, char *protocol)
 	struct servent *pse;
 	struct protoent *ppe;
 	struct sockaddr_in sin;
-	struct sockaddr_un sun;
 	int s, type;
-
-
-	if ( (!strcmp(protocol, "unix")) || (atoi(service)<0) ) {
-		memset(&sun, 0, sizeof(sun));
-		sun.sun_family = AF_UNIX;
-		sprintf(sun.sun_path, USOCKPATH, 0-atoi(service) );
-
-		s = socket(AF_UNIX, SOCK_STREAM, 0);
-		if (s < 0) {
-			fprintf(stderr, "Can't create socket: %s\n",
-				strerror(errno));
-			logoff(3);
-		}
-
-		if (connect(s, (struct sockaddr *) &sun, sizeof(sun)) < 0) {
-			fprintf(stderr, "can't connect: %s\n",
-				strerror(errno));
-			logoff(3);
-		}
-
-		return s;
-	}
-
-
-	/* otherwise it's a network connection */
 
 	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = AF_INET;
@@ -148,6 +124,31 @@ int connectsock(char *host, char *service, char *protocol)
 	signal(SIGALRM, SIG_IGN);
 
 	return (s);
+}
+
+int uds_connectsock(char *sockpath)
+{
+	struct sockaddr_un sun;
+	int s;
+
+	memset(&sun, 0, sizeof(sun));
+	sun.sun_family = AF_UNIX;
+	strncpy(sun.sun_path, sockpath, sizeof sun.sun_path);
+
+	s = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (s < 0) {
+		fprintf(stderr, "Can't create socket: %s\n",
+			strerror(errno));
+		logoff(3);
+	}
+
+	if (connect(s, (struct sockaddr *) &sun, sizeof(sun)) < 0) {
+		fprintf(stderr, "can't connect: %s\n",
+			strerror(errno));
+		logoff(3);
+	}
+
+	return s;
 }
 
 /*
@@ -278,6 +279,7 @@ void attach_to_server(int argc, char **argv)
 	char socks4[256];
 	char buf[256];
 	struct passwd *p;
+	char sockpath[256];
 
 	strcpy(cithost, DEFAULT_HOST);	/* default host */
 	strcpy(citport, DEFAULT_PORT);	/* default port */
@@ -307,8 +309,16 @@ void attach_to_server(int argc, char **argv)
 
 	server_is_local = 0;
 	if ((!strcmp(cithost, "localhost"))
-	    || (!strcmp(cithost, "127.0.0.1")))
+	    || (!strcmp(cithost, "127.0.0.1"))
+	    || (!strcmp(cithost, "uds")))
 		server_is_local = 1;
+
+	/* If we're using a unix domain socket we can do a bunch of stuff */
+	if (!strcmp(cithost, UDS)) {
+		sprintf(sockpath, "%s/citadel.socket", BBSDIR);
+		serv_sock = uds_connectsock(sockpath);
+		return;
+	}
 
 	/* if not using a SOCKS proxy server, make the connection directly */
 	if (strlen(socks4) == 0) {

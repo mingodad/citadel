@@ -329,6 +329,7 @@ enum {
 struct ServiceFunctionHook {
 	struct ServiceFunctionHook *next;
 	int tcp_port;
+	char *sockpath;
 	void (*h_greeting_function) (void) ;
 	void (*h_command_function) (void) ;
 	int msock;

@@ -22,6 +22,7 @@ int PerformMessageHooks(struct CtdlMessage *, int EventType);
 void CtdlRegisterCleanupHook(void (*fcn_ptr)(void));
 void CtdlRegisterProtoHook(void (*handler)(char *), char *cmd, char *desc);
 void CtdlRegisterServiceHook(int tcp_port,
+			char *sockpath,
                         void (*h_greeting_function) (void),
                         void (*h_command_function) (void) ) ;
 

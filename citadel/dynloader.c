@@ -230,6 +230,7 @@ void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *), int order)
 }
 
 void CtdlRegisterServiceHook(int tcp_port,
+			char *sockpath,
 			void (*h_greeting_function) (void),
 			void (*h_command_function) (void) )
 {
@@ -239,9 +240,16 @@ void CtdlRegisterServiceHook(int tcp_port,
 	    mallok(sizeof(struct ServiceFunctionHook));
 	newfcn->next = ServiceHookTable;
 	newfcn->tcp_port = tcp_port;
+	newfcn->sockpath = sockpath;
 	newfcn->h_greeting_function = h_greeting_function;
 	newfcn->h_command_function = h_command_function;
-	newfcn->msock = ig_tcp_server(tcp_port, config.c_maxsessions);
+
+	if (sockpath != NULL) {
+		newfcn->msock = ig_uds_server(sockpath, config.c_maxsessions);
+	}
+	else {
+		newfcn->msock = ig_tcp_server(tcp_port, config.c_maxsessions);
+	}
 
 	if (newfcn->msock >= 0) {
 		ServiceHookTable = newfcn;

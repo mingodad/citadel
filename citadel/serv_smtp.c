@@ -1425,9 +1425,17 @@ char *Dynamic_Module_Init(void)
 {
 	SYM_SMTP = CtdlGetDynamicSymbol();
 	SYM_SMTP_RECP = CtdlGetDynamicSymbol();
-	CtdlRegisterServiceHook(SMTP_PORT,
+
+	CtdlRegisterServiceHook(SMTP_PORT,		/* On the net... */
+				NULL,
 				smtp_greeting,
 				smtp_command_loop);
+
+	CtdlRegisterServiceHook(0,			/* ...and locally */
+				"smtp.socket",
+				smtp_greeting,
+				smtp_command_loop);
+
 	create_room(SMTP_SPOOLOUT_ROOM, 3, "", 0);
 	CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);
 	return "$Id$";
