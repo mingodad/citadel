@@ -17,9 +17,9 @@ either way.
 
  Lobby> . Aide System configuration General
  Node name [uncnsrd]: 
- Fully qualified domain name [uncnsrd.mt-kisco.ny.us]: 
+ Fully qualified domain name [uncensored.citadel.org]: 
  Human readable node name [Uncensored]: 
- Modem dialup number [US 914 244 3252]: 
+ Modem dialup number [US 914 999 9999]: 
  Geographic location of this system [Mount Kisco, NY]: 
  Name of system administrator [IGnatius T Foobar]: 
  Paginator prompt [<jinkies!  more text on the next screen!>]: 

@@ -40,6 +40,9 @@ libraries already integrated for you.
  
     - "WebCit", a gateway program to allow full access to Citadel/UX BBS's
       via the World Wide Web.  Interactive access through any Web browser.
+ 
+    - Access to Citadel via *any* standards-compliant e-mail program, thanks
+      to Citadel's built-in SMTP, POP, and IMAP services.
   
  COMING SOON: 
   

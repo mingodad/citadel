@@ -1,5 +1,5 @@
                          -----------------------
-                         Citadel/UX version 5.80
+                         Citadel/UX version 5.90
                          -----------------------
  
  Copyright (c) 1987-2001 by the Citadel development team.

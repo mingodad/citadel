@@ -84,8 +84,6 @@ directly examine parts of msgmain. This program is a simple message formatter.
    msgform reads standard input, scanning for binary messages, starting
 with an <FF> byte and ending after the final NULL, and print as many as it
 finds until it encounters EOF.
-   You could use this utility along with netproc to provide printouts or
-archives of certain rooms.
     
    
   USERLIST

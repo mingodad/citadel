@@ -1,4 +1,8 @@
  $Log$
+ Revision 580.85  2001/12/02 23:27:01  ajc
+ * Removed references to the old networker from the documentation.  Did not
+   write any new documentation, so what's there now is kind of sparse.
+
  Revision 580.84  2001/12/02 02:42:55  ajc
  * Implemented new room flag QR2_SYSTEM which supresses the room from all
    room listings, even for Aides (but it's still gotoable).  This will be used
@@ -2897,4 +2901,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

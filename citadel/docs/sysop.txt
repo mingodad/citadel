@@ -52,13 +52,19 @@ to normal users. They are:
                              .<R>ead <I>nfo file command is entered.
  .<A>ide <K>ill room         Deletes the current room. Lobby>, Mail>, and
                              Aide> may not be deleted.
+ .<A>ide <L>ist management   Sets up a room as a mailing list server.
  .<A>ide <M>essage edit:     Allows you to change various system banners, such
                              as the 'hello' logon greeting.
+ .<A>ide <N>etwork sharing   Sets up sharing of a room with neighbor nodes.
  .<A>ide <P>ost              Enter a message using any user name.
  .<A>ide <R>oom <I>nvite     Invites a user to the room if it is private.
  .<A>ide <R>oom <K>ickOut    Kicks a user out of the room if it is private.
  .<A>ide <S>ystem <G>eneral  Edits global system configuration.
  .<A>ide <S>ystem <I>nternet Edits your internet settings
+ .<A>ide <S>ystem <N>etwork  Configures neighbor nodes for room sharing.
+ .<A>ide <T>erminate <N>ow   Immediately shut down the Citadel service.
+ .<A>ide <T>erminate <S>ched Request a "scheduled shutdown" which will take
+                             place the next time zero users are logged in.
  .<A>ide <U>serEdit          Edits certain parameters of a user's account.
  .<A>ide <V>alidate newusers Lists users who have recently registered and
                              prompts for new access levels.
@@ -266,5 +272,5 @@ course, if you still have trouble, you could always bug ^sysadm about it!"
    CONCLUSION
    
  For more information, visit the Citadel/UX web site at UNCENSORED! BBS
- http://uncnsrd.mt-kisco.ny.us
+ http://uncensored.citadel.org
 

@@ -1,11 +1,9 @@
- 
-
-
 Citadel/UX Internet E-mail setup instructions (mx version) 
 
 This document explains how to set up your citadel as an Internet e-mail
 capable system using your current MTA (eg, sendmail, qmail, etc) as
 opposed to using the Citadel/UX built-in servers.
+
 Once you are through with this document you should be able to have your
 users send mail from, and receive mail to
 username@bbs.bbsname.citadel.org. This version of the mailsetup document
@@ -138,7 +136,7 @@ A few notes:
 
      Mail sent from the BBS to an internet e-mail address should go out
 immediately. E-mail coming IN to a bbs user will not process until your
-next netproc session.  On my site I had to set up a relay for
+next network session.  On my site I had to set up a relay for
 bbs.pixel.citadel.org. In later versions of sendmail relaying is turned
 off by default. Check sendmail.cf for the following line:
 

@@ -1310,8 +1310,8 @@ IPGM (identify as an Internal ProGraM)
  
  IPGM is a low-level command that should not be used by normal user clients. 
 It is used for various utilities to communicate with the server on the same
-host.  For example, the networker (netproc.c) logs onto the server as an
-internal program in order to fetch and store messages.  Since user clients
+host.  For example, the "sendcommand" utility logs onto the server as an
+internal program in order to run arbitrary server commands.  Since user clients
 do not utilize this command (or any of its companion commands), developers
 writing Citadel-compatible servers need not implement it.
  
