@@ -1,4 +1,8 @@
  $Log$
+ Revision 591.43  2002/06/15 17:53:59  error
+ * citserver.c: MESG command can now send a different system message based
+   on the developer and client ID of the connected client
+
  Revision 591.42  2002/06/15 04:52:26  ajc
  * SpamAssassin connector is now configurable in <.A>ide <S>ysconfig <I>nternet.
  * Allow more than one SA server (it'll try 'em all)
@@ -3725,4 +3729,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -505,19 +505,26 @@ void cmd_mesg(char *mname)
 	FILE *mfp;
 	char targ[SIZ];
 	char buf[SIZ];
+	char buf2[SIZ];
 	char *dirs[2];
 
 	extract(buf,mname,0);
-
 
 	dirs[0]=mallok(64);
 	dirs[1]=mallok(64);
 	strcpy(dirs[0],"messages");
 	strcpy(dirs[1],"help");
-	mesg_locate(targ,sizeof targ,buf,2,(const char **)dirs);
+	snprintf(buf2, sizeof buf2, "%s.%d.%d", buf, CC->cs_clientdev, CC->cs_clienttyp);
+	mesg_locate(targ,sizeof targ,buf2,2,(const char **)dirs);
+	if (strlen(targ) == 0) {
+		snprintf(buf2, sizeof buf2, "%s.%d", buf, CC->cs_clientdev);
+		mesg_locate(targ,sizeof targ,buf2,2,(const char **)dirs);
+		if (strlen(targ) == 0) {
+			mesg_locate(targ,sizeof targ,buf,2,(const char **)dirs);
+		}	
+	}
 	phree(dirs[0]);
 	phree(dirs[1]);
-
 
 	if (strlen(targ)==0) {
 		cprintf("%d '%s' not found.\n",ERROR,mname);
