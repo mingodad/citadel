@@ -14,11 +14,11 @@
  * 
  * Given the value of the HTTP "User-agent:" directive supplied by
  * a web browser, determine using a local configuration file whether
- * the browser is capable of handling WebCit's frames/JavaScript mode.
+ * the browser is capable of handling JavaScript.
  *
  * This function returns one of the following values:
- * B_YES        (Yes, it's ok to use frames and JavaScript)
- * B_NO         (No, fall back to the noframes version)
+ * B_YES        (Yes, it's ok to use JavaScript)
+ * B_NO         (No, fall back to HTML)
  * B_ASK        (We don't know; ask the user)
  */
 

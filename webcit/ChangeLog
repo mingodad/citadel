@@ -1,3 +1,7 @@
+Wed Jun  2 23:47:58 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Ditched the frames mode completely.  It wasn't working properly in,
+	  among other places, IE 5.  Die, Bill, Die.
+
 Sat May 29 00:25:47 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Fixed the behavior of the "forget room" routine, to properly handle
 	  the transition back to the Lobby after it's all done.

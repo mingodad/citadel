@@ -116,7 +116,6 @@ void room_tree_list(struct roomlisting *rp)
 	wprintf("<A HREF=\"/dotgoto&room=");
 	urlescputs(rmname);
 	wprintf("\"");
-	if (!noframes) wprintf("TARGET=\"top\"");
 	wprintf(">");
 	escputs1(rmname, 1);
 	if ((f & QR_DIRECTORY) && (f & QR_NETWORK))
@@ -403,11 +402,6 @@ void gotoroom(char *gname, int display_name)
 		output_headers(0);
 
 		wprintf("<HTML><HEAD></HEAD>\n<BODY ");
-
-		/* automatically fire up a read-new-msgs in the bottom frame */
-		if (!noframes)
-			wprintf("onload=parent.frames.bottom.location=\"/readnew\" ");
-
 		wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
 	}
 	if (display_name != 2) {
@@ -561,19 +555,8 @@ void gotonext(void)
 
 
 void smart_goto(char *next_room) {
-	/* In noframes mode, we goto the room silently, then do a
-	 * read-new-messages which causes the banner to show up anyway.
-	 */
-	if (noframes) {
-		gotoroom(next_room, 0);
-		readloop("readnew");
-	} else {
-	/* In frames mode, we let gotoroom() bring up the banner, which then
-	 * uses JavaScript to bring up the new-messages display in the
-	 * bottom frame.
-	 */
-		gotoroom(next_room, 1);
-	}
+	gotoroom(next_room, 0);
+	readloop("readnew");
 }
 
 
@@ -1122,9 +1105,8 @@ void display_zap(void)
 	wprintf("disappear from your room list.  Is this what you wish ");
 	wprintf("to do?<BR>\n");
 
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/zap\"");
-	if (!noframes) wprintf(" TARGET=top");
-	wprintf(">\n<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/zap\">\n");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 	wprintf("</FORM>\n");
 	wDumpContent(1);

@@ -16,12 +16,6 @@
 #define HOUSEKEEPING	60	/* Housekeeping frequency */
 
 
-/* Values that can be returned by browser_braindamage_check() */
-#define B_YES		0	/* Ok to use frames and JavaScript */
-#define B_NO		1	/* Do not use frames and JavaScript */
-#define B_ASK		2	/* Ask the user */
-
-
 /* Room flags (from Citadel) */
 #define QR_PERMANENT	1	/* Room does not purge              */
 #define QR_INUSE	2	/* Set if in use, clear if avail    */
@@ -39,6 +33,13 @@
 #define QR_READONLY	8192	/* Aide status required to post     */
 #define QR_MAILBOX	16384	/* Set if this is a private mailbox */
 
+
+/* Browser braindamage check values */
+enum {
+	B_NO,
+	B_YES,
+	B_ASK
+};
 
 
 struct webcontent {
@@ -82,10 +83,9 @@ extern char *axdefs[];
 extern int upload_length;
 extern char *upload;
 extern char floorlist[128][256];
-extern int noframes;
 extern int new_mail;
 extern int need_vali;
 
-void stuff_to_cookie(char *, int, char *, char *, char *, int);
-void cookie_to_stuff(char *, int *, char *, char *, char *, int *);
+void stuff_to_cookie(char *, int, char *, char *, char *);
+void cookie_to_stuff(char *, int *, char *, char *, char *);
 void locate_host(char *, int);
