@@ -1193,9 +1193,11 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 		lgetfloor(&flbuf, old_floor);
 		--flbuf.f_ref_count;
 		lputfloor(&flbuf, old_floor);
-		lgetfloor(&flbuf, CC->room.QRfloor);
+		lprintf(9, "Reference count for floor %d is now %d\n", old_floor, flbuf.f_ref_count);
+		lgetfloor(&flbuf, new_floor);
 		++flbuf.f_ref_count;
-		lputfloor(&flbuf, CC->room.QRfloor);
+		lputfloor(&flbuf, new_floor);
+		lprintf(9, "Reference count for floor %d is now %d\n", new_floor, flbuf.f_ref_count);
 	}
 
 	/* ...and everybody say "YATTA!" */	
