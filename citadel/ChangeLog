@@ -1,3 +1,6 @@
+Sun Apr 25 12:44:08 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* serv_chat.c: notify user of number of participants upon entering chat
+
 Wed Apr 21 22:23:13 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* aidepost.c: add -r flag to allow posting to rooms other than Aide>
 	* serv_expire.c: now posts transcripts of all auto-purged rooms/users

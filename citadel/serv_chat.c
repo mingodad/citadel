@@ -164,19 +164,26 @@ t_context *find_context(char **unstr)
 }
 
 /*
- * List users in chat.  Setting allflag to 1 also lists users elsewhere.
+ * List users in chat.
+ * allflag ==	0 = list users in chat
+ *		1 = list users in chat, followed by users not in chat
+ *		2 = display count only
  */
 
 void do_chat_listing(int allflag)
 {
 	struct CitContext *ccptr;
+	int count = 0;
 
-	cprintf(":|\n:| Users currently in chat:\n");
+	if ((allflag == 0) || (allflag == 1))
+		cprintf(":|\n:| Users currently in chat:\n");
 	begin_critical_section(S_SESSION_TABLE);
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
+		if (!strcasecmp(ccptr->cs_room, "<chat>")) ++count;
 		if ((!strcasecmp(ccptr->cs_room, "<chat>"))
 		    && ((ccptr->cs_flags & CS_STEALTH) == 0)) {
-			cprintf(":| %-25s <%s>\n", (ccptr->fake_username[0]) ? ccptr->fake_username : ccptr->curr_user, ccptr->chat_room);
+			if ((allflag == 0) || (allflag == 1))
+				cprintf(":| %-25s <%s>\n", (ccptr->fake_username[0]) ? ccptr->fake_username : ccptr->curr_user, ccptr->chat_room);
 		}
 	}
 
@@ -190,6 +197,14 @@ void do_chat_listing(int allflag)
 		}
 	}
 	end_critical_section(S_SESSION_TABLE);
+
+	if (allflag == 2) {
+		if (count > 1) 
+			cprintf(":|There are %d users here.\n", count);
+		else
+			cprintf(":|Note: you are the only one here.\n");
+	}
+
 	cprintf(":|\n");
 }
 
@@ -223,6 +238,8 @@ void cmd_chat(char *argbuf)
 		allwrite("<entering chat>", 0, CC->chat_room, NULL);
 	}
 	strcpy(cmdbuf, "");
+
+	do_chat_listing(2);
 
 	while (1) {
 		int ok_cmd;
