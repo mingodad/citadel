@@ -483,23 +483,6 @@ void display_individual_cal(icalcomponent *cal, long msgnum) {
 
 
 /*
- * Display a task in the task list
- */
-void display_individual_task(icalcomponent *vtodo, long msgnum) {
-	icalproperty *p;
-
-	p = icalcomponent_get_first_property(vtodo, ICAL_SUMMARY_PROPERTY);
-	wprintf("<A HREF=\"/display_edit_task?msgnum=%ld&taskrm=", msgnum);
-	urlescputs(WC->wc_roomname);
-	wprintf("\">");
-	if (p != NULL) {
-		escputs((char *)icalproperty_get_comment(p));
-	}
-	wprintf("</A><BR>\n");
-}
-
-
-/*
  * Display a task by itself (for editing)
  *
  */
@@ -805,7 +788,7 @@ void display_calendar(long msgnum) {
 void display_task(long msgnum) {
 	display_using_handler(msgnum, "text/calendar",
 				ICAL_VTODO_COMPONENT,
-				display_individual_task);
+				display_individual_cal);
 }
 
 void display_edit_task(void) {

@@ -32,6 +32,10 @@ void do_calendar_view(void) {	/* stub for non-libical builds */
 	wprintf("<CENTER><I>Calendar view not available</I></CENTER><BR>\n");
 }
 
+void do_tasks_view(void) {	/* stub for non-libical builds */
+	wprintf("<CENTER><I>Tasks view not available</I></CENTER><BR>\n");
+}
+
 #else	/* WEBCIT_WITH_CALENDAR_SERVICE */
 
 /****************************************************************************/
@@ -574,6 +578,34 @@ void do_calendar_view(void) {
 	}
 
 	/* Free the calendar stuff */
+	free_calendar_buffer();
+
+}
+
+
+void do_tasks_view(void) {
+	int i;
+	icalproperty *p;
+
+	if (WC->num_cal) for (i=0; i<(WC->num_cal); ++i) {
+		p = icalcomponent_get_first_property(WC->disp_cal[i],
+							ICAL_SUMMARY_PROPERTY);
+		wprintf("<A HREF=\"/display_edit_task?msgnum=%ld&taskrm=",
+			WC->cal_msgnum[i] );
+		urlescputs(WC->wc_roomname);
+		wprintf("\">");
+		if (p != NULL) {
+			escputs((char *)icalproperty_get_comment(p));
+		}
+		wprintf("</A><BR>\n");
+	}
+
+	wprintf("<BR><BR><A HREF=\"/display_edit_task?msgnum=0\">"
+		"Add new task</A>\n"
+	);
+
+
+	/* Free the list */
 	free_calendar_buffer();
 
 }

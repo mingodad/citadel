@@ -1,4 +1,9 @@
 $Log$
+Revision 522.20  2004/08/03 03:55:37  ajc
+* Tasks view now uses the same buffer/dump logic as the calendar views, so
+  we can sort them by due date and do a prettier display.  (Only the logic is
+  changed so far.  The prettier display is forthcoming.)
+
 Revision 522.19  2004/07/21 02:57:09  ajc
 * Internet Configuration screen looks a little neater now
 
@@ -1989,3 +1994,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
