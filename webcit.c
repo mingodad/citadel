@@ -37,6 +37,9 @@ struct webcontent *wlast = NULL;
 
 struct urlcontent *urlstrings = NULL;
 
+static const char *defaulthost = DEFAULT_HOST;
+static const char *defaultport = DEFAULT_PORT;
+
 
 void unescape_input(char *buf)
 {
@@ -367,9 +370,50 @@ void output_static(char *what) {
 		}
 	}
 
-static const char *defaulthost = DEFAULT_HOST;
-static const char *defaultport = DEFAULT_PORT;
+void output_image() {
+	char buf[256];
+	char xferbuf[4096];
+	off_t bytes;
+	off_t thisblock;
+	off_t accomplished = 0L;
 
+
+	serv_printf("OIMG %s|%s", bstr("name"), bstr("parm"));
+	serv_gets(buf);
+	if (buf[0]=='2') {
+		bytes = extract_long(&buf[4], 0);
+		printf("HTTP/1.0 200 OK\n");
+		output_headers();
+		printf("Content-type: image/gif\n");
+		printf("Content-length: %ld\n", bytes);
+		printf("\n");
+
+		while (bytes > (off_t)0) {
+			thisblock = (off_t)sizeof(xferbuf);
+			if (thisblock > bytes) thisblock = bytes;
+			serv_printf("READ %ld|%ld", accomplished, thisblock);
+			serv_gets(buf);
+			if (buf[0]=='6') thisblock = extract_long(&buf[4],0);
+			serv_read(xferbuf, (int)thisblock);
+			fwrite(xferbuf, thisblock, 1, stdout);
+			bytes = bytes - thisblock;
+			accomplished = accomplished + thisblock;
+			}
+		fflush(stdout);
+		serv_puts("CLOS");
+		serv_gets(buf);
+		}
+	else {
+		printf("HTTP/1.0 404 %s\n", strerror(errno));
+		output_headers();
+		printf("Content-Type: text/plain\n");
+		sprintf(buf, "Error retrieving image\n");
+		printf("Content-length: %d\n", strlen(buf));
+		printf("\n");
+		fwrite(buf, strlen(buf), 1, stdout);
+		}
+
+	}
 
 void extract_action(char *actbuf, char *cmdbuf) {
 	int i;
@@ -500,6 +544,10 @@ void session_loop(void) {
 		strcpy(buf, &cmd[12]);
 		for (a=0; a<strlen(buf); ++a) if (isspace(buf[a])) buf[a]=0;
 		output_static(buf);
+		}
+
+	else if (!strcasecmp(action, "image")) {
+		output_image();
 		}
 
 	else if ((!logged_in)&&(!strcasecmp(action, "login"))) {
