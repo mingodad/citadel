@@ -26,16 +26,33 @@
 typedef unsigned char byte;	      /* Byte type */
 
 /*
- * Pack all session info into one easy-to-digest cookie.  Healthy and delicious!
+ * Pack all session info into one easy-to-digest cookie. Healthy and delicious!
  */
-void stuff_to_cookie(char *cookie, int session, char *user, char *pass, char *room)
+void stuff_to_cookie(char *cookie, int session,
+		char *user, char *pass, char *room)
 {
 	char buf[SIZ];
+	int i;
 
-	sprintf(buf, "%d|%s|%s|%s|END", session, user, pass, room);
-	CtdlEncodeBase64(cookie, buf, strlen(buf));
+	sprintf(buf, "%d|%s|%s|%s|", session, user, pass, room);
+	strcpy(cookie, "");
+	for (i=0; i<strlen(buf); ++i) {
+		sprintf(&cookie[i*2], "%02X", buf[i]);
+	}
 }
 
+int xtoi(char *in, size_t len)
+{
+    int val = 0;
+    while (isxdigit((byte) *in) && (len-- > 0)) {
+	char c = *in++;
+	val <<= 4;
+	val += isdigit((unsigned char)c)
+	    ? (c - '0')
+	    : (tolower((unsigned char)c) - 'a' + 10);
+    }
+    return val;
+}
 
 /*
  * Extract all that fun stuff out of the cookie.
@@ -43,8 +60,14 @@ void stuff_to_cookie(char *cookie, int session, char *user, char *pass, char *ro
 void cookie_to_stuff(char *cookie, int *session, char *user, char *pass, char *room)
 {
 	char buf[SIZ];
+	int i, len;
 
-	CtdlDecodeBase64(buf, cookie, strlen(cookie));
+	strcpy(buf, "");
+	len = strlen(cookie) * 2 ;
+	for (i=0; i<len; ++i) {
+		buf[i] = xtoi(&cookie[i*2], 2);
+		buf[i+1] = 0;
+	}
 
 	if (session != NULL)
 		*session = extract_int(buf, 0);
