@@ -282,6 +282,10 @@ void RemoveContext(struct CitContext *con)
 		return;
 		}
 
+	/*
+	 * session_count() starts its own S_SESSION_TABLE critical section;
+	 * so do not call it from within this loop.
+	 */
 	begin_critical_section(S_SESSION_TABLE);
 	lprintf(7, "Closing socket %d\n", con->client_socket);
 	close(con->client_socket);
@@ -301,12 +305,12 @@ void RemoveContext(struct CitContext *con)
 	lprintf(9, "Freeing session context...\n");	
 	free(con);
 	lprintf(9, "...done.\n");
+	end_critical_section(S_SESSION_TABLE);
 
 	lprintf(9, "Session count after RemoveContext is %d\n",
 		session_count());
 
 	lprintf(7, "Done with RemoveContext\n");
-	end_critical_section(S_SESSION_TABLE);
 	}
 
 
@@ -319,10 +323,12 @@ int session_count(void) {
 	int TheCount = 0;
 
 	lprintf(9, "session_count() starting\n");
+	begin_critical_section(S_SESSION_TABLE);
 	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 		++TheCount;
 		lprintf(9, "Counted session %3d (%d)\n", ptr->cs_pid, TheCount);
 		}
+	end_critical_section(S_SESSION_TABLE);
 
 	lprintf(9, "session_count() finishing\n");
 	return(TheCount);

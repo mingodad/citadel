@@ -542,6 +542,7 @@ void cmd_term(char *cmdbuf)
 {
 	int session_num;
 	struct CitContext *ccptr;
+	int session_to_kill = 0;
 
 	if (!CC->logged_in) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
@@ -560,15 +561,21 @@ void cmd_term(char *cmdbuf)
 		return;
 		}
 
+	begin_critical_section(S_SESSION_TABLE);
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 		if (session_num == ccptr->cs_pid) {
-			kill_session(ccptr->cs_pid);
-			cprintf("%d Session terminated.\n", OK);
-			return;
+			session_to_kill = ccptr->cs_pid;
 			}
 		}
+	end_critical_section(S_SESSION_TABLE);
 
-	cprintf("%d No such session.\n", ERROR);
+	if (session_to_kill > 0) {
+		kill_session(ccptr->cs_pid);
+		cprintf("%d Session terminated.\n", OK);
+		}
+	else {
+		cprintf("%d No such session.\n", ERROR);
+		}
 	}
 
 
@@ -663,7 +670,7 @@ void cmd_scdn(char *argbuf)
 void *context_loop(struct CitContext *con)
 {
 	char cmdbuf[256];
-	int session_num;
+	int num_sessions;
 
 	/*
 	 * Wedge our way into the context table.
@@ -696,9 +703,9 @@ void *context_loop(struct CitContext *con)
 	CC->upload_type = UPL_FILE;
 	CC->dl_is_net = 0;
 
-	session_num = session_count();
+	num_sessions = session_count();
 	CC->nologin = 0;
-	if ((config.c_maxsessions > 0)&&(session_num > config.c_maxsessions))
+	if ((config.c_maxsessions > 0)&&(num_sessions > config.c_maxsessions))
 		CC->nologin = 1;
 
 	if (CC->nologin==1) {
