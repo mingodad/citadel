@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.32  2004/02/16 18:13:10  error
+ * Log session IDs in syslog as well as stderr
+
  Revision 614.31  2004/02/16 15:06:44  error
  * Add specific error codes for every command on the wire protocol, so that
    clients can more easily determine what went wrong.  Partially updated
@@ -5334,3 +5337,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
