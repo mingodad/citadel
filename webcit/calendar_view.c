@@ -166,14 +166,10 @@ void calendar_month_view(int year, int month, int day) {
 	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0 "
 		"bgcolor=#204B78><TR><TD>\n");
 
-	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0>"
-		"<TR><TD align=left><font color=#FFFFFF>"
-		"&nbsp;<A HREF=\"/display_edit_event?msgnum=0"
-		"&year=%d&month=%d&day=%d\">"
-		"Add new calendar event</A>"
-		"</font></TD>\n",
-		year, month, day
-	);
+	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0><tr>\n");
+	wprintf("<TD align=left><font color=#FFFFFF size=-2>"
+		"Click on any date for day view&nbsp;"
+		"</FONT></TD>\n");
 
 	wprintf("<TD ALIGN=CENTER>");
 
