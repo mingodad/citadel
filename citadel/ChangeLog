@@ -1,4 +1,11 @@
  $Log$
+ Revision 601.73  2002/11/27 21:05:31  nixo
+ added dot ungoto functionality.
+ It allows you to enter a room to ungoto, it will look
+ through the ungoto list and goto there at the room position
+ you last goto-ed it from.
+ Don't blame me, this was Gary's idea.
+
  Revision 601.72  2002/11/25 05:10:07  ajc
  * Post a notification to Aide> when a user is manually deleted
    (resolves Bugzilla enhancement request #73)
@@ -4235,3 +4242,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

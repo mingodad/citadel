@@ -557,8 +557,66 @@ void editthisroom(CtdlIPC *ipc)
 
 
 /*
- * un-goto the previous room
+ * un-goto the previous room, or a specified room
  */
+void dotungoto(CtdlIPC *ipc, char *towhere)
+  {
+    /* Find this 'towhere' room in the list ungoto from this room to
+       that at the messagepointer position in that room in our ungoto list.
+       I suppose I could be a real dick and just ungoto that many places
+       in our list. */
+    int found = -1;
+    int lp;
+	char buf[SIZ];
+	struct ctdlipcroom *rret = NULL;	/* ignored */
+	int r;
+
+	if (uglistsize == 0)
+      {
+		scr_printf("No rooms to ungoto.\n");
+		return;
+      }
+	if (towhere == NULL)
+      {
+		scr_printf("Must specify a room to ungoto.\n");
+		return;
+      }
+	if (strlen(towhere) == 0)
+      {
+		scr_printf("Must specify a room to ungoto.\n");
+		return;
+      }
+    for (lp = uglistsize-1; lp >= 0; lp--)
+      {
+        if (strcasecmp(towhere, uglist[lp]) == 0)
+          {
+            found = lp;
+            break;
+          }
+      }
+    if (found == -1)
+      {
+		scr_printf("Room: %s not in ungoto list.\n", towhere);
+    	return;
+      }
+
+	r = CtdlIPCGotoRoom(ipc, uglist[found], "", &rret, buf);
+	if (rret) free(rret);	/* ignored */
+	if (r / 100 != 2) {
+		scr_printf("%s\n", buf);
+		return;
+	}
+	r = CtdlIPCSetLastRead(ipc, uglistlsn[found], buf);
+	if (r / 100 != 2) {
+		scr_printf("%s\n", buf);
+	}
+	safestrncpy(buf, uglist[found], sizeof(buf));
+    /* we queue ungoto information here, because we're not really
+       ungotoing, we're really going to a random spot in some arbitrary
+       room list. */
+	dotgoto(ipc, buf, 0, 0);
+  }
+
 void ungoto(CtdlIPC *ipc)
 {
 	char buf[SIZ];

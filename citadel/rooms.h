@@ -10,6 +10,7 @@ void editthisroom(CtdlIPC *ipc);
 void roomdir(CtdlIPC *ipc);
 void download(CtdlIPC *ipc, int proto);
 void ungoto(CtdlIPC *ipc);
+void dotungoto(CtdlIPC *ipc, char *towhere);
 void whoknows(CtdlIPC *ipc);
 void enterinfo(CtdlIPC *ipc);
 void knrooms(CtdlIPC *ipc, int kn_floor_mode);

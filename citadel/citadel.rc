@@ -204,6 +204,7 @@ cmd=13,0,read &New
 cmd=14,0,read &Directory
 cmd=15,0,&Terminate
 cmd=16,0,&Ungoto
+cmd=95,0,&.,&Ungoto:
 cmd=17,0,&Who is online
 cmd=47,0,&Abandon ^r^c goto...
 #cmd=90,0,&Abandon ^r^c goto:

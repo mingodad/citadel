@@ -1330,6 +1330,9 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 					updatelsa(ipc);
 				dotgoto(ipc, argbuf, 0, 0);
 				break;
+			case 95: /* what exactly is the numbering scheme supposed to be anyway? */
+				dotungoto(ipc, argbuf);
+				break;
 			case 10:
 				readmsgs(ipc, 0, 1, 0);
 				break;
