@@ -1027,7 +1027,10 @@ void session_loop(struct httprequest *req)
 	 * our session's authentication.
 	 */
 	if (!strncasecmp(action, "groupdav", 8)) {
-		groupdav_main(req);
+		groupdav_main(req);		/* do GroupDAV stuff */
+		if (!WC->logged_in) {
+			WC->killthis = 1;	/* If not logged in, don't */
+		}				/* keep the session active */
 		goto SKIP_ALL_THIS_CRAP;
 	}
 
