@@ -1047,6 +1047,8 @@ void session_loop(struct httprequest *req)
 		change_view();
 	} else if (!strcasecmp(action, "folders")) {
 		folders();
+	} else if (!strcasecmp(action, "do_stuff_to_msgs")) {
+		do_stuff_to_msgs();
 	} else if (!strcasecmp(action, "diagnostics")) {
 		output_headers(1);
 

@@ -1,4 +1,7 @@
 $Log$
+Revision 323.29  2002/05/07 03:57:29  ajc
+* In message summary, replace 'Del' links with checkboxes
+
 Revision 323.28  2002/05/05 03:28:15  ajc
 * Shuffled around the room banner a bit
 
@@ -800,4 +803,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
