@@ -1,4 +1,9 @@
  $Log$
+ Revision 606.5  2003/05/28 03:08:38  ajc
+ * msgbase.c: validate_recipients() now rejects Internet addresses in
+   domains belonging to the local system or an attached Citadel network,
+   when it fails to translate to a Citadel address.
+
  Revision 606.4  2003/05/26 05:36:25  ajc
  * citadel.h: changed internal version number to 6.07
  * file_ops.c: #include <ctype.h>
@@ -4729,4 +4734,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

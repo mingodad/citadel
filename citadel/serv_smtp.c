@@ -445,7 +445,7 @@ void smtp_rcpt(char *argbuf) {
 
 	if (valid->num_internet > 0) {
 		if (SMTP->message_originated_locally == 0) {
-			cprintf("551 5.7.1 Relaying denied <%s>\r\n", recp);
+			cprintf("551 5.7.1 <%s> - relaying denied\r\n", recp);
 			phree(valid);
 			return;
 		}

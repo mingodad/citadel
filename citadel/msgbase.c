@@ -2525,11 +2525,23 @@ struct recptypes *validate_recipients(char *recipients) {
 				}
 				break;
 			case MES_INTERNET:
-				++ret->num_internet;
-				if (strlen(ret->recp_internet) > 0) {
-					strcat(ret->recp_internet, "|");
+				/* Yes, you're reading this correctly: if the target
+				 * domain points back to the local system or an attached
+				 * Citadel directory, the address is invalid.  That's
+				 * because if the address were valid, we would have
+				 * already translated it to a local address by now.
+				 */
+				if (IsDirectory(this_recp)) {
+					++ret->num_error;
+					invalid = 1;
 				}
-				strcat(ret->recp_internet, this_recp);
+				else {
+					++ret->num_internet;
+					if (strlen(ret->recp_internet) > 0) {
+						strcat(ret->recp_internet, "|");
+					}
+					strcat(ret->recp_internet, this_recp);
+				}
 				break;
 			case MES_IGNET:
 				++ret->num_ignet;
@@ -3074,7 +3086,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 	rewind(fp);
 	lprintf(9, "Raw length is %ld\n", (long)raw_length);
 
-	raw_message = mallok((size_t)raw_length);
+	raw_message = mallok((size_t)raw_length + 2);
 	fread(raw_message, (size_t)raw_length, 1, fp);
 	fclose(fp);
 

@@ -103,7 +103,7 @@ int rbl_check_addr(struct in_addr *addr, char *message_to_spammer)
 	num_rbl = get_hosts(rbl_domains, "rbl");
 	if (num_rbl < 1) return(0);
 
-	/* Try all configured RBL */
+	/* Try all configured RBL's */
         for (rbl=0; rbl<num_rbl; ++rbl) {
 		snprintf(tbuf, sizeof tbuf,
 			"%d.%d.%d.%d.",
@@ -112,7 +112,7 @@ int rbl_check_addr(struct in_addr *addr, char *message_to_spammer)
 
 		if (gethostbyname(tbuf) != NULL) {
 			strcpy(message_to_spammer,
-		    		"Message rejected due to "
+		    		"5.7.1 Message rejected due to "
 				"known spammer source IP address"
 			);
 			return(1);
