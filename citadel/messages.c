@@ -530,7 +530,7 @@ int make_message(char *filename, char *recipient, int anon_type, int format_type
                 
          
 { 
-	FILE *fp;
+	FILE *fp, *atpipe;
 	int a,b,e_ex_code;
 	long now,beg;
 	char datestr[64];
@@ -683,7 +683,42 @@ MECR2:	b=inkey();
 		}
 	goto MECR2;
 
-MEFIN:	return(0);
+MEFIN:	/* Now we're done typing the message.  Before returning, append any
+	 * attachments the user has selected
+	 */
+	if (strlen(boundary)==0) goto SKIPAT;
+	fp = fopen(filename, "a");
+	while (AttachList != NULL) {
+		sprintf(buf, "uuencode %s <%s",
+			AttachList->filename, AttachList->filename);
+		atpipe = popen(buf, "r");
+		if (atpipe != NULL) {
+			fprintf(fp,"--%s\n", boundary);
+			fprintf(fp,"Content-type: application/octet-stream;\n");
+			fprintf(fp,"%cname=%c%s%c\n",
+				9, 34, AttachList->filename, 34);
+			fprintf(fp,"Content-Transfer-Encoding: x-uudecode\n");
+			fprintf(fp,"Content-Disposition: attachment;\n");
+			fprintf(fp,"%cfilename=%c%s%c\n\n",
+				9, 34, AttachList->filename, 34);
+			while (fgets(buf, 256, atpipe)!=NULL) {
+				buf[strlen(buf)-1]=0;
+				fprintf(fp, "%s\n", buf);
+				}
+			pclose(atpipe);
+			}
+		else {
+			printf("*** Cannot open %s: %s\n",
+				AttachList->filename, strerror(errno));
+			}
+		Aptr = AttachList->next;
+		free(AttachList);
+		AttachList = Aptr;
+		}
+	fprintf(fp, "--%s--\n", boundary);	/* end of attachments */
+	fclose(fp);
+
+SKIPAT:	return(0);
 
 MEABT:	printf("Are you sure? ");
 	if (yesno()==0) goto ME1;

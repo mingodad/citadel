@@ -973,7 +973,7 @@ void cmd_ent0(char *entargs)
 	extract(recipient,entargs,1);
 	anon_flag = extract_int(entargs,2);
 	format_type = extract_int(entargs,3);
-	extract(boundary, entargs, 4);
+	extract(boundary, entargs, 5);
 
 	/* first check to make sure the request is valid. */
 

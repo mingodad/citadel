@@ -49,6 +49,7 @@ struct citcmd {
 
 int rc_exp_beep;
 char rc_exp_cmd[256];
+int rc_allow_attachments;
 
 char *gl_string;
 
