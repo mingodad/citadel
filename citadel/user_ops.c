@@ -403,14 +403,14 @@ void session_startup(void)
 	}
 	lputuser(&CC->usersupp);
 
-	/* Run any startup routines registered by loadable modules */
-	PerformSessionHooks(EVT_LOGIN);
-
 	/* Create any personal rooms required by the system.
 	 * (Technically, MAILROOM should be there already, but just in case...)
 	 */
 	create_room(MAILROOM, 4, "", 0, 1, 0);
 	create_room(SENTITEMS, 4, "", 0, 1, 0);
+
+	/* Run any startup routines registered by loadable modules */
+	PerformSessionHooks(EVT_LOGIN);
 
 	/* Enter the lobby */
 	usergoto(config.c_baseroom, 0, 0, NULL, NULL);

@@ -1,0 +1,101 @@
+/*
+ * $Id$
+ *
+ * A skeleton module to test the dynamic loader.
+ *
+ */
+
+/*
+ * Name of the New User Greetings room.
+ */
+#define NEWUSERGREETINGS	"New User Greetings"
+
+
+#include "sysdep.h"
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <pwd.h>
+#include <errno.h>
+#include <sys/types.h>
+
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
+
+#include <sys/wait.h>
+#include <string.h>
+#include <limits.h>
+#include "citadel.h"
+#include "server.h"
+#include "sysdep_decls.h"
+#include "citserver.h"
+#include "support.h"
+#include "config.h"
+#include "dynloader.h"
+#include "room_ops.h"
+#include "user_ops.h"
+#include "policy.h"
+#include "database.h"
+#include "msgbase.h"
+
+extern struct CitContext *ContextList;
+
+
+/*
+ * Copy the contents of the New User Greetings> room to the user's Mail> room.
+ */
+void CopyNewUserGreetings(void) {
+	struct cdbdata *cdbfr;
+	long *msglist = NULL;
+	int num_msgs = 0;
+	int i;
+	char mailboxname[ROOMNAMELEN];
+
+
+	/* Only do this for new users. */
+	if (CC->usersupp.timescalled != 1) return;
+
+	/* This user's mailbox. */
+	MailboxName(mailboxname, sizeof mailboxname, &CC->usersupp, MAILROOM);
+
+	/* Go to the source room ... bail out silently if it's not there,
+	 * or if it's not private.
+	 */
+	if (getroom(&CC->quickroom, NEWUSERGREETINGS) != 0) return;
+	if (! CC->quickroom.QRflags & QR_PRIVATE ) return;
+
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->quickroom.QRnumber, sizeof(long));
+
+	if (cdbfr != NULL) {
+		msglist = mallok(cdbfr->len);
+		memcpy(msglist, cdbfr->ptr, cdbfr->len);
+		num_msgs = cdbfr->len / sizeof(long);
+		cdb_free(cdbfr);
+	}
+
+	if (num_msgs > 0) {
+		for (i = 0; i < num_msgs; ++i) {
+			CtdlCopyMsgToRoom(msglist[i], mailboxname);
+		}
+	}
+
+	/* Now free the memory we used, and go away. */
+	if (msglist != NULL) phree(msglist);
+}
+
+
+char *Dynamic_Module_Init(void)
+{
+   CtdlRegisterSessionHook(CopyNewUserGreetings, EVT_LOGIN);
+   return "$Id$";
+}

@@ -35,6 +35,7 @@ SERV_MODULES=modules/libchat.la modules/libvcard.la \
 	modules/libnetwork.la \
 	modules/liblistsub.la \
 	modules/libnetfilter.la \
+	modules/libnewuser.la \
 	modules/libpas2.la \
 	modules/libinetcfg.la \
 	modules/librwho.la \
@@ -82,7 +83,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c \
 	logging.c messages.c msgbase.c msgform.c serv_spam.c \
 	policy.c readlog.c migratenet.c screen.c serv_mrtg.c \
 	room_ops.c rooms.c routines.c routines2.c serv_chat.c serv_crypto.c \
-	serv_test.c setup.c snprintf.c stats.c serv_vcard.c \
+	serv_test.c setup.c snprintf.c stats.c serv_vcard.c serv_newuser.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
 	whobbs.c sendcommand.c mime_parser.c base64.c getutline.c \
 	auth.c chkpwd.c html.c vcard.c serv_upgrade.c serv_vandelay.c \
@@ -191,6 +192,9 @@ modules/liblistsub.la: serv_listsub.lo $(LIBTOOL) libcitserver.la
 
 modules/libnetfilter.la: serv_netfilter.lo $(LIBTOOL) libcitserver.la
 	$(LTSHARE) -o libnetfilter.la ../serv_netfilter.lo ../libcitserver.la
+
+modules/libnewuser.la: serv_newuser.lo $(LIBTOOL) libcitserver.la
+	$(LTSHARE) -o libnewuser.la ../serv_newuser.lo ../libcitserver.la
 
 modules/libupgrade.la: serv_upgrade.lo $(LIBTOOL) libcitserver.la
 	$(LTSHARE) -o libupgrade.la ../serv_upgrade.lo ../libcitserver.la

@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.69  2002/11/21 05:38:13  ajc
+ * Added support for a "New User Greetings" room.  See docs/install.txt
+
  Revision 601.68  2002/11/15 11:24:40  error
  * serv_rwho.c: cmd_rwho(): move logged_in from param 8 to param 11
    (see RWHO in techdoc/session.txt)
@@ -4221,3 +4224,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

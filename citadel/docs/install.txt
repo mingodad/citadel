@@ -334,8 +334,27 @@ user account to be created will automatically be set to access level 6
 (Aide).  This overcomes some obvious logistical problems - normally, Aide
 access is given by another Aide, but since there aren't any on your system
 yet, this isn't possible.
+ 
+ 
+ WELCOMING NEW USERS
+ 
+   Sometimes you might decide that you want a welcome message (or several
+different messages) automatically mailed to new users upon their first login.
+Now there is a way to do this.  If you create a room called
+"New User Greetings", and it is a *private* room (invitation-only probably
+makes the most sense), any messages you enter into that room will automatically
+be delivered to all new users upon registration.
+ 
+   You can put anything you want there: a welcome message, system policies,
+special information, etc.  You can also put as many messages there as you
+want to (although it really doesn't make sense to clutter new users' mailboxes
+with lots of junk).
+ 
+   Don't worry about wasting disk space, either.  Citadel has a single-instance
+message store, so all the new users are actually looking at the same copy of
+the message on disk.
+     
     
-   
  SPACE FOR ADDING YOUR OWN FEATURES (doors)
  
    *** PLEASE TAKE NOTE!! ***   This function really represents the "old"

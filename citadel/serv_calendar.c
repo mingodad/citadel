@@ -116,6 +116,8 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 	char attendee_string[SIZ];
 	icalproperty *organizer = NULL;
 	char organizer_string[SIZ];
+	icalproperty *summary = NULL;
+	char summary_string[SIZ];
 	icalproperty *me_attend = NULL;
 	struct recptypes *recp = NULL;
 	icalparameter *partstat = NULL;
@@ -125,6 +127,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 	struct recptypes *valid = NULL;
 
 	strcpy(organizer_string, "");
+	strcpy(summary_string, "Calendar item");
 
 	if (request == NULL) {
 		lprintf(3, "ERROR: trying to reply to NULL event?\n");
@@ -204,6 +207,18 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 		} else {
 			strcpy(organizer_string, "");
 		}
+
+		/* Extract the summary string -- we'll use it as the
+		 * message subject for the reply
+		 */
+		summary = icalcomponent_get_first_property(vevent, ICAL_SUMMARY_PROPERTY);
+		if (summary != NULL) {
+			if (icalproperty_get_summary(summary)) {
+				strcpy(summary_string,
+					icalproperty_get_summary(summary) );
+			}
+		}
+
 	}
 
 	/* Now generate the reply message and send it out. */
@@ -220,7 +235,9 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 
 		msg = CtdlMakeMessage(&CC->usersupp, organizer_string,
 			CC->quickroom.QRname, 0, FMT_RFC822,
-			"", "FIXME subject", reply_message_text);
+			"",
+			summary_string,		/* Use summary for subject */
+			reply_message_text);
 	
 		if (msg != NULL) {
 			valid = validate_recipients(organizer_string);
