@@ -23,12 +23,14 @@
 #include <pwd.h>
 #include <errno.h>
 #include <stdarg.h>
+#include <limits.h>
 #include "citadel.h"
 #include "citadel_decls.h"
 #include "ipc.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
+#include "config.h"
 
 /* #define DEBUG  */	/* uncomment to get protocol traces */
 
@@ -172,6 +174,8 @@ int main(int argc, char **argv) {
 	char buf[1024];
 	char fromline[1024];
 	FILE *fp;
+
+	get_config();
 
 	fp = tmpfile();
 	if (fp == NULL) return(errno);
