@@ -342,3 +342,5 @@ void toggle_self_service(void);
 void summary(void);
 ssize_t write(int fd, const void *buf, size_t count);
 void cal_process_attachment(char *part_source);
+void display_calendar(long msgnum);
+void display_task(long msgnum);

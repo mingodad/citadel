@@ -672,6 +672,8 @@ void readloop(char *oper)
 	int num_displayed = 0;
 	int is_summary = 0;
 	int is_addressbook = 0;
+	int is_calendar = 0;
+	int is_tasks = 0;
 	int remaining_messages;
 	int lo, hi;
 	int lowest_displayed = (-1);
@@ -727,6 +729,16 @@ void readloop(char *oper)
 		if (!isalpha(alpha)) wprintf("<FONT SIZE=+2>(other)</FONT>\n");
 		else wprintf("<A HREF=\"/readfwd?alpha=1\">(other)</A>\n");
 		wprintf("<HR width=100%%>\n");
+	}
+	if ((WC->wc_view == 3) && (maxmsgs > 1)) {
+		is_calendar = 1;
+		strcpy(cmd, "MSGS ALL");
+		maxmsgs = 32767;
+	}
+	if ((WC->wc_view == 4) && (maxmsgs > 1)) {
+		is_calendar = 1;
+		strcpy(cmd, "MSGS ALL");
+		maxmsgs = 32767;
 	}
 
 	nummsgs = load_msg_ptrs(cmd);
@@ -791,6 +803,12 @@ void readloop(char *oper)
 			}
 			else if (is_addressbook) {
 				display_addressbook(WC->msgarr[a], alpha);
+			}
+			else if (is_calendar) {
+				display_calendar(WC->msgarr[a]);
+			}
+			else if (is_tasks) {
+				display_task(WC->msgarr[a]);
 			}
 			else {
 				read_message(WC->msgarr[a]);
