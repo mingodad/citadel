@@ -49,8 +49,49 @@ void cal_process_attachment(char *part_source) {
 
 #else /* HAVE_ICAL_H */
 
+
+
 /*
- * Handler stub for builds with no calendar library available
+ * Process a single calendar component.
+ * It won't be a compound component at this point because those have
+ * already been broken down by cal_process_object().
+ */
+void cal_process_subcomponent(icalcomponent *cal) {
+
+	wprintf("cal_process_subcomponent() called<BR>\n");
+	wprintf("cal_process_subcomponent() exiting<BR>\n");
+}
+
+
+
+
+
+/*
+ * Process a calendar object
+ * ...at this point it's already been deserialized by cal_process_attachment()
+ */
+void cal_process_object(icalcomponent *cal) {
+	icalcomponent *c;
+
+	wprintf("cal_process_object() called<BR>\n");
+
+	/* Iterate through all subcomponents */
+	for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
+	    (c != 0);
+	    c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
+
+		cal_process_subcomponent(c);
+
+	}
+
+	wprintf("cal_process_object() exiting<BR>\n");
+
+}
+
+
+/*
+ * Deserialize a calendar object in a message so it can be processed.
+ * (This is the main entry point for these things)
  */
 void cal_process_attachment(char *part_source) {
 	icalcomponent *cal;
@@ -64,7 +105,7 @@ void cal_process_attachment(char *part_source) {
 		return;
 	}
 
-	wprintf("Parsing went well.  Cool.<BR>\n");
+	cal_process_object(cal);
 
 	/* Free the memory we obtained from libical's constructor */
 	icalcomponent_free(cal);
