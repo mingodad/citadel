@@ -49,3 +49,9 @@ enum {
 
 
 #define IMAP ((struct citimap *)CtdlGetUserData(SYM_IMAP))
+
+/*
+ * When loading arrays of message ID's into memory, increase the buffer to
+ * hold this many additional messages instead of calling realloc() each time.
+ */
+#define REALLOC_INCREMENT 100

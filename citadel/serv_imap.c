@@ -5,8 +5,10 @@
  * Copyright (C) 2000-2001 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.
  *
- * WARNING: this is an incomplete implementation, still in progress.  Parts of
- * it work, but it's not really usable yet from a user perspective.
+ * WARNING: this is an incomplete implementation.  It is now good enough to
+ * be usable with much of the popular IMAP client software available, but it
+ * is by no means perfect.  Some commands (particularly SEARCH and RENAME)
+ * are implemented either incompletely or not at all.
  *
  * WARNING: Mark Crispin is an idiot.  IMAP is the most brain-damaged protocol
  * you will ever have the profound lack of pleasure to encounter.
@@ -104,25 +106,28 @@ void imap_set_seen_flags(void) {
 /*
  * Back end for imap_load_msgids()
  *
- * FIXME: this should be optimized by figuring out a way to allocate memory
- * once rather than doing a reallok() for each message.
+ * Optimization: instead of calling realloc() to add each message, we
+ * allocate space in the list for REALLOC_INCREMENT messages at a time.  This
+ * allows the mapping to proceed much faster.
  */
 void imap_add_single_msgid(long msgnum, void *userdata) {
 	
 	IMAP->num_msgs = IMAP->num_msgs + 1;
 	if (IMAP->msgids == NULL) {
-		IMAP->msgids = mallok(IMAP->num_msgs * sizeof(long));
+		IMAP->msgids = mallok(IMAP->num_msgs * sizeof(long)
+					* REALLOC_INCREMENT);
 	}
-	else {
+	else if (IMAP->num_msgs % REALLOC_INCREMENT == 0) {
 		IMAP->msgids = reallok(IMAP->msgids,
-			IMAP->num_msgs * sizeof(long));
+			(IMAP->num_msgs + REALLOC_INCREMENT) * sizeof(long));
 	}
 	if (IMAP->flags == NULL) {
-		IMAP->flags = mallok(IMAP->num_msgs * sizeof(long));
+		IMAP->flags = mallok(IMAP->num_msgs * sizeof(long)
+					* REALLOC_INCREMENT);
 	}
-	else {
+	else if (IMAP->num_msgs % REALLOC_INCREMENT == 0) {
 		IMAP->flags = reallok(IMAP->flags,
-			IMAP->num_msgs * sizeof(long));
+			(IMAP->num_msgs + REALLOC_INCREMENT) * sizeof(long));
 	}
 	IMAP->msgids[IMAP->num_msgs - 1] = msgnum;
 	IMAP->flags[IMAP->num_msgs - 1] = 0;

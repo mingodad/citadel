@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.131  2001/04/28 04:18:44  ajc
+ *** empty log message ***
+
  Revision 573.130  2001/04/26 03:31:00  ajc
  * Finished the implementation of per-message seen/unseen logic, both in the
    server proper and in IMAP.  Citadel protocol uses new "seen" command.
@@ -2513,4 +2516,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

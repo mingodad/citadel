@@ -540,13 +540,14 @@ struct cdbdata *cdb_next_item(int cdb)
 
 void cdb_begin_transaction(void) {
 
-	if (MYTID != NULL) {	/* FIXME this slows it down, take it out */
+	/******** this check slows it down and is not needed except to debug
+	if (MYTID != NULL) {
 		lprintf(1, "cdb_begin_transaction: ERROR: opening a new transaction with one already open!\n");
 		abort();
 	}
-	else {
-		txbegin(&MYTID);
-	}
+	***************************/
+
+	txbegin(&MYTID);
 }
 
 void cdb_end_transaction(void) {

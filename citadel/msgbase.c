@@ -365,6 +365,8 @@ int CtdlForEachMessage(int mode, long ref,
 	struct SuppMsgInfo smi;
 	struct CtdlMessage *msg;
 	int is_seen;
+	long lastold = 0L;
+	int printed_lastold = 0;
 
 	/* Learn about the user and room in question */
 	get_mm();
@@ -434,19 +436,25 @@ int CtdlForEachMessage(int mode, long ref,
 		for (a = 0; a < num_msgs; ++a) {
 			thismsg = msglist[a];
 			is_seen = is_msg_in_mset(vbuf.v_seen, thismsg);
-			if ((thismsg > 0)
+			if (is_seen) lastold = thismsg;
+			if ((thismsg > 0L)
 			    && (
 
 				       (mode == MSGS_ALL)
 				       || ((mode == MSGS_OLD) && (is_seen))
 				       || ((mode == MSGS_NEW) && (!is_seen))
-					    /* FIXME handle lastold mode */
 				       || ((mode == MSGS_LAST) && (a >= (num_msgs - ref)))
 				   || ((mode == MSGS_FIRST) && (a < ref))
 				|| ((mode == MSGS_GT) && (thismsg > ref))
 				|| ((mode == MSGS_EQ) && (thismsg == ref))
 			    )
 			    ) {
+				if ((mode == MSGS_NEW) && (CC->usersupp.flags & US_LASTOLD) && (lastold > 0L) && (printed_lastold == 0) && (!is_seen)) {
+					if (CallBack)
+						CallBack(lastold, userdata);
+					printed_lastold = 1;
+					++num_processed;
+				}
 				if (CallBack) CallBack(thismsg, userdata);
 				++num_processed;
 			}

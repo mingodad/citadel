@@ -513,8 +513,9 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 
 	fclose(tmp);
 
-	if (is_peek) {
-		/* FIXME set the last read pointer or something */
+	/* Mark this message as "seen" *unless* this is a "peek" operation */
+	if (is_peek == 0) {
+		CtdlSetSeen(msgnum, 1);
 	}
 }
 

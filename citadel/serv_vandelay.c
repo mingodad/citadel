@@ -526,7 +526,7 @@ void cmd_artv(char *cmdbuf) {
 	char cmd[SIZ];
 	static int is_running = 0;
 
-	if (CtdlAccessCheck(ac_aide)) return;	/* FIXME should be intpgm */
+	if (CtdlAccessCheck(ac_internal)) return;
 	if (is_running) {
 		cprintf("%d The importer/exporter is already running.\n",
 			ERROR);

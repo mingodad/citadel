@@ -149,7 +149,6 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 		extract(buf, foldername, 0);
 		for (i = 0; i < MAXFLOORS; ++i) {
 			fl = cgetfloor(i);
-			lprintf(9, "floor %d: %s\n", i, fl->f_name);	/* FIXME take out */
 			if (fl->f_flags & F_INUSE) {
 				if (!strcasecmp(buf, fl->f_name)) {
 					extract(rbuf, foldername, 1);
