@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.45  2000/12/11 02:19:26  ajc
+ * Client now honors EM_GO_AWAY flag, used by the server to request that a
+   client log off.  (The server doesn't support sending that flag yet, though)
+
  Revision 573.44  2000/12/09 06:20:06  ajc
  * A few final touches to the Sleepycat DB back-end
 
@@ -2200,3 +2204,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

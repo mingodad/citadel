@@ -93,6 +93,7 @@ char floor_mode;
 char curr_floor = 0;		/* number of current floor */
 char floorlist[128][256];	/* names of floors */
 char express_msgs = 0;		/* express messages waiting! */
+volatile int termn8 = 0;	/* Set to nonzero to cause a logoff */
 
 extern int rc_ansi_color;	/* ansi color value from citadel.rc */
 
@@ -860,7 +861,6 @@ int main(int argc, char **argv)
 	char *telnet_client_host = NULL;
 	char *sptr, *sptr2;	/* USed to extract the nonce */
 	char hexstring[MD5_HEXSTRING_SIZE];
-	volatile int termn8 = 0;
 	int stored_password = 0;
 	char password[256];
 

@@ -71,6 +71,7 @@ int next_lazy_cmd = 5;
 
 int lines_printed = 0;		/* line count for paginator */
 extern int screenwidth, screenheight;
+extern int termn8;
 
 struct citcmd *cmdlist = NULL;
 
@@ -186,7 +187,7 @@ void print_express(void)
 	FILE *outpipe;
 	time_t timestamp;
 	struct tm *stamp;
-	int flags;
+	int flags = 0;
 	char sender[64];
 	char node[64];
 
@@ -291,6 +292,12 @@ void print_express(void)
 	}
 	printf("\n---\n");
 	color(BRIGHT_WHITE);
+
+	/* If the page is a Logoff Request, honor it. */
+	if (flags & 2) {
+		termn8 = 1;
+	}
+
 }
 
 
