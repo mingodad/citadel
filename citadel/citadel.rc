@@ -161,6 +161,9 @@ remember_passwords=0
 # GIMP is a free-software attempt at a PhotoShop-like application.
 #imagecmd=gimp "%s"
 
+# Preview on Mac OS X
+#imagecmd=/Applications/Preview.app/Contents/MacOS/Preview "%s"
+
 # MESSAGE READING SEMANTICS (experimental)
 #
 # A new set of message reading semantics is now available.  If you set
