@@ -68,6 +68,7 @@ char *unique_session_numbers;
 int ScheduledShutdown = 0;
 int do_defrag = 0;
 time_t server_startup_time;
+char pid_file_name[PATH_MAX];
 
 /*
  * Various things that need to be initialized at startup
@@ -77,9 +78,18 @@ void master_startup(void) {
 	unsigned int seed;
 	FILE *urandom;
 	struct ctdlroom qrbuf;
+	FILE *pidfile_fp;
 	
 	lprintf(CTDL_DEBUG, "master_startup() started\n");
 	time(&server_startup_time);
+
+	/* pid file.  If we go FSSTND this should end up in 'localstatedir' */
+	snprintf(pid_file_name, sizeof pid_file_name, "./citadel.pid");
+	pidfile_fp = fopen(pid_file_name, "w");
+	if (pidfile_fp != NULL) {
+		fprintf(pidfile_fp, "%d\n", (int)getpid());
+		fclose(pidfile_fp);
+	}
 
 	lprintf(CTDL_INFO, "Opening databases\n");
 	open_databases();
@@ -153,6 +163,7 @@ void master_cleanup(int exitcode) {
 	lprintf(CTDL_NOTICE, "citserver: Exiting with status %d\n", exitcode);
 	fflush(stdout); fflush(stderr);
 
+	unlink(pid_file_name);
 	exit(exitcode);
 }
 
