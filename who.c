@@ -100,7 +100,7 @@ void whobbs(void)
 			}
 			/* username */
 			wprintf("</FONT></TD>\n\t<TD><FONT FACE=\"Arial,Helvetica,sans-serif\"><A HREF=\"/showuser?who=");
-			escputs(wlist->username);
+			urlescputs(wlist->username);
 			wprintf("\" onMouseOver=\"window.status='View profile for ");
 			escputs(wlist->username);
 			wprintf("'; return true\">");
@@ -113,7 +113,7 @@ void whobbs(void)
 				wprintf("<A HREF=\"/chat\" onMouseOver=\"window.status='Chat'; return true\">&lt;chat&gt;</A>");
 			} else {
 				wprintf("<A HREF=\"/dotgoto&room=");
-				escputs(wlist->roomname);
+				urlescputs(wlist->roomname);
 				wprintf("\" onMouseOver=\"window.status='Go to room ");
 				escputs(wlist->roomname);
 				wprintf("'; return true\">");
@@ -130,7 +130,7 @@ void whobbs(void)
 		}
 	}
 	wprintf("</TABLE>\n<BR><BR>\n");
-	wprintf("<TABLE BORDER=0 BGCOLOR=\"#003399\">\n<TR><TD ALIGN=center VALIGN=center CELLPADING=10>\n");
+	wprintf("<TABLE BORDER=0 BGCOLOR=\"#003399\">\n<TR><TD ALIGN=center VALIGN=center CELLPADING=20>\n");
 	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\" SIZE=+2><B><A HREF=\"/whobbs\"><FONT COLOR=\"#FF0000\">Refresh</FONT></A></B></FONT>\n");
 	wprintf("</TD></TR>\n</TABLE>\n</CENTER>");
 	wDumpContent(1);

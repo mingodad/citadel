@@ -86,7 +86,7 @@ char *oper;
 		return;
 	}
 	wprintf("<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0 BGCOLOR=000077><TR><TD>\n");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFF00\"> ");
+	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\" SIZE=+1 COLOR=\"FFFF00\"> ");
 	strcpy(m_subject, "");
 
 	strcpy(reply_to, "nobody...xxxxx");
@@ -142,7 +142,7 @@ char *oper;
 	wprintf("</FONT></TD>");
 
 	if (is_room_aide) {
-		wprintf("<TD ALIGN=RIGHT NOWRAP><FONT COLOR=\"FFFF00\"><B>");
+		wprintf("<TD ALIGN=RIGHT NOWRAP><FONT FACE=\"Arial,Helvetica,sans-serif\" COLOR=\"FFFF00\"><B>");
 
 		wprintf("<A HREF=\"/confirm_move_msg");
 		wprintf("&msgid=%ld", msgnum);
@@ -169,7 +169,7 @@ char *oper;
 				buf[strlen(buf) - 1] = 0;
 			if ((bq == 0) &&
 			    ((!strncmp(buf, ">", 1)) || (!strncmp(buf, " >", 2)) || (!strncmp(buf, " :-)", 4)))) {
-				wprintf("<FONT COLOR=\"000044\"><I>");
+				wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\" COLOR=\"000044\"><I>");
 				bq = 1;
 			} else if ((bq == 1) &&
 				   (strncmp(buf, ">", 1)) && (strncmp(buf, " >", 2)) && (strncmp(buf, " :-)", 4))) {
@@ -223,7 +223,7 @@ void readloop(char *oper)
 	printf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
-	wprintf("<CENTER><B>%s - ", wc_roomname);
+	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><CENTER><B>%s - ", wc_roomname);
 	if (!strcmp(oper, "readnew")) {
 		strcpy(cmd, "MSGS NEW");
 		wprintf("new messages");
@@ -267,6 +267,7 @@ void post_message(void)
 	printf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
+	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\">");
 	strcpy(buf, bstr("sc"));
 	if (strcasecmp(buf, "Save message")) {
 		wprintf("Cancelled.  Message was not posted.<BR>\n");
@@ -327,6 +328,8 @@ void display_enter(void)
 	printf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
+	wprintf("<FACE=\"Arial,Helvetica,sans-serif\">");
+
 	sprintf(buf, "ENT0 0|%s|0|0", bstr("recp"));
 	serv_puts(buf);
 	serv_gets(buf);
@@ -369,6 +372,7 @@ void display_enter(void)
 
 	wprintf("</FORM></CENTER>\n");
       DONE:wDumpContent(1);
+	wprintf("</FONT>");
 }
 
 

@@ -240,14 +240,14 @@ void list_all_rooms_by_floor(void)
 	output_headers(1);
 
 	wprintf("<TABLE width=100% border><TR><TH>Floor</TH>");
-	wprintf("<TH>Rooms with new messages</TH>");
-	wprintf("<TH>Rooms with no new messages</TH></TR>\n");
+	wprintf("<TH><FONT FACE=\"Arial,Helvetica,sans-serif\">Rooms with new messages</FONT></TH>");
+	wprintf("<TH><FONT FACE=\"Arial,Helvetica,sans-serif\">Rooms with no new messages</FONT></TH></TR>\n");
 
 	for (a = 0; a < 128; ++a)
 		if (floorlist[a][0] != 0) {
 
 			/* Floor name column */
-			wprintf("<TR><TD>");
+			wprintf("<TR><TD><FONT FACE=\"Arial,Helvetica,sans-serif\">");
 
 			serv_printf("OIMG _floorpic_|%d", a);
 			serv_gets(buf);
@@ -260,18 +260,18 @@ void list_all_rooms_by_floor(void)
 				escputs(&floorlist[a][0]);
 			}
 
-			wprintf("</TD>");
+			wprintf("</FONT></TD>");
 
 			/* Rooms with new messages column */
-			wprintf("<TD>");
+			wprintf("<TD><FONT FACE=\"Arial,Helvetica,sans-serif\">");
 			sprintf(buf, "LKRN %d", a);
 			listrms(buf);
-			wprintf("</TD><TD>\n");
+			wprintf("</FONT></TD>\n<TD><FONT FACE=\"Arial,Helvetica,sans-serif\">");
 
 			/* Rooms with old messages column */
 			sprintf(buf, "LKRO %d", a);
 			listrms(buf);
-			wprintf("</TD></TR>\n");
+			wprintf("</FONT></TD></TR>\n");
 		}
 	wprintf("</TABLE>\n");
 	wDumpContent(1);
@@ -286,7 +286,7 @@ void zapped_list(void)
 	printf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\" SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Zapped (forgotten) rooms</B>\n");
 	wprintf("</FONT></TD></TR></TABLE><BR>\n");
 	listrms("LZRM -1");
@@ -381,7 +381,7 @@ void gotoroom(char *gname, int display_name)
 			wprintf("<TD VALIGN=TOP><A HREF=\"/ungoto\">");
 			wprintf("<IMG SRC=\"/static/back.gif\" BORDER=0></A></TD>");
 		}
-		wprintf("<TD VALIGN=TOP><FONT FACE=\"Arial,Helvetica,sans-serif\"><H1>%s</H1>", wc_roomname);
+		wprintf("<TD VALIGN=TOP><FONT FACE=\"Arial,Helvetica,sans-serif\"><FONT SIZE=+2>%s</FONT><BR>", wc_roomname);
 		wprintf("%d new of %d messages</FONT></TD>\n",
 			extract_int(&buf[4], 1),
 			extract_int(&buf[4], 2));
