@@ -41,7 +41,7 @@ SERV_MODULES=modules/serv_chat$(SO) modules/serv_vcard$(SO) \
 	modules/serv_ical$(SO)
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform readlog rcit \
 	stats citmail netpoll mailinglist userlist sendcommand \
-	base64 qpdecode citlogin
+	base64 qpdecode
 
 prefix=@prefix@
 srcdir=@srcdir@
@@ -81,7 +81,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	config.c control.c $(DATABASE) dynloader.c file_ops.c \
 	housekeeping.c internetmail.c ipc_c_tcp.c locate_host.c \
 	logging.c mailinglist.c messages.c msgbase.c msgform.c netmailer.c \
-	netpoll.c netproc.c netsetup.c policy.c rcit.c readlog.c citlogin.c \
+	netpoll.c netproc.c netsetup.c policy.c rcit.c readlog.c \
 	room_ops.c rooms.c routines.c routines2.c serv_chat.c \
 	serv_info.c serv_test.c setup.c snprintf.c stats.c serv_vcard.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
@@ -324,9 +324,6 @@ msgform: msgform.o
 
 readlog: readlog.o config.o
 	$(CC) readlog.o config.o $(LDFLAGS) -o readlog
-
-citlogin: citlogin.o config.o
-	$(CC) citlogin.o config.o $(LDFLAGS) -o citlogin
 
 rcit: rcit.o config.o
 	$(CC) rcit.o config.o $(LDFLAGS) -o rcit

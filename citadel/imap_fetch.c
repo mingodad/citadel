@@ -886,16 +886,6 @@ void imap_pick_range(char *supplied_range, int is_uid) {
 		}
 	}
 
-	/*
-	 * Make sure we didn't select any expunged messages.
-	 */
-	for (i = 0; i < IMAP->num_msgs; ++i) {
-		if (IMAP->flags[i] & IMAP_EXPUNGED) {
-			lprintf(9, "eliminating %d because expunged\n", i);
-			IMAP->flags[i] = IMAP->flags[i] & ~IMAP_FETCHED;
-		}
-	}
-
 }
 
 

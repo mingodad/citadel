@@ -1,69 +1,6 @@
  $Log$
- Revision 573.104  2001/03/02 03:18:33  ajc
- * client: the "Page who?" prompt now defaults to the last user who paged
-   you or the last user you sent a page to, whichever is more recent.
-
- Revision 573.103  2001/02/28 05:49:04  ajc
- * Removed the moderation questions.
- * Added extra ignores of SIGPIPE to the code (before every client socket
-   write, because DB screws it up somehow)
-
- Revision 573.102  2001/02/27 19:56:23  nbryant
- pass DB_THREAD to DB->open()
-
- Revision 573.101  2001/02/26 19:56:13  nbryant
- modified lprintf strings to begin with "cdb_" to simplify grepping for
- sleepycat-related errors.
-
- Revision 573.100  2001/02/24 17:23:21  ajc
- * More of IMAP STORE.  Works for \Deleted now, but we don't have EXPUNGE yet
-
- Revision 573.99  2001/02/24 06:06:28  ajc
- * Wrote a bit of the IMAP STORE command
-
- Revision 573.98  2001/02/24 04:43:13  brian
- * Fixed my listing in developers.txt (finally!  :)
-
- Revision 573.97  2001/02/22 18:22:38  nixo
- Mostly made changes to allow client_gets to handle reading a buffer
- larger than SIZ. This required changes all over the place.
- Most of the changes in source were just putting an i in front of the
- cmdbuf variable name for the purpose of having the compiler point out
- to me everything that I had to fix. Sorry if this is bothersome, but
- I know I fixed every last one of them.
- I tried to follow functionality to see where the bigger buffer might
- cause a problem dealing with a smaller buffer. In most cases this was
- in the extract function and lprintf.
- extract is now limited to one token being of max size SIZ. Lprintf now
- does a pre-printf to size the buffer it's going to need to print. If
- this is a performance problem then we'll have to rewrite lprintf.
- Also added getmem, freemem, reallocmem to the debugging version of
- the mallok/phree reallok functions. They basically just check for
- memory overruns upon freeing the memory. I figured it couldn't hurt
- and I thought you might find it useful.
- added 2 vars to the citsession to hold the dynamic buffer for input
- per session. gets freed on session close, so their should be no
- memory leak.
- there's a couple of places where I left source in with that are
- commented out. This is just for reference so you can see what I did.
- remove them if you find them annoying (ex: oldclient_gets())
- fiddled with the control file reader to use the new buffer thing too
- had to change to make it read right.
- for example, clients_gets used to read into the buffer, now
- it gets string copies out.
- hmmm.. there may be overruns there, let me check that.
-
- One thing I'd like to say is that I couldnt' test everything because
- I don't know how to get everything to run, but I changed everything
- in the same manner and I tested some of it, so I think the other
- changes should be fine. Let me know if you see a problem.
-
- Revision 573.96  2001/02/21 05:44:44  ajc
- * Wrote the "citlogin" wrapper, so Citadel client can run directly without
-   having to login as bbs first.
-
- Revision 573.95  2001/02/21 05:15:41  ajc
- * Repaired buggy "ALL" macro in IMAP FETCH.
+ Revision 573.105  2001/03/04 23:49:41  ajc
+ * IMAP EXPUNGE responses -should- be correct now
 
  Revision 573.94  2001/02/20 00:02:56  ajc
  * IMAP: implemented the STATUS command (sort of).
@@ -2490,4 +2427,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

@@ -136,15 +136,25 @@ void imap_rescan_msgids(void) {
 	 * Check to see if any of the messages we know about have been expunged
 	 */
 	if (IMAP->num_msgs > 0)
-	 for (i=0; i<IMAP->num_msgs; ++i)
-	  if ((IMAP->flags[i] & IMAP_EXPUNGED) == 0) {
+	 for (i=0; i<IMAP->num_msgs; ++i) {
 
 		count = CtdlForEachMessage(MSGS_EQ, IMAP->msgids[i],
 			(-63), NULL, NULL, NULL, NULL);
 
 		if (count == 0) {
-			IMAP->flags[i] = IMAP->flags[i] | IMAP_EXPUNGED;
 			cprintf("* %d EXPUNGE\r\n", i+1);
+
+			/* Here's some nice stupid nonsense.  When a message
+			 * is expunged, we have to slide all the existing
+			 * messages up in the message array.
+			 */
+			--IMAP->num_msgs;
+			memcpy(&IMAP->msgids[i], &IMAP->msgids[i+1],
+				(sizeof(long)*(IMAP->num_msgs-i)) );
+			memcpy(&IMAP->flags[i], &IMAP->flags[i+1],
+				(sizeof(long)*(IMAP->num_msgs-i)) );
+
+			--i;
 		}
 
 	}
