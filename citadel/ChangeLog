@@ -1,3 +1,6 @@
+Mon Jul  5 17:01:29 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* utilsmenu: removed menu items for defunct utilities
+
 Mon Jun 28 16:24:10 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Changed any remaining references to UUCP, to "Internet" instead.
 
