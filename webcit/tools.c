@@ -25,6 +25,7 @@
 #include <signal.h>
 #include <sys/time.h>
 #include "webcit.h"
+#include "webserver.h"
 
 
 char *ascmonths[] = {
@@ -40,7 +41,7 @@ char *ascdays[] = {
 char *safestrncpy(char *dest, const char *src, size_t n)
 {
 	if (dest == NULL || src == NULL) {
-		fprintf(stderr, "safestrncpy: NULL argument\n");
+		lprintf(1, "safestrncpy: NULL argument\n");
 		abort();
 	}
 	strncpy(dest, src, n);

@@ -36,11 +36,13 @@
 #include <pthread.h>
 #include <signal.h>
 #include "webcit.h"
+#include "webserver.h"
 
 #ifndef HAVE_SNPRINTF
 int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp);
 #endif
 
+int verbosity = 9;		/* Logging level */
 int msock;			/* master listening socket */
 extern void *context_loop(int);
 extern void *housekeeping_loop(void);
@@ -70,15 +72,14 @@ int ig_tcp_server(int port_number, int queue_len)
 	sin.sin_addr.s_addr = INADDR_ANY;
 
 	if (port_number == 0) {
-		fprintf(stderr,
-			"webcit: Cannot start: no port number specified.\n");
+		lprintf(1, "Cannot start: no port number specified.\n");
 		exit(1);
 	}
 	sin.sin_port = htons((u_short) port_number);
 
 	s = socket(PF_INET, SOCK_STREAM, (getprotobyname("tcp")->p_proto));
 	if (s < 0) {
-		fprintf(stderr, "webcit: Can't create a socket: %s\n",
+		lprintf(1, "Can't create a socket: %s\n",
 		       strerror(errno));
 		exit(errno);
 	}
@@ -87,11 +88,11 @@ int ig_tcp_server(int port_number, int queue_len)
 	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
 
 	if (bind(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-		fprintf(stderr, "webcit: Can't bind: %s\n", strerror(errno));
+		lprintf(1, "Can't bind: %s\n", strerror(errno));
 		exit(errno);
 	}
 	if (listen(s, queue_len) < 0) {
-		fprintf(stderr, "webcit: Can't listen: %s\n", strerror(errno));
+		lprintf(1, "Can't listen: %s\n", strerror(errno));
 		exit(errno);
 	}
 	return (s);
@@ -126,7 +127,7 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
 		}
 		rlen = read(sock, &buf[len], bytes - len);
 		if (rlen < 1) {
-			fprintf(stderr, "client_read() failed: %s\n",
+			lprintf(2, "client_read() failed: %s\n",
 			       strerror(errno));
 			return(-1);
 		}
@@ -201,7 +202,7 @@ void spawn_another_worker_thread() {
 	pthread_t SessThread;	/* Thread descriptor */
 	pthread_attr_t attr;	/* Thread attributes */
 
-	fprintf(stderr, "Creating a new thread\n");
+	lprintf(3, "Creating a new thread\n");
 
 	/* set attributes for the new thread */
 	pthread_attr_init(&attr);
@@ -211,7 +212,7 @@ void spawn_another_worker_thread() {
 	if (pthread_create(&SessThread, &attr,
 			(void *(*)(void *)) worker_entry, NULL)
 		   != 0) {
-		fprintf(stderr, "webcit: can't create thread: %s\n",
+		lprintf(1, "Can't create thread: %s\n",
 			strerror(errno));
 	}
 }
@@ -239,6 +240,9 @@ int main(int argc, char **argv)
 			freopen(tracefile, "w", stderr);
 			freopen(tracefile, "r", stdin);
 			break;
+		case 'x':
+			verbosity = atoi(optarg);
+			break;
 		case 'c':
 			server_cookie = malloc(SIZ);
 			if (server_cookie != NULL) {
@@ -246,7 +250,7 @@ int main(int argc, char **argv)
 				if (gethostname(
 				   &server_cookie[strlen(server_cookie)],
 				   200) != 0) {
-					fprintf(stderr, "gethostname: %s\n",
+					lprintf(2, "gethostname: %s\n",
 						strerror(errno));
 					free(server_cookie);
 				}
@@ -265,7 +269,7 @@ int main(int argc, char **argv)
 			defaultport = argv[optind];
 	}
 	/* Tell 'em who's in da house */
-	fprintf(stderr, SERVER "\n"
+	lprintf(1, SERVER "\n"
 "Copyright (C) 1996-2001 by the Citadel/UX development team.\n"
 "This software is distributed under the terms of the GNU General Public\n"
 "License.  If you paid for this software, someone is ripping you off.\n\n");
@@ -279,7 +283,7 @@ int main(int argc, char **argv)
          * wcsession struct to which the thread is currently bound.
          */
         if (pthread_key_create(&MyConKey, NULL) != 0) {
-                fprintf(stderr, "Can't create TSD key: %s\n", strerror(errno));
+                lprintf(1, "Can't create TSD key: %s\n", strerror(errno));
         }
 
 	/*
@@ -287,9 +291,9 @@ int main(int argc, char **argv)
 	 * There is no need to check for errors, because ig_tcp_server()
 	 * exits if it doesn't succeed.
 	 */
-	fprintf(stderr, "Attempting to bind to port %d...\n", port);
+	lprintf(2, "Attempting to bind to port %d...\n", port);
 	msock = ig_tcp_server(port, LISTEN_QUEUE_LENGTH);
-	fprintf(stderr, "Listening on socket %d\n", msock);
+	lprintf(2, "Listening on socket %d\n", msock);
 	signal(SIGPIPE, SIG_IGN);
 
 	pthread_mutex_init(&SessionListMutex, NULL);
@@ -340,8 +344,7 @@ void worker_entry(void) {
 		}
 
 		if (ssock < 0) {
-			fprintf(stderr, "webcit: accept() failed: %s\n",
-		       	strerror(errno));
+			lprintf(2, "accept() failed: %s\n", strerror(errno));
 		} else {
 			/* Set the SO_REUSEADDR socket option */
 			i = 1;
@@ -358,4 +361,40 @@ void worker_entry(void) {
 	} while (!time_to_die);
 
 	pthread_exit(NULL);
+}
+
+
+int lprintf(int loglevel, const char *format, ...)
+{
+	va_list ap;
+	char buf[4096];
+
+	va_start(ap, format);
+	vsprintf(buf, format, ap);
+	va_end(ap);
+
+	if (loglevel <= verbosity) {
+		struct timeval tv;
+		struct tm *tim;
+
+		gettimeofday(&tv, NULL);
+		tim = localtime(&(tv.tv_sec));
+
+		if (WC && WC->wc_session) {
+			fprintf(stderr,
+				"%04d/%02d/%02d %2d:%02d:%02d.%03ld [%ld:%d] %s",
+				tim->tm_year + 1900, tim->tm_mon + 1,
+				tim->tm_mday, tim->tm_hour, tim->tm_min,
+				tim->tm_sec, (long)tv.tv_usec / 1000,
+				pthread_self(), WC->wc_session, buf);
+		} else {
+			fprintf(stderr,
+				"%04d/%02d/%02d %2d:%02d:%02d.%03ld [%ld] %s",
+				tim->tm_year + 1900, tim->tm_mon + 1,
+				tim->tm_mday, tim->tm_hour, tim->tm_min,
+				tim->tm_sec, (long)tv.tv_usec / 1000,
+				pthread_self(), buf);
+		}
+	}
+	return 1;
 }

@@ -1,4 +1,7 @@
 $Log$
+Revision 323.1  2002/01/24 23:50:36  error
+* Trace file using lprintf() similarly to citserver
+
 Revision 323.0  2002/01/13 09:07:06  ajc
 * THIS IS 3.23
 
@@ -713,3 +716,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
