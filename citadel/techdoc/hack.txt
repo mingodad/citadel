@@ -86,10 +86,6 @@ I	ID on orig	A 32-bit integer containing the message ID on the
                         is meaningless for a message being transmitted over
                         a network).
 A	Author		Name of originator of message.
-E	EmailUserID	Only present in messages originating from the Internet.
-                        It contains the username portion of the author's 
-                        e-mail address, thereby allowing replies and bounces
-                        to be properly formulated.
 R	Recipient	Only present in Mail messages.
 O	Room		Room of origin.
 N	Nodename	Contains node name of system message originated on.
