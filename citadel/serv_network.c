@@ -50,6 +50,22 @@
 #include "serv_network.h"
 
 
+/*
+ * When we do network processing, it's accomplished in two passes; one to
+ * gather a list of rooms and one to actually do them.  It's ok that rplist
+ * is global; this process *only* runs as part of the housekeeping loop and
+ * therefore only one will run at a time.
+ */
+struct RoomProcList {
+        struct RoomProcList *next;
+        char name[ROOMNAMELEN];
+};
+
+struct RoomProcList *rplist = NULL;
+
+
+
+
 void cmd_gnet(char *argbuf) {
 	char filename[SIZ];
 	char buf[SIZ];
@@ -184,7 +200,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 /*
  * Batch up and send all outbound traffic from the current room
  */
-void network_spoolout_room(struct quickroom *qrbuf, void *data) {
+void network_spoolout_room(char *room_to_spool) {
 	char filename[SIZ];
 	char buf[SIZ];
 	char instr[SIZ];
@@ -193,7 +209,11 @@ void network_spoolout_room(struct quickroom *qrbuf, void *data) {
 	/* struct namelist *digestrecps = NULL; */
 	struct namelist *nptr;
 
-	memcpy(&CC->quickroom, qrbuf, sizeof(struct quickroom));
+	lprintf(7, "Spooling <%s>\n", room_to_spool);
+	if (getroom(&CC->quickroom, room_to_spool) != 0) {
+		lprintf(1, "ERROR: cannot load <%s>\n", room_to_spool);
+		return;
+	}
 
 	memset(&sc, 0, sizeof(struct SpoolControl));
 	assoc_file_name(filename, &CC->quickroom, "netconfigs");
@@ -261,6 +281,21 @@ void network_spoolout_room(struct quickroom *qrbuf, void *data) {
 
 
 /*
+ * Batch up and send all outbound traffic from the current room
+ */
+void network_queue_room(struct quickroom *qrbuf, void *data) {
+	struct RoomProcList *ptr;
+
+	ptr = (struct RoomProcList *) mallok(sizeof (struct RoomProcList));
+	if (ptr == NULL) return;
+
+	safestrncpy(ptr->name, qrbuf->QRname, sizeof ptr->name);
+	ptr->next = rplist;
+	rplist = ptr;
+}
+	
+
+/*
  * network_do_queue()
  * 
  * Run through the rooms doing various types of network stuff.
@@ -268,6 +303,7 @@ void network_spoolout_room(struct quickroom *qrbuf, void *data) {
 void network_do_queue(void) {
 	static int doing_queue = 0;
 	static time_t last_run = 0L;
+	struct RoomProcList *ptr;
 
 #define NETWORK_QUEUE_FREQUENCY 3600	/* one hour ... FIXME put in config */
 	/*
@@ -288,8 +324,17 @@ void network_do_queue(void) {
 	/* 
 	 * Go ahead and run the queue
 	 */
-	lprintf(7, "network: processing outbound queue\n");
-	ForEachRoom(network_spoolout_room, NULL);
+	lprintf(7, "network: loading outbound queue\n");
+	ForEachRoom(network_queue_room, NULL);
+
+	lprintf(7, "network: running outbound queue\n");
+	while (rplist != NULL) {
+		network_spoolout_room(rplist->name);
+		ptr = rplist;
+		rplist = rplist->next;
+		phree(ptr);
+	}
+
 	lprintf(7, "network: queue run completed\n");
 	doing_queue = 0;
 }
