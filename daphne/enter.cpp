@@ -190,7 +190,9 @@ void EnterMessage::OnFind(wxCommandEvent& whichbutton) {
 void EnterMessage::OnSave(wxCommandEvent& whichbutton) {
 	wxString sendcmd, recvcmd, xferbuf;
 
-	sendcmd = "ENT0 1|" + toname->GetValue();
+	sendcmd = "ENT0 1|" + toname->GetValue() + "|"
+		+ ((!fromname->GetString(fromname->GetSelection()).CmpNoCase("Anonymous")) ? "1" : "0")
+		+ "|0" ;
 	xferbuf = TheMessage->GetValue();
 	if (citsock->serv_trans(sendcmd, recvcmd,
 				xferbuf, ThisRoom) == 4) {
