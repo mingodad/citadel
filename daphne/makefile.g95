@@ -1,8 +1,4 @@
-########################################################################
-#                                                                      #
-#                    wxHTML / Cygwin makefile                          #
-#                                                                      #
-########################################################################
+# Makefile for Daphne on wxWindows/MSW built with Cygwin
 
 WXDIR           = /wx
 WXHTMLDIR       = /wxhtml
