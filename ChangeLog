@@ -1,4 +1,8 @@
 $Log$
+Revision 502.3  2004/01/17 21:25:30  ajc
+* Add 'base DN' and 'bind DN' and 'bind DN password' to siteconfig
+* Split the config for LDAP Connector into its own panel
+
 Revision 502.2  2004/01/17 04:32:54  ajc
 * Add site config options for Citadel servers which support LDAP
 
@@ -1623,3 +1627,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
