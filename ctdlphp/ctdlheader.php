@@ -28,6 +28,7 @@ function bbs_page_header() {
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<link rel="stylesheet" href="sitestyle.css" type="text/css" />
 	<meta name="Description" content="Citadel BBS">
 	<meta name="Keywords" content="citadel,bbs">
 	<meta name="MSSmartTagsPreventParsing" content="TRUE">
@@ -56,37 +57,45 @@ LITERAL;
 
 LITERAL;
 
+	echo '<div id="Header">';
 	echo '<TABLE BORDER=0 WIDTH=100%>';
 	echo '<TR>';
 	echo '<TD>' . $_SESSION["serv_humannode"] . '</TD>' ;
 	echo '<TD>' . $_SESSION["username"] . '</TD>' ;
 	echo '<TD>' . $_SESSION["room"] . '</TD>' ;
 	echo '<TD ALIGN=RIGHT><A HREF="logout.php">Log out</A></TD>' ;
-	echo '</TR></TABLE><BR>';
+	echo '</TR></TABLE>';
+	echo '</div>';
 
 	// Temporary menu
 	if ($_SESSION["logged_in"]) {
-		echo	'<a href="listrooms.php">' .
-			'room list</A> ' .
+		echo	'<div id="Menu">' .
+			'<a href="listrooms.php">' .
+			'room list</A><BR>' .
 			'<a href="readmsgs.php?mode=all&count=0">' .
-			'Read all messages</a> ' .
+			'Read all</a><BR>' .
 			'<a href="readmsgs.php?mode=new&count=0">' .
-			'Read new messages</a> ' .
+			'Read new</a><BR>' .
 			'<a href="display_enter.php">' .
-			'Enter a message</a> ' .
+			'Enter msg</a><BR>' .
 			'<a href="who.php">' .
-			'Who is online?</a> ' .
+			'Who is online?</a><BR>' .
 			'<A HREF="logout.php">' .
-			'Log out</A><HR>' ;
+			'Log out</A>' .
+			'</div>' ;
 	}
+
+	echo '<div id="Content">' ;
 
 }
 
 
 function bbs_page_footer() {
-	echo "<HR>";
-	echo "Powered by Citadel.  And a few cups of coffee.<BR>\n";
-	echo "</BODY></HTML>\n";
+	//echo "<HR>";
+	//echo "Powered by Citadel.  And a few cups of coffee.<BR>\n";
+
+	echo '</div>' ;
+	echo '</BODY></HTML>\n';
 }
 
 
