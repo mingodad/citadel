@@ -1313,13 +1313,6 @@ void readloop(char *oper)
 			oper,
 			WC->msgarr[0], is_summary);
 
-		wprintf("<OPTION VALUE=\"/%s?startmsg=%ld"
-			"&maxmsgs=999999&summary=1\">"
-			"Summary"
-			"</OPTION>",
-			oper,
-			WC->msgarr[0]);
-
 		wprintf("</SELECT> of %d messages.", nummsgs);
 
 		if (is_summary) {

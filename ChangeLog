@@ -1,4 +1,11 @@
 $Log$
+Revision 602.8  2005/02/20 06:48:30  ajc
+* View-o-matic now has "View as: " before it.  "Messages" has been changed
+  to "Bulletin Board" and "Summary" has been changed to "Mailbox Summary"
+* The View-o-matic is now styled to be smaller and color-matched to the
+  banner box it lives in.
+* Removed "Summary" from message range selector.  It is redundant.
+
 Revision 602.7  2005/02/20 06:27:53  ajc
 * Switched the Reply/Move/Delete buttons back to ordinary links, because
   the nested forms were causing the bottom part of the outer form to stop
@@ -2406,3 +2413,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
