@@ -432,6 +432,8 @@ void cmd_pass(char *buf)
 		strproc(password);
 		strproc(CC->usersupp.password);
 		code = strcasecmp(CC->usersupp.password,password);
+		lprintf(9, "Got <%s>, looking for <%s>\n",
+			password, CC->usersupp.password);
 		}
 	else {
 		p = (struct passwd *)getpwuid(CC->usersupp.USuid);
