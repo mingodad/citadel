@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.117  2001/03/20 01:33:55  ajc
+ * Added the (\NoInferiors) tag to all rooms listed in IMAP.  This made Mozilla
+   behave very nicely.
+
  Revision 573.116  2001/03/13 17:19:33  ajc
  * support (BODY[HEADER.FIELDS(BLAH BLAH BLAH)]) and HEADER.FIELDS.NOT
 
@@ -2462,4 +2466,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
