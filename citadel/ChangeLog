@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.26  2000/11/21 11:12:56  error
+  * domain.h: changed the HP/UX compatibility code to use defines from
+    typesize.h for integers of specific bit widths (needed for Solaris, etc)
+
  Revision 573.25  2000/11/12 04:20:49  ajc
  * Optimized server side input of message text
 
@@ -2134,4 +2138,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
