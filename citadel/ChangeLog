@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.74  2004/03/13 22:52:05  ajc
+ * Documented the GNET and SNET commands  :)
+
  Revision 614.73  2004/03/12 19:35:13  error
  * routines2.c: Fix two typos
 
@@ -5490,3 +5493,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -2089,6 +2089,18 @@ this.
 
 
 
+ GNET   (Get NETwork configuration for this room)
+ SNET   (Set NETwork configuration for this room)
+ 
+ These commands get/set the network configuration for the current room.  Aide
+or Room Aide privileges are required, otherwise an ERROR code is returned.
+If the command succeeds, LISTING_FOLLOWS or SEND_LISTING is returned.  The
+network configuration for a specific room includes neighbor nodes with whom
+the room is shared, and mailing list recipients.  The format of the network
+configuration is described in the file "netconfigs.txt".
+
+
+
  ASYN   (ASYNchronous message support)
 
  Negotiate the use of asynchronous, or unsolicited, protocol messages.  The
