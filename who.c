@@ -31,8 +31,8 @@
  */
 void whobbs(void)
 {
-	char buf[256], sess, user[256], room[256], host[256],
-		realroom[256], realhost[256];
+	char buf[SIZ], sess, user[SIZ], room[SIZ], host[SIZ],
+		realroom[SIZ], realhost[SIZ];
 
 	output_headers(7);
 
@@ -126,7 +126,7 @@ void whobbs(void)
 
 void terminate_session(void)
 {
-	char buf[256];
+	char buf[SIZ];
 
 	serv_printf("TERM %s", bstr("which_session"));
 	serv_gets(buf);
@@ -139,7 +139,7 @@ void terminate_session(void)
  */
 void edit_me(void)
 {
-	char buf[256];
+	char buf[SIZ];
 
 	if (!strcasecmp(bstr("sc"), "Change room name")) {
 		serv_printf("RCHG %s", bstr("fake_roomname"));

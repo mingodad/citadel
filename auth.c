@@ -28,7 +28,6 @@
 #include <signal.h>
 #include "webcit.h"
 
-
 char *axdefs[] =
 {
 	"Deleted",
@@ -45,7 +44,7 @@ char *axdefs[] =
  */
 void display_login(char *mesg)
 {
-	char buf[256];
+	char buf[SIZ];
 
 	output_headers(3);
 
@@ -84,7 +83,7 @@ void become_logged_in(char *user, char *pass, char *serv_response)
 
 void do_login(void)
 {
-	char buf[256];
+	char buf[SIZ];
 	int need_regi = 0;
 
 
@@ -159,7 +158,7 @@ void end_webcit_session(void) {
 
 void do_logout(void)
 {
-	char buf[256];
+	char buf[SIZ];
 
 	strcpy(WC->wc_username, "");
 	strcpy(WC->wc_password, "");
@@ -190,9 +189,9 @@ void do_logout(void)
  */
 void validate(void)
 {
-	char cmd[256];
-	char user[256];
-	char buf[256];
+	char cmd[SIZ];
+	char user[SIZ];
+	char buf[SIZ];
 	int a;
 
 	output_headers(1);
@@ -270,7 +269,7 @@ void validate(void)
  */
 void display_reg(int during_login)
 {
-	char buf[256];
+	char buf[SIZ];
 	int a;
 
 	output_headers(1);
@@ -341,7 +340,7 @@ void display_reg(int during_login)
  */
 void register_user(void)
 {
-	char buf[256];
+	char buf[SIZ];
 
 	if (strcmp(bstr("action"), "Register")) {
 		display_error("Cancelled.  Registration was not saved.");
@@ -378,7 +377,7 @@ void register_user(void)
  */
 void display_changepw(void)
 {
-	char buf[256];
+	char buf[SIZ];
 
 	output_headers(1);
 
@@ -410,7 +409,7 @@ void display_changepw(void)
  */
 void changepw(void)
 {
-	char buf[256];
+	char buf[SIZ];
 	char newpass1[32], newpass2[32];
 
 	if (strcmp(bstr("action"), "Change")) {

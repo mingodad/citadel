@@ -34,7 +34,7 @@
 void display_edit(char *description, char *check_cmd,
 		  char *read_cmd, char *save_cmd)
 {
-	char buf[256];
+	char buf[SIZ];
 
 	serv_puts(check_cmd);
 	serv_gets(buf);
@@ -76,7 +76,7 @@ void display_edit(char *description, char *check_cmd,
  */
 void save_edit(char *description, char *enter_cmd, int regoto)
 {
-	char buf[256];
+	char buf[SIZ];
 
 	if (strcmp(bstr("sc"), "Save")) {
 		output_headers(1);

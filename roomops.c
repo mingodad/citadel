@@ -28,7 +28,7 @@
 
 
 
-char floorlist[128][256];
+char floorlist[128][SIZ];
 
 
 /*
@@ -37,7 +37,7 @@ char floorlist[128][256];
 void load_floorlist(void)
 {
 	int a;
-	char buf[256];
+	char buf[SIZ];
 
 	for (a = 0; a < 128; ++a)
 		floorlist[a][0] = 0;
@@ -150,7 +150,7 @@ int rordercmp(struct roomlisting *r1, struct roomlisting *r2)
  */
 void listrms(char *variety)
 {
-	char buf[256];
+	char buf[SIZ];
 	int num_rooms = 0;
 
 	struct roomlisting *rl = NULL;
@@ -220,7 +220,7 @@ void listrms(char *variety)
 void list_all_rooms_by_floor(void)
 {
 	int a;
-	char buf[256];
+	char buf[SIZ];
 
 	load_floorlist();
 
@@ -287,7 +287,7 @@ void zapped_list(void)
  */
 void readinfo(void)
 {
-	char buf[256];
+	char buf[SIZ];
 
 	serv_puts("RINF");
 	serv_gets(buf);
@@ -307,7 +307,7 @@ void readinfo(void)
  * another room.
  */
 void embed_room_graphic(void) {
-	char buf[256];
+	char buf[SIZ];
 
 	serv_puts("OIMG _roompic_");
 	serv_gets(buf);
@@ -339,7 +339,7 @@ void embed_newmail_button(void) {
 
 
 void embed_room_banner(char *got) {
-	char fakegot[256];
+	char fakegot[SIZ];
 
 	/* We need to have the information returned by a GOTO server command.
 	 * If it isn't supplied, we fake it by issuing our own GOTO.
@@ -377,7 +377,7 @@ void embed_room_banner(char *got) {
  */
 void gotoroom(char *gname, int display_name)
 {
-	char buf[256];
+	char buf[SIZ];
 	static long ls = (-1L);
 
 
@@ -486,7 +486,7 @@ char *pop_march(int desired_floor)
  */
 void gotonext(void)
 {
-	char buf[256];
+	char buf[SIZ];
 	struct march *mptr, *mptr2;
 	char next_room[32];
 
@@ -556,7 +556,7 @@ void smart_goto(char *next_room) {
  */
 void slrp_highest(void)
 {
-	char buf[256];
+	char buf[SIZ];
 
 	/* set pointer */
 	serv_puts("SLRP HIGHEST");
@@ -573,7 +573,7 @@ void slrp_highest(void)
  */
 void ungoto(void)
 {
-	char buf[256];
+	char buf[SIZ];
 
 	if (!strcmp(WC->ugname, "")) {
 		smart_goto(WC->wc_roomname);
@@ -599,7 +599,7 @@ void ungoto(void)
  */
 void display_editroom(void)
 {
-	char buf[256];
+	char buf[SIZ];
 	char er_name[20];
 	char er_password[10];
 	char er_dirname[15];
@@ -781,7 +781,7 @@ void display_editroom(void)
  */
 void editroom(void)
 {
-	char buf[256];
+	char buf[SIZ];
 	char er_name[20];
 	char er_password[10];
 	char er_dirname[15];
@@ -927,7 +927,7 @@ void editroom(void)
  */
 void display_whok(void)
 {
-        char buf[256], room[256], username[256];
+        char buf[SIZ], room[SIZ], username[SIZ];
 
         serv_puts("GETR");
         serv_gets(buf);
@@ -1003,7 +1003,7 @@ void display_whok(void)
 void display_entroom(void)
 {
 	int i;
-	char buf[256];
+	char buf[SIZ];
 
 	serv_puts("CRE8 0");
 	serv_gets(buf);
@@ -1074,7 +1074,7 @@ void display_entroom(void)
  */
 void entroom(void)
 {
-	char buf[256];
+	char buf[SIZ];
 	char er_name[20];
 	char er_type[20];
 	char er_password[10];
@@ -1156,7 +1156,7 @@ void display_private(char *rname, int req_pass)
 void goto_private(void)
 {
 	char hold_rm[32];
-	char buf[256];
+	char buf[SIZ];
 
 	if (strcasecmp(bstr("sc"), "OK")) {
 		display_main_menu();
@@ -1214,8 +1214,8 @@ void display_zap(void)
  */
 void zap(void)
 {
-	char buf[256];
-	char final_destination[256];
+	char buf[SIZ];
+	char final_destination[SIZ];
 
 	/* If the forget-room routine fails for any reason, we fall back
 	 * to the current room; otherwise, we go to the Lobby
@@ -1248,7 +1248,7 @@ void zap(void)
  */
 void confirm_delete_room(void)
 {
-	char buf[256];
+	char buf[SIZ];
 
 	serv_puts("KILL 0");
 	serv_gets(buf);
@@ -1282,8 +1282,8 @@ void confirm_delete_room(void)
  */
 void delete_room(void)
 {
-	char buf[256];
-	char sc[256];
+	char buf[SIZ];
+	char sc[SIZ];
 
 	strcpy(sc, bstr("sc"));
 

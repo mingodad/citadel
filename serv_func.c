@@ -36,7 +36,7 @@ struct serv_info serv_info;
  */
 void get_serv_info(char *browser_host, char *user_agent)
 {
-	char buf[256];
+	char buf[SIZ];
 	int a;
 
 	serv_printf("IDEN %d|%d|%d|%s|%s",
@@ -100,14 +100,14 @@ void fmout(FILE * fp)
 
 	int intext = 0;
 	int bq = 0;
-	char buf[256];
+	char buf[SIZ];
 
 	wprintf("<DIV ALIGN=JUSTIFY>\n");
 	while (1) {
 		if (fp == NULL)
 			serv_gets(buf);
 		if (fp != NULL) {
-			if (fgets(buf, 256, fp) == NULL)
+			if (fgets(buf, SIZ, fp) == NULL)
 				strcpy(buf, "000");
 			buf[strlen(buf) - 1] = 0;
 		}
@@ -153,7 +153,7 @@ void fmout(FILE * fp)
  */
 void text_to_server(char *ptr)
 {
-	char buf[256];
+	char buf[SIZ];
 	int ch, a, pos;
 
 	pos = 0;
@@ -197,7 +197,7 @@ void text_to_server(char *ptr)
  */
 void server_to_text()
 {
-	char buf[256];
+	char buf[SIZ];
 
 	int count = 0;
 

@@ -49,68 +49,103 @@ char *safestrncpy(char *dest, const char *src, size_t n)
 }
 
 
+
 /*
- * num_parms()  -  discover number of parameters...
+ * num_tokens()  -  discover number of parameters/tokens in a string
  */
-int num_parms(char *source)
-{
+int num_tokens(char *source, char tok) {
 	int a;
 	int count = 1;
 
-	for (a = 0; a < strlen(source); ++a)
-		if (source[a] == '|')
-			++count;
-	return (count);
+	if (source == NULL) return(0);
+	for (a=0; a<strlen(source); ++a) {
+		if (source[a]==tok) ++count;
+	}
+	return(count);
 }
 
 /*
- * extract()  -  extract a parameter from a series of "|" separated...
+ * extract_token()  -  a smarter string tokenizer
  */
-void extract(char *dest, char *source, int parmnum)
+void extract_token(char *dest, char *source, int parmnum, char separator) 
 {
-	char buf[256];
-	int count = 0;
-	int n;
+	int i;
+	int len;
+	int curr_parm;
 
-	if (strlen(source) == 0) {
-		strcpy(dest, "");
-		return;
-	}
-	n = num_parms(source);
+	strcpy(dest,"");
+	len = 0;
+	curr_parm = 0;
 
-	if (parmnum >= n) {
-		strcpy(dest, "");
+	if (strlen(source)==0) {
 		return;
+		}
+
+	for (i=0; i<strlen(source); ++i) {
+		if (source[i]==separator) {
+			++curr_parm;
+		}
+		else if (curr_parm == parmnum) {
+			dest[len+1] = 0;
+			dest[len++] = source[i];
+		}
 	}
-	strcpy(buf, source);
-	if ((parmnum == 0) && (n == 1)) {
-		strcpy(dest, buf);
-		for (n = 0; n < strlen(dest); ++n)
-			if (dest[n] == '|')
-				dest[n] = 0;
-		return;
-	}
-	while (count++ < parmnum)
-		do {
-			strcpy(buf, &buf[1]);
-		} while ((strlen(buf) > 0) && (buf[0] != '|'));
-	if (buf[0] == '|')
-		strcpy(buf, &buf[1]);
-	for (count = 0; count < strlen(buf); ++count)
-		if (buf[count] == '|')
-			buf[count] = 0;
-	strcpy(dest, buf);
 }
+
+
+
+/*
+ * remove_token()  -  a tokenizer that kills, maims, and destroys
+ */
+void remove_token(char *source, int parmnum, char separator)
+{
+	int i;
+	int len;
+	int curr_parm;
+	int start, end;
+
+	len = 0;
+	curr_parm = 0;
+	start = (-1);
+	end = (-1);
+
+	if (strlen(source)==0) {
+		return;
+		}
+
+	for (i=0; i<strlen(source); ++i) {
+		if ( (start < 0) && (curr_parm == parmnum) ) {
+			start = i;
+		}
+
+		if ( (end < 0) && (curr_parm == (parmnum+1)) ) {
+			end = i;
+		}
+
+		if (source[i]==separator) {
+			++curr_parm;
+		}
+	}
+
+	if (end < 0) end = strlen(source);
+
+	printf("%d .. %d\n", start, end);
+
+	strcpy(&source[start], &source[end]);
+}
+
+
+
 
 /*
  * extract_int()  -  extract an int parm w/o supplying a buffer
  */
 int extract_int(char *source, int parmnum)
 {
-	char buf[256];
-
-	extract(buf, source, parmnum);
-	return (atoi(buf));
+	char buf[SIZ];
+	
+	extract_token(buf, source, parmnum, '|');
+	return(atoi(buf));
 }
 
 /*
@@ -118,11 +153,24 @@ int extract_int(char *source, int parmnum)
  */
 long extract_long(char *source, long int parmnum)
 {
-	char buf[256];
-
-	extract(buf, source, parmnum);
-	return (atol(buf));
+	char buf[SIZ];
+	
+	extract_token(buf, source, parmnum, '|');
+	return(atol(buf));
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*

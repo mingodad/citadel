@@ -95,7 +95,7 @@ void svcallback(char *keyname, void (*fcn_ptr)() )
  * back end for print_value_of() ... does a server command
  */
 void pvo_do_cmd(char *servcmd) {
-	char buf[256];
+	char buf[SIZ];
 
 	serv_puts(servcmd);
 	serv_gets(buf);

@@ -22,7 +22,7 @@
 
 void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 {
-	char buf[256];
+	char buf[SIZ];
 
 	serv_puts(check_cmd);
 	serv_gets(buf);
@@ -57,7 +57,7 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 
 void do_graphics_upload(char *upl_cmd)
 {
-	char buf[256];
+	char buf[SIZ];
 	int bytes_remaining;
 	int pos = 0;
 	int thisblock;

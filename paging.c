@@ -27,7 +27,7 @@
  */
 void display_page(void)
 {
-	char recp[256];
+	char recp[SIZ];
 
 	strcpy(recp, bstr("recp"));
 
@@ -69,9 +69,9 @@ void display_page(void)
  */
 void page_user(void)
 {
-	char recp[256];
-	char sc[256];
-	char buf[256];
+	char recp[SIZ];
+	char sc[SIZ];
+	char buf[SIZ];
 
 	output_headers(1);
 
@@ -135,8 +135,8 @@ void do_chat(void)
  */
 void page_popup(void)
 {
-	char buf[256];
-	char pagefrom[256];
+	char buf[SIZ];
+	char pagefrom[SIZ];
 
 	/* suppress express message check, do headers but no fake frames */
 	output_headers(0x08 | 0x03);

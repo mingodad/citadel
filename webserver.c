@@ -240,7 +240,7 @@ int main(int argc, char **argv)
 			freopen(tracefile, "r", stdin);
 			break;
 		case 'c':
-			server_cookie = malloc(256);
+			server_cookie = malloc(SIZ);
 			if (server_cookie != NULL) {
 				strcpy(server_cookie, "Set-cookie: wcserver=");
 				if (gethostname(

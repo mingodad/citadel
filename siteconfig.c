@@ -31,7 +31,7 @@
 
 void display_siteconfig(void)
 {
-	char buf[256];
+	char buf[SIZ];
 	int i;
 
 	output_headers(1);
@@ -208,7 +208,7 @@ void display_siteconfig(void)
 
 void siteconfig(void)
 {
-	char buf[256];
+	char buf[SIZ];
 
 	if (strcasecmp(bstr("sc"), "OK")) {
 		display_main_menu();

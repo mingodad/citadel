@@ -1,4 +1,9 @@
 $Log$
+Revision 301.9  2001/11/18 01:41:09  ajc
+* Brought over the newer string tokenizer from Citadel
+* Upgraded all the generic string buffers to 4096 bytes, using the Citadel
+  server's convention of #define SIZ 4096
+
 Revision 301.8  2001/11/14 03:20:22  ajc
 * Add some more of the newer config settings to the site config screen
 
@@ -631,4 +636,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
