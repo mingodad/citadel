@@ -12,7 +12,6 @@
 /*
  * FIXME
  * Don't allow polls during network processing
- * Use table isn't saving properly across sessions
  */
 
 #include "sysdep.h"
@@ -159,9 +158,12 @@ int network_usetable(int operation, struct CtdlMessage *msg) {
 				stlen = stlen + strlen(uptr->message_id) + 20;
 			}
 			serialized_table = mallok(stlen);
+			memset(serialized_table, 0, stlen);
 
 			while (ut != NULL) {
-				if (serialized_table != NULL) {
+				if ( (serialized_table != NULL) 
+				   && ( (ut->timestamp - time(NULL)) <
+				      USETABLE_RETAIN) ) {
 					sprintf(&serialized_table[strlen(
 					  serialized_table)], "%s|%ld\n",
 					    ut->message_id,
@@ -825,6 +827,7 @@ void network_process_buffer(char *buffer, long size) {
 	char *oldpath = NULL;
 	char filename[SIZ];
 	FILE *fp;
+	char buf[SIZ];
 
 	/* Set default target room to trash */
 	strcpy(target_room, TWITROOM);
@@ -898,7 +901,9 @@ void network_process_buffer(char *buffer, long size) {
 	 * Check to see if we already have a copy of this message
 	 */
 	if (network_usetable(UT_INSERT, msg) != 0) {
-		/* FIXME - post a msg in Aide> telling us what happened */
+		sprintf(buf, "Loopzapper rejected message <%s>\n",
+			msg->cm_fields['I']);
+		aide_message(buf);
 		CtdlFreeMessage(msg);
 		msg = NULL;
 		return;

@@ -1,4 +1,8 @@
  $Log$
+ Revision 580.57  2001/10/15 19:50:50  ajc
+ * Fixed a bug in the loopzapper that was corrupting the use table saved copy.
+ * Post notification in Aide> when the loopzapper catches a message.
+
  Revision 580.56  2001/10/12 22:41:11  ajc
  * Wrote the rest of the use table code.  Finished except for a bug.
 
@@ -2791,4 +2795,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
