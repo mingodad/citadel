@@ -1,4 +1,7 @@
 $Log$
+Revision 400.19  2002/09/20 20:28:08  ajc
+* Smooth transition between "list tasks" & "edit task" screens
+
 Revision 400.18  2002/09/20 03:54:44  ajc
 * Display the "Tasks" view as a bulleted list with each task clickable
 * Clicking brings up an (unfinished) "edit task" screen
@@ -1001,3 +1004,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

@@ -1240,6 +1240,8 @@ void session_loop(struct httprequest *req, int gzip)
 #ifdef HAVE_ICAL_H
 	} else if (!strcasecmp(action, "display_edit_task")) {
 		display_edit_task();
+	} else if (!strcasecmp(action, "save_task")) {
+		save_task();
 #endif
 	} else if (!strcasecmp(action, "summary")) {
 		summary();

@@ -58,6 +58,8 @@ void display_task(long msgnum) {
 #else /* HAVE_ICAL_H */
 
 
+/******   End of handler stubs.  Everything below this line is real.   ******/
+
 
 /*
  * Process a single calendar component.
@@ -245,14 +247,14 @@ void display_individual_task(icalcomponent *vtodo, long msgnum) {
 
 	p = icalcomponent_get_first_property(vtodo, ICAL_SUMMARY_PROPERTY);
 	wprintf("<LI><A HREF=\"/display_edit_task?msgnum=%ld\">", msgnum);
-	if (p != NULL) escputs(icalproperty_get_comment(p));
+	if (p != NULL) escputs((char *)icalproperty_get_comment(p));
 	wprintf("</A>\n");
 	icalproperty_free(p);
 }
 
 
 /*
- * Display/edit a task by itself FIXME
+ * Display a task by itself (for editing)
  */
 void display_edit_individual_task(icalcomponent *vtodo, long msgnum) {
 	icalproperty *p;
@@ -264,7 +266,7 @@ void display_edit_individual_task(icalcomponent *vtodo, long msgnum) {
 		"</FONT></TD></TR></TABLE><BR>\n"
 	);
 
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/edit_task\">\n");
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/save_task\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n",
 		msgnum);
 
@@ -272,18 +274,55 @@ void display_edit_individual_task(icalcomponent *vtodo, long msgnum) {
 		"<INPUT TYPE=\"text\" NAME=\"summary\" "
 		"MAXLENGTH=\"64\" SIZE=\"64\" VALUE=\"");
 	p = icalcomponent_get_first_property(vtodo, ICAL_SUMMARY_PROPERTY);
-	if (p != NULL) escputs(icalproperty_get_comment(p));
+	if (p != NULL) escputs((char *)icalproperty_get_comment(p));
 	icalproperty_free(p);
-	wprintf("\">\n");
+	wprintf("\"><BR>\n");
+
+	wprintf("Start date: FIXME <BR>\n");
+
+	wprintf("Due date: FIXME <BR>\n");
+
+	wprintf("<CENTER><TEXTAREA NAME=\"msgtext\" wrap=soft "
+		"ROWS=10 COLS=80 WIDTH=80>\n"
+	);
+	p = icalcomponent_get_first_property(vtodo, ICAL_DESCRIPTION_PROPERTY);
+	if (p != NULL) escputs((char *)icalproperty_get_comment(p));
+	icalproperty_free(p);
+	wprintf("</TEXTAREA><BR>\n");
+
+        wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save\">"
+		"&nbsp;&nbsp;"
+        	"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">\n"
+		"</CENTER>\n"
+	);
 
 	wprintf("</FORM>\n");
 
-	wprintf("<BR><BR>\n"
-		"<A HREF=\"/readfwd\">"
-		"Back to task list</A>\n"
-	);
 	wDumpContent(1);
 }
+
+/*
+ * Save an edited task
+ */
+void edit_individual_task(icalcomponent *vtodo, long msgnum) {
+
+	if (!strcasecmp(bstr("sc"), "Save")) {
+
+		/* FIXME
+			1. Replace property values with ones from the form
+			2. Serialize the task
+			3. Make a message out of it
+			4. Delete the existing message (msgnum)
+			5. Save the new message
+		*/
+
+	}
+
+	/* Go back to the task list */
+	readloop("readfwd");
+}
+
+
 
 /*
  * Code common to all display handlers.  Given a message number and a MIME
@@ -367,6 +406,15 @@ void display_edit_task(void) {
 	display_using_handler(msgnum, "text/calendar",
 				ICAL_VTODO_COMPONENT,
 				display_edit_individual_task);
+}
+
+void save_task(void) {
+	long msgnum = 0L;
+
+	msgnum = atol(bstr("msgnum"));
+	display_using_handler(msgnum, "text/calendar",
+				ICAL_VTODO_COMPONENT,
+				edit_individual_task);
 }
 
 #endif /* HAVE_ICAL_H */
