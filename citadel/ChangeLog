@@ -1,4 +1,9 @@
  $Log$
+ Revision 614.75  2004/03/13 23:26:10  ajc
+ * imap_fetch.c: don't fetch the message from disk at all for UID and FLAGS
+   fetch items.  (It's rare, but sometimes IMAP optimizations are actually
+   possible, despite Mark DIE DIE DIE Crispin's brain-dead design!)
+
  Revision 614.74  2004/03/13 22:52:05  ajc
  * Documented the GNET and SNET commands  :)
 
@@ -5493,4 +5498,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

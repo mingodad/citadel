@@ -869,7 +869,18 @@ void imap_do_fetch_msg(int seq,
 
 	for (i=0; i<num_items; ++i) {
 
-		if (!strcasecmp(itemlist[i], "RFC822")) {
+		/* Fetchable without going to the message store at all */
+		if (!strcasecmp(itemlist[i], "UID")) {
+			imap_fetch_uid(seq);
+		}
+		else if (!strcasecmp(itemlist[i], "FLAGS")) {
+			imap_fetch_flags(seq-1);
+		}
+
+		/* Potentially fetchable from cache, if the client requests
+		 * stuff from the same message several times in a row.
+		 */
+		else if (!strcasecmp(itemlist[i], "RFC822")) {
 			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i]);
 		}
 		else if (!strcasecmp(itemlist[i], "RFC822.HEADER")) {
@@ -882,7 +893,8 @@ void imap_do_fetch_msg(int seq,
 			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i]);
 		}
 
-		/* Not an RFC822.* fetch item?  Load the message into memory. */
+		/* Otherwise, load the message into memory.
+		 */
 		msg = CtdlFetchMessage(IMAP->msgids[seq-1]);
 		if (!strncasecmp(itemlist[i], "BODY[", 5)) {
 			imap_fetch_body(IMAP->msgids[seq-1], itemlist[i],
@@ -899,14 +911,8 @@ void imap_do_fetch_msg(int seq,
 		else if (!strcasecmp(itemlist[i], "ENVELOPE")) {
 			imap_fetch_envelope(IMAP->msgids[seq-1], msg);
 		}
-		else if (!strcasecmp(itemlist[i], "FLAGS")) {
-			imap_fetch_flags(seq-1);
-		}
 		else if (!strcasecmp(itemlist[i], "INTERNALDATE")) {
 			imap_fetch_internaldate(msg);
-		}
-		else if (!strcasecmp(itemlist[i], "UID")) {
-			imap_fetch_uid(seq);
 		}
 
 		if (i != num_items-1) cprintf(" ");
