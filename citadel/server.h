@@ -34,7 +34,6 @@ struct CitContext {
         char net_node[32];
 	THREAD mythread;
 	int client_socket;
-	char *ExpressMessages;
 	int cs_pid;			/* session ID */
 	char cs_room[ROOMNAMELEN];	/* current room */
 	time_t cs_lastupdt;		/* time of last update */
@@ -60,11 +59,12 @@ struct CitContext {
 	char dl_is_net;
 	char upload_type;
 
+	struct ExpressMessage *FirstExpressMessage;
+
 	char fake_username[32];		/* Fake username <bc>                */
 	char fake_postname[32];		/* Fake postname <bc>                */
 	char fake_hostname[25];		/* Name of the fake hostname <bc>    */
 	char fake_roomname[ROOMNAMELEN];/* Name of the fake room <bc>        */
-	char last_pager[32];		/* The username of the last pager    */
 
 	int FloorBeingSearched;		/* This is used by cmd_lrms() etc.   */
 	char desired_section[64];	/* This is used for MIME downloads   */
@@ -82,6 +82,19 @@ struct CitContext *MyContext(void);
 extern struct CitContext *ContextList;
 extern int ScheduledShutdown;
 extern struct CitControl CitControl;
+
+
+struct ExpressMessage {
+	struct ExpressMessage *next;
+	time_t timestamp;		/* When this message was sent */
+	unsigned flags;			/* Special instructions */
+	char sender[64];		/* Name of sending user */
+	char *text;			/* Message text (if applicable) */
+	};
+
+#define EM_BROADCAST	1		/* Broadcast message */
+#define EM_GO_AWAY	2		/* Server requests client log off */
+#define EM_CHAT		4		/* Server requests client enter chat */
 
 struct ChatLine {
 	struct ChatLine *next;

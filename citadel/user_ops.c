@@ -302,7 +302,6 @@ void session_startup(void) {
 	CC->fake_postname[0] = '\0';
 	CC->fake_hostname[0] = '\0';
 	CC->fake_roomname[0] = '\0';
-	CC->last_pager[0] = '\0';
 	time(&CC->usersupp.lastcall);
 
 	/* If this user's name is the name of the system administrator

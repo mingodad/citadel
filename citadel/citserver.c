@@ -105,11 +105,6 @@ void cleanup_stuff(void *arg)
 
 	syslog(LOG_NOTICE,"session %d ended", CC->cs_pid);
 	
-	/* Deallocate any unsent express messages */
-	begin_critical_section(S_SESSION_TABLE);
-	if (CC->ExpressMessages != NULL) phree(CC->ExpressMessages);
-	end_critical_section(S_SESSION_TABLE);
-
 	/* Deallocate any message list we might have in memory */
 	if (CC->msglist != NULL) phree(CC->msglist);
 
@@ -231,7 +226,7 @@ void cmd_uchg(char *newusername)
  * space otherwise.
  */
 char check_express(void) {
-	if (CC->ExpressMessages == NULL) {
+	if (CC->FirstExpressMessage == NULL) {
 		return(' ');
 		}
 	else {
@@ -685,7 +680,7 @@ void *context_loop(struct CitContext *con)
 	CC->download_fp = NULL;
 	CC->upload_fp = NULL;
 	CC->cs_pid = con->client_socket;	/* not necessarily portable */
-	CC->ExpressMessages = NULL;
+	CC->FirstExpressMessage = NULL;
 	CC->msglist = NULL;
 	CC->num_msgs = 0;
 	time(&CC->lastcmd);

@@ -7,3 +7,4 @@ void cmd_chat (char *argbuf);
 void cmd_pexp (char *argbuf); /* arg unused */
 char check_express (void);
 void cmd_sexp (char *argbuf);
+void delete_express_messages(void);

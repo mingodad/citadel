@@ -42,7 +42,7 @@ extern struct CitContext *ContextList;
 #define MODULE_NAME 	"Chat module"
 #define MODULE_AUTHOR	"Art Cancro"
 #define MODULE_EMAIL	"ajc@uncnsrd.mt-kisco.ny.us"
-#define MAJOR_VERSION	1
+#define MAJOR_VERSION	2
 #define MINOR_VERSION	0
 
 static struct DLModule_Info info =
@@ -59,6 +59,7 @@ struct DLModule_Info *Dynamic_Module_Init(void)
 	CtdlRegisterProtoHook(cmd_chat, "CHAT", "Begin real-time chat");
 	CtdlRegisterProtoHook(cmd_pexp, "PEXP", "Poll for express messages");
 	CtdlRegisterProtoHook(cmd_sexp, "SEXP", "Send an express message");
+	CtdlRegisterSessionHook(delete_express_messages, EVT_STOP);
 	return &info;
 }
 
@@ -337,28 +338,63 @@ void cmd_chat(char *argbuf)
 }
 
 
+
 /*
- * poll for express messages
+ * Delete any remaining express messages
+ */
+void delete_express_messages(void) {
+	struct ExpressMessage *ptr;
+
+	begin_critical_section(S_SESSION_TABLE);
+	while (CC->FirstExpressMessage != NULL) {
+		ptr = CC->FirstExpressMessage->next;
+		if (CC->FirstExpressMessage->text != NULL)
+			phree(CC->FirstExpressMessage->text);
+		phree(CC->FirstExpressMessage);
+		CC->FirstExpressMessage = ptr;
+		}
+	end_critical_section(S_SESSION_TABLE);
+	}
+
+
+
+
+/*
+ * Poll for express messages (OLD METHOD -- ***DEPRECATED ***)
  */
 void cmd_pexp(char *argbuf)
-{				/* arg unused */
-	char *ptr;
+{
+	struct ExpressMessage *ptr, *holdptr;
 
-	if (CC->ExpressMessages == NULL) {
+	if (CC->FirstExpressMessage == NULL) {
 		cprintf("%d No express messages waiting.\n", ERROR);
 		return;
 	}
 	begin_critical_section(S_SESSION_TABLE);
-	ptr = CC->ExpressMessages;
-	CC->ExpressMessages = NULL;
+	ptr = CC->FirstExpressMessage;
+	CC->FirstExpressMessage = NULL;
 	end_critical_section(S_SESSION_TABLE);
 
-	cprintf("%d Express msgs:\n%s", LISTING_FOLLOWS, ptr);
-	if (ptr[strlen(ptr)] != '\n')
-		cprintf("\n");
-	cprintf("000\n");
+	cprintf("%d Express msgs:\n", LISTING_FOLLOWS);
+	while (ptr != NULL) {
+		if (ptr->flags && EM_BROADCAST)
+			cprintf("Broadcast message ");
+		else if (ptr->flags && EM_CHAT)
+			cprintf("Chat request ");
+		else if (ptr->flags && EM_GO_AWAY)
+			cprintf("Please logoff now, as requested ");
+		else
+			cprintf("Message ");
+		cprintf("from %s:\n", ptr->sender);
+		if (ptr->text != NULL)
+			cprintf("%s\n\n", ptr->text);
 
-	phree(ptr);
+		holdptr = ptr->next;
+		if (ptr->text != NULL) phree(ptr->text);
+		phree(ptr);
+		ptr = holdptr;
+	}
+	cprintf("000\n");
 }
 
 
@@ -371,9 +407,8 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 {
 	int message_sent = 0;
 	struct CitContext *ccptr;
-	char *msgptr;
+	struct ExpressMessage *newmsg, *findend;
 	char *un;
-	int newlen;
 	FILE *fp;
 
 	/* find the target user's context and append the message */
@@ -388,23 +423,23 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 		if ((!strcasecmp(un, x_user))
 		    || (!strcasecmp(x_user, "broadcast"))) {
 			if (strlen(x_msg) > 0) {
-				strcpy(ccptr->last_pager, CC->curr_user);
-				if (ccptr->ExpressMessages == NULL) {
-					newlen = strlen(x_msg) + 80;
-					msgptr = mallok(newlen);
-					memset(msgptr, 0, newlen);
-				} else {
-					newlen = (strlen(ccptr->ExpressMessages)
-						  + strlen(x_msg) + 80);
-					msgptr = reallok(
-					 ccptr->ExpressMessages, newlen);
-				}
-				if (msgptr != NULL) {
-					sprintf(&msgptr[strlen(msgptr)],
-						"%s from %s:\n %s\n",
-						((!strcasecmp(x_user, "broadcast")) ? "Broadcast message" : "Message"),
-						lun, x_msg);
-					ccptr->ExpressMessages = msgptr;
+				newmsg = (struct ExpressMessage *)
+					mallok(sizeof (struct ExpressMessage));
+				memset(newmsg, 0,
+					sizeof (struct ExpressMessage));
+				strcpy(newmsg->sender, un);
+				if (!strcasecmp(x_user, "broadcast"))
+					newmsg->flags |= EM_BROADCAST;
+				newmsg->text = mallok(strlen(x_msg)+2);
+				strcpy(newmsg->text, x_msg);
+
+				if (ccptr->FirstExpressMessage == NULL)
+					ccptr->FirstExpressMessage = newmsg;
+				else {
+					findend = ccptr->FirstExpressMessage;
+					while (findend->next != NULL)
+						findend = findend->next;
+					findend->next = newmsg;
 				}
 			}
 			++message_sent;
@@ -452,9 +487,6 @@ void cmd_sexp(char *argbuf)
 
 	extract(x_user, argbuf, 0);
 
-	if (!strcmp(x_user, ".")) {
-		strcpy(x_user, CC->last_pager);
-	}
 	extract(x_msg, argbuf, 1);
 
 	if (!x_user[0]) {
