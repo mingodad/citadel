@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.113  2002/02/15 03:40:06  ajc
+ * Stu's changes (which he checked in without making any ChangeLog comments,
+   bad Stu!) didn't build properly without curses.  Added #ifdef's.
+
  Revision 590.112  2002/02/13 22:15:10  ajc
  * That was stupid.
 
@@ -3340,4 +3344,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

@@ -276,9 +276,11 @@ int scr_getc(void)
 #endif
 	return getchar();
 }
+
 int scr_blockread(void)
   {
-    int a;
+    int a = 0;
+#ifdef HAVE_CURSES_H
     wtimeout(mainwindow, S_KEEPALIVE); 
     while (1)
       {
@@ -288,6 +290,7 @@ int scr_blockread(void)
           break;
         /* a = scr_getc(); */
       }
+#endif
     return a;
   }
 
