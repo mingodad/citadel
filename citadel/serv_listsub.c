@@ -184,9 +184,10 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
 	 * Make sure there's actually a subscription there to remove
 	 */
 	begin_critical_section(S_NETCONFIGS);
-	ncfp = fopen(filename, "a");
+	ncfp = fopen(filename, "r");
 	if (ncfp != NULL) {
 		while (fgets(buf, sizeof buf, ncfp) != NULL) {
+			buf[strlen(buf)-1] = 0;
 			extract(scancmd, buf, 0);
 			extract(scanemail, buf, 1);
 			if ((!strcasecmp(scancmd, "listrecp"))
@@ -201,7 +202,7 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
 	end_critical_section(S_NETCONFIGS);
 
 	if (found_sub == 0) {
-		cprintf("%d <%s> is not subscribed to '%s'.\n",
+		cprintf("%d '%s' is not subscribed to '%s'.\n",
 			ERROR+NO_SUCH_USER,
 			email, qrbuf.QRname);
 		return;
