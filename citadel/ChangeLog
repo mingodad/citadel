@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.22  2002/10/08 09:44:52  error
+ * Build environment:  cvs ignore .diff/.patch files
+
  Revision 601.21  2002/10/07 18:59:37  ajc
  * Build fixes for Solaris box without OpenSSL installed
 
@@ -4058,4 +4061,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
