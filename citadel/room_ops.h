@@ -42,3 +42,4 @@ void cmd_lflr (void);
 void cmd_cflr (char *argbuf);
 void cmd_kflr (char *argbuf);
 void cmd_eflr (char *argbuf);
+void ForEachRoom(void (*CallBack)(struct quickroom *EachRoom));

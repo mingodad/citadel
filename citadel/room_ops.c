@@ -226,6 +226,26 @@ void lputfloor(struct floor *flbuf, int floor_num)
 	}
 
 
+/* 
+ *  Traverse the room file...
+ */
+void ForEachRoom(void (*CallBack)(struct quickroom *EachRoom)) {
+	struct quickroom qrbuf;
+	struct cdbdata *cdbqr;
+
+	cdb_rewind(CDB_QUICKROOM);
+
+	while(cdbqr = cdb_next_item(CDB_QUICKROOM), cdbqr != NULL) {
+		bzero(&qrbuf, sizeof(struct quickroom));
+		memcpy(&qrbuf, cdbqr->ptr,
+			( (cdbqr->len > sizeof(struct quickroom)) ?
+			sizeof(struct quickroom) : cdbqr->len) );
+		cdb_free(cdbqr);
+		(*CallBack)(&qrbuf);
+		}
+	}
+
+
 
 /*
  * get_msglist()  -  retrieve room message pointers
