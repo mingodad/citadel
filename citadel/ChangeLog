@@ -1,4 +1,8 @@
  $Log$
+ Revision 630.14  2005/02/05 22:56:31  ajc
+ * More reliable handling of conversion of vCard UID to Citadel Extended ID
+   (necessary for GroupDAV URL's to be generated properly in WebCit)
+
  Revision 630.13  2005/02/05 04:13:34  ajc
  * msgbase.c: replication checks for Exclusive-ID no longer cause a save
    operation to fail when the existing message is newer.  This was causing
@@ -6352,3 +6356,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
