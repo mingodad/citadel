@@ -3,14 +3,32 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include "sysdep.h"
+
 #ifdef HAVE_OPENSSL
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/rand.h>
 #endif
+
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
+
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
+
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
+
 #include <stdio.h>
 #include "server.h"
 #include "serv_crypto.h"

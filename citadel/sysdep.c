@@ -478,14 +478,6 @@ void client_write(char *buf, int nbytes)
 	int retval;
 	int sock;
 
-
-#ifdef HAVE_OPENSSL
-	if (CC->redirect_ssl) {
-		client_write_ssl(buf, nbytes);
-		return;
-	}
-#endif
-
 	if (CC->redirect_fp != NULL) {
 		fwrite(buf, nbytes, 1, CC->redirect_fp);
 		return;
@@ -497,6 +489,13 @@ void client_write(char *buf, int nbytes)
 	else {
 		sock = CC->client_socket;
 	}
+
+#ifdef HAVE_OPENSSL
+	if (CC->redirect_ssl) {
+		client_write_ssl(buf, nbytes);
+		return;
+	}
+#endif
 
 	while (bytes_written < nbytes) {
 		retval = write(sock, &buf[bytes_written],
