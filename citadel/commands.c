@@ -84,6 +84,27 @@ int enable_color = 0;			/* nonzero for ANSI color */
 
 
 /*
+ * Check to see if we need to pause at the end of a screen.
+ * If we do, we have to disable server keepalives during the pause because
+ * we are probably in the middle of a server operation and the NOOP command
+ * would confuse everything.
+ */
+int checkpagin(int lp, int pagin, int height)
+{
+	if (!pagin) return(0);
+	if (lp>=(height-1)) {
+		set_keepalives(KA_NO);
+		hit_any_key();
+		set_keepalives(KA_YES);
+		return(0);
+		}
+	return(lp);
+	}
+
+
+
+
+/*
  * pprintf()  ...   paginated version of printf()
  */
 void pprintf(const char *format, ...) {   

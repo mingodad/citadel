@@ -575,18 +575,18 @@ void list_bio(void)
 	serv_puts("LBIO");
 	serv_gets(buf);
 	if (buf[0] != '1') {
-		printf("%s\n", &buf[4]);
+		pprintf("%s\n", &buf[4]);
 		return;
 	}
 	while (serv_gets(buf), strcmp(buf, "000")) {
 		if ((pos + strlen(buf) + 5) > screenwidth) {
-			printf("\n");
+			pprintf("\n");
 			pos = 1;
 		}
-		printf("%s, ", buf);
+		pprintf("%s, ", buf);
 		pos = pos + strlen(buf) + 2;
 	}
-	printf("%c%c  \n\n", 8, 8);
+	pprintf("%c%c  \n\n", 8, 8);
 }
 
 
@@ -600,7 +600,7 @@ void read_bio(void)
 
 	do {
 		newprompt("Read bio for who ('?' for list) : ", who, 25);
-		printf("\n");
+		pprintf("\n");
 		if (!strcmp(who, "?"))
 			list_bio();
 	} while (!strcmp(who, "?"));
@@ -608,11 +608,11 @@ void read_bio(void)
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '1') {
-		printf("%s\n", &buf[4]);
+		pprintf("%s\n", &buf[4]);
 		return;
 	}
 	while (serv_gets(buf), strcmp(buf, "000")) {
-		printf("%s\n", buf);
+		pprintf("%s\n", buf);
 	}
 }
 

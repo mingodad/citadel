@@ -1,4 +1,9 @@
  $Log$
+ Revision 570.18  2000/04/10 01:47:22  ajc
+ * More paginator changes.  Shuffled code around, added pagination to a bunch
+   of other functions, and replaced the old, cumbersome pagination with the
+   new, easy, API-based one in everything except message output.
+
  Revision 570.17  2000/04/09 17:51:18  ajc
  * Added pprintf() (paginated version of printf) to the client-side API.  Now
    any client side function can be paginated simply by changing all of the
@@ -1841,3 +1846,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

@@ -41,7 +41,6 @@ void progress(long int curr, long int cmax);
 int pattern(char *search, char *patn);
 int file_checksum(char *filename);
 int nukedir(char *dirname);
-int checkpagin(int lp, int pagin, int height); 
 
 extern unsigned room_flags;
 extern char room_name[];
@@ -63,8 +62,6 @@ extern long uglsn;
 extern char ugname[];
 
 extern char floorlist[128][256];
-
-int knlinecount;
 
 
 void load_floorlist(void) {
@@ -105,12 +102,7 @@ void room_tree_list(struct roomlisting *rp) {
 		if ((c + strlen(rmname) + 4) > screenwidth) {
 
 			/* line break, check the paginator */
-			printf("\n");
-			knlinecount = knlinecount + 1;
-			knlinecount = checkpagin(knlinecount,
-				    ((userflags & US_PAGINATOR) ? 1 : 0),
-					       screenheight);
-
+			pprintf("\n");
 			c = 1;
 			}
                	if (f & QR_MAILBOX) {
@@ -122,11 +114,11 @@ void room_tree_list(struct roomlisting *rp) {
 		else {
 			color(DIM_WHITE);
 			}
-		printf("%s",rmname);
-		if ((f & QR_DIRECTORY) && (f & QR_NETWORK)) printf("}  ");
-		else if (f & QR_DIRECTORY) printf("]  ");
-		else if (f & QR_NETWORK) printf(")  ");
-		else printf(">  ");
+		pprintf("%s",rmname);
+		if ((f & QR_DIRECTORY) && (f & QR_NETWORK)) pprintf("}  ");
+		else if (f & QR_DIRECTORY) pprintf("]  ");
+		else if (f & QR_NETWORK) pprintf(")  ");
+		else pprintf(">  ");
 		c = c + strlen(rmname) + 3;
 		}
 
@@ -220,10 +212,10 @@ void list_other_floors(void) {
 	c = 1;
 	for (a=0; a<128; ++a) if ((strlen(floorlist[a])>0)&&(a!=curr_floor)) {
 		if ((c + strlen(floorlist[a]) + 4) > screenwidth) {
-			printf("\n");
+			pprintf("\n");
 			c = 1;
 			}
-		printf("%s:  ",floorlist[a]);
+		pprintf("%s:  ",floorlist[a]);
 		c = c + strlen(floorlist[a]) + 3;
 		}
 	}
@@ -239,51 +231,41 @@ void knrooms(int kn_floor_mode)
 	int a;
 
 	load_floorlist();
-	knlinecount = 0;
 
 	if (kn_floor_mode == 0) {
 		color(BRIGHT_CYAN);
-		printf("\n   Rooms with unread messages:\n");
-		knlinecount = knlinecount + 2;
+		pprintf("\n   Rooms with unread messages:\n");
 		listrms("LKRN");
 		color(BRIGHT_CYAN);
-		printf("\n\n   No unseen messages in:\n");
-		knlinecount = knlinecount + 3;
+		pprintf("\n\n   No unseen messages in:\n");
 		listrms("LKRO");
-		printf("\n");
-		knlinecount = knlinecount + 1;
+		pprintf("\n");
 		}
 
 	if (kn_floor_mode == 1) {
 		color(BRIGHT_CYAN);
-		printf("\n   Rooms with unread messages on %s:\n",
+		pprintf("\n   Rooms with unread messages on %s:\n",
 			floorlist[(int)curr_floor]);
-		knlinecount = knlinecount + 2;
-		sprintf(buf,"LKRN %d",curr_floor);
+		sprintf(buf,"LKRN %d", curr_floor);
 		listrms(buf);
 		color(BRIGHT_CYAN);
-		printf("\n\n   Rooms with no new messages on %s:\n",
+		pprintf("\n\n   Rooms with no new messages on %s:\n",
 			floorlist[(int)curr_floor]);
-		knlinecount = knlinecount + 3;
 		sprintf(buf,"LKRO %d",curr_floor);
 		listrms(buf);
 		color(BRIGHT_CYAN);
-		printf("\n\n   Other floors:\n");
-		knlinecount = knlinecount + 3;
+		pprintf("\n\n   Other floors:\n");
 		list_other_floors();
-		printf("\n");
-		knlinecount = knlinecount + 1;
+		pprintf("\n");
 		}
 
 	if (kn_floor_mode == 2) {
 		for (a=0; a<128; ++a) if (floorlist[a][0]!=0) {
 			color(BRIGHT_CYAN);
-			printf("\n   Rooms on %s:\n",floorlist[a]);
-			knlinecount = knlinecount + 2;
+			pprintf("\n   Rooms on %s:\n",floorlist[a]);
 			sprintf(buf,"LKRA %d",a);
 			listrms(buf);
-			printf("\n");
-			knlinecount = knlinecount + 1;
+			pprintf("\n");
 			}
 		}
 	
@@ -294,9 +276,9 @@ void knrooms(int kn_floor_mode)
 
 void listzrooms(void) {		/* list public forgotten rooms */
 	color(BRIGHT_CYAN);
-	printf("\n   Forgotten public rooms:\n");
+	pprintf("\n   Forgotten public rooms:\n");
 	listrms("LZRM");
-	printf("\n");
+	pprintf("\n");
 	color(DIM_WHITE);
 	IFNEXPERT hit_any_key();
 	}
@@ -912,13 +894,13 @@ void whoknows(void) {
 	serv_puts("WHOK");
 	serv_gets(buf);
 	if (buf[0]!='1') {
-		printf("%s\n",&buf[5]);
+		pprintf("%s\n",&buf[5]);
 		return;
 		}
 	sigcaught = 0;
 	sttybbs(SB_YES_INTR);
 	while (serv_gets(buf), strncmp(buf,"000",3)) {
-		if (sigcaught==0) printf("%s\n",buf);
+		if (sigcaught==0) pprintf("%s\n",buf);
 		}
 	sttybbs(SB_NO_INTR);
 	}
