@@ -1,4 +1,8 @@
  $Log$
+ Revision 612.12  2003/12/11 04:06:55  nbryant
+ configure.ac: add support for position-independent executables. can be disabled
+ with --disable-pie
+
  Revision 612.11  2003/12/11 03:44:18  nbryant
  domain.c: include <arpa/nameser_compat.h> if present
  configure.ac: check for <arpa/nameser_compat.h>
@@ -5146,3 +5150,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

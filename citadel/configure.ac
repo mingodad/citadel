@@ -17,6 +17,8 @@ AC_ARG_ENABLE(chkpwd, [  --disable-chkpwd        don't build 'chkpwd'])
 AC_ARG_ENABLE(threaded-client, [  --disable-threaded-client
 			  disable multithreaded client])
 
+AC_ARG_ENABLE(pie, [  --disable-pie           don't build position-independent executables])
+
 AC_ARG_WITH(pam, [  --with-pam              use PAM if present (see PAM.txt before you try this)])
 AC_ARG_WITH(kthread, [  --with-kthread          use kernel threads (on FreeBSD) (not recommended yet)])
 AC_ARG_WITH(db, [  --with-db@<:@=DIR@:>@         use Sleepycat DB 3.x @<:@DIR=/usr/local/BerkeleyDB.3.@<:@123@:>@@:>@])
@@ -111,6 +113,21 @@ if test "$GCC" = yes; then
 		;;
 	esac
 fi
+
+if test "x$enable_pie" != xno; then
+	save_CFLAGS="$CFLAGS"
+	save_LDFLAGS="$LDFLAGS"
+	CFLAGS="$CFLAGS -fpie"
+	LDFLAGS="$LDFLAGS -pie -fpie"
+	AC_CACHE_CHECK([whether compiler accepts -pie -fpie], ac_cv_pie_fpie,
+	[AC_TRY_LINK([], [],
+	ac_cv_pie_fpie=yes, ac_cv_pie_fpie=no)])
+	if test $ac_cv_pie_fpie = no; then
+		CFLAGS="$save_CFLAGS"
+		LDFLAGS="$save_LDFLAGS"
+	fi
+fi
+
 AC_PROG_INSTALL
 AC_PROG_YACC
 missing_dir=`cd $ac_aux_dir && pwd`
