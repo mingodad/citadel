@@ -337,6 +337,7 @@ void context_loop(int sock)
 	   || (!strcasecmp(buf, "/static/mainframeset.html"))
 	   || (!strcasecmp(buf, "/static/robots.txt"))
 	   || (!strncasecmp(buf, "/do_welcome", 11))
+	   || (!strncasecmp(buf, "/do_logout", 10))
 	   || (!strncasecmp(buf, "/page_popup", 11))
 	   || (!strncasecmp(buf, "/page_user", 10))	/* Sometimes this is wrong */
 	   || (!strncasecmp(buf, "/listsub", 8))
