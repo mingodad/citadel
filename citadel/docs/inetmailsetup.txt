@@ -101,7 +101,7 @@ smw @ pixel % ./citserver
 
 Multithreaded message server for Citadel/UX
 Copyright (C) 1987-2000 by the Citadel/UX development team.
-Citadel/UX is free software, covered by the GNU General Public License, and
+Citadel/UX is open source, covered by the GNU General Public License, and
 you are welcome to change it and/or distribute copies of it under certain
 conditions.  There is absolutely no warranty for this software.  Please
 read the 'COPYING.txt' file for details.
