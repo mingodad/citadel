@@ -268,11 +268,11 @@ void do_iconbar(void) {
 	}
 
 	wprintf(
-		"<li>"
+		"<li><div align=\"center\">"
 		"<A HREF=\"/display_customize_iconbar\" "
 		"TITLE=\"Customize this menu\" "
 		">customize this menu</A>"
-		"</A></li>\n"
+		"</A></div></li>\n"
 	);
 
 	if (ib_citadel) if (ib_displayas != IB_TEXTONLY) wprintf(

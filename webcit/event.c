@@ -50,7 +50,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	int i;
 	int sequence = 0;
 
-	now = time(NULL) % 60;		/* mod 60 to force :00 seconds */
+	now = time(NULL);
 	strcpy(organizer_string, "");
 	strcpy(attendee_string, "");
 
@@ -146,9 +146,12 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	}
 	else {
 		localtime_r(&now, &tm_now);
-		tm_now.tm_year = atoi(bstr("year")) - 1900;
-		tm_now.tm_mon = atoi(bstr("month")) - 1;
-		tm_now.tm_mday = atoi(bstr("day"));
+		lprintf(9, "NOW NOW NOW!!!! %ld\n", now);
+		if (strlen(bstr("year")) > 0) {
+			tm_now.tm_year = atoi(bstr("year")) - 1900;
+			tm_now.tm_mon = atoi(bstr("month")) - 1;
+			tm_now.tm_mday = atoi(bstr("day"));
+		}
 		if (strlen(bstr("hour")) > 0) {
 			tm_now.tm_hour = atoi(bstr("hour"));
 			tm_now.tm_min = atoi(bstr("minute"));
