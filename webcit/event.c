@@ -46,6 +46,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	char buf[SIZ];
 	int i;
 	int organizer_is_me = 0;
+	int sequence = 0;
 
 	now = time(NULL);
 	strcpy(organizer_string, "");
@@ -59,6 +60,13 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		created_new_vevent = 1;
 	}
 
+	/* Learn the sequence */
+	p = icalcomponent_get_first_property(vevent, ICAL_SEQUENCE_PROPERTY);
+	if (p != NULL) {
+		sequence = icalproperty_get_sequence(p);
+	}
+
+	/* Begin output */
 	output_headers(3);
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>"
 		"<IMG ALIGN=CENTER SRC=\"/static/vcalendar.gif\">"
@@ -74,6 +82,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_comment(p));
 	}
+	wprintf("<BR>\n");
+	wprintf("SEQUENCE == %d<BR>\n", sequence);
 	*************************************************************/
 
 	wprintf("<FORM NAME=\"EventForm\" METHOD=\"POST\" ACTION=\"/save_event\">\n");
@@ -339,6 +349,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 	int foundit;
 	char form_attendees[SIZ];
 	char organizer_string[SIZ];
+	int sequence = 0;
 
 	if (supplied_vevent != NULL) {
 		vevent = supplied_vevent;
@@ -359,7 +370,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		}
 		icalcomponent_add_property(vevent,
 			icalproperty_new_summary(bstr("summary")));
-		
+
 		while (prop = icalcomponent_get_first_property(vevent,
 		      ICAL_LOCATION_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vevent, prop);
@@ -445,6 +456,19 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 			);
 		}
 
+		/* Increment the sequence ID */
+		while (prop = icalcomponent_get_first_property(vevent,
+		      ICAL_SEQUENCE_PROPERTY), (prop != NULL) ) {
+			i = icalproperty_get_sequence(prop);
+			if (i > sequence) sequence = i;
+			icalcomponent_remove_property(vevent, prop);
+			icalproperty_free(prop);
+		}
+		++sequence;
+		icalcomponent_add_property(vevent,
+			icalproperty_new_sequence(sequence)
+		);
+		
 		/* Set the organizer, only if one does not already exist *and*
 		 * the form is supplying one
 		 */

@@ -1,4 +1,7 @@
 $Log$
+Revision 400.67  2002/12/20 04:50:00  ajc
+* When saving a calendar event, increment the SEQUENCE property.
+
 Revision 400.66  2002/12/18 05:03:39  ajc
 * In the calendar code, changed all "struct tm *" to "struct tm" and changed
   all "tm = localtime(foo)" to "memcpy(&tm, localtime(foo), sizeof(struct tm))"
@@ -1183,3 +1186,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
