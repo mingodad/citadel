@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.65  2002/01/17 00:22:35  nbryant
+ added lock.[ch]: recursive read/write locking support. (not actually used yet)
+
  Revision 590.64  2002/01/15 12:41:53  error
  * Implement alternate_semantics (see comments in citadel.rc file)
 
@@ -3165,5 +3168,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
-
