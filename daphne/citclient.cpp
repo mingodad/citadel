@@ -170,8 +170,8 @@ int CitClient::serv_trans(
 	// If a mutex is to be wrapped around this function in the future,
 	// it must begin HERE.
 	cout << "Beginning transaction\n";
-	wxBeginBusyCursor();
 	Critter.Enter();
+	wxBeginBusyCursor();
 
 	serv_puts(command);
 
@@ -220,8 +220,8 @@ int CitClient::serv_trans(
 	// If a mutex is to be wrapped around this function in the future,
 	// it must end HERE.
 	cout << "Ending transaction...\n";
-	Critter.Leave();
 	wxEndBusyCursor();
+	Critter.Leave();
 	cout << "...done.\n";
 
 	if (express_messages_waiting) {
