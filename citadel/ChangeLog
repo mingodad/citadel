@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.27  2000/11/23 07:22:21  error
+ * citadel.spec: update version number
+
  Revision 573.26  2000/11/21 11:12:56  error
   * domain.h: changed the HP/UX compatibility code to use defines from
     typesize.h for integers of specific bit widths (needed for Solaris, etc)
@@ -2138,3 +2141,5 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
+

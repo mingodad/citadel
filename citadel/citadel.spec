@@ -1,7 +1,7 @@
 # $Id$
 Summary: Citadel/UX
 Name: citadel
-Version: 5.53
+Version: 5.74
 Release: 1
 Copyright: GPL
 Group: Applications/Communications
