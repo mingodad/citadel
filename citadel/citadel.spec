@@ -1,8 +1,8 @@
 # $Id$
 Summary: Citadel/UX, the flexible, powerful way to build online communities
 Name: citadel
-Version: 6.21
-Release: 3
+Version: 6.24
+Release: 1
 Copyright: GPL
 Group: Applications/Communications
 Source0: http://my.citadel.org/download/citadel-ux-%{PACKAGE_VERSION}.tar.gz
@@ -37,6 +37,7 @@ BuildRequires: ncurses-devel
 BuildRequires: zlib-devel
 
 # debuginfo packages don't get built unless this packages is installed:
+# NB: We do not DISTRIBUTE the debuginfo packages - error
 BuildRequires: redhat-rpm-config
 
 #Autoprov: false
