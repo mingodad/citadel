@@ -1,4 +1,7 @@
 $Log$
+Revision 528.35  2005/02/02 04:13:36  ajc
+* Debugged the GroupDAV service with KOrganizer.  It's mostly working now.
+
 Revision 528.34  2005/02/01 23:15:50  ajc
 * Completed GroupDAV PUT.  Untested.
 
@@ -2287,3 +2290,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
