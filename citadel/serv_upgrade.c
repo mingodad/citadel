@@ -185,6 +185,56 @@ void bump_mailbox_generation_numbers(void) {
 }
 
 
+/* 
+ * Back end processing function for convert_bbsuid_to_minusone()
+ */
+void cbtm_backend(struct usersupp *usbuf, void *data) {
+	static struct UserProcList *uplist = NULL;
+	struct UserProcList *ptr;
+	struct usersupp us;
+
+	/* Lazy programming here.  Call this function as a ForEachUser backend
+	 * in order to queue up the room names, or call it with a null user
+	 * to make it do the processing.
+	 */
+	if (usbuf != NULL) {
+		ptr = (struct UserProcList *)
+			mallok(sizeof (struct UserProcList));
+		if (ptr == NULL) return;
+
+		safestrncpy(ptr->user, usbuf->fullname, sizeof ptr->user);
+		ptr->next = uplist;
+		uplist = ptr;
+		return;
+	}
+
+	while (uplist != NULL) {
+
+		if (lgetuser(&us, uplist->user) == 0) {
+			lprintf(9, "Processing <%s>...\n", uplist->user);
+			if (us.uid == BBSUID) {
+				us.uid = (-1);
+			}
+			lputuser(&us);
+		}
+
+		ptr = uplist;
+		uplist = uplist->next;
+		phree(ptr);
+	}
+}
+
+/*
+ * quick fix to change all BBSUID users to (-1)
+ */
+void convert_bbsuid_to_minusone(void) {
+	lprintf(5, "Applying uid changes\n");
+	ForEachUser(cbtm_backend, NULL);
+	cbtm_backend(NULL, NULL);
+	return;
+}
+
+
 /*
  * This field was originally used for something else, so when we upgrade
  * we have to initialize it to 0 in case there was trash in that space.
@@ -216,6 +266,7 @@ void check_server_upgrades(void) {
 	if (CitControl.version < 555) do_pre555_usersupp_upgrade();
 	if (CitControl.version < 591) bump_mailbox_generation_numbers();
 	if (CitControl.version < 606) initialize_c_rfc822_strict_from();
+	if (CitControl.version < 608) convert_bbsuid_to_minusone();
 
 	CitControl.version = REV_LEVEL;
 	put_control();

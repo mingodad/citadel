@@ -1,4 +1,11 @@
  $Log$
+ Revision 607.10  2003/06/28 05:12:56  ajc
+ * Bump internal version number to 6.08
+ * Use (-1) instead of BBSUID as the uid of user records which exist only
+   in Citadel and not in the system password database.  serv_upgrade also
+   changes this setting for ALL such users, the first time the server is run
+   after upgrading to 6.08
+
  Revision 607.9  2003/06/27 22:19:31  error
  * routines2.c: Quick and dirty fix for Mail> becoming new after entering a
    mail message
@@ -4796,4 +4803,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

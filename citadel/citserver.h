@@ -2,10 +2,14 @@
 
 #include "serv_extensions.h"
 
-/* Simple linked list structure ... used in a bunch of different places. */
+/* Simple linked list structures ... used in a bunch of different places. */
 struct RoomProcList {
         struct RoomProcList *next;
         char name[ROOMNAMELEN];
+};
+struct UserProcList {
+	struct UserProcList *next;
+	char user[64];
 };
 
 void master_startup (void);

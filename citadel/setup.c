@@ -686,8 +686,8 @@ int main(int argc, char *argv[])
 	uname(&my_utsname);
 
 	/* See if we need to shut down the Citadel service. */
-	for (a=0; a<=5; ++a) {
-		progress("Shutting down the Citadel service...", a, 5);
+	for (a=0; a<=3; ++a) {
+		progress("Shutting down the Citadel service...", a, 3);
 		if (a == 0) shutdown_service();
 		sleep(1);
 	}
@@ -895,23 +895,23 @@ NEW_INST:
 	else
 		gid = pw->pw_gid;
 
-	progress("Setting file permissions", 0, 5);
+	progress("Setting file permissions", 0, 4);
 	chown(".", config.c_bbsuid, gid);
-	progress("Setting file permissions", 1, 5);
+	progress("Setting file permissions", 1, 4);
 	chown("citadel.config", config.c_bbsuid, gid);
-	progress("Setting file permissions", 2, 5);
+	progress("Setting file permissions", 2, 4);
 	snprintf(aaa, sizeof aaa,
 		"find . | grep -v chkpwd | xargs chown %ld:%ld 2>/dev/null",
 		(long)config.c_bbsuid, (long)gid);
 	system(aaa);
-	progress("Setting file permissions", 3, 5);
+	progress("Setting file permissions", 3, 4);
 	chmod("citadel.config", S_IRUSR | S_IWUSR);
-	progress("Setting file permissions", 4, 5);
+	progress("Setting file permissions", 4, 4);
 
 	/* See if we can start the Citadel service. */
 	if (strlen(init_entry) > 0) {
-		for (a=0; a<=5; ++a) {
-			progress("Starting the Citadel service...", a, 5);
+		for (a=0; a<=3; ++a) {
+			progress("Starting the Citadel service...", a, 3);
 			if (a == 0) start_the_service();
 			sleep(1);
 		}

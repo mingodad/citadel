@@ -594,11 +594,15 @@ int CtdlTryPassword(char *password)
 
 
 #ifdef ENABLE_AUTOLOGIN
-	if (CC->usersupp.uid == BBSUID) {
+	/* A uid of BBSUID or -1 indicates that this user exists only in
+	 * Citadel, not in the underlying operating system.
+	 */
+	if ( (CC->usersupp.uid == BBSUID) || (CC->usersupp.uid == (-1)) ) {
 		strproc(password);
 		strproc(CC->usersupp.password);
 		code = strcasecmp(CC->usersupp.password, password);
 	}
+	/* Any other uid means we have to check the system password database */
 	else {
 		if (validpw(CC->usersupp.uid, password)) {
 			code = 0;
@@ -741,10 +745,10 @@ int create_user(char *newusername, int become_user)
 		extract_token(username, p->pw_gecos, 0, ',');
 		uid = p->pw_uid;
 	} else {
-		uid = BBSUID;
+		uid = (-1);
 	}
 #else
-	uid = BBSUID;
+	uid = (-1);
 #endif
 
 	if (!getuser(&usbuf, username)) {
@@ -882,8 +886,7 @@ void cmd_setp(char *new_pw)
 	if (CtdlAccessCheck(ac_logged_in)) {
 		return;
 	}
-
-	if (CC->usersupp.uid != BBSUID) {
+	if ( (CC->usersupp.uid != BBSUID) && (CC->usersupp.uid != (-1)) ) {
 		cprintf("%d Not allowed.  Use the 'passwd' command.\n", ERROR);
 		return;
 	}
