@@ -75,6 +75,7 @@ int num_tokens(char *source, char tok) {
 	int a;
 	int count = 1;
 
+	if (source == NULL) return(0);
 	for (a=0; a<strlen(source); ++a) {
 		if (source[a]==tok) ++count;
 	}

@@ -12,6 +12,5 @@ void abort_upl (struct CitContext *who);
 void cmd_ucls (char *cmd);
 void cmd_read (char *cmdbuf);
 void cmd_writ (char *cmdbuf);
-void cmd_netp (char *cmdbuf);
 void cmd_ndop (char *cmdbuf);
 void cmd_nuop (char *cmdbuf);

@@ -144,9 +144,10 @@ void write_network_map(void) {
 /* 
  * Check the network map and determine whether the supplied node name is
  * valid.  If it is not a neighbor node, supply the name of a neighbor node
- * which is the next hop.
+ * which is the next hop.  If it *is* a neighbor node, we also fill in the
+ * shared secret.
  */
-int is_valid_node(char *nexthop, char *node) {
+int is_valid_node(char *nexthop, char *secret, char *node) {
 	char *ignetcfg = NULL;
 	int i;
 	char linebuf[SIZ];
@@ -181,6 +182,9 @@ int is_valid_node(char *nexthop, char *node) {
 		if (!strcasecmp(buf, node)) {
 			if (nexthop != NULL) {
 				strcpy(nexthop, "");
+			}
+			if (secret != NULL) {
+				extract(secret, linebuf, 1);
 			}
 			retval = 0;
 		}
@@ -286,7 +290,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 	char *instr = NULL;
 	char *newpath = NULL;
 	size_t instr_len = SIZ;
-	struct CtdlMessage *msg;
+	struct CtdlMessage *msg = NULL;
 	struct CtdlMessage *imsg;
 	struct ser_ret sermsg;
 	FILE *fp;
@@ -396,7 +400,6 @@ void network_spool_msg(long msgnum, void *userdata) {
 			 * Now serialize it for transmission
 			 */
 			serialize_message(&sermsg, msg);
-			CtdlFreeMessage(msg);
 
 			/* Now send it to every node */
 			for (nptr = sc->ignet_push_shares; nptr != NULL;
@@ -405,13 +408,14 @@ void network_spool_msg(long msgnum, void *userdata) {
 				send = 1;
 
 				/* Check for valid node name */
-				if (is_valid_node(NULL, nptr->name) != 0) {
+				if (is_valid_node(NULL,NULL,nptr->name) != 0) {
 					lprintf(3, "Invalid node <%s>\n",
 						nptr->name);
 					send = 0;
 				}
 
 				/* Check for split horizon */
+				lprintf(9, "Path is %s\n", msg->cm_fields['P']);
 				bang = num_tokens(msg->cm_fields['P'], '!');
 				if (bang > 1) for (i=0; i<(bang-1); ++i) {
 					extract_token(buf, msg->cm_fields['P'],
@@ -435,6 +439,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 				}
 			}
 			phree(sermsg.ser);
+			CtdlFreeMessage(msg);
 		}
 	}
 
@@ -631,7 +636,8 @@ void network_process_buffer(char *buffer, long size) {
 		if (strcasecmp(msg->cm_fields['D'], config.c_nodename)) {
 
 			/* route the message */
-			if (is_valid_node(NULL, msg->cm_fields['D']) == 0) {
+			if (is_valid_node(NULL, NULL,
+			   msg->cm_fields['D']) == 0) {
 
 				/* prepend our node to the path */
 				if (msg->cm_fields['P'] != NULL) {
@@ -859,6 +865,39 @@ void network_do_queue(void) {
 }
 
 
+
+/*
+ * cmd_netp() - authenticate to the server as another Citadel node polling
+ *              for network traffic
+ */
+void cmd_netp(char *cmdbuf)
+{
+	char node[SIZ];
+	char pass[SIZ];
+
+	char secret[SIZ];
+	char nexthop[SIZ];
+
+	extract(node, cmdbuf, 0);
+	extract(pass, cmdbuf, 1);
+
+	if (is_valid_node(nexthop, secret, node) != 0) {
+		cprintf("%d authentication failed\n", ERROR);
+		return;
+	}
+
+	if (strcasecmp(pass, secret)) {
+		cprintf("%d authentication failed\n", ERROR);
+		return;
+	}
+
+	safestrncpy(CC->net_node, node, sizeof CC->net_node);
+	cprintf("%d authenticated as network node '%s'\n", OK,
+		CC->net_node);
+}
+
+
+
 /*
  * Module entry point
  */
@@ -866,6 +905,7 @@ char *Dynamic_Module_Init(void)
 {
 	CtdlRegisterProtoHook(cmd_gnet, "GNET", "Get network config");
 	CtdlRegisterProtoHook(cmd_snet, "SNET", "Get network config");
+	CtdlRegisterProtoHook(cmd_netp, "NETP", "Identify as network poller");
 	CtdlRegisterSessionHook(network_do_queue, EVT_TIMER);
 	return "$Id$";
 }

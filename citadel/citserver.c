@@ -1125,10 +1125,6 @@ void do_command_loop(void) {
 		cmd_more();
 		}
 
-	else if (!strncasecmp(cmdbuf,"NETP",4)) {
-		cmd_netp(&cmdbuf[5]);
-		}
-
 	else if (!strncasecmp(cmdbuf,"NDOP",4)) {
 		cmd_ndop(&cmdbuf[5]);
 		}
