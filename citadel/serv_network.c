@@ -86,6 +86,7 @@ int network_usetable(int operation, struct CtdlMessage *msg) {
 	static struct UseTable *ut = NULL;
 	struct UseTable *uptr = NULL;
 	char *serialized_table = NULL;
+	char *ptr;
 	char msgid[SIZ];
 	char buf[SIZ];
 	int i;
@@ -97,17 +98,34 @@ int network_usetable(int operation, struct CtdlMessage *msg) {
 			serialized_table = CtdlGetSysConfig(USETABLE);
 			if (serialized_table == NULL) return(0);
 
-			for (i=0; i<num_tokens(serialized_table, '\n'); ++i) {
-				extract_token(buf, serialized_table, i, '\n');
-				uptr = (struct UseTable *)
-					mallok(sizeof(struct UseTable));
-				if (uptr != NULL) {
-					uptr->next = ut;
-					extract(msgid, buf, 0);
-					uptr->message_id = strdoop(msgid);
-					uptr->timestamp = extract_long(buf, 1);
-					ut = uptr;
+			ptr = serialized_table;
+			i = 0;
+			buf[0] = 0;
+			while (ptr[0] != 0) {
+				buf[i] = *ptr;
+		
+				if (buf[i]=='\n') {
+					buf[i] = 0;
+					if (strlen(buf) > 0) {
+
+						uptr = (struct UseTable *)
+							mallok(sizeof(struct UseTable));
+						if (uptr != NULL) {
+							uptr->next = ut;
+							extract(msgid, buf, 0);
+							uptr->message_id = strdoop(msgid);
+							uptr->timestamp = extract_long(buf, 1);
+							ut = uptr;
+						}
+					}
+
+					i = 0;
+					buf[0] = 0;
 				}
+				else {
+					++i;
+				}
+				++ptr;
 			}
 
 			phree(serialized_table);

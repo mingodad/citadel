@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.78  2001/11/26 03:27:08  ajc
+ * new algorithm to load the use table
+
  Revision 580.77  2001/11/17 19:55:08  ajc
  * Updated some of the documentation
 
@@ -2871,3 +2874,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
