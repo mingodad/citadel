@@ -35,6 +35,7 @@ RoomView::RoomView(
 		delete this;
 	}
 
+	extract(ThisRoom, recvcmd.Mid(4), 0);	// actual name of room
 
 	SetAutoLayout(TRUE);
 	Show(TRUE);
@@ -85,8 +86,6 @@ RoomView::RoomView(
 	c2->width.AsIs();
 	c2->right.LeftOf(close_button, 5);
 	readnew_button->SetConstraints(c2);
-
-
 }
 
 
@@ -105,6 +104,7 @@ void RoomView::OnButtonPressed(wxCommandEvent& whichbutton) {
 void RoomView::do_readloop(wxString readcmd) {
 	wxString sendcmd, recvcmd, buf;
 	wxStringList xferbuf;
+        int i;
 	
 	if (message_window != NULL) {
 		delete message_window;
@@ -126,12 +126,35 @@ void RoomView::do_readloop(wxString readcmd) {
 	m1->right.SameAs(this, wxRight, 2);
 	message_window->SetConstraints(m1);
 
+
+	// Transmit the "read messages" command
 	sendcmd = readcmd;
-	if (citsock->serv_trans(sendcmd, recvcmd, xferbuf) != 1) {
-		message_window->SetValue(recvcmd.Mid(4));
+	if (citsock->serv_trans(sendcmd, recvcmd, xferbuf, ThisRoom) != 1) {
+		wxMessageDialog cantread(this,
+			recvcmd.Mid(4),
+			"Error",
+			wxOK | wxCENTRE | wxICON_INFORMATION,
+			wxDefaultPosition);
+		cantread.ShowModal();
 		return;
 	}
 
-	ListToMultiline(buf, xferbuf);
+
+	// Read the messages into the window, one at a time
 	message_window->SetValue(buf);
+        for (i=0; i<xferbuf.Number(); ++i) {
+                buf.Printf("%s", (wxString *)xferbuf.Nth(i)->GetData());
+		sendcmd = "MSG0 " + buf;
+		cout << "Sending cmd: <" << sendcmd << ">\n";
+		i = citsock->serv_trans(sendcmd, recvcmd, xferbuf, ThisRoom);
+		cout << "return code " << i << "\n";
+		if (i == 1) {
+			ListToMultiline(buf, xferbuf);
+			message_window->WriteText(buf);
+			message_window->WriteText("\n\n");
+		}
+		cout << "done outputttting\n";
+        }
 }
+
+

@@ -226,6 +226,7 @@ private:
 	wxTextCtrl *message_window;
         wxPanel *banner;
         wxButton *close_button;
+	wxString ThisRoom;
 };
 
 
