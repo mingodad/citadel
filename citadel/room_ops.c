@@ -58,12 +58,7 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf)
 	if (((CC->internal_pgm)) && (roombuf->QRflags & QR_INUSE)) {
 		return (UA_KNOWN | UA_GOTOALLOWED);
 	}
-	/* For mailbox rooms, only allow access to the owner */
-	if (roombuf->QRflags & QR_MAILBOX) {
-		if (userbuf->usernum != atol(roombuf->QRname)) {
-			return(0);
-		}
-	}
+
 	/* Locate any applicable user/room relationships */
 	CtdlGetRelationship(&vbuf, userbuf, roombuf);
 
@@ -76,26 +71,23 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf)
 		}
 		goto NEWMSG;
 	}
-	/* For mailboxes, we skip all the access stuff (and we've
-	 * already checked by this point that the mailbox belongs
-	 * to the user)
-	 */
-	if (roombuf->QRflags & QR_MAILBOX) {
-		retval = UA_KNOWN | UA_GOTOALLOWED;
-		/* goto NEWMSG; allow users to zap mailboxes now */
-	}
+
 	/* If this is a public room, it's accessible... */
-	if ((roombuf->QRflags & QR_PRIVATE) == 0) {
+	if ( ((roombuf->QRflags & QR_PRIVATE) == 0) 
+	   && ((roombuf->QRflags & QR_MAILBOX) == 0) ) {
 		retval = retval | UA_KNOWN | UA_GOTOALLOWED;
 	}
+
 	/* If this is a preferred users only room, check access level */
 	if (roombuf->QRflags & QR_PREFONLY) {
 		if (userbuf->axlevel < 5) {
 			retval = retval & ~UA_KNOWN & ~UA_GOTOALLOWED;
 		}
 	}
+
 	/* For private rooms, check the generation number matchups */
-	if (roombuf->QRflags & QR_PRIVATE) {
+	if ( (roombuf->QRflags & QR_PRIVATE) 
+	   && ((roombuf->QRflags & QR_MAILBOX) == 0) ) {
 
 		/* An explicit match means the user belongs in this room */
 		if (vbuf.v_flags & V_ACCESS) {
@@ -110,6 +102,18 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf)
 			retval = retval | UA_GOTOALLOWED;
 		}
 	}
+
+	/* For mailbox rooms, also check the generation number matchups */
+	if (roombuf->QRflags & QR_MAILBOX) {
+		if (userbuf->usernum == atol(roombuf->QRname)) {
+			retval = retval | UA_KNOWN | UA_GOTOALLOWED;
+		}
+		/* An explicit match means the user belongs in this room */
+		if (vbuf.v_flags & V_ACCESS) {
+			retval = retval | UA_KNOWN | UA_GOTOALLOWED;
+		}
+	}
+
 	/* Check to see if the user has forgotten this room */
 	if (vbuf.v_flags & V_FORGET) {
 		retval = retval & ~UA_KNOWN;
@@ -126,7 +130,10 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf)
 			retval = retval | UA_GOTOALLOWED;
 		}
 		else {
-			retval = retval | UA_KNOWN | UA_GOTOALLOWED;
+			retval = retval | UA_GOTOALLOWED;
+			if ((roombuf->QRflags & QR_MAILBOX) == 0) {
+				retval = retval | UA_KNOWN;
+			}
 		}
 	}
 
