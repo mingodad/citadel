@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.21  2000/11/07 15:54:53  ajc
+ * xx FETCH n:n BODY[pn.MIME] now works
+
  Revision 573.20  2000/11/06 05:10:01  ajc
  * Changed the mime_parser() API (again) to allow "don't decode" mode
 
@@ -2119,3 +2122,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

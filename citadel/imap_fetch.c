@@ -175,12 +175,37 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 		    void *cbuserdata)
 {
 	struct imap_fetch_part *imfp;
+	char mbuf2[1024];
 
 	imfp = (struct imap_fetch_part *)cbuserdata;
 
 	if (!strcasecmp(partnum, imfp->desired_section)) {
 		fwrite(content, length, 1, imfp->output_fp);
 	}
+
+	sprintf(mbuf2, "%s.MIME", partnum);
+
+	if (!strcasecmp(imfp->desired_section, mbuf2)) {
+		fprintf(imfp->output_fp, "Content-type: %s", cbtype);
+		if (strlen(name) > 0)
+			fprintf(imfp->output_fp, "; name=\"%s\"", name);
+		fprintf(imfp->output_fp, "\r\n");
+		if (strlen(encoding) > 0)
+			fprintf(imfp->output_fp,
+				"Content-Transfer-Encoding: %s\r\n", encoding);
+		if (strlen(encoding) > 0) {
+			fprintf(imfp->output_fp, "Content-Disposition: %s",
+					disp);
+			if (strlen(filename) > 0) {
+				fprintf(imfp->output_fp, "; filename=\"%s\"",
+					filename);
+			}
+			fprintf(imfp->output_fp, "\r\n");
+		}
+		fprintf(imfp->output_fp, "Content-Length: %d\r\n", length);
+		fprintf(imfp->output_fp, "\r\n");
+	}
+			
 
 }
 
@@ -316,10 +341,12 @@ void imap_do_fetch_msg(int seq, struct CtdlMessage *msg,
 	for (i=0; i<num_items; ++i) {
 
 		if (!strncasecmp(itemlist[i], "BODY[", 5)) {
-			imap_fetch_body(IMAP->msgids[seq-1], itemlist[i], 0, msg);
+			imap_fetch_body(IMAP->msgids[seq-1], itemlist[i],
+					0, msg);
 		}
 		else if (!strncasecmp(itemlist[i], "BODY.PEEK[", 10)) {
-			imap_fetch_body(IMAP->msgids[seq-1], itemlist[i], 1, msg);
+			imap_fetch_body(IMAP->msgids[seq-1], itemlist[i],
+					1, msg);
 		}
 		else if (!strcasecmp(itemlist[i], "BODYSTRUCTURE")) {
 			/* FIXME do something here */
