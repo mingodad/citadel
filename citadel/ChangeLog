@@ -1,5 +1,6 @@
 Sun Jul 18 14:53:16 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us> 
 	* Changes to dynloader et al to handle ICQ module being written
+	* serv_icq.c, serv_icq.mk: added (separate makefile is temporary)
 
 1999-07-17 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* chkpwd.c: DELETED CVS REVISION 1.3 (backed out Art's last change)
