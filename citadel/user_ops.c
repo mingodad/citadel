@@ -1,4 +1,5 @@
-#define _XOPEN_SOURCE	/* needed to properly enable crypt() stuff on some systems */
+/* needed to properly enable crypt() stuff on some systems */
+#define _XOPEN_SOURCE
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -324,16 +325,30 @@ void cmd_pass(char *buf)
 /*
  * purge related files when removing or overwriting a user record
  */
-void purge_user(pnum)
-long pnum; {
+void purge_user(char *pname) {
 	char filename[64];
+	struct usersupp usbuf;
+	int a;
+
+	if (getuser(&usbuf, pname) != 0) {
+		lprintf(5, "Cannot purge user <%s> - not found\n", pname);
+		return;
+		}
+
+	/* delete any messages in the user's mailbox */
+	for (a=0; a<MAILSLOTS; ++a) {
+		if (usbuf.mailnum[a] > 0L) {
+			cdb_delete(CDB_MSGMAIN, &usbuf.mailnum[a],
+					sizeof(long));
+			}
+		}
 
 	/* remove the user's bio file */	
-	sprintf(filename, "./bio/%ld", pnum);
+	sprintf(filename, "./bio/%ld", usbuf.usernum);
 	unlink(filename);
 
 	/* remove the user's picture */
-	sprintf(filename, "./userpics/%ld.gif", pnum);
+	sprintf(filename, "./userpics/%ld.gif", usbuf.usernum);
 	unlink(filename);
 	
 	}
