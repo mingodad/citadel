@@ -41,10 +41,6 @@ int fake_frames = 0;
 
 struct urlcontent *urlstrings = NULL;
 
-static const char *defaulthost = DEFAULT_HOST;
-static const char *defaultport = DEFAULT_PORT;
-
-
 
 void unescape_input(char *buf)
 {
