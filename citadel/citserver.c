@@ -699,7 +699,6 @@ void *context_loop(struct CitContext *con)
 		time(&CC->lastcmd);
 		if (client_gets(cmdbuf) < 1) cleanup(EXIT_NULL);
 		lprintf(5, "citserver[%3d]: %s\n", CC->cs_pid, cmdbuf);
-		/* hook_command_received(CC->cs_pid, cmdbuf); FIX */
 
 		/*
 		 * Let other clients see the last command we executed, but

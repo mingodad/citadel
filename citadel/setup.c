@@ -825,11 +825,11 @@ void write_config_to_disk(void) {
 		display_error("setup: cannot open citadel.config");
 		cleanup(1);
 		}
-/******************************************/
-/* THIS IS TEMPORARY  FIX FIX FIX FIX FIX */
+/************************************************************************/
+/* FIX - This is a temporary system-wide default.  Add configurability. */
 	config.c_ep.expire_mode = EXPIRE_NUMMSGS;
-	config.c_ep.expire_value = 10;
-/******************************************/
+	config.c_ep.expire_value = 150;
+/************************************************************************/
 	fwrite((char *)&config,sizeof(struct config),1,fp);
 	fclose(fp);
 	}

@@ -763,16 +763,13 @@ void save_message(char *mtmp,	/* file containing proper message */
 	CC->quickroom.QRhighest = newmsgid;
 	lputroom(&CC->quickroom, actual_rm);
 
-	/* Bump this user's messages posted counter.  Also, if the user is a
-	 * twit, give them access to the twit room.
-	 */
+	/* Bump this user's messages posted counter. */
 	lgetuser(&CC->usersupp, CC->curr_user);
 	CC->usersupp.posted = CC->usersupp.posted + 1;
-	/* FIX if user is twit, grant access to twitroom here */
 	lputuser(&CC->usersupp, CC->curr_user);
 
 	/* Network mail - send a copy to the network program. */
-	if ((strlen(recipient)>0)&&(mailtype != M_LOCAL)) {
+	if ( (strlen(recipient)>0) && (mailtype != M_LOCAL) ) {
 		sprintf(aaa,"./network/spoolin/nm.%d",getpid());
 		copy_file(mtmp,aaa);
 		system("exec nohup ./netproc >/dev/null 2>&1 &");
