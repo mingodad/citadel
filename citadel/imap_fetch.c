@@ -457,6 +457,65 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 }
 
 
+
+/*
+ * Output the info for a MIME part in the format required by BODYSTRUCTURE.
+ *
+ * FIXME .... this needs oodles of work to get completed.
+ */
+void imap_fetch_bodystructure_part(
+		char *name, char *filename, char *partnum, char *disp,
+		void *content, char *cbtype, size_t length, char *encoding,
+		void *cbuserdata
+		) {
+
+	char buf[SIZ];
+
+	cprintf("(");
+
+	if (cbtype == NULL) {
+		cprintf("\"TEXT\" \"PLAIN\" ");
+	}
+	else {
+		extract_token(buf, cbtype, 0, '/');
+		imap_strout(buf);
+		cprintf(" ");
+		extract_token(buf, cbtype, 1, '/');
+		imap_strout(buf);
+		cprintf(" ");
+	}
+
+	cprintf("(\"CHARSET\" \"US-ASCII\"");
+
+	if (name != NULL) {
+		cprintf(" \"NAME\" ");
+		imap_strout(name);
+	}
+
+	if (filename != NULL) {
+		cprintf(" \"FILENAME\" ");
+		imap_strout(name);
+	}
+
+	cprintf(") ");
+
+	cprintf("NIL NIL ");
+
+	if (encoding != NULL) {
+		imap_strout(encoding);
+	}
+	else {
+		imap_strout("7BIT");
+	}
+	cprintf(" ");
+
+	cprintf("%ld ", length);	/* bytes */
+	cprintf("NIL) ");		/* lines */
+
+}
+
+
+
 /*
  * Spew the BODYSTRUCTURE data for a message.  (Do you need a silencer if
  * you're going to shoot a MIME?  Do you need a reason to shoot Mark Crispin?
@@ -499,9 +558,13 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 	}
 
 	/* For messages already stored in RFC822 format, we have to parse. */
-	/* FIXME do this! */
-
-
+	cprintf("BODYSTRUCTURE (");
+	mime_parser(msg->cm_fields['M'],
+			NULL,
+			*imap_fetch_bodystructure_part,
+			NULL,
+			0);
+	cprintf(") ");
 }
 
 

@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.61  2000/12/30 06:17:17  ajc
+ * Still more work on IMAP.  Damn this is tedious.
+
  Revision 573.60  2000/12/30 04:55:05  ajc
  * more buffer size stuff
 
@@ -2256,4 +2259,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
