@@ -47,6 +47,7 @@ else
 
 	test -d /usr/local/BerkeleyDB.4.1 && db_dir=/usr/local/BerkeleyDB.4.1
 	test -d /usr/local/BerkeleyDB.4.2 && db_dir=/usr/local/BerkeleyDB.4.2
+	test -d /usr/local/BerkeleyDB.4.3 && db_dir=/usr/local/BerkeleyDB.4.3
 fi
 
 dnl By default, we only build the client (citadel and whobbs) unless we can
