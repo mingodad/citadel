@@ -121,26 +121,16 @@ int GenerateSessionID(void)
 }
 
 
-void gets0(int fd, char buf[])
-{
-
-	buf[0] = 0;
-	do {
-		buf[strlen(buf) + 1] = 0;
-		read(fd, &buf[strlen(buf)], 1);
-	} while (buf[strlen(buf) - 1] >= 32);
-	buf[strlen(buf) - 1] = 0;
-}
-
 /*
  * Collapse multiple cookies on one line
  */
-void req_gets(int sock, char *buf, char *hold)
+int req_gets(int sock, char *buf, char *hold)
 {
 	int a;
 
 	if (strlen(hold) == 0) {
-		client_gets(sock, buf);
+		a = client_gets(sock, buf);
+		if (a<1) return(-1);
 	} else {
 		strcpy(buf, hold);
 	}
@@ -153,9 +143,10 @@ void req_gets(int sock, char *buf, char *hold)
 				buf[a] = 0;
 				while (isspace(hold[8]))
 					strcpy(&hold[8], &hold[9]);
-				return;
+				return(0);
 			}
 	}
+	return(0);
 }
 
 /*
@@ -223,7 +214,7 @@ void context_loop(int sock)
 	 * Find out what it is that the web browser is asking for
 	 */
 	do {
-		req_gets(sock, buf, hold);
+		if (req_gets(sock, buf, hold) < 0) return;
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
 			cookie_to_stuff(&buf[15], &desired_session,
 				NULL, NULL, NULL);

@@ -99,46 +99,11 @@ int ig_tcp_server(int port_number, int queue_len)
 
 
 /*
- * client_write()   ...    Send binary data to the client.
- */
-void client_write(int sock, char *buf, int nbytes)
-{
-	int bytes_written = 0;
-	int retval;
-	while (bytes_written < nbytes) {
-		retval = write(sock, &buf[bytes_written],
-			       nbytes - bytes_written);
-		if (retval < 1) {
-			fprintf(stderr, "client_write() failed: %s\n",
-			       strerror(errno));
-		}
-		bytes_written = bytes_written + retval;
-	}
-}
-
-
-/*
- * cprintf()  ...   Send formatted printable data to the client.
- */
-void cprintf(int sock, const char *format,...)
-{
-	va_list arg_ptr;
-	char buf[256];
-
-	va_start(arg_ptr, format);
-	if (vsnprintf(buf, sizeof buf, format, arg_ptr) == -1)
-		buf[sizeof buf - 2] = '\n';
-	client_write(sock, buf, strlen(buf));
-	va_end(arg_ptr);
-}
-
-
-/*
  * Read data from the client socket.
  * Return values are:
  *      1       Requested number of bytes has been read.
  *      0       Request timed out.
- * If the socket breaks, the session is immediately terminated.
+ *	-1	Connection is broken, or other error.
  */
 int client_read_to(int sock, char *buf, int bytes, int timeout)
 {
@@ -163,6 +128,7 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
 		if (rlen < 1) {
 			fprintf(stderr, "client_read() failed: %s\n",
 			       strerror(errno));
+			return(-1);
 		}
 		len = len + rlen;
 	}
