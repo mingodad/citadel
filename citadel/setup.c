@@ -23,6 +23,7 @@
 #include "axdefs.h"
 #include "sysdep.h"
 #include "config.h"
+#include "tools.h"
 
 #ifdef HAVE_CURSES_H
 # ifdef OK
@@ -705,6 +706,7 @@ int main(int argc, char *argv[]) {
 	int info_only = 0;
 	struct utsname my_utsname;
 	struct passwd *pw;
+	struct hostent *he;
 
 	/* set an invalid setup type */
 	setup_type = (-1);
@@ -804,9 +806,17 @@ int main(int argc, char *argv[]) {
 
 	/* set some sample/default values in place of blanks... */
 	if (strlen(config.c_nodename)==0)
-		strcpy(config.c_nodename, my_utsname.nodename);
-	if (strlen(config.c_fqdn)==0)
-		sprintf(config.c_fqdn, "%s.local", my_utsname.nodename);
+		safestrncpy(config.c_nodename, my_utsname.nodename,
+			    sizeof config.c_nodename);
+		strtok(config.c_nodename, ".");
+	if (strlen(config.c_fqdn)==0) {
+		if ((he = gethostbyname(my_utsname.nodename)) != NULL)
+			safestrncpy(config.c_fqdn, he->h_name,
+				    sizeof config.c_fqdn);
+		else
+			safestrncpy(config.c_fqdn, my_utsname.nodename,
+				    sizeof config.c_fqdn);
+		}
 	if (strlen(config.c_humannode)==0)
 		strcpy(config.c_humannode,"My System");
 	if (strlen(config.c_phonenum)==0)

@@ -3,6 +3,7 @@
 	* Makefile.in: don't chmod sendcommand
 	* serv_upgrade.c: don't create citadel.config if it doesn't already
 	  exist (paranoia)
+	* setup.c: saner defaults for nodename and fqdn
 
 Wed Dec  2 20:37:05 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* msgbase.c: modified AddMessageToRoom() and all functions that call it

@@ -8,6 +8,8 @@
 # 2. Send e-mail to ajc@uncnsrd.mt-kisco.ny.us and let me know what you
 #    did, so any necessary changes can be put into the next release.
 #
+# $Id$
+#
 ########################################################################
 
 TARGETS=@TARGETS@
@@ -141,8 +143,8 @@ citmail: citmail.o config.o internetmail.o $(SNPRINTF)
 mailinglist: mailinglist.o config.o internetmail.o
 	$(CC) mailinglist.o config.o internetmail.o $(LDFLAGS) -o mailinglist
 
-setup: setup.o
-	$(CC) setup.o $(CURSES) $(LDFLAGS) -o setup
+setup: setup.o tools.o
+	$(CC) setup.o tools.o $(CURSES) $(LDFLAGS) -o setup
 
 netsetup: netsetup.o config.o
 	$(CC) netsetup.o config.o $(LDFLAGS) -o netsetup
