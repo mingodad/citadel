@@ -434,6 +434,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 					}
 				}
 			}
+			phree(sermsg.ser);
 		}
 	}
 
@@ -604,6 +605,10 @@ void network_process_buffer(char *buffer, long size) {
 	struct usersupp tempUS;
 	char recp[SIZ];
 	char target_room[ROOMNAMELEN];
+	struct ser_ret sermsg;
+	char *oldpath = NULL;
+	char filename[SIZ];
+	FILE *fp;
 
 	/* Set default target room to trash */
 	strcpy(target_room, TWITROOM);
@@ -625,11 +630,39 @@ void network_process_buffer(char *buffer, long size) {
 	if (msg->cm_fields['D'] != NULL) {
 		if (strcasecmp(msg->cm_fields['D'], config.c_nodename)) {
 
+			/* route the message */
 			if (is_valid_node(NULL, msg->cm_fields['D']) == 0) {
 
-				/* FIXME route the message, stupid */
+				/* prepend our node to the path */
+				if (msg->cm_fields['P'] != NULL) {
+					oldpath = msg->cm_fields['P'];
+					msg->cm_fields['P'] = NULL;
+				}
+				else {
+					oldpath = strdoop("unknown_user");
+				}
+				msg->cm_fields['P'] =
+					mallok(strlen(oldpath) + SIZ);
+				sprintf(msg->cm_fields['P'], "%s!%s",
+					config.c_nodename, oldpath);
+				phree(oldpath);
 
+				/* serialize the message */
+				serialize_message(&sermsg, msg);
 
+				/* now send it */
+				sprintf(filename,
+					"./network/spoolout/%s",
+					msg->cm_fields['D']);
+				fp = fopen(filename, "ab");
+				if (fp != NULL) {
+					fwrite(sermsg.ser,
+						sermsg.len, 1, fp);
+					fclose(fp);
+				}
+				phree(sermsg.ser);
+				CtdlFreeMessage(msg);
+				return;
 			}
 			
 			else {	/* invalid destination node name */

@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.43  2001/09/17 23:55:45  ajc
+ * Support for IGnet routing (not tested)
+
  Revision 580.42  2001/09/16 05:44:51  ajc
  * serv_smtp.c: instead of doubling delivery retry times unbounded, set a
    maximum retry time of SMTP_RETRY_MAX (currently set to 12 hours)
@@ -2745,4 +2748,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
