@@ -183,6 +183,12 @@ void do_chat_listing(int allflag)
 		cprintf(":|\n:| Users not in chat:\n");
 		for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 
+			GenerateRoomDisplay(roomname, ccptr, CC);
+			if ((CC->usersupp.axlevel < 6)
+		   	&& (strlen(ccptr->fake_roomname)>0)) {
+				strcpy(roomname, ccptr->fake_roomname);
+			}
+
 			if (((ccptr->cs_flags & CS_CHAT) == 0)
 			    && ((ccptr->cs_flags & CS_STEALTH) == 0)) {
 				cprintf(":| %-25s <%s>:\n",
