@@ -184,7 +184,7 @@ void cmd_time()
    
    tv = time(NULL);
    
-   cprintf("%d|%ld\n", OK, tv);
+   cprintf("%d %ld\n", OK, tv);
 }
 
 /*
@@ -1067,6 +1067,12 @@ void *context_loop(struct CitContext *con)
 			}
 		else if (!strncasecmp(cmdbuf, "EXTN", 4)) {
 			cmd_extn(&cmdbuf[5]);
+			}
+		else if (!strncasecmp(cmdbuf, "AGUP", 4)) {
+			cmd_agup(&cmdbuf[5]);
+			}
+		else if (!strncasecmp(cmdbuf, "ASUP", 4)) {
+			cmd_asup(&cmdbuf[5]);
 			}
 		else {
 			cprintf("%d Unrecognized or unsupported command.\n",

@@ -522,8 +522,12 @@ void cmd_getu(void) {
 		return;
 		}
 	getuser(&CC->usersupp,CC->curr_user);
-	cprintf("%d %d|%d|%d\n",OK,CC->usersupp.USscreenwidth,
-		CC->usersupp.USscreenheight,(CC->usersupp.flags & US_USER_SET));
+	cprintf("%d %d|%d|%d\n",
+		OK,
+		CC->usersupp.USscreenwidth,
+		CC->usersupp.USscreenheight,
+		(CC->usersupp.flags & US_USER_SET)
+		);
 	}
 
 /*
@@ -1090,4 +1094,70 @@ void cmd_lbio(void) {
 			cprintf("%s\n",usbuf.fullname);
 	pclose(ls);
 	cprintf("000\n");
+	}
+
+
+/*
+ * Administrative Get User Parameters
+ */
+void cmd_agup(char *cmdbuf) {
+	struct usersupp usbuf;
+	char requested_user[256];
+
+	if ( (CC->internal_pgm==0)
+	   && ( (CC->logged_in == 0) || (is_aide()==0) ) ) {
+		cprintf("%d Higher access required.\n", 
+			ERROR + HIGHER_ACCESS_REQUIRED);
+		return;
+		}
+
+	extract(requested_user, cmdbuf, 0);
+	if (getuser(&usbuf, requested_user) != 0) {
+		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
+		return;
+		}
+
+	cprintf("%d %s|%s|%u|%d|%d|%d|%ld\n", 
+		OK,
+		usbuf.fullname,
+		usbuf.password,
+		usbuf.flags,
+		usbuf.timescalled,
+		usbuf.posted,
+		(int)usbuf.axlevel,
+		usbuf.usernum);
+	}
+
+
+
+/*
+ * Administrative Set User Parameters
+ */
+void cmd_asup(char *cmdbuf) {
+	struct usersupp usbuf;
+	char requested_user[256];
+	int np;
+	
+	if ( (CC->internal_pgm==0)
+	   && ( (CC->logged_in == 0) || (is_aide()==0) ) ) {
+		cprintf("%d Higher access required.\n", 
+			ERROR + HIGHER_ACCESS_REQUIRED);
+		return;
+		}
+
+	extract(requested_user, cmdbuf, 0);
+	if (lgetuser(&usbuf, requested_user) != 0) {
+		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
+		return;
+		}
+
+	np = num_parms(cmdbuf);
+	if (np > 1) extract(usbuf.password, cmdbuf, 1);
+	if (np > 2) usbuf.flags = extract_int(cmdbuf, 2);
+	if (np > 3) usbuf.timescalled = extract_int(cmdbuf, 3);
+	if (np > 4) usbuf.posted = extract_int(cmdbuf, 4);
+	if (np > 5) usbuf.axlevel = extract_int(cmdbuf, 5);
+
+	lputuser(&usbuf, requested_user);
+	cprintf("%d Ok\n", OK);
 	}

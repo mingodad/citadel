@@ -1530,55 +1530,78 @@ UCLS command.
 The following are for citserver 5.02 and above
 ----------------------------------------------
 
-HCHG	(Hostname CHanGe)
+ HCHG	(Hostname CHanGe)
 
-HCHG is a command, usable by any user, that allows a user to change their RWHO
+ HCHG is a command, usable by any user, that allows a user to change their RWHO
 host value.  This will mask a client's originating hostname from normal
 users; access level 6 and higher see an entry right underneath the spoofed
 entry listing the actual hostname the user originates from.
 
-The format of an HCHG command is:
+ The format of an HCHG command is:
 
-HCHG <name>
+ HCHG <name>
+
+ If a HCHG command is successful, the value OK (200) is returned.
 
 
-If a HCHG command is successful, the value OK (200) is returned.
+ RCHG	(Roomname CHanGe)
 
-RCHG	(Roomname CHanGe)
-
-RCHG is a command, usable by any user, that allows a user to change their RWHO
+ RCHG is a command, usable by any user, that allows a user to change their RWHO
 room value.  This will mask a client's roomname from normal users; access
 level 6 and higher see an entry right underneath the spoofed entry listing
 the actual room the user is in.
 
-The format of an RCHG command is:
+ The format of an RCHG command is:
 
-RCHG <name>
+ RCHG <name>
 
-If a RCHG command is successful, the value OK (200) is returned.
+ If a RCHG command is successful, the value OK (200) is returned.
 
-UCHG	(Username CHanGe)
 
-UCHG is an aide-level command which allows an aide to effectively change their
+ UCHG	(Username CHanGe)
+
+ UCHG is an aide-level command which allows an aide to effectively change their
 username.  If this value is blank, the user goes into stealth mode (see
 STEL).  Posts
 will show up as being from the real username in this mode, however.  In
 addition, the RWHO listing will include both the spoofed and real usernames.
 
-The format of an UCHG command is:
+ The format of an UCHG command is:
+ 
+ UCHG <name>
 
-UCHG <name>
+ If a UCHG command is successful, the value OK (200) is returned.
 
-If a UCHG command is successful, the value OK (200) is returned.
 
-TIME	(Get server local TIME)
+ TIME	(get server local TIME)
 
-TIME returns a string in the following format:
-
- A|B
-
-Where A is OK (200), B is the current time measured in seconds since
+ TIME returns OK followed by the current time measured in seconds since
 00:00:00 GMT, Jan 1, 1970.
 
-This is used in allowing a client to calculate idle times.
+ This is used in allowing a client to calculate idle times.
 
+
+ AGUP   (Administrative Get User Parameters)
+ ASUP   (Administrative Set User Parameters)
+  
+ These commands are only executable by Aides and by server extensions running
+at system-level.  They are used to get/set any and all parameters relating to
+a user account.  AGUP requires only one argument: the name of the user in
+question.  SGUP requires all of the parameters to be set.  The parameters are
+as follows, and are common to both commands:
+ 
+ 0 - User name
+ 1 - Password
+ 2 - Flags (see citadel.h)
+ 3 - Times called
+ 4 - Messages posted
+ 5 - Access level
+ 6 - User number
+ 7 - Timestamp of last call
+
+ Upon success, AGUP returns OK followed by all these parameters, and ASUP
+simply returns OK.  If the client has insufficient access to perform the
+requested operation, ERROR+HIGHER_ACCESS_REQUIRED is returned.  If the
+requested user does not exist, ERROR+NO_SUCH_USER is returned.
+
+ 
