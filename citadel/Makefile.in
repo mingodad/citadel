@@ -12,6 +12,7 @@
 
 CLIENT_TARGETS=citadel whobbs
 SERVER_TARGETS=citserver setup citadelapi.a
+SERV_MODULES=serv_chat.so
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform \
 	readlog rcit stats citmail netpoll mailinglist userlist
 
@@ -20,6 +21,8 @@ client: $(CLIENT_TARGETS)
 server: $(SERVER_TARGETS)
 
 utils: $(UTIL_TARGETS)
+
+serv_modules: $(SERV_MODULES)
 
 #
 #
@@ -64,10 +67,11 @@ serv_info.o: serv_info.c citadel.h
 #
 
 citserver: citserver.o user_ops.o support.o room_ops.o file_ops.o \
-	msgbase.o config.o sysdep.o locate_host.o serv_chat.o \
+	msgbase.o config.o sysdep.o locate_host.o \
 	hooks.o housekeeping.o database.o control.o logging.o 
-	$(CC) $(CFLAGS) citserver.o user_ops.o room_ops.o file_ops.o support.o \
-		msgbase.o config.o sysdep.o locate_host.o serv_chat.o \
+	$(CC) $(CFLAGS) -rdynamic \
+		citserver.o user_ops.o room_ops.o file_ops.o support.o \
+		msgbase.o config.o sysdep.o locate_host.o \
 		hooks.o housekeeping.o database.o control.o logging.o \
 		$(LFLAGS) $(SERVER_LFLAGS) -o citserver
 
@@ -91,6 +95,9 @@ msgbase.o: msgbase.c citadel.h
 
 locate_host.o: locate_host.c citadel.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c locate_host.c
+
+serv_chat.so: serv_chat.o support.o
+	$(CC) -shared -o serv_chat.so serv_chat.o support.o
 
 serv_chat.o: serv_chat.c citadel.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c serv_chat.c
