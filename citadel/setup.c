@@ -31,7 +31,7 @@
 #include <curses.h>
 #endif
 
-#define MAXSETUP 19
+#define MAXSETUP 5
 
 #define UI_TEXT		0	/* Default setup type -- text only */
 #define UI_DIALOG	1	/* Use the 'dialog' program */
@@ -46,24 +46,9 @@ int need_init_q = 0;
 
 char *setup_titles[] = {
 	"BBS Home Directory",
-	"Citadel node name",
-	"Fully Qualified Domain Name (FQDN)",
-	"Human-readable node name",
-	"Phone number",
-	"BBS City and State",
 	"System Administrator",
 	"BBS User ID",
-	"'Room Creator = Room Aide' flag",
-	"Server timeout period",
-	"Initial access level",
-	"Registration requirements",
-	"Twit Detect!",
-	"Twit Detect target room",
-	"Maximum concurrent sessions",
-	"Paginator prompt",
-	"Restrict Internet mail flag",
 	"Name of bit bucket subdirectory",
-	"System net password",
 	"Server port number",
 	};
 
@@ -77,133 +62,43 @@ char *setup_text[] = {
 "it up.",
 
 "1",
-"This is the name your system is known by on a Citadel/UX network.  It",
-"should be 8 characters or less, and should generally be comprised only of",
-"letters.  You can also use numbers and hyphens if necessary.",
-
-"2",
-"This is the name your system is known by on the Internet.",
-"If you're not on the Internet, simply set this to your",
-"node name followed by '.local' or something similar.",
-
-"3",
-"This is a longer description of your system, readable by",
-"us mere humans.  It can be up to 20 characters long and it",
-"can have spaces in it.  Note that if you are part of a",
-"Cit86Net, this is the name your system will be known by on",
-"that network.",
-
-"4",
-"This is the main dialup number for your system.  If yours",
-"can not be dialed into, then make one up!  It should be in",
-"the format 'US 000 000 0000' - the US is your country code",
-"(look it up if you're not in the United States) and the",
-"rest is, of course, your area code and phone number.",
-"This doesn't have any use in Citadel/UX, but gateways to",
-"other networks may require it, and someday we may use this",
-"to have the networker automatically build a BBS list.",
-
-"5",
-"Enter the geographical location of your system (city and",
-"state/province/country etc.)",
-
-"6",
 "Enter the name of the system administrator (which is probably you).",
 "When an account is created with this name, it will automatically be",
 "assigned the highest access level.",
 
-"7",
+"2",
 "You should create a user called 'bbs', 'guest', 'citadel', or something",
 "similar, that will allow users a way into your BBS.  The server will run",
 "under this user ID.  Please specify that (numeric) user ID here.",
 
-"8",
-"This is a boolean value.  If you set it to 1, anyone who",
-"creates a class 3 (passworded) or class 4 (invitation",
-"only) room will automatically become the Room Aide for",
-"that room, allowing them to edit it, delete/move messages,",
-"etc.  This is an administrative decision: it works well on",
-"some systems, and not so well on others.  Set this to 0 to",
-"disable this function.",
-
-"9",
-"This setting specifies how long a server session may sit idle before it is",
-"automatically terminated.  The recommended value is 900 seconds (15",
-"minutes).  Note that this has *nothing* to do with any watchdog timer that",
-"is presented to the user.  The server's timeout is intended to kill idle or",
-"zombie sessions running on a network, etc.  ",
-"You MUST set this to a reasonable value.  Setting it to zero will cause",
-"the server to malfunction.",
-
-"10",
-"This is the access level new users are assigned.",
-"",
-"The most common settings for this will be either 1, for",
-"systems which require new user validation by the system",
-"administrator, or 4, for systems which give instant access.",
-"The current access levels available are:",
-
-"11",
-"'Registration' refers to the boring part of logging into a BBS for the first",
-"time: typing your name, address, and telephone number.  Set this value to 1",
-"to automatically do registration for new users, or 0 to not auto-register.",
-"Optionally, you could set it to, say, 2, to auto-register on a user's second",
-"call, but there really isn't much point to doing this.  The recommended",
-"value is 1 if you've set your inital access level to 1, or 0 if you've set",
-"your initial access level to something higher.",
-
-"12",
-"Every BBS has its share of problem users.  This is one",
-"good way to deal with them: if you enable this option,",
-"anyone you flag as a 'problem user' (access level 2) can",
-"post anywhere they want, but their messages will all be",
-"automatically moved to a room of your choosing.  Set this",
-"value to 1 to enable Twit Detect, or 0 to disable it.",
-
-"13",
-"This is the name of the room that problem user messages",
-"get moved to if you have Twit Detect enabled.",
-"(Note: don't forget to *create* this room!)",
-
-"14",
-"This is the maximum number of concurrent Citadel sessions which may be",
-"running at any given time.  Use this to keep very busy systems from being",
-"overloaded.",
-"  Set this value to 0 to allow an unlimited number of sessions.",
-
-"15",
-"This is the prompt that appears after each screenful of",
-"text - for users that have chosen that option.  Usually",
-"a simple '<more>' will do, but some folks like to be",
-"creative...",
-
-"16",
-"If you have a gateway set up to allow Citadel users to",
-"send Internet mail, with sendmail, qmail, or whatever, and",
-"you wish to restrict this to only users to whom you have",
-"given this privilege, set this flag to 1.  Otherwise, set",
-"it to 0 to allow everyone to send Internet mail.",
-"(Obviously, if your system doesn't have the ability to",
-"send mail to the outside world, this is all irrelevant.)",
-
-"17",
+"3",
 "Select the name of a subdirectory (relative to the main",
 "Citadel directory - do not type an absolute pathname!) in",
 "which to place arriving file transfers that otherwise",
 "don't have a home.",
 
-"18",
-"If you use Citadel client/server sessions to transport network spool data",
-"between systems, this is the password other systems will use to authenticate",
-"themselves as network nodes rather than regular callers.",
-
-"19",
+"4",
 "Specify the TCP port number on which your server will run.  Normally, this",
 "will be port 504, which is the official port assigned by the IANA for",
 "Citadel servers.  You'll only need to specify a different port number if",
 "you run multiple BBS's on the same computer and there's something else",
 "already using port 504.",
 
+"5",
+"6",
+"7",
+"8",
+"9",
+"10",
+"11",
+"12",
+"13",
+"14",
+"15",
+"16",
+"17",
+"18",
+"19",
 "20",
 "21",
 "22",
@@ -733,70 +628,14 @@ void edit_value(int curr)
  switch(curr) {
 
 case 1:
-	set_str_val(curr, config.c_nodename);
-	break;
-
-case 2:
-	set_str_val(curr, config.c_fqdn);
-	break;
-
-case 3:
-	set_str_val(curr, config.c_humannode);
-	break;
-
-case 4:
-	set_str_val(curr, config.c_phonenum);
-	break;
-
-case 5:
-	set_str_val(curr, config.c_bbs_city);
-	break;
-
-case 6:
 	set_str_val(curr, config.c_sysadm);
 	break;
 
-case 7:
+case 2:
 	set_int_val(curr, &config.c_bbsuid);
 	break;
 
-case 8:
-	set_char_val(curr, &config.c_creataide);
-	break;
-
-case 9:
-	set_int_val(curr, &config.c_sleeping);
-	break;
-
-case 10:
-	set_char_val(curr, &config.c_initax);
-	break;
-
-case 11:
-	set_char_val(curr, &config.c_regiscall);
-	break;
-
-case 12:
-	set_char_val(curr, &config.c_twitdetect);
-	break;
-
-case 13:
-	set_str_val(curr, config.c_twitroom);
-	break;
-
-case 14:
-	set_int_val(curr, &config.c_maxsessions);
-	break;
-
-case 15:
-	set_str_val(curr, config.c_moreprompt);
-	break;
-
-case 16:
-	set_char_val(curr, &config.c_restrict);
-	break;
-
-case 17:
+case 3:
 	set_str_val(curr, config.c_bucket_dir);
 	config.c_bucket_dir[14] = 0;
 	for (a=0; a<strlen(config.c_bucket_dir); ++a)
@@ -805,11 +644,7 @@ case 17:
 				&config.c_bucket_dir[a+1]);
 	break;
 
-case 18:
-	set_str_val(curr, config.c_net_password);
-	break;
-
-case 19:
+case 4:
 	set_int_val(curr, &config.c_port_number);
 	break;
 
@@ -995,6 +830,13 @@ int main(int argc, char *argv[]) {
 	if (config.c_bbsuid == 0) {
 		pw = getpwnam("guest");
 		if (pw != NULL) config.c_bbsuid = pw->pw_uid;
+		}
+	
+	/*
+	 * Make sure that at least one concurrent session is allowed!
+	 */
+	if (config.c_maxsessions < 1) {
+		config.c_maxsessions = 1;
 		}
 
 	/* We need a system default message expiry policy, because this is
