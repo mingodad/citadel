@@ -1,4 +1,9 @@
 $Log$
+Revision 1.100  1999/10/02 03:26:14  ajc
+* Merged in Nick's bit of JavaScript to handle key commands.
+  BROKEN BUILD ALERT!!  This runs all the time, even when the cursor is
+  in a text field.  Right now you can't even log in.
+
 Revision 1.99  1999/09/01 01:06:11  ajc
 * Added "max message length" field in global config screen
 
@@ -287,3 +292,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
