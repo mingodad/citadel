@@ -197,6 +197,9 @@ void* worker(void* data)
 		struct timeval tv;
 		long tstart, tend;
 
+		/* Wait for a while */
+		sleep(w);
+
 		gettimeofday(&tv, NULL);
 		tstart = tv.tv_sec * 1000 + tv.tv_usec / 1000; /* cvt to msec */
 		/* Select the room to goto */
@@ -238,24 +241,19 @@ void* worker(void* data)
 			return NULL;
 		}
 
-		if (w >= 3) {
-			/* Do a status update */
-			pthread_mutex_lock(&count_mutex);
-			count++;
-			pthread_mutex_unlock(&count_mutex);
-			fprintf(stderr, "%d of %d - %d%%        \r",
-				count, total,
-				(int)(100 * count / total));
-		}
+		/* Do a status update */
+		pthread_mutex_lock(&count_mutex);
+		count++;
+		pthread_mutex_unlock(&count_mutex);
+		fprintf(stderr, "%d of %d - %d%%        \r",
+			count, total,
+			(int)(100 * count / total));
 		gettimeofday(&tv, NULL);
 		tend = tv.tv_sec * 1000 + tv.tv_usec / 1000; /* cvt to msec */
 		tend -= tstart;
 		if (tend < tmin) tmin = tend;
 		if (tend > tmax) tmax = tend;
 		trun += tend;
-
-		/* Wait for a while */
-		sleep(w);
 	}
 	end = time(NULL);
 	pthread_mutex_lock(&output_mutex);
