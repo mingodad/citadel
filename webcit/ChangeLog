@@ -1,4 +1,7 @@
 $Log$
+Revision 528.8  2005/01/14 15:00:51  ajc
+* Placed the navbar into the room banner, at least in its temporary form.
+
 Revision 528.7  2005/01/14 04:53:54  ajc
 *** empty log message ***
 
@@ -2176,4 +2179,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
