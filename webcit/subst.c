@@ -140,6 +140,10 @@ void print_value_of(char *keyname) {
 	struct wcsubst *ptr;
 	void *fcn();
 
+	if (keyname[0] == '=') {
+		do_template(&keyname[1]);
+	}
+
 	if (!strcasecmp(keyname, "SERV_PID")) {
 		wprintf("%d", serv_info.serv_pid);
 	}

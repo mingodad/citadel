@@ -600,6 +600,13 @@ void blank_page(void) {
 }
 
 
+/*
+ * A template has been requested
+ */
+void url_do_template(void) {
+	do_template(bstr("template"));
+}
+
 
 
 /*
@@ -775,9 +782,11 @@ void session_loop(struct httprequest *req)
 				      c_username, c_password, c_roomname);
 		}
 		else if (!strncasecmp(buf, "Content-length: ", 16)) {
+			lprintf(9, "%s\n", buf);
 			ContentLength = atoi(&buf[16]);
 		}
 		else if (!strncasecmp(buf, "Content-type: ", 14)) {
+			lprintf(9, "%s\n", buf);
 			safestrncpy(ContentType, &buf[14], sizeof ContentType);
 		}
 		else if (!strncasecmp(buf, "User-agent: ", 12)) {
@@ -793,7 +802,6 @@ void session_loop(struct httprequest *req)
 	}
 
 	if (ContentLength > 0) {
-		lprintf(5, "Content length: %d\n", ContentLength);
 		content = malloc(ContentLength + SIZ);
 		memset(content, 0, ContentLength + SIZ);
 		sprintf(content, "Content-type: %s\n"
@@ -814,6 +822,7 @@ void session_loop(struct httprequest *req)
 			addurls(&content[body_start]);
 		} else if (!strncasecmp(ContentType, "multipart", 9)) {
 			content_end = content + ContentLength;
+			lprintf(9, "Calling MIME parser\n");
 			mime_parser(content, content_end, *upload_handler,
 					NULL, NULL, NULL, 0);
 		}
@@ -946,6 +955,8 @@ void session_loop(struct httprequest *req)
 		do_welcome();
 	} else if (!strcasecmp(action, "blank")) {
 		blank_page();
+	} else if (!strcasecmp(action, "do_template")) {
+		url_do_template();
 	} else if (!strcasecmp(action, "display_main_menu")) {
 		display_main_menu();
 	} else if (!strcasecmp(action, "whobbs")) {

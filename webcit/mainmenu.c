@@ -33,12 +33,10 @@ void display_main_menu(void)
 {
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770077\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">Basic commands</SPAN>\n"
-		"</TD></TR></TABLE>\n"
-		"<CENTER><TABLE border=0><TR>"
-	);
+	svprintf("BOXTITLE", WCS_STRING, "Basic commands");
+	do_template("beginbox");
 
+	wprintf("<TABLE border=0 align=center><TR>");
 	wprintf("<TD>");	/* start of first column */
 
 	wprintf("<UL>");
@@ -88,12 +86,12 @@ void display_main_menu(void)
 	wprintf("</UL>\n");
 
 	wprintf("</TR></TABLE>\n");
+	do_template("endbox");
 
 	wprintf("<TABLE WIDTH=100%%><TR VALIGN=TOP><TD>");
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">Interaction</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
+	svprintf("BOXTITLE", WCS_STRING, "Interaction");
+	do_template("beginbox");
 
 	wprintf("<UL>");
 	wprintf("<LI><A HREF=\"/whobbs\">\n");
@@ -106,12 +104,12 @@ void display_main_menu(void)
 	wprintf("<FONT SIZE=-2>Generic server command</FONT></A>\n");
 
 	wprintf("</UL>\n");
+	do_template("endbox");
 
 	wprintf("</TD><TD>");
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">Your info</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
+	svprintf("BOXTITLE", WCS_STRING, "Your info");
+	do_template("beginbox");
 
 	wprintf("<UL>");
 	wprintf("<LI><A HREF=\"/display_editbio\">\n");
@@ -127,13 +125,12 @@ void display_main_menu(void)
 	wprintf("Change your password</A>\n");
 
 	wprintf("</UL>\n");
-
+	do_template("endbox");
 
 	wprintf("</TD></TR><TR VALIGN=TOP><TD>");
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#000077\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">Advanced room commands</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
+	svprintf("BOXTITLE", WCS_STRING, "Advanced room commands");
+	do_template("beginbox");
 
 	wprintf("<UL>");
 	wprintf("<LI><A HREF=\"/display_private\">\n");
@@ -152,13 +149,13 @@ void display_main_menu(void)
 	wprintf("List all forgotten rooms</A>\n");
 
 	wprintf("</UL>\n");
+	do_template("endbox");
 
 	wprintf("</TD><TD>");
 
 	if ((WC->axlevel >= 6) || (WC->is_room_aide)) {
-		wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007777\"><TR><TD>");
-		wprintf("<SPAN CLASS=\"titlebar\">Administrative functions</SPAN>\n");
-		wprintf("</TD></TR></TABLE>\n");
+		svprintf("BOXTITLE", WCS_STRING, "Administrative functions");
+		do_template("beginbox");
 
 		wprintf("<UL>");
 		wprintf("<LI><A HREF=\"/display_editroom\">\n");
@@ -183,6 +180,7 @@ void display_main_menu(void)
 			wprintf("Reconfigure color scheme</A>\n");
 		}
 		wprintf("</UL>\n");
+		do_template("endbox");
 	}
 	wprintf("</TD></TR></TABLE>");
 	wDumpContent(2);

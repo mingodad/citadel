@@ -224,6 +224,7 @@ void tabular_room_list(void)
 	int a;
 	char buf[SIZ];
 
+	do_template("beginbox_nt");
 	wprintf("<TABLE width=100%% border><TR><TH>Floor</TH>");
 	wprintf("<TH>Rooms with new messages</TH>");
 	wprintf("<TH>Rooms with no new messages</TH></TR>\n");
@@ -259,6 +260,7 @@ void tabular_room_list(void)
 			wprintf("</TD></TR>\n");
 		}
 	wprintf("</TABLE>\n");
+	do_template("endbox");
 	wDumpContent(1);
 }
 
@@ -1814,7 +1816,7 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 	int levels, oldlevels;
 	int i, t;
 
-	/* Output */
+	do_template("beginbox_nt");
 	levels = 0;
 	oldlevels = 0;
 	for (i=0; i<max_folders; ++i) {
@@ -1846,6 +1848,7 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 		}
 		wprintf("<BR>\n");
 	}
+	do_template("endbox");
 }
 
 /*
@@ -2057,7 +2060,7 @@ void knrooms() {
 	get_preference("roomlistview", listviewpref);
 
 	if ( (strcasecmp(listviewpref, "folders"))
-	   && (strcasecmp(listviewpref, "boxes")) ) {
+	   && (strcasecmp(listviewpref, "table")) ) {
 		strcpy(listviewpref, "rooms");
 	}
 
@@ -2068,11 +2071,11 @@ void knrooms() {
 	if (!strcasecmp(listviewpref, "rooms")) {
 		wprintf("Room list");
 	}
-	if (!strcasecmp(listviewpref, "boxes")) {
-		wprintf("Room list");
-	}
 	if (!strcasecmp(listviewpref, "folders")) {
 		wprintf("Folder list");
+	}
+	if (!strcasecmp(listviewpref, "table")) {
+		wprintf("Room list");
 	}
 	wprintf("</SPAN></TD>\n");
 
@@ -2095,10 +2098,10 @@ void knrooms() {
 		( !strcasecmp(listviewpref, "folders") ? "SELECTED" : "" )
 	);
 
-	wprintf("<OPTION %s VALUE=\"/knrooms&view=boxes\">"
-		"View as portal"
+	wprintf("<OPTION %s VALUE=\"/knrooms&view=table\">"
+		"Classic table view"
 		"</OPTION>\n",
-		( !strcasecmp(listviewpref, "boxes") ? "SELECTED" : "" )
+		( !strcasecmp(listviewpref, "table") ? "SELECTED" : "" )
 	);
 
 	wprintf("</SELECT></FORM></TD><TD>\n");
@@ -2106,7 +2109,7 @@ void knrooms() {
 	wprintf("</TD></TR></TABLE><BR>\n");
 
 	/* Display the room list in the user's preferred format */
-	if (!strcasecmp(listviewpref, "rooms")) {
+	if (!strcasecmp(listviewpref, "table")) {
 		tabular_room_list();
 	}
 	else {
