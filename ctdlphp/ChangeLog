@@ -1,4 +1,8 @@
  $Log$
+ Revision 1.13  2003/11/05 03:29:12  ajc
+ * Added a room list function to the library
+ * Threw together temporary room list and goto pages to demonstrate
+
  Revision 1.12  2003/11/04 19:17:16  ajc
  * Added an initial version of the goto command
 
@@ -53,3 +57,4 @@
 
  Revision 1.1  2003/10/31 03:47:13  ajc
  * Initial CVS import
+

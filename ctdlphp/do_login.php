@@ -12,13 +12,13 @@ include "ctdlheader.php";
 
 bbs_page_header();
 
-if ($_POST["action"] == "Login") {
+if ($_REQUEST["action"] == "Login") {
 	list($retval, $msg) =
-		login_existing_user($_POST["user"], $_POST["pass"]);
+		login_existing_user($_REQUEST["user"], $_REQUEST["pass"]);
 }
-else if ($_POST["action"] == "New User") {
+else if ($_REQUEST["action"] == "New User") {
 	list($retval, $msg) =
-		create_new_user($_POST["user"], $_POST["pass"]);
+		create_new_user($_REQUEST["user"], $_REQUEST["pass"]);
 }
 else {
 	echo "uuuuhhhhhhhhh....<BR>\n" ;

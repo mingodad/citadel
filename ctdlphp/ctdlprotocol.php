@@ -231,4 +231,51 @@ function ctdl_goto($to_where) {
 
 
 
+//
+// Fetch the list of known rooms.
+//
+function ctdl_knrooms() {
+	global $clientsocket;
+
+	serv_puts("LKRA");
+	$response = serv_gets();
+
+	if (substr($response, 0, 1) != "1") {
+		return array(0, NULL);
+	}
+	
+	$all_lines = array();
+	$num_lines = 0;
+
+	while (strcmp($buf = serv_gets(), "000")) {
+
+		$thisline = array();
+
+		$tok = strtok($buf, "|");
+		if ($tok) $thisline["name"] = $tok;
+
+		$tok = strtok("|");
+		if ($tok) $thisline["flags"] = $tok;
+		
+		$tok = strtok("|");
+		if ($tok) $thisline["floor"] = $tok;
+		
+		$tok = strtok("|");
+		if ($tok) $thisline["order"] = $tok;
+		
+		$tok = strtok("|");
+		if ($tok) $thisline["flags2"] = $tok;
+
+		$tok = strtok("|");
+		if ($tok) $thisline["access"] = $tok;
+
+		$num_lines = array_push($all_lines, $thisline);
+	}
+
+	return array($num_lines, $all_lines);
+
+}
+
+
+
 ?>
