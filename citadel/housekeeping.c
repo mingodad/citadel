@@ -44,25 +44,18 @@ void terminate_idle_sessions(void) {
 	time_t now;
 	int session_to_kill;
 
-	do {
-		now = time(NULL);
-		session_to_kill = 0;
-		begin_critical_section(S_SESSION_TABLE);
-		for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
-			if (  (ccptr!=CC)
-		   	&& (config.c_sleeping > 0)
-		   	&& (now - (ccptr->lastcmd) > config.c_sleeping) ) {
-				session_to_kill = ccptr->cs_pid;
-				}
-			}
-		end_critical_section(S_SESSION_TABLE);
-		if (session_to_kill > 0) {
-			lprintf(3, "Session %d timed out.  Terminating it...\n",
-				session_to_kill);
-			kill_session(session_to_kill);
-			}
-		} while(session_to_kill > 0);
+	now = time(NULL);
+	session_to_kill = 0;
+	begin_critical_section(S_SESSION_TABLE);
+	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
+		if (  (ccptr!=CC)
+	   	&& (config.c_sleeping > 0)
+	   	&& (now - (ccptr->lastcmd) > config.c_sleeping) ) {
+			ccptr->kill_me = 1;
+		}
 	}
+	end_critical_section(S_SESSION_TABLE);
+}
 
 
 

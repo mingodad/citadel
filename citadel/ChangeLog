@@ -1,4 +1,8 @@
 $Log$
+Revision 1.402  1999/10/29 01:03:03  ajc
+* Debugged all possible ways for a session to terminate; do them cleanly.
+* Assign session numbers in a more portable and less arbitrary way.
+
 Revision 1.401  1999/10/28 19:50:55  ajc
 * Fixed a problem where the client protocol would spit out two responses
   and therefore get out of sync if ASUP command set the access level to
@@ -12,8 +16,7 @@ Revision 1.400  1999/10/28 05:08:49  ajc
 
 Revision 1.399  1999/10/28 03:20:17  ajc
 * Fixed the problem of worker threads waking up prematurely.
-* 'QUIT'-terminated sessions now exit properly.  Still need to fix code for
-  sessions which are terminated from another session or by the server.
+* 'QUIT'-terminated sessions now exit properly.
 
 Revision 1.398  1999/10/27 04:26:58  ajc
 * Initial hack of worker-thread rearchitecture.  Right now it is successfully
@@ -1385,3 +1388,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

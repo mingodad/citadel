@@ -36,6 +36,7 @@
 #include "tools.h"
 
 struct CitContext *ContextList = NULL;
+char *unique_session_numbers;
 int ScheduledShutdown = 0;
 int do_defrag = 0;
 
@@ -66,9 +67,11 @@ void master_cleanup(void) {
 
 	/* Cancel all running sessions */
 	lprintf(7, "Cancelling running sessions...\n");
+
+/* FIX do something here
 	while (ContextList != NULL) {
-		kill_session(ContextList->cs_pid);
 		}
+ */
 
 	/* Run any cleanup routines registered by loadable modules */
 	for (fcn = CleanupHookTable; fcn != NULL; fcn = fcn->next) {
@@ -113,16 +116,16 @@ void deallocate_user_data(struct CitContext *con)
 
 
 /*
- * Gracefully terminate a session which is marked as CON_DYING.
+ * Terminate a session and remove its context data structure.
  */
-void cleanup(struct CitContext *con)
+void RemoveContext (struct CitContext *con)
 {
 	struct CitContext *ptr = NULL;
 	struct CitContext *ToFree = NULL;
 
-	lprintf(9, "cleanup() called\n");
+	lprintf(9, "RemoveContext() called\n");
 	if (con==NULL) {
-		lprintf(5, "WARNING: cleanup() called with NULL!\n");
+		lprintf(5, "WARNING: RemoveContext() called with NULL!\n");
 		return;
 		}
 
@@ -140,11 +143,6 @@ void cleanup(struct CitContext *con)
 	
 	/* Deallocate any user-data attached to this session */
 	deallocate_user_data(con);
-
-	/* And flag the context as in need of being killed.
-	 * (Probably done already, but just in case)
-	 */
-	con->state = CON_DYING;
 
 	/* delete context */
 
@@ -176,7 +174,7 @@ void cleanup(struct CitContext *con)
 	/* Free up the memory used by this context */
 	phree(ToFree);
 
-	lprintf(7, "Done with cleanup()\n");
+	lprintf(7, "Done with RemoveContext()\n");
 }
 
 
@@ -704,7 +702,7 @@ void cmd_term(char *cmdbuf)
 {
 	int session_num;
 	struct CitContext *ccptr;
-	int session_to_kill = 0;
+	int found_it = 0;
 
 	if (!CC->logged_in) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
@@ -727,15 +725,13 @@ void cmd_term(char *cmdbuf)
 	begin_critical_section(S_SESSION_TABLE);
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 		if (session_num == ccptr->cs_pid) {
-			session_to_kill = ccptr->cs_pid;
+			ccptr->kill_me = 1;
+			found_it = 1;
 			}
 		}
 	end_critical_section(S_SESSION_TABLE);
-	lprintf(9, "session_to_kill == %d\n", session_to_kill);
 
-	if (session_to_kill > 0) {
-		lprintf(9, "calling kill_session()\n");
-		kill_session(session_to_kill);
+	if (found_it) {
 		cprintf("%d Session terminated.\n", OK);
 		}
 	else {
@@ -845,7 +841,6 @@ void begin_session(struct CitContext *con)
 	con->internal_pgm = 0;
 	con->download_fp = NULL;
 	con->upload_fp = NULL;
-	con->cs_pid = con->client_socket;	/* not necessarily portable */
 	con->FirstExpressMessage = NULL;
 	time(&con->lastcmd);
 	time(&con->lastidle);
@@ -901,7 +896,7 @@ void do_command_loop(void) {
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_gets(cmdbuf) < 1) {
 		lprintf(3, "Client socket is broken.  Ending session.\n");
-		CC->state = CON_DYING;
+		CC->kill_me = 1;
 		return;
 	}
 	lprintf(5, "citserver[%3d]: %s\n", CC->cs_pid, cmdbuf);
@@ -932,7 +927,7 @@ void do_command_loop(void) {
 
 	else if (!strncasecmp(cmdbuf,"QUIT",4)) {
 		cprintf("%d Goodbye.\n",OK);
-		CC->state = CON_DYING;
+		CC->kill_me = 1;
 		}
 
 	else if (!strncasecmp(cmdbuf,"LOUT",4)) {

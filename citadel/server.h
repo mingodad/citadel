@@ -56,6 +56,7 @@ struct CitContext {
 	struct quickroom quickroom;
 
 	int state;		/* thread state (see CON_ values below) */
+	int kill_me;		/* Set to nonzero to flag for termination */
 
 	char curr_user[32];	/* name of current user */
 	int logged_in;		/* logged in */
@@ -105,8 +106,7 @@ typedef struct CitContext t_context;
 /* Values for CitContext.state */
 enum {
 	CON_IDLE,		/* This context is doing nothing */
-	CON_EXECUTING,		/* This context is bound to a thread */
-	CON_DYING		/* This context is being terminated */
+	CON_EXECUTING		/* This context is bound to a thread */
 };
 
 

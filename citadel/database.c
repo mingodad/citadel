@@ -39,7 +39,8 @@ GDBM_FILE gdbms[MAXCDB];
 
 /*
  * We also keep these around, for sequential searches... (one per 
- * session.  Maybe there's a better way?)
+ * session.  Maybe there's a better way?)    FIX ... there _is_ a better
+ * way.  We have TSD functions now; use them.
  */
 #define MAXKEYS 256
 datum dtkey[MAXKEYS];

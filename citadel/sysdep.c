@@ -312,7 +312,8 @@ struct CitContext *MyContext(void) {
  * Initialize a new context and place it in the list.
  */
 struct CitContext *CreateNewContext(void) {
-	struct CitContext *me;
+	struct CitContext *me, *ptr;
+	int num = 1;
 
 	me = (struct CitContext *) mallok(sizeof(struct CitContext));
 	if (me == NULL) {
@@ -328,8 +329,19 @@ struct CitContext *CreateNewContext(void) {
 	me->state = CON_EXECUTING;
 
 	begin_critical_section(S_SESSION_TABLE);
+
+	/* obtain a unique session number */
+	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
+		if (ptr->cs_pid == num) {
+			++num;
+			ptr = ContextList;
+		}
+	}
+
+	me->cs_pid = num;
 	me->next = ContextList;
 	ContextList = me;
+
 	end_critical_section(S_SESSION_TABLE);
 	return(me);
 	}
@@ -367,7 +379,8 @@ void client_write(char *buf, int nbytes)
 		if (retval < 1) {
 			lprintf(2, "client_write() failed: %s\n",
 				strerror(errno));
-			CC->state = CON_DYING;
+			CC->kill_me = 1;
+			return;
 			}
 		bytes_written = bytes_written + retval;
 		}
@@ -423,7 +436,8 @@ int client_read_to(char *buf, int bytes, int timeout)
 		if (rlen<1) {
 			lprintf(2, "client_read() failed: %s\n",
 				strerror(errno));
-			CC->state = CON_DYING;
+			CC->kill_me = 1;
+			return(-1);
 			}
 		len = len + rlen;
 		}
@@ -494,7 +508,7 @@ void kill_session(int session_to_kill) {
 	begin_critical_section(S_SESSION_TABLE);
 	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 		if (ptr->cs_pid == session_to_kill) {
-			ptr->state = CON_DYING;
+			ptr->kill_me = 1;
 			}
 		}
 	end_critical_section(S_SESSION_TABLE);
@@ -609,6 +623,36 @@ int convert_login(char NameToConvert[]) {
 	}
 
 
+
+/*
+ * Purge all sessions which have the 'kill_me' flag set.
+ * This function has code to prevent it from running more than once every
+ * few seconds, because running it after every single unbind would waste a lot
+ * of CPU time and keep the context list locked too much.
+ */
+void dead_session_purge(void) {
+	static time_t last_purge = 0;
+	struct CitContext *ptr, *rem;
+	
+	if ( (time(NULL) - last_purge) < 5 ) return;	/* Too soon, go away */
+
+	do {
+		rem = NULL;
+		begin_critical_section(S_SESSION_TABLE);
+		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
+			if ( (ptr->state == CON_IDLE) && (ptr->kill_me) ) {
+				rem = ptr;	
+			}
+		}
+		end_critical_section(S_SESSION_TABLE);
+
+		/* RemoveContext() enters its own S_SESSION_TABLE critical
+		 * section, so we have to do it like this.
+		 */	
+		if (rem != NULL) RemoveContext(rem);
+
+	} while (rem != NULL);
+}
 
 
 	
@@ -918,12 +962,10 @@ SETUP_FD:	FD_ZERO(&readfds);
 				pthread_setspecific(MyConKey, (void *)bind_me);
 				do_command_loop();
 				pthread_setspecific(MyConKey, (void *)NULL);
-				if (bind_me->state == CON_DYING) {
-					cleanup(bind_me);
+				bind_me->state = CON_IDLE;
+				if (bind_me->kill_me == 1) {
+					RemoveContext(bind_me);
 				} 
-				else {
-					bind_me->state = CON_IDLE;
-				}
 				write(rescan[1], &junk, 1);
 			}
 			else {
@@ -932,7 +974,7 @@ SETUP_FD:	FD_ZERO(&readfds);
 			}
 
 		}
-
+		dead_session_purge();
 	}
 
 	pthread_exit(NULL);
