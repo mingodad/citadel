@@ -60,6 +60,7 @@ struct filterlist {
 	struct filterlist *next;
 	char f_person[64];
 	char f_room[64];
+	char f_system[64];
 };
 
 struct syslist {
@@ -680,22 +681,74 @@ void bounce(struct minfo *bminfo)
 
 
 
+/*
+ * Generate a Message-ID string for the use table
+ */
+void strmsgid(char *buf, struct minfo *msginfo) {
+	int i;
+
+	sprintf(buf, "%ld@%s", msginfo->I, msginfo->N);
+	for (i=0; i<strlen(buf); ++i) {
+		if (isspace(buf[i])) {
+			strcpy(&buf[i], &buf[i+1]);
+		}
+		buf[i] = tolower(buf[i]);
+	}
+}
+
+
+
+/*
+ * Check the use table to see if a message has been here before.
+ * Returns 1 if the message is a duplicate; otherwise, it returns
+ * 0 and the message ID is added to the use table.
+ */
+int already_received(GDBM_FILE ut, struct minfo *msginfo) {
+	char buf[256];
+	time_t now;
+	datum mkey, newrec;
+	int retval = 0;
+
+	/* We can't check for dups on a zero msgid, so just pass them through */
+	if ((msginfo->I)==0L) {
+		return 0;
+	}
+
+	strmsgid(buf, msginfo);
+	now = time(NULL);
+
+	mkey.dptr = buf;
+	mkey.dsize = strlen(buf);
+
+	/* Set return value to 1 if message exists */
+	if (gdbm_exists(ut, mkey)) {
+		retval = 1;
+	}
+
+	/* Write a record into the use table for this message.
+	 * Replace existing records; this keeps the timestamp fresh.
+	 */
+	newrec.dptr = (char *)&now;
+	newrec.dsize = sizeof(now);
+	gdbm_store(ut, mkey, newrec, GDBM_REPLACE);
+
+	return(retval);
+}
+
+
 
 /*
  * Purge any old entries out of the use table
  */
 void purge_use_table(GDBM_FILE ut) {
-}
 
 /* FIX ... this isn't even close to being finished yet.
- * Here's what needs to be done:
- * 1. Write an entry for each received message into the table
- * 2. Check incoming messages against the table
- * 3. Post a list of rejected messages
+ * Here's what still needs to be done:
  * 4. Purge entries more than a few days old
  */
 
 
+}
 
 
 
@@ -704,7 +757,7 @@ void purge_use_table(GDBM_FILE ut) {
  */
 void inprocess(void)
 {
-	FILE *fp, *message, *testfp, *ls;
+	FILE *fp, *message, *testfp, *ls, *duplist;
 	static struct minfo minfo;
 	struct recentmsg recentmsg;
 	char tname[128], aaa[1024], iname[256], sfilename[256], pfilename[256];
@@ -733,6 +786,11 @@ void inprocess(void)
 		syslog(LOG_ERR, "could not open use table: %s",
 		       strerror(errno));
 	}
+
+
+	/* temporary file to contain a log of rejected dups */
+	duplist = tmpfile();
+
 	/* Let the shell do the dirty work. Get all data from spoolin */
 	do {
 		sprintf(aaa, "cd %s/network/spoolin; ls", bbs_home_directory);
@@ -772,7 +830,8 @@ NXMSG:	/* Seek to the beginning of the next message */
 			/* This crates the temporary file. */
 			message = fopen(tname, "wb");
 			if (message == NULL) {
-				syslog(LOG_ERR, "error creating %s: %s", tname, strerror(errno));
+				syslog(LOG_ERR, "error creating %s: %s",
+					tname, strerror(errno));
 				goto ENDSTR;
 			}
 			putc(255, message);	/* 0xFF (start-of-message) */
@@ -856,8 +915,17 @@ NXMSG:	/* Seek to the beginning of the next message */
 				if (strlen(minfo.G) > 0)
 					strcpy(stemp->s_gdom, minfo.G);
 			}
+
+			/* Check the use table; reject message if it's been here before */
+			if (already_received(use_table, &minfo)) {
+				syslog(LOG_NOTICE, "rejected duplicate message");
+				fprintf(duplist, "#%ld fm <%s> in <%s> @ <%s>",
+			       		minfo.I, minfo.A, minfo.O, minfo.N);
+			}
+
+
 			/* route the message if necessary */
-			if ((strcasecmp(minfo.D, NODENAME)) && (minfo.D[0] != 0)) {
+			else if ((strcasecmp(minfo.D, NODENAME)) && (minfo.D[0] != 0)) {
 				a = get_sysinfo_type(minfo.D);
 				syslog(LOG_NOTICE, "routing message to system <%s>", minfo.D);
 				fflush(stdout);
@@ -878,10 +946,12 @@ NXMSG:	/* Seek to the beginning of the next message */
 					/* message falls into the bit bucket? */
 				}
 			}
+
 			/* check to see if it's a file transfer */
 			else if (!strncasecmp(minfo.S, "FILE", 4)) {
 				proc_file_transfer(tname);
 			}
+
 			/* otherwise process it as a normal message */
 			else {
 
@@ -951,7 +1021,7 @@ NXMSG:	/* Seek to the beginning of the next message */
 			unlink(tname);
 			goto NXMSG;
 
-		      ENDSTR:fclose(fp);
+ENDSTR:			fclose(fp);
 			unlink(pfilename);
 		}
 	} while (ptr != NULL);
@@ -959,6 +1029,29 @@ NXMSG:	/* Seek to the beginning of the next message */
 
 	purge_use_table(use_table);
 	gdbm_close(use_table);
+
+
+	/*
+	 * If dups were rejected, post a message saying so
+	 * FIX ... this doesn't work because a not-logged-in internal_pgm can't do ENT0
+	 */
+	if (ftell(duplist)!=0L) {
+		sprintf(buf, "GOTO %s", AIDEROOM);
+		serv_puts(buf);
+		serv_gets(buf);
+		serv_puts("ENT0 1||0|1|Citadel");
+		serv_gets(buf);
+		if (buf[0]=='4') {
+			serv_puts("The following duplicate messages were rejected:\n");
+			rewind(duplist);
+			while (fgets(buf, sizeof(buf), duplist) != NULL) {
+				buf[strlen(buf)-1] = 0;
+				serv_puts(buf);
+			}
+			serv_puts("000");
+		}
+	}
+
 }
 
 
