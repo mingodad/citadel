@@ -80,6 +80,12 @@ void cal_process_object(icalcomponent *cal,
 	icalproperty *p;
 	struct icaltimetype t;
 	time_t tt;
+	char buf[SIZ];
+
+	/* Leading HTML for the display of this object */
+	if (recursion_level == 0) {
+		wprintf("<CENTER><TABLE border=0 cellpadding=5>\n");
+	}
 
 	/* Look for a method */
 	method = icalcomponent_get_first_property(cal, ICAL_METHOD_PROPERTY);
@@ -89,55 +95,70 @@ void cal_process_object(icalcomponent *cal,
 		the_method = icalproperty_get_method(method);
 		switch(the_method) {
 		    case ICAL_METHOD_REQUEST:
-			wprintf("<CENTER><IMG ALIGN=CENTER "
+			wprintf("<TR><TD COLSPAN=2>\n"
+				"<IMG ALIGN=CENTER "
 				"SRC=\"/static/vcalendar.gif\">"
 				"&nbsp;&nbsp;"	
-				"<B>Meeting invitation</B></CENTER><BR>\n"
+				"<B>Meeting invitation</B>
+				</TD></TR>\n"
 			);
 			break;
 		    default:
-			wprintf("I don't know what to do with this.<BR>\n");
+			wprintf("<TR><TD COLSPAN=2>"
+				"I don't know what to do with this.</TD></TR>"
+				"\n");
 			break;
 		}
 	}
 
       	p = icalcomponent_get_first_property(cal, ICAL_SUMMARY_PROPERTY);
         if (p != NULL) {
-		wprintf("<B>Summary:</B> ");
+		wprintf("<TR><TD><B>Summary:</B></TD><TD>");
 		escputs((char *)icalproperty_get_comment(p));
-		wprintf("<BR>\n");
+		wprintf("</TD></TR>\n");
         }
 
       	p = icalcomponent_get_first_property(cal, ICAL_LOCATION_PROPERTY);
         if (p != NULL) {
-		wprintf("<B>Location:</B> ");
+		wprintf("<TR><TD><B>Location:</B></TD><TD>");
 		escputs((char *)icalproperty_get_comment(p));
-		wprintf("<BR>\n");
+		wprintf("</TD></TR>\n");
         }
 
-      	p = icalcomponent_get_first_property(cal, ICAL_DTSTART_PROPERTY);
-        if (p != NULL) {
-		t = icalproperty_get_dtstart(p);
-		tt = icaltime_as_timet(t);
-		wprintf("<B>Starting date/time:</B> %s<BR>",
-			asctime(localtime(&tt))
-		);
-	}
+	/*
+	 * Only show start/end times if we're actually looking at the VEVENT
+	 * component.  Otherwise it shows bogus dates for things like timezone.
+	 */
+	if (icalcomponent_isa(cal) == ICAL_VEVENT_COMPONENT) {
 
-      	p = icalcomponent_get_first_property(cal, ICAL_DTEND_PROPERTY);
-        if (p != NULL) {
-		t = icalproperty_get_dtstart(p);
-		tt = icaltime_as_timet(t);
-		wprintf("<B>Ending date/time:</B> %s<BR>",
-			asctime(localtime(&tt))
-		);
+      		p = icalcomponent_get_first_property(cal,
+						ICAL_DTSTART_PROPERTY);
+        	if (p != NULL) {
+			t = icalproperty_get_dtstart(p);
+			tt = icaltime_as_timet(t);
+			fmt_date(buf, tt);
+			wprintf("<TR><TD><B>Starting date/time:</B></TD><TD>"
+				"%s</TD></TR>", buf
+			);
+		}
+	
+      		p = icalcomponent_get_first_property(cal, ICAL_DTEND_PROPERTY);
+        	if (p != NULL) {
+			t = icalproperty_get_dtend(p);
+			tt = icaltime_as_timet(t);
+			fmt_date(buf, tt);
+			wprintf("<TR><TD><B>Ending date/time:</B></TD><TD>"
+				"%s</TD></TR>", buf
+			);
+		}
+
 	}
 
       	p = icalcomponent_get_first_property(cal, ICAL_DESCRIPTION_PROPERTY);
         if (p != NULL) {
-		wprintf("<B>Description:</B> ");
+		wprintf("<TR><TD><B>Description:</B></TD><TD>");
 		escputs((char *)icalproperty_get_comment(p));
-		wprintf("<BR>\n");
+		wprintf("</TD></TR>\n");
         }
 
 	/* If the component has subcomponents, recurse through them. */
@@ -148,15 +169,18 @@ void cal_process_object(icalcomponent *cal,
 		cal_process_object(c, recursion_level+1);
 	}
 
+	/* Trailing HTML for the display of this object */
 	if (recursion_level == 0) {
-		wprintf("<CENTER><FORM METHOD=\"GET\" "
+		wprintf("<TR><TD COLSPAN=2>"
+			"<FORM METHOD=\"GET\" "
 			"ACTION=\"/respond_to_request\">\n"
 			"<INPUT TYPE=\"submit\" NAME=\"sc\" "
 				"VALUE=\"Accept\">"
 			"&nbsp;&nbsp;"
 			"<INPUT TYPE=\"submit\" NAME=\"sc\" "
 				"VALUE=\"Decline\">"
-			"</FORM></CENTER>\n"
+			"</FORM>"
+			"</TD></TR></TABLE></CENTER>\n"
 		);
 	}
 }
