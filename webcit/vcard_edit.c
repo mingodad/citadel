@@ -6,7 +6,6 @@
  * $Id$
  */
 
-
 #include <ctype.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -39,7 +38,35 @@ void edit_vcard(void) {
 	size_t thisblock = 0;
 	struct vCard *v;
 	int i;
-	char *prop;
+	char *key, *value;
+
+	char lastname[SIZ];
+	char firstname[SIZ];
+	char middlename[SIZ];
+	char prefix[SIZ];
+	char suffix[SIZ];
+	char pobox[SIZ];
+	char extadr[SIZ];
+	char street[SIZ];
+	char city[SIZ];
+	char state[SIZ];
+	char zipcode[SIZ];
+	char country[SIZ];
+	char extrafields[SIZ];
+
+	lastname[0] = 0;
+	firstname[0] = 0;
+	middlename[0] = 0;
+	prefix[0] = 0;
+	suffix[0] = 0;
+	pobox[0] = 0;
+	extadr[0] = 0;
+	street[0] = 0;
+	city[0] = 0;
+	state[0] = 0;
+	zipcode[0] = 0;
+	country[0] = 0;
+	extrafields[0] = 0;
 
 	output_headers(1);
 	sprintf(buf, "OPNA %s|%s", bstr("msgnum"), bstr("partnum") );
@@ -75,16 +102,95 @@ void edit_vcard(void) {
 	v = vcard_load(serialized_vcard);
 	free(serialized_vcard);
 
-	wprintf("<BLINK>   FIXME    </BLINK><BR><BR>\n"
-		"This needs to be implemented as an editable form.<BR><BR>\n");
-
+	/* Populate the variables for our form */
 	i = 0;
-	while (prop = vcard_get_prop(v, "", 0, i++), prop != NULL) {
-		escputs(prop);
-		wprintf("<BR>\n");
+	while (key = vcard_get_prop(v, "", 0, i, 1), key != NULL) {
+		value = vcard_get_prop(v, "", 0, i++, 0);
+
+		if (!strcasecmp(key, "n")) {
+			extract_token(lastname, value, 0, ';');
+			extract_token(firstname, value, 1, ';');
+			extract_token(middlename, value, 2, ';');
+			extract_token(prefix, value, 3, ';');
+			extract_token(suffix, value, 4, ';');
+		}
+
+		else if (!strcasecmp(key, "adr")) {
+			extract_token(pobox, value, 0, ';');
+			extract_token(extadr, value, 1, ';');
+			extract_token(street, value, 2, ';');
+			extract_token(city, value, 3, ';');
+			extract_token(state, value, 4, ';');
+			extract_token(zipcode, value, 5, ';');
+			extract_token(country, value, 6, ';');
+		}
+
+		else {
+			strcat(extrafields, key);
+			strcat(extrafields, ":");
+			strcat(extrafields, value);
+			strcat(extrafields, "\n");
+		}
+
 	}
 	
 	vcard_free(v);
+
+	/* Display the form */
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/do_FIXME_stuff\">\n");
+	wprintf("<H2><IMG VALIGN=CENTER SRC=\"/static/vcard.gif\">"
+		"Contact information for FIXME</H2>\n");
+
+	wprintf("Last name: "
+		"<INPUT TYPE=\"text\" NAME=\"lastname\" "
+		"VALUE=\"%s\" MAXLENGTH=\"29\"><BR>\n",
+		lastname);
+	wprintf("First name: "
+		"<INPUT TYPE=\"text\" NAME=\"firstname\" "
+		"VALUE=\"%s\" MAXLENGTH=\"29\"><BR>\n",
+		firstname);
+	wprintf("Prefix: "
+		"<INPUT TYPE=\"text\" NAME=\"prefix\" "
+		"VALUE=\"%s\" MAXLENGTH=\"5\"><BR>\n",
+		prefix);
+	wprintf("Suffix: "
+		"<INPUT TYPE=\"text\" NAME=\"suffix\" "
+		"VALUE=\"%s\" MAXLENGTH=\"10\"><BR><BR>\n",
+		suffix);
+
+	wprintf("<TABLE border=0><TR><TD>Address - PO box; optional:</TD>"
+		"<TD><INPUT TYPE=\"text\" NAME=\"pobox\" "
+		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR>\n",
+		pobox);
+	wprintf("<TR><TD>Street:</TD>"
+		"<TD><INPUT TYPE=\"text\" NAME=\"extadr\" "
+		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR>\n",
+		extadr);
+	wprintf("<TR><TD>&nbsp;</TD>"
+		"<TD><INPUT TYPE=\"text\" NAME=\"street\" "
+		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR>\n",
+		street);
+	wprintf("<TR><TD>City:</TD>"
+		"<TD><INPUT TYPE=\"text\" NAME=\"city\" "
+		"VALUE=\"%s\" MAXLENGTH=\"29\">\n",
+		city);
+	wprintf(" State: "
+		"<INPUT TYPE=\"text\" NAME=\"state\" "
+		"VALUE=\"%s\" MAXLENGTH=\"2\">\n",
+		state);
+	wprintf(" ZIP code: "
+		"<INPUT TYPE=\"text\" NAME=\"zipcode\" "
+		"VALUE=\"%s\" MAXLENGTH=\"10\"></TD></TR>\n",
+		zipcode);
+	wprintf("<TR><TD>Country:</TD>"
+		"<TD><INPUT TYPE=\"text\" NAME=\"country\" "
+		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR></TABLE>\n",
+		country);
+
+	wprintf("<TEXTAREA NAME=\"extrafields\" ROWS=10 COLS=80 WIDTH=80>");
+	escputs(extrafields);
+	wprintf("</TEXTAREA><BR>\n");
+
 	 
 	wDumpContent(1);
 }

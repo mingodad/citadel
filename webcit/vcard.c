@@ -128,14 +128,15 @@ struct vCard *vcard_load(char *vtext) {
 
 
 /*
- * Fetch the value of a particular key
+ * Fetch the value of a particular key.
  * If is_partial is set to 1, a partial match is ok (for example,
- * a key of "tel;home" will satisfy a search for "tel")
+ * a key of "tel;home" will satisfy a search for "tel").
  * Set "instance" to a value higher than 0 to return subsequent instances
- * of the same key
+ * of the same key.
+ * Set "get_propname" to nonzero to fetch the property name instead of value.
  */
 char *vcard_get_prop(struct vCard *v, char *propname,
-			int is_partial, int instance) {
+			int is_partial, int instance, int get_propname) {
 	int i;
 	int found_instance = 0;
 
@@ -147,7 +148,12 @@ char *vcard_get_prop(struct vCard *v, char *propname,
 			 && (v->prop[i].name[strlen(propname)] == ';')
 			 && (is_partial) ) ) {
 			if (instance == found_instance++) {
-				return(v->prop[i].value);
+				if (get_propname) {
+					return(v->prop[i].name);
+				}
+				else {
+					return(v->prop[i].value);
+				}
 			}
 		}
 	}
