@@ -77,22 +77,23 @@ VPATH=$(srcdir)
 
 DOMAIN=@DOMAIN@
 
-SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c \
-	commands.c config.c control.c $(DATABASE) \
-	dynloader.c file_ops.c housekeeping.c ipc_c_tcp.c locate_host.c \
-	logging.c messages.c msgbase.c msgform.c serv_spam.c \
-	policy.c readlog.c migratenet.c screen.c serv_mrtg.c \
-	room_ops.c rooms.c routines.c routines2.c serv_chat.c serv_crypto.c \
-	serv_test.c setup.c snprintf.c stats.c serv_vcard.c serv_newuser.c \
-	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
-	whobbs.c sendcommand.c mime_parser.c base64.c getutline.c \
-	auth.c chkpwd.c html.c vcard.c serv_upgrade.c serv_vandelay.c \
-	serv_smtp.c serv_pop3.c internet_addressing.c parsedate.c genstamp.c \
-	$(DOMAIN) clientsocket.c serv_inetcfg.c serv_rwho.c serv_bio.c \
-	client_passwords.c imap_misc.c serv_netfilter.c serv_mrtg.c \
-	serv_spam.c citadel_ipc.c serv_listsub.c \
-	serv_imap.c imap_tools.c imap_fetch.c imap_search.c imap_store.c \
-	serv_network.c serv_pas2.c serv_calendar.c md5.c server_main.c
+SOURCES=aidepost.c auth.c base64.c chkpwd.c citadel.c citadel_ipc.c \
+	citmail.c citserver.c client_chat.c client_passwords.c \
+	clientsocket.c commands.c config.c control.c $(DATABASE) \
+	$(DOMAIN) dynloader.c file_ops.c genstamp.c getutline.c \
+	housekeeping.c html.c imap_fetch.c imap_misc.c imap_search.c \
+	imap_store.c imap_tools.c internet_addressing.c ipc_c_tcp.c \
+	locate_host.c logging.c md5.c messages.c migratenet.c \
+	mime_parser.c msgbase.c msgform.c parsedate.c policy.c \
+	readlog.c room_ops.c rooms.c routines.c routines2.c \
+	screen.c sendcommand.c serv_bio.c serv_calendar.c serv_chat.c \
+	serv_crypto.c serv_expire.c serv_imap.c serv_inetcfg.c \
+	serv_listsub.c serv_mrtg.c serv_netfilter.c serv_network.c \
+	serv_newuser.c serv_pas2.c serv_pop3.c serv_rwho.c serv_smtp.c \
+	serv_spam.c serv_test.c serv_mrtg.c serv_spam.c serv_upgrade.c \
+	serv_vandelay.c serv_vcard.c server_main.c setup.c snprintf.c \
+	stats.c support.c sysdep.c tools.c user_ops.c userlist.c \
+	whobbs.c vcard.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
