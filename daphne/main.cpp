@@ -19,7 +19,7 @@
 
 // Globals
 wxMDIParentFrame *BigMDI;
-wxTreeCtrl *RoomList;
+RoomTree *RoomList;
 
 
 // ----------------------------------------------------------------------------
@@ -50,6 +50,7 @@ public:
 	void OnQuit(wxCommandEvent& event);
 	void OnAbout(wxCommandEvent& event);
 	void OnDoCmd(wxCommandEvent& event);
+	void GotoNewRoom(wxTreeEvent& event);
 private:
 	void OnConnect(wxCommandEvent& event);
 	void OnTestWin(wxCommandEvent& event);
@@ -84,7 +85,8 @@ enum
 	WMENU_ARRANGE,
 	WMENU_NEXT,
 	WMENU_PREVIOUS,
-	BUTTON_DO_CMD
+	BUTTON_DO_CMD,
+	ROOMTREE_DOUBLECLICK
 };
 
 // ----------------------------------------------------------------------------
@@ -112,8 +114,8 @@ END_EVENT_TABLE()
 // Create a new application object: this macro will allow wxWindows to create
 // the application object during program execution (it's better than using a
 // static object for many reasons) and also declares the accessor function
-// wxGetApp() which will return the reference of the right type (i.e. Daphne and
-// not wxApp)
+// wxGetApp() which will return the reference of the right type (i.e. Daphne
+// and not wxApp)
 IMPLEMENT_APP(Daphne)
 
 // ============================================================================
@@ -168,12 +170,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 	// Set up the left-side thingie
 
-	RoomList = new wxTreeCtrl(
-			this, -1, 
-			wxDefaultPosition, wxDefaultSize,
-			wxTR_HAS_BUTTONS | wxSUNKEN_BORDER,
-			wxDefaultValidator,
-			"RoomList");
+	RoomList = new RoomTree(this, citadel);
 
         wxLayoutConstraints *t2 = new wxLayoutConstraints;
         t2->top.SameAs(this, wxTop, 4);
@@ -382,3 +379,4 @@ void MyFrame::OnConnect(wxCommandEvent& unused) {
 void MyFrame::OnTestWin(wxCommandEvent& unused) {
 	new TestWindow(citadel, this);
 }
+

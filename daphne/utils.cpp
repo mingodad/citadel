@@ -1,16 +1,6 @@
 // utility functions not belonging to any particular class
 
-#include <wx/wx.h>
 #include "includes.hpp"
-
-#include "bitmaps/root.xpm"
-#include "bitmaps/floor.xpm"
-#include "bitmaps/newroom.xpm"
-#include "bitmaps/oldroom.xpm"
-#include "bitmaps/mailroom.xpm"
-
-wxTreeItemId floorboards[128];
-wxImageList *TreeIcons = NULL;
 
 // The following two functions convert between the wxStringList class used for
 // text transfers to and from the Citadel server, and the wxString class used
@@ -88,85 +78,3 @@ int extract_int(wxString inputbuf, int parmnum) {
 	return atoi(buf);
 }
 
-
-void InitTreeIcons(void) {
-	TreeIcons = new wxImageList(16, 16);
-	TreeIcons->Add(wxICON(root));
-	TreeIcons->Add(wxICON(floor));
-	TreeIcons->Add(wxICON(newroom));
-	TreeIcons->Add(wxICON(oldroom));
-	TreeIcons->Add(wxICON(mailroom));
-}
-
-
-// Load a tree with a room list
-//
-void load_roomlist(wxTreeCtrl *tree, CitClient *citsock) {
-	wxString sendcmd, recvcmd, buf, floorname, roomname;
-	wxStringList transbuf;
-	wxTreeItemId item;
-	int i, floornum;
-
-	if (TreeIcons == NULL) InitTreeIcons();
-
-	// First, clear it out.
-	tree->DeleteAllItems();
-	tree->SetImageList(TreeIcons);
-
-	// Set the root with the name of the Citadel server.
-	tree->AddRoot(
-		citsock->HumanNode,
-		0,
-		-1,
-		NULL);
-
-	sendcmd = "LFLR";
-	// Bail out silently if we can't retrieve the floor list
-	if (citsock->serv_trans(sendcmd, recvcmd, transbuf) != 1) return;
-
-	// Load the floors one by one onto the tree
-        for (i=0; i<transbuf.Number(); ++i) {
-                buf.Printf("%s", (wxString *)transbuf.Nth(i)->GetData());
-		extract(floorname, buf, 1);
-		floornum = extract_int(buf, 0);
-		floorboards[floornum] = tree->AppendItem(
-			tree->GetRootItem(),
-			floorname,
-			1,
-			-1,
-			NULL);
-	}
-
-	// Load the rooms with new messages into the tree
-	sendcmd = "LKRN";
-	if (citsock->serv_trans(sendcmd, recvcmd, transbuf) != 1) return;
-        for (i=0; i<transbuf.Number(); ++i) {
-                buf.Printf("%s", (wxString *)transbuf.Nth(i)->GetData());
-		extract(roomname, buf, 0);
-		floornum = extract_int(buf, 2);
-		item = tree->AppendItem(
-			floorboards[floornum],
-			roomname,
-			2,
-			-1,
-			NULL);
-		tree->SetItemBold(item, TRUE);
-		tree->SetItemBold(floorboards[floornum], TRUE);
-	}
-
-	// Load the rooms with new messages into the tree
-	sendcmd = "LKRO";
-	if (citsock->serv_trans(sendcmd, recvcmd, transbuf) != 1) return;
-        for (i=0; i<transbuf.Number(); ++i) {
-                buf.Printf("%s", (wxString *)transbuf.Nth(i)->GetData());
-		extract(roomname, buf, 0);
-		floornum = extract_int(buf, 2);
-		tree->AppendItem(
-			floorboards[floornum],
-			roomname,
-			3,
-			-1,
-			NULL);
-	}
-
-}

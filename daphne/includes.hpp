@@ -5,14 +5,9 @@
 #include <wx/wx.h>
 #include <wx/listctrl.h>
 #include <wx/socket.h>
-
-
-
-// Globals
-
-extern wxMDIParentFrame *BigMDI;
-extern wxTreeCtrl *RoomList;
-
+#include <wx/log.h>
+#include "wx/imaglist.h"
+#include "wx/treectrl.h"
 
 
 // TCPsocket represents a socket-level TCP connection to a server.
@@ -196,6 +191,22 @@ private:
 
 
 
+// The ever-present tree of floors and rooms
+
+class RoomTree : public wxTreeCtrl {
+public:
+	RoomTree(wxWindow *parent, CitClient *sock);
+	void LoadRoomList(void);
+private:
+	void InitTreeIcons(void);
+	CitClient *citsock;
+	wxTreeItemId floorboards[128];
+	wxImageList *TreeIcons;
+};
+
+
+
+
 
 // Stuff from utils.cpp
 
@@ -203,9 +214,16 @@ void ListToMultiline(wxString& outputbuf, wxStringList inputlist);
 void MultilineToList(wxStringList& outputlist, wxString inputbuf);
 void extract(wxString& outputbuf, wxString inputbuf, int parmnum);
 int extract_int(wxString inputbuf, int parmnum);
-void load_roomlist(wxTreeCtrl *tree, CitClient *citsock);
+void load_roomlist(RoomTree *tree, CitClient *citsock);
 
 
+
+
+
+// Globals
+
+extern wxMDIParentFrame *BigMDI;
+extern RoomTree *RoomList;
 
 
 

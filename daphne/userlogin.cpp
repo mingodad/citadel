@@ -284,6 +284,6 @@ void UserLogin::BeginSession(wxString serv_response) {
 
 	// FIX ... add code here to perform registration if necessary
 
-	load_roomlist(RoomList, citsock);
+	RoomList->LoadRoomList();
 	
 }
