@@ -1,4 +1,8 @@
 $Log$
+Revision 1.441  2000/01/15 04:07:17  ajc
+* Fixed the access rights on auto-created rooms (the same changes that were
+  made to version 5.62 in the stable tree)
+
 Revision 1.440  2000/01/13 03:32:36  ajc
 * techdoc/delivery-list.txt: added (syntax for delivery lists)
 * domain.*: added (will contain MX lookup code)
@@ -1540,3 +1544,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

@@ -440,7 +440,7 @@ char *Dynamic_Module_Init(void)
 	CtdlRegisterProtoHook(cmd_regi, "REGI", "Enter registration info");
 	CtdlRegisterProtoHook(cmd_greg, "GREG", "Get registration info");
 	CtdlRegisterUserHook(vcard_purge, EVT_PURGEUSER);
-	create_room(ADDRESS_BOOK_ROOM, 0, "", 0);
+	create_room(ADDRESS_BOOK_ROOM, 3, "", 0);
 	return "$Id$";
 }
 
