@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.99  2002/08/23 03:36:52  ajc
+ * Finished all of the subscribe/unsubscribe/confirm stuff!
+
  Revision 591.98  2002/08/23 02:30:02  ajc
  * Delete unconfirmed pending subscribe/unsubscribe requests after three days
  * Don't allow multiple subscriptions of the same address to a list
@@ -3926,3 +3929,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

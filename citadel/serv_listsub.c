@@ -308,6 +308,14 @@ void do_confirm(char *room, char *token) {
 	char email[SIZ];
 	char subtype[SIZ];
 	int success = 0;
+	char address_to_unsubscribe[SIZ];
+	char scancmd[SIZ];
+	char scanemail[SIZ];
+	char *holdbuf = NULL;
+	int linelen = 0;
+	int buflen = 0;
+
+	strcpy(address_to_unsubscribe, "");
 
 	if (getroom(&qrbuf, room) != 0) {
 		cprintf("%d There is no list called '%s'\n",
@@ -322,8 +330,8 @@ void do_confirm(char *room, char *token) {
 		return;
 	}
 
-	begin_critical_section(S_NETCONFIGS);
 	assoc_file_name(filename, sizeof filename, &qrbuf, "netconfigs");
+	begin_critical_section(S_NETCONFIGS);
 	ncfp = fopen(filename, "r+");
 	if (ncfp != NULL) {
 		while (line_offset = ftell(ncfp),
@@ -356,11 +364,76 @@ void do_confirm(char *room, char *token) {
 					++success;
 				}
 			}
+			if (!strcasecmp(cmd, "unsubpending")) {
+				extract(line_token, buf, 2);
+				if (!strcasecmp(token, line_token)) {
+					extract(address_to_unsubscribe, buf, 1);
+				}
+			}
 		}
 		fclose(ncfp);
 	}
 	end_critical_section(S_NETCONFIGS);
 
+	/*
+	 * If "address_to_unsubscribe" contains something, then we have to
+	 * make another pass at the file, stripping out lines referring to
+	 * that address.
+	 */
+	if (strlen(address_to_unsubscribe) > 0) {
+		holdbuf = mallok(SIZ);
+		begin_critical_section(S_NETCONFIGS);
+		ncfp = fopen(filename, "r+");
+		if (ncfp != NULL) {
+			while (line_offset = ftell(ncfp),
+			      (fgets(buf, sizeof buf, ncfp) != NULL) ) {
+				buf[strlen(buf)-1]=0;
+				extract(scancmd, buf, 0);
+				extract(scanemail, buf, 1);
+				if ( (!strcasecmp(scancmd, "listrecp"))
+				   && (!strcasecmp(scanemail,
+						address_to_unsubscribe)) ) {
+					++success;
+				}
+				else if ( (!strcasecmp(scancmd, "digestrecp"))
+				   && (!strcasecmp(scanemail,
+						address_to_unsubscribe)) ) {
+					++success;
+				}
+				else if ( (!strcasecmp(scancmd, "subpending"))
+				   && (!strcasecmp(scanemail,
+						address_to_unsubscribe)) ) {
+					++success;
+				}
+				else if ( (!strcasecmp(scancmd, "unsubpending"))
+				   && (!strcasecmp(scanemail,
+						address_to_unsubscribe)) ) {
+					++success;
+				}
+				else {	/* Not relevant, so *keep* it! */
+					linelen = strlen(buf);
+					holdbuf = reallok(holdbuf,
+						(buflen + linelen + 2) );
+					strcpy(&holdbuf[buflen], buf);
+					buflen += linelen;
+					strcpy(&holdbuf[buflen], "\n");
+					buflen += 1;
+				}
+			}
+			fclose(ncfp);
+		}
+		ncfp = fopen(filename, "w");
+		if (ncfp != NULL) {
+			fwrite(holdbuf, buflen+1, 1, ncfp);
+			fclose(ncfp);
+		}
+		end_critical_section(S_NETCONFIGS);
+		phree(holdbuf);
+	}
+
+	/*
+	 * Did we do anything useful today?
+	 */
 	if (success) {
 		cprintf("%d %d operation(s) confirmed.\n", CIT_OK, success);
 	}
@@ -389,7 +462,8 @@ void cmd_subs(char *cmdbuf) {
 		extract(subtype, cmdbuf, 3);
 		if ( (strcasecmp(subtype, "list"))
 		   && (strcasecmp(subtype, "digest")) ) {
-			cprintf("%d Invalid subscription type.\n", ERROR);
+			cprintf("%d Invalid subscription type '%s'\n",
+				ERROR+ILLEGAL_VALUE, subtype);
 		}
 		else {
 			extract(room, cmdbuf, 1);
@@ -401,7 +475,7 @@ void cmd_subs(char *cmdbuf) {
 	else if (!strcasecmp(opr, "unsubscribe")) {
 		extract(room, cmdbuf, 1);
 		extract(email, cmdbuf, 2);
-		extract(webpage, cmdbuf, 4);
+		extract(webpage, cmdbuf, 3);
 		do_unsubscribe(room, email, webpage);
 	}
 	else if (!strcasecmp(opr, "confirm")) {
