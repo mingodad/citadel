@@ -291,6 +291,7 @@ void the_mime_parser(char *partnum,
 	char startary[SIZ];
 	char endary[SIZ];
 	char content_type[SIZ];
+	size_t content_length;
 	char encoding[SIZ];
 	char disposition[SIZ];
 	char name[SIZ];
@@ -309,6 +310,7 @@ void the_mime_parser(char *partnum,
 	memset(name, 0, sizeof name);
 	memset(filename, 0, sizeof filename);
 	memset(disposition, 0, sizeof disposition);
+	content_length = 0;
 
 	/* Learn interesting things from the headers */
 	strcpy(header, "");
@@ -331,6 +333,9 @@ void the_mime_parser(char *partnum,
 			if (!strncasecmp(header, "Content-Disposition: ", 21)) {
 				strcpy(disposition, &header[21]);
 				extract_key(filename, disposition, "filename");
+			}
+			if (!strncasecmp(header, "Content-length: ", 16)) {
+				content_length = (size_t) atol(&header[16]);
 			}
 			if (!strncasecmp(header,
 				      "Content-transfer-encoding: ", 27))
@@ -360,6 +365,9 @@ void the_mime_parser(char *partnum,
 		is_multipart = 0;
 	}
 
+	fprintf(stderr, "is_multipart=%d, boundary=<%s>\n",
+		is_multipart, boundary);
+
 	/* If this is a multipart message, then recursively process it */
 	part_start = NULL;
 	if (is_multipart) {
@@ -370,25 +378,25 @@ void the_mime_parser(char *partnum,
 				NULL, content_type,
 				0, encoding, userdata);
 		}
-		/*
+		/***********
 		if (CallBack != NULL) {
 			CallBack("", "", fixed_partnum(partnum),
 				"", NULL, content_type,
 				0, encoding, userdata);
 		}
-		 */
+		 ***********/
 
 		/* Figure out where the boundaries are */
 		sprintf(startary, "--%s", boundary);
 		sprintf(endary, "--%s--", boundary);
 		do {
 			part_end = ptr;
-			ptr = memreadline(ptr, buf, sizeof buf);
 			if (content_end != NULL)
 				if (ptr >= content_end) goto END_MULTI;
 
-			if ( (!strcasecmp(buf, startary))
-			   || (!strcasecmp(buf, endary)) ) {
+			if ( (!strncasecmp(buf, startary, strlen(startary)))
+			   || (!strncasecmp(buf, endary, strlen(endary))) ) {
+				fprintf(stderr, "hit boundary!\n");
 				if (part_start != NULL) {
 					if (strlen(partnum) > 0) {
 						sprintf(nested_partnum, "%s.%d",
@@ -407,6 +415,10 @@ void the_mime_parser(char *partnum,
 							dont_decode);
 				}
 				part_start = ptr;
+				ptr = memreadline(ptr, buf, sizeof(buf));
+			}
+			else {
+				++ptr;
 			}
 		} while ( (strcasecmp(buf, endary)) && (ptr <= content_end) );
 END_MULTI:	if (PostMultiPartCallBack != NULL) {
@@ -421,11 +433,26 @@ END_MULTI:	if (PostMultiPartCallBack != NULL) {
 		fprintf(stderr, "doing non-multipart thing\n");
 		part_start = ptr;
 		length = 0;
-		while ( ( (*ptr != 0) && (content_end != NULL) )
-		      || (ptr < content_end) ) {
-			++length;
-			part_end = ptr++;
+		if (content_end == NULL) {
+			while (*ptr != 0) {
+				++length;
+				part_end = ptr++;
+			}
 		}
+		else {
+			while (ptr < content_end) {
+				++ptr;
+				++length;
+			}
+			part_end = content_end;
+		}
+		
+		/* Truncate if the header told us to */
+		if ( (content_length > 0) && (length > content_length) ) {
+			length = content_length;
+			fprintf(stderr, "truncated to %d\n", content_length);
+		}
+		
 		mime_decode(partnum,
 			    part_start, length,
 			    content_type, encoding, disposition,
@@ -433,8 +460,6 @@ END_MULTI:	if (PostMultiPartCallBack != NULL) {
 			    CallBack, NULL, NULL,
 			    userdata, dont_decode);
 	}
-
-
 }
 
 
