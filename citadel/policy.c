@@ -85,7 +85,7 @@ void cmd_gpex(char *argbuf) {
 		memcpy(&exp, &config.c_ep, sizeof(struct ExpirePolicy));
 	}
 	else {
-		cprintf("%d Invalid keyword.\n", ERROR);
+		cprintf("%d Invalid keyword \"%s\"\n", ERROR, which);
 		return;
 	}
 
@@ -151,7 +151,7 @@ void cmd_spex(char *argbuf) {
 	}
 
 	else {
-		cprintf("%d Invalid keyword.\n", ERROR);
+		cprintf("%d Invalid keyword \"%s\"\n", ERROR, which);
 		return;
 	}
 

@@ -1748,6 +1748,7 @@ int CtdlIPCSetMessageExpirationPolicy(CtdlIPC *ipc, int which,
 		struct ExpirePolicy *policy, char *cret)
 {
 	char aaa[38];
+	char *whichvals[] = { "room", "floor", "site" };
 
 	if (!cret) return -2;
 	if (which < 0 || which > 2) return -2;
@@ -1755,7 +1756,7 @@ int CtdlIPCSetMessageExpirationPolicy(CtdlIPC *ipc, int which,
 	if (policy->expire_mode < 0 || policy->expire_mode > 3) return -2;
 	if (policy->expire_mode >= 2 && policy->expire_value < 1) return -2;
 
-	sprintf(aaa, "SPEX %d|%d|%d", which,
+	sprintf(aaa, "SPEX %s|%d|%d", whichvals[which],
 			policy->expire_mode, policy->expire_value);
 	return CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
 }

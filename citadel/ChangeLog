@@ -1,4 +1,10 @@
  $Log$
+ Revision 601.112  2003/01/16 04:17:02  ajc
+ * citadel_ipc.c: when issuing a SPEX command, send the string value for
+   room/floor/site instead of the number.  citserver wants a string.
+ * ipc_c_tcp.c: don't call SSL_shutdown() from connection_died().  This just
+   causes it to segfault because there's no valid socket.
+
  Revision 601.111  2003/01/16 03:41:45  ajc
  * Renamed "dynloader" to "serv_extensions" globally.  We don't want people
    to think we have a dynamic loader, do we?  :)
@@ -4390,4 +4396,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
