@@ -352,6 +352,7 @@ int CtdlLoginExistingUser(char *trythisname)
 	char username[SIZ];
 	int found_user;
 	struct recptypes *valid = NULL;
+	struct passwd *p = NULL;
 
 	if (trythisname == NULL) return login_not_found;
 	safestrncpy(username, trythisname, sizeof username);
@@ -377,6 +378,20 @@ int CtdlLoginExistingUser(char *trythisname)
 			phree(valid);
 		}
 	}
+
+#ifdef ENABLE_AUTOLOGIN
+	/* If we haven't found the account yet, and the supplied name
+	 * is a login name on the underlying host system, create the
+	 * account.
+	 */
+	if (found_user != 0) {
+		p = (struct passwd *) getpwnam(username);
+		if (p != NULL) {
+			create_user(username, 0);
+			found_user = getuser(&CC->user, username);
+		}
+	}
+#endif /* ENABLE_AUTOLOGIN */
 
 	/* Did we find something? */
 	if (found_user == 0) {
