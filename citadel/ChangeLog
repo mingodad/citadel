@@ -1,5 +1,6 @@
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* setup.c: create citadel.config with mode 0600
+	* Makefile.in: don't chmod sendcommand
 
 Wed Dec  2 20:37:05 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* msgbase.c: modified AddMessageToRoom() and all functions that call it

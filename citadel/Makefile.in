@@ -191,7 +191,6 @@ install-data:
 		 `find help messages network -type f | grep -v CVS`; do \
 		$(INSTALL_DATA) $$i $(prefix)/$$i; \
 	done
-	chmod 700 $(prefix)/sendcommand
 
 install-doc:
 	./mkinstalldirs $(prefix)/techdoc
