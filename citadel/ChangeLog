@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.49  2000/12/12 06:19:55  ajc
+ * Stabilize, dammit!!
+
  Revision 573.48  2000/12/12 04:20:03  ajc
  * Made the transaction open/close a global thing, in a frantic attempt to get
    Uncensored to stop crashing.  More fixes on the way...
@@ -2216,3 +2219,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

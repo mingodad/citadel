@@ -102,6 +102,7 @@ void DLoader_Init(char *pathname)
 			continue;
 
 		snprintf(pathbuf, PATH_MAX, "%s/%s", pathname, dptr->d_name);
+		lprintf(7, "Initializing %s...\n", pathbuf);
 
 #ifdef RTLD_LAZY
 		if (!(fcn_handle = dlopen(pathbuf, RTLD_LAZY)))

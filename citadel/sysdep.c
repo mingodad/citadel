@@ -995,7 +995,7 @@ int main(int argc, char **argv)
 
 	/* We want to check for idle sessions once per minute */
 	CtdlRegisterSessionHook(terminate_idle_sessions, EVT_TIMER);
-
+	
 	/*
 	 * Now create a bunch of worker threads.
 	 */
@@ -1008,6 +1008,7 @@ int main(int argc, char **argv)
 			strerror(errno));
 		}
 	}
+
 
 	/* Now this thread can become a worker as well. */
 	worker_thread();
@@ -1191,7 +1192,6 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 		}
 
 		check_sched_shutdown();
-
 	}
 
 	/* If control reaches this point, the server is shutting down */	

@@ -9,11 +9,6 @@
        Tunable configuration parameters for the Sleepycat DB back end
  *****************************************************************************/
 
-/* Set to 1 for transaction-based database logging.  This is recommended for
- * safe recovery in the event of system or application failure.
- */
-#define TRANSACTION_BASED	1
-
 /* Citadel will checkpoint the db at the end of every session, but only if
  * the specified number of kilobytes has been written, or if the specified
  * number of minutes has passed, since the last checkpoint.
@@ -31,6 +26,8 @@
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <signal.h>
 #include <db.h>
 #include "citadel.h"
 #include "server.h"
@@ -41,17 +38,16 @@
 
 DB *dbp[MAXCDB];		/* One DB handle for each Citadel database */
 DB_ENV *dbenv;			/* The DB environment (global) */
+DB_TXN *MYTID;
 
 struct cdbssd {			/* Session-specific DB stuff */
 	DBC *cursor;		/* Cursor, for traversals... */
-	DB_TXN *tid;		/* Transaction ID */
 };
 
 struct cdbssd *ssd_arr = NULL;
 int num_ssd = 0;
+
 #define MYCURSOR	ssd_arr[CC->cs_pid].cursor
-/* #define MYTID		ssd_arr[CC->cs_pid].tid */
-DB_TXN *MYTID;
 
 /*
  * Ensure that we have enough space for session-specific data.  We don't
@@ -121,6 +117,7 @@ void open_databases(void)
 	char dbfilename[256];
 	u_int32_t flags = 0;
 
+	lprintf(9, "open_databases() starting\n");
         /*
          * Silently try to create the database subdirectory.  If it's
          * already there, no problem.
@@ -153,11 +150,8 @@ void open_databases(void)
 	 * is serialized already, so don't bother the database manager with
 	 * it.  Besides, it locks up when we do it that way.
          */
-#ifdef TRANSACTION_BASED
         flags = DB_CREATE|DB_RECOVER|DB_INIT_MPOOL|DB_PRIVATE|DB_INIT_TXN;
-#else
-        flags = DB_CREATE|DB_RECOVER|DB_INIT_MPOOL|DB_PRIVATE;
-#endif
+	/* flags |= DB_INIT_LOCK | DB_THREAD; */
         ret = dbenv->open(dbenv, "./data", flags, 0);
 	if (ret) {
 		lprintf(1, "dbenv->open: %s\n", db_strerror(ret));
@@ -196,9 +190,8 @@ void open_databases(void)
 
 	cdb_allocate_ssd();
 	CtdlRegisterSessionHook(cdb_allocate_ssd, EVT_START);
-#ifdef TRANSACTION_BASED
 	CtdlRegisterSessionHook(cdb_checkpoint, EVT_TIMER);
-#endif
+	lprintf(9, "open_databases() finished\n");
 }
 
 
@@ -394,20 +387,21 @@ struct cdbdata *cdb_next_item(int cdb)
 
 void cdb_begin_transaction(void) {
 
-#ifdef TRANSACTION_BASED
 	begin_critical_section(S_DATABASE);
-	txn_begin(dbenv, NULL, &MYTID, 0);
+
+	if (MYTID != NULL) {	/* FIXME this slows it down, take it out */
+		lprintf(1, "ERROR: thread %d is opening a new transaction with one already open!\n", getpid());
+	}
+	else {
+		txn_begin(dbenv, NULL, &MYTID, 0);
+	}
 	end_critical_section(S_DATABASE);
-#else
-	MYTID = NULL;
-#endif
 }
 
 void cdb_end_transaction(void) {
-#ifdef TRANSACTION_BASED
 	begin_critical_section(S_DATABASE);
-	if (MYTID == NULL) lprintf(1, "WARNING: txn_commit(NULL) !!\n");
-	txn_commit(MYTID, 0);
+	if (MYTID == NULL) lprintf(1, "ERROR: txn_commit(NULL) !!\n");
+	else txn_commit(MYTID, 0);
+	MYTID = NULL;	/* FIXME take out */
 	end_critical_section(S_DATABASE);
-#endif
 }

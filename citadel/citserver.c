@@ -54,6 +54,7 @@ int do_defrag = 0;
 void master_startup(void) {
 	struct timeval tv;
 	
+	lprintf(9, "master_startup() started\n");
 	lprintf(7, "Opening databases\n");
 	open_databases();
 	cdb_begin_transaction();
@@ -73,6 +74,7 @@ void master_startup(void) {
 	lprintf(7, "Seeding the pseudo-random number generator...\n");
 	gettimeofday(&tv, NULL);
 	srand(tv.tv_usec);
+	lprintf(9, "master_startup() finished\n");
 }
 
 
@@ -108,7 +110,7 @@ void master_cleanup(void) {
 	lprintf(3, "citserver: exiting.\n");
 	fflush(stdout); fflush(stderr);
 	exit(0);
-	}
+}
 
 
 /*
