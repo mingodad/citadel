@@ -1,4 +1,7 @@
 $Log$
+Revision 528.10  2005/01/15 05:26:27  ajc
+* Message entry window is now somewhat full screen.
+
 Revision 528.9  2005/01/14 21:03:17  ajc
 * A few logging hacks
 
@@ -2182,4 +2185,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

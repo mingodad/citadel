@@ -1576,38 +1576,34 @@ void display_enter(void)
 	stresc(&buf[strlen(buf)], WC->wc_roomname, 1, 1);
 
 	/* begin message entry screen */
-	wprintf("<div style=\"position:absolute; left:1%%; width:98%%; height:100%%\">\n");
+	wprintf("<div style=\"position:absolute; left:1%%; width:96%%; height:100%%\">\n");
 
-	wprintf("<CENTER>\n");
-	wprintf("%s<BR>\n", buf);	/* header bar */
-
-	wprintf("<FORM ENCTYPE=\"multipart/form-data\" "
-		"METHOD=\"POST\" ACTION=\"/post\" "
-		"NAME=\"enterform\""
+	wprintf("<form enctype=\"multipart/form-data\" "
+		"method=\"POST\" action=\"/post\" "
+		"name=\"enterform\""
 		"onSubmit=\"return submitForm();\""
 		">\n");
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"recp\" VALUE=\"%s\">\n",
+	wprintf("<input type=\"hidden\" name=\"recp\" value=\"%s\">\n",
 		bstr("recp"));
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"postseq\" VALUE=\"%ld\">\n",
+	wprintf("<input type=\"hidden\" name=\"postseq\" value=\"%ld\">\n",
 		now);
 
-	wprintf("<TABLE border=0 cellspacing=0 cellpadding=0 width=100%%>\n");
-	wprintf("<TR><TD ALIGN=LEFT>");
-	wprintf("<IMG SRC=\"static/enter.gif\" ALIGN=MIDDLE ALT=\" \">");
+	wprintf("%s<br>\n", buf);	/* header bar */
+	wprintf("<img src=\"static/enter.gif\" align=middle alt=\" \">");
 		/* "onLoad=\"document.enterform.msgtext.focus();\" " */
-	wprintf("<FONT SIZE=-1>Subject (optional):</FONT>"
-		"<INPUT TYPE=\"text\" NAME=\"subject\" VALUE=\"");
+	wprintf("<font size=-1>Subject (optional):</font>"
+		"<input type=\"text\" name=\"subject\" value=\"");
 	escputs(bstr("subject"));
-	wprintf("\" SIZE=40 MAXLENGTH=70>"
+	wprintf("\" size=40 maxlength=70>"
 		"&nbsp;"
 	);
-	wprintf("</TD>");
 
-	wprintf("<TD ALIGN=RIGHT>");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save message\">"
+	wprintf("<input type=\"submit\" name=\"sc\" value=\"Save message\">"
 		"&nbsp;"
-		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><br />\n");
-	wprintf("</TD></TR></TABLE>\n");
+		"<input type=\"submit\" name=\"sc\" value=\"Cancel\">\n");
+
+	/* begin richedit box */
+	wprintf("<div style=\"position:absolute; left:0%%; width:100%%; top:15%; height:80%%\">\n");
 
 	wprintf("<script type=\"text/javascript\" "
 		"src=\"static/richtext.js\"></script>\n"
@@ -1623,20 +1619,12 @@ void display_enter(void)
 		"<script type=\"text/javascript\"> \n"
 		"writeRichText('msgtext', '");
 	msgescputs(bstr("msgtext"));
-	wprintf("', '100%%', 200, true, false); \n"
+	wprintf("', '100%%', '80%%', true, false); \n"
 		"</script> \n");
-
-/*
- * Before we had the richedit widget, we did it this way...
- *
-	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=25 COLS=80 "
-		"WIDTH=80>");
-	escputs(bstr("msgtext"));
-	wprintf("</TEXTAREA><br />\n");
- */
+	wprintf("</div>\n");	/* end richedit box */
 
 	/* Here comes the "do attachments" section on the bottom */
-	wprintf("<div style=\"position:absolute; bottom:0px; left:0px\">\n");
+	wprintf("<div style=\"position:absolute; bottom:0px; left:0px; width:100%%\">\n");
 
 	/* Enumerate any attachments which are already in place... */
 	for (att = WC->first_attachment; att != NULL; att = att->next) {
@@ -1655,7 +1643,8 @@ void display_enter(void)
 
 	wprintf("</div>\n");	/* end attachments section */
 
-	wprintf("</FORM></CENTER>\n");
+	wprintf("</FORM>\n");
+
 	wprintf("</div>\n");
 DONE:	wDumpContent(1);
 }
