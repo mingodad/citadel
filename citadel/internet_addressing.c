@@ -318,6 +318,8 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 	int msgtype = 0;
 
 	safestrncpy(sourcealias, source, sizeof(sourcealias) );
+	msgtype = alias(sourcealias);
+	lprintf(9, "msgtype(1) for <%s> is %d\n", msgtype, user);
 
 REALIAS:
 	/* Split it up */
@@ -349,7 +351,7 @@ REALIAS:
 		 */
 		strcpy(sourcealias, user);
 		msgtype = alias(user);
-		lprintf(9, "msgtype for <%s> is %d\n", msgtype, user);
+		lprintf(9, "msgtype(2) for <%s> is %d\n", msgtype, user);
 		if ( (strcasecmp(user, sourcealias)) && (++passes < 3) )
 			goto REALIAS;
 

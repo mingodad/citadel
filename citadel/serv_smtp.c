@@ -852,12 +852,12 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
-			strcpy(dsn, &buf[4]);
+			safestrncpy(dsn, &buf[4], 1023);
 			goto bail;
 		}
 		else {
 			*status = 5;
-			strcpy(dsn, &buf[4]);
+			safestrncpy(dsn, &buf[4], 1023);
 			goto bail;
 		}
 	}
@@ -877,12 +877,12 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
-			strcpy(dsn, &buf[4]);
+			safestrncpy(dsn, &buf[4], 1023);
 			goto bail;
 		}
 		else {
 			*status = 5;
-			strcpy(dsn, &buf[4]);
+			safestrncpy(dsn, &buf[4], 1023);
 			goto bail;
 		}
 	}
@@ -901,12 +901,12 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
-			strcpy(dsn, &buf[4]);
+			safestrncpy(dsn, &buf[4], 1023);
 			goto bail;
 		}
 		else {
 			*status = 5;
-			strcpy(dsn, &buf[4]);
+			safestrncpy(dsn, &buf[4], 1023);
 			goto bail;
 		}
 	}
@@ -925,12 +925,12 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
-			strcpy(dsn, &buf[4]);
+			safestrncpy(dsn, &buf[4], 1023);
 			goto bail;
 		}
 		else {
 			*status = 5;
-			strcpy(dsn, &buf[4]);
+			safestrncpy(dsn, &buf[4], 1023);
 			goto bail;
 		}
 	}
@@ -948,12 +948,12 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	if (buf[0] != '3') {
 		if (buf[0] == '4') {
 			*status = 3;
-			strcpy(dsn, &buf[4]);
+			safestrncpy(dsn, &buf[4], 1023);
 			goto bail;
 		}
 		else {
 			*status = 5;
-			strcpy(dsn, &buf[4]);
+			safestrncpy(dsn, &buf[4], 1023);
 			goto bail;
 		}
 	}
@@ -983,18 +983,18 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
-			strcpy(dsn, &buf[4]);
+			safestrncpy(dsn, &buf[4], 1023);
 			goto bail;
 		}
 		else {
 			*status = 5;
-			strcpy(dsn, &buf[4]);
+			safestrncpy(dsn, &buf[4], 1023);
 			goto bail;
 		}
 	}
 
 	/* We did it! */
-	strcpy(dsn, &buf[4]);
+	safestrncpy(dsn, &buf[4], 1023);
 	*status = 2;
 
 	lprintf(9, ">QUIT\n");
