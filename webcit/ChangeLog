@@ -1,4 +1,8 @@
 $Log$
+Revision 400.28  2002/09/27 18:31:33  ajc
+* Properly handle VEVENT saves (fixed nasty loopy loopy bug)
+* After saving a VEVENT, return to the correct calendar view and date
+
 Revision 400.27  2002/09/27 17:15:44  ajc
 * Removed the gzip compression stuff due to bugs in Internet Explorer.
 
@@ -1033,4 +1037,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
