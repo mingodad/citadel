@@ -52,6 +52,8 @@ void edit_vcard(void) {
 	char state[SIZ];
 	char zipcode[SIZ];
 	char country[SIZ];
+	char hometel[SIZ];
+	char worktel[SIZ];
 	char extrafields[SIZ];
 
 	lastname[0] = 0;
@@ -66,6 +68,8 @@ void edit_vcard(void) {
 	state[0] = 0;
 	zipcode[0] = 0;
 	country[0] = 0;
+	hometel[0] = 0;
+	worktel[0] = 0;
 	extrafields[0] = 0;
 
 	output_headers(1);
@@ -123,6 +127,14 @@ void edit_vcard(void) {
 			extract_token(state, value, 4, ';');
 			extract_token(zipcode, value, 5, ';');
 			extract_token(country, value, 6, ';');
+		}
+
+		else if (!strcasecmp(key, "tel;home")) {
+			extract_token(hometel, value, 0, ';');
+		}
+
+		else if (!strcasecmp(key, "tel;work")) {
+			extract_token(hometel, value, 0, ';');
 		}
 
 		else {
@@ -186,6 +198,15 @@ void edit_vcard(void) {
 		"<TD><INPUT TYPE=\"text\" NAME=\"country\" "
 		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR></TABLE>\n",
 		country);
+
+	wprintf("<TABLE BORDER=0><TR><TD>Home telephone:</TD>"
+		"<TD><INPUT TYPE=\"text\" NAME=\"hometel\" "
+		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR>\n",
+		hometel);
+	wprintf("<TR><TD>Work telephone:</TD>"
+		"<TD><INPUT TYPE=\"text\" NAME=\"worktel\" "
+		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR></TABLE>\n",
+		worktel);
 
 	wprintf("<TEXTAREA NAME=\"extrafields\" ROWS=10 COLS=80 WIDTH=80>");
 	escputs(extrafields);
