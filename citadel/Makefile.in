@@ -247,7 +247,7 @@ install-exec: all weekly
 			$(INSTALL) $$i $(root)$(prefix)/$$i; \
 		fi \
 	done
-	@if test -f $(root)$(prefix)/chkpwd; then \
+	@if test x`find $(root)$(prefix)/chkpwd -user root` = x$(root)$(prefix)/chkpwd; then \
 		echo chmod u+s $(root)$(prefix)/chkpwd; \
 		chmod u+s $(root)$(prefix)/chkpwd; \
 	fi

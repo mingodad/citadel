@@ -27,6 +27,7 @@ make root=$RPM_BUILD_ROOT install
 find $RPM_BUILD_ROOT/usr/local/citadel -type d | sed "s|$RPM_BUILD_ROOT|%dir |" > filelist
 find $RPM_BUILD_ROOT -type f | egrep -v '(citadel\.rc|public_clients|/help/|/messages/|/network/)' | sed "s|$RPM_BUILD_ROOT||" >> filelist
 find $RPM_BUILD_ROOT -type f | egrep '(citadel\.rc|public_clients|/help/|/messages/|/network/)' | sed "s|$RPM_BUILD_ROOT|%config |" >> filelist
+chmod u+s $RPM_BUILD_ROOT/usr/local/citadel/chkpwd
 
 %clean
 rm -rf "$RPM_BUILD_ROOT"
