@@ -106,6 +106,7 @@
 #define MAILROOM		"Mail"
 #define AIDEROOM		"Aide"
 #define USERCONFIGROOM		"My Citadel Config"
+#define USERCALENDARROOM	"My Calendar"
 #define PAGELOGROOM		"Sent/Received Pages"
 #define SYSCONFIGROOM		"Local System Configuration"
 #define SMTP_SPOOLOUT_ROOM	"__CitadelSMTPspoolout__"

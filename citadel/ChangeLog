@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.79  2001/02/03 09:30:46  error
+ * serv_ical.c: now creates a My Calendar> personal room, sets attributes
+
  Revision 573.78  2001/02/03 08:21:00  error
  * serv_ical.c and serv_ical.h added; skeleton code for now
 
@@ -2358,4 +2361,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
