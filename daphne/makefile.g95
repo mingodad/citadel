@@ -5,7 +5,7 @@ TARGET          = daphne
 
 MY_OBJECTS	= citclient.o enter.o express_message.o main.o message.o \
 		prefs.o roomtree.o roomview.o selectuser.o send_express.o \
-		servprops.o testwindow.o userlogin.o \
+		servprops.o testwindow.o userlogin.o hosts.o \
 		utils.o who.o
 
 OBJECTS         = $(MY_OBJECTS)

@@ -1,3 +1,5 @@
+// $Id$
+
 // =========================================================================
 // declarations
 // =========================================================================
@@ -165,7 +167,7 @@ void Preferences::OnButtonPressed(wxCommandEvent& whichbutton) {
 		ini->Write("/Citadel Server/ConnectOnStartup",
 			((server_autoconnect->GetValue()==TRUE)
 			? wxString("yes") : wxString("no")));
-		ini->Flush();
+		ini->Flush(FALSE);
 		delete this;
 	}
 }

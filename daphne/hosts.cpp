@@ -1,3 +1,5 @@
+// $Id$
+
 // =========================================================================
 // declarations
 // =========================================================================
@@ -151,6 +153,6 @@ void Hosts::OnButtonPressed(wxCommandEvent& whichbutton) {
 		ini->Write("/BBSList/Host", server_host->GetValue());
 		ini->Write("/BBSList/Port", server_port->GetValue());
 				
-		ini->Flush();
+		ini->Flush(FALSE);
 	}
 }

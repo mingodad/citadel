@@ -1,3 +1,5 @@
+// $Id$
+
 #include <wx/wx.h>		// General-purpose wxWin header
 #include <wx/listctrl.h>
 #include <wx/socket.h>		// TCP socket client
@@ -189,7 +191,7 @@ private:
 };
 
 // Just testing...
-class DoChat : public wxMDIChildFrame {
+class ChatWindow : public wxMDIChildFrame {
 public:
         ChatWindow(CitClient *sock, wxMDIParentFrame *MyMDI);
 private:

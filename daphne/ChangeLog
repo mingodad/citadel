@@ -1,4 +1,17 @@
  $Log$
+ Revision 1.16  2000/01/11 22:51:42  nbryant
+ 	* citclient.cpp: different IDEN string depending on __WXMSW__ etc.
+ 	  macros
+ 	* hosts.cpp, prefs.cpp: pass FALSE to ini->Flush() as this is supposed
+ 	  to be the default but WX headers appear to lack the default on
+ 	  Windows
+ 	* includes.hpp: renamed class DoChat to class ChatWindow -- WTF was it
+ 	  named like this?
+ 	* main.cpp: load bitmaps from resouces if __WXMSW__ is defined
+ 	* makefile.g95: add hosts.o
+ 	* daphne.rc: new file; Windows resource definitions. right now just
+ 	  contains the bitmaps
+
  Revision 1.15  2000/01/08 20:25:21  smw
  Fixed a condition in goto where the message window would eat itself
  prior to importing the messages, forcing daphne to crash.
@@ -83,4 +96,3 @@ shut down the program.
 
 Revision 1.1  1999/11/07 17:56:38  ajc
 * Began the ChangeLog for this project.
-

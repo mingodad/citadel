@@ -1,3 +1,5 @@
+// $Id$
+
 #include "includes.hpp"
 #include <wx/protocol/protocol.h>
 
@@ -272,7 +274,15 @@ void CitClient::initialize_session(void)  {
 
 	CurrentRoom = "";
 
-	sendcmd = "IDEN 0|6|001|Daphne";
+#ifdef __WXMSW__
+	sendcmd = "IDEN 0|6|001|Daphne (Windows)";
+#elif defined(__WXGTK__)
+	sendcmd - "IDEN 0|6|001|Daphne (GTK)";
+#elif defined(__WXMOTIF__)
+	sendcmd = "IDEN 0|6|001|Daphne (Motif)";
+#else
+	sendcmd = "IDEN 0|6|001|Daphne (Unknown window system)";
+#endif
 	serv_trans(sendcmd);
 
 	sendcmd = "INFO";

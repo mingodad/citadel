@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:        main.cpp
 // Purpose:     Main screen type thing
+// Version:     $Id$
 /////////////////////////////////////////////////////////////////////////////
 
 // ============================================================================
@@ -260,7 +261,14 @@ void MyFrame::InitToolBar(wxToolBar* toolBar) {
 #endif
 
         // Set up the toolbar icons (BMP is available on both GTK and MSW) 
-#ifndef __WXMOTIF__
+#ifdef __WXMSW__
+	bitmaps[0] = new wxBitmap("globe", wxBITMAP_TYPE_BMP_RESOURCE);
+	bitmaps[1] = new wxBitmap("mail", wxBITMAP_TYPE_BMP_RESOURCE);
+	bitmaps[2] = new wxBitmap("who", wxBITMAP_TYPE_BMP_RESOURCE);
+	bitmaps[3] = new wxBitmap("chat", wxBITMAP_TYPE_BMP_RESOURCE);
+	bitmaps[4] = new wxBitmap("xglobe", wxBITMAP_TYPE_BMP_RESOURCE);
+	bitmaps[5] = new wxBitmap("goto", wxBITMAP_TYPE_BMP_RESOURCE);
+#elif !defined(__WXMOTIF__)
 	bitmaps[0] = new wxBitmap("/usr/local/share/bitmaps/globe.bmp", wxBITMAP_TYPE_BMP);
 	bitmaps[1] = new wxBitmap("/usr/local/share/bitmaps/mail.bmp", wxBITMAP_TYPE_BMP);
 	bitmaps[2] = new wxBitmap("/usr/local/share/bitmaps/who.bmp", wxBITMAP_TYPE_BMP);
