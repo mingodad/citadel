@@ -1,0 +1,47 @@
+
+Notes on building a set of portable binaries
+--------------------------------------------
+
+This is kind of a work in progress.  Here's what we've done so far to 
+build a portable tarball.  We keep all the stuff that Citadel needs, but
+is not part of Citadel itself, in /usr/local/ctdlsupport, and we keep
+Citadel in /usr/local/citadel.
+
+We build in /usr/src.
+
+1. Build Berkeley DB with:
+ 
+ ../dist/configure --prefix=/usr/local/ctdlsupport
+ make
+ make install
+
+2. Build libical with:
+ 
+ ./configure --prefix=/usr/local/ctdlsupport
+ make
+ make install
+ 
+ (FIXME still not detected properly)
+
+3. Build Citadel with:
+
+ export CFLAGS='-I/usr/local/ctdlsupport/include'
+ export LDFLAGS='-L/usr/local/ctdlsupport/lib -Wl,--rpath -Wl,/usr/local/ctdlsupport/lib'
+ ./configure --prefix=/usr/local/citadel --with-db=/usr/local/ctdlsupport
+ make
+ make install
+ 
+ -L tells the build system where to find libraries during the build process,
+while -Wl,--rpath inserts that same library path into the Citadel binaries
+so they know where to find the libs at runtime.  Since we can't depend on
+the correct version of Berkeley DB already being on the system, this is how
+we carry our own along.  It's better than static linking everything.
+ 
+ 
+ FIXME / TODO
+ 
+ -- Repair libical integration
+ -- Add newt to the supplied libraries
+ -- Possibly add curses to the supplied libraries
+ -- Maybe even add openssl to the supplied libraries
+ -- Write the web-based installer.
