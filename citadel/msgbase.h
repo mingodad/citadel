@@ -36,6 +36,7 @@ int CtdlDeleteMessages(char *, long, char *);
 void CtdlWriteObject(char *, char *, char *, int, int, int);
 struct CtdlMessage *CtdlFetchMessage(long msgnum);
 void CtdlFreeMessage(struct CtdlMessage *msg);
+char *serialize_message(struct CtdlMessage *msg);
 
 
 

@@ -240,7 +240,6 @@ void CtdlForEachMessage(int mode, long ref,
 	if (num_msgs > 0)
 		for (a = 0; a < num_msgs; ++a) {
 			thismsg = msglist[a];
-			lprintf(9, "Iterating through <%ld>\n", thismsg);
 			if ((thismsg > 0)
 			    && (
 
@@ -254,7 +253,6 @@ void CtdlForEachMessage(int mode, long ref,
 				|| ((mode == MSGS_GT) && (thismsg > ref))
 			    )
 			    ) {
-				lprintf(9, "Issuing callback for <%ld>\n", thismsg);
 				CallBack(thismsg);
 			}
 		}
@@ -1028,6 +1026,53 @@ void copy_file(char *from, char *to)
 
 
 /*
+ * Serialize a struct CtdlMessage into the format used on disk and network
+ */
+char *serialize_message(struct CtdlMessage *msg) {
+	char *ser;
+	size_t len = 0;
+	size_t wlen;
+	int i;
+	static char *forder = FORDER;
+
+	lprintf(9, "serialize_message() called\n");
+
+	if ((msg->cm_magic) != CTDLMESSAGE_MAGIC) {
+		lprintf(3, "serialize_message() -- self-check failed\n");
+		return NULL;
+	}
+
+	len = 3;
+	for (i=0; i<26; ++i) if (msg->cm_fields[(int)forder[i]] != NULL)
+		len = len + strlen(msg->cm_fields[(int)forder[i]]) + 2;
+
+	lprintf(9, "calling malloc\n");
+	ser = mallok(len);
+	if (ser == NULL) return NULL;
+
+	ser[0] = 0xFF;
+	ser[1] = msg->cm_anon_type;
+	ser[2] = msg->cm_format_type;
+	wlen = 3;
+	lprintf(9, "stuff\n");
+
+	for (i=0; i<26; ++i) if (msg->cm_fields[(int)forder[i]] != NULL) {
+		ser[wlen++] = (char)forder[i];
+		strcpy(&ser[wlen], msg->cm_fields[(int)forder[i]]);
+		wlen = wlen + strlen(msg->cm_fields[(int)forder[i]]) + 1;
+	}
+	if (len != wlen) lprintf(3, "ERROR: len=%d wlen=%d\n", len, wlen);
+
+	return ser;
+}
+
+
+
+
+
+
+
+/*
  * message base operation to save a message and install its pointers
  */
 void save_message(char *mtmp,	/* file containing proper message */
@@ -1106,7 +1151,6 @@ void save_message(char *mtmp,	/* file containing proper message */
 			if (!strncasecmp(mptr, "Content-type: ", 14)) {
 				safestrncpy(content_type, mptr,
 					    sizeof(content_type));
-				lprintf(9, "%s\n", content_type);
 				strcpy(content_type, &content_type[14]);
 				for (a = 0; a < strlen(content_type); ++a)
 					if ((content_type[a] == ';')
@@ -1119,7 +1163,6 @@ void save_message(char *mtmp,	/* file containing proper message */
 			++mptr;
 		}
 	}
-	lprintf(9, "Content type is <%s>\n", content_type);
 
 	/* Save it to disk */
 	newmsgid = send_message(message_in_memory, templen, generate_id);
@@ -1142,7 +1185,6 @@ void save_message(char *mtmp,	/* file containing proper message */
 				strcpy(actual_rm, config.c_twitroom);
 			}
 		/* ...or if this message is destined for Aide> then go there. */
-		lprintf(9, "actual room forcing loop\n");
 		if (strlen(force_room) > 0) {
 			strcpy(hold_rm, actual_rm);
 			strcpy(actual_rm, force_room);
@@ -1186,7 +1228,6 @@ void save_message(char *mtmp,	/* file containing proper message */
 	if ((strlen(recipient) > 0) && (mailtype == MES_LOCAL)) {
 		if (getuser(&userbuf, recipient) == 0) {
 			MailboxName(actual_rm, &userbuf, MAILROOM);
-			lprintf(9, "Targeting mailbox: <%s>\n", actual_rm);
 			if (lgetroom(&qtemp, actual_rm) == 0) {
 				qtemp.QRhighest =
 				    AddMessageToRoom(&qtemp, newmsgid);
@@ -1392,9 +1433,7 @@ void cmd_ent0(char *entargs)
 			strcpy(buf, recipient);
 		} else
 			strcpy(buf, "sysop");
-		lprintf(9, "calling alias()\n");
 		e = alias(buf);	/* alias and mail type */
-		lprintf(9, "alias() returned %d\n", e);
 		if ((buf[0] == 0) || (e == MES_ERROR)) {
 			cprintf("%d Unknown address - cannot send message.\n",
 				ERROR + NO_SUCH_USER);
@@ -1576,7 +1615,6 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	}
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &qrbuf.QRnumber, sizeof(long));
 
-	lprintf(9, "doing mallok/memcpy loop\n");
 	if (cdbfr != NULL) {
 		msglist = mallok(cdbfr->len);
 		memcpy(msglist, cdbfr->ptr, cdbfr->len);

@@ -1,6 +1,9 @@
 $Log$
+Revision 1.360  1999/09/02 02:09:59  ajc
+* msgbase.c: new function serialize_message() for future use
+
 Revision 1.359  1999/09/01 21:09:25  ajc
-* database.c: isplay the GDBM version string on startup
+* database.c: display the GDBM version string on startup
 
 Revision 1.358  1999/09/01 02:36:34  ajc
 * Actually _enforce_ the max msg len limit

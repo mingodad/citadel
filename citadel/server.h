@@ -349,3 +349,9 @@ struct CtdlMessage {
 	char cm_format_type;		/* Format type */
 	char *cm_fields[256];		/* Data fields */
 };
+
+/* Preferred field order */
+/*               *********			Important fields */
+/*                        ****************	Semi-important fields */
+/*                                        * 	Message text (must be last) */
+#define FORDER	"IPTAONHRDBCEFGJKLQSUVWXYZM"
