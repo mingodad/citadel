@@ -556,8 +556,9 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 
 	/* First determine if this is our room */
 	MailboxName(roomname, sizeof roomname, &CC->usersupp, USERCALENDARROOM);
-	if (strncmp(roomname, msg->cm_fields['O'], ROOMNAMELEN))
-		return 0;	/* It's not us... */
+	if (strcasecmp(roomname, CC->quickroom.QRname)) {
+		return 0;	/* It's not the Calendar room. */
+	}
 
 	/* Then determine content-type of the message */
 	
@@ -571,7 +572,7 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 	a = strlen(p);
 	while (--a > 0) {
 		if (!strncasecmp(p, "Content-Type: ", 14)) {	/* Found it */
-			if (!strncasecmp(p + 14, "text/calendar", 15)) {
+			if (!strncasecmp(p + 14, "text/calendar", 13)) {
 				strcpy(eidbuf, "");
 				mime_parser(msg->cm_fields['M'],
 					NULL,

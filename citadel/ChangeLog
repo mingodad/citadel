@@ -1,4 +1,10 @@
  $Log$
+ Revision 601.46  2002/10/23 03:55:21  ajc
+ * Finished: when saving an object of type text/calendar to the Calendar> room,
+   set the Citadel "extended message ID" to the UID of the VEVENT object.  This
+   causes the message base to automatically delete any existing instance(s) of
+   that object: automatic replacement.
+
  Revision 601.45  2002/10/23 03:07:43  ajc
  * First hack at UID-to-EMSGID mapping (for auto replacement)
 
@@ -4138,4 +4144,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
