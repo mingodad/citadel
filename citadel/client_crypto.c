@@ -130,7 +130,7 @@ void ssl_lock(int mode, int n, const char *file, int line)
 
 #if defined(THREADED_CLIENT) && defined(HAVE_OPENSSL)
 static unsigned long id_callback(void) {
-	return pthread_self();
+	return (unsigned long)pthread_self();
 }
 #endif
 

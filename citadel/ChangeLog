@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.162  2002/03/25 03:09:39  nbryant
+ fix warning on platforms where pthread_t may be a pointer
+
  Revision 590.161  2002/03/25 00:01:50  nbryant
   * compatibility with Berkeley DB < 3.3
   * squished symbol clashes with the OK symbol from curses in certain *n[iu]x
@@ -3535,3 +3538,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
