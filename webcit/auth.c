@@ -67,7 +67,7 @@ void display_login(char *mesg) {
         wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Exit\">\n");
 	
 	wprintf("<BR><INPUT TYPE=\"checkbox\" NAME=\"noframes\">");
-	wprintf("<FONT SIZE=-1>Check here to disable frames</FONT>\n");
+	wprintf("<FONT SIZE=-1>&nbsp;Check here to disable frames</FONT>\n");
         wprintf("</FORM></CENTER>\n");
 
 	/* Da instructions */
@@ -79,8 +79,9 @@ void display_login(char *mesg) {
 	wprintf("enter the name and password you wish to use, and click\n");
 	wprintf("\"New User.\"<BR><LI>");
 	wprintf("<EM>Please log off properly when finished.</EM>");
-	wprintf("<LI>You must use a browser that supports <i>frames</i> ");
-	wprintf("and <i>cookies</i>.\n");
+	wprintf("<LI>You must use a browser that supports <i>cookies</i>.<BR>\n");
+	wprintf("<LI>Your browser is: ");
+	escputs(browser);
 	wprintf("</EM></UL>\n");
 
 	wDumpContent(1);

@@ -26,6 +26,7 @@ int wc_session;
 char wc_username[256];
 char wc_password[256];
 char wc_roomname[256];
+char browser[256];
 int TransactionCount = 0;
 int connected = 0;
 int logged_in = 0;
@@ -267,12 +268,16 @@ void urlescputs(char *strbuf)
 	}
 
 
-void getz(char *buf) {
+char *getz(char *buf) {
 	bzero(buf, 256);
-	if (fgets(buf, 256, stdin) == NULL) strcpy(buf, "");
+	if (fgets(buf, 256, stdin) == NULL) {
+		strcpy(buf, "");
+		return NULL;
+		}
 	else {
 		while ((strlen(buf)>0)&&(!isprint(buf[strlen(buf)-1])))
 			buf[strlen(buf)-1] = 0;
+		return buf;
 		}
 	}
 
@@ -544,11 +549,11 @@ void session_loop(char *browser_host) {
 	upload_length = 0;
 	upload = NULL;
 
-	getz(cmd);
+	if (getz(cmd)==NULL) return;
 	extract_action(action, cmd);
 
 	do {
-		getz(buf);
+		if (getz(buf)==NULL) return;
 
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
 			strcpy(cookie, &buf[15]);
@@ -968,9 +973,9 @@ void session_loop(char *browser_host) {
 
 int main(int argc, char *argv[]) {
 
-	if (argc != 5) {
+	if (argc != 6) {
 		fprintf(stderr,
-			"webcit: usage error (argc must be 5, not %d)\n",
+			"webcit: usage error (argc must be 6, not %d)\n",
 			argc);
 		return 1;
 		}
@@ -982,6 +987,7 @@ int main(int argc, char *argv[]) {
 	strcpy(wc_username, "");
 	strcpy(wc_password, "");
 	strcpy(wc_roomname, "");
+	strcpy(browser, argv[5]);
 
 	while (1) {
 		session_loop(argv[4]);
