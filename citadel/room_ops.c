@@ -992,10 +992,6 @@ void cmd_setr(char *args) {
 	/* If the room name changed, then there are now two room records,
 	 * so we have to delete the old one.
 	 */
-	/* FIX - This causes everybody to think it's a new room, because the
-	 *       visit structs no longer match!  Major problem!  We have to
-	 *       assign each room a unique Object ID and index by that.
-	 */
 	if (strcasecmp(CC->quickroom.QRname, old_name)) {
 		putroom(NULL, old_name);
 		}

@@ -1,0 +1,10 @@
+Citadel/UX v5.50 showstoppers list
+----------------------------------
+* Finish writing expire functions for visits and rooms
+* Add room expire time to rooms/floors/system
+* Remove all of the unnecessary config fields from setup.c; anything which
+  can be configured later from the client, should be (think Notes/Domino)
+* Figure out a way to auto-launch expire functions (and other functions)
+* Fix the way netproc handles incoming file transfers. (marked)
+* Don't delete a user who is currently logged in. (marked)
+* Don't try to delete a msglist that doesn't exist. (marked)
