@@ -78,142 +78,147 @@ void do_iconbar(void) {
 		if (!strcasecmp(key, "ib_citadel")) ib_citadel = atoi(value);
 	}
 
-	wprintf("<center>\n");
-
-	if (ib_logo) if (ib_displayas != IB_TEXTONLY) wprintf(
-		"<IMG BORDER=\"0\" WIDTH=\"48\" "
-			"HEIGHT=\"48\" SRC=\"/image&name=hello\" ALT=\"&nbsp;\">"
-			"<br />\n"
+	wprintf("<div id=\"button\">\n"
+		"<ul>\n"
 	);
 
+	if (ib_logo) {
+		wprintf("<li>");
+		if (ib_displayas != IB_TEXTONLY) {
+			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" "
+				"HEIGHT=\"32\" SRC=\"/image&name=hello\" ALT=\"&nbsp;\">\n"
+			);
+		}
+		wprintf("</li>\n");
+	}
+
 	if (ib_summary) {
-		wprintf("<SPAN CLASS=\"iconbar_link\">"
-			"<A HREF=\"/summary\" "
+		wprintf("<li><A HREF=\"/summary\" "
 			"TITLE=\"Your summary page\" "
-			"><P>"
+			">"
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-				"SRC=\"/static/summary.gif\"><br />");
+				"SRC=\"/static/summary.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Summary<br />");
+			wprintf("Summary");
 		}
-		wprintf("</A></P></SPAN>\n");
+		wprintf("</A></li>\n");
 	}
 
 	if (ib_inbox) {
-		wprintf("<SPAN CLASS=\"iconbar_link\"><P>"
+		wprintf("<li>"
 			"<A HREF=\"/dotgoto?room=_MAIL_\" "
 			"TITLE=\"Go to your e-mail inbox\" "
 			">"
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-				"SRC=\"/static/mail.gif\"><br />");
+				"SRC=\"/static/mail.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Mail<br />");
+			wprintf("Mail");
 		}
-		wprintf("</A></P></SPAN>\n");
+		wprintf("</A></li>\n");
 	}
 
 	if (ib_calendar) {
-		wprintf("<SPAN CLASS=\"iconbar_link\"><P>"
+		wprintf("<li>"
 			"<A HREF=\"/dotgoto?room=Calendar\" "
 			"TITLE=\"Go to your personal calendar\" "
 			">"
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/vcalendar.gif\"><br />");
+			"SRC=\"/static/vcalendar.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Calendar<br />");
+			wprintf("Calendar");
 		}
-		wprintf("</A></P></SPAN>\n");
+		wprintf("</A></li>\n");
 	}
 
 	if (ib_contacts) {
-		wprintf("<SPAN CLASS=\"iconbar_link\"><P>"
+		wprintf("<li>"
 			"<A HREF=\"/dotgoto?room=Contacts\" "
 			"TITLE=\"Go to your personal address book\" "
 			">"
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/vcard.gif\"><br />");
+			"SRC=\"/static/vcard.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Contacts<br />");
+			wprintf("Contacts");
 		}
-		wprintf("</A></P></SPAN>\n");
+		wprintf("</A></li>\n");
 	}
 
 	if (ib_notes) {
-		wprintf("<SPAN CLASS=\"iconbar_link\"><P>"
+		wprintf("<li>"
 			"<A HREF=\"/dotgoto?room=Notes\" "
 			"TITLE=\"Go to your personal notes\" "
 			">"
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/note.gif\"><br />");
+			"SRC=\"/static/note.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Notes<br />");
+			wprintf("Notes");
 		}
-		wprintf("</A></P></SPAN>\n");
+		wprintf("</A></li>\n");
 	}
 
 	if (ib_tasks)  {
-		wprintf("<SPAN CLASS=\"iconbar_link\"><P>"
+		wprintf("<li>"
 			"<A HREF=\"/dotgoto?room=Tasks\" "
 			"TITLE=\"Go to your personal task list\" "
 			">"
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/vcalendar.gif\"><br />");
+			"SRC=\"/static/vcalendar.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Tasks<br />");
+			wprintf("Tasks");
 		}
-		wprintf("</A></P></SPAN>\n");
+		wprintf("</A></li>\n");
 	}
 
 	if (ib_rooms) {
-		wprintf("<SPAN CLASS=\"iconbar_link\"><P>"
+		wprintf("<li>"
 			"<A HREF=\"/knrooms\" TITLE=\"List all of your "
 			"accessible rooms\" >"
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/rooms-icon.gif\"><br />");
+			"SRC=\"/static/rooms-icon.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Rooms<br />");
+			wprintf("Rooms");
 		}
-		wprintf("</A></P></SPAN>\n");
+		wprintf("</A></li>\n");
 	}
 
 	if (ib_users) {
-		wprintf("<SPAN CLASS=\"iconbar_link\"><P>"
+		wprintf("<li>"
 			"<A HREF=\"/whobbs\" TITLE=\"See who is online right now\" "
 			">"
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/users-icon.gif\"><br />");
+			"SRC=\"/static/users-icon.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Users<br />");
+			wprintf("Users");
 		}
-		wprintf("</A></P></SPAN>\n");
+		wprintf("</A></li>\n");
 	}
 
 	if (ib_chat) {
-		wprintf("<SPAN CLASS=\"iconbar_link\"><P>"
+		wprintf("<li>"
 			"<A HREF=\"#\" onClick=\"window.open('/chat', "
 			"'ctdl_chat_window', "
 			"'toolbar=no,location=no,directories=no,copyhistory=no,"
@@ -222,16 +227,16 @@ void do_iconbar(void) {
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/chat-icon.gif\"><br />");
+			"SRC=\"/static/chat-icon.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Chat<br />");
+			wprintf("Chat");
 		}
-		wprintf("</A></P></SPAN>\n");
+		wprintf("</A></li>\n");
 	}
 
 	if (ib_advanced) {
-		wprintf("<SPAN CLASS=\"iconbar_link\"><P>"
+		wprintf("<li>"
 			"<A HREF=\"/display_main_menu\" "
 			"TITLE=\"Advanced Options Menu: Advanced Room commands, "
 			"Account Info, and Chat\" "
@@ -239,39 +244,39 @@ void do_iconbar(void) {
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/advanced-icon.gif\"><br />");
+			"SRC=\"/static/advanced-icon.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Advanced options<br />");
+			wprintf("Advanced");
 		}
-		wprintf("</A></P></SPAN>\n");
+		wprintf("</A></li>\n");
 	}
 
 	if (ib_logoff) {
-		wprintf("<SPAN CLASS=\"iconbar_link\"><P>"
+		wprintf("<li>"
 			"<A HREF=\"/termquit\" TITLE=\"Log off\" "
 			"onClick=\"return confirm('Log off now?');\">"
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 		wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/exit-icon.gif\"><br />");
+			"SRC=\"/static/exit-icon.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
-			wprintf("Log off<br />");
+			wprintf("Log off");
 		}
-		wprintf("</A></P></SPAN>\n");
+		wprintf("</A></li>\n");
 	}
 
 	wprintf(
-		"<SPAN CLASS=\"customize\"><P>"
+		"<li>"
 		"<A HREF=\"/display_customize_iconbar\" "
 		"TITLE=\"Customize this menu\" "
 		">customize this menu</A>"
-		"</P></SPAN>\n"
+		"</A></li>\n"
 	);
 
 	if (ib_citadel) if (ib_displayas != IB_TEXTONLY) wprintf(
-		"<SPAN CLASS=\"powered_by\"><P>"
+		"<li><div align=\"center\">"
 		"<A HREF=\"http://www.citadel.org\" "
 		"title=\"Find out more about Citadel\" target=\"aboutcit\" "
 		"onMouseOver=\"window.status='Find out more about "
@@ -279,10 +284,11 @@ void do_iconbar(void) {
 		"BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
 		"SRC=\"/static/citadel-logo.gif\" ALT=\"CITADEL\">"
 		"<br />CITADEL</A>"
-		"</P></SPAN>\n"
+		"</div></li>\n"
 	);
 
-	wprintf("</CENTER>\n");
+	wprintf("</ul>\n"
+		"</div>\n");
 }
 
 
