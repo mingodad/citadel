@@ -768,7 +768,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 /*
  * Entry point for WebCit transaction
  */
-void session_loop(struct httprequest *req)
+void session_loop(struct httprequest *req, int gzip)
 {
 	char cmd[SIZ];
 	char action[SIZ];
