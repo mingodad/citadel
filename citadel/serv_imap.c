@@ -833,7 +833,7 @@ void imap_create(int num_parms, char *parms[])
 	lprintf(CTDL_INFO, "Create new room <%s> on floor <%d> with type <%d>\n",
 		roomname, floornum, newroomtype);
 
-	ret = create_room(roomname, newroomtype, "", floornum, 1, 0);
+	ret = create_room(roomname, newroomtype, "", floornum, 1, 0, VIEW_BBS);
 	if (ret == 0) {
 		cprintf
 		    ("%s NO Mailbox already exists, or create failed\r\n",
@@ -1195,7 +1195,7 @@ void imap_rename(int num_parms, char *parms[])
 	 * (already did that) and create a new inbox.
 	 */
 	if (!strcasecmp(parms[2], "INBOX")) {
-		create_room(MAILROOM, 4, "", 0, 1, 0);
+		create_room(MAILROOM, 4, "", 0, 1, 0, VIEW_BBS);
 	}
 
 	/* Otherwise, do the subfolders.  Build a list of rooms to rename... */

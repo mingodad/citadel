@@ -884,7 +884,7 @@ void vcard_create_room(void)
 	struct visit vbuf;
 
 	/* Create the calendar room if it doesn't already exist */
-	create_room(USERCONTACTSROOM, 4, "", 0, 1, 0);
+	create_room(USERCONTACTSROOM, 4, "", 0, 1, 0, VIEW_ADDRESSBOOK);
 
 	/* Set expiration policy to manual; otherwise objects will be lost! */
 	if (lgetroom(&qr, USERCONTACTSROOM)) {
@@ -892,7 +892,7 @@ void vcard_create_room(void)
 		return;
 	}
 	qr.QRep.expire_mode = EXPIRE_MANUAL;
-	qr.QRdefaultview = 2;	/* 2 = address book view */
+	qr.QRdefaultview = VIEW_ADDRESSBOOK;	/* 2 = address book view */
 	lputroom(&qr);
 
 	/* Set the view to a calendar view */
@@ -949,12 +949,12 @@ char *serv_vcard_init(void)
 	CtdlRegisterNetprocHook(vcard_extract_from_network);
 
 	/* Create the Global ADdress Book room if necessary */
-	create_room(ADDRESS_BOOK_ROOM, 3, "", 0, 1, 0);
+	create_room(ADDRESS_BOOK_ROOM, 3, "", 0, 1, 0, VIEW_ADDRESSBOOK);
 
 	/* Set expiration policy to manual; otherwise objects will be lost! */
 	if (!lgetroom(&qr, ADDRESS_BOOK_ROOM)) {
 		qr.QRep.expire_mode = EXPIRE_MANUAL;
-		qr.QRdefaultview = 2;	/* 2 = address book view */
+		qr.QRdefaultview = VIEW_ADDRESSBOOK;	/* 2 = address book view */
 		lputroom(&qr);
 	}
 

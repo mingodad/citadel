@@ -91,10 +91,10 @@ void master_startup(void) {
 	check_ref_counts();
 
 	lprintf(CTDL_INFO, "Creating base rooms (if necessary)\n");
-	create_room(BASEROOM,		0, "", 0, 1, 0);
-	create_room(AIDEROOM,		3, "", 0, 1, 0);
-	create_room(SYSCONFIGROOM,	3, "", 0, 1, 0);
-	create_room(config.c_twitroom,	0, "", 0, 1, 0);
+	create_room(BASEROOM,		0, "", 0, 1, 0, VIEW_BBS);
+	create_room(AIDEROOM,		3, "", 0, 1, 0, VIEW_BBS);
+	create_room(SYSCONFIGROOM,	3, "", 0, 1, 0, VIEW_BBS);
+	create_room(config.c_twitroom,	0, "", 0, 1, 0, VIEW_BBS);
 
 	/* The "Local System Configuration" room doesn't need to be visible */
         if (lgetroom(&qrbuf, SYSCONFIGROOM) == 0) {

@@ -39,7 +39,8 @@ unsigned create_room(char *new_room_name,
 			char *new_room_pass,
 			int new_room_floor,
 			int really_create,
-			int avoid_access);
+			int avoid_access,
+			int new_room_view);
 void cmd_cre8 (char *args);
 void cmd_einf (char *ok);
 void cmd_lflr (void);

@@ -1591,7 +1591,8 @@ unsigned create_room(char *new_room_name,
 		     char *new_room_pass,
 		     int new_room_floor,
 		     int really_create,
-		     int avoid_access)
+		     int avoid_access,
+		     int new_room_view)
 {
 
 	struct ctdlroom qrbuf;
@@ -1647,6 +1648,7 @@ unsigned create_room(char *new_room_name,
 	qrbuf.QRhighest = 0L;	/* No messages in this room yet */
 	time(&qrbuf.QRgen);	/* Use a timestamp as the generation number */
 	qrbuf.QRfloor = new_room_floor;
+	qrbuf.QRdefaultview = new_room_view;
 
 	/* save what we just did... */
 	putroom(&qrbuf);
@@ -1683,6 +1685,7 @@ void cmd_cre8(char *args)
 	int new_room_type;
 	char new_room_pass[SIZ];
 	int new_room_floor;
+	int new_room_view;
 	char aaa[SIZ];
 	unsigned newflags;
 	struct floor *fl;
@@ -1694,6 +1697,7 @@ void cmd_cre8(char *args)
 	new_room_type = extract_int(args, 2);
 	extract(new_room_pass, args, 3);
 	avoid_access = extract_int(args, 5);
+	new_room_view = extract_int(args, 6);
 	new_room_pass[9] = 0;
 	new_room_floor = 0;
 
@@ -1753,7 +1757,7 @@ void cmd_cre8(char *args)
 	/* Check to make sure the requested room name doesn't already exist */
 	newflags = create_room(new_room_name,
 				new_room_type, new_room_pass, new_room_floor,
-				0, avoid_access);
+				0, avoid_access, new_room_view);
 	if (newflags == 0) {
 		cprintf("%d '%s' already exists.\n",
 			ERROR + ALREADY_EXISTS, new_room_name);
@@ -1768,7 +1772,8 @@ void cmd_cre8(char *args)
 	/* If we reach this point, the room needs to be created. */
 
 	newflags = create_room(new_room_name,
-			   new_room_type, new_room_pass, new_room_floor, 1, 0);
+			   new_room_type, new_room_pass, new_room_floor, 1, 0,
+			   new_room_view);
 
 	/* post a message in Aide> describing the new room */
 	safestrncpy(aaa, new_room_name, sizeof aaa);

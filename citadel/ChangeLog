@@ -1,4 +1,7 @@
  $Log$
+ Revision 625.23  2004/09/16 01:46:40  ajc
+ * CRE8 command: allow setting default view during room creation
+
  Revision 625.22  2004/09/15 03:02:47  ajc
  * Add an SMTP MSA listener (separate port, requires auth)
 
@@ -6083,3 +6086,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

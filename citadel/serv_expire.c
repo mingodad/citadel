@@ -389,7 +389,7 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	struct ctdlroom qrbuf;
 	char mailboxname[ROOMNAMELEN];
 	MailboxName(mailboxname, us, MAILROOM);
-	create_room(mailboxname, 4, "", 0, 1, 1);
+	create_room(mailboxname, 4, "", 0, 1, 1, VIEW_BBS);
 	if (getroom(&qrbuf, mailboxname) != 0) return;
 	lprintf(CTDL_DEBUG, "Got %s\n", qrbuf.QRname);
 	 */

@@ -487,8 +487,8 @@ void session_startup(void)
 	/* Create any personal rooms required by the system.
 	 * (Technically, MAILROOM should be there already, but just in case...)
 	 */
-	create_room(MAILROOM, 4, "", 0, 1, 0);
-	create_room(SENTITEMS, 4, "", 0, 1, 0);
+	create_room(MAILROOM, 4, "", 0, 1, 0, VIEW_BBS);
+	create_room(SENTITEMS, 4, "", 0, 1, 0, VIEW_BBS);
 
 	/* Run any startup routines registered by loadable modules */
 	PerformSessionHooks(EVT_LOGIN);
@@ -838,10 +838,10 @@ int create_user(char *newusername, int become_user)
 	 * Make the latter an invisible system room.
 	 */
 	MailboxName(mailboxname, sizeof mailboxname, &usbuf, MAILROOM);
-	create_room(mailboxname, 5, "", 0, 1, 1);
+	create_room(mailboxname, 5, "", 0, 1, 1, VIEW_BBS);
 
 	MailboxName(mailboxname, sizeof mailboxname, &usbuf, USERCONFIGROOM);
-	create_room(mailboxname, 5, "", 0, 1, 1);
+	create_room(mailboxname, 5, "", 0, 1, 1, VIEW_BBS);
         if (lgetroom(&qrbuf, mailboxname) == 0) {
                 qrbuf.QRflags2 |= QR2_SYSTEM;
                 lputroom(&qrbuf);

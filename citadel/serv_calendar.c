@@ -1409,7 +1409,7 @@ void ical_create_room(void)
 	struct visit vbuf;
 
 	/* Create the calendar room if it doesn't already exist */
-	create_room(USERCALENDARROOM, 4, "", 0, 1, 0);
+	create_room(USERCALENDARROOM, 4, "", 0, 1, 0, VIEW_CALENDAR);
 
 	/* Set expiration policy to manual; otherwise objects will be lost! */
 	if (lgetroom(&qr, USERCALENDARROOM)) {
@@ -1417,7 +1417,7 @@ void ical_create_room(void)
 		return;
 	}
 	qr.QRep.expire_mode = EXPIRE_MANUAL;
-	qr.QRdefaultview = 3;	/* 3 = calendar view */
+	qr.QRdefaultview = VIEW_CALENDAR;	/* 3 = calendar view */
 	lputroom(&qr);
 
 	/* Set the view to a calendar view */
@@ -1426,7 +1426,7 @@ void ical_create_room(void)
 	CtdlSetRelationship(&vbuf, &CC->user, &qr);
 
 	/* Create the tasks list room if it doesn't already exist */
-	create_room(USERTASKSROOM, 4, "", 0, 1, 0);
+	create_room(USERTASKSROOM, 4, "", 0, 1, 0, VIEW_TASKS);
 
 	/* Set expiration policy to manual; otherwise objects will be lost! */
 	if (lgetroom(&qr, USERTASKSROOM)) {
@@ -1434,7 +1434,7 @@ void ical_create_room(void)
 		return;
 	}
 	qr.QRep.expire_mode = EXPIRE_MANUAL;
-	qr.QRdefaultview = 4;	/* 4 = tasks view */
+	qr.QRdefaultview = VIEW_TASKS;	/* 4 = tasks view */
 	lputroom(&qr);
 
 	/* Set the view to a task list view */

@@ -892,6 +892,7 @@ or ERROR or ERROR+HIGHER_ACCESS_REQUIRED if the command will not succeed.
  3  -  Password for new room (if it is a type 2 room)
  4  -  Floor number on which the room should reside (optional)
  5  -  Set to 1 to avoid automatically gaining access to the created room.
+ 6  -  The default "view" for the room.
 
  If the create flag is set to 1, the room is created (unless something
 went wrong and an ERROR return is sent), and the server returns OK, but

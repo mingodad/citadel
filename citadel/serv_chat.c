@@ -634,12 +634,12 @@ int send_instant_message(char *lun, char *x_user, char *x_msg)
 		/* Save a copy of the message in the sender's log room,
 		 * creating the room if necessary.
 		 */
-		create_room(PAGELOGROOM, 4, "", 0, 1, 0);
+		create_room(PAGELOGROOM, 4, "", 0, 1, 0, VIEW_BBS);
 		msgnum = CtdlSubmitMsg(logmsg, NULL, PAGELOGROOM);
 
 		/* Now save a copy in the global log room, if configured */
 		if (strlen(config.c_logpages) > 0) {
-			create_room(config.c_logpages, 3, "", 0, 1, 1);
+			create_room(config.c_logpages, 3, "", 0, 1, 1, VIEW_BBS);
 			CtdlSaveMsgPointerInRoom(config.c_logpages, msgnum, 0);
 		}
 
@@ -649,7 +649,7 @@ int send_instant_message(char *lun, char *x_user, char *x_msg)
 		 * but we've already supplied the namespace prefix.
 		 */
 		while (sl != NULL) {
-			create_room(sl->roomname, 5, "", 0, 1, 1);
+			create_room(sl->roomname, 5, "", 0, 1, 1, VIEW_BBS);
 			CtdlSaveMsgPointerInRoom(sl->roomname, msgnum, 0);
 			sptr = sl->next;
 			free(sl);
