@@ -465,7 +465,7 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 					mallok(sizeof (struct ExpressMessage));
 				memset(newmsg, 0,
 					sizeof (struct ExpressMessage));
-				strcpy(newmsg->sender, un);
+				strcpy(newmsg->sender, lun);
 				if (!strcasecmp(x_user, "broadcast"))
 					newmsg->flags |= EM_BROADCAST;
 				newmsg->text = mallok(strlen(x_msg)+2);
