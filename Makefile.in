@@ -24,7 +24,7 @@ webserver: webserver.o context_loop.o $(LIBOBJS)
 webserver.o: webserver.c webcit.h
 	$(CC) $(CFLAGS) $(DEFS) -c -D_REENTRANT webserver.c
 
-context_loop.o: context_loop.c webcit.h
+context_loop.o: context_loop.c webcit.h webserver.h
 	$(CC) $(CFLAGS) $(DEFS) -c -D_REENTRANT context_loop.c
 
 snprintf.o: snprintf.c
@@ -37,26 +37,26 @@ webcit: webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
 	$(CC) webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
 	tools.o roomops.o -o webcit
 
-webcit.o: webcit.c webcit.h
+webcit.o: webcit.c webcit.h child.h
 	$(CC) $(CFLAGS) $(DEFS) -c webcit.c
 
-auth.o: auth.c webcit.h
+auth.o: auth.c webcit.h child.h
 	$(CC) $(CFLAGS) $(DEFS) -c auth.c
 
 tcp_sockets.o: tcp_sockets.c webcit.h
 	$(CC) $(CFLAGS) $(DEFS) -c tcp_sockets.c
 
-mainmenu.o: mainmenu.c webcit.h
+mainmenu.o: mainmenu.c webcit.h child.h
 	$(CC) $(CFLAGS) $(DEFS) -c mainmenu.c
 
-serv_func.o: serv_func.c webcit.h
+serv_func.o: serv_func.c webcit.h child.h
 	$(CC) $(CFLAGS) $(DEFS) -c serv_func.c
 
-who.o: who.c webcit.h
+who.o: who.c webcit.h child.h
 	$(CC) $(CFLAGS) $(DEFS) -c who.c
 
 tools.o: tools.c webcit.h
 	$(CC) $(CFLAGS) $(DEFS) -c tools.c
 
-roomops.o: roomops.c webcit.h
+roomops.o: roomops.c webcit.h child.h
 	$(CC) $(CFLAGS) $(DEFS) -c roomops.c
