@@ -213,6 +213,28 @@ void fmt_date(char *buf, time_t thetime) {
 
 
 
+/*
+ * Format TIME ONLY for output 
+ */
+void fmt_time(char *buf, time_t thetime) {
+	struct tm *tm;
+	int hour;
+
+	strcpy(buf, "");
+	tm = localtime(&thetime);
+	hour = tm->tm_hour;
+	if (hour == 0) hour = 12;
+	else if (hour > 12) hour = hour - 12;
+
+	sprintf(buf, "%d:%02d%s",
+		hour,
+		tm->tm_min,
+		( (tm->tm_hour > 12) ? "pm" : "am" )
+	);
+}
+
+
+
 
 /*
  * Format a date/time stamp to the format used in HTTP headers

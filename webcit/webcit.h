@@ -304,6 +304,7 @@ void smart_goto(char *);
 void worker_entry(void);
 void session_loop(struct httprequest *);
 void fmt_date(char *buf, time_t thetime);
+void fmt_time(char *buf, time_t thetime);
 void httpdate(char *buf, time_t thetime);
 void end_webcit_session(void);
 void page_popup(void);
@@ -354,6 +355,7 @@ void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum);
 void display_calendar(long msgnum);
 void display_task(long msgnum);
 void do_calendar_view(void);
+void free_calendar_buffer(void);
 int load_msg_ptrs(char *servcmd);
 
 #ifdef HAVE_ICAL_H

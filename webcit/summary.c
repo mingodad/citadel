@@ -135,6 +135,7 @@ void tasks_section(void) {
 	int num_msgs = 0;
 	int i;
 
+	section_title("Tasks");
 	gotoroom("Tasks", 0);
 	if (strcasecmp(WC->wc_roomname, "Tasks")) {
 		wprintf("<i>(You do not have a task list)</i><BR>\n");
@@ -147,9 +148,41 @@ void tasks_section(void) {
 		return;
 	}
 
+	wprintf("<UL>");
 	for (i=0; i<num_msgs; ++i) {
 		display_task(WC->msgarr[i]);
 	}
+	wprintf("</UL>\n");
+}
+
+
+/*
+ * Calendar section
+ */
+void calendar_section(void) {
+	int num_msgs = 0;
+	int i;
+
+	section_title("Today on your calendar");
+#ifdef HAVE_ICAL_H
+	gotoroom("Calendar", 0);
+	if (strcasecmp(WC->wc_roomname, "Calendar")) {
+		wprintf("<i>(You do not have a calendar)</i><BR>\n");
+		return;
+	}
+
+	num_msgs = load_msg_ptrs("MSGS ALL");
+	if (num_msgs < 1) {
+		wprintf("<i>(Nothing)</i><BR>\n");
+		return;
+	}
+
+	for (i=0; i<num_msgs; ++i) {
+		display_calendar(WC->msgarr[i]);
+	}
+
+	calendar_summary_view();
+#endif /* HAVE_ICAL_H */
 }
 
 
@@ -197,16 +230,14 @@ void summary(void) {
 	output_headers(7);
 
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>"
-		"<FONT SIZE=+1 COLOR=\"FFFFFF\""
+		"<FONT SIZE=+1 COLOR=\"FFFFFF\">"
 		"<B>Summary page for ");
 	escputs(WC->wc_username);
 	wprintf("</B><FONT></TD><TD>\n");
 	offer_start_page();
-	wprintf("</TD></TR></TABLE>\n");
-
-	wprintf("<DIV ALIGN=RIGHT>");
+	wprintf("</TD><TD ALIGN=RIGHT><FONT COLOR=\"FFFFFF\">");
 	output_date();
-	wprintf("</DIV>\n");
+	wprintf("</FONT></TD></TR></TABLE>\n");
 
 	/*
 	 * Now let's do three columns of crap.  All portals and all groupware
@@ -237,6 +268,8 @@ void summary(void) {
 	 */
 	wprintf("</TD><TD>");
 	new_messages_section();
+	wprintf("<BR><BR>");
+	calendar_section();
 
 	/*
 	 * End of columns
