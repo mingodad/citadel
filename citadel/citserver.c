@@ -129,7 +129,6 @@ void master_startup(void) {
 void master_cleanup(int exitcode) {
 	struct CleanupFunctionHook *fcn;
 	static int already_cleaning_up = 0;
-	int i;
 
 	if (already_cleaning_up) while(1) sleep(1);
 	already_cleaning_up = 1;
@@ -931,7 +930,15 @@ void do_command_loop(void) {
 		CC->kill_me = 1;
 		return;
 	}
-	lprintf(CTDL_INFO, "Citadel: %s\n", cmdbuf);
+
+	/* Log the server command, but don't show passwords... */
+	if ( (strncasecmp(cmdbuf, "PASS", 4))
+	   && (strncasecmp(cmdbuf, "SETP", 4)) ) {
+		lprintf(CTDL_INFO, "%s\n", cmdbuf);
+	}
+	else {
+		lprintf(CTDL_INFO, "<password command sent>\n");
+	}
 
 	buffer_output();
 

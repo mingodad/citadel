@@ -105,6 +105,10 @@ int main(int argc, char **argv)
 			home_specified = 1;
 		}
 
+		else if (!strncmp(argv[a], "-t", 2)) {
+			freopen(&argv[a][2], "w", stderr);
+		}
+
 		else if (!strncmp(argv[a], "-f", 2)) {
 			do_defrag = 1;
 		}
@@ -121,6 +125,7 @@ int main(int argc, char **argv)
 					"citserver "
 					"[-lLogFacility] "
 					"[-d] [-f]"
+					" [-tTraceFile]"
 					" [-xLogLevel] [-hHomeDir]\n");
 			exit(1);
 		}
