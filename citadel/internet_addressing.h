@@ -13,3 +13,6 @@ enum {
 
 
 struct CtdlMessage *convert_internet_message(char *rfc822);
+int CtdlLocalHost(char *fqdn);
+
+extern char *inetcfg;

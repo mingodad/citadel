@@ -38,6 +38,39 @@ struct trynamebuf {
 	char buffer2[256];
 };
 
+char *inetcfg = NULL;
+
+
+
+/*
+ * Return nonzero if the supplied name is an alias for this host.
+ */
+int CtdlLocalHost(char *fqdn) {
+	int config_lines;
+	int i;
+	char buf[256];
+	char host[256], type[256];
+
+	if (!strcasecmp(fqdn, config.c_fqdn)) return(1);
+	if (inetcfg == NULL) return(0);
+
+	config_lines = num_tokens(inetcfg, '\n');
+	for (i=0; i<config_lines; ++i) {
+		extract_token(buf, inetcfg, i, '\n');
+		extract_token(host, buf, 0, '|');
+		extract_token(type, buf, 1, '|');
+		if ( (!strcasecmp(type, "localhost"))
+		   && (!strcasecmp(fqdn, host)))  return(1);
+	}
+
+	return(0);
+}
+
+
+
+
+
+
 
 /*
  * Return 0 if a given string fuzzy-matches a Citadel user account
@@ -256,10 +289,9 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 	process_rfc822_addr(source, user, node, name);
 
 	/* Map the FQDN to a Citadel node name
-	 * FIX ... we have to check for all known aliases for the local
-	 *         system, and also handle gateway domains, etc. etc.
+	 * FIX ... we have to check for gateway domains
 	 */
-	if (!strcasecmp(node, config.c_fqdn)) {
+	if (CtdlLocalHost(node)) {
 		strcpy(node, config.c_nodename);
 	}
 

@@ -1,7 +1,9 @@
 /* $Id$ 
  *
  * This module handles the loading/saving and maintenance of the
- * system's Internet configuration.
+ * system's Internet configuration.  It's not an optional component; I
+ * wrote it as a module merely to keep things as clean and loosely coupled
+ * as possible.
  */
 
 #include "sysdep.h"
@@ -35,6 +37,24 @@
 #include "genstamp.h"
 #include "domain.h"
 
+void inetcfg_setTo(struct CtdlMessage *msg) {
+	char *conf;
+	char buf[256];
+
+	if (msg->cm_fields['M']==NULL) return;
+	conf = strdoop(msg->cm_fields['M']);
+
+	if (conf != NULL) {
+		do {
+			extract_token(buf, conf, 0, '\n');
+			strcpy(conf, &conf[strlen(buf)+1]);
+		} while ( (strlen(conf)>0) && (strlen(buf)>0) );
+
+		if (inetcfg != NULL) phree(inetcfg);
+		inetcfg = conf;
+	}
+}
+
 
 /*
  * This handler detects changes being made to the system's Internet
@@ -61,7 +81,7 @@ int inetcfg_aftersave(struct CtdlMessage *msg) {
 		   strlen(INTERNETCFG) )) ) {
 			/* Bingo!  The user is changing configs.
 			 */
-			lprintf(9, "Internet configuration changed FIX\n");
+			inetcfg_setTo(msg);
 		}
 
 		ptr = strchr((char *)ptr, '\n');
@@ -70,6 +90,25 @@ int inetcfg_aftersave(struct CtdlMessage *msg) {
 
 	return(0);
 }
+
+
+void inetcfg_init_backend(long msgnum) {
+	struct CtdlMessage *msg;
+
+       	msg = CtdlFetchMessage(msgnum);
+       	if (msg != NULL) {
+		inetcfg_setTo(msg);
+               	CtdlFreeMessage(msg);
+	}
+}
+
+
+void inetcfg_init(void) {
+	if (getroom(&CC->quickroom, SYSCONFIGROOM) != 0) return;
+	CtdlForEachMessage(MSGS_LAST, 1, INTERNETCFG, NULL,
+		inetcfg_init_backend);
+}
+
 
 
 
@@ -81,6 +120,7 @@ int inetcfg_aftersave(struct CtdlMessage *msg) {
 char *Dynamic_Module_Init(void)
 {
 	CtdlRegisterMessageHook(inetcfg_aftersave, EVT_AFTERSAVE);
+	inetcfg_init();
 	return "$Id$";
 }
 
