@@ -67,7 +67,7 @@ wxString generate_html_header(CitMessage *message,
 			wxString ThisNode) {
 
 	wxString ret;
-	int verbosity = 3;
+	int verbosity = 2;	// FIX add a prefs option for this
 
 	switch(verbosity) {
 
