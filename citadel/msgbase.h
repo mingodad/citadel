@@ -25,3 +25,6 @@ void cmd_ent0 (char *entargs);
 void cmd_ent3 (char *entargs);
 void cmd_dele (char *delstr);
 void cmd_move (char *args);
+void GetSuppMsgInfo(struct SuppMsgInfo *, long);
+void PutSuppMsgInfo(struct SuppMsgInfo *);
+void AdjRefCount(long, int);

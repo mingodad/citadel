@@ -1232,7 +1232,7 @@ void delete_room(struct quickroom *qrbuf)
 	if (CC->num_msgs > 0)
 		for (a = 0; a < CC->num_msgs; ++a) {
 			MsgToDelete = MessageFromList(a);
-			cdb_delete(CDB_MSGMAIN, &MsgToDelete, sizeof(long));
+			AdjRefCount(MsgToDelete, -1);
 		}
 	put_msglist(qrbuf);
 	phree(CC->msglist);

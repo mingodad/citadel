@@ -140,6 +140,7 @@ enum {
 	S_HOUSEKEEPING,
 	S_DATABASE,
 	S_NETDB,
+	S_SUPPMSGMAIN,
 	MAX_SEMAPHORES
 };
 
@@ -258,6 +259,17 @@ struct visit {
 #define UA_GOTOALLOWED          4
 #define UA_HASNEWMSGS           8
 #define UA_ZAPPED		16
+
+
+/* Supplementary data for a message on disk
+ * (These are kept separately from the message itself because they are
+ * fields whose values may change at some point after the message is saved.)
+ */
+struct SuppMsgInfo {
+	long smi_msgnum;	/* Redundant, but useful for self-check */
+	int smi_refcount;	/* Number of rooms which point to this msg */
+	/* more stuff will be added to this record in the future */
+};
 
 
 

@@ -1337,7 +1337,7 @@ void cmd_dele(char *delstr)
 	put_msglist(&CC->quickroom);
 	lputroom(&CC->quickroom);
 	if (ok==1) {
-		cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));
+		AdjRefCount(delnum, -1); 
 		cprintf("%d Message deleted.\n",OK);
 		}
 	else cprintf("%d No message %ld.\n",ERROR,delnum);
@@ -1400,3 +1400,88 @@ void cmd_move(char *args)
 
 	cprintf("%d Message moved.\n", OK);
 	}
+
+
+
+/*
+ * GetSuppMsgInfo()  -  Get the supplementary record for a message
+ */
+void GetSuppMsgInfo(struct SuppMsgInfo *smibuf, long msgnum) {
+
+        struct cdbdata *cdbsmi;
+	long TheIndex;
+
+        memset(smibuf, 0, sizeof(struct SuppMsgInfo));
+	smibuf->smi_msgnum = msgnum;
+	smibuf->smi_refcount = 1;	/* Default reference count is 1 */
+
+	/* Use the negative of the message number for its supp record index */
+	TheIndex = (0L - msgnum);
+
+        cdbsmi = cdb_fetch(CDB_MSGMAIN, &TheIndex, sizeof(long) );
+        if (cdbsmi == NULL) {
+                return;      /* record not found; go with defaults */
+        }
+
+        memcpy(smibuf, cdbsmi->ptr,
+                ( (cdbsmi->len > sizeof(struct SuppMsgInfo)) ?
+                sizeof(struct SuppMsgInfo) : cdbsmi->len) );
+        cdb_free(cdbsmi);
+	return;
+}
+   
+
+/*
+ * PutSuppMsgInfo()  -  (re)write supplementary record for a message
+ */
+void PutSuppMsgInfo(struct SuppMsgInfo *smibuf)
+{
+        long TheIndex;
+
+	/* Use the negative of the message number for its supp record index */
+	TheIndex = (0L - smibuf->smi_msgnum);
+
+        cdb_store(CDB_MSGMAIN,
+                &TheIndex, sizeof(long),
+                smibuf, sizeof(struct SuppMsgInfo));
+
+        }         
+
+
+
+/*
+ * AdjRefCount  -  change the reference count for a message;
+ *                 delete the message if it reaches zero
+ */
+void AdjRefCount(long msgnum, int incr) {
+
+	struct SuppMsgInfo smi;
+	long delnum;
+
+	lprintf(9, "Adjust msg <%ld> ref count by <%d>\n",
+		msgnum, incr);
+
+	/* This is a *tight* critical section; please keep it that way, as
+	 * it may get called while nested in other critical sections.  
+	 * Complicating this any further will surely cause deadlock!
+	 */
+	begin_critical_section(S_SUPPMSGMAIN);
+	GetSuppMsgInfo(&smi, msgnum);
+	smi.smi_refcount += incr;
+	PutSuppMsgInfo(&smi);
+	end_critical_section(S_SUPPMSGMAIN);
+
+	lprintf(9, "Ref count for message <%ld> after write is <%d>\n",
+		msgnum, smi.smi_refcount);
+
+	/* If the reference count is now zero, delete the message
+	 * (and its supplementary record as well).
+	 */
+	if (smi.smi_refcount == 0) {
+		lprintf(9, "Deleting message <%ld>\n", msgnum);
+		delnum = msgnum;
+		cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));   
+		delnum = (0L - msgnum);
+		cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));   
+	}
+}

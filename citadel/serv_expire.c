@@ -142,7 +142,7 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 		while (CC->num_msgs > epbuf.expire_value) {
 			delnum = MessageFromList(0);
 			lprintf(5, "Expiring message %ld\n", delnum);
-			cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));
+			AdjRefCount(delnum, -1); 
 			memcpy(&CC->msglist[0], &CC->msglist[1],
 				(sizeof(long)*(CC->num_msgs - 1)));
 			CC->num_msgs = CC->num_msgs - 1;
@@ -160,7 +160,7 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 			if ((xtime > 0L)
 			   && (now - xtime > (time_t)(epbuf.expire_value * 86400L))) {
 				lprintf(5, "Expiring message %ld\n", delnum);
-				cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));
+				AdjRefCount(delnum, -1); 
 				SetMessageInList(a, 0L);
 				++messages_purged;
 				}
