@@ -1,3 +1,7 @@
+Mon Dec 21 07:54:20 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* housekeeping.c: call kill_session() with session_to_kill,
+	  not ccptr->cs_pid (was crashing the server)
+
 Sat Dec 19 13:57:48 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Added "-i" flag to netproc to make it skip the export phase.
 	  Updated other programs to call netproc in this way when appropriate.

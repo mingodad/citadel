@@ -49,8 +49,8 @@ void terminate_idle_sessions(void) {
 		lprintf(9, "...done scanning.\n");
 		if (session_to_kill > 0) {
 			lprintf(3, "Session %d timed out.  Terminating it...\n",
-				ccptr->cs_pid);
-			kill_session(ccptr->cs_pid);
+				session_to_kill);
+			kill_session(session_to_kill);
 			lprintf(9, "...done terminating it.\n");
 			}
 		} while(session_to_kill > 0);
