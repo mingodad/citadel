@@ -37,7 +37,7 @@
 void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 	icalcomponent *vevent;
 	icalproperty *p;
-	struct icaltimetype t;
+	struct icaltimetype t_start, t_end;
 	time_t now;
 	int created_new_vevent = 0;
 
@@ -104,23 +104,70 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	wprintf("<TR><TD><B>Start</B></TD><TD>\n");
 	p = icalcomponent_get_first_property(vevent, ICAL_DTSTART_PROPERTY);
 	if (p != NULL) {
-		t = icalproperty_get_dtstart(p);
+		t_start = icalproperty_get_dtstart(p);
+		if (t_start.is_date) {
+			t_start.hour = 0;
+			t_start.minute = 0;
+			t_start.second = 0;
+		}
 	}
 	else {
-		t = icaltime_from_timet(now, 0);
+		t_start = icaltime_from_timet(now, 0);
 	}
-	display_icaltimetype_as_webform(&t, "dtstart");
+	display_icaltimetype_as_webform(&t_start, "dtstart");
+
+	wprintf("<INPUT TYPE=\"checkbox\" NAME=\"alldayevent\" "
+		"VALUE=\"yes\" onClick=\"
+
+			if (this.checked) {
+                                this.form.dtstart_hour.value='0';
+                                this.form.dtstart_hour.disabled = true;
+                                this.form.dtstart_minute.value='0';
+                                this.form.dtstart_minute.disabled = true;
+                                this.form.dtend_hour.value='0';
+                                this.form.dtend_hour.disabled = true;
+                                this.form.dtend_minute.value='0';
+                                this.form.dtend_minute.disabled = true;
+                                this.form.dtend_month.disabled = true;
+                                this.form.dtend_day.disabled = true;
+                                this.form.dtend_year.disabled = true;
+                        }
+                        else {
+                                this.form.dtstart_hour.disabled = false;
+                                this.form.dtstart_minute.disabled = false;
+                                this.form.dtend_hour.disabled = false;
+                                this.form.dtend_minute.disabled = false;
+                                this.form.dtend_month.disabled = false;
+                                this.form.dtend_day.disabled = false;
+                                this.form.dtend_year.disabled = false;
+                        }
+
+
+		\" %s >All day event",
+		(t_start.is_date ? "CHECKED" : "" )
+	);
+
 	wprintf("</TD></TR>\n");
 
+	/* If this is an all-day-event, set the end time to be identical to
+	 * the start time (the hour/minute/second will be set to midnight).
+	 * Otherwise extract or create it.
+	 */
 	wprintf("<TR><TD><B>End</B></TD><TD>\n");
-	p = icalcomponent_get_first_property(vevent, ICAL_DTEND_PROPERTY);
-	if (p != NULL) {
-		t = icalproperty_get_dtend(p);
+	if (t_start.is_date) {
+		t_end = t_start;
 	}
 	else {
-		t = icaltime_from_timet(now, 0);
+		p = icalcomponent_get_first_property(vevent,
+							ICAL_DTEND_PROPERTY);
+		if (p != NULL) {
+			t_end = icalproperty_get_dtend(p);
+		}
+		else {
+			t_end = icaltime_from_timet(now, 0);
+		}
 	}
-	display_icaltimetype_as_webform(&t, "dtend");
+	display_icaltimetype_as_webform(&t_end, "dtend");
 	wprintf("</TD></TR>\n");
 
 	wprintf("<TR><TD><B>Notes</B></TD><TD>\n"
@@ -200,11 +247,32 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		      ICAL_DTSTART_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vevent, prop);
 		}
-		event_start = icaltime_from_webform("dtstart");
-		if (event_start.is_date) {
-			lprintf(9, "*** all day event ***\n");
+
+		if (!strcmp(bstr("alldayevent"), "yes")) {
 			all_day_event = 1;
+			lprintf(9, "*** all day event ***\n");
 		}
+		else {
+			all_day_event = 0;
+		}
+
+		event_start = icaltime_from_webform("dtstart");
+		if (all_day_event) {
+			event_start.is_date = 1;
+			event_start.hour = 0;
+			event_start.minute = 0;
+			event_start.second = 0;
+		}
+		lprintf(9, "dtstart: %s\n",
+			icaltime_as_ical_string(event_start)
+		);
+
+	/* FIXME.  Somewhere between here and when we save the event, we are
+	 * somehow losing the "is_date" setting of dtstart.  The problem might
+	 * be with WebCit or it might be in libical.  Check to see if this
+	 * problem goes away when we upgrade libical.  --IG
+	 */
+
 		icalcomponent_add_property(vevent,
 			icalproperty_new_dtstart(event_start)
 		);
@@ -217,10 +285,11 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		      ICAL_DURATION_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vevent, prop);
 		}
+
 		if (all_day_event == 0) {
 			icalcomponent_add_property(vevent,
-				icalproperty_new_dtend(
-					icaltime_from_webform("dtend")
+				icalproperty_new_dtend(icaltime_normalize(
+					icaltime_from_webform("dtend"))
 				)
 			);
 		}
@@ -233,7 +302,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 				icalproperty_new_uid(buf)
 			);
 		}
-	
+
 		/* Serialize it and save it to the message base */
 		serv_puts("ENT0 1|||4");
 		serv_gets(buf);

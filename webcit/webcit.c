@@ -155,7 +155,7 @@ char *bstr(char *key)
 void wprintf(const char *format,...)
 {
 	va_list arg_ptr;
-	char wbuf[1024];
+	char wbuf[4096];
 
 	va_start(arg_ptr, format);
 	vsprintf(wbuf, format, arg_ptr);
