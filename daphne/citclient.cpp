@@ -1,11 +1,5 @@
-#include <ctype.h>
-#include <string.h>
 
-#include <wx/wx.h>
-
-#include "citclient.hpp"
-#include "express_message.hpp"
-#include "utils.h"
+#include "includes.hpp"
 
 
 //  

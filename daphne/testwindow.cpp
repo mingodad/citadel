@@ -2,10 +2,7 @@
 // declarations
 // ============================================================================
 
-
-#include <wx/wx.h>
-#include "citclient.hpp"
-#include "testwindow.hpp"
+#include "includes.hpp"
 
 // ----------------------------------------------------------------------------
 // private classes

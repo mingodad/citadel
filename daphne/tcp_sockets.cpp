@@ -19,8 +19,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <errno.h>
-#include <wx/wx.h>
-#include "tcp_sockets.hpp"
+#include "includes.hpp"
 
 #ifndef INADDR_NONE
 #define INADDR_NONE 0xffffffff

@@ -2,13 +2,7 @@
 // declarations
 // ============================================================================
 
-
-#include <wx/wx.h>
-#include <wx/listctrl.h>
-#include "citclient.hpp"
-#include "userlogin.hpp"
-#include "who.hpp"
-#include "utils.h"
+#include "includes.hpp"
 
 // ----------------------------------------------------------------------------
 // private classes
@@ -254,7 +248,6 @@ void UserLogin::OnButtonPressed(wxCommandEvent& whichbutton) {
 				nopass.ShowModal();
 			} else {
 				// FIX do login procedure here
-				(void)new who(citsock, citMyMDI);
 			}
 		}
 	}

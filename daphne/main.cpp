@@ -7,14 +7,7 @@
 // declarations
 // ============================================================================
 
-
-#include <stdio.h>
-#include <wx/wx.h>
-#include <wx/socket.h>
-
-#include "citclient.hpp"
-#include "userlogin.hpp"
-#include "testwindow.hpp"
+#include "includes.hpp"
 
 // ----------------------------------------------------------------------------
 // private classes
@@ -46,6 +39,7 @@ public:
 	void OnDoCmd(wxCommandEvent& event);
 	void OnConnect(wxCommandEvent& event);
 private:
+	void OnUsersMenu(wxCommandEvent& cmd);
 	void OnWindowMenu(wxCommandEvent& cmd);
 	wxButton *do_cmd;
 	// any class wishing to process wxWindows events must use this macro
@@ -63,6 +57,8 @@ enum
 	IG_About,
 	IG_Text,
 	MENU_CONNECT,
+	UMENU_WHO,
+	UMENU_SEND_EXPRESS,
 	WMENU_CASCADE,
 	WMENU_TILE,
 	WMENU_ARRANGE,
@@ -82,6 +78,8 @@ BEGIN_EVENT_TABLE(	MyFrame, wxMDIParentFrame)
 	EVT_MENU(	IG_Quit,		MyFrame::OnQuit)
 	EVT_MENU(	IG_About,		MyFrame::OnAbout)
 	EVT_MENU(	MENU_CONNECT,		MyFrame::OnConnect)
+	EVT_MENU(	UMENU_WHO,		MyFrame::OnUsersMenu)
+	EVT_MENU(	UMENU_SEND_EXPRESS,	MyFrame::OnUsersMenu)
 	EVT_MENU(	WMENU_CASCADE,		MyFrame::OnWindowMenu)
 	EVT_MENU(	WMENU_TILE,		MyFrame::OnWindowMenu)
 	EVT_MENU(	WMENU_ARRANGE,		MyFrame::OnWindowMenu)
@@ -150,6 +148,10 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 	wxMenu *menuEdit = new wxMenu;
 
+	wxMenu *menuUsers = new wxMenu;
+	menuUsers->Append(UMENU_WHO, "&Who is online?");
+	menuUsers->Append(UMENU_SEND_EXPRESS, "&Page another user");
+
 	wxMenu *menuWindow = new wxMenu;
 	menuWindow->Append(WMENU_CASCADE, "&Cascade");
 	menuWindow->Append(WMENU_TILE, "&Tile");
@@ -164,6 +166,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	wxMenuBar *menuBar = new wxMenuBar;
 	menuBar->Append(menuFile, "&File");
 	menuBar->Append(menuEdit, "&Edit");
+	menuBar->Append(menuUsers, "&Users");
 	menuBar->Append(menuWindow, "&Window");
 	menuBar->Append(menuHelp, "&Help");
 
@@ -176,7 +179,9 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 }
 
 
-// event handlers
+// Event handlers.
+// We really could handle all menu items in one function, but that would
+// get kind of confusing, so we break it down by top-level menus.
 
 void MyFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 {
@@ -187,6 +192,16 @@ void MyFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 	Close(TRUE);
 }
 
+// User menu handler
+void MyFrame::OnUsersMenu(wxCommandEvent& cmd) {
+	int id;
+	
+	id = cmd.GetId();
+	if (id == UMENU_WHO)
+		new who(citadel, this);
+	else if (id == UMENU_SEND_EXPRESS)
+		new SendExpress(citadel, this, NULL);
+}
 
 // Window menu handler
 void MyFrame::OnWindowMenu(wxCommandEvent& cmd) {

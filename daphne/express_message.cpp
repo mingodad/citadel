@@ -2,12 +2,7 @@
 // declarations
 // ============================================================================
 
-
-#include <wx/wx.h>
-#include <wx/listctrl.h>
-#include "citclient.hpp"
-#include "express_message.hpp"
-#include "utils.h"
+#include "includes.hpp"
 
 // ----------------------------------------------------------------------------
 // private classes
