@@ -19,6 +19,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <pthread.h>
 #include "webcit.h"
 #include "mime_parser.h"
 
