@@ -142,6 +142,13 @@ do this by having telnetd start citadel directly instead of /bin/login.
 it will also write the file "sysdep.h" to your Citadel directory.  Please do
 not edit sysdep.h or Makefile.in yourself.  The configure script will figure
 out your system dependencies and set everything correctly.
+   
+   Mac OS X 10.1 and later are now supported.  (Sorry, 10.0 cannot be
+supported, now or in the future.)  You need to install the Developer
+Tools CD, which you can purchase or download for free from
+http://developer.apple.com/ .  Then run configure like this:
+
+   env CC=/usr/bin/cc ./configure <options-see below>
  
    By default, the Citadel system will install in /usr/local/citadel.  If you
 wish to place it in a different directory, you can instead do:
@@ -155,7 +162,7 @@ help the configure script find it by doing something like this:
  
    The configure script prefers Berkeley DB if it is available, but will fall
 back to GDBM if it has to.
-   
+
    File permissions are always a bother to work with. You don't want the
 board to crash because someone couldn't access a file, but you also don't
 want shell users peeking into the binaries to do things like reading others'

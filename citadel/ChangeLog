@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.40  2002/10/20 08:01:03  error
+ * docs/install.txt: add Mac OS X build instructions
+
  Revision 601.39  2002/10/19 21:35:34  ajc
  * Moved some of the calendar logic over from WebCit
 
@@ -4120,4 +4123,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
