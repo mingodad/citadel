@@ -566,12 +566,13 @@ int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 					}
 					remove_token(bbb, 0, '\n');
 				} while ((bbb[0] != 0) && (bbb[0] != '\n'));
+		/*ooga*/		remove_token(bbb, 0, '\n');
 			}
 
 
 		}
 		if (strlen(bbb)) {
-			/* Strip trailing whitespace */
+			/* FIXME: Strip trailing whitespace */
 			bbb = (char *)realloc(bbb, (size_t)(strlen(bbb) + 1));
 		} else {
 			bbb = (char *)realloc(bbb, 1);

@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl $Id$
 AC_PREREQ(2.52)
-AC_INIT([Citadel/UX], [5.91], [http://uncensored.citadel.org/])
+AC_INIT([Citadel/UX], [6.02], [http://uncensored.citadel.org/])
 AC_REVISION([$Revision$])
 AC_CONFIG_SRCDIR([citserver.c])
 AC_PREFIX_DEFAULT(/usr/local/citadel)
@@ -510,6 +510,42 @@ if test "$ac_cv_func_pthread_create" = yes; then
 fi
 
 AC_REPLACE_FUNCS(snprintf getutline)
+
+# AC_CACHE_CHECK([the weather], ac_cv_weather, [
+# 	sleep 1
+# 	echo $ECHO_N "opening your window... $ECHO_C" >&6
+# 	sleep 2
+# 	month=`date | cut -f 2 -d ' '`
+# 	case $month in
+# 	Dec | Jan | Feb)
+# 		ac_cv_weather="it's cold!"
+# 		;;
+# 	Mar | Apr)
+# 		ac_cv_weather="it's wet!"
+# 		;;
+# 	Jul | Aug)
+# 		ac_cv_weather="it's hot!"
+# 		;;
+# 	Oct | Nov)
+# 		ac_cv_weather="it's cool"
+# 		;;
+# 	May | Jun | Sep | *)
+# 		ac_cv_weather="it's fine"
+# 		;;
+#	esac
+#	])
+
+AC_CACHE_CHECK([under the bed], ac_cv_under_the_bed, [
+	number=`date | cut -c 19`
+	case $number in
+	7)
+		ac_cv_under_the_bed="lunatics and monsters found"
+		;;
+	*)
+		ac_cv_under_the_bed="dust bunnies found"
+		;;
+	esac
+	])
 
 dnl Done! Now write the Makefile and sysdep.h
 AC_SUBST(AUTH)

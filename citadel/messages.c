@@ -581,7 +581,7 @@ int read_message(CtdlIPC *ipc,
 	 * Here we go
 	 */
 	if (format_type == 0) {
-		fr = fmout(screenwidth, NULL, message->text, dest,
+		fr = fmout2(screenwidth, NULL, message->text, dest,
 			   ((pagin == 1) ? 1 : 0), screenheight, (-1), 1);
 	} else {
 		char *msgtext;

@@ -1344,8 +1344,17 @@ FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
 	if (a <= 0)
 		goto FMTEND;
 
-	if (((a == 13) || (a == 10)) && (old != 13) && (old != 10))
-		a = 32;
+	/*
+	if (a == 10) scr_printf("<a==10>");
+	if (a == 13) scr_printf("<a==13>");
+	*/
+
+	if ((a == 13) || (a == 10)) {
+		if ((old != 13) && (old != 10))
+			a = 32;
+		if ((old == 13) || (old == 10))
+			a = 0;
+	}
 	if (((old == 13) || (old == 10)) && (isspace(real))) {
 		if (fpout) {
 			fprintf(fpout, "\n");
@@ -1421,6 +1430,147 @@ FMTEND:
 		lines_printed = checkpagin(lines_printed, pagin, height);
 	}
 	return (sigcaught);
+}
+
+
+/*
+ * fmout() - Citadel text formatter and paginator
+ */
+int fmout2(
+	int width,	/* screen width to use */
+	FILE *fpin,	/* file to read from, or NULL to format given text */
+	char *text,	/* text to be formatted (when fpin is NULL */
+	FILE *fpout,	/* file to write to, or NULL to write to screen */
+	char pagin,	/* nonzero if we should use the paginator */
+	int height,	/* screen height to use */
+	int starting_lp,/* starting value for lines_printed, -1 for global */
+	int subst)	/* nonzero if we should use hypertext mode */
+{
+	char *buffer = NULL;	/* The current message */
+	char *word = NULL;	/* What we are about to actually print */
+	char *e;		/* Pointer to position in text */
+	char old = 0;		/* The previous character */
+	int column = 0;		/* Current column */
+	size_t i;		/* Generic counter */
+
+	word = (char *)calloc(1, width);
+	if (!word) {
+		err_printf("Can't alloc memory to print message: %s!\n",
+				strerror(errno));
+		logoff(NULL, 3);
+	}
+
+	if (fpin) {
+		size_t got = 0;
+
+		rewind(fpin);
+		i = ftell(fpin);
+		buffer = (char *)calloc(1, i + 1);
+		if (!buffer) {
+			err_printf("Can't alloc memory for message: %s!\n",
+					strerror(errno));
+			logoff(NULL, 3);
+		}
+		while (got < i) {
+			size_t g = 0;
+
+			g = fread(buffer + got, i - got, 1, fpin);
+			if (g < 1) {	/* error reading or eof */
+				i = got;
+				break;
+			}
+			got += g;
+		}
+		buffer[i] = 0;
+	} else {
+		buffer = text;
+	}
+
+	if (starting_lp >= 0)
+		lines_printed = starting_lp;
+
+	e = buffer;
+
+	while (*e) {
+		/* First, are we looking at a newline? */
+		if (*e == '\n') {
+			e++;
+			if (*e == ' ') {
+				if (fpout) {
+					fprintf(fpout, "\n");
+				} else {
+					scr_printf("\n");
+					++lines_printed;
+					lines_printed = checkpagin(lines_printed, pagin, height);
+				}
+				column = 0;
+			} else if (old != ' ') {
+				if (fpout) {
+					fprintf(fpout, " ");
+				} else {
+					scr_printf(" ");
+				}
+				column++;
+			}
+		}
+		old = *e;
+		/* Or are we looking at a space? */
+		if (*e == ' ') {
+			e++;
+			if (column >= width - 1) {
+				if (fpout) {
+					fprintf(fpout, "\n");
+				} else {
+					scr_printf("\n");
+					++lines_printed;
+					lines_printed = checkpagin(lines_printed, pagin, height);
+				}
+				column = 0;
+			} else if (!(column == 0 && old == ' ')) {
+				if (fpout) {
+					fprintf(fpout, " ");
+				} else {
+					scr_printf(" ");
+				}
+				column++;
+			}
+			continue;
+		}
+
+		/* Read a word and decide what to do with it */
+		i = 0;
+		while (*e) {
+			if (isspace(e[i]))
+				break;
+			i++;
+		}
+		if (i >= width)		/* Break up really long words */
+			i = width - 1;
+		strncpy(word, e, i);
+		word[i] = 0;
+		if (column + i >= width) {
+			if (fpout) {
+				fprintf(fpout, "\n");
+			} else {
+				scr_printf("\n");
+				++lines_printed;
+				lines_printed = checkpagin(lines_printed, pagin, height);
+			}
+			column = 0;
+		}
+		if (fpout) {
+			fprintf(fpout, "%s", word);
+		} else {
+			scr_printf("%s", word);
+		}
+		column += i;
+		e += i;
+	}
+
+	free(word);
+	if (fpin)
+		free(buffer);
+	return 0;
 }
 
 
