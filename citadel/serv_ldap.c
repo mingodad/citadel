@@ -209,9 +209,12 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg) {
 	char this_dn[SIZ];
 	LDAPMod **attrs = NULL;
 	int num_attrs = 0;
+	int num_emails = 0;
+	int alias_attr = (-1);
 
 	char givenname[SIZ];
 	char sn[SIZ];
+	char uid[SIZ];
 
 	if (dirserver == NULL) return;
 	if (msg == NULL) return;
@@ -230,6 +233,11 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg) {
 		msg->cm_fields['A'],
 		msg->cm_fields['N'],
 		config.c_ldap_base_dn
+	);
+		
+	sprintf(uid, "%s@%s",
+		msg->cm_fields['A'],
+		msg->cm_fields['N']
 	);
 
 	/* The first LDAP attribute will be an 'objectclass' list.  Citadel
@@ -268,6 +276,59 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg) {
 			extract_token(givenname,	v->prop[i].value, 1, ';');
 		}
 
+		if (!strcasecmp(v->prop[i].name, "title")) {
+			attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+			attrs[num_attrs-1] = mallok(sizeof(LDAPMod));
+			memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
+			attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
+			attrs[num_attrs-1]->mod_type		= "title";
+			attrs[num_attrs-1]->mod_values		= mallok(2 * sizeof(char *));
+			attrs[num_attrs-1]->mod_values[0]	= strdoop(v->prop[i].value);
+			attrs[num_attrs-1]->mod_values[1]	= NULL;
+		}
+
+		if ( (!strcasecmp(v->prop[i].name, "email"))
+		   ||(!strcasecmp(v->prop[i].name, "email;internet")) ) {
+	
+			++num_emails;
+			lprintf(9, "email addr %d\n", num_emails);
+
+			/* The first email address creates the 'mail' attribute */
+			if (num_emails == 1) {
+				attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+				attrs[num_attrs-1] = mallok(sizeof(LDAPMod));
+				memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
+				attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
+				attrs[num_attrs-1]->mod_type		= "mail";
+				attrs[num_attrs-1]->mod_values		= mallok(2 * sizeof(char *));
+				attrs[num_attrs-1]->mod_values[0]	= strdoop(v->prop[i].value);
+				attrs[num_attrs-1]->mod_values[1]	= NULL;
+			}
+			/* The second email address creates the 'alias' attribute */
+			else if (num_emails == 2) {
+				attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+				alias_attr = num_attrs-1;
+				attrs[alias_attr] = mallok(sizeof(LDAPMod));
+				memset(attrs[alias_attr], 0, sizeof(LDAPMod));
+				attrs[alias_attr]->mod_op		= LDAP_MOD_ADD;
+				attrs[alias_attr]->mod_type		= "alias";
+				attrs[alias_attr]->mod_values		= mallok(2 * sizeof(char *));
+				attrs[alias_attr]->mod_values[0]	= strdoop(v->prop[i].value);
+				attrs[alias_attr]->mod_values[1]	= NULL;
+			}
+			/* Subsequent email addresses *add to* the 'alias' attribute */
+			else if (num_emails > 2) {
+				attrs[alias_attr]->mod_values = reallok(attrs[alias_attr]->mod_values,
+								     num_emails * sizeof(char *));
+				attrs[alias_attr]->mod_values[num_emails-2]
+									= strdoop(v->prop[i].value);
+				attrs[alias_attr]->mod_values[num_emails-1]
+									= NULL;
+			}
+
+
+		}
+
 	}
 	vcard_free(v);	/* Don't need this anymore. */
 
@@ -280,7 +341,7 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg) {
 	attrs[num_attrs-1]->mod_values		= mallok(2 * sizeof(char *));
 	attrs[num_attrs-1]->mod_values[0]	= strdoop(sn);
 	attrs[num_attrs-1]->mod_values[1]	= NULL;
-	
+
 	/* "givenname" (first name) based on info in vCard */
 	attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
 	attrs[num_attrs-1] = mallok(sizeof(LDAPMod));
@@ -291,12 +352,20 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg) {
 	attrs[num_attrs-1]->mod_values[0]	= strdoop(givenname);
 	attrs[num_attrs-1]->mod_values[1]	= NULL;
 
+	/* "uid" is a Kolab compatibility thing.  We just do cituser@citnode */
+	attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+	attrs[num_attrs-1] = mallok(sizeof(LDAPMod));
+	memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
+	attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
+	attrs[num_attrs-1]->mod_type		= "uid";
+	attrs[num_attrs-1]->mod_values		= mallok(2 * sizeof(char *));
+	attrs[num_attrs-1]->mod_values[0]	= strdoop(uid);
+	attrs[num_attrs-1]->mod_values[1]	= NULL;
+
 	/* The last attribute must be a NULL one. */
 	attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
 	attrs[num_attrs - 1] = NULL;
 	
-	lprintf(9, "this_dn: <%s>\n", this_dn);
-
 	lprintf(9, "Calling ldap_add_s()\n");
 	begin_critical_section(S_LDAP);
 	i = ldap_add_s(dirserver, this_dn, attrs);

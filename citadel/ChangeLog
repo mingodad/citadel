@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.13  2004/02/04 04:07:56  ajc
+ * More work on LDAP connector
+
  Revision 614.12  2004/02/01 06:19:22  ajc
  * policy.c: fix bug in GetExpirePolicy() that was causing the default
    mailbox purge policy to be misinterpreted if it was set to "use
@@ -5258,4 +5261,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
