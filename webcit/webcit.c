@@ -237,13 +237,13 @@ void escputs(char *strbuf)
 
 /*
  * Escape a string for feeding out as a URL.
- * FIXME this is not threadsafe!
+ * FIXME ... not threadsafe!
  */
 char *urlesc(char *strbuf)
 {
 	int a, b, c;
 	char *ec = " #&;`'|*?-~<>^()[]{}$\\";
-	static char outbuf[1024];
+	static char outbuf[SIZ];
 
 	strcpy(outbuf, "");
 
