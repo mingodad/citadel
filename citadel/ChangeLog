@@ -1,4 +1,8 @@
  $Log$
+ Revision 614.64  2004/03/05 23:21:25  ajc
+ * Added some more debugging to serv_smtp.c to try to figure out the
+   problem with Postfix TLS hanging during send
+
  Revision 614.63  2004/03/05 03:36:03  ajc
  * Remove the automatic population of A and N fields we recently added
    when found to be NULL.  It was confusing the output functions into
@@ -5451,3 +5455,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
