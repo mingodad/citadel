@@ -216,8 +216,10 @@ void display_generic(void)
 	wprintf("<INPUT TYPE=\"text\" NAME=\"g_cmd\" SIZE=80 MAXLENGTH=\"250\"><BR>\n");
 
 	wprintf("Command input (if requesting SEND_LISTING transfer mode):<BR>\n");
-	wprintf("<TEXTAREA NAME=\"g_input\" ROWS=10 COLS=80 WIDTH=80></TEXTAREA>\n");
+	wprintf("<TEXTAREA NAME=\"g_input\" ROWS=10 COLS=80 WIDTH=80></TEXTAREA><BR>\n");
 
+	wprintf("<FONT SIZE=-2>Detected host header is http://%s</FONT>\n",
+		WC->http_host);
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Send command\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
 
