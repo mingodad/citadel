@@ -40,8 +40,15 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	struct icaltimetype t_start, t_end;
 	time_t now;
 	int created_new_vevent = 0;
+	icalproperty *organizer = NULL;
+	char organizer_string[SIZ];
+	icalproperty *attendee = NULL;
+	char attendee_string[SIZ];
+	int i;
 
 	now = time(NULL);
+	strcpy(organizer_string, "");
+	strcpy(attendee_string, "");
 
 	if (supplied_vevent != NULL) {
 		vevent = supplied_vevent;
@@ -133,27 +140,27 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		"VALUE=\"yes\" onClick=\"
 
 			if (this.checked) {
-                                this.form.dtstart_hour.value='0';
-                                this.form.dtstart_hour.disabled = true;
-                                this.form.dtstart_minute.value='0';
-                                this.form.dtstart_minute.disabled = true;
-                                this.form.dtend_hour.value='0';
-                                this.form.dtend_hour.disabled = true;
-                                this.form.dtend_minute.value='0';
-                                this.form.dtend_minute.disabled = true;
-                                this.form.dtend_month.disabled = true;
-                                this.form.dtend_day.disabled = true;
-                                this.form.dtend_year.disabled = true;
-                        }
-                        else {
-                                this.form.dtstart_hour.disabled = false;
-                                this.form.dtstart_minute.disabled = false;
-                                this.form.dtend_hour.disabled = false;
-                                this.form.dtend_minute.disabled = false;
-                                this.form.dtend_month.disabled = false;
-                                this.form.dtend_day.disabled = false;
-                                this.form.dtend_year.disabled = false;
-                        }
+				this.form.dtstart_hour.value='0';
+				this.form.dtstart_hour.disabled = true;
+				this.form.dtstart_minute.value='0';
+				this.form.dtstart_minute.disabled = true;
+				this.form.dtend_hour.value='0';
+				this.form.dtend_hour.disabled = true;
+				this.form.dtend_minute.value='0';
+				this.form.dtend_minute.disabled = true;
+				this.form.dtend_month.disabled = true;
+				this.form.dtend_day.disabled = true;
+				this.form.dtend_year.disabled = true;
+			}
+			else {
+				this.form.dtstart_hour.disabled = false;
+				this.form.dtstart_minute.disabled = false;
+				this.form.dtend_hour.disabled = false;
+				this.form.dtend_minute.disabled = false;
+				this.form.dtend_month.disabled = false;
+				this.form.dtend_day.disabled = false;
+				this.form.dtend_year.disabled = false;
+			}
 
 
 		\" %s >All day event",
@@ -198,9 +205,40 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_comment(p));
 	}
-	wprintf("</TEXTAREA></TD></TR></TABLE>\n");
+	wprintf("</TEXTAREA></TD></TR>");
 
-	wprintf("<CENTER>"
+	/* Determine who is the organizer of this event.  This is useless
+	 * for now, but we'll need to determine "me" or "not me" soon.
+	 */
+	organizer = icalcomponent_get_first_property(vevent,
+						ICAL_ORGANIZER_PROPERTY);
+	if (organizer != NULL) {
+		strcpy(organizer_string, icalproperty_get_organizer(organizer));
+	}
+	wprintf("<TR><TD>Organizer<BR>(FIXME)</TD><TD>");
+	escputs(organizer_string);
+	wprintf("</TD></TR>\n");
+
+	/* Attendees (do more with this later) */
+	wprintf("<TR><TD><B>Attendes</B><BR>"
+		"<FONT SIZE=-2>(Separate multiple attendees with commas)"
+		"</FONT></TD><TD>"
+		"<TEXTAREA NAME=\"attendees\" wrap=soft "
+		"ROWS=3 COLS=80 WIDTH=80>\n");
+	i = 0;
+	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDEE_PROPERTY); attendee != NULL; attendee = icalcomponent_get_next_property(vevent, ICAL_ATTENDEE_PROPERTY)) {
+		strcpy(attendee_string, icalproperty_get_attendee(attendee));
+		if (!strncasecmp(attendee_string, "MAILTO:", 7)) {
+			strcpy(attendee_string, &attendee_string[7]);
+			striplt(attendee_string);
+			if (i++) wprintf(", ");
+			escputs(attendee_string);
+		}
+	}
+	wprintf("</TEXTAREA></TD></TR>\n");
+
+	/* Done with properties. */
+	wprintf("</TABLE>\n<CENTER>"
 		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save\">"
 		"&nbsp;&nbsp;"
 		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Delete\">\n"
