@@ -163,7 +163,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		t_start = icaltime_from_timet_with_zone(
 			mktime(&tm_now),
 			((!strcasecmp(bstr("alldayevent"), "yes")) ? 1 : 0),
-			icaltimezone_get_utc_timezone
+			icaltimezone_get_utc_timezone()
 		);
 		t_start.is_utc = 1;
 

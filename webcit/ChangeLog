@@ -1,4 +1,7 @@
 $Log$
+Revision 410.39  2003/05/26 05:44:45  ajc
+* event.c: fix compiler warning
+
 Revision 410.38  2003/05/26 05:39:46  ajc
 * webcit.h: change minimum required Citadel server to 6.07 due to FREEBUSY
   bug fixed in Citadel.
@@ -1433,3 +1436,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
