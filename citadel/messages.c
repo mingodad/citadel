@@ -622,7 +622,7 @@ int client_make_message(char *filename,	/* temporary file name */
 	fmt_date(datestr, time(NULL), 0);
 	header[0] = 0;
 
-	if (room_flags & QR_ANONONLY) {
+	if (room_flags & QR_ANONONLY && !recipient) {
 		sprintf(&header[strlen(header)], " ****");
 	}
 	else {
