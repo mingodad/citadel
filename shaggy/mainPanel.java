@@ -43,7 +43,7 @@ public class mainPanel extends Panel {
   }
 
   public boolean action( Event e, Object o ) {
-    if( (e.target == newL) || (e.target == oldL) || (e.target == goto_room)) {
+    if( (e.target == newL) || (e.target == oldL) ) {
       String room = getRoom();
       if( room != null )
 	citadel.me.enterRoom( room );

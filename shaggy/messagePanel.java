@@ -8,7 +8,7 @@ public class messagePanel extends Panel {
   Choice	reading;
   Button	who_is_online, room_info;
   Button	next_room, goto_room, page_user;
-  Button	next_msg, prev_msg, enter_msg, back;
+  Button	next_msg, prev_msg, enter_msg, zap_room, back;
   TextField	msgInfo;
   TextArea	theMsg;
   NamedPanel	np;
@@ -37,6 +37,7 @@ public class messagePanel extends Panel {
     vp.add( next_room = new Button( "Next Room" ) );
     vp.add( goto_room = new Button( "Goto Room" ) );
     vp.add( room_info = new Button( "Room Info" ) );
+    vp.add( zap_room = new Button( "Zap Room" ) );
     vp.add( who_is_online = new Button( "Who is Online" ) );
     vp.add( page_user = new Button( "Page User" ) );
     vp.add( back = new Button( "Back" ) );
@@ -74,6 +75,8 @@ public class messagePanel extends Panel {
       citadel.me.nextNewRoom();
     } else if( e.target == goto_room ) {
       citadel.me.gotoRoom();
+    } else if( e.target == zap_room ) {
+      new promptWindow( new zapPrompt( name ) );
     } else if( e.target == back ) {
       citadel.me.mainMenu();
     }
@@ -82,7 +85,8 @@ public class messagePanel extends Panel {
 
   public void refresh( citReply r ) {
     name = r.getArg( 0 );
-    np.setLabel( name + " (" + citadel.me.rooms.getRoomsFloorName( name )+")" );
+    np.setLabel( name + (citadel.me.floors() ? 
+		 " (" + citadel.me.rooms.getRoomsFloorName( name )+")" : "" ) );
     total = citadel.atoi( r.getArg( 1 ) );
     unread = citadel.atoi( r.getArg( 2 ) );
     info = citadel.atoi( r.getArg( 3 ) );

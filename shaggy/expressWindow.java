@@ -28,6 +28,9 @@ public class expressWindow extends Frame {
     p.add( ok = new Button( "OK" ) );
     add( "South", p );
 
+    int		more = citadel.atoi( r.getArg( 0 ) );
+    if( more != 0 ) new expressWindow( citadel.me.getReply( "GEXP" ) );
+
     resize( 300, 300 );
     show();
   }

@@ -3,7 +3,12 @@
  * the "main" object
  */
 
+import java.util.*;
+import java.net.InetAddress;
+
 public class citadel {
+  public static String		VERSION="0.0";
+
   String			host;
   boolean			applet;
   net				theNet;
@@ -65,7 +70,7 @@ public class citadel {
     if( theNet.connect(host) ) {
       System.out.println( "Connected to server." );
 
-      getReply( "IDEN 0|7|0.0|Shaggy|err.ahh.umm.com" );
+      getReply( "IDEN 0|7|" + VERSION + "|Shaggy " + VERSION + " (" + getArch() + ")|" + getHostName() );
       citReply rep = theNet.getReply( "INFO" );
       if( rep.listingFollows() )
 	serverInfo = new server( rep );
@@ -76,6 +81,24 @@ public class citadel {
       System.out.println( "Couldn't connect to server." );
     }
     return false;
+  }
+
+  public String getArch() {
+    try {
+      Properties	p = System.getProperties();
+      return p.get( "os.name" ) + "/" + p.get( "os.arch" );
+    } catch( SecurityException se ) {
+      return "<unknown>";
+    }
+  }
+
+  public String getHostName() {
+    try {
+      InetAddress	me = InetAddress.getLocalHost();
+      return me.getHostName();
+    } catch( Exception e ) {
+      return "dunno";
+    }
   }
 
   public String getBlurb() {
@@ -98,6 +121,10 @@ public class citadel {
     cp.mainMenu();
   }
 
+  public boolean floors() {
+    return floors;
+  }
+
   public citReply getReply( String s ) {
     return getReply( s, (String)null );
   }
@@ -108,29 +135,28 @@ public class citadel {
     return theNet.getReply( s,d  );
   }
 
-  public void enterRoom( String room ) {
-    enterRoom( room, null );
-  }
-
   public void gotoRoom( ) {
     gotoRoom( null, false );
   }
 
   public void gotoRoom( String name, boolean flag ) {
-    /* TODO: prompt for room name */
-    System.out.println( "This is where I would ask you for the room's name" );
+    new promptWindow( new gotoPrompt( name ) );
+  }
+
+  public void enterRoom( String room ) {
+    enterRoom( room, null );
   }
 
   public void enterRoom( String room, String pass ) {
     String cmd = "GOTO " + room;
     if( pass != null )
-      cmd = cmd + " " + pass;
+      cmd = cmd + "|" + pass;
     citReply	r=getReply( cmd );
     if( r.ok() ) {
       rooms.visited( room );
       cp.enterRoom( r );
     } else if( r.res_code == 540 ) /* ERROR+PASSWORD_REQUIRED */
-      new passwordWindow( room );
+      new promptWindow( new roomPassPrompt( room ) );
   }
 
   public void showMsgPane() {

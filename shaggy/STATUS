@@ -6,11 +6,14 @@ Basic:
 - can log off (shows goodbye, and in application lets you connect to a
   different server)
 
-- can recieve express messages (GEXP style, though don't get for multiple
-  messages yet)
+- can recieve express messages (GEXP style, will get all messages that
+  are there.
 - can send and "reply" to express messages, uses either single or multi
   depending on server support.
 - who is online (double clicking on list will send express msg to user)
+- supports the IDEN command
+* can't change password or other config stuff
+
 
 "main"
 - Splits rooms up into new and no-new
@@ -19,8 +22,10 @@ Basic:
 
 - Go to next room with messages
 - go to any old room by double-clicking from list
- * can't get to hidden or guessable-named rooms
-- can go to password protected rooms (untested)
+- can get to hidden or guessable-named rooms
+- can go to password protected rooms (tested)
+- can zap rooms
+ * can't list zapped rooms
 
 "message"
 - read new, all, or last-5 message in a room
