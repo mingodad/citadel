@@ -506,7 +506,6 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 	struct savelist *sl = NULL;	/* list of rooms to save this page */
 	struct savelist *sptr;
 	struct CtdlMessage *logmsg;
-	char roomname[ROOMNAMELEN];
 	long msgnum;
 
 	if (strlen(x_msg) > 0) {
@@ -575,7 +574,7 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 		 * creating the room if necessary.
 		 */
 		create_room(PAGELOGROOM, 4, "", 0, 1);
-		msgnum = CtdlSaveMsg(logmsg, "", roomname, MES_LOCAL);
+		msgnum = CtdlSaveMsg(logmsg, "", PAGELOGROOM, MES_LOCAL);
 
 		/* Now save a copy in the global log room, if configured */
 		if (strlen(config.c_logpages) > 0) {
