@@ -31,7 +31,7 @@ void whobbs(void) {
 	int foundit;
 
         printf("HTTP/1.0 200 OK\n");
-        output_headers(1);
+        output_headers(1, "bottom");
 
         wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
         wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>Users currently on ");
@@ -130,7 +130,7 @@ void terminate_session(void) {
 
 	else {
 		printf("HTTP/1.0 200 OK\n");
-		output_headers(1);
+		output_headers(1, "bottom");
         	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
         	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>Confirm session termination");
         	wprintf("</B></FONT></TD></TR></TABLE>\n");
@@ -163,7 +163,7 @@ void edit_me(void) {
 	char buf[256];
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1);
+	output_headers(1, "bottom");
 
 	if (!strcasecmp(bstr("sc"), "Change room name")) {
 		serv_printf("RCHG %s", bstr("fake_roomname"));

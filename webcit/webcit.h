@@ -75,6 +75,7 @@ extern char *axdefs[];
 extern int upload_length;
 extern char *upload;
 extern char floorlist[128][256];
+extern int noframes;
 
 void stuff_to_cookie(char *, int, char *, char *, char *);
 void cookie_to_stuff(char *, int *, char *, char *, char *);

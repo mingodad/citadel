@@ -26,7 +26,7 @@ void display_siteconfig(void) {
 	}
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1);
+	output_headers(1, "bottom");
 
         wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
         wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>Site configuration");
