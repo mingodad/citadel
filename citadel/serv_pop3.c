@@ -654,7 +654,8 @@ char *serv_pop3_init(void)
 	CtdlRegisterServiceHook(config.c_pop3_port,
 				NULL,
 				pop3_greeting,
-				pop3_command_loop);
+				pop3_command_loop,
+				NULL);
 	CtdlRegisterSessionHook(pop3_cleanup_function, EVT_STOP);
 	return "$Id$";
 }

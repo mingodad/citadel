@@ -1,4 +1,8 @@
  $Log$
+ Revision 621.10  2004/06/09 03:54:07  ajc
+ * The scheduler can now "wake up" a session to deliver async messages.
+ * Renumbered the "instant msgs waiting" message and changed its usage
+
  Revision 621.9  2004/06/07 22:12:19  ajc
  * Removed network/filterlist network/mailinglists network/rnews.xref
    because none of these are used anymore.
@@ -5826,4 +5830,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

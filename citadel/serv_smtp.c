@@ -1614,12 +1614,14 @@ char *serv_smtp_init(void)
 	CtdlRegisterServiceHook(config.c_smtp_port,	/* On the net... */
 				NULL,
 				smtp_greeting,
-				smtp_command_loop);
+				smtp_command_loop,
+				NULL);
 
 	CtdlRegisterServiceHook(0,			/* ...and locally */
 				"lmtp.socket",
 				lmtp_greeting,
-				smtp_command_loop);
+				smtp_command_loop,
+				NULL);
 
 	smtp_init_spoolout();
 	CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);

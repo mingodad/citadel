@@ -510,7 +510,6 @@ void cmd_gexp_async(void) {
 	if (CC->FirstExpressMessage == NULL) return;
 
 	cprintf("%d instant msg\n", ASYNC_MSG + ASYNC_GEXP);
-	cmd_gexp("");
 }
 
 /*
@@ -530,6 +529,16 @@ void add_xmsg_to_context(struct CitContext *ccptr,
 			findend = findend->next;
 		}
 		findend->next = newmsg;
+	}
+
+	/* If the target context is a session which can handle asynchronous
+	 * messages, go ahead and set the flag for that.
+	 */
+	if (ccptr->is_async) {
+		ccptr->async_waiting = 1;
+		if (ccptr->state == CON_IDLE) {
+			ccptr->state = CON_READY;
+		}
 	}
 }
 
@@ -803,7 +812,7 @@ char *serv_chat_init(void)
 	CtdlRegisterProtoHook(cmd_sexp, "SEXP", "Send an instant message");
 	CtdlRegisterProtoHook(cmd_dexp, "DEXP", "Disable instant messages");
 	CtdlRegisterProtoHook(cmd_reqt, "REQT", "Request client termination");
-	CtdlRegisterSessionHook(cmd_gexp_async, EVT_CMD);
+	CtdlRegisterSessionHook(cmd_gexp_async, EVT_ASYNC);
 	CtdlRegisterSessionHook(delete_instant_messages, EVT_STOP);
 	CtdlRegisterXmsgHook(send_instant_message, XMSG_PRI_LOCAL);
 	return "$Id$";

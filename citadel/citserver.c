@@ -1319,3 +1319,11 @@ void do_command_loop(void) {
 	/* Run any after-each-command routines registered by modules */
 	PerformSessionHooks(EVT_CMD);
 }
+
+
+/*
+ * This loop performs all asynchronous functions.
+ */
+void do_async_loop(void) {
+	PerformSessionHooks(EVT_ASYNC);
+}

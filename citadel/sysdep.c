@@ -993,6 +993,8 @@ do_select:	/* Only select() if the server isn't being told to shut down. */
 					con->client_socket = ssock;
 					con->h_command_function =
 						serviceptr->h_command_function;
+					con->h_async_function =
+						serviceptr->h_async_function;
 
 					/* Determine whether local socket */
 					if (serviceptr->sockpath != NULL)
@@ -1029,6 +1031,7 @@ do_select:	/* Only select() if the server isn't being told to shut down. */
 		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 			if ( (FD_ISSET(ptr->client_socket, &readfds))
 			   && (ptr->state != CON_EXECUTING) ) {
+				ptr->input_waiting = 1;
 				if (!bind_me) {
 					bind_me = ptr;	/* I choose you! */
 					bind_me->state = CON_EXECUTING;
@@ -1041,10 +1044,24 @@ do_select:	/* Only select() if the server isn't being told to shut down. */
 		end_critical_section(S_SESSION_TABLE);
 SKIP_SELECT:	end_critical_section(S_I_WANNA_SELECT);
 
-		/* We're bound to a session, now do *one* command */
+		/* We're bound to a session */
 		if (bind_me != NULL) {
 			become_session(bind_me);
-			CC->h_command_function();
+
+			/* If the client has sent a command, execute it. */
+			if (CC->input_waiting) {
+				CC->h_command_function();
+				CC->input_waiting = 0;
+			}
+
+			/* If there are asynchronous messages waiting and the
+			 * client supports it, do those now */
+			if ((CC->is_async) && (CC->async_waiting)
+			   && (CC->h_async_function != NULL)) {
+				CC->h_async_function();
+				CC->async_waiting = 0;
+			}
+			
 			force_purge = CC->kill_me;
 			become_session(NULL);
 			bind_me->state = CON_IDLE;

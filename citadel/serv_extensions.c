@@ -426,7 +426,9 @@ void CtdlUnregisterXmsgHook(int (*fcn_ptr) (char *, char *, char *), int order)
 void CtdlRegisterServiceHook(int tcp_port,
 			char *sockpath,
 			void (*h_greeting_function) (void),
-			void (*h_command_function) (void) )
+			void (*h_command_function) (void),
+			void (*h_async_function) (void)
+			)
 {
 	struct ServiceFunctionHook *newfcn;
 	char message[SIZ];
@@ -438,6 +440,7 @@ void CtdlRegisterServiceHook(int tcp_port,
 	newfcn->sockpath = sockpath;
 	newfcn->h_greeting_function = h_greeting_function;
 	newfcn->h_command_function = h_command_function;
+	newfcn->h_async_function = h_async_function;
 
 	if (sockpath != NULL) {
 		newfcn->msock = ig_uds_server(sockpath, config.c_maxsessions);
@@ -468,7 +471,9 @@ void CtdlRegisterServiceHook(int tcp_port,
 
 void CtdlUnregisterServiceHook(int tcp_port, char *sockpath,
 			void (*h_greeting_function) (void),
-			void (*h_command_function) (void) )
+			void (*h_command_function) (void),
+			void (*h_async_function) (void)
+			)
 {
 	struct ServiceFunctionHook *cur, *p;
 
@@ -479,6 +484,7 @@ void CtdlUnregisterServiceHook(int tcp_port, char *sockpath,
 					strcmp(sockpath, cur->sockpath)) &&
 				h_greeting_function == cur->h_greeting_function &&
 				h_command_function == cur->h_command_function &&
+				h_async_function == cur->h_async_function &&
 				tcp_port == cur->tcp_port) {
 			close(cur->msock);
 			if (sockpath) {

@@ -1444,7 +1444,7 @@ void imap_command_loop(void)
 char *serv_imap_init(void)
 {
 	CtdlRegisterServiceHook(config.c_imap_port,
-				NULL, imap_greeting, imap_command_loop);
+				NULL, imap_greeting, imap_command_loop, NULL);
 	CtdlRegisterSessionHook(imap_cleanup_function, EVT_STOP);
 	return "$Id$";
 }

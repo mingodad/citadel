@@ -92,7 +92,10 @@ struct CitContext {
 	char lastcmdname[5];	/* name of last command executed */
 	unsigned cs_flags;	/* miscellaneous flags */
 	void (*h_command_function) (void) ;	/* service command function */
+	void (*h_async_function) (void) ;	/* do async msgs function */
 	int is_async;		/* Nonzero if client accepts async msgs */
+	int async_waiting;	/* Nonzero if there are async msgs waiting */
+	int input_waiting;	/* Nonzero if there is client input waiting */
 
 	/* feeping creaturisms... */
 	int cs_clientdev;	/* client developer ID */
@@ -317,6 +320,7 @@ extern struct SessionFunctionHook *SessionHookTable;
 #define EVT_SETPASS	5	/* Setting or changing password */
 #define EVT_CMD		6	/* Called after each server command */
 #define EVT_RWHO	7	/* An RWHO command is being executed */
+#define EVT_ASYNC	8	/* Doing asynchronous messages */
 
 #define EVT_TIMER	50	/* Timer events are called once per minute
 				   and are not tied to any session */
@@ -409,6 +413,7 @@ struct ServiceFunctionHook {
 	char *sockpath;
 	void (*h_greeting_function) (void) ;
 	void (*h_command_function) (void) ;
+	void (*h_async_function) (void) ;
 	int msock;
 };
 extern struct ServiceFunctionHook *ServiceHookTable;

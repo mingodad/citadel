@@ -173,7 +173,8 @@ int main(int argc, char **argv)
 	CtdlRegisterServiceHook(0,
 				"citadel.socket",
 				citproto_begin_session,
-				do_command_loop);
+				do_command_loop,
+				do_async_loop);
 
 	/*
 	 * Bind the server to our favorite TCP port (usually 504).
@@ -181,7 +182,8 @@ int main(int argc, char **argv)
 	CtdlRegisterServiceHook(config.c_port_number,
 				NULL,
 				citproto_begin_session,
-				do_command_loop);
+				do_command_loop,
+				do_async_loop);
 
 	/*
 	 * Load any server-side extensions available here.

@@ -2135,9 +2135,6 @@ the writeup of the ASYN command above), the following messages may arrive at
 any time:
 
 
- 901  (instant message arriving)
+ 902  (instant message arriving)
 
- One or more instant messages have arrived for this client.  When the client
-receives this message, it MUST act as if it just sent a GEXP command (the data
-following the 901 message WILL be a LISTING_FOLLOWS data transfer; in fact,
-the current implementation simply executes a GEXP command internally).
+ One or more instant messages have arrived for this client.

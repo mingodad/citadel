@@ -35,7 +35,7 @@ extern "C" {
 #define MESSAGE_NOT_FOUND	75
 
 #define ASYNC_MSG		900
-#define ASYNC_GEXP		01
+#define ASYNC_GEXP		02
 
 #define QR_PERMANENT	1		/* Room does not purge              */
 #define QR_INUSE	2		/* Set if in use, clear if avail    */
