@@ -9,14 +9,20 @@
 // Copyright (c) 2003 by Art Cancro <ajc@uncensored.citadel.org>
 // This program is released under the terms of the GNU General Public License.
 
+
+// All of the back-end magic gets included from here.  The rest of the
+// pages in the system then only have to include ctdlheader.php (since it
+// is required) and they get the others automatically.
+//
 include "ctdlsession.php";
 include "ctdlprotocol.php";
 
 function bbs_page_header() {
+
+	// Make sure we're connected to Citadel.  Do not remove this!!
 	establish_citadel_session();
 
 	echo <<<LITERAL
-
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
@@ -52,7 +58,6 @@ LITERAL;
 <HR>
 
 LITERAL;
-
 }
 
 
@@ -61,5 +66,6 @@ function bbs_page_footer() {
 	echo "Powered by Citadel.  And a few cups of coffee.<BR>\n";
 	echo "</BODY></HTML>\n";
 }
+
 
 ?>

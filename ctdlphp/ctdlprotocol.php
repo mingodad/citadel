@@ -108,6 +108,28 @@ function create_new_user($user, $pass) {
 //
 function become_logged_in($server_parms) {
 	$_SESSION["logged_in"] = 1;
+
+	$tok = strtok($server_parms, "|");
+	if ($tok) $thisline["username"] = $tok;
+
+	$tok = strtok("|");
+	if ($tok) $thisline["axlevel"] = $tok;
+		
+	$tok = strtok("|");
+	if ($tok) $thisline["calls"] = $tok;
+		
+	$tok = strtok("|");
+	if ($tok) $thisline["posts"] = $tok;
+		
+	$tok = strtok("|");
+	if ($tok) $thisline["userflags"] = $tok;
+		
+	$tok = strtok("|");
+	if ($tok) $thisline["usernum"] = $tok;
+		
+	$tok = strtok("|");
+	if ($tok) $thisline["lastcall"] = $tok;
+		
 	ctdl_goto("_BASEROOM_");
 }
 

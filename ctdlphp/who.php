@@ -1,4 +1,8 @@
 <?PHP
+
+	// This is an example of the use of ctdl_rwho() to display the
+	// list of users currently logged in.
+
 	include "ctdlheader.php";
 	bbs_page_header();
 
