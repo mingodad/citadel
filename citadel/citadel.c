@@ -740,8 +740,13 @@ void who_is_online(int longlist)
 	{
    	   serv_puts("TIME");
 	   serv_gets(tbuf);
-	   extract(timestr, tbuf, 1);
-	   timenow = atol(timestr);
+	   if (tbuf[0] == '2') {
+	   	extract(timestr, &tbuf[4], 0);
+	   	timenow = atol(timestr);
+		}
+	   else {
+		time(&timenow);
+		}
 	}
 	else {
 	color(3);
