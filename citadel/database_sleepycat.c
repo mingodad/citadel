@@ -59,28 +59,26 @@ void open_databases(void)
 
 		/* Create a database handle */
 		ret = db_create(&dbp[i], NULL, 0);
-		if (ret != 0) {
+		if (ret) {
 			lprintf(1, "db_create: %s\n", db_strerror(ret));
 			exit(ret);
 		}
 
-		/* FIXME these are tunable, so tune them */
-		dbp[i]->set_pagesize(dbp[i], 1024);
-		dbp[i]->set_cachesize(dbp[i], 0, 32768, 0);
+		dbp[i]->set_errfile(dbp[i], stderr);  /* FIXME */
 
 		/* Arbitrary names for our tables -- we reference them by
 		 * number, so we don't have string names for them.
 		 */
-		sprintf(dbfilename, "cdb.%02x", i);
+		sprintf(dbfilename, "data/cdb.%02x", i);
 
 		ret = dbp[i]->open(dbp[i],
-				DATABASE_NAME,
 				dbfilename,
+				NULL,
 				DB_BTREE,
-				(DB_CREATE|DB_NOMMAP|DB_THREAD|DB_UPGRADE),
+				DB_CREATE,
 				0600);
 
-		if (ret != 0) {
+		if (ret) {
 			lprintf(1, "db_open: %s\n", db_strerror(ret));
 			exit(ret);
 		}
@@ -103,7 +101,7 @@ void close_databases(void)
 	for (a = 0; a < MAXCDB; ++a) {
 		lprintf(7, "Closing database %d\n", a);
 		ret = dbp[a]->close(dbp[a], 0);
-		if (ret != 0) {
+		if (ret) {
 			lprintf(1, "db_close: %s\n", db_strerror(ret));
 		}
 		
@@ -118,17 +116,19 @@ void close_databases(void)
  * key already exists it should be overwritten.
  */
 int cdb_store(int cdb,
-	      void *key, int keylen,
-	      void *data, int datalen)
+	      void *ckey, int ckeylen,
+	      void *cdata, int cdatalen)
 {
 
 	DBT dkey, ddata;
 	int ret;
 
-	dkey.size = keylen;
-	dkey.data = key;
-	ddata.size = datalen;
-	ddata.data = data;
+	memset(&dkey, 0, sizeof(DBT));
+	memset(&ddata, 0, sizeof(DBT));
+	dkey.size = ckeylen;
+	dkey.data = ckey;
+	ddata.size = cdatalen;
+	ddata.data = cdata;
 
 	begin_critical_section(S_DATABASE);
 	ret = dbp[cdb]->put(dbp[cdb],		/* db */
@@ -137,7 +137,7 @@ int cdb_store(int cdb,
 				&ddata,		/* data */
 				0);		/* flags */
 	end_critical_section(S_DATABASE);
-	if (ret < 0) {
+	if (ret) {
 		lprintf(1, "cdb_store: %s\n", db_strerror(ret));
 		return (-1);
 	}
@@ -179,13 +179,16 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
 	DBT dkey, dret;
 	int ret;
 
+	memset(&dkey, 0, sizeof(DBT));
+	memset(&dret, 0, sizeof(DBT));
 	dkey.size = keylen;
 	dkey.data = key;
 
 	begin_critical_section(S_DATABASE);
 	ret = dbp[cdb]->get(dbp[cdb], NULL, &dkey, &dret, 0);
 	end_critical_section(S_DATABASE);
-	if (ret) {
+	if ((ret != 0) && (ret != DB_NOTFOUND)) {
+		lprintf(1, "cdb_fetch: %s\n", db_strerror(ret));
 		return NULL;
 	}
 	tempcdb = (struct cdbdata *) mallok(sizeof(struct cdbdata));
@@ -220,8 +223,8 @@ void cdb_rewind(int cdb)
 
 	begin_critical_section(S_DATABASE);
 	ret = dbp[cdb]->cursor(dbp[cdb], NULL, &MYCURSOR, 0);
-	if (ret != 0) {
-		lprintf(1, "db_create: %s\n", db_strerror(ret));
+	if (ret) {
+		lprintf(1, "db_cursor: %s\n", db_strerror(ret));
 	}
 	end_critical_section(S_DATABASE);
 }
