@@ -1739,7 +1739,7 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 	}
 
 	if (!do_this_hook) {
-		return;		/* Not a vCalendar-centric room */
+		return(0);		/* Not a vCalendar-centric room */
 	}
 
 	/* Then determine content-type of the message */
