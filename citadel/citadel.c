@@ -744,7 +744,9 @@ void who_is_online(int longlist)
 	   timenow = atol(timestr);
 	}
 	else {
+	color(3);
 	printf("FLG ###        User Name                 Room                 From host\n");
+	color(6);
 	printf("--- --- ------------------------- -------------------- ------------------------\n");
 		}
 	serv_puts("RWHO");
@@ -773,9 +775,12 @@ void who_is_online(int longlist)
 
 				}
 			else {
-			printf("%-3s %-3d %-25s %-20s %-24s\n",
-				flags, extract_int(buf,0), username,
-				roomname, fromhost);
+				color(1); printf("%-3s ", flags);
+				color(2); printf("%-3d ", extract_int(buf,0));
+				color(3); printf("%-25s ", username);
+				color(4); printf("%-20s ", roomname);
+				color(5); printf("%-24s\n", fromhost);
+				color(7);
 				}
 			}
 		}

@@ -1,3 +1,6 @@
+Wed Oct 28 20:20:14 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us
+	* citadel.c: Added a splash of colour to the Wholist
+
 1998-10-28 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* configure.in: added comments
 	* mkinstalldirs: new file to be used for `make install'
