@@ -33,24 +33,42 @@ void variformat_to_html(wxString& outputbuf,
 			wxString inputbuf,
 			bool add_header_and_footer) {
 
-	wxString buf;
+	wxString buf, ch;
 	int pos;
 
 	outputbuf.Empty();
-	buf = inputbuf;
+
+	// Escape out any reserved characters
+	buf = "";
+	for (pos=0; pos<inputbuf.Length(); ++pos) {
+		ch = inputbuf.Mid(pos, 1);
+		if (ch == "<")
+			buf.Append("&lt;");
+		else if (ch == ">")
+			buf.Append("&gt;");
+		else if (ch == "\"")
+			buf.Append("&quot;");
+		else
+			buf.Append(ch);
+	}
 
 	if (add_header_and_footer) {
 		outputbuf.Append("<HTML><BODY>");
 	}
 
+	// Parse the body of the text
 	while (buf.Length() > 0) {
 		pos = buf.Find('\n', FALSE);
 		if (pos < 0) {
 			buf = buf + "\n";
 			pos = buf.Find('\n', FALSE);
 		}
-		if ( (buf.Left(1) == " ") && (outputbuf.Length() > 0) ) {
-			outputbuf.Append("<BR>\n");
+		if (outputbuf.Length() > 0) {
+			if (buf.Left(1) == " ") {
+				outputbuf.Append("<BR>\n");
+			} else {
+				outputbuf.Append(" ");
+			}
 		}
 		outputbuf.Append(buf.Left(pos));
 		buf = buf.Mid(pos+1);

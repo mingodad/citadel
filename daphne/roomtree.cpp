@@ -14,6 +14,7 @@ wxTreeItemId null_item;
 enum {
 	RI_NOTHING,
 	RI_ROOM,
+	RI_CURRUSER,
 	RI_SERVPROPS
 };
 
@@ -93,7 +94,9 @@ void RoomTree::LoadRoomList(void) {
 	wxString sendcmd, recvcmd, buf, floorname, roomname, transbuf;
 	wxTreeItemId item;
 	wxTreeItemId prev;
-	int i, pos, floornum;
+	int i, pos, floornum, where;
+	int mailfloor;
+	unsigned int roomflags;
 
 	prev = null_item;
 
@@ -110,6 +113,15 @@ void RoomTree::LoadRoomList(void) {
 		-1,
 		NULL);
 
+	// Create a fake floor for all of this user's mail rooms
+	mailfloor = AppendItem(
+		GetRootItem(),
+		citsock->curr_user,
+		1,			// FIX use an envelope icon here
+		-1,
+		new RoomItem(citsock->curr_user, FALSE, RI_CURRUSER)
+		);
+		
 	sendcmd = "LFLR";
 	// Bail out silently if we can't retrieve the floor list
 	if (citsock->serv_trans(sendcmd, recvcmd, transbuf) != 1) return;
@@ -135,9 +147,14 @@ void RoomTree::LoadRoomList(void) {
 		buf = transbuf.Left(pos);
 		transbuf = transbuf.Mid(pos+1);
 		extract(roomname, buf, 0);
+		roomflags = extract_int(buf, 1);
 		floornum = extract_int(buf, 2);
+		if (roomflags & QR_MAILBOX)
+			where = mailfloor;
+		else
+			where = floorboards[floornum];
 		item = AppendItem(
-			floorboards[floornum],
+			where,
 			roomname,
 			2,
 			-1,
@@ -159,9 +176,14 @@ void RoomTree::LoadRoomList(void) {
 		buf = transbuf.Left(pos);
 		transbuf = transbuf.Mid(pos+1);
 		extract(roomname, buf, 0);
+		roomflags = extract_int(buf, 1);
 		floornum = extract_int(buf, 2);
+		if (roomflags & QR_MAILBOX)
+			where = mailfloor;
+		else
+			where = floorboards[floornum];
 		AppendItem(
-			floorboards[floornum],
+			where,
 			roomname,
 			3,
 			-1,
@@ -194,6 +216,8 @@ void RoomTree::LoadRoomList(void) {
 		-1,
 		new RoomItem("Security", FALSE, RI_SERVPROPS)
 		);
+
+	Expand(GetRootItem());
 
 	// Demo of traversal -- do not use
 	// while (march_next != null_item) {
