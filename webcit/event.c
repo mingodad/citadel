@@ -36,8 +36,10 @@
 void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 	icalcomponent *vevent;
 	icalproperty *p;
+	icalvalue *v;
 	struct icaltimetype t_start, t_end;
 	time_t now;
+	struct tm tm_now;
 	int created_new_vevent = 0;
 	icalproperty *organizer = NULL;
 	char organizer_string[SIZ];
@@ -131,20 +133,28 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		}
 	}
 	else {
-		memset(&t_start, 0, sizeof t_start);
-		t_start.year = atoi(bstr("year"));
-		t_start.month = atoi(bstr("month"));
-		t_start.day = atoi(bstr("day"));
+		memcpy(&tm_now, localtime(&now), sizeof(struct tm));
+		tm_now.tm_year = atoi(bstr("year")) - 1900;
+		tm_now.tm_mon = atoi(bstr("month")) - 1;
+		tm_now.tm_mday = atoi(bstr("day"));
 		if (strlen(bstr("hour")) > 0) {
-			t_start.hour = atoi(bstr("hour"));
-			t_start.minute = atoi(bstr("minute"));
-			t_start.second = 0;
+			tm_now.tm_hour = atoi(bstr("hour"));
+			tm_now.tm_min = atoi(bstr("minute"));
+			tm_now.tm_sec = 0;
 		}
 		else {
-			t_start.hour = 9;
-			t_start.minute = 0;
-			t_start.second = 0;
+			tm_now.tm_hour = 9;
+			tm_now.tm_min = 0;
+			tm_now.tm_sec = 0;
 		}
+
+		t_start = icaltime_from_timet_with_zone(
+			mktime(&tm_now),
+			((!strcasecmp(bstr("alldayevent"), "yes")) ? 1 : 0),
+			icaltimezone_get_utc_timezone
+		);
+		t_start.is_utc = 1;
+
 	}
 	display_icaltimetype_as_webform(&t_start, "dtstart");
 
@@ -281,13 +291,21 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 			icalcomponent_add_property(vevent, p);
 		}
 	}
+	if (p != NULL) {
+		v = icalproperty_get_value(p);
+	}
+	else {
+		v = NULL;
+	}
 
 	wprintf("<INPUT TYPE=\"radio\" NAME=\"transp\" VALUE=\"transparent\"");
-	if (0) wprintf(" CHECKED");
+	if (v != NULL) if (icalvalue_get_transp(v) == ICAL_TRANSP_TRANSPARENT)
+		wprintf(" CHECKED");
 	wprintf(">Free&nbsp;&nbsp;");
 
 	wprintf("<INPUT TYPE=\"radio\" NAME=\"transp\" VALUE=\"opaque\"");
-	if (0) wprintf(" CHECKED");
+	if (v != NULL) if (icalvalue_get_transp(v) == ICAL_TRANSP_OPAQUE)
+		wprintf(" CHECKED");
 	wprintf(">Busy");
 
 	wprintf("</TD></TR>\n");
@@ -384,6 +402,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 	char form_attendees[SIZ];
 	char organizer_string[SIZ];
 	int sequence = 0;
+	enum icalproperty_transp formtransp = ICAL_TRANSP_NONE;
 
 	if (supplied_vevent != NULL) {
 		vevent = supplied_vevent;
@@ -460,8 +479,6 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		if (prop) icalcomponent_add_property(vevent, prop);
 		else icalproperty_free(prop);
 
-
-
 		while (prop = icalcomponent_get_first_property(vevent,
 		      ICAL_DTEND_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vevent, prop);
@@ -479,6 +496,29 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 					icaltime_from_webform("dtend"))
 				)
 			);
+		}
+
+		/* See if transparency is indicated */
+		if (strlen(bstr("transp")) > 0) {
+			lprintf(9, "FORM VALUE: <%s>\n", bstr("transp"));
+			if (!strcasecmp(bstr("transp"), "opaque")) {
+				formtransp = ICAL_TRANSP_OPAQUE;
+				lprintf(9, "setting to opaque\n");
+			}
+			else if (!strcasecmp(bstr("transp"), "transparent")) {
+				formtransp = ICAL_TRANSP_TRANSPARENT;
+				lprintf(9, "setting to transparent\n");
+			}
+
+			while (prop = icalcomponent_get_first_property(vevent, ICAL_TRANSP_PROPERTY),
+			      (prop != NULL)) {
+				lprintf(9, "removing existing property\n");
+				icalcomponent_remove_property(vevent, prop);
+				icalproperty_free(prop);
+			}
+
+			lprintf(9, "adding new property\n");
+			icalcomponent_add_property(vevent, icalproperty_new_transp(formtransp));
 		}
 
 		/* Give this event a UID if it doesn't have one. */
