@@ -146,7 +146,7 @@ LIBSERV_OBJS = user_ops.lo citserver.lo sysdep.lo dynloader.lo tools.lo $(DATABA
 
 libcitserver.la: $(LIBSERV_OBJS)
 	$(LIBTOOL) $(CC) -rpath $(prefix) -no-undefined -avoid-version \
-	-o libcitserver.la $(LIBSERV_OBJS) $(GDBM)
+	-o libcitserver.la $(LIBSERV_OBJS) $(GDBM) $(LIBS)
 
 citserver: $(SERV_OBJS) $(LIBTOOL) libcitserver.la
 	$(LIBTOOL) --mode=link $(CC) $(SERV_OBJS) $(LDFLAGS) $(PTHREAD_LIBS) \

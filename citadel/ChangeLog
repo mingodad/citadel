@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.33  2001/09/06 02:55:27  nbryant
+ build fix for Linux
+
  Revision 580.32  2001/09/06 02:49:22  ajc
  * Fixed paste-post mode (<.E>nter <A>scii) to append instead of replace when
    the user hits <C>ontinue (bug reported by Stu Mark)
@@ -2712,5 +2715,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
-
