@@ -58,6 +58,7 @@ void CtdlRegisterProtoHook(void (*handler) (char *), char *cmd, char *desc)
 	p->desc = desc;
 	p->next = ProtoHookList;
 	ProtoHookList = p;
+	lprintf(5, "Registered server command %s (%s)\n", cmd, desc);
 }
 
 int DLoader_Exec_Cmd(char *cmdbuf)
