@@ -1,3 +1,7 @@
+Fri May 14 23:37:02 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Initial entry to _BASEROOM_ at login now done as a Skip instead
+	  of a Goto, in order to prevent it from first marking all msgs old.
+
 Mon May 10 23:09:34 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Replaced _most_ gotoroom() calls with smart_goto(), a version
 	  which can differentiate the needs of frames and noframes modes

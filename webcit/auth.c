@@ -176,13 +176,7 @@ void do_welcome(void)
 {
 
 	if (noframes) {
-		printf("HTTP/1.0 200 OK\n");
-		output_headers(1);
-		wprintf("<CENTER><H1>");
-		escputs(wc_username);
-		wprintf("</H1>\n");
-		/* FIX add user stats here */
-		wDumpContent(1);
+		smart_goto("_BASEROOM_");
 	} else {
 		output_static("frameset.html");
 	}
