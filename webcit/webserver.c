@@ -273,7 +273,7 @@ int main(int argc, char **argv)
 	 * exits if it doesn't succeed.
 	 */
 	fprintf(stderr, "Attempting to bind to port %d...\n", port);
-	msock = ig_tcp_server(port, 5);
+	msock = ig_tcp_server(port, LISTEN_QUEUE_LENGTH);
 	fprintf(stderr, "Listening on socket %d\n", msock);
 	signal(SIGPIPE, SIG_IGN);
 
