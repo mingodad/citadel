@@ -23,7 +23,7 @@ distclean: clean
 
 
 webserver: webserver.o context_loop.o tools.o \
-	cookie_conversion.o locate_host.o floors.o \
+	cookie_conversion.o locate_host.o floors.o summary.o \
 	webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
 	roomops.o messages.o userlist.o paging.o sysmsgs.o useredit.o \
 	vcard.o vcard_edit.o preferences.o html2html.o listsub.o \
@@ -33,6 +33,7 @@ webserver: webserver.o context_loop.o tools.o \
 	roomops.o messages.o userlist.o paging.o sysmsgs.o useredit.o \
 	locate_host.o siteconfig.o subst.o vcard.o vcard_edit.o floors.o \
 	mime_parser.o graphics.o netconf.o preferences.o html2html.o \
+	summary.o \
 	$(LIBOBJS) $(LIBS) -o webserver
 
 .c.o:

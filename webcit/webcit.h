@@ -331,3 +331,4 @@ void create_floor(void);
 void rename_floor(void);
 void do_listsub(void);
 void toggle_self_service(void);
+void summary(void);

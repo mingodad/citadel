@@ -1,4 +1,7 @@
 $Log$
+Revision 323.65  2002/08/26 01:24:09  ajc
+* Added a "summary" page (rather sparse for now)
+
 Revision 323.64  2002/08/24 15:30:48  ajc
 * GET instead of POST for listsub.  Also add a 'Back...' link.
 
@@ -919,3 +922,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

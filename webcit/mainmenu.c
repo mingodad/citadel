@@ -79,8 +79,8 @@ void display_main_menu(void)
 	wprintf("</TD><TD>");	/* start of third column */
 
 	wprintf("<UL>");
-	wprintf("<LI><B><A HREF=\"/whobbs\">\n");
-	wprintf("Who is online?</B></A><BR>(users <EM>currently</EM> logged on)</LI>\n");
+	wprintf("<LI><B><A HREF=\"/summary\">\n");
+	wprintf("Summary page</B></A><BR>Summary of my account</LI>\n");
 
 	wprintf("<LI><B><A HREF=\"/userlist\">\n");
 	wprintf("User list</B></A><BR>(all registered users)</LI>\n");
@@ -99,6 +99,9 @@ void display_main_menu(void)
 	wprintf("</FONT></TD></TR></TABLE>\n");
 
 	wprintf("<UL>");
+	wprintf("<LI><A HREF=\"/whobbs\">\n");
+	wprintf("Who is online?</A><font size=-2> "
+		"(users <EM>currently</EM> logged on)</font>\n");
 	wprintf("<LI><A HREF=\"/chat\">");
 	wprintf("Chat with other online users</A>\n");
 
@@ -318,3 +321,5 @@ void display_menubar(int as_single_page) {
 
 
 }
+
+

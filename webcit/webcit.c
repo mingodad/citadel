@@ -1153,6 +1153,8 @@ void session_loop(struct httprequest *req)
 		display_floorconfig(NULL);
 	} else if (!strcasecmp(action, "toggle_self_service")) {
 		toggle_self_service();
+	} else if (!strcasecmp(action, "summary")) {
+		summary();
 	} else if (!strcasecmp(action, "diagnostics")) {
 		output_headers(1);
 
