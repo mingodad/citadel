@@ -89,8 +89,6 @@ struct usersupp {			/* User record                      */
 	char USzip[10];			/* ZIP code                         */
 	char USphone[11];		/* Voice telephone number           */
 	char USemail[32];		/* E-mail address (elsewhere)       */
-	int logged_time;		/* (Not yet implemented)            */
-	int time_limit;			/* (Not yet implemented)            */
 	};
 
 
