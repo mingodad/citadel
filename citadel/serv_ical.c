@@ -7,11 +7,15 @@
  *
  */
 
+#include "sysdep.h"
 #include <unistd.h>
 #include <sys/types.h>
 #include <limits.h>
 #include <stdio.h>
-#include "sysdep.h"
+#include <string.h>
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
 #include "serv_ical.h"
 #include "citadel.h"
 #include "server.h"
@@ -33,12 +37,12 @@ void cmd_ical(char *argbuf)
 		return;
 	}
 
-	cprintf("%d I (will) support|ICAL,ITIP\n", OK);
+	cprintf("%d I support|ICAL\n", OK);
 	return;
 }
 
 
-/* We can't know if the calendar room exists so we just create it at login */
+/* We don't know if the calendar room exists so we just create it at login */
 void ical_create_room(void)
 {
 	char roomname[ROOMNAMELEN];
@@ -68,7 +72,46 @@ int ical_obj_beforeread(struct CtdlMessage *msg)
 /* See if we need to prevent the object from being saved */
 int ical_obj_beforesave(struct CtdlMessage *msg)
 {
-	return 0;
+	char roomname[ROOMNAMELEN];
+	char *p;
+	int a;
+	
+	/*
+	 * Only messages with content-type text/calendar or text/x-calendar
+	 * may be saved to My Calendar>.  If the message is bound for
+	 * My Calendar> but doesn't have this content-type, throw an error
+	 * so that the message may not be posted.
+	 */
+
+	/* First determine if this is our room */
+	MailboxName(roomname, &CC->usersupp, USERCALENDARROOM);
+	if (strncmp(roomname, msg->cm_fields['O'], ROOMNAMELEN))
+		return 0;	/* It's not us... */
+
+	/* Then determine content-type of the message */
+	
+	/* It must be an RFC822 message! */
+	/* FIXME: Not handling MIME multipart messages; implement with IMIP */
+	if (msg->cm_format_type != 4)
+		return 1;	/* You tried to save a non-RFC822 message! */
+	
+	/* Find the Content-Type: header */
+	p = msg->cm_fields['M'];
+	a = strlen(p);
+	while (--a > 0) {
+		if (!strncasecmp(p, "Content-Type: ", 14)) {	/* Found it */
+			if (!strncasecmp(p + 14, "text/x-calendar", 15) ||
+			    !strncasecmp(p + 14, "text/calendar", 13))
+				return 0;
+			else
+				return 1;
+		}
+		p++;
+	}
+	
+	/* Oops!  No Content-Type in this message!  How'd that happen? */
+	lprintf(7, "RFC822 message with no Content-Type header!\n");
+	return 1;
 }
 
 
