@@ -1,8 +1,8 @@
 CFLAGS=`wx-config --cflags`
 LFLAGS=`wx-config --libs`
 
-daphne: main.o citclient.o userlogin.o testwindow.o who.o
-	c++ main.o citclient.o userlogin.o testwindow.o who.o \
+daphne: main.o citclient.o userlogin.o testwindow.o who.o utils.o
+	c++ main.o citclient.o userlogin.o testwindow.o who.o utils.o \
 	$(LFLAGS) -o daphne
 
 main.o: main.cpp
@@ -19,3 +19,6 @@ testwindow.o: testwindow.cpp
 
 who.o: who.cpp
 	c++ -c $(CFLAGS) who.cpp
+
+utils.o: utils.c
+	c++ -c $(CFLAGS) utils.c

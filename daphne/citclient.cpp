@@ -20,6 +20,7 @@ int CitClient::attach(const wxString& host, const wxString& port) {
 	sock.SetNotify(0);
 	sock.Connect(addr, TRUE);
 	if (sock.IsConnected()) {
+		sock.WaitForRead(-1, 0);
 		serv_gets(ServerReady);
 		// FIX ... add check for not allowed to log in
 		initialize_session();
@@ -97,6 +98,7 @@ int CitClient::serv_trans(
 
 	serv_puts(command);
 	serv_gets(response);
+	if (response.Length()==0) serv_gets(response);  //FIX vile sleazy hack
 	first_digit = (response.GetChar(0)) - '0';
 
 	if (first_digit == 1) {			// LISTING_FOLLOWS
