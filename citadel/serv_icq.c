@@ -2187,8 +2187,11 @@ void cmd_cicq(char *argbuf) {
 	char buf[256];
 	int i;
 
+        if (!(CC->logged_in)) {
+                cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
+                return;
+        }
 	extract(cmd, argbuf, 0);
-
 
 	/* "CICQ login" tells us how to log in. */
 	if (!strcasecmp(cmd, "login")) {
@@ -2207,6 +2210,7 @@ void cmd_cicq(char *argbuf) {
 
 	/* "CICQ getcl" returns the contact list */
 	if (!strcasecmp(cmd, "getcl")) {
+		CtdlICQ_Read_CL();
 		cprintf("%d Your ICQ contact list:\n", LISTING_FOLLOWS);
 		if (ThisICQ->icq_numcl > 0) {
 			for (i=0; i<ThisICQ->icq_numcl; ++i) {
@@ -2235,6 +2239,13 @@ void cmd_cicq(char *argbuf) {
 		}
 		CtdlICQ_Write_CL();
 		CtdlICQ_Refresh_Contact_List();
+		return;
+	}
+
+	/* "CICQ status" returns the connected/notconnected status */
+	if (!strcasecmp(cmd, "status")) {
+		cprintf("%d %d\n", OK,
+			((ThisICQ->icq_Sok >= 0) ? 1 : 0) );
 		return;
 	}
 

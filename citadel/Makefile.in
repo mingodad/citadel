@@ -68,7 +68,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	serv_info.c serv_test.c setup.c snprintf.c stats.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
 	whobbs.c sendcommand.c mime_parser.c base64.c qpdecode.c getutline.c \
-	auth.c chkpwd.c
+	auth.c chkpwd.c client_icq.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
@@ -83,9 +83,11 @@ serv_modules: $(SERV_MODULES)
 #
 #
 
-citadel$(EXEEXT): ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o messages.o \
+citadel$(EXEEXT): ipc_c_tcp.o citadel.o rooms.o routines.o \
+	routines2.o messages.o client_icq.o \
 	commands.o client_chat.o serv_info.o tools.o $(LIBOBJS)
-	$(CC) ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o messages.o \
+	$(CC) ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o \
+	messages.o client_icq.o \
 	commands.o client_chat.o serv_info.o tools.o $(LIBOBJS) $(LDFLAGS) \
 	-o citadel $(NETLIBS)
 
