@@ -1,4 +1,9 @@
 $Log$
+Revision 506.11  2004/04/27 03:16:31  ajc
+* When running on the same host as Citadel, if no key/cert are found,
+  symlink to Citadel's if possible.
+* One server binary now forks to start both http and https servers.
+
 Revision 506.10  2004/04/21 03:43:39  ajc
 * Completed remaining SSL fixes.  Works in Moz, aIEeee, Konq; self-signed
   certs are also no longer invalid.
@@ -1794,3 +1799,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

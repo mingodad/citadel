@@ -246,11 +246,12 @@ int main(int argc, char **argv)
 	pthread_attr_t attr;	/* Thread attributes */
 	int a, i;		/* General-purpose variables */
 	int port = PORT_NUM;	/* Port to listen on */
+	int https_port = (-1);
 	char tracefile[PATH_MAX];
 
 	/* Parse command line */
 #ifdef HAVE_OPENSSL
-	while ((a = getopt(argc, argv, "hp:t:cs")) != EOF)
+	while ((a = getopt(argc, argv, "hp:t:cs:")) != EOF)
 #else
 	while ((a = getopt(argc, argv, "hp:t:c")) != EOF)
 #endif
@@ -281,13 +282,13 @@ int main(int argc, char **argv)
 			}
 			break;
 		case 's':
-			is_https = 1;
+			https_port = atoi(optarg);
 			break;
 		default:
-			fprintf(stderr, "usage: webserver [-p localport] "
+			fprintf(stderr, "usage: webserver [-p http_port] "
 				"[-t tracefile] [-c] "
 #ifdef HAVE_OPENSSL
-				"[-s] "
+				"[-s https_port] "
 #endif
 				"[remotehost [remoteport]]\n");
 			return 1;
@@ -306,6 +307,16 @@ int main(int argc, char **argv)
 
 	if (chdir(WEBCITDIR) != 0)
 		perror("chdir");
+
+	/*
+	 * If an HTTPS port was specified, fork an HTTPS server.
+	 */
+	if (https_port > 0) {
+		if (fork() == 0) {
+			is_https = 1;
+			port = https_port;
+		}
+	}
 
         /*
          * Set up a place to put thread-specific data.
