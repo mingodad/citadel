@@ -3,6 +3,8 @@
 
 
 enum {
+	BUTTON_GOTO,
+	BUTTON_SKIP,
 	BUTTON_CLOSE,
 	BUTTON_READNEW,
 	BUTTON_READALL,
@@ -11,6 +13,8 @@ enum {
 
 
 BEGIN_EVENT_TABLE(RoomView, wxMDIChildFrame)
+	EVT_BUTTON(	BUTTON_GOTO,		RoomView::OnButtonPressed)
+	EVT_BUTTON(	BUTTON_SKIP,		RoomView::OnButtonPressed)
 	EVT_BUTTON(	BUTTON_CLOSE,		RoomView::OnButtonPressed)
 	EVT_BUTTON(	BUTTON_READNEW,		RoomView::OnButtonPressed)
 	EVT_BUTTON(	BUTTON_READALL,		RoomView::OnButtonPressed)
@@ -79,23 +83,49 @@ RoomView::RoomView(
 	c1->right.SameAs(this, wxRight, 2);
 	close_button->SetConstraints(c1);
 
+	wxButton *goto_button = new wxButton(
+		this,
+		BUTTON_GOTO,
+		" Goto ",
+		wxDefaultPosition);
+
+	wxLayoutConstraints *g2 = new wxLayoutConstraints;
+	g2->top.SameAs(close_button, wxTop);
+	g2->bottom.SameAs(close_button, wxBottom);
+	g2->width.AsIs();
+	g2->right.LeftOf(close_button, 5);
+	goto_button->SetConstraints(g2);
+
+	wxButton *skip_button = new wxButton(
+		this,
+		BUTTON_SKIP,
+		" Skip ",
+		wxDefaultPosition);
+
+	wxLayoutConstraints *g3 = new wxLayoutConstraints;
+	g3->top.SameAs(goto_button, wxTop);
+	g3->bottom.SameAs(goto_button, wxBottom);
+	g3->width.AsIs();
+	g3->right.LeftOf(goto_button, 5);
+	skip_button->SetConstraints(g3);
+
 	wxButton *readnew_button = new wxButton(
 		this,
 		BUTTON_READNEW,
-		" Read new messages ",
+		" Read new ",
 		wxDefaultPosition);
 
 	wxLayoutConstraints *c2 = new wxLayoutConstraints;
-	c2->top.SameAs(close_button, wxTop);
-	c2->bottom.SameAs(close_button, wxBottom);
+	c2->top.SameAs(skip_button, wxTop);
+	c2->bottom.SameAs(skip_button, wxBottom);
 	c2->width.AsIs();
-	c2->right.LeftOf(close_button, 5);
+	c2->right.LeftOf(skip_button, 5);
 	readnew_button->SetConstraints(c2);
 
 	wxButton *readall_button = new wxButton(
 		this,
 		BUTTON_READALL,
-		" Read all messages ",
+		" Read all ",
 		wxDefaultPosition);
 
 	wxLayoutConstraints *c3 = new wxLayoutConstraints;
@@ -108,7 +138,7 @@ RoomView::RoomView(
 	wxButton *enter_button = new wxButton(
 		this,
 		BUTTON_ENTER,
-		" Enter message ",
+		" Enter ",
 		wxDefaultPosition);
 
 	wxLayoutConstraints *c4 = new wxLayoutConstraints;
@@ -119,12 +149,16 @@ RoomView::RoomView(
 	enter_button->SetConstraints(c4);
 
         Layout();
+	wxYield();
+	do_readloop("MSGS NEW");	// FIX make this configurable
 
 }
 
 
 
 void RoomView::OnButtonPressed(wxCommandEvent& whichbutton) {
+	wxString sendcmd, recvcmd, xferbuf;
+
 	if (whichbutton.GetId() == BUTTON_CLOSE) {
 		delete this;
 	} else if (whichbutton.GetId() == BUTTON_READNEW) {
@@ -133,6 +167,14 @@ void RoomView::OnButtonPressed(wxCommandEvent& whichbutton) {
 		do_readloop("MSGS ALL");
 	} else if (whichbutton.GetId() == BUTTON_ENTER) {
 		new EnterMessage(citsock, citMyMDI, ThisRoom);
+	} else if (whichbutton.GetId() == BUTTON_SKIP) {
+		new RoomView(citsock, citMyMDI, RoomList->GetNextRoom());
+		delete this;
+	} else if (whichbutton.GetId() == BUTTON_GOTO) {
+		sendcmd = "SLRP HIGHEST";	// mark messages as read
+		citsock->serv_trans(sendcmd, recvcmd, xferbuf, ThisRoom);
+		new RoomView(citsock, citMyMDI, RoomList->GetNextRoom());
+		delete this;
 	}
 }
 

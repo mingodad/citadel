@@ -204,8 +204,9 @@ class RoomTree : public wxTreeCtrl {
 public:
 	RoomTree(wxMDIParentFrame *parent, CitClient *sock);
 	void LoadRoomList(void);
-	wxTreeItemId GetNextRoom(void);
+	wxString GetNextRoom(void);
 private:
+	wxTreeItemId GetNextRoomId(void);
 	void InitTreeIcons(void);
 	void OnDoubleClick(wxTreeEvent& evt);
 	CitClient *citsock;

@@ -55,6 +55,7 @@ private:
 	void OnConnect(wxCommandEvent& event);
 	void OnTestWin(wxCommandEvent& event);
 	void OnUsersMenu(wxCommandEvent& cmd);
+	void OnRoomsMenu(wxCommandEvent& cmd);
         void MyFrame::OnSize(wxSizeEvent& event);
 	wxButton *do_cmd;
 	void InitToolBar(wxToolBar* toolBar);
@@ -80,6 +81,7 @@ enum
 	MENU_TESTWIN,
 	UMENU_WHO,
 	UMENU_SEND_EXPRESS,
+	RMENU_GOTO,
 	BUTTON_DO_CMD,
 	ROOMTREE_DOUBLECLICK
 };
@@ -98,6 +100,7 @@ BEGIN_EVENT_TABLE(	MyFrame, wxMDIParentFrame)
 	EVT_MENU(	MENU_TESTWIN,		MyFrame::OnTestWin)
 	EVT_MENU(	UMENU_WHO,		MyFrame::OnUsersMenu)
 	EVT_MENU(	UMENU_SEND_EXPRESS,	MyFrame::OnUsersMenu)
+	EVT_MENU(	RMENU_GOTO,		MyFrame::OnRoomsMenu)
 	EVT_BUTTON(	BUTTON_DO_CMD,		MyFrame::OnDoCmd)
         EVT_SIZE(                               MyFrame::OnSize)
 END_EVENT_TABLE()
@@ -181,6 +184,9 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	menuUsers->Append(UMENU_WHO, "&Who is online?");
 	menuUsers->Append(UMENU_SEND_EXPRESS, "&Page another user");
 
+	wxMenu *menuRooms = new wxMenu;
+	menuRooms->Append(RMENU_GOTO, "&Goto next room with unread messages");
+
 	wxMenu *menuHelp = new wxMenu;
 	menuHelp->Append(IG_About, "&About...");
 
@@ -189,6 +195,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	menuBar->Append(menuFile, "&File");
 	menuBar->Append(menuEdit, "&Edit");
 	menuBar->Append(menuUsers, "&Users");
+	menuBar->Append(menuRooms, "&Rooms");
 	menuBar->Append(menuHelp, "&Help");
 
 	// ... and attach this menu bar to the frame
@@ -302,6 +309,17 @@ void MyFrame::OnUsersMenu(wxCommandEvent& cmd) {
 	}
 	else if (id == UMENU_SEND_EXPRESS)
 		new SendExpress(citadel, this, "");
+}
+
+
+// Rooms menu handler
+void MyFrame::OnRoomsMenu(wxCommandEvent& cmd) {
+	int id;
+	
+	id = cmd.GetId();
+	if (id == RMENU_GOTO) {
+		new RoomView(citadel, this, RoomList->GetNextRoom());
+	}
 }
 
 

@@ -143,7 +143,7 @@ void RoomTree::LoadRoomList(void) {
 		prev = item;
 	}
 
-	// Load the rooms with new messages into the tree
+	// Load the rooms with no new messages into the tree
 	sendcmd = "LKRO";
 	if (citsock->serv_trans(sendcmd, recvcmd, transbuf) != 1) return;
 	while (pos = transbuf.Find('\n', FALSE), (pos >= 0)) {
@@ -160,11 +160,11 @@ void RoomTree::LoadRoomList(void) {
 			);
 	}
 
-	// FIX demo of traversal
-	while (march_next != null_item) {
-		wxTreeItemId foo = GetNextRoom();
-		cout << ((RoomItem *)GetItemData(foo))->RoomName << "\n";
-	}
+	// Demo of traversal -- do not use
+	// while (march_next != null_item) {
+	//	wxTreeItemId foo = GetNextRoomId();
+	//	cout << ((RoomItem *)GetItemData(foo))->RoomName << "\n";
+	//}
 
 
 }
@@ -190,9 +190,21 @@ void RoomTree::OnDoubleClick(wxTreeEvent& evt) {
 	new RoomView(citsock, citMyMDI, r->RoomName);
 }
 
+wxString RoomTree::GetNextRoom(void) {
+	wxString rn;
+
+	wxTreeItemId RoomId = GetNextRoomId();
+	if (RoomId == null_item) {
+		rn = "_BASEROOM_";
+	} else {
+		rn = ((RoomItem *)GetItemData(RoomId))->RoomName;
+	}
+	return rn;
+}
 
 
-wxTreeItemId RoomTree::GetNextRoom(void) {
+
+wxTreeItemId RoomTree::GetNextRoomId(void) {
 
 	wxTreeItemId ret;
 
