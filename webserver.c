@@ -233,12 +233,22 @@ void start_daemon(int do_close_stdio)
 void spawn_another_worker_thread() {
 	pthread_t SessThread;	/* Thread descriptor */
 	pthread_attr_t attr;	/* Thread attributes */
+	int ret;
 
 	lprintf(3, "Creating a new thread\n");
 
 	/* set attributes for the new thread */
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
+	/* Our per-thread stacks need to be bigger than the default size, otherwise
+	 * the MIME parser crashes on FreeBSD, and the IMAP service crashes on
+	 * 64-bit Linux.
+	 */
+	if ((ret = pthread_attr_setstacksize(&attr, 1024 * 1024))) {
+		lprintf(1, "pthread_attr_setstacksize: %s\n", strerror(ret));
+		pthread_attr_destroy(&attr);
+	}
 
 	/* now create the thread */
 	if (pthread_create(&SessThread, &attr,
