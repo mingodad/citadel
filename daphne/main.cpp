@@ -147,7 +147,7 @@ bool Daphne::OnInit()
 	// Read the configuration file
 	ini = new wxConfig("daphne");
 	ini->SetRecordDefaults(TRUE);
-	ini->Read("/Window Sizes/Main", &sizestr, "600 450");
+	ini->Read("/Window Sizes/Main", &sizestr, "789 451");
 	sscanf((const char *)sizestr, "%d %d", &w, &h);
 
 	// Connect to the server
@@ -358,7 +358,7 @@ void MyFrame::OnDoChat(wxCommandEvent& unused) {
 	sendcmd="CHAT";
 }*/
 
-// doterm(inate session)
+// doterm(terminate session)
 
 void MyFrame::DoTerm(wxCommandEvent& WXUNUSED(event))
 {

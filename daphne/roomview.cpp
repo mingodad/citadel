@@ -131,7 +131,7 @@ RoomView::RoomView(
 	g2->top.SameAs(close_button, wxTop);
 	g2->bottom.SameAs(close_button, wxBottom);
 	g2->width.AsIs();
-	g2->right.LeftOf(close_button, 5);
+	g2->right.LeftOf(close_button, 3);
 	goto_button->SetConstraints(g2);
 
 	wxButton *skip_button = new wxButton(
@@ -144,7 +144,7 @@ RoomView::RoomView(
 	g3->top.SameAs(goto_button, wxTop);
 	g3->bottom.SameAs(goto_button, wxBottom);
 	g3->width.AsIs();
-	g3->right.LeftOf(goto_button, 5);
+	g3->right.LeftOf(goto_button, 3);
 	skip_button->SetConstraints(g3);
 
 	wxButton *readnew_button = new wxButton(
@@ -157,7 +157,7 @@ RoomView::RoomView(
 	c2->top.SameAs(skip_button, wxTop);
 	c2->bottom.SameAs(skip_button, wxBottom);
 	c2->width.AsIs();
-	c2->right.LeftOf(skip_button, 5);
+	c2->right.LeftOf(skip_button, 3);
 	readnew_button->SetConstraints(c2);
 
 	wxButton *readall_button = new wxButton(
@@ -170,7 +170,7 @@ RoomView::RoomView(
 	c3->top.SameAs(readnew_button, wxTop);
 	c3->bottom.SameAs(readnew_button, wxBottom);
 	c3->width.AsIs();
-	c3->right.LeftOf(readnew_button, 5);
+	c3->right.LeftOf(readnew_button, 3);
 	readall_button->SetConstraints(c3);
 
 	wxButton *enter_button = new wxButton(
@@ -183,7 +183,7 @@ RoomView::RoomView(
 	c4->top.SameAs(readall_button, wxTop);
 	c4->bottom.SameAs(readall_button, wxBottom);
 	c4->width.AsIs();
-	c4->right.LeftOf(readall_button, 5);
+	c4->right.LeftOf(readall_button, 3);
 	enter_button->SetConstraints(c4);
 
         wxButton *zap_button = new wxButton(
@@ -195,7 +195,7 @@ RoomView::RoomView(
         c5->top.SameAs(enter_button, wxTop);
         c5->bottom.SameAs(enter_button, wxBottom);
         c5->width.AsIs();
-        c5->right.LeftOf(enter_button, 5);
+        c5->right.LeftOf(enter_button, 3);
         zap_button->SetConstraints(c5);
 
         Layout();

@@ -1,10 +1,15 @@
- $Log$
- Revision 1.5  1999/11/11 04:42:28  smw
- Made a minor tweak to zapped messages.  Now when you click on any room in
- the roomtree the roomtree is deleted and reloaded.  This is so that when
- you click on a room in the zapped list it'll come out, immediately.
- Previously you either had to click on the folder itself, or log out and
- in.
+$Log$
+Revision 1.6  1999/11/11 05:04:57  smw
+Made a slight tweak to the default size of the button bar in roomview.cpp.
+All the buttons (including the new 'zap' button) should show up by
+default.
+
+Revision 1.5  1999/11/11 04:42:28  smw
+Made a minor tweak to zapped messages.  Now when you click on any room in
+the roomtree the roomtree is deleted and reloaded.  This is so that when
+you click on a room in the zapped list it'll come out, immediately.
+Previously you either had to click on the folder itself, or log out and
+in.
 
 Revision 1.4  1999/11/11 04:32:00  smw
 Set up 'zapped rooms' functionality.  Made tweaks so that zapped rooms
