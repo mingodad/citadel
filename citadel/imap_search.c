@@ -68,6 +68,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 	int is_not = 0;
 	int is_or = 0;
 	int pos = 0;
+	int i;
 
 	if (num_items == 0) return(0);
 
@@ -93,7 +94,9 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 	}
 	
 	else if (!strcasecmp(itemlist[pos], "ANSWERED")) {
-		/* FIXME */
+		if (IMAP->flags[seq-1] & IMAP_ANSWERED) {
+			match = 1;
+		}
 		++pos;
 	}
 
@@ -120,22 +123,30 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos], "DELETED")) {
-		/* FIXME */
+		if (IMAP->flags[seq-1] & IMAP_DELETED) {
+			match = 1;
+		}
 		++pos;
 	}
 
 	else if (!strcasecmp(itemlist[pos], "DRAFT")) {
-		/* FIXME */
+		if (IMAP->flags[seq-1] & IMAP_DRAFT) {
+			match = 1;
+		}
 		++pos;
 	}
 
 	else if (!strcasecmp(itemlist[pos], "FLAGGED")) {
-		/* FIXME */
+		if (IMAP->flags[seq-1] & IMAP_FLAGGED) {
+			match = 1;
+		}
 		++pos;
 	}
 
 	else if (!strcasecmp(itemlist[pos], "FROM")) {
-		/* FIXME */
+		if (bmstrcasestr(msg->cm_fields['A'], itemlist[pos+1])) {
+			match = 1;
+		}
 		pos += 2;
 	}
 
@@ -150,7 +161,9 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos], "LARGER")) {
-		/* FIXME */
+		if (strlen(msg->cm_fields['M']) > atoi(itemlist[pos+1])) {
+			match = 1;
+		}
 		pos += 2;
 	}
 
@@ -175,7 +188,9 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos], "SEEN")) {
-		/* FIXME */
+		if (IMAP->flags[seq-1] & IMAP_SEEN) {
+			match = 1;
+		}
 		++pos;
 	}
 
@@ -200,22 +215,32 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos], "SMALLER")) {
-		/* FIXME */
+		if (strlen(msg->cm_fields['M']) < atoi(itemlist[pos+1])) {
+			match = 1;
+		}
 		pos += 2;
 	}
 
 	else if (!strcasecmp(itemlist[pos], "SUBJECT")) {
-		/* FIXME */
+		if (bmstrcasestr(msg->cm_fields['U'], itemlist[pos+1])) {
+			match = 1;
+		}
 		pos += 2;
 	}
 
 	else if (!strcasecmp(itemlist[pos], "TEXT")) {
-		/* FIXME */
+		for (i='A'; i<='Z'; ++i) {
+			if (bmstrcasestr(msg->cm_fields[i], itemlist[pos+1])) {
+				match = 1;
+			}
+		}
 		pos += 2;
 	}
 
 	else if (!strcasecmp(itemlist[pos], "TO")) {
-		/* FIXME */
+		if (bmstrcasestr(msg->cm_fields['R'], itemlist[pos+1])) {
+			match = 1;
+		}
 		pos += 2;
 	}
 
@@ -233,22 +258,30 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 	 */
 
 	else if (!strcasecmp(itemlist[pos], "UNANSWERED")) {
-		/* FIXME */
+		if ((IMAP->flags[seq-1] & IMAP_ANSWERED) == 0) {
+			match = 1;
+		}
 		++pos;
 	}
 
 	else if (!strcasecmp(itemlist[pos], "UNDELETED")) {
-		/* FIXME */
+		if ((IMAP->flags[seq-1] & IMAP_DELETED) == 0) {
+			match = 1;
+		}
 		++pos;
 	}
 
 	else if (!strcasecmp(itemlist[pos], "UNDRAFT")) {
-		/* FIXME */
+		if ((IMAP->flags[seq-1] & IMAP_DRAFT) == 0) {
+			match = 1;
+		}
 		++pos;
 	}
 
 	else if (!strcasecmp(itemlist[pos], "UNFLAGGED")) {
-		/* FIXME */
+		if ((IMAP->flags[seq-1] & IMAP_FLAGGED) == 0) {
+			match = 1;
+		}
 		++pos;
 	}
 
@@ -258,7 +291,9 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos], "UNSEEN")) {
-		/* FIXME */
+		if ((IMAP->flags[seq-1] & IMAP_SEEN) == 0) {
+			match = 1;
+		}
 		++pos;
 	}
 
