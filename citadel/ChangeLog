@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.46  2001/09/21 20:58:25  nbryant
+ support different log_archive prototype in DB versions prior to 3.3
+
  Revision 580.45  2001/09/20 04:17:10  ajc
  * Inbound network authentication working.  Fixed a bug in the split-horizon
    algorithm.  Still need to move the 'netpoll' command into the server.
@@ -2755,3 +2758,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

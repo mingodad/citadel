@@ -183,7 +183,11 @@ static void cdb_cull_logs(void) {
 	flags = DB_ARCH_ABS;
 
 	/* Get the list of names. */
+#if DB_VERSION_MAJOR == 3 && DB_VERSION_MINOR < 3
+	if ((ret = log_archive(dbenv, &list, flags, NULL)) != 0) {
+#else
 	if ((ret = log_archive(dbenv, &list, flags)) != 0) {
+#endif
 		lprintf(1, "cdb_cull_logs: %s\n", db_strerror(ret));
 		return;
 	}
