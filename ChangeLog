@@ -1,4 +1,7 @@
 $Log$
+Revision 400.5  2002/09/14 04:52:59  ajc
+* Look for the "libical" calendaring library and link it in if present...
+
 Revision 400.4  2002/09/14 04:02:36  ajc
 * Finished gzip compression of dynamic pages (when browser supports it)
 
@@ -950,3 +953,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
