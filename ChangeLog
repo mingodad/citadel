@@ -1,4 +1,7 @@
 $Log$
+Revision 323.62  2002/08/23 03:37:19  ajc
+* Finished all of the subscribe/unsubscribe/confirm stuff!  (I think)
+
 Revision 323.61  2002/08/22 03:55:47  ajc
 * 'unsubscribe' command (but not 'confirm unsubscribe')
 
@@ -910,4 +913,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
