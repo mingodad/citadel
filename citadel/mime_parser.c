@@ -123,9 +123,10 @@ void mime_decode(char *partnum,
 	 * Allocate a buffer for the decoded data.  The output buffer is the
 	 * same size as the input buffer; this assumes that the decoded data
 	 * will never be larger than the encoded data.  This is a safe
-	 * assumption with base64, uuencode, and quoted-printable.
+	 * assumption with base64, uuencode, and quoted-printable.  Just to
+	 * be safe, we still pad the buffer a bit.
 	 */
-	decoded = mallok(length);
+	decoded = mallok(length + 1024);
 	if (decoded == NULL) {
 		lprintf(5, "ERROR: cannot allocate memory.\n");
 		return;
@@ -140,7 +141,7 @@ void mime_decode(char *partnum,
 		}
 
 	if (childpid == 0) {
-		/* close(2); FIX uncomment this when solid */
+		close(2);
 		/* send stdio to the pipes */
 		if (dup2(sendpipe[0], 0)<0) lprintf(5, "ERROR dup2()\n");
 		if (dup2(recvpipe[1], 1)<0) lprintf(5, "ERROR dup2()\n");
@@ -187,6 +188,7 @@ void mime_decode(char *partnum,
 	if (bytes_recv > 0)
 		CallBack(name, filename, partnum, disposition, decoded,
 			content_type, bytes_recv);
+
 	phree(decoded);
 	}
 
