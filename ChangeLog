@@ -6,6 +6,7 @@ Sat Mar  6 19:56:07 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* wildmat.c, braindamage.c: added
 	* Initial value of 'noframes' is now set by the braindamage check
 	* Ran everything through "indent -kr -i8"
+	* roomops.c: in room list, print a &nbsp; in otherwise empty cells
 
 1999-02-24 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* context_loop.c: warning fix

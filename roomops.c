@@ -163,6 +163,7 @@ int rordercmp(struct roomlisting *r1, struct roomlisting *r2)
 void listrms(char *variety)
 {
 	char buf[256];
+	int num_rooms = 0;
 
 	struct roomlisting *rl = NULL;
 	struct roomlisting *rp;
@@ -172,9 +173,12 @@ void listrms(char *variety)
 	/* Ask the server for a room list */
 	serv_puts(variety);
 	serv_gets(buf);
-	if (buf[0] != '1')
+	if (buf[0] != '1') {
+		wprintf("&nbsp;");
 		return;
+	}
 	while (serv_gets(buf), strcmp(buf, "000")) {
+		++num_rooms;
 		rp = malloc(sizeof(struct roomlisting));
 		extract(rp->rlname, buf, 0);
 		rp->rlflags = extract_int(buf, 1);
@@ -207,6 +211,11 @@ void listrms(char *variety)
 	}
 
 	room_tree_list(rl);
+
+	/* If no rooms were listed, print an nbsp to make the cell
+	 * borders show up anyway.
+	 */
+	if (num_rooms == 0) wprintf("&nbsp;");
 }
 
 

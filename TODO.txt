@@ -1,7 +1,5 @@
 Open items:
  
-1. Use the value returned by browser_braindamage_check() to enable or
-   disable frames mode.
-2. Find some way to alert the user when there is new mail, both at login
+1. Find some way to alert the user when there is new mail, both at login
    and during the session.
-3. Make sure the busy loop bug is fixed.
+2. Make sure the busy loop bug is fixed.
