@@ -262,7 +262,8 @@ void do_iconbar(void) {
 		"onMouseOver=\"window.status='Find out more about "
 		"Citadel'; return true;\">powered by<BR><IMG "
 		"BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"SRC=\"/static/citadel-logo.gif\" ALT=\"CITADEL\"></A>"
+		"SRC=\"/static/citadel-logo.gif\" ALT=\"CITADEL\">"
+		"<BR>CITADEL</A>"
 		"</P></SPAN>\n"
 	);
 
