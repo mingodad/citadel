@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.45  2002/10/23 03:07:43  ajc
+ * First hack at UID-to-EMSGID mapping (for auto replacement)
+
  Revision 601.44  2002/10/21 20:00:41  ajc
  * List UID and SUMMARY properties of conflicting events
 
@@ -4135,3 +4138,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

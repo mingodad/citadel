@@ -29,20 +29,16 @@
 #include "tools.h"
 #include "msgbase.h"
 #include "mime_parser.h"
+
+
 #ifdef HAVE_ICAL_H
+
 #include <ical.h>
-#endif
-
-
-#ifdef HAVE_ICAL_H
 
 struct ical_respond_data {
 	char desired_partnum[SIZ];
 	icalcomponent *cal;
 };
-
-
-
 
 
 /*
@@ -64,10 +60,6 @@ void ical_write_to_cal(struct usersupp *u, icalcomponent *cal) {
         fclose(fp);
 
         /* This handy API function does all the work for us.
-	 * NOTE: normally we would want to set that last argument to 1, to
-	 * force the system to delete the user's old vCard.  But it doesn't
-	 * have to, because the vcard_upload_beforesave() hook above
-	 * is going to notice what we're trying to do, and delete the old vCard.
 	 */
         CtdlWriteObject(USERCALENDARROOM,	/* which room */
 			"text/calendar",	/* MIME type */
@@ -271,7 +263,7 @@ int ical_ctdl_is_overlap(
 /*
  * Backend for ical_hunt_for_conflicts()
  */
-void vcard_hunt_for_conflicts_backend(long msgnum, void *data) {
+void ical_hunt_for_conflicts_backend(long msgnum, void *data) {
 	icalcomponent *cal;
 	struct CtdlMessage *msg;
 	struct ical_respond_data ird;
@@ -364,7 +356,7 @@ void ical_hunt_for_conflicts(icalcomponent *cal) {
 
         CtdlForEachMessage(MSGS_ALL, 0, "text/calendar",
 		NULL,
-		vcard_hunt_for_conflicts_backend,
+		ical_hunt_for_conflicts_backend,
 		(void *) cal
 	);
 
@@ -459,7 +451,6 @@ void cmd_ical(char *argbuf)
 	/* should never get here */
 }
 
-#endif /* HAVE_ICAL_H */
 
 
 /*
@@ -506,15 +497,58 @@ void ical_create_room(void)
 }
 
 
-/* See if we need to prevent the object from being saved */
+
+/*
+ * Back end for ical_obj_beforesave()
+ * This hunts for the UID of the calendar event.
+ */
+void ical_ctdl_set_extended_msgid(char *name, char *filename, char *partnum,
+		char *disp, void *content, char *cbtype, size_t length,
+		char *encoding, void *cbuserdata)
+{
+	icalcomponent *cal;
+	icalproperty *p;
+
+	/* If this is a text/calendar object, hunt for the UID and drop it in
+	 * the "user data" pointer for the MIME parser.  When
+	 * ical_obj_beforesave() sees it there, it'll set the Extended msgid
+	 * to that string.
+	 */
+	if (!strcasecmp(cbtype, "text/calendar")) {
+		cal = icalcomponent_new_from_string(content);
+		if (cal != NULL) {
+			p = ical_ctdl_get_subprop(cal, ICAL_UID_PROPERTY);
+			if (p != NULL) {
+				strcpy((char *)cbuserdata,
+					icalproperty_get_comment(p)
+				);
+			}
+			icalcomponent_free(cal);
+		}
+	}
+}
+
+
+
+
+
+/*
+ * See if we need to prevent the object from being saved (we don't allow
+ * MIME types other than text/calendar in the Calendar> room).  Also, when
+ * saving an event to the calendar, set the message's Citadel extended message
+ * ID to the UID of the object.  This causes our replication checker to
+ * automatically delete any existing instances of the same object.  (Isn't
+ * that cool?)
+ */
 int ical_obj_beforesave(struct CtdlMessage *msg)
 {
 	char roomname[ROOMNAMELEN];
 	char *p;
 	int a;
-	
+	char eidbuf[SIZ];
+
 	/*
-	 * Only messages with content-type text/calendar or text/x-calendar
+	 * Only messages with content-type text/calendar
 	 * may be saved to Calendar>.  If the message is bound for
 	 * Calendar> but doesn't have this content-type, throw an error
 	 * so that the message may not be posted.
@@ -537,11 +571,26 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 	a = strlen(p);
 	while (--a > 0) {
 		if (!strncasecmp(p, "Content-Type: ", 14)) {	/* Found it */
-			if (!strncasecmp(p + 14, "text/x-calendar", 15) ||
-			    !strncasecmp(p + 14, "text/calendar", 13))
+			if (!strncasecmp(p + 14, "text/calendar", 15)) {
+				strcpy(eidbuf, "");
+				mime_parser(msg->cm_fields['M'],
+					NULL,
+					*ical_ctdl_set_extended_msgid,
+					NULL, NULL,
+					(void *)eidbuf,
+					0
+				);
+				if (strlen(eidbuf) > 0) {
+					if (msg->cm_fields['E'] != NULL) {
+						phree(msg->cm_fields['E']);
+					}
+					msg->cm_fields['E'] = strdoop(eidbuf);
+				}
 				return 0;
-			else
+			}
+			else {
 				return 1;
+			}
 		}
 		p++;
 	}
@@ -552,12 +601,15 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 }
 
 
+#endif	/* HAVE_ICAL_H */
 
-/* Register this module with the Citadel server. */
+/*
+ * Register this module with the Citadel server.
+ */
 char *Dynamic_Module_Init(void)
 {
-	CtdlRegisterMessageHook(ical_obj_beforesave, EVT_BEFORESAVE);
 #ifdef HAVE_ICAL_H
+	CtdlRegisterMessageHook(ical_obj_beforesave, EVT_BEFORESAVE);
 	CtdlRegisterSessionHook(ical_create_room, EVT_LOGIN);
 	CtdlRegisterProtoHook(cmd_ical, "ICAL", "Citadel iCal commands");
 #endif
