@@ -1043,6 +1043,7 @@ it returns OK and the following parameters:
  0: Number of new private messages in Mail>
  1: Nonzero if the user needs to register
  2: (Relevant to Aides only) Nonzero if new users require validation
+ 3: The user's preferred Internet e-mail address
  
  
  DELF   (DELete a File)

@@ -2302,7 +2302,7 @@ struct CtdlMessage *CtdlMakeMessage(
 		msg->cm_fields['D'] = strdoop(dest_node);
 	}
 
-	if ( (author == &CC->usersupp) && (CC->cs_inet_email != NULL) ) {
+	if ( (author == &CC->usersupp) && (strlen(CC->cs_inet_email) > 0) ) {
 		msg->cm_fields['F'] = strdoop(CC->cs_inet_email);
 	}
 

@@ -112,7 +112,7 @@ struct CitContext {
 	char cs_host[64];	/* host logged in from */
 
 	/* The Internet type of thing */
-	char *cs_inet_email;	/* Return address of outbound Internet mail */
+	char cs_inet_email[SIZ];/* Return address of outbound Internet mail */
 
 	FILE *download_fp;	/* Fields relating to file transfer */
 	FILE *upload_fp;

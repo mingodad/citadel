@@ -204,14 +204,6 @@ void vcard_populate_cs_inet_email(struct vCard *v) {
 	int continue_searching = 1;
 	int instance = 0;
 
-	/* 
-	 * Clear whatever was in there previously.
-	 */
-	if (CC->cs_inet_email != NULL) {
-		phree(CC->cs_inet_email);
-		CC->cs_inet_email = NULL;
-	}
-
 	/* Go through the vCard searching for *all* instances of
 	 * the "email;internet" key
 	 */
@@ -224,7 +216,10 @@ void vcard_populate_cs_inet_email(struct vCard *v) {
 			if (strlen(addr) > 0) {
 				if (IsDirectory(addr)) {
 					continue_searching = 0;
-					CC->cs_inet_email = strdoop(addr);
+					safestrncpy(CC->cs_inet_email,
+						addr,
+						sizeof(CC->cs_inet_email)
+					);
 				}
 			}
 			phree(addr);
@@ -775,23 +770,12 @@ void vcard_session_login_hook(void) {
 }
 
 
-/*
- * When a user logs out...
- */
-void vcard_session_logout_hook(void) {
-	if (CC->cs_inet_email != NULL) {
-		phree(CC->cs_inet_email);
-		CC->cs_inet_email = NULL;
-	}
-}
-
 
 char *Dynamic_Module_Init(void)
 {
 	SYM_VCARD = CtdlGetDynamicSymbol();
 	CtdlRegisterSessionHook(vcard_session_startup_hook, EVT_START);
 	CtdlRegisterSessionHook(vcard_session_login_hook, EVT_LOGIN);
-	CtdlRegisterSessionHook(vcard_session_logout_hook, EVT_LOGOUT);
 	CtdlRegisterMessageHook(vcard_upload_beforesave, EVT_BEFORESAVE);
 	CtdlRegisterMessageHook(vcard_upload_aftersave, EVT_AFTERSAVE);
 	CtdlRegisterDeleteHook(vcard_delete_remove);

@@ -17,6 +17,7 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <pwd.h>
+#include <ctype.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -388,6 +389,8 @@ void cmd_user(char *cmdbuf)
  */
 void session_startup(void)
 {
+	int i;
+
 	syslog(LOG_NOTICE, "session %d: user <%s> logged in",
 	       CC->cs_pid, CC->curr_user);
 
@@ -402,6 +405,19 @@ void session_startup(void)
 		CC->usersupp.axlevel = 6;
 	}
 	lputuser(&CC->usersupp);
+
+	/*
+	 * Populate CC->cs_inet_email with a default address.  This will be
+	 * overwritten with the user's directory address, if one exists, when
+	 * the vCard module's login hook runs.
+	 */
+	snprintf(CC->cs_inet_email, sizeof CC->cs_inet_email, "%s@%s",
+		CC->usersupp.fullname, config.c_fqdn);
+	for (i=0; i<strlen(CC->cs_inet_email); ++i) {
+		if (isspace(CC->cs_inet_email[i])) {
+			CC->cs_inet_email[i] = '_';
+		}
+	}
 
 	/* Create any personal rooms required by the system.
 	 * (Technically, MAILROOM should be there already, but just in case...)
@@ -458,14 +474,6 @@ void logout(struct CitContext *who)
 	 */
 	if (strlen(who->net_node) > 0) {
 		network_talking_to(who->net_node, NTT_REMOVE);
-	}
-
-	/*
-	 * Yes, we really need to free EVERY LAST BYTE we allocated.
-	 */
-	if (who->cs_inet_email != NULL) {
-		phree(who->cs_inet_email);
-		who->cs_inet_email = NULL;
 	}
 
 	/* Do modular stuff... */
@@ -1287,7 +1295,7 @@ void cmd_chek(void)
 	/* check for mail */
 	mail = InitialMailCheck();
 
-	cprintf("%d %d|%d|%d\n", CIT_OK, mail, regis, vali);
+	cprintf("%d %d|%d|%d|%s|\n", CIT_OK, mail, regis, vali, CC->cs_inet_email);
 }
 
 
