@@ -5,12 +5,13 @@
  * $Id$
  */
 
+#include "sysdep.h"
 #ifdef HAVE_UTMP_H
 #include <stdio.h>
 #include <utmp.h>
 #include <paths.h>
 
-struct utmp *getutline(const struct utmp *ut)
+struct utmp *getutline(struct utmp *ut)
 {
   static struct utmp retval;
   FILE *utmp;
@@ -27,6 +28,6 @@ struct utmp *getutline(const struct utmp *ut)
   while (ut->ut_line != retval.ut_line);
 
   fclose(utmp);
-  return retval;
+  return &retval;
 }
 #endif /* HAVE_UTMP_H */

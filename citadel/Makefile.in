@@ -60,7 +60,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	room_ops.c rooms.c routines.c routines2.c serv_chat.c \
 	serv_info.c serv_test.c serv_upgrade.c setup.c snprintf.c stats.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
-	whobbs.c sendcommand.c mime_parser.c base64.c qpdecode.c
+	whobbs.c sendcommand.c mime_parser.c base64.c qpdecode.c getutline.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
