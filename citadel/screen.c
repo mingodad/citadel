@@ -5,6 +5,7 @@
  */
 
 #include "sysdep.h"
+#include "screen.h"
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
@@ -22,7 +23,6 @@
 #endif
 #include "citadel.h"
 #include "commands.h"
-#include "screen.h"
 #include "citadel_decls.h"
 
 #ifdef HAVE_CURSES_H
@@ -416,9 +416,13 @@ int scr_set_windowsize()
 #ifdef HAVE_CURSES_H
 	if (mainwindow && caught_sigwinch) {
 		caught_sigwinch = 0;
+#ifdef HAVE_RESIZETERM
 		resizeterm(screenheight + 1, screenwidth);
+#endif
+#ifdef HAVE_WRESIZE
 		wresize(mainwindow, screenheight, screenwidth);
 		wresize(statuswindow, 1, screenwidth);
+#endif
 		mvwin(statuswindow, screenheight, 0);
 		status_line(serv_info.serv_humannode, serv_info.serv_bbs_city,
                             room_name, secure, -1);

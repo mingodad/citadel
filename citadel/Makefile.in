@@ -275,7 +275,7 @@ install-exec: all weekly
 			(cd modules && ../$(LIBTOOL) --mode=install $(INSTALL) `basename $$i` $(root)$(prefix)/$$i) ; \
 		fi \
 	done
-	@for i in utilsmenu weekly do \
+	@for i in utilsmenu weekly ; do \
 		if test -f $(srcdir)/$$i; then \
 			echo $(INSTALL) $(srcdir)/$$i $(root)$(prefix)/$$i; \
 			$(INSTALL) $(srcdir)/$$i $(root)$(prefix)/$$i; \

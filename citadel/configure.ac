@@ -29,6 +29,7 @@ AC_ARG_WITH(ssl,
 		fi
 	]
 )
+AC_ARG_WITH(ncurses, [  --without-ncurses       don't use ncurses])
 
 if test "x$with_gdbm" != xno -a "x$with_gdbm" != xyes -a "$with_gdbm"; then
 	db_dir="$with_gdbm"
@@ -197,9 +198,14 @@ fi
 test -f /usr/local/lib/libresolv.a && LDFLAGS="$LDFLAGS -L/usr/local/lib"
 AC_CHECK_LIB(resolv, res_query, RESOLV="$RESOLV -lresolv")
 
-AC_SEARCH_LIBS(tgetent, [ncurses curses termcap])
-AC_SEARCH_LIBS(initscr, [ncurses curses])
-AC_CHECK_FUNCS(vw_printw wcolor_set)
+if test "x$with_ncurses" != xno; then
+	AC_SEARCH_LIBS(tgetent, [ncurses curses termcap])
+	AC_SEARCH_LIBS(initscr, [ncurses curses])
+else
+	AC_SEARCH_LIBS(tgetent, [curses termcap])
+	AC_SEARCH_LIBS(initscr, [curses])
+fi
+AC_CHECK_FUNCS(vw_printw wcolor_set resizeterm wresize)
 
 dnl Check for libpthread(s) if we're not using Digital UNIX or FreeBSD. (On
 dnl which the -pthread flag takes care of this.)
@@ -367,7 +373,15 @@ dnl
 dnl TODO: for the DB header checks, we should check whether the headers
 dnl define db_env_create, somehow
 dnl
-AC_CHECK_HEADERS(curses.h ncurses.h dl.h fcntl.h limits.h termios.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h utmp.h utmpx.h paths.h db.h db3/db.h db4/db.h pthread.h netinet/in.h)
+AC_CHECK_HEADERS(curses.h dl.h fcntl.h limits.h termios.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h utmp.h utmpx.h paths.h db.h db3/db.h db4/db.h pthread.h netinet/in.h)
+
+dnl
+dnl need to check if this is actually compilable, sometimes there are
+dnl conflicts with the system's headers (eg solaris xpg4 style headers)
+dnl
+if test "x$with_ncurses" != xno; then
+	AC_CHECK_HEADERS(ncurses.h,,,[ ])
+fi
 
 AC_CHECK_HEADER(resolv.h, [SMTP=modules/libsmtp.la; DOMAIN=domain.c],,
 [#ifdef HAVE_SYS_TYPES_H
