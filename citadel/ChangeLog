@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.54  2002/10/29 20:14:56  error
+ * rooms.c: don't allow a blank floor name when creating a floor (in client)
+
  Revision 601.53  2002/10/26 06:15:09  ajc
  * cmd_cflr() - don't allow zero length floor names
 
@@ -4168,4 +4171,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

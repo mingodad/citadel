@@ -1076,6 +1076,7 @@ void create_floor(CtdlIPC *ipc)
 	}
 
 	newprompt("Name for new floor: ", newfloorname, 255);
+	if (!*newprompt) return;
 	r = CtdlIPCCreateFloor(ipc, 1, newfloorname, buf);
 	if (r / 100 == 2) {
 		scr_printf("Floor has been created.\n");
