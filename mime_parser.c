@@ -15,31 +15,54 @@
 #include "webcit.h"
 #include "child.h"
 
+
+
+void extract_key(char *target, char *source, char *key) {
+	int a, b;
+
+	strcpy(target, source);
+	for (a=0; a<strlen(target); ++a) {
+		if ((!strncasecmp(&target[a], key, strlen(key)))
+		   && (target[a+strlen(key)]=='=')) {
+			strcpy(target, &target[a+strlen(key)+1]);
+			if (target[0]==34) strcpy(target, &target[1]);
+			for (b=0; b<strlen(target); ++b)
+				if (target[b]==34) target[b]=0;
+			return;
+			}
+		}
+	strcpy(target, "");
+	}
+
+
+
 /*
  * The very back end for the component handler
  * (This function expects to be fed CONTENT ONLY, no headers)
  */
-void do_something_with_it(char *content, int length, char *content_type) {
+void do_something_with_it(char *content, int length, char *content_type,
+			char *content_disposition) {
+	char name[256];
 	char filename[256];
-	int a;
-	static char partno = 0;
-	FILE *fp;
+
+	extract_key(name, content_disposition, " name");
+	extract_key(filename, content_disposition, "filename");
 
 	/* Nested multipart gets recursively fed back into the parser */
 	if (!strncasecmp(content_type, "multipart", 9)) {
 		mime_parser(content, length, content_type);
-		}	
-
-	/* If all else fails, save the component to disk (FIX) */
-	else {
-		sprintf(filename, "content.%04x.%04x.%s",
-			getpid(), ++partno, content_type);
-		for (a=0; a<strlen(filename); ++a)
-			if (filename[a]=='/') filename[a]='.';
-		fp = fopen(filename, "wb");
-		fwrite(content, length, 1, fp);
-		fclose(fp);
 		}
+
+	/**** OTHERWISE, HERE'S WHERE WE HANDLE THE STUFF!! ****
+	 * Later we'll want to do this with a callback.  We'll also want to
+	 * handle content-transfer-encoding before passing control to callback
+	 * functions.  For now, though ... it's just a hardcoded WebCit tie-in.
+	 */
+
+	else if (strlen(name)>0) {
+		
+		}
+
 	}
 
 
@@ -49,6 +72,7 @@ void do_something_with_it(char *content, int length, char *content_type) {
  */
 void handle_part(char *content, int part_length, char *supplied_content_type) {
 	char content_type[256];
+	char content_disposition[256];
 	char *start;
 	char buf[512];
 	int crlf = 0;	/* set to 1 for crlf-style newlines */
@@ -83,13 +107,17 @@ void handle_part(char *content, int part_length, char *supplied_content_type) {
 		if (!strncasecmp(buf, "Content-type: ", 14)) {
 			strcpy(content_type, &buf[14]);
 			}
+		if (!strncasecmp(buf, "Content-disposition: ", 21)) {
+			strcpy(content_disposition, &buf[21]);
+			}
 		} while (strlen(buf)>0);
 	
 	if (crlf) actual_length = part_length - 2;
 	else actual_length = part_length - 1;
 
 	/* Now that we've got this component isolated, what to do with it? */
-	do_something_with_it(start, actual_length, content_type);
+	do_something_with_it(start, actual_length,
+				content_type, content_disposition);
 
 	}
 
@@ -108,12 +136,9 @@ void mime_parser(char *content, int ContentLength, char *ContentType) {
 	int bytes_processed = 0;
 	int part_length;
 
-	fprintf(stderr, "MIME: ContentLength: %d, ContentType: %s\n",
-		ContentLength, ContentType);
-
 	/* If it's not multipart, don't process it as multipart */
 	if (strncasecmp(ContentType, "multipart", 9)) {
-		do_something_with_it(content, ContentLength, ContentType);
+		do_something_with_it(content, ContentLength, ContentType, "");
 		return;
 		}
 
@@ -150,7 +175,6 @@ void mime_parser(char *content, int ContentLength, char *ContentType) {
 
 		/* See if we're at the end */
 		if (!strncasecmp(ptr, endary, strlen(endary))) {
-			fprintf(stderr, "MIME: the end.\n");
 			return;
 			}
 
