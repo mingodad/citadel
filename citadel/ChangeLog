@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.71  2002/01/17 20:11:05  nbryant
+ remove lock.c/lock.h; don't need them for what i was planning after all
+
  Revision 590.70  2002/01/17 10:48:36  error
  * cosmetic fixes in the new trace file functionality
 
@@ -3185,4 +3188,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
