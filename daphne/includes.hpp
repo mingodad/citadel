@@ -159,6 +159,7 @@ private:
 	wxPanel *panel;
 	wxTextCtrl *sendcmd;
 	wxTextCtrl *recvcmd;
+	wxTextCtrl *xfercmd;
 	wxButton *cmd_button;
 	wxButton *close_button;
 	void OnButtonPressed(wxCommandEvent& whichbutton);
