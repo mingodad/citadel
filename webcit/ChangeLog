@@ -1,4 +1,7 @@
 $Log$
+Revision 323.15  2002/03/22 04:33:08  ajc
+* "vcard edit" button for _other_ users' My Citadel Config rooms as well
+
 Revision 323.14  2002/03/19 04:35:10  ajc
 * Brought over yet another new version of the MIME parser from Citadel
 
@@ -755,4 +758,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

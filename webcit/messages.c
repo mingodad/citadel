@@ -396,7 +396,8 @@ void read_message(long msgnum, int is_summary) {
 		if (vcard_source != NULL) {
 
 			/* If it's my vCard I can edit it */
-			if (!strcasecmp(WC->wc_roomname, USERCONFIGROOM)) {
+			if ( (!strcasecmp(WC->wc_roomname, USERCONFIGROOM))
+			   || (!strcasecmp(&WC->wc_roomname[11], USERCONFIGROOM))) {
 				wprintf("<A HREF=\"/edit_vcard?"
 					"msgnum=%ld&partnum=%s\">",
 					msgnum, vcard_partnum);
