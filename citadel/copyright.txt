@@ -14,6 +14,9 @@ base64 encoding/decoding for MIME parser, public domain by:
 ICQ client code derived from ICQLIB written by:
 	Denis V. Dmitrienko <denis@null.net>
  
+'parsedate' function, public domain by:
+	Steven M. Bellovin, et. al. (see parsedate.y for full credits)
+ 
  ------------------------------------------------------------------------------
  
     The entire package is free software; you can redistribute

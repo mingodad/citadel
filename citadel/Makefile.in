@@ -71,7 +71,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
 	whobbs.c sendcommand.c mime_parser.c base64.c qpdecode.c getutline.c \
 	auth.c chkpwd.c client_icq.c html.c vcard.c serv_upgrade.c \
-	serv_smtp.c internet_addressing.c
+	serv_smtp.c internet_addressing.c parsedate.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
@@ -179,13 +179,14 @@ netproc: netproc.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)
 	$(CC) netproc.o config.o ipc_c_tcp.o tools.o \
 	$(LIBOBJS) $(LDFLAGS) -o netproc $(NETLIBS) $(GDBM)
 
-citmail: citmail.o config.o internetmail.o $(LIBOBJS)
+citmail: citmail.o config.o internetmail.o parsedate.o $(LIBOBJS)
 	@echo "*"
 	@echo "*                 ###### IMPORTANT ######"
 	@echo "* To allow Citadel users to receive Internet mail, you must"
 	@echo "* set this program to be your local mail delivery agent."
 	@echo "*"
-	$(CC) citmail.o config.o internetmail.o $(LIBOBJS) $(LDFLAGS) -o citmail
+	$(CC) citmail.o config.o internetmail.o parsedate.o \
+		$(LIBOBJS) $(LDFLAGS) -o citmail
 
 mailinglist: mailinglist.o config.o internetmail.o
 	$(CC) mailinglist.o config.o internetmail.o $(LDFLAGS) -o mailinglist

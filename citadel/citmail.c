@@ -31,6 +31,10 @@
 #include "config.h"
 #include "internetmail.h"
 
+
+extern time_t parsedate(char *p);
+
+
 /* message delivery classes */
 enum {
 	DELIVER_LOCAL,
@@ -56,75 +60,6 @@ char TABLEFILE[128];
 char OUTGOING_FQDN[128];
 int RUN_NETPROC = 1;
 
-
-long conv_date(char *sdbuf)
-{
-	int a, b, cpos, tend, tval;
-	time_t now;
-	struct tm *tmbuf;
-	char dbuf[128];
-
-	strcpy(dbuf, sdbuf);
-	time(&now);
-	tmbuf = (struct tm *) localtime(&now);
-
-	/* get rid of + or - timezone mods */
-	for (a = 0; a < strlen(dbuf); ++a)
-		if ((dbuf[a] == '+') || (dbuf[a] == '-'))
-			do {
-				strcpy(&dbuf[a], &dbuf[a + 1]);
-			} while ((dbuf[a] != 32) && (dbuf[a] != 0));
-
-	/* try and extract the time by looking for colons */
-	cpos = (-1);
-	for (a = strlen(dbuf); a >= 0; --a)
-		if ((dbuf[a] == ':') && (atoi(&dbuf[a - 1]) != 0))
-			cpos = a;
-	if (cpos >= 0) {
-		cpos = cpos - 2;
-		tend = strlen(dbuf);
-		for (a = tend; a >= cpos; --a)
-			if (dbuf[a] == ' ')
-				tend = a;
-
-		tmbuf->tm_hour = atoi(&dbuf[cpos]);
-		tmbuf->tm_min = atoi(&dbuf[cpos + 3]);
-		tmbuf->tm_sec = atoi(&dbuf[cpos + 6]);
-
-		do {
-			strcpy(&dbuf[cpos], &dbuf[cpos + 1]);
-		} while ((dbuf[cpos] != 32) && (dbuf[cpos] != 0));
-	}
-	/* next try to extract a month */
-
-	tval = (-1);
-	for (a = 0; a < strlen(dbuf); ++a)
-		for (b = 0; b < 12; ++b)
-			if (!strncmp(&dbuf[a], monthdesc[b], 3)) {
-				tval = b;
-				cpos = a;
-			}
-	if (tval >= 0) {
-		tmbuf->tm_mon = tval;
-		strcpy(&dbuf[cpos], &dbuf[cpos + 3]);
-	}
-	/* now the year */
-
-	for (a = 0; a < strlen(dbuf); ++a)
-		if ((atoi(&dbuf[a]) >= 1900) && (dbuf[a] != 32)) {
-			tmbuf->tm_year = atoi(&dbuf[a]) - 1900;
-			strcpy(&dbuf[a], &dbuf[a + 4]);
-		}
-	/* whatever's left is the mday (hopefully) */
-
-	for (a = 0; a < strlen(dbuf); ++a)
-		if ((dbuf[a] != 32) && (atoi(&dbuf[a]) >= 1) && (atoi(&dbuf[a]) <= 31)
-		    && ((a == 0) || (dbuf[a - 1] == ' '))) {
-			tmbuf->tm_mday = atoi(&dbuf[a]);
-			strcpy(&dbuf[a], &dbuf[a + 2]);
-		}
-	return ((long) mktime(tmbuf));
-}
 
 
 #ifndef HAVE_STRERROR
@@ -416,8 +351,10 @@ void do_citmail(char recp[], int dtype)
 
 		if (!strncasecmp(buf, "Subject: ", 9))
 			strcpy(subject, &buf[9]);
-		else if (!strncasecmp(buf, "Date: ", 6))
-			now = conv_date(&buf[6]);
+		else if (!strncasecmp(buf, "Date: ", 6)) {
+			now = parsedate(&buf[6]);
+			if (now < 0L) now = time(NULL);
+		}
 		else if (!strncasecmp(buf, "From: ", 6))
 			strcpy(from, &buf[6]);
 		else if (!strncasecmp(buf, "Content-type: ", 14))
