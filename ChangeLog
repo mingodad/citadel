@@ -1,4 +1,7 @@
 $Log$
+Revision 510.13  2004/06/03 03:21:22  ajc
+* "Reply" button now carries the message subject into the reply.
+
 Revision 510.12  2004/06/02 02:07:54  ajc
 * setup.c: updated the setup script to configure two /etc/inittab entries,
   one for http and one for https.
@@ -1856,3 +1859,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

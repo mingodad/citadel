@@ -514,8 +514,15 @@ void read_message(long msgnum) {
 	wprintf("<TD BGCOLOR=\"#AAAADD\">"
 		"<A HREF=\"/display_enter?recp=");
 	urlescputs(reply_to);
-	wprintf("\"><FONT SIZE=-1>Reply</FONT></A>"
-		"</TD>\n", msgnum);
+	if (!strncasecmp(m_subject, "Re:", 2)) {
+		wprintf("&subject=");
+		escputs(m_subject);
+	}
+	else if (strlen(m_subject) > 0) {
+		wprintf("&subject=Re:%%20");
+		escputs(m_subject);
+	}
+	wprintf("\"><FONT SIZE=-1>Reply</FONT></A></TD>\n", msgnum);
 
 	if (WC->is_room_aide) {
 		wprintf("<TD BGCOLOR=\"#AAAADD\">"
@@ -1293,12 +1300,7 @@ void post_mime_to_server(void) {
 	struct wc_attachment *att;
 	char *encoded;
 	size_t encoded_length;
-	int is_html = 0;
 
-	if (!strcasecmp(bstr("msg_format"), "html")) {
-		is_html = 1;
-	}
-	
 	/* If there are attachments, we have to do multipart/mixed */
 	if (WC->first_attachment != NULL) {
 		is_multipart = 1;
@@ -1321,12 +1323,7 @@ void post_mime_to_server(void) {
 	serv_puts("Content-type: text/html");
 	serv_puts("");
 	serv_puts("<HTML><BODY>\n");
-	if (is_html) {
-		text_to_server(bstr("msgtext"), 0);
-	}
-	else {
-		text_to_server(bstr("msgtext"), 1);
-	}
+	text_to_server(bstr("msgtext"), 0);
 	serv_puts("</BODY></HTML>\n");
 	
 
@@ -1511,14 +1508,6 @@ void display_enter(void)
 	wprintf("\" MAXLENGTH=70>"
 		"&nbsp;"
 	);
-
-	wprintf("<INPUT TYPE=\"radio\" NAME=\"msg_format\"");
-	if (!strcasecmp(bstr("msg_format"), "text")) wprintf("CHECKED ");
-	wprintf("VALUE=\"text\">text&nbsp;\n");
-
-	wprintf("<INPUT TYPE=\"radio\" NAME=\"msg_format\"");
-	if (strcasecmp(bstr("msg_format"), "text")) wprintf("CHECKED ");
-	wprintf("VALUE=\"html\">HTML&nbsp;\n");
 
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save message\">"
 		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
