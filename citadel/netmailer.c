@@ -1,9 +1,7 @@
 /*
- * netmailer for Citadel/UX
- * see copyright.doc for copyright information
+ * $Id$
  *
  * netproc calls this to export Citadel mail to RFC822-compliant mailers.
- * $Id$
  */
 
 #include <stdlib.h>

@@ -1,6 +1,8 @@
 /*
- * locate the originating host
  * $Id$
+ *
+ * locate the originating host
+ *
  */
 
 #include "sysdep.h"

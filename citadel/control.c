@@ -1,9 +1,7 @@
 /*
- * control.c
+ * $Id$
  *
  * This module handles states which are global to the entire server.
- *
- * $Id$
  *
  */
 

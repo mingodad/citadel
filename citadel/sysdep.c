@@ -1,14 +1,15 @@
 /*
+ * $Id$
+ *
  * Citadel/UX "system dependent" stuff.
  * See copyright.txt for copyright information.
  *
- * $Id$
- *
- * Here's where we (hopefully) have all the parts of the Citadel server that
+ * Here's where we (hopefully) have most parts of the Citadel server that
  * would need to be altered to run the server in a non-POSIX environment.
  * 
  * Eventually we'll try porting to a different platform and either have
  * multiple variants of this file or simply load it up with #ifdefs.
+ *
  */
 
 

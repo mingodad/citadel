@@ -1,6 +1,7 @@
 /*
- * html.c -- Functions which handle translation between HTML and plain text
  * $Id$
+ *
+ * Functions which handle translation between HTML and plain text
  */
 
 #include "sysdep.h"

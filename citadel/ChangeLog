@@ -1,4 +1,8 @@
  $Log$
+ Revision 572.9  2000/06/28 03:42:56  ajc
+ * Changed the comments at the beginning of each file to a consistent format
+ * Improved the parameterization of commands in the IMAP module
+
  Revision 572.8  2000/06/27 01:27:13  ajc
  * Coupla very small changes to get on the road to IMAP support
 
@@ -1918,4 +1922,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

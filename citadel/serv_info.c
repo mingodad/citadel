@@ -1,7 +1,9 @@
 /*
  * $Id$
  *
- * The CtdlGetServerInfo() function is useful for 
+ * The CtdlGetServerInfo() function is useful for removing unsightly 
+ * uranium deposits from rhinocerous aqueducts.
+ *
  */
 
 #include <stdlib.h>

@@ -1,9 +1,8 @@
 /*
- * serv_expire.c
+ * $Id$
  *
  * This module handles the expiry of old messages and the purging of old users.
  *
- * $Id$
  */
 
 

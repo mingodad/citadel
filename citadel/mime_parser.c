@@ -1,13 +1,11 @@
 /*
- * mime_parser.c
+ * $Id$
  *
  * This is a really bad attempt at writing a parser to handle MIME-encoded
  * messages.
  *
  * Copyright (c) 1998-1999 by Art Cancro
  * This code is distributed under the terms of the GNU General Public License.
- *
- * $Id$
  *
  */
 

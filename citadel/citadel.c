@@ -1,8 +1,7 @@
 /*
- * Citadel/UX  
- *
- * citadel.c - Main source file.
  * $Id$
+ *
+ * Main source module for the client program.
  */
 
 #include "sysdep.h"

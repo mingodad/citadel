@@ -1,6 +1,7 @@
 /*
  * $Id$
  *
+ * Server-side functions which handle message moderation.
  *
  */
 

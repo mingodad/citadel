@@ -1,8 +1,9 @@
 /*
+ * $Id$
+ *
  * Internet mail configurator for Citadel/UX
  * see copyright.doc for copyright information
  *
- * $Id$
  */
 
 #include <stdlib.h>

@@ -1,4 +1,6 @@
 /*
+ * $Id$ 
+ *
  * Convert "quoted printable" encoding to binary (stdin to stdout)
  * Copyright (C) 1999 by Art Cancro
  * Distributed under the terms of the GNU General Public License.

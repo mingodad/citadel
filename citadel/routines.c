@@ -1,5 +1,9 @@
-/* Citadel/UX support routines */
-/* $Id$ */
+/*
+ * $Id$
+ *
+ * Client-side support functions.
+ *
+ */
 
 #include "sysdep.h"
 #include <stdlib.h>

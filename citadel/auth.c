@@ -1,8 +1,9 @@
 /*
- * auth.c -- system-level password checking for autologin
+ * $Id$
+ *
+ * system-level password checking for autologin
  * by Nathan Bryant, March 1999
  *
- * $Id$
  */
 
 #if defined(__linux) || defined(__sun) /* needed for crypt(): */

@@ -1,4 +1,10 @@
-/* $Id$ */
+/*
+ * $Id$
+ *
+ * An implementation of RFC821 (Simple Mail Transfer Protocol) for the
+ * Citadel system.
+ *
+ */
 
 #include "sysdep.h"
 #include <stdlib.h>

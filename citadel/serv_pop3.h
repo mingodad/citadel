@@ -1,3 +1,7 @@
+/*
+ * $Id$
+ *
+ */
 
 struct pop3msg {
 	long msgnum;

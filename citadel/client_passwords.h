@@ -1,3 +1,8 @@
+/* 
+ * $Id$
+ *
+ */
+
 void determine_pwfilename(char *);
 void get_stored_password(
 		char *host,

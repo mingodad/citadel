@@ -1,8 +1,9 @@
 /*
+ * $Id$
+ *
  * getutline.c: not-quite-compatible replacement for getutline(3)
  * by nathan bryant, feb 1999
  *
- * $Id$
  */
 
 #include "sysdep.h"

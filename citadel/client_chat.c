@@ -1,10 +1,8 @@
 /*
- * Citadel/UX
- *
- * client_chat.c  --  front end for chat mode
- *                    (the "single process" version - no more fork() anymore)
- *
  * $Id$
+ *
+ * front end for chat mode
+ * (the "single process" version - no more fork() anymore)
  *
  */
 

@@ -1,4 +1,9 @@
-/* $Id$ */
+/* 
+ * $Id$
+ * 
+ * Server functions which perform operations on room objects.
+ *
+ */
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>

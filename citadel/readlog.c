@@ -1,6 +1,7 @@
 /* 
- * readlog.c  (a simple program to parse citadel.log)
  * $Id$
+ *
+ * A simple program to parse citadel.log
  */
 
 #include <stdlib.h>

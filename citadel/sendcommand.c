@@ -1,5 +1,8 @@
 /*
  * $Id$
+ *
+ * Command-line utility to transmit a server command.
+ *
  */
 
 

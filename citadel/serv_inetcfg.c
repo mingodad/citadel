@@ -1,9 +1,11 @@
-/* $Id$ 
+/*
+ * $Id$ 
  *
  * This module handles the loading/saving and maintenance of the
  * system's Internet configuration.  It's not an optional component; I
  * wrote it as a module merely to keep things as clean and loosely coupled
  * as possible.
+ *
  */
 
 #include "sysdep.h"

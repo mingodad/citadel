@@ -1,6 +1,4 @@
-#define UNCOMPRESS "/usr/bin/gunzip"
-
-/* Citadel/UX rcit $Id$
+/* $Id$
  *
  * This program simply feeds its standard input to the networker.  It is
  * used primarily to hook up to UUCP feeds of Citadel data.
@@ -13,6 +11,7 @@
  *	-s	Don't run netproc now, just accept the input into spoolin
  */
 
+#define UNCOMPRESS "/usr/bin/gunzip"
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>

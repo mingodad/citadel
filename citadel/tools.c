@@ -1,6 +1,8 @@
 /*
- * tools.c -- Miscellaneous routines used by both the client and server.
  * $Id$
+ *
+ * Utility functions that are used by both the client and server.
+ *
  */
 
 #include "sysdep.h"

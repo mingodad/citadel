@@ -1,4 +1,9 @@
-/* $Id$ */
+/* 
+ * $Id$
+ *
+ * Implements the message store.
+ *
+ */
 
 #include "sysdep.h"
 #include <stdlib.h>

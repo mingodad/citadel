@@ -1,7 +1,7 @@
 /*
- * Function to generate RFC822-compliant textual time/date stamp
- *
  * $Id$
+ *
+ * Function to generate RFC822-compliant textual time/date stamp
  *
  */
 

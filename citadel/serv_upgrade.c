@@ -1,4 +1,10 @@
-/* $Id$ */
+/*
+ * $Id$
+ *
+ * Transparently handle the upgrading of server data formats.
+ *
+ */
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>

@@ -1,13 +1,10 @@
-/*******************************************************
- *
- * Citadel Dynamic Loading Module
- * Written by Brian Costello
- * btx@calyx.net
- *
+/*
  * $Id$
  *
- ******************************************************/
-
+ * Citadel Dynamic Loading Module
+ * Written by Brian Costello <btx@calyx.net>
+ *
+ */
 
 #include "sysdep.h"
 #include <stdio.h>

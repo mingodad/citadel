@@ -1,7 +1,9 @@
 /*
+ * $Id$
+ *
  * Citadel/UX Intelligent Network Processor for IGnet/Open networks
  * See copyright.txt for copyright information
- * $Id$
+ *
  */
 
 /* How long it takes for an old node to drop off the network map */

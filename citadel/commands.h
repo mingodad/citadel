@@ -1,4 +1,7 @@
-/* $Id$ */
+/*
+ * $Id$
+ *
+ */
 
 /*
  * Colors for color() command

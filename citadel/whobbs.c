@@ -1,4 +1,10 @@
-/* $Id$ */
+/*
+ * $Id$
+ * 
+ * Command-line "who is online?" utility
+ *
+ */
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>

@@ -1,4 +1,10 @@
-/* $Id$ */
+/*
+ * $Id$
+ *
+ * A skeleton module to test the dynamic loader.
+ *
+ */
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>

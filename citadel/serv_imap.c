@@ -1,4 +1,5 @@
-/* $Id$ 
+/*
+ * $Id$ 
  *
  * IMAP server for the Citadel/UX system
  * Copyright (C) 2000 by Art Cancro and others.
@@ -39,6 +40,7 @@
 #include "tools.h"
 #include "internet_addressing.h"
 #include "serv_imap.h"
+#include "imap_tools.h"
 
 
 long SYM_IMAP;
@@ -78,30 +80,24 @@ void imap_greeting(void) {
 /*
  * implements the LOGIN command (ordinary username/password login)
  */
-void imap_login(char *tag, char *cmd, char *parms) {
-	char username[256];
-	char password[256];
-
-	extract_token(username, parms, 0, ' ');
-	extract_token(password, parms, 1, ' ');
-
-	if (CtdlLoginExistingUser(username) == login_ok) {
-		if (CtdlTryPassword(password) == pass_ok) {
-			cprintf("%s OK login successful\r\n", tag);
+void imap_login(int num_parms, char *parms[]) {
+	if (CtdlLoginExistingUser(parms[2]) == login_ok) {
+		if (CtdlTryPassword(parms[3]) == pass_ok) {
+			cprintf("%s OK login successful\r\n", parms[0]);
 			return;
 		}
         }
 
-	cprintf("%s BAD Login incorrect\r\n", tag);
+	cprintf("%s BAD Login incorrect\r\n", parms[0]);
 }
 
 
 /*
  * implements the CAPABILITY command
  */
-void imap_capability(char *tag, char *cmd, char *parms) {
+void imap_capability(int num_parms, char *parms[]) {
 	cprintf("* CAPABILITY IMAP4 IMAP4REV1 AUTH=LOGIN\r\n");
-	cprintf("%s OK CAPABILITY completed\r\n", tag);
+	cprintf("%s OK CAPABILITY completed\r\n", parms[0]);
 }
 
 
@@ -111,7 +107,7 @@ void imap_capability(char *tag, char *cmd, char *parms) {
 /*
  * implements the SELECT command
  */
-void imap_select(char *tag, char *cmd, char *parms) {
+void imap_select(int num_parms, char *parms[]) {
 	char towhere[256];
 	char augmented_roomname[256];
 	int c = 0;
@@ -120,7 +116,7 @@ void imap_select(char *tag, char *cmd, char *parms) {
 	struct quickroom QRscratch;
 	int msgs, new;
 
-	extract_token(towhere, parms, 0, ' ');
+	strcpy(towhere, parms[2]);
 
 	/* IMAP uses the reserved name "INBOX" for the user's default incoming
 	 * mail folder.  Convert this to Citadel's reserved name "_MAIL_".
@@ -151,7 +147,8 @@ void imap_select(char *tag, char *cmd, char *parms) {
 
 	/* Fail here if no such room */
 	if (!ok) {
-		cprintf("%s NO ... no such room, or access denied\r\n", tag);
+		cprintf("%s NO ... no such room, or access denied\r\n",
+			parms[0]);
 		IMAP->selected = 0;
 		return;
 	}
@@ -165,7 +162,7 @@ void imap_select(char *tag, char *cmd, char *parms) {
 	cprintf("* %d EXISTS\r\n", msgs);
 	cprintf("* %d RECENT\r\n", new);
 	cprintf("* OK [UIDVALIDITY 0] UIDs valid\r\n");
-	cprintf("%s OK [FIXME] SELECT completed\r\n", tag);
+	cprintf("%s OK [FIXME] SELECT completed\r\n", parms[0]);
 }
 
 
@@ -174,8 +171,9 @@ void imap_select(char *tag, char *cmd, char *parms) {
  */
 void imap_command_loop(void) {
 	char cmdbuf[256];
-	char tag[256];
-	char cmd[256];
+	char *parms[16];
+	int num_parms;
+	int i;
 
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
@@ -195,48 +193,47 @@ void imap_command_loop(void) {
 	striplt(cmdbuf);
 
 	/* grab the tag */
-	extract_token(tag, cmdbuf, 0, ' ');
-	extract_token(cmd, cmdbuf, 1, ' ');
-	remove_token(cmdbuf, 0, ' ');
-	remove_token(cmdbuf, 0, ' ');
-	lprintf(9, "tag=<%s> cmd=<%s> parms=<%s>\n", tag, cmd, cmdbuf);
+	num_parms = imap_parameterize(parms, cmdbuf);
+	for (i=0; i<num_parms; ++i) {
+		lprintf(9, " parms[%d]='%s'\n", i, parms[i]);
+	}
 
 	/* commands which may be executed in any state */
 
-	if (!strcasecmp(cmd, "NOOP")) {
+	if (!strcasecmp(parms[1], "NOOP")) {
 		cprintf("%s OK This command successfully did nothing.\r\n",
-			tag);
+			parms[0]);
 	}
 
-	else if (!strcasecmp(cmd, "LOGOUT")) {
+	else if (!strcasecmp(parms[1], "LOGOUT")) {
 		cprintf("* BYE %s logging out\r\n", config.c_fqdn);
-		cprintf("%s OK thank you for using Citadel IMAP\r\n", tag);
+		cprintf("%s OK thank you for using Citadel IMAP\r\n", parms[0]);
 		CC->kill_me = 1;
 		return;
 	}
 
-	else if (!strcasecmp(cmd, "LOGIN")) {
-		imap_login(tag, cmd, cmdbuf);
+	else if (!strcasecmp(parms[1], "LOGIN")) {
+		imap_login(num_parms, parms);
 	}
 
-	else if (!strcasecmp(cmd, "CAPABILITY")) {
-		imap_capability(tag, cmd, cmdbuf);
+	else if (!strcasecmp(parms[1], "CAPABILITY")) {
+		imap_capability(num_parms, parms);
 	}
 
 	else if (!CC->logged_in) {
-		cprintf("%s BAD Not logged in.\r\n", tag);
+		cprintf("%s BAD Not logged in.\r\n", parms[0]);
 	}
 
 	/*  commands requiring the client to be logged in */
 
-	else if (!strcasecmp(cmd, "SELECT")) {
-		imap_select(tag, cmd, cmdbuf);
+	else if (!strcasecmp(parms[1], "SELECT")) {
+		imap_select(num_parms, parms);
 	}
 
 	/* end of commands */
 
 	else {
-		cprintf("%s BAD command unrecognized\r\n", tag);
+		cprintf("%s BAD command unrecognized\r\n", parms[0]);
 	}
 
 }

@@ -1,4 +1,10 @@
-/* $Id$ */
+/*
+ * $Id$
+ *
+ * Server-side utility functions
+ *
+ */
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>

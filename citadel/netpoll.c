@@ -1,4 +1,10 @@
-/* $Id$ */
+/* 
+ * $Id$
+ *
+ * Perform data transfer between our Citadel server and another.
+ *
+ */
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>

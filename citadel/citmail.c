@@ -1,11 +1,9 @@
 /*
- * 
- * Completely reworked version of "citmail"
- * This program attempts to act like a local MDA if you're using sendmail or
- * some other non-Citadel MTA.  It basically just forwards the message to
- * the Citadel SMTP listener on some non-standard port.
- *
  * $Id$
+ *
+ * This program attempts to act like a local MDA if you're using sendmail or
+ * some other non-Citadel MTA.  It basically just contacts the Citadel SMTP
+ * listener on a unix domain socket and transmits the message.
  *
  */
 

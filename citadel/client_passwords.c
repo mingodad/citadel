@@ -1,3 +1,11 @@
+/*
+ * $Id$
+ *
+ * Functions which allow the client to remember usernames and passwords for
+ * various sites.
+ *
+ */
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>

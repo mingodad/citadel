@@ -1,3 +1,8 @@
+/* 
+ * $Id$
+ *
+ */
+
 int fuzzy_match(struct usersupp *us, char *matchstring);
 void process_rfc822_addr(char *rfc822, char *user, char *node, char *name);
 

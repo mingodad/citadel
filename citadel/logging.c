@@ -1,6 +1,8 @@
 /*
- * Everything which needs some logging...
  * $Id$
+ *
+ * Everything which needs some logging...
+ *
  */
 
 #include "sysdep.h"

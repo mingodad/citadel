@@ -1,8 +1,9 @@
 /*
+ * $Id$
+ *
  * This function reads the citadel.config file.  It should be called at
  * the beginning of EVERY Citadel program.
  *
- * $Id$
  */
 
 #include "sysdep.h"

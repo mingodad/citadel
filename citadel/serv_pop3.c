@@ -1,4 +1,5 @@
-/* $Id$ 
+/*
+ * $Id$ 
  *
  * POP3 server for the Citadel/UX system
  * Copyright (C) 1998-2000 by Art Cancro and others.

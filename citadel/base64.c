@@ -1,18 +1,11 @@
 /*
-
-	   Encode or decode file as MIME base64 (RFC 1341)
-
-			    by John Walker
-		       http://www.fourmilab.ch/
-
-		This program is in the public domain.
-
-Revision date: 11th August 1997
-
-Modified slightly for the Citadel/UX system, June 1999
-http://uncnsrd.mt-kisco.ny.us/citadel
-
-*/
+ * $Id$
+ *
+ * Encode or decode file as MIME base64 (RFC 1341)
+ * Public domain by John Walker, August 11 1997
+ * Modified slightly for the Citadel/UX system, June 1999
+ *
+ */
 
 
 #include <stdio.h>

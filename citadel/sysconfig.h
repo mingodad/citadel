@@ -1,3 +1,8 @@
+/*
+ * $Id$
+ *
+ */
+
 /****************************************************************************/
 /*                  YOUR SYSTEM CONFIGURATION                               */
 /* Set all the values in this file appropriately BEFORE compiling any of the*/

@@ -1,4 +1,9 @@
 /*
+ * $Id$
+ *
+ */
+
+/*
  * Format of a usersupp record prior to version 5.55
  */
 struct pre555usersupp {			/* User record                      */

@@ -1,4 +1,10 @@
-/* $Id$ */
+/* 
+ * $Id$
+ *
+ * Main source module for the Citadel server
+ *
+ */
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>

@@ -1,4 +1,5 @@
 /* $Id$ */
+
 void DLoader_Init(char *pathname);
 int DLoader_Exec_Cmd(char *cmdbuf);
 char *Dynamic_Module_Init(void);

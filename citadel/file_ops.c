@@ -1,4 +1,10 @@
-/* $Id$ */
+/* 
+ * $Id$
+ *
+ * Server functions which handle file transfers and room directories.
+ *
+ */
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>

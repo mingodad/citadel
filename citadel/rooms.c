@@ -1,5 +1,10 @@
-/* Citadel/UX room-oriented routines */
-/* $Id$ */
+/*
+ * $Id$
+ *
+ * 
+ * Client-side functions which perform room operations
+ *
+ */
 
 #include "sysdep.h"
 #include <stdlib.h>

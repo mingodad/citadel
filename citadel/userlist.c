@@ -1,4 +1,10 @@
-/* $Id$ */
+/*
+ * $Id$
+ *
+ * Command-line user list utility.
+ *
+ */
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>

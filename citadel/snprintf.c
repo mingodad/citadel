@@ -1,12 +1,10 @@
 /*
+ * $Id$
+ *
+ * Replacements for snprintf() and vsnprintf()
+ *
  * modified from Sten Gunterberg's BUGTRAQ post of 22 Jul 1997
  * --nathan bryant <nathan@designtrust.com>
- *
- * $Id$
- */
-
-/*
- * Replacements for snprintf() and vsnprintf()
  *
  * Use it only if you have the "spare" cycles needed to effectively
  * do every snprintf operation twice! Why is that? Because everything

@@ -1,6 +1,5 @@
 /*
- * msgform.c v2.1 $Id$
- * see copyright.doc for copyright information
+ * $Id$
  * 
  * This is simply a filter that converts Citadel binary message format
  * to readable, formatted output.
@@ -9,6 +8,7 @@
  * then it stops at the end of the first message it prints.
  * This is used by the QWK reader for Citadel/UX during message format
  * translation.
+ *
  */
 
 #include "sysdep.h"

@@ -1,7 +1,7 @@
-/* aidepost.c
- * This is just a little hack to copy standard input to a message in Aide>
- * v2.0
+/*
  * $Id$
+ *
+ * This is just a little hack to copy standard input to a message in Aide>
  */
 
 #include <stdlib.h>

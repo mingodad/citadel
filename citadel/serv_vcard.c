@@ -1,10 +1,8 @@
 /*
- * serv_vcard.c
+ * $Id$
  * 
  * A server-side module for Citadel which supports address book information
  * using the standard vCard format.
- *
- * $Id$
  *
  */
 

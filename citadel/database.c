@@ -1,8 +1,9 @@
 /*
+ * $Id$
+ *
  * This file contains a set of abstractions that allow Citadel to plug into any
  * record manager or database system for its data store.
  *
- * $Id$
  */
 
 /*

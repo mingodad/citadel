@@ -1,6 +1,7 @@
 /*
  * $Id$
  *
+ * Command-line utility to manipulate network configuration files
  * Copyright (c) 1998  Art Cancro
  *
  */

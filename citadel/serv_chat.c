@@ -1,10 +1,9 @@
 /*
- * serv_chat.c
+ * $Id$
  * 
  * This module handles all "real time" communication between users.  The
  * modes of communication currently supported are Chat and Paging.
  *
- * $Id$
  */
 #include "sysdep.h"
 #include <stdlib.h>

@@ -1,9 +1,7 @@
 /*
- * ipc_c_tcp.c
+ * $Id$
  * 
- * Citadel/UX client/server IPC - client module using TCP/IP
- *
- * version 1.3 $Id$
+ * Client-side IPC functions
  *
  */
 

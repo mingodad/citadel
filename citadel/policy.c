@@ -1,4 +1,9 @@
-/* $Id$ */
+/* 
+ * $Id$
+ *
+ * Functions which manage policy for rooms (such as message expiry)
+ */
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>

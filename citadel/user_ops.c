@@ -1,4 +1,9 @@
-/* $Id$ */
+/* 
+ * $Id$
+ *
+ * Server functions which perform operations on user objects.
+ *
+ */
 
 #include "sysdep.h"
 #include <errno.h>

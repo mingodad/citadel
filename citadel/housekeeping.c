@@ -1,8 +1,9 @@
 /*
+ * $Id$
+ *
  * This file contains housekeeping tasks which periodically
  * need to be executed.  It keeps a nice little queue...
  *
- * $Id$
  */
 
 #include "sysdep.h"
