@@ -20,3 +20,6 @@ public class roomInfo {
 	floor = citadel.atoi( r.getArg( 10 ) );
     }
 }
+
+
+

@@ -43,6 +43,8 @@ public class roomFrame extends JFrame {
 	setTitle( title );
 	cdLayout.show( c, "Messages" );
 	mp.refresh( ri );
+	if( ri.info != 0)
+	    new roomInfoWindow( ri );
     }
 
     public void showRoom() {

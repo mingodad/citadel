@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -16,8 +15,8 @@ public class mainPanel extends JPanel {
 
 	JPanel	p = new JPanel();
 	p.setLayout( new BorderLayout() );
-	p.setBorder( BorderFactory.createTitledBorder( 
-						      BorderFactory.createEtchedBorder(), "Cmds" ) );
+	/*	p.setBorder( BorderFactory.createTitledBorder( 
+		BorderFactory.createEtchedBorder(), "Cmds" ) ); */
 
 	VertPanel	vp = new VertPanel();
 	p.add( "Center", vp );
@@ -180,5 +179,3 @@ public class mainPanel extends JPanel {
 	}
     }
 }
-
-

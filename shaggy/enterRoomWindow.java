@@ -25,7 +25,10 @@ public class enterRoomWindow extends JFrame {
 	pp.addRight( room = new JTextField(10) );
 	room.addActionListener( new ActionListener() {
 	    public void actionPerformed( ActionEvent e ) {
-		pass.requestFocus();
+		if( pass != null )
+		    pass.requestFocus();
+		else
+		    enterRoom();
 	    } } );
 
 	if( def != null ) {

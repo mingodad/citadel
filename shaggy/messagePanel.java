@@ -23,8 +23,8 @@ public class messagePanel extends JPanel {
 	
 	JPanel	p = new JPanel();
 	p.setLayout( new BorderLayout() );
-	p.setBorder( BorderFactory.createTitledBorder( 
-		  BorderFactory.createEtchedBorder(), "Cmds" ) );
+	/*	p.setBorder( BorderFactory.createTitledBorder( 
+		BorderFactory.createEtchedBorder(), "Cmds" ) ); */
 
 	VertPanel	vp = new VertPanel();
 	p.add( "Center", vp );
@@ -45,20 +45,18 @@ public class messagePanel extends JPanel {
 	vp.add( b = new JButton( "Read Info" ) );
 	b.addActionListener( new ActionListener() {
 	    public void actionPerformed( ActionEvent e ) {
-		//		new roomInfoWindow( ri );
+		new roomInfoWindow( ri );
 	    } } );
-	b.setEnabled( false );
 
 	vp.add( b = new JButton( "Zap Room" ) );
 	b.addActionListener( new ActionListener() {
 	    public void actionPerformed( ActionEvent e ) {
-		System.out.println( "Zap room" );
+		if( JOptionPane.showConfirmDialog( null, "Zap " + ri.name + "?" ) == 0 )
+		    citadel.me.zapRoom( ri );
 	    } } );
 
-	b.setEnabled( false );
 
-
-	jcb = new JComboBox();
+       	jcb = new JComboBox();
 	jcb.addItem( "Read New" );
 	jcb.addItem( "Read All" );
 	jcb.addItem( "Last 5" );

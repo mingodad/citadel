@@ -88,6 +88,7 @@ public class citadel {
     }
 
     public void lostNetwork( String reason ) {
+	theNet.done = true;
 	cg.errMsg( reason );
 	cg.showHostBrowser();
     }
@@ -170,7 +171,6 @@ public class citadel {
 		      cg.mp.rooms.addToFloor( rm );
 		    }
 		    
-		    System.out.println( "Going to room: " + rm.name );
 		    rm.setNew( false );
 
 		    roomInfo	ri = new roomInfo( rm, r );
@@ -186,6 +186,15 @@ public class citadel {
 		    new enterRoomWindow( roomName );
 		}
 	    } } );
+    }
+
+    public void zapRoom( final roomInfo ri ) {
+	networkEvent( "FORG " + ri.name, new CallBack() {
+	    public void run( citReply r ) {
+		if( r.ok() ) {
+		    enterRoom( rooms.forgotRoom( ri ) );
+		    cg.mp.setFloor( rooms.getFloor() );
+		} } } );
     }
 
     public void logoff() {
