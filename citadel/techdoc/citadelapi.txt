@@ -83,26 +83,35 @@ is performing various tasks.  Here are the API calls to register hooks:
  
    
  void CtdlRegisterProtoHook(void (*handler)(char *), char *cmd, char *desc)
+ void CtdlUnregisterProtoHook(void (*handler)(char *), char *cmd)
   
- Adds a new server command to the system.  The handler function should accept
-a single string parameter, which will be set to a string containing any
-parameters the client software sent along with the server command.  "cmd" 
-should be the four-character mnemonic the server command is known by, and
-"desc" is a description of the new command.
+ CtdlRegisterProtoHook() adds a new server command to the system.  The
+handler function should accept a single string parameter, which will be set
+to a string containing any parameters the client software sent along with
+the server command.  "cmd" should be the four-character mnemonic the server
+command is known by, and "desc" is a description of the new command.
+
+ CtdlUnregisterProtoHook() removes a server command from the system.  It
+must be called with the same handler and cmd which were previously registered.
  
 
  void CtdlRegisterCleanupHook(void *fcn_ptr) 
+ void CtdlUnregisterCleanupHook(void *fcn_ptr) 
  
- Registers a new function to be called whenever the server is shutting down.
-Cleanup functions accept no parameters.
+ CtdlRegisterCleanupHook() registers a new function to be called whenever the
+server is shutting down.  Cleanup functions accept no parameters.
+
+ CtdlUnregsiterCleanupHook() removes a cleanup function from the system.  It
+must be called with the same fcn_ptr which was previously registered.
 
  
 void CtdlRegisterSessionHook(void *fcn_ptr, int EventType) 
+void CtdlUnregisterSessionHook(void *fcn_ptr, int EventType) 
   
- Registers a session hook.  Session hooks accept no parameters.  There are
-multiple types of session hooks; the server extension registers which one it
-is interested in by setting the value of EventType.  The available session
-hook types are:
+ CtdlRegisterSessionHook() registers a session hook.  Session hooks accept
+no parameters.  There are multiple types of session hooks; the server
+extension registers which one it is interested in by setting the value of
+EventType.  The available session hook types are:
 
 #define EVT_STOP	0	/* Session is terminating */
 #define EVT_START	1	/* Session is starting */
@@ -111,18 +120,70 @@ hook types are:
 #define EVT_LOGOUT	4	/* A user is logging out */
 #define EVT_SETPASS	5	/* Setting or changing password */
 
+ CtdlUnregisterSessionHook() removes a session hook.  It must be called with
+the same fcn_ptr and EventTYpe which were previously registered.
  
+
 void CtdlRegisterUserHook(void *fcn_ptr, int EventType) 
+void CtdlUnregisterUserHook(void *fcn_ptr, int EventType) 
  
- Registers a user hook.  User hooks accept two parameters: a string pointer
-containing the user name, and a long which *may* contain a user number (only
-applicable for certain types of hooks).  The available user hook types are:
+ CtdlRegisterUserHook() registers a user hook.  User hooks accept two
+parameters: a string pointer containing the user name, and a long which *may*
+contain a user number (only applicable for certain types of hooks).  The
+available user hook types are:
 
 #define EVT_PURGEUSER	100	/* Deleting a user */
 #define EVT_OUTPUTMSG	101	/* Outputting a message */
 
+ CtdlUnregisterUserHook() removes a user hook from the system.  It must be
+called with the same fcn_ptr and EventType which were previously registered.
 
-   
+
+ void CtdlRegisterLogHook(void (*fcn_ptr) (char *), int loglevel)
+ void CtdlUnregisterLogHook(void (*fcn_ptr) (char *), int loglevel)
+
+ CtdlRegisterLogHook() adds a new logging function to the system.  The
+handler function should accept a single string as a parameter.  Logging
+functions can be used to implement additional logging facilities in
+addition to the Citadel trace file, which is output on stderr, or
+redirected to a file with the -t command line option.  The handler
+function will be called if the loglevel is greater than or equal to
+loglevel.
+
+ Security considerations:  Logs may contain plain text passwords and
+other sensitive information.  It is your responsibility to ensure that
+your logs have appropriate access protection.  The Citadel trace file
+is readable only by the superuser when the -t option is used.
+
+ CtdlUnregisterLogHook() removes a logging function from the system.  It
+must be called with the same fcn_ptr and loglevel which were previously
+registered.
+
+
+ void CtdlRegisterMessageHook(int (*handler) (struct CtdlMessage *),
+ 				int EventType)
+ void CtdlUnregisterMessageHook(int (*handler) (struct CtdlMessage *),
+ 				int EventType)
+
+ Please write documentation for me!
+
+
+ void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *), int order)
+ void CtdlUnregisterXmsgHook(int (*fcn_ptr) (char *, char *, char *), int order)
+
+ Please write documentation for me!
+
+
+ void CtdlRegisterServiceHook(int tcp_port, char *sockpath,
+ 				void (*h_greeting_function) (void),
+				void (*h_command_function) (void))
+ void CtdlUnregisterServiceHook(int tcp_port, char *sockpath,
+ 				void (*h_greeting_function) (void),
+				void (*h_command_function) (void))
+
+ Please write documentation for me!
+
+
   FUNCTIONS WHICH MANIPULATE USER/ROOM RELATIONSHIPS
 
  void CtdlGetRelationship(struct visit *vbuf,
