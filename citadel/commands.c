@@ -52,6 +52,7 @@
 #include "tools.h"
 #include "rooms.h"
 #include "client_chat.h"
+#include "citadel_ipc.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
@@ -208,6 +209,8 @@ void print_express(void)
 	int flags = 0;
 	char sender[64];
 	char node[64];
+	char *listing = NULL;
+	int r;			/* IPC result code */
 
 	if (express_msgs == 0)
 		return;
@@ -221,16 +224,15 @@ void print_express(void)
 	}
 	
 	while (express_msgs != 0) {
-		serv_puts("GEXP");
-		serv_gets(buf);
-		if (buf[0] != '1')
+		r = CtdlIPCGetInstantMessage(&listing, buf);
+		if (r / 100 != 1)
 			return;
 	
-		express_msgs = extract_int(&buf[4], 0);
-		timestamp = extract_long(&buf[4], 1);
-		flags = extract_int(&buf[4], 2);
-		extract(sender, &buf[4], 3);
-		extract(node, &buf[4], 4);
+		express_msgs = extract_int(buf, 0);
+		timestamp = extract_long(buf, 1);
+		flags = extract_int(buf, 2);
+		extract(sender, buf, 3);
+		extract(node, buf, 4);
 		strcpy(last_paged, sender);
 	
 		stamp = localtime(&timestamp);
@@ -269,10 +271,7 @@ void print_express(void)
 				fprintf(outpipe, " from %s", sender);
 				if (strncmp(serv_info.serv_nodename, node, 32))
 					fprintf(outpipe, " @%s", node);
-				fprintf(outpipe, ":\n");
-				while (serv_gets(buf), strcmp(buf, "000")) {
-					fprintf(outpipe, "%s\n", buf);
-				}
+				fprintf(outpipe, ":\n%s\n", listing);
 				pclose(outpipe);
 				if (express_msgs == 0)
 					return;
@@ -312,7 +311,8 @@ void print_express(void)
 	
 		scr_printf(":\n");
 		lines_printed++;
-		fmout(screenwidth, NULL, NULL, 1, screenheight, -1, 0);
+		fmout(screenwidth, NULL, listing, NULL, 1, screenheight, -1, 0);
+		free(listing);
 
 		/* when running in curses mode, the scroll bar in most
 		   xterm-style programs becomes useless, so it makes sense to
@@ -1259,17 +1259,19 @@ void display_help(char *name)
  */
 int fmout(
 	int width,	/* screen width to use */
-	FILE *fpin,	/* file to read from, or NULL to read from server */
+	FILE *fpin,	/* file to read from, or NULL to format given text */
+	char *text,	/* Text to be formatted (when fpin is NULL) */
 	FILE *fpout,	/* File to write to, or NULL to write to screen */
 	char pagin,	/* nonzero if we should use the paginator */
 	int height,	/* screen height to use */
 	int starting_lp,/* starting value for lines_printed, -1 for global */
 	char subst)	/* nonzero if we should use hypertext mode */
 {
-	int a, b, c, d, old;
+	int a, b, c, old;
 	int real = (-1);
 	char aaa[140];
 	char buffer[512];
+	char *e;
 	int eof_flag = 0;
 
 	num_urls = 0;	/* Start with a clean slate of embedded URL's */
@@ -1281,6 +1283,7 @@ int fmout(
 	old = 255;
 	strcpy(buffer, "");
 	c = 1;			/* c is the current pos */
+	e = text;		/* e is pointer to current pos */
 
 FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
 		if (fpin != NULL) {	/* read from file */
@@ -1291,20 +1294,19 @@ FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
 				buffer[strlen(buffer) + 1] = 0;
 				buffer[strlen(buffer)] = a;
 			}
-		} else {	/* read from server */
-			d = strlen(buffer);
-			serv_gets(&buffer[d]);
-			while ((!isspace(buffer[d])) && (isspace(buffer[strlen(buffer) - 1])))
-				buffer[strlen(buffer) - 1] = 0;
-			if (!strcmp(&buffer[d], "000")) {
-				buffer[d] = 0;
+		} else {	/* read from text */
+			if (!*e) {
 				eof_flag = 1;
 				while (isspace(buffer[strlen(buffer) - 1]))
 					buffer[strlen(buffer) - 1] = 0;
+				buffer[strlen(buffer) + 1] = 0;
+				buffer[strlen(buffer)] = 10;
 			}
-			d = strlen(buffer);
-			buffer[d] = 10;
-			buffer[d + 1] = 0;
+			if (eof_flag == 0) {
+				a = *e++;
+				buffer[strlen(buffer) + 1] = 0;
+				buffer[strlen(buffer)] = a;
+			}
 		}
 	}
 
@@ -1397,9 +1399,9 @@ FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
 	goto FMTA;
 
 	/* keypress caught; drain the server */
-OOPS:	do {
+OOPS:	/* do {
 		serv_gets(aaa);
-	} while (strcmp(aaa, "000"));
+	} while (strcmp(aaa, "000")); */
 
 FMTEND:
 	if (fpout) {

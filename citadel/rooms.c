@@ -20,6 +20,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include "citadel.h"
+#include "citadel_ipc.h"
 #include "rooms.h"
 #include "commands.h"
 #include "tools.h"
@@ -985,30 +986,31 @@ void entroom(void)
 
 void readinfo(void)
 {				/* read info file for current room */
-	char cmd[SIZ];
+	char buf[SIZ];
 	char raide[64];
+	int r;			/* IPC response code */
+	char *text = NULL;
 
 	/* Name of currernt room aide */
-	serv_puts("GETA");
-	serv_gets(cmd);
-	if (cmd[0] == '2') {
-		safestrncpy(raide, &cmd[4], sizeof raide);
-	} else {
+	r = CtdlIPCGetRoomAide(buf);
+	if (r / 100 == 2)
+		safestrncpy(raide, buf, sizeof raide);
+	else
 		strcpy(raide, "");
-	}
+
 	if (strlen(raide) > 0)
 		scr_printf("Room aide is %s.\n\n", raide);
 
-	serv_puts("RINF");
-	serv_gets(cmd);
-
-	if (cmd[0] != '1') {
+	r = CtdlIPCRoomInfo(&text, buf);
+	if (r / 100 != 1)
 		return;
-	}
 
-	fmout(screenwidth, NULL, NULL,
-	      ((userflags & US_PAGINATOR) ? 1 : 0), screenheight, 
-	      (*raide) ? 2 : 0, 1);
+	if (text) {
+		fmout(screenwidth, NULL, text, NULL,
+		      ((userflags & US_PAGINATOR) ? 1 : 0), screenheight, 
+		      (*raide) ? 2 : 0, 1);
+		free(text);
+	}
 }
 
 

@@ -16,6 +16,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <stdlib.h>
+#include <ctype.h>
 #ifdef THREADED_CLIENT
 #include <pthread.h>
 #endif
@@ -384,7 +385,7 @@ int CtdlIPCGetSingleMessage(long msgnum, int headers, int as_mime,
 {
 	register int ret;
 	char aaa[27];
-	char *bbb;
+	char *bbb = NULL;
 	size_t bbbsize;
 
 	if (!cret) return -1;
@@ -402,7 +403,7 @@ int CtdlIPCGetSingleMessage(long msgnum, int headers, int as_mime,
 
 				extract_token(aaa, bbb, 0, '\n');
 				a = strlen(aaa);
-				memmove(aaa, bbb + a + 1, strlen(bbb) - a - 1);
+				safestrncpy(bbb, &bbb[a + 1], strlen(bbb) - a);
 
 				if (!strncasecmp(aaa, "nhdr=yes", 8))
 					mret[0]->nhdr = 1;
@@ -448,8 +449,11 @@ int CtdlIPCGetSingleMessage(long msgnum, int headers, int as_mime,
 					}
 				}
 			}
+			/* Eliminate "text\n" */
+			safestrncpy(bbb, &bbb[5], strlen(bbb) - 4);
 		}
 		if (strlen(bbb)) {
+			/* Strip trailing whitespace */
 			bbb = (char *)realloc(bbb, strlen(bbb) + 1);
 			mret[0]->text = bbb;
 		} else {
@@ -1677,9 +1681,12 @@ char *CtdlIPCReadListing(char *dest)
 	ret = dest;
 	if (ret) length = strlen(ret);
 	while (serv_gets(aaa), strcmp(aaa, "000")) {
-		ret = (char *)realloc(ret, length + strlen(aaa) + 1);
-		if (ret)
+		ret = (char *)realloc(ret, length + strlen(aaa) + 2);
+		if (ret) {
 			strcpy(&ret[length], aaa);
+			length += strlen(aaa);
+			strcpy(&ret[length++], "\n");
+		}
 	}
 	return ret;
 }

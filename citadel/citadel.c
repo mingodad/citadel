@@ -175,20 +175,24 @@ void catch_sigcont(int signum)
 
 
 /* general purpose routines */
-
+/* display a file */
 void formout(char *name)
-{				/* display a file */
-	char cmd[SIZ];
-	snprintf(cmd, sizeof cmd, "MESG %s", name);
-	serv_puts(cmd);
-	serv_gets(cmd);
-	if (cmd[0] != '1') {
-		scr_printf("%s\n", &cmd[4]);
+{
+	int r;			/* IPC return code */
+	char buf[SIZ];
+	char *text = NULL;
+
+	r = CtdlIPCSystemMessage(name, &text, buf);
+	if (r / 100 != 1) {
+		scr_printf("%s\n", buf);
 		return;
 	}
-	fmout(screenwidth, NULL, NULL,
-	      ((userflags & US_PAGINATOR) ? 1 : 0),
-	      screenheight, 1, 1);
+	if (text) {
+		fmout(screenwidth, NULL, text, NULL,
+		      ((userflags & US_PAGINATOR) ? 1 : 0),
+		      screenheight, 1, 1);
+		free(text);
+	}
 }
 
 

@@ -36,6 +36,7 @@
 #include "commands.h"
 #include "rooms.h"
 #include "tools.h"
+#include "citadel_ipc.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
@@ -362,15 +363,16 @@ int read_message(
 	int format_type = 0;
 	int fr = 0;
 	int nhdr = 0;
+	struct ctdlipcmessage *message = NULL;
+	int r;				/* IPC response code */
 
 	sigcaught = 0;
 	sttybbs(1);
 
-	snprintf(buf, sizeof buf, "MSG0 %ld|%d", num, (pagin == READ_HEADER ? 1 : 0));
-	serv_puts(buf);
-	serv_gets(buf);
-	if (buf[0] != '1') {
-		err_printf("*** msg #%ld: %s\n", num, buf);
+	r = CtdlIPCGetSingleMessage(num, (pagin == READ_HEADER ? 1 : 0), 0,
+				    &message, buf);
+	if (r / 100 != 1) {
+		err_printf("*** msg #%ld: %d %s\n", num, r, buf);
 		++lines_printed;
 		lines_printed =
 		    checkpagin(lines_printed, pagin, screenheight);
@@ -396,156 +398,135 @@ int read_message(
 		color(BRIGHT_CYAN);
 	}
 
+	/* View headers only */
 	if (pagin == 2) {
-		while (serv_gets(buf), strcmp(buf, "000")) {
-			if (buf[4] == '=') {
-				if (dest) {
-					fprintf(dest, "%s\n", buf);
-				} else {
-					scr_printf("%s\n", buf);
-					++lines_printed;
-					lines_printed =
-				   		checkpagin(lines_printed,
-						pagin, screenheight);
-				}
+		sprintf(buf, "nhdr=%s\nfrom=%s\ntype=%d\nmsgn=%s\n",
+				message->nhdr ? "yes" : "no",
+				message->author, message->type,
+				message->msgid);
+		/* FIXME output buf */
+		if (strlen(message->subject)) {
+			sprintf(buf, "subj=%s\n", message->subject);
+			/* FIXME: output buf */
+		}
+		if (strlen(message->email)) {
+			sprintf(buf, "rfca=%s\n", message->email);
+			/* FIXME: output buf */
+		}
+		sprintf(buf, "hnod=%s\nroom=%s\nnode=%s\ntime=%ld\n",
+				message->hnod, message->room,
+				message->node, message->time);
+		if (strlen(message->recipient)) {
+			sprintf(buf, "rcpt=%s\n", message->recipient);
+			/* FIXME: output buf */
+		}
+		if (message->attachments) {
+			struct parts *ptr;
+
+			for (ptr = message->attachments; ptr; ptr = ptr->next) {
+				sprintf(buf, "part=%s|%s|%s|%s|%s|%ld\n",
+					ptr->name, ptr->filename, ptr->number,
+					ptr->disposition, ptr->mimetype,
+					ptr->length);
+				/* FIXME: output buf */
 			}
 		}
 		sttybbs(0);
 		return (0);
 	}
 
-	while (serv_gets(buf), strncasecmp(buf, "text", 4)) {
-		if (!strncasecmp(buf, "nhdr=yes", 8))
-			nhdr = 1;
-		if (!strncasecmp(buf, "from=", 5)) {
-			strcpy(from, &buf[5]);
+	if (rc_display_message_numbers) {
+		if (dest) {
+			fprintf(dest, "[#%s] ", message->msgid);
+		} else {
+			color(DIM_WHITE);
+			scr_printf("[");
+			color(BRIGHT_WHITE);
+			scr_printf("#%s", message->msgid);
+			color(DIM_WHITE);
+			scr_printf("] ");
 		}
-		if (nhdr == 1)
-			buf[0] = '_';
-
-		if (!strncasecmp(buf, "type=", 5))
-			format_type = atoi(&buf[5]);
-		else if ((!strncasecmp(buf, "msgn=", 5))
-		    && (rc_display_message_numbers)) {
-			if (dest) {
-				fprintf(dest, "[#%s] ", &buf[5]);
-			} else {
-				color(DIM_WHITE);
-				scr_printf("[");
-				color(BRIGHT_WHITE);
-				scr_printf("#%s", &buf[5]);
-				color(DIM_WHITE);
-				scr_printf("] ");
+	}
+	if (nhdr == 1 && !is_room_aide) {
+		if (dest) {
+			fprintf(dest, " ****");
+		} else {
+			scr_printf(" ****");
+		}
+	} else {
+		fmt_date(now, sizeof now, message->time, 0);
+		if (dest) {
+			fprintf(dest, "%s from %s ", now, message->author);
+			if (strlen(message->email)) {
+				fprintf(dest, "<%s> ", message->email);
 			}
-		}
-		else if (!strncasecmp(buf, "from=", 5)) {
-			if (dest) {
-				fprintf(dest, "from %s ", &buf[5]);
-			} else {
-				color(DIM_WHITE);
-				scr_printf("from ");
-				color(BRIGHT_CYAN);
-				scr_printf("%s ", &buf[5]);
-			}
-		}
-		else if (!strncasecmp(buf, "subj=", 5)) {
-			strcpy(m_subject, &buf[5]);
-		}
-		else if (!strncasecmp(buf, "rfca=", 5)) {
-			safestrncpy(rfca, &buf[5], sizeof(rfca) - 5);
-			if (dest) {
-				fprintf(dest, "<%s> ", &buf[5]);
-			} else {
+		} else {
+			color(BRIGHT_CYAN);
+			scr_printf("%s ", now);
+			color(DIM_WHITE);
+			scr_printf("from ");
+			color(BRIGHT_CYAN);
+			scr_printf("%s ", message->author);
+			if (strlen(message->email)) {
 				color(DIM_WHITE);
 				scr_printf("<");
 				color(BRIGHT_BLUE);
-				scr_printf("%s", &buf[5]);
-				color(DIM_WHITE);
+				scr_printf("%s", message->email);
+					color(DIM_WHITE);
 				scr_printf("> ");
 			}
 		}
-		else if ((!strncasecmp(buf, "hnod=", 5))
-		    && (strcasecmp(&buf[5], serv_info.serv_humannode))
-		    && (strlen(rfca) == 0)) {
-			if (dest) {
-				fprintf(dest, "(%s) ", &buf[5]);
-			} else {
-				color(DIM_WHITE);
-				scr_printf("(");
-				color(BRIGHT_WHITE);
-				scr_printf("%s", &buf[5]);
-				color(DIM_WHITE);
-				scr_printf(") ");
-			}
-		}
-		else if ((!strncasecmp(buf, "room=", 5))
-		    && (strcasecmp(&buf[5], room_name))
-		    && (strlen(rfca) == 0)) {
-			if (dest) {
-				fprintf(dest, "in %s> ", &buf[5]);
-			} else {
-				color(DIM_WHITE);
-				scr_printf("in ");
-				color(BRIGHT_MAGENTA);
-				scr_printf("%s> ", &buf[5]);
-			}
-		}
-		else if (!strncasecmp(buf, "node=", 5)) {
-			safestrncpy(node, &buf[5], sizeof(buf) - 5);
+		if (strlen(message->node)) {
 			if ((room_flags & QR_NETWORK)
-			    ||
-			    ((strcasecmp
-			      (&buf[5], serv_info.serv_nodename)
-			      &&
-			      (strcasecmp(&buf[5], serv_info.serv_fqdn)))))
-			{
+			    || ((strcasecmp(message->node, serv_info.serv_nodename)
+			     && (strcasecmp(message->node, serv_info.serv_fqdn))))) {
 				if (strlen(rfca) == 0) {
 					if (dest) {
-						fprintf(dest, "@%s ", &buf[5]);
+						fprintf(dest, "@%s ", message->node);
 					} else {
 						color(DIM_WHITE);
 						scr_printf("@");
 						color(BRIGHT_YELLOW);
-						scr_printf("%s ", &buf[5]);
+						scr_printf("%s ", message->node);
 					}
 				}
 			}
 		}
-		else if (!strncasecmp(buf, "rcpt=", 5)) {
+		if (strcasecmp(message->hnod, serv_info.serv_humannode)
+		    && (strlen(message->hnod)) && (!strlen(rfca))) {
 			if (dest) {
-				fprintf(dest, "to %s ", &buf[5]);
+				fprintf(dest, "(%s) ", message->hnod);
+			} else {
+				color(DIM_WHITE);
+				scr_printf("(");
+				color(BRIGHT_WHITE);
+				scr_printf("%s", message->hnod);
+				color(DIM_WHITE);
+				scr_printf(") ");
+			}
+		}
+		if (strcasecmp(message->room, room_name) && (strlen(rfca) == 0)) {
+			if (dest) {
+				fprintf(dest, "in %s> ", message->room);
+			} else {
+				color(DIM_WHITE);
+				scr_printf("in ");
+				color(BRIGHT_MAGENTA);
+				scr_printf("%s> ", message->room);
+			}
+		}
+		if (strlen(message->recipient)) {
+			if (dest) {
+				fprintf(dest, "to %s ", message->recipient);
 			} else {
 				color(DIM_WHITE);
 				scr_printf("to ");
 				color(BRIGHT_CYAN);
-				scr_printf("%s ", &buf[5]);
-			}
-		}
-		else if (!strncasecmp(buf, "time=", 5)) {
-			fmt_date(now, sizeof now, atol(&buf[5]), 0);
-			if (dest) {
-				fprintf(dest, "%s ", now);
-			} else {
-				scr_printf("%s ", now);
+				scr_printf("%s ", message->recipient);
 			}
 		}
 	}
-
-	if (nhdr == 1) {
-		if (!is_room_aide) {
-			if (dest) {
-				fprintf(dest, " ****");
-			} else {
-				scr_printf(" ****");
-			}
-		} else {
-			if (dest) {
-				fprintf(dest, " %s", from);
-			} else {
-				scr_printf(" %s", from);
-			}
-		}
-	}
+	
 	if (dest) {
 		fprintf(dest, "\n");
 	} else {
@@ -555,8 +536,7 @@ int read_message(
 	if (strlen(rfca) > 0) {
 		strcpy(reply_to, rfca);
 	} else {
-		snprintf(reply_to, sizeof(reply_to), "%s @ %s", from,
-			 node);
+		snprintf(reply_to, sizeof(reply_to), "%s @ %s", from, node);
 	}
 
 	if (pagin == 1 && !dest)
@@ -566,12 +546,12 @@ int read_message(
 		lines_printed = checkpagin(lines_printed, pagin, screenheight);
 	}
 
-	strcpy(reply_subject, m_subject);
-	if (strlen(m_subject) > 0) {
+	strcpy(reply_subject, message->subject);
+	if (strlen(message->subject) > 0) {
 		if (dest) {
-			fprintf(dest, "Subject: %s\n", m_subject);
+			fprintf(dest, "Subject: %s\n", message->subject);
 		} else {
-			scr_printf("Subject: %s\n", m_subject);
+			scr_printf("Subject: %s\n", message->subject);
 			++lines_printed;
 			lines_printed = checkpagin(lines_printed,
 					pagin, screenheight);
@@ -579,15 +559,18 @@ int read_message(
 	}
 
 	if (format_type == 0) {
-		fr = fmout(screenwidth, NULL, dest,
+		fr = fmout(screenwidth, NULL, message->text, dest,
 			   ((pagin == 1) ? 1 : 0), screenheight, (-1), 1);
 	} else {
-		while (serv_gets(buf), strcmp(buf, "000")) {
+		int i;
+
+		for (i = 0; i < num_tokens(message->text, '\n'); i++) {
 			if (sigcaught == 0) {
+				extract_token(buf, message->text, i, '\n');
 				if (dest) {
 					fprintf(dest, "%s\n", buf);
 				} else {
-				scr_printf("%s\n", buf);
+					scr_printf("%s\n", buf);
 					lines_printed = lines_printed + 1 +
 					    (strlen(buf) / screenwidth);
 					lines_printed =
@@ -606,6 +589,8 @@ int read_message(
 		++lines_printed;
 		lines_printed = checkpagin(lines_printed, pagin, screenheight);
 	}
+	free(message->text);
+	free(message);
 
 	if (pagin == 1 && !dest)
 		color(DIM_WHITE);
@@ -725,7 +710,7 @@ int client_make_message(char *filename,	/* temporary file name */
 	if (mode == 0) {
 		fp = fopen(filename, "r");
 		if (fp != NULL) {
-			fmout(screenwidth, fp, NULL, 0, screenheight, 0, 0);
+			fmout(screenwidth, fp, NULL, NULL, 0, screenheight, 0, 0);
 			beg = ftell(fp);
 			fclose(fp);
 		} else {
@@ -835,7 +820,7 @@ MECR:	if (mode == 2) {
 		}
 		fp = fopen(filename, "r");
 		if (fp != NULL) {
-			fmout(screenwidth, fp, NULL,
+			fmout(screenwidth, fp, NULL, NULL,
 			      ((userflags & US_PAGINATOR) ? 1 : 0),
 			      screenheight, 0, 0);
 			beg = ftell(fp);
