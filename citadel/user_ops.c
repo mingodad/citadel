@@ -549,13 +549,13 @@ static int validpw(uid_t uid, const char *pass)
 	char buf[24];
 
 	if (pipe(pipev)) {
-		lprintf(CTDL_ERROR, "pipe failed (%s): denying autologin access for "
+		lprintf(CTDL_ERR, "pipe failed (%s): denying autologin access for "
 			"uid %ld\n", strerror(errno), (long)uid);
 		return 0;
 	}
 	switch (pid = fork()) {
 	case -1:
-		lprintf(CTDL_ERROR, "fork failed (%s): denying autologin access for "
+		lprintf(CTDL_ERR, "fork failed (%s): denying autologin access for "
 			"uid %ld\n", strerror(errno), (long)uid);
 		close(pipev[0]);
 		close(pipev[1]);
@@ -583,7 +583,7 @@ static int validpw(uid_t uid, const char *pass)
 
 	while (waitpid(pid, &status, 0) == -1)
 		if (errno != EINTR) {
-			lprintf(CTDL_ERROR, "waitpid failed (%s): denying autologin "
+			lprintf(CTDL_ERR, "waitpid failed (%s): denying autologin "
 				"access for uid %ld\n",
 				strerror(errno), (long)uid);
 			return 0;
