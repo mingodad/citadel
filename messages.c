@@ -528,11 +528,11 @@ void read_message(long msgnum) {
 		wprintf("\">\n");
 	}
 
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"msg_oper\" STYLE=\"width: 40px; font-size: 6px; background: blue; color: #FFFFFF;\" VALUE=\"Reply\">\n");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"msg_oper\" STYLE=\"font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif; font-size: 7pt; background: blue; color: #FFFFFF;\" VALUE=\"Reply\">\n");
 
 	if (WC->is_room_aide)  {
-		wprintf("<INPUT TYPE=\"submit\" NAME=\"msg_oper\" STYLE=\"width: 38px; font-size: 6px; background: blue; color: #FFFFFF;\"VALUE=\"Move\">\n"
-			"<INPUT TYPE=\"submit\" NAME=\"msg_oper\" STYLE=\"width: 45px; font-size: 6px; background: blue; color: #FFFFFF;\" VALUE=\"Delete\""
+		wprintf("<INPUT TYPE=\"submit\" NAME=\"msg_oper\" STYLE=\"font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif; font-size: 7pt; background: blue; color: #FFFFFF;\"VALUE=\"Move\">\n"
+			"<INPUT TYPE=\"submit\" NAME=\"msg_oper\" STYLE=\"font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif; font-size: 7pt; background: blue; color: #FFFFFF;\" VALUE=\"Delete\""
 			"onClick=\"return confirm('Delete this message?');\">\n");
 	}
 
