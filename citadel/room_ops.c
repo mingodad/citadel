@@ -349,7 +349,7 @@ struct floor *cgetfloor(int floor_num) {
 	end_critical_section(S_FLOORCACHE);
 
 	if (fetch_new) {
-		lprintf(9, "fetch_new is active ... going to disk\n");
+		lprintf(CTDL_DEBUG, "fetch_new is active ... going to disk\n");
 		fl = mallok(sizeof(struct floor));
 		getfloor(fl, floor_num);
 		begin_critical_section(S_FLOORCACHE);

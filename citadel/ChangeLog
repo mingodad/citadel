@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.93  2004/03/21 22:51:54  error
+ * Fix a few remaining lprintf(9, ...) to lprintf(CTDL_DEBUG, ...)
+
  Revision 614.92  2004/03/21 22:35:20  error
  * stress.c: Wait before posting instead of after posting.
 
@@ -5577,4 +5580,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -125,7 +125,7 @@ void check_ref_counts(void) {
 			flbuf.f_flags = flbuf.f_flags & ~QR_INUSE;
 		}
 		lputfloor(&flbuf, a);
-		lprintf(9, "Floor %d: %d rooms\n", a, new_refcounts[a]);
+		lprintf(CTDL_DEBUG, "Floor %d: %d rooms\n", a, new_refcounts[a]);
 	}
 }	
 
