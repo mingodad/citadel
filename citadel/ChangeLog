@@ -1,4 +1,7 @@
  $Log$
+ Revision 627.7  2004/11/12 03:51:42  ajc
+ * serv_expire.c: auto-purge any user whose user number is less than 1.
+
  Revision 627.6  2004/11/11 16:21:12  nbryant
  * database_sleepycat.c: make cdb_rewind enforce that cursors must be
    closed before they can be opened again. (prevents cursors being held
@@ -6212,4 +6215,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -432,6 +432,11 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	 */
 	if (us->timescalled == 0) purge = 1;
 
+	/* User number 0, as well as any negative user number, is
+	 * also impossible.
+	 */
+	if (us->usernum < 1L) purge = 1;
+
 	if (purge == 1) {
 		pptr = (struct PurgeList *) malloc(sizeof(struct PurgeList));
 		pptr->next = UserPurgeList;
