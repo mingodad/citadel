@@ -109,7 +109,7 @@ void mesg_locate(char *targ, char *searchfor, int numdirs, char **dirs)
 		sprintf(buf,"cd %s; exec ls",dirs[a]);
 		ls = (FILE *) popen(buf,"r");
 		if (ls != NULL) {
-			while(fgets(buf,255,ls)!=NULL) {
+			while(fgets(buf,sizeof buf,ls)!=NULL) {
 				while (isspace(buf[strlen(buf)-1]))
 					buf[strlen(buf)-1] = 0;
 				if (!strcasecmp(buf,searchfor)) {

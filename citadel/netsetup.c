@@ -48,17 +48,17 @@ struct netnode *load_node(char *nodename)
 	strcpy(newnn->nn_nodename, nodename);
 	newnn->nn_first = NULL;
 
-	fgets(buf, 255, fp);
+	fgets(buf, (SIZ-1), fp);
 	buf[strlen(buf)-1] = 0;
 	strcpy(newnn->nn_spoolcmd, buf);
 
-	while (fgets(buf, 255, fp) != NULL) {
+	while (fgets(buf, (SIZ-1), fp) != NULL) {
 		newrs = (struct roomshare *) malloc(sizeof(struct roomshare));
 		newrs->next = newnn->nn_first;
 		newnn->nn_first = newrs;
 		buf[strlen(buf)-1] = 0;
 		strcpy(newrs->rs_name, buf);
-		fgets(buf, 255, fp);
+		fgets(buf, (SIZ-1), fp);
 		buf[strlen(buf)-1] = 0;
 		newrs->rs_lastsent = atol(buf);
 		}
@@ -127,7 +127,7 @@ void display_nodelist(void) {
 		exit(errno);
 		}
 
-	while (fgets(buf, 255, ls) != NULL) {
+	while (fgets(buf, (SIZ-1), ls) != NULL) {
 		printf("%s", buf);
 		}
 
@@ -209,10 +209,10 @@ void do_roomlist(char *NodeName)
 		exit(3);
 		}
 
-	fgets(buf, 255, fp);	/* skip past spool cmd */
-	while (fgets(buf, 255, fp) != NULL) {
+	fgets(buf, (SIZ-1), fp);	/* skip past spool cmd */
+	while (fgets(buf, (SIZ-1), fp) != NULL) {
 		printf("%s", buf);
-		fgets(buf, 255, fp);	/* skip past last-sent pointer */
+		fgets(buf, (SIZ-1), fp); /* skip past last-sent pointer */
 		}
 
 	fclose(fp);
@@ -237,7 +237,7 @@ void show_spool_cmd(char *NodeName)
 		exit(3);
 		}
 
-	fgets(buf, 255, fp);
+	fgets(buf, (SIZ-1), fp);
 	printf("%s", buf);
 	fclose(fp);
 	}
@@ -255,7 +255,7 @@ void set_spool_cmd(char *nodename, char *spoolcmd)
 		exit(4);
 		}
 
-	strncpy(nnptr->nn_spoolcmd, spoolcmd, 255);
+	strncpy(nnptr->nn_spoolcmd, spoolcmd, (SIZ-1));
 	save_node(nnptr);
 	}
 

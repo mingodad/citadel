@@ -506,7 +506,7 @@ void cmd_mesg(char *mname)
 		}
 	cprintf("%d %s\n",LISTING_FOLLOWS,buf);
 
-	while (fgets(buf,255,mfp)!=NULL) {
+	while (fgets(buf, (SIZ-1), mfp)!=NULL) {
 		buf[strlen(buf)-1] = 0;
 		do_help_subst(buf);
 		cprintf("%s\n",buf);

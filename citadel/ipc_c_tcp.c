@@ -239,13 +239,13 @@ void serv_gets(char *buf)
 	 */
 	for (i = 0;; i++) {
 		serv_read(&buf[i], 1);
-		if (buf[i] == '\n' || i == 255)
+		if (buf[i] == '\n' || i == (SIZ-1))
 			break;
 	}
 
 	/* If we got a long line, discard characters until the newline.
 	 */
-	if (i == 255)
+	if (i == (SIZ-1))
 		while (buf[i] != '\n')
 			serv_read(&buf[i], 1);
 

@@ -106,7 +106,7 @@ void cmd_lbio(char *cmdbuf) {
 	}
 
 	cprintf("%d\n",LISTING_FOLLOWS);
-	while (fgets(buf,255,ls)!=NULL)
+	while (fgets(buf,sizeof buf,ls)!=NULL)
 		if (getuserbynumber(&usbuf,atol(buf))==0)
 			cprintf("%s\n",usbuf.fullname);
 	pclose(ls);

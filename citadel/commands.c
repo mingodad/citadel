@@ -1195,7 +1195,7 @@ FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
 
 	if ( (!strncasecmp(buffer, "http://", 7))
 	   || (!strncasecmp(buffer, "ftp://", 6)) ) {
-		safestrncpy(urls[num_urls], buffer, 255);
+		safestrncpy(urls[num_urls], buffer, (SIZ-1));
 		for (a=0; a<strlen(urls[num_urls]); ++a) {
 			b = urls[num_urls][a];
 			if ( (b==' ') || (b==')') || (b=='>') || (b==10)

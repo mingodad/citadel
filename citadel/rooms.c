@@ -977,7 +977,7 @@ void do_edit(char *desc, char *read_cmd, char *check_cmd, char *write_cmd)
 			}
 
 		fp=fopen(temp,"r");
-		while (fgets(cmd,255,fp)!=NULL) {
+		while (fgets(cmd,SIZ-1,fp)!=NULL) {
 			cmd[strlen(cmd)-1] = 0;
 			serv_puts(cmd);
 			}

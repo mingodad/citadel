@@ -138,13 +138,13 @@ int sock_gets(int sock, char *buf)
 	 */
 	for (i = 0;; i++) {
 		if (sock_read(sock, &buf[i], 1) < 0) return(-1);
-		if (buf[i] == '\n' || i == 255)
+		if (buf[i] == '\n' || i == (SIZ-1))
 			break;
 	}
 
 	/* If we got a long line, discard characters until the newline.
 	 */
-	if (i == 255)
+	if (i == (SIZ-1))
 		while (buf[i] != '\n')
 			if (sock_read(sock, &buf[i], 1) < 0) return(-1);
 

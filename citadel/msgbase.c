@@ -708,7 +708,7 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
 
 	if (is_valid_message(msg) == 0) return;
 
-	for (i = 0; i < SIZ; ++i)
+	for (i = 0; i < 256; ++i)
 		if (msg->cm_fields[i] != NULL) {
 			phree(msg->cm_fields[i]);
 		}
@@ -969,7 +969,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	strcpy(lnode, HUMANNODE);
 	if (mode == MT_RFC822) {
 		cprintf("X-UIDL: %ld%s", msg_num, nl);
-		for (i = 0; i < SIZ; ++i) {
+		for (i = 0; i < 256; ++i) {
 			if (TheMessage->cm_fields[i]) {
 				mptr = TheMessage->cm_fields[i];
 
