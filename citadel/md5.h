@@ -1,9 +1,11 @@
 #ifndef MD5_H
 #define MD5_H
 
+#include "typesize.h"
+
 struct MD5Context {
-	u_int32_t buf[4];
-	u_int32_t bits[2];
+	cit_uint32_t buf[4];
+	cit_uint32_t bits[2];
 	unsigned char in[64];
 };
 
@@ -11,7 +13,7 @@ void MD5Init(struct MD5Context *context);
 void MD5Update(struct MD5Context *context, unsigned char const *buf,
 	       unsigned len);
 void MD5Final(unsigned char digest[16], struct MD5Context *context);
-void MD5Transform(u_int32_t buf[4], u_int32_t const in[16]);
+void MD5Transform(cit_uint32_t buf[4], cit_uint32_t const in[16]);
 char *make_apop_string(char *realpass, char *nonce, u_char *buffer);
 
 /*
