@@ -1,4 +1,7 @@
  $Log$
+ Revision 628.0  2004/12/14 03:16:19  ajc
+ * THIS IS 6.28
+
  Revision 627.12  2004/12/12 17:33:24  error
  * sysdep.c: lprintf(): Bug 124: Fix remote format string vulnerability
    (thanks to coki@nosystem.com.ar)
