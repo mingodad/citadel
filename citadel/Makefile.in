@@ -13,6 +13,7 @@
 ########################################################################
 
 TARGETS=@TARGETS@
+CHKPWD=@CHKPWD@
 
 all: $(TARGETS)
 
@@ -22,7 +23,7 @@ SUFFIX=@SUFFIX@
 SO=@SO@
 
 CLIENT_TARGETS=citadel$(SUFFIX) whobbs$(SUFFIX)
-SERVER_TARGETS=citserver setup
+SERVER_TARGETS=citserver setup $(CHKPWD)
 SERV_MODULES=modules/serv_chat$(SO) \
 	modules/serv_upgrade$(SO) modules/serv_expire$(SO)
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform readlog rcit \
@@ -33,6 +34,7 @@ PROXY_TARGETS=proxy
 prefix=@prefix@
 srcdir=@srcdir@
 
+AUTH=@AUTH@
 DEFS=@DEFS@
 CPPFLAGS=@CPPFLAGS@ -I.
 CFLAGS=@CFLAGS@
@@ -42,6 +44,7 @@ LDFLAGS=@LDFLAGS@
 SERVER_LDFLAGS=@SERVER_LDFLAGS@
 PICFLAGS=@PICFLAGS@
 CURSES=@CURSES@
+chkpwd_LIBS=@chkpwd_LIBS@
 LIBOBJS=@LIBOBJS@
 PTHREAD_DEFS=-D_REENTRANT
 INSTALL=@INSTALL@
@@ -61,7 +64,8 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	room_ops.c rooms.c routines.c routines2.c serv_chat.c \
 	serv_info.c serv_test.c serv_upgrade.c setup.c snprintf.c stats.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
-	whobbs.c sendcommand.c mime_parser.c base64.c qpdecode.c getutline.c
+	whobbs.c sendcommand.c mime_parser.c base64.c qpdecode.c getutline.c \
+	auth.c chkpwd.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
@@ -95,13 +99,13 @@ netpoll: netpoll.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)
 citserver: citserver.ro user_ops.ro support.ro room_ops.ro file_ops.ro \
 	msgbase.ro config.ro sysdep.ro locate_host.ro \
 	housekeeping.ro database.ro control.ro logging.ro \
-	policy.ro dynloader.ro tools.ro mime_parser.ro $(LIBOBJS:.o=.ro)
+	policy.ro dynloader.ro tools.ro mime_parser.ro $(AUTH) $(LIBOBJS:.o=.ro)
 	$(CC) \
 		citserver.ro user_ops.ro room_ops.ro file_ops.ro support.ro \
 		msgbase.ro config.ro sysdep.ro locate_host.ro \
 		housekeeping.ro database.ro control.ro logging.ro \
 		policy.ro dynloader.ro tools.ro mime_parser.ro \
-		$(LIBOBJS:.o=.ro)\
+		$(AUTH) $(LIBOBJS:.o=.ro)\
 		$(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) -o citserver
 
 .c.ro:
@@ -163,6 +167,9 @@ mailinglist: mailinglist.o config.o internetmail.o
 setup: setup.o tools.o
 	$(CC) setup.o tools.o $(CURSES) $(LDFLAGS) -o setup
 
+chkpwd: chkpwd.o auth.o config.o
+	$(CC) chkpwd.o auth.o config.o $(LDFLAGS) -o chkpwd $(chkpwd_LIBS)
+
 netsetup: netsetup.o config.o
 	$(CC) netsetup.o config.o $(LDFLAGS) -o netsetup
 
@@ -208,30 +215,43 @@ stats: stats.o ipc_c_tcp.o tools.o config.o $(LIBOBJS)
 install: install-exec install-data install-doc
 
 install-data:
-	for i in help messages network/spoolin network/spoolout \
+	@for i in help messages network/spoolin network/spoolout \
 		 network/systems; do \
-		./mkinstalldirs $(prefix)/$$i; \
+		./mkinstalldirs $(root)$(prefix)/$$i; \
 	done
-	for i in citadel.rc public_clients \
+	@for i in citadel.rc public_clients \
 		 `find help messages network -type f | grep -v CVS`; do \
-		$(INSTALL_DATA) $$i $(prefix)/$$i; \
+		$(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
+		echo $(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
 	done
+	@if test -d $(root)/etc/pam.d; then \
+		$(INSTALL_DATA) citadel.pam $(root)/etc/pam.d/citadel; \
+		echo $(INSTALL_DATA) citadel.pam $(root)/etc/pam.d/citadel; \
+	fi
 
 install-doc:
-	./mkinstalldirs $(prefix)/techdoc
-	for i in *.txt `find techdoc -type f | grep -v CVS`; do \
-		$(INSTALL_DATA) $$i $(prefix)/$$i; \
+	@./mkinstalldirs $(root)$(prefix)/techdoc
+	@for i in *.txt `find techdoc -type f | grep -v CVS`; do \
+		$(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
+		echo $(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
 	done
 
 install-exec: all weekly
-	for i in bio bitbucket files images info modules userpics; do \
-		./mkinstalldirs $(prefix)/$$i; \
+	@for i in bio bitbucket files images info modules userpics; do \
+		./mkinstalldirs $(root)$(prefix)/$$i; \
 	done
-	for i in $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) \
+	@for i in $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) \
 		 $(PROXY_TARGETS) $(SERV_MODULES) utilsmenu weekly \
 		 dnetsetup; do \
-		test -f $$i && $(INSTALL) $$i $(prefix)/$$i; \
+		if test -f $$i; then \
+			$(INSTALL) $$i $(root)$(prefix)/$$i; \
+			echo $(INSTALL) $$i $(root)$(prefix)/$$i; \
+		fi \
 	done
+	@if test -f $(root)$(prefix)/chkpwd; then \
+		chmod u+s $(root)$(prefix)/chkpwd; \
+		echo chmod +s $(root)$(prefix)/chkpwd; \
+	fi
 
 clean:
 	rm -f *.o *.ro *.mo
@@ -244,8 +264,9 @@ distclean: cleaner
 	rm -f Makefile sysdep.h config.cache config.log config.status *.d weekly
 
 .c.d:
-	$(CC) -M $(CPPFLAGS) $< | sed -e 's!$*.o!$*.o $*.ro $*.mo $@!' > $@
-	test -s $@ || rm -f $@
+	@echo Checking dependencies for $<
+	@$(CC) -M $(CPPFLAGS) $< | sed -e 's!$*.o!$*.o $*.ro $*.mo $@!' > $@
+	@test -s $@ || rm -f $@
 
 Makefile: $(srcdir)/Makefile.in config.status
 	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) ./config.status

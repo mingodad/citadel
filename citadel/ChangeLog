@@ -1,3 +1,16 @@
+1999-04-03 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* Makefile.in, configure.in, chkpwd.c, acconfig.h: support for
+	  `chkpwd', a setuid helper program for machines which use shadow
+	  passwords (configure --enable-chkpwd)
+	* Makefile.in, configure.in, auth.c, citadel.pam, user_ops.c: support
+	  for PAM or shadow passwords (configure --with-pam)
+	* Makefile.in: made some messages simpler
+	* citadel.spec: updated for 5.53; correct name of tarball; build with
+	  --enable-chkpwd and --with-pam; add defattr tags so rpm's can be
+	  built by non-root user
+	* commands.c: cosmetic cleanup
+	* config.c: (security/paranoia) check permissions on citadel.config
+
 Sun Mar 21 14:21:47 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* messages.c: cosmetic cleanups to message reading loop
 

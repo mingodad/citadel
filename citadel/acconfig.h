@@ -4,6 +4,9 @@
 /* define this to enable the autologin feature */
 #undef ENABLE_AUTOLOGIN
 
+/* define this to enable use of the chkpwd program (for shadow passwords) */
+#undef ENABLE_CHKPWD
+
 /* define this if struct utmp has an ut_type member */
 #undef HAVE_UT_TYPE
 

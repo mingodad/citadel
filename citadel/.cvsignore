@@ -4,6 +4,7 @@
 Makefile
 aidepost
 base64
+chkpwd
 citadel
 citadel.config
 citadel.control
@@ -11,6 +12,7 @@ citadel.log
 citmail
 citserver
 config.cache
+config.h.in
 config.log
 config.status
 configure
@@ -37,4 +39,3 @@ useradmin
 userlist
 weekly
 whobbs
-config.h.in

@@ -1,9 +1,9 @@
-                         Citadel/UX release 5.52
+                         Citadel/UX release 5.53
 
 Copyright (c) 1987-1999 by:
         Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
-Portions (c) 1998 by:
+Portions (c) 1998-1999 by:
 	Brian Costello <btx@calyx.net>
 	Nathan Bryant <bryant@cs.usm.maine.edu>
  

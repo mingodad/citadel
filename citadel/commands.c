@@ -158,6 +158,7 @@ int inkey(void) {		/* get a character from the keyboard, with   */
 	time_t start_time, now;
 	char inbuf[2];
 
+	fflush(stdout);
 	time(&start_time);
 	
 	do {
@@ -168,7 +169,6 @@ int inkey(void) {		/* get a character from the keyboard, with   */
 		 */
 		do {
 			do_keepalive();
-			fflush(stdout);
 			FD_ZERO(&rfds);
 			FD_SET(0,&rfds);
 			tv.tv_sec = S_KEEPALIVE;

@@ -1,11 +1,11 @@
 # $Id$
 Summary: Citadel/UX
 Name: citadel
-Version: 5.52
+Version: 5.53
 Release: 1
 Copyright: GPL
 Group: Applications/Communications
-Source0: citadel.tar.gz
+Source0: citadel-ux-%{PACKAGE_VERSION}.tar.gz
 Buildroot: /var/tmp/citadel-%{PACKAGE_VERSION}-root
 Autoprov: false
 
@@ -17,13 +17,13 @@ driven, and accessible via a growing selection of front ends.
 %setup -n citadel
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" ./configure
+CFLAGS="$RPM_OPT_FLAGS" ./configure --enable-chkpwd --with-pam
 make
 
 %install
 rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/usr/local/citadel
-make prefix=$RPM_BUILD_ROOT/usr/local/citadel install
+mkdir -p $RPM_BUILD_ROOT/etc/pam.d
+make root=$RPM_BUILD_ROOT install
 find $RPM_BUILD_ROOT/usr/local/citadel -type d | sed "s|$RPM_BUILD_ROOT|%dir |" > filelist
 find $RPM_BUILD_ROOT -type f | egrep -v '(citadel\.rc|public_clients|/help/|/messages/|/network/)' | sed "s|$RPM_BUILD_ROOT||" >> filelist
 find $RPM_BUILD_ROOT -type f | egrep '(citadel\.rc|public_clients|/help/|/messages/|/network/)' | sed "s|$RPM_BUILD_ROOT|%config |" >> filelist
@@ -33,3 +33,4 @@ rm -rf "$RPM_BUILD_ROOT"
 rm -f filelist
 
 %files -f filelist
+%defattr(-,root,root)

@@ -1,14 +1,5 @@
 /* $Id$ */
 
-#ifndef _SGI_SOURCE
-/* needed to properly enable crypt() stuff on some systems */
-#define _XOPEN_SOURCE
-/* needed for str[n]casecmp() on some systems if the above is defined */
-#define _XOPEN_SOURCE_EXTENDED
-/* needed to enable threads on some systems if the above are defined */
-#define _POSIX_C_SOURCE 199506L
-#endif
-
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -17,12 +8,16 @@
 #include <signal.h>
 #include <pwd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/time.h>
 #include <string.h>
 #include <syslog.h>
 #include <limits.h>
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
+#endif
+#ifndef ENABLE_CHKPWD
+#include "auth.h"
 #endif
 #include "citadel.h"
 #include "server.h"
@@ -348,12 +343,69 @@ void logout(struct CitContext *who)
 	PerformSessionHooks(EVT_LOGOUT);
 	}
 
+#ifdef ENABLE_CHKPWD
+/*
+ * an alternate version of validpw() which executes `chkpwd' instead of
+ * verifying the password directly
+ */
+static int validpw(uid_t uid, const char *pass)
+{
+	pid_t pid;
+	int status, pipev[2];
+	char buf[24];
+
+	if (pipe(pipev)) {
+		lprintf(1, "pipe failed (%s): denying autologin access for "
+			   "uid %u\n", strerror(errno), uid);
+		return 0;
+		}
+
+	switch (pid = fork()) {
+	    case -1:
+		lprintf(1, "fork failed (%s): denying autologin access for "
+			   "uid %u\n", strerror(errno), uid);
+		close(pipev[0]);
+		close(pipev[1]);
+		return 0;
+
+	    case 0:
+		close(pipev[1]);
+		if (dup2(pipev[0], 0) == -1) {
+			perror("dup2");
+			exit(1);
+			}
+		close(pipev[0]);
+
+		execl(BBSDIR "/chkpwd", BBSDIR "/chkpwd", NULL);
+		perror(BBSDIR "/chkpwd");
+		exit(1);
+		}
+
+	close(pipev[0]);
+	write(pipev[1], buf, sprintf(buf, "%u\n", uid));
+	write(pipev[1], pass, strlen(pass));
+	write(pipev[1], "\n", 1);
+	close(pipev[1]);
+
+	while (waitpid(pid, &status, 0) == -1)
+		if (errno != EINTR) {
+			lprintf(1, "waitpid failed (%s): denying autologin "
+				   "access for uid %u\n",
+				strerror(errno), uid);
+			return 0;
+			}
+
+	if (WIFEXITED(status) && !WEXITSTATUS(status))
+		return 1;
+
+	return 0;
+	}
+#endif
 
 void cmd_pass(char *buf)
 {
 	char password[256];
 	int code;
-	struct passwd *p;
 
 	extract(password,buf,0);
 
@@ -376,20 +428,17 @@ void cmd_pass(char *buf)
 		strproc(CC->usersupp.password);
 		code = strcasecmp(CC->usersupp.password,password);
 		}
-	else {
-		p = (struct passwd *)getpwuid(CC->usersupp.USuid);
 #ifdef ENABLE_AUTOLOGIN
-		if (p!=NULL) {
-			if (!strcmp(p->pw_passwd,
-			   (char *)crypt(password,p->pw_passwd))) {
-				code = 0;
-				lgetuser(&CC->usersupp, CC->curr_user);
-				strcpy(CC->usersupp.password, password);
-				lputuser(&CC->usersupp, CC->curr_user);
-				}
+	else {
+		if (validpw(CC->usersupp.USuid, password)) {
+			code = 0;
+			lgetuser(&CC->usersupp, CC->curr_user);
+			safestrncpy(CC->usersupp.password, password,
+				    sizeof CC->usersupp.password);
+			lputuser(&CC->usersupp, CC->curr_user);
 			}
-#endif
 		}
+#endif
 
 	if (!code) {
 		(CC->logged_in) = 1;

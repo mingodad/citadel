@@ -7,6 +7,7 @@
 
 #include "sysdep.h"
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
@@ -21,12 +22,13 @@ int home_specified = 0;
 
 void get_config(void) {
 	FILE *cfp;
+	struct stat st;
 
 	if (chdir( home_specified ? bbs_home_directory : BBSDIR ) != 0) {
 		fprintf(stderr, "Cannot start.\nThere is no Citadel installation in %s\n%s\n",
 			(home_specified ? bbs_home_directory : BBSDIR),
 			strerror(errno));
-		exit(errno);
+		exit(1);
 		}
 	cfp=fopen("citadel.config","rb");
 	if (cfp==NULL) {
@@ -34,9 +36,18 @@ void get_config(void) {
 		fprintf(stderr, "There is no citadel.config in %s\n%s\n",
 			(home_specified ? bbs_home_directory : BBSDIR),
 			strerror(errno));
-		exit(errno);
+		exit(1);
 		}
 	fread((char *)&config,sizeof(struct config),1,cfp);
+	if (fstat(fileno(cfp), &st)) {
+		perror("citadel.config");
+		exit(1);
+		}
+	if (st.st_uid != BBSUID || st.st_mode != (S_IFREG | S_IRUSR | S_IWUSR))
+		{
+		fprintf(stderr, "check the permissions on citadel.config\n");
+		exit(1);
+		}
 	fclose(cfp);
 	if ( (config.c_setup_level / 10) != (REV_LEVEL/10) ) {
 		fprintf(stderr, "config: Your data files are out of date.  ");
