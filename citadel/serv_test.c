@@ -31,20 +31,6 @@
 
 extern struct CitContext *ContextList;
 
-#define MODULE_NAME 	"Dummy test module"
-#define MODULE_AUTHOR	"Art Cancro"
-#define MODULE_EMAIL	"ajc@uncnsrd.mt-kisco.ny.us"
-#define MAJOR_VERSION	0
-#define MINOR_VERSION	4
-
-static struct DLModule_Info info = {
-	MODULE_NAME,
-	MODULE_AUTHOR,
-	MODULE_EMAIL,
-	MAJOR_VERSION,
-	MINOR_VERSION
-	};
-
 void CleanupTest(void) {
 	lprintf(9, "--- test of adding an unload hook --- \n");
 	}
@@ -81,7 +67,7 @@ void LogTest(char *buf) {
 	}
 
 
-struct DLModule_Info *Dynamic_Module_Init(void)
+char *Dynamic_Module_Init(void)
 {
    CtdlRegisterCleanupHook(CleanupTest);
    CtdlRegisterSessionHook(NewRoomTest, EVT_NEWROOM);
@@ -90,5 +76,5 @@ struct DLModule_Info *Dynamic_Module_Init(void)
    CtdlRegisterSessionHook(LoginTest, EVT_LOGIN);
    CtdlRegisterUserHook(Ygorl, EVT_OUTPUTMSG);
    CtdlRegisterLogHook(LogTest, 1);
-   return &info;
+   return "$Id$";
 }

@@ -74,21 +74,6 @@ unsigned long SYM_CTDL_ICQ;
 #define ThisICQ ((struct ctdl_icq_handle *)CtdlGetUserData(SYM_CTDL_ICQ))
 
 extern struct CitContext *ContextList;
-#define MODULE_NAME 	"ICQ metaclient"
-#define MODULE_AUTHOR	"Art Cancro"
-#define MODULE_EMAIL	"ajc@uncnsrd.mt-kisco.ny.us"
-#define MAJOR_VERSION	0
-#define MINOR_VERSION	1
-
-static struct DLModule_Info info =
-{
-	MODULE_NAME,
-	MODULE_AUTHOR,
-	MODULE_EMAIL,
-	MAJOR_VERSION,
-	MINOR_VERSION
-};
-
 /* </ig> */
 
 void (*icq_Logged) (void);
@@ -2064,7 +2049,7 @@ CtdlICQ_InfoReply(unsigned long uin, const char *nick,
 
 
 
-struct DLModule_Info *Dynamic_Module_Init(void)
+char *Dynamic_Module_Init(void)
 {
 	/* Create a directory to store ICQ stuff in.
 	 * It's ok if the directory is already there.
@@ -2091,5 +2076,5 @@ struct DLModule_Info *Dynamic_Module_Init(void)
 	icq_RecvMessage = CtdlICQ_Incoming_Message;
 	icq_InfoReply = CtdlICQ_InfoReply;
 
-	return &info;
+	return "$Id$";
 }

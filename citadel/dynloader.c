@@ -80,8 +80,8 @@ void DLoader_Init(char *pathname)
 	DIR *dir;
 	int i;
 	struct dirent *dptr;
-	struct DLModule_Info *(*h_init_fcn) (void);
-	struct DLModule_Info *dl_info;
+	char *(*h_init_fcn) (void);
+	char *dl_info;
 
 	char pathbuf[PATH_MAX];
 
@@ -109,7 +109,7 @@ void DLoader_Init(char *pathname)
 				dl_error);
 			continue;
 		}
-		h_init_fcn = (struct DLModule_Info * (*)(void))
+		h_init_fcn = (char * (*)(void))
 #ifndef __OpenBSD__
 		    dlsym(fcn_handle, "Dynamic_Module_Init");
 #else
@@ -122,10 +122,8 @@ void DLoader_Init(char *pathname)
 		}
 		dl_info = h_init_fcn();
 
-		printf("Loaded module: %s v%d.%d\nBy %s (%s)\n", dl_info->module_name,
-		       dl_info->major_version, dl_info->minor_version,
-		   dl_info->module_author, dl_info->module_author_email);
-	}			/* While */
+		lprintf(3, "Loaded module: %s\n", dl_info);
+	}	/* While */
 }
 
 

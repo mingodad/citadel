@@ -42,22 +42,7 @@ int ChatLastMsg = 0;
 
 extern struct CitContext *ContextList;
 
-#define MODULE_NAME 	"Chat module"
-#define MODULE_AUTHOR	"Art Cancro"
-#define MODULE_EMAIL	"ajc@uncnsrd.mt-kisco.ny.us"
-#define MAJOR_VERSION	2
-#define MINOR_VERSION	0
-
-static struct DLModule_Info info =
-{
-	MODULE_NAME,
-	MODULE_AUTHOR,
-	MODULE_EMAIL,
-	MAJOR_VERSION,
-	MINOR_VERSION
-};
-
-struct DLModule_Info *Dynamic_Module_Init(void)
+char *Dynamic_Module_Init(void)
 {
 	CtdlSendExpressMessageFunc = send_express_message;
 
@@ -66,7 +51,7 @@ struct DLModule_Info *Dynamic_Module_Init(void)
 	CtdlRegisterProtoHook(cmd_gexp, "GEXP", "Get express messages");
 	CtdlRegisterProtoHook(cmd_sexp, "SEXP", "Send an express message");
 	CtdlRegisterSessionHook(delete_express_messages, EVT_STOP);
-	return &info;
+	return "$Id$";
 }
 
 void allwrite(char *cmdbuf, int flag, char *roomname, char *username)

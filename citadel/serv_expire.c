@@ -95,20 +95,6 @@ int messages_purged;
 
 extern struct CitContext *ContextList;
 
-#define MODULE_NAME 	"Expire old messages, users, rooms"
-#define MODULE_AUTHOR	"Art Cancro"
-#define MODULE_EMAIL	"ajc@uncnsrd.mt-kisco.ny.us"
-#define MAJOR_VERSION	1
-#define MINOR_VERSION	0
-
-static struct DLModule_Info info = {
-	MODULE_NAME,
-	MODULE_AUTHOR,
-	MODULE_EMAIL,
-	MAJOR_VERSION,
-	MINOR_VERSION
-	};
-
 void DoPurgeMessages(struct quickroom *qrbuf) {
 	struct ExpirePolicy epbuf;
 	long delnum;
@@ -555,8 +541,8 @@ void cmd_expi(char *argbuf) {
 
 
 
-struct DLModule_Info *Dynamic_Module_Init(void)
+char *Dynamic_Module_Init(void)
 {
    CtdlRegisterProtoHook(cmd_expi, "EXPI", "Expire old system objects");
-   return &info;
+   return "$Id$";
 }

@@ -1,4 +1,8 @@
 $Log$
+Revision 1.336  1999/07/28 04:02:37  ajc
+* Server modules are now labelled with their RCS ID instead of a complex and
+  manually-updated data structure.
+
 Revision 1.335  1999/07/28 03:50:24  ajc
 * serv_expire.c: expire-by-age now calls CtdlFetchMessage() instead of
   calling output_message() in MT_DATE mode.
@@ -1133,3 +1137,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import
+ 
