@@ -15,7 +15,7 @@ void list_all_rooms_by_floor(void);
 void slrp_highest(void);
 void gotonext(void);
 void ungoto(void);
-void get_serv_info(void);
+void get_serv_info(char *);
 int connectsock(char *host, char *service, char *protocol);
 void serv_gets(char *strbuf);
 void serv_puts(char *string);

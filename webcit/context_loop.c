@@ -227,6 +227,7 @@ static int lingering_close(int fd) {
 void *context_loop(int sock) {
 	char (*req)[256];
 	char buf[256], hold[256];
+	char browser_host[256];
 	int num_lines = 0;
 	int a;
 	int f;
@@ -296,6 +297,7 @@ void *context_loop(int sock) {
 	 */
 	if (TheSession == NULL) {
 		printf("Creating a new session\n");
+		locate_host(browser_host, sock);
 		pthread_mutex_lock(&MasterCritter);
 		TheSession = (struct wc_session *)
 			malloc(sizeof(struct wc_session));
@@ -327,7 +329,7 @@ void *context_loop(int sock) {
 
 			/* Run the actual WebCit session */
 			execlp("./webcit", "webcit", str_session, defaulthost,
-			       defaultport, NULL);
+			       defaultport, browser_host, NULL);
 
 			/* Simple page to display if exec fails */
 			printf("HTTP/1.0 404 WebCit Failure\n\n");
