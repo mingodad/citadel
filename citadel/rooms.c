@@ -409,7 +409,6 @@ void editthisroom(void) {
 			expire_mode, expire_value);
 		serv_puts(buf);
 		serv_gets(buf);
-		if (buf[0]!='2') printf("%s\n",&buf[4]);
 
 		snprintf(buf,sizeof buf,"SETR %s|%s|%s|%d|%d|%d",
 			rname,rpass,rdir,rflags,rbump,rfloor);
@@ -1022,7 +1021,6 @@ void edit_floor(void) {
 		expire_mode, expire_value);
 	serv_puts(buf);
 	serv_gets(buf);
-	if (buf[0]!='2') printf("%s\n",&buf[4]);
 
 	snprintf(buf,sizeof buf,"EFLR %d|%s",curr_floor,
 		 &floorlist[(int)curr_floor][0]);
