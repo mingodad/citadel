@@ -57,7 +57,6 @@ void cal_process_attachment(char *part_source) {
  * already been broken down by cal_process_object().
  */
 void cal_process_subcomponent(icalcomponent *cal) {
-
 	wprintf("cal_process_subcomponent() called<BR>\n");
 	wprintf("cal_process_subcomponent() exiting<BR>\n");
 }
@@ -72,20 +71,124 @@ void cal_process_subcomponent(icalcomponent *cal) {
  */
 void cal_process_object(icalcomponent *cal) {
 	icalcomponent *c;
+	int num_subcomponents = 0;
 
 	wprintf("cal_process_object() called<BR>\n");
 
 	/* Iterate through all subcomponents */
+	wprintf("Iterating through all sub-components<BR>\n");
 	for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
 	    (c != 0);
 	    c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
-
 		cal_process_subcomponent(c);
+		++num_subcomponents;
+	}
 
+	/* Iterate through all subcomponents */
+	wprintf("Iterating through VEVENTs<BR>\n");
+	for (c = icalcomponent_get_first_component(cal, ICAL_VEVENT_COMPONENT);
+	    (c != 0);
+	    c = icalcomponent_get_next_component(cal, ICAL_VEVENT_COMPONENT)) {
+		cal_process_subcomponent(c);
+		--num_subcomponents;
+	}
+
+	/* Iterate through all subcomponents */
+	wprintf("Iterating through VTODOs<BR>\n");
+	for (c = icalcomponent_get_first_component(cal, ICAL_VTODO_COMPONENT);
+	    (c != 0);
+	    c = icalcomponent_get_next_component(cal, ICAL_VTODO_COMPONENT)) {
+		cal_process_subcomponent(c);
+		--num_subcomponents;
+	}
+
+	/* Iterate through all subcomponents */
+	wprintf("Iterating through VJOURNALs<BR>\n");
+	for (c = icalcomponent_get_first_component(cal, ICAL_VJOURNAL_COMPONENT);
+	    (c != 0);
+	    c = icalcomponent_get_next_component(cal, ICAL_VJOURNAL_COMPONENT)) {
+		cal_process_subcomponent(c);
+		--num_subcomponents;
+	}
+
+	/* Iterate through all subcomponents */
+	wprintf("Iterating through VCALENDARs<BR>\n");
+	for (c = icalcomponent_get_first_component(cal, ICAL_VCALENDAR_COMPONENT);
+	    (c != 0);
+	    c = icalcomponent_get_next_component(cal, ICAL_VCALENDAR_COMPONENT)) {
+		cal_process_subcomponent(c);
+		--num_subcomponents;
+	}
+
+	/* Iterate through all subcomponents */
+	wprintf("Iterating through VFREEBUSYs<BR>\n");
+	for (c = icalcomponent_get_first_component(cal, ICAL_VFREEBUSY_COMPONENT);
+	    (c != 0);
+	    c = icalcomponent_get_next_component(cal, ICAL_VFREEBUSY_COMPONENT)) {
+		cal_process_subcomponent(c);
+		--num_subcomponents;
+	}
+
+	/* Iterate through all subcomponents */
+	wprintf("Iterating through VALARMs<BR>\n");
+	for (c = icalcomponent_get_first_component(cal, ICAL_VALARM_COMPONENT);
+	    (c != 0);
+	    c = icalcomponent_get_next_component(cal, ICAL_VALARM_COMPONENT)) {
+		cal_process_subcomponent(c);
+		--num_subcomponents;
+	}
+
+	/* Iterate through all subcomponents */
+	wprintf("Iterating through VTIMEZONEs<BR>\n");
+	for (c = icalcomponent_get_first_component(cal, ICAL_VTIMEZONE_COMPONENT);
+	    (c != 0);
+	    c = icalcomponent_get_next_component(cal, ICAL_VTIMEZONE_COMPONENT)) {
+		cal_process_subcomponent(c);
+		--num_subcomponents;
+	}
+
+	/* Iterate through all subcomponents */
+	wprintf("Iterating through VSCHEDULEs<BR>\n");
+	for (c = icalcomponent_get_first_component(cal, ICAL_VSCHEDULE_COMPONENT);
+	    (c != 0);
+	    c = icalcomponent_get_next_component(cal, ICAL_VSCHEDULE_COMPONENT)) {
+		cal_process_subcomponent(c);
+		--num_subcomponents;
+	}
+
+	/* Iterate through all subcomponents */
+	wprintf("Iterating through VQUERYs<BR>\n");
+	for (c = icalcomponent_get_first_component(cal, ICAL_VQUERY_COMPONENT);
+	    (c != 0);
+	    c = icalcomponent_get_next_component(cal, ICAL_VQUERY_COMPONENT)) {
+		cal_process_subcomponent(c);
+		--num_subcomponents;
+	}
+
+	/* Iterate through all subcomponents */
+	wprintf("Iterating through VCARs<BR>\n");
+	for (c = icalcomponent_get_first_component(cal, ICAL_VCAR_COMPONENT);
+	    (c != 0);
+	    c = icalcomponent_get_next_component(cal, ICAL_VCAR_COMPONENT)) {
+		cal_process_subcomponent(c);
+		--num_subcomponents;
+	}
+
+	/* Iterate through all subcomponents */
+	wprintf("Iterating through VCOMMANDs<BR>\n");
+	for (c = icalcomponent_get_first_component(cal, ICAL_VCOMMAND_COMPONENT);
+	    (c != 0);
+	    c = icalcomponent_get_next_component(cal, ICAL_VCOMMAND_COMPONENT)) {
+		cal_process_subcomponent(c);
+		--num_subcomponents;
+	}
+
+	if (num_subcomponents != 0) {
+		wprintf("Warning: %d subcomponents unhandled<BR>\n",
+			num_subcomponents);
 	}
 
 	wprintf("cal_process_object() exiting<BR>\n");
-
 }
 
 
