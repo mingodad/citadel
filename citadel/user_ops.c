@@ -312,13 +312,8 @@ void session_startup(void) {
 		CC->usersupp.axlevel = 6;
 		}
 
-/* A room's generation number changes each time it is recycled. Users are kept
- * out of private rooms or forget rooms by matching the generation numbers. To
- * avoid an accidental matchup, unmatched numbers are set to -1 here.
- *
- * FIX - This can get removed once the new relationships system is in place.
- *
- */
+ /******************************************************************************/
+ /* FIX  It is safe to remove this segment during the cutover                  */
 	for (a=0; a<MAXROOMS; ++a) {
 		getroom(&qr,a);
 		if (CC->usersupp.generation[a] != qr.QRgen)
@@ -326,6 +321,7 @@ void session_startup(void) {
 		if (CC->usersupp.forget[a] != qr.QRgen)
 					CC->usersupp.forget[a]=(-1);
 		}
+ /******************************************************************************/
 
 	lputuser(&CC->usersupp,CC->curr_user);
 
@@ -497,14 +493,17 @@ int create_user(char *newusername)
 
 	strcpy(CC->curr_user,username);
 	strcpy(CC->usersupp.fullname,username);
+	strcpy(CC->usersupp.password,"");
 	(CC->logged_in) = 1;
 
+	/********************************************************/
+	/* FIX this can safely be removed during the cutover... */
 	for (a=0; a<MAXROOMS; ++a) {
 		CC->usersupp.lastseen[a]=0L;
 		CC->usersupp.generation[a]=(-1);
 		CC->usersupp.forget[a]=(-1);
 		}
-	strcpy(CC->usersupp.password,"");
+	/********************************************************/
 
 	/* These are the default flags on new accounts */
 	CC->usersupp.flags =

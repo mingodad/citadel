@@ -649,7 +649,9 @@ long send_message(char *message_in_memory,	/* pointer to buffer */
 
 
 
-
+/* FIX ... rewrite this to simply check for the existence of the twitroom,
+ * and create it if necessary.  No slot-numbers will need to be loaded.
+ */
 void loadtroom(void) {
 	struct quickroom qrbuf;
 	int a;
@@ -1220,7 +1222,7 @@ void cmd_dele(char *delstr)
 
 
 /*
- * move a message to another room
+ * move a message to another room    FIX  Rework this to use name indices
  */
 void cmd_move(char *args)
 {

@@ -625,6 +625,11 @@ void cmd_goto(char *gargs)
 
 	c=0;
 	getuser(&CC->usersupp,CC->curr_user);
+
+	/* FIX  This is the primary bit of code that needs to be rewritten
+	 * during the cutover.  Search for rooms by name rather than by
+	 * position in the file.  A total rewrite may be necessary.
+	 */
 	for (a=0; a<MAXROOMS; ++a) {
 		getroom(&QRscratch,a);
 		if ((a==0)&&(!strcasecmp(towhere,"_BASEROOM_"))) {
@@ -1091,6 +1096,8 @@ void cmd_kill(char *argbuf)
  * Find a free slot to create a new room in, or return -1 for error.
  * search_dir is the direction to search in.  1 causes this function to
  * return the first available slot, -1 gets the last available slot.
+ *
+ * FIX   This function can be eliminated during the cutover.
  */
 int get_free_room_slot(int search_dir)
 {
@@ -1156,7 +1163,7 @@ unsigned create_room(int free_slot, char *new_room_name, int new_room_type, char
 
 
 /*
- * create a new room
+ * create a new room        FIX  Rework this to use name indexing
  */
 void cmd_cre8(char *args)
 {
