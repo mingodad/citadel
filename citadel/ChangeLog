@@ -1,4 +1,10 @@
  $Log$
+ Revision 640.4  2005/02/13 04:23:59  ajc
+ * Added server and client configuration settings to specify port
+   numbers for IMAPS, POP3S, and SMTPS (SSL-encrypted services that start
+   SSL upon connect instead of using a STARTTLS command).  These services
+   are not yet implemented, only the port number settings are.
+
  Revision 640.3  2005/02/13 03:39:21  ajc
  * IMAP flag twiddling with STORE was broken because of the \Flag leading
    backslash getting stripped out.  Located problem and worked around.  Said
@@ -6382,3 +6388,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

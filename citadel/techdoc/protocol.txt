@@ -1817,6 +1817,10 @@ fails for any reason, ERROR is returned.
  36. LDAP Bind DN
  37. Password for LDAP Bind DN
  38. Server IP address to listen on (or "0.0.0.0" for all addresses)
+ 39. Port number for SMTP MSA service
+ 40. Port number for IMAPS (SSL-encrypted IMAP)
+ 41. Port number for POP3S (SSL-encrypted POP3)
+ 42. Port number for SMTPS (SSL-encrypted SMTP)
 
  CONF also accepts two additional commands: GETSYS and PUTSYS followed by an
 arbitrary MIME type (such as application/x-citadel-internet-config) which

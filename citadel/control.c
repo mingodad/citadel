@@ -211,6 +211,9 @@ void cmd_conf(char *argbuf)
 #endif
 		cprintf("%s\n", config.c_ip_addr);
 		cprintf("%d\n", config.c_msa_port);
+		cprintf("%d\n", config.c_imaps_port);
+		cprintf("%d\n", config.c_pop3s_port);
+		cprintf("%d\n", config.c_smtps_port);
 		cprintf("000\n");
 	}
 
@@ -375,6 +378,15 @@ void cmd_conf(char *argbuf)
 						sizeof config.c_ip_addr);
 			case 38:
 				config.c_msa_port = atoi(buf);
+				break;
+			case 39:
+				config.c_imaps_port = atoi(buf);
+				break;
+			case 40:
+				config.c_pop3s_port = atoi(buf);
+				break;
+			case 41:
+				config.c_smtps_port = atoi(buf);
 				break;
 			}
 			++a;

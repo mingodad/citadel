@@ -136,6 +136,9 @@ struct config {
 	char c_ldap_bind_dn[256];	/* LDAP bind DN                     */
 	char c_ldap_bind_pw[256];	/* LDAP bind password               */
 	int c_msa_port;			/* SMTP MSA listener port (usu 587) */
+	int c_imaps_port;		/* IMAPS listener port (usually 993)*/
+	int c_pop3s_port;		/* POP3S listener port (usually 995)*/
+	int c_smtps_port;		/* SMTPS listener port (usually 465)*/
 };
 
 /*

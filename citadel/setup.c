@@ -1083,6 +1083,9 @@ int main(int argc, char *argv[])
 	if (config.c_pop3_port == 0) config.c_pop3_port = 110;
 	if (config.c_imap_port == 0) config.c_imap_port = 143;
 	if (config.c_msa_port == 0) config.c_msa_port = 587;
+	if (config.c_smtps_port == 0) config.c_smtps_port = 465;
+	if (config.c_pop3s_port == 0) config.c_pop3s_port = 995;
+	if (config.c_imaps_port == 0) config.c_imaps_port = 993;
 
 	/* Go through a series of dialogs prompting for config info */
 	if (setup_type != UI_SILENT) {
