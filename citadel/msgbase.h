@@ -16,6 +16,18 @@
 #define SM_DO_REPL_CHECK	2	/* Perform replication checks */
 
 
+/*
+ * Possible return codes from CtdlOutputMsg()
+ */
+enum {
+	om_ok,
+	om_not_logged_in,
+	om_no_such_msg,
+	om_mime_error
+};
+	
+
+
 struct ma_info {
 	char prefix[256];	/* Prefix for a multipart/alternative */
 	int is_ma;		/* Set to 1 if we are using this stuff */
@@ -36,7 +48,6 @@ void help_subst (char *strbuf, char *source, char *dest);
 void do_help_subst (char *buffer);
 void memfmout (int width, char *mptr, char subst);
 void output_mime_parts(char *);
-void output_message (char *, int, int);
 void cmd_msg0 (char *cmdbuf);
 void cmd_msg2 (char *cmdbuf);
 void cmd_msg3 (char *cmdbuf);

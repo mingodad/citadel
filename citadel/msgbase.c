@@ -614,7 +614,7 @@ void mime_download(char *name, char *filename, char *partnum, char *disp,
 
 /*
  * Load a message from disk into memory.
- * This is used by output_message() and other fetch functions.
+ * This is used by CtdlOutputMsg() and other fetch functions.
  *
  * NOTE: Caller is responsible for freeing the returned CtdlMessage struct
  *       using the CtdlMessageFree() function.
@@ -718,14 +718,15 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
 }
 
 
-
 /*
  * Get a message off disk.  (return value is the message's timestamp)
  * 
  */
-void output_message(char *msgid, int mode, int headers_only)
-{
-	long msg_num;
+int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
+		int mode,		/* how would you like that message? */
+		int headers_only,	/* eschew the message body? */
+		int do_proto		/* do Citadel protocol responses? */
+) {
 	int a, i, k;
 	char buf[1024];
 	time_t xtime;
@@ -745,12 +746,12 @@ void output_message(char *msgid, int mode, int headers_only)
 	char mid[256];
 	/*                                       */
 
-	msg_num = atol(msgid);
-	safestrncpy(mid, msgid, sizeof mid);
+	sprintf(mid, "%ld", msg_num);
 
 	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return;
+		if (do_proto) cprintf("%d Not logged in.\n",
+			ERROR + NOT_LOGGED_IN);
+		return(om_not_logged_in);
 	}
 
 	/* FIX ... small security issue
@@ -760,9 +761,9 @@ void output_message(char *msgid, int mode, int headers_only)
 	 * broken production code with nonbroken pre-beta code.  :(   -- ajc
 	 *
 	 if (!msg_ok) {
-	 cprintf("%d Message %ld is not in this room.\n",
+	 if (do_proto) cprintf("%d Message %ld is not in this room.\n",
 	 ERROR, msg_num);
-	 return;
+	 return(om_no_such_msg);
 	 }
 	 */
 
@@ -771,17 +772,20 @@ void output_message(char *msgid, int mode, int headers_only)
 	 */
 	TheMessage = CtdlFetchMessage(msg_num);
 	if (TheMessage == NULL) {
-		cprintf("%d Can't locate msg %ld on disk\n", ERROR, msg_num);
-		return;
+		if (do_proto) cprintf("%d Can't locate msg %ld on disk\n",
+			ERROR, msg_num);
+		return(om_no_such_msg);
 	}
 
 	/* Are we downloading a MIME component? */
 	if (mode == MT_DOWNLOAD) {
 		if (TheMessage->cm_format_type != FMT_RFC822) {
-			cprintf("%d This is not a MIME message.\n",
+			if (do_proto)
+				cprintf("%d This is not a MIME message.\n",
 				ERROR);
 		} else if (CC->download_fp != NULL) {
-			cprintf("%d You already have a download open.\n",
+			if (do_proto) cprintf(
+				"%d You already have a download open.\n",
 				ERROR);
 		} else {
 			/* Parse the message text component */
@@ -791,31 +795,35 @@ void output_message(char *msgid, int mode, int headers_only)
 			 * section wasn't found, so print an error
 			 */
 			if (CC->download_fp == NULL) {
-				cprintf("%d Section %s not found.\n",
+				if (do_proto) cprintf(
+					"%d Section %s not found.\n",
 					ERROR + FILE_NOT_FOUND,
 					desired_section);
 			}
 		}
 		CtdlFreeMessage(TheMessage);
-		return;
+		return((CC->download_fp != NULL) ? om_ok : om_mime_error);
 	}
 
 	/* now for the user-mode message reading loops */
-	cprintf("%d Message %ld:\n", LISTING_FOLLOWS, msg_num);
+	if (do_proto) cprintf("%d Message %ld:\n", LISTING_FOLLOWS, msg_num);
 
 	/* Tell the client which format type we're using.  If this is a
 	 * MIME message, *lie* about it and tell the user it's fixed-format.
 	 */
 	if (mode == MT_CITADEL) {
-		if (TheMessage->cm_format_type == FMT_RFC822)
-			cprintf("type=1\n");
-		else
-			cprintf("type=%d\n", TheMessage->cm_format_type);
+		if (TheMessage->cm_format_type == FMT_RFC822) {
+			if (do_proto) cprintf("type=1\n");
+		}
+		else {
+			if (do_proto) cprintf("type=%d\n",
+				TheMessage->cm_format_type);
+		}
 	}
 
 	/* nhdr=yes means that we're only displaying headers, no body */
 	if ((TheMessage->cm_anon_type == MES_ANON) && (mode == MT_CITADEL)) {
-		cprintf("nhdr=yes\n");
+		if (do_proto) cprintf("nhdr=yes\n");
 	}
 
 	/* begin header processing loop for Citadel message format */
@@ -846,12 +854,12 @@ void output_message(char *msgid, int mode, int headers_only)
 			if (k != 'M') {
 				if (TheMessage->cm_fields[k] != NULL) {
 					if (k == 'A') {
-						cprintf("%s=%s\n",
+						if (do_proto) cprintf("%s=%s\n",
 							msgkeys[k],
 							display_name);
 					}
 					else {
-						cprintf("%s=%s\n",
+						if (do_proto) cprintf("%s=%s\n",
 							msgkeys[k],
 							TheMessage->cm_fields[k]
 					);
@@ -925,21 +933,21 @@ void output_message(char *msgid, int mode, int headers_only)
 		}
 		else if (mode == MT_MIME) {	/* list parts only */
 			mime_parser(mptr, NULL, *list_this_part);
-			cprintf("000\n");
+			if (do_proto) cprintf("000\n");
 			CtdlFreeMessage(TheMessage);
-			return;
+			return(om_ok);
 		}
 	}
 
 	if (headers_only) {
-		cprintf("000\n");
+		if (do_proto) cprintf("000\n");
 		CtdlFreeMessage(TheMessage);
-		return;
+		return(om_ok);
 	}
 
 	/* signify start of msg text */
 	if (mode == MT_CITADEL)
-		cprintf("text\n");
+		if (do_proto) cprintf("text\n");
 	if ((mode == MT_RFC822) && (TheMessage->cm_format_type != FMT_RFC822))
 		cprintf("\n");
 
@@ -987,9 +995,9 @@ void output_message(char *msgid, int mode, int headers_only)
 	}
 
 	/* now we're done */
-	cprintf("000\n");
+	if (do_proto) cprintf("000\n");
 	CtdlFreeMessage(TheMessage);
-	return;
+	return(om_ok);
 }
 
 
@@ -999,13 +1007,13 @@ void output_message(char *msgid, int mode, int headers_only)
  */
 void cmd_msg0(char *cmdbuf)
 {
-	char msgid[256];
+	long msgid;
 	int headers_only = 0;
 
-	extract(msgid, cmdbuf, 0);
+	msgid = extract_long(cmdbuf, 0);
 	headers_only = extract_int(cmdbuf, 1);
 
-	output_message(msgid, MT_CITADEL, headers_only);
+	CtdlOutputMsg(msgid, MT_CITADEL, headers_only, 1);
 	return;
 }
 
@@ -1015,13 +1023,13 @@ void cmd_msg0(char *cmdbuf)
  */
 void cmd_msg2(char *cmdbuf)
 {
-	char msgid[256];
+	long msgid;
 	int headers_only = 0;
 
-	extract(msgid, cmdbuf, 0);
+	msgid = extract_long(cmdbuf, 0);
 	headers_only = extract_int(cmdbuf, 1);
 
-	output_message(msgid, MT_RFC822, headers_only);
+	CtdlOutputMsg(msgid, MT_RFC822, headers_only, 1);
 }
 
 
@@ -1070,11 +1078,10 @@ void cmd_msg3(char *cmdbuf)
  */
 void cmd_msg4(char *cmdbuf)
 {
-	char msgid[256];
+	long msgid;
 
-	extract(msgid, cmdbuf, 0);
-
-	output_message(msgid, MT_MIME, 0);
+	msgid = extract_long(cmdbuf, 0);
+	CtdlOutputMsg(msgid, MT_MIME, 0, 1);
 }
 
 /*
@@ -1082,14 +1089,14 @@ void cmd_msg4(char *cmdbuf)
  */
 void cmd_opna(char *cmdbuf)
 {
-	char msgid[256];
+	long msgid;
 
 	CtdlAllocUserData(SYM_DESIRED_SECTION, 64);
 
-	extract(msgid, cmdbuf, 0);
+	msgid = extract_long(cmdbuf, 0);
 	extract(desired_section, cmdbuf, 1);
 
-	output_message(msgid, MT_DOWNLOAD, 0);
+	CtdlOutputMsg(msgid, MT_DOWNLOAD, 0, 1);
 }			
 
 
