@@ -35,6 +35,7 @@
 
 struct citsmtp {		/* Information about the current session */
 	int command_state;
+	char helo_node[256];
 	struct usersupp vrfy_buffer;
 	int vrfy_count;
 	char vrfy_match[256];
@@ -90,6 +91,8 @@ void smtp_greeting(void) {
  * Implement HELO and EHLO commands.
  */
 void smtp_hello(char *argbuf, int is_esmtp) {
+
+	safestrncpy(SMTP->helo_node, argbuf, sizeof SMTP->helo_node);
 
 	if (!is_esmtp) {
 		cprintf("250 Greetings and joyous salutations.\r\n");
@@ -328,9 +331,9 @@ void smtp_mail(char *argbuf) {
 	else {
 		cvt = convert_internet_address(user, node, SMTP->from);
 		lprintf(9, "cvt=%d, citaddr=<%s@%s>\n", cvt, user, node);
-		if (!strcasecmp(node, config.c_nodename)) { /* FIX use fcn */
+		if (CtdlHostAlias(node) == hostalias_localhost) {
 			cprintf("550 You must log in to send mail from %s\r\n",
-				config.c_fqdn);
+				node);
 			strcpy(SMTP->from, "");
 			return;
 		}
@@ -541,11 +544,12 @@ void smtp_data(void) {
 	
 	generate_rfc822_datestamp(nowstamp, time(NULL));
 	body = mallok(4096);
+
 	if (body != NULL) sprintf(body,
 		"Received: from %s\n"
 		"	by %s;\n"
 		"	%s\n",
-			"FIX.FIX.com",
+			SMTP->helo_node,
 			config.c_fqdn,
 			nowstamp);
 	

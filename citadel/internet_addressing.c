@@ -45,25 +45,32 @@ char *inetcfg = NULL;
 /*
  * Return nonzero if the supplied name is an alias for this host.
  */
-int CtdlLocalHost(char *fqdn) {
+int CtdlHostAlias(char *fqdn) {
 	int config_lines;
 	int i;
 	char buf[256];
 	char host[256], type[256];
 
-	if (!strcasecmp(fqdn, config.c_fqdn)) return(1);
-	if (inetcfg == NULL) return(0);
+	if (!strcasecmp(fqdn, config.c_fqdn)) return(hostalias_localhost);
+	if (inetcfg == NULL) return(hostalias_nomatch);
 
 	config_lines = num_tokens(inetcfg, '\n');
 	for (i=0; i<config_lines; ++i) {
 		extract_token(buf, inetcfg, i, '\n');
 		extract_token(host, buf, 0, '|');
 		extract_token(type, buf, 1, '|');
+
 		if ( (!strcasecmp(type, "localhost"))
-		   && (!strcasecmp(fqdn, host)))  return(1);
+		   && (!strcasecmp(fqdn, host)))
+			return(hostalias_localhost);
+
+		if ( (!strcasecmp(type, "gatewaydomain"))
+		   && (!strcasecmp(&fqdn[strlen(fqdn)-strlen(host)], host)))
+			return(hostalias_gatewaydomain);
+
 	}
 
-	return(0);
+	return(hostalias_nomatch);
 }
 
 
@@ -75,10 +82,16 @@ int CtdlLocalHost(char *fqdn) {
 /*
  * Return 0 if a given string fuzzy-matches a Citadel user account
  *
- * FIX ... this needs to be updated to match any and all address syntaxes.
+ * FIX ... this needs to be updated to handle aliases.
  */
 int fuzzy_match(struct usersupp *us, char *matchstring) {
 	int a;
+
+	if ( (!strncasecmp(matchstring, "cit", 3)) 
+	   && (atol(&matchstring[3]) == us->usernum)) {
+		return 0;
+	}
+
 
 	for (a=0; a<strlen(us->fullname); ++a) {
 		if (!strncasecmp(&us->fullname[a],
@@ -283,16 +296,24 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 	char name[256];
 	struct quickroom qrbuf;
 	int i;
+	int hostalias;
 	struct trynamebuf tnb;
+	char buf[256];
 
 	/* Split it up */
 	process_rfc822_addr(source, user, node, name);
 
 	/* Map the FQDN to a Citadel node name
-	 * FIX ... we have to check for gateway domains
 	 */
-	if (CtdlLocalHost(node)) {
-		strcpy(node, config.c_nodename);
+	hostalias =  CtdlHostAlias(node);
+	switch(hostalias) {
+		case hostalias_localhost:
+			strcpy(node, config.c_nodename);
+			break;
+
+		case hostalias_gatewaydomain:
+			extract_token(buf, node, 0, '.');
+			safestrncpy(node, buf, sizeof buf);
 	}
 
 	/* Now try to resolve the name

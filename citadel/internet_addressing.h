@@ -13,6 +13,16 @@ enum {
 
 
 struct CtdlMessage *convert_internet_message(char *rfc822);
-int CtdlLocalHost(char *fqdn);
+
+int CtdlHostAlias(char *fqdn);
+
+/* 
+ * Values that can be returned by CtdlHostAlias()
+ */
+enum {
+	hostalias_nomatch,
+	hostalias_localhost,
+	hostalias_gatewaydomain
+};
 
 extern char *inetcfg;

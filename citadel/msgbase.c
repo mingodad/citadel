@@ -680,7 +680,7 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
 
 
 /*
- * Get a message off disk.  (return value is the message's timestamp)
+ * Get a message off disk.  (returns om_* values found in msgbase.h)
  * 
  */
 int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
@@ -821,7 +821,8 @@ FMTEND:		omprintf("%s%s", aaa, nl);
 	
 		ma->did_print = 1;
 	
-		if (!strcasecmp(cbtype, "text/plain")) {
+		if ( (!strcasecmp(cbtype, "text/plain")) 
+		   || (strlen(cbtype)==0) ) {
 			wlen = length;
 			wptr = content;
 			while (wlen--) {
@@ -849,6 +850,8 @@ FMTEND:		omprintf("%s%s", aaa, nl);
 
 	/* END NESTED FUNCTION fixed_output() */
 
+	lprintf(7, "CtdlOutputMsg() msgnum=%ld, mode=%d\n", 
+		msg_num, mode);
 
 	TheMessage = NULL;
 	sprintf(mid, "%ld", msg_num);
@@ -1034,12 +1037,27 @@ FMTEND:		omprintf("%s%s", aaa, nl);
 	mptr = TheMessage->cm_fields['M'];
 
 	/* Tell the client about the MIME parts in this message */
-	if (TheMessage->cm_format_type == FMT_RFC822) {	/* legacy text dump */
+	if (TheMessage->cm_format_type == FMT_RFC822) {
 		if (mode == MT_CITADEL) {
 			mime_parser(mptr, NULL, *list_this_part);
 		}
 		else if (mode == MT_MIME) {	/* list parts only */
 			mime_parser(mptr, NULL, *list_this_part);
+			if (do_proto) cprintf("000\n");
+			CtdlFreeMessage(TheMessage);
+			return(om_ok);
+		}
+		else if (mode == MT_RFC822) {	/* unparsed RFC822 dump */
+			/* FIX ... we have to put some code in here to avoid
+			 * printing duplicate header information when both
+			 * Citadel and RFC822 headers exist.  Preference should
+			 * probably be given to the RFC822 headers.
+			 */
+			while (ch=*(mptr++), ch!=0) {
+				if (ch==13) ;
+				else if (ch==10) omprintf("%s", nl);
+				else omprintf("%c", ch);
+			}
 			if (do_proto) cprintf("000\n");
 			CtdlFreeMessage(TheMessage);
 			return(om_ok);
@@ -1055,7 +1073,6 @@ FMTEND:		omprintf("%s%s", aaa, nl);
 	/* signify start of msg text */
 	if (mode == MT_CITADEL)
 		if (do_proto) cprintf("text\n");
-	/* if ((mode == MT_RFC822) && (TheMessage->cm_format_type != FMT_RFC822)) { */
 	if (mode == MT_RFC822) {
 		omprintf("%s", nl);
 	}
