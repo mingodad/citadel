@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.18  2002/05/05 17:33:09  error
+ * screen.c: fix lack of beeps in curses mode
+
  Revision 591.17  2002/05/04 02:58:16  ajc
  * Documented a small protocol change for the STEL command
 
@@ -3631,3 +3634,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

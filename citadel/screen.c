@@ -321,8 +321,10 @@ int scr_blockread(void)
 int scr_putc(int c)
 {
 #ifdef HAVE_CURSES_H
-	if (mainwindow)
+	if (mainwindow) {
+		if (c == 7) beep();
 		return ((waddch(mainwindow, c) == OK) ? c : EOF);
+	}
 #endif
 	return putc(c, stdout);
 }
