@@ -1009,6 +1009,7 @@ int entmsg(CtdlIPC *ipc,
 	FILE *fp;
 	char subject[SIZ];
 	struct ctdlipcmessage message;
+	unsigned long *msgarr = NULL;
 	int r;			/* IPC response code */
 
 	if (c > 0)
@@ -1098,12 +1099,11 @@ int entmsg(CtdlIPC *ipc,
  	 * tell upon saving whether someone else has posted too.
  	 */
 	num_msgs = 0;
-	free(msg_arr); msg_arr = NULL;
-	r = CtdlIPCGetMessages(ipc, LastMessages, 1, NULL, &msg_arr, buf);
+	r = CtdlIPCGetMessages(ipc, LastMessages, 1, NULL, &msgarr, buf);
 	if (r / 100 != 1) {
 		scr_printf("%s\n", buf);
 	} else {
-		for (num_msgs = 0; msg_arr[num_msgs]; num_msgs++)
+		for (num_msgs = 0; msgarr[num_msgs]; num_msgs++)
 			;
 	}
 
@@ -1134,27 +1134,30 @@ int entmsg(CtdlIPC *ipc,
 		return (1);
 	}
 
-	if (num_msgs >= 1) highmsg = msg_arr[num_msgs - 1];
+	if (num_msgs >= 1) highmsg = msgarr[num_msgs - 1];
 
-	free(msg_arr); msg_arr = NULL;
-	r = CtdlIPCGetMessages(ipc, NewMessages, 0, NULL, &msg_arr, buf);
+	if (msgarr) free(msgarr);
+	msgarr = NULL;
+	r = CtdlIPCGetMessages(ipc, NewMessages, 0, NULL, &msgarr, buf);
 	if (r / 100 != 1) {
 		scr_printf("%s\n", buf);
 	} else {
-		for (num_msgs = 0; msg_arr[num_msgs]; num_msgs++)
+		for (num_msgs = 0; msgarr[num_msgs]; num_msgs++)
 			;
 	}
 
 	/* get new highest message number in room to set lrp for goto... */
-	maxmsgnum = msg_arr[num_msgs - 1];
+	maxmsgnum = msgarr[num_msgs - 1];
 
 	/* now see if anyone else has posted in here */
 	b = (-1);
 	for (a = 0; a < num_msgs; ++a) {
-		if (msg_arr[a] > highmsg) {
+		if (msgarr[a] > highmsg) {
 			++b;
 		}
 	}
+	if (msgarr) free(msgarr);
+	msgarr = NULL;
 
 	/* In the Mail> room, this algorithm always counts one message
 	 * higher than in public rooms, so we decrement it by one.

@@ -1,4 +1,7 @@
  $Log$
+ Revision 605.24  2003/03/19 11:48:06  error
+ * entmsg(): Don't corrupt the msg_arr[] when replying to a message in a room
+
  Revision 605.23  2003/03/19 04:04:56  ajc
  * Dropped support for GDBM and for versions of Berkeley DB prior to 4.1
 
@@ -4577,4 +4580,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
