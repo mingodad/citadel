@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.30  2001/09/06 00:54:01  nbryant
+ updated to libtool 1.4.1 and automake 1.5
+
  Revision 580.29  2001/08/29 02:51:25  ajc
  * More work on the new networker.
 
@@ -2701,4 +2704,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
