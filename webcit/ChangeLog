@@ -1,4 +1,7 @@
 $Log$
+Revision 213.25  2001/06/27 06:22:49  ajc
+* Updated docs for the 3.00 release
+
 Revision 213.24  2001/06/27 06:16:01  ajc
 * Correct generated window name in pop up pages
 * Added handling of MIME inline images (not tested)
@@ -586,3 +589,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
