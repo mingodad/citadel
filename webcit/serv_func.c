@@ -140,8 +140,8 @@ void fmout(FILE *fp, char *align)
 		intext = 1;
 
 		/* Quoted text should be displayed in italics and in a
-		 * different colour.  This code understands Citadel/UX
-		 * style " >" quotes and will convert to <BLOCKQUOTE> tags.
+		 * different colour.  This code understands Citadel-style
+		 * " >" quotes and will convert to <BLOCKQUOTE> tags.
 		 */
 		if ((bq == 0) && (!strncmp(buf, " >", 2))) {
 			wprintf("<BLOCKQUOTE>");

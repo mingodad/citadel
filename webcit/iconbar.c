@@ -258,11 +258,11 @@ void do_iconbar(void) {
 	if (ib_citadel) if (ib_displayas != IB_TEXTONLY) wprintf(
 		"<SPAN CLASS=\"powered_by\"><P>"
 		"<A HREF=\"http://uncensored.citadel.org/citadel\" "
-		"TITLE=\"Find out more about Citadel/UX\" TARGET=\"aboutcit\" "
+		"TITLE=\"Find out more about Citadel\" TARGET=\"aboutcit\" "
 		"onMouseOver=\"window.status='Find out more about "
-		"Citadel/UX'; return true;\">powered by<BR><IMG "
+		"Citadel'; return true;\">powered by<BR><IMG "
 		"BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"SRC=\"/static/citadel-logo.jpg\" ALT=\"CITADEL/UX\"></A>"
+		"SRC=\"/static/citadel-logo.gif\" ALT=\"CITADEL\"></A>"
 		"</P></SPAN>\n"
 	);
 
@@ -493,7 +493,7 @@ void display_customize_iconbar(void) {
 		"VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"SRC=\"/static/citadel-logo.jpg\" ALT=\"&nbsp;\">"
+		"SRC=\"/static/citadel-logo.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
 		"<B>Citadel logo</B><BR>"
 		"Displays the &quot;Powered by Citadel&quot; graphic"
