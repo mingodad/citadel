@@ -124,8 +124,8 @@ struct wcsession {
 	char reply_to[512];		/* reply-to address */
 	long msgarr[1024];		/* for read operations */
 	int fake_frames;
-	char *ExpressMessages;
 	struct urlcontent *urlstrings;
+	int HaveExpressMessages;	/* Nonzero if incoming msgs exist */
 };
 
 
@@ -244,7 +244,6 @@ void do_generic(void);
 void display_menubar(int);
 void embed_room_banner(char *);
 void smart_goto(char *);
-void ExpressMessageCat(char *);
 void worker_entry(void);
 void session_loop(struct httprequest *);
 void mime_parser(char *content,
@@ -259,3 +258,4 @@ void mime_parser(char *content,
 void fmt_date(char *buf, time_t thetime);
 void httpdate(char *buf, time_t thetime);
 void end_webcit_session(void);
+void page_popup(void);

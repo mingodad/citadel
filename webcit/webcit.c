@@ -283,16 +283,21 @@ void urlescputs(char *strbuf)
  * 3 = HTTP and HTML headers, but no 'fake frames'
  *
  * Bit 2: Set to 1 to auto-refresh page every 30 seconds
+ *
+ * Bit 3: suppress check for express messages
  */
 void output_headers(int controlcode)
 {
 	char cookie[256];
 	int print_standard_html_head = 0;
 	int refresh30 = 0;
+	int suppress_check = 0;
 	char httpnow[256];
+	static int pageseq = 0;
 
 	print_standard_html_head	=	controlcode & 0x03;
 	refresh30			=	((controlcode & 0x04) >> 2);
+	suppress_check			=	((controlcode & 0x08) >> 3);
 
 	wprintf("HTTP/1.0 200 OK\n");
 
@@ -304,8 +309,6 @@ void output_headers(int controlcode)
 		wprintf("Connection: close\n");
 		wprintf("Pragma: no-cache\n");
 		wprintf("Cache-Control: no-store\n");
-		wprintf("Date: %s\n"
-			"Last-modified: %s\n", httpnow, httpnow);
 	}
 	stuff_to_cookie(cookie, WC->wc_session, WC->wc_username,
 			WC->wc_password, WC->wc_roomname);
@@ -325,30 +328,26 @@ void output_headers(int controlcode)
 		if (refresh30) wprintf(
 			"<META HTTP-EQUIV=\"refresh\" CONTENT=\"30\">\n");
 		wprintf("</HEAD>\n");
-		if (WC->ExpressMessages != NULL) {
-			wprintf("<SCRIPT language=\"javascript\">\n");
-			wprintf("function ExpressMessage() {\n");
-			wprintf(" alert(\"");
-			escputs(WC->ExpressMessages);
-			wprintf("\")\n");
-			wprintf(" }\n </SCRIPT>\n");
-		}
 
+		/* script for checking for express msgs (not always launch) */
+		wprintf("<SCRIPT LANGUAGE=\"JavaScript\">\n");
+		wprintf("function launch_page_popup() {\n");
+		wprintf("pwin = window.open('/page_popup', 'CitaPage%d', 'toolbar=no,location=no,copyhistory=no,status=yes,scrollbars=yes');\n");
+		wprintf("}\n");
+		wprintf("</SCRIPT>\n", ++pageseq);
+		/* end script */
 
-
-		/* JavaScript key-based navigation would go here if it
+		/* JavaScript keyboard-based navigation would go here if it
 		 * were finished
 		 */
 
 		wprintf("<BODY ");
-		if (WC->ExpressMessages != NULL) {
-			wprintf("onload=\"ExpressMessage()\" ");
-			free(WC->ExpressMessages);
-			WC->ExpressMessages = NULL;
+		if (!suppress_check) if (WC->HaveExpressMessages) {
+			wprintf("onload=\"launch_page_popup()\" ");
+			WC->HaveExpressMessages = 0;
 		}
 		wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
-	
-	
+
 	if (print_standard_html_head == 1) {
 		wprintf("<A NAME=\"TheTop\"></A>"
 			"<TABLE border=0 width=100%>"
@@ -371,30 +370,13 @@ void output_headers(int controlcode)
 
 
 
-void ExpressMessageCat(char *buf) {
-	if (WC->ExpressMessages == NULL) {
-		WC->ExpressMessages = malloc(strlen(buf) + 4);
-		strcpy(WC->ExpressMessages, "");
-	} else {
-		WC->ExpressMessages = realloc(WC->ExpressMessages,
-			(strlen(WC->ExpressMessages) + strlen(buf) + 4));
-	}
-	strcat(WC->ExpressMessages, buf);
-	strcat(WC->ExpressMessages, "\\n");
-}
-
-
 void check_for_express_messages()
 {
 	char buf[256];
 
-	serv_puts("PEXP");
+	serv_puts("NOOP");
 	serv_gets(buf);
-	if (buf[0] == '1') {
-		while (serv_gets(buf), strcmp(buf, "000")) {
-			ExpressMessageCat(buf);
-		}
-	}
+	if (buf[3] == '*') WC->HaveExpressMessages = 1;
 }
 
 
@@ -403,7 +385,6 @@ void check_for_express_messages()
 void output_static(char *what)
 {
 	char buf[4096];
-	char datebuf[256];
 	long thisblock;
 	FILE *fp;
 	struct stat statbuf;
@@ -434,13 +415,6 @@ void output_static(char *what)
 		bytes = statbuf.st_size;
 		fprintf(stderr, "Static: %s, %ld bytes\n", what, bytes);
 		wprintf("Content-length: %ld\n", (long) bytes);
-
-		httpdate(datebuf, time(NULL));
-		wprintf("Date: %s\n", datebuf);
-
-		httpdate(datebuf, statbuf.st_mtime);
-		wprintf("Last-modified: %s\n", datebuf);
-
 		wprintf("\n");
 		while (bytes > 0) {
 			thisblock = sizeof(buf);
@@ -714,6 +688,7 @@ void session_loop(struct httprequest *req)
 		locate_host(browser_host, WC->http_sock);
 		get_serv_info(browser_host, user_agent);
 	}
+
 	check_for_express_messages();
 
 	/*
@@ -899,6 +874,8 @@ void session_loop(struct httprequest *req)
 		edit_me();
 	} else if (!strcasecmp(action, "display_siteconfig")) {
 		display_siteconfig();
+	} else if (!strcasecmp(action, "page_popup")) {
+		page_popup();
 	} else if (!strcasecmp(action, "siteconfig")) {
 		siteconfig();
 	} else if (!strcasecmp(action, "display_generic")) {

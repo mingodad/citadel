@@ -1,4 +1,8 @@
 $Log$
+Revision 211.18  2000/05/08 17:24:32  ajc
+* Removed HTTP date fields because it was confusing browser caches (weird)
+* Moved express messages to a pop-up HTML window (as opposed to a dialog box)
+
 Revision 211.17  2000/05/07 23:46:55  ajc
 * added Date: and Last-Modified: headers to HTTP output
 * masquerade room/host screen now runs in wholist window, and returns to it
@@ -435,4 +439,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
