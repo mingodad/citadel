@@ -3,39 +3,51 @@
 
 #include <wx/wx.h>
 
+#include "tcp_sockets.hpp"
 #include "citclient.hpp"
 
 
-// methods
+//  
+//              LOW LEVEL OPERATIONS
+//
 
 // Attach to the Citadel server
+// FIX (add check for not allowed to log in)
 int CitClient::attach(const wxString& host, const wxString& port) {
 	wxString ServerReady;
 
-	if (sock.IsConnected())
-		sock.Close();
+	//if (sock.IsConnected())
+	//	sock.Close();
+	//addr.Hostname(host);
+	//addr.Service(port);
+	//sock.SetNotify(0);
+	//sock.Connect(addr, TRUE);
+	//if (sock.IsConnected()) {
+	//	serv_gets(ServerReady);
+	//	initialize_session();
+	//	return(0);
+	//}
+	//else return(1);
 
-	addr.Hostname(host);
-	addr.Service(port);
-	sock.SetNotify(0);
-	sock.Connect(addr, TRUE);
-	if (sock.IsConnected()) {
+	if (sock.is_connected())
+		sock.detach();
+	if (sock.attach("uncnsrd.mt-kisco.ny.us", "citadel")==0) {
 		serv_gets(ServerReady);
-		// FIX ... add check for not allowed to log in
 		initialize_session();
 		return(0);
 	}
 	else return(1);
+
 }
 
 
 
 // constructor
 CitClient::CitClient(void) {
-  wxSocketHandler::Master();
-  sock.SetFlags(wxSocketBase::WAITALL);
-  wxSocketHandler::Master().Register(&sock);
-  sock.SetNotify(wxSocketBase::REQ_LOST);
+  //wxSocketHandler::Master();
+  //sock.SetFlags(wxSocketBase::WAITALL);
+  //wxSocketHandler::Master().Register(&sock);
+  //sock.SetNotify(wxSocketBase::REQ_LOST);
 }
 
 
@@ -44,37 +56,43 @@ CitClient::CitClient(void) {
 CitClient::~CitClient(void) {
 
 	// Be nice and log out from the server if it's still connected
-	detach();
+	sock.detach();
 }
 
 void CitClient::detach(void) {
 	wxString buf;
 
-	if (sock.IsConnected()) {
+	//if (sock.IsConnected()) {
+	if (sock.is_connected()) {
 		serv_puts("QUIT");
 		serv_gets(buf);
-		sock.Close();
+		//sock.Close();
+		sock.detach();
 	}
 }
 
 
 // Is this client connected?  Simply return the IsConnected status of sock.
 bool CitClient::IsConnected(void) {
-	return sock.IsConnected();
+	//return sock.IsConnected();
+	return sock.is_connected();
 }
 
 
 
 // Read a line of text from the server
 void CitClient::serv_gets(wxString& buf) {
-	char charbuf[2];
+	char charbuf[256];
+	
+	sock.serv_gets(charbuf);
+	buf = charbuf;
 
-	buf.Empty();
-	do {
-		while (sock.IsData()==FALSE) ;;
-		sock.Read(charbuf, 1);
-		if (isprint(charbuf[0])) buf.Append(charbuf[0], 1);
-	} while(isprint(charbuf[0]));
+	//buf.Empty();
+	//do {
+	//	while (sock.IsData()==FALSE) ;;
+	//	sock.Read(charbuf, 1);
+	//	if (isprint(charbuf[0])) buf.Append(charbuf[0], 1);
+	//} while(isprint(charbuf[0]));
 	printf("<%s\n", (const char *)buf);
 }
 
@@ -82,9 +100,16 @@ void CitClient::serv_gets(wxString& buf) {
 // Write a line of text to the server
 void CitClient::serv_puts(wxString buf) {
 	printf(">%s\n", (const char *)buf);
-	sock.Write(buf, strlen(buf));
-	sock.Write("\n", 1);
+	//sock.Write(buf, strlen(buf));
+	//sock.Write("\n", 1);
+	sock.serv_puts(buf);
 }
+
+
+//
+//            HIGH LEVEL COMMANDS
+//
+
 
 // Server transaction (returns first digit of server response code)
 int CitClient::serv_trans(
