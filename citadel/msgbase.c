@@ -1547,7 +1547,7 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 		ret->len = ret->len +
 			strlen(msg->cm_fields[(int)forder[i]]) + 2;
 
-	lprintf(9, "calling malloc(%d)\n", ret->len);
+	lprintf(9, "serialize_message() calling malloc(%d)\n", ret->len);
 	ret->ser = mallok(ret->len);
 	if (ret->ser == NULL) {
 		ret->len = 0;

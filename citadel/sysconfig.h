@@ -97,6 +97,11 @@
 #define NETWORK_QUEUE_FREQUENCY 3600	/* Once per hour */
 
 /*
+ * Who bounced messages appear to be from
+ */
+#define BOUNCESOURCE		"Citadel Mail Delivery Subsystem"
+
+/*
  * This variable defines the amount of network spool data that may be carried
  * in one server transfer command.  For some reason, some networks get hung
  * up on larger packet sizes.  We don't know why.  In any case, never set the

@@ -605,6 +605,108 @@ void network_learn_topology(char *node, char *path) {
 
 
 
+
+/*
+ * Bounce a message back to the sender
+ */
+void network_bounce(struct CtdlMessage *msg, char *reason) {
+	static int serialnum = 0;
+	FILE *fp;
+	char filename[SIZ];
+	struct ser_ret sermsg;
+	char *oldpath = NULL;
+	char buf[SIZ];
+
+	lprintf(9, "entering network_bounce()\n");
+
+	if (msg == NULL) return;
+
+	/* 
+	 * Give it a fresh message ID
+	 */
+	if (msg->cm_fields['I'] != NULL) {
+		phree(msg->cm_fields['I']);
+	}
+	sprintf(buf, "%ld.%04x.%04x@%s",
+		time(NULL), getpid(), ++serialnum, config.c_fqdn);
+	msg->cm_fields['I'] = strdoop(buf);
+
+	/*
+	 * FIXME ... right now we're just sending a bounce; we really want to
+	 * include the text of the bounced message.
+	 */
+	if (msg->cm_fields['M'] != NULL) {
+		phree(msg->cm_fields['M']);
+	}
+	msg->cm_fields['M'] = strdoop(reason);
+	msg->cm_format_type = 0;
+
+	/*
+	 * Turn the message around
+	 */
+	if (msg->cm_fields['R'] == NULL) {
+		phree(msg->cm_fields['R']);
+	}
+
+	if (msg->cm_fields['D'] == NULL) {
+		phree(msg->cm_fields['D']);
+	}
+
+	msg->cm_fields['R'] = msg->cm_fields['A'];
+	msg->cm_fields['D'] = msg->cm_fields['N'];
+	msg->cm_fields['A'] = strdoop(BOUNCESOURCE);
+	msg->cm_fields['N'] = strdoop(config.c_nodename);
+	
+	if (!strcasecmp(msg->cm_fields['D'], config.c_nodename)) {
+		phree(msg->cm_fields['D']);
+	}
+
+	/*
+	 * If this is a bounce of a bounce, send it to the Aide> room
+	 * instead of looping around forever
+	 */
+	if (msg->cm_fields['D'] == NULL) if (msg->cm_fields['R'] != NULL)
+	   if (!strcasecmp(msg->cm_fields['R'], BOUNCESOURCE)) {
+		phree(msg->cm_fields['R']);
+		if (msg->cm_fields['C'] != NULL) {
+			phree(msg->cm_fields['C']);
+		}
+		msg->cm_fields['C'] = strdoop(AIDEROOM);
+	}
+
+	/* prepend our node to the path */
+	if (msg->cm_fields['P'] != NULL) {
+		oldpath = msg->cm_fields['P'];
+		msg->cm_fields['P'] = NULL;
+	}
+	else {
+		oldpath = strdoop("unknown_user");
+	}
+	msg->cm_fields['P'] = mallok(strlen(oldpath) + SIZ);
+	sprintf(msg->cm_fields['P'], "%s!%s", config.c_nodename, oldpath);
+	phree(oldpath);
+
+	/* serialize the message */
+	serialize_message(&sermsg, msg);
+
+	/* now send it */
+	sprintf(filename, "./network/spoolin/bounce.%04x.%04x",
+		getpid(), serialnum);
+
+	fp = fopen(filename, "ab");
+	if (fp != NULL) {
+		fwrite(sermsg.ser,
+			sermsg.len, 1, fp);
+		fclose(fp);
+	}
+	phree(sermsg.ser);
+	CtdlFreeMessage(msg);
+	lprintf(9, "leaving network_bounce()\n");
+}
+
+
+
+
 /*
  * Process a buffer containing a single message from a single file
  * from the inbound queue 
@@ -681,7 +783,11 @@ void network_process_buffer(char *buffer, long size) {
 			
 			else {	/* invalid destination node name */
 
-				/* FIXME bounce the msg */
+				network_bounce(msg,
+"A message you sent could not be delivered due to an invalid destination node"
+" name.  Please check the address and try sending the message again.\n");
+				msg = NULL;
+				return;
 
 			}
 		}
@@ -703,13 +809,23 @@ void network_process_buffer(char *buffer, long size) {
                 e = alias(recp);        /* alias and mail type */
                 if ((recp[0] == 0) || (e == MES_ERROR)) {
 
-			/* FIXME bounce the msg */
+			network_bounce(msg,
+"A message you sent could not be delivered due to an invalid address.\n"
+"Please check the address and try sending the message again.\n");
+			msg = NULL;
+			return;
 
                 }
                 else if (e == MES_LOCAL) {
                         a = getuser(&tempUS, recp);
                         if (a != 0) {
-				/* FIXME bounce the msg */
+
+				network_bounce(msg,
+"A message you sent could not be delivered because the user does not exist\n"
+"on this system.  Please check the address and try again.\n");
+				msg = NULL;
+				return;
+
                         }
 			else {
 				MailboxName(target_room, &tempUS, MAILROOM);

@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.49  2001/10/03 03:15:16  ajc
+ * Implemented BOUNCE BOUNCE BOUNCE
+
  Revision 580.48  2001/10/02 03:04:30  ajc
  * Allow non-Aides to terminate sessions belonging to them
 
@@ -2765,4 +2768,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
