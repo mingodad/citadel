@@ -874,6 +874,7 @@ or ERROR or ERROR+HIGHER_ACCESS_REQUIRED if the command will not succeed.
        1  -  Private; can be entered by guessing the room's name
        2  -  Private; can be entered by knowing the name *and* password
        3  -  Private; invitation only (sometimes called "exclusive")
+       4  -  Personal (mailbox for this user only)
  3  -  Password for new room (if it is a type 2 room)
  4  -  Floor number on which the room should reside (optional)
  5  -  Set to 1 to avoid automatically gaining access to the created room.
