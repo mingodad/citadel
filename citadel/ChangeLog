@@ -1,4 +1,8 @@
  $Log$
+ Revision 614.91  2004/03/21 22:34:41  error
+ * database_sleepycat.c: emit a panic message when Berkeley DB wants us to
+   run recovery; should provide a little more detail on the actual error
+
  Revision 614.90  2004/03/21 22:32:24  ajc
  * room_ops.c: increased the thread safety of cgetfloor()
  * housekeeping.c: check floor reference counts in two passes instead of
@@ -5570,4 +5574,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -109,6 +109,11 @@ static void txbegin(DB_TXN **tid) {
 	}
 }
 
+static void dbpanic(DB_ENV* env, int errval)
+{
+	lprintf(CTDL_EMERG, "cdb_*: Berkeley DB panic: %d\n", errval);
+}
+
 static void cclose(DBC *cursor) {
 	int ret;
 
@@ -304,6 +309,7 @@ void open_databases(void)
 		exit(ret);
 	}
 	dbenv->set_errpfx(dbenv, "citserver");
+	dbenv->set_paniccall(dbenv, dbpanic);
 
         /*
          * We want to specify the shared memory buffer pool cachesize,
