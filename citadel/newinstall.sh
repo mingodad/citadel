@@ -170,7 +170,7 @@ download_sources () {
 }
 
 install_ical () {
-	SUM=`sum $ICAL_SOURCE | awk ' { print $1$2 } '`
+	SUM=`sum $BUILD/$ICAL_SOURCE | awk ' { print $1$2 } '`
 	SUMFILE=$SUPPORT/etc/libical-easyinstall.sum
 	if [ -r $SUMFILE ] ; then
 		OLDSUM=`cat $SUMFILE`
@@ -193,7 +193,7 @@ install_ical () {
 }
 
 install_db () {
-	SUM=`sum $DB_SOURCE | awk ' { print $1$2 } '`
+	SUM=`sum $BUILD/$DB_SOURCE | awk ' { print $1$2 } '`
 	SUMFILE=$SUPPORT/etc/db-easyinstall.sum
 	if [ -r $SUMFILE ] ; then
 		OLDSUM=`cat $SUMFILE`
@@ -217,7 +217,7 @@ install_db () {
 }
 
 install_ldap () {
-	SUM=`sum $LDAP_SOURCE | awk ' { print $1$2 } '`
+	SUM=`sum $BUILD/$LDAP_SOURCE | awk ' { print $1$2 } '`
 	SUMFILE=$SUPPORT/etc/ldap-easyinstall.sum
 	if [ -r $SUMFILE ] ; then
 		OLDSUM=`cat $SUMFILE`
@@ -290,7 +290,7 @@ install_sources () {
 	export CFLAGS CPPFLAGS LDFLAGS
 
 	DO_INSTALL_CITADEL=yes
-	SUM=`sum $CITADEL_SOURCE | awk ' { print $1$2 } '`
+	SUM=`sum $BUILD/$CITADEL_SOURCE | awk ' { print $1$2 } '`
 	SUMFILE=$CITADEL/citadel-easyinstall.sum
 	if [ -r $SUMFILE ] ; then
 		OLDSUM=`cat $SUMFILE`
@@ -325,7 +325,7 @@ install_sources () {
 	fi
 
 	DO_INSTALL_WEBCIT=yes
-	SUM=`sum $WEBCIT_SOURCE | awk ' { print $1$2 } '`
+	SUM=`sum $BUILD/$WEBCIT_SOURCE | awk ' { print $1$2 } '`
 	SUMFILE=$WEBCIT/webcit-easyinstall.sum
 	if [ -r $SUMFILE ] ; then
 		OLDSUM=`cat $SUMFILE`
