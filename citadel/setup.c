@@ -541,7 +541,7 @@ void set_str_val(int msgpos, char str[])
 	char tempfile[64];
 	char setupmsg[256];
 
-	sprintf(tempfile, tmpnam(NULL));
+	strcpy(tempfile, tmpnam(NULL));
 	strcpy(setupmsg, "");
 
 	switch (setup_type) {

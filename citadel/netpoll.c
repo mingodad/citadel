@@ -51,7 +51,7 @@ void receive_spool(void)
 	long plen;
 	FILE *fp;
 
-	sprintf(tempfilename, tmpnam(NULL));
+	strcpy(tempfilename, tmpnam(NULL));
 	serv_puts("NDOP");
 	serv_gets(buf);
 	printf("%s\n", buf);

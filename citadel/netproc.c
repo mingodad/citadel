@@ -862,8 +862,8 @@ void inprocess(void)
 	int valid_msg;
 
 	/* temp file names */
-	sprintf(tname, tmpnam(NULL));
-	sprintf(iname, tmpnam(NULL));
+	strcpy(tname, tmpnam(NULL));
+	strcpy(iname, tmpnam(NULL));
 
 	load_filterlist();
 
@@ -1368,7 +1368,7 @@ void outprocess(char *sysname)
 	int outgoing_msgs;
 	long thismsg;
 
-	sprintf(tempflnm, tmpnam(NULL));
+	strcpy(tempflnm, tmpnam(NULL));
 	tempflfp = fopen(tempflnm, "w");
 	if (tempflfp == NULL)
 		return;

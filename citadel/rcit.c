@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 
 	get_config();
 	sprintf(flnm,"./network/spoolin/rcit.%ld", (long)getpid());
-	sprintf(tname, tmpnam(NULL));
+	strcpy(tname, tmpnam(NULL));
 
 	for (a=1; a<argc; ++a) {
 		if (!strcmp(argv[a],"-z")) compressed_input = 1;

@@ -963,7 +963,7 @@ void readmsgs(int c, int rdir, int q)	/* read contents of a room */
 	if (c<0) b=(MAXMSGS-1);
 	else b=0;
 
-	sprintf(prtfile, tmpnam(NULL));
+	strcpy(prtfile, tmpnam(NULL));
 
 	num_msgs = 0;
 	strcpy(cmd,"MSGS ");

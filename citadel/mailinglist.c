@@ -83,7 +83,7 @@ int main(void)
 
     get_config();
     LoadInternetConfig();
-    sprintf(tempfile, tmpnam(NULL));
+    strcpy(tempfile, tmpnam(NULL));
 
     while (1) {
 

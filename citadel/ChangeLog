@@ -1,4 +1,9 @@
  $Log$
+ Revision 572.15  2000/07/10 23:36:08  ajc
+ * Another attempt to fix the crashy crashy bug in serv_vcard
+ * Did more work on the Art Vandelay module
+ * Replaced all instances of sprintf(tempfile, tmpnam(NULL)) with strcpy()
+
  Revision 572.14  2000/07/10 04:01:12  ajc
  * added an unfinished serv_vandelay.c (Art Vandelay module - importer/exporter)
 
@@ -1941,4 +1946,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

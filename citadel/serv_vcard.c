@@ -75,6 +75,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	TRACE;
 
 	ptr = msg->cm_fields['M'];
+	if (ptr == NULL) return(0);
 	TRACE;
 	while (ptr != NULL) {
 	
@@ -148,10 +149,12 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 	/* If this isn't the configuration room, or if this isn't a MIME
 	 * message, don't bother.
 	 */
+	if (msg->cm_fields['O'] == NULL) return(0);
 	if (strcasecmp(msg->cm_fields['O'], USERCONFIGROOM)) return(0);
 	if (msg->cm_format_type != 4) return(0);
 
 	ptr = msg->cm_fields['M'];
+	if (ptr == NULL) return(0);
 	while (ptr != NULL) {
 	
 		linelen = strcspn(ptr, "\n");
@@ -162,7 +165,9 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			 * copy it to the Global Address Book room.
 			 */
 
+			TRACE;
 			I = atol(msg->cm_fields['I']);
+			TRACE;
 			if (I < 0L) return(0);
 
 			CtdlSaveMsgPointerInRoom(ADDRESS_BOOK_ROOM, I,

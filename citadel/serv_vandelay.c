@@ -33,6 +33,10 @@
 #include "room_ops.h"
 #include "control.h"
 
+char artv_tempfilename1[256];
+char artv_tempfilename2[256];
+FILE *artv_global_message_list;
+
 void artv_export_users_backend(struct usersupp *usbuf, void *data) {
 	cprintf("user\n");
 	cprintf("%d\n", usbuf->version);
@@ -59,6 +63,7 @@ void artv_export_users(void) {
 
 void artv_export_room_msg(long msgnum) {
 	cprintf("%ld\n", msgnum);
+	fprintf(artv_global_message_list, "%ld\n", msgnum);
 }
 
 
@@ -92,7 +97,21 @@ void artv_export_rooms_backend(struct quickroom *qrbuf, void *data) {
 
 
 void artv_export_rooms(void) {
+	char cmd[256];
+	artv_global_message_list = fopen(artv_tempfilename1, "w");
 	ForEachRoom(artv_export_rooms_backend, NULL);
+	fclose(artv_global_message_list);
+
+	/*
+	 * Process the 'global' message list.  (Sort it and remove dups.
+	 * Dups are ok because a message may be in more than one room, but
+	 * this will be handled by exporting the reference count, not by
+	 * exporting the message multiple times.)
+	 */
+	sprintf(cmd, "sort <%s >%s", artv_tempfilename1, artv_tempfilename2);
+	system(cmd);
+	sprintf(cmd, "uniq <%s >%s", artv_tempfilename2, artv_tempfilename1);
+	system(cmd);
 }
 
 
@@ -142,9 +161,31 @@ void artv_export_visits(void) {
 }
 
 
+void artv_export_message(long msgnum) {
+	cprintf("message\n");
+	cprintf("%ld\n", msgnum);
+	/* FIXME do more here of course */
+}
 
 
 
+void artv_export_messages(void) {
+	char buf[256];
+	long msgnum;
+	int count = 0;
+
+	artv_global_message_list = fopen(artv_tempfilename1, "r");
+	lprintf(7, "Opened %s\n", artv_tempfilename1);
+	while (fgets(buf, sizeof(buf), artv_global_message_list) != NULL) {
+		msgnum = atol(buf);
+		if (msgnum > 0L) {
+			artv_export_message(msgnum);
+			++count;
+		}
+	}
+	fclose(artv_global_message_list);
+	lprintf(7, "Exported %ld messages.\n", count);
+}
 
 
 
@@ -202,6 +243,7 @@ void artv_do_export(void) {
 	artv_export_rooms();
 	artv_export_floors();
 	artv_export_visits();
+	artv_export_messages();
 
 	cprintf("000\n");
 }
@@ -218,13 +260,28 @@ void artv_do_import(void) {
 
 void cmd_artv(char *cmdbuf) {
 	char cmd[256];
+	static int is_running = 0;
 
 	if (CtdlAccessCheck(ac_aide)) return;	/* FIXME should be intpgm */
+	if (is_running) {
+		cprintf("%d The importer/exporter is already running.\n",
+			ERROR);
+		return;
+	}
+	is_running = 1;
+
+	strcpy(artv_tempfilename1, tmpnam(NULL));
+	strcpy(artv_tempfilename2, tmpnam(NULL));
 
 	extract(cmd, cmdbuf, 0);
 	if (!strcasecmp(cmd, "export")) artv_do_export();
 	else if (!strcasecmp(cmd, "import")) artv_do_import();
 	else cprintf("%d illegal command\n", ERROR);
+
+	unlink(artv_tempfilename1);
+	unlink(artv_tempfilename2);
+
+	is_running = 0;
 }
 
 
