@@ -651,10 +651,14 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 		}
 
 		/*
-		 * Serialize it and save it to the message base
+		 * Serialize it and save it to the message base.  We clone it first,
+		 * for two reasons: one, it's easier to just free the whole thing
+		 * when we're done instead of unbundling, but more importantly, we
+		 * can't encapsulate something that may already be encapsulated
+		 * somewhere else.
 		 */
 		lprintf(9, "Encapsulating into full VCALENDAR component\n");
-		encaps = ical_encapsulate_subcomponent(vevent);
+		encaps = ical_encapsulate_subcomponent(icalcomponent_new_clone(vevent));
 		lprintf(9, "Serializing it for saving\n");
 		if (encaps != NULL) {
 			serv_puts("ENT0 1|||4");
@@ -665,10 +669,7 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 				serv_puts(icalcomponent_as_ical_string(encaps));
 				serv_puts("000");
 			}
-			if (encaps != vevent) {
-				icalcomponent_remove_component(encaps, vevent);
-				icalcomponent_free(encaps);
-			}
+			icalcomponent_free(encaps);
 		}
 	}
 
