@@ -1196,8 +1196,11 @@ unsigned create_room(char *new_room_name,
 	struct floor flbuf;
 	struct visit vbuf;
 
-	if (getroom(&qrbuf, new_room_name) == 0)
+	lprintf(9, "create_room(%s)\n", new_room_name);
+	if (getroom(&qrbuf, new_room_name) == 0) {
+		lprintf(9, "%s already exists.\n", new_room_name);
 		return (0);	/* already exists */
+	}
 
 	memset(&qrbuf, 0, sizeof(struct quickroom));
 	safestrncpy(qrbuf.QRname, new_room_name, sizeof qrbuf.QRname);
