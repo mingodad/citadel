@@ -1,6 +1,6 @@
 /*
  * Citadel/UX setup program
- * v4.0 / by Art Cancro
+ * v4.1 / by Art Cancro
  * see copyright.txt for copyright information
  *
  * *** YOU MUST EDIT sysconfig.h >BEFORE< COMPILING SETUP ***
@@ -28,7 +28,7 @@
 #include CURSES_INC
 #endif
 
-#define MAXSETUP 21
+#define MAXSETUP 20
 
 #define UI_TEXT		0	/* Default setup type -- text only */
 #define UI_DIALOG	1	/* Use the 'dialog' program */
@@ -60,7 +60,6 @@ char *setup_titles[] = {
 	"Maximum concurrent sessions",
 	"Paginator prompt",
 	"Restrict Internet mail flag",
-	"Nothing",
 	"Name of bit bucket subdirectory",
 	"System net password",
 	"Server port number",
@@ -103,7 +102,8 @@ char *setup_text[] = {
 "to have the networker automatically build a BBS list.",
 
 "5",
-"Enter the city and state your system is located in.",
+"Enter the geographical location of your system (city and",
+"state/province/country etc.)",
 
 "6",
 "Enter the name of the system administrator (which is probably you).",
@@ -194,26 +194,24 @@ char *setup_text[] = {
 "send mail to the outside world, this is all irrelevant.)",
 
 "18",
-"This parameter is meaningless and should be removed.",
-
-"19",
 "Select the name of a subdirectory (relative to the main",
 "Citadel directory - do not type an absolute pathname!) in",
 "which to place arriving file transfers that otherwise",
 "don't have a home.",
 
-"20",
+"19",
 "If you use Citadel client/server sessions to transport network spool data",
 "between systems, this is the password other systems will use to authenticate",
 "themselves as network nodes rather than regular callers.",
 
-"21",
+"20",
 "Specify the TCP port number on which your server will run.  Normally, this",
 "will be port 504, which is the official port assigned by the IANA for",
 "Citadel servers.  You'll only need to specify a different port number if",
 "you run multiple BBS's on the same computer and there's something else",
 "already using port 504.",
 
+"21",
 "22",
 "23",
 "24",
@@ -859,10 +857,6 @@ case 17:
 	break;
 
 case 18:
-	set_long_val(curr, &config.c_msgbase);
-	break;
-
-case 19:
 	set_str_val(curr, config.c_bucket_dir);
 	config.c_bucket_dir[14] = 0;
 	for (a=0; a<strlen(config.c_bucket_dir); ++a)
@@ -871,11 +865,11 @@ case 19:
 				&config.c_bucket_dir[a+1]);
 	break;
 
-case 20:
+case 19:
 	set_str_val(curr, config.c_net_password);
 	break;
 
-case 21:
+case 20:
 	set_int_val(curr, &config.c_port_number);
 	break;
 
