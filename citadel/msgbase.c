@@ -85,17 +85,18 @@ void remove_any_whitespace_to_the_left_or_right_of_at_symbol(char *name)
 {
 	int i;
 
-	for (i = 0; i < strlen(name); ++i)
+stov:	for (i = 0; i < strlen(name); ++i) {
 		if (name[i] == '@') {
 			if (i > 0)
 				if (isspace(name[i - 1])) {
 					strcpy(&name[i - 1], &name[i]);
-					i = 0;
+					goto stov; /* start over */
 				}
 			while (isspace(name[i + 1])) {
 				strcpy(&name[i + 1], &name[i + 2]);
 			}
 		}
+	}
 }
 
 
@@ -109,16 +110,13 @@ int alias(char *name)
 	int a, b;
 	char aaa[300], bbb[300];
 
-	TRACE;
 	remove_any_whitespace_to_the_left_or_right_of_at_symbol(name);
-	TRACE;
 
 	fp = fopen("network/mail.aliases", "r");
 	if (fp == NULL)
 		fp = fopen("/dev/null", "r");
 	if (fp == NULL)
 		return (MES_ERROR);
-	TRACE;
 	strcpy(aaa, "");
 	strcpy(bbb, "");
 	while (fgets(aaa, sizeof aaa, fp) != NULL) {
@@ -135,7 +133,6 @@ int alias(char *name)
 		if (!strcasecmp(name, aaa))
 			strcpy(name, bbb);
 	}
-	TRACE;
 	fclose(fp);
 	lprintf(7, "Mail is being forwarded to %s\n", name);
 
@@ -150,18 +147,15 @@ int alias(char *name)
 	}
 
 	/* determine local or remote type, see citadel.h */
-	TRACE;
 	for (a = 0; a < strlen(name); ++a)
 		if (name[a] == '!')
 			return (MES_INTERNET);
-	TRACE;
 	for (a = 0; a < strlen(name); ++a)
 		if (name[a] == '@')
 			for (b = a; b < strlen(name); ++b)
 				if (name[b] == '.')
 					return (MES_INTERNET);
 	b = 0;
-	TRACE;
 	for (a = 0; a < strlen(name); ++a)
 		if (name[a] == '@')
 			++b;
@@ -181,7 +175,6 @@ int alias(char *name)
 GETSN:		do {
 			a = getstring(fp, aaa);
 		} while ((a >= 0) && (strcasecmp(aaa, bbb)));
-		TRACE;
 		a = getstring(fp, aaa);
 		if (!strncmp(aaa, "use ", 4)) {
 			strcpy(bbb, &aaa[4]);
@@ -189,7 +182,6 @@ GETSN:		do {
 			goto GETSN;
 		}
 		fclose(fp);
-		TRACE;
 		if (!strncmp(aaa, "uum", 3)) {
 			strcpy(bbb, name);
 			for (a = 0; a < strlen(bbb); ++a) {
@@ -223,7 +215,6 @@ GETSN:		do {
 		}
 		return (MES_ERROR);
 	}
-	TRACE;
 	lprintf(9, "returning MES_LOCAL\n");
 	return (MES_LOCAL);
 }

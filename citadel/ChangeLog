@@ -1,4 +1,10 @@
  $Log$
+ Revision 572.23  2000/08/09 17:14:34  ajc
+ msgbase.c: fixed a bug in
+            remove_any_whitespace_to_the_left_or_right_of_at_symbol() that was
+            causing the <R>eply function to fail on names with whitespace in
+            certain parts of the string.  This closes Bug #56.
+
  Revision 572.22  2000/08/05 04:24:00  ajc
  * Added [idle] to client wholist display for sessions idle >15 minutes
  * Added a generic "void *userdata" field to CtdlForEachMessage()
@@ -1977,4 +1983,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
