@@ -425,13 +425,29 @@ void logged_in_response(void)
 void logout(struct CitContext *who)
 {
 	who->logged_in = 0;
+
+	/*
+	 * If there is a download in progress, abort it.
+	 */
 	if (who->download_fp != NULL) {
 		fclose(who->download_fp);
 		who->download_fp = NULL;
 	}
+
+	/*
+	 * If there is an upload in progress, abort it.
+	 */
 	if (who->upload_fp != NULL) {
 		abort_upl(who);
 	}
+
+	/*
+	 * If we were talking to a network node, we're not anymore...
+	 */
+	if (strlen(who->net_node) > 0) {
+		network_talking_to(who->net_node, NTT_REMOVE);
+	}
+
 	/* Do modular stuff... */
 	PerformSessionHooks(EVT_LOGOUT);
 }

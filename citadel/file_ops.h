@@ -14,3 +14,13 @@ void cmd_read (char *cmdbuf);
 void cmd_writ (char *cmdbuf);
 void cmd_ndop (char *cmdbuf);
 void cmd_nuop (char *cmdbuf);
+int network_talking_to(char *nodename, int operation);
+
+/*
+ * Operations that can be performed by network_talking_to()
+ */
+enum {
+        NTT_ADD,
+        NTT_REMOVE,
+        NTT_CHECK
+};

@@ -10,10 +10,8 @@
  */
 
 /*
- * FIXME do something about concurrency issues:
- * 1. Don't allow the two nodes to poll each other at the same time
- * 2. Don't allow polls during network processing
- * 3. Kill Bill Gates using either a chainsaw or a wood chipper
+ * FIXME
+ * Don't allow polls during network processing
  */
 
 #include "sysdep.h"
@@ -56,6 +54,7 @@
 #include "internet_addressing.h"
 #include "serv_network.h"
 #include "clientsocket.h"
+#include "file_ops.h"
 
 
 /*
@@ -83,69 +82,6 @@ struct NetMap {
 };
 
 struct NetMap *the_netmap = NULL;
-
-
-
-/*
- * network_talking_to()  --  concurrency checker
- */
-int network_talking_to(char *nodename, int operation) {
-
-	static char *nttlist = NULL;
-	char *ptr = NULL;
-	int i;
-	char buf[SIZ];
-	int retval = 0;
-
-	begin_critical_section(S_NTTLIST);
-
-	switch(operation) {
-
-		case NTT_ADD:
-			if (nttlist == NULL) nttlist = strdoop("");
-			if (nttlist == NULL) break;
-			nttlist = (char *)reallok(nttlist,
-				(strlen(nttlist) + strlen(nodename) + 3) );
-			strcat(nttlist, "|");
-			strcat(nttlist, nodename);
-			break;
-
-		case NTT_REMOVE:
-			if (nttlist == NULL) break;
-			if (strlen(nttlist) == 0) break;
-			ptr = mallok(strlen(nttlist));
-			if (ptr == NULL) break;
-			strcpy(ptr, "");
-			for (i = 0; i < num_tokens(nttlist, '|'); ++i) {
-				extract(buf, nttlist, i);
-				if ( (strlen(buf) > 0)
-				     && (strcasecmp(buf, nodename)) ) {
-						strcat(ptr, buf);
-						strcat(ptr, "|");
-				}
-			}
-			phree(nttlist);
-			nttlist = ptr;
-			break;
-
-		case NTT_CHECK:
-			if (nttlist == NULL) break;
-			if (strlen(nttlist) == 0) break;
-			for (i = 0; i < num_tokens(nttlist, '|'); ++i) {
-				extract(buf, nttlist, i);
-				if (!strcasecmp(buf, nodename)) ++retval;
-			}
-			break;
-	}
-
-	if (nttlist != NULL) lprintf(9, "nttlist=<%s>\n", nttlist);
-	end_critical_section(S_NTTLIST);
-	return(retval);
-}
-
-
-
-
 
 
 
@@ -1310,7 +1246,13 @@ void cmd_netp(char *cmdbuf)
 		return;
 	}
 
+	if (network_talking_to(node, NTT_CHECK)) {
+		cprintf("%d Already talking to %s right now\n", ERROR);
+		return;
+	}
+
 	safestrncpy(CC->net_node, node, sizeof CC->net_node);
+	network_talking_to(node, NTT_ADD);
 	cprintf("%d authenticated as network node '%s'\n", OK,
 		CC->net_node);
 }
