@@ -367,7 +367,7 @@ void display_changepw(void)
 		fmout(NULL, "CENTER");
 	}
 
-	wprintf("<form name=\"changepwform\" action=\"changepw\" method=\"post\" onLoad=\"document.changepwform.action.disabled = true\">\n");
+	wprintf("<form name=\"changepwform\" action=\"changepw\" method=\"post\">\n");
 	wprintf("<CENTER>"
 		"<table border=\"0\" cellspacing=\"5\" cellpadding=\"5\" "
 		"BGCOLOR=\"#EEEEEE\">"
