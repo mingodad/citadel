@@ -523,7 +523,7 @@ void abort_upl(struct CitContext *who)
 void cmd_ucls(char *cmd)
 {
 	FILE *fp;
-	time_t now;
+	char upload_notice[512];
 	
 	if (CC->upload_fp == NULL) {
 		cprintf("%d You don't have an upload file open.\n",ERROR);
@@ -549,21 +549,11 @@ void cmd_ucls(char *cmd)
 			}
 
 		/* put together an upload notice */
-		time(&now);
-		fp=fopen(CC->temp,"wb");
-		putc(255,fp);
-		putc(MES_NORMAL,fp);
-		putc(0,fp);
-		fprintf(fp,"Pcit%ld",CC->usersupp.usernum); putc(0,fp);
-		fprintf(fp,"T%ld",(long)now); putc(0,fp);
-		fprintf(fp,"A%s",CC->curr_user); putc(0,fp);
-		fprintf(fp,"O%s",CC->quickroom.QRname); putc(0,fp);
-		fprintf(fp,"N%s",NODENAME); putc(0,fp); putc('M',fp);
-		fprintf(fp,"NEW UPLOAD: '%s'\n %s\n",CC->upl_file,CC->upl_comment);
-		putc(0,fp);
-		fclose(fp);
-		save_message(CC->temp, "", "", MES_LOCAL, 1);
-
+		sprintf(upload_notice,
+			"NEW UPLOAD: '%s'\n %s\n",
+			CC->upl_file,CC->upl_comment);
+		quickie_message(CC->curr_user, CC->quickroom.QRname,
+				upload_notice);
 		}
 	else {
 		abort_upl(CC);

@@ -35,6 +35,9 @@
 
 extern struct config config;
 
+/* FIX dumb stub function */
+void save_message(char *junk, char *more_junk, char *foo, int wahw, int ee) {
+}
 
 /*
  * This function is self explanatory.
@@ -357,7 +360,7 @@ void memfmout(int width, char *mptr, char subst)
 	strcpy(buffer, "");
 	c = 1;			/* c is the current pos */
 
-      FMTA:if (subst) {
+FMTA:	if (subst) {
 		while (ch = *mptr, ((ch != 0) && (strlen(buffer) < 126))) {
 			ch = *mptr++;
 			buffer[strlen(buffer) + 1] = 0;
@@ -370,8 +373,9 @@ void memfmout(int width, char *mptr, char subst)
 		buffer[strlen(buffer) + 1] = 0;
 		a = buffer[0];
 		strcpy(buffer, &buffer[1]);
-	} else
+	} else {
 		ch = *mptr++;
+	}
 
 	old = real;
 	real = ch;
@@ -564,6 +568,22 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum)
 	return (ret);
 }
 
+
+/*
+ * Returns 1 if the supplied pointer points to a valid Citadel message.
+ * If the pointer is NULL or the magic number check fails, returns 0.
+ */
+int is_valid_message(struct CtdlMessage *msg) {
+	if (msg == NULL)
+		return 0;
+	if ((msg->cm_magic) != CTDLMESSAGE_MAGIC) {
+		lprintf(3, "is_valid_message() -- self-check failed\n");
+		return 0;
+	}
+	return 1;
+}
+
+
 /*
  * 'Destructor' for struct CtdlMessage
  */
@@ -571,12 +591,8 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
 {
 	int i;
 
-	if (msg == NULL)
-		return;
-	if ((msg->cm_magic) != CTDLMESSAGE_MAGIC) {
-		lprintf(3, "CtdlFreeMessage() -- self-check failed\n");
-		return;
-	}
+	if (is_valid_message(msg) == 0) return;
+
 	for (i = 0; i < 256; ++i)
 		if (msg->cm_fields[i] != NULL)
 			phree(msg->cm_fields[i]);
@@ -961,39 +977,40 @@ void cmd_opna(char *cmdbuf)
 /*
  * Message base operation to send a message to the master file
  * (returns new message number)
+ *
+ * This is the back end for CtdlSaveMsg() and should not be directly
+ * called by server-side modules.
+ *
  */
-long send_message(char *message_in_memory,
-							/* pointer to buffer */
-						   size_t message_length,	/* length of buffer */
-						      int generate_id)
-{				/* 1 to generate an I field */
-
+long send_message(struct CtdlMessage *msg,	/* pointer to buffer */
+		int generate_id,		/* generate 'I' field? */
+		FILE *save_a_copy)		/* save a copy to disk? */
+{
 	long newmsgid;
-	char *actual_message;
-	size_t actual_length;
 	long retval;
 	char msgidbuf[32];
+        struct sermsgret smr;
 
 	/* Get a new message number */
 	newmsgid = get_new_message_number();
+	sprintf(msgidbuf, "%ld", newmsgid);
 
 	if (generate_id) {
-		sprintf(msgidbuf, "I%ld", newmsgid);
-		actual_length = message_length + strlen(msgidbuf) + 1;
-		actual_message = mallok(actual_length);
-		memcpy(actual_message, message_in_memory, 3);
-		memcpy(&actual_message[3], msgidbuf, (strlen(msgidbuf) + 1));
-		memcpy(&actual_message[strlen(msgidbuf) + 4],
-		       &message_in_memory[3], message_length - 3);
-	} else {
-		actual_message = message_in_memory;
-		actual_length = message_length;
+		msg->cm_fields['I'] = strdoop(msgidbuf);
 	}
+	
+        serialize_message(&smr, msg);
+
+        if (smr.len == 0) {
+                cprintf("%d Unable to serialize message\n",
+                        ERROR+INTERNAL_ERROR);
+                return (-1L);
+        }
 
 	/* Write our little bundle of joy into the message base */
 	begin_critical_section(S_MSGMAIN);
 	if (cdb_store(CDB_MSGMAIN, &newmsgid, sizeof(long),
-		      actual_message, actual_length) < 0) {
+		      smr.ser, smr.len) < 0) {
 		lprintf(2, "Can't store message\n");
 		retval = 0L;
 	} else {
@@ -1001,38 +1018,22 @@ long send_message(char *message_in_memory,
 	}
 	end_critical_section(S_MSGMAIN);
 
-	if (generate_id) {
-		phree(actual_message);
+	/* If the caller specified that a copy should be saved to a particular
+	 * file handle, do that now too.
+	 */
+	if (save_a_copy != NULL) {
+		fwrite(smr.ser, smr.len, 1, save_a_copy);
 	}
-	/* Finally, return the pointers */
-	return (retval);
+
+	/* Free the memory we used for the serialized message */
+        phree(smr.ser);
+
+	/* Return the *local* message ID to the caller
+	 * (even if we're storing an incoming network message)
+	 */
+	return(retval);
 }
 
-
-
-/*
- * this is a simple file copy routine.
- */
-void copy_file(char *from, char *to)
-{
-	FILE *ffp, *tfp;
-	int a;
-
-	ffp = fopen(from, "r");
-	if (ffp == NULL)
-		return;
-	tfp = fopen(to, "w");
-	if (tfp == NULL) {
-		fclose(ffp);
-		return;
-	}
-	while (a = getc(ffp), a >= 0) {
-		putc(a, tfp);
-	}
-	fclose(ffp);
-	fclose(tfp);
-	return;
-}
 
 
 /*
@@ -1051,15 +1052,16 @@ void serialize_message(struct sermsgret *ret,		/* return values */
 
 	lprintf(9, "serialize_message() called\n");
 
-	if ((msg->cm_magic) != CTDLMESSAGE_MAGIC) {
-		lprintf(3, "serialize_message() -- self-check failed\n");
-		return;
-	}
+	if (is_valid_message(msg) == 0) return;		/* self check */
+
+	lprintf(9, "magic number check OK.\n");
 
 	ret->len = 3;
 	for (i=0; i<26; ++i) if (msg->cm_fields[(int)forder[i]] != NULL)
 		ret->len = ret->len +
 			strlen(msg->cm_fields[(int)forder[i]]) + 2;
+
+	lprintf(9, "message is %d bytes\n", ret->len);
 
 	lprintf(9, "calling malloc\n");
 	ret->ser = mallok(ret->len);
@@ -1087,41 +1089,52 @@ void serialize_message(struct sermsgret *ret,		/* return values */
 
 
 
-
-
-
-
 /*
- * message base operation to save a message and install its pointers
+ * Save a message to disk
  */
-void save_message(char *mtmp,	/* file containing proper message */
-		  char *rec,	/* Recipient (if mail) */
-		  char *force,	/* if non-zero length, force a room */
-		  int mailtype,	/* local or remote type, see citadel.h */
-		  int generate_id)
-{				/* set to 1 to generate an 'I' field */
+void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
+		char *rec,			/* Recipient (mail) */
+		char *force,			/* force a particular room? */
+		int mailtype,			/* local or remote type */
+		int generate_id)		/* 1 = generate 'I' field */
+{
 	char aaa[100];
 	char hold_rm[ROOMNAMELEN];
 	char actual_rm[ROOMNAMELEN];
 	char force_room[ROOMNAMELEN];
 	char content_type[256];	/* We have to learn this */
-	char ch, rch;
 	char recipient[256];
 	long newmsgid;
-	char *message_in_memory;
 	char *mptr;
-	struct stat statbuf;
-	size_t templen;
-	FILE *fp;
 	struct usersupp userbuf;
 	int a;
-	static int seqnum = 0;
 	int successful_local_recipients = 0;
 	struct quickroom qtemp;
 	struct SuppMsgInfo smi;
+	FILE *network_fp = NULL;
+	static int seqnum = 1;
 
-	lprintf(9, "save_message(%s,%s,%s,%d,%d)\n",
-		mtmp, rec, force, mailtype, generate_id);
+	lprintf(9, "CtdlSaveMsg() called\n");
+	if (is_valid_message(msg) == 0) return;		/* self check */
+
+	/* If this message has no timestamp, we take the liberty of
+	 * giving it one, right now.
+	 */
+	if (msg->cm_fields['T'] == NULL) {
+		sprintf(aaa, "%ld", time(NULL));
+		msg->cm_fields['T'] = strdoop(aaa);
+	}
+
+	/* If this message has no path, we generate one.
+	 */
+	if (msg->cm_fields['P'] == NULL) {
+		msg->cm_fields['P'] = strdoop(msg->cm_fields['A']);
+		for (a=0; a<strlen(msg->cm_fields['P']); ++a) {
+			if (isspace(msg->cm_fields['P'][a])) {
+				msg->cm_fields['P'][a] = ' ';
+			}
+		}
+	}
 
 	strcpy(force_room, force);
 
@@ -1131,26 +1144,9 @@ void save_message(char *mtmp,	/* file containing proper message */
 		if (!isprint(recipient[a]))
 			strcpy(&recipient[a], &recipient[a + 1]);
 
-	/* Measure the message */
-	stat(mtmp, &statbuf);
-	templen = statbuf.st_size;
-
-	/* Now read it into memory */
-	message_in_memory = (char *) mallok(templen);
-	if (message_in_memory == NULL) {
-		lprintf(2, "Can't allocate memory to save message!\n");
-		return;
-	}
-	fp = fopen(mtmp, "rb");
-	fread(message_in_memory, templen, 1, fp);
-	fclose(fp);
-
 	/* Learn about what's inside, because it's what's inside that counts */
-	mptr = message_in_memory;
-	++mptr;			/* advance past 0xFF header */
-	++mptr;			/* advance past anon flag */
-	ch = *mptr++;
-	switch (ch) {
+
+	switch (msg->cm_format_type) {
 	case 0:
 		strcpy(content_type, "text/x-citadel-variformat");
 		break;
@@ -1160,11 +1156,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 	case 4:
 		strcpy(content_type, "text/plain");
 		/* advance past header fields */
-		while (ch = *mptr++, (ch != 'M' && ch != 0)) {
-			do {
-				rch = *mptr++;
-			} while (rch > 0);
-		}
+		mptr = msg->cm_fields['M'];
 		a = strlen(mptr);
 		while (--a) {
 			if (!strncasecmp(mptr, "Content-type: ", 14)) {
@@ -1183,9 +1175,22 @@ void save_message(char *mtmp,	/* file containing proper message */
 		}
 	}
 
+	/* Network mail - send a copy to the network program. */
+	if ((strlen(recipient) > 0) && (mailtype != MES_LOCAL)) {
+		sprintf(aaa, "./network/spoolin/netmail.%04lx.%04x.%04x",
+			(long) getpid(), CC->cs_pid, ++seqnum);
+		lprintf(9, "Saving a copy to %s\n", aaa);
+		network_fp = fopen(aaa, "ab+");
+		if (network_fp == NULL)
+			lprintf(2, "ERROR: %s\n", strerror(errno));
+	}
+
 	/* Save it to disk */
-	newmsgid = send_message(message_in_memory, templen, generate_id);
-	phree(message_in_memory);
+	newmsgid = send_message(msg, generate_id, network_fp);
+	if (network_fp != NULL) {
+		fclose(network_fp);
+		system("exec nohup ./netproc -i >/dev/null 2>&1 &");
+	}
 	if (newmsgid <= 0L)
 		return;
 
@@ -1229,13 +1234,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 		lputroom(&CC->quickroom);
 		++successful_local_recipients;
 	}
-	/* Network mail - send a copy to the network program. */
-	if ((strlen(recipient) > 0) && (mailtype != MES_LOCAL)) {
-		sprintf(aaa, "./network/spoolin/netmail.%04lx.%04x.%04x",
-			(long) getpid(), CC->cs_pid, ++seqnum);
-		copy_file(mtmp, aaa);
-		system("exec nohup ./netproc -i >/dev/null 2>&1 &");
-	}
+
 	/* Bump this user's messages posted counter. */
 	lgetuser(&CC->usersupp, CC->curr_user);
 	CC->usersupp.posted = CC->usersupp.posted + 1;
@@ -1261,7 +1260,6 @@ void save_message(char *mtmp,	/* file containing proper message */
 	if (strlen(hold_rm) > 0) {
 		usergoto(hold_rm, 0);
 	}
-	unlink(mtmp);		/* delete the temporary file */
 
 	/* Write a supplemental message info record.  This doesn't have to
 	 * be a critical section because nobody else knows about this message
@@ -1275,23 +1273,26 @@ void save_message(char *mtmp,	/* file containing proper message */
 }
 
 
-/*
- * Generate an administrative message and post it in the Aide> room.
- */
-void aide_message(char *text)
-{
-	FILE *fp;
 
-	fp = fopen(CC->temp, "wb");
-	fprintf(fp, "%c%c%c", 255, MES_NORMAL, 0);
-	fprintf(fp, "Psysop%c", 0);
-	fprintf(fp, "T%ld%c", (long) time(NULL), 0);
-	fprintf(fp, "ACitadel%c", 0);
-	fprintf(fp, "OAide%c", 0);
-	fprintf(fp, "N%s%c", NODENAME, 0);
-	fprintf(fp, "M%s\n%c", text, 0);
-	fclose(fp);
-	save_message(CC->temp, "", AIDEROOM, MES_LOCAL, 1);
+/*
+ * Convenience function for generating small administrative messages.
+ */
+void quickie_message(char *from, char *room, char *text)
+{
+	struct CtdlMessage *msg;
+
+	msg = mallok(sizeof(struct CtdlMessage));
+	memset(msg, 0, sizeof(struct CtdlMessage));
+	msg->cm_magic = CTDLMESSAGE_MAGIC;
+	msg->cm_anon_type = MES_NORMAL;
+	msg->cm_format_type = 0;
+	msg->cm_fields['A'] = strdoop(from);
+	msg->cm_fields['O'] = strdoop(room);
+	msg->cm_fields['N'] = strdoop(NODENAME);
+	msg->cm_fields['M'] = strdoop(text);
+
+	CtdlSaveMsg(msg, "", room, MES_LOCAL, 1);
+	CtdlFreeMessage(msg);
 	syslog(LOG_NOTICE, text);
 }
 
@@ -1300,8 +1301,7 @@ void aide_message(char *text)
  * Build a binary message to be saved on disk.
  */
 
-void make_message(
-	char *filename,			/* temporary file name */
+struct CtdlMessage *make_message(
 	struct usersupp *author,	/* author's usersupp structure */
 	char *recipient,		/* NULL if it's not mail */
 	char *room,			/* room where it's going */
@@ -1311,12 +1311,19 @@ void make_message(
 	char *fake_name)		/* who we're masquerading as */
 {
 
-	FILE *fp;
 	int a;
-	time_t now;
 	char dest_node[32];
 	char buf[256];
-	size_t msglen = 0;
+	size_t message_len = 0;
+	size_t buffer_len = 0;
+	char *ptr;
+	struct CtdlMessage *msg;
+
+	msg = mallok(sizeof(struct CtdlMessage));
+	memset(msg, 0, sizeof(struct CtdlMessage));
+	msg->cm_magic = CTDLMESSAGE_MAGIC;
+	msg->cm_anon_type = type;
+	msg->cm_format_type = format_type;
 
 	/* Don't confuse the poor folks if it's not routed mail. */
 	strcpy(dest_node, "");
@@ -1332,53 +1339,74 @@ void make_message(
 		}
 	}
 
-	/* if net_type is MES_INTERNET, set the dest node to 'internet' */ if (net_type == MES_INTERNET) {
+	/* if net_type is MES_INTERNET, set the dest node to 'internet' */
+	if (net_type == MES_INTERNET) {
 		strcpy(dest_node, "internet");
 	}
 
 	while (isspace(recipient[strlen(recipient) - 1]))
 		recipient[strlen(recipient) - 1] = 0;
 
-	time(&now);
-	fp = fopen(filename, "w");
-	putc(255, fp);
-	putc(type, fp);		/* Normal or anonymous, see MES_ flags */
-	putc(format_type, fp);	/* Formatted or unformatted */
-	fprintf(fp, "Pcit%ld%c", author->usernum, 0);	/* path */
-	fprintf(fp, "T%ld%c", (long) now, 0);	/* date/time */
+	sprintf(buf, "cit%ld", author->usernum);		/* Path */
+	msg->cm_fields['P'] = strdoop(buf);
 
-	if (fake_name[0])
-		fprintf(fp, "A%s%c", fake_name, 0);
+	sprintf(buf, "%ld", time(NULL));			/* timestamp */
+	msg->cm_fields['T'] = strdoop(buf);
+
+	if (fake_name[0])					/* author */
+		msg->cm_fields['A'] = strdoop(fake_name);
 	else
-		fprintf(fp, "A%s%c", author->fullname, 0);	/* author */
+		msg->cm_fields['A'] = strdoop(author->fullname);
 
-	if (CC->quickroom.QRflags & QR_MAILBOX) {	/* room */
-		fprintf(fp, "O%s%c", &CC->quickroom.QRname[11], 0);
-	} else {
-		fprintf(fp, "O%s%c", CC->quickroom.QRname, 0);
-	}
+	if (CC->quickroom.QRflags & QR_MAILBOX) 		/* room */
+		msg->cm_fields['O'] = strdoop(&CC->quickroom.QRname[11]);
+	else
+		msg->cm_fields['O'] = strdoop(CC->quickroom.QRname);
 
-	fprintf(fp, "N%s%c", NODENAME, 0);	/* nodename */
-	fprintf(fp, "H%s%c", HUMANNODE, 0);	/* human nodename */
+	msg->cm_fields['N'] = strdoop(NODENAME);		/* nodename */
+	msg->cm_fields['H'] = strdoop(HUMANNODE);		/* hnodename */
 
 	if (recipient[0] != 0)
-		fprintf(fp, "R%s%c", recipient, 0);
+		msg->cm_fields['R'] = strdoop(recipient);
 	if (dest_node[0] != 0)
-		fprintf(fp, "D%s%c", dest_node, 0);
+		msg->cm_fields['D'] = strdoop(dest_node);
 
-	putc('M', fp);
-
-	while (client_gets(buf), strcmp(buf, "000")) {
-		if (msglen < config.c_maxmsglen) 
-			fprintf(fp, "%s\n", buf);
-		else
-			lprintf(7, "Message exceeded %d byte limit\n",
-				config.c_maxmsglen);
-		msglen = msglen + strlen(buf) + 1;
+	msg->cm_fields['M'] = mallok(4096);
+	if (msg->cm_fields['M'] == NULL) {
+		while (client_gets(buf), strcmp(buf, "000")) ;;	/* flush */
+		return(msg);
+	} else {
+		buffer_len = 4096;
+		msg->cm_fields['M'][0] = 0;
+		message_len = 0;
 	}
 
-	putc(0, fp);
-	fclose(fp);
+	/* read in the lines of message text one by one */
+	while (client_gets(buf), strcmp(buf, "000")) {
+
+		/* augment the buffer if we have to */
+		if ((message_len + strlen(buf) + 2) > buffer_len) {
+			ptr = reallok(msg->cm_fields['M'], (buffer_len * 2) );
+			if (ptr == NULL) {	/* flush if can't allocate */
+				while (client_gets(buf), strcmp(buf, "000")) ;;
+				return(msg);
+			} else {
+				buffer_len = (buffer_len * 2);
+				msg->cm_fields['M'] = ptr;
+			}
+		}
+
+		strcat(msg->cm_fields['M'], buf);
+		strcat(msg->cm_fields['M'], "\n");
+
+		/* if we've hit the max msg length, flush the rest */
+		if (message_len >= config.c_maxmsglen) {
+			while (client_gets(buf), strcmp(buf, "000")) ;;
+			return(msg);
+		}
+	}
+
+	return(msg);
 }
 
 
@@ -1395,7 +1423,7 @@ void cmd_ent0(char *entargs)
 	int anon_flag = 0;
 	int format_type = 0;
 	char newusername[256];
-
+	struct CtdlMessage *msg;
 	int a, b;
 	int e = 0;
 	int mtsflag = 0;
@@ -1482,7 +1510,7 @@ void cmd_ent0(char *entargs)
 			return;
 		}
 		/* Check to make sure the user exists; also get the correct
-		   * upper/lower casing of the name. 
+		 * upper/lower casing of the name. 
 		 */
 		a = getuser(&tempUS, buf);
 		if (a != 0) {
@@ -1512,19 +1540,22 @@ SKFALL:	b = MES_NORMAL;
 
 	cprintf("%d send message\n", SEND_LISTING);
 
+	/* Read in the message from the client. */
 	if (CC->fake_postname[0])
-		make_message(CC->temp, &CC->usersupp, buf,
+		msg = make_message(&CC->usersupp, buf,
 			CC->quickroom.QRname, b, e, format_type,
 			CC->fake_postname);
 	else if (CC->fake_username[0])
-		make_message(CC->temp, &CC->usersupp, buf,
+		msg = make_message(&CC->usersupp, buf,
 			CC->quickroom.QRname, b, e, format_type,
 			CC->fake_username);
 	else
-		make_message(CC->temp, &CC->usersupp, buf,
+		msg = make_message(&CC->usersupp, buf,
 			CC->quickroom.QRname, b, e, format_type, "");
 
-	save_message(CC->temp, buf, (mtsflag ? AIDEROOM : ""), e, 1);
+	if (msg != NULL)
+		CtdlSaveMsg(msg, buf, (mtsflag ? AIDEROOM : ""), e, 1);
+		CtdlFreeMessage(msg);
 	CC->fake_postname[0] = '\0';
 	return;
 }
@@ -1550,7 +1581,9 @@ void cmd_ent3(char *entargs)
 			ERROR);
 		return;
 	}
-	/* See if there's a recipient, but make sure it's a real one */ extract(recp, entargs, 1);
+
+	/* See if there's a recipient, but make sure it's a real one */
+	extract(recp, entargs, 1);
 	for (a = 0; a < strlen(recp); ++a)
 		if (!isprint(recp[a]))
 			strcpy(&recp[a], &recp[a + 1]);

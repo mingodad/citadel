@@ -790,7 +790,7 @@ void cmd_invt_kick(char *iuser, int op)
 	lputuser(&USscratch);
 
 	/* post a message in Aide> saying what we just did */
-	sprintf(bbb,"%s %s %s> by %s",
+	sprintf(bbb,"%s %s %s> by %s\n",
 		iuser,
 		((op == 1) ? "invited to" : "kicked out of"),
 		CC->quickroom.QRname,

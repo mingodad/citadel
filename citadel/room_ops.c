@@ -1044,7 +1044,7 @@ void cmd_setr(char *args)
 			CC->quickroom.QRdirname);
 		system(buf);
 	}
-	sprintf(buf, "%s> edited by %s", CC->quickroom.QRname, CC->curr_user);
+	sprintf(buf, "%s> edited by %s\n", CC->quickroom.QRname, CC->curr_user);
 	aide_message(buf);
 	cprintf("%d Ok\n", OK);
 }
@@ -1112,7 +1112,7 @@ void cmd_seta(char *new_ra)
 	 * the room table, otherwise it would deadlock!
 	 */
 	if (post_notice == 1) {
-		sprintf(buf, "%s is now room aide for %s>",
+		sprintf(buf, "%s is now room aide for %s>\n",
 			usbuf.fullname, CC->quickroom.QRname);
 		aide_message(buf);
 	}
@@ -1221,7 +1221,7 @@ void cmd_kill(char *argbuf)
 		usergoto(BASEROOM, 0);	/* Return to the Lobby */
 
 		/* tell the world what we did */
-		sprintf(aaa, "%s> killed by %s",
+		sprintf(aaa, "%s> killed by %s\n",
 			deleted_room_name, CC->curr_user);
 		aide_message(aaa);
 		cprintf("%d '%s' deleted.\n", OK, deleted_room_name);
@@ -1402,6 +1402,7 @@ void cmd_cre8(char *args)
 		strcat(aaa, "\n Password: ");
 		strcat(aaa, new_room_pass);
 	}
+	strcat(aaa, "\n");
 	aide_message(aaa);
 
 	cprintf("%d '%s' has been created.\n", OK, qrbuf.QRname);

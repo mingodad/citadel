@@ -1,6 +1,6 @@
 /* $Id$ */
 
-
+#define aide_message(text)      quickie_message("Citadel",AIDEROOM,text)
 
 struct sermsgret {
 	size_t len;
@@ -13,6 +13,7 @@ struct sermsgret {
 #define MSGS_FIRST      3
 #define MSGS_LAST       4
 #define MSGS_GT         5
+
 
 struct ma_info {
 	char prefix[256];	/* Prefix for a multipart/alternative */
@@ -36,15 +37,12 @@ void cmd_msg2 (char *cmdbuf);
 void cmd_msg3 (char *cmdbuf);
 void cmd_msg4 (char *cmdbuf);
 void cmd_opna (char *cmdbuf);
-long int send_message (char *message_in_memory, size_t message_length,
-		       int generate_id);
+long send_message (struct CtdlMessage *, int, FILE *);
 void loadtroom (void);
-void copy_file (char *from, char *to);
-void save_message (char *, char *, char *, int, int);
-void aide_message (char *text);
-void make_message (char *filename, struct usersupp *author, char *recipient,
-		   char *room, int type, int net_type, int format_type,
-		   char *fake_name);
+void CtdlSaveMsg(struct CtdlMessage *, char *, char *, int, int);
+void quickie_message (char *, char *, char *);
+struct CtdlMessage *make_message (struct usersupp *, char *,
+		   char *, int, int, int, char *);
 void cmd_ent0 (char *entargs);
 void cmd_ent3 (char *entargs);
 void cmd_dele (char *delstr);
@@ -61,4 +59,4 @@ void CtdlWriteObject(char *, char *, char *, int, int, int);
 struct CtdlMessage *CtdlFetchMessage(long msgnum);
 void CtdlFreeMessage(struct CtdlMessage *msg);
 void serialize_message(struct sermsgret *, struct CtdlMessage *);
-
+int is_valid_message(struct CtdlMessage *);

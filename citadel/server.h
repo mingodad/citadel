@@ -353,5 +353,5 @@ struct CtdlMessage {
 /* Preferred field order */
 /*               *********			Important fields */
 /*                        ****************	Semi-important fields */
-/*                                        * 	Message text (must be last) */
+/*                                        * 	Message text (MUST be last) */
 #define FORDER	"IPTAONHRDBCEFGJKLQSUVWXYZM"

@@ -496,7 +496,11 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 	}
 	end_critical_section(S_SESSION_TABLE);
 
-	/* Log the page to disk if configured to do so */
+	/* Log the page to disk if configured to do so 
+
+
+	****** FIX FIX FIX   add this back in *************
+
 	if ((strlen(config.c_logpages) > 0) && (do_send) ) {
 		fp = fopen(CC->temp, "wb");
 		fprintf(fp, "%c%c%c", 255, MES_NORMAL, 0);
@@ -511,6 +515,7 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 		save_message(CC->temp, "", config.c_logpages, MES_LOCAL, 1);
 		unlink(CC->temp);
 	}
+	*************************************/
 	return (message_sent);
 }
 

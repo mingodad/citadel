@@ -1,4 +1,11 @@
 $Log$
+Revision 1.365  1999/09/16 03:23:23  ajc
+* Did most of the migration from save_message() to CtdlSaveMsg().  The
+  latter builds a "struct CtdlMessage" (so we can run server-side handlers
+  against it later on), then serializes it and stores to disk.
+* BROKEN BUILD ALERT!!  cmd_ent3() and CtdlWriteObject() are still not
+  migrated.  They are stubbed out and will MALFUNCTION if used right now!!
+
 Revision 1.364  1999/09/07 01:42:42  ajc
 * cmd_msg3() now uses serialize_message() for its output.  All message
   commands will eventually exist as a "struct CtdlMessage" at some point
@@ -1243,4 +1250,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

@@ -236,7 +236,7 @@ void cmd_conf(char *argbuf) {
 		    }
 		put_config();
 		snprintf(buf,sizeof buf,
-			 "Global system configuration edited by %s",
+			 "Global system configuration edited by %s\n",
 			 CC->curr_user);
 		aide_message(buf);
 
