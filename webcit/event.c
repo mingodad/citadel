@@ -146,7 +146,6 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	}
 	else {
 		localtime_r(&now, &tm_now);
-		lprintf(9, "NOW NOW NOW!!!! %ld\n", now);
 		if (strlen(bstr("year")) > 0) {
 			tm_now.tm_year = atoi(bstr("year")) - 1900;
 			tm_now.tm_mon = atoi(bstr("month")) - 1;
