@@ -1,4 +1,7 @@
 $Log$
+Revision 400.4  2002/09/14 04:02:36  ajc
+* Finished gzip compression of dynamic pages (when browser supports it)
+
 Revision 400.3  2002/09/13 20:40:53  ajc
 * Detect when the client browser is capable of gzip encoding
   (actual encoding is not implemented yet)
@@ -947,4 +950,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
