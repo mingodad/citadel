@@ -433,6 +433,7 @@ void cmd_iden(char *argbuf)
 	strncpy(CC->cs_clientname,desc,31);
 	CC->cs_clientname[31] = 0;
 
+	lprintf(9, "Looking up hostname\n");
 	if ((strlen(from_host)>0) && 
 	   (is_public_client(CC->cs_host))) {
 		if (inet_aton(from_host, &addr))
@@ -442,6 +443,8 @@ void cmd_iden(char *argbuf)
 			CC->cs_host[24] = 0;
 			}
 		}
+
+	lprintf(9, "Setting wtmpsupp\n");
 	set_wtmpsupp_to_current_room();
 
 	syslog(LOG_NOTICE,"client %d/%d/%01d.%02d (%s)\n",

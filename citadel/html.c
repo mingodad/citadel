@@ -39,12 +39,19 @@ char *html_to_ascii(char *inputmsg, int screenwidth) {
 	char tag[1024];
 	int done_reading = 0;
 	char *inptr;
+	char *outptr;
+	size_t outlen;
 	int i, j, ch, did_out, rb;
 	int nest = 0;		/* Bracket nesting level */
 
 	inptr = inputmsg;
 	strcpy(inbuf, "");
 	strcpy(outbuf, "");
+
+	outptr = mallok(strlen(inptr) + 256);
+	if (outptr == NULL) return NULL;
+	strcpy(outptr, "");
+	outlen = 0;
 
 	do {
 		/* Fill the input buffer */
@@ -192,6 +199,19 @@ char *html_to_ascii(char *inputmsg, int screenwidth) {
 				strcpy(&outbuf[i+3], &outbuf[i+6]);
 			}
 
+			else if (!strncasecmp(&outbuf[i], "&reg;", 5)) {
+				outbuf[i] = '(';
+				outbuf[i+1] = 'r';
+				outbuf[i+2] = ')';
+				strcpy(&outbuf[i+3], &outbuf[i+5]);
+			}
+
+		}
+
+		/* Make sure the output buffer is big enough */
+		if ((strlen(outptr) + strlen(outbuf) + 128) > outlen) {
+			outlen += 128;
+			outptr = realloc(outptr, outlen);
 		}
 
 		/* Output any lines terminated with hard line breaks */
@@ -200,7 +220,9 @@ char *html_to_ascii(char *inputmsg, int screenwidth) {
 			if (strlen(outbuf)>0)
 			    for (i = 0; i<strlen(outbuf); ++i) {
 				if ( (i<(screenwidth-2)) && (outbuf[i]=='\n')) {
-					fwrite(outbuf, i+1, 1, stdout);
+
+					strncat(outptr, outbuf, i+1);
+
 					strcpy(outbuf, &outbuf[i+1]);
 					i = 0;
 					did_out = 1;
@@ -215,23 +237,26 @@ char *html_to_ascii(char *inputmsg, int screenwidth) {
 				if (outbuf[i]==32) rb = i;
 			}
 			if (rb>=0) {
-				fwrite(outbuf, rb, 1, stdout);
-				fwrite("\n", 1, 1, stdout);
+
+				strncat(outptr, outbuf, rb);
+				strcat(outptr, "\n");
+
 				strcpy(outbuf, &outbuf[rb+1]);
 			} else {
-				fwrite(outbuf, screenwidth-2, 1, stdout);
-				fwrite("\n", 1, 1, stdout);
+
+				strncat(outptr, outbuf, screenwidth-2);
+				strcat(outptr, "\n");
+
 				strcpy(outbuf, &outbuf[screenwidth-2]);
 			}
 		}
 
 	} while (done_reading == 0);
-	fwrite(outbuf, strlen(outbuf), 1, stdout);
-	fwrite("\n", 1, 1, stdout);
 
-	inptr = mallok(100);
-	strcpy(inptr, "This is eekish.\n");
-	return inptr;
+	strcat(outptr, outbuf);
+	strcat(outptr, "\n");
+
+	return outptr;
 
 }
 
