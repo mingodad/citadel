@@ -65,7 +65,7 @@ int imap_do_copy(char *destination_folder) {
 		}
 	}
 
-	return(1);
+	return(0);
 }
 
 
@@ -73,6 +73,7 @@ int imap_do_copy(char *destination_folder) {
  * This function is called by the main command loop.
  */
 void imap_copy(int num_parms, char *parms[]) {
+	int ret;
 
 	if (num_parms != 4) {
 		cprintf("%s BAD invalid parameters\r\n", parms[0]);
@@ -87,11 +88,12 @@ void imap_copy(int num_parms, char *parms[]) {
 		return;
 	}
 
-	if (imap_do_copy(parms[3]) == 0) {
+	ret = imap_do_copy(parms[3]);
+	if (!ret) {
 		cprintf("%s OK COPY completed\r\n", parms[0]);
 	}
 	else {
-		cprintf("%s NO COPY failed\r\n", parms[0]);
+		cprintf("%s NO COPY failed (error %d)\r\n", parms[0], ret);
 	}
 }
 

@@ -385,9 +385,46 @@ void imap_select(int num_parms, char *parms[]) {
 
 
 /*
+ * does the real work for expunge
+ */
+int imap_do_expunge(void) {
+	int i;
+	int num_expunged = 0;
+
+	if (IMAP->num_msgs > 0) for (i=0; i<IMAP->num_msgs; ++i) {
+		if (IMAP->flags[i] & IMAP_DELETED) {
+			CtdlDeleteMessages(CC->quickroom.QRname,
+					IMAP->msgids[i], "");
+			++num_expunged;
+		}
+	}
+
+	if (num_expunged > 0) {
+		imap_rescan_msgids();
+	}
+
+	return(num_expunged);
+}
+
+
+/*
+ * implements the EXPUNGE command syntax
+ */
+void imap_expunge(int num_parms, char *parms[]) {
+	int num_expunged = 0;
+	imap_do_expunge();
+	cprintf("%s OK expunged %d messages.\r\n", parms[0], num_expunged);
+}
+
+
+/*
  * implements the CLOSE command
  */
 void imap_close(int num_parms, char *parms[]) {
+
+	/* Yes, we always expunge on close. */
+	imap_do_expunge();
+
 	IMAP->selected = 0;
 	IMAP->readonly = 0;
 	imap_free_msgids();
@@ -565,7 +602,7 @@ int imap_grabroom(char *returned_roomname, char *foldername) {
 	/* Fail here if no such room */
 	if (!ok) {
 		strcpy(returned_roomname, "");
-		return(1);
+		return(2);
 	}
 	else {
 		strcpy(returned_roomname, QRscratch.QRname);
@@ -582,7 +619,6 @@ void imap_status(int num_parms, char *parms[]) {
 	int ret;
 	char roomname[ROOMNAMELEN];
 	char buf[SIZ];
-	struct quickroom QRscratch;
 	char savedroom[ROOMNAMELEN];
 	int msgs, new;
 
@@ -612,7 +648,7 @@ void imap_status(int num_parms, char *parms[]) {
 	 * FIXME we need to implement RECENT and UNSEEN eventually...
 	 */
 
-	imap_mailboxname(buf, sizeof buf, &QRscratch);
+	imap_mailboxname(buf, sizeof buf, &CC->quickroom);
 	cprintf("* STATUS ");
 	imap_strout(buf);
 	cprintf(" (MESSAGES %d RECENT 0 UIDNEXT %ld "
@@ -791,6 +827,10 @@ void imap_command_loop(void) {
 	else if ( (!strcasecmp(parms[1], "UID"))
 		&& (!strcasecmp(parms[2], "COPY")) ) {
 		imap_uidcopy(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "EXPUNGE")) {
+		imap_expunge(num_parms, parms);
 	}
 
 	else if (!strcasecmp(parms[1], "CLOSE")) {

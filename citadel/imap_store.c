@@ -50,33 +50,56 @@
  * imap_do_store() calls imap_do_store_msg() to output the deta of an
  * individual message, once it has been successfully loaded from disk.
  */
-void imap_do_store_msg(int seq, struct CtdlMessage *msg,
-			int num_items, char **itemlist, int is_uid) {
+void imap_do_store_msg(int seq, char *oper, unsigned int bits_to_twiddle) {
+	
+	if (!strncasecmp(oper, "FLAGS", 5)) {
+		IMAP->flags[seq] &= IMAP_MASK_SYSTEM;
+		IMAP->flags[seq] |= bits_to_twiddle;
+	}
+	else if (!strncasecmp(oper, "+FLAGS", 6)) {
+		IMAP->flags[seq] |= bits_to_twiddle;
+	}
+	else if (!strncasecmp(oper, "-FLAGS", 6)) {
+		IMAP->flags[seq] &= (~bits_to_twiddle);
+	}
 
-
+	cprintf("* %d FETCH (", seq+1);
+	imap_fetch_flags(seq);
+	cprintf(")\r\n");
 }
 
 
 
 /*
- * imap_store() calls imap_do_store() to do its actual work, once it's
- * validated and boiled down the request a bit.
+ * imap_store() calls imap_do_store() to perform the actual bit twiddling
+ * on flags.  We brazenly ignore the ".silent" protocol option because it's not
+ * harmful to send the data anyway.  Fix it yourself if you don't like that.
  */
-void imap_do_store(int num_items, char **itemlist, int is_uid) {
+void imap_do_store(int num_items, char **itemlist) {
 	int i;
-	struct CtdlMessage *msg;
+	unsigned int bits_to_twiddle = 0;
+	char *oper;
+	char flag[SIZ];
 
-	if (IMAP->num_msgs > 0)
-	 for (i = 0; i < IMAP->num_msgs; ++i)
-	  if (IMAP->flags[i] && IMAP_SELECTED) {
-		msg = CtdlFetchMessage(IMAP->msgids[i]);
-		if (msg != NULL) {
-			imap_do_store_msg(i+1, msg, num_items,
-					itemlist, is_uid);
-			CtdlFreeMessage(msg);
+	if (num_items < 2) return;
+	oper = itemlist[0];
+
+	for (i=1; i<num_items; ++i) {
+		strcpy(flag, itemlist[i]);
+		if (flag[0]=='(') strcpy(flag, &flag[1]);
+		if (flag[strlen(flag)-1]==')') flag[strlen(flag)-1]=0;
+		striplt(flag);
+
+		if (!strcasecmp(flag, "\\Deleted")) {
+			bits_to_twiddle |= IMAP_DELETED;
 		}
-		else {
-			lprintf(1, "IMAP STORE internal error\n");
+	}
+	
+	if (IMAP->num_msgs > 0) {
+		for (i = 0; i < IMAP->num_msgs; ++i) {
+			if (IMAP->flags[i] && IMAP_SELECTED) {
+				imap_do_store_msg(i, oper, bits_to_twiddle);
+			}
 		}
 	}
 }
@@ -116,7 +139,7 @@ void imap_store(int num_parms, char *parms[]) {
 		return;
 	}
 
-	imap_do_store(num_items, itemlist, 0);
+	imap_do_store(num_items, itemlist);
 	cprintf("%s OK STORE completed\r\n", parms[0]);
 }
 
@@ -154,7 +177,7 @@ void imap_uidstore(int num_parms, char *parms[]) {
 		return;
 	}
 
-	imap_do_store(num_items, itemlist, 1);
+	imap_do_store(num_items, itemlist);
 	cprintf("%s OK UID STORE completed\r\n", parms[0]);
 }
 

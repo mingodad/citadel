@@ -59,8 +59,10 @@ void imap_fetch_uid(int seq) {
 	cprintf("UID %ld", IMAP->msgids[seq-1]);
 }
 
-void imap_fetch_flags(struct CtdlMessage *msg) {
-	cprintf("FLAGS ()");	/* FIXME do something here */
+void imap_fetch_flags(int seq) {
+	cprintf("FLAGS (");
+	if (IMAP->flags[seq] & IMAP_DELETED) cprintf("\\Deleted ");
+	cprintf(")");
 }
 
 void imap_fetch_internaldate(struct CtdlMessage *msg) {
@@ -633,7 +635,7 @@ void imap_do_fetch_msg(int seq, struct CtdlMessage *msg,
 			imap_fetch_envelope(IMAP->msgids[seq-1], msg);
 		}
 		else if (!strcasecmp(itemlist[i], "FLAGS")) {
-			imap_fetch_flags(msg);
+			imap_fetch_flags(seq-1);
 		}
 		else if (!strcasecmp(itemlist[i], "INTERNALDATE")) {
 			imap_fetch_internaldate(msg);
