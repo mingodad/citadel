@@ -1,4 +1,7 @@
  $Log$
+ Revision 620.31  2004/05/10 01:47:11  error
+ * messages.c: Fix crash when trying to use m<Y> next
+
  Revision 620.30  2004/05/07 20:27:46  ajc
  # citadel-openldap.schema: updated to include RFC2739 objects & attributes
 
@@ -5752,4 +5755,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -1817,7 +1817,7 @@ RMSGREAD:	scr_flush();
 		   We have to load up messages until we find one by us */
 		char buf[SIZ];
 		int founda = 0;
-		struct ctdlipcmessage *msg;
+		struct ctdlipcmessage *msg = NULL;
                 
 		/* read the header so we can get 'from=' */
 		r = CtdlIPCGetSingleMessage(ipc, msg_arr[finda], 1, 0, &msg, buf);
