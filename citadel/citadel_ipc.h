@@ -107,10 +107,12 @@ int CtdlIPCDeleteFile(CtdlIPC *ipc, const char *filename, char *cret);
 int CtdlIPCMoveFile(CtdlIPC *ipc, const char *filename, const char *destroom, char *cret);
 int CtdlIPCNetSendFile(CtdlIPC *ipc, const char *filename, const char *destnode, char *cret);
 int CtdlIPCOnlineUsers(CtdlIPC *ipc, char **listing, time_t *stamp, char *cret);
-int CtdlIPCFileDownload(CtdlIPC *ipc, const char *filename, void **buf, char *cret);
+int CtdlIPCFileDownload(CtdlIPC *ipc, const char *filename, void **buf,
+		void (*progress_gauge_callback)(long, long), char *cret);
 int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part, void **buf,
-		char *cret);
-int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf, char *cret);
+		void (*progress_gauge_callback)(long, long), char *cret);
+int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf,
+		void (*progress_gauge_callback)(long, long), char *cret);
 int CtdlIPCFileUpload(CtdlIPC *ipc, const char *filename, const char *comment, void *buf,
 		size_t bytes, char *cret);
 int CtdlIPCImageUpload(CtdlIPC *ipc, int for_real, const char *filename, size_t bytes,
@@ -171,7 +173,10 @@ size_t CtdlIPCPartialRead(CtdlIPC *ipc, void **buf, size_t offset, size_t bytes,
 int CtdlIPCEndUpload(CtdlIPC *ipc, char *cret);
 int CtdlIPCWriteUpload(CtdlIPC *ipc, void *buf, size_t bytes, char *cret);
 int CtdlIPCEndDownload(CtdlIPC *ipc, char *cret);
-int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes, char *cret);
+int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
+	       void (*progress_gauge_callback)(long, long), char *cret);
+int CtdlIPCHighSpeedReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
+	       void (*progress_gauge_callback)(long, long), char *cret);
 int CtdlIPCGenericCommand(CtdlIPC *ipc, const char *command, const char *to_send,
 		size_t bytes_to_send, char **to_receive,
 		size_t *bytes_to_receive, char *proto_response);

@@ -18,8 +18,9 @@ void create_floor(CtdlIPC *ipc);
 void edit_floor(CtdlIPC *ipc);
 void kill_floor(CtdlIPC *ipc);
 void enter_bio(CtdlIPC *ipc);
-void download_to_local_disk(CtdlIPC *ipc, char *, long);
 void hit_any_key(void);
+int save_buffer(void *file, size_t filelen, const char *pathname);
+void destination_directory(char *dest, const char *supplied_filename);
 
 
 /* 

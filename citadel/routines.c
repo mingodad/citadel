@@ -390,26 +390,23 @@ char *strerror(int e)
 
 void progress(long int curr, long int cmax)
 {
-	static long dots_printed;
+	static char dots[] =
+		"**************************************************";
+	char dots_printed[51];
+	char fmt[42];
 	long a;
 
-	if (curr==0) {
-		scr_printf(".......................................");
-		scr_printf(".......................................\r");
-		scr_flush();
-		dots_printed = 0;
-	}
-	else if (curr==cmax) {
-		scr_printf("\r%79s\n","");
-	}
-	else {
-		a=(curr * 100) / cmax;
-		a=a*78; a=a/100;
-		while (dots_printed < a) {
-			scr_printf("*");
-			++dots_printed;
-			scr_flush();
-		}
+	if (curr >= cmax) {
+		sln_printf("\r%79s\r","");
+	} else {
+		/* a will be range 0-50 rather than 0-100 */
+		a=(curr * 50) / cmax;
+		sprintf(fmt, "[%%s%%%lds] %%3ld%%%% %%10ld/%%10ld\r", 50 - a);
+		strncpy(dots_printed, dots, a);
+		dots_printed[a] = 0;
+		sln_printf(fmt, dots_printed, "",
+				curr * 100 / cmax, curr, cmax);
+		sln_flush();
 	}
 }
 

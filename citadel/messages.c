@@ -60,6 +60,7 @@ int haschar(const char *st, int ch);
 void getline(char *string, int lim);
 int file_checksum(char *filename);
 void do_edit(char *desc, char *read_cmd, char *check_cmd, char *write_cmd);
+void progress(long int curr, long int cmax);
 
 long *msg_arr = NULL;
 int msg_arr_size = 0;
@@ -1244,7 +1245,9 @@ void readmsgs(CtdlIPC *ipc,
 	char pagin;
 	char cmd[SIZ];
 	char targ[ROOMNAMELEN];
-	char filename[SIZ];
+	char filename[PATH_MAX];
+	char save_to[PATH_MAX];
+	void *attachment = NULL;	/* Downloaded attachment */
 	FILE *dest = NULL;	/* Alternate destination other than screen */
 	int r;				/* IPC response code */
 
@@ -1533,18 +1536,20 @@ RMSGREAD:	scr_flush();
 		case 'f':
 			newprompt("Which section? ", filename,
 				  ((sizeof filename) - 1));
-			snprintf(cmd, sizeof cmd,
-				 "OPNA %ld|%s", msg_arr[a], filename);
-			CtdlIPC_putline(ipc, cmd);
-			CtdlIPC_getline(ipc, cmd);
-			if (cmd[0] == '2') {
-				extract(filename, &cmd[4], 2);
-				download_to_local_disk(ipc, filename,
-						       extract_int(&cmd[4],
-								   0));
+			r = CtdlIPCAttachmentDownload(ipc, msg_arr[a],
+					filename, &attachment, progress, cmd);
+			extract(filename, cmd, 2);
+			destination_directory(save_to, filename);
+			r = CtdlIPCAttachmentDownload(ipc, msg_arr[a],
+				filename, &attachment, progress, cmd);
+			if (r / 100 != 2) {
+				scr_printf("%s\n", cmd);
 			} else {
-				scr_printf("%s\n", &cmd[4]);
+				save_buffer(attachment,
+						extract_long(cmd, 0),
+						save_to);
 			}
+			if (attachment) free(attachment);
 			goto RMSGREAD;
 		case 'd':
 			scr_printf("*** Delete this message? ");

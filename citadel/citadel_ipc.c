@@ -31,10 +31,6 @@ pthread_mutex_t rwlock;
 #endif
 char express_msgs = 0;
 
-static volatile int download_in_progress = 0;	/* download file open */
-static volatile int upload_in_progress = 0;	/* upload file open */
-/* static volatile int serv_sock; */	/* Socket on which we talk to server */
-
 
 /*
  * Does nothing.  The server should always return 200.
@@ -1049,7 +1045,8 @@ int CtdlIPCOnlineUsers(CtdlIPC *ipc, char **listing, time_t *stamp, char *cret)
 
 
 /* OPEN */
-int CtdlIPCFileDownload(CtdlIPC *ipc, const char *filename, void **buf, char *cret)
+int CtdlIPCFileDownload(CtdlIPC *ipc, const char *filename, void **buf,
+		void (*progress_gauge_callback)(long, long), char *cret)
 {
 	register int ret;
 	size_t bytes;
@@ -1061,7 +1058,7 @@ int CtdlIPCFileDownload(CtdlIPC *ipc, const char *filename, void **buf, char *cr
 	if (!filename) return -2;
 	if (!buf) return -2;
 	if (*buf) return -2;
-	if (download_in_progress) return -2;
+	if (ipc->downloading) return -2;
 
 	aaa = (char *)malloc(strlen(filename) + 6);
 	if (!aaa) return -1;
@@ -1069,13 +1066,13 @@ int CtdlIPCFileDownload(CtdlIPC *ipc, const char *filename, void **buf, char *cr
 	sprintf(aaa, "OPEN %s", filename);
 	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
 	free(aaa);
-	/* FIXME: Possible race condition */
 	if (ret / 100 == 2) {
-		download_in_progress = 1;
+		ipc->downloading = 1;
 		bytes = extract_long(cret, 0);
 		last_mod = extract_int(cret, 1);
 		extract(mimetype, cret, 2);
-		ret = CtdlIPCReadDownload(ipc, buf, bytes, cret);
+		ret = CtdlIPCReadDownload(ipc, buf, bytes, progress_gauge_callback, cret);
+/*		ret = CtdlIPCHighSpeedReadDownload(ipc, buf, bytes, progress_gauge_callback, cret); */
 		ret = CtdlIPCEndDownload(ipc, cret);
 		if (ret / 100 == 2)
 			sprintf(cret, "%d|%ld|%s|%s", bytes, last_mod,
@@ -1087,7 +1084,7 @@ int CtdlIPCFileDownload(CtdlIPC *ipc, const char *filename, void **buf, char *cr
 
 /* OPNA */
 int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part, void **buf,
-		char *cret)
+		void (*progress_gauge_callback)(long, long), char *cret)
 {
 	register int ret;
 	size_t bytes;
@@ -1101,7 +1098,7 @@ int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part, void 
 	if (*buf) return -2;
 	if (!part) return -2;
 	if (!msgnum) return -2;
-	if (download_in_progress) return -2;
+	if (ipc->downloading) return -2;
 
 	aaa = (char *)malloc(strlen(part) + 17);
 	if (!aaa) return -1;
@@ -1109,13 +1106,12 @@ int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part, void 
 	sprintf(aaa, "OPNA %ld|%s", msgnum, part);
 	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
 	free(aaa);
-	/* FIXME: Possible race condition */
 	if (ret / 100 == 2) {
-		download_in_progress = 1;
+		ipc->downloading = 1;
 		bytes = extract_long(cret, 0);
 		last_mod = extract_int(cret, 1);
 		extract(mimetype, cret, 2);
-		ret = CtdlIPCReadDownload(ipc, buf, bytes, cret);
+		ret = CtdlIPCHighSpeedReadDownload(ipc, buf, bytes, progress_gauge_callback, cret);
 		ret = CtdlIPCEndDownload(ipc, cret);
 		if (ret / 100 == 2)
 			sprintf(cret, "%d|%ld|%s|%s", bytes, last_mod,
@@ -1126,7 +1122,8 @@ int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part, void 
 
 
 /* OIMG */
-int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf, char *cret)
+int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf,
+		void (*progress_gauge_callback)(long, long), char *cret)
 {
 	register int ret;
 	size_t bytes;
@@ -1138,7 +1135,7 @@ int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf, char *c
 	if (!buf) return -1;
 	if (*buf) return -1;
 	if (!filename) return -1;
-	if (download_in_progress) return -1;
+	if (ipc->downloading) return -1;
 
 	aaa = (char *)malloc(strlen(filename) + 6);
 	if (!aaa) return -1;
@@ -1146,13 +1143,12 @@ int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf, char *c
 	sprintf(aaa, "OIMG %s", filename);
 	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
 	free(aaa);
-	/* FIXME: Possible race condition */
 	if (ret / 100 == 2) {
-		download_in_progress = 1;
+		ipc->downloading = 1;
 		bytes = extract_long(cret, 0);
 		last_mod = extract_int(cret, 1);
 		extract(mimetype, cret, 2);
-		ret = CtdlIPCReadDownload(ipc, buf, bytes, cret);
+		ret = CtdlIPCReadDownload(ipc, buf, bytes, progress_gauge_callback, cret);
 		ret = CtdlIPCEndDownload(ipc, cret);
 		if (ret / 100 == 2)
 			sprintf(cret, "%d|%ld|%s|%s", bytes, last_mod,
@@ -1172,7 +1168,7 @@ int CtdlIPCFileUpload(CtdlIPC *ipc, const char *filename, const char *comment, v
 	if (!cret) return -1;
 	if (!filename) return -1;
 	if (!comment) return -1;
-	if (upload_in_progress) return -1;
+	if (ipc->uploading) return -1;
 
 	aaa = (char *)malloc(strlen(filename) + strlen(comment) + 7);
 	if (!aaa) return -1;
@@ -1180,9 +1176,8 @@ int CtdlIPCFileUpload(CtdlIPC *ipc, const char *filename, const char *comment, v
 	sprintf(aaa, "UOPN %s|%s", filename, comment);
 	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
 	free(aaa);
-	/* FIXME: Possible race condition */
 	if (ret / 100 == 2)
-		upload_in_progress = 1;
+		ipc->uploading = 1;
 	ret = CtdlIPCWriteUpload(ipc, buf, bytes, cret);
 	ret = CtdlIPCEndUpload(ipc, cret);
 	return ret;
@@ -1198,7 +1193,7 @@ int CtdlIPCImageUpload(CtdlIPC *ipc, int for_real, const char *filename, size_t 
 
 	if (!cret) return -1;
 	if (!filename) return -1;
-	if (upload_in_progress) return -1;
+	if (ipc->uploading) return -1;
 
 	aaa = (char *)malloc(strlen(filename) + 17);
 	if (!aaa) return -1;
@@ -1206,9 +1201,8 @@ int CtdlIPCImageUpload(CtdlIPC *ipc, int for_real, const char *filename, size_t 
 	sprintf(aaa, "UIMG %d|%s", for_real, filename);
 	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
 	free(aaa);
-	/* FIXME: Possible race condition */
 	if (ret / 100 == 2)
-		upload_in_progress = 1;
+		ipc->uploading = 1;
 	return ret;
 }
 
@@ -1894,7 +1888,7 @@ size_t CtdlIPCPartialRead(CtdlIPC *ipc, void **buf, size_t offset, size_t bytes,
 		*buf = (void *)realloc(*buf, (size_t)(offset + len));
 		if (*buf) {
 			/* I know what I'm doing */
-			serv_read(ipc, (char *)&buf[offset], len);
+			serv_read(ipc, (*buf + offset), len);
 		} else {
 			/* We have to read regardless */
 			serv_read(ipc, aaa, len);
@@ -1912,11 +1906,11 @@ int CtdlIPCEndDownload(CtdlIPC *ipc, char *cret)
 	register int ret;
 
 	if (!cret) return -2;
-	if (!download_in_progress) return -2;
+	if (!ipc->downloading) return -2;
 
 	ret = CtdlIPCGenericCommand(ipc, "CLOS", NULL, 0, NULL, NULL, cret);
 	if (ret / 100 == 2)
-		download_in_progress = 0;
+		ipc->downloading = 0;
 	return ret;
 }
 
@@ -1934,23 +1928,81 @@ int CtdlIPCSpecifyPreferredFormats(CtdlIPC *ipc, char *cret, char *formats) {
 
 
 /* READ */
-int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes, char *cret)
+int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
+	       void (*progress_gauge_callback)(long, long), char *cret)
 {
 	register size_t len;
 
 	if (!cret) return -1;
 	if (!buf) return -1;
 	if (*buf) return -1;
-	if (!download_in_progress) return -1;
+	if (!ipc->downloading) return -1;
 
 	len = 0;
+	if (progress_gauge_callback)
+		progress_gauge_callback(len, bytes);
 	while (len < bytes) {
-		len = CtdlIPCPartialRead(ipc, buf, len, 4096, cret);
-		if (len == -1) {
+		register size_t block;
+
+		block = CtdlIPCPartialRead(ipc, buf, len, 4096, cret);
+		if (block == -1) {
 			free(*buf);
 			return 0;
 		}
+		len += block;
+		if (progress_gauge_callback)
+			progress_gauge_callback(len, bytes);
 	}
+	return len;
+}
+
+
+/* READ - pipelined */
+int CtdlIPCHighSpeedReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
+	       void (*progress_gauge_callback)(long, long), char *cret)
+{
+	register size_t len;
+	register int calls;	/* How many calls in the pipeline */
+	register int i;		/* iterator */
+	char aaa[4096];
+
+	if (!cret) return -1;
+	if (!buf) return -1;
+	if (*buf) return -1;
+	if (!ipc->downloading) return -1;
+
+	*buf = (void *)realloc(*buf, bytes);
+	if (!*buf) return -1;
+
+	len = 0;
+	CtdlIPC_lock(ipc);
+	if (progress_gauge_callback)
+		progress_gauge_callback(len, bytes);
+
+	/* How many calls will be in the pipeline? */
+	calls = bytes / 4096;
+	if (bytes % 4096) calls++;
+
+	/* Send all requests at once */
+	for (i = 0; i < calls; i++) {
+		sprintf(aaa, "READ %d|4096", i * 4096);
+		CtdlIPC_putline(ipc, aaa);
+	}
+
+	/* Receive all responses at once */
+	for (i = 0; i < calls; i++) {
+		CtdlIPC_getline(ipc, aaa);
+		if (aaa[0] != '6')
+			strcpy(cret, &aaa[4]);
+		else {
+			len = extract_long(&aaa[4], 0);
+			/* I know what I'm doing */
+			serv_read(ipc, ((*buf) + (i * 4096)), len);
+		}
+		if (progress_gauge_callback)
+			progress_gauge_callback(i * 4096 + len, bytes);
+	}
+	CtdlIPC_unlock(ipc);
 	return len;
 }
 
@@ -1961,11 +2013,11 @@ int CtdlIPCEndUpload(CtdlIPC *ipc, char *cret)
 	register int ret;
 
 	if (!cret) return -1;
-	if (!upload_in_progress) return -1;
+	if (!ipc->uploading) return -1;
 
 	ret = CtdlIPCGenericCommand(ipc, "UCLS", NULL, 0, NULL, NULL, cret);
 	if (ret / 100 == 2)
-		upload_in_progress = 0;
+		ipc->uploading = 0;
 	return ret;
 }
 

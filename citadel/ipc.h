@@ -34,6 +34,10 @@ typedef struct _CtdlIPC {
 	int sock;
 	/* 1 if server is local, 0 otherwise or if not connected */
 	int isLocal;
+	/* 1 if a download is open on the server, 0 otherwise */
+	int downloading;
+	/* 1 if an upload is open on the server, 0 otherwise */
+	int uploading;
 } CtdlIPC;
 
 /* C constructor */

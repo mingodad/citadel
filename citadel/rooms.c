@@ -598,73 +598,51 @@ void ungoto(CtdlIPC *ipc)
 }
 
 
-/* Here's the code for simply transferring the file to the client,
- * for folks who have their own clientware.  It's a lot simpler than
- * the [XYZ]modem code below...
- * (This function assumes that a download file is already open on the server)
+/*
+ * saves filelen bytes from file at pathname
  */
-void download_to_local_disk(CtdlIPC *ipc,
-		char *supplied_filename, long total_bytes)
+int save_buffer(void *file, size_t filelen, const char *pathname)
 {
-	char buf[SIZ];
-	char dbuf[4096];
-	long transmitted_bytes = 0L;
-	long aa, bb;
-	FILE *savefp;
-	int broken = 0;
-	int packet;
-	char filename[SIZ];
+	size_t block = 0;
+	size_t bytes_written = 0;
+	FILE *fp;
 
-	strcpy(filename, supplied_filename);
-	if (strlen(filename) == 0) {
-		newprompt("Filename: ", filename, 250);
+	fp = fopen(pathname, "w");
+	if (!fp) {
+		err_printf("Cannot open '%s': %s\n", pathname, strerror(errno));
+		return 0;
 	}
+	do {
+		block = fwrite(file + bytes_written, 1,
+				filelen - bytes_written, fp);
+		bytes_written += block;
+	} while (errno == EINTR && bytes_written < filelen);
+	fclose(fp);
 
+	if (bytes_written < filelen) {
+		err_printf("Trouble saving '%s': %s\n", pathname,
+				strerror(errno));
+		return 0;
+	}
+	return 1;
+}
+
+
+/*
+ * Save supplied_filename in dest directory; gets the name only
+ */
+void destination_directory(char *dest, const char *supplied_filename)
+{
 	scr_printf("Enter the name of the directory to save '%s'\n"
-		"to, or press return for the current directory.\n", filename);
-	newprompt("Directory: ", dbuf, sizeof dbuf);
-	if (strlen(dbuf) == 0)
-		strcpy(dbuf, ".");
-	strcat(dbuf, "/");
-	strcat(dbuf, filename);
-
-	savefp = fopen(dbuf, "w");
-	if (savefp == NULL) {
-		scr_printf("Cannot open '%s': %s\n", dbuf, strerror(errno));
-		/* close the download file at the server */
-		CtdlIPC_putline(ipc, "CLOS");
-		CtdlIPC_getline(ipc, buf);
-		if (buf[0] != '2') {
-			scr_printf("%s\n", &buf[4]);
-		}
-		return;
+		"to, or press return for the current directory.\n",
+		supplied_filename);
+	newprompt("Directory: ", dest, PATH_MAX);
+	if (strlen(dest) == 0) {
+		dest[0] = '.';
+		dest[1] = 0;
 	}
-	progress(0, total_bytes);
-	while ((transmitted_bytes < total_bytes) && (broken == 0)) {
-		bb = total_bytes - transmitted_bytes;
-		aa = ((bb < 4096) ? bb : 4096);
-		snprintf(buf, sizeof buf, "READ %ld|%ld", transmitted_bytes, aa);
-		CtdlIPC_putline(ipc, buf);
-		CtdlIPC_getline(ipc, buf);
-		if (buf[0] != '6') {
-			scr_printf("%s\n", &buf[4]);
-			return;
-		}
-		packet = extract_int(&buf[4], 0);
-		serv_read(ipc, dbuf, packet);
-		if (fwrite(dbuf, packet, 1, savefp) < 1)
-			broken = 1;
-		transmitted_bytes = transmitted_bytes + (long) packet;
-		progress(transmitted_bytes, total_bytes);
-	}
-	fclose(savefp);
-	/* close the download file at the server */
-	CtdlIPC_putline(ipc, "CLOS");
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] != '2') {
-		scr_printf("%s\n", &buf[4]);
-	}
-	return;
+	strcat(dest, "/");
+	strcat(dest, supplied_filename);
 }
 
 
@@ -676,72 +654,55 @@ void download_to_local_disk(CtdlIPC *ipc,
 void download(CtdlIPC *ipc, int proto)
 {
 	char buf[SIZ];
-	char filename[SIZ];
-	char tempname[SIZ];
+	char filename[PATH_MAX];
+	char tempname[PATH_MAX];
 	char transmit_cmd[SIZ];
-	long total_bytes = 0L;
-	char dbuf[4096];
-	long transmitted_bytes = 0L;
-	long aa, bb;
-	int packet;
 	FILE *tpipe = NULL;
 	int broken = 0;
+	int r;
+	void *file = NULL;	/* The downloaded file */
+	long filelen = 0L;	/* The downloaded file length */
 
 	if ((room_flags & QR_DOWNLOAD) == 0) {
 		scr_printf("*** You cannot download from this room.\n");
 		return;
 	}
 
-	newprompt("Enter filename: ", filename, 255);
-
-	snprintf(buf, sizeof buf, "OPEN %s", filename);
-	CtdlIPC_putline(ipc, buf);
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] != '2') {
-		scr_printf("%s\n", &buf[4]);
-		return;
-	}
-	total_bytes = extract_long(&buf[4], 0);
+	newprompt("Enter filename: ", filename, PATH_MAX);
 
 	/* Save to local disk, for folks with their own copy of the client */
 	if (proto == 5) {
-		download_to_local_disk(ipc, filename, total_bytes);
+		destination_directory(tempname, filename);
+		r = CtdlIPCFileDownload(ipc, filename, &file, progress, buf);
+		if (r / 100 != 2) {
+			scr_printf("%s\n", buf);
+			return;
+		}
+		save_buffer(file, extract_long(buf, 0), tempname);
+		free(file);
 		return;
 	}
 
+	r = CtdlIPCFileDownload(ipc, filename, &file, progress, buf);
+	if (r / 100 != 2) {
+		scr_printf("%s\n", buf);
+		return;
+	}
+	filelen = extract_long(buf, 0);
+
 	/* Meta-download for public clients */
-	scr_printf("Fetching file from Citadel server...\n");
+	/* scr_printf("Fetching file from Citadel server...\n"); */
 	mkdir(tempdir, 0700);
 	snprintf(tempname, sizeof tempname, "%s/%s", tempdir, filename);
 	tpipe = fopen(tempname, "wb");
-	while ((transmitted_bytes < total_bytes) && (broken == 0)) {
-		progress(transmitted_bytes, total_bytes);
-		bb = total_bytes - transmitted_bytes;
-		aa = ((bb < 4096) ? bb : 4096);
-		snprintf(buf, sizeof buf, "READ %ld|%ld", transmitted_bytes, aa);
-		CtdlIPC_putline(ipc, buf);
-		CtdlIPC_getline(ipc, buf);
-		if (buf[0] != '6') {
-			scr_printf("%s\n", &buf[4]);
-		}
-		packet = extract_int(&buf[4], 0);
-		serv_read(ipc, dbuf, packet);
-		if (fwrite(dbuf, packet, 1, tpipe) < 1) {
-			broken = 1;
-		}
-		transmitted_bytes = transmitted_bytes + (long) packet;
+	if (fwrite(file, filelen, 1, tpipe) < filelen) {
+		broken = 1;
 	}
 	fclose(tpipe);
-	progress(transmitted_bytes, total_bytes);
-
-	/* close the download file at the server */
-	CtdlIPC_putline(ipc, "CLOS");
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] != '2') {
-		scr_printf("%s\n", &buf[4]);
-	}
+	if (file) free(file);
 
 	if (proto == 0) {
+		/* FIXME: display internally instead */
 		snprintf(transmit_cmd, sizeof transmit_cmd,
 			"SHELL=/dev/null; export SHELL; TERM=dumb; export TERM; exec more -d <%s",
 			tempname);
@@ -753,6 +714,7 @@ void download(CtdlIPC *ipc, int proto)
 	else if (proto == 4)
 		snprintf(transmit_cmd, sizeof transmit_cmd, "exec sz %s", tempname);
 	else
+		/* FIXME: display internally instead */
 		snprintf(transmit_cmd, sizeof transmit_cmd, "exec cat %s", tempname);
 
 	screen_reset();
@@ -763,7 +725,7 @@ void download(CtdlIPC *ipc, int proto)
 
 	/* clean up the temporary directory */
 	nukedir(tempdir);
-	scr_putc(7);
+	scr_putc(7);	/* Beep beep! */
 }
 
 

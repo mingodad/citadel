@@ -302,6 +302,8 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 #endif
 	ipc->sock = -1;			/* Not connected */
 	ipc->isLocal = 0;		/* Not local, of course! */
+	ipc->downloading = 0;
+	ipc->uploading = 0;
 
 	strcpy(cithost, DEFAULT_HOST);	/* default host */
 	strcpy(citport, DEFAULT_PORT);	/* default port */

@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.11  2002/09/29 04:55:13  error
+ * File and attachment downloads now use the new IPC code.
+ * Implemented high-speed pipelined file download in IPC code.
+
  Revision 601.10  2002/09/29 04:41:43  error
  * file_ops.c: cmd_read() now returns a short read at end-of-file instead of
    4096, this prevents trailing garbage on the downloaded file; also it now
@@ -4022,3 +4026,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
