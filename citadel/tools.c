@@ -299,19 +299,27 @@ int haschar(char *st, int ch)
  */
 int collapsed_strcmp(char *s1, char *s2) {
 	char *c1, *c2;
-	int i, ret;
+	int i, ret, pos;
 
-	c1 = strdup(s1);
-	c2 = strdup(s2);
+	c1 = malloc(strlen(s1)+1);
+	c2 = malloc(strlen(s2)+1);
+	c1[0] = 0;
+	c2[0] = 0;
 
-	for (i=0; i<strlen(c1); ++i) {
-		while (!isalnum(c1[i])) strcpy(&c1[i], &c1[i+1]);
-		if (isupper(c1[i])) c1[i]=tolower(c1[i]);
+	pos = 0;
+	for (i=0; i<strlen(s1); ++i) {
+		if (isalnum(s1[i])) {
+			c1[pos] = tolower(s1[i]);
+			c1[++pos] = 0;
+		}
 	}
 
-	for (i=0; i<strlen(c2); ++i) {
-		while (!isalnum(c2[i])) strcpy(&c2[i], &c2[i+1]);
-		if (isupper(c2[i])) c2[i]=tolower(c2[i]);
+	pos = 0;
+	for (i=0; i<strlen(s2); ++i) {
+		if (isalnum(s2[i])) {
+			c2[pos] = tolower(s2[i]);
+			c2[++pos] = 0;
+		}
 	}
 
 	ret = strcmp(c1, c2);

@@ -286,6 +286,8 @@ void process_rfc822_addr(char *rfc822, char *user, char *node, char *name)
 void try_name(struct usersupp *us, void *data) {
 	struct trynamebuf *tnb;
 	tnb = (struct trynamebuf *)data;
+
+	lprintf(9, "Trying <%s>\n", us->fullname);
 	
 	if (!strncasecmp(tnb->buffer1, "cit", 3))
 		if (atol(&tnb->buffer1[3]) == us->usernum)
@@ -483,7 +485,6 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 		}
 
 		if (msg->cm_fields['I'] != NULL) {
-			TRACE;
 			lprintf(9, "Converted message id <%s>\n",
 				msg->cm_fields['I'] );
 		}
