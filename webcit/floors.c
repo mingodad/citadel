@@ -43,7 +43,7 @@ void display_floorconfig(char *prepend_html)
 	output_headers(3);
 
 	if (prepend_html != NULL) {
-		http_write(WC->http_sock, prepend_html, strlen(prepend_html));
+		write(WC->http_sock, prepend_html, strlen(prepend_html));
 	}
 
 	serv_printf("LFLR");	/* FIXME put a real test here */

@@ -232,13 +232,6 @@ void context_loop(int sock)
 	int desired_session = 0;
 	int got_cookie = 0;
 	struct wcsession *TheSession, *sptr;
-	int gzip = 0;
-
-#ifdef HAVE_ZLIB_H
-	int i;
-	char enc[SIZ];
-	char encodings[SIZ];
-#endif
 
 	/*
 	 * Find out what it is that the web browser is asking for
@@ -252,18 +245,6 @@ void context_loop(int sock)
 				NULL, NULL, NULL);
 			got_cookie = 1;
 		}
-
-#ifdef HAVE_ZLIB_H
-		if (!strncasecmp(buf, "Accept-encoding: ", 17)) {
-			extract_token(encodings, &buf[17], 0, ';');
-			for (i=0; i<num_tokens(encodings, ','); ++i) {
-				extract_token(enc, encodings, i, ',');
-				if (!strcasecmp(enc, "gzip")) {
-					gzip = 1;
-				}
-			}
-		}
-#endif
 
 		hptr = (struct httprequest *)
 			malloc(sizeof(struct httprequest));
@@ -355,7 +336,7 @@ void context_loop(int sock)
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	TheSession->http_sock = sock;
 	TheSession->lastreq = time(NULL);			/* log */
-	session_loop(req, gzip);	/* perform the requested transaction */
+	session_loop(req);		/* perform the requested transaction */
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 
 	/* Free the request buffer */

@@ -166,7 +166,7 @@ void output_html(void) {
 	}
 
 	/* Output our big pile of markup */
-	http_write(WC->http_sock, converted_msg, output_length);
+	write(WC->http_sock, converted_msg, output_length);
 
 	/* A little trailing vertical whitespace... */
 	wprintf("<BR><BR>\n");
