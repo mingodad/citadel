@@ -1,3 +1,8 @@
+$Log$
+Revision 1.98  1999/08/14 18:16:10  ajc
+* Fixed escputs() and its friends to properly handle ' (single quote) chars
+
+
 Sun Jul 18 20:17:58 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Did neat stuff to the bottom of the page
 
@@ -279,3 +284,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
