@@ -214,11 +214,32 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
  * Implements the ENVELOPE fetch item
  * 
  * FIXME ... we have to actually do something useful here.
+ *
+ * Note that the imap_strout() function can cleverly output NULL fields as NIL,
+ * so we don't have to check for that condition like we do elsewhere.
  */
 void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
+	char buf[256];
+	time_t msgdate;
+
+	if (msg->cm_fields['T'] != NULL) {
+		msgdate = atol(msg->cm_fields['T']);
+	}
+	else {
+		msgdate = time(NULL);
+	}
+
+	datestring(buf, msgdate, DATESTRING_IMAP);
+
 	cprintf("ENVELOPE (");
-	cprintf("NIL ");	/* date */
-	cprintf("NIL ");	/* subject */
+
+	/* date */
+	cprintf("\"%s\" ", buf);
+
+	/* subject */
+	imap_strout(msg->cm_fields['U']);
+	cprintf(" ");
+
 	cprintf("NIL ");	/* from */
 	cprintf("NIL ");	/* sender */
 	cprintf("NIL ");	/* reply-to */
@@ -226,8 +247,11 @@ void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
 	cprintf("NIL ");	/* cc */
 	cprintf("NIL ");	/* bcc */
 	cprintf("NIL ");	/* in-reply-to */
-	cprintf("NIL");		/* message-id */
-	cprintf(")\r\n");
+
+	/* message ID */
+	imap_strout(msg->cm_fields['I']);
+
+	cprintf(") ");
 }
 
 
@@ -287,6 +311,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 	for (i=0; i<strlen(partial); ++i) {
 		if (partial[i]=='>') partial[i] = 0;
 	}
+	if (is_partial == 0) strcpy(partial, "");
 	lprintf(9, "Partial is %s\n", partial);
 
 	tmp = tmpfile();

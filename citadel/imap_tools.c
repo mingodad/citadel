@@ -7,11 +7,44 @@
 
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdio.h>
 #include <ctype.h>
 #include <string.h>
 #include "citadel.h"
+#include "sysdep_decls.h"
 #include "tools.h"
 #include "imap_tools.h"
+
+
+/*
+ * Output a string to the IMAP client, either as a literal or quoted.
+ * (We do a literal if it has any double-quotes or backslashes.)
+ */
+void imap_strout(char *buf) {
+	int i;
+	int is_literal = 0;
+
+	if (buf == NULL) {		/* yeah, we handle this */
+		cprintf("NIL");
+		return;
+	}
+
+	for (i=0; i<strlen(buf); ++i) {
+		if ( (buf[i]=='\"') || (buf[i]=='\\') ) is_literal = 1;
+	}
+
+	if (is_literal) {
+		cprintf("{%d}\r\n%s", strlen(buf), buf);
+	}
+
+	else {
+		cprintf("\"%s\"", buf);
+	}
+}
+
+	
+
+
 
 /*
  * Break a command down into tokens, taking into consideration the
