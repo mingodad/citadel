@@ -109,8 +109,17 @@ void do_login(void) {
 		}
 
 	if (!strcasecmp(bstr("action"), "New User")) {
-		display_login("New user login not yet supported.");
-		return;
+		serv_printf("NEWU %s", bstr("name"));
+		serv_gets(buf);
+		if (buf[0]=='2') {
+			become_logged_in(bstr("name"), bstr("pass"), buf);
+			serv_printf("SETP %s", bstr("pass"));
+			serv_gets(buf);
+			}
+		else {
+			display_login(&buf[4]);
+			return;
+			}
 		}
 
 	if (logged_in) {
@@ -129,7 +138,14 @@ void do_welcome(void) {
 	wprintf("<CENTER><H1>");
 	escputs(wc_username);
 	wprintf("</H1>\n");
-	/* other stuff here */
+	/* FIX add user stats here */
+
+	wprintf("<HR>");
+	/* FIX  ---  what should we put here?  the main menu,
+	 * or new messages in the lobby?
+	 */
+	embed_main_menu();
+
 	wprintf("</BODY></HTML>\n");
 	wDumpContent();
 	}

@@ -3,7 +3,8 @@
 
 Wed Dec  9 11:13:48 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Smoothed out some of the login/logout code.  Failed authentication
-	  now works the way it should.  New user login not yet supported.
+	  now works the way it should.
+	* Added support for new user login (still need to handle registration).
 
 Tue Dec  8 15:45:42 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Discovered that the HTTP socket problem is related to a socket that
