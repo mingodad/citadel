@@ -10,7 +10,7 @@
 <h1>Citadel/UX</h1>
 <h2>a messaging and collaboration platform for BBS and groupware
 applications</h2>
-Copyright &copy;1987-2003 by the Citadel development team:<br>
+Copyright &copy;1987-2004 by the Citadel development team:<br>
 <br>
 <table cellpadding="2" cellspacing="2" border="0" align="center">
   <tbody>
@@ -144,12 +144,12 @@ the web:<br>
   <ol>
     <li><a href="#Everything_in_its_place...">Everything in its
 place...</a></li>
-    <li><a href="#The_BBS_Login">Creating a system account for Citadel</a></li>
-    <li><a href="#Bypassing_the_login:_prompt">Bypassing the login:
+    <li><a href="#ctdl_login_acct">Creating a system account for Citadel</a></li>
+    <li><a href="#bypassing_login">Bypassing the login:
 prompt</a></li>
     <li><a href="#Compiling_the_programs">Compiling the programs</a></li>
     <li><a href="#Upgrading">Upgrading</a></li>
-    <li><a href="#The_citadel.rc_file">The citadel.rc file</a></li>
+    <li><a href="#rc_file">The citadel.rc file</a></li>
     <li><a href="#Using_an_external_editor_for_message">Using an
 external editor for message composition</a></li>
     <li><a href="#Printing_messages">Printing messages</a></li>
@@ -157,10 +157,10 @@ external editor for message composition</a></li>
     <li><a href="#Setup_and_login">Setup and login</a></li>
     <li><a href="#Configuring_your_host_system_to_start">Configuring
 your host system to start the service</a></li>
-    <li><a href="#Logging_in_for_the_first_time">Logging in for
+    <li><a href="#first_time_login">Logging in for
 the first time</a></li>
     <li><a href="#Welcoming_new_users">Welcoming new users</a></li>
-    <li><a href="#Space_for_adding_your_own_client">Space for adding
+    <li><a href="#adding_doors">Space for adding
 your own client features (doors)</a></li>
     <li><a href="#Troubleshooting_and_getting_help">Troubleshooting and
 getting help</a><br>
@@ -214,15 +214,20 @@ interval</a></li>
 your Citadel database</a><br>
     </li>
   </ol>
+
+  <li><a href="#crypto">Cryptography support (TLS/SSL)</a></li>
+  <ol>
+	<li><a href="#crypto_intro">Overview</a></li>
+	<li><a href="#real_cert">Generating and installing a Trusted Certificate</a></li>
+  </ol>
+
   <li><a href="#utilities">Included utilities</a></li>
   <ol>
     <li><a href="#overview">Overview</a></li>
     <li><a href="#aidepost">aidepost</a></li>
     <li><a href="#whobbs">whobbs</a></li>
-    <li><a href="#stats">stats</a></li>
     <li><a href="#msgform">msgform</a></li>
     <li><a href="#userlist">userlist</a></li>
-    <li><a href="#readlog">readlog</a></li>
     <li><a href="#sendcommand">sendcommand</a></li>
   </ol>
 </ol>
@@ -582,9 +587,8 @@ libraries already integrated for you.</p>
 the World Wide Web. Interactive access through any Web browser. </li>
   <li>Access to Citadel via <i>any</i> standards-compliant e-mail
 program, thanks to Citadel's built-in SMTP, POP, and IMAP services.
-&nbsp;You can use Netscape/Mozilla, Evolution, Eudora, Pine, or even
-Microsoft
-VirusSpreader (better known as "Outlook") with Citadel. </li>
+You can use Mozilla, Netscape, Evolution, Eudora, Pine, Outlook, etc.
+with Citadel. </li>
 </ul>
 <h3>Coming soon:</h3>
 <ul>
@@ -607,7 +611,7 @@ is almost never the case with Linux, but some commercial Unix flavors
 might need it.<br>
 <br>
 </p>
-<h3><a name="The_BBS_Login"></a>Creating a system account for Citadel</h3>
+<h3><a name="ctdl_login_acct"></a>Creating a system account for Citadel</h3>
 <p>As with many Unix programs, Citadel wants to run under its own user
 ID. Unlike other programs, however, this user ID will do double-duty as
 a public login for your system if you are running a BBS. This account
@@ -626,8 +630,8 @@ username or user ID of the account you created is, so it knows what
 user to run as. If you create an account called <tt>bbs</tt>, <tt>guest</tt>,
 or <tt>citadel</tt>, the setup program will automatically pick up the
 user ID by default.</p>
-<p>For all other users in /etc/passwd, Citadel will automatically set
-up
+<p>For all other users in /etc/passwd (or in some other name service
+such as NIS), Citadel will automatically set up
 an account using the full name (or 'gecos' in Unixspeak) of the user.
 It'll also ignore any password you supply, because it uses the user's
 password
@@ -641,14 +645,16 @@ host
 computer, and their password on the host computer.<br>
 <br>
 </p>
-<h3><a name="Bypassing_the_login:_prompt"></a>Bypassing the <tt>login:</tt>
+<h3><a name="bypassing_login"></a>Bypassing the <tt>login:</tt>
 prompt</h3>
 <p>If you normally log in to your host system using some method other
 than telnet (such as ssh), you might want the telnet service to go
 straight into Citadel, instead of displaying the <tt>login:</tt>
 prompt first. You
-can do this by having telnetd start citadel directly instead of <tt>/bin/login</tt>.
-This is actually very simple to implement; all you need to do is make a
+can do this by having telnetd start citadel directly instead of
+<tt>/bin/login</tt>.  The <tt>setup</tt> program will offer to configure
+this automatically for you if it sees a configuration it understands.
+If you would prefer to configure it manually, all you need to do is make a
 simple change to your <tt>inetd</tt> or <tt>xinetd</tt>
 configuration. Here are some configuration examples.</p>
 <p>An example for <tt>inetd</tt> (put the following line in <tt>/etc/inetd.conf</tt>,
@@ -657,22 +663,16 @@ replacing any existing telnet configuration line already there):</p>
 <p>An example for <tt>xinetd</tt> (if you have a file called <tt>/etc/xinetd.d/telnet</tt>
 then simply replace that file with this one):</p>
 <pre>service telnet<br>{<br>	flags           = REUSE<br>	socket_type     = stream<br>	wait            = no<br>	user            = root<br>	server          = /usr/sbin/in.telnetd<br>	server_args     = -L /usr/local/citadel/citadel<br>	log_on_failure  += USERID<br>	disable         = no<br>}<br></pre>
-<p>Please make sure you know what you're doing before you install this!
-If
+<p>Please make sure you know what you're doing before you install this!  If
 you are going to put Citadel somewhere other than <tt>/usr/local/citadel</tt>
 then change the directory name accordingly. If you know of any other
 local peculiarities which need to be observed, edit the above
 configuration
 accordingly as well. And, of course, if you're working remotely, make
-sure you can successfully log in using SSH <b>before</b> you start
-changing
-your telnet configuration, otherwise you could lock yourself out of
-your
-system (ask any networking specialist about the dangers of "working
-inband"
--- then pull up a chair and get a fresh cup of coffee, because you're
-going
-to hear some war stories).<br>
+sure you can successfully log in using SSH <b>before</b> you start making
+changes to telnet, because if you accidentally break telnet and don't have
+SSH running, you'll have effectively locked yourself out of your system
+until you can get physical access to the console.<br>
 <br>
 </p>
 <h3><a name="Compiling_the_programs"></a>Compiling the programs</h3>
@@ -722,7 +722,7 @@ upgrade, you may face data corruption issues.<br>
 <p>After doing <tt>make install-exec</tt>, you should run <tt>setup</tt>
 again to bring your data files up to date. Please see the setup section
 below for more information on this.</p>
-<h3><a name="The_citadel.rc_file"></a>The <tt>citadel.rc</tt> file</h3>
+<h3><a name="rc_file"></a>The <tt>citadel.rc</tt> file</h3>
 <p>The text-based client included with Citadel is suitable for BBS
 applications. Much of its command set and other behavior is
 configurable through a Run Control (RC) file. The standard client looks
@@ -889,7 +889,7 @@ most systems to tell init to re-read the file. If in doubt, just reboot
 the computer.<br>
 <br>
 </p>
-<h3><a name="Logging_in_for_the_first_time"></a>Logging in for the
+<h3><a name="first_time_login"></a>Logging in for the
 first time</h3>
 <p>At this point, your system is ready to run. Run the <tt>citadel</tt>
 program from the shell and log in as a new user. NOTE: the first user
@@ -916,7 +916,7 @@ single-instance message store, so all the new users are actually
 looking at the same copy of the message on disk.<br>
 <br>
 </p>
-<h3><a name="Space_for_adding_your_own_client"></a>Space for adding
+<h3><a name="adding_doors"></a>Space for adding
 your own
 client features (doors)</h3>
 <p><b>Please take note!</b> This function really represents the "old"
@@ -2208,6 +2208,54 @@ From the command line, you can do it with a command like:<br>
 exported.dat at this time, or you might want to save it somewhere as a
 sort of pseudo-backup. </li>
 </ol>
+
+<hr>
+<center>
+<h2><a name="crypto"></a>Cryptography support (TLS/SSL)</h2>
+</center>
+
+<h3><a name="crypto_intro"</a>Overview</h3>
+<p>Citadel provides built-in support for encryption using Transport
+Layer Security (TLS) for ESMTP, IMAP, POP3, and the Citadel client protocol.
+A simple cryptographic configuration is installed automatically when you
+bring the system online.  The remainder of this section describes how this
+configuration is built, and what you can do to make changes to it.</p>
+<p>Encryption files are kept in the <tt>keys/</tt> directory.  The three
+files used by Citadel are:<ul>
+<li><tt>citadel.key</tt> - Contains your system's RSA private key.  Citadel
+generates a new key automatically if one is not found.
+<li><tt>citadel.csr</tt> - Contains a Certificate Signing Request (CSR)
+for your system.  Citadel generates a new CSR automatically, using your
+private key, if one is not found.
+<li><tt>citadel.cer</tt> - Contains the public certificate for your
+system.  The public key in the certificate <b>must</b> correspond with the
+private key in <tt>citadel.key</tt>, otherwise encryption will not
+function properly.  Citadel will generate a self-signed certificate, again
+using your private key, if a certificate is not found.
+</ul></p>
+
+<h3><a name="real_cert"</a>Generating and installing a Trusted Certificate</h3>
+<p>If you wish to interact with 3rd party clients
+that have hard coded lists of acceptable Certificate Authorities, and you
+do not want annoying dialog boxes popping up for the user on the first (or
+all) connections, then you will have to have your key signed by a valid
+Certificate Authority.</p>
+<p>It is beyond the scope of this document to provide a complete tutorial
+on SSL certificates.  Here are the general rules to follow:<UL>
+<LI>Generally, the Certificate Signing Requeste which is automatically
+generated by Citadel will not contain enough information for any Certificate
+Authority to sign it.  Generate a new CSR with the following commands:<BR>
+<BR>
+<TT>cd keys</TT><BR>
+<TT>openssl req -new -key citadel.key -out citadel.csr</TT><BR>
+<BR>
+Answer all questions (your geographic location, organization name, etc.)
+and then send the new <TT>citadel.csr</TT> to your Certificate Authority
+when you order the certificate.
+<LI>When the certificate is received, simply save it as <TT>citadel.cer</TT>
+and restart the Citadel server.
+</UL></p>
+
 <hr>
 <center>
 <h2><a name="utilities"></a>Utilities</h2>
