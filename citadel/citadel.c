@@ -733,7 +733,7 @@ void get_serv_info(void) {
 void who_is_online(int longlist) 
 {
 	char buf[128], username[128], roomname[128], fromhost[128], flags[128];
-	char tbuf[128], idlebuf[128], clientsoft[128];
+	char tbuf[128], clientsoft[128];
 	time_t timenow=0;
 	time_t idletime, idlehours, idlemins, idlesecs;
 	
@@ -764,11 +764,10 @@ void who_is_online(int longlist)
 			extract(roomname,buf,2);
 			extract(fromhost,buf,3);
 			extract(clientsoft, buf, 4);
-			extract(idlebuf, buf,5);
 			extract(flags,buf,7);
 
 			if (longlist) {
-				idletime = timenow - atol(idlebuf);
+				idletime = timenow - extract_long(buf, 5);
 				idlehours = idletime / 3600;
 				idlemins = (idletime - (idlehours*3600)) / 60;
 				idlesecs = (idletime - (idlehours*3600) - (idlemins*60) );
