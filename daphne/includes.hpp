@@ -222,13 +222,13 @@ public:
 private:
 	void OnButtonPressed(wxCommandEvent& whichbutton);
 	CitClient *citsock;
-	DECLARE_EVENT_TABLE()
 	void do_readloop(wxString readcmd);
 	wxMDIParentFrame *citMyMDI;
 	wxHtmlWindow *message_window;
         wxPanel *banner;
         wxButton *close_button;
 	wxString ThisRoom;
+	DECLARE_EVENT_TABLE()
 };
 
 
@@ -275,6 +275,9 @@ private:
 void extract(wxString& outputbuf, wxString inputbuf, int parmnum);
 int extract_int(wxString inputbuf, int parmnum);
 void load_roomlist(RoomTree *tree, CitClient *citsock);
+void variformat_to_html(wxString& outputbuf,
+                        wxString inputbuf,
+                        bool add_header_and_footer);
 
 
 

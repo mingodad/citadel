@@ -12,14 +12,16 @@
 
 class RoomItem : public wxTreeItemData {
 public:
-	RoomItem(wxString name);
+	RoomItem(wxString name, bool newmsgs);
 	wxString RoomName;
+	bool HasNewMessages;
 };
 
-RoomItem::RoomItem(wxString name) 
+RoomItem::RoomItem(wxString name, bool newmsgs)
 	: wxTreeItemData() {
 
-	RoomName = name;	
+	RoomName = name;
+	HasNewMessages = newmsgs;
 }
 
 
@@ -123,7 +125,7 @@ void RoomTree::LoadRoomList(void) {
 			roomname,
 			2,
 			-1,
-			new RoomItem(roomname)
+			new RoomItem(roomname, TRUE)
 			);
 		SetItemBold(item, TRUE);
 		SetItemBold(floorboards[floornum], TRUE);
@@ -142,9 +144,10 @@ void RoomTree::LoadRoomList(void) {
 			roomname,
 			3,
 			-1,
-			new RoomItem(roomname)
+			new RoomItem(roomname, FALSE)
 			);
 	}
+
 
 }
 

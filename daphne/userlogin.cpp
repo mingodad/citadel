@@ -55,7 +55,7 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 			"UserLogin"
 			) {
 
-	wxString sendcmd, recvcmd, xferbuf;
+	wxString sendcmd, recvcmd, xferbuf, buf;
 	wxPanel *banner;
 
 	citsock = sock;
@@ -129,13 +129,7 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 		"exit_button"
 		);
 
-	wxTextCtrl *hello = new wxTextCtrl(this, -1,
-		"", //value
-		wxDefaultPosition, wxDefaultSize,
-		wxTE_MULTILINE | wxTE_READONLY,
-		wxDefaultValidator, "");
-
-
+	wxHtmlWindow *hello = new wxHtmlWindow(this);
 
         // Set up a panel for the title...
         banner = new wxPanel(this, -1);
@@ -222,10 +216,11 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 
 	sendcmd = "MESG hello";
 	if (citsock->serv_trans(sendcmd, recvcmd, xferbuf)==1) {
-		hello->SetValue(xferbuf);
+		variformat_to_html(buf, xferbuf, FALSE);
+		buf = "<HTML><BODY><CENTER>"
+			+ buf + "</CENTER></BODY></HTML>\n";
+		hello->SetPage(buf);
 	}
-
-
 }
 
 
