@@ -369,7 +369,7 @@ void read_message(long msgnum) {
 	}
 
 	/* begin everythingamundo table */
-	wprintf("<table width=100% border=1 cellspacing=0 "
+	wprintf("<center><table width=99%% border=1 cellspacing=0 "
 		"cellpadding=0><TR><TD>\n");
 
 	/* begin message header table */
@@ -642,7 +642,7 @@ ENDBODY:
 	wprintf("</TD></TR></TABLE>\n");
 
 	/* end everythingamundo table */
-	wprintf("</TD></TR></TABLE><br />\n");
+	wprintf("</TD></TR></TABLE></center><br />\n");
 }
 
 

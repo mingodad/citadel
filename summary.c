@@ -249,7 +249,7 @@ void summary(void) {
 	 * not people I consider worthwhile, I still want them to use WebCit.
 	 */
 
-	wprintf("<table border=0><tr valign=top>");
+	wprintf("<center><table border=0 width=99%%><tr valign=top>");
 
 	/*
 	 * Column One
@@ -276,7 +276,7 @@ void summary(void) {
 	/*
 	 * End of columns
 	 */
-	wprintf("</td></tr></table>\n");
+	wprintf("</td></tr></table></center>\n");
 
 	wDumpContent(1);
 }

@@ -1,4 +1,9 @@
 $Log$
+Revision 601.2  2005/02/14 04:57:23  ajc
+* Started changing some of the top-level tables from 100% width to 99%
+  width in order to keep the b0rken CSS box-model from displaying a
+  horizontal scroll bar when it shouldn't.  Lose, lose, lose.
+
 Revision 601.1  2005/02/13 04:22:31  ajc
 * Network configuration screen: add IMAPS, POP3S, and SMTPS ports
 
@@ -2344,4 +2349,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
