@@ -1,4 +1,8 @@
 $Log$
+Revision 410.4  2003/03/14 04:21:57  ajc
+* clone events to be encapsulated before saving, because the original
+  instance may already have a parent, and that makes crashy crashy
+
 Revision 410.3  2003/03/13 05:57:17  ajc
 * More encapsulation.  Warning: there are bugs in this!!
 
@@ -1288,4 +1292,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

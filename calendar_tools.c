@@ -252,7 +252,6 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 	}
 
 	/* Encapsulate the VEVENT component into a complete VCALENDAR */
-	lprintf(9, "Creating new calendar component\n");
 	encaps = icalcomponent_new(ICAL_VCALENDAR_COMPONENT);
 	if (encaps == NULL) {
 		lprintf(3, "Error at %s:%d - could not allocate component!\n",
@@ -268,24 +267,14 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 
 	/* Encapsulate the subcomponent inside */
 	lprintf(9, "Doing the encapsulation\n");
-
-	lprintf(9, "Here's what we've got so far:\n-----%s\n-----\n",
-		icalcomponent_as_ical_string(encaps)
-	);
-	lprintf(9, "Here's what we want to insert:\n-----%s\n-----\n",
-		icalcomponent_as_ical_string(subcomp)
-	);
-
 	icalcomponent_add_component(encaps, subcomp);
 
 	/* Convert all timestamps to UTC so we don't have to deal with
 	 * stupid VTIMEZONE crap.
 	 */
-	lprintf(9, "Dezonifying it all\n");
 	ical_dezonify(encaps);
 
 	/* Return the object we just created. */
-	lprintf(9, "...done!\n");
 	return(encaps);
 }
 
