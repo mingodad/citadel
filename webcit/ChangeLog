@@ -1,4 +1,8 @@
 $Log$
+Revision 410.13  2003/04/26 21:57:53  ajc
+* tcp_sockets.c: when an outgoing socket connection fails, close the socket
+  before returning an error code to avoid a file descriptor leak
+
 Revision 410.12  2003/04/19 21:42:36  ajc
 * Repaired all my b0rken COLOR tags
 * Replaced most FONT tags with SPAN tags
@@ -1334,3 +1338,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
