@@ -624,6 +624,72 @@ void ungoto(void)
 	smart_goto(buf);
 }
 
+
+
+
+
+/*
+ * Set/clear/read the "self-service list subscribe" flag for a room
+ * 
+ * Set 'newval' to 0 to clear, 1 to set, any other value to leave unchanged.
+ * Always returns the new value.
+ */
+
+int self_service(int newval) {
+	int current_value = 0;
+	char buf[SIZ];
+	
+	char name[SIZ];
+	char password[SIZ];
+	char dirname[SIZ];
+	int flags, floor, order, view, flags2;
+
+	serv_puts("GETR");
+	serv_gets(buf);
+	if (buf[0] != '2') return(0);
+
+	extract(name, &buf[4], 0);
+	extract(password, &buf[4], 1);
+	extract(dirname, &buf[4], 2);
+	flags = extract_int(&buf[4], 3);
+	floor = extract_int(&buf[4], 4);
+	order = extract_int(&buf[4], 5);
+	view = extract_int(&buf[4], 6);
+	flags2 = extract_int(&buf[4], 7);
+
+	if (flags2 & QR2_SELFLIST) {
+		current_value = 1;
+	}
+	else {
+		current_value = 0;
+	}
+
+	if (newval == 1) {
+		flags2 = flags2 | QR2_SELFLIST;
+	}
+	else if (newval == 0) {
+		flags2 = flags2 & ~QR2_SELFLIST;
+	}
+	else {
+		return(current_value);
+	}
+
+	if (newval != current_value) {
+		serv_printf("SETR %s|%s|%s|%d|0|%d|%d|%d|%d",
+			name, password, dirname, flags,
+			floor, order, view, flags2);
+		serv_gets(buf);
+	}
+
+	return(newval);
+
+}
+
+
+
+
+
+
 /*
  * display the form for editing a room
  */
@@ -964,8 +1030,13 @@ void display_editroom(void)
 	/* Mailing list management */
 	if (!strcmp(tab, "listserv")) {
 
-		wprintf("<BR><center><i>The contents of this room are being "
-			"mailed to the following list recipients:"
+		wprintf("<BR><center>"
+			"<TABLE BORDER=0 WIDTH=100%% CELLPADDING=5>"
+			"<TR><TD VALIGN=TOP>");
+
+		wprintf("<i>The contents of this room are being "
+			"mailed <b>as individual messages</b> "
+			"to the following list recipients:"
 			"</i><br><br>\n");
 
 		serv_puts("GNET");
@@ -988,11 +1059,75 @@ void display_editroom(void)
 			"<INPUT TYPE=\"hidden\" NAME=\"prefix\" VALUE=\"listrecp|\">\n");
 		wprintf("<INPUT TYPE=\"text\" NAME=\"line\">\n");
 		wprintf("<INPUT TYPE=\"submit\" NAME=\"cmd\" VALUE=\"Add\">");
-		wprintf("</FORM><BR></CENTER>\n");
+		wprintf("</FORM>\n");
+
+		wprintf("</TD><TD VALIGN=TOP>\n");
+		
+		wprintf("<i>The contents of this room are being "
+			"mailed <b>in digest form</b> "
+			"to the following list recipients:"
+			"</i><br><br>\n");
+
+		serv_puts("GNET");
+		serv_gets(buf);
+		if (buf[0]=='1') while (serv_gets(buf), strcmp(buf, "000")) {
+			extract(cmd, buf, 0);
+			if (!strcasecmp(cmd, "digestrecp")) {
+				extract(recp, buf, 1);
+			
+				escputs(recp);
+				wprintf(" <A HREF=\"/netedit&cmd=remove&line="
+					"digestrecp|");
+				urlescputs(recp);
+				wprintf("&tab=listserv\">(remove)</A><BR>");
+
+			}
+		}
+		wprintf("<BR><FORM METHOD=\"POST\" ACTION=\"/netedit\">\n"
+			"<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"listserv\">\n"
+			"<INPUT TYPE=\"hidden\" NAME=\"prefix\" VALUE=\"digestrecp|\">\n");
+		wprintf("<INPUT TYPE=\"text\" NAME=\"line\">\n");
+		wprintf("<INPUT TYPE=\"submit\" NAME=\"cmd\" VALUE=\"Add\">");
+		wprintf("</FORM>\n");
+		
+		wprintf("</TD></TR></TABLE><HR>\n");
+
+		if (self_service(999) == 1) {
+			wprintf("This room is configured to allow "
+				"self-service subscribe/unsubscribe requests."
+				" <A HREF=\"/toggle_self_service?newval=0&"
+				"tab=listserv\">"
+				"Click to disable.</A><BR>\n"
+			);
+		}
+		else {
+			wprintf("This room is <i>not</i> configured to allow "
+				"self-service subscribe/unsubscribe requests."
+				" <A HREF=\"/toggle_self_service?newval=1&"
+				"tab=listserv\">"
+				"Click to enable.</A><BR>\n"
+			);
+		}
+
+
+		wprintf("</CENTER>\n");
 	}
 
 	wDumpContent(1);
 }
+
+
+/* 
+ * Toggle self-service list subscription
+ */
+void toggle_self_service(void) {
+	int newval = 0;
+
+	newval = atoi(bstr("newval"));
+	self_service(newval);
+	display_editroom();
+}
+
 
 
 /*
