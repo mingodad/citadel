@@ -27,6 +27,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
+#include <sys/syslog.h>
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -47,7 +48,6 @@
 #include <pwd.h>
 #include <errno.h>
 #include <stdarg.h>
-#include <syslog.h>
 #include <grp.h>
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
@@ -92,6 +92,8 @@ int masterhighest;
 
 pthread_t initial_thread;		/* tid for main() thread */
 
+int syslog_facility = (-1);
+
 
 /*
  * lprintf()  ...   Write logging information
@@ -107,7 +109,12 @@ void lprintf(int loglevel, const char *format, ...) {
         vsnprintf(buf, sizeof(buf), format, arg_ptr);   
         va_end(arg_ptr);   
 
-	if (loglevel <= verbosity) { 
+	if (syslog_facility >= 0) {
+		if (loglevel <= verbosity) {
+			syslog(LOG_NOTICE, buf);
+		}
+	}
+	else if (loglevel <= verbosity) { 
 		struct timeval tv;
 		struct tm *tim;
 		time_t unixtime;
@@ -1141,3 +1148,46 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 	--num_threads;
 	return NULL;
 }
+
+
+
+
+/*
+ * SyslogFacility()
+ * Translate text facility name to syslog.h defined value.
+ */
+int SyslogFacility(char *name)
+{
+	int i;
+	struct
+	{
+		int facility;
+		char *name;
+	}   facTbl[] =
+	{
+		{   LOG_KERN,   "kern"		},
+		{   LOG_USER,   "user"		},
+		{   LOG_MAIL,   "mail"		},
+		{   LOG_DAEMON, "daemon"	},
+		{   LOG_AUTH,   "auth"		},
+		{   LOG_SYSLOG, "syslog"	},
+		{   LOG_LPR,	"lpr"		},
+		{   LOG_NEWS,   "news"		},
+		{   LOG_UUCP,   "uucp"		},
+		{   LOG_LOCAL0, "local0"	},
+		{   LOG_LOCAL1, "local1"	},
+		{   LOG_LOCAL2, "local2"	},
+		{   LOG_LOCAL3, "local3"	},
+		{   LOG_LOCAL4, "local4"	},
+		{   LOG_LOCAL5, "local5"	},
+		{   LOG_LOCAL6, "local6"	},
+		{   LOG_LOCAL7, "local7"	},
+		{   0,		  NULL		}
+	};
+	for(i = 0; facTbl[i].name != NULL; i++) {
+		if(!strcasecmp(name, facTbl[i].name))
+			return facTbl[i].facility;
+	}
+	return -1;
+}
+

@@ -29,7 +29,6 @@
 
 #include <ctype.h>
 #include <string.h>
-#include <syslog.h>
 #include <limits.h>
 #include <errno.h>
 #include <stdarg.h>

@@ -836,7 +836,7 @@ a different port for each one.</p>
 <p>The next step is to arrange for the server to start. The <tt>citserver</tt>
 program is the main Citadel server. Before we cover the recommended
 method of starting the server, let's examine its usage options:</p>
-<pre>citserver [-hHomeDir] [-xDebugLevel] [-tTraceFile] [-d] [-f]<br></pre>
+<pre>citserver [-hHomeDir] [-xDebugLevel] [-tTraceFile] [-lLogFacility] [-d] [-f]<br></pre>
 <p>The options are as follows:</p>
 <p><tt>-hHomeDir</tt> - the directory your Citadel data files live in.
 This should, of course, be a directory that you've run the <tt>setup</tt>
@@ -857,6 +857,14 @@ etc.) </li>
 </ul>
 <p><tt>-tTraceFile</tt> - Tell the server where to send its debug/trace
 output. Normally it is sent to stdout.</p>
+<p><tt>-lLogFacility</tt> - Tell the server to send its debug/trace output
+to the <tt>syslog</tt> service on the host system <i>instead of</i> to a
+trace file.  <tt>LogFacility</tt> must be one of: <tt><i>kern, user, mail,
+daemon, auth, syslog, lpr, news, uucp, local0, local1, local2, local3,
+local4, local5, local6, local7</i></tt>.  Please note that use of the
+<tt>-l</tt> option will cancel any use of the <tt>-t</tt> option; that is,
+if you specify a trace file <i>and</i> a syslog facility, log output will
+only go to the syslog facility.
 <p><tt>-d</tt> - Run as a daemon; i.e. in the background. This switch
 would be necessary if you were starting the Citadel server, for
 example, from an rc.local script (which is not recommended, because

@@ -30,7 +30,6 @@
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
-#include <syslog.h>
 
 #include "citadel.h"
 #include "server.h"

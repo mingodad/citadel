@@ -51,7 +51,6 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include <syslog.h>
 #include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"

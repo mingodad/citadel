@@ -15,6 +15,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
+#include <syslog.h>
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -35,7 +36,6 @@
 #include <pwd.h>
 #include <errno.h>
 #include <stdarg.h>
-#include <syslog.h>
 #include <grp.h>
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
@@ -90,6 +90,15 @@ int main(int argc, char **argv)
 			chmod(tracefile, 0600);
 		}
 
+		else if (!strncmp(argv[a], "-l", 2)) {
+			safestrncpy(tracefile, argv[a], sizeof tracefile);
+			strcpy(tracefile, &tracefile[2]);
+			syslog_facility = SyslogFacility(tracefile);
+			if (syslog_facility >= 0) {
+				openlog("citadel", LOG_PID, syslog_facility);
+			}
+		}
+
 		/* run in the background if -d was specified */
 		else if (!strcmp(argv[a], "-d")) {
 			start_daemon( (strlen(tracefile) > 0) ? 0 : 1 ) ;
@@ -119,7 +128,9 @@ int main(int argc, char **argv)
 		/* any other parameter makes it crash and burn */
 		else {
 			lprintf(1,	"citserver: usage: "
-					"citserver [-tTraceFile] [-d] [-f]"
+					"citserver [-tTraceFile] "
+					"[-lLogFacility] "
+					"[-d] [-f]"
 					" [-xLogLevel] [-hHomeDir]\n");
 			exit(1);
 		}
@@ -138,7 +149,6 @@ int main(int argc, char **argv)
 
 	/* Initialize... */
 	init_sysdep();
-	openlog("citserver", LOG_PID, LOG_USER);
 
 	/* Load site-specific parameters, and set the ipgm secret */
 	lprintf(7, "Loading citadel.config\n");

@@ -13,7 +13,6 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <string.h>
-#include <syslog.h>
 #include <limits.h>
 #include <ctype.h>
 #include "citadel.h"

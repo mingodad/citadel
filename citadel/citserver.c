@@ -34,7 +34,6 @@
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
-#include <syslog.h>
 /* #include <dlfcn.h> */
 #include <netdb.h>
 #include <sys/types.h>
@@ -229,8 +228,7 @@ void RemoveContext (struct CitContext *con)
 	logout(con);
 
 	unlink(con->temp);
-	lprintf(3, "Session ended.\n");
-	syslog(LOG_NOTICE,"Session %d: ended.", con->cs_pid);
+	lprintf(3, "Session %d: ended.\n", con->cs_pid);
 
 	/* Deallocate any user-data attached to this session */
 	deallocate_user_data(con);
@@ -507,14 +505,7 @@ void cmd_iden(char *argbuf)
 		}
 	}
 
-	lprintf(7, "Client %d/%d/%01d.%02d (%s)\n",
-		dev_code,
-		cli_code,
-		(rev_level / 100),
-		(rev_level % 100),
-		desc);
-
-	syslog(LOG_NOTICE,"Session %d: Client %d/%d/%01d.%02d (%s) from %s\n",
+	lprintf(3,"Session %d: Client %d/%d/%01d.%02d (%s) from %s\n",
 		CC->cs_pid,
 		dev_code,
 		cli_code,
@@ -907,8 +898,7 @@ void begin_session(struct CitContext *con)
 	if ((config.c_maxsessions > 0)&&(num_sessions > config.c_maxsessions))
 		con->nologin = 1;
 
-	lprintf(3, "Session started.\n");
-	syslog(LOG_NOTICE, "Session %d: started.", con->cs_pid);
+	lprintf(3, "Session %d: started.\n", con->cs_pid);
 
 	/* Run any session startup routines registered by loadable modules */
 	PerformSessionHooks(EVT_START);

@@ -33,7 +33,6 @@
 #endif
 
 #include <string.h>
-#include <syslog.h>
 #include <limits.h>
 #ifndef ENABLE_CHKPWD
 #include "auth.h"
@@ -437,7 +436,7 @@ void session_startup(void)
 {
 	int i;
 
-	syslog(LOG_NOTICE, "Session %d: %s logged in",
+	lprintf(3, "Session %d: %s logged in",
 	       CC->cs_pid, CC->curr_user);
 
 	lgetuser(&CC->user, CC->curr_user);

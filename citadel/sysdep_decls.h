@@ -49,3 +49,7 @@ extern struct worker_node {
         pthread_t tid;
         struct worker_node *next;
 } *worker_list;
+
+
+extern int SyslogFacility(char *name);
+extern int syslog_facility;

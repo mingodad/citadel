@@ -31,7 +31,6 @@
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
-#include <syslog.h>
 #include <sys/types.h>
 #include "citadel.h"
 #include "server.h"
