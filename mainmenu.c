@@ -202,14 +202,32 @@ void display_aide_menu(void)
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<center><table border=1 cellpadding=5 bgcolor=\"#ffffff\"><tr><td>\n");
+	wprintf("<center><table border=0 width=99%%><tr valign=top><td>");
+
+	svprintf("BOXTITLE", WCS_STRING, "Global Configuration");
+	do_template("beginbox");
 
 	wprintf("<A HREF=\"/display_siteconfig\">"
 		"<span class=\"mainmenu\">"
-		"Edit site-wide configuration</span></A>\n");
+		"Edit site-wide configuration</span></A><br />\n");
 
-	wprintf("<br />"
-		"<A HREF=\"/select_user_to_edit\">"
+	wprintf("<A HREF=\"/display_inetconf\">"
+		"<span class=\"mainmenu\">"
+		"Domain names and Internet mail configuration</span></a><br />\n");
+
+	wprintf("<A HREF=\"/display_netconf\">"
+		"<span class=\"mainmenu\">"
+		"Configure replication with other Citadel servers"
+		"</span></A>\n");
+
+	do_template("endbox");
+
+	wprintf("</td><td>");
+
+	svprintf("BOXTITLE", WCS_STRING, "User account management");
+	do_template("beginbox");
+
+	wprintf("<A HREF=\"/select_user_to_edit\">"
 		"<span class=\"mainmenu\">"
 		"Add, change, delete user accounts"
 		"</span></A><br />\n");
@@ -218,19 +236,17 @@ void display_aide_menu(void)
 		"<span class=\"mainmenu\">"
 		"Validate new users</span></A><br />\n");
 
+	do_template("endbox");
+
+	svprintf("BOXTITLE", WCS_STRING, "Rooms and Floors");
+	do_template("beginbox");
+
 	wprintf("<A HREF=\"/display_floorconfig\">"
 		"<span class=\"mainmenu\">"
 		"Add, change, or delete floors"
-		"</span></A><br />\n");
+		"</span></A>\n");
 
-	wprintf("<A HREF=\"/display_netconf\">"
-		"<span class=\"mainmenu\">"
-		"Configure networking with other systems"
-		"</span></A><br />\n");
-
-	wprintf("<A HREF=\"/display_inetconf\">"
-		"<span class=\"mainmenu\">"
-		"Internet and domain configuration</span></a><br />\n");
+	do_template("endbox");
 
 	wprintf("</td></tr></table></center>");
 	wDumpContent(2);

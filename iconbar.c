@@ -94,6 +94,17 @@ void do_iconbar(void) {
 		wprintf("</li>\n");
 	}
 
+	if (ib_citadel) if (ib_displayas != IB_TEXTONLY) wprintf(
+		"<li><div align=\"center\">"
+		"<A HREF=\"http://www.citadel.org\" "
+		"title=\"Find out more about Citadel\" target=\"aboutcit\" "
+		"<img border=\"0\" width=\"48\" height=\"48\" "
+		"SRC=\"/static/citadel-logo.gif\" ALT=\"CITADEL\">"
+		"CITADEL</A>"
+		"</div></li>\n"
+	);
+
+
 	if (ib_summary) {
 		wprintf("<li><A HREF=\"/summary\" "
 			"TITLE=\"Your summary page\" "
@@ -291,18 +302,6 @@ void do_iconbar(void) {
 		"TITLE=\"Customize this menu\" "
 		">customize this menu</A>"
 		"</A></div></li>\n"
-	);
-
-	if (ib_citadel) if (ib_displayas != IB_TEXTONLY) wprintf(
-		"<li><div align=\"center\">"
-		"<A HREF=\"http://www.citadel.org\" "
-		"title=\"Find out more about Citadel\" target=\"aboutcit\" "
-		"onMouseOver=\"window.status='Find out more about "
-		"Citadel'; return true;\">powered by<br /><IMG "
-		"BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"SRC=\"/static/citadel-logo.gif\" ALT=\"CITADEL\">"
-		"<br />CITADEL</A>"
-		"</div></li>\n"
 	);
 
 	wprintf("</ul>\n"
