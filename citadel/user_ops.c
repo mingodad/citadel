@@ -161,7 +161,7 @@ void CtdlGetRelationship(struct visit *vbuf,
 
 	struct cdbdata *cdbvisit;
 	struct visit *visits;
-	int num_visits = 0;
+	int num_visits;
 	int a;
 
 	bzero(vbuf, sizeof(struct visit));
@@ -170,15 +170,17 @@ void CtdlGetRelationship(struct visit *vbuf,
 
 	cdbvisit = cdb_fetch(CDB_VISIT, &rel_user->usernum, sizeof(long));
 	if (cdbvisit != NULL) {
-		num_visits = cdbvisit->len / sizeof(struct visit);
+		if ((num_visits = cdbvisit->len / sizeof(struct visit)) == 0) {
+			cdb_free(cdbvisit);
+			return;
+		}
 		visits = (struct visit *)
 			malloc(num_visits * sizeof(struct visit));
 		memcpy(visits, cdbvisit->ptr,
 			(num_visits * sizeof(struct visit)));
 		cdb_free(cdbvisit);
 		}
-
-	if (num_visits == 0) return;
+	else return;
 
 	for (a=0; a<num_visits; ++a) {
 	
