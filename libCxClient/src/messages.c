@@ -74,14 +74,26 @@ int		rc;
 /**
  ** CxMsList(): Retrieve a list of messages in the current room.
  **/
-CXLIST		CxMsList() {
+CXLIST		CxMsList(int list_type, int number_messages) {
 int		rc;
 char		buf[255], *malleable;
 CXLIST		msgs = NULL;
 
 	DPF((DFA,"Retrieving list of messages from the server."));
 
-	CxClSend("MSGS");
+	switch( list_type ) {
+		case(2):
+			// MSGS LAST|%d
+			break;
+
+		case(1):
+			CxClSend("MSGS NEW");
+			break;
+
+		default:
+			CxClSend("MSGS");
+			break;
+	}
 	rc = CxClRecv( buf );
 
 	if( CHECKRC(rc, RC_LISTING) ) {

@@ -211,7 +211,7 @@ char		*CxFiGet(const char *);
  ** Message Input/Output
  **/
 CXLIST		CxMsInfo(CXLIST);
-CXLIST		CxMsList();
+CXLIST		CxMsList(int,int);
 int		CxMsLoad(const char *, int, MESGINFO *);
 int		CxMsSaveOk(const char *);
 int		CxMsSave(MESGINFO);

@@ -48,7 +48,7 @@ char		buf[255],*s = 0;
 			room_info = 0;
 
 			fl = CxLlFlush(fl);
-			fl = CxMsList();
+			fl = CxMsList(0, 0);
 
 			fl = CxLlFlush(fl);
 
