@@ -111,7 +111,7 @@ void chatmode(void)
 			goto RCL;
 		}
 		if (FD_ISSET(0, &rfds)) {
-			ch = scr_getc();
+			ch = scr_getc(SCR_BLOCK);
 			if ((ch == 10) || (ch == 13)) {
 				send_complete_line = 1;
 			} else if ((ch == 8) || (ch == 127)) {

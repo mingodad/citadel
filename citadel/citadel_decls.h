@@ -27,3 +27,4 @@ void logoff(int code);
 void formout(char *name);
 void sighandler(int which_sig);
 void do_system_configuration(void);
+extern int secure;

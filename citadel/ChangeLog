@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.153  2002/03/14 04:24:20  nbryant
+ support window resizing in curses mode
+
  Revision 590.152  2002/03/13 04:11:11  nbryant
  fix up minor gotcha introduced by fgets change
 
@@ -3502,4 +3505,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

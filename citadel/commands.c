@@ -460,7 +460,9 @@ int inkey(void)
 		 * necessary and then waits again.
 		 */
 		do {
+			scr_set_windowsize();
 			do_keepalive();
+			scr_set_windowsize();
 
 			FD_ZERO(&rfds);
 			FD_SET(0, &rfds);
@@ -473,7 +475,7 @@ int inkey(void)
 		/* At this point, there's input, so fetch it.
 		 * (There's a hole in the bucket...)
 		 */
-		a = scr_getc();
+		a = scr_getc(SCR_NOBLOCK);
 		if (a == 127)
 			a = 8;
 		if (a > 126)
@@ -483,6 +485,12 @@ int inkey(void)
 		if (((a != 4) && (a != 10) && (a != 8) && (a != NEXT_KEY) && (a != STOP_KEY))
 		    && ((a < 32) || (a > 126)))
 			a = 0;
+
+#if defined(HAVE_CURSES_H) || defined(HAVE_NCURSES_H)
+		if (a == ERR)
+			a = 0;
+#endif
+
 	} while (a == 0);
 	return (a);
 }

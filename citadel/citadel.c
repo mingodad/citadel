@@ -689,13 +689,10 @@ void check_screen_dims(void)
 		unsigned short ypixels;		/* pixels */
 	} xwinsz;
 
-	if (scr_set_windowsize())
-		return;
-
 	if (have_xterm) {	/* dynamically size screen if on an xterm */
 		if (ioctl(0, TIOCGWINSZ, &xwinsz) == 0) {
 			if (xwinsz.height)
-				screenheight = (int) xwinsz.height;
+				screenheight = is_curses_enabled() ? (int)xwinsz.height - 1 : (int) xwinsz.height;
 			if (xwinsz.width)
 				screenwidth = (int) xwinsz.width;
 		}
@@ -950,7 +947,10 @@ int main(int argc, char **argv)
 	sttybbs(SB_NO_INTR);	/* Install the new ones */
 	signal(SIGHUP, dropcarr);	/* Cleanup gracefully if carrier is dropped */
 	signal(SIGTERM, dropcarr);	/* Cleanup gracefully if terminated */
-	signal(SIGCONT, catch_sigcont);		/* Catch SIGCONT so we can reset terminal */
+	signal(SIGCONT, catch_sigcont);	/* Catch SIGCONT so we can reset terminal */
+#ifdef SIGWINCH
+	signal(SIGWINCH, scr_winch);	/* Window resize signal */
+#endif
 
 #ifdef HAVE_OPENSSL
 	arg_encrypt = RC_DEFAULT;

@@ -5,12 +5,8 @@
  */
 
 #include "sysdep.h"
-#ifdef HAVE_NCURSES_H
-#include <ncurses.h>
-#elif defined(HAVE_CURSES_H)
-#include <curses.h>
-#endif
 #include <stdio.h>
+#include <signal.h>
 #include <string.h>
 #include <stdarg.h>
 #include <unistd.h>
@@ -27,6 +23,7 @@
 #include "citadel.h"
 #include "commands.h"
 #include "screen.h"
+#include "citadel_decls.h"
 
 #ifdef HAVE_CURSES_H
 static SCREEN *myscreen = NULL;
@@ -279,18 +276,27 @@ int sln_printf_if(char *fmt, ...)
 }
 
 
-int scr_getc(void)
+int scr_getc(int delay)
 {
   char buf;
+
 #ifdef HAVE_CURSES_H
-	if (mainwindow)
+	if (mainwindow) {
+		wtimeout(mainwindow, delay);
 		return wgetch(mainwindow);
+	}
 #endif
+
   buf = '\0';
   read (0, &buf, 1);
 	return buf;
 }
 
+/* the following is unused and looks broken, but there may
+   be some input problems still lurking in curses mode, so
+   i'll leave it blocked out for now for informational
+   purposes. */
+#if 0
 int scr_blockread(void)
   {
     int a = 0;
@@ -307,6 +313,7 @@ int scr_blockread(void)
 #endif
     return a;
   }
+#endif /* 0 */
 
 /*
  * scr_putc() outputs a single character
@@ -397,33 +404,43 @@ void sln_flush(void)
 		fflush(stdout);
 }
 
+static volatile int caught_sigwinch = 0;
 
-int scr_set_windowsize(void)
+/*
+ * this is not supposed to be called from a signal handler.
+ */
+int scr_set_windowsize()
 {
 #ifdef HAVE_CURSES_H
-	int y, x;
-
-	if (mainwindow) {
-		getmaxyx(mainwindow, y, x);
-		screenheight = y;
-		screenwidth = x;
+	if (mainwindow && caught_sigwinch) {
+		caught_sigwinch = 0;
+		resizeterm(screenheight + 1, screenwidth);
+		wresize(mainwindow, screenheight, screenwidth);
+		wresize(statuswindow, 1, screenwidth);
+		mvwin(statuswindow, screenheight, 0);
+		status_line(serv_info.serv_humannode, serv_info.serv_bbs_city,
+                            room_name, secure, -1);
+		wnoutrefresh(mainwindow);
+		wnoutrefresh(statuswindow);
+		doupdate();
 		return 1;
 	}
 #endif /* HAVE_CURSES_H */
 	return 0;
 }
 
-
 /*
  * scr_winch() handles window size changes from SIGWINCH
  * resizes all our windows for us
  */
-RETSIGTYPE scr_winch(void)
+RETSIGTYPE scr_winch(int signum)
 {
-#ifdef HAVE_CURSES_H
-	/* FIXME: not implemented */
-#endif
+	/* if we receive this signal, we must be running
+	   in a terminal that supports resizing. */
+	have_xterm = 1;
+	caught_sigwinch = 1;
 	check_screen_dims();
+	signal(SIGWINCH, scr_winch);
 }
 
 
