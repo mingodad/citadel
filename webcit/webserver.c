@@ -150,7 +150,7 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
 		}
 		len = len + rlen;
 	}
-	write(2, buf, bytes); /* FIXME */
+	/* write(2, buf, bytes); FIXME */
 	return (1);
 }
 
@@ -170,7 +170,7 @@ ssize_t client_write(const void *buf, size_t count) {
 		return(count);
 	}
 #endif
-	write(2, buf, count); /* FIXME */
+	/* write(2, buf, count); FIXME */
 	return(write(WC->http_sock, buf, count));
 }
 
@@ -194,7 +194,7 @@ void end_burst(void) {
 	WC->burst_len = 0;
 	WC->burst = NULL;
 
-	wprintf("Content-length: %d\n\n", the_len);
+	wprintf("Content-length: %d\r\n\r\n", the_len);
 	client_write(the_data, the_len);
 	free(the_data);
 }

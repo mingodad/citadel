@@ -1,4 +1,7 @@
 $Log$
+Revision 528.44  2005/02/05 22:58:46  ajc
+* All GroupDAV HTTP output is now \r\n instead of \n terminated.
+
 Revision 528.43  2005/02/05 08:36:13  ajc
 * Added an everything-buffering thingi so we can do Content-length:
 
@@ -2320,4 +2323,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -60,12 +60,12 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		gotoroom(dav_roomname);
 	}
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
-		wprintf("HTTP/1.1 404 not found\n");
+		wprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		wprintf(
-			"Content-Type: text/plain\n"
-			"\n"
-			"There is no folder called \"%s\" on this server.\n",
+			"Content-Type: text/plain\r\n"
+			"\r\n"
+			"There is no folder called \"%s\" on this server.\r\n",
 			dav_roomname
 		);
 		return;
@@ -100,9 +100,9 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	if (strlen(dav_ifmatch) > 0) {
 		old_msgnum = locate_message_by_uid(dav_uid);
 		if (atol(dav_ifmatch) != old_msgnum) {
-			wprintf("HTTP/1.1 412 Precondition Failed\n");
+			wprintf("HTTP/1.1 412 Precondition Failed\r\n");
 			groupdav_common_headers();
-			wprintf("Content-Length: 0\n\n");
+			wprintf("Content-Length: 0\r\n\r\n");
 			return;
 		}
 	}
@@ -115,11 +115,11 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	serv_puts("ENT0 1|||4|||1|");
 	serv_gets(buf);
 	if (buf[0] != '8') {
-		wprintf("HTTP/1.1 502 Bad Gateway\n");
+		wprintf("HTTP/1.1 502 Bad Gateway\r\n");
 		groupdav_common_headers();
-		wprintf("Content-type: text/plain\n"
-			"\n"
-			"%s\n", &buf[4]
+		wprintf("Content-type: text/plain\r\n"
+			"\r\n"
+			"%s\r\n", &buf[4]
 		);
 		return;
 	}
@@ -149,21 +149,21 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 
 	/* Citadel failed in some way? */
 	if (new_msgnum < 0L) {
-		wprintf("HTTP/1.1 502 Bad Gateway\n");
+		wprintf("HTTP/1.1 502 Bad Gateway\r\n");
 		groupdav_common_headers();
-		wprintf("Content-type: text/plain\n"
-			"\n"
-			"new_msgnum is %ld\n"
-			"\n", new_msgnum
+		wprintf("Content-type: text/plain\r\n"
+			"\r\n"
+			"new_msgnum is %ld\r\n"
+			"\r\n", new_msgnum
 		);
 		return;
 	}
 
 	/* We created this item for the first time. */
 	if (old_msgnum < 0L) {
-		wprintf("HTTP/1.1 201 Created\n");
+		wprintf("HTTP/1.1 201 Created\r\n");
 		groupdav_common_headers();
-		wprintf("Content-Length: 0\n");
+		wprintf("Content-Length: 0\r\n");
 		wprintf("Location: ");
 		if (strlen(WC->http_host) > 0) {
 			wprintf("%s://%s",
@@ -172,15 +172,15 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		}
 		wprintf("/groupdav/");
 		urlescputs(dav_roomname);
-		wprintf("/%s\n", dav_uid);
-		wprintf("\n");
+		wprintf("/%s\r\n", dav_uid);
+		wprintf("\r\n");
 		return;
 	}
 
 	/* We modified an existing item. */
-	wprintf("HTTP/1.1 204 No Content\n");
+	wprintf("HTTP/1.1 204 No Content\r\n");
 	groupdav_common_headers();
-	wprintf("Content-Length: 0\n\n");
+	wprintf("Content-Length: 0\r\n\r\n");
 
 	/* The item we replaced has probably already been deleted by
 	 * the Citadel server, but we'll do this anyway, just in case.

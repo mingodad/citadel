@@ -58,12 +58,12 @@ void groupdav_get(char *dav_pathname) {
 		gotoroom(dav_roomname);
 	}
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
-		wprintf("HTTP/1.1 404 not found\n");
+		wprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		wprintf(
-			"Content-Type: text/plain\n"
-			"\n"
-			"There is no folder called \"%s\" on this server.\n",
+			"Content-Type: text/plain\r\n"
+			"\r\n"
+			"There is no folder called \"%s\" on this server.\r\n",
 			dav_roomname
 		);
 		return;
@@ -73,37 +73,37 @@ void groupdav_get(char *dav_pathname) {
 	serv_printf("MSG2 %ld", dav_msgnum);
 	serv_gets(buf);
 	if (buf[0] != '1') {
-		wprintf("HTTP/1.1 404 not found\n");
+		wprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		wprintf(
-			"Content-Type: text/plain\n"
-			"\n"
-			"Object \"%s\" was not found in the \"%s\" folder.\n",
+			"Content-Type: text/plain\r\n"
+			"\r\n"
+			"Object \"%s\" was not found in the \"%s\" folder.\r\n",
 			dav_uid,
 			dav_roomname
 		);
 		return;
 	}
 
-	wprintf("HTTP/1.1 200 OK\n");
+	wprintf("HTTP/1.1 200 OK\r\n");
 	groupdav_common_headers();
-	wprintf("ETag: \"%ld\"\n", dav_msgnum);
+	wprintf("ETag: \"%ld\"\r\n", dav_msgnum);
 	while (serv_gets(buf), strcmp(buf, "000")) {
 		if (!strncasecmp(buf, "Date: ", 6)) {
-			wprintf("%s\n", buf);
+			wprintf("%s\r\n", buf);
 		}
 		if (!strncasecmp(buf, "Content-type: ", 14)) {
-			wprintf("%s\n", buf);
+			wprintf("%s\r\n", buf);
 			found_content_type = 1;
 		}
 		if ((strlen(buf) == 0) && (in_body == 0)) {
 			if (!found_content_type) {
-				wprintf("Content-type: text/plain\n");
+				wprintf("Content-type: text/plain\r\n");
 			}
 			in_body = 1;
 		}
 		if (in_body) {
-			wprintf("%s\n", buf);
+			wprintf("%s\r\n", buf);
 		}
 	}
 }
