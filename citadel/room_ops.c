@@ -18,6 +18,7 @@
 #include "msgbase.h"
 #include "serv_chat.h"
 #include "citserver.h"
+#include "control.h"
 
 /*
  * Generic routine for determining user access to rooms
@@ -279,31 +280,18 @@ void ForEachRoom(void (*CallBack)(struct quickroom *EachRoom)) {
 
 
 /*
- * Create a database key for storage of message lists
- */
-void msglist_key(char *dbkey, struct quickroom *whichroom) {
-	int a;
-	
-	sprintf(dbkey, "%s%ld", whichroom->QRname, whichroom->QRgen);
-	for (a=0; a<strlen(dbkey); ++a) dbkey[a]=tolower(dbkey[a]);
-	}
-
-/*
  * get_msglist()  -  retrieve room message pointers
  */
 void get_msglist(struct quickroom *whichroom) {
 	struct cdbdata *cdbfr;
-	char dbkey[256];
 
-	msglist_key(dbkey, whichroom);	
-	
 	if (CC->msglist != NULL) {
 		free(CC->msglist);
 		}
 	CC->msglist = NULL;
 	CC->num_msgs = 0;
 
-	cdbfr = cdb_fetch(CDB_MSGLISTS, dbkey, strlen(dbkey));
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &whichroom->QRnumber, sizeof(long));
 	if (cdbfr == NULL) {
 		return;
 		}
@@ -319,10 +307,8 @@ void get_msglist(struct quickroom *whichroom) {
  * put_msglist()  -  retrieve room message pointers
  */
 void put_msglist(struct quickroom *whichroom) {
-	char dbkey[256];
 
-	msglist_key(dbkey, whichroom);	
-	cdb_store(CDB_MSGLISTS, dbkey, strlen(dbkey),
+	cdb_store(CDB_MSGLISTS, &whichroom->QRnumber, sizeof(long),
 		CC->msglist, CC->num_msgs * sizeof(long));
 	}
 
@@ -335,10 +321,8 @@ void put_msglist(struct quickroom *whichroom) {
  *       like "gdbm: illegal data" (no big deal, but could use fixing).
  */
 void delete_msglist(struct quickroom *whichroom) {
-	char dbkey[256];
 
-	msglist_key(dbkey, whichroom);	
-	cdb_delete(CDB_MSGLISTS, dbkey, strlen(dbkey));
+	cdb_delete(CDB_MSGLISTS, &whichroom->QRnumber, sizeof(long));
 	}
 
 
@@ -349,13 +333,11 @@ void delete_msglist(struct quickroom *whichroom) {
  * may not be the current room (as is the case with cmd_move() for example).
  */
 void AddMessageToRoom(struct quickroom *whichroom, long newmsgid) {
-	char dbkey[256];
 	struct cdbdata *cdbfr;
 	int num_msgs;
 	long *msglist;
 	
-	msglist_key(dbkey, whichroom);
-	cdbfr = cdb_fetch(CDB_MSGLISTS, dbkey, strlen(dbkey));
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &whichroom->QRnumber, sizeof(long));
 	if (cdbfr == NULL) {
 		msglist = NULL;
 		num_msgs = 0;
@@ -379,7 +361,7 @@ void AddMessageToRoom(struct quickroom *whichroom, long newmsgid) {
 	msglist[num_msgs - 1] = newmsgid;
 
 	/* Write it back to disk. */
-	cdb_store(CDB_MSGLISTS, dbkey, strlen(dbkey),
+	cdb_store(CDB_MSGLISTS, &whichroom->QRnumber, sizeof(long),
 		msglist, num_msgs * sizeof(long));
 
 	/* And finally, free up the memory we used. */
@@ -1260,6 +1242,7 @@ unsigned create_room(char *new_room_name,
 	strncpy(qrbuf.QRname,new_room_name,ROOMNAMELEN);
 	strncpy(qrbuf.QRpasswd,new_room_pass,9);
 	qrbuf.QRflags = QR_INUSE;
+	qrbuf.QRnumber = get_new_room_number();
 	if (new_room_type > 0) qrbuf.QRflags=(qrbuf.QRflags|QR_PRIVATE);
 	if (new_room_type == 1) qrbuf.QRflags=(qrbuf.QRflags|QR_GUESSNAME);
 	if (new_room_type == 2) qrbuf.QRflags=(qrbuf.QRflags|QR_PASSWORDED);

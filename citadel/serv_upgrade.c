@@ -341,6 +341,8 @@ void imp_globals(void) {
 			CitControl.MMhighest = atol(value);
 		if (!strcasecmp(key, "mmnextuser"))
 			CitControl.MMnextuser = atol(value);
+		if (!strcasecmp(key, "mmnextroom"))
+			CitControl.MMnextroom = atol(value);
 
 		}
 	put_control();
@@ -693,6 +695,7 @@ void do_export(char *argbuf) {
 	fprintf(exfp, "globals%c", 0);
 	fprintf(exfp, "mmhighest%c%ld%c", 0, CitControl.MMhighest, 0);
 	fprintf(exfp, "mmnextuser%c%ld%c", 0, CitControl.MMnextuser, 0);
+	fprintf(exfp, "mmnextroom%c%ld%c", 0, CitControl.MMnextroom, 0);
 	fprintf(exfp, "mmflags%c%d%c", 0, CitControl.MMflags, 0);
 	fprintf(exfp, "endsection%c", 0);
 

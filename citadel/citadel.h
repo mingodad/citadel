@@ -120,6 +120,7 @@ struct CitControl {
 	long MMhighest;			/* highest message number in file   */
 	unsigned MMflags;		/* Global system flags              */
 	long MMnextuser;		/* highest user number on system    */
+	long MMnextroom;		/* highest room number on system    */
 	};
 
 /* Bits which may appear in CitControl.MMflags.  Note that these don't
@@ -143,6 +144,7 @@ struct quickroom {
 	char QRfloor;			/* Which floor this room is on      */
 	time_t QRmtime;			/* Date/time of last post           */
 	struct ExpirePolicy QRep;	/* Message expiration policy        */
+	long QRnumber;			/* Globally unique room number      */
 	};
 
 

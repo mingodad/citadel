@@ -1,3 +1,6 @@
+Tue Nov 17 22:37:48 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Started implementing global room numbers.
+
 Sun Nov 15 20:32:34 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* room_ops.c: mailbox rooms always appear on the main floor
 	* made QR_MAILBOX rooms non-editable

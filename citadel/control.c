@@ -88,6 +88,20 @@ long get_new_user_number(void) {
 
 
 
+/*
+ * get_new_room_number()  -  Obtain a new, unique ID to be used for a room.
+ */
+long get_new_room_number(void) {
+	begin_critical_section(S_CONTROL);
+	get_control();
+	++CitControl.MMnextroom;
+	put_control();
+	end_critical_section(S_CONTROL);
+	return(CitControl.MMnextroom);
+	}
+
+
+
 /* 
  * Get or set global configuration options
  */
