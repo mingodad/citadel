@@ -1,6 +1,6 @@
 /*
  * Citadel/UX message support routines
- * see copyright.doc for copyright information
+ * see copyright.txt for copyright information
  */
 
 #include <stdlib.h>
@@ -319,8 +319,8 @@ void citedit(FILE *fp, long int base_pos)
 	}
 
 
-int read_message(long int num, char pagin)	/* Read a message from the server */
-         			/* message number */
+int read_message(long int num, char pagin) /* Read a message from the server */
+         				   /* message number */
            	/* 0 = normal read, 1 = read with pagination, 2 = header */
 {
 	char buf[256];
@@ -836,7 +836,13 @@ FILE *qfile,*tfile;
 char buf[128];
 int line,qstart,qend;
 
+	/* Unlink the second temp file as soon as it's opened, so it'll get
+	 * deleted even if the program dies
+	 */
 	qfile = fopen(temp2,"r");
+	unlink(temp2);
+
+	/* Display the quotable text with line numbers added */
 	line = 0;
 	fgets(buf,128,qfile);
 	while (fgets(buf,128,qfile)!=NULL) {
@@ -858,7 +864,6 @@ int line,qstart,qend;
 	fprintf(tfile," \n");
 	fclose(qfile);
 	fclose(tfile);
-	unlink(temp2);
 	chmod(temp,0666);
 	}
 
