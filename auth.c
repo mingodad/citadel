@@ -186,7 +186,7 @@ void do_logout(void)
 	/* Calling output_headers() this way causes the cookies to be un-set */
 	output_headers(1, 1, 0, 1, 0, 0, 0);
 
-	wprintf("<CENTER>");
+	wprintf("<center>");
 	serv_puts("MESG goodbye");
 	serv_gets(buf);
 
@@ -204,9 +204,9 @@ void do_logout(void)
 		);
 	}
 
-	wprintf("<hr /><A HREF=\"/\">Log in again</A>&nbsp;&nbsp;&nbsp;"
-		"<A HREF=\"javascript:window.close();\">Close window</A>"
-		"</CENTER>\n");
+	wprintf("<hr /><a href=\"/\">Log in again</A>&nbsp;&nbsp;&nbsp;"
+		"<a href=\"javascript:window.close();\">Close window</A>"
+		"</center>\n");
 	wDumpContent(2);
 	end_webcit_session();
 }
@@ -230,21 +230,21 @@ void validate(void)
 			serv_printf("VALI %s|%s", buf, bstr("axlevel"));
 			serv_gets(buf);
 			if (buf[0] != '2') {
-				wprintf("<EM>%s</EM><br />\n", &buf[4]);
+				wprintf("<b>%s</b><br />\n", &buf[4]);
 			}
 		}
 	serv_puts("GNUR");
 	serv_gets(buf);
 
 	if (buf[0] != '3') {
-		wprintf("<EM>%s</EM><br />\n", &buf[4]);
+		wprintf("<b>%s</b><br />\n", &buf[4]);
 		wDumpContent(1);
 		return;
 	}
 
-	wprintf("<CENTER>");
+	wprintf("<center>");
 	do_template("beginbox_nt");
-	wprintf("<CENTER>");
+	wprintf("<center>");
 
 	strcpy(user, &buf[4]);
 	serv_printf("GREG %s", user);
