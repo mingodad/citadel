@@ -457,9 +457,7 @@ void cmd_pass(char *buf)
  */
 int purge_user(char pname[]) {
 	char filename[64];
-	char mailboxname[ROOMNAMELEN];
 	struct usersupp usbuf;
-	struct quickroom qrbuf;
 	char lowercase_name[32];
 	int a;
 	struct CitContext *ccptr;
@@ -500,17 +498,6 @@ int purge_user(char pname[]) {
 
 	/* delete any existing user/room relationships */
 	cdb_delete(CDB_VISIT, &usbuf.usernum, sizeof(long));
-
-	/* Delete the user's mailbox and its contents 
-	 * (This is commented out because we don't do it here anymore.  Since
-	 * the user may have any number of mailboxes, we now purge them the
-	 * next time an "EXPI rooms" command is executed.)
-	 * 
-	 * MailboxName(mailboxname, &usbuf, MAILROOM);
-	 * if (getroom(&qrbuf, mailboxname)==0) {
-	 *	delete_room(&qrbuf);
-	 *	}
-	 */
 
 	/* delete the userlog entry */
 	cdb_delete(CDB_USERSUPP, lowercase_name, strlen(lowercase_name));

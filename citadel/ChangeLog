@@ -1,3 +1,8 @@
+Mon Jul 12 19:51:30 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Mail is now saved in both sender and recipient mailboxes.  This is
+	  structured in a way that will allow a separate "outbox" room and/or
+	  multiple recipients in the future.
+
 Sun Jul 11 18:46:48 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* netproc.c: msgfind() no longer uses the timestamp as a message-ID
 	  when no other message-ID is available (it screws up the loopzapper)
