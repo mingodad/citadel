@@ -216,11 +216,22 @@ interval</a></li>
       <li><a href="#ImportingExporting_your_Citadel">Importing/Exporting
 your  Citadel database</a><br>
       </li>
-       
   </ol>
-                                   
+
+	<li><a href="#utilities">Included utilities</a></li>
+	<OL>
+		<LI><A HREF="#overview">Overview</a></LI>
+		<LI><A HREF="#aidepost">aidepost</a></LI>
+		<LI><A HREF="#whobbs">whobbs</a></LI>
+		<LI><A HREF="#stats">stats</a></LI> 
+		<LI><A HREF="#msgform">msgform</a></LI>
+		<LI><A HREF="#userlist">userlist</a></LI>
+		<LI><A HREF="#readlog">readlog</a></LI>
+		<LI><A HREF="#sendcommand">sendcommand</a></LI>
+	</OL>
+
 </ol>
-              <br>
+<br>
                            
 <hr width="100%" size="2"><br>
                            
@@ -2261,10 +2272,144 @@ in.  </li>
     <li>Now you're finished.  Log in and test everything.  You may delete 
 exported.dat at this time, or you might want to save it somewhere as a sort 
 of pseudo-backup.    </li>
-   
 </ol>
-     </div>
-   <br>
+
+<hr>
+
+<center><h2><a name="utilities"></a>Utilities</center></h2>
+
+<h3><a name="overview"></a>Overview</h3>
+
+<P>The following utilities will be discussed:
+<UL>
+<LI><b>aidepost</b> - Post standard input to the Aide&gt; room
+<LI><b>whobbs</b> - Who is on the system
+<LI><b>stats</b> - Print the calling statistics &amp; graph
+<LI><b>msgform</b> - Format a binary message to the screen (stdin or in a file)
+<LI><b>userlist</b> - Print the userlist
+<LI><b>readlog</b> - Read the caller log
+<LI><b>sendcommand</b> - Send a server command
+</UL></p>
+
+<p>It is up to you to decide which utilities should be made accessible only
+to system administrators.
+It is important that you set the file permissions correctly.  All
+utilities should have access to the Citadel data files.  We will attempt to
+address each program individually.</p>
+  
+<h3><a name="aidepost"></a>aidepost</h3>
+
+<p>The nature of this program is rather simple. Standard input (stdin) is
+converted into a message, filed in the main message store, and posted
+in the Aide&gt; room.  This is useful for keeping transcripts of system
+activity that has to do with Citadel operations.
+You might even elect to send all of your system
+logs there, too.</p>
+ 
+<p><tt>aidepost</tt> also accepts the usage <tt>aidepost -rTargetRoom</tt>,
+where TargetRoom
+is the name of a room to which you'd like the message to be sent.</p>
+
+<h3><a name="whobbs"></a>whobbs</h3>
+
+<p>This program is similar to the <tt>who</tt> command.
+It lists all of the users
+who are currently connected to your Citadel server, either locally or across a
+network.  Unless you're running a standalone system,
+<tt>who</tt> and <tt>whobbs</tt> will
+probably not have a one-to-one correspondence.  Remember that you will see
+sessions for SMTP, POP, and IMAP users, as well as users running a
+Citadel client.</p>
+ 
+<p>One thing to keep in mind is that the <tt>whobbs</tt> utility
+actually opens a
+connection to the server.  If the server is maxed out,
+<tt>whobbs</tt> will still be
+able to provide a listing, because it doesn't need to log in to execute the
+<tt>RWHO</tt> command.  Note that whobbs does not list its own session.</p>
+ 
+<p>The <tt>whobbs</tt> utility is smart enough
+to know when it is being invoked by a
+web server as a CGI program.  In this situation, it will output its listing as
+a nicely formatted web page instead of plain text.  This makes it easy to just
+put a link to the whobbs binary in your cgi-bin directory, allowing a quick and
+easy way for web surfers to see who is online.</p>
+ 
+<p>Running the <tt><b>W</b>ho is online</tt> command
+from the Citadel client does <b>not</b> call this
+utility.  It has this functionality built in.</p>
+  
+<h3><a name="stats"></a>stats</h3> 
+
+<p>This program displays
+various statistics on the screen based on the calllog file, such as number
+of connects, number of logins, number of logouts, number of disconnects,
+bad password attempts, etc. All statistics are provided in three figures:
+times per call, times per day, and total times.</p>
+
+<p>After this screen appears, you may press return for the next screen. This
+is a graphic representation of system usage, broken down into 20 minute
+segments of the day.  This will show you when your peak usage is.</p>
+
+<p>Press return again and the stats program will list your system's top
+20 callers.</p>
+
+<p>The final screen lists the twenty users with the highest post per call
+ratios.  Unline the other screens, this statistic is extracted from the user
+file itself rather than the call log.</p>
+ 
+<p><tt>stats</tt> may be called with the <tt>-b</tt> option to
+run in batch mode.  In this case,
+it skips all the prompts and just prints everything out in one bulk output.
+Or it may be called with the <tt>-p</tt> option to only print the Post-to-Call
+ratios and nothing else.  These options may be useful for embedding the
+output of <tt>stats</tt> in a batch report or a web page.</p>
+
+<p>Nearly all of the statistics displayed by the <tt>stats</tt> utility
+are completely wrong.</p>
+
+<h3><a name="msgform"></a>msgform</h3>
+
+<p>The <tt>msgform</tt> utility reads its standard input (stdin) looking for
+Citadel messages stored in the internal format used on disk and over the
+network, and sends them in a human-readable format to standard output
+(stdout).  There is no longer much use for this program, but it is included
+for hack value.</p>
+
+<h3><a name="userlist"></a>userlist</h3>
+
+<p>This is a program to print the userlist. There are two flags that may be
+set when running this program. When called without any arguments,
+<tt>userlist</tt> will display all users (except those who have chosen to
+be unlisted), their user numbers, times called, messages posted, screen
+width, and date of their most recent call.</p>
+ 
+<p><tt>userlist</tt> is simply the same user listing code that is in the
+client, made into a standalone utility for convenience.</p>
+
+<h3><a name="readlog"></a>readlog</h3>
+   
+<p>Called without any arguments, <tt>readlog</tt> dumps the contents of the
+call log file. This file records all logins to the Citadel server, as
+well as some other statistics.</p>
+
+<h3><a name="sendcommand"></a>sendcommand</h3>
+     
+<p><tt>sendcommand</tt> will interpret its arguments (except for
+<tt>-hDIRNAME</tt>) as a server command, which is sent to the server. 
+Commands which require textual input will read it from stdin.  Commands
+which generate textual output will be sent to stdout.</p>
+ 
+<p>This utility is intended to be used to enable Citadel server commands to
+be executed from shell scripts.  Review the script called <tt>weekly</tt>
+which ships with the Citadel distribution for an example of how this can
+be used.</p>
+ 
+<p><b>NOTE:</b> be sure that this utility is not world-executable.  It
+connects to the server in privileged mode, and therefore could present a
+security hole if not properly restricted.</p>
+
+</div>
    
 </body>
 </html>
