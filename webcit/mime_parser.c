@@ -16,19 +16,45 @@
 #include "child.h"
 
 /*
- * Take a part, figure out its length, and do something with it
+ * The very back end for the component handler
+ * (This function expects to be fed CONTENT ONLY, no headers)
  */
-void process_part(char *content, int part_length) {
-	FILE *fp;
+void do_something_with_it(char *content, int length, char *content_type) {
 	char filename[256];
+	int a;
 	static char partno = 0;
+	FILE *fp;
+
+	/* Nested multipart gets recursively fed back into the parser */
+	if (!strncasecmp(content_type, "multipart", 9)) {
+		mime_parser(content, length, content_type);
+		}	
+
+	/* If all else fails, save the component to disk (FIX) */
+	else {
+		sprintf(filename, "content.%04x.%04x.%s",
+			getpid(), ++partno, content_type);
+		for (a=0; a<strlen(filename); ++a)
+			if (filename[a]=='/') filename[a]='.';
+		fp = fopen(filename, "wb");
+		fwrite(content, length, 1, fp);
+		fclose(fp);
+		}
+	}
+
+
+/*
+ * Take a part, figure out its length, and do something with it
+ * (This function expects to be fed HEADERS+CONTENT)
+ */
+void handle_part(char *content, int part_length, char *supplied_content_type) {
+	char content_type[256];
 	char *start;
 	char buf[512];
 	int crlf = 0;	/* set to 1 for crlf-style newlines */
 	int actual_length;
 
-	fprintf(stderr, "MIME: process_part() called with a length o' %d\n",
-		part_length);
+	strcpy(content_type, supplied_content_type);
 
 	/* Strip off any leading blank lines. */
 	start = content;
@@ -42,7 +68,9 @@ void process_part(char *content, int part_length) {
 		strcpy(buf, "");
 		do {
 			buf[strlen(buf)+1] = 0;
-			strncpy(&buf[strlen(buf)], start, 1);
+			if (strlen(buf)<((sizeof buf)-1)) {
+				strncpy(&buf[strlen(buf)], start, 1);
+				}
 			++start;
 			--part_length;
 			} while((buf[strlen(buf)-1] != 10) && (part_length>0));
@@ -52,22 +80,23 @@ void process_part(char *content, int part_length) {
 			buf[strlen(buf)-1] = 0;
 			crlf = 1;
 			}
-		fprintf(stderr, "MIME: <%s>\n", buf);
+		if (!strncasecmp(buf, "Content-type: ", 14)) {
+			strcpy(content_type, &buf[14]);
+			}
 		} while (strlen(buf)>0);
-	fprintf(stderr, "MIME: done processing headers\n");
 	
 	if (crlf) actual_length = part_length - 2;
 	else actual_length = part_length - 1;
-	
-	sprintf(filename, "content.%04x.%04x", getpid(), ++partno);
-	fp = fopen(filename, "wb");
-	fwrite(start, actual_length, 1, fp);
-	fclose(fp);
+
+	/* Now that we've got this component isolated, what to do with it? */
+	do_something_with_it(start, actual_length, content_type);
+
 	}
 
 	
 /*
- * Main function of parser
+ * Break out the components of a multipart message
+ * (This function expects to be fed CONTENT ONLY, no headers)
  */
 void mime_parser(char *content, int ContentLength, char *ContentType) {
 	char boundary[256];
@@ -81,6 +110,12 @@ void mime_parser(char *content, int ContentLength, char *ContentType) {
 
 	fprintf(stderr, "MIME: ContentLength: %d, ContentType: %s\n",
 		ContentLength, ContentType);
+
+	/* If it's not multipart, don't process it as multipart */
+	if (strncasecmp(ContentType, "multipart", 9)) {
+		do_something_with_it(content, ContentLength, ContentType);
+		return;
+		}
 
 	/* Figure out what the boundary is */
 	strcpy(boundary, ContentType);
@@ -101,8 +136,6 @@ void mime_parser(char *content, int ContentLength, char *ContentType) {
 	if (have_boundary == 0) return;
 	strcpy(endary, boundary);
 	strcat(endary, "--");
-	fprintf(stderr, "MIME: boundary is %s\n", boundary);
-	fprintf(stderr, "MIME:   endary is %s\n", endary);
 
 	ptr = content;
 
@@ -123,7 +156,6 @@ void mime_parser(char *content, int ContentLength, char *ContentType) {
 
 		/* Seek to the end of the boundary string */
 		if (!strncasecmp(ptr, boundary, strlen(boundary))) {
-			fprintf(stderr, "MIME: founda bounda\n");
 			while ( (bytes_processed < ContentLength)
 	      		      && (strncasecmp(ptr, "\n", 1)) ) {
 				++ptr;
@@ -137,7 +169,7 @@ void mime_parser(char *content, int ContentLength, char *ContentType) {
 				++bytes_processed;
 				++part_length;
 				}
-			process_part(beginning, part_length);
+			handle_part(beginning, part_length, "");
 			/* Back off so we can see the next boundary */
 			--ptr;
 			--bytes_processed;
