@@ -35,16 +35,19 @@
 #include "client_passwords.h"
 #include "citadel_decls.h"
 #include "tools.h"
+#include "acconfig.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
+
+#include "md5.h"
 
 struct march {
 	struct march *next;
 	char march_name[ROOMNAMELEN];
 	char march_floor;
 	char march_order;
-};
+	};
 
 #define IFEXPERT if (userflags&US_EXPERT)
 #define IFNEXPERT if ((userflags&US_EXPERT)==0)
@@ -834,6 +837,9 @@ int main(int argc, char **argv)
 	int a, b, mcmd;
 	char aaa[100], bbb[100];/* general purpose variables */
 	char argbuf[32];	/* command line buf */
+	char nonce[NONCE_SIZE];
+	char *sptr, *sptr2;	/* USed to extract the nonce */
+	char hexstring[MD5_HEXSTRING_SIZE];
 	volatile int termn8 = 0;
 	int stored_password = 0;
 	char password[256];
@@ -856,6 +862,29 @@ int main(int argc, char **argv)
 		printf("%s\n", &aaa[4]);
 		logoff(atoi(aaa));
 	}
+
+/* If there is a [nonce] at the end, put the nonce in <nonce>, else nonce
+ * is zeroized.
+ */
+	
+	if ((sptr = strchr(aaa, '<')) == NULL)
+	{
+	   nonce[0] = '\0';
+	}
+	else
+	{
+	   if ((sptr2 = strchr(sptr, '>')) == NULL)
+	   {
+	      nonce[0] = '\0';
+	   }
+	   else
+	   {
+	      sptr2++;
+	      *sptr2 = '\0';
+	      strncpy(nonce, sptr, NONCE_SIZE);
+	   }
+	}
+	
 	get_serv_info();
 
 	look_for_ansi();
@@ -876,10 +905,18 @@ GSTA:	/* See if we have a username and password on disk */
 	if (rc_remember_passwords) {
 		get_stored_password(hostbuf, portbuf, fullname, password);
 		if (strlen(fullname) > 0) {
-			sprintf(aaa, "USER %s", fullname);
+			snprintf(aaa, sizeof(aaa)-1, "USER %s", fullname);
 			serv_puts(aaa);
 			serv_gets(aaa);
-			sprintf(aaa, "PASS %s", password);
+			if (nonce[0])
+			{
+				sprintf(aaa, "PAS2 %s", make_apop_string(password, nonce, hexstring));
+			}
+			else	/* Else no APOP */
+			{
+	   			snprintf(aaa, sizeof(aaa)-1, "PASS %s", password);
+	   		}
+	   		
 			serv_puts(aaa);
 			serv_gets(aaa);
 			if (aaa[0] == '2') {
@@ -928,7 +965,16 @@ GSTA:	/* See if we have a username and password on disk */
 		newprompt("\rPlease enter your password: ", password, -19);
 	}
 	strproc(password);
-	snprintf(aaa, sizeof aaa, "PASS %s", password);
+
+	if (nonce[0])
+	{
+		sprintf(aaa, "PAS2 %s", make_apop_string(password, nonce, hexstring));
+	}
+	else	/* Else no APOP */
+	{
+  			snprintf(aaa, sizeof(aaa)-1, "PASS %s", password);
+	}
+	
 	serv_puts(aaa);
 	serv_gets(aaa);
 	if (aaa[0] == '2') {

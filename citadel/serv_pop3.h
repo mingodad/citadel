@@ -29,3 +29,5 @@ void pop3_user(char *argbuf);
 void pop3_pass(char *argbuf);
 void pop3_list(char *argbuf);
 void pop3_command_loop(void);
+void pop3_login(void);
+

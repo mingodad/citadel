@@ -88,7 +88,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	serv_smtp.c serv_pop3.c internet_addressing.c parsedate.c genstamp.c \
 	domain.c clientsocket.c serv_inetcfg.c serv_rwho.c serv_bio.c \
 	serv_moderate.c client_passwords.c serv_imap.c imap_tools.c \
-	serv_network.c
+	serv_network.c serv_pas2.c md5.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
@@ -105,12 +105,12 @@ serv_modules: $(SERV_MODULES)
 
 citadel$(EXEEXT): ipc_c_tcp$(CX) citadel$(CX) rooms$(CX) routines$(CX) \
 	routines2$(CX) messages$(CX)  \
-	client_passwords$(CX) \
+	client_passwords$(CX) md5$(CX) \
 	commands$(CX) client_chat$(CX) serv_info$(CX) tools$(CX) $(LIBOBJS)
 	$(CC) ipc_c_tcp$(CX) citadel$(CX) rooms$(CX) routines$(CX) \
 	routines2$(CX) messages$(CX) \
 	commands$(CX) client_chat$(CX) serv_info$(CX) tools$(CX) \
-	client_passwords$(CX) \
+	client_passwords$(CX) md5$(CX) \
 	$(LIBOBJS) $(LDFLAGS) -o citadel $(NETLIBS) $(CLIENT_PTLIBS)
 
 netpoll: netpoll.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)
@@ -158,8 +158,8 @@ modules/serv_test.so: serv_test.mo
 modules/serv_test.mo: serv_test.mo
 	ln -f serv_test.mo modules
 
-modules/serv_pop3.so: serv_pop3.mo
-	$(LINK_SHARED) -o modules/serv_pop3.so serv_pop3.mo
+modules/serv_pop3.so: serv_pop3.mo md5.mo
+	$(LINK_SHARED) -o modules/serv_pop3.so serv_pop3.mo md5.mo
 
 modules/serv_pop3.mo: serv_pop3.mo
 	ln -f serv_pop3.mo modules
@@ -241,6 +241,17 @@ modules/imap_tools.mo: imap_tools.mo
 
 aidepost: aidepost.o config.o $(LIBOBJS)
 	$(CC) aidepost.o config.o $(LIBOBJS) $(LDFLAGS) -o aidepost
+
+modules/serv_pas2.so: serv_pas2.mo md5.mo
+	$(LINK_SHARED) -o modules/serv_pas2.so serv_pas2.mo md5.mo
+
+modules/serv_pas2.mo: serv_pas2.mo
+	ln -f serv_pas2.mo modules
+
+modules/md5.mo: md5.mo
+	ln -f md5.mo modules
+
+
 
 #
 # 'netmailer' needs to run setuid because it generates headers for Internet

@@ -14,6 +14,8 @@
  *    method  of authentication which would require some major changes to the
  *    Citadel server core.
  *
+ *    This is no longer true- APOP is implemented.
+ *
  * -> The deprecated "LAST" command is included in this implementation, because
  *    there exist mail clients which insist on using it (such as Bynari
  *    TradeMail, and certain versions of Eudora).
@@ -33,6 +35,7 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <limits.h>
+#include <ctype.h>
 #include "citadel.h"
 #include "server.h"
 #include <time.h>
@@ -49,7 +52,7 @@
 #include "tools.h"
 #include "internet_addressing.h"
 #include "serv_pop3.h"
-
+#include "md5.h"
 
 long SYM_POP3;
 
@@ -80,15 +83,19 @@ void pop3_cleanup_function(void) {
  * Here's where our POP3 session begins its happy day.
  */
 void pop3_greeting(void) {
-
+	struct timeval	tv;
+	
 	strcpy(CC->cs_clientname, "POP3 session");
+	gettimeofday(&tv, NULL);
+	memset(CC->cs_nonce, NONCE_SIZE, 0);
+	snprintf(CC->cs_nonce, NONCE_SIZE, "<%d%ld@%s>", rand(), tv.tv_usec, config.c_fqdn);
 	CC->internal_pgm = 1;
 	CtdlAllocUserData(SYM_POP3, sizeof(struct citpop3));
 	POP3->msgs = NULL;
 	POP3->num_msgs = 0;
 
-	cprintf("+OK Welcome to the Citadel/UX POP3 server at %s\r\n",
-		config.c_fqdn);
+	cprintf("+OK Welcome to the Citadel/UX POP3 server %s\r\n",
+		CC->cs_nonce, config.c_fqdn);
 }
 
 
@@ -169,27 +176,88 @@ int pop3_grab_mailbox(void) {
 	return(POP3->num_msgs);
 }
 
+void pop3_login(void)
+{
+	int msgs;
+	
+	msgs = pop3_grab_mailbox();
+	if (msgs >= 0) {
+		cprintf("+OK %s is logged in (%d messages)\r\n",
+			CC->usersupp.fullname, msgs);
+		lprintf(9, "POP3 password login successful\n");
+	}
+	else {
+		cprintf("-ERR Can't open your mailbox\r\n");
+	}
+	
+}
+
+void pop3_apop(char *argbuf)
+{
+   char username[256];
+   char userdigest[MD5_HEXSTRING_SIZE];
+   char realdigest[MD5_HEXSTRING_SIZE];
+   char *sptr;
+   
+   if (CC->logged_in)
+   {
+   	cprintf("-ERR You are already logged in; not in the AUTHORIZATION phase.\r\n");
+   	return;
+   }
+   
+   if ((sptr = strchr(argbuf, ' ')) == NULL)
+   {
+   	cprintf("Invalid APOP line.\r\n");
+   	return;
+   }
+   
+   *sptr++ = '\0';
+   
+   while ((*sptr) && isspace(*sptr))
+      sptr++;
+   
+   strncpy(username, argbuf, sizeof(username)-1);
+   username[sizeof(username)-1] = '\0';
+   
+   memset(userdigest, MD5_HEXSTRING_SIZE, 0);
+   strncpy(userdigest, sptr, MD5_HEXSTRING_SIZE-1);
+   
+   if (CtdlLoginExistingUser(username) != login_ok)
+   {
+   	cprintf("-ERR No such user.\r\n");
+   	return;
+   }
+   
+   if (getuser(&CC->usersupp, CC->curr_user))
+   {
+   	cprintf("-ERR No such user.\r\n");
+   	return;
+   }
+   
+   make_apop_string(CC->usersupp.password, CC->cs_nonce, realdigest);
+   if (!strncasecmp(realdigest, userdigest, MD5_HEXSTRING_SIZE-1))
+   {
+   	pop3_login();
+   }
+   else
+   {
+	cprintf("-ERR That is NOT the password!  Go away!\r\n");
+   }
+}
+
+
 /*
  * Authorize with password (implements POP3 "PASS" command)
  */
 void pop3_pass(char *argbuf) {
 	char password[256];
-	int msgs;
 
 	strcpy(password, argbuf);
 	striplt(password);
 
 	lprintf(9, "Trying <%s>\n", password);
 	if (CtdlTryPassword(password) == pass_ok) {
-		msgs = pop3_grab_mailbox();
-		if (msgs >= 0) {
-			cprintf("+OK %s is logged in (%d messages)\r\n",
-				CC->usersupp.fullname, msgs);
-			lprintf(9, "POP3 password login successful\n");
-		}
-		else {
-			cprintf("-ERR Can't open your mailbox\r\n");
-		}
+		pop3_login();
 	}
 	else {
 		cprintf("-ERR That is NOT the password!  Go away!\r\n");
@@ -493,6 +561,11 @@ void pop3_command_loop(void) {
 		pop3_pass(&cmdbuf[5]);
 	}
 
+	else if (!strncasecmp(cmdbuf, "APOP", 4))
+	{
+		pop3_apop(&cmdbuf[5]);
+	}
+
 	else if (!CC->logged_in) {
 		cprintf("-ERR Not logged in.\r\n");
 	}
@@ -540,6 +613,7 @@ void pop3_command_loop(void) {
 char *Dynamic_Module_Init(void)
 {
 	SYM_POP3 = CtdlGetDynamicSymbol();
+	printf("Registering POP3 port %d\n", config.c_pop3_port);
 	CtdlRegisterServiceHook(config.c_pop3_port,
 				NULL,
 				pop3_greeting,

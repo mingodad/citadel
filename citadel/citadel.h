@@ -38,7 +38,15 @@
  */
 typedef unsigned char CIT_UBYTE;
 
-#define ROOMNAMELEN	128
+/* Various length constants */
+
+#define ROOMNAMELEN	128		/* The size of the roomname structure */
+#define NONCE_SIZE	128		/* Added by <bc> to allow for APOP auth 
+					 * it is BIG becuase there is a hostname
+					 * in the nonce, as per the APOP RFC.
+					 */
+					 
+#define USERNAME_SIZE	32		/* The size of a username string */
 
 /*
  * Message expiration policy stuff

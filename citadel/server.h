@@ -58,7 +58,7 @@ struct CitContext {
 	int state;		/* thread state (see CON_ values below) */
 	int kill_me;		/* Set to nonzero to flag for termination */
 
-	char curr_user[32];	/* name of current user */
+	char curr_user[USERNAME_SIZE];	/* name of current user */
 	int logged_in;		/* logged in */
 	int internal_pgm;	/* authenticated as internal program */
 	char temp[32];		/* temp file name */
@@ -82,6 +82,9 @@ struct CitContext {
 	char cs_clientname[32];	/* name of client software */
 	char cs_host[26];	/* host logged in from */
 
+	/* Beginning of cryptography - session nonce */
+	char cs_nonce[NONCE_SIZE];		/* The nonce for this session's next auth transaction */
+
 	FILE *download_fp;	/* Fields relating to file transfer */
 	FILE *upload_fp;
 	char upl_file[256];
@@ -100,10 +103,11 @@ struct CitContext {
 	int disable_exp;	/* Set to 1 to disable incoming pages */
 
 	/* Masquerade... */
-	char fake_username[32];	/* Fake username <bc>                */
-	char fake_postname[32];	/* Fake postname <bc>                */
+	char fake_username[USERNAME_SIZE];	/* Fake username <bc>                */
+	char fake_postname[USERNAME_SIZE];	/* Fake postname <bc>                */
 	char fake_hostname[25];	/* Name of the fake hostname <bc>    */
 	char fake_roomname[ROOMNAMELEN];	/* Name of the fake room <bc> */
+	
 
 	/* Dynamically allocated session data */
 	struct CtdlSessData *FirstSessData;
@@ -147,7 +151,7 @@ struct ChatLine {
 	int chat_seq;
 	time_t chat_time;
 	char chat_text[256];
-	char chat_username[32];
+	char chat_username[USERNAME_SIZE];
 	char chat_room[ROOMNAMELEN];
 };
 

@@ -21,6 +21,7 @@
 #include <netdb.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "citadel.h"
@@ -51,6 +52,8 @@ int do_defrag = 0;
  * Various things that need to be initialized at startup
  */
 void master_startup(void) {
+	struct timeval tv;
+	
 	lprintf(7, "Opening databases\n");
 	open_databases();
 
@@ -65,7 +68,13 @@ void master_startup(void) {
 	create_room(AIDEROOM,		3, "", 0);
 	create_room(SYSCONFIGROOM,	3, "", 0);
 	create_room(config.c_twitroom,	0, "", 0);
-	}
+
+/* Seed the PRNG */
+	
+	lprintf(7, "Seeding the pseudo-random number generator...\n");
+	gettimeofday(&tv, NULL);
+	srand(tv.tv_usec);
+}
 
 /*
  * Cleanup routine to be called when the server is shutting down.
@@ -744,6 +753,11 @@ void begin_session(struct CitContext *con)
 	strcpy(con->cs_clientname, "(unknown)");
 	strcpy(con->curr_user, NLI);
 	strcpy(con->net_node,"");
+	con->fake_username[0] = '\0';
+	con->fake_postname[0] = '\0';
+	con->fake_hostname[0] = '\0';
+	con->fake_roomname[0] = '\0';
+	memset(con->cs_nonce, NONCE_SIZE, 0);
 	snprintf(con->temp, sizeof con->temp, tmpnam(NULL));
 	safestrncpy(con->cs_host, config.c_fqdn, sizeof con->cs_host);
 	con->cs_host[sizeof con->cs_host - 1] = 0;
@@ -775,6 +789,8 @@ void begin_session(struct CitContext *con)
 
 
 void citproto_begin_session() {
+	struct timeval	tv;
+	
 	if (CC->nologin==1) {
 		cprintf("%d %s: Too many users are already online "
 			"(maximum is %d)\n",
@@ -782,8 +798,16 @@ void citproto_begin_session() {
 			config.c_nodename, config.c_maxsessions);
 		}
 	else {
-		cprintf("%d %s Citadel/UX server ready.\n",
-			OK, config.c_nodename);
+		gettimeofday(&tv, NULL);
+		memset(CC->cs_nonce, NONCE_SIZE, 0);
+		snprintf(CC->cs_nonce, NONCE_SIZE, "<%d%ld@%s>", rand(), tv.tv_usec, config.c_nodename);
+
+/* RFC 1725 et al specify a PID to be placed in front of the nonce.
+ * Quoth BTX: That would be stupid.
+ */
+		
+		cprintf("%d %s Citadel/UX server ready %s.\n",
+			OK, config.c_nodename, CC->cs_nonce);
 		}
 }
 

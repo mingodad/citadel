@@ -354,10 +354,6 @@ void session_startup(void) {
 
 	lgetuser(&CC->usersupp,CC->curr_user);
 	++(CC->usersupp.timescalled);
-	CC->fake_username[0] = '\0';
-	CC->fake_postname[0] = '\0';
-	CC->fake_hostname[0] = '\0';
-	CC->fake_roomname[0] = '\0';
 	time(&CC->usersupp.lastcall);
 
 	/* If this user's name is the name of the system administrator
@@ -464,6 +460,12 @@ static int validpw(uid_t uid, const char *pass)
 	}
 #endif
 
+void do_login()
+{
+	(CC->logged_in) = 1;
+	session_startup();
+	logged_in_response();
+}
 
 
 int CtdlTryPassword(char *password)
@@ -499,8 +501,7 @@ int CtdlTryPassword(char *password)
 #endif
 
 	if (!code) {
-		(CC->logged_in) = 1;
-		session_startup();
+		do_login();
 		return pass_ok;
 		}
 	else {
@@ -530,7 +531,6 @@ void cmd_pass(char *buf)
 			cprintf("%d Wrong password.\n", ERROR);
 			return;
 		case pass_ok:
-			logged_in_response();
 			return;
 		cprintf("%d Can't find user record!\n",
 			ERROR+INTERNAL_ERROR);

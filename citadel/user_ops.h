@@ -13,6 +13,7 @@ void logout (struct CitContext *who);
 void cmd_pass (char *buf);
 int purge_user (char *pname);
 int create_user (char *newusername);
+void do_login(void);
 void cmd_newu (char *cmdbuf);
 void cmd_setp (char *new_pw);
 void cmd_getu (void);
