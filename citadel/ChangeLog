@@ -1,3 +1,10 @@
+1999-05-13 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* acconfig.h, configure.in, routines.c: fix for certain SYSV variants
+	  which lack utmp.ut_host
+	* citadel.h, file_ops.c, msgbase.c, netproc.c, serv_chat.c: fix
+	  namespace collision with <sys/stream.h> on aforementioned SYSV
+	  variant
+
 1999-05-11 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* chkpwd.c: fixed excessive paranoia; it used to refuse to run when
 	  invoked by root and BBSUID != 0
