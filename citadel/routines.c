@@ -20,8 +20,8 @@
 
 #include "citadel.h"
 #include "routines.h"
+#include "commands.h"
 
-char inkey(void);
 void sttybbs(int cmd);
 void newprompt(char *prompt, char *str, int len);
 void val_user(char *user);
@@ -142,27 +142,6 @@ int a;
 		putc(8,stdout); putc(32,stdout); putc(8,stdout);
 		}
 	}
-
-int yesno(void) { /* Returns 1 for yes, 0 for no */
-int a;
-	while (1) {
-		a=inkey(); a=tolower(a);
-		if (a=='y') { printf("Yes\n"); return(1); }
-		if (a=='n') { printf("No\n");  return(0); }
-		}
-	}
-
-int yesno_d(int d) /* Returns 1 for yes, 0 for no, arg is default value */
-       {
-int a;
-	while (1) {
-		a=inkey(); a=tolower(a);
-		if (a==13) a=(d ? 'y' : 'n');
-		if (a=='y') { printf("Yes\n"); return(1); }
-		if (a=='n') { printf("No\n");  return(0); }
-		}
-	}
-
 
 void hit_any_key(void) {		/* hit any key to continue */
 	int a,b;

@@ -23,6 +23,8 @@
 #include "control.h"
 #include "sysdep_decls.h"
 #include "support.h"
+#include "config.h"
+#include "msgbase.h"
 
 struct CitControl CitControl;
 struct config config;
@@ -128,11 +130,64 @@ void cmd_conf(char *argbuf) {
 		cprintf("000\n");
 		}
 
-	/*	
 	else if (!strcasecmp(cmd, "SET")) {
-		cprintf("%d Send configuration...\n");
+		cprintf("%d Send configuration...\n", SEND_LISTING);
+		a = 0;
+		while (client_gets(buf), strcmp(buf, "000")) {
+		    switch(a) {
+			case 0:	strncpy(config.c_nodename, buf, 16);
+				break;
+			case 1:	strncpy(config.c_fqdn, buf, 64);
+				break;
+			case 2:	strncpy(config.c_humannode, buf, 21);
+				break;
+			case 3:	strncpy(config.c_phonenum, buf, 16);
+				break;
+			case 4:	config.c_creataide = atoi(buf);
+				break;
+			case 5:	config.c_sleeping = atoi(buf);
+				break;
+			case 6:	config.c_initax = atoi(buf);
+				if (config.c_initax < 1) config.c_initax = 1;
+				if (config.c_initax > 6) config.c_initax = 6;
+				break;
+			case 7:	config.c_regiscall = atoi(buf);
+				if (config.c_regiscall != 0)
+					config.c_regiscall = 1;
+				break;
+			case 8:	config.c_twitdetect = atoi(buf);
+				if (config.c_twitdetect != 0)
+					config.c_twitdetect = 1;
+				break;
+			case 9:	strncpy(config.c_twitroom,
+					buf, ROOMNAMELEN);
+				break;
+			case 10: strncpy(config.c_moreprompt, buf, 80);
+				break;
+			case 11: config.c_restrict = atoi(buf);
+				if (config.c_restrict != 0)
+					config.c_restrict = 1;
+				break;
+			case 12: strncpy(config.c_bbs_city, buf, 32);
+				break;
+			case 13: strncpy(config.c_sysadm, buf, 26);
+				break;
+			case 14: config.c_maxsessions = atoi(buf);
+				if (config.c_maxsessions < 1)
+					config.c_maxsessions = 1;
+				break;
+			case 15: strncpy(config.c_net_password, buf, 20);
+				break;
+			case 16: config.c_userpurge = atoi(buf);
+				break;
+				}
+		    ++a;
+		    }
+		put_config();
+		sprintf(buf,"Global system configuration edited by %s",
+			CC->curr_user);
+		aide_message(buf);
 		}
-	*/
 
 	else {
 		cprintf("%d The only valid options are GET and SET.\n",

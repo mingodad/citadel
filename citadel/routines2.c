@@ -19,6 +19,7 @@
 #include "citadel.h"
 #include "routines2.h"
 #include "routines.h"
+#include "commands.h"
 
 void interr(int errnum);
 void strprompt(char *prompt, char *str, int len);
@@ -584,8 +585,24 @@ void read_bio(void) {
  */
 void do_system_configuration(void) {
 	char buf[256];
+	char sc[17][256];
 	int expire_mode = 0;
 	int expire_value = 0;
+	int a;
+
+	/* Clear out the config buffers */
+	bzero(&sc[0][0], sizeof(sc));
+
+	/* Fetch the current config */
+	serv_puts("CONF get");
+	serv_gets(buf);
+	if (buf[0] == '1') {
+		a = 0;
+		while (serv_gets(buf), strcmp(buf, "000")) {
+			if (a<17) strcpy(&sc[a][0], buf);
+			++a;
+			}
+		}
 
 	/* Fetch the expire policy (this will silently fail on old servers,
 	 * resulting in "default" policy)
@@ -597,10 +614,16 @@ void do_system_configuration(void) {
 		expire_value = extract_int(&buf[4], 1);
 		}
 
+	strprompt("Node name", &sc[0][0], 15);
+	strprompt("Fully qualified domain name", &sc[1][0], 63);
+	strprompt("Human readable node name", &sc[2][0], 20);
+	strprompt("Modem dialup number", &sc[3][0], 15);
+	/* FIX add the rest of them */
+
 	/* Angels and demons dancing in my head... */
 	do {
 		sprintf(buf, "%d", expire_mode);
-		strprompt("System default essage expire policy (? for list)",
+		strprompt("System default message expire policy (? for list)",
 			buf, 1);
 		if (buf[0] == '?') {
 			printf("\n");
@@ -625,8 +648,18 @@ void do_system_configuration(void) {
 		}
 
 	/* Save it */
-	snprintf(buf, sizeof buf, "SPEX site|%d|%d",
-		expire_mode, expire_value);
-	serv_puts(buf);
-	serv_gets(buf);
+	printf("Save this configuration? ");
+	if (yesno()) {
+		serv_puts("CONF set");
+		serv_gets(buf);
+		if (buf[0] == '4') {
+			for (a=0; a<17; ++a) serv_puts(&sc[a][0]);
+			serv_puts("000");
+			}
+
+		snprintf(buf, sizeof buf, "SPEX site|%d|%d",
+			expire_mode, expire_value);
+		serv_puts(buf);
+		serv_gets(buf);
+		}
 	}

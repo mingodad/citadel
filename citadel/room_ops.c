@@ -38,6 +38,18 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf) {
 			}
 		}
 
+	/* Force the properties of the Aide room */
+	/* FIX FIX FIX ... this doesn't work */
+	if (!strcasecmp(roombuf->QRname, AIDEROOM)) {
+		if (userbuf->axlevel >= 6) {
+			retval = UA_KNOWN | UA_GOTOALLOWED;
+			}
+		else {
+			retval=0;
+			}
+		goto NEWMSG;
+		}
+
 	/* Locate any applicable user/room relationships */
 	CtdlGetRelationship(&vbuf, userbuf, roombuf);
 

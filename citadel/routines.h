@@ -5,7 +5,6 @@ long extract_long(char *source, int parmnum);
 int extract_int(char *source, int parmnum);
 void interr(int errnum);
 int struncmp(char *lstr, char *rstr, int len);
-int yesno(void);
 int checkpagin(int lp, int pagin, int height);
 int pattern(char *search, char *patn);
 int num_parms(char *source);

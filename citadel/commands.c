@@ -193,6 +193,30 @@ int inkey(void) {		/* get a character from the keyboard, with   */
 	return(a);
 	}
 
+
+int yesno(void) { /* Returns 1 for yes, 0 for no */
+int a;
+	while (1) {
+		a=inkey(); a=tolower(a);
+		if (a=='y') { printf("Yes\n"); return(1); }
+		if (a=='n') { printf("No\n");  return(0); }
+		}
+	}
+
+int yesno_d(int d) /* Returns 1 for yes, 0 for no, arg is default value */
+       {
+int a;
+	while (1) {
+		a=inkey(); a=tolower(a);
+		if (a==13) a=(d ? 'y' : 'n');
+		if (a=='y') { printf("Yes\n"); return(1); }
+		if (a=='n') { printf("No\n");  return(0); }
+		}
+	}
+
+
+
+
 void getline(char *string, int lim)	/* Gets a line from the terminal */
                		/* Pointer to string buffer */
         		/* Maximum length - if negative, no-show */
@@ -242,6 +266,21 @@ void strprompt(char *prompt, char *str, int len)
 	getline(buf,len);
 	color(7);
 	if (buf[0]!=0) strcpy(str,buf);
+	}
+
+/*
+ * boolprompt()  -  prompt for a yes/no, print the existing value and
+ *                  allow the user to press return to keep it...
+ */
+int boolprompt(char *prompt, int prev_val) {
+	color(3);
+	printf("%s [", prompt);
+	color(1);
+	printf("%s", (prev_val ? "Yes" : "No"));
+	color(3);
+	printf("]: ");
+	color(7);
+	return(yesno_d(prev_val));
 	}
 
 /* 

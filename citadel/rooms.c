@@ -27,7 +27,6 @@ void extract(char *dest, char *source, int parmnum);
 int extract_int(char *source, int parmnum);
 void hit_any_key(void);
 int yesno(void);
-int yesno_d(int d);
 void strprompt(char *prompt, char *str, int len);
 void newprompt(char *prompt, char *str, int len);
 int struncmp(char *lstr, char *rstr, int len);
@@ -205,8 +204,7 @@ int set_room_attr(int ibuf, char *prompt, unsigned int sbit)
 {
 	int a;
 
-	printf("%s [%s]? ",prompt,((ibuf&sbit) ? "Yes":"No"));
-	a=yesno_d(ibuf&sbit);
+	a = boolprompt(prompt, (ibuf&sbit));
 	ibuf=(ibuf|sbit);
 	if (!a) ibuf=(ibuf^sbit);
 	return(ibuf);
@@ -330,8 +328,7 @@ void editthisroom(void) {
 		}
 
 	if ((rflags&QR_PRIVATE)==QR_PRIVATE) {
-		printf("Cause current users to forget room [No] ? ");
-		if (yesno_d(0)==1) rbump = 1;
+		rbump = boolprompt("Cause current users to forget room", 0);
 		}
 
 	rflags = set_room_attr(rflags,"Preferred users only",QR_PREFONLY);
