@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.20  2002/05/12 23:00:11  ajc
+ * Removed an unused variable
+
  Revision 591.19  2002/05/12 22:57:04  ajc
  * Removed the unfinished moderation system.
  * CtdlForEachMessage() - only fetch metadata when hunting for messages with
@@ -3638,4 +3641,5 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* Makefile.in: removed msgstats
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
-	* Initial CVS import 
+	* Initial CVS import
+

@@ -909,8 +909,6 @@ void cmd_getu(void)
  */
 void cmd_setu(char *new_parms)
 {
-	int new_mod;
-
 	if (CtdlAccessCheck(ac_logged_in))
 		return;
 
