@@ -901,8 +901,6 @@ int main(int argc, char *argv[])
 		strcpy(config.c_moreprompt, "<more>");
 	if (strlen(config.c_twitroom) == 0)
 		strcpy(config.c_twitroom, "Trashcan");
-	if (strlen(config.c_net_password) == 0)
-		strcpy(config.c_net_password, "netpassword");
 	if (strlen(config.c_baseroom) == 0)
 		strcpy(config.c_baseroom, "Lobby");
 	if (strlen(config.c_aideroom) == 0)

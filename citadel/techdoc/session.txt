@@ -1254,13 +1254,13 @@ images which are likely to exist on most servers:
                 opposed to the floor picture's use in a floor listing).
 
 
- NETP   (authenticate as network session with system NET Password)
+ NETP   (authenticate as network session with connection NET Password)
 
  This command is used by client software to identify itself as a transport
 session for IGnet/Open BBS to BBS networking.  It should be called with
-two arguments: the node name of the calling system, and the system net
-password for the server.  If the authentication succeeds, NETP will return
-OK, otherwise, it returns ERROR.
+two arguments: the node name of the calling system, and the "shared secret"
+password for that connection.  If the authentication succeeds, NETP will
+return OK, otherwise, it returns ERROR.
 
 
  NUOP   (Network Upload OPen file)
@@ -1741,7 +1741,7 @@ fails for any reason, ERROR is returned.
  13. Geographic location of this system
  14. Name of the system administrator
  15. Number of maximum concurrent sessions allowed on the server
- 16. Password for server-to-server networking
+ 16. (placeholder -- this field is no longer in use)
  17. Default purge time (in days) for users
  18. Default purge time (in days) for rooms
  19. Name of room to log express messages to (or a zero-length name for none)

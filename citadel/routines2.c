@@ -727,11 +727,6 @@ void do_system_configuration(CtdlIPC *ipc)
 	strprompt("Minimum number of worker threads", &sc[21][0], 3);
 	strprompt("Maximum number of worker threads", &sc[22][0], 3);
 
-	/* no longer applicable ... deprecated
-	strprompt("Server-to-server networking password", &sc[15][0], 19);
-	*/
-
-	strprompt("How often to run network jobs (in seconds)", &sc[28][0], 5);
 	strprompt("POP3 server port (-1 to disable)", &sc[23][0], 5);
 	strprompt("IMAP server port (-1 to disable)", &sc[27][0], 5);
 	strprompt("SMTP server port (-1 to disable)", &sc[24][0], 5);
@@ -775,7 +770,10 @@ void do_system_configuration(CtdlIPC *ipc)
 		strprompt("Keep messages for how many days?", buf, 10);
 		expirepolicy->expire_value = atol(buf);
 	}
+
+	strprompt("How often to run network jobs (in seconds)", &sc[28][0], 5);
 	strprompt("Hour to run purges (0-23)", &sc[31][0], 2);
+
 	/* Save it */
 	scr_printf("Save this configuration? ");
 	if (yesno()) {

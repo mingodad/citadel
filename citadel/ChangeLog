@@ -1,4 +1,7 @@
  $Log$
+ Revision 608.21  2003/08/13 18:08:24  ajc
+ * Removed the last vestiges of the now-obsolete global networking password
+
  Revision 608.20  2003/08/13 14:36:04  ajc
  * "make install" now installs the contents of docs/ as well as README.txt
 
@@ -4955,4 +4958,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -269,7 +269,6 @@ void artv_do_export(void) {
 	cprintf("%s\n", config.c_sysadm);
 	cprintf("%d\n", config.c_setup_level);
 	cprintf("%d\n", config.c_maxsessions);
-	cprintf("%s\n", config.c_net_password);
 	cprintf("%d\n", config.c_port_number);
 	cprintf("%d\n", config.c_ep.expire_mode);
 	cprintf("%d\n", config.c_ep.expire_value);
@@ -327,7 +326,6 @@ void artv_import_config(void) {
 	lprintf(9, "c_sysadm = %s\n", config.c_sysadm);
 	client_gets(buf);	config.c_setup_level = atoi(buf);
 	client_gets(buf);	config.c_maxsessions = atoi(buf);
-	client_gets(config.c_net_password);
 	client_gets(buf);	config.c_port_number = atoi(buf);
 	client_gets(buf);	config.c_ep.expire_mode = atoi(buf);
 	client_gets(buf);	config.c_ep.expire_value = atoi(buf);
@@ -553,7 +551,6 @@ void cmd_artv(char *cmdbuf) {
 	}
 	is_running = 1;
 
-	strcpy(artv_tempfilename1, tmpnam(NULL));
 	strcpy(artv_tempfilename2, tmpnam(NULL));
 
 	extract(cmd, cmdbuf, 0);

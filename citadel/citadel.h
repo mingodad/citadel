@@ -82,9 +82,10 @@ struct ExpirePolicy {
  * Global system configuration.
  * 
  * Developers: please do NOT remove the fields labelled "not in use".  We
- * can't simply remove them from the struct, because that would render the
- * configs on existing systems corrupt.  However, if you need the same number
- * of bytes for a *new* field, feel free to use them.
+ * can't simply remove them from the struct, because this gets written to
+ * disk, and if you change it then you'll break all existing systems.
+ * However, if you'd like to reclaim some of that space for another use, feel
+ * free to do so, as long as the sizes are kept identical.
  */
 struct config {
 	char c_nodename[16];		/* Unqualified "short" nodename     */
@@ -106,7 +107,7 @@ struct config {
 	char c_niu_2[15];		/* (not in use)                     */
 	int c_setup_level;		/* what rev level we've setup to    */
 	int c_maxsessions;		/* maximum concurrent sessions      */
-	char c_net_password[20];	/* system net password (obsolete)   */
+	char c_niu_3[20];		/* (not in use)                     */
 	int c_port_number;		/* Cit listener port (usually 504)  */
 	int c_ipgm_secret;		/* Internal program authentication  */
 	struct ExpirePolicy c_ep;	/* System default msg expire policy */

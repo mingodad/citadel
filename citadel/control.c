@@ -180,7 +180,7 @@ void cmd_conf(char *argbuf)
 		cprintf("%s\n", config.c_bbs_city);
 		cprintf("%s\n", config.c_sysadm);
 		cprintf("%d\n", config.c_maxsessions);
-		cprintf("%s\n", config.c_net_password);
+		cprintf("xxx\n"); /* placeholder -- field no longer in use */
 		cprintf("%d\n", config.c_userpurge);
 		cprintf("%d\n", config.c_roompurge);
 		cprintf("%s\n", config.c_logpages);
@@ -271,8 +271,7 @@ void cmd_conf(char *argbuf)
 					config.c_maxsessions = 1;
 				break;
 			case 15:
-				safestrncpy(config.c_net_password, buf,
-					    sizeof config.c_net_password);
+				/* placeholder -- field no longer in use */
 				break;
 			case 16:
 				config.c_userpurge = atoi(buf);
