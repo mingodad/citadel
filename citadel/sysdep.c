@@ -494,7 +494,7 @@ void client_write(char *buf, int nbytes)
 	int old_buffer_len = 0;
 
 	if (CC->redirect_fp != NULL) {
-		fwrite(buf, nbytes, 1, CC->redirect_fp);
+		fwrite(buf, (size_t)nbytes, (size_t)1, CC->redirect_fp);
 		return;
 	}
 
@@ -758,9 +758,11 @@ void create_worker(void) {
 		return;
 	}
 
-	/* we seem to need something bigger than FreeBSD's default 64k stack */
-
-	if ((ret = pthread_attr_setstacksize(&attr, 128 * 1024))) {
+	/* Our per-thread stacks need to be bigger than the default size, otherwise
+	 * the MIME parser crashes on FreeBSD, and the IMAP service crashes on
+	 * 64-bit Linux.
+	 */
+	if ((ret = pthread_attr_setstacksize(&attr, 256 * 1024))) {
 		lprintf(CTDL_EMERG, "pthread_attr_setstacksize: %s\n", strerror(ret));
 		time_to_die = -1;
 		pthread_attr_destroy(&attr);
