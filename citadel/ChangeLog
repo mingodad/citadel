@@ -1,4 +1,7 @@
  $Log$
+ Revision 613.0  2003/12/15 16:37:01  ajc
+ * THIS IS 6.13
+
  Revision 612.14  2003/12/15 16:33:47  ajc
  * Added support for "Cc" and "Bcc" IMAP SEARCHes
  * Bumped the version number to 6.13
