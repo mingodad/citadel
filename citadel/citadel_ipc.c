@@ -482,23 +482,23 @@ int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 				if (!strncasecmp(aaa, "nhdr=yes", 8))
 					mret[0]->nhdr = 1;
 				else if (!strncasecmp(aaa, "from=", 5))
-					strcpy(mret[0]->author, &aaa[5]);
+					safestrncpy(mret[0]->author, &aaa[5], SIZ);
 				else if (!strncasecmp(aaa, "type=", 5))
 					mret[0]->type = atoi(&aaa[5]);
 				else if (!strncasecmp(aaa, "msgn=", 5))
-					strcpy(mret[0]->msgid, &aaa[5]);
+					safestrncpy(mret[0]->msgid, &aaa[5], SIZ);
 				else if (!strncasecmp(aaa, "subj=", 5))
-					strcpy(mret[0]->subject, &aaa[5]);
+					safestrncpy(mret[0]->subject, &aaa[5], SIZ);
 				else if (!strncasecmp(aaa, "rfca=", 5))
-					strcpy(mret[0]->email, &aaa[5]);
+					safestrncpy(mret[0]->email, &aaa[5], SIZ);
 				else if (!strncasecmp(aaa, "hnod=", 5))
-					strcpy(mret[0]->hnod, &aaa[5]);
+					safestrncpy(mret[0]->hnod, &aaa[5], SIZ);
 				else if (!strncasecmp(aaa, "room=", 5))
-					strcpy(mret[0]->room, &aaa[5]);
+					safestrncpy(mret[0]->room, &aaa[5], SIZ);
 				else if (!strncasecmp(aaa, "node=", 5))
-					strcpy(mret[0]->node, &aaa[5]);
+					safestrncpy(mret[0]->node, &aaa[5], SIZ);
 				else if (!strncasecmp(aaa, "rcpt=", 5))
-					strcpy(mret[0]->recipient, &aaa[5]);
+					safestrncpy(mret[0]->recipient, &aaa[5], SIZ);
 				else if (!strncasecmp(aaa, "time=", 5))
 					mret[0]->time = atol(&aaa[5]);
 

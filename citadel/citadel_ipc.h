@@ -99,11 +99,11 @@ struct ctdlipcmessage {
 	char zaps[SIZ];			/* Message ID that this supersedes */
 	char subject[SIZ];		/* Message subject */
 	char email[SIZ];		/* Email address of sender */
-	char author[USERNAME_SIZE];	/* Sender of message */
-	char recipient[USERNAME_SIZE];	/* Recipient of message */
-	char room[ROOMNAMELEN];		/* Originating room */
-	char node[16];			/* Short nodename of origin system */
-	char hnod[21];			/* Humannode of origin system */
+	char author[SIZ];		/* Sender of message */
+	char recipient[SIZ];		/* Recipient of message */
+	char room[SIZ];			/* Originating room */
+	char node[SIZ];			/* Short nodename of origin system */
+	char hnod[SIZ];			/* Humannode of origin system */
 	struct parts *attachments;	/* Available attachments */
 	char *text;			/* Message text */
 	int type;			/* Message type */
