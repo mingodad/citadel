@@ -59,8 +59,6 @@ long send_message (struct CtdlMessage *, FILE *);
 void loadtroom (void);
 long CtdlSaveMsg(struct CtdlMessage *, char *, char *, int);
 void quickie_message (char *, char *, char *, char *);
-struct CtdlMessage *make_message (struct usersupp *, char *,
-		   char *, int, int, int, char *);
 void cmd_ent0 (char *entargs);
 void cmd_ent3 (char *entargs);
 void cmd_dele (char *delstr);

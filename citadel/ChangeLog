@@ -1,4 +1,9 @@
  $Log$
+ Revision 580.63  2001/10/16 20:47:37  nbryant
+ - backed out -export-dynamic, it doesn't do anything and i've found the real
+ problem
+ - remove declaration for make_message
+
  Revision 580.62  2001/10/16 19:18:49  nbryant
  backed out that compiler detection change for Tru64. it's not incredibly
  important and results in broken autoconf macro expansions.
@@ -2816,4 +2821,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
