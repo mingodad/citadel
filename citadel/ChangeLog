@@ -1,3 +1,7 @@
+1998-08-26 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* Makefile.in: realclean removes Makefile, fixed `touch citadel.h'
+	  problem
+
 1998-08-25 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* room_ops.c: include time.h
 	* userlist.c, whobbs.c, serv_chat.c, user_ops.c, sysdep.c, stats.c,
