@@ -421,12 +421,12 @@ void summarize_message(long msgnum) {
 	memset(&summ, 0, sizeof(summ));
 	strcpy(summ.subj, "(no subject)");
 
-	sprintf(buf, "MSG0 %ld", msgnum);
+	sprintf(buf, "MSG0 %ld|1", msgnum);	/* ask for headers only */
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '1') return;
 
-	while (serv_gets(buf), strncasecmp(buf, "text", 4)) {
+	while (serv_gets(buf), strcmp(buf, "000")) {
 		if (!strncasecmp(buf, "from=", 5)) {
 			strcpy(summ.from, &buf[5]);
 		}
@@ -474,8 +474,6 @@ void summarize_message(long msgnum) {
 		"><FONT SIZE=-1>Del</FONT></A>"
 		" </TD>\n", msgnum);
 
-	/* flush the msg */
-	while (serv_gets(buf), strcmp(buf, "000"));
 	return;
 }
 

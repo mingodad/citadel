@@ -298,3 +298,4 @@ void display_edituser(char *who);
 void create_user(void);
 void edituser(void);
 void change_view(void);
+void folders(void);
