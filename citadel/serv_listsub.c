@@ -62,12 +62,14 @@
  */
 void listsub_generate_token(char *buf) {
 	char sourcebuf[SIZ];
+	static int seq = 0;
 
 	/* Theo, please sit down and shut up.  This key doesn't have to be
-	 * tinfoil-hat secure, it just needs to be reasonably unguessable.
+	 * tinfoil-hat secure, it just needs to be reasonably unguessable
+	 * and unique.
 	 */
 	sprintf(sourcebuf, "%d%d%ld",
-		rand,
+		++seq,
 		getpid(),
 		time(NULL)
 	);
@@ -77,9 +79,149 @@ void listsub_generate_token(char *buf) {
 }
 
 
+/*
+ * Enter a subscription request
+ */
+void do_subscribe(char *room, char *email, char *subtype) {
+	struct quickroom qrbuf;
+	FILE *ncfp;
+	char filename[SIZ];
+	char token[SIZ];
 
+	if (getroom(&qrbuf, room) != 0) {
+		cprintf("%d There is no list called '%s'\n", ERROR, room);
+		return;
+	}
+
+	listsub_generate_token(token);
+
+	begin_critical_section(S_NETCONFIGS);
+	assoc_file_name(filename, sizeof filename, &qrbuf, "netconfigs");
+	ncfp = fopen(filename, "a");
+	if (ncfp != NULL) {
+		fprintf(ncfp, "subpending|%s|%s|%s|%ld\n",
+			email,
+			subtype,
+			token,
+			time(NULL)
+		);
+		fclose(ncfp);
+	}
+	end_critical_section(S_NETCONFIGS);
+
+	/* FIXME  --  generate and send the confirmation request */
+
+	cprintf("%d Subscription entered; confirmation request sent\n", CIT_OK);
+
+}
+
+
+/*
+ * Confirm a subscribe/unsubscribe request.
+ */
+void do_confirm(char *room, char *token) {
+	struct quickroom qrbuf;
+	FILE *ncfp;
+	char filename[SIZ];
+	char line_token[SIZ];
+	long line_offset;
+	int line_length;
+	char buf[SIZ];
+	char cmd[SIZ];
+	char email[SIZ];
+	char subtype[SIZ];
+	int success = 0;
+
+	if (getroom(&qrbuf, room) != 0) {
+		cprintf("%d There is no list called '%s'\n", ERROR, room);
+		return;
+	}
+
+	begin_critical_section(S_NETCONFIGS);
+	assoc_file_name(filename, sizeof filename, &qrbuf, "netconfigs");
+	ncfp = fopen(filename, "r+");
+	if (ncfp != NULL) {
+		while (line_offset = ftell(ncfp),
+		      (fgets(buf, sizeof buf, ncfp) != NULL) ) {
+			buf[strlen(buf)-1] = 0;
+			line_length = strlen(buf);
+			extract(cmd, buf, 0);
+			if (!strcasecmp(cmd, "subpending")) {
+				extract(email, buf, 1);
+				extract(subtype, buf, 2);
+				extract(line_token, buf, 3);
+				if (!strcasecmp(token, line_token)) {
+					if (!strcasecmp(subtype, "digest")) {
+						strcpy(buf, "digestrecp|");
+					}
+					else {
+						strcpy(buf, "listrecp|");
+					}
+					strcat(buf, email);
+					strcat(buf, "|");
+					/* SLEAZY HACK: pad the line out so
+				 	 * it's the same length as the line
+					 * we're replacing.
+				 	 */
+					while (strlen(buf) < line_length) {
+						strcat(buf, " ");
+					}
+					fseek(ncfp, line_offset, SEEK_SET);
+					fprintf(ncfp, "%s\n", buf);
+					++success;
+				}
+			}
+		}
+		fclose(ncfp);
+	}
+	end_critical_section(S_NETCONFIGS);
+
+	if (success) {
+		cprintf("%d %d operation(s) confirmed.\n", CIT_OK, success);
+	}
+	else {
+		cprintf("%d Invalid token.\n", ERROR);
+	}
+
+}
+
+
+
+/* 
+ * process subscribe/unsubscribe requests and confirmations
+ */
 void cmd_subs(char *cmdbuf) {
-	cprintf("%d not yet implemented, dumbass...\n", ERROR);
+
+	char opr[SIZ];
+	char room[SIZ];
+	char email[SIZ];
+	char subtype[SIZ];
+	char token[SIZ];
+
+	extract(opr, cmdbuf, 0);
+	if (!strcasecmp(opr, "subscribe")) {
+		extract(subtype, cmdbuf, 3);
+		if ( (strcasecmp(subtype, "list"))
+		   && (strcasecmp(subtype, "digest")) ) {
+			cprintf("%d Invalid subscription type.\n", ERROR);
+		}
+		else {
+			extract(room, cmdbuf, 1);
+			extract(email, cmdbuf, 2);
+			do_subscribe(room, email, subtype);
+		}
+	}
+	else if (!strcasecmp(opr, "unsubscribe")) {
+		cprintf("%d not yet implemented\n", ERROR);
+	}
+	else if (!strcasecmp(opr, "confirm")) {
+		extract(room, cmdbuf, 1);
+		extract(token, cmdbuf, 2);
+		do_confirm(room, token);
+	}
+	else {
+		cprintf("%d Invalid command\n", ERROR);
+	}
 }
 
 
