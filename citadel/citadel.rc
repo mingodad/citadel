@@ -222,7 +222,6 @@ cmd=77,0,&.,&Enter,&Username
 cmd=40,0,&.,&Enter,file using &Xmodem
 cmd=42,0,&.,&Enter,file using &Ymodem
 cmd=44,0,&.,&Enter,file using &Zmodem
-cmd=81,0,&.,&Enter,IC&Q Configuration
 #
 # Command 57 is the local-file-upload command for users with their own
 # copy of the clientware.  Commands 72-74 are for image uploads.
