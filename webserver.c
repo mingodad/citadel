@@ -46,6 +46,9 @@ extern void *context_loop(int);
 extern void *housekeeping_loop(void);
 extern pthread_mutex_t MasterCritter;
 
+const char *defaulthost = DEFAULT_HOST;
+const char *defaultport = DEFAULT_PORT;
+
 /*
  * This is a generic function to set up a master socket for listening on
  * a TCP port.  The server shuts down if the bind fails.
@@ -225,17 +228,6 @@ void start_daemon(int do_close_stdio) {
 	signal(SIGQUIT,SIG_IGN);
 	if (fork()!=0) exit(0);
 	}
-
-/*
- * Issue an HTTP Redirect header
- * url must be a complete url (with http://)
- */
-void redirect(char *url) {
-	printf("Location: %s\n\n", url);
-}
-
-const char *defaulthost = DEFAULT_HOST;
-const char *defaultport = DEFAULT_PORT;
 
 /*
  * Here's where it all begins.
