@@ -612,8 +612,7 @@ int create_user(char *newusername)
 	(CC->logged_in) = 1;
 
 	/* These are the default flags on new accounts */
-	CC->usersupp.flags =
-		US_NEEDVALID|US_LASTOLD|US_DISAPPEAR|US_PAGINATOR|US_FLOORS;
+	CC->usersupp.flags = US_LASTOLD|US_DISAPPEAR|US_PAGINATOR|US_FLOORS;
 
 	CC->usersupp.timescalled = 0;
 	CC->usersupp.posted = 0;
