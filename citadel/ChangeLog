@@ -2,6 +2,7 @@ Fri Oct 23 19:34:38 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* setup.c: default node name is now obtained from uname()
 	* config.c: added put_config()
 	* policy.c: added, moved GetExpirePolicy() from room_ops.c
+	* policy.c: implemented cmd_gpex() and cmd_spex()
 
 Wed Oct 21 22:24:48 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Mail rooms now hide their owner-prefix from the client.
