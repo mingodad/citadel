@@ -160,7 +160,7 @@ void imap_select(char *tag, char *cmd, char *parms) {
 	 * usergoto() formally takes us to the desired room, happily returning
 	 * the number of messages and number of new messages.
 	 */
-	usergoto(augmented_roomname, 0, &msgs, &new);
+	usergoto(QRscratch.QRname, 0, &msgs, &new);
 
 	cprintf("* %d EXISTS\r\n", msgs);
 	cprintf("* %d RECENT\r\n", new);

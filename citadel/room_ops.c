@@ -618,6 +618,8 @@ void usergoto(char *where, int display_result, int *retmsgs, int *retnew)
 	long *msglist = NULL;
 	int num_msgs = 0;
 
+	lprintf(9, "usergoto() called for <%s>\n", where);
+
 	strcpy(CC->quickroom.QRname, where);
 	getroom(&CC->quickroom, where);
 
