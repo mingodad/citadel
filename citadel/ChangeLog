@@ -1,5 +1,6 @@
 1998-10-28 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* configure.in: added comments
+	* mkinstalldirs: new file to be used for `make install'
 
 Tue Oct 27 22:25:42 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Unified the "unpacked database" format for both upgrades and
