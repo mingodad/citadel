@@ -321,13 +321,12 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 {
 	char buf[256];
 	char m_subject[256];
-	char from[256];
+	char from[256], node[256], rfca[256];
 	time_t now;
 	struct tm *tm;
 	int format_type = 0;
 	int fr = 0;
 	int nhdr = 0;
-	int have_rfca = 0;
 
 	sigcaught = 0;
 	sttybbs(1);
@@ -345,6 +344,10 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 
 	strcpy(m_subject,"");
 	strcpy(reply_to, "nobody ... xxxxx");
+	strcpy(from, "");
+	strcpy(node, "");
+	strcpy(rfca, "");
+
 	printf("\n");
 	++lines_printed;
 	lines_printed = checkpagin(lines_printed,pagin,screenheight);
@@ -391,8 +394,7 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 			strcpy(m_subject,&buf[5]);
 
 		if (!struncmp(buf,"rfca=",5)) {
-			strcpy(reply_to, &buf[5]);
-			have_rfca = 1;
+			safestrncpy(rfca, &buf[5], sizeof(rfca) - 5);
 			color(DIM_WHITE);
 			printf("<");
 			color(BRIGHT_BLUE);
@@ -402,7 +404,7 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 			}
 		if ((!struncmp(buf,"hnod=",5)) 
 		   && (strucmp(&buf[5],serv_info.serv_humannode))
-		   && (have_rfca == 0) ) {
+		   && (strlen(rfca) == 0) ) {
 			color(DIM_WHITE);
 			printf("(");
 			color(BRIGHT_WHITE);
@@ -412,7 +414,7 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 			}
 		if ((!struncmp(buf,"room=",5))
 		   && (strucmp(&buf[5],room_name)) 
-		   && (have_rfca == 0)) {
+		   && (strlen(rfca) == 0)) {
 			color(DIM_WHITE);
 			printf("in ");
 			color(BRIGHT_MAGENTA);
@@ -420,28 +422,19 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 			}
 
 		if (!struncmp(buf,"node=",5)) {
+			safestrncpy(node, &buf[5], sizeof(buf) - 5);
 			if ( (room_flags&QR_NETWORK)
 			   || ((strucmp(&buf[5],serv_info.serv_nodename)
    			   &&(strucmp(&buf[5],serv_info.serv_fqdn)))) ) 
 				{
-				if (have_rfca == 0) {
+				if (strlen(rfca) == 0) {
 					color(DIM_WHITE);
 					printf("@");
 					color(BRIGHT_YELLOW);
 					printf("%s ",&buf[5]);
 				}
 			}
-			if (have_rfca == 0) {
-			 if ((!strucmp(&buf[5],serv_info.serv_nodename))
-   			   ||(!strucmp(&buf[5],serv_info.serv_fqdn)))
-				{
-				strcpy(reply_to,from);
-				}
-			}
-			else {
-				sprintf(reply_to,"%s @ %s",from,&buf[5]);
-				}
-			}
+		}
 
 		if (!struncmp(buf,"rcpt=",5)) {
 			color(DIM_WHITE);
@@ -468,6 +461,14 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 			}
 		}
 	printf("\n");
+
+	if (strlen(rfca) > 0) {
+		strcpy(reply_to, rfca);
+	}
+	else {
+		snprintf(reply_to, sizeof(reply_to), "%s @ %s", from, node);
+	}
+
 	if (pagin == 1) color(BRIGHT_WHITE);
 	++lines_printed;
 	lines_printed = checkpagin(lines_printed,pagin,screenheight);

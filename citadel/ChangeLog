@@ -1,4 +1,7 @@
 $Log$
+Revision 1.485  2000/03/11 20:26:03  ajc
+* Reworked the <R>eply logic in messages.c - fixes bug #34
+
 Revision 1.484  2000/03/11 19:22:19  nbryant
  * commands.c: improved timing of background keepalives if connection is
                lagged
@@ -1721,3 +1724,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
