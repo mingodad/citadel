@@ -166,7 +166,10 @@ void RemoveContext (struct CitContext *con)
 	unlink(con->temp);
 	lprintf(3, "citserver[%3d]: ended.\n", con->cs_pid);
 	
-	/* Run any cleanup routines registered by loadable modules */
+	/* Run any cleanup routines registered by loadable modules.
+	 * (Must occur *before* deallocate_user_data() because the cleanup
+	 * functions might touch dynamic session data)
+	 */
 	PerformSessionHooks(EVT_STOP);
 
 	syslog(LOG_NOTICE,"session %d ended", con->cs_pid);

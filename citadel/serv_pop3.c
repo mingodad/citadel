@@ -30,13 +30,34 @@
 #include "internet_addressing.h"
 
 
+struct pop3msg {
+	long msgnum;
+	size_t rfc822_length;
+	int deleted;
+	FILE *temp;
+};
+
 struct citpop3 {		/* Information about the current session */
-	char FIX[3];
+	struct pop3msg *msgs;
+	int num_msgs;
 };
 
 #define POP3 ((struct citpop3 *)CtdlGetUserData(SYM_POP3))
 
 long SYM_POP3;
+
+
+void pop3_cleanup_function(void) {
+	int i;
+
+	lprintf(9, "Performing POP3 cleanup hook\n");
+
+	if (POP3->num_msgs > 0) for (i=0; i<POP3->num_msgs; ++i) {
+		fclose(POP3->msgs[i].temp);
+	}
+	if (POP3->msgs != NULL) phree(POP3->msgs);
+}
+
 
 
 /*
@@ -47,6 +68,8 @@ void pop3_greeting(void) {
 	strcpy(CC->cs_clientname, "POP3 session");
 	CC->internal_pgm = 1;
 	CtdlAllocUserData(SYM_POP3, sizeof(struct citpop3));
+	POP3->msgs = NULL;
+	POP3->num_msgs = 0;
 
 	cprintf("+OK Welcome to the Citadel/UX POP3 server at %s\r\n",
 		config.c_fqdn);
@@ -88,13 +111,29 @@ void pop3_pass(char *argbuf) {
 
 	lprintf(9, "Trying <%s>\n", password);
 	if (CtdlTryPassword(password) == pass_ok) {
-		cprintf("+OK %s is logged in!\r\n", CC->usersupp.fullname);
-		lprintf(9, "POP3 password login successful\n");
+		if (getroom(&CC->quickroom, MAILROOM) == 0) {
+			cprintf("+OK %s is logged in!\r\n",
+				CC->usersupp.fullname);
+			lprintf(9, "POP3 password login successful\n");
+		}
+		else {
+			cprintf("-ERR can't find your mailbox\r\n");
+		}
 	}
 	else {
 		cprintf("-ERR That is NOT the password!  Go away!\r\n");
 	}
 }
+
+
+
+/*
+ * list available msgs
+ */
+void pop3_list(char *argbuf) {
+	cprintf("-ERR oops, not finished\r\n");
+}
+
 
 
 
@@ -136,6 +175,10 @@ void pop3_command_loop(void) {
 		cprintf("-ERR Not logged in.\r\n");
 	}
 
+	else if (!strncasecmp(cmdbuf, "LIST", 4)) {
+		pop3_list(&cmdbuf[5]);
+	}
+
 	else {
 		cprintf("500 I'm afraid I can't do that, Dave.\r\n");
 	}
@@ -150,5 +193,6 @@ char *Dynamic_Module_Init(void)
 	CtdlRegisterServiceHook(POP3_PORT,
 				pop3_greeting,
 				pop3_command_loop);
+	CtdlRegisterSessionHook(pop3_cleanup_function, EVT_STOP);
 	return "$Id$";
 }
