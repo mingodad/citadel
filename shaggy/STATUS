@@ -23,8 +23,8 @@ Basic:
 
 - Go to next room with messages
 - go to any old room by double-clicking from list
-* can't get to hidden or guessable-named rooms
-* can't go to password protected rooms (tested)
+_ can get to hidden or guessable-named rooms
+_ can go to password protected rooms (tested)
 * can't zap rooms
 * can't list zapped rooms
 
