@@ -1,4 +1,7 @@
 $Log$
+Revision 323.17  2002/03/26 19:01:12  ajc
+* More edit user stuff
+
 Revision 323.16  2002/03/26 18:23:23  ajc
 * Don't display room banner on screens that don't pertain to a particular room
 * Initial prep for add/change/delete user accounts screen
@@ -762,4 +765,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

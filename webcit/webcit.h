@@ -292,4 +292,6 @@ int pattern2(char *search, char *patn);
 void edit_vcard(void);
 void submit_vcard(void);
 void striplt(char *);
-void select_user_to_edit(void);
+void select_user_to_edit(char *message);
+void display_edituser(char *who);
+void create_user(void);
