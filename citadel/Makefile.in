@@ -28,7 +28,9 @@ CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT)
 SERVER_TARGETS=citserver setup $(CHKPWD)
 SERV_MODULES=modules/serv_chat$(SO) modules/serv_vcard$(SO) \
 	modules/serv_upgrade$(SO) \
-	modules/serv_smtp$(SO) modules/serv_pop3$(SO) \
+	modules/serv_smtp$(SO) \
+	modules/serv_pop3$(SO) \
+	modules/serv_imap$(SO) \
 	modules/serv_inetcfg$(SO) \
 	modules/serv_rwho$(SO) \
 	modules/serv_moderate$(SO) \
@@ -84,7 +86,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	auth.c chkpwd.c client_icq.c html.c vcard.c serv_upgrade.c \
 	serv_smtp.c serv_pop3.c internet_addressing.c parsedate.c genstamp.c \
 	domain.c clientsocket.c serv_inetcfg.c serv_rwho.c serv_bio.c \
-	serv_moderate.c client_passwords.c
+	serv_moderate.c client_passwords.c serv_imap.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
@@ -159,6 +161,12 @@ modules/serv_pop3.so: serv_pop3.mo
 
 modules/serv_pop3.mo: serv_pop3.mo
 	ln -f serv_pop3.mo modules
+
+modules/serv_imap.so: serv_imap.mo
+	$(LINK_SHARED) -o modules/serv_imap.so serv_imap.mo
+
+modules/serv_imap.mo: serv_imap.mo
+	ln -f serv_imap.mo modules
 
 modules/serv_inetcfg.so: serv_inetcfg.mo
 	$(LINK_SHARED) -o modules/serv_inetcfg.so serv_inetcfg.mo

@@ -1,14 +1,17 @@
  $Log$
+ Revision 572.5  2000/06/15 20:15:52  ajc
+ * Inserted a skeleton IMAP module into the build.  IT DOES NOT WORK AT ALL.
+
  Revision 572.4  2000/06/04 02:30:56  ajc
  * CtdlForEachMessage() now returns the number of messages processed.  It also
-   accepts the MSGS_EQ mode, for targeting a specific message number (useful for
-   determining whether the specified message actually exists in a room).
+   accepts the MSGS_EQ mode, for targeting a specific message number (useful
+   for determining whether the specified message actually exists in a room).
  * Completed the server side of the moderation system (serv_moderate.c module
    which implements the MMOD command)
 
  Revision 572.3  2000/06/03 05:47:57  ajc
  * Replaced most of the very repetitive and very redundant access level checks
-   in most commands with a single API call:  CtdlAccessLevelCheck()
+   in most commands with a single API call:  CtdlAccessCheck()
  * serv_moderate.c: added (not finished)
 
  Revision 572.2  2000/06/02 03:38:50  ajc
