@@ -12,5 +12,6 @@ private:
 	wxButton *exit_button;
 	void OnButtonPressed(wxCommandEvent& whichbutton);
 	CitClient *citsock;
+	wxMDIParentFrame *citMyMDI;
 	DECLARE_EVENT_TABLE()
 };

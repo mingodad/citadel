@@ -91,10 +91,24 @@ int CitClient::serv_trans(
 			) {
 
 	int first_digit;
+	wxString buf;
 
 	serv_puts(command);
 	serv_gets(response);
 	first_digit = (response.GetChar(0)) - '0';
+
+	if (first_digit == 1) {			// LISTING_FOLLOWS
+		xferbuf.Clear();
+		while (serv_gets(buf), buf != "000") {
+			xferbuf.Add(buf);
+		}
+	} else if (first_digit == 4) {		// SEND_LISTING
+		// FIX do this!!
+		serv_puts("000");
+	}
+
+
+
 	return first_digit;
 }
 

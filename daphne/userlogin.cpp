@@ -4,8 +4,10 @@
 
 
 #include <wx/wx.h>
+#include <wx/listctrl.h>
 #include "citclient.hpp"
 #include "userlogin.hpp"
+#include "who.hpp"
 
 // ----------------------------------------------------------------------------
 // private classes
@@ -59,6 +61,7 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 			) {
 
 	citsock = sock;
+	citMyMDI = MyMDI;
 
 	// set the frame icon
 	/* SetIcon(wxICON(mondrian)); */
@@ -211,6 +214,7 @@ void UserLogin::OnButtonPressed(wxCommandEvent& whichbutton) {
 				nopass.ShowModal();
 			} else {
 				// FIX do login procedure here
+				(void)new who(citsock, citMyMDI);
 			}
 		}
 	}
