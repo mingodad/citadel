@@ -1,5 +1,5 @@
 /*
- * ipc_c_std.c
+ * ipc_c_tcp.c
  * 
  * Citadel/UX client/server IPC - client module using TCP/IP
  *
@@ -19,12 +19,13 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <string.h>
 #include <pwd.h>
 #include <errno.h>
-
-void logoff();
+#include "citadel_decls.h"
+#include "ipc.h"
 
 /*
  * If server_is_local is set to nonzero, the client assumes that it is running
@@ -45,9 +46,7 @@ char server_is_local = 0;
 
 int serv_sock;
 
-u_long inet_addr(/* ??? */);
-
-void timeout(void) {
+void timeout(int signum) {
 	printf("\rConnection timed out.\n");
 	logoff(3);
 	}
@@ -75,7 +74,7 @@ int connectsock(char *host, char *service, char *protocol)
 	
 	phe=gethostbyname(host);
 	if (phe) {
-		bcopy(phe->h_addr,(char *)&sin.sin_addr,phe->h_length);
+		memcpy(&sin.sin_addr,phe->h_addr,phe->h_length);
 		}
 	else if ((sin.sin_addr.s_addr = inet_addr(host))==INADDR_NONE) {
 		fprintf(stderr,"Can't get %s host entry: %s\n",
@@ -146,7 +145,7 @@ void numericize(unsigned char *buf, char *host, char *service, char *protocol)
 	
 	phe=gethostbyname(host);
 	if (phe) {
-		bcopy(phe->h_addr,(char *)&sin.sin_addr,phe->h_length);
+		memcpy(&sin.sin_addr,phe->h_addr,phe->h_length);
 		}
 	else if ((sin.sin_addr.s_addr = inet_addr(host))==INADDR_NONE) {
 		fprintf(stderr,"Can't get %s host entry: %s\n",
