@@ -1,3 +1,6 @@
+1999-02-04 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* configure.in: improved check for cygwin
+
 1999-02-02 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* Fixes for Cygwin:
 	  - ifdef out file download methods that require named pipes (client)
