@@ -51,3 +51,57 @@ void get_serv_info() {
 	    }
 	}
 
+
+
+/* 
+ * Function to spit out Citadel variformat text in HTML
+ * If fp is non-null, it is considered to be the file handle to read the
+ * text from.  Otherwise, text is read from the server.
+ */
+void fmout(fp)
+FILE *fp; {
+
+	int intext = 0;
+	int bq = 0;
+	int a;
+	char buf[256];
+
+	while(1) {
+		if (fp==NULL) serv_gets(buf);
+		if (fp!=NULL) {
+			if (fgets(buf,256,fp)==NULL) strcpy(buf,"000");
+			buf[strlen(buf)-1] = 0;
+			}
+		if (!strcmp(buf,"000")) {
+			if (bq==1) wprintf("</I>");
+			wprintf("<P>\n");
+			return;
+			}
+		if ( (intext==1) && (isspace(buf[0])) ) {
+			wprintf("<BR>");
+			}
+		intext = 1;
+
+		/* Quoted text should be displayed in italics and in a
+		 * different colour.  This code understands both Citadel/UX
+		 * style " >" quotes and FordBoard-style " :-)" quotes.
+		 */
+		if ((bq==0)&&
+		   ((!strncmp(buf," >",2))||(!strncmp(buf," :-)",4)))) {
+			wprintf("<FONT COLOR=\"000044\"><I>");
+			bq = 1;
+			}
+		else if ((bq==1)&&
+		     (strncmp(buf," >",2))&&(strncmp(buf," :-)",4))) {
+			wprintf("</FONT></I>");
+			bq = 0;
+			}
+
+		/* Activate embedded URL's */
+		url(buf);
+
+		escputs(buf);
+		wprintf("\n");
+		}
+	}
+
