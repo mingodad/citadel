@@ -46,7 +46,6 @@ struct CtdlSessData {
 enum {
 	SYM_DESIRED_SECTION,		/* Used by the MIME parser */
 	SYM_MA_INFO,			/* Handles multipart/alternative */
-	SYM_REPL,			/* Used for replication checking */
 	SYM_CIT_ICAL,			/* Used by the calendar service */
 	SYM_IMAP,			/* Used by the IMAP service */
 	SYM_POP3,			/* Used by the POP3 service */

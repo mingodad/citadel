@@ -1,4 +1,10 @@
  $Log$
+ Revision 630.13  2005/02/05 04:13:34  ajc
+ * msgbase.c: replication checks for Exclusive-ID no longer cause a save
+   operation to fail when the existing message is newer.  This was causing
+   groupware clients to go haywire because of datestamps being set to
+   event start times, etc.
+
  Revision 630.12  2005/02/03 04:36:56  ajc
  * serv_calendar.c: beforesave hook now looks for the UID inside nested
    VTODO components, in addition to VCALENDAR components.
@@ -6346,4 +6352,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -53,7 +53,6 @@
 
 #define desired_section ((char *)CtdlGetUserData(SYM_DESIRED_SECTION))
 #define ma ((struct ma_info *)CtdlGetUserData(SYM_MA_INFO))
-#define msg_repl ((struct repl *)CtdlGetUserData(SYM_REPL))
 
 extern struct config config;
 long config_msgnum;
@@ -1850,63 +1849,30 @@ void serialize_message(struct ser_ret *ret,		/* return values */
  * Back end for the ReplicationChecks() function
  */
 void check_repl(long msgnum, void *userdata) {
-	struct CtdlMessage *msg;
-	time_t timestamp = (-1L);
-
-	lprintf(CTDL_DEBUG, "check_repl() found message %ld\n", msgnum);
-	msg = CtdlFetchMessage(msgnum, 1);
-	if (msg == NULL) return;
-	if (msg->cm_fields['T'] != NULL) {
-		timestamp = atol(msg->cm_fields['T']);
-	}
-	CtdlFreeMessage(msg);
-
-	if (timestamp > msg_repl->highest) {
-		msg_repl->highest = timestamp;	/* newer! */
-		lprintf(CTDL_DEBUG, "newer!\n");
-		return;
-	}
-	lprintf(CTDL_DEBUG, "older!\n");
-
-	/* Existing isn't newer?  Then delete the old one(s). */
+	lprintf(CTDL_DEBUG, "check_repl() replacing message %ld\n", msgnum);
 	CtdlDeleteMessages(CC->room.QRname, msgnum, "");
 }
 
 
 /*
  * Check to see if any messages already exist which carry the same Exclusive ID
- * as this one.  
+ * as this one.  If any are found, delete them.
  *
- * If any are found:
- * -> With older timestamps: delete them and return 0.  Message will be saved.
- * -> With newer timestamps: return 1.  Message save will be aborted.
  */
 int ReplicationChecks(struct CtdlMessage *msg) {
 	struct CtdlMessage *template;
 	int abort_this = 0;
 
-	lprintf(CTDL_DEBUG, "ReplicationChecks() started\n");
 	/* No exclusive id?  Don't do anything. */
 	if (msg->cm_fields['E'] == NULL) return 0;
 	if (strlen(msg->cm_fields['E']) == 0) return 0;
 	lprintf(CTDL_DEBUG, "Exclusive ID: <%s>\n", msg->cm_fields['E']);
-
-	CtdlAllocUserData(SYM_REPL, sizeof(struct repl));
-	strcpy(msg_repl->exclusive_id, msg->cm_fields['E']);
-	msg_repl->highest = atol(msg->cm_fields['T']);
 
 	template = (struct CtdlMessage *) malloc(sizeof(struct CtdlMessage));
 	memset(template, 0, sizeof(struct CtdlMessage));
 	template->cm_fields['E'] = strdup(msg->cm_fields['E']);
 
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL, template, check_repl, NULL);
-
-	/* If a newer message exists with the same Exclusive ID, abort
-	 * this save.
-	 */
-	if (msg_repl->highest > atol(msg->cm_fields['T']) ) {
-		abort_this = 1;
-		}
 
 	CtdlFreeMessage(template);
 	lprintf(CTDL_DEBUG, "ReplicationChecks() returning %d\n", abort_this);
@@ -1981,7 +1947,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	lprintf(CTDL_DEBUG, "Learning what's inside\n");
 	if (msg->cm_fields['M'] == NULL) {
 		lprintf(CTDL_ERR, "ERROR: attempt to save message with NULL body\n");
-		return(-1);
+		return(-2);
 	}
 
 	switch (msg->cm_format_type) {
@@ -2050,16 +2016,16 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* Perform "before save" hooks (aborting if any return nonzero) */
 	lprintf(CTDL_DEBUG, "Performing before-save hooks\n");
-	if (PerformMessageHooks(msg, EVT_BEFORESAVE) > 0) return(-1);
+	if (PerformMessageHooks(msg, EVT_BEFORESAVE) > 0) return(-3);
 
 	/* If this message has an Exclusive ID, perform replication checks */
 	lprintf(CTDL_DEBUG, "Performing replication checks\n");
-	if (ReplicationChecks(msg) > 0) return(-1);
+	if (ReplicationChecks(msg) > 0) return(-4);
 
 	/* Save it to disk */
 	lprintf(CTDL_DEBUG, "Saving to disk\n");
 	newmsgid = send_message(msg);
-	if (newmsgid <= 0L) return(-1);
+	if (newmsgid <= 0L) return(-5);
 
 	/* Write a supplemental message info record.  This doesn't have to
 	 * be a critical section because nobody else knows about this message
