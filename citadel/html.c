@@ -61,7 +61,7 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 	char *outptr;
 	size_t outptr_buffer_size;
 	size_t output_len = 0;
-	int i, j, ch, did_out, rb;
+	int i, j, ch, did_out, rb, scanch;
 	int nest = 0;		/* Bracket nesting level */
 
 	inptr = inputmsg;
@@ -116,8 +116,13 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 				strcpy(tag, "");
 			}
 
-			else if (ch == '>') {
+			else if (ch == '>') {	/* We have a tag. */
 				if (nest > 0) --nest;
+
+				/* Unqualify the tag (truncate at first space) */
+				if (strchr(tag, ' ') != NULL) {
+					strcpy(strchr(tag, ' '), "");
+				}
 				
 				if (!strcasecmp(tag, "P")) {
 					strcat(outbuf, "\n\n");
@@ -232,6 +237,24 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 				outbuf[i+1] = 'r';
 				outbuf[i+2] = ')';
 				strcpy(&outbuf[i+3], &outbuf[i+5]);
+			}
+
+			/* two-digit decimal equivalents */
+			else if ((!strncmp(&outbuf[i], "&#", 2))
+			      && (outbuf[i+4] == ';') ) {
+				scanch = 0;
+				sscanf(&outbuf[i+2], "%02d", &scanch);
+				outbuf[i] = scanch;
+				strcpy(&outbuf[i+1], &outbuf[i+5]);
+			}
+
+			/* three-digit decimal equivalents */
+			else if ((!strncmp(&outbuf[i], "&#", 2))
+			      && (outbuf[i+5] == ';') ) {
+				scanch = 0;
+				sscanf(&outbuf[i+2], "%03d", &scanch);
+				outbuf[i] = scanch;
+				strcpy(&outbuf[i+1], &outbuf[i+6]);
 			}
 
 		}

@@ -1,4 +1,9 @@
  $Log$
+ Revision 621.6  2004/06/03 02:49:14  ajc
+ * html.c: allow parsing of tags even when they're qualified (i.e. <TAG foo=bar>
+           instead of just <TAG> )
+ * html.c: handle escaped decimal characters (such as &#39; for an apostrophe)
+
  Revision 621.5  2004/06/03 02:28:16  ajc
  * citadel_ipc.c: SETR command was missing defaultview and flags2.  Added.
 
@@ -5807,3 +5812,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
