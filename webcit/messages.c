@@ -517,34 +517,29 @@ void read_message(long msgnum) {
 
 	/* start msg buttons */
 	wprintf("<TD ALIGN=RIGHT>\n");
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/do_stuff_to_one_msg\">\n");
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgid\" VALUE=\"%ld\">\n",
-		msgnum);
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"recp\" VALUE=\"");
-	escputs(reply_to);
-	wprintf("\">\n");
 
-	if (!strncasecmp(m_subject, "Re:", 2)) {
-		wprintf("<INPUT TYPE=\"hidden\" NAME=\"subject\" VALUE=\"");
-		escputs(m_subject);
-		wprintf("\">\n");
-	}
-	else if (strlen(m_subject) > 0) {
-		wprintf("<INPUT TYPE=\"hidden\" NAME=\"subject\" VALUE=\"Re: ");
-		escputs(m_subject);
-		wprintf("\">\n");
-	}
-
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"msg_oper\" STYLE=\"font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif; font-size: 7pt; background: blue; color: #FFFFFF;\" VALUE=\"Reply\">\n");
+	/* Reply */
+	wprintf("<a href=\"/display_enter?recp=");
+	urlescputs(reply_to);
+	wprintf("&subject=");
+	if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
+	urlescputs(m_subject);
+	wprintf("\">Reply</a> ");
 
 	if (WC->is_room_aide)  {
-		wprintf("<INPUT TYPE=\"submit\" NAME=\"msg_oper\" STYLE=\"font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif; font-size: 7pt; background: blue; color: #FFFFFF;\"VALUE=\"Move\">\n"
-			"<INPUT TYPE=\"submit\" NAME=\"msg_oper\" STYLE=\"font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif; font-size: 7pt; background: blue; color: #FFFFFF;\" VALUE=\"Delete\""
-			"onClick=\"return confirm('Delete this message?');\">\n");
+	
+		/* Move */
+		wprintf("<a href=\"/confirm_move_msg?msgid=%ld\">Move </a>",
+			msgnum);
+
+		/* Delete */
+		wprintf("<a href=\"/delete_msg?msgid=%ld\" "
+			"onClick=\"return confirm('Delete this message?');\">"
+			"Delete</a>", msgnum);
+			
 	}
 
-	wprintf("</FORM>\n"
-		"</TD></TR></TABLE>\n");
+	wprintf("</TD></TR></TABLE>\n");
 
 	/* Begin body */
 	wprintf("<TABLE BORDER=0 WIDTH=100%% BGCOLOR=#FFFFFF "
@@ -1143,7 +1138,7 @@ void readloop(char *oper)
 		}
 	}
 
-	wprintf("<FORM NAME=\"msgomatic\" "
+	wprintf("<form name=\"msgomatic\" "
 		"METHOD=\"POST\" ACTION=\"/do_stuff_to_msgs\">\n");
 	if (is_summary) {
 		wprintf("<div id=\"fix_scrollbar_bug\">"
@@ -1334,7 +1329,7 @@ void readloop(char *oper)
 
 	    }
 	}
-	if (is_summary) wprintf("</FORM>\n");
+	wprintf("</form>\n");
 
 DONE:
 	if (is_tasks) {
@@ -1671,7 +1666,7 @@ void display_enter(void)
 
 	wprintf("</div>\n");	/* end attachments section */
 
-	wprintf("</FORM>\n");
+	wprintf("</form>\n");
 
 	wprintf("</div>\n");
 DONE:	wDumpContent(1);
@@ -1727,7 +1722,7 @@ void confirm_move_msg(void)
 
 	wprintf("Move this message to:<br />\n");
 
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/move_msg\">\n");
+	wprintf("<form METHOD=\"POST\" ACTION=\"/move_msg\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgid\" VALUE=\"%s\">\n",
 		bstr("msgid"));
 
@@ -1749,7 +1744,7 @@ void confirm_move_msg(void)
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"yesno\" VALUE=\"Move\">");
 	wprintf("&nbsp;");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"yesno\" VALUE=\"Cancel\">");
-	wprintf("</FORM></CENTER>\n");
+	wprintf("</form></CENTER>\n");
 
 	wprintf("</CENTER>\n");
 	wDumpContent(1);
@@ -1777,32 +1772,6 @@ void move_msg(void)
 
 	wDumpContent(1);
 }
-
-/*
- * This gets called when a user selects Reply/Move/Del etc. on *one* message.
- */
-void do_stuff_to_one_msg(void) {
-	char *msg_oper;
-
-	msg_oper = bstr("msg_oper");
-
-	if (!strcasecmp(msg_oper, "Delete")) {
-		delete_msg();	/* It's already been confirmed using JS */
-		return;
-	}
-	if (!strcasecmp(msg_oper, "Move")) {
-		confirm_move_msg();
-		return;
-	}
-	if (!strcasecmp(msg_oper, "Reply")) {
-		display_enter();	/* recp and subject already set */
-		return;
-	}
-
-	/* should never get here.  FIXME: display an error */
-
-}
-
 
 /*
  * This gets called when a user selects multiple messages in a summary
