@@ -124,6 +124,7 @@ void groupdav_main(struct httprequest *req,
 	strcpy(dav_ifmatch, "");
 
 	for (rptr=req; rptr!=NULL; rptr=rptr->next) {
+		/* lprintf(9, "< %s\n", rptr->line); */
 		if (!strncasecmp(rptr->line, "Host: ", 6)) {
                         safestrncpy(WC->http_host, &rptr->line[6],
 				sizeof WC->http_host);
@@ -139,9 +140,7 @@ void groupdav_main(struct httprequest *req,
 		groupdav_common_headers();
 		wprintf("WWW-Authenticate: Basic realm=\"%s\"\n",
 			serv_info.serv_humannode);
-		wprintf("Content-Type: text/plain\n");
-		wprintf("\n");
-		wprintf("GroupDAV sessions require HTTP authentication.\n");
+		wprintf("Content-Length: 0\n\n");
 		return;
 	}
 
