@@ -13,7 +13,7 @@ struct UserProcList {
 };
 
 void master_startup (void);
-void master_cleanup (void);
+void master_cleanup (int exitcode);
 void RemoveContext (struct CitContext *);
 void set_wtmpsupp (char *newtext);
 void set_wtmpsupp_to_current_room(void);

@@ -229,6 +229,6 @@ int main(int argc, char **argv)
 
 	/* Server is exiting. Wait for workers to shutdown. */
 	lprintf(CTDL_INFO, "Server is shutting down.\n");
-	master_cleanup();
+	master_cleanup(0);
 	return(0);
 }

@@ -125,10 +125,8 @@ void master_startup(void) {
 
 /*
  * Cleanup routine to be called when the server is shutting down.
- * WARNING: It's no longer safe to call this function to force a shutdown.
- * Instead, set time_to_die = 1.
  */
-void master_cleanup(void) {
+void master_cleanup(int exitcode) {
 	struct CleanupFunctionHook *fcn;
 	static int already_cleaning_up = 0;
 
@@ -152,9 +150,9 @@ void master_cleanup(void) {
 #endif
 
 	/* Now go away. */
-	lprintf(CTDL_NOTICE, "citserver: exiting.\n");
+	lprintf(CTDL_NOTICE, "citserver: Exiting with status %d.\n", exitcode);
 	fflush(stdout); fflush(stderr);
-	exit(0);
+	exit(exitcode);
 }
 
 

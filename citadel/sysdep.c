@@ -160,12 +160,7 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 
 
 /*
- * We used to use master_cleanup() as a signal handler to shut down the server.
- * however, master_cleanup() and the functions it calls do some things that
- * aren't such a good idea to do from a signal handler: acquiring mutexes,
- * playing with signal masks on BSDI systems, etc. so instead we install the
- * following signal handler to set a global variable to inform the main loop
- * that it's time to call master_cleanup() and exit.
+ * Signal handler to shut down the server.
  */
 
 volatile int time_to_die = 0;
@@ -173,7 +168,7 @@ volatile int time_to_die = 0;
 static RETSIGTYPE signal_cleanup(int signum) {
 	lprintf(CTDL_DEBUG, "Caught signal %d; shutting down.\n", signum);
 	time_to_die = 1;
-	master_cleanup();	/* will this work? */
+	master_cleanup(signum);
 }
 
 
