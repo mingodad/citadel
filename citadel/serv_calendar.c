@@ -1046,8 +1046,6 @@ void ical_create_room(void)
  */
 void ical_send_out_invitations(icalcomponent *cal) {
 	icalcomponent *the_request = NULL;
-	icaltimezone *utc_timezone = NULL;
-	icalcomponent *utc_component = NULL;
 	char *serialized_request = NULL;
 	char *request_message_text = NULL;
 	struct CtdlMessage *msg = NULL;
@@ -1129,28 +1127,7 @@ void ical_send_out_invitations(icalcomponent *cal) {
 	/* Set the method to REQUEST */
 	icalcomponent_set_method(encaps, ICAL_METHOD_REQUEST);
 
-	/* Insert a VTIMEZONE subcomponent telling the dumbass calendar agent
-	 * at the other end about UTC.  This is necessary because some calendar
-	 * agents assume that an unqualified time is UTC while others assume
-	 * it is local.
-	 */
-	utc_timezone = icaltimezone_get_utc_timezone();
-	if (utc_timezone == NULL) {
-		lprintf(9, "%s:%d: utc_timezone is null\n",__FILE__,__LINE__);
-	}
-	else {
-		utc_component = icaltimezone_get_component(utc_timezone);
-	}
-	if (utc_component == NULL) {
-		lprintf(9, "%s:%d: utc_component is null\n",__FILE__,__LINE__);
-	}
-	else {
-		icalcomponent_add_component(encaps, utc_component);
-	}
-
-	/* Now make sure all of the DTSTART and DTEND properties are
-	 * labelled as UTC.  (FIXME do this)
-	 */
+	/* Now make sure all of the DTSTART and DTEND properties are UTC. */
 	ical_dezonify(the_request);
 
 	/* Here we go: put the VEVENT into the VCALENDAR.  We now no longer
