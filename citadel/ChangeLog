@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.107  2003/01/13 17:04:19  ajc
+ * Add a sample URL view command for Macintosh in the included citadel.rc
+
  Revision 601.106  2003/01/13 02:55:07  ajc
  * Do calendar support only if libical header *and* library are present
 
@@ -4364,3 +4367,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
