@@ -100,6 +100,7 @@ and   others<br>
                        
   </tbody>      
 </table>
+</div>
       <br>
            
 <div align="justify">The entire package is open source; you can redistribute
@@ -131,8 +132,9 @@ for more   details.<br>
 <h2 align="center">Table of Contents</h2>
          
 <ol>
-       <li><a href="#GPL">Warranty</a></li>
-       <li><a href="#Installation_Guide">Installation Guide</a></li>
+       <li><a href="#GPL">License</a></li>
+       <li><a href="#Installation">Installation</a></li>
+       <li><a href="#sysop">System Administration</a></li>
        <li> Baz</li>
        <li> Eek</li>
          
@@ -464,7 +466,9 @@ BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.  </p>
            
 <hr width="100%" size="2"><br>
          
-<h2><a name="Installation_Guide"></a>Installation Guide</h2>
+<div align=center>
+<h2><a name="Installation"></a>Installation</h2>
+</div>
        
 <div align="justify">     
 <h3>Overview</h3>
@@ -582,7 +586,8 @@ This is actually very simple to implement; all you need to do is make a simple
 change to your <tt>inetd</tt> or <tt>xinetd</tt> configuration.  Here are
 some configuration examples.</p>
   
-<p>An example for <tt>inetd</tt> (put the following line in <tt>/etc/inetd.conf<tt>, 
+<p>An example for <tt>inetd</tt> (put the following line in
+<tt>/etc/inetd.conf</tt>, 
 replacing any existing telnet configuration line already there):</p>
   
 <pre>
@@ -945,6 +950,455 @@ and the version of the kernel, libc, and pthreads you are using (it would
 help to post the output of a <tt>ldd ./citserver</tt> command). </li>
 </ul>
   </div>
- </div>
+
+
+<div align=center>
+<hr width="100%" size="2">      
+<h2><a name="sysop"></a>System Administration</h2>
+</div>
+
+<div align=justify>
+
+<h3>Overview</h3>
+
+<p>Citadel/UX, when installed properly, will do most of its maintenance by
+itself.  It is intended to be run unattended for extended periods of time, and
+most installations do just that without any software failures.</p>
+
+<p>The system has seven access levels.  Most users are at the bottom and have
+no special privileges. Aides are selected people who have special access within
+the Citadel program.  Room Aides only have this access in a certain room. 
+Preferred users can be selected by Aides for access to preferred only rooms.  A
+sysop is anyone who has access to the various sysop utilities - these are in
+their own executable files, which should have their permissions set to allow
+only sysops to run them.  You should either create a sysops group in
+/etc/group, or use some other existing group for this purpose.</p>
+   
+<p>Aides have access to EVERY room on the system, public and private (all
+types). They also have access to commands starting with
+<TT>.<b>A</b>ide</TT> in addition
+to being able to delete and move messages.  The system room,
+<tt>Aide&gt;</tt>, is accessible only by those users designated as Aides.</p>
+  
+<h3>Aide commands</h3> 
+   
+<p>Aides have the following commands available to them that are not available
+to normal users. They are:</p>
+<TABLE>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide <b>K</b>ill this room
+</TT></TD><TD>
+Deletes the current room from the system.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide <b>E</b>dit this room
+</TT></TD><TD>
+Allows editing of the properties of the current room.  This is explained in
+greater detail below.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide <b>W</b>ho knows room
+</TT></TD><TD>
+For private rooms with access controls, or mailbox rooms, this command displays
+a list of users who have access to the current room.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide edit <b>U</b>ser
+</TT></TD><TD>
+Allows editing of the properties of any user account on the system.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide <b>V</b>alidate new users
+</TT></TD><TD>
+For public access systems, this command reviews all new user registrations
+and allows you to set each new user's access level (or simply delete the
+accounts).
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide enter <b>I</b>nfo file
+</TT></TD><TD>
+Each room may contain a short textual description of its purpose, which is
+displayed to users upon entering the room for the first time (or in the
+room banner, for users of the Web client).  This command allows you to enter
+or edit that description.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide <b>R</b>oom <b>I</b>nvite user
+</TT></TD><TD>
+Access control command to grant any specific user access to a private room.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide <b>R</b>oom <b>K</b>ick out user
+</TT></TD><TD>
+Access control command to revoke any specifc user's access to the current
+room.  This works regardless of whether the room is public or private.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide <b>F</b>ile <b>D</b>elete
+</TT></TD><TD>
+If the current room has an associated file directory, this command may be
+used to delete files from it.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide <b>F</b>ile <b>S</b>end over net
+</TT></TD><TD>
+If the current room has an associated file directory, this command may be
+used to transmit a copy of any file in that directory to another node on a
+Citadel network.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide <b>F</b>ile <b>M</b>ove
+</TT></TD><TD>
+If the current room has an associated file directory, this command may be
+used to move any file in that directory to another room.  The target room
+must also have an associated file directory.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide <b>M</b>essage edit
+</TT></TD><TD>
+This command allows editing of any of the various system banners and messages
+which are displayed to users.  Type the name of the banner or message you
+wish to edit.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide <b>P</b>ost
+</TT></TD><TD>
+This is the functional equivalent of the <TT><b>E</b>nter message</tt> command
+available to all users, except that it allows you to post using any user
+name.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide <b>S</b>ystem configuration <b>G</b>eneral
+</TT></TD><TD>
+This command allows configuration of a large number of global settings for
+your Citadel system.  These settings will be explained in greater detail
+below.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide <b>S</b>ystem configuration <b>I</b>nternet
+</TT></TD><TD>
+This command allows configuration of settings which affect how your Citadel
+system sends and receives messages on the Internet.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide <b>S</b>ystem configuration check <b>M</b>essage base
+</TT></TD><TD>
+Perform a consistency check on your message store.  This is a very
+time-consuming operation which should not be performed unless you have
+reason to believe there is trouble with your database.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide <b>S</b>ystem configuration <b>N</b>etwork
+</TT></TD><TD>
+Configure networking (e-mail, room sharing, etc.) with other Citadel nodes.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide <b>S</b>ystem configuration network <b>F</b>ilter list
+</TT></TD><TD>
+If you are on a large public or semi-public network of Citadel nodes and you
+find content from certain systems or individuals objectionable, you can use
+this command to define a rule set to automatically reject those messages when
+they arrive on your system.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide <b>T</b>erminate server <b>N</b>ow
+</TT></TD><TD>
+Immediately shut down the Citadel service, disconnecting any users who are
+logged in.  Please keep in mind that it will start right back up again if you
+are running the service from <tt>/etc/inittab</tt>, so in practice this command
+will probably not get much use.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide <b>T</b>erminate server <b>S</b>cheduled
+</TT></TD><TD>
+Shut down the Citadel service the next time there are zero users connected.
+This allows you to automatically wait until all users are logged out.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide mailing <b>L</b>ist recipients
+</TT></TD><TD>
+Any room may be made into a mailing list.  Enter this command to open an
+editor window containing the list of Internet e-mail addresses to which every
+message posted in the room will be sent.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide mailing list <b>D</b>igest recipients
+</TT></TD><TD>
+Similar to the regular mailing list command, except the messages will be
+sent out in 'digest' form -- recipients will see messages from the address
+of the room itself rather than the address of the author of each message, and
+a digest may contain more than one message.  Each room may have any combination
+of List and Digest recipients.
+</TD></TR>
+
+<TR><TD WIDTH=30%><TT>
+.<b>A</b>ide <b>N</b>etwork room sharing
+</TT></TD><TD>
+Configures the sharing of the current room's contents with other Citadel
+nodes.  Messages posted in this room on any Citadel system will automatically
+be replicated to other Citadel systems carrying the room.
+</TD></TR>
+
+</TABLE>
+
+<h3>Editing rooms</h3>
+  
+<P>This command allows any aide to change the parameters of a room.  Go to
+the room you wish to edit and enter the
+<TT><B>.A</B>ide <B>E</b>dit room</TT> command.  A series of prompts will
+be displayed.  The existing parameters will be displayed in brackets; simply
+press return if you want to leave any or all of them unchanged.</P>
+
+<PRE> 
+Room name [IG's Fun Room]:
+</PRE>
+ 
+<P>...the name of the room.</P>
+
+<PRE>
+Private room [Yes]? 
+</PRE>
+ 
+<P>...enter Yes if you wish to restrict access to the room, or no if the room
+is to be accessible by all users.  Note that Citadel doesn't bother users
+about access to rooms every time they need to access the room.  Once a user
+gains access to a private room, it then behaves like a public room to them.
+The following four questions will only be asked if you selected Private...</p>
+
+<PRE>
+Accessible by guessing room name [No]?
+</PRE>
+ 
+<P>...if you enter Yes, the room will not show up in users'
+<TT><B>K</B>nown rooms</TT>
+listing, but if they
+<TT><B>.G</B>oto</TT> the room (typing the room's full name), they
+will gain access to the room.</p>
+
+<PRE>
+Accessible by entering a password [No]?
+Room password [mypasswd]:  
+</PRE>
+ 
+<P>...this adds an additional layer of security to the room, prompting users
+for a password before they can gain access to the room.</P>
+ 
+<P>If you did not select guessname or passworded, then the only way users can
+access the room is if an Aide explicitly invites them to the room using the
+<TT><B>.A</B>ide <B>R</B>oom <B>I</B>nvite user</TT> command.</P>
+
+<PRE>
+Cause current users to forget room [No] ? No
+</PRE>
+ 
+<P>Enter Yes if you wish to kick out anyone who currently has access to
+the room.</P>
+
+<PRE>
+Preferred users only [No]? No
+</PRE>
+ 
+<P>Enter Yes if you wish to restrict the room to only users who have level 5
+(Preferred User) status (and Aides too, of course).  You should make the room
+public if you intend to do this, otherwise the two restrictions will be
+COMBINED.</P>
+ 
+<PRE>
+Read-only room [No]? No
+</PRE>
+ 
+<P>If you set a room to Read-Only, then normal users will not be allowed to
+post messages in it.  Messages may only be posted by Aides, and by utility
+programs such as the networker and the "aidepost" utility.  This is useful
+in situations where a room is used exclusively for important announcements,
+or if you've set up a room to receive an Internet mailing list and posting
+wouldn't make sense.  Other uses will, of course, become apparent as the
+need arises.</P>
+
+<P>Now for a few other attributes...</P>
+
+<PRE>
+Directory room [Yes]? Yes
+</PRE>
+ 
+<P>...enter Yes if you wish to associate a directory with this room.  If you
+enter Yes, you will also be prompted with the following four questions:</p>
+
+Directory name [mydirname]: 
+ 
+   ...the name of the subdirectory to put this room's files in.  The name of
+the directory created will be <your BBS directory>/files/<room dir name>.
+    
+Uploading allowed [Yes]? Yes
+ 
+   ...enter Yes if users are allowed to upload to this room.
+
+Downloading allowed [Yes]? Yes
+  
+   ...enter Yes if users are allowed to download from this room.
+
+Visible directory [Yes]? Yes
+  
+   ...enter Yes if users can read the directory of this room.
+
+
+Network shared room [No]? No
+  
+   ...you can share a room over a network without setting this flag, and
+vice versa, but what this flag does is twofold:
+   1. It prevents people with no network access from entering messages here
+   2. Messages are displayed with the name of their originating system in
+      the header.
+
+Permanent room [No]? No
+ 
+   ...the sysop utilities have an option to purge rooms which have not been posted
+in for two weeks.  If you wish to keep this from happening to a particular room, you
+can set this option.  (Keep in mind that Lobby>, Mail>, Aide>, any network rooms, and
+any directory rooms are automatically permanent.)
+
+
+Anonymous messages [No]? No
+Ask users whether to make messages anonymous [No]? No
+  
+   ...you can have rooms in which all messages are automatically anonymous,
+and you can have rooms in which users are prompted whether to make a message
+anonymous when they enter it.
+
+Room aide [Joe Responsible]: 
+ 
+   ...on larger systems, it helps to designate a person to be responsible for
+a room.  Room Aides have access to a restricted set of Aide commands, ONLY
+when they are in the room in which they have this privilege.  They can edit
+the room, delete the room, delete and move messages, and invite or kick out
+users (if it is a private room), but they cannot perform aide commands that
+are not room-related (such as changing users access levels).
+
+Save changes (y/n)? Yes
+  
+    ...this gives you an opportunity to back out, if you feel you really
+messed things up while editing.
+
+
+ 
+   FILE DIRECTORIES 
+ 
+ If you have created any directory rooms, you can attach file descriptions to
+the filenames through a special file called "filedir".  Each line contains
+the name of a file in the directory, followed by a space and then a description
+of the file, such as:
+ 
+ myfile.txt This is a description of my file.
+ phluff A phile phull of phluff!
+ 
+ ...this would create file descriptions for the files 'myfile.txt' and 'phluff'
+which would be displayed along with the directory.  It should also be noted
+that when users upload files to your system, they will be prompted for file
+descriptions, which will be added to the 'filedir' file.  If one does not
+exist, it will be created.
+ 
+ 
+   EDITING USERS
+ 
+   This command allows any aide to change certain parameters of any user's
+account. Entering this command will ask for the name of a user to edit, and
+then prompt with the user's current access level, then ask for the new one.
+  0 - Marked for deletion
+  1 - New unvalidated user
+  2 - Problem user
+  3 - User with no network privileges
+  4 - Normal user
+  5 - Preferred user
+  6 - Aide
+   
+   DELETING AND MOVING MESSAGES
+   
+   Aides have the ability to delete and move messages; however, they must have
+message prompting turned on in order to do this. After each message, the
+normal prompt appears:
+   <A>gain, <N>ext message, <S>top ->
+  Entering <D> will delete the message. A (y/n) prompt will appear to confirm
+that you really want to delete the message.
+  Entering <M> will prompt for a room to move the message to.
+     
+   
+   SYSOP UTILITIES
+   
+   There are a number of utilities which may be accessed from the shell. It
+is up to the system operator to decide which should be "sysop" utilities and
+which should be accessible to all shell users. Please see utils.doc for a
+description of these programs.
+    
+   
+   CUSTOMIZING THE HELP FILES
+ 
+   The subdirectory called "help" contains your system's help files.  There's
+nothing hard-coded into the system that dictates what files should be there.
+Whenever a user types the command "<.H>elp" followed by the name of a help
+file, it displays the contents of that help file.
+ 
+   The help files that come with the system, of course, are enough to guide
+a user through its operation.  But you can add, change, or remove help files
+to suit whatever is appropriate for your system. 
+ 
+   Now for the fun part.  There are several strings that you can put in help
+files that will be automatically substituted with other strings.  They are:
+ 
+ ^nodename    = The node name of your system on a Citadel/UX network
+ ^humannode   = Human-readable node name (also your node name on C86Net)
+ ^fqdn        = Your system's fully-qualified domain name
+ ^username    = The name of the user reading the help file
+ ^usernum     = The user number of the user reading the help file
+ ^sysadm      = The name of the system administraor (i.e., you)
+ ^variantname = The name of the BBS software you're running
+ ^bbsdir      = The directory on the host system in which you have
+                installed the Citadel system.
+ 
+   So, for example, you could create a help file which looked like:
+ 
+  "Lots of help, of course, is available right here on ^humannode.  Of
+course, if you still have trouble, you could always bug ^sysadm about it!"
+   
+        
+   CONCLUSION
+   
+ For more information, visit the Citadel/UX web site at UNCENSORED! BBS
+ http://uncensored.citadel.org
+
+
+
+
+
+
+
+
+
+
+
+
+
+       
 </body>
 </html>
