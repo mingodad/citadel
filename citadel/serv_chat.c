@@ -159,13 +159,14 @@ void do_chat_listing(int allflag)
 {
 	struct CitContext *ccptr;
 	int count = 0;
+	char roomname[ROOMNAMELEN];
 
 	if ((allflag == 0) || (allflag == 1))
 		cprintf(":|\n:| Users currently in chat:\n");
 	begin_critical_section(S_SESSION_TABLE);
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
-		if (!strcasecmp(ccptr->cs_room, "<chat>")) ++count;
-		if ((!strcasecmp(ccptr->cs_room, "<chat>"))
+		if (ccptr->cs_flags & CS_CHAT) ++count;
+		if ((ccptr->cs_flags & CS_CHAT)
 		    && ((ccptr->cs_flags & CS_STEALTH) == 0)) {
 			if ((allflag == 0) || (allflag == 1))
 				cprintf(":| %-25s <%s>\n", (ccptr->fake_username[0]) ? ccptr->fake_username : ccptr->curr_user, ccptr->chat_room);
@@ -175,9 +176,12 @@ void do_chat_listing(int allflag)
 	if (allflag == 1) {
 		cprintf(":|\n:| Users not in chat:\n");
 		for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
-			if ((strcasecmp(ccptr->cs_room, "<chat>"))
+			GenerateRoomDisplay(roomname, ccptr, CC);
+			if (((ccptr->cs_flags & CS_CHAT) == 0)
 			    && ((ccptr->cs_flags & CS_STEALTH) == 0)) {
-				cprintf(":| %-25s <%s>:\n", (ccptr->fake_username[0]) ? ccptr->fake_username : ccptr->curr_user, (ccptr->fake_roomname[0]) ? ccptr->fake_roomname : ccptr->cs_room);
+				cprintf(":| %-25s <%s>:\n",
+					(ccptr->fake_username[0]) ? ccptr->fake_username : ccptr->curr_user,
+					roomname);
 			}
 		}
 	}
@@ -199,7 +203,6 @@ void cmd_chat(char *argbuf)
 	char cmdbuf[256];
 	char *un;
 	char *strptr1;
-	char hold_cs_room[ROOMNAMELEN];
 	int MyLastMsg, ThisLastMsg;
 	struct ChatLine *clptr;
 	struct CitContext *t_context;
@@ -211,9 +214,7 @@ void cmd_chat(char *argbuf)
 	}
 	strcpy(CC->chat_room, "Main room");
 
-	safestrncpy(hold_cs_room, CC->cs_room, sizeof hold_cs_room);
 	CC->cs_flags = CC->cs_flags | CS_CHAT;
-	set_wtmpsupp("<chat>");
 	cprintf("%d Entering chat mode (type '/help' for available commands)\n",
 		START_CHAT_MODE);
 
@@ -258,7 +259,6 @@ void cmd_chat(char *argbuf)
 					sleep(1);
 					cprintf("000\n");
 					CC->cs_flags = CC->cs_flags - CS_CHAT;
-					set_wtmpsupp(hold_cs_room);
 					return;
 				}
 				if ((!strcasecmp(cmdbuf, "/help"))

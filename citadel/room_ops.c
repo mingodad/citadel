@@ -679,7 +679,6 @@ void usergoto(char *where, int display_result)
 			rmailflag, raideflag, newmailcount,
 			CC->quickroom.QRfloor);
 
-	set_wtmpsupp_to_current_room();
 }
 
 

@@ -67,7 +67,6 @@ struct CitContext {
 	int n_crit;		/* number of critical sections open */
 	int client_socket;
 	int cs_pid;		/* session ID */
-	char cs_room[ROOMNAMELEN];	/* current room */
 	time_t cs_lastupdt;	/* time of last update */
 	time_t lastcmd;		/* time of last command executed */
 	time_t lastidle;	/* For computing idle time */

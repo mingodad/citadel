@@ -217,36 +217,6 @@ void CtdlAllocUserData(unsigned long requested_sym, size_t num_bytes)
 
 
 
-/*
- * set_wtmpsupp()  -  alter the session listing
- */
-void set_wtmpsupp(char *newtext)
-{
-	strncpy(CC->cs_room,newtext,sizeof CC->cs_room);
-	CC->cs_room[sizeof CC->cs_room - 1] = 0;
-	time(&CC->cs_lastupdt);
-
-	/* Run any routines registered by loadable modules */
-	PerformSessionHooks(EVT_NEWROOM);
-	}
-
-
-/*
- * call set_wtmpsupp() with the name of the current room, modified a bit...
- */
-void set_wtmpsupp_to_current_room() {
-	if (CC->quickroom.QRflags & QR_PRIVATE) {
-		set_wtmpsupp("<private room>");
-		}
-	else if (CC->quickroom.QRflags & QR_MAILBOX) {
-		set_wtmpsupp(&CC->quickroom.QRname[11]);
-		}
-	else {
-		set_wtmpsupp(CC->quickroom.QRname);
-		}
-	}
-
-
 
 /*
  * cmd_info()  -  tell the client about this server
@@ -441,9 +411,6 @@ void cmd_iden(char *argbuf)
 			}
 		}
 
-	lprintf(9, "Setting wtmpsupp\n");
-	set_wtmpsupp_to_current_room();
-
 	syslog(LOG_NOTICE,"client %d/%d/%01d.%02d (%s)\n",
 		dev_code,
 		cli_code,
@@ -484,7 +451,6 @@ void cmd_stel(char *cmdbuf)
 			CC->cs_flags = CC->cs_flags|CS_STEALTH;
 		}
 
-	set_wtmpsupp_to_current_room();
 	cprintf("%d Ok\n",OK);
 	}
 
@@ -587,6 +553,31 @@ void cmd_emsg(char *mname)
 	}
 
 
+/* Don't show the names of private rooms unless the viewing
+ * user also knows the rooms.
+ */
+void GenerateRoomDisplay(char *real_room,
+			struct CitContext *viewed,
+			struct CitContext *viewer) {
+
+	strcpy(real_room, viewed->quickroom.QRname);
+	if (viewed->quickroom.QRflags & QR_PRIVATE) {
+		if ( (CtdlRoomAccess(&viewed->quickroom, &viewer->usersupp)
+		   & UA_KNOWN) == 0) {
+			strcpy(real_room, "<private room>");
+		}
+	}
+
+	if (viewed->cs_flags & CS_CHAT) {
+		while (strlen(real_room) < 14)
+			strcat(real_room, " ");
+
+		strcpy(&real_room[15], "<chat>");
+	}
+
+}
+
+
 /*
  * who's online
  */
@@ -594,7 +585,9 @@ void cmd_rwho(void) {
 	struct CitContext *cptr;
 	int spoofed = 0;
 	int aide;
-	char un[40], room[40], host[40], flags[5];
+	char un[40];
+	char real_room[ROOMNAMELEN], room[ROOMNAMELEN];
+	char host[40], flags[5];
 	
 	aide = CC->usersupp.axlevel >= 6;
 	cprintf("%d%c \n", LISTING_FOLLOWS, check_express() );
@@ -625,14 +618,15 @@ void cmd_rwho(void) {
 		else
 		   strcpy(host, cptr->cs_host);
 
-		if (cptr->fake_roomname[0])
-		{
-		   strcpy(room, cptr->fake_roomname);
-		   spoofed = 1;
+		GenerateRoomDisplay(real_room, cptr, CC);
+
+		if (cptr->fake_roomname[0]) {
+			strcpy(room, cptr->fake_roomname);
+			spoofed = 1;
 		}
-		else
-		   strcpy(room, cptr->cs_room);
-		   
+		else {
+			strcpy(room, real_room);
+		}
 		
                 if ((aide) && (spoofed))
                    strcat(flags, "+");
@@ -651,7 +645,8 @@ void cmd_rwho(void) {
 		if ((spoofed) && (aide))
 		{
 			cprintf("%d|%s|%s|%s|%s|%ld|%s|%s\n",
-				cptr->cs_pid, cptr->curr_user, cptr->cs_room,
+				cptr->cs_pid, cptr->curr_user,
+				real_room,
 				cptr->cs_host, cptr->cs_clientname,
 				(long)(cptr->lastidle),
 				cptr->lastcmdname, flags);
@@ -831,7 +826,6 @@ void *context_loop(struct CitContext *con)
 	strcpy(CC->curr_user,"(not logged in)");
 	strcpy(CC->net_node,"");
 	snprintf(CC->temp, sizeof CC->temp, tmpnam(NULL));
-	strcpy(CC->cs_room, "(no room)");
 	strncpy(CC->cs_host, config.c_fqdn, sizeof CC->cs_host);
 	CC->cs_host[sizeof CC->cs_host - 1] = 0;
 	len = sizeof sin;

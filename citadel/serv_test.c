@@ -36,8 +36,7 @@ void CleanupTest(void) {
 	}
 
 void NewRoomTest(void) {
-	lprintf(9, "--- test module was told we're now in %s ---\n",
-		CC->cs_room);
+	lprintf(9, "--- test module was told we're now in a new room ---\n");
 	}
 
 void SessionStartTest(void) {

@@ -1,4 +1,8 @@
 $Log$
+Revision 1.388  1999/10/20 03:42:29  ajc
+* In the wholist, only show <private room> if the user viewing the list
+  doesn't know that room.  Otherwise show the name.
+
 Revision 1.387  1999/10/20 02:59:22  ajc
 * Code reorganization.  Making it easier to move/copy messages without
   duplicating existing code.
@@ -1324,4 +1328,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

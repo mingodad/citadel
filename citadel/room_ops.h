@@ -46,3 +46,4 @@ void assoc_file_name(char *buf, struct quickroom *qrbuf, char *prefix);
 void delete_room(struct quickroom *qrbuf);
 void list_roomname(struct quickroom *qrbuf);
 int is_noneditable(struct quickroom *qrbuf);
+int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf);

@@ -28,6 +28,9 @@ void *CtdlGetUserData(unsigned long requested_sym);
 void CtdlAllocUserData(unsigned long requested_sym, size_t num_bytes);
 int CtdlGetDynamicSymbol(void);
 void enter_housekeeping_cmd(char *);
+void GenerateRoomDisplay(char *real_room,
+                        struct CitContext *viewed,
+                        struct CitContext *viewer);
 
 
 extern int do_defrag;
