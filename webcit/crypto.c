@@ -23,12 +23,6 @@
 #define CTDL_CER_PATH		CTDL_CRYPTO_DIR "/citadel.cer"
 #define SIGN_DAYS		365
 
-
-/* Shared Diffie-Hellman parameters */
-#define DH_P		"1A74527AEE4EE2568E85D4FB2E65E18C9394B9C80C42507D7A6A0DBE9A9A54B05A9A96800C34C7AA5297095B69C88901EEFD127F969DCA26A54C0E0B5C5473EBAEB00957D2633ECAE3835775425DE66C0DE6D024DBB17445E06E6B0C78415E589B8814F08531D02FD43778451E7685541079CFFB79EF0D26EFEEBBB69D1E80383"
-#define DH_G		"2"
-#define DH_L		1024
-
 SSL_CTX *ssl_ctx;		/* SSL context */
 pthread_mutex_t **SSLCritters;	/* Things needing locking */
 
@@ -43,7 +37,6 @@ static unsigned long id_callback(void)
 void init_ssl(void)
 {
 	SSL_METHOD *ssl_method;
-	DH *dh;
 	RSA *rsa=NULL;
 	X509_REQ *req = NULL;
 	X509 *cer = NULL;
@@ -86,9 +79,8 @@ void init_ssl(void)
 	 * Initialize SSL transport layer
 	 */
 	SSL_library_init();
-	/* OpenSSL_add_all_algorithms(); */
 	SSL_load_error_strings();
-	ssl_method = SSLv2_server_method();
+	ssl_method = SSLv23_server_method();
 	if (!(ssl_ctx = SSL_CTX_new(ssl_method))) {
 		lprintf(3, "SSL_CTX_new failed: %s\n",
 			ERR_reason_error_string(ERR_get_error()));
@@ -97,33 +89,6 @@ void init_ssl(void)
 
 	CRYPTO_set_locking_callback(ssl_lock);
 	CRYPTO_set_id_callback(id_callback);
-
-	/* Load DH parameters into the context */
-	dh = DH_new();
-	if (!dh) {
-		lprintf(3, "init_ssl() can't allocate a DH object: %s\n",
-			ERR_reason_error_string(ERR_get_error()));
-		SSL_CTX_free(ssl_ctx);
-		ssl_ctx = NULL;
-		return;
-	}
-	if (!(BN_hex2bn(&(dh->p), DH_P))) {
-		lprintf(3, "init_ssl() can't assign DH_P: %s\n",
-			ERR_reason_error_string(ERR_get_error()));
-		SSL_CTX_free(ssl_ctx);
-		ssl_ctx = NULL;
-		return;
-	}
-	if (!(BN_hex2bn(&(dh->g), DH_G))) {
-		lprintf(3, "init_ssl() can't assign DH_G: %s\n",
-			ERR_reason_error_string(ERR_get_error()));
-		SSL_CTX_free(ssl_ctx);
-		ssl_ctx = NULL;
-		return;
-	}
-	dh->length = DH_L;
-	SSL_CTX_set_tmp_dh(ssl_ctx, dh);
-	DH_free(dh);
 
 	/* Get our certificates in order.
 	 * First, create the key/cert directory if it's not there already...
@@ -328,7 +293,6 @@ void init_ssl(void)
 			RSA_free(rsa);
 		}
 	}
-
 
 	/*
 	 * Now try to bind to the key and certificate.
