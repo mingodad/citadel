@@ -156,6 +156,7 @@ whobbs: whobbs.o ipc_c_tcp.o tools.o $(SNPRINTF)
 sendcommand: sendcommand.o ipc_c_tcp.o tools.o $(SNPRINTF)
 	$(CC) sendcommand.o ipc_c_tcp.o tools.o $(SNPRINTF) $(LDFLAGS) \
 	-o sendcommand
+	chmod 700 sendcommand
 
 userlist: userlist.o ipc_c_tcp.o tools.o $(SNPRINTF)
 	$(CC) userlist.o ipc_c_tcp.o tools.o \
