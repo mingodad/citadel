@@ -97,6 +97,7 @@ void ical_write_to_cal(struct usersupp *u, icalcomponent *cal) {
 	char temp[PATH_MAX];
 	FILE *fp;
 	char *ser;
+	icalcomponent *encaps;
 
 	if (cal == NULL) return;
 
@@ -104,10 +105,11 @@ void ical_write_to_cal(struct usersupp *u, icalcomponent *cal) {
 	 * a full VCALENDAR component, and save that instead.
 	 */
 	if (icalcomponent_isa(cal) != ICAL_VCALENDAR_COMPONENT) {
-		ical_write_to_cal(
-			u,
-			ical_encapsulate_subcomponent(cal)
+		encaps = ical_encapsulate_subcomponent(
+			icalcomponent_new_clone(cal)
 		);
+		ical_write_to_cal(u, encaps);
+		icalcomponent_free(encaps);
 		return;
 	}
 

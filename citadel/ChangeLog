@@ -1,4 +1,8 @@
  $Log$
+ Revision 605.16  2003/03/14 05:08:25  ajc
+ * Clone calendar subcomponents before encapsulating in case they already
+   happen to have a parent.
+
  Revision 605.15  2003/03/13 05:48:33  ajc
  * Move towards storing calendar objects as fully encapsulated VCALENDAR
    components instead of just VEVENT subcomponents.
@@ -4545,4 +4549,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
