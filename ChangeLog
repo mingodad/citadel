@@ -1,4 +1,7 @@
 $Log$
+Revision 601.0  2005/02/12 04:23:43  ajc
+* THIS IS 6.01
+
 Revision 528.48  2005/02/11 03:35:57  ajc
 * useredit.c: added an "Delete user" button, because it was unintuitive
   to tell people "Delete a user by setting their access level to 0"
