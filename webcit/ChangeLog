@@ -1,4 +1,7 @@
 $Log$
+Revision 505.5  2004/02/25 23:10:28  ajc
+* Allow "/do_logout" as a no-frames page
+
 Revision 505.4  2004/02/25 23:00:21  ajc
 * Changed the favicon support to LINK tags in the HEAD of static stuff,
   to make life easier.  (Thanks to prosthetik for this)
@@ -1678,3 +1681,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
