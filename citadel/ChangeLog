@@ -1,5 +1,6 @@
 Tue Jan 19 21:28:29 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Fixed a bug in the user editing command (client side)
+	* Started a rewrite of the MIME parser
 
 Thu Jan 14 21:21:15 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Brought over the mime_parser from WebCit and began preliminary work

@@ -346,59 +346,6 @@ void part_handler(char *name, char *filename, char *encoding,
 
 
 
-/*
- * Feed MIME-encoded stuff to the mime_parser
- */
-void output_mime_parts(char *msg) {
-	char content_type[256];
-	int content_length = (-1);
-	char buf[256];
-	CIT_UBYTE rch;
-	char *mptr, *meas;
-	int i;
-
-	strcpy(content_type, "");
-	mptr = msg;
-
-	while(1) {
-		buf[0] = 0;
-		do {
-			do {
-				buf[strlen(buf)+1] = 0;
-				rch = *mptr++;
-				if (strlen(buf)<((sizeof buf)-1))
-					buf[strlen(buf)] = rch;
-				} while ( (rch > 0) && (rch != 10) );
-			if (buf[strlen(buf)-1]==10) {
-				buf[strlen(buf)-1] = 0;
-				}
-			else {
-				return;
-				}
-			if (buf[strlen(buf)-1]==13) buf[strlen(buf)-1]=0;
-			} while (buf[strlen(buf)-1]==';');
-		for (i=0; i<strlen(buf); ++i) if (isspace(buf[i])) buf[i]=' ';
-		if (!strncasecmp(buf, "Content-type: ", 14))
-			strcpy(content_type, &buf[14]);
-		if (!strncasecmp(buf, "Content-length: ", 16))
-			content_length = atoi(&buf[16]);
-		if (strlen(buf)==0) {
-			if (content_length < 0) {
-				content_length = 0;
-				meas = mptr;
-				while (*mptr++ != 0) ++content_length;
-				}
-			cprintf("mime=type=%s\n", content_type);
-			cprintf("mime=len=%d\n", content_length);
-			mime_parser(mptr, content_length, content_type,
-					*part_handler);
-			return;
-			}
-		}
-	}
-
-
-
 
 /*
  * Get a message off disk.  (return value is the message's timestamp)
@@ -604,7 +551,7 @@ time_t output_message(char *msgid, int mode, int headers_only) {
 
 	/* do some sort of MIME output */
 	if ( (mode == MT_MIME) && (format_type == 4) ) {
-		output_mime_parts(mptr);
+		mime_parser(mptr, *part_handler);
 		cprintf("000\n");
 		cdb_free(dmsgtext);
 		return(xtime);

@@ -2,9 +2,7 @@
  * mime_parser.c
  *
  * This is a really bad attempt at writing a parser to handle MIME-encoded
- * data, including multipart messages.  In the case of WebCit, the input data
- * might be a form containing uploaded files.  In the Citadel server, the data
- * is more likely to be an actual MIME-encoded message.
+ * messages.
  *
  * Copyright (c) 1998-1999 by Art Cancro
  * This code is distributed under the terms of the GNU General Public License.
@@ -41,117 +39,46 @@ void extract_key(char *target, char *source, char *key) {
 
 
 
-/*
- * The very back end for the component handler
- * (This function expects to be fed CONTENT ONLY, no headers)
- */
-void do_something_with_it(char *content,
-		int length,
-		char *content_type,
-		char *content_disposition,
-		void (*CallBack)
-			(char *cbname,
-			char *cbfilename,
-			char *cbencoding,
-			void *cbcontent,
-			char *cbtype,
-			size_t cblength)
-		) {
-	char name[256];
-	char filename[256];
-
-	extract_key(name, content_disposition, " name");
-	extract_key(filename, content_disposition, "filename");
-
-	/* Nested multipart gets recursively fed back into the parser */
-	if (!strncasecmp(content_type, "multipart", 9)) {
-		mime_parser(content, length, content_type, CallBack);
-		}
-
-	/**** OTHERWISE, HERE'S WHERE WE HANDLE THE STUFF!! *****/
+	/**** OTHERWISE, HERE'S WHERE WE HANDLE THE STUFF!! *****
 
 	CallBack(name, filename, "", content, content_type, length);
 
-	/**** END OF STUFF-HANDLER ****/
-
-	}
+	**** END OF STUFF-HANDLER ****/
 
 
-/*
- * Take a part, figure out its length, and do something with it
- * (This function expects to be fed HEADERS+CONTENT)
+/* 
+ * Utility function to "readline" from memory
+ * (returns new pointer)
  */
-void handle_part(char *content,
-		int part_length,
-		char *supplied_content_type,
-		void (*CallBack)
-			(char *cbname,
-			char *cbfilename,
-			char *cbencoding,
-			void *cbcontent,
-			char *cbtype,
-			size_t cblength)
-		) {
-	char content_type[256];
-	char content_disposition[256];
-	char *start;
-	char buf[512];
-	int crlf = 0;	/* set to 1 for crlf-style newlines */
-	int actual_length;
+char *memreadline(char *start, char *buf, int maxlen) {
+	char ch;
+	char *ptr;
 
-	strcpy(content_type, supplied_content_type);
+	ptr = start;
+	bzero(buf, maxlen);
 
-	/* Strip off any leading blank lines. */
-	start = content;
-	while ((!strncmp(start, "\r", 1)) || (!strncmp(start, "\n", 1))) {
-		++start;
-		--part_length;
-		}
-
-	/* At this point all we have left is the headers and the content. */
-	do {
-		strcpy(buf, "");
-		do {
+	while(1) {
+		ch = *ptr++;
+		if ((ch==10)||(ch==0)) {
+			if (strlen(buf)>0)
+				if (buf[strlen(buf)-1]==13)
+					buf[strlen(buf)-1] = 0;
+			return ptr;
+			}
+		if (strlen(buf) < (maxlen-1)) {
 			buf[strlen(buf)+1] = 0;
-			if (strlen(buf)<((sizeof buf)-1)) {
-				strncpy(&buf[strlen(buf)], start, 1);
-				}
-			++start;
-			--part_length;
-			} while((buf[strlen(buf)-1] != 10) && (part_length>0));
-		if (part_length <= 0) return;
-		buf[strlen(buf)-1] = 0;
-		if (buf[strlen(buf)-1]==13) {
-			buf[strlen(buf)-1] = 0;
-			crlf = 1;
+			buf[strlen(buf)] = ch;
 			}
-		if (!strncasecmp(buf, "Content-type: ", 14)) {
-			strcpy(content_type, &buf[14]);
-			}
-		if (!strncasecmp(buf, "Content-disposition: ", 21)) {
-			strcpy(content_disposition, &buf[21]);
-			}
-		} while (strlen(buf)>0);
-	
-	if (crlf) actual_length = part_length - 2;
-	else actual_length = part_length - 1;
-
-	/* Now that we've got this component isolated, what to do with it? */
-	do_something_with_it(start, actual_length,
-			content_type, content_disposition, CallBack);
-
+		}
 	}
 
-	
+
+
 /*
  * Break out the components of a multipart message
- * (This function expects to be fed CONTENT ONLY, no headers)
+ * (This function expects to be fed HEADERS + CONTENT)
  */
-
-
 void mime_parser(char *content,
-		int ContentLength,
-		char *ContentType,
 		void (*CallBack)
 			(char *cbname,
 			char *cbfilename,
@@ -160,84 +87,55 @@ void mime_parser(char *content,
 			char *cbtype,
 			size_t cblength)
 		) {
-	char boundary[256];
-	char endary[256];
-	int have_boundary = 0;
-	int a;
+
 	char *ptr;
-	char *beginning;
-	int bytes_processed = 0;
-	int part_length;
-
-	/* If it's not multipart, don't process it as multipart */
-	if (strncasecmp(ContentType, "multipart", 9)) {
-		do_something_with_it(content, ContentLength,
-				ContentType, "", CallBack);
-		return;
-		}
-
-	/* Figure out what the boundary is */
-	strcpy(boundary, ContentType);
-	for (a=0; a<strlen(boundary); ++a) {
-		if (!strncasecmp(&boundary[a], "boundary=", 9)) {
-			boundary[0]='-';
-			boundary[1]='-';
-			strcpy(&boundary[2], &boundary[a+9]);
-			have_boundary = 1;
-			a = 0;
-			}
-		if ((boundary[a]==13) || (boundary[a]==10)) {
-			boundary[a] = 0;
-			}
-		}
-	if (boundary[2]==34) {
-		strcpy(&boundary[2], &boundary[3]);
-		for (a=2; a<strlen(boundary); ++a)
-			if (boundary[a]==34) boundary[a]=0;
-		}
-
-	/* We can't process multipart messages without a boundary. */
-	if (have_boundary == 0) return;
-	strcpy(endary, boundary);
-	strcat(endary, "--");
-	fprintf(stderr, "BOUNDARY: %s\n", boundary);
+	char *part_start, *part_end;
+	char buf[256];
+	char header[256];
+	char boundary[256];
+	char content_type[256];
+	char encoding[256];
+	int content_length;
+	int i;
 
 	ptr = content;
+	bzero(boundary, sizeof boundary);
+	bzero(content_type, sizeof content_type);
+	bzero(encoding, sizeof encoding);
+	content_length = 0;
 
-	/* Seek to the beginning of the next boundary */
-	while (bytes_processed < ContentLength) {
-	      /* && (strncasecmp(ptr, boundary, strlen(boundary))) ) { */
-
-		if (strncasecmp(ptr, boundary, strlen(boundary))) {
-			++ptr;
-			++bytes_processed;
+	/* Learn interesting things from the headers */
+	strcpy(header, "");
+	do {
+		ptr = memreadline(ptr, buf, sizeof buf);
+		for (i=0; i<strlen(buf); ++i)
+			if (isspace(buf[i])) buf[i]=' ';
+		if (!isspace(buf[0])) {
+			if (!strncasecmp(header, "Content-type: ", 14))
+				strcpy(content_type, &header[14]);
+			if (!strncasecmp(header, "Content-length: ", 16))
+				content_length = atoi(&header[16]);
+			if (!strncasecmp(header,
+				"Content-transfer-encoding: ", 27))
+					strcpy(encoding, &header[27]);
+			if (strlen(boundary)==0)
+				extract_key(boundary, header, "boundary");
+			strcpy(header, "");
 			}
+		if ((strlen(header)+strlen(buf)+2)<sizeof(header))
+			strcat(header, buf);
+		} while ((strlen(buf) > 0) && (*ptr != 0));
 
-		/* See if we're at the end */
-		if (!strncasecmp(ptr, endary, strlen(endary))) {
-			return;
-			}
+	cprintf("Content type is <%s>\n", content_type);
+	cprintf("Encoding is <%s>\n", encoding);
+	cprintf("Content length is %d\n", content_length);
+	cprintf("Boundary is <%s>\n", boundary);
 
-		/* Seek to the end of the boundary string */
-		if (!strncasecmp(ptr, boundary, strlen(boundary))) {
-			fprintf(stderr, "FOUNDA BOUNDA\n");
-			while ( (bytes_processed < ContentLength)
-	      		      && (strncasecmp(ptr, "\n", 1)) ) {
-				++ptr;
-				++bytes_processed;
-				}
-			beginning = ptr;
-			part_length = 0;
-			while ( (bytes_processed < ContentLength)
-	      		  && (strncasecmp(ptr, boundary, strlen(boundary))) ) {
-				++ptr;
-				++bytes_processed;
-				++part_length;
-				}
-			handle_part(beginning, part_length, "", CallBack);
-			/* Back off so we can see the next boundary */
-			--ptr;
-			--bytes_processed;
-			}
+	if (*ptr == 0) return; /* premature end of message */
+
+	/* If this is a multipart message, then recursively process it */
+	if (strlen(boundary)>0) {
 		}
+	
+
 	}
