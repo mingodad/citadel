@@ -14,6 +14,7 @@
 
 #include "citclient.hpp"
 #include "userlogin.hpp"
+#include "testwindow.hpp"
 
 // ----------------------------------------------------------------------------
 // private classes
@@ -44,8 +45,8 @@ public:
 	void OnAbout(wxCommandEvent& event);
 	void OnDoCmd(wxCommandEvent& event);
 	void OnConnect(wxCommandEvent& event);
-
 private:
+	void OnWindowMenu(wxCommandEvent& cmd);
 	wxButton *do_cmd;
 	// any class wishing to process wxWindows events must use this macro
 	DECLARE_EVENT_TABLE()
@@ -62,6 +63,11 @@ enum
 	IG_About,
 	IG_Text,
 	MENU_CONNECT,
+	WMENU_CASCADE,
+	WMENU_TILE,
+	WMENU_ARRANGE,
+	WMENU_NEXT,
+	WMENU_PREVIOUS,
 	BUTTON_DO_CMD
 };
 
@@ -76,6 +82,11 @@ BEGIN_EVENT_TABLE(	MyFrame, wxMDIParentFrame)
 	EVT_MENU(	IG_Quit,		MyFrame::OnQuit)
 	EVT_MENU(	IG_About,		MyFrame::OnAbout)
 	EVT_MENU(	MENU_CONNECT,		MyFrame::OnConnect)
+	EVT_MENU(	WMENU_CASCADE,		MyFrame::OnWindowMenu)
+	EVT_MENU(	WMENU_TILE,		MyFrame::OnWindowMenu)
+	EVT_MENU(	WMENU_ARRANGE,		MyFrame::OnWindowMenu)
+	EVT_MENU(	WMENU_NEXT,		MyFrame::OnWindowMenu)
+	EVT_MENU(	WMENU_PREVIOUS,		MyFrame::OnWindowMenu)
 	EVT_BUTTON(	BUTTON_DO_CMD,		MyFrame::OnDoCmd)
 END_EVENT_TABLE()
 
@@ -137,12 +148,20 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	menuFile->AppendSeparator(); 
 	menuFile->Append(IG_Quit, "E&xit");
 
+	wxMenu *menuWindow = new wxMenu;
+	menuWindow->Append(WMENU_CASCADE, "&Cascade");
+	menuWindow->Append(WMENU_TILE, "&Tile");
+	menuWindow->Append(WMENU_ARRANGE, "&Arrange icons");
+	menuWindow->Append(WMENU_NEXT, "&Next window");
+	menuWindow->Append(WMENU_PREVIOUS, "&Previous window");
+
 	wxMenu *menuHelp = new wxMenu;
 	menuHelp->Append(IG_About, "&About...");
 
 	// now append the freshly created menu to the menu bar...
 	wxMenuBar *menuBar = new wxMenuBar;
 	menuBar->Append(menuFile, "&File");
+	menuBar->Append(menuWindow, "&Window");
 	menuBar->Append(menuHelp, "&Help");
 
 	// ... and attach this menu bar to the frame
@@ -164,6 +183,21 @@ void MyFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 	// TRUE is to force the frame to close
 	Close(TRUE);
 }
+
+
+// Window menu handler
+void MyFrame::OnWindowMenu(wxCommandEvent& cmd) {
+	int id;
+	
+	id = cmd.GetId();
+	if (id == WMENU_CASCADE)		Cascade();
+	else if (id == WMENU_TILE)		Tile();
+	else if (id = WMENU_ARRANGE)		ArrangeIcons();
+	else if (id == WMENU_NEXT)		ActivateNext();
+	else if (id == WMENU_PREVIOUS)		ActivatePrevious();
+}
+
+
 
 void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
 {
@@ -191,6 +225,7 @@ void MyFrame::OnConnect(wxCommandEvent& unused) {
 		if (retval == 0) {
     			SetStatusText("** connected **");
 			new UserLogin(citadel, this);
+			new TestWindow(citadel, this);
 		} else {
 			wxMessageBox("Could not connect to server.", "Error");
 		}

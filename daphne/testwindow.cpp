@@ -5,13 +5,11 @@
 
 #include <wx/wx.h>
 #include "citclient.hpp"
-#include "userlogin.hpp"
+#include "testwindow.hpp"
 
 // ----------------------------------------------------------------------------
 // private classes
 // ----------------------------------------------------------------------------
-
-// userlogin is the frame for logging in.
 
 // ----------------------------------------------------------------------------
 // constants
@@ -20,9 +18,8 @@
 // IDs for the controls and the menu commands
 enum
 {
-	BUTTON_LOGIN,
-	BUTTON_NEWUSER,
-	BUTTON_EXIT
+	BUTTON_SENDCMD,
+	BUTTON_CLOSE
 };
 
 // ----------------------------------------------------------------------------
@@ -32,8 +29,9 @@ enum
 // the event tables connect the wxWindows events with the functions (event
 // handlers) which process them. It can be also done at run-time, but for the
 // simple menu events like this the static method is much simpler.
-BEGIN_EVENT_TABLE(	UserLogin, wxMDIChildFrame)
-	EVT_BUTTON(	BUTTON_LOGIN,		UserLogin::OnButtonPressed)
+BEGIN_EVENT_TABLE(	TestWindow, wxMDIChildFrame)
+	EVT_BUTTON(	BUTTON_SENDCMD,		TestWindow::OnButtonPressed)
+	EVT_BUTTON(	BUTTON_CLOSE,		TestWindow::OnButtonPressed)
 END_EVENT_TABLE()
 
 // ============================================================================
@@ -46,22 +44,24 @@ END_EVENT_TABLE()
 // ----------------------------------------------------------------------------
 
 // frame constructor
-UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
+TestWindow::TestWindow(CitClient *sock, wxMDIParentFrame *MyMDI)
        : wxMDIChildFrame(MyMDI,	//parent
 			-1,	//window id
-			"Please log in",
+			"Test Window",
 			wxDefaultPosition,
 			wxDefaultSize,
 			wxDEFAULT_FRAME_STYLE,
-			"UserLogin"
+			"TestWindow"
 			) {
+
+	citsock = sock;
 
 	// set the frame icon
 	/* SetIcon(wxICON(mondrian)); */
 
 	panel = new wxPanel(this);
 
-	username = new wxTextCtrl(
+	sendcmd = new wxTextCtrl(
 		panel,
 		-1,
 		"",
@@ -72,7 +72,7 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 		"sendcmd"
 		);
 
-	password = new wxTextCtrl(
+	recvcmd = new wxTextCtrl(
 		panel,
 		-1,
 		"",
@@ -83,37 +83,26 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 		"sendcmd"
 		);
 
-	login_button = new wxButton(
+	cmd_button = new wxButton(
 		panel,
-		BUTTON_LOGIN,
-		"Login",
+		BUTTON_SENDCMD,
+		"Send command",
 		wxPoint(10,300),
 		wxSize(100,30),
 		0L,
 		wxDefaultValidator,
-		"login_button"
+		"cmd_button"
 		);
 
-	newuser_button = new wxButton(
+	close_button = new wxButton(
 		panel,
-		BUTTON_NEWUSER,
-		"New user",
-		wxPoint(120,300),
+		BUTTON_CLOSE,
+		"Close",
+		wxPoint(100,300),
 		wxSize(100,30),
 		0L,
 		wxDefaultValidator,
-		"newuser_button"
-		);
-
-	exit_button = new wxButton(
-		panel,
-		BUTTON_EXIT,
-		"Exit",
-		wxPoint(230,300),
-		wxSize(100,30),
-		0L,
-		wxDefaultValidator,
-		"exit_button"
+		"close_button"
 		);
 
 	Show(TRUE);
@@ -121,8 +110,17 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 
 
 
-void UserLogin::OnButtonPressed(wxCommandEvent& whichbutton) {
-	if (whichbutton.GetId() == BUTTON_EXIT) {
+void TestWindow::OnButtonPressed(wxCommandEvent& whichbutton) {
+	wxString sendbuf = "";
+	wxString recvbuf = "";
+
+	if (whichbutton.GetId()==BUTTON_CLOSE) {
 		delete this;
+	}
+	else if (whichbutton.GetId()==BUTTON_SENDCMD) {
+		sendbuf = sendcmd->GetValue();
+		recvcmd->Clear();
+		citsock->serv_trans(sendbuf, recvbuf);
+		recvcmd->SetValue(recvbuf);
 	}
 }
