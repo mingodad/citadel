@@ -1,4 +1,7 @@
 $Log$
+Revision 410.3  2003/03/13 05:57:17  ajc
+* More encapsulation.  Warning: there are bugs in this!!
+
 Revision 410.2  2003/03/13 05:20:23  ajc
 * Various changes to the calendar service to handle messages containing
   fully encapsulated VCALENDAR components instead of only unencapsulated
@@ -1285,3 +1288,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

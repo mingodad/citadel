@@ -405,12 +405,11 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 /*
  * Save an edited event
  * 
- * ok
  */
 void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 	char buf[SIZ];
 	icalproperty *prop;
-	icalcomponent *vevent;
+	icalcomponent *vevent, *encaps;
 	int created_new_vevent = 0;
 	int all_day_event = 0;
 	struct icaltimetype event_start;
@@ -647,13 +646,20 @@ STARTOVER:
 		/*
 		 * Serialize it and save it to the message base
 		 */
-		serv_puts("ENT0 1|||4");
-		serv_gets(buf);
-		if (buf[0] == '4') {
-			serv_puts("Content-type: text/calendar");
-			serv_puts("");
-			serv_puts(icalcomponent_as_ical_string(vevent));
-			serv_puts("000");
+		encaps = ical_encapsulate_subcomponent(vevent);
+		if (encaps != NULL) {
+			serv_puts("ENT0 1|||4");
+			serv_gets(buf);
+			if (buf[0] == '4') {
+				serv_puts("Content-type: text/calendar");
+				serv_puts("");
+				serv_puts(icalcomponent_as_ical_string(encaps));
+				serv_puts("000");
+			}
+			if (encaps != vevent) {
+				icalcomponent_remove_component(encaps, vevent);
+				icalcomponent_free(encaps);
+			}
 		}
 	}
 

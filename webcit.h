@@ -16,6 +16,7 @@
 #endif
 
 #define CALENDAR_ROOM_NAME	"Calendar"
+#define PRODID "-//Citadel//NONSGML Citadel Calendar//EN"
 
 #define SIZ			4096		/* generic buffer size */
 
@@ -382,6 +383,7 @@ void respond_to_request(void);
 void handle_rsvp(void);
 void ical_dezonify(icalcomponent *cal);
 void partstat_as_string(char *buf, icalproperty *attendee);
+icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp);
 #endif
 
 extern char *months[];
