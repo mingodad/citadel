@@ -263,7 +263,7 @@ void cmd_netf(char *cmdbuf)
 	}
 	snprintf(buf, sizeof buf, "sysop@%s", destsys);
 	e = alias(buf);
-	if (e != MES_BINARY) {
+	if (e != MES_IGNET) {
 		cprintf("%d No such system: '%s'\n",
 			ERROR + NO_SUCH_SYSTEM, destsys);
 		return;

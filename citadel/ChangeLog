@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.73  2001/11/13 22:05:23  ajc
+ * Re-introduced the ability to enter IGnet mail into the system.
+
  Revision 580.72  2001/10/29 22:59:22  ajc
  * Renamed "SuppMsgInfo" to "MetaData" because that's what it is
 
@@ -2849,4 +2852,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

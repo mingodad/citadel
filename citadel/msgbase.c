@@ -121,16 +121,24 @@ void remove_any_whitespace_to_the_left_or_right_of_at_symbol(char *name)
 int alias(char *name)
 {				/* process alias and routing info for mail */
 	FILE *fp;
-	int a, b;
-	char aaa[300], bbb[300];
+	int a, i;
+	char aaa[SIZ], bbb[SIZ];
+	char *ignetcfg = NULL;
+	char *ignetmap = NULL;
+	int at = 0;
+	char node[SIZ];
+	char testnode[SIZ];
+	char buf[SIZ];
 
 	remove_any_whitespace_to_the_left_or_right_of_at_symbol(name);
 
 	fp = fopen("network/mail.aliases", "r");
-	if (fp == NULL)
+	if (fp == NULL) {
 		fp = fopen("/dev/null", "r");
-	if (fp == NULL)
+	}
+	if (fp == NULL) {
 		return (MES_ERROR);
+	}
 	strcpy(aaa, "");
 	strcpy(bbb, "");
 	while (fgets(aaa, sizeof aaa, fp) != NULL) {
@@ -161,76 +169,53 @@ int alias(char *name)
 	}
 
 	/* determine local or remote type, see citadel.h */
-	for (a = 0; a < strlen(name); ++a)
-		if (name[a] == '!')
-			return (MES_INTERNET);
-	for (a = 0; a < strlen(name); ++a)
-		if (name[a] == '@')
-			for (b = a; b < strlen(name); ++b)
-				if (name[b] == '.')
-					return (MES_INTERNET);
-	b = 0;
-	for (a = 0; a < strlen(name); ++a)
-		if (name[a] == '@')
-			++b;
-	if (b > 1) {
-		lprintf(7, "Too many @'s in address\n");
-		return (MES_ERROR);
+
+	at = haschar(name, '@');
+	if (at == 0) return(MES_LOCAL);		/* no @'s - local address */
+	if (at > 1) return(MES_ERROR);		/* >1 @'s - invalid address */
+	remove_any_whitespace_to_the_left_or_right_of_at_symbol(name);
+
+	/* figure out the delivery mode */
+
+	extract_token(node, name, 1, '@');
+
+	/* If there are one or more dots in the nodename, we assume that it
+	 * is an FQDN and will attempt SMTP delivery to the Internet.
+	 */
+	if (haschar(node, '.') > 0) {
+		return(MES_INTERNET);
 	}
-	if (b == 1) {
-		for (a = 0; a < strlen(name); ++a)
-			if (name[a] == '@')
-				strcpy(bbb, &name[a + 1]);
-		while (bbb[0] == 32)
-			strcpy(bbb, &bbb[1]);
-		fp = fopen("network/mail.sysinfo", "r");
-		if (fp == NULL)
-			return (MES_ERROR);    
-GETSN:		do {
-			a = getstring(fp, aaa);
-		} while ((a >= 0) && (strcasecmp(aaa, bbb)));
-		a = getstring(fp, aaa);
-		if (!strncmp(aaa, "use ", 4)) {
-			strcpy(bbb, &aaa[4]);
-			fseek(fp, 0L, 0);
-			goto GETSN;
+
+	/* Otherwise we look in the IGnet maps for a valid Citadel node.
+	 * Try directly-connected nodes first...
+	 */
+	ignetcfg = CtdlGetSysConfig(IGNETCFG);
+	for (i=0; i<num_tokens(ignetcfg, '\n'); ++i) {
+		extract_token(buf, ignetcfg, i, '\n');
+		extract_token(testnode, buf, 0, '|');
+		if (!strcasecmp(node, testnode)) {
+			phree(ignetcfg);
+			return(MES_IGNET);
 		}
-		fclose(fp);
-		if (!strncmp(aaa, "uum", 3)) {
-			strcpy(bbb, name);
-			for (a = 0; a < strlen(bbb); ++a) {
-				if (bbb[a] == '@')
-					bbb[a] = 0;
-				if (bbb[a] == ' ')
-					bbb[a] = '_';
-			}
-			while (bbb[strlen(bbb) - 1] == '_')
-				bbb[strlen(bbb) - 1] = 0;
-			sprintf(name, &aaa[4], bbb);
-			lprintf(9, "returning MES_INTERNET\n");
-			return (MES_INTERNET);
-		}
-		if (!strncmp(aaa, "bin", 3)) {
-			strcpy(aaa, name);
-			strcpy(bbb, name);
-			while (aaa[strlen(aaa) - 1] != '@')
-				aaa[strlen(aaa) - 1] = 0;
-			aaa[strlen(aaa) - 1] = 0;
-			while (aaa[strlen(aaa) - 1] == ' ')
-				aaa[strlen(aaa) - 1] = 0;
-			while (bbb[0] != '@')
-				strcpy(bbb, &bbb[1]);
-			strcpy(bbb, &bbb[1]);
-			while (bbb[0] == ' ')
-				strcpy(bbb, &bbb[1]);
-			sprintf(name, "%s @%s", aaa, bbb);
-			lprintf(9, "returning MES_BINARY\n");
-			return (MES_BINARY);
-		}
-		return (MES_ERROR);
 	}
-	lprintf(9, "returning MES_LOCAL\n");
-	return (MES_LOCAL);
+	phree(ignetcfg);
+
+	/*
+	 * Then try nodes that are two or more hops away.
+	 */
+	ignetmap = CtdlGetSysConfig(IGNETMAP);
+	for (i=0; i<num_tokens(ignetmap, '\n'); ++i) {
+		extract_token(buf, ignetmap, i, '\n');
+		extract_token(testnode, buf, 0, '|');
+		if (!strcasecmp(node, testnode)) {
+			phree(ignetmap);
+			return(MES_IGNET);
+		}
+	}
+	phree(ignetmap);
+
+	/* If we get to this point it's an invalid node name */
+	return (MES_ERROR);
 }
 
 
@@ -1828,7 +1813,7 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	if (ReplicationChecks(msg) > 0) return(-1);
 
 	/* Network mail - send a copy to the network program. */
-	if ((strlen(recipient) > 0) && (mailtype == MES_BINARY)) {
+	if ((strlen(recipient) > 0) && (mailtype == MES_IGNET)) {
 		lprintf(9, "Sending network spool\n");
 		sprintf(aaa, "./network/spoolin/netmail.%04lx.%04x.%04x",
 			(long) getpid(), CC->cs_pid, ++seqnum);
@@ -2069,8 +2054,8 @@ static struct CtdlMessage *make_message(
 	/* Don't confuse the poor folks if it's not routed mail. */
 	strcpy(dest_node, "");
 
-	/* If net_type is MES_BINARY, split out the destination node. */
-	if (net_type == MES_BINARY) {
+	/* If net_type is MES_IGNET, split out the destination node. */
+	if (net_type == MES_IGNET) {
 		strcpy(dest_node, NODENAME);
 		for (a = 0; a < strlen(recipient); ++a) {
 			if (recipient[a] == '@') {
