@@ -18,7 +18,7 @@
 #endif
 #include <sys/types.h>
 #include <dirent.h>
-#include <strings.h>
+#include <string.h>
 #include <syslog.h>
 #include <limits.h>
 #include <ctype.h>
@@ -250,7 +250,7 @@ void CtdlRegisterServiceHook(int tcp_port,
 
 	if (sockpath != NULL) {
 		newfcn->msock = ig_uds_server(sockpath, config.c_maxsessions);
-		sprintf(message, "Unix domain socket %s: ", sockpath);
+		sprintf(message, "Unix domain socket '%s': ", sockpath);
 	}
 	else if (tcp_port <= 0) {	/* port -1 to disable */
 		lprintf(7, "Service has been manually disabled, skipping\n");

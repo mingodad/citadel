@@ -268,6 +268,10 @@ int ig_tcp_server(int port_number, int queue_len)
 {
 	struct sockaddr_in sin;
 	int s, i;
+	int actual_queue_len;
+
+	actual_queue_len = queue_len;
+	if (actual_queue_len < 5) actual_queue_len = 5;
 
 	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = AF_INET;
@@ -293,7 +297,7 @@ int ig_tcp_server(int port_number, int queue_len)
 		return(-1);
 	}
 
-	if (listen(s, queue_len) < 0) {
+	if (listen(s, actual_queue_len) < 0) {
 		lprintf(1, "citserver: Can't listen: %s\n", strerror(errno));
 		close(s);
 		return(-1);
@@ -312,6 +316,10 @@ int ig_uds_server(char *sockpath, int queue_len)
 	struct sockaddr_un addr;
 	int s;
 	int i;
+	int actual_queue_len;
+
+	actual_queue_len = queue_len;
+	if (actual_queue_len < 5) actual_queue_len = 5;
 
 	i = unlink(sockpath);
 	if (i != 0) if (errno != ENOENT) {
@@ -337,7 +345,7 @@ int ig_uds_server(char *sockpath, int queue_len)
 		return(-1);
 	}
 
-	if (listen(s, queue_len) < 0) {
+	if (listen(s, actual_queue_len) < 0) {
 		lprintf(1, "citserver: Can't listen: %s\n", strerror(errno));
 		return(-1);
 	}
@@ -803,6 +811,7 @@ void init_master_fdset(void) {
 
 	FD_ZERO(&masterfds);
 	masterhighest = 0;
+
 	lprintf(9, "Will listen on rescan pipe %d\n", rescan[0]);
 	FD_SET(rescan[0], &masterfds);
 	if (rescan[0] > masterhighest) masterhighest = rescan[0];
@@ -911,13 +920,17 @@ int main(int argc, char **argv)
 	master_startup();
 
 	/*
-	 * Bind the server to our favorite ports.
+	 * Bind the server to a Unix-domain socket.
 	 */
-	CtdlRegisterServiceHook(0,				/* Unix */
+	CtdlRegisterServiceHook(0,
 				"citadel.socket",
 				citproto_begin_session,
 				do_command_loop);
-	CtdlRegisterServiceHook(config.c_port_number,		/* TCP */
+
+	/*
+	 * Bind the server to our favorite TCP port (usually 504).
+	 */
+	CtdlRegisterServiceHook(config.c_port_number,
 				NULL,
 				citproto_begin_session,
 				do_command_loop);
@@ -1041,7 +1054,7 @@ void worker_thread(void) {
 		 */
 
 		begin_critical_section(S_I_WANNA_SELECT);
-SETUP_FD:	memcpy(&readfds, &masterfds, sizeof(fd_set) );
+SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 		highest = masterhighest;
 		begin_critical_section(S_SESSION_TABLE);
 		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
