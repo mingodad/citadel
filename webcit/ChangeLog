@@ -1,4 +1,7 @@
 $Log$
+Revision 322.2  2002/01/03 22:32:38  ajc
+* templatized the "prompt for recipient" screen
+
 Revision 322.1  2001/12/28 09:43:05  error
 * Client support for hostnames up to 63 characters
 
@@ -701,4 +704,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
