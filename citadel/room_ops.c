@@ -26,6 +26,8 @@
 #include "control.h"
 #include "tools.h"
 
+struct floor *floorcache[MAXFLOORS];
+
 /*
  * Generic routine for determining user access to rooms
  */
@@ -279,12 +281,34 @@ void lgetfloor(struct floor *flbuf, int floor_num)
 
 
 /*
+ * cgetfloor()  -  Get floor record from *cache* (loads from disk if needed)
+ *    
+ * This is strictly a performance hack.
+ */
+struct floor *cgetfloor(int floor_num) {
+	
+	if (floorcache[floor_num] == NULL) {
+		floorcache[floor_num] = mallok(sizeof(struct floor));
+		getfloor(floorcache[floor_num], floor_num);
+	}
+
+	return(floorcache[floor_num]);
+}
+
+
+
+/*
  * putfloor()  -  store floor data on disk
  */
 void putfloor(struct floor *flbuf, int floor_num)
 {
 	cdb_store(CDB_FLOORTAB, &floor_num, sizeof(int),
 		  flbuf, sizeof(struct floor));
+
+	/* If we've cached this, clear it out, 'cuz it's WRONG now! */
+	if (floorcache[floor_num] != NULL) {
+		phree(floorcache[floor_num]);
+	}
 }
 
 
@@ -912,6 +936,7 @@ void cmd_getr(void)
 void cmd_setr(char *args)
 {
 	char buf[SIZ];
+	struct floor *fl;
 	struct floor flbuf;
 	char old_name[ROOMNAMELEN];
 	int old_floor;
@@ -932,8 +957,8 @@ void cmd_setr(char *args)
 
 
 	if (num_parms(args) >= 6) {
-		getfloor(&flbuf, extract_int(args, 5));
-		if ((flbuf.f_flags & F_INUSE) == 0) {
+		fl = cgetfloor(extract_int(args, 5));
+		if ((fl->f_flags & F_INUSE) == 0) {
 			cprintf("%d Invalid floor number.\n",
 				ERROR + INVALID_FLOOR_OPERATION);
 			return;
@@ -1268,7 +1293,7 @@ void cmd_cre8(char *args)
 	char aaa[SIZ];
 	unsigned newflags;
 	struct quickroom qrbuf;
-	struct floor flbuf;
+	struct floor *fl;
 
 	cre8_ok = extract_int(args, 0);
 	extract(new_room_name, args, 1);
@@ -1290,8 +1315,8 @@ void cmd_cre8(char *args)
 	}
 
 	if (num_parms(args) >= 5) {
-		getfloor(&flbuf, extract_int(args, 4));
-		if ((flbuf.f_flags & F_INUSE) == 0) {
+		fl = cgetfloor(extract_int(args, 4));
+		if ((fl->f_flags & F_INUSE) == 0) {
 			cprintf("%d Invalid floor number.\n",
 				ERROR + INVALID_FLOOR_OPERATION);
 			return;

@@ -29,24 +29,24 @@
  * Retrieve the applicable expire policy for a specific room
  */
 void GetExpirePolicy(struct ExpirePolicy *epbuf, struct quickroom *qrbuf) {
-	struct floor flbuf;
+	struct floor *fl;
 
 	/* If the room has its own policy, return it */	
 	if (qrbuf->QRep.expire_mode != 0) {
 		memcpy(epbuf, &qrbuf->QRep, sizeof(struct ExpirePolicy));
 		return;
-		}
+	}
 
-	/* Otherwise, if the floor has its own policy, return it */	
-	getfloor(&flbuf, qrbuf->QRfloor);
-	if (flbuf.f_ep.expire_mode != 0) {
-		memcpy(epbuf, &flbuf.f_ep, sizeof(struct ExpirePolicy));
+	/* Otherwise, if the floor has its own policy, return it */
+	fl = cgetfloor(qrbuf->QRfloor);
+	if (fl->f_ep.expire_mode != 0) {
+		memcpy(epbuf, &fl->f_ep, sizeof(struct ExpirePolicy));
 		return;
-		}
+	}
 
 	/* Otherwise, fall back on the system default */
 	memcpy(epbuf, &config.c_ep, sizeof(struct ExpirePolicy));
-	}
+}
 
 
 /*
@@ -54,27 +54,27 @@ void GetExpirePolicy(struct ExpirePolicy *epbuf, struct quickroom *qrbuf) {
  */
 void cmd_gpex(char *argbuf) {
 	struct ExpirePolicy exp;
-	struct floor flbuf;
+	struct floor *fl;
 	char which[SIZ];
 
 	extract(which, argbuf, 0);
 	if (!strcasecmp(which, "room")) {
 		memcpy(&exp, &CC->quickroom.QRep, sizeof(struct ExpirePolicy));
-		}
+	}
 	else if (!strcasecmp(which, "floor")) {
-		getfloor(&flbuf, CC->quickroom.QRfloor);
-		memcpy(&exp, &flbuf.f_ep, sizeof(struct ExpirePolicy));
-		}
+		fl = cgetfloor(CC->quickroom.QRfloor);
+		memcpy(&exp, &fl->f_ep, sizeof(struct ExpirePolicy));
+	}
 	else if (!strcasecmp(which, "site")) {
 		memcpy(&exp, &config.c_ep, sizeof(struct ExpirePolicy));
-		}
+	}
 	else {
 		cprintf("%d Invalid keyword.\n", ERROR);
 		return;
-		}
+	}
 
 	cprintf("%d %d|%d\n", OK, exp.expire_mode, exp.expire_value);
-	}
+}
 
 
 /*
@@ -93,26 +93,26 @@ void cmd_spex(char *argbuf) {
 	if ((exp.expire_mode < 0) || (exp.expire_mode > 3)) {
 		cprintf("%d Invalid policy.\n", ERROR);
 		return;
-		}
+	}
 
 	if (!strcasecmp(which, "room")) {
 		if (!is_room_aide()) {
 			cprintf("%d Higher access required.\n",
 				ERROR+HIGHER_ACCESS_REQUIRED);
 			return;
-			}
+		}
 		lgetroom(&CC->quickroom, CC->quickroom.QRname);
 		memcpy(&CC->quickroom.QRep, &exp, sizeof(struct ExpirePolicy));
 		lputroom(&CC->quickroom);
 		cprintf("%d Room expire policy set.\n", OK);
 		return;
-		}
+	}
 
 	if (CC->usersupp.axlevel < 6) {
 		cprintf("%d Higher access required.\n",
 			ERROR+HIGHER_ACCESS_REQUIRED);
 		return;
-		}
+	}
 
 	if (!strcasecmp(which, "floor")) {
 		lgetfloor(&flbuf, CC->quickroom.QRfloor);
@@ -120,25 +120,25 @@ void cmd_spex(char *argbuf) {
 		lputfloor(&flbuf, CC->quickroom.QRfloor);
 		cprintf("%d Floor expire policy set.\n", OK);
 		return;
-		}
+	}
 
 	else if (!strcasecmp(which, "site")) {
 		if (exp.expire_mode == EXPIRE_NEXTLEVEL) {
 			cprintf("%d Invalid policy (no higher level)\n",
 				ERROR);
 			return;
-			}
+		}
 		memcpy(&config.c_ep, &exp, sizeof(struct ExpirePolicy));
 		put_config();
 		cprintf("%d Site expire policy set.\n", OK);
 		return;
-		}
+	}
 
 	else {
 		cprintf("%d Invalid keyword.\n", ERROR);
 		return;
-		}
-
 	}
+
+}
 
 

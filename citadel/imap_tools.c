@@ -13,6 +13,7 @@
 #include "citadel.h"
 #include "sysdep_decls.h"
 #include "tools.h"
+#include "room_ops.h"
 #include "internet_addressing.h"
 #include "imap_tools.h"
 
@@ -92,13 +93,76 @@ int imap_parameterize(char **args, char *buf) {
  * Convert a struct quickroom to an IMAP-compatible mailbox name.
  */
 void imap_mailboxname(char *buf, int bufsize, struct quickroom *qrbuf) {
+	struct floor *fl;
 
-	safestrncpy(buf, qrbuf->QRname, bufsize);
+	/*
+	 * For mailboxes, just do it straight...
+	 */
 	if (qrbuf->QRflags & QR_MAILBOX) {
+		safestrncpy(buf, qrbuf->QRname, bufsize);
 		strcpy(buf, &buf[11]);
 		if (!strcasecmp(buf, MAILROOM)) strcpy(buf, "INBOX");
 	}
+
+	/*
+	 * Otherwise, prefix the floor name as a "public folders" moniker
+	 */
+	else {
+		fl = cgetfloor(qrbuf->QRfloor);
+		snprintf(buf, bufsize, "%s|%s",
+			fl->f_name,
+			qrbuf->QRname);
+	}
 }
+
+
+/*
+ * Convert an inputted folder name to our best guess as to what an equivalent
+ * room name should be.  It returns the floor number that the room is on (or
+ * will be on), or -1 if an error occurred.
+ */
+int imap_roomname(char *rbuf, int bufsize, char *foldername) {
+	int levels;
+	char buf[SIZ];
+	int i;
+	struct floor *fl;
+
+	if (foldername == NULL) return(0);
+	levels = num_parms(foldername);
+
+	/* When we can support hierarchial mailboxes, take this out. */
+	if (levels > 2) return(-1);
+
+	/*
+	 * Convert the crispy idiot's reserved names to our reserved names.
+	 */
+	if (!strcasecmp(foldername, "INBOX")) {
+		safestrncpy(rbuf, MAILROOM, bufsize);
+		return(0);
+	}
+
+	if (levels > 1) {
+		extract(buf, foldername, 0);
+		for (i=0; i<MAXFLOORS; ++i) {
+			fl = cgetfloor(i);
+			if (fl->f_flags & F_INUSE) {
+				if (!strcasecmp(buf, fl->f_name)) {
+					extract(rbuf, foldername, 1);
+					return(i);
+				}
+			}
+		}
+
+		extract(rbuf, buf, 1);
+		return(0);
+	}
+
+	safestrncpy(rbuf, foldername, bufsize);
+	return(0);
+}
+
+
+
 
 
 /*

@@ -12,6 +12,7 @@ void b_deleteroom(char *);
 int lgetroom(struct quickroom *qrbuf, char *room_name);
 void lputroom(struct quickroom *qrbuf);
 void getfloor (struct floor *flbuf, int floor_num);
+struct floor *cgetfloor(int floor_num);
 void lgetfloor (struct floor *flbuf, int floor_num);
 void putfloor (struct floor *flbuf, int floor_num);
 void lputfloor (struct floor *flbuf, int floor_num);

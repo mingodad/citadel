@@ -2,10 +2,14 @@
  * $Id$ 
  *
  * IMAP server for the Citadel/UX system
- * Copyright (C) 2000 by Art Cancro and others.
+ * Copyright (C) 2000-2001 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.
  *
- * *** THIS IS UNDER DEVELOPMENT.  IT DOES NOT WORK.  DO NOT USE IT. ***
+ * WARNING: this is an incomplete implementation, still in progress.  Parts of
+ * it work, but it's not really usable yet from a user perspective.
+ *
+ * WARNING: Mark Crispin is an idiot.  IMAP is the most brain-damaged protocol
+ * you will ever have the profound lack of pleasure to encounter.
  * 
  */
 
@@ -159,7 +163,7 @@ void imap_login(int num_parms, char *parms[]) {
 
 
 /*
- * Implements the AYTHENTICATE command
+ * Implements the AUTHENTICATE command
  */
 void imap_authenticate(int num_parms, char *parms[]) {
 	char buf[SIZ];
@@ -233,15 +237,14 @@ void imap_select(int num_parms, char *parms[]) {
 	int ra = 0;
 	struct quickroom QRscratch;
 	int msgs, new;
+	int floornum;
 
-	strcpy(towhere, parms[2]);
-
-	/* IMAP uses the reserved name "INBOX" for the user's default incoming
-	 * mail folder.  Convert this to whatever Citadel is using for the
-	 * default mail room name (usually "Mail>").
-	 */
-	if (!strcasecmp(towhere, "INBOX")) {
-		strcpy(towhere, MAILROOM);
+	/* Convert the supplied folder name to a roomname */
+	floornum = imap_roomname(towhere, sizeof towhere, parms[2]);
+	if (floornum < 0) {
+		cprintf("%s NO Invalid mailbox name.\r\n", parms[0]);
+		IMAP->selected = 0;
+		return;
 	}
 
         /* First try a regular match */
@@ -380,6 +383,25 @@ void imap_list(int num_parms, char *parms[]) {
 
 
 
+/*
+ * Implements the CREATE command (FIXME not finished yet)
+ *
+ */
+void imap_create(int num_parms, char *parms[]) {
+	int floornum;
+	int levels;
+
+	floornum = imap_roomname(parms[1]);
+	if (floornum < 0) {
+		cprintf("%s NO Invalid name\r\n", parms[0]);
+		return;
+	}
+
+	cprintf("%s NO CREATE unimplemented\r\n", parms[0]);
+}
+
+
+
 /* 
  * Main command loop for IMAP sessions.
  */
@@ -418,12 +440,15 @@ void imap_command_loop(void) {
 
 	/* Ok, at this point we're in normal command mode */
 
-	/* grab the tag */
+	/* Grab the tag, command, and parameters.  Check syntax. */
 	num_parms = imap_parameterize(parms, cmdbuf);
+	if (num_parms < 2) {
+		cprintf("BAD syntax error\r\n");
+	}
 
-	/* commands which may be executed in any state */
+	/* The commands below may be executed in any state */
 
-	if ( (!strcasecmp(parms[1], "NOOP"))
+	else if ( (!strcasecmp(parms[1], "NOOP"))
 	   || (!strcasecmp(parms[1], "CHECK")) ) {
 		cprintf("%s OK This command successfully did nothing.\r\n",
 			parms[0]);
@@ -452,7 +477,7 @@ void imap_command_loop(void) {
 		cprintf("%s BAD Not logged in.\r\n", parms[0]);
 	}
 
-	/* commands requiring the client to be logged in */
+	/* The commans below require a logged-in state */
 
 	else if (!strcasecmp(parms[1], "SELECT")) {
 		imap_select(num_parms, parms);
@@ -470,11 +495,15 @@ void imap_command_loop(void) {
 		imap_list(num_parms, parms);
 	}
 
+	else if (!strcasecmp(parms[1], "CREATE")) {
+		imap_create(num_parms, parms);
+	}
+
 	else if (IMAP->selected == 0) {
 		cprintf("%s BAD no folder selected\r\n", parms[0]);
 	}
 
-	/* commands requiring the SELECT state */
+	/* The commands below require the SELECT state on a mailbox */
 
 	else if (!strcasecmp(parms[1], "FETCH")) {
 		imap_fetch(num_parms, parms);
@@ -498,7 +527,9 @@ void imap_command_loop(void) {
 		imap_close(num_parms, parms);
 	}
 
-	/* end of commands */
+	/* End of commands.  If we get here, the command is either invalid
+	 * or unimplemented.
+	 */
 
 	else {
 		cprintf("%s BAD command unrecognized\r\n", parms[0]);
@@ -508,6 +539,10 @@ void imap_command_loop(void) {
 
 
 
+/*
+ * This function is called by dynloader.c to register the IMAP module
+ * with the Citadel server.
+ */
 char *Dynamic_Module_Init(void)
 {
 	SYM_IMAP = CtdlGetDynamicSymbol();

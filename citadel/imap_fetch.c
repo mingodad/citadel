@@ -827,7 +827,7 @@ void imap_pick_range(char *range, int is_uid) {
 	int i;
 	int num_sets;
 	int s;
-	char setstr[1024], lostr[1024], histr[1024];
+	char setstr[SIZ], lostr[SIZ], histr[SIZ];	/* was 1024 */
 	int lo, hi;
 	char *actual_range;
 
@@ -884,7 +884,7 @@ void imap_pick_range(char *range, int is_uid) {
  * This function is called by the main command loop.
  */
 void imap_fetch(int num_parms, char *parms[]) {
-	char items[1024];
+	char items[SIZ];	/* was 1024 */
 	char *itemlist[SIZ];
 	int num_items;
 	int i;
@@ -916,7 +916,7 @@ void imap_fetch(int num_parms, char *parms[]) {
  * This function is called by the main command loop.
  */
 void imap_uidfetch(int num_parms, char *parms[]) {
-	char items[1024];
+	char items[SIZ];	/* was 1024 */
 	char *itemlist[SIZ];
 	int num_items;
 	int i;
