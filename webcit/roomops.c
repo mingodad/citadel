@@ -1758,7 +1758,7 @@ void display_zap(void)
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">Zap (forget/unsubscribe) the current room</SPAN>\n");
 	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div><div id=\"text\">\n");
+	wprintf("</div>\n<div id=\"text\">\n");
 
 	wprintf("If you select this option, <em>%s</em> will ", WC->wc_roomname);
 	wprintf("disappear from your room list.  Is this what you wish ");
@@ -1826,7 +1826,7 @@ void confirm_delete_room(void)
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">Confirm deletion of room</SPAN>\n");
 	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div><div id=\"text\">\n");
+	wprintf("</div>\n<div id=\"text\">\n");
 
 	wprintf("<CENTER>");
 	wprintf("<FORM METHOD=\"GET\" ACTION=\"/delete_room\">\n");

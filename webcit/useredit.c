@@ -270,7 +270,7 @@ void display_edituser(char *supplied_username, int is_new) {
 		"Edit user account: ");
 	escputs(username);
 	wprintf("</SPAN></TD></TR></TABLE>\n");
-	wprintf("</div><div id=\"text\">\n");
+	wprintf("</div>\n<div id=\"text\">\n");
 
 	do_template("beginbox_nt");
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/edituser\">\n"

@@ -233,7 +233,7 @@ void summary(void) {
 	wprintf("</SPAN><br />");
 	offer_start_page();
 	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div><div id=\"text\">\n");
+	wprintf("</div>\n<div id=\"text\">\n");
 
 	/*
 	 * Now let's do three columns of crap.  All portals and all groupware

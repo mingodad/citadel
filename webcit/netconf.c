@@ -81,7 +81,7 @@ void display_add_node(void)
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">Add new node</SPAN>");
 	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div><div id=\"text\">\n");
+	wprintf("</div>\n<div id=\"text\">\n");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/edit_node\">\n");
 	wprintf("<CENTER><TABLE border=0>\n");
@@ -120,7 +120,7 @@ void display_edit_node(void)
 	escputs(node);
 	wprintf("</SPAN>\n");
 	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div><div id=\"text\">\n");
+	wprintf("</div>\n<div id=\"text\">\n");
 
 	serv_puts("CONF getsys|application/x-citadel-ignet-config");
 	serv_gets(buf);
@@ -171,7 +171,7 @@ void display_netconf(void)
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">Network configuration</SPAN>\n");
 	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div><div id=\"text\">\n");
+	wprintf("</div>\n<div id=\"text\">\n");
 
 	wprintf("<CENTER>");
 	wprintf("<A HREF=\"/display_add_node\">");
@@ -213,7 +213,7 @@ void display_confirm_delete_node(void)
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">Confirm delete</SPAN>\n");
 	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div><div id=\"text\">\n");
+	wprintf("</div>\n<div id=\"text\">\n");
 
 	strcpy(node, bstr("node"));
 	wprintf("<CENTER>Are you sure you want to delete <FONT SIZE=+1>");

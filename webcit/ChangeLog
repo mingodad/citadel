@@ -1,4 +1,7 @@
 $Log$
+Revision 528.5  2005/01/13 18:38:08  ajc
+* Insert a newline between </div> and <div id="text">
+
 Revision 528.4  2005/01/11 16:20:18  ajc
 * Switching doctype from XHTML to HTML 4.01 STRICT, because nothing handles
   XHTML properly.
@@ -2166,4 +2169,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

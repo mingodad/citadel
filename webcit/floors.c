@@ -54,7 +54,7 @@ void display_floorconfig(char *prepend_html)
         	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
         	wprintf("<SPAN CLASS=\"titlebar\">Error</SPAN>\n");
         	wprintf("</TD></TR></TABLE>\n");
-		wprintf("</div><div id=\"text\">\n");
+		wprintf("</div>\n<div id=\"text\">\n");
         	wprintf("%s<br />\n", &buf[4]);
 		wDumpContent(1);
 		return;
