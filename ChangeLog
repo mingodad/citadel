@@ -1,4 +1,8 @@
 $Log$
+Revision 528.28  2005/01/31 23:31:26  ajc
+* Initial attempt at GroupDAV PROPFIND for folder enumeration.  Hardcoded
+  to only show the Calendar> room.  It kinda-sorta works with KOrganizer.
+
 Revision 528.27  2005/01/31 16:24:47  ajc
 * iconbar is now a happy css hovery lightupy div thing
 
@@ -2257,4 +2261,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
