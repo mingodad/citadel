@@ -132,23 +132,29 @@ void tasks_section(void) {
 
 	svprintf("BOXTITLE", WCS_STRING, "Tasks");
 	do_template("beginbox");
+#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	gotoroom("Tasks", 0);
 	if (strcasecmp(WC->wc_roomname, "Tasks")) {
-		wprintf("<i>(You do not have a task list)</i><BR>\n");
-		return;
+		num_msgs = 0;
+	}
+	else {
+		num_msgs = load_msg_ptrs("MSGS ALL");
 	}
 
-	num_msgs = load_msg_ptrs("MSGS ALL");
 	if (num_msgs < 1) {
 		wprintf("<i>(None)</i><BR>\n");
-		return;
+	}
+	else {
+		wprintf("<UL>");
+		for (i=0; i<num_msgs; ++i) {
+			display_task(WC->msgarr[i]);
+		}
+		wprintf("</UL>\n");
 	}
 
-	wprintf("<UL>");
-	for (i=0; i<num_msgs; ++i) {
-		display_task(WC->msgarr[i]);
-	}
-	wprintf("</UL>\n");
+#else /* WEBCIT_WITH_CALENDAR_SERVICE */
+	wprintf("<I>(This server does not support task lists)</I>\n");
+#endif /* WEBCIT_WITH_CALENDAR_SERVICE */
 	do_template("endbox");
 }
 
@@ -165,21 +171,24 @@ void calendar_section(void) {
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	gotoroom("Calendar", 0);
 	if (strcasecmp(WC->wc_roomname, "Calendar")) {
-		wprintf("<i>(You do not have a calendar)</i><BR>\n");
-		return;
+		num_msgs = 0;
+	}
+	else {
+		num_msgs = load_msg_ptrs("MSGS ALL");
 	}
 
-	num_msgs = load_msg_ptrs("MSGS ALL");
 	if (num_msgs < 1) {
 		wprintf("<i>(Nothing)</i><BR>\n");
-		return;
+	}
+	else {
+		for (i=0; i<num_msgs; ++i) {
+			display_calendar(WC->msgarr[i]);
+		}
+		calendar_summary_view();
 	}
 
-	for (i=0; i<num_msgs; ++i) {
-		display_calendar(WC->msgarr[i]);
-	}
-
-	calendar_summary_view();
+#else /* WEBCIT_WITH_CALENDAR_SERVICE */
+	wprintf("<I>(This server does not support calendars)</I>\n");
 #endif /* WEBCIT_WITH_CALENDAR_SERVICE */
 	do_template("endbox");
 }
