@@ -463,15 +463,18 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
 	int ret;
 
 	memset(&dkey, 0, sizeof(DBT));
-	memset(&dret, 0, sizeof(DBT));
 	dkey.size = keylen;
 	dkey.data = key;
-	dret.flags = DB_DBT_MALLOC;
 
 	if (MYTID != NULL) {
+		memset(&dret, 0, sizeof(DBT));
+		dret.flags = DB_DBT_MALLOC;
 		ret = dbp[cdb]->get(dbp[cdb], MYTID, &dkey, &dret, 0);
 	} else {
 	    retry:
+                memset(&dret, 0, sizeof(DBT));
+                dret.flags = DB_DBT_MALLOC;
+
 		txbegin(&tid);
 
 		ret = dbp[cdb]->get(dbp[cdb], tid, &dkey, &dret, 0);

@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.1  2001/07/11 04:35:40  nbryant
+ moved dret initialization in cdb_fetch, just in case
+
  Revision 580.0  2001/07/03 03:07:06  ajc
  * THIS IS 5.80
 
@@ -2562,3 +2565,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
