@@ -1,4 +1,7 @@
 $Log$
+Revision 504.3  2004/02/09 04:49:32  ajc
+* Prepare for a way to avoid falling out of the main frameset
+
 Revision 504.2  2004/02/09 03:37:57  ajc
 * Changed the thread pool management algorithm.  Detecting idle time between
   socket accepts was not working reliably on all systems, so we now follow
@@ -1643,3 +1646,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

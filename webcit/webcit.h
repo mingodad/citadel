@@ -216,6 +216,8 @@ struct wcsession {
 #endif
 	struct wc_attachment *first_attachment;
 	char ImportantMessage[SIZ];
+	int outside_frameset_allowed;	/* nonzero if current req is allowed
+					 * outside of the main frameset */
 };
 
 #define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
