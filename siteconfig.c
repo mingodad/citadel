@@ -33,7 +33,7 @@ void display_siteconfig(void)
 {
 	char buf[SIZ];
 	char *whichmenu;
-	int i;
+	int i, j;
 
 	output_headers(3);
 
@@ -198,7 +198,14 @@ void display_siteconfig(void)
 		case 7:
 			if (!strcasecmp(whichmenu, "access")) {
 				wprintf("<TR><TD>Initial access level for new users</TD><TD>");
-				wprintf("<INPUT TYPE=\"text\" NAME=\"c_initax\" MAXLENGTH=\"1\" VALUE=\"%s\">", buf);
+				wprintf("<SELECT NAME=\"c_initax\" SIZE=\"1\">\n");
+				for (j=0; j<=6; ++j) {
+					wprintf("<OPTION %s VALUE=\"%d\">%d - %s</OPTION>\n",
+						((atoi(buf) == j) ? "SELECTED" : ""),
+						j, j, axdefs[j]
+					);
+				}
+				wprintf("</SELECT>");
 				wprintf("</TD></TR>\n");
 			}
 			else {
@@ -318,7 +325,14 @@ void display_siteconfig(void)
 		case 20:
 			if (!strcasecmp(whichmenu, "access")) {
 				wprintf("<TR><TD>Access level required to create rooms</TD><TD>");
-				wprintf("<INPUT TYPE=\"text\" NAME=\"c_createax\" MAXLENGTH=\"1\" VALUE=\"%s\">", buf);
+				wprintf("<SELECT NAME=\"c_createax\" SIZE=\"1\">\n");
+				for (j=0; j<=6; ++j) {
+					wprintf("<OPTION %s VALUE=\"%d\">%d - %s</OPTION>\n",
+						((atoi(buf) == j) ? "SELECTED" : ""),
+						j, j, axdefs[j]
+					);
+				}
+				wprintf("</SELECT>");
 				wprintf("</TD></TR>\n");
 			}
 			else {
@@ -427,8 +441,17 @@ void display_siteconfig(void)
 			break;
 		case 32:
 			if (!strcasecmp(whichmenu, "tuning")) {
-				wprintf("<TR><TD>Hour to run database auto-purge (0-23)</TD><TD>");
-				wprintf("<INPUT TYPE=\"text\" NAME=\"c_purge_hour\" MAXLENGTH=\"2\" VALUE=\"%s\">", buf);
+				wprintf("<TR><TD>Hour to run database auto-purge</TD><TD>");
+				wprintf("<SELECT NAME=\"c_purge_hour\" SIZE=\"1\">\n");
+				for (j=0; j<=23; ++j) {
+					wprintf("<OPTION %s VALUE=\"%d\">%d:00%s</OPTION>\n",
+						((atoi(buf) == j) ? "SELECTED" : ""),
+						j,
+						((j == 0) ? 12 : ((j>12) ? j-12 : j)),
+						((j >= 12) ? "pm" : "am")
+					);
+				}
+				wprintf("</SELECT>");
 				wprintf("</TD></TR>\n");
 			}
 			else {

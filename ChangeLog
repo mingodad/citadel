@@ -1,4 +1,7 @@
 $Log$
+Revision 500.25  2003/09/04 03:41:27  ajc
+* siteconfig.c: changed some config items to drop-down boxes
+
 Revision 500.24  2003/08/27 04:26:54  ajc
 * Split the site configuration screen up into four different screens,
   and added a meta-menu
@@ -1582,3 +1585,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
