@@ -1,4 +1,13 @@
 $Log$
+Revision 603.4  2005/02/28 04:01:55  ajc
+* Updated to the latest version of Kevin Roth's richtext editor.  Had to
+  modify it a bit (removal of 'px' suffix, and addition of 'cols=80') to
+  allow it to gracefully degrade in Konqueror even when we specify our
+  happy 100% width.
+* Modified the message entry screen a bit.  Full height just isn't practical
+  with all those wacky browsers out there, unfortunately.  Removed most of
+  the div's.
+
 Revision 603.3  2005/02/23 05:08:20  ajc
 * Better control of HTTP headers which control browser caches.  Static
   objects are getting properly cached now.
@@ -2441,3 +2450,6 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
+
+
