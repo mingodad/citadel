@@ -1090,6 +1090,42 @@ void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *cal) {
 		icalproperty_new_freebusy(my_period)
 	);
 
+	/* Make sure the DTSTART property of the freebusy *list* is set to
+	 * the DTSTART property of the *earliest event*.
+	 */
+	p = icalcomponent_get_first_property(fb, ICAL_DTSTART_PROPERTY);
+	if (p == NULL) {
+		icalcomponent_set_dtstart(fb,
+			icalcomponent_get_dtstart(cal) );
+	}
+	else {
+		if (icaltime_compare(
+			icalcomponent_get_dtstart(cal),
+			icalcomponent_get_dtstart(fb)
+		   ) < 0) {
+			icalcomponent_set_dtstart(fb,
+				icalcomponent_get_dtstart(cal) );
+		}
+	}
+
+	/* Make sure the DTEND property of the freebusy *list* is set to
+	 * the DTEND property of the *latest event*.
+	 */
+	p = icalcomponent_get_first_property(fb, ICAL_DTEND_PROPERTY);
+	if (p == NULL) {
+		icalcomponent_set_dtend(fb,
+			icalcomponent_get_dtend(cal) );
+	}
+	else {
+		if (icaltime_compare(
+			icalcomponent_get_dtend(cal),
+			icalcomponent_get_dtend(fb)
+		   ) > 0) {
+			icalcomponent_set_dtend(fb,
+				icalcomponent_get_dtend(cal) );
+		}
+	}
+
 }
 
 
@@ -1233,20 +1269,38 @@ void ical_freebusy(char *who) {
 		return;
 	}
 
-	lprintf(CTDL_DEBUG, "Adding busy time from events\n");
-	CtdlForEachMessage(MSGS_ALL, 0, "text/calendar",
-		NULL, ical_freebusy_backend, (void *)fb
-	);
-
 	/* Set the method to PUBLISH */
 	icalcomponent_set_method(fb, ICAL_METHOD_PUBLISH);
 
 	/* Set the DTSTAMP to right now. */
 	icalcomponent_set_dtstamp(fb, icaltime_from_timet(time(NULL), 0));
 
-	/* FIXME we still need (at least) DTSTART, DTEND, and the user's
-	 * e-mail address as ORGANIZER.
+	/* Add the user's email address as ORGANIZER */
+	sprintf(buf, "MAILTO:%s", who);
+	if (strchr(buf, '@') == NULL) {
+		strcat(buf, "@");
+		strcat(buf, config.c_fqdn);
+	}
+	for (i=0; i<strlen(buf); ++i) {
+		if (buf[i]==' ') buf[i] = '_';
+	}
+	icalcomponent_add_property(fb, icalproperty_new_organizer(buf));
+
+	/* Add busy time from events */
+	lprintf(CTDL_DEBUG, "Adding busy time from events\n");
+	CtdlForEachMessage(MSGS_ALL, 0, "text/calendar",
+		NULL, ical_freebusy_backend, (void *)fb
+	);
+
+	/* If values for DTSTART and DTEND are still not present, set them
+	 * to yesterday and tomorrow as default values.
 	 */
+	if (icalcomponent_get_first_property(fb, ICAL_DTSTART_PROPERTY) == NULL) {
+		icalcomponent_set_dtstart(fb, icaltime_from_timet(time(NULL)-86400L, 0));
+	}
+	if (icalcomponent_get_first_property(fb, ICAL_DTEND_PROPERTY) == NULL) {
+		icalcomponent_set_dtend(fb, icaltime_from_timet(time(NULL)+86400L, 0));
+	}
 
 	/* Put the freebusy component into the calendar component */
 	lprintf(CTDL_DEBUG, "Encapsulating\n");
