@@ -9,6 +9,15 @@
 
 #include "includes.hpp"
 
+#include "bitmaps/new.xpm"
+#include "bitmaps/open.xpm"
+#include "bitmaps/save.xpm"
+#include "bitmaps/copy.xpm"
+#include "bitmaps/cut.xpm"
+#include "bitmaps/paste.xpm"
+#include "bitmaps/print.xpm"
+#include "bitmaps/help.xpm"
+
 
 
 // Globals
@@ -48,6 +57,7 @@ private:
 	void OnUsersMenu(wxCommandEvent& cmd);
 	void OnWindowMenu(wxCommandEvent& cmd);
 	wxButton *do_cmd;
+	void InitToolBar(wxToolBar* toolBar);
 
 	who *TheWholist;
 
@@ -152,6 +162,10 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 	TheWholist = NULL;
 
+
+	CreateToolBar(wxNO_BORDER|wxTB_FLAT|wxTB_HORIZONTAL);
+	InitToolBar(GetToolBar());
+
 	// create a menu bar
 	wxMenu *menuFile = new wxMenu;
 	menuFile->Append(MENU_CONNECT, "&Connect");
@@ -189,6 +203,62 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	CreateStatusBar(1);
 	SetStatusText("Not connected");
 }
+
+
+
+// The toolbar for this application.
+// Right now we aren't defining any toolbars yet, so 
+
+void MyFrame::InitToolBar(wxToolBar* toolBar) {
+	int i;
+	wxBitmap* bitmaps[8];
+	int width = 16;
+	int currentX = 5;
+
+	bitmaps[0] = new wxBitmap( new_xpm );
+	bitmaps[1] = new wxBitmap( open_xpm );
+	bitmaps[2] = new wxBitmap( save_xpm );
+	bitmaps[3] = new wxBitmap( copy_xpm );
+	bitmaps[4] = new wxBitmap( cut_xpm );
+	bitmaps[5] = new wxBitmap( paste_xpm );
+	bitmaps[6] = new wxBitmap( print_xpm );
+	bitmaps[7] = new wxBitmap( help_xpm );
+
+	toolBar->AddTool(0, *bitmaps[0], wxNullBitmap, FALSE,
+			currentX, -1, (wxObject *) NULL, "New file");
+	currentX += width + 5;
+	toolBar->AddTool(1, *bitmaps[1], wxNullBitmap, FALSE,
+			currentX, -1, (wxObject *) NULL, "Open file");
+	currentX += width + 5;
+	toolBar->AddTool(2, *bitmaps[2], wxNullBitmap, FALSE,
+			currentX, -1, (wxObject *) NULL, "Save file");
+	currentX += width + 5;
+	toolBar->AddSeparator();
+	toolBar->AddTool(3, *bitmaps[3], wxNullBitmap, FALSE,
+			currentX, -1, (wxObject *) NULL, "Copy");
+	currentX += width + 5;
+	toolBar->AddTool(4, *bitmaps[4], wxNullBitmap, FALSE,
+			currentX, -1, (wxObject *) NULL, "Cut");
+	currentX += width + 5;
+	toolBar->AddTool(5, *bitmaps[5], wxNullBitmap, FALSE,
+			currentX, -1, (wxObject *) NULL, "Paste");
+	currentX += width + 5;
+	toolBar->AddSeparator();
+	toolBar->AddTool(6, *bitmaps[6], wxNullBitmap, FALSE,
+			currentX, -1, (wxObject *) NULL, "Print");
+	currentX += width + 5;
+	toolBar->AddSeparator();
+	toolBar->AddTool(7, *bitmaps[7], wxNullBitmap, TRUE,s
+		 currentX, -1, (wxObject *) NULL, "Help");
+
+	toolBar->Realize();
+
+	for (i = 0; i < 8; i++)
+		delete bitmaps[i];
+}
+
+
+
 
 
 // Event handlers.
