@@ -1,5 +1,6 @@
 /*
  * citmail.c v4.1
+ * $Id$
  *
  * This program may be used as a local mail delivery agent, which will allow
  * all Citadel users to receive Internet e-mail.  To enable this functionality,
