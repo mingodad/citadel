@@ -339,11 +339,13 @@ void output_headers(int controlcode)
 #endif
 
 	if (print_standard_html_head > 0) {
-		wprintf("Content-type: text/html\n");
-		wprintf("Server: %s\n", SERVER);
-		wprintf("Connection: close\n");
-		wprintf("Pragma: no-cache\n");
-		wprintf("Cache-Control: no-store\n");
+		wprintf("Content-type: text/html\n"
+			"Server: %s\n", SERVER
+		);
+		wprintf("Connection: close\n"
+			"Pragma: no-cache\n"
+			"Cache-Control: no-store\n"
+		);
 #ifdef WITH_ZLIB
 		if (temp_gzfd != NULL) {
 			wprintf("Content-Encoding: gzip\n");
@@ -448,70 +450,21 @@ void check_for_express_messages()
 
 
 /* 
- * Output a piece of content to the web browser, compressing if necessary
+ * Output a piece of content to the web browser
  */
 void http_transmit_thing(char *thing, size_t length, char *content_type) {
-
-	int do_compress = 0;
-	char *compressed_xferbuf = NULL;
-
-#ifdef WITH_ZLIB
-	uLongf compressed_size = 0;
-#endif
-
-#ifdef WITH_ZLIB
-	do_compress = WC->gzcompressed;
-#endif
-
-#ifdef WITH_ZLIB
-	if (do_compress) {
-		/* Write it to the browser -- compressed */
-		compressed_size = (uLongf)
-				((length * 101) / 100) + 4096;
-		compressed_xferbuf = malloc(compressed_size);
-		lprintf(9, "uncompressed size: %d\n", length);
-		compress2(compressed_xferbuf, &compressed_size,
-			thing, (uLong)length, 9);
-		lprintf(9, "  compressed size: %d\n", compressed_size);
-
-		if (compressed_size < length) {
-			output_headers(0);
-			wprintf("Content-type: %s\n"
-				"Content-length: %ld\n"
-				"Content-Encoding: gzip\n"
-				"\n",
-				content_type,
-				(long) compressed_size
-			);
-			http_write(WC->http_sock, compressed_xferbuf,
-							compressed_size);
-		}
-		else {
-			do_compress = 0;
-		}
-	}
-#endif
-
-	if (!do_compress) {
-		/* Write it to the browser -- no compression */
-		output_headers(0);
-		wprintf("Content-type: %s\n"
-			"Content-length: %ld\n"
-			"\n",
+	output_headers(0);
+	wprintf("Content-type: %s\n"
+		"Content-length: %ld\n"
+		"Server: %s\n"
+		"Connection: close\n"
+		"\n",
 		content_type,
-		(long) length
-		);
-		http_write(WC->http_sock, thing, length);
-	}
-
-	if (compressed_xferbuf) {
-		free(compressed_xferbuf);
-	}
+		(long) length,
+		SERVER
+	);
+	http_write(WC->http_sock, thing, (size_t)length);
 }
-
-
-
-
 
 
 
@@ -586,7 +539,6 @@ void output_image()
 	off_t thisblock;
 	off_t accomplished = 0L;
 
-	lprintf(5, "output_image() called\n");
 	serv_printf("OIMG %s|%s", bstr("name"), bstr("parm"));
 	serv_gets(buf);
 	if (buf[0] == '2') {
@@ -595,7 +547,7 @@ void output_image()
 
 		/* Read it from the server */
 		while (bytes > (off_t) 0) {
-			thisblock = (off_t) sizeof(xferbuf);
+			thisblock = 4096;
 			if (thisblock > bytes) {
 				thisblock = bytes;
 			}
@@ -632,6 +584,7 @@ void output_image()
 	if (xferbuf) {
 		free(xferbuf);
 	}
+
 
 }
 
@@ -926,12 +879,14 @@ void session_loop(struct httprequest *req, int gzip)
 
 	WC->is_wap = 0;
 
+#ifdef WITH_ZLIB
 	if (gzip) {
 		WC->gzcompressed = 1;
 	}
 	else {
 		WC->gzcompressed = 0;
 	}
+#endif
 
 	hptr = req;
 	if (hptr == NULL) return;
