@@ -35,6 +35,7 @@ void whobbs(void)
 		realroom[SIZ], realhost[SIZ];
 	time_t last_activity;
 	time_t now;
+	int bg = 0;
 
 	output_headers(7);
 
@@ -47,15 +48,16 @@ void whobbs(void)
 
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
 	wprintf("<IMG SRC=\"/static/users-icon.gif\" ALT=\" \" ALIGN=MIDDLE>");
-	wprintf("<SPAN CLASS=\"titlebar\">Users currently on ");
+	wprintf("<SPAN CLASS=\"titlebar\">&nbsp;Users currently on ");
 	escputs(serv_info.serv_humannode);
 	wprintf("</SPAN></TD><TD>");
 	offer_start_page();
-	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</TD></TR></TABLE><BR>\n");
 
-	do_template("beginbox");
-	wprintf("<CENTER><TABLE BORDER=1 WIDTH=100%%>\n<TR>\n");
-	wprintf("<TH>Session ID</TH>\n");
+	do_template("beginbox_nt");
+	wprintf("<CENTER>"
+		"<TABLE BORDER=0 CELLSPACING=0 WIDTH=100%%>\n<TR>\n");
+	wprintf("<TH COLSPAN=4>Session ID</TH>\n");
 	wprintf("<TH>User Name</TH>\n");
 	wprintf("<TH>Room</TH>");
 	wprintf("<TH>From host</TH>\n</TR>\n");
@@ -81,7 +83,13 @@ void whobbs(void)
 			extract(realhost, buf, 10);
 			last_activity = extract_long(buf, 5);
 
-			wprintf("<TR>\n\t<TD ALIGN=center>%d", sess);
+			bg = 1 - bg;
+			wprintf("<TR BGCOLOR=\"#%s\">",
+				(bg ? "DDDDDD" : "FFFFFF")
+			);
+
+
+			wprintf("<TD>%d</TD><TD>", sess);
 			if ((WC->is_aide) &&
 			    (sess != serv_info.serv_pid)) {
 				wprintf(" <A HREF=\"/terminate_session&which_session=%d&session_owner=", sess);
@@ -93,16 +101,28 @@ void whobbs(void)
 				wprintf(" <A HREF=\"/edit_me\" "
 					">(edit)</A>");
 			}
-			wprintf("</TD>\n\t<TD>");
+			wprintf("</TD>");
 
 			/* (link to page this user) */
-			wprintf("<A HREF=\"/display_page&recp=");
+			wprintf("<TD><A HREF=\"/display_page&recp=");
 			urlescputs(user);
 			wprintf("\">"
 				"<IMG ALIGN=MIDDLE WIDTH=20 HEIGHT=15 "
 				"SRC=\"/static/page.gif\" "
 				"ALT=\"(p)\""
 				" BORDER=0></A>&nbsp;");
+			wprintf("</TD>");
+
+			/* (idle flag) */
+			wprintf("<TD>");
+			if ((now - last_activity) > 900L) {
+				wprintf("&nbsp;"
+					"<IMG ALIGN=MIDDLE "
+					"SRC=\"/static/idle.gif\" "
+					"ALT=\"[idle]\" BORDER=0>");
+			}
+			wprintf("</TD>\n\t<TD>");
+
 
 
 			/* username (link to user bio/photo page) */
@@ -111,13 +131,6 @@ void whobbs(void)
 			wprintf("\">");
 			escputs(user);
 			wprintf("</A>");
-
-			if ((now - last_activity) > 900L) {
-				wprintf("&nbsp;"
-					"<IMG ALIGN=MIDDLE "
-					"SRC=\"/static/idle.gif\" "
-					"ALT=\"[idle]\" BORDER=0>");
-			}
 
 			/* room */
 			wprintf("</TD>\n\t<TD>");

@@ -1,4 +1,7 @@
 $Log$
+Revision 410.27  2003/05/15 03:35:59  ajc
+* look and feel overhaul -- almost done!
+
 Revision 410.26  2003/05/14 03:46:35  ajc
 * More background cleanup
 
@@ -1385,3 +1388,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
