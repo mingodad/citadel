@@ -1,4 +1,9 @@
  $Log$
+ Revision 608.13  2003/07/30 03:47:53  ajc
+ * Eliminated the EXPI command
+ * Completed the configuration item of "purge hour"
+ * Auto-purger now runs as a scheduled job
+
  Revision 608.12  2003/07/30 00:26:50  ajc
  * Removed the "weekly" script and began installing a facility to allow
    database maintenance to happen automatically.  (One Step Install can't
@@ -4919,4 +4924,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

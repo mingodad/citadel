@@ -14,8 +14,8 @@
  * then the second stage deletes all listed objects from the database.
  *
  * At first glance this may seem cumbersome and unnecessary.  The reason it is
- * implemented in this way is because GDBM (and perhaps some other backends we
- * may hook into in the future) explicitly do _not_ support the deletion of
+ * implemented in this way is because Berkeley DB, and possibly other backends
+ * we may hook into in the future, explicitly do _not_ support the deletion of
  * records from a file while the file is being traversed.  The delete operation
  * will succeed, but the traversal is not guaranteed to visit every object if
  * this is done.  Therefore we utilize the two-stage purge.
@@ -595,45 +595,41 @@ int PurgeUseTable(void) {
 }
 
 
-void cmd_expi(char *argbuf) {
-	char cmd[SIZ];
+void purge_databases(void) {
 	int retval;
+	static time_t last_purge = 0;
+	time_t now;
+	struct tm tm;
 
-	if (CtdlAccessCheck(ac_aide)) return;
+	/* Do the auto-purge if the current hour equals the purge hour,
+	 * but not if the operation has already been performed in the
+	 * last twelve hours.  This is usually enough granularity.
+	 */
+	now = time(NULL);
+	memcpy(&tm, localtime(&now), sizeof(struct tm));
+	if (tm.tm_hour != config.c_purge_hour) return;
+	if ((now - last_purge) < 43200) return;
 
-	extract(cmd, argbuf, 0);
-	if (!strcasecmp(cmd, "users")) {
-		retval = PurgeUsers();
-		cprintf("%d Purged %d users.\n", CIT_OK, retval);
-		return;
-	}
-	else if (!strcasecmp(cmd, "messages")) {
-		PurgeMessages();
-		cprintf("%d Expired %d messages.\n", CIT_OK, messages_purged);
-		return;
-	}
-	else if (!strcasecmp(cmd, "rooms")) {
-		retval = PurgeRooms();
-		cprintf("%d Expired %d rooms.\n", CIT_OK, retval);
-		return;
-	}
-	else if (!strcasecmp(cmd, "visits")) {
-		retval = PurgeVisits();
-		cprintf("%d Purged %d visits.\n", CIT_OK, retval);
-	}
-	else if (!strcasecmp(cmd, "usetable")) {
-		retval = PurgeUseTable();
-		cprintf("%d Purged %d entries from the use table.\n",
-			CIT_OK, retval);
-	}
-	else if (!strcasecmp(cmd, "defrag")) {
-		defrag_databases();
-		cprintf("%d Defragmented the databases.\n", CIT_OK);
-	}
-	else {
-		cprintf("%d Invalid command.\n", ERROR+ILLEGAL_VALUE);
-		return;
-	}
+	lprintf(3, "Auto-purger: starting.\n");
+
+	retval = PurgeUsers();
+	lprintf(3, "Purged %d users.\n", retval);
+
+	PurgeMessages();
+	lprintf(3, "Expired %d messages.\n", messages_purged);
+
+	retval = PurgeRooms();
+	lprintf(3, "Expired %d rooms.\n", retval);
+
+	retval = PurgeVisits();
+	lprintf(3, "Purged %d visits.\n", retval);
+
+	retval = PurgeUseTable();
+	lprintf(3, "Purged %d entries from the use table.\n", retval);
+
+	lprintf(3, "Auto-purger: finished.\n");
+
+	last_purge = now;	/* So we don't do it again soon */
 }
 
 /*****************************************************************************/
@@ -726,7 +722,7 @@ void cmd_fsck(char *argbuf) {
 
 char *serv_expire_init(void)
 {
-	CtdlRegisterProtoHook(cmd_expi, "EXPI", "Expire old system objects");
+	CtdlRegisterSessionHook(purge_databases, EVT_TIMER);
 	CtdlRegisterProtoHook(cmd_fsck, "FSCK", "Check message ref counts");
 	return "$Id$";
 }

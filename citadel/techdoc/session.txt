@@ -1755,29 +1755,15 @@ fails for any reason, ERROR is returned.
  27. Flag (0 or 1) - allow Aides to zap (forget) rooms
  28. Port number for IMAP service
  29. How often (in seconds) to run the networker
+ 30. Flag (0 or 1) - disable self-service new user registration
+ 31. Flag (0 or 1) - Aides are allowed access to all mailboxes
+ 32. Hour (0 through 23) during which database auto-purge jobs are run
 
  CONF also accepts two additional commands: GETSYS and PUTSYS followed by an
 arbitrary MIME type (such as application/x-citadel-internet-config) which
 provides a means of storing generic configuration data in the Global System
 Configuration room without the need to add extra get/set commands to the
 server.
-
-
-  EXPI   (EXPIre system objects)
-
- Begins purge operations for objects which, according to site policy, are
-"old" and should be removed.  EXPI should be called with one argument, one of:
-
-    "messages"     (purge old messages out of each room)
-    "users"        (purge old users from the userlog)
-    "rooms"        (remove rooms which have not been posted in for some time)
-    "visits"       (purge dereferenced user/room relationship records)
-
- EXPI returns OK (probably after a long delay while it does its work) if it
-succeeds; otherwise it returns an ERROR code.
-
- This command is probably temporary, until we can work some sort of scheduler
-into the system.  It is implemented in the serv_expire module.
 
 
 

@@ -196,6 +196,7 @@ void cmd_conf(char *argbuf)
 		cprintf("%ld\n", config.c_net_freq);
 		cprintf("%d\n", config.c_disable_newu);
 		cprintf("%d\n", config.c_aide_mailboxes);
+		cprintf("%d\n", config.c_purge_hour);
 		cprintf("000\n");
 	}
 
@@ -329,6 +330,12 @@ void cmd_conf(char *argbuf)
 				config.c_aide_mailboxes = atoi(buf);
 				if (config.c_aide_mailboxes != 0)
 					config.c_aide_mailboxes = 1;
+				break;
+			case 31:
+				if ((config.c_purge_hour >= 0)
+				   && (config.c_purge_hour <= 23)) {
+					config.c_purge_hour = atoi(buf);
+				}
 				break;
 			}
 			++a;

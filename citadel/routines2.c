@@ -775,6 +775,7 @@ void do_system_configuration(CtdlIPC *ipc)
 		strprompt("Keep messages for how many days?", buf, 10);
 		expirepolicy->expire_value = atol(buf);
 	}
+	strprompt("Hour to run purges (0-23)", &sc[31][0], 4);
 	/* Save it */
 	scr_printf("Save this configuration? ");
 	if (yesno()) {
