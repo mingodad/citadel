@@ -614,10 +614,12 @@ void export_a_user(struct usersupp *us) {
 
 		if (num_visits > 0) for (a=0; a<num_visits; ++a) {
 			fprintf(exfp, "visit%c", 0);
-			fprintf(exfp, "vname%c%s%c", 0,
-					visits[a].v_roomname, 0);
+			fprintf(exfp, "vroomnum%c%ld%c", 0,
+					visits[a].v_roomnum, 0);
 			fprintf(exfp, "vgen%c%ld%c", 0,
-					visits[a].v_generation, 0);
+					visits[a].v_roomgen, 0);
+			fprintf(exfp, "vusermnum%c%ld%c", 0,
+					visits[a].v_usernum, 0);
 			fprintf(exfp, "lastseen%c%ld%c", 0,
 					visits[a].v_lastseen, 0);
 			fprintf(exfp, "flags%c%d%c", 0,
@@ -709,6 +711,7 @@ void do_export(char *argbuf) {
 	lprintf(1, "Export is finished.\n");
 	cprintf("%d Export is finished.\n", OK);
 	}
+
 
 
 

@@ -186,8 +186,9 @@ extern struct UserFunctionHook *UserHookTable;
 
 /* Defines the relationship of a user to a particular room */
 struct visit {
-	char v_roomname[ROOMNAMELEN];
-	long v_generation;
+	long v_roomnum;
+	long v_roomgen;
+	long v_usernum;
 	long v_lastseen;
 	unsigned int v_flags;
 	};

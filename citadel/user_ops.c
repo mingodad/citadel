@@ -105,6 +105,26 @@ void lputuser(struct usersupp *usbuf, char *name) {
 	end_critical_section(S_USERSUPP);
 	}
 
+/*
+ * Index-generating function used by Ctdl[Get|Set]Relationship
+ */
+int GenerateRelationshipIndex(	char *IndexBuf,
+				struct usersupp *rel_user,
+				struct quickroom *rel_room) {
+
+	struct {
+		long RoomID;
+		long RoomGen;
+		long UserID;
+		} TheIndex;
+
+	TheIndex.RoomID = rel_room->QRnumber;
+	TheIndex.RoomGen = rel_room->QRgen;
+	TheIndex.UserID = rel_user->usernum;
+
+	memcpy(IndexBuf, &TheIndex, sizeof(TheIndex));
+	return(sizeof(TheIndex));
+	}
 
 /*
  * Define a relationship between a user and a room
@@ -113,49 +133,23 @@ void CtdlSetRelationship(struct visit *newvisit,
 			struct usersupp *rel_user,
 			struct quickroom *rel_room) {
 
-	struct cdbdata *cdbvisit;
-	struct visit *visits;
-	int num_visits;
-	int a;
-	int replaced = 0;
+	char IndexBuf[32];
+	int IndexLen;
 
-	cdbvisit = cdb_fetch(CDB_VISIT, &rel_user->usernum, sizeof(long));
-	if (cdbvisit != NULL) {
-		num_visits = cdbvisit->len / sizeof(struct visit);
-		visits = (struct visit *)
-			malloc(num_visits * sizeof(struct visit));
-		memcpy(visits, cdbvisit->ptr,
-			(num_visits * sizeof(struct visit)));
-		cdb_free(cdbvisit);
-		}
-	else {
-		num_visits = 0;
-		visits = NULL;
-		}
+	/* We don't use these in Citadel because they're implicit by the
+	 * index, but they must be present if the database is exported.
+	 */
+        newvisit->v_roomnum = rel_room->QRnumber;
+        newvisit->v_roomgen = rel_room->QRgen;
+        newvisit->v_usernum = rel_user->usernum;
 
-	/* Replace an existing relationship if possible */
-	if (num_visits > 0) for (a=0; a<num_visits; ++a) {
-		if ( (!strcasecmp(visits[a].v_roomname, rel_room->QRname))
-		   && (visits[a].v_generation == rel_room->QRgen) ) {
-			memcpy(&visits[a], newvisit, sizeof(struct visit));
-			replaced = 1;
-			}
-		}
+	/* Generate an index */
+	IndexLen = GenerateRelationshipIndex(IndexBuf, rel_user, rel_room);
 
-	/* Otherwise, define a new one */
-	if (replaced == 0) {
-		++num_visits;
-		visits = realloc(visits, 
-			(num_visits * sizeof(struct visit)));
-		memcpy(&visits[num_visits-1], newvisit, sizeof(struct visit));
-		}
-
-	/* Now write the relationship back to disk */
-	cdb_store(CDB_VISIT,
-		&rel_user->usernum, sizeof(long),
-		visits,
-		(num_visits * sizeof(struct visit)));
-	free(visits);
+	/* Store the record */
+	cdb_store(CDB_VISIT, IndexBuf, IndexLen,
+		newvisit, sizeof(struct visit)
+		);
 	}
 
 /*
@@ -165,43 +159,30 @@ void CtdlGetRelationship(struct visit *vbuf,
 			struct usersupp *rel_user,
 			struct quickroom *rel_room) {
 
+	char IndexBuf[32];
+	int IndexLen;
 	struct cdbdata *cdbvisit;
-	struct visit *visits;
-	int num_visits;
-	int a;
 
+	/* Generate an index */
+	IndexLen = GenerateRelationshipIndex(IndexBuf, rel_user, rel_room);
+
+	/* Clear out the buffer */
 	bzero(vbuf, sizeof(struct visit));
-	strcpy(vbuf->v_roomname, rel_room->QRname);
-	vbuf->v_generation = rel_room->QRgen;
 
-	cdbvisit = cdb_fetch(CDB_VISIT, &rel_user->usernum, sizeof(long));
+	cdbvisit = cdb_fetch(CDB_VISIT, IndexBuf, IndexLen);
 	if (cdbvisit != NULL) {
-		if ((num_visits = cdbvisit->len / sizeof(struct visit)) == 0) {
-			cdb_free(cdbvisit);
-			return;
-		}
-		visits = (struct visit *)
-			malloc(num_visits * sizeof(struct visit));
-		memcpy(visits, cdbvisit->ptr,
-			(num_visits * sizeof(struct visit)));
+		memcpy(vbuf, cdbvisit->ptr,
+			( (cdbvisit->len > sizeof(struct visit)) ?
+			sizeof(struct visit) : cdbvisit->len) );
 		cdb_free(cdbvisit);
+		return;
 		}
-	else return;
-
-	for (a=0; a<num_visits; ++a) {
-	
-		if ( (!strcasecmp(visits[a].v_roomname, rel_room->QRname))
-		   && (visits[a].v_generation == rel_room->QRgen) ) {
-			memcpy(vbuf, &visits[a], sizeof(struct visit));
-			}
-		}
-	
-	free(visits);
 	}
 
 
 void PurgeStaleRelationships(void) {
 
+	/********* REWRITE THIS FOR GLOBAL USE AND MOVE IT TO THE PURGE MODULE
 	struct cdbdata *cdbvisit;
 	struct visit *visits;
 	struct quickroom qrbuf;
@@ -233,15 +214,6 @@ void PurgeStaleRelationships(void) {
 			purge = 0;
 			}
 
-		/*
-		lprintf(9, "U/R REL: <%s> <%ld> <%ld> <%d> %s\n",
-			visits[a].v_roomname,
-			visits[a].v_generation,
-			visits[a].v_lastseen,
-			visits[a].v_flags,
-			(purge ? "**purging**" : "") );
-		*/
-
 		if (purge) {
 			memcpy(&visits[a], &visits[a+1],
 				(((num_visits-a)-1) * sizeof(struct visit)) );
@@ -253,6 +225,7 @@ void PurgeStaleRelationships(void) {
 	cdb_store(CDB_VISIT, &CC->usersupp.usernum, sizeof(long),
 			visits, (num_visits * sizeof(struct visit)));
 	free(visits);
+	**************/
 	}
 
 
