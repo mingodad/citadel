@@ -33,6 +33,25 @@ extern struct config config;
 
 
 /*
+ * This function is self explanatory.
+ * (What can I say, I'm in a weird mood today...)
+ */
+void remove_any_whitespace_to_the_left_or_right_of_at_symbol(char *name) {
+	int i;
+
+	for (i=0; i<strlen(name); ++i) if (name[i]=='@') {
+		if (i>0) if (isspace(name[i-1])) {
+			strcpy(&name[i-1], &name[i]);
+			i = 0;
+			}
+		while (isspace(name[i+1])) {
+			strcpy(&name[i+1], &name[i+2]);
+			}
+		}
+	}
+
+
+/*
  * Aliasing for network mail.
  * (Error messages have been commented out, because this is a server.)
  */
@@ -43,6 +62,8 @@ int alias(char *name)		/* process alias and routing info for mail */
 	char aaa[300],bbb[300];
 
 	lprintf(9, "alias() called for <%s>\n", name);
+
+	remove_any_whitespace_to_the_left_or_right_of_at_symbol(name);
 	
 	fp=fopen("network/mail.aliases","r");
 	if (fp==NULL) fp=fopen("/dev/null","r");
