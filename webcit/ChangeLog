@@ -1,4 +1,7 @@
 $Log$
+Revision 322.0  2001/12/26 23:11:56  ajc
+* THIS IS 3.22
+
 Revision 321.1  2001/12/26 23:11:25  ajc
 * Minor change to the upload handler, to fix graphics uploads
 
