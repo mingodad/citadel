@@ -92,7 +92,7 @@ void calendar_month_view(int year, int month, int day) {
 	 */
 	memset(&starting_tm, 0, sizeof(struct tm));
 	starting_tm.tm_year = year - 1900;
-	starting_tm.tm_mon = month;
+	starting_tm.tm_mon = month - 1;
 	starting_tm.tm_mday = day;
 	thetime = mktime(&starting_tm);
 	lprintf(9, "Starting at %s", asctime(localtime(&thetime)));
@@ -126,14 +126,14 @@ void calendar_month_view(int year, int month, int day) {
 
 	tm = localtime(&previous_month);
 	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
-		(int)(tm->tm_year)+1900, tm->tm_mon);
+		(int)(tm->tm_year)+1900, tm->tm_mon + 1);
 	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/back.gif\" BORDER=0></A>\n");
 
 	wprintf("&nbsp;&nbsp;"
 		"<FONT COLOR=#FFFFFF>"
 		"%s %d"
 		"</FONT>"
-		"&nbsp;&nbsp;", months[month], year);
+		"&nbsp;&nbsp;", months[month-1], year);
 
 	tm = localtime(&next_month);
 	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
@@ -192,12 +192,30 @@ void calendar_week_view(int year, int month, int day) {
 
 
 void calendar_day_view(int year, int month, int day) {
-	wprintf("<CENTER><I>FIXME day view for %02d/%02d/%04d</I></CENTER><BR>\n", month, day, year);
+	struct tm starting_tm;
+	time_t thetime;
 
+	/* Determine what day we're viewing.
+	 */
+	memset(&starting_tm, 0, sizeof(struct tm));
+	starting_tm.tm_year = year - 1900;
+	starting_tm.tm_mon = month - 1;
+	starting_tm.tm_mday = day;
+	thetime = mktime(&starting_tm);
+	lprintf(9, "Starting at %s", asctime(localtime(&thetime)));
 
+	/* put the data here, stupid */
+	calendar_month_view_display_events(thetime);
+
+	wprintf("<CENTER><I>FIXME day view for %02d/%02d/%04d</I>"
+		"</CENTER><BR>\n", month, day, year);
 	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">"
 		"Back to month view</A><BR>\n", year, month);
+
+
 }
+
+
 
 
 
@@ -212,7 +230,7 @@ void do_calendar_view(void) {
 	now = time(NULL);
 	tm = localtime(&now);
 	year = tm->tm_year + 1900;
-	month = tm->tm_mon;
+	month = tm->tm_mon + 1;
 	day = tm->tm_mday;
 
 	/* Now see if a date was specified */
@@ -247,6 +265,7 @@ void do_calendar_view(void) {
 	free(WC->disp_cal);
 	WC->disp_cal = NULL;
 	free(WC->cal_msgnum);
+	WC->cal_msgnum = NULL;
 }
 
 
