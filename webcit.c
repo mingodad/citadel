@@ -29,6 +29,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include "webcit.h"
+#include "groupdav.h"
 #include "webserver.h"
 #include "mime_parser.h"
 
