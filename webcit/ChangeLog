@@ -1,6 +1,9 @@
 $Log$
+Revision 522.17  2004/07/16 19:13:37  ajc
+*** empty log message ***
+
 Revision 522.16  2004/07/16 19:13:10  ajc
-* tools.c: display 13:00 as 12pm, not 12am
+* tools.c: display 12:00 as 12pm, not 12am
 
 Revision 522.15  2004/07/16 03:14:03  ajc
 * more work on inetconf screen
