@@ -44,6 +44,7 @@
 int setup_type;
 char setup_directory[SIZ];
 char init_entry[SIZ];
+int using_web_installer = 0;
 
 char *setup_titles[] =
 {
@@ -776,6 +777,11 @@ int main(int argc, char *argv[])
 	/* set an invalid setup type */
 	setup_type = (-1);
 
+        /* Check to see if we're running the web installer */
+	if (getenv("CITADEL_INSTALLER") != NULL) {
+		using_web_installer = 1;
+	}
+
 	/* parse command line args */
 	for (a = 0; a < argc; ++a) {
 		if (!strncmp(argv[a], "-u", 2)) {
@@ -805,7 +811,13 @@ int main(int argc, char *argv[])
 
 	/* Get started in a valid setup directory. */
 	strcpy(setup_directory, BBSDIR);
-	set_str_val(0, setup_directory);
+	if ( (using_web_installer) && (getenv("CITADEL") != NULL) ) {
+		strcpy(setup_directory, getenv("CITADEL"));
+	}
+	else {
+		set_str_val(0, setup_directory);
+	}
+
 	if (chdir(setup_directory) != 0) {
 		important_message("Citadel/UX Setup",
 			  "The directory you specified does not exist.");

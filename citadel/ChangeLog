@@ -1,4 +1,9 @@
  $Log$
+ Revision 620.19  2004/04/20 02:42:54  ajc
+ * techdoc/binaries.txt : updated, now includes WebCit instructions
+ * setup.c: detect when setup is run from within the Citadel/UX Ridiculously
+   Easy Installer and skip the directory prompt; the installer sets it.
+
  Revision 620.18  2004/04/14 18:43:51  nbryant
  * citadel.spec: BuildRequire redhat-rpm-config
 
@@ -5703,4 +5708,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

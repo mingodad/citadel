@@ -23,30 +23,35 @@ We build in /usr/src.
  
  (FIXME still not detected properly)
 
-3. If LDAP support is required, build OpenLDAP with:
-
+3. Set these environment variables for the rest of the build:
 export CFLAGS='-I/usr/local/ctdlsupport/include'
 export CPPFLAGS='-I/usr/local/ctdlsupport/include'
 export LDFLAGS='-L/usr/local/ctdlsupport/lib -Wl,--rpath -Wl,/usr/local/ctdlsupport/lib'
-./configure --prefix=/usr/local/citadel --with-db=/usr/local/ctdlsupport
-make
-make depend
-make install
-
-4. Build Citadel with:
-
-export CFLAGS='-I/usr/local/ctdlsupport/include'
-export LDFLAGS='-L/usr/local/ctdlsupport/lib -Wl,--rpath -Wl,/usr/local/ctdlsupport/lib'
-./configure --prefix=/usr/local/citadel --with-db=/usr/local/ctdlsupport
-make
-make install
  
  -L tells the build system where to find libraries during the build process,
 while -Wl,--rpath inserts that same library path into the Citadel binaries
 so they know where to find the libs at runtime.  Since we can't depend on
 the correct version of Berkeley DB already being on the system, this is how
 we carry our own along.  It's better than static linking everything.
- 
+
+4. If LDAP support is required, build OpenLDAP with:
+
+./configure --prefix=/usr/local/citadel --with-db=/usr/local/ctdlsupport
+make
+make depend
+make install
+
+5. Build Citadel with:
+
+./configure --prefix=/usr/local/citadel --with-db=/usr/local/ctdlsupport
+make
+make install
+
+6. Build WebCit with:
+
+./configure --prefix=/usr/local/webcit
+make
+make install
  
  FIXME / TODO
  
