@@ -1,4 +1,7 @@
 $Log$
+Revision 410.23  2003/05/04 02:54:55  ajc
+* Summary page now uses our cutesy new rounded window boxes
+
 Revision 410.22  2003/05/03 21:28:41  ajc
 * Added in a slick new box style and put the room lists in it
 
@@ -1371,3 +1374,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

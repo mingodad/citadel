@@ -51,24 +51,15 @@ void output_date(void) {
 
 
 
-/*
- * Display the title bar for a section
- */
-void section_title(char *title) {
-
-	wprintf("<TABLE width=100%% border=0 cellpadding=5 cellspacing=0>"
-		"<TR><TD BGCOLOR=#444455>"
-		"<SPAN CLASS=\"titlebar\">");
-	escputs(title);
-	wprintf("</SPAN></TD></TR></TABLE>\n");
-}
-
 
 /*
  * Dummy section
  */
 void dummy_section(void) {
-	section_title("---");
+	svprintf("BOXTITLE", WCS_STRING, "(dummy section)");
+	do_template("beginbox");
+	wprintf("(nothing)");
+	do_template("endbox");
 }
 
 
@@ -82,7 +73,8 @@ void new_messages_section(void) {
 	int number_of_rooms_to_check;
 	char *rooms_to_check = "Mail|Lobby";
 
-	section_title("Messages");
+	svprintf("BOXTITLE", WCS_STRING, "Messages");
+	do_template("beginbox");
 
 	number_of_rooms_to_check = num_tokens(rooms_to_check, '|');
 	if (number_of_rooms_to_check == 0) return;
@@ -106,6 +98,7 @@ void new_messages_section(void) {
 		}
 	}
 	wprintf("</TABLE>\n");
+	do_template("endbox");
 
 }
 
@@ -117,7 +110,8 @@ void wholist_section(void) {
 	char buf[SIZ];
 	char user[SIZ];
 
-	section_title("Who's online now");
+	svprintf("BOXTITLE", WCS_STRING, "Who's online now");
+	do_template("beginbox");
 	serv_puts("RWHO");
 	serv_gets(buf);
 	if (buf[0] == '1') while(serv_gets(buf), strcmp(buf, "000")) {
@@ -125,6 +119,7 @@ void wholist_section(void) {
 		escputs(user);
 		wprintf("<BR>\n");
 	}
+	do_template("endbox");
 }
 
 
@@ -135,7 +130,8 @@ void tasks_section(void) {
 	int num_msgs = 0;
 	int i;
 
-	section_title("Tasks");
+	svprintf("BOXTITLE", WCS_STRING, "Tasks");
+	do_template("beginbox");
 	gotoroom("Tasks", 0);
 	if (strcasecmp(WC->wc_roomname, "Tasks")) {
 		wprintf("<i>(You do not have a task list)</i><BR>\n");
@@ -153,6 +149,7 @@ void tasks_section(void) {
 		display_task(WC->msgarr[i]);
 	}
 	wprintf("</UL>\n");
+	do_template("endbox");
 }
 
 
@@ -163,7 +160,8 @@ void calendar_section(void) {
 	int num_msgs = 0;
 	int i;
 
-	section_title("Today on your calendar");
+	svprintf("BOXTITLE", WCS_STRING, "Today on your calendar");
+	do_template("beginbox");
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	gotoroom("Calendar", 0);
 	if (strcasecmp(WC->wc_roomname, "Calendar")) {
@@ -183,6 +181,7 @@ void calendar_section(void) {
 
 	calendar_summary_view();
 #endif /* WEBCIT_WITH_CALENDAR_SERVICE */
+	do_template("endbox");
 }
 
 
@@ -190,7 +189,8 @@ void calendar_section(void) {
  * Server info section (fluff, really)
  */
 void server_info_section(void) {
-	section_title("About this server");
+	svprintf("BOXTITLE", WCS_STRING, "About this server");
+	do_template("beginbox");
 	wprintf("You are connected to ");
 	escputs(serv_info.serv_humannode);
 	wprintf(", running ");
@@ -200,6 +200,7 @@ void server_info_section(void) {
 	wprintf(".<BR>\nYour system administrator is ");
 	escputs(serv_info.serv_sysadm);
 	wprintf(".\n");
+	do_template("endbox");
 }
 
 
@@ -240,7 +241,7 @@ void summary(void) {
 	 */
 	wprintf("</TD><TD WIDTH=33%%>");
 	server_info_section();
-	wprintf("<BR><BR>");
+	wprintf("<BR>");
 	tasks_section();
 
 	/*
@@ -248,7 +249,7 @@ void summary(void) {
 	 */
 	wprintf("</TD><TD WIDTH=33%%>");
 	new_messages_section();
-	wprintf("<BR><BR>");
+	wprintf("<BR>");
 	calendar_section();
 
 	/*
