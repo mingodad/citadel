@@ -413,10 +413,13 @@ int is_banned(char *k_person, char *k_room, char *k_system)
 	return (0);
 }
 
-int get_sysinfo_type(char *name)
-{				/* determine routing from sysinfo file */
+/*
+ * Determine routing from sysinfo file
+ */
+int get_sysinfo_type(char *name) {
 	struct syslist *stemp;
-      GETSN:for (stemp = slist; stemp != NULL; stemp = stemp->next) {
+
+GETSN:	for (stemp = slist; stemp != NULL; stemp = stemp->next) {
 		if (!strcasecmp(stemp->s_name, name)) {
 			if (!strcasecmp(stemp->s_type, "use")) {
 				strcpy(name, stemp->s_nexthop);
@@ -486,7 +489,7 @@ void msgfind(char *msgfile, struct minfo *buffer)
 	buffer->B[0] = 0;
 	buffer->G[0] = 0;
 
-      BONFGM:b = getc(fp);
+BONFGM:	b = getc(fp);
 	if (b < 0)
 		goto END;
 	if (b == 'M')
@@ -545,10 +548,21 @@ void msgfind(char *msgfile, struct minfo *buffer)
 		strcpy(buffer->E, bbb);
 	goto BONFGM;
 
-      END:if (buffer->I == 0L)
+END:	fclose(fp);
+
+	/* NOTE: we used to use the following two lines of code to assign
+	 * the timestamp as a message-ID if there was no message-ID already
+	 * in the message.  We don't do this anymore because it screws up
+	 * the loopzapper.
+	 *
+	if (buffer->I == 0L)
 		buffer->I = buffer->T;
-	fclose(fp);
+	 */
 }
+
+
+
+
 
 void ship_to(char *filenm, char *sysnm)
 {				/* send spool file filenm to system sysnm */
