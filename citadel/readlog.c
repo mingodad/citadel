@@ -44,12 +44,9 @@ main (argc, argv)
 	{
 	  buf[strlen (buf) - 1] = 0;
 
-	  LogTime = atol (buf);
-	  strcpy (buf, index (buf, '|'));
-	  LogType = atoi (buf);
-	  strcpy (buf, index (buf, '|'));
-	  strcpy (LogName, buf);
-
+	  LogTime = atol (strtok(buf, "|"));
+          LogType = atol (strtok(NULL, "|"));
+          strcpy(LogName, strtok(NULL, "|"));
 
 	  if (LogType != 0)
 	    {
