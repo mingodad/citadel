@@ -202,7 +202,7 @@ void network_spoolout_current_room(void) {
 
 
 	/* Do something useful */
-	CtdlForEachMessage(MSGS_ALL, 0L, (-63), NULL, NULL,
+	CtdlForEachMessage(MSGS_GT, sc.lastsent, (-63), NULL, NULL,
 		network_spool_msg, &sc);
 
 
