@@ -1146,17 +1146,14 @@ void cmd_dele(char *delstr)
 
 	getuser(&CC->usersupp,CC->curr_user);
 	if ((CC->usersupp.axlevel < 6)
-	   && (CC->usersupp.usernum != CC->quickroom.QRroomaide)) {
+	   && (CC->usersupp.usernum != CC->quickroom.QRroomaide)
+	   && ((CC->quickroom.QRflags & QR_MAILBOX) == 0)) {
 		cprintf("%d Higher access required.\n",
 			ERROR+HIGHER_ACCESS_REQUIRED);
 		return;
 		}
 
-	delnum = atol(delstr);
-	if (CC->quickroom.QRflags & QR_MAILBOX) {
-		cprintf("%d Can't delete mail.\n",ERROR);
-		return;
-		}
+	delnum = extract_long(delstr, 0);
 	
 	/* get room records, obtaining a lock... */
 	lgetroom(&CC->quickroom,CC->quickroom.QRname);
