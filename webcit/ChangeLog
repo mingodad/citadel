@@ -1,3 +1,7 @@
+Sat Jun 26 22:52:13 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Rearranged the code in "Site-wide configuration" and "Generic
+	  server command" to avoid nested server operations
+
 Wed Jun 23 21:43:30 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* webcit.c: added "back, top, next" buttons to bottom of each page
 	* menubar.html: replaced "User list" with "Page another user"

@@ -261,11 +261,13 @@ void do_generic(void)
 		display_main_menu();
 		return;
 	}
-	serv_printf("%s", bstr("g_cmd"));
-	serv_gets(buf);
 
 	printf("HTTP/1.0 200 OK\n");
 	output_headers(1);
+
+	serv_printf("%s", bstr("g_cmd"));
+	serv_gets(buf);
+
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770077><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Server command results</B>\n");

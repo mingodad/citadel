@@ -19,14 +19,20 @@ void display_siteconfig(void)
 	char buf[256];
 	int i;
 
+	printf("HTTP/1.0 200 OK\n");
+	output_headers(1);
+
 	serv_printf("CONF get");
 	serv_gets(buf);
 	if (buf[0] != '1') {
-		display_error(&buf[4]);
+        	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+        	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+        	wprintf("<B>Error</B>\n");
+        	wprintf("</FONT></TD></TR></TABLE><BR>\n");
+        	wprintf("%s<BR>\n", &buf[4]);
+		wDumpContent(1);
 		return;
 	}
-	printf("HTTP/1.0 200 OK\n");
-	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>Site configuration");
@@ -37,7 +43,7 @@ void display_siteconfig(void)
 
 	i = 0;
 	while (serv_gets(buf), strcmp(buf, "000")) {
-		switch (i++) {
+		switch (++i) {
 		case 1:
 			wprintf("<TR><TD>Node name</TD><TD>");
 			wprintf("<INPUT TYPE=\"text\" NAME=\"c_nodename\" MAXLENGTH=\"15\" VALUE=\"%s\">", buf);
