@@ -96,11 +96,13 @@ void cmd_rwho(char *argbuf) {
 			strcpy(room, real_room);
 		}
 		
-                if ((aide) && (spoofed))
-                   strcat(flags, "+");
+                if ((aide) && (spoofed)) {
+                	strcat(flags, "+");
+		}
 		
-		if ((cptr->cs_flags & CS_STEALTH) && (aide))
-		   strcat(flags, "-");
+		if ((cptr->cs_flags & CS_STEALTH) && (aide)) {
+			strcat(flags, "-");
+		}
 		
 		if (((cptr->cs_flags&CS_STEALTH)==0) || (aide))
 		{
@@ -109,31 +111,30 @@ void cmd_rwho(char *argbuf) {
 				host, cptr->cs_clientname,
 				(long)(cptr->lastidle),
 				cptr->lastcmdname, flags);
-		}
 
-		if ((user_spoofed) && (aide)) {
-			cprintf("%s|", cptr->curr_user);
+			if ((user_spoofed) && (aide)) {
+				cprintf("%s|", cptr->curr_user);
+			}
+			else {
+				cprintf("|");
+			}
+	
+			if ((room_spoofed) && (aide)) {
+				cprintf("%s|", real_room);
+			}
+			else {
+				cprintf("|");
+			}
+	
+			if ((host_spoofed) && (aide)) {
+				cprintf("%s|", cptr->cs_host);
+			}
+			else {
+				cprintf("|");
+			}
+	
+			cprintf("\n");
 		}
-		else {
-			cprintf("|");
-		}
-
-		if ((room_spoofed) && (aide)) {
-			cprintf("%s|", real_room);
-		}
-		else {
-			cprintf("|");
-		}
-
-		if ((host_spoofed) && (aide)) {
-			cprintf("%s|", cptr->cs_host);
-		}
-		else {
-			cprintf("|");
-		}
-
-		cprintf("\n");
-
 	}
 
 	/* Now it's magic time.  Before we finish, call any EVT_RWHO hooks
