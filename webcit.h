@@ -202,7 +202,7 @@ extern pthread_key_t MyConKey;
 struct serv_info serv_info;
 extern char floorlist[128][SIZ];
 extern char *axdefs[];
-extern char *defaulthost, *defaultport;
+extern char *ctdlhost, *ctdlport;
 extern char *server_cookie;
 
 extern struct wcsubst *global_subst;
