@@ -129,6 +129,31 @@ void wholist_section(void) {
 
 
 /*
+ * Task list section
+ */
+void tasks_section(void) {
+	int num_msgs = 0;
+	int i;
+
+	gotoroom("Tasks", 0);
+	if (strcasecmp(WC->wc_roomname, "Tasks")) {
+		wprintf("<i>(You do not have a task list)</i><BR>\n");
+		return;
+	}
+
+	num_msgs = load_msg_ptrs("MSGS ALL");
+	if (num_msgs < 1) {
+		wprintf("<i>(None)</i><BR>\n");
+		return;
+	}
+
+	for (i=0; i<num_msgs; ++i) {
+		display_task(WC->msgarr[i]);
+	}
+}
+
+
+/*
  * Server info section (fluff, really)
  */
 void server_info_section(void) {
@@ -204,6 +229,8 @@ void summary(void) {
 	 */
 	wprintf("</TD><TD>");
 	server_info_section();
+	wprintf("<BR><BR>");
+	tasks_section();
 
 	/*
 	 * Column Three

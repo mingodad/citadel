@@ -483,7 +483,9 @@ void display_individual_task(icalcomponent *vtodo, long msgnum) {
 	icalproperty *p;
 
 	p = icalcomponent_get_first_property(vtodo, ICAL_SUMMARY_PROPERTY);
-	wprintf("<LI><A HREF=\"/display_edit_task?msgnum=%ld\">", msgnum);
+	wprintf("<LI><A HREF=\"/display_edit_task?msgnum=%ld&taskrm=", msgnum);
+	urlescputs(WC->wc_roomname);
+	wprintf("\">");
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_comment(p));
 	}
@@ -763,6 +765,11 @@ void display_task(long msgnum) {
 
 void display_edit_task(void) {
 	long msgnum = 0L;
+
+	/* Force change the room if we have to */
+	if (strlen(bstr("taskrm")) > 0) {
+		gotoroom(bstr("taskrm"), 0);
+	}
 
 	msgnum = atol(bstr("msgnum"));
 	if (msgnum > 0L) {
