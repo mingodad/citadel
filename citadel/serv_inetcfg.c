@@ -49,10 +49,13 @@
 #include "genstamp.h"
 #include "domain.h"
 
+
+
+
 void inetcfg_setTo(struct CtdlMessage *msg) {
 	char *conf;
 	char buf[SIZ];
-
+	
 	if (msg->cm_fields['M']==NULL) return;
 	conf = strdoop(msg->cm_fields['M']);
 
@@ -65,6 +68,37 @@ void inetcfg_setTo(struct CtdlMessage *msg) {
 		if (inetcfg != NULL) phree(inetcfg);
 		inetcfg = conf;
 	}
+}
+
+
+void spamstrings_setTo(struct CtdlMessage *msg) {
+	char buf[SIZ];
+	char *conf;
+	struct spamstrings_t *sptr;
+	int i, n;
+
+	/* Clear out the existing list */
+	while (spamstrings != NULL) {
+		sptr = spamstrings;
+		spamstrings = spamstrings->next;
+		phree(sptr->string);
+		phree(sptr);
+	}
+
+	/* Read in the new list */
+	if (msg->cm_fields['M']==NULL) return;
+	conf = strdoop(msg->cm_fields['M']);
+	if (conf == NULL) return;
+
+	n = num_tokens(conf, '\n');
+	for (i=0; i<n; ++i) {
+		extract_token(buf, conf, i, '\n');
+		sptr = mallok(sizeof(struct spamstrings_t));
+		sptr->string = strdoop(buf);
+		sptr->next = spamstrings;
+		spamstrings = sptr;
+	}
+
 }
 
 
@@ -91,9 +125,11 @@ int inetcfg_aftersave(struct CtdlMessage *msg) {
 		if (!strncasecmp(ptr, "Content-type: ", 14)) {
 			if (!strncasecmp(&ptr[14], INTERNETCFG,
 		   	   strlen(INTERNETCFG))) {
-				/* Bingo!  The user is changing configs.
-			 	*/
-				inetcfg_setTo(msg);
+				inetcfg_setTo(msg);	/* changing configs */
+			}
+			if (!strncasecmp(&ptr[14], SPAMSTRINGS,
+		   	   strlen(INTERNETCFG))) {
+				spamstrings_setTo(msg);	/* changing configs */
 			}
 		}
 
@@ -116,10 +152,23 @@ void inetcfg_init_backend(long msgnum, void *userdata) {
 }
 
 
+void spamstrings_init_backend(long msgnum, void *userdata) {
+	struct CtdlMessage *msg;
+
+       	msg = CtdlFetchMessage(msgnum);
+       	if (msg != NULL) {
+		spamstrings_setTo(msg);
+               	CtdlFreeMessage(msg);
+	}
+}
+
+
 void inetcfg_init(void) {
 	if (getroom(&CC->quickroom, SYSCONFIGROOM) != 0) return;
 	CtdlForEachMessage(MSGS_LAST, 1, INTERNETCFG, NULL,
 		inetcfg_init_backend, NULL);
+	CtdlForEachMessage(MSGS_LAST, 1, SPAMSTRINGS, NULL,
+		spamstrings_init_backend, NULL);
 }
 
 

@@ -61,7 +61,7 @@ struct trynamebuf {
 };
 
 char *inetcfg = NULL;
-
+struct spamstrings_t *spamstrings = NULL;
 
 
 /*

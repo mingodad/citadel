@@ -36,3 +36,12 @@ enum {
 };
 
 extern DLEXP char *inetcfg;
+
+
+struct spamstrings_t {
+	struct spamstrings_t *next;
+	char *string;
+};
+
+extern DLEXP struct spamstrings_t *spamstrings;
+
