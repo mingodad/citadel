@@ -1,4 +1,10 @@
-/* $Id$ */
+/* $Id$ 
+ *
+ * An implementation of Post Office Protocol version 3 (RFC 1939).
+ *
+ * Copyright (C) 1998-2000 by Art Cancro and others.
+ * This code is released under the terms of the GNU General Public License.
+ */
 
 #include "sysdep.h"
 #include <stdlib.h>
@@ -162,9 +168,63 @@ void pop3_pass(char *argbuf) {
  * list available msgs
  */
 void pop3_list(char *argbuf) {
-	cprintf("-ERR oops, not finished\r\n");
+	int i;
+	int which_one;
+
+	which_one = atoi(argbuf);
+
+	/* "list one" mode */
+	if (which_one > 0) {
+		if (which_one > POP3->num_msgs) {
+			cprintf("-ERR no such message, only %d are here\r\n",
+				POP3->num_msgs);
+			return;
+		}
+		else if (POP3->msgs[which_one-1].deleted) {
+			cprintf("-ERR Sorry, you deleted that message.\r\n");
+			return;
+		}
+		else {
+			cprintf("+OK %d %d\n",
+				which_one,
+				POP3->msgs[which_one-1].rfc822_length
+				);
+			return;
+		}
+	}
+
+	/* "list all" (scan listing) mode */
+	else {
+		cprintf("+OK Here's your mail:\r\n");
+		if (POP3->num_msgs > 0) for (i=0; i<POP3->num_msgs; ++i) {
+			if (! POP3->msgs[i].deleted) {
+				cprintf("%d %d\r\n",
+					i+1,
+					POP3->msgs[i].rfc822_length);
+			}
+		}
+		cprintf(".\r\n");
+	}
 }
 
+
+/*
+ * STAT (tally up the total message count and byte count) command
+ */
+void pop3_stat(char *argbuf) {
+	int total_msgs = 0;
+	size_t total_octets = 0;
+	int i;
+	
+	if (POP3->num_msgs > 0) for (i=0; i<POP3->num_msgs; ++i) {
+		if (! POP3->msgs[i].deleted) {
+			++total_msgs;
+			total_octets += POP3->msgs[i].rfc822_length;
+		}
+	}
+
+	cprintf("+OK %d %d\n", total_msgs, total_octets);
+}
 
 
 
@@ -208,6 +268,10 @@ void pop3_command_loop(void) {
 
 	else if (!strncasecmp(cmdbuf, "LIST", 4)) {
 		pop3_list(&cmdbuf[5]);
+	}
+
+	else if (!strncasecmp(cmdbuf, "STAT", 4)) {
+		pop3_stat(&cmdbuf[5]);
 	}
 
 	else {
