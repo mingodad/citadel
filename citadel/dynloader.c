@@ -56,7 +56,10 @@ struct ProtoFunctionHook {
 
 void CtdlRegisterProtoHook(void (*handler) (char *), char *cmd, char *desc)
 {
-	struct ProtoFunctionHook *p = mallok(sizeof *p);
+	struct ProtoFunctionHook *p;
+
+	p = (struct ProtoFunctionHook *)
+		mallok(sizeof(struct ProtoFunctionHook));
 
 	if (p == NULL) {
 		fprintf(stderr, "can't malloc new ProtoFunctionHook\n");
