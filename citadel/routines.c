@@ -20,6 +20,10 @@
 #include <utmp.h>
 #endif
 
+#ifndef HAVE_GETUTLINE
+struct utmp *getutline(struct utmp *ut);
+#endif
+
 #define ROUTINES_C
 
 #include "citadel.h"
@@ -447,14 +451,18 @@ void locate_host(char *hbuf)
 	if ((put = getutline(&ut)) == NULL)
 		goto fail;
 
+#ifdef HAVE_UT_TYPE
 	if (put->ut_type == USER_PROCESS) {
+#endif
 		if (*put->ut_host)
 			safestrncpy(hbuf, put->ut_host, 24);
 		else
 			safestrncpy(hbuf, put->ut_line, 24);
+#ifdef HAVE_UT_TYPE
 		}
 	else goto fail;
 #endif
+#endif /* HAVE_UTMP_H */
 	}
 
 /*

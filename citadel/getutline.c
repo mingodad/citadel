@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <utmp.h>
 #include <paths.h>
+#include <string.h>
 
 struct utmp *getutline(struct utmp *ut)
 {
@@ -25,7 +26,7 @@ struct utmp *getutline(struct utmp *ut)
 	fclose(utmp);
 	return NULL;
       }
-  while (ut->ut_line != retval.ut_line);
+  while (strcmp(ut->ut_line, retval.ut_line));
 
   fclose(utmp);
   return &retval;

@@ -3,3 +3,6 @@
 
 /* define this to enable the autologin feature */
 #undef ENABLE_AUTOLOGIN
+
+/* define this if struct utmp has an ut_type member */
+#undef HAVE_UT_TYPE

@@ -11,6 +11,7 @@
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
+#include <limits.h>
 #include "citadel.h"
 #include "server.h"
 #include <errno.h>

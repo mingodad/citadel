@@ -97,10 +97,10 @@ void do_housekeeping(void) {
 void check_ref_counts_backend(struct quickroom *qrbuf) {
 	struct floor flbuf;
 
-	lgetfloor(&flbuf, qrbuf->QRfloor);
+	getfloor(&flbuf, qrbuf->QRfloor);
 	++flbuf.f_ref_count;
 	flbuf.f_flags = flbuf.f_flags | QR_INUSE;
-	lputfloor(&flbuf, qrbuf->QRfloor);
+	putfloor(&flbuf, qrbuf->QRfloor);
 	}
 
 void check_ref_counts(void) {
@@ -108,10 +108,10 @@ void check_ref_counts(void) {
 	int a;
 
 	for (a=0; a<MAXFLOORS; ++a) {
-		lgetfloor(&flbuf, a);
+		getfloor(&flbuf, a);
 		flbuf.f_ref_count = 0;
 		flbuf.f_flags = flbuf.f_flags & ~QR_INUSE;
-		lputfloor(&flbuf, a);
+		putfloor(&flbuf, a);
 		}
 
 	ForEachRoom(check_ref_counts_backend);

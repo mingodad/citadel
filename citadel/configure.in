@@ -15,16 +15,20 @@ dnl By default, we only build the client (citadel and whobbs) unless we can
 dnl figure out how to build with POSIX threads.
 TARGETS=client
 
-dnl Check for Digital Unix: it has a different way of building for pthreads,
-dnl and we can't build pthreads programs with gcc due to header problems.
 AC_CANONICAL_HOST
+SO=.so
 case "$host" in
+	dnl BSDI 3.0 wants relocatable object modules instead of shared libs
+	dnl for dlopen(), and has a wrapper script to link with shared libs
+	i?86-*-bsdi*)
+		test -z "$CC" -a -x /usr/bin/shlicc2 && CC=shlicc2
+		SO=.mo
+	;;
+	dnl Digital Unix has an odd way to build pthreads, and we can't build
+	dnl pthreads programs with gcc due to header problems.
 	alpha*-dec-osf*)
-		if test -z "$CC"; then
-			CC=cc
-		fi
+		test -z "$CC" && CC=cc
 		SERVER_LDFLAGS=-pthread
-		TARGETS="client server utils serv_modules"
 	;;
 	*-*-cygwin32)
 		SUFFIX=.exe
@@ -33,18 +37,21 @@ esac
 
 dnl Checks for programs.
 AC_PROG_CC
+
+dnl Set up system-dependent compiler flags.
 if test "$GCC" = yes; then
 	CFLAGS="$CFLAGS -Wall -Wstrict-prototypes"
-	dnl pass -rdynamic to the linker to enable dlopen() modules to
-	dnl refer to symbols in the main executable (applies to citserver)
 	case "$host" in
+		i?86-*-bsdi*)
+		;;
 		mips*-sgi-irix*)
+			PICFLAGS=-fPIC
 		;;
 		*)
 			SERVER_LDFLAGS=-rdynamic
+			PICFLAGS=-fPIC
 		;;
 	esac
-	PICFLAGS=-fPIC
 fi
 AC_PROG_RANLIB
 AC_PROG_INSTALL
@@ -79,16 +86,18 @@ if test "$ac_cv_func_dlopen" = no; then
 fi
 
 AC_CHECK_LIB(gdbm, gdbm_open)
-AC_CHECK_LIB(curses, initscr, CURSES=-lcurses)
+
+save_LIBS=$LIBS
+AC_CHECK_LIB(termcap, tgetent, [LIBS="$LIBS -ltermcap"
+	CURSES=-ltermcap])
+AC_CHECK_LIB(curses, initscr, CURSES="-lcurses $CURSES")
+LIBS=$save_LIBS
 
 dnl Check for libpthread(s) if we're not using Digital UNIX. (On which the
-dnl -pthread flag takes care of this.) If we find one of the libraries, then
-dnl set up the TARGETS variable to build the server as well as the client.
+dnl -pthread flag takes care of this.)
 if test "$SERVER_LDFLAGS" != -pthread; then
-	AC_CHECK_LIB(pthread, pthread_create, [LIBS="$LIBS -lpthread"
-		TARGETS="client server utils serv_modules"])
-	AC_CHECK_LIB(pthreads, pthread_create, [LIBS="$LIBS -lpthreads"
-		TARGETS="client server utils serv_modules"])
+	AC_CHECK_LIB(pthread, pthread_create)
+	AC_CHECK_LIB(pthreads, pthread_create)
 fi
 
 dnl Checks for header files.
@@ -104,15 +113,24 @@ AC_TYPE_SIZE_T
 AC_HEADER_TIME
 AC_STRUCT_TM
 
+AC_CACHE_CHECK([for ut_type in struct utmp], ac_cv_struct_ut_type,
+[AC_TRY_COMPILE([#include <utmp.h>], [struct utmp ut; ut.ut_type;],
+ac_cv_struct_ut_type=yes, ac_cv_struct_ut_type=no)])
+if test $ac_cv_struct_ut_type = yes; then
+	AC_DEFINE(HAVE_UT_TYPE)
+fi
+
 dnl Checks for library functions.
 AC_FUNC_GETPGRP
 AC_PROG_GCC_TRADITIONAL
 AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS(mkdir mkfifo mktime rmdir select socket strerror)
+AC_CHECK_FUNCS(mkdir mkfifo mktime pthread_cancel rmdir select socket strerror)
+AC_CHECK_FUNC(pthread_create, TARGETS="client server utils serv_modules")
 AC_REPLACE_FUNCS(snprintf getutline)
 
 dnl Done! Now write the Makefile and sysdep.h
+AC_SUBST(SO)
 AC_SUBST(CURSES)
 AC_SUBST(TARGETS)
 AC_SUBST(SERVER_LDFLAGS)

@@ -154,6 +154,33 @@ void dump_tracked() {
 	}
 #endif
 
+#ifndef HAVE_PTHREAD_CANCEL
+/*
+ * signal handler to fake thread cancellation; only required on BSDI as far
+ * as I know.
+ */
+
+static pthread_t main_thread_id;
+
+static RETSIGTYPE cancel_thread(int signum) {
+	pthread_exit(NULL);
+	}
+#endif
+
+/*
+ * we used to use master_cleanup() as a signal handler to shut down the server.
+ * however, master_cleanup() and the functions it calls do some things that
+ * aren't such a good idea to do from a signal handler: acquiring mutexes,
+ * playing with signal masks on BSDI systems, etc. so instead we install the
+ * following signal handler to set a global variable to inform the main loop
+ * that it's time to call master_cleanup() and exit.
+ */
+
+static volatile int time_to_die = 0;
+
+static RETSIGTYPE signal_cleanup(int signum) {
+	time_to_die = 1;
+	}
 
 
 /*
@@ -178,13 +205,17 @@ void init_sysdep(void) {
 
 	/*
 	 * The action for unexpected signals and exceptions should be to
-	 * call master_cleanup() to gracefully shut down the server.
+	 * call signal_cleanup() to gracefully shut down the server.
 	 */
-	signal(SIGINT, (void(*)(int))master_cleanup);
-	signal(SIGQUIT, (void(*)(int))master_cleanup);
-	signal(SIGHUP, (void(*)(int))master_cleanup);
-	signal(SIGTERM, (void(*)(int))master_cleanup);
+	signal(SIGINT, signal_cleanup);
+	signal(SIGQUIT, signal_cleanup);
+	signal(SIGHUP, signal_cleanup);
+	signal(SIGTERM, signal_cleanup);
 	signal(SIGPIPE, SIG_IGN);
+#ifndef HAVE_PTHREAD_CANCEL /* fake it - only BSDI afaik */
+	main_thread_id = pthread_self();
+	signal(SIGUSR1, cancel_thread);
+#endif
 	}
 
 
@@ -193,12 +224,26 @@ void init_sysdep(void) {
  */
 void begin_critical_section(int which_one)
 {
+#ifdef HAVE_PTHREAD_CANCEL
 	int oldval;
+#else
+	sigset_t set;
+#endif
 
 	/* lprintf(8, "begin_critical_section(%d)\n", which_one); */
 
+#ifdef HAVE_PTHREAD_CANCEL
 	/* Don't get interrupted during the critical section */
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &oldval);
+#else
+	/* We're faking cancellation with signals. Block SIGUSR1 while we're in
+	 * the critical section. */
+	if (!pthread_equal(pthread_self(), main_thread_id)) {
+		sigemptyset(&set);
+		sigaddset(&set, SIGUSR1);
+		pthread_sigmask(SIG_BLOCK, &set, NULL);
+		}
+#endif
 
 	/* Obtain a semaphore */
 	pthread_mutex_lock(&Critters[which_one]);
@@ -210,19 +255,33 @@ void begin_critical_section(int which_one)
  */
 void end_critical_section(int which_one)
 {
+#ifdef HAVE_PTHREAD_CANCEL
 	int oldval;
+#else
+	sigset_t set;
+#endif
 
 	/* lprintf(8, "  end_critical_section(%d)\n", which_one); */
 
 	/* Let go of the semaphore */
 	pthread_mutex_unlock(&Critters[which_one]);
 
+#ifdef HAVE_PTHREAD_CANCEL
 	/* If a cancel was sent during the critical section, do it now.
 	 * Then re-enable thread cancellation.
 	 */
 	pthread_testcancel();
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &oldval);
 	pthread_testcancel();
+#else
+	/* We're faking it. Unblock SIGUSR1; signals sent during the critical
+	 * section should now be able to kill us. */
+	if (!pthread_equal(pthread_self(), main_thread_id)) {
+		sigemptyset(&set);
+		sigaddset(&set, SIGUSR1);
+		pthread_sigmask(SIG_UNBLOCK, &set, NULL);
+		}
+#endif
 
 	}
 
@@ -332,11 +391,15 @@ struct CitContext *CreateNewContext(void) {
  */
 void InitMyContext(struct CitContext *con)
 {
+#ifdef HAVE_PTHREAD_CANCEL
 	int oldval;
+#endif
 
 	con->mythread = pthread_self();
+#ifdef HAVE_PTHREAD_CANCEL
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &oldval);
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &oldval);
+#endif
 	if (pthread_setspecific(MyConKey, (void *)con) != 0) {
 		lprintf(1, "ERROR!  pthread_setspecific() failed: %s\n",
 			strerror(errno));
@@ -568,8 +631,12 @@ void kill_session(int session_to_kill) {
 	lprintf(9, "kill_session() finished scanning.\n");
 
 	if (killme != 0) {
+#ifdef HAVE_PTHREAD_CANCEL
 		lprintf(9, "calling pthread_cancel()\n");
 		pthread_cancel(killme);
+#else
+		pthread_kill(killme, SIGUSR1);
+#endif
 		}
 	}
 
@@ -709,6 +776,8 @@ int main(int argc, char **argv)
 	char tracefile[128];		/* Name of file to log traces to */
 	int a, i;			/* General-purpose variables */
 	char convbuf[128];
+	fd_set readfds;
+	struct timeval tv;
         
 	/* specify default port name and trace file */
 	strcpy(tracefile, "");
@@ -792,7 +861,17 @@ int main(int argc, char **argv)
 	 * Endless loop.  Listen on the master socket.  When a connection
 	 * comes in, create a socket, a context, and a thread.
 	 */	
-	while (1) {
+	while (!time_to_die) {
+		/* we need to check if a signal has been delivered. because
+		 * syscalls may be restartable across signals, we call
+		 * select with a timeout of 1 second and repeatedly check for
+		 * time_to_die... */
+		FD_ZERO(&readfds);
+		FD_SET(msock, &readfds);
+		tv.tv_sec = 1;
+		tv.tv_usec = 0;
+		if (select(msock + 1, &readfds, NULL, NULL, &tv) <= 0)
+			continue;
 		alen = sizeof fsin;
 		ssock = accept(msock, (struct sockaddr *)&fsin, &alen);
 		if (ssock < 0) {
@@ -839,5 +918,7 @@ int main(int argc, char **argv)
 			lprintf(9, "done!\n");
 			}
 		}
+	master_cleanup();
+	return 0;
 	}
 

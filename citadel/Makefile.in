@@ -19,11 +19,12 @@ all: $(TARGETS)
 .SUFFIXES: .ro .mo .d
 
 SUFFIX=@SUFFIX@
+SO=@SO@
 
 CLIENT_TARGETS=citadel$(SUFFIX) whobbs$(SUFFIX)
 SERVER_TARGETS=citserver setup
-SERV_MODULES=modules/serv_chat.so \
-	modules/serv_upgrade.so modules/serv_expire.so
+SERV_MODULES=modules/serv_chat$(SO) \
+	modules/serv_upgrade$(SO) modules/serv_expire$(SO)
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform readlog rcit \
 	stats citmail netpoll mailinglist userlist sendcommand \
 	base64 qpdecode
@@ -109,17 +110,29 @@ citserver: citserver.ro user_ops.ro support.ro room_ops.ro file_ops.ro \
 modules/serv_chat.so: serv_chat.mo
 	$(CC) -shared -o modules/serv_chat.so serv_chat.mo
 
+modules/serv_chat.mo: serv_chat.mo
+	ln -f serv_chat.mo modules
+
 .c.mo:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) $(PICFLAGS) -DPIC -c $< -o $@
 
 modules/serv_test.so: serv_test.mo
 	$(CC) -shared -o modules/serv_test.so serv_test.mo
 
+modules/serv_test.mo: serv_test.mo
+	ln -f serv_test.mo modules
+
 modules/serv_upgrade.so: serv_upgrade.mo
 	$(CC) -shared -o modules/serv_upgrade.so serv_upgrade.mo
 
+modules/serv_upgrade.mo: serv_upgrade.mo
+	ln -f serv_upgrade.mo modules
+
 modules/serv_expire.so: serv_expire.mo
 	$(CC) -shared -o modules/serv_expire.so serv_expire.mo
+
+modules/serv_expire.mo: serv_expire.mo
+	ln -f serv_expire.mo modules
 
 aidepost: aidepost.o config.o $(LIBOBJS)
 	$(CC) aidepost.o config.o $(LIBOBJS) $(LDFLAGS) -o aidepost

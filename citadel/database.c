@@ -99,7 +99,12 @@ void open_databases(void) {
 	 */
 	system("exec mkdir data 2>/dev/null");
 
+	/* a critical section is unnecessary, as this function is called before
+	   any other threads are created. and it causes problems on BSDI.
+
 	begin_critical_section(S_DATABASE);
+
+	 */
 
 	gdbms[CDB_MSGMAIN] = gdbm_open("data/msgmain.gdbm", 8192,
 		GDBM_WRCREAT, 0600, NULL);
@@ -148,7 +153,9 @@ void open_databases(void) {
 		dtkey[a].dptr = NULL;
 		}
 
+	/*
 	end_critical_section(S_DATABASE);
+	 */
 
 	}
 

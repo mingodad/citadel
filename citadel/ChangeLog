@@ -1,3 +1,19 @@
+1999-02-24 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* configure.in: improved check for pthreads
+	* configure.in, routines.c, acconfig.h: check for ut_type in struct utmp
+	* configure.in, Makefile.in: support for building server modules as
+	  relocatable objects for BSDI (which still uses a.out *gag* *choke*)
+	* configure.in: compiler choice & flags for BSDI; check for libtermcap
+	* database.c: don't use a critical section in open_databases()
+	* housekeeping.c: use getfloor()/putfloor() instead of
+	  lgetfloor()/lputfloor() in check_ref_counts()
+	* mime_parser.c: include <errno.h>
+	* msgbase.c: include <limits.h>
+	* sysdep.c: hacks for BSDI. use signals to fake thread cancellation;
+	  don't call master_cleanup() directly from signal handler.
+	* routines.c: prototype getutline() if necessary
+	* getutline.c: stupid bugfix
+
 Mon Feb 15 22:59:00 EST 1999 Vaggelis Tsirkas
 	* citadel.c: increased hostname buffer size to handle very big names
 
