@@ -1,4 +1,12 @@
  $Log$
+ Revision 572.20  2000/07/29 05:29:19  ajc
+ * Changed the format of RWHO output to provide non-masqueraded user/room/host
+   names (to Aides only) as additional fields rather than an extra line of
+   output.
+ * Changed the client to display new RWHO fields, in the "long" wholist only.
+ * Default SMTP and POP ports are now -1, not 25/110.  These services must now
+   be activated manually.
+
  Revision 572.19  2000/07/24 00:39:13  ajc
  * Fixed a path problem when calling netmailer from mailinglist.c
 
@@ -1960,3 +1968,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

@@ -1048,7 +1048,10 @@ from, or "localhost" if the client is local.
      this client (Note: NOOP's don't count)
  6 - The last command received from a client. (NOOP's don't count)
  7 - Session flags.  These are: + (spoofed address), - (STEALTH mode), *
-     (posting) and . (idle).  (Citserver 5.02 and above)
+     (posting) and . (idle).
+ 8 - Actual user name, if user name is masqueraded and viewer is an Aide.
+ 9 - Actual room name, if room name is masqueraded and viewer is an Aide.
+ 10 - Actual host name, if host name is masqueraded and viewer is an Aide.
  
  The listing is terminated, as always, with the string "000" on a line by
 itself.

@@ -43,6 +43,9 @@
 void cmd_rwho(char *argbuf) {
 	struct CitContext *cptr;
 	int spoofed = 0;
+	int user_spoofed = 0;
+	int room_spoofed = 0;
+	int host_spoofed = 0;
 	int aide;
 	char un[40];
 	char real_room[ROOMNAMELEN], room[ROOMNAMELEN];
@@ -55,6 +58,9 @@ void cmd_rwho(char *argbuf) {
 	{
 		flags[0] = '\0';
 		spoofed = 0;
+		user_spoofed = 0;
+		room_spoofed = 0;
+		host_spoofed = 0;
 		
 		if (cptr->cs_flags & CS_POSTING)
 		   strcat(flags, "*");
@@ -65,6 +71,7 @@ void cmd_rwho(char *argbuf) {
 		{
 		   strcpy(un, cptr->fake_username);
 		   spoofed = 1;
+		   user_spoofed = 1;
 		}
 		else
 		   strcpy(un, cptr->curr_user);
@@ -73,6 +80,7 @@ void cmd_rwho(char *argbuf) {
 		{
 		   strcpy(host, cptr->fake_hostname);
 		   spoofed = 1;
+		   host_spoofed = 1;
 		}
 		else
 		   strcpy(host, cptr->cs_host);
@@ -82,6 +90,7 @@ void cmd_rwho(char *argbuf) {
 		if (cptr->fake_roomname[0]) {
 			strcpy(room, cptr->fake_roomname);
 			spoofed = 1;
+			room_spoofed = 1;
 		}
 		else {
 			strcpy(room, real_room);
@@ -95,22 +104,36 @@ void cmd_rwho(char *argbuf) {
 		
 		if (((cptr->cs_flags&CS_STEALTH)==0) || (aide))
 		{
-			cprintf("%d|%s|%s|%s|%s|%ld|%s|%s\n",
+			cprintf("%d|%s|%s|%s|%s|%ld|%s|%s|",
 				cptr->cs_pid, un, room,
 				host, cptr->cs_clientname,
 				(long)(cptr->lastidle),
 				cptr->lastcmdname, flags);
 		}
-		if ((spoofed) && (aide))
-		{
-			cprintf("%d|%s|%s|%s|%s|%ld|%s|%s\n",
-				cptr->cs_pid, cptr->curr_user,
-				real_room,
-				cptr->cs_host, cptr->cs_clientname,
-				(long)(cptr->lastidle),
-				cptr->lastcmdname, flags);
-		
+
+		if ((user_spoofed) && (aide)) {
+			cprintf("%s|", cptr->curr_user);
 		}
+		else {
+			cprintf("|");
+		}
+
+		if ((room_spoofed) && (aide)) {
+			cprintf("%s|", real_room);
+		}
+		else {
+			cprintf("|");
+		}
+
+		if ((host_spoofed) && (aide)) {
+			cprintf("%s|", cptr->cs_host);
+		}
+		else {
+			cprintf("|");
+		}
+
+		cprintf("\n");
+
 	}
 
 	/* Now it's magic time.  Before we finish, call any EVT_RWHO hooks

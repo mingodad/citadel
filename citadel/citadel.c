@@ -728,8 +728,9 @@ void get_serv_info(void)
  */
 void who_is_online(int longlist)
 {
-	char buf[128], username[128], roomname[128], fromhost[128],
-	 flags[128];
+	char buf[128], username[128], roomname[128], fromhost[128];
+	char flags[128];
+	char actual_user[128], actual_room[128], actual_host[128];
 	char tbuf[128], clientsoft[128];
 	time_t timenow = 0;
 	time_t idletime, idlehours, idlemins, idlesecs;
@@ -760,6 +761,11 @@ void who_is_online(int longlist)
 			extract(flags, buf, 7);
 
 			if (longlist) {
+
+				extract(actual_user, buf, 8);
+				extract(actual_room, buf, 9);
+				extract(actual_host, buf, 10);
+
 				idletime = timenow - extract_long(buf, 5);
 				idlehours = idletime / 3600;
 				idlemins = (idletime - (idlehours * 3600)) / 60;
@@ -769,6 +775,14 @@ void who_is_online(int longlist)
 				pprintf("from <%s> using <%s>, idle %ld:%02ld:%02ld\n",
 				       fromhost, clientsoft,
 				       (long) idlehours, (long) idlemins, (long) idlesecs);
+
+				if ( (strlen(actual_user)+strlen(actual_room)+strlen(actual_host)) > 0) {
+					pprintf("(really ");
+					if (strlen(actual_user)>0) pprintf("<%s> ", actual_user);
+					if (strlen(actual_room)>0) pprintf("in <%s> ", actual_room);
+					if (strlen(actual_host)>0) pprintf("from <%s> ", actual_host);
+					pprintf(")\n");
+				}
 
 			} else {
 				if (extract_int(buf, 0) == last_session) {
