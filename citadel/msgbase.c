@@ -546,46 +546,6 @@ void list_this_part(char *name, char *filename, char *partnum, char *disp,
 
 
 /*
- * Callback function for mime parser that wants to display text
- */
-void fixed_output(char *name, char *filename, char *partnum, char *disp,
-		  void *content, char *cbtype, size_t length)
-{
-	char *ptr;
-
-	if (!strcasecmp(cbtype, "multipart/alternative")) {
-		strcpy(ma->prefix, partnum);
-		strcat(ma->prefix, ".");
-		ma->is_ma = 1;
-		ma->did_print = 0;
-		return;
-	}
-
-	if ( (!strncasecmp(partnum, ma->prefix, strlen(ma->prefix)))
-	   && (ma->is_ma == 1) 
-	   && (ma->did_print == 1) ) {
-		lprintf(9, "Skipping part %s (%s)\n", partnum, cbtype);
-		return;
-	}
-
-	ma->did_print = 1;
-
-	if (!strcasecmp(cbtype, "text/plain")) {
-		client_write(content, length);
-	}
-	else if (!strcasecmp(cbtype, "text/html")) {
-		ptr = html_to_ascii(content, 80, 0);
-		client_write(ptr, strlen(ptr));
-		phree(ptr);
-	}
-	else if (strncasecmp(cbtype, "multipart/", 10)) {
-		cprintf("Part %s: %s (%s) (%d bytes)\n",
-			partnum, filename, cbtype, length);
-	}
-}
-
-
-/*
  * Callback function for mime parser that opens a section for downloading
  */
 void mime_download(char *name, char *filename, char *partnum, char *disp,
@@ -831,6 +791,55 @@ FMTEND:		omprintf("%s\n", aaa);
 	}
 	/* END NESTED FUNCTION omfmout() */
 
+	/* BEGIN NESTED FUNCTION fixed_output() */
+	/*
+ 	* Callback function for mime parser that wants to display text
+ 	*/
+	void fixed_output(char *name, char *filename, char *partnum, char *disp,
+		  	void *content, char *cbtype, size_t length)
+	{
+		char *ptr;
+		char *wptr;
+		size_t wlen;
+	
+		if (!strcasecmp(cbtype, "multipart/alternative")) {
+			strcpy(ma->prefix, partnum);
+			strcat(ma->prefix, ".");
+			ma->is_ma = 1;
+			ma->did_print = 0;
+			return;
+		}
+	
+		if ( (!strncasecmp(partnum, ma->prefix, strlen(ma->prefix)))
+	   	&& (ma->is_ma == 1) 
+	   	&& (ma->did_print == 1) ) {
+			lprintf(9, "Skipping part %s (%s)\n", partnum, cbtype);
+			return;
+		}
+	
+		ma->did_print = 1;
+	
+		if (!strcasecmp(cbtype, "text/plain")) {
+			wlen = length;
+			wptr = content;
+			while (wlen--) omprintf("%c", *wptr++);
+		}
+		else if (!strcasecmp(cbtype, "text/html")) {
+			ptr = html_to_ascii(content, 80, 0);
+			wlen = strlen(ptr);
+			wptr = ptr;
+			while (wlen--) omprintf("%c", *wptr++);
+			phree(ptr);
+		}
+		else if (strncasecmp(cbtype, "multipart/", 10)) {
+			omprintf("Part %s: %s (%s) (%d bytes)\n",
+				partnum, filename, cbtype, length);
+		}
+	}
+
+	/* END NESTED FUNCTION fixed_output() */
+
+
 	TheMessage = NULL;
 	sprintf(mid, "%ld", msg_num);
 
@@ -1034,8 +1043,10 @@ FMTEND:		omprintf("%s\n", aaa);
 	/* signify start of msg text */
 	if (mode == MT_CITADEL)
 		if (do_proto) cprintf("text\n");
-	if ((mode == MT_RFC822) && (TheMessage->cm_format_type != FMT_RFC822))
+	/* if ((mode == MT_RFC822) && (TheMessage->cm_format_type != FMT_RFC822)) { */
+	if (mode == MT_RFC822) {
 		omprintf("\n");
+	}
 
 	/* If the format type on disk is 1 (fixed-format), then we want
 	 * everything to be output completely literally ... regardless of

@@ -228,6 +228,173 @@ void pop3_stat(char *argbuf) {
 
 
 
+/*
+ * RETR command (fetch a message)
+ */
+void pop3_retr(char *argbuf) {
+	int which_one;
+	int ch;
+	size_t bytes_remaining;
+
+	which_one = atoi(argbuf);
+	if ( (which_one < 1) || (which_one > POP3->num_msgs) ) {
+		cprintf("-ERR No such message.\r\n");
+		return;
+	}
+
+	if (POP3->msgs[which_one - 1].deleted) {
+		cprintf("-ERR Sorry, you deleted that message.\r\n");
+		return;
+	}
+
+	cprintf("+OK Whoop, there it is:\r\n");
+	bytes_remaining = POP3->msgs[which_one -1].rfc822_length;
+	rewind(POP3->msgs[which_one - 1].temp);
+	while (bytes_remaining-- > 0) {
+		ch = getc(POP3->msgs[which_one - 1].temp);
+		cprintf("%c", ch);
+	}
+	cprintf(".\r\n");
+}
+
+
+/*
+ * TOP command (dumb way of fetching a partial message or headers-only)
+ */
+void pop3_top(char *argbuf) {
+	int which_one;
+	int lines_requested = 0;
+	int lines_dumped = 0;
+	char buf[1024];
+	char *ptr;
+	int in_body = 0;
+
+	sscanf(argbuf, "%d %d", &which_one, &lines_requested);
+	if ( (which_one < 1) || (which_one > POP3->num_msgs) ) {
+		cprintf("-ERR No such message.\r\n");
+		return;
+	}
+
+	if (POP3->msgs[which_one - 1].deleted) {
+		cprintf("-ERR Sorry, you deleted that message.\r\n");
+		return;
+	}
+
+	cprintf("+OK Whoop, there it is:\r\n");
+	rewind(POP3->msgs[which_one - 1].temp);
+	while (ptr = fgets(buf, sizeof buf, POP3->msgs[which_one - 1].temp),
+	      ( (ptr!=NULL) && (lines_dumped < lines_requested) ) ) {
+		client_write(buf, strlen(buf));
+		if (in_body) ++lines_dumped;
+		if ((buf[0]==13)||(buf[0]==10)) in_body = 1;
+	}
+	if (buf[strlen(buf)-1] != 10) cprintf("\n");
+	cprintf(".\r\n");
+}
+
+
+/*
+ * DELE (delete message from mailbox)
+ */
+void pop3_dele(char *argbuf) {
+	int which_one;
+
+	which_one = atoi(argbuf);
+	if ( (which_one < 1) || (which_one > POP3->num_msgs) ) {
+		cprintf("-ERR No such message.\r\n");
+		return;
+	}
+
+	if (POP3->msgs[which_one - 1].deleted) {
+		cprintf("-ERR You already deleted that message.\r\n");
+		return;
+	}
+
+	/* Flag the message as deleted.  Will expunge during QUIT command. */
+	POP3->msgs[which_one - 1].deleted = 1;
+	cprintf("+OK Message %d disappears in a cloud of orange smoke.\r\n",
+		which_one);
+}
+
+
+/* Perform "UPDATE state" stuff (remove messages marked for deletion)
+ */
+void pop3_update(void) {
+	int i;
+
+	if (POP3->num_msgs > 0) for (i=0; i<POP3->num_msgs; ++i) {
+		if (POP3->msgs[i].deleted) {
+			CtdlDeleteMessages(MAILROOM,
+				POP3->msgs[i].msgnum, NULL);
+		}
+	}
+}
+
+
+/* 
+ * RSET (reset, i.e. undelete any deleted messages) command
+ */
+void pop3_rset(char *argbuf) {
+	int i;
+
+	if (POP3->num_msgs > 0) for (i=0; i<POP3->num_msgs; ++i) {
+		if (POP3->msgs[i].deleted) {
+			POP3->msgs[i].deleted = 0;
+		}
+	}
+	cprintf("+OK all that has come to pass, has now gone away.\r\n");
+}
+
+
+
+
+/*
+ * UIDL (Universal IDentifier Listing) is easy.  Our 'unique' message
+ * identifiers are simply the Citadel message numbers in the database.
+ */
+void pop3_uidl(char *argbuf) {
+	int i;
+	int which_one;
+
+	which_one = atoi(argbuf);
+
+	/* "list one" mode */
+	if (which_one > 0) {
+		if (which_one > POP3->num_msgs) {
+			cprintf("-ERR no such message, only %d are here\r\n",
+				POP3->num_msgs);
+			return;
+		}
+		else if (POP3->msgs[which_one-1].deleted) {
+			cprintf("-ERR Sorry, you deleted that message.\r\n");
+			return;
+		}
+		else {
+			cprintf("+OK %d %ld\n",
+				which_one,
+				POP3->msgs[which_one-1].msgnum
+				);
+			return;
+		}
+	}
+
+	/* "list all" (scan listing) mode */
+	else {
+		cprintf("+OK Here's your mail:\r\n");
+		if (POP3->num_msgs > 0) for (i=0; i<POP3->num_msgs; ++i) {
+			if (! POP3->msgs[i].deleted) {
+				cprintf("%d %ld\r\n",
+					i+1,
+					POP3->msgs[i].msgnum);
+			}
+		}
+		cprintf(".\r\n");
+	}
+}
+
+
+
+
 /* 
  * Main command loop for POP3 sessions.
  */
@@ -250,6 +417,7 @@ void pop3_command_loop(void) {
 
 	else if (!strncasecmp(cmdbuf, "QUIT", 4)) {
 		cprintf("+OK Goodbye...\r\n");
+		pop3_update();
 		CC->kill_me = 1;
 		return;
 	}
@@ -272,6 +440,26 @@ void pop3_command_loop(void) {
 
 	else if (!strncasecmp(cmdbuf, "STAT", 4)) {
 		pop3_stat(&cmdbuf[5]);
+	}
+
+	else if (!strncasecmp(cmdbuf, "RETR", 4)) {
+		pop3_retr(&cmdbuf[5]);
+	}
+
+	else if (!strncasecmp(cmdbuf, "DELE", 4)) {
+		pop3_dele(&cmdbuf[5]);
+	}
+
+	else if (!strncasecmp(cmdbuf, "RSET", 4)) {
+		pop3_rset(&cmdbuf[5]);
+	}
+
+	else if (!strncasecmp(cmdbuf, "UIDL", 4)) {
+		pop3_uidl(&cmdbuf[5]);
+	}
+
+	else if (!strncasecmp(cmdbuf, "TOP", 3)) {
+		pop3_top(&cmdbuf[4]);
 	}
 
 	else {
