@@ -1,4 +1,8 @@
 $Log$
+Revision 528.19  2005/01/25 04:17:20  ajc
+* Implemented the Groupdav GET method, more or less in its final form
+  (still need to fix the room/folder naming semantics)
+
 Revision 528.18  2005/01/25 03:12:27  ajc
 * Completed HTTP "Basic" authentication, and a stub function for the
   main entry point for GroupDAV functions.
@@ -2219,3 +2223,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

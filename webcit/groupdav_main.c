@@ -23,10 +23,13 @@
 #include <pthread.h>
 #include "webcit.h"
 #include "webserver.h"
+#include "groupdav.h"
 
 void groupdav_main(struct httprequest *req) {
 
 	struct httprequest *rptr;
+	char dav_method[SIZ];
+	char dav_pathname[SIZ];
 
 	if (!WC->logged_in) {
 		wprintf(
@@ -41,16 +44,35 @@ void groupdav_main(struct httprequest *req) {
 		return;
 	}
 
+	extract_token(dav_method, req->line, 0, ' ');
+	extract_token(dav_pathname, req->line, 1, ' ');
+
+	/*
+	 * We like the GET method ... it's nice and simple.
+	 */
+	if (!strcasecmp(dav_method, "GET")) {
+		groupdav_get(dav_pathname);
+		return;
+	}
+
+	/*
+	 * Couldn't find what we were looking for.  Die in a car fire.
+	 */
 	wprintf(
-		"HTTP/1.1 404 Not found - FIXME\n"
+		"HTTP/1.1 404 not found\n"
 		"Connection: close\n"
 		"Content-Type: text/plain\n"
 		"\n"
 	);
-	wprintf("You are authenticated, but sent a bogus request.\n");
-	wprintf("WC->httpauth_user=%s\n", WC->httpauth_user);
-	wprintf("WC->httpauth_pass=%s\n", WC->httpauth_pass);	/* FIXME don't display this */
-	wprintf("WC->wc_session   =%d\n", WC->wc_session);
+	wprintf("The object or resource \"%s\" was not found.\n", dav_pathname);
+
+	/*
+	 * FIXME ... after development is finished, get rid of all this
+	 */
+	wprintf("\n\n\n ** DEBUGGING INFO FOLLOWS ** \n\n");
+	wprintf("WC->httpauth_user = %s\n", WC->httpauth_user);
+	wprintf("WC->httpauth_pass = (%d characters)\n", strlen(WC->httpauth_pass));
+	wprintf("WC->wc_session    = %d\n", WC->wc_session);
 	
 	for (rptr=req; rptr!=NULL; rptr=rptr->next) {
 		wprintf("> %s\n", rptr->line);
