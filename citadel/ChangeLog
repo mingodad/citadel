@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.11  2004/01/31 05:44:29  ajc
+ *** empty log message ***
+
  Revision 614.10  2004/01/27 19:56:29  ajc
  * serv_smtp.c: HELO and EHLO responses now reply with the detected
    IP address and reverse DNS lookup of the connecting host
@@ -5248,4 +5251,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

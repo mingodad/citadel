@@ -62,7 +62,106 @@ void serv_ldap_cleanup(void)
 	dirserver = NULL;
 }
 
-#endif				/* HAVE_LDAP */
+
+
+/*
+ * Create the root node.  If it's already there, so what?
+ */
+void CtdlCreateLdapRoot(void) {
+	char *dc_values[2];
+	char *objectClass_values[3];
+	LDAPMod dc, objectClass;
+	LDAPMod *mods[3];
+	char topdc[SIZ];
+	int i;
+
+	/* We just want the top-level dc, not the whole hierarchy */
+	strcpy(topdc, config.c_ldap_base_dn);
+	for (i=0; i<strlen(topdc); ++i) {
+		if (topdc[i] == ',') topdc[i] = 0;
+	}
+	for (i=0; i<strlen(topdc); ++i) {
+		if (topdc[i] == '=') strcpy(topdc, &topdc[i+1]);
+	}
+
+	/* Set up the transaction */
+	dc.mod_op		= LDAP_MOD_ADD;
+	dc.mod_type		= "dc";
+	dc_values[0]		= topdc;
+	dc_values[1]		= NULL;
+	dc.mod_values		= dc_values;
+	objectClass.mod_op	= LDAP_MOD_ADD;
+	objectClass.mod_type	= "objectClass";
+	objectClass_values[0]	= "top";
+	objectClass_values[1]	= "domain";
+	objectClass_values[2]	= NULL;
+	objectClass.mod_values	= objectClass_values;
+	mods[0] = &dc;
+	mods[1] = &objectClass;
+	mods[2] = NULL;
+
+	/* Perform the transaction */
+	lprintf(9, "Setting up Base DN node...\n");
+	begin_critical_section(S_LDAP);
+	i = ldap_add_s(dirserver, config.c_ldap_base_dn, mods);
+	end_critical_section(S_LDAP);
+
+	if (i != LDAP_SUCCESS) {
+		lprintf(3, "ldap_add_s() failed: %s (%d)\n",
+			ldap_err2string(i), i);
+	}
+}
+
+
+/*
+ * Create an OU node representing a Citadel host.
+ */
+void CtdlCreateHostOU(char *host) {
+	char *dc_values[2];
+	char *objectClass_values[3];
+	LDAPMod dc, objectClass;
+	LDAPMod *mods[3];
+	int i;
+	char dn[SIZ];
+
+	/* The DN is this OU plus the base. */
+	snprintf(dn, sizeof dn, "ou=%s,%s", host, config.c_ldap_base_dn);
+
+	/* Set up the transaction */
+	dc.mod_op		= LDAP_MOD_ADD;
+	dc.mod_type		= "ou";
+	dc_values[0]		= host;
+	dc_values[1]		= NULL;
+	dc.mod_values		= dc_values;
+	objectClass.mod_op	= LDAP_MOD_ADD;
+	objectClass.mod_type	= "objectClass";
+	objectClass_values[0]	= "top";
+	objectClass_values[1]	= "organizationalUnit";
+	objectClass_values[2]	= NULL;
+	objectClass.mod_values	= objectClass_values;
+	mods[0] = &dc;
+	mods[1] = &objectClass;
+	mods[2] = NULL;
+
+	/* Perform the transaction */
+	lprintf(9, "Setting up Host OU node...\n");
+	begin_critical_section(S_LDAP);
+	i = ldap_add_s(dirserver, dn, mods);
+	end_critical_section(S_LDAP);
+
+	/* ignore the error -- it's ok if it already exists
+	if (i != LDAP_SUCCESS) {
+		lprintf(3, "ldap_add_s() failed: %s (%d)\n",
+			ldap_err2string(i), i);
+	}
+	*/
+}
+
+
+
+
+
+
 
 
 void CtdlConnectToLdap(void) {
@@ -92,7 +191,10 @@ void CtdlConnectToLdap(void) {
 	if (i != LDAP_SUCCESS) {
 		lprintf(3, "Cannot bind: %s (%d)\n", ldap_err2string(i), i);
 		dirserver = NULL;	/* FIXME disconnect from ldap */
+		return;
 	}
+
+	CtdlCreateLdapRoot();
 }
 
 
@@ -116,6 +218,9 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg) {
 	if (msg->cm_fields['M'] == NULL) return;
 	if (msg->cm_fields['A'] == NULL) return;
 	if (msg->cm_fields['N'] == NULL) return;
+
+	/* First make sure the OU for the user's home Citadel host is created */
+	CtdlCreateHostOU(msg->cm_fields['N']);
 
 	/* Initialize variables */
 	strcpy(givenname, "_");
@@ -239,6 +344,7 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg) {
 }
 
 
+#endif				/* HAVE_LDAP */
 
 
 /*
