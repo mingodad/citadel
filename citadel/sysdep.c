@@ -868,10 +868,7 @@ void worker_thread(void) {
 		 */
 
 		begin_critical_section(S_I_WANNA_SELECT);
-		lprintf(9, "Worker thread %2d woke up\n", getpid());
-
-SETUP_FD:
-		FD_ZERO(&readfds);
+SETUP_FD:	FD_ZERO(&readfds);
 		FD_SET(msock, &readfds);
 		highest = msock;
 		FD_SET(rescan[0], &readfds);
@@ -889,10 +886,7 @@ SETUP_FD:
 		}
 		end_critical_section(S_SESSION_TABLE);
 
-		lprintf(9, "Thread %2d can wake up on %d different fd's\n",
-			getpid(), numselect);
 		retval = select(highest + 1, &readfds, NULL, NULL, NULL);
-		lprintf(9, "select() returned %d\n", retval);
 
 		/* Now figure out who made this select() unblock.
 		 * First, check for an error or exit condition.
@@ -907,7 +901,6 @@ SETUP_FD:
 		 * on the master socket.
 		 */
 		else if (FD_ISSET(msock, &readfds)) {
-			lprintf(9, "It's the master socket!\n");
 			alen = sizeof fsin;
 			ssock = accept(msock, (struct sockaddr *)&fsin, &alen);
 			if (ssock < 0) {
@@ -945,7 +938,6 @@ SETUP_FD:
 		 * current data.
 		 */
 		else if (FD_ISSET(rescan[0], &readfds)) {
-			lprintf(9, "rescanning\n");
 			read(rescan[0], &junk, 1);
 			goto SETUP_FD;
 		}
@@ -961,7 +953,7 @@ SETUP_FD:
 			    ptr = ptr->next) {
 				if ( (FD_ISSET(ptr->client_socket, &readfds))
 				   && (ptr->state == CON_IDLE) ) {
-					bind_me = con;
+					bind_me = ptr;
 				}
 			}
 			if (bind_me != NULL) {
@@ -976,8 +968,6 @@ SETUP_FD:
 
 			/* We're bound to a session, now do *one* command */
 			if (bind_me != NULL) {
-				lprintf(9, "Binding thread to session %d\n",
-					bind_me->client_socket);
 				pthread_setspecific(MyConKey, (void *)bind_me);
 				do_command_loop();
 				pthread_setspecific(MyConKey, (void *)NULL);

@@ -1,10 +1,13 @@
 $Log$
+Revision 1.399  1999/10/28 03:20:17  ajc
+* Fixed the problem of worker threads waking up prematurely.
+* 'QUIT'-terminated sessions now exit properly.  Still need to fix code for
+  sessions which are terminated from another session or by the server.
+
 Revision 1.398  1999/10/27 04:26:58  ajc
 * Initial hack of worker-thread rearchitecture.  Right now it is successfully
   dispatching worker threads to active client sockets (and to the master
-  socket too, of course).  Removing sessions is currently broken.  There is
-  also a problem with worker threads waking up too quickly when a client
-  command is entered (race condition?).   More cleanup to follow.
+  socket too, of course).  Removing sessions is currently broken.
 
 Revision 1.397  1999/10/26 20:20:29  ajc
 * Removed the auto-reconnect stuff... it was locking the client in an active
@@ -1371,4 +1374,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

@@ -862,13 +862,10 @@ void begin_session(struct CitContext *con)
 void do_command_loop(void) {
 	char cmdbuf[256];
 
-	lprintf(9, "Hi, I'm do_command_loop() and I have client socket %d\n",
-		CC->client_socket);
-
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_gets(cmdbuf) < 1) {
-		lprintf(3, "Socket is broken, I think.\n");
+		lprintf(3, "Client socket is broken.  Ending session.\n");
 		cleanup(EXIT_NULL);
 	}
 	lprintf(5, "citserver[%3d]: %s\n", CC->cs_pid, cmdbuf);
@@ -899,6 +896,7 @@ void do_command_loop(void) {
 
 	else if (!strncasecmp(cmdbuf,"QUIT",4)) {
 		cprintf("%d Goodbye.\n",OK);
+		cleanup(0);
 		}
 
 	else if (!strncasecmp(cmdbuf,"LOUT",4)) {
