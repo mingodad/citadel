@@ -1,4 +1,10 @@
 $Log$
+Revision 1.476  2000/03/04 05:29:18  ajc
+* Relax restrictions on editing of base rooms.  Renaming is not allowed but
+  all other attributes can be edited.  Closes feature request #21.
+* Sending pages from the client now uses the same message editing functions
+  as entering messages, allowing edit/abort.  Closes feature request #25.
+
 Revision 1.475  2000/03/03 04:50:14  ajc
 * Moved all of the wholist masquerading commands into the serv_rwho module
 
@@ -1685,4 +1691,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

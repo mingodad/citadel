@@ -892,10 +892,14 @@ void cmd_getr(void)
 			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;
 	}
+
+	/********
 	if (is_noneditable(&CC->quickroom)) {
 		cprintf("%d Can't edit this room.\n", ERROR + NOT_HERE);
 		return;
 	}
+	************/
+
 	getroom(&CC->quickroom, CC->quickroom.QRname);
 	cprintf("%d%c%s|%s|%s|%d|%d|%d\n",
 		OK, CtdlCheckExpress(),
@@ -918,6 +922,7 @@ void cmd_setr(char *args)
 	char old_name[ROOMNAMELEN];
 	int old_floor;
 	int new_order = 0;
+	int ne = 0;
 
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
@@ -928,10 +933,19 @@ void cmd_setr(char *args)
 			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;
 	}
+
+
 	if (is_noneditable(&CC->quickroom)) {
+		ne = 1;
+	}
+
+	/***
 		cprintf("%d Can't edit this room.\n", ERROR + NOT_HERE);
 		return;
 	}
+	***/
+
+
 	if (num_parms(args) >= 6) {
 		getfloor(&flbuf, extract_int(args, 5));
 		if ((flbuf.f_flags & F_INUSE) == 0) {
@@ -948,10 +962,16 @@ void cmd_setr(char *args)
 			new_order = 127;
 	}
 	lgetroom(&CC->quickroom, CC->quickroom.QRname);
+
+	/* Non-editable base rooms can't be renamed */
 	strcpy(old_name, CC->quickroom.QRname);
-	extract(buf, args, 0);
-	buf[ROOMNAMELEN] = 0;
-	safestrncpy(CC->quickroom.QRname, buf, sizeof CC->quickroom.QRname);
+	if (!ne) {
+		extract(buf, args, 0);
+		buf[ROOMNAMELEN] = 0;
+		safestrncpy(CC->quickroom.QRname, buf,
+			sizeof CC->quickroom.QRname);
+	}
+
 	extract(buf, args, 1);
 	buf[10] = 0;
 	safestrncpy(CC->quickroom.QRpasswd, buf, sizeof CC->quickroom.QRpasswd);

@@ -30,6 +30,8 @@
 #include "ipc.h"
 #include "citadel_decls.h"
 #include "tools.h"
+#include "rooms.h"
+#include "messages.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
@@ -244,32 +246,28 @@ void page_user() {
 			return;
 			}
 
-		printf("Type message to send.  Enter a blank line when finished.\n");
-		pagefp = fopen(temp, "w+");
-		unlink(temp);
-		citedit(pagefp, 0L);
-		fseek(pagefp, 0L, SEEK_END);
-		if ( ftell(pagefp) > 2)  {
-			rewind(pagefp);
-			snprintf(buf, sizeof buf, "SEXP %s|-", touser);
-			serv_puts(buf);
-			serv_gets(buf);
-			if (buf[0]=='4') {
-	   			strcpy(last_paged, touser);
-				while (fgets(buf, 256, pagefp) != NULL) {
-					buf[strlen(buf)-1] = 0;
-					serv_puts(buf);
-					}
-				fclose(pagefp);
-				serv_puts("000");
-				printf("Message sent.\n");
-			}
-			else {
-				printf("%s\n", &buf[4]);
-			}
-		} 
-		else {
+		if ( make_message(temp, touser, 0, 0, 0) != 0 ) {
 			printf("No message sent.\n");
+			return;
+		}
+
+		pagefp = fopen(temp, "r");
+		unlink(temp);
+		snprintf(buf, sizeof buf, "SEXP %s|-", touser);
+		serv_puts(buf);
+		serv_gets(buf);
+		if (buf[0]=='4') {
+	   		strcpy(last_paged, touser);
+			while (fgets(buf, 256, pagefp) != NULL) {
+				buf[strlen(buf)-1] = 0;
+				serv_puts(buf);
+				}
+			fclose(pagefp);
+			serv_puts("000");
+			printf("Message sent.\n");
+		}
+		else {
+			printf("%s\n", &buf[4]);
 		}
 	}
 }
