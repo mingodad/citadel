@@ -81,7 +81,8 @@ void do_listsub(void)
 				"without your consent.<BR><BR>"
 				"Please click on the link which is being "
 				"e-mailed to you and your subscription will "
-				"be confirmed.<BR></CENTER>\n"
+				"be confirmed.<BR>\n"
+				"<A HREF=\"/listsub\">Back...</A></CENTER>\n"
 			);
 		}
 		else {
@@ -117,7 +118,8 @@ void do_listsub(void)
 				"lists without your consent.<BR><BR>"
 				"Please click on the link which is being "
 				"e-mailed to you and your unsubscription will "
-				"be confirmed.<BR></CENTER>\n"
+				"be confirmed.<BR>\n"
+				"<A HREF=\"/listsub\">Back...</A></CENTER>\n"
 			);
 		}
 		else {
@@ -160,7 +162,7 @@ void do_listsub(void)
 	 * Any other (invalid) command causes the form to be displayed
 	 */
 	else {
-FORM:		wprintf("<FORM METHOD=\"POST\" ACTION=\"/listsub\">\n"
+FORM:		wprintf("<FORM METHOD=\"GET\" ACTION=\"/listsub\">\n"
 			"<TABLE BORDER=0>\n"
 		);
 

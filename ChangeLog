@@ -1,4 +1,7 @@
 $Log$
+Revision 323.64  2002/08/24 15:30:48  ajc
+* GET instead of POST for listsub.  Also add a 'Back...' link.
+
 Revision 323.63  2002/08/24 05:59:24  ajc
 * Bugfixes and cosmetic changes to listsub system
 
@@ -916,4 +919,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
