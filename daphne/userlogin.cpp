@@ -218,6 +218,7 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 	username->SetConstraints(c5);
 
 	SetAutoLayout(TRUE);
+        Maximize();
 	Show(TRUE);
 
 	sendcmd = "MESG hello";

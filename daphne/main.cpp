@@ -48,7 +48,6 @@ private:
 	void OnConnect(wxCommandEvent& event);
 	void OnTestWin(wxCommandEvent& event);
 	void OnUsersMenu(wxCommandEvent& cmd);
-	void OnWindowMenu(wxCommandEvent& cmd);
         void MyFrame::OnSize(wxSizeEvent& event);
 	wxButton *do_cmd;
 	void InitToolBar(wxToolBar* toolBar);
@@ -74,11 +73,6 @@ enum
 	MENU_TESTWIN,
 	UMENU_WHO,
 	UMENU_SEND_EXPRESS,
-	WMENU_CASCADE,
-	WMENU_TILE,
-	WMENU_ARRANGE,
-	WMENU_NEXT,
-	WMENU_PREVIOUS,
 	BUTTON_DO_CMD,
 	ROOMTREE_DOUBLECLICK
 };
@@ -97,11 +91,6 @@ BEGIN_EVENT_TABLE(	MyFrame, wxMDIParentFrame)
 	EVT_MENU(	MENU_TESTWIN,		MyFrame::OnTestWin)
 	EVT_MENU(	UMENU_WHO,		MyFrame::OnUsersMenu)
 	EVT_MENU(	UMENU_SEND_EXPRESS,	MyFrame::OnUsersMenu)
-	EVT_MENU(	WMENU_CASCADE,		MyFrame::OnWindowMenu)
-	EVT_MENU(	WMENU_TILE,		MyFrame::OnWindowMenu)
-	EVT_MENU(	WMENU_ARRANGE,		MyFrame::OnWindowMenu)
-	EVT_MENU(	WMENU_NEXT,		MyFrame::OnWindowMenu)
-	EVT_MENU(	WMENU_PREVIOUS,		MyFrame::OnWindowMenu)
 	EVT_BUTTON(	BUTTON_DO_CMD,		MyFrame::OnDoCmd)
         EVT_SIZE(                               MyFrame::OnSize)
 END_EVENT_TABLE()
@@ -165,23 +154,6 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 	RoomList = new RoomTree(this, citadel);
 
-/*
-        wxLayoutConstraints *t2 = new wxLayoutConstraints;
-        t2->top.SameAs(this, wxTop, 4);
-        t2->left.SameAs(this, wxLeft, 0);
-	t2->right.PercentOf(this, wxWidth, 25);
-        t2->bottom.SameAs(this, wxBottom, 0);
-        RoomList->SetConstraints(t2);
-
-	wxLayoutConstraints *t3 = new wxLayoutConstraints;
-	t3->top.SameAs(this, wxTop, 4);
-	t3->left.PercentOf(this, wxWidth, 25);
-	t3->right.SameAs(this, wxRight, 0);
-	t3->bottom.SameAs(this, wxBottom, 0);
-	wxMDIClientWindow *children = GetClientWindow();
-        children->SetConstraints(t3);
-   */
-
 	// Set up the toolbar
 
 	CreateToolBar(wxNO_BORDER|wxTB_FLAT|wxTB_HORIZONTAL);
@@ -202,13 +174,6 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	menuUsers->Append(UMENU_WHO, "&Who is online?");
 	menuUsers->Append(UMENU_SEND_EXPRESS, "&Page another user");
 
-	wxMenu *menuWindow = new wxMenu;
-	menuWindow->Append(WMENU_CASCADE, "&Cascade");
-	menuWindow->Append(WMENU_TILE, "&Tile");
-	menuWindow->Append(WMENU_ARRANGE, "&Arrange icons");
-	menuWindow->Append(WMENU_NEXT, "&Next window");
-	menuWindow->Append(WMENU_PREVIOUS, "&Previous window");
-
 	wxMenu *menuHelp = new wxMenu;
 	menuHelp->Append(IG_About, "&About...");
 
@@ -217,7 +182,6 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	menuBar->Append(menuFile, "&File");
 	menuBar->Append(menuEdit, "&Edit");
 	menuBar->Append(menuUsers, "&Users");
-	menuBar->Append(menuWindow, "&Window");
 	menuBar->Append(menuHelp, "&Help");
 
 	// ... and attach this menu bar to the frame
@@ -227,8 +191,6 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	CreateStatusBar(3);
 	SetStatusText("Not connected", 0);
 
-     /*   SetAutoLayout(TRUE);
-        Layout();  */
         Show(TRUE);
         
 }
@@ -236,8 +198,6 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 
 // The toolbar for this application.
-// Right now we aren't defining any toolbars yet, so 
-
 void MyFrame::InitToolBar(wxToolBar* toolBar) {
 	int i;
 	wxBitmap* bitmaps[4];
@@ -321,19 +281,6 @@ void MyFrame::OnUsersMenu(wxCommandEvent& cmd) {
 	else if (id == UMENU_SEND_EXPRESS)
 		new SendExpress(citadel, this, "");
 }
-
-// Window menu handler
-void MyFrame::OnWindowMenu(wxCommandEvent& cmd) {
-	int id;
-	
-	id = cmd.GetId();
-	if (id == WMENU_CASCADE)		Cascade();
-	else if (id == WMENU_TILE)		Tile();
-	else if (id = WMENU_ARRANGE)		ArrangeIcons();
-	else if (id == WMENU_NEXT)		ActivateNext();
-	else if (id == WMENU_PREVIOUS)		ActivatePrevious();
-}
-
 
 
 void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
