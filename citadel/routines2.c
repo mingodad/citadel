@@ -394,14 +394,14 @@ void upload(int c)	/* c = upload mode */
 /* 
  * validate a user
  */
-void val_user(char *user)
+void val_user(char *user, int do_validate)
 {
 	int a;
 	char cmd[256];
 	char buf[256];
 	int ax = 0;
 
-	sprintf(cmd,"GREG %s",user);
+	sprintf(cmd, "GREG %s", user);
 	serv_puts(cmd);
 	serv_gets(cmd);
 	if (cmd[0]=='1') {
@@ -409,8 +409,7 @@ void val_user(char *user)
 		do {
 			serv_gets(buf);
 			++a;
-			if (a==1) printf("User #%s - %s  ",
-				buf,&cmd[4]);
+			if (a==1) printf("User #%s - %s  ", buf, &cmd[4]);
 			if (a==2) printf("PW: %s\n",buf);
 			if (a==3) printf("%s\n",buf);
 			if (a==4) printf("%s\n",buf);
@@ -427,12 +426,14 @@ void val_user(char *user)
 		printf("%-30s\n%s\n",user,&cmd[4]);
 		}
 
-	/* now set the access level */
-	ax = intprompt("Access level", ax, 0, 6);
-	sprintf(cmd,"VALI %s|%d",user,ax);
-	serv_puts(cmd);
-	serv_gets(cmd);
-	if (cmd[0]!='2') printf("%s\n",&cmd[4]);
+	if (do_validate) {
+		/* now set the access level */
+		ax = intprompt("Access level", ax, 0, 6);
+		sprintf(cmd,"VALI %s|%d",user,ax);
+		serv_puts(cmd);
+		serv_gets(cmd);
+		if (cmd[0]!='2') printf("%s\n",&cmd[4]);
+		}
 	printf("\n");
 	}
 
@@ -448,8 +449,8 @@ void validate(void) {	/* validate new users */
 		if (cmd[0]!='3') finished = 1;
 		if (cmd[0]=='2') printf("%s\n",&cmd[4]);
 		if (cmd[0]=='3') {
-			extract(buf,cmd,0);
-			val_user(&buf[4]);
+			extract(buf, cmd, 0);
+			val_user(&buf[4], 1);
 			}
 		} while(finished==0);
 	}

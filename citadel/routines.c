@@ -26,7 +26,7 @@
 
 void sttybbs(int cmd);
 void newprompt(char *prompt, char *str, int len);
-void val_user(char *user);
+void val_user(char *, int);
 void formout(char *name);
 void logoff(int code);
 void set_keepalives(int s);
@@ -128,8 +128,9 @@ void edituser(void)
 	lastcall = extract_long(&buf[4], 7);
 	userpurge = extract_int(&buf[4], 8);
 
-	val_user(who); /* Display registration, and set access level */
+	val_user(who, 0); /* Display registration */
 	strprompt("Password", pass, 19);
+	axlevel = intprompt("Access level", axlevel, 0, 6);
 	timescalled = intprompt("Times called", timescalled, 0, INT_MAX);
 	posted = intprompt("Messages posted", posted, 0, INT_MAX);
 	lastcall = (boolprompt("Set last call to now", 0)?time(NULL):lastcall);
