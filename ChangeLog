@@ -1,4 +1,7 @@
 $Log$
+Revision 400.2  2002/09/13 15:54:40  ajc
+* Reversed the above change because I broke it somehow
+
 Revision 400.1  2002/09/11 22:46:59  ajc
 * Started adding in compression and calendaring library detects (not finished)
 
@@ -940,4 +943,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
