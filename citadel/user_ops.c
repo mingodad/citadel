@@ -475,6 +475,8 @@ int purge_user(char *pname) {
 		return(ERROR+NO_SUCH_USER);
 		}
 
+	lprintf(5, "Deleting user <%s>\n", pname);
+
 	/* FIX   Don't delete a user who is currently logged in. */
 
 	/* Perform any purge functions registered by server extensions */

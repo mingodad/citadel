@@ -1,3 +1,8 @@
+Sun Nov  8 22:56:53 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* serv_expire.c: created; moved message expiry from serv_test.c,
+	  moved user purge from userpurge.c
+	* userpurge.c: deleted
+
 1998-11-08 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* useradmin.c: really removed (cvs remove)
 	* aidepost.c, citadel.c: convert all sprintf() calls to snprintf()

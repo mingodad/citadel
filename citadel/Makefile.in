@@ -18,7 +18,8 @@ all: $(TARGETS)
 
 CLIENT_TARGETS=citadel whobbs
 SERVER_TARGETS=citserver setup
-SERV_MODULES=modules/serv_chat.so modules/serv_test.so modules/serv_upgrade.so
+SERV_MODULES=modules/serv_chat.so modules/serv_test.so \
+	modules/serv_upgrade.so modules/serv_expire.so
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform \
 	readlog rcit stats citmail netpoll mailinglist userlist
 PROXY_TARGETS=proxy
@@ -53,8 +54,8 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	netpoll.c netproc.c netsetup.c policy.c proxy.c rcit.c readlog.c \
 	room_ops.c rooms.c roomutil.c routines.c routines2.c serv_chat.c \
 	serv_info.c serv_test.c serv_upgrade.c setup.c snprintf.c stats.c \
-	support.c sysdep.c tools.c user_ops.c userlist.c \
-	userpurge.c whobbs.c
+	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
+	whobbs.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
@@ -109,6 +110,9 @@ modules/serv_test.so: serv_test.mo
 
 modules/serv_upgrade.so: serv_upgrade.mo
 	$(CC) -shared -o modules/serv_upgrade.so serv_upgrade.mo
+
+modules/serv_expire.so: serv_expire.mo
+	$(CC) -shared -o modules/serv_expire.so serv_expire.mo
 
 aidepost: aidepost.o config.o
 	$(CC) aidepost.o config.o $(LDFLAGS) -o aidepost
