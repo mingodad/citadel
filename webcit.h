@@ -37,7 +37,8 @@
 #define QU			(3)
 #define TARGET			"webcit01"	/* Target for inline URL's */
 #define HOUSEKEEPING		15		/* Housekeeping frequency */
-#define INITIAL_WORKER_THREADS	5
+#define MIN_WORKER_THREADS	5
+#define MAX_WORKER_THREADS	250
 #define LISTEN_QUEUE_LENGTH	100		/* listen() backlog queue */
 
 #define USERCONFIGROOM		"My Citadel Config"
@@ -427,3 +428,4 @@ void do_iconbar(void);
 void display_customize_iconbar(void);
 void commit_iconbar(void);
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
+void spawn_another_worker_thread(void);

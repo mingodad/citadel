@@ -307,7 +307,7 @@ int main(int argc, char **argv)
 
 
 	/* Start a few initial worker threads */
-	for (i=0; i<(INITIAL_WORKER_THREADS); ++i) {
+	for (i=0; i<(MIN_WORKER_THREADS); ++i) {
 		spawn_another_worker_thread();
 	}
 
@@ -324,19 +324,10 @@ void worker_entry(void) {
 	int ssock;
 	int i = 0;
 	int time_to_die = 0;
-	time_t start_time, stop_time;
 
 	do {
 		/* Only one thread can accept at a time */
-		start_time = time(NULL);
 		ssock = accept(msock, NULL, 0);
-		stop_time = time(NULL);
-
-		/* Augment the thread pool if we're not blocking at all */
-		if ( (stop_time - start_time) == 0L) {
-			spawn_another_worker_thread();
-		}
-
 		if (ssock < 0) {
 			lprintf(2, "accept() failed: %s\n", strerror(errno));
 		} else {
