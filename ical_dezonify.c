@@ -2,28 +2,35 @@
  * $Id$ 
  *
  * Function to go through an ical component set and convert all non-UTC
- * DTSTART and DTEND properties to UTC.  It also strips out any VTIMEZONE
+ * date/time properties to UTC.  It also strips out any VTIMEZONE
  * subcomponents afterwards, because they're irrelevant.
  *
  */
 
-#ifdef HAVE_ICAL_H
 
-#include <stdlib.h>
 #include <unistd.h>
-#include <string.h>
-#include <ctype.h>
-#include <fcntl.h>
 #include <sys/types.h>
+#include <limits.h>
+#include <stdio.h>
+#include <string.h>
+#include <strings.h>
+#include "webcit.h"
+
+#ifdef HAVE_ICAL_H
 #include <ical.h>
+
 
 /*
  * Back end function for ical_dezonify()
  *
- * We supply this with the master component and the property (which will
- * be a DTSTART or DTEND) which we want to convert to UTC.
+ * We supply this with the master component, the relevant component,
+ * and the property (which will be a DTSTART, DTEND, etc.)
+ * which we want to convert to UTC.
  */
-void ical_dezonify_backend(icalcomponent *cal, icalproperty *prop) {
+void ical_dezonify_backend(icalcomponent *cal,
+			icalcomponent *rcal,
+			icalproperty *prop) {
+
 	icaltimezone *t;
 	icalparameter *param;
 	const char *tzid;
@@ -52,24 +59,37 @@ void ical_dezonify_backend(icalcomponent *cal, icalproperty *prop) {
 	else if (icalproperty_isa(prop) == ICAL_DTEND_PROPERTY) {
 		TheTime = icalproperty_get_dtend(prop);
 	}
+	else if (icalproperty_isa(prop) == ICAL_DUE_PROPERTY) {
+		TheTime = icalproperty_get_due(prop);
+	}
+	else if (icalproperty_isa(prop) == ICAL_EXDATE_PROPERTY) {
+		TheTime = icalproperty_get_exdate(prop);
+	}
+	else {
+		return;
+	}
 
-	/* Do the conversion.
-	 */
+	/* Do the conversion. */
 	icaltimezone_convert_time(&TheTime,
 				t,
 				icaltimezone_get_utc_timezone()
 	);
+	TheTime.is_utc = 1;
+	icalproperty_remove_parameter_by_kind(prop, ICAL_TZID_PARAMETER);
 
-	/* Now strip the TZID parameter, because it's incorrect now. */
-	icalproperty_remove_parameter(prop, ICAL_TZID_PARAMETER);
-
+	/* Now add the converted property back in. */
 	if (icalproperty_isa(prop) == ICAL_DTSTART_PROPERTY) {
 		icalproperty_set_dtstart(prop, TheTime);
 	}
 	else if (icalproperty_isa(prop) == ICAL_DTEND_PROPERTY) {
 		icalproperty_set_dtend(prop, TheTime);
 	}
-
+	else if (icalproperty_isa(prop) == ICAL_DUE_PROPERTY) {
+		icalproperty_set_due(prop, TheTime);
+	}
+	else if (icalproperty_isa(prop) == ICAL_EXDATE_PROPERTY) {
+		icalproperty_set_exdate(prop, TheTime);
+	}
 }
 
 
@@ -106,8 +126,10 @@ void ical_dezonify_recur(icalcomponent *cal, icalcomponent *rcal) {
 		if (
 			(icalproperty_isa(p) == ICAL_DTSTART_PROPERTY)
 			|| (icalproperty_isa(p) == ICAL_DTEND_PROPERTY)
+			|| (icalproperty_isa(p) == ICAL_DUE_PROPERTY)
+			|| (icalproperty_isa(p) == ICAL_EXDATE_PROPERTY)
 		   ) {
-			ical_dezonify_backend(cal, p);
+			ical_dezonify_backend(cal, rcal, p);
 		}
 	}
 }
@@ -130,6 +152,8 @@ void ical_dezonify(icalcomponent *cal) {
 		icalcomponent_remove_component(cal, vt);
 		icalcomponent_free(vt);
 	}
+
 }
+
 
 #endif /* HAVE_ICAL_H */
