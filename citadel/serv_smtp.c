@@ -119,6 +119,7 @@ void smtp_hello(char *argbuf, int is_esmtp) {
 		cprintf("250-Extended greetings and joyous salutations.\r\n");
 		cprintf("250-HELP\r\n");
 		cprintf("250-SIZE %ld\r\n", config.c_maxmsglen);
+		cprintf("250-PIPELINING\r\n");
 		cprintf("250 AUTH=LOGIN\r\n");
 	}
 }
@@ -746,14 +747,14 @@ void smtp_command_loop(void) {
 	}
 
 	else if (!strncasecmp(cmdbuf, "NOOP", 4)) {
-		cprintf("250 This command successfully did nothing.\r\n");
+		cprintf("250 NOOP\r\n");
 	}
 
 	else if (!strncasecmp(cmdbuf, "QUIT", 4)) {
 		cprintf("221 Goodbye...\r\n");
 		CC->kill_me = 1;
 		return;
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf, "RCPT", 4)) {
 		smtp_rcpt(&cmdbuf[5]);
