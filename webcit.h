@@ -424,3 +424,4 @@ void http_transmit_thing(char *thing, size_t length, char *content_type,
 void unescape_input(char *buf);
 void do_iconbar(void);
 void display_customize_iconbar(void);
+void commit_iconbar(void);

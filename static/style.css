@@ -154,29 +154,19 @@ body {
 }
 
 h1 {
-  color: #c33;
-  background: none;
   font-weight: bold;
   text-align: center
 }
 
 h2 {
-  color: #00008b;
-  background: none;
   font-weight: bold
 }
 
 h3 {
-  color: #006400;
-  background: none;
-  margin-left: 4%;
-  margin-right: 4%;
   font-weight: bold
 }
 
 h4 {
-  margin-left: 6%;
-  margin-right: 6%;
   font-weight: bold
 }
 
