@@ -443,14 +443,12 @@ if test "x$ok_libical" = xyes ; then
 		[
 #include <ical.h>
 main() {
-	float v;
-	int i;
-	sscanf(ICAL_VERSION, "%f", &v);
-	printf("libical version: %0.2f\n", v);
-	v = v * 100.0;
-	i = (int) v;
-	if (i >= 24) {
-		printf("This version is ok.\n");
+        int major, minor, v;
+        sscanf(ICAL_VERSION, "%d.%d", &major, &minor);
+        v = 100*major + minor;
+        printf("libical version: %i\n", v);
+        if (v >= 24) {
+                printf("This version is ok.\n");
 		return(0);
 	}
 	printf("libical 0.24 or newer required.\n");

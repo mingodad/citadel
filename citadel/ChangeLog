@@ -1,4 +1,8 @@
  $Log$
+ Revision 629.5  2005/01/14 17:08:30  ajc
+ * Applied a configure script fix sent in by David Given for more reliable
+   detection of the installed libical version.
+
  Revision 629.4  2005/01/13 05:43:16  ajc
  * Initial support for having a room participate in a remote mailing list
 
@@ -6268,4 +6272,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
