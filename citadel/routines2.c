@@ -923,12 +923,12 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 	fclose(tempfp);
 
 	e_ex_code = 1;	/* start with a failed exit code */
+	screen_reset();
+	sttybbs(SB_RESTORE);
 	editor_pid = fork();
 	cksum = file_checksum(filename);
 	if (editor_pid == 0) {
 		chmod(filename, 0600);
-		screen_reset();
-		sttybbs(SB_RESTORE);
 		putenv("WINDOW_TITLE=Network configuration");
 		execlp(editor_path, editor_path, filename, NULL);
 		exit(1);

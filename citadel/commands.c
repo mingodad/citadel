@@ -1218,6 +1218,7 @@ void sttybbs(int cmd)
 	if (cmd == 3) {
 		tcsetattr(0, TCSADRAIN, &saved_settings);
 	}
+
 }
 #else
 void sttybbs(int cmd)

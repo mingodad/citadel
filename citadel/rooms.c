@@ -1010,18 +1010,18 @@ void do_edit(CtdlIPC *ipc,
 
 		snprintf(tmp, sizeof tmp, "WINDOW_TITLE=%s", desc);
 		putenv(tmp);
+		screen_reset();
+		sttybbs(SB_RESTORE);
 		editor_pid = fork();
 		if (editor_pid == 0) {
 			chmod(temp, 0600);
-			screen_reset();
-			sttybbs(SB_RESTORE);
 			execlp(editor_path, editor_path, temp, NULL);
 			exit(1);
 		}
 		if (editor_pid > 0)
 			do {
 				editor_exit = 0;
-				b = wait(&editor_exit);
+				b = ka_wait(&editor_exit);
 			} while ((b != editor_pid) && (b >= 0));
 		editor_pid = (-1);
 		scr_printf("Executed %s\n", editor_path);

@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.56  2002/11/04 21:49:53  ajc
+ * Don't run the wait indicator when in an external editor
+
  Revision 601.55  2002/11/01 04:57:56  ajc
  * Fixed .AM and .AE commands
 
@@ -4174,4 +4177,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

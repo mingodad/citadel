@@ -84,7 +84,8 @@ void status_line(const char *humannode, const char *bbs_city,
  */
 #if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 void wait_indicator(int state) {
-	if (statuswindow) {
+
+	if (!isendwin() && statuswindow) {
 
 		mvwinch(statuswindow, 0, screenwidth - 2);
 		switch (state) {
@@ -162,8 +163,9 @@ void screen_delete(void)
 	windows_delete();
 	screen_reset();
 #if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
-	if (myscreen)
+	if (myscreen) {
 		delscreen(myscreen);
+	}
 	myscreen = NULL;
 #endif
 }

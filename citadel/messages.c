@@ -820,12 +820,12 @@ ME1:	switch (mode) {
 		e_ex_code = 1;	/* start with a failed exit code */
 		editor_pid = fork();
 		cksum = file_checksum(filename);
+		screen_reset();
+		sttybbs(SB_RESTORE);
 		if (editor_pid == 0) {
 			char tmp[SIZ];
 
 			chmod(filename, 0600);
-			screen_reset();
-			sttybbs(SB_RESTORE);
 			snprintf(tmp, sizeof tmp, "WINDOW_TITLE=%s", header);
 			putenv(tmp);
 			execlp(editor_path, editor_path, filename, NULL);
