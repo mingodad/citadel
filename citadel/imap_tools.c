@@ -116,10 +116,10 @@ void imap_mailboxname(char *buf, int bufsize, struct quickroom *qrbuf)
 	}
 
 	/*
-	 * Replace "/" characters with "|" for pseudo-folder-delimiting
+	 * Replace delimiter characters with "|" for pseudo-folder-delimiting
 	 */
 	for (i=0; i<strlen(buf); ++i) {
-		if (buf[i] == '/') buf[i] = '|';
+		if (buf[i] == FDELIM) buf[i] = '|';
 	}
 }
 
@@ -179,9 +179,9 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 		ret = (0 | IR_MAILBOX);
 	}
 
-	/* Undelimiterizationalize the room name (change '|' to '/') */
+	/* Undelimiterizationalize the room name (change '|') */
 	for (i=0; i<strlen(rbuf); ++i) {
-		if (rbuf[i] == '|') rbuf[i] = '/';
+		if (rbuf[i] == '|') rbuf[i] = FDELIM;
 	}
 
 

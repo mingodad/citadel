@@ -1,4 +1,7 @@
  $Log$
+ Revision 605.46  2003/05/03 16:50:52  ajc
+ * Change folder delimiter in room names from / to \
+
  Revision 605.45  2003/05/02 04:02:47  ajc
  * setup.c: allow specification of the Citadel system account by either
             username or uid
@@ -4676,4 +4679,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -3,7 +3,15 @@
  *
  */
 
-
+/*
+ * FDELIM defines which character we want to use as a folder delimiter
+ * in room names.  Originally we used a forward slash, but that caused
+ * rooms with names like "Sent/Received Pages" to get delimited, so we
+ * changed it to a backslash.  This is completely irrelevant to how Citadel
+ * speaks to IMAP clients -- the delimiter used in the IMAP protocol is
+ * a vertical bar, which is illegal in Citadel room names anyway.
+ */
+#define FDELIM '\\'
 
 void imap_strout(char *buf);
 int imap_parameterize(char **args, char *buf);
