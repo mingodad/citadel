@@ -76,7 +76,7 @@ void edit_node(void) {
 
 void display_add_node(void)
 {
-	output_headers(1);
+	output_headers(3);
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Add new node</B>");
@@ -111,7 +111,7 @@ void display_edit_node(void)
 
 	strcpy(node, bstr("node"));
 
-	output_headers(1);
+	output_headers(3);
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Edit node configuration for ");
@@ -162,7 +162,7 @@ void display_netconf(void)
 	char buf[SIZ];
 	char node[SIZ];
 
-	output_headers(1);
+	output_headers(3);
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Network configuration</B>\n");
@@ -204,7 +204,7 @@ void display_confirm_delete_node(void)
 {
 	char node[SIZ];
 
-	output_headers(1);
+	output_headers(3);
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Confirm delete</B>\n");
@@ -274,7 +274,7 @@ void add_node(void)
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] == '1') {
-			output_headers(1);
+			output_headers(3);
 			server_to_text();
 			wprintf("<A HREF=\"/display_netconf\">Back to menu</A>\n");
 			wDumpContent(1);

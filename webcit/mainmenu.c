@@ -172,6 +172,9 @@ void display_main_menu(void)
 		wprintf("Edit site-wide configuration</A>\n");
 
 		if (WC->axlevel >= 6) {
+			wprintf("<LI><A HREF=\"/select_user_to_edit\">\n");
+			wprintf("Add, change, delete user accounts</A>\n");
+
 			wprintf("<LI><A HREF=\"/validate\">\n");
 			wprintf("Validate new users</A>\n");
 

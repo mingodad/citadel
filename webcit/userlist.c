@@ -49,7 +49,7 @@ void userlist(void)
 			strcpy(bptr->name, buf);
 			bio = bptr;
 		}
-	output_headers(1);
+	output_headers(3);
 
 	serv_puts("LIST");
 	serv_gets(buf);
@@ -113,7 +113,7 @@ void showuser(void)
 	char buf[SIZ];
 	int have_pic;
 
-	output_headers(1);
+	output_headers(3);
 
 
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");

@@ -75,7 +75,7 @@ void edit_vcard(void) {
 	inetemail[0] = 0;
 	extrafields[0] = 0;
 
-	output_headers(1);
+	output_headers(3);
 
 	strcpy(whatuser, "");
 	sprintf(buf, "MSG0 %s|1", bstr("msgnum") );

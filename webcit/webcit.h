@@ -292,3 +292,4 @@ int pattern2(char *search, char *patn);
 void edit_vcard(void);
 void submit_vcard(void);
 void striplt(char *);
+void select_user_to_edit(void);

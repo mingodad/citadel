@@ -1,4 +1,8 @@
 $Log$
+Revision 323.16  2002/03/26 18:23:23  ajc
+* Don't display room banner on screens that don't pertain to a particular room
+* Initial prep for add/change/delete user accounts screen
+
 Revision 323.15  2002/03/22 04:33:08  ajc
 * "vcard edit" button for _other_ users' My Citadel Config rooms as well
 
@@ -758,3 +762,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

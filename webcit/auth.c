@@ -194,7 +194,7 @@ void validate(void)
 	char buf[SIZ];
 	int a;
 
-	output_headers(1);
+	output_headers(3);
 
 	strcpy(buf, bstr("user"));
 	if (strlen(buf) > 0)
@@ -273,7 +273,7 @@ void display_reg(int during_login)
 	char buf[SIZ];
 	int a;
 
-	output_headers(1);
+	output_headers(3);
 
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -380,7 +380,7 @@ void display_changepw(void)
 {
 	char buf[SIZ];
 
-	output_headers(1);
+	output_headers(3);
 
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
