@@ -1,4 +1,10 @@
 $Log$
+Revision 323.42  2002/06/19 22:01:31  ajc
+* When editing another user's vCard, do a "transient goto" to their config
+  room so you don't automatically gain access to their config room.
+* When creating a user, go back to the "select user to edit" screen with the
+  new user's account name pre-selected.
+
 Revision 323.41  2002/06/17 03:48:44  ajc
 * Finished the thing to edit other users' vCards.
 
@@ -842,3 +848,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

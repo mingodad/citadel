@@ -30,7 +30,7 @@
 
 
 
-void select_user_to_edit(char *message)
+void select_user_to_edit(char *message, char *preselect)
 {
 	char buf[SIZ];
 	char username[SIZ];
@@ -55,7 +55,11 @@ void select_user_to_edit(char *message)
         if (buf[0] == '1') {
                 while (serv_gets(buf), strcmp(buf, "000")) {
                         extract(username, buf, 0);
-                        wprintf("<OPTION>");
+                        wprintf("<OPTION");
+			if (preselect != NULL)
+			   if (!strcasecmp(username, preselect))
+			      wprintf(" SELECTED");
+			wprintf(">");
                         escputs(username);
                         wprintf("\n");
                 }
@@ -105,19 +109,19 @@ void display_edit_address_book_entry(char *username, long usernum) {
 
 
 	/* Locate the user's config room, creating it if necessary */
-	sprintf(roomname, "%010ld.My Citadel Config", usernum);
-	serv_printf("GOTO %s", roomname);
+	sprintf(roomname, "%010ld.%s", usernum, USERCONFIGROOM);
+	serv_printf("GOTO %s||1", roomname);
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		serv_printf("CRE8 1|%s|5|", roomname);
+		serv_printf("CRE8 1|%s|5|||1|", roomname);
 		serv_gets(buf);
-		serv_printf("GOTO %s", roomname);
+		serv_printf("GOTO %s||1", roomname);
 		serv_gets(buf);
 		if (buf[0] != '2') {
 			sprintf(error_message,
 				"<IMG SRC=\"static/error.gif\" VALIGN=CENTER>"
 				"%s<BR><BR>\n", &buf[4]);
-			select_user_to_edit(error_message);
+			select_user_to_edit(error_message, username);
 			return;
 		}
 	}
@@ -176,7 +180,7 @@ TRYAGAIN:
 		sprintf(error_message,
 			"<IMG SRC=\"static/error.gif\" VALIGN=CENTER>"
 			"Could not create/edit vCard<BR><BR>\n");
-		select_user_to_edit(error_message);
+		select_user_to_edit(error_message, username);
 		return;
 	}
 
@@ -219,7 +223,7 @@ void display_edituser(char *supplied_username) {
 		sprintf(error_message,
 			"<IMG SRC=\"static/error.gif\" VALIGN=CENTER>"
 			"%s<BR><BR>\n", &buf[4]);
-		select_user_to_edit(error_message);
+		select_user_to_edit(error_message, username);
 		return;
 	}
 
@@ -311,13 +315,7 @@ void display_edituser(char *supplied_username) {
 		"<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Cancel\">\n"
 		"<BR><BR></FORM>\n");
 
-	wprintf("<A HREF=\"/dotgoto&room=%010ld.My%%20Citadel%%20Config\">",
-		usernum);
-	wprintf("Click here to access the configuration room for ");
-	escputs(username);
-	wprintf("</A><BR>\n"
-		"(Contact information, Internet e-mail addresses, etc.)<BR>"
-		"</CENTER>\n");
+	wprintf("</CENTER>\n");
 
 	wDumpContent(1);
 
@@ -357,7 +355,7 @@ void edituser(void) {
 		}
 	}
 
-	select_user_to_edit(message);
+	select_user_to_edit(message, bstr("username"));
 }
 
 
@@ -374,13 +372,14 @@ void create_user(void) {
 	serv_gets(buf);
 
 	if (buf[0] == '2') {
-		display_edituser(username);
+		sprintf(error_message, "<b>User has been created.</b>");
+		select_user_to_edit(error_message, username);
 	}
 	else {
 		sprintf(error_message,
 			"<IMG SRC=\"static/error.gif\" VALIGN=CENTER>"
 			"%s<BR><BR>\n", &buf[4]);
-		select_user_to_edit(error_message);
+		select_user_to_edit(error_message, NULL);
 	}
 
 }

@@ -335,7 +335,7 @@ void submit_vcard(void) {
 	serv_puts("000");
 
 	if (!strcmp(bstr("return_to"), "/select_user_to_edit")) {
-		select_user_to_edit(NULL);
+		select_user_to_edit(NULL, NULL);
 	}
 	else {
 		readloop("readnew");
