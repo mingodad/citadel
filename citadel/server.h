@@ -6,6 +6,7 @@ typedef pthread_t THREAD;
  */
 #define DEBUG_MEMORY_LEAKS
 
+struct CtdlMessage;
 
 /*
  * Generic per-session variable or data structure storage
@@ -246,6 +247,20 @@ extern struct UserFunctionHook *UserHookTable;
 #define EVT_OUTPUTMSG	101	/* Outputting a message */
 
 
+/*
+ * MessageFunctionHook extensions are used for hooks which implement handlers
+ * for various types of message operations (save, read, etc.)
+ */
+struct MessageFunctionHook {
+	struct MessageFunctionHook *next;
+	int (*h_function_pointer) (struct CtdlMessage *msg);
+	int eventtype;
+};
+extern struct MessageFunctionHook *MessageHookTable;
+
+#define EVT_BEFOREREAD	200
+#define EVT_BEFORESAVE	201
+#define EVT_AFTERSAVE	202
 
 
 /*

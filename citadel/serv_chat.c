@@ -42,6 +42,8 @@ int ChatLastMsg = 0;
 
 extern struct CitContext *ContextList;
 
+
+
 char *Dynamic_Module_Init(void)
 {
 	CtdlRegisterProtoHook(cmd_chat, "CHAT", "Begin real-time chat");

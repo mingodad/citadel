@@ -22,10 +22,11 @@
 #endif
 #include <limits.h>
 #include <ctype.h>
-#include "dynloader.h"
 #include "citadel.h"
 #include "server.h"
+#include "dynloader.h"
 #include "sysdep_decls.h"
+#include "msgbase.h"
 #include "tools.h"
 
 #ifndef HAVE_SNPRINTF
@@ -38,6 +39,7 @@ struct CleanupFunctionHook *CleanupHookTable = NULL;
 struct SessionFunctionHook *SessionHookTable = NULL;
 struct UserFunctionHook *UserHookTable = NULL;
 struct XmsgFunctionHook *XmsgHookTable = NULL;
+struct MessageFunctionHook *MessageHookTable = NULL;
 
 struct ProtoFunctionHook {
 	void (*handler) (char *cmdbuf);
@@ -194,6 +196,24 @@ void CtdlRegisterUserHook(void (*fcn_ptr) (char *, long), int EventType)
 }
 
 
+void CtdlRegisterMessageHook(int (*handler)(struct CtdlMessage *),
+				int EventType)
+{
+
+	struct MessageFunctionHook *newfcn;
+
+	newfcn = (struct MessageFunctionHook *)
+	    mallok(sizeof(struct MessageFunctionHook));
+	newfcn->next = MessageHookTable;
+	newfcn->h_function_pointer = handler;
+	newfcn->eventtype = EventType;
+	MessageHookTable = newfcn;
+
+	lprintf(5, "Registered a new message function (type %d)\n",
+		EventType);
+}
+
+
 void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *), int order)
 {
 
@@ -240,6 +260,21 @@ void PerformUserHooks(char *username, long usernum, int EventType)
 			(*fcn->h_function_pointer) (username, usernum);
 		}
 	}
+}
+
+int PerformMessageHooks(struct CtdlMessage *msg, int EventType)
+{
+	struct MessageFunctionHook *fcn;
+	int total_retval = 0;
+
+	for (fcn = MessageHookTable; fcn != NULL; fcn = fcn->next) {
+		if (fcn->eventtype == EventType) {
+			total_retval = total_retval +
+				(*fcn->h_function_pointer) (msg);
+		}
+	}
+
+	return total_retval;
 }
 
 int PerformXmsgHooks(char *sender, char *recp, char *msg)

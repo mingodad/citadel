@@ -1,4 +1,8 @@
 $Log$
+Revision 1.368  1999/09/19 21:28:33  ajc
+* Finished off the message architecture stuff with a new class of hooks to
+  enable future server-side handlers.
+
 Revision 1.367  1999/09/19 15:57:06  ajc
 * migrated cmd_ent3() to CtdlSaveMessage()
 
@@ -1256,3 +1260,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

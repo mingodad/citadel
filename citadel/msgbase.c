@@ -561,6 +561,13 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum)
 	} while ((field_length > 0) && (field_header != 'M'));
 
 	cdb_free(dmsgtext);
+
+	/* Perform "before read" hooks (aborting if any return nonzero) */
+	if (PerformMessageHooks(ret, EVT_BEFOREREAD) > 0) {
+		CtdlFreeMessage(ret);
+		return NULL;
+	}
+
 	return (ret);
 }
 
@@ -1172,6 +1179,9 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 		}
 	}
 
+	/* Perform "before save" hooks (aborting if any return nonzero) */
+	if (PerformMessageHooks(msg, EVT_BEFORESAVE) > 0) return;
+
 	/* Network mail - send a copy to the network program. */
 	if ((strlen(recipient) > 0) && (mailtype != MES_LOCAL)) {
 		sprintf(aaa, "./network/spoolin/netmail.%04lx.%04x.%04x",
@@ -1267,6 +1277,9 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	smi.smi_refcount = successful_local_recipients;
 	safestrncpy(smi.smi_content_type, content_type, 64);
 	PutSuppMsgInfo(&smi);
+
+	/* Perform "after save" hooks */
+	PerformMessageHooks(msg, EVT_AFTERSAVE);
 }
 
 
