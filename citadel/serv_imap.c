@@ -322,6 +322,24 @@ void imap_close(int num_parms, char *parms[]) {
 
 
 
+/*
+ * Used by LIST and LSUB to show the floors in the listing
+ */
+void imap_list_floors(char *cmd) {
+	int i;
+	struct floor *fl;
+
+	for (i=0; i<MAXFLOORS; ++i) {
+		fl = cgetfloor(i);
+		if (fl->f_flags & F_INUSE) {
+			cprintf("* %s (\\NoSelect) \"|\" ", cmd);
+			imap_strout(fl->f_name);
+			cprintf("\r\n");
+		}
+	}
+}
+
+
 
 /*
  * Back end for imap_lsub()
@@ -350,6 +368,7 @@ void imap_lsub_listroom(struct quickroom *qrbuf, void *data) {
  * FIXME: Handle wildcards, please.
  */
 void imap_lsub(int num_parms, char *parms[]) {
+	imap_list_floors("LSUB");
 	ForEachRoom(imap_lsub_listroom, NULL);
 	cprintf("%s OK LSUB completed\r\n", parms[0]);
 }
@@ -381,6 +400,7 @@ void imap_list_listroom(struct quickroom *qrbuf, void *data) {
  * FIXME: Handle wildcards, please.
  */
 void imap_list(int num_parms, char *parms[]) {
+	imap_list_floors("LIST");
 	ForEachRoom(imap_list_listroom, NULL);
 	cprintf("%s OK LIST completed\r\n", parms[0]);
 }

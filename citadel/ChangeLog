@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.85  2001/02/06 04:44:12  ajc
+ * Added a floor listing (complete with \NoSelect flag) to LIST and LSUB
+
  Revision 573.84  2001/02/06 02:09:38  ajc
  * citadel.rc: changed the default for local_screen_dimensions to 1, since
    Internet users now outnumber dialup users 100 to 0.
@@ -2384,4 +2387,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
