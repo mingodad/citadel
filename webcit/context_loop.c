@@ -316,13 +316,6 @@ void context_loop(int sock)
 				"?force_close_session=yes HTTP/1.0");
 	}
 
-	/*
-	 * favicon.ico can't be in the root...
-	 */
-	if (!strncasecmp(buf, "/favicon.ico", 12)) {
-		strcpy(req->line, "GET /static/favicon.ico");
-	}
-
 	/* These are the URL's which may be executed without a
 	 * session cookie already set.  If it's not one of these,
 	 * force the session to close because cookies are
