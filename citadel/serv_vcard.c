@@ -672,6 +672,8 @@ int vcard_extract_from_network(struct CtdlMessage *msg, char *target_room) {
  */
 void vcard_delete_remove(char *room, long msgnum) {
 	struct CtdlMessage *msg;
+	char *ptr;
+	int linelen;
 
 	if (msgnum <= 0L) return;
 
@@ -680,12 +682,26 @@ void vcard_delete_remove(char *room, long msgnum) {
 	}
 
 	msg = CtdlFetchMessage(msgnum);
-	if (msg != NULL) {
-		vcard_extract_internet_addresses(msg, CtdlDirectoryDelUser);
+	if (msg == NULL) return;
+
+	ptr = msg->cm_fields['M'];
+	if (ptr == NULL) goto EOH;
+	while (ptr != NULL) {
+		linelen = strcspn(ptr, "\n");
+		if (linelen == 0) goto EOH;
+		
+		if (!strncasecmp(ptr, "Content-type: text/x-vcard", 26)) {
+			/* Bingo!  A vCard is being deleted.
+		 	*/
+			vcard_extract_internet_addresses(msg, CtdlDirectoryDelUser);
+		}
+		ptr = strchr((char *)ptr, '\n');
+		if (ptr != NULL) ++ptr;
 	}
 
-	CtdlFreeMessage(msg);
+EOH:	CtdlFreeMessage(msg);
 }
+
 
 
 /*
