@@ -49,6 +49,27 @@ int fuzzy_match(struct usersupp *us, char *matchstring) {
 }
 
 
+/*
+ * Unfold a multi-line field into a single line, removing multi-whitespaces
+ */
+void unfold_rfc822_field(char *field) {
+	int i;
+	int quote = 0;
+
+	striplt(field);		/* remove leading/trailing whitespace */
+
+	/* convert non-space whitespace to spaces, and remove double blanks */
+	for (i=0; i<strlen(field); ++i) {
+		if (field[i]=='\"') quote = 1 - quote;
+		if (!quote) {
+			if (isspace(field[i])) field[i] = ' ';
+			while (isspace(field[i]) && isspace(field[i+1])) {
+				strcpy(&field[i+1], &field[i+2]);
+			}
+		}
+	}
+}
+
 
 
 /*
@@ -257,6 +278,34 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 
 
 
+/*
+ * convert_field() is a helper function for convert_internet_message().
+ * Given start/end positions for an rfc822 field, it converts it to a Citadel
+ * field if it wants to, and unfolds it if necessary
+ */
+void convert_field(struct CtdlMessage *msg, int beg, int end) {
+	char *rfc822;
+	char *fieldbuf;
+	char field[256];
+	int i;
+
+	rfc822 = msg->cm_fields['M'];	/* M field contains rfc822 text */
+	strcpy(field, "");
+	for (i = beg; i <= end; ++i) {
+		if ((rfc822[i] == ':') && ((i-beg)<sizeof(field))) {
+			if (strlen(field)==0) {
+			   safestrncpy(field, &rfc822[beg], i-beg+1);
+			}
+		}
+	}
+
+	fieldbuf = mallok(end - beg + 2);
+	safestrncpy(fieldbuf, &rfc822[beg], end-beg+1);
+	unfold_rfc822_field(fieldbuf);
+	lprintf(9, "Field: key=<%s> value=<%s>\n", field, fieldbuf);
+	phree(fieldbuf);
+}
+
 
 /*
  * Convert an RFC822 message (headers + body) to a CtdlMessage structure.
@@ -268,8 +317,6 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 	int msglen;
 	int done;
 	char buf[256];
-	char field[256];
-	int i;
 
 	msg = mallok(sizeof(struct CtdlMessage));
 	if (msg == NULL) return msg;
@@ -307,23 +354,14 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 		}
 
 		/* At this point we have a field.  Are we interested in it? */
-		strcpy(field, "");
-		for (i = beg; i <= end; ++i) {
-			if ((rfc822[i] == ':') && ((i-beg)<sizeof(field))) {
-				safestrncpy(field, &rfc822[beg], i-beg+1);
-			}
-		}
-		fprintf(stderr,
-			"Field: %6d .. %-6d ... <%s>\n",
-			beg, end, field);
-
+		convert_field(msg, beg, end);
 
 		/* If we've hit the end of the message, bail out */
 		if (pos > strlen(rfc822)) done = 1;
 	}
 
 
-	/* Follow-up sanity check. */
+	/* Follow-up sanity checks... */
 
 	/* If there's no timestamp on this message, set it to now. */
 	if (msg->cm_fields['T'] == NULL) {
