@@ -5,6 +5,15 @@
 # $Id$
 #
 auth       required	/lib/security/pam_listfile.so item=user sense=deny file=/etc/ftpusers onerr=succeed
-auth       required	/lib/security/pam_pwdb.so shadow
-auth       required	/lib/security/pam_shells.so
-account    required	/lib/security/pam_pwdb.so
+# Uncomment to use /etc/nologin
+#auth       required     /lib/security/pam_nologin.so
+auth       required     /lib/security/pam_stack.so service=system-auth
+account    required     /lib/security/pam_stack.so service=system-auth
+session    required     /lib/security/pam_stack.so service=system-auth
+
+
+# This file previously looked like this (see techdoc/PAM.txt):
+#auth       required	/lib/security/pam_listfile.so item=user sense=deny file=/etc/ftpusers onerr=succeed
+#auth       required   /lib/security/pam_pwdb.so shadow
+#auth       required   /lib/security/pam_shells.so
+#account    required   /lib/security/pam_pwdb.so

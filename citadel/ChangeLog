@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.41  2001/09/09 16:19:29  error
+ * Updated PAM configuration file citadel.pam for Red Hat 7.x.
+
  Revision 580.40  2001/09/09 03:19:38  ajc
  * cdb_cull_logs() now removes log files as soon as the log_archive() function
    says it's ok to do so.
@@ -2738,4 +2741,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
