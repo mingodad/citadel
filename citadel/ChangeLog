@@ -1,4 +1,11 @@
  $Log$
+ Revision 608.7  2003/07/24 04:57:53  ajc
+ * Began implementation of the IMAP SEARCH command.  Basically just got the
+   parser working and stubbed all the search criteria.  Next step is to
+   implement the functionality of each criterion keyword.
+ * Implemented the functionality for the ALL (wow!) and UID criteria.
+ * Mark Crispin is an idiot.
+
  Revision 608.6  2003/07/23 03:57:05  ajc
  * Optimized the updating of visit records in several places by checking to
    see if they've changed and aborting the db update if they haven't.
@@ -4890,4 +4897,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -57,8 +57,8 @@
 
 
 /*
- * imap_do_store() calls imap_do_store_msg() to output the deta of an
- * individual message, once it has been successfully loaded from disk.
+ * imap_do_store() calls imap_do_store_msg() to tweak the settings of
+ * an individual message.
  *
  * We also implement the ".SILENT" protocol option here.  Leave it to an
  * idiot like Mark Crispin to make things unnecessarily complicated.

@@ -5,10 +5,6 @@
  * Copyright (C) 2000-2002 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.
  *
- * WARNING: this is a workable implementation, but it could use some
- * additional tweaking.  Some commands may be implemented incompletely.  The
- * 'SEARCH' command is not implemented at all.
- *
  * WARNING: Mark Crispin is an idiot.  IMAP is the most brain-damaged protocol
  * you will ever have the profound lack of pleasure to encounter.
  */

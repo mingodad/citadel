@@ -4,6 +4,8 @@
  * Implements the SEARCH command in IMAP.
  * This command is way too convoluted.  Marc Crispin is a fscking idiot.
  *
+ * NOTE: this is a partial implementation.  It is NOT FINISHED.
+ *
  */
 
 
@@ -54,37 +56,232 @@
 
 
 
-
-
-
 /*
- * imap_do_search() calls imap_do_search_msg() to output the deta of an
- * individual message, once it has been successfully loaded from disk.
+ * imap_do_search() calls imap_do_search_msg() to search an individual
+ * message after it has been fetched from the disk.  This function returns
+ * nonzero if there is a match.
  */
-void imap_do_search_msg(int seq, struct CtdlMessage *msg,
+int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 			int num_items, char **itemlist, int is_uid) {
 
-	int is_valid = 0;
+	int match = 0;
+	int i;
+	int is_not = 0;
+	int is_or = 0;
+	int pos = 0;
 
-	/*** FIXME ***
-	 * We haven't written the search command logic yet.  Instead we
-	 * simply return nothing.  This will probably surprise
-	 * some users.  Could someone out there please be the hero of the
-	 * century and write this function?
-	 */
-	is_valid = 0;
+	if (num_items == 0) return(0);
 
-	/*
-	 * If the message meets the specified search criteria, output its
-	 * sequence number *or* UID, depending on what the client wants.
-	 */
-	if (is_valid) {
-		if (is_uid)	cprintf("%ld ", IMAP->msgids[seq-1]);
-		else		cprintf("%d ", seq);
+	/* Initially we start at the beginning. */
+	pos = 0;
+
+	/* Check for the dreaded NOT criterion. */
+	if (!strcasecmp(itemlist[0], "NOT")) {
+		is_not = 1;
+		pos = 1;
 	}
 
-}
+	/* Check for the dreaded OR criterion. */
+	if (!strcasecmp(itemlist[0], "OR")) {
+		is_or = 1;
+		pos = 1;
+	}
 
+	/* Now look for criteria. */
+	if (!strcasecmp(itemlist[pos], "ALL")) {
+		match = 1;
+		++pos;
+	}
+	
+	else if (!strcasecmp(itemlist[pos], "ANSWERED")) {
+		/* FIXME */
+		++pos;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "BCC")) {
+		/* FIXME */
+		pos += 2;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "BEFORE")) {
+		/* FIXME */
+		pos += 2;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "BODY")) {
+		/* FIXME */
+		pos += 2;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "CC")) {
+		/* FIXME */
+		pos += 2;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "DELETED")) {
+		/* FIXME */
+		++pos;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "DRAFT")) {
+		/* FIXME */
+		++pos;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "FLAGGED")) {
+		/* FIXME */
+		++pos;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "FROM")) {
+		/* FIXME */
+		pos += 2;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "HEADER")) {
+		/* FIXME */
+		pos += 3;	/* Yes, three */
+	}
+
+	else if (!strcasecmp(itemlist[pos], "KEYWORD")) {
+		/* FIXME */
+		pos += 2;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "LARGER")) {
+		/* FIXME */
+		pos += 2;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "NEW")) {
+		/* FIXME */
+		++pos;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "OLD")) {
+		/* FIXME */
+		++pos;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "ON")) {
+		/* FIXME */
+		pos += 2;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "RECENT")) {
+		/* FIXME */
+		++pos;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "SEEN")) {
+		/* FIXME */
+		++pos;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "SENTBEFORE")) {
+		/* FIXME */
+		pos += 2;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "SENTON")) {
+		/* FIXME */
+		pos += 2;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "SENTSINCE")) {
+		/* FIXME */
+		pos += 2;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "SINCE")) {
+		/* FIXME */
+		pos += 2;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "SMALLER")) {
+		/* FIXME */
+		pos += 2;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "SUBJECT")) {
+		/* FIXME */
+		pos += 2;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "TEXT")) {
+		/* FIXME */
+		pos += 2;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "TO")) {
+		/* FIXME */
+		pos += 2;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "UID")) {
+		if (is_msg_in_mset(itemlist[pos+1], IMAP->msgids[seq-1])) {
+			match = 1;
+		}
+		pos += 2;
+	}
+
+	/* Now here come the 'UN' criteria.  Why oh why do we have to
+	 * implement *both* the 'UN' criteria *and* the 'NOT' keyword?  Why
+	 * can't there be *one* way to do things?  Answer: because Mark
+	 * Crispin is an idiot.
+	 */
+
+	else if (!strcasecmp(itemlist[pos], "UNANSWERED")) {
+		/* FIXME */
+		++pos;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "UNDELETED")) {
+		/* FIXME */
+		++pos;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "UNDRAFT")) {
+		/* FIXME */
+		++pos;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "UNFLAGGED")) {
+		/* FIXME */
+		++pos;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "UNKEYWORD")) {
+		/* FIXME */
+		pos += 2;
+	}
+
+	else if (!strcasecmp(itemlist[pos], "UNSEEN")) {
+		/* FIXME */
+		++pos;
+	}
+
+	/* Remember to negate if we were told to */
+	if (is_not) {
+		match = !match;
+	}
+
+	/* Keep going if there are more criteria! */
+	if (pos < num_items) {
+
+		if (is_or) {
+			match = (match || imap_do_search_msg(seq, msg,
+				num_items - pos, &itemlist[pos], is_uid));
+		}
+		else {
+			match = (match && imap_do_search_msg(seq, msg,
+				num_items - pos, &itemlist[pos], is_uid));
+		}
+
+	}
+
+	return(match);
+}
 
 
 /*
@@ -101,8 +298,15 @@ void imap_do_search(int num_items, char **itemlist, int is_uid) {
 	  if (IMAP->flags[i] && IMAP_SELECTED) {
 		msg = CtdlFetchMessage(IMAP->msgids[i]);
 		if (msg != NULL) {
-			imap_do_search_msg(i+1, msg, num_items,
-					itemlist, is_uid);
+			if (imap_do_search_msg(i+1, msg, num_items,
+			   itemlist, is_uid)) {
+				if (is_uid) {
+					cprintf("%ld ", IMAP->msgids[i]);
+				}
+				else {
+					cprintf("%d ", i+1);
+				}
+			}
 			CtdlFreeMessage(msg);
 		}
 		else {
@@ -117,9 +321,6 @@ void imap_do_search(int num_items, char **itemlist, int is_uid) {
  * This function is called by the main command loop.
  */
 void imap_search(int num_parms, char *parms[]) {
-	char items[1024];
-	char *itemlist[256];
-	int num_items;
 	int i;
 
 	if (num_parms < 3) {
@@ -133,19 +334,7 @@ void imap_search(int num_parms, char *parms[]) {
 		}
 	}
 
-	strcpy(items, "");
-	for (i=2; i<num_parms; ++i) {
-		strcat(items, parms[i]);
-		if (i < (num_parms-1)) strcat(items, " ");
-	}
-
-	num_items = imap_extract_data_items(itemlist, items);
-	if (num_items < 1) {
-		cprintf("%s BAD invalid data item list\r\n", parms[0]);
-		return;
-	}
-
-	imap_do_search(num_items, itemlist, 0);
+	imap_do_search(num_parms-2, &parms[2], 0);
 	cprintf("%s OK SEARCH completed\r\n", parms[0]);
 }
 
@@ -153,9 +342,6 @@ void imap_search(int num_parms, char *parms[]) {
  * This function is called by the main command loop.
  */
 void imap_uidsearch(int num_parms, char *parms[]) {
-	char items[1024];
-	char *itemlist[256];
-	int num_items;
 	int i;
 
 	if (num_parms < 4) {
@@ -169,19 +355,7 @@ void imap_uidsearch(int num_parms, char *parms[]) {
 		}
 	}
 
-	strcpy(items, "");
-	for (i=4; i<num_parms; ++i) {
-		strcat(items, parms[i]);
-		if (i < (num_parms-1)) strcat(items, " ");
-	}
-
-	num_items = imap_extract_data_items(itemlist, items);
-	if (num_items < 1) {
-		cprintf("%s BAD invalid data item list\r\n", parms[0]);
-		return;
-	}
-
-	imap_do_search(num_items, itemlist, 1);
+	imap_do_search(num_parms-3, &parms[3], 1);
 	cprintf("%s OK UID SEARCH completed\r\n", parms[0]);
 }
 

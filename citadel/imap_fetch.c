@@ -753,7 +753,7 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 
 
 /*
- * imap_do_fetch() calls imap_do_fetch_msg() to output the deta of an
+ * imap_do_fetch() calls imap_do_fetch_msg() to output the data of an
  * individual message, once it has been successfully loaded from disk.
  */
 void imap_do_fetch_msg(int seq, struct CtdlMessage *msg,
