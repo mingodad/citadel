@@ -14,7 +14,10 @@
 #include "sysconfig.h"
 #include "ipcdef.h"
 
-#define CITADEL	"Citadel/UX 5.80"	/* Text description of this software */
+/*
+ * Text description of this software
+ */
+#define CITADEL	"Citadel/UX 5.90 alpha1"
 
 /*
  * REV_LEVEL is the current version number (multiplied by 100 to avoid having
@@ -23,13 +26,20 @@
  * are older than REV_MIN, none of the programs will work until the setup
  * program is run again to bring things up to date.
  */
-#define REV_LEVEL	580		/* This version */
+#define REV_LEVEL	590		/* This version */
 #define REV_MIN		570		/* Oldest compatible version */
 
 #define SERVER_TYPE 0	/* zero for stock Citadel/UX; other developers please
 			   obtain SERVER_TYPE codes for your implementations */
 
+/*
+ * This is a better implementation of tolower() than that found on some
+ * systems (there are operating systems out there on which tolower() will
+ * screw up if you give it a character that is already lower case).
+ */
+#ifdef  tolower
 #undef	tolower
+#endif
 #define tolower(x)	( ((x>='A')&&(x<='Z')) ? (x+'a'-'A') : x )
 #define NEW_CONFIG
 
@@ -44,7 +54,7 @@ typedef unsigned char CIT_UBYTE;
 
 /* Various length constants */
 
-#define ROOMNAMELEN	128		/* The size of the roomname structure */
+#define ROOMNAMELEN	128		/* The size of a roomname string */
 #define NONCE_SIZE	128		/* Added by <bc> to allow for APOP auth 
 					 * it is BIG becuase there is a hostname
 					 * in the nonce, as per the APOP RFC.
@@ -83,13 +93,13 @@ struct config {
 	char c_twitroom[ROOMNAMELEN];	/* twit detect msg move to room     */
 	char c_moreprompt[80];		/* paginator prompt                 */
 	char c_restrict;		/* restrict Internet mail flag      */
-	long c_msgbase;			/* size of message base             */
+	long c_msgbase;			/* size of message base (obsolete)  */
 	char c_bbs_city[32];		/* physical location of server      */
 	char c_sysadm[26];		/* name of system administrator     */
 	char c_bucket_dir[15];		/* bit bucket for files...	    */
 	int c_setup_level;		/* what rev level we've setup to    */
 	int c_maxsessions;		/* maximum concurrent sessions      */
-	char c_net_password[20];	/* system net password              */
+	char c_net_password[20];	/* system net password (obsolete)   */
 	int c_port_number;		/* Cit listener port (usually 504)  */
 	int c_ipgm_secret;		/* Internal program authentication  */
 	struct ExpirePolicy c_ep;	/* System default msg expire policy */
