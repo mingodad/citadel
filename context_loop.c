@@ -315,7 +315,7 @@ void context_loop(int sock)
 		strcpy(req->line, "GET /static/robots.txt"
 				"?force_close_session=yes HTTP/1.0");
 	}
-	if (!strncasecmp(buf, "/favicon.ico", 12)) {
+	else if (!strncasecmp(buf, "/favicon.ico", 12)) {
 		strcpy(req->line, "GET /static/favicon.ico");
 	}
 
@@ -338,10 +338,10 @@ void context_loop(int sock)
 	 * need JavaScript added to force the frameset to reload.
 	 */
 	if ( (!strcasecmp(buf, "/"))
-	   || (!strcasecmp(buf, "/static/mainframeset.html"))
-	   || (!strcasecmp(buf, "/static/robots.txt"))
+	   || (!strncasecmp(buf, "/static/", 8))
 	   || (!strncasecmp(buf, "/do_welcome", 11))
 	   || (!strncasecmp(buf, "/do_logout", 10))
+	   || (!strncasecmp(buf, "/login", 6))
 	   || (!strncasecmp(buf, "/page_popup", 11))
 	   || (!strncasecmp(buf, "/page_user", 10))	/* Sometimes this is wrong */
 	   || (!strncasecmp(buf, "/listsub", 8))
