@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.34  2002/06/02 16:42:17  error
+ * Support for Ctrl-W to erase a word when editing or at a prompt
+
  Revision 591.33  2002/05/31 18:34:04  nbryant
  better curses compatibility, and a couple makefile/configure tweaks
 
@@ -3685,3 +3688,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

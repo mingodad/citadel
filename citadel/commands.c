@@ -495,7 +495,7 @@ int inkey(void)
 			a = 0;
 		if (a == 13)
 			a = 10;
-		if (((a != 4) && (a != 10) && (a != 8) && (a != NEXT_KEY) && (a != STOP_KEY))
+		if (((a != 23) && (a != 4) && (a != 10) && (a != 8) && (a != NEXT_KEY) && (a != STOP_KEY))
 		    && ((a < 32) || (a > 126)))
 			a = 0;
 
@@ -566,15 +566,20 @@ void getline(char *string, int lim)
 	async_ka_start();
       GLA:a = inkey();
 	a = (a & 127);
-	if ((a == 8) && (strlen(string) == 0))
+	if ((a == 8 || a == 23) && (strlen(string) == 0))
 		goto GLA;
 	if ((a != 10) && (a != 8) && (strlen(string) == lim))
 		goto GLA;
 	if ((a == 8) && (string[0] != 0)) {
 		string[strlen(string) - 1] = 0;
-		scr_putc(8);
-		scr_putc(32);
-		scr_putc(8);
+		scr_putc(8); scr_putc(32); scr_putc(8);
+		goto GLA;
+	}
+	if ((a == 23) && (string[0] != 0)) {
+		do {
+			string[strlen(string) - 1] = 0;
+			scr_putc(8); scr_putc(32); scr_putc(8);
+		} while (strlen(string) && string[strlen(string) - 1] != ' ');
 		goto GLA;
 	}
 	if ((a == 10)) {

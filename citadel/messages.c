@@ -271,6 +271,13 @@ void citedit(FILE * fp)
 				scr_putc(32);
 				scr_putc(8);
 			}
+		} else if (a == 23) {
+			do {
+				wordbuf[strlen(wordbuf) - 1] = 0;
+				scr_putc(8);
+				scr_putc(32);
+				scr_putc(8);
+			} while (strlen(wordbuf) && wordbuf[strlen(wordbuf) - 1] != ' ');
 		} else if (a == 13) {
 			scr_printf("\n");
 			if (strlen(wordbuf) == 0)
