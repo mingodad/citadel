@@ -65,6 +65,9 @@ void display_login(char *mesg) {
 	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Login\">\n");
         wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"New User\">\n");
         wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Exit\">\n");
+	
+	wprintf("<BR><INPUT TYPE=\"checkbox\" NAME=\"noframes\">");
+	wprintf("<FONT SIZE=-1>Check here to disable frames</FONT>\n");
         wprintf("</FORM></CENTER>\n");
 
 	/* Da instructions */
