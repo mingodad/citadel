@@ -473,9 +473,11 @@ void imap_lsub_listroom(struct quickroom *qrbuf, void *data) {
 	ra = CtdlRoomAccess(qrbuf, &CC->usersupp);
 	if (ra & UA_KNOWN) {
 		imap_mailboxname(buf, sizeof buf, qrbuf);
-		cprintf("* LSUB () \"|\" ");
-		imap_strout(buf);
-		cprintf("\r\n");
+		if (imap_mailbox_matches_pattern(pattern, buf)) {
+			cprintf("* LSUB () \"|\" ");
+			imap_strout(buf);
+			cprintf("\r\n");
+		}
 	}
 }
 
@@ -492,8 +494,16 @@ void imap_lsub(int num_parms, char *parms[]) {
 		return;
 	}
 	sprintf(pattern, "%s%s", parms[2], parms[3]);
-	imap_list_floors("LSUB");
-	ForEachRoom(imap_lsub_listroom, pattern);
+
+	if (strlen(parms[3])==0) {
+		cprintf("* LIST (\\Noselect) \"|\" \"\"\r\n");
+	}
+
+	else {
+		imap_list_floors("LSUB");
+		ForEachRoom(imap_lsub_listroom, pattern);
+	}
+
 	cprintf("%s OK LSUB completed\r\n", parms[0]);
 }
 
@@ -515,9 +525,11 @@ void imap_list_listroom(struct quickroom *qrbuf, void *data) {
 	if ( (ra & UA_KNOWN) 
 	  || ((ra & UA_GOTOALLOWED) && (ra & UA_ZAPPED))) {
 		imap_mailboxname(buf, sizeof buf, qrbuf);
-		cprintf("* LIST () \"|\" ");
-		imap_strout(buf);
-		cprintf("\r\n");
+		if (imap_mailbox_matches_pattern(pattern, buf)) {
+			cprintf("* LIST () \"|\" ");
+			imap_strout(buf);
+			cprintf("\r\n");
+		}
 	}
 }
 
@@ -534,8 +546,16 @@ void imap_list(int num_parms, char *parms[]) {
 		return;
 	}
 	sprintf(pattern, "%s%s", parms[2], parms[3]);
-	imap_list_floors("LIST");
-	ForEachRoom(imap_list_listroom, pattern);
+
+	if (strlen(parms[3])==0) {
+		cprintf("* LIST (\\Noselect) \"|\" \"\"\r\n");
+	}
+
+	else {
+		imap_list_floors("LIST");
+		ForEachRoom(imap_list_listroom, pattern);
+	}
+
 	cprintf("%s OK LIST completed\r\n", parms[0]);
 }
 

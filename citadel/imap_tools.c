@@ -230,3 +230,17 @@ int imap_is_message_set(char *buf) {
 
 	return(1);				/* looks like we're good */
 }
+
+
+/*
+ * Support function for mailbox pattern name matching in LIST and LSUB
+ * Returns nonzero if the supplied mailbox name matches the supplied pattern.
+ */
+int imap_mailbox_matches_pattern(char *pattern, char *mailboxname) {
+
+	return 1;		/* FIXME */
+
+}
+
+
+
