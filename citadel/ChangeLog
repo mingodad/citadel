@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.0  2001/12/08 03:31:41  ajc
+ * THIS IS 5.90
+
  Revision 580.95  2001/12/08 03:30:37  ajc
  * Final changes to networking docs for 5.90
 
@@ -2936,3 +2939,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
