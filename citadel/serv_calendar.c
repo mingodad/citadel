@@ -1422,7 +1422,7 @@ void ical_create_room(void)
 
 	/* Set the view to a calendar view */
 	CtdlGetRelationship(&vbuf, &CC->user, &qr);
-	vbuf.v_view = 3;	/* 3 = calendar */
+	vbuf.v_view = VIEW_CALENDAR;
 	CtdlSetRelationship(&vbuf, &CC->user, &qr);
 
 	/* Create the tasks list room if it doesn't already exist */
@@ -1434,12 +1434,29 @@ void ical_create_room(void)
 		return;
 	}
 	qr.QRep.expire_mode = EXPIRE_MANUAL;
-	qr.QRdefaultview = VIEW_TASKS;	/* 4 = tasks view */
+	qr.QRdefaultview = VIEW_TASKS;
 	lputroom(&qr);
 
 	/* Set the view to a task list view */
 	CtdlGetRelationship(&vbuf, &CC->user, &qr);
-	vbuf.v_view = 4;	/* 4 = tasks */
+	vbuf.v_view = VIEW_TASKS;
+	CtdlSetRelationship(&vbuf, &CC->user, &qr);
+
+	/* Create the notes room if it doesn't already exist */
+	create_room(USERNOTESROOM, 4, "", 0, 1, 0, VIEW_NOTES);
+
+	/* Set expiration policy to manual; otherwise objects will be lost! */
+	if (lgetroom(&qr, USERNOTESROOM)) {
+		lprintf(CTDL_CRIT, "Couldn't get the user calendar room!\n");
+		return;
+	}
+	qr.QRep.expire_mode = EXPIRE_MANUAL;
+	qr.QRdefaultview = VIEW_NOTES;
+	lputroom(&qr);
+
+	/* Set the view to a notes view */
+	CtdlGetRelationship(&vbuf, &CC->user, &qr);
+	vbuf.v_view = VIEW_NOTES;
 	CtdlSetRelationship(&vbuf, &CC->user, &qr);
 
 	return;

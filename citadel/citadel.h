@@ -321,6 +321,7 @@ enum {
 #define VIEW_ADDRESSBOOK	2	/* Address book view */
 #define VIEW_CALENDAR		3	/* Calendar view */
 #define VIEW_TASKS		4	/* Tasks view */
+#define VIEW_NOTES		5	/* Notes view */
 
 #ifdef __cplusplus
 }

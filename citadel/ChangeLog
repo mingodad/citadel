@@ -1,4 +1,7 @@
  $Log$
+ Revision 626.1  2004/10/01 15:58:08  ajc
+ * Configure "notes" view and auto-create Notes> room
+
  Revision 626.0  2004/09/28 16:11:16  ajc
  * THIS IS 6.26
 
@@ -6122,4 +6125,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
