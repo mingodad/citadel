@@ -428,6 +428,7 @@ void free_attachments(struct wcsession *sess);
 void set_room_policy(void);
 void display_inetconf(void);
 void save_inetconf(void);
+void generate_uuid(char *);
 
 
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
@@ -439,7 +440,6 @@ void display_icaltimetype_as_webform(struct icaltimetype *, char *);
 struct icaltimetype icaltime_from_webform(char *prefix);
 void display_edit_individual_event(icalcomponent *supplied_vtodo, long msgnum);
 void save_individual_event(icalcomponent *supplied_vtodo, long msgnum);
-void generate_new_uid(char *);
 void respond_to_request(void);
 void handle_rsvp(void);
 void ical_dezonify(icalcomponent *cal);

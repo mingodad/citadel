@@ -548,3 +548,20 @@ int CtdlDecodeBase64(char *dest, const char *source, size_t length)
 		}
 	}
 }
+
+
+/*
+ * Generate a new, globally unique UID parameter for a calendar etc. object
+ */
+void generate_uuid(char *buf) {
+	static int seq = 0;
+
+	sprintf(buf, "{%08x-%04x-%04x-%04x-%012x}",
+		(int)time(NULL),
+		(seq++),
+		getpid(),
+		rand(),
+		rand()
+	);
+}
+

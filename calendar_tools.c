@@ -173,18 +173,6 @@ struct icaltimetype icaltime_from_webform(char *prefix) {
 
 
 /*
- * Generate a new, globally unique UID parameter for a calendar object.
- */
-void generate_new_uid(char *buf) {
-	static int seq = 0;
-
-	sprintf(buf, "%ld-%d@%s",
-		(long)time(NULL),
-		(seq++),
-		serv_info.serv_fqdn);
-}
-
-/*
  * Render a PARTSTAT parameter as a string (and put it in parentheses)
  */
 void partstat_as_string(char *buf, icalproperty *attendee) {

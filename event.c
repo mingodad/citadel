@@ -556,7 +556,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		lprintf(9, "Give this event a UID if it doesn't have one.\n");
 		if (icalcomponent_get_first_property(vevent,
 		   ICAL_UID_PROPERTY) == NULL) {
-			generate_new_uid(buf);
+			generate_uuid(buf);
 			icalcomponent_add_property(vevent,
 				icalproperty_new_uid(buf)
 			);
