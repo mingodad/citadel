@@ -28,11 +28,6 @@ struct cittext {
 	char text[MAXWORDBUF];
 	};
 
-struct AttachedFile {
-	struct AttachedFile *next;
-	char filename[256];
-	};
-
 void sttybbs(int cmd);
 int struncmp(char *lstr, char *rstr, int len);
 int fmout(int width, FILE *fp, char pagin, int height, int starting_lp, char subst);
@@ -539,22 +534,19 @@ void replace_string(char *filename, long int startpos)
 	}
 
 
-int make_message(char *filename, char *recipient, int anon_type, int format_type, int mode, char *boundary)
+int make_message(char *filename, char *recipient, int anon_type, int format_type, int mode)
                 	/* temporary file name */
                  	/* NULL if it's not mail */
               		/* see MES_ types in header file */
                 
          
 { 
-	FILE *fp, *atpipe;
+	FILE *fp;
 	int a,b,e_ex_code;
 	time_t now;
 	long beg;
 	char datestr[64];
 	int cksum = 0;
-	struct AttachedFile *AttachList = NULL;
-	struct AttachedFile *Aptr;
-	char buf[256];
 
 	if (mode==2) if (strlen(editor_path)==0) {
 		printf("*** No editor available, using built-in editor\n");
@@ -677,64 +669,9 @@ MECR2:	b=inkey();
 		printf("Hold message\n");
 		return(2);
 		}
-	if ((b=='f')&&(rc_allow_attachments==1)) {
-		printf("attach File\n");
-		if (strlen(boundary)==0) {
-			sprintf(boundary, "Citadel-Attachment-%ld.%d",
-				(long)time(NULL), getpid() );
-			}
-		newprompt("Filename: ", buf, 68);
-		if (access(buf, R_OK)==0) {
-			Aptr = (struct AttachedFile *)
-				malloc(sizeof(struct AttachedFile));
-			strcpy(Aptr->filename, buf);
-			Aptr->next = AttachList;
-			AttachList = Aptr;
-			}
-		else {
-			printf("*** Cannot open %s: %s\n",
-				buf, strerror(errno));
-			}
-		goto MECR;
-		}
 	goto MECR2;
 
-MEFIN:	/* Now we're done typing the message.  Before returning, append any
-	 * attachments the user has selected
-	 */
-	if (strlen(boundary)==0) goto SKIPAT;
-	fp = fopen(filename, "a");
-	while (AttachList != NULL) {
-		sprintf(buf, "uuencode %s <%s",
-			AttachList->filename, AttachList->filename);
-		atpipe = popen(buf, "r");
-		if (atpipe != NULL) {
-			fprintf(fp,"--%s\n", boundary);
-			fprintf(fp,"Content-type: application/octet-stream;\n");
-			fprintf(fp,"%cname=%c%s%c\n",
-				9, 34, AttachList->filename, 34);
-			fprintf(fp,"Content-Transfer-Encoding: x-uudecode\n");
-			fprintf(fp,"Content-Disposition: attachment;\n");
-			fprintf(fp,"%cfilename=%c%s%c\n\n",
-				9, 34, AttachList->filename, 34);
-			while (fgets(buf, 256, atpipe)!=NULL) {
-				buf[strlen(buf)-1]=0;
-				fprintf(fp, "%s\n", buf);
-				}
-			pclose(atpipe);
-			}
-		else {
-			printf("*** Cannot open %s: %s\n",
-				AttachList->filename, strerror(errno));
-			}
-		Aptr = AttachList->next;
-		free(AttachList);
-		AttachList = Aptr;
-		}
-	fprintf(fp, "--%s--\n", boundary);	/* end of attachments */
-	fclose(fp);
-
-SKIPAT:	return(0);
+MEFIN:	return(0);
 
 MEABT:	printf("Are you sure? ");
 	if (yesno()==0) goto ME1;
@@ -788,7 +725,6 @@ int entmsg(int is_reply, int c)
        {		/* */
 	char buf[300];
 	char cmd[256];
-	char boundary[256];
 	int a,b;
 	int need_recp = 0;
 	int mode;
@@ -859,11 +795,10 @@ int entmsg(int is_reply, int c)
 		}
 
 /* now put together the message */
-	strcpy(boundary, "");
-	if ( make_message(temp,buf,b,0,c,boundary) != 0 ) return(2);
+	if ( make_message(temp,buf,b,0,c) != 0 ) return(2);
 
 /* and send it to the server */
-	sprintf(cmd,"ENT0 1|%s|%d|%d||%s|",buf,b,mode,boundary);
+	sprintf(cmd,"ENT0 1|%s|%d|%d||",buf,b,mode);
 	serv_puts(cmd);
 	serv_gets(cmd);
 	if (cmd[0]!='4') {

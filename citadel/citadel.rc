@@ -62,6 +62,9 @@ beep=1
 
 # ALLOW_ATTACHMENTS should be set to 1 if you wish the user to be able to
 # attach files to messages.  (Do not enable this for 'safe' public clients.)
+#
+# NOTE: this option does not (yet) do anything, because multipart messages
+#       are not yet supported.
 allow_attachments=1
 
 # If you set the USERNAME variable, the value you set here will automatically

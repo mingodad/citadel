@@ -424,9 +424,7 @@ other MSG commands (MSG1, MSG2, etc.) will probably be added later on to read
 messages in more robust formats.  This command should be passed two arguments.
 The first is the message number of the message being requested.  In server 
 version 4.04 and above, the second argument may be set to either 0 to read the
-entire message, or 1 to read the headers only.  In server version 6.00 and
-above, the third argument may be set to the desired section of the message (if
-there are attachments).
+entire message, or 1 to read the headers only.
  
  The server should, of course, make sure that the client actually has access
 to the message being requested before honoring this request.  Citadel/UX does
@@ -670,8 +668,6 @@ message as anonymous, otherwise 0 for a normal message.
 typically be 0; see the MSG0 command above).
   4  -  Post name.  When postflag is 2, this is the name you are posting as.
 This is an Aide only command.
-  5  -  Boundary string to be used when there are MIME attachments following
-the normal message text.
 
  Possible result codes:
   OK  -  The request is valid.  (Client did not set the "post" flag, so the
