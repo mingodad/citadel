@@ -177,8 +177,8 @@ rcit: rcit.o config.o
 	@echo "* ln -s rcit /usr/bin/rnews"
 	@echo "*"
 
-stats: stats.o config.o
-	$(CC) stats.o config.o $(LDFLAGS) -o stats
+stats: stats.o ipc_c_tcp.o tools.o config.o $(SNPRINTF)
+	$(CC) stats.o ipc_c_tcp.o tools.o config.o $(SNPRINTF) $(LDFLAGS) -o stats
 
 .PHONY: install-data install-doc install-exec clean cleaner distclean
 

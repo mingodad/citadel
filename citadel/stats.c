@@ -11,6 +11,8 @@
 #include <limits.h>
 #include "citadel.h"
 #include "config.h"
+#include "ipc.h"
+#include "tools.h"
 
 #define disply(x,y) printf("%20s            %4.1f    %4.1f    %4d\n",x,((float)y)/calls,((float)y)/days,y)
 
@@ -24,6 +26,9 @@ struct caller {
 	int Ctimescalled;
 };
 
+void logoff(int code) {
+	exit(code);
+	}
 
 void prompt(void)
 {
@@ -104,6 +109,7 @@ int main(int argc, char **argv)
 	int pc_only = 0;
 	char buf[256];
 	FILE *logfp;
+	char *fakeargs[4];
 
 	for (a = 0; a < argc; ++a) {
 		if (!strcmp(argv[a], "-b"))
@@ -121,9 +127,6 @@ int main(int argc, char **argv)
 
 	if (pc_only)
 		goto PC_ONLY_HERE;
-
-	if (!batch_mode)
-		printf("Scanning call log, please wait...\n\n\n\n");
 
 	from = 0;
 	to = 0;
@@ -312,26 +315,37 @@ int main(int argc, char **argv)
 				   statement. */
 
 
-/*
-   This report doesn't work anymore, because it requires reading the user
-   file directly, which can't happen.
-   printf ("Top 20 Contributing Users (post to call ratio)\n");
-   printf ("P/C Ratio Username\n");
-   printf ("--------- ------------------------------\n");
-   fflush (stdout);
-   sortpipe = (FILE *) popen ("sort |tail -20 |sort -r", "w");
-   fp = fopen ("usersupp", "r");
-   while ((fp != NULL)
-   && (fread ((char *) &usersupp, sizeof (struct usersupp), 1, fp) > 0))
-   {
-   fprintf (sortpipe, "%9.2f %-30s\n",
-   ((float) usersupp.posted / (float) usersupp.timescalled),
-   usersupp.fullname);
-   }
-   fclose (fp);
-   pclose (sortpipe);
-   exit (0);
- */
+		printf("Top 20 Contributing Users (post to call ratio)\n");
+		printf("P/C Ratio Username\n");
+		printf("--------- ------------------------------\n");
+		fflush(stdout);
+		sortpipe = (FILE *) popen("sort |tail -20 |sort -r", "w");
+
+
+
+		fakeargs[0] = "whobbs";
+		fakeargs[1] = "localhost";
+		fakeargs[2] = malloc(64);
+		sprintf(fakeargs[2], "%d", config.c_port_number);
+		fakeargs[3] = NULL;
+	        attach_to_server(3, fakeargs);
+		free(fakeargs[2]);
+        	serv_gets(buf);
+        	if ((buf[0]!='2')&&(strncmp(buf,"551",3))) {
+                	fprintf(stderr,"%s: %s\n",argv[0],&buf[4]);
+                }
+		else {
+			serv_puts("LIST");
+			serv_gets(buf);
+			if (buf[0]=='1') while (serv_gets(buf), 
+						strcmp(buf, "000")) {
+				extract(LogName, buf, 0);
+				fprintf(sortpipe, "%9.2f %-30s\n",
+					((float) extract_int(buf,5) / (float) extract_int(buf,4)),
+					LogName);
+			}
+		}
+		pclose(sortpipe);
 	}
 	return 0;
 }
