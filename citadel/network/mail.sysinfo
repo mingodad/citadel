@@ -1,92 +1,9 @@
 bin Mail
 bin Mail
-phonenum netproc[16467]: Adding neighbor system <bin Mail> to map
-gdom system <bin Mail> to map
+phonenum netproc[32515]: Adding neighbor system <jacs> to map
+gdom system <jacs> to map
 humannode ¸”ˆóÿ¿Œóÿ¿
-lastcontact 959697421 Tue May 30 10:37:01 2000
-
-dogpound2
-use uncnsrd
-phonenum netproc[4026]: Adding non-neighbor system <sbn> to map
-gdom or system <sbn> to map
-humannode Dog Pound BBS II
-lastcontact 960431829 Wed Jun  7 22:37:09 2000
-
-feathers
-use uncnsrd
-phonenum CA (604) 589-8539
-gdom BC
-humannode Feathers & Furballs
-lastcontact 959992623 Fri Jun  2 20:37:03 2000
-
-amigazon
-use uncnsrd
-phonenum US (609) 953 8159
-gdom NJ
-humannode The Amiga Zone
-lastcontact 961011423 Wed Jun 14 15:37:03 2000
-
-haven
-use uncnsrd
-phonenum netproc[4026]: Adding non-neighbor system <barbaria> to map
-gdom or system <barbaria> to map
-humannode Haven BBS
-lastcontact 960316624 Tue Jun  6 14:37:04 2000
-
-pixel
-use uncnsrd
-phonenum netproc[4026]: Adding non-neighbor system <tesseract> to map
-gdom or system <tesseract> to map
-humannode PixelBBS
-lastcontact 960248226 Mon Jun  5 19:37:06 2000
-
-tesseract
-bin Mail
-phonenum US 800 555 1212
-humannode Tesseract Project
-lastcontact 961097832 Thu Jun 15 15:37:12 2000
-
-test
-bin Mail
-
-uncnsrd
-bin Mail
-phonenum US 914 244 3252
-humannode Uncensored
-lastcontact 960147423 Sun Jun  4 15:37:03 2000
-
-internet
-uum %s
-humannode Internet Gateway
-lastcontact 961097832 Thu Jun 15 15:37:12 2000
-
-bccs
-use uncnsrd
-phonenum netproc[7145]: Adding non-neighbor system <internet> to map
-gdom or system <internet> to map
-humannode BCCS
-lastcontact 960205023 Mon Jun  5 07:37:03 2000
-
-ctestsys
-use uncnsrd
-phonenum US 612 470 9635
-gdom MN
-humannode C-86 Test System
-lastcontact 959924227 Fri Jun  2 01:37:07 2000
-
-gateway
-use uncnsrd
-phonenum US (609) 931-3014
-gdom NJ
-humannode Gateway
-lastcontact 960320223 Tue Jun  6 15:37:03 2000
-
-bin Mail
-bin Mail
-phonenum netproc[25261]: Adding neighbor system <tfc> to map
-gdom system <tfc> to map
-humannode ¸”Hòÿ¿Lòÿ¿
-lastcontact 959025506 Mon May 22 15:58:26 2000
+lastcontact 959272620 Thu May 25 12:37:00 2000
 
 jacs
 use uncnsrd
@@ -97,8 +14,91 @@ lastcontact 961011423 Wed Jun 14 15:37:03 2000
 
 bin Mail
 bin Mail
-phonenum netproc[32515]: Adding neighbor system <jacs> to map
-gdom system <jacs> to map
+phonenum netproc[25261]: Adding neighbor system <tfc> to map
+gdom system <tfc> to map
+humannode ¸”Hòÿ¿Lòÿ¿
+lastcontact 959025506 Mon May 22 15:58:26 2000
+
+gateway
+use uncnsrd
+phonenum US (609) 931-3014
+gdom NJ
+humannode Gateway
+lastcontact 960320223 Tue Jun  6 15:37:03 2000
+
+ctestsys
+use uncnsrd
+phonenum US 612 470 9635
+gdom MN
+humannode C-86 Test System
+lastcontact 959924227 Fri Jun  2 01:37:07 2000
+
+bccs
+use uncnsrd
+phonenum netproc[7145]: Adding non-neighbor system <internet> to map
+gdom or system <internet> to map
+humannode BCCS
+lastcontact 961155423 Fri Jun 16 07:37:03 2000
+
+internet
+uum %s
+humannode Internet Gateway
+lastcontact 961159024 Fri Jun 16 08:37:04 2000
+
+uncnsrd
+bin Mail
+phonenum US 914 244 3252
+humannode Uncensored
+lastcontact 961144624 Fri Jun 16 04:37:04 2000
+
+test
+bin Mail
+
+tesseract
+bin Mail
+phonenum US 800 555 1212
+humannode Tesseract Project
+lastcontact 961159024 Fri Jun 16 08:37:04 2000
+
+pixel
+use uncnsrd
+phonenum netproc[4026]: Adding non-neighbor system <tesseract> to map
+gdom or system <tesseract> to map
+humannode PixelBBS
+lastcontact 960248226 Mon Jun  5 19:37:06 2000
+
+haven
+use uncnsrd
+phonenum netproc[4026]: Adding non-neighbor system <barbaria> to map
+gdom or system <barbaria> to map
+humannode Haven BBS
+lastcontact 960316624 Tue Jun  6 14:37:04 2000
+
+amigazon
+use uncnsrd
+phonenum US (609) 953 8159
+gdom NJ
+humannode The Amiga Zone
+lastcontact 961011423 Wed Jun 14 15:37:03 2000
+
+feathers
+use uncnsrd
+phonenum CA (604) 589-8539
+gdom BC
+humannode Feathers & Furballs
+lastcontact 959992623 Fri Jun  2 20:37:03 2000
+
+dogpound2
+use uncnsrd
+phonenum netproc[4026]: Adding non-neighbor system <sbn> to map
+gdom or system <sbn> to map
+humannode Dog Pound BBS II
+lastcontact 960431829 Wed Jun  7 22:37:09 2000
+
+bin Mail
+bin Mail
+phonenum netproc[16467]: Adding neighbor system <bin Mail> to map
+gdom system <bin Mail> to map
 humannode ¸”ˆóÿ¿Œóÿ¿
-lastcontact 959272620 Thu May 25 12:37:00 2000
+lastcontact 959697421 Tue May 30 10:37:01 2000
 
