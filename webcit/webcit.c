@@ -288,18 +288,38 @@ void urlescputs(char *strbuf)
 }
 
 
+
+
+/*
+ * Get a line of text from the webserver (which originally came from the
+ * user's browser), checking for sanity etc.
+ */
 char *getz(char *buf)
 {
+	int e = 0;
+
 	bzero(buf, 256);
+
+	/* If fgets() fails, it's because the webserver crashed, so kill off
+	 * the session too.
+	 */
 	if (fgets(buf, 256, stdin) == NULL) {
-		strcpy(buf, "");
-		return NULL;
+		e = errno;
+		fprintf(stderr, "webcit: exit code %d (%s)\n",
+			e, strerror(e));
+		fflush(stderr);
+		exit(e);
+		
+	/* Otherwise, strip out nonprintables and resume our happy day.
+	 */
 	} else {
 		while ((strlen(buf) > 0) && (!isprint(buf[strlen(buf) - 1])))
 			buf[strlen(buf) - 1] = 0;
 		return buf;
 	}
 }
+
+
 
 /*
  * Output all that important stuff that the browser will want to see
