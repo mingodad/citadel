@@ -761,7 +761,7 @@ int entmsg(int is_reply, int c)
 				}
 			else {
 				printf("Enter recipient: ");
-				getline(buf,299);
+				getline(buf, 60);
 				if (strlen(buf)==0) return(1);
 				}
 			}
