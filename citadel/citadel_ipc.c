@@ -383,6 +383,8 @@ int CtdlIPCGetSingleMessage(long msgnum, int headers, int as_mime,
 	char aaa[SIZ];
 	char *bbb = NULL;
 	size_t bbbsize;
+	int multipart_hunting = 0;
+	char multipart_prefix[SIZ];
 
 	if (!cret) return -1;
 	if (!mret) return -1;
@@ -394,6 +396,7 @@ int CtdlIPCGetSingleMessage(long msgnum, int headers, int as_mime,
 	ret = CtdlIPCGenericCommand(aaa, NULL, 0, &bbb, &bbbsize, cret);
 	if (ret / 100 == 1) {
 		if (!as_mime) {
+			strcpy(mret[0]->mime_chosen, "1");	/* Default chosen-part is "1" */
 			while (strlen(bbb) > 4 && bbb[4] == '=') {
 				extract_token(aaa, bbb, 0, '\n');
 				remove_token(bbb, 0, '\n');
@@ -420,11 +423,32 @@ int CtdlIPCGetSingleMessage(long msgnum, int headers, int as_mime,
 					strcpy(mret[0]->recipient, &aaa[5]);
 				else if (!strncasecmp(aaa, "time=", 5))
 					mret[0]->time = atol(&aaa[5]);
+
+				/* Multipart/alternative prefix & suffix strings help
+				 * us to determine which part we want to download.
+				 */
+				else if (!strncasecmp(aaa, "pref=", 5)) {
+					extract(multipart_prefix, &aaa[5], 1);
+					if (!strcasecmp(multipart_prefix,
+					   "multipart/alternative")) {
+						++multipart_hunting;
+					}
+				}
+				else if (!strncasecmp(aaa, "suff=", 5)) {
+					extract(multipart_prefix, &aaa[5], 1);
+					if (!strcasecmp(multipart_prefix,
+					   "multipart/alternative")) {
+						++multipart_hunting;
+					}
+				}
+
 				else if (!strncasecmp(aaa, "part=", 5)) {
 					struct parts *ptr, *chain;
 	
 					ptr = (struct parts *)calloc(1, sizeof (struct parts));
 					if (ptr) {
+
+						/* Fill the buffers for the caller */
 						extract(ptr->name, &aaa[5], 0);
 						extract(ptr->filename, &aaa[5], 1);
 						extract(ptr->number, &aaa[5], 2);
@@ -439,6 +463,18 @@ int CtdlIPCGetSingleMessage(long msgnum, int headers, int as_mime,
 								chain = chain->next;
 							chain->next = ptr;
 						}
+
+						/* Now handle multipart/alternative */
+						if (multipart_hunting > 0) {
+							if ( (!strcasecmp(ptr->mimetype,
+							     "text/plain"))
+							   || (!strcasecmp(ptr->mimetype,
+							      "text/html")) ) {
+								strcpy(mret[0]->mime_chosen,
+									ptr->number);
+							}
+						}
+
 					}
 				}
 			}

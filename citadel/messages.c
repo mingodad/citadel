@@ -552,6 +552,10 @@ int read_message(
 		}
 	}
 
+	/******* end of header output, start of message text output *******/
+
+	/* scr_printf("message->mime_chosen is <%s>\n", message->mime_chosen); FIXME */
+
 	if (format_type == 0) {
 		fr = fmout(screenwidth, NULL, message->text, dest,
 			   ((pagin == 1) ? 1 : 0), screenheight, (-1), 1);
@@ -1521,12 +1525,12 @@ RMSGREAD:	scr_flush();
             int lasta = a;
             for (finda = a; ((finda < num_msgs) && (finda >= 0)); finda += rdir)
               {
-                /* this is repetitivly dumb, but that's what computers are for.
+                /* This is repetitively dumb, but that's what computers are for.
                    We have to load up messages until we find one by us */
                 char buf[SIZ];
                 int founda = 0;
                 
-               	snprintf(buf, sizeof buf, "MSG0 %ld|%d", msg_arr[finda], 1); /* read the header so we can get 'from=' */
+               	snprintf(buf, sizeof buf, "MSG0 %ld|1", msg_arr[finda]); /* read the header so we can get 'from=' */
              	serv_puts(buf);
             	serv_gets(buf);
             	while (serv_gets(buf), strcmp(buf, "000")) 

@@ -1,4 +1,8 @@
  $Log$
+ Revision 591.72  2002/07/21 22:29:46  ajc
+ * Added in some infrastructure to switch the client's message reading from
+   conventional MSG0 to a MIME-download type thing, like WebCit does.
+
  Revision 591.71  2002/07/21 15:45:07  error
  * Remove duplicate call for server time in who_is_online(); IPC does this now
 
@@ -3827,4 +3831,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -43,6 +43,7 @@ struct ctdlipcmessage {
 	time_t time;			/* Time message was posted */
 	char nhdr;			/* Suppress message header? */
 	char anonymous;			/* An anonymous message */
+	char mime_chosen[SIZ];		/* Chosen MIME part to output */
 };
 
 
