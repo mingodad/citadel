@@ -38,6 +38,11 @@
 typedef unsigned char byte;	      /* Byte type */
 static byte dtable[256];	      /* base64 encode / decode table */
 
+/* Month strings for date conversions */
+char *ascmonths[12] = {
+	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+};
 
 char *safestrncpy(char *dest, const char *src, size_t n)
 {
@@ -364,11 +369,6 @@ void fmt_date(char *buf, size_t n, time_t thetime, int seconds) {
 	struct tm *tm;
 	int hour;
 
-	char *ascmonths[] = {
-		"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-	};
-
 	strcpy(buf, "");
 	tm = localtime(&thetime);
 
@@ -634,4 +634,3 @@ char *bmstrcasestr(char *text, char *pattern)
 	}
 	return (NULL);
 }
-

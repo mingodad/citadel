@@ -373,3 +373,54 @@ int imap_mailbox_matches_pattern(char *pattern, char *mailboxname)
 	}
 	return (do_imap_match(mailboxname, pattern) == WILDMAT_TRUE);
 }
+
+
+
+/*
+ * Compare an IMAP date string (date only, no time) to the date found in
+ * a Unix timestamp.
+ */
+int imap_datecmp(char *datestr, time_t msgtime) {
+	char daystr[SIZ];
+	char monthstr[SIZ];
+	char yearstr[SIZ];
+	int i;
+	int day, month, year;
+	int msgday, msgmonth, msgyear;
+	struct tm msgtm;
+
+	if (datestr == NULL) return(0);
+
+	/* Expecting a date in the form dd-Mmm-yyyy */
+	extract_token(daystr, datestr, 0, '-');
+	extract_token(monthstr, datestr, 1, '-');
+	extract_token(yearstr, datestr, 2, '-');
+
+	day = atoi(daystr);
+	year = atoi(yearstr);
+	month = 0;
+	for (i=0; i<12; ++i) {
+		if (!strcasecmp(monthstr, ascmonths[i])) {
+			month = i;
+		}
+	}
+
+	/* Extract day/month/year from message timestamp */
+	memcpy(&msgtm, localtime(&msgtime), sizeof(struct tm));
+	msgday = msgtm.tm_mday;
+	msgmonth = msgtm.tm_mon;
+	msgyear = msgtm.tm_year + 1900;
+
+	/* Now start comparing */
+
+	if (year < msgyear) return(+1);
+	if (year > msgyear) return(-1);
+
+	if (month < msgmonth) return(+1);
+	if (month > msgmonth) return(-1);
+
+	if (day < msgday) return(+1);
+	if (day > msgday) return(-1);
+
+	return(0);
+}

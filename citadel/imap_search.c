@@ -106,7 +106,12 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos], "BEFORE")) {
-		/* FIXME */
+		if (msg->cm_fields['T'] != NULL) {
+			if (imap_datecmp(itemlist[pos+1],
+					atol(msg->cm_fields['T'])) < 0) {
+				match = 1;
+			}
+		}
 		pos += 2;
 	}
 
@@ -178,7 +183,12 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos], "ON")) {
-		/* FIXME */
+		if (msg->cm_fields['T'] != NULL) {
+			if (imap_datecmp(itemlist[pos+1],
+					atol(msg->cm_fields['T'])) == 0) {
+				match = 1;
+			}
+		}
 		pos += 2;
 	}
 
@@ -195,22 +205,42 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos], "SENTBEFORE")) {
-		/* FIXME */
+		if (msg->cm_fields['T'] != NULL) {
+			if (imap_datecmp(itemlist[pos+1],
+					atol(msg->cm_fields['T'])) < 0) {
+				match = 1;
+			}
+		}
 		pos += 2;
 	}
 
 	else if (!strcasecmp(itemlist[pos], "SENTON")) {
-		/* FIXME */
+		if (msg->cm_fields['T'] != NULL) {
+			if (imap_datecmp(itemlist[pos+1],
+					atol(msg->cm_fields['T'])) == 0) {
+				match = 1;
+			}
+		}
 		pos += 2;
 	}
 
 	else if (!strcasecmp(itemlist[pos], "SENTSINCE")) {
-		/* FIXME */
+		if (msg->cm_fields['T'] != NULL) {
+			if (imap_datecmp(itemlist[pos+1],
+					atol(msg->cm_fields['T'])) >= 0) {
+				match = 1;
+			}
+		}
 		pos += 2;
 	}
 
 	else if (!strcasecmp(itemlist[pos], "SINCE")) {
-		/* FIXME */
+		if (msg->cm_fields['T'] != NULL) {
+			if (imap_datecmp(itemlist[pos+1],
+					atol(msg->cm_fields['T'])) >= 0) {
+				match = 1;
+			}
+		}
 		pos += 2;
 	}
 

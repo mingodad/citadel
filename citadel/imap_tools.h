@@ -20,6 +20,7 @@ void imap_ial_out(struct internet_address_list *ialist);
 int imap_roomname(char *buf, int bufsize, char *foldername);
 int imap_is_message_set(char *);
 int imap_mailbox_matches_pattern(char *pattern, char *mailboxname);
+int imap_datecmp(char *datestr, time_t msgtime);
 
 /*
  * Flags that may be returned by imap_roomname()
