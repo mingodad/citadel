@@ -132,3 +132,39 @@ void do_chat(void)
 	wprintf("</applet>\n");
 	wDumpContent(1);
 }
+
+
+/*
+ *
+ */
+void page_popup(void)
+{
+	char buf[256];
+	char pagefrom[256];
+
+	/* suppress express message check, do headers but no fake frames */
+	output_headers(0x08 | 0x03);
+
+	while (serv_puts("GEXP"), serv_gets(buf), buf[0]=='1') {
+
+		extract(pagefrom, &buf[4], 3);
+
+		wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
+		wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\""
+			"<B>Express message from ");
+		escputs(pagefrom);
+		wprintf("</B></FONT></TD></TR></TABLE>\n");
+		
+		fmout(NULL);
+	}
+
+	wprintf("<CENTER>"
+		"<A HREF=\"javascript:window.close();\">"
+		"[ close window ]</A></B>\n"
+		"</CENTER>");
+
+	wDumpContent(1);
+	WC->HaveExpressMessages = 0;
+}
+
+
