@@ -828,6 +828,46 @@ void session_loop(void) {
 		changepw();
 		}
 
+	else if (!strcasecmp(action, "display_edit_node")) {
+		display_edit_node();
+		}
+
+	else if (!strcasecmp(action, "display_netconf")) {
+		display_netconf();
+		}
+
+	else if (!strcasecmp(action, "display_confirm_unshare")) {
+		display_confirm_unshare();
+		}
+
+	else if (!strcasecmp(action, "display_confirm_delete_node")) {
+		display_confirm_delete_node();
+		}
+
+	else if (!strcasecmp(action, "delete_node")) {
+		delete_node();
+		}
+
+	else if (!strcasecmp(action, "unshare")) {
+		unshare();
+		}
+
+	else if (!strcasecmp(action, "display_add_node")) {
+		display_add_node();
+		}
+
+	else if (!strcasecmp(action, "add_node")) {
+		add_node();
+		}
+
+	else if (!strcasecmp(action, "display_share")) {
+		display_share();
+		}
+
+	else if (!strcasecmp(action, "share")) {
+		share();
+		}
+
 	/* When all else fails... */
 	else {
 		printf("HTTP/1.0 200 OK\n");
