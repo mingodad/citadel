@@ -160,10 +160,14 @@ void RoomView::do_readloop(wxString readcmd) {
 		sendcmd = "MSG0 " + buf;
 		message = new CitMessage(citsock, sendcmd, ThisRoom);
 
-		allmsgs += "<i>";
+		allmsgs += "&nbsp;&nbsp;&nbsp;<em><font size=+1>";
 		allmsgs += asctime(localtime(&message->timestamp));
 		allmsgs += " from " + message->author;
-		allmsgs += "</i><br>";
+		if (message->room.CmpNoCase(ThisRoom))
+			allmsgs += " @ " + message->room;
+		if (message->nodename.CmpNoCase(citsock->NodeName))
+			allmsgs += " @ " + message->nodename;
+		allmsgs += "</font></em><br>";
 		allmsgs += message->msgtext;
 
 		delete message;

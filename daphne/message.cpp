@@ -12,6 +12,8 @@ CitMessage::CitMessage(CitClient *sock, wxString getmsg_cmd, wxString inRoom) {
 	author.Empty();
 	msgtext.Empty();
 	timestamp = time(NULL);		// nb. this is Unix-specific
+	format_type = 0;
+	nodename = sock->NodeName;
 
 	// Fetch the message from the server
 	if (sock->serv_trans(getmsg_cmd, recvcmd, xferbuf, inRoom) != 1) {
@@ -33,12 +35,28 @@ CitMessage::CitMessage(CitClient *sock, wxString getmsg_cmd, wxString inRoom) {
 				timestamp = atol(buf.Mid(5));
 			else if (!key.CmpNoCase("room"))
 				room = buf.Mid(5);
+			else if (!key.CmpNoCase("type")) {
+				format_type = atoi(buf.Mid(5));
+				if (format_type == 1) {
+					msgtext.Append("<PRE>\n");
+				}
+			}
+			else if (!key.CmpNoCase("node"))
+				nodename = buf.Mid(5);
 
 		// Otherwise, process message text
 		} else {
-			if ( (buf.Left(1) == " ") && (msgtext.Len() > 0) )
-				msgtext.Append("<BR>");
-			msgtext.Append(buf);
+			if (format_type == 1) {
+				msgtext.Append(buf);
+				msgtext.Append("\n");
+			} else {
+				if ( (buf.Left(1) == " ")
+				   && (msgtext.Len() > 0) )
+					msgtext.Append("<BR>");
+				msgtext.Append(buf);
+			}
 		}
 	}
+	if (format_type == 1) 
+		msgtext.Append("</PRE>\n");
 }

@@ -237,6 +237,9 @@ public:
 	long timestamp;
 	wxString room;
 	wxString msgtext;
+	wxString nodename;
+private:
+	int format_type;
 };
 
 
