@@ -59,6 +59,8 @@ long SYM_SMTP;
 void smtp_greeting(void) {
 
 	strcpy(CC->cs_clientname, "Citadel SMTP");
+	CC->internal_pgm = 1;
+	CC->cs_flags |= CS_STEALTH;
 	CtdlAllocUserData(SYM_SMTP, sizeof(struct citsmtp));
 
 	cprintf("220 Welcome to the Citadel/UX ESMTP server at %s\n",
@@ -135,6 +137,8 @@ void smtp_get_pass(char *argbuf) {
 	if (CtdlTryPassword(password) == pass_ok) {
 		cprintf("235 Authentication successful.\n");
 		lprintf(9, "SMTP auth login successful\n");
+		CC->internal_pgm = 0;
+		CC->cs_flags &= ~CS_STEALTH;
 	}
 	else {
 		cprintf("500 Authentication failed.\n");
