@@ -305,21 +305,22 @@ void CtdlReallocUserData(unsigned long requested_sym, size_t num_bytes)
  * cmd_info()  -  tell the client about this server
  */
 void cmd_info(void) {
-	cprintf("%d Server info:\n",LISTING_FOLLOWS);
-	cprintf("%d\n",CC->cs_pid);
-	cprintf("%s\n",config.c_nodename);
-	cprintf("%s\n",config.c_humannode);
-	cprintf("%s\n",config.c_fqdn);
-	cprintf("%s\n",CITADEL);
-	cprintf("%d\n",REV_LEVEL);
-	cprintf("%s\n",config.c_bbs_city);
-	cprintf("%s\n",config.c_sysadm);
-	cprintf("%d\n",SERVER_TYPE);
-	cprintf("%s\n",config.c_moreprompt);
+	cprintf("%d Server info:\n", LISTING_FOLLOWS);
+	cprintf("%d\n", CC->cs_pid);
+	cprintf("%s\n", config.c_nodename);
+	cprintf("%s\n", config.c_humannode);
+	cprintf("%s\n", config.c_fqdn);
+	cprintf("%s\n", CITADEL);
+	cprintf("%d\n", REV_LEVEL);
+	cprintf("%s\n", config.c_bbs_city);
+	cprintf("%s\n", config.c_sysadm);
+	cprintf("%d\n", SERVER_TYPE);
+	cprintf("%s\n", config.c_moreprompt);
 	cprintf("1\n");	/* 1 = yes, this system supports floors */
 	cprintf("1\n"); /* 1 = we support the extended paging options */
+	cprintf("%s\n", CC->cs_nonce);
 	cprintf("000\n");
-	}
+}
 
 
 /*
@@ -732,6 +733,25 @@ void cmd_scdn(char *argbuf)
 
 
 /*
+ * Generate a "nonce" for APOP-style authentication.
+ *
+ * RFC 1725 et al specify a PID to be placed in front of the nonce.
+ * Quoth BTX: That would be stupid.
+ */
+void generate_nonce(struct CitContext *con) {
+	struct timeval tv;
+
+	memset(con->cs_nonce, NONCE_SIZE, 0);
+	gettimeofday(&tv, NULL);
+	memset(con->cs_nonce, NONCE_SIZE, 0);
+	snprintf(con->cs_nonce, NONCE_SIZE, "<%d%ld@%s>",
+		rand(), tv.tv_usec, config.c_fqdn);
+}
+
+
+
+
+/*
  * Back-end function for starting a session
  */
 void begin_session(struct CitContext *con)
@@ -753,11 +773,11 @@ void begin_session(struct CitContext *con)
 	strcpy(con->cs_clientname, "(unknown)");
 	strcpy(con->curr_user, NLI);
 	strcpy(con->net_node,"");
-	con->fake_username[0] = '\0';
-	con->fake_postname[0] = '\0';
-	con->fake_hostname[0] = '\0';
-	con->fake_roomname[0] = '\0';
-	memset(con->cs_nonce, NONCE_SIZE, 0);
+	strcpy(con->fake_username, "");
+	strcpy(con->fake_postname, "");
+	strcpy(con->fake_hostname, "");
+	strcpy(con->fake_roomname, "");
+	generate_nonce(con);
 	snprintf(con->temp, sizeof con->temp, tmpnam(NULL));
 	safestrncpy(con->cs_host, config.c_fqdn, sizeof con->cs_host);
 	con->cs_host[sizeof con->cs_host - 1] = 0;
@@ -789,8 +809,6 @@ void begin_session(struct CitContext *con)
 
 
 void citproto_begin_session() {
-	struct timeval	tv;
-	
 	if (CC->nologin==1) {
 		cprintf("%d %s: Too many users are already online "
 			"(maximum is %d)\n",
@@ -798,16 +816,8 @@ void citproto_begin_session() {
 			config.c_nodename, config.c_maxsessions);
 		}
 	else {
-		gettimeofday(&tv, NULL);
-		memset(CC->cs_nonce, NONCE_SIZE, 0);
-		snprintf(CC->cs_nonce, NONCE_SIZE, "<%d%ld@%s>", rand(), tv.tv_usec, config.c_nodename);
-
-/* RFC 1725 et al specify a PID to be placed in front of the nonce.
- * Quoth BTX: That would be stupid.
- */
-		
-		cprintf("%d %s Citadel/UX server ready %s.\n",
-			OK, config.c_nodename, CC->cs_nonce);
+		cprintf("%d %s Citadel/UX server ready.\n",
+			OK, config.c_nodename);
 		}
 }
 

@@ -83,12 +83,7 @@ void pop3_cleanup_function(void) {
  * Here's where our POP3 session begins its happy day.
  */
 void pop3_greeting(void) {
-	struct timeval	tv;
-	
 	strcpy(CC->cs_clientname, "POP3 session");
-	gettimeofday(&tv, NULL);
-	memset(CC->cs_nonce, NONCE_SIZE, 0);
-	snprintf(CC->cs_nonce, NONCE_SIZE, "<%d%ld@%s>", rand(), tv.tv_usec, config.c_fqdn);
 	CC->internal_pgm = 1;
 	CtdlAllocUserData(SYM_POP3, sizeof(struct citpop3));
 	POP3->msgs = NULL;

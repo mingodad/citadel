@@ -1,4 +1,9 @@
  $Log$
+ Revision 572.27  2000/08/22 02:31:47  ajc
+ * nonce (for APOP-style auth) is now generated when a context is created
+   instead of during protocol greeting functions.
+ * Moved Citadel protocol nonce output from greeting to INFO
+
  Revision 572.26  2000/08/18 21:09:36  ajc
  * Added a little more mailing list code to serv_network.c
 
@@ -1994,4 +1999,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

@@ -525,6 +525,9 @@ parts of the listing:
  Line 12 - Paging level.  0 if the system only supports inline paging,
            1 if the system supports "extended" paging (check-only and
            multiline modes).  See the SEXP command for further information.
+ Line 13 - The "nonce" for this session, for support of APOP-style
+           authentication.  If this field is present, clients may authenticate
+           in this manner.
  
  *** NOTE! ***   The "server type" code is intended to promote global
 compatibility in a scenario in which developers have added proprietary
