@@ -50,7 +50,7 @@
 #endif
 
 struct CitControl CitControl;
-struct config config;
+extern struct config config;
 FILE *control_fp = NULL;
 
 /*

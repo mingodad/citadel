@@ -201,8 +201,9 @@ fi
 test -f /usr/local/lib/libresolv.a && LDFLAGS="$LDFLAGS -L/usr/local/lib"
 AC_CHECK_LIB(resolv, res_query, RESOLV="$RESOLV -lresolv")
 
-if test "x$with_ncurses" != xno; then
+if test "x$with_ncurses" != "xno"; then
 	AC_SEARCH_LIBS(tgetent, [ncurses curses termcap])
+	AC_SEARCH_LIBS(scrollok, [ncurses curses])
 	AC_SEARCH_LIBS(initscr, [ncurses curses])
 else
 	AC_SEARCH_LIBS(tgetent, [curses termcap])

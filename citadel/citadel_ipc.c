@@ -19,7 +19,9 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <string.h>
+#ifdef HAVE_MALLOC_H
 #include <malloc.h>
+#endif
 #include <stdlib.h>
 #include <ctype.h>
 #include <sys/socket.h>

@@ -165,8 +165,8 @@ modules/libpop3.la: serv_pop3.lo md5.lo $(LIBTOOL) libcitserver.la
 modules/libmrtg.la: serv_mrtg.lo md5.lo $(LIBTOOL) libcitserver.la
 	$(LTSHARE) -o libmrtg.la ../serv_mrtg.lo ../libcitserver.la
 
-modules/libspam.la: serv_spam.lo md5.lo $(LIBTOOL) libcitserver.la
-	$(LTSHARE) -o libspam.la ../serv_spam.lo ../libcitserver.la
+modules/libspam.la: serv_spam.lo md5.lo domain.lo $(LIBTOOL) libcitserver.la
+	$(LTSHARE) -o libspam.la ../serv_spam.lo ../domain.lo ../libcitserver.la
 
 modules/libinetcfg.la: serv_inetcfg.lo $(LIBTOOL) libcitserver.la
 	$(LTSHARE) -o libinetcfg.la ../serv_inetcfg.lo ../libcitserver.la

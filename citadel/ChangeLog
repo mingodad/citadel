@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.23  2002/10/14 08:27:40  error
+ * Mac OS X build fixes (everything but serv_imap now builds)
+
  Revision 601.22  2002/10/08 09:44:52  error
  * Build environment:  cvs ignore .diff/.patch files
 
@@ -4061,3 +4064,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
