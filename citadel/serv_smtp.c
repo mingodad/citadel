@@ -710,13 +710,13 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	}
 
 	if (sock < 0) {
-		*status = 3;	/* dsn is already filled in */
+		*status = 4;	/* dsn is already filled in */
 		return;
 	}
 
 	/* Process the SMTP greeting from the server */
 	if (sock_gets(sock, buf) < 0) {
-		*status = 3;
+		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
 		sock_close(sock);
 		return;
@@ -724,7 +724,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	lprintf(9, "%s\n", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
-			*status = 3;
+			*status = 4;
 			strcpy(dsn, &buf[4]);
 			sock_close(sock);
 			return;
@@ -743,7 +743,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	sprintf(buf, "HELO %s", config.c_fqdn);
 	sock_puts(sock, buf);
 	if (sock_gets(sock, buf) < 0) {
-		*status = 3;
+		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
 		sock_close(sock);
 		return;
@@ -751,7 +751,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	lprintf(9, "%s\n", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
-			*status = 3;
+			*status = 4;
 			strcpy(dsn, &buf[4]);
 			sock_close(sock);
 			return;
@@ -766,10 +766,10 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 
 
 	/* HELO succeeded, now try the MAIL From: command */
-	sprintf(buf, "MAIL From: ajc@uncnsrd.mt-kisco.ny.us"); /* FIX */
+	sprintf(buf, "MAIL From: FIX@uncnsrd.mt-kisco.ny.us"); /* FIX */
 	sock_puts(sock, buf);
 	if (sock_gets(sock, buf) < 0) {
-		*status = 3;
+		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
 		sock_close(sock);
 		return;
@@ -777,7 +777,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	lprintf(9, "%s\n", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
-			*status = 3;
+			*status = 4;
 			strcpy(dsn, &buf[4]);
 			sock_close(sock);
 			return;
@@ -795,7 +795,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	sprintf(buf, "RCPT To: %s", addr);
 	sock_puts(sock, buf);
 	if (sock_gets(sock, buf) < 0) {
-		*status = 3;
+		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
 		sock_close(sock);
 		return;
@@ -803,7 +803,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	lprintf(9, "%s\n", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
-			*status = 3;
+			*status = 4;
 			strcpy(dsn, &buf[4]);
 			sock_close(sock);
 			return;
@@ -820,7 +820,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	/* RCPT succeeded, now try the DATA command */
 	sock_puts(sock, "DATA");
 	if (sock_gets(sock, buf) < 0) {
-		*status = 3;
+		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
 		sock_close(sock);
 		return;
@@ -845,7 +845,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	CtdlOutputMsg(msgnum, MT_RFC822, 0, 0, NULL, sock, 1);
 	sock_puts(sock, ".");
 	if (sock_gets(sock, buf) < 0) {
-		*status = 3;
+		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
 		sock_close(sock);
 		return;
@@ -853,7 +853,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	lprintf(9, "%s\n", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
-			*status = 3;
+			*status = 4;
 			strcpy(dsn, &buf[4]);
 			sock_close(sock);
 			return;
