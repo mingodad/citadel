@@ -707,7 +707,7 @@ int set_password(void)
 /*
  * get info about the server we've connected to
  */
-void get_serv_info(void)
+void get_serv_info(char *supplied_hostname)
 {
 	char buf[512];
 
@@ -717,7 +717,15 @@ void get_serv_info(void)
 	snprintf(buf, sizeof buf, "IDEN %d|%d|%d|%s|",
 		 SERVER_TYPE, 0, REV_LEVEL,
 		 (server_is_local ? "local" : CITADEL));
-	locate_host(&buf[strlen(buf)]);		/* append to the end */
+
+	/* Append a hostname */
+	if (supplied_hostname != NULL) {
+		strcat(buf, supplied_hostname);
+	}
+	else {
+		locate_host(&buf[strlen(buf)]);	/* append to the end */
+	}
+
 	serv_puts(buf);
 	serv_gets(buf);		/* we don't care about the result code */
 }
@@ -828,6 +836,15 @@ void enternew(char *desc, char *buf, int maxlen)
 
 
 
+int shift(int argc, char **argv, int start, int count) {
+	int i;
+
+	for (i=start; i<(argc-count); ++i) {
+		argv[i] = argv[i+count];
+	}
+	argc = argc - count;
+	return argc;
+}
 
 /*
  * main
@@ -838,6 +855,7 @@ int main(int argc, char **argv)
 	char aaa[100], bbb[100];/* general purpose variables */
 	char argbuf[32];	/* command line buf */
 	char nonce[NONCE_SIZE];
+	char *telnet_client_host = NULL;
 	char *sptr, *sptr2;	/* USed to extract the nonce */
 	char hexstring[MD5_HEXSTRING_SIZE];
 	volatile int termn8 = 0;
@@ -850,6 +868,20 @@ int main(int argc, char **argv)
 	signal(SIGHUP, dropcarr);	/* Cleanup gracefully if carrier is dropped */
 	signal(SIGTERM, dropcarr);	/* Cleanup gracefully if terminated */
 	signal(SIGCONT, catch_sigcont);		/* Catch SIGCONT so we can reset terminal */
+
+	/* 
+	 * Handle command line options as if we were called like /bin/login
+	 * (i.e. from in.telnetd)
+	 */
+	for (a=0; a<argc; ++a) {
+		if ((argc > a+1) && (!strcmp(argv[a], "-h")) ) {
+			telnet_client_host = argv[a+1];
+			argc = shift(argc, argv, a, 2);
+		}
+		if (!strcmp(argv[a], "-p")) {
+			argc = shift(argc, argv, a, 1);
+		}
+	}
 
 	printf("Attaching to server... \r");
 	fflush(stdout);
@@ -885,7 +917,7 @@ int main(int argc, char **argv)
 	   }
 	}
 	
-	get_serv_info();
+	get_serv_info(telnet_client_host);
 
 	look_for_ansi();
 	cls(0);

@@ -1,4 +1,9 @@
  $Log$
+ Revision 573.1  2000/09/11 22:05:04  ajc
+ * citadel.c: accept -h <host> and -p arguments, so citadel can be called
+   directly by telnetd, bypassing /bin/login.  It works, but not recommended at
+   this time because it has to run as root.
+
  Revision 573.0  2000/09/05 18:35:22  ajc
  * Tagged everything for version 5.73 release
 
@@ -2051,4 +2056,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
