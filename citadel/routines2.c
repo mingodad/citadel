@@ -44,6 +44,11 @@
 #endif
 #include "screen.h"
 
+/* work around solaris include files */
+#ifdef reg
+#undef reg
+#endif
+
 extern char temp[];
 extern char tempdir[];
 extern char *axdefs[7];

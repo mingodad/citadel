@@ -270,8 +270,8 @@ void cmd_netf(char *cmdbuf)
 		return;
 	}
 	snprintf(outfile, sizeof outfile,
-		 "%s/network/spoolin/nsf.%04x.%04x",
-		 BBSDIR, getpid(), ++seq);
+		 "%s/network/spoolin/nsf.%04lx.%04x",
+		 BBSDIR, (long)getpid(), ++seq);
 	ofp = fopen(outfile, "a");
 	if (ofp == NULL) {
 		cprintf("%d internal error\n", ERROR);
@@ -801,8 +801,8 @@ void cmd_nuop(char *cmdbuf)
 	}
 
 	snprintf(CC->upl_path, sizeof CC->upl_path,
-		 "%s/network/spoolin/%s.%04x.%04x",
-		 BBSDIR, CC->net_node, getpid(), ++seq);
+		 "%s/network/spoolin/%s.%04lx.%04x",
+		 BBSDIR, CC->net_node, (long)getpid(), ++seq);
 
 	CC->upload_fp = fopen(CC->upl_path, "r");
 	if (CC->upload_fp != NULL) {

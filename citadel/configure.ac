@@ -111,7 +111,6 @@ if test "$GCC" = yes; then
 		;;
 	esac
 fi
-AC_DISABLE_STATIC
 AC_PROG_INSTALL
 AC_PROG_YACC
 missing_dir=`cd $ac_aux_dir && pwd`

@@ -1,4 +1,7 @@
  $Log$
+ Revision 608.5  2003/07/22 03:07:50  nbryant
+ fix build for Solaris
+
  Revision 608.4  2003/07/20 20:46:06  ajc
  * build system: link Berkeley DB only to the server, not to the client & utils
 
@@ -4881,4 +4884,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
