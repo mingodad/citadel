@@ -1,9 +1,14 @@
 /* $Id$ 
  *
- * An implementation of Post Office Protocol version 3 (RFC 1939).
- *
+ * POP3 server for the Citadel/UX system
  * Copyright (C) 1998-2000 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.
+ *
+ * This module implements all required POP3 server commands as described
+ * in RFC1939.  It also implements nearly all of the optional commands.  The
+ * only one missing is APOP, because it implements a "shared secret" method
+ * of authentication which currently does not fit well with Citadel.  Perhaps
+ * we'll do it later.
  */
 
 #include "sysdep.h"
