@@ -49,14 +49,17 @@ struct floor *floorcache[MAXFLOORS];
 /*
  * Generic routine for determining user access to rooms
  */
-int CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf)
+void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
+		int *result, int *view)
 {
 	int retval = 0;
 	struct visit vbuf;
 
 	/* for internal programs, always do everything */
 	if (((CC->internal_pgm)) && (roombuf->QRflags & QR_INUSE)) {
-		return (UA_KNOWN | UA_GOTOALLOWED);
+		retval = (UA_KNOWN | UA_GOTOALLOWED);
+		vbuf.v_view = 0;
+		goto SKIP_EVERYTHING;
 	}
 
 	/* Locate any applicable user/room relationships */
@@ -157,7 +160,11 @@ NEWMSG:	/* By the way, we also check for the presence of new messages */
 	if (roombuf->QRflags2 & QR2_SYSTEM) {
 		retval = retval & ~UA_KNOWN;
 	}
-	return (retval);
+
+SKIP_EVERYTHING:
+	/* Now give the caller the information it wants. */
+	if (result != NULL) *result = retval;
+	if (view != NULL) *view = vbuf.v_view;
 }
 
 /*
@@ -500,7 +507,7 @@ int is_noneditable(struct ctdlroom *qrbuf)
 /*
  * Back-back-end for all room listing commands
  */
-void list_roomname(struct ctdlroom *qrbuf, int ra)
+void list_roomname(struct ctdlroom *qrbuf, int ra, int view)
 {
 	char truncated_roomname[ROOMNAMELEN];
 
@@ -517,12 +524,13 @@ void list_roomname(struct ctdlroom *qrbuf, int ra)
 	}
 
 	/* ...and now the other parameters */
-	cprintf("|%u|%d|%d|%d|%d|\n",
+	cprintf("|%u|%d|%d|%d|%d|%d|\n",
 		qrbuf->QRflags,
 		(int) qrbuf->QRfloor,
 		(int) qrbuf->QRorder,
 		(int) qrbuf->QRflags2,
-		ra
+		ra,
+		view
 	);
 }
 
@@ -534,14 +542,15 @@ void cmd_lrms_backend(struct ctdlroom *qrbuf, void *data)
 {
 	int FloorBeingSearched = (-1);
 	int ra;
+	int view;
 
 	FloorBeingSearched = *(int *)data;
-	ra = CtdlRoomAccess(qrbuf, &CC->user);
+	CtdlRoomAccess(qrbuf, &CC->user, &ra, &view);
 
 	if ((( ra & (UA_KNOWN | UA_ZAPPED)))
 	    && ((qrbuf->QRfloor == (FloorBeingSearched))
 		|| ((FloorBeingSearched) < 0)))
-		list_roomname(qrbuf, ra);
+		list_roomname(qrbuf, ra, view);
 }
 
 void cmd_lrms(char *argbuf)
@@ -571,14 +580,15 @@ void cmd_lkra_backend(struct ctdlroom *qrbuf, void *data)
 {
 	int FloorBeingSearched = (-1);
 	int ra;
+	int view;
 
 	FloorBeingSearched = *(int *)data;
-	ra = CtdlRoomAccess(qrbuf, &CC->user);
+	CtdlRoomAccess(qrbuf, &CC->user, &ra, &view);
 
 	if ((( ra & (UA_KNOWN)))
 	    && ((qrbuf->QRfloor == (FloorBeingSearched))
 		|| ((FloorBeingSearched) < 0)))
-		list_roomname(qrbuf, ra);
+		list_roomname(qrbuf, ra, view);
 }
 
 void cmd_lkra(char *argbuf)
@@ -605,15 +615,16 @@ void cmd_lprm_backend(struct ctdlroom *qrbuf, void *data)
 {
 	int FloorBeingSearched = (-1);
 	int ra;
+	int view;
 
 	FloorBeingSearched = *(int *)data;
-	ra = CtdlRoomAccess(qrbuf, &CC->user);
+	CtdlRoomAccess(qrbuf, &CC->user, &ra, &view);
 
 	if (   ((qrbuf->QRflags & QR_PRIVATE) == 0)
 		&& ((qrbuf->QRflags & QR_MAILBOX) == 0)
 	    && ((qrbuf->QRfloor == (FloorBeingSearched))
 		|| ((FloorBeingSearched) < 0)))
-		list_roomname(qrbuf, ra);
+		list_roomname(qrbuf, ra, view);
 }
 
 void cmd_lprm(char *argbuf)
@@ -637,15 +648,16 @@ void cmd_lkrn_backend(struct ctdlroom *qrbuf, void *data)
 {
 	int FloorBeingSearched = (-1);
 	int ra;
+	int view;
 
 	FloorBeingSearched = *(int *)data;
-	ra = CtdlRoomAccess(qrbuf, &CC->user);
+	CtdlRoomAccess(qrbuf, &CC->user, &ra, &view);
 
 	if ((ra & UA_KNOWN)
 	    && (ra & UA_HASNEWMSGS)
 	    && ((qrbuf->QRfloor == (FloorBeingSearched))
 		|| ((FloorBeingSearched) < 0)))
-		list_roomname(qrbuf, ra);
+		list_roomname(qrbuf, ra, view);
 }
 
 void cmd_lkrn(char *argbuf)
@@ -675,15 +687,16 @@ void cmd_lkro_backend(struct ctdlroom *qrbuf, void *data)
 {
 	int FloorBeingSearched = (-1);
 	int ra;
+	int view;
 
 	FloorBeingSearched = *(int *)data;
-	ra = CtdlRoomAccess(qrbuf, &CC->user);
+	CtdlRoomAccess(qrbuf, &CC->user, &ra, &view);
 
 	if ((ra & UA_KNOWN)
 	    && ((ra & UA_HASNEWMSGS) == 0)
 	    && ((qrbuf->QRfloor == (FloorBeingSearched))
 		|| ((FloorBeingSearched) < 0)))
-		list_roomname(qrbuf, ra);
+		list_roomname(qrbuf, ra, view);
 }
 
 void cmd_lkro(char *argbuf)
@@ -712,16 +725,17 @@ void cmd_lkro(char *argbuf)
 void cmd_lzrm_backend(struct ctdlroom *qrbuf, void *data)
 {
 	int FloorBeingSearched = (-1);
-
 	int ra;
+	int view;
+
 	FloorBeingSearched = *(int *)data;
-	ra = CtdlRoomAccess(qrbuf, &CC->user);
+	CtdlRoomAccess(qrbuf, &CC->user, &ra, &view);
 
 	if ((ra & UA_GOTOALLOWED)
 	    && (ra & UA_ZAPPED)
 	    && ((qrbuf->QRfloor == (FloorBeingSearched))
 		|| ((FloorBeingSearched) < 0)))
-		list_roomname(qrbuf, ra);
+		list_roomname(qrbuf, ra, view);
 }
 
 void cmd_lzrm(char *argbuf)
@@ -926,7 +940,7 @@ void cmd_goto(char *gargs)
 		}
 
 		/* See if there is an existing user/room relationship */
-		ra = CtdlRoomAccess(&QRscratch, &CC->user);
+		CtdlRoomAccess(&QRscratch, &CC->user, &ra, NULL);
 
 		/* normal clients have to pass through security */
 		if (ra & UA_GOTOALLOWED) {
@@ -972,6 +986,7 @@ void cmd_whok(void)
 {
 	struct ctdluser temp;
 	struct cdbdata *cdbus;
+	int ra;
 
 	getuser(&CC->user, CC->curr_user);
 
@@ -997,8 +1012,9 @@ void cmd_whok(void)
 		memcpy(&temp, cdbus->ptr, sizeof temp);
 		cdb_free(cdbus);
 
+		CtdlRoomAccess(&CC->room, &temp, &ra, NULL);
 		if ((CC->room.QRflags & QR_INUSE)
-		    && (CtdlRoomAccess(&CC->room, &temp) & UA_KNOWN)
+		    && (ra & UA_KNOWN)
 		    )
 			cprintf("%s\n", temp.fullname);
 	}

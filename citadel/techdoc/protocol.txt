@@ -279,7 +279,8 @@ room access controls:
 					 * if the user calls it up by name */
 #define UA_HASNEWMSGS           8	/* Unread messages exist in room */
 #define UA_ZAPPED              16	/* Zapped from known rooms list */
- 
+  
+ The sixth field is the user's current view for the room. (See VIEW command)
  
  
  LKRO   (List Known Rooms with Old [no new] messages)

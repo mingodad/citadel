@@ -527,7 +527,7 @@ void imap_select(int num_parms, char *parms[])
 	/* If the room exists, check security/access */
 	if (c == 0) {
 		/* See if there is an existing user/room relationship */
-		ra = CtdlRoomAccess(&QRscratch, &CC->user);
+		CtdlRoomAccess(&QRscratch, &CC->user, &ra, NULL);
 
 		/* normal clients have to pass through security */
 		if (ra & UA_KNOWN) {
@@ -719,7 +719,7 @@ void imap_lsub_listroom(struct ctdlroom *qrbuf, void *data)
 	pattern = (char *) data;
 
 	/* Only list rooms to which the user has access!! */
-	ra = CtdlRoomAccess(qrbuf, &CC->user);
+	CtdlRoomAccess(qrbuf, &CC->user, &ra, NULL);
 	if (ra & UA_KNOWN) {
 		imap_mailboxname(buf, sizeof buf, qrbuf);
 		if (imap_mailbox_matches_pattern(pattern, buf)) {
@@ -769,7 +769,7 @@ void imap_list_listroom(struct ctdlroom *qrbuf, void *data)
 	pattern = (char *) data;
 
 	/* Only list rooms to which the user has access!! */
-	ra = CtdlRoomAccess(qrbuf, &CC->user);
+	CtdlRoomAccess(qrbuf, &CC->user, &ra, NULL);
 	if ((ra & UA_KNOWN)
 	    || ((ra & UA_GOTOALLOWED) && (ra & UA_ZAPPED))) {
 		imap_mailboxname(buf, sizeof buf, qrbuf);
@@ -899,7 +899,7 @@ int imap_grabroom(char *returned_roomname, char *foldername)
 	/* If the room exists, check security/access */
 	if (c == 0) {
 		/* See if there is an existing user/room relationship */
-		ra = CtdlRoomAccess(&QRscratch, &CC->user);
+		CtdlRoomAccess(&QRscratch, &CC->user, &ra, NULL);
 
 		/* normal clients have to pass through security */
 		if (ra & UA_KNOWN) {

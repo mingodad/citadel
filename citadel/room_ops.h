@@ -52,9 +52,10 @@ void ForEachRoom(void (*CallBack)(struct ctdlroom *EachRoom, void *out_data),
 void assoc_file_name(char *buf, size_t n,
 		     struct ctdlroom *qrbuf, const char *prefix);
 void delete_room(struct ctdlroom *qrbuf);
-void list_roomname(struct ctdlroom *qrbuf, int ra);
+void list_roomname(struct ctdlroom *qrbuf, int ra, int view);
 int is_noneditable(struct ctdlroom *qrbuf);
-int CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf);
+void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
+		int *result, int *view);
 int CtdlDoIHavePermissionToDeleteThisRoom(struct ctdlroom *qr);
 
 int CtdlRenameRoom(char *old_name, char *new_name, int new_floor);

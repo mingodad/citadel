@@ -637,13 +637,15 @@ void GenerateRoomDisplay(char *real_room,
 			struct CitContext *viewed,
 			struct CitContext *viewer) {
 
+	int ra;
+
 	strcpy(real_room, viewed->room.QRname);
 	if (viewed->room.QRflags & QR_MAILBOX) {
 		strcpy(real_room, &real_room[11]);
 	}
 	if (viewed->room.QRflags & QR_PRIVATE) {
-		if ( (CtdlRoomAccess(&viewed->room, &viewer->user)
-		   & UA_KNOWN) == 0) {
+		CtdlRoomAccess(&viewed->room, &viewer->user, &ra, NULL);
+		if ( (ra & UA_KNOWN) == 0) {
 			strcpy(real_room, "<private room>");
 		}
 	}

@@ -2981,7 +2981,7 @@ void cmd_move(char *args)
 	}
 
 	getuser(&CC->user, CC->curr_user);
-	ra = CtdlRoomAccess(&qtemp, &CC->user);
+	CtdlRoomAccess(&qtemp, &CC->user, &ra, NULL);
 
 	/* Check for permission to perform this operation.
 	 * Remember: "CC->room" is source, "qtemp" is target.

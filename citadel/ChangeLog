@@ -1,4 +1,9 @@
  $Log$
+ Revision 630.9  2005/02/01 03:33:22  ajc
+ * Changed CtdlRoomAccess() calling syntax in order to return both
+   the access bits and the current view
+ * All "list rooms" commands now return the view for each room.
+
  Revision 630.8  2005/01/27 22:05:21  ajc
  * Renamed the "Extended message ID" field to "Exclusive message ID"
    (nothing changes except documentation and internal variable names)
@@ -6330,4 +6335,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

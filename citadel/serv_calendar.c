@@ -1733,7 +1733,6 @@ void ical_ctdl_set_exclusive_msgid(char *name, char *filename, char *partnum,
  */
 int ical_obj_beforesave(struct CtdlMessage *msg)
 {
-	char roomname[ROOMNAMELEN];
 	char *p;
 	int a;
 	struct icalmessagemod imm;
