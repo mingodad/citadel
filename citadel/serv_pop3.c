@@ -153,7 +153,7 @@ int pop3_grab_mailbox(void) {
 	if (getroom(&CC->quickroom, MAILROOM) != 0) return(-1);
 
 	/* Load up the messages */
-	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, pop3_add_message);
+	CtdlForEachMessage(MSGS_ALL, 0L, (-63), NULL, NULL, pop3_add_message);
 
 	/* Figure out which are old and which are new */
         CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);

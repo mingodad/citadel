@@ -1799,7 +1799,7 @@ void CtdlICQ_Read_Config(void) {
 	/* We want the last (and probably only) config in this room */
 	lprintf(9, "We're in <%s> looking for config\n", 
 		CC->quickroom.QRname);
-	CtdlForEachMessage(MSGS_LAST, 1, ICQMIME, NULL,
+	CtdlForEachMessage(MSGS_LAST, 1, (-127), ICQMIME, NULL,
 		CtdlICQ_Read_Config_Backend);
 	getroom(&CC->quickroom, hold_rm);
 	return;
@@ -1928,7 +1928,7 @@ void CtdlICQ_Read_CL(void) {
 	}
 
 	/* We want the last (and probably only) list in this room */
-	CtdlForEachMessage(MSGS_LAST, 1, ICQCLMIME, NULL,
+	CtdlForEachMessage(MSGS_LAST, 1, (-127), ICQCLMIME, NULL,
 		CtdlICQ_Read_CL_Backend);
 	getroom(&CC->quickroom, hold_rm);
 }

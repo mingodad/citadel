@@ -1,4 +1,13 @@
  $Log$
+ Revision 572.1  2000/05/26 19:27:51  ajc
+ * Changed some of the rev-level sensitive stuff to look at the actual version
+   of Citadel running, not the last version with which we ran setup
+ * Added a moderation system.  Default filter level for new users is in the
+   config file.  Per-user setting is in usersupp.  Moderation level of each
+   message is in SuppMsgInfo.  Tweaked CONF, GETU, and SETU.  Read filter is
+   working.  Moderate message up/down commands are not here yet.  See
+   techdoc/moderation.txt for more info.
+
  Revision 572.0  2000/05/23 02:09:30  ajc
  * Updated docs and tagged everything for the 5.72 release
 
@@ -1881,3 +1890,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

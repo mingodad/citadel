@@ -161,7 +161,7 @@ int set_attr(int sval, char *prompt, unsigned int sbit)
  */
 void enter_config(int mode)
 {
- 	int width,height,flags;
+ 	int width, height, flags, filter;
 	char buf[128];
 
 	sprintf(buf,"GETU");
@@ -175,6 +175,7 @@ void enter_config(int mode)
 	width = extract_int(&buf[4],0);
 	height = extract_int(&buf[4],1);
 	flags = extract_int(&buf[4],2);
+	filter = extract_int(&buf[4],3);
 
 	if ((mode==0)||(mode==1)) {
 
@@ -202,6 +203,9 @@ void enter_config(int mode)
 	  flags = set_attr(flags,
 		"Enable color support",US_COLOR);
 	  }
+	
+	 filter = intprompt("Moderation filter level", filter, -63, 63);
+
 	 }
 
 	if (mode==2) {
@@ -226,7 +230,7 @@ void enter_config(int mode)
 		}
 	 }
 
-	sprintf(buf,"SETU %d|%d|%d",width,height,flags);
+	sprintf(buf,"SETU %d|%d|%d|%d",width,height,flags,filter);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]!='2') printf("%s\n",&buf[4]);

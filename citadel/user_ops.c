@@ -59,6 +59,11 @@ int getuser(struct usersupp *usbuf, char name[]) {
 		( (cdbus->len > sizeof(struct usersupp)) ?
 		sizeof(struct usersupp) : cdbus->len) );
 	cdb_free(cdbus);
+
+	if (usbuf->version < 573) {
+		CC->usersupp.moderation_filter = config.c_default_filter;
+	}
+
 	return(0);
 	}
 
@@ -92,7 +97,7 @@ void putuser(struct usersupp *usbuf)
 		}
 	lowercase_name[sizeof(lowercase_name)-1] = 0;
 
-	usbuf->version = config.c_setup_level;
+	usbuf->version = REV_LEVEL;
 	cdb_store(CDB_USERSUPP,
 		lowercase_name, strlen(lowercase_name),
 		usbuf, sizeof(struct usersupp));
@@ -620,6 +625,7 @@ int create_user(char *newusername)
 	CC->usersupp.USscreenwidth = 80;
 	CC->usersupp.USscreenheight = 24;
 	time(&CC->usersupp.lastcall);
+	CC->usersupp.moderation_filter = config.c_default_filter;
 
 	/* fetch a new user number */
 	CC->usersupp.usernum = get_new_user_number();
@@ -738,11 +744,12 @@ void cmd_getu(void) {
 		return;
 		}
 	getuser(&CC->usersupp,CC->curr_user);
-	cprintf("%d %d|%d|%d\n",
+	cprintf("%d %d|%d|%d|%d\n",
 		OK,
 		CC->usersupp.USscreenwidth,
 		CC->usersupp.USscreenheight,
-		(CC->usersupp.flags & US_USER_SET)
+		(CC->usersupp.flags & US_USER_SET),
+		CC->usersupp.moderation_filter
 		);
 	}
 
@@ -751,8 +758,9 @@ void cmd_getu(void) {
  */
 void cmd_setu(char *new_parms)
 {
+	int new_mod;
 
-	if (num_parms(new_parms)!=3) {
+	if (num_parms(new_parms) < 3) {
 		cprintf("%d Usage error.\n",ERROR);
 		return;
 		}	
@@ -766,6 +774,25 @@ void cmd_setu(char *new_parms)
 	CC->usersupp.flags = CC->usersupp.flags & (~US_USER_SET);
 	CC->usersupp.flags = CC->usersupp.flags | 
 		(extract_int(new_parms,2) & US_USER_SET);
+
+	if (num_parms(new_parms) >= 4) {
+		new_mod = extract_int(new_parms, 3);
+		lprintf(9, "new_mod extracted to %d\n", new_mod);
+
+		/* Aides cannot set the filter level lower than -100 */	
+		if (new_mod < (-100) ) new_mod = -100;
+
+		/* Normal users cannot set the filter level lower than -63 */
+		if ( (new_mod < (-63)) && (CC->usersupp.axlevel < 6) )
+			new_mod = -63;
+
+		/* Nobody can set the filter level higher than +63 */
+		if (new_mod > 63) new_mod = 63;
+
+		CC->usersupp.moderation_filter = new_mod;
+		lprintf(9, "new_mod processed to %d\n", new_mod);
+	}
+
 	lputuser(&CC->usersupp);
 	cprintf("%d Ok\n",OK);
 	}

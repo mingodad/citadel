@@ -258,7 +258,7 @@ inaccessible private rooms.
  
  This command retrieves the screen dimensions and user options for the
 currently logged in account.  ERROR will be returned if no user is logged
-in, of course.  Otherwise, OK will be returned, followed by three parameters.
+in, of course.  Otherwise, OK will be returned, followed by four parameters.
 The first parameter is the user's screen width, the second parameter is the
 user's screen height, and the third parameter is a bag of bits with the
 following meanings:
@@ -272,14 +272,17 @@ following meanings:
  
  There are other bits, too, but they can't be changed by the user (see below).
  
+ The fourth parameter, if present, is the moderation level this user is
+filtering at.
+ 
  
  SETU   (SET User configuration)
  
  This command does the opposite of SETU: it takes the screen dimensions and
 user options (which were probably obtained with a GETU command, and perhaps
 modified by the user) and writes them to the user account.  This command
-should be passed three parameters: the screen width, the screen height, and
-the option bits (see above).
+should be passed four parameters: the screen width, the screen height,
+the option bits (see above), and the desired moderation level to filter at.
  
  Note that there exist bits here which are not listed in this document.  Some
 are flags that can only be set by Aides or the system administrator.  SETU
@@ -1684,6 +1687,7 @@ fails for any reason, ERROR is returned.
  19. Name of room to log express messages to (or a zero-length name for none)
  20. Access level required to create rooms
  21. Maximum message length which may be entered into the system
+ 22. Default moderation filter level for new users (-63 to +63)
  
   
  

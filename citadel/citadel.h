@@ -9,7 +9,7 @@
 #include "sysconfig.h"
 #include "ipcdef.h"
 
-#define CITADEL	"Citadel/UX 5.72"	/* Text description of this software */
+#define CITADEL	"Citadel/UX 5.73"	/* Text description of this software */
 
 /*
  * REV_LEVEL is the current version number (multiplied by 100 to avoid having
@@ -18,7 +18,7 @@
  * are older than REV_MIN, none of the programs will work until the setup
  * program is run again to bring things up to date.
  */
-#define REV_LEVEL	572		/* This version */
+#define REV_LEVEL	573		/* This version */
 #define REV_MIN		570		/* Oldest compatible version */
 
 #define SERVER_TYPE 0	/* zero for stock Citadel/UX; other developers please
@@ -89,6 +89,7 @@ struct config {
 	int c_max_workers;		/* Upper limit on number of threads */
 	int c_pop3_port;		/* POP3 listener port (usually 110) */
 	int c_smtp_port;		/* SMTP listener port (usually 25)  */
+	int c_default_filter;		/* Default moderation filter level  */
 };
 
 #define NODENAME		config.c_nodename
@@ -118,6 +119,7 @@ struct usersupp {			/* User record                      */
 	char fullname[64];		/* Name for Citadel messages & mail */
 	CIT_UBYTE USscreenwidth;	/* Screen width (for textmode users)*/
 	CIT_UBYTE USscreenheight;	/* Screen height(for textmode users)*/
+	char moderation_filter;		/* Moderation filter level          */
 	};
 
 

@@ -119,7 +119,7 @@ void check_server_upgrades(void) {
 		(CitControl.version / 100),
 		(CitControl.version % 100) );
 
-	if (CitControl.version < config.c_setup_level) {
+	if (CitControl.version < REV_LEVEL) {
 		lprintf(5, "Server hosted updates need to be processed at "
 				"this time.  Please wait...\n");
 	}
@@ -127,11 +127,9 @@ void check_server_upgrades(void) {
 		return;
 	}
 
-
 	if (CitControl.version < 555) do_pre555_usersupp_upgrade();
 
-
-	CitControl.version = config.c_setup_level;
+	CitControl.version = REV_LEVEL;
 	put_control();
 }
 

@@ -40,6 +40,7 @@
 #include "routines.h"
 #include "routines2.h"
 #include "tools.h"
+#include "rooms.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
@@ -485,7 +486,9 @@ int intprompt(char *prompt, int ival, int imin, int imax)
 		strprompt(prompt, buf, 15);
 		i = atoi(buf);
 		for (p=0; p<strlen(buf); ++p) {
-			if (!isdigit(buf[p])) i = imin - 1;
+			if ( (!isdigit(buf[p]))
+			   && ( (buf[p]!='-') || (p!=0) )  )
+				i = imin - 1;
 		}
 		if (i < imin)
 			printf("*** Must be no less than %d.\n", imin);

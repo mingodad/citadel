@@ -268,6 +268,7 @@ int CtdlMsgCmp(struct CtdlMessage *msg, struct CtdlMessage *template) {
  * current room.
  */
 void CtdlForEachMessage(int mode, long ref,
+			int moderation_level,
 			char *content_type,
 			struct CtdlMessage *compare,
 			void (*CallBack) (long msgnum))
@@ -299,18 +300,25 @@ void CtdlForEachMessage(int mode, long ref,
 	}
 
 
-	/* If the caller is looking for a specific MIME type, then filter
-	 * out all messages which are not of the type requested.
-	 */
-	if (num_msgs > 0)
-		if (content_type != NULL)
-			if (strlen(content_type) > 0)
-				for (a = 0; a < num_msgs; ++a) {
-					GetSuppMsgInfo(&smi, msglist[a]);
-					if (strcasecmp(smi.smi_content_type, content_type)) {
-						msglist[a] = 0L;
-					}
-				}
+	if (num_msgs > 0) for (a = 0; a < num_msgs; ++a) {
+		GetSuppMsgInfo(&smi, msglist[a]);
+
+		/* Filter out messages that are moderated below the level
+		 * currently being viewed at.
+		 */
+		if (smi.smi_mod < moderation_level) {
+			msglist[a] = 0L;
+		}
+
+		/* If the caller is looking for a specific MIME type, filter
+		 * out all messages which are not of the type requested.
+	 	 */
+		if (content_type != NULL) if (strlen(content_type) > 0) {
+			if (strcasecmp(smi.smi_content_type, content_type)) {
+				msglist[a] = 0L;
+			}
+		}
+	}
 
 	num_msgs = sort_msglist(msglist, num_msgs);
 
@@ -419,7 +427,9 @@ void cmd_msgs(char *cmdbuf)
 		cprintf("%d Message list...\n", LISTING_FOLLOWS);
 	}
 
-	CtdlForEachMessage(mode, cm_ref, NULL, template, simple_listing);
+	CtdlForEachMessage(mode, cm_ref,
+		CC->usersupp.moderation_filter,
+		NULL, template, simple_listing);
 	if (template != NULL) CtdlFreeMessage(template);
 	cprintf("000\n");
 }
@@ -1463,7 +1473,7 @@ int ReplicationChecks(struct CtdlMessage *msg) {
 	memset(template, 0, sizeof(struct CtdlMessage));
 	template->cm_fields['E'] = strdoop(msg->cm_fields['E']);
 
-	CtdlForEachMessage(MSGS_ALL, 0L, NULL, template, check_repl);
+	CtdlForEachMessage(MSGS_ALL, 0L, (-127), NULL, template, check_repl);
 
 	/* If a newer message exists with the same Extended ID, abort
 	 * this save.
@@ -2538,7 +2548,7 @@ char *CtdlGetSysConfig(char *sysconfname) {
 	/* We want the last (and probably only) config in this room */
 	begin_critical_section(S_CONFIG);
 	config_msgnum = (-1L);
-	CtdlForEachMessage(MSGS_LAST, 1, sysconfname, NULL,
+	CtdlForEachMessage(MSGS_LAST, 1, (-127), sysconfname, NULL,
 		CtdlGetSysConfigBackend);
 	msgnum = config_msgnum;
 	end_critical_section(S_CONFIG);

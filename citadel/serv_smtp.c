@@ -1433,7 +1433,8 @@ void smtp_do_queue(void) {
 		lprintf(3, "Cannot find room <%s>\n", SMTP_SPOOLOUT_ROOM);
 		return;
 	}
-	CtdlForEachMessage(MSGS_ALL, 0L, SPOOLMIME, NULL, smtp_do_procmsg);
+	CtdlForEachMessage(MSGS_ALL, 0L, (-127),
+		SPOOLMIME, NULL, smtp_do_procmsg);
 
 	lprintf(7, "SMTP: queue run completed\n");
 	doing_queue = 0;

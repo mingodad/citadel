@@ -366,6 +366,7 @@ struct SuppMsgInfo {
 	long smi_msgnum;	/* Message number in *local* message base */
 	int smi_refcount;	/* Number of rooms which point to this msg */
 	char smi_content_type[64];
+	char smi_mod;		/* Moderated to what level? */
 	/* more stuff will be added to this record in the future */
 };
 

@@ -556,7 +556,7 @@ void do_fsck_msg(long msgnum) {
 void do_fsck_room(struct quickroom *qrbuf, void *data)
 {
 	getroom(&CC->quickroom, qrbuf->QRname);
-	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, do_fsck_msg);
+	CtdlForEachMessage(MSGS_ALL, 0L, (-127), NULL, NULL, do_fsck_msg);
 }
 
 /*

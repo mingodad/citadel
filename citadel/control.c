@@ -167,6 +167,7 @@ void cmd_conf(char *argbuf) {
 		cprintf("%d\n", config.c_max_workers);
 		cprintf("%d\n", config.c_pop3_port);
 		cprintf("%d\n", config.c_smtp_port);
+		cprintf("%d\n", config.c_default_filter);
 		cprintf("000\n");
 		}
 
@@ -249,6 +250,8 @@ void cmd_conf(char *argbuf) {
 			case 23: config.c_pop3_port = atoi(buf);
 				break;
 			case 24: config.c_smtp_port = atoi(buf);
+				break;
+			case 25: config.c_default_filter = atoi(buf);
 				break;
 			}
 		    ++a;

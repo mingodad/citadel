@@ -105,7 +105,7 @@ void inetcfg_init_backend(long msgnum) {
 
 void inetcfg_init(void) {
 	if (getroom(&CC->quickroom, SYSCONFIGROOM) != 0) return;
-	CtdlForEachMessage(MSGS_LAST, 1, INTERNETCFG, NULL,
+	CtdlForEachMessage(MSGS_LAST, 1, (-127), INTERNETCFG, NULL,
 		inetcfg_init_backend);
 }
 

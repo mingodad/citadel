@@ -71,6 +71,7 @@ void AdjRefCount(long, int);
 void simple_listing(long);
 int CtdlMsgCmp(struct CtdlMessage *msg, struct CtdlMessage *template);
 void CtdlForEachMessage(int mode, long ref,
+			int moderation_level,
 			char *content_type,
 			struct CtdlMessage *compare,
                         void (*CallBack) (long msgnum) );
