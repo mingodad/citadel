@@ -190,37 +190,17 @@ void calendar_section(void) {
  * Server info section (fluff, really)
  */
 void server_info_section(void) {
-	char buf[SIZ];
-	int i = 0;
-
 	section_title("About this server");
-	serv_puts("INFO");
-	serv_gets(buf);
-	if (buf[0] == '1') while(serv_gets(buf), strcmp(buf, "000")) {
-		switch(i) {
-			case 2:
-				wprintf("You are connected to ");
-				escputs(buf);
-				wprintf(", ");
-				break;
-			case 4: wprintf("running ");
-				escputs(buf);
-				wprintf(", ");
-				break;
-			case 6: wprintf("and located in ");
-				escputs(buf);
-				wprintf(".<BR>\n");
-				break;
-			case 7: wprintf("Your system administrator is ");
-				escputs(buf);
-				wprintf(".\n");
-				break;
-		}
-		++i;
-	}
+	wprintf("You are connected to ");
+	escputs(serv_info.serv_humannode);
+	wprintf(", running ");
+	escputs(serv_info.serv_software);
+	wprintf(", and located in ");
+	escputs(serv_info.serv_bbs_city);
+	wprintf(".<BR>\nYour system administrator is ");
+	escputs(serv_info.serv_sysadm);
+	wprintf(".\n");
 }
-	
-
 
 
 /*

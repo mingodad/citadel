@@ -500,19 +500,15 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 
 		/* See if transparency is indicated */
 		if (strlen(bstr("transp")) > 0) {
-			lprintf(9, "FORM VALUE: <%s>\n", bstr("transp"));
 			if (!strcasecmp(bstr("transp"), "opaque")) {
 				formtransp = ICAL_TRANSP_OPAQUE;
-				lprintf(9, "setting to opaque\n");
 			}
 			else if (!strcasecmp(bstr("transp"), "transparent")) {
 				formtransp = ICAL_TRANSP_TRANSPARENT;
-				lprintf(9, "setting to transparent\n");
 			}
 
 			while (prop = icalcomponent_get_first_property(vevent, ICAL_TRANSP_PROPERTY),
 			      (prop != NULL)) {
-				lprintf(9, "removing existing property\n");
 				icalcomponent_remove_property(vevent, prop);
 				icalproperty_free(prop);
 			}
