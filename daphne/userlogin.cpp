@@ -175,9 +175,21 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 	c3->height.AsIs(); c3->width.AsIs();
 	exit_button->SetConstraints(c3);
 
+	wxLayoutConstraints *c6 = new wxLayoutConstraints;
+	c6->left.SameAs(this, wxLeft, 10);
+	c6->bottom.SameAs(password, wxBottom);
+	c6->width.AsIs(); c6->height.AsIs();
+	password_label->SetConstraints(c6);
+
+	wxLayoutConstraints *c7 = new wxLayoutConstraints;
+	c7->left.SameAs(this, wxLeft, 10);
+	c7->bottom.SameAs(username, wxBottom);
+	c7->width.AsIs(); c7->height.AsIs();
+	username_label->SetConstraints(c7);
+
 	wxLayoutConstraints *c4 = new wxLayoutConstraints;
 	c4->bottom.Above(newuser_button, -10);
-	c4->left.SameAs(newuser_button, wxCentreX);
+	c4->left.RightOf(username_label, 10);
 	c4->height.AsIs();
 	c4->right.SameAs(this, wxRight, 10);
 	password->SetConstraints(c4);
@@ -188,18 +200,6 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 	c5->height.AsIs();
 	c5->width.SameAs(password, wxWidth);
 	username->SetConstraints(c5);
-
-	wxLayoutConstraints *c6 = new wxLayoutConstraints;
-	c6->right.LeftOf(password, 10);
-	c6->bottom.SameAs(password, wxBottom);
-	c6->width.AsIs(); c6->height.AsIs();
-	password_label->SetConstraints(c6);
-
-	wxLayoutConstraints *c7 = new wxLayoutConstraints;
-	c7->right.LeftOf(username, 10);
-	c7->bottom.SameAs(username, wxBottom);
-	c7->width.AsIs(); c7->height.AsIs();
-	username_label->SetConstraints(c7);
 
 	SetAutoLayout(TRUE);
 	Show(TRUE);
@@ -221,7 +221,9 @@ void UserLogin::OnButtonPressed(wxCommandEvent& whichbutton) {
 	int r;
 
 	if (whichbutton.GetId() == BUTTON_EXIT) {
-		delete this;
+		sendbuf = "QUIT";
+		citsock->serv_trans(sendbuf);
+		exit(0);
 	}
 
 	if (whichbutton.GetId() == BUTTON_LOGIN) {
@@ -230,7 +232,7 @@ void UserLogin::OnButtonPressed(wxCommandEvent& whichbutton) {
 		r = citsock->serv_trans(sendbuf, recvbuf);
 		if (r != 3) {
 			wxMessageDialog nouser(this,
-				recvbuf,
+				recvbuf.Mid(4,32767),
 				"Error",
 				wxOK | wxCENTRE | wxICON_INFORMATION,
 				wxDefaultPosition);
@@ -241,13 +243,14 @@ void UserLogin::OnButtonPressed(wxCommandEvent& whichbutton) {
 			r = citsock->serv_trans(sendbuf, recvbuf);
 			if (r != 2) {
 				wxMessageDialog nopass(this,
-					recvbuf,
+					recvbuf.Mid(4,32767),
 					"Error",
 					wxOK | wxCENTRE | wxICON_INFORMATION,
 					wxDefaultPosition);
 				nopass.ShowModal();
 			} else {
 				// FIX do login procedure here
+				delete this;	// dismiss the login box
 			}
 		}
 	}
