@@ -551,16 +551,11 @@ void PerformSessionHooks(int EventType)
 {
 	struct SessionFunctionHook *fcn;
 
-	TRACE;
 	for (fcn = SessionHookTable; fcn != NULL; fcn = fcn->next) {
-		TRACE;
 		if (fcn->eventtype == EventType) {
-			TRACE;
 			(*fcn->h_function_pointer) ();
 		}
-		TRACE;
 	}
-	TRACE;
 }
 
 void PerformLogHooks(int loglevel, char *logmsg)
