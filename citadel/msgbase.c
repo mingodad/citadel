@@ -289,6 +289,7 @@ int CtdlForEachMessage(int mode, long ref,
 	long thismsg;
 	struct SuppMsgInfo smi;
 	struct CtdlMessage *msg;
+	int is_seen;
 
 	/* Learn about the user and room in question */
 	get_mm();
@@ -354,14 +355,14 @@ int CtdlForEachMessage(int mode, long ref,
 	if (num_msgs > 0)
 		for (a = 0; a < num_msgs; ++a) {
 			thismsg = msglist[a];
+			is_seen = is_msg_in_mset(vbuf.v_seen, thismsg);
 			if ((thismsg > 0)
 			    && (
 
 				       (mode == MSGS_ALL)
-				       || ((mode == MSGS_OLD) && (thismsg <= vbuf.v_lastseen))
-				       || ((mode == MSGS_NEW) && (thismsg > vbuf.v_lastseen))
-				       || ((mode == MSGS_NEW) && (thismsg >= vbuf.v_lastseen)
-				    && (CC->usersupp.flags & US_LASTOLD))
+				       || ((mode == MSGS_OLD) && (is_seen))
+				       || ((mode == MSGS_NEW) && (!is_seen))
+					    /* FIXME handle lastold mode */
 				       || ((mode == MSGS_LAST) && (a >= (num_msgs - ref)))
 				   || ((mode == MSGS_FIRST) && (a < ref))
 				|| ((mode == MSGS_GT) && (thismsg > ref))

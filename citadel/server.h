@@ -345,6 +345,7 @@ struct visit {
 	long v_usernum;
 	long v_lastseen;
 	unsigned int v_flags;
+	char v_seen[SIZ];
 };
 
 #define V_FORGET	1	/* User has zapped this room        */

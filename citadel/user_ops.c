@@ -213,7 +213,11 @@ void CtdlGetRelationship(struct visit *vbuf,
 		       ((cdbvisit->len > sizeof(struct visit)) ?
 			sizeof(struct visit) : cdbvisit->len));
 		cdb_free(cdbvisit);
-		return;
+	}
+
+	/* Set v_seen if necessary */
+	if (vbuf->v_seen[0] == 0) {
+		sprintf(vbuf->v_seen, "*:%ld", vbuf->v_lastseen);
 	}
 }
 
@@ -835,8 +839,9 @@ void cmd_slrp(char *new_ptr)
 	long newlr;
 	struct visit vbuf;
 
-	if (CtdlAccessCheck(ac_logged_in))
+	if (CtdlAccessCheck(ac_logged_in)) {
 		return;
+	}
 
 	if (!strncasecmp(new_ptr, "highest", 7)) {
 		newlr = CC->quickroom.QRhighest;
@@ -848,6 +853,7 @@ void cmd_slrp(char *new_ptr)
 
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 	vbuf.v_lastseen = newlr;
+	sprintf(vbuf.v_seen, "*:%ld", newlr);
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
 	lputuser(&CC->usersupp);

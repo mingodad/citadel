@@ -163,7 +163,8 @@ int pop3_grab_mailbox(void) {
         CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 	POP3->lastseen = (-1);
 	if (POP3->num_msgs) for (i=0; i<POP3->num_msgs; ++i) {
-		if ((POP3->msgs[POP3->num_msgs-1].msgnum) <= vbuf.v_lastseen) {
+		if (is_msg_in_mset(vbuf.v_seen,
+		   (POP3->msgs[POP3->num_msgs-1].msgnum) )) {
 			POP3->lastseen = i;
 		}
 	}
@@ -441,7 +442,8 @@ void pop3_update(void) {
 		lgetuser(&CC->usersupp, CC->curr_user);
 
 		CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
-		vbuf.v_lastseen = POP3->msgs[POP3->num_msgs-1].msgnum;
+		sprintf(vbuf.v_seen, "*:%ld",
+			POP3->msgs[POP3->num_msgs-1].msgnum);
 		CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
 		lputuser(&CC->usersupp);

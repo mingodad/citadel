@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.129  2001/04/21 04:55:51  ajc
+ * Began implementation of per-message seen/unseen attribute
+
  Revision 573.128  2001/04/20 03:39:54  ajc
  * IMAP LIST/LSUB: made it case insensitive.  Also minor IMAP code cleanup.
 
@@ -2506,4 +2509,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

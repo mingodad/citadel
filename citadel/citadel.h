@@ -261,3 +261,7 @@ struct floor {
 #define	INTERNETCFG	"application/x-citadel-internet-config"
 
 #define TRACE	lprintf(9, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
+
+#ifndef LONG_MAX
+#define LONG_MAX 2147483647L
+#endif

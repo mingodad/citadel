@@ -580,7 +580,8 @@ contain the name of the system and the name of the directory, such as:
  
  SLRP   (Set Last-message-Read Pointer)
  
- This command is used to mark messages as having been read.  Its sole parameter
+ This command marks all messages in the current room as read (seen) up to and
+including the specified number.  Its sole parameter
 is the number of the last message that has been read.  This allows the pointer
 to be set at any arbitrary point in the room.  Optionally, the parameter
 "highest" may be used instead of a message number, to set the pointer to the

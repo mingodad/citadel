@@ -56,13 +56,6 @@
 #include "tools.h"
 
 
-struct oldvisit {
-	char v_roomname[ROOMNAMELEN];
-	long v_generation;
-	long v_lastseen;
-	unsigned int v_flags;
-};
-
 struct PurgeList {
 	struct PurgeList *next;
 	char name[ROOMNAMELEN];	/* use the larger of username or roomname */

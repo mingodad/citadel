@@ -82,6 +82,26 @@ void imap_free_transmitted_message(void) {
 
 
 /*
+ * Set the \\Seen flag for messages which aren't new
+ */
+void imap_set_seen_flags(void) {
+	struct visit vbuf;
+	int i;
+
+	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+	if (IMAP->num_msgs > 0) {
+		for (i=0; i<IMAP->num_msgs; ++i) {
+			if (is_msg_in_mset(vbuf.v_seen, IMAP->msgids[i])) {
+				IMAP->flags[i] |= IMAP_SEEN;
+			}
+		}
+	}
+}
+
+
+
+
+/*
  * Back end for imap_load_msgids()
  *
  * FIXME: this should be optimized by figuring out a way to allocate memory
@@ -125,6 +145,7 @@ void imap_load_msgids(void) {
 	CtdlForEachMessage(MSGS_ALL, 0L, (-63), NULL, NULL,
 		imap_add_single_msgid, NULL);
 
+	imap_set_seen_flags();
 	lprintf(9, "imap_load_msgids() mapped %d messages\n", IMAP->num_msgs);
 }
 
@@ -188,6 +209,8 @@ void imap_rescan_msgids(void) {
 	 */
 	CtdlForEachMessage(MSGS_GT, original_highest, (-63), NULL, NULL,
 		imap_add_single_msgid, NULL);
+
+	imap_set_seen_flags();
 
 	/*
 	 * If new messages have arrived, tell the client about them.
@@ -388,8 +411,8 @@ void imap_select(int num_parms, char *parms[]) {
 	/* FIXME ... much more info needs to be supplied here */
 	cprintf("* %d EXISTS\r\n", msgs);
 	cprintf("* %d RECENT\r\n", new);
-	cprintf("* FLAGS (\\Deleted)\r\n");
-	cprintf("* OK [PERMANENTFLAGS (\\Deleted)] permanent flags\r\n");
+	cprintf("* FLAGS (\\Deleted \\Seen)\r\n");
+	cprintf("* OK [PERMANENTFLAGS (\\Deleted \\Seen)] permanent flags\r\n");
 	cprintf("* OK [UIDVALIDITY 0] UIDs valid\r\n");
 	cprintf("%s OK [%s] %s completed\r\n",
 		parms[0],
