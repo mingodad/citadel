@@ -286,7 +286,7 @@ int main(int argc, char **argv)
 	 */
 	fprintf(rmail, "To: %s\n", rbuf);
 	time(&now);
-	generate_rfc822_datestamp(datestamp, now);
+	datestring(datestamp, now, DATESTRING_RFC822);
 	fprintf(rmail, "Date: %s\n", datestamp);
 	fprintf(rmail, "Message-Id: <%ld@%s>\n", (long) mid_buf, nbuf);
 	fprintf(rmail, "X-Mailer: %s\n", CITADEL);

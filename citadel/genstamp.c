@@ -27,20 +27,52 @@ static char *weekdays[] = {
  * Supplied with a unix timestamp, generate an RFC822-compliant textual
  * time and date stamp.
  */
-void generate_rfc822_datestamp(char *buf, time_t xtime) {
+void datestring(char *buf, time_t xtime, int which_format) {
 	struct tm *t;
+
+	long offset;
+	char offsign;
 
 	t = localtime(&xtime);
 
-	sprintf(buf, "%s, %02d %s %04d %02d:%02d:%02d %s",
-		weekdays[t->tm_wday],
-		t->tm_mday,
-		months[t->tm_mon],
-		t->tm_year + 1900,
-		t->tm_hour,
-		t->tm_min,
-		t->tm_sec,
-		tzname[0]
-		);
+	/* Convert "seconds west of GMT" to "hours/minutes offset" */
+	offset = timezone;
+	if (offset > 0) {
+		offsign = '-';
+	}
+	else {
+		offset = 0L - offset;
+		offsign = '+';
+	}
+	offset = ( (offset / 3600) * 100 ) + ( offset % 60 );
+
+	switch(which_format) {
+
+		case DATESTRING_RFC822:
+			sprintf(buf, "%s, %02d %s %04d %02d:%02d:%02d %c%04ld",
+				weekdays[t->tm_wday],
+				t->tm_mday,
+				months[t->tm_mon],
+				t->tm_year + 1900,
+				t->tm_hour,
+				t->tm_min,
+				t->tm_sec,
+				offsign, offset
+				);
+		break;
+
+		case DATESTRING_IMAP:
+			sprintf(buf, "%02d-%s-%04d %02d:%02d:%02d %c%04ld",
+				t->tm_mday,
+				months[t->tm_mon],
+				t->tm_year + 1900,
+				t->tm_hour,
+				t->tm_min,
+				t->tm_sec,
+				offsign, offset
+				);
+		break;
+
+	}
 }
 

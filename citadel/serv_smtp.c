@@ -636,7 +636,7 @@ void smtp_data(void) {
 
 	cprintf("354 Transmit message now; terminate with '.' by itself\r\n");
 	
-	generate_rfc822_datestamp(nowstamp, time(NULL));
+	datestring(nowstamp, time(NULL), DATESTRING_RFC822);
 	body = mallok(4096);
 
 	if (body != NULL) snprintf(body, 4096,

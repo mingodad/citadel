@@ -967,8 +967,8 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 				else if (i == 'R')
 					cprintf("To: %s%s", mptr, nl);
 				else if (i == 'T') {
-					generate_rfc822_datestamp(datestamp,
-								atol(mptr) );
+					datestring(datestamp, atol(mptr),
+						DATESTRING_RFC822 );
 					cprintf("Date: %s%s", datestamp, nl);
 				}
 			}

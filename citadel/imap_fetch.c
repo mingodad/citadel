@@ -39,6 +39,7 @@
 #include "serv_imap.h"
 #include "imap_tools.h"
 #include "imap_fetch.h"
+#include "genstamp.h"
 
 
 
@@ -50,6 +51,21 @@
 
 void imap_fetch_uid(int seq) {
 	cprintf("UID %ld", IMAP->msgids[seq-1]);
+}
+
+void imap_fetch_internaldate(struct CtdlMessage *msg) {
+	char buf[256];
+	time_t msgdate;
+
+	if (msg->cm_fields['T'] != NULL) {
+		msgdate = atol(msg->cm_fields['T']);
+	}
+	else {
+		msgdate = time(NULL);
+	}
+
+	datestring(buf, msgdate, DATESTRING_IMAP);
+	cprintf("INTERNALDATE \"%s\"", buf);
 }
 
 
@@ -81,7 +97,7 @@ void imap_do_fetch_msg(int seq, struct CtdlMessage *msg,
 			/* FIXME do something here */
 		}
 		else if (!strcasecmp(itemlist[i], "INTERNALDATE")) {
-			/* FIXME do something here */
+			imap_fetch_internaldate(msg);
 		}
 		else if (!strcasecmp(itemlist[i], "RFC822")) {
 			/* FIXME do something here */
