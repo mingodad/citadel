@@ -1,4 +1,7 @@
 $Log$
+Revision 501.1  2003/10/22 01:42:12  ajc
+* iconbar.c: removed a stray character or two...
+
 Revision 501.0  2003/10/21 04:26:37  ajc
 * THIS IS 5.01
 
@@ -1605,3 +1608,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

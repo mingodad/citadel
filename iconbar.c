@@ -82,7 +82,7 @@ void do_iconbar(void) {
 	wprintf("<center>\n");
 
 	if (ib_logo) if (ib_displayas != IB_TEXTONLY) wprintf(
-		"\"<IMG BORDER=\"0\" WIDTH=\"48\" "
+		"<IMG BORDER=\"0\" WIDTH=\"48\" "
 			"HEIGHT=\"48\" SRC=\"/image&name=hello\" ALT=\"&nbsp;\">"
 			"<BR>\n"
 	);
