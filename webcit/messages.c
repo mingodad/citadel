@@ -391,6 +391,15 @@ void read_message(long msgnum, int is_summary) {
 	if (strlen(vcard_partnum) > 0) {
 		vcard_source = load_mimepart(msgnum, vcard_partnum);
 		if (vcard_source != NULL) {
+
+			/* FIXME this is a temporary hack to make the screen usable
+			 * while we build it.  We need a more intuitive way of getting
+			 * in.
+			 */
+			wprintf("<A HREF=\"/edit_vcard?msgnum=%ld&partnum=%s\">",
+				msgnum, vcard_partnum);
+			wprintf("(edit)</A>");
+
 			display_vcard(vcard_source);
 			free(vcard_source);
 		}

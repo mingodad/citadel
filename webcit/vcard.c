@@ -141,6 +141,7 @@ char *vcard_get_prop(struct vCard *v, char *propname,
 
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 		if ( (!strcasecmp(v->prop[i].name, propname))
+		   || (propname[0] == 0)
 		   || (  (!strncasecmp(v->prop[i].name,
 					propname, strlen(propname)))
 			 && (v->prop[i].name[strlen(propname)] == ';')

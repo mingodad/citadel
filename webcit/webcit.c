@@ -1031,6 +1031,8 @@ void session_loop(struct httprequest *req)
 		display_menubar(1);
 	} else if (!strcasecmp(action, "output_mimepart")) {
 		output_mimepart();
+	} else if (!strcasecmp(action, "edit_vcard")) {
+		edit_vcard();
 	} else if (!strcasecmp(action, "diagnostics")) {
 		output_headers(1);
 
