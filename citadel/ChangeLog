@@ -1,4 +1,8 @@
 $Log$
+Revision 1.410  1999/11/02 19:51:23  ajc
+* Fixed timeout problem for remote client sessions (all timeouts were set to
+  1 second ... probably a temporary hack that was missed in the cleanup)
+
 Revision 1.409  1999/11/02 03:03:27  ajc
 * Several fixes to msgbase.c and netproc.c to prevent corrupted incoming
   network traffic from crashing the server.  Reject bad messages.
@@ -1413,3 +1417,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

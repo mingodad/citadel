@@ -439,7 +439,7 @@ void cmd_iden(char *argbuf)
 	safestrncpy(CC->cs_clientname, desc, sizeof CC->cs_clientname);
 	CC->cs_clientname[31] = 0;
 
-	lprintf(9, "Looking up hostname\n");
+	lprintf(9, "Looking up hostname '%s'\n", from_host);
 	if ((strlen(from_host)>0) && 
 	   (is_public_client(CC->cs_host))) {
 		if (inet_aton(from_host, &addr))

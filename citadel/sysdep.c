@@ -425,7 +425,7 @@ int client_read_to(char *buf, int bytes, int timeout)
 	while(len<bytes) {
 		FD_ZERO(&rfds);
 		FD_SET(CC->client_socket, &rfds);
-		tv.tv_sec = 1;
+		tv.tv_sec = timeout;
 		tv.tv_usec = 0;
 
 		retval = select( (CC->client_socket)+1, 
