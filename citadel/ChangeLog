@@ -1,4 +1,7 @@
 $Log$
+Revision 1.422  1999/11/29 17:26:15  nbryant
+* citserver.c: include <sys/types.h>; may help portability to Solaris
+
 Revision 1.421  1999/11/22 00:27:42  ajc
 * Added some temporary variables to OpenCmdResult().  Hopefully fixes
   bug #14 when running on FreeBSD.
@@ -1466,3 +1469,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
