@@ -84,9 +84,6 @@ struct RoomProcList *rplist = NULL;
  * We build a map of network nodes during processing.
  */
 struct NetMap *the_netmap = NULL;
-
-char *ignetcfg = NULL;
-
 char *working_ignetcfg = NULL;
 
 /*
@@ -1543,7 +1540,10 @@ void network_poll_other_citadel_nodes(int full_poll) {
 	int poll = 0;
 	char spoolfile[SIZ];
 
-	if (working_ignetcfg == NULL) return; 	/* no nodes defined */
+	if (working_ignetcfg == NULL) {
+		lprintf(CTDL_DEBUG, "No nodes defined - not polling\n");
+		return;
+	}
 
 	/* Use the string tokenizer to grab one line at a time */
 	for (i=0; i<num_tokens(working_ignetcfg, '\n'); ++i) {
@@ -1655,6 +1655,7 @@ void network_do_queue(void) {
 
 	doing_queue = 0;
 	free(working_ignetcfg);
+	working_ignetcfg = NULL;
 }
 
 
@@ -1700,43 +1701,6 @@ void cmd_netp(char *cmdbuf)
 }
 
 
-/*
- * This handler detects changes being made to the system's IGnet
- * configuration.
- */
-int netconfig_aftersave(struct CtdlMessage *msg) {
-	char *ptr;
-	int linelen;
-
-	/* If this isn't the configuration room, or if this isn't a MIME
-	 * message, don't bother.
-	 */
-	if (strcasecmp(msg->cm_fields['O'], SYSCONFIGROOM)) return(0);
-	if (msg->cm_format_type != 4) return(0);
-
-	ptr = msg->cm_fields['M'];
-	while (ptr != NULL) {
-	
-		linelen = strcspn(ptr, "\n");
-		if (linelen == 0) return(0);	/* end of headers */	
-		
-		if (!strncasecmp(ptr, "Content-type: ", 14)) {
-			if (!strncasecmp(&ptr[14], IGNETCFG,
-		   	   strlen(IGNETCFG))) {
-				if (ignetcfg != NULL) free(ignetcfg);
-				ignetcfg = NULL;
-			}
-		}
-
-		ptr = strchr((char *)ptr, '\n');
-		if (ptr != NULL) ++ptr;
-	}
-
-	return(0);
-}
-
-
-
 
 /*
  * Module entry point
@@ -1748,6 +1712,5 @@ char *serv_network_init(void)
 	CtdlRegisterProtoHook(cmd_netp, "NETP", "Identify as network poller");
 	CtdlRegisterProtoHook(cmd_nsyn, "NSYN", "Synchronize room to node");
 	CtdlRegisterSessionHook(network_do_queue, EVT_TIMER);
-	CtdlRegisterMessageHook(netconfig_aftersave, EVT_AFTERSAVE);
 	return "$Id$";
 }

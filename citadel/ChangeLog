@@ -1,4 +1,9 @@
  $Log$
+ Revision 623.11  2004/07/28 04:09:58  ajc
+ * serv_network.c: we had ignetcfg and working_ignetcfg, but it turns out we
+   no longer use the former anywhere, so it has been removed (along with the
+   aftersave hook that detected changes)
+
  Revision 623.10  2004/07/25 16:20:04  error
  * msgbase.c: CtdlCheckInternetMailPermission(): Do not allow twits to send
    Internet mail (they shouldn't be sending ANYTHING at all)
@@ -5942,4 +5947,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
