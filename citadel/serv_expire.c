@@ -352,6 +352,32 @@ int PurgeRooms(void) {
 }
 
 
+/*
+ * Back end function to check user accounts for associated Unix accounts
+ * which no longer exist.
+ */
+void do_uid_user_purge(struct ctdluser *us, void *data) {
+#ifdef ENABLE_AUTOLOGIN
+	struct PurgeList *pptr;
+
+	if ((us->uid != (-1)) && (us->uid != BBSUID)) {
+		if (getpwuid(us->uid) == NULL) {
+			pptr = (struct PurgeList *)
+				mallok(sizeof(struct PurgeList));
+			pptr->next = UserPurgeList;
+			strcpy(pptr->name, us->fullname);
+			UserPurgeList = pptr;
+		}
+	}
+
+#endif /* ENABLE_AUTOLOGIN */
+}
+
+
+
+/*
+ * Back end function to check user accounts for expiration.
+ */
 void do_user_purge(struct ctdluser *us, void *data) {
 	int purge;
 	time_t now;
@@ -426,6 +452,7 @@ int PurgeUsers(void) {
 	if (config.c_userpurge > 0) {
 		ForEachUser(do_user_purge, NULL);
 	}
+	ForEachUser(do_uid_user_purge, NULL);
 
 	transcript = mallok(SIZ);
 	strcpy(transcript, "The following users have been auto-purged:\n");

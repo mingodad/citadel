@@ -1,4 +1,8 @@
  $Log$
+ Revision 614.69  2004/03/10 04:50:04  ajc
+ * serv_expire.c: auto-purge any Citadel account that is associated with
+   a Unix account that no longer exists.
+
  Revision 614.68  2004/03/09 20:46:33  error
  * Add a Linux Software Map file
 
@@ -5472,4 +5476,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
