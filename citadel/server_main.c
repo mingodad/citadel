@@ -71,7 +71,6 @@ int main(int argc, char **argv)
 	int a, i;			/* General-purpose variables */
 	struct passwd *pw;
 	int drop_root_perms = 1;
-	struct worker_node *wnp;
 	size_t size;
         
 	/* specify default port name and trace file */
@@ -233,23 +232,7 @@ int main(int argc, char **argv)
 	worker_thread(NULL);
 
 	/* Server is exiting. Wait for workers to shutdown. */
-	lprintf(CTDL_INFO, "Waiting for worker threads to shut down\n");
-
-	begin_critical_section(S_WORKER_LIST);
-	while (worker_list != NULL) {
-		wnp = worker_list;
-		worker_list = wnp->next;
-
-		/* avoid deadlock with an exiting thread */
-		end_critical_section(S_WORKER_LIST);
-		if ((i = pthread_join(wnp->tid, NULL))) {
-			lprintf(CTDL_CRIT, "pthread_join: %s\n", strerror(i));
-		}
-		free(wnp);
-		begin_critical_section(S_WORKER_LIST);
-	}
-	end_critical_section(S_WORKER_LIST);
-
+	lprintf(CTDL_INFO, "Server is shutting down.\n");
 	master_cleanup();
 	return(0);
 }

@@ -1,4 +1,7 @@
  $Log$
+ Revision 626.10  2004/10/12 02:48:11  ajc
+ * Reworked shutdown sequence to avoid thread deadlock
+
  Revision 626.9  2004/10/12 02:17:49  ajc
  * Cleaned up some things that generated compiler warnings
  * crypto keys directory is now relative to the server's working directory,
@@ -6153,3 +6156,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
