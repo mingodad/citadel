@@ -313,7 +313,7 @@ int main(int argc, char **argv)
 		printf("Calls Avg/Day Username\n");
 		printf("----- ------- ------------------------------\n");
 		fflush(stdout);
-		sortpipe = (FILE *) popen("sort |tail -20 |sort -r", "w");
+		sortpipe = (FILE *) popen("sort |tail -20 |sort -nr", "w");
 		for (callptr = callers; callptr != NULL; callptr = callptr->next) {
 			fprintf(sortpipe, "%5d %7.2f %-30s\n",
 				callptr->Ctimescalled,
@@ -337,7 +337,7 @@ int main(int argc, char **argv)
 		printf("P/C Ratio Username\n");
 		printf("--------- ------------------------------\n");
 		fflush(stdout);
-		sortpipe = (FILE *) popen("sort |tail -20 |sort -r", "w");
+		sortpipe = (FILE *) popen("sort |tail -20 |sort -nr", "w");
 
 
 
