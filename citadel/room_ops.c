@@ -603,7 +603,7 @@ void cmd_lzrm(char *argbuf)
 
 
 
-void usergoto(char *where, int display_result)
+void usergoto(char *where, int display_result, int *retmsgs, int *retnew)
 {
 	int a;
 	int new_messages = 0;
@@ -675,6 +675,9 @@ void usergoto(char *where, int display_result)
 		strcpy(truncated_roomname, &truncated_roomname[11]);
 	}
 
+	if (retmsgs != NULL) *retmsgs = total_messages;
+	if (retnew != NULL) *retnew = new_messages;
+
 	if (display_result)
 		cprintf("%d%c%s|%d|%d|%d|%d|%ld|%ld|%d|%d|%d|%d\n",
 			OK, CtdlCheckExpress(),
@@ -735,7 +738,7 @@ void cmd_goto(char *gargs)
 
 		/* let internal programs go directly to any room */
 		if (CC->internal_pgm) {
-			usergoto(towhere, 1);
+			usergoto(towhere, 1, NULL, NULL);
 			return;
 		}
 
@@ -760,7 +763,7 @@ void cmd_goto(char *gargs)
 				   ((ra & UA_KNOWN) == 0)) {
 				goto NOPE;
 			} else {
-				usergoto(towhere, 1);
+				usergoto(towhere, 1, NULL, NULL);
 				return;
 			}
 		}
@@ -1148,7 +1151,7 @@ void cmd_kill(char *argbuf)
 	if (kill_ok) {
 		strcpy(deleted_room_name, CC->quickroom.QRname);
 		delete_room(&CC->quickroom);	/* Do the dirty work */
-		usergoto(BASEROOM, 0);	/* Return to the Lobby */
+		usergoto(BASEROOM, 0, NULL, NULL); /* Return to the Lobby */
 
 		/* tell the world what we did */
 		sprintf(aaa, "%s> killed by %s\n",

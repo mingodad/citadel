@@ -118,6 +118,7 @@ void imap_select(char *tag, char *cmd, char *parms) {
 	int ok = 0;
 	int ra = 0;
 	struct quickroom QRscratch;
+	int msgs, new;
 
 	extract_token(towhere, parms, 0, ' ');
 
@@ -155,7 +156,15 @@ void imap_select(char *tag, char *cmd, char *parms) {
 		return;
 	}
 
-	/* FIXME */
+	/*
+	 * usergoto() formally takes us to the desired room, happily returning
+	 * the number of messages and number of new messages.
+	 */
+	usergoto(augmented_roomname, 0, &msgs, &new);
+
+	cprintf("* %d EXISTS\r\n", msgs);
+	cprintf("* %d RECENT\r\n", new);
+	cprintf("* OK [UIDVALIDITY 0] UIDs valid\r\n");
 	cprintf("%s OK [FIXME] SELECT completed\r\n", tag);
 }
 
@@ -237,7 +246,7 @@ void imap_command_loop(void) {
 char *Dynamic_Module_Init(void)
 {
 	SYM_IMAP = CtdlGetDynamicSymbol();
-	CtdlRegisterServiceHook(1143,	/* FIXME put in config setup */
+	CtdlRegisterServiceHook(2243,	/* FIXME put in config setup */
 				NULL,
 				imap_greeting,
 				imap_command_loop);

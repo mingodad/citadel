@@ -354,7 +354,7 @@ void session_startup(void) {
         /* Run any cleanup routines registered by loadable modules */
 	PerformSessionHooks(EVT_LOGIN);
 
-	usergoto(BASEROOM,0);		/* Enter the lobby */	
+	usergoto(BASEROOM, 0, NULL, NULL);	/* Enter the lobby */
 	rec_log(CL_LOGIN,CC->curr_user);
 	}
 
@@ -896,7 +896,7 @@ void cmd_forg(void) {
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 	lputuser(&CC->usersupp);
 	cprintf("%d Ok\n",OK);
-	usergoto(BASEROOM, 0);
+	usergoto(BASEROOM, 0, NULL, NULL);
 	}
 
 /*
