@@ -838,8 +838,8 @@ void cmd_whok(void)
 	cprintf("%d Who knows room:\n", LISTING_FOLLOWS);
 	cdb_rewind(CDB_USERSUPP);
 	while (cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
-		memset(&temp, 0, sizeof(struct usersupp));
-		memcpy(&temp, cdbus->ptr, cdbus->len);
+		memset(&temp, 0, sizeof temp);
+		memcpy(&temp, cdbus->ptr, sizeof temp);
 		cdb_free(cdbus);
 
 		if ((CC->quickroom.QRflags & QR_INUSE)

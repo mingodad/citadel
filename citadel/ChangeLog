@@ -1,4 +1,9 @@
 $Log$
+Revision 1.385  1999/10/16 05:30:17  ajc
+* Changes to message replication code.  Don't do server-side hooks during
+  an ENT3 command.  Also fixed a bug in cmd_whok() that caused crashes
+  after a file format change.
+
 Revision 1.384  1999/10/14 03:04:16  ajc
 * Finished the netproc side of Z (zap/supersede) processing for replication
 
@@ -1311,3 +1316,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
