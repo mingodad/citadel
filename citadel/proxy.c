@@ -8,7 +8,19 @@
  *
  */
 
+/* Directory to put the message cache in */
 #define CACHE_DIR	"/var/citadelproxy"
+
+/* Number of days to keep messages in the cache */
+#define CACHE_EXPIRE	60
+
+/* Uncomment to enable prefetch */
+/* #define ENABLE_PREFETCH */
+
+/* Name and password to use for caching */
+#define PREFETCH_USER_NAME	"cypherpunks"
+#define PREFETCH_USER_PASSWORD	"cypherpunks"
+
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -135,26 +147,28 @@ void do_prefetch() {
 	close(1);
 	close(2);
 
-
 	serv_gets(buf);
 	if (buf[0] != '2') {
 		exit(0);
 		}
 
-
 	/* Log in (this is kind of arbitrary) */
-	serv_puts("USER cypherpunks");
+	sprintf(buf, "USER %s", PREFETCH_USER_NAME);
+	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]=='3') {
-		serv_puts("PASS cypherpunks");
+		sprintf(buf, "PASS %s", PREFETCH_USER_PASSWORD);
+		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] != '2') exit(1);
 		}
 	else {
-		serv_puts("NEWU cypherpunks");
+		sprintf(buf, "NEWU %s", PREFETCH_USER_NAME);
+		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] != '2') exit(1);
-		serv_puts("SETP cypherpunks");
+		sprintf(buf, "SETP %s", PREFETCH_USER_PASSWORD);
+		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] != '2') exit(1);
 		}
@@ -286,6 +300,10 @@ void do_mainloop() {
 			serv_puts("QUIT");
 			printf("%d Proxy says: Bye!\n", OK);
 			fflush(stdout);
+			sprintf(buf,
+			  "/usr/bin/find %s -mtime +%d -exec rm -f {} \\; &",
+			  CACHE_DIR, CACHE_EXPIRE);
+			system(buf);
 			exit(0);
 			}
 
@@ -381,9 +399,13 @@ void main(int argc, char *argv[]) {
 	/* Now go there */
 	if (chdir(CACHE_DIR) != 0) exit(errno);
 
+#ifdef ENABLE_PREFETCH
 	pid = fork();
+#endif
 	attach_to_server(argc, argv);
+#ifdef ENABLE_PREFETCH
 	if (pid == 0) do_prefetch();
+#endif
 
 	serv_gets(buf);
 	strcat(buf, " (VIA PROXY)");
