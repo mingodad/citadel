@@ -1,5 +1,5 @@
 # $Id$
-Summary: Citadel/UX 5.50beta1
+Summary: Citadel/UX 5.50beta2
 Name: citadel
 Version: 5.50
 Release: 0.3

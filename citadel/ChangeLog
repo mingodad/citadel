@@ -1,3 +1,6 @@
+Tue Dec  8 07:58:16 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Beta 2
+
 Sat Dec  5 01:24:03 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Added a new type of module hook for adding logging functions
 	* Removed whitespace to left and right of '@' in netmail recipients
