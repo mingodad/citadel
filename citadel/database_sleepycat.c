@@ -54,8 +54,10 @@ static pthread_key_t tsdkey;
 static int txabort(DB_TXN *tid) {
         int ret = txn_abort(tid);
 
-        if (ret)
+        if (ret) {
                 lprintf(1, "cdb_*: txn_abort: %s\n", db_strerror(ret));
+		abort();
+	}
 
         return ret;
 }
@@ -64,8 +66,10 @@ static int txabort(DB_TXN *tid) {
 static int txcommit(DB_TXN *tid) {
         int ret = txn_commit(tid, 0);
 
-        if (ret)
+        if (ret) {
                 lprintf(1, "cdb_*: txn_commit: %s\n", db_strerror(ret));
+		abort();
+	}
 
         return ret;
 }
@@ -74,8 +78,10 @@ static int txcommit(DB_TXN *tid) {
 static int txbegin(DB_TXN **tid) {
         int ret = txn_begin(dbenv, NULL, tid, 0);
 
-        if (ret)
+        if (ret) {
                 lprintf(1, "cdb_*: txn_begin: %s\n", db_strerror(ret));
+		abort();
+	}
 
         return ret;
 }
@@ -157,6 +163,7 @@ static void cdb_checkpoint(void) {
 				0);
 	if (ret) {
 		lprintf(1, "cdb_checkpoint: txn_checkpoint: %s\n", db_strerror(ret));
+		abort();
 	}
 }
 
@@ -268,6 +275,7 @@ void close_databases(void)
 
 	if ((ret = txn_checkpoint(dbenv, 0, 0, 0))) {
 		lprintf(1, "cdb_*: txn_checkpoint: %s\n", db_strerror(ret));
+		abort();
 	}
 
 	for (a = 0; a < MAXCDB; ++a) {
@@ -275,6 +283,7 @@ void close_databases(void)
 		ret = dbp[a]->close(dbp[a], 0);
 		if (ret) {
 			lprintf(1, "cdb_*: db_close: %s\n", db_strerror(ret));
+			abort();
 		}
 		
 	}
@@ -283,6 +292,7 @@ void close_databases(void)
         ret = dbenv->close(dbenv, 0);
 	if (ret) {
                 lprintf(1, "cdb_*: DBENV->close: %s\n", db_strerror(ret));
+		abort();
         }
 }
 
@@ -315,6 +325,7 @@ int cdb_store(int cdb,
 		if (ret) {
 			lprintf(1, "cdb_store(%d): %s\n", cdb,
 				db_strerror(ret));
+			abort();
 		}
 		return ret;
 	} else {
@@ -335,8 +346,7 @@ int cdb_store(int cdb,
 			} else {
 				lprintf(1, "cdb_store(%d): %s\n", cdb,
 					db_strerror(ret));
-				txabort(tid);
-				return ret;
+				abort();
 			}
 		} else {
 			return txcommit(tid);
@@ -376,8 +386,7 @@ int cdb_delete(int cdb, void *key, int keylen)
 			} else {
 				lprintf(1, "cdb_delete(%d): %s\n", cdb,
 					db_strerror(ret));
-				txabort(tid);
-				return ret;
+				abort();
 			}
 		} else {
 			return txcommit(tid);
@@ -427,11 +436,13 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
 
 	if ((ret != 0) && (ret != DB_NOTFOUND)) {
 		lprintf(1, "cdb_fetch: %s\n", db_strerror(ret));
+		abort();
 	}
 	if (ret != 0) return NULL;
 	tempcdb = (struct cdbdata *) mallok(sizeof(struct cdbdata));
 	if (tempcdb == NULL) {
 		lprintf(2, "cdb_fetch: Cannot allocate memory!\n");
+		abort();
 	}
 	tempcdb->len = dret.size;
 	tempcdb->ptr = dret.data;
@@ -473,6 +484,7 @@ void cdb_rewind(int cdb)
 	ret = dbp[cdb]->cursor(dbp[cdb], MYTID, &MYCURSOR, 0);
 	if (ret) {
 		lprintf(1, "cdb_rewind: db_cursor: %s\n", db_strerror(ret));
+		abort();
 	}
 }
 
@@ -530,8 +542,12 @@ void cdb_end_transaction(void) {
 		MYCURSOR->c_close(MYCURSOR);
 		MYCURSOR = NULL;
 	}
-	if (MYTID == NULL) lprintf(1, "cdb_end_transaction: ERROR: txcommit(NULL) !!\n");
-	else txcommit(MYTID);
+	if (MYTID == NULL) {
+		lprintf(1, "cdb_end_transaction: ERROR: txcommit(NULL) !!\n");
+		abort();
+	} else
+		txcommit(MYTID);
+
 	MYTID = NULL;
 }
 
