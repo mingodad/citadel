@@ -539,8 +539,10 @@ void set_str_val(int msgpos, char str[])
 {
 	char buf[4096];
 	char tempfile[64];
+	char setupmsg[256];
 
 	sprintf(tempfile, tmpnam(NULL));
+	strcpy(setupmsg, "");
 
 	switch (setup_type) {
 	case UI_TEXT:

@@ -7,9 +7,15 @@ struct pop3msg {
 };
 
 struct citpop3 {		/* Information about the current session */
-	struct pop3msg *msgs;
-	int num_msgs;
+	struct pop3msg *msgs;	/* Array of message pointers */
+	int num_msgs;		/* Number of messages in array */
+	int lastseen;		/* Offset of last-read message in array */
 };
+				/* Note: the "lastseen" is represented as the
+				 * offset in this array (zero-based), so when
+				 * displaying it to a POP3 client, it must be
+				 * incremented by one.
+				 */
 
 #define POP3 ((struct citpop3 *)CtdlGetUserData(SYM_POP3))
 

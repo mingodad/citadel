@@ -4,11 +4,19 @@
  * Copyright (C) 1998-2000 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.
  *
- * This module implements all required POP3 server commands as described
- * in RFC1939.  It also implements nearly all of the optional commands.  The
- * only one missing is APOP, because it implements a "shared secret" method
- * of authentication which currently does not fit well with Citadel.  Perhaps
- * we'll do it later.
+ * Current status of standards conformance:
+ *
+ * -> All required POP3 commands described in RFC1939 are implemented.
+ * 
+ * -> Nearly all of the optional commands in RFC1939 are also implemented.
+ *    The only one missing is APOP, because it implements a "shared secret"
+ *    method  of authentication which would require some major changes to the
+ *    Citadel server core.
+ *
+ * -> The deprecated "LAST" command is included in this implementation, because
+ *    there exist mail clients which insist on using it (such as Bynari
+ *    TradeMail, and certain versions of Eudora).
+ * 
  */
 
 #include "sysdep.h"
@@ -135,8 +143,23 @@ void pop3_add_message(long msgnum) {
  * of messages in the inbox, or -1 for error)
  */
 int pop3_grab_mailbox(void) {
+        struct visit vbuf;
+	int i;
+
 	if (getroom(&CC->quickroom, MAILROOM) != 0) return(-1);
+
+	/* Load up the messages */
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, pop3_add_message);
+
+	/* Figure out which are old and which are new */
+        CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+	POP3->lastseen = (-1);
+	if (POP3->num_msgs) for (i=0; i<POP3->num_msgs; ++i) {
+		if ((POP3->msgs[POP3->num_msgs-1].msgnum) <= vbuf.v_lastseen) {
+			POP3->lastseen = i;
+		}
+	}
+
 	return(POP3->num_msgs);
 }
 
@@ -326,17 +349,31 @@ void pop3_dele(char *argbuf) {
 }
 
 
-/* Perform "UPDATE state" stuff (remove messages marked for deletion)
+/* Perform "UPDATE state" stuff
  */
 void pop3_update(void) {
 	int i;
+        struct visit vbuf;
 
+	/* Remove messages marked for deletion */
 	if (POP3->num_msgs > 0) for (i=0; i<POP3->num_msgs; ++i) {
 		if (POP3->msgs[i].deleted) {
 			CtdlDeleteMessages(MAILROOM,
 				POP3->msgs[i].msgnum, NULL);
 		}
 	}
+
+	/* Set last read pointer */
+	if (POP3->num_msgs > 0) {
+		lgetuser(&CC->usersupp, CC->curr_user);
+
+		CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+		vbuf.v_lastseen = POP3->msgs[POP3->num_msgs-1].msgnum;
+		CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+
+		lputuser(&CC->usersupp);
+	}
+
 }
 
 
@@ -354,6 +391,14 @@ void pop3_rset(char *argbuf) {
 	cprintf("+OK all that has come to pass, has now gone away.\r\n");
 }
 
+
+
+/* 
+ * LAST (Determine which message is the last unread message)
+ */
+void pop3_last(char *argbuf) {
+	cprintf("+OK %d\r\n", POP3->lastseen + 1);
+}
 
 
 
@@ -469,6 +514,10 @@ void pop3_command_loop(void) {
 
 	else if (!strncasecmp(cmdbuf, "TOP", 3)) {
 		pop3_top(&cmdbuf[4]);
+	}
+
+	else if (!strncasecmp(cmdbuf, "LAST", 4)) {
+		pop3_last(&cmdbuf[4]);
 	}
 
 	else {
