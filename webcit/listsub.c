@@ -44,11 +44,37 @@ void do_listsub(void)
 	strcpy(email, bstr("email"));
 	strcpy(subtype, bstr("subtype"));
 
-	wprintf("cmd: %s<BR>\n", cmd);
-	wprintf("room: %s<BR>\n", room);
-	wprintf("token: %s<BR>\n", token);
-	wprintf("email: %s<BR>\n", email);
-	wprintf("subtype: %s<BR>\n", subtype);
+	/*
+	 * Subscribe command
+	 */
+	if (!strcasecmp(cmd, "xx")) {
+	}
+	
+	/*
+	 * Any other (invalid) command causes the form to be displayed
+	 */
+	else {
+		wprintf("<CENTER>"
+			"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>"
+			"<FONT SIZE=+1 COLOR=\"FFFFFF\""
+			"<B>List subscribe/unsubscribe</B>\n"
+			"</TD></TR></TABLE><BR>\n"
+		);
+
+		wprintf("<TABLE BORDER=0>\n"
+			"<FORM METHOD=\"POST\" ACTION=\"/listsub\">\n"
+		);
+
+		wprintf("<TR><TD>Name of list</TD>"
+			"<TD>xx</TD></TR>\n"
+		);
+
+		wprintf("</TABLE>"
+			"<INPUT TYPE=\"submit\" NAME=\"sc\""
+			" VALUE=\"Submit\">\n"
+			"</CENTER></FORM>\n"
+		);
+	}
 
 	/*
 	 * Since this isn't part of a normal Citadel session, we bail right
