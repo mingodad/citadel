@@ -408,6 +408,7 @@ void handle_rsvp(void);
 void ical_dezonify(icalcomponent *cal);
 void partstat_as_string(char *buf, icalproperty *attendee);
 icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp);
+void check_attendee_availability(icalcomponent *supplied_vevent);
 #endif
 
 extern char *months[];

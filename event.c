@@ -678,7 +678,8 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 		/* Or, check attendee availability if the user asked for that. */
 		if ( (encaps != NULL) && (!strcasecmp(bstr("sc"), "Check attendee availability")) ) {
 
-			/* FIXME ... do the checking and annotating here, idiot */
+			/* Call this function, which does the real work */
+			check_attendee_availability(encaps);
 
 			/* This displays the form again, with our annotations */
 			display_edit_individual_event(encaps, msgnum);
