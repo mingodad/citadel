@@ -252,7 +252,7 @@ long extract_long(char *source, long int parmnum)
 
 
 /*
- * decode_base64() and encode_base64() are adaptations of code by
+ * CtdlDecodeBase64() and encode_base64() are adaptations of code by
  * John Walker, found in full in the file "base64.c" included with this
  * distribution.  The difference between those functions and these is that
  * these are intended to encode/decode small string buffers, and those are
@@ -319,7 +319,7 @@ void encode_base64(char *dest, char *source)
  * Convert base64-encoded to binary.  Returns the length of the decoded data.
  * It will stop after reading 'length' bytes.
  */
-int decode_base64(char *dest, char *source, size_t length)
+int CtdlDecodeBase64(char *dest, char *source, size_t length)
 {
     int i, c;
     int dpos = 0;

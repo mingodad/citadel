@@ -67,7 +67,7 @@ char *fixed_partnum(char *supplied_partnum) {
 /*
  * Convert "quoted-printable" to binary.  Returns number of bytes decoded.
  */
-int decode_quoted_printable(char *decoded, char *encoded, int sourcelen) {
+int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
 	char buf[SIZ];
 	int buf_length = 0;
 	int soft_line_break = 0;
@@ -209,10 +209,10 @@ void mime_decode(char *partnum,
 	}
 
 	if (!strcasecmp(encoding, "base64")) {
-		bytes_decoded = decode_base64(decoded, part_start, length);
+		bytes_decoded = CtdlDecodeBase64(decoded, part_start, length);
 	}
 	else if (!strcasecmp(encoding, "quoted-printable")) {
-		bytes_decoded = decode_quoted_printable(decoded,
+		bytes_decoded = CtdlDecodeQuotedPrintable(decoded,
 							part_start, length);
 	}
 
