@@ -15,7 +15,8 @@ void make_message(char *filename)
 {
 	FILE *fp;
 	int a;
-	long bb,cc,now;
+	long bb,cc;
+	time_t now;
 	time(&now);
 	fp=fopen(filename,"wb"); if (fp==NULL) exit(22);
 	putc(255,fp);

@@ -108,7 +108,7 @@ int getroom(struct quickroom *qrbuf, char *room_name)
 		lowercase_name[a] = tolower(room_name[a]);
 		}
 
-	bzero(qrbuf, sizeof(struct quickroom));
+	memset(qrbuf, 0, sizeof(struct quickroom));
 	cdbqr = cdb_fetch(CDB_QUICKROOM,
 			lowercase_name, strlen(lowercase_name));
 	if (cdbqr != NULL) {
@@ -179,7 +179,7 @@ void getfloor(struct floor *flbuf, int floor_num)
 {
 	struct cdbdata *cdbfl;
 
-	bzero(flbuf, sizeof(struct floor));
+	memset(flbuf, 0, sizeof(struct floor));
 	cdbfl = cdb_fetch(CDB_FLOORTAB, &floor_num, sizeof(int));
 	if (cdbfl != NULL) {
 		memcpy(flbuf, cdbfl->ptr,
@@ -240,7 +240,7 @@ void ForEachRoom(void (*CallBack)(struct quickroom *EachRoom)) {
 	cdb_rewind(CDB_QUICKROOM);
 
 	while(cdbqr = cdb_next_item(CDB_QUICKROOM), cdbqr != NULL) {
-		bzero(&qrbuf, sizeof(struct quickroom));
+		memset(&qrbuf, 0, sizeof(struct quickroom));
 		memcpy(&qrbuf, cdbqr->ptr,
 			( (cdbqr->len > sizeof(struct quickroom)) ?
 			sizeof(struct quickroom) : cdbqr->len) );
@@ -716,7 +716,7 @@ void cmd_whok(void) {
 	cprintf("%d Who knows room:\n",LISTING_FOLLOWS);
 	cdb_rewind(CDB_USERSUPP);
 	while(cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
-		bzero(&temp, sizeof(struct usersupp));
+		memset(&temp, 0, sizeof(struct usersupp));
 		memcpy(&temp, cdbus->ptr, cdbus->len);
 		cdb_free(cdbus);
 
@@ -1140,7 +1140,7 @@ unsigned create_room(char *new_room_name,
 
 	if (getroom(&qrbuf, new_room_name)==0) return(0); /* already exists */
 
-	bzero(&qrbuf, sizeof(struct quickroom));
+	memset(&qrbuf, 0, sizeof(struct quickroom));
 	strncpy(qrbuf.QRname,new_room_name,ROOMNAMELEN);
 	strncpy(qrbuf.QRpasswd,new_room_pass,9);
 	qrbuf.QRflags = QR_INUSE;

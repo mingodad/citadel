@@ -157,7 +157,7 @@ int ig_tcp_server(int port_number, int queue_len)
 	struct sockaddr_in sin;
 	int s, i;
 
-	bzero((char *)&sin, sizeof(sin));
+	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = AF_INET;
 	sin.sin_addr.s_addr = INADDR_ANY;
 
@@ -237,7 +237,7 @@ struct CitContext *CreateNewContext(void) {
 		lprintf(1, "citserver: can't allocate memory!!\n");
 		pthread_exit(NULL);
 		}
-	bzero(me, sizeof(struct CitContext));
+	memset(me, 0, sizeof(struct CitContext));
 
 	begin_critical_section(S_SESSION_TABLE);
 	me->next = ContextList;
@@ -470,10 +470,11 @@ void kill_session(int session_to_kill) {
 /*
  * The system-dependent wrapper around the main context loop.
  */
-void sd_context_loop(struct CitContext *con) {
+void *sd_context_loop(struct CitContext *con) {
 	pthread_cleanup_push(*cleanup_stuff, NULL);
 	context_loop(con);
 	pthread_cleanup_pop(0);
+	return NULL;
 	}
 
 
@@ -716,8 +717,10 @@ int main(int argc, char **argv)
 
 			/* now create the thread */
 			lprintf(9, "creating thread\n");
-			if (pthread_create(&SessThread, &attr, (void *)sd_context_loop,
-			   con) != 0) {
+			if (pthread_create(&SessThread, &attr,
+					   (void* (*)(void*)) sd_context_loop,
+					   con)
+			    != 0) {
 				lprintf(1,
 					"citserver: can't create thread: %s\n",
 					strerror(errno));

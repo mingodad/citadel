@@ -16,7 +16,7 @@ int client_gets (char *buf);
 void sysdep_master_cleanup (void);
 void cleanup (int exit_code);
 void kill_session (int session_to_kill);
-void sd_context_loop (struct CitContext *con);
+void *sd_context_loop (struct CitContext *con);
 void start_daemon (int do_close_stdio);
 void cmd_nset (char *cmdbuf);
 int convert_login (char *NameToConvert);

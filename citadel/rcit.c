@@ -75,7 +75,8 @@ int main(int argc, char **argv)
 	char subject[128];
 	char orgname[128];
 	long mid = 0L;
-	long now,bcount,aa;
+	time_t now;
+	long bcount,aa;
 	int a;
 	char flnm[128],tname[128];
 	FILE *minput,*mout,*mtemp;

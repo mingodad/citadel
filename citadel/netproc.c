@@ -73,7 +73,7 @@ struct syslist {
 	char s_name[16];
 	char s_type[4];
 	char s_nexthop[128];
-	long s_lastcontact;
+	time_t s_lastcontact;
 	char s_humannode[64];
 	char s_phonenum[32];
 	char s_gdom[64];
@@ -243,7 +243,7 @@ void setup_special_nodes(void) {
 void rewrite_syslist(void) {
 	struct syslist *stemp;
 	FILE *newfp;
-	long now;
+	time_t now;
 
 	time(&now);
 	newfp=fopen("network/mail.sysinfo","w");
@@ -612,7 +612,7 @@ void bounce(struct minfo *bminfo)
 	FILE *bounce;
 	char bfilename[64];
 	static int bseq = 1;
-	long now;
+	time_t now;
 
 	sprintf(bfilename,"./network/spoolin/bounce.%d.%d",getpid(),bseq++);
 	bounce = fopen(bfilename,"wb");

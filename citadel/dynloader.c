@@ -100,7 +100,9 @@ void DLoader_Init(char *pathname)
          continue;
       }
       
-      h_init_fcn = dlsym(fcn_handle, "Dynamic_Module_Init");
+      h_init_fcn = (struct DLModule_Info * (*)(void))
+	dlsym(fcn_handle, "Dynamic_Module_Init");
+
       if ((dl_error = dlerror()) != NULL)
       {
          fprintf(stderr,"DLoader_Init dlsym failed (%s)\n", dl_error);
@@ -117,7 +119,7 @@ void DLoader_Init(char *pathname)
 
 
 
-void CtdlRegisterCleanupHook(void *fcn_ptr) {
+void CtdlRegisterCleanupHook(void (*fcn_ptr)(void)) {
 
 	struct CleanupFunctionHook *newfcn;
 
@@ -131,7 +133,7 @@ void CtdlRegisterCleanupHook(void *fcn_ptr) {
 	}
 
 
-void CtdlRegisterSessionHook(void *fcn_ptr, int EventType) {
+void CtdlRegisterSessionHook(void (*fcn_ptr)(void), int EventType) {
 
 	struct SessionFunctionHook *newfcn;
 
@@ -147,7 +149,7 @@ void CtdlRegisterSessionHook(void *fcn_ptr, int EventType) {
 	}
 
 
-void CtdlRegisterUserHook(void *fcn_ptr, int EventType) {
+void CtdlRegisterUserHook(void (*fcn_ptr)(char*, long), int EventType) {
 
 	struct UserFunctionHook *newfcn;
 

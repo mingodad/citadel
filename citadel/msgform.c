@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 	char bbb[1024];
 	char subject[1024];
 	FILE *fp;
-	long now;
+	time_t now;
 
 	if (argc==2) if (!strcmp(argv[1],"-q")) qwk = 1;
 	fp=stdin;

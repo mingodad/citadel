@@ -138,7 +138,7 @@ void cmd_netf(char *cmdbuf)
 {
 	char pathname[256],filename[256],destsys[256],buf[256],outfile[256];
 	int a,e;
-	long now;
+	time_t now;
 	FILE *ofp;
 
 	extract(filename,cmdbuf,0);
@@ -502,7 +502,7 @@ void abort_upl(struct CitContext *who)
 void cmd_ucls(char *cmd)
 {
 	FILE *fp;
-	long now;
+	time_t now;
 	
 	if (CC->upload_fp == NULL) {
 		cprintf("%d You don't have an upload file open.\n",ERROR);

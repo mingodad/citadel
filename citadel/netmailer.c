@@ -61,7 +61,7 @@ void fpgetfield(FILE *fp, char *string)
  * modified to format 80 columns into a temporary file, and extract the
  * sender and recipient names for use within the main() loop.
  */
-void msgform(char *msgfile, FILE *mfout, char *sbuf, char *rbuf, char *nbuf, char *pbuf, long int *mid_buf, char *rmname, char *subj)
+void msgform(char *msgfile, FILE *mfout, char *sbuf, char *rbuf, char *nbuf, char *pbuf, time_t *mid_buf, char *rmname, char *subj)
               
             
            		/* sender */
@@ -165,8 +165,8 @@ int main(int argc, char **argv)
 	char sbuf[200],rbuf[200],cstr[100],fstr[128];
 	char nbuf[64],pbuf[128],rmname[128],buf[128];
 	char subject[200];
-	long mid_buf;
-	long now;
+	time_t mid_buf;
+	time_t now;
 	int mlist = 0;
 
 	fprintf(stderr, "netmailer: started...  sending mail to %s\n", argv[1]);

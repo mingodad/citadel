@@ -84,7 +84,7 @@ void userlist(void) {
 	char buf[256];
 	char fl[256];
 	struct tm *tmbuf;
-	long lc;
+	time_t lc;
 
 	serv_puts("LIST");
 	serv_gets(buf);

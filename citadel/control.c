@@ -33,7 +33,7 @@ void get_control(void) {
 	 * the system functions with all control record fields initialized
 	 * to zero.
 	 */
-	bzero(&CitControl, sizeof(struct CitControl));
+	memset(&CitControl, 0, sizeof(struct CitControl));
 	fp = fopen("citadel.control", "rb");
 	if (fp == NULL) return;
 

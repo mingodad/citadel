@@ -72,10 +72,10 @@ extern int editor_pid;
 
 int lines_printed;
 
-void ka_sigcatch(void) {
+void ka_sigcatch(int signum) {
 	char buf[256];
 	alarm(S_KEEPALIVE);
-	signal(SIGALRM, (void *)ka_sigcatch);
+	signal(SIGALRM, ka_sigcatch);
 	serv_puts("NOOP");
 	serv_gets(buf);
 	}
@@ -89,7 +89,7 @@ pid_t ka_wait(pid_t *kstatus)
 	pid_t p;
 
 	alarm(S_KEEPALIVE);
-	signal(SIGALRM, (void *)ka_sigcatch);
+	signal(SIGALRM, ka_sigcatch);
 	do {
 		errno = 0;
 		p = wait(kstatus);

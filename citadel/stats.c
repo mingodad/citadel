@@ -41,7 +41,7 @@ prompt (void)
 }
 
 int
-halfhour (long int time)			/* Returns half-hour time period of time */
+halfhour (time_t time)			/* Returns half-hour time period of time */
                
 {
   int a;
@@ -106,7 +106,7 @@ main (int argc, char **argv)
   long cftime, cttime, aa;
   int calls, logins, newusers;
   int badpws, terms, drops, sleeps;
-  long from, to, tottime;
+  time_t from, to, tottime;
   int days, hours, minutes;
   char aaa[100];
   struct tm *tm;
@@ -139,8 +139,8 @@ main (int argc, char **argv)
   if (!batch_mode)
     printf ("Scanning call log, please wait...\n\n\n\n");
 
-  from = 0L;
-  to = 0L;
+  from = 0;
+  to = 0;
   for (a = 0; a < 72; ++a)
     {
       timeon[a] = 0L;

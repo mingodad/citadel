@@ -1,3 +1,13 @@
+1998-10-08 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* lots of warning fixes; builds with -std1 on dec unix
+	* aidepost.c, citadel.h, citmail.c, file_ops.c, msgbase.c, netmailer.c,
+	  netproc.c, rcit.c, server.h, stats.c, userlist.c: use time_t where
+	  needed
+	* control.c, room_ops.c, serv_chat.c, sysdep.c: use memset() instead of
+	  bzero()
+	* dynloader.c, dynloader.h, messages.c, server.h, sysdep.c,
+	  sysdep_decls.h: function pointer/prototyping fixes
+
 1998-10-07 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* snprintf.c, snprintf.h: new files
 	* Makefile.in, configure.in, dynloader.c, sysdep.c: support for the

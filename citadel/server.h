@@ -36,7 +36,7 @@ struct CitContext {
 	struct ExpressMessage *FirstExpressMessage;
 	int cs_pid;			/* session ID */
 	char cs_room[20];		/* current room */
-	long cs_lastupdt;		/* time of last update */
+	time_t cs_lastupdt;		/* time of last update */
 	time_t lastcmd;			/* time of last command executed */
 	time_t lastidle;		/* For computing idle time */
 	char lastcmdname[5];		/* name of last command executed */
@@ -140,7 +140,7 @@ struct cdbdata {
 
 struct CleanupFunctionHook {
 	struct CleanupFunctionHook *next;
-	void *(*h_function_pointer) (void);
+	void (*h_function_pointer) (void);
 	};
 extern struct CleanupFunctionHook *CleanupHookTable;
 
@@ -153,7 +153,7 @@ extern struct CleanupFunctionHook *CleanupHookTable;
  */
 struct SessionFunctionHook {
 	struct SessionFunctionHook *next;
-	void *(*h_function_pointer) (void);
+	void (*h_function_pointer) (void);
 	int eventtype;
 	};
 extern struct SessionFunctionHook *SessionHookTable;
@@ -173,7 +173,7 @@ extern struct SessionFunctionHook *SessionHookTable;
  */
 struct UserFunctionHook {
 	struct UserFunctionHook *next;
-	void *(*h_function_pointer) (char *username, long usernum);
+	void (*h_function_pointer) (char *username, long usernum);
 	int eventtype;
 	};
 extern struct UserFunctionHook *UserHookTable;

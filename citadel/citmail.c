@@ -55,7 +55,7 @@ int RUN_NETPROC = 1;
 long conv_date(char *sdbuf)
 {
 	int a,b,cpos,tend,tval;
-	long now;
+	time_t now;
 	struct tm *tmbuf;
 	char dbuf[128];
 
@@ -335,7 +335,7 @@ void loopcopy(FILE *to, FILE *from) {
  */
 void do_citmail(char recp[], int dtype) {
 
-	long now;
+	time_t now;
 	FILE *temp;
 	int a;
 	char buf[128];

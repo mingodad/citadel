@@ -86,7 +86,7 @@ void allwrite(char *cmdbuf, int flag, char *roomname, char *username)
 		}
 
 	clnew = (struct ChatLine *) malloc(sizeof(struct ChatLine));
-	bzero(clnew, sizeof(struct ChatLine));
+	memset(clnew, 0, sizeof(struct ChatLine));
 	if (clnew == NULL) {
 		fprintf(stderr, "citserver: cannot alloc chat line: %s\n",
 			strerror(errno));

@@ -334,7 +334,7 @@ void output_message(char *msgid, int mode,
 	char snode[256];
 	char lnode[256];
 	char mid[256];
-	long xtime;
+	time_t xtime;
 	/* */
 
 	strcpy(boundary, "");
@@ -806,7 +806,7 @@ void save_message(char *mtmp,	/* file containing proper message */
  */
 void aide_message(char *text)
 {
-	long now;
+	time_t now;
 	FILE *fp;
 
 	time(&now);
@@ -841,7 +841,7 @@ void make_message(
 
 	FILE *fp;
 	int a;
-	long now;
+	time_t now;
 	char dest_node[32];
 	char buf[256];
 
