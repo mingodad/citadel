@@ -597,6 +597,7 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
 		if (msg->cm_fields[i] != NULL)
 			phree(msg->cm_fields[i]);
 
+	msg->cm_magic = 0;	/* just in case */
 	phree(msg);
 }
 
@@ -1834,11 +1835,13 @@ void PutSuppMsgInfo(struct SuppMsgInfo *smibuf)
 		  &TheIndex, sizeof(long),
 		  smibuf, sizeof(struct SuppMsgInfo));
 
-}				/*
+}
 
-				 * AdjRefCount  -  change the reference count for a message;
-				 *                 delete the message if it reaches zero
-				 */ void AdjRefCount(long msgnum, int incr)
+/*
+ * AdjRefCount  -  change the reference count for a message;
+ *                 delete the message if it reaches zero
+ */
+void AdjRefCount(long msgnum, int incr)
 {
 
 	struct SuppMsgInfo smi;
@@ -1877,7 +1880,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 			char *tempfilename,	/* Where to fetch it from */
 			int is_mailbox,		/* Private mailbox room? */
 			int is_binary,		/* Is encoding necessary? */
-			int is_unique	/* Del others of this type? */
+			int is_unique		/* Del others of this type? */
 			)
 {
 
@@ -1887,6 +1890,10 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 	int ch;
 	struct quickroom qrbuf;
 	char roomname[ROOMNAMELEN];
+	struct CtdlMessage *msg;
+	size_t len;
+
+	lprintf(9, "CtdlWriteObject() called\n");
 
 	if (is_mailbox)
 		MailboxName(roomname, &CC->usersupp, req_room);
@@ -1898,19 +1905,16 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 	if (fp == NULL)
 		return;
 
-	fprintf(fp, "%c%c%c", 0xFF, MES_NORMAL, 4);
-	fprintf(fp, "T%ld%c", time(NULL), 0);
-	fprintf(fp, "A%s%c", CC->usersupp.fullname, 0);
-	fprintf(fp, "O%s%c", roomname, 0);
-	fprintf(fp, "N%s%c", config.c_nodename, 0);
-	fprintf(fp, "MContent-type: %s\n", content_type);
-
 	tempfp = fopen(tempfilename, "r");
 	if (tempfp == NULL) {
 		fclose(fp);
 		unlink(filename);
 		return;
 	}
+
+	fprintf(fp, "Content-type: %s\n", content_type);
+	lprintf(9, "Content-type: %s\n", content_type);
+
 	if (is_binary == 0) {
 		fprintf(fp, "Content-transfer-encoding: 7bit\n\n");
 		while (ch = getc(tempfp), ch > 0)
@@ -1927,7 +1931,29 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 		system(cmdbuf);
 	}
 
+	lprintf(9, "Allocating\n");
+	msg = mallok(sizeof(struct CtdlMessage));
+	memset(msg, 0, sizeof(struct CtdlMessage));
+	msg->cm_magic = CTDLMESSAGE_MAGIC;
+	msg->cm_anon_type = MES_NORMAL;
+	msg->cm_format_type = 4;
+	msg->cm_fields['A'] = strdoop(CC->usersupp.fullname);
+	msg->cm_fields['O'] = strdoop(roomname);
+	msg->cm_fields['N'] = strdoop(config.c_nodename);
+	msg->cm_fields['H'] = strdoop(config.c_humannode);
+	
+	lprintf(9, "Loading\n");
+	fp = fopen(filename, "rb");
+	fseek(fp, 0L, SEEK_END);
+	len = ftell(fp);
+	rewind(fp);
+	msg->cm_fields['M'] = mallok(len);
+	fread(msg->cm_fields['M'], len, 1, fp);
+	fclose(fp);
+	unlink(filename);
+
 	/* Create the requested room if we have to. */
+	lprintf(9, "Checking room\n");
 	if (getroom(&qrbuf, roomname) != 0) {
 		create_room(roomname, 4, "", 0);
 	}
@@ -1939,5 +1965,11 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 			CtdlDeleteMessages(roomname, 0L, content_type));
 	}
 	/* Now write the data */
-	save_message(filename, "", roomname, MES_LOCAL, 1);
+	lprintf(9, "Calling CtdlSaveMsg()\n");
+	CtdlSaveMsg(msg, "", roomname, MES_LOCAL, 1);
+	lprintf(9, "is valid? %d\n",
+		is_valid_message(msg) );
+	lprintf(9, "Calling CtdlFreeMsg()\n");
+	CtdlFreeMessage(msg);
+	lprintf(9, "Done.\n");
 }

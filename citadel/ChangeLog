@@ -1,4 +1,7 @@
 $Log$
+Revision 1.366  1999/09/19 05:13:57  ajc
+* Debugged the new version of CtdlWriteObject()
+
 Revision 1.365  1999/09/16 03:23:23  ajc
 * Did most of the migration from save_message() to CtdlSaveMsg().  The
   latter builds a "struct CtdlMessage" (so we can run server-side handlers
@@ -1250,3 +1253,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
