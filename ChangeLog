@@ -1,4 +1,7 @@
 $Log$
+Revision 212.11  2000/09/17 03:29:45  ajc
+* Templatized the "<BODY BACKGROUND=...>" type stuff that starts each page.
+
 Revision 212.10  2000/09/14 11:43:37  error
 Replace occurrences of % throughout the HTML with %% so as to be friendly
 to HP/UX printf() and possibly others.
@@ -481,4 +484,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

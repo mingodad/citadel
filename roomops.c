@@ -394,8 +394,8 @@ void gotoroom(char *gname, int display_name)
 
 		wprintf("<HTML><HEAD>\n"
 			"<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">\n"
-			"</HEAD>\n<BODY ");
-		wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+			"</HEAD>\n");
+		do_template("background.html");
 	}
 	if (display_name != 2) {
 		/* store ungoto information */
