@@ -169,8 +169,8 @@ void serv_read(char *buf, int bytes)
 	while(len<bytes) {
 		rlen = read(serv_sock,&buf[len],bytes-len);
 		if (rlen<1) {
-			printf("\rNetwork error - connection terminated.\n");
-			printf("%s\n", strerror(errno));
+			/* printf("\rNetwork error - connection terminated.\n");
+			printf("%s\n", strerror(errno)); */
 			logoff(3);
 			}
 		len = len + rlen;
@@ -189,8 +189,9 @@ void serv_write(char *buf, int nbytes)
 		retval = write(serv_sock, &buf[bytes_written],
 			nbytes - bytes_written);
 		if (retval < 1) {
+			/*
 			printf("\rNetwork error - connection terminated.\n");
-			printf("%s\n", strerror(errno));
+			printf("%s\n", strerror(errno)); */
 			logoff(3);
 			}
 		bytes_written = bytes_written + retval;

@@ -131,7 +131,7 @@ void do_keepalive(void) {
 			if (buf[3]=='*') {
 				express_msgs = 1;
 				if (ok_to_interrupt == 1) {
-					printf("\r                    \r");
+					printf("\r%64s\r", "");
 					print_express();
 					printf("%s%c ",room_name,
 						room_prompt(room_flags));

@@ -84,6 +84,15 @@ char floorlist[128][256];		/* names of floors */
 char express_msgs = 0;			/* express messages waiting! */
 char last_paged[32]="";
 
+jmp_buf jmp_reconnect;			/* for server reconnects */
+char re_username[32];
+char re_password[32];
+
+void sigpipehandler(int nothing) {
+	printf("Longjumpfing with %d\n", nothing);
+	longjmp(jmp_reconnect, nothing);
+	}
+
 /*
  * here is our 'clean up gracefully and exit' routine
  */
@@ -696,6 +705,7 @@ int set_password(void) {
 		serv_puts(buf);
 		serv_gets(buf);
 		printf("%s\n",&buf[4]);
+		strcpy(re_password, pass1);
 		return(0);
 		}
 	else {
@@ -803,9 +813,9 @@ void enternew(char *desc, char *buf, int maxlen)
 int main(int argc, char **argv)
 {
 int a,b,mcmd;
-int termn8 = 0;
 char aaa[100],bbb[100],ccc[100],eee[100];	/* general purpose variables */
 char argbuf[32];				/* command line buf */
+int termn8 = 0;
 
 
 sttybbs(SB_SAVE);		/* Store the old terminal parameters */
@@ -844,16 +854,6 @@ printf(" ctrl-s  ctrl-o  ctrl-c\n\n");
 formout("hello");		/* print the opening greeting */
 printf("\n");
 
-	/* if we're not the login shell, try auto-login */
-if (getppid()!=1) {
-	serv_puts("AUTO");
-	serv_gets(aaa);
-	if (aaa[0]=='2') {
-		load_user_info(&aaa[4]);
-		goto PWOK;
-		}
-	}
-
 GSTA:	termn8=0; newnow=0;
 	do {
 		if (strlen(rc_username) > 0) {
@@ -877,6 +877,7 @@ GSTA:	termn8=0; newnow=0;
 		}
 
 	/* sign on to the server */
+	strcpy(re_username, fullname);
 	snprintf(aaa,sizeof aaa,"USER %s",fullname);
 	serv_puts(aaa);
 	serv_gets(aaa);
@@ -894,6 +895,7 @@ GSTA:	termn8=0; newnow=0;
 	serv_puts(aaa);
 	serv_gets(aaa);
 	if (aaa[0]=='2') {
+		strcpy(re_password, eee);
 		load_user_info(&aaa[4]);
 		goto PWOK;
 		}
@@ -987,6 +989,24 @@ PWOK:	printf("%s\nAccess level: %d (%s)\nUser #%ld / Call #%d\n",
 		else	readmsgs(1,1,0);
 
 do {	/* MAIN LOOP OF PROGRAM */
+
+	/* Reconnect to the server if the connection was broken */
+	if (setjmp(jmp_reconnect)) {
+		attach_to_server(argc,argv);
+		serv_gets(aaa);
+		if (aaa[0]!='2') { printf("%s\n", &aaa[4]); exit(0); }
+		sprintf(aaa, "USER %s", re_username);
+		serv_puts(aaa);
+		serv_gets(aaa);
+		if (aaa[0]!='3') { printf("%s\n", &aaa[4]); exit(0); }
+		sprintf(aaa, "PASS %s", re_password);
+		serv_puts(aaa);
+		serv_gets(aaa);
+		if (aaa[0]!='2') { printf("%s\n", &aaa[4]); exit(0); }
+		load_user_info(&aaa[4]);
+		}
+	signal(SIGPIPE, sigpipehandler);
+
 	signal(SIGINT,SIG_IGN);
 	signal(SIGQUIT,SIG_IGN);
 	mcmd=getcmd(argbuf);
