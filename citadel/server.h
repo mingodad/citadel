@@ -300,3 +300,13 @@ extern struct TheHeap *heap;
 #define reallok(whichptr,howbig)	realloc(whichptr,howbig)
 
 #endif
+
+
+/*
+ * New format for a message in memory
+ */
+struct CtdlMessage {
+	char cm_anon_type;		/* Anonymous or author-visible */
+	char cm_format_type;		/* Format type */
+	char *cm_fields[256];		/* Data fields */
+};

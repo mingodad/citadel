@@ -193,6 +193,7 @@ void simple_listing(long msgnum) {
  * current room.
  */
 void CtdlForEachMessage(int mode, long ref,
+			char *content_type,
 			void (*CallBack) (long msgnum) ) {
 
 	int a;
@@ -201,11 +202,14 @@ void CtdlForEachMessage(int mode, long ref,
 	long *msglist = NULL;
 	int num_msgs = 0;
 	long thismsg;
+	struct SuppMsgInfo smi;
 
+	/* Learn about the user and room in question */
 	get_mm();
 	getuser(&CC->usersupp, CC->curr_user);
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
+	/* Load the message list */
         cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->quickroom.QRnumber, sizeof(long));
         if (cdbfr != NULL) {
         	msglist = mallok(cdbfr->len);
@@ -213,12 +217,29 @@ void CtdlForEachMessage(int mode, long ref,
         	num_msgs = cdbfr->len / sizeof(long);
         	cdb_free(cdbfr);
 	} else {
-		return;
+		return;		/* No messages at all?  No further action. */
 	}
 
-	if (num_msgs > 0) for (a = 0; a < (num_msgs); ++a) {
+
+	/* If the caller is looking for a specific MIME type, then filter
+	 * out all messages which are not of the type requested.
+	 */
+	if (num_msgs > 0)
+	 if (content_type != NULL)
+	  if (strlen(content_type) > 0) for (a = 0; a < num_msgs; ++a) {
+		GetSuppMsgInfo(&smi, msglist[a]);
+		if (strcasecmp(smi.smi_content_type, content_type)) {
+			msglist[a] = 0L;
+		}
+	}
+
+
+	/*
+	 * Now iterate through the message list, according to the
+	 * criteria supplied by the caller.
+	 */
+	if (num_msgs > 0) for (a = 0; a < num_msgs; ++a) {
 		thismsg = msglist[a];
-		lprintf(9, "CtdlForEachMessage() iterating msg %ld\n", thismsg);
 		if ((thismsg >= 0)
 		    && (
 
@@ -235,7 +256,8 @@ void CtdlForEachMessage(int mode, long ref,
 			CallBack(thismsg);
 		}
 	}
-	phree(msglist);
+
+	phree(msglist);		/* Clean up */
 }
 
 
@@ -272,7 +294,7 @@ void cmd_msgs(char *cmdbuf)
 	}
 
 	cprintf("%d Message list...\n", LISTING_FOLLOWS);
-	CtdlForEachMessage(mode, cm_ref, simple_listing);
+	CtdlForEachMessage(mode, cm_ref, NULL, simple_listing);
 	cprintf("000\n");
 }
 
@@ -454,6 +476,71 @@ void mime_download(char *name, char *filename, char *partnum, char *disp,
 
 	OpenCmdResult(filename, cbtype);
 }
+
+
+
+/*
+ * Load a message from disk into memory.
+ * (This will replace a big piece of output_message() eventually)
+ *
+ * NOTE: Caller is responsible for _recursively_ freeing the returned
+ * CtdlMessage data structure!
+ */
+struct CtdlMessage *CtdlFetchMessage(long msgnum) {
+	struct cdbdata *dmsgtext;
+	struct CtdlMessage *ret = NULL;
+	char *mptr;
+	CIT_UBYTE ch;
+	CIT_UBYTE field_header;
+	size_t field_length;
+	
+
+	dmsgtext = cdb_fetch(CDB_MSGMAIN, &msgnum, sizeof(long));
+	if (dmsgtext == NULL) {
+		lprintf(9, "CtdlMessage(%ld) failed.\n");
+		return NULL;
+	}
+
+	mptr = dmsgtext->ptr;
+
+	/* Parse the three bytes that begin EVERY message on disk.
+	 * The first is always 0xFF, the universal start-of-message byte.
+	 * The second is the anonymous/public type byte.
+	 * The third is the format type byte (vari, fixed, or MIME).
+	 */
+	ch = *mptr++;
+	if (ch != 255) {
+		lprintf(5, "Message %ld appears to be corrupted.\n", msgnum);
+		cdb_free(dmsgtext);
+		return NULL;
+	}
+
+	ret = (struct CtdlMessage *) mallok(sizeof(struct CtdlMessage));
+	memset(ret, 0, sizeof(struct CtdlMessage));
+
+	ret->cm_anon_type = *mptr++;		/* Anon type byte */
+	ret->cm_format_type = *mptr++;		/* Format type byte */
+
+	/*
+	 * The rest is zero or more arbitrary fields.  Load them in.
+	 * We're done when we encounter either a zero-length field or
+	 * have just processed the 'M' (message text) field.
+	 */
+	do {
+		field_length = strlen(mptr);
+		if (field_length == 0) break;
+		field_header = *mptr++;
+		ret->cm_fields[field_header] = mallok(field_length);
+		strcpy(ret->cm_fields[field_header], mptr);
+
+		while (*mptr++ != 0) ;	/* advance to next field */
+
+	} while ( (field_length > 0) && (field_header != 'M') );
+
+	cdb_free(dmsgtext);
+	return(ret);
+}
+
 
 
 

@@ -1,4 +1,10 @@
 $Log$
+Revision 1.334  1999/07/27 22:47:26  ajc
+* Implemented new data type "CtdlMessage" which will eventually be used as
+  widely as possible to represent a message in memory.
+* Implemented CtdlFetchMessage() which is intended to become the back-end to
+  output_message() as well as a bunch of other things.
+
 Revision 1.333  1999/07/27 20:00:24  ajc
 Removed all references to CC->msglist and CC->num_msgs, and all utility
 functions which relied upon them.  Citadel Is Now Better.
@@ -1122,3 +1128,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import
+

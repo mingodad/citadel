@@ -30,6 +30,8 @@ void PutSuppMsgInfo(struct SuppMsgInfo *);
 void AdjRefCount(long, int);
 void simple_listing(long);
 void CtdlForEachMessage(int mode, long ref,
+			char *content_type,
                         void (*CallBack) (long msgnum) );
 int CtdlDeleteMessages(char *, long, char *);
 void CtdlWriteObject(char *, char *, char *, int, int, int);
+struct CtdlMessage *CtdlFetchMessage(long msgnum);
