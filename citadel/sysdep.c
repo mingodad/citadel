@@ -95,7 +95,20 @@ void lprintf(int loglevel, const char *format, ...) {
         va_end(arg_ptr);   
 
 	if (loglevel <= verbosity) { 
-		fprintf(stderr, "%s", buf);
+		struct timeval tv;
+		struct tm *tim;
+
+		gettimeofday(&tv, NULL);
+		tim = localtime(&(tv.tv_sec));
+		/*
+		 * Log provides millisecond accuracy.  If you need
+		 * microsecond accuracy and your OS supports it, change
+		 * %03ld to %06ld and remove " / 1000" after tv.tv_usec.
+		 */
+		fprintf(stderr, "%04d/%02d/%02d %2d:%02d:%02d.%03ld %s",
+			tim->tm_year + 1900, tim->tm_mon + 1, tim->tm_mday,
+			tim->tm_hour, tim->tm_min, tim->tm_sec,
+			tv.tv_usec / 1000, buf);
 		fflush(stderr);
 	}
 
