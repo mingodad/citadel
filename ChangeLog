@@ -1,4 +1,11 @@
 $Log$
+Revision 602.9  2005/02/21 04:47:41  ajc
+* When creating rooms:
+* 1. Selecting a view other than "Bulletin Board" causes the room access
+*    type to default to "private mailbox"
+* 2. When the room access type changes to "private mailbox," the floor
+*    selector is greyed out because it is irrelevant.
+
 Revision 602.8  2005/02/20 06:48:30  ajc
 * View-o-matic now has "View as: " before it.  "Messages" has been changed
   to "Bulletin Board" and "Summary" has been changed to "Mailbox Summary"
@@ -2413,4 +2420,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

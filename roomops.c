@@ -36,7 +36,7 @@ struct folder {
 
 char *viewdefs[] = {
 	"Bulletin Board",
-	"Mailbox Summary",
+	"Mail Folder",
 	"Address Book",
 	"Calendar",
 	"Task List",
@@ -302,7 +302,8 @@ void embed_view_o_matic(void) {
 	wprintf("<FORM NAME=\"viewomatic\">\n"
 		"<span class=\"room_banner_new_messages\">View as: "
 		"<SELECT NAME=\"newview\" SIZE=\"1\" "
-		"STYLE=\"font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif; font-size: 7pt; background: #444455; color: #ddddcc;\" "
+		"STYLE=\"font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;"
+		" font-size: 7pt; background: #444455; color: #ddddcc;\" "
 		"OnChange=\"location.href=viewomatic.newview.options"
 		"[selectedIndex].value\">\n");
 
@@ -975,7 +976,7 @@ void display_editroom(void)
 		wprintf("CHECKED ");
 		wprintf("> Public room\n");
 
-		wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"guessname\" ");
+		wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"hidden\" ");
 		if ((er_flags & QR_PRIVATE) &&
 		    (er_flags & QR_GUESSNAME))
 			wprintf("CHECKED ");
@@ -1490,7 +1491,7 @@ void editroom(void)
 	if (!strcmp(buf, "invonly")) {
 		er_flags |= (QR_PRIVATE);
 	}
-	if (!strcmp(buf, "guessname")) {
+	if (!strcmp(buf, "hidden")) {
 		er_flags |= (QR_PRIVATE | QR_GUESSNAME);
 	}
 	if (!strcmp(buf, "passworded")) {
@@ -1722,7 +1723,7 @@ void display_entroom(void)
 	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/entroom\">\n");
+	wprintf("<form name=\"create_room_form\" method=\"POST\" action=\"/entroom\">\n");
 
 	wprintf("<UL><LI>Name of room: ");
 	wprintf("<INPUT TYPE=\"text\" NAME=\"er_name\" MAXLENGTH=\"127\">\n");
@@ -1739,8 +1740,22 @@ void display_entroom(void)
                 }
         wprintf("</SELECT>\n");
 
+	/* Our clever little snippet of JavaScript automatically selects
+	 * a public room if the view is set to Bulletin Board, and it
+	 * selects a mailbox room otherwise.  The user can override this,
+	 * of course.
+	 */
 	wprintf("<LI>Default view for room: ");
-        wprintf("<SELECT NAME=\"er_view\" SIZE=\"1\">\n");
+        wprintf("<SELECT NAME=\"er_view\" SIZE=\"1\" OnChange=\""
+		"	if (this.form.er_view.value == 0) {	"	
+		"		this.form.type[0].checked=true;		"
+		"		this.form.er_floor.disabled = false;	"
+		"	}						"
+		"	else {						"
+		"		this.form.type[4].checked=true;		"
+		"		this.form.er_floor.disabled = true;	"
+		"	}						"
+		"\">\n");
 	for (i=0; i<(sizeof viewdefs / sizeof (char *)); ++i) {
 		wprintf("<OPTION %s VALUE=\"%d\">",
 			((i == 0) ? "SELECTED" : ""), i );
@@ -1752,20 +1767,38 @@ void display_entroom(void)
 	wprintf("<LI>Type of room:<UL>\n");
 
 	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"public\" ");
-	wprintf("CHECKED > Public room\n");
+	wprintf("CHECKED OnChange=\""
+		"	if (this.form.type[0].checked == true) {	"
+		"		this.form.er_floor.disabled = false;	"
+		"	}						"
+		"\"> Public (automatically appears to everyone)\n");
 
-	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"guessname\" ");
-	wprintf("> Private - guess name\n");
+	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"hidden\" OnChange=\""
+		"	if (this.form.type[1].checked == true) {	"
+		"		this.form.er_floor.disabled = false;	"
+		"	}						"
+		"\"> Private - hidden (accessible to anyone who knows its name)\n");
 
-	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"passworded\" ");
-	wprintf("> Private - require password:\n");
+	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"passworded\" OnChange=\""
+		"	if (this.form.type[2].checked == true) {	"
+		"		this.form.er_floor.disabled = false;	"
+		"	}						"
+		"\"> Private - require password:\n");
 	wprintf("<INPUT TYPE=\"text\" NAME=\"er_password\" MAXLENGTH=\"9\">\n");
 
-	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"invonly\" ");
-	wprintf("> Private - invitation only\n");
+	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"invonly\" OnChange=\""
+		"	if (this.form.type[3].checked == true) {	"
+		"		this.form.er_floor.disabled = false;	"
+		"	}						"
+		"\"> Private - invitation only\n");
 
-	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"personal\" ");
-	wprintf("> Personal (mailbox for you only)\n");
+	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"personal\" "
+		"OnChange=\""
+		"	if (this.form.type[4].checked == true) {	"
+		"		this.form.er_floor.disabled = true;	"
+		"	}						"
+		"\"> Personal (mailbox for you only)\n");
+
 	wprintf("</UL>\n");
 
 	wprintf("<CENTER>\n");
@@ -1848,7 +1881,7 @@ void entroom(void)
 	er_view = atoi(bstr("er_view"));
 
 	er_num_type = 0;
-	if (!strcmp(er_type, "guessname"))
+	if (!strcmp(er_type, "hidden"))
 		er_num_type = 1;
 	if (!strcmp(er_type, "passworded"))
 		er_num_type = 2;
@@ -1876,11 +1909,16 @@ void entroom(void)
  */
 void display_private(char *rname, int req_pass)
 {
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n"
+		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<SPAN CLASS=\"titlebar\">Go to a hidden room</SPAN>"
+		"</TD></TR></TABLE>\n"
+		"</div>\n<div id=\"content\">\n"
+	);
 
-	output_headers(1, 1, 0, 0, 0, 0, 0);
-
-	svprintf("BOXTITLE", WCS_STRING, "Go to a hidden room");
-	do_template("beginbox");
+	wprintf("<div id=\"fix_scrollbar_bug\">"
+		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<CENTER>\n");
 	wprintf("<br />If you know the name of a hidden (guess-name) or\n");
@@ -1910,7 +1948,7 @@ void display_private(char *rname, int req_pass)
 		"&nbsp;"
 		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 	wprintf("</FORM>\n");
-	do_template("endbox");
+	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
 
