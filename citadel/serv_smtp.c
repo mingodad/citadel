@@ -414,8 +414,8 @@ void smtp_rcpt(char *argbuf) {
 
 	strcpy(recp, &argbuf[3]);
 	striplt(recp);
+	stripallbut(recp, '<', '>');
 	alias(recp);
-
 	cvt = convert_internet_address(user, node, recp);
 	snprintf(recp, sizeof recp, "%s@%s", user, node);
 	lprintf(9, "cvt=%d, citaddr=<%s@%s>\n", cvt, user, node);

@@ -158,6 +158,12 @@ int alias(char *name)
 			strcpy(name, bbb);
 	}
 	fclose(fp);
+
+	/* Hit the Global Address Book */
+	if (CtdlDirectoryLookup(aaa, name) == 0) {
+		strcpy(name, aaa);
+	}
+
 	lprintf(7, "Mail is being forwarded to %s\n", name);
 
 	/* Change "user @ xxx" to "user" if xxx is an alias for this host */
@@ -168,11 +174,6 @@ int alias(char *name)
 				lprintf(7, "Changed to <%s>\n", name);
 			}
 		}
-	}
-
-	/* Hit the Global Address Book */
-	if (CtdlDirectoryLookup(aaa, name) == 0) {
-		strcpy(name, aaa);
 	}
 
 	/* determine local or remote type, see citadel.h */

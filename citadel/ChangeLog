@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.56  2002/01/11 04:59:00  ajc
+ * Finished most of the work for the Global Address Book.
+
  Revision 590.55  2002/01/11 04:37:03  ajc
  * More code for the Global Address Book
 
@@ -3133,4 +3136,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

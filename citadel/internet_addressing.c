@@ -654,6 +654,8 @@ void directory_key(char *key, char *addr) {
 		}
 	}
 	key[keylen++] = 0;
+
+	lprintf(9, "Directory key is <%s>\n", key);
 }
 
 
@@ -669,11 +671,14 @@ int IsDirectory(char *addr) {
 	striplt(domain);
 
 	h = CtdlHostAlias(domain);
+	lprintf(9, "IsDirectory(%s)\n", domain);
 
 	if ( (h == hostalias_localhost) || (h == hostalias_directory) ) {
+		lprintf(9, " ...yes\n");
 		return(1);
 	}
 	else {
+		lprintf(9, " ...no\n");
 		return(0);
 	}
 }
@@ -724,6 +729,8 @@ int CtdlDirectoryLookup(char *target, char *internet_addr) {
 	struct cdbdata *cdbrec;
 	char key[SIZ];
 
+	lprintf(9, "CtdlDirectoryLookup(%s)\n", internet_addr);
+
 	if (IsDirectory(internet_addr) == 0) return(-1);
 
 	directory_key(key, internet_addr);
@@ -731,8 +738,10 @@ int CtdlDirectoryLookup(char *target, char *internet_addr) {
 	if (cdbrec != NULL) {
 		safestrncpy(target, cdbrec->ptr, SIZ);
 		cdb_free(cdbrec);
+		lprintf(9, "Looked up as <%s>\n", target);
 		return(0);
 	}
 
+	lprintf(9, "Lookup failed\n");
 	return(-1);
 }
