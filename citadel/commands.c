@@ -32,6 +32,10 @@
 #include <errno.h>
 #include "citadel.h"
 #include "commands.h"
+#include "messages.h"
+#include "citadel_decls.h"
+#include "routines.h"
+#include "routines2.h"
 
 struct citcmd {
 	struct citcmd *next;
@@ -43,36 +47,12 @@ struct citcmd {
 #define IFNEXPERT if ((userflags&US_EXPERT)==0)
 
 
-extern unsigned room_flags;
-extern char room_name[];
-extern struct CtdlServInfo serv_info;
-extern char axlevel;
-extern char is_room_aide;
-extern unsigned userflags;
-extern char sigcaught;
-extern char editor_path[];
-extern char printcmd[];
-extern char have_xterm;
-extern char rc_username[];
-extern char rc_password[];
-extern char rc_floor_mode;
 char rc_exp_beep;
 char rc_exp_cmd[256];
-extern int lines_printed;
-extern char express_msgs;
 
 char *gl_string;
 
 struct citcmd *cmdlist = NULL;
-
-void sighandler(int which_sig);
-void logoff(int code);
-int struncmp(char *lstr, char *rstr, int len);
-void formout(char *name);
-int room_prompt(int qrflags);
-void back(int spaces);
-int checkpagin(int lp, int pagin, int height);
-void color(int colornum);
 
 
 /* these variables are local to this module */

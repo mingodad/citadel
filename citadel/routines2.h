@@ -10,3 +10,4 @@ void cli_upload(void);
 void validate(void);
 void read_bio(void);
 void cli_image_upload(char *keyname);
+int room_prompt(int qrflags);
