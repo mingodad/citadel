@@ -102,7 +102,6 @@ main (argc, argv)
   time_t LogTime;
   unsigned int LogType;
   char LogName[256];
-  struct usersupp usersupp;
   int a, b, lowest;
   float p, q;
   long timeon[72];
@@ -351,6 +350,11 @@ main (argc, argv)
       prompt ();
 
     PC_ONLY_HERE:
+
+
+/*
+  This report doesn't work anymore, because it requires reading the user
+  file directly, which can't happen.
       printf ("Top 20 Contributing Users (post to call ratio)\n");
       printf ("P/C Ratio Username\n");
       printf ("--------- ------------------------------\n");
@@ -367,5 +371,6 @@ main (argc, argv)
       fclose (fp);
       pclose (sortpipe);
       exit (0);
+ */
     }
 }

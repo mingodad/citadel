@@ -638,6 +638,7 @@ void *context_loop(struct CitContext *con)
 
 	lprintf(3, "citserver[%3d]: started.\n", CC->cs_pid);
 	hook_start_session(CC->cs_pid);
+	rec_log(CL_CONNECT, "");
 
 	do {
 		time(&CC->lastcmd);

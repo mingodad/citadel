@@ -1,6 +1,5 @@
 /* 
- * readlog.c
- * v1.5
+ * readlog.c  (a simple program to parse citadel.log)
  */
 
 #include <stdlib.h>
