@@ -129,6 +129,7 @@ int main(int argc, char **argv)
 			home_specified = 1;
 			}
 		else {
+			if (strlen(cmd)>0) strcat(cmd, " ");
 			strcat(cmd, argv[a]);
 			}
 		}
@@ -149,6 +150,18 @@ int main(int argc, char **argv)
 	serv_puts(cmd);
 	serv_gets(buf);
 	fprintf(stderr, "%s\n", buf);
+
+	if (buf[0]=='1') {
+		while (serv_gets(buf), strcmp(buf, "000")) {
+			printf("%s\n", buf);
+			}
+		}
+	else if (buf[0]=='4') {
+		do {
+			if (fgets(buf, 255, stdin)==NULL) strcpy(buf, "000");
+			if (strcmp(buf, "000")) serv_puts(buf);
+			} while (strcmp(buf, "000"));
+		}
 
 	fprintf(stderr, "sendcommand: processing ended.\n");
 	cleanup(0);

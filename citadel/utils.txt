@@ -5,12 +5,13 @@
  OVERVIEW
     
    The following utilities will be discussed in this document:
- aidepost   Post standard input to the Aide> room. NOTE: called by chat.c
- whobbs     Who is on the system (connected to the server, actually.)
- stats      Print the calling statistics & graph.
- msgform    Format a binary message to the screen (stdin or in a file)
- userlist   Print the userlist.
- readlog    Read the caller log
+ aidepost     Post standard input to the Aide> room
+ whobbs       Who is on the system
+ stats        Print the calling statistics & graph
+ msgform      Format a binary message to the screen (stdin or in a file)
+ userlist     Print the userlist
+ readlog      Read the caller log
+ sendcommand  Send a server command
    
    It is up to you to decide which utilities should be made accessible only
 to sysops. It is important that you set the file permissions correctly. All
@@ -99,7 +100,23 @@ file. This file records all times the Citadel/UX program has been started, and
 at what baud rate, as well as logins, proper logouts, loss of carrier (SIGHUP),
 bad password attempts, and new user logins.
      
+   
+  SENDCOMMAND
  
+   sendcommand will interpret its arguments (except for "-hDIRNAME") as a
+server command, which is sent to the server.  Commands which require textual
+input will read it from stdin.  Commands which generate textual output will
+be sent to stdout. 
+ 
+   This utility is intended to be used to enable Citadel server commands to be
+executed from shell scripts.  Review the script called "weekly" which ships
+with the Citadel distribution for an example of how this can be used.
+ 
+   NOTE: be sure that this utility is not world-executable.  It connects to the
+server in privileged mode, and therefore could present a security hole if not
+properly restricted.
+  
+  
   --------------------------------------------------------------------------
    
    That should cover all of the included utilities. Comments, suggestions,

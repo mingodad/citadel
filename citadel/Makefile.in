@@ -153,10 +153,9 @@ proxy: proxy.o ipc_c_tcp.o
 whobbs: whobbs.o ipc_c_tcp.o tools.o $(SNPRINTF)
 	$(CC) whobbs.o ipc_c_tcp.o tools.o $(SNPRINTF) $(LDFLAGS) -o whobbs
 
-sendcommand: sendcommand.o ipc_c_tcp.o tools.o $(SNPRINTF)
-	$(CC) sendcommand.o ipc_c_tcp.o tools.o $(SNPRINTF) $(LDFLAGS) \
-	-o sendcommand
-	chmod 700 sendcommand
+sendcommand: sendcommand.o ipc_c_tcp.o tools.o config.o $(SNPRINTF)
+	$(CC) sendcommand.o ipc_c_tcp.o tools.o config.o \
+	 $(SNPRINTF) $(LDFLAGS) -o sendcommand
 
 userlist: userlist.o ipc_c_tcp.o tools.o $(SNPRINTF)
 	$(CC) userlist.o ipc_c_tcp.o tools.o \
@@ -192,6 +191,7 @@ install-data:
 		 `find help messages network -type f | grep -v CVS`; do \
 		$(INSTALL_DATA) $$i $(prefix)/$$i; \
 	done
+	chmod 700 $(prefix)/sendcommand
 
 install-doc:
 	./mkinstalldirs $(prefix)/techdoc
