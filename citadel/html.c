@@ -79,8 +79,8 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 		/* Fill the input buffer */
 		if ( (done_reading == 0) && (strlen(inbuf) < (SIZ-128)) ) {
 
-			ch = *inputmsg++;
-			if (ch > 0) {
+			ch = *inptr++;
+			if (ch != 0) {
 				inbuf[strlen(inbuf)+1] = 0;
 				inbuf[strlen(inbuf)] = ch;
 			} 
@@ -98,8 +98,10 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 			if (inbuf[i]==10) inbuf[i]=32;
 			if (inbuf[i]==13) inbuf[i]=32;
 			if (inbuf[i]==9) inbuf[i]=32;
-			if ((inbuf[i]<32) || (inbuf[i]>126))
-				strcpy(&inbuf[i], &inbuf[i+1]);
+			if ((inbuf[i]<32) || (inbuf[i]>126)) {
+				inbuf[i] = '?';
+				/* strcpy(&inbuf[i], &inbuf[i+1]); */
+			}
 		    }
 		    for (i=0; i<strlen(inbuf); ++i) {
 			while ((inbuf[i]==32)&&(inbuf[i+1]==32))

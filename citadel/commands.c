@@ -1364,6 +1364,11 @@ int fmout(
 			old = '\n';
 			continue;
 		}
+		/* Are we looking at a nonprintable? */
+		if ( (*e < 32) || (*e > 126) ) {
+			e++;
+			continue;
+		}
 		/* Or are we looking at a space? */
 		if (*e == ' ') {
 			e++;
