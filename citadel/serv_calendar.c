@@ -696,6 +696,11 @@ void ical_saving_vevent(icalcomponent *cal) {
 
 
 	lprintf(9, "ical_saving_vevent() called\n");
+
+	lprintf(9, "------------\n%s\n-------\n",
+		icalcomponent_as_ical_string(cal)
+	);
+
 	strcpy(organizer_string, "");
 	/*
  	 * The VEVENT subcomponent is the one we're interested in.

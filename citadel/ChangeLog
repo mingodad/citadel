@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.77  2002/11/30 21:35:30  ajc
+ * just some trace messages
+
  Revision 601.76  2002/11/30 05:39:28  ajc
  * Started banging out some code to determine when a saved vEvent needs to
    send out meeting invites.
@@ -4256,3 +4259,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
