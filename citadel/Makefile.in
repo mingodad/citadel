@@ -101,6 +101,7 @@ server: $(SERVER_TARGETS)
 utils: $(UTIL_TARGETS)
 
 serv_modules: $(SERV_MODULES)
+	@cd modules && mods=`echo .libs/*.s[ol]` && test "$$mods" != '.libs/*.s[ol]' && ln -sf $$mods . || true
 
 #
 #

@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.13  2001/07/29 20:06:33  nbryant
+ generate symlinks to .libs in modules directory
+
  Revision 580.12  2001/07/28 00:02:50  nbryant
  implemented read-only cursors. one of the advantages to these is that
  transactions can be avoided; a cursor operation that occurs within a
@@ -2619,3 +2622,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
