@@ -446,12 +446,12 @@ void chat_send(void) {
 		WC->chat_sock = i;
 
 		while (strlen(send_this) > 0) {
-			if (strlen(send_this) < 72) {
+			if (strlen(send_this) < 67) {
 				serv_puts(send_this);
 				strcpy(send_this, "");
 			}
 			else {
-				for (i=60; i<72; ++i) {
+				for (i=55; i<67; ++i) {
 					if (send_this[i] == ' ') break;
 				}
 				strncpy(buf, send_this, i);
