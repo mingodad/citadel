@@ -211,8 +211,11 @@ void display_edit_address_book_entry(char *username, long usernum) {
 /*
  * Edit a user.  If supplied_username is null, look in the "username"
  * web variable for the name of the user to edit.
+ * 
+ * If "is_new" is set to nonzero, this screen will set the web variables
+ * to send the user to the vCard editor next.
  */
-void display_edituser(char *supplied_username) {
+void display_edituser(char *supplied_username, int is_new) {
 	char buf[SIZ];
 	char error_message[SIZ];
 	time_t now;
@@ -271,6 +274,9 @@ void display_edituser(char *supplied_username) {
 		"<INPUT TYPE=\"hidden\" NAME=\"username\" VALUE=\"");
 	escputs(username);
 	wprintf("\">\n");
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"is_new\" VALUE=\"%d\">\n"
+		"<INPUT TYPE=\"hidden\" NAME=\"usernum\" VALUE=\"%ld\">\n",
+		is_new, usernum);
 
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"flags\" VALUE=\"%d\">\n", flags);
 
@@ -344,6 +350,9 @@ void display_edituser(char *supplied_username) {
 void edituser(void) {
 	char message[SIZ];
 	char buf[SIZ];
+	int is_new = 0;
+
+	is_new = atoi(bstr("is_new"));
 
 	if (strcasecmp(bstr("action"), "OK")) {
 		strcpy(message, "Edit user cancelled.");
@@ -373,7 +382,15 @@ void edituser(void) {
 		}
 	}
 
-	select_user_to_edit(message, bstr("username"));
+	/* If we are in the middle of creating a new user, move on to
+	 * the vCard edit screen.
+	 */
+	if (is_new) {
+		display_edit_address_book_entry( bstr("username"), atol(bstr("usernum")) );
+	}
+	else {
+		select_user_to_edit(message, bstr("username"));
+	}
 }
 
 
@@ -390,8 +407,9 @@ void create_user(void) {
 	serv_gets(buf);
 
 	if (buf[0] == '2') {
-		sprintf(error_message, "<b>User has been created.</b>");
-		select_user_to_edit(error_message, username);
+		/* sprintf(error_message, "<b>User has been created.</b>");
+		select_user_to_edit(error_message, username); */
+		display_edituser(username, 1);
 	}
 	else {
 		sprintf(error_message,
