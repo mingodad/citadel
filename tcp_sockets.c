@@ -33,7 +33,7 @@ int serv_sock;
 
 
 RETSIGTYPE timeout(int signum) {
-	printf("\rConnection timed out.\n");
+	fprintf(stderr, "Connection timed out.\n");
 	exit(3);
 	}
 
@@ -53,7 +53,7 @@ int connectsock(char *host, char *service, char *protocol)
 		sin.sin_port = pse->s_port;
 		}
 	else if ((sin.sin_port = htons((u_short)atoi(service))) == 0) {
-		fprintf(stderr,"can't get %s service entry\n", service);
+		fprintf(stderr, "Can't get %s service entry\n", service);
 		return(-1);
 		}
 	
@@ -62,13 +62,13 @@ int connectsock(char *host, char *service, char *protocol)
 		bcopy(phe->h_addr,(char *)&sin.sin_addr,phe->h_length);
 		}
 	else if ((sin.sin_addr.s_addr = inet_addr(host))==INADDR_NONE) {
-		fprintf(stderr,"can't get %s host entry: %s\n",
+		fprintf(stderr, "Can't get %s host entry: %s\n",
 			host,strerror(errno));
 		return(-1);
 		}
 
 	if ((ppe=getprotobyname(protocol))==0) {
-		fprintf(stderr,"can't get %s protocol entry: %s\n",
+		fprintf(stderr, "Can't get %s protocol entry: %s\n",
 			protocol,strerror(errno));
 		return(-1);
 		}
@@ -80,7 +80,7 @@ int connectsock(char *host, char *service, char *protocol)
 
 	s = socket(PF_INET,type,ppe->p_proto);
 	if (s<0) {
-		fprintf(stderr,"can't create socket: %s\n",strerror(errno));
+		fprintf(stderr, "Can't create socket: %s\n", strerror(errno));
 		return(-1);
 		}
 
@@ -175,7 +175,7 @@ void serv_puts(char *string)
 {
 	char buf[256];
 
-	sprintf(buf,"%s\n",string);
+	sprintf(buf,"%s\n", string);
 	serv_write(buf, strlen(buf));
 	}
 

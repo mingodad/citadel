@@ -122,7 +122,7 @@ void free_urls(void) {
 /*
  * Diagnostic function to display the contents of all variables
  */
-void dump_vars() {
+void dump_vars(void) {
 	struct urlcontent *u;
 
 	for (u = urlstrings; u != NULL; u = u->next) {
@@ -158,7 +158,6 @@ void wprintf(const char *format, ...) {
        	va_start(arg_ptr, format);   
        	vsprintf(wptr->w_data, format, arg_ptr);   
        	va_end(arg_ptr);   
-  
 	}
 
 int wContentLength(void) {

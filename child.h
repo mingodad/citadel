@@ -36,3 +36,4 @@ void escputs(char *strbuf);
 void url(char *buf);
 void escputs1(char *strbuf, int nbsp);
 long extract_long(char *source, long int parmnum);
+void dump_vars(void);
