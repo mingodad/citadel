@@ -1,19 +1,20 @@
 /* $Id$ */
 
-#define SLEEPING	180	/* TCP connection timeout */
-#define WEBCIT_TIMEOUT	900	/* WebCit session timeout */
-#define PORT_NUM	2000	/* port number to listen on */
-#define SERVER		"WebCit v2.10"	/* who's in da house */
-#define DEVELOPER_ID	0
-#define CLIENT_ID	4
-#define CLIENT_VERSION	210
-#define DEFAULT_HOST	"localhost"
-#define DEFAULT_PORT	"504"
-#define LB		(1)
-#define RB		(2)
-#define QU		(3)
-#define TARGET		"webcit01"
-#define HOUSEKEEPING	60	/* Housekeeping frequency */
+#define SLEEPING		180		/* TCP connection timeout */
+#define WEBCIT_TIMEOUT		900		/* WebCit session timeout */
+#define PORT_NUM		2000		/* port number to listen on */
+#define SERVER			"WebCit v2.10"	/* who's in da house */
+#define DEVELOPER_ID		0
+#define CLIENT_ID		4
+#define CLIENT_VERSION		210
+#define DEFAULT_HOST		"localhost"	/* Default Citadel server */
+#define DEFAULT_PORT		"504"
+#define LB			(1)		/* Internal escape chars */
+#define RB			(2)
+#define QU			(3)
+#define TARGET			"webcit01"	/* Target for inline URL's */
+#define HOUSEKEEPING		60		/* Housekeeping frequency */
+#define INITIAL_WORKER_THREADS	5
 
 
 /* Room flags (from Citadel) */

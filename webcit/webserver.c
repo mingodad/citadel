@@ -231,6 +231,25 @@ void start_daemon(int do_close_stdio)
 		exit(0);
 }
 
+void spawn_another_worker_thread() {
+	pthread_t SessThread;	/* Thread descriptor */
+	pthread_attr_t attr;	/* Thread attributes */
+
+	fprintf(stderr, "Creating a new thread\n");
+
+	/* set attributes for the new thread */
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
+	/* now create the thread */
+	if (pthread_create(&SessThread, &attr,
+			(void *(*)(void *)) worker_entry, NULL)
+		   != 0) {
+		fprintf(stderr, "webcit: can't create thread: %s\n",
+			strerror(errno));
+	}
+}
+
 /*
  * Here's where it all begins.
  */
@@ -306,20 +325,10 @@ int main(int argc, char **argv)
 
 
 	/* FIX ... we need to auto-size the thread pool */
-	for (i=0; i<10; ++i) {
-
-		/* set attributes for the new thread */
-		pthread_attr_init(&attr);
-		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-
-		/* now create the thread */
-		if (pthread_create(&SessThread, &attr,
-				(void *(*)(void *)) worker_entry, NULL)
-		    != 0) {
-			fprintf(stderr, "webcit: can't create thread: %s\n",
-			       strerror(errno));
-		}
+	for (i=0; i<(INITIAL_WORKER_THREADS-1); ++i) {
+		spawn_another_worker_thread();
 	}
+
 
 	/* now the original thread becomes an ordinary worker thread */
 	worker_entry();
@@ -336,12 +345,20 @@ void worker_entry(void) {
 	int alen;
 	int i = 0;
 	int time_to_die = 0;
+	time_t start_time, stop_time;
 
 	do {
 		/* Only one thread can accept at a time */
+		start_time = time(NULL);
 		pthread_mutex_lock(&AcceptQueue);
 		ssock = accept(msock, (struct sockaddr *) &fsin, &alen);
 		pthread_mutex_unlock(&AcceptQueue);
+		stop_time = time(NULL);
+
+		/* Augment the thread pool if we're not blocking at all */
+		if ( (stop_time - start_time) == 0L) {
+			spawn_another_worker_thread();
+		}
 
 		if (ssock < 0) {
 			fprintf(stderr, "webcit: accept() failed: %s\n",
