@@ -778,6 +778,8 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "dotgoto")) {
 		slrp_highest();
 		smart_goto(bstr("room"));
+	} else if (!strcasecmp(action, "dotskip")) {
+		smart_goto(bstr("room"));
 	} else if (!strcasecmp(action, "termquit")) {
 		do_logout();
 	} else if (!strcasecmp(action, "readnew")) {
