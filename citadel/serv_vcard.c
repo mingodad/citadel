@@ -61,14 +61,21 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 
 
 	if (!CC->logged_in) return(0);	/* Only do this if logged in. */
+	TRACE;
 
 	/* If this isn't the configuration room, or if this isn't a MIME
-	 * message, don't bother.
+	 * message, don't bother.  (Check for NULL room first, otherwise
+	 * some messages will cause it to crash!!)
 	 */
+	if (msg->cm_fields['O'] == NULL) return(0);
+	TRACE;
 	if (strcasecmp(msg->cm_fields['O'], USERCONFIGROOM)) return(0);
+	TRACE;
 	if (msg->cm_format_type != 4) return(0);
+	TRACE;
 
 	ptr = msg->cm_fields['M'];
+	TRACE;
 	while (ptr != NULL) {
 	
 		linelen = strcspn(ptr, "\n");
@@ -88,27 +95,36 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 			 * to make changes to another user's vCard instead of
 			 * assuming that it's always the user saving his own.
 			 */
+			TRACE;
         		MailboxName(config_rm, &CC->usersupp, USERCONFIGROOM);
+			TRACE;
 			CtdlDeleteMessages(config_rm, 0L, "text/x-vcard");
+			TRACE;
 
 			/* Set the Extended-ID to a standardized one so the
 			 * replication always works correctly
 			 */
                         if (msg->cm_fields['E'] != NULL)
                                 phree(msg->cm_fields['E']);
+			TRACE;
 
                         sprintf(buf,
                                 "Citadel vCard: personal card for %s at %s",
                                 msg->cm_fields['A'], NODENAME);
                         msg->cm_fields['E'] = strdoop(buf);
+			TRACE;
 
 			/* Now allow the save to complete. */
+			TRACE;
 			return(0);
 		}
+		TRACE;
 
 		ptr = strchr((char *)ptr, '\n');
+		TRACE;
 		if (ptr != NULL) ++ptr;
 	}
+	TRACE;
 
 	return(0);
 }
