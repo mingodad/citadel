@@ -24,7 +24,7 @@
 
 void locate_host(char *tbuf, const struct in_addr *addr)
 {
-	struct hostent *ch, *ch2;
+	struct hostent *ch;
 	char *i;
 	int a1, a2, a3, a4;
 
@@ -45,12 +45,15 @@ void locate_host(char *tbuf, const struct in_addr *addr)
 				   section */
 	}
 	/* check if the forward DNS agrees; if not, they're spoofing */
-	if ((ch2 = gethostbyname(ch->h_name)) == NULL)
+	i = strdup(ch->h_name);
+	ch = gethostbyname(i);
+	free(i);
+	if (ch == NULL)
 		goto bad_dns;
 
 	/* check address for consistency */
-	for (; *ch2->h_addr_list; ch2->h_addr_list++)
-		if (!memcmp(*ch2->h_addr_list, addr,
+	for (; *ch->h_addr_list; ch->h_addr_list++)
+		if (!memcmp(*ch->h_addr_list, addr,
 			    sizeof *addr)) {
 			strncpy(tbuf, ch->h_name, 24);
 			goto end;
