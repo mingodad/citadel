@@ -29,6 +29,9 @@ void display_page(void)
 {
 	char buf[256];
 	char user[256];
+	char recp[256];
+
+	strcpy(recp, bstr("recp"));
 
 	output_headers(1);
 
@@ -53,7 +56,13 @@ void display_page(void)
 	if (buf[0] == '1') {
 		while (serv_gets(buf), strcmp(buf, "000")) {
 			extract(user, buf, 1);
-			wprintf("<OPTION>");
+			wprintf("<OPTION");
+			if (strlen(recp)>0) {
+				if (!strcmp(user, recp)) {
+					wprintf(" SELECTED");
+				}
+			}
+			wprintf(">");
 			escputs(user);
 			wprintf("\n");
 		}
