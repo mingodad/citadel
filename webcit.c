@@ -479,9 +479,12 @@ void session_loop() {
 		printf("HTTP/1.0 200 OK\n");
 		output_headers();
 	
-		wprintf("<HTML><HEAD><TITLE>WebCit</TITLE></HEAD><BODY>\n");
+		wprintf("<HTML><BODY>\n");
+		wprintf("<H1>diagnostic page</H1>\n");
 		wprintf("TransactionCount is %d<HR>\n", TransactionCount);
 		wprintf("You're in session %d<BR>\n", wc_session);
+		wprintf("Logged in as <em>"); escputs(wc_username);
+		wprintf("</em><BR>\n");
 		wprintf("</BODY></HTML>\n");
 		wDumpContent();
 		}
