@@ -809,19 +809,16 @@ int CtdlIPCSetRoomAide(CtdlIPC *ipc, const char *username, char *cret)
 int CtdlIPCPostMessage(CtdlIPC *ipc, int flag, const struct ctdlipcmessage *mr, char *cret)
 {
 	register int ret;
-	char *aaa;
+	char cmd[SIZ];
 
 	if (!cret) return -2;
 	if (!mr) return -2;
 
-	aaa = (char *)malloc(strlen(mr->recipient) + strlen(mr->author) + 40);
-	if (!aaa) return -1;
-
-	sprintf(aaa, "ENT0 %d|%s|%d|%d|%s|%s", flag, mr->recipient,
+	snprintf(cmd, sizeof cmd,
+			"ENT0 %d|%s|%d|%d|%s|%s", flag, mr->recipient,
 			mr->anonymous, mr->type, mr->subject, mr->author);
-	ret = CtdlIPCGenericCommand(ipc, aaa, mr->text, strlen(mr->text), NULL,
+	ret = CtdlIPCGenericCommand(ipc, cmd, mr->text, strlen(mr->text), NULL,
 			NULL, cret);
-	free(aaa);
 	return ret;
 }
 
