@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.1  2004/01/02 22:13:59  ajc
+ * Link to OpenLDAP client library (-lldap) and set HAVE_LDAP if present.
+
  Revision 614.0  2003/12/30 04:13:40  ajc
  * THIS IS 6.14
 
@@ -5210,4 +5213,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -33,6 +33,7 @@ AC_ARG_WITH(ssl,
 AC_ARG_WITH(ncurses, [  --without-ncurses       don't use ncurses])
 
 AC_ARG_WITH(with_zlib, [  --with-zlib             use zlib compression if present])
+AC_ARG_WITH(with_ldap, [  --with-ldap             use OpenLDAP client library])
 AC_ARG_WITH(with_libical, [  --with-libical          use libical calendaring library])
 AC_ARG_WITH(with_newt, [  --with-newt          use newt window library])
 
@@ -367,6 +368,22 @@ fi
 if test "x$ok_zlib" = xyes ; then
 	SERVER_LIBS="-lz $SERVER_LIBS"
 	AC_DEFINE(HAVE_ZLIB)
+fi
+
+
+
+
+dnl Checks for the OpenLDAP client library.
+if test "x$with_ldap" != xno ; then
+	AC_CHECK_HEADERS(ldap.h,
+		[AC_CHECK_LIB(ldap, ldap_init,
+			[ok_ldap=yes],,
+	)])
+fi
+
+if test "x$ok_ldap" = xyes ; then
+	SERVER_LIBS="-lldap $SERVER_LIBS"
+	AC_DEFINE(HAVE_LDAP)
 fi
 
 
