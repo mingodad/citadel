@@ -40,6 +40,9 @@
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
+#ifdef HAVE_SYS_PRCTL_H
+#include <sys/prctl.h>
+#endif
 #include "citadel.h"
 #include "server.h"
 #include "serv_extensions.h"
@@ -219,6 +222,9 @@ int main(int argc, char **argv)
 		if (setuid(BBSUID) != 0) {
 			lprintf(CTDL_CRIT, "setuid() failed: %s\n", strerror(errno));
 		}
+#if defined (HAVE_SYS_PRCTL_H) && defined (PR_SET_DUMPABLE)
+		prctl(PR_SET_DUMPABLE, 1);
+#endif
 	}
 
 	/* We want to check for idle sessions once per minute */

@@ -1,4 +1,11 @@
  $Log$
+ Revision 620.32  2004/05/11 15:21:45  nbryant
+ * configure.ac: check for <sys/prctl.h>
+ * server_main.c: call prctl(PR_SET_DUMPABLE, 1) if we are dropping root
+   permissions.
+ * sysdep.c: no longer call setrlimit(RLIMIT_CORE, ...); this can be handled
+   from a shell script.
+
  Revision 620.31  2004/05/10 01:47:11  error
  * messages.c: Fix crash when trying to use m<Y> next
 
@@ -5755,3 +5762,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -206,10 +206,6 @@ static RETSIGTYPE signal_cleanup(int signum) {
 void init_sysdep(void) {
 	int a;
 
-	/* Enable core dumps */
-	struct rlimit lim = { RLIM_INFINITY, RLIM_INFINITY };
-	setrlimit(RLIMIT_CORE, &lim);
-
 #ifdef HAVE_OPENSSL
 	init_ssl();
 #endif
