@@ -1043,6 +1043,8 @@ void session_loop(struct httprequest *req)
 		edituser();
 	} else if (!strcasecmp(action, "create_user")) {
 		create_user();
+	} else if (!strcasecmp(action, "changeview")) {
+		change_view();
 	} else if (!strcasecmp(action, "diagnostics")) {
 		output_headers(1);
 
