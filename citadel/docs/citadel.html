@@ -1934,7 +1934,12 @@ Citadel system.</p>
 <p>In order to prevent "just anyone" from subscribing to any room on
 your system, there is a setting in the <tt><b>.A</b>ide <b>E</b>dit
 room</tt> command:</p>
-<pre>CitaNews} . Aide Edit this room<br>Room name [CitaNews]:<br><br><i>(lots of other stuff omitted for brevity...)</i><br><br>Self-service list subscribe/unsubscribe [No]: Yes<br></pre>
+<pre>CitaNews} . Aide Edit this room<br>
+Room name [CitaNews]:<br>
+<br>
+<i>(lots of other stuff omitted for brevity...)</i><br>
+<br>
+Self-service list subscribe/unsubscribe [No]: Yes<br></pre>
 <p>When you answer "Yes" to self-service list subscribe/unsubscribe,
 you are
 enabling that feature. Now, all you have to do is tell the world about
@@ -2357,9 +2362,64 @@ and running before you attempt to connect Citadel to it.<br>
 <br>
 <h3><a name="Configuring_the_LDAP_Connector_for"></a>Configuring the
 LDAP Connector for Citadel</h3>
-FIXME&nbsp;&nbsp; finish writing this<br>
+Once you've located or installed your LDAP server, connecting Citadel
+to it is easily completed with the <span style="font-weight: bold;"><span
+ style="font-family: monospace;">.A</span></span><span
+ style="font-family: monospace;">ide <span style="font-weight: bold;">S</span>ystem-configuration
+<span style="font-weight: bold;">G</span>eneral command:<br>
+</span>
+<pre>Lobby&gt; . Aide System configuration General<br><br><span
+ style="font-style: italic;">(lots of other stuff omitted for brevity...)</span><br><br>Connect this Citadel to an LDAP directory [Yes]: <span
+ style="font-weight: bold;">Yes</span><br>Host name of LDAP server []: <span
+ style="font-weight: bold;">127.0.0.1</span><br>Port number of LDAP service [389]: <span
+ style="font-weight: bold;">389</span><br>Base DN []: <span
+ style="font-weight: bold;">dc=servername,dc=domain,dc=org</span><br>Bind DN []: <span
+ style="font-weight: bold;">cn=manager,dc=servername,dc=domain,dc=org</span><br>Password for bind DN []: <span
+ style="font-weight: bold;">secret</span><br style="font-weight: bold;"><br><span
+ style="font-style: italic;">(more questions omitted...)</span><br><br>Save this configuration? <span
+ style="font-weight: bold;">Yes</span><br></pre>
+Once you've done this, restart your Citadel service with the <span
+ style="font-weight: bold;"><span style="font-family: monospace;">.A</span></span><span
+ style="font-family: monospace;">ide <span style="font-weight: bold;">T</span>erminate-server
+<span style="font-weight: bold;">N</span>ow</span> command.&nbsp; When
+Citadel restarts, it will connect to your LDAP directory.&nbsp; Note
+that we gave Citadel the same Base DN, Bind DN, and password that was
+in our LDAP server configuration example.&nbsp; Obviously, everything
+needs to be identical on both sides or the connection will be
+refused.&nbsp; 127.0.0.1 is the loopback address, and 389 is the
+standard port number for LDAP, so this would be the proper host and
+port combination for an LDAP service running on your local
+server.&nbsp; It could just as easily be on another server, for example
+an organization-wide directory server.<br>
 <br>
+You can also configure the LDAP Connector for Citadel from a WebCit
+session.&nbsp; Log on as an Aide and click on Advanced Options --&gt;
+Edit Site-Wide Configuration --&gt; Directory, and you will be
+presented with the same set of questions.<br>
 <br>
+So, what kind of information will be entered into LDAP?&nbsp; As a
+rule, anything that gets saved to your Global Address Book room will
+also be saved to LDAP.&nbsp; Citadel will set up OU's (Organizational
+Units) for each node on your Citadel network, so if you are running
+multiple Citadel servers in an organization, you will automatically
+have a hierarchial view built for you.&nbsp; Below the OU's will be an
+entry for each user who has a vCard registered on the system.&nbsp;
+Citadel automatically translates vCard information to LDAP.<br>
+<br>
+If you already have a Global Address Book full of existing information,
+you can execute an <span style="font-family: monospace;">IGAB</span>
+(Initialize Global Address Book) server command to rebuild it.&nbsp; In
+addition to performing its usual function of rebuilding the internal
+Internet e-mail address mapping table, Citadel will also repopulate
+LDAP with all existing vCards.&nbsp; You should be aware, however, that
+existing LDAP entries will not be cleared from your directory
+server.&nbsp; If your directory contains only Citadel data, you can
+safely delete your database and start over, because it will be
+repopulated.&nbsp; Otherwise, Citadel will merely update any existing
+records with fresh information.<br>
+<br>
+The LDAP Connector for Citadel is a recent development, so expect more
+functionality in this space in the near future.<br>
 </div>
 <br>
 </div>
