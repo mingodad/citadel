@@ -51,10 +51,12 @@ int		hndl;
 
 		printf("Logging in\n");
 		if(user_info = CxUsAuth(hndl, NULL, NULL)) {
+			printf("FRE\n");
 			free(user_info);
 			user_info = 0;
 
 			room_info = CxRmGoto(hndl, "_BASEROOM_",0);
+			printf("FRE\n");
 			free(room_info);
 			room_info = 0;
 
@@ -74,6 +76,7 @@ int		hndl;
 		}
 
 		CxClCbShutdown();
+		CxClDelete( hndl );
 
 	} else {
 		printf("Unable to connect to '%s'!\n", argv[1]);
