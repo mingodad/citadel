@@ -17,6 +17,8 @@ Goals for 6.00
   (Done.)
 
 * Get the Global Address Book working (Done, just need some polish)
+ 
+* Delegations (access controls are done, but needs more intuitive presentation)
 
 * Optimize the IMAP server and add the search command.
   Netscape makes this query:
@@ -28,11 +30,11 @@ RFC822.SIZE UID FLAGS INTERNALDATE)
 
 * Nested folders ... at least in IMAP
 
-* LDAP directory support?
 
 
 Goals for beyond 6.00
 ---------------------
+* LDAP directory support?
 * Calendar server
 * Address book server
 * Integration with Evolution, Mozilla Calendar, etc.
