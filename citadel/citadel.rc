@@ -7,6 +7,7 @@
 # 1. $HOME/.citadelrc
 # 2. /usr/local/lib/citadel.rc
 # 3. <compiled BBSDIR>/citadel.rc
+# 4. <current directory>/citadel.rc
 
 # Set EDITOR to the name of an external editor to be used for entering
 # messages.  If you want the external editor to be used by default, be sure

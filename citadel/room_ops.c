@@ -971,7 +971,7 @@ void cmd_setr(char *args) {
 	struct floor flbuf;
 	char old_name[ROOMNAMELEN];
 	int old_floor;
-	int new_order;
+	int new_order = 0;
 
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);

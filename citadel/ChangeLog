@@ -1,3 +1,6 @@
+Sat Jan 30 18:39:53 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Look for citadel.rc in current directory if not found elsewhere
+
 1999-01-29 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* fixes for IRIX (thanks to wr and family for use of the Indy):
 	  - use memset()/memcpy() instead of bzero()/bcopy() in all cases
