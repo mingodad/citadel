@@ -22,6 +22,8 @@ void cmd_forg (void);
 void cmd_gnur (void);
 void cmd_greg (char *who);
 void cmd_vali (char *v_args);
+void ForEachUser(void (*CallBack)(struct usersupp *EachUser));
+void ListThisUser(struct usersupp *usbuf);
 void cmd_list (void);
 void cmd_regi (void);
 void cmd_chek (void);
