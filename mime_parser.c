@@ -19,8 +19,13 @@
  * Take a part, figure out its length, and do something with it
  */
 void process_part(char *content, int part_length) {
+	FILE *fp;
+	char filename[256];
+
 	fprintf(stderr, "MIME: process_part() called with a length o' %d\n",
 		part_length);
+
+	
 	}
 
 
