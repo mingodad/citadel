@@ -1,4 +1,8 @@
 $Log$
+Revision 523.7  2004/09/24 04:08:25  ajc
+* Put our <SPAN> tags back in to denote floors, rooms with new msgs, and
+  rooms without new msgs
+
 Revision 523.6  2004/09/24 04:04:34  ajc
 * "folders view" of room list now uses Dave Lindquist's "menuExpandable3"
   tree view.
@@ -2056,3 +2060,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
