@@ -74,6 +74,8 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
         char config_rm[ROOMNAMELEN];
 	char buf[256];
 
+	lprintf(9, "entering beforesave hook\n");
+
 	/* If this isn't the configuration room, or if this isn't a MIME
 	 * message, don't bother.
 	 */
@@ -267,7 +269,8 @@ void vcard_write_user(struct usersupp *u, struct vCard *v) {
 			temp,		/* temp file */
 			u,		/* which user */
 			0,		/* not binary */
-			0);		/* don't delete others of this type */
+			0,		/* don't delete others of this type */
+			0);		/* no flags */
 
         unlink(temp);
 }

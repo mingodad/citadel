@@ -50,7 +50,8 @@ void CtdlForEachMessage(int mode, long ref,
 			char *content_type,
                         void (*CallBack) (long msgnum) );
 int CtdlDeleteMessages(char *, long, char *);
-void CtdlWriteObject(char *, char *, char *, struct usersupp *, int, int);
+void CtdlWriteObject(char *, char *, char *, struct usersupp *,
+			int, int, unsigned int);
 struct CtdlMessage *CtdlFetchMessage(long msgnum);
 void CtdlFreeMessage(struct CtdlMessage *msg);
 void serialize_message(struct ser_ret *, struct CtdlMessage *);

@@ -6,7 +6,20 @@ typedef pthread_t THREAD;
  */
 #define DEBUG_MEMORY_LEAKS
 
-struct CtdlMessage;
+/*
+ * New format for a message in memory
+ */
+#define	CTDLMESSAGE_MAGIC		0x159d
+struct CtdlMessage {
+	int cm_magic;			/* Self-check */
+	char cm_anon_type;		/* Anonymous or author-visible */
+	char cm_format_type;		/* Format type */
+	char *cm_fields[256];		/* Data fields */
+	unsigned int cm_flags;		/* How to handle (NOT SAVED TO DISK) */
+};
+
+#define	CM_SKIP_HOOKS	0x01		/* Don't run server-side handlers */
+
 
 /*
  * Generic per-session variable or data structure storage
@@ -362,17 +375,6 @@ struct ser_ret {
         char *ser;
 };
 
-
-/*
- * New format for a message in memory
- */
-#define	CTDLMESSAGE_MAGIC		0x159d
-struct CtdlMessage {
-	int cm_magic;			/* Self-check */
-	char cm_anon_type;		/* Anonymous or author-visible */
-	char cm_format_type;		/* Format type */
-	char *cm_fields[256];		/* Data fields */
-};
 
 /* Preferred field order */
 /*               *********			Important fields */

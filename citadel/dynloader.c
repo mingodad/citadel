@@ -267,6 +267,18 @@ int PerformMessageHooks(struct CtdlMessage *msg, int EventType)
 	struct MessageFunctionHook *fcn;
 	int total_retval = 0;
 
+	/* Other code may elect to protect this message from server-side
+	 * handlers; if this is the case, don't do anything.
+	 */
+	lprintf(9, "** Event type is %d, flags are %d\n",
+		EventType, msg->cm_flags);
+	if (msg->cm_flags & CM_SKIP_HOOKS) {
+		lprintf(9, "Skipping hooks\n");
+		return(0);
+	}
+
+	/* Otherwise, run all the hooks appropriate to this event type.
+	 */
 	for (fcn = MessageHookTable; fcn != NULL; fcn = fcn->next) {
 		if (fcn->eventtype == EventType) {
 			total_retval = total_retval +
@@ -274,8 +286,14 @@ int PerformMessageHooks(struct CtdlMessage *msg, int EventType)
 		}
 	}
 
+	/* Return the sum of the return codes from the hook functions.  If
+	 * this is an EVT_BEFORESAVE event, a nonzero return code will cause
+	 * the save operation to abort.
+	 */
 	return total_retval;
 }
+
+
 
 int PerformXmsgHooks(char *sender, char *recp, char *msg)
 {

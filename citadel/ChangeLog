@@ -1,4 +1,7 @@
 $Log$
+Revision 1.381  1999/10/08 02:55:57  ajc
+* More vCard-related debugging
+
 Revision 1.380  1999/10/07 02:58:46  ajc
 * Semi-broken vCard replacement implementation in place.
 * Added "Z" (Zap, supersede) field to message format
@@ -1298,3 +1301,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

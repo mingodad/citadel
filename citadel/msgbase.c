@@ -1922,7 +1922,8 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 			char *tempfilename,	/* Where to fetch it from */
 			struct usersupp *is_mailbox,	/* Mailbox room? */
 			int is_binary,		/* Is encoding necessary? */
-			int is_unique		/* Del others of this type? */
+			int is_unique,		/* Del others of this type? */
+			unsigned int flags	/* Internal save flags */
 			)
 {
 
@@ -1939,7 +1940,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 		MailboxName(roomname, is_mailbox, req_room);
 	else
 		safestrncpy(roomname, req_room, sizeof(roomname));
-	lprintf(9, "CtdlWriteObject() to <%s>\n", roomname);
+	lprintf(9, "CtdlWriteObject() to <%s> (flags=%d)\n", roomname, flags);
 
 	strcpy(filename, tmpnam(NULL));
 	fp = fopen(filename, "w");
@@ -1982,6 +1983,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 	msg->cm_fields['O'] = strdoop(req_room);
 	msg->cm_fields['N'] = strdoop(config.c_nodename);
 	msg->cm_fields['H'] = strdoop(config.c_humannode);
+	msg->cm_flags = flags;
 	
 	lprintf(9, "Loading\n");
 	fp = fopen(filename, "rb");

@@ -60,6 +60,7 @@ void do_pre555_usersupp_upgrade(void) {
 	/* ...and overwrite the records with new format records */
 	rewind(fp);
 	while (fread(&usbuf, sizeof(struct pre555usersupp), 1, fp) > 0) {
+	    if (strlen(usbuf.fullname) > 0) {
 		lprintf(9, "Upgrading <%s>\n", usbuf.fullname);
 		memset(&newus, 0, sizeof(struct usersupp));
 
@@ -100,9 +101,9 @@ void do_pre555_usersupp_upgrade(void) {
 		fclose(tp);
 
         	CtdlWriteObject(CONFIGROOM, "text/x-vcard",
-			tempfilename, &newus, 0, 1);    
+			tempfilename, &newus, 0, 1, CM_SKIP_HOOKS);
 		unlink(tempfilename);
-
+	    }
 	}
 
 	fclose(fp);	/* this file deletes automatically */
