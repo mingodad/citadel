@@ -106,6 +106,9 @@ void do_login(void) {
 	char buf[256];
 	int need_regi = 0;
 
+
+	if (!strcasecmp(bstr("noframes"), "on")) noframes = 1;
+
 	if (!strcasecmp(bstr("action"), "Exit")) {
 		do_logout();
 		}
