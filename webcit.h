@@ -50,6 +50,7 @@
 #define LISTEN_QUEUE_LENGTH	100		/* listen() backlog queue */
 
 #define USERCONFIGROOM		"My Citadel Config"
+#define DEFAULT_MAXMSGS		20
 
 
 /*

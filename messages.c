@@ -977,7 +977,7 @@ void readloop(char *oper)
 	startmsg = atol(bstr("startmsg"));
 	maxmsgs = atoi(bstr("maxmsgs"));
 	is_summary = atoi(bstr("summary"));
-	if (maxmsgs == 0) maxmsgs = 20;
+	if (maxmsgs == 0) maxmsgs = DEFAULT_MAXMSGS;
 
 	output_headers(1);
 
@@ -992,7 +992,7 @@ void readloop(char *oper)
 	if ((WC->wc_view == VIEW_MAILBOX) && (maxmsgs > 1)) {
 		is_summary = 1;
 		strcpy(cmd, "MSGS ALL");
-		maxmsgs = 32767;
+		/* maxmsgs = 32767; */
 	}
 
 	if ((WC->wc_view == VIEW_ADDRESSBOOK) && (maxmsgs > 1)) {
