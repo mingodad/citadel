@@ -1,4 +1,9 @@
  $Log$
+ Revision 1.15  2003/11/09 17:53:47  ajc
+ * Moved all of the session-management code from ctdlheader.php to
+   ctdlsession.php, leaving only a single function call.  This will
+   hopefully make ctdlheader.php more palatable to non-programmers.
+
  Revision 1.14  2003/11/07 15:56:13  ajc
  * ctdlprotocol.php: known room list fetch now sets subscript "hasnewmsgs"
  * listrooms.php: render rooms with unseen messages in boldface
@@ -61,3 +66,4 @@
 
  Revision 1.1  2003/10/31 03:47:13  ajc
  * Initial CVS import
+

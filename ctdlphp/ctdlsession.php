@@ -10,6 +10,11 @@ function establish_citadel_session() {
 
 	global $session, $clientsocket;
 
+	if (strcmp('4.3.0', phpversion()) > 0) {
+		die("This program requires PHP 4.3.0 or newer.");
+	}
+
+
 	session_start();
 
 	if ($_SESSION["ctdlsession"]) {
@@ -72,6 +77,22 @@ function establish_citadel_session() {
 		echo "ERROR: no Citadel socket!<BR>\n";
 		flush();
 	}
+
+	// If the user is trying to call up any page other than
+	// login.php logout.php do_login.php,
+	// and the session is not logged in, redirect to login.php
+	//
+	if ($_SESSION["logged_in"] != 1) {
+		$filename = basename(getenv('SCRIPT_NAME'));
+		if (	(strcmp($filename, "login.php"))
+		   &&	(strcmp($filename, "logout.php"))
+		   &&	(strcmp($filename, "do_login.php"))
+		) {
+			header("Location: login.php");
+			exit(0);
+		}
+	}
+
 	
 }
 

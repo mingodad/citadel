@@ -3,7 +3,7 @@
 // $Id$
 //
 // Header and footer code to be included on every page.  Not only does it
-// contain some common markup, but it also includes some code glue that holds
+// contain some common markup, but it also calls some code glue that holds
 // the session together.
 //
 // Copyright (c) 2003 by Art Cancro <ajc@uncensored.citadel.org>
@@ -13,28 +13,7 @@ include "ctdlsession.php";
 include "ctdlprotocol.php";
 
 function bbs_page_header() {
-	global $session;
-
-	if (strcmp('4.3.0', phpversion()) > 0) {
-		die("This program requires PHP 4.3.0 or newer.");
-	}
-
 	establish_citadel_session();
-
-	// If the user is trying to call up any page other than
-	// login.php logout.php do_login.php,
-	// and the session is not logged in, redirect to login.php
-	//
-	if ($_SESSION["logged_in"] != 1) {
-		$filename = basename(getenv('SCRIPT_NAME'));
-		if (	(strcmp($filename, "login.php"))
-		   &&	(strcmp($filename, "logout.php"))
-		   &&	(strcmp($filename, "do_login.php"))
-		) {
-			header("Location: login.php");
-			exit(0);
-		}
-	}
 
 	echo <<<LITERAL
 
