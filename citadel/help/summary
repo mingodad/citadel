@@ -3,46 +3,101 @@ a dot command, press the . key, and then enter the first letter of
 each word in the command. The words will appear as you enter the keys.
 You can also backspace over partially entered commands. The following
 commands are available:
- 
- .<E>nter message using <A>scii     - raw mode message input
- .<E>nter <B>io                     - tell everyone about yourself
- .<E>nter <C>onfiguration           - set up your account statistics
- .<E>nter message with <E>ditor     - (installation dependent)
- .<E>nter re<G>istration            - enter your name, address, etc.
- .<E>nter <M>essage                 - enter message with the Citadel editor
- .<E>nter <P>assword                - change your password
- .<E>nter <R>oom                    - create a new room
- .<E>nter <T>extfile                - ASCII upload
- .<E>nter file using <X>modem       - protocol upload
- .<E>nter file using <Y>modem       - protocol upload
- .<E>nter file using <Z>modem       - protocol upload
-    
- .<R>ead <B>io                      - read other users' bios
- .<R>ead <D>irectory                - directory of current room
- .<R>ead <F>ile unformatted         - raw ASCII download
- .<R>ead <I>nfo file                - read info file for this room
- .<R>ead <L>ast five messages       - same as <L>
- .<R>ead <N>ew messages             - same as <N>
- .<R>ead <O>ld messages             - same as <O>
- .<R>ead <R>everse                  - same as <R>
- .<R>ead <T>extfile paginated       - prints a textfile with page prompts
- .<R>ead <U>ser List                - lists users with accounts on system
- .<R>ead file using <X>modem        - protocol download
- .<R>ead file using <Y>modem        - protocol download
- .<R>ead file using <Z>modem        - protocol download
-    
- .<G>oto room: (type roomname)      - jump to a specific room
-                                      (you only need to type enough of the
-                                      room name to make it unique)
- .<S>kip, goto: (type roomname)     - skip current room, jump to another
- .<H>elp file: (type filename)      - read a help file
- .<T>erminate and <Q>uit            - log out immediately without prompts
- .<T>erminate and <S>tay online     - log out and allow another user to log in
- .<Z>apped room list                - list all zapped (forgotten) rooms
 
+ <.> <H>elp:    Displays help files.  Type .H followed by a help file
+                name.  You are now reading <.H>elp SUMMARY
+ 
+ <.> <G>oto:    Jumps directly to the room you specify.  You can also
+                type a partial room name, just enough to make it unique,
+                and it'll find the room you're looking for.  As with the
+                regular <G>oto command, messages in the current room will
+                be marked as read.
+ 
+ <.> <S>kip, goto:    This is similar to <.G>oto, except it doesn't mark
+                      messages in the current room as read.
+ 
+ <.> list <Z>apped rooms      Shows all rooms you've <Z>apped (forgotten)
+
+  
+ Terminate (logoff) commands:
+ 
+ <.> <T>erminate and <Q>uit               Log off and disconnect.
+ <.> <T>erminate and <S>tay online        Log in as a different user.
+ 
+ 
+ Read commands:
+
+ <.> <R>ead <N>ew messages                Same as <N>ew
+ <.> <R>ead <O>ld msgs reverse            Same as <O>ld
+ <.> <R>ead <L>ast five msgs              Same as <L>ast5
+ <.> read <L>ast:                         Allows you to specify how many
+                                          messages you wish to read.
+
+ <.> <R>ead <U>ser listing:               Lists all users on the system if
+                                          you just hit enter, otherwise
+                                          you can specify a partial match
+
+ <.> <R>ead <T>extfile formatted          File 'download' commands.
+ <.> <R>ead file using <X>modem   
+ <.> <R>ead file using <Y>modem   
+ <.> <R>ead file using <Z>modem   
+ <.> <R>ead <F>ile unformatted   
+ <.> <R>ead <D>irectory   
+
+ <.> <R>ead <I>nfo file                   Read the room info file.
+ <.> <R>ead <B>io                         Read other users' "bio" files.
+ 
+ 
+ Enter commands:
+
+ <.> <E>nter <M>essage                    Post a message in this room.
+ <.> <E>nter message with <E>ditor        Post using a full-screen editor.
+ <.> <E>nter <A>SCII message              Post 'raw' (paste to host)
+
+ <.> <E>nter <P>assword                   Change your password.
+ <.> <E>nter <C>onfiguration              Change your 'preferences'.
+ <.> <E>nter a new <R>oom                 Create a new room.
+ <.> <E>nter re<G>istration               Register (name, address, etc.)
+ <.> <E>nter <B>io                        Enter/change your "bio" file.
+
+ <.> <E>nter <T>extfile                   File 'upload' commands.
+ <.> <E>nter file using <X>modem   
+ <.> <E>nter file using <Y>modem   
+ <.> <E>nter file using <Z>modem   
+  
+  
+  Wholist commands:
+ 
+ <.> <W>holist <L>ong             Same as <W>ho is online, but displays
+                                  more detailed information.
+ <.> <W>holist <R>oomname         Masquerade your room name (other users
+                                  see the name you enter rather than the
+                                  actual name of the room you're in)
+ <.> <W>holist <H>ostname         Masquerade your host name
+ <.> <E>nter <U>sername           Masquerade your user name (Aides only)
+ 
+ 
  Floor commands (if using floor mode)
  ;<C>onfigure floor mode            - turn floor mode on or off
  ;<G>oto floor:                     - jump to a specific floor
  ;<K>nown rooms                     - list all rooms on all floors
  ;<S>kip to floor:                  - skip current floor, jump to another
  ;<Z>ap floor                       - zap (forget) all rooms on this floor
+ 
+ 
+ Aide (administrative) commands: 
+ 
+ <.> <A>ide <K>ill this room   
+ <.> <A>ide <E>dit this room   
+ <.> <A>ide <W>ho knows room   
+ <.> <A>ide edit <U>ser   
+ <.> <A>ide <V>alidate new users   
+ <.> <A>ide enter <I>nfo file   
+ <.> <A>ide <R>oom <I>nvite user  
+ <.> <A>ide <R>oom <K>ick out user  
+ <.> <A>ide <F>ile <D>elete  
+ <.> <A>ide <F>ile <S>end over net  
+ <.> <A>ide <F>ile <M>ove  
+ <.> <A>ide <M>essage edit:   
+ <.> <A>ide <P>ost   
+ <.> <A>ide <S>ystem configuration   

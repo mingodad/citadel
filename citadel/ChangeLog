@@ -1,4 +1,7 @@
  $Log$
+ Revision 572.11  2000/07/06 20:26:36  ajc
+ * updated .Help SUMMARY
+
  Revision 572.10  2000/07/04 20:02:46  ajc
  * Fixed potential crashy crashy bug in serv_vcard.c
 
@@ -1925,4 +1928,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
