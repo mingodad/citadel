@@ -1,9 +1,12 @@
  $Log$
+ Revision 573.122  2001/04/01 22:05:44  cough
+ * *Actually* fixed a botched ChangeLog entry.
+
  Revision 573.121  2001/04/01 22:04:28  cough
  * Fixed a botched ChangeLog entry.
 
- * Revision 573.120  2001/04/01 22:03:10  cough
-   Changed two fclose()s to pclose()s.
+ Revision 573.120  2001/04/01 22:03:10  cough
+ * Changed two fclose()s to pclose()s.
 
  Revision 573.119  2001/03/25 11:52:36  error
  * serv_pop3.c: Fixed APOP. Now logs in properly. Also cleaned up some non-
