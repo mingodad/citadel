@@ -1344,10 +1344,8 @@ FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
 	if (a <= 0)
 		goto FMTEND;
 
-	/*
 	if (a == 10) scr_printf("<a==10>");
 	if (a == 13) scr_printf("<a==13>");
-	*/
 
 	if ((a == 13) || (a == 10)) {
 		if ((old != 13) && (old != 10))
@@ -1453,6 +1451,8 @@ int fmout2(
 	int column = 0;		/* Current column */
 	size_t i;		/* Generic counter */
 
+	num_urls = 0;	/* Start with a clean slate of embedded URL's */
+
 	word = (char *)calloc(1, width);
 	if (!word) {
 		err_printf("Can't alloc memory to print message: %s!\n",
@@ -1463,8 +1463,9 @@ int fmout2(
 	if (fpin) {
 		size_t got = 0;
 
-		rewind(fpin);
+		fseek(fpin, 0, SEEK_END);
 		i = ftell(fpin);
+		rewind(fpin);
 		buffer = (char *)calloc(1, i + 1);
 		if (!buffer) {
 			err_printf("Can't alloc memory for message: %s!\n",
@@ -1485,11 +1486,10 @@ int fmout2(
 	} else {
 		buffer = text;
 	}
+	e = buffer;
 
 	if (starting_lp >= 0)
 		lines_printed = starting_lp;
-
-	e = buffer;
 
 	while (*e) {
 		/* First, are we looking at a newline? */
@@ -1537,17 +1537,52 @@ int fmout2(
 			continue;
 		}
 
-		/* Read a word and decide what to do with it */
+		/* Read a word, slightly messy */
 		i = 0;
-		while (*e) {
+		while (e[i]) {
+			if (!isprint(e[i]) && !isspace(e[i]))
+				e[i] = ' ';
 			if (isspace(e[i]))
 				break;
 			i++;
 		}
-		if (i >= width)		/* Break up really long words */
+
+		/* We should never see these, but... slightly messy */
+		if (e[i] == '\t' || e[i] == '\f' || e[i] == '\v')
+			e[i] = ' ';
+
+		/*
+		 * Check for and copy URLs
+		 * We will get the entire URL even if it's longer than the
+		 * screen width, as long as the server didn't break it up
+		 */
+		if (!strncasecmp(e, "http://", 7) ||
+		    !strncasecmp(e, "ftp://", 6)) {
+			int j;
+
+			strncpy(urls[num_urls], e, i);
+			urls[num_urls][i] = 0;
+			for (j = 0; j < strlen(e); j++) {
+				char c;
+
+				c = urls[num_urls][j];
+				if (c == '>' || c == '\"' || c == ')' ||
+				    c == ' ' || c == '\n') {
+					urls[num_urls][j] = 0;
+					break;
+				}
+			}
+			num_urls++;
+		}
+
+		/* Break up really long words */
+		/* TODO: auto-hyphenation someday? */
+		if (i >= width)	
 			i = width - 1;
 		strncpy(word, e, i);
 		word[i] = 0;
+
+		/* Decide where to print the word */
 		if (column + i >= width) {
 			if (fpout) {
 				fprintf(fpout, "\n");
@@ -1558,19 +1593,21 @@ int fmout2(
 			}
 			column = 0;
 		}
+
+		/* Print the word */
 		if (fpout) {
 			fprintf(fpout, "%s", word);
 		} else {
 			scr_printf("%s", word);
 		}
 		column += i;
-		e += i;
+		e += i;		/* Start with the whitepsace! */
 	}
 
 	free(word);
-	if (fpin)
+	if (fpin)		/* We allocated this, remember? */
 		free(buffer);
-	return 0;
+	return sigcaught;
 }
 
 

@@ -577,6 +577,11 @@ int read_message(CtdlIPC *ipc,
 		}
 	}
 
+	/* Text/plain is a different type */
+	if (!strcasecmp(message->content_type, "text/plain")) {
+		format_type = 1;
+	}
+
 	/*
 	 * Here we go
 	 */
@@ -584,6 +589,7 @@ int read_message(CtdlIPC *ipc,
 		fr = fmout2(screenwidth, NULL, message->text, dest,
 			   ((pagin == 1) ? 1 : 0), screenheight, (-1), 1);
 	} else {
+		/* FIXME: renderer for text/plain */
 		char *msgtext;
 		char *lineptr;
 

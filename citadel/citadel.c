@@ -190,7 +190,7 @@ void formout(CtdlIPC *ipc, char *name)
 		return;
 	}
 	if (text) {
-		fmout(screenwidth, NULL, text, NULL,
+		fmout2(screenwidth, NULL, text, NULL,
 		      ((userflags & US_PAGINATOR) ? 1 : 0),
 		      screenheight, 1, 1);
 		free(text);
