@@ -1161,6 +1161,8 @@ void session_loop(struct httprequest *req)
 		save_event();
 	} else if (!strcasecmp(action, "respond_to_request")) {
 		respond_to_request();
+	} else if (!strcasecmp(action, "handle_rsvp")) {
+		handle_rsvp();
 #endif
 	} else if (!strcasecmp(action, "summary")) {
 		summary();

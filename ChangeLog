@@ -1,4 +1,8 @@
 $Log$
+Revision 400.61  2002/12/07 22:12:59  ajc
+* Handle incoming RSVP's for meetings.  (Note: this will not actually work
+  until I implement the Citadel server function which it calls.)
+
 Revision 400.60  2002/11/30 21:34:51  ajc
 * Submit organizer in a hidden field, in case the server needs it
 
@@ -1157,3 +1161,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
