@@ -433,10 +433,8 @@ void async_ka_start(void)
 int inkey(void)
 {				/* get a character from the keyboard, with   */
 	int a;			/* the watchdog timer in effect if necessary */
-#ifndef HAVE_CURSES_H /* avoid compiler warning */
 	fd_set rfds;
 	struct timeval tv;
-#endif
 	time_t start_time;
 
 	scr_flush();
@@ -444,9 +442,6 @@ int inkey(void)
 	time(&start_time);
 
 	do {
-#ifdef HAVE_CURSES_H /* IO, maybe you wanna move this to screen.c */
-        a = scr_blockread();
-#else
 		/* This loop waits for keyboard input.  If the keepalive
 		 * timer expires, it sends a keepalive to the server if
 		 * necessary and then waits again.
@@ -466,9 +461,6 @@ int inkey(void)
 		 * (There's a hole in the bucket...)
 		 */
 		a = scr_getc();
-#endif
-
-
 		if (a == 127)
 			a = 8;
 		if (a > 126)

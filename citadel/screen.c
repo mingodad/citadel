@@ -271,7 +271,6 @@ int scr_getc(void)
 {
   char buf;
 #ifdef HAVE_CURSES_H
-    /* This looks scary, the program will hang if mainwindow is null */
 	if (mainwindow)
 		return wgetch(mainwindow);
 #endif
