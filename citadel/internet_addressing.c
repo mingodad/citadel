@@ -52,6 +52,7 @@ int CtdlHostAlias(char *fqdn) {
 	char host[256], type[256];
 
 	if (!strcasecmp(fqdn, config.c_fqdn)) return(hostalias_localhost);
+	if (!strcasecmp(fqdn, config.c_nodename)) return(hostalias_localhost);
 	if (inetcfg == NULL) return(hostalias_nomatch);
 
 	config_lines = num_tokens(inetcfg, '\n');
@@ -82,7 +83,7 @@ int CtdlHostAlias(char *fqdn) {
 /*
  * Return 0 if a given string fuzzy-matches a Citadel user account
  *
- * FIX ... this needs to be updated to handle aliases.
+ * FIXME ... this needs to be updated to handle aliases.
  */
 int fuzzy_match(struct usersupp *us, char *matchstring) {
 	int a;
@@ -317,7 +318,7 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 	}
 
 	/* Now try to resolve the name
-	 * FIX ... do the multiple-addresses thing
+	 * FIXME ... do the multiple-addresses thing
 	 */
 	if (!strcasecmp(node, config.c_nodename)) {
 		/* Try all local rooms */

@@ -353,7 +353,7 @@ void smtp_rcpt(char *argbuf) {
 	char user[256];
 	char node[256];
 	char recp[256];
-	int is_spam = 0;	/* FIX implement anti-spamming */
+	int is_spam = 0;	/* FIXME implement anti-spamming */
 
 	if (strlen(SMTP->from) == 0) {
 		cprintf("503 MAIL first, then RCPT.  Duh.\r\n");
@@ -991,10 +991,11 @@ void smtp_do_bounce(char *instr) {
         bmsg->cm_fields['A'] = strdoop("Citadel");
         bmsg->cm_fields['N'] = strdoop(config.c_nodename);
         bmsg->cm_fields['M'] = strdoop(
-		"BOUNCE!  BOUNCE!!  BOUNCE!!!\n\n"
-		"FIX ... this message should be made to look nice and stuff.\n"
-		"In the meantime, you should be aware that the following\n"
-		"recipient addresses had permanent fatal errors:\n\n");
+
+"BOUNCE!  BOUNCE!!  BOUNCE!!!\n\n"
+"FIXME ... this message should be made to look nice and stuff.\n"
+"In the meantime, you should be aware that the following\n"
+"recipient addresses had permanent fatal errors:\n\n");
 
 	lines = num_tokens(instr, '\n');
 	for (i=0; i<lines; ++i) {
@@ -1024,14 +1025,17 @@ void smtp_do_bounce(char *instr) {
 		if (bounce_this) {
 			++num_bounces;
 
-			/*  FIX put this back in!
+			if (bmsg->cm_fields['M'] == NULL) {
+				lprintf(2, "ERROR ... M field is null "
+					"(%s:%d)\n", __FILE__, __LINE__);
+			}
+
 			bmsg->cm_fields['M'] = reallok(bmsg->cm_fields['M'],
-				strlen(bmsg->cm_fields['M'] + 1024) );
+				strlen(bmsg->cm_fields['M']) + 1024 );
 			strcat(bmsg->cm_fields['M'], addr);
 			strcat(bmsg->cm_fields['M'], ": ");
 			strcat(bmsg->cm_fields['M'], dsn);
 			strcat(bmsg->cm_fields['M'], "\n");
-			*/
 
 			remove_token(instr, i, '\n');
 			--i;
@@ -1043,13 +1047,12 @@ void smtp_do_bounce(char *instr) {
 	lprintf(9, "num_bounces = %d\n", num_bounces);
 	if (num_bounces > 0) {
 
-		/* First try the user who sent the message   FIX
+		/* First try the user who sent the message */
 		lprintf(9, "bounce to user? <%s>\n", bounceto);
 		if (strlen(bounceto) == 0) bounce_msgid = (-1L);
 		else bounce_msgid = CtdlSaveMsg(bmsg,
 			bounceto,
 			"", MES_LOCAL, 1);
-		*/
 
 		/* Otherwise, go to the Aide> room */
 		lprintf(9, "bounce to room?\n");
@@ -1285,4 +1288,3 @@ char *Dynamic_Module_Init(void)
 	CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);
 	return "$Id$";
 }
-

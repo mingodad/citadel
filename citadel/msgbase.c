@@ -29,6 +29,7 @@
 #include "mime_parser.h"
 #include "html.h"
 #include "genstamp.h"
+#include "internet_addressing.h"
 
 #define desired_section ((char *)CtdlGetUserData(SYM_DESIRED_SECTION))
 #define ma ((struct ma_info *)CtdlGetUserData(SYM_MA_INFO))
@@ -129,6 +130,16 @@ int alias(char *name)
 	fclose(fp);
 	lprintf(7, "Mail is being forwarded to %s\n", name);
 
+	/* Change "user @ xxx" to "user" if xxx is an alias for this host */
+	for (a=0; a<strlen(name); ++a) {
+		if (name[a] == '@') {
+			if (CtdlHostAlias(&name[a+1]) == hostalias_localhost) {
+				name[a] = 0;
+				lprintf(7, "Changed to <%s>\n", name);
+			}
+		}
+	}
+
 	/* determine local or remote type, see citadel.h */
 	for (a = 0; a < strlen(name); ++a)
 		if (name[a] == '!')
@@ -155,7 +166,7 @@ int alias(char *name)
 		fp = fopen("network/mail.sysinfo", "r");
 		if (fp == NULL)
 			return (MES_ERROR);
-	      GETSN:do {
+GETSN:		do {
 			a = getstring(fp, aaa);
 		} while ((a >= 0) && (strcasecmp(aaa, bbb)));
 		a = getstring(fp, aaa);
@@ -675,12 +686,10 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
 
 	for (i = 0; i < 256; ++i)
 		if (msg->cm_fields[i] != NULL) {
-			lprintf(9, "phreeing %c\n", i);
 			phree(msg->cm_fields[i]);
 		}
 
 	msg->cm_magic = 0;	/* just in case */
-	lprintf(9, "phreeing msg\n");
 	phree(msg);
 }
 
@@ -783,7 +792,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		return(om_not_logged_in);
 	}
 
-	/* FIX ... small security issue
+	/* FIXME ... small security issue
 	 * We need to check to make sure the requested message is actually
 	 * in the current room, and set msg_ok to 1 only if it is.  This
 	 * functionality is currently missing because I'm in a hurry to replace
@@ -979,7 +988,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 			return(om_ok);
 		}
 		else if (mode == MT_RFC822) {	/* unparsed RFC822 dump */
-			/* FIX ... we have to put some code in here to avoid
+			/* FIXME ... we have to put some code in here to avoid
 			 * printing duplicate header information when both
 			 * Citadel and RFC822 headers exist.  Preference should
 			 * probably be given to the RFC822 headers.
@@ -1134,7 +1143,7 @@ void cmd_msg3(char *cmdbuf)
 
 
 /* 
- * display a message (mode 4 - MIME) (FIX ... still evolving, not complete)
+ * display a message (mode 4 - MIME) (FIXME ... still evolving, not complete)
  */
 void cmd_msg4(char *cmdbuf)
 {
@@ -1517,10 +1526,24 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	strcpy(force_room, force);
 
 	/* Strip non-printable characters out of the recipient name */
+	lprintf(9, "Checking recipient (if present)\n");
 	strcpy(recipient, rec);
 	for (a = 0; a < strlen(recipient); ++a)
 		if (!isprint(recipient[a]))
 			strcpy(&recipient[a], &recipient[a + 1]);
+
+	/* Change "user @ xxx" to "user" if xxx is an alias for this host */
+	for (a=0; a<strlen(recipient); ++a) {
+		if (recipient[a] == '@') {
+			if (CtdlHostAlias(&recipient[a+1]) 
+			   == hostalias_localhost) {
+				recipient[a] = 0;
+				lprintf(7, "Changed to <%s>\n", recipient);
+			}
+		}
+	}
+
+	lprintf(9, "Recipient is <%s>\n", recipient);
 
 	/* Learn about what's inside, because it's what's inside that counts */
 	lprintf(9, "Learning what's inside\n");

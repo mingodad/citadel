@@ -499,7 +499,7 @@ int client_gets(char *buf)
  * The system-dependent part of master_cleanup() - close the master socket.
  */
 void sysdep_master_cleanup(void) {
-	/* FIX close all protocol master sockets here */
+	/* FIXME close all protocol master sockets here */
 }
 
 
@@ -856,19 +856,9 @@ int main(int argc, char **argv)
 
 	for (serviceptr = ServiceHookTable; serviceptr != NULL;
 	    serviceptr = serviceptr->next ) {
-		serviceptr->msock = ig_tcp_server(
-			serviceptr->tcp_port, config.c_maxsessions);
-		if (serviceptr->msock >= 0) {
-			FD_SET(serviceptr->msock, &masterfds);
-			if (serviceptr->msock > masterhighest)
-				masterhighest = serviceptr->msock;
-			lprintf(7, "Bound to port %-5d (socket %d)\n",
-				serviceptr->tcp_port,
-				serviceptr->msock);
-		}
-		else {
-			lprintf(1, "Unable to bind to port %d\n",
-				serviceptr->tcp_port);
+		FD_SET(serviceptr->msock, &masterfds);
+		if (serviceptr->msock > masterhighest) {
+			masterhighest = serviceptr->msock;
 		}
 	}
 

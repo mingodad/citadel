@@ -70,7 +70,7 @@ void master_cleanup(void) {
 	/* Cancel all running sessions */
 	lprintf(7, "Cancelling running sessions...\n");
 
-/* FIX do something here
+/* FIXME do something here
 	while (ContextList != NULL) {
 		}
  */

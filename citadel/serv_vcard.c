@@ -86,7 +86,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 			 * want to make sure there is absolutely only one
 			 * vCard in the user's config room at all times.
 			 * 
-			 * FIX ... this needs to be tweaked to allow an admin
+			 * FIXME ... this needs to be tweaked to allow an admin
 			 * to make changes to another user's vCard instead of
 			 * assuming that it's always the user saving his own.
 			 */

@@ -76,8 +76,8 @@ int sock_connect(char *host, char *service, char *protocol)
 		return(-1);
 	}
 
-/* FIX ... the alarm clock is a problem for multithreaded programs because all
- * threads receive the signal.
+/* FIXME ... the alarm clock is a problem for multithreaded programs because
+ * all threads receive the signal.
 	signal(SIGALRM, timeout);
 	alarm(30);
  */

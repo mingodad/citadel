@@ -314,7 +314,7 @@ void ForEachRoom(void (*CallBack) (struct quickroom *EachRoom, void *out_data),
 
 /*
  * delete_msglist()  -  delete room message pointers
- * FIX - this really should check first to make sure there's actually a
+ * FIXME - this really should check first to make sure there's actually a
  *       msglist to delete.  As things stand now, calling this function on
  *       a room which has never been posted in will result in a message
  *       like "gdbm: illegal data" (no big deal, but could use fixing).
