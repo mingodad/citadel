@@ -36,7 +36,7 @@
 
 #endif
 
-#define MAXSETUP 4
+#define MAXSETUP 4	/* How many setup questions to ask */
 
 #define UI_TEXT		0	/* Default setup type -- text only */
 #define UI_DIALOG	1	/* Use the 'dialog' program (REMOVED) */
