@@ -761,7 +761,6 @@ void smtp_try(const char *key, const char *addr, int *status,
 		snprintf(dsn, SIZ, "Could not connect: %s", strerror(errno));
 		if (sock >= 0) lprintf(9, "Connected!\n");
 		if (sock < 0) snprintf(dsn, SIZ, "%s", strerror(errno));
-		if (sock >= 0) break;
 	}
 
 	if (sock < 0) {

@@ -121,7 +121,6 @@ int spam_assassin(struct CtdlMessage *msg) {
                 lprintf(9, "Connecting to SpamAssassin at <%s>\n", buf);
                 sock = sock_connect(buf, SPAMASSASSIN_PORT, "tcp");
                 if (sock >= 0) lprintf(9, "Connected!\n");
-                if (sock >= 0) break;
         }
 
 	if (sock < 0) {
