@@ -185,7 +185,7 @@ struct          _Cmd_Callback {
 
  int            cmd;            // Command sent from server.  [9xx]
  char           session[10];    // Optional session id.
- void           (*Function)(void *); // Function to call upon success.
+ void           (*Function)(int, void *); // Function to call upon success.
 
  struct _Cmd_Callback *next;
 
@@ -239,7 +239,7 @@ char		*CxFiGet(int, const char *);
 #define		MSGS_SEARCH		3	// *Unsupported* Search room for ...? .
 CXLIST		CxMsInfo(int, CXLIST);
 CXLIST		CxMsList(int, int,int);
-int		CxMsLoad(int, const char *, int, MESGINFO *);
+int		CxMsLoad(int, unsigned long int, int, MESGINFO *);
 int		CxMsSaveOk(int, const char *);
 int		CxMsSave(int, MESGINFO);
 void		CxMsMark(int, long unsigned int );

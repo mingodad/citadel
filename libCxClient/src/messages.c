@@ -126,18 +126,18 @@ CXLIST		msgs = NULL;
  **
  ** CLIENT MUST free(toret.body) MANUALLY!!!!
  **/
-int		CxMsLoad(int id, const char *mid, int preserve_newlines, MESGINFO *toret) {
+int		CxMsLoad(int id, unsigned long int mid, int preserve_newlines, MESGINFO *toret) {
 char		buf[255], *newline="\n";
 int		rc, message_contents = 0, line_width;
 
-	DPF((DFA,"Loading message \"%s\"",mid));
+	DPF((DFA,"Loading message \"%ld\"",mid));
 	toret->message_id = 0;
 	toret->author[0] = 0;
 	toret->rcpt[0] = 0;
 	toret->room[0] = 0;
 	toret->subject[0] = 0;
 
-	sprintf(buf,"MSG2 %s",mid);
+	sprintf(buf,"MSG2 %ld",mid);
 	CxClSend(id, buf);
 	rc = CxClRecv(id, buf);
 	if(CHECKRC(rc, RC_LISTING) ) {

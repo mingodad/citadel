@@ -49,7 +49,7 @@ int		rc, i;
 		 ** room's information structure.
 		 **/
 		if(CHECKRC(rc, RC_OK)) {
-			CxSerialize(buf, &g_Ser);
+			CxSerialize(buf, (char **) &g_Ser);
 
 			room_info = (ROOMINFO *)CxMalloc(sizeof(ROOMINFO));
 			strcpy(room_info->name, g_Ser[0]);
@@ -109,7 +109,7 @@ int		rc, i;
 
 				rc = CxClRecv(id, buf);
 				if(CHECKRC(rc, RC_OK)) {
-					CxSerialize(buf, &g_Ser);
+					CxSerialize(buf, (char **) &g_Ser);
 		 
 					room_info = (ROOMINFO *)CxMalloc(sizeof(ROOMINFO));
 					strcpy(room_info->name, g_Ser[0]);

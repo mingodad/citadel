@@ -170,7 +170,7 @@ int		rc;
 		if( CHECKRC(rc, RC_OK) ) {
 			user_info = (USERINFO *)CxMalloc(sizeof(USERINFO));
 
-			CxSerialize(buf, &g_Ser);
+			CxSerialize(buf, (char **) &g_Ser);
 			strcpy(user_info->username, g_Ser[0]);
 			user_info->system.access_level = atoi(g_Ser[1]);
 			user_info->system.times_called = atol(g_Ser[2]);

@@ -38,10 +38,10 @@ static int	g_CxChatMode = 0,
 		g_CxSemaphore = 0;
 static CXCBHNDL	_CbHandles = 0;
 static char	g_CxClientName[32] = "";
-static int	_CxCallback(int cmd, void *data);
+static int	_CxCallback(int, int, void *);
 static void	timeout() {}
 static void	_CxClSend( int, const char * );
-static int	_CxClRecv( int, int*, char * );
+static int	_CxClRecv( int, int*, char *, int );
 
 /**
  ** CXTBL: Connection handle table.  Use this to make libCxClient thread-safe, and allow
@@ -513,27 +513,28 @@ CXHNDL		e;
 	if( s ) {
 
 		DPF((DFA,"-> recv"));
-		_CxClRecv( e->_sock, &(e->semaphore), buf );
+		_CxClRecv( e->_sock, &(e->semaphore), buf, id );
 		if(g_CxClientName[0]) {
 			sprintf(buf,"IDEN 1|1|100|CX/%s (%s)|",VERSION, g_CxClientName);
 		} else {
-			sprintf(buf,"IDEN 1|1|100|CX/%s (unknown)|",VERSION);
+			sprintf(buf,"IDEN 1|1|100|CX/%s|",VERSION);
 		}
 		_CxClSend(s, buf);
-		_CxClRecv(e->_sock, &(e->semaphore), buf);
+		_CxClRecv(e->_sock, &(e->semaphore), buf, id);
+
 		_CxClSend(s, "ASYN 1");
-		rc = _CxClRecv(e->_sock, &(e->semaphore), buf);
+		rc = _CxClRecv(e->_sock, &(e->semaphore), buf, id);
 
 		/**
 		 ** If the server doesn't support Asnychronous mode, then
 		 ** we shouldn't try to be asynchronous...
 		 **/
 		if(CHECKRC(rc, RC_OK)) {
+			DPF((DFA,":: Server in ASYNCHRONOUS mode."));
 			e->asynMode = 1;
-//			g_CxAsynMode = 1;
 		} else {
+			DPF((DFA,":: ASYNCHRONOUS mode not supported."));
 			e->asynMode = 0;
-//			g_CxAsynMode = 0;
 		}
 
 		/**
@@ -675,7 +676,7 @@ void		_CxClClear( int *e ) {
  ** _CxClRecv(): REAL receive.
  **/
 static
-int		_CxClRecv( int sock, int *semaphore, char *s ) {
+int		_CxClRecv( int sock, int *semaphore, char *s, int cxid ) {
 char		substr[4];
 int		i, tmp;
 
@@ -774,7 +775,7 @@ RETRY_RECV:
 		 ** If the server has told us a secret...
 		 **/
 		if(CHECKRC(i, RC_ASYNCMSG)) {
-			DPF((DFA,"Preparing to process async message"));
+			DPF((DFA,"Preparing to process async message on CXID"));
 
 			/**
 			 ** Do we have ANY callbacks defined?
@@ -784,7 +785,7 @@ RETRY_RECV:
 				/**
 				 ** Pass data to callback function, if appropriate.
 				 **/
-				if(_CxCallback(i, s)) {
+				if(_CxCallback(i, cxid, s)) {
 
 					/**
 					 ** ... Callback has failed.  We need to
@@ -792,14 +793,16 @@ RETRY_RECV:
 					 **/
 
 					/** INCOMPLETE **/
+					goto RETRY_RECV;
 
+				} else {
+					return( 000 );
 				}
-
-				goto RETRY_RECV;
 
 			} else {
 
 					/** INCOMPLETE **/
+					goto RETRY_RECV;
 
 			}
 		}
@@ -829,7 +832,7 @@ CXHNDL		e;
 	}
 
 	DPF((DFA,"Preparing to receive on %d", e->_sock));
-	return(_CxClRecv( e->_sock, &(e->semaphore), s ));
+	return(_CxClRecv( e->_sock, &(e->semaphore), s, id ));
 }
 
 /**
@@ -911,7 +914,6 @@ int		CxClSrvCnclReq() {
 CXCBHNDL	CxClCbExists(int cmd) {
 CXCBHNDL	x;
 
-	return(0);
 	DPF((DFA,"[_CbHandles] @0x%08x", _CbHandles));
 	x = _CbHandles;
 	while( x ) {
@@ -931,8 +933,6 @@ CXCBHNDL	x;
  **/
 int		CxClCbRegister(int cmd, void *func) {
 CXCBHNDL	new;
-
-	return(0);
 
 	DPF((DFA, "Registering callback for '%d' (@0x%08x)", cmd, func));
 	new = 0;
@@ -991,8 +991,6 @@ CXCBHNDL	new;
 void		CxClCbShutdown() {
 CXCBHNDL	x, y;
 
-	return;
-
 	DPF((DFA,"Shutting down callback subsystem"));
 	x = _CbHandles;
 	while( x ) {
@@ -1007,15 +1005,13 @@ CXCBHNDL	x, y;
  ** _CxCallback(): Execute a callback.
  **/
 static
-int		_CxCallback(int cmd, void *data) {
+int		_CxCallback(int cmd, int cxid, void *data) {
 CXCBHNDL	cb;
-
-	return(0);
 
 	DPF((DFA, "Executing callback %d", cmd));
 	cb = CxClCbExists(cmd);
 
-	if(cb) cb->Function(data);
+	if(cb) cb->Function(cxid, data);
 	else return(1);
 
 	return(0);

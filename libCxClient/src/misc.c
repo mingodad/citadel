@@ -40,7 +40,7 @@ int             i;
  
 	DPF((DFA,"Serializing '%s'",s));
 
-        for (ap = argv; (*ap = (char *)strsep(&s, "|")) != NULL;) {
+        for (ap = argv; (*ap = (char *)strsep((char **)&s, "|")) != NULL;) {
                 if (++ap >= &argv[50]) {
                         break;
                 }
@@ -121,7 +121,7 @@ int		rc;
 		toret = (EXPRMESG *) CxMalloc( sizeof(EXPRMESG) );
 		bzero( &toret, sizeof(EXPRMESG) );
 
-		CxSerialize( buf, &Ser );
+		CxSerialize( buf, (char **)&Ser );
 
 		toret->more_follows = atoi( Ser[0] );
 		toret->timestamp = (time_t) strtoul( Ser[1], 0, 10 );
@@ -196,7 +196,7 @@ void		_CxMiExpHook(int id, const void* data) {
 char		buf[512], *user_buf, *data_buf;
 int		rc;
 
-	DPF((DFA, "Received RC_901 message"));
+	DPF((DFA, "*ASYN* Received RC_901 message on CXID %d", id));
 	DPF((DFA, "Raw data: %s\n", (char *)data));
 
 	rc = CxClRecv(id, buf);
@@ -211,13 +211,17 @@ int		rc;
 	 **/
 	if(CHECKRC(rc, RC_LISTING)) {
 		do {
-			rc = CxClRecv( id, buf);
+			rc = CxClRecv( id, buf );
 			if(rc<0) {
 				realloc(data_buf, strlen(data_buf)+strlen(buf));
 				strcat(data_buf, buf);
 			}
 		} while(rc < 0);
 	}
+
+	/**
+	 ** Pass this information off to the user's function.
+	 **/
 	_MiExpFunc(user_buf, data_buf);
 	CxFree(user_buf);
 	CxFree(data_buf);

@@ -109,7 +109,7 @@ char		*CxFiGet(int id, const char *name) {
  ** _CxFiHook(): We will hook ourselves into the Transport layer to
  ** handle incoming file transfers.
  **/
-void		_CxFiHook(void *data) {
+void		_CxFiHook(int cxid, void *data) {
 	DPF((DFA, "Message received"));
 }
 
