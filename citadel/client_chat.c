@@ -28,6 +28,9 @@
 #include "routines.h"
 #include "ipc.h"
 #include "citadel_decls.h"
+#include "tools.h"
+
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 void chatmode(void) {
 	char wbuf[256];
@@ -158,12 +161,15 @@ RCL:	    if (send_complete_line) {
 					color(2);
 					}
 				if (strcmp(c_user,last_user)) {
-					sprintf(buf,"%s: %s",c_user,c_text);
+					snprintf(buf,sizeof buf,"%s: %s",c_user,c_text);
 					}
 				else {
-					sprintf(buf,"%40s","");
-					sprintf(&buf[strlen(c_user)+2],
-						"%s",c_text);
+					size_t i = MIN(sizeof buf - 1,
+						       strlen(c_user) + 2);
+
+					memset(buf, ' ', i);
+					safestrncpy(&buf[i], c_text,
+						    sizeof buf - i);
 					}
 				while (strlen(buf)<79) strcat(buf," ");
 				if (strcmp(c_user,last_user)) {

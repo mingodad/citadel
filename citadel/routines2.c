@@ -395,7 +395,7 @@ void upload(int c)	/* c = upload mode */
  */
 void val_user(char *user)
 {
-	int a,b;
+	int a;
 	char cmd[256];
 	char buf[256];
 	int ax = 0;

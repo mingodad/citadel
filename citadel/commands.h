@@ -4,6 +4,7 @@ void sttybbs(int cmd);
 void newprompt(char *prompt, char *str, int len);
 void strprompt(char *prompt, char *str, int len);
 int boolprompt(char *prompt, int prev_val);
+int intprompt(char *prompt, int ival, int imin, int imax);
 int fmout(int width, FILE *fp, char pagin, int height, int starting_lp,
 	  char subst);
 int getcmd(char *argbuf);

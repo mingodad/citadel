@@ -132,7 +132,7 @@ char *strerror(int e)
 {
 	static char buf[32];
 
-	sprintf(buf,"errno = %d",e);
+	snprintf(buf,sizeof buf,"errno = %d",e);
 	return(buf);
 	}
 #endif
@@ -376,9 +376,9 @@ void do_citmail(char recp[], int dtype) {
 		}
 
 	time(&now);
-	sprintf(from, "postmaster@%s", config.c_nodename);
+	snprintf(from, sizeof from, "postmaster@%s", config.c_nodename);
 
-	sprintf(buf, "./network/spoolin/citmail.%d", getpid());
+	snprintf(buf, sizeof buf, "./network/spoolin/citmail.%d", getpid());
 	temp = fopen(buf,"w");
 
 	putc(255,temp); putc(MES_NORMAL,temp); putc(1,temp);
@@ -432,7 +432,7 @@ void do_uudecode(char *target)
 	static char buf[1024];
 	FILE *fp;
 	
-	sprintf(buf,"cd %s; uudecode",target);
+	snprintf(buf,sizeof buf,"cd %s; uudecode",target);
 
 	fp=popen(buf,"w");
 	if (fp==NULL) return;
@@ -609,7 +609,7 @@ int main(int argc, char **argv)
 		
 							/* Otherwise, we're dealing with Citadel mail. */
 							else {
-								sprintf(recp, "%s!%s", node, user);
+								snprintf(recp, sizeof recp, "%s!%s", node, user);
 								deliver_to_ignet = 1;
 								printf("250 IGnet recipient.\n");
 								}
@@ -665,14 +665,14 @@ int main(int argc, char **argv)
 		 	* back to an external mail transport agent such as sendmail.
 		 	*/
 			if (haschar(node, '.')) {
-				sprintf(buf, SENDMAIL, recp);
+				snprintf(buf, sizeof buf, SENDMAIL, recp);
 				system(buf);
 				exit(0);
 				}
 	
 			/* Otherwise, we're dealing with Citadel mail. */
 			else {
-				sprintf(recp, "%s!%s", node, user);
+				snprintf(recp, sizeof recp, "%s!%s", node, user);
 				deliver_to_ignet = 1;
 				}
 	

@@ -422,7 +422,7 @@ void cmd_emsg(char *mname)
 	free(dirs[1]);
 
 	if (strlen(targ)==0) {
-		sprintf(targ, "./help/%s", buf);
+		snprintf(targ, sizeof targ, "./help/%s", buf);
 		}
 
 	mfp = fopen(targ,"w");
@@ -668,7 +668,7 @@ void *context_loop(struct CitContext *con)
 	strcpy(CC->cs_clientname, "(unknown)");
 	strcpy(CC->curr_user,"");
 	strcpy(CC->net_node,"");
-	sprintf(CC->temp,"/tmp/CitServer.%d.%d", getpid(), CC->cs_pid);
+	snprintf(CC->temp, sizeof CC->temp, "/tmp/CitServer.%d.%d", getpid(), CC->cs_pid);
 	strcpy(CC->cs_room, "");
 	strncpy(CC->cs_host, config.c_fqdn, sizeof CC->cs_host);
 	CC->cs_host[sizeof CC->cs_host - 1] = 0;

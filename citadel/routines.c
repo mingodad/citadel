@@ -26,7 +26,6 @@
 void sttybbs(int cmd);
 void newprompt(char *prompt, char *str, int len);
 void val_user(char *user);
-int intprompt(char *prompt, int ival, int imin, int imax);
 void formout(char *name);
 void logoff(int code);
 void set_keepalives(int s);
