@@ -203,6 +203,7 @@ class RoomTree : public wxTreeCtrl {
 public:
 	RoomTree(wxMDIParentFrame *parent, CitClient *sock);
 	void LoadRoomList(void);
+	wxTreeItemId GetNextRoom(void);
 private:
 	void InitTreeIcons(void);
 	void OnDoubleClick(wxTreeEvent& evt);
@@ -210,6 +211,7 @@ private:
 	wxMDIParentFrame *citMyMDI;
 	wxTreeItemId floorboards[MAXFLOORS];
 	wxImageList *TreeIcons;
+	wxTreeItemId march_next;
 	DECLARE_EVENT_TABLE()
 };
 

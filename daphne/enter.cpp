@@ -104,12 +104,12 @@ void EnterMessage::OnCancel(wxCommandEvent& whichbutton) {
 
 
 void EnterMessage::OnSave(wxCommandEvent& whichbutton) {
-	wxString sendcmd, recvcmd;
+	wxString sendcmd, recvcmd, xferbuf;
 
 	sendcmd = "ENT0 1";
+	xferbuf = TheMessage->GetValue();
 	if (citsock->serv_trans(sendcmd, recvcmd,
-				TheMessage->GetValue(),
-				ThisRoom) == 4) {
+				xferbuf, ThisRoom) == 4) {
 		delete this;
 	}
 }

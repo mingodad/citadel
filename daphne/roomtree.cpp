@@ -9,12 +9,15 @@
 #endif
 
 
+wxTreeItemId null_item;
+
 
 class RoomItem : public wxTreeItemData {
 public:
 	RoomItem(wxString name, bool newmsgs);
 	wxString RoomName;
 	bool HasNewMessages;
+	wxTreeItemId nextroom;
 };
 
 RoomItem::RoomItem(wxString name, bool newmsgs)
@@ -22,6 +25,7 @@ RoomItem::RoomItem(wxString name, bool newmsgs)
 
 	RoomName = name;
 	HasNewMessages = newmsgs;
+	nextroom = null_item;
 }
 
 
@@ -79,7 +83,10 @@ void RoomTree::InitTreeIcons(void) {
 void RoomTree::LoadRoomList(void) {
 	wxString sendcmd, recvcmd, buf, floorname, roomname, transbuf;
 	wxTreeItemId item;
+	wxTreeItemId prev;
 	int i, pos, floornum;
+
+	prev = null_item;
 
 	// First, clear it out.
 	DeleteAllItems();
@@ -129,6 +136,11 @@ void RoomTree::LoadRoomList(void) {
 			);
 		SetItemBold(item, TRUE);
 		SetItemBold(floorboards[floornum], TRUE);
+		if (prev == null_item)
+			march_next = item;
+		else
+			((RoomItem *)GetItemData(prev))->nextroom = item;
+		prev = item;
 	}
 
 	// Load the rooms with new messages into the tree
@@ -146,6 +158,12 @@ void RoomTree::LoadRoomList(void) {
 			-1,
 			new RoomItem(roomname, FALSE)
 			);
+	}
+
+	// FIX demo of traversal
+	while (march_next != null_item) {
+		wxTreeItemId foo = GetNextRoom();
+		cout << ((RoomItem *)GetItemData(foo))->RoomName << "\n";
 	}
 
 
@@ -171,4 +189,21 @@ void RoomTree::OnDoubleClick(wxTreeEvent& evt) {
 
 	new RoomView(citsock, citMyMDI, r->RoomName);
 }
+
+
+
+wxTreeItemId RoomTree::GetNextRoom(void) {
+
+	wxTreeItemId ret;
+
+	ret = march_next;
+
+	if (march_next == null_item)
+		LoadRoomList();
+	else
+		march_next = ((RoomItem *)GetItemData(march_next))->nextroom;
+
+	return ret;
+}
+
 
