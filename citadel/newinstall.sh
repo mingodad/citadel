@@ -37,7 +37,7 @@
 # We install the following versions in this release:
 # Package      Version                 Status
 # Citadel      6.24                    Latest
-# WebCit       5.22                    Latest
+# WebCit       5.23                    Latest
 # libical      0.24.RC4                Latest
 # Berkeley DB  4.1.25 + 2 patches      Stable
 # OpenLDAP     2.1.30 stable-20040329  Stable
@@ -73,9 +73,7 @@ WEBCIT=/usr/local/webcit
 BUILD=/tmp/citadel-build.$$
 export SUPPORT CITADEL WEBCIT
 
-# Change the number of jobs to one plus the number of CPUs for best
-# performance when compiling software.
-MAKEOPTS="-j2"
+MAKEOPTS=""
 
 # End user customization area
 
@@ -94,6 +92,7 @@ MAKEOPTS="-j2"
 # CFLAGS		C compiler flags
 # LDFLAGS		Linker flags
 # IS_UPGRADE		Set to "yes" if upgrading an existing Citadel
+# CTDL_DIALOG		Where (if at all) the "dialog" program may be found
 
 # Let Citadel setup recognize the Citadel installer
 CITADEL_INSTALLER=web
@@ -107,7 +106,7 @@ DB_PATCHES=db-4.1.25.patches
 ICAL_SOURCE=libical-0.24.RC4.tar.gz
 LDAP_SOURCE=openldap-stable-20040329.tgz
 CITADEL_SOURCE=citadel-easyinstall.tar.gz
-WEBCIT_SOURCE=webcit-5.22.tar.gz
+WEBCIT_SOURCE=webcit-easyinstall.tar.gz
 
 SETUP="Citadel Easy Install"
 
@@ -211,6 +210,7 @@ install_ldap () {
 	echo "  Complete."
 }
 
+
 install_prerequisites () {
 
 	# Create the support directories if they don't already exist
@@ -263,7 +263,7 @@ install_sources () {
 		IS_UPGRADE=yes
 	else
 		$MAKE install 2>&1 >>$LOG || die
-		useradd -c "Citadel service account" -b $CITADEL -s /bin/false -r -d $CITADEL citadel 2>&1 >>$LOG
+		useradd -c "Citadel service account" -d $CITADEL -s $CITADEL/citadel citadel 2>&1 >>$LOG
 	fi
 
 	echo "* Installing WebCit..."
@@ -283,13 +283,13 @@ do_config () {
 	if [ x$IS_UPGRADE == xyes ] ; then
 		echo Upgrading your existing Citadel installation.
 		#$CITADEL/setup -q || die
-		$CITADEL/setup || die
+		$CITADEL/setup </dev/tty || die
 	else
 		echo This is a new Citadel installation.
-		$CITADEL/setup || die
+		$CITADEL/setup </dev/tty || die
 	fi
 
-	$WEBCIT/setup || die
+	$WEBCIT/setup </dev/tty || die
 }
 
 
@@ -300,8 +300,8 @@ do_config () {
 
 # 1. Gather information about the target system
 
-[ -n $MAKE ] && MAKE=`which gmake 2>/dev/null`
-[ -n $MAKE ] && MAKE=`which make 2>/dev/null`
+[ -n $MAKE ] && MAKE=`which gmake`
+[ -z $MAKE ] && MAKE=`which make`
 clear
 
 os=`uname`
@@ -315,7 +315,19 @@ elif [ "$os" = "FreeBSD" ]; then
 	DISTRO_MAJOR=FreeBSD
 fi
 
+
+rm -rf $BUILD
+mkdir -p $BUILD
+cd $BUILD
+
+
 # 2. Present the installation steps (from 1 above) to the user
+clear
+if dialog --clear </dev/tty ; then
+	CTDL_DIALOG=`which dialog`
+	export CTDL_DIALOG
+fi
+clear
 
 echo "$SETUP will perform the following actions:"
 echo ""
@@ -334,16 +346,12 @@ else
 fi
 
 echo ""
-echo -n "Perform the above installation steps now? (yes) "
+echo -n "Perform the above installation steps now? "
+read yesno </dev/tty
 
-read junk </dev/tty
-if [ "`echo $junk | cut -c 1 | tr N n`" = "n" ]; then
+if [ "`echo $yesno | cut -c 1 | tr N n`" = "n" ]; then
 	exit 2
 fi
-
-rm -rf $BUILD
-mkdir -p $BUILD
-cd $BUILD
 
 echo ""
 echo "Command output will not be sent to the terminal."

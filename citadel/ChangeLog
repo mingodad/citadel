@@ -1,4 +1,7 @@
  $Log$
+ Revision 625.21  2004/09/13 15:51:59  ajc
+ * newinstall.sh: updated from the working version at easyinstall.citadel.org
+
  Revision 625.20  2004/09/11 03:13:04  error
  * Remove calls to the broken flush_output() while I try to figure out what's
    wrong with it.  Replaced with unbuffer_output() which does work.
@@ -6077,3 +6080,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
