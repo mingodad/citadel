@@ -1527,7 +1527,7 @@ void display_private(char *rname, int req_pass)
 	do_template("beginbox");
 
 	wprintf("<CENTER>\n");
-	wprintf("If you know the name of a hidden (guess-name) or\n");
+	wprintf("<BR>If you know the name of a hidden (guess-name) or\n");
 	wprintf("passworded room, you can enter that room by typing\n");
 	wprintf("its name below.  Once you gain access to a private\n");
 	wprintf("room, it will appear in your regular room listings\n");
@@ -1536,9 +1536,12 @@ void display_private(char *rname, int req_pass)
 
 	wprintf("<FORM METHOD=\"GET\" ACTION=\"/goto_private\">\n");
 
-	wprintf("<TABLE border><TR><TD>");
-	wprintf("Enter room name:</TD><TD>");
-	wprintf("<INPUT TYPE=\"text\" NAME=\"gr_name\" VALUE=\"%s\" MAXLENGTH=\"19\">\n", rname);
+	wprintf("<table border=\"0\" cellspacing=\"5\" "
+		"cellpadding=\"5\" BGCOLOR=\"#EEEEEE\">\n"
+		"<TR><TD>"
+		"Enter room name:</TD><TD>"
+		"<INPUT TYPE=\"text\" NAME=\"gr_name\" "
+		"VALUE=\"%s\" MAXLENGTH=\"19\">\n", rname);
 
 	if (req_pass) {
 		wprintf("</TD></TR><TR><TD>");
@@ -1547,8 +1550,9 @@ void display_private(char *rname, int req_pass)
 	}
 	wprintf("</TD></TR></TABLE><BR>\n");
 
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">"
+		"&nbsp;"
+		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 	wprintf("</FORM>\n");
 	do_template("endbox");
 	wDumpContent(1);

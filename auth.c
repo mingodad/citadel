@@ -333,7 +333,7 @@ void display_changepw(void)
 
 	svprintf("BOXTITLE", WCS_STRING, "Change your password");
 	do_template("beginbox");
-	wprintf("<CENTER>");
+	wprintf("<CENTER><BR>");
 	serv_puts("MESG changepw");
 	serv_gets(buf);
 	if (buf[0] == '1') {
@@ -341,13 +341,17 @@ void display_changepw(void)
 	}
 
 	wprintf("<FORM ACTION=\"changepw\" METHOD=\"POST\">\n");
-	wprintf("<CENTER><TABLE border><TR><TD>Enter new password:</TD>\n");
+	wprintf("<CENTER>"
+		"<table border=\"0\" cellspacing=\"5\" cellpadding=\"5\" "
+		"BGCOLOR=\"#EEEEEE\">"
+		"<TR><TD>Enter new password:</TD>\n");
 	wprintf("<TD><INPUT TYPE=\"password\" NAME=\"newpass1\" VALUE=\"\" MAXLENGTH=\"20\"></TD></TR>\n");
 	wprintf("<TR><TD>Enter it again to confirm:</TD>\n");
 	wprintf("<TD><INPUT TYPE=\"password\" NAME=\"newpass2\" VALUE=\"\" MAXLENGTH=\"20\"></TD></TR>\n");
-	wprintf("</TABLE>\n");
-	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Change\">\n");
-	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Cancel\">\n");
+	wprintf("</TABLE><BR>\n");
+	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Change\">\n"
+		"&nbsp;"
+		"<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Cancel\">\n");
 	wprintf("</CENTER>\n");
 	do_template("endbox");
 	wDumpContent(1);

@@ -1131,7 +1131,10 @@ void display_enter(void)
 
 	if (!strncmp(buf, "570", 3)) {
 		if (strlen(bstr("recp")) > 0) {
-			wprintf("<EM>%s</EM><BR>\n", &buf[4]);
+			svprintf("RECPERROR", WCS_STRING,
+				"<SPAN CLASS=\"errormsg\">%s</SPAN><BR>\n",
+				&buf[4]
+			);
 		}
 		do_template("prompt_for_recipient");
 		goto DONE;
