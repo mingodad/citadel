@@ -305,7 +305,8 @@ void getfloor(struct floor *flbuf, int floor_num)
 		cdb_free(cdbfl);
 	} else {
 		if (floor_num == 0) {
-			strcpy(flbuf->f_name, "Main Floor");
+			safestrncpy(flbuf->f_name, "Main Floor", 
+				sizeof flbuf->f_name);
 			flbuf->f_flags = F_INUSE;
 			flbuf->f_ref_count = 3;
 		}
@@ -750,7 +751,7 @@ void usergoto(char *where, int display_result, int transiently,
 	 * we can skip the extra database fetch.
 	 */
 	if (where != NULL) {
-		strcpy(CC->room.QRname, where);
+		safestrncpy(CC->room.QRname, where, sizeof CC->room.QRname);
 		getroom(&CC->room, where);
 	}
 

@@ -365,7 +365,8 @@ int CtdlLoginExistingUser(char *trythisname)
 		if (((CC->nologin)) && (CC->user.axlevel < 6)) {
 			return login_too_many_users;
 		} else {
-			strcpy(CC->curr_user, CC->user.fullname);
+			safestrncpy(CC->curr_user, CC->user.fullname,
+					sizeof CC->curr_user);
 			return login_ok;
 		}
 	}
@@ -736,7 +737,7 @@ int create_user(char *newusername, int become_user)
 	char mailboxname[ROOMNAMELEN];
 	uid_t uid;
 
-	strcpy(username, newusername);
+	safestrncpy(username, newusername, sizeof username);
 	strproc(username);
 
 #ifdef ENABLE_AUTOLOGIN
@@ -757,7 +758,7 @@ int create_user(char *newusername, int become_user)
 
 	/* Go ahead and initialize a new user record */
 	memset(&usbuf, 0, sizeof(struct ctdluser));
-	strcpy(usbuf.fullname, username);
+	safestrncpy(usbuf.fullname, username, sizeof usbuf.fullname);
 	strcpy(usbuf.password, "");
 	usbuf.uid = uid;
 
@@ -803,7 +804,7 @@ int create_user(char *newusername, int become_user)
 	if (become_user) {
 		/* Now become the user we just created */
 		memcpy(&CC->user, &usbuf, sizeof(struct ctdluser));
-		strcpy(CC->curr_user, username);
+		safestrncpy(CC->curr_user, username, sizeof CC->curr_user);
 		CC->logged_in = 1;
 	
 		/* Check to make sure we're still who we think we are */
