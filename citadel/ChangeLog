@@ -1,4 +1,8 @@
  $Log$
+ Revision 641.34  2005/03/31 04:31:42  ajc
+ * Bumped the internal version number to 6.45 in preparation for
+   an upcoming release.
+
  Revision 641.33  2005/03/24 22:52:40  ajc
  * More extermination of the dreaded SIZ moby-buffers.
 
@@ -6569,3 +6573,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
