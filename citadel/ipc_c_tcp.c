@@ -46,7 +46,7 @@
  * network session to the local machine) or 0 if the server is executing on
  * a remote computer.
  */
-char server_is_local = 0;
+int server_is_local = 0;
 
 #ifndef INADDR_NONE
 #define INADDR_NONE 0xffffffff
@@ -148,6 +148,7 @@ int uds_connectsock(char *sockpath)
 		logoff(3);
 	}
 
+	server_is_local = 1;
 	return s;
 }
 
@@ -307,10 +308,8 @@ void attach_to_server(int argc, char **argv)
  */
 	}
 
-	server_is_local = 0;
 	if ((!strcmp(cithost, "localhost"))
-	    || (!strcmp(cithost, "127.0.0.1"))
-	    || (!strcmp(cithost, "uds")))
+	    || (!strcmp(cithost, "127.0.0.1")))
 		server_is_local = 1;
 
 	/* If we're using a unix domain socket we can do a bunch of stuff */
