@@ -30,8 +30,7 @@ char *viewdefs[]={
 	"Summary",
 	"Address book",
 	"Calendar",
-	"Tasks",
-	"Notes"
+	"Tasks"
 };
 
 #define VIEWDEFS 1
