@@ -1,3 +1,9 @@
+Tue Apr 27 23:36:35 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* context_loop.c: display an error page if the client browser
+	  requests a non-root page and there is no cookie set
+	* webserver.c: took my name off the copyright notice (it's a group
+	  effort, after all)
+
 Sun Apr 18 23:42:54 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Reworked a lot of the structure, made more HTML "embeddable"
 	* Changed the noframes mode to display "fake" frames using tables
