@@ -1,5 +1,5 @@
                       WEBCIT for the Citadel/UX System
-                               version 2.12
+                               version 2.13
  
    Copyright (C) 1996-2000 by Art Cancro, Nathan Bryant, and Nick Grossman
 This program is free software released under the terms of the GNU General
@@ -108,5 +108,5 @@ ones which you may be interested in are:
  That's all you need to know to get started.  If you have any questions or
 comments, please visit UNCENSORED! BBS, the home of Citadel/UX, at one of the
 following locations:
-                       via Internet:   uncnsrd.mt-kisco.ny.us
+                       via Internet:   uncensored.citadel.org
                        modem dialup:   914-244-3252
