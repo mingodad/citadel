@@ -882,10 +882,12 @@ void load_command_set(void)
 			strcpy(rc_gotmail_cmd, &buf[11]);
 
 		if (!strncasecmp(buf, "alternate_semantics=", 20)) {
-			if (!strncasecmp(&buf[11], "yes", 3))
+			if (!strncasecmp(&buf[20], "yes", 3)) {
 				rc_alt_semantics = 1;
-			if (!strncasecmp(&buf[11], "no", 2))
+			}
+			else {
 				rc_alt_semantics = 0;
+			}
 		}
 		if (!strncasecmp(buf, "cmd=", 4)) {
 			strcpy(buf, &buf[4]);

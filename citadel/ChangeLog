@@ -1,4 +1,8 @@
  $Log$
+ Revision 605.6  2003/03/01 18:18:03  ajc
+ * commands.c: alternate_semantics might have been getting set where it
+   should not.  Fixed.
+
  Revision 605.5  2003/03/01 17:25:33  ajc
  * citadel.rc default for alternate_semantics = no
 
@@ -4498,4 +4502,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

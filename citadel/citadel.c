@@ -499,7 +499,9 @@ void gotonext(CtdlIPC *ipc)
 	 * If it is, pop the first room off the list and go there.
 	 */
 	if (march == NULL) {
-		r = CtdlIPCKnownRooms(ipc, SubscribedRoomsWithNewMessages, AllFloors, &march, buf);
+		r = CtdlIPCKnownRooms(ipc, SubscribedRoomsWithNewMessages,
+					AllFloors, &march, buf);
+
 /* add _BASEROOM_ to the end of the march list, so the user will end up
  * in the system base room (usually the Lobby>) at the end of the loop
  */
@@ -1261,7 +1263,6 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 
 	set_floor_mode();
 
-
 	/* Enter the lobby */
 	dotgoto(ipc, "_BASEROOM_", 1, 0);
 
@@ -1305,21 +1306,22 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 				else
 					entmsg(ipc, 0, 0);
 				break;
-			case 5:
+			case 5:				/* <G>oto */
 				updatels(ipc);
 				gotonext(ipc);
 				break;
-			case 47:
-				if (!rc_alt_semantics)
+			case 47:			/* <A>bandon */
+				if (!rc_alt_semantics) {
 					updatelsa(ipc);
+				}
 				gotonext(ipc);
 				break;
-			case 90:
+			case 90:			/* <.A>bandon */
 				if (!rc_alt_semantics)
 					updatelsa(ipc);
 				dotgoto(ipc, argbuf, 0, 0);
 				break;
-			case 58:
+			case 58:			/* <M>ail */
 				updatelsa(ipc);
 				dotgoto(ipc, "_MAIL_", 1, 0);
 				break;
@@ -1556,8 +1558,9 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 				break;
 
 			case 6:
-				if (rc_alt_semantics)
+				if (rc_alt_semantics) {
 					updatelsa(ipc);
+				}
 				gotonext(ipc);
 				break;
 

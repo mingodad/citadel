@@ -681,10 +681,12 @@ int CtdlIPCSetLastRead(CtdlIPC *ipc, long msgnum, char *cret)
 
 	if (!cret) return -2;
 
-	if (msgnum)
+	if (msgnum) {
 		sprintf(aaa, "SLRP %ld", msgnum);
-	else
+	}
+	else {
 		sprintf(aaa, "SLRP HIGHEST");
+	}
 	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
 	return ret;
 }

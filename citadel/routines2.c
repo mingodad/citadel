@@ -190,7 +190,6 @@ void updatels(CtdlIPC *ipc)
 
 	if (rc_alt_semantics) {
 		if (maxmsgnum == highest_msg_read == 0) {
-			/* err_printf("maxmsgnum == highest_msg_read == 0\n"); */
 			return;
 		}
 		r = CtdlIPCSetLastRead(ipc, (maxmsgnum > highest_msg_read) ?
