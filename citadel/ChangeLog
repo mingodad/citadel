@@ -1,4 +1,10 @@
  $Log$
+ Revision 614.105  2004/03/27 02:33:10  ajc
+ * Bumped the version number to 6.20
+ * Corrected session.txt writeup for CONF command (three of the five LDAP
+   related fields were missing)
+ * Updated the roadmap documentation slightly
+
  Revision 614.104  2004/03/27 02:21:30  ajc
  * Completed documenting the LDAP Connector
 
@@ -5627,3 +5633,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
