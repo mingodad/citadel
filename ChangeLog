@@ -1,4 +1,7 @@
 $Log$
+Revision 524.7  2004/11/03 20:21:02  ajc
+* Changed internal version number to 5.25
+
 Revision 524.6  2004/10/20 02:41:41  ajc
 * New "notes" icon
 * Added the notes room to the icon bar
@@ -2103,3 +2106,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
