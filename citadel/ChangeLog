@@ -2,6 +2,7 @@ Tue Aug  4 18:33:06 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Modified the appearance of Internet addresses when they arrive on
 	  a Citadel system.
 	* Removed the <E> field from the message format writeup in hack.txt.
+	* Fixed-up citmail.c so that it doesn't try to do database lookups.
 
 Mon Aug  3 23:01:37 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Started developing the server-side API.  This is in its very
