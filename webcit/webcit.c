@@ -296,11 +296,10 @@ void output_headers(int print_standard_html_head)
 	static char *unset = "; expires=28-May-1971 18:10:00 GMT";
 	char cookie[256];
 
-	wprintf("Content-type: text/html\n");
-	wprintf("Server: %s\n", SERVER);
-	wprintf("Connection: close\n");
-
 	if (print_standard_html_head > 0) {
+		wprintf("Content-type: text/html\n");
+		wprintf("Server: %s\n", SERVER);
+		wprintf("Connection: close\n");
 		wprintf("Pragma: no-cache\n");
 		wprintf("Cache-Control: no-store\n");
 	}
@@ -313,9 +312,8 @@ void output_headers(int print_standard_html_head)
 		wprintf("Set-cookie: webcit=%s\n", cookie);
 	}
 
-	wprintf("\n");
-
 	if (print_standard_html_head > 0) {
+		wprintf("\n");
 		wprintf("<HTML><HEAD><TITLE>");
 		escputs(serv_info.serv_humannode);
 		wprintf("</TITLE>\n"
@@ -398,7 +396,8 @@ void check_for_express_messages()
 
 void output_static(char *what)
 {
-	char buf[256];
+	char buf[4096];
+	long thisblock;
 	FILE *fp;
 	struct stat statbuf;
 	off_t bytes;
@@ -427,15 +426,24 @@ void output_static(char *what)
 
 		fstat(fileno(fp), &statbuf);
 		bytes = statbuf.st_size;
+		fprintf(stderr, "Static: %s, %ld bytes\n", what, bytes);
 		wprintf("Content-length: %ld\n", (long) bytes);
-		printf("\n");
-		while (bytes--) {
-			wprintf("%c", getc(fp) );
+		wprintf("\n");
+		while (bytes > 0) {
+			thisblock = sizeof(buf);
+			if (thisblock > bytes) thisblock = bytes;
+			fread(buf, thisblock, 1, fp);
+			write(WC->http_sock, buf, thisblock);
+			bytes = bytes - thisblock;
 		}
 		fclose(fp);
 	}
 }
 
+/*
+ * When the browser requests an image file from the Citadel server,
+ * this function is called to transmit it.
+ */
 void output_image()
 {
 	char buf[256];
@@ -468,7 +476,6 @@ void output_image()
 			bytes = bytes - thisblock;
 			accomplished = accomplished + thisblock;
 		}
-		fflush(stdout);
 		serv_puts("CLOS");
 		serv_gets(buf);
 	} else {
@@ -628,7 +635,7 @@ void session_loop(struct httprequest *req)
 		}
 	}
 
-	++TransactionCount;
+	++TransactionCount;	/* FIX ... make session-specific OR remove */
 
 	if (ContentLength > 0) {
 		content = malloc(ContentLength + 1);
