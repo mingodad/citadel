@@ -1670,6 +1670,7 @@ void ical_ctdl_set_extended_msgid(char *name, char *filename, char *partnum,
 	icalcomponent *cal;
 	icalproperty *p;
 	struct icalmessagemod *imm;
+	char new_uid[SIZ];
 
 	imm = (struct icalmessagemod *)cbuserdata;
 
@@ -1689,6 +1690,12 @@ void ical_ctdl_set_extended_msgid(char *name, char *filename, char *partnum,
 		}
 		if (cal != NULL) {
 			p = ical_ctdl_get_subprop(cal, ICAL_UID_PROPERTY);
+			if (p == NULL) {
+				/* If there's no uid we must generate one */
+				generate_uuid(new_uid);
+				icalcomponent_add_property(cal, icalproperty_new_uid(new_uid));
+				p = ical_ctdl_get_subprop(cal, ICAL_UID_PROPERTY);
+			}
 			if (p != NULL) {
 				strcpy(imm->uid, icalproperty_get_comment(p));
 				strcpy(imm->subject,

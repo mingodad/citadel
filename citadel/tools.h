@@ -34,3 +34,4 @@ char *bmstrstr(char *text, char *pattern,
         int (*cmpfunc)(const char *, const char *, size_t) );
 
 char *ascmonths[12];
+void generate_uuid(char *buf);

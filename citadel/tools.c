@@ -624,3 +624,20 @@ char *strcpy(char *dest, const char *src) {
 	memmove(dest, src, (strlen(src) + 1) );
 	return(dest);
 }
+
+
+/*
+ * Generate a new, globally unique UID parameter for a calendar etc. object
+ */
+void generate_uuid(char *buf) {
+	static int seq = 0;
+
+	sprintf(buf, "{%08x-%04x-%04x-%04x-%012x}",
+		(int)time(NULL),
+		(seq++),
+		getpid(),
+		rand(),
+		rand()
+	);
+}
+

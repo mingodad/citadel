@@ -1,4 +1,9 @@
  $Log$
+ Revision 630.5  2005/01/26 23:04:22  ajc
+ * When saving calendar items, if the vCalendar object does not contain
+   a UUID, generate one on the fly.  In order to support GroupDAV we need
+   persistent URL's, and I plan to base those on the UUID.
+
  Revision 630.4  2005/01/25 20:58:07  ajc
  * serv_pop3.c: minor change to logging output
 
@@ -6311,4 +6316,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
