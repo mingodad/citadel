@@ -93,6 +93,18 @@ void display_siteconfig(void)
 			"</A></TD></TR>\n"
 		);
 
+		wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
+			"</TD><TD>"
+			"<A HREF=\"/display_siteconfig?whichmenu=ldap\">"
+			"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
+			"SRC=\"/static/advanced-icon.gif\" ALT=\"&nbsp;\">"
+			"</TD><TD>"
+			"<A HREF=\"/display_siteconfig?whichmenu=ldap\">"
+			"<B>Directory</B><BR>"
+			"Configure the LDAP connector for Citadel"
+			"</A></TD></TR>\n"
+		);
+
 		wprintf("</TABLE>");
 
 		do_template("endbox");
@@ -459,7 +471,7 @@ void display_siteconfig(void)
 			}
 			break;
 		case 33:
-			if ( (serv_info.serv_supports_ldap) && (!strcasecmp(whichmenu, "network")) ) {
+			if ( (serv_info.serv_supports_ldap) && (!strcasecmp(whichmenu, "ldap")) ) {
 				wprintf("<TR><TD>Host name of LDAP server (blank to disable)</TD><TD>");
 				wprintf("<INPUT TYPE=\"text\" NAME=\"c_ldap_host\" MAXLENGTH=\"127\" VALUE=\"%s\">", buf);
 				wprintf("</TD></TR>\n");
@@ -469,13 +481,43 @@ void display_siteconfig(void)
 			}
 			break;
 		case 34:
-			if ( (serv_info.serv_supports_ldap) && (!strcasecmp(whichmenu, "network")) ) {
+			if ( (serv_info.serv_supports_ldap) && (!strcasecmp(whichmenu, "ldap")) ) {
 				wprintf("<TR><TD>Port number of LDAP server (blank to disable)</TD><TD>");
 				wprintf("<INPUT TYPE=\"text\" NAME=\"c_ldap_port\" MAXLENGTH=\"127\" VALUE=\"%d\">", atoi(buf));
 				wprintf("</TD></TR>\n");
 			}
 			else {
 				wprintf("<INPUT TYPE=\"hidden\" NAME=\"c_ldap_port\" VALUE=\"%d\">", atoi(buf));
+			}
+			break;
+		case 35:
+			if ( (serv_info.serv_supports_ldap) && (!strcasecmp(whichmenu, "ldap")) ) {
+				wprintf("<TR><TD>Base DN</TD><TD>");
+				wprintf("<INPUT TYPE=\"text\" NAME=\"c_ldap_base_dn\" MAXLENGTH=\"255\" VALUE=\"%s\">", buf);
+				wprintf("</TD></TR>\n");
+			}
+			else {
+				wprintf("<INPUT TYPE=\"hidden\" NAME=\"c_ldap_base_dn\" VALUE=\"%s\">", buf);
+			}
+			break;
+		case 36:
+			if ( (serv_info.serv_supports_ldap) && (!strcasecmp(whichmenu, "ldap")) ) {
+				wprintf("<TR><TD>Bind DN</TD><TD>");
+				wprintf("<INPUT TYPE=\"text\" NAME=\"c_ldap_bind_dn\" MAXLENGTH=\"255\" VALUE=\"%s\">", buf);
+				wprintf("</TD></TR>\n");
+			}
+			else {
+				wprintf("<INPUT TYPE=\"hidden\" NAME=\"c_ldap_bind_dn\" VALUE=\"%s\">", buf);
+			}
+			break;
+		case 37:
+			if ( (serv_info.serv_supports_ldap) && (!strcasecmp(whichmenu, "ldap")) ) {
+				wprintf("<TR><TD>Password for bind DN</TD><TD>");
+				wprintf("<INPUT TYPE=\"password\" NAME=\"c_ldap_bind_pw\" MAXLENGTH=\"255\" VALUE=\"%s\">", buf);
+				wprintf("</TD></TR>\n");
+			}
+			else {
+				wprintf("<INPUT TYPE=\"hidden\" NAME=\"c_ldap_bind_pw\" VALUE=\"%s\">", buf);
 			}
 			break;
 		}
@@ -539,6 +581,9 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_purge_hour"));
 	serv_printf("%s", bstr("c_ldap_host"));
 	serv_printf("%s", bstr("c_ldap_port"));
+	serv_printf("%s", bstr("c_ldap_base_dn"));
+	serv_printf("%s", bstr("c_ldap_bind_dn"));
+	serv_printf("%s", bstr("c_ldap_bind_pw"));
 	serv_printf("000");
 	strcpy(WC->ImportantMessage, "System configuration has been updated.");
 	display_siteconfig();
