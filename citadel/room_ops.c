@@ -1814,6 +1814,7 @@ void cmd_einf(char *ok)
 		return;
 	}
 	cprintf("%d Send info...\n", SEND_LISTING);
+	flush_output();
 
 	do {
 		client_gets(buf);

@@ -619,6 +619,7 @@ void cmd_emsg(char *mname)
 		return;
 	}
 	cprintf("%d %s\n", SEND_LISTING, targ);
+	flush_output();
 
 	while (client_gets(buf), strcmp(buf, "000")) {
 		fprintf(mfp, "%s\n", buf);

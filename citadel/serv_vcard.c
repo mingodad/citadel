@@ -561,6 +561,7 @@ void cmd_regi(char *argbuf) {
 	strcpy(tmpcountry, "USA");
 
 	cprintf("%d Send registration...\n", SEND_LISTING);
+	flush_output();
 	a=0;
 	while (client_gets(buf), strcmp(buf,"000")) {
 		if (a==0) vcard_set_prop(my_vcard, "n", buf, 0);

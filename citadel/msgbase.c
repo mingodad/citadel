@@ -2788,6 +2788,7 @@ void cmd_ent0(char *entargs)
 
 	/* Read in the message from the client. */
 	cprintf("%d send message\n", SEND_LISTING);
+	flush_output();
 	msg = CtdlMakeMessage(&CC->user, recp,
 		CC->room.QRname, anonymous, format_type,
 		masquerade_as, subject, NULL);

@@ -710,6 +710,7 @@ void cmd_sexp(char *argbuf)
 		}
 		cprintf("%d Transmit message (will deliver to %d users)\n",
 			SEND_LISTING, message_sent);
+		flush_output();
 		x_big_msgbuf = malloc(SIZ);
 		memset(x_big_msgbuf, 0, SIZ);
 		while (client_gets(x_msg), strcmp(x_msg, "000")) {

@@ -389,6 +389,7 @@ void cmd_snet(char *argbuf) {
 	}
 
 	cprintf("%d %s\n", SEND_LISTING, tempfilename);
+	flush_output();
 	while (client_gets(buf), strcmp(buf, "000")) {
 		fprintf(fp, "%s\n", buf);
 	}

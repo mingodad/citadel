@@ -1,4 +1,9 @@
  $Log$
+ Revision 625.13  2004/09/05 17:39:09  error
+ * Buffered output needs to be flushed in several places.  Added calls to
+   flush_output().  (basically anywhere where we send a response and then
+   wait for the client, except chat, where we turned it off entirely)
+
  Revision 625.12  2004/09/05 15:41:45  error
  * Network optimizations - buffer output server-side for better network
    utilization; one client-side optimization
@@ -6046,3 +6051,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -726,6 +726,7 @@ void cmd_writ(char *cmdbuf)
 	}
 
 	cprintf("%d %d\n", SEND_BINARY, bytes);
+	flush_output();
 	client_read(buf, bytes);
 	fwrite(buf, bytes, 1, CC->upload_fp);
 }
