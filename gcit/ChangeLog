@@ -1,3 +1,6 @@
+1998-11-04 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* bootstrap, gtk/Makefile.am: fix 'make dist'
+
 1998-11-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* NEWS, README, AUTHORS, ChangeLog: new files; automake complains if
 	  these don't exist.

@@ -5,7 +5,7 @@ echo aclocal
 aclocal
 echo autoheader
 autoheader
-echo automake --add-missing
-automake --add-missing
 echo autoconf
 autoconf
+echo automake --add-missing
+automake --add-missing

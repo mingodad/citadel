@@ -10,3 +10,5 @@ gcit_SOURCES = gcit.c gtk_misc.c gui.c gcit.h gtk_misc.h gui.h
 gcit_LDADD = $(GDK_IMLIB_LIBS) ../libcli_cit/libcli_cit.la
 
 data_DATA = gcit.gif gcitrc
+
+EXTRA_DIST = gcit.gif gcitrc
