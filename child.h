@@ -50,3 +50,5 @@ void confirm_move_msg(void);
 void move_msg(void);
 void userlist(void);
 void showuser(void);
+void display_page(void);
+void page_user(void);
