@@ -1,4 +1,8 @@
  $Log$
+ Revision 613.6  2003/12/21 19:07:28  error
+ * Start a new thread and fork() for image viewer (broken/disabled; for
+   refernce only)
+
  Revision 613.5  2003/12/21 01:23:12  nbryant
  added some additional comments to citadel.rc concerning possible image viewers
 
@@ -5178,4 +5182,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

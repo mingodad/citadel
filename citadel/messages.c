@@ -30,6 +30,10 @@
 # endif
 #endif
 
+#ifdef HAVE_PTHREAD_H
+#include <pthread.h>
+#endif
+
 #include <stdarg.h>
 #include "citadel.h"
 #include "citadel_ipc.h"
@@ -93,6 +97,8 @@ char urls[MAXURLS][SIZ];
 char imagecmd[SIZ];
 int has_images = 0;				/* Current msg has images */
 struct parts *last_message_parts = NULL;	/* Parts from last msg */
+
+
 
 void ka_sigcatch(int signum)
 {
@@ -1301,6 +1307,41 @@ void list_urls(CtdlIPC *ipc)
 	scr_printf("\n");
 }
 
+
+/*
+ * Image viewer thread (for background image viewing)
+ */
+void *image_view_thread(void *filename)
+{
+	char cmd[SIZ];
+	pid_t childpid;
+	int retcode;
+
+	snprintf(cmd, sizeof cmd, imagecmd, (char *)filename);
+	childpid = fork();
+	if (childpid < 0) {
+		color(BRIGHT_RED);
+		perror("Cannot fork");
+		color(DIM_WHITE);
+		unlink((char *)filename);
+		return ((void *) childpid);
+	}
+
+	if (childpid == 0) {
+		execlp("/bin/sh", "sh", "-c", cmd, NULL);
+		exit(127);
+	}
+
+	if (childpid > 0) {
+		waitpid(childpid, &retcode, 0);
+		unlink((char *)filename);
+		return ((void *)retcode);
+	}
+
+	return ((void *)-1);
+}
+
+
 /*
  * View an image attached to a message
  */
@@ -1344,6 +1385,9 @@ void image_view(CtdlIPC *ipc, unsigned long msg)
 				char tmp[PATH_MAX];
 				char buf[SIZ];
 				void *file = NULL; /* The downloaded file */
+#ifdef THREADED_CLIENT
+				pthread_t *ivthread = NULL;
+#endif
 				int r;
 
 				// view image
@@ -1360,10 +1404,14 @@ void image_view(CtdlIPC *ipc, unsigned long msg)
 					strcpy(tmp, tmpnam(NULL));
 					save_buffer(file, len, tmp);
 					free(file);
+					#if 0
+					pthread_create(ivthread, NULL, image_view_thread, tmp);
+					#endif
 					snprintf(buf, sizeof buf, imagecmd, tmp);
 					system(buf);
 					unlink(tmp);
 				}
+				break;
 			}
 		}
 	}
