@@ -68,6 +68,10 @@ long locate_message_by_uid(char *uid) {
  * List folders containing interesting groupware objects
  */
 void groupdav_folder_list(void) {
+	char buf[SIZ];
+	char roomname[SIZ];
+	int view;
+
 	/*
 	 * Be rude.  Completely ignore the XML request and simply send them
 	 * everything we know about.  Let the client sort it out.
@@ -80,19 +84,43 @@ void groupdav_folder_list(void) {
      		"<D:multistatus xmlns:D=\"DAV:\">\n"
 	);
 
-	wprintf("        <D:response>\n");
-	wprintf("          <D:href>http://splorph.xand.com/groupdav/Calendar/</D:href>\n");
-	wprintf("          <D:propstat>\n");
-	wprintf("            <D:status>HTTP/1.1 200 OK</D:status>\n");
-	wprintf("            <D:prop>\n");
-	wprintf("             <D:displayname>Calendar</D:displayname>\n");
-	wprintf("             <resourcetype xmlns=\"DAV:\" xmlns:G=\"http://groupdav.org/\">\n");
-	wprintf("               <collection />\n");
-	wprintf("               <G:vevent-collection />\n");
-	wprintf("             <resourcetype>\n");
-	wprintf("            </D:prop>\n");
-	wprintf("          </D:propstat>\n");
-	wprintf("        </D:response>\n");
+	serv_puts("LKRA");
+	serv_gets(buf);
+	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
+
+		extract(roomname, buf, 0);
+		view = extract_int(buf, 6);
+		if ((view == VIEW_CALENDAR) || (view == VIEW_TASKS) || (view == VIEW_ADDRESSBOOK) ) {
+
+			wprintf(" <D:response>\n");
+			wprintf("   <D:href>http://splorph.xand.com/groupdav/");
+			urlescputs(					roomname);
+			wprintf(						"/</D:href>\n");
+			wprintf("   <D:propstat>\n");
+			wprintf("     <D:status>HTTP/1.1 200 OK</D:status>\n");
+			wprintf("     <D:prop>\n");
+			wprintf("      <D:displayname>");
+			urlescputs(			roomname);
+			wprintf(				"</D:displayname>\n");
+			wprintf("      <resourcetype xmlns=\"DAV:\" xmlns:G=\"http://groupdav.org/\">\n");
+			wprintf("        <collection />\n");
+			switch(view) {
+				case VIEW_CALENDAR:
+					wprintf("        <G:vevent-collection />\n");
+					break;
+				case VIEW_TASKS:
+					wprintf("        <G:vtodo-collection />\n");
+					break;
+				case VIEW_ADDRESSBOOK:
+					wprintf("        <G:vcard-collection />\n");
+					break;
+			}
+			wprintf("      <resourcetype>\n");
+			wprintf("     </D:prop>\n");
+			wprintf("   </D:propstat>\n");
+			wprintf(" </D:response>\n");
+		}
+	}
 
 	wprintf("</D:multistatus>\n");
 
