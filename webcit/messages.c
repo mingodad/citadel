@@ -98,11 +98,14 @@ void read_message(long msgnum, int is_summary) {
 	int format_type = 0;
 	int nhdr = 0;
 	int bq = 0;
+	char vcard_partnum[SIZ];
+	char *vcard_source = NULL;
 
 	strcpy(from, "");
 	strcpy(node, "");
 	strcpy(rfca, "");
 	strcpy(reply_to, "");
+	strcpy(vcard_partnum, "");
 
 	sprintf(buf, "MSG0 %ld", msgnum);
 	serv_puts(buf);
@@ -208,6 +211,10 @@ void read_message(long msgnum, int is_summary) {
 					msgnum, mime_partnum);
 			}
 
+			if (!strcasecmp(mime_content_type, "text/x-vcard")) {
+				strcpy(vcard_partnum, mime_partnum);
+			}
+
 		}
 
 	}
@@ -309,6 +316,16 @@ void read_message(long msgnum, int is_summary) {
 		wprintf("%s", mime_http);
 		free(mime_http);
 	}
+
+	if (strlen(vcard_partnum) > 0) {
+		vcard_source = load_mimepart(msgnum, vcard_partnum);
+		if (vcard_source != NULL) {
+			wprintf("vcard object length = %d<BR>\n",
+				strlen(vcard_source));
+			free(vcard_source);
+		}
+	}
+
 }
 
 
