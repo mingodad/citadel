@@ -7,7 +7,7 @@ const char* const message =
 "which writes 1000 messages total to the server.\n"
 "\n"
 "-n is a command line parameter indicating how many users to simulate\n"
-"(default 2000).  WARNING: Your system must be capable of creating this\n"
+"(default 100).  WARNING: Your system must be capable of creating this\n"
 "many threads!\n"
 "\n"
 "-w is a command line parameter indicating how long to wait in seconds\n"
@@ -63,6 +63,7 @@ const char* const message =
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <string.h>
 #include "sysdep.h"
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -81,11 +82,14 @@ const char* const message =
 #endif
 
 static int w = 10;		/* see above */
-static int n = 2000;		/* see above */
+static int n = 100;		/* see above */
 static int m = 1000;		/* Number of messages to send; see above */
+static volatile int count = 0;	/* Total count of messages posted */
+static volatile int total = 0;	/* Total messages to be posted */
+static pthread_mutex_t count_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-static char* username = NULL;
-static char* password = NULL;
+static char username[12];
+static char password[12];
 
 static char* hostname = NULL;
 static char* portname = NULL;
@@ -123,6 +127,7 @@ void connection_died(CtdlIPC* ipc, int using_ssl)
 void* worker(void* data)
 {
 	CtdlIPC* ipc;	/* My connection to the server */
+	void** args;	/* Args sent in */
 	int r;		/* IPC return code */
 	char aaa[SIZ];	/* Generic buffer */
 	int c;		/* Message count */
@@ -131,8 +136,11 @@ void* worker(void* data)
 	int* argc_;
 	char*** argv_;
 
-	argc_ = (int*)data;
-	argv_ = (char***)(data + 1);
+	args = (void*)data;
+	argc_ = (int*)args[0];
+	argv_ = (char***)args[1];
+	fprintf(stderr, "Set argc to %x\n", argc_);
+	fprintf(stderr, "Set argv to %x\n", argv_);
 
 	/* Setup the message we will be posting */
 	msg.text = (char*)message;
@@ -142,10 +150,12 @@ void* worker(void* data)
 	strcpy(msg.subject, "Test message; ignore");
 	strcpy(msg.author, username);
 
-	ipc = CtdlIPC_new(*argc_, *argv_, hostname, portname);
+	fprintf(stderr, "Trying to connect to Citadel\n");
+	ipc = CtdlIPC_new(*argc_, *argv_, "", "");
 	if (!ipc)
 		return NULL;	/* oops, something happened... */
 
+	fprintf(stderr, "Trying to login to Citadel\n");
 	CtdlIPC_chat_recv(ipc, aaa);
 	if (aaa[0] != '2') {
 		fprintf(stderr, "Citadel refused me: %s\n", &aaa[4]);
@@ -155,18 +165,35 @@ void* worker(void* data)
 	CtdlIPCIdentifySoftware(ipc, 8, 8, REV_LEVEL, "Citadel stress tester",
 		"localhost", aaa);	/* we're lying, the server knows */
 	
-	r = CtdlIPCTryLogin(ipc, username, aaa);
-	if (r / 100 != 3) {
-		fprintf(stderr, "Citadel refused username: %s\n", aaa);
-		CtdlIPC_delete_ptr(&ipc);
-		return NULL;	/* Gawd only knows what went wrong */
-	}
-
-	r = CtdlIPCTryPassword(ipc, password, aaa);
-	if (r / 100 != 2) {
-		fprintf(stderr, "Citadel refused password: %s\n", aaa);
-		CtdlIPC_delete_ptr(&ipc);
-		return NULL;	/* Gawd only knows what went wrong */
+	r = CtdlIPCQueryUsername(ipc, username, aaa);
+	if (r / 100 == 2) {
+		/* testuser already exists (from previous run?) */
+		r = CtdlIPCTryLogin(ipc, username, aaa);
+		if (r / 100 != 3) {
+			fprintf(stderr, "Citadel refused username: %s\n", aaa);
+			CtdlIPC_delete_ptr(&ipc);
+			return NULL;	/* Gawd only knows what went wrong */
+		}
+		r = CtdlIPCTryPassword(ipc, password, aaa);
+		if (r / 100 != 2) {
+			fprintf(stderr, "Citadel refused password: %s\n", aaa);
+			CtdlIPC_delete_ptr(&ipc);
+			return NULL;	/* Gawd only knows what went wrong */
+		}
+	} else {
+		/* testuser doesn't yet exist */
+		r = CtdlIPCCreateUser(ipc, username, 1, aaa);
+		if (r / 100 != 2) {
+			fprintf(stderr, "Citadel refused create user: %s\n", aaa);
+			CtdlIPC_delete_ptr(&ipc);
+			return NULL;	/* Gawd only knows what went wrong */
+		}
+		r = CtdlIPCChangePassword(ipc, password, aaa);
+		if (r / 100 != 2) {
+			fprintf(stderr, "Citadel refused change password: %s\n", aaa);
+			CtdlIPC_delete_ptr(&ipc);
+			return NULL;	/* Gawd only knows what went wrong */
+		}
 	}
 
 	/* Wait for the rest of the threads */
@@ -202,12 +229,35 @@ void* worker(void* data)
 			return NULL;
 		}
 
+		if (w >= 3) {
+			/* Do a status update */
+			pthread_mutex_lock(&count_mutex);
+			count++;
+			pthread_mutex_unlock(&count_mutex);
+			if (!(count % 20))
+				fprintf(stderr, "%d of %d - %d%%        \r",
+					count, total,
+					(int)(100 * count / total));
+		}
 		/* Wait for a while */
 		sleep(w);
 	}
 	end = time(NULL);
 	printf("%ld\n", end - start);
 	return (void*)(end - start);
+}
+
+
+/*
+ * Shift argument list
+ */
+int shift(int argc, char **argv, int start, int count)
+{
+	int i;
+
+	for (i = start; i < argc - count; ++i)
+		argv[i] = argv[i + count];
+	return argc - count;
 }
 
 
@@ -221,12 +271,46 @@ int main(int argc, char** argv)
 	pthread_t** threads;	/* A shitload of threads */
 	pthread_attr_t attr;	/* Thread attributes (we use defaults) */
 	int i;			/* Counters */
-	int t = 0;
 	long runtime;		/* Run time for each thread */
+
+	/* Read argument list */
+	for (i = 0; i < argc; i++) {
+		if (!strcmp(argv[i], "-n")) {
+			n = atoi(argv[i + 1]);
+			argc = shift(argc, argv, i, 2);
+		}
+		if (!strcmp(argv[i], "-w")) {
+			w = atoi(argv[i + 1]);
+			argc = shift(argc, argv, i, 2);
+		}
+		if (!strcmp(argv[i], "-m")) {
+			m = atoi(argv[i + 1]);
+			argc = shift(argc, argv, i, 2);
+		}
+		if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
+			fprintf(stderr, "Read stress.c for usage info\n");
+			return 1;
+		}
+	}
 
 	data[0] = (void*)argc;	/* pass args to worker thread */
 	data[1] = (void*)argv;	/* pass args to worker thread */
+	fprintf(stderr, "Set data[0] to %x\n", data[0]);
+	fprintf(stderr, "Set data[1] to %x\n", data[1]);
+	fprintf(stderr, "Data is at %x\n", data);
 
+	/* This is how many total messages will be posted */
+	total = n * m;
+
+	/* Pick a randomized username */
+	pthread_mutex_lock(&rand_mutex);
+	/* See Numerical Recipes in C or Knuth vol. 2 ch. 3 */
+	i = (int)(99.0*rand()/(RAND_MAX+1.0));
+	pthread_mutex_unlock(&rand_mutex);
+	sprintf(username, "testuser%d", i);
+	strcpy(password, username);
+
+	fprintf(stderr, "Allocating threads\n");
 	/* First, memory for our shitload of threads */
 	threads = calloc(n, sizeof(pthread_t*));
 	if (!threads) {
@@ -234,16 +318,19 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	/* Then thread attributes (all defaults for now */
+	/* Then thread attributes (all defaults for now) */
 	pthread_attr_init(&attr);
 
+	fprintf(stderr, "Creating threads\n");
 	/* Then, create some threads */
 	for (i = 0; i < n; ++i) {
-		pthread_create(threads[i], &attr, worker, data);
+		fprintf(stderr, "\rCreating thread %d", i);
+		pthread_create(threads[i], &attr, worker, (void*)data);
 	}
 
 	fprintf(stderr, "Starting in 10 seconds\r");
 	sleep(10);
+	fprintf(stderr, "                      \r");
 
 	/* Then, signal the conditional they all are waiting on */
 	pthread_mutex_lock(&start_mutex);
