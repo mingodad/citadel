@@ -155,6 +155,10 @@ void do_template(void *templatename) {
 
 	strcpy(filename, "static/");
 	strcat(filename, templatename);
+	if (WC->is_wap)
+		strcat(filename, ".wml");
+	else
+		strcat(filename, ".html");
 	
 	fp = fopen(filename, "r");
 	if (fp == NULL) {

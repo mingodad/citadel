@@ -58,7 +58,7 @@ void display_login(char *mesg)
 
 	svprintf("hello", WCS_SERVCMD, "MESG hello");
 
-	do_template("login.html");
+	do_template("login");
 
 	clear_local_substs();
 	wDumpContent(0);	/* No menu here; not logged in yet! */

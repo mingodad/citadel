@@ -947,7 +947,7 @@ void display_enter(void)
 		if (strlen(bstr("recp")) > 0) {
 			wprintf("<EM>%s</EM><BR>\n", &buf[4]);
 		}
-		do_template("prompt_for_recipient.html");
+		do_template("prompt_for_recipient");
 		goto DONE;
 	}
 	if (buf[0] != '2') {

@@ -1,4 +1,8 @@
 $Log$
+Revision 323.35  2002/05/12 15:21:43  error
+* do_template() now parses a .wml file for WAP clients, and a .html file
+  for everybody else
+
 Revision 323.34  2002/05/11 22:46:19  error
 * Track whether user-agent is a WAP gateway
 
@@ -818,4 +822,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

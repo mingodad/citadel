@@ -306,10 +306,10 @@ void display_menubar(int as_single_page) {
 			"BODY	{ text-decoration: none; }\n"
 			"</STYLE>\n"
 			"</HEAD>\n");
-		do_template("background.html");
+		do_template("background");
 	}
 
-	do_template("menubar.html");
+	do_template("menubar");
 
 	if (as_single_page) {
 		wDumpContent(2);
