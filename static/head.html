@@ -67,6 +67,14 @@ body {
 	background: #444455;
 }
 
+#page_popup {
+	position:absolute;
+	width=600px;
+	height=400px;
+	background-color: #880000;
+	z-index: 2;
+}
+
 #content {
 	position:fixed;
 	display:block;
@@ -388,6 +396,26 @@ span.key {
 <!-- end tree view styles -->
 
 </style>
-<?PAGERSCRIPT>
+
+<script language="JavaScript">
+
+var browserType;
+
+if (document.layers) {browserType = "nn4"}
+if (document.all) {browserType = "ie"}
+if (window.navigator.userAgent.toLowerCase().match("gecko")) {browserType= "gecko"}
+
+function hide_page_popup() {
+  if (browserType == "gecko" )
+     document.poppedLayer = eval('document.getElementById(\'page_popup\')');
+  else if (browserType == "ie")
+     document.poppedLayer = eval('document.all[\'page_popup\']');
+  else
+     document.poppedLayer = eval('document.layers[\'`page_popup\']');
+  document.poppedLayer.style.visibility = "hidden";
+}
+
+</script>
+
 </head>
 <body>

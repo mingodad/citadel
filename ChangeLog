@@ -1,4 +1,8 @@
 $Log$
+Revision 528.14  2005/01/20 16:13:56  ajc
+* Added in a bunch of stupid JavaScript to allow the instant message
+  window to be dismissed.
+
 Revision 528.13  2005/01/20 04:10:41  ajc
 * Cleaned up a bunch of unused cruft from the old layout
 * Instant messages are now displayed in a div that layers itself
@@ -2199,4 +2203,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -398,9 +398,8 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 	/* ICONBAR */
 	if (do_htmlhead) {
 
-		if (WC->HaveExpressMessages) {
-			wprintf("<div style=\"position:absolute; width=600px; height=400px; "
-				"background-color: #880000; z-index: 2; >\n");
+		if (WC->HaveInstantMessages) {
+			wprintf("<div id=\"page_popup\">\n");
 			page_popup();
 			wprintf("</div>\n");
 		}
@@ -448,13 +447,13 @@ void http_redirect(char *whichpage) {
 
 
 
-void check_for_express_messages()
+void check_for_instant_messages()
 {
 	char buf[SIZ];
 
 	serv_puts("NOOP");
 	serv_gets(buf);
-	if (buf[3] == '*') WC->HaveExpressMessages = 1;
+	if (buf[3] == '*') WC->HaveInstantMessages = 1;
 }
 
 
@@ -995,7 +994,7 @@ void session_loop(struct httprequest *req)
 	}
 #endif
 
-	check_for_express_messages();
+	check_for_instant_messages();
 
 	/*
 	 * If we're not logged in, but we have username and password cookies
