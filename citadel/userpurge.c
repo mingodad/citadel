@@ -54,7 +54,7 @@ void do_user_purge(struct usersupp *us) {
 	if (us->timescalled == 0) purge = 1;
 
 	if (purge == 1) {
-		/* FIX add the delete call here. */
+		/* do the delete call */
 		}
 
 

@@ -573,8 +573,6 @@ void cmd_read(char *cmdbuf)
 		return;
 		}
 
-	if (CC->dl_is_net) if (bytes>64) bytes = 64; /**** FIX ****/
-
 	fseek(CC->download_fp,start_pos,0);
 	fread(buf,bytes,1,CC->download_fp);
 	cprintf("%d %d\n",BINARY_FOLLOWS,bytes);
@@ -602,8 +600,6 @@ void cmd_writ(char *cmdbuf)
 		cprintf("%d You may not write more than 4096 bytes.\n",ERROR);
 		return;
 		}
-
-	if (CC->upload_type==UPL_NET) if (bytes > 64) bytes = 64; /*** FIX ***/
 
 	cprintf("%d %d\n",SEND_BINARY,bytes);
 	client_read(buf, bytes);
