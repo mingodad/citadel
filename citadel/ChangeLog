@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.96  2001/02/21 05:44:44  ajc
+ * Wrote the "citlogin" wrapper, so Citadel client can run directly without
+   having to login as bbs first.
+
  Revision 573.95  2001/02/21 05:15:41  ajc
  * Repaired buggy "ALL" macro in IMAP FETCH.
 
@@ -2427,3 +2431,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
