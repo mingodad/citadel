@@ -22,6 +22,14 @@
 #include <signal.h>
 #include "webcit.h"
 
+struct folder {
+	int floor;
+	char room[SIZ];
+	char name[SIZ];
+	int hasnewmsgs;
+	int is_mailbox;
+	int selectable;
+};
 
 char *viewdefs[] = {
 	"Messages",
@@ -207,18 +215,11 @@ void listrms(char *variety)
 }
 
 
-
-
-
-
-
-
-
 /*
  * list all rooms by floor (only should get called from knrooms() because
  * that's where output_headers() is called from)
  */
-void list_all_rooms_by_floor(void)
+void tabular_room_list(void)
 {
 	int a;
 	char buf[SIZ];
@@ -260,6 +261,13 @@ void list_all_rooms_by_floor(void)
 	wprintf("</TABLE>\n");
 	wDumpContent(1);
 }
+
+
+
+
+
+
+
 
 
 /*
@@ -1799,106 +1807,13 @@ void change_view(void) {
 
 
 /*
- * Show the room list in "folders" format.  (only should get called by
- * knrooms() because that's where output_headers() is called from)
+ * One big expanded tree list view --- like a folder list
  */
-void folders(void) {
+void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 	char buf[SIZ];
-
 	int levels, oldlevels;
-	int swap = 0;
-
-	struct folder {
-		char room[SIZ];
-		char name[SIZ];
-		int hasnewmsgs;
-		int is_mailbox;
-		int selectable;
-	};
-
-	struct folder *fold = NULL;
-	struct folder ftmp;
-	int max_folders = 0;
-	int alloc_folders = 0;
-	int i, j, k, t;
-	int ra_flags = 0;
-	int flags = 0;
-	int floor;
 	int nests = 0;
-
-	/* Start with the mailboxes */
-	max_folders = 1;
-	alloc_folders = 1;
-	fold = malloc(sizeof(struct folder));
-	memset(fold, 0, sizeof(struct folder));
-	strcpy(fold[0].name, "My folders");
-	fold[0].is_mailbox = 1;
-
-	/* Then add floors */
-	serv_puts("LFLR");
-	serv_gets(buf);
-	if (buf[0]=='1') while(serv_gets(buf), strcmp(buf, "000")) {
-		if (max_folders >= alloc_folders) {
-			alloc_folders = max_folders + 100;
-			fold = realloc(fold,
-				alloc_folders * sizeof(struct folder));
-		}
-		memset(&fold[max_folders], 0, sizeof(struct folder));
-		extract(fold[max_folders].name, buf, 1);
-		++max_folders;
-	}
-
-	/* Now add rooms */
-	serv_puts("LKRA");
-	serv_gets(buf);
-	if (buf[0]=='1') while(serv_gets(buf), strcmp(buf, "000")) {
-		if (max_folders >= alloc_folders) {
-			alloc_folders = max_folders + 100;
-			fold = realloc(fold,
-				alloc_folders * sizeof(struct folder));
-		}
-		memset(&fold[max_folders], 0, sizeof(struct folder));
-		extract(fold[max_folders].room, buf, 0);
-		ra_flags = extract_int(buf, 5);
-		flags = extract_int(buf, 1);
-		floor = extract_int(buf, 2);
-		fold[max_folders].hasnewmsgs =
-			((ra_flags & UA_HASNEWMSGS) ? 1 : 0 );
-		if (flags & QR_MAILBOX) {
-			fold[max_folders].is_mailbox = 1;
-		}
-		room_to_folder(fold[max_folders].name,
-				fold[max_folders].room,
-				floor,
-				fold[max_folders].is_mailbox);
-		fold[max_folders].selectable = 1;
-		++max_folders;
-	}
-
-	/* Bubble-sort the folder list */
-	for (i=0; i<max_folders; ++i) {
-		for (j=0; j<(max_folders-1)-i; ++j) {
-			if (fold[j].is_mailbox == fold[j+1].is_mailbox) {
-				swap = strcasecmp(fold[j].name, fold[j+1].name);
-			}
-			else {
-				if ( (fold[j+1].is_mailbox)
-				   && (!fold[j].is_mailbox)) {
-					swap = 1;
-				}
-				else {
-					swap = 0;
-				}
-			}
-			if (swap > 0) {
-				memcpy(&ftmp, &fold[j], sizeof(struct folder));
-				memcpy(&fold[j], &fold[j+1],
-							sizeof(struct folder));
-				memcpy(&fold[j+1], &ftmp,
-							sizeof(struct folder));
-			}
-		}
-	}
+	int i, k, t;
 
 	/* Output */
 	nests = 0;
@@ -1944,6 +1859,190 @@ void folders(void) {
 		wprintf("<BR>\n");
 	}
 	while (nests-- > 0) ;; 
+}
+
+/*
+ * Boxes and rooms and lists ... oh my!
+ */
+void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
+	char buf[SIZ];
+	int levels, oldlevels;
+	int nests = 0;
+	int i, k, t;
+	int num_boxes = 0;
+	int boxes_per_column = 0;
+
+	boxes_per_column = (num_floors / 3);	/* three columns */
+	if (boxes_per_column < 1) boxes_per_column = 1;
+
+	/* Outer table (for columnization) */
+	wprintf("<TABLE BORDER=0 WIDTH=100%% CELLPADDING=5>"
+		"<TR><TD VALIGN=TOP>");
+
+	nests = 0;
+	levels = 0;
+	oldlevels = 0;
+	for (i=0; i<max_folders; ++i) {
+
+		levels = num_tokens(fold[i].name, '|');
+		if (levels > oldlevels) {
+			for (k=0; k<(levels-oldlevels); ++k) {
+				++nests;
+			}
+		}
+		if (levels < oldlevels) {
+			for (k=0; k<(oldlevels-levels); ++k) {
+				--nests;
+			}
+		}
+
+		if ((levels == 1) && (oldlevels == 2)) {
+
+			/* End inner box */
+			wprintf("</TD></TR></TABLE><BR>\n");
+
+			++num_boxes;
+			if ((num_boxes % boxes_per_column) == 0) {
+				wprintf("</TD><TD VALIGN=TOP>\n");
+			}
+		}
+
+		if (levels == 1) {
+			/* Begin inner box */
+			wprintf("<TABLE border=1 WIDTH=100%%><TR><TD>");
+		}
+
+
+		oldlevels = levels;
+
+		for (t=0; t<nests; ++t) wprintf("&nbsp;&nbsp;&nbsp;");
+		if (fold[i].selectable) {
+			wprintf("<A HREF=\"/dotgoto?room=");
+			urlescputs(fold[i].room);
+			wprintf("\">");
+		}
+		else {
+			wprintf("<i>");
+		}
+		if (fold[i].hasnewmsgs) wprintf("<B>");
+		extract(buf, fold[i].name, levels-1);
+		escputs(buf);
+		if (fold[i].hasnewmsgs) wprintf("</B>");
+		if (fold[i].selectable) {
+			wprintf("</A>");
+		}
+		else {
+			wprintf("</i>");
+		}
+		if (!strcasecmp(fold[i].name, "My Folders|Mail")) {
+			wprintf(" (INBOX)");
+		}
+		wprintf("<BR>\n");
+	}
+	while (nests-- > 0) ;; 
+
+	wprintf("</TD></TR></TABLE>\n");
+}
+
+
+/*
+ * Show the room list.  (only should get called by
+ * knrooms() because that's where output_headers() is called from)
+ */
+
+void list_all_rooms_by_floor(char *viewpref) {
+	char buf[SIZ];
+	int swap = 0;
+	struct folder *fold = NULL;
+	struct folder ftmp;
+	int max_folders = 0;
+	int alloc_folders = 0;
+	int i, j;
+	int ra_flags = 0;
+	int flags = 0;
+	int num_floors = 1;	/* add an extra one for private folders */
+
+	/* Start with the mailboxes */
+	max_folders = 1;
+	alloc_folders = 1;
+	fold = malloc(sizeof(struct folder));
+	memset(fold, 0, sizeof(struct folder));
+	strcpy(fold[0].name, "My folders");
+	fold[0].is_mailbox = 1;
+
+	/* Then add floors */
+	serv_puts("LFLR");
+	serv_gets(buf);
+	if (buf[0]=='1') while(serv_gets(buf), strcmp(buf, "000")) {
+		if (max_folders >= alloc_folders) {
+			alloc_folders = max_folders + 100;
+			fold = realloc(fold,
+				alloc_folders * sizeof(struct folder));
+		}
+		memset(&fold[max_folders], 0, sizeof(struct folder));
+		extract(fold[max_folders].name, buf, 1);
+		++max_folders;
+		++num_floors;
+	}
+
+	/* Now add rooms */
+	serv_puts("LKRA");
+	serv_gets(buf);
+	if (buf[0]=='1') while(serv_gets(buf), strcmp(buf, "000")) {
+		if (max_folders >= alloc_folders) {
+			alloc_folders = max_folders + 100;
+			fold = realloc(fold,
+				alloc_folders * sizeof(struct folder));
+		}
+		memset(&fold[max_folders], 0, sizeof(struct folder));
+		extract(fold[max_folders].room, buf, 0);
+		ra_flags = extract_int(buf, 5);
+		flags = extract_int(buf, 1);
+		fold[max_folders].floor = extract_int(buf, 2);
+		fold[max_folders].hasnewmsgs =
+			((ra_flags & UA_HASNEWMSGS) ? 1 : 0 );
+		if (flags & QR_MAILBOX) {
+			fold[max_folders].is_mailbox = 1;
+		}
+		room_to_folder(fold[max_folders].name,
+				fold[max_folders].room,
+				fold[max_folders].floor,
+				fold[max_folders].is_mailbox);
+		fold[max_folders].selectable = 1;
+		++max_folders;
+	}
+
+	/* Bubble-sort the folder list */
+	for (i=0; i<max_folders; ++i) {
+		for (j=0; j<(max_folders-1)-i; ++j) {
+			if (fold[j].is_mailbox == fold[j+1].is_mailbox) {
+				swap = strcasecmp(fold[j].name, fold[j+1].name);
+			}
+			else {
+				if ( (fold[j+1].is_mailbox)
+				   && (!fold[j].is_mailbox)) {
+					swap = 1;
+				}
+				else {
+					swap = 0;
+				}
+			}
+			if (swap > 0) {
+				memcpy(&ftmp, &fold[j], sizeof(struct folder));
+				memcpy(&fold[j], &fold[j+1],
+							sizeof(struct folder));
+				memcpy(&fold[j+1], &ftmp,
+							sizeof(struct folder));
+			}
+		}
+	}
+
+	if (!strcasecmp(viewpref, "folders")) {
+		do_folder_view(fold, max_folders, num_floors);
+	}
+	else {
+		do_rooms_view(fold, max_folders, num_floors);
+	}
 
 	free(fold);
 	wDumpContent(1);
@@ -1968,7 +2067,8 @@ void knrooms() {
 
 	get_preference("roomlistview", listviewpref);
 
-	if (strcasecmp(listviewpref, "folders")) {
+	if ( (strcasecmp(listviewpref, "folders"))
+	   && (strcasecmp(listviewpref, "boxes")) ) {
 		strcpy(listviewpref, "rooms");
 	}
 
@@ -1977,6 +2077,9 @@ void knrooms() {
 		"<SPAN CLASS=\"titlebar\">"
 	);
 	if (!strcasecmp(listviewpref, "rooms")) {
+		wprintf("Room list");
+	}
+	if (!strcasecmp(listviewpref, "boxes")) {
 		wprintf("Room list");
 	}
 	if (!strcasecmp(listviewpref, "folders")) {
@@ -2003,15 +2106,21 @@ void knrooms() {
 		( !strcasecmp(listviewpref, "folders") ? "SELECTED" : "" )
 	);
 
+	wprintf("<OPTION %s VALUE=\"/knrooms&view=boxes\">"
+		"View as portal"
+		"</OPTION>\n",
+		( !strcasecmp(listviewpref, "boxes") ? "SELECTED" : "" )
+	);
+
 	wprintf("</SELECT></FORM></TD><TD>\n");
 	offer_start_page();
 	wprintf("</TD></TR></TABLE><BR>\n");
 
 	/* Display the room list in the user's preferred format */
-	if (!strcasecmp(listviewpref, "folders")) {
-		folders();
+	if (!strcasecmp(listviewpref, "rooms")) {
+		tabular_room_list();
 	}
 	else {
-		list_all_rooms_by_floor();
+		list_all_rooms_by_floor(listviewpref);
 	}
 }

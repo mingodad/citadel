@@ -1,4 +1,7 @@
 $Log$
+Revision 410.19  2003/05/03 04:52:32  ajc
+* Added an experimental new "portal view" to the room list options
+
 Revision 410.18  2003/05/02 03:23:41  ajc
 * Minor change to room list algorithm
 
@@ -1358,3 +1361,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
