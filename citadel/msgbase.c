@@ -18,6 +18,7 @@
 #include "room_ops.h"
 #include "user_ops.h"
 #include "control.h"
+#include "dynloader.h"
 
 #define MSGS_ALL	0
 #define MSGS_OLD	1
