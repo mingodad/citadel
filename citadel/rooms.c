@@ -1009,7 +1009,7 @@ void whoknows(void)
 	serv_puts("WHOK");
 	serv_gets(buf);
 	if (buf[0] != '1') {
-		pprintf("%s\n", &buf[5]);
+		pprintf("%s\n", &buf[4]);
 		return;
 	}
 	while (serv_gets(buf), strncmp(buf, "000", 3)) {

@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.147  2002/03/12 22:17:20  ajc
+ * Give mailbox owners access to "who knows room" command
+
  Revision 590.146  2002/03/12 21:08:03  nbryant
  support color under Solaris curses
 
@@ -3464,4 +3467,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

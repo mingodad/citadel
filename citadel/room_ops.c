@@ -868,7 +868,21 @@ void cmd_whok(void)
 	struct cdbdata *cdbus;
 
 	getuser(&CC->usersupp, CC->curr_user);
-	if (CtdlAccessCheck(ac_room_aide)) return;
+
+	/*
+	 * This command is only allowed by aides, room aides,
+	 * and room namespace owners
+	 */
+	if (is_room_aide()
+	   || (atol(CC->quickroom.QRname) == CC->usersupp.usernum) ) {
+		/* access granted */
+	}
+	else {
+		/* access denied */
+                cprintf("%d Higher access or room ownership required.\n",
+                        ERROR + HIGHER_ACCESS_REQUIRED);
+                return;
+        }
 
 	cprintf("%d Who knows room:\n", LISTING_FOLLOWS);
 	cdb_rewind(CDB_USERSUPP);
