@@ -1,4 +1,8 @@
  $Log$
+ Revision 621.9  2004/06/07 22:12:19  ajc
+ * Removed network/filterlist network/mailinglists network/rnews.xref
+   because none of these are used anymore.
+
  Revision 621.8  2004/06/07 16:41:28  ajc
  * Changed "express message" to "instant message" everywhere in the code
    and documentation, to reflect the now industry-standard terminology for
@@ -5822,3 +5826,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

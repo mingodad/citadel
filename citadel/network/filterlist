@@ -1,8 +1,0 @@
-# This is a "kill file" for the networker.  You can specify users, rooms,
-# systems, or all three.  The name "*" may be used as a wildcard for any
-# field.  See network.txt for more information.
-#
-#
-The Banned User,*,*
-The Other Banned User,This Room Only,*
-*,*,The Banned System

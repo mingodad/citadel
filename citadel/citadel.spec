@@ -145,10 +145,7 @@ required by the Citadel/UX server.
 %dir /usr/local/citadel/network/spoolin
 %dir /usr/local/citadel/network/spoolout
 %dir /usr/local/citadel/network/systems
-%config(noreplace) /usr/local/citadel/network/filterlist
 %config(noreplace) /usr/local/citadel/network/mail.aliases
-%config(noreplace) /usr/local/citadel/network/mailinglists
-%config(noreplace) /usr/local/citadel/network/rnews.xref
 %config(noreplace) /usr/local/citadel/public_clients
 %config /usr/local/citadel/help/aide
 %config /usr/local/citadel/help/software
