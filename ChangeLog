@@ -1,4 +1,8 @@
 $Log$
+Revision 500.23  2003/08/24 03:31:50  ajc
+* Finished the setup program
+* Bumped the internal version number to 5.01
+
 Revision 500.22  2003/08/22 00:47:27  ajc
 * setup is now working, but it still needs a way to detect a running WebCit
 
@@ -1574,3 +1578,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

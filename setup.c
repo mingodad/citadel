@@ -2,6 +2,8 @@
  * $Id$
  *
  * WebCit setup utility
+ * 
+ * (This is basically just an install wizard.  It's not required.)
  *
  */
 
@@ -104,11 +106,11 @@ void shutdown_service(void) {
 
 	strcpy(init_entry, "");
 
-	/* Determine the fully qualified path name of citserver */
-	snprintf(looking_for, sizeof looking_for, "%s/citserver ", WEBCITDIR);
+	/* Determine the fully qualified path name of webserver */
+	snprintf(looking_for, sizeof looking_for, "%s/webserver ", WEBCITDIR);
 
 	/* Pound through /etc/inittab line by line.  Set have_entry to 1 if
-	 * an entry is found which we believe starts citserver.
+	 * an entry is found which we believe starts webserver.
 	 */
 	infp = fopen("/etc/inittab", "r");
 	if (infp == NULL) {
@@ -383,13 +385,13 @@ void check_inittab_entry(void)
 	FILE *infp;
 	char buf[SIZ];
 	char looking_for[SIZ];
-	char question[128];
+	char question[SIZ];
 	char entryname[5];
 	char listenport[128];
 	char hostname[128];
 	char portname[128];
 
-	/* Determine the fully qualified path name of citserver */
+	/* Determine the fully qualified path name of webserver */
 	snprintf(looking_for, sizeof looking_for, "%s/webserver ", WEBCITDIR);
 
 	/* If there's already an entry, then we have nothing left to do. */
@@ -408,7 +410,7 @@ void check_inittab_entry(void)
 	snprintf(question, sizeof question,
 		"On which port do you want WebCit to listen for HTTP "
 		"requests?\n\nYou can use the standard port (80) if you are "
-		"not running another web server\n(such as Apache), otherwise "
+		"not running another\nweb server (such as Apache), otherwise "
 		"select another port.");
 	sprintf(listenport, "2000");
 	set_value(question, listenport);
@@ -453,23 +455,12 @@ void check_inittab_entry(void)
 		display_error(strerror(errno));
 	} else {
 		fprintf(infp, "# Start the WebCit server...\n");
-		fprintf(infp, "%s:2345:respawn:%s %s %s\n",
-			entryname, looking_for, hostname, portname);
+		fprintf(infp, "%s:2345:respawn:%s -p%s %s %s\n",
+			entryname, looking_for,
+			listenport, hostname, portname);
 		fclose(infp);
 		strcpy(init_entry, entryname);
 	}
-}
-
-
-
-
-/* 
- * Check to see if our server really works.  Returns 0 on success.
- */
-int test_server(void) {
-
-	return 0;		/* FIXME ... stubbed out */
-
 }
 
 
@@ -532,7 +523,7 @@ int main(int argc, char *argv[])
 
 	/* Get started in a valid setup directory. */
 	strcpy(setup_directory, WEBCITDIR);
-	set_value("FIXME enter your setup directory, dumbass.",
+	set_value("In what directory is WebCit installed?",
 		setup_directory);
 	if (chdir(setup_directory) != 0) {
 		important_message("WebCit Setup",
@@ -546,16 +537,6 @@ int main(int argc, char *argv[])
 		if (a == 0) shutdown_service();
 		sleep(1);
 	}
-
-	/* Make sure it's stopped.  FIXME put back in
-	if (test_server() == 0) {
-		important_message("WebCit Setup",
-			"The WebCit service is still running.\n"
-			"Please stop the service manually and run "
-			"setup again.");
-		cleanup(1);
-	}
-	*/
 
 	/* Now begin. */
 	switch (setup_type) {
@@ -576,16 +557,8 @@ int main(int argc, char *argv[])
 			if (a == 0) start_the_service();
 			sleep(1);
 		}
-		if (test_server() == 0) {
-			important_message("Setup finished",
-				"Setup is finished.  You may now log in.");
-		}
-		else {
-			important_message("Setup finished",
-				"Setup is finished, but the WebCit service "
-				"failed to start.\n"
-				"Go back and check your configuration.");
-		}
+		important_message("Setup finished",
+			"Setup is finished.  You may now log in.");
 	}
 	else {
 		important_message("Setup finished",
