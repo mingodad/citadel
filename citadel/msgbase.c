@@ -3178,3 +3178,38 @@ void CtdlPutSysConfig(char *sysconfname, char *sysconfdata) {
 	CtdlWriteObject(SYSCONFIGROOM, sysconfname, temp, NULL, 0, 1, 0);
 	unlink(temp);
 }
+
+
+void cmd_isme(char *argbuf) {
+	char addr[SIZ];
+	struct recptypes *recp;
+	int i;
+
+	if (CtdlAccessCheck(ac_logged_in)) return;
+	extract(addr, argbuf, 0);
+	recp = validate_recipients(addr);
+
+	if (recp == NULL) {
+		cprintf("%d Error parsing \n", ERROR + INTERNAL_ERROR);
+		return;
+	}
+
+	if (recp->num_local == 0) {
+		cprintf("%d Not you.\n", ERROR);
+		phree(recp);
+		return;
+	}
+
+	for (i=0; i<recp->num_local; ++i) {
+		extract(addr, recp->recp_local, i);
+		if (!strcasecmp(addr, CC->usersupp.fullname)) {
+			cprintf("%d %s\n", CIT_OK, addr);
+			phree(recp);
+			return;
+		}
+	}
+
+	cprintf("%d Not you.\n", ERROR);
+	phree(recp);
+	return;
+}

@@ -1938,7 +1938,15 @@ call QDIR with one parameter, the Internet e-mail address to look up.  QDIR
 returns OK followed by a Citadel address if there is a match, otherwise it
 returns ERROR+NOT_LOGGED_IN.
  
- 
+  
+ ISME   (find out if an e-mail address IS ME)
+  
+ This is a quickie shortcut command to find out if a given e-mail address
+belongs to the user currently logged in.  Its sole argument is an address to
+parse.  The supplied address may be in any format (local, IGnet, or Internet).
+The command returns OK if the address belongs to the user, ERROR otherwise.
+  
+  
  VIEW   (set the VIEW for a room)
  
  Set the preferred view for the current user in the current room.  Please see
