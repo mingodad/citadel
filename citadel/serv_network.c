@@ -421,6 +421,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 	struct CtdlMessage *msg = NULL;
 	struct CtdlMessage *imsg;
 	struct namelist *nptr;
+	struct maplist *mptr;
 	struct ser_ret sermsg;
 	FILE *fp;
 	char filename[SIZ];
@@ -522,15 +523,6 @@ void network_spool_msg(long msgnum, void *userdata) {
 			msg->cm_fields['P'] = newpath;
 
 			/*
-			 * Force the message to appear in the correct room
-			 * on the far end by setting the C field correctly
-			 */
-			if (msg->cm_fields['C'] != NULL) {
-				free(msg->cm_fields['C']);
-			}
-			msg->cm_fields['C'] = strdup(CC->room.QRname);
-
-			/*
 			 * Determine if this message is set to be deleted
 			 * after sending out on the network
 			 */
@@ -541,21 +533,16 @@ void network_spool_msg(long msgnum, void *userdata) {
 				}
 			}
 
-			/* 
-			 * Now serialize it for transmission
-			 */
-			serialize_message(&sermsg, msg);
-
 			/* Now send it to every node */
-			for (nptr = sc->ignet_push_shares; nptr != NULL;
-			    nptr = nptr->next) {
+			for (mptr = sc->ignet_push_shares; mptr != NULL;
+			    mptr = mptr->next) {
 
 				send = 1;
 
 				/* Check for valid node name */
-				if (is_valid_node(NULL, NULL, nptr->name) != 0) {
+				if (is_valid_node(NULL, NULL, mptr->remote_nodename) != 0) {
 					lprintf(CTDL_ERR, "Invalid node <%s>\n",
-						nptr->name);
+						mptr->remote_nodename);
 					send = 0;
 				}
 
@@ -565,25 +552,46 @@ void network_spool_msg(long msgnum, void *userdata) {
 				if (bang > 1) for (i=0; i<(bang-1); ++i) {
 					extract_token(buf, msg->cm_fields['P'],
 						i, '!');
-					if (!strcasecmp(buf, nptr->name)) {
+					if (!strcasecmp(buf, mptr->remote_nodename)) {
 						send = 0;
 					}
 				}
 
 				/* Send the message */
 				if (send == 1) {
+
+					/*
+					 * Force the message to appear in the correct room
+					 * on the far end by setting the C field correctly
+					 */
+					if (msg->cm_fields['C'] != NULL) {
+						free(msg->cm_fields['C']);
+					}
+					if (strlen(mptr->remote_roomname) > 0) {
+						msg->cm_fields['C'] = strdup(mptr->remote_roomname);
+					}
+					else {
+						msg->cm_fields['C'] = strdup(CC->room.QRname);
+					}
+
+					/* serialize it for transmission */
+					serialize_message(&sermsg, msg);
+
+					/* write it to the spool file */
 					snprintf(filename, sizeof filename,
 						"./network/spoolout/%s",
-						nptr->name);
+						mptr->remote_nodename);
 					fp = fopen(filename, "ab");
 					if (fp != NULL) {
 						fwrite(sermsg.ser,
 							sermsg.len, 1, fp);
 						fclose(fp);
 					}
+
+					/* free the serialized version */
+					free(sermsg.ser);
 				}
 			}
-			free(sermsg.ser);
 			CtdlFreeMessage(msg);
 		}
 	}
@@ -706,10 +714,12 @@ void network_spoolout_room(char *room_to_spool) {
 	char buf[SIZ];
 	char instr[SIZ];
 	char nodename[SIZ];
+	char roomname[SIZ];
 	char nexthop[SIZ];
 	FILE *fp;
 	struct SpoolControl sc;
 	struct namelist *nptr = NULL;
+	struct maplist *mptr = NULL;
 	size_t miscsize = 0;
 	size_t linesize = 0;
 	int skipthisline = 0;
@@ -760,14 +770,16 @@ void network_spoolout_room(char *room_to_spool) {
 			 * configurations at this time.
 			 */
 			extract(nodename, buf, 1);
+			extract(roomname, buf, 2);
 			strcpy(nexthop, "xxx");
 			if (is_valid_node(nexthop, NULL, nodename) == 0) {
 				if (strlen(nexthop) == 0) {
-					nptr = (struct namelist *)
-						malloc(sizeof(struct namelist));
-					nptr->next = sc.ignet_push_shares;
-					strcpy(nptr->name, nodename);
-					sc.ignet_push_shares = nptr;
+					mptr = (struct maplist *)
+						malloc(sizeof(struct maplist));
+					mptr->next = sc.ignet_push_shares;
+					strcpy(mptr->remote_nodename, nodename);
+					strcpy(mptr->remote_roomname, roomname);
+					sc.ignet_push_shares = mptr;
 				}
 			}
 		}
@@ -860,13 +872,17 @@ void network_spoolout_room(char *room_to_spool) {
 			 * purge nodes which do not exist from room network
 			 * configurations at this time.
 			 */
-			if (is_valid_node(NULL, NULL, sc.ignet_push_shares->name) == 0) {
+			if (is_valid_node(NULL, NULL, sc.ignet_push_shares->remote_nodename) == 0) {
 			}
-			fprintf(fp, "ignet_push_share|%s\n",
-				sc.ignet_push_shares->name);
-			nptr = sc.ignet_push_shares->next;
+			fprintf(fp, "ignet_push_share|%s",
+				sc.ignet_push_shares->remote_nodename);
+			if (strlen(sc.ignet_push_shares->remote_roomname) > 0) {
+				fprintf(fp, "|%s", sc.ignet_push_shares->remote_roomname);
+			}
+			fprintf(fp, "\n");
+			mptr = sc.ignet_push_shares->next;
 			free(sc.ignet_push_shares);
-			sc.ignet_push_shares = nptr;
+			sc.ignet_push_shares = mptr;
 		}
 		if (sc.misc != NULL) {
 			fwrite(sc.misc, strlen(sc.misc), 1, fp);
@@ -888,15 +904,48 @@ void network_spoolout_room(char *room_to_spool) {
 int network_sync_to(char *target_node) {
 	struct SpoolControl sc;
 	int num_spooled = 0;
+	int found_node = 0;
+	char buf[SIZ];
+	char sc_type[SIZ];
+	char sc_node[SIZ];
+	char sc_room[SIZ];
+	char filename[SIZ];
+	FILE *fp;
 
-	/* Concise syntax because we don't need a full linked-list */
-	memset(&sc, 0, sizeof(struct SpoolControl));
-	sc.ignet_push_shares = (struct namelist *)
-		malloc(sizeof(struct namelist));
-	sc.ignet_push_shares->next = NULL;
-	safestrncpy(sc.ignet_push_shares->name,
-		target_node,
-		sizeof sc.ignet_push_shares->name);
+	/* Grab the configuration line we're looking for */
+	assoc_file_name(filename, sizeof filename, &CC->room, "netconfigs");
+	begin_critical_section(S_NETCONFIGS);
+	fp = fopen(filename, "r");
+	if (fp == NULL) {
+		end_critical_section(S_NETCONFIGS);
+		return(-1);
+	}
+	while (fgets(buf, sizeof buf, fp) != NULL) {
+		buf[strlen(buf)-1] = 0;
+		extract(sc_type, buf, 0);
+		extract(sc_node, buf, 1);
+		extract(sc_room, buf, 2);
+		if ( (!strcasecmp(sc_type, "ignet_push_share"))
+		   && (!strcasecmp(sc_node, target_node)) ) {
+			found_node = 1;
+			
+			/* Concise syntax because we don't need a full linked-list */
+			memset(&sc, 0, sizeof(struct SpoolControl));
+			sc.ignet_push_shares = (struct maplist *)
+				malloc(sizeof(struct maplist));
+			sc.ignet_push_shares->next = NULL;
+			safestrncpy(sc.ignet_push_shares->remote_nodename,
+				sc_node,
+				sizeof sc.ignet_push_shares->remote_nodename);
+			safestrncpy(sc.ignet_push_shares->remote_roomname,
+				sc_room,
+				sizeof sc.ignet_push_shares->remote_roomname);
+		}
+	}
+	fclose(fp);
+	end_critical_section(S_NETCONFIGS);
+
+	if (!found_node) return(-1);
 
 	/* Send ALL messages */
 	num_spooled = CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL,
@@ -922,7 +971,13 @@ void cmd_nsyn(char *argbuf) {
 
 	extract(target_node, argbuf, 0);
 	num_spooled = network_sync_to(target_node);
-	cprintf("%d Spooled %d messages.\n", CIT_OK, num_spooled);
+	if (num_spooled >= 0) {
+		cprintf("%d Spooled %d messages.\n", CIT_OK, num_spooled);
+	}
+	else {
+		cprintf("%d No such room/node share exists.\n",
+			ERROR + ROOM_NOT_FOUND);
+	}
 }
 
 

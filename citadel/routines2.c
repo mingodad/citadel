@@ -1018,7 +1018,7 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 	int e_ex_code;
 	pid_t editor_pid;
 	int cksum;
-	int b, i;
+	int b, i, tokens;
 	char buf[SIZ];
 	char instr[SIZ];
 	char addr[SIZ];
@@ -1054,8 +1054,15 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 			remove_token(listing, 0, '\n');
 			extract(instr, buf, 0);
 			if (!strcasecmp(instr, entrytype)) {
-				extract(addr, buf, 1);
-				fprintf(tempfp, "%s\n", addr);
+				tokens = num_tokens(buf, '|');
+				for (i=1; i<tokens; ++i) {
+					extract(addr, buf, i);
+					fprintf(tempfp, "%s", addr);
+					if (i < (tokens-1)) {
+						fprintf(tempfp, "|");
+					}
+				}
+				fprintf(tempfp, "\n");
 			}
 		}
 	}
