@@ -2574,16 +2574,24 @@ void cmd_move(char *args)
 	targ[ROOMNAMELEN - 1] = 0;
 	is_copy = extract_int(args, 2);
 
-	getuser(&CC->usersupp, CC->curr_user);
-	if ((CC->usersupp.axlevel < 6)
-	    && (CC->usersupp.usernum != CC->quickroom.QRroomaide)) {
-		cprintf("%d Higher access required.\n",
-			ERROR + HIGHER_ACCESS_REQUIRED);
+	if (getroom(&qtemp, targ) != 0) {
+		cprintf("%d '%s' does not exist.\n", ERROR, targ);
 		return;
 	}
 
-	if (getroom(&qtemp, targ) != 0) {
-		cprintf("%d '%s' does not exist.\n", ERROR, targ);
+	getuser(&CC->usersupp, CC->curr_user);
+	/* Aides can move/copy */
+	if ((CC->usersupp.axlevel < 6)
+	    /* Roomaides can move/copy */
+	    && (CC->usersupp.usernum != CC->quickroom.QRroomaide)
+	    /* Permit move/copy to/from personal rooms */
+	    && (!((CC->quickroom.QRflags & QR_MAILBOX)
+			    && (qtemp.QRflags & QR_MAILBOX)))
+	    /* Permit only copy from public to personal room */
+	    && (!(is_copy && !(CC->quickroom.QRflags & QR_MAILBOX)
+			    && (qtemp.QRflags & QR_MAILBOX)))) {
+		cprintf("%d Higher access required.\n",
+			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;
 	}
 

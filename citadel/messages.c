@@ -1222,8 +1222,7 @@ RMSGREAD:	fflush(stdout);
 				    if ((!is_room_aide)
 					&& ((room_flags & QR_MAILBOX) ==
 					    0)) {
-					if ((e == 'd') || (e == 'm')
-					    || (e == 'c'))
+					if ((e == 'd') || (e == 'm'))
 						e = 0;
 				}
 /* print only if available */
@@ -1309,9 +1308,8 @@ RMSGREAD:	fflush(stdout);
 				printf(" D  Delete this message\n");
 				printf
 				    (" M  Move message to another room\n");
-				printf
-				    (" C  Copy message to another room\n");
 			}
+			printf(" C  Copy message to another room\n");
 			if (strlen(printcmd) > 0)
 				printf(" P  Print this message\n");
 			printf
