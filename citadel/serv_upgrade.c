@@ -486,6 +486,12 @@ void import_databases(void) {
 
 void do_import(char *argbuf) {
 	char import_filename[PATH_MAX];
+
+        if (CC->internal_pgm == 0) {
+                cprintf("%d This command is for internal programs only.\n",
+                        ERROR);
+                return;
+                }
 	
 	extract(import_filename, argbuf, 0);
 	imfp = fopen(import_filename, "rb");
@@ -654,6 +660,12 @@ void export_visits(void) {
 
 void do_export(char *argbuf) {
 	char export_filename[PATH_MAX];
+
+        if (CC->internal_pgm == 0) {
+                cprintf("%d This command is for internal programs only.\n",
+                        ERROR);
+                return;
+                }
 	
 	extract(export_filename, argbuf, 0);
 	exfp = fopen(export_filename, "wb");

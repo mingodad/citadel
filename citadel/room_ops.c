@@ -1316,6 +1316,12 @@ void cmd_cre8(char *args)
 		return;
 		}
 
+	if (!strcasecmp(new_room_name, MAILROOM)) {
+		cprintf("%d '%s' already exists.\n",
+			ERROR+ALREADY_EXISTS, new_room_name);
+		return;
+		}
+
 	if (num_parms(args)>=5) {
 		getfloor(&flbuf,extract_int(args,4));
 		if ((flbuf.f_flags & F_INUSE) == 0) {
@@ -1347,7 +1353,7 @@ void cmd_cre8(char *args)
 	/* Check to make sure the requested room name doesn't already exist */
 	if (getroom(&qrbuf, new_room_name)==0) {
 		cprintf("%d '%s' already exists.\n",
-			ERROR,qrbuf.QRname);
+			ERROR+ALREADY_EXISTS, qrbuf.QRname);
 		return;
 		}
 

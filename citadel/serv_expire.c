@@ -113,7 +113,6 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 	char msgid[64];
 	int a;
 
-	messages_purged = 0;
 	time(&now);
 	GetExpirePolicy(&epbuf, qrbuf);
 	
@@ -157,9 +156,10 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 
 			if ((xtime > 0L)
 			   && (now - xtime > (time_t)(epbuf.expire_value * 86400L))) {
+				lprintf(5, "Expiring message %ld\n", delnum);
 				cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));
 				SetMessageInList(a, 0L);
-				lprintf(5, "Expiring message %ld\n", delnum);
+				++messages_purged;
 				}
 			}
 		}
@@ -170,6 +170,7 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 
 void PurgeMessages(void) {
 	lprintf(5, "PurgeMessages() called\n");
+	messages_purged = 0;
 	ForEachRoom(DoPurgeMessages);
 	}
 

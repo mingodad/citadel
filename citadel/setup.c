@@ -855,10 +855,10 @@ int main(int argc, char *argv[]) {
 		}
 	
 	/*
-	 * Make sure that at least one concurrent session is allowed!
+	 * Negative values for maxsessions are not allowed.
 	 */
-	if (config.c_maxsessions < 1) {
-		config.c_maxsessions = 1;
+	if (config.c_maxsessions < 0) {
+		config.c_maxsessions = 0;
 		}
 
 	/* We need a system default message expiry policy, because this is

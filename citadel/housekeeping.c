@@ -31,15 +31,18 @@
 void terminate_idle_sessions(void) {
 	struct CitContext *ccptr;
 	time_t now;
-	
-	time(&now);
+
+START_OVER:
+	now = time(NULL);
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 		if (  (ccptr!=CC)
 		   && (config.c_sleeping > 0)
 		   && (now - (ccptr->lastcmd) > config.c_sleeping) ) {
-			lprintf(3, "Session %d timed out\n", ccptr->cs_pid);
+			lprintf(3, "Session %d timed out.  Terminating it...\n",
+				ccptr->cs_pid);
 			kill_session(ccptr->cs_pid);
-			ccptr = ContextList;
+			lprintf(9, "...done terminating it.\n");
+			goto START_OVER;
 			}
 		}
 	}
@@ -50,12 +53,14 @@ void terminate_idle_sessions(void) {
  */
 void do_housekeeping(void) {
 
+	lprintf(9, "--- begin housekeeping ---\n");
 	begin_critical_section(S_HOUSEKEEPING);
 	/*
 	 * Terminate idle sessions.
 	 */
 	lprintf(7, "Calling terminate_idle_sessions()\n");
 	terminate_idle_sessions();
+	lprintf(9, "Done with terminate_idle_sessions()\n");
 
 	/*
 	 * If the server is scheduled to shut down the next time all
@@ -66,6 +71,7 @@ void do_housekeeping(void) {
 		master_cleanup();
 		}
 	end_critical_section(S_HOUSEKEEPING);
+	lprintf(9, "--- end housekeeping ---\n");
 	}
 
 
