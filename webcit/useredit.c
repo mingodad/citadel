@@ -86,9 +86,18 @@ void select_user_to_edit(char *message)
  * web variable for the name of the user to edit.
  */
 void display_edituser(char *supplied_username) {
-	char username[SIZ];
 	char buf[SIZ];
 	char error_message[SIZ];
+
+	char username[SIZ];
+	char password[SIZ];
+	unsigned int flags;
+	int timescalled;
+	int msgsposted;
+	int axlevel;
+	long usernum;
+	time_t lastcall;
+	int purgedays;
 
 	if (supplied_username != NULL) {
 		strcpy(username, supplied_username);
@@ -107,7 +116,23 @@ void display_edituser(char *supplied_username) {
 		return;
 	}
 
+	extract(username, &buf[4], 0);
+	extract(password, &buf[4], 1);
+	flags = extract_int(&buf[4], 2);
+	timescalled = extract_int(&buf[4], 3);
+	msgsposted = extract_int(&buf[4], 4);
+	axlevel = extract_int(&buf[4], 5);
+	usernum = extract_long(&buf[4], 6);
+	lastcall = extract_long(&buf[4], 7);
+	purgedays = extract_long(&buf[4], 8);
+
 	output_headers(3);	/* No room banner on this screen */
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>"
+		"Edit user account: ");
+	escputs(username);
+	wprintf("</B></FONT></TD></TR></TABLE>\n");
+
 
 	wprintf("this is %s", username);
 
@@ -119,8 +144,8 @@ void display_edituser(char *supplied_username) {
 
 void create_user(void) {
 	char buf[SIZ];
-	char username[SIZ];
 	char error_message[SIZ];
+	char username[SIZ];
 
 	strcpy(username, bstr("username"));
 
@@ -135,17 +160,6 @@ void create_user(void) {
 			"<IMG SRC=\"static/error.gif\" VALIGN=CENTER>"
 			"%s<BR><BR>\n", &buf[4]);
 		select_user_to_edit(error_message);
-		return;
 	}
-
-	output_headers(3);
-
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>"
-		"Edit user account: ");
-	escputs(username);
-	wprintf("</B></FONT></TD></TR></TABLE>\n");
-
-	wDumpContent(1);
 
 }
