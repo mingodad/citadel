@@ -1992,6 +1992,21 @@ may be issued:
   This command may return ERROR if something went wrong, but usually it will
   return LISTING_FOLLOWS followed by a list of zero or more conflicting
   events.  A zero-length list means that there were no conflicts.
+ 
+ ICAL handle_rsvp|msgnum|partnum
+  Handle an incoming "reply" (or RSVP) to a meeting request you sent out.
+  'msgnum' and 'partnum' refer to a MIME-encoded reply in the current room.
+  'action' must be set to either "update" or "ignore" to determine the action
+  to take.  If the action is "update" then the server will hunt for the meeting
+  in the user's Calendar> room, and update the status for this attendee.  Either
+  way, the reply message is deleted from the current room.  This subcommand will
+  return either OK or ERROR.
+ 
+ Readers who are paying attention will notice that there is no subcommand to send
+ out meeting invitations.  This is because that task is handled automatically by
+ the Citadel server.  When an event is saved to the user's Calendar> room and it
+ contains attendees, Citadel will automatically turn the event into vCalendar
+ REQUEST messages and mail them out to all listed attendees.
 
 
 

@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.84  2002/12/08 00:23:08  ajc
+ * Began adding a calendaring subcommand to accept a reply to a meeting
+   invitation and update the event in the user's calendar.  (Not finished.)
+
  Revision 601.83  2002/12/04 05:01:18  ajc
  * When sending out invitations, encapsulate the VEVENT component inside a
    VCALENDAR component, along with proper metadata such as product ID and
@@ -4283,4 +4287,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

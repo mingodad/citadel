@@ -46,23 +46,23 @@ struct ical_respond_data {
  * Write a calendar object into the specified user's calendar room.
  */
 void ical_write_to_cal(struct usersupp *u, icalcomponent *cal) {
-        char temp[PATH_MAX];
-        FILE *fp;
+	char temp[PATH_MAX];
+	FILE *fp;
 	char *ser;
 
-        strcpy(temp, tmpnam(NULL));
+	strcpy(temp, tmpnam(NULL));
 	ser = icalcomponent_as_ical_string(cal);
 	if (ser == NULL) return;
 
 	/* Make a temp file out of it */
-        fp = fopen(temp, "w");
-        if (fp == NULL) return;
+	fp = fopen(temp, "w");
+	if (fp == NULL) return;
 	fwrite(ser, strlen(ser), 1, fp);
-        fclose(fp);
+	fclose(fp);
 
-        /* This handy API function does all the work for us.
+	/* This handy API function does all the work for us.
 	 */
-        CtdlWriteObject(USERCALENDARROOM,	/* which room */
+	CtdlWriteObject(USERCALENDARROOM,	/* which room */
 			"text/calendar",	/* MIME type */
 			temp,			/* temp file */
 			u,			/* which user */
@@ -70,7 +70,7 @@ void ical_write_to_cal(struct usersupp *u, icalcomponent *cal) {
 			0,		/* don't delete others of this type */
 			0);			/* no flags */
 
-        unlink(temp);
+	unlink(temp);
 }
 
 
@@ -348,6 +348,175 @@ void ical_respond(long msgnum, char *partnum, char *action) {
 
 
 /*
+ * Figure out the UID of the calendar event being referred to in a
+ * REPLY object.  This function is recursive.
+ */
+void ical_learn_uid_of_reply(char *uidbuf, icalcomponent *cal) {
+	icalcomponent *subcomponent;
+	icalproperty *p;
+
+	/* If this object is a REPLY, then extract the UID. */
+	if (icalcomponent_isa(cal) == ICAL_VEVENT_COMPONENT) {
+		p = icalcomponent_get_first_property(cal, ICAL_UID_PROPERTY);
+		if (p != NULL) {
+			strcpy(uidbuf, icalproperty_get_comment(p));
+		}
+	}
+
+	/* Otherwise, recurse through any VEVENT subcomponents.  We do NOT want the
+	 * UID of the reply; we want the UID of the invitation being replied to.
+	 */
+	for (subcomponent = icalcomponent_get_first_component(cal, ICAL_VEVENT_COMPONENT);
+	    subcomponent != NULL;
+	    subcomponent = icalcomponent_get_next_component(cal, ICAL_VEVENT_COMPONENT) ) {
+		ical_learn_uid_of_reply(uidbuf, subcomponent);
+	}
+}
+
+void ical_do_FIXME(long msgnum, void *data) {
+	lprintf(9, "Found message <%ld> with correct UID\n", msgnum);
+}
+
+/*
+ * Handle an incoming RSVP (object with method==ICAL_METHOD_REPLY) for a
+ * calendar event.  The object has already been deserialized for us; all
+ * we have to do here is hunt for the event in our calendar, merge in the
+ * updated attendee status, and save it again.
+ *
+ * This function returns 0 on success, 1 if the event was not found in the
+ * user's calendar, or 2 if an internal error occurred.
+ */
+int ical_update_my_calendar_with_reply(icalcomponent *cal) {
+	char uid[SIZ];
+	char hold_rm[ROOMNAMELEN];
+	int replaced_an_event = 0;
+	struct CtdlMessage *template = NULL;
+
+	/* Figure out just what event it is we're dealing with */
+	strcpy(uid, "--==<< InVaLiD uId >>==--");
+	ical_learn_uid_of_reply(uid, cal);
+	lprintf(9, "UID of event being replied to is <%s>\n", uid);
+
+	strcpy(hold_rm, CC->quickroom.QRname);	/* save current room */
+
+	if (getroom(&CC->quickroom, USERCALENDARROOM) != 0) {
+		getroom(&CC->quickroom, hold_rm);
+		lprintf(3, "cannot get user calendar room\n");
+		return(2);
+	}
+
+	/*
+	 * Pound through the user's calendar looking for a message with
+	 * the Citadel EUID set to the value we're looking for.  Since
+	 * Citadel always sets the message EUID to the vCalendar UID of
+	 * the event, this will work.
+	 */
+	template = (struct CtdlMessage *)
+		mallok(sizeof(struct CtdlMessage));
+	memset(template, 0, sizeof(struct CtdlMessage));
+	template->cm_fields['E'] = strdoop(uid);
+	CtdlForEachMessage(MSGS_ALL, 0, "text/calendar",
+		template, ical_do_FIXME, NULL);
+	CtdlFreeMessage(template);
+	getroom(&CC->quickroom, hold_rm);	/* return to saved room */
+
+	if (replaced_an_event) {
+		return(0);
+	}
+	else {
+		return(1);
+	}
+}
+
+
+/*
+ * Handle an incoming RSVP for an event.  (This is the server subcommand part; it
+ * simply extracts the calendar object from the message, deserializes it, and
+ * passes it up to ical_update_my_calendar_with_reply() for processing.
+ */
+void ical_handle_rsvp(long msgnum, char *partnum, char *action) {
+	struct CtdlMessage *msg;
+	struct ical_respond_data ird;
+	int ret;
+
+	if (
+	   (strcasecmp(action, "update"))
+	   && (strcasecmp(action, "ignore"))
+	) {
+		cprintf("%d Action must be 'update' or 'ignore'\n",
+			ERROR + ILLEGAL_VALUE
+		);
+		return;
+	}
+
+	msg = CtdlFetchMessage(msgnum);
+	if (msg == NULL) {
+		cprintf("%d Message %ld not found.\n",
+			ERROR+ILLEGAL_VALUE,
+			(long)msgnum
+		);
+		return;
+	}
+
+	memset(&ird, 0, sizeof ird);
+	strcpy(ird.desired_partnum, partnum);
+	mime_parser(msg->cm_fields['M'],
+		NULL,
+		*ical_locate_part,		/* callback function */
+		NULL, NULL,
+		(void *) &ird,			/* user data */
+		0
+	);
+
+	/* We're done with the incoming message, because we now have a
+	 * calendar object in memory.
+	 */
+	CtdlFreeMessage(msg);
+
+	/*
+	 * Here is the real meat of this function.  Handle the event.
+	 */
+	if (ird.cal != NULL) {
+		/* Update the user's calendar if necessary */
+		if (!strcasecmp(action, "update")) {
+			ret = ical_update_my_calendar_with_reply(ird.cal);
+			if (ret == 0) {
+				cprintf("%d Your calendar has been updated with this reply.\n",
+					CIT_OK);
+			}
+			else if (ret == 1) {
+				cprintf("%d This event does not exist in your calendar.\n",
+					ERROR + FILE_NOT_FOUND);
+			}
+			else {
+				cprintf("%d An internal error occurred.\n",
+					ERROR + INTERNAL_ERROR);
+			}
+		}
+		else {
+			cprintf("%d This reply has been ignored.\n", CIT_OK);
+		}
+
+		/* Now that we've processed this message, we don't need it
+		 * anymore.  So delete it.  FIXME uncomment this when ready!
+		CtdlDeleteMessages(CC->quickroom.QRname, msgnum, "");
+		 */
+
+		/* Free the memory we allocated and return a response. */
+		icalcomponent_free(ird.cal);
+		ird.cal = NULL;
+		return;
+	}
+	else {
+		cprintf("%d No calendar object found\n", ERROR);
+		return;
+	}
+
+	/* should never get here */
+}
+
+
+/*
  * Search for a property in both the top level and in a VEVENT subcomponent
  */
 icalproperty *ical_ctdl_get_subprop(
@@ -517,26 +686,26 @@ void ical_hunt_for_conflicts_backend(long msgnum, void *data) {
  * with this one.
  */
 void ical_hunt_for_conflicts(icalcomponent *cal) {
-        char hold_rm[ROOMNAMELEN];
+	char hold_rm[ROOMNAMELEN];
 
-        strcpy(hold_rm, CC->quickroom.QRname);	/* save current room */
+	strcpy(hold_rm, CC->quickroom.QRname);	/* save current room */
 
-        if (getroom(&CC->quickroom, USERCALENDARROOM) != 0) {
-                getroom(&CC->quickroom, hold_rm);
+	if (getroom(&CC->quickroom, USERCALENDARROOM) != 0) {
+		getroom(&CC->quickroom, hold_rm);
 		cprintf("%d You do not have a calendar.\n", ERROR);
 		return;
-        }
+	}
 
 	cprintf("%d Conflicting events:\n", LISTING_FOLLOWS);
 
-        CtdlForEachMessage(MSGS_ALL, 0, "text/calendar",
+	CtdlForEachMessage(MSGS_ALL, 0, "text/calendar",
 		NULL,
 		ical_hunt_for_conflicts_backend,
 		(void *) cal
 	);
 
 	cprintf("000\n");
-        getroom(&CC->quickroom, hold_rm);	/* return to saved room */
+	getroom(&CC->quickroom, hold_rm);	/* return to saved room */
 
 }
 
@@ -610,6 +779,13 @@ void cmd_ical(char *argbuf)
 		extract(partnum, argbuf, 2);
 		extract(action, argbuf, 3);
 		ical_respond(msgnum, partnum, action);
+	}
+
+	else if (!strcmp(subcmd, "handle_rsvp")) {
+		msgnum = extract_long(argbuf, 1);
+		extract(partnum, argbuf, 2);
+		extract(action, argbuf, 3);
+		ical_handle_rsvp(msgnum, partnum, action);
 	}
 
 	else if (!strcmp(subcmd, "conflicts")) {
