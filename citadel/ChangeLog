@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.125  2002/03/04 05:29:39  ajc
+ * Made a small API change to vcard.c for WebCit, brought the change over here too
+   in order to keep vcard.c identical everywhere.
+
  Revision 590.124  2002/03/03 06:48:25  ajc
  * Client and server options to disable self-service user account creation
 
@@ -3383,4 +3387,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
