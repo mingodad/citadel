@@ -3,7 +3,14 @@
 #include <wx/wx.h>
 #include "includes.hpp"
 
+#include "bitmaps/root.xpm"
+#include "bitmaps/floor.xpm"
+#include "bitmaps/newroom.xpm"
+#include "bitmaps/oldroom.xpm"
+#include "bitmaps/mailroom.xpm"
+
 wxTreeItemId floorboards[128];
+wxImageList *TreeIcons = NULL;
 
 // The following two functions convert between the wxStringList class used for
 // text transfers to and from the Citadel server, and the wxString class used
@@ -82,6 +89,15 @@ int extract_int(wxString inputbuf, int parmnum) {
 }
 
 
+void InitTreeIcons(void) {
+	TreeIcons = new wxImageList(16, 16);
+	cout << TreeIcons->Add(wxICON(root));
+	cout << TreeIcons->Add(wxICON(floor));
+	cout << TreeIcons->Add(wxICON(newroom));
+	cout << TreeIcons->Add(wxICON(oldroom));
+	cout << TreeIcons->Add(wxICON(mailroom));
+}
+
 
 // Load a tree with a room list
 //
@@ -90,13 +106,16 @@ void load_roomlist(wxTreeCtrl *tree, CitClient *citsock) {
 	wxStringList transbuf;
 	int i, floornum;
 
+	if (TreeIcons == NULL) InitTreeIcons();
+
 	// First, clear it out.
 	tree->DeleteAllItems();
+	tree->SetImageList(TreeIcons);
 
 	// Set the root with the name of the Citadel server.
 	tree->AddRoot(
 		citsock->HumanNode,
-		-1,	// FIX use an "earth" pixmap here
+		0,
 		-1,
 		NULL);
 
@@ -112,7 +131,7 @@ void load_roomlist(wxTreeCtrl *tree, CitClient *citsock) {
 		floorboards[floornum] = tree->AppendItem(
 			tree->GetRootItem(),
 			floorname,
-			-1,	// FIX use a floor pixmap here
+			1,
 			-1,
 			NULL);
 	}
@@ -129,7 +148,7 @@ void load_roomlist(wxTreeCtrl *tree, CitClient *citsock) {
 		tree->AppendItem(
 			floorboards[floornum],
 			roomname,
-			-1,	// FIX use a room pixmap here
+			3,
 			-1,
 			NULL);
 	}

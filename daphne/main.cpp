@@ -50,8 +50,9 @@ public:
 	void OnQuit(wxCommandEvent& event);
 	void OnAbout(wxCommandEvent& event);
 	void OnDoCmd(wxCommandEvent& event);
-	void OnConnect(wxCommandEvent& event);
 private:
+	void OnConnect(wxCommandEvent& event);
+	void OnTestWin(wxCommandEvent& event);
 	void OnUsersMenu(wxCommandEvent& cmd);
 	void OnWindowMenu(wxCommandEvent& cmd);
 	wxButton *do_cmd;
@@ -75,6 +76,7 @@ enum
 	IG_About,
 	IG_Text,
 	MENU_CONNECT,
+	MENU_TESTWIN,
 	UMENU_WHO,
 	UMENU_SEND_EXPRESS,
 	WMENU_CASCADE,
@@ -96,6 +98,7 @@ BEGIN_EVENT_TABLE(	MyFrame, wxMDIParentFrame)
 	EVT_MENU(	IG_Quit,		MyFrame::OnQuit)
 	EVT_MENU(	IG_About,		MyFrame::OnAbout)
 	EVT_MENU(	MENU_CONNECT,		MyFrame::OnConnect)
+	EVT_MENU(	MENU_TESTWIN,		MyFrame::OnTestWin)
 	EVT_MENU(	UMENU_WHO,		MyFrame::OnUsersMenu)
 	EVT_MENU(	UMENU_SEND_EXPRESS,	MyFrame::OnUsersMenu)
 	EVT_MENU(	WMENU_CASCADE,		MyFrame::OnWindowMenu)
@@ -198,6 +201,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 	wxMenu *menuFile = new wxMenu;
 	menuFile->Append(MENU_CONNECT, "&Connect");
+	menuFile->Append(MENU_TESTWIN, "Add &Test window");
 	menuFile->AppendSeparator(); 
 	menuFile->Append(IG_Quit, "E&xit");
 
@@ -359,13 +363,15 @@ void MyFrame::OnConnect(wxCommandEvent& unused) {
 	DefaultPort = "citadel";
 
 	if (citadel->IsConnected()) {
-		wxMessageBox("You are already connected to a Citadel server.",
-			"Oops!");
+		wxMessageBox("You are currently connected to "
+			+ citadel->HumanNode
+			+ ".  If you wish to connect to a different Citadel "
+			+ "server, you must log out first.",
+			"Already connected");
 	} else {
 		retval = citadel->attach(DefaultHost, DefaultPort);
 		if (retval == 0) {
     			SetStatusText("Connected to " + citadel->HumanNode, 0);
-			new TestWindow(citadel, this);
 			new UserLogin(citadel, this);
 		} else {
 			wxMessageBox("Could not connect to server.", "Error");
@@ -373,3 +379,6 @@ void MyFrame::OnConnect(wxCommandEvent& unused) {
 	}
 }
 
+void MyFrame::OnTestWin(wxCommandEvent& unused) {
+	new TestWindow(citadel, this);
+}

@@ -1,0 +1,25 @@
+/* XPM */
+/* Drawn  by Mark Donohoe for the K Desktop Environment */
+/* See http://www.kde.org */
+static char *root_xpm[]={
+"16 16 3 1",
+"a c #ffffff",
+"# c #000000",
+". c None",
+"................",
+".......##.......",
+"..#...####......",
+"..#..#aaaa#.....",
+"..#.#aaaaaa#....",
+"..##aaaaaaaa#...",
+"..#aaaaaaaaaa#..",
+".#aaaaaaaaaaaa#.",
+"###aaaaaaaaaa###",
+"..#aaaaaaaaaa#..",
+"..#aaa###aaaa#..",
+"..#aaa#.#aaaa#..",
+"..#aaa#.#aaaa#..",
+"..#aaa#.#aaaa#..",
+"..#aaa#.#aaaa#..",
+"..#####.######.."};
+
