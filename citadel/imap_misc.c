@@ -269,19 +269,6 @@ void imap_append(int num_parms, char *parms[]) {
 	IMAP->transmitted_message = NULL;
 	IMAP->transmitted_length = 0;
 
-        /* If the user is locally authenticated, FORCE the From: header to
-         * show up as the real sender.  FIXME do we really want to do this?
-	 * Probably should make it site-definable or even room-definable.
-         */
-        if (CC->logged_in) {
-                if (msg->cm_fields['A'] != NULL) phree(msg->cm_fields['A']);
-                if (msg->cm_fields['N'] != NULL) phree(msg->cm_fields['N']);
-                if (msg->cm_fields['H'] != NULL) phree(msg->cm_fields['H']);
-                msg->cm_fields['A'] = strdoop(CC->usersupp.fullname);
-                msg->cm_fields['N'] = strdoop(config.c_nodename);
-                msg->cm_fields['H'] = strdoop(config.c_humannode);
-        }
-
 	ret = imap_grabroom(roomname, parms[2]);
 	if (ret != 0) {
 		cprintf("%s NO Invalid mailbox name or location, or access denied\r\n",
@@ -297,6 +284,24 @@ void imap_append(int num_parms, char *parms[]) {
 		strcpy(savedroom, CC->quickroom.QRname);
 	}
 	usergoto(roomname, 0, 0, &msgs, &new);
+
+        /* If the user is locally authenticated, FORCE the From: header to
+         * show up as the real sender.  FIXME do we really want to do this?
+	 * Probably should make it site-definable or even room-definable.
+	 *
+	 * For now, we allow "forgeries" if the room is one of the user's
+	 * private mailboxes.
+         */
+        if (CC->logged_in) {
+	   if ( (CC->quickroom.QRflags & QR_MAILBOX) == 0) {
+                if (msg->cm_fields['A'] != NULL) phree(msg->cm_fields['A']);
+                if (msg->cm_fields['N'] != NULL) phree(msg->cm_fields['N']);
+                if (msg->cm_fields['H'] != NULL) phree(msg->cm_fields['H']);
+                msg->cm_fields['A'] = strdoop(CC->usersupp.fullname);
+                msg->cm_fields['N'] = strdoop(config.c_nodename);
+                msg->cm_fields['H'] = strdoop(config.c_humannode);
+	    }
+        }
 
 	/* 
 	 * Can we post here?
