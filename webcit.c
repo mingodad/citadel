@@ -309,15 +309,7 @@ void session_loop() {
 		serv_gets(buf);	/* get the server welcome message */
 		strcpy(wc_host, c_host);
 		strcpy(wc_port, c_port);
-		serv_printf("IDEN %d|%d|%d|%s|%s",
-			DEVELOPER_ID,
-			CLIENT_ID,
-			CLIENT_VERSION,
-			SERVER,
-			""
-			);
-		serv_gets(buf);
-		/* FIX find out where the user is */
+		get_serv_info();
 		}
 
 
@@ -375,6 +367,10 @@ void session_loop() {
 	
 	else if (!strncasecmp(cmd, "GET /display_main_menu", 22)) {
 		display_main_menu();
+		}
+
+	else if (!strncasecmp(cmd, "GET /whobbs", 11)) {
+		whobbs();
 		}
 
 	/* When all else fails, display the oops page. */
