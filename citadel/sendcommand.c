@@ -110,8 +110,8 @@ void np_attach_to_server(void)
 	{"sendcommand", NULL};
 	int r;
 
-	strcpy(hostbuf, "localhost");
-	strcpy(portbuf, "citadel");
+	strcpy(hostbuf, UDS);	/* Only run on a unix domain socket */
+	strcpy(portbuf, ".");	/* IPGM will refuse to run on the network */
 	fprintf(stderr, "Attaching to server...\n");
 	ipc = CtdlIPC_new(1, args, hostbuf, portbuf);
 	CtdlIPC_getline(ipc, buf);

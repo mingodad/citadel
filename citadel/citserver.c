@@ -761,6 +761,15 @@ void cmd_ipgm(char *argbuf)
 {
 	int secret;
 
+	/* For security reasons, we do NOT allow this command to run
+	 * over the network.  Local sockets only.
+	 */
+	if (!CC->is_local_socket) {
+		sleep(5);
+		cprintf("%d Authentication failed.\n",ERROR);
+		return;
+	}
+
 	secret = extract_int(argbuf, 0);
 	if (secret == config.c_ipgm_secret) {
 		CC->internal_pgm = 1;

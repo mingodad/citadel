@@ -1,4 +1,9 @@
  $Log$
+ Revision 607.20  2003/07/13 04:58:35  ajc
+ * Allow connect on unix domain sockets to Citadels in other directories
+ * sendcommand now uses unix domain sockets instead of the network
+ * Do not allow IPGM command to run on the network -- unix domain sockets only
+
  Revision 607.19  2003/07/11 22:33:02  ajc
  * Ignore comments in public_clients file
 
@@ -4848,4 +4853,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

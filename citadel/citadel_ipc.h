@@ -1,5 +1,13 @@
 /* $Id$ */
 
+#define	UDS			"_UDS_"
+#ifdef __CYGWIN__
+#define DEFAULT_HOST		"localhost"
+#else
+#define DEFAULT_HOST		UDS
+#endif
+#define DEFAULT_PORT		"citadel"
+
 #include "sysdep.h"
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>

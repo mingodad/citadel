@@ -1,13 +1,5 @@
 /* $Id$ */
 
-#define	UDS			"_UDS_"
-#ifdef __CYGWIN__
-#define DEFAULT_HOST		"localhost"
-#else
-#define DEFAULT_HOST		UDS
-#endif
-#define DEFAULT_PORT		"citadel"
-
 #include "sysdep.h"
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -2854,7 +2846,14 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 
 	/* If we're using a unix domain socket we can do a bunch of stuff */
 	if (!strcmp(cithost, UDS)) {
-		snprintf(sockpath, sizeof sockpath, BBSDIR "/citadel.socket");
+		if (!strcasecmp(citport, DEFAULT_PORT)) {
+			snprintf(sockpath, sizeof sockpath, "%s%s",
+				BBSDIR, "/citadel.socket");
+		}
+		else {
+			snprintf(sockpath, sizeof sockpath, "%s%s",
+				citport, "/citadel.socket");
+		}
 		ipc->sock = uds_connectsock(&(ipc->isLocal), sockpath);
 		if (ipc->sock == -1) {
 			ifree(ipc);
