@@ -1881,8 +1881,11 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 	static int columns = 3;
 	int boxes_per_column = 0;
 	int current_column = 0;
+	int nf;
 
-	boxes_per_column = (num_floors / columns);
+	nf = num_floors;
+	while (nf % columns != 0) ++nf;
+	boxes_per_column = (nf / columns);
 	if (boxes_per_column < 1) boxes_per_column = 1;
 
 	/* Outer table (for columnization) */
