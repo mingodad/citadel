@@ -1,4 +1,8 @@
  $Log$
+ Revision 580.61  2001/10/16 18:36:33  nbryant
+ reinstate -export-dynamic for citserver in case libtool decides to build
+ static libraries (why?)
+
  Revision 580.60  2001/10/16 18:21:53  nbryant
  add some explanatory text to bootstrap
 
@@ -2808,4 +2812,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

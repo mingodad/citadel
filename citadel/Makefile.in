@@ -145,7 +145,7 @@ libcitserver.la: $(LIBSERV_OBJS)
 	-o libcitserver.la $(LIBSERV_OBJS) $(GDBM) $(LIBS) $(PTHREAD_LIBS) $(NETLIBS) $(RESOLV)
 
 citserver: $(SERV_OBJS) $(LIBTOOL) libcitserver.la
-	$(LIBTOOL) --mode=link $(CC) $(SERV_OBJS) $(LDFLAGS) libcitserver.la -o \
+	$(LIBTOOL) --mode=link $(CC) -export-dynamic $(SERV_OBJS) $(LDFLAGS) libcitserver.la -o \
 	citserver $(PTHREAD_LIBS)
 
 .c.ro:
