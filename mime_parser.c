@@ -22,13 +22,46 @@ void process_part(char *content, int part_length) {
 	FILE *fp;
 	char filename[256];
 	static char partno = 0;
+	char *start;
+	char buf[512];
+	int crlf = 0;	/* set to 1 for crlf-style newlines */
+	int actual_length;
 
 	fprintf(stderr, "MIME: process_part() called with a length o' %d\n",
 		part_length);
 
+	/* Strip off any leading blank lines. */
+	start = content;
+	while ((!strncmp(start, "\r", 1)) || (!strncmp(start, "\n", 1))) {
+		++start;
+		--part_length;
+		}
+
+	/* At this point all we have left is the headers and the content. */
+	do {
+		strcpy(buf, "");
+		do {
+			buf[strlen(buf)+1] = 0;
+			strncpy(&buf[strlen(buf)], start, 1);
+			++start;
+			--part_length;
+			} while((buf[strlen(buf)-1] != 10) && (part_length>0));
+		if (part_length <= 0) return;
+		buf[strlen(buf)-1] = 0;
+		if (buf[strlen(buf)-1]==13) {
+			buf[strlen(buf)-1] = 0;
+			crlf = 1;
+			}
+		fprintf(stderr, "MIME: <%s>\n", buf);
+		} while (strlen(buf)>0);
+	fprintf(stderr, "MIME: done processing headers\n");
+	
+	if (crlf) actual_length = part_length - 2;
+	else actual_length = part_length - 1;
+	
 	sprintf(filename, "content.%04x.%04x", getpid(), ++partno);
 	fp = fopen(filename, "wb");
-	fwrite(content, part_length, 1, fp);
+	fwrite(start, actual_length, 1, fp);
 	fclose(fp);
 	}
 
