@@ -813,10 +813,10 @@ signal(SIGHUP,dropcarr);	/* Cleanup gracefully if carrier is dropped */
 signal(SIGTERM,dropcarr);	/* Cleanup gracefully if terminated */
 signal(SIGCONT,catch_sigcont);  /* Catch SIGCONT so we can reset terminal */
 
-send_ansi_detect();
 printf("Attaching to server...\r");
 fflush(stdout);
 attach_to_server(argc,argv);
+send_ansi_detect();
 
 cls();
 color(7);
