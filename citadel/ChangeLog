@@ -1,5 +1,6 @@
 Sun Nov 29 23:57:39 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Fixed cmd_regi() to not display a second result code after xfer
+	* Makefile.in: Removed "chmod 4755 citmail netmailer"
 
 1998-11-23 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* citadel.spec: added

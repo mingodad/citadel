@@ -203,7 +203,6 @@ install-exec: all
 		 dnetsetup; do \
 		test -f $$i && $(INSTALL) $$i $(prefix)/$$i; \
 	done
-	test -f netmailer && chmod 4755 $(prefix)/netmailer $(prefix)/citmail
 
 clean:
 	rm -f *.o *.ro *.mo
