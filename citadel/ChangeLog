@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.6  2002/04/10 03:58:40  ajc
+ * Began work on IMAP RENAME
+
  Revision 591.5  2002/04/09 14:26:43  ajc
  * Allow INBOX to have subfolders.  There's no longer any reason not to.
 
@@ -3588,3 +3591,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

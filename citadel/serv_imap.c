@@ -895,14 +895,34 @@ void imap_delete(int num_parms, char *parms[]) {
 
 
 
+
 /*
- * Implements the RENAME command
+ * Implements the RENAME command (FIXME, finish implementing this)
  *
  */
 void imap_rename(int num_parms, char *parms[]) {
-	cprintf("%s NO The RENAME command is not yet implemented (FIXME)\r\n",
-		parms[0]);
+	char oldroom[ROOMNAMELEN];
+	char newroom[ROOMNAMELEN];
+	struct quickroom qrbuf;
+	int oldr, newr;
+
+	oldr = imap_roomname(oldroom, sizeof oldroom, parms[2]);
+	newr = imap_roomname(newroom, sizeof newroom, parms[3]);
+
+	if (getroom(&qrbuf, oldroom) != 0) {
+		cprintf("%s NO folder not found\r\n", parms[0]);
+		return;
+	}
+
+	if (getroom(&qrbuf, newroom) == 0) {
+		cprintf("%s NO name already in use\r\n", parms[0]);
+		return;
+	}
+
+	cprintf("%s NO RENAME FIXME\r\n", parms[0]);
+	/* cprintf("%s OK RENAME completed\r\n", parms[0]); */
 }
+
 
 
 
