@@ -266,6 +266,7 @@ void UserLogin::OnButtonPressed(wxCommandEvent& whichbutton) {
 				nopass.ShowModal();
 			} else {
 				BeginSession(recvbuf);
+				citsock->curr_pass = password->GetValue();
 				delete this;	// dismiss the login box
 			}
 		}
@@ -285,6 +286,7 @@ void UserLogin::OnButtonPressed(wxCommandEvent& whichbutton) {
 			sendbuf = "SETP " + password->GetValue();
 			citsock->serv_trans(sendbuf);
 			BeginSession(recvbuf);
+			citsock->curr_pass = password->GetValue();
 			delete this;		// dismiss the login box
 		}
 	}
@@ -293,10 +295,10 @@ void UserLogin::OnButtonPressed(wxCommandEvent& whichbutton) {
 
 
 void UserLogin::BeginSession(wxString serv_response) {
-	wxString junk, username;
+	wxString junk;
 
-	extract(username, serv_response.Mid(4), 0);
-	BigMDI->SetStatusText(username, 1);
+	extract(citsock->curr_user, serv_response.Mid(4), 0);
+	BigMDI->SetStatusText(citsock->curr_user, 1);
 	citsock->GotoRoom("_BASEROOM_", "", junk);
 
 	// FIX ... add code here to perform registration if necessary

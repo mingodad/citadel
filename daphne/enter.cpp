@@ -56,12 +56,36 @@ EnterMessage::EnterMessage(
 	c2->width.AsIs();
 	save_button->SetConstraints(c2);
 
+
+
+	wxStaticText *fromlabel = new wxStaticText(this, -1, "From: ");
+
+	wxLayoutConstraints *c6 = new wxLayoutConstraints;
+	c6->top.SameAs(this, wxTop, 12);
+	c6->left.SameAs(this, wxLeft, 2);
+	c6->width.AsIs();
+	c6->height.AsIs();
+	fromlabel->SetConstraints(c6);
+
+	wxString posting_name_choices[] = {
+		citsock->curr_user
+		};
+	fromname = new wxChoice(this, -1,
+		wxDefaultPosition, wxSize(150,25), 1, posting_name_choices);
+
+	wxLayoutConstraints *c7 = new wxLayoutConstraints;
+	c7->bottom.SameAs(fromlabel, wxBottom);
+	c7->left.RightOf(fromlabel, 3);
+	c7->width.AsIs();
+	c7->height.AsIs();
+	fromname->SetConstraints(c7);
+
 	TheMessage = new wxTextCtrl(this, -1, "",
 		wxDefaultPosition, wxDefaultSize,
 		wxTE_MULTILINE);
 
 	wxLayoutConstraints *c9 = new wxLayoutConstraints;
-	c9->top.SameAs(this, wxTop, 2);
+	c9->top.SameAs(fromlabel, wxBottom, 2);
 	c9->bottom.Above(cancel_button, -5);
 	c9->left.SameAs(this, wxLeft, 2);
 	c9->right.SameAs(this, wxRight, 2);

@@ -54,7 +54,6 @@ void MultilineToList(wxStringList& outputlist, wxString inputbuf) {
 	}
 DONE:	for (i=0; i<outputlist.Number(); ++i) {
 		buf.Printf("%s", (wxString *)outputlist.Nth(i)->GetData());
-		cout << i << ": " << buf << "\n";
 	}
 }
 

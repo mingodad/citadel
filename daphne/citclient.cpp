@@ -114,7 +114,6 @@ int CitClient::serv_trans(
 	} else if (first_digit == 4) {		// SEND_LISTING
         	for (i=0; i<xferbuf.Number(); ++i) {
                 	buf.Printf("%s", (wxString *)xferbuf.Nth(i)->GetData());
-			cout << i << ": " << buf << "\n";
 			serv_puts(buf);
         	}
 		serv_puts("000");

@@ -72,6 +72,10 @@ public:
 	wxString MorePrompt;
 	bool UseFloors;
 	int PagingLevel;
+
+	// ... and about the user ...
+	wxString curr_user;
+	wxString curr_pass;
 	
 	// Stuff we have to keep track of ...
 	wxString CurrentRoom;
@@ -238,6 +242,7 @@ private:
 	CitClient *citsock;
 	wxMDIParentFrame *citMyMDI;
 	wxString ThisRoom;
+	wxChoice *fromname;
 	wxTextCtrl *TheMessage;
 	DECLARE_EVENT_TABLE()
 };
