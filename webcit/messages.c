@@ -235,12 +235,17 @@ void output_chosen_part(long msgnum, char *multipart_chosen) {
 		strcpy(content_type, "text/plain");
 	}
 
-	partbuf = malloc(total_length);
+	partbuf = malloc(total_length + 1);
 	if (partbuf == NULL) {
 		wprintf("<I>Memory allocation error</I><BR><BR>");
 		return;
 	}
 
+	partbuf[total_length] = 0;	/* Give it a nice null terminator */
+
+	/* FIXME ... add something to make this die if we
+	 *           lose the server connection.
+	 */
 	while (downloaded_length < total_length) {
 		if ((total_length - downloaded_length) < 4096) {
 			block_length = total_length - downloaded_length;
@@ -262,6 +267,9 @@ void output_chosen_part(long msgnum, char *multipart_chosen) {
 
 	if (!strcasecmp(content_type, "text/plain")) {
 		output_text_plain(partbuf, total_length);
+	}
+	if (!strcasecmp(content_type, "text/html")) {
+		output_text_html(partbuf, total_length);
 	}
 	else {
 		wprintf("<I>Unknown content type %s</I><BR><BR>\n",
