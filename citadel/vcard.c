@@ -34,7 +34,7 @@
 /* 
  * Constructor (empty vCard)
  */
-struct vCard *new_vcard() {
+struct vCard *vcard_new() {
 	struct vCard *v;
 
 	v = (struct vCard *) mallok(sizeof(struct vCard));
@@ -51,7 +51,7 @@ struct vCard *new_vcard() {
 /*
  * Constructor (supply serialized vCard)
  */
-struct vCard *load_vcard(char *vtext) {
+struct vCard *vcard_load(char *vtext) {
 	struct vCard *v;
 	int valid = 0;
 	char *mycopy, *ptr;
@@ -75,7 +75,7 @@ struct vCard *load_vcard(char *vtext) {
 		}
 	}
 
-	v = new_vcard();
+	v = vcard_new();
 	if (v == NULL) return v;
 
 	ptr = mycopy;
@@ -123,11 +123,34 @@ struct vCard *load_vcard(char *vtext) {
 }
 
 
+/*
+ * Fetch the value of a particular key
+ * If is_partial is set to 1, a partial match is ok (for example,
+ * a key of "tel;home" will satisfy a search for "tel")
+ */
+char *vcard_get_prop(struct vCard *v, char *propname, int is_partial) {
+	int i;
+
+	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
+		if ( (!strcasecmp(v->prop[i].name, propname))
+		   || (  (!strncasecmp(v->prop[i].name,
+					propname, strlen(propname)))
+			 && (v->prop[i].name[strlen(propname)] == ';')
+			 && (is_partial) ) ) {
+			return(v->prop[i].value);
+		}
+	}
+
+	return NULL;
+}
+
+
+
 
 /*
  * Destructor
  */
-void free_vcard(struct vCard *v) {
+void vcard_free(struct vCard *v) {
 	int i;
 
 	if (v->magic != CTDL_VCARD_MAGIC) return;	/* Self-check */
@@ -146,7 +169,7 @@ void free_vcard(struct vCard *v) {
 /*
  * Set a name/value pair in the card
  */
-void set_prop(struct vCard *v, char *name, char *value) {
+void vcard_set_prop(struct vCard *v, char *name, char *value) {
 	int i;
 
 	if (v->magic != CTDL_VCARD_MAGIC) return;	/* Self-check */
@@ -177,7 +200,7 @@ void set_prop(struct vCard *v, char *name, char *value) {
  * Serialize a struct vcard into a standard text/x-vcard MIME type.
  *
  */
-char *serialize_vcard(struct vCard *v)
+char *vcard_serialize(struct vCard *v)
 {
 	char *ser;
 	int i;
@@ -200,7 +223,7 @@ char *serialize_vcard(struct vCard *v)
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 		strcat(ser, v->prop[i].name);
 		strcat(ser, ":");
-		strcat(ser, v->prop[i].name);
+		strcat(ser, v->prop[i].value);
 		strcat(ser, "\r\n");
 	}
 	strcat(ser, "end:vcard\r\n");

@@ -1078,10 +1078,6 @@ void *context_loop(struct CitContext *con)
 			cmd_list();
 			}
 
-		else if (!strncasecmp(cmdbuf,"REGI",4)) {
-			cmd_regi();
-			}
-
 		else if (!strncasecmp(cmdbuf,"CHEK",4)) {
 			cmd_chek();
 			}

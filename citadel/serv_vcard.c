@@ -23,6 +23,7 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
+#include "control.h"
 #include "dynloader.h"
 #include "room_ops.h"
 #include "user_ops.h"
@@ -103,7 +104,7 @@ struct vCard *vcard_get_my(void) {
 
         if (getroom(&CC->quickroom, config_rm) != 0) {
                 getroom(&CC->quickroom, hold_rm);
-                return new_vcard();
+                return vcard_new();
         }
 
         /* We want the last (and probably only) vcard in this room */
@@ -111,12 +112,12 @@ struct vCard *vcard_get_my(void) {
         CtdlForEachMessage(MSGS_LAST, 1, "text/x-vcard", vcard_gm_backend);
         getroom(&CC->quickroom, hold_rm);	/* return to saved room */
 
-	if (VC->msgnum < 0L) return new_vcard();
+	if (VC->msgnum < 0L) return vcard_new();
 
 	msg = CtdlFetchMessage(VC->msgnum);
-	if (msg == NULL) return new_vcard();
+	if (msg == NULL) return vcard_new();
 
-	v = load_vcard(msg->cm_fields['M']);
+	v = vcard_load(msg->cm_fields['M']);
 	CtdlFreeMessage(msg);
 	return v;
 }
@@ -134,7 +135,7 @@ void vcard_write_my(struct vCard *v) {
 	char *ser;
 
         strcpy(temp, tmpnam(NULL));
-	ser = serialize_vcard(v);
+	ser = vcard_serialize(v);
 
         fp = fopen(temp, "w");
         if (fp == NULL) return;
@@ -155,10 +156,96 @@ void vcard_write_my(struct vCard *v) {
 
 
 
+/*
+ * old style "enter registration info" command
+ */
+void cmd_regi(char *argbuf) {
+	int a,b,c;
+	char buf[256];
+	struct vCard *my_vcard;
+
+	char tmpaddr[256];
+	char tmpcity[256];
+	char tmpstate[256];
+	char tmpzip[256];
+	char tmpphone[256];
+	char tmpaddress[512];
+
+	if (!(CC->logged_in)) {
+		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
+		return;
+		}
+
+	my_vcard = vcard_get_my();
+	strcpy(tmpaddr, "");
+	strcpy(tmpcity, "");
+	strcpy(tmpstate, "");
+	strcpy(tmpzip, "");
+
+	cprintf("%d Send registration...\n", SEND_LISTING);
+	a=0;
+	while (client_gets(buf), strcmp(buf,"000")) {
+		if (a==0) vcard_set_prop(my_vcard, "n", buf);
+		if (a==1) strcpy(tmpaddr,buf);
+		if (a==2) strcpy(tmpcity,buf);
+		if (a==3) strcpy(tmpstate,buf);
+		if (a==4) {
+			for (c=0; c<strlen(buf); ++c) {
+				if ((buf[c]>='0')&&(buf[c]<='9')) {
+					b=strlen(tmpzip);
+					tmpzip[b]=buf[c];
+					tmpzip[b+1]=0;
+					}
+				}
+			}
+		if (a==5) {
+			strcpy(tmpphone, "");
+			for (c=0; c<strlen(buf); ++c) {
+				if ((buf[c]>='0')&&(buf[c]<='9')) {
+					b=strlen(tmpphone);
+					tmpphone[b]=buf[c];
+					tmpphone[b+1]=0;
+					}
+				}
+			vcard_set_prop(my_vcard, "tel;home", tmpphone);
+			}
+		if (a==6) vcard_set_prop(my_vcard, "email;internet", buf);
+		++a;
+		}
+	sprintf(tmpaddress, ";;%s;%s;%s;%s;USA",
+		tmpaddr, tmpcity, tmpstate, tmpzip);
+	lprintf(9, "setting address\n");
+	vcard_set_prop(my_vcard, "adr", tmpaddress);
+	lprintf(9, "writing my vcard\n");
+	vcard_write_my(my_vcard);
+	lprintf(9, "freeing my vcard\n");
+	vcard_free(my_vcard);
+
+	lprintf(9, "marking account as needing validation\n");
+	lgetuser(&CC->usersupp,CC->curr_user);
+	CC->usersupp.flags=(CC->usersupp.flags|US_REGIS|US_NEEDVALID);
+	lputuser(&CC->usersupp);
+
+	/* set global flag calling for validation */
+	lprintf(9, "setting global flag\n");
+	begin_critical_section(S_CONTROL);
+	get_control();
+	CitControl.MMflags = CitControl.MMflags | MM_VALID ;
+	put_control();
+	end_critical_section(S_CONTROL);
+	}
+
+
+void vcard_session_startup_hook(void) {
+	CtdlAllocUserData(SYM_VCARD, sizeof(struct vcard_internal_info));
+}
+
 
 char *Dynamic_Module_Init(void)
 {
-	CtdlAllocUserData(SYM_VCARD, sizeof(struct vcard_internal_info));
+	SYM_VCARD = CtdlGetDynamicSymbol();
+	CtdlRegisterSessionHook(vcard_session_startup_hook, EVT_START);
 	CtdlRegisterMessageHook(vcard_personal_upload, EVT_BEFORESAVE);
+	CtdlRegisterProtoHook(cmd_regi, "REGI", "Enter registration info");
 	return "$Id$";
 }

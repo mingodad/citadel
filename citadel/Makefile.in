@@ -104,7 +104,7 @@ netpoll: netpoll.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)
 SERV_OBJS = citserver.ro user_ops.ro support.ro room_ops.ro file_ops.ro \
 	msgbase.ro config.ro sysdep.ro locate_host.ro housekeeping.ro \
 	database.ro control.ro logging.ro policy.ro dynloader.ro tools.ro \
-	mime_parser.ro html.ro vcard.ro $(AUTH) $(LIBOBJS:.o=.ro)
+	mime_parser.ro html.ro $(AUTH) $(LIBOBJS:.o=.ro)
 
 citserver: $(SERV_OBJS)
 	$(CC) $(SERV_OBJS) $(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) $(NETLIBS) $(GDBM) -o citserver
@@ -139,11 +139,14 @@ modules/serv_icq.so: serv_icq.mo
 modules/serv_icq.mo: serv_icq.mo
 	ln -f serv_icq.mo modules
 
-modules/serv_vcard.so: serv_vcard.mo
-	$(LINK_SHARED) -o modules/serv_vcard.so serv_vcard.mo
+modules/serv_vcard.so: serv_vcard.mo vcard.mo
+	$(LINK_SHARED) -o modules/serv_vcard.so serv_vcard.mo vcard.mo
 
 modules/serv_vcard.mo: serv_vcard.mo
 	ln -f serv_vcard.mo modules
+
+modules/vcard.mo: vcard.mo
+	ln -f vcard.mo modules
 
 aidepost: aidepost.o config.o $(LIBOBJS)
 	$(CC) aidepost.o config.o $(LIBOBJS) $(LDFLAGS) -o aidepost

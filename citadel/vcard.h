@@ -24,8 +24,9 @@ struct vCard {
 };
 
 
-struct vCard *new_vcard(void);
-struct vCard *load_vcard(char *);
-void free_vcard(struct vCard *);
-void set_prop(struct vCard *v, char *name, char *value);
-char *serialize_vcard(struct vCard *);
+struct vCard *vcard_new(void);
+struct vCard *vcard_load(char *);
+void vcard_free(struct vCard *);
+void vcard_set_prop(struct vCard *v, char *name, char *value);
+char *vcard_get_prop(struct vCard *v, char *propname, int is_partial);
+char *vcard_serialize(struct vCard *);
