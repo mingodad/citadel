@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.14  2001/12/18 08:24:56  nbryant
+ more lovely configure tweaks (include paths for db)
+
  Revision 590.13  2001/12/18 06:04:08  ajc
  * Moved the buffers in the_mime_parser() from the stack to the heap, because
    it was crashing boxen with small stack sizes.
@@ -2989,3 +2992,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

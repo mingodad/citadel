@@ -25,8 +25,6 @@ AC_ARG_WITH(db, [  --with-db@<:@=DIR@:>@         use Sleepycat DB 3.x @<:@DIR=/u
 if test "x$with_gdbm" != xno -a "x$with_gdbm" != xyes -a "$with_gdbm"; then
 	db_dir="$with_gdbm"
 	with_gdbm=yes
-else
-	test -f /usr/local/lib/libgdbm.a -o -f /usr/local/lib/libgdbm.so && db_dir=/usr/local
 fi
 
 if test "x$with_db" != xno -a "x$with_db" != xyes -a "$with_db"; then
@@ -180,8 +178,13 @@ if test "$enable_autologin" != no; then
 	fi
 fi
 
-test "$db_dir" && LDFLAGS="$LDFLAGS -L$db_dir/lib"
 if test "x$with_db" != xno -a "x$with_gdbm" != xyes; then
+	test "$db_dir" && LDFLAGS="$LDFLAGS -L$db_dir/lib"
+
+	test "$db_dir" && CPPFLAGS="$CPPFLAGS -I$db_dir/include" || \
+		( test -d /usr/include/db3 && CPPFLAGS="$CPPFLAGS -I/usr/include/db3" ) || \
+		( test -d /usr/local/include/db3 && CPPFLAGS="$CPPFLAGS -I/usr/local/include/db3" )
+
 	AC_CHECK_LIB(db3, db_env_create,
 		[GDBM="$GDBM -ldb3"
 		DATABASE=database_sleepycat.c
@@ -192,6 +195,11 @@ if test "x$with_db" != xno -a "x$with_gdbm" != xyes; then
 fi
 
 if test "x$with_gdbm" != xno -a "x$with_db" != xyes; then
+	test -f /usr/local/lib/libgdbm.a -o -f /usr/local/lib/libgdbm.so && db_dir=/usr/local
+	test "$db_dir" && LDFLAGS="$LDFLAGS -L$db_dir/lib"
+
+	test "$db_dir" && CPPFLAGS="$CPPFLAGS -I$db_dir/include"
+
         AC_CHECK_LIB(gdbm, gdbm_open,
                 [GDBM="$GDBM -lgdbm"
                 DATABASE=database.c
@@ -221,10 +229,6 @@ dnl Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
-
-test "$db_dir" && CPPFLAGS="$CPPFLAGS -I$db_dir/include" || \
-	( test -d /usr/include/db3 && CPPFLAGS="$CPPFLAGS -I/usr/include/db3" ) || \
-	( test -d /usr/local/include/db3 && CPPFLAGS="$CPPFLAGS -I/usr/local/include/db3" )
 
 AC_CHECK_HEADERS(curses.h dl.h fcntl.h limits.h termios.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h utmp.h utmpx.h paths.h db.h db3/db.h)
 
