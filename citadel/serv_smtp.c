@@ -1345,7 +1345,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 
 	lprintf(CTDL_DEBUG, "smtp_do_procmsg(%ld)\n", msgnum);
 
-	msg = CtdlFetchMessage(msgnum);
+	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) {
 		lprintf(CTDL_ERR, "SMTP: tried %ld but no such message!\n", msgnum);
 		return;

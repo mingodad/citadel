@@ -472,7 +472,7 @@ int CtdlForEachMessage(int mode, long ref,
 	if (num_msgs > 0) {
 		if (compare != NULL) {
 			for (a = 0; a < num_msgs; ++a) {
-				msg = CtdlFetchMessage(msglist[a]);
+				msg = CtdlFetchMessage(msglist[a], 1);
 				if (msg != NULL) {
 					if (CtdlMsgCmp(msg, compare)) {
 						msglist[a] = 0L;
@@ -781,7 +781,7 @@ void mime_download(char *name, char *filename, char *partnum, char *disp,
  * NOTE: Caller is responsible for freeing the returned CtdlMessage struct
  *       using the CtdlMessageFree() function.
  */
-struct CtdlMessage *CtdlFetchMessage(long msgnum)
+struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 {
 	struct cdbdata *dmsgtext;
 	struct cdbdata *dbigmsg;
@@ -1091,9 +1091,16 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	 */
 
 	/*
-	 * Fetch the message from disk.
+	 * Fetch the message from disk.  If we're in sooper-fast headers
+	 * only mode, request that we don't even bother loading the body
+	 * into memory.
 	 */
-	TheMessage = CtdlFetchMessage(msg_num);
+	if (headers_only == HEADERS_FAST) {
+		TheMessage = CtdlFetchMessage(msg_num, 0);
+	}
+	else {
+		TheMessage = CtdlFetchMessage(msg_num, 1);
+	}
 
 	if (TheMessage == NULL) {
 		if (do_proto) cprintf("%d Can't locate msg %ld on disk\n",
@@ -1541,7 +1548,7 @@ void cmd_msg3(char *cmdbuf)
 	}
 
 	msgnum = extract_long(cmdbuf, 0);
-	msg = CtdlFetchMessage(msgnum);
+	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) {
 		cprintf("%d Message %ld not found.\n", 
 			ERROR + MESSAGE_NOT_FOUND, msgnum);
@@ -1627,7 +1634,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 	if (  (flags & SM_VERIFY_GOODNESS)
 	   || (flags & SM_DO_REPL_CHECK)
 	   ) {
-		msg = CtdlFetchMessage(msgid);
+		msg = CtdlFetchMessage(msgid, 1);
 		if (msg == NULL) return(ERROR + ILLEGAL_VALUE);
 	}
 
@@ -1852,7 +1859,7 @@ void check_repl(long msgnum, void *userdata) {
 	time_t timestamp = (-1L);
 
 	lprintf(CTDL_DEBUG, "check_repl() found message %ld\n", msgnum);
-	msg = CtdlFetchMessage(msgnum);
+	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;
 	if (msg->cm_fields['T'] != NULL) {
 		timestamp = atol(msg->cm_fields['T']);
@@ -3264,7 +3271,7 @@ char *CtdlGetSysConfig(char *sysconfname) {
 		conf = NULL;
 	}
 	else {
-        	msg = CtdlFetchMessage(msgnum);
+        	msg = CtdlFetchMessage(msgnum, 1);
         	if (msg != NULL) {
                 	conf = strdup(msg->cm_fields['M']);
                 	CtdlFreeMessage(msg);

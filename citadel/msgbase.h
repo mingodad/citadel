@@ -102,7 +102,7 @@ int CtdlForEachMessage(int mode, long ref,
 int CtdlDeleteMessages(char *, long, char *);
 void CtdlWriteObject(char *, char *, char *, struct ctdluser *,
 			int, int, unsigned int);
-struct CtdlMessage *CtdlFetchMessage(long msgnum);
+struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body);
 void CtdlFreeMessage(struct CtdlMessage *msg);
 void serialize_message(struct ser_ret *, struct CtdlMessage *);
 int is_valid_message(struct CtdlMessage *);

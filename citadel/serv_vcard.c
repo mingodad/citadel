@@ -169,7 +169,7 @@ void vcard_directory_add_user(char *internet_addr, char *citadel_addr) {
 void vcard_add_to_directory(long msgnum, void *data) {
 	struct CtdlMessage *msg;
 
-	msg = CtdlFetchMessage(msgnum);
+	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg != NULL) {
 		vcard_extract_internet_addresses(msg, vcard_directory_add_user);
 	}
@@ -479,7 +479,7 @@ struct vCard *vcard_get_user(struct ctdluser *u) {
 
 	if (VC->msgnum < 0L) return vcard_new();
 
-	msg = CtdlFetchMessage(VC->msgnum);
+	msg = CtdlFetchMessage(VC->msgnum, 1);
 	if (msg == NULL) return vcard_new();
 
 	v = vcard_load(msg->cm_fields['M']);
@@ -825,7 +825,7 @@ void vcard_delete_remove(char *room, long msgnum) {
 		return;
 	}
 
-	msg = CtdlFetchMessage(msgnum);
+	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;
 
 	ptr = msg->cm_fields['M'];

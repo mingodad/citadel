@@ -579,7 +579,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 			lprintf(CTDL_CRIT, "Cannot open temp file: %s\n", strerror(errno));
 			return;
 		}
-		msg = CtdlFetchMessage(msgnum);
+		msg = CtdlFetchMessage(msgnum, 1);
 	}
 
 	/* Now figure out what the client wants, and get it */
@@ -930,16 +930,16 @@ void imap_do_fetch_msg(int seq,
 		/* Otherwise, load the message into memory.
 		 */
 		else if (!strcasecmp(itemlist[i], "BODYSTRUCTURE")) {
-			if (msg == NULL) msg = CtdlFetchMessage(IMAP->msgids[seq-1]);
+			if (msg == NULL) msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
 			imap_fetch_bodystructure(IMAP->msgids[seq-1],
 					itemlist[i], msg);
 		}
 		else if (!strcasecmp(itemlist[i], "ENVELOPE")) {
-			if (msg == NULL) msg = CtdlFetchMessage(IMAP->msgids[seq-1]);
+			if (msg == NULL) msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
 			imap_fetch_envelope(IMAP->msgids[seq-1], msg);
 		}
 		else if (!strcasecmp(itemlist[i], "INTERNALDATE")) {
-			if (msg == NULL) msg = CtdlFetchMessage(IMAP->msgids[seq-1]);
+			if (msg == NULL) msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
 			imap_fetch_internaldate(msg);
 		}
 

@@ -482,7 +482,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 	 */
 	if (sc->ignet_push_shares != NULL) {
 	
-		msg = CtdlFetchMessage(msgnum);
+		msg = CtdlFetchMessage(msgnum, 1);
 		if (msg != NULL) {
 			size_t newpath_len;
 

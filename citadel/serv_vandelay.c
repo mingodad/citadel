@@ -194,7 +194,7 @@ void artv_export_message(long msgnum) {
 	char buf[SIZ];
 	char tempfile[SIZ];
 
-	msg = CtdlFetchMessage(msgnum);
+	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;	/* fail silently */
 
 	cprintf("message\n");

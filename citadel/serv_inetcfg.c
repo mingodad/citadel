@@ -142,7 +142,7 @@ int inetcfg_aftersave(struct CtdlMessage *msg) {
 void inetcfg_init_backend(long msgnum, void *userdata) {
 	struct CtdlMessage *msg;
 
-       	msg = CtdlFetchMessage(msgnum);
+       	msg = CtdlFetchMessage(msgnum, 1);
        	if (msg != NULL) {
 		inetcfg_setTo(msg);
                	CtdlFreeMessage(msg);
@@ -154,7 +154,7 @@ void inetcfg_init_backend(long msgnum, void *userdata) {
 void spamstrings_init_backend(long msgnum, void *userdata) {
 	struct CtdlMessage *msg;
 
-       	msg = CtdlFetchMessage(msgnum);
+       	msg = CtdlFetchMessage(msgnum, 1);
        	if (msg != NULL) {
 		spamstrings_setTo(msg);
                	CtdlFreeMessage(msg);

@@ -167,7 +167,7 @@ void GatherPurgeMessages(struct ctdlroom *qrbuf, void *data) {
 		for (a=0; a<num_msgs; ++a) {
 			delnum = msglist[a];
 
-			msg = CtdlFetchMessage(delnum);
+			msg = CtdlFetchMessage(delnum, 0); /* dont need body */
 			if (msg != NULL) {
 				xtime = atol(msg->cm_fields['T']);
 				CtdlFreeMessage(msg);
