@@ -276,8 +276,9 @@ void urlescputs(char *strbuf)
  * 3 = HTTP and HTML headers, but no room banner
  *
  * Bit 2: Set to 1 to auto-refresh page every 30 seconds
- *
  * Bit 3: suppress check for express messages
+ * Bit 4: Allow browser to cache this document
+ *
  */
 void output_headers(int controlcode)
 {
@@ -285,11 +286,13 @@ void output_headers(int controlcode)
 	int print_standard_html_head = 0;
 	int refresh30 = 0;
 	int suppress_check = 0;
+	int cache = 0;
 	char httpnow[SIZ];
 	static int pageseq = 0;
 	print_standard_html_head	=	controlcode & 0x03;
 	refresh30			=	((controlcode & 0x04) >> 2);
 	suppress_check			=	((controlcode & 0x08) >> 3);
+	cache				=	((controlcode & 0x10) >> 4);
 
 	wprintf("HTTP/1.0 200 OK\n");
 
@@ -299,10 +302,11 @@ void output_headers(int controlcode)
 		wprintf("Content-type: text/html\n"
 			"Server: %s\n", SERVER
 		);
-		wprintf("Connection: close\n"
-			"Pragma: no-cache\n"
-			"Cache-Control: no-store\n"
-		);
+		if (!cache)
+			wprintf("Connection: close\n"
+				"Pragma: no-cache\n"
+				"Cache-Control: no-store\n"
+			);
 	}
 
 	stuff_to_cookie(cookie, WC->wc_session, WC->wc_username,
@@ -396,8 +400,9 @@ void check_for_express_messages()
 /* 
  * Output a piece of content to the web browser
  */
-void http_transmit_thing(char *thing, size_t length, char *content_type) {
-	output_headers(0);
+void http_transmit_thing(char *thing, size_t length, char *content_type,
+			 int is_static) {
+	output_headers(is_static ? 0x10 : 0x00);
 	wprintf("Content-type: %s\n"
 		"Content-length: %ld\n"
 		"Server: %s\n"
@@ -463,7 +468,7 @@ void output_static(char *what)
 		fread(bigbuffer, bytes, 1, fp);
 		fclose(fp);
 
-		http_transmit_thing(bigbuffer, (size_t)bytes, content_type);
+		http_transmit_thing(bigbuffer, (size_t)bytes, content_type, 1);
 		free(bigbuffer);
 	}
 	if (!strcasecmp(bstr("force_close_session"), "yes")) {
@@ -494,7 +499,7 @@ void output_image()
 		serv_gets(buf);
 
 		/* Write it to the browser */
-		http_transmit_thing(xferbuf, (size_t)bytes, "image/gif");
+		http_transmit_thing(xferbuf, (size_t)bytes, "image/gif", 0);
 		free(xferbuf);
 
 	} else {
@@ -539,7 +544,7 @@ void output_mimepart()
 		read_server_binary(content, bytes);
 		serv_puts("CLOS");
 		serv_gets(buf);
-		http_transmit_thing(content, bytes, content_type);
+		http_transmit_thing(content, bytes, content_type, 0);
 		free(content);
 	} else {
 		wprintf("HTTP/1.0 404 %s\n", &buf[4]);

@@ -1,4 +1,7 @@
 $Log$
+Revision 500.6  2003/06/28 03:52:51  error
+* Don't tell browsers not to cache static documents
+
 Revision 500.5  2003/06/28 03:35:23  error
 * roomops.c: Display one less floor in the first column in romlist view
 
@@ -1507,4 +1510,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

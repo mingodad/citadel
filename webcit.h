@@ -418,5 +418,6 @@ char *read_server_text(void);
 int goto_config_room(void);
 long locate_user_vcard(char *username, long usernum);
 void sleeeeeeeeeep(int);
-void http_transmit_thing(char *thing, size_t length, char *content_type);
+void http_transmit_thing(char *thing, size_t length, char *content_type,
+			 int is_static);
 void unescape_input(char *buf);

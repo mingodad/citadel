@@ -911,7 +911,7 @@ void do_freebusy(char *req) {
 	}
 
 	fb = read_server_text();
-	http_transmit_thing(fb, strlen(fb), "text/calendar");
+	http_transmit_thing(fb, strlen(fb), "text/calendar", 0);
 	free(fb);
 }
 
