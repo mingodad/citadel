@@ -182,7 +182,7 @@ following parameters are returned:
  
  NEWU   (create NEW User account)
  
- This command creates a new user account and logs it in.  The argument to
+ This command creates a new user account AND LOGS IT IN.  The argument to
 this command will be the name of the account.  No case conversion is done
 on the name.  Note that the new account is installed with a default
 configuration, and no password, so the client should immediately prompt the
@@ -190,6 +190,9 @@ user for a password and install it with the SETP command as soon as this
 command completes.  This command returns OK if the account was created and
 logged in, or ERROR if another user already exists with this name.  If OK,
 it will also return the same parameters that PASS returns.
+ 
+ Please note that the NEWU command should only be used for self-service user account
+creation.  For administratively creating user accounts, please use the CREU command.
  
   
  SETP   (SET new Password)
@@ -200,6 +203,20 @@ returns OK, unless the client is not logged in, in which case it will return
 ERROR.
  
    
+ CREU   (CREate new User account)
+ 
+ This command creates a new user account AND DOES NOT LOG IT IN.  The argument to
+this command will be the name of the account.  No case conversion is done
+on the name.  Note that the new account is installed with a default
+configuration, and no password.  This command returns OK if the account was created,
+or ERROR if another user already exists with this name.  
+ 
+ Please note that CREU is intended to be used for activities in which a system
+administrator is creating user accounts.  For self-service user account creation,
+use the NEWU command.
+ 
+ 
+  
  LKRN   (List Known Rooms with New messages)
  
  List known rooms with new messages.  If the client is not logged in, ERROR

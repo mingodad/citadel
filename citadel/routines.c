@@ -121,13 +121,22 @@ void edituser(void)
 	int userpurge;
 
 	newprompt("User name: ",who,25);
-	sprintf(buf,"AGUP %s",who);
+AGUP:	sprintf(buf,"AGUP %s",who);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]!='2') {
 		scr_printf("%s\n",&buf[4]);
-		return;
+		scr_printf("Do you want to create this user? ");
+		if (yesno()) {
+			sprintf(buf, "CREU %s", who);
+			serv_puts(buf);
+			serv_gets(buf);
+			if (buf[0] == '2') goto AGUP;
+			scr_printf("%s\n",&buf[4]);
+			return;
 		}
+		return;
+	}
 	extract(who, &buf[4], 0);
 	extract(pass, &buf[4], 1);
 	flags = extract_int(&buf[4], 2);

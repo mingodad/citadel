@@ -757,7 +757,7 @@ int create_user(char *newusername, int become_user)
 
 
 /*
- * cmd_newu()  -  create a new user account
+ * cmd_newu()  -  create a new user account and log in as that user
  */
 void cmd_newu(char *cmdbuf)
 {
@@ -835,6 +835,45 @@ void cmd_setp(char *new_pw)
 	rec_log(CL_PWCHANGE, CC->curr_user);
 	PerformSessionHooks(EVT_SETPASS);
 }
+
+
+/*
+ * cmd_creu()  -  administratively create a new user account (do not log in to it)
+ */
+void cmd_creu(char *cmdbuf)
+{
+	int a;
+	char username[SIZ];
+
+	if (CtdlAccessCheck(ac_aide)) {
+		return;
+	}
+
+	extract(username, cmdbuf, 0);
+	username[25] = 0;
+	strproc(username);
+
+	if (strlen(username) == 0) {
+		cprintf("%d You must supply a user name.\n", ERROR);
+		return;
+	}
+
+	a = create_user(username, 0);
+
+	if (a == 0) {
+		cprintf("%d ok\n", OK);
+		return;
+	} else if (a == ERROR + ALREADY_EXISTS) {
+		cprintf("%d '%s' already exists.\n",
+			ERROR + ALREADY_EXISTS, username);
+		return;
+	} else {
+		cprintf("%d An error occured creating the user account.\n", ERROR);
+	}
+	rec_log(CL_NEWUSER, username);
+}
+
+
 
 /*
  * get user parameters

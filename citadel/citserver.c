@@ -933,6 +933,10 @@ void do_command_loop(void) {
 		cmd_newu(&cmdbuf[5]);
 		}
 
+	else if (!strncasecmp(cmdbuf,"CREU",4)) {
+		cmd_creu(&cmdbuf[5]);
+		}
+
 	else if (!strncasecmp(cmdbuf,"SETP",4)) {
 		cmd_setp(&cmdbuf[5]);
 		}
