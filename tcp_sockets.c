@@ -51,8 +51,7 @@ int connectsock(char *host, char *service, char *protocol)
 		sin.sin_port = pse->s_port;
 		}
 	else if ((sin.sin_port = htons((u_short)atoi(service))) == 0) {
-		fprintf(stderr,"can't get %s service entry: %s\n",
-			service,strerror(errno));
+		fprintf(stderr,"can't get %s service entry\n", service);
 		return(-1);
 		}
 	
