@@ -143,7 +143,8 @@ void do_login(void)
 
 void do_welcome(void)
 {
-	smart_goto("_BASEROOM_");
+	/* smart_goto("_BASEROOM_"); */
+	output_static("mainframeset.html");
 }
 
 

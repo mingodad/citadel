@@ -1,4 +1,7 @@
 $Log$
+Revision 213.6  2001/04/29 04:39:23  ajc
+* User interface overhaul now in progress.  WARNING: incomplete system.
+
 Revision 213.5  2001/04/01 22:13:37  cough
 * Modified roomops.c to give users the ability to pick a floor at room
   creation time.
@@ -522,4 +525,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
