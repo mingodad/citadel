@@ -353,8 +353,10 @@ void the_mime_parser(char *partnum,
 		/* Tell the client about this message's multipartedness */
 		PreMultiPartCallBack("", "", partnum, "", NULL, content_type,
 				0, encoding, userdata);
+		/*
 		CallBack("", "", partnum, "", NULL, content_type,
 				0, encoding, userdata);
+		 */
 
 		/* Figure out where the boundaries are */
 		sprintf(startary, "--%s", boundary);

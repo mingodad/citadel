@@ -465,7 +465,7 @@ void imap_fetch_bodystructure_pre(
 		void *cbuserdata
 		) {
 
-	cprintf("*PRE*");	/* FIXME obviously wrong */
+	cprintf("(");
 }
 
 
@@ -479,7 +479,11 @@ void imap_fetch_bodystructure_post(
 		void *cbuserdata
 		) {
 
-	cprintf("*POST*");	/* FIXME obviously wrong */
+	char subtype[SIZ];
+
+	extract_token(subtype, cbtype, 1, '/');
+	imap_strout(subtype);
+	cprintf(")");
 }
 
 
