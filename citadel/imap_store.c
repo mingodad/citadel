@@ -50,10 +50,12 @@
  * imap_do_store() calls imap_do_store_msg() to output the deta of an
  * individual message, once it has been successfully loaded from disk.
  */
-void imap_do_store_msg(int seq, struct CtdlMessage *msg,
-			int num_items, char **itemlist, int is_uid) {
+void imap_do_store_msg(int num, int num_items, char **itemlist) {
+	int i;
 
-
+	cprintf("* <%d> ", num);
+	for (i=0; i<num_items; ++i) cprintf("<%s> ", itemlist[i]);
+	cprintf("\r\n");
 }
 
 
@@ -64,19 +66,15 @@ void imap_do_store_msg(int seq, struct CtdlMessage *msg,
  */
 void imap_do_store(int num_items, char **itemlist, int is_uid) {
 	int i;
-	struct CtdlMessage *msg;
 
-	if (IMAP->num_msgs > 0)
-	 for (i = 0; i < IMAP->num_msgs; ++i)
-	  if (IMAP->flags[i] && IMAP_FETCHED) {
-		msg = CtdlFetchMessage(IMAP->msgids[i]);
-		if (msg != NULL) {
-			imap_do_store_msg(i+1, msg, num_items,
-					itemlist, is_uid);
-			CtdlFreeMessage(msg);
-		}
+	if (IMAP->num_msgs > 0) {
+		for (i = 0; i < IMAP->num_msgs; ++i) {
+			if (IMAP->flags[i] && IMAP_SELECTED) {
+				imap_do_store_msg(i, num_items, itemlist);
+			}
 		else {
 			lprintf(1, "IMAP STORE internal error\n");
+			}
 		}
 	}
 }
@@ -91,19 +89,22 @@ void imap_store(int num_parms, char *parms[]) {
 	int num_items;
 	int i;
 
-	if (num_parms < 3) {
+	if (num_parms < 4) {
 		cprintf("%s BAD invalid parameters\r\n", parms[0]);
 		return;
 	}
 
-	for (i=1; i<num_parms; ++i) {
-		if (imap_is_message_set(parms[i])) {
-			imap_pick_range(parms[2], 0);
-		}
+	if (imap_is_message_set(parms[2])) {
+		imap_pick_range(parms[2], 0);
+	}
+	else {
+		cprintf("%s BAD No message set specified to STORE\r\n",
+			parms[0]);
+		return;
 	}
 
 	strcpy(items, "");
-	for (i=2; i<num_parms; ++i) {
+	for (i=3; i<num_parms; ++i) {
 		strcat(items, parms[i]);
 		if (i < (num_parms-1)) strcat(items, " ");
 	}
@@ -127,15 +128,18 @@ void imap_uidstore(int num_parms, char *parms[]) {
 	int num_items;
 	int i;
 
-	if (num_parms < 4) {
+	if (num_parms < 5) {
 		cprintf("%s BAD invalid parameters\r\n", parms[0]);
 		return;
 	}
 
-	for (i=1; i<num_parms; ++i) {
-		if (imap_is_message_set(parms[i])) {
-			imap_pick_range(parms[2], 1);
-		}
+	if (imap_is_message_set(parms[2])) {
+		imap_pick_range(parms[2], 0);
+	}
+	else {
+		cprintf("%s BAD No message set specified to STORE\r\n",
+			parms[0]);
+		return;
 	}
 
 	strcpy(items, "");

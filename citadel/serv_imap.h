@@ -36,7 +36,7 @@ enum {
 #define IMAP_DELETED	4
 #define IMAP_DRAFT	8
 #define IMAP_SEEN	16
-#define IMAP_FETCHED	32	/* internal */
+#define IMAP_SELECTED	32	/* internal */
 #define IMAP_EXPUNGED	64	/* internal */
 
 

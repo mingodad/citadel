@@ -7,6 +7,7 @@ citadel.config
 citadel.control
 citadel.log
 citserver.log
+citlogin
 citmail
 citserver
 config.cache
