@@ -172,6 +172,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 		-1,
 		title, pos, size, wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL
 		) {
+	wxString buf;
 
 	TheWholist = NULL;
 
@@ -218,12 +219,17 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	// ... and attach this menu bar to the frame
 	SetMenuBar(menuBar);
 
-	// create a status bar just for fun (by default with 1 pane only)
+	// Create the status bar
 	CreateStatusBar(3);
 	SetStatusText("Not connected", 0);
 
         Show(TRUE);
-        
+
+	ini->Read("/Citadel Server/ConnectOnStartup", &buf, "no");
+	if (!buf.CmpNoCase("yes")) {
+		wxCommandEvent cjunk;
+		OnConnect(cjunk);
+	}
 }
 
 

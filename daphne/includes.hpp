@@ -145,6 +145,7 @@ private:
 	CitClient *citsock;
 	wxMDIParentFrame *citMyMDI;
 	wxTextCtrl *server_host, *server_port;
+	wxCheckBox *server_autoconnect;
 	DECLARE_EVENT_TABLE()
 };
 

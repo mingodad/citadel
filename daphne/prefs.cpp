@@ -129,11 +129,24 @@ Preferences::Preferences(	CitClient *sock,
 	c7->height.AsIs();
 	server_port->SetConstraints(c7);
 
+	server_autoconnect = new wxCheckBox(this, -1,
+		"Automatically connect at startup");
+
+	wxLayoutConstraints *c8 = new wxLayoutConstraints;
+	c8->centreY.SameAs(server_port, wxCentreY);
+	c8->left.RightOf(server_port, 5);
+	c8->width.AsIs(); c8->height.AsIs();
+	server_autoconnect->SetConstraints(c8);
+
 	ini->Read("/Citadel Server/Host", &buf, DEFAULT_HOST);
 	server_host->SetValue(buf);
 
 	ini->Read("/Citadel Server/Port", &buf, DEFAULT_PORT);
 	server_port->SetValue(buf);
+
+	ini->Read("/Citadel Server/ConnectOnStartup", &buf, "no");
+	server_autoconnect->SetValue(
+		((!buf.CmpNoCase("yes")) ? TRUE : FALSE));
 
 	SetAutoLayout(TRUE);
 	Show(TRUE);
@@ -148,6 +161,8 @@ void Preferences::OnButtonPressed(wxCommandEvent& whichbutton) {
 	} else if (whichbutton.GetId() == BUTTON_SAVE) {
 		ini->Write("/Citadel Server/Host", server_host->GetValue());
 		ini->Write("/Citadel Server/Port", server_port->GetValue());
+		ini->Write("/Citadel Server/ConnectOnStartup",
+		    ((server_autoconnect->GetValue()==TRUE) ? "yes" : "no"));
 		ini->Flush();
 		delete this;
 	}
