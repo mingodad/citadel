@@ -74,6 +74,21 @@ void svprintf(char *keyname, int keytype, const char *format,...)
 	WC->vars = ptr;
 }
 
+/*
+ * Add a substitution variable (local to this session) that does a callback
+ */
+void svcallback(char *keyname, void (*fcn_ptr)() )
+{
+	struct wcsubst *ptr;
+
+	ptr = (struct wcsubst *) malloc(sizeof(struct wcsubst));
+	ptr->next = WC->vars;
+	ptr->wcs_type = WCS_FUNCTION;
+	strcpy(ptr->wcs_key, keyname);
+	ptr->wcs_function = fcn_ptr;
+	WC->vars = ptr;
+}
+
 
 
 /*
@@ -108,6 +123,7 @@ void pvo_do_cmd(char *servcmd) {
  */
 void print_value_of(char *keyname) {
 	struct wcsubst *ptr;
+	void *fcn();
 
 	for (ptr = WC->vars; ptr != NULL; ptr = ptr->next) {
 		if (!strcasecmp(ptr->wcs_key, keyname)) {
@@ -116,6 +132,9 @@ void print_value_of(char *keyname) {
 			}
 			else if (ptr->wcs_type == WCS_SERVCMD) {
 				pvo_do_cmd(ptr->wcs_value);
+			}
+			else if (ptr->wcs_type == WCS_FUNCTION) {
+				(*ptr->wcs_function) ();
 			}
 		}
 	}
@@ -132,8 +151,7 @@ void do_template(void *templatename) {
 	char inbuf[1024];
 	char outbuf[sizeof inbuf];
 	char key[sizeof inbuf];
-	int i, j, pos;
-	int olen;
+	int i, pos;
 
 	strcpy(filename, "static/");
 	strcat(filename, templatename);
@@ -150,32 +168,31 @@ void do_template(void *templatename) {
 
 	while (fgets(inbuf, sizeof inbuf, fp) != NULL) {
 		strcpy(outbuf, "");
-		olen = 0;
 
-		for (i=0; i<strlen(inbuf); ++i) {
-			if (strncmp(&inbuf[i], "<?", 2)) {
-				outbuf[olen] = inbuf[i];
-				outbuf[++olen] = 0;
+		while (strlen(inbuf) > 0) {
+			pos = (-1);
+			for (i=strlen(inbuf); i>=0; --i) {
+				if ((inbuf[i]=='<')&&(inbuf[i+1]=='?')) pos = i;
+			}
+			if (pos < 0) {
+				wprintf("%s", inbuf);
+				strcpy(inbuf, "");
 			}
 			else {
-				pos = (-1);
-				for (j=strlen(inbuf); j>=i;  --j)  {
-					if (inbuf[j]=='>') pos = j;
+				strncpy(outbuf, inbuf, pos);
+				outbuf[pos] = 0;
+				wprintf("%s", outbuf);
+				strcpy(inbuf, &inbuf[pos]);
+				pos = 1;
+				for (i=strlen(inbuf); i>=0; --i) {
+					if (inbuf[i]=='>') pos = i;
 				}
-				if (pos > 0) {
-					wprintf("%s", outbuf);
-					strcpy(outbuf, "");
-					olen = 0;
-					strncpy(key, &inbuf[i+2], pos-i-2);
-					print_value_of(key);
-					i = pos;
-				}
-				else {
-					i = i + 2;
-				}
+				strncpy(key, &inbuf[2], pos-2);
+				key[pos-2] = 0;
+				print_value_of(key);
+				strcpy(inbuf, &inbuf[pos+1]);
 			}
 		}
-		wprintf("%s", outbuf);
 	}
 
 	fclose(fp);

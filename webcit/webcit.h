@@ -97,6 +97,7 @@ struct wcsubst {
 	int wcs_type;
 	char wcs_key[32];
 	void *wcs_value;
+	void (*wcs_function)(void);
 };
 
 /*
@@ -132,6 +133,7 @@ struct wcsession {
 	int upload_length;
 	char *upload;
 	int new_mail;
+	int remember_new_mail;
 	int need_vali;
         pthread_mutex_t SessionMutex;	/* mutex for exclusive access */
         time_t lastreq;			/* Timestamp of most recent HTTP */
@@ -282,4 +284,5 @@ void page_popup(void);
 void http_redirect(char *);
 void clear_local_substs(void);
 void svprintf(char *keyname, int keytype, const char *format,...);
+void svcallback(char *keyname, void (*fcn_ptr)() );
 void do_template(void *templatename);

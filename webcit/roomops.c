@@ -285,7 +285,7 @@ void zapped_list(void)
 /*
  * read this room's info file (set v to 1 for verbose mode)
  */
-void readinfo(int v)
+void readinfo(void)
 {
 	char buf[256];
 
@@ -296,18 +296,50 @@ void readinfo(int v)
 		fmout(NULL);
 		wprintf("</FONT>");
 	}
-	else {
-		if (v == 1)
-			wprintf("<EM>%s</EM><BR>\n", &buf[4]);
+}
+
+
+
+
+/* Display room graphic.  The server doesn't actually
+ * need the room name, but we supply it in order to
+ * keep the browser from using a cached graphic from 
+ * another room.
+ */
+void embed_room_graphic(void) {
+	char buf[256];
+
+	serv_puts("OIMG _roompic_");
+	serv_gets(buf);
+	if (buf[0] == '2') {
+		wprintf("<TD>");
+		wprintf("<IMG SRC=\"/image&name=_roompic_&room=");
+		urlescputs(WC->wc_roomname);
+		wprintf("\"></TD>");
+		serv_puts("CLOS");
+		serv_gets(buf);
+	}
+
+}
+
+
+/* Let the user know if new mail has arrived 
+ */
+void embed_newmail_button(void) {
+	if ( (WC->new_mail > WC->remember_new_mail) && (WC->new_mail>0) ) {
+		wprintf("<TD VALIGN=TOP>"
+			"<IMG SRC=\"/static/mail.gif\" border=0 "
+			"ALT=\"You have new mail\">"
+			"<BR><BLINK>%d</BLINK>", WC->new_mail);
+		wprintf("<FONT SIZE=-2> new mail messages</FONT></TD>");
+		WC->remember_new_mail = WC->new_mail;
 	}
 }
 
 
 
 void embed_room_banner(char *got) {
-	char buf[256];
 	char fakegot[256];
-	static int remember_new_mail = (-1);
 
 	/* We need to have the information returned by a GOTO server command.
 	 * If it isn't supplied, we fake it by issuing our own GOTO.
@@ -321,53 +353,16 @@ void embed_room_banner(char *got) {
 	/* Check for new mail. */
 	WC->new_mail = extract_int(&got[4], 9);
 
-	/* Now start spewing HTML. */
-	wprintf("<CENTER><TABLE width=100%% border=0 cellpadding=5><TR>");
+	svprintf("ROOMNAME", WCS_STRING, "%s", WC->wc_roomname);
+	svprintf("NEWMSGS", WCS_STRING, "%d", extract_int(&got[4], 1));
+	svprintf("TOTALMSGS", WCS_STRING, "%d", extract_int(&got[4], 2));
+	svcallback("ROOMPIC", embed_room_graphic);
+	svcallback("ROOMINFO", readinfo);
+	svcallback("YOUHAVEMAIL", embed_newmail_button);
 
-	if ((strlen(WC->ugname) > 0) && (strcasecmp(WC->ugname, WC->wc_roomname))) {
-		wprintf("<TD VALIGN=TOP><A HREF=\"/ungoto\">");
-		wprintf("<IMG SRC=\"/static/back.gif\" BORDER=0>");
-		wprintf("<BR><FONT SIZE=-2>Previous room</FONT></A></TD>");
-	}
-	wprintf("<TD VALIGN=TOP BGCOLOR=444455>");
-	wprintf("<FONT SIZE=+2 COLOR=FFFFEE>%s</FONT><BR>", WC->wc_roomname);
-	wprintf("<FONT COLOR=DDDDCC>%d new of %d messages</FONT></TD>\n",
-		extract_int(&got[4], 1),
-		extract_int(&got[4], 2));
 
-	/* Display room graphic.  The server doesn't actually
-	 * need the room name, but we supply it in order to
-	 * keep the browser from using a cached graphic from 
-	 * another room.
-	 */
-	serv_puts("OIMG _roompic_");
-	serv_gets(buf);
-	if (buf[0] == '2') {
-		wprintf("<TD>");
-		wprintf("<IMG SRC=\"/image&name=_roompic_&room=");
-		urlescputs(WC->wc_roomname);
-		wprintf("\"></TD>");
-		serv_puts("CLOS");
-		serv_gets(buf);
-	}
-	wprintf("<TD VALIGN=TOP>");
-	readinfo(0);
-	wprintf("</TD>");
-
-	/* Let the user know if new mail has arrived */
-	if ( (WC->new_mail > remember_new_mail) && (WC->new_mail>0) ) {
-		wprintf("<TD VALIGN=TOP>"
-			"<IMG SRC=\"/static/mail.gif\" border=0 "
-			"ALT=\"You have new mail\">"
-			"<BR><BLINK>%d</BLINK>", WC->new_mail);
-		wprintf("<FONT SIZE=-2> new mail messages</FONT></TD>");
-		remember_new_mail = WC->new_mail;
-	}
-
-	wprintf("<TD VALIGN=TOP><A HREF=\"/gotonext\">");
-	wprintf("<IMG SRC=\"/static/forward.gif\" border=0>");
-	wprintf("<BR><FONT SIZE=-2>Next room</FONT></A></TD>");
-	wprintf("</TR></TABLE></CENTER>\n");
+	do_template("roombanner.html");
+	clear_local_substs();
 }
 
 
