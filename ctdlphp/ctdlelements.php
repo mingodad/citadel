@@ -46,6 +46,13 @@ function display_message($msgnum) {
 	}
 	echo "</I></B><BR>\n" ;
 
+	// Subject
+	if (strlen($fields["subj"]) > 0) {
+		echo"<i>Subject: " .
+			htmlspecialchars($fields["subj"]) .
+			"</i><BR>\n" ;
+	}
+
 	// Do message text
 	echo $fields["text"] . "<BR>";
 

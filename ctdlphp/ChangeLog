@@ -1,4 +1,7 @@
  $Log$
+ Revision 1.21  2003/11/25 04:01:44  ajc
+ * Completed "post" and "post html" stuffs
+
  Revision 1.20  2003/11/22 04:33:22  ajc
  * fleshed out the message headers a bit
 
@@ -86,3 +89,4 @@
 
  Revision 1.1  2003/10/31 03:47:13  ajc
  * Initial CVS import
+

@@ -40,9 +40,19 @@ function serv_puts($buf) {
 //
 function text_to_server($thetext, $convert_to_html) {
 
+	// HTML mode
+	if ($convert_to_html) {
 
+		// Strip CR's; we only want the LF's
+		$thetext = trim($thetext, "\r");
+
+		// Replace hard line breaks with <BR>'s
+		$thetext = str_replace("\n", "<BR>\n", $thetext);
+
+	}
+
+	// Either mode ... send it to the server now
 	$this_line = strtok($thetext, "\n");
-
 	while ($this_line !== FALSE) {
 		$this_line = trim($this_line, "\n\r");
 		if ($this_line == "000") $this_line = "-000" ;
@@ -50,7 +60,8 @@ function text_to_server($thetext, $convert_to_html) {
 		$this_line = strtok("\n");
 	}
 
-	serv_puts("000");
+	serv_puts("000");	// Tell the server we're done...
+
 	serv_puts("ECHO echo test.");		// FIXME
 	echo "Echo test: " . serv_gets() . "<BR>\n" ;
 
