@@ -686,13 +686,8 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 {
 	struct urlcontent *u;
 
-	lprintf(5, "UPLOAD HANDLER CALLED\n");
-	lprintf(5, "       name = %s\n", name);
-	lprintf(5, "   filename = %s\n", filename);
-	lprintf(5, "   encoding = %s\n", encoding);
-	lprintf(5, "       type = %s\n", cbtype);
-	lprintf(5, "     length = %ld\n", (long)length);
-	lprintf(5, "disposition = %s\n", disp);
+	lprintf(5, "Upload handler called: %s, %ld bytes\n",
+		cbtype, (long)length);
 
 	/* Form fields */
 	if ( (length > 0) && (strlen(cbtype) == 0) ) {

@@ -1,4 +1,7 @@
 $Log$
+Revision 410.18  2003/05/02 03:23:41  ajc
+* Minor change to room list algorithm
+
 Revision 410.17  2003/05/01 15:33:05  ajc
 * Fixed a potential memory leak in enumeration of MIME parts
 
@@ -1355,4 +1358,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
