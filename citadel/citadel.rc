@@ -62,11 +62,10 @@ use_floors=DEFAULT
 beep=1
 
 # ALLOW_ATTACHMENTS should be set to 1 if you wish the user to be able to
-# attach files to messages.  (Do not enable this for 'safe' public clients.)
+# attach files to messages and/or save attachments to disk while reading
+# messages.  (DANGER: do NOT enable this for "safe" public clients!)
 #
-# NOTE: this option does not (yet) do anything, because multipart messages
-#       are not yet supported.
-allow_attachments=1
+allow_attachments=0
 
 # If you set the USERNAME variable, the value you set here will automatically
 # be passed to the "Enter your name:" prompt.
