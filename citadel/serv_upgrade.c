@@ -131,7 +131,6 @@ void imp_floors(void) {
 void imp_rooms(void) {
 	char key[256];
 	char tag[256], tval[256];
-	int roomnum = 0;
 	struct quickroom qr;
 	long *msglist;
 	int num_msgs = 0;
@@ -157,6 +156,8 @@ void imp_rooms(void) {
 					strcpy(qr.QRname, tval);
 					lprintf(9, "<%s> ", qr.QRname);
 					}
+				if (!strcasecmp(tag, "qrnumber"))
+					qr.QRnumber = atol(tval);
 				if (!strcasecmp(tag, "qrpasswd"))
 					strcpy(qr.QRpasswd, tval);
 				if (!strcasecmp(tag, "qrroomaide"))
@@ -194,20 +195,18 @@ void imp_rooms(void) {
 				}
 
 			lprintf(9, "(%d messages)\n", num_msgs);
-			if ((roomnum!=1)&&(qr.QRflags&QR_INUSE)) {
+			if (qr.QRflags&QR_INUSE) {
 				putroom(&qr, qr.QRname);
 				}
 
 			if (num_msgs > 0) {
-				if ((roomnum!=1)&&(qr.QRflags&QR_INUSE)) {
+				if (qr.QRflags&QR_INUSE) {
 					CC->msglist = msglist;
 					CC->num_msgs = num_msgs;
 					put_msglist(&qr);
 					}
 				free(msglist);
 				}
-
-			++roomnum;
 
 			}
 		else {
@@ -223,16 +222,11 @@ void imp_rooms(void) {
 
 void import_a_user(void) {
 	char key[256], value[256];
-	char vkey[256], vvalue[256];
 	struct usersupp us;
-	struct quickroom qr;
-	struct visit vbuf;
-	int visits = 0;
 
 	bzero(&us, sizeof(struct usersupp));	
 	while(fpgetfield(imfp, key), strcasecmp(key, "enduser")) {
-		if ((strcasecmp(key, "mail"))
-		   &&(strcasecmp(key, "visit")) ) {
+		if (strcasecmp(key, "mail")) {
 			fpgetfield(imfp, value);
 			}
 		else {
@@ -281,33 +275,14 @@ void import_a_user(void) {
 			strcpy(us.USphone, value);
 		if (!strcasecmp(key, "usemail"))
 			strcpy(us.USemail, value);
-		if (!strcasecmp(key, "ususerpurge"))
+		if (!strcasecmp(key, "ususerpurge")) {
 			us.USuserpurge = atoi(value);
-		if (!strcasecmp(key, "visit")) {
-			++visits;
-			bzero(&vbuf, sizeof(struct visit));
-			bzero(&qr, sizeof(struct quickroom));
-			while(fpgetfield(imfp, vkey),
-			  strcasecmp(vkey, "endvisit")) {
-				fpgetfield(imfp, vvalue);
-				if (!strcasecmp(vkey, "vname"))	
-					strcpy(qr.QRname, vvalue);
-				if (!strcasecmp(vkey, "vgen"))	{
-					qr.QRgen = atol(vvalue);
-					CtdlGetRelationship(&vbuf, &us, &qr);
-					}
-				if (!strcasecmp(vkey, "lastseen"))	
-					vbuf.v_lastseen = atol(vvalue);
-				if (!strcasecmp(vkey, "flags"))
-					vbuf.v_flags = atoi(vvalue);
-				}
-			CtdlSetRelationship(&vbuf, &us, &qr);
 			}
 		}
 	
 	putuser(&us, us.fullname);
 
-	lprintf(9, "(%d rooms)\n", visits);
+	lprintf(9, "\n");
 	}
 
 
@@ -437,10 +412,44 @@ void imp_ssv(void) {
 		}
 	}
 
+void imp_visits(void) {
+	char key[256], value[256];
+	struct usersupp us;
+	struct quickroom qr;
+	struct visit visit;
 
+	while(fpgetfield(imfp, key), strcasecmp(key, "endsection")) {
+		lprintf(9, "%s: ", key);
+		while(fpgetfield(imfp, key),
+		    strcasecmp(key, "endvisit")) {
+			fpgetfield(imfp, value);
+			if (!strcasecmp(key, "vrnum")) {
+				qr.QRnumber = atol(value);
+				visit.v_roomnum = atol(value);
+				}
+			else if (!strcasecmp(key, "vgen")) {
+				qr.QRgen = atol(value);
+				visit.v_roomgen = atol(value);
+				}
+			else if (!strcasecmp(key, "vunum")) {
+				us.usernum = atol(value);
+				visit.v_usernum = atol(value);
+				}
+			else if (!strcasecmp(key, "lastseen")) {
+				visit.v_lastseen = atol(value);
+				}
+			else if (!strcasecmp(key, "flags")) {
+				visit.v_flags = atol(value);
+				}
+			}
+		lprintf(9, "<%ld><%ld><%ld> <%d> <%ld>\n",
+			visit.v_roomnum, visit.v_roomgen,
+			visit.v_usernum,
+			visit.v_flags, visit.v_lastseen);
+		CtdlSetRelationship(&visit, &us, &qr);
+		}
 
-
-
+	}
 
 
 void import_databases(void) {
@@ -456,6 +465,7 @@ void import_databases(void) {
 		else if (!strcasecmp(section, "usersupp"))	imp_usersupp();
 		else if (!strcasecmp(section, "rooms"))		imp_rooms();
 		else if (!strcasecmp(section, "floors"))	imp_floors();
+		else if (!strcasecmp(section, "visits"))	imp_visits();
 		else {
 			lprintf(3, "ERROR: invalid import section.\n");
 			lprintf(3, "Your data files are now corrupt.\n");
@@ -515,6 +525,7 @@ void export_a_room(struct quickroom *qr) {
 	lprintf(9,"<%s>\n", qr->QRname);
 	fprintf(exfp, "room%c", 0);
 	fprintf(exfp, "qrname%c%s%c", 0, qr->QRname, 0);
+	fprintf(exfp, "qrnumber%c%ld%c", 0, qr->QRnumber, 0);
 	fprintf(exfp, "qrpasswd%c%s%c", 0, qr->QRpasswd, 0);
 	fprintf(exfp, "qrroomaide%c%ld%c", 0, qr->QRroomaide, 0);
 	fprintf(exfp, "qrhighest%c%ld%c", 0, qr->QRhighest, 0);
@@ -570,10 +581,6 @@ void export_floors(void) {
 
 
 void export_a_user(struct usersupp *us) {
-	struct cdbdata *cdbvisit;
-	struct visit *visits;
-	int num_visits = 0;
-	int a;
 
 	lprintf(9, "User <%s> ", us->fullname);
 
@@ -598,39 +605,7 @@ void export_a_user(struct usersupp *us) {
 	fprintf(exfp, "usemail%c%s%c", 0, us->USemail, 0);
 	fprintf(exfp, "ususerpurge%c%d%c", 0, us->USuserpurge, 0);
 
-
-	cdbvisit = cdb_fetch(CDB_VISIT, &us->usernum, sizeof(long));
-	if (cdbvisit != NULL) {
-		num_visits = cdbvisit->len / sizeof(struct visit);
-		if (num_visits == 0) {
-			cdb_free(cdbvisit);
-			goto VISITS_DONE;
-			}
-		visits = (struct visit *)
-			malloc(num_visits * sizeof(struct visit));
-		memcpy(visits, cdbvisit->ptr,
-			(num_visits * sizeof(struct visit)));
-		cdb_free(cdbvisit);
-
-		if (num_visits > 0) for (a=0; a<num_visits; ++a) {
-			fprintf(exfp, "visit%c", 0);
-			fprintf(exfp, "vroomnum%c%ld%c", 0,
-					visits[a].v_roomnum, 0);
-			fprintf(exfp, "vgen%c%ld%c", 0,
-					visits[a].v_roomgen, 0);
-			fprintf(exfp, "vusermnum%c%ld%c", 0,
-					visits[a].v_usernum, 0);
-			fprintf(exfp, "lastseen%c%ld%c", 0,
-					visits[a].v_lastseen, 0);
-			fprintf(exfp, "flags%c%d%c", 0,
-					visits[a].v_flags, 0);
-			fprintf(exfp, "endvisit%c", 0);
-			}
-		free(visits);
-		}
-
-VISITS_DONE:
-	lprintf(9, "(%d rooms)\n", num_visits);
+	lprintf(9, "\n");
 	fprintf(exfp, "enduser%c", 0);
 	}
 
