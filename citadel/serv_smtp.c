@@ -366,10 +366,13 @@ void smtp_mail(char *argbuf) {
 	striplt(SMTP->from);
 	stripallbut(SMTP->from, '<', '>');
 
+	/* We used to reject empty sender names, until it was brought to our
+	 * attention that RFC1123 5.2.9 requires that this be allowed.
 	if (strlen(SMTP->from) == 0) {
 		cprintf("501 5.1.7 Empty sender name is not permitted\r\n");
 		return;
 	}
+	 */
 
 	/* If this SMTP connection is from a logged-in user, force the 'from'
 	 * to be the user's Internet e-mail address as Citadel knows it.

@@ -64,7 +64,13 @@ int get_hosts(char *mxbuf, char *rectype) {
  * number listed in the MX record.  If they're identical, randomize the
  * result.
  */
-inline int mx_compare_pref(int pref1, int pref2) {
+int mx_compare_pref(const void *mx1, const void *mx2) {
+	int pref1;
+	int pref2;
+
+	pref1 = ((const struct mx *)mx1)->pref;
+	pref2 = ((const struct mx *)mx2)->pref;
+
 	if (pref1 > pref2) {
 		return(1);
 	}
@@ -75,33 +81,6 @@ inline int mx_compare_pref(int pref1, int pref2) {
 		return(rand() % 2);
 	}
 }
-
-
-/*
- * sort_mxrecs()
- *
- * Sort a pile of MX records (struct mx, definted in domain.h) by preference
- *
- */
-void sort_mxrecs(struct mx *mxrecs, int num_mxrecs) {
-	int a, b;
-	struct mx hold1, hold2;
-
-	if (num_mxrecs < 2) return;
-
-	/* do the sort */
-	for (a = num_mxrecs - 2; a >= 0; --a) {
-		for (b = 0; b <= a; ++b) {
-			if (mx_compare_pref(mxrecs[b].pref,mxrecs[b+1].pref)) {
-				memcpy(&hold1, &mxrecs[b], sizeof(struct mx));
-				memcpy(&hold2, &mxrecs[b+1], sizeof(struct mx));
-				memcpy(&mxrecs[b], &hold2, sizeof(struct mx));
-				memcpy(&mxrecs[b+1], &hold1, sizeof(struct mx));
-			}
-		}
-	}
-}
-
 
 
 /* 
@@ -237,7 +216,10 @@ int getmx(char *mxbuf, char *dest) {
 	}
 #endif /* HAVE_RESOLV_H */
 
-	sort_mxrecs(mxrecs, num_mxrecs);
+	/* Sort the MX records by preference */
+	if (num_mxrecs > 1) {
+		qsort(mxrecs, num_mxrecs, sizeof(struct mx), mx_compare_pref);
+	}
 
 	strcpy(mxbuf, "");
 	for (n=0; n<num_mxrecs; ++n) {
