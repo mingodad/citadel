@@ -251,7 +251,7 @@ int		rc;
 			if( rc<0 ) {
 				DPF(( DFA, "data_buf szlen %d", strlen(data_buf) + strlen(buf) +1));
 				if( strlen(buf) ) {
-					realloc(data_buf, strlen(data_buf)+strlen(buf)+1);
+					data_buf = realloc(data_buf, strlen(data_buf)+strlen(buf)+1);
 					strcat(data_buf, buf);
 				}
 			}

@@ -67,7 +67,9 @@ int		hndl;
 			fl = CxLlFlush(fl);
 
 			CxMiExpSend(hndl, "detsaoT","Hello, World.  This is a long diatribe\n on the evils of something\nof which the world may never know.");
+
 			CxMiExpSend(hndl, "detsaoT","How are you?  I am fine.  If you see the optional potential of the explicit implicity of the file, you'll know what I mean.");
+
 			CxMiExpSend(hndl, "detsaoT","Blah blah blah.");
 
 

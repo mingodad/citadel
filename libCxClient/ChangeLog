@@ -1,4 +1,14 @@
 $Log$
+Revision 1.17  2001/09/14 19:56:08  brian
+* Fixed handling of ASYN messages, I think.
+  - If no callback has been registered for a particular command, the _CxClRecv()
+  command will actively skip all of the ASYN message (not sure if this works
+  correctly for _all_ messages... will wait and see)
+* Fixed delivery of express messages.  Misunderstood protocol.
+! Need to detect server capabilities and use old-style SEXP when necessary!  At
+  present, libCxClient is incompatible with older servers.  This, I assume, is a
+  bad thing.
+
 Revision 1.16  2001/09/10 22:40:39  brian
 * MAJOR BUG: Memory leaks and protocol misimplementations in misc.c (related
 to Express Messaging).  UGH!
@@ -71,3 +81,4 @@ Revision 1.3  2001/02/07 22:42:24  brian
 
 Revision 1.2  2001/02/07 22:41:51  brian
 * Updated ChangeLog to conform to Citadel/UX standards (kinda)  :)
+

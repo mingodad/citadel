@@ -594,7 +594,7 @@ char		*ss;
 	 **/
 	if(!sock) return;
 
-	DPF((DFA,"REALSEND: \"%s\"", s));
+	DPF((DFA,"PROT --> \"%s\"", s));
 
 	ss = (char *)CxMalloc(strlen(s)+2);
 	sprintf(ss,"%s\n",s);
@@ -679,14 +679,15 @@ static
 int		_CxClRecv( int sock, int *semaphore, char *s, int cxid ) {
 char		substr[4];
 int		i, tmp;
+char		*tmpstr;
 
 	/**
 	 ** If the socket is not open, there's no point in going here.
 	 **/
-	DPF((DFA,"Receive on %d", sock));
+	DPF((DFA,"RECV on %d", sock));
 	if(!sock) {
 		DPF((DFA,"No socket."));
-		return(0);
+		return( 0 );
 	}
 
 	/**
@@ -720,7 +721,7 @@ RETRY_RECV:
 	 **/
 	s[i] = 0;
 
-	DPF((DFA,"I got \"%s\"",s));
+	DPF((DFA,"PROT <-- \"%s\"", s));
 
 	strncpy(substr,s,4);
 
@@ -741,11 +742,8 @@ RETRY_RECV:
 		 ** This removes the result code & other data from the
 		 ** returned string.  This is _really_ going to mess with
 		 ** lots of code.  Ugh.
-		 **/
-		DPF((DFA," s: \"%s\"", s));
-
-		/**
-		 ** Shift the entire string left 4 places.
+		 **
+		 ** (Shift the entire string left 4 places.)
 		 **/
 		for(tmp = 0; tmp < strlen(s); tmp++) {
 			if(tmp+4 < strlen(s)) s[tmp] = s[tmp+4];
@@ -790,18 +788,59 @@ RETRY_RECV:
 					/**
 					 ** ... Callback has failed.  We need to
 					 ** proactively ignore this message now.
+					 ** NOTE: WE MAY NEED TO ROLL THE SOCKET
+					 ** FORWARD TO SKIP ALL OUT-OF-BAND
+					 ** MESSAGES!
 					 **/
 
-					/** INCOMPLETE **/
+					DPF((DFA,"PROT: ROLL: Rolling socket forward (CALLBACK FAILURE)"));
+					tmpstr = (char *)CxMalloc( 255 );
+					bzero( tmpstr, 254 );
+					i = _CxClRecv( sock, semaphore, tmpstr, cxid );
+					do {
+
+						i = _CxClRecv( sock, semaphore, tmpstr, cxid );
+						DPF(( DFA,"PROT: ROLL: i: %d", i ));
+
+					} while( i<0 );
+					free( tmpstr );
+					DPF((DFA,"PROT: ROLL: Cleared OOB data."));
+
 					goto RETRY_RECV;
 
+				/**
+				 ** Previously, I returned 000 upon receiving an
+				 ** ASYN message.  This was the incorrect behaviour,
+				 ** as the expected RECV operation has _not_ been
+				 ** completed!  At this point, our Callback should've
+				 ** executed appropriately, and we can resume reading
+				 ** from the Socket as previously planned.
+				 **/
 				} else {
-					return( 000 );
+
+				
+					goto RETRY_RECV;
 				}
 
+			/**
+			 ** If there are no callback handles, we need to ignore
+			 ** what we just saw.  NOTE: WE MAY NEED TO ROLL THE
+			 ** SOCKET FORWARD TO SKIP ALL OUT-OF-BAND MESSAGES!
+			 **/
 			} else {
 
-					/** INCOMPLETE **/
+					DPF((DFA,"PROT: ROLL: Rolling socket forward (NO CALLBACK)"));
+					tmpstr = (char *)CxMalloc( 255 );
+					bzero( tmpstr, 254 );
+					i = _CxClRecv( sock, semaphore, tmpstr, cxid );
+					do {
+
+						i = _CxClRecv( sock, semaphore, tmpstr, cxid );
+						DPF(( DFA,"PROT: ROLL: i: %d", i ));
+
+					} while( i<0 );
+					free( tmpstr );
+					DPF((DFA,"PROT: ROLL: Cleared OOB data."));
 					goto RETRY_RECV;
 
 			}
