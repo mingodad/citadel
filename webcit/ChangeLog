@@ -1,4 +1,10 @@
 $Log$
+Revision 528.15  2005/01/20 21:24:27  ajc
+* When viewing a calendar room, the "Read all messages" link in the
+  room banner has been replaced by "Day view" and "Month view" links.
+  (I have also imported icons for week and year views, in case we add
+  these later.)
+
 Revision 528.14  2005/01/20 16:13:56  ajc
 * Added in a bunch of stupid JavaScript to allow the instant message
   window to be dismissed.
@@ -2203,3 +2209,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
