@@ -152,7 +152,7 @@ void entregis(void)
 		ok = 1;
 		strcpy(holdemail, tmpemail);
 		strprompt("Email address", tmpemail, 31);
-		sprintf(buf, "QDIR %s", tmpemail);
+		snprintf(buf, sizeof buf, "QDIR %s", tmpemail);
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0]=='2') {
@@ -221,7 +221,7 @@ void updatelsa(void)
 {
 	char buf[SIZ];
 
-	sprintf(buf, "SLRP %ld", highest_msg_read);
+	snprintf(buf, sizeof buf, "SLRP %ld", highest_msg_read);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '2')
@@ -249,7 +249,7 @@ void do_upload(int fd)
 	do {
 		bytes_to_send = read(fd, tbuf, 4096);
 		if (bytes_to_send > 0) {
-			sprintf(buf, "WRIT %d", bytes_to_send);
+			snprintf(buf, sizeof buf, "WRIT %d", bytes_to_send);
 			serv_puts(buf);
 			serv_gets(buf);
 			if (buf[0] == '7') {
@@ -304,9 +304,11 @@ void cli_upload(void)
 		strcpy(buf, flnm);
 		while ((strlen(buf) > 0) && (haschar(buf, '/')))
 			strcpy(buf, &buf[1]);
-		if (a > 0)
-			sprintf(&buf[strlen(buf)], "%d", a);
-		sprintf(tbuf, "UOPN %s|%s", buf, desc);
+		if (a > 0) {
+			size_t tmp = strlen(buf);
+			snprintf(&buf[tmp], sizeof buf - tmp, "%d", a);
+		}
+		snprintf(tbuf, sizeof tbuf, "UOPN %s|%s", buf, desc);
 		serv_puts(tbuf);
 		serv_gets(buf);
 		if (buf[0] != '2')
@@ -328,7 +330,7 @@ void cli_image_upload(char *keyname)
 	char buf[SIZ];
 	int fd;
 
-	sprintf(buf, "UIMG 0|%s", keyname);
+	snprintf(buf, sizeof buf, "UIMG 0|%s", keyname);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '2') {
@@ -341,7 +343,7 @@ void cli_image_upload(char *keyname)
 		scr_printf("Cannot open '%s': %s\n", flnm, strerror(errno));
 		return;
 	}
-	sprintf(buf, "UIMG 1|%s", keyname);
+	snprintf(buf, sizeof buf, "UIMG 1|%s", keyname);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '2') {
@@ -440,20 +442,23 @@ void upload(int c)
 		return;
 	}
 	scr_printf("\r*** Transfer successful.  Sending file(s) to server...\n");
-	sprintf(buf, "cd %s; ls", tempdir);
+	snprintf(buf, sizeof buf, "cd %s; ls", tempdir);
 	lsfp = popen(buf, "r");
 	if (lsfp != NULL) {
 		while (fgets(flnm, sizeof flnm, lsfp) != NULL) {
 			flnm[strlen(flnm) - 1] = 0;
-			sprintf(buf, "%s/%s", tempdir, flnm);
+			snprintf(buf, sizeof buf, "%s/%s", tempdir, flnm);
 			fd = open(buf, O_RDONLY);
 			if (fd >= 0) {
 				a = 0;
 				do {
-					sprintf(buf, "UOPN %s|%s", flnm, desc);
-					if (a > 0)
-						sprintf(&buf[strlen(buf)],
+					snprintf(buf, sizeof buf, "UOPN %s|%s", flnm, desc);
+					if (a > 0) {
+						size_t tmp = strlen(buf);
+						snprintf(&buf[tmp],
+							sizeof buf - tmp,
 							".%d", a);
+					}
 					++a;
 					serv_puts(buf);
 					serv_gets(buf);
@@ -462,7 +467,7 @@ void upload(int c)
 					do {
 						a = read(fd, tbuf, 4096);
 						if (a > 0) {
-							sprintf(buf, "WRIT %d", a);
+							snprintf(buf, sizeof buf, "WRIT %d", a);
 							serv_puts(buf);
 							serv_gets(buf);
 							if (buf[0] == '7')
@@ -490,7 +495,7 @@ void val_user(char *user, int do_validate)
 	char buf[SIZ];
 	int ax = 0;
 
-	sprintf(cmd, "GREG %s", user);
+	snprintf(cmd, sizeof cmd, "GREG %s", user);
 	serv_puts(cmd);
 	serv_gets(cmd);
 	if (cmd[0] == '1') {
@@ -529,7 +534,7 @@ void val_user(char *user, int do_validate)
 	if (do_validate) {
 		/* now set the access level */
 		ax = intprompt("Access level", ax, 0, 6);
-		sprintf(cmd, "VALI %s|%d", user, ax);
+		snprintf(cmd, sizeof cmd, "VALI %s|%d", user, ax);
 		serv_puts(cmd);
 		serv_gets(cmd);
 		if (cmd[0] != '2')
@@ -590,7 +595,7 @@ void deletefile(void)
 	newprompt("Filename: ", filename, 31);
 	if (strlen(filename) == 0)
 		return;
-	sprintf(cmd, "DELF %s", filename);
+	snprintf(cmd, sizeof cmd, "DELF %s", filename);
 	serv_puts(cmd);
 	serv_gets(cmd);
 	err_printf("%s\n", &cmd[4]);
@@ -607,7 +612,7 @@ void netsendfile(void)
 	if (strlen(filename) == 0)
 		return;
 	newprompt("System to send to: ", destsys, 19);
-	sprintf(cmd, "NETF %s|%s", filename, destsys);
+	snprintf(cmd, sizeof cmd, "NETF %s|%s", filename, destsys);
 	serv_puts(cmd);
 	serv_gets(cmd);
 	err_printf("%s\n", &cmd[4]);
@@ -628,7 +633,7 @@ void movefile(void)
 		return;
 	newprompt("Enter target room: ", newroom, ROOMNAMELEN - 1);
 
-	sprintf(cmd, "MOVF %s|%s", filename, newroom);
+	snprintf(cmd, sizeof cmd, "MOVF %s|%s", filename, newroom);
 	serv_puts(cmd);
 	serv_gets(cmd);
 	err_printf("%s\n", &cmd[4]);
@@ -675,7 +680,7 @@ void read_bio(void)
 		if (!strcmp(who, "?"))
 			list_bio();
 	} while (!strcmp(who, "?"));
-	sprintf(buf, "RBIO %s", who);
+	snprintf(buf, sizeof buf, "RBIO %s", who);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '1') {
@@ -742,27 +747,27 @@ void do_system_configuration(void)
 
 	/* Security parameters */
 
-	sprintf(&sc[7][0], "%d", (boolprompt(
+	snprintf(sc[7], sizeof sc[7], "%d", (boolprompt(
 				    "Require registration for new users",
 						    atoi(&sc[7][0]))));
-	sprintf(&sc[29][0], "%d", (boolprompt(
+	snprintf(sc[29], sizeof sc[29], "%d", (boolprompt(
 	      "Disable self-service user account creation",
 						     atoi(&sc[29][0]))));
 	strprompt("Initial access level for new users", &sc[6][0], 1);
 	strprompt("Access level required to create rooms", &sc[19][0], 1);
-	sprintf(&sc[4][0], "%d", (boolprompt(
+	snprintf(sc[4], sizeof sc[4], "%d", (boolprompt(
 						    "Automatically give room aide privs to a user who creates a private room",
 						    atoi(&sc[4][0]))));
 
-	sprintf(&sc[8][0], "%d", (boolprompt(
+	snprintf(sc[8], sizeof sc[8], "%d", (boolprompt(
 		 "Automatically move problem user messages to twit room",
 						    atoi(&sc[8][0]))));
 
 	strprompt("Name of twit room", &sc[9][0], ROOMNAMELEN);
-	sprintf(&sc[11][0], "%d", (boolprompt(
+	snprintf(sc[11], sizeof sc[11], "%d", (boolprompt(
 	      "Restrict Internet mail to only those with that privilege",
 						     atoi(&sc[11][0]))));
-	sprintf(&sc[26][0], "%d", (boolprompt(
+	snprintf(sc[26], sizeof sc[26], "%d", (boolprompt(
 	      "Allow Aides to Zap (forget) rooms",
 						     atoi(&sc[26][0]))));
 
@@ -800,7 +805,7 @@ void do_system_configuration(void)
 
 	/* Angels and demons dancing in my head... */
 	do {
-		sprintf(buf, "%d", expire_mode);
+		snprintf(buf, sizeof buf, "%d", expire_mode);
 		strprompt("System default message expire policy (? for list)",
 			  buf, 1);
 		if (buf[0] == '?') {
@@ -814,12 +819,12 @@ void do_system_configuration(void)
 
 	/* ...lunatics and monsters underneath my bed */
 	if (expire_mode == 2) {
-		sprintf(buf, "%d", expire_value);
+		snprintf(buf, sizeof buf, "%d", expire_value);
 		strprompt("Keep how many messages online?", buf, 10);
 		expire_value = atol(buf);
 	}
 	if (expire_mode == 3) {
-		sprintf(buf, "%d", expire_value);
+		snprintf(buf, sizeof buf, "%d", expire_value);
 		strprompt("Keep messages for how many days?", buf, 10);
 		expire_value = atol(buf);
 	}
@@ -878,7 +883,7 @@ void do_internet_configuration(void) {
 	int quitting = 0;
 	
 
-	sprintf(buf, "CONF getsys|%s", INTERNETCFG);
+	snprintf(buf, sizeof buf, "CONF getsys|%s", INTERNETCFG);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
@@ -930,7 +935,7 @@ void do_internet_configuration(void) {
 					recs[j] = recs[j+1];
 				break;
 			case 's':
-				sprintf(buf, "CONF putsys|%s",
+				snprintf(buf, sizeof buf, "CONF putsys|%s",
 					INTERNETCFG);
 				serv_puts(buf);
 				serv_gets(buf);
@@ -1097,7 +1102,7 @@ void do_ignet_configuration(void) {
 	int quitting = 0;
 	
 
-	sprintf(buf, "CONF getsys|%s", IGNETCFG);
+	snprintf(buf, sizeof buf, "CONF getsys|%s", IGNETCFG);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
@@ -1169,7 +1174,7 @@ void do_ignet_configuration(void) {
 					recs[j] = recs[j+1];
 				break;
 			case 's':
-				sprintf(buf, "CONF putsys|%s", IGNETCFG);
+				snprintf(buf, sizeof buf, "CONF putsys|%s", IGNETCFG);
 				serv_puts(buf);
 				serv_gets(buf);
 				if (buf[0] == '4') {
@@ -1211,7 +1216,7 @@ void do_filterlist_configuration(void) {
 	int quitting = 0;
 	
 
-	sprintf(buf, "CONF getsys|%s", FILTERLIST);
+	snprintf(buf, sizeof buf, "CONF getsys|%s", FILTERLIST);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
@@ -1279,7 +1284,7 @@ void do_filterlist_configuration(void) {
 					recs[j] = recs[j+1];
 				break;
 			case 's':
-				sprintf(buf, "CONF putsys|%s", FILTERLIST);
+				snprintf(buf, sizeof buf, "CONF putsys|%s", FILTERLIST);
 				serv_puts(buf);
 				serv_gets(buf);
 				if (buf[0] == '4') {

@@ -264,12 +264,12 @@ void knrooms(int kn_floor_mode)
 		color(BRIGHT_CYAN);
 		pprintf("\n   Rooms with unread messages on %s:\n",
 			floorlist[(int) curr_floor]);
-		sprintf(buf, "LKRN %d", curr_floor);
+		snprintf(buf, sizeof buf, "LKRN %d", curr_floor);
 		listrms(buf);
 		color(BRIGHT_CYAN);
 		pprintf("\n\n   Rooms with no new messages on %s:\n",
 			floorlist[(int) curr_floor]);
-		sprintf(buf, "LKRO %d", curr_floor);
+		snprintf(buf, sizeof buf, "LKRO %d", curr_floor);
 		listrms(buf);
 		color(BRIGHT_CYAN);
 		pprintf("\n\n   Other floors:\n");
@@ -283,7 +283,7 @@ void knrooms(int kn_floor_mode)
 				color(BRIGHT_CYAN);
 				pprintf("\n   Rooms on %s:\n",
 					floorlist[a]);
-				sprintf(buf, "LKRA %d", a);
+				snprintf(buf, sizeof buf, "LKRA %d", a);
 				listrms(buf);
 				pprintf("\n");
 			}
@@ -515,7 +515,7 @@ void editthisroom(void)
 
 	/* Angels and demons dancing in my head... */
 	do {
-		sprintf(buf, "%d", expire_mode);
+		snprintf(buf, sizeof buf, "%d", expire_mode);
 		strprompt("Message expire policy (? for list)", buf, 1);
 		if (buf[0] == '?') {
 			scr_printf("\n"
@@ -529,13 +529,13 @@ void editthisroom(void)
 
 	/* ...lunatics and monsters underneath my bed */
 	if (expire_mode == 2) {
-		sprintf(buf, "%d", expire_value);
+		snprintf(buf, sizeof buf, "%d", expire_value);
 		strprompt("Keep how many messages online?", buf, 10);
 		expire_value = atol(buf);
 	}
 
 	if (expire_mode == 3) {
-		sprintf(buf, "%d", expire_value);
+		snprintf(buf, sizeof buf, "%d", expire_value);
 		strprompt("Keep messages for how many days?", buf, 10);
 		expire_value = atol(buf);
 	}
@@ -583,7 +583,7 @@ void ungoto(void)
 		scr_printf("%s\n", &buf[4]);
 		return;
 	}
-	sprintf(buf, "SLRP %ld", uglistlsn[uglistsize-1]); 
+	snprintf(buf, sizeof buf, "SLRP %ld", uglistlsn[uglistsize-1]); 
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '2') {
@@ -640,7 +640,7 @@ void download_to_local_disk(char *supplied_filename, long total_bytes)
 	while ((transmitted_bytes < total_bytes) && (broken == 0)) {
 		bb = total_bytes - transmitted_bytes;
 		aa = ((bb < 4096) ? bb : 4096);
-		sprintf(buf, "READ %ld|%ld", transmitted_bytes, aa);
+		snprintf(buf, sizeof buf, "READ %ld|%ld", transmitted_bytes, aa);
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] != '6') {
@@ -715,7 +715,7 @@ void download(int proto)
 		progress(transmitted_bytes, total_bytes);
 		bb = total_bytes - transmitted_bytes;
 		aa = ((bb < 4096) ? bb : 4096);
-		sprintf(buf, "READ %ld|%ld", transmitted_bytes, aa);
+		snprintf(buf, sizeof buf, "READ %ld|%ld", transmitted_bytes, aa);
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] != '6') {
@@ -739,18 +739,18 @@ void download(int proto)
 	}
 
 	if (proto == 0) {
-		sprintf(transmit_cmd,
+		snprintf(transmit_cmd, sizeof transmit_cmd,
 			"SHELL=/dev/null; export SHELL; TERM=dumb; export TERM; exec more -d <%s",
 			tempname);
 	}
 	else if (proto == 1)
-		sprintf(transmit_cmd, "exec sx %s", tempname);
+		snprintf(transmit_cmd, sizeof transmit_cmd, "exec sx %s", tempname);
 	else if (proto == 3)
-		sprintf(transmit_cmd, "exec sb %s", tempname);
+		snprintf(transmit_cmd, sizeof transmit_cmd, "exec sb %s", tempname);
 	else if (proto == 4)
-		sprintf(transmit_cmd, "exec sz %s", tempname);
+		snprintf(transmit_cmd, sizeof transmit_cmd, "exec sz %s", tempname);
 	else
-		sprintf(transmit_cmd, "exec cat %s", tempname);
+		snprintf(transmit_cmd, sizeof transmit_cmd, "exec cat %s", tempname);
 
 	screen_reset();
 	sttybbs(SB_RESTORE);
@@ -987,7 +987,7 @@ void readinfo(void)
 {				/* read info file for current room */
 	char cmd[SIZ];
 
-	sprintf(cmd, "RINF");
+	snprintf(cmd, sizeof cmd, "RINF");
 	serv_puts(cmd);
 	serv_gets(cmd);
 
@@ -1179,7 +1179,7 @@ void edit_floor(void)
 
 	/* Angels and demons dancing in my head... */
 	do {
-		sprintf(buf, "%d", expire_mode);
+		snprintf(buf, sizeof buf, "%d", expire_mode);
 		strprompt
 		    ("Floor default essage expire policy (? for list)",
 		     buf, 1);
@@ -1195,13 +1195,13 @@ void edit_floor(void)
 
 	/* ...lunatics and monsters underneath my bed */
 	if (expire_mode == 2) {
-		sprintf(buf, "%d", expire_value);
+		snprintf(buf, sizeof buf, "%d", expire_value);
 		strprompt("Keep how many messages online?", buf, 10);
 		expire_value = atol(buf);
 	}
 
 	if (expire_mode == 3) {
-		sprintf(buf, "%d", expire_value);
+		snprintf(buf, sizeof buf, "%d", expire_value);
 		strprompt("Keep messages for how many days?", buf, 10);
 		expire_value = atol(buf);
 	}
@@ -1248,7 +1248,7 @@ void kill_floor(void)
 					scr_printf("%s\n", &floorlist[a][0]);
 		}
 	} while (floornum_to_delete < 0);
-	sprintf(buf, "KFLR %d|1", floornum_to_delete);
+	snprintf(buf, sizeof buf, "KFLR %d|1", floornum_to_delete);
 	serv_puts(buf);
 	serv_gets(buf);
 	scr_printf("%s\n", &buf[4]);
