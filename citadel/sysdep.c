@@ -33,7 +33,6 @@
 #include "server.h"
 #include "sysdep_decls.h"
 #include "citserver.h"
-#include "hooks.h"
 #include "support.h"
 #include "config.h"
 #include "database.h"

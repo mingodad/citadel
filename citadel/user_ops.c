@@ -20,7 +20,6 @@
 #include "user_ops.h"
 #include "sysdep_decls.h"
 #include "support.h"
-#include "hooks.h"
 #include "room_ops.h"
 #include "logging.h"
 #include "file_ops.h"

@@ -5,6 +5,8 @@ Wed Sep 16 22:25:13 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 1998-09-16 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* ipc_c_tcp.c: Fixed up some #include/prototyping stuff, call memcpy()
 	  instead of bcopy()
+	* hooks.h: removed
+	* sysdep.c, user_ops.c: removed reference to hooks.h
 
 Wed Sep 16 11:42:42 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* ipc_c_tcp.c: Reversed any changes that have been made to this file,
