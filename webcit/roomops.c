@@ -35,12 +35,12 @@ struct folder {
 };
 
 char *viewdefs[] = {
-	"Messages",
-	"Summary",
+	"Bulletin Board",
+	"Mailbox Summary",
 	"Address Book",
 	"Calendar",
-	"Tasks",
-	"Notes"
+	"Task List",
+	"Notes List"
 };
 
 char floorlist[128][SIZ];
@@ -300,7 +300,9 @@ void embed_view_o_matic(void) {
 	int i;
 
 	wprintf("<FORM NAME=\"viewomatic\">\n"
+		"<span class=\"room_banner_new_messages\">View as: "
 		"<SELECT NAME=\"newview\" SIZE=\"1\" "
+		"STYLE=\"font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif; font-size: 7pt; background: #444455; color: #ddddcc;\" "
 		"OnChange=\"location.href=viewomatic.newview.options"
 		"[selectedIndex].value\">\n");
 
@@ -324,7 +326,7 @@ void embed_view_o_matic(void) {
 			wprintf("</OPTION>\n");
 		}
 	}
-	wprintf("</SELECT></FORM>\n");
+	wprintf("</select></span></form>\n");
 }
 
 
