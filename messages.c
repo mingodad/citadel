@@ -1574,10 +1574,12 @@ void display_enter(void)
 	}
 	strcat(&buf[strlen(buf)], " <I>in</I> ");
 	stresc(&buf[strlen(buf)], WC->wc_roomname, 1, 1);
-	svprintf("BOXTITLE", WCS_STRING, buf);
-	do_template("beginbox");
+
+	/* begin message entry screen */
+	wprintf("<div style=\"position:absolute; left:1%%; width:98%%; height:100%%\">\n");
 
 	wprintf("<CENTER>\n");
+	wprintf("%s<BR>\n", buf);	/* header bar */
 
 	wprintf("<FORM ENCTYPE=\"multipart/form-data\" "
 		"METHOD=\"POST\" ACTION=\"/post\" "
@@ -1633,6 +1635,9 @@ void display_enter(void)
 	wprintf("</TEXTAREA><br />\n");
  */
 
+	/* Here comes the "do attachments" section on the bottom */
+	wprintf("<div style=\"position:absolute; bottom:0px; left:0px\">\n");
+
 	/* Enumerate any attachments which are already in place... */
 	for (att = WC->first_attachment; att != NULL; att = att->next) {
 		wprintf("<IMG SRC=\"/static/attachment.gif\" "
@@ -1648,8 +1653,10 @@ void display_enter(void)
 		"SIZE=48 TYPE=\"file\">\n&nbsp;&nbsp;"
 		"<input type=\"submit\" name=\"attach\" value=\"Add\">\n");
 
+	wprintf("</div>\n");	/* end attachments section */
+
 	wprintf("</FORM></CENTER>\n");
-	do_template("endbox");
+	wprintf("</div>\n");
 DONE:	wDumpContent(1);
 }
 
