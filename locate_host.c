@@ -51,5 +51,4 @@ void locate_host(char *tbuf, int client_socket)
 		return;
 	}
 	safestrncpy(tbuf, ch->h_name, 64);
-	tbuf[63] = 0;
 }

@@ -57,7 +57,7 @@ int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp)
 	if ((size = vsprintf(p, fmt, argp)) >= max)
 		size = -1;
 
-	safestrncpy(buf, p, max);
+	strncpy(buf, p, max);
 	buf[max - 1] = 0;
 	free(p);
 	return size;
