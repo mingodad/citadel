@@ -202,7 +202,7 @@ void pop3_apop(char *argbuf)
    
    if ((sptr = strchr(argbuf, ' ')) == NULL)
    {
-   	cprintf("Invalid APOP line.\r\n");
+   	cprintf("-ERR Invalid APOP line.\r\n");
    	return;
    }
    
@@ -232,6 +232,7 @@ void pop3_apop(char *argbuf)
    make_apop_string(CC->usersupp.password, CC->cs_nonce, realdigest);
    if (!strncasecmp(realdigest, userdigest, MD5_HEXSTRING_SIZE-1))
    {
+	do_login();
    	pop3_login();
    }
    else
@@ -598,7 +599,7 @@ void pop3_command_loop(void) {
 	}
 
 	else {
-		cprintf("500 I'm afraid I can't do that.\r\n");
+		cprintf("-ERR I'm afraid I can't do that.\r\n");
 	}
 
 }

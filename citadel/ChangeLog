@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.119  2001/03/25 11:52:36  error
+ * serv_pop3.c: Fixed APOP. Now logs in properly. Also cleaned up some non-
+   RFC-compliant error messages.
+
  Revision 573.118  2001/03/21 05:47:49  ajc
  * Added the new IMAP mailbox string compare submitted by Daniel Malament.
 
@@ -2469,4 +2473,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
