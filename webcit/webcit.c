@@ -536,7 +536,8 @@ void output_static(char *what)
 
 		fstat(fileno(fp), &statbuf);
 		bytes = statbuf.st_size;
-		lprintf(3, "Static: %s, (%s; %ld bytes)\n", what, content_type, bytes);
+		/* lprintf(3, "Static: %s, (%s; %ld bytes)\n",
+			what, content_type, bytes); */
 		bigbuffer = malloc(bytes + 2);
 		fread(bigbuffer, bytes, 1, fp);
 		fclose(fp);

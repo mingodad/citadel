@@ -134,11 +134,12 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	strcpy(dav_uid, "");
 	while (serv_gets(buf), strcmp(buf, "000")) {
 		switch(n++) {
-			case 0:
-				new_msgnum = atol(buf);
+			case 0: new_msgnum = atol(buf);
 				break;
-			case 2:
-				strcpy(dav_uid, buf);
+			case 1:	lprintf(9, "new_msgnum=%ld (%s)\n", new_msgnum, buf);
+				break;
+			case 2: strcpy(dav_uid, buf);
+				break;
 			default:
 				break;
 		}
