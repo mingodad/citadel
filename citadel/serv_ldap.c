@@ -96,16 +96,18 @@ void CtdlConnectToLdap(void) {
 
 
 
-
 /*
  * Write (add, or change if already exists) a directory entry to the
  * LDAP server, based on the information supplied in a vCard.
  */
 void ctdl_vcard_to_ldap(struct CtdlMessage *msg) {
 	struct vCard *v = NULL;
-
+	int i, j;
 	char this_dn[SIZ];
+	LDAPMod **attrs = NULL;
+	int num_attrs = 0;
 
+	if (dirserver == NULL) return;
 	if (msg == NULL) return;
 	if (msg->cm_fields['M'] == NULL) return;
 	if (msg->cm_fields['A'] == NULL) return;
@@ -117,11 +119,68 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg) {
 		config.c_ldap_base_dn
 	);
 
+	/* The first LDAP attribute will be an 'objectclass' list.  Citadel
+	 * doesn't do anything with this.  It's just there for compatibility
+	 * with Kolab.
+	 */
+	num_attrs = 1;
+	attrs = mallok( (sizeof(LDAPMod *) * num_attrs) );
+	attrs[0] = mallok(sizeof(LDAPMod));
+	memset(attrs[0], 0, sizeof(LDAPMod));
+	attrs[0]->mod_op	= LDAP_MOD_ADD;
+	attrs[0]->mod_type	= "objectclass";
+	attrs[0]->mod_values	= mallok(5 * sizeof(char *));
+	attrs[0]->mod_values[0]	= strdoop("inetOrgPerson");
+	attrs[0]->mod_values[1]	= strdoop("organizationalPerson");
+	attrs[0]->mod_values[2]	= strdoop("person");
+	attrs[0]->mod_values[3]	= strdoop("Top");
+	attrs[0]->mod_values[4]	= NULL;
+	
+	/* Convert the vCard fields to LDAP properties */
+	v = vcard_load(msg->cm_fields['M']);
+	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
+/*
+		v->prop[i].name
+		v->prop[i].value
+ */
+	}
+	vcard_free(v);	/* Don't need this anymore. */
+
+	/* The last attribute must be a NULL one. */
+	attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+	attrs[num_attrs - 1] = NULL;
+	
 	lprintf(9, "this_dn: <%s>\n", this_dn);
 
-	v = vcard_load(msg->cm_fields['M']);
+	begin_critical_section(S_LDAP);
+	i = ldap_add_s(dirserver, this_dn, attrs);
+	end_critical_section(S_LDAP);
+	if (i != LDAP_SUCCESS) {
+		lprintf(3, "ldap_add_s() failed: %s (%d)\n",
+			ldap_err2string(i), i);
+	}
 
-	vcard_free(v);
+	/* Free the attributes */
+	for (i=0; i<num_attrs; ++i) {
+		if (attrs[i] != NULL) {
+
+			/* First, free the value strings */
+			if (attrs[i]->mod_values != NULL) {
+				for (j=0; attrs[i]->mod_values[j] != NULL; ++j) {
+					phree(attrs[i]->mod_values[j]);
+				}
+			}
+
+			/* Free the value strings pointer list */	
+			if (attrs[i]->mod_values != NULL) {
+				phree(attrs[i]->mod_values);
+			}
+
+			/* Now free the LDAPMod struct itself. */
+			phree(attrs[i]);
+		}
+	}
+	phree(attrs);
 }
 
 

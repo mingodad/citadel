@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.7  2004/01/19 04:44:11  ajc
+ * Further work on creating LDAP entries.
+
  Revision 614.6  2004/01/18 21:04:40  ajc
  * Reworked vCard etc. functions for addition of new vCard data to LDAP
 
@@ -5233,4 +5236,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
