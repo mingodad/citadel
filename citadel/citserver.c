@@ -75,6 +75,7 @@ void master_cleanup(void) {
 
 	/* Now go away. */
 	lprintf(3, "citserver: exiting.\n");
+	fflush(stdout); fflush(stderr);
 	exit(0);
 	}
 
@@ -171,8 +172,8 @@ void cmd_rchg(char *newroomname)
       strncpy(CC->fake_roomname, newroomname, ROOMNAMELEN-1);
    }
    else
-      CC->fake_roomname[0] = '\0';
-   cprintf("%d\n",OK);
+      strcpy(CC->fake_roomname, "");
+   cprintf("%d OK\n",OK);
 }
 
 void cmd_hchg(char *newhostname)
@@ -183,8 +184,8 @@ void cmd_hchg(char *newhostname)
       strncpy(CC->fake_hostname, newhostname, 24);
    }
    else
-      CC->fake_hostname[0] = '\0';
-   cprintf("%d\n",OK);
+      strcpy(CC->fake_hostname, "");
+   cprintf("%d OK\n",OK);
 }
 
 void cmd_uchg(char *newusername)
