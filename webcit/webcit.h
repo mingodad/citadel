@@ -218,6 +218,7 @@ struct wcsession {
 	char ImportantMessage[SIZ];
 	int outside_frameset_allowed;	/* nonzero if current req is allowed
 					 * outside of the main frameset */
+	char last_chat_user[SIZ];
 };
 
 #define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')

@@ -1,4 +1,7 @@
 $Log$
+Revision 505.16  2004/03/15 22:47:09  ajc
+* Prettied up the chat window a little more.
+
 Revision 505.15  2004/03/15 04:27:44  ajc
 * Chat now appears in a separate window
 * Use regular frames instead of IFRAMEs for chat
@@ -1724,4 +1727,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
