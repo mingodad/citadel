@@ -28,6 +28,7 @@ function bbs_page_header() {
 	link="#0000FF"
 	vlink="#990066"
 	alink="#DD0000"
+>
 
 LITERAL;
 
@@ -40,7 +41,7 @@ LITERAL;
 
 function bbs_page_footer() {
 	echo "<HR>";
-	echo "Copyright &copy; 2003 by The SCO Group.<BR>\n";
+	echo "Powered by Citadel.  And a few cups of coffee.<BR>\n";
 	echo "</BODY></HTML>\n";
 }
 

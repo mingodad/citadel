@@ -85,7 +85,7 @@ function ctdl_end_session() {
 
 	// Now clear our PHP session.
 	unset($session); 
-	session_destroy();
+	session_write_close();
 }
 
 ?>

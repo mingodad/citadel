@@ -78,6 +78,9 @@ if ($ret < 0) {
 	exit(4);
 }
 
+// Set the permissions so someone else doesn't jump into our connection.
+chmod($sockname, 0600);
+
 // We need to get a connection to the Citadel server going now.
 
 $ctdlsock = fsockopen("uncensored.citadel.org", 504, $errno, $errstr, 30);

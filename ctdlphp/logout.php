@@ -3,18 +3,10 @@
 
 	bbs_page_header();
 
-	echo <<<LITERAL
+	ctdl_mesg("goodbye");
 
-<h1>Goodbye</h1>
-
-You are being logged out.
-
-<a href="index.php">Log in again</a><BR>
-
-LITERAL;
+	echo "<a href=\"index.php\">Log in again</a><BR>\n" ;
 
 	bbs_page_footer();
 	ctdl_end_session();
-
 ?>
-
