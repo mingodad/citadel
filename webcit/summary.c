@@ -1,8 +1,5 @@
 /* $Id$ */
 
-
-
-
 #include <ctype.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -131,6 +128,41 @@ void wholist_section(void) {
 }
 
 
+/*
+ * Server info section (fluff, really)
+ */
+void server_info_section(void) {
+	char buf[SIZ];
+	int i = 0;
+
+	section_title("About this server");
+	serv_puts("INFO");
+	serv_gets(buf);
+	if (buf[0] == '1') while(serv_gets(buf), strcmp(buf, "000")) {
+		switch(i) {
+			case 2:
+				wprintf("You are connected to ");
+				escputs(buf);
+				wprintf(", ");
+				break;
+			case 4: wprintf("running ");
+				escputs(buf);
+				wprintf(", ");
+				break;
+			case 6: wprintf("and located in ");
+				escputs(buf);
+				wprintf(".<BR>\n");
+				break;
+			case 7: wprintf("Your system administrator is ");
+				escputs(buf);
+				wprintf(".\n");
+				break;
+		}
+		++i;
+	}
+}
+	
+
 
 
 /*
@@ -171,7 +203,7 @@ void summary(void) {
 	 * Column Two
 	 */
 	wprintf("</TD><TD>");
-	dummy_section();
+	server_info_section();
 
 	/*
 	 * Column Three
