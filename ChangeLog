@@ -1,4 +1,7 @@
 $Log$
+Revision 500.2  2003/06/20 03:39:27  ajc
+* Optimization to floor layout in box view
+
 Revision 500.1  2003/06/20 03:04:26  ajc
 * "Reply" button on messages now handles IGnet recipients correctly
 
@@ -1489,4 +1492,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
