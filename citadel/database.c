@@ -43,10 +43,11 @@ void defrag_databases(void) {
 	gdbm_reorganize(gdbms[CDB_MSGMAIN]);
 	end_critical_section(S_MSGMAIN);
 
-	/* defrag the user file and mailboxes */
+	/* defrag the user file, mailboxes, and user/room relationships */
 	begin_critical_section(S_USERSUPP);
 	gdbm_reorganize(gdbms[CDB_USERSUPP]);
 	gdbm_reorganize(gdbms[CDB_MAILBOXES]);
+	gdbm_reorganize(gdbms[CDB_VISIT]);
 	end_critical_section(S_USERSUPP);
 
 	/* defrag the room files and message lists */
@@ -86,6 +87,13 @@ void open_databases(void) {
 		GDBM_WRCREAT, 0600, NULL);
 	if (gdbms[CDB_USERSUPP] == NULL) {
 		lprintf(2, "Cannot open usersupp: %s\n",
+			gdbm_strerror(gdbm_errno));
+		}
+
+	gdbms[CDB_VISIT] = gdbm_open("data/visit.gdbm", 0,
+		GDBM_WRCREAT, 0600, NULL);
+	if (gdbms[CDB_VISIT] == NULL) {
+		lprintf(2, "Cannot open visit file: %s\n",
 			gdbm_strerror(gdbm_errno));
 		}
 
