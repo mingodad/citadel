@@ -274,6 +274,7 @@ void print_express(void)
 		}
 		/* fall back to built-in express message display */
 		printf("\n");
+		lines_printed++;
 
 		/* Header derived from flags */
 		if (flags & 2)
@@ -303,10 +304,8 @@ void print_express(void)
 			printf(" @%s", node);
 	
 		printf(":\n");
-	
-		while (serv_gets(buf), strcmp(buf, "000")) {
-			printf("%s", buf);
-		}
+		lines_printed++;
+		fmout(screenwidth, NULL, 1, screenheight, -1, 0);
 	}
 	printf("\n---\n");
 	color(BRIGHT_WHITE);

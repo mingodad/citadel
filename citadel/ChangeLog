@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.17  2001/12/23 10:00:43  error
+ * Pages are once again formatted to the caller's screen width.
+
  Revision 590.16  2001/12/23 09:57:47  error
  * tools.c: added parameter to fmt_date() to allow for printing the seconds
    along with the time, e.g. 12:34 pm or 12:34:56 pm
@@ -2999,4 +3002,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
