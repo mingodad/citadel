@@ -69,6 +69,8 @@ struct CitContext {
 	char fake_roomname[20];		/* Name of the fake room <bc>        */
 	char last_pager[32];		/* The username of the last pager    */
 
+	int FloorBeingSearched;		/* This is used by cmd_lrms() etc.   */
+
 	int CtdlErrno;			/* Error return for CitadelAPI calls */
 	};
 
