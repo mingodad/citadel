@@ -777,15 +777,21 @@ void create_worker(void) {
  * Purge all sessions which have the 'kill_me' flag set.
  * This function has code to prevent it from running more than once every
  * few seconds, because running it after every single unbind would waste a lot
- * of CPU time and keep the context list locked too much.
+ * of CPU time and keep the context list locked too much.  To force it to run
+ * anyway, set "force" to nonzero.
  *
- * After that's done, we raise or lower the size of the worker thread pool
+ *
+ * After that's done, we raise the size of the worker thread pool
  * if such an action is appropriate.
  */
-void dead_session_purge(void) {
+void dead_session_purge(int force) {
 	struct CitContext *ptr, *rem;
 
-	if ( (time(NULL) - last_purge) < 5 ) return;	/* Too soon, go away */
+	if (force == 0) {
+		if ( (time(NULL) - last_purge) < 5 ) {
+			return;	/* Too soon, go away */
+		}
+	}
 	time(&last_purge);
 
 	do {
@@ -909,6 +915,7 @@ void *worker_thread(void *arg) {
 	struct ServiceFunctionHook *serviceptr;
 	int ssock;			/* Descriptor for client socket */
 	struct timeval tv;
+	int force_purge = 0;
 
 	num_threads++;
 
@@ -932,6 +939,7 @@ void *worker_thread(void *arg) {
 		 * which might cause a deadlock.
 		 */
 		cdb_check_handles();
+		force_purge = 0;
 
 		begin_critical_section(S_I_WANNA_SELECT);
 SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
@@ -961,6 +969,11 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 		 * First, check for an error or exit condition.
 		 */
 		if (retval < 0) {
+			if (errno == EBADF) {
+				lprintf(CTDL_NOTICE, "select() failed: (%s)\n",
+					strerror(errno));
+				goto SETUP_FD;
+			}
 			if (errno != EINTR) {
 				lprintf(CTDL_EMERG, "Exiting (%s)\n", strerror(errno));
 				time_to_die = 1;
@@ -1074,13 +1087,14 @@ find_session:		if (next_session == NULL)
 			if (bind_me != NULL) {
 				become_session(bind_me);
 				CC->h_command_function();
+				force_purge = CC->kill_me;
 				become_session(NULL);
 				bind_me->state = CON_IDLE;
 				write(rescan[1], &junk, 1);
 			}
 
 		}
-		dead_session_purge();
+		dead_session_purge(force_purge);
 		do_housekeeping();
 		check_sched_shutdown();
 	}
