@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.52  2000/12/19 20:41:55  ajc
+ * Fixed generation of unique file names for network uploads etc.
+
  Revision 573.51  2000/12/14 18:36:34  ajc
  * Fixed the "users not in chat" wholist display
 
@@ -2225,3 +2228,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -134,6 +134,7 @@ void cmd_netf(char *cmdbuf)
 	int a,e;
 	time_t now;
 	FILE *ofp;
+	static int seq = 1;
 
 	extract(filename,cmdbuf,0);
 	extract(destsys,cmdbuf,1);
@@ -167,8 +168,9 @@ void cmd_netf(char *cmdbuf)
 			ERROR+NO_SUCH_SYSTEM,destsys);
 		return;
 		}
-	snprintf(outfile,sizeof outfile,"%s/network/spoolin/nsf.%d",BBSDIR,
-		 getpid());
+	snprintf(outfile, sizeof outfile,
+		"%s/network/spoolin/nsf.%04x.%04x",
+		BBSDIR, getpid(), ++seq);
 	ofp=fopen(outfile,"a");
 	if (ofp==NULL) {
 		cprintf("%d internal error\n",ERROR);
@@ -670,6 +672,8 @@ void cmd_ndop(char *cmdbuf)
  */
 void cmd_nuop(char *cmdbuf)
 {
+	static int seq = 1;
+
 	if (strlen(CC->net_node)==0) {
 		cprintf("%d Not authenticated as a network node.\n",
 			ERROR+NOT_LOGGED_IN);
@@ -681,8 +685,9 @@ void cmd_nuop(char *cmdbuf)
 		return;
 		}
 
-	snprintf(CC->upl_path,sizeof CC->upl_path,"%s/network/spoolin/%s.%d",
-		BBSDIR,CC->net_node,getpid());
+	snprintf(CC->upl_path, sizeof CC->upl_path,
+		"%s/network/spoolin/%s.%04x.%04x",
+		BBSDIR, CC->net_node, getpid(), ++seq);
 
 	CC->upload_fp = fopen(CC->upl_path,"r");
 	if (CC->upload_fp != NULL) {
