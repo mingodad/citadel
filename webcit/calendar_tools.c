@@ -38,27 +38,51 @@ char *days[] = {
 
 #ifdef HAVE_ICAL_H
 
+/*
+ * The display_icaltimetype_as_webform() and icaltime_from_webform() functions
+ * handle the display and editing of date/time properties in web pages.  The
+ * first one converts an icaltimetype into valid HTML markup -- a series of form
+ * fields for editing the date and time.  When the user submits the form, the
+ * results can be fed back into the second function, which turns it back into
+ * an icaltimetype.  The "prefix" string required by both functions is prepended
+ * to all field names.  This allows a form to contain more than one date/time
+ * property (for example, a start and end time) by ensuring the field names are
+ * unique within the form.
+ *
+ * NOTE: These functions assume that the icaltimetype being edited is in UTC, and
+ * will convert to/from local time for editing.  "local" in this case is assumed
+ * to be the time zone in which the WebCit server is running.  A future improvement
+ * might be to allow the user to specify his/her timezone.
+ */
+
 
 void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	int i;
+
 	time_t now;
-	struct tm *tm;
+	struct tm *tm_now;
 	int this_year;
+
+	time_t tt;
+	struct tm *tm;
+
 	const int span = 10;
 
 	now = time(NULL);
-	tm = localtime(&now);
-	this_year = tm->tm_year + 1900;
+	tm_now = localtime(&now);
+	this_year = tm_now->tm_year + 1900;
 
 	if (t == NULL) return;
+	tt = icaltime_as_timet(*t);
+	tm = localtime(&tt);
 
 	wprintf("Month: ");
 	wprintf("<SELECT NAME=\"%s_month\" SIZE=\"1\">\n", prefix);
-	for (i=1; i<=12; ++i) {
+	for (i=0; i<=11; ++i) {
 		wprintf("<OPTION %s VALUE=\"%d\">%s</OPTION>\n",
-			((t->month == i) ? "SELECTED" : ""),
-			i,
-			months[i-1]
+			((tm->tm_mon == i) ? "SELECTED" : ""),
+			i+1,
+			months[i]
 		);
 	}
 	wprintf("</SELECT>\n");
@@ -67,7 +91,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	wprintf("<SELECT NAME=\"%s_day\" SIZE=\"1\">\n", prefix);
 	for (i=1; i<=31; ++i) {
 		wprintf("<OPTION %s VALUE=\"%d\">%d</OPTION>\n",
-			((t->day == i) ? "SELECTED" : ""),
+			((tm->tm_mday == i) ? "SELECTED" : ""),
 			i, i
 		);
 	}
@@ -95,7 +119,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	wprintf("<SELECT NAME=\"%s_hour\" SIZE=\"1\">\n", prefix);
 	for (i=0; i<=23; ++i) {
 		wprintf("<OPTION %s VALUE=\"%d\">%d</OPTION>\n",
-			((t->hour == i) ? "SELECTED" : ""),
+			((tm->tm_hour == i) ? "SELECTED" : ""),
 			i, i
 		);
 	}
@@ -105,7 +129,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	wprintf("<SELECT NAME=\"%s_minute\" SIZE=\"1\">\n", prefix);
 	for (i=0; i<=59; ++i) {
 		wprintf("<OPTION %s VALUE=\"%d\">%d</OPTION>\n",
-			((t->minute == i) ? "SELECTED" : ""),
+			((tm->tm_min == i) ? "SELECTED" : ""),
 			i, i
 		);
 	}
@@ -115,18 +139,21 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 
 struct icaltimetype icaltime_from_webform(char *prefix) {
 	struct icaltimetype t;
-	time_t now;
+	time_t tt;
+	struct tm tm;
 	char vname[SIZ];
 
-	now = time(NULL);
-	t = icaltime_from_timet(now, 0);
+	tt = time(NULL);
+	memcpy(&tm, localtime(&tt), sizeof(struct tm));
 
-	sprintf(vname, "%s_month", prefix);	t.month = atoi(bstr(vname));
-	sprintf(vname, "%s_day", prefix);	t.day = atoi(bstr(vname));
-	sprintf(vname, "%s_year", prefix);	t.year = atoi(bstr(vname));
-	sprintf(vname, "%s_hour", prefix);	t.hour = atoi(bstr(vname));
-	sprintf(vname, "%s_minute", prefix);	t.minute = atoi(bstr(vname));
+	sprintf(vname, "%s_month", prefix);	tm.tm_mon = atoi(bstr(vname)) - 1;
+	sprintf(vname, "%s_day", prefix);	tm.tm_mday = atoi(bstr(vname));
+	sprintf(vname, "%s_year", prefix);	tm.tm_year = atoi(bstr(vname)) - 1900;
+	sprintf(vname, "%s_hour", prefix);	tm.tm_hour = atoi(bstr(vname));
+	sprintf(vname, "%s_minute", prefix);	tm.tm_min = atoi(bstr(vname));
 
+	tt = mktime(&tm);
+	t = icaltime_from_timet(tt, 0);
 	t = icaltime_normalize(t);
 	return(t);
 }
