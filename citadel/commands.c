@@ -76,7 +76,7 @@ int rc_remember_passwords;
 int rc_ansi_color;
 int num_urls = 0;
 int rc_prompt_control = 0;
-int rc_idle_threshold = 900;
+time_t rc_idle_threshold = (time_t)900;
 char urls[MAXURLS][SIZ];
 char rc_url_cmd[SIZ];
 
@@ -807,8 +807,8 @@ void load_command_set(void)
 		if (!strncasecmp(buf, "allow_attachments=", 18)) {
 			rc_allow_attachments = atoi(&buf[18]);
 		}
-		if (!strncasecmp(buf, "idle_threshold=", 14)) {
-			rc_idle_threshold = atoi(&buf[14]);
+		if (!strncasecmp(buf, "idle_threshold=", 15)) {
+			rc_idle_threshold = atoi(&buf[15]);
 		}
 		if (!strncasecmp(buf, "remember_passwords=", 19)) {
 			rc_remember_passwords = atoi(&buf[19]);
