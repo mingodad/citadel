@@ -1256,7 +1256,8 @@ int main(int argc, char **argv)
 	goto GSTA;
 
 NEWUSR:	if (strlen(rc_password) == 0) {
-		scr_printf("No record. Enter as new user? ");
+		scr_printf("'%s' not found.\n"
+			"Do you want to create a new account with this name? ");
 		if (yesno() == 0)
 			goto GSTA;
 	}
