@@ -38,22 +38,20 @@ or some other web server listening on port 80, you must run WebCit on another
 port.  The default is port 2000.
  
  To compile from source, enter the usual commands:
-  ./configure
+  ./configure --prefix=/usr/local/webcit   [or whatever directory you prefer]
   make
+  make install
  
- Then to test it, simply run the webserver:
-  ./webserver
+ Then to initialize it:
+  cd /usr/local/webcit
+  ./setup
  
- You'll see a bunch of diagnostic messages on the screen.  At this time you
-can try it out.  Point your web browser to WebCit using a URL such as:
+ After running setup, you just point your web browser to whatever port you
+specified, such as:
  
   http://your.host.name:2000
  
- ...and log in.  When you're satisfied that the program is working the way you
-want it to, you should set it up to be automatically started by the system at
-boot time.  The recommended way to do this is with an entry in /etc/inittab,
-because init can then automatically restart WebCit if it happens to crash for
-any reason.
+ ...and log in.
  
  The included "setup" program is basically just an installation helper that
 asks a series of questions and then adds the appropriate line to inittab to
@@ -79,7 +77,9 @@ the "webserver" program:
   -> localport: the TCP port on which you wish your WebCit server to run.
      this can be any port number at all; there is no standard.  Naturally,
      you'll want to create a link to this port on your system's regular web
-     pages (presumably on an Apache server running on port 80).
+     pages (presumably on an Apache server running on port 80).  Or, if you
+     are installing WebCit on a dedicated server, then you might choose to
+     use port 80 after all.
  
   -> tracefile: where you want WebCit to log to.  This can be a file, a
      virtual console, or /dev/null to suppress logging altogether.

@@ -4,12 +4,14 @@ AUTOCONF=@AUTOCONF@
 CC=@CC@
 CFLAGS=@CFLAGS@
 DEFS=@DEFS@
+INSTALL=@INSTALL@
 LIBOBJS=@LIBOBJS@
 LIBS=@LIBS@
 LDFLAGS=@LDFLAGS@
 SETUP_LIBS=@SETUP_LIBS@
 PTHREAD_DEFS=@PTHREAD_DEFS@
 srcdir=@srcdir@
+prefix=@prefix@
 
 # End of configuration section
 
@@ -46,7 +48,7 @@ webserver: webserver.o context_loop.o tools.o ical_dezonify.o \
 	$(LIBOBJS) $(LIBS) $(LDFLAGS) -o webserver
 
 .c.o:
-	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) -DWEBCITDIR=\"`pwd`\" $<
+	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) -DWEBCITDIR=\"$(prefix)\" $<
 
 Makefile: $(srcdir)/Makefile.in config.status
 	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) ./config.status
@@ -56,3 +58,10 @@ config.status: $(srcdir)/configure
 
 $(srcdir)/configure: $(srcdir)/configure.in $(srcdir)/aclocal.m4
 	cd $(srcdir) && $(AUTOCONF)
+
+install:
+	test -d $(root)$(prefix) || mkdir $(root)$(prefix)
+	test -d $(root)$(prefix)/static || mkdir $(root)$(prefix)/static
+	for i in webserver setup `find static -type f | grep -v CVS` ; do \
+		$(INSTALL) $$i $(root)$(prefix)/$$i; \
+	done
