@@ -1,4 +1,7 @@
  $Log$
+ Revision 620.15  2004/04/13 23:53:00  nbryant
+ * citadel.spec: BuildRequire bison
+
  Revision 620.14  2004/04/13 22:44:35  nbryant
   * citadel.spec: commented out Icon line and the openldap-servers dependency.
   * citadel.spec: added several BuildRequires. Some of these are, strictly
@@ -5690,4 +5693,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

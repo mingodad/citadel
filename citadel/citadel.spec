@@ -22,6 +22,7 @@ URL:  http://uncensored.citadel.org/citadel/
 # dependencies and make it more likely that everyone is building identical
 # packages.
 BuildRequires: gcc
+BuildRequires: bison
 BuildRequires: glibc-devel
 BuildRequires: openldap-devel
 BuildRequires: db4-devel >= 4.1
