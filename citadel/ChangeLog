@@ -1,4 +1,9 @@
  $Log$
+ Revision 620.22  2004/04/23 17:27:50  ajc
+ * user_ops.c: do not attempt to save the loaded user record into the
+   supplied buffer, when the supplied buffer is NULL.  (This calling
+   syntax is used to check for the existence of a user without storing it.)
+
  Revision 620.21  2004/04/21 03:44:50  ajc
  * serv_crypto.c: small fix to make self-signed certs no longer invalid
 
@@ -5715,3 +5720,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -79,7 +79,9 @@ int getuser(struct ctdluser *usbuf, char name[])
 	struct cdbdata *cdbus;
 	int using_sysuser = 0;
 
-	memset(usbuf, 0, sizeof(struct ctdluser));
+	if (usbuf != NULL) {
+		memset(usbuf, 0, sizeof(struct ctdluser));
+	}
 
 #ifdef ENABLE_AUTOLOGIN
 	if (CtdlAssociateSystemUser(sysuser_name, name) == 0) {
@@ -98,9 +100,11 @@ int getuser(struct ctdluser *usbuf, char name[])
 	if (cdbus == NULL) {	/* user not found */
 		return(1);
 	}
-	memcpy(usbuf, cdbus->ptr,
+	if (usbuf != NULL) {
+		memcpy(usbuf, cdbus->ptr,
 			((cdbus->len > sizeof(struct ctdluser)) ?
 			 sizeof(struct ctdluser) : cdbus->len));
+	}
 	cdb_free(cdbus);
 
 	return (0);
