@@ -50,16 +50,8 @@ struct utmp *getutline(struct utmp *ut);
 #include "routines.h"
 #include "commands.h"
 #include "tools.h"
-
-void sttybbs(int cmd);
-void newprompt(char *prompt, char *str, int len);
-void val_user(char *, int);
-void formout(char *name);
-void logoff(int code);
-void set_keepalives(int s);
-void strprompt(char *prompt, char *str, int len);
-void newprompt(char *prompt, char *str, int len);
-void color(int colornum);
+#include "citadel_decls.h"
+#include "routines2.h"
 
 #define IFAIDE if(axlevel>=6)
 #define IFNAIDE if (axlevel<6)
