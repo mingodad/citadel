@@ -98,8 +98,7 @@ the "webserver" program:
      socket.  /your/citadel/directory should be set to the actual name of the
      directory in which you have Citadel installed
      (such as /usr/local/citadel).  If you run Citadel and WebCit on the same
-     computer, this way may run a bit faster, but you may experience trouble
-     with the real-time chat facility.
+     computer, this is recommended, as it will run much faster.
  
  
  GRAPHICS

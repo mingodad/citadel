@@ -1,4 +1,7 @@
 $Log$
+Revision 410.11  2003/04/19 19:58:10  ajc
+* Lots of great changes from Nick to make the site CSS-enabled.
+
 Revision 410.10  2003/04/14 04:04:40  ajc
 * First cut of CSS-izing WebCit.  Probably b0rken.
 
@@ -1326,3 +1329,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
