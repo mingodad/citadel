@@ -1,4 +1,8 @@
  $Log$
+ Revision 614.81  2004/03/15 17:22:14  error
+ * First draft of the stress tester.  Isn't quite ready (it needs to be
+   tested itself!).
+
  Revision 614.80  2004/03/15 16:48:22  error
  * Documentation update: update citadel.html for new syslog logging
 
@@ -5527,4 +5531,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
