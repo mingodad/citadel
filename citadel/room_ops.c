@@ -171,8 +171,10 @@ int getroom(struct quickroom *qrbuf, char *room_name)
  */
 int lgetroom(struct quickroom *qrbuf, char *room_name)
 {
-	begin_critical_section(S_QUICKROOM);
-	return (getroom(qrbuf, room_name));
+	register int retval;
+	retval = getroom(qrbuf, room_name);
+	if (retval == 0) begin_critical_section(S_QUICKROOM);
+	return(retval);
 }
 
 

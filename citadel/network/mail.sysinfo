@@ -1,7 +1,7 @@
 internet
 uum %s
 humannode Internet Gateway
-lastcontact 951189557 Mon Feb 21 22:19:17 2000
+lastcontact 951540103 Fri Feb 25 23:41:43 2000
 
 uncnsrd
 bin Mail
@@ -11,4 +11,10 @@ lastcontact 951189558 Mon Feb 21 22:19:18 2000
 
 test
 bin Mail
+
+tux
+bin Mail
+phonenum US 800 555 1212
+humannode My System
+lastcontact 951540103 Fri Feb 25 23:41:43 2000
 

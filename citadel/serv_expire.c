@@ -531,10 +531,45 @@ void cmd_expi(char *argbuf) {
 	}
 }
 
+/*****************************************************************************/
 
+
+/*
+ * Check message reference counts (FIXME ... not yet finished)
+void cmd_fsck(char *argbuf) {
+	long msgnum;
+	struct cdbdata *cdbmsg;
+	struct SuppMsgInfo smi;
+
+	cprintf("%d This is not done yet.\n", LISTING_FOLLOWS);
+
+	get_control();
+	for (msgnum = 0L; msgnum <= CitControl.MMhighest; ++msgnum) {
+
+		cdbmsg = cdb_fetch(CDB_MSGMAIN, &msgnum, sizeof(long));
+		if (cdbmsg != NULL) {
+			cdb_free(cdbmsg);
+			cprintf("Message %7ld    ", msgnum);
+
+			GetSuppMsgInfo(&smi, msgnum);
+			cprintf("refcount=%-2d   \n", smi.smi_refcount);
+		}
+
+	}
+
+	cprintf("000\n");
+
+}
+ */
+
+
+
+
+/*****************************************************************************/
 
 char *Dynamic_Module_Init(void)
 {
 	CtdlRegisterProtoHook(cmd_expi, "EXPI", "Expire old system objects");
+/* CtdlRegisterProtoHook(cmd_fsck, "FSCK", "Check message ref counts"); */
 	return "$Id$";
 }

@@ -241,6 +241,7 @@ void init_sysdep(void) {
  */
 void begin_critical_section(int which_one)
 {
+	/* lprintf(9, "begin_critical_section(%d)\n", which_one); */
 	pthread_mutex_lock(&Critters[which_one]);
 }
 
@@ -249,6 +250,7 @@ void begin_critical_section(int which_one)
  */
 void end_critical_section(int which_one)
 {
+	/* lprintf(9, "end_critical_section(%d)\n", which_one); */
 	pthread_mutex_unlock(&Critters[which_one]);
 }
 

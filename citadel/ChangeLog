@@ -1,4 +1,9 @@
 $Log$
+Revision 1.470  2000/02/26 05:15:38  ajc
+* Fortified the message base and SMTP code so that misdirected bounce messages
+  end up in the Aide> room instead of getting dereferenced
+* Started writing a message reference count verifier ('fsck' for message base)
+
 Revision 1.469  2000/02/25 06:14:05  ajc
 * Modularized the RWHO (Read WHO is online) command, basically as a pilot
   for modularizing all "non-API" functionality.
@@ -1662,4 +1667,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

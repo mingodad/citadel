@@ -1476,7 +1476,7 @@ int ReplicationChecks(struct CtdlMessage *msg) {
 long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 		char *rec,			/* Recipient (mail) */
 		char *force,			/* force a particular room? */
-		int mailtype,			/* local or remote type */
+		int supplied_mailtype,		/* local or remote type */
 		int generate_id)		/* 1 = generate 'I' field */
 {
 	char aaa[100];
@@ -1494,9 +1494,11 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	static int seqnum = 1;
 	struct CtdlMessage *imsg;
 	char *instr;
+	int mailtype;
 
 	lprintf(9, "CtdlSaveMsg() called\n");
 	if (is_valid_message(msg) == 0) return(-1);	/* self check */
+	mailtype = supplied_mailtype;
 
 	/* If this message has no timestamp, we take the liberty of
 	 * giving it one, right now.
@@ -1540,6 +1542,7 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 			   == hostalias_localhost) {
 				recipient[a] = 0;
 				lprintf(7, "Changed to <%s>\n", recipient);
+				mailtype = MES_LOCAL;
 			}
 		}
 	}
@@ -1660,7 +1663,10 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	 * is no local sender; it would otherwise go to the Trashcan).
 	 */
 	if ((!CC->internal_pgm) || (strlen(recipient) == 0)) {
-		CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0);
+		if (CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0) != 0) {
+			lprintf(3, "ERROR saving message pointer!\n");
+			CtdlSaveMsgPointerInRoom(AIDEROOM, newmsgid, 0);
+		}
 	}
 
 	/* For internet mail, drop a copy in the outbound queue room */
@@ -1682,6 +1688,11 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 			lprintf(9, "Delivering private mail\n");
 			MailboxName(actual_rm, &userbuf, MAILROOM);
 			CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0);
+		}
+		else {
+			lprintf(9, "No user <%s>, saving in %s> instead\n",
+				recipient, AIDEROOM);
+			CtdlSaveMsgPointerInRoom(AIDEROOM, newmsgid, 0);
 		}
 	}
 

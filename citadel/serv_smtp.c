@@ -21,6 +21,7 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
+#include "control.h"
 #include "dynloader.h"
 #include "room_ops.h"
 #include "user_ops.h"
@@ -979,6 +980,7 @@ void smtp_do_bounce(char *instr) {
 	time_t submitted = 0L;
 	struct CtdlMessage *bmsg = NULL;
 	int give_up = 0;
+	int mes_type = 0;
 
 	lprintf(9, "smtp_do_bounce() called\n");
 	strcpy(bounceto, "");
@@ -1010,24 +1012,19 @@ void smtp_do_bounce(char *instr) {
         bmsg->cm_anon_type = MES_NORMAL;
         bmsg->cm_format_type = 1;
         bmsg->cm_fields['A'] = strdoop("Citadel");
+        bmsg->cm_fields['O'] = strdoop(MAILROOM);
         bmsg->cm_fields['N'] = strdoop(config.c_nodename);
 
 	if (give_up) bmsg->cm_fields['M'] = strdoop(
-"BOUNCE!  BOUNCE!!  BOUNCE!!!\n\n"
-"FIXME ... this message should be made to look nice and stuff.\n"
-"In the meantime, you should be aware that we're giving up on the\n"
-"following deliveries because their mail servers are fux0red and\n"
-"would not accept the message for a very, very long time:\n\n"
+"A message you sent could not be delivered to some or all of its recipients.\n"
+"The following addresses were undeliverable:\n\n"
 );
 
         else bmsg->cm_fields['M'] = strdoop(
-"BOUNCE!  BOUNCE!!  BOUNCE!!!\n\n"
-"FIXME ... this message should be made to look nice and stuff.\n"
-"In the meantime, you should be aware that the following\n"
-"recipient addresses had permanent fatal errors:\n\n"
+"A message you sent could not be delivered to some or all of its recipients\n"
+"due to prolonged unavailability of its destination(s).\n"
+"Giving up on the following addresses:\n\n"
 );
-
-
 
 	/*
 	 * Now go through the instructions checking for stuff.
@@ -1085,10 +1082,19 @@ void smtp_do_bounce(char *instr) {
 
 		/* First try the user who sent the message */
 		lprintf(9, "bounce to user? <%s>\n", bounceto);
-		if (strlen(bounceto) == 0) bounce_msgid = (-1L);
-		else bounce_msgid = CtdlSaveMsg(bmsg,
-			bounceto,
-			"", MES_LOCAL, 1);
+		if (strlen(bounceto) == 0) {
+			lprintf(7, "No bounce address specified\n");
+			bounce_msgid = (-1L);
+		}
+		else if (mes_type = alias(bounceto), mes_type == MES_ERROR) {
+			lprintf(7, "Invalid bounce address <%s>\n", bounceto);
+			bounce_msgid = (-1L);
+		}
+		else {
+			bounce_msgid = CtdlSaveMsg(bmsg,
+				bounceto,
+				"", mes_type, 1);
+		}
 
 		/* Otherwise, go to the Aide> room */
 		lprintf(9, "bounce to room?\n");
