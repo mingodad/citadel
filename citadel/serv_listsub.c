@@ -106,6 +106,8 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 
 	listsub_generate_token(token);
 
+	assoc_file_name(filename, sizeof filename, &qrbuf, "netconfigs");
+
 	/* 
 	 * Make sure the requested address isn't already subscribed
 	 */
@@ -138,7 +140,6 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 	 * Now add it to the file
 	 */	
 	begin_critical_section(S_NETCONFIGS);
-	assoc_file_name(filename, sizeof filename, &qrbuf, "netconfigs");
 	ncfp = fopen(filename, "a");
 	if (ncfp != NULL) {
 		fprintf(ncfp, "subpending|%s|%s|%s|%ld|%s\n",

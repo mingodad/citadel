@@ -1,4 +1,8 @@
  $Log$
+ Revision 591.98  2002/08/23 02:30:02  ajc
+ * Delete unconfirmed pending subscribe/unsubscribe requests after three days
+ * Don't allow multiple subscriptions of the same address to a list
+
  Revision 591.97  2002/08/22 03:55:11  ajc
  * Fixed bug in above
 
@@ -3922,4 +3926,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

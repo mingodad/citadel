@@ -21,6 +21,12 @@
  * Don't allow polls during network processing
  */
 
+/*
+ * Duration of time (in seconds) after which pending list subscribe/unsubscribe
+ * requests that have not been confirmed will be deleted.
+ */
+#define EXP	259200	/* three days */
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -687,6 +693,7 @@ void network_spoolout_room(char *room_to_spool) {
 	struct namelist *nptr;
 	size_t miscsize = 0;
 	size_t linesize = 0;
+	int skipthisline = 0;
 
 	lprintf(7, "Spooling <%s>\n", room_to_spool);
 	if (getroom(&CC->quickroom, room_to_spool) != 0) {
@@ -740,11 +747,29 @@ void network_spoolout_room(char *room_to_spool) {
 			sc.ignet_push_shares = nptr;
 		}
 		else {
-			linesize = strlen(buf);
-			sc.misc = realloc(sc.misc,
-				(miscsize + linesize + 2) );
-			sprintf(&sc.misc[miscsize], "%s\n", buf);
-			miscsize = miscsize + linesize + 1;
+			/* Preserve 'other' lines ... *unless* they happen to
+			 * be subscribe/unsubscribe pendings with expired
+			 * timestamps.
+			 */
+			skipthisline = 0;
+			if (!strncasecmp(buf, "subpending|", 11)) {
+				if (time(NULL) - extract_long(buf, 4) > EXP) {
+					skipthisline = 1;
+				}
+			}
+			if (!strncasecmp(buf, "unsubpending|", 13)) {
+				if (time(NULL) - extract_long(buf, 3) > EXP) {
+					skipthisline = 1;
+				}
+			}
+
+			if (skipthisline == 0) {
+				linesize = strlen(buf);
+				sc.misc = realloc(sc.misc,
+					(miscsize + linesize + 2) );
+				sprintf(&sc.misc[miscsize], "%s\n", buf);
+				miscsize = miscsize + linesize + 1;
+			}
 		}
 
 
