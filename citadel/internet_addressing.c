@@ -294,6 +294,7 @@ void process_rfc822_addr(char *rfc822, char *user, char *node, char *name)
  * (Compares an internet name [buffer1] and stores in [buffer2] if found)
  */
 void try_name(struct usersupp *us, void *data) {
+	struct passwd *pw;
 	struct trynamebuf *tnb;
 	tnb = (struct trynamebuf *)data;
 
@@ -304,9 +305,14 @@ void try_name(struct usersupp *us, void *data) {
 	if (!collapsed_strcmp(tnb->buffer1, us->fullname)) 
 			strcpy(tnb->buffer2, us->fullname);
 
-	if (us->uid != BBSUID)
-		if (!strcasecmp(tnb->buffer1, getpwuid(us->uid)->pw_name))
-			strcpy(tnb->buffer2, us->fullname);
+	if (us->uid != BBSUID) {
+		pw = getpwuid(us->uid);
+		if (pw != NULL) {
+			if (!strcasecmp(tnb->buffer1, pw->pw_name)) {
+				strcpy(tnb->buffer2, us->fullname);
+			}
+		}
+	}
 }
 
 
