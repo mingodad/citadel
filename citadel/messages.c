@@ -26,6 +26,11 @@ struct cittext {
 	char text[MAXWORDBUF];
 	};
 
+struct AttachedFile {
+	struct AttachedFile *next;
+	char filename[256];
+	};
+
 char inkey(void);
 void sttybbs(int cmd);
 int struncmp(char *lstr, char *rstr, int len);
@@ -530,6 +535,9 @@ int make_message(char *filename, char *recipient, int anon_type, int format_type
 	long now,beg;
 	char datestr[64];
 	int cksum = 0;
+	struct AttachedFile *AttachList = NULL;
+	struct AttachedFile *Aptr;
+	char buf[256];
 
 	if (mode==2) if (strlen(editor_path)==0) {
 		printf("*** No editor available, using built-in editor\n");
@@ -652,13 +660,26 @@ MECR2:	b=inkey();
 		printf("Hold message\n");
 		return(2);
 		}
-	if ((b=='f')&&(rc_allow_attachments==1)) {
+	/* if ((b=='f')&&(rc_allow_attachments==1)) { */
+	if (b=='f') {
 		printf("attach File\n");
 		if (strlen(boundary)==0) {
 			sprintf(boundary, "Citadel-Attachment-%ld.%d",
 				time(NULL), getpid() );
 			}
-		/* FIX FIX now you have to attach the file, stupid */
+		newprompt("Filename: ", buf, 68);
+		if (access(buf, R_OK)==0) {
+			Aptr = (struct AttachedFile *)
+				malloc(sizeof(struct AttachedFile));
+			strcpy(Aptr->filename, buf);
+			Aptr->next = AttachList;
+			AttachList = Aptr;
+			}
+		else {
+			printf("*** Cannot open %s: %s\n",
+				buf, strerror(errno));
+			}
+		goto MECR;
 		}
 	goto MECR2;
 
