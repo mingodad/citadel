@@ -262,6 +262,7 @@ void context_loop(int sock)
 	int desired_session = 0;
 	int got_cookie = 0;
 	struct wcsession *TheSession, *sptr;
+	int outside_frameset_allowed = 0;
 
 	/*
 	 * Find out what it is that the web browser is asking for
@@ -314,7 +315,11 @@ void context_loop(int sock)
 				"?force_close_session=yes HTTP/1.0");
 	}
 
-	/* Do the non-root-cookie check now. */
+	/* These are the URL's which may be executed without a
+	 * session cookie already set.  If it's not one of these,
+	 * force the session to close because cookies are
+	 * probably disabled on the client browser.
+	 */
 	else if ( (strcmp(buf, "/"))
 		&& (strncasecmp(buf, "/listsub", 8))
 		&& (strncasecmp(buf, "/freebusy", 9))
@@ -323,6 +328,21 @@ void context_loop(int sock)
 				"?force_close_session=yes HTTP/1.0");
 	}
 
+	/* These are the URL's which may be executed outside of the
+	 * main frameset.  If it's not one of these, the page will
+	 * need JavaScript added to force the frameset to reload.
+	 */
+	if ( (!strcasecmp(buf, "/"))
+	   || (!strcasecmp(buf, "/static/mainframeset.html"))
+	   || (!strcasecmp(buf, "/static/robots.txt"))
+	   || (!strncasecmp(buf, "/listsub", 8))
+	   || (!strncasecmp(buf, "/freebusy", 9))
+	   || (!strncasecmp(buf, "/termquit", 9)) ) {
+		outside_frameset_allowed = 1;
+	}
+	else {
+		outside_frameset_allowed = 0;
+	}
 
 	/*
 	 * See if there's an existing session open with the desired ID
@@ -367,7 +387,8 @@ void context_loop(int sock)
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	TheSession->http_sock = sock;
 	TheSession->lastreq = time(NULL);			/* log */
-	session_loop(req);		/* perform the requested transaction */
+	TheSession->outside_frameset_allowed = outside_frameset_allowed;
+	session_loop(req);					/* do transaction */
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 
 	/* Free the request buffer */

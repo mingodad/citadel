@@ -341,6 +341,10 @@ void output_headers(int controlcode)
 		);
 		/* end script */
 
+		if (!WC->outside_frameset_allowed) {
+			/* FIXME put this here */
+		}
+
 		do_template("head");
 		clear_local_substs();
 
