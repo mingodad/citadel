@@ -357,14 +357,59 @@ int imap_extract_data_items(char **argv, char *items) {
 }
 
 
+/*
+ * One particularly hideous aspect of IMAP is that we have to allow the client
+ * to specify arbitrary ranges and/or sets of messages to fetch.  Citadel IMAP
+ * handles this by setting the IMAP_FETCHED flag for each message specified in
+ * the ranges/sets, then looping through the message array, outputting messages
+ * with the flag set.  We don't bother returning an error if an out-of-range
+ * number is specified (we just return quietly) because any client braindead
+ * enough to request a bogus message number isn't going to notice the
+ * difference anyway.
+ *
+ * This function clears out the IMAP_FETCHED bits, then sets that bit for each
+ * message included in the specified range.
+ */
+void imap_pick_range(char *range) {
+	int i;
+	int lo = 0;
+	int hi = 0;
+	char lostr[1024], histr[1024];
+
+	/*
+	 * Clear out the IMAP_FETCHED flags for all messages.
+	 */
+	for (i = 1; i <= IMAP->num_msgs; ++i) {
+		IMAP->flags[i-1] = IMAP->flags[i-1] & ~IMAP_FETCHED;
+	}
+
+	/*
+	 * Now figure out which messages we need to set IMAP_FETCHED for.
+	 */
+	extract_token(lostr, range, 0, ':');
+	lo = atoi(lostr);
+	extract_token(histr, range, 1, ':');
+	if (!strcmp(histr, "*")) {
+		hi = IMAP->num_msgs;
+	}
+	else {
+		hi = atoi(histr);
+	}
+
+	for (i = 1; i <= IMAP->num_msgs; ++i) {
+		if ( (i>=lo) && (i<=hi) ) {
+			IMAP->flags[i-1] = IMAP->flags[i-1] | IMAP_FETCHED;
+		}
+	}
+}
+
+
 
 /*
  * This function is called by the main command loop.
  */
 void imap_fetch(int num_parms, char *parms[]) {
-	int lo = 0;
-	int hi = 0;
-	char lostr[1024], histr[1024], items[1024];
+	char items[1024];
 	char *itemlist[256];
 	int num_items;
 	int i;
@@ -374,28 +419,7 @@ void imap_fetch(int num_parms, char *parms[]) {
 		return;
 	}
 
-	extract_token(lostr, parms[2], 0, ':');
-	lo = atoi(lostr);
-	extract_token(histr, parms[2], 1, ':');
-	if (!strcmp(histr, "*")) {
-		hi = IMAP->num_msgs;
-	}
-	else {
-		hi = atoi(histr);
-	}
-
-	/* Clear out the IMAP_FETCHED flags and then set them for the messages
-	 * we're interested in.
-	 */
-	for (i = 1; i <= IMAP->num_msgs; ++i) {
-		IMAP->flags[i-1] = IMAP->flags[i-1] & ~IMAP_FETCHED;
-	}
-
-	for (i = 1; i <= IMAP->num_msgs; ++i) {
-		if ( (i>=lo) && (i<=hi) ) {
-			IMAP->flags[i-1] = IMAP->flags[i-1] | IMAP_FETCHED;
-		}
-	}
+	imap_pick_range(parms[2]);
 
 	strcpy(items, "");
 	for (i=3; i<num_parms; ++i) {
@@ -412,9 +436,6 @@ void imap_fetch(int num_parms, char *parms[]) {
 	imap_do_fetch(num_items, itemlist);
 	cprintf("%s OK FETCH completed\r\n", parms[0]);
 }
-
-
-
 
 
 
