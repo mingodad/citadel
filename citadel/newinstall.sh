@@ -133,7 +133,6 @@ export CFLAGS CPPFLAGS LDFLAGS
 die () {
 	echo Easy Install is aborting.
 	echo Please report this problem to the Citadel developers.
-	cat $LOG
 	rm -fr $BUILD
 	exit 1
 }
