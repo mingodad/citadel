@@ -57,11 +57,8 @@ icalcomponent *get_freebusy_for_user(char *who) {
 		return NULL;
 	}
 
-	return fb;
+	return(fb);
 }
-
-
-
 
 
 
@@ -119,10 +116,6 @@ int ical_ctdl_is_overlap(
 	/* Otherwise, they overlap. */
 	return(1);
 }
-
-
-
-
 
 
 

@@ -54,6 +54,8 @@ void display_login(char *mesg)
 	}
 
 	svprintf("hello", WCS_SERVCMD, "MESG hello");
+	svprintf("BOXTITLE", WCS_STRING, "%s - powered by Citadel",
+		serv_info.serv_humannode);
 
 	do_template("login");
 

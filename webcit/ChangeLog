@@ -1,4 +1,7 @@
 $Log$
+Revision 410.41  2003/05/31 21:36:45  ajc
+* Cosmetic changes
+
 Revision 410.40  2003/05/26 21:05:42  ajc
 * availability.c: brought over ical_ctdl_is_overlap() from Citadel.  Used
   it to complete the free/busy checking for attendee availability.
@@ -1440,3 +1443,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
