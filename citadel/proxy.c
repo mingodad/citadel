@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <errno.h>
 #include "citadel.h"
 
 
@@ -45,12 +46,25 @@ void do_mainloop() {
 
 		/* Other commands, just pass through. */
 		else {
+			
 			serv_puts(cmd);
 			serv_gets(resp);
 			printf("%s\n", resp);
+			fflush(stdout);
 
 			/* Simple command-response... */
 			if ( (resp[0]=='2')||(resp[0]=='3')||(resp[0]=='5') ) {
+				}
+
+			/* Textual input... */
+			else if (resp[0] == '4') {
+				do {
+					if (fgets(buf, 256, stdin) == NULL) {
+						exit(errno);
+						}
+					buf[strlen(buf)-1] = 0;
+					serv_puts(buf);
+					} while (strcmp(buf, "000"));
 				}
 
 			/* Textual output... */
@@ -61,20 +75,12 @@ void do_mainloop() {
 					} while (strcmp(buf, "000"));
 				}
 
-			/* Textual input... */
-			else if (resp[0] == '1') {
-				do {
-					fgets(buf, 256, stdin);
-					buf[strlen(buf)-1] = 0;
-					serv_puts(buf);
-					} while (strcmp(buf, "000"));
-				}
-
 			/* Binary output... */
 			else if (resp[0] == '6') {
 				bytes = atol(&resp[4]);
 				serv_read(buf, bytes);
 				fwrite(buf, bytes, 1, stdout);
+				fflush(stdout);
 				}
 
 			/* Binary input... */
@@ -86,6 +92,7 @@ void do_mainloop() {
 
 			/* chat... */
 			else if (resp[0] == '8') {
+				sleep(2);
 				serv_puts("/quit");
 				do {
 					fgets(buf, 256, stdin);
@@ -103,6 +110,7 @@ void do_mainloop() {
 
 void main(int argc, char *argv[]) {
 	char buf[256];
+
 	
 	attach_to_server(argc, argv);
 

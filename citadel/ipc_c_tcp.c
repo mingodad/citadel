@@ -19,14 +19,12 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
 #include <netdb.h>
 #include <string.h>
 #include <pwd.h>
 #include <errno.h>
-#include "ipc.h"
 
-void logoff(int code);
+void logoff();
 
 /*
  * If server_is_local is set to nonzero, the client assumes that it is running
@@ -47,12 +45,14 @@ char server_is_local = 0;
 
 int serv_sock;
 
-void CtdlInternalTCPtimeout(int signum) {
+u_long inet_addr(/* ??? */);
+
+void timeout(void) {
 	printf("\rConnection timed out.\n");
 	logoff(3);
 	}
 
-int CtdlInternalTCPConnectSock(char *host, char *service, char *protocol)
+int connectsock(char *host, char *service, char *protocol)
 {
 	struct hostent *phe;
 	struct servent *pse;
@@ -75,7 +75,7 @@ int CtdlInternalTCPConnectSock(char *host, char *service, char *protocol)
 	
 	phe=gethostbyname(host);
 	if (phe) {
-		memcpy((char *)&sin.sin_addr,phe->h_addr,phe->h_length);
+		bcopy(phe->h_addr,(char *)&sin.sin_addr,phe->h_length);
 		}
 	else if ((sin.sin_addr.s_addr = inet_addr(host))==INADDR_NONE) {
 		fprintf(stderr,"Can't get %s host entry: %s\n",
@@ -103,7 +103,7 @@ int CtdlInternalTCPConnectSock(char *host, char *service, char *protocol)
 		}
 
 
-	signal(SIGALRM,CtdlInternalTCPtimeout);
+	signal(SIGALRM,timeout);
 	alarm(30);
 
 	if (connect(s,(struct sockaddr *)&sin,sizeof(sin))<0) {
@@ -122,7 +122,7 @@ int CtdlInternalTCPConnectSock(char *host, char *service, char *protocol)
  * convert service and host entries into a six-byte numeric in the format
  * expected by a SOCKS v4 server
  */
-void CtdlInternalTCPnumericize(unsigned char *buf, char *host, char *service, char *protocol)
+void numericize(unsigned char *buf, char *host, char *service, char *protocol)
 {
 	struct hostent *phe;
 	struct servent *pse;
@@ -274,12 +274,12 @@ void attach_to_server(int argc, char **argv)
 
 	/* if not using a SOCKS proxy server, make the connection directly */
 	if (strlen(socks4)==0) {
-		serv_sock = CtdlInternalTCPConnectSock(cithost,citport,"tcp");
+		serv_sock = connectsock(cithost,citport,"tcp");
 		return;
 		}
 
 	/* if using SOCKS, connect first to the proxy... */
-	serv_sock = CtdlInternalTCPConnectSock(socks4,"1080","tcp");
+	serv_sock = connectsock(socks4,"1080","tcp");
 	printf("Connected to SOCKS proxy at %s.\n",socks4);
 	printf("Attaching to server...\r");
 	fflush(stdout);
@@ -289,7 +289,7 @@ void attach_to_server(int argc, char **argv)
 		1);			/* method = connect */
 	serv_write(buf,2);
 
-	CtdlInternalTCPnumericize(buf,cithost,citport,"tcp");
+	numericize(buf,cithost,citport,"tcp");
 	serv_write(buf,6);		/* port and address */
 
 	p = (struct passwd *) getpwuid(getuid());
