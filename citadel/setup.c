@@ -825,6 +825,11 @@ void write_config_to_disk(void) {
 		display_error("setup: cannot open citadel.config");
 		cleanup(1);
 		}
+/******************************************/
+/* THIS IS TEMPORARY  FIX FIX FIX FIX FIX */
+	config.c_ep.expire_mode = EXPIRE_NUMMSGS;
+	config.c_ep.expire_value = 10;
+/******************************************/
 	fwrite((char *)&config,sizeof(struct config),1,fp);
 	fclose(fp);
 	}
@@ -1023,6 +1028,9 @@ int main(int argc, char *argv[]) {
 
 NEW_INST:
 	config.c_setup_level = REV_LEVEL;
+
+/******************************************/
+
 	write_config_to_disk();
 
 	system("mkdir info 2>/dev/null");		/* Create these */

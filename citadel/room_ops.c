@@ -383,7 +383,6 @@ int sort_msglist(long listptrs[], int oldcount)
 	}
 
 
-
 /*
  * Determine whether a given room is one of the base non-editable rooms
  */
@@ -392,6 +391,33 @@ int is_noneditable(struct quickroom *qrbuf) {
 	else if (!strcasecmp(qrbuf->QRname, AIDEROOM)) return(1);
 	else return(0);
 	}
+
+
+
+/*
+ * Retrieve the applicable room policy for a specific room
+ */
+void GetExpirePolicy(struct ExpirePolicy *epbuf, struct quickroom *qrbuf) {
+	struct floor flbuf;
+
+	/* If the room has its own policy, return it */	
+	if (qrbuf->QRep.expire_mode != 0) {
+		memcpy(epbuf, &qrbuf->QRep, sizeof(struct ExpirePolicy));
+		return;
+		}
+
+	/* Otherwise, if the floor has its own policy, return it */	
+	getfloor(&flbuf, qrbuf->QRfloor);
+	if (flbuf.f_ep.expire_mode != 0) {
+		memcpy(epbuf, &flbuf.f_ep, sizeof(struct ExpirePolicy));
+		return;
+		}
+
+	/* Otherwise, fall back on the system default */
+	memcpy(epbuf, &config.c_ep, sizeof(struct ExpirePolicy));
+	}
+
+
 
 /* 
  * cmd_lrms()   -  List all accessible rooms, known or forgotten

@@ -19,6 +19,7 @@
 #include "support.h"
 #include "config.h"
 #include "dynloader.h"
+#include "room_ops.h"
 
 extern struct CitContext *ContextList;
 
@@ -67,9 +68,24 @@ void Ygorl(char *username, long usernum) {
 	}
 
 
+
+void DoPurgeMessages(struct quickroom *qrbuf) {
+	struct ExpirePolicy epbuf;
+
+	GetExpirePolicy(&epbuf, qrbuf);
+	
+	lprintf(9, "ExpirePolicy for <%s> is <%d> <%ld>\n",
+		qrbuf->QRname, epbuf.expire_mode, epbuf.expire_value);
+	}
+
+void PurgeMessages(void) {
+	ForEachRoom(DoPurgeMessages);
+	}
+
 struct DLModule_Info *Dynamic_Module_Init(void)
 {
    CtdlRegisterCleanupHook(CleanupTest);
+   CtdlRegisterCleanupHook(PurgeMessages);
    CtdlRegisterSessionHook(NewRoomTest, EVT_NEWROOM);
    CtdlRegisterSessionHook(SessionStartTest, EVT_START);
    CtdlRegisterSessionHook(SessionStopTest, EVT_STOP);

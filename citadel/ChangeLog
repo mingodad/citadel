@@ -1,3 +1,6 @@
+Sun Oct 11 23:17:48 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Built some more of the message expiry infrastructure
+
 1998-10-11 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* citserver.c: fix two more overruns, one of which was preventing
 	  the "From Host" from showing up in the <W>ho listing.

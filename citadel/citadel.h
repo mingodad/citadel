@@ -30,16 +30,17 @@ typedef unsigned char CIT_UBYTE;
 #define ROOMNAMELEN	128
 
 /*
- * Room policy stuff
+ * Message expiration policy stuff
  */
-struct RoomPolicy {
-	int rp_expire_mode;
-	long rp_expire_value;
+struct ExpirePolicy {
+	int expire_mode;
+	long expire_value;
 	};
 
-#define RP_EXPIRE_NEXTLEVEL	0	/* Inherit expiration policy */
-#define RP_EXPIRE_NUMMSGS	1	/* Keep only latest n messages */
-#define RP_EXPIRE_AGE		2	/* Expire messages by age */
+#define EXPIRE_NEXTLEVEL	0	/* Inherit expiration policy    */
+#define EXPIRE_MANUAL		1	/* Don't expire messages at all */
+#define EXPIRE_NUMMSGS		2	/* Keep only latest n messages  */
+#define EXPIRE_AGE		3	/* Expire messages by age       */
 
 
 /* 
@@ -69,7 +70,7 @@ struct config {
 	char c_net_password[20];	/* system net password              */
 	int c_port_number;		/* TCP port to run the server on    */
 	int c_ipgm_secret;		/* Internal program authentication  */
-	struct RoomPolicy c_default_rp;	/* System default room policy       */
+	struct ExpirePolicy c_ep;	/* System default msg expire policy */
 	};
 
 #define NODENAME		config.c_nodename
@@ -139,7 +140,7 @@ struct quickroom {
 	long QRinfo;			/* Info file update relative to msgs*/
 	char QRfloor;			/* Which floor this room is on      */
 	time_t QRmtime;			/* Date/time of last post           */
-	struct RoomPolicy QRroompolicy;	/* Room policy                      */
+	struct ExpirePolicy QRep;	/* Message expiration policy        */
 	};
 
 
@@ -189,7 +190,7 @@ struct floor {
 	unsigned short f_flags;		/* flags */
 	char f_name[256];		/* name of floor */
 	int f_ref_count;		/* reference count */
-	struct RoomPolicy f_default_rp;	/* default room policy */
+	struct ExpirePolicy f_ep;	/* default expiration policy */
 	};
 
 #define F_INUSE		1		/* floor is in use */

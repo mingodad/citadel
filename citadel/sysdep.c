@@ -115,7 +115,7 @@ void begin_critical_section(int which_one)
 {
 	int oldval;
 
-	lprintf(8, "begin_critical_section(%d)\n", which_one);
+	/* lprintf(8, "begin_critical_section(%d)\n", which_one); */
 
 	/* Don't get interrupted during the critical section */
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &oldval);
@@ -132,7 +132,7 @@ void end_critical_section(int which_one)
 {
 	int oldval;
 
-	lprintf(8, "  end_critical_section(%d)\n", which_one);
+	/* lprintf(8, "  end_critical_section(%d)\n", which_one); */
 
 	/* Let go of the semaphore */
 	pthread_mutex_unlock(&Critters[which_one]);
