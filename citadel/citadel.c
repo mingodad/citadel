@@ -161,6 +161,7 @@ void dropcarr(int signum) {
  */
 void catch_sigcont(int signum) {
 	sttybbs(SB_LAST);
+	signal(SIGCONT,catch_sigcont);
 	}
 
 

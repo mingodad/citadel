@@ -13,6 +13,7 @@
 	* configure.in: check for ncurses if we can't find curses
 	* dynloader.c: warning fix
 	* sysdep.c: don't complain if initgroups() fails
+	* citadel.c: fix systems with SYSV-style signal handling (e.g. libc5)
 
 Sun Mar 21 14:21:47 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* messages.c: cosmetic cleanups to message reading loop
