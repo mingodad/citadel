@@ -259,15 +259,23 @@ void ForEachRoom(void (*CallBack)(struct quickroom *EachRoom)) {
 
 
 /*
+ * Create a database key for storage of message lists
+ */
+void msglist_key(char *dbkey, struct quickroom *whichroom) {
+	int a;
+	
+	sprintf(dbkey, "%s%ld", whichroom->QRname, whichroom->QRgen);
+	for (a=0; a<strlen(dbkey); ++a) dbkey[a]=tolower(dbkey[a]);
+	}
+
+/*
  * get_msglist()  -  retrieve room message pointers
  */
 void get_msglist(struct quickroom *whichroom) {
 	struct cdbdata *cdbfr;
 	char dbkey[256];
-	int a;
-	
-	sprintf(dbkey, "%s%ld", whichroom->QRname, whichroom->QRgen);
-	for (a=0; a<strlen(dbkey); ++a) dbkey[a]=tolower(dbkey[a]);
+
+	msglist_key(dbkey, whichroom);	
 	
 	if (CC->msglist != NULL) {
 		free(CC->msglist);
@@ -276,7 +284,6 @@ void get_msglist(struct quickroom *whichroom) {
 	CC->num_msgs = 0;
 
 	cdbfr = cdb_fetch(CDB_MSGLISTS, dbkey, strlen(dbkey));
-
 	if (cdbfr == NULL) {
 		return;
 		}
@@ -293,11 +300,8 @@ void get_msglist(struct quickroom *whichroom) {
  */
 void put_msglist(struct quickroom *whichroom) {
 	char dbkey[256];
-	int a;
 
-	sprintf(dbkey, "%s%ld", whichroom->QRname, whichroom->QRgen);
-	for (a=0; a<strlen(dbkey); ++a) dbkey[a]=tolower(dbkey[a]);
-
+	msglist_key(dbkey, whichroom);	
 	cdb_store(CDB_MSGLISTS, dbkey, strlen(dbkey),
 		CC->msglist, CC->num_msgs * sizeof(long));
 	}
@@ -308,12 +312,54 @@ void put_msglist(struct quickroom *whichroom) {
  */
 void delete_msglist(struct quickroom *whichroom) {
 	char dbkey[256];
-	int a;
 
-	sprintf(dbkey, "%s%ld", whichroom->QRname, whichroom->QRgen);
-	for (a=0; a<strlen(dbkey); ++a) dbkey[a]=tolower(dbkey[a]);
-
+	msglist_key(dbkey, whichroom);	
 	cdb_delete(CDB_MSGLISTS, dbkey, strlen(dbkey));
+	}
+
+
+/* 
+ * Add a message number to a room's message list.  
+ * So, why doesn't this function use the get_msglist() and put_msglist() stuff
+ * defined above?  Because the room the message number is being written to
+ * may not be the current room (as is the case with cmd_move() for example).
+ */
+void AddMessageToRoom(struct quickroom *whichroom, long newmsgid) {
+	char dbkey[256];
+	struct cdbdata *cdbfr;
+	int num_msgs;
+	long *msglist;
+	
+	msglist_key(dbkey, whichroom);
+	cdbfr = cdb_fetch(CDB_MSGLISTS, dbkey, strlen(dbkey));
+	if (cdbfr == NULL) {
+		msglist = NULL;
+		num_msgs = 0;
+		}
+	else {
+		msglist = malloc(cdbfr->len);
+		num_msgs = cdbfr->len / sizeof(long);
+		memcpy(msglist, cdbfr->ptr, cdbfr->len);
+		cdb_free(cdbfr);
+		}
+	
+	/* Now add the new message */
+	++num_msgs;
+	msglist = realloc(msglist,
+		(num_msgs * sizeof(long)) );
+
+	if (msglist == NULL) {
+		lprintf(3, "ERROR: can't realloc message list!\n");
+		}
+
+	msglist[num_msgs - 1] = newmsgid;
+
+	/* Write it back to disk. */
+	cdb_store(CDB_MSGLISTS, dbkey, strlen(dbkey),
+		msglist, num_msgs * sizeof(long));
+
+	/* And finally, free up the memory we used. */
+	free(msglist);
 	}
 
 

@@ -1,6 +1,10 @@
+Thu Oct 15 19:27:32 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* msgbase.c: reimplemented cmd_move()
+	  room_ops.c: wrote AddMessageToRoom() which is used for both entering
+	  and moving messages.
+
 Wed Oct 14 22:41:16 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Misc code cleanup
-	* Initial work on new implementation of move_message()
 
 1998-10-13 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* configure.in: don't check for -lcrypt unless autologin is enabled

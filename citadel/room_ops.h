@@ -14,6 +14,7 @@ void putfloor (struct floor *flbuf, int floor_num);
 void lputfloor (struct floor *flbuf, int floor_num);
 void get_msglist (struct quickroom *whichroom);
 void put_msglist (struct quickroom *whichroom);
+void AddMessageToRoom(struct quickroom *whichroom, long newmsgid);
 long int MessageFromList (int whichpos);
 void SetMessageInList (int whichpos, long int newmsgnum);
 int sort_msglist (long int *listptrs, int oldcount);
