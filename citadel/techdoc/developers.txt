@@ -12,14 +12,15 @@ Developer codes (and where known, client codes)
 	Client	Name		Status		Description
 	0	Citadel		in production	Citadel/UX text based client
 	1	lcit		dead		Curses-based text client
-	2	WinCit		Deprecated	MS Visual Basic vlient.
+	2	WinCit		deprecated	MS Visual Basic client.
 						Version 1.0 is stable but there
 						will be no further development.
 	4	WebCit		in production	Web-based access to Citadel
 	5	Shaggy		dead		Java-powered client
-	6	Daphne		development	wx multiplatform "fat" client
-	7	Shaggy (new)	development	Java-powered client
+	6	Daphne		dead		wx multiplatform "fat" client
+	7	Shaggy (new)	unknown		Java-powered client
 						<chilly@uncensored.citadel.org>
+	8	ctdlphp		development	PHP interface to Citadel
  
  
  1	Brian Ledbetter <brian@shadowcom.net>
