@@ -262,6 +262,9 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	char buf[SIZ];
 	struct ctdluser usbuf;
 	long what_user;
+	struct vCard *v = NULL;
+	char *ser = NULL;
+	int i = 0;
 
 	if (!CC->logged_in) return(0);	/* Only do this if logged in. */
 
@@ -331,6 +334,34 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
                                 msg->cm_fields['A'], NODENAME);
                         msg->cm_fields['E'] = strdup(buf);
 
+			/* Insert or replace RFC2739-compliant free/busy URL */
+			v = vcard_load(msg->cm_fields['M']);
+			if (v != NULL) {
+
+				/* Manipulate the vCard data structure */
+				sprintf(buf, "http://%s/%s.vfb",
+					config.c_fqdn,
+					usbuf.fullname);
+				for (i=0; i<strlen(buf); ++i) {
+					if (buf[i] == ' ') buf[i] = '_';
+				}
+				vcard_set_prop(v, "FBURL;PREF", buf, 0);
+
+				/* Re-serialize it back into the msg body */
+				ser = vcard_serialize(v);
+				if (ser != NULL) {
+					msg->cm_fields['M'] = realloc(
+						msg->cm_fields['M'],
+						strlen(ser) + 1024
+					);
+					sprintf(msg->cm_fields['M'],
+						"Content-type: text/x-vcard"
+						"\r\n\r\n%s\r\n", ser);
+					free(ser);
+				}
+				vcard_free(v);
+			}
+
 			/* Now allow the save to complete. */
 			return(0);
 		}
@@ -380,17 +411,17 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			I = atol(msg->cm_fields['I']);
 			if (I < 0L) return(0);
 
+			/* Store our Internet return address in memory */
+			v = vcard_load(msg->cm_fields['M']);
+			vcard_populate_cs_inet_email(v);
+			vcard_free(v);
+
 			/* Put it in the Global Address Book room... */
 			CtdlSaveMsgPointerInRoom(ADDRESS_BOOK_ROOM, I,
 				(SM_VERIFY_GOODNESS | SM_DO_REPL_CHECK) );
 
 			/* ...and also in the directory database. */
 			vcard_add_to_directory(I, NULL);
-
-			/* Store our Internet return address in memory */
-			v = vcard_load(msg->cm_fields['M']);
-			vcard_populate_cs_inet_email(v);
-			vcard_free(v);
 
 			/* Some sites want an Aide to be notified when a
 			 * user registers or re-registers...
