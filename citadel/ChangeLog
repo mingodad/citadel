@@ -1,4 +1,8 @@
  $Log$
+ Revision 613.1  2003/12/19 04:33:52  ajc
+ * Changes to auto-expunge algorithm to support correct behavior in
+   some IMAP clients while moving messages.
+
  Revision 613.0  2003/12/15 16:37:01  ajc
  * THIS IS 6.13
 
@@ -5161,4 +5165,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

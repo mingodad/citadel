@@ -507,9 +507,12 @@ void imap_select(int num_parms, char *parms[]) {
 	if (!ok) {
 		cprintf("%s NO ... no such room, or access denied\r\n",
 			parms[0]);
-		IMAP->selected = 0;
+		/* IMAP->selected = 0; */
 		return;
 	}
+
+	/* If we already had some other folder selected, auto-expunge it */
+	imap_do_expunge();
 
 	/*
 	 * usergoto() formally takes us to the desired room, happily returning
@@ -530,9 +533,15 @@ void imap_select(int num_parms, char *parms[]) {
 
 	cprintf("* %d EXISTS\r\n", msgs);
 	cprintf("* %d RECENT\r\n", new);
+
+	/* Note that \Deleted is a valid flag, but not a permanent flag,
+	 * because we don't maintain its state across sessions.  Citadel
+	 * automatically expunges mailboxes when they are de-selected.
+	 */
 	cprintf("* FLAGS (\\Deleted \\Seen \\Answered)\r\n");
-	cprintf("* OK [PERMANENTFLAGS (\\Deleted \\Seen \\Answered)] "
+	cprintf("* OK [PERMANENTFLAGS (\\Seen \\Answered)] "
 		"permanent flags\r\n");
+
 	cprintf("* OK [UIDVALIDITY 0] UIDs valid\r\n");
 	cprintf("%s OK [%s] %s completed\r\n",
 		parms[0],
@@ -548,6 +557,9 @@ void imap_select(int num_parms, char *parms[]) {
 int imap_do_expunge(void) {
 	int i;
 	int num_expunged = 0;
+
+	lprintf(9, "imap_do_expunge() called\n");
+	if (IMAP->selected == 0) return(0);
 
 	if (IMAP->num_msgs > 0) for (i=0; i<IMAP->num_msgs; ++i) {
 		if (IMAP->flags[i] & IMAP_DELETED) {
@@ -1201,6 +1213,7 @@ void imap_command_loop(void) {
 	}
 
 	else if (!strcasecmp(parms[1], "LOGOUT")) {
+		imap_do_expunge();	/* yes, we auto-expunge */
 		cprintf("* BYE %s logging out\r\n", config.c_fqdn);
 		cprintf("%s OK thank you for using Citadel IMAP\r\n", parms[0]);
 		CC->kill_me = 1;

@@ -7,7 +7,7 @@ void imap_greeting(void);
 void imap_command_loop(void);
 int imap_grabroom(char *returned_roomname, char *foldername);
 void imap_free_transmitted_message(void);
-
+int imap_do_expunge(void);
 
 
 struct citimap {
