@@ -83,13 +83,15 @@ void open_databases(void)
         }
 
         /*
-         * We have multiple processes reading/writing these files, so
-         * we need concurrency control and a shared buffer pool, but
-         * not logging or transactions.
+	 * We specify DB_PRIVATE but not DB_INIT_LOCK or DB_THREAD, even
+	 * though this is a multithreaded application.  Since Citadel does all
+	 * database access in S_DATABASE critical sections, access to the db
+	 * is serialized already, so don't bother the database manager with
+	 * it.  Besides, it locks up when we do it that way.
          */
         /* (void)dbenv->set_data_dir(dbenv, "/database/files"); */
         ret = dbenv->open(dbenv, "./data",
-        	( DB_CREATE | DB_INIT_MPOOL ),
+        	( DB_CREATE | DB_INIT_MPOOL | DB_PRIVATE ),
 		0);
 	if (ret) {
 		lprintf(1, "dbenv->open: %s\n", db_strerror(ret));
