@@ -730,15 +730,11 @@ void session_loop(struct httprequest *req)
 	/* We stuff these with the values coming from the client cookies,
 	 * so we can use them to reconnect a timed out session if we have to.
 	 */
-	char c_host[SIZ];
-	char c_port[SIZ];
 	char c_username[SIZ];
 	char c_password[SIZ];
 	char c_roomname[SIZ];
 	char cookie[SIZ];
 
-	strcpy(c_host, defaulthost);
-	strcpy(c_port, defaultport);
 	strcpy(c_username, "");
 	strcpy(c_password, "");
 	strcpy(c_roomname, "");
@@ -825,23 +821,17 @@ void session_loop(struct httprequest *req)
 
 	/*
 	 * If we're not connected to a Citadel server, try to hook up the
-	 * connection now.  Preference is given to the host and port specified
-	 * by browser cookies, if cookies have been supplied.
+	 * connection now.
 	 */
 	if (!WC->connected) {
-		if (strlen(bstr("host")) > 0)
-			strcpy(c_host, bstr("host"));
-		if (strlen(bstr("port")) > 0)
-			strcpy(c_port, bstr("port"));
-
-		if (!strcasecmp(c_host, "uds")) {
+		if (!strcasecmp(ctdlhost, "uds")) {
 			/* unix domain socket */
-			sprintf(buf, "%s/citadel.socket", c_port);
+			sprintf(buf, "%s/citadel.socket", ctdlport);
 			WC->serv_sock = uds_connectsock(buf);
 		}
 		else {
 			/* tcp socket */
-			WC->serv_sock = tcp_connectsock(c_host, c_port);
+			WC->serv_sock = tcp_connectsock(ctdlhost, ctdlport);
 		}
 
 		if (WC->serv_sock < 0) {

@@ -54,8 +54,8 @@ extern pthread_key_t MyConKey;
 char *server_cookie = NULL;
 
 
-char *defaulthost = DEFAULT_HOST;
-char *defaultport = DEFAULT_PORT;
+char *ctdlhost = DEFAULT_HOST;
+char *ctdlport = DEFAULT_PORT;
 
 /*
  * This is a generic function to set up a master socket for listening on
@@ -263,9 +263,9 @@ int main(int argc, char **argv)
 		}
 
 	if (optind < argc) {
-		defaulthost = argv[optind];
+		ctdlhost = argv[optind];
 		if (++optind < argc)
-			defaultport = argv[optind];
+			ctdlport = argv[optind];
 	}
 	/* Tell 'em who's in da house */
 	lprintf(1, SERVER "\n"

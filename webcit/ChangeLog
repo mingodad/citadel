@@ -1,4 +1,11 @@
 $Log$
+Revision 410.9  2003/04/09 04:02:32  ajc
+* Remove the defaulthost/defaultport vs. c_host/c_port stuff -- we haven't
+  supported the idea of one WebCit connecting to multiple Citadels for a
+  long time.  Now it's just one set of variables, called ctdlhost/ctdlport.
+* When connecting to Citadel through a Unix domain socket, don't try to make
+  the Java chat applet available.
+
 Revision 410.8  2003/03/31 03:32:19  ajc
 * messages.c: check for 000 terminator while parsing RFC822 headers to
   prevent getting hung up while displaying certain badly formatted messages.
@@ -1316,3 +1323,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
