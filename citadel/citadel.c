@@ -94,6 +94,8 @@ char curr_floor = 0;		/* number of current floor */
 char floorlist[128][256];	/* names of floors */
 char express_msgs = 0;		/* express messages waiting! */
 
+extern int rc_ansi_color;	/* ansi color value from citadel.rc */
+
 /*
  * here is our 'clean up gracefully and exit' routine
  */
@@ -1039,8 +1041,16 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 
 	enter_config(1);
 
+PWOK:
+	/* Switch color support on or off if we're in user mode */
+	if (rc_ansi_color == 3) {
+		if (userflags & US_COLOR)
+			enable_color = 1;
+		else
+			enable_color = 0;
+	}
 
-PWOK:	printf("%s\nAccess level: %d (%s)\nUser #%ld / Call #%d\n",
+	printf("%s\nAccess level: %d (%s)\nUser #%ld / Call #%d\n",
 	       fullname, axlevel, axdefs[(int) axlevel],
 	       usernum, timescalled);
 

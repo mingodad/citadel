@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.12  2000/10/11 22:55:25  error
+ * citadel.c: when ansi_color=user, enable color at login, so Lobby> posts
+   displayed at login are in color
+
  Revision 573.11  2000/10/11 22:47:51  error
  * domain.c: getmx() returns hostname as MX if no MX records found a la RFC 974
 
@@ -2089,4 +2093,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-	 
