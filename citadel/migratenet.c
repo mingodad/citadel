@@ -167,7 +167,7 @@ int main(int argc, char **argv)
 
 	/* Now go through the table looking for node names to enter */
 
-	sprintf(buf, "cat %s |awk '{ FS=\"|\"; print $2 }' |sort -f |uniq -i",
+	sprintf(buf, "cat %s |awk -F \"|\" '{ print $2 }' |sort -f |uniq -i",
 		roomfilename);
 	roomfp = popen(buf, "r");
 	if (roomfp == NULL) {
@@ -195,6 +195,7 @@ int main(int argc, char **argv)
 		sprintf(buf, "GOTO %s", mn->roomname);
 		serv_puts(buf);
 		serv_gets(buf);
+		printf("%s\n", &buf[4]);
 		if (buf[0] != '2') goto roomerror;
 
 		serv_puts("SNET");
@@ -229,5 +230,19 @@ roomerror:	/* free this record */
 
 	unlink(roomfilename);
 	unlink(nodefilename);
-	return(0);
+
+	printf("\n\n"
+		"If this conversion was successful, you do not need your\n"
+		"old network configuration files.  Delete them now? "
+	);
+
+	gets(buf);
+	if (tolower(buf[0]) != 'y') exit(0);
+
+	get_config();
+	system("rm -fr ./network/systems");
+	system("rm -f ./network/mail.sysinfo");
+	system("rm -f ./network/internetmail.config");
+
+	exit(0);
 }

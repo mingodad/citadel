@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.71  2001/10/29 16:39:54  ajc
+ * Finished the migratenet utility (finally).
+
  Revision 580.70  2001/10/28 05:18:51  ajc
  * migratenet almost finished
 
@@ -2843,4 +2846,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
