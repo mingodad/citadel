@@ -408,11 +408,6 @@ struct visit {
 #define V_LOCKOUT	2	/* User is locked out of this room  */
 #define V_ACCESS	4	/* Access is granted to this room   */
 
-#define UA_KNOWN                2
-#define UA_GOTOALLOWED          4
-#define UA_HASNEWMSGS           8
-#define UA_ZAPPED		16
-
 
 /* Supplementary data for a message on disk
  * (These are kept separately from the message itself because they are

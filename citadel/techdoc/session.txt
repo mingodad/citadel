@@ -259,9 +259,18 @@ floor names.
  The fourth field displayed on each line is a "room listing order."  Unless
 there is a compelling reason not to, clients should sort any received room
 listings by this value.
+ 
+ The fifth field is a special bit bucket containing fields which pertain to
+room access controls:
 
-
-
+#define UA_KNOWN                2	/* Known room */
+#define UA_GOTOALLOWED          4	/* Access will be granted to this room
+					 * if the user calls it up by name */
+#define UA_HASNEWMSGS           8	/* Unread messages exist in room */
+#define UA_ZAPPED              16	/* Zapped from known rooms list */
+ 
+ 
+ 
  LKRO   (List Known Rooms with Old [no new] messages)
 
  This follows the same usage and format as LKRN.

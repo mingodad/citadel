@@ -41,3 +41,10 @@ struct roomlisting {
         };
 
 
+enum {
+        LISTRMS_NEW_ONLY,
+        LISTRMS_OLD_ONLY,
+        LISTRMS_ALL
+};
+
+

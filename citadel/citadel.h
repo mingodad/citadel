@@ -137,6 +137,8 @@ struct march {
 	unsigned int march_flags;
 	char march_floor;
 	char march_order;
+	unsigned int march_flags2;
+	int march_access;
 };
 
 #define NODENAME		config.c_nodename

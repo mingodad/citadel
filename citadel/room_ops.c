@@ -480,7 +480,7 @@ int is_noneditable(struct quickroom *qrbuf)
 /*
  * Back-back-end for all room listing commands
  */
-void list_roomname(struct quickroom *qrbuf)
+void list_roomname(struct quickroom *qrbuf, int ra)
 {
 	char truncated_roomname[ROOMNAMELEN];
 
@@ -497,11 +497,12 @@ void list_roomname(struct quickroom *qrbuf)
 	}
 
 	/* ...and now the other parameters */
-	cprintf("|%u|%d|%d|%d\n",
+	cprintf("|%u|%d|%d|%d|%d|\n",
 		qrbuf->QRflags,
 		(int) qrbuf->QRfloor,
 		(int) qrbuf->QRorder,
-		(int) qrbuf->QRflags2
+		(int) qrbuf->QRflags2,
+		ra
 	);
 }
 
@@ -512,13 +513,15 @@ void list_roomname(struct quickroom *qrbuf)
 void cmd_lrms_backend(struct quickroom *qrbuf, void *data)
 {
 	int FloorBeingSearched = (-1);
-	FloorBeingSearched = *(int *)data;
+	int ra;
 
-	if (((CtdlRoomAccess(qrbuf, &CC->usersupp)
-	      & (UA_KNOWN | UA_ZAPPED)))
+	FloorBeingSearched = *(int *)data;
+	ra = CtdlRoomAccess(qrbuf, &CC->usersupp);
+
+	if ((( ra & (UA_KNOWN | UA_ZAPPED)))
 	    && ((qrbuf->QRfloor == (FloorBeingSearched))
 		|| ((FloorBeingSearched) < 0)))
-		list_roomname(qrbuf);
+		list_roomname(qrbuf, ra);
 }
 
 void cmd_lrms(char *argbuf)
@@ -547,13 +550,15 @@ void cmd_lrms(char *argbuf)
 void cmd_lkra_backend(struct quickroom *qrbuf, void *data)
 {
 	int FloorBeingSearched = (-1);
-	FloorBeingSearched = *(int *)data;
+	int ra;
 
-	if (((CtdlRoomAccess(qrbuf, &CC->usersupp)
-	      & (UA_KNOWN)))
+	FloorBeingSearched = *(int *)data;
+	ra = CtdlRoomAccess(qrbuf, &CC->usersupp);
+
+	if ((( ra & (UA_KNOWN)))
 	    && ((qrbuf->QRfloor == (FloorBeingSearched))
 		|| ((FloorBeingSearched) < 0)))
-		list_roomname(qrbuf);
+		list_roomname(qrbuf, ra);
 }
 
 void cmd_lkra(char *argbuf)
@@ -579,13 +584,16 @@ void cmd_lkra(char *argbuf)
 void cmd_lprm_backend(struct quickroom *qrbuf, void *data)
 {
 	int FloorBeingSearched = (-1);
+	int ra;
+
 	FloorBeingSearched = *(int *)data;
+	ra = CtdlRoomAccess(qrbuf, &CC->usersupp);
 
 	if (   ((qrbuf->QRflags & QR_PRIVATE) == 0)
 		&& ((qrbuf->QRflags & QR_MAILBOX) == 0)
 	    && ((qrbuf->QRfloor == (FloorBeingSearched))
 		|| ((FloorBeingSearched) < 0)))
-		list_roomname(qrbuf);
+		list_roomname(qrbuf, ra);
 }
 
 void cmd_lprm(char *argbuf)
@@ -607,16 +615,17 @@ void cmd_lprm(char *argbuf)
  */
 void cmd_lkrn_backend(struct quickroom *qrbuf, void *data)
 {
-	int ra;
 	int FloorBeingSearched = (-1);
-	FloorBeingSearched = *(int *)data;
+	int ra;
 
+	FloorBeingSearched = *(int *)data;
 	ra = CtdlRoomAccess(qrbuf, &CC->usersupp);
+
 	if ((ra & UA_KNOWN)
 	    && (ra & UA_HASNEWMSGS)
 	    && ((qrbuf->QRfloor == (FloorBeingSearched))
 		|| ((FloorBeingSearched) < 0)))
-		list_roomname(qrbuf);
+		list_roomname(qrbuf, ra);
 }
 
 void cmd_lkrn(char *argbuf)
@@ -644,16 +653,17 @@ void cmd_lkrn(char *argbuf)
  */
 void cmd_lkro_backend(struct quickroom *qrbuf, void *data)
 {
-	int ra;
 	int FloorBeingSearched = (-1);
-	FloorBeingSearched = *(int *)data;
+	int ra;
 
+	FloorBeingSearched = *(int *)data;
 	ra = CtdlRoomAccess(qrbuf, &CC->usersupp);
+
 	if ((ra & UA_KNOWN)
 	    && ((ra & UA_HASNEWMSGS) == 0)
 	    && ((qrbuf->QRfloor == (FloorBeingSearched))
 		|| ((FloorBeingSearched) < 0)))
-		list_roomname(qrbuf);
+		list_roomname(qrbuf, ra);
 }
 
 void cmd_lkro(char *argbuf)
@@ -681,16 +691,17 @@ void cmd_lkro(char *argbuf)
  */
 void cmd_lzrm_backend(struct quickroom *qrbuf, void *data)
 {
-	int ra;
 	int FloorBeingSearched = (-1);
-	FloorBeingSearched = *(int *)data;
 
+	int ra;
+	FloorBeingSearched = *(int *)data;
 	ra = CtdlRoomAccess(qrbuf, &CC->usersupp);
+
 	if ((ra & UA_GOTOALLOWED)
 	    && (ra & UA_ZAPPED)
 	    && ((qrbuf->QRfloor == (FloorBeingSearched))
 		|| ((FloorBeingSearched) < 0)))
-		list_roomname(qrbuf);
+		list_roomname(qrbuf, ra);
 }
 
 void cmd_lzrm(char *argbuf)

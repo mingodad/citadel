@@ -51,7 +51,7 @@ void ForEachRoom(void (*CallBack)(struct quickroom *EachRoom, void *out_data),
 void assoc_file_name(char *buf, size_t n,
 		     struct quickroom *qrbuf, const char *prefix);
 void delete_room(struct quickroom *qrbuf);
-void list_roomname(struct quickroom *qrbuf);
+void list_roomname(struct quickroom *qrbuf, int ra);
 int is_noneditable(struct quickroom *qrbuf);
 int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf);
 int CtdlDoIHavePermissionToDeleteThisRoom(struct quickroom *qr);

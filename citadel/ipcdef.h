@@ -83,6 +83,11 @@ struct CtdlServInfo {
 			US_NOPROMPT | US_DISAPPEAR | US_PAGINATOR | \
 			US_FLOORS | US_COLOR | US_PROMPTCTL )
 
+#define UA_KNOWN                2
+#define UA_GOTOALLOWED          4
+#define UA_HASNEWMSGS           8
+#define UA_ZAPPED               16
+
 #ifdef __cplusplus
 }
 #endif

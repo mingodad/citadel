@@ -303,6 +303,8 @@ int CtdlIPCKnownRooms(CtdlIPC *ipc, enum RoomList which, int floor, struct march
 				mptr->march_flags = (unsigned int) extract_int(aaa, 1);
 				mptr->march_floor = (char) extract_int(aaa, 2);
 				mptr->march_order = (char) extract_int(aaa, 3);
+				mptr->march_flags2 = (unsigned int) extract_int(aaa, 4);
+				mptr->march_access = (char) extract_int(aaa, 5);
 				if (march == NULL)
 					march = mptr;
 				else {
@@ -1344,18 +1346,13 @@ int CtdlIPCFloorListing(CtdlIPC *ipc, char **listing, char *cret)
 int CtdlIPCCreateFloor(CtdlIPC *ipc, int for_real, const char *name, char *cret)
 {
 	register int ret;
-	char *aaa;
+	char aaa[SIZ];
 
 	if (!cret) return -2;
 	if (!name) return -2;
-	if (!*name) return -2;
-
-	aaa = (char *)malloc(strlen(name) + 17);
-	if (!aaa) return -1;
 
 	sprintf(aaa, "CFLR %s|%d", name, for_real);
 	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
-	free(aaa);
 	return ret;
 }
 
@@ -1363,7 +1360,7 @@ int CtdlIPCCreateFloor(CtdlIPC *ipc, int for_real, const char *name, char *cret)
 /* KFLR */
 int CtdlIPCDeleteFloor(CtdlIPC *ipc, int for_real, int floornum, char *cret)
 {
-	char aaa[27];
+	char aaa[SIZ];
 
 	if (!cret) return -1;
 	if (floornum < 0) return -1;
@@ -1377,18 +1374,14 @@ int CtdlIPCDeleteFloor(CtdlIPC *ipc, int for_real, int floornum, char *cret)
 int CtdlIPCEditFloor(CtdlIPC *ipc, int floornum, const char *floorname, char *cret)
 {
 	register int ret;
-	char *aaa;
+	char aaa[SIZ];
 
 	if (!cret) return -2;
 	if (!floorname) return -2;
 	if (floornum < 0) return -2;
 
-	aaa = (char *)malloc(strlen(floorname) + 17);
-	if (!aaa) return -1;
-
 	sprintf(aaa, "EFLR %d|%s", floornum, floorname);
 	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
-	free(aaa);
 	return ret;
 }
 

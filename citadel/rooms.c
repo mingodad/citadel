@@ -165,52 +165,57 @@ int rordercmp(struct roomlisting *r1, struct roomlisting *r2)
 /*
  * Common code for all room listings
  */
-static void listrms(CtdlIPC *ipc, enum RoomList variety, int floor)
+static void listrms(struct march *listing, int new_only, int floor_only)
 {
-	char buf[SIZ];
-	struct march *listing = NULL;
-	struct march *tmp = NULL;
+	struct march *mptr;
 	struct roomlisting *rl = NULL;
 	struct roomlisting *rp;
 	struct roomlisting *rs;
-	int r;		/* IPC response code */
+	int list_it;
 
-	/* Ask the server for a room list */
-	r = CtdlIPCKnownRooms(ipc, variety, floor, &listing, buf);
-	if (r / 100 != 1) {
-		return;
-	}
-	while (listing) {
-		rp = malloc(sizeof(struct roomlisting));
-		strncpy(rp->rlname, listing->march_name, ROOMNAMELEN);
-		rp->rlflags = listing->march_flags;
-		rp->rlfloor = listing->march_floor;
-		rp->rlorder = listing->march_order;
-		rp->lnext = NULL;
-		rp->rnext = NULL;
+	for (mptr = listing; mptr != NULL; mptr = mptr->next) {
+		list_it = 1;
 
-		tmp = listing->next;
-		free(listing);
-		listing = tmp;
+		if ( (new_only == LISTRMS_NEW_ONLY)
+		   && ((mptr->march_access & UA_HASNEWMSGS) == 0)) 
+			list_it = 0;
 
-		rs = rl;
-		if (rl == NULL) {
-			rl = rp;
-		} else {
-			while (rp != NULL) {
-				if (rordercmp(rp, rs) < 0) {
-					if (rs->lnext == NULL) {
-						rs->lnext = rp;
-						rp = NULL;
+		if ( (new_only == LISTRMS_OLD_ONLY)
+		   && ((mptr->march_access & UA_HASNEWMSGS) != 0)) 
+			list_it = 0;
+
+		if ( (floor_only >= 0)
+		   && (mptr->march_floor != floor_only))
+			list_it = 0;
+
+		if (list_it) {
+			rp = malloc(sizeof(struct roomlisting));
+			strncpy(rp->rlname, mptr->march_name, ROOMNAMELEN);
+			rp->rlflags = mptr->march_flags;
+			rp->rlfloor = mptr->march_floor;
+			rp->rlorder = mptr->march_order;
+			rp->lnext = NULL;
+			rp->rnext = NULL;
+	
+			rs = rl;
+			if (rl == NULL) {
+				rl = rp;
+			} else {
+				while (rp != NULL) {
+					if (rordercmp(rp, rs) < 0) {
+						if (rs->lnext == NULL) {
+							rs->lnext = rp;
+							rp = NULL;
+						} else {
+							rs = rs->lnext;
+						}
 					} else {
-						rs = rs->lnext;
-					}
-				} else {
-					if (rs->rnext == NULL) {
-						rs->rnext = rp;
-						rp = NULL;
-					} else {
-						rs = rs->rnext;
+						if (rs->rnext == NULL) {
+							rs->rnext = rp;
+							rp = NULL;
+						} else {
+							rs = rs->rnext;
+						}
 					}
 				}
 			}
@@ -248,16 +253,28 @@ void list_other_floors(void)
 void knrooms(CtdlIPC *ipc, int kn_floor_mode)
 {
 	int a;
+	struct march *listing = NULL;
+	struct march *mptr;
+	int r;		/* IPC response code */
+	char buf[SIZ];
+
+
+	/* Ask the server for a room list */
+	r = CtdlIPCKnownRooms(ipc, SubscribedRooms, (-1), &listing, buf);
+	if (r / 100 != 1) {
+		listing = NULL;
+	}
 
 	load_floorlist(ipc);
+
 
 	if (kn_floor_mode == 0) {
 		color(BRIGHT_CYAN);
 		pprintf("\n   Rooms with unread messages:\n");
-		listrms(ipc, SubscribedRoomsWithNewMessages, -1);
+		listrms(listing, LISTRMS_NEW_ONLY, -1);
 		color(BRIGHT_CYAN);
 		pprintf("\n\n   No unseen messages in:\n");
-		listrms(ipc, SubscribedRoomsWithNoNewMessages, -1);
+		listrms(listing, LISTRMS_OLD_ONLY, -1);
 		pprintf("\n");
 	}
 
@@ -265,11 +282,11 @@ void knrooms(CtdlIPC *ipc, int kn_floor_mode)
 		color(BRIGHT_CYAN);
 		pprintf("\n   Rooms with unread messages on %s:\n",
 			floorlist[(int) curr_floor]);
-		listrms(ipc, SubscribedRoomsWithNewMessages, curr_floor);
+		listrms(listing, LISTRMS_NEW_ONLY, curr_floor);
 		color(BRIGHT_CYAN);
 		pprintf("\n\n   Rooms with no new messages on %s:\n",
 			floorlist[(int) curr_floor]);
-		listrms(ipc, SubscribedRoomsWithNoNewMessages, curr_floor);
+		listrms(listing, LISTRMS_OLD_ONLY, curr_floor);
 		color(BRIGHT_CYAN);
 		pprintf("\n\n   Other floors:\n");
 		list_other_floors();
@@ -282,11 +299,18 @@ void knrooms(CtdlIPC *ipc, int kn_floor_mode)
 				color(BRIGHT_CYAN);
 				pprintf("\n   Rooms on %s:\n",
 					floorlist[a]);
-				listrms(ipc, AllAccessibleRooms, a);
+				listrms(listing, LISTRMS_ALL, a);
 				pprintf("\n");
 			}
 		}
 	}
+
+	/* Free the room list */
+	while (listing) {
+		mptr = listing->next;
+		free(listing);
+		listing = mptr;
+	};
 
 	color(DIM_WHITE);
 	IFNEXPERT hit_any_key();
@@ -295,10 +319,30 @@ void knrooms(CtdlIPC *ipc, int kn_floor_mode)
 
 void listzrooms(CtdlIPC *ipc)
 {				/* list public forgotten rooms */
+	struct march *listing = NULL;
+	struct march *mptr;
+	int r;		/* IPC response code */
+	char buf[SIZ];
+
+
+	/* Ask the server for a room list */
+	r = CtdlIPCKnownRooms(ipc, UnsubscribedRooms, 1, &listing, buf);
+	if (r / 100 != 1) {
+		listing = NULL;
+	}
+
 	color(BRIGHT_CYAN);
 	pprintf("\n   Forgotten public rooms:\n");
-	listrms(ipc, UnsubscribedRooms, -1);
+	listrms(listing, LISTRMS_ALL, -1);
 	pprintf("\n");
+
+	/* Free the room list */
+	while (listing) {
+		mptr = listing->next;
+		free(listing);
+		listing = mptr;
+	};
+
 	color(DIM_WHITE);
 	IFNEXPERT hit_any_key();
 }
@@ -1145,7 +1189,7 @@ void create_floor(CtdlIPC *ipc)
 	load_floorlist(ipc);
 
 	r = CtdlIPCCreateFloor(ipc, 0, "", buf);
-	if (r / 100 != 2) {
+	if ( (r / 100 != 2) && (r != ERROR + ILLEGAL_VALUE) ) {
 		scr_printf("%s\n", buf);
 		return;
 	}

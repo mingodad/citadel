@@ -1,4 +1,10 @@
  $Log$
+ Revision 605.33  2003/04/07 05:02:23  ajc
+ * Reworked all the "list rooms" operations so that they only require one
+   pass through the database.
+ * Repaired the "create floor" operation which was broken by the switch
+   to the new IPC libray
+
  Revision 605.32  2003/04/02 13:33:28  ajc
  * Fixed output of "-0500" vs. "+0500" type of timezone stamps in RFC822.
    (I think they were reversed.)
@@ -4616,3 +4622,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
