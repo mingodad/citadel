@@ -38,7 +38,6 @@ void master_startup(void) {
 
 	lprintf(7, "Checking floor reference counts\n");
 	check_ref_counts();
-	
 	}
 
 /*

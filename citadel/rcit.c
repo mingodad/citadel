@@ -1,7 +1,7 @@
 #define UNCOMPRESS "/usr/bin/gunzip"
 
-/* Citadel/UX rnews
- * version 2.8
+/* Citadel/UX rcit
+ * version 2.9
  *
  * This program functions the same as the standard rnews program for
  * UseNet. It accepts standard input, and looks for rooms to post messages
@@ -36,29 +36,10 @@
 void get_config(void);
 struct config config;
 
-char roomlist[MAXROOMS][20];
-
-void load_roomlist(void) {
-	FILE *fp;
-	struct quickroom QRtemp;
-	int a;
-
-	for (a=0; a<MAXROOMS; ++a) strcpy(roomlist[a],TWITROOM);
-	fp=fopen("quickroom","r");
-	if (fp==NULL) return;
-	for (a=0; a<MAXROOMS; ++a) {
-		fread((char *)&QRtemp,sizeof(struct quickroom),1,fp);
-		if (QRtemp.QRflags & QR_INUSE)
-			strcpy(roomlist[a],QRtemp.QRname);
-		}
-	fclose(fp);
-	}
-
-
-
-int rnewsxref(char *room, char *ngroup)		/* xref table */
-             
-               {
+/*
+ * Cross-reference newsgroup names to Citadel room names
+ */
+int rnewsxref(char *room, char *ngroup) {
 	FILE *fp;
 	int a,b;
 	char aaa[50],bbb[50];
@@ -86,30 +67,6 @@ GNA:	strcpy(aaa,""); strcpy(bbb,"");
 	return(0);
 	}
 
-
-void getroom(char *room, char *ngroup)
-{
-	char ngbuf[256];
-	char tryme[256];
-	int a,b;
-	struct quickroom qbuf;
-
-	strcpy(ngbuf,ngroup);
-	strcat(ngbuf,",");
-	for (a=0; a<strlen(ngbuf); ++a) {
-		if ((ngbuf[a]==',')||(ngbuf[a]==0)) {
-			strcpy(tryme,ngbuf);	
-			tryme[a]=0;
-			if (!rnewsxref(room,tryme)) return;
-			room[sizeof(qbuf.QRname)-1]=0;
-			for (b=0; b<MAXROOMS; ++b) {
-				if (!strcasecmp(roomlist[b],room)) return;
-				}
-			strcpy(ngbuf,&ngbuf[a+1]);
-			a=(-1);
-			}
-		}
-	}
 
 void main(int argc, char **argv)
 {
@@ -149,7 +106,6 @@ void main(int argc, char **argv)
 		}
 
 	/* process UseNet news input */
-	load_roomlist();
 A:	if (fgets(aaa,128,minput)==NULL) goto END;
 	aaa[strlen(aaa)-1]=0;
 	if (strncmp(aaa,"#! rnews ",9)) goto A;
@@ -246,7 +202,7 @@ C:	if ((author[0]==0)||(room[0]==0)||(node[0]==0)) goto ABORT;
 	fprintf(mout,"T%ld",now); putc(0,mout);
 	fprintf(mout,"A%s",author); putc(0,mout);
 	strcpy(ccc,room);
-	getroom(room,ccc);
+	rnewsxref(room,ccc);
 	fprintf(mout,"O%s",room); putc(0,mout);
 	fprintf(mout,"N%s",node); putc(0,mout);
 	if (orgname[0]!=0) {

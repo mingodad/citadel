@@ -139,11 +139,11 @@ void get_mm(void) {
  */
 void cmd_msgs(char *cmdbuf)
 {
-	int a;
-	int mode;
+	int a = 0;
+	int mode = 0;
 	char which[256];
-	int cm_howmany;
-	long cm_gt;
+	int cm_howmany = 0;
+	long cm_gt = 0L;
 
 	extract(which,cmdbuf,0);
 
@@ -651,6 +651,8 @@ long send_message(char *message_in_memory,	/* pointer to buffer */
 
 /* FIX ... rewrite this to simply check for the existence of the twitroom,
  * and create it if necessary.  No slot-numbers will need to be loaded.
+ * (Actually, twitroom should be created during the same portion of startup
+ * that creates Lobby/Mail/Aide.)
  */
 void loadtroom(void) {
 	struct quickroom qrbuf;

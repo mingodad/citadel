@@ -49,6 +49,8 @@ pthread_key_t MyConKey;				/* TSD key for MyContext() */
 int msock;					/* master listening socket */
 int verbosity = 3;				/* Logging level */
 
+struct CitContext masterCC;
+
 
 /*
  * lprintf()  ...   Write logging information
@@ -211,7 +213,10 @@ int ig_tcp_server(int port_number, int queue_len)
  * Return a pointer to a thread's own CitContext structure (new)
  */
 struct CitContext *MyContext(void) {
-	return (struct CitContext *) pthread_getspecific(MyConKey);
+	struct CitContext *retCC;
+	retCC = (struct CitContext *) pthread_getspecific(MyConKey);
+	if (retCC == NULL) retCC = &masterCC;
+	return(retCC);
 	}
 
 
@@ -656,14 +661,8 @@ int main(int argc, char **argv)
 	lprintf(7, "Loading citadel.config\n");
 	get_config();
 
-	/* Databases must be opened *after* config is loaded, otherwise we might
-	 * end up working in the wrong directory.
-	 */
-	lprintf(7, "Opening databases\n");
-	open_databases();
-
-	lprintf(7, "Checking floor reference counts\n");
-	check_ref_counts();
+	/* Do non system dependent startup functions */
+	master_startup();
 
 	/*
 	 * Bind the server to our favourite port.

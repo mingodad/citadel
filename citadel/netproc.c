@@ -103,8 +103,6 @@ void serv_write(char *buf, int nbytes);
 void get_config(void);
 
 struct filterlist *filter = NULL;
-char roomnames[MAXROOMS][20];
-char roomdirs[MAXROOMS][15];
 struct syslist *slist = NULL;
 
 struct config config;
@@ -132,30 +130,6 @@ void strip_trailing_whitespace(char *buf)
 		buf[strlen(buf)-1]=0;
 	}
 
-
-/*
- * for performance optimization, netproc loads the list of room names (and
- * their corresponding directory names, if applicable) into a table in memory.
- */
-int load_roomnames(void) {
-	FILE *fp;
-	struct quickroom qbuf;
-	int i;
-
-	fp=fopen("./quickroom","rb");
-	if (fp==NULL) return(1);
-	for (i=0; i<MAXROOMS; ++i) {
-		if (fread((char *)&qbuf,sizeof(struct quickroom),1,fp)!=1)
-			return(1);
-		strcpy(roomnames[i],qbuf.QRname);
-		if (qbuf.QRflags & QR_DIRECTORY)
-			strcpy(roomdirs[i],qbuf.QRdirname);
-		else
-			strcpy(roomdirs[i],config.c_bucket_dir);
-		}
-	fclose(fp);
-	return(0);
-	}
 
 /*
  * we also load the network/mail.sysinfo table into memory, make changes
@@ -580,16 +554,18 @@ void ship_to(char *filenm, char *sysnm)	/* send spool file filenm to system sysn
 
 /*
  * proc_file_transfer()  -  handle a simple file transfer packet
+ *
+ * FIX  This shouldn't be like this.  What it needs to do is begin an upload
+ * and transmit the file to the server.
  */
 void proc_file_transfer(char *tname)
 {	/* name of temp file containing the whole message */
 	char buf[128];
-	char dest_dir[32];
+	char dest_room[32];
 	FILE *tfp,*uud;
-	int a,b;
+	int a;
 
 	printf("netproc: processing network file transfer...\n");
-	strcpy(dest_dir,config.c_bucket_dir);
 
 	tfp=fopen(tname,"rb");
 	if (tfp==NULL) printf("netproc: cannot open %s\n",tname);
@@ -598,9 +574,8 @@ void proc_file_transfer(char *tname)
 		a=getc(tfp);
 		if (a!='M') {
 			fpgetfield(tfp,buf);
-			if (a=='O') for (b=0; b<MAXROOMS; ++b) {
-				if (!strcasecmp(buf,roomnames[b]))
-					strcpy(dest_dir,roomdirs[b]);
+			if (a=='O') {
+				strcpy(dest_room, buf);
 				}
 			}
 		} while ((a!='M')&&(a>=0));
@@ -610,7 +585,7 @@ void proc_file_transfer(char *tname)
 		return;
 		}
 
-	sprintf(buf,"cd %s/files/%s; exec %s",bbs_home_directory,dest_dir,UUDECODE);
+	sprintf(buf,"cd %s/files/%s; exec %s",bbs_home_directory,config.c_bucket_dir,UUDECODE);
 	uud=(FILE *)popen(buf,"w");
 	if (uud==NULL) {
 		printf("netproc: cannot open uudecode pipe\n");
@@ -1275,7 +1250,6 @@ void main(int argc, char **argv)
 	np_attach_to_server();
 	fflush(stdout);
 
-	if (load_roomnames()!=0) fprintf(stdout,"netproc: cannot load rooms\n");
 	if (load_syslist()!=0) fprintf(stdout,"netproc: cannot load sysinfo\n");
 	setup_special_nodes();
 

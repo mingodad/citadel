@@ -71,27 +71,29 @@ void do_housekeeping(void) {
 /*
  * Check (and fix) floor reference counts.  This doesn't need to be done
  * very often, since the counts should remain correct during normal operation.
+ * NOTE: this function pair should ONLY be called during startup.  It is NOT
+ * thread safe.
  */
+void check_ref_counts_backend(struct quickroom *qrbuf) {
+	struct floor flbuf;
+
+	lgetfloor(&flbuf, qrbuf->QRfloor);
+	++flbuf.f_ref_count;
+	flbuf.f_flags = flbuf.f_flags | QR_INUSE;
+	lputfloor(&flbuf, qrbuf->QRfloor);
+	}
+
 void check_ref_counts(void) {
-	int ref[MAXFLOORS];
-	struct quickroom qrbuf;
 	struct floor flbuf;
 	int a;
 
-	for (a=0; a<MAXFLOORS; ++a) ref[a] = 0;
-		
-	for (a=0; a<MAXROOMS; ++a) {
-		getroom(&qrbuf, a);
-		if (qrbuf.QRflags & QR_INUSE) {
-			++ref[(int)qrbuf.QRfloor];
-			}
-		}
-
 	for (a=0; a<MAXFLOORS; ++a) {
 		lgetfloor(&flbuf, a);
-		flbuf.f_ref_count = ref[a];
-		if (ref[a] > 0) flbuf.f_flags = flbuf.f_flags | QR_INUSE ;
+		flbuf.f_ref_count = 0;
+		flbuf.f_flags = flbuf.f_flags & ~QR_INUSE;
 		lputfloor(&flbuf, a);
 		}
+
+	ForEachRoom(check_ref_counts_backend);
 	}	
 
