@@ -1,5 +1,5 @@
                       WEBCIT for the Citadel/UX System
-                               version 2.13
+                               version 3.00
  
    Copyright (C) 1996-2000 by the authors.  Portions written by:
 	Art Cancro
@@ -28,12 +28,14 @@ be attractive and easy to navigate.
  INSTALLATION
  ------------
  
- If you've installed WebCit v1.xx before, you'll be pleased to know that the
-new version doesn't require all that tedious mucking about with Apache
-configuration files and directories.  WebCit now contains its own standalone
-HTTP engine, which you run on another port (port 2000 by default).  WebCit is
-not intended to replace your regular webserver; it is merely a separate service
-that happens to talk HTTP.
+ Unline some web-based packages, WebCit contains its own standalone HTTP
+engine.  As a result, you can get it running quickly without all that tedious
+mucking about with Apache configuration files and directories.  WebCit is not
+intended to replace your Apache server, however -- it *only* provides a front
+end to Citadel.  If you do not have another web server running, you may run
+WebCit on port 80; however, in the more likely situation that you have Apache
+or some other web server listening on port 80, you must run WebCit on another
+port.  The default is port 2000.
  
  To compile from source, enter the usual commands:
   ./configure
@@ -89,7 +91,8 @@ the "webserver" program:
      socket.  /your/citadel/directory should be set to the actual name of the
      directory in which you have Citadel installed
      (such as /usr/local/citadel).  If you run Citadel and WebCit on the same
-     computer, you should set it up this way; it runs a bit faster.
+     computer, this way may run a bit faster, but you may experience trouble
+     with the real-time chat facility.
  
  
  GRAPHICS
@@ -111,7 +114,5 @@ ones which you may be interested in are:
  ----------
  
  That's all you need to know to get started.  If you have any questions or
-comments, please visit UNCENSORED! BBS, the home of Citadel/UX, at one of the
-following locations:
-                       via Internet:   uncensored.citadel.org
-                       modem dialup:   914-244-3252
+comments, please visit UNCENSORED! BBS, the home of Citadel/UX, at
+uncensored.citadel.org.
