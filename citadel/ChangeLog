@@ -1,4 +1,8 @@
  $Log$
+ Revision 580.32  2001/09/06 02:49:22  ajc
+ * Fixed paste-post mode (<.E>nter <A>scii) to append instead of replace when
+   the user hits <C>ontinue (bug reported by Stu Mark)
+
  Revision 580.31  2001/09/06 01:26:39  nbryant
   - port to Cygwin (DLL support, etc.)
   - don't build SMTP module if there's no resolver library (eg on Windows)
@@ -2708,4 +2712,5 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
 

@@ -636,6 +636,7 @@ int make_message(char *filename,	/* temporary file name */
 	if (mode == 1) {
 		printf("(Press ctrl-d when finished)\n");
 	}
+
 	if (mode == 0) {
 		fp = fopen(filename, "r");
 		if (fp != NULL) {
@@ -669,7 +670,7 @@ ME1:	switch (mode) {
 		goto MECR;
 
 	case 1:
-		fp = fopen(filename, "w");
+		fp = fopen(filename, "a");
 		if (fp == NULL) {
 			printf("*** Error opening temp file!\n"
 				"    %s: %s\n",

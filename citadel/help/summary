@@ -52,7 +52,8 @@ commands are available:
 
  <.> <E>nter <M>essage                    Post a message in this room.
  <.> <E>nter message with <E>ditor        Post using a full-screen editor.
- <.> <E>nter <A>SCII message              Post 'raw' (paste to host)
+ <.> <E>nter <A>SCII message              Post 'raw' (use this when "pasting"
+                                          a message from your clipboard).
 
  <.> <E>nter <P>assword                   Change your password.
  <.> <E>nter <C>onfiguration              Change your 'preferences'.
