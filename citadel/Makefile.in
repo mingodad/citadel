@@ -13,7 +13,7 @@
 CLIENT_TARGETS=citadel whobbs
 SERVER_TARGETS=citserver setup citadelapi.a
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform \
-	readlog rcit stats sysoputil citmail netpoll mailinglist userlist
+	readlog rcit stats citmail netpoll mailinglist userlist
 
 client: $(CLIENT_TARGETS)
 
@@ -34,9 +34,6 @@ netpoll: netpoll.c config.o ipc_c_tcp.o
 
 ipc_c_tcp.o: ipc_c_tcp.c sysdep.h
 	$(CC) $(CFLAGS) -c ipc_c_tcp.c
-
-ipc_c_socks4.o: ipc_c_socks4.c sysdep.h
-	$(CC) $(CFLAGS) -c ipc_c_socks4.c
 
 citadel.o: citadel.c axdefs.h citadel.h
 	$(CC) -O $(CFLAGS) -c citadel.c
@@ -189,10 +186,6 @@ rcit: rcit.c config.o citadel.h
 
 stats: stats.c config.o citadel.h
 	$(CC) -O $(CFLAGS) stats.c config.o $(LFLAGS) -o stats
-
-sysoputil: sysoputil.c config.o citadel.h
-	$(CC) -O $(CFLAGS) sysoputil.c config.o $(LFLAGS) -o sysoputil
-	chmod 4750 sysoputil
 
 citadel.h: sysdep.h sysconfig.h ipcdef.h server.h
 	touch citadel.h

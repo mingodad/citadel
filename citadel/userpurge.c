@@ -1,0 +1,73 @@
+/*
+ * userpurge.c
+ *
+ * This program is a server extension which purges the user file of any user
+ * who has not logged in for a period of time, or who has elected to delete
+ * their account by setting their password to "deleteme".
+ */
+
+/* PURGE_TIME is the amount of time (in seconds) for which a user must not
+ * have logged in for his/her account to be purged.
+ */
+#define PURGE_TIME (5184000L) /* two months */
+
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <time.h>
+#include <ctype.h>
+#include <string.h>
+#include <errno.h>
+#include "citadel.h"
+
+void do_purge(char *who) {
+	int purge;
+	time_t call, now;
+	int calls;
+	char password[64];
+	unsigned int flags;
+
+	/* The default rule is to not purge. */
+	purge = 0;
+
+	/* If the user hasn't called in two months, his/her account
+	 * has expired, so purge the record.
+	 */
+	call = CtdlGetUserLastCall(who);
+	now = time(NULL);
+	if ((now - call) > PURGE_TIME) purge = 1;
+
+	/* If the user set his/her password to 'deleteme', he/she
+	 * wishes to be deleted, so purge the record.
+	 */
+	CtdlGetUserPassword(password, who);
+	if (!strcasecmp(password, "deleteme")) purge = 1;
+
+	/* If the record is marked as permanent, don't purge it.
+	 */
+	flags = CtdlGetUserFlags(who);
+	if (flags & US_PERM) purge = 0;
+
+	/* If the access level is 0, the record should already have been
+	 * deleted, but maybe the user was logged in at the time or something.
+	 * Delete the record now.
+	 */
+	if (CtdlGetUserAccessLevel(who) == 0) purge = 1;
+
+	/* 0 calls is impossible.  If there are 0 calls, it must
+	 * be a corrupted record, so purge it.
+	 */
+	calls = CtdlGetUserTimesCalled(who);
+	if (calls == 0) purge = 1;
+
+	if (purge == 1) {
+		CtdlSendExpressMessage("IGnatius T Foobar", "who");
+		}
+
+
+	}
+
+
+void CtdlMain() {
+	CtdlForEachUser(do_purge);
+	}

@@ -1,3 +1,7 @@
+Sun Aug 23 21:47:00 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* sysoputil is finally dead!  Removed it from the build.
+	* Added userpurge.c server extension (initial implementation)
+
 Tue Aug 18 00:42:33 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* Makefile.in: `clean' target no longer rm's sysdep.h; new target
 	  `realclean' removes everything clean does, plus sysdep.h, plus
