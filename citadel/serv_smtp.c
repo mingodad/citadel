@@ -70,7 +70,7 @@ void smtp_greeting(void) {
 	CtdlAllocUserData(SYM_SMTP_RECP, 256);
 	sprintf(SMTP_RECP, "%s", "");
 
-	cprintf("220 Welcome to the Citadel/UX ESMTP server at %s\n",
+	cprintf("220 Welcome to the Citadel/UX ESMTP server at %s\r\n",
 		config.c_fqdn);
 }
 
@@ -81,13 +81,13 @@ void smtp_greeting(void) {
 void smtp_hello(char *argbuf, int is_esmtp) {
 
 	if (!is_esmtp) {
-		cprintf("250 Greetings and joyous salutations.\n");
+		cprintf("250 Greetings and joyous salutations.\r\n");
 	}
 	else {
-		cprintf("250-Greetings and joyous salutations.\n");
-		cprintf("250-HELP\n");
-		cprintf("250-SIZE %ld\n", config.c_maxmsglen);
-		cprintf("250 AUTH=LOGIN\n");
+		cprintf("250-Greetings and joyous salutations.\r\n");
+		cprintf("250-HELP\r\n");
+		cprintf("250-SIZE %ld\r\n", config.c_maxmsglen);
+		cprintf("250 AUTH=LOGIN\r\n");
 	}
 }
 
@@ -96,19 +96,19 @@ void smtp_hello(char *argbuf, int is_esmtp) {
  * Implement HELP command.
  */
 void smtp_help(void) {
-	cprintf("214-Here's the frequency, Kenneth:\n");
-	cprintf("214-    DATA\n");
-	cprintf("214-    EHLO\n");
-	cprintf("214-    EXPN\n");
-	cprintf("214-    HELO\n");
-	cprintf("214-    HELP\n");
-	cprintf("214-    MAIL\n");
-	cprintf("214-    NOOP\n");
-	cprintf("214-    QUIT\n");
-	cprintf("214-    RCPT\n");
-	cprintf("214-    RSET\n");
-	cprintf("214-    VRFY\n");
-	cprintf("214 I could tell you more, but then I'd have to kill you.\n");
+	cprintf("214-Here's the frequency, Kenneth:\r\n");
+	cprintf("214-    DATA\r\n");
+	cprintf("214-    EHLO\r\n");
+	cprintf("214-    EXPN\r\n");
+	cprintf("214-    HELO\r\n");
+	cprintf("214-    HELP\r\n");
+	cprintf("214-    MAIL\r\n");
+	cprintf("214-    NOOP\r\n");
+	cprintf("214-    QUIT\r\n");
+	cprintf("214-    RCPT\r\n");
+	cprintf("214-    RSET\r\n");
+	cprintf("214-    VRFY\r\n");
+	cprintf("214 I could tell you more, but then I'd have to kill you.\r\n");
 }
 
 
@@ -123,11 +123,11 @@ void smtp_get_user(char *argbuf) {
 	lprintf(9, "Trying <%s>\n", username);
 	if (CtdlLoginExistingUser(username) == login_ok) {
 		encode_base64(buf, "Password:");
-		cprintf("334 %s\n", buf);
+		cprintf("334 %s\r\n", buf);
 		SMTP->command_state = smtp_password;
 	}
 	else {
-		cprintf("500 No such user.\n");
+		cprintf("500 No such user.\r\n");
 		SMTP->command_state = smtp_command;
 	}
 }
@@ -142,13 +142,13 @@ void smtp_get_pass(char *argbuf) {
 	decode_base64(password, argbuf);
 	lprintf(9, "Trying <%s>\n", password);
 	if (CtdlTryPassword(password) == pass_ok) {
-		cprintf("235 Authentication successful.\n");
+		cprintf("235 Authentication successful.\r\n");
 		lprintf(9, "SMTP auth login successful\n");
 		CC->internal_pgm = 0;
 		CC->cs_flags &= ~CS_STEALTH;
 	}
 	else {
-		cprintf("500 Authentication failed.\n");
+		cprintf("500 Authentication failed.\r\n");
 	}
 	SMTP->command_state = smtp_command;
 }
@@ -161,7 +161,7 @@ void smtp_auth(char *argbuf) {
 	char buf[256];
 
 	if (strncasecmp(argbuf, "login", 5) ) {
-		cprintf("550 We only support LOGIN authentication.\n");
+		cprintf("550 We only support LOGIN authentication.\r\n");
 		return;
 	}
 
@@ -171,7 +171,7 @@ void smtp_auth(char *argbuf) {
 
 	else {
 		encode_base64(buf, "Username:");
-		cprintf("334 %s\n", buf);
+		cprintf("334 %s\r\n", buf);
 		SMTP->command_state = smtp_user;
 	}
 }
@@ -199,16 +199,16 @@ void smtp_vrfy(char *argbuf) {
 	ForEachUser(smtp_vrfy_backend);
 
 	if (SMTP->vrfy_count < 1) {
-		cprintf("550 String does not match anything.\n");
+		cprintf("550 String does not match anything.\r\n");
 	}
 	else if (SMTP->vrfy_count == 1) {
-		cprintf("250 %s <cit%ld@%s>\n",
+		cprintf("250 %s <cit%ld@%s>\r\n",
 			SMTP->vrfy_buffer.fullname,
 			SMTP->vrfy_buffer.usernum,
 			config.c_fqdn);
 	}
 	else if (SMTP->vrfy_count > 1) {
-		cprintf("553 Request ambiguous: %d users matched.\n",
+		cprintf("553 Request ambiguous: %d users matched.\r\n",
 			SMTP->vrfy_count);
 	}
 
@@ -224,7 +224,7 @@ void smtp_expn_backend(struct usersupp *us) {
 	if (!fuzzy_match(us, SMTP->vrfy_match)) {
 
 		if (SMTP->vrfy_count >= 1) {
-			cprintf("250-%s <cit%ld@%s>\n",
+			cprintf("250-%s <cit%ld@%s>\r\n",
 				SMTP->vrfy_buffer.fullname,
 				SMTP->vrfy_buffer.usernum,
 				config.c_fqdn);
@@ -246,10 +246,10 @@ void smtp_expn(char *argbuf) {
 	ForEachUser(smtp_expn_backend);
 
 	if (SMTP->vrfy_count < 1) {
-		cprintf("550 String does not match anything.\n");
+		cprintf("550 String does not match anything.\r\n");
 	}
 	else if (SMTP->vrfy_count >= 1) {
-		cprintf("250 %s <cit%ld@%s>\n",
+		cprintf("250 %s <cit%ld@%s>\r\n",
 			SMTP->vrfy_buffer.fullname,
 			SMTP->vrfy_buffer.usernum,
 			config.c_fqdn);
@@ -266,7 +266,7 @@ void smtp_expn(char *argbuf) {
 void smtp_rset(void) {
 	memset(SMTP, 0, sizeof(struct citsmtp));
 	if (CC->logged_in) logout(CC);
-	cprintf("250 Zap!\n");
+	cprintf("250 Zap!\r\n");
 }
 
 
@@ -280,12 +280,12 @@ void smtp_mail(char *argbuf) {
 	int cvt;
 
 	if (strlen(SMTP->from) != 0) {
-		cprintf("503 Only one sender permitted\n");
+		cprintf("503 Only one sender permitted\r\n");
 		return;
 	}
 
 	if (strncasecmp(argbuf, "From:", 5)) {
-		cprintf("501 Syntax error\n");
+		cprintf("501 Syntax error\r\n");
 		return;
 	}
 
@@ -293,7 +293,7 @@ void smtp_mail(char *argbuf) {
 	striplt(SMTP->from);
 
 	if (strlen(SMTP->from) == 0) {
-		cprintf("501 Empty sender name is not permitted\n");
+		cprintf("501 Empty sender name is not permitted\r\n");
 		return;
 	}
 
@@ -305,7 +305,7 @@ void smtp_mail(char *argbuf) {
 		cvt = convert_internet_address(user, node, SMTP->from);
 		lprintf(9, "cvt=%d, citaddr=<%s@%s>\n", cvt, user, node);
 		if ( (cvt != 0) || (strcasecmp(user, CC->usersupp.fullname))) {
-			cprintf("550 <%s> is not your address.\n", SMTP->from);
+			cprintf("550 <%s> is not your address.\r\n", SMTP->from);
 			strcpy(SMTP->from, "");
 			return;
 		}
@@ -318,14 +318,14 @@ void smtp_mail(char *argbuf) {
 		cvt = convert_internet_address(user, node, SMTP->from);
 		lprintf(9, "cvt=%d, citaddr=<%s@%s>\n", cvt, user, node);
 		if (!strcasecmp(node, config.c_nodename)) { /* FIX use fcn */
-			cprintf("550 You must log in to send mail from %s\n",
+			cprintf("550 You must log in to send mail from %s\r\n",
 				config.c_fqdn);
 			strcpy(SMTP->from, "");
 			return;
 		}
 	}
 
-	cprintf("250 Sender ok.  Groovy.\n");
+	cprintf("250 Sender ok.  Groovy.\r\n");
 }
 
 
@@ -341,12 +341,12 @@ void smtp_rcpt(char *argbuf) {
 	int is_spam = 0;	/* FIX implement anti-spamming */
 
 	if (strlen(SMTP->from) == 0) {
-		cprintf("503 MAIL first, then RCPT.  Duh.\n");
+		cprintf("503 MAIL first, then RCPT.  Duh.\r\n");
 		return;
 	}
 
 	if (strncasecmp(argbuf, "To:", 3)) {
-		cprintf("501 Syntax error\n");
+		cprintf("501 Syntax error\r\n");
 		return;
 	}
 
@@ -360,7 +360,7 @@ void smtp_rcpt(char *argbuf) {
 
 	switch(cvt) {
 		case rfc822_address_locally_validated:
-			cprintf("250 %s is a valid recipient.\n", user);
+			cprintf("250 %s is a valid recipient.\r\n", user);
 			++SMTP->number_of_recipients;
 			CtdlReallocUserData(SYM_SMTP_RECP,
 				strlen(SMTP_RECP) + 1024 );
@@ -370,7 +370,7 @@ void smtp_rcpt(char *argbuf) {
 			return;
 
 		case rfc822_room_delivery:
-			cprintf("250 Delivering to room '%s'\n", user);
+			cprintf("250 Delivering to room '%s'\r\n", user);
 			++SMTP->number_of_recipients;
 			CtdlReallocUserData(SYM_SMTP_RECP,
 				strlen(SMTP_RECP) + 1024 );
@@ -380,15 +380,15 @@ void smtp_rcpt(char *argbuf) {
 			return;
 
 		case rfc822_no_such_user:
-			cprintf("550 %s: no such user\n", recp);
+			cprintf("550 %s: no such user\r\n", recp);
 			return;
 
 		case rfc822_address_invalid:
 			if (is_spam) {
-				cprintf("551 Away with thee, spammer!\n");
+				cprintf("551 Away with thee, spammer!\r\n");
 			}
 			else {
-				cprintf("250 Remote recipient %s ok\n", recp);
+				cprintf("250 Remote recipient %s ok\r\n", recp);
 				++SMTP->number_of_recipients;
 				CtdlReallocUserData(SYM_SMTP_RECP,
 					strlen(SMTP_RECP) + 1024 );
@@ -400,7 +400,7 @@ void smtp_rcpt(char *argbuf) {
 			return;
 	}
 
-	cprintf("599 Unknown error\n");
+	cprintf("599 Unknown error\r\n");
 }
 
 
@@ -517,16 +517,16 @@ void smtp_data(void) {
 	char nowstamp[256];
 
 	if (strlen(SMTP->from) == 0) {
-		cprintf("503 Need MAIL command first.\n");
+		cprintf("503 Need MAIL command first.\r\n");
 		return;
 	}
 
 	if (SMTP->number_of_recipients < 1) {
-		cprintf("503 Need RCPT command first.\n");
+		cprintf("503 Need RCPT command first.\r\n");
 		return;
 	}
 
-	cprintf("354 Transmit message now; terminate with '.' by itself\n");
+	cprintf("354 Transmit message now; terminate with '.' by itself\r\n");
 	
 	generate_rfc822_datestamp(nowstamp, time(NULL));
 	body = mallok(4096);
@@ -540,7 +540,7 @@ void smtp_data(void) {
 	
 	body = CtdlReadMessageBody(".", config.c_maxmsglen, body);
 	if (body == NULL) {
-		cprintf("550 Unable to save message text: internal error.\n");
+		cprintf("550 Unable to save message text: internal error.\r\n");
 		return;
 	}
 
@@ -563,10 +563,10 @@ void smtp_data(void) {
 	CtdlFreeMessage(msg);
 
 	if (!retval) {
-		cprintf("250 Message accepted for delivery.\n");
+		cprintf("250 Message accepted for delivery.\r\n");
 	}
 	else {
-		cprintf("550 Internal delivery errors: %d\n", retval);
+		cprintf("550 Internal delivery errors: %d\r\n", retval);
 	}
 }
 
@@ -626,11 +626,11 @@ void smtp_command_loop(void) {
 	}
 
 	else if (!strncasecmp(cmdbuf, "NOOP", 4)) {
-		cprintf("250 This command successfully did nothing.\n");
+		cprintf("250 This command successfully did nothing.\r\n");
 	}
 
 	else if (!strncasecmp(cmdbuf, "QUIT", 4)) {
-		cprintf("221 Goodbye...\n");
+		cprintf("221 Goodbye...\r\n");
 		CC->kill_me = 1;
 		return;
 		}
@@ -648,7 +648,7 @@ void smtp_command_loop(void) {
 	}
 
 	else {
-		cprintf("502 I'm sorry Dave, I'm afraid I can't do that.\n");
+		cprintf("502 I'm sorry Dave, I'm afraid I can't do that.\r\n");
 	}
 
 }
