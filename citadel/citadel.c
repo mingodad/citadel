@@ -28,6 +28,7 @@
 #include "routines2.h"
 #include "rooms.h"
 #include "messages.h"
+#include "commands.h"
 #include "ipc.h"
 #include "client_chat.h"
 #include "citadel_decls.h"
