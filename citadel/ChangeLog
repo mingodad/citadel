@@ -1,3 +1,7 @@
+Sun Sep 20 18:56:37 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Added a UserFunctionHook category to implement hooks which perform
+	  operations on various users or usernames
+
 Fri Sep 18 21:14:41 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* citserver.c: removed cmd_extn() and related code
 

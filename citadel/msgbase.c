@@ -418,6 +418,7 @@ void output_message(char *msgid, int mode, int headers_only)
 			} while (rch > 0);
 
 		if (ch=='A') {
+			PerformUserHooks(buf, (-1L), EVT_OUTPUTMSG);
 			if (anon_flag==MES_ANON) cprintf("from=****");
 			else if (anon_flag==MES_AN2) cprintf("from=anonymous");
 			else cprintf("from=%s",buf);
@@ -479,6 +480,7 @@ void output_message(char *msgid, int mode, int headers_only)
 			strcpy(snode, FQDN);
 			}
 		cprintf("Message-ID: <%s@%s>\n", mid, snode);
+		PerformUserHooks(luser, (-1L), EVT_OUTPUTMSG);
 		cprintf("From: %s@%s (%s)\n",
 			suser, snode, luser);
 		cprintf("Organization: %s\n", lnode);

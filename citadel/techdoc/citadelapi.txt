@@ -60,4 +60,51 @@ all.
 objects: bio, photo, etc.  It returns 0 upon success or a nonzero error code
 if the requested operation could not be performed.
  
+
+
+ HOW TO REGISTER FUNCTION HOOKS
+ ------------------------------
  
+ The truly powerful part of the Citadel API is the ability for extensions to
+register "hooks" -- user-supplied functions will be called while the server
+is performing various tasks.  Here are the API calls to register hooks:
+ 
+   
+ void CtdlRegisterProtoHook(void (*handler)(char *), char *cmd, char *desc)
+  
+ Adds a new server command to the system.  The handler function should accept
+a single string parameter, which will be set to a string containing any
+parameters the client software sent along with the server command.  "cmd" 
+should be the four-character mnemonic the server command is known by, and
+"desc" is a description of the new command.
+ 
+
+ void CtdlRegisterCleanupHook(void *fcn_ptr) 
+ 
+ Registers a new function to be called whenever the server is shutting down.
+Cleanup functions accept no parameters.
+
+ 
+void CtdlRegisterSessionHook(void *fcn_ptr, int EventType) 
+  
+ Registers a session hook.  Session hooks accept no parameters.  There are
+multiple types of session hooks; the server extension registers which one it
+is interested in by setting the value of EventType.  The available session
+hook types are:
+
+#define EVT_STOP	0	/* Session is terminating */
+#define EVT_START	1	/* Session is starting */
+#define EVT_LOGIN	2	/* A user is logging in */
+#define EVT_NEWROOM	3	/* Changing rooms */
+#define EVT_LOGOUT	4	/* A user is logging out */
+#define EVT_SETPASS	5	/* Setting or changing password */
+
+ 
+void CtdlRegisterUserHook(void *fcn_ptr, int EventType) 
+ 
+ Registers a user hook.  User hooks accept two parameters: a string pointer
+containing the user name, and a long which *may* contain a user number (only
+applicable for certain types of hooks).  The available user hook types are:
+
+#define EVT_PURGEUSER	100	/* Deleting a user */
+#define EVT_OUTPUTMSG	101	/* Outputting a message */

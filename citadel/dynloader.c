@@ -23,6 +23,7 @@
 
 struct CleanupFunctionHook *CleanupHookTable = NULL;
 struct SessionFunctionHook *SessionHookTable = NULL;
+struct UserFunctionHook *UserHookTable = NULL;
 
 struct ProtoFunctionHook
 {
@@ -141,6 +142,22 @@ void CtdlRegisterSessionHook(void *fcn_ptr, int EventType) {
 	}
 
 
+void CtdlRegisterUserHook(void *fcn_ptr, int EventType) {
+
+	struct UserFunctionHook *newfcn;
+
+	newfcn = (struct UserFunctionHook *)
+		malloc(sizeof(struct UserFunctionHook));
+	newfcn->next = UserHookTable;
+	newfcn->h_function_pointer = fcn_ptr;
+	newfcn->eventtype = EventType;
+	UserHookTable = newfcn;
+
+	lprintf(5, "Registered a new user function (type %d)\n", 
+		EventType);
+	}
+
+
 void PerformSessionHooks(int EventType) {
 	struct SessionFunctionHook *fcn;
 
@@ -150,3 +167,14 @@ void PerformSessionHooks(int EventType) {
 			}
                 }
 	}
+
+void PerformUserHooks(char *username, long usernum, int EventType) {
+	struct UserFunctionHook *fcn;
+
+        for (fcn = UserHookTable; fcn != NULL; fcn = fcn->next) {
+		if (fcn->eventtype == EventType) {
+                	(*fcn->h_function_pointer)(username, usernum);
+			}
+                }
+	}
+

@@ -158,9 +158,25 @@ struct SessionFunctionHook {
 	};
 extern struct SessionFunctionHook *SessionHookTable;
 
-#define EVT_STOP	0
-#define EVT_START	1
-#define EVT_LOGIN	2
-#define EVT_NEWROOM	3
-#define EVT_LOGOUT	4
-#define EVT_SETPASS	5
+#define EVT_STOP	0	/* Session is terminating */
+#define EVT_START	1	/* Session is starting */
+#define EVT_LOGIN	2	/* A user is logging in */
+#define EVT_NEWROOM	3	/* Changing rooms */
+#define EVT_LOGOUT	4	/* A user is logging out */
+#define EVT_SETPASS	5	/* Setting or changing password */
+
+
+/*
+ * UserFunctionHook extensions are used for any type of hook which implements
+ * an operation on a user or username (potentially) other than the one
+ * operating the current session.
+ */
+struct UserFunctionHook {
+	struct UserFunctionHook *next;
+	void *(*h_function_pointer) (char *username, long usernum);
+	int eventtype;
+	};
+extern struct UserFunctionHook *UserHookTable;
+
+#define EVT_PURGEUSER	100	/* Deleting a user */
+#define EVT_OUTPUTMSG	101	/* Outputting a message */

@@ -335,6 +335,9 @@ int purge_user(char *pname) {
 
 	/* FIX   Don't delete a user who is currently logged in. */
 
+	/* Perform any purge functions registered by server extensions */
+	PerformUserHooks(usbuf.fullname, usbuf.usernum, EVT_PURGEUSER);
+
 	/* delete any messages in the user's mailbox */
 	cdbmb = cdb_fetch(CDB_MAILBOXES, &usbuf.usernum, sizeof(long));
 	if (cdbmb != NULL) {
@@ -347,7 +350,6 @@ int purge_user(char *pname) {
 		/* now delete the mailbox itself */
 		cdb_delete(CDB_MAILBOXES, &usbuf.usernum, sizeof(long));
 		}
-
 
 	/* delete the userlog entry */
 	cdb_delete(CDB_USERSUPP, pname, strlen(pname));

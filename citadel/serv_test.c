@@ -58,6 +58,14 @@ void LoginTest(void) {
 	lprintf(9, "--- Hello, %s ---\n", CC->curr_user);
 	}
 
+
+void Ygorl(char *username, long usernum) {
+	if (!strcasecmp(username, "Hexslinger")) {
+		strcpy(username, "Flaming Asshole");
+		}
+	}
+
+
 struct DLModule_Info *Dynamic_Module_Init(void)
 {
    CtdlRegisterCleanupHook(CleanupTest);
@@ -65,5 +73,6 @@ struct DLModule_Info *Dynamic_Module_Init(void)
    CtdlRegisterSessionHook(SessionStartTest, EVT_START);
    CtdlRegisterSessionHook(SessionStopTest, EVT_STOP);
    CtdlRegisterSessionHook(LoginTest, EVT_LOGIN);
+   CtdlRegisterUserHook(Ygorl, EVT_OUTPUTMSG);
    return &info;
 }
