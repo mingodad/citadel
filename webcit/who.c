@@ -135,6 +135,11 @@ void whobbs(void)
 			escputs(wlist->username);
 			wprintf("</A>");
 
+			/* (link to page this user) */
+			wprintf("<A HREF=\"/display_page&recp=");
+			urlescputs(wlist->username);
+			wprintf("\">(p)</A>");
+
 			/* room */
 			wprintf("</FONT></TD>\n\t<TD><FONT SIZE=-1>");
 			escputs(wlist->roomname);

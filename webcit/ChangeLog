@@ -1,4 +1,7 @@
 $Log$
+Revision 213.9  2001/05/04 04:28:10  ajc
+* Added "page user" button in wholist
+
 Revision 213.8  2001/05/01 00:49:43  ajc
 * more of the UI overhaul
 
@@ -531,3 +534,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
