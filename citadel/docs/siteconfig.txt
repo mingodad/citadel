@@ -178,10 +178,11 @@ to allow authenticated networking between Citadel servers.
     The final set of options deals with the purging or expiry of old
 objects off the system, and the new smtp/pop settings. 
   
-  
+Please note:  POP and SMTP are now disabled  by default.  In order to use
+those two citadel servers you'll have to enable them manually.  
 
- POP3 server port (-1 to disable) [110]: 
- SMTP server port (-1 to disable) [25]: 
+ POP3 server port (-1 to disable) [-1]: 
+ SMTP server port (-1 to disable) [-1]: 
  Default user purge time (days) [61]: 
  Default room purge time (days) [21]: 
  System default message expire policy (? for list) [2]: 
