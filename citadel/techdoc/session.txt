@@ -284,6 +284,13 @@ forgotten, with and without new messages.  It does not, however, list
 inaccessible private rooms.
   
  
+ LPRM   (List all Public RooMs)
+ 
+ Again, same format.  This command lists all public rooms, and nothing else.
+Unlike the other list rooms commands, this one can be executed without logging
+in.
+  
+ 
  GETU   (GET User configuration)
  
  This command retrieves the screen dimensions and user options for the

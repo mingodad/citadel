@@ -22,6 +22,7 @@ void cmd_lkra (char *argbuf);
 void cmd_lkrn (char *argbuf);
 void cmd_lkro (char *argbuf);
 void cmd_lzrm (char *argbuf);
+void cmd_lprm (char *argbuf);
 void usergoto (char *where, int display_result, int transiently,
 			int *msgs, int *new);
 void cmd_goto (char *gargs);

@@ -987,6 +987,10 @@ void do_command_loop(void) {
 		cmd_lzrm(&cmdbuf[5]);
 	}
 
+	else if (!strncasecmp(cmdbuf,"LPRM",4)) {
+		cmd_lprm(&cmdbuf[5]);
+	}
+
 	else if (!strncasecmp(cmdbuf,"GETU",4)) {
 		cmd_getu();
 	}

@@ -576,6 +576,32 @@ void cmd_lkra(char *argbuf)
 
 
 
+void cmd_lprm_backend(struct quickroom *qrbuf, void *data)
+{
+	int FloorBeingSearched = (-1);
+	FloorBeingSearched = *(int *)data;
+
+	if (   ((qrbuf->QRflags & QR_PRIVATE) == 0)
+		&& ((qrbuf->QRflags & QR_MAILBOX) == 0)
+	    && ((qrbuf->QRfloor == (FloorBeingSearched))
+		|| ((FloorBeingSearched) < 0)))
+		list_roomname(qrbuf);
+}
+
+void cmd_lprm(char *argbuf)
+{
+	int FloorBeingSearched = (-1);
+	if (strlen(argbuf) > 0)
+		FloorBeingSearched = extract_int(argbuf, 0);
+
+	cprintf("%d Publiic rooms:\n", LISTING_FOLLOWS);
+
+	ForEachRoom(cmd_lprm_backend, &FloorBeingSearched);
+	cprintf("000\n");
+}
+
+
+
 /* 
  * cmd_lkrn()   -  List all known rooms with new messages
  */

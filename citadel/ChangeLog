@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.94  2002/08/16 21:04:56  ajc
+ * Add LPRM command
+
  Revision 591.93  2002/08/14 20:21:52  ajc
  * Extend GETR/SETR to allow twiddling of bits in the QRflags2 bucket
  * New flag and config options to allow/disallow self-service list subscription
@@ -3909,4 +3912,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
