@@ -1,4 +1,9 @@
  $Log$
+ Revision 1.19  2003/11/21 18:22:19  ajc
+ * Replaced the two-second sleep (and associated race condition) for the
+   session proxy to start, with a loop that attempts connection ten times
+   a second for ten seconds, resulting in faster, more reliable startup.
+
  Revision 1.18  2003/11/18 04:58:34  ajc
  * Added ctdlelements.php ... this is to be used for functions which fetch
    Citadel protocol data and convert it to insertable HTML.
@@ -78,3 +83,4 @@
 
  Revision 1.1  2003/10/31 03:47:13  ajc
  * Initial CVS import
+

@@ -47,40 +47,42 @@ function establish_citadel_session() {
 			" </dev/null >/dev/null 2>&1 " .
 			" 3>&1 4>&1 5>&1 6>&1 7>&1 8>&1 & " ;
 		exec($cmd);
-		sleep(2);
 
-		// Ok, now try again.
-		$clientsocket = fsockopen($sockname, 0, $errno, $errstr, 5);
-
-		// Try to log the user back in and go back to the correct room.
-		if ($clientsocket) {
-
-			ctdl_iden();	// Identify client
-
-			if ($_SESSION["username"]) {
-				login_existing_user(
-					$_SESSION["username"],
-					$_SESSION["password"]
-				);
+		// Keep attempting connections 10 times per second up to 100 times
+		$attempts = 0;
+		while (!$clientsocket) {
+			usleep(100);
+			$clientsocket = fsockopen($sockname, 0, $errno, $errstr, 5);
+			$attempts += 1;
+			if ($attempts > 100) {
+				echo "ERROR: unable to start connection proxy. ";
+				echo "Please contact your system administrator.<BR>\n";
+				flush();
+				exit(1);
 			}
+		}
 
-			if ($_SESSION["room"]) {
-				ctdl_goto($_SESSION["room"]);
-			}
-			else {
-				ctdl_goto("_BASEROOM_");
-			}
+		// At this point we have a good connection to Citadel.
+
+		ctdl_iden();	// Identify client
+
+		if ($_SESSION["username"]) {
+			login_existing_user(
+				$_SESSION["username"],
+				$_SESSION["password"]
+			);
+		}
+
+		if ($_SESSION["room"]) {
+			ctdl_goto($_SESSION["room"]);
+		}
+		else {
+			ctdl_goto("_BASEROOM_");
 		}
 	}
 
-	if ($clientsocket) {
-		if (!$_SESSION["serv_humannode"]) {
-			ctdl_get_serv_info();
-		}
-	}
-	else {
-		echo "ERROR: no Citadel socket!<BR>\n";
-		flush();
+	if (!$_SESSION["serv_humannode"]) {
+		ctdl_get_serv_info();
 	}
 
 	// If the user is trying to call up any page other than
