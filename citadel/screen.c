@@ -83,16 +83,26 @@ void status_line(const char *humannode, const char *bbs_city,
  * Display a 3270-style "wait" indicator at the bottom of the screen
  */
 #if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
-void wait_indicator(int onoff) {
+void wait_indicator(int state) {
 	if (statuswindow) {
 
-		mvwinch(statuswindow, 0, 78);
-		if (onoff) {
-			waddch(statuswindow, 'X');
-		}
-		else {
+		mvwinch(statuswindow, 0, screenwidth - 2);
+		switch (state) {
+		default:
+		case 0:		/* Idle */
 			waddch(statuswindow, ' ');
+			break;
+		case 1:		/* Waiting */
+			waddch(statuswindow, 'X');
+			break;
+		case 2:		/* Receiving */
+			waddch(statuswindow, '<');
+			break;
+		case 3:		/* Sending */
+			waddch(statuswindow, '>');
+			break;
 		}
+		waddch(statuswindow, '\r');
 		wrefresh(statuswindow);
 		wrefresh(mainwindow);	/* this puts the cursor back */
 	}
@@ -130,9 +140,6 @@ void screen_new(void)
 
 		if (COLOR_PAIRS > 8)
 			init_pair(8, COLOR_WHITE, COLOR_BLUE);
-
-		setLockHook(wait_indicator);
-
 	} else
 #endif /* HAVE_CURSES_H */
 	{

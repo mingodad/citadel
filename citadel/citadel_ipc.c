@@ -62,10 +62,8 @@ void setCryptoStatusHook(void (*hook)(char *s)) {
 	status_hook = hook;
 }
 
-static void (*lock_hook)(int onoff) = NULL;
-
-void setLockHook(void (*hook)(int onoff)) {
-	lock_hook = hook;
+void CtdlIPC_SetNetworkStatusCallback(CtdlIPC *ipc, void (*hook)(int state)) {
+	ipc->network_status_cb = hook;
 }
 
 
@@ -1996,8 +1994,7 @@ int CtdlIPCInternalProgram(CtdlIPC *ipc, int secret, char *cret)
 
 inline void CtdlIPC_lock(CtdlIPC *ipc)
 {
-	if (lock_hook != NULL)
-		lock_hook(1);
+	if (ipc->network_status_cb) ipc->network_status_cb(1);
 #ifdef THREADED_CLIENT
 	pthread_mutex_lock(&(ipc->mutex));
 #endif
@@ -2009,8 +2006,7 @@ inline void CtdlIPC_unlock(CtdlIPC *ipc)
 #ifdef THREADED_CLIENT
 	pthread_mutex_unlock(&(ipc->mutex));
 #endif
-	if (lock_hook != NULL)
-		lock_hook(0);
+	if (ipc->network_status_cb) ipc->network_status_cb(0);
 }
 
 
@@ -2810,6 +2806,7 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 	ipc->downloading = 0;
 	ipc->uploading = 0;
 	ipc->last_command_sent = 0L;
+	ipc->network_status_cb = NULL;
 
 	strcpy(cithost, DEFAULT_HOST);	/* default host */
 	strcpy(citport, DEFAULT_PORT);	/* default port */

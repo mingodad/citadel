@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.50  2002/10/25 09:26:26  error
+ * Fix the status line not updating with the new wait indicator; rearrange
+   the code so network_status_cb is a member function of ipc.
+
  Revision 601.49  2002/10/25 04:39:38  ajc
  * When in fullscreen mode, display an "X" icon in the lower right corner of
    the screen while waiting for the server.
@@ -4155,4 +4159,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -43,6 +43,8 @@ typedef struct _CtdlIPC {
 	int uploading;
 	/* Time the last command was sent to the server */
 	time_t last_command_sent;
+	/* Callback for update on whether the IPC is locked */
+	void (*network_status_cb)(int state);
 } CtdlIPC;
 
 /* C constructor */
@@ -104,6 +106,17 @@ struct ctdlipcmessage {
 };
 
 
+struct ctdlipcfile {
+	char remote_name[PATH_MAX];	/* Filename on server */
+	char local_name[PATH_MAX];	/* Filename on client */
+	char description[80];		/* Description on server */
+	FILE *local_fd;			/* Open file on client */
+	size_t size;			/* Size of file in octets */
+	int upload:1;			/* uploading? 0 if downloading */
+	int complete:1;			/* Transfer has finished? */
+};
+
+
 struct ctdlipcmisc {
 	long newmail;			/* Number of new Mail messages */
 	char needregis;			/* Nonzero if user needs to register */
@@ -148,6 +161,7 @@ int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 		struct ctdlipcmessage **mret, char *cret);
 int CtdlIPCWhoKnowsRoom(CtdlIPC *ipc, char **listing, char *cret);
 int CtdlIPCServerInfo(CtdlIPC *ipc, struct CtdlServInfo *ServInfo, char *cret);
+/* int CtdlIPCReadDirectory(CtdlIPC *ipc, struct ctdlipcfile **files, char *cret); */
 int CtdlIPCReadDirectory(CtdlIPC *ipc, char **listing, char *cret);
 int CtdlIPCSetLastRead(CtdlIPC *ipc, long msgnum, char *cret);
 int CtdlIPCInviteUserToRoom(CtdlIPC *ipc, const char *username, char *cret);
@@ -282,7 +296,7 @@ int CtdlIPCGenericCommand(CtdlIPC *ipc, const char *command,
 /* Internals */
 int starttls(CtdlIPC *ipc);
 void setCryptoStatusHook(void (*hook)(char *s));
-void setLockHook(void (*hook)(int onoff));
+void CtdlIPC_SetNetworkStatusCallback(CtdlIPC *ipc, void (*hook)(int state));
 /* This is all Ford's doing.  FIXME: figure out what it's doing */
 extern int (*error_printf)(char *s, ...);
 void setIPCDeathHook(void (*hook)(void));
