@@ -1004,7 +1004,12 @@ void output_preferred(char *name, char *filename, char *partnum, char *disp,
 			cprintf("Content-type: %s\n", cbtype);
 			cprintf("Content-length: %d\n",
 				(int)(length + add_newline) );
-			cprintf("Content-transfer-encoding: %s\n", encoding);
+			if (strlen(encoding) > 0) {
+				cprintf("Content-transfer-encoding: %s\n", encoding);
+			}
+			else {
+				cprintf("Content-transfer-encoding: 7bit\n");
+			}
 			cprintf("\n");
 			client_write(content, length);
 			if (add_newline) cprintf("\n");
@@ -2198,8 +2203,9 @@ void quickie_message(char *from, char *to, char *room, char *text,
  */
 char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 			size_t maxlen,		/* maximum message length */
-			char *exist		/* if non-null, append to it;
+			char *exist,		/* if non-null, append to it;
 						   exist is ALWAYS freed  */
+			int crlf		/* CRLF newlines instead of LF */
 			) {
 	char buf[SIZ];
 	int linelen;
@@ -2207,6 +2213,8 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 	size_t buffer_len = 0;
 	char *ptr;
 	char *m;
+	int flushing = 0;
+	int finished = 0;
 
 	if (exist == NULL) {
 		m = mallok(4096);
@@ -2226,50 +2234,49 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 
 	/* flush the input if we have nowhere to store it */
 	if (m == NULL) {
-		while ( (client_gets(buf)>0) && strcmp(buf, terminator) ) ;;
-		return(NULL);
+		flushing = 1;
 	}
 
 	/* read in the lines of message text one by one */
-	while ( (client_gets(buf)>0) && strcmp(buf, terminator) ) {
-
-		/* Measure the line and strip trailing newline characters */
-		linelen = strlen(buf);
-		if (linelen > 0) if (buf[linelen-1]==13) buf[linelen--]=0;
-		if (linelen > 0) if (buf[linelen-1]==10) buf[linelen--]=0;
-
-		/* augment the buffer if we have to */
-		if ((message_len + linelen + 2) > buffer_len) {
-			lprintf(9, "realloking\n");
-			ptr = reallok(m, (buffer_len * 2) );
-			if (ptr == NULL) {	/* flush if can't allocate */
-				while ( (client_gets(buf)>0) &&
-					strcmp(buf, terminator)) ;;
-				return(m);
-			} else {
-				buffer_len = (buffer_len * 2);
-				m = ptr;
-				lprintf(9, "buffer_len is %ld\n", (long)buffer_len);
-			}
+	do {
+		if (client_gets(buf) < 1) finished = 1;
+		if (!strcmp(buf, terminator)) finished = 1;
+		if (crlf) {
+			strcat(buf, "\r\n");
+		}
+		else {
+			strcat(buf, "\n");
 		}
 
-		/* Add the new line to the buffer.  NOTE: this loop must avoid
-		 * using functions like strcat() and strlen() because they
-		 * traverse the entire buffer upon every call, and doing that
-		 * for a multi-megabyte message slows it down beyond usability.
-		 */
-		strcpy(&m[message_len], buf);
-		m[message_len + linelen] = '\n';
-		m[message_len + linelen + 1] = 0;
-		message_len = message_len + linelen + 1;
+		if ( (!flushing) && (!finished) ) {
+			/* Measure the line */
+			linelen = strlen(buf);
+	
+			/* augment the buffer if we have to */
+			if ((message_len + linelen) >= buffer_len) {
+				ptr = reallok(m, (buffer_len * 2) );
+				if (ptr == NULL) {	/* flush if can't allocate */
+					flushing = 1;
+				} else {
+					buffer_len = (buffer_len * 2);
+					m = ptr;
+					lprintf(9, "buffer_len is now %ld\n", (long)buffer_len);
+				}
+			}
+	
+			/* Add the new line to the buffer.  NOTE: this loop must avoid
+		 	* using functions like strcat() and strlen() because they
+		 	* traverse the entire buffer upon every call, and doing that
+		 	* for a multi-megabyte message slows it down beyond usability.
+		 	*/
+			strcpy(&m[message_len], buf);
+			message_len += linelen;
+		}
 
 		/* if we've hit the max msg length, flush the rest */
-		if (message_len >= maxlen) {
-			while ( (client_gets(buf)>0)
-				&& strcmp(buf, terminator)) ;;
-			return(m);
-		}
-	}
+		if (message_len >= maxlen) flushing = 1;
+
+	} while (!finished);
 	return(m);
 }
 
@@ -2353,7 +2360,7 @@ struct CtdlMessage *CtdlMakeMessage(
 	}
 	else {
 		msg->cm_fields['M'] = CtdlReadMessageBody("000",
-						config.c_maxmsglen, NULL);
+					config.c_maxmsglen, NULL, 0);
 	}
 
 	return(msg);

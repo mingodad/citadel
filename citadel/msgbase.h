@@ -107,7 +107,7 @@ void serialize_message(struct ser_ret *, struct CtdlMessage *);
 int is_valid_message(struct CtdlMessage *);
 int ReplicationChecks(struct CtdlMessage *);
 int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags);
-char *CtdlReadMessageBody(char *terminator, size_t maxlen, char *exist);
+char *CtdlReadMessageBody(char *terminator, size_t maxlen, char *exist, int crlf);
 char *CtdlGetSysConfig(char *sysconfname);
 void CtdlPutSysConfig(char *sysconfname, char *sysconfdata);
 int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */

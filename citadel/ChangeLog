@@ -1,4 +1,10 @@
  $Log$
+ Revision 605.29  2003/03/30 06:16:52  ajc
+ * Optimized CtdlReadMessageBody() and also gave it an option to store
+   messages with CRLF newlines instead of LF.  This option is used when
+   reading SMTP in order to keep Pine from barfing on LF-terminated newlines
+   while decoding quoted-printable.  Once again, Mark Crispin is an idiot.
+
  Revision 605.28  2003/03/26 05:17:12  ajc
  * Downloading of attachments was completely broken by the change to the new
    protocol library.  Located and fixed bugs.
@@ -4597,3 +4603,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

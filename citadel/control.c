@@ -360,8 +360,8 @@ void cmd_conf(char *argbuf)
 	else if (!strcasecmp(cmd, "PUTSYS")) {
 		extract(confname, argbuf, 1);
 		cprintf("%d %s\n", SEND_LISTING, confname);
-		confptr =
-		    CtdlReadMessageBody("000", config.c_maxmsglen, NULL);
+		confptr = CtdlReadMessageBody("000",
+				config.c_maxmsglen, NULL, 0);
 		CtdlPutSysConfig(confname, confptr);
 		phree(confptr);
 	}
