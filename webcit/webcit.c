@@ -41,6 +41,9 @@ struct urlcontent *urlstrings = NULL;
 static const char *defaulthost = DEFAULT_HOST;
 static const char *defaultport = DEFAULT_PORT;
 
+int upload_length = 0;
+char *upload;
+
 
 void unescape_input(char *buf)
 {
@@ -481,6 +484,9 @@ void session_loop(void) {
 	strcpy(c_password, "");
 	strcpy(c_roomname, "");
 
+	upload_length = 0;
+	upload = NULL;
+
 	getz(cmd);
 	extract_action(action, cmd);
 
@@ -759,6 +765,16 @@ void session_loop(void) {
 		validate();
 		}
 
+	else if (!strcasecmp(action, "display_editpic")) {
+		display_graphics_upload("your photo",
+					"UIMG 0|_userpic_",
+					"/editpic");
+		}
+
+	else if (!strcasecmp(action, "editpic")) {
+		do_graphics_upload("UIMG 1|_userpic_");
+		}
+
 	/* When all else fails... */
 	else {
 		printf("HTTP/1.0 200 OK\n");
@@ -782,6 +798,10 @@ void session_loop(void) {
 		content = NULL;
 		}
 	free_urls();
+	if (upload_length > 0) {
+		free(upload);
+		upload_length = 0;
+		}
 	}
 
 int main(int argc, char *argv[]) {

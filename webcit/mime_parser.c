@@ -60,7 +60,11 @@ void do_something_with_it(char *content, int length, char *content_type,
 	 */
 
 	else if (strlen(name)>0) {
-		
+		upload = malloc(length);
+		if (upload != NULL) {
+			upload_length = length;
+			memcpy(upload, content, length);
+			}
 		}
 
 	}
