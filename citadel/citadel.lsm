@@ -1,7 +1,7 @@
 Begin3
 Title:          Citadel/UX
-Version:        5.52
-Entered-date:	Tue Jan 26 22:16:47 EST 1999
+Version:        5.53
+Entered-date:	Thu Apr  8 22:51:09 EDT 1999
 Description:    An advanced messaging system which can be used for BBS,
 		groupware, and online community applications.  It is
 		multithreaded, client/server, database driven, and
