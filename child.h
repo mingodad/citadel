@@ -52,3 +52,4 @@ void userlist(void);
 void showuser(void);
 void display_page(void);
 void page_user(void);
+void do_chat(void);
