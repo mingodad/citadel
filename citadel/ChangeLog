@@ -1,4 +1,7 @@
  $Log$
+ Revision 608.2  2003/07/20 03:08:22  ajc
+ * setup.c: offer to hack /etc/xinetd.d/telnet
+
  Revision 608.1  2003/07/15 14:54:09  ajc
  * Killed off CtdlGetDynamicSymbol() and just put all the symbols in server.h
 
@@ -4871,3 +4874,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -469,6 +469,60 @@ void check_inittab_entry(void)
 }
 
 
+/*
+ * On systems which use xinetd, see if we can offer to install Citadel as
+ * the default telnet target.
+ */
+void check_xinetd_entry(void) {
+	char *filename = "/etc/xinetd.d/telnet";
+	FILE *fp;
+	char buf[SIZ];
+	int already_citadel = 0;
+
+	fp = fopen(filename, "r+");
+	if (fp == NULL) return;		/* Not there.  Oh well... */
+
+	while (fgets(buf, sizeof buf, fp) != NULL) {
+		if (strstr(buf, setup_directory) != NULL) already_citadel = 1;
+	}
+	fclose(fp);
+	if (already_citadel) return;	/* Already set up this way. */
+
+	/* Otherwise, prompt the user to create an entry. */
+	snprintf(buf, sizeof buf,
+		"Setup can configure the 'xinetd' service to automatically\n"
+		"connect incoming telnet sessions to Citadel, bypassing the\n"
+		"host system's login prompt.  Would you like to do this?"
+	);
+	if (yesno(buf) == 0)
+		return;
+
+	fp = fopen(filename, "w");
+	fprintf(fp,
+		"# description: telnet service for Citadel users\n"
+		"service telnet\n"
+		"{\n"
+		"	disable	= no\n"
+		"	flags		= REUSE\n"
+		"	socket_type	= stream\n"
+		"	wait		= no\n"
+		"	user		= root\n"
+		"	server		= /usr/sbin/in.telnetd\n"
+		"	server_args	= -h -L %s/citadel\n"
+		"	log_on_failure	+= USERID\n"
+		"}\n",
+		setup_directory
+	);
+	fclose(fp);
+
+	/* Now try to restart the service */
+	system("/etc/init.d/xinetd restart >/dev/null 2>&1");
+}
+
+
+
+
+
 
 void set_str_val(int msgpos, char str[])
 {
@@ -881,6 +935,7 @@ NEW_INST:
 	check_services_entry();	/* Check /etc/services */
 #ifndef __CYGWIN__
 	check_inittab_entry();	/* Check /etc/inittab */
+	check_xinetd_entry();	/* Check /etc/xinetd.d/telnet */
 #endif
 
 	if ((pw = getpwuid(config.c_bbsuid)) == NULL)
