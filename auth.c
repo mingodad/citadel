@@ -119,6 +119,7 @@ void do_login(void)
 
 	if (!strcasecmp(bstr("action"), "Exit")) {
 		do_logout();
+		return;
 	}
 	if (!strcasecmp(bstr("action"), "Login")) {
 		serv_printf("USER %s", bstr("name"));
