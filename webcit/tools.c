@@ -352,17 +352,20 @@ int is_msg_in_mset(char *mset, long msgnum) {
 
 
 /*
- * Read binary data from server into memory
+ * Read binary data from server into memory using a series of
+ * server READ commands.
  */
 void read_server_binary(char *buffer, size_t total_len) {
 	char buf[SIZ];
 	size_t bytes = 0;
 	size_t thisblock = 0;
 
+	memset(buffer, 0, total_len);
 	while (bytes < total_len) {
 		thisblock = 4095;
 		if ((total_len - bytes) < thisblock) {
 			thisblock = total_len - bytes;
+			if (thisblock == 0) return;
 		}
 		serv_printf("READ %d|%d", (int)bytes, (int)thisblock);
 		serv_gets(buf);
@@ -372,7 +375,8 @@ void read_server_binary(char *buffer, size_t total_len) {
 			bytes += thisblock;
 		}
 		else {
-			wprintf("Error: %s<BR>\n", &buf[4]);
+			lprintf(3, "Error: %s<BR>\n", &buf[4]);
+			return;
 		}
 	}
 }

@@ -414,6 +414,7 @@ void output_static(char *what)
 	char *bigbuffer;
 	char content_type[SIZ];
 
+	lprintf(9, "output_static(%s)\n", what);
 	sprintf(buf, "static/%s", what);
 	fp = fopen(buf, "rb");
 	if (fp == NULL) {
@@ -472,8 +473,6 @@ void output_image()
 	char buf[SIZ];
 	char *xferbuf = NULL;
 	off_t bytes;
-	off_t thisblock;
-	off_t accomplished = 0L;
 
 	serv_printf("OIMG %s|%s", bstr("name"), bstr("parm"));
 	serv_gets(buf);
@@ -482,30 +481,13 @@ void output_image()
 		xferbuf = malloc(bytes);
 
 		/* Read it from the server */
-		while (bytes > (off_t) 0) {
-			thisblock = 4096;
-			if (thisblock > bytes) {
-				thisblock = bytes;
-			}
-			serv_printf("READ %ld|%ld", accomplished, thisblock);
-			serv_gets(buf);
-			if (buf[0] == '6') {
-				thisblock = extract_long(&buf[4], 0);
-				serv_read(&xferbuf[accomplished],
-					(int) thisblock);
-			}
-			else {
-				memset(&xferbuf[accomplished], 0, thisblock);
-			}
-			bytes = bytes - thisblock;
-			accomplished += thisblock;
-		}
+		read_server_binary(xferbuf, bytes);
 		serv_puts("CLOS");
 		serv_gets(buf);
 
 		/* Write it to the browser */
-		http_transmit_thing(xferbuf, (size_t)accomplished,
-					"image/gif");
+		http_transmit_thing(xferbuf, (size_t)bytes, "image/gif");
+		free(xferbuf);
 
 	} else {
 		wprintf("HTTP/1.0 404 %s\n", &buf[4]);
@@ -517,9 +499,6 @@ void output_image()
 		);
 	}
 
-	if (xferbuf) {
-		free(xferbuf);
-	}
 
 
 }
@@ -529,42 +508,22 @@ void output_image()
 void output_mimepart()
 {
 	char buf[SIZ];
-	char xferbuf[4096];
 	off_t bytes;
-	off_t thisblock;
-	off_t accomplished = 0L;
 	char content_type[SIZ];
+	char *content = NULL;
 	
 	serv_printf("OPNA %s|%s", bstr("msgnum"), bstr("partnum"));
 	serv_gets(buf);
 	if (buf[0] == '2') {
 		bytes = extract_long(&buf[4], 0);
+		content = malloc(bytes);
 		extract(content_type, &buf[4], 3);
 		output_headers(0);
-		wprintf("Content-type: %s\n", content_type);
-		wprintf("Content-length: %ld\n", (long) bytes);
-		wprintf("\n");
-
-		while (bytes > (off_t) 0) {
-			thisblock = (off_t) sizeof(xferbuf);
-			if (thisblock > bytes) {
-				thisblock = bytes;
-			}
-			serv_printf("READ %ld|%ld", accomplished, thisblock);
-			serv_gets(buf);
-			if (buf[0] == '6') {
-				thisblock = extract_long(&buf[4], 0);
-				serv_read(xferbuf, (int) thisblock);
-			}
-			else {
-				memset(xferbuf, 0, thisblock);
-			}
-			write(WC->http_sock, xferbuf, thisblock);
-			bytes = bytes - thisblock;
-			accomplished = accomplished + thisblock;
-		}
+		read_server_binary(content, bytes);
 		serv_puts("CLOS");
 		serv_gets(buf);
+		http_transmit_thing(content, bytes, content_type);
+		free(content);
 	} else {
 		wprintf("HTTP/1.0 404 %s\n", &buf[4]);
 		output_headers(0);
@@ -582,8 +541,6 @@ char *load_mimepart(long msgnum, char *partnum)
 {
 	char buf[SIZ];
 	off_t bytes;
-	off_t thisblock;
-	off_t accomplished = 0L;
 	char content_type[SIZ];
 	char *content;
 	
@@ -594,30 +551,11 @@ char *load_mimepart(long msgnum, char *partnum)
 		extract(content_type, &buf[4], 3);
 
 		content = malloc(bytes + 1);
+		read_server_binary(content, bytes);
 
-		while (bytes > (off_t) 0) {
-			thisblock = bytes;
-			if (thisblock > 4096L) {
-				thisblock = 4096L;
-			}
-			if (thisblock > bytes) {
-				thisblock = bytes;
-			}
-			serv_printf("READ %ld|%ld", accomplished, thisblock);
-			serv_gets(buf);
-			if (buf[0] == '6') {
-				thisblock = extract_long(&buf[4], 0);
-				serv_read(&content[accomplished], (int) thisblock);
-			}
-			else {
-				memset(&content[accomplished], 0, thisblock);
-			}
-			bytes = bytes - thisblock;
-			accomplished = accomplished + thisblock;
-		}
 		serv_puts("CLOS");
 		serv_gets(buf);
-		content[accomplished] = 0;	/* null terminate for good measure */
+		content[bytes] = 0;	/* null terminate for good measure */
 		return(content);
 	}
 	else {
