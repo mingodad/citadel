@@ -12,6 +12,12 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#ifdef __GNUC__
+#define INLINE inline
+#else
+#define INLINE
+#endif
+
 #ifdef __CYGWIN__
 
 #ifdef IN_LIBCIT

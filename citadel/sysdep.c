@@ -939,7 +939,7 @@ void init_master_fdset(void) {
 /*
  * Bind a thread to a context.  (It's inline merely to speed things up.)
  */
-inline void become_session(struct CitContext *which_con) {
+INLINE void become_session(struct CitContext *which_con) {
 	pthread_setspecific(MyConKey, (void *)which_con );
 }
 

@@ -1,4 +1,8 @@
  $Log$
+ Revision 580.58  2001/10/16 01:48:55  nbryant
+ - configury tweaks for a /usr/include/db3 goof and Digital/Tru64 Unix
+ - #ifdef out inline on non-GCC compilers
+
  Revision 580.57  2001/10/15 19:50:50  ajc
  * Fixed a bug in the loopzapper that was corrupting the use table saved copy.
  * Post notification in Aide> when the loopzapper catches a message.
@@ -2795,3 +2799,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

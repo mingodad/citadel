@@ -25,7 +25,7 @@ void start_daemon (int do_close_stdio);
 void cmd_nset (char *cmdbuf);
 int convert_login (char *NameToConvert);
 void *worker_thread (void *arg);
-inline void become_session(struct CitContext *which_con);
+void become_session(struct CitContext *which_con);
 void CtdlRedirectOutput(FILE *fp, int sock);
 void InitializeMasterCC(void);
 void init_master_fdset(void);
