@@ -57,11 +57,10 @@ void userlist(void)
 		wprintf("<EM>%s</EM><BR>\n", &buf[4]);
 		goto DONE;
 	}
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>User list for ");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">User list for ");
 	escputs(serv_info.serv_humannode);
-	wprintf("</B></FONT></TD></TR></TABLE>\n");
+	wprintf("</SPAN></TD></TR></TABLE>\n");
 
 	wprintf("<CENTER><TABLE border>");
 	wprintf("<TR><TH>User Name</TH><TH>Number</TH><TH>Access Level</TH>");
@@ -116,9 +115,9 @@ void showuser(void)
 	output_headers(3);
 
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>User profile");
-	wprintf("</B></FONT></TD></TR></TABLE>\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">User profile");
+	wprintf("</SPAN></TD></TR></TABLE>\n");
 
 	strcpy(who, bstr("who"));
 	serv_printf("OIMG _userpic_|%s", who);

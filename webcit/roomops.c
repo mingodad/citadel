@@ -270,9 +270,8 @@ void list_all_rooms_by_floor(void)
 void zapped_list(void)
 {
 	output_headers(1);
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Zapped (forgotten) rooms</B>\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">Zapped (forgotten) rooms</SPAN>\n");
 	wprintf("</TD></TR></TABLE><BR>\n");
 	listrms("LZRM -1");
 	wprintf("<BR><BR>\n");
@@ -309,7 +308,7 @@ void embed_room_graphic(void) {
 	serv_puts("OIMG _roompic_");
 	serv_gets(buf);
 	if (buf[0] == '2') {
-		wprintf("<TD BGCOLOR=444455>");
+		wprintf("<TD BGCOLOR=\"#444455\">");
 		wprintf("<IMG SRC=\"/image&name=_roompic_&room=");
 		urlescputs(WC->wc_roomname);
 		wprintf("\"></TD>");
@@ -328,8 +327,8 @@ void embed_newmail_button(void) {
 			"<A HREF=\"/dotgoto?room=_MAIL_\">"
 			"<IMG SRC=\"/static/mail.gif\" border=0 "
 			"ALT=\"You have new mail\">"
-			"<BR><FONT SIZE=2 COLOR=FFFFFF>"
-			"%d new mail</FONT></A>", WC->new_mail);
+			"<BR><SPAN CLASS=\"youhavemail\">"
+			"%d new mail</SPAN></A>", WC->new_mail);
 		WC->remember_new_mail = WC->new_mail;
 	}
 }
@@ -746,18 +745,18 @@ void display_editroom(void)
 
 	/* print the tabbed dialog */
 	wprintf("<TABLE border=0 cellspacing=0 cellpadding=0 width=100%%>"
-		"<TR ALIGN=CENTER BGCOLOR=FFFFFF>"
+		"<TR ALIGN=CENTER BGCOLOR=\"#FFFFFF\">"
 		"<TD>&nbsp;</TD>\n");
 
 	if (!strcmp(tab, "admin")) {
-		wprintf("<TD BGCOLOR=000077><FONT SIZE=+1 COLOR=\"FFFFFF\"><B>");
+		wprintf("<TD BGCOLOR=\"#000077\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
-		wprintf("<TD BGCOLOR=AAAAAA><A HREF=\"/display_editroom&tab=admin\">");
+		wprintf("<TD BGCOLOR=\"#AAAAAA\"><A HREF=\"/display_editroom&tab=admin\">");
 	}
 	wprintf("Room administration");
 	if (!strcmp(tab, "admin")) {
-		wprintf("</B></FONT></TD>\n");
+		wprintf("</SPAN></TD>\n");
 	}
 	else {
 		wprintf("</A></TD>\n");
@@ -766,14 +765,14 @@ void display_editroom(void)
 	wprintf("<TD>&nbsp;</TD>\n");
 
 	if (!strcmp(tab, "config")) {
-		wprintf("<TD BGCOLOR=000077><FONT SIZE=+1 COLOR=\"FFFFFF\"><B>");
+		wprintf("<TD BGCOLOR=\"#000077\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
-		wprintf("<TD BGCOLOR=AAAAAA><A HREF=\"/display_editroom&tab=config\">");
+		wprintf("<TD BGCOLOR=\"#AAAAAA\"><A HREF=\"/display_editroom&tab=config\">");
 	}
 	wprintf("Room configuration");
 	if (!strcmp(tab, "config")) {
-		wprintf("</B></FONT></TD>\n");
+		wprintf("</SPAN></TD>\n");
 	}
 	else {
 		wprintf("</A></TD>\n");
@@ -782,14 +781,14 @@ void display_editroom(void)
 	wprintf("<TD>&nbsp;</TD>\n");
 
 	if (!strcmp(tab, "sharing")) {
-		wprintf("<TD BGCOLOR=000077><FONT SIZE=+1 COLOR=\"FFFFFF\"><B>");
+		wprintf("<TD BGCOLOR=\"#000077\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
-		wprintf("<TD BGCOLOR=AAAAAA><A HREF=\"/display_editroom&tab=sharing\">");
+		wprintf("<TD BGCOLOR=\"#AAAAAA\"><A HREF=\"/display_editroom&tab=sharing\">");
 	}
 	wprintf("Sharing");
 	if (!strcmp(tab, "sharing")) {
-		wprintf("</B></FONT></TD>\n");
+		wprintf("</SPAN></TD>\n");
 	}
 	else {
 		wprintf("</A></TD>\n");
@@ -798,21 +797,21 @@ void display_editroom(void)
 	wprintf("<TD>&nbsp;</TD>\n");
 
 	if (!strcmp(tab, "listserv")) {
-		wprintf("<TD BGCOLOR=000077><FONT SIZE=+1 COLOR=\"FFFFFF\"><B>");
+		wprintf("<TD BGCOLOR=\"#000077\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
-		wprintf("<TD BGCOLOR=AAAAAA><A HREF=\"/display_editroom&tab=listserv\">");
+		wprintf("<TD BGCOLOR=\"#AAAAAA\"><A HREF=\"/display_editroom&tab=listserv\">");
 	}
 	wprintf("Mailing list service");
 	if (!strcmp(tab, "listserv")) {
-		wprintf("</B></FONT></TD>\n");
+		wprintf("</SPAN></TD>\n");
 	}
 	else {
 		wprintf("</A></TD>\n");
 	}
 
 	wprintf("<TD>&nbsp;</TD></TR>"
-		"<TR><TD BGCOLOR=000077 COLSPAN=9 HEIGHT=5> </TD></TR>"
+		"<TR><TD BGCOLOR=\"#000077\" COLSPAN=9 HEIGHT=5> </TD></TR>"
 		"</TABLE>\n");
 
 	/* end tabbed dialog */	
@@ -1315,10 +1314,10 @@ void display_whok(void)
 
         output_headers(1);
 
-        wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
-        wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>Access control list for ");
+        wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
+        wprintf("<SPAN CLASS=\"titlebar\">Access control list for ");
 	escputs(WC->wc_roomname);
-        wprintf("</B></FONT></TD></TR></TABLE>\n");
+        wprintf("</SPAN></TD></TR></TABLE>\n");
 
         if(!strcmp(bstr("sc"), "Kick")) {
                 sprintf(buf, "KICK %s", username);
@@ -1404,10 +1403,9 @@ void display_entroom(void)
 	}
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Enter (create) a new room</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#000077\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">Enter (create) a new room</SPAN>\n");
+	wprintf("</TD></TR></TABLE>\n");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/entroom\">\n");
 
@@ -1508,10 +1506,9 @@ void display_private(char *rname, int req_pass)
 
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Goto a private room</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">Goto a private room</SPAN>\n");
+	wprintf("</TD></TR></TABLE>\n");
 
 	wprintf("<CENTER>\n");
 	wprintf("If you know the name of a hidden (guess-name) or\n");
@@ -1582,10 +1579,9 @@ void display_zap(void)
 {
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Zap (forget) the current room</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">Zap (forget) the current room</SPAN>\n");
+	wprintf("</TD></TR></TABLE>\n");
 
 	wprintf("If you select this option, <em>%s</em> will ", WC->wc_roomname);
 	wprintf("disappear from your room list.  Is this what you wish ");
@@ -1647,10 +1643,9 @@ void confirm_delete_room(void)
 		return;
 	}
 	output_headers(1);
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Confirm deletion of room</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">Confirm deletion of room</SPAN>\n");
+	wprintf("</TD></TR></TABLE>\n");
 
 	wprintf("<CENTER>");
 	wprintf("<FORM METHOD=\"GET\" ACTION=\"/delete_room\">\n");
@@ -1981,8 +1976,8 @@ void knrooms() {
 	}
 
 	/* title bar */
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>"
-		"<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>"
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#000077\"><TR><TD>"
+		"<SPAN CLASS=\"titlebar\">"
 	);
 	if (!strcasecmp(listviewpref, "rooms")) {
 		wprintf("Room list");
@@ -1990,7 +1985,7 @@ void knrooms() {
 	if (!strcasecmp(listviewpref, "folders")) {
 		wprintf("Folder list");
 	}
-	wprintf("</B></TD>\n");
+	wprintf("</SPAN></TD>\n");
 
 
 	/* offer the ability to switch views */

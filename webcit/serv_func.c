@@ -133,11 +133,11 @@ void fmout(FILE * fp)
 		 */
 		if ((bq == 0) &&
 		    ((!strncmp(buf, " >", 2)) || (!strncmp(buf, " :-)", 4)))) {
-			wprintf("<FONT COLOR=\"000044\"><I>");
+			wprintf("<SPAN CLASS=\"pull_quote\">");
 			bq = 1;
 		} else if ((bq == 1) &&
 		  (strncmp(buf, " >", 2)) && (strncmp(buf, " :-)", 4))) {
-			wprintf("</FONT></I>");
+			wprintf("</SPAN>");
 			bq = 0;
 		}
 		/* Activate embedded URL's */

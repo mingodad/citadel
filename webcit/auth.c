@@ -329,10 +329,9 @@ void display_changepw(void)
 
 	output_headers(3);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Change your password</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">Change your password</SPAN>\n");
+	wprintf("</TD></TR></TABLE>\n");
 
 	wprintf("<CENTER>");
 	serv_puts("MESG changepw");

@@ -5,10 +5,12 @@ a:link {
 
 a:visited {
   color: #800080;
+  text-decoration: none;
 }
 
 a:active {
   color: #00FF00;
+  text-decoration: none;
 }
 
 .menubar_link {
@@ -25,6 +27,40 @@ a:active {
 	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
 	font-size: 12pt;
 	color: #FFFFEE;
+}
+
+.message_header {
+	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
+	font-size: 10pt;
+	color: #000000;
+}
+
+.message_subject {
+	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
+	font-size: 10pt;
+	color: #000000;
+	font-style: italic;
+}
+
+.pull_quote {
+	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
+	font-size: 7pt;
+	font-style: italic;
+	color: #000044;
+}
+
+.tablabel {
+	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
+	font-size: 10pt;
+	font-style: bold;
+	color: #FFFFEE;
+}
+
+.youhavemail {
+	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
+	font-size: 6pt;
+	font-style: italic;
+	color: #000044;
 }
 
 .room_banner_room_name {

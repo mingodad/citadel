@@ -49,18 +49,17 @@ void display_floorconfig(char *prepend_html)
 	serv_printf("LFLR");	/* FIXME put a real test here */
 	serv_gets(buf);
 	if (buf[0] != '1') {
-        	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
-        	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-        	wprintf("<B>Error</B>\n");
-        	wprintf("</FONT></TD></TR></TABLE><BR>\n");
+        	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
+        	wprintf("<SPAN CLASS=\"titlebar\">Error</SPAN>\n");
+        	wprintf("</TD></TR></TABLE><BR>\n");
         	wprintf("%s<BR>\n", &buf[4]);
 		wDumpContent(1);
 		return;
 	}
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>"
-		"<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>Floor configuration"
-		"</B></FONT></TD></TR></TABLE>\n"
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>"
+		"<SPAN CLASS=\"titlebar\">Floor configuration</SPAN>"
+		"</TD></TR></TABLE>\n"
 	);
 
 	wprintf("<TABLE BORDER=1 WIDTH=100%>\n"

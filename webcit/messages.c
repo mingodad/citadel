@@ -110,8 +110,8 @@ void display_parsed_vcard(struct vCard *v, int full) {
 	wprintf("<TABLE bgcolor=#888888>");
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 		if (!strcasecmp(v->prop[i].name, "n")) {
-			wprintf("<TR BGCOLOR=#AAAAAA>"
-			"<TD BGCOLOR=#FFFFFF>"
+			wprintf("<TR BGCOLOR=\"#AAAAAA\">"
+			"<TD BGCOLOR=\"#FFFFFF\">"
 			"<IMG ALIGN=CENTER SRC=\"/static/vcard.gif\"></TD>"
 			"<TD><FONT SIZE=+1><B>");
 			escputs(v->prop[i].value);
@@ -234,16 +234,15 @@ void read_message(long msgnum) {
 	}
 
 	wprintf("<TABLE WIDTH=100%% BORDER=0 CELLSPACING=0 "
-		"CELLPADDING=1 BGCOLOR=CCCCCC><TR><TD>\n");
+		"CELLPADDING=1 BGCOLOR=\"#CCCCCC\"><TR><TD>\n");
 
-	wprintf("<FONT ");
-	wprintf("SIZE=+1 ");
-	wprintf("COLOR=\"000000\"> ");
+	wprintf("<SPAN CLASS=\"message_header\">");
 	strcpy(m_subject, "");
 
 	while (serv_gets(buf), strcasecmp(buf, "text")) {
 		if (!strcmp(buf, "000")) {
 			wprintf("<I>unexpected end of message</I><BR><BR>\n");
+			wprintf("</SPAN>\n");
 			return;
 		}
 		if (!strncasecmp(buf, "nhdr=yes", 8))
@@ -370,30 +369,30 @@ void read_message(long msgnum) {
 		wprintf("****");
 	}
 
-	wprintf("</FONT></TD>");
+	wprintf("</SPAN></TD>");
 
 	wprintf("<TD ALIGN=RIGHT>\n"
 		"<TABLE BORDER=0><TR>\n");
 
-	wprintf("<TD BGCOLOR=\"AAAADD\">"
+	wprintf("<TD BGCOLOR=\"#AAAADD\">"
 		"<A HREF=\"/readfwd?startmsg=%ld", msgnum);
 	wprintf("&maxmsgs=1&summary=0\">Read</A>"
 		"</TD>\n", msgnum);
 
-	wprintf("<TD BGCOLOR=\"AAAADD\">"
+	wprintf("<TD BGCOLOR=\"#AAAADD\">"
 		"<A HREF=\"/display_enter?recp=");
 	urlescputs(reply_to);
 	wprintf("\"><FONT SIZE=-1>Reply</FONT></A>"
 		"</TD>\n", msgnum);
 
 	if (WC->is_room_aide) {
-		wprintf("<TD BGCOLOR=\"AAAADD\">"
+		wprintf("<TD BGCOLOR=\"#AAAADD\">"
 			"<A HREF=\"/confirm_move_msg"
 			"&msgid=%ld"
 			"\"><FONT SIZE=-1>Move</FONT></A>"
 			"</TD>\n", msgnum);
 
-		wprintf("<TD BGCOLOR=\"AAAADD\">"
+		wprintf("<TD BGCOLOR=\"#AAAADD\">"
 			"<A HREF=\"/delete_msg"
 			"&msgid=%ld\""
 			"onClick=\"return confirm('Delete this message?');\""
@@ -405,8 +404,10 @@ void read_message(long msgnum) {
 		"</TD>\n");
 
 	if (strlen(m_subject) > 0) {
-		wprintf("<TR><TD><FONT COLOR=\"0000FF\">"
-			"Subject: %s</FONT>"
+		wprintf("<TR><TD>"
+			"<SPAN CLASS=\"message_subject\">"
+			"Subject: %s"
+			"</SPAN>"
 			"</TD><TD>&nbsp;</TD></TR>\n", m_subject);
 	}
 
@@ -441,11 +442,11 @@ void read_message(long msgnum) {
 				buf[strlen(buf) - 1] = 0;
 			if ((bq == 0) &&
 		    	((!strncmp(buf, ">", 1)) || (!strncmp(buf, " >", 2)) || (!strncmp(buf, " :-)", 4)))) {
-				wprintf("<FONT COLOR=\"000044\"><I>");
+				wprintf("<SPAN CLASS=\"pull_quote\">");
 				bq = 1;
 			} else if ((bq == 1) &&
 			   	(strncmp(buf, ">", 1)) && (strncmp(buf, " >", 2)) && (strncmp(buf, " :-)", 4))) {
-				wprintf("</FONT></I>");
+				wprintf("</SPAN>");
 				bq = 0;
 			}
 			wprintf("<TT>");
@@ -808,7 +809,7 @@ void readloop(char *oper)
 			/* If a tabular view, set up the line */
 			if ( (is_summary) || (is_addressbook) ) {
 				bg = 1 - bg;
-				wprintf("<TR BGCOLOR=%s>",
+				wprintf("<TR BGCOLOR=\"#%s\">",
 					(bg ? "DDDDDD" : "FFFFFF")
 				);
 			}
@@ -866,7 +867,7 @@ void readloop(char *oper)
 	   if ((!is_tasks) && (!is_calendar)) {
 
 		wprintf("<CENTER>"
-			"<TABLE BORDER=0 WIDTH=100%% BGCOLOR=DDDDDD><TR><TD>"
+			"<TABLE BORDER=0 WIDTH=100%% BGCOLOR=\"#DDDDDD\"><TR><TD>"
 			"Reading #%d of %d messages.</TD>\n"
 			"<TD ALIGN=RIGHT><FONT SIZE=+1>",
 			lowest_displayed, nummsgs);
@@ -915,7 +916,7 @@ void readloop(char *oper)
 	if (num_displayed > 1) {
 	   if ((!is_tasks) && (!is_calendar)) {
 		wprintf("<CENTER>"
-			"<TABLE BORDER=0 WIDTH=100%% BGCOLOR=DDDDDD><TR><TD>"
+			"<TABLE BORDER=0 WIDTH=100%% BGCOLOR=\"#DDDDDD\"><TR><TD>"
 			"Reading #%d-%d of %d messages.</TD>\n"
 			"<TD ALIGN=RIGHT><FONT SIZE=+1>",
 			lowest_displayed, highest_displayed, nummsgs);
@@ -1063,7 +1064,7 @@ void display_enter(void)
 	strcpy(buf, (char *) asctime(tm));
 	buf[strlen(buf) - 1] = 0;
 	strcpy(&buf[16], &buf[19]);
-	wprintf("</CENTER><FONT COLOR=\"440000\">\n"
+	wprintf("</CENTER><FONT COLOR=\"#440000\">\n"
 		"<IMG SRC=\"static/enter.gif\" ALIGN=MIDDLE ALT=\" \" "
 		"onLoad=\"document.enterform.msgtext.focus();\" >");
 	wprintf("<B> %s ", &buf[4]);
@@ -1133,8 +1134,8 @@ void confirm_move_msg(void)
 
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
+	wprintf("<FONT SIZE=+1 COLOR=\"#FFFFFF\"");
 	wprintf("<B>Confirm move of message</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
 

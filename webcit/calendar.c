@@ -357,10 +357,9 @@ void respond_to_request(void) {
 
 	output_headers(3);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>"
-		"<FONT SIZE=+1 COLOR=\"FFFFFF\""
-		"<B>Respond to meeting request</B>"
-		"</FONT></TD></TR></TABLE><BR>\n"
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>"
+		"<SPAN CLASS=\"titlebar\">Respond to meeting request</SPAN>"
+		"</TD></TR></TABLE><BR>\n"
 	);
 
 	serv_printf("ICAL respond|%s|%s|%s|",
@@ -413,10 +412,10 @@ void handle_rsvp(void) {
 
 	output_headers(3);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>"
-		"<FONT SIZE=+1 COLOR=\"FFFFFF\""
-		"<B>Update your calendar with this RSVP</B>"
-		"</FONT></TD></TR></TABLE><BR>\n"
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>"
+		"<SPAN CLASS=\"titlebar\">"
+		"Update your calendar with this RSVP</SPAN>"
+		"</TD></TR></TABLE><BR>\n"
 	);
 
 	serv_printf("ICAL handle_rsvp|%s|%s|%s|",
@@ -542,10 +541,9 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	}
 
 	output_headers(3);
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>"
-		"<FONT SIZE=+1 COLOR=\"FFFFFF\""
-		"<B>Edit task</B>"
-		"</FONT></TD></TR></TABLE><BR>\n"
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>"
+		"<SPAN CLASS=\"titlebar\">Edit task</SPAN>"
+		"</TD></TR></TABLE><BR>\n"
 	);
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/save_task\">\n");
