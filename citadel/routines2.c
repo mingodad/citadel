@@ -671,7 +671,7 @@ void do_system_configuration(void) {
 		serv_puts("CONF set");
 		serv_gets(buf);
 		if (buf[0] == '4') {
-			for (a=0; a<17; ++a) serv_puts(&sc[a][0]);
+			for (a=0; a<16; ++a) serv_puts(&sc[a][0]);
 			serv_puts("000");
 			}
 

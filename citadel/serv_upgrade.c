@@ -381,6 +381,8 @@ void imp_config(void) {
 			config.c_ep.expire_value = atoi(value);
 		if (!strcasecmp(key, "c_userpurge"))
 			config.c_userpurge = atoi(value);
+		if (!strcasecmp(key, "c_roompurge"))
+			config.c_roompurge = atoi(value);
 		}
 
 	fp = fopen("citadel.config", "wb");
@@ -691,6 +693,7 @@ void do_export(char *argbuf) {
 	fprintf(exfp, "c_expire_policy%c%d%c", 0, config.c_ep.expire_mode, 0);
 	fprintf(exfp, "c_expire_value%c%d%c", 0, config.c_ep.expire_value, 0);
 	fprintf(exfp, "c_userpurge%c%d%c", 0, config.c_userpurge, 0);
+	fprintf(exfp, "c_roompurge%c%d%c", 0, config.c_roompurge, 0);
 	fprintf(exfp, "endsection%c", 0);
 
 	/* Now some global stuff */
