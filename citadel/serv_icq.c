@@ -61,11 +61,6 @@ struct CtdlICQ_CL {
 
 /* <ig> */
 
-/* ICQROOM is the name of the room in which each user's ICQ configuration
- * and contact lists will be stored.  (It's a personal room.)
- */
-#define ICQROOM		"My ICQ Config"
-
 /* MIME types to use for storing ICQ stuff */
 #define ICQMIME		"application/x-citadel-icq"	/* configuration */
 #define ICQCLMIME	"application/x-citadel-icq-cl"	/* contact list */
@@ -1796,7 +1791,7 @@ void CtdlICQ_Read_Config(void) {
 	char icq_rm[ROOMNAMELEN];
 	
 	strcpy(hold_rm, CC->quickroom.QRname);
-	MailboxName(icq_rm, &CC->usersupp, ICQROOM);
+	MailboxName(icq_rm, &CC->usersupp, CONFIGROOM);
 	strcpy(ThisICQ->icq_config, "");
 
 	if (getroom(&CC->quickroom, icq_rm) != 0) {
@@ -1829,7 +1824,7 @@ void CtdlICQ_Write_Config(void) {
 	fclose(fp);
 
 	/* this handy API function does all the work for us */
-	CtdlWriteObject(ICQROOM, ICQMIME, temp, &CC->usersupp, 0, 1);
+	CtdlWriteObject(CONFIGROOM, ICQMIME, temp, &CC->usersupp, 0, 1);
 
 	unlink(temp);
 }
@@ -1859,7 +1854,7 @@ void CtdlICQ_Write_CL(void) {
 	fclose(fp);
 
 	/* this handy API function does all the work for us */
-	CtdlWriteObject(ICQROOM, ICQCLMIME, temp, &CC->usersupp, 0, 1);
+	CtdlWriteObject(CONFIGROOM, ICQCLMIME, temp, &CC->usersupp, 0, 1);
 
 	unlink(temp);
 }
@@ -1920,7 +1915,7 @@ void CtdlICQ_Read_CL(void) {
 	char icq_rm[ROOMNAMELEN];
 	
 	strcpy(hold_rm, CC->quickroom.QRname);
-	MailboxName(icq_rm, &CC->usersupp, ICQROOM);
+	MailboxName(icq_rm, &CC->usersupp, CONFIGROOM);
 	strcpy(ThisICQ->icq_config, "");
 
 	if (getroom(&CC->quickroom, icq_rm) != 0) {

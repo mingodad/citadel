@@ -1,4 +1,4 @@
-                         Citadel/UX release 5.54
+                         Citadel/UX release 5.55
 
 Copyright (c) 1987-1999 by:
         Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
@@ -6,6 +6,7 @@ Copyright (c) 1987-1999 by:
 Portions (c) 1998-1999 by:
 	Brian Costello <btx@calyx.net>
 	Nathan Bryant <bryant@cs.usm.maine.edu>
+	Ben Mehlman <cit3252@uncnsrd.mt-kisco.ny.us>
  
 base64 encoding/decoding for MIME parser, public domain by:
 	John Walker <http://www.fourmilab.ch>

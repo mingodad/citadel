@@ -3,8 +3,8 @@
  *
  * This module handles the expiry of old messages and the purging of old users.
  *
+ * $Id$
  */
-/* $Id$ */
 
 
 /*
@@ -62,30 +62,30 @@ struct oldvisit {
 	long v_generation;
 	long v_lastseen;
 	unsigned int v_flags;
-	};
+};
 
 struct PurgeList {
 	struct PurgeList *next;
 	char name[ROOMNAMELEN];	/* use the larger of username or roomname */
-	};
+};
 
 struct VPurgeList {
 	struct VPurgeList *next;
 	long vp_roomnum;
 	long vp_roomgen;
 	long vp_usernum;
-	};
+};
 
 struct ValidRoom {
 	struct ValidRoom *next;
 	long vr_roomnum;
 	long vr_roomgen;
-	};
+};
 
 struct ValidUser {
 	struct ValidUser *next;
 	long vu_usernum;
-	};
+};
 
 struct PurgeList *UserPurgeList = NULL;
 struct PurgeList *RoomPurgeList = NULL;
@@ -108,11 +108,6 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 	time(&now);
 	GetExpirePolicy(&epbuf, qrbuf);
 	
-	/*
-	lprintf(9, "ExpirePolicy for <%s> is <%d> <%d>\n",
-		qrbuf->QRname, epbuf.expire_mode, epbuf.expire_value);
-	*/
-
 	/* If the room is set to never expire messages ... do nothing */
 	if (epbuf.expire_mode == EXPIRE_NEXTLEVEL) return;
 	if (epbuf.expire_mode == EXPIRE_MANUAL) return;
@@ -131,7 +126,7 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 	if (num_msgs == 0) {
 		end_critical_section(S_QUICKROOM);
 		return;
-		}
+	}
 
 	/* If the room is set to expire by count, do that */
 	if (epbuf.expire_mode == EXPIRE_NUMMSGS) {
@@ -143,8 +138,8 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 				(sizeof(long)*(num_msgs - 1)));
 			--num_msgs;
 			++messages_purged;
-			}
 		}
+	}
 
 	/* If the room is set to expire by age... */
 	if (epbuf.expire_mode == EXPIRE_AGE) {
@@ -165,9 +160,9 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 				AdjRefCount(delnum, -1); 
 				msglist[a] = 0L;
 				++messages_purged;
-				}
 			}
 		}
+	}
 
 	if (num_msgs > 0) {
 		num_msgs = sort_msglist(msglist, num_msgs);
@@ -179,7 +174,7 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 	if (msglist != NULL) phree(msglist);
 
 	end_critical_section(S_QUICKROOM);
-	}
+}
 
 void PurgeMessages(void) {
 	lprintf(5, "PurgeMessages() called\n");
@@ -195,7 +190,7 @@ void AddValidUser(struct usersupp *usbuf) {
 	vuptr->next = ValidUserList;
 	vuptr->vu_usernum = usbuf->usernum;
 	ValidUserList = vuptr;
-	}
+}
 
 void AddValidRoom(struct quickroom *qrbuf) {
 	struct ValidRoom *vrptr;
@@ -205,7 +200,7 @@ void AddValidRoom(struct quickroom *qrbuf) {
 	vrptr->vr_roomnum = qrbuf->QRnumber;
 	vrptr->vr_roomgen = qrbuf->QRgen;
 	ValidRoomList = vrptr;
-	}
+}
 
 void DoPurgeRooms(struct quickroom *qrbuf) {
 	time_t age, purge_secs;
@@ -281,7 +276,7 @@ int PurgeRooms(void) {
 		vuptr = ValidUserList->next;
 		phree(ValidUserList);
 		ValidUserList = vuptr;
-		}
+	}
 
 
 	transcript = mallok(256);
@@ -293,19 +288,19 @@ int PurgeRooms(void) {
 			sprintf(&transcript[strlen(transcript)], " %s\n",
 				qrbuf.QRname);
 			delete_room(&qrbuf);
-			}
+		}
 		pptr = RoomPurgeList->next;
 		phree(RoomPurgeList);
 		RoomPurgeList = pptr;
 		++num_rooms_purged;
-		}
+	}
 
 	if (num_rooms_purged > 0) aide_message(transcript);
 	phree(transcript);
 
 	lprintf(5, "Purged %d rooms.\n", num_rooms_purged);
 	return(num_rooms_purged);
-	}
+}
 
 
 void do_user_purge(struct usersupp *us) {
@@ -317,10 +312,10 @@ void do_user_purge(struct usersupp *us) {
 	/* Set purge time; if the user overrides the system default, use it */
 	if (us->USuserpurge > 0) {
 		purge_time = ((time_t)us->USuserpurge) * 86400L;
-		}
+	}
 	else {
 		purge_time = ((time_t)config.c_userpurge) * 86400L;
-		}
+	}
 
 	/* The default rule is to not purge. */
 	purge = 0;
@@ -356,9 +351,9 @@ void do_user_purge(struct usersupp *us) {
 		pptr->next = UserPurgeList;
 		strcpy(pptr->name, us->fullname);
 		UserPurgeList = pptr;
-		}
-
 	}
+
+}
 
 
 
@@ -370,7 +365,7 @@ int PurgeUsers(void) {
 	lprintf(5, "PurgeUsers() called\n");
 	if (config.c_userpurge > 0) {
 		ForEachUser(do_user_purge);
-		}
+	}
 
 	transcript = mallok(256);
 	strcpy(transcript, "The following users have been auto-purged:\n");
@@ -384,14 +379,14 @@ int PurgeUsers(void) {
 		phree(UserPurgeList);
 		UserPurgeList = pptr;
 		++num_users_purged;
-		}
+	}
 
 	if (num_users_purged > 0) aide_message(transcript);
 	phree(transcript);
 
 	lprintf(5, "Purged %d users.\n", num_users_purged);
 	return(num_users_purged);
-	}
+}
 
 
 /*
@@ -441,13 +436,13 @@ int PurgeVisits(void) {
 			if ( (vrptr->vr_roomnum==vbuf.v_roomnum)
 			     && (vrptr->vr_roomgen==vbuf.v_roomgen))
 				RoomIsValid = 1;
-			}
+		}
 
 		/* Check to see if the user exists */
 		for (vuptr=ValidUserList; vuptr!=NULL; vuptr=vuptr->next) {
 			if (vuptr->vu_usernum == vbuf.v_usernum)
 				UserIsValid = 1;
-			}
+		}
 
 		/* Put the record on the purge list if it's dead */
 		if ((RoomIsValid==0) || (UserIsValid==0)) {
@@ -458,23 +453,23 @@ int PurgeVisits(void) {
 			vptr->vp_roomgen = vbuf.v_roomgen;
 			vptr->vp_usernum = vbuf.v_usernum;
 			VisitPurgeList = vptr;
-			}
-
 		}
+
+	}
 
 	/* Free the valid room/gen combination list */
 	while (ValidRoomList != NULL) {
 		vrptr = ValidRoomList->next;
 		phree(ValidRoomList);
 		ValidRoomList = vrptr;
-		}
+	}
 
 	/* Free the valid user list */
 	while (ValidUserList != NULL) {
 		vuptr = ValidUserList->next;
 		phree(ValidUserList);
 		ValidUserList = vuptr;
-		}
+	}
 
 	/* Now delete every visit on the purged list */
 	while (VisitPurgeList != NULL) {
@@ -487,10 +482,10 @@ int PurgeVisits(void) {
 		phree(VisitPurgeList);
 		VisitPurgeList = vptr;
 		++purged;
-		}
+	}
 	
 	return(purged);
-	}
+}
 
 
 void cmd_expi(char *argbuf) {
@@ -501,48 +496,48 @@ void cmd_expi(char *argbuf) {
 	if ((!(CC->logged_in))&&(!(CC->internal_pgm))) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
 		return;
-		}
+	}
 
 	if ((!is_room_aide()) && (!(CC->internal_pgm)) ) {
 		cprintf("%d Higher access required.\n",
 			ERROR+HIGHER_ACCESS_REQUIRED);
 		return;
-		}
+	}
 
 	extract(cmd, argbuf, 0);
 	if (!strcasecmp(cmd, "users")) {
 		retval = PurgeUsers();
 		cprintf("%d Purged %d users.\n", OK, retval);
 		return;
-		}
+	}
 	else if (!strcasecmp(cmd, "messages")) {
 		PurgeMessages();
 		cprintf("%d Expired %d messages.\n", OK, messages_purged);
 		return;
-		}
+	}
 	else if (!strcasecmp(cmd, "rooms")) {
 		retval = PurgeRooms();
 		cprintf("%d Expired %d rooms.\n", OK, retval);
 		return;
-		}
+	}
 	else if (!strcasecmp(cmd, "visits")) {
 		retval = PurgeVisits();
 		cprintf("%d Purged %d visits.\n", OK, retval);
-		}
+	}
 	else if (!strcasecmp(cmd, "defrag")) {
 		defrag_databases();
 		cprintf("%d Defragmented the databases.\n", OK);
-		}
+	}
 	else {
 		cprintf("%d Invalid command.\n", ERROR+ILLEGAL_VALUE);
 		return;
-		}
 	}
+}
 
 
 
 char *Dynamic_Module_Init(void)
 {
-   CtdlRegisterProtoHook(cmd_expi, "EXPI", "Expire old system objects");
-   return "$Id$";
+	CtdlRegisterProtoHook(cmd_expi, "EXPI", "Expire old system objects");
+	return "$Id$";
 }

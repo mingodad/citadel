@@ -15,9 +15,7 @@
    
    It is up to you to decide which utilities should be made accessible only
 to sysops. It is important that you set the file permissions correctly. All
-utilities should have access to the BBS data files, whether through ownership
-or set-user-id. In addition, aidepost should be accessible by the chat program,
-and userlist & whobbs should be accessible by citadel. I will attempt to
+utilities should have access to the BBS data files.  We will attempt to
 address each program individually.
    
    
