@@ -57,8 +57,6 @@ void output_html(void) {
 	msgstart = msg;
 	msgend = &msg[total_length];
 
-	fprintf(stderr, "msg looks like this:\n%s\n", ptr);
-
 	while (ptr < msgend) {
 
 		/* Advance to next tag */
@@ -93,9 +91,8 @@ void output_html(void) {
 
 	write(WC->http_sock, msgstart, strlen(msgstart));
 
-	/* Close a bunch of tags that might have been opened 
-	wprintf("</I></B></FONT></TD></TR></TABLE></TT></PRE></A><BR>\n");
-	 */
+	/* A little trailing vertical whitespace... */
+	wprintf("<BR><BR>\n");
 
 	/* Now give back the memory */
 	free(msg);
