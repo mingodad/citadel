@@ -17,6 +17,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <syslog.h>
+#include <sys/types.h>
 #include "citadel.h"
 #include "server.h"
 #include "control.h"
@@ -41,11 +42,14 @@ void get_control(void) {
 	 * to zero.
 	 */
 	memset(&CitControl, 0, sizeof(struct CitControl));
-	if (control_fp == NULL)
+	if (control_fp == NULL) {
 		control_fp = fopen("citadel.control", "rb+");
+		fchown(fileno(control_fp), config.c_bbsuid, -1);
+	}
 	if (control_fp == NULL) {
 		control_fp = fopen("citadel.control", "wb+");
 		if (control_fp != NULL) {
+			fchown(fileno(control_fp), config.c_bbsuid, -1);
 			memset(&CitControl, 0, sizeof(struct CitControl));
 			fwrite(&CitControl, sizeof(struct CitControl),
 				1, control_fp);

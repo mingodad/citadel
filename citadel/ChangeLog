@@ -1,4 +1,7 @@
  $Log$
+ Revision 572.36  2000/09/01 13:37:16  ajc
+ * control.c: chown citadel.control to bbsuid when opening/creating as root
+
  Revision 572.35  2000/09/01 03:55:44  ajc
  * Fixed a few more references to the deprecated uncnsrd.mt-kisco.ny.us name
 
@@ -2027,4 +2030,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
