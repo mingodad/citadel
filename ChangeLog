@@ -1,4 +1,8 @@
 $Log$
+Revision 506.9  2004/04/21 02:25:13  ajc
+* Replaced ctdl_install_certificate() with convenience functions found
+  in the OpenSSL library.
+
 Revision 506.8  2004/04/21 02:19:41  ajc
 * Got HTTPS to work with Mozilla (by twiddling stuff that I still don't
   understand, but read at http://www.informit.com/articles/article.asp?p=22078
@@ -1786,3 +1790,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
