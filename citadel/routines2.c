@@ -257,10 +257,13 @@ void cli_upload(CtdlIPC *ipc)
 		/* basename of filename */
 		strcpy(tbuf, flnm);
 		if (haschar(tbuf, '/'))
-			strcpy(tbuf, strrchr(tbuf, '/'));
+			extract_token(tbuf, flnm,
+				num_tokens(tbuf, '/') - 1,
+				'/'
+			);
 		/* filename.1, filename.2, etc */
 		if (a > 0) {
-			sprintf(buf + strlen(buf), ".%d", a);
+			sprintf(&tbuf[strlen(tbuf)], ".%d", a);
 		}
 		/* Try upload */
 		r = CtdlIPCFileUpload(ipc, tbuf, desc, flnm, progress, buf);
@@ -269,7 +272,8 @@ void cli_upload(CtdlIPC *ipc)
 		else
 			break;
 		++a;
-	};
+	}
+	if (a > 0) scr_printf("Saved as '%s'\n", tbuf);
 }
 
 
