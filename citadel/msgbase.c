@@ -881,7 +881,7 @@ void fixed_output_pre(char *name, char *filename, char *partnum, char *disp,
 {
 		lprintf(9, "fixed_output_pre() type=<%s>\n", cbtype);	
 		if (!strcasecmp(cbtype, "multipart/alternative")) {
-			ma->is_ma = 1;
+			++ma->is_ma;
 			ma->did_print = 0;
 			return;
 		}
@@ -896,7 +896,7 @@ void fixed_output_post(char *name, char *filename, char *partnum, char *disp,
 {
 		lprintf(9, "fixed_output_post() type=<%s>\n", cbtype);	
 		if (!strcasecmp(cbtype, "multipart/alternative")) {
-			ma->is_ma = 0;
+			--ma->is_ma;
 			ma->did_print = 0;
 			return;
 		}
@@ -949,6 +949,73 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 				partnum, filename, cbtype, (long)length);
 		}
 	}
+
+/*
+ * The client is elegant and sophisticated and wants to be choosy about
+ * MIME content types, so figure out which multipart/alternative part
+ * we're going to send.
+ */
+void choose_preferred(char *name, char *filename, char *partnum, char *disp,
+	  	void *content, char *cbtype, size_t length, char *encoding,
+		void *cbuserdata)
+{
+	char buf[SIZ];
+	int i;
+
+	if (ma->is_ma > 0) {
+		for (i=0; i<num_tokens(CC->preferred_formats, '|'); ++i) {
+			extract(buf, CC->preferred_formats, i);
+			if (!strcasecmp(buf, cbtype)) {
+				strcpy(ma->chosen_part, partnum);
+			}
+		}
+	}
+}
+
+/*
+ * Now that we've chosen our preferred part, output it.
+ */
+void output_preferred(char *name, char *filename, char *partnum, char *disp,
+	  	void *content, char *cbtype, size_t length, char *encoding,
+		void *cbuserdata)
+{
+	int i;
+	char buf[SIZ];
+	int add_newline = 0;
+	char *text_content;
+
+	/* This is not the MIME part you're looking for... */
+	if (strcasecmp(partnum, ma->chosen_part)) return;
+
+	/* If the content-type of this part is in our preferred formats
+	 * list, we can simply output it verbatim.
+	 */
+	for (i=0; i<num_tokens(CC->preferred_formats, '|'); ++i) {
+		extract(buf, CC->preferred_formats, i);
+		if (!strcasecmp(buf, cbtype)) {
+			/* Yeah!  Go!  W00t!! */
+
+			text_content = (char *)content;
+			if (text_content[length-1] != '\n') {
+				++add_newline;
+			}
+
+			cprintf("Content-type: %s\n", cbtype);
+			cprintf("Content-length: %d\n",
+				length + add_newline);
+			cprintf("Content-transfer-encoding: %s\n", encoding);
+			cprintf("\n");
+			client_write(content, length);
+			if (add_newline) cprintf("\n");
+			return;
+		}
+	}
+
+	/* No translations required or possible: output as text/plain */
+	cprintf("Content-type: text/plain\n\n");
+	fixed_output(name, filename, partnum, disp, content, cbtype,
+			length, encoding, cbuserdata);
+}
 
 
 /*
@@ -1092,28 +1159,17 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	/* now for the user-mode message reading loops */
 	if (do_proto) cprintf("%d Message %ld:\n", LISTING_FOLLOWS, msg_num);
 
-	/******** (we don't do this anymore)
-	 * Tell the client which format type we're using.  If this is a
-	 * MIME message, *lie* about it and tell the user it's fixed-format.
-	if (mode == MT_CITADEL) {
-		if (TheMessage->cm_format_type == FMT_RFC822) {
-			if (do_proto) cprintf("type=1\n");
-		}
-		else {
-			if (do_proto) cprintf("type=%d\n",
-				TheMessage->cm_format_type);
-		}
-	}
-	 ***************/
-
-	/* Tell the client the truth about which format type we're using. */
+	/* Tell the client which format type we're using. */
 	if ( (mode == MT_CITADEL) && (do_proto) ) {
 		cprintf("type=%d\n", TheMessage->cm_format_type);
 	}
 
 	/* nhdr=yes means that we're only displaying headers, no body */
-	if ((TheMessage->cm_anon_type == MES_ANONONLY) && (mode == MT_CITADEL)) {
-		if (do_proto) cprintf("nhdr=yes\n");
+	if ( (TheMessage->cm_anon_type == MES_ANONONLY)
+           && (mode == MT_CITADEL)
+	   && (do_proto)
+	   ) {
+		cprintf("nhdr=yes\n");
 	}
 
 	/* begin header processing loop for Citadel message format */
@@ -1223,8 +1279,8 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 				else if (i == 'R')
 					cprintf("To: %s%s", mptr, nl);
 				else if (i == 'T') {
-					datestring(datestamp, sizeof datestamp, atol(mptr),
-						DATESTRING_RFC822 );
+					datestring(datestamp, sizeof datestamp,
+						atol(mptr), DATESTRING_RFC822);
 					cprintf("Date: %s%s", datestamp, nl);
 				}
 			}
@@ -1266,21 +1322,12 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 
 	/* Tell the client about the MIME parts in this message */
 	if (TheMessage->cm_format_type == FMT_RFC822) {
-		if (mode == MT_CITADEL) {
+		if ( (mode == MT_CITADEL) || (mode == MT_MIME) ) {
 			mime_parser(mptr, NULL,
 				*list_this_part,
 				*list_this_pref,
 				*list_this_suff,
 				NULL, 0);
-		}
-		else if (mode == MT_MIME) {	/* list parts only */
-			mime_parser(mptr, NULL,
-				*list_this_part,
-				*list_this_pref,
-				*list_this_suff,
-				NULL, 0);
-			if (do_proto) cprintf("000\n");
-			return(om_ok);
 		}
 		else if (mode == MT_RFC822) {	/* unparsed RFC822 dump */
 			/* FIXME ... we have to put some code in here to avoid
@@ -1304,8 +1351,9 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	}
 
 	/* signify start of msg text */
-	if (mode == MT_CITADEL)
+	if ( (mode == MT_CITADEL) || (mode == MT_MIME) ) {
 		if (do_proto) cprintf("text\n");
+	}
 	if (mode == MT_RFC822) {
 		if (TheMessage->cm_fields['U'] == NULL) {
 			cprintf("Subject: (no subject)%s", nl);
@@ -1318,6 +1366,9 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	 * what message transfer format is in use.
 	 */
 	if (TheMessage->cm_format_type == FMT_FIXED) {
+		if (mode == MT_MIME) {
+			cprintf("Content-type: text/plain\n\n");
+		}
 		strcpy(buf, "");
 		while (ch = *mptr++, ch > 0) {
 			if (ch == 13)
@@ -1342,6 +1393,9 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	 * message to the reader's screen width.
 	 */
 	if (TheMessage->cm_format_type == FMT_CITADEL) {
+		if (mode == MT_MIME) {
+			cprintf("Content-type: text/x-citadel-variformat\n\n");
+		}
 		memfmout(80, mptr, 0, nl);
 	}
 
@@ -1353,9 +1407,20 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	if (TheMessage->cm_format_type == FMT_RFC822) {
 		CtdlAllocUserData(SYM_MA_INFO, sizeof(struct ma_info));
 		memset(ma, 0, sizeof(struct ma_info));
-		mime_parser(mptr, NULL,
-			*fixed_output, *fixed_output_pre, *fixed_output_post,
-			NULL, 0);
+
+		if (mode == MT_MIME) {
+			strcpy(ma->chosen_part, "1");
+			mime_parser(mptr, NULL,
+				*choose_preferred, *fixed_output_pre,
+				*fixed_output_post, NULL, 0);
+			mime_parser(mptr, NULL,
+				*output_preferred, NULL, NULL, NULL, 0);
+		}
+		else {
+			mime_parser(mptr, NULL,
+				*fixed_output, *fixed_output_pre,
+				*fixed_output_post, NULL, 0);
+		}
 	}
 
 	/* now we're done */
@@ -1437,7 +1502,7 @@ void cmd_msg3(char *cmdbuf)
 
 
 /* 
- * display a message (mode 4 - MIME) (FIXME ... still evolving, not complete)
+ * Display a message using MIME content types
  */
 void cmd_msg4(char *cmdbuf)
 {
@@ -1446,6 +1511,19 @@ void cmd_msg4(char *cmdbuf)
 	msgid = extract_long(cmdbuf, 0);
 	CtdlOutputMsg(msgid, MT_MIME, 0, 1, 0);
 }
+
+
+
+/* 
+ * Client tells us its preferred message format(s)
+ */
+void cmd_msgp(char *cmdbuf)
+{
+	safestrncpy(CC->preferred_formats, cmdbuf,
+			sizeof(CC->preferred_formats));
+	cprintf("%d ok\n", CIT_OK);
+}
+
 
 /*
  * Open a component of a MIME message as a download file 

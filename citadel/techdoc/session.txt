@@ -1751,12 +1751,31 @@ into the system.  It is implemented in the serv_expire module.
  
   
  
- MSG4   (read MeSsaGe, mode 4 -- enumerate MIME parts)
+ MSG4   (read MeSsaGe, mode 4 -- output in preferred MIME format)
  
-     FIXME ... do the writeup for this once it's done.
- 
-
+ This is the equivalent of MSG0, except it's a bit smarter about messages in
+rich text formats.  Immediately following the "text" directive, the server
+will output RFC822-like MIME part headers such as "Content-type:" and
+"Content-length:".  MIME formats are chosen and/or converted based on the
+client's preferred format settings, which are set using the MSGP command,
+described below.
   
+ 
+ 
+ MSGP   (set MeSsaGe Preferred MIME format)
+ 
+ Client tells the server what MIME content types it knows how to handle, and
+the order in which it prefers them.  This is similar to an HTTP "Accept:"
+header.
+ 
+ The parameters to a MSGP command are the client's acceptable MIME content
+types, in the order it prefers them (from most preferred to least preferred).
+For example:  MSGP text/html|text/plain
+ 
+ The MSGP command always returns OK.
+  
+  
+   
  OPNA   (OPeN Attachment)
  
  Opens, as a download file, a component of a MIME-encoded message.  The two

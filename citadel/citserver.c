@@ -1027,6 +1027,10 @@ void do_command_loop(void) {
 		cmd_msg4(&cmdbuf[5]);
 	}
 
+	else if (!strncasecmp(cmdbuf,"MSGP",4)) {
+		cmd_msgp(&cmdbuf[5]);
+	}
+
 	else if (!strncasecmp(cmdbuf,"OPNA",4)) {
 		cmd_opna(&cmdbuf[5]);
 	}

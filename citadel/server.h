@@ -147,6 +147,7 @@ struct CitContext {
 
 	struct CtdlMessage *cached_msg;
 	long cached_msgnum;
+	char preferred_formats[SIZ];		/* Preferred MIME formats */
 
 	/* Dynamically allocated session data */
 	struct CtdlSessData *FirstSessData;

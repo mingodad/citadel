@@ -34,6 +34,7 @@ enum {
 struct ma_info {
 	int is_ma;		/* Set to 1 if we are using this stuff */
 	int did_print;		/* One alternative has been displayed */
+	char chosen_part[SIZ];	/* Which part of a m/a did we choose? */
 };
 
 
@@ -71,6 +72,7 @@ void cmd_msg0 (char *cmdbuf);
 void cmd_msg2 (char *cmdbuf);
 void cmd_msg3 (char *cmdbuf);
 void cmd_msg4 (char *cmdbuf);
+void cmd_msgp (char *cmdbuf);
 void cmd_opna (char *cmdbuf);
 long send_message (struct CtdlMessage *, FILE *);
 void loadtroom (void);
