@@ -33,10 +33,12 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
-#ifdef HAVE_DB3_DB_H
+#ifdef HAVE_DB_H
+#include <db.h>
+#elif defined(HAVE_DB3_DB_H)
 #include <db3/db.h>
 #else
-#include <db.h>
+#error Neither <db.h> nor <db3/db.h> was found by configure. Install db3-devel.
 #endif
 
 #include <pthread.h>
@@ -191,6 +193,8 @@ static void cdb_cull_logs(void) {
 	/* Get the list of names. */
 #if DB_VERSION_MAJOR == 3 && DB_VERSION_MINOR < 3
 	if ((ret = log_archive(dbenv, &list, flags, NULL)) != 0) {
+#elif DB_VERSION_MAJOR >= 4
+	if ((ret = dbenv->log_archive(dbenv, &list, flags)) != 0) {
 #else
 	if ((ret = log_archive(dbenv, &list, flags)) != 0) {
 #endif
@@ -218,7 +222,11 @@ static void cdb_checkpoint(void) {
 	int ret;
 	static time_t last_cull = 0L;
 
+#if DB_VERSION_MAJOR >= 4
+	ret = dbenv->txn_checkpoint(dbenv,
+#else
 	ret = txn_checkpoint(dbenv,
+#endif
 				MAX_CHECKPOINT_KBYTES,
 				MAX_CHECKPOINT_MINUTES,
 				0);
@@ -345,7 +353,11 @@ void close_databases(void)
 
 	cdb_free_tsd();
 
+#if DB_VERSION_MAJOR >= 4
+	if ((ret = dbenv->txn_checkpoint(dbenv, 0, 0, 0))) {
+#else
 	if ((ret = txn_checkpoint(dbenv, 0, 0, 0))) {
+#endif
 		lprintf(1, "cdb_*: txn_checkpoint: %s\n", db_strerror(ret));
 		abort();
 	}
