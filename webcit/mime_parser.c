@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #include <ctype.h>
 #include <string.h>
+#include "mime_parser.h"
 #include "webcit.h"
 #include "child.h"
 
@@ -40,8 +41,17 @@ void extract_key(char *target, char *source, char *key) {
  * The very back end for the component handler
  * (This function expects to be fed CONTENT ONLY, no headers)
  */
-void do_something_with_it(char *content, int length, char *content_type,
-			char *content_disposition) {
+void do_something_with_it(char *content,
+		int length,
+		char *content_type,
+		char *content_disposition,
+		void (*CallBack)
+			(char *cbname,
+			char *cbfilename,
+			char *cbencoding,
+			void *cbcontent,
+			size_t cblength)
+		) {
 	char name[256];
 	char filename[256];
 
@@ -50,22 +60,14 @@ void do_something_with_it(char *content, int length, char *content_type,
 
 	/* Nested multipart gets recursively fed back into the parser */
 	if (!strncasecmp(content_type, "multipart", 9)) {
-		mime_parser(content, length, content_type);
+		mime_parser(content, length, content_type, CallBack);
 		}
 
-	/**** OTHERWISE, HERE'S WHERE WE HANDLE THE STUFF!! ****
-	 * Later we'll want to do this with a callback.  We'll also want to
-	 * handle content-transfer-encoding before passing control to callback
-	 * functions.  For now, though ... it's just a hardcoded WebCit tie-in.
-	 */
+	/**** OTHERWISE, HERE'S WHERE WE HANDLE THE STUFF!! *****/
 
-	else if (strlen(name)>0) {
-		upload = malloc(length);
-		if (upload != NULL) {
-			upload_length = length;
-			memcpy(upload, content, length);
-			}
-		}
+	CallBack(name, filename, "", content, length);
+
+	/**** END OF STUFF-HANDLER ****/
 
 	}
 
@@ -74,7 +76,16 @@ void do_something_with_it(char *content, int length, char *content_type,
  * Take a part, figure out its length, and do something with it
  * (This function expects to be fed HEADERS+CONTENT)
  */
-void handle_part(char *content, int part_length, char *supplied_content_type) {
+void handle_part(char *content,
+		int part_length,
+		char *supplied_content_type,
+		void (*CallBack)
+			(char *cbname,
+			char *cbfilename,
+			char *cbencoding,
+			void *cbcontent,
+			size_t cblength)
+		) {
 	char content_type[256];
 	char content_disposition[256];
 	char *start;
@@ -121,7 +132,7 @@ void handle_part(char *content, int part_length, char *supplied_content_type) {
 
 	/* Now that we've got this component isolated, what to do with it? */
 	do_something_with_it(start, actual_length,
-				content_type, content_disposition);
+			content_type, content_disposition, CallBack);
 
 	}
 
@@ -130,7 +141,18 @@ void handle_part(char *content, int part_length, char *supplied_content_type) {
  * Break out the components of a multipart message
  * (This function expects to be fed CONTENT ONLY, no headers)
  */
-void mime_parser(char *content, int ContentLength, char *ContentType) {
+
+
+void mime_parser(char *content,
+		int ContentLength,
+		char *ContentType,
+		void (*CallBack)
+			(char *cbname,
+			char *cbfilename,
+			char *cbencoding,
+			void *cbcontent,
+			size_t cblength)
+		) {
 	char boundary[256];
 	char endary[256];
 	int have_boundary = 0;
@@ -142,7 +164,8 @@ void mime_parser(char *content, int ContentLength, char *ContentType) {
 
 	/* If it's not multipart, don't process it as multipart */
 	if (strncasecmp(ContentType, "multipart", 9)) {
-		do_something_with_it(content, ContentLength, ContentType, "");
+		do_something_with_it(content, ContentLength,
+				ContentType, "", CallBack);
 		return;
 		}
 
@@ -197,7 +220,7 @@ void mime_parser(char *content, int ContentLength, char *ContentType) {
 				++bytes_processed;
 				++part_length;
 				}
-			handle_part(beginning, part_length, "");
+			handle_part(beginning, part_length, "", CallBack);
 			/* Back off so we can see the next boundary */
 			--ptr;
 			--bytes_processed;

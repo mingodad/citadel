@@ -1,3 +1,7 @@
+Thu Jan 14 17:14:11 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Modified the back end of mime_parser to use callbacks instead of
+	  doing something specific.  Now we can use it elsewhere.
+
 Mon Jan 11 21:53:16 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Fixed the bugs in "Site-wide configuration"
 	* Added a "generic server commands" screen

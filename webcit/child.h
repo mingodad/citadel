@@ -71,8 +71,6 @@ void gotoroom(char *gname, int display_name);
 void confirm_delete_room(void);
 void delete_room(void);
 void validate(void);
-void mime_parser(char *, int, char *);
-void handle_multipart(char *, int, char *);
 void display_graphics_upload(char *, char *, char *);
 void do_graphics_upload(char *upl_cmd);
 void serv_read(char *buf, int bytes);
