@@ -416,7 +416,7 @@ void handle_rsvp(void) {
 		"<SPAN CLASS=\"titlebar\">"
 		"Update your calendar with this RSVP</SPAN>"
 		"</TD></TR></TABLE>\n"
-		"</div><div id=\"text\">\n"
+		"</div>\n<div id=\"text\">\n"
 	);
 
 	serv_printf("ICAL handle_rsvp|%s|%s|%s|",
@@ -526,7 +526,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">Edit task</SPAN>"
 		"</TD></TR></TABLE>\n"
-		"</div><div id=\"text\">\n"
+		"</div>\n<div id=\"text\">\n"
 	);
 	
 	do_template("beginbox_nt");
