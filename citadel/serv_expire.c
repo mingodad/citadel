@@ -335,7 +335,7 @@ int PurgeRooms(void) {
 	while (RoomPurgeList != NULL) {
 		if (getroom(&qrbuf, RoomPurgeList->name) == 0) {
 			transcript=reallok(transcript, strlen(transcript)+SIZ);
-			sprintf(&transcript[strlen(transcript)], " %s\n",
+			snprintf(&transcript[strlen(transcript)], SIZ, " %s\n",
 				qrbuf.QRname);
 			delete_room(&qrbuf);
 		}
@@ -433,7 +433,7 @@ int PurgeUsers(void) {
 
 	while (UserPurgeList != NULL) {
 		transcript=reallok(transcript, strlen(transcript)+SIZ);
-		sprintf(&transcript[strlen(transcript)], " %s\n",
+		snprintf(&transcript[strlen(transcript)], SIZ, " %s\n",
 			UserPurgeList->name);
 		purge_user(UserPurgeList->name);
 		pptr = UserPurgeList->next;

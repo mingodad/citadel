@@ -215,7 +215,8 @@ void write_network_map(void) {
 			serialized_map = reallok(serialized_map,
 						(strlen(serialized_map)+SIZ) );
 			if (strlen(nmptr->nodename) > 0) {
-				sprintf(&serialized_map[strlen(serialized_map)],
+				snprintf(&serialized_map[strlen(serialized_map)],
+					SIZ,
 					"%s|%ld|%s\n",
 					nmptr->nodename,
 					(long)nmptr->lastcontact,
@@ -424,15 +425,16 @@ void network_spool_msg(long msgnum, void *userdata) {
 				(long)instr_len);
 			abort();
 		}
-		sprintf(instr,
+		snprintf(instr, instr_len,
 			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
 			"bounceto|postmaster@%s\n" ,
 			SPOOLMIME, msgnum, (long)time(NULL), config.c_fqdn );
 	
 		/* Generate delivery instructions for each recipient */
 		for (nptr = sc->listrecps; nptr != NULL; nptr = nptr->next) {
-			sprintf(&instr[strlen(instr)], "remote|%s|0||\n",
-				nptr->name);
+			size_t tmp = strlen(instr);
+			snprintf(&instr[tmp], instr_len - tmp,
+				 "remote|%s|0||\n", nptr->name);
 		}
 	
 		/*
@@ -458,6 +460,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 	
 		msg = CtdlFetchMessage(msgnum);
 		if (msg != NULL) {
+			size_t newpath_len;
 
 			/* Prepend our node name to the Path field whenever
 			 * sending a message to another IGnet node
@@ -465,10 +468,11 @@ void network_spool_msg(long msgnum, void *userdata) {
 			if (msg->cm_fields['P'] == NULL) {
 				msg->cm_fields['P'] = strdoop("username");
 			}
-			newpath = mallok(strlen(msg->cm_fields['P']) + 
-					strlen(config.c_nodename) + 2);
-			sprintf(newpath, "%s!%s", config.c_nodename,
-					msg->cm_fields['P']);
+			newpath_len = strlen(msg->cm_fields['P']) +
+				 strlen(config.c_nodename) + 2;
+			newpath = mallok(newpath_len);
+			snprintf(newpath, newpath_len, "%s!%s",
+				 config.c_nodename, msg->cm_fields['P']);
 			phree(msg->cm_fields['P']);
 			msg->cm_fields['P'] = newpath;
 
@@ -523,7 +527,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 
 				/* Send the message */
 				if (send == 1) {
-					sprintf(filename,
+					snprintf(filename, sizeof filename,
 						"./network/spoolout/%s",
 						nptr->name);
 					fp = fopen(filename, "ab");
@@ -705,12 +709,13 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 	struct recptypes *valid = NULL;
 	char force_room[ROOMNAMELEN];
 	static int serialnum = 0;
+	size_t size;
 
 	lprintf(9, "entering network_bounce()\n");
 
 	if (msg == NULL) return;
 
-	sprintf(bouncesource, "%s@%s", BOUNCESOURCE, config.c_nodename);
+	snprintf(bouncesource, sizeof bouncesource, "%s@%s", BOUNCESOURCE, config.c_nodename);
 
 	/* 
 	 * Give it a fresh message ID
@@ -718,7 +723,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 	if (msg->cm_fields['I'] != NULL) {
 		phree(msg->cm_fields['I']);
 	}
-	sprintf(buf, "%ld.%04lx.%04x@%s",
+	snprintf(buf, sizeof buf, "%ld.%04lx.%04x@%s",
 		(long)time(NULL), (long)getpid(), ++serialnum, config.c_fqdn);
 	msg->cm_fields['I'] = strdoop(buf);
 
@@ -766,8 +771,9 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 	else {
 		oldpath = strdoop("unknown_user");
 	}
-	msg->cm_fields['P'] = mallok(strlen(oldpath) + SIZ);
-	sprintf(msg->cm_fields['P'], "%s!%s", config.c_nodename, oldpath);
+	size = strlen(oldpath) + SIZ;
+	msg->cm_fields['P'] = mallok(size);
+	snprintf(msg->cm_fields['P'], size, "%s!%s", config.c_nodename, oldpath);
 	phree(oldpath);
 
 	/* Now submit the message */
@@ -844,9 +850,9 @@ void network_process_buffer(char *buffer, long size) {
 				else {
 					oldpath = strdoop("unknown_user");
 				}
-				msg->cm_fields['P'] =
-					mallok(strlen(oldpath) + SIZ);
-				sprintf(msg->cm_fields['P'], "%s!%s",
+				size = strlen(oldpath) + SIZ;
+				msg->cm_fields['P'] = mallok(size);
+				snprintf(msg->cm_fields['P'], size, "%s!%s",
 					config.c_nodename, oldpath);
 				phree(oldpath);
 
@@ -854,7 +860,7 @@ void network_process_buffer(char *buffer, long size) {
 				serialize_message(&sermsg, msg);
 
 				/* now send it */
-				sprintf(filename,
+				snprintf(filename, sizeof filename,
 					"./network/spoolout/%s",
 					msg->cm_fields['D']);
 				fp = fopen(filename, "ab");
@@ -884,7 +890,7 @@ void network_process_buffer(char *buffer, long size) {
 	 * Check to see if we already have a copy of this message
 	 */
 	if (network_usetable(msg) != 0) {
-		sprintf(buf,
+		snprintf(buf, sizeof buf,
 			"Loopzapper rejected message <%s> "
 			"from <%s> in <%s> @ <%s>\n",
 			((msg->cm_fields['I']!=NULL)?(msg->cm_fields['I']):""),
@@ -1027,7 +1033,7 @@ void network_do_spoolin(void) {
 	if (dp == NULL) return;
 
 	while (d = readdir(dp), d != NULL) {
-		sprintf(filename, "./network/spoolin/%s", d->d_name);
+		snprintf(filename, sizeof filename, "./network/spoolin/%s", d->d_name);
 		network_process_file(filename);
 	}
 
@@ -1069,7 +1075,7 @@ void receive_spool(int sock, char *remote_nodename) {
 	}
 
 	while (bytes_received < download_len) {
-		sprintf(buf, "READ %ld|%ld",
+		snprintf(buf, sizeof buf, "READ %ld|%ld",
 			bytes_received,
 		     ((download_len - bytes_received > IGNET_PACKET_SIZE)
 		 ? IGNET_PACKET_SIZE : (download_len - bytes_received)));
@@ -1105,7 +1111,7 @@ void receive_spool(int sock, char *remote_nodename) {
 		return;
 	}
 	lprintf(9, "%s\n", buf);
-	sprintf(buf, "mv %s ./network/spoolin/%s.%ld",
+	snprintf(buf, sizeof buf, "mv %s ./network/spoolin/%s.%ld",
 		tempfilename, remote_nodename, (long) getpid());
 	system(buf);
 }
@@ -1131,7 +1137,7 @@ void transmit_spool(int sock, char *remote_nodename)
 		return;
 	}
 
-	sprintf(sfname, "./network/spoolout/%s", remote_nodename);
+	snprintf(sfname, sizeof sfname, "./network/spoolout/%s", remote_nodename);
 	fd = open(sfname, O_RDONLY);
 	if (fd < 0) {
 		if (errno == ENOENT) {
@@ -1145,7 +1151,7 @@ void transmit_spool(int sock, char *remote_nodename)
 	while (plen = (long) read(fd, pbuf, IGNET_PACKET_SIZE), plen > 0L) {
 		bytes_to_write = plen;
 		while (bytes_to_write > 0L) {
-			sprintf(buf, "WRIT %ld", bytes_to_write);
+			snprintf(buf, sizeof buf, "WRIT %ld", bytes_to_write);
 			if (sock_puts(sock, buf) < 0) {
 				close(fd);
 				return;
@@ -1205,7 +1211,7 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 	lprintf(9, ">%s\n", buf);
 
 	/* Identify ourselves */
-	sprintf(buf, "NETP %s|%s", config.c_nodename, secret);
+	snprintf(buf, sizeof buf, "NETP %s|%s", config.c_nodename, secret);
 	lprintf(9, "<%s\n", buf);
 	if (sock_puts(sock, buf) <0) goto bail;
 	if (sock_gets(sock, buf) < 0) goto bail;

@@ -43,16 +43,7 @@
 #include "snprintf.h"
 #endif
 #include "screen.h"
-
-void interr(int errnum);
-void strprompt(char *prompt, char *str, int len);
-void newprompt(char *prompt, char *str, int len);
-void sttybbs(int cmd);
-int inkey(void);
-void serv_write(char *buf, int nbytes);
-int haschar(char *st, int ch);
-void progress(long int curr, long int cmax);
-int yesno(void);
+#include "client_crypto.h"
 
 extern char temp[];
 extern char tempdir[];

@@ -14,7 +14,7 @@ struct internet_address_list {
 
 
 int fuzzy_match(struct usersupp *us, char *matchstring);
-void process_rfc822_addr(char *rfc822, char *user, char *node, char *name);
+void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name);
 char *rfc822_fetch_field(char *rfc822, char *fieldname);
 
 int IsDirectory(char *addr);

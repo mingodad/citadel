@@ -157,7 +157,7 @@ void unfold_rfc822_field(char *field) {
  * Split an RFC822-style address into userid, host, and full name
  *
  */
-void process_rfc822_addr(char *rfc822, char *user, char *node, char *name)
+void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name)
 {
 	int a;
 

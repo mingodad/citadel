@@ -50,7 +50,7 @@ struct cittext {
 };
 
 void sttybbs(int cmd);
-int haschar(char *st, int ch);
+int haschar(const char *st, int ch);
 int checkpagin(int lp, int pagin, int height);
 void getline(char *string, int lim);
 void formout(char *name);

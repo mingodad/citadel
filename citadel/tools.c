@@ -340,7 +340,7 @@ void striplt(char *buf)
 /* 
  * Return the number of occurances of character ch in string st
  */ 
-int haschar(char *st, int ch)
+int haschar(const char *st, int ch)
 {
 	int a, b;
 	b = 0;

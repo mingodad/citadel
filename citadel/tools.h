@@ -7,7 +7,7 @@ long int extract_long (char *source, long int parmnum);
 void encode_base64(char *dest, char *source);
 int decode_base64(char *dest, char *source, size_t length);
 void striplt(char *);
-int haschar(char *st, int ch);
+int haschar(const char *st, int ch);
 int collapsed_strcmp(char *s1, char *s2);
 void remove_token(char *source, int parmnum, char separator);
 void fmt_date(char *buf, time_t thetime, int seconds);

@@ -111,7 +111,7 @@ void np_attach_to_server(void)
 	attach_to_server(1, args, hostbuf, portbuf);
 	serv_gets(buf);
 	fprintf(stderr, "%s\n", &buf[4]);
-	sprintf(buf, "IPGM %d", config.c_ipgm_secret);
+	snprintf(buf, sizeof buf, "IPGM %d", config.c_ipgm_secret);
 	serv_puts(buf);
 	serv_gets(buf);
 	fprintf(stderr, "%s\n", &buf[4]);

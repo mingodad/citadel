@@ -70,6 +70,7 @@ int main(int argc, char **argv)
 	int drop_root_perms = 1;
 	char *moddir;
 	struct worker_node *wnp;
+	size_t size;
         
 	/* specify default port name and trace file */
 	strcpy(tracefile, "");
@@ -170,8 +171,9 @@ int main(int argc, char **argv)
 	 * Load any server-side modules (plugins) available here.
 	 */
 	lprintf(7, "Initializing loadable modules\n");
-	if ((moddir = malloc(strlen(bbs_home_directory) + 9)) != NULL) {
-		sprintf(moddir, "%s/modules", bbs_home_directory);
+	size = strlen(bbs_home_directory) + 9;
+	if ((moddir = mallok(size)) != NULL) {
+		snprintf(moddir, size, "%s/modules", bbs_home_directory);
 		DLoader_Init(moddir);
 		free(moddir);
 	}

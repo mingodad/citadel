@@ -31,7 +31,8 @@
 void locate_host(char *tbuf, size_t n, const struct in_addr *addr)
 {
 	struct hostent *ch;
-	char *i;
+	const char *i;
+	char *j;
 	int a1, a2, a3, a4;
 
 	lprintf(9, "locate_host() called\n");
@@ -40,10 +41,10 @@ void locate_host(char *tbuf, size_t n, const struct in_addr *addr)
 	begin_critical_section(S_NETDB);
 #endif
 
-	if ((ch = gethostbyaddr((char *) addr, sizeof(*addr), AF_INET)) ==
+	if ((ch = gethostbyaddr((const char *) addr, sizeof(*addr), AF_INET)) ==
 	    NULL) {
 	      bad_dns:
-		i = (char *) addr;
+		i = (const char *) addr;
 		a1 = ((*i++) & 0xff);
 		a2 = ((*i++) & 0xff);
 		a3 = ((*i++) & 0xff);
@@ -53,9 +54,9 @@ void locate_host(char *tbuf, size_t n, const struct in_addr *addr)
 				   section */
 	}
 	/* check if the forward DNS agrees; if not, they're spoofing */
-	i = strdoop(ch->h_name);
-	ch = gethostbyname(i);
-	phree(i);
+	j = strdoop(ch->h_name);
+	ch = gethostbyname(j);
+	phree(j);
 	if (ch == NULL)
 		goto bad_dns;
 

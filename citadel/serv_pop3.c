@@ -450,7 +450,7 @@ void pop3_update(void) {
 		lgetuser(&CC->usersupp, CC->curr_user);
 
 		CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
-		sprintf(vbuf.v_seen, "*:%ld",
+		snprintf(vbuf.v_seen, sizeof vbuf.v_seen, "*:%ld",
 			POP3->msgs[POP3->num_msgs-1].msgnum);
 		CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 

@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.140  2002/03/12 01:33:42  nbryant
+  - pass -Wcast-qual to gcc
+  - more sprintf bashing
+
  Revision 590.139  2002/03/12 00:03:43  nbryant
  more sprintf removals
 
@@ -3437,3 +3441,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

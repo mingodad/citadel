@@ -543,7 +543,7 @@ void imap_lsub(int num_parms, char *parms[]) {
 		cprintf("%s BAD arguments invalid\r\n", parms[0]);
 		return;
 	}
-	sprintf(pattern, "%s%s", parms[2], parms[3]);
+	snprintf(pattern, sizeof pattern, "%s%s", parms[2], parms[3]);
 
 	if (strlen(parms[3])==0) {
 		cprintf("* LIST (\\Noselect) \"|\" \"\"\r\n");
@@ -592,7 +592,7 @@ void imap_list(int num_parms, char *parms[]) {
 		cprintf("%s BAD arguments invalid\r\n", parms[0]);
 		return;
 	}
-	sprintf(pattern, "%s%s", parms[2], parms[3]);
+	snprintf(pattern, sizeof pattern, "%s%s", parms[2], parms[3]);
 
 	if (strlen(parms[3])==0) {
 		cprintf("* LIST (\\Noselect) \"|\" \"\"\r\n");

@@ -122,14 +122,14 @@ void edituser(void)
 	int newnow = 0;
 
 	newprompt("User name: ",who,25);
-AGUP:	sprintf(buf,"AGUP %s",who);
+AGUP:	snprintf(buf, sizeof buf, "AGUP %s",who);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]!='2') {
 		scr_printf("%s\n",&buf[4]);
 		scr_printf("Do you want to create this user? ");
 		if (yesno()) {
-			sprintf(buf, "CREU %s", who);
+			snprintf(buf, sizeof buf, "CREU %s", who);
 			serv_puts(buf);
 			serv_gets(buf);
 			if (buf[0] == '2') {
@@ -171,7 +171,7 @@ AGUP:	sprintf(buf,"AGUP %s",who);
 	userpurge = intprompt("Purge time (in days, 0 for system default",
 				userpurge, 0, INT_MAX);
 
-	sprintf(buf, "ASUP %s|%s|%d|%d|%d|%d|%ld|%ld|%d",
+	snprintf(buf, sizeof buf, "ASUP %s|%s|%d|%d|%d|%d|%ld|%ld|%d",
 		who, pass, flags, timescalled, posted, axlevel, usernum,
 		(long)lastcall, userpurge);
 	serv_puts(buf);
@@ -213,7 +213,7 @@ void enter_config(int mode)
  	int width, height, flags, filter;
 	char buf[128];
 
-	sprintf(buf,"GETU");
+	snprintf(buf, sizeof buf, "GETU");
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]!='2') {
@@ -283,7 +283,7 @@ void enter_config(int mode)
 		}
 	 }
 
-	sprintf(buf,"SETU %d|%d|%d|%d",width,height,flags,filter);
+	snprintf(buf, sizeof buf, "SETU %d|%d|%d|%d",width,height,flags,filter);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]!='2') scr_printf("%s\n",&buf[4]);
@@ -380,7 +380,7 @@ char *strerror(int e)
 {
 	static char buf[128];
 
-	sprintf(buf,"errno = %d",e);
+	snprintf(buf, sizeof buf, "errno = %d",e);
 	return(buf);
 	}
 #endif
@@ -558,7 +558,7 @@ int nukedir(char *dirname)
 		}
 
 	while (d = readdir(dp), d != NULL) {
-		sprintf(filename, "%s/%s", dirname, d->d_name);
+		snprintf(filename, sizeof filename, "%s/%s", dirname, d->d_name);
 		unlink(filename);
 		}
 

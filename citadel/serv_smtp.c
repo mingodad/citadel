@@ -110,8 +110,8 @@ void smtp_greeting(void) {
 	CtdlAllocUserData(SYM_SMTP, sizeof(struct citsmtp));
 	CtdlAllocUserData(SYM_SMTP_RECPS, SIZ);
 	CtdlAllocUserData(SYM_SMTP_ROOMS, SIZ);
-	sprintf(SMTP_RECPS, "%s", "");
-	sprintf(SMTP_ROOMS, "%s", "");
+	snprintf(SMTP_RECPS, SIZ, "%s", "");
+	snprintf(SMTP_ROOMS, SIZ, "%s", "");
 
 	cprintf("220 %s ESMTP Citadel/UX server ready.\r\n", config.c_fqdn);
 }
@@ -620,7 +620,8 @@ void smtp_command_loop(void) {
  * Called by smtp_do_procmsg() to attempt delivery to one SMTP host
  *
  */
-void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
+void smtp_try(const char *key, const char *addr, int *status,
+	      char *dsn, size_t n, long msgnum)
 {
 	int sock = (-1);
 	char mxhosts[1024];
@@ -646,7 +647,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	msg_fp = tmpfile();
 	if (msg_fp == NULL) {
 		*status = 4;
-		sprintf(dsn, "Error creating temporary file");
+		snprintf(dsn, n, "Error creating temporary file");
 		return;
 	}
 	else {
@@ -1197,7 +1198,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 			--i;
 			--lines;
 			lprintf(9, "SMTP: Trying <%s>\n", addr);
-			smtp_try(key, addr, &status, dsn, text_msgid);
+			smtp_try(key, addr, &status, dsn, sizeof dsn, text_msgid);
 			if (status != 2) {
 				if (results == NULL) {
 					results = mallok(1024);
@@ -1207,7 +1208,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 					results = reallok(results,
 						strlen(results) + 1024);
 				}
-				sprintf(&results[strlen(results)],
+				snprintf(&results[strlen(results)], 1024,
 					"%s|%s|%d|%s\n",
 					key, addr, status, dsn);
 			}

@@ -60,7 +60,7 @@ void cmd_ebio(char *cmdbuf) {
 		return;
 	}
 
-	sprintf(buf,"./bio/%ld",CC->usersupp.usernum);
+	snprintf(buf, sizeof buf, "./bio/%ld",CC->usersupp.usernum);
 	fp = fopen(buf,"w");
 	if (fp == NULL) {
 		cprintf("%d Cannot create file\n",ERROR);
@@ -87,7 +87,7 @@ void cmd_rbio(char *cmdbuf)
 		cprintf("%d No such user.\n",ERROR+NO_SUCH_USER);
 		return;
 	}
-	sprintf(buf,"./bio/%ld",ruser.usernum);
+	snprintf(buf, sizeof buf, "./bio/%ld",ruser.usernum);
 	
 	cprintf("%d OK|%s|%ld|%d|%ld|%ld|%ld\n", LISTING_FOLLOWS,
 		ruser.fullname, ruser.usernum, ruser.axlevel,
