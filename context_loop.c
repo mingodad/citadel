@@ -270,6 +270,7 @@ void context_loop(int sock)
 	 */
 	if (!strncasecmp(buf, "GET ", 4)) strcpy(buf, &buf[4]);
 	else if (!strncasecmp(buf, "HEAD ", 5)) strcpy(buf, &buf[5]);
+	else if (!strncasecmp(buf, "POST ", 5)) strcpy(buf, &buf[5]);
 	if (buf[1]==' ') buf[1]=0;
 
 	/*

@@ -76,9 +76,46 @@ void do_listsub(void)
 				"Web link for you to click on to confirm "
 				"your subscription.  This extra step is for "
 				"your protection, as it prevents others from "
-				"being able to subscribe you to lists.<BR><BR>"
+				"being able to subscribe you to lists "
+				"without your consent.<BR><BR>"
 				"Please click on the link which is being "
 				"e-mailed to you and your subscription will "
+				"be confirmed.<BR></CENTER>\n"
+			);
+		}
+		else {
+			wprintf("<FONT SIZE=+1><B>ERROR: %s</B>"
+				"</FONT><BR><BR>\n",
+				&buf[4]);
+			goto FORM;
+		}
+	}
+
+	/*
+	 * Unsubscribe command
+	 */
+	else if (!strcasecmp(cmd, "unsubscribe")) {
+		serv_printf("SUBS unsubscribe|%s|%s|%s/listsub",
+			room,
+			email,
+			WC->http_host
+		);
+		serv_gets(buf);
+		if (buf[0] == '2') {
+			wprintf("<CENTER><H1>Confirmation request sent</H1>"
+				"You are unsubscribing <TT>");
+			escputs(email);
+			wprintf("</TT> from the &quot;");
+			escputs(room);
+			wprintf("&quot; mailing list.  The listserver has "
+				"sent you an e-mail with one additional "
+				"Web link for you to click on to confirm "
+				"your unsubscription.  This extra step is for "
+				"your protection, as it prevents others from "
+				"being able to unsubscribe you from "
+				"lists without your consent.<BR><BR>"
+				"Please click on the link which is being "
+				"e-mailed to you and your unsubscription will "
 				"be confirmed.<BR></CENTER>\n"
 			);
 		}
