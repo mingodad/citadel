@@ -172,7 +172,7 @@ void calendar_month_view(int year, int month, int day) {
 		year, month, day
 	);
 
-	wprintf("<TD ALIGN=CENTER><FONT SIZE=+1>");
+	wprintf("<TD ALIGN=CENTER>");
 
 	memcpy(&tm, localtime(&previous_month), sizeof(struct tm));
 	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
@@ -180,7 +180,7 @@ void calendar_month_view(int year, int month, int day) {
 	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/back.gif\" BORDER=0></A>\n");
 
 	wprintf("&nbsp;&nbsp;"
-		"<FONT COLOR=\"#FFFFFF\">"
+		"<FONT SIZE=+1 COLOR=\"#FFFFFF\">"
 		"%s %d"
 		"</FONT>"
 		"&nbsp;&nbsp;", months[month-1], year);
@@ -190,7 +190,7 @@ void calendar_month_view(int year, int month, int day) {
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
 	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/forward.gif\" BORDER=0></A>\n");
 
-	wprintf("</FONT></TD><TD align=right><font color=#FFFFFF size=-2>"
+	wprintf("</TD><TD align=right><font color=#FFFFFF size=-2>"
 		"Click on any date for day view&nbsp;"
 		"</FONT></TD></TR></TABLE>\n");
 
