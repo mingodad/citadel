@@ -11,6 +11,7 @@
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
+#include <stdio.h>
 #include "server.h"
 #include "serv_crypto.h"
 #include "sysdep_decls.h"

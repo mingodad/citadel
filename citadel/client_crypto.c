@@ -10,6 +10,7 @@
 #include <pthread.h>
 #endif
 #include <unistd.h>
+#include <sys/types.h>
 #include "citadel.h"
 #include "client_crypto.h"
 

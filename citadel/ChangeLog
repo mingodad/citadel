@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.43  2002/01/06 10:49:55  error
+ * Add some #includes I apparently somehow missed
+
  Revision 590.42  2002/01/06 10:33:10  error
  * SSL/TLS support for the Citadel/UX wire protocol
 
@@ -3089,3 +3092,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
