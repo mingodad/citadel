@@ -729,13 +729,15 @@ int create_user(char *newusername, int become_user)
 	/* add user to userlog */
 	putuser(&usbuf);
 
-	/* give the user a private mailbox */
+	/* give the user a private mailbox and a configuration room */
 	MailboxName(mailboxname, sizeof mailboxname, &usbuf, MAILROOM);
 	create_room(mailboxname, 5, "", 0, 1);
+	MailboxName(mailboxname, sizeof mailboxname, &usbuf, USERCONFIGROOM);
+	create_room(mailboxname, 5, "", 0, 1);
 
-	/*** Everything below this line can be bypassed if we are administratively
-	     creating a user, instead of doing self-service account creation
-	 ***/
+	/* Everything below this line can be bypassed if administratively
+	   creating a user, instead of doing self-service account creation
+	 */
 
 	if (become_user) {
 		/* Now become the user we just created */

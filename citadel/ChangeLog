@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.14  2002/04/21 21:28:06  ajc
+ * Create the My Citadel Config> room along with the user account
+
  Revision 591.13  2002/04/20 03:00:01  ajc
  * One more fix for the RENAME command wrt namespaces.
 
@@ -3617,3 +3620,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
