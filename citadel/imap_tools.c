@@ -140,6 +140,7 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 	int levels;
 	char floorname[SIZ];
 	char roomname[SIZ];
+	char buf[SIZ];
 	int i;
 	struct floor *fl;
 	int ret = (-1);
@@ -182,6 +183,13 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 	/* Undelimiterizationalize the room name (change '|' to '/') */
 	for (i=0; i<strlen(rbuf); ++i) {
 		if (rbuf[i] == '|') rbuf[i] = '/';
+	}
+
+	if (ret & IR_MAILBOX) {
+		if (atol(rbuf) == 0L) {
+			strcpy(buf, rbuf);
+			sprintf(rbuf, "%010ld.%s", CC->usersupp.usernum, buf);
+		}
 	}
 
 	lprintf(9, "(That translates to \"%s\")\n", rbuf);

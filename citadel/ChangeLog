@@ -1,4 +1,9 @@
  $Log$
+ Revision 591.11  2002/04/17 04:35:06  ajc
+ * Finished the IMAP RENAME command.  (I ended up using nested functions
+   because it made the task much, much easier.  We can fix it later or convert
+   it to C++ if we find this becomes a problem.)
+
  Revision 591.10  2002/04/15 13:25:47  ajc
  * Add error responses to imap_rename() and set up subfolder framework
 
@@ -3605,4 +3610,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

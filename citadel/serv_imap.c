@@ -7,7 +7,7 @@
  *
  * WARNING: this is an incomplete implementation.  It is now good enough to
  * be usable with much of the popular IMAP client software available, but it
- * is by no means perfect.  Some commands (particularly SEARCH and RENAME)
+ * is by no means perfect.  Some commands (particularly SEARCH)
  * are implemented either incompletely or not at all.
  *
  * WARNING: Mark Crispin is an idiot.  IMAP is the most brain-damaged protocol
@@ -894,41 +894,6 @@ void imap_delete(int num_parms, char *parms[]) {
 }
 
 
-
-
-/*
- * Back end function for imap_rename()
- */
-void imap_rename_backend(struct quickroom *qrbuf, void *data) {
-	struct irr_t { char *old_path; char *new_path; };
-	struct irr_t *irr = (struct irr_t *)data;
-	char foldername[SIZ];
-	char newfoldername[SIZ];
-	char newroomname[ROOMNAMELEN];
-	int newfloor;
-	int r;
-
-	imap_mailboxname(foldername, sizeof foldername, qrbuf);
-
-	if ( (!strncasecmp(foldername, irr->old_path, strlen(irr->old_path)) 
-	   && (foldername[strlen(irr->old_path)] == '|')) ) {
-
-		sprintf(newfoldername, "%s|%s",
-			irr->new_path,
-			&foldername[strlen(irr->old_path)+1]
-		);
-
-		newfloor = imap_roomname(newroomname,
-				sizeof newroomname, newfoldername);
-
-		r = CtdlRenameRoom(qrbuf->QRname, newroomname, newfloor);
-		/* FIXME handle error returns */
-	}
-}
-
-
-
-
 /*
  * Implements the RENAME command
  *
@@ -940,9 +905,49 @@ void imap_rename(int num_parms, char *parms[]) {
 	int new_floor;
 	int r;
 
-	struct irr_t { char *old_path; char *new_path; };
-	struct irr_t irr = { parms[2], parms[3] };
+	/* struct containing list of rooms to rename */
+	struct irl {
+		struct irl *next;
+		char irl_oldroom[ROOMNAMELEN];
+		char irl_newroom[ROOMNAMELEN];
+		int irl_newfloor;
+	};
+	struct irl *irl = NULL;		/* the list */
+	struct irl *irlp = NULL;	/* scratch pointer */
 
+	/*
+	 * Back end function for imap_rename()
+	 */
+	void imap_rename_backend(struct quickroom *qrbuf, void *data) {
+		char foldername[SIZ];
+		char newfoldername[SIZ];
+		char newroomname[ROOMNAMELEN];
+		int newfloor;
+		int r;
+	
+		imap_mailboxname(foldername, sizeof foldername, qrbuf);
+	
+		if ( (!strncasecmp(foldername, parms[2], strlen(parms[2]))
+		   && (foldername[strlen(parms[2])] == '|')) ) {
+	
+			sprintf(newfoldername, "%s|%s",
+				parms[3],
+				&foldername[strlen(parms[2])+1]
+			);
+	
+			newfloor = imap_roomname(newroomname,
+				sizeof newroomname, newfoldername) & 0xFF;
+
+			irlp = (struct irl *) mallok(sizeof(struct irl));
+			strcpy(irlp->irl_newroom, newroomname);
+			strcpy(irlp->irl_oldroom, qrbuf->QRname);
+			irlp->irl_newfloor = newfloor;
+			irlp->next = irl;
+			irl = irlp;
+
+		}
+	}
+	
 	oldr = imap_roomname(old_room, sizeof old_room, parms[2]);
 	newr = imap_roomname(new_room, sizeof new_room, parms[3]);
 	new_floor = (newr & 0xFF);
@@ -976,8 +981,29 @@ void imap_rename(int num_parms, char *parms[]) {
 		return;
 	}
 
-	/* FIXME supply something */
-	ForEachRoom(imap_rename_backend, (void *)&irr );
+
+	/* If this is the INBOX, then RFC2060 says we have to just move the
+	 * contents.  In a Citadel environment it's easier to rename the room
+	 * (already did that) and create a new inbox.
+	 */
+	if (!strcasecmp(parms[2], "INBOX")) {
+		create_room(MAILROOM, 4, "", 0, 1);
+	}
+
+	/* Otherwise, do the subfolders.  Build a list of rooms to rename... */
+	else {
+		ForEachRoom(imap_rename_backend, NULL);
+
+		/* ... and now rename them. */
+		while (irl != NULL) {
+			r = CtdlRenameRoom(irl->irl_oldroom,
+				irl->irl_newroom, irl->irl_newfloor);
+			/* FIXME handle error returns */
+			irlp = irl;
+			irl = irl->next;
+			phree(irlp);
+		}
+	}
 
 	cprintf("%s OK RENAME completed\r\n", parms[0]);
 }
