@@ -107,12 +107,12 @@ int syslog_facility = (-1);
  * log data sent through this function.  BE CAREFUL!
  */
 void lprintf(enum LogLevel loglevel, const char *format, ...) {   
-        va_list arg_ptr;
+	va_list arg_ptr;
 	char buf[SIZ];
  
-        va_start(arg_ptr, format);   
-        vsnprintf(buf, sizeof(buf), format, arg_ptr);   
-        va_end(arg_ptr);   
+	va_start(arg_ptr, format);   
+	vsnprintf(buf, sizeof(buf), format, arg_ptr);   
+	va_end(arg_ptr);   
 
 	if (syslog_facility >= 0) {
 		if (loglevel <= verbosity) {
@@ -275,7 +275,7 @@ void end_critical_section(int which_one)
  * a TCP port.  The server shuts down if the bind fails.
  *
  */
-int ig_tcp_server(int port_number, int queue_len)
+int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 {
 	struct sockaddr_in sin;
 	int s, i;
@@ -286,8 +286,17 @@ int ig_tcp_server(int port_number, int queue_len)
 
 	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = AF_INET;
-	sin.sin_addr.s_addr = INADDR_ANY;
 	sin.sin_port = htons((u_short)port_number);
+	if (ip_addr == NULL) {
+		sin.sin_addr.s_addr = INADDR_ANY;
+	}
+	else {
+		sin.sin_addr.s_addr = inet_addr(ip_addr);
+	}
+										
+	if (sin.sin_addr.s_addr == INADDR_NONE) {
+		sin.sin_addr.s_addr = INADDR_ANY;
+	}
 
 	s = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -448,7 +457,7 @@ DONE:	++num_sessions;
 
 /*
  * buffer_output() ... tell client_write to buffer all output until
- *                     instructed to dump it all out later
+ *		     instructed to dump it all out later
  */
 void buffer_output(void) {
 	if (CC->buffering == 0) {
@@ -529,15 +538,15 @@ void client_write(char *buf, int nbytes)
 
 /*
  * cprintf()  ...   Send formatted printable data to the client.   It is
- *                  implemented in terms of client_write() but remains in
- *                  sysdep.c in case we port to somewhere without va_args...
+ *		  implemented in terms of client_write() but remains in
+ *		  sysdep.c in case we port to somewhere without va_args...
  */
 void cprintf(const char *format, ...) {   
-        va_list arg_ptr;   
-        char buf[SIZ];   
+	va_list arg_ptr;   
+	char buf[SIZ];   
    
-        va_start(arg_ptr, format);   
-        if (vsnprintf(buf, sizeof buf, format, arg_ptr) == -1)
+	va_start(arg_ptr, format);   
+	if (vsnprintf(buf, sizeof buf, format, arg_ptr) == -1)
 		buf[sizeof buf - 2] = '\n';
 	client_write(buf, strlen(buf)); 
 	va_end(arg_ptr);

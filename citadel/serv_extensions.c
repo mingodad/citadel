@@ -452,7 +452,8 @@ void CtdlRegisterServiceHook(int tcp_port,
 		return;
 	}
 	else {
-		newfcn->msock = ig_tcp_server(tcp_port, config.c_maxsessions);
+		newfcn->msock = ig_tcp_server(NULL, tcp_port,
+					config.c_maxsessions);
 		snprintf(message, sizeof message, "TCP port %d: ", tcp_port);
 	}
 

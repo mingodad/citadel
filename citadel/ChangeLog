@@ -1,4 +1,8 @@
  $Log$
+ Revision 622.2  2004/06/24 15:26:33  ajc
+ * Updated the ig_tcp_server() function to allow binding to a single IP
+   address.  This is not yet used by anything.
+
  Revision 622.1  2004/06/24 02:34:39  ajc
  * serv_imap.c: when an IMAP socket breaks while a folder is selected,
    auto-expunge the folder before closing it.  Fixes the "mysteriously
@@ -5875,3 +5879,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
