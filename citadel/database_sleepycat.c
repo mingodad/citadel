@@ -726,25 +726,69 @@ void cdb_trunc(int cdb)
 {
   DB_TXN *tid;
   int ret;
+#if DB_VERSION_MAJOR > 3 || DB_VERSION_MINOR > 2
   u_int32_t count;
+#endif
   
   if (MYTID != NULL)
     {
-      ret = dbp[cdb]->truncate(dbp[cdb],	/* db */
-			       MYTID,		/* transaction ID */
-			       &count,		/* #rows that were deleted */
-			       0);		/* flags */
-      if (ret)
-	{
-	  lprintf(1, "cdb_truncate(%d): %s\n", cdb,
-		  db_strerror(ret));
-	  abort();
-	}
+      lprintf(1, "cdb_trunc must not be called in a transaction.\n");
+      abort();
     }
   else
     {
       bailIfCursor(MYCURSORS, "attempt to write during r/o cursor");
       
+#if DB_VERSION_MAJOR == 3 && DB_VERSION_MINOR < 3
+      for (;;)
+	{
+	  DBT key, data;
+
+	  /* Initialize the key/data pair so the flags aren't set. */
+	  memset(&key, 0, sizeof(key));
+	  memset(&data, 0, sizeof(data));
+
+	  txbegin(&tid);
+	  
+	  ret = dbp[cdb]->cursor(dbp[cdb], tid, &MYCURSORS[cdb], 0);
+	  if (ret)
+	    {
+	      lprintf(1, "cdb_trunc: db_cursor: %s\n", db_strerror(ret));
+	      abort();
+	    }
+
+	  ret = MYCURSORS[cdb]->c_get(MYCURSORS[cdb],
+				      &key, &data, DB_NEXT);
+	  if (ret)
+	    {
+	      cclose(MYCURSORS[cdb]);
+	      txabort(tid);
+	      if (ret == DB_LOCK_DEADLOCK)
+		continue;
+
+	      if (ret == DB_NOTFOUND)
+		break;
+
+	      lprintf(1, "cdb_trunc: c_get: %s\n", db_strerror(ret));
+	      abort();
+	    }
+
+	  ret = MYCURSORS[cdb]->c_del(MYCURSORS[cdb], 0);
+	  if (ret)
+	    {
+	      cclose(MYCURSORS[cdb]);
+	      txabort(tid);
+	      if (ret == DB_LOCK_DEADLOCK)
+		continue;
+
+	      lprintf(1, "cdb_trunc: c_del: %s\n", db_strerror(ret));
+	      abort();
+	    }
+
+	  cclose(MYCURSORS[cdb]);
+	  txcommit(tid);
+	}
+#else
     retry:
       txbegin(&tid);
       
@@ -769,5 +813,6 @@ void cdb_trunc(int cdb)
 	{
 	  txcommit(tid);
 	}
+#endif
     }
 }

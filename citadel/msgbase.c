@@ -2428,7 +2428,7 @@ void cmd_ent0(char *entargs)
 		memset(CC->fake_postname, 0, sizeof(CC->fake_postname) );
 		safestrncpy(CC->fake_postname, newusername,
 			sizeof(CC->fake_postname) );
-		cprintf("%d ok\n", OK);
+		cprintf("%d ok\n", CIT_OK);
 		return;
 	}
 	CC->cs_flags |= CS_POSTING;
@@ -2490,7 +2490,7 @@ void cmd_ent0(char *entargs)
 	 * success without creating the message.
 	 */
 	if (post == 0) {
-		cprintf("%d %s\n", OK,
+		cprintf("%d %s\n", CIT_OK,
 			((valid != NULL) ? valid->display_recp : "") );
 		phree(valid);
 		return;
@@ -2653,7 +2653,7 @@ void cmd_dele(char *delstr)
 	num_deleted = CtdlDeleteMessages(CC->quickroom.QRname, delnum, "");
 
 	if (num_deleted) {
-		cprintf("%d %d message%s deleted.\n", OK,
+		cprintf("%d %d message%s deleted.\n", CIT_OK,
 			num_deleted, ((num_deleted != 1) ? "s" : ""));
 	} else {
 		cprintf("%d Message %ld not found.\n", ERROR, delnum);
@@ -2727,7 +2727,7 @@ void cmd_move(char *args)
 		CtdlDeleteMessages(CC->quickroom.QRname, num, "");
 	}
 
-	cprintf("%d Message %s.\n", OK, (is_copy ? "copied" : "moved") );
+	cprintf("%d Message %s.\n", CIT_OK, (is_copy ? "copied" : "moved") );
 }
 
 

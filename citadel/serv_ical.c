@@ -37,7 +37,7 @@ void cmd_ical(char *argbuf)
 		return;
 	}
 
-	cprintf("%d I support|ICAL\n", OK);
+	cprintf("%d I support|ICAL\n", CIT_OK);
 	return;
 }
 

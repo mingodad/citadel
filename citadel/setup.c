@@ -26,9 +26,6 @@
 #include "tools.h"
 
 #if defined(HAVE_CURSES_H) || defined(HAVE_NCURSES_H)
-#ifdef OK
-#undef OK
-#endif
 
 #ifdef HAVE_NCURSES_H
 #include <ncurses.h>

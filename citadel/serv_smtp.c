@@ -1333,7 +1333,7 @@ void cmd_smtp(char *argbuf) {
 
 	else if (!strcasecmp(cmd, "runqueue")) {
 		run_queue_now = 1;
-		cprintf("%d All outbound SMTP will be retried now.\n", OK);
+		cprintf("%d All outbound SMTP will be retried now.\n", CIT_OK);
 		return;
 	}
 

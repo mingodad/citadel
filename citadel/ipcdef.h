@@ -1,10 +1,6 @@
 /* $Id$ */
-#ifdef OK
-#undef OK
-#endif
-
 #define LISTING_FOLLOWS		100
-#define OK			200
+#define CIT_OK			200
 #define MORE_DATA		300
 #define SEND_LISTING		400
 #define ERROR			500

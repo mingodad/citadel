@@ -604,31 +604,31 @@ void cmd_expi(char *argbuf) {
 	extract(cmd, argbuf, 0);
 	if (!strcasecmp(cmd, "users")) {
 		retval = PurgeUsers();
-		cprintf("%d Purged %d users.\n", OK, retval);
+		cprintf("%d Purged %d users.\n", CIT_OK, retval);
 		return;
 	}
 	else if (!strcasecmp(cmd, "messages")) {
 		PurgeMessages();
-		cprintf("%d Expired %d messages.\n", OK, messages_purged);
+		cprintf("%d Expired %d messages.\n", CIT_OK, messages_purged);
 		return;
 	}
 	else if (!strcasecmp(cmd, "rooms")) {
 		retval = PurgeRooms();
-		cprintf("%d Expired %d rooms.\n", OK, retval);
+		cprintf("%d Expired %d rooms.\n", CIT_OK, retval);
 		return;
 	}
 	else if (!strcasecmp(cmd, "visits")) {
 		retval = PurgeVisits();
-		cprintf("%d Purged %d visits.\n", OK, retval);
+		cprintf("%d Purged %d visits.\n", CIT_OK, retval);
 	}
 	else if (!strcasecmp(cmd, "usetable")) {
 		retval = PurgeUseTable();
 		cprintf("%d Purged %d entries from the use table.\n",
-			OK, retval);
+			CIT_OK, retval);
 	}
 	else if (!strcasecmp(cmd, "defrag")) {
 		defrag_databases();
-		cprintf("%d Defragmented the databases.\n", OK);
+		cprintf("%d Defragmented the databases.\n", CIT_OK);
 	}
 	else {
 		cprintf("%d Invalid command.\n", ERROR+ILLEGAL_VALUE);

@@ -139,7 +139,7 @@ void cmd_delf(char *filename)
 		 CC->quickroom.QRdirname, filename);
 	a = unlink(pathname);
 	if (a == 0) {
-		cprintf("%d File '%s' deleted.\n", OK, pathname);
+		cprintf("%d File '%s' deleted.\n", CIT_OK, pathname);
 	}
 	else {
 		cprintf("%d File '%s' not found.\n",
@@ -216,7 +216,7 @@ void cmd_movf(char *cmdbuf)
 		 "cat ./files/%s/filedir |grep %s >>./files/%s/filedir",
 		 CC->quickroom.QRdirname, filename, qrbuf.QRdirname);
 	system(buf);
-	cprintf("%d File '%s' has been moved.\n", OK, filename);
+	cprintf("%d File '%s' has been moved.\n", CIT_OK, filename);
 }
 
 
@@ -307,7 +307,7 @@ void cmd_netf(char *cmdbuf)
 	putc(0, ofp);
 	fclose(ofp);
 
-	cprintf("%d File '%s' has been sent to %s.\n", OK, filename,
+	cprintf("%d File '%s' has been sent to %s.\n", CIT_OK, filename,
 		destsys);
 	/* FIXME start a network run here. */
 	return;
@@ -331,7 +331,7 @@ void OpenCmdResult(char *filename, char *mime_type)
 	modtime = (time_t) statbuf.st_mtime;
 
 	cprintf("%d %ld|%ld|%s|%s\n",
-		OK, filesize, (long)modtime, filename, mime_type);
+		CIT_OK, filesize, (long)modtime, filename, mime_type);
 }
 
 
@@ -502,7 +502,7 @@ void cmd_uopn(char *cmdbuf)
 			ERROR, CC->upl_path, strerror(errno));
 		return;
 	}
-	cprintf("%d Ok\n", OK);
+	cprintf("%d Ok\n", CIT_OK);
 }
 
 
@@ -567,7 +567,7 @@ void cmd_uimg(char *cmdbuf)
 	}
 
 	if (is_this_for_real == 0) {
-		cprintf("%d Ok to send image\n", OK);
+		cprintf("%d Ok to send image\n", CIT_OK);
 		return;
 	}
 
@@ -577,7 +577,7 @@ void cmd_uimg(char *cmdbuf)
 			ERROR, CC->upl_path, strerror(errno));
 		return;
 	}
-	cprintf("%d Ok\n", OK);
+	cprintf("%d Ok\n", CIT_OK);
 	CC->upload_type = UPL_IMAGE;
 }
 
@@ -605,7 +605,7 @@ void cmd_clos(void)
 		unlink(buf);
 	}
 
-	cprintf("%d Ok\n", OK);
+	cprintf("%d Ok\n", CIT_OK);
 }
 
 
@@ -641,7 +641,7 @@ void cmd_ucls(char *cmd)
 
 	if ((!strcasecmp(cmd, "1")) && (CC->upload_type != UPL_FILE)) {
 		CC->upload_type = UPL_FILE;
-		cprintf("%d Upload completed.\n", OK);
+		cprintf("%d Upload completed.\n", CIT_OK);
 
 		/* FIXME ... here we need to trigger a network run */
 
@@ -649,7 +649,7 @@ void cmd_ucls(char *cmd)
 	}
 
 	if (!strcasecmp(cmd, "1")) {
-		cprintf("%d File '%s' saved.\n", OK, CC->upl_path);
+		cprintf("%d File '%s' saved.\n", CIT_OK, CC->upl_path);
 		fp = fopen(CC->upl_filedir, "a");
 		if (fp == NULL) {
 			fp = fopen(CC->upl_filedir, "w");
@@ -668,7 +668,7 @@ void cmd_ucls(char *cmd)
 				upload_notice);
 	} else {
 		abort_upl(CC);
-		cprintf("%d File '%s' aborted.\n", OK, CC->upl_path);
+		cprintf("%d File '%s' aborted.\n", CIT_OK, CC->upl_path);
 	}
 }
 
@@ -780,7 +780,7 @@ void cmd_ndop(char *cmdbuf)
 	CC->dl_is_net = 1;
 
 	stat(pathname, &statbuf);
-	cprintf("%d %ld\n", OK, (long)statbuf.st_size);
+	cprintf("%d %ld\n", CIT_OK, (long)statbuf.st_size);
 }
 
 /*
@@ -823,5 +823,5 @@ void cmd_nuop(char *cmdbuf)
 	}
 
 	CC->upload_type = UPL_NET;
-	cprintf("%d Ok\n", OK);
+	cprintf("%d Ok\n", CIT_OK);
 }

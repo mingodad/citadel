@@ -253,7 +253,7 @@ void cmd_stls(char *params)
 				ERR_reason_error_string(ERR_get_error()));
 		return;
 	}
-	cprintf("%d \n", OK);
+	cprintf("%d \n", CIT_OK);
 	retval = SSL_accept(CC->ssl);
 	if (retval < 1) {
 		/*
@@ -292,7 +292,7 @@ void cmd_gtls(char *params)
 		return;
 	}
 	bits = SSL_CIPHER_get_bits(SSL_get_current_cipher(CC->ssl), &alg_bits);
-	cprintf("%d %s|%s|%d|%d\n", OK,
+	cprintf("%d %s|%s|%d|%d\n", CIT_OK,
 		SSL_CIPHER_get_version(SSL_get_current_cipher(CC->ssl)),
 		SSL_CIPHER_get_name(SSL_get_current_cipher(CC->ssl)),
 		alg_bits, bits);

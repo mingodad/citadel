@@ -189,7 +189,7 @@ void cmd_igab(char *argbuf) {
 		NULL, vcard_add_to_directory, NULL);
 
         getroom(&CC->quickroom, hold_rm);	/* return to saved room */
-	cprintf("%d Directory has been rebuilt.\n", OK);
+	cprintf("%d Directory has been rebuilt.\n", CIT_OK);
 }
 
 
@@ -746,7 +746,7 @@ void cmd_qdir(char *argbuf) {
 		return;
 	}
 
-	cprintf("%d %s\n", OK, citadel_addr);
+	cprintf("%d %s\n", CIT_OK, citadel_addr);
 }
 
 

@@ -677,9 +677,9 @@ void cmd_sexp(char *argbuf)
 
 		if (message_sent > 0) {
 			if (strlen(x_msg) > 0)
-				cprintf("%d Message sent", OK);
+				cprintf("%d Message sent", CIT_OK);
 			else
-				cprintf("%d Ok to send message", OK);
+				cprintf("%d Ok to send message", CIT_OK);
 			if (message_sent > 1)
 				cprintf(" to %d users", message_sent);
 			cprintf(".\n");
@@ -711,7 +711,7 @@ void cmd_dexp(char *argbuf)
 	if ((new_state == 0) || (new_state == 1)) {
 		CC->disable_exp = new_state;
 		}
-	cprintf("%d %d\n", OK, CC->disable_exp);
+	cprintf("%d %d\n", CIT_OK, CC->disable_exp);
 	}
 
 
@@ -747,7 +747,7 @@ void cmd_reqt(char *argbuf) {
 		}
 	}
 	end_critical_section(S_SESSION_TABLE);
-	cprintf("%d Sent termination request to %d sessions.\n", OK, sessions);
+	cprintf("%d Sent termination request to %d sessions.\n", CIT_OK, sessions);
 }
 
 

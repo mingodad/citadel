@@ -417,7 +417,7 @@ void session_startup(void)
 void logged_in_response(void)
 {
 	cprintf("%d %s|%d|%ld|%ld|%u|%ld|%ld\n",
-		OK, CC->usersupp.fullname, CC->usersupp.axlevel,
+		CIT_OK, CC->usersupp.fullname, CC->usersupp.axlevel,
 		CC->usersupp.timescalled, CC->usersupp.posted,
 		CC->usersupp.flags, CC->usersupp.usernum,
 		CC->usersupp.lastcall);
@@ -832,13 +832,13 @@ void cmd_setp(char *new_pw)
 	}
 	strproc(new_pw);
 	if (strlen(new_pw) == 0) {
-		cprintf("%d Password unchanged.\n", OK);
+		cprintf("%d Password unchanged.\n", CIT_OK);
 		return;
 	}
 	lgetuser(&CC->usersupp, CC->curr_user);
 	strcpy(CC->usersupp.password, new_pw);
 	lputuser(&CC->usersupp);
-	cprintf("%d Password changed.\n", OK);
+	cprintf("%d Password changed.\n", CIT_OK);
 	rec_log(CL_PWCHANGE, CC->curr_user);
 	PerformSessionHooks(EVT_SETPASS);
 }
@@ -868,7 +868,7 @@ void cmd_creu(char *cmdbuf)
 	a = create_user(username, 0);
 
 	if (a == 0) {
-		cprintf("%d ok\n", OK);
+		cprintf("%d ok\n", CIT_OK);
 		return;
 	} else if (a == ERROR + ALREADY_EXISTS) {
 		cprintf("%d '%s' already exists.\n",
@@ -893,7 +893,7 @@ void cmd_getu(void)
 
 	getuser(&CC->usersupp, CC->curr_user);
 	cprintf("%d %d|%d|%d|%d\n",
-		OK,
+		CIT_OK,
 		CC->usersupp.USscreenwidth,
 		CC->usersupp.USscreenheight,
 		(CC->usersupp.flags & US_USER_SET),
@@ -942,7 +942,7 @@ void cmd_setu(char *new_parms)
 		lprintf(9, "new_mod processed to %d\n", new_mod);
 	}
 	lputuser(&CC->usersupp);
-	cprintf("%d Ok\n", OK);
+	cprintf("%d Ok\n", CIT_OK);
 }
 
 /*
@@ -971,7 +971,7 @@ void cmd_slrp(char *new_ptr)
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
 	lputuser(&CC->usersupp);
-	cprintf("%d %ld\n", OK, newlr);
+	cprintf("%d %ld\n", CIT_OK, newlr);
 }
 
 
@@ -992,7 +992,7 @@ void cmd_seen(char *argbuf) {
 	target_setting = extract_int(argbuf, 1);
 
 	CtdlSetSeen(target_msgnum, target_setting);
-	cprintf("%d OK\n", OK);
+	cprintf("%d OK\n", CIT_OK);
 }
 
 
@@ -1048,7 +1048,7 @@ void cmd_invt_kick(char *iuser, int op)
 	aide_message(bbb);
 
 	cprintf("%d %s %s %s.\n",
-		OK, iuser,
+		CIT_OK, iuser,
 		((op == 1) ? "invited to" : "kicked out of"),
 		CC->quickroom.QRname);
 	return;
@@ -1095,7 +1095,7 @@ void cmd_forg(void)
 	}
 
 	if (CtdlForgetThisRoom() == 0) {
-		cprintf("%d Ok\n", OK);
+		cprintf("%d Ok\n", CIT_OK);
 	}
 	else {
 		cprintf("%d You may not forget this room.\n", ERROR);
@@ -1115,7 +1115,7 @@ void cmd_gnur(void)
 	}
 
 	if ((CitControl.MMflags & MM_VALID) == 0) {
-		cprintf("%d There are no unvalidated users.\n", OK);
+		cprintf("%d There are no unvalidated users.\n", CIT_OK);
 		return;
 	}
 
@@ -1146,7 +1146,7 @@ void cmd_gnur(void)
 	CitControl.MMflags = CitControl.MMflags & (~MM_VALID);
 	put_control();
 	end_critical_section(S_CONTROL);
-	cprintf("%d *** End of registration.\n", OK);
+	cprintf("%d *** End of registration.\n", CIT_OK);
 
 
 }
@@ -1181,11 +1181,11 @@ void cmd_vali(char *v_args)
 	/* If the access level was set to zero, delete the user */
 	if (newax == 0) {
 		if (purge_user(user) == 0) {
-			cprintf("%d %s Deleted.\n", OK, userbuf.fullname);
+			cprintf("%d %s Deleted.\n", CIT_OK, userbuf.fullname);
 			return;
 		}
 	}
-	cprintf("%d User '%s' validated.\n", OK, userbuf.fullname);
+	cprintf("%d User '%s' validated.\n", CIT_OK, userbuf.fullname);
 }
 
 
@@ -1274,7 +1274,7 @@ void cmd_chek(void)
 	/* check for mail */
 	mail = NewMailCount();
 
-	cprintf("%d %d|%d|%d\n", OK, mail, regis, vali);
+	cprintf("%d %d|%d|%d\n", CIT_OK, mail, regis, vali);
 }
 
 
@@ -1286,7 +1286,7 @@ void cmd_qusr(char *who)
 	struct usersupp usbuf;
 
 	if (getuser(&usbuf, who) == 0) {
-		cprintf("%d %s\n", OK, usbuf.fullname);
+		cprintf("%d %s\n", CIT_OK, usbuf.fullname);
 	} else {
 		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
 	}
@@ -1311,7 +1311,7 @@ void cmd_agup(char *cmdbuf)
 		return;
 	}
 	cprintf("%d %s|%s|%u|%ld|%ld|%d|%ld|%ld|%d\n",
-		OK,
+		CIT_OK,
 		usbuf.fullname,
 		usbuf.password,
 		usbuf.flags,
@@ -1371,7 +1371,7 @@ void cmd_asup(char *cmdbuf)
 			deleted = 1;
 		}
 	}
-	cprintf("%d Ok", OK);
+	cprintf("%d Ok", CIT_OK);
 	if (deleted)
 		cprintf(" (%s deleted)", requested_user);
 	cprintf("\n");

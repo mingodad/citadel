@@ -360,7 +360,7 @@ void cmd_time(void)
    tv = time(NULL);
    localtime(&tv);
    
-   cprintf("%d %ld|%ld|%d\n", OK, (long)tv, timezone, daylight);
+   cprintf("%d %ld|%ld|%d\n", CIT_OK, (long)tv, timezone, daylight);
 }
 
 /*
@@ -486,7 +486,7 @@ void cmd_iden(char *argbuf)
 		(rev_level % 100),
 		desc,
 		CC->cs_host);
-	cprintf("%d Ok\n",OK);
+	cprintf("%d Ok\n",CIT_OK);
 }
 
 
@@ -682,7 +682,7 @@ void cmd_term(char *cmdbuf)
 
 	if (found_it) {
 		if (allowed) {
-			cprintf("%d Session terminated.\n", OK);
+			cprintf("%d Session terminated.\n", CIT_OK);
 		}
 		else {
 			cprintf("%d You are not allowed to do that.\n",
@@ -702,7 +702,7 @@ void cmd_term(char *cmdbuf)
  * get the paginator prompt
  */
 void cmd_more(void) {
-	cprintf("%d %s\n",OK,config.c_moreprompt);
+	cprintf("%d %s\n",CIT_OK,config.c_moreprompt);
 	}
 
 /*
@@ -710,7 +710,7 @@ void cmd_more(void) {
  */
 void cmd_echo(char *etext)
 {
-	cprintf("%d %s\n",OK,etext);
+	cprintf("%d %s\n",CIT_OK,etext);
 	}
 
 
@@ -727,7 +727,7 @@ void cmd_ipgm(char *argbuf)
 		CC->internal_pgm = 1;
 		strcpy(CC->curr_user, "<internal program>");
 		CC->cs_flags = CC->cs_flags|CS_STEALTH;
-		cprintf("%d Authenticated as an internal program.\n",OK);
+		cprintf("%d Authenticated as an internal program.\n",CIT_OK);
 		}
 	else {
 		cprintf("%d Authentication failed.\n",ERROR);
@@ -743,7 +743,7 @@ void cmd_down(void) {
 
 	if (CtdlAccessCheck(ac_aide)) return;
 
-	cprintf("%d Shutting down server.  Goodbye.\n", OK);
+	cprintf("%d Shutting down server.  Goodbye.\n", CIT_OK);
 	time_to_die = 1;
 	}
 
@@ -760,7 +760,7 @@ void cmd_scdn(char *argbuf)
 	if ((new_state == 0) || (new_state == 1)) {
 		ScheduledShutdown = new_state;
 		}
-	cprintf("%d %d\n", OK, ScheduledShutdown);
+	cprintf("%d %d\n", CIT_OK, ScheduledShutdown);
 }
 
 
@@ -775,7 +775,7 @@ void cmd_asyn(char *argbuf)
 	if ((new_state == 0) || (new_state == 1)) {
 		CC->is_async = new_state;
 	}
-	cprintf("%d %d\n", OK, CC->is_async);
+	cprintf("%d %d\n", CIT_OK, CC->is_async);
 }
 
 
@@ -864,7 +864,7 @@ void citproto_begin_session() {
 		}
 	else {
 		cprintf("%d %s Citadel/UX server ready.\n",
-			OK, config.c_nodename);
+			CIT_OK, config.c_nodename);
 		}
 }
 
@@ -907,11 +907,11 @@ void do_command_loop(void) {
 	}
 		   
 	if (!strncasecmp(cmdbuf,"NOOP",4)) {
-		cprintf("%d%cok\n",OK,CtdlCheckExpress());
+		cprintf("%d%cok\n",CIT_OK,CtdlCheckExpress());
 		}
 
 	else if (!strncasecmp(cmdbuf,"QUIT",4)) {
-		cprintf("%d Goodbye.\n",OK);
+		cprintf("%d Goodbye.\n",CIT_OK);
 		CC->kill_me = 1;
 		}
 
@@ -921,7 +921,7 @@ void do_command_loop(void) {
 
 	else if (!strncasecmp(cmdbuf,"LOUT",4)) {
 		if (CC->logged_in) logout(CC);
-		cprintf("%d logged out.\n",OK);
+		cprintf("%d logged out.\n",CIT_OK);
 		}
 
 	else if (!strncasecmp(cmdbuf,"USER",4)) {

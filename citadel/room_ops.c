@@ -769,7 +769,7 @@ void usergoto(char *where, int display_result, int *retmsgs, int *retnew)
 
 	if (display_result)
 		cprintf("%d%c%s|%d|%d|%d|%d|%ld|%ld|%d|%d|%d|%d\n",
-			OK, CtdlCheckExpress(),
+			CIT_OK, CtdlCheckExpress(),
 			truncated_roomname,
 			new_messages, total_messages,
 			info, CC->quickroom.QRflags,
@@ -992,7 +992,7 @@ void cmd_getr(void)
 
 	getroom(&CC->quickroom, CC->quickroom.QRname);
 	cprintf("%d%c%s|%s|%s|%d|%d|%d\n",
-		OK, CtdlCheckExpress(),
+		CIT_OK, CtdlCheckExpress(),
 		CC->quickroom.QRname,
 		((CC->quickroom.QRflags & QR_PASSWORDED) ? CC->quickroom.QRpasswd : ""),
 		((CC->quickroom.QRflags & QR_DIRECTORY) ? CC->quickroom.QRdirname : ""),
@@ -1109,7 +1109,7 @@ void cmd_setr(char *args)
 	}
 	snprintf(buf, sizeof buf, "%s> edited by %s\n", CC->quickroom.QRname, CC->curr_user);
 	aide_message(buf);
-	cprintf("%d Ok\n", OK);
+	cprintf("%d Ok\n", CIT_OK);
 }
 
 
@@ -1128,9 +1128,9 @@ void cmd_geta(void)
 		return;
 	}
 	if (getuserbynumber(&usbuf, CC->quickroom.QRroomaide) == 0) {
-		cprintf("%d %s\n", OK, usbuf.fullname);
+		cprintf("%d %s\n", CIT_OK, usbuf.fullname);
 	} else {
-		cprintf("%d \n", OK);
+		cprintf("%d \n", CIT_OK);
 	}
 }
 
@@ -1170,7 +1170,7 @@ void cmd_seta(char *new_ra)
 			usbuf.fullname, CC->quickroom.QRname);
 		aide_message(buf);
 	}
-	cprintf("%d Ok\n", OK);
+	cprintf("%d Ok\n", CIT_OK);
 }
 
 /*
@@ -1317,9 +1317,9 @@ void cmd_kill(char *argbuf)
 		snprintf(aaa, sizeof aaa, "%s> killed by %s\n",
 			 deleted_room_name, CC->curr_user);
 		aide_message(aaa);
-		cprintf("%d '%s' deleted.\n", OK, deleted_room_name);
+		cprintf("%d '%s' deleted.\n", CIT_OK, deleted_room_name);
 	} else {
-		cprintf("%d ok to delete.\n", OK);
+		cprintf("%d ok to delete.\n", CIT_OK);
 	}
 }
 
@@ -1465,7 +1465,7 @@ void cmd_cre8(char *args)
 	}
 
 	if ((strlen(new_room_name) == 0) && (cre8_ok == 0)) {
-		cprintf("%d Ok to create rooms.\n", OK);
+		cprintf("%d Ok to create rooms.\n", CIT_OK);
 		return;
 	}
 
@@ -1484,7 +1484,7 @@ void cmd_cre8(char *args)
 	}
 
 	if (cre8_ok == 0) {
-		cprintf("%d OK to create '%s'\n", OK, new_room_name);
+		cprintf("%d OK to create '%s'\n", CIT_OK, new_room_name);
 		return;
 	}
 
@@ -1510,7 +1510,7 @@ void cmd_cre8(char *args)
 	strcat(aaa, "\n");
 	aide_message(aaa);
 
-	cprintf("%d '%s' has been created.\n", OK, new_room_name);
+	cprintf("%d '%s' has been created.\n", CIT_OK, new_room_name);
 }
 
 
@@ -1524,7 +1524,7 @@ void cmd_einf(char *ok)
 	if (CtdlAccessCheck(ac_room_aide)) return;
 
 	if (atoi(ok) == 0) {
-		cprintf("%d Ok.\n", OK);
+		cprintf("%d Ok.\n", CIT_OK);
 		return;
 	}
 	assoc_file_name(infofilename, sizeof infofilename, &CC->quickroom, "info");
@@ -1619,7 +1619,7 @@ void cmd_cflr(char *argbuf)
 		return;
 	}
 	if (cflr_ok == 0) {
-		cprintf("%d ok to create...\n", OK);
+		cprintf("%d ok to create...\n", CIT_OK);
 		return;
 	}
 	lgetfloor(&flbuf, free_slot);
@@ -1627,7 +1627,7 @@ void cmd_cflr(char *argbuf)
 	flbuf.f_ref_count = 0;
 	safestrncpy(flbuf.f_name, new_floor_name, sizeof flbuf.f_name);
 	lputfloor(&flbuf, free_slot);
-	cprintf("%d %d\n", OK, free_slot);
+	cprintf("%d %d\n", CIT_OK, free_slot);
 }
 
 
@@ -1662,9 +1662,9 @@ void cmd_kflr(char *argbuf)
 			delete_ok = 0;
 		} else {
 			if (kflr_ok == 1) {
-				cprintf("%d Ok\n", OK);
+				cprintf("%d Ok\n", CIT_OK);
 			} else {
-				cprintf("%d Ok to delete...\n", OK);
+				cprintf("%d Ok to delete...\n", CIT_OK);
 			}
 
 		}
@@ -1705,5 +1705,5 @@ void cmd_eflr(char *argbuf)
 		extract(flbuf.f_name, argbuf, 1);
 	lputfloor(&flbuf, floor_num);
 
-	cprintf("%d Ok\n", OK);
+	cprintf("%d Ok\n", CIT_OK);
 }

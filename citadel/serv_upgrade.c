@@ -215,14 +215,14 @@ void cmd_bmbx(char *argbuf) {
 	really_do_this = extract_int(argbuf, 0);
 
 	if (really_do_this != 1) {
-		cprintf("%d You didn't really want to do that.\n", OK);
+		cprintf("%d You didn't really want to do that.\n", CIT_OK);
 		return;
 	}
 
 	ForEachRoom(cmd_bmbx_backend, NULL);
 	cmd_bmbx_backend(NULL, NULL);
 
-	cprintf("%d Mailbox generation numbers bumped.\n", OK);
+	cprintf("%d Mailbox generation numbers bumped.\n", CIT_OK);
 	return;
 
 }

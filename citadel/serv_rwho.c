@@ -172,7 +172,7 @@ void cmd_rchg(char *argbuf)
 	else {
 		strcpy(CC->fake_roomname, "");
 		}
-	cprintf("%d OK\n", OK);
+	cprintf("%d OK\n", CIT_OK);
 }
 
 /*
@@ -190,7 +190,7 @@ void cmd_hchg(char *argbuf)
 	else {
 		strcpy(CC->fake_hostname, "");
 		}
-	cprintf("%d OK\n", OK);
+	cprintf("%d OK\n", CIT_OK);
 }
 
 
@@ -218,7 +218,7 @@ void cmd_uchg(char *argbuf)
 		CC->fake_username[0] = '\0';
 		CC->cs_flags |= CS_STEALTH;
 	}
-	cprintf("%d\n",OK);
+	cprintf("%d\n",CIT_OK);
 }
 
 
@@ -245,7 +245,7 @@ void cmd_stel(char *cmdbuf)
 			CC->cs_flags = CC->cs_flags|CS_STEALTH;
 		}
 
-	cprintf("%d Ok\n",OK);
+	cprintf("%d Ok\n",CIT_OK);
 	}
 
 

@@ -1,4 +1,10 @@
  $Log$
+ Revision 590.161  2002/03/25 00:01:50  nbryant
+  * compatibility with Berkeley DB < 3.3
+  * squished symbol clashes with the OK symbol from curses in certain *n[iu]x
+ distributions. this is kind of a pain in the ass, but I had to rename our
+ OK to CIT_OK :-(
+
  Revision 590.160  2002/03/22 04:35:38  ajc
  * Handle vCard registration updates for users other than the one currently
    logged in.  (Allows administrative editing of contact information.)
@@ -3529,4 +3535,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

@@ -1363,7 +1363,7 @@ void cmd_netp(char *cmdbuf)
 
 	safestrncpy(CC->net_node, node, sizeof CC->net_node);
 	network_talking_to(node, NTT_ADD);
-	cprintf("%d authenticated as network node '%s'\n", OK,
+	cprintf("%d authenticated as network node '%s'\n", CIT_OK,
 		CC->net_node);
 }
 
