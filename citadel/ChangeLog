@@ -1,4 +1,14 @@
  $Log$
+ Revision 612.7  2003/12/09 04:50:16  ajc
+ * Painstakingly combed through IMAP headers and responses for two hours in
+   an attempt to figure out why the horrendous pile of crap called Microsoft
+   Outlook counts the correct number of messages but wasn't displaying any
+   of them.  Eventually determined that it was ONE EXTRA SPACE after the
+   closing paren of the ENVELOPE output that caused Outlook to totally ignore
+   all the messages.  This only reinforces my belief that anything designed
+   in the state of Washington is utter and complete CRAP.
+ * Corrected the above glitch.  Outbreak works properly now.
+
  Revision 612.6  2003/12/09 03:56:29  ajc
  * user_ops.c: missing string declaration or something?
 
@@ -5118,5 +5128,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
-

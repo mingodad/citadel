@@ -351,7 +351,7 @@ void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
 	/* message ID */
 	imap_strout(msg->cm_fields['I']);
 
-	cprintf(") ");
+	cprintf(")");
 }
 
 
@@ -420,6 +420,8 @@ void imap_strip_headers(FILE *fp, char *section) {
 		if (buf[0]=='\r') done_headers = 1;
 		if (buf[0]=='\n') done_headers = 1;
 	}
+
+	strcat(boiled_headers, "\r\n");
 
 	/* Now write it back */
 	rewind(fp);
