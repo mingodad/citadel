@@ -156,7 +156,7 @@ void calendar_month_view(int year, int month, int day) {
 		year, month, day
 	);
 
-	wprintf("<TD><CENTER><H3>");
+	wprintf("<TD ALIGN=CENTER><FONT SIZE=+1>");
 
 	memcpy(&tm, localtime(&previous_month), sizeof(struct tm));
 	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
@@ -174,16 +174,18 @@ void calendar_month_view(int year, int month, int day) {
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
 	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/forward.gif\" BORDER=0></A>\n");
 
-	wprintf("</H3></TD><TD align=right><font color=#FFFFFF size=-2>"
+	wprintf("</FONT></TD><TD align=right><font color=#FFFFFF size=-2>"
 		"Click on any date for day view&nbsp;"
 		"</FONT></TD></TR></TABLE>\n");
 
 	/* Inner table (the real one) */
 	wprintf("<TABLE width=100%% border=0 cellpadding=1 cellspacing=1 "
-		"bgcolor=#204B78>");
+		"bgcolor=#204B78><TR>");
 	for (i=0; i<7; ++i) {
-		wprintf("<TH><FONT COLOR=\"#FFFFFF\">%s</FONT></TH>", days[i]);
+		wprintf("<TD ALIGN=CENTER WIDTH=14%%>"
+			"<FONT COLOR=\"#FFFFFF\">%s</FONT></TH>", days[i]);
 	}
+	wprintf("</TR>\n");
 
 	/* Now do 35 days */
 	for (i = 0; i < 35; ++i) {

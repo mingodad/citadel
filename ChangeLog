@@ -1,4 +1,8 @@
 $Log$
+Revision 500.8  2003/06/29 20:51:21  ajc
+* Worked around a rendering bug in Satan's Browser that was causing it
+  to draw the calendar month view much wider than the actual screen wdith
+
 Revision 500.7  2003/06/28 04:09:37  error
 * roomops.c: Backout change to display one less box in the first column in
   roomlist view, it doesn't seem to work for everyone
@@ -1514,4 +1518,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
