@@ -1,4 +1,7 @@
 $Log$
+Revision 323.19  2002/03/29 22:30:45  ajc
+* Finished the "edit user" screen.
+
 Revision 323.18  2002/03/29 15:18:09  ajc
 * yep ... more user edit stuff
 
@@ -768,4 +771,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
