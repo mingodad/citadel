@@ -39,6 +39,7 @@
 #include "sysdep_decls.h"
 #include "room_ops.h"
 #include "database.h"
+#include "dynloader.h"
 
 
 
@@ -119,7 +120,7 @@ void check_ref_counts(void) {
  */
 void do_housekeeping(void) {
 	static int housekeeping_in_progress = 0;
-	time_t last_timer = 0L;
+	static time_t last_timer = 0L;
 	int do_housekeeping_now = 0;
 
 	/*
