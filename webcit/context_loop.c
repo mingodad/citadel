@@ -289,5 +289,5 @@ void *context_loop(int sock) {
 	/*
 	 * The thread handling this HTTP connection is now finished.
 	 */
-	return NULL;
+	pthread_exit(NULL);
 	}
