@@ -1,4 +1,7 @@
 $Log$
+Revision 400.13  2002/09/15 04:05:41  ajc
+* Process calendar object subcomponents
+
 Revision 400.12  2002/09/15 03:40:13  ajc
 * calendar.c: added
 * When a text/calendar MIME type is discovered in a message, send it to
@@ -981,3 +984,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
