@@ -1,4 +1,7 @@
 $Log$
+Revision 1.475  2000/03/03 04:50:14  ajc
+* Moved all of the wholist masquerading commands into the serv_rwho module
+
 Revision 1.474  2000/03/03 04:12:37  ajc
 * Finished the inbound side of gateway domain service
 
@@ -1682,3 +1685,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

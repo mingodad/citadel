@@ -306,66 +306,6 @@ void cmd_info(void) {
 	cprintf("000\n");
 	}
 
-void cmd_rchg(char *argbuf)
-{
-	char newroomname[256];
-
-	extract(newroomname, argbuf, 0);
-	newroomname[ROOMNAMELEN-1] = 0;
-	if (strlen(newroomname) > 0) {
-		safestrncpy(CC->fake_roomname, newroomname,
-			sizeof(CC->fake_roomname) );
-		}
-	else {
-		strcpy(CC->fake_roomname, "");
-		}
-	cprintf("%d OK\n", OK);
-}
-
-void cmd_hchg(char *argbuf)
-{
-	char newhostname[256];
-
-	extract(newhostname, argbuf, 0);
-	if (strlen(newhostname) > 0) {
-		safestrncpy(CC->fake_hostname, newhostname,
-			sizeof(CC->fake_hostname) );
-		}
-	else {
-		strcpy(CC->fake_hostname, "");
-		}
-	cprintf("%d OK\n", OK);
-}
-
-void cmd_uchg(char *argbuf)
-{
-
-	char newusername[256];
-
-	extract(newusername, argbuf, 0);
-
-	if (CC->usersupp.axlevel < 6) {
-		cprintf("%d You must be an Aide to masquerade your name.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
-		return;
-	}
-
-	if (strlen(newusername) > 0) {
-		CC->cs_flags &= ~CS_STEALTH;
-		memset(CC->fake_username, 0, 32);
-		if (strncasecmp(newusername, CC->curr_user,
-				strlen(CC->curr_user)))
-			safestrncpy(CC->fake_username, newusername,
-				sizeof(CC->fake_username));
-	}
-	else {
-		CC->fake_username[0] = '\0';
-		CC->cs_flags |= CS_STEALTH;
-	}
-	cprintf("%d\n",OK);
-}
-
-
 
 /*
  * returns an asterisk if there are any express messages waiting,
@@ -497,42 +437,6 @@ void cmd_iden(char *argbuf)
 		desc);
 		cprintf("%d Ok\n",OK);
 	}
-
-
-/*
- * enter or exit "stealth mode"
- */
-void cmd_stel(char *cmdbuf)
-{
-	int requested_mode;
-
-	requested_mode = extract_int(cmdbuf,0);
-	if (requested_mode !=0) requested_mode = 1;
-
-	if (!CC->logged_in) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
-
-	if (CC->usersupp.axlevel < 6) {
-		cprintf("%d You must be an Aide to use stealth mode.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
-		return;
-		}
-
-	if (CC->cs_flags & CS_STEALTH) {
-		if (requested_mode == 0)
-			CC->cs_flags = CC->cs_flags-CS_STEALTH;
-		}
-	else {
-		if (requested_mode == 1)
-			CC->cs_flags = CC->cs_flags|CS_STEALTH;
-		}
-
-	cprintf("%d Ok\n",OK);
-	}
-
-
 
 
 /*
@@ -1174,10 +1078,6 @@ void do_command_loop(void) {
 		cmd_lbio();
 		}
 
-	else if (!strncasecmp(cmdbuf,"STEL",4)) {
-		cmd_stel(&cmdbuf[5]);
-		}
-
 	else if (!strncasecmp(cmdbuf,"TERM",4)) {
 		cmd_term(&cmdbuf[5]);
 		}
@@ -1198,20 +1098,8 @@ void do_command_loop(void) {
 		cmd_uimg(&cmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf, "UCHG", 4)) {
-		cmd_uchg(&cmdbuf[5]);
-		}
-
 	else if (!strncasecmp(cmdbuf, "TIME", 4)) {
 		cmd_time();
-		}
-
-	else if (!strncasecmp(cmdbuf, "HCHG", 4)) {
-		cmd_hchg(&cmdbuf[5]);
-		}
-
-	else if (!strncasecmp(cmdbuf, "RCHG", 4)) {
-		cmd_rchg(&cmdbuf[5]);
 		}
 
 	else if (!strncasecmp(cmdbuf, "AGUP", 4)) {
