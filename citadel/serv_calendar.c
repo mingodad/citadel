@@ -1722,9 +1722,9 @@ void ical_ctdl_set_extended_msgid(char *name, char *filename, char *partnum,
 
 /*
  * See if we need to prevent the object from being saved (we don't allow
- * MIME types other than text/calendar in the Calendar> room).  Also, when
- * saving an event to the calendar, set the message's Citadel extended message
- * ID to the UID of the object.  This causes our replication checker to
+ * MIME types other than text/calendar in "calendar" or "tasks"  rooms).  Also,
+ * when saving an event to the calendar, set the message's Citadel extended
+ * message ID to the UID of the object.  This causes our replication checker to
  * automatically delete any existing instances of the same object.  (Isn't
  * that cool?)
  *
@@ -1737,36 +1737,17 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 	char *p;
 	int a;
 	struct icalmessagemod imm;
-	int do_this_hook = 0;
 
-	/*
-	 * Only messages with content-type text/calendar
-	 * may be saved to Calendar>.  If the message is bound for
-	 * Calendar> but doesn't have this content-type, throw an error
-	 * so that the message may not be posted.
-	 */
-
-	/* First determine if this is the user's calendar or tasks room */
-	do_this_hook = 0;
-	MailboxName(roomname, sizeof roomname, &CC->user, USERCALENDARROOM);
-	if (!strcasecmp(roomname, CC->room.QRname)) {
-		do_this_hook = 1;
-	}
-	MailboxName(roomname, sizeof roomname, &CC->user, USERTASKSROOM);
-	if (!strcasecmp(roomname, CC->room.QRname)) {
-		do_this_hook = 1;
-	}
-
-	if (!do_this_hook) {
+	/* First determine if this is a calendar or tasks room */
+	if ( (CC->curr_view != VIEW_CALENDAR)
+	   &&(CC->curr_view != VIEW_TASKS) ) {
 		return(0);		/* Not a vCalendar-centric room */
 	}
 
-	/* Then determine content-type of the message */
-	
 	/* It must be an RFC822 message! */
-	/* FIXME: Not handling MIME multipart messages; implement with IMIP */
-	if (msg->cm_format_type != 4)
+	if (msg->cm_format_type != 4) {
 		return 1;	/* You tried to save a non-RFC822 message! */
+	}
 	
 	/* Find the Content-Type: header */
 	p = msg->cm_fields['M'];

@@ -1,4 +1,8 @@
  $Log$
+ Revision 630.6  2005/01/27 17:33:52  ajc
+ * The before-save hook in serv_calendar.c now runs for any room with a
+   view of VIEW_CALENDAR or VIEW_TASKS, not just Calendar> and Tasks>.
+
  Revision 630.5  2005/01/26 23:04:22  ajc
  * When saving calendar items, if the vCalendar object does not contain
    a UUID, generate one on the fly.  In order to support GroupDAV we need
@@ -6316,3 +6320,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
