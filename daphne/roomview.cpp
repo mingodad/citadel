@@ -5,7 +5,8 @@
 enum {
 	BUTTON_CLOSE,
 	BUTTON_READNEW,
-	BUTTON_READALL
+	BUTTON_READALL,
+	BUTTON_ENTER
 };
 
 
@@ -13,6 +14,7 @@ BEGIN_EVENT_TABLE(RoomView, wxMDIChildFrame)
 	EVT_BUTTON(	BUTTON_CLOSE,		RoomView::OnButtonPressed)
 	EVT_BUTTON(	BUTTON_READNEW,		RoomView::OnButtonPressed)
 	EVT_BUTTON(	BUTTON_READALL,		RoomView::OnButtonPressed)
+	EVT_BUTTON(	BUTTON_ENTER,		RoomView::OnButtonPressed)
 END_EVENT_TABLE()
 
 
@@ -31,8 +33,8 @@ RoomView::RoomView(
 	wxString sendcmd, recvcmd;
 
 	citsock = sock;
+	citMyMDI = MyMDI;
 	message_window = NULL;
-
 
         if (citsock->GotoRoom(roomname, "", recvcmd) != TRUE) {
 		delete this;
@@ -103,16 +105,20 @@ RoomView::RoomView(
 	c3->right.LeftOf(readnew_button, 5);
 	readall_button->SetConstraints(c3);
 
+	wxButton *enter_button = new wxButton(
+		this,
+		BUTTON_ENTER,
+		" Enter message ",
+		wxDefaultPosition);
 
-	// Progress bar -- consumes *remainder* of space
-	progress = new wxGauge(this, -1, 1);
+	wxLayoutConstraints *c4 = new wxLayoutConstraints;
+	c4->top.SameAs(readall_button, wxTop);
+	c4->bottom.SameAs(readall_button, wxBottom);
+	c4->width.AsIs();
+	c4->right.LeftOf(readall_button, 5);
+	enter_button->SetConstraints(c4);
 
-	wxLayoutConstraints *c9 = new wxLayoutConstraints;
-	c9->top.SameAs(readall_button, wxTop);
-	c9->bottom.SameAs(readall_button, wxBottom);
-	c9->left.SameAs(this, wxLeft, 5);
-	c9->right.LeftOf(readall_button, 5);
-	progress->SetConstraints(c9);
+
 
 }
 
@@ -125,6 +131,8 @@ void RoomView::OnButtonPressed(wxCommandEvent& whichbutton) {
 		do_readloop("MSGS NEW");
 	} else if (whichbutton.GetId() == BUTTON_READALL) {
 		do_readloop("MSGS ALL");
+	} else if (whichbutton.GetId() == BUTTON_ENTER) {
+		new EnterMessage(citsock, citMyMDI, ThisRoom);
 	}
 }
 
@@ -139,15 +147,6 @@ void RoomView::do_readloop(wxString readcmd) {
 		delete message_window;
 		message_window = NULL;
 	}
-
-	message_window = new wxHtmlWindow(this);
-
-	wxLayoutConstraints *m1 = new wxLayoutConstraints;
-	m1->top.Below(banner, 2);
-	m1->bottom.Above(close_button, -2);
-	m1->left.SameAs(this, wxLeft, 2);
-	m1->right.SameAs(this, wxRight, 2);
-	message_window->SetConstraints(m1);
 
 
 	// Transmit the "read messages" command
@@ -164,11 +163,12 @@ void RoomView::do_readloop(wxString readcmd) {
 
 
 	// Read the messages into the window, one at a time
-	progress->SetRange(xferbuf.Number());
 	allmsgs = "<HTML><BODY><CENTER><H1>List of Messages</H1></CENTER><HR>";
         for (i=0; i<xferbuf.Number(); ++i) {
-		progress->SetValue(i);
-		progress->Refresh();
+
+		buf.Printf("Reading %d of %d", i+1, xferbuf.Number());
+		citMyMDI->SetStatusText(buf, 0);
+
                 buf.Printf("%s", (wxString *)xferbuf.Nth(i)->GetData());
 
 		sendcmd = "MSG0 " + buf;
@@ -188,8 +188,18 @@ void RoomView::do_readloop(wxString readcmd) {
 
 		allmsgs += "<HR>";
         }
-	progress->SetValue(i);
+	citMyMDI->SetStatusText("Done", 0);
 	allmsgs += "</BODY></HTML>";
+
+	message_window = new wxHtmlWindow(this);
+
+	wxLayoutConstraints *m1 = new wxLayoutConstraints;
+	m1->top.Below(banner, 2);
+	m1->bottom.Above(close_button, -2);
+	m1->left.SameAs(this, wxLeft, 2);
+	m1->right.SameAs(this, wxRight, 2);
+	message_window->SetConstraints(m1);
+
 	message_window->SetPage(allmsgs);
 }
 

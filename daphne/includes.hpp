@@ -220,16 +220,31 @@ private:
 	CitClient *citsock;
 	DECLARE_EVENT_TABLE()
 	void do_readloop(wxString readcmd);
+	wxMDIParentFrame *citMyMDI;
 	wxHtmlWindow *message_window;
         wxPanel *banner;
         wxButton *close_button;
-	wxGauge *progress;
 	wxString ThisRoom;
+};
+
+
+class EnterMessage : public wxMDIChildFrame {
+public:
+	EnterMessage(CitClient *sock, wxMDIParentFrame *MyMDI,
+		wxString roomname);
+private:
+	void OnButtonPressed(wxCommandEvent& whichbutton);
+	CitClient *citsock;
+	wxMDIParentFrame *citMyMDI;
+	wxString ThisRoom;
+	DECLARE_EVENT_TABLE()
 };
 
 
 
 
+
+	
 // A message.  (This is not a GUI class; it's used for internal
 // representation.)
 class CitMessage {
