@@ -253,7 +253,9 @@ int main(int argc, char **argv)
 	}
 	/* Tell 'em who's in da house */
 	fprintf(stderr, SERVER "\n"
-		"Copyright (C) 1996-1999.  All rights reserved.\n\n");
+		"Copyright (C) 1996-2000\n"
+		"This software is distributed under the terms of the GNU\n"
+		"General Public License.  All other rights reserved.\n\n");
 
 	if (chdir(WEBCITDIR) != 0)
 		perror("chdir");
