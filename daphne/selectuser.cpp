@@ -182,6 +182,9 @@ void SelectUser::AddLocalUsers(wxTreeCtrl *tree, CitClient *cit) {
 			new ReturnedUser(username)
 			);
 	}
+
+	// FIX ... this has to be made case insensitive
+	tree->SortChildren(localusers);
 }
 
 
