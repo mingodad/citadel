@@ -446,7 +446,7 @@ void do_citmail(char recp[], int dtype)
 
 	/* Origination */
 	fprintf(temp, "P%s@%s%c", userbuf, nodebuf, 0);
-	fprintf(temp, "T%ld%c", now, 0);
+	fprintf(temp, "T%ld%c", (long)now, 0);
 	fprintf(temp, "A%s%c", userbuf, 0);
 
 	/* Destination */

@@ -543,12 +543,12 @@ void export_a_room(struct quickroom *qr) {
 	fprintf(exfp, "qrpasswd%c%s%c", 0, qr->QRpasswd, 0);
 	fprintf(exfp, "qrroomaide%c%ld%c", 0, qr->QRroomaide, 0);
 	fprintf(exfp, "qrhighest%c%ld%c", 0, qr->QRhighest, 0);
-	fprintf(exfp, "qrgen%c%ld%c", 0, qr->QRgen, 0);
+	fprintf(exfp, "qrgen%c%ld%c", 0, (long)qr->QRgen, 0);
 	fprintf(exfp, "qrflags%c%d%c", 0, qr->QRflags, 0);
 	fprintf(exfp, "qrdirname%c%s%c", 0, qr->QRdirname, 0);
 	fprintf(exfp, "qrinfo%c%ld%c", 0, qr->QRinfo, 0);
 	fprintf(exfp, "qrfloor%c%d%c", 0, qr->QRfloor, 0);
-	fprintf(exfp, "qrmtime%c%ld%c", 0, qr->QRmtime, 0);
+	fprintf(exfp, "qrmtime%c%ld%c", 0, (long)qr->QRmtime, 0);
 	fprintf(exfp, "qrepmode%c%d%c", 0, qr->QRep.expire_mode, 0);
 	fprintf(exfp, "qrepvalue%c%d%c", 0, qr->QRep.expire_value, 0);
 
@@ -609,7 +609,7 @@ void export_a_user(struct usersupp *us) {
 	fprintf(exfp, "usscreenwidth%c%d%c", 0, us->USscreenwidth, 0);
 	fprintf(exfp, "usscreenheight%c%d%c", 0, us->USscreenheight, 0);
 	fprintf(exfp, "usernum%c%ld%c", 0, us->usernum, 0);
-	fprintf(exfp, "lastcall%c%ld%c", 0, us->lastcall, 0);
+	fprintf(exfp, "lastcall%c%ld%c", 0, (long)us->lastcall, 0);
 	fprintf(exfp, "usname%c%s%c", 0, us->USname, 0);
 	fprintf(exfp, "usaddr%c%s%c", 0, us->USaddr, 0);
 	fprintf(exfp, "uscity%c%s%c", 0, us->UScity, 0);

@@ -160,7 +160,9 @@ int load_syslist(void) {
 			strcpy(slist->s_nexthop,&buf[4]);
 			}
 		else if ( (insys==1) && (!strncmp(buf,"lastcontact",11)) ) {
-			sscanf(&buf[12],"%ld",&slist->s_lastcontact);
+			long foo;
+			sscanf(&buf[12],"%ld",&foo);
+			slist->s_lastcontact = foo;
 			}
 		else if ( (insys==1) && (!strncmp(buf,"humannode",9)) ) {
 			strcpy(slist->s_humannode,&buf[10]);
@@ -245,7 +247,7 @@ void rewrite_syslist(void) {
 			fprintf(newfp,"humannode %s\n",stemp->s_humannode);
 		if (stemp->s_lastcontact > 0L)
 			fprintf(newfp,"lastcontact %ld %s",
-				stemp->s_lastcontact,
+				(long)stemp->s_lastcontact,
 				asctime(localtime(&stemp->s_lastcontact)));
 		fprintf(newfp,"\n");
 		}
@@ -615,7 +617,7 @@ void bounce(struct minfo *bminfo)
 		
 	fprintf(bounce,"%c%c%c",0xFF,MES_NORMAL,0);
 	fprintf(bounce,"Ppostmaster%c",0);
-	fprintf(bounce,"T%ld%c",now,0);
+	fprintf(bounce,"T%ld%c",(long)now,0);
 	fprintf(bounce,"APostmaster%c",0);
 	fprintf(bounce,"OMail%c",0);
 	fprintf(bounce,"N%s%c",config.c_nodename,0);

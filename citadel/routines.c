@@ -146,7 +146,7 @@ void edituser(void)
 
 	sprintf(buf, "ASUP %s|%s|%d|%d|%d|%d|%ld|%ld|%d",
 		who, pass, flags, timescalled, posted, axlevel, usernum,
-		lastcall, userpurge);
+		(long)lastcall, userpurge);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]!='2') {

@@ -200,7 +200,7 @@ C:	if ((author[0]==0)||(room[0]==0)||(node[0]==0)) goto ABORT;
 
 	fprintf(mout,"I%ld",mid); putc(0,mout);
 	fprintf(mout,"P%s",path); putc(0,mout);
-	fprintf(mout,"T%ld",now); putc(0,mout);
+	fprintf(mout,"T%ld",(long)now); putc(0,mout);
 	fprintf(mout,"A%s",author); putc(0,mout);
 	strcpy(ccc,room);
 	rnewsxref(room,ccc);

@@ -204,7 +204,7 @@ void cmd_netf(char *cmdbuf)
 	putc(0,ofp);
 	fprintf(ofp,"Pcit%ld",CC->usersupp.usernum); putc(0,ofp);
 	time(&now);
-	fprintf(ofp,"T%ld",now); putc(0,ofp);
+	fprintf(ofp,"T%ld",(long)now); putc(0,ofp);
 	fprintf(ofp,"A%s",CC->usersupp.fullname); putc(0,ofp);
 	fprintf(ofp,"O%s",CC->quickroom.QRname); putc(0,ofp);
 	fprintf(ofp,"N%s",NODENAME); putc(0,ofp);
@@ -555,7 +555,7 @@ void cmd_ucls(char *cmd)
 		putc(MES_NORMAL,fp);
 		putc(0,fp);
 		fprintf(fp,"Pcit%ld",CC->usersupp.usernum); putc(0,fp);
-		fprintf(fp,"T%ld",now); putc(0,fp);
+		fprintf(fp,"T%ld",(long)now); putc(0,fp);
 		fprintf(fp,"A%s",CC->curr_user); putc(0,fp);
 		fprintf(fp,"O%s",CC->quickroom.QRname); putc(0,fp);
 		fprintf(fp,"N%s",NODENAME); putc(0,fp); putc('M',fp);

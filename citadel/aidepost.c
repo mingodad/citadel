@@ -24,7 +24,7 @@ void make_message(FILE *fp)
 	putc(1, fp);
 	fprintf(fp, "Proom_aide");
 	putc(0, fp);
-	fprintf(fp, "T%ld", now);
+	fprintf(fp, "T%ld", (long)now);
 	putc(0, fp);
 	fprintf(fp, "ACitadel");
 	putc(0, fp);

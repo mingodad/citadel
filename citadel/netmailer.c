@@ -251,7 +251,7 @@ int main(int argc, char **argv)
 	fprintf(rmail,"To: %s\n", rbuf);
 	time(&now);
 	fprintf(rmail,"Date: %s", asctime(localtime(&now)));
-	fprintf(rmail,"Message-Id: <%ld@%s>\n", mid_buf, nbuf);
+	fprintf(rmail,"Message-Id: <%ld@%s>\n", (long)mid_buf, nbuf);
 	fprintf(rmail,"X-Mailer: %s\n", CITADEL);
 	fprintf(rmail,"Subject: %s\n", subject);
 	fprintf(rmail,"\n");

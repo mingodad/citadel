@@ -995,7 +995,7 @@ void aide_message(char *text)
 	fp=fopen(CC->temp,"wb");
 	fprintf(fp,"%c%c%c",255,MES_NORMAL,0);
 	fprintf(fp,"Psysop%c",0);
-	fprintf(fp,"T%ld%c", time(NULL), 0);
+	fprintf(fp,"T%ld%c", (long)time(NULL), 0);
 	fprintf(fp,"ACitadel%c",0);
 	fprintf(fp,"OAide%c",0);
 	fprintf(fp,"N%s%c",NODENAME,0);
@@ -1055,7 +1055,7 @@ void make_message(
 	putc(type,fp);	/* Normal or anonymous, see MES_ flags */
 	putc(format_type,fp);	/* Formatted or unformatted */
 	fprintf(fp,"Pcit%ld%c",author->usernum,0);	/* path */
-	fprintf(fp,"T%ld%c",now,0);			/* date/time */
+	fprintf(fp,"T%ld%c",(long)now,0);		/* date/time */
 	if (fake_name[0])
 	   fprintf(fp,"A%s%c",fake_name,0);
 	else
