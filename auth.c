@@ -28,10 +28,10 @@ void display_login(char *mesg) {
 	printf("HTTP/1.0 200 OK\n");
 	output_headers();
 
-	wprintf("<HTML><BODY>\n");
-	wprintf("<CENTER><TABLE border=0 width=100%><TR><TD>\n");
+	wprintf("<HTML><BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
 
-	/* FIX replace with the correct image */
+	/* Da banner */
+	wprintf("<CENTER><TABLE border=0 width=100%><TR><TD>\n");
 	wprintf("<IMG SRC=\"/image&name=hello\">");
 	wprintf("</TD><TD><CENTER>\n");
 
@@ -45,9 +45,9 @@ void display_login(char *mesg) {
 		}
 
 	wprintf("</CENTER></TD></TR></TABLE></CENTER>\n");
-
 	wprintf("<HR>\n");
-	/* FIX add instructions here */
+
+	/* Da login box */
 	wprintf("<CENTER><FORM ACTION=\"/login\" METHOD=\"POST\">\n");
 	wprintf("<TABLE border><TR>\n");
 	wprintf("<TD>User Name:</TD>\n");
@@ -60,6 +60,20 @@ void display_login(char *mesg) {
         wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"New User\">\n");
         wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Exit\">\n");
         wprintf("</FORM></CENTER>\n");
+
+	/* Da instructions */
+	wprintf("<LI><EM>If you already have an account on %s,",
+		serv_info.serv_humannode);
+	wprintf("</EM> enter your user name\n");
+	wprintf("and password and click \"<TT>Login</TT>.\"<BR>\n");
+	wprintf("<LI><EM>If you are a new user,</EM>\n");
+	wprintf("enter the name and password you wish to use, and click\n");
+	wprintf("\"New User.\"<BR><LI>");
+	wprintf("<EM>Please log off properly when finished.</EM>");
+	wprintf("<LI>You must use a browser that supports <i>frames</i> ");
+	wprintf("and <i>cookies</i>.\n");
+	wprintf("</EM></UL>\n");
+
 	wprintf("</BODY></HTML>\n");
 	wDumpContent();
 	}
@@ -134,7 +148,7 @@ void do_login(void) {
 void do_welcome(void) {
 	printf("HTTP/1.0 200 OK\n");
 	output_headers();
-	wprintf("<HTML><BODY>\n");
+	wprintf("<HTML><BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
 	wprintf("<CENTER><H1>");
 	escputs(wc_username);
 	wprintf("</H1>\n");
@@ -164,7 +178,7 @@ void do_logout(void) {
 	output_headers();
 	printf("X-WebCit-Session: close\n");
 	
-	wprintf("<HTML><HEAD><TITLE>Goodbye</TITLE></HEAD><BODY><CENTER>\n");
+	wprintf("<HTML><HEAD><TITLE>Goodbye</TITLE></HEAD><BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\"><CENTER>\n");
 
 	serv_puts("MESG goodbye");
 	serv_gets(buf);

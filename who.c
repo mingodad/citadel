@@ -37,7 +37,7 @@ void whobbs(void) {
 	/* Uncomment this line to cause the wholist to auto-refresh */
 	/* wprintf("<META HTTP-EQUIV=\"Refresh\" CONTENT=\"60\">\n"); */
 
-	wprintf("</HEAD><BODY>\n");
+	wprintf("</HEAD><BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
 
         wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
         wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>Users currently on ");
