@@ -639,6 +639,7 @@ void display_editroom(void)
 	char buf[SIZ];
 	char cmd[SIZ];
 	char node[SIZ];
+	char remote_room[SIZ];
 	char recp[SIZ];
 	char er_name[20];
 	char er_password[10];
@@ -931,7 +932,7 @@ void display_editroom(void)
 			not_shared_with = realloc(not_shared_with,
 					strlen(not_shared_with) + 32);
 			strcat(not_shared_with, node);
-			strcat(not_shared_with, "|");
+			strcat(not_shared_with, "\n");
 		}
 
 		serv_puts("GNET");
@@ -939,20 +940,26 @@ void display_editroom(void)
 		if (buf[0]=='1') while (serv_gets(buf), strcmp(buf, "000")) {
 			extract(cmd, buf, 0);
 			extract(node, buf, 1);
+			extract(remote_room, buf, 2);
 			if (!strcasecmp(cmd, "ignet_push_share")) {
 				shared_with = realloc(shared_with,
 						strlen(shared_with) + 32);
 				strcat(shared_with, node);
-				strcat(shared_with, "|");
+				if (strlen(remote_room) > 0) {
+					strcat(shared_with, "|");
+					strcat(shared_with, remote_room);
+				}
+				strcat(shared_with, "\n");
 			}
 		}
 
-		for (i=0; i<num_tokens(shared_with, '|'); ++i) {
-			extract(node, shared_with, i);
-			for (j=0; j<num_tokens(not_shared_with, '|'); ++j) {
-				extract(cmd, not_shared_with, j);
+		for (i=0; i<num_tokens(shared_with, '\n'); ++i) {
+			extract_token(buf, shared_with, i, '\n');
+			extract_token(node, buf, 0, '|');
+			for (j=0; j<num_tokens(not_shared_with, '\n'); ++j) {
+				extract_token(cmd, not_shared_with, j, '\n');
 				if (!strcasecmp(node, cmd)) {
-					remove_token(not_shared_with, j, '|');
+					remove_token(not_shared_with, j, '\n');
 				}
 			}
 		}
@@ -964,21 +971,44 @@ void display_editroom(void)
 			"<TD><B><I>Not shared with</I></B></TD></TR>\n"
 			"<TR><TD>\n");
 
-		for (i=0; i<num_tokens(shared_with, '|'); ++i) {
-			extract(node, shared_with, i);
+		wprintf("<TABLE border=1><TR>"
+			"<TD>Remote node name</TD>"
+			"<TD>Remote room name</TD>"
+			"<TD>Actions</TD>"
+			"</TR>\n"
+		);
+
+		for (i=0; i<num_tokens(shared_with, '\n'); ++i) {
+			extract_token(buf, shared_with, i, '\n');
+			extract_token(node, buf, 0, '|');
+			extract_token(remote_room, buf, 1, '|');
 			if (strlen(node) > 0) {
-				wprintf("%s ", node);
+				wprintf("<TR><TD>%s</TD>\n", node);
+
+				wprintf("<TD>");
+				if (strlen(remote_room) > 0) {
+					escputs(remote_room);
+				}
+				wprintf("</TD>");
+
+				wprintf("<TD>");
 				wprintf("<A HREF=\"/netedit&cmd=remove&line="
 					"ignet_push_share|");
 				urlescputs(node);
-				wprintf("&tab=sharing\">(unshare)</A><BR>");
+				if (strlen(remote_room) > 0) {
+					wprintf("|");
+					urlescputs(remote_room);
+				}
+				wprintf("&tab=sharing\">unshare</A>");
+				wprintf("</TD></TR>\n");
 			}
 		}
 
+		wprintf("</TABLE>\n");
 		wprintf("</TD><TD>\n");
 
-		for (i=0; i<num_tokens(not_shared_with, '|'); ++i) {
-			extract(node, not_shared_with, i);
+		for (i=0; i<num_tokens(not_shared_with, '\n'); ++i) {
+			extract_token(node, not_shared_with, i, '\n');
 			if (strlen(node) > 0) {
 				wprintf("%s ", node);
 				wprintf("<A HREF=\"/netedit&cmd=add&line="

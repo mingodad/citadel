@@ -1,4 +1,9 @@
 $Log$
+Revision 528.1  2004/12/29 17:28:09  ajc
+* roomops.c: when adding/removing nodes in the 'Sharing' tab, don't go
+  all corrupty-whatever when a remote room name mapping is found.  Display
+  the mapping and preserve it across share/unshare operations.
+
 Revision 528.0  2004/12/28 03:58:34  ajc
 * THIS IS 5.28
 
@@ -2145,4 +2150,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
