@@ -129,10 +129,12 @@ void *context_loop(int sock) {
 	int ContentLength;
 	int CloseSession = 0;
 
-	if ((req = malloc(sizeof(char[256][256]))) == NULL) {
-		printf("Can't malloc buffers; dropping connection.\n");
+	if ((req = malloc((long)sizeof(char[256][256]))) == NULL) {
+		sprintf(buf, "Can't malloc buffers; dropping connection.\n");
+		fprintf(stderr, "%s", buf);
+		write(sock, buf, strlen(buf));
 		close (sock);
-		return NULL;
+		pthread_exit(NULL);
 		}
 
 	printf("Reading request from socket %d\n", sock);
@@ -250,6 +252,8 @@ void *context_loop(int sock) {
 	 * to support HTTP/1.1 "persistent" connections by looping back to
 	 * the top of this function.  For now, we'll just close.
 	 */
+	printf("   Lingering...\n");
+	sleep(10);
 	printf("   Closing socket\n");
 	close(sock);
 

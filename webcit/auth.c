@@ -102,6 +102,10 @@ void do_login(void) {
 		output_headers();
 		wprintf("<HTML><HEAD><TITLE>Nope</TITLE></HEAD><BODY>\n");
 		wprintf("Your password was not accepted.\n");
+		wprintf("<HR><PRE>\n");
+		wprintf("%s\n", buf);
+		dump_vars();
+		wprintf("</PRE><HR>\n");
 		wprintf("<HR><A HREF=\"/\">Try again</A>\n");
 		wprintf("</BODY></HTML>\n");
 		wDumpContent();
