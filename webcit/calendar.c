@@ -672,7 +672,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		lprintf(9, "Give this task a UID if it doesn't have one.\n");
 		if (icalcomponent_get_first_property(vtodo,
 		   ICAL_UID_PROPERTY) == NULL) {
-			generate_new_uid(buf);
+			generate_uuid(buf);
 			icalcomponent_add_property(vtodo,
 				icalproperty_new_uid(buf)
 			);
