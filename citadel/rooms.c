@@ -535,7 +535,7 @@ void ungoto(void) {
  * the [XYZ]modem code below...
  * (This function assumes that a download file is already open on the server)
  */
-void download_to_local_disk(char *filename, long total_bytes)
+void download_to_local_disk(char *supplied_filename, long total_bytes)
 {
 	char buf[256];
 	char dbuf[4096];
@@ -544,6 +544,12 @@ void download_to_local_disk(char *filename, long total_bytes)
 	FILE *savefp;
 	int broken = 0;
 	int packet;
+	char filename[256];
+
+	strcpy(filename, supplied_filename);
+	if (strlen(filename)==0) {
+		newprompt("Filename: ", filename, 250);
+		}
 
 	printf("Enter the name of the directory to save '%s'\n",
 		filename);
