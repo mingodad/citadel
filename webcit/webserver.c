@@ -395,17 +395,18 @@ void worker_entry(void) {
 			if (is_https) {
 				if (starttls(ssock) != 0) {
 					fail_this_transaction = 1;
+					close(ssock);
 				}
 			}
 #endif
 
-			/* Perform an HTTP transaction... */
 			if (fail_this_transaction == 0) {
+				/* Perform an HTTP transaction... */
 				context_loop(ssock);
+				/* ...and close the socket. */
+				lingering_close(ssock);
 			}
 
-			/* ...and close the socket. */
-			lingering_close(ssock);
 		}
 
 	} while (!time_to_die);
