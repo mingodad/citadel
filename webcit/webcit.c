@@ -716,6 +716,14 @@ fclose(fp);
 		entroom();
 		}
 
+	else if (!strcasecmp(action, "display_editroom")) {
+		display_editroom();
+		}
+
+	else if (!strcasecmp(action, "editroom")) {
+		editroom();
+		}
+
 	/* When all else fails... */
 	else {
 		printf("HTTP/1.0 200 OK\n");

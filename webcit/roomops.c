@@ -199,16 +199,16 @@ void gotoroom(char *gname, int display_name)
 	static long ls = (-1L);
 
 
-	printf("HTTP/1.0 200 OK\n");
-	printf("Window-target: top\n");
-	output_headers(0);
-
-        wprintf("<HTML><HEAD></HEAD><BODY \n");
-
-	/* automatically fire up a read-new-msgs in the bottom frame */
-	if (display_name) wprintf("onload=location=\"/readnew\" ");
-
-        wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+	if (display_name) {
+		printf("HTTP/1.0 200 OK\n");
+		printf("Window-target: top\n");
+		output_headers(0);
+        	wprintf("<HTML><HEAD></HEAD><BODY \n");
+	
+		/* automatically fire up a read-new-msgs in the bottom frame */
+		wprintf("onload=location=\"/readnew\" ");
+        	wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+		}
 
 	if (display_name != 2) {
 		/* store ungoto information */
@@ -227,7 +227,7 @@ void gotoroom(char *gname, int display_name)
 		serv_gets(buf);
 		}
 	if (buf[0]!='2') {
-		wprintf("<EM>%s</EM><BR>\n",&buf[4]);
+		if (display_name) wprintf("<EM>%s</EM><BR>\n",&buf[4]);
 		wDumpContent();
 		return;
 		}
@@ -253,40 +253,41 @@ void gotoroom(char *gname, int display_name)
 		if ( (strlen(ugname)>0) && (strcasecmp(ugname,wc_roomname)) ) {
 			wprintf("<TD><A HREF=\"/ungoto\">");
 			wprintf("<IMG SRC=\"/static/back.gif\" border=0></A></TD>");
-			}
 
-		wprintf("<TD><H1>%s</H1>",wc_roomname);
-		wprintf("<FONT SIZE=-1>%d new of %d messages</FONT></TD>\n",
-			extract_int(&buf[4],1),
-			extract_int(&buf[4],2));
+			wprintf("<TD><H1>%s</H1>",wc_roomname);
+			wprintf("<FONT SIZE=-1>%d new of %d messages</FONT></TD>\n",
+				extract_int(&buf[4],1),
+				extract_int(&buf[4],2));
 
-		/* Display room graphic.  The server doesn't actually need the
-		 * room name, but we supply it in order to keep the browser
-		 * from using a cached graphic from another room.
-		 */
-		serv_puts("OIMG _roompic_");
-		serv_gets(buf);
-		if (buf[0]=='2') {
-			wprintf("<TD>");
-			wprintf("<IMG SRC=\"/image&name=_roompic_&room=");
-			escputs(wc_roomname);
-			wprintf("\"></TD>");
-			serv_puts("CLOS");
+			/* Display room graphic.  The server doesn't actually
+		 	 * need the room name, but we supply it in order to
+		 	 * keep the browser from using a cached graphic from 
+		 	 * another room.
+			 */
+			serv_puts("OIMG _roompic_");
 			serv_gets(buf);
+			if (buf[0]=='2') {
+				wprintf("<TD>");
+				wprintf("<IMG SRC=\"/image&name=_roompic_&room=");
+				escputs(wc_roomname);
+				wprintf("\"></TD>");
+				serv_puts("CLOS");
+				serv_gets(buf);
+				}
+
+			wprintf("<TD>");
+			readinfo(0);
+			wprintf("</TD>");
+
+			wprintf("<TD><A HREF=\"/gotonext\">");
+			wprintf("<IMG SRC=\"/static/forward.gif\" border=0></A></TD>");
+
+			wprintf("</TR></TABLE></CENTER>\n");
 			}
-
-		wprintf("<TD>");
-		readinfo(0);
-		wprintf("</TD>");
-
-		wprintf("<TD><A HREF=\"/gotonext\">");
-		wprintf("<IMG SRC=\"/static/forward.gif\" border=0></A></TD>");
-
-		wprintf("</TR></TABLE></CENTER>\n");
+		wDumpContent();
 		}
 
 	strcpy(wc_roomname, wc_roomname);
-	wDumpContent();
 	}
 
 
@@ -412,7 +413,7 @@ void ungoto(void) {
 /*
  * display the form for editing a room
  */
-int display_editroom(void) {
+void display_editroom(void) {
 	char buf[256];
 	char er_name[20];
 	char er_password[10];
@@ -424,8 +425,8 @@ int display_editroom(void) {
 	serv_gets(buf);
 
 	if (buf[0]!='2') {
-		wprintf("<EM>%s</EM><BR>\n",&buf[4]);
-		return(0);
+		display_error(&buf[4]);
+		return;
 		}
 
 	extract(er_name,&buf[4],0);
@@ -433,6 +434,9 @@ int display_editroom(void) {
 	extract(er_dirname,&buf[4],2);
 	er_flags=extract_int(&buf[4],3);
 
+
+        printf("HTTP/1.0 200 OK\n");
+        output_headers(1);
 
         wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
         wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -542,15 +546,15 @@ int display_editroom(void) {
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 	wprintf("</CENTER>\n");
 
-	wprintf("</FORM>\n");
-	return(1);
+	wprintf("</FORM></HTML>\n");
+	wDumpContent();
 	}
 
 
 /*
  * save new parameters for a room
  */
-int editroom(void) {
+void editroom(void) {
 	char buf[256];
 	char er_name[20];
 	char er_password[10];
@@ -561,16 +565,16 @@ int editroom(void) {
 
 
 	if (strcmp(bstr("sc"),"OK")) {
-		wprintf("<EM>Changes have <STRONG>not</STRONG> been saved.</EM><BR>");
-		return(0);
+		display_error("Cancelled.  Changes were not saved.");
+		return;
 		}
 	
 	serv_puts("GETR");
 	serv_gets(buf);
 
 	if (buf[0]!='2') {
-		wprintf("<EM>%s</EM><BR>\n",&buf[4]);
-		return(0);
+		display_error(&buf[4]);
+		return;
 		}
 
 	extract(er_name,&buf[4],0);
@@ -675,23 +679,22 @@ int editroom(void) {
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]!='2') {
-		wprintf("<EM>%s</EM><HR>\n",&buf[4]);
-		return(display_editroom());
+		display_error(&buf[4]);
+		return;
 		}
-	gotoroom(er_name,0);
+	gotoroom(er_name, 0);
 
 	if (strlen(er_roomaide)>0) {
 		sprintf(buf,"SETA %s",er_roomaide);
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0]!='2') {
-			wprintf("<EM>%s</EM><HR>\n",&buf[4]);
-			return(display_editroom());
+			display_error(&buf[4]);
+			return;
 			}
 		}
 
-	wprintf("<EM>Changes have been saved.</EM><BR>");
-	return(0);
+	gotoroom(er_name, 1);
 	}
 
 

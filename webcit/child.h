@@ -61,3 +61,5 @@ void zap(void);
 void display_error(char *errormessage);
 void display_entroom(void);
 void entroom(void);
+void display_editroom(void);
+void editroom(void);
