@@ -196,8 +196,10 @@ void print_express(void)
 	if (rc_exp_beep) {
 		putc(7, stdout);
 	}
-	color(BRIGHT_RED);
-	printf("\r---");
+	if (strlen(rc_exp_cmd) == 0) {
+		color(BRIGHT_RED);
+		printf("\r---");
+	}
 	
 	while (express_msgs != 0) {
 		serv_puts("GEXP");
@@ -226,15 +228,29 @@ void print_express(void)
 					fprintf(outpipe, "Chat request ");
 				else
 					fprintf(outpipe, "Message ");
-				/* 24hr format.  Can be changed, I guess. */
-				fprintf(outpipe, "at %d:%02d from %s @%s:\n",
-					stamp->tm_hour, stamp->tm_min,
-					sender, node);
+				/* Timestamp.  Can this be improved? */
+				if (stamp->tm_hour == 0 || stamp->tm_hour == 12)
+					fprintf(outpipe, "at 12:%02d%cm",
+						stamp->tm_min, 
+						stamp->tm_hour ? 'p' : 'a');
+				else if (stamp->tm_hour > 12)		/* pm */
+					fprintf(outpipe, "at %d:%02dpm",
+						stamp->tm_hour - 12,
+						stamp->tm_min);
+				else					/* am */
+					fprintf(outpipe, "at %d:%02dam",
+						stamp->tm_hour, stamp->tm_min);
+				fprintf(outpipe, " from %s", sender);
+				if (strncmp(serv_info.serv_nodename, node, 32))
+					fprintf(outpipe, " @%s", node);
+				fprintf(outpipe, ":\n");
 				while (serv_gets(buf), strcmp(buf, "000")) {
 					fprintf(outpipe, "%s\n", buf);
 				}
 				pclose(outpipe);
-				return;
+				if (express_msgs == 0)
+					return;
+				continue;
 			}
 		}
 		/* fall back to built-in express message display */
