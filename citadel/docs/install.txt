@@ -29,14 +29,13 @@ system. The following are required to install Citadel/UX:
     - C compiler (such as gcc or egcs) and "make"
     - POSIX threads (the "pthreads" library)
     - TCP/IP
-    - The "gdbm" library
+    - Berkeley DB v3.1 or newer, or GDBM 1.8 or newer
     - Enough disk space to hold all of the programs and data
  
  If you are running Citadel/UX on a Linux system, it is STRONGLY recommended
-that you use a version based on glibc v2 (also called libc6).  libc5 contains
-a number of thread safety problems.  Furthermore, most modern Linux
-distributions have libc6, pthreads, gdbm, and the compiler already installed
-and integrated for you.
+that you run it on a recent distribution (such as Red Hat 7.0 or newer).  A
+new-ish distribution will have most or all of the prerequisite tools and
+libraries already integrated for you.
   
     
  NOW AVAILABLE:
@@ -58,12 +57,17 @@ BBS activity will take place. Several subdirectories have already been created
 during the unpacking process, and others may be created by the software if
 needed.
  
-   Make sure you have the "gdbm" record manager installed on your system, and
-that you have installed the libraries and headers required to compile gdbm
-programs.  Likewise, if your operating system uses a separate library to
-support POSIX threads, make sure that library is installed as well.
+   Make sure you have either Berkeley DB, or GDBM installed on your system, and
+that you have all the development libraries and headers in place so that you
+can compile against them.  If you don't, you can get the latest Berkeley DB
+at http://www.sleepycat.com *or* you can get GDBM from http://www.gnu.org or
+one of its mirrors.  We strongly recommend Berkeley DB for all but the lightest
+of installations, as it is far more robust and reliable.
+ 
+   If your operating system uses a separate library to support POSIX threads
+(pthreads), make sure that library is installed as well.
+ 
    
-  
  THE BBS LOGIN
   
    There will be one account in /etc/passwd which all BBS users will use to
@@ -126,8 +130,15 @@ out your system dependencies and set everything correctly.
 wish to place it in a different directory, you can instead do:
  
    ./configure --prefix=/usr/local/citadel      (or whatever)
+ 
+   If you've got Berkeley DB installed in a non-standard location, you can
+help the configure script find it by doing something like this:
+ 
+   ./configure --with-db=/usr/local/BerkeleyDB-3.1
+ 
+   The configure script prefers Berkeley DB if it is available, but will fall
+back to GDBM if it has to.
    
-  
    File permissions are always a bother to work with. You don't want the
 board to crash because someone couldn't access a file, but you also don't
 want shell users peeking into the binaries to do things like reading others'
@@ -272,7 +283,8 @@ when it is shut down).
  
  -f            - Defragment all the databases upon startup.  This isn't
 normally necessary due to the nature of the data stored in Citadel, but the
-option is provided in case you need it.
+option is provided in case you need it.  (Note that this only applies to
+GDBM installations; if you are using Berkeley DB it has no effect.)
  
  
    The preferred method of starting the Citadel server is to place an entry in
@@ -329,7 +341,7 @@ less every day.
 
   
  
- THE PEANUT GALLERY
+ TROUBLESHOOTING AND GETTING HELP
   
    That's just about all the information you need to install the system.
 For more information, visit the Citadel/UX web site at UNCENSORED! BBS,
@@ -343,16 +355,15 @@ to run, please first check the following:
  3. Did you start the server?
  
    To report a problem, you can log on to UNCENSORED! or any other BBS on the
-Citadel network which carries the Citadel/UX> room.  Please remember to mention
-all of the following information:
+Citadel network which carries the Citadel/UX> room.  Please DO NOT e-mail the
+developers directly.  Post a request for help on the BBS, with all of the
+following information:
  
  1. The exact nature of your difficulty
  2. A transcript of the error message(s) if possible
  3. The version of Citadel you are running
- 4. The version of GDBM present on your system
+ 4. The version of Berkeley DB or GDBM present on your system
  5. Which operating system you are running, and what version
  6. If you are running a Linux system, we need to know which distribution, and
 the version of the kernel, libc, and pthreads you are using (it would help to
 post the output of a "ldd ./citserver" command).
-
-

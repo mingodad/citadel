@@ -1,6 +1,3 @@
- 
-
-
 Citadel/UX Internet E-mail setup instructions (native Citadel/UX version) 
 
 This document explains how to set up your citadel as an Internet e-mail
@@ -163,7 +160,8 @@ ERROR: could not bind to TCP port 110.
 
 This means that Citadel couldn't start up pop services. Generally this
 only happens if there's something on this port. In this case it's Pixel's pop 
-server (incidentally, PixelBBS uses Citadel/UX for pop).
+server (incidentally, PixelBBS uses Citadel/UX for pop).  You'll find the same
+is true for IMAP, which runs on port 143.
 
 citserver: Can't bind: Address already in use
 ERROR: could not bind to TCP port 25.

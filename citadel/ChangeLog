@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.143  2001/07/03 03:06:50  ajc
+ * Last minute doco update for 5.80
+
  Revision 573.142  2001/07/01 15:44:32  nbryant
  configure.in: check for Berkeley DB first.
 
@@ -2556,4 +2559,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
