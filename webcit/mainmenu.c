@@ -26,14 +26,17 @@
 
 
 
-
-
-/* 
- * menu of commands (just the menu html itself)
+/*
+ * The Main Menu
  */
-
-void embed_main_menu(void)
+void display_main_menu(void)
 {
+	output_headers(1);
+
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770077><TR><TD>");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+	wprintf("<B>Basic commands</B>\n");
+	wprintf("</FONT></TD></TR></TABLE>\n");
 	wprintf("<CENTER><TABLE border=0><TR>");
 
 	wprintf("<TD>");	/* start of first column */
@@ -74,32 +77,19 @@ void embed_main_menu(void)
 	wprintf("</TD><TD>");	/* start of third column */
 
 	wprintf("<UL>");
-	wprintf("<LI><B><A HREF=\"/static/whoframeset.html\" TARGET=\"_top\">\n");
+	wprintf("<LI><B><A HREF=\"/whobbs\">\n");
 	wprintf("Who is online?</B></A><BR>(users <EM>currently</EM> logged on)</LI>\n");
 
 	wprintf("<LI><B><A HREF=\"/userlist\">\n");
 	wprintf("User list</B></A><BR>(all registered users)</LI>\n");
 
-	wprintf("<LI><B><A HREF=\"/advanced\">\n");
-	wprintf("Advanced options</B></A><BR>...and maintenance</LI>\n");
-
-	wprintf("<LI><B><A HREF=\"/termquit\" TARGET=\"top\">\n");
+	wprintf("<LI><B><A HREF=\"/termquit\" TARGET=\"_top\">\n");
 	wprintf("Log off</B></A><BR>Bye!</LI>\n");
 	wprintf("</UL>\n");
 
 	wprintf("</TR></TABLE>\n");
 
-	wprintf("</CENTER>\n");
-}
-
-/*
- * advanced options
- */
-void embed_advanced_menu(void)
-{
-
 	wprintf("<TABLE WIDTH=100%%><TR VALIGN=TOP><TD>");
-
 
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -194,35 +184,11 @@ void embed_advanced_menu(void)
 		wprintf("</UL>\n");
 	}
 	wprintf("</TD></TR></TABLE>");
-
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770077><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Basic commands</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
-
-}
-
-
-
-
-/*
- * menu of commands (as a page)
- */
-void display_main_menu(void)
-{
-	output_headers(1);
-	embed_main_menu();
 	wDumpContent(2);
 }
 
 
-void display_advanced_menu(void)
-{
-	output_headers(1);
-	embed_advanced_menu();
-	embed_main_menu();
-	wDumpContent(2);
-}
+
 
 
 /*

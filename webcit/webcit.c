@@ -501,7 +501,6 @@ void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
 	escputs(messagetext);
 
 	wprintf("<HR>\n");
-	embed_main_menu();
 	wDumpContent(1);
 }
 
@@ -757,8 +756,6 @@ void session_loop(struct httprequest *req)
 		blank_page();
 	} else if (!strcasecmp(action, "display_main_menu")) {
 		display_main_menu();
-	} else if (!strcasecmp(action, "advanced")) {
-		display_advanced_menu();
 	} else if (!strcasecmp(action, "whobbs")) {
 		whobbs();
 	} else if (!strcasecmp(action, "knrooms")) {
