@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdarg.h>
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -32,7 +33,16 @@
 #ifdef CIT_CLIENT
 #include "screen.h"
 #else
-extern int err_printf(char *fmt, ...);
+int err_printf(char *fmt, ...);
+int err_printf(char *fmt, ...)
+{
+	va_list ap;
+	int retval;
+	va_start(ap, fmt);
+	retval = fprintf(stderr, fmt, ap);
+	va_end(ap);
+	return retval;
+}
 #endif
 
 #define TRUE  1
