@@ -1175,7 +1175,7 @@ void edit_floor(void)
 	do {
 		snprintf(buf, sizeof buf, "%d", expire_mode);
 		strprompt
-		    ("Floor default essage expire policy (? for list)",
+		    ("Floor default message expire policy (? for list)",
 		     buf, 1);
 		if (buf[0] == '?') {
 			scr_printf("\n"
