@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.139  2002/03/12 00:03:43  nbryant
+ more sprintf removals
+
  Revision 590.138  2002/03/11 06:00:21  nbryant
  use <db.h> before <db3/db.h> or <db4/db.h>
  this is the only way i can think of to make it work everywhere; people on
@@ -3434,4 +3437,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

@@ -45,7 +45,8 @@ void cmd_kflr (char *argbuf);
 void cmd_eflr (char *argbuf);
 void ForEachRoom(void (*CallBack)(struct quickroom *EachRoom, void *out_data),
 	void *in_data);
-void assoc_file_name(char *buf, struct quickroom *qrbuf, char *prefix);
+void assoc_file_name(char *buf, size_t n,
+		     struct quickroom *qrbuf, const char *prefix);
 void delete_room(struct quickroom *qrbuf);
 void list_roomname(struct quickroom *qrbuf);
 int is_noneditable(struct quickroom *qrbuf);

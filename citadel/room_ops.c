@@ -192,8 +192,9 @@ int getroom(struct quickroom *qrbuf, char *room_name)
 
 	/* If that didn't work, try the user's personal namespace */
 	if (cdbqr == NULL) {
-		sprintf(personal_lowercase_name, "%010ld.%s",
-			CC->usersupp.usernum, lowercase_name);
+		snprintf(personal_lowercase_name,
+			 sizeof personal_lowercase_name, "%010ld.%s",
+			 CC->usersupp.usernum, lowercase_name);
 		cdbqr = cdb_fetch(CDB_QUICKROOM,
 				  personal_lowercase_name,
 				  strlen(personal_lowercase_name));
@@ -918,11 +919,11 @@ void cmd_rdir(void)
 	cprintf("%d %s|%s/files/%s\n",
 	LISTING_FOLLOWS, config.c_fqdn, BBSDIR, CC->quickroom.QRdirname);
 
-        sprintf(buf, "ls %s/files/%s  >%s 2> /dev/null",
+        snprintf(buf, sizeof buf, "ls %s/files/%s  >%s 2> /dev/null",
                 BBSDIR, CC->quickroom.QRdirname, CC->temp);
         system(buf);
 
-	sprintf(buf, "%s/files/%s/filedir", BBSDIR, CC->quickroom.QRdirname);
+	snprintf(buf, sizeof buf, "%s/files/%s/filedir", BBSDIR, CC->quickroom.QRdirname);
 	fd = fopen(buf, "r");
 	if (fd == NULL)
 		fd = fopen("/dev/null", "r");
@@ -931,7 +932,7 @@ void cmd_rdir(void)
 	while (fgets(flnm, sizeof flnm, ls) != NULL) {
 		flnm[strlen(flnm) - 1] = 0;
 		if (strcasecmp(flnm, "filedir")) {
-			sprintf(buf, "%s/files/%s/%s",
+			snprintf(buf, sizeof buf, "%s/files/%s/%s",
 				BBSDIR, CC->quickroom.QRdirname, flnm);
 			stat(buf, &statbuf);
 			strcpy(comment, "");
@@ -1081,12 +1082,12 @@ void cmd_setr(char *args)
 
 	/* create a room directory if necessary */
 	if (CC->quickroom.QRflags & QR_DIRECTORY) {
-		sprintf(buf,
+		snprintf(buf, sizeof buf,
 		    "mkdir ./files/%s </dev/null >/dev/null 2>/dev/null",
 			CC->quickroom.QRdirname);
 		system(buf);
 	}
-	sprintf(buf, "%s> edited by %s\n", CC->quickroom.QRname, CC->curr_user);
+	snprintf(buf, sizeof buf, "%s> edited by %s\n", CC->quickroom.QRname, CC->curr_user);
 	aide_message(buf);
 	cprintf("%d Ok\n", OK);
 }
@@ -1145,7 +1146,7 @@ void cmd_seta(char *new_ra)
 	 * the room table, otherwise it would deadlock!
 	 */
 	if (post_notice == 1) {
-		sprintf(buf, "%s is now room aide for %s>\n",
+		snprintf(buf, sizeof buf, "%s is now room aide for %s>\n",
 			usbuf.fullname, CC->quickroom.QRname);
 		aide_message(buf);
 	}
@@ -1155,9 +1156,10 @@ void cmd_seta(char *new_ra)
 /*
  * Generate an associated file name for a room
  */
-void assoc_file_name(char *buf, struct quickroom *qrbuf, char *prefix)
+void assoc_file_name(char *buf, size_t n,
+		     struct quickroom *qrbuf, const char *prefix)
 {
-	sprintf(buf, "./%s/%ld", prefix, qrbuf->QRnumber);
+	snprintf(buf, n, "./%s/%ld", prefix, qrbuf->QRnumber);
 }
 
 /* 
@@ -1169,7 +1171,7 @@ void cmd_rinf(void)
 	char buf[SIZ];
 	FILE *info_fp;
 
-	assoc_file_name(filename, &CC->quickroom, "info");
+	assoc_file_name(filename, sizeof filename, &CC->quickroom, "info");
 	info_fp = fopen(filename, "r");
 
 	if (info_fp == NULL) {
@@ -1197,15 +1199,15 @@ void delete_room(struct quickroom *qrbuf)
 	lprintf(9, "Deleting room <%s>\n", qrbuf->QRname);
 
 	/* Delete the info file */
-	assoc_file_name(filename, qrbuf, "info");
+	assoc_file_name(filename, sizeof filename, qrbuf, "info");
 	unlink(filename);
 
 	/* Delete the image file */
-	assoc_file_name(filename, qrbuf, "images");
+	assoc_file_name(filename, sizeof filename, qrbuf, "images");
 	unlink(filename);
 
 	/* Delete the room's network config file */
-	assoc_file_name(filename, qrbuf, "netconfigs");
+	assoc_file_name(filename, sizeof filename, qrbuf, "netconfigs");
 	unlink(filename);
 
 	/* Delete the messages in the room
@@ -1292,8 +1294,8 @@ void cmd_kill(char *argbuf)
 		usergoto(BASEROOM, 0, NULL, NULL); /* Return to the Lobby */
 
 		/* tell the world what we did */
-		sprintf(aaa, "%s> killed by %s\n",
-			deleted_room_name, CC->curr_user);
+		snprintf(aaa, sizeof aaa, "%s> killed by %s\n",
+			 deleted_room_name, CC->curr_user);
 		aide_message(aaa);
 		cprintf("%d '%s' deleted.\n", OK, deleted_room_name);
 	} else {
@@ -1505,7 +1507,7 @@ void cmd_einf(char *ok)
 		cprintf("%d Ok.\n", OK);
 		return;
 	}
-	assoc_file_name(infofilename, &CC->quickroom, "info");
+	assoc_file_name(infofilename, sizeof infofilename, &CC->quickroom, "info");
 	lprintf(9, "opening\n");
 	fp = fopen(infofilename, "w");
 	lprintf(9, "checking\n");

@@ -322,7 +322,7 @@ void cmd_gnet(char *argbuf) {
 	FILE *fp;
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
-	assoc_file_name(filename, &CC->quickroom, "netconfigs");
+	assoc_file_name(filename, sizeof filename, &CC->quickroom, "netconfigs");
 	cprintf("%d Network settings for room #%ld <%s>\n",
 		LISTING_FOLLOWS,
 		CC->quickroom.QRnumber, CC->quickroom.QRname);
@@ -348,7 +348,7 @@ void cmd_snet(char *argbuf) {
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
 	safestrncpy(tempfilename, tmpnam(NULL), sizeof tempfilename);
-	assoc_file_name(filename, &CC->quickroom, "netconfigs");
+	assoc_file_name(filename, sizeof filename, &CC->quickroom, "netconfigs");
 
 	fp = fopen(tempfilename, "w");
 	if (fp == NULL) {
@@ -571,7 +571,7 @@ void network_spoolout_room(char *room_to_spool) {
 	}
 
 	memset(&sc, 0, sizeof(struct SpoolControl));
-	assoc_file_name(filename, &CC->quickroom, "netconfigs");
+	assoc_file_name(filename, sizeof filename, &CC->quickroom, "netconfigs");
 
 	fp = fopen(filename, "r");
 	if (fp == NULL) {

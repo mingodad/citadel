@@ -38,7 +38,7 @@ struct netnode *load_node(char *nodename)
 	struct netnode *newnn;
 	struct roomshare *newrs;
 
-	sprintf(filename, "./network/systems/%s", nodename);
+	snprintf(filename, sizeof filename, "./network/systems/%s", nodename);
 	fp = fopen(filename, "r");
 	if (fp == NULL) {
 		return NULL;
@@ -76,7 +76,7 @@ void save_node(struct netnode *nnptr)
 	char filename[SIZ];
 	struct roomshare *rsptr = NULL;
 	
-	sprintf(filename, "./network/systems/%s", nnptr->nn_nodename);
+	snprintf(filename, sizeof filename, "./network/systems/%s", nnptr->nn_nodename);
 	fp = fopen(filename, "w");
 	if (fp == NULL) {
 		fprintf(stderr, "%s\n", strerror(errno));
@@ -143,7 +143,7 @@ void add_node(char *NewNodeName)
 	FILE *fp;
 	char sysfilename[SIZ];
 
-	sprintf(sysfilename, "./network/systems/%s", NewNodeName);
+	snprintf(sysfilename, sizeof sysfilename, "./network/systems/%s", NewNodeName);
 
 	fp = fopen(sysfilename, "r");
 	if (fp != NULL) {
@@ -172,8 +172,8 @@ void delete_node(char *NodeName)
 	char sysfilename[SIZ];
 	char spooloutfilename[SIZ];
 
-	sprintf(sysfilename, "./network/systems/%s", NodeName);
-	sprintf(spooloutfilename, "./network/spoolout/%s", NodeName);
+	snprintf(sysfilename, sizeof sysfilename, "./network/systems/%s", NodeName);
+	snprintf(spooloutfilename, sizeof spooloutfilename, "./network/spoolout/%s", NodeName);
 
 	fp = fopen(sysfilename, "r");
 	if (fp == NULL) {
@@ -200,7 +200,7 @@ void do_roomlist(char *NodeName)
 	char sysfilename[SIZ];
 	char buf[SIZ];
 
-	sprintf(sysfilename, "./network/systems/%s", NodeName);
+	snprintf(sysfilename, sizeof sysfilename, "./network/systems/%s", NodeName);
 
 	fp = fopen(sysfilename, "r");
 	if (fp == NULL) {
@@ -228,7 +228,7 @@ void show_spool_cmd(char *NodeName)
 	char sysfilename[SIZ];
 	char buf[SIZ];
 
-	sprintf(sysfilename, "./network/systems/%s", NodeName);
+	snprintf(sysfilename, sizeof sysfilename, "./network/systems/%s", NodeName);
 
 	fp = fopen(sysfilename, "r");
 	if (fp == NULL) {

@@ -336,17 +336,24 @@ void CtdlSetSeen(long target_msgnum, int target_setting) {
 		}
 		if (  ((is_seen == 0) && (was_seen == 1))
 		   || ((is_seen == 1) && (i == num_msgs-1)) ) {
+			size_t tmp;
+
 			if ( (strlen(newseen) + 20) > SIZ) {
 				strcpy(newseen, &newseen[20]);
 				newseen[0] = '*';
 			}
-			if (strlen(newseen) > 0) strcat(newseen, ",");
+			tmp = strlen(newseen);
+			if (tmp > 0) {
+				strcat(newseen, ",");
+				tmp++;
+			}
 			if (lo == hi) {
-				sprintf(&newseen[strlen(newseen)], "%ld", lo);
+				snprintf(&newseen[tmp], sizeof newseen - tmp,
+					 "%ld", lo);
 			}
 			else {
-				sprintf(&newseen[strlen(newseen)], "%ld:%ld",
-					lo, hi);
+				snprintf(&newseen[tmp], sizeof newseen - tmp,
+					 "%ld:%ld", lo, hi);
 			}
 			lo = (-1L);
 			hi = (-1L);
@@ -576,11 +583,11 @@ void do_help_subst(char *buffer)
 	help_subst(buffer, "^humannode", config.c_humannode);
 	help_subst(buffer, "^fqdn", config.c_fqdn);
 	help_subst(buffer, "^username", CC->usersupp.fullname);
-	sprintf(buf2, "%ld", CC->usersupp.usernum);
+	snprintf(buf2, sizeof buf2, "%ld", CC->usersupp.usernum);
 	help_subst(buffer, "^usernum", buf2);
 	help_subst(buffer, "^sysadm", config.c_sysadm);
 	help_subst(buffer, "^variantname", CITADEL);
-	sprintf(buf2, "%d", config.c_maxsessions);
+	snprintf(buf2, sizeof buf2, "%d", config.c_maxsessions);
 	help_subst(buffer, "^maxsessions", buf2);
 }
 
@@ -1002,7 +1009,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	char datestamp[SIZ];
 	/*                                       */
 
-	sprintf(mid, "%ld", msg_num);
+	snprintf(mid, sizeof mid, "%ld", msg_num);
 	nl = (crlf ? "\r\n" : "\n");
 
 	if (!is_valid_message(TheMessage)) {
@@ -1080,8 +1087,10 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 			if ((is_room_aide())
 			    && ((TheMessage->cm_anon_type == MES_ANONONLY)
 			     || (TheMessage->cm_anon_type == MES_ANONOPT))) {
-				sprintf(&display_name[strlen(display_name)],
-					" [%s]", buf);
+				size_t tmp = strlen(display_name);
+				snprintf(&display_name[tmp],
+					 sizeof display_name - tmp,
+					 " [%s]", buf);
 			}
 		}
 
@@ -1541,7 +1550,7 @@ long send_message(struct CtdlMessage *msg,	/* pointer to buffer */
 
 	/* Get a new message number */
 	newmsgid = get_new_message_number();
-	sprintf(msgidbuf, "%ld@%s", newmsgid, config.c_fqdn);
+	snprintf(msgidbuf, sizeof msgidbuf, "%ld@%s", newmsgid, config.c_fqdn);
 
 	/* Generate an ID if we don't have one already */
 	if (msg->cm_fields['I']==NULL) {
@@ -1733,7 +1742,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 */
 	if (msg->cm_fields['T'] == NULL) {
 		lprintf(9, "Generating timestamp\n");
-		sprintf(aaa, "%ld", (long)time(NULL));
+		snprintf(aaa, sizeof aaa, "%ld", (long)time(NULL));
 		msg->cm_fields['T'] = strdoop(aaa);
 	}
 
@@ -1929,7 +1938,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		
 		serialize_message(&smr, msg);
 		if (smr.len > 0) {
-			sprintf(aaa,
+			snprintf(aaa, sizeof aaa,
 				"./network/spoolin/netmail.%04lx.%04x.%04x",
                         	(long) getpid(), CC->cs_pid, ++seqnum);
 			network_fp = fopen(aaa, "wb+");
@@ -1960,7 +1969,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 if (recps->num_internet > 0) {
 		lprintf(9, "Generating delivery instructions\n");
 		instr = mallok(SIZ * 2);
-		sprintf(instr,
+		snprintf(instr, SIZ * 2,
 			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
 			"bounceto|%s@%s\n",
 			SPOOLMIME, newmsgid, (long)time(NULL),
@@ -1968,9 +1977,10 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		);
 
 	  	for (i=0; i<num_tokens(recps->recp_internet, '|'); ++i) {
+			size_t tmp = strlen(instr);
 			extract(recipient, recps->recp_internet, i);
-			sprintf(&instr[strlen(instr)],
-				"remote|%s|0||\n", recipient);
+			snprintf(&instr[tmp], SIZ * 2 - tmp,
+				 "remote|%s|0||\n", recipient);
 		}
 
         	imsg = mallok(sizeof(struct CtdlMessage));
@@ -2127,10 +2137,10 @@ static struct CtdlMessage *make_message(
 
 	striplt(recipient);
 
-	sprintf(buf, "cit%ld", author->usernum);		/* Path */
+	snprintf(buf, sizeof buf, "cit%ld", author->usernum);	/* Path */
 	msg->cm_fields['P'] = strdoop(buf);
 
-	sprintf(buf, "%ld", (long)time(NULL));			/* timestamp */
+	snprintf(buf, sizeof buf, "%ld", (long)time(NULL));	/* timestamp */
 	msg->cm_fields['T'] = strdoop(buf);
 
 	if (fake_name[0])					/* author */
@@ -2178,29 +2188,29 @@ static struct CtdlMessage *make_message(
  * room.  Returns a *CITADEL ERROR CODE* and puts a message in errmsgbuf, or
  * returns 0 on success.
  */
-int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf) {
+int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n) {
 
 	if (!(CC->logged_in)) {
-		sprintf(errmsgbuf, "Not logged in.");
+		snprintf(errmsgbuf, n, "Not logged in.");
 		return (ERROR + NOT_LOGGED_IN);
 	}
 
 	if ((CC->usersupp.axlevel < 2)
 	    && ((CC->quickroom.QRflags & QR_MAILBOX) == 0)) {
-		sprintf(errmsgbuf, "Need to be validated to enter "
+		snprintf(errmsgbuf, n, "Need to be validated to enter "
 				"(except in %s> to sysop)", MAILROOM);
 		return (ERROR + HIGHER_ACCESS_REQUIRED);
 	}
 
 	if ((CC->usersupp.axlevel < 4)
 	   && (CC->quickroom.QRflags & QR_NETWORK)) {
-		sprintf(errmsgbuf, "Need net privileges to enter here.");
+		snprintf(errmsgbuf, n, "Need net privileges to enter here.");
 		return (ERROR + HIGHER_ACCESS_REQUIRED);
 	}
 
 	if ((CC->usersupp.axlevel < 6)
 	   && (CC->quickroom.QRflags & QR_READONLY)) {
-		sprintf(errmsgbuf, "Sorry, this is a read-only room.");
+		snprintf(errmsgbuf, n, "Sorry, this is a read-only room.");
 		return (ERROR + HIGHER_ACCESS_REQUIRED);
 	}
 
@@ -2330,13 +2340,13 @@ struct recptypes *validate_recipients(char *recipients) {
 		}
 		if (invalid) {
 			if (strlen(ret->errormsg) == 0) {
-				sprintf(append,
-					"Invalid recipient: %s",
-					this_recp);
+				snprintf(append, sizeof append,
+					 "Invalid recipient: %s",
+					 this_recp);
 			}
 			else {
-				sprintf(append, 
-					", %s", this_recp);
+				snprintf(append, sizeof append,
+					 ", %s", this_recp);
 			}
 			if ( (strlen(ret->errormsg) + strlen(append)) < SIZ) {
 				strcat(ret->errormsg, append);
@@ -2347,7 +2357,8 @@ struct recptypes *validate_recipients(char *recipients) {
 				strcpy(append, this_recp);
 			}
 			else {
-				sprintf(append, ", %s", this_recp);
+				snprintf(append, sizeof append, ", %s",
+					 this_recp);
 			}
 			if ( (strlen(ret->display_recp)+strlen(append)) < SIZ) {
 				strcat(ret->display_recp, append);
@@ -2399,7 +2410,7 @@ void cmd_ent0(char *entargs)
 
 	/* first check to make sure the request is valid. */
 
-	err = CtdlDoIHavePermissionToPostInThisRoom(errmsg);
+	err = CtdlDoIHavePermissionToPostInThisRoom(errmsg, sizeof errmsg);
 	if (err) {
 		cprintf("%d %s\n", err, errmsg);
 		return;
@@ -2863,7 +2874,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 		fprintf(fp, "Content-transfer-encoding: base64\n\n");
 		fclose(tempfp);
 		fclose(fp);
-		sprintf(cmdbuf, "./base64 -e <%s >>%s",
+		snprintf(cmdbuf, sizeof cmdbuf, "./base64 -e <%s >>%s",
 			tempfilename, filename);
 		system(cmdbuf);
 	}

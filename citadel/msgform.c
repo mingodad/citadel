@@ -47,7 +47,7 @@ char *strerror(int e)
 {
 	static char buf[32];
 
-	sprintf(buf,"errno = %d",e);
+	snprintf(buf, sizeof buf, "errno = %d",e);
 	return(buf);
 	}
 #endif
