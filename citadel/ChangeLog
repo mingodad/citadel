@@ -1,4 +1,7 @@
  $Log$
+ Revision 607.0  2003/06/10 04:15:39  ajc
+ * THIS IS 6.07
+
  Revision 606.10  2003/06/04 21:46:13  error
  * citadel.c: Added a missing #ifdef __CYGWIN__
 
@@ -4757,4 +4760,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
