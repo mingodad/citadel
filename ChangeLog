@@ -1,4 +1,7 @@
 $Log$
+Revision 323.8  2002/03/05 05:05:06  ajc
+* More vCard editing stuff
+
 Revision 323.7  2002/03/04 05:28:54  ajc
 * Wrote some skeleton code for robust vCard editing
 
@@ -732,3 +735,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
