@@ -273,22 +273,29 @@ void readloop(char *oper)
 	char cmd[256];
 	int a;
 	int nummsgs;
+	long startmsg;
+	int maxmsgs;
+	int num_displayed = 0;
+
+	startmsg = atol(bstr("startmsg"));
+	maxmsgs = atoi(bstr("maxmsgs"));
+	if (maxmsgs == 0) maxmsgs = 20;
 
 	output_headers(1);
 
-	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><CENTER><B>%s - ",
-		WC->wc_roomname);
+	/* wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><CENTER><B>%s - ",
+		WC->wc_roomname); */
 	if (!strcmp(oper, "readnew")) {
 		strcpy(cmd, "MSGS NEW");
-		wprintf("new messages");
+		/* wprintf("new messages"); */
 	} else if (!strcmp(oper, "readold")) {
 		strcpy(cmd, "MSGS OLD");
-		wprintf("old messages");
+		/* wprintf("old messages"); */
 	} else {
 		strcpy(cmd, "MSGS ALL");
-		wprintf("all messages");
+		/* wprintf("all messages"); */
 	}
-	wprintf("</B></CENTER><BR>\n");
+	/* wprintf("</B></CENTER><BR>\n"); */
 
 	nummsgs = load_msg_ptrs(cmd);
 	if (nummsgs == 0) {
@@ -301,8 +308,30 @@ void readloop(char *oper)
 		}
 		goto DONE;
 	}
+
 	for (a = 0; a < nummsgs; ++a) {
-		read_message(WC->msgarr[a], oper);
+		if (WC->msgarr[a] >= startmsg) {
+			read_message(WC->msgarr[a], oper);
+			++num_displayed;
+			if ( (num_displayed >= maxmsgs) && (a < nummsgs) ) {
+				wprintf("<CENTER></FONT SIZE=+1>"
+					"There are %d more messages here."
+					"&nbsp;&nbsp;&nbsp;</FONT>",
+					nummsgs - num_displayed);
+				wprintf("<A HREF=\"/readfwd?startmsg=%ld"
+					"&maxmsgs=999999\">"
+					"Read them ALL"
+					"</A>&nbsp;&nbsp;&nbsp;",
+					WC->msgarr[a+1]);
+				wprintf("<A HREF=\"/readfwd?startmsg=%ld"
+					"&maxmsgs=%d\">"
+					"Read next %d"
+					"</A>",
+					WC->msgarr[a+1], maxmsgs, maxmsgs);
+				wprintf("</CENTER><HR>\n");
+				goto DONE;
+			}
+		}
 	}
 
 DONE:	wDumpContent(1);
