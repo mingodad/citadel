@@ -62,7 +62,24 @@ LITERAL;
 	echo '<TD>' . $_SESSION["username"] . '</TD>' ;
 	echo '<TD>' . $_SESSION["room"] . '</TD>' ;
 	echo '<TD ALIGN=RIGHT><A HREF="logout.php">Log out</A></TD>' ;
-	echo '</TR></TABLE><HR>';
+	echo '</TR></TABLE><BR>';
+
+	// Temporary menu
+	if ($_SESSION["logged_in"]) {
+		echo	'<a href="listrooms.php">' .
+			'room list</A> ' .
+			'<a href="readmsgs.php?mode=all&count=0">' .
+			'Read all messages</a> ' .
+			'<a href="readmsgs.php?mode=new&count=0">' .
+			'Read new messages</a> ' .
+			'<a href="display_enter.php">' .
+			'Enter a message</a> ' .
+			'<a href="who.php">' .
+			'Who is online?</a> ' .
+			'<A HREF="logout.php">' .
+			'Log out</A><HR>' ;
+	}
+
 }
 
 

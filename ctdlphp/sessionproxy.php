@@ -143,6 +143,7 @@ do {
 			}
         		socket_write($msgsock, $talkback, strlen($talkback));
 
+			// LISTING_FOLLOWS mode
 			if (substr($talkback, 0, 1) == "1") do {
 				$buf = fgets($ctdlsock, 4096);
 				if (!$buf) {
@@ -153,6 +154,20 @@ do {
 						strlen($buf));
 				}
 			} while ($buf != "000\n");
+
+			// SEND_LISTING mode
+			if (substr($talkback, 0, 1) == "4") do {
+				$buf = sock_gets($msgsock);
+				if (!$buf) {
+					$buf = "000" ;
+				}
+				if (!fwrite($ctdlsock, $buf . "\n")) {
+					fclose($ctdlsock);
+					socket_close($sock);
+					system("/bin/rm -f " . $sockname);
+					exit(11);
+				}
+			} while ($buf != "000");
 
 		}
 	} while($buf !== false);

@@ -3,15 +3,15 @@
 	include "ctdlheader.php";
 	bbs_page_header();
 
-	echo "This is an example of the use of ctdl_rwho() to display the " ;
-	echo "list of users currently logged in.<BR><BR>\n" ;
+	echo	"This is an example of the use of ctdl_rwho() to display " .
+		"the list of users currently logged in.<BR><BR>\n" ;
 
-	echo "<TABLE border=1>";
-	echo "<TR>";
-	echo "<TD><B>User</B></TD>";
-	echo "<TD><B>Room</B></TD>";
-	echo "<TD><B>Host</B></TD>";
-	echo "</TR>";
+	echo	"<TABLE border=1>" .
+		"<TR>" .
+		"<TD><B>User</B></TD>" .
+		"<TD><B>Room</B></TD>" .
+		"<TD><B>Host</B></TD>" .
+		"</TR>" ;
 
 	list($num_users, $wholist) = ctdl_rwho();
 

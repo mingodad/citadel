@@ -27,6 +27,7 @@ function serv_puts($buf) {
 	global $clientsocket;
 	
 	fwrite($clientsocket, $buf . "\n", (strlen($buf)+1) );
+	fflush($clientsocket);
 }
 
 
