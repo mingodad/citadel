@@ -105,8 +105,8 @@ upgrading this package.
 /usr/local/citadel/modules/libexpire.la
 /usr/local/citadel/modules/libvandelay.so
 /usr/local/citadel/modules/libvandelay.la
-/usr/local/citadel/modules/libical.so
-/usr/local/citadel/modules/libical.la
+/usr/local/citadel/modules/libcalendar.so
+/usr/local/citadel/modules/libcalendar.la
 /usr/local/citadel/modules/liblistsub.so
 /usr/local/citadel/modules/liblistsub.la
 /usr/local/citadel/modules/libmrtg.so

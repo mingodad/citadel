@@ -41,7 +41,7 @@ SERV_MODULES=modules/libchat.la modules/libvcard.la \
 	modules/libbio.la \
 	modules/libexpire.la \
 	modules/libvandelay.la \
-	modules/libical.la
+	modules/libcalendar.la
 UTIL_TARGETS=aidepost msgform readlog \
 	stats citmail userlist sendcommand \
 	base64 migratenet$(EXEEXT)
@@ -91,7 +91,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c \
 	client_passwords.c imap_misc.c serv_netfilter.c serv_mrtg.c \
 	serv_spam.c citadel_ipc.c serv_listsub.c \
 	serv_imap.c imap_tools.c imap_fetch.c imap_search.c imap_store.c \
-	serv_network.c serv_pas2.c serv_ical.c md5.c server_main.c
+	serv_network.c serv_pas2.c serv_calendar.c md5.c server_main.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
@@ -213,8 +213,8 @@ aidepost: aidepost.o libcitserver.la $(LIBOBJS)
 modules/libpas2.la: serv_pas2.lo md5.lo $(LIBTOOL) libcitserver.la
 	$(LTSHARE) -o libpas2.la ../serv_pas2.lo ../md5.lo ../libcitserver.la
 
-modules/libical.la: serv_ical.lo $(LIBTOOL) libcitserver.la
-	$(LTSHARE) -o libical.la ../serv_ical.lo ../libcitserver.la
+modules/libcalendar.la: serv_calendar.lo $(LIBTOOL) libcitserver.la
+	$(LTSHARE) -o libcalendar.la ../serv_calendar.lo ../libcitserver.la
 
 citmail: citmail.o config.o
 	$(CC) citmail.o config.o $(LDFLAGS) -o citmail $(LIBS)

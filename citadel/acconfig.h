@@ -27,3 +27,6 @@
 
 /* define this if you have zlib compression available */
 #undef HAVE_ZLIB
+
+/* define this if you have the libical calendaring library available */
+#undef HAVE_LIBICAL

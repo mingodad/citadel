@@ -1,4 +1,9 @@
  $Log$
+ Revision 601.4  2002/09/11 03:17:18  ajc
+ * [EXPERIMENTAL] Link in the "libical" calendar library if present
+ * Rename serv_ical to serv_calendar (because the resulting module would be
+   named "libical" which conflicts with the external library by that name)
+
  Revision 601.3  2002/09/10 08:07:38  error
  * update citadel.spec for 6.00* update citadel.spec for 6.00* update citadel.spec for 6.00* update citadel.spec for 6.00* update citadel.spec for 6.00* update citadel.spec for 6.00* update citadel.spec for 6.00* update citadel.spec for 6.00
 
@@ -3991,4 +3996,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
