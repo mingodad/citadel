@@ -149,7 +149,7 @@ void page_popup(void)
 	char buf[SIZ];
 	char pagefrom[SIZ];
 
-	/* suppress express message check, do headers but no fake frames */
+	/* suppress express message check, do headers but no frames */
 	output_headers(0x08 | 0x03);
 
 	while (serv_puts("GEXP"), serv_gets(buf), buf[0]=='1') {
@@ -157,7 +157,7 @@ void page_popup(void)
 		extract(pagefrom, &buf[4], 3);
 
 		wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
-		wprintf("<SPAN CLASS=\"titlebar\">Express message from ");
+		wprintf("<SPAN CLASS=\"titlebar\">Instant message from ");
 		escputs(pagefrom);
 		wprintf("</SPAN></TD></TR></TABLE>\n");
 		

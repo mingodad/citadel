@@ -335,6 +335,7 @@ void context_loop(int sock)
 	if ( (!strcasecmp(buf, "/"))
 	   || (!strcasecmp(buf, "/static/mainframeset.html"))
 	   || (!strcasecmp(buf, "/static/robots.txt"))
+	   || (!strncasecmp(buf, "/page_popup", 11))
 	   || (!strncasecmp(buf, "/listsub", 8))
 	   || (!strncasecmp(buf, "/freebusy", 9))
 	   || (!strncasecmp(buf, "/termquit", 9)) ) {
