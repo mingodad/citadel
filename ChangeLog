@@ -1,4 +1,8 @@
 $Log$
+Revision 524.2  2004/10/01 16:23:23  ajc
+* Set up framework for "notes" view, and added a skeleton function for
+  the actual display.
+
 Revision 524.1  2004/09/30 03:44:01  ajc
 * fix line width break problem in chat
 
@@ -2083,4 +2087,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

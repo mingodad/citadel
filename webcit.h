@@ -416,6 +416,7 @@ ssize_t write(int fd, const void *buf, size_t count);
 void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum);
 void display_calendar(long msgnum);
 void display_task(long msgnum);
+void display_note(long msgnum);
 void do_calendar_view(void);
 void do_tasks_view(void);
 void free_calendar_buffer(void);
@@ -484,3 +485,4 @@ void client_write_ssl(char *buf, int nbytes);
 #define VIEW_ADDRESSBOOK	2	/* Address book view */
 #define VIEW_CALENDAR		3	/* Calendar view */
 #define VIEW_TASKS		4	/* Tasks view */
+#define VIEW_NOTES		5	/* Notes view */
