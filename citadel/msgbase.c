@@ -652,23 +652,47 @@ long send_message(char *message_in_memory,	/* pointer to buffer */
 		int generate_id) {		/* 1 to generate an I field */
 
 	long newmsgid;
+	char *actual_message;
+	size_t actual_length;
+	long retval;
+	char msgidbuf[32];
 
 	/* Get a new message number */
 	newmsgid = get_new_message_number();
 
-	/* Write our little bundle of joy into the message base */
+	if (generate_id) {
+		sprintf(msgidbuf, "I%ld", newmsgid);
+		actual_length = message_length + strlen(msgidbuf) + 1;
+		actual_message = malloc(actual_length);
+		memcpy(actual_message, message_in_memory, 3);
+		memcpy(&actual_message[3], msgidbuf, (strlen(msgidbuf)+1) );
+		memcpy(&actual_message[strlen(msgidbuf)+4],
+			&message_in_memory[3], message_length - 3);
+		}
+	
+	else {
+		actual_message = message_in_memory;
+		actual_length = message_length;
+		}
 
+	/* Write our little bundle of joy into the message base */
 	begin_critical_section(S_MSGMAIN);
 	if ( cdb_store(CDB_MSGMAIN, &newmsgid, sizeof(long),
-			message_in_memory, message_length) < 0 ) {
+			actual_message, actual_length) < 0 ) {
 		lprintf(2, "Can't store message\n");
-		end_critical_section(S_MSGMAIN);
-		return 0L;
+		retval = 0L;
+		}
+	else {
+		retval = newmsgid;
 		}
 	end_critical_section(S_MSGMAIN);
 
+	if (generate_id) {
+		free(actual_message);
+		}
+
 	/* Finally, return the pointers */
-	return(newmsgid);
+	return(retval);
 	}
 
 

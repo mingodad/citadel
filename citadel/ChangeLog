@@ -1,6 +1,8 @@
 Thu Dec 17 00:17:04 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Started removing the word "beta" from the docs and code.
 	  Preparing for an actual release.
+	* msgbase.c: generate an 'I' field when requested (i.e. on locally
+	  originating messages.  this was breaking parts of the network)
 
 1998-12-15 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* msgbase.c: remove extra call to alias() which was causing
