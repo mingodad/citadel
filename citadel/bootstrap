@@ -2,9 +2,13 @@
 #
 # run me after checking Citadel out of CVS.
 #
+echo ... running aclocal ...
 aclocal
+echo ... running libtoolize ...
 libtoolize --force
+echo ... running autoconf ...
 autoconf
+echo ... running autoheader ...
 autoheader
 
 echo
