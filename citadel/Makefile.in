@@ -144,14 +144,15 @@ citserver: $(SERV_OBJS)
 .c.ro:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c $< -o $@
 
+.c.mo:
+	@mkdir -p modules
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) $(PICFLAGS) -DPIC -c $< -o $@
+
 modules/serv_chat.so: serv_chat.mo
 	$(LINK_SHARED) -o modules/serv_chat.so serv_chat.mo
 
 modules/serv_chat.mo: serv_chat.mo
 	ln -f serv_chat.mo modules
-
-.c.mo:
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) $(PICFLAGS) -DPIC -c $< -o $@
 
 modules/serv_test.so: serv_test.mo
 	$(LINK_SHARED) -o modules/serv_test.so serv_test.mo
@@ -321,35 +322,40 @@ install: install-exec install-data install-doc
 install-data:
 	@for i in help messages network/spoolin network/spoolout \
 		 network/systems; do \
-		./mkinstalldirs $(root)$(prefix)/$$i; \
+		$(srcdir)/mkinstalldirs $(root)$(prefix)/$$i; \
 	done
 	@for i in citadel.rc public_clients \
-		 `find help messages network -type f | grep -v CVS`; do \
+		 `find $(srcdir)/help $(srcdir)/messages $(srcdir)/network -type f | grep -v CVS`; do \
 		echo $(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
 		$(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
 	done
 	-@if test -d $(root)/etc/pam.d; then \
-		echo $(INSTALL_DATA) citadel.pam $(root)/etc/pam.d/citadel; \
-		$(INSTALL_DATA) citadel.pam $(root)/etc/pam.d/citadel; \
+		echo $(INSTALL_DATA) $(srcdir)/citadel.pam $(root)/etc/pam.d/citadel; \
+		$(INSTALL_DATA) $(srcdir)/citadel.pam $(root)/etc/pam.d/citadel; \
 	fi
 
 install-doc:
-	@./mkinstalldirs $(root)$(prefix)/techdoc
-	@for i in `find techdoc -type f | grep -v CVS`; do \
+	@$(srcdir)/mkinstalldirs $(root)$(prefix)/techdoc
+	@for i in `find $(srcdir)/techdoc -type f | grep -v CVS`; do \
 		echo $(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
 		$(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
 	done
 
 install-exec: all weekly
 	@for i in bio bitbucket files images info modules userpics; do \
-		./mkinstalldirs $(root)$(prefix)/$$i; \
+		$(srcdir)/mkinstalldirs $(root)$(prefix)/$$i; \
 	done
 	@for i in $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) \
-		 $(PROXY_TARGETS) $(SERV_MODULES) utilsmenu weekly \
-		 dnetsetup; do \
+		 $(PROXY_TARGETS) $(SERV_MODULES) ; do \
 		if test -f $$i; then \
 			echo $(INSTALL) $$i $(root)$(prefix)/$$i; \
 			$(INSTALL) $$i $(root)$(prefix)/$$i; \
+		fi \
+	done
+	@for i in utilsmenu weekly dnetsetup; do \
+		if test -f $(srcdir)/$$i; then \
+			echo $(INSTALL) $(srcdir)/$$i $(root)$(prefix)/$$i; \
+			$(INSTALL) $(srcdir)/$$i $(root)$(prefix)/$$i; \
 		fi \
 	done
 	@if test x`find $(root)$(prefix)/chkpwd -user root` = x$(root)$(prefix)/chkpwd; then \
