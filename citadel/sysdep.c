@@ -953,13 +953,11 @@ int main(int argc, char **argv)
 	 * Load any server-side modules (plugins) available here.
 	 */
 	lprintf(7, "Initializing loadable modules\n");
-	cdb_begin_transaction();
 	if ((moddir = malloc(strlen(bbs_home_directory) + 9)) != NULL) {
 		sprintf(moddir, "%s/modules", bbs_home_directory);
 		DLoader_Init(moddir);
 		free(moddir);
 	}
-	cdb_end_transaction();
 
 	/*
 	 * The rescan pipe exists so that worker threads can be woken up and
@@ -1049,7 +1047,6 @@ void worker_thread(void) {
 
 	while (!time_to_die) {
 
-		cdb_begin_transaction();
 
 		/* 
 		 * A naive implementation would have all idle threads
@@ -1062,6 +1059,8 @@ void worker_thread(void) {
 		 */
 
 		begin_critical_section(S_I_WANNA_SELECT);
+		cdb_end_transaction();
+		cdb_begin_transaction();
 SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 		highest = masterhighest;
 		begin_critical_section(S_SESSION_TABLE);
@@ -1193,7 +1192,6 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 
 		check_sched_shutdown();
 
-		cdb_end_transaction();
 	}
 
 	/* If control reaches this point, the server is shutting down */	

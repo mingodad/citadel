@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.48  2000/12/12 04:20:03  ajc
+ * Made the transaction open/close a global thing, in a frantic attempt to get
+   Uncensored to stop crashing.  More fixes on the way...
+
  Revision 573.47  2000/12/11 06:08:41  ajc
  * Removed the housekeeper thread, moved terminate_idle_sessions() out to a
    timer event, and check_sched_shutdown() to the end of the worker thread
@@ -2212,4 +2216,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

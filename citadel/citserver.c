@@ -56,12 +56,11 @@ void master_startup(void) {
 	
 	lprintf(7, "Opening databases\n");
 	open_databases();
+	cdb_begin_transaction();
 
 	if (do_defrag) {
 		defrag_databases();
 	}
-
-	cdb_begin_transaction();
 
 	check_ref_counts();
 
@@ -74,9 +73,9 @@ void master_startup(void) {
 	lprintf(7, "Seeding the pseudo-random number generator...\n");
 	gettimeofday(&tv, NULL);
 	srand(tv.tv_usec);
-
-	cdb_end_transaction();
 }
+
+
 
 /*
  * Cleanup routine to be called when the server is shutting down.
@@ -95,10 +94,11 @@ void master_cleanup(void) {
 	/* Run any cleanup routines registered by loadable modules */
 	for (fcn = CleanupHookTable; fcn != NULL; fcn = fcn->next) {
 		(*fcn->h_function_pointer)();
-		}
+	}
 
 	/* Close databases */
 	lprintf(7, "Closing databases\n");
+	cdb_end_transaction();
 	close_databases();
 
 	/* Do system-dependent stuff */

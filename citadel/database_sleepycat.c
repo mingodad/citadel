@@ -50,7 +50,8 @@ struct cdbssd {			/* Session-specific DB stuff */
 struct cdbssd *ssd_arr = NULL;
 int num_ssd = 0;
 #define MYCURSOR	ssd_arr[CC->cs_pid].cursor
-#define MYTID		ssd_arr[CC->cs_pid].tid
+/* #define MYTID		ssd_arr[CC->cs_pid].tid */
+DB_TXN *MYTID;
 
 /*
  * Ensure that we have enough space for session-specific data.  We don't
