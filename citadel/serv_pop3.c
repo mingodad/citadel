@@ -296,7 +296,7 @@ void pop3_list(char *argbuf) {
 		else {
 			cprintf("+OK %d %ld\r\n",
 				which_one,
-				POP3->msgs[which_one-1].rfc822_length
+				(long)POP3->msgs[which_one-1].rfc822_length
 				);
 			return;
 		}
@@ -309,7 +309,7 @@ void pop3_list(char *argbuf) {
 			if (! POP3->msgs[i].deleted) {
 				cprintf("%d %ld\r\n",
 					i+1,
-					POP3->msgs[i].rfc822_length);
+					(long)POP3->msgs[i].rfc822_length);
 			}
 		}
 		cprintf(".\r\n");
@@ -332,7 +332,7 @@ void pop3_stat(char *argbuf) {
 		}
 	}
 
-	cprintf("+OK %d %ld\r\n", total_msgs, total_octets);
+	cprintf("+OK %d %ld\r\n", total_msgs, (long)total_octets);
 }
 
 

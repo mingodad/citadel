@@ -617,7 +617,7 @@ void imap_fetch_bodystructure_part(
 	}
 	cprintf(" ");
 
-	cprintf("%ld ", length);	/* bytes */
+	cprintf("%ld ", (long)length);	/* bytes */
 	cprintf("NIL) ");		/* lines */
 }
 

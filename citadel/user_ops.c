@@ -1123,11 +1123,11 @@ void ListThisUser(struct usersupp *usbuf, void *data)
 		if ((CC->usersupp.axlevel >= 6)
 		    || ((usbuf->flags & US_UNLISTED) == 0)
 		    || ((CC->internal_pgm))) {
-			cprintf("%s|%d|%ld|%d|%ld|%ld|",
+			cprintf("%s|%d|%ld|%ld|%ld|%ld|",
 				usbuf->fullname,
 				usbuf->axlevel,
 				usbuf->usernum,
-				usbuf->lastcall,
+				(long)usbuf->lastcall,
 				usbuf->timescalled,
 				usbuf->posted);
 			if (CC->usersupp.axlevel >= 6)
@@ -1212,7 +1212,7 @@ void cmd_agup(char *cmdbuf)
 		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
 		return;
 	}
-	cprintf("%d %s|%s|%u|%ld|%ld|%d|%ld|%d|%d\n",
+	cprintf("%d %s|%s|%u|%ld|%ld|%d|%ld|%ld|%d\n",
 		OK,
 		usbuf.fullname,
 		usbuf.password,
@@ -1221,7 +1221,7 @@ void cmd_agup(char *cmdbuf)
 		usbuf.posted,
 		(int) usbuf.axlevel,
 		usbuf.usernum,
-		usbuf.lastcall,
+		(long)usbuf.lastcall,
 		usbuf.USuserpurge);
 }
 

@@ -63,7 +63,7 @@ void cmd_pas2(char *argbuf)
 	
 	if (strlen(pw) != (MD5_HEXSTRING_SIZE-1))
 	{
-		cprintf("%d Auth string of length %ld is the wrong length (should be %d).\n", ERROR, strlen(pw), MD5_HEXSTRING_SIZE-1);
+		cprintf("%d Auth string of length %ld is the wrong length (should be %d).\n", ERROR, (long)strlen(pw), MD5_HEXSTRING_SIZE-1);
 		return;
 	}
 	

@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.66  2001/10/17 21:07:20  nbryant
+ further format string cleanups (for i686-linux type sizes)
+
  Revision 580.65  2001/10/17 20:41:07  nbryant
   - declare *printf format specifiers if gcc detected
   - format string fixes (compiles w/o warnings on alpha osf/1)
@@ -2828,3 +2831,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

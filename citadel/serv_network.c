@@ -440,7 +440,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 		instr = mallok(instr_len);
 		if (instr == NULL) {
 			lprintf(1, "Cannot allocate %ld bytes for instr...\n",
-				instr_len);
+				(long)instr_len);
 			abort();
 		}
 		sprintf(instr,
