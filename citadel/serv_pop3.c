@@ -366,7 +366,7 @@ void pop3_update(void) {
 	if (POP3->num_msgs > 0) for (i=0; i<POP3->num_msgs; ++i) {
 		if (POP3->msgs[i].deleted) {
 			CtdlDeleteMessages(MAILROOM,
-				POP3->msgs[i].msgnum, NULL);
+				POP3->msgs[i].msgnum, "");
 		}
 	}
 

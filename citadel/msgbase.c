@@ -1433,7 +1433,7 @@ void check_repl(long msgnum) {
 	lprintf(9, "older!\n");
 
 	/* Existing isn't newer?  Then delete the old one(s). */
-	CtdlDeleteMessages(CC->quickroom.QRname, msgnum, NULL);
+	CtdlDeleteMessages(CC->quickroom.QRname, msgnum, "");
 }
 
 
@@ -2178,7 +2178,7 @@ void cmd_ent3(char *entargs)
  */
 int CtdlDeleteMessages(char *room_name,		/* which room */
 		       long dmsgnum,		/* or "0" for any */
-		       char *content_type	/* or NULL for any */
+		       char *content_type	/* or "" for any */
 )
 {
 
@@ -2192,7 +2192,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	struct SuppMsgInfo smi;
 
 	lprintf(9, "CtdlDeleteMessages(%s, %ld, %s)\n",
-		room_name, dmsgnum, content_type ? content_type : "NULL");
+		room_name, dmsgnum, content_type);
 
 	/* get room record, obtaining a lock... */
 	if (lgetroom(&qrbuf, room_name) != 0) {
@@ -2217,7 +2217,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 			if ((dmsgnum == 0L) || (msglist[i] == dmsgnum)) {
 				delete_this |= 0x01;
 			}
-			if (content_type == NULL) {
+			if (strlen(content_type) > 0) {
 				delete_this |= 0x02;
 			} else {
 				GetSuppMsgInfo(&smi, msglist[i]);
@@ -2268,7 +2268,7 @@ void cmd_dele(char *delstr)
 	}
 	delnum = extract_long(delstr, 0);
 
-	num_deleted = CtdlDeleteMessages(CC->quickroom.QRname, delnum, NULL);
+	num_deleted = CtdlDeleteMessages(CC->quickroom.QRname, delnum, "");
 
 	if (num_deleted) {
 		cprintf("%d %d message%s deleted.\n", OK,
@@ -2319,7 +2319,7 @@ void cmd_move(char *args)
 	/* Now delete the message from the source room,
 	 * if this is a 'move' rather than a 'copy' operation.
 	 */
-	if (is_copy == 0) CtdlDeleteMessages(CC->quickroom.QRname, num, NULL);
+	if (is_copy == 0) CtdlDeleteMessages(CC->quickroom.QRname, num, "");
 
 	cprintf("%d Message %s.\n", OK, (is_copy ? "copied" : "moved") );
 }

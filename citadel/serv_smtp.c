@@ -583,7 +583,7 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 	else {
 		phree(instr);	/* only needed here, because CtdlSaveMsg()
 				 * would free this buffer otherwise */
-		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, msgid, NULL); 
+		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, msgid, ""); 
 	}
 
 	return(failed_saves);
@@ -1353,9 +1353,9 @@ void smtp_do_procmsg(long msgnum) {
 	 * No delivery instructions remain, so delete both the instructions
 	 * message and the message message.
 	 */
-	if (incomplete_deliveries_remaining <= 0)  {
-		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, msgnum, NULL);    
-		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, text_msgid, NULL);    
+	if (incomplete_deliveries_remaining <= 0) {
+		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, msgnum, "");
+		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, text_msgid, "");
 	}
 
 
@@ -1364,7 +1364,7 @@ void smtp_do_procmsg(long msgnum) {
 	 * instructions and replace with the updated ones.
 	 */
 	if (incomplete_deliveries_remaining > 0) {
-		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, msgnum, NULL);    
+		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, msgnum, "");
         	msg = mallok(sizeof(struct CtdlMessage));
 		memset(msg, 0, sizeof(struct CtdlMessage));
 		msg->cm_magic = CTDLMESSAGE_MAGIC;
