@@ -1,4 +1,8 @@
 $Log$
+Revision 500.24  2003/08/27 04:26:54  ajc
+* Split the site configuration screen up into four different screens,
+  and added a meta-menu
+
 Revision 500.23  2003/08/24 03:31:50  ajc
 * Finished the setup program
 * Bumped the internal version number to 5.01
@@ -1578,4 +1582,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
