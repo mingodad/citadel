@@ -802,6 +802,13 @@ void who_is_online(int longlist)
 	time_t timenow = 0;
 	time_t idletime, idlehours, idlemins, idlesecs;
 	int last_session = (-1);
+    int skipidle = 0;
+    
+    if (longlist == 2)
+      {
+        longlist = 0;
+        skipidle = 1;
+      }
 
 	serv_puts("TIME");
 	serv_gets(tbuf);
@@ -822,6 +829,7 @@ void who_is_online(int longlist)
 	serv_gets(buf);
 	if (buf[0] == '1') {
 		while (serv_gets(buf), strcmp(buf, "000")) {
+	        int isidle = 0;
 			extract(username, buf, 1);
 			extract(roomname, buf, 2);
 			extract(fromhost, buf, 3);
@@ -838,6 +846,8 @@ void who_is_online(int longlist)
 					strcat(roomname, " ");
 				}
 				strcpy(&roomname[14], "[idle]");
+		        if (skipidle)
+                  isidle = 1;
 			}
 
 			if (longlist) {
@@ -867,24 +877,26 @@ void who_is_online(int longlist)
 				pprintf("\n");
 
 			} else {
-				if (extract_int(buf, 0) == last_session) {
-					pprintf("        ");
-				} else {
-					color(BRIGHT_MAGENTA);
-					pprintf("%-3s ", flags);
-					color(DIM_WHITE);
-					pprintf("%-3d ", extract_int(buf, 0));
-				}
-				last_session = extract_int(buf, 0);
-				color(BRIGHT_CYAN);
-				pprintf("%-25s ", username);
-				color(BRIGHT_MAGENTA);
-				roomname[20] = 0;
-				pprintf("%-20s ", roomname);
-				color(BRIGHT_CYAN);
-				fromhost[24] = '\0';
-				pprintf("%-24s\n", fromhost);
-				color(DIM_WHITE);
+	            if (isidle == 0) {
+    				if (extract_int(buf, 0) == last_session) {
+    					pprintf("        ");
+    				} else {
+    					color(BRIGHT_MAGENTA);
+    					pprintf("%-3s ", flags);
+    					color(DIM_WHITE);
+    					pprintf("%-3d ", extract_int(buf, 0));
+    				}
+    				last_session = extract_int(buf, 0);
+    				color(BRIGHT_CYAN);
+    				pprintf("%-25s ", username);
+    				color(BRIGHT_MAGENTA);
+    				roomname[20] = 0;
+    				pprintf("%-20s ", roomname);
+    				color(BRIGHT_CYAN);
+    				fromhost[24] = '\0';
+    				pprintf("%-24s\n", fromhost);
+    				color(DIM_WHITE);
+    	  		}
 			}
 		}
 	}
@@ -1558,6 +1570,10 @@ PWOK:
 				who_is_online(1);
 				break;
 
+            case 91:
+                who_is_online(2);
+                break;
+                
 			case 80:
 				do_system_configuration();
 				break;
