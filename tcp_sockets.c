@@ -66,6 +66,7 @@ int uds_connectsock(char *sockpath)
 	if (connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
 		lprintf(1, "Can't connect: %s\n",
 			strerror(errno));
+		close(s);
 		return(-1);
 	}
 
@@ -119,6 +120,7 @@ int tcp_connectsock(char *host, char *service)
 	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
 		lprintf(1, "Can't connect to %s.%s: %s\n",
 			host, service, strerror(errno));
+		close(s);
 		return (-1);
 	}
 	alarm(0);
