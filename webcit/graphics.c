@@ -53,7 +53,9 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 	wprintf("<INPUT TYPE=\"FILE\" NAME=\"filename\" SIZE=\"35\">\n");
 	wprintf("<BR><BR>");
 	wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" VALUE=\"Upload\">\n");
+	wprintf("&nbsp;");
 	wprintf("<INPUT TYPE=\"RESET\" VALUE=\"Reset Form\">\n");
+	wprintf("&nbsp;");
 	wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" VALUE=\"Cancel\">\n");
 	wprintf("</FORM>\n");
 	wprintf("</CENTER>\n");

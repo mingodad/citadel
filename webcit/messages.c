@@ -1599,6 +1599,7 @@ void display_enter(void)
 	);
 
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save message\">"
+		"&nbsp;"
 		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
 
 	wprintf("<SCRIPT language=\"JavaScript\" type=\"text/javascript\" "
@@ -1716,6 +1717,7 @@ void confirm_move_msg(void)
 	wprintf("<BR>\n");
 
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"yesno\" VALUE=\"Move\">");
+	wprintf("&nbsp;");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"yesno\" VALUE=\"Cancel\">");
 	wprintf("</FORM></CENTER>\n");
 

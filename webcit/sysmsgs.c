@@ -63,6 +63,7 @@ void display_edit(char *description, char *check_cmd,
 		server_to_text();
 	wprintf("</TEXTAREA><BR><BR>\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save\">");
+	wprintf("&nbsp;");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
 
 	wprintf("</FORM></CENTER>\n");

@@ -93,6 +93,7 @@ void display_add_node(void)
 	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"port\" MAXLENGTH=\"8\"></TD></TR>\n");
 	wprintf("</TABLE><BR>");
        	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
+	wprintf("&nbsp;");
        	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 	wprintf("</CENTER></FORM>\n");
 
@@ -139,6 +140,7 @@ void display_edit_node(void)
 				wprintf("<TD><INPUT TYPE=\"text\" NAME=\"port\" MAXLENGTH=\"8\" VALUE=\"%s\"></TD></TR>\n", cport);
 				wprintf("</TABLE><BR>");
         			wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
+				wprintf("&nbsp;");
         			wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 				wprintf("</CENTER></FORM>\n");
 			}

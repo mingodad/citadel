@@ -614,6 +614,7 @@ void display_siteconfig(void)
 
 	wprintf("</TABLE><CENTER>");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
+	wprintf("&nbsp;");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">\n");
 	wprintf("</CENTER></FORM>\n");
 	do_template("endbox");
