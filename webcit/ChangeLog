@@ -1,4 +1,8 @@
 $Log$
+Revision 213.2  2000/12/05 18:39:49  ajc
+* Added support for non-USA countries in registration screen (requires the
+  latest Citadel server, which supports the country field)
+
 Revision 213.1  2000/10/20 04:27:46  ajc
 * zapped_list() -- fixed broken HTML tags.  (Closes bug #76.)
 
@@ -507,3 +511,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
