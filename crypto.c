@@ -25,7 +25,6 @@
 #define DH_P		"1A74527AEE4EE2568E85D4FB2E65E18C9394B9C80C42507D7A6A0DBE9A9A54B05A9A96800C34C7AA5297095B69C88901EEFD127F969DCA26A54C0E0B5C5473EBAEB00957D2633ECAE3835775425DE66C0DE6D024DBB17445E06E6B0C78415E589B8814F08531D02FD43778451E7685541079CFFB79EF0D26EFEEBBB69D1E80383"
 #define DH_G		"2"
 #define DH_L		1024
-#define CIT_CIPHERS	"ALL:RC4+RSA:+SSLv2:@STRENGTH"	/* see ciphers(1) */
 
 SSL_CTX *ssl_ctx;		/* SSL context */
 pthread_mutex_t **SSLCritters;	/* Things needing locking */
@@ -120,25 +119,14 @@ void init_ssl(void)
 	 * Initialize SSL transport layer
 	 */
 	SSL_library_init();
+	OpenSSL_add_all_algorithms();
 	SSL_load_error_strings();
-	ssl_method = SSLv23_server_method();
+	ssl_method = SSLv2_server_method();
 	if (!(ssl_ctx = SSL_CTX_new(ssl_method))) {
 		lprintf(3, "SSL_CTX_new failed: %s\n",
 			ERR_reason_error_string(ERR_get_error()));
 		return;
 	}
-	if (!(SSL_CTX_set_cipher_list(ssl_ctx, CIT_CIPHERS))) {
-		lprintf(3, "SSL: No ciphers available\n");
-		SSL_CTX_free(ssl_ctx);
-		ssl_ctx = NULL;
-		return;
-	}
-#if 0
-#if SSLEAY_VERSION_NUMBER >= 0x00906000L
-	SSL_CTX_set_mode(ssl_ctx, SSL_CTX_get_mode(ssl_ctx) |
-			 SSL_MODE_AUTO_RETRY);
-#endif
-#endif
 
 	CRYPTO_set_locking_callback(ssl_lock);
 	CRYPTO_set_id_callback(id_callback);
