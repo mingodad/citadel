@@ -128,12 +128,13 @@ int main(int argc, char **argv)
 
 	/* Tell 'em who's in da house */
 	lprintf(1,
-"\nMultithreaded message server for Citadel/UX\n"
+"\n"
+"Citadel/UX messaging server engine v%d.%02d\n"
 "Copyright (C) 1987-2001 by the Citadel/UX development team.\n"
-"Citadel/UX is free software, covered by the GNU General Public License, and\n"
-"you are welcome to change it and/or distribute copies of it under certain\n"
-"conditions.  There is absolutely no warranty for this software.  Please\n"
-"read the 'COPYING.txt' file for details.\n\n");
+"Citadel/UX is released under the terms of the GNU General Public License.\n"
+"If you paid for this software, someone is ripping you off.\n\n",
+	(REV_LEVEL/100),
+	(REV_LEVEL%100));
 
 	/* Initialize... */
 	init_sysdep();
