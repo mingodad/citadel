@@ -1,4 +1,7 @@
  $Log$
+ Revision 622.4  2004/06/24 20:38:06  ajc
+ * updated serv_vandelay.c to include new "c_ip_addr" config
+
  Revision 622.3  2004/06/24 20:33:37  ajc
  * Bumped internal version number to 6.23
  * Added "Server IP address" to config (server, client, docs)
@@ -5883,3 +5886,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

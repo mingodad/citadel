@@ -46,7 +46,7 @@ extern "C" {
  */
 #define REV_LEVEL	623		/* This version */
 #define REV_MIN		591		/* Oldest compatible database */
-#define EXPORT_REV_MIN	615		/* Oldest compatible export files */
+#define EXPORT_REV_MIN	623		/* Oldest compatible export files */
 
 #define SERVER_TYPE 0	/* zero for stock Citadel/UX; other developers please
 			   obtain SERVER_TYPE codes for your implementations */

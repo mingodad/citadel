@@ -297,6 +297,7 @@ void artv_do_export(void) {
 	cprintf("%s\n", config.c_ldap_base_dn);
 	cprintf("%s\n", config.c_ldap_bind_dn);
 	cprintf("%s\n", config.c_ldap_bind_pw);
+	cprintf("%s\n", config.c_ip_addr);
 
 	/* Export the control file */
 	get_control();
@@ -361,6 +362,7 @@ void artv_import_config(void) {
 	client_gets(config.c_ldap_base_dn);
 	client_gets(config.c_ldap_bind_dn);
 	client_gets(config.c_ldap_bind_pw);
+	client_gets(config.c_ip_addr);
 	put_config();
 	lprintf(CTDL_INFO, "Imported config file\n");
 }
