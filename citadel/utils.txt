@@ -115,18 +115,11 @@ archives of certain rooms.
 set when running this program. When called without any arguments, userlist
 will display all users (except those who have chosen to be unlisted), their
 user numbers, times called, messages posted, screen width, and date of their
-most recent call.
-
-   Setting the -p option (only allowed by root as distributed; you may wish
-to change this) also displays passwords, and lists all users regardless of
-whether they are unlisted.
-
-   Setting the -n option causes the next argument after -n to be a user
-number to search for.
+most recent call.  
  
-   You can also elect to sort the output by user name or user number by
-specifying the -su or -sn flags.
-   
+   userlist is simply the same user listing code that is in the client, made
+into a standalone utility for convenience.
+
    
   READLOG
   
