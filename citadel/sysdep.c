@@ -135,18 +135,37 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 		 * %03ld to %06ld and remove " / 1000" after tv.tv_usec.
 		 */
 		if (CC && CC->cs_pid) {
+#if 0
+			/* Millisecond display */
 			fprintf(stderr,
 				"%04d/%02d/%02d %2d:%02d:%02d.%03ld [%3d] %s",
 				tim->tm_year + 1900, tim->tm_mon + 1,
 				tim->tm_mday, tim->tm_hour, tim->tm_min,
 				tim->tm_sec, (long)tv.tv_usec / 1000,
 				CC->cs_pid, buf);
+#endif
+			/* Microsecond display */
+			fprintf(stderr,
+				"%04d/%02d/%02d %2d:%02d:%02d.%06ld [%3d] %s",
+				tim->tm_year + 1900, tim->tm_mon + 1,
+				tim->tm_mday, tim->tm_hour, tim->tm_min,
+				tim->tm_sec, (long)tv.tv_usec,
+				CC->cs_pid, buf);
 		} else {
+#if 0
+			/* Millisecond display */
 			fprintf(stderr,
 				"%04d/%02d/%02d %2d:%02d:%02d.%03ld %s",
 				tim->tm_year + 1900, tim->tm_mon + 1,
 				tim->tm_mday, tim->tm_hour, tim->tm_min,
 				tim->tm_sec, (long)tv.tv_usec / 1000, buf);
+#endif
+			/* Microsecond display */
+			fprintf(stderr,
+				"%04d/%02d/%02d %2d:%02d:%02d.%06ld %s",
+				tim->tm_year + 1900, tim->tm_mon + 1,
+				tim->tm_mday, tim->tm_hour, tim->tm_min,
+				tim->tm_sec, (long)tv.tv_usec, buf);
 		}
 		fflush(stderr);
 	}
@@ -980,6 +999,8 @@ void *worker_thread(void *arg) {
 	int i;
 	char junk;
 	int highest;
+	/* This is synchronized below; it helps implement round robin mode */
+	static struct CitContext* next_session = NULL;
 	struct CitContext *ptr;
 	struct CitContext *bind_me = NULL;
 	fd_set readfds;
@@ -1115,7 +1136,16 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 		else {
 			bind_me = NULL;
 			begin_critical_section(S_SESSION_TABLE);
-			for (ptr = ContextList;
+			/*
+			 * We start where we left off.  If we get to the end
+			 * we'll start from the beginning again, then give up
+			 * if we still don't find anything.  This ensures
+			 * that all contexts get a more-or-less equal chance
+			 * to run. And yes, I did add a goto to the code. -IO
+			 */
+find_session:		if (next_session == NULL)
+				next_session = ContextList;
+			for (ptr = next_session;
 			    ( (ptr != NULL) && (bind_me == NULL) );
 			    ptr = ptr->next) {
 				if ( (FD_ISSET(ptr->client_socket, &readfds))
@@ -1128,6 +1158,13 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 				 * letting anyone else touch the context list.
 				 */
 				bind_me->state = CON_EXECUTING;
+				next_session = bind_me->next;
+			} else if (next_session == ContextList) {
+				next_session = NULL;
+			}
+			if (bind_me == NULL && next_session != NULL) {
+				next_session = NULL;
+				goto find_session;
 			}
 
 			end_critical_section(S_SESSION_TABLE);

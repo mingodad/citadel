@@ -1,4 +1,10 @@
  $Log$
+ Revision 614.94  2004/03/22 19:37:28  error
+ * sysdep.c: worker_thread(): Make scheduling a little more fair to higher
+   sessions
+ * sysdep.c: lprintf(): Enable microsecond display in trace file
+ * stress.c: worker(): Sleep for random amount of time as per specification
+
  Revision 614.93  2004/03/21 22:51:54  error
  * Fix a few remaining lprintf(9, ...) to lprintf(CTDL_DEBUG, ...)
 
@@ -5580,3 +5586,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

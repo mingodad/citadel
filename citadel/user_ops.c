@@ -438,6 +438,7 @@ void cmd_user(char *cmdbuf)
 	case login_not_found:
 		cprintf("%d %s not found.\n", ERROR + NO_SUCH_USER, username);
 		return;
+	default:
 		cprintf("%d Internal error\n", ERROR + INTERNAL_ERROR);
 	}
 }

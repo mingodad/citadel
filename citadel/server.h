@@ -156,7 +156,8 @@ typedef struct CitContext t_context;
 /* Values for CitContext.state */
 enum {
 	CON_IDLE,		/* This context is doing nothing */
-	CON_EXECUTING		/* This context is bound to a thread */
+	CON_READY,		/* This context is ready-to-run */
+	CON_EXECUTING,		/* This context is bound to a thread */
 };
 
 

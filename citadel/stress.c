@@ -196,9 +196,15 @@ void* worker(void* data)
 		struct ctdlipcroom *rret;
 		struct timeval tv;
 		long tstart, tend;
+		int wait;
 
 		/* Wait for a while */
-		sleep(w);
+		pthread_mutex_lock(&rand_mutex);
+		/* See Numerical Recipes in C or Knuth vol. 2 ch. 3 */
+		/* Randomize between w/3 to w*3 (yes, it's complicated) */
+		wait = (int)((1.0+2.7*(float)w)*rand()/(RAND_MAX+(float)w/3.0)); /* range 0-99 */
+		pthread_mutex_unlock(&rand_mutex);
+		sleep(wait);
 
 		gettimeofday(&tv, NULL);
 		tstart = tv.tv_sec * 1000 + tv.tv_usec / 1000; /* cvt to msec */
