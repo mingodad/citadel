@@ -102,10 +102,10 @@ void addurls(char *url) {
 		for (a=0; a<b; ++a) ++ptr;
 		strcpy(ptr,"");
 		
-		u->url_data = malloc(strlen(up));
+		u->url_data = malloc(strlen(up)+1);
 		strcpy(u->url_data, up);
+		u->url_data[b] = 0;
 		unescape_input(u->url_data);
-
 		up = ptr;
 		++up;
 		}
@@ -569,6 +569,14 @@ fclose(fp);
 
 	else if (!strcasecmp(action, "readfwd")) {
 		readloop("readfwd");
+		}
+
+	else if (!strcasecmp(action, "display_enter")) {
+		display_enter();
+		}
+
+	else if (!strcasecmp(action, "post")) {
+		post_message();
 		}
 
 	/* When all else fails... */

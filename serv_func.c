@@ -111,3 +111,44 @@ void fmout(FILE *fp)
 		}
 	}
 
+
+
+
+
+
+/*
+ * transmit message text (in memory) to the server
+ */
+void text_to_server(char *ptr) {
+	char buf[256];
+	int ch,a,pos;
+
+	pos = 0;
+	
+	strcpy(buf,"");
+	while (ptr[pos]!=0) {
+		ch = ptr[pos++];
+		if (ch==10) {
+			while (isspace(buf[strlen(buf)-1]))
+				buf[strlen(buf)-1]=0;
+			serv_puts(buf);
+			strcpy(buf,"");
+			}
+		else {
+			a = strlen(buf);
+			buf[a+1] = 0;
+			buf[a] = ch;
+			if ((ch==32)&&(strlen(buf)>200)) {
+				buf[a]=0;
+				serv_puts(buf);
+				strcpy(buf,"");
+				}
+			if (strlen(buf)>250) {
+				serv_puts(buf);
+				strcpy(buf,"");
+				}
+			}
+		}
+	serv_puts(buf);
+	}
+
