@@ -1,5 +1,6 @@
 Wed Mar  3 00:00:55 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Prevent buffer overruns in lowercase_name in [get|put]user()
+	* client_chat.c: use citedit() for page composition
 
 Sat Feb 27 07:47:36 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* rooms.c: download_to_local_disk() prompts for a filename if a blank

@@ -203,15 +203,14 @@ RCL:	    if (send_complete_line) {
 void page_user() {
 	static char last_paged[32] = "";
 	char buf[256], touser[256], msg[256];
-	char longmsg[5][80];
-	int i;
+	FILE *pagefp;
 
 	strcpy(touser, last_paged);
 	strprompt("Page who", touser, 30);
 
 	/* old server -- use inline paging */
 	if (serv_info.serv_paging_level == 0) {
-		newprompt("Message:  ",msg,69);
+		newprompt("Message:  ", msg, 69);
 		snprintf(buf,sizeof buf,"SEXP %s|%s",touser,msg);
 		serv_puts(buf);
 		serv_gets(buf);
@@ -233,20 +232,20 @@ void page_user() {
 			}
 
 		printf("Type message to send.  Enter a blank line when finished.\n");
-		memset(longmsg, 0, sizeof longmsg);
-		for (i=0; i<5; ++i) {
-			printf("> ");
-			getline(&longmsg[i][0], 77);
-			if (strlen(&longmsg[i][0])==0) i=5;
-			}
+		pagefp = fopen(temp, "w+");
+		unlink(temp);
+		citedit(pagefp, 0L);
+		rewind(pagefp);
 		snprintf(buf, sizeof buf, "SEXP %s|-", touser);
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0]=='4') {
 	   		strcpy(last_paged, touser);
-			for (i=0; i<5; ++i)
-				if (strlen(&longmsg[i][0])>0)
-					serv_puts(&longmsg[i][0]);
+			while (fgets(buf, 256, pagefp) != NULL) {
+				buf[strlen(buf)-1] = 0;
+				serv_puts(buf);
+				}
+			fclose(pagefp);
 			serv_puts("000");
 			printf("Message sent.\n");
 		}
