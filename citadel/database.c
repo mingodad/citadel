@@ -97,6 +97,8 @@ void defrag_databases(void) {
 void open_databases(void) {
 	int a;
 
+	lprintf(7, "%s\n", gdbm_version);
+
 	/*
 	 * Silently try to create the database subdirectory.  If it's
 	 * already there, no problem.

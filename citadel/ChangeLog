@@ -1,4 +1,7 @@
 $Log$
+Revision 1.359  1999/09/01 21:09:25  ajc
+* database.c: isplay the GDBM version string on startup
+
 Revision 1.358  1999/09/01 02:36:34  ajc
 * Actually _enforce_ the max msg len limit
 
@@ -1220,3 +1223,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
