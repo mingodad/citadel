@@ -1,4 +1,7 @@
 $Log$
+Revision 1.464  2000/02/18 22:29:18  ajc
+* Coded up the "bounce" functions.  Still a coupla bugs.
+
 Revision 1.463  2000/02/18 05:10:50  ajc
 * Made the <.ASI> command a bit friendlier.
 * SMTP sender now pays attention to "smarthost" entries in the system's
@@ -1640,4 +1643,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

@@ -674,10 +674,13 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
 	if (is_valid_message(msg) == 0) return;
 
 	for (i = 0; i < 256; ++i)
-		if (msg->cm_fields[i] != NULL)
+		if (msg->cm_fields[i] != NULL) {
+			lprintf(9, "phreeing %c\n", i);
 			phree(msg->cm_fields[i]);
+		}
 
 	msg->cm_magic = 0;	/* just in case */
+	lprintf(9, "phreeing msg\n");
 	phree(msg);
 }
 
@@ -1675,8 +1678,11 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 		instr = mallok(2048);
 		sprintf(instr,
 			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
+			"bounceto|%s@%s\n"
 			"remote|%s|0||\n",
-			SPOOLMIME, newmsgid, time(NULL), recipient );
+			SPOOLMIME, newmsgid, time(NULL),
+			msg->cm_fields['A'], msg->cm_fields['N'],
+			recipient );
 
         	imsg = mallok(sizeof(struct CtdlMessage));
 		memset(imsg, 0, sizeof(struct CtdlMessage));

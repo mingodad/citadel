@@ -40,6 +40,22 @@ each line.
     the system.
  
  
+ INSTRUCTION:  attempted
+ SYNTAX:       attempted|999999999
+ DESCRIPTION:
+    Contains a timestamp designating the date/time of the last delivery
+    attempt.
+ 
+ 
+ INSTRUCTION:  bounceto
+ SYNTAX:       bounceto|Big Bad Sender[@host]
+ DESCRIPTION:
+    Where to send "bounce" messages (delivery status notifications).  The
+    contents of the second field are supplied as the "recipient" field to
+    CtdlSaveMsg(), and therefore may be a local username, a user on another
+    Citadel, or an Internet e-mail address.
+ 
+ 
  INSTRUCTION:  local
  SYNTAX:       local|Friko Mumjiboolean|0
  DESCRIPTION:

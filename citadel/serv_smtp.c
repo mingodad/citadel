@@ -459,8 +459,10 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 	++successful_saves;
 
 	instr = mallok(1024);
-	sprintf(instr, "Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n",
-		SPOOLMIME, msgid, time(NULL) );
+	sprintf(instr, "Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
+			"bounceto|%s\n",
+		SPOOLMIME, msgid, time(NULL),
+		SMTP->from );
 
 	for (i=0; i<SMTP->number_of_recipients; ++i) {
 		extract_token(buf, SMTP_RECP, i, '\n');
@@ -958,8 +960,112 @@ bail:	if (msg_fp != NULL) fclose(msg_fp);
 
 
 /*
- * smtp_purge_completed_deliveries() is caled by smtp_do_procmsg() to remove
- * all of the completed deliveries from a set of delivery instructions.
+ * smtp_do_bounce() is caled by smtp_do_procmsg() to scan a set of delivery
+ * instructions for "5" codes (permanent fatal errors) and produce/deliver
+ * a "bounce" message (delivery status notification).
+ */
+void smtp_do_bounce(char *instr) {
+	int i;
+	int lines;
+	int status;
+	char buf[1024];
+	char key[1024];
+	char addr[1024];
+	char dsn[1024];
+	char bounceto[1024];
+	int num_bounces = 0;
+	int bounce_this = 0;
+	long bounce_msgid = (-1);
+	struct CtdlMessage *bmsg = NULL;
+
+	lprintf(9, "smtp_do_bounce() called\n");
+	strcpy(bounceto, "");
+
+	bmsg = (struct CtdlMessage *) mallok(sizeof(struct CtdlMessage));
+	if (bmsg == NULL) return;
+	memset(bmsg, 0, sizeof(struct CtdlMessage));
+
+        bmsg->cm_magic = CTDLMESSAGE_MAGIC;
+        bmsg->cm_anon_type = MES_NORMAL;
+        bmsg->cm_format_type = 1;
+        bmsg->cm_fields['A'] = strdoop("Citadel");
+        bmsg->cm_fields['N'] = strdoop(config.c_nodename);
+        bmsg->cm_fields['M'] = strdoop(
+		"BOUNCE!  BOUNCE!!  BOUNCE!!!\n\n"
+		"FIX ... this message should be made to look nice and stuff.\n"
+		"In the meantime, you should be aware that the following\n"
+		"recipient addresses had permanent fatal errors:\n\n");
+
+	lines = num_tokens(instr, '\n');
+	for (i=0; i<lines; ++i) {
+		extract_token(buf, instr, i, '\n');
+		extract(key, buf, 0);
+		extract(addr, buf, 1);
+		status = extract_int(buf, 2);
+		extract(dsn, buf, 3);
+		bounce_this = 0;
+
+		lprintf(9, "key=<%s> addr=<%s> status=%d dsn=<%s>\n",
+			key, addr, status, dsn);
+
+		if (!strcasecmp(key, "bounceto")) {
+			strcpy(bounceto, addr);
+		}
+
+		if (
+		   (!strcasecmp(key, "local"))
+		   || (!strcasecmp(key, "remote"))
+		   || (!strcasecmp(key, "ignet"))
+		   || (!strcasecmp(key, "room"))
+		) {
+			if (status == 5) bounce_this = 1;
+		}
+
+		if (bounce_this) {
+			++num_bounces;
+
+			/*  FIX put this back in!
+			bmsg->cm_fields['M'] = reallok(bmsg->cm_fields['M'],
+				strlen(bmsg->cm_fields['M'] + 1024) );
+			strcat(bmsg->cm_fields['M'], addr);
+			strcat(bmsg->cm_fields['M'], ": ");
+			strcat(bmsg->cm_fields['M'], dsn);
+			strcat(bmsg->cm_fields['M'], "\n");
+			*/
+
+			remove_token(instr, i, '\n');
+			--i;
+			--lines;
+		}
+	}
+
+	/* Deliver the bounce if there's anything worth mentioning */
+	lprintf(9, "num_bounces = %d\n", num_bounces);
+	if (num_bounces > 0) {
+
+		/* First try the user who sent the message   FIX
+		lprintf(9, "bounce to user? <%s>\n", bounceto);
+		if (strlen(bounceto) == 0) bounce_msgid = (-1L);
+		else bounce_msgid = CtdlSaveMsg(bmsg,
+			bounceto,
+			"", MES_LOCAL, 1);
+		*/
+
+		/* Otherwise, go to the Aide> room */
+		lprintf(9, "bounce to room?\n");
+		if (bounce_msgid < 0L) bounce_msgid = CtdlSaveMsg(bmsg,
+			"", AIDEROOM,
+			MES_LOCAL, 1);
+	}
+
+	CtdlFreeMessage(bmsg);
+	lprintf(9, "Done processing bounces\n");
+}
+
+
+/*
+ * smtp_purge_completed_deliveries() is caled by smtp_do_procmsg() to scan a
+ * set of delivery instructions for completed deliveries and remove them.
  *
  * It returns the number of incomplete deliveries remaining.
  */
@@ -1102,10 +1208,10 @@ void smtp_do_procmsg(long msgnum) {
 	}
 
 
+	/* Generate 'bounce' messages */
+	smtp_do_bounce(instr);
 
-	/*
-	 * Go through the delivery list, deleting completed deliveries
-	 */
+	/* Go through the delivery list, deleting completed deliveries */
 	incomplete_deliveries_remaining = 
 		smtp_purge_completed_deliveries(instr);
 
@@ -1133,7 +1239,8 @@ void smtp_do_procmsg(long msgnum) {
 		msg->cm_format_type = FMT_RFC822;
 		msg->cm_fields['M'] = malloc(strlen(instr)+256);
 		sprintf(msg->cm_fields['M'],
-			"Content-type: %s\n\n%s\n", SPOOLMIME, instr);
+			"Content-type: %s\n\n%s\nattempted|%ld\n",
+			SPOOLMIME, instr, time(NULL) );
 		phree(instr);
 		CtdlSaveMsg(msg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL, 1);
 		CtdlFreeMessage(msg);
