@@ -115,7 +115,7 @@ void cmd_mrtg(char *argbuf) {
 	if (!strcasecmp(which, "users")) {
 		mrtg_users();
 	}
-	if (!strcasecmp(which, "messages")) {
+	else if (!strcasecmp(which, "messages")) {
 		mrtg_messages();
 	}
 	else {
