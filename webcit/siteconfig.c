@@ -418,7 +418,7 @@ void display_siteconfig(void)
 			break;
 		case 25:
 			if (!strcasecmp(whichmenu, "network")) {
-				wprintf("<TR><TD>SMTP listener port (-1 to disable)</TD><TD>");
+				wprintf("<TR><TD>SMTP MTA port (-1 to disable)</TD><TD>");
 				wprintf("<INPUT TYPE=\"text\" NAME=\"c_smtp_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
 				wprintf("</TD></TR>\n");
 			}
@@ -548,6 +548,16 @@ void display_siteconfig(void)
 				wprintf("<INPUT TYPE=\"hidden\" NAME=\"c_ip_addr\" VALUE=\"%s\">", buf);
 			}
 			break;
+		case 39:
+			if (!strcasecmp(whichmenu, "network")) {
+				wprintf("<TR><TD>SMTP MSA port (-1 to disable)</TD><TD>");
+				wprintf("<INPUT TYPE=\"text\" NAME=\"c_msa_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+				wprintf("</TD></TR>\n");
+			}
+			else {
+				wprintf("<INPUT TYPE=\"hidden\" NAME=\"c_msa_port\" VALUE=\"%s\">", buf);
+			}
+			break;
 		}
 	}
 
@@ -675,6 +685,7 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_ldap_bind_dn"));
 	serv_printf("%s", bstr("c_ldap_bind_pw"));
 	serv_printf("%s", bstr("c_ip_addr"));
+	serv_printf("%s", bstr("c_msa_port"));
 	serv_printf("000");
 
 	serv_printf("SPEX site|%d|%d", atoi(bstr("sitepolicy")), atoi(bstr("sitevalue")));
