@@ -320,7 +320,7 @@ void embed_room_graphic(void) {
 	serv_gets(buf);
 	if (buf[0] == '2') {
 		wprintf("<TD BGCOLOR=\"#444455\">");
-		wprintf("<IMG SRC=\"/image&name=_roompic_&room=");
+		wprintf("<IMG HEIGHT=64 SRC=\"/image&name=_roompic_&room=");
 		urlescputs(WC->wc_roomname);
 		wprintf("\"></TD>");
 		serv_puts("CLOS");
