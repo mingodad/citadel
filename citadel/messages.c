@@ -666,8 +666,7 @@ MECR2:	b=inkey();
 		printf("Hold message\n");
 		return(2);
 		}
-	/* if ((b=='f')&&(rc_allow_attachments==1)) { */
-	if (b=='f') {
+	if ((b=='f')&&(rc_allow_attachments==1)) {
 		printf("attach File\n");
 		if (strlen(boundary)==0) {
 			sprintf(boundary, "Citadel-Attachment-%ld.%d",

@@ -1,3 +1,7 @@
+Sun Oct 25 14:57:40 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* messages.c: fixed an oversight that was allowing attachments even
+	  when disabled in citadel.rc
+
 1998-10-25 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* routines2.c: warning fix
 
