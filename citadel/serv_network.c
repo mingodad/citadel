@@ -968,8 +968,10 @@ void network_process_buffer(char *buffer, long size) {
 	}
 
 	/* save the message into a room */
-	msg->cm_flags = CM_SKIP_HOOKS;
-        CtdlSubmitMsg(msg, recp, target_room);
+	if (PerformNetprocHooks(msg) == 0) {
+		msg->cm_flags = CM_SKIP_HOOKS;
+        	CtdlSubmitMsg(msg, recp, target_room);
+	}
 	CtdlFreeMessage(msg);
 	phree(recp);
 }

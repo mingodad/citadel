@@ -13,7 +13,6 @@ void CtdlRegisterLogHook(void (*fcn_ptr)(char *), int loglevel);
 void CtdlUnregisterLogHook(void (*fcn_ptr)(char *), int loglevel);
 void PerformLogHooks(int loglevel, char *logmsg);
 
-
 void CtdlRegisterSessionHook(void (*fcn_ptr)(void), int EventType);
 void CtdlUnregisterSessionHook(void (*fcn_ptr)(void), int EventType);
 void PerformSessionHooks(int EventType);
@@ -26,9 +25,18 @@ void CtdlRegisterXmsgHook(int (*fcn_ptr)(char *, char *, char *), int order);
 void CtdlUnregisterXmsgHook(int (*fcn_ptr)(char *, char *, char *), int order);
 int PerformXmsgHooks(char *, char *, char *);
 
-void CtdlRegisterMessageHook(int (*handler)(struct CtdlMessage *), int EventType);
-void CtdlUnregisterMessageHook(int (*handler)(struct CtdlMessage *), int EventType);
+
+void CtdlRegisterMessageHook(int (*handler)(struct CtdlMessage *),
+							int EventType);
+void CtdlUnregisterMessageHook(int (*handler)(struct CtdlMessage *),
+							int EventType);
 int PerformMessageHooks(struct CtdlMessage *, int EventType);
+
+
+void CtdlRegisterNetprocHook(int (*handler)(struct CtdlMessage *) );
+void CtdlUnregisterNetprocHook(int (*handler)(struct CtdlMessage *) );
+int PerformNetprocHooks(struct CtdlMessage *);
+
 
 void CtdlRegisterCleanupHook(void (*fcn_ptr)(void));
 void CtdlUnregisterCleanupHook(void (*fcn_ptr)(void));

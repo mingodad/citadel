@@ -32,6 +32,7 @@ SERV_MODULES=modules/libchat.la modules/libvcard.la \
 	modules/libpop3.la \
 	modules/libimap.la \
 	modules/libnetwork.la \
+	modules/libnetfilter.la \
 	modules/libpas2.la \
 	modules/libinetcfg.la \
 	modules/librwho.la \
@@ -94,7 +95,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c \
 	auth.c chkpwd.c html.c vcard.c serv_upgrade.c serv_vandelay.c \
 	serv_smtp.c serv_pop3.c internet_addressing.c parsedate.c genstamp.c \
 	$(DOMAIN) clientsocket.c serv_inetcfg.c serv_rwho.c serv_bio.c \
-	serv_moderate.c client_passwords.c imap_misc.c \
+	serv_moderate.c client_passwords.c imap_misc.c serv_netfilter.c \
 	serv_imap.c imap_tools.c imap_fetch.c imap_search.c imap_store.c \
 	serv_network.c serv_pas2.c serv_ical.c md5.c server_main.c
 
@@ -186,6 +187,9 @@ modules/libvandelay.la: serv_vandelay.lo $(LIBTOOL) libcitserver.la
 
 modules/libnetwork.la: serv_network.lo $(LIBTOOL) libcitserver.la
 	$(LTSHARE) -o libnetwork.la ../serv_network.lo ../libcitserver.la
+
+modules/libnetfilter.la: serv_netfilter.lo $(LIBTOOL) libcitserver.la
+	$(LTSHARE) -o libnetfilter.la ../serv_netfilter.lo ../libcitserver.la
 
 modules/libupgrade.la: serv_upgrade.lo $(LIBTOOL) libcitserver.la
 	$(LTSHARE) -o libupgrade.la ../serv_upgrade.lo ../libcitserver.la

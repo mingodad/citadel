@@ -46,6 +46,7 @@ struct SessionFunctionHook *SessionHookTable = NULL;
 struct UserFunctionHook *UserHookTable = NULL;
 struct XmsgFunctionHook *XmsgHookTable = NULL;
 struct MessageFunctionHook *MessageHookTable = NULL;
+struct NetprocFunctionHook *NetprocHookTable = NULL;
 struct ServiceFunctionHook *ServiceHookTable = NULL;
 
 struct ProtoFunctionHook {
@@ -363,6 +364,40 @@ void CtdlUnregisterMessageHook(int (*handler)(struct CtdlMessage *),
 }
 
 
+void CtdlRegisterNetprocHook(int (*handler)(struct CtdlMessage *) )
+{
+	struct NetprocFunctionHook *newfcn;
+
+	newfcn = (struct NetprocFunctionHook *)
+	    mallok(sizeof(struct NetprocFunctionHook));
+	newfcn->next = NetprocHookTable;
+	newfcn->h_function_pointer = handler;
+	NetprocHookTable = newfcn;
+
+	lprintf(5, "Registered a new netproc function\n");
+}
+
+
+void CtdlUnregisterNetprocHook(int (*handler)(struct CtdlMessage *) )
+{
+	struct NetprocFunctionHook *cur, *p;
+
+	for (cur = NetprocHookTable; cur != NULL; cur = cur->next) {
+		/* This will also remove duplicates if any */
+		while (cur != NULL &&
+				handler == cur->h_function_pointer ) {
+			lprintf(5, "Unregistered netproc function\n");
+			p = cur->next;
+			if (cur == NetprocHookTable) {
+				NetprocHookTable = p;
+			}
+			phree(cur);
+			cur = p;
+		}
+	}
+}
+
+
 void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *), int order)
 {
 
@@ -537,6 +572,24 @@ int PerformMessageHooks(struct CtdlMessage *msg, int EventType)
 	/* Return the sum of the return codes from the hook functions.  If
 	 * this is an EVT_BEFORESAVE event, a nonzero return code will cause
 	 * the save operation to abort.
+	 */
+	return total_retval;
+}
+
+
+
+int PerformNetprocHooks(struct CtdlMessage *msg)
+{
+	struct NetprocFunctionHook *fcn;
+	int total_retval = 0;
+
+	for (fcn = NetprocHookTable; fcn != NULL; fcn = fcn->next) {
+		total_retval = total_retval +
+			(*fcn->h_function_pointer) (msg);
+	}
+
+	/* Return the sum of the return codes from the hook functions.
+	 * A nonzero return code will cause the message to *not* be imported.
 	 */
 	return total_retval;
 }

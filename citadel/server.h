@@ -335,6 +335,19 @@ extern DLEXP struct MessageFunctionHook *MessageHookTable;
 #define EVT_AFTERSAVE	202
 
 
+
+/*
+ * NetprocFunctionHook extensions are used for hooks which implement handlers
+ * for incoming network messages.
+ */
+struct NetprocFunctionHook {
+	struct NetprocFunctionHook *next;
+	int (*h_function_pointer) (struct CtdlMessage *msg);
+};
+extern DLEXP struct NetprocFunctionHook *NetprocHookTable;
+
+
+
 /*
  * ExpressMessageFunctionHook extensions are used for hooks which implement
  * the sending of an express message through various channels.  Any function
