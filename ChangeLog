@@ -1,4 +1,10 @@
 $Log$
+Revision 528.13  2005/01/20 04:10:41  ajc
+* Cleaned up a bunch of unused cruft from the old layout
+* Instant messages are now displayed in a div that layers itself
+  over the rest of the site.  It would be nice if we could figure out
+  a way to make a clickable "hide" box...
+
 Revision 528.12  2005/01/17 04:38:14  ajc
 * Navbar is now dynamic, in an attempt to make only the relevant controls
   appear on any given page.
@@ -2193,3 +2199,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

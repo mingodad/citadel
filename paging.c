@@ -151,31 +151,18 @@ void page_popup(void)
 	char buf[SIZ];
 	char pagefrom[SIZ];
 
-	/* suppress express message check, do headers but no banner */
-	output_headers(1, 1, 0, 0, 0, 1, 0);
-
 	while (serv_puts("GEXP"), serv_gets(buf), buf[0]=='1') {
 
 		extract(pagefrom, &buf[4], 3);
 
-		wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
-		wprintf("<SPAN CLASS=\"titlebar\">Instant message from ");
+		wprintf("<table border=1 bgcolor=\"#880000\"><tr><td>");
+		wprintf("<span class=\"titlebar\">Instant message from ");
 		escputs(pagefrom);
-		wprintf("</SPAN></TD></TR></TABLE>\n");
-		
+		wprintf("</span></td></tr><tr><td><font color=\"#FFFFFF\">");
 		fmout(NULL, "LEFT");
+		wprintf("</font></td></tr></table>\n");
 	}
 
-	wprintf("<CENTER>");
-	wprintf("<A HREF=\"/display_page&closewin=yes&recp=");
-	urlescputs(pagefrom);
-        wprintf("\">[ reply ]</A>&nbsp;&nbsp;&nbsp;\n");
-
-	wprintf("<A HREF=\"javascript:window.close();\">"
-		"[ close window ]</A></B>\n"
-		"</CENTER>");
-
-	wDumpContent(1);
 	WC->HaveExpressMessages = 0;
 }
 
