@@ -662,6 +662,8 @@ int client_gets(char **retbuf)
         retval = client_read(b+i, 1);
         if (retval != 1 || b[i] == '\n')
           break;
+        if (i == 1024*1024) // set some obscene upper limit
+          break;
         i++;
         if (i >= sz)
           {
