@@ -282,8 +282,21 @@ void smtp_expn(char *argbuf) {
  */
 void smtp_rset(void) {
 	memset(SMTP, 0, sizeof(struct citsmtp));
+	if (SMTP_RECP != NULL) strcpy(SMTP_RECP, "");
 	if (CC->logged_in) logout(CC);
 	cprintf("250 Zap!\r\n");
+}
+
+/*
+ * Clear out the portions of the state buffer that need to be cleared out
+ * after the DATA command finishes.
+ */
+void smtp_data_clear(void) {
+	strcpy(SMTP->from, "");
+	SMTP->number_of_recipients = 0;
+	SMTP->delivery_mode = 0;
+	SMTP->message_originated_locally = 0;
+	if (SMTP_RECP != NULL) strcpy(SMTP_RECP, "");
 }
 
 
@@ -653,6 +666,8 @@ void smtp_data(void) {
 	else {
 		cprintf("550 Internal delivery errors: %d\r\n", retval);
 	}
+
+	smtp_data_clear();	/* clear out the buffers now */
 }
 
 

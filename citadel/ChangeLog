@@ -1,4 +1,8 @@
  $Log$
+ Revision 571.5  2000/05/11 03:08:47  ajc
+ * serv_smtp.c: clear the relevant state buffers after an SMTP DATA command
+   completes, allowing multiple messages in one session.  Closes bug #58.
+
  Revision 571.4  2000/04/24 03:36:43  ajc
  * Removed references to strucmp() and struncmp(), replaced them with
    strcasecmp() and strncasecmp() as we did in the server a while ago, and
@@ -1868,3 +1872,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
