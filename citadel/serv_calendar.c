@@ -1038,7 +1038,7 @@ void ical_create_room(void)
 
 /*
  * ical_send_out_invitations() is called by ical_saving_vevent() when it
- * finds a VEVENT.   FIXME ... finish implementing.
+ * finds a VEVENT.
  */
 void ical_send_out_invitations(icalcomponent *cal) {
 	icalcomponent *the_request = NULL;
@@ -1047,6 +1047,7 @@ void ical_send_out_invitations(icalcomponent *cal) {
 	struct CtdlMessage *msg = NULL;
 	struct recptypes *valid = NULL;
 	char attendees_string[SIZ];
+	int num_attendees = 0;
 	char this_attendee[SIZ];
 	icalproperty *attendee = NULL;
 	char summary_string[SIZ];
@@ -1089,11 +1090,20 @@ void ical_send_out_invitations(icalcomponent *cal) {
 					"%s, ",
 					this_attendee
 				);
+				++num_attendees;
 			}
 		}
 	}
 
-	lprintf(9, "attendees_string: <%s>\n", attendees_string);
+	lprintf(9, "<%d> attendees: <%s>\n", num_attendees, attendees_string);
+
+	/* If there are no attendees, there are no invitations to send, so...
+	 * don't bother putting one together!  Punch out, Maverick!
+	 */
+	if (num_attendees == 0) {
+		icalcomponent_free(the_request);
+		return;
+	}
 
 	/* Encapsulate the VEVENT component into a complete VCALENDAR */
 	encaps = icalcomponent_new(ICAL_VCALENDAR_COMPONENT);

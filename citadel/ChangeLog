@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.91  2002/12/18 04:08:16  ajc
+ * Don't attempt to send out invitations when there are no attendees.
+
  Revision 601.90  2002/12/15 10:53:51  error
  * Final touches on the new message formatter.
 
@@ -4309,3 +4312,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
