@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.123  2003/01/22 03:53:24  ajc
+ * More reliablility hacks for autologin mode, and better quarantine of
+   autologin code when it's disabled.
+
  Revision 601.122  2003/01/21 04:42:12  ajc
  * Moved login-to-screenname code ... no longer part of CtdlTryExistingUser(),
    it's now part of getuser() so it always gets called, even when looking up
@@ -4436,3 +4440,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -63,14 +63,22 @@ int getuser(struct usersupp *usbuf, char name[])
 {
 
 	char lowercase_name[USERNAME_SIZE];
+	char sysuser_name[USERNAME_SIZE];
 	int a;
 	struct cdbdata *cdbus;
+	int using_sysuser = 0;
 
 	memset(usbuf, 0, sizeof(struct usersupp));
 
-	if (CtdlAssociateSystemUser(lowercase_name, name) == 0) {
-		for (a = 0; a <= strlen(lowercase_name); ++a) {
-			lowercase_name[a] = tolower(lowercase_name[a]);
+#ifdef ENABLE_AUTOLOGIN
+	if (CtdlAssociateSystemUser(sysuser_name, name) == 0) {
+		++using_sysuser;
+	}
+#endif
+
+	if (using_sysuser) {
+		for (a = 0; a <= strlen(sysuser_name); ++a) {
+			lowercase_name[a] = tolower(sysuser_name[a]);
 		}
 	}
 	else {
@@ -82,8 +90,8 @@ int getuser(struct usersupp *usbuf, char name[])
 	lowercase_name[sizeof(lowercase_name) - 1] = 0;
 
 	cdbus = cdb_fetch(CDB_USERSUPP, lowercase_name, strlen(lowercase_name));
-	if (cdbus == NULL) {
-		return (1);	/* user not found */
+	if (cdbus == NULL) {	/* user not found */
+		return(1);
 	}
 	memcpy(usbuf, cdbus->ptr,
 	       ((cdbus->len > sizeof(struct usersupp)) ?
@@ -586,12 +594,14 @@ int CtdlTryPassword(char *password)
 		return pass_wrong_password;
 	}
 	code = (-1);
+
+
+#ifdef ENABLE_AUTOLOGIN
 	if (CC->usersupp.uid == BBSUID) {
 		strproc(password);
 		strproc(CC->usersupp.password);
 		code = strcasecmp(CC->usersupp.password, password);
 	}
-#ifdef ENABLE_AUTOLOGIN
 	else {
 		if (validpw(CC->usersupp.uid, password)) {
 			code = 0;
@@ -601,7 +611,13 @@ int CtdlTryPassword(char *password)
 			lputuser(&CC->usersupp);
 		}
 	}
-#endif
+
+#else /* ENABLE_AUTOLOGIN */
+	strproc(password);
+	strproc(CC->usersupp.password);
+	code = strcasecmp(CC->usersupp.password, password);
+
+#endif /* ENABLE_AUTOLOGIN */
 
 	if (!code) {
 		do_login();
@@ -724,13 +740,15 @@ int create_user(char *newusername, int become_user)
 
 #ifdef ENABLE_AUTOLOGIN
 	p = (struct passwd *) getpwnam(username);
-#endif
 	if (p != NULL) {
 		extract_token(username, p->pw_gecos, 0, ',');
 		uid = p->pw_uid;
 	} else {
 		uid = BBSUID;
 	}
+#else
+	uid = BBSUID;
+#endif
 
 	if (!getuser(&usbuf, username)) {
 		return (ERROR + ALREADY_EXISTS);
