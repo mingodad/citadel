@@ -235,8 +235,8 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 	if (msg->cm_fields['N'] == NULL) return;
 
 	/* Initialize variables */
-	strcpy(givenname, "_");
-	strcpy(sn, "_");
+	strcpy(givenname, "");
+	strcpy(sn, "");
 
 	sprintf(this_dn, "cn=%s,ou=%s,%s",
 		msg->cm_fields['A'],
@@ -285,7 +285,7 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 
 	/* Convert the vCard fields to LDAP properties */
 	v = vcard_load(msg->cm_fields['M']);
-	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
+	if (v->numprops) for (i=0; i<(v->numprops); ++i) if (striplt(v->prop[i].value), strlen(v->prop[i].value) > 0) {
 
 		if (!strcasecmp(v->prop[i].name, "n")) {
 			extract_token(sn,		v->prop[i].value, 0, ';');
@@ -466,6 +466,8 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 	attrs[num_attrs-1]->mod_values[1]	= NULL;
 
 	/* "givenname" (first name) based on info in vCard */
+	if (strlen(givenname) == 0) strcpy(givenname, "_");
+	if (strlen(sn) == 0) strcpy(sn, "_");
 	attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
 	attrs[num_attrs-1] = mallok(sizeof(LDAPMod));
 	memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));

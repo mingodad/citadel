@@ -1,4 +1,8 @@
  $Log$
+ Revision 614.23  2004/02/08 05:29:34  ajc
+ * Corrected various small syntax conversion problems that were keeping
+   some vCards out of the LDAP directory.
+
  Revision 614.22  2004/02/07 05:28:10  ajc
  * Automatically purge files from ./network/spoolout which were intended
    for nodes which no longer exist
@@ -5297,4 +5301,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
