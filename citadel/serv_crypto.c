@@ -49,6 +49,9 @@ void init_ssl(void)
 {
 	SSL_METHOD *ssl_method;
 	DH *dh;
+
+	if (!access("/var/run/egd-pool", F_OK))
+		RAND_egd("/var/run/egd-pool");
 	
 	if (!RAND_status()) {
 		lprintf(2, "PRNG not adequately seeded, won't do SSL/TLS\n");

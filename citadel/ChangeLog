@@ -1,4 +1,11 @@
  $Log$
+ Revision 590.144  2002/03/12 04:30:52  nbryant
+ if a filesystem node exists at /var/run/egd-pool, try to connect to it as
+ the EGD (Entropy Gathering Daemon) or PRNGD (pseudorandom number
+ generator daemon) socket and seed OpenSSL's RNG.
+
+ this is necessary on solaris and other systems which lack /dev/urandom.
+
  Revision 590.143  2002/03/12 03:43:26  nbryant
  squished the last remaining calls to sprintf
 
@@ -3450,3 +3457,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

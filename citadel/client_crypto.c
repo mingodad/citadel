@@ -237,6 +237,10 @@ int starttls(void)
 #if SSLEAY_VERSION_NUMBER >= 0x0922
 	SSL_set_session_id_context(ssl, "Citadel/UX SID", 14);
 #endif
+
+	if (!access("/var/run/egd-pool", F_OK))
+		RAND_egd("/var/run/egd-pool");
+
 	if (!RAND_status()) {
 		err_printf("PRNG not properly seeded\n");
 		return 0;
