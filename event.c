@@ -32,8 +32,6 @@
 
 /*
  * Display an event by itself (for editing)
- *
- * ok
  */
 void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 	icalcomponent *vevent;
@@ -52,7 +50,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	int organizer_is_me = 0;
 	int sequence = 0;
 
-	now = time(NULL) % 60;	/* mod 60 to force :00 seconds */
+	now = time(NULL) % 60;		/* mod 60 to force :00 seconds */
 	strcpy(organizer_string, "");
 	strcpy(attendee_string, "");
 
@@ -68,7 +66,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		if (icalcomponent_isa(vevent) == ICAL_VCALENDAR_COMPONENT) {
 			display_edit_individual_event(
 				icalcomponent_get_first_component(
-					vevent, ICAL_VTODO_COMPONENT
+					vevent, ICAL_VEVENT_COMPONENT
 				), msgnum
 			);
 			return;
@@ -333,7 +331,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		(organizer_is_me ? "" : "DISABLED ")
 	);
 	i = 0;
-	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDEE_PROPERTY); attendee != NULL; attendee = icalcomponent_get_next_property(vevent, ICAL_ATTENDEE_PROPERTY)) {
+	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDEE_PROPERTY);
+	    attendee != NULL;
+	    attendee = icalcomponent_get_next_property(vevent, ICAL_ATTENDEE_PROPERTY)) {
 		strcpy(attendee_string, icalproperty_get_attendee(attendee));
 		if (!strncasecmp(attendee_string, "MAILTO:", 7)) {
 
@@ -365,7 +365,6 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	
 	wprintf("<SCRIPT language=\"javascript\">
 		<!--
-
 			if (document.EventForm.alldayevent.checked) {
 				document.EventForm.dtstart_hour.value='0';
 				document.EventForm.dtstart_hour.disabled = true;
