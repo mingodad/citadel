@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.36  2002/01/04 20:57:36  nbryant
+ cygwin fix
+
  Revision 590.35  2002/01/04 20:46:26  nbryant
  Makefile fix for cygwin (fix migratenet linkage)
 
@@ -3067,3 +3070,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
