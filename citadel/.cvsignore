@@ -29,7 +29,6 @@ Makefile
 msgform
 netconfigs
 netmailer
-netpoll
 netproc
 netsetup
 parsedate.c

@@ -97,6 +97,14 @@
 #define NETWORK_QUEUE_FREQUENCY 3600	/* Once per hour */
 
 /*
+ * This variable defines the amount of network spool data that may be carried
+ * in one server transfer command.  For some reason, some networks get hung
+ * up on larger packet sizes.  We don't know why.  In any case, never set the
+ * packet size higher than 4096 or your server sessions will crash.
+ */
+#define IGNET_PACKET_SIZE	4000
+
+/*
  * The names of rooms which are automatically created by the system
  */
 #define BASEROOM		"Lobby"

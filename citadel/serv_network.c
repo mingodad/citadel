@@ -9,6 +9,13 @@
  *
  */
 
+/*
+ * FIXME do something about concurrency issues:
+ * 1. Don't allow the two nodes to poll each other at the same time
+ * 2. Don't allow polls during network processing
+ * 3. Kill Bill Gates using either a chainsaw or a wood chipper
+ */
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -48,6 +55,7 @@
 #include "tools.h"
 #include "internet_addressing.h"
 #include "serv_network.h"
+#include "clientsocket.h"
 
 
 /*
@@ -814,6 +822,226 @@ void network_do_spoolin(void) {
 }
 
 
+
+
+
+/*
+ * receive network spool from the remote system
+ */
+void receive_spool(int sock, char *remote_nodename) {
+	long download_len;
+	long bytes_received;
+	char buf[SIZ];
+	static char pbuf[IGNET_PACKET_SIZE];
+	char tempfilename[PATH_MAX];
+	long plen;
+	FILE *fp;
+
+	strcpy(tempfilename, tmpnam(NULL));
+	if (sock_puts(sock, "NDOP") < 0) return;
+	if (sock_gets(sock, buf) < 0) return;
+	lprintf(9, "<%s\n", buf);
+	if (buf[0] != '2') {
+		return;
+	}
+	download_len = extract_long(&buf[4], 0);
+
+	bytes_received = 0L;
+	fp = fopen(tempfilename, "w");
+	if (fp == NULL) {
+		lprintf(9, "cannot open download file locally: %s\n",
+			strerror(errno));
+		return;
+	}
+
+	while (bytes_received < download_len) {
+		sprintf(buf, "READ %ld|%ld",
+			bytes_received,
+		     ((download_len - bytes_received > IGNET_PACKET_SIZE)
+		 ? IGNET_PACKET_SIZE : (download_len - bytes_received)));
+		if (sock_puts(sock, buf) < 0) {
+			fclose(fp);
+			unlink(tempfilename);
+			return;
+		}
+		if (sock_gets(sock, buf) < 0) {
+			fclose(fp);
+			unlink(tempfilename);
+			return;
+		}
+		if (buf[0] == '6') {
+			plen = extract_long(&buf[4], 0);
+			if (sock_read(sock, pbuf, plen) < 0) {
+				fclose(fp);
+				unlink(tempfilename);
+				return;
+			}
+			fwrite((char *) pbuf, plen, 1, fp);
+			bytes_received = bytes_received + plen;
+		}
+	}
+
+	fclose(fp);
+	if (sock_puts(sock, "CLOS") < 0) {
+		unlink(tempfilename);
+		return;
+	}
+	if (sock_gets(sock, buf) < 0) {
+		unlink(tempfilename);
+		return;
+	}
+	lprintf(9, "%s\n", buf);
+	sprintf(buf, "mv %s ./network/spoolin/%s.%ld",
+		tempfilename, remote_nodename, (long) getpid());
+	system(buf);
+}
+
+
+
+/*
+ * transmit network spool to the remote system
+ */
+void transmit_spool(int sock, char *remote_nodename)
+{
+	char buf[SIZ];
+	char pbuf[4096];
+	long plen;
+	long bytes_to_write, thisblock;
+	int fd;
+	char sfname[128];
+
+	if (sock_puts(sock, "NUOP") < 0) return;
+	if (sock_gets(sock, buf) < 0) return;
+	lprintf(9, "<%s\n", buf);
+	if (buf[0] != '2') {
+		return;
+	}
+
+	sprintf(sfname, "./network/spoolout/%s", remote_nodename);
+	fd = open(sfname, O_RDONLY);
+	if (fd < 0) {
+		if (errno == ENOENT) {
+			lprintf(9, "Nothing to send.\n");
+		} else {
+			lprintf(5, "cannot open upload file locally: %s\n",
+				strerror(errno));
+		}
+		return;
+	}
+	while (plen = (long) read(fd, pbuf, IGNET_PACKET_SIZE), plen > 0L) {
+		bytes_to_write = plen;
+		while (bytes_to_write > 0L) {
+			sprintf(buf, "WRIT %ld", bytes_to_write);
+			if (sock_puts(sock, buf) < 0) {
+				close(fd);
+				return;
+			}
+			if (sock_gets(sock, buf) < 0) {
+				close(fd);
+				return;
+			}
+			thisblock = atol(&buf[4]);
+			if (buf[0] == '7') {
+				if (sock_write(sock, pbuf,
+				   (int) thisblock) < 0) {
+					close(fd);
+					return;
+				}
+				bytes_to_write = bytes_to_write - thisblock;
+			} else {
+				goto ABORTUPL;
+			}
+		}
+	}
+
+ABORTUPL:
+	close(fd);
+	if (sock_puts(sock, "UCLS 1") < 0) return;
+	if (sock_gets(sock, buf) < 0) return;
+	lprintf(9, "<%s\n", buf);
+	if (buf[0] == '2') {
+		unlink(sfname);
+	}
+}
+
+
+
+/*
+ * Poll one Citadel node (called by network_poll_other_citadel_nodes() below)
+ */
+void network_poll_node(char *node, char *secret, char *host, char *port) {
+	int sock;
+	char buf[SIZ];
+
+	lprintf(5, "Polling node <%s> at %s:%s\n", node, host, port);
+
+	sock = sock_connect(host, port, "tcp");
+	if (sock < 0) {
+		lprintf(7, "Could not connect: %s\n", strerror(errno));
+		return;
+	}
+	
+	lprintf(9, "Connected!\n");
+
+	/* Read the server greeting */
+	if (sock_gets(sock, buf) < 0) goto bail;
+	lprintf(9, ">%s\n", buf);
+
+	/* Identify ourselves */
+	sprintf(buf, "NETP %s|%s", config.c_nodename, secret);
+	lprintf(9, "<%s\n", buf);
+	if (sock_puts(sock, buf) <0) goto bail;
+	if (sock_gets(sock, buf) < 0) goto bail;
+	lprintf(9, ">%s\n", buf);
+	if (buf[0] != '2') goto bail;
+
+	/* At this point we are authenticated. */
+	receive_spool(sock, node);
+	transmit_spool(sock, node);
+
+	sock_puts(sock, "QUIT");
+bail:	sock_close(sock);
+}
+
+
+
+/*
+ * Poll other Citadel nodes and transfer inbound/outbound network data.
+ */
+void network_poll_other_citadel_nodes(void) {
+	char *ignetcfg = NULL;
+	int i;
+	char linebuf[SIZ];
+	char node[SIZ];
+	char host[SIZ];
+	char port[SIZ];
+	char secret[SIZ];
+
+	ignetcfg = CtdlGetSysConfig(IGNETCFG);
+	if (ignetcfg == NULL) return; 	/* no nodes defined */
+
+	/* Use the string tokenizer to grab one line at a time */
+	for (i=0; i<num_tokens(ignetcfg, '\n'); ++i) {
+		extract_token(linebuf, ignetcfg, i, '\n');
+		extract(node, linebuf, 0);
+		extract(secret, linebuf, 1);
+		extract(host, linebuf, 2);
+		extract(port, linebuf, 3);
+		if ( (strlen(node) > 0) && (strlen(secret) > 0) 
+		   && (strlen(host) > 0) && strlen(port) > 0) {
+			network_poll_node(node, secret, host, port);
+		}
+	}
+
+	phree(ignetcfg);
+}
+
+
+
+
+
+
+
 /*
  * network_do_queue()
  * 
@@ -839,6 +1067,14 @@ void network_do_queue(void) {
 	doing_queue = 1;
 	last_run = time(NULL);
 
+	/*
+	 * Poll other Citadel nodes.
+	 */
+	network_poll_other_citadel_nodes();
+
+	/*
+	 * Load the network map into memory.
+	 */
 	read_network_map();
 
 	/* 
