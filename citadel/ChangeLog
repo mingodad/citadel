@@ -1,3 +1,6 @@
+Wed Apr 21 22:23:13 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* aidepost.c: add -r flag to allow posting to rooms other than Aide>
+
 Tue Apr 20 12:45:55 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* messages.c: downloading more than MAX_MSGS messages now truncates
 	  (off the beginning of the list) rather than crashing.

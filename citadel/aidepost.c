@@ -10,10 +10,11 @@
 #include <time.h>
 #include <limits.h>
 #include <errno.h>
+#include <string.h>
 #include "citadel.h"
 #include "config.h"
 
-void make_message(FILE *fp)
+void make_message(FILE *fp, char *target_room)
 {
 	int a;
 	long bb, cc;
@@ -28,7 +29,7 @@ void make_message(FILE *fp)
 	putc(0, fp);
 	fprintf(fp, "ACitadel");
 	putc(0, fp);
-	fprintf(fp, "OAide");
+	fprintf(fp, "O%s", target_room);
 	putc(0, fp);
 	fprintf(fp, "N%s", NODENAME);
 	putc(0, fp);
@@ -53,10 +54,26 @@ int main(int argc, char **argv)
 	char tempbase[32];
 	char temptmp[64];
 	char tempspool[64];
+	char target_room[ROOMNAMELEN];
 	FILE *tempfp, *spoolfp;
 	int ch;
+	int i;
 
 	get_config();
+
+	strcpy(target_room, "Aide");
+	for (i=1; i<argc; ++i) {
+		if (!strncasecmp(argv[i], "-r", 2)) {
+			strncpy(target_room, &argv[i][2], sizeof(target_room));
+			target_room[sizeof(target_room)-1] = 0;
+		} else {
+			fprintf(stderr, "%s: usage: %s [-rTargetRoom]\n",
+				argv[0], argv[0]);
+			exit(1);
+		}
+	}
+
+
 	snprintf(tempbase, sizeof tempbase, "ap.%d", getpid());
 	snprintf(temptmp, sizeof temptmp, "/tmp/%s", tempbase);
 	snprintf(tempspool, sizeof tempspool, "./network/spoolin/%s", tempbase);
@@ -71,7 +88,7 @@ int main(int argc, char **argv)
 	 */ unlink(temptmp);
 
 	/* Generate a message from stdin */
-	make_message(tempfp);
+	make_message(tempfp, target_room);
 
 	/* Copy it to a new temp file in the spool directory */
 	rewind(tempfp);

@@ -28,6 +28,9 @@ converted into a message, filed in the main message file (msgmain), and posted
 in the Aide> room. This is useful for keeping transcripts of system activity
 that has to do with the BBS. You might even elect to send all of your system
 logs there, too.
+ 
+   aidepost also accepts the usage "aidepost -rTargetRoom", where TargetRoom
+is the name of a room to which you'd like the message to be sent.
    
     
   WHOBBS
