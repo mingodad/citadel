@@ -207,7 +207,7 @@ struct wcsession {
 	char this_page[SIZ];		/* address of current page */
 	char http_host[SIZ];		/* HTTP Host: header */
 	char *preferences;
-#ifdef HAVE_ICAL_H
+#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	icalcomponent **disp_cal;	/* store calendar items for display */
 	long *cal_msgnum;		/* store calendar msgids for display */
 	int num_cal;
@@ -393,7 +393,7 @@ int CtdlDecodeBase64(char *dest, const char *source, size_t length);
 void free_attachments(struct wcsession *sess);
 
 
-#ifdef HAVE_ICAL_H
+#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 void display_edit_task(void);
 void save_task(void);
 void display_edit_event(void);
