@@ -58,7 +58,7 @@ int CtdlIPCEcho(const char *arg, char *cret)
 	if (!arg) return -2;
 	if (!cret) return -2;
 
-	aaa = (char *)malloc(strlen(arg) + 6);
+	aaa = (char *)malloc((size_t)(strlen(arg) + 6));
 	if (!aaa) return -1;
 
 	sprintf(aaa, "ECHO %s", arg);
@@ -117,7 +117,7 @@ int CtdlIPCTryLogin(const char *username, char *cret)
 	if (!username) return -2;
 	if (!cret) return -2;
 
-	aaa = (char *)malloc(strlen(username) + 6);
+	aaa = (char *)malloc((size_t)(strlen(username) + 6));
 	if (!aaa) return -1;
 
 	sprintf(aaa, "USER %s", username);
@@ -139,7 +139,7 @@ int CtdlIPCTryPassword(const char *passwd, char *cret)
 	if (!passwd) return -2;
 	if (!cret) return -2;
 
-	aaa = (char *)malloc(strlen(passwd) + 6);
+	aaa = (char *)malloc((size_t)(strlen(passwd) + 6));
 	if (!aaa) return -1;
 
 	sprintf(aaa, "PASS %s", passwd);
@@ -164,7 +164,7 @@ int CtdlIPCCreateUser(const char *username, int selfservice, char *cret)
 	if (!username) return -2;
 	if (!cret) return -2;
 
-	aaa = (char *)malloc(strlen(username) + 6);
+	aaa = (char *)malloc((size_t)(strlen(username) + 6));
 	if (!aaa) return -1;
 
 	sprintf(aaa, "%s %s", selfservice ? "NEWU" : "CREU",  username);
@@ -185,7 +185,7 @@ int CtdlIPCChangePassword(const char *passwd, char *cret)
 	if (!passwd) return -2;
 	if (!cret) return -2;
 
-	aaa = (char *)malloc(strlen(passwd) + 6);
+	aaa = (char *)malloc((size_t)(strlen(passwd) + 6));
 	if (!aaa) return -1;
 
 	sprintf(aaa, "SETP %s", passwd);
@@ -366,7 +366,8 @@ int CtdlIPCGetMessages(int which, int whicharg, const char *template,
 		extract_token(aaa, bbb, 0, '\n');
 		a = strlen(aaa);
 		memmove(aaa, bbb + a + 1, strlen(bbb) - a - 1);
-		*mret = (long *)realloc(mret, (count + 1) * sizeof (long));
+		*mret = (long *)realloc(mret,
+					(size_t)((count + 1) * sizeof (long)));
 		if (*mret)
 			*mret[count++] = atol(aaa);
 		*mret[count] = 0L;
@@ -483,7 +484,7 @@ int CtdlIPCGetSingleMessage(long msgnum, int headers, int as_mime,
 		}
 		if (strlen(bbb)) {
 			/* Strip trailing whitespace */
-			bbb = (char *)realloc(bbb, strlen(bbb) + 1);
+			bbb = (char *)realloc(bbb, (size_t)(strlen(bbb) + 1));
 		} else {
 			bbb = (char *)realloc(bbb, 1);
 			*bbb = '\0';
@@ -1758,21 +1759,31 @@ inline void netio_unlock(void)
 /* Read a listing from the server up to 000.  Append to dest if it exists */
 char *CtdlIPCReadListing(char *dest)
 {
-	long length = 0;
+	size_t length = 0;
+	size_t linelength;
 	char *ret;
 	char aaa[SIZ];
 
 	ret = dest;
-	if (ret) length = strlen(ret);
+	if (ret != NULL) {
+		length = strlen(ret);
+	}
+	else {
+		ret = strdup("");
+		length = 0;
+	}
+
 	while (serv_gets(aaa), strcmp(aaa, "000")) {
-		ret = (char *)realloc(ret, length + strlen(aaa) + 2);
+		linelength = strlen(aaa);
+		ret = (char *)realloc(ret, (size_t)(length + linelength + 2));
 		if (ret) {
 			strcpy(&ret[length], aaa);
-			length += strlen(aaa);
+			length += linelength;
 			strcpy(&ret[length++], "\n");
 		}
 	}
-	return ret;
+
+	return(ret);
 }
 
 
@@ -1819,7 +1830,7 @@ size_t CtdlIPCPartialRead(void **buf, size_t offset, size_t bytes, char *cret)
 		strcpy(cret, &aaa[4]);
 	else {
 		len = extract_long(&aaa[4], 0);
-		*buf = (void *)realloc(*buf, offset + len);
+		*buf = (void *)realloc(*buf, (size_t)(offset + len));
 		if (*buf) {
 			/* I know what I'm doing */
 			serv_read((char *)&buf[offset], len);
