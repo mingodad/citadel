@@ -36,6 +36,8 @@ void do_calendar_view(void) {	/* stub for non-libical builds */
 
 /****************************************************************************/
 
+#include "ical.h"
+
 void calendar_month_view_display_events(time_t thetime) {
 	int i;
 	struct tm *tm;
@@ -183,8 +185,11 @@ void calendar_month_view(int year, int month, int day) {
 			wprintf("<TR>");
 		}
 
-		wprintf("<TD BGCOLOR=FFFFFF WIDTH=14%% HEIGHT=60 VALIGN=TOP>"
-			"<B>");
+		wprintf("<TD BGCOLOR=%s WIDTH=14%% HEIGHT=60 VALIGN=TOP><B>",
+			((tm->tm_mon != month-1) ? "DDDDDD" :
+			((tm->tm_wday==0 || tm->tm_wday==6) ? "EEEECC" :
+			"FFFFFF"))
+		);
 		if ((i==0) || (tm->tm_mday == 1)) {
 			wprintf("%s ", months[tm->tm_mon]);
 		}
@@ -283,6 +288,25 @@ void calendar_day_view_display_events(int year, int month,
 
 void calendar_day_view(int year, int month, int day) {
 	int hour;
+	struct icaltimetype today, yesterday, tomorrow;
+
+
+	/* Figure out the dates for "yesterday" and "tomorrow" links */
+
+	memset(&today, 0, sizeof(struct icaltimetype));
+	today.year = year;
+	today.month = month;
+	today.day = day;
+	today.is_date = 1;
+
+	memcpy(&yesterday, &today, sizeof(struct icaltimetype));
+	--yesterday.day;
+	yesterday = icaltime_normalize(yesterday);
+
+	memcpy(&tomorrow, &today, sizeof(struct icaltimetype));
+	++tomorrow.day;
+	tomorrow = icaltime_normalize(tomorrow);
+
 
 	/* Outer table (to get the background color) */
 	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0 "
@@ -294,10 +318,20 @@ void calendar_day_view(int year, int month, int day) {
 
 	wprintf("<TD WIDTH=50%% VALIGN=top>");	/* begin stuff-on-the-left */
 
-	wprintf("<CENTER><H3><FONT COLOR=#FFFFFF>"
+	wprintf("<CENTER><H3>");
+	wprintf("<A HREF=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
+		yesterday.year, yesterday.month, yesterday.day
+	);
+	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/back.gif\" BORDER=0></A>\n");
+	wprintf("&nbsp;&nbsp;<FONT COLOR=#FFFFFF>"
 		"%s %d, %d"
-		"</FONT></H3></CENTER>\n",
+		"</FONT>&nbsp;&nbsp;",
 		months[month-1], day, year);
+	wprintf("<A HREF=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
+		tomorrow.year, tomorrow.month, tomorrow.day
+	);
+	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/forward.gif\" BORDER=0></A>\n");
+	wprintf("</H3></CENTER>\n");
 
 	wprintf("<CENTER><font color=#FFFFFF>"
 		"&nbsp;<A HREF=\"/display_edit_event?msgnum=0\">"
