@@ -263,6 +263,7 @@ struct minfo {
 	char S[512];
 	long T;
 	char U[512];
+	char Z[512];
 	char nexthop[512];
 	};
 

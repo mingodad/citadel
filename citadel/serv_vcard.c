@@ -74,7 +74,6 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
         char config_rm[ROOMNAMELEN];
 	char buf[256];
 
-	lprintf(9, "entering beforesave hook\n");
 
 	/* If this isn't the configuration room, or if this isn't a MIME
 	 * message, don't bother.
@@ -109,7 +108,6 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 					phree(msg->cm_fields['Z']);
 				sprintf(buf, "%ld@%s", VC->msgnum, NODENAME);
 				msg->cm_fields['Z'] = strdoop(buf);
-				lprintf(9, "replacing <%s>\n", buf);
 			}
 
 			CtdlDeleteMessages(config_rm, 0L, "text/x-vcard");
@@ -140,7 +138,6 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 	struct quickroom qrbuf;
 	char buf[256];
 
-	lprintf(9, "entering aftersave hook\n");
 
 	/* If this isn't the configuration room, or if this isn't a MIME
 	 * message, don't bother.
@@ -158,7 +155,6 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			/* Bingo!  The user is uploading a new vCard, so
 			 * copy it to the Global Address Book room.
 			 */
-			lprintf(9, "activated aftersave hook\n");
 
 			I = atol(msg->cm_fields['I']);
 			if (I < 0L) return(0);
@@ -173,19 +169,14 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 				}
 			}
 
-			lprintf(9, "calling getroom\n");
 			if (getroom(&qrbuf, ADDRESS_BOOK_ROOM) != 0) return(0);
-			lprintf(9, "calling AddMessageToRoom\n");
 			AddMessageToRoom(&qrbuf, I);
-			lprintf(9, "calling AdjRefCount\n");
 			AdjRefCount(I, +1);
 
 			if (Z > 0L) {
-				lprintf(9, "Deleting the old one\n");
 				CtdlDeleteMessages(ADDRESS_BOOK_ROOM, Z, NULL); 
 			}
 
-			lprintf(9, "finishing aftersave hook\n");
 			return(0);
 		}
 
@@ -193,7 +184,6 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 		if (ptr != NULL) ++ptr;
 	}
 
-	lprintf(9, "didn't do anything in hook\n");
 	return(0);
 }
 

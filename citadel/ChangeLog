@@ -1,4 +1,7 @@
 $Log$
+Revision 1.382  1999/10/13 01:36:39  ajc
+* Starting some work on network zap (supersede) mode for replication
+
 Revision 1.381  1999/10/08 02:55:57  ajc
 * More vCard-related debugging
 
@@ -1301,4 +1304,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
