@@ -1,4 +1,8 @@
  $Log$
+ Revision 621.7  2004/06/06 22:30:10  ajc
+ * New session scheduler.  All sessions which select() marks for activity
+   are now handled before select() is called again.
+
  Revision 621.6  2004/06/03 02:49:14  ajc
  * html.c: allow parsing of tags even when they're qualified (i.e. <TAG foo=bar>
            instead of just <TAG> )
@@ -5812,4 +5816,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

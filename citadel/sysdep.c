@@ -91,20 +91,14 @@ pthread_key_t MyConKey;				/* TSD key for MyContext() */
 int verbosity = DEFAULT_VERBOSITY;		/* Logging level */
 
 struct CitContext masterCC;
-int rescan[2];					/* The Rescan Pipe */
 time_t last_purge = 0;				/* Last dead session purge */
 static int num_threads = 0;			/* Current number of threads */
 int num_sessions = 0;				/* Current number of sessions */
-
-fd_set masterfds;				/* Master sockets etc. */
-int masterhighest;
 
 pthread_t initial_thread;		/* tid for main() thread */
 
 int syslog_facility = (-1);
 
-/* This is synchronized below; it helps implement round robin mode */
-extern struct CitContext* next_session;
 
 /*
  * lprintf()  ...   Write logging information
@@ -858,37 +852,7 @@ void InitializeMasterCC(void) {
 
 
 
-/*
- * Set up a fd_set containing all the master sockets to which we
- * always listen.  It's computationally less expensive to just copy
- * this to a local fd_set when starting a new select() and then add
- * the client sockets than it is to initialize a new one and then
- * figure out what to put there.
- */
-void init_master_fdset(void) {
-	struct ServiceFunctionHook *serviceptr;
-	int m;
 
-	lprintf(CTDL_DEBUG, "Initializing master fdset\n");
-
-	FD_ZERO(&masterfds);
-	masterhighest = 0;
-
-	lprintf(CTDL_DEBUG, "Will listen on rescan pipe %d\n", rescan[0]);
-	FD_SET(rescan[0], &masterfds);
-	if (rescan[0] > masterhighest) masterhighest = rescan[0];
-
-	for (serviceptr = ServiceHookTable; serviceptr != NULL;
-	    serviceptr = serviceptr->next ) {
-		m = serviceptr->msock;
-		lprintf(CTDL_DEBUG, "Will listen on master socket %d\n", m);
-		FD_SET(m, &masterfds);
-		if (m > masterhighest) {
-			masterhighest = m;
-		}
-	}
-	lprintf(CTDL_DEBUG, "masterhighest = %d\n", masterhighest);
-}
 
 
 /*
@@ -905,7 +869,6 @@ INLINE void become_session(struct CitContext *which_con) {
  */	
 void *worker_thread(void *arg) {
 	int i;
-	char junk;
 	int highest;
 	struct CitContext *ptr;
 	struct CitContext *bind_me = NULL;
@@ -916,6 +879,7 @@ void *worker_thread(void *arg) {
 	int ssock;			/* Descriptor for client socket */
 	struct timeval tv;
 	int force_purge = 0;
+	int m;
 
 	num_threads++;
 
@@ -940,10 +904,14 @@ void *worker_thread(void *arg) {
 		 */
 		cdb_check_handles();
 		force_purge = 0;
+		bind_me = NULL;		/* Which session shall we handle? */
 
 		begin_critical_section(S_I_WANNA_SELECT);
-SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
-		highest = masterhighest;
+
+		/* Initialize the fdset. */
+		FD_ZERO(&readfds);
+		highest = 0;
+
 		begin_critical_section(S_SESSION_TABLE);
 		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 			if (ptr->state == CON_IDLE) {
@@ -951,15 +919,32 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 				if (ptr->client_socket > highest)
 					highest = ptr->client_socket;
 			}
+			if ((bind_me == NULL) && (ptr->state == CON_READY)) {
+				bind_me = ptr;
+				ptr->state = CON_EXECUTING;
+			}
 		}
 		end_critical_section(S_SESSION_TABLE);
 
-		tv.tv_sec = 1;		/* wake up every second if no input */
-		tv.tv_usec = 0;
+		if (bind_me) goto SKIP_SELECT;
 
-		do_select:
-		if (!time_to_die)
+do_select:	/* Only select() if the server isn't being told to shut down. */
+
+		/* Add the various master sockets to the fdset. */
+		for (serviceptr = ServiceHookTable; serviceptr != NULL;
+	    	serviceptr = serviceptr->next ) {
+			m = serviceptr->msock;
+			FD_SET(m, &readfds);
+			if (m > highest) {
+				highest = m;
+			}
+		}
+
+		if (!time_to_die) {
+			tv.tv_sec = 1;		/* wake up every second if no input */
+			tv.tv_usec = 0;
 			retval = select(highest + 1, &readfds, NULL, NULL, &tv);
+		}
 		else {
 			end_critical_section(S_I_WANNA_SELECT);
 			break;
@@ -972,7 +957,7 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 			if (errno == EBADF) {
 				lprintf(CTDL_NOTICE, "select() failed: (%s)\n",
 					strerror(errno));
-				goto SETUP_FD;
+				goto do_select;
 			}
 			if (errno != EINTR) {
 				lprintf(CTDL_EMERG, "Exiting (%s)\n", strerror(errno));
@@ -1024,7 +1009,7 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 					serviceptr->h_greeting_function();
 					become_session(NULL);
 					con->state = CON_IDLE;
-					goto SETUP_FD;
+					goto do_select;
 				}
 			}
 		}
@@ -1034,66 +1019,37 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 			break;
 		}
 
-		/* If the rescan pipe went active, someone is telling this
-		 * thread that the &readfds needs to be refreshed with more
-		 * current data.
-		 */
-		if (FD_ISSET(rescan[0], &readfds)) {
-			read(rescan[0], &junk, 1);
-			goto SETUP_FD;
-		}
-
 		/* It must be a client socket.  Find a context that has data
-		 * waiting on its socket *and* is in the CON_IDLE state.
+		 * waiting on its socket *and* is in the CON_IDLE state.  Any
+		 * active sockets other than our chosen one are marked as
+		 * CON_READY so the next thread that comes around can just bind
+		 * to one without having to select() again.
 		 */
-		else {
-			bind_me = NULL;
-			begin_critical_section(S_SESSION_TABLE);
-			/*
-			 * We start where we left off.  If we get to the end
-			 * we'll start from the beginning again, then give up
-			 * if we still don't find anything.  This ensures
-			 * that all contexts get a more-or-less equal chance
-			 * to run. And yes, I did add a goto to the code. -IO
-			 */
-find_session:		if (next_session == NULL)
-				next_session = ContextList;
-			for (ptr = next_session;
-			    ( (ptr != NULL) && (bind_me == NULL) );
-			    ptr = ptr->next) {
-				if ( (FD_ISSET(ptr->client_socket, &readfds))
-				   && (ptr->state == CON_IDLE) ) {
-					bind_me = ptr;
+		begin_critical_section(S_SESSION_TABLE);
+		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
+			if ( (FD_ISSET(ptr->client_socket, &readfds))
+			   && (ptr->state != CON_EXECUTING) ) {
+				if (!bind_me) {
+					bind_me = ptr;	/* I choose you! */
+					bind_me->state = CON_EXECUTING;
+				}
+				else {
+					ptr->state = CON_READY;
 				}
 			}
-			if (bind_me != NULL) {
-				/* Found one.  Stake a claim to it before
-				 * letting anyone else touch the context list.
-				 */
-				bind_me->state = CON_EXECUTING;
-				next_session = bind_me->next;
-			} else if (next_session == ContextList) {
-				next_session = NULL;
-			}
-			if (bind_me == NULL && next_session != NULL) {
-				next_session = NULL;
-				goto find_session;
-			}
-
-			end_critical_section(S_SESSION_TABLE);
-			end_critical_section(S_I_WANNA_SELECT);
-
-			/* We're bound to a session, now do *one* command */
-			if (bind_me != NULL) {
-				become_session(bind_me);
-				CC->h_command_function();
-				force_purge = CC->kill_me;
-				become_session(NULL);
-				bind_me->state = CON_IDLE;
-				write(rescan[1], &junk, 1);
-			}
-
 		}
+		end_critical_section(S_SESSION_TABLE);
+SKIP_SELECT:	end_critical_section(S_I_WANNA_SELECT);
+
+		/* We're bound to a session, now do *one* command */
+		if (bind_me != NULL) {
+			become_session(bind_me);
+			CC->h_command_function();
+			force_purge = CC->kill_me;
+			become_session(NULL);
+			bind_me->state = CON_IDLE;
+		}
+
 		dead_session_purge(force_purge);
 		do_housekeeping();
 		check_sched_shutdown();

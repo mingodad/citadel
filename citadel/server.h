@@ -148,10 +148,19 @@ struct CitContext {
 
 typedef struct CitContext t_context;
 
-/* Values for CitContext.state */
+/*
+ * Values for CitContext.state
+ * 
+ * A session that is doing nothing is in CON_IDLE state.  When activity
+ * is detected on the socket, it goes to CON_READY, indicating that it
+ * needs to have a worker thread bound to it.  When a thread binds to
+ * the session, it goes to CON_EXECUTING and does its thing.  When the
+ * transaction is finished, the thread sets it back to CON_IDLE and lets
+ * it go.
+ */
 enum {
 	CON_IDLE,		/* This context is doing nothing */
-	CON_READY,		/* This context is ready-to-run */
+	CON_READY,		/* This context needs attention */
 	CON_EXECUTING,		/* This context is bound to a thread */
 };
 

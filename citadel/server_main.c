@@ -191,19 +191,6 @@ int main(int argc, char **argv)
 	initialize_server_extensions();
 
 	/*
-	 * The rescan pipe exists so that worker threads can be woken up and
-	 * told to re-scan the context list for fd's to listen on.  This is
-	 * necessary, for example, when a context is about to go idle and needs
-	 * to get back on that list.
-	 */
-	if (pipe(rescan)) {
-		lprintf(CTDL_EMERG, "Can't create rescan pipe!\n");
-		exit(errno);
-	}
-
-	init_master_fdset();
-
-	/*
 	 * Now that we've bound the sockets, change to the BBS user id and its
 	 * corresponding group ids
 	 */
