@@ -1,4 +1,8 @@
 $Log$
+Revision 510.8  2004/06/01 03:32:28  ajc
+* Add "permanent room" setting to room edit screen
+* create room -- allow longer strings
+
 Revision 510.7  2004/06/01 00:36:43  ajc
 * Hmmph.  Do the session cookie as hex instead of base64.  There really
   are some characters in the base64 set that make HTTP do nasty things.
@@ -1834,4 +1838,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

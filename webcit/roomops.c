@@ -933,6 +933,11 @@ void display_editroom(void)
 			wprintf("CHECKED ");
 		wprintf("> Network shared room\n");
 
+		wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"permanent\" VALUE=\"yes\" ");
+		if (er_flags & QR_PERMANENT)
+			wprintf("CHECKED ");
+		wprintf("> Permanent (does not auto-purge)\n");
+
 	/* start of anon options */
 	
 		wprintf("<LI>Anonymous messages<UL>\n");
@@ -1246,6 +1251,12 @@ void editroom(void)
 		er_flags &= ~QR_READONLY;
 	}
 
+	if (!strcmp(bstr("permanent"), "yes")) {
+		er_flags |= QR_PERMANENT;
+	} else {
+		er_flags &= ~QR_PERMANENT;
+	}
+
 	if (!strcmp(bstr("network"), "yes")) {
 		er_flags |= QR_NETWORK;
 	} else {
@@ -1427,7 +1438,7 @@ void display_entroom(void)
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/entroom\">\n");
 
 	wprintf("<UL><LI>Name of room: ");
-	wprintf("<INPUT TYPE=\"text\" NAME=\"er_name\" MAXLENGTH=\"19\">\n");
+	wprintf("<INPUT TYPE=\"text\" NAME=\"er_name\" MAXLENGTH=\"127\">\n");
 
         wprintf("<LI>Resides on floor: ");
         load_floorlist(); 
@@ -1529,9 +1540,9 @@ void er_set_default_view(int newview) {
 void entroom(void)
 {
 	char buf[SIZ];
-	char er_name[20];
-	char er_type[20];
-	char er_password[10];
+	char er_name[SIZ];
+	char er_type[SIZ];
+	char er_password[SIZ];
 	int er_floor;
 	int er_num_type;
 
