@@ -320,8 +320,9 @@ private:
 
 class EnterMessage : public wxMDIChildFrame {
 public:
-	EnterMessage(CitClient *sock, wxMDIParentFrame *MyMDI,
-		wxString roomname, unsigned int roomflags);
+	EnterMessage(CitClient *sock,  
+	wxMDIParentFrame *MyMDI,
+	wxString roomname, unsigned int roomflags);
 private:
 	void OnCancel(wxCommandEvent& whichbutton);
 	void OnSave(wxCommandEvent& whichbutton);

@@ -256,7 +256,6 @@ void RoomView::OnButtonPressed(wxCommandEvent& whichbutton) {
 		sendcmd = "SLRP HIGHEST";	// mark messages as read
 		citsock->serv_trans(sendcmd, recvcmd, xferbuf, ThisRoom);
 		new RoomView(citsock, citMyMDI, RoomList->GetNextRoom());
-		delete this;
 	} else if (whichbutton.GetId() == BUTTON_ZAP) {
 		if (citadel->IsConnected()==FALSE) {
 		wxMessageBox("You are not connected to a BBS.");
@@ -304,11 +303,11 @@ void RoomView::do_readloop(wxString readcmd) {
 	allmsgs = "<HTML><BODY>";
 	i = 0;
 	while (pos = xferbuf.Find('\n', FALSE), (pos >= 0)) {
-
+	
 		buf.Printf("Reading message %d", ++i);
 		citMyMDI->SetStatusText(buf, 0);
                 wxYield();
-
+		
 		buf = xferbuf.Left(pos);
 		xferbuf = xferbuf.Mid(pos+1);
 
@@ -322,7 +321,9 @@ void RoomView::do_readloop(wxString readcmd) {
 		delete message;
 
 		allmsgs += "<HR>";
-        }
+		
+   		}
+
 	citMyMDI->SetStatusText("Done", 0);
 	allmsgs += "</BODY></HTML>";
 

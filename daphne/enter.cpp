@@ -16,8 +16,11 @@ END_EVENT_TABLE()
 
 // frame constructor
 EnterMessage::EnterMessage(
-	CitClient *sock, wxMDIParentFrame *MyMDI,
-	wxString roomname, unsigned int roomflags)
+	CitClient *sock, 
+	wxMDIParentFrame *MyMDI,
+	wxString roomname, 
+	unsigned int roomflags) 
+
 	: wxMDIChildFrame(MyMDI,	//parent
 			-1,	//window id
 			roomname + ": enter message",
@@ -53,6 +56,7 @@ EnterMessage::EnterMessage(
                 " Save ",
                 wxDefaultPosition);
 
+
 	wxLayoutConstraints *c2 = new wxLayoutConstraints;
 	c2->bottom.SameAs(cancel_button, wxBottom);
 	c2->right.LeftOf(cancel_button, 5);
@@ -74,7 +78,7 @@ EnterMessage::EnterMessage(
 	c6->height.AsIs();
 	fromlabel->SetConstraints(c6);
 
-	wxString posting_name_choices[2];
+	wxString posting_name_choices[2]; 
 	int num_choices;
 
 	if (roomflags & QR_ANONONLY) {
@@ -103,8 +107,11 @@ EnterMessage::EnterMessage(
 
 
 	// There may also be the opportunity to present a recipient.
-	// FIX ... disable this if we're not in a mail room
+	// FIX ... disable this if we're not in a mail room 
 
+	// Fixed, smw - 12/14/99
+	
+	if (roomname == "Mail") {
 	wxStaticText *tolabel = new wxStaticText(this, -1, "To: ");
 
 	wxLayoutConstraints *c8 = new wxLayoutConstraints;
@@ -137,7 +144,7 @@ EnterMessage::EnterMessage(
 	d1->height.AsIs();
 	findrecp->SetConstraints(d1);
 
-
+}
 
 
 	// The main portion of this screen is a text entry box.
