@@ -1,4 +1,8 @@
 $Log$
+Revision 603.15  2005/04/04 17:49:31  ajc
+* configure.in: fix libical version detection
+* bumped internal version number to 6.10
+
 Revision 603.14  2005/03/30 21:44:44  ajc
 * Changed the color of the side button bar
 * Removed session ID's from wholist display, because they are only
@@ -2495,4 +2499,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
