@@ -186,7 +186,7 @@ void cmd_conf(char *argbuf) {
 		cprintf("%d\n", config.c_default_filter);
 		cprintf("%d\n", config.c_aide_zap);
 		cprintf("%d\n", config.c_imap_port);
-		cprintf("%d\n", config.c_net_freq);
+		cprintf("%ld\n", config.c_net_freq);
 		cprintf("000\n");
 		}
 

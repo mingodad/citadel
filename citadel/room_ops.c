@@ -60,7 +60,7 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf)
 	/* For mailbox rooms, only allow access to the owner */
 	if (roombuf->QRflags & QR_MAILBOX) {
 		if (userbuf->usernum != atol(roombuf->QRname)) {
-			return (retval);
+			return(0);
 		}
 	}
 	/* Locate any applicable user/room relationships */
@@ -132,6 +132,11 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf)
 NEWMSG:	/* By the way, we also check for the presence of new messages */
 	if (is_msg_in_mset(vbuf.v_seen, roombuf->QRhighest) == 0) {
 		retval = retval | UA_HASNEWMSGS;
+	}
+
+	/* System rooms never show up in the list. */
+	if (roombuf->QRflags & QR2_SYSTEM) {
+		retval = retval & ~UA_KNOWN;
 	}
 	return (retval);
 }

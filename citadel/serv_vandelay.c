@@ -96,6 +96,7 @@ void artv_export_rooms_backend(struct quickroom *qrbuf, void *data) {
 	cprintf("%d\n", qrbuf->QRep.expire_value);
 	cprintf("%ld\n", qrbuf->QRnumber);
 	cprintf("%d\n", qrbuf->QRorder);
+	cprintf("%u\n", qrbuf->QRflags2);
 
 	getroom(&CC->quickroom, qrbuf->QRname);
 	/* format of message list export is all message numbers output
@@ -408,6 +409,7 @@ void artv_import_room(void) {
 	client_gets(buf);	qrbuf.QRep.expire_value = atoi(buf);
 	client_gets(buf);	qrbuf.QRnumber = atol(buf);
 	client_gets(buf);	qrbuf.QRorder = atoi(buf);
+	client_gets(buf);	qrbuf.QRflags2 = atoi(buf);
 	putroom(&qrbuf);
 	lprintf(7, "Imported room <%s>\n", qrbuf.QRname);
 	/* format of message list export is all message numbers output

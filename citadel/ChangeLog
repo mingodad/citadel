@@ -1,4 +1,9 @@
  $Log$
+ Revision 580.84  2001/12/02 02:42:55  ajc
+ * Implemented new room flag QR2_SYSTEM which supresses the room from all
+   room listings, even for Aides (but it's still gotoable).  This will be used
+   for rooms which hold system configuration and message queues.
+
  Revision 580.83  2001/12/01 19:23:26  ajc
  * clientsocket.c: implement socket timeouts for read operations
 
@@ -2892,3 +2897,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

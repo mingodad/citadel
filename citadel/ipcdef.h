@@ -61,6 +61,8 @@ struct CtdlServInfo {
 #define QR_READONLY	8192		/* Aide status required to post     */
 #define QR_MAILBOX	16384		/* Set if this is a private mailbox */
 
+#define QR2_SYSTEM	1		/* System room; hide by default     */
+
 #define US_NEEDVALID	1		/* User needs to be validated       */
 #define US_PERM		4		/* Permanent user                   */
 #define US_LASTOLD	16		/* Print last old message with new  */
