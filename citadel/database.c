@@ -38,12 +38,10 @@
 GDBM_FILE gdbms[MAXCDB];
 
 /*
- * We also keep these around, for sequential searches... (one per 
- * session.  Maybe there's a better way?)    FIX ... there _is_ a better
- * way.  We have TSD functions now; use them.
+ * We also keep these around, for sequential searches (one per session slot)
  */
-#define MAXKEYS 256
-datum dtkey[MAXKEYS];
+int max_keys = 0;
+datum *dtkey;
 
 
 /*
@@ -93,8 +91,6 @@ void defrag_databases(void) {
  * does not exist should be created.
  */
 void open_databases(void) {
-	int a;
-
 	lprintf(7, "%s\n", gdbm_version);
 
 	/*
@@ -158,11 +154,6 @@ void open_databases(void) {
 		exit(1);
 		}
 
-	for (a=0; a<MAXKEYS; ++a) {
-		dtkey[a].dsize = 0;
-		dtkey[a].dptr = NULL;
-		}
-
 	/*
 	end_critical_section(S_DATABASE);
 	 */
@@ -184,7 +175,7 @@ void close_databases(void) {
 		}
 	end_critical_section(S_DATABASE);
 
-	for (a=0; a<MAXKEYS; ++a) {
+	for (a=0; a<max_keys; ++a) {
 		if (dtkey[a].dptr != NULL) {
 			phree(dtkey[a].dptr);
 			}
@@ -290,6 +281,20 @@ void cdb_free(struct cdbdata *cdb) {
  * progress per session at any given time.)
  */
 void cdb_rewind(int cdb) {
+
+	while (max_keys <= CC->cs_pid) {
+		++max_keys;
+		if (dtkey == NULL) {
+			dtkey = (datum *)
+				mallok( (sizeof(datum) * max_keys) );
+		}
+		else {
+			dtkey = (datum *)
+				reallok(dtkey, (sizeof(datum) * max_keys) );
+		}
+		dtkey[max_keys - 1].dsize = 0;
+		dtkey[max_keys - 1].dptr = NULL;
+	}
 
 	if (dtkey[CC->cs_pid].dptr != NULL) {
 		phree(dtkey[CC->cs_pid].dptr);
