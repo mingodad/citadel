@@ -31,20 +31,29 @@
 void terminate_idle_sessions(void) {
 	struct CitContext *ccptr;
 	time_t now;
+	int session_to_kill;
 
-START_OVER:
-	now = time(NULL);
-	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
-		if (  (ccptr!=CC)
-		   && (config.c_sleeping > 0)
-		   && (now - (ccptr->lastcmd) > config.c_sleeping) ) {
+	do {
+		now = time(NULL);
+		session_to_kill = 0;
+		lprintf(9, "Scanning for timed out sessions...\n");
+		begin_critical_section(S_SESSION_TABLE);
+		for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
+			if (  (ccptr!=CC)
+		   	&& (config.c_sleeping > 0)
+		   	&& (now - (ccptr->lastcmd) > config.c_sleeping) ) {
+				session_to_kill = ccptr->cs_pid;
+				}
+			}
+		end_critical_section(S_SESSION_TABLE);
+		lprintf(9, "...done scanning.\n");
+		if (session_to_kill > 0) {
 			lprintf(3, "Session %d timed out.  Terminating it...\n",
 				ccptr->cs_pid);
 			kill_session(ccptr->cs_pid);
 			lprintf(9, "...done terminating it.\n");
-			goto START_OVER;
 			}
-		}
+		} while(session_to_kill > 0);
 	}
 
 

@@ -480,6 +480,7 @@ void cleanup(int exit_code)
 void kill_session(int session_to_kill) {
 	struct CitContext *ptr;
 
+	/* FIX ... do a lock-discover-unlock-kill sequence here. */
 	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 		if (ptr->cs_pid == session_to_kill) {
 			pthread_cancel(ptr->mythread);

@@ -561,6 +561,7 @@ void cmd_term(char *cmdbuf)
 		return;
 		}
 
+	lprintf(9, "Locating session to kill\n");
 	begin_critical_section(S_SESSION_TABLE);
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 		if (session_num == ccptr->cs_pid) {
@@ -568,6 +569,7 @@ void cmd_term(char *cmdbuf)
 			}
 		}
 	end_critical_section(S_SESSION_TABLE);
+	lprintf(9, "session_to_kill == %d\n", session_to_kill);
 
 	if (session_to_kill > 0) {
 		kill_session(ccptr->cs_pid);

@@ -1,3 +1,6 @@
+1998-12-14 Art Cancro Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* More session table stability nonsense
+
 Sun Dec 13 17:40:08 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* sysdep.c, citserver.c: (hopefully) fixed a session table concurrency
 	  bug which was causing the server to occasionally crash.
