@@ -1,4 +1,17 @@
  $Log$
+ Revision 580.12  2001/07/28 00:02:50  nbryant
+ implemented read-only cursors. one of the advantages to these is that
+ transactions can be avoided; a cursor operation that occurs within a
+ transaction will often acquire a read lock on every single database page.  in
+ general, the Sleepycat documentation recommends avoiding transaction-protected
+ read-only operations where practical. read/modify/write operations can still
+ be transaction protected, of course.
+
+ to use a read-only cursor, call cdb_rewind without a previous call to
+ cdb_begin_transaction. the DB driver will notice this and prevent the current
+ thread from modifying data or starting a transaction until the cursor is
+ closed.
+
  Revision 580.11  2001/07/27 20:45:44  nbryant
  libtool has matured a lot since the last time i looked at it (years ago)
  so we now use it to handle the details of building shared libraries and
@@ -2606,4 +2619,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

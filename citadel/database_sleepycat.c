@@ -37,15 +37,13 @@
 #include "sysdep_decls.h"
 #include "dynloader.h"
 
-DB *dbp[MAXCDB];		/* One DB handle for each Citadel database */
-DB_ENV *dbenv;			/* The DB environment (global) */
+static DB *dbp[MAXCDB];		/* One DB handle for each Citadel database */
+static DB_ENV *dbenv;		/* The DB environment (global) */
 
 struct cdbtsd {			/* Thread-specific DB stuff */
 	DB_TXN *tid;		/* Transaction handle */
 	DBC *cursors[MAXCDB];	/* Cursors, for traversals... */
 };
-
-int num_ssd = 0;
 
 static pthread_key_t tsdkey;
 
@@ -91,17 +89,23 @@ static void cclose(DBC *cursor) {
 	}
 }
 
+static void bailIfCursor(DBC **cursors, const char *msg)
+{
+  int i;
+
+  for (i = 0; i < MAXCDB; i++)
+    if (cursors[i] != NULL)
+      {
+	lprintf(1, "cdb_*: cursor still in progress on cdb %d: %s\n", i, msg);
+	abort();
+      }
+}
+
 static void check_handles(void *arg) {
 	if (arg != NULL) {
 		struct cdbtsd *tsd = (struct cdbtsd *)arg;
-		int i;
 
-		for (i = 0; i < MAXCDB; i++)
-		  if (tsd->cursors[i] != NULL)
-		    {
-		      lprintf(1, "cdb_*: cursor still in progress on cdb %d!", i);
-		      abort();
-		    }
+		bailIfCursor(tsd->cursors, "in check_handles");
 
 		if (tsd->tid != NULL) {
 			lprintf(1, "cdb_*: transaction still in progress!");
@@ -165,7 +169,7 @@ void defrag_databases(void)
 /*
  * Cull the database logs
  */
-void cdb_cull_logs(void) {
+static void cdb_cull_logs(void) {
 	DIR *dp;
 	struct dirent *d;
 	char filename[SIZ];
@@ -359,51 +363,64 @@ int cdb_store(int cdb,
 	      void *cdata, int cdatalen)
 {
 
-	DBT dkey, ddata;
-	DB_TXN *tid;
-	int ret;
-
-	memset(&dkey, 0, sizeof(DBT));
-	memset(&ddata, 0, sizeof(DBT));
-	dkey.size = ckeylen;
-	dkey.data = ckey;
-	ddata.size = cdatalen;
-	ddata.data = cdata;
-
-	if (MYTID != NULL) {
-		ret = dbp[cdb]->put(dbp[cdb],		/* db */
-					MYTID,		/* transaction ID */
-					&dkey,		/* key */
-					&ddata,		/* data */
-					0);		/* flags */
-		if (ret) {
-			lprintf(1, "cdb_store(%d): %s\n", cdb,
-				db_strerror(ret));
-			abort();
-		}
-		return ret;
-	} else {
-	    retry:
-		txbegin(&tid);
-
-		if ((ret = dbp[cdb]->put(dbp[cdb],	/* db */
-					 tid,		/* transaction ID */
-					 &dkey,		/* key */
-					 &ddata,	/* data */
-					 0))) {		/* flags */
-			if (ret == DB_LOCK_DEADLOCK) {
-				txabort(tid);
-				goto retry;
-			} else {
-				lprintf(1, "cdb_store(%d): %s\n", cdb,
-					db_strerror(ret));
-				abort();
-			}
-		} else {
-			txcommit(tid);
-			return ret;
-		}
+  DBT dkey, ddata;
+  DB_TXN *tid;
+  int ret;
+  
+  memset(&dkey, 0, sizeof(DBT));
+  memset(&ddata, 0, sizeof(DBT));
+  dkey.size = ckeylen;
+  dkey.data = ckey;
+  ddata.size = cdatalen;
+  ddata.data = cdata;
+  
+  if (MYTID != NULL)
+    {
+      ret = dbp[cdb]->put(dbp[cdb],		/* db */
+			  MYTID,		/* transaction ID */
+			  &dkey,		/* key */
+			  &ddata,		/* data */
+			  0);		/* flags */
+      if (ret)
+	{
+	  lprintf(1, "cdb_store(%d): %s\n", cdb,
+		  db_strerror(ret));
+	  abort();
 	}
+      return ret;
+      
+    }
+  else
+    {
+      bailIfCursor(MYCURSORS, "attempt to write during r/o cursor");
+      
+    retry:
+      txbegin(&tid);
+      
+      if ((ret = dbp[cdb]->put(dbp[cdb],    /* db */
+			       tid,	    /* transaction ID */
+			       &dkey,	    /* key */
+			       &ddata,	    /* data */
+			       0)))         /* flags */
+	{
+	  if (ret == DB_LOCK_DEADLOCK)
+	    {
+	      txabort(tid);
+	      goto retry;
+	    }
+	  else
+	    {
+	      lprintf(1, "cdb_store(%d): %s\n", cdb,
+		      db_strerror(ret));
+	      abort();
+	    }
+	}
+      else
+	{
+	  txcommit(tid);
+	  return ret;
+	}
+    }
 }
 
 
@@ -413,44 +430,73 @@ int cdb_store(int cdb,
 int cdb_delete(int cdb, void *key, int keylen)
 {
 
-	DBT dkey;
-	DB_TXN *tid;
-	int ret;
+  DBT dkey;
+  DB_TXN *tid;
+  int ret;
 
-	memset(&dkey, 0, sizeof dkey);
-	dkey.size = keylen;
-	dkey.data = key;
+  memset(&dkey, 0, sizeof dkey);
+  dkey.size = keylen;
+  dkey.data = key;
 
-	if (MYTID != NULL) {
-		ret = dbp[cdb]->del(dbp[cdb], MYTID, &dkey, 0);
-		if (ret) {
-			lprintf(1, "cdb_delete(%d): %s\n", cdb,
-				db_strerror(ret));
-			if (ret != DB_NOTFOUND)
-				abort();
-		}
-	} else {
-	    retry:
-		txbegin(&tid);
-
-		if ((ret = dbp[cdb]->del(dbp[cdb], tid, &dkey, 0))
-		    && ret != DB_NOTFOUND) {
-			if (ret == DB_LOCK_DEADLOCK) {
-					txabort(tid);
-					goto retry;
-			} else {
-				lprintf(1, "cdb_delete(%d): %s\n", cdb,
-					db_strerror(ret));
-				abort();
-			}
-		} else {
-			txcommit(tid);
-		}
+  if (MYTID != NULL)
+    {
+      ret = dbp[cdb]->del(dbp[cdb], MYTID, &dkey, 0);
+      if (ret)
+	{
+	  lprintf(1, "cdb_delete(%d): %s\n", cdb,
+		  db_strerror(ret));
+	  if (ret != DB_NOTFOUND)
+	    abort();
 	}
-	return ret;
+    }
+  else
+    {
+      bailIfCursor(MYCURSORS, "attempt to delete during r/o cursor");
+    
+    retry:
+      txbegin(&tid);
+    
+      if ((ret = dbp[cdb]->del(dbp[cdb], tid, &dkey, 0))
+	  && ret != DB_NOTFOUND)
+	{
+	  if (ret == DB_LOCK_DEADLOCK)
+	    {
+	      txabort(tid);
+	      goto retry;
+	    }
+	  else
+	    {
+	      lprintf(1, "cdb_delete(%d): %s\n", cdb,
+		      db_strerror(ret));
+	      abort();
+	    }
+	}
+      else
+	{
+	  txcommit(tid);
+	}
+    }
+  return ret;
 }
 
+static DBC *localcursor(int cdb)
+{
+  int ret;
+  DBC *curs;
 
+  if (MYCURSORS[cdb] == NULL)
+    ret = dbp[cdb]->cursor(dbp[cdb], MYTID, &curs, 0);
+  else
+    ret = MYCURSORS[cdb]->c_dup(MYCURSORS[cdb], &curs, DB_POSITION);
+
+  if (ret)
+    {
+      lprintf(1, "localcursor: %s\n", db_strerror(ret));
+      abort();
+    }
+
+  return curs;
+}
 
 
 /*
@@ -461,45 +507,56 @@ int cdb_delete(int cdb, void *key, int keylen)
 struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
 {
 
-	struct cdbdata *tempcdb;
-	DBT dkey, dret;
-	int ret;
+  struct cdbdata *tempcdb;
+  DBT dkey, dret;
+  int ret;
 
-	memset(&dkey, 0, sizeof(DBT));
-	dkey.size = keylen;
-	dkey.data = key;
+  memset(&dkey, 0, sizeof(DBT));
+  dkey.size = keylen;
+  dkey.data = key;
 
-	if (MYTID != NULL) {
-		memset(&dret, 0, sizeof(DBT));
-		dret.flags = DB_DBT_MALLOC;
-		ret = dbp[cdb]->get(dbp[cdb], MYTID, &dkey, &dret, 0);
-	} else {
-	    retry:
-                memset(&dret, 0, sizeof(DBT));
-                dret.flags = DB_DBT_MALLOC;
+  if (MYTID != NULL)
+    {
+      memset(&dret, 0, sizeof(DBT));
+      dret.flags = DB_DBT_MALLOC;
+      ret = dbp[cdb]->get(dbp[cdb], MYTID, &dkey, &dret, 0);
+    }
+  else
+    {
+      DBC *curs;
 
-		ret = dbp[cdb]->get(dbp[cdb], NULL, &dkey, &dret, 0);
+      do
+	{
+	  memset(&dret, 0, sizeof(DBT));
+	  dret.flags = DB_DBT_MALLOC;
 
-		if (ret == DB_LOCK_DEADLOCK)
-			goto retry;
+	  curs = localcursor(cdb);
 
-		if (ret && ret != DB_NOTFOUND)
-			abort();
+	  ret = curs->c_get(curs, &dkey, &dret, DB_SET);
+	  cclose(curs);
 	}
+      while (ret == DB_LOCK_DEADLOCK);
 
-	if ((ret != 0) && (ret != DB_NOTFOUND)) {
-		lprintf(1, "cdb_fetch(%d): %s\n", cdb, db_strerror(ret));
-		abort();
-	}
-	if (ret != 0) return NULL;
-	tempcdb = (struct cdbdata *) mallok(sizeof(struct cdbdata));
-	if (tempcdb == NULL) {
-		lprintf(2, "cdb_fetch: Cannot allocate memory for tempcdb\n");
-		abort();
-	}
-	tempcdb->len = dret.size;
-	tempcdb->ptr = dret.data;
-	return (tempcdb);
+    }
+
+  if ((ret != 0) && (ret != DB_NOTFOUND))
+    {
+      lprintf(1, "cdb_fetch(%d): %s\n", cdb, db_strerror(ret));
+      abort();
+    }
+
+  if (ret != 0) return NULL;
+  tempcdb = (struct cdbdata *) mallok(sizeof(struct cdbdata));
+
+  if (tempcdb == NULL)
+    {
+      lprintf(2, "cdb_fetch: Cannot allocate memory for tempcdb\n");
+      abort();
+    }
+
+  tempcdb->len = dret.size;
+  tempcdb->ptr = dret.data;
+  return (tempcdb);
 }
 
 
@@ -525,11 +582,6 @@ void cdb_rewind(int cdb)
 
 	if (MYCURSORS[cdb] != NULL)
 		cclose(MYCURSORS[cdb]);
-
-	if (MYTID == NULL) {
-		lprintf(1, "cdb_rewind: ERROR: cursor use outside transaction\n");
-		abort();
-	}
 
 	/*
 	 * Now initialize the cursor
@@ -585,14 +637,15 @@ struct cdbdata *cdb_next_item(int cdb)
 
 void cdb_begin_transaction(void) {
 
-	/******** this check slows it down and is not needed except to debug
-	if (MYTID != NULL) {
-		lprintf(1, "cdb_begin_transaction: ERROR: opening a new transaction with one already open!\n");
-		abort();
-	}
-	***************************/
+  bailIfCursor(MYCURSORS, "can't begin transaction during r/o cursor");
 
-	txbegin(&MYTID);
+  if (MYTID != NULL)
+    {
+      lprintf(1, "cdb_begin_transaction: ERROR: nested transaction\n");
+      abort();
+    }
+
+  txbegin(&MYTID);
 }
 
 void cdb_end_transaction(void) {
