@@ -1,4 +1,8 @@
  $Log$
+ Revision 625.6  2004/08/30 02:45:33  ajc
+ * setup.c: when running in Newt mode, make the size of the dialogs dynamic
+   to the size of the text in them.
+
  Revision 625.5  2004/08/29 15:18:41  error
  * newinstall.sh: fix detection of gmake/make
 
@@ -6018,4 +6022,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

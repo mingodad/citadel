@@ -244,6 +244,7 @@ int yesno(char *question)
 	newtComponent yesbutton = NULL;
 	newtComponent nobutton = NULL;
 	int i = 0;
+	int prompt_window_height = 0;
 #endif
 	int answer = 0;
 	char buf[SIZ];
@@ -264,14 +265,15 @@ int yesno(char *question)
 
 #ifdef HAVE_NEWT
 	case UI_NEWT:
-		newtCenteredWindow(76, 10, "Question");
+		prompt_window_height = num_tokens(question, '\n') + 5;
+		newtCenteredWindow(76, prompt_window_height, "Question");
 		form = newtForm(NULL, NULL, 0);
 		for (i=0; i<num_tokens(question, '\n'); ++i) {
 			extract_token(buf, question, i, '\n');
 			newtFormAddComponent(form, newtLabel(1, 1+i, buf));
 		}
-		yesbutton = newtButton(10, 5, "Yes");
-		nobutton = newtButton(60, 5, "No");
+		yesbutton = newtButton(10, (prompt_window_height - 4), "Yes");
+		nobutton = newtButton(60, (prompt_window_height - 4), "No");
 		newtFormAddComponent(form, yesbutton);
 		newtFormAddComponent(form, nobutton);
 		if (newtRunForm(form) == yesbutton) {
@@ -635,6 +637,7 @@ void strprompt(char *prompt_title, char *prompt_text, char *str)
 	newtComponent form;
 	char *result;
 	int i;
+	int prompt_window_height = 0;
 #endif
 	char buf[SIZ];
 	char setupmsg[SIZ];
@@ -655,14 +658,22 @@ void strprompt(char *prompt_title, char *prompt_text, char *str)
 #ifdef HAVE_NEWT
 	case UI_NEWT:
 
-		newtCenteredWindow(76, 10, prompt_title);
+		prompt_window_height = num_tokens(prompt_text, '\n') + 5 ;
+		newtCenteredWindow(76,
+				prompt_window_height,
+				prompt_title);
 		form = newtForm(NULL, NULL, 0);
 		for (i=0; i<num_tokens(prompt_text, '\n'); ++i) {
 			extract_token(buf, prompt_text, i, '\n');
 			newtFormAddComponent(form, newtLabel(1, 1+i, buf));
 		}
 		newtFormAddComponent(form,
-			newtEntry(1, 8, str, 74, &result, NEWT_FLAG_RETURNEXIT)
+			newtEntry(1,
+				(prompt_window_height - 2),
+				str,
+				74,
+				&result,
+				NEWT_FLAG_RETURNEXIT)
 		);
 		newtRunForm(form);
 		strcpy(str, result);
