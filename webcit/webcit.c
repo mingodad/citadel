@@ -22,8 +22,6 @@
 #include "child.h"
 
 int wc_session;
-char wc_host[256];
-char wc_port[256];
 char wc_username[256];
 char wc_password[256];
 char wc_roomname[256];
@@ -269,12 +267,6 @@ void output_headers(int print_standard_html_head) {
 	printf("Connection: close\n");
 	printf("Set-cookie: wc_session=%d\n", wc_session);
 
-	if (strlen(wc_host)>0) printf("Set-cookie: wc_host=%s\n", wc_host);
-	else printf("Set-cookie: wc_host=%s\n", unset);
-
-	if (strlen(wc_port)>0) printf("Set-cookie: wc_port=%s\n", wc_port);
-	else printf("Set-cookie: wc_port=%s\n", unset);
-
 	if (strlen(wc_username)>0) printf("Set-cookie: wc_username=%s\n",
 		wc_username);
 	else printf("Set-cookie: wc_username=%s\n", unset);
@@ -500,10 +492,6 @@ void session_loop(void) {
 	do {
 		getz(buf);
 
-		if (!strncasecmp(buf, "Cookie: wc_host=", 16))
-			strcpy(c_host, &buf[16]);
-		if (!strncasecmp(buf, "Cookie: wc_port=", 16))
-			strcpy(c_port, &buf[16]);
 		if (!strncasecmp(buf, "Cookie: wc_username=", 20))
 			strcpy(c_username, &buf[20]);
 		if (!strncasecmp(buf, "Cookie: wc_password=", 20))
@@ -556,8 +544,6 @@ void session_loop(void) {
 		serv_sock = connectsock(c_host, c_port, "tcp");
 		connected = 1;
 		serv_gets(buf);	/* get the server welcome message */
-		strcpy(wc_host, c_host);
-		strcpy(wc_port, c_port);
 		get_serv_info();
 		}
 
@@ -917,8 +903,6 @@ int main(int argc, char *argv[]) {
 			defaultport = argv[3];
 		}
 
-	strcpy(wc_host, "");
-	strcpy(wc_port, "");
 	strcpy(wc_username, "");
 	strcpy(wc_password, "");
 	strcpy(wc_roomname, "");

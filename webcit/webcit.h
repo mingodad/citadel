@@ -58,8 +58,6 @@ struct serv_info {
 	int serv_ok_floors;
 	};
 
-extern char wc_host[256];
-extern char wc_port[256];
 extern char wc_username[256];
 extern char wc_password[256];
 extern char wc_roomname[256];

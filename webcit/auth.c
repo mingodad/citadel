@@ -187,8 +187,6 @@ void do_logout(void) {
 	strcpy(wc_username, "");
 	strcpy(wc_password, "");
 	strcpy(wc_roomname, "");
-	strcpy(wc_host, "");
-	strcpy(wc_port, "");
 
 	printf("HTTP/1.0 200 OK\n");
 	printf("X-WebCit-Session: close\n");
