@@ -38,7 +38,8 @@ int CtdlHostAlias(char *fqdn);
 enum {
 	hostalias_nomatch,
 	hostalias_localhost,
-	hostalias_gatewaydomain
+	hostalias_gatewaydomain,
+	hostalias_directory
 };
 
 extern DLEXP char *inetcfg;

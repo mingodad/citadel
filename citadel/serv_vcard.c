@@ -299,7 +299,7 @@ void cmd_regi(char *argbuf) {
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
 		return;
-		}
+	}
 
 	my_vcard = vcard_get_user(&CC->usersupp);
 	strcpy(tmpaddr, "");
@@ -321,14 +321,15 @@ void cmd_regi(char *argbuf) {
 					b=strlen(tmpzip);
 					tmpzip[b]=buf[c];
 					tmpzip[b+1]=0;
-					}
 				}
 			}
+		}
 		if (a==5) vcard_set_prop(my_vcard, "tel;home", buf);
 		if (a==6) vcard_set_prop(my_vcard, "email;internet", buf);
 		if (a==7) strcpy(tmpcountry, buf);
 		++a;
-		}
+	}
+
 	sprintf(tmpaddress, ";;%s;%s;%s;%s;%s",
 		tmpaddr, tmpcity, tmpstate, tmpzip, tmpcountry);
 	vcard_set_prop(my_vcard, "adr", tmpaddress);
@@ -345,7 +346,7 @@ void cmd_regi(char *argbuf) {
 	CitControl.MMflags = CitControl.MMflags | MM_VALID ;
 	put_control();
 	end_critical_section(S_CONTROL);
-	}
+}
 
 
 
@@ -405,7 +406,7 @@ void cmd_greg(char *argbuf)
 	if (s == NULL) s = vcard_get_prop(v, "tel", 1);
 	if (s != NULL) {
 		cprintf("%s\n", s);
-		}
+	}
 	else {
 		cprintf(" \n");
 	}
@@ -420,7 +421,7 @@ void cmd_greg(char *argbuf)
 	extract_token(buf, adr, 6, ';');
 	cprintf("%s\n", buf);				/* country */
 	cprintf("000\n");
-	}
+}
 
 
 /*
@@ -478,6 +479,3 @@ char *Dynamic_Module_Init(void)
 	create_room(ADDRESS_BOOK_ROOM, 3, "", 0, 1);
 	return "$Id$";
 }
-
-
-

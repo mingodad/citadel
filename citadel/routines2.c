@@ -796,16 +796,19 @@ void do_system_configuration(void)
 void get_inet_rec_type(char *buf) {
 	int sel;
 
-	keyopt(" <1> localhost       (Alias for this computer)\n");
-	keyopt(" <2> gateway domain  (Domain for all Citadel systems)\n");
-	keyopt(" <3> smart-host      (Forward all outbound mail to this host)\n");
-	sel = intprompt("Which one", 1, 1, 3);
+	keyopt(" <1> localhost      (Alias for this computer)\n");
+	keyopt(" <2> gateway domain (Domain for all Citadel systems)\n");
+	keyopt(" <3> smart-host     (Forward all outbound mail to this host)\n");
+	keyopt(" <4> directory      (Consult the Global Address Book)\n");
+	sel = intprompt("Which one", 1, 1, 4);
 	switch(sel) {
 		case 1:	strcpy(buf, "localhost");
 			return;
 		case 2:	strcpy(buf, "gatewaydomain");
 			return;
 		case 3:	strcpy(buf, "smarthost");
+			return;
+		case 4:	strcpy(buf, "directory");
 			return;
 	}
 }

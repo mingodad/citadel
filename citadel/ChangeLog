@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.40  2002/01/05 22:31:22  ajc
+ * Removed some protocol commands and writeups that are no longer necessary
+ * Began some of the framework for the Global Address Book
+
  Revision 590.39  2002/01/05 12:44:43  error
  * serv_chat.c: allow a session to be killed while in chat
 
@@ -3079,4 +3083,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

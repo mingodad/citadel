@@ -1,5 +1,5 @@
                   SESSION LAYER PROTOCOL FOR CITADEL/UX
-         (c) 1995-2001 by Art Cancro et. al.    All Rights Reserved
+         (c) 1995-2002 by Art Cancro et. al.    All Rights Reserved
    
   
  INTRODUCTION
@@ -1465,27 +1465,6 @@ BINARY_FOLLOWS followed by a data block containing the _raw_ message format
 on disk.
   
    
- ENT3   (ENTer message, mode 3 -- internal command)
- 
- ENT3 is for use by internal programs only and should not be utilized by
-user-mode clients.  It does require IPGM authentication.  This command posts
-a raw message straight into the message base without modification or performing
-any checks.   It accepts the following arguments:
- 
-  0  -  Post flag.  This should be set to 1 to post a message.  If it is
-set to 0, the server only returns OK or ERROR (plus any flags describing
-the error) without reading in a message.  This is used to verify the operation
-before actually transmitting a message.
-  1  -  Recipient.  This argument is utilized only for private mail messages.
-It is ignored for public messages.  It contains, of course, the name of the
-recipient of the message.
-  2  -  The size (in bytes) of the message to be transmitted.
-
- ENT3 returns OK to tell the client that a message can be posted, ERROR if
-there would be a problem with the operation, or SEND_BINARY followed by a byte
-count if it is expecting the message to be transmitted.
-  
-  
  TERM   (TERMinate another session)
  
  In a multithreaded environment, it sometimes becomes necessary to terminate
@@ -1499,17 +1478,6 @@ a client program is prohibited from terminating the session it is currently
 running on.
  
  See also: REQT
- 
- 
- NSET   (Network SETup commands)
- 
- Aides may use this command to configure the networker.  This command's
-parameters are passed directly to the 'netsetup' command line utility.   If
-netsetup returns a non-zero exit code, ERROR is returned, along with the
-error message (if any).  If netsetup returns a zero (success) exit code,
-LISTING_FOLLOWS is returned, followed by zero or more lines of output (since
-netsetup may have information to display, such as a room or node list) and
-the usual '000' listing terminator.
  
  
  DOWN   (shut DOWN the server)
@@ -1748,7 +1716,7 @@ into the system.  It is implemented in the serv_expire module.
  
  MSG4   (read MeSsaGe, mode 4 -- enumerate MIME parts)
  
-     FIX ... do the writeup for this once it's done.
+     FIXME ... do the writeup for this once it's done.
  
 
   

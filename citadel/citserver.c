@@ -1181,10 +1181,6 @@ void do_command_loop(void) {
 		cmd_scdn(&cmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf, "NSET", 4)) {
-		cmd_nset(&cmdbuf[5]);
-		}
-
 	else if (!strncasecmp(cmdbuf, "UIMG", 4)) {
 		cmd_uimg(&cmdbuf[5]);
 		}
