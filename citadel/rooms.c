@@ -725,10 +725,18 @@ void roomdir(void) {
 void invite(void) {
 	char aaa[31],bbb[SIZ];
 
-	if ((room_flags & QR_PRIVATE)==0) {
-		printf("This is not a private room.\n");
-		return;
-		}
+     /* Because kicking people out of public rooms now sets a LOCKOUT
+      * flag, we need to be able to invite people into public rooms
+      * in order to let them back in again.
+      *        - cough
+      */
+
+     /*
+      * if ((room_flags & QR_PRIVATE)==0) {
+      * 	printf("This is not a private room.\n");
+      * 	return;
+      * 	}
+      */
 
 	newprompt("Name of user? ",aaa,30);
 	if (aaa[0]==0) return;
