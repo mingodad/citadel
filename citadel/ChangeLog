@@ -1,4 +1,8 @@
  $Log$
+ Revision 622.6  2004/07/03 04:09:37  ajc
+ * Check the "Permission to send Internet mail" access controls when
+   messages are submitted via Authenticated SMTP.
+
  Revision 622.5  2004/06/28 17:09:20  ajc
  * Properly re-terminate messages posted via IMAP APPEND.  The newline
    conversion process was shortening the text but not adjusting string
@@ -5891,3 +5895,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

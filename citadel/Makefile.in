@@ -223,7 +223,7 @@ install-exec: all
 			$(INSTALL) $$i $(root)$(prefix)/$$i; \
 		fi \
 	done
-	@for i in utilsmenu ; do \
+	@for i in utilsmenu database_cleanup.sh ; do \
 		if test -f $(srcdir)/$$i; then \
 			echo $(INSTALL) $(srcdir)/$$i $(root)$(prefix)/$$i; \
 			$(INSTALL) $(srcdir)/$$i $(root)$(prefix)/$$i; \

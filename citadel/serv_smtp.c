@@ -579,6 +579,16 @@ void smtp_rcpt(char *argbuf) {
 	}
 
 	if (valid->num_internet > 0) {
+		if (CC->logged_in) {
+                        if (CtdlCheckInternetMailPermission(&CC->user)==0) {
+				cprintf("551 5.7.1 <%s> - you do not have permission to send Internet mail\r\n", recp);
+                                free(valid);
+                                return;
+                        }
+                }
+	}
+
+	if (valid->num_internet > 0) {
 		if ( (SMTP->message_originated_locally == 0)
 		   && (SMTP->is_lmtp == 0) ) {
 			cprintf("551 5.7.1 <%s> - relaying denied\r\n", recp);
