@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.31  2002/01/03 12:27:35  error
+ * Fixed my name in docs/copyright.txt, why didn't I notice that before?
+
  Revision 590.30  2002/01/03 12:21:02  error
  * Autoconf support for recognizing OpenSSL
 
@@ -3052,4 +3055,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

@@ -5,7 +5,7 @@
  Copyright (c) 1987-2001 by the Citadel development team.
   
      Steven M. Bellovin (author of public domain 'parsedate' function)
-     Michael Bremen     (HP/UX compatibility layer and some cosmetics)
+     Michael Hampton    (cosmetics, misc. bug fixes, additional commands)
      Nathan Bryant      (build system, security, database access, and others)
      Art Cancro         (overall system design and lead developer)
      Brian Costello     (cosmetics, additional commands)
