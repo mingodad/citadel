@@ -1,4 +1,12 @@
  $Log$
+ Revision 614.84  2004/03/16 21:09:37  ajc
+ * Eliminate EVT_OUTPUTMSG server extensions (don't need them anymore)
+ * Add EVT_NEWUSER server extensions
+ * EVT_NEWUSER and EVT_PURGEUSER server extensions now specify a
+   struct ctdluser * instead of a username and usernum
+ * serv_vcard.c: automatically create and submit a skeleton vCard when
+   a new user is created.
+
  Revision 614.83  2004/03/16 19:05:50  error
  * Further changes to stress.c, Makefile.in to build it, .cvsignore
    (but it's still broken)
@@ -5538,3 +5546,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -634,11 +634,42 @@ void cmd_greg(char *argbuf)
 
 
 /*
+ * When a user is being created, create his/her vCard.
+ */
+void vcard_newuser(struct ctdluser *usbuf) {
+	char buf[SIZ];
+	char vname[SIZ];
+	struct vCard *v;
+	int i;
+	int vnum;
+
+	/* Try to intelligently convert the screen name to a
+	 * fully expanded vCard name based on the number of
+	 * words in the name
+	 */
+	vnum = num_tokens(usbuf->fullname, ' ');
+	strcpy(vname, usbuf->fullname);	/* FIXME */
+
+	/* Create and save the vCard */
+        v = vcard_new();
+	if (v == NULL) return;
+	sprintf(buf, "%s@%s", usbuf->fullname, config.c_fqdn);
+	for (i=0; i<strlen(buf); ++i) {
+		if (buf[i] == ' ') buf[i] = '_';
+	}
+	vcard_add_prop(v, "n", vname);
+	vcard_add_prop(v, "email;internet", buf);
+	vcard_write_user(usbuf, v);
+	vcard_free(v);
+}
+
+
+/*
  * When a user is being deleted, we have to remove his/her vCard.
  * This is accomplished by issuing a message with 'CANCEL' in the S (special)
  * field, and the same Extended ID as the existing card.
  */
-void vcard_purge(char *username, long usernum) {
+void vcard_purge(struct ctdluser *usbuf) {
 	struct CtdlMessage *msg;
 	char buf[SIZ];
 
@@ -649,7 +680,7 @@ void vcard_purge(char *username, long usernum) {
         msg->cm_magic = CTDLMESSAGE_MAGIC;
         msg->cm_anon_type = MES_NORMAL;
         msg->cm_format_type = 0;
-        msg->cm_fields['A'] = strdoop(username);
+        msg->cm_fields['A'] = strdoop(usbuf->fullname);
         msg->cm_fields['O'] = strdoop(ADDRESS_BOOK_ROOM);
         msg->cm_fields['N'] = strdoop(NODENAME);
         msg->cm_fields['M'] = strdoop("Purge this vCard\n");
@@ -835,6 +866,7 @@ char *serv_vcard_init(void)
 	CtdlRegisterProtoHook(cmd_igab, "IGAB",
 					"Initialize Global Address Book");
 	CtdlRegisterProtoHook(cmd_qdir, "QDIR", "Query Directory");
+	CtdlRegisterUserHook(vcard_newuser, EVT_NEWUSER);
 	CtdlRegisterUserHook(vcard_purge, EVT_PURGEUSER);
 	CtdlRegisterNetprocHook(vcard_extract_from_network);
 

@@ -46,9 +46,9 @@ void CtdlRegisterSessionHook(void (*fcn_ptr)(void), int EventType);
 void CtdlUnregisterSessionHook(void (*fcn_ptr)(void), int EventType);
 void PerformSessionHooks(int EventType);
 
-void CtdlRegisterUserHook(void (*fcn_ptr)(char*, long), int EventType);
-void CtdlUnregisterUserHook(void (*fcn_ptr)(char*, long), int EventType);
-void PerformUserHooks(char *username, long usernum, int EventType);
+void CtdlRegisterUserHook(void (*fcn_ptr)(struct ctdluser *), int EventType);
+void CtdlUnregisterUserHook(void (*fcn_ptr)(struct ctdluser *), int EventType);
+void PerformUserHooks(struct ctdluser *usbuf, int EventType);
 
 void CtdlRegisterXmsgHook(int (*fcn_ptr)(char *, char *, char *), int order);
 void CtdlUnregisterXmsgHook(int (*fcn_ptr)(char *, char *, char *), int order);

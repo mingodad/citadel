@@ -1186,7 +1186,6 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 		strcpy(display_name, "<unknown>");
 		if (TheMessage->cm_fields['A']) {
 			strcpy(buf, TheMessage->cm_fields['A']);
-			PerformUserHooks(buf, (-1L), EVT_OUTPUTMSG);
 			if (TheMessage->cm_anon_type == MES_ANONONLY) {
 				strcpy(display_name, "****");
 			}
@@ -1315,8 +1314,6 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 			cprintf("@%s", snode);
 		}
 		cprintf(">%s", nl);
-
-		PerformUserHooks(luser, (-1L), EVT_OUTPUTMSG);
 
 		if (!is_room_aide() && (TheMessage->cm_anon_type == MES_ANONONLY)) {
 			cprintf("From: x@x.org (----)%s", nl);

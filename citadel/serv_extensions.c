@@ -238,7 +238,7 @@ void CtdlUnregisterSessionHook(void (*fcn_ptr) (void), int EventType)
 }
 
 
-void CtdlRegisterUserHook(void (*fcn_ptr) (char *, long), int EventType)
+void CtdlRegisterUserHook(void (*fcn_ptr) (struct ctdluser *), int EventType)
 {
 
 	struct UserFunctionHook *newfcn;
@@ -255,7 +255,7 @@ void CtdlRegisterUserHook(void (*fcn_ptr) (char *, long), int EventType)
 }
 
 
-void CtdlUnregisterUserHook(void (*fcn_ptr) (char *, long), int EventType)
+void CtdlUnregisterUserHook(void (*fcn_ptr) (struct ctdluser *), int EventType)
 {
 	struct UserFunctionHook *cur, *p;
 
@@ -522,13 +522,13 @@ void PerformLogHooks(int loglevel, char *logmsg)
 	}
 }
 
-void PerformUserHooks(char *username, long usernum, int EventType)
+void PerformUserHooks(struct ctdluser *usbuf, int EventType)
 {
 	struct UserFunctionHook *fcn;
 
 	for (fcn = UserHookTable; fcn != NULL; fcn = fcn->next) {
 		if (fcn->eventtype == EventType) {
-			(*fcn->h_function_pointer) (username, usernum);
+			(*fcn->h_function_pointer) (usbuf);
 		}
 	}
 }

@@ -744,7 +744,7 @@ int purge_user(char pname[])
 	lprintf(CTDL_NOTICE, "Deleting user <%s>\n", pname);
 
 	/* Perform any purge functions registered by server extensions */
-	PerformUserHooks(usbuf.fullname, usbuf.usernum, EVT_PURGEUSER);
+	PerformUserHooks(&usbuf, EVT_PURGEUSER);
 
 	/* delete any existing user/room relationships */
 	cdb_delete(CDB_VISIT, &usbuf.usernum, sizeof(long));
@@ -840,8 +840,11 @@ int create_user(char *newusername, int become_user)
                 lputroom(&qrbuf);
         }
 
+	/* Perform any create functions registered by server extensions */
+	PerformUserHooks(&usbuf, EVT_NEWUSER);
+
 	/* Everything below this line can be bypassed if administratively
-	   creating a user, instead of doing self-service account creation
+	 * creating a user, instead of doing self-service account creation
 	 */
 
 	if (become_user) {

@@ -65,13 +65,6 @@ void LoginTest(void) {
 	lprintf(CTDL_DEBUG, "--- Hello, %s ---\n", CC->curr_user);
 	}
 
-
-void Ygorl(char *username, long usernum) {
-	if (!strcasecmp(username, "Unsuspecting User")) {
-		strcpy(username, "Flaming Asshole");
-		}
-	}
-
 void LogTest(char *buf) {
 	fprintf(stderr,"%c[1m%s%c[0m", 27, buf, 27);
 	fflush(stderr);
@@ -85,7 +78,6 @@ char *serv_test_init(void)
    CtdlRegisterSessionHook(SessionStartTest, EVT_START);
    CtdlRegisterSessionHook(SessionStopTest, EVT_STOP);
    CtdlRegisterSessionHook(LoginTest, EVT_LOGIN);
-   CtdlRegisterUserHook(Ygorl, EVT_OUTPUTMSG);
    CtdlRegisterLogHook(LogTest, 1);
    return "$Id$";
 }

@@ -54,6 +54,19 @@ struct vCard *vcard_new() {
 
 
 /*
+ * Add a property to a vCard
+ */
+void vcard_add_prop(struct vCard *v, char *propname, char *propvalue) {
+	++v->numprops;
+	v->prop = reallok(v->prop,
+		(v->numprops * sizeof(char *) * 2) );
+	v->prop[v->numprops-1].name = strdoop(propname);
+	v->prop[v->numprops-1].value = strdoop(propvalue);
+}
+
+
+
+/*
  * Constructor (supply serialized vCard)
  */
 struct vCard *vcard_load(char *vtext) {
@@ -161,8 +174,6 @@ char *vcard_get_prop(struct vCard *v, char *propname,
 
 	return NULL;
 }
-
-
 
 
 /*

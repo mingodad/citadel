@@ -321,13 +321,13 @@ extern struct SessionFunctionHook *SessionHookTable;
  */
 struct UserFunctionHook {
 	struct UserFunctionHook *next;
-	void (*h_function_pointer) (char *username, long usernum);
+	void (*h_function_pointer) (struct ctdluser *usbuf);
 	int eventtype;
 };
 extern struct UserFunctionHook *UserHookTable;
 
 #define EVT_PURGEUSER	100	/* Deleting a user */
-#define EVT_OUTPUTMSG	101	/* Outputting a message */
+#define EVT_NEWUSER	102	/* Creating a user */
 
 /*
  * MessageFunctionHook extensions are used for hooks which implement handlers
