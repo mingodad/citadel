@@ -639,16 +639,59 @@ void cmd_greg(char *argbuf)
 void vcard_newuser(struct ctdluser *usbuf) {
 	char buf[SIZ];
 	char vname[SIZ];
+
+	char lastname[SIZ];
+	char firstname[SIZ];
+	char middlename[SIZ];
+	char honorific_prefixes[SIZ];
+	char honorific_suffixes[SIZ];
+
 	struct vCard *v;
 	int i;
-	int vnum;
 
 	/* Try to intelligently convert the screen name to a
 	 * fully expanded vCard name based on the number of
 	 * words in the name
 	 */
-	vnum = num_tokens(usbuf->fullname, ' ');
-	strcpy(vname, usbuf->fullname);	/* FIXME */
+	strcpy(lastname, "");
+	strcpy(firstname, "");
+	strcpy(middlename, "");
+	strcpy(honorific_prefixes, "");
+	strcpy(honorific_suffixes, "");
+
+	strcpy(buf, usbuf->fullname);
+
+	/* Honorific suffixes */
+	if (num_tokens(buf, ',') > 1) {
+		extract_token(honorific_suffixes, buf, (num_tokens(buf, ' ') - 1), ',');
+		remove_token(buf, (num_tokens(buf, ',') - 1), ',');
+	}
+
+	/* Find a last name */
+	extract_token(lastname, buf, (num_tokens(buf, ' ') - 1), ' ');
+	remove_token(buf, (num_tokens(buf, ' ') - 1), ' ');
+
+	/* Find honorific prefixes */
+	if (num_tokens(buf, ' ') > 2) {
+		extract_token(honorific_prefixes, buf, 0, ' ');
+		remove_token(buf, 0, ' ');
+	}
+
+	/* Find a middle name */
+	if (num_tokens(buf, ' ') > 1) {
+		extract_token(middlename, buf, (num_tokens(buf, ' ') - 1), ' ');
+		remove_token(buf, (num_tokens(buf, ' ') - 1), ' ');
+	}
+
+	/* Anything left is probably the first name */
+	strcpy(firstname, buf);
+	striplt(firstname);
+
+	/* Compose the structured name */
+	sprintf(vname, "%s;%s;%s;%s;%s", lastname, firstname, middlename,
+		honorific_prefixes, honorific_suffixes);
+
+	lprintf(CTDL_DEBUG, "Converted <%s> to <%s>\n", usbuf->fullname, vname);
 
 	/* Create and save the vCard */
         v = vcard_new();
@@ -657,6 +700,7 @@ void vcard_newuser(struct ctdluser *usbuf) {
 	for (i=0; i<strlen(buf); ++i) {
 		if (buf[i] == ' ') buf[i] = '_';
 	}
+	vcard_add_prop(v, "fn", usbuf->fullname);
 	vcard_add_prop(v, "n", vname);
 	vcard_add_prop(v, "email;internet", buf);
 	vcard_write_user(usbuf, v);

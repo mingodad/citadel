@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.85  2004/03/16 22:44:15  ajc
+ * Better conversion of friendly name to fully qualified vcard name
+
  Revision 614.84  2004/03/16 21:09:37  ajc
  * Eliminate EVT_OUTPUTMSG server extensions (don't need them anymore)
  * Add EVT_NEWUSER server extensions
@@ -5546,4 +5549,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
