@@ -199,7 +199,11 @@ void display_siteconfig(void)
 			wprintf("<INPUT TYPE=\"checkbox\" NAME=\"c_disable_newu\" VALUE=\"yes\" %s>", ((atoi(buf) != 0) ? "CHECKED" : ""));
 			wprintf("</TD></TR>\n");
 			break;
-
+		case 31:
+			wprintf("<TR><TD>Allow system Aides access to mailboxes</TD><TD>");
+			wprintf("<INPUT TYPE=\"checkbox\" NAME=\"c_aide_mailboxes\" VALUE=\"yes\" %s>", ((atoi(buf) != 0) ? "CHECKED" : ""));
+			wprintf("</TD></TR>\n");
+			break;
 		}
 	}
 
@@ -255,6 +259,7 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_imap_port"));
 	serv_printf("%s", bstr("c_net_freq"));
 	serv_printf("%s", bstr("c_disable_newu"));
+	serv_printf("%s", bstr("c_aide_mailboxes"));
 	serv_printf("000");
 	display_success("System configuration has been updated.");
 }

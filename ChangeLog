@@ -1,4 +1,7 @@
 $Log$
+Revision 323.13  2002/03/13 03:56:52  ajc
+* New site config option "Allow system Aides to gain access to mailboxes"
+
 Revision 323.12  2002/03/12 23:13:57  ajc
 * Moved room access controls out of the admin menu and into the room commands
   menu.  Prettied up the access control list screen.
@@ -749,4 +752,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
