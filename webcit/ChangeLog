@@ -1,4 +1,7 @@
 $Log$
+Revision 523.2  2004/09/10 03:49:17  ajc
+* Added 'dialog' mode to setup
+
 Revision 523.1  2004/08/31 20:31:01  ajc
 * When saving VTODO (tasks), insert a UID if none is already present.  Also
   increment the sequence, or insert one if none is already present.
@@ -2040,4 +2043,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
