@@ -1,4 +1,7 @@
 $Log$
+Revision 323.38  2002/05/23 03:40:05  ajc
+* Brought over a utility function I'll need later
+
 Revision 323.37  2002/05/22 02:34:56  ajc
 * Finished room/folder view selector.  Pretty cool.
 
@@ -828,3 +831,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

@@ -291,5 +291,40 @@ void striplt(char *buf)
 }
 
 
+/*
+ * Determine whether the specified message number is contained within the
+ * specified set.
+ */
+int is_msg_in_mset(char *mset, long msgnum) {
+	int num_sets;
+	int s;
+	char setstr[SIZ], lostr[SIZ], histr[SIZ];	/* was 1024 */
+	long lo, hi;
+
+	/*
+	 * Now set it for all specified messages.
+	 */
+	num_sets = num_tokens(mset, ',');
+	for (s=0; s<num_sets; ++s) {
+		extract_token(setstr, mset, s, ',');
+
+		extract_token(lostr, setstr, 0, ':');
+		if (num_tokens(setstr, ':') >= 2) {
+			extract_token(histr, setstr, 1, ':');
+			if (!strcmp(histr, "*")) {
+				snprintf(histr, sizeof histr, "%ld", LONG_MAX);
+			}
+		} 
+		else {
+			strcpy(histr, lostr);
+		}
+		lo = atol(lostr);
+		hi = atol(histr);
+
+		if ((msgnum >= lo) && (msgnum <= hi)) return(1);
+	}
+
+	return(0);
+}
 
 

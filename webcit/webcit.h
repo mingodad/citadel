@@ -307,3 +307,4 @@ void save_preferences(void);
 void get_preference(char *key, char *value);
 void set_preference(char *key, char *value);
 void knrooms(void);
+int is_msg_in_mset(char *mset, long msgnum);
