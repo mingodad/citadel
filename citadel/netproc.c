@@ -672,18 +672,22 @@ void inprocess(void) {
 		}
 	if (ls!=NULL) {
 		do {
-			ptr=fgets(sfilename,256,ls);
-			if (ptr!=NULL) sfilename[strlen(sfilename)-1] = 0;
-			} while( (ptr!=NULL)&&((!strcmp(sfilename,"."))
-				 ||(!strcmp(sfilename,".."))));
-		if (ptr!=NULL) syslog(LOG_NOTICE, "processing %s", sfilename);
-		pclose(ls);
+SKIP:			ptr=fgets(sfilename, sizeof sfilename, ls);
+			if (ptr!=NULL) {
+				sfilename[strlen(sfilename)-1] = 0;
+				if (!strcmp(sfilename, ".")) goto SKIP;
+				if (!strcmp(sfilename, "..")) goto SKIP;
+				if (!strcmp(sfilename, "CVS")) goto SKIP;
+				goto PROCESS_IT;
+				}
+			} while(ptr!=NULL);
+PROCESS_IT:	pclose(ls);
 		}
 
       if (ptr!=NULL) {
 	sprintf(pfilename,"%s/network/spoolin/%s",bbs_home_directory,sfilename);
 	syslog(LOG_NOTICE, "processing <%s>", pfilename);
-	
+
 	fp = fopen(pfilename, "rb");
 	if (fp == NULL) {
 	    syslog(LOG_ERR, "cannot open %s: %s", pfilename, strerror(errno));
