@@ -22,22 +22,27 @@
 /*
  * Display the login screen
  */
-void display_login(void) {
+void display_login(char *mesg) {
 	char buf[256];
 
 	printf("HTTP/1.0 200 OK\n");
 	output_headers();
 
 	wprintf("<HTML><BODY>\n");
-	wprintf("<CENTER><TABLE border=0><TR><TD>\n");
+	wprintf("<CENTER><TABLE border=0 width=100%><TR><TD>\n");
 
 	/* FIX replace with the correct image */
 	wprintf("<IMG SRC=\"/static/velma.gif\">");
 	wprintf("</TD><TD><CENTER>\n");
 
-	serv_puts("MESG hello");
-	serv_gets(buf);
-	if (buf[0]=='1') fmout(NULL);
+	if (mesg != NULL) {
+		wprintf("<font size=+1><b>%s</b></font>", mesg);
+		}
+	else {
+		serv_puts("MESG hello");
+		serv_gets(buf);
+		if (buf[0]=='1') fmout(NULL);
+		}
 
 	wprintf("</CENTER></TD></TR></TABLE></CENTER>\n");
 
@@ -78,7 +83,10 @@ void become_logged_in(char *user, char *pass, char *serv_response) {
 void do_login(void) {
 	char buf[256];
 
-	fprintf(stderr, "do_login() called\n");
+	if (!strcasecmp(bstr("action"), "Exit")) {
+		do_logout();
+		}
+
 	if (!strcasecmp(bstr("action"), "Login")) {
 		serv_printf("USER %s", bstr("name"));
 		serv_gets(buf);
@@ -89,26 +97,27 @@ void do_login(void) {
 				become_logged_in(bstr("name"),
 					bstr("pass"), buf);
 				}
+			else {
+				display_login(&buf[4]);
+				return;
+				}
+			}
+		else {
+			display_login(&buf[4]);
+			return;
 			}
 		}
 
-	fprintf(stderr, "logged_in==%d\n", logged_in);
+	if (!strcasecmp(bstr("action"), "New User")) {
+		display_login("New user login not yet supported.");
+		return;
+		}
 
 	if (logged_in) {
 		output_static("frameset.html");
 		}
 	else {
-		printf("HTTP/1.0 200 OK\n");
-		output_headers();
-		wprintf("<HTML><HEAD><TITLE>Nope</TITLE></HEAD><BODY>\n");
-		wprintf("Your password was not accepted.\n");
-		wprintf("<HR><PRE>\n");
-		wprintf("%s\n", buf);
-		dump_vars();
-		wprintf("</PRE><HR>\n");
-		wprintf("<HR><A HREF=\"/\">Try again</A>\n");
-		wprintf("</BODY></HTML>\n");
-		wDumpContent();
+		display_login("Your password was not accepted.");
 		}
 
 	}
@@ -146,6 +155,8 @@ void do_logout(void) {
 
 	if (buf[0]=='1') fmout(NULL);
 	else wprintf("Goodbye\n");
+
+	wprintf("<HR><A HREF=\"/\">Log in again</A>\n");
 
 	wprintf("</CENTER></BODY></HTML>\n");
 	wDumpContent();

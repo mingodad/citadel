@@ -6,7 +6,7 @@
 
 void become_logged_in(char *user, char *pass, char *serv_response);
 void do_login(void);
-void display_login(void);
+void display_login(char *mesg);
 void do_welcome(void);
 void do_logout(void);
 void display_main_menu(void);
