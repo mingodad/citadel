@@ -180,7 +180,13 @@ void imap_print_express_messages(void) {
  */
 void imap_append(int num_parms, char *parms[]) {
 	size_t literal_length;
+	struct CtdlMessage *msg;
 	int ret;
+	char roomname[ROOMNAMELEN];
+	char buf[SIZ];
+	char savedroom[ROOMNAMELEN];
+	int msgs, new;
+
 
 	if (num_parms < 4) {
 		cprintf("%s BAD usage error\r\n", parms[0]);
@@ -215,5 +221,65 @@ void imap_append(int num_parms, char *parms[]) {
 		return;
 	}
 
-	cprintf("%s NO not implemented yet ** FIXME ** \r\n", parms[0]);
+	lprintf(9, "Converting message...\n");
+        msg = convert_internet_message(IMAP->transmitted_message);
+
+        /* If the user is locally authenticated, FORCE the From: header to
+         * show up as the real sender.  FIXME do we really want to do this?
+         */
+        if (CC->logged_in) {
+                if (msg->cm_fields['A'] != NULL) phree(msg->cm_fields['A']);
+                if (msg->cm_fields['N'] != NULL) phree(msg->cm_fields['N']);
+                if (msg->cm_fields['H'] != NULL) phree(msg->cm_fields['H']);
+                msg->cm_fields['A'] = strdoop(CC->usersupp.fullname);
+                msg->cm_fields['N'] = strdoop(config.c_nodename);
+                msg->cm_fields['H'] = strdoop(config.c_humannode);
+        }
+
+	ret = imap_grabroom(roomname, parms[2]);
+	if (ret != 0) {
+		cprintf("%s NO Invalid mailbox name or location, or access denied\r\n",
+			parms[0]);
+		return;
+	}
+
+	/*
+	 * usergoto() formally takes us to the desired room.  (If another
+	 * folder is selected, save its name so we can return there!!!!!)
+	 */
+	if (IMAP->selected) {
+		strcpy(savedroom, CC->quickroom.QRname);
+	}
+	usergoto(roomname, 0, &msgs, &new);
+
+	/* 
+	 * Can we post here?
+	 */
+	ret = CtdlDoIHavePermissionToPostInThisRoom(buf);
+
+	if (ret) {
+		/* Nope ... print an error message */
+		cprintf("%s NO %s\r\n", parms[0], buf);
+	}
+
+	else {
+		/* Yes ... go ahead and post! */
+		if (msg != NULL) {
+                	CtdlSaveMsg(msg, "", "", 0);
+		}
+		cprintf("%s OK APPEND completed\r\n", parms[0]);
+	}
+
+	/*
+	 * IMAP protocol response to client has already been sent by now.
+	 *
+	 * If another folder is selected, go back to that room so we can resume
+	 * our happy day without violent explosions.
+	 */
+	if (IMAP->selected) {
+		usergoto(savedroom, 0, &msgs, &new);
+	}
+
+	/* We don't need this buffer anymore */
+	CtdlFreeMessage(msg);
 }

@@ -102,3 +102,4 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *,
 		int crlf);
 int CtdlCopyMsgToRoom(long msgnum, char *dest);
 int CtdlDoIHavePermissionToDeleteMessagesFromThisRoom(void);
+int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf);

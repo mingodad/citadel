@@ -1983,6 +1983,41 @@ struct CtdlMessage *make_message(
 }
 
 
+/*
+ * Check to see whether we have permission to post a message in the current
+ * room.  Returns a *CITADEL ERROR CODE* and puts a message in errmsgbuf, or
+ * returns 0 on success.
+ */
+int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf) {
+
+	if (!(CC->logged_in)) {
+		sprintf(errmsgbuf, "Not logged in.");
+		return (ERROR + NOT_LOGGED_IN);
+	}
+
+	if ((CC->usersupp.axlevel < 2)
+	    && ((CC->quickroom.QRflags & QR_MAILBOX) == 0)) {
+		sprintf(errmsgbuf, "Need to be validated to enter "
+				"(except in %s> to sysop)", MAILROOM);
+		return (ERROR + HIGHER_ACCESS_REQUIRED);
+	}
+
+	if ((CC->usersupp.axlevel < 4)
+	   && (CC->quickroom.QRflags & QR_NETWORK)) {
+		sprintf(errmsgbuf, "Need net privileges to enter here.");
+		return (ERROR + HIGHER_ACCESS_REQUIRED);
+	}
+
+	if ((CC->usersupp.axlevel < 6)
+	   && (CC->quickroom.QRflags & QR_READONLY)) {
+		sprintf(errmsgbuf, "Sorry, this is a read-only room.");
+		return (ERROR + HIGHER_ACCESS_REQUIRED);
+	}
+
+	strcpy(errmsgbuf, "Ok");
+	return(0);
+}
+
 
 
 
@@ -2002,6 +2037,7 @@ void cmd_ent0(char *entargs)
 	int mtsflag = 0;
 	struct usersupp tempUS;
 	char buf[SIZ];
+	int err = 0;
 
 	post = extract_int(entargs, 0);
 	extract(recipient, entargs, 1);
@@ -2010,28 +2046,13 @@ void cmd_ent0(char *entargs)
 
 	/* first check to make sure the request is valid. */
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
+	err = CtdlDoIHavePermissionToPostInThisRoom(buf);
+	if (err) {
+		cprintf("%d %s\n", err, buf);
 		return;
 	}
-	if ((CC->usersupp.axlevel < 2) && ((CC->quickroom.QRflags & QR_MAILBOX) == 0)) {
-		cprintf("%d Need to be validated to enter ",
-			ERROR + HIGHER_ACCESS_REQUIRED);
-		cprintf("(except in %s> to sysop)\n", MAILROOM);
-		return;
-	}
-	if ((CC->usersupp.axlevel < 4) && (CC->quickroom.QRflags & QR_NETWORK)) {
-		cprintf("%d Need net privileges to enter here.\n",
-			ERROR + HIGHER_ACCESS_REQUIRED);
-		return;
-	}
-	if ((CC->usersupp.axlevel < 6) && (CC->quickroom.QRflags & QR_READONLY)) {
-		cprintf("%d Sorry, this is a read-only room.\n",
-			ERROR + HIGHER_ACCESS_REQUIRED);
-		return;
-	}
-	mtsflag = 0;
 
+	/* Check some other permission type things. */
 
 	if (post == 2) {
 		if (CC->usersupp.axlevel < 6) {
