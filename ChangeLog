@@ -1,4 +1,7 @@
 $Log$
+Revision 211.13  2000/04/06 20:42:03  nbryant
+* configure.in: fix a typo
+
 Revision 211.12  2000/04/06 20:37:01  nbryant
 * solaris cleanups and warning fixes
 
@@ -415,3 +418,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
