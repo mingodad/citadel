@@ -81,6 +81,7 @@ int CitClient::serv_trans(
 			) {
 
 	int first_digit;
+        int i;
 	wxString buf;
 	bool express_messages_waiting = FALSE;
 
@@ -97,7 +98,10 @@ int CitClient::serv_trans(
 			xferbuf.Add(buf);
 		}
 	} else if (first_digit == 4) {		// SEND_LISTING
-		// FIX do this!!
+        	for (i=0; i<xferbuf.Number(); ++i) {
+                	buf.Printf("%s", (wxString *)xferbuf.Nth(i)->GetData());
+			serv_puts(buf);
+        	}
 		serv_puts("000");
 	}
 
