@@ -1482,13 +1482,13 @@ void display_enter(void)
 	now = time(NULL);
 	fmt_date(buf, now);
 	strcat(&buf[strlen(buf)], " <I>from</I> ");
-	stresc(&buf[strlen(buf)], WC->wc_username, 1);
+	stresc(&buf[strlen(buf)], WC->wc_username, 1, 1);
 	if (strlen(bstr("recp")) > 0) {
 		strcat(&buf[strlen(buf)], " <I>to</I> ");
-		stresc(&buf[strlen(buf)], bstr("recp"), 1);
+		stresc(&buf[strlen(buf)], bstr("recp"), 1, 1);
 	}
 	strcat(&buf[strlen(buf)], " <I>in</I> ");
-	stresc(&buf[strlen(buf)], WC->wc_roomname, 1);
+	stresc(&buf[strlen(buf)], WC->wc_roomname, 1, 1);
 	svprintf("BOXTITLE", WCS_STRING, buf);
 	do_template("beginbox");
 
@@ -1496,13 +1496,15 @@ void display_enter(void)
 
 	wprintf("<FORM ENCTYPE=\"multipart/form-data\" "
 		"METHOD=\"POST\" ACTION=\"/post\" "
-		"NAME=\"enterform\">\n");
+		"NAME=\"enterform\""
+		"onSubmit=\"return submitForm();\""
+		">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"recp\" VALUE=\"%s\">\n",
 		bstr("recp"));
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"postseq\" VALUE=\"%ld\">\n",
 		now);
-	wprintf("<IMG SRC=\"static/enter.gif\" ALIGN=MIDDLE ALT=\" \" "
-		"onLoad=\"document.enterform.msgtext.focus();\" >");
+	wprintf("<IMG SRC=\"static/enter.gif\" ALIGN=MIDDLE ALT=\" \">");
+		/* "onLoad=\"document.enterform.msgtext.focus();\" " */
 	wprintf("<FONT SIZE=-1>Subject (optional):</FONT>"
 		"<INPUT TYPE=\"text\" NAME=\"subject\" VALUE=\"");
 	escputs(bstr("subject"));
@@ -1511,20 +1513,39 @@ void display_enter(void)
 	);
 
 	wprintf("<INPUT TYPE=\"radio\" NAME=\"msg_format\"");
-	if (strcasecmp(bstr("msg_format"), "html")) wprintf("CHECKED ");
+	if (!strcasecmp(bstr("msg_format"), "text")) wprintf("CHECKED ");
 	wprintf("VALUE=\"text\">text&nbsp;\n");
 
 	wprintf("<INPUT TYPE=\"radio\" NAME=\"msg_format\"");
-	if (!strcasecmp(bstr("msg_format"), "html")) wprintf("CHECKED ");
+	if (strcasecmp(bstr("msg_format"), "text")) wprintf("CHECKED ");
 	wprintf("VALUE=\"html\">HTML&nbsp;\n");
 
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save message\">"
 		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
 
+	wprintf("<SCRIPT language=\"JavaScript\" type=\"text/javascript\" "
+		"src=\"static/richtext.js\"></SCRIPT>\n"
+		"<SCRIPT language=\"JavaScript\" type=\"text/javascript\">\n"
+		"function submitForm() { \n"
+		"  updateRTE('msgtext'); \n"
+		"  return true; \n"
+		"} \n"
+		"  \n"
+		"initRTE(\"static/\", \"static/\", \"\"); \n"
+		"</script> \n"
+		"<noscript>JAVASCRIPT MUST BE ENABLED.</noscript> \n"
+		"<SCRIPT language=\"javascript\" type=\"text/javascript\"> \n"
+		"writeRichText('msgtext', '");
+	msgescputs(bstr("msgtext"));
+	wprintf("', '100%%', 200, true, false); \n"
+		"</script> \n");
+
+/*
 	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=25 COLS=80 "
 		"WIDTH=80>");
 	escputs(bstr("msgtext"));
 	wprintf("</TEXTAREA><BR>\n");
+*/
 
 	/* Enumerate any attachments which are already in place... */
 	for (att = WC->first_attachment; att != NULL; att = att->next) {

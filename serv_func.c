@@ -193,7 +193,7 @@ void text_to_server(char *ptr, int convert_to_html)
 			}
 		} else if ((convert_to_html)&&(strchr("#&;`'|*?-~<>^()[]{}$\\", ch) != NULL)) {
 			sprintf(conv, "%c", ch);
-			stresc(&buf[strlen(buf)], conv, 0);
+			stresc(&buf[strlen(buf)], conv, 0, 0);
 		} else {
 			a = strlen(buf);
 			buf[a + 1] = 0;

@@ -49,7 +49,7 @@ void display_login(char *mesg)
 	output_headers(3);
 
 	if (mesg != NULL) if (strlen(mesg) > 0) {
-		stresc(buf, mesg, 0);
+		stresc(buf, mesg, 0, 0);
 		svprintf("mesg", WCS_STRING, "%s", buf);
 	}
 
