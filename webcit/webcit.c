@@ -1039,8 +1039,6 @@ void session_loop(struct httprequest *req)
 		do_graphics_upload(buf);
 	} else if (!strcasecmp(action, "display_reg")) {
 		display_reg(0);
-	} else if (!strcasecmp(action, "register")) {
-		register_user();
 	} else if (!strcasecmp(action, "display_changepw")) {
 		display_changepw();
 	} else if (!strcasecmp(action, "changepw")) {

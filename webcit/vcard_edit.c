@@ -250,7 +250,6 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
                 wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
                 wprintf("</CENTER></FORM>\n");
 
-	 
 	wDumpContent(1);
 }
 
@@ -318,6 +317,9 @@ void submit_vcard(void) {
 
 	if (!strcmp(bstr("return_to"), "/select_user_to_edit")) {
 		select_user_to_edit(NULL, NULL);
+	}
+	else if (!strcmp(bstr("return_to"), "/do_welcome")) {
+		do_welcome();
 	}
 	else {
 		readloop("readnew");

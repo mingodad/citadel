@@ -28,7 +28,7 @@
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
 #define CLIENT_VERSION		410		/* This version of WebCit */
-#define MINIMUM_CIT_VERSION	605		/* min required Citadel vers */
+#define MINIMUM_CIT_VERSION	606		/* min required Citadel vers */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define LB			(1)		/* Internal escape chars */
@@ -292,7 +292,6 @@ void serv_puts(char *string);
 void serv_printf(const char *format,...);
 void load_floorlist(void);
 void display_reg(int);
-void register_user(void);
 void display_changepw(void);
 void changepw(void);
 void display_edit_node(void);
@@ -388,4 +387,6 @@ void partstat_as_string(char *buf, icalproperty *attendee);
 extern char *months[];
 extern char *days[];
 void read_server_binary(char *buffer, size_t total_len);
+int goto_config_room(void);
+long locate_user_vcard(char *username, long usernum);
 void sleeeeeeeeeep(int);
