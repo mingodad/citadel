@@ -1,4 +1,12 @@
  $Log$
+ Revision 605.45  2003/05/02 04:02:47  ajc
+ * setup.c: allow specification of the Citadel system account by either
+            username or uid
+ * setup.c: tell init to re-read /etc/inittab by sending a SIGHUP to pid 1
+            instead of hunting around for the correct init or telinit command
+ * docs/citadel.html: documented the above change, and also rewrote some
+                      other stuff to be less BBS-specific
+
  Revision 605.44  2003/04/30 16:16:13  ajc
  * Minor fix to ESMTP greeting (missing '-' screwed up pipelining)
 
@@ -4668,3 +4676,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

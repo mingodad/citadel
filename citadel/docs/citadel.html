@@ -149,7 +149,7 @@ License,   or (at   your option) any later version.<br>
                            
   <ol>
            <li><a href="#Everything_in_its_place...">Everything in its place...</a></li>
-           <li><a href="#The_BBS_Login">The BBS Login</a></li>
+           <li><a href="#The_BBS_Login">Creating a system account for Citadel</a></li>
            <li><a href="#Bypassing_the_login:_prompt">Bypassing the login:
  prompt</a></li>
            <li><a href="#Compiling_the_programs">Compiling the programs</a></li>
@@ -586,12 +586,14 @@ OR   OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.  </p>
 <div align="justify">             
 <h3>Overview</h3>
                        
-<p>Citadel/UX is an advanced, multiuser, client/server, room-based BBS program. 
-      It is designed to handle the needs of both small dialup systems and 
-large-scale     Internet-connected systems.  It was originally developed on
-an Altos system     running Xenix, and has been installed and tested on various
-Unix and Unix-like     platforms.  The author's current development environment
-(and BBS) is an   ordinary Linux system.  The current distribution includes:
+<p>Citadel/UX is an advanced, multiuser, client/server messaging system
+suitable for BBS, e-mail, and groupware applications.
+It is designed to handle the needs of both small dialup systems and 
+large-scale Internet-connected systems.  It was originally developed on
+an Altos system running Xenix, and has been installed and tested on various
+Unix and Unix-like platforms.  The current development environment
+(and public BBS) is an ordinary Linux system.  The current distribution
+includes:
 </p>
                      
 <ul>
@@ -669,46 +671,47 @@ get the latest  Berkeley   DB at  <a href="http://www.sleepycat.com">http://www.
                   
 <h3><a name="The_BBS_Login"></a></h3>
              
-<h3>The BBS Login</h3>
+<h3>Creating a system account for Citadel</h3>
                   
 <p>As with many Unix programs, Citadel wants to run under its own user ID. 
-    Unlike other programs, however, this user ID will do double-duty as a 
-public    login for your system if you are running a BBS.  This account is 
-typically    called "bbs" or "citadel" or something to that effect. You will 
-tell Citadel   what the user-id of that account is, and when someone logs 
-in under that  account, Citadel will prompt for a user name.</p>
+Unlike other programs, however, this user ID will do double-duty as a 
+public login for your system if you are running a BBS.  This account is 
+typically called "bbs" or "citadel" or something to that effect. You will 
+tell Citadel what the user-id of that account is, and when someone logs 
+in under that account, Citadel will prompt for a user name.</p>
                   
 <p>The Citadel user should have a unique uid. The home directory should be
-    the one your Citadel installation resides in (in this example we will
-use    /usr/local/citadel) and the shell should be either "citadel" in that
-directory,    or a script that will start up citadel (you may wish to set
-up an external    text editor; see below). Example:</p>
+the one your Citadel installation resides in (in this example we will
+use <TT>/usr/local/citadel</TT>) and the shell should be either "citadel" in
+that directory, or a script that will start up citadel (you may wish to set
+up an external text editor; see below). Example:</p>
                   
-<pre>bbs::100:1:BBS Login:/usr/local/citadel:/usr/local/citadel/citadel<br></pre>
+<pre>bbs::100:1:Citadel Login:/usr/local/citadel:/usr/local/citadel/citadel<br></pre>
                   
-<p>When you run setup later, you will be required to tell it what the Citadel 
-    user's numeric user ID is, so it knows what user to run as.  If you create 
-    an account called <tt>bbs</tt>, <tt>guest</tt>, or <tt>citadel</tt>, the
-   setup program will automatically pick up the user ID by default.</p>
+<p>When you run setup later, you will be required to tell it the username or
+user ID of the account you created is,
+so it knows what user to run as.  If you create 
+an account called <tt>bbs</tt>, <tt>guest</tt>, or <tt>citadel</tt>, the
+setup program will automatically pick up the user ID by default.</p>
                   
 <p>For all other users in /etc/passwd, Citadel will automatically set up
 an account using the full name (or 'gecos' in Unixspeak) of the user.  It'll
-    also ignore any password you supply, because it uses the user's password
-   on the host system.  This allows a 'single sign on' type of environment.
-  Note  that this does have to be enabled at compile time -- it's the configure
-  option  called <tt>--enable-autologin</tt>.  Keep in mind that these users
-  can use  *either* their Citadel login name or their login name on the host
-  computer,  and their password on the host computer.</p>
+also ignore any password you supply, because it uses the user's password
+on the host system.  This allows a 'single sign on' type of environment.
+Note  that this does have to be enabled at compile time -- it's the configure
+option  called <tt>--enable-autologin</tt>.  Keep in mind that these users
+can use  *either* their Citadel login name or their login name on the host
+computer,  and their password on the host computer.</p>
                   
 <h3><a name="Bypassing_the_login:_prompt"></a></h3>
              
 <h3>Bypassing the <tt>login:</tt> prompt</h3>
                   
 <p>If you normally log in to your host system using some method other than 
-    telnet (such as ssh), you might want the telnet service to go straight 
- to   the Citadel BBS, instead of displaying the <tt>login:</tt> prompt first.
-     You can do this by having telnetd start citadel directly instead of
-<tt>/bin/login</tt>.     This is actually very simple to implement; all you
+telnet (such as ssh), you might want the telnet service to go straight 
+into Citadel, instead of displaying the <tt>login:</tt> prompt first.
+You can do this by having telnetd start citadel directly instead of
+<tt>/bin/login</tt>.  This is actually very simple to implement; all you
 need to do is make a  simple change to your <tt>inetd</tt> or <tt>xinetd</tt>
 configuration.  Here  are some configuration examples.</p>
                   
@@ -724,13 +727,13 @@ configuration.  Here  are some configuration examples.</p>
                   
 <p>Please make sure you know what you're doing before you install this!  If
 you are going to put Citadel somewhere other than <tt>/usr/local/citadel</tt>
-    then change the directory name accordingly.  If you know of any other
+then change the directory name accordingly.  If you know of any other
 local    peculiarities which need to be observed, edit the above configuration
 accordingly    as well.  And, of course, if you're working remotely, make
 sure you can  successfully  log in using SSH before you start changing your
-telnet configuration,  otherwise  you could lock yourself out of your system
-(ask any networking  specialist  about the dangers of "working inline" --
-then pull up a chair  and get a fresh  cup of coffee, because you're going
+telnet configuration, otherwise you could lock yourself out of your system
+(ask any networking specialist  about the dangers of "working inband" --
+then pull up a chair and get a fresh cup of coffee, because you're going
 to hear some war stories).</p>
                   
 <h3><a name="Compiling_the_programs"></a>Compiling the programs</h3>
@@ -741,14 +744,15 @@ to hear some war stories).</p>
                   
 <p>The 'configure' script will generate a Makefile from the Makefile.in,
 and it will also write the file "sysdep.h" to your Citadel directory.  Please
-    do not edit sysdep.h or Makefile.in yourself.  The configure script will
-   figure out your system dependencies and set everything correctly.</p>
+do not edit sysdep.h or Makefile.in yourself.  The configure script will
+figure out your system dependencies and set everything correctly.</p>
                   
-<p>Mac OS X 10.1 and later are now supported.  (Sorry, 10.0 cannot be supported, 
-   now or in the future.)  You need to install the Developer Tools CD, which 
-   you can purchase or download for free from <a
- href="http://developer.apple.com">http://developer.apple.com</a>. Then run
-    configure like this:</p>
+<p>Mac OS X 10.1 and later are now supported.  (Sorry, 10.0 cannot be
+supported,
+now or in the future.)  You need to install the Developer Tools CD, which 
+you can purchase or download for free from
+<a href="http://developer.apple.com">http://developer.apple.com</a>. Then run
+configure like this:</p>
                 
 <pre>env CC=/usr/bin/cc ./configure (options - see below)<br></pre>
                 
@@ -770,7 +774,7 @@ back to GDBM if it has to.</p>
    shell users peeking into the binaries to do things like reading others' 
   mail, finding private rooms, etc.  The Citadel server needs to be started
     as root in order to bind to privileged ports, but as soon as its initialization
-   is finished, it changes its user ID to your BBS user ID in order to avoid
+   is finished, it changes its user ID to your Citadel user in order to avoid
    security holes.</p>
                   
 <h3><a name="Upgrading"></a></h3>
@@ -793,10 +797,11 @@ below for more information on this.</p>
                 
 <h3><a name="The_citadel.rc_file"></a>The <tt>citadel.rc</tt> file</h3>
                   
-<p>The text-based client included with Citadel is suitable for BBS applications. 
-    Much of its command set and other behavior is configurable through a Run
-   Control (RC) file. The standard client looks for this file in the following
-   locations: </p>
+<p>The text-based client included with Citadel is suitable for BBS
+applications. 
+Much of its command set and other behavior is configurable through a Run
+Control (RC) file. The standard client looks for this file in the following
+locations: </p>
              
 <ul>
         <li><tt>$HOME/.citadelrc</tt></li>
@@ -822,7 +827,7 @@ default   editor for the <tt><b>E</b>nter</tt> command by editing the <tt>citade
  a  security hole, because they usually provide users with the ability to
 drop  into a shell on the host system, or save files using names other than
 the  name of the temporary file they are editing.  If you intend to use an
-external  editor on a public BBS, make sure you use one that has been hardened
+external editor on a public BBS, make sure you use one that has been hardened
 for such a purpose -- one which has had the 'shell' and 'save as' commands
 disabled,   as well as any other functions which a destructive user could
 use to gain   unauthorized access to your host system.</p>
@@ -839,12 +844,12 @@ specifies   what command you use to print.  Text is sent to the standard input
 <pre>printcmd="nl|pr|lpr -Plocal"<br></pre>
                   
 <p>...that would add line numbers, then paginate, then print on the printer 
-   named "local".  There's tons of stuff you can do with this feature.  For 
-  example, you could use a command like <tt>cat &lt;&lt;$HOME/archive</tt> 
- to save copies of important messages in a textfile.  Again, this is probably 
-   something you don't want to configure for a public BBS host -- most system 
-   administrators don't want remote users sending arbitrary things to local 
-  printers.</p>
+named "local".  There's tons of stuff you can do with this feature.  For 
+example, you could use a command like <tt>cat &lt;&lt;$HOME/archive</tt> 
+to save copies of important messages in a textfile.  Again, this is probably 
+something you don't want to configure for a public BBS host -- most system 
+administrators don't want remote users sending arbitrary things to local 
+printers.</p>
                   
 <h3><a name="URL_viewing"></a>URL viewing</h3>
                   
@@ -932,7 +937,8 @@ to get things configured.</p>
                   
 <p>The options are as follows:</p>
                   
-<p><tt>-hHomeDir</tt> - the directory your BBS data files live in.  This should,
+<p><tt>-hHomeDir</tt> - the directory your Citadel data files live in.
+This should,
 of course, be a directory that you've run the <tt>setup</tt> program against
 to set up some data files.  If a directory is not specified, the directory
 name which was specified in the <tt>Makefile</tt> will be used.</p>
@@ -1033,7 +1039,9 @@ utilized less and less every day.</p>
    help</h3>
                   
 <p>That's just about all the information you need to install the system. 
-But if you get stuck, you can visit UNCENSORED! BBS and report a problem or
+But if you get stuck, you can visit
+<a href="http://uncensored.citadel.org">UNCENSORED! BBS</a>
+and report a problem or
 ask for help.  But if you intend to report a problem getting the Citadel server
 to run, <i>please</i> double-check the following things first:  </p>
                
@@ -1045,10 +1053,12 @@ to run, <i>please</i> double-check the following things first:  </p>
                
 </ul>
                   
-<p>To report a problem, you can log on to UNCENSORED! or any other BBS on 
-   the Citadel network which carries the <tt>Citadel/UX&gt;</tt> room.  Please 
-   DO NOT e-mail the developers directly.  Post a request for help on the 
-BBS,   with all of the following information: </p>
+<p>To report a problem, you can log on to
+<a href="http://uncensored.citadel.org">UNCENSORED!</A>
+or any other BBS on 
+the Citadel network which carries the <tt>Citadel/UX&gt;</tt> room.  Please 
+DO NOT e-mail the developers directly.  Post a request for help on the 
+BBS, with all of the following information: </p>
                
 <ul>
          <li>The exact nature of your difficulty </li>
@@ -1320,8 +1330,9 @@ of   the room. If you enter Yes, you will also be prompted with the following
 <pre>Directory name [mydirname]: <br></pre>
                  
 <p>...the name of the subdirectory to put this room's files in.  The name 
-   of the directory created will be <tt><i>&lt;your BBS directory&gt;</i>/files/<i>&lt;room 
-   dir name&gt;</i></tt>.</p>
+of the directory created
+will be <tt><i>&lt;your Citadel directory&gt;</i>/files/<i>&lt;room 
+dir name&gt;</i></tt>.</p>
                     
 <pre>Uploading allowed [Yes]? Yes<br></pre>
                  
@@ -1516,7 +1527,7 @@ setting.</p>
 <p>There are several strings that you can put in help files that will be automatically
 substituted with other strings.  They are:</p>
                 
-<pre> <br> ^nodename    = The node name of your system on a Citadel/UX network<br> ^humannode   = Human-readable node name (also your node name on C86Net)<br> ^fqdn        = Your system's fully-qualified domain name<br> ^username    = The name of the user reading the help file<br> ^usernum     = The user number of the user reading the help file<br> ^sysadm      = The name of the system administraor (i.e., you)<br> ^variantname = The name of the BBS software you're running<br> ^bbsdir      = The directory on the host system in which you have<br>                installed the Citadel system.<br></pre>
+<pre> <br> ^nodename    = The node name of your system on a Citadel/UX network<br> ^humannode   = Human-readable node name (also your node name on C86Net)<br> ^fqdn        = Your system's fully-qualified domain name<br> ^username    = The name of the user reading the help file<br> ^usernum     = The user number of the user reading the help file<br> ^sysadm      = The name of the system administraor (i.e., you)<br> ^variantname = The name of the software you're running<br> ^bbsdir      = The directory on the host system in which you have<br>                installed the Citadel system.<br></pre>
                  
 <p>So, for example, you could create a help file which looked like:</p>
                  
@@ -1613,14 +1624,14 @@ in at all --  all accounts must be created by an Aide.</p>
                 
 <ul>
         <li><b>A public access BBS or message board</b> - since you do not
- know   who might want to log in, self-service account creation needs to
-stay  enabled.    If you want to be strict about users identifying themselves,
-then you should    also require users to register (just remember to post
-a privacy policy if   you're going to collect personal information) -- then
-set the initial access  level to 1 (New User), so new users cannot post messages
+know who might want to log in, self-service account creation needs to
+stay enabled.  If you want to be strict about users identifying themselves,
+then you should  also require users to register (just remember to post
+a privacy policy if you're going to collect personal information) -- then
+set the initial access level to 1 (New User), so new users cannot post messages
 until after you've  validated them.  For a more lax environment, you can
-remove the registration   requirement and grant new accounts level 4 (Normal
-User) access on the first   visit. </li>
+remove the registration requirement and grant new accounts level 4 (Normal
+User) access on the first visit. </li>
          <li><b>A private email/groupware system for your organization</b>
  -  in  this case, disable self-service account creation; you don't want
 strangers    welcoming themselves to your system.  You'll probably also want
@@ -1966,20 +1977,22 @@ spool. This  type of configuration is discouraged, but a tool is provided
 to allow it.</p>
           
 <p>The tool is called <tt>citmail</tt> and it is, quite simply, a local MDA 
-  (Mail Delivery Agent) which you can configure into your MTA for final delivery
-  of incoming messages to Citadel users.  A full discussion of the finer
-points   of complex Sendmail configurations is beyond the scope of this document; 
- however, you might want to visit <a
- href="http://pixel.citadel.org/citadel/docs/">Pixel BBS</a> where some useful
- HOWTO documents are provided.</p>
+(Mail Delivery Agent) which you can configure into your MTA for final delivery
+of incoming messages to Citadel users.  A full discussion of the finer
+points   of complex Sendmail configurations is beyond the scope of
+this document; 
+however, you might want to visit <a
+href="http://pixel.citadel.org/citadel/docs/">Pixel BBS</a> where some useful
+HOWTO documents are provided.</p>
           
-<p>For outbound mail, you can either allow Citadel to perform deliveries directly
+<p>For outbound mail, you can either allow Citadel to perform
+deliveries directly
 (this won't affect your other mail system because outbound mail doesn't tie
 up port 25) or enter <tt>127.0.0.1</tt> as your smart-host, which will tell
 Citadel to forward all of its outbound mail to your other mail system.</p>
           
-<h3><a name="Hosting_an_Internet_mailing_list"></a>Hosting an Internet mailing 
- list</h3>
+<h3><a name="Hosting_an_Internet_mailing_list"></a>Hosting an Internet mailing
+list</h3>
       
 <p>Citadel has built in mailing list service (known in the 'net vernacular 
  as "listserv") functionality. &nbsp;You can turn any room into a mailing 
@@ -2064,23 +2077,24 @@ in  your e-mail software) and the confirmation is automatically completed.</p>
 <h3><a name="Overview__"></a>Overview</h3>
           
 <p>If you are running Citadel as a BBS or other forum type of application, 
-  one way to 'keep the conversation going' is to share rooms with other Citadel
-  systems. In a shared room, a message posted to the room is automatically
- propagated to every system on the network.  It's kind of like a UseNet newsgroup,
- but without the spam.</p>
+one way to 'keep the conversation going' is to share rooms with other Citadel
+systems. In a shared room, a message posted to the room is automatically
+propagated to every system on the network.  It's kind of like
+a UseNet newsgroup,
+but without the spam.</p>
           
 <p>If you are using Citadel as the e-mail and groupware platform for a large
-  organization, you can use its networking features to build a large network
-  of Citadel servers which share content (think of rooms as public folders),
-  redistribute e-mail throughout the organization, and integrate the global
-  address book. &nbsp;It might make sense, for example, in a large corporation
-  to give each department or location its own Citadel server. &nbsp;Thanks
- to Citadel's global address book features, you could still have all of the
- users share a single e-mail domain.</p>
+organization, you can use its networking features to build a large network
+of Citadel servers which share content (think of rooms as public folders),
+redistribute e-mail throughout the organization, and integrate the global
+address book. &nbsp;It might make sense, for example, in a large corporation
+to give each department or location its own Citadel server. &nbsp;Thanks
+to Citadel's global address book features, you could still have all of the
+users share a single e-mail domain.</p>
            
 <p>Obviously, the first thing you have to do is find another Citadel to share 
-  rooms with, and make arrangements with them.  The following Citadels are
-  a good place to start:</p>
+rooms with, and make arrangements with them.  The following Citadels are
+a good place to start:</p>
            
 <ul>
      <li>UNCENSORED! - <a href="http://uncensored.citadel.org">uncensored.citadel.org</a> 

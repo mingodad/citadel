@@ -15,6 +15,7 @@
 #include <sys/stat.h>
 #include <sys/utsname.h>
 #include <sys/wait.h>
+#include <signal.h>
 #include <netdb.h>
 #include <errno.h>
 #include <limits.h>
@@ -52,33 +53,35 @@ char init_entry[SIZ];
 
 char *setup_titles[] =
 {
-	"BBS Home Directory",
+	"Citadel Home Directory",
 	"System Administrator",
-	"BBS User ID",
+	"Citadel User ID",
 	"Server port number",
 };
 
 
 char *setup_text[] =
 {
-"Enter the full pathname of the directory in which the BBS you are\n"
-"creating or updating resides.  If you specify a directory other than the\n"
-"default, you will need to specify the -h flag to the server when you start\n"
-"it up.\n",
+"Enter the full pathname of the directory in which the Citadel installation\n"
+"you are creating or updating resides.  If you specify a directory other\n"
+"than the default, you will need to specify the -h flag to the server when\n"
+"you start it up.\n",
 
 "Enter the name of the system administrator (which is probably you).\n"
 "When an account is created with this name, it will automatically be\n"
 "assigned the highest access level.\n",
 
-"You should create a user called 'bbs', 'guest', 'citadel', or something\n"
-"similar, that will allow users a way into your BBS.  The server will run\n"
-"under this user ID.  Please specify that (numeric) user ID here.\n",
+"Citadel needs to run under its own user ID.  This would typically be\n"
+"called \"citadel\", but if you are running Citadel as a public BBS, you\n"
+"might also call it \"bbs\" or \"guest\".  The server will run under this\n"
+"user ID.  Please specify that user ID here.  You may specify either a\n"
+"user name or a numeric UID.\n",
 
 "Specify the TCP port number on which your server will run.  Normally, this\n"
 "will be port 504, which is the official port assigned by the IANA for\n"
 "Citadel servers.  You'll only need to specify a different port number if\n"
-"you run multiple BBS's on the same computer and there's something else\n"
-"already using port 504.\n",
+"you run multiple instances of Citadel on the same computer and there's\n"
+"something else already using port 504.\n",
 
 "Setup has detected that you currently have data files from a Citadel/UX\n"
 "version 3.2x installation.  The program 'conv_32_40' can upgrade your\n"
@@ -90,41 +93,6 @@ char *setup_text[] =
 
 struct config config;
 int direction;
-
-/* 
- * Do an "init q" to tell init to re-read its configuration file
- */
-void init_q(void) {
-	pid_t cpid;
-	int status;
-
-	cpid = fork();
-	if (cpid==0) {
-		/*
-		 * We can't guarantee that telinit or init will be in the right
-		 * place, so we try a couple of different paths.  The first one
-		 * will work 99% of the time, though.
-		 */
-		execlp("/sbin/telinit", "telinit", "q", NULL);
-		execlp("/sbin/init", "init", "q", NULL);
-		execlp("/usr/sbin/init", "init", "q", NULL);
-		execlp("/bin/init", "init", "q", NULL);
-		execlp("/usr/bin/init", "init", "q", NULL);
-		execlp("init", "init", "q", NULL);
-
-		/*
-		 * Didn't find it?  Fail silently.  Perhaps we're running on
-		 * some sort of BSD system and there's no init at all.  If so,
-		 * the person installing Citadel probably knows how to handle
-		 * this task manually.
-		 */
-		exit(1);
-	}
-	else if (cpid > 0) {
-		while (waitpid(cpid, &status, 0) == -1) ;;
-	}
-}
-
 
 /*
  * Set an entry in inittab to the desired state
@@ -172,7 +140,7 @@ void set_init_entry(char *which_entry, char *new_state) {
 	if (fp != NULL) {
 		fwrite(inittab, strlen(inittab), 1, fp);
 		fclose(fp);
-		init_q();
+		kill(1, SIGHUP);	/* Tell init to re-read /etc/inittab */
 	}
 	free(inittab);
 }
@@ -638,7 +606,9 @@ void set_long_val(int msgpos, long int *ip)
 
 void edit_value(int curr)
 {
-	long l;
+	int i;
+	struct passwd *pw;
+	char bbsuidname[SIZ];
 
 	switch (curr) {
 
@@ -647,9 +617,23 @@ void edit_value(int curr)
 		break;
 
 	case 2:
-		l = config.c_bbsuid;
-		set_long_val(curr, &l);
-		config.c_bbsuid = l;
+		i = config.c_bbsuid;
+		pw = getpwuid(i);
+		if (pw == NULL) {
+			set_int_val(curr, &i);
+			config.c_bbsuid = i;
+		}
+		else {
+			strcpy(bbsuidname, pw->pw_name);
+			set_str_val(curr, bbsuidname);
+			pw = getpwnam(bbsuidname);
+			if (pw != NULL) {
+				config.c_bbsuid = pw->pw_uid;
+			}
+			else if (atoi(bbsuidname) > 0) {
+				config.c_bbsuid = atoi(bbsuidname);
+			}
+		}
 		break;
 
 	case 3:
@@ -905,7 +889,7 @@ int main(int argc, char *argv[])
 	/*
 	   if (setuid(config.c_bbsuid) != 0) {
 	   important_message("Citadel/UX Setup",
-	   "Failed to change the user ID to your BBS user.");
+	   "Failed to change the user ID to your Citadel user.");
 	   cleanup(errno);
 	   }
 	 */
