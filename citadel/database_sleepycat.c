@@ -386,12 +386,15 @@ int cdb_delete(int cdb, void *key, int keylen)
 			} else {
 				lprintf(1, "cdb_delete(%d): %s\n", cdb,
 					db_strerror(ret));
-				abort();
+				if (ret != DB_NOTFOUND) {
+					abort();
+				}
 			}
 		} else {
 			return txcommit(tid);
 		}
 	}
+	return(0);
 }
 
 

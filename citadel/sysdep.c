@@ -445,12 +445,6 @@ void client_write(char *buf, int nbytes)
 	int retval;
 	int sock;
 
-	/*
-	 * Yes, this is where we want this signal() call to be.  Evidently the
-	 * DB library is screwing with this binding and we don't want the
-	 * server to crash, so we force this to be correct.
-	 */
-	signal(SIGPIPE, SIG_IGN);
 
 	if (CC->redirect_fp != NULL) {
 		fwrite(buf, nbytes, 1, CC->redirect_fp);
@@ -465,6 +459,7 @@ void client_write(char *buf, int nbytes)
 	}
 
 	while (bytes_written < nbytes) {
+		signal(SIGPIPE, SIG_IGN);
 		retval = write(sock, &buf[bytes_written],
 			nbytes - bytes_written);
 		if (retval < 1) {

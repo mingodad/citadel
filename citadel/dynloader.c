@@ -318,9 +318,9 @@ int PerformMessageHooks(struct CtdlMessage *msg, int EventType)
 
 	/* Other code may elect to protect this message from server-side
 	 * handlers; if this is the case, don't do anything.
-	 */
 	lprintf(9, "** Event type is %d, flags are %d\n",
 		EventType, msg->cm_flags);
+	 */
 	if (msg->cm_flags & CM_SKIP_HOOKS) {
 		lprintf(9, "Skipping hooks\n");
 		return(0);

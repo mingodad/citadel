@@ -1,130 +1,14 @@
-tiamat
-use uncnsrd
-phonenum netproc[32384]: Adding non-neighbor system <jacs> to map
-gdom bor system <jacs> to map
-humannode DragonHart Cove
-lastcontact 976172347 Thu Dec  7 01:59:07 2000
-
-jacs
-use uncnsrd
-phonenum US6093461224
-gdom NJ
-humannode JACS
-lastcontact 976081144 Wed Dec  6 00:39:04 2000
-
-ctestsys
-use uncnsrd
-phonenum US 612 470 9635
-gdom MN
-humannode C-86 Test System
-lastcontact 976258745 Fri Dec  8 01:59:05 2000
-
-internet
-uum %s
-humannode Internet Gateway
-lastcontact 976258745 Fri Dec  8 01:59:05 2000
+test
+bin Mail
 
 uncnsrd
 bin Mail
 phonenum US 914 244 3252
 humannode Uncensored
-lastcontact 976258746 Fri Dec  8 01:59:06 2000
+lastcontact 983598840 Sat Mar  3 00:54:00 2001
 
-test
-bin Mail
-
-tesseract
-bin Mail
-phonenum US 800 555 1212
-humannode Tesseract Project
-lastcontact 976258746 Fri Dec  8 01:59:06 2000
-
-pixel
-use uncnsrd
-phonenum netproc[4026]: Adding non-neighbor system <tesseract> to map
-gdom or system <tesseract> to map
-humannode PixelBBS
-lastcontact 976258746 Fri Dec  8 01:59:06 2000
-
-haven
-use uncnsrd
-phonenum netproc[4026]: Adding non-neighbor system <barbaria> to map
-gdom or system <barbaria> to map
-humannode Haven BBS
-lastcontact 976172347 Thu Dec  7 01:59:07 2000
-
-amigazon
-use uncnsrd
-phonenum US (609) 953 8159
-gdom NJ
-humannode The Amiga Zone
-lastcontact 975653967 Fri Dec  1 01:59:27 2000
-
-feathers
-use uncnsrd
-phonenum CA (604) 589-8539
-gdom BC
-humannode Feathers & Furballs
-lastcontact 975653963 Fri Dec  1 01:59:23 2000
-
-dogpound2
-use uncnsrd
-phonenum netproc[4026]: Adding non-neighbor system <sbn> to map
-gdom or system <sbn> to map
-humannode Dog Pound BBS II
-lastcontact 976172348 Thu Dec  7 01:59:08 2000
-
-aspen
-use uncnsrd
-phonenum netproc[23043]: Adding non-neighbor system <bin Mail> to map
-gdom bor system <bin Mail> to map
-humannode Retrovertigo
-lastcontact 976081151 Wed Dec  6 00:39:11 2000
-
-bellicose
-use uncnsrd
-phonenum netproc[23043]: Adding non-neighbor system <aspen> to map
-gdom bor system <aspen> to map
-humannode The Bellicose BBS
-lastcontact 975653967 Fri Dec  1 01:59:27 2000
-
-marshill
-use uncnsrd
-phonenum CA (604) 589-8539
-gdom BC
-humannode Mars Hill
-lastcontact 976258745 Fri Dec  8 01:59:05 2000
-
-twwol
-use uncnsrd
-phonenum netproc[23043]: Adding non-neighbor system <marshill> to map
-gdom bor system <marshill> to map
-humannode TWWOL
-lastcontact 975653964 Fri Dec  1 01:59:24 2000
-
-anansidel
-use uncnsrd
-phonenum netproc[23043]: Adding non-neighbor system <twwol> to map
-gdom bor system <twwol> to map
-humannode Anansi-Del
-lastcontact 975653965 Fri Dec  1 01:59:25 2000
-
-catchat
-use uncnsrd
-phonenum netproc[23043]: Adding non-neighbor system <anansidel> to map
-gdom bor system <anansidel> to map
-humannode 'Cat Chat
-lastcontact 975653966 Fri Dec  1 01:59:26 2000
-
-iscabbs
-use uncnsrd
-phonenum netproc[23043]: Adding non-neighbor system <catchat> to map
-gdom bor system <catchat> to map
-humannode ISCA BBS
-lastcontact 975653967 Fri Dec  1 01:59:27 2000
-
-bin Mail
-bin Mail
-humannode Ô‘hðÿ¿lðÿ¿
-lastcontact 976082265 Wed Dec  6 00:57:45 2000
+internet
+uum %s
+humannode Internet Gateway
+lastcontact 983598840 Sat Mar  3 00:54:00 2001
 
