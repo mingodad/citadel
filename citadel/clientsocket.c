@@ -159,6 +159,7 @@ int sock_gets(int sock, char *buf)
 
 	/* Strip any trailing CR and LF characters.
 	 */
+	buf[i] = 0;
 	while ( (strlen(buf)>0)
 	      && ((buf[strlen(buf)-1]==13)
 	      || (buf[strlen(buf)-1]==10)) ) {

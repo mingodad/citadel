@@ -289,9 +289,7 @@ void CtdlForEachMessage(int mode, long ref,
 		if (content_type != NULL)
 			if (strlen(content_type) > 0)
 				for (a = 0; a < num_msgs; ++a) {
-					lprintf(9, "Trying %ld\n", msglist[a]);
 					GetSuppMsgInfo(&smi, msglist[a]);
-					lprintf(9, "ct is %s\n", smi.smi_content_type);
 					if (strcasecmp(smi.smi_content_type, content_type)) {
 						msglist[a] = 0L;
 					}
@@ -1628,8 +1626,16 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	lprintf(9, "Possibly relocating\n");
-	if (strcasecmp(actual_rm, CC->quickroom.QRname))
+	if (strcasecmp(actual_rm, CC->quickroom.QRname)) {
 		getroom(&CC->quickroom, actual_rm);
+	}
+
+	/*
+	 * If this message has no O (room) field, generate one.
+	 */
+	if (msg->cm_fields['O'] == NULL) {
+		msg->cm_fields['O'] = strdoop(CC->quickroom.QRname);
+	}
 
 	/* Perform "before save" hooks (aborting if any return nonzero) */
 	lprintf(9, "Performing before-save hooks\n");

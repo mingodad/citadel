@@ -29,6 +29,8 @@
 #include "tools.h"
 #include "internet_addressing.h"
 #include "genstamp.h"
+#include "domain.h"
+#include "clientsocket.h"
 
 
 struct citsmtp {		/* Information about the current session */
@@ -676,10 +678,102 @@ void smtp_command_loop(void) {
  *
  */
 void smtp_try(char *key, char *addr, int *status, char *dsn) {
+	char buf[256];
+	int sock = (-1);
+	char mxhosts[1024];
+	int num_mxhosts;
+	int mx;
+	char user[256], node[256], name[256];
 
+	/* Parse out the host portion of the recipient address */
+	process_rfc822_addr(addr, user, node, name);
+	lprintf(9, "Attempting SMTP delivery to <%s> @ <%s> (%s)\n",
+		user, node, name);
+
+	num_mxhosts = getmx(mxhosts, node);
+	lprintf(9, "Number of MX hosts for <%s> is %d\n", node, num_mxhosts);
+	if (num_mxhosts < 1) {
+		*status = 5;
+		sprintf(dsn, "No MX hosts found for <%s>", node);
+		return;
+	}
+
+	for (mx=0; mx<num_mxhosts; ++mx) {
+		extract(buf, mxhosts, mx);
+		lprintf(9, "Trying <%s>\n", buf);
+		sock = sock_connect(buf, "25", "tcp");
+		sprintf(dsn, "Could not connect: %s", strerror(errno));
+		if (sock >= 0) lprintf(9, "Connected!\n");
+		if (sock < 0) sprintf(dsn, "%s", strerror(errno));
+		if (sock >= 0) break;
+	}
+
+	if (sock < 0) {
+		*status = 3;	/* dsn is already filled in */
+		return;
+	}
+
+	/* Process the SMTP greeting from the server */
+	if (sock_gets(sock, buf) < 0) {
+		*status = 3;
+		strcpy(dsn, "Connection broken during SMTP conversation");
+		sock_close(sock);
+		return;
+	}
+	lprintf(9, "%s\n", buf);
+	if (buf[0] != '2') {
+		if (buf[0] == '3') {
+			*status = 3;
+			strcpy(dsn, &buf[4]);
+			sock_close(sock);
+			return;
+		}
+		else {
+			*status = 5;
+			strcpy(dsn, &buf[4]);
+			sock_close(sock);
+			return;
+		}
+	}
+
+	/* At this point we know we are talking to a real SMTP server */
+
+	/* Do a HELO command */
+	sprintf(buf, "HELO %s", config.c_fqdn);
+	sock_puts(sock, buf);
+	if (sock_gets(sock, buf) < 0) {
+		*status = 3;
+		strcpy(dsn, "Connection broken during SMTP conversation");
+		sock_close(sock);
+		return;
+	}
+	lprintf(9, "%s\n", buf);
+	if (buf[0] != '2') {
+		if (buf[0] == '3') {
+			*status = 3;
+			strcpy(dsn, &buf[4]);
+			sock_close(sock);
+			return;
+		}
+		else {
+			*status = 5;
+			strcpy(dsn, &buf[4]);
+			sock_close(sock);
+			return;
+		}
+	}
+
+	sock_puts(sock, "QUIT");
+	sock_gets(sock, buf);
+	lprintf(9, "%s\n", buf);
+	sock_close(sock);
+
+	/* temporary hook to make things not go kerblooie */
 	*status = 3;
 	strcpy(dsn, "smtp_try() is not finished yet");
+	/*                                                */
 }
+
 
 
 
@@ -716,7 +810,7 @@ void smtp_do_procmsg(long msgnum) {
 		extract_token(buf, instr, i, '\n');
 		if (num_tokens(buf, '|') < 2) {
 			lprintf(9, "removing <%s>\n", buf);
-			remove_token(instr, i, '|');
+			remove_token(instr, i, '\n');
 			--lines;
 			--i;
 		}
@@ -785,7 +879,10 @@ void smtp_do_procmsg(long msgnum) {
 	msg->cm_magic = CTDLMESSAGE_MAGIC;
 	msg->cm_anon_type = MES_NORMAL;
 	msg->cm_format_type = FMT_RFC822;
-	msg->cm_fields['M'] = instr;
+	msg->cm_fields['M'] = malloc(strlen(instr)+256);
+	sprintf(msg->cm_fields['M'],
+		"Content-type: %s\n\n%s\n", SPOOLMIME, instr);
+	phree(instr);
 	CtdlSaveMsg(msg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL, 1);
 	CtdlFreeMessage(msg);
 }
