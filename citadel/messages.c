@@ -1821,7 +1821,7 @@ RMSGREAD:	scr_flush();
                 
 		/* read the header so we can get 'from=' */
 		r = CtdlIPCGetSingleMessage(ipc, msg_arr[finda], 1, 0, &msg, buf);
-		if (!strncasecmp(msg->author, fullname)) {
+		if (!strncasecmp(msg->author, fullname, sizeof(fullname))) {
 			a = lasta; /* meesa current */
 			founda = 1;
 		}
