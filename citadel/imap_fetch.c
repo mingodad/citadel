@@ -372,9 +372,10 @@ int imap_extract_data_items(char **argv, char *items) {
  */
 void imap_pick_range(char *range) {
 	int i;
-	int lo = 0;
-	int hi = 0;
-	char lostr[1024], histr[1024];
+	int num_sets;
+	int s;
+	char setstr[1024], lostr[1024], histr[1024];
+	int lo, hi;
 
 	/*
 	 * Clear out the IMAP_FETCHED flags for all messages.
@@ -384,21 +385,27 @@ void imap_pick_range(char *range) {
 	}
 
 	/*
-	 * Now figure out which messages we need to set IMAP_FETCHED for.
+	 * Now set it for all specified messages.
 	 */
-	extract_token(lostr, range, 0, ':');
-	lo = atoi(lostr);
-	extract_token(histr, range, 1, ':');
-	if (!strcmp(histr, "*")) {
-		hi = IMAP->num_msgs;
-	}
-	else {
-		hi = atoi(histr);
-	}
+	num_sets = num_tokens(range, ',');
+	for (s=0; s<num_sets; ++s) {
+		extract_token(setstr, range, s, ',');
 
-	for (i = 1; i <= IMAP->num_msgs; ++i) {
-		if ( (i>=lo) && (i<=hi) ) {
-			IMAP->flags[i-1] = IMAP->flags[i-1] | IMAP_FETCHED;
+		extract_token(lostr, setstr, 0, ':');
+		if (num_tokens(setstr, ':') >= 2) {
+			extract_token(histr, setstr, 1, ':');
+		} 
+		else {
+			strcpy(histr, lostr);
+		}
+		lo = atoi(lostr);
+		hi = atoi(histr);
+
+		for (i = 1; i <= IMAP->num_msgs; ++i) {
+			if ( (i>=lo) && (i<=hi)) {
+				IMAP->flags[i-1] =
+					IMAP->flags[i-1] | IMAP_FETCHED;
+			}
 		}
 	}
 }
