@@ -1,4 +1,7 @@
  $Log$
+ Revision 608.20  2003/08/13 14:36:04  ajc
+ * "make install" now installs the contents of docs/ as well as README.txt
+
  Revision 608.19  2003/08/13 14:30:47  ajc
  * Temporarily disabled IMAP TLS support due to the discovery of some
    compatibility problems.  It will be re-enabled when they are fixed.
@@ -4952,3 +4955,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

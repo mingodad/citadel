@@ -187,11 +187,18 @@ install-data:
 	fi
 
 install-doc:
+	@$(srcdir)/mkinstalldirs $(root)$(prefix)/docs
+	@for i in `find $(srcdir)/docs -type f | grep -v CVS`; do \
+		echo $(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
+		$(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
+	done
 	@$(srcdir)/mkinstalldirs $(root)$(prefix)/techdoc
 	@for i in `find $(srcdir)/techdoc -type f | grep -v CVS`; do \
 		echo $(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
 		$(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
 	done
+	echo $(INSTALL_DATA) README.txt $(root)$(prefix)/README.txt
+	$(INSTALL_DATA) README.txt $(root)$(prefix)/README.txt
 
 install-exec: all
 	@for i in bio bitbucket files images info userpics; do \
