@@ -900,6 +900,30 @@ void imap_delete(int num_parms, char *parms[]) {
  * Back end function for imap_rename()
  */
 void imap_rename_backend(struct quickroom *qrbuf, void *data) {
+	struct irr_t { char *old_path; char *new_path; };
+	struct irr_t *irr = (struct irr_t *)data;
+	char foldername[SIZ];
+	char newfoldername[SIZ];
+	char newroomname[ROOMNAMELEN];
+	int newfloor;
+	int r;
+
+	imap_mailboxname(foldername, sizeof foldername, qrbuf);
+
+	if ( (!strncasecmp(foldername, irr->old_path, strlen(irr->old_path)) 
+	   && (foldername[strlen(irr->old_path)] == '|')) ) {
+
+		sprintf(newfoldername, "%s|%s",
+			irr->new_path,
+			&foldername[strlen(irr->old_path)+1]
+		);
+
+		newfloor = imap_roomname(newroomname,
+				sizeof newroomname, newfoldername);
+
+		r = CtdlRenameRoom(qrbuf->QRname, newroomname, newfloor);
+		/* FIXME handle error returns */
+	}
 }
 
 
@@ -915,6 +939,9 @@ void imap_rename(int num_parms, char *parms[]) {
 	int oldr, newr;
 	int new_floor;
 	int r;
+
+	struct irr_t { char *old_path; char *new_path; };
+	struct irr_t irr = { parms[2], parms[3] };
 
 	oldr = imap_roomname(old_room, sizeof old_room, parms[2]);
 	newr = imap_roomname(new_room, sizeof new_room, parms[3]);
@@ -950,7 +977,7 @@ void imap_rename(int num_parms, char *parms[]) {
 	}
 
 	/* FIXME supply something */
-	ForEachRoom(imap_rename_backend, NULL);
+	ForEachRoom(imap_rename_backend, (void *)&irr );
 
 	cprintf("%s OK RENAME completed\r\n", parms[0]);
 }
