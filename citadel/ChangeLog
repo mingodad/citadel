@@ -1,6 +1,7 @@
 1998-09-21 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* msgbase.c: include dynloader.h
 	* citadelapi.h: removed
+	* dynloader.h: prototype CtdlRegisterUserHook()
 
 Sun Sep 20 18:56:37 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Added a UserFunctionHook category to implement hooks which perform

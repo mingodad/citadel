@@ -13,4 +13,5 @@ void CtdlRegisterSessionHook(void *fcn_ptr, int StartStop);
 void PerformSessionHooks(int EventType);
 void PerformUserHooks(char *username, long usernum, int EventType);
 void CtdlRegisterProtoHook(void (*handler)(char *), char *cmd, char *desc);
+void CtdlRegisterUserHook(void *fcn_ptr, int EventType);
 struct DLModule_Info *Dynamic_Module_Init(void);
