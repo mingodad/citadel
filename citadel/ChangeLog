@@ -1,4 +1,9 @@
 $Log$
+Revision 1.364  1999/09/07 01:42:42  ajc
+* cmd_msg3() now uses serialize_message() for its output.  All message
+  commands will eventually exist as a "struct CtdlMessage" at some point
+  so that we can install server-side handler hooks.
+
 Revision 1.363  1999/09/07 00:04:13  ajc
 * netproc.c: put outgoing messages into the use table, too -- this prevents
   locally originated messages from showing up again if a remote system is
@@ -1238,3 +1243,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

@@ -898,7 +898,8 @@ void cmd_msg2(char *cmdbuf)
 void cmd_msg3(char *cmdbuf)
 {
 	long msgnum;
-	struct cdbdata *dmsgtext;
+	struct CtdlMessage *msg;
+	struct sermsgret smr;
 
 	if (CC->internal_pgm == 0) {
 		cprintf("%d This command is for internal programs only.\n",
@@ -907,15 +908,25 @@ void cmd_msg3(char *cmdbuf)
 	}
 
 	msgnum = extract_long(cmdbuf, 0);
-
-	dmsgtext = cdb_fetch(CDB_MSGMAIN, &msgnum, sizeof(long));
-	if (dmsgtext == NULL) {
-		cprintf("%d Message %ld not found\n", ERROR, msgnum);
+	msg = CtdlFetchMessage(msgnum);
+	if (msg == NULL) {
+		cprintf("%d Message %ld not found.\n", 
+			ERROR, msgnum);
+		return;
 	}
 
-	cprintf("%d %ld\n", BINARY_FOLLOWS, dmsgtext->len);
-	client_write(dmsgtext->ptr, dmsgtext->len);
-	cdb_free(dmsgtext);
+	serialize_message(&smr, msg);
+	CtdlFreeMessage(msg);
+
+	if (smr.len == 0) {
+		cprintf("%d Unable to serialize message\n",
+			ERROR+INTERNAL_ERROR);
+		return;
+	}
+
+	cprintf("%d %ld\n", BINARY_FOLLOWS, smr.len);
+	client_write(smr.ser, smr.len);
+	phree(smr.ser);
 }
 
 
@@ -1024,13 +1035,16 @@ void copy_file(char *from, char *to)
 }
 
 
-
 /*
- * Serialize a struct CtdlMessage into the format used on disk and network
+ * Serialize a struct CtdlMessage into the format used on disk and network.
+ * 
+ * This function returns a "struct sermsgret" (defined in msgbase.h) which
+ * contains the length of the serialized message and a pointer to the
+ * serialized message in memory.  THE LATTER MUST BE FREED BY THE CALLER.
  */
-char *serialize_message(struct CtdlMessage *msg) {
-	char *ser;
-	size_t len = 0;
+void serialize_message(struct sermsgret *ret,		/* return values */
+			struct CtdlMessage *msg)	/* unserialized msg */
+{
 	size_t wlen;
 	int i;
 	static char *forder = FORDER;
@@ -1039,31 +1053,36 @@ char *serialize_message(struct CtdlMessage *msg) {
 
 	if ((msg->cm_magic) != CTDLMESSAGE_MAGIC) {
 		lprintf(3, "serialize_message() -- self-check failed\n");
-		return NULL;
+		return;
 	}
 
-	len = 3;
+	ret->len = 3;
 	for (i=0; i<26; ++i) if (msg->cm_fields[(int)forder[i]] != NULL)
-		len = len + strlen(msg->cm_fields[(int)forder[i]]) + 2;
+		ret->len = ret->len +
+			strlen(msg->cm_fields[(int)forder[i]]) + 2;
 
 	lprintf(9, "calling malloc\n");
-	ser = mallok(len);
-	if (ser == NULL) return NULL;
+	ret->ser = mallok(ret->len);
+	if (ret->ser == NULL) {
+		ret->len = 0;
+		return;
+	}
 
-	ser[0] = 0xFF;
-	ser[1] = msg->cm_anon_type;
-	ser[2] = msg->cm_format_type;
+	ret->ser[0] = 0xFF;
+	ret->ser[1] = msg->cm_anon_type;
+	ret->ser[2] = msg->cm_format_type;
 	wlen = 3;
 	lprintf(9, "stuff\n");
 
 	for (i=0; i<26; ++i) if (msg->cm_fields[(int)forder[i]] != NULL) {
-		ser[wlen++] = (char)forder[i];
-		strcpy(&ser[wlen], msg->cm_fields[(int)forder[i]]);
+		ret->ser[wlen++] = (char)forder[i];
+		strcpy(&ret->ser[wlen], msg->cm_fields[(int)forder[i]]);
 		wlen = wlen + strlen(msg->cm_fields[(int)forder[i]]) + 1;
 	}
-	if (len != wlen) lprintf(3, "ERROR: len=%d wlen=%d\n", len, wlen);
+	if (ret->len != wlen) lprintf(3, "ERROR: len=%d wlen=%d\n",
+		ret->len, wlen);
 
-	return ser;
+	return;
 }
 
 

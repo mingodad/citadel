@@ -1683,6 +1683,12 @@ an "*" in this position to signify the presence of waiting express messages.
  
  CICQ   (Citadel ICQ metaclient setup)
  
+ ** WARNING **
+ This command is most likely a temporary one.  Citadel will eventually have
+more robust functionality for abstract configuration screens, and when that
+happens, this command will certainly be migrated there.  If you're developing
+a client, don't spend a lot of time working on ICQ screens.
+ 
  If a Citadel server has the ICQ Metaclient installed, this command is used
 to configure it.  It has several usages:
  

@@ -754,6 +754,7 @@ void cmd_ipgm(char *argbuf)
 		}
 	else {
 		cprintf("%d Authentication failed.\n",ERROR);
+		lprintf(3, "Warning: ipgm authentication failed.\n");
 		}
 	}
 
@@ -763,7 +764,7 @@ void cmd_ipgm(char *argbuf)
  */
 void cmd_down(void) {
 	if (!CC->logged_in) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
+		cprintf("%d Not logged in.\n", ERROR+NOT_LOGGED_IN);
 		return;
 		}
 

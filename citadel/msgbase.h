@@ -1,4 +1,28 @@
 /* $Id$ */
+
+
+
+struct sermsgret {
+	size_t len;
+	char *ser;
+};
+
+#define MSGS_ALL        0
+#define MSGS_OLD        1
+#define MSGS_NEW        2
+#define MSGS_FIRST      3
+#define MSGS_LAST       4
+#define MSGS_GT         5
+
+struct ma_info {
+	char prefix[256];	/* Prefix for a multipart/alternative */
+	int is_ma;		/* Set to 1 if we are using this stuff */
+	int did_print;		/* One alternative has been displayed */
+};
+
+
+
+
 int alias (char *name);
 void get_mm (void);
 void cmd_msgs (char *cmdbuf);
@@ -36,20 +60,5 @@ int CtdlDeleteMessages(char *, long, char *);
 void CtdlWriteObject(char *, char *, char *, int, int, int);
 struct CtdlMessage *CtdlFetchMessage(long msgnum);
 void CtdlFreeMessage(struct CtdlMessage *msg);
-char *serialize_message(struct CtdlMessage *msg);
+void serialize_message(struct sermsgret *, struct CtdlMessage *);
 
-
-
-
-#define MSGS_ALL        0
-#define MSGS_OLD        1
-#define MSGS_NEW        2
-#define MSGS_FIRST      3
-#define MSGS_LAST       4
-#define MSGS_GT         5
-
-struct ma_info {
-	char prefix[256];	/* Prefix for a multipart/alternative */
-	int is_ma;		/* Set to 1 if we are using this stuff */
-	int did_print;		/* One alternative has been displayed */
-};
