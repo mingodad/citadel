@@ -1074,14 +1074,14 @@ void smtp_do_bounce(char *instr) {
         bmsg->cm_fields['N'] = strdoop(config.c_nodename);
 
 	if (give_up) bmsg->cm_fields['M'] = strdoop(
-"A message you sent could not be delivered to some or all of its recipients.\n"
-"The following addresses were undeliverable:\n\n"
-);
-
-        else bmsg->cm_fields['M'] = strdoop(
 "A message you sent could not be delivered to some or all of its recipients\n"
 "due to prolonged unavailability of its destination(s).\n"
 "Giving up on the following addresses:\n\n"
+);
+
+        else bmsg->cm_fields['M'] = strdoop(
+"A message you sent could not be delivered to some or all of its recipients.\n"
+"The following addresses were undeliverable:\n\n"
 );
 
 	/*
