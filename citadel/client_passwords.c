@@ -20,10 +20,11 @@
 #include "citadel_ipc.h"
 #include "tools.h"
 #include "commands.h"
+#include "client_passwords.h"
 
 #define PWFILENAME "%s/.citadel.passwords"
 
-static void determine_pwfilename(char *pwfile, size_t n) {
+void determine_pwfilename(char *pwfile, size_t n) {
 	struct passwd *p;
 
 	p = getpwuid(getuid());

@@ -736,7 +736,7 @@ int set_password(CtdlIPC *ipc)
 	if (!strcasecmp(pass1, pass2)) {
 		CtdlIPCChangePassword(ipc, pass1, buf);
 		scr_printf("%s\n", buf);
-		offer_to_remember_password(hostbuf, portbuf, fullname, pass1);
+		offer_to_remember_password(ipc, hostbuf, portbuf, fullname, pass1);
 		return (0);
 	} else {
 		scr_printf("*** They don't match... try again.\n");
@@ -1158,7 +1158,7 @@ int main(int argc, char **argv)
 	
 	if (r / 100 == 2) {
 		load_user_info(aaa);
-		offer_to_remember_password(hostbuf, portbuf,
+		offer_to_remember_password(ipc, hostbuf, portbuf,
 					   fullname, password);
 		goto PWOK;
 	}
