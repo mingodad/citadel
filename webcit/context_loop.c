@@ -70,10 +70,10 @@ void do_housekeeping(void)
 BREAKOUT:	pthread_mutex_unlock(&SessionListMutex);
 
 		if (session_to_kill != NULL) {
-			lock the session
-			shut down the session
-			unlock the session
-			free the struct
+			pthread_mutex_lock(&session_to_kill->SessionMutex);
+			close(session_to_kill->serv_sock);
+			pthread_mutex_unlock(&session_to_kill->SessionMutex);
+			free(session_to_kill);
 		}
 
 	} while (session_to_kill != NULL);
