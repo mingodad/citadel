@@ -19,6 +19,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/un.h>
 #include <netdb.h>
 #include <string.h>
 #include <pwd.h>
@@ -62,6 +63,31 @@ int connectsock(char *host, char *service, char *protocol)
 	struct protoent *ppe;
 	struct sockaddr_in sin;
 	int s, type;
+	struct sockaddr_un sun;
+
+	if ( (!strcmp(protocol, "unix")) || (atoi(service)<0) ) {
+		memset(&sun, 0, sizeof(sun));
+		sun.sun_family = AF_UNIX;
+		sprintf(sun.sun_path, USOCKPATH, 0-atoi(service) );
+
+		s = socket(AF_UNIX, SOCK_STREAM, 0);
+		if (s < 0) {
+			fprintf(stderr, "Can't create socket: %s\n",
+				strerror(errno));
+			exit(3);
+		}
+
+		if (connect(s, (struct sockaddr *) &sun, sizeof(sun)) < 0) {
+			fprintf(stderr, "can't connect: %s\n",
+				strerror(errno));
+			exit(3);
+		}
+
+		return s;
+	}
+
+
+	/* otherwise it's a network connection */
 
 	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = AF_INET;

@@ -84,6 +84,11 @@
 
 /* 
  * These define what port to listen on for various services.
+ * If you don't want to run these services on the network, you can specify
+ * a negative port number to create Unix domain sockets.  This will allow,
+ * for example, the "citmail" utility to connect to the Citadel SMTP server
+ * to import email, without having to actually run Citadel SMTP on the network.
+ *
  * FIXME ... put this in a programmable config somewhere
  */
 #define POP3_PORT		110
