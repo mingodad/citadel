@@ -82,7 +82,7 @@ char *setup_text[] = {
 "2",
 "This is the name your system is known by on the Internet.",
 "If you're not on the Internet, simply set this to your",
-"node name followed by '.UUCP'.",
+"node name followed by '.local' or something similar.",
 
 "3",
 "This is a longer description of your system, readable by",
@@ -956,7 +956,7 @@ int main(int argc, char *argv[]) {
 	if (strlen(config.c_nodename)==0)
 		strcpy(config.c_nodename, my_utsname.nodename);
 	if (strlen(config.c_fqdn)==0)
-		sprintf(config.c_fqdn, "%s.citadelia.org", my_utsname.nodename);
+		sprintf(config.c_fqdn, "%s.local", my_utsname.nodename);
 	if (strlen(config.c_humannode)==0)
 		strcpy(config.c_humannode,"My System");
 	if (strlen(config.c_phonenum)==0)
