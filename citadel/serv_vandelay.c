@@ -113,8 +113,10 @@ void artv_export_rooms_backend(struct ctdlroom *qrbuf, void *data) {
 void artv_export_rooms(void) {
 	char cmd[SIZ];
 	artv_global_message_list = fopen(artv_tempfilename1, "w");
-	ForEachRoom(artv_export_rooms_backend, NULL);
-	fclose(artv_global_message_list);
+	if (artv_global_message_list != NULL) {
+		ForEachRoom(artv_export_rooms_backend, NULL);
+		fclose(artv_global_message_list);
+	}
 
 	/*
 	 * Process the 'global' message list.  (Sort it and remove dups.
@@ -215,11 +217,13 @@ void artv_export_message(long msgnum) {
 
 	fp = fopen(tempfile, "r");
 	unlink(tempfile);
-	while (fgets(buf, sizeof(buf), fp) != NULL) {
-		buf[strlen(buf)-1] = 0;
-		cprintf("%s\n", buf);
+	if (fp != NULL) {
+		while (fgets(buf, sizeof(buf), fp) != NULL) {
+			buf[strlen(buf)-1] = 0;
+			cprintf("%s\n", buf);
+		}
+		fclose(fp);
 	}
-	fclose(fp);
 	cprintf("%s\n", END_OF_MESSAGE);
 }
 
@@ -231,15 +235,18 @@ void artv_export_messages(void) {
 	int count = 0;
 
 	artv_global_message_list = fopen(artv_tempfilename1, "r");
-	lprintf(CTDL_INFO, "Opened %s\n", artv_tempfilename1);
-	while (fgets(buf, sizeof(buf), artv_global_message_list) != NULL) {
-		msgnum = atol(buf);
-		if (msgnum > 0L) {
-			artv_export_message(msgnum);
-			++count;
+	if (artv_global_message_list != NULL) {
+		lprintf(CTDL_INFO, "Opened %s\n", artv_tempfilename1);
+		while (fgets(buf, sizeof(buf),
+		      artv_global_message_list) != NULL) {
+			msgnum = atol(buf);
+			if (msgnum > 0L) {
+				artv_export_message(msgnum);
+				++count;
+			}
 		}
+		fclose(artv_global_message_list);
 	}
-	fclose(artv_global_message_list);
 	lprintf(CTDL_INFO, "Exported %d messages.\n", count);
 }
 
@@ -567,6 +574,7 @@ void cmd_artv(char *cmdbuf) {
 	}
 	is_running = 1;
 
+	strcpy(artv_tempfilename1, tmpnam(NULL));
 	strcpy(artv_tempfilename2, tmpnam(NULL));
 
 	extract(cmd, cmdbuf, 0);

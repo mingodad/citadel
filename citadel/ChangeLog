@@ -1,4 +1,8 @@
  $Log$
+ Revision 621.12  2004/06/14 19:09:26  ajc
+ * serv_vandelay.c: re-inserted a missing line of code for setting tempfile
+   names, which was causing exports to crash.
+
  Revision 621.11  2004/06/11 01:26:02  ajc
  * Optimized the scheduler some more.  The S_I_WANNA_SELECT mutex now
    wraps only the select() call itself.
@@ -5834,4 +5838,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
