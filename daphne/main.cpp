@@ -24,7 +24,6 @@ wxMDIParentFrame *BigMDI;
 RoomTree *RoomList;
 wxConfig *ini;
 
-
 // ----------------------------------------------------------------------------
 // private classes
 // ----------------------------------------------------------------------------
@@ -88,6 +87,7 @@ enum
 	MENU_CONNECT,
 	MENU_TESTWIN,
 	EMENU_PREFS,
+	EMENU_HOSTS,
 	UMENU_WHO,
 	UMENU_SEND_EXPRESS,
 	RMENU_GOTO,
@@ -110,6 +110,7 @@ BEGIN_EVENT_TABLE(	MyFrame, wxMDIParentFrame)
 	EVT_MENU(	IG_About,		MyFrame::OnAbout)
 	EVT_MENU(	MENU_CONNECT,		MyFrame::OnConnect)
 	EVT_MENU(	EMENU_PREFS,		MyFrame::OnEditMenu)
+	EVT_MENU(	EMENU_HOSTS,		MyFrame::OnEditMenu)
 	EVT_MENU(	GOTO_MAIL,		MyFrame::OnGotoMail)
 	EVT_MENU(	MENU_TESTWIN,		MyFrame::OnTestWin)
 	EVT_MENU(	UMENU_WHO,		MyFrame::OnUsersMenu)
@@ -149,6 +150,7 @@ bool Daphne::OnInit()
 	ini->SetRecordDefaults(TRUE);
 	ini->Read("/Window Sizes/Main", &sizestr, "789 451");
 	sscanf((const char *)sizestr, "%d %d", &w, &h);
+
 
 	// Connect to the server
 	citadel = new CitClient();
@@ -206,7 +208,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 	wxMenu *menuEdit = new wxMenu;
 	menuEdit->Append(EMENU_PREFS, "&Preferences...");
-
+	menuEdit->Append(EMENU_HOSTS, "&BBSes to log into");
 	wxMenu *menuUsers = new wxMenu;
 	menuUsers->Append(UMENU_WHO, "&Who is online?");
 	menuUsers->Append(UMENU_SEND_EXPRESS, "&Page another user");
@@ -379,6 +381,9 @@ void MyFrame::OnEditMenu(wxCommandEvent& cmd) {
 	id = cmd.GetId();
 	if (id == EMENU_PREFS) {
 		new Preferences(citadel, this);
+	}
+	else if (id == EMENU_HOSTS) {
+		new Hosts(citadel, this);
 	}
 }
 

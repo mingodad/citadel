@@ -55,7 +55,8 @@ who::who(CitClient *sock, wxMDIParentFrame *MyMDI)
 	citsock = sock;
 
 
-	/*who_refresh *ref = new who_refresh(this);*/
+/*	who_refresh *ref = new who_refresh(this); 
+	if(!this) { delete this; }  */
 
 	// set the frame icon
 	/* SetIcon(wxICON(mondrian)); */
@@ -182,23 +183,25 @@ void who::LoadWholist(void) {
 
 
 
-/*
-who_refresh::who_refresh(who *parent_who)
+
+/*who_refresh::who_refresh(who *parent_who)
 	: wxTimer() {
 
+		if(!this) {
 	        if (citadel->IsConnected()==FALSE) {
-		Stop();
+		Stop(); 
 		delete this;
-        } else
+        } else 
 
 	which_who = parent_who;		// Know which instance to refresh
 
-	Start(30000, FALSE);		// Call every 30 seconds
-} */
+	Start(15000, FALSE);		// Call every 30 seconds
+} 
 
 
-/*void who_refresh::Notify(void)  {
+void who_refresh::Notify(void)  {
 
 	which_who->LoadWholist();
-} */
+} 
 
+*/

@@ -211,10 +211,10 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 
 	sendcmd = "MESG hello";
 	if (citsock->serv_trans(sendcmd, recvcmd, xferbuf)==1) {
-		variformat_to_html(buf, xferbuf, FALSE);
-		buf = "<HTML><BODY><CENTER>"
-			+ buf + "</CENTER></BODY></HTML>\n";
-		hello->SetPage(buf);
+		variformat_to_html(buf, xferbuf, FALSE); 
+		buf = "<HTML><font size=-1><BODY>"
+			+ buf + "</BODY></HTML></font>\n"; 
+		hello->SetPage(buf); 
 	}
 
 	username->SetFocus();

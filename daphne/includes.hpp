@@ -159,6 +159,19 @@ private:
 
 
 
+class Hosts : public wxMDIChildFrame {
+public:
+        Hosts(    CitClient *sock, 
+                        wxMDIParentFrame *MyMDI);
+private:
+        void OnButtonPressed(wxCommandEvent& whichbutton);
+        CitClient *citsock;
+        wxMDIParentFrame *citMyMDI;
+        wxTextCtrl *server_host, *server_port;
+        wxCheckBox *server_autoconnect;
+        DECLARE_EVENT_TABLE()
+};
+
 // Just testing...
 class TestWindow : public wxMDIChildFrame {
 public:
