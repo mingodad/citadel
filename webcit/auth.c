@@ -157,6 +157,7 @@ void do_welcome(void)
 	FILE *fp;
 	int i;
 
+#ifdef XXX_NOT_FINISHED_YET_XXX
 	/*
 	 * See if we have to run the first-time setup wizard
 	 */
@@ -187,6 +188,7 @@ void do_welcome(void)
 			http_redirect("/setup_wizard");
 		}
 	}
+#endif
 
 	/*
 	 * Go to the user's preferred start page
