@@ -199,7 +199,7 @@ install-doc:
 		$(INSTALL_DATA) $$i $(prefix)/$$i; \
 	done
 
-install-exec: all
+install-exec: all weekly
 	for i in bio bitbucket files images info modules userpics; do \
 		./mkinstalldirs $(prefix)/$$i; \
 	done
@@ -231,5 +231,8 @@ config.status: $(srcdir)/configure
 
 $(srcdir)/configure: $(srcdir)/configure.in $(srcdir)/aclocal.m4
 	cd $(srcdir) && $(AUTOCONF)
+
+weekly: $(srcdir)/weekly.in config.status
+	CONFIG_FILES=weekly CONFIG_HEADERS= $(SHELL) ./config.status
 
 -include $(DEP_FILES)
