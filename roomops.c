@@ -360,7 +360,6 @@ void embed_room_banner(char *got) {
 	svcallback("ROOMINFO", readinfo);
 	svcallback("YOUHAVEMAIL", embed_newmail_button);
 
-
 	do_template("roombanner.html");
 	clear_local_substs();
 }

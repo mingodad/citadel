@@ -173,23 +173,7 @@ void wprintf(const char *format,...)
 void wDumpContent(int print_standard_html_footer)
 {
 	if (WC->fake_frames) {
-		wprintf("<CENTER><FONT SIZE=-1>"
-			"<TABLE border=0 width=100%%><TR>"
-			"<TD><A HREF=\"/ungoto\">"
-			"<IMG SRC=\"/static/back.gif\" BORDER=0>"
-			"Ungoto</A></TD>");
-		wprintf("<TD><A HREF=\"#TheTop\">"
-			"<IMG SRC=\"/static/up.gif\" BORDER=0>"
-			"Top of page</A></TD>");
-		wprintf("<TD><A HREF=\"/display_enter\">"
-			"<IMG SRC=\"/static/enter.gif\" BORDER=0>"
-			"Enter a message</A></TD>");
-		wprintf("<TD><A HREF=\"/gotonext\">"
-			"Goto next room"
-			"<IMG SRC=\"/static/forward.gif\" BORDER=0></A></TD>"
-			"</TR></TABLE>"
-			"</FONT>\n"
-			"</TD></TR></TABLE></TABLE>\n");
+		wprintf("</TABLE>\n");
 		WC->fake_frames = 0;
 	}
 
@@ -364,14 +348,9 @@ void output_headers(int controlcode)
 		clear_local_substs();
 
 	if (print_standard_html_head == 1) {
-		wprintf("<A NAME=\"TheTop\"></A>"
-			"<TABLE border=0 width=100%%>"
-			"<TR VALIGN=TOP><TD VALIGN=LEFT CELLPADDING=0>");
+		wprintf("<A NAME=\"TheTop\"></A>");
 
-		display_menubar(0);
-
-		wprintf("</TD><TD VALIGN=TOP>"
-			"<TABLE border=0 width=100%%><TR VALIGN=TOP>"
+		wprintf("<TABLE border=0 width=100%%><TR VALIGN=TOP>"
 			"<TD>\n");
 
 		embed_room_banner(NULL);
