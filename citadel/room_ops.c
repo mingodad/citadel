@@ -286,6 +286,15 @@ void lgetfloor(struct floor *flbuf, int floor_num)
  * This is strictly a performance hack.
  */
 struct floor *cgetfloor(int floor_num) {
+	static int initialized = 0;
+	int i;
+
+	if (!initialized) {
+		for (i=0; i<MAXFLOORS; ++i) {
+			floorcache[floor_num] = NULL;
+		}
+	initialized = 1;
+	}
 	
 	if (floorcache[floor_num] == NULL) {
 		floorcache[floor_num] = mallok(sizeof(struct floor));
