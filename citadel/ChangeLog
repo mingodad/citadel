@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.45  2004/02/20 19:29:05  error
+ * Fix bug 112: .Goto allowed partial room match on forgotten rooms
+
  Revision 614.44  2004/02/20 02:55:18  ajc
  * Fixed one of the prompts (bugzilla #118)
 
@@ -5382,4 +5385,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

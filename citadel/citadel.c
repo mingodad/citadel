@@ -379,7 +379,8 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 	 * If a match is not found, try a partial match.
 	 * Partial matches anywhere in the string carry a weight of 1,
 	 * left-aligned matches carry a weight of 2.  Pick the room that
-	 * has the highest-weighted match.
+	 * has the highest-weighted match.  Do not match on forgotten
+	 * rooms.
 	 */
 	if (r / 100 != 2) {
 		struct march *march = NULL;
@@ -387,7 +388,7 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 		best_match = 0;
 		strcpy(bbb, "");
 
-		r = CtdlIPCKnownRooms(ipc, AllAccessibleRooms, AllFloors, &march, aaa);
+		r = CtdlIPCKnownRooms(ipc, SubscribedRooms, AllFloors, &march, aaa);
 		if (r / 100 == 1) {
 			/* Run the roomlist; free the data as we go */
 			struct march *mp = march;	/* Current */
