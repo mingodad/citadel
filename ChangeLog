@@ -1,4 +1,8 @@
 $Log$
+Revision 323.20  2002/03/31 05:02:39  ajc
+* Remove "Page another user" link from main menu
+* Add "edit my citadel config room" type link from edit user screen
+
 Revision 323.19  2002/03/29 22:30:45  ajc
 * Finished the "edit user" screen.
 
@@ -771,3 +775,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

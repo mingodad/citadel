@@ -199,9 +199,15 @@ void display_edituser(char *supplied_username) {
 
 	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"OK\">\n"
 		"<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Cancel\">\n"
-		"</CENTER>\n");
+		"<BR><BR></FORM>\n");
 
-	wprintf("</FORM>\n");
+	wprintf("<A HREF=\"/dotgoto&room=%010ld.My%%20Citadel%%20Config\">",
+		usernum);
+	wprintf("Click here to access the configuration room for ");
+	escputs(username);
+	wprintf("</A><BR>\n"
+		"(Contact information, Internet e-mail addresses, etc.)<BR>"
+		"</CENTER>\n");
 
 	wDumpContent(1);
 
