@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.102  2001/02/27 19:56:23  nbryant
+ pass DB_THREAD to DB->open()
+
  Revision 573.101  2001/02/26 19:56:13  nbryant
  modified lprintf strings to begin with "cdb_" to simplify grepping for
  sleepycat-related errors.
@@ -2478,3 +2481,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

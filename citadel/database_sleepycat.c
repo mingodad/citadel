@@ -243,7 +243,7 @@ void open_databases(void)
 				dbfilename,
 				NULL,
 				DB_BTREE,
-				DB_CREATE,
+				DB_CREATE|DB_THREAD,
 				0600);
 		if (ret) {
 			lprintf(1, "cdb_*: db_open[%d]: %s\n", i, db_strerror(ret));
