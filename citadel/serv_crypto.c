@@ -92,8 +92,10 @@ void init_ssl(void)
 	SSL_METHOD *ssl_method;
 	DH *dh;
 	RSA *rsa=NULL;
-	X509_REQ *x = NULL;
+	X509_REQ *req = NULL;
+	X509 *cer = NULL;
 	EVP_PKEY *pk = NULL;
+	EVP_PKEY *req_pkey = NULL;
 	X509_NAME *name = NULL;
 	FILE *fp;
 
@@ -243,13 +245,13 @@ void init_ssl(void)
 			/* Create a public key from the private key */
 			if (pk=EVP_PKEY_new(), pk != NULL) {
 				EVP_PKEY_assign_RSA(pk, rsa);
-				if (x = X509_REQ_new(), x != NULL) {
+				if (req = X509_REQ_new(), req != NULL) {
 
 					/* Set the public key */
-					X509_REQ_set_pubkey(x, pk);
-					X509_REQ_set_version(x, 0L);
+					X509_REQ_set_pubkey(req, pk);
+					X509_REQ_set_version(req, 0L);
 
-					name = X509_REQ_get_subject_name(x);
+					name = X509_REQ_get_subject_name(req);
 
 					/* Tell it who we are */
 
@@ -273,10 +275,10 @@ void init_ssl(void)
 					X509_NAME_add_entry_by_txt(name, "CN",
 						MBSTRING_ASC, config.c_fqdn, -1, -1, 0);
 				
-					X509_REQ_set_subject_name(x, name);
+					X509_REQ_set_subject_name(req, name);
 
 					/* Sign the CSR */
-					if (!X509_REQ_sign(x, pk, EVP_md5())) {
+					if (!X509_REQ_sign(req, pk, EVP_md5())) {
 						lprintf(3, "X509_REQ_sign(): error\n");
 					}
 					else {
@@ -284,12 +286,12 @@ void init_ssl(void)
 						fp = fopen(CTDL_CSR_PATH, "w");
 						if (fp != NULL) {
 							chmod(CTDL_CSR_PATH, 0600);
-							PEM_write_X509_REQ(fp, x);
+							PEM_write_X509_REQ(fp, req);
 							fclose(fp);
 						}
 					}
 
-					X509_REQ_free(x);
+					X509_REQ_free(req);
 				}
 			}
 
@@ -309,8 +311,60 @@ void init_ssl(void)
 	if (access(CTDL_CER_PATH, R_OK) != 0) {
 		lprintf(3, "Generating a self-signed certificate.\n");
 
+		/* Same deal as before: always read the key from disk because
+		 * it may or may not have just been generated.
+		 */
+		fp = fopen(CTDL_KEY_PATH, "r");
+		if (fp) {
+			rsa = PEM_read_RSAPrivateKey(fp, NULL, NULL, NULL);
+			fclose(fp);
+		}
 
-		/* FIXME ... do it */
+		/* This also holds true for the CSR. */
+		req = NULL;
+		cer = NULL;
+		pk = NULL;
+		if (rsa) {
+			if (pk=EVP_PKEY_new(), pk != NULL) {
+				EVP_PKEY_assign_RSA(pk, rsa);
+			}
+
+			fp = fopen(CTDL_CSR_PATH, "r");
+			if (fp) {
+				req = PEM_read_X509_REQ(fp, NULL, NULL, NULL);
+				fclose(fp);
+			}
+
+			if (req) {
+				if (cer = X509_new(), cer != NULL) {
+
+					X509_set_issuer_name(cer, req->req_info->subject);
+					X509_set_subject_name(cer, req->req_info->subject);
+					X509_gmtime_adj(X509_get_notBefore(cer),0);
+					X509_gmtime_adj(X509_get_notAfter(cer),(long)60*60*24*SIGN_DAYS);
+					req_pkey = X509_REQ_get_pubkey(req);
+					X509_set_pubkey(cer, req_pkey);
+					EVP_PKEY_free(req_pkey);
+					
+					/* Sign the cert */
+					if (!X509_sign(cer, pk, EVP_md5())) {
+						lprintf(3, "X509_sign(): error\n");
+					}
+					else {
+						/* Write it to disk. */	
+						fp = fopen(CTDL_CER_PATH, "w");
+						if (fp != NULL) {
+							chmod(CTDL_CER_PATH, 0600);
+							PEM_write_X509(fp, cer);
+							fclose(fp);
+						}
+					}
+					X509_free(cer);
+				}
+			}
+
+			RSA_free(rsa);
+		}
 	}
 
 

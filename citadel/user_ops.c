@@ -436,8 +436,7 @@ void session_startup(void)
 {
 	int i;
 
-	lprintf(3, "Session %d: %s logged in",
-	       CC->cs_pid, CC->curr_user);
+	lprintf(3, "<%s> logged in\n", CC->curr_user);
 
 	lgetuser(&CC->user, CC->curr_user);
 	++(CC->user.timescalled);

@@ -61,3 +61,4 @@ configure.lineno
 config.sub
 config.guess
 openldap-data
+keys

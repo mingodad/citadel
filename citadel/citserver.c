@@ -510,8 +510,7 @@ void cmd_iden(char *argbuf)
 		}
 	}
 
-	lprintf(3,"Session %d: Client %d/%d/%01d.%02d (%s) from %s\n",
-		CC->cs_pid,
+	lprintf(3,"Client %d/%d/%01d.%02d (%s) from %s\n",
 		dev_code,
 		cli_code,
 		(rev_level / 100),
@@ -903,7 +902,7 @@ void begin_session(struct CitContext *con)
 	if ((config.c_maxsessions > 0)&&(num_sessions > config.c_maxsessions))
 		con->nologin = 1;
 
-	lprintf(3, "Session %d: started.\n", con->cs_pid);
+	lprintf(3, "Session started.\n");
 
 	/* Run any session startup routines registered by loadable modules */
 	PerformSessionHooks(EVT_START);
