@@ -79,10 +79,17 @@
 #define SIZ		4096
 
 /*
- * SMTP delivery retry and give-up times
+ * SMTP delivery retry rules (all values are in seconds)
+ *
+ * If delivery of a message via SMTP is unsuccessful, Citadel will try again
+ * after SMTP_RETRY_INTERVAL seconds.  This interval will double after each
+ * unsuccessful delivery, up to a maximum of SMTP_RETRY_MAX seconds.  If no
+ * successful delivery has been accomplished after SMTP_GIVE_UP seconds, the
+ * message will be returned to its sender.
  */
-#define	SMTP_RETRY_INTERVAL	900	/* retry sends every 15 minutes */
-#define SMTP_GIVE_UP		432000	/* give up after 5 days */
+#define	SMTP_RETRY_INTERVAL	900	/* 15 minutes */
+#define SMTP_RETRY_MAX		43200	/* 12 hours */
+#define SMTP_GIVE_UP		432000	/* 5 days */
 
 /*
  * How often to run the networker

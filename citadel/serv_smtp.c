@@ -1314,6 +1314,9 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		if (!strcasecmp(key, "retry")) {
 			/* double the retry interval after each attempt */
 			retry = extract_long(buf, 1) * 2L;
+			if (retry > SMTP_RETRY_MAX) {
+				retry = SMTP_RETRY_MAX;
+			}
 			remove_token(instr, i, '\n');
 		}
 		if (!strcasecmp(key, "attempted")) {
