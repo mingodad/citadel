@@ -2934,6 +2934,7 @@ void cmd_move(char *args)
 	int err;
 	int is_copy = 0;
 	int ra;
+	int permit = 0;
 
 	num = extract_long(args, 0);
 	extract(targ, args, 1);
@@ -2941,24 +2942,38 @@ void cmd_move(char *args)
 	is_copy = extract_int(args, 2);
 
 	if (getroom(&qtemp, targ) != 0) {
-		cprintf("%d '%s' does not exist.\n", ERROR + ROOM_NOT_FOUND, targ);
+		cprintf("%d '%s' does not exist.\n",
+			ERROR + ROOM_NOT_FOUND, targ);
 		return;
 	}
 
 	getuser(&CC->user, CC->curr_user);
 	ra = CtdlRoomAccess(&qtemp, &CC->user);
+
+	/* Check for permission to perform this operation.
+	 * Remember: "CC->room" is source, "qtemp" is target.
+	 */
+	permit = 0;
+
 	/* Aides can move/copy */
-	if ((CC->user.axlevel < 6)
-	    /* Roomaides can move/copy */
-	    && (CC->user.usernum != CC->room.QRroomaide)
-	    /* Permit move/copy from personal rooms */
-	    && (!((CC->room.QRflags & QR_MAILBOX)
-			    && (qtemp.QRflags & QR_MAILBOX)))
-	    /* Permit only copy from public to personal room */
-	    && (!(is_copy && (CC->room.QRflags & QR_MAILBOX)
-			    || (qtemp.QRflags & QR_MAILBOX)))
-	    /* User must have access to target room */
-	    && !((ra & UA_KNOWN))) {
+	if (CC->user.axlevel >= 6) permit = 1;
+
+	/* Room aides can move/copy */
+	if (CC->user.usernum == CC->room.QRroomaide) permit = 1;
+
+	/* Permit move/copy from personal rooms */
+	if ((CC->room.QRflags & QR_MAILBOX)
+	   && (qtemp.QRflags & QR_MAILBOX)) permit = 1;
+
+	/* Permit only copy from public to personal room */
+	if ( (is_copy)
+	   && (!(CC->room.QRflags & QR_MAILBOX))
+	   && (qtemp.QRflags & QR_MAILBOX)) permit = 1;
+
+	/* User must have access to target room */
+	if (!(ra & UA_KNOWN))  permit = 0;
+
+	if (!permit) {
 		cprintf("%d Higher access required.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;
