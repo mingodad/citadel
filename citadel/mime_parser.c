@@ -398,20 +398,23 @@ void the_mime_parser(char *partnum,
 		}
 
 		/* Figure out where the boundaries are */
-		sprintf(startary, "--%s", boundary);
-		sprintf(endary, "--%s--", boundary);
+		snprintf(startary, SIZ, "--%s", boundary);
+		snprintf(endary, SIZ, "--%s--", boundary);
 		do {
 			if ( (!strncasecmp(ptr, startary, strlen(startary)))
 			   || (!strncasecmp(ptr, endary, strlen(endary))) ) {
 				lprintf(9, "hit boundary!\n");
 				if (part_start != NULL) {
 					if (strlen(partnum) > 0) {
-						sprintf(nested_partnum, "%s.%d",
-							partnum, ++part_seq);
+						snprintf(nested_partnum,
+							 sizeof nested_partnum,
+							 "%s.%d", partnum,
+							 ++part_seq);
 					}
 					else {
-						sprintf(nested_partnum, "%d",
-							++part_seq);
+						snprintf(nested_partnum,
+							 sizeof nested_partnum,
+							 "%d", ++part_seq);
 					}
 					the_mime_parser(nested_partnum,
 						    part_start, part_end,

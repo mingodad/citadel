@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.143  2002/03/12 03:43:26  nbryant
+ squished the last remaining calls to sprintf
+
  Revision 590.142  2002/03/12 03:36:55  nbryant
  replace calls to gets with fgets
 
@@ -3447,4 +3450,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
