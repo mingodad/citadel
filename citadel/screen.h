@@ -7,6 +7,7 @@ int screen_reset(void);
 int scr_printf(char *fmt, ...);
 int err_printf(char *fmt, ...);
 int sln_printf(char *fmt, ...);
+int sln_printf_if(char *fmt, ...);
 int scr_getc(void);
 int scr_putc(int c);
 int scr_color(int colornum);

@@ -108,6 +108,7 @@ char curr_floor = 0;		/* number of current floor */
 char floorlist[128][SIZ];	/* names of floors */
 char express_msgs = 0;		/* express messages waiting! */
 int termn8 = 0;			/* Set to nonzero to cause a logoff */
+int secure;			/* Set to nonzero when wire is encrypted */
 
 extern int rc_ansi_color;	/* ansi color value from citadel.rc */
 
@@ -322,7 +323,7 @@ void dotgoto(char *towhere, int display_name)
 {
 	char aaa[SIZ], bbb[SIZ], psearch[SIZ];
 	static long ls = 0L;
-	int newmailcount;
+	int newmailcount = 0;
 	static int oldmailcount = (-1);
 	int partial_match, best_match;
 	char from_floor;
@@ -437,6 +438,18 @@ void dotgoto(char *towhere, int display_name)
 			color(DIM_WHITE);
 		}
 		oldmailcount = newmailcount;
+		sln_printf_if("%s at %s in %s | %s | %d unread mail\n",
+				serv_info.serv_humannode,
+				serv_info.serv_bbs_city,
+				room_name,
+				secure ? "Secure" : "Not secure",
+				newmailcount);
+	} else {
+		sln_printf_if("%s at %s in %s | %s\n",
+				serv_info.serv_humannode,
+				serv_info.serv_bbs_city,
+				room_name,
+				secure ? "Secure" : "Not secure");
 	}
 }
 
@@ -1007,12 +1020,15 @@ int main(int argc, char **argv)
 
 	get_serv_info(telnet_client_host);
 
-	if (!starttls()) {
-		sln_printf("Session will not be encrypted.\n");
-	}
-
 	scr_printf("%-24s\n%s\n%s\n", serv_info.serv_software, serv_info.serv_humannode,
 		serv_info.serv_bbs_city);
+	scr_flush();
+
+	secure = starttls();
+	sln_printf_if("%s at %s | %s\n",
+			serv_info.serv_humannode,
+			serv_info.serv_bbs_city,
+			secure ? "Secure" : "Not secure");
 
 	screenwidth = 80;	/* default screen dimensions */
 	screenheight = 24;

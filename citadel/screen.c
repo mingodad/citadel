@@ -196,6 +196,30 @@ int sln_printf(char *fmt, ...)
 }
 
 
+/*
+ * sln_printf_if() outputs to status window, no output if not in curses
+ */
+int sln_printf_if(char *fmt, ...)
+{
+	register int retval = 1;
+#ifdef HAVE_CURSES_H
+	va_list ap;
+
+	va_start(ap, fmt);
+	if (statuswindow) {
+		retval = _vwprintw(statuswindow, fmt, ap);
+		if (fmt[strlen(fmt) - 1] == '\r' ||
+		    fmt[strlen(fmt) - 1] == '\n') {
+			mvwinch(statuswindow, 0, 0);
+			wrefresh(mainwindow);
+		}
+	}
+	va_end(ap);
+#endif
+	return retval;
+}
+
+
 int scr_getc(void)
 {
 #ifdef HAVE_CURSES_H

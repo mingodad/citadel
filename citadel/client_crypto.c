@@ -274,7 +274,7 @@ int starttls(void)
 		int bits, alg_bits;
 
 		bits = SSL_CIPHER_get_bits(SSL_get_current_cipher(ssl), &alg_bits);
-		sln_printf("Encrypting with %s cipher %s (%d of %d bits)\n",
+		err_printf("Encrypting with %s cipher %s (%d of %d bits)\n",
 				SSL_CIPHER_get_version(SSL_get_current_cipher(ssl)),
 				SSL_CIPHER_get_name(SSL_get_current_cipher(ssl)),
 				bits, alg_bits);
