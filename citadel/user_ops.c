@@ -187,56 +187,6 @@ void CtdlGetRelationship(struct visit *vbuf,
 	}
 
 
-void PurgeStaleRelationships(void) {
-
-	/********* REWRITE THIS FOR GLOBAL USE AND MOVE IT TO THE PURGE MODULE
-	struct cdbdata *cdbvisit;
-	struct visit *visits;
-	struct quickroom qrbuf;
-	int num_visits;
-	int a, purge;
-
-	cdbvisit = cdb_fetch(CDB_VISIT, &CC->usersupp.usernum, sizeof(long));
-	if (cdbvisit != NULL) {
-		if ((num_visits = cdbvisit->len / sizeof(struct visit)) == 0) {
-			cdb_free(cdbvisit);
-			return;
-			}
-		visits = (struct visit *)
-			malloc(num_visits * sizeof(struct visit));
-		memcpy(visits, cdbvisit->ptr,
-			(num_visits * sizeof(struct visit)));
-		cdb_free(cdbvisit);
-		}
-	else return;
-
-	for (a=0; a<num_visits; ++a) {
-		if (getroom(&qrbuf, visits[a].v_roomname)!=0) {
-			purge = 1;
-			}
-		else if (qrbuf.QRgen != visits[a].v_generation) {
-			purge = 1;
-			}
-		else {
-			purge = 0;
-			}
-
-		if (purge) {
-			memcpy(&visits[a], &visits[a+1],
-				(((num_visits-a)-1) * sizeof(struct visit)) );
-			--num_visits;
-			}
-
-		}
-	
-	cdb_store(CDB_VISIT, &CC->usersupp.usernum, sizeof(long),
-			visits, (num_visits * sizeof(struct visit)));
-	free(visits);
-	**************/
-	}
-
-
-
 void MailboxName(char *buf, struct usersupp *who, char *prefix) {
 	sprintf(buf, "%010ld.%s", who->usernum, prefix);
 	}

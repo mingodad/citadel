@@ -117,9 +117,6 @@ void cleanup_stuff(void *arg)
 	/* Deallocate any message list we might have in memory */
 	if (CC->msglist != NULL) free(CC->msglist);
 
-	/* Purge any stale user/room relationships */
-	PurgeStaleRelationships();
-
 	/* Now get rid of the session and context */
 	lprintf(7, "cleanup_stuff() calling RemoveContext(%d)\n", CC->cs_pid);
 	RemoveContext(CC);

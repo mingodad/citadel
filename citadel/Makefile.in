@@ -49,7 +49,7 @@ VPATH=$(srcdir)
 
 SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	config.c control.c cux2ascii.c database.c dynloader.c file_ops.c \
-	housekeeping.c import.c internetmail.c ipc_c_tcp.c locate_host.c \
+	housekeeping.c internetmail.c ipc_c_tcp.c locate_host.c \
 	logging.c mailinglist.c messages.c msgbase.c msgform.c netmailer.c \
 	netpoll.c netproc.c netsetup.c policy.c proxy.c rcit.c readlog.c \
 	room_ops.c rooms.c roomutil.c routines.c routines2.c serv_chat.c \

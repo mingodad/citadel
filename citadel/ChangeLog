@@ -2,6 +2,7 @@ Sat Nov 21 16:53:30 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Added a fourth color mode in the client: "user" which turns color
 	  on or off according to a per-user flag stored on the server.  Added
 	  server-side support for this too, of course.
+	* import.c: removed
 
 Fri Nov 20 20:29:07 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* setup.c: removed all prompts that can be configured from within the
