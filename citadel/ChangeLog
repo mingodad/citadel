@@ -1,3 +1,7 @@
+Sun Sep 27 23:41:29 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* BOTH the old and new generation systems are being written to at
+	  this point.  Code that reads stuff is still using the old system.
+
 Sun Sep 27 16:10:49 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Changed all "generation" variables from char to long, in preparation
 	  for removing MAXROOMS.  Generations for new rooms are now timestamps.

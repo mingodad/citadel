@@ -34,3 +34,9 @@ void cmd_lbio (void);
 void cmd_agup (char *cmdbuf);
 void cmd_asup (char *cmdbuf);
 int NewMailCount(void);
+void CtdlGetRelationship(struct visit *vbuf,
+                        struct usersupp *rel_user,
+                        struct quickroom *rel_room);
+void CtdlSetRelationship(struct visit *newvisit,
+                        struct usersupp *rel_user,
+                        struct quickroom *rel_room);

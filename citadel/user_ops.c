@@ -101,6 +101,104 @@ void lputuser(struct usersupp *usbuf, char *name) {
 
 
 /*
+ * Define a relationship between a user and a room
+ */
+void CtdlSetRelationship(struct visit *newvisit,
+			struct usersupp *rel_user,
+			struct quickroom *rel_room) {
+
+	struct cdbdata *cdbvisit;
+	struct visit *visits;
+	int num_visits;
+	int a;
+	int replaced = 0;
+
+	cdbvisit = cdb_fetch(CDB_VISIT, &rel_user->usernum, sizeof(long));
+	if (cdbvisit != NULL) {
+		num_visits = cdbvisit->len / sizeof(struct visit);
+		visits = (struct visit *)
+			malloc(num_visits * sizeof(struct visit));
+		memcpy(visits, cdbvisit->ptr,
+			(num_visits * sizeof(struct visit)));
+		cdb_free(cdbvisit);
+		}
+	else {
+		num_visits = 0;
+		visits = NULL;
+		}
+
+	/* Replace an existing relationship if possible */
+	if (num_visits > 0) for (a=0; a<num_visits; ++a) {
+		if ( (!strcasecmp(visits[a].v_roomname, rel_room->QRname))
+		   && (visits[a].v_generation == rel_room->QRgen) ) {
+			memcpy(&visits[a], newvisit, sizeof(struct visit));
+			replaced = 1;
+			}
+		}
+
+	/* Otherwise, define a new one */
+	if (replaced == 0) {
+		++num_visits;
+		visits = realloc(visits, 
+			(num_visits * sizeof(struct visit)));
+		memcpy(&visits[num_visits-1], newvisit, sizeof(struct visit));
+		}
+
+	/* Now write the relationship back to disk */
+	cdb_store(CDB_VISIT,
+		&rel_user->usernum, sizeof(long),
+		visits,
+		(num_visits * sizeof(struct visit)));
+	free(visits);
+	}
+
+/*
+ * Locate a relationship between a user and a room
+ */
+void CtdlGetRelationship(struct visit *vbuf,
+			struct usersupp *rel_user,
+			struct quickroom *rel_room) {
+
+	struct cdbdata *cdbvisit;
+	struct visit *visits;
+	int num_visits = 0;
+	int a;
+
+	bzero(vbuf, sizeof(struct visit));
+	strcpy(vbuf->v_roomname, rel_room->QRname);
+	vbuf->v_generation = rel_room->QRgen;
+
+	cdbvisit = cdb_fetch(CDB_VISIT, &rel_user->usernum, sizeof(long));
+	if (cdbvisit != NULL) {
+		num_visits = cdbvisit->len / sizeof(struct visit);
+		visits = (struct visit *)
+			malloc(num_visits * sizeof(struct visit));
+		memcpy(visits, cdbvisit->ptr,
+			(num_visits * sizeof(struct visit)));
+		cdb_free(cdbvisit);
+		}
+
+	if (num_visits == 0) return;
+
+	for (a=0; a<num_visits; ++a) {
+	
+		lprintf(9, "Visit: %20s %15ld %4ld %4d\n",
+			visits[a].v_roomname,
+			visits[a].v_generation,
+			visits[a].v_lastseen,
+			visits[a].v_flags);
+
+		if ( (!strcasecmp(visits[a].v_roomname, rel_room->QRname))
+		   && (visits[a].v_generation == rel_room->QRgen) ) {
+			memcpy(vbuf, &visits[a], sizeof(struct visit));
+			}
+		}
+	
+	free(visits);
+	}
+	
+	
+/*
  * Is the user currently logged in an Aide?
  */
 int is_aide(void) {
@@ -223,6 +321,9 @@ void session_startup(void) {
 /* A room's generation number changes each time it is recycled. Users are kept
  * out of private rooms or forget rooms by matching the generation numbers. To
  * avoid an accidental matchup, unmatched numbers are set to -1 here.
+ *
+ * FIX - This can get removed once the new relationships system is in place.
+ *
  */
 	for (a=0; a<MAXROOMS; ++a) {
 		getroom(&qr,a);
@@ -350,6 +451,9 @@ int purge_user(char *pname) {
 		/* now delete the mailbox itself */
 		cdb_delete(CDB_MAILBOXES, &usbuf.usernum, sizeof(long));
 		}
+
+	/* delete any existing user/room relationships */
+	cdb_delete(CDB_VISIT, &usbuf.usernum, sizeof(long));
 
 	/* delete the userlog entry */
 	cdb_delete(CDB_USERSUPP, pname, strlen(pname));
@@ -574,6 +678,7 @@ void cmd_setu(char *new_parms)
 void cmd_slrp(char *new_ptr)
 {
 	long newlr;
+	struct visit vbuf;
 
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
@@ -596,7 +701,15 @@ void cmd_slrp(char *new_ptr)
 		}
 
 	lgetuser(&CC->usersupp, CC->curr_user);
+
+	/* old method - remove */
 	CC->usersupp.lastseen[CC->curr_rm] = newlr;
+
+	/* new method */
+	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+	vbuf.v_lastseen = newlr;
+	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+
 	lputuser(&CC->usersupp, CC->curr_user);
 	cprintf("%d %ld\n",OK,newlr);
 	}
@@ -610,6 +723,7 @@ void cmd_invt_kick(char *iuser, int op)
         {		/* 1 = invite, 0 = kick out */
 	struct usersupp USscratch;
 	char bbb[256];
+	struct visit vbuf;
 
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
@@ -627,6 +741,8 @@ void cmd_invt_kick(char *iuser, int op)
 		return;
 		}
 
+	/* FIX - with the new relationships scheme we can lock users out,
+	   so it'll make sense to remove this routine */
 	if ( (op==1) && ((CC->quickroom.QRflags&QR_PRIVATE)==0) ) {
 		cprintf("%d Not a private room.\n",ERROR+NOT_HERE);
 		return;
@@ -637,15 +753,27 @@ void cmd_invt_kick(char *iuser, int op)
 		return;
 		}
 
+	CtdlGetRelationship(&vbuf, &USscratch, &CC->quickroom);
+
 	if (op==1) {
+		/* old method -- FIX remove this when we're ready */
 		USscratch.generation[CC->curr_rm]=CC->quickroom.QRgen;
 		USscratch.forget[CC->curr_rm]=(-1);
+
+		/* new method */
+		vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
 		}
 
 	if (op==0) {
+		/* old method -- FIX remove this when we're ready */
 		USscratch.generation[CC->curr_rm]=(-1);
 		USscratch.forget[CC->curr_rm]=CC->quickroom.QRgen;
+
+		/* new method */
+		vbuf.v_flags = vbuf.v_flags | V_FORGET | V_LOCKOUT;
 		}
+
+	CtdlSetRelationship(&vbuf, &USscratch, &CC->quickroom);
 
 	lputuser(&USscratch,iuser);
 
@@ -671,6 +799,8 @@ void cmd_invt_kick(char *iuser, int op)
  * forget (Zap) the current room
  */
 void cmd_forg(void) {
+	struct visit vbuf;
+
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
 		return;
@@ -692,8 +822,16 @@ void cmd_forg(void) {
 		}
 
 	lgetuser(&CC->usersupp,CC->curr_user);
+	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+
+	/* old method -- FIX remove this when we're ready */
 	CC->usersupp.forget[CC->curr_rm] = CC->quickroom.QRgen;
 	CC->usersupp.generation[CC->curr_rm] = (-1);
+
+	/* new method */
+	vbuf.v_flags = vbuf.v_flags | V_FORGET;
+
+	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 	lputuser(&CC->usersupp,CC->curr_user);
 	cprintf("%d Ok\n",OK);
 	CC->curr_rm = (-1);

@@ -504,12 +504,21 @@ void usergoto(int where, int display_result)
 	int rmailflag;
 	int raideflag;
 	int newmailcount = 0;
+	struct visit vbuf;
 
 	CC->curr_rm=where;
 	getroom(&CC->quickroom,CC->curr_rm);
 	lgetuser(&CC->usersupp,CC->curr_user);
+	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+
+	/* old method - remove when we're ready */
 	CC->usersupp.forget[CC->curr_rm]=(-1);
 	CC->usersupp.generation[CC->curr_rm]=CC->quickroom.QRgen;
+
+	/* new method */
+	vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
+
+	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 	lputuser(&CC->usersupp,CC->curr_user);
 
 	/* check for new mail */
@@ -826,11 +835,11 @@ void cmd_setr(char *args) {
 	   ||(CC->quickroom.QRflags & QR_PASSWORDED))
 		CC->quickroom.QRflags |= QR_PRIVATE;
 
-	/* Kick everyone out if the client requested it */
+	/* Kick everyone out if the client requested it (by changing the
+	 * room's generation number)
+	 */
 	if (extract_int(args,4)) {
-		++CC->quickroom.QRgen;
-		if (CC->quickroom.QRgen==100) time(&CC->quickroom.QRgen);
-
+		time(&CC->quickroom.QRgen);
 		}
 
 	old_floor = CC->quickroom.QRfloor;
@@ -1060,6 +1069,7 @@ unsigned create_room(int free_slot, char *new_room_name, int new_room_type, char
 {
 	struct quickroom qrbuf;
 	struct floor flbuf;
+	struct visit vbuf;
 
 	lgetroom(&qrbuf,free_slot);
 	strncpy(qrbuf.QRname,new_room_name,19);
@@ -1085,8 +1095,13 @@ unsigned create_room(int free_slot, char *new_room_name, int new_room_type, char
 
 	/* be sure not to kick the creator out of the room! */
 	lgetuser(&CC->usersupp,CC->curr_user);
+	CtdlGetRelationship(&vbuf, &CC->usersupp, &qrbuf);
+	/* (old method) */
 	CC->usersupp.generation[free_slot] = qrbuf.QRgen;
 	CC->usersupp.forget[free_slot] = (-1);
+	/* (new method) */
+	vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
+	CtdlSetRelationship(&vbuf, &CC->usersupp, &qrbuf);
 	lputuser(&CC->usersupp,CC->curr_user);
 
 	/* resume our happy day */
