@@ -1,4 +1,9 @@
  $Log$
+ Revision 641.10  2005/03/01 22:03:35  ajc
+ * Began implementation of a third RedirectOutput mode -- one which writes
+   to a memory buffer.  This will replace the other two.
+ * serv_pop3.c: began migration to the new redirect mode.
+
  Revision 641.9  2005/03/01 04:24:52  ajc
  * When saving an RFC822 message, use a less expensive algorithm to
    search for the Content Type
@@ -6462,3 +6467,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

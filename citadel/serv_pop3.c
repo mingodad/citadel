@@ -136,7 +136,6 @@ void pop3_user(char *argbuf) {
  * Back end for pop3_grab_mailbox()
  */
 void pop3_add_message(long msgnum, void *userdata) {
-	FILE *fp;
 	struct MetaData smi;
 
 	++POP3->num_msgs;
@@ -153,12 +152,15 @@ void pop3_add_message(long msgnum, void *userdata) {
 	 */
 	GetMetaData(&smi, POP3->num_msgs-1);
 	if (smi.meta_rfc822_length <= 0L) {
-		fp = tmpfile();
-		CtdlRedirectOutput(fp, -1);
+		CC->redirect_buffer = malloc(SIZ);
+		CC->redirect_len = 0;
+		CC->redirect_alloc = SIZ;
 		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
-		CtdlRedirectOutput(NULL, -1);
-		smi.meta_rfc822_length = ftell(fp);
-		fclose(fp);
+		smi.meta_rfc822_length = CC->redirect_len;
+		free(CC->redirect_buffer);
+		CC->redirect_buffer = NULL;
+		CC->redirect_len = 0;
+		CC->redirect_alloc = 0;
 		PutMetaData(&smi);
 	}
 	POP3->msgs[POP3->num_msgs-1].rfc822_length = smi.meta_rfc822_length;

@@ -124,6 +124,9 @@ struct CitContext {
 	/* Redirect this session's output to somewhere else? */
 	FILE *redirect_fp;
 	int redirect_sock;
+	char *redirect_buffer;		/* the buffer */
+	size_t redirect_len;		/* length of data in buffer */
+	size_t redirect_alloc;		/* length of allocated buffer */
 #ifdef HAVE_OPENSSL
 	SSL *ssl;
 	int redirect_ssl;
