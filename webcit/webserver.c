@@ -273,6 +273,8 @@ int main(int argc, char **argv)
 	printf("Copyright (C) 1996-1998 by Art Cancro.  ");
 	printf("All rights reserved.\n\n");
 
+	if (chdir(WEBCITDIR)!=0) perror("chdir");
+
 	/*
 	 * Bind the server to our favourite port.
 	 * There is no need to check for errors, because ig_tcp_server()

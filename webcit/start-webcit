@@ -1,5 +1,0 @@
-#!/bin/bash
-
-# nathan - please don't autoconf-ize this; it's a temporary hack
-cd /appl/develcit/velma
-exec ./webserver >/dev/null 2>&1

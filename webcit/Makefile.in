@@ -24,7 +24,7 @@ webserver: webserver.o context_loop.o $(LIBOBJS)
 	$(CC) webserver.o context_loop.o $(LIBOBJS) $(LIBS) -o webserver
 
 webserver.o: webserver.c webcit.h
-	$(CC) $(CFLAGS) $(DEFS) -c -D_REENTRANT webserver.c
+	$(CC) $(CFLAGS) $(DEFS) -c -D_REENTRANT -DWEBCITDIR=\"`pwd`\" webserver.c
 
 context_loop.o: context_loop.c webcit.h webserver.h
 	$(CC) $(CFLAGS) $(DEFS) -c -D_REENTRANT context_loop.c

@@ -1,3 +1,10 @@
+Sun Jan  3 20:05:31 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Added "enter registration"
+	* Set up automatic trigger of Enter Registration when the server
+	  says it's needed
+	* Established that a one-to-one WebCit/Citadel correspondence will
+	  be required.  No big deal due to shared code segments.
+
 Thu Dec 31 21:53:20 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Final cvs commit for 1998 (an awful year, I'm glad to see it over).
 	* "Finished" the MIME parser.
