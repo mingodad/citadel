@@ -564,7 +564,7 @@ void display_enter(void)
 	strcpy(&buf[16], &buf[19]);
 	wprintf("</CENTER><FONT COLOR=\"440000\">\n"
 		"<IMG SRC=\"static/enter.gif\" ALIGN=MIDDLE ALT=\" \" "
-		"onLoad=workspace.entermessageform.msgtext.focus(); >");
+		"onLoad=\"document.enterform.msgtext.focus();\" >");
 	wprintf("<B> %s ", &buf[4]);
 	wprintf("from %s ", WC->wc_username);
 	if (strlen(bstr("recp")) > 0)
@@ -573,7 +573,7 @@ void display_enter(void)
 	wprintf("</B></FONT><BR><CENTER>\n");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/post\" "
-		"NAME=\"entermessageform\">\n");
+		"NAME=\"enterform\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"recp\" VALUE=\"%s\">\n",
 		bstr("recp"));
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"postseq\" VALUE=\"%ld\">\n",
