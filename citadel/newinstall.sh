@@ -106,7 +106,7 @@ DB_SOURCE=db-4.1.25.tar.gz
 DB_PATCHES=db-4.1.25.patches
 ICAL_SOURCE=libical-0.24.RC4.tar.gz
 LDAP_SOURCE=openldap-stable-20040329.tgz
-CITADEL_SOURCE=citadel-6.24.tar.gz
+CITADEL_SOURCE=citadel-easyinstall.tar.gz
 WEBCIT_SOURCE=webcit-5.22.tar.gz
 
 SETUP="Citadel Easy Install"
@@ -263,7 +263,7 @@ install_sources () {
 		IS_UPGRADE=yes
 	else
 		$MAKE install 2>&1 >>$LOG || die
-		useradd -c Citadel -s /bin/false -r -d $CITADEL citadel 2>&1 >>$LOG || die
+		useradd -c "Citadel service account" -b $CITADEL -s /bin/false -r -d $CITADEL citadel 2>&1 >>$LOG
 	fi
 
 	echo "* Installing WebCit..."

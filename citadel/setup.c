@@ -43,7 +43,7 @@
 
 int setup_type;
 char setup_directory[SIZ];
-char init_entry[SIZ];
+char citserver_init_entry[SIZ];
 int using_web_installer = 0;
 
 #ifdef HAVE_LDAP
@@ -111,6 +111,9 @@ void set_init_entry(char *which_entry, char *new_state) {
 	char state[SIZ];
 	char prog[SIZ];
 
+	if (which_entry == NULL) return;
+	if (strlen(which_entry) == 0) return;
+
 	inittab = strdup("");
 	if (inittab == NULL) return;
 
@@ -151,23 +154,20 @@ void set_init_entry(char *which_entry, char *new_state) {
 }
 
 
-
-
-/* 
- * Shut down the Citadel service if necessary, during setup.
+/*
+ * Locate the name of an inittab entry for a specific program
  */
-void shutdown_service(void) {
+void locate_init_entry(char *entrybuf, char *program) {
+
 	FILE *infp;
 	char buf[SIZ];
-	char looking_for[SIZ];
 	int have_entry = 0;
+	char looking_for[SIZ];
 	char entry[SIZ];
 	char prog[SIZ];
+	char init_entry[SIZ];
 
 	strcpy(init_entry, "");
-
-	/* Determine the fully qualified path name of citserver */
-	snprintf(looking_for, sizeof looking_for, "%s/citserver ", BBSDIR);
 
 	/* Pound through /etc/inittab line by line.  Set have_entry to 1 if
 	 * an entry is found which we believe starts citserver.
@@ -189,10 +189,20 @@ void shutdown_service(void) {
 		fclose(infp);
 	}
 
-	/* Bail out if there's nothing to do. */
-	if (!have_entry) return;
+}
 
-	set_init_entry(init_entry, "off");
+
+/* 
+ * Shut down the Citadel service if necessary, during setup.
+ */
+void shutdown_service(void) {
+	char looking_for[SIZ];
+
+	snprintf(looking_for, sizeof looking_for, "%s/citserver ", BBSDIR);
+	locate_init_entry(citserver_init_entry, looking_for);
+	if (strlen(citserver_init_entry) > 0) {
+		set_init_entry(citserver_init_entry, "off");
+	}
 }
 
 
@@ -200,8 +210,8 @@ void shutdown_service(void) {
  * Start the Citadel service.
  */
 void start_the_service(void) {
-	if (strlen(init_entry) > 0) {
-		set_init_entry(init_entry, "respawn");
+	if (strlen(citserver_init_entry) > 0) {
+		set_init_entry(citserver_init_entry, "respawn");
 	}
 }
 
@@ -435,9 +445,10 @@ void check_inittab_entry(void)
 
 	/* Determine the fully qualified path name of citserver */
 	snprintf(looking_for, sizeof looking_for, "%s/citserver ", BBSDIR);
+	locate_init_entry(citserver_init_entry, looking_for);
 
 	/* If there's already an entry, then we have nothing left to do. */
-	if (strlen(init_entry) > 0) {
+	if (strlen(citserver_init_entry) > 0) {
 		return;
 	}
 
@@ -476,7 +487,7 @@ void check_inittab_entry(void)
 		fprintf(infp, "%s:2345:respawn:%s -h%s -x3 -llocal4\n",
 			entryname, looking_for, setup_directory);
 		fclose(infp);
-		strcpy(init_entry, entryname);
+		strcpy(citserver_init_entry, entryname);
 	}
 }
 
@@ -723,7 +734,7 @@ void edit_value(int curr)
 		break;
 
 	case 3:
-		set_str_val(curr, &config.c_ip_addr);
+		set_str_val(curr, config.c_ip_addr);
 		break;
 
 	case 4:
@@ -1089,7 +1100,7 @@ NEW_INST:
 #endif
 
 	/* See if we can start the Citadel service. */
-	if (strlen(init_entry) > 0) {
+	if (strlen(citserver_init_entry) > 0) {
 		for (a=0; a<=3; ++a) {
 			progress("Starting the Citadel service...", a, 3);
 			if (a == 0) start_the_service();

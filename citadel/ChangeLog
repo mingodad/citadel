@@ -1,4 +1,8 @@
  $Log$
+ Revision 625.2  2004/08/28 01:56:38  ajc
+ * Generalize some of the inittab-tweaking stuff so that we can use it
+   for slapd, too.
+
  Revision 625.1  2004/08/27 21:39:33  ajc
  * Fleshed out contemplate_ldap() a bit
 
@@ -6003,4 +6007,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
