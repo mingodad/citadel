@@ -1,9 +1,12 @@
  $Log$
+ Revision 573.69  2001/01/15 20:34:29  ajc
+ *** empty log message ***
+
  Revision 573.68  2001/01/15 20:34:04  ajc
-  * "Path:" removed for now because it confuses brain-dead Microsoft shitware
-    into thinking that mail messages are newsgroup messages instead.  When we
-    add NNTP support back into Citadel we'll have to add code to only output
-    this field when appropriate.
+ * "Path:" removed for now because it confuses brain-dead Microsoft shitware
+   into thinking that mail messages are newsgroup messages instead.  When we
+   add NNTP support back into Citadel we'll have to add code to only output
+   this field when appropriate.
 
  Revision 573.67  2001/01/15 16:30:31  ajc
  * temporary implementation of 901 asynchronous express messages
