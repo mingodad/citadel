@@ -93,11 +93,14 @@ void who::LoadWholist(void) {
 	int i;
 
 	sendcmd = "RWHO";
-	if (citsock->serv_trans(sendcmd, recvcmd, rwho) != 2) return;
+	if (citsock->serv_trans(sendcmd, recvcmd, rwho) != 1) return;
 	wholist->DeleteAllItems();
 
-        for (i=0; i<rwho.Number(); ++i) {
-                buf.Printf("%s", (wxString *)rwho.Nth(i)->GetData());
-		wholist->InsertItem((long)i, buf);
+	for (i=0; i<rwho.Number(); ++i) {
+		buf.Printf("%s", (wxString *)rwho.Nth(i)->GetData());
+		wholist->InsertItem(i, buf);
+		wholist->InsertItem(i, buf);
+		wholist->InsertItem(i, buf);
+		wholist->InsertItem(i, buf);
 	}
 }
