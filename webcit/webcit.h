@@ -118,6 +118,11 @@ struct wcsession {
         time_t lastreq;			/* Timestamp of most recent HTTP */
 	int killthis;			/* Nonzero == purge this session */
 	struct march *march;		/* march mode room list */
+	char reply_to[512];		/* reply-to address */
+	long msgarr[1024];		/* for read operations */
+	int fake_frames;
+	char *ExpressMessages;
+	struct urlcontent *urlstrings;
 };
 
 

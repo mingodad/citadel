@@ -27,9 +27,6 @@
 
 
 
-char reply_to[512];	/* FIX make these session-specific!!! */
-long msgarr[1024];
-
 /*
  * Look for URL's embedded in a buffer and make them linkable.  We use a
  * target window in order to keep the BBS session in its own window.
@@ -109,7 +106,7 @@ char *oper;
 	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\" SIZE=+1 COLOR=\"FFFF00\"> ");
 	strcpy(m_subject, "");
 
-	strcpy(reply_to, "nobody...xxxxx");
+	strcpy(WC->reply_to, "nobody...xxxxx");
 	while (serv_gets(buf), strncasecmp(buf, "text", 4)) {
 		if (!strncasecmp(buf, "nhdr=yes", 8))
 			nhdr = 1;
@@ -122,7 +119,7 @@ char *oper;
 			strcpy(from, &buf[5]);
 		}
 		if (!strncasecmp(buf, "path=", 5))
-			strcpy(reply_to, &buf[5]);
+			strcpy(WC->reply_to, &buf[5]);
 		if (!strncasecmp(buf, "subj=", 5))
 			strcpy(m_subject, &buf[5]);
 		if ((!strncasecmp(buf, "hnod=", 5))
@@ -140,9 +137,9 @@ char *oper;
 			}
 			if ((!strcasecmp(&buf[5], serv_info.serv_nodename))
 			|| (!strcasecmp(&buf[5], serv_info.serv_fqdn))) {
-				strcpy(reply_to, from);
+				strcpy(WC->reply_to, from);
 			} else if (haschar(&buf[5], '.') == 0) {
-				sprintf(reply_to, "%s @ %s", from, &buf[5]);
+				sprintf(WC->reply_to, "%s @ %s", from, &buf[5]);
 			}
 		}
 		if (!strncasecmp(buf, "rcpt=", 5))
@@ -224,7 +221,7 @@ char *servcmd;
 		return (nummsgs);
 	}
 	while (serv_gets(buf), strcmp(buf, "000")) {
-		msgarr[nummsgs] = atol(buf);
+		WC->msgarr[nummsgs] = atol(buf);
 		++nummsgs;
 	}
 	return (nummsgs);
@@ -267,7 +264,7 @@ void readloop(char *oper)
 		goto DONE;
 	}
 	for (a = 0; a < nummsgs; ++a) {
-		read_message(msgarr[a], oper);
+		read_message(WC->msgarr[a], oper);
 	}
 
       DONE:wDumpContent(1);
