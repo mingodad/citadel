@@ -1718,6 +1718,7 @@ fails for any reason, ERROR is returned.
  26. Default moderation filter level for new users (-63 to +63)
  27. Flag (0 or 1) - allow Aides to zap (forget) rooms
  28. Port number for IMAP service
+ 29. How often (in seconds) to run the networker
  
  CONF also accepts two additional commands: GETSYS and PUTSYS followed by an
 arbitrary MIME type (such as application/x-citadel-internet-config) which
