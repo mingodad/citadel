@@ -14,7 +14,7 @@
 #include "citadel.h"
 #include "config.h"
 
-void make_message(FILE *fp, char *target_room)
+void make_message(FILE *fp, char *target_room, char *author)
 {
 	int a;
 	long bb, cc;
@@ -27,7 +27,7 @@ void make_message(FILE *fp, char *target_room)
 	putc(0, fp);
 	fprintf(fp, "T%ld", (long)now);
 	putc(0, fp);
-	fprintf(fp, "ACitadel");
+	fprintf(fp, "A%s", author);
 	putc(0, fp);
 	fprintf(fp, "O%s", target_room);
 	putc(0, fp);
@@ -53,6 +53,7 @@ int main(int argc, char **argv)
 {
 	char tempspool[64];
 	char target_room[ROOMNAMELEN];
+	char author[64];
 	FILE *tempfp, *spoolfp;
 	int ch;
 	int i;
@@ -60,12 +61,18 @@ int main(int argc, char **argv)
 	get_config();
 
 	strcpy(target_room, "Aide");
+	strcpy(author, "Citadel");
 	for (i=1; i<argc; ++i) {
 		if (!strncasecmp(argv[i], "-r", 2)) {
 			strncpy(target_room, &argv[i][2], sizeof(target_room));
 			target_room[sizeof(target_room)-1] = 0;
+		}
+		else if (!strncasecmp(argv[i], "-a", 2)) {
+			strncpy(author, &argv[i][2], sizeof(author));
+			author[sizeof(author)-1] = 0;
 		} else {
-			fprintf(stderr, "%s: usage: %s [-rTargetRoom]\n",
+			fprintf(stderr, "%s: usage: %s "
+					"[-rTargetRoom] [-aAuthor]\n",
 				argv[0], argv[0]);
 			exit(1);
 		}
@@ -82,7 +89,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Generate a message from stdin */
-	make_message(tempfp, target_room);
+	make_message(tempfp, target_room, author);
 
 	/* Copy it to a new temp file in the spool directory */
 	rewind(tempfp);

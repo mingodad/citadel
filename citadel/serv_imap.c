@@ -283,7 +283,7 @@ void imap_command_loop(void) {
 char *Dynamic_Module_Init(void)
 {
 	SYM_IMAP = CtdlGetDynamicSymbol();
-	CtdlRegisterServiceHook(-1,	/* FIXME put in config setup */
+	CtdlRegisterServiceHook(143,	/* FIXME put in config setup */
 				NULL,
 				imap_greeting,
 				imap_command_loop);

@@ -849,8 +849,8 @@ int main(int argc, char *argv[])
 	/*
 	 * Default port numbers for various services
 	 */
-	if (config.c_pop3_port == 0) config.c_pop3_port = (-1);
-	if (config.c_smtp_port == 0) config.c_smtp_port = (-1);
+	if (config.c_pop3_port == 0) config.c_pop3_port = 110;
+	if (config.c_smtp_port == 0) config.c_smtp_port = 25;
 
 
 	/* Go through a series of dialogs prompting for config info */

@@ -1,4 +1,10 @@
  $Log$
+ Revision 572.34  2000/09/01 03:43:09  ajc
+ * Added 'author' command-line arg to aidepost.  Closes enhancement request
+   #71 on bugzilla.
+ * Put the default SMTP and POP3 ports back to 25 and 110.  Now that the
+   unix domain socket bug is fixed, it's ok if these binds fail.
+
  Revision 572.33  2000/08/31 23:02:15  ajc
  * ig_tcp_server() and ig_uds_server()  -  check to make sure queue length is
    always at least 5.  Zero-length queues can cause connection lockups.
@@ -2018,3 +2024,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
