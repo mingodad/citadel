@@ -80,9 +80,13 @@ static int connectsock(char *host, char *service, char *protocol, int defaultPor
 	sin.sin_family = AF_INET;
 
 	pse = getservbyname(service, protocol);
-	if (pse) {
+	if (pse != NULL) {
 		sin.sin_port = pse->s_port;
-	} else {
+	}
+	else if (atoi(service) > 0) {
+		sin.sin_port = htons(atoi(service));
+	}
+	else {
 		sin.sin_port = htons(defaultPort);
 	}
 	phe = gethostbyname(host);
@@ -128,7 +132,6 @@ int uds_connectsock(char *sockpath)
 	struct sockaddr_un addr;
 	int s;
 
-
 	memset(&addr, 0, sizeof(addr));
 	addr.sun_family = AF_UNIX;
 	safestrncpy(addr.sun_path, sockpath, sizeof addr.sun_path);
@@ -150,41 +153,6 @@ int uds_connectsock(char *sockpath)
 	return s;
 }
 
-/*
- * convert service and host entries into a six-byte numeric in the format
- * expected by a SOCKS v4 server
- */
-static void numericize(char *buf, char *host, char *service, char *protocol, int defaultPort)
-{
-	struct hostent *phe;
-	struct servent *pse;
-	struct sockaddr_in sin;
-
-	memset(&sin, 0, sizeof(sin));
-	sin.sin_family = AF_INET;
-
-	pse = getservbyname(service, protocol);
-	if (pse) {
-		sin.sin_port = pse->s_port;
-	} else {
-		sin.sin_port = htons(defaultPort);
-	}
-	buf[1] = (((sin.sin_port) & 0xFF00) >> 8);
-	buf[0] = ((sin.sin_port) & 0x00FF);
-
-	phe = gethostbyname(host);
-	if (phe) {
-		memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
-	} else if ((sin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE) {
-		fprintf(stderr, "Can't get %s host entry: %s\n",
-			host, strerror(errno));
-		logoff(3);
-	}
-	buf[5] = ((sin.sin_addr.s_addr) & 0xFF000000) >> 24;
-	buf[4] = ((sin.sin_addr.s_addr) & 0x00FF0000) >> 16;
-	buf[3] = ((sin.sin_addr.s_addr) & 0x0000FF00) >> 8;
-	buf[2] = ((sin.sin_addr.s_addr) & 0x000000FF);
-}
 
 /*
  * input binary data from socket
@@ -270,44 +238,31 @@ void attach_to_server(int argc, char **argv, char *hostbuf, char *portbuf)
 {
 	int a;
 	char cithost[SIZ];
-	int host_copied = 0;
 	char citport[SIZ];
-	int port_copied = 0;
-	char socks4[SIZ];
-	char buf[SIZ];
-	struct passwd *p;
 	char sockpath[SIZ];
 
 	strcpy(cithost, DEFAULT_HOST);	/* default host */
 	strcpy(citport, DEFAULT_PORT);	/* default port */
-	strcpy(socks4, "");	/* SOCKS v4 server */
-
 
 	for (a = 0; a < argc; ++a) {
 		if (a == 0) {
 			/* do nothing */
-		} else if (!strcmp(argv[a], "-s")) {
-			strcpy(socks4, argv[++a]);
-		} else if (host_copied == 0) {
-			host_copied = 1;
+		} else if (a == 1) {
 			strcpy(cithost, argv[a]);
-		} else if (port_copied == 0) {
-			port_copied = 1;
+		} else if (a == 2) {
 			strcpy(citport, argv[a]);
 		}
-/*
-   else {
-   fprintf(stderr,"%s: usage: ",argv[0]);
-   fprintf(stderr,"%s [host] [port] ",argv[0]);
-   fprintf(stderr,"[-s socks_server]\n");
-   logoff(2);
-   }
- */
+   		else {
+			fprintf(stderr,"%s: usage: ",argv[0]);
+			fprintf(stderr,"%s [host] [port] ",argv[0]);
+			logoff(2);
+   		}
 	}
 
 	if ((!strcmp(cithost, "localhost"))
-	    || (!strcmp(cithost, "127.0.0.1")))
+	   || (!strcmp(cithost, "127.0.0.1"))) {
 		server_is_local = 1;
+	}
 
 	/* If we're using a unix domain socket we can do a bunch of stuff */
 	if (!strcmp(cithost, UDS)) {
@@ -318,37 +273,10 @@ void attach_to_server(int argc, char **argv, char *hostbuf, char *portbuf)
 		return;
 	}
 
-	/* if not using a SOCKS proxy server, make the connection directly */
-	if (strlen(socks4) == 0) {
-		serv_sock = connectsock(cithost, citport, "tcp", 504);
-		if (hostbuf != NULL) strcpy(hostbuf, cithost);
-		if (portbuf != NULL) strcpy(portbuf, citport);
-		return;
-	}
-	/* if using SOCKS, connect first to the proxy... */
-	serv_sock = connectsock(socks4, "1080", "tcp", 1080);
-	printf("Connected to SOCKS proxy at %s.\n", socks4);
-	printf("Attaching to server...\r");
-	fflush(stdout);
-
-	snprintf(buf, sizeof buf, "%c%c",
-		 4,		/* version 4 */
-		 1);		/* method = connect */
-	serv_write(buf, 2);
-
-	numericize(buf, cithost, citport, "tcp", 504);
-	serv_write(buf, 6);	/* port and address */
-
-	p = (struct passwd *) getpwuid(getuid());
-	serv_write(p->pw_name, strlen(p->pw_name) + 1);
-	/* user name */
-
-	serv_read(buf, 8);	/* get response */
-
-	if (buf[1] != 90) {
-		printf("SOCKS server denied this proxy request.\n");
-		logoff(3);
-	}
+	serv_sock = connectsock(cithost, citport, "tcp", 504);
+	if (hostbuf != NULL) strcpy(hostbuf, cithost);
+	if (portbuf != NULL) strcpy(portbuf, citport);
+	return;
 }
 
 /*

@@ -78,9 +78,6 @@ all software should be written to IGNORE fields not currently defined.
 BYTE	Mnemonic	Comments
 
 A	Author		Name of originator of message.
-B	Phone number	The dialup number of the system this message
-			originated on.  This is optional, and is only
-			defined for helping implement C86Net gateways.
 D	Destination	Contains name of the system this message should
 			be sent to, for mail routing (private mail only).
 E	Extended ID	A persistent alphanumeric Message ID used for
@@ -92,11 +89,6 @@ E	Extended ID	A persistent alphanumeric Message ID used for
 			message should be dropped.
 F	rFc822 address	For Internet mail, this is the delivery address of the
 			message author.
-G	Gateway domain	This field is provided solely for the implementation
-                        of C86Net gateways, and holds the C86Net domain of
-                        the system this message originated on.  Unless you're
-                        implementing such a gateway, there's no need to even
-                        bother with this field.
 H	HumanNodeName	Human-readable name of system message originated on.
 I	Original ID	A 32-bit integer containing the message ID on the
 			system the message *originated* on.

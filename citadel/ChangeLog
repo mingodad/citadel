@@ -1,4 +1,11 @@
  $Log$
+ Revision 580.75  2001/11/15 04:11:30  ajc
+ * hack.doc: updated to reflect Cit86Net compatibility fields removed from the
+   file format (since we dumbed down the gateway software)
+ * ipc_c_tcp.c: removed SOCKS4 support.  Nobody uses it anymore.
+ * ipc_c_tcp.c: fixed a bug which caused the client to fall back to defaultPort
+   if a numeric port number was specified instead of a service name
+
  Revision 580.74  2001/11/14 02:59:01  ajc
  * Network run frequency is now a site-definable setting
 
@@ -2855,4 +2862,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
