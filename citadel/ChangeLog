@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.87  2002/12/10 23:36:20  ajc
+ * Fixed a bug in the allocation of per-session dynamic data for calendar module
+
  Revision 601.86  2002/12/09 06:07:29  ajc
  * Finished the code to accept incoming calendar REPLY messages and
    merge/save the updated event in the user's calendar.
@@ -4296,3 +4299,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

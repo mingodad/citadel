@@ -1162,7 +1162,9 @@ void ical_saving_vevent(icalcomponent *cal) {
 	char organizer_string[SIZ];
 
 	/* Don't send out invitations if we've been asked not to. */
-	if (CIT_ICAL->avoid_sending_invitations) {
+	lprintf(9, "CIT_ICAL->avoid_sending_invitations = %d\n",
+		CIT_ICAL->avoid_sending_invitations);
+	if (CIT_ICAL->avoid_sending_invitations > 0) {
 		return;
 	}
 
@@ -1387,7 +1389,10 @@ int ical_obj_aftersave(struct CtdlMessage *msg)
 
 
 void ical_session_startup(void) {
+	SYM_CIT_ICAL = CtdlGetDynamicSymbol();
 	CtdlAllocUserData(SYM_CIT_ICAL, sizeof(struct cit_ical));
+	memset(CIT_ICAL, 0, sizeof(struct cit_ical));
+	
 }
 
 
