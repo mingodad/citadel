@@ -134,7 +134,7 @@ void edit_vcard(void) {
 		}
 
 		else if (!strcasecmp(key, "tel;work")) {
-			extract_token(hometel, value, 0, ';');
+			extract_token(worktel, value, 0, ';');
 		}
 
 		else {
@@ -149,7 +149,7 @@ void edit_vcard(void) {
 	vcard_free(v);
 
 	/* Display the form */
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/do_FIXME_stuff\">\n");
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/submit_vcard\">\n");
 	wprintf("<H2><IMG VALIGN=CENTER SRC=\"/static/vcard.gif\">"
 		"Contact information for FIXME</H2>\n");
 
@@ -167,7 +167,7 @@ void edit_vcard(void) {
 		firstname);
 	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"middlename\" "
 		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD>",
-		firstname);
+		middlename);
 	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"lastname\" "
 		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD>",
 		lastname);
@@ -213,10 +213,57 @@ void edit_vcard(void) {
 		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR></TABLE>\n",
 		worktel);
 
-	wprintf("<TEXTAREA NAME=\"extrafields\" ROWS=10 COLS=80 WIDTH=80>");
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"extrafields\" VALUE=\"");
 	escputs(extrafields);
-	wprintf("</TEXTAREA><BR>\n");
+	wprintf("\">\n");
+
+	wprintf("<CENTER>\n");
+                wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
+                wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
+                wprintf("</CENTER></FORM>\n");
 
 	 
 	wDumpContent(1);
+}
+
+
+
+void submit_vcard(void) {
+	char buf[SIZ];
+
+
+	sprintf(buf, "ENT0 1|||4||");
+	fprintf(stderr, "%s\n", buf);
+	serv_puts(buf);
+	serv_gets(buf);
+	fprintf(stderr, "%s\n", buf);
+	if (buf[0] != '4') {
+		edit_vcard();
+		return;
+	}
+
+	serv_puts("Content-type: text/x-vcard");
+	serv_puts("");
+	serv_puts("begin:vcard");
+	serv_printf("n:%s;%s;%s;%s;%s",
+		bstr("lastname"),
+		bstr("firstname"),
+		bstr("middlename"),
+		bstr("prefix"),
+		bstr("suffix") );
+	serv_printf("adr:%s;%s;%s;%s;%s;%s;%s",
+		bstr("pobox"),
+		bstr("extadr"),
+		bstr("street"),
+		bstr("city"),
+		bstr("state"),
+		bstr("zipcode"),
+		bstr("country") );
+	serv_printf("tel;home:%s", bstr("hometel") );
+	serv_printf("tel;work:%s", bstr("worktel") );
+	serv_printf("%s", bstr("extrafields") );
+	serv_puts("end:vcard");
+	serv_puts("000");
+
+	edit_vcard();
 }
