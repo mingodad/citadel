@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.8  2001/12/14 21:33:18  nbryant
+ finally changed configure to complain if there's no database driver ;)
+
  Revision 590.7  2001/12/14 08:29:30  error
  * Security: trace file is now only readable by owner, since it contains
    plain text passwords.
@@ -2964,3 +2967,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -281,7 +281,6 @@ LIBS="$PTHREAD_LIBS $LIBS"
 
 dnl On some platforms, AC_CHECK_FUNC[S] doesn't work for pthreads programs;
 dnl we need to include pthread.h
-dnl AC_CHECK_FUNCS(pthread_cancel)
 
 AC_CACHE_CHECK([for pthread_cancel], ac_cv_func_pthread_cancel,
 [AC_TRY_LINK([#include <pthread.h>],
@@ -300,8 +299,6 @@ if test "$ac_cv_func_pthread_cancel" = yes; then
 	AC_DEFINE(HAVE_PTHREAD_CANCEL)
 fi
 
-dnl AC_CHECK_FUNC(pthread_create, TARGETS="client server utils serv_modules")
-
 AC_CACHE_CHECK([for pthread_create], ac_cv_func_pthread_create,
 [AC_TRY_LINK([#include <pthread.h>],
 [	/* The GNU C library defines this for functions which it implements
@@ -314,7 +311,7 @@ AC_CACHE_CHECK([for pthread_create], ac_cv_func_pthread_create,
 #endif],
 ac_cv_func_pthread_create=yes, ac_cv_func_pthread_create=no)])
 if test "$ac_cv_func_pthread_create" = yes; then
-	TARGETS="client server utils serv_modules"
+	test "$DATABASE" && TARGETS="client server utils serv_modules"
 	if test "x$enable_threaded_client" != xno; then
 		AC_DEFINE(THREADED_CLIENT)
 		CLIENT_PTLIBS=$PTHREAD_LIBS
@@ -351,3 +348,7 @@ AC_SUBST(DATABASE)
 AC_CONFIG_HEADER(sysdep.h)
 AC_CONFIG_FILES([Makefile weekly])
 AC_OUTPUT
+
+if test -z "$DATABASE"; then
+	AC_MSG_WARN([No database driver was found. Please install Berkeley DB.])
+fi
