@@ -823,8 +823,9 @@ Line 1: The new message number on the server for the message.  It will be
         that an error occurred.  If an error occurred, the message was
         not saved.
 Line 2: A human-readable confirmation or error message.
+Line 3: The resulting Exclusive UID of the message, if present.
 (More may be added to this in the future, so do not assume that there will
-only be two lines output.  Keep reading until 000 is received.)
+only be these lines output.  Keep reading until 000 is received.)
 
 
  RINF   (read Room INFormation file)

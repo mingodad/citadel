@@ -2811,6 +2811,11 @@ void cmd_ent0(char *entargs)
 			else {
 				cprintf("Internal error.\n");
 			}
+			if (msg->cm_fields['E'] != NULL) {
+				cprintf("%s\n", msg->cm_fields['E']);
+			} else {
+				cprintf("\n");
+			}
 			cprintf("000\n");
 		}
 
