@@ -1,4 +1,8 @@
  $Log$
+ Revision 614.86  2004/03/20 22:32:06  ajc
+ * citadel.rc: changed the comments around local_screen_dimensions= to
+   reflect its legacy type of situation
+
  Revision 614.85  2004/03/16 22:44:15  ajc
  * Better conversion of friendly name to fully qualified vcard name
 
@@ -5549,3 +5553,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

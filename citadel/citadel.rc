@@ -47,10 +47,10 @@ fullscreen=no
 
 # If LOCAL_SCREEN_DIMENSIONS is set to 1, then the screen dimensions will
 # be requested from the underlying operating system instead of asking the
-# user.  This works when the user has his/her own copy of the client, it
-# works for xterms, it sometimes works for telnet sessions, but it doesn't
-# work for dialup connections.  Generally you should set this to 1 for a
-# private copy of the client or 0 for a shared copy of the client.
+# user.  On modern networks this is almost always the case: telnet, SSH,
+# xterm, and Unix/Linux consoles all properly report the screen dimensions.
+# Set this option to 0 only if you are running the Citadel client on a
+# direct-dial modem or hardwired terminals.
 #
 local_screen_dimensions=1
 
