@@ -228,6 +228,7 @@ void *context_loop(int sock) {
 	char (*req)[256];
 	char buf[256], hold[256];
 	char browser_host[256];
+	char browser[256];
 	int num_lines = 0;
 	int a;
 	int f;
@@ -247,6 +248,7 @@ void *context_loop(int sock) {
 		}
 
 	bzero(req, sizeof(char[256][256]));	/* clear it out */
+	strcpy(browser, "unknown");
 
 	printf("Reading request from socket %d\n", sock);
 
@@ -261,6 +263,9 @@ void *context_loop(int sock) {
 			}
 		if (!strncasecmp(buf, "Content-length: ", 16)) {
 			ContentLength = atoi(&buf[16]);
+			}
+		if (!strncasecmp(buf, "User-agent: ", 12)) {
+			strcpy(browser, &buf[12]);
 			}
 		strcpy(&req[num_lines++][0], buf);
 		} while(strlen(buf)>0);
@@ -329,7 +334,7 @@ void *context_loop(int sock) {
 
 			/* Run the actual WebCit session */
 			execlp("./webcit", "webcit", str_session, defaulthost,
-			       defaultport, browser_host, NULL);
+			       defaultport, browser_host, browser, NULL);
 
 			/* Simple page to display if exec fails */
 			printf("HTTP/1.0 404 WebCit Failure\n\n");
