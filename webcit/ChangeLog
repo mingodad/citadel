@@ -1,5 +1,6 @@
 Sun Dec 13 13:35:12 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
-	* context_loop.c: Moved "remove session" into its own function
+	* context_loop.c: Moved "remove session" into its own function.
+	  Check for dead webcit child process before each transaction.
 
 Fri Dec 11 21:14:36 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Brought over message reading and entry functions from old WebCit
