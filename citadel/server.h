@@ -389,7 +389,7 @@ struct visit {
  * (These are kept separately from the message itself because they are
  * fields whose values may change at some point after the message is saved.)
  */
-struct SuppMsgInfo {
+struct MetaData {
 	long smi_msgnum;	/* Message number in *local* message base */
 	int smi_refcount;	/* Number of rooms which point to this msg */
 	char smi_content_type[64];

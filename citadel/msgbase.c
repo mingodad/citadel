@@ -377,7 +377,7 @@ int CtdlForEachMessage(int mode, long ref,
 	int num_msgs = 0;
 	int num_processed = 0;
 	long thismsg;
-	struct SuppMsgInfo smi;
+	struct MetaData smi;
 	struct CtdlMessage *msg;
 	int is_seen;
 	long lastold = 0L;
@@ -404,7 +404,7 @@ int CtdlForEachMessage(int mode, long ref,
 	 * Now begin the traversal.
 	 */
 	if (num_msgs > 0) for (a = 0; a < num_msgs; ++a) {
-		GetSuppMsgInfo(&smi, msglist[a]);
+		GetMetaData(&smi, msglist[a]);
 
 		/* Filter out messages that are moderated below the level
 		 * currently being viewed at.
@@ -1693,7 +1693,7 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	char *mptr = NULL;
 	struct usersupp userbuf;
 	int a;
-	struct SuppMsgInfo smi;
+	struct MetaData smi;
 	FILE *network_fp = NULL;
 	static int seqnum = 1;
 	struct CtdlMessage *imsg;
@@ -1852,12 +1852,12 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	 * be a critical section because nobody else knows about this message
 	 * yet.
 	 */
-	lprintf(9, "Creating SuppMsgInfo record\n");
-	memset(&smi, 0, sizeof(struct SuppMsgInfo));
+	lprintf(9, "Creating MetaData record\n");
+	memset(&smi, 0, sizeof(struct MetaData));
 	smi.smi_msgnum = newmsgid;
 	smi.smi_refcount = 0;
 	safestrncpy(smi.smi_content_type, content_type, 64);
-	PutSuppMsgInfo(&smi);
+	PutMetaData(&smi);
 
 	/* Now figure out where to store the pointers */
 	lprintf(9, "Storing pointers\n");
@@ -2413,7 +2413,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	int i;
 	int num_deleted = 0;
 	int delete_this;
-	struct SuppMsgInfo smi;
+	struct MetaData smi;
 
 	lprintf(9, "CtdlDeleteMessages(%s, %ld, %s)\n",
 		room_name, dmsgnum, content_type);
@@ -2444,7 +2444,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 			if (strlen(content_type) == 0) {
 				delete_this |= 0x02;
 			} else {
-				GetSuppMsgInfo(&smi, msglist[i]);
+				GetMetaData(&smi, msglist[i]);
 				if (!strcasecmp(smi.smi_content_type,
 						content_type)) {
 					delete_this |= 0x02;
@@ -2578,15 +2578,15 @@ void cmd_move(char *args)
 
 
 /*
- * GetSuppMsgInfo()  -  Get the supplementary record for a message
+ * GetMetaData()  -  Get the supplementary record for a message
  */
-void GetSuppMsgInfo(struct SuppMsgInfo *smibuf, long msgnum)
+void GetMetaData(struct MetaData *smibuf, long msgnum)
 {
 
 	struct cdbdata *cdbsmi;
 	long TheIndex;
 
-	memset(smibuf, 0, sizeof(struct SuppMsgInfo));
+	memset(smibuf, 0, sizeof(struct MetaData));
 	smibuf->smi_msgnum = msgnum;
 	smibuf->smi_refcount = 1;	/* Default reference count is 1 */
 
@@ -2598,29 +2598,29 @@ void GetSuppMsgInfo(struct SuppMsgInfo *smibuf, long msgnum)
 		return;		/* record not found; go with defaults */
 	}
 	memcpy(smibuf, cdbsmi->ptr,
-	       ((cdbsmi->len > sizeof(struct SuppMsgInfo)) ?
-		sizeof(struct SuppMsgInfo) : cdbsmi->len));
+	       ((cdbsmi->len > sizeof(struct MetaData)) ?
+		sizeof(struct MetaData) : cdbsmi->len));
 	cdb_free(cdbsmi);
 	return;
 }
 
 
 /*
- * PutSuppMsgInfo()  -  (re)write supplementary record for a message
+ * PutMetaData()  -  (re)write supplementary record for a message
  */
-void PutSuppMsgInfo(struct SuppMsgInfo *smibuf)
+void PutMetaData(struct MetaData *smibuf)
 {
 	long TheIndex;
 
 	/* Use the negative of the message number for its supp record index */
 	TheIndex = (0L - smibuf->smi_msgnum);
 
-	lprintf(9, "PuttSuppMsgInfo(%ld) - ref count is %d\n",
+	lprintf(9, "PuttMetaData(%ld) - ref count is %d\n",
 		smibuf->smi_msgnum, smibuf->smi_refcount);
 
 	cdb_store(CDB_MSGMAIN,
 		  &TheIndex, sizeof(long),
-		  smibuf, sizeof(struct SuppMsgInfo));
+		  smibuf, sizeof(struct MetaData));
 
 }
 
@@ -2631,7 +2631,7 @@ void PutSuppMsgInfo(struct SuppMsgInfo *smibuf)
 void AdjRefCount(long msgnum, int incr)
 {
 
-	struct SuppMsgInfo smi;
+	struct MetaData smi;
 	long delnum;
 
 	/* This is a *tight* critical section; please keep it that way, as
@@ -2639,11 +2639,11 @@ void AdjRefCount(long msgnum, int incr)
 	 * Complicating this any further will surely cause deadlock!
 	 */
 	begin_critical_section(S_SUPPMSGMAIN);
-	GetSuppMsgInfo(&smi, msgnum);
+	GetMetaData(&smi, msgnum);
 	lprintf(9, "Ref count for message <%ld> before write is <%d>\n",
 		msgnum, smi.smi_refcount);
 	smi.smi_refcount += incr;
-	PutSuppMsgInfo(&smi);
+	PutMetaData(&smi);
 	end_critical_section(S_SUPPMSGMAIN);
 	lprintf(9, "Ref count for message <%ld> after write is <%d>\n",
 		msgnum, smi.smi_refcount);

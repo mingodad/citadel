@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.72  2001/10/29 22:59:22  ajc
+ * Renamed "SuppMsgInfo" to "MetaData" because that's what it is
+
  Revision 580.71  2001/10/29 16:39:54  ajc
  * Finished the migratenet utility (finally).
 
@@ -2846,3 +2849,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -52,7 +52,7 @@
 void cmd_mmod(char *argbuf) {
 	long msgnum;
 	int newlevel;
-	struct SuppMsgInfo smi;
+	struct MetaData smi;
 	int is_message_in_room;
 
 	/* user must be at least a Room Aide to moderate */
@@ -75,9 +75,9 @@ void cmd_mmod(char *argbuf) {
 		return;
 	}
 
-	GetSuppMsgInfo(&smi, msgnum);
+	GetMetaData(&smi, msgnum);
 	smi.smi_mod = newlevel;
-	PutSuppMsgInfo(&smi);
+	PutMetaData(&smi);
 
 	cprintf("%d Message %ld is moderated to %d\n", OK, msgnum, newlevel);
 }

@@ -182,7 +182,7 @@ void artv_export_visits(void) {
 
 
 void artv_export_message(long msgnum) {
-	struct SuppMsgInfo smi;
+	struct MetaData smi;
 	struct CtdlMessage *msg;
 	struct ser_ret smr;
 	FILE *fp;
@@ -193,7 +193,7 @@ void artv_export_message(long msgnum) {
 	if (msg == NULL) return;	/* fail silently */
 
 	cprintf("message\n");
-	GetSuppMsgInfo(&smi, msgnum);
+	GetMetaData(&smi, msgnum);
 	cprintf("%ld\n", msgnum);
 	cprintf("%d\n", smi.smi_refcount);
 	cprintf("%s\n", smi.smi_content_type);
@@ -463,7 +463,7 @@ void artv_import_visit(void) {
 
 
 void artv_import_message(void) {
-	struct SuppMsgInfo smi;
+	struct MetaData smi;
 	long msgnum;
 	long msglen;
 	FILE *fp;
@@ -471,7 +471,7 @@ void artv_import_message(void) {
 	char tempfile[SIZ];
 	char *mbuf;
 
-	memset(&smi, 0, sizeof(struct SuppMsgInfo));
+	memset(&smi, 0, sizeof(struct MetaData));
 	client_gets(buf);	msgnum = atol(buf);
 				smi.smi_msgnum = msgnum;
 	client_gets(buf);	smi.smi_refcount = atoi(buf);
@@ -504,7 +504,7 @@ void artv_import_message(void) {
 	phree(mbuf);
 	unlink(tempfile);
 
-	PutSuppMsgInfo(&smi);
+	PutMetaData(&smi);
 	lprintf(7, "Imported message %ld\n", msgnum);
 }
 

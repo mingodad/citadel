@@ -604,7 +604,7 @@ void do_fsck_room(struct quickroom *qrbuf, void *data)
 void cmd_fsck(char *argbuf) {
 	long msgnum;
 	struct cdbdata *cdbmsg;
-	struct SuppMsgInfo smi;
+	struct MetaData smi;
 	struct roomref *ptr;
 	int realcount;
 
@@ -631,7 +631,7 @@ void cmd_fsck(char *argbuf) {
 			cdb_free(cdbmsg);
 			cprintf("Message %7ld    ", msgnum);
 
-			GetSuppMsgInfo(&smi, msgnum);
+			GetMetaData(&smi, msgnum);
 			cprintf("refcount=%-2d   ", smi.smi_refcount);
 
 			realcount = 0;
@@ -643,7 +643,7 @@ void cmd_fsck(char *argbuf) {
 			if ( (smi.smi_refcount != realcount)
 			   || (realcount == 0) ) {
 				smi.smi_refcount = realcount;
-				PutSuppMsgInfo(&smi);
+				PutMetaData(&smi);
 				AdjRefCount(msgnum, 0); /* deletes if needed */
 			}
 
