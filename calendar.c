@@ -34,7 +34,7 @@
 #ifndef HAVE_ICAL_H
 
 /*
- * Handler stub for builds with no calendar library available
+ * Handler stubs for builds with no calendar library available
  */
 void cal_process_attachment(char *part_source) {
 
@@ -45,6 +45,14 @@ void cal_process_attachment(char *part_source) {
 		"calendaring enabled.</I><BR>\n"
 	);
 
+}
+
+void display_calendar(long msgnum) {
+	wprintf("<i>Cannot display calendar item</i><br>\n");
+}
+
+void display_task(long msgnum) {
+	wprintf("<i>Cannot display item from task list</i><br>\n");
 }
 
 #else /* HAVE_ICAL_H */
@@ -212,6 +220,89 @@ void cal_process_attachment(char *part_source) {
 
 	/* Free the memory we obtained from libical's constructor */
 	icalcomponent_free(cal);
+}
+
+
+/*
+ * Display handlers for message reading
+ */
+
+void display_individual_task(char *task_source) {
+	wprintf("doing display_individual_task()<BR>\n");
+}
+
+void display_individual_cal(char *task_source) {
+	wprintf("doing display_individual_task()<BR>\n");
+}
+
+
+/*
+ * Code common to all display handlers.  Given a message number and a MIME
+ * type, we load the message and hunt for that MIME type.  If found, we load
+ * the relevant part and feed it to the specified handler.
+ */
+void display_using_handler(long msgnum,
+			char *mimetype,
+			void (*callback)(char *)
+	) {
+	char buf[SIZ];
+	char mime_partnum[SIZ];
+	char mime_filename[SIZ];
+	char mime_content_type[SIZ];
+	char mime_disposition[SIZ];
+	int mime_length;
+	char relevant_partnum[SIZ];
+	char *relevant_source = NULL;
+
+	struct {
+		char date[SIZ];
+		char from[SIZ];
+		char to[SIZ];
+		char subj[SIZ];
+		int hasattachments;
+	} summ;
+
+	memset(&summ, 0, sizeof(summ));
+	strcpy(summ.subj, "(no subject)");
+
+	sprintf(buf, "MSG0 %ld|1", msgnum);	/* ask for headers only */
+	serv_puts(buf);
+	serv_gets(buf);
+	if (buf[0] != '1') return;
+
+	while (serv_gets(buf), strcmp(buf, "000")) {
+		if (!strncasecmp(buf, "part=", 5)) {
+			extract(mime_filename, &buf[5], 1);
+			extract(mime_partnum, &buf[5], 2);
+			extract(mime_disposition, &buf[5], 3);
+			extract(mime_content_type, &buf[5], 4);
+			mime_length = extract_int(&buf[5], 5);
+
+			if (!strcasecmp(mime_content_type, "text/calendar")) {
+				strcpy(relevant_partnum, mime_partnum);
+			}
+
+		}
+	}
+
+	if (strlen(relevant_partnum) > 0) {
+		relevant_source = load_mimepart(msgnum, relevant_partnum);
+		if (relevant_source != NULL) {
+
+			/* Display the task */
+			display_individual_task(relevant_source);
+			free(relevant_source);
+		}
+	}
+
+}
+
+void display_task(long msgnum) {
+	display_using_handler(msgnum, "text/calendar", display_individual_task);
+}
+
+void display_calendar(long msgnum) {
+	display_using_handler(msgnum, "text/calendar", display_individual_cal);
 }
 
 #endif /* HAVE_ICAL_H */

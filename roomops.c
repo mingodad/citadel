@@ -26,7 +26,9 @@
 char *viewdefs[] = {
 	"Messages",
 	"Summary",
-	"Address Book"
+	"Address Book",
+	"Calendar",
+	"Tasks"
 };
 
 char floorlist[128][SIZ];
