@@ -1,6 +1,6 @@
 /* $Id$ */
 
-#ifdef WITH_ZLIB
+#ifdef HAVE_ZLIB_H
 #include <zlib.h>
 #endif
 
@@ -168,7 +168,7 @@ struct wcsession {
 	char this_page[SIZ];		/* address of current page */
 	char http_host[SIZ];		/* HTTP Host: header */
 	char *preferences;
-#ifdef WITH_ZLIB
+#ifdef HAVE_ZLIB_H
 	int gzcompressed;		/* nonzero if compressed output */
 	gzFile gzfd;			/* stream to send compressed */
 #endif

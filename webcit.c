@@ -152,7 +152,7 @@ char *bstr(char *key)
 }
 
 
-#ifdef WITH_ZLIB
+#ifdef HAVE_ZLIB_H
 
 ssize_t http_write(int fd, void *buf, size_t count) {
 
@@ -320,7 +320,7 @@ void output_headers(int controlcode)
 	int suppress_check = 0;
 	char httpnow[SIZ];
 	static int pageseq = 0;
-#ifdef WITH_ZLIB
+#ifdef HAVE_ZLIB_H
 	gzFile temp_gzfd = NULL;
 #endif
 
@@ -332,7 +332,7 @@ void output_headers(int controlcode)
 
 	httpdate(httpnow, time(NULL));
 
-#ifdef WITH_ZLIB
+#ifdef HAVE_ZLIB_H
 	if (WC->gzcompressed) {
 		temp_gzfd = gzdopen(WC->http_sock, "wb9");
 	}
@@ -346,7 +346,7 @@ void output_headers(int controlcode)
 			"Pragma: no-cache\n"
 			"Cache-Control: no-store\n"
 		);
-#ifdef WITH_ZLIB
+#ifdef HAVE_ZLIB_H
 		if (temp_gzfd != NULL) {
 			wprintf("Content-Encoding: gzip\n");
 		}
@@ -366,7 +366,7 @@ void output_headers(int controlcode)
 	if (print_standard_html_head > 0) {
 		wprintf("\n");
 
-#ifdef WITH_ZLIB
+#ifdef HAVE_ZLIB_H
 		if (temp_gzfd != NULL) {
 			WC->gzfd = temp_gzfd;
 		}
@@ -879,7 +879,7 @@ void session_loop(struct httprequest *req, int gzip)
 
 	WC->is_wap = 0;
 
-#ifdef WITH_ZLIB
+#ifdef HAVE_ZLIB_H
 	if (gzip) {
 		WC->gzcompressed = 1;
 	}
@@ -1268,7 +1268,7 @@ SKIP_ALL_THIS_CRAP:
 		WC->upload_length = 0;
 	}
 
-#ifdef WITH_ZLIB
+#ifdef HAVE_ZLIB_H
 	if (WC->gzfd) {
 		gzclose(WC->gzfd);
 		WC->gzfd = NULL;

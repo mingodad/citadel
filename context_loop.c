@@ -234,7 +234,7 @@ void context_loop(int sock)
 	struct wcsession *TheSession, *sptr;
 	int gzip = 0;
 
-#ifdef WITH_ZLIB
+#ifdef HAVE_ZLIB_H
 	int i;
 	char enc[SIZ];
 	char encodings[SIZ];
@@ -253,7 +253,7 @@ void context_loop(int sock)
 			got_cookie = 1;
 		}
 
-#ifdef WITH_ZLIB
+#ifdef HAVE_ZLIB_H
 		if (!strncasecmp(buf, "Accept-encoding: ", 17)) {
 			extract_token(encodings, &buf[17], 0, ';');
 			for (i=0; i<num_tokens(encodings, ','); ++i) {
