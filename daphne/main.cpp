@@ -42,6 +42,9 @@ private:
 	void OnUsersMenu(wxCommandEvent& cmd);
 	void OnWindowMenu(wxCommandEvent& cmd);
 	wxButton *do_cmd;
+
+	who *TheWholist;
+
 	// any class wishing to process wxWindows events must use this macro
 	DECLARE_EVENT_TABLE()
 };
@@ -140,6 +143,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 		title, pos, size, wxDEFAULT_FRAME_STYLE
 		) {
 
+	TheWholist = NULL;
+
 	// create a menu bar
 	wxMenu *menuFile = new wxMenu;
 	menuFile->Append(MENU_CONNECT, "&Connect");
@@ -197,8 +202,12 @@ void MyFrame::OnUsersMenu(wxCommandEvent& cmd) {
 	int id;
 	
 	id = cmd.GetId();
-	if (id == UMENU_WHO)
-		new who(citadel, this);
+	if (id == UMENU_WHO) {
+		if (TheWholist == NULL)
+			TheWholist = new who(citadel, this);
+		else
+			TheWholist->Activate();
+	}
 	else if (id == UMENU_SEND_EXPRESS)
 		new SendExpress(citadel, this, NULL);
 }

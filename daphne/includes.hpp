@@ -8,6 +8,7 @@
 #include "utils.h"
 
 
+// TCPsocket represents a socket-level TCP connection to a server.
 class TCPsocket {
 public:
 	TCPsocket::TCPsocket(void);
@@ -26,7 +27,7 @@ private:
 
 
 
-
+// CitClient represents an application-level connection to a Citadel server.
 class CitClient {
 public:
 	CitClient(void);
@@ -79,7 +80,7 @@ private:
 };
 
 
-
+// Receive an express message (page)
 class express_message : public wxFrame {
 public:
 	express_message(CitClient *sock, wxString sender,
@@ -106,7 +107,10 @@ private:
 	wxMDIParentFrame *citMyMDI;
 	DECLARE_EVENT_TABLE()
 };
-// userlogin is the frame for logging in.
+
+
+
+// Just testing...
 class TestWindow : public wxMDIChildFrame {
 public:
 	TestWindow(CitClient *sock, wxMDIParentFrame *MyMDI);
@@ -120,6 +124,10 @@ private:
 	CitClient *citsock;
 	DECLARE_EVENT_TABLE()
 };
+
+
+
+
 // userlogin is the frame for logging in.
 class UserLogin : public wxMDIChildFrame {
 public:
@@ -137,7 +145,9 @@ private:
 	wxMDIParentFrame *citMyMDI;
 	DECLARE_EVENT_TABLE()
 };
-// userlogin is the frame for logging in.
+
+
+// Who is online?
 class who : public wxMDIChildFrame {
 public:
 	who(CitClient *sock, wxMDIParentFrame *MyMDI);
