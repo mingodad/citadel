@@ -150,6 +150,7 @@ struct wcsession {
 	struct urlcontent *urlstrings;
 	int HaveExpressMessages;	/* Nonzero if incoming msgs exist */
 	struct wcsubst *vars;
+	char *preferences;
 };
 
 #define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
@@ -300,3 +301,7 @@ void edituser(void);
 void change_view(void);
 void folders(void);
 void do_stuff_to_msgs(void);
+void load_preferences(void);
+void save_preferences(void);
+void get_preference(char *key, char *value);
+void set_preference(char *key, char *value);

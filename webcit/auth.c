@@ -68,7 +68,11 @@ void display_login(char *mesg)
 
 
 /*
- * This function needs to get called whenever a PASS or NEWU succeeds.
+ * This function needs to get called whenever the session changes from
+ * not-logged-in to logged-in, either by an explicit login by the user or
+ * by a timed-out session automatically re-establishing with a little help
+ * from the browser cookie.  Either way, we need to load access controls and
+ * preferences from the server.
  */
 void become_logged_in(char *user, char *pass, char *serv_response)
 {
@@ -76,8 +80,10 @@ void become_logged_in(char *user, char *pass, char *serv_response)
 	extract(WC->wc_username, &serv_response[4], 0);
 	strcpy(WC->wc_password, pass);
 	WC->axlevel = extract_int(&serv_response[4], 1);
-	if (WC->axlevel >= 6)
+	if (WC->axlevel >= 6) {
 		WC->is_aide = 1;
+	}
+	load_preferences();
 }
 
 
