@@ -77,11 +77,13 @@ char *memreadline(char *start, char *buf, int maxlen) {
 void mime_decode(char *partnum,
 		char *part_start, size_t length,
 		char *content_type, char *encoding,
+		char *disposition,
 		char *name, char *filename,
 		void (*CallBack)
 			(char *cbname,
 			char *cbfilename,
 			char *cbpartnum,
+			char *cbdisp,
 			void *cbcontent,
 			char *cbtype,
 			size_t cblength)
@@ -99,7 +101,7 @@ void mime_decode(char *partnum,
 
 	/* If this part is not encoded, send as-is */
 	if (strlen(encoding)==0) {
-		CallBack(name, filename, partnum, part_start,
+		CallBack(name, filename, partnum, disposition, part_start,
 			content_type, length);
 		return;
 		}
@@ -140,7 +142,7 @@ void mime_decode(char *partnum,
 		close(recvpipe[0]);
 		if (!strcasecmp(encoding, "base64"))
 		   execlp("./base64", "base64", "-d", NULL);
-		else if (!strcasecmp(encoding, "7bit"))
+		else if (!strcasecmp(encoding, "7bit")) /* just a test */
 		   execlp("/bin/dd", "dd", NULL);
 		lprintf(5, "ERROR: cannot exec decoder for %s\n", encoding);
 		exit(1);
@@ -181,7 +183,7 @@ void mime_decode(char *partnum,
 	lprintf(9, "Decoded length = %d\n", bytes_recv);
 
 	if (bytes_recv > 0)
-		CallBack(name, filename, partnum, decoded,
+		CallBack(name, filename, partnum, disposition, decoded,
 			content_type, bytes_recv);
 	phree(decoded);
 	}
@@ -198,6 +200,7 @@ void the_mime_parser(char *partnum,
 			(char *cbname,
 			char *cbfilename,
 			char *cbpartnum,
+			char *cbdisp,
 			void *cbcontent,
 			char *cbtype,
 			size_t cblength)
@@ -212,6 +215,7 @@ void the_mime_parser(char *partnum,
 	char endary[256];
 	char content_type[256];
 	char encoding[256];
+	char disposition[256];
 	char name[256];
 	char filename[256];
 	int is_multipart;
@@ -243,7 +247,8 @@ void the_mime_parser(char *partnum,
 				extract_key(name, content_type, "name");
 				}
 			if (!strncasecmp(header, "Content-Disposition: ", 21)) {
-				extract_key(filename, header, "filename");
+				strcpy(disposition, &header[21]);
+				extract_key(filename, disposition, "filename");
 				}
 			if (!strncasecmp(header,
 				"Content-transfer-encoding: ", 27))
@@ -256,6 +261,8 @@ void the_mime_parser(char *partnum,
 			strcat(header, buf);
 		} while ((strlen(buf) > 0) && (*ptr != 0));
 
+	for (i=0; i<strlen(disposition); ++i) 
+		if (disposition[i]==';') disposition[i] = 0;
 	for (i=0; i<strlen(content_type); ++i) 
 		if (content_type[i]==';') content_type[i] = 0;
 
@@ -301,7 +308,7 @@ void the_mime_parser(char *partnum,
 			}
 		mime_decode(partnum,
 				part_start, length,
-				content_type, encoding,
+				content_type, encoding, disposition,
 				name, filename, CallBack);
 		}
 	
@@ -318,6 +325,7 @@ void mime_parser(char *content_start, char *content_end,
 			(char *cbname,
 			char *cbfilename,
 			char *cbpartnum,
+			char *cbdisp,
 			void *cbcontent,
 			char *cbtype,
 			size_t cblength)
