@@ -430,6 +430,8 @@ void logged_in_response(void)
  */
 void logout(struct CitContext *who)
 {
+	struct CitContext *saved_cc = NULL;
+
 	who->logged_in = 0;
 
 	/*
@@ -455,9 +457,11 @@ void logout(struct CitContext *who)
 	}
 
 	/* Do modular stuff... */
+	if (who != CC)
+		saved_cc = CC;
 	become_session(who);
 	PerformSessionHooks(EVT_LOGOUT);
-	become_session(NULL);
+	become_session(saved_cc);
 }
 
 #ifdef ENABLE_CHKPWD

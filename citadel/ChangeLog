@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.41  2002/01/06 08:54:58  error
+ * user_ops.c: fixed become_session() when calling EVT_LOGOUT session hooks
+
  Revision 590.40  2002/01/05 22:31:22  ajc
  * Removed some protocol commands and writeups that are no longer necessary
  * Began some of the framework for the Global Address Book
@@ -3083,3 +3086,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
