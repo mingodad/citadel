@@ -1870,6 +1870,7 @@ void cmd_ent3(char *entargs)
 	char recp[256];
 	int a;
 	int e = 0;
+	int valid_msg = 1;
 	unsigned char ch, which_field;
 	struct usersupp tempUS;
 	long msglen;
@@ -1943,6 +1944,7 @@ void cmd_ent3(char *entargs)
 
 	while (msglen > 0) {
 		client_read(&which_field, 1);
+		if (!isalpha(which_field)) valid_msg = 0;
 		--msglen;
 		tempbuf[0] = 0;
 		do {
@@ -1952,11 +1954,12 @@ void cmd_ent3(char *entargs)
 			tempbuf[a+1] = 0;
 			tempbuf[a] = ch;
 		} while ( (ch != 0) && (msglen > 0) );
-		msg->cm_fields[which_field] = strdoop(tempbuf);
+		if (valid_msg)
+			msg->cm_fields[which_field] = strdoop(tempbuf);
 	}
 
 	msg->cm_flags = CM_SKIP_HOOKS;
-	CtdlSaveMsg(msg, recp, "", e, 0);
+	if (valid_msg) CtdlSaveMsg(msg, recp, "", e, 0);
 	CtdlFreeMessage(msg);
 	phree(tempbuf);
 }

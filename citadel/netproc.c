@@ -833,6 +833,7 @@ void inprocess(void)
 	char buf[256];
 	long msglen;
 	int bloklen;
+	int valid_msg;
 
 	/* temp file names */
 	sprintf(tname, tmpnam(NULL));
@@ -887,6 +888,7 @@ NXMSG:	/* Seek to the beginning of the next message */
 				goto ENDSTR;
 
 			/* This crates the temporary file. */
+			valid_msg = 1;
 			message = fopen(tname, "wb");
 			if (message == NULL) {
 				syslog(LOG_ERR, "error creating %s: %s",
@@ -899,17 +901,32 @@ NXMSG:	/* Seek to the beginning of the next message */
 			a = getc(fp);
 			putc(a, message);	/* mode */
 			do {
-				FieldID = getc(fp);	/* Header field ID */
-				putc(FieldID, message);
-				do {
-					a = getc(fp);
-					putc(a, message);
-				} while (a > 0);
+				FieldID = getc(fp); /* Header field ID */
+				if (isalpha(FieldID)) {
+					putc(FieldID, message);
+					do {
+						a = getc(fp);
+						if (a < 127) putc(a, message);
+					} while (a > 0);
+					if (a != 0) putc(0, message);
+				}
+				else {	/* Invalid field ID; flush it */
+					do {
+						a = getc(fp);
+					} while (a > 0);
+					valid_msg = 0;
+				}
 			} while ((FieldID != 'M') && (a >= 0));
 			/* M is always last */
+			if (FieldID != 'M') valid_msg = 0;
 
 			msglen = ftell(message);
 			fclose(message);
+
+			if (!valid_msg) {
+				unlink(tname);
+				goto NXMSG;
+			}
 
 			/* process the individual mesage */
 			msgfind(tname, &minfo);

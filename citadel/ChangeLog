@@ -1,4 +1,8 @@
 $Log$
+Revision 1.409  1999/11/02 03:03:27  ajc
+* Several fixes to msgbase.c and netproc.c to prevent corrupted incoming
+  network traffic from crashing the server.  Reject bad messages.
+
 Revision 1.408  1999/11/01 04:21:34  ajc
 * Fixed a concurrency bug which crashed the server when multiple sessions
   terminated simultaneously.
@@ -1409,4 +1413,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
