@@ -83,6 +83,12 @@ char buf[];
 
 void read_message(long msgnum, int is_summary) {
 	char buf[256];
+	char mime_partnum[256];
+	char mime_filename[256];
+	char mime_content_type[256];
+	char mime_disposition[256];
+	int mime_length;
+	char *mime_http = NULL;
 	char m_subject[256];
 	char from[256];
 	char node[256];
@@ -156,6 +162,39 @@ void read_message(long msgnum, int is_summary) {
 			fmt_date(now, atol(&buf[5]));
 			wprintf("%s ", now);
 		}
+
+		if (!strncasecmp(buf, "part=", 5)) {
+			extract(mime_filename, &buf[5], 1);
+			extract(mime_partnum, &buf[5], 2);
+			extract(mime_disposition, &buf[5], 3);
+			extract(mime_content_type, &buf[5], 4);
+			mime_length = extract_int(&buf[5], 5);
+
+			if (!strcasecmp(mime_disposition, "attachment")) {
+
+				if (mime_http == NULL) {
+					mime_http = malloc(512);
+					strcpy(mime_http, "");
+				}
+				else {
+					mime_http = realloc(mime_http,
+						strlen(mime_http) + 512);
+				}
+	
+				sprintf(&mime_http[strlen(mime_http)],
+					"<A HREF=\"/output_mimepart?"
+					"msgnum=%ld&partnum=%s\" "
+					"TARGET=\"wc.%ld.%s\">"
+					"<IMG SRC=\"/static/attachment.gif\" "
+					"BORDER=0 ALIGN=MIDDLE>\n"
+					"Part %s: %s (%s, %d bytes)</A><BR>\n",
+					msgnum, mime_partnum,
+					msgnum, mime_partnum,
+					mime_partnum, mime_filename,
+					mime_content_type, mime_length);
+			}
+		}
+
 	}
 
 
@@ -250,6 +289,11 @@ void read_message(long msgnum, int is_summary) {
 		}
 	}
 	wprintf("</I><BR>");
+
+	if (mime_http != NULL) {
+		wprintf("%s", mime_http);
+		free(mime_http);
+	}
 }
 
 

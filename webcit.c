@@ -437,6 +437,7 @@ void output_static(char *what)
 	}
 }
 
+
 /*
  * When the browser requests an image file from the Citadel server,
  * this function is called to transmit it.
@@ -480,11 +481,62 @@ void output_image()
 		serv_puts("CLOS");
 		serv_gets(buf);
 	} else {
-		wprintf("HTTP/1.0 404 %s\n", strerror(errno));
+		wprintf("HTTP/1.0 404 %s\n", &buf[4]);
 		output_headers(0);
 		wprintf("Content-Type: text/plain\n");
 		wprintf("\n");
-		wprintf("Error retrieving image\n");
+		wprintf("Error retrieving image: %s\n", &buf[4]);
+	}
+
+}
+
+/*
+ */
+void output_mimepart()
+{
+	char buf[256];
+	char xferbuf[4096];
+	off_t bytes;
+	off_t thisblock;
+	off_t accomplished = 0L;
+	char content_type[256];
+	
+	serv_printf("OPNA %s|%s", bstr("msgnum"), bstr("partnum"));
+	serv_gets(buf);
+	if (buf[0] == '2') {
+		bytes = extract_long(&buf[4], 0);
+		extract(content_type, &buf[4], 3);
+		output_headers(0);
+		wprintf("Content-type: %s\n", content_type);
+		wprintf("Content-length: %ld\n", (long) bytes);
+		wprintf("\n");
+
+		while (bytes > (off_t) 0) {
+			thisblock = (off_t) sizeof(xferbuf);
+			if (thisblock > bytes) {
+				thisblock = bytes;
+			}
+			serv_printf("READ %ld|%ld", accomplished, thisblock);
+			serv_gets(buf);
+			if (buf[0] == '6') {
+				thisblock = extract_long(&buf[4], 0);
+				serv_read(xferbuf, (int) thisblock);
+			}
+			else {
+				memset(xferbuf, 0, thisblock);
+			}
+			write(WC->http_sock, xferbuf, thisblock);
+			bytes = bytes - thisblock;
+			accomplished = accomplished + thisblock;
+		}
+		serv_puts("CLOS");
+		serv_gets(buf);
+	} else {
+		wprintf("HTTP/1.0 404 %s\n", &buf[4]);
+		output_headers(0);
+		wprintf("Content-Type: text/plain\n");
+		wprintf("\n");
+		wprintf("Error retrieving part: %s\n", &buf[4]);
 	}
 
 }
@@ -914,6 +966,8 @@ void session_loop(struct httprequest *req)
 		do_generic();
 	} else if (!strcasecmp(action, "display_menubar")) {
 		display_menubar(1);
+	} else if (!strcasecmp(action, "output_mimepart")) {
+		output_mimepart();
 	} else if (!strcasecmp(action, "diagnostics")) {
 		output_headers(1);
 
