@@ -1,4 +1,7 @@
  $Log$
+ Revision 606.0  2003/05/16 15:17:11  ajc
+ * THIS IS 6.06
+
  Revision 605.50  2003/05/16 14:59:08  ajc
  * Removed the old rec_log() facility because the utilities which read its
    data are crufty, disused, and produce incorrect output.
