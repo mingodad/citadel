@@ -361,7 +361,6 @@ void siteconfig(void);
 void display_generic(void);
 void do_generic(void);
 void display_menubar(int);
-void embed_room_banner(char *);
 void smart_goto(char *);
 void worker_entry(void);
 void session_loop(struct httprequest *);
@@ -467,6 +466,12 @@ void commit_iconbar(void);
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
 void spawn_another_worker_thread(void);
 
+void embed_room_banner(char *, int);
+/* navbar types that can be passed to embed_room_banner */
+enum {
+	navbar_none,
+	navbar_default
+};
 
 
 #ifdef HAVE_OPENSSL

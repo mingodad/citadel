@@ -326,7 +326,7 @@ void embed_view_o_matic(void) {
 
 
 
-void embed_room_banner(char *got) {
+void embed_room_banner(char *got, int navbar_style) {
 	char fakegot[SIZ];
 
 	/* We need to have the information returned by a GOTO server command.
@@ -357,7 +357,110 @@ void embed_room_banner(char *got) {
 	svcallback("YOUHAVEMAIL", embed_newmail_button);
 	svcallback("VIEWOMATIC", embed_view_o_matic);
 	svcallback("START", offer_start_page);
+
 	do_template("roombanner");
+	if (navbar_style != navbar_none) {
+
+		wprintf("<div style=\"position:absolute; bottom:0px; left:0px\">\n"
+			"<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" width=\"100%%\"><tr>\n");
+
+
+		if (navbar_style == navbar_default) wprintf(
+			"<td>"
+			"<a href=\"/ungoto\">"
+			"<img align=\"middle\" src=\"/static/back.gif\" border=\"0\">"
+			"<span class=\"navbar_link\">Ungoto</span></A>"
+			"</td>\n"
+		);
+
+		if ( (navbar_style == navbar_default)
+		   && (WC->wc_view != VIEW_CALENDAR) 
+		   && (WC->wc_view != VIEW_ADDRESSBOOK) 
+		   && (WC->wc_view != VIEW_NOTES) 
+		   && (WC->wc_view != VIEW_TASKS) 
+		   ) {
+			wprintf(
+				"<td>"
+				"<A HREF=\"/readnew\">"
+				"<img align=\"middle\" src=\"/static/readmsgs.gif\" border=\"0\">"
+				"<span class=\"navbar_link\">New messages</span></A>"
+				"</td>\n"
+			);
+		}
+
+		if (navbar_style == navbar_default) {
+			wprintf(
+				"<td>"
+				"<A HREF=\"/readfwd\">"
+				"<img align=\"middle\" src=\"/static/readmsgs.gif\" border=\"0\">"
+				"<span class=\"navbar_link\">"
+			);
+			switch(WC->wc_view) {
+				case VIEW_ADDRESSBOOK:
+					wprintf("View contacts");
+					break;
+				case VIEW_CALENDAR:
+					wprintf("View calendar");
+					break;
+				case VIEW_TASKS:
+					wprintf("View tasks");
+					break;
+				case VIEW_NOTES:
+					wprintf("View notes");
+					break;
+				default:
+					wprintf("All messages");
+					break;
+			}
+			wprintf("</span></a></td>\n");
+		}
+
+		if (navbar_style == navbar_default) {
+			wprintf(
+				"<td>"
+				"<A HREF=\"/display_enter\">"
+				"<img align=\"middle\" src=\"/static/enter.gif\" border=\"0\">"
+				"<span class=\"navbar_link\">"
+			);
+			switch(WC->wc_view) {
+				case VIEW_ADDRESSBOOK:
+					wprintf("Add new contact");
+					break;
+				case VIEW_CALENDAR:
+					wprintf("Add new event");
+					break;
+				case VIEW_TASKS:
+					wprintf("Add new task");
+					break;
+				case VIEW_NOTES:
+					wprintf("Add new note");
+					break;
+				default:
+					wprintf("Enter a message");
+					break;
+			}
+			wprintf("</span></a></td>\n");
+		}
+
+		if (navbar_style == navbar_default) wprintf(
+			"<td>"
+			"<A HREF=\"/skip\">"
+			"<span class=\"navbar_link\">Skip this room</span>"
+			"<img align=\"middle\" src=\"/static/forward.gif\" border=\"0\"></A>"
+			"</td>\n"
+		);
+
+		if (navbar_style == navbar_default) wprintf(
+			"<td>"
+			"<A HREF=\"/gotonext\">"
+			"<span class=\"navbar_link\">Goto next room</span>"
+			"<img align=\"middle\" src=\"/static/forward.gif\" border=\"0\"></A>"
+			"</td>\n"
+		);
+
+		wprintf("</tr></table></div>\n");
+	}
+
 }
 
 
