@@ -212,7 +212,7 @@ struct wcsession {
 	long msgarr[4096];		/* for read operations */
 	int is_wap;			/* Client is a WAP gateway */
 	struct urlcontent *urlstrings;
-	int HaveExpressMessages;	/* Nonzero if incoming msgs exist */
+	int HaveInstantMessages;	/* Nonzero if incoming msgs exist */
 	struct wcsubst *vars;
 	char this_page[SIZ];		/* address of current page */
 	char http_host[SIZ];		/* HTTP Host: header */

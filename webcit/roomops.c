@@ -1892,14 +1892,10 @@ void zap(void)
 	if (!strcasecmp(bstr("sc"), "OK")) {
 		serv_printf("GOTO %s", WC->wc_roomname);
 		serv_gets(buf);
-		if (buf[0] != '2') {
-			/* ExpressMessageCat(&buf[4]); */
-		} else {
+		if (buf[0] == '2') {
 			serv_puts("FORG");
 			serv_gets(buf);
-			if (buf[0] != '2') {
-				/* ExpressMessageCat(&buf[4]); */
-			} else {
+			if (buf[0] == '2') {
 				strcpy(final_destination, "_BASEROOM_");
 			}
 		}

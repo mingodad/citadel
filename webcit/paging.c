@@ -160,10 +160,15 @@ void page_popup(void)
 		escputs(pagefrom);
 		wprintf("</span></td></tr><tr><td><font color=\"#FFFFFF\">");
 		fmout(NULL, "LEFT");
-		wprintf("</font></td></tr></table>\n");
+		wprintf("</font></td></tr>"
+			"<tr><td><div align=center><font color=\"#FFFFFF\">"
+			"<a href=\"javascript:hide_page_popup()\">[ close window ]</a>"
+			"</font></div>"
+			"</td></tr>"
+			"</table>\n");
 	}
 
-	WC->HaveExpressMessages = 0;
+	WC->HaveInstantMessages = 0;
 }
 
 
