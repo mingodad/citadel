@@ -224,13 +224,22 @@ void cal_process_attachment(char *part_source) {
 
 
 
-
-
 /*
  * Display handlers for message reading
  */
+
+
+
+/*
+ * If we're reading calendar items, just store them for now.  We have to
+ * sort and re-output them later when we draw the calendar.
+ */
 void display_individual_cal(icalcomponent *cal, long msgnum) {
-	wprintf("display_individual_cal() called<BR>\n");
+
+	WC->num_cal += 1;
+	WC->disp_cal = realloc(WC->disp_cal,
+			(sizeof(icalcomponent *) * WC->num_cal) );
+	WC->disp_cal[WC->num_cal - 1] = icalcomponent_new_clone(cal);
 }
 
 
@@ -499,7 +508,7 @@ void display_using_handler(long msgnum,
 
 void display_calendar(long msgnum) {
 	display_using_handler(msgnum, "text/calendar",
-				ICAL_ANY_COMPONENT,
+				ICAL_VEVENT_COMPONENT,
 				display_individual_cal);
 }
 

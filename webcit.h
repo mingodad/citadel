@@ -176,6 +176,10 @@ struct wcsession {
 	int gzcompressed;		/* nonzero if compressed output */
 	gzFile gzfd;			/* stream to send compressed */
 #endif
+#ifdef HAVE_ICAL_H
+	icalcomponent **disp_cal;	/* store calendar items for display */
+	int num_cal;
+#endif
 };
 
 #define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
