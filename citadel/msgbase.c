@@ -882,7 +882,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 	static int seqnum = 0;
 
 	lprintf(9, "save_message(%s,%s,%s,%d,%d)\n",
-		mtmp, rec, force_room, mailtype, generate_id);
+		mtmp, rec, force, mailtype, generate_id);
 
 	strcpy(force_room, force);
 

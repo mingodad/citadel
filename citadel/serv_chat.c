@@ -391,7 +391,7 @@ void cmd_pexp(char *argbuf)
 			cprintf("Message ");
 		cprintf("from %s:\n", ptr->sender);
 		if (ptr->text != NULL)
-			cprintf("%s\n\n", ptr->text);
+			memfmout(80, ptr->text, 0);
 
 		holdptr = ptr->next;
 		if (ptr->text != NULL) phree(ptr->text);
@@ -426,7 +426,7 @@ void cmd_gexp(char *argbuf) {
 		ptr->sender,				/* sender of msg */
 		config.c_nodename);			/* static for now */
 	if (ptr->text != NULL) {
-		cprintf("%s", ptr->text);
+		memfmout(80, ptr->text, 0);
 		if (ptr->text[strlen(ptr->text)-1] != '\n') cprintf("\n");
 		phree(ptr->text);
 		}
@@ -448,6 +448,13 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 	struct ExpressMessage *newmsg, *findend;
 	char *un;
 	FILE *fp;
+	size_t msglen = 0;
+	int do_send = 0;
+
+	if (strlen(x_msg) > 0) {
+		msglen = strlen(x_msg) + 4;
+		do_send = 1;
+		}
 
 	/* find the target user's context and append the message */
 	begin_critical_section(S_SESSION_TABLE);
@@ -460,7 +467,7 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 
 		if ((!strcasecmp(un, x_user))
 		    || (!strcasecmp(x_user, "broadcast"))) {
-			if (strlen(x_msg) > 0) {
+			if (do_send) {
 				newmsg = (struct ExpressMessage *)
 					mallok(sizeof (struct ExpressMessage));
 				memset(newmsg, 0,
@@ -468,8 +475,8 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 				strcpy(newmsg->sender, lun);
 				if (!strcasecmp(x_user, "broadcast"))
 					newmsg->flags |= EM_BROADCAST;
-				newmsg->text = mallok(strlen(x_msg)+2);
-				strcpy(newmsg->text, x_msg);
+				newmsg->text = mallok(msglen);
+				safestrncpy(newmsg->text, x_msg, msglen);
 
 				if (ccptr->FirstExpressMessage == NULL)
 					ccptr->FirstExpressMessage = newmsg;
@@ -486,7 +493,7 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 	end_critical_section(S_SESSION_TABLE);
 
 	/* Log the page to disk if configured to do so */
-	if ((strlen(config.c_logpages) > 0) && (strlen(x_msg) > 0)) {
+	if ((strlen(config.c_logpages) > 0) && (do_send) ) {
 		fp = fopen(CC->temp, "wb");
 		fprintf(fp, "%c%c%c", 255, MES_NORMAL, 0);
 		fprintf(fp, "Psysop%c", 0);
