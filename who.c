@@ -1,6 +1,5 @@
 /* $Id$ */
 
-
 #include <ctype.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -27,28 +26,15 @@
 
 
 
-
-struct whouser {
-	struct whouser *next;
-	int sessionnum;
-	char username[256];
-	char roomname[256];
-	char hostname[256];
-	char clientsoftware[256];
-};
-
 /*
  * who is on?
  */
 void whobbs(void)
 {
-	struct whouser *wlist = NULL;
-	struct whouser *wptr = NULL;
-	char buf[256], sess, user[256], room[256], host[256];
-	int foundit;
+	char buf[256], sess, user[256], room[256], host[256],
+		realroom[256], realhost[256];
 
 	output_headers(7);
-
 
 	wprintf("<SCRIPT LANGUAGE=\"JavaScript\">\n"
 		"function ConfirmKill() { \n"
@@ -76,51 +62,18 @@ void whobbs(void)
 			extract(user, buf, 1);
 			extract(room, buf, 2);
 			extract(host, buf, 3);
+			extract(realroom, buf, 9);
+			extract(realhost, buf, 10);
 
-			foundit = 0;
-			for (wptr = wlist; wptr != NULL; wptr = wptr->next) {
-				if (wptr->sessionnum == sess) {
-					foundit = 1;
-					if (strcasecmp(user, wptr->username)) {
-						sprintf(buf, "%cBR%c%s",
-							LB, RB, user);
-						strcat(wptr->username, buf);
-					}
-					if (strcasecmp(room, wptr->roomname)) {
-						sprintf(buf, "%cBR%c%s",
-							LB, RB, room);
-						strcat(wptr->roomname, buf);
-					}
-					if (strcasecmp(host, wptr->hostname)) {
-						sprintf(buf, "%cBR%c%s",
-							LB, RB, host);
-						strcat(wptr->hostname, buf);
-					}
-				}
-			}
-
-			if (foundit == 0) {
-				wptr = (struct whouser *)
-				    malloc(sizeof(struct whouser));
-				wptr->next = wlist;
-				wlist = wptr;
-				strcpy(wlist->username, user);
-				strcpy(wlist->roomname, room);
-				strcpy(wlist->hostname, host);
-				wlist->sessionnum = sess;
-			}
-		}
-
-		while (wlist != NULL) {
-			wprintf("<TR>\n\t<TD ALIGN=center>%d", wlist->sessionnum);
+			wprintf("<TR>\n\t<TD ALIGN=center>%d", sess);
 			if ((WC->is_aide) &&
-			    (wlist->sessionnum != serv_info.serv_pid)) {
-				wprintf(" <A HREF=\"/terminate_session&which_session=%d&session_owner=", wlist->sessionnum);
-				urlescputs(wlist->username);
+			    (sess != serv_info.serv_pid)) {
+				wprintf(" <A HREF=\"/terminate_session&which_session=%d&session_owner=", sess);
+				urlescputs(user);
 				wprintf("\" onClick=\"return ConfirmKill();\" "
 				">(kill)</A>");
 			}
-			if (wlist->sessionnum == serv_info.serv_pid) {
+			if (sess == serv_info.serv_pid) {
 				wprintf(" <A HREF=\"/edit_me\" "
 					">(edit)</A>");
 			}
@@ -128,7 +81,7 @@ void whobbs(void)
 
 			/* (link to page this user) */
 			wprintf("<A HREF=\"/display_page&recp=");
-			urlescputs(wlist->username);
+			urlescputs(user);
 			wprintf("\">"
 				"<IMG ALIGN=MIDDLE SRC=\"/static/page.gif\" "
 				"ALT=\"(p)\""
@@ -137,22 +90,29 @@ void whobbs(void)
 
 			/* username (link to user bio/photo page) */
 			wprintf("<A HREF=\"/showuser&who=");
-			urlescputs(wlist->username);
+			urlescputs(user);
 			wprintf("\">");
-			escputs(wlist->username);
+			escputs(user);
 			wprintf("</A>");
-
 
 			/* room */
 			wprintf("</TD>\n\t<TD>");
-			escputs(wlist->roomname);
+			escputs(room);
+			if (strlen(realroom) > 0) {
+				wprintf("<BR><I>");
+				escputs(realroom);
+				wprintf("</I>");
+			}
 			wprintf("</TD>\n\t<TD>");
+
 			/* hostname */
-			escputs(wlist->hostname);
+			escputs(host);
+			if (strlen(realhost) > 0) {
+				wprintf("<BR><I>");
+				escputs(realhost);
+				wprintf("</I>");
+			}
 			wprintf("</TD>\n</TR>");
-			wptr = wlist->next;
-			free(wlist);
-			wlist = wptr;
 		}
 	}
 	wprintf("</TABLE>\n"
