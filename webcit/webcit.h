@@ -314,4 +314,4 @@ char *safestrncpy(char *dest, const char *src, size_t n);
 void display_addressbook(long msgnum, char alpha);
 void offer_start_page(void);
 void change_start_page(void);
-void output_text_html(char *partbuf, int total_length);
+void output_html(void);

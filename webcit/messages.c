@@ -25,6 +25,7 @@
 #include <signal.h>
 #include "webcit.h"
 #include "vcard.h"
+#include "webserver.h"
 
 
 /*
@@ -194,95 +195,6 @@ void display_vcard(char *vcard_source, char alpha, int full) {
 
 
 
-void output_text_plain(char *partbuf, int total_length) {
-	wprintf("<PRE>\n");
-	write(WC->http_sock, partbuf, total_length);
-	wprintf("</PRE><BR>\n");
-}
-
-
-
-
-/*
- * Output the chosen part of a MIME message.  This might be chosen from
- * a multipart/alternative or it might be chosen because it's the only one
- * present.  We care not why it was chosen; it is our job to be a servile
- * little function and do what we are told.
- */
-void output_chosen_part(long msgnum, char *multipart_chosen) {
-	char buf[SIZ];
-	char *partbuf;
-	int total_length = 0;
-	int downloaded_length = 0;
-	int block_length = 0;
-	char content_type[SIZ];
-
-	serv_printf("OPNA %ld|%s", msgnum, multipart_chosen);
-	serv_gets(buf);
-	if (buf[0] != '2') {
-		wprintf("<I>Error reading msg %ld part %s</I><BR><BR>",
-			msgnum, multipart_chosen);
-		return;
-	}
-
-	total_length = extract_int(&buf[4], 0);
-	extract(content_type, &buf[4], 3);
-
-	if ( (strlen(content_type) ==0)
-	   ||(!strcasecmp(content_type, "text"))
-	   ||(!strcasecmp(content_type, "text/english"))
-	   ) {
-		strcpy(content_type, "text/plain");
-	}
-
-	partbuf = malloc(total_length + 1);
-	if (partbuf == NULL) {
-		wprintf("<I>Memory allocation error</I><BR><BR>");
-		return;
-	}
-
-	partbuf[total_length] = 0;	/* Give it a nice null terminator */
-
-	/* FIXME ... add something to make this die if we
-	 *           lose the server connection.
-	 */
-	while (downloaded_length < total_length) {
-		if ((total_length - downloaded_length) < 4096) {
-			block_length = total_length - downloaded_length;
-		}
-		else {
-			block_length = 4096;
-		}
-		serv_printf("READ %d|%d", downloaded_length, block_length);
-		serv_gets(buf);
-		if (buf[0] == '6') {
-			block_length = extract_int(&buf[4], 0);
-			serv_read(partbuf, block_length);
-			downloaded_length += block_length;
-		}
-	}
-
-	serv_puts("CLOS");
-	serv_gets(buf);
-
-	if (!strcasecmp(content_type, "text/plain")) {
-		output_text_plain(partbuf, total_length);
-	}
-	else if (!strcasecmp(content_type, "text/html")) {
-		output_text_html(partbuf, total_length);
-	}
-	else {
-		wprintf("<I>Unknown content type %s</I><BR><BR>\n",
-			content_type);
-	}
-
-	free(partbuf);
-}
-
-
-
-
-
 /*
  * I wanna SEE that message!
  */
@@ -305,18 +217,14 @@ void read_message(long msgnum) {
 	int bq = 0;
 	char vcard_partnum[SIZ];
 	char *vcard_source = NULL;
-	int multipart_hunting = 0;
-	char multipart_chosen[SIZ];
-	char multipart_prefix[SIZ];
 
 	strcpy(from, "");
 	strcpy(node, "");
 	strcpy(rfca, "");
 	strcpy(reply_to, "");
 	strcpy(vcard_partnum, "");
-	strcpy(multipart_chosen, "1");
 
-	serv_printf("MSG0 %ld|1", msgnum);	/* ask for headers only */
+	serv_printf("MSG4 %ld", msgnum);
 	serv_gets(buf);
 	if (buf[0] != '1') {
 		wprintf("<STRONG>ERROR:</STRONG> %s<BR>\n", &buf[4]);
@@ -331,7 +239,7 @@ void read_message(long msgnum) {
 	wprintf("COLOR=\"000000\"> ");
 	strcpy(m_subject, "");
 
-	while (serv_gets(buf), strcasecmp(buf, "000")) {
+	while (serv_gets(buf), strcasecmp(buf, "text")) {
 		if (!strncasecmp(buf, "nhdr=yes", 8))
 			nhdr = 1;
 		if (nhdr == 1)
@@ -375,36 +283,6 @@ void read_message(long msgnum) {
 		if (!strncasecmp(buf, "time=", 5)) {
 			fmt_date(now, atol(&buf[5]));
 			wprintf("%s ", now);
-		}
-
-		if (format_type == 4) {
-			if (!strncasecmp(buf, "pref=", 5)) {
-				extract(multipart_prefix, &buf[5], 1);
-				if (!strcasecmp(multipart_prefix,
-				   "multipart/alternative")) {
-					++multipart_hunting;
-				}
-			}
-			if (!strncasecmp(buf, "suff=", 5)) {
-				extract(multipart_prefix, &buf[5], 1);
-				if (!strcasecmp(multipart_prefix,
-				   "multipart/alternative")) {
-					--multipart_hunting;
-				}
-			}
-			if (!strncasecmp(buf, "part=", 5)) {
-				if (multipart_hunting > 0) {
-					extract(mime_partnum, &buf[5], 2);
-					extract(mime_content_type, &buf[5], 4);
-					if ( (!strcasecmp(mime_content_type,
-						"text/plain"))
-					  || (!strcasecmp(mime_content_type,
-						"text/html")) ) {
-						strcpy(multipart_chosen,
-							mime_partnum);
-					}
-				}
-			}
 		}
 
 		if (!strncasecmp(buf, "part=", 5)) {
@@ -521,48 +399,56 @@ void read_message(long msgnum) {
 
 	wprintf("</TR></TABLE>\n");
 
-
-	/* Messages in legacy Citadel variformat get handled thusly... */
-	if (format_type == 0) {
-		serv_printf("MSG0 %ld", msgnum);
-		serv_gets(buf);
-		if (buf[0] == '1') {
-			while (serv_gets(buf), strncasecmp(buf, "text", 4)) { }
-			fmout(NULL);
+	/* 
+	 * Learn the content type
+	 */
+	strcpy(mime_content_type, "text/plain");
+	while (serv_gets(buf), (strlen(buf) > 0)) {
+		if (!strncasecmp(buf, "Content-type: ", 14)) {
+			safestrncpy(mime_content_type, &buf[14],
+				sizeof(mime_content_type));
 		}
 	}
 
+	/* Messages in legacy Citadel variformat get handled thusly... */
+	if (!strcasecmp(mime_content_type, "text/x-citadel-variformat")) {
+		fmout(NULL);
+	}
+
 	/* Boring old 80-column fixed format text gets handled this way... */
-	if (format_type == 1)  {
-		serv_printf("MSG0 %ld", msgnum);
-		serv_gets(buf);
-		if (buf[0] == '1') {
-			while (serv_gets(buf), strncasecmp(buf, "text", 4)) { }
-			while (serv_gets(buf), strcmp(buf, "000")) {
-				while ((strlen(buf) > 0) && (isspace(buf[strlen(buf) - 1])))
-					buf[strlen(buf) - 1] = 0;
-				if ((bq == 0) &&
-			    	((!strncmp(buf, ">", 1)) || (!strncmp(buf, " >", 2)) || (!strncmp(buf, " :-)", 4)))) {
-					wprintf("<FONT COLOR=\"000044\"><I>");
-					bq = 1;
-				} else if ((bq == 1) &&
-				   	(strncmp(buf, ">", 1)) && (strncmp(buf, " >", 2)) && (strncmp(buf, " :-)", 4))) {
-					wprintf("</FONT></I>");
-					bq = 0;
-				}
-				wprintf("<TT>");
-				url(buf);
-				escputs(buf);
-				wprintf("</TT><BR>\n");
+	else if (!strcasecmp(mime_content_type, "text/plain")) {
+		while (serv_gets(buf), strcmp(buf, "000")) {
+			while ((strlen(buf) > 0) && (isspace(buf[strlen(buf) - 1])))
+				buf[strlen(buf) - 1] = 0;
+			if ((bq == 0) &&
+		    	((!strncmp(buf, ">", 1)) || (!strncmp(buf, " >", 2)) || (!strncmp(buf, " :-)", 4)))) {
+				wprintf("<FONT COLOR=\"000044\"><I>");
+				bq = 1;
+			} else if ((bq == 1) &&
+			   	(strncmp(buf, ">", 1)) && (strncmp(buf, " >", 2)) && (strncmp(buf, " :-)", 4))) {
+				wprintf("</FONT></I>");
+				bq = 0;
 			}
+			wprintf("<TT>");
+			url(buf);
+			escputs(buf);
+			wprintf("</TT><BR>\n");
 		}
 		wprintf("</I><BR>");
 	}
 
-	/* MIME!  Rock on!! */
-	if (format_type == 4) {
-		output_chosen_part(msgnum, multipart_chosen);
+	else /* HTML is fun, but we've got to strip it first */
+	if (!strcasecmp(mime_content_type, "text/html")) {
+		output_html();
 	}
+
+	/* Unknown weirdness */
+	else {
+		wprintf("I don't know how to display %s<BR>\n",
+			mime_content_type);
+		while (serv_gets(buf), strcmp(buf, "000")) { }
+	}
+
 
 	/* Afterwards, offer links to download attachments 'n' such */
 	if (mime_http != NULL) {
