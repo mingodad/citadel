@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.50  2002/06/21 12:32:48  ajc
+ * Minor documentation update
+
  Revision 591.49  2002/06/19 21:52:13  ajc
  * Support a transient room create as well
 
@@ -7,8 +10,7 @@
    zapped room without putting the room [back] on your known rooms list.  This
    is useful for the new administrative functions in WebCit (updating a user's
    vCard without the Aide suddenly having that user's config room on their
-   list).  It's also useful for making a certain pedophile in Sacramento even
-   more suspicious that someone is reading his email.
+   list).
 
  Revision 591.47  2002/06/18 16:34:06  error
  * room_ops.c: Fix for old room record not being deleted when renaming
