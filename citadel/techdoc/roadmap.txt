@@ -46,15 +46,21 @@ Goals to achieve during the 6.xx cycle
  Short-term TODO list
  --------------------
  
- * WebCit support for HTTP transactions performed by Kolab clients
-   (Status: DONE!  The current WebCit build works with the KDE Kolab klient
-   using HTTPS.)
- 
- * RFC 2739 compliance (provide calendar free/busy URL's in vCard and LDAP)
-   (Status: DONE.  If anyone knows of any client software that makes good use
-   of this, please let us know and/or help test it)
+ * RFC 2180 compliance -- do something predictable when more than one client
+   has a mailbox open and one tries to rename or delete it.  The easiest thing
+   to do would be to simply deny the operation.  This should probably be done
+   across the entire Citadel system rather than only in IMAP.
 
  * Reminder: after the next non-beta version of the Citadel server is
    released, email the IMAPcopy people for inclusion on their web site.
  
  * Reminder: send Citadel autoconfig settings to the SquirrelMail people
+ 
+ Items recently removed from TODO list
+ -------------------------------------
+
+ * WebCit support for HTTP transactions performed by Kolab clients
+   (The current WebCit build works with the KDE Kolab klient using HTTPS.)
+ 
+ * RFC 2739 compliance (provide calendar free/busy URL's in vCard and LDAP)
+   (If anyone knows of clients that make use of this, let us know / test it)
