@@ -1241,14 +1241,17 @@ void contemplate_ldap(void) {
 	/* Generate a unique entry name for slapd */
 	generate_entry_name(slapd_init_entry);
 
-	/* Now write it out to /etc/inittab */
-	/* FIXME make it run as some non-root user */
+	/* Now write it out to /etc/inittab.
+	 * FIXME make it run as some non-root user.
+	 * The "-d 0" seems superfluous, but it's actually a way to make
+	 * slapd run in the foreground without spewing messages to the console.
+	 */
 	fp = fopen("/etc/inittab", "a");
 	if (fp == NULL) {
 		display_error(strerror(errno));
 	} else {
 		fprintf(fp, "# Start the OpenLDAP server for Citadel...\n");
-		fprintf(fp, "%s:2345:respawn:%s -d 1 -f %s\n",
+		fprintf(fp, "%s:2345:respawn:%s -d 0 -f %s\n",
 			slapd_init_entry,
 			getenv("SLAPD_BINARY"),
 			getenv("LDAP_CONFIG")
