@@ -49,7 +49,7 @@ char *Dynamic_Module_Init(void)
 	CtdlRegisterProtoHook(cmd_gexp, "GEXP", "Get express messages");
 	CtdlRegisterProtoHook(cmd_sexp, "SEXP", "Send an express message");
 	CtdlRegisterSessionHook(delete_express_messages, EVT_STOP);
-	CtdlRegisterXmsgHook(send_express_message);
+	CtdlRegisterXmsgHook(send_express_message, XMSG_PRI_LOCAL);
 	return "$Id$";
 }
 

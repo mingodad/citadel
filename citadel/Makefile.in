@@ -25,7 +25,7 @@ SO=@SO@
 CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT)
 SERVER_TARGETS=citserver setup $(CHKPWD)
 SERV_MODULES=modules/serv_chat$(SO) \
-	modules/serv_expire$(SO)
+	modules/serv_expire$(SO) modules/serv_icq$(SO)
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform readlog rcit \
 	stats citmail netpoll mailinglist userlist sendcommand \
 	base64 qpdecode
@@ -64,7 +64,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	housekeeping.c internetmail.c ipc_c_tcp.c locate_host.c \
 	logging.c mailinglist.c messages.c msgbase.c msgform.c netmailer.c \
 	netpoll.c netproc.c netsetup.c policy.c proxy.c rcit.c readlog.c \
-	room_ops.c rooms.c routines.c routines2.c serv_chat.c \
+	room_ops.c rooms.c routines.c routines2.c serv_chat.c serv_icq.c \
 	serv_info.c serv_test.c setup.c snprintf.c stats.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
 	whobbs.c sendcommand.c mime_parser.c base64.c qpdecode.c getutline.c \
@@ -130,6 +130,12 @@ modules/serv_expire.so: serv_expire.mo
 
 modules/serv_expire.mo: serv_expire.mo
 	ln -f serv_expire.mo modules
+
+modules/serv_icq.so: serv_icq.mo
+	$(LINK_SHARED) -o modules/serv_icq.so serv_icq.mo
+
+modules/serv_icq.mo: serv_icq.mo
+	ln -f serv_icq.mo modules
 
 aidepost: aidepost.o config.o $(LIBOBJS)
 	$(CC) aidepost.o config.o $(LIBOBJS) $(LDFLAGS) -o aidepost

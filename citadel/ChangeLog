@@ -1,4 +1,10 @@
 $Log$
+Revision 1.342  1999/08/03 01:52:06  ajc
+* Redesigned the client protocol commands for dealing with ICQ
+* Implemented page function priority ordering to prevent pages from being
+  simultaneously delivered over multiple IM systems
+* Migrated serv_icq.* into the Makefile
+
 Revision 1.341  1999/08/01 21:36:30  ajc
 * EXTREME coolness.  The server side of the ICQ metaclient is now working.
   It is set up using ICQL and ICQA commands, it automatically logs the user
@@ -1161,3 +1167,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

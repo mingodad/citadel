@@ -46,20 +46,20 @@ extern void (*icq_Log)(time_t time, unsigned char level, const char *str);
 extern void (*icq_SrvAck)(unsigned short seq);
 
 void icq_SetProxy(const char *phost, unsigned short pport, int pauth, const char *pname, const char *ppass);
-void icq_UnsetProxy();
+void icq_UnsetProxy(void);
 void icq_Init(unsigned long uin, const char *password);
 int icq_Connect(const char *hostname, int port);
-void icq_Disconnect();
-int icq_GetSok();
-int icq_GetProxySok();
-void icq_HandleServerResponse();  /* should be called when data received */
-void icq_HandleProxyResponse(); /* should be called when data arrived on proxy socket */
-void icq_Main();
-void icq_KeepAlive();
+void icq_Disconnect(void);
+int icq_GetSok(void);
+int icq_GetProxySok(void);
+void icq_HandleServerResponse(void);  /* should be called when data received */
+void icq_HandleProxyResponse(void); /* should be called when data arrived on proxy socket */
+void icq_Main(void);
+void icq_KeepAlive(void);
 void icq_Login(unsigned long status);
-void icq_Logout();
-void icq_SendContactList();
-void icq_SendVisibleList();
+void icq_Logout(void);
+void icq_SendContactList(void);
+void icq_SendVisibleList(void);
 void icq_SendNewUser(unsigned long uin);
 unsigned short icq_SendMessage(unsigned long uin, const char *text);
 unsigned short icq_SendURL(unsigned long uin, const char *url, const char *descr);
@@ -75,7 +75,7 @@ void icq_RegNewUser(const char *pass);
 
 void icq_ContAddUser(unsigned long cuin);
 void icq_ContDelUser(unsigned long cuin);
-void icq_ContClear();
+void icq_ContClear(void);
 void icq_ContSetVis(unsigned long cuin);
 
 #ifdef __cplusplus
@@ -271,8 +271,45 @@ typedef struct AckCBack
   struct AckCBack *next;
 } AckCallback;
 
-void icq_SendGotMessages();
-void icq_SendLogin1();
+
+
+
+struct ctdl_icq_handle {
+	int icq_Sok;
+	BOOL icq_Russian;
+	BYTE icq_ServMess[8192];
+	WORD icq_SeqNum;
+	DWORD icq_OurIp;
+	DWORD icq_OurPort;
+	DWORD icq_Uin;
+	icq_ContactItem *icq_ContFirst;
+	DWORD icq_Status;
+	char *icq_Password;
+	BYTE icq_LogLevel;
+	BYTE icq_UseProxy;
+	char *icq_ProxyHost;
+	WORD icq_ProxyPort;
+	int icq_ProxyAuth;
+	char *icq_ProxyName;
+	char *icq_ProxyPass;
+	int icq_ProxySok;
+	DWORD icq_ProxyDestHost;
+	WORD icq_ProxyDestPort;
+	WORD icq_ProxyOurPort;
+	time_t icq_LastKeepAlive;	/* ig */
+	char icq_config[256];		/* ig */
+	struct CtdlICQ_CL *icq_cl;	/* ig */
+	int icq_numcl;			/* ig */
+};
+
+
+
+
+
+
+
+void icq_SendGotMessages(void);
+void icq_SendLogin1(void);
 void icq_StatusUpdate(srv_net_icq_pak pak);
 void icq_AckSrv(int seq);
 void icq_HandleUserOffline(srv_net_icq_pak pak);
@@ -289,8 +326,43 @@ BOOL icq_GetServMess(WORD num);
 void icq_SetServMess(WORD num);
 
 icq_ContactItem *icq_ContFindByUin(unsigned long cuin);
-icq_ContactItem *icq_ContGetFirst();
+icq_ContactItem *icq_ContGetFirst(void);
 
 const char *icq_ConvertStatus2Str(int status);
 
 #endif /* _ICQLIB_H_ */
+
+
+/* <ig> */
+
+
+void icq_init_handle(struct ctdl_icq_handle *i);
+void CtdlICQ_Read_Config_Backend(long msgnum);
+void CtdlICQ_Read_Config(void);
+void CtdlICQ_Write_Config(void);
+void CtdlICQ_Write_CL(void);
+void CtdlICQ_Read_CL_Backend(long msgnum);
+void CtdlICQ_Read_CL(void);
+void CtdlICQ_Refresh_Contact_List(void);
+void CtdlICQ_Logout_If_Connected(void);
+void CtdlICQ_Login_If_Possible(void);
+void CtdlICQlog(time_t time, unsigned char level, const char *str);
+void CtdlICQ_session_startup_hook(void);
+void CtdlICQ_session_stopdown_hook(void);
+void CtdlICQ_after_cmd_hook(void);
+void CtdlICQ_session_logout_hook(void);
+void CtdlICQ_session_login_hook(void);
+void CtdlICQ_Incoming_Message(DWORD uin, BYTE hour, BYTE minute,
+                                BYTE day, BYTE month, WORD year,
+                                const char *msg);
+void CtdlICQ_InfoReply(unsigned long uin, const char *nick,
+                const char *first, const char *last,
+                const char *email, char auth);
+void cmd_cicq(char *argbuf);
+void CtdlICQ_rwho(void);
+void CtdlICQ_Status_Update(DWORD uin, DWORD status);
+void CtdlICQ_Logged(void);
+void CtdlICQ_UserOnline(DWORD uin, DWORD status, DWORD ip,
+                        DWORD port, DWORD realip);
+void CtdlICQ_UserOffline(DWORD uin);
+

@@ -1,7 +1,7 @@
 /* 
  * serv_icq.c
  *
- * This is a modified version of Denis' ICQLIB, a very cleanly
+ * This is a modified version of Denis V. Dmitrienko's ICQLIB, a very cleanly
  * written implementation of the Mirabilis ICQ client protocol.  The library
  * has been modified rather than merely utilized because we need it to be
  * threadsafe in order to tie it into the Citadel server.
@@ -41,6 +41,10 @@
 #include "tools.h"
 #include "citserver.h"
 #include "msgbase.h"
+#include "sysdep_decls.h"
+#include "support.h"
+#include "room_ops.h"
+#include "user_ops.h"
 
 /*
  * Contact list in memory
@@ -51,34 +55,6 @@ struct CtdlICQ_CL {
 	DWORD status;
 };
 
-
-struct ctdl_icq_handle {
-	int icq_Sok;
-	BOOL icq_Russian;
-	BYTE icq_ServMess[8192];
-	WORD icq_SeqNum;
-	DWORD icq_OurIp;
-	DWORD icq_OurPort;
-	DWORD icq_Uin;
-	icq_ContactItem *icq_ContFirst;
-	DWORD icq_Status;
-	char *icq_Password;
-	BYTE icq_LogLevel;
-	BYTE icq_UseProxy;
-	char *icq_ProxyHost;
-	WORD icq_ProxyPort;
-	int icq_ProxyAuth;
-	char *icq_ProxyName;
-	char *icq_ProxyPass;
-	int icq_ProxySok;
-	DWORD icq_ProxyDestHost;
-	WORD icq_ProxyDestPort;
-	WORD icq_ProxyOurPort;
-	time_t icq_LastKeepAlive;	/* ig */
-	char icq_config[256];		/* ig */
-	struct CtdlICQ_CL *icq_cl;	/* ig */
-	int icq_numcl;			/* ig */
-};
 
 /* <ig> */
 
@@ -463,7 +439,6 @@ void icq_HandleUserOnline(srv_net_icq_pak pak)
 {
 	DWORD remote_uin, new_status, remote_ip, remote_real_ip;
 	DWORD remote_port;	/* Why Mirabilis used 4 bytes for port? */
-	icq_ContactItem *ptr;
 	char buf[256];
 
 	remote_uin = Chars_2_DW(pak.data);
@@ -815,8 +790,8 @@ write out messages to the FD aux
 ***********************************/
 int icq_Connect(const char *hostname, int port)
 {
-	char buf[1024], un = 1;
-	char our_host[256], tmpbuf[256];
+	char buf[1024];
+	char tmpbuf[256];
 	int conct, length, res;
 	struct sockaddr_in sin, prsin;	/* used to store inet addr stuff */
 	struct hostent *host_struct;	/* used in DNS llokup */
@@ -1020,7 +995,6 @@ void icq_HandleServerResponse()
 	struct tm *tm_str;
 	int s, len;
 	char buf[1024];
-	cback acback;
 
 	s = icq_SockRead((ThisICQ->icq_Sok), &pak.head, sizeof(pak));
 	if (s <= 0) {
@@ -2025,7 +1999,6 @@ void CtdlICQ_Logout_If_Connected(void) {
  * to log on to the ICQ server.
  */
 void CtdlICQ_Login_If_Possible(void) {
-	char buf[256];
 	long uin;
 	char pass[256];
 
@@ -2123,16 +2096,6 @@ void CtdlICQ_session_login_hook(void)
 
 
 
-void cmd_icql(char *argbuf)
-{
-	safestrncpy(ThisICQ->icq_config, argbuf, 256);
-	CtdlICQ_Write_Config();
-	
-	cprintf("%d Ok ... will try to log on to ICQ.\n", OK);
-	CtdlICQ_Login_If_Possible();
-}
-
-
 
 
 /*
@@ -2217,36 +2180,69 @@ int CtdlICQ_Send_Msg(char *from, char *recp, char *msg) {
 
 
 
-void cmd_icqa(char *argbuf) {
+void cmd_cicq(char *argbuf) {
+	char cmd[256];
 	long uin;
+	char pass[256];
+	char buf[256];
+	int i;
 
-	uin = extract_long(argbuf, 0);
-	if (uin <= 0L) {
-		cprintf("%d You must supply a uin.\n", ERROR);
+	extract(cmd, argbuf, 0);
+
+
+	/* "CICQ login" tells us how to log in. */
+	if (!strcasecmp(cmd, "login")) {
+		uin = extract_long(argbuf, 1);
+		extract(pass, argbuf, 2);
+		sprintf(ThisICQ->icq_config, "%ld|%s|", uin, pass);
+		if (uin > 0L) {
+			CtdlICQ_Write_Config();
+			cprintf("%d Ok ... will try to log on to ICQ.\n", OK);
+			CtdlICQ_Login_If_Possible();
+		} else {
+			cprintf("%d You must supply a UIN.\n", ERROR);
+		}
 		return;
 	}
 
-	CtdlICQ_Read_CL();
+	/* "CICQ getcl" returns the contact list */
+	if (!strcasecmp(cmd, "getcl")) {
+		cprintf("%d Your ICQ contact list:\n", LISTING_FOLLOWS);
+		if (ThisICQ->icq_numcl > 0) {
+			for (i=0; i<ThisICQ->icq_numcl; ++i) {
+				cprintf("%ld|%s|%s|\n",
+					ThisICQ->icq_cl[i].uin,
+					ThisICQ->icq_cl[i].name,
+					icq_ConvertStatus2Str(
+						ThisICQ->icq_cl[i].status)
+					);
+			}
+		}
+		cprintf("000\n");
+		return;
+	}
 
-	/* This function is normally used to obtain a relevant pointer, but
-	 * it also creates an entry in the contact list if one isn't there.
-	 */
-	CtdlICQ_CLent(uin);
+	/* "CICQ putcl" accepts a new contact list from the client */
+	if (!strcasecmp(cmd, "putcl")) {
+		cprintf("%d Send contact list\n", SEND_LISTING);
+		ThisICQ->icq_numcl = 0;
+		while (client_gets(buf), strcmp(buf, "000")) {
+			uin = extract_long(buf, 0);
+			if (uin > 0L) {
+				CtdlICQ_CLent(uin);
+				icq_SendInfoReq(uin);
+			}
+		}
+		CtdlICQ_Write_CL();
+		CtdlICQ_Refresh_Contact_List();
+		return;
+	}
 
-	/* Save the new contact list and tell the ICQ server about it */
-	CtdlICQ_Write_CL();
-	CtdlICQ_Refresh_Contact_List();
-
-	/* Leave the user clueless as to what happened, because we really
-	 * don't know (and this is why I hate asynchronous protocols).
-	 */
-	cprintf("%d Ok (maybe)\n", OK);
-
-	/* Request more info on this user from the server, which will arrive
-	 * at some time in the future.  Maybe.
-	 */
-	icq_SendInfoReq(uin);
+	cprintf("%d Invalid subcommand\n", ERROR);
 }
+
+
+
 
 
 /* 
@@ -2309,9 +2305,8 @@ char *Dynamic_Module_Init(void)
 	CtdlRegisterSessionHook(CtdlICQ_session_login_hook, EVT_LOGIN);
 	CtdlRegisterSessionHook(CtdlICQ_after_cmd_hook, EVT_CMD);
 	CtdlRegisterSessionHook(CtdlICQ_rwho, EVT_RWHO);
-	CtdlRegisterProtoHook(cmd_icql, "ICQL", "Log on to ICQ");
-	CtdlRegisterProtoHook(cmd_icqa, "ICQA", "Add ICQ contact");
-	CtdlRegisterXmsgHook(CtdlICQ_Send_Msg);
+	CtdlRegisterProtoHook(cmd_cicq, "CICQ", "Configure Citadel ICQ");
+	CtdlRegisterXmsgHook(CtdlICQ_Send_Msg, XMSG_PRI_FOREIGN);
 
 	/* Tell the code formerly known as icqlib about our callbacks */
 	icq_Log = CtdlICQlog;

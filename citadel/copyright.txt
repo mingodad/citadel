@@ -1,4 +1,4 @@
-                         Citadel/UX release 5.53
+                         Citadel/UX release 5.54
 
 Copyright (c) 1987-1999 by:
         Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
@@ -9,6 +9,9 @@ Portions (c) 1998-1999 by:
  
 base64 encoding/decoding for MIME parser, public domain by:
 	John Walker <http://www.fourmilab.ch>
+
+ICQ client code derived from ICQLIB written by:
+	Denis V. Dmitrienko <denis@null.net>
  
  ------------------------------------------------------------------------------
  

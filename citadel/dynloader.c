@@ -194,7 +194,7 @@ void CtdlRegisterUserHook(void (*fcn_ptr) (char *, long), int EventType)
 }
 
 
-void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *) )
+void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *), int order)
 {
 
 	struct XmsgFunctionHook *newfcn;
@@ -202,10 +202,10 @@ void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *) )
 	newfcn = (struct XmsgFunctionHook *)
 	    mallok(sizeof(struct XmsgFunctionHook));
 	newfcn->next = XmsgHookTable;
+	newfcn->order = order;
 	newfcn->h_function_pointer = fcn_ptr;
 	XmsgHookTable = newfcn;
-
-	lprintf(5, "Registered a new x-msg function\n");
+	lprintf(5, "Registered a new x-msg function (priority %d)\n", order);
 }
 
 
@@ -246,10 +246,22 @@ int PerformXmsgHooks(char *sender, char *recp, char *msg)
 {
 	struct XmsgFunctionHook *fcn;
 	int total_sent = 0;
+	int p;
 
-	for (fcn = XmsgHookTable; fcn != NULL; fcn = fcn->next) {
-		total_sent +=
-			(*fcn->h_function_pointer) (sender, recp, msg);
+	for (p=0; p<MAX_XMSG_PRI; ++p) {
+		for (fcn = XmsgHookTable; fcn != NULL; fcn = fcn->next) {
+			if (fcn->order == p) {
+				total_sent +=
+					(*fcn->h_function_pointer)
+						(sender, recp, msg);
+			}
+		}
+		/* Break out of the loop if a higher-priority function
+		 * successfully delivered the message.  This prevents duplicate
+		 * deliveries to local users simultaneously signed onto
+		 * remote services.
+		 */
+		if (total_sent) goto DONE;
 	}
-	return total_sent;
+DONE:	return total_sent;
 }

@@ -10,5 +10,5 @@ void PerformUserHooks(char *username, long usernum, int EventType);
 int PerformXmsgHooks(char *, char *, char *);
 void CtdlRegisterProtoHook(void (*handler)(char *), char *cmd, char *desc);
 void CtdlRegisterUserHook(void (*fcn_ptr)(char*, long), int EventType);
-void CtdlRegisterXmsgHook(int (*fcn_ptr)(char *, char *, char *));
+void CtdlRegisterXmsgHook(int (*fcn_ptr)(char *, char *, char *), int order);
 char *Dynamic_Module_Init(void);

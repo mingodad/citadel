@@ -256,9 +256,17 @@ extern struct UserFunctionHook *UserHookTable;
 struct XmsgFunctionHook {
 	struct XmsgFunctionHook *next;
 	int (*h_function_pointer) (char *, char *, char *);
+	int order;
 };
 extern struct XmsgFunctionHook *XmsgHookTable;
 
+/* Priority levels for paging functions (lower is better) */
+enum {
+	XMSG_PRI_LOCAL,		/* Other users on -this- server */
+	XMSG_PRI_REMOTE,	/* Other users on a Citadel network (future) */
+	XMSG_PRI_FOREIGN,	/* Contacts on foreign instant message hosts */
+	MAX_XMSG_PRI
+};
 
 
 
