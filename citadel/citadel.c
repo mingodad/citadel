@@ -944,7 +944,7 @@ PWOK:	printf("%s\nAccess level: %d (%s)\nUser #%ld / Call #%d\n",
 	 * program.  Don't mess with these once they've been set, because we
 	 * will be unlinking them later on in the program and we don't
 	 * want to delete something that we didn't create. */
-	snprintf(temp,sizeof temp"/tmp/citA%d",getpid());
+	snprintf(temp,sizeof temp,"/tmp/citA%d",getpid());
 	snprintf(temp2,sizeof temp2,"/tmp/citB%d",getpid());
 	snprintf(tempdir,sizeof tempdir,"/tmp/citC%d",getpid());
 

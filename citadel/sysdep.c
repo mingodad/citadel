@@ -67,7 +67,7 @@ void lprintf(int loglevel, const char *format, ...) {
   
 	if (loglevel <= verbosity) { 
         	va_start(arg_ptr, format);   
-        	rc = vfprintf(stderr, format, arg_ptr);   
+        	vfprintf(stderr, format, arg_ptr);   
         	va_end(arg_ptr);   
 		}
   
