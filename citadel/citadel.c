@@ -1222,6 +1222,40 @@ PWOK:	printf("%s\nAccess level: %d (%s)\nUser #%ld / Call #%d\n",
 				}
 				break;
 
+			case 85:
+				printf("All users will be disconnected!  "
+					"Really terminate the server? ");
+				if (yesno() == 1) {
+					serv_puts("DOWN");
+					serv_gets(aaa);
+					printf("%s\n", &aaa[4]);
+					if (aaa[0]=='2') {
+						updatels();
+						a = 0;
+						termn8 = 1;
+					}
+				}
+
+			case 86:
+				printf("Do you really want to schedule a "
+					"server shutdown? ");
+				if (yesno() == 1) {
+					serv_puts("SCDN 1");
+					serv_gets(aaa);
+					if (aaa[0]=='2') {
+						if (atoi(&aaa[4])) {
+							printf(
+"The Citadel server will terminate when all users are logged off.\n"
+								);
+						}
+						else {
+							printf(
+"The Citadel server will not terminate.\n"
+								);
+						}
+					}
+				}
+
 			case 6:
 				gotonext();
 				break;

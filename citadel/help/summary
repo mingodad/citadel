@@ -101,3 +101,5 @@ commands are available:
  <.> <A>ide <M>essage edit:   
  <.> <A>ide <P>ost   
  <.> <A>ide <S>ystem configuration   
+ <.> <A>ide <T>erminate server <N>ow
+ <.> <A>ide <T>erminate server <S>cheduled
