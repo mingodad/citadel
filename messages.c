@@ -973,8 +973,6 @@ void readloop(char *oper)
 	char ab_alpha = 0;
 	struct addrbookent *addrbook = NULL;
 	int num_ab = 0;
-	time_t started = 0L;	/* FIXME */
-	time_t finished = 0L;	/* FIXME */
 
 	startmsg = atol(bstr("startmsg"));
 	maxmsgs = atoi(bstr("maxmsgs"));
@@ -1207,7 +1205,6 @@ void readloop(char *oper)
 	    }
 	}
 	finished = time(NULL);
-	wprintf("Completed this operation in %ld seconds.<BR>\n", finished - started); /* FIXME */
 
 	/*
 	 * If we're not currently looking at ALL requested
