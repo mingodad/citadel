@@ -62,11 +62,11 @@ struct citsmtp {		/* Information about the current session */
 	int vrfy_count;
 	char vrfy_match[SIZ];
 	char from[SIZ];
+	char recipients[SIZ];
 	int number_of_recipients;
 	int number_of_rooms;
 	int delivery_mode;
 	int message_originated_locally;
-	struct recptypes valid;
 };
 
 enum {				/* Command states for login authentication */
@@ -322,10 +322,10 @@ void smtp_rset(void) {
  */
 void smtp_data_clear(void) {
 	strcpy(SMTP->from, "");
+	strcpy(SMTP->recipients, "");
 	SMTP->number_of_recipients = 0;
 	SMTP->delivery_mode = 0;
 	SMTP->message_originated_locally = 0;
-	memset(&SMTP->valid, 0, sizeof(struct recptypes));
 }
 
 
@@ -397,11 +397,8 @@ void smtp_mail(char *argbuf) {
  * Implements the "RCPT To:" command
  */
 void smtp_rcpt(char *argbuf) {
-	int cvt;
-	int alias_type = 0;
-	char user[SIZ];
-	char node[SIZ];
 	char recp[SIZ];
+	struct recptypes *valid;
 
 	if (strlen(SMTP->from) == 0) {
 		cprintf("503 Need MAIL before RCPT\r\n");
@@ -417,69 +414,32 @@ void smtp_rcpt(char *argbuf) {
 	striplt(recp);
 	stripallbut(recp, '<', '>');
 
-	alias_type = alias(recp);
-	cvt = convert_internet_address(user, node, recp);
-	if (alias_type == MES_IGNET) {
-		cvt = rfc822_address_on_citadel_network;
-	}
-	snprintf(recp, sizeof recp, "%s@%s", user, node);
-	lprintf(9, "cvt=%d, citaddr=<%s@%s>\n", cvt, user, node);
-
-	/* FIXME possible buffer overflow type of issues here. */
-	switch(cvt) {
-		case rfc822_address_locally_validated:
-			cprintf("250 RCPT ok local\r\n");
-			if (SMTP->valid.num_local > 0) {
-				strcat(SMTP->valid.recp_local, "|");
-			}
-			strcat(SMTP->valid.recp_local, user);
-			SMTP->valid.num_local += 1;
-			SMTP->number_of_recipients += 1;
-			return;
-
-		case rfc822_room_delivery:
-			cprintf("250 RCPT ok room\r\n");
-			if (SMTP->valid.num_room > 0) {
-				strcat(SMTP->valid.recp_room, "|");
-			}
-			strcat(SMTP->valid.recp_room, user);
-			SMTP->valid.num_room += 1;
-			SMTP->number_of_recipients += 1;
-			return;
-
-		case rfc822_address_on_citadel_network:
-			cprintf("250 RCPT ok ignet <%s>\r\n", recp);
-			if (SMTP->valid.num_ignet > 0) {
-				strcat(SMTP->valid.recp_ignet, "|");
-			}
-			strcat(SMTP->valid.recp_ignet, user);
-			SMTP->valid.num_ignet += 1;
-			SMTP->number_of_recipients += 1;
-			return;
-
-		case rfc822_no_such_user:
-			cprintf("550 %s: no such user\r\n", recp);
-			return;
-
-		case rfc822_address_nonlocal:
-			if (SMTP->message_originated_locally == 0) {
-				cprintf("551 Relaying denied <%s>\r\n", recp);
-			}
-			else {
-				cprintf("250 RCPT ok <%s>\r\n", recp);
-
-				if (SMTP->valid.num_internet > 0) {
-					strcat(SMTP->valid.recp_internet, "|");
-				}
-				strcat(SMTP->valid.recp_internet, user);
-				SMTP->valid.num_internet += 1;
-				SMTP->number_of_recipients += 1;
-				return;
-			}
-			return;
+	if ( (strlen(recp) + strlen(SMTP->recipients) + 1 ) >= SIZ) {
+		cprintf("452 Too many recipients\r\n");
+		return;
 	}
 
-	cprintf("599 Unknown error\r\n");
+	valid = validate_recipients(recp);
+	if (valid->num_error > 0) {
+		cprintf("599 Error: %s\r\n", valid->errormsg);
+		phree(valid);
+		return;
+	}
+
+	if (valid->num_internet > 0) {
+		if (SMTP->message_originated_locally == 0) {
+			cprintf("551 Relaying denied <%s>\r\n", recp);
+			phree(valid);
+			return;
+		}
+	}
+
+	cprintf("250 RCPT ok <%s>\r\n", recp);
+	if (strlen(SMTP->recipients) > 0) {
+		strcat(SMTP->recipients, ",");
+	}
+	strcat(SMTP->recipients, recp);
+	SMTP->number_of_recipients += 1;
 }
 
 
@@ -493,6 +453,7 @@ void smtp_data(void) {
 	struct CtdlMessage *msg;
 	long msgnum;
 	char nowstamp[SIZ];
+	struct recptypes *valid;
 
 	if (strlen(SMTP->from) == 0) {
 		cprintf("503 Need MAIL command first.\r\n");
@@ -540,8 +501,10 @@ void smtp_data(void) {
 	}
 
 	/* Submit the message into the Citadel system. */
-	msgnum = CtdlSubmitMsg(msg, &SMTP->valid, "");
+	valid = validate_recipients(SMTP->recipients);
+	msgnum = CtdlSubmitMsg(msg, valid, "");
 	CtdlFreeMessage(msg);
+	phree(valid);
 
 	if (msgnum > 0L) {
 		cprintf("250 Message accepted.\r\n");

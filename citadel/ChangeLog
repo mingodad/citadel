@@ -1,4 +1,9 @@
  $Log$
+ Revision 590.85  2002/01/25 05:19:03  ajc
+ * Greatly simplified the logic for validating recipient addresses for incoming
+   SMTP.  This logic destroys the whitespace mangling for local names; I will
+   fix this tomorrow.
+
  Revision 590.84  2002/01/25 04:36:35  ajc
  * fixz to allow incoming vCards in the address book to actually get processed
 
@@ -3229,4 +3234,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
