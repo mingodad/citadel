@@ -10,7 +10,9 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <utmp.h>
+#ifdef HAVE_PATHS_H
 #include <paths.h>
+#endif
 #include <string.h>
 
 struct utmp *getutline(struct utmp *ut)
@@ -18,7 +20,11 @@ struct utmp *getutline(struct utmp *ut)
   static struct utmp retval;
   FILE *utmp;
 
+#ifdef UTMP_FILE
+  if ((utmp = fopen(UTMP_FILE, "rb")) == NULL)
+#else
   if ((utmp = fopen(_PATH_UTMP, "rb")) == NULL)
+#endif
     return NULL;
 
   do

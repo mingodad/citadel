@@ -4,6 +4,7 @@
 	* citadel.h, file_ops.c, msgbase.c, netproc.c, serv_chat.c: fix
 	  namespace collision with <sys/stream.h> on aforementioned SYSV
 	  variant
+	* configure.in, getutline.c: check for paths.h
 
 1999-05-11 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* chkpwd.c: fixed excessive paranoia; it used to refuse to run when
