@@ -1,4 +1,7 @@
 $Log$
+Revision 211.10  2000/03/31 02:39:06  ajc
+* Fixed bugs in "Site configuration" and added new fields.
+
 Revision 211.9  2000/03/31 02:08:45  ajc
 * Added "max messages per page" and "read next nnn" stuff to read loop
   (probably not in its final form)
@@ -405,4 +408,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -164,8 +164,23 @@ void display_siteconfig(void)
 			wprintf("</TD></TR>\n");
 			break;
 		case 22:
-			wprintf("<TR><TD>Number of worker threads</TD><TD>");
-			wprintf("<INPUT TYPE=\"text\" NAME=\"c_worker_threads\" MAXLENGTH=\"3\" VALUE=\"%s\">", buf);
+			wprintf("<TR><TD>Minumum number of worker threads</TD><TD>");
+			wprintf("<INPUT TYPE=\"text\" NAME=\"c_min_workers\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			wprintf("</TD></TR>\n");
+			break;
+		case 23:
+			wprintf("<TR><TD>Maximum number of worker threads</TD><TD>");
+			wprintf("<INPUT TYPE=\"text\" NAME=\"c_max_workers\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			wprintf("</TD></TR>\n");
+			break;
+		case 24:
+			wprintf("<TR><TD>POP3 listener port (-1 to disable)</TD><TD>");
+			wprintf("<INPUT TYPE=\"text\" NAME=\"c_pop3_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
+			wprintf("</TD></TR>\n");
+			break;
+		case 25:
+			wprintf("<TR><TD>SMTP listener port (-1 to disable)</TD><TD>");
+			wprintf("<INPUT TYPE=\"text\" NAME=\"c_smtp_port\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
 			wprintf("</TD></TR>\n");
 			break;
 		}
@@ -212,9 +227,12 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_userpurge"));
 	serv_printf("%s", bstr("c_roompurge"));
 	serv_printf("%s", bstr("c_logpages"));
-	serv_printf("%d", bstr("c_createax"));
-	serv_printf("%d", bstr("c_maxmsglen"));
-	serv_printf("%d", bstr("c_worker_threads"));
+	serv_printf("%s", bstr("c_createax"));
+	serv_printf("%s", bstr("c_maxmsglen"));
+	serv_printf("%s", bstr("c_min_workers"));
+	serv_printf("%s", bstr("c_max_workers"));
+	serv_printf("%s", bstr("c_pop3_port"));
+	serv_printf("%s", bstr("c_smtp_port"));
 	serv_printf("000");
 	display_success("System configuration has been updated.");
 }
