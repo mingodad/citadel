@@ -44,9 +44,7 @@ static struct DLModule_Info info = {
 
 
 
-void fpgetfield(fp,string)
-FILE *fp;
-char string[];
+void fpgetfield(FILE *fp, char *string)
 {
 	int a,b;
 	strcpy(string,"");
@@ -79,7 +77,7 @@ void import_message(long msgnum, long msglen) {
 	free(msgtext);
 	}
 
-void imp_floors() {
+void imp_floors(void) {
 	char key[256], tag[256], tval[256];
 	struct floor fl;
 	int floornum = 0;
@@ -118,7 +116,7 @@ void imp_floors() {
 
 
 
-void imp_rooms() {
+void imp_rooms(void) {
 	char key[256];
 	char tag[256], tval[256];
 	int roomnum = 0;
@@ -208,7 +206,7 @@ void imp_rooms() {
 
 
 
-void import_a_user() {
+void import_a_user(void) {
 	char key[256], value[256];
 	char vkey[256], vvalue[256];
 	struct usersupp us;
@@ -293,7 +291,7 @@ void import_a_user() {
 	}
 
 
-void imp_usersupp() {
+void imp_usersupp(void) {
 	char key[256], value[256];
 	
 	while(fpgetfield(imfp, key), strcasecmp(key, "endsection")) {
@@ -315,7 +313,7 @@ void imp_usersupp() {
 
 
 
-void imp_globals() {
+void imp_globals(void) {
 	char key[256], value[256];
 
 	get_control();
@@ -334,7 +332,7 @@ void imp_globals() {
 
 
 
-void imp_config() { 
+void imp_config(void) { 
 	char key[256], value[256];
 	FILE *fp;
 
@@ -397,7 +395,7 @@ void imp_config() {
 
 
 
-void imp_ssv() {
+void imp_ssv(void) {
 	char key[256], value[256];
 	int ssv_maxfloors = MAXFLOORS;
 	
@@ -423,7 +421,7 @@ void imp_ssv() {
 
 
 
-void import_databases() {
+void import_databases(void) {
 	char section[256];
 
 	lprintf(9, " ** IMPORTING ** \n");
