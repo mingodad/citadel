@@ -25,6 +25,7 @@ char wc_roomname[256];
 int TransactionCount = 0;
 int connected = 0;
 int logged_in = 0;
+int axlevel;
 
 struct webcontent *wlist = NULL;
 struct webcontent *wlast = NULL;
@@ -422,8 +423,7 @@ void session_loop() {
 			serv_printf("PASS %s", c_password);
 			serv_gets(buf);
 			if (buf[0]=='2') {
-				extract(c_username, &buf[4], 0);
-				become_logged_in(c_username, c_password);
+				become_logged_in(c_username, c_password, buf);
 				}
 			}
 		}
@@ -472,6 +472,10 @@ void session_loop() {
 		display_main_menu();
 		}
 
+	else if (!strncasecmp(cmd, "GET /advanced", 13)) {
+		display_advanced_menu();
+		}
+
 	else if (!strncasecmp(cmd, "GET /whobbs", 11)) {
 		whobbs();
 		}
@@ -481,6 +485,11 @@ void session_loop() {
 		}
 
 	else if (!strncasecmp(cmd, "GET /gotonext", 13)) {
+		slrp_highest();
+		gotonext();
+		}
+
+	else if (!strncasecmp(cmd, "GET /skip", 9)) {
 		gotonext();
 		}
 
@@ -489,6 +498,7 @@ void session_loop() {
 		}
 
 	else if (!strncasecmp(cmd, "GET /dotgoto", 12)) {
+		slrp_highest();
 		dotgoto();
 		}
 

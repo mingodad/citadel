@@ -61,8 +61,16 @@ extern char wc_password[256];
 extern char wc_roomname[256];
 extern int connected;
 extern int logged_in;
+extern int axlevel;
+extern int is_aide;
+extern int is_room_aide;
 extern int serv_sock;
 extern struct serv_info serv_info;
+extern unsigned room_flags;
+extern char ugname[128];
+extern long uglsn;
+
+
 
 void serv_printf(const char *format, ...);
 char *bstr();
