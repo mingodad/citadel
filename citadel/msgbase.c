@@ -1343,6 +1343,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 
 	/* end header processing loop ... at this point, we're in the text */
 START_TEXT:
+	if (headers_only == HEADERS_FAST) goto DONE;
 	mptr = TheMessage->cm_fields['M'];
 
 	/* Tell the client about the MIME parts in this message */

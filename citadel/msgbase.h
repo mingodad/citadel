@@ -35,6 +35,7 @@ enum {
 #define HEADERS_ALL	0	/* Headers and body */
 #define	HEADERS_ONLY	1	/* Headers only */
 #define	HEADERS_NONE	2	/* Body only */
+#define HEADERS_FAST	3	/* Headers only with no MIME info */
 
 
 struct ma_info {

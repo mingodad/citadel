@@ -525,6 +525,7 @@ argument specifies whether the client wants headers and/or message body:
  0 = Headers and body
  1 = Headers only
  2 = Body only
+ 3 = Headers only, with MIME information suppressed (this runs faster)
 
  If the request is denied, ERROR + NOT_LOGGED_IN or ERROR + MESSAGE_NOT_FOUND
 will be returned.  Otherwise, LISTING_FOLLOWS will be returned, followed by

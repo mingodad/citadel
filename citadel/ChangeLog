@@ -1,4 +1,9 @@
  $Log$
+ Revision 621.13  2004/06/15 03:05:01  ajc
+ * Bumped internal version number to 6.22
+ * Added a new faster headers-only mode that excludes enumeration of
+   MIME parts.
+
  Revision 621.12  2004/06/14 19:09:26  ajc
  * serv_vandelay.c: re-inserted a missing line of code for setting tempfile
    names, which was causing exports to crash.
@@ -5838,3 +5843,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
