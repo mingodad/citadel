@@ -68,6 +68,7 @@ INSTALL=@INSTALL@
 INSTALL_DATA=@INSTALL_DATA@
 SHELL=/bin/sh
 AUTOCONF=@AUTOCONF@
+ACLOCAL=@ACLOCAL@
 YACC=@YACC@
 DATABASE=@DATABASE@
 
@@ -323,6 +324,9 @@ config.status: $(srcdir)/configure
 
 $(srcdir)/configure: $(srcdir)/configure.ac $(srcdir)/aclocal.m4
 	cd $(srcdir) && $(AUTOCONF)
+
+$(srcdir)/aclocal.m4: $(srcdir)/acinclude.m4
+	cd $(srcdir) && $(ACLOCAL)
 
 weekly: $(srcdir)/weekly.in config.status
 	CONFIG_FILES=weekly CONFIG_HEADERS= $(SHELL) ./config.status

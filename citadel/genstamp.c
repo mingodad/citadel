@@ -51,7 +51,11 @@ void datestring(char *buf, time_t xtime, int which_format) {
 	t = localtime(&xtime);
 
 	/* Convert "seconds west of GMT" to "hours/minutes offset" */
+#ifdef HAVE_STRUCT_TM_TM_GMTOFF
 	offset = t->tm_gmtoff;
+#else
+	offset = timezone;
+#endif
 	if (offset > 0) {
 		offsign = '-';
 	}

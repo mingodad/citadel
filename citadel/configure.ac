@@ -116,6 +116,7 @@ AC_PROG_INSTALL
 AC_PROG_YACC
 missing_dir=`cd $ac_aux_dir && pwd`
 AM_MISSING_PROG(AUTOCONF, autoconf, $missing_dir)
+AM_MISSING_PROG(ACLOCAL, aclocal, $missing_dir)
 
 dnl Checks for system services.
 
@@ -366,7 +367,9 @@ AC_C_CONST
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
 AC_HEADER_TIME
-AC_STRUCT_TM
+
+dnl defined in acinclude.m4:
+CIT_STRUCT_TM
 
 dnl Check the size of various builtin types; see typesize.h (error)
 AC_CHECK_SIZEOF(char, 0)

@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.34  2002/01/04 20:43:26  nbryant
+ configure/genstamp: check for struct tm.tm_gmtoff
+
  Revision 590.33  2002/01/03 22:01:17  ajc
  * Fixed mail to "sysop"
 
@@ -3061,3 +3064,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
