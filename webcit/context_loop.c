@@ -61,11 +61,15 @@ void free_attachments(struct wcsession *sess) {
 void do_housekeeping(void)
 {
 	struct wcsession *sptr, *ss, *session_to_kill;
+	int num_sessions = 0;
+	static int num_threads = MIN_WORKER_THREADS;
 
 	do {
 		session_to_kill = NULL;
 		pthread_mutex_lock(&SessionListMutex);
+		num_sessions = 0;
 		for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
+			++num_sessions;
 
 			/* Kill idle sessions */
 			if ((time(NULL) - (sptr->lastreq)) >
@@ -107,6 +111,17 @@ BREAKOUT:	pthread_mutex_unlock(&SessionListMutex);
 		}
 
 	} while (session_to_kill != NULL);
+
+	/*
+	 * See if we need more worker threads
+	 */
+	while ( (num_sessions > num_threads)
+	      && (num_threads <= MAX_WORKER_THREADS) ) {
+		spawn_another_worker_thread();
+		++num_threads;
+		lprintf(3, "There are %d sessions and %d threads active.\n",
+			num_sessions, num_threads);
+	}
 }
 
 
