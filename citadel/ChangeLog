@@ -1,4 +1,7 @@
  $Log$
+ Revision 607.2  2003/06/17 22:05:11  ajc
+ * New format for wholist.
+
  Revision 607.1  2003/06/16 04:39:45  ajc
  * support.c: removed an unused variable
  * citadel.c: sort wholist by idle time (most recently active users first)
@@ -4764,4 +4767,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
