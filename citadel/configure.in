@@ -97,6 +97,7 @@ if test "$GCC" = yes; then
 fi
 AC_PROG_RANLIB
 AC_PROG_INSTALL
+AC_PROG_YACC
 missing_dir=`cd $ac_aux_dir && pwd`
 AM_MISSING_PROG(AUTOCONF, autoconf, $missing_dir)
 
