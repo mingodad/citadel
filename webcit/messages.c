@@ -563,8 +563,8 @@ void display_enter(void)
 	buf[strlen(buf) - 1] = 0;
 	strcpy(&buf[16], &buf[19]);
 	wprintf("</CENTER><FONT COLOR=\"440000\">\n"
-		"<IMG SRC=\"static/enter.gif\" ALIGN=MIDDLE ALT=\" \">");
-		/* "onLoad=workspace.msgtext.Focus(); >"); FIXME */
+		"<IMG SRC=\"static/enter.gif\" ALIGN=MIDDLE ALT=\" \" "
+		"onLoad=workspace.entermessageform.msgtext.focus(); >");
 	wprintf("<B> %s ", &buf[4]);
 	wprintf("from %s ", WC->wc_username);
 	if (strlen(bstr("recp")) > 0)
@@ -572,7 +572,8 @@ void display_enter(void)
 	wprintf("in %s&gt; ", WC->wc_roomname);
 	wprintf("</B></FONT><BR><CENTER>\n");
 
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/post\">\n");
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/post\" "
+		"NAME=\"entermessageform\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"recp\" VALUE=\"%s\">\n",
 		bstr("recp"));
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"postseq\" VALUE=\"%ld\">\n",
