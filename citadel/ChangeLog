@@ -1,4 +1,9 @@
  $Log$
+ Revision 590.107  2002/02/10 22:36:41  nbryant
+  - replace cdb_trunc with a complete version of the code i had been
+    working on; fallback code for db < 3.3.x needed
+  - change 'can't connect to host.port' to 'can't connect to host:port'
+
  Revision 590.106  2002/02/08 22:39:08  ajc
  * If there's already a Subject line in memory, display it below the usual
    headers when the user hits <E>
@@ -3318,4 +3323,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

@@ -134,7 +134,7 @@ static int connectsock(char *host, char *service, char *protocol, int defaultPor
 	alarm(30);
 
 	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-		err_printf("can't connect to %s.%s: %s\n",
+		err_printf("can't connect to %s:%s: %s\n",
 			host, service, strerror(errno));
 		logoff(3);
 	}
