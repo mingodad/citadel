@@ -1,4 +1,7 @@
 $Log$
+Revision 400.39  2002/10/18 20:55:05  ajc
+* Began work on meeting request accept/decline
+
 Revision 400.38  2002/10/16 19:16:39  ajc
 * Fixes and updates to build WebCit on Linux for IBM S/390
 
@@ -1071,3 +1074,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

@@ -1159,6 +1159,8 @@ void session_loop(struct httprequest *req)
 		display_edit_event();
 	} else if (!strcasecmp(action, "save_event")) {
 		save_event();
+	} else if (!strcasecmp(action, "respond_to_request")) {
+		respond_to_request();
 #endif
 	} else if (!strcasecmp(action, "summary")) {
 		summary();

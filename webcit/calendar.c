@@ -32,7 +32,7 @@
 /*
  * Handler stubs for builds with no calendar library available
  */
-void cal_process_attachment(char *part_source) {
+void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) {
 
 	wprintf("<I>This message contains calendaring/scheduling information,"
 		" but support for calendars is not available on this "
@@ -72,7 +72,9 @@ void display_task(long msgnum) {
  * ...at this point it's already been deserialized by cal_process_attachment()
  */
 void cal_process_object(icalcomponent *cal,
-			int recursion_level
+			int recursion_level,
+			long msgnum,
+			char *cal_partnum
 ) {
 	icalcomponent *c;
 	icalproperty *method = NULL;
@@ -166,7 +168,7 @@ void cal_process_object(icalcomponent *cal,
 	    (c != 0);
 	    c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
 		/* Recursively process subcomponent */
-		cal_process_object(c, recursion_level+1);
+		cal_process_object(c, recursion_level+1, msgnum, cal_partnum);
 	}
 
 	/* Trailing HTML for the display of this object */
@@ -175,12 +177,17 @@ void cal_process_object(icalcomponent *cal,
 			"<FORM METHOD=\"GET\" "
 			"ACTION=\"/respond_to_request\">\n"
 			"<INPUT TYPE=\"submit\" NAME=\"sc\" "
-				"VALUE=\"Accept\">"
+				"VALUE=\"Accept\">\n"
 			"&nbsp;&nbsp;"
 			"<INPUT TYPE=\"submit\" NAME=\"sc\" "
-				"VALUE=\"Decline\">"
+				"VALUE=\"Decline\">\n"
+			"<INPUT TYPE=\"hidden\" NAME=\"msgnum\" "
+				"VALUE=\"%ld\">"
+			"<INPUT TYPE=\"hidden\" NAME=\"cal_partnum\" "
+				"VALUE=\"%s\">"
 			"</FORM>"
-			"</TD></TR></TABLE></CENTER>\n"
+			"</TD></TR></TABLE></CENTER>\n",
+			msgnum, cal_partnum
 		);
 	}
 }
@@ -190,7 +197,7 @@ void cal_process_object(icalcomponent *cal,
  * Deserialize a calendar object in a message so it can be processed.
  * (This is the main entry point for these things)
  */
-void cal_process_attachment(char *part_source) {
+void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) {
 	icalcomponent *cal;
 
 	cal = icalcomponent_new_from_string(part_source);
@@ -201,11 +208,38 @@ void cal_process_attachment(char *part_source) {
 		return;
 	}
 
-	cal_process_object(cal, 0);
+	cal_process_object(cal, 0, msgnum, cal_partnum);
 
 	/* Free the memory we obtained from libical's constructor */
 	icalcomponent_free(cal);
 }
+
+
+
+
+/*
+ * Respond to a meeting request
+ */
+void respond_to_request(void) {
+	output_headers(3);
+
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>"
+		"<FONT SIZE=+1 COLOR=\"FFFFFF\""
+		"<B>Respond to meeting request</B>"
+		"</FONT></TD></TR></TABLE><BR>\n"
+	);
+
+	wprintf("msgnum = %s<BR>\n", bstr("msgnum"));
+	wprintf("cal_partnum = %s<BR>\n", bstr("cal_partnum"));
+	wprintf("sc = %s<BR>\n", bstr("sc"));
+
+	/* use OPNA command to foo this */
+
+	wDumpContent(1);
+}
+
+
+
 
 /*****************************************************************************/
 
