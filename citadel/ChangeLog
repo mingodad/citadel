@@ -1,4 +1,8 @@
  $Log$
+ Revision 612.14  2003/12/15 16:33:47  ajc
+ * Added support for "Cc" and "Bcc" IMAP SEARCHes
+ * Bumped the version number to 6.13
+
  Revision 612.13  2003/12/11 04:21:23  ajc
  * Removed a "FIXME this needs blah blah" comment because blah blah has
    since been completed
@@ -5154,3 +5158,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

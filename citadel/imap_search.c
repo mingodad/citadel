@@ -69,6 +69,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 	int is_or = 0;
 	int pos = 0;
 	int i;
+	char *fieldptr;
 
 	if (num_items == 0) return(0);
 
@@ -101,7 +102,13 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos], "BCC")) {
-		/* FIXME */
+		fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Bcc");
+		if (fieldptr != NULL) {
+			if (bmstrstr(fieldptr, itemlist[pos+1], strncasecmp)) {
+				match = 1;
+			}
+			phree(fieldptr);
+		}
 		pos += 2;
 	}
 
@@ -123,7 +130,13 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos], "CC")) {
-		/* FIXME */
+		fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Cc");
+		if (fieldptr != NULL) {
+			if (bmstrstr(fieldptr, itemlist[pos+1], strncasecmp)) {
+				match = 1;
+			}
+			phree(fieldptr);
+		}
 		pos += 2;
 	}
 
