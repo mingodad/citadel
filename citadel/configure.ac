@@ -217,7 +217,7 @@ dnl Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
-test "$db_dir" && CPPFLAGS="$CPPFLAGS -I$db_dir/include"
+test "$db_dir" && CPPFLAGS="$CPPFLAGS -I$db_dir/include" || test -d /usr/include/db3 && CPPFLAGS="$CPPFLAGS -I/usr/include/db3"
 AC_CHECK_HEADERS(curses.h dl.h fcntl.h limits.h termios.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h utmp.h utmpx.h paths.h)
 
 AC_CHECK_HEADER(resolv.h, [SMTP=modules/libsmtp.la; DOMAIN=domain.c])
