@@ -212,7 +212,7 @@ void embed_main_menu(void);
 void serv_read(char *buf, int bytes);
 int haschar(char *, char);
 void readloop(char *oper);
-void text_to_server(char *ptr);
+void text_to_server(char *ptr, int convert_to_html);
 void display_enter(void);
 void post_message(void);
 void confirm_delete_msg(void);

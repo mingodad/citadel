@@ -904,13 +904,15 @@ void post_message(void)
 		wprintf("Automatically cancelled because you have already "
 			"saved this message.<BR>\n");
 	} else {
-		sprintf(buf, "ENT0 1|%s|0|0|%s",
+		sprintf(buf, "ENT0 1|%s|0|4|%s",
 			bstr("recp"),
 			bstr("subject") );
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] == '4') {
-			text_to_server(bstr("msgtext"));
+			serv_puts("Content-type: text/html");
+			serv_puts("");
+			text_to_server(bstr("msgtext"), 1);
 			serv_puts("000");
 			wprintf("Message has been posted.<BR>\n");
 			dont_post = atol(bstr("postseq"));

@@ -90,7 +90,7 @@ void save_edit(char *description, char *enter_cmd, int regoto)
 		display_error(&buf[4]);
 		return;
 	}
-	text_to_server(bstr("msgtext"));
+	text_to_server(bstr("msgtext"), 0);
 	serv_puts("000");
 
 	if (regoto) {
