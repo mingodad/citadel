@@ -1929,33 +1929,53 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 	char buf[SIZ];
 	int levels, oldlevels;
 	int i, t;
+	int actnum = 0;
+	int has_subfolders = 0;
+
+	/* Include the menu expanding/collapsing code */
+	wprintf("<script type=\"text/javascript\" src=\"/static/menuExpandable3.js\"></script>\n");
 
 	do_template("beginbox_nt");
+	wprintf("<div id=\"mainMenu\">\n");
+	wprintf("<UL id=\"menuList\">\n");
 	levels = 0;
 	oldlevels = 0;
 
 	for (i=0; i<max_folders; ++i) {
 
+		has_subfolders = 0;
+		if ((i+1) < max_folders) {
+			if ( (!strncasecmp(fold[i].name, fold[i+1].name, strlen(fold[i].name)))
+			   && (fold[i+1].name[strlen(fold[i].name)] == '|') ) {
+				has_subfolders = 1;
+			}
+		}
+
 		levels = num_tokens(fold[i].name, '|');
 
-		if (levels > oldlevels) for (t=0; t<(levels-oldlevels); ++t) {
-			wprintf("<UL>\n");
+		if ( (levels < oldlevels) || ((levels==1)&&(i!=0)) ) {
+			for (t=0; t<(oldlevels-levels); ++t) {
+				wprintf("</UL>\n");
+			}
 		}
-		if (levels < oldlevels) for (t=0; t<(oldlevels-levels); ++t) {
-			wprintf("</UL>\n");
-		}
-		wprintf("<LI>");
 
-		oldlevels = levels;
+		if (has_subfolders) {
+			wprintf("<LI");
+			if (levels == 1) wprintf(" class=\"menubar\"");
+			wprintf(">");
+			wprintf("<A href=\"#\" id=\"actuator%d\" class=\"actuator\"></a>\n", actnum);
+		}
+		else {
+			wprintf("<LI>");
+		}
 
 		if (fold[i].selectable) {
 			wprintf("<A HREF=\"/dotgoto?room=");
 			urlescputs(fold[i].room);
 			wprintf("\">");
 		}
-		else {
-			wprintf("<i>");
-		}
+
+/*
 		if (levels == 1) {
 			wprintf("<SPAN CLASS=\"roomlist_floor\">");
 		}
@@ -1965,20 +1985,38 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 		else {
 			wprintf("<SPAN CLASS=\"roomlist_old\">");
 		}
+*/
 		extract(buf, fold[i].name, levels-1);
 		escputs(buf);
+/*
 		wprintf("</SPAN>");
-		if (fold[i].selectable) {
-			wprintf("</A>");
-		}
-		else {
-			wprintf("</i>");
-		}
+*/
+
 		if (!strcasecmp(fold[i].name, "My Folders|Mail")) {
 			wprintf(" (INBOX)");
 		}
-		wprintf("</LI>\n");
+
+		if (fold[i].selectable) {
+			wprintf("</A>");
+		}
+		wprintf("\n");
+
+		if (has_subfolders) {
+			wprintf("<UL id=\"menu%d\" class=\"%s\">\n",
+				actnum++,
+				( (levels == 1) ? "menu" : "submenu")
+			);
+		}
+
+		oldlevels = levels;
 	}
+	wprintf("</UL></UL>\n");
+	wprintf("<img src=\"/static/blank.gif\" onLoad = ' \n");
+	for (i=0; i<actnum; ++i) {
+		wprintf(" initializeMenu(\"menu%d\", \"actuator%d\");\n", i, i);
+	}
+	wprintf(" ' > \n");
+	wprintf("</DIV>\n");
 	do_template("endbox");
 }
 

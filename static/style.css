@@ -336,3 +336,65 @@ strong.legal {
   input#toggler, .toolbar { display: none }
 }
 
+<!-- begin tree view styles -->
+
+#mainMenu {
+  background-color: #EEE;
+  border: 1px solid #CCC;
+  color: #000;
+  width: 203px;
+}
+
+#menuList {
+  margin: 0px;
+  padding: 10px 0px 10px 15px;
+}
+
+li.menubar {
+  background: url(/static/plus.gif) no-repeat 0em 0.3em;
+  font-size: 12px;
+  line-height: 1.5em;
+  list-style: none outside;
+}
+
+.menu, .submenu {
+  display: none;
+  margin-left: 15px;
+  padding: 0px;
+}
+
+.menu li, .submenu li {
+  background: url(/static/square.gif) no-repeat 0em 0.3em;
+  list-style: none outside;
+}
+
+a.actuator {
+  background-color: transparent;
+  color: #000;
+  font-size: 12px;
+  padding-left: 15px;
+  text-decoration: none;
+}
+
+a.actuator:hover {
+  text-decoration: underline;
+}
+
+.menu li a, .submenu li a {
+  background-color: transparent;
+  color: #000;
+  font-size: 12px;
+  padding-left: 15px;
+  text-decoration: none;
+}
+
+.menu li a:hover, submenu li a:hover {
+  /*border-bottom: 1px dashed #000;*/
+  text-decoration: underline;
+}
+
+span.key {
+  text-decoration: underline;
+}
+
+<!-- end tree view styles -->
