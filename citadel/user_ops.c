@@ -54,7 +54,9 @@ int getuser(struct usersupp *usbuf, char name[]) {
 		return(1);	/* user not found */
 		}
 
-	memcpy(usbuf, cdbus->ptr, cdbus->len);
+	memcpy(usbuf, cdbus->ptr,
+		( (cdbus->len > sizeof(struct usersupp)) ?
+		sizeof(struct usersupp) : cdbus->len) );
 	cdb_free(cdbus);
 	return(0);
 	}
@@ -1116,12 +1118,10 @@ void cmd_agup(char *cmdbuf) {
 		}
 
 	extract(requested_user, cmdbuf, 0);
-	lprintf(9, "Requesting <%s>\n", requested_user);
 	if (getuser(&usbuf, requested_user) != 0) {
 		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
 		return;
 		}
-	lprintf(9, "getuser() returned zero\n");
 
 	cprintf("%d %s|%s|%u|%d|%d|%d|%ld\n", 
 		OK,
@@ -1133,7 +1133,6 @@ void cmd_agup(char *cmdbuf) {
 		(int)usbuf.axlevel,
 		usbuf.usernum);
 
-	lprintf(9, "Done.\n");
 	}
 
 

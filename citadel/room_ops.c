@@ -77,7 +77,9 @@ void getroom(struct quickroom *qrbuf, int room_num)
 	bzero(qrbuf, sizeof(struct quickroom));
 	cdbqr = cdb_fetch(CDB_QUICKROOM, &room_num, sizeof(int));
 	if (cdbqr != NULL) {
-		memcpy(qrbuf, cdbqr->ptr, cdbqr->len);
+		memcpy(qrbuf, cdbqr->ptr,
+	                ( (cdbqr->len > sizeof(struct quickroom)) ?
+                	sizeof(struct quickroom) : cdbqr->len) );
 		cdb_free(cdbqr);
 		}
 	else {
@@ -147,7 +149,9 @@ void getfloor(struct floor *flbuf, int floor_num)
 	bzero(flbuf, sizeof(struct floor));
 	cdbfl = cdb_fetch(CDB_FLOORTAB, &floor_num, sizeof(int));
 	if (cdbfl != NULL) {
-		memcpy(flbuf, cdbfl->ptr, cdbfl->len);
+		memcpy(flbuf, cdbfl->ptr,
+	                ( (cdbfl->len > sizeof(struct floor)) ?
+                	sizeof(struct floor) : cdbfl->len) );
 		cdb_free(cdbfl);
 		}
 	else {

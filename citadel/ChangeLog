@@ -1,8 +1,12 @@
+Mon Aug 17 20:01:18 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Fixed the crash problem.  It wasn't AGUP/ASUP, but rather a buffer
+	  overrun in getuser() (thanks, Nathan).  Implemented overrun checks
+	  in getuser(), getroom(), and getfloor() to prevent future problems.
+
 Mon Aug 17 00:06:52 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Updated citmail.c with the latest stuff from the production system.
 	* Implemented AGUP and ASUP commands, but AGUP crashes the server
 	  after its first successful use (user-not-found's don't affect it).
-	  Haven't figured this one out yet...
 
 Thu Aug  6 19:25:01 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Got the CitadelAPI library to the point where the server can start
