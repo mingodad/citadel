@@ -15,9 +15,19 @@ Goals for 6.00
   all deliveries through the same set of functions, regardless of whether a
   message is submitted through Citadel protocol, SMTP, or from the networker.
   (Done.)
+
 * Get the Global Address Book working (Done, just need some polish)
-* Optimize the IMAP server and add the search command
+
+* Optimize the IMAP server and add the search command.
+  Netscape makes this query:
+7 UID fetch 1662,1750,1774,2788:2790 (UID RFC822.SIZE FLAGS BODY.PEEK[HEADER.FIELDS (From To Cc Subject Date Message-ID Priority X-Priority References Newsgroups)])
+  Microsoft VirusSpreader makes this query:
+000W UID FETCH 1:* (BODY.PEEK[HEADER.FIELDS
+(References X-Ref X-Priority X-MSMail-Priority X-MSOESRec Newsgroups)] ENVELOPE
+RFC822.SIZE UID FLAGS INTERNALDATE)
+
 * Nested folders ... at least in IMAP
+
 * LDAP directory support?
 
 
