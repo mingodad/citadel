@@ -1,4 +1,9 @@
 $Log$
+Revision 323.68  2002/09/09 03:51:01  ajc
+* In the HTML-to-HTML converter:
+  --> Open links in new window (as with text msgs)
+  --> Convert loose URL's to hot links (as with text msgs)
+
 Revision 323.67  2002/09/06 03:59:11  ajc
 * Added an "About this server" panel to the Summary page.
   (Useless fluff, but better than an empty column.)
@@ -929,4 +934,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -37,11 +37,18 @@ void output_html(void) {
 	char *ptr;
 	char *msgstart;
 	char *msgend;
+	char *converted_msg;
 	int buffer_length = 1;
 	int line_length = 0;
 	int content_length = 0;
+	int output_length = 0;
+	char new_window[SIZ];
+	int brak = 0;
+	int i;
+	int linklen;
 
 	msg = strdup("");
+	sprintf(new_window, "<A TARGET=\"%s\" HREF=", TARGET);
 
 	while (serv_gets(buf), strcmp(buf, "000")) {
 		line_length = strlen(buf);
@@ -100,13 +107,72 @@ void output_html(void) {
 		++ptr;
 	}
 
-	write(WC->http_sock, msgstart, strlen(msgstart));
+	converted_msg = malloc(content_length);
+	strcpy(converted_msg, "");
+	ptr = msgstart;
+	while (ptr < msgend) {
+		/* Make links open in a separate window */
+		if (!strncasecmp(ptr, "<A HREF=", 8)) {
+			content_length += 64;
+			converted_msg = realloc(converted_msg, content_length);
+			sprintf(&converted_msg[output_length], new_window);
+			output_length += strlen(new_window);
+			ptr = &ptr[8];
+			++brak;
+		}
+		/* Turn loose URL's into hot links */
+		else if ( (brak == 0)
+		     && (!strncasecmp(ptr, "http://", 7))) {
+				linklen = 0;
+				/* Find the end of the link */
+				for (i=0; i<=strlen(ptr); ++i) {
+					if ((ptr[i]==0)
+					   ||(isspace(ptr[i]))
+					   ||(ptr[i]==10)
+					   ||(ptr[i]==13)
+					   ||(ptr[i]==')')
+					   ||(ptr[i]=='>')
+					   ||(ptr[i]==']')
+					) linklen = i;
+					if (linklen > 0) break;
+				}
+				if (linklen > 0) {
+					content_length += (32 + linklen);
+					converted_msg = realloc(converted_msg, content_length);
+					sprintf(&converted_msg[output_length], new_window);
+					output_length += strlen(new_window);
+					converted_msg[output_length] = '\"';
+					converted_msg[++output_length] = 0;
+					for (i=0; i<linklen; ++i) {
+						converted_msg[output_length] = ptr[i];
+						converted_msg[++output_length] = 0;
+					}
+					sprintf(&converted_msg[output_length], "\">");
+					output_length += 2;
+					for (i=0; i<linklen; ++i) {
+						converted_msg[output_length] = *ptr++;
+						converted_msg[++output_length] = 0;
+					}
+					sprintf(&converted_msg[output_length], "</A>");
+					output_length += 4;
+				}
+		}
+		else {
+			if (*ptr == '<') ++brak;
+			if (*ptr == '>') --brak;
+			converted_msg[output_length] = *ptr++;
+			converted_msg[++output_length] = 0;
+		}
+	}
+
+	/* Output our big pile of markup */
+	write(WC->http_sock, converted_msg, output_length);
 
 	/* A little trailing vertical whitespace... */
 	wprintf("<BR><BR>\n");
 
 	/* Now give back the memory */
+	free(converted_msg);
 	free(msg);
-
 }
 
