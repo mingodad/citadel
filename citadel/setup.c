@@ -1238,18 +1238,34 @@ void contemplate_ldap(void) {
 	char slapd_init_entry[SIZ];
 	FILE *fp;
 
-	/* If conditions are not ideal, give up on this idea. */
+	/* If conditions are not ideal, give up on this idea... */
 	if (using_web_installer == 0) return;
 	if (getenv("LDAP_CONFIG") == NULL) return;
 	if (getenv("SUPPORT") == NULL) return;
 	if (getenv("SLAPD_BINARY") == NULL) return;
 	if (getenv("CITADEL") == NULL) return;
 
-	/* Otherwise, prompt the user to create an entry. */
+	/* And if inittab is already starting slapd, bail out... */
+	locate_init_entry(slapd_init_entry, getenv("SLAPD_BINARY"));
+	if (strlen(slapd_init_entry) > 0) {
+		important_message("Citadel Setup",
+			"You appear to already have a standalone LDAP "
+			"service\nconfigured for use with Citadel.  No "
+			"changes will be made.\n");
+		/* set_init_entry(slapd_init_entry, "off"); */
+		return;
+	}
+
+	/* Generate a unique entry name for slapd if we don't have one. */
+	else {
+		generate_entry_name(slapd_init_entry);
+	}
+
+	/* Ask the user if it's ok to set up slapd automatically. */
 	snprintf(question, sizeof question,
 		"\n"
 		"Do you want this computer configured to start a standalone\n"
-		"LDAP service automatically?  (If you answer yes, a custom\n"
+		"LDAP service automatically?  (If you answer yes, a new\n"
 		"slapd.conf will be written, and an /etc/inittab entry\n"
 		"pointing to %s will be added.)\n"
 		"\n",
@@ -1311,17 +1327,6 @@ void contemplate_ldap(void) {
 
 	/* This is where our OpenLDAP server will keep its data. */
 	mkdir("openldap-data", 0700);
-
-	/* If inittab is already starting slapd, disable the old entry. */
-	locate_init_entry(slapd_init_entry, getenv("SLAPD_BINARY"));
-	if (strlen(slapd_init_entry) > 0) {
-		set_init_entry(slapd_init_entry, "off");
-	}
-
-	/* Otherwise, generate a unique entry name for slapd */
-	else {
-		generate_entry_name(slapd_init_entry);
-	}
 
 	/* Now write it out to /etc/inittab.
 	 * FIXME make it run as some non-root user.

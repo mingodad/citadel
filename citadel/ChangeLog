@@ -1,4 +1,7 @@
  $Log$
+ Revision 627.5  2004/11/11 14:56:16  ajc
+ * Further adjustments to ldap setup
+
  Revision 627.4  2004/11/11 04:38:36  ajc
  * setup.c: fix bug that kept creating new inittab entries for slapd
 
@@ -6204,4 +6207,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
