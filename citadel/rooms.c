@@ -88,9 +88,10 @@ void load_floorlist(void)
 	}
 	while (*listing && strlen(listing)) {
 		extract_token(buf, listing, 0, '\n');
-		strcpy(listing, &listing[strlen(buf) + 1]);
+		remove_token(listing, 0, '\n');
 		extract(floorlist[extract_int(buf, 0)], buf, 1);
 	}
+	free(listing);
 }
 
 

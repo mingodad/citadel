@@ -201,16 +201,21 @@ void userlist(char *patn)
 	char fl[SIZ];
 	struct tm *tmbuf;
 	time_t lc;
+	int r;				/* IPC response code */
+	char *listing = NULL;
 
-	serv_puts("LIST");
-	serv_gets(buf);
-	if (buf[0] != '1') {
-		pprintf("%s\n", &buf[4]);
+	r = CtdlIPCUserListing(&listing, buf);
+	if (r / 100 != 1) {
+		pprintf("%s\n", buf);
 		return;
 	}
+
 	pprintf("       User Name           Num  L  LastCall  Calls Posts\n");
 	pprintf("------------------------- ----- - ---------- ----- -----\n");
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (strlen(listing) > 0) {
+		extract_token(buf, listing, 0, '\n');
+		remove_token(listing, 0, '\n');
+
 		if (sigcaught == 0) {
 		    extract(fl, buf, 0);
 		    if (pattern(fl, patn) >= 0) {
@@ -228,6 +233,7 @@ void userlist(char *patn)
 
 		}
 	}
+	free(listing);
 	pprintf("\n");
 }
 
@@ -852,6 +858,7 @@ void who_is_online(int longlist)
 			}
 		}
 	}
+	free(listing);
 }
 
 void enternew(char *desc, char *buf, int maxlen)

@@ -150,6 +150,7 @@ int main(int argc, char **argv)
 			if (www) printf("</TD><TD>%s</TD></TR>\n", s_client);
 			}
 		}
+	free(listing);
 
 	if (www) printf("</TABLE></CENTER>\n"
 			"<FONT SIZE=-1>"

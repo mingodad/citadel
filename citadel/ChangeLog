@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.61  2002/06/29 23:26:55  error
+ * fixed some memory leaks
+
  Revision 591.60  2002/06/29 18:36:31  error
  * tools.c: Massively faster versions of extract_token() and remove_token().
    These functions can now handle multi-kilobyte sized strings with hundreds
@@ -3790,3 +3793,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
