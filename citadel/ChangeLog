@@ -1,4 +1,9 @@
  $Log$
+ Revision 614.9  2004/01/24 05:47:50  ajc
+ * Got Citadel talking to LDAP.  Still requires manual creation of schema
+   and container entries, which I don't like; we'll have to fix that.  It
+   also does not yet populate all fields.
+
  Revision 614.8  2004/01/19 21:01:15  error
  * Clear out the autom4te.cache when bootstrapping to avoid autoheader problems
 
@@ -5239,4 +5244,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

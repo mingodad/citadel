@@ -138,14 +138,15 @@ int main(int argc, char **argv)
 	}
 
 	/* Tell 'em who's in da house */
-	lprintf(1,
-		"\n\n*** Citadel/UX messaging server engine v%d.%02d ***\n"
-		"Copyright (C) 1987-2003 by the Citadel/UX development team.\n"
-		"This program is distributed under the terms of the GNU "
-		"General Public License.\n\n",
+	lprintf(1, "\n");
+	lprintf(1, "\n");
+	lprintf(1,"*** Citadel/UX messaging server engine v%d.%02d ***\n",
 		(REV_LEVEL/100),
-		(REV_LEVEL%100)
-	);
+		(REV_LEVEL%100) );
+	lprintf(1,"Copyright (C) 1987-2003 by the Citadel/UX development team.\n");
+	lprintf(1,"This program is distributed under the terms of the GNU ");
+	lprintf(1,"General Public License.\n");
+	lprintf(1, "\n");
 
 	/* Initialize... */
 	init_sysdep();

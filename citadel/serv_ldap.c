@@ -42,6 +42,7 @@
 #include "msgbase.h"
 #include "serv_ldap.h"
 #include "vcard.h"
+#include "tools.h"
 
 #ifdef HAVE_LDAP
 
@@ -107,11 +108,18 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg) {
 	LDAPMod **attrs = NULL;
 	int num_attrs = 0;
 
+	char givenname[SIZ];
+	char sn[SIZ];
+
 	if (dirserver == NULL) return;
 	if (msg == NULL) return;
 	if (msg->cm_fields['M'] == NULL) return;
 	if (msg->cm_fields['A'] == NULL) return;
 	if (msg->cm_fields['N'] == NULL) return;
+
+	/* Initialize variables */
+	strcpy(givenname, "_");
+	strcpy(sn, "_");
 
 	sprintf(this_dn, "cn=%s,ou=%s,%s",
 		msg->cm_fields['A'],
@@ -135,16 +143,48 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg) {
 	attrs[0]->mod_values[2]	= strdoop("person");
 	attrs[0]->mod_values[3]	= strdoop("Top");
 	attrs[0]->mod_values[4]	= NULL;
+
+	/* Add a "cn" (Common Name) attribute based on the user's screen name */
+	attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+	attrs[num_attrs-1] = mallok(sizeof(LDAPMod));
+	memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
+	attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
+	attrs[num_attrs-1]->mod_type		= "cn";
+	attrs[num_attrs-1]->mod_values		= mallok(2 * sizeof(char *));
+	attrs[num_attrs-1]->mod_values[0]	= strdoop(msg->cm_fields['A']);
+	attrs[num_attrs-1]->mod_values[1]	= NULL;
 	
 	/* Convert the vCard fields to LDAP properties */
 	v = vcard_load(msg->cm_fields['M']);
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
-/*
-		v->prop[i].name
-		v->prop[i].value
- */
+
+		if (!strcasecmp(v->prop[i].name, "n")) {
+			extract_token(sn,		v->prop[i].value, 0, ';');
+			extract_token(givenname,	v->prop[i].value, 1, ';');
+		}
+
 	}
 	vcard_free(v);	/* Don't need this anymore. */
+
+	/* "sn" (surname) based on info in vCard */
+	attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+	attrs[num_attrs-1] = mallok(sizeof(LDAPMod));
+	memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
+	attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
+	attrs[num_attrs-1]->mod_type		= "sn";
+	attrs[num_attrs-1]->mod_values		= mallok(2 * sizeof(char *));
+	attrs[num_attrs-1]->mod_values[0]	= strdoop(sn);
+	attrs[num_attrs-1]->mod_values[1]	= NULL;
+	
+	/* "givenname" (first name) based on info in vCard */
+	attrs = reallok(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+	attrs[num_attrs-1] = mallok(sizeof(LDAPMod));
+	memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
+	attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
+	attrs[num_attrs-1]->mod_type		= "givenname";
+	attrs[num_attrs-1]->mod_values		= mallok(2 * sizeof(char *));
+	attrs[num_attrs-1]->mod_values[0]	= strdoop(givenname);
+	attrs[num_attrs-1]->mod_values[1]	= NULL;
 
 	/* The last attribute must be a NULL one. */
 	attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
@@ -152,14 +192,28 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg) {
 	
 	lprintf(9, "this_dn: <%s>\n", this_dn);
 
+	lprintf(9, "Calling ldap_add_s()\n");
 	begin_critical_section(S_LDAP);
 	i = ldap_add_s(dirserver, this_dn, attrs);
 	end_critical_section(S_LDAP);
+
+	/* If the entry already exists, repopulate it instead */
+	if (i == LDAP_ALREADY_EXISTS) {
+		for (j=0; j<(num_attrs-1); ++j) {
+			attrs[j]->mod_op = LDAP_MOD_REPLACE;
+		}
+		lprintf(9, "Calling ldap_modify_s()\n");
+		begin_critical_section(S_LDAP);
+		i = ldap_modify_s(dirserver, this_dn, attrs);
+		end_critical_section(S_LDAP);
+	}
+
 	if (i != LDAP_SUCCESS) {
 		lprintf(3, "ldap_add_s() failed: %s (%d)\n",
 			ldap_err2string(i), i);
 	}
 
+	lprintf(9, "Freeing attributes\n");
 	/* Free the attributes */
 	for (i=0; i<num_attrs; ++i) {
 		if (attrs[i] != NULL) {
@@ -181,6 +235,7 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg) {
 		}
 	}
 	phree(attrs);
+	lprintf(9, "LDAP operation complete.\n");
 }
 
 
