@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.62  2002/11/10 09:19:38  error
+ * Convert some more routines to new IPC code
+
  Revision 601.61  2002/11/10 09:14:16  error
  * citadel.spec: updated for post-6.01
 
@@ -4197,4 +4200,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -1399,17 +1399,13 @@ FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
 			lines_printed = checkpagin(lines_printed, pagin, height);
 		}
 		c = 1;
-		if (sigcaught) goto OOPS;
+		if (sigcaught) goto FMTEND;
 		strcpy(aaa, "");
 		goto FMTA;
 	}
 	goto FMTA;
 
 	/* keypress caught; drain the server */
-OOPS:	/* do {
-		CtdlIPC_getline(ipc, aaa);
-	} while (strcmp(aaa, "000")); */
-
 FMTEND:
 	if (fpout) {
 		fprintf(fpout, "\n");

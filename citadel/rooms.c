@@ -562,26 +562,25 @@ void editthisroom(CtdlIPC *ipc)
 void ungoto(CtdlIPC *ipc)
 {
 	char buf[SIZ];
+	struct ctdlipcroom *rret = NULL;	/* ignored */
+	int r;
 
 	if (uglistsize == 0)
 		return;
 
-	snprintf(buf, sizeof buf, "GOTO %s", uglist[uglistsize-1]); 
-	CtdlIPC_putline(ipc, buf);
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] != '2') {
-		scr_printf("%s\n", &buf[4]);
+	r = CtdlIPCGotoRoom(ipc, uglist[uglistsize-1], "", &rret, buf);
+	if (rret) free(rret);	/* ignored */
+	if (r / 100 != 2) {
+		scr_printf("%s\n", buf);
 		return;
 	}
-	snprintf(buf, sizeof buf, "SLRP %ld", uglistlsn[uglistsize-1]); 
-	CtdlIPC_putline(ipc, buf);
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] != '2') {
-		scr_printf("%s\n", &buf[4]);
+	r = CtdlIPCSetLastRead(ipc, uglistlsn[uglistsize-1], buf);
+	if (r / 100 != 2) {
+		scr_printf("%s\n", buf);
 	}
-    safestrncpy (buf, uglist[uglistsize-1], sizeof(buf));
-    uglistsize--;
-    free(uglist[uglistsize]);
+	safestrncpy(buf, uglist[uglistsize-1], sizeof(buf));
+	uglistsize--;
+	free(uglist[uglistsize]);
 	/* Don't queue ungoto info or we end up in a loop */
 	dotgoto(ipc, buf, 0, 1);
 }
@@ -955,16 +954,21 @@ void readinfo(CtdlIPC *ipc)
 void whoknows(CtdlIPC *ipc)
 {
 	char buf[SIZ];
-	CtdlIPC_putline(ipc, "WHOK");
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] != '1') {
-		pprintf("%s\n", &buf[4]);
+	char *listing = NULL;
+	int r;
+
+	r = CtdlIPCWhoKnowsRoom(ipc, &listing, buf);
+	if (r / 100 != 1) {
+		pprintf("%s\n", buf);
 		return;
 	}
-	while (CtdlIPC_getline(ipc, buf), strncmp(buf, "000", 3)) {
+	while (strlen(listing) > 0) {
+		extract_token(buf, listing, 0, '\n');
+		remove_token(listing, 0, '\n');
 		if (sigcaught == 0)
 			pprintf("%s\n", buf);
 	}
+	free(listing);
 }
 
 

@@ -1150,8 +1150,8 @@ int CtdlIPCFileDownload(CtdlIPC *ipc, const char *filename, void **buf,
 		bytes = extract_long(cret, 0);
 		last_mod = extract_int(cret, 1);
 		extract(mimetype, cret, 2);
-		ret = CtdlIPCReadDownload(ipc, buf, bytes, resume, progress_gauge_callback, cret);
-/*		ret = CtdlIPCHighSpeedReadDownload(ipc, buf, bytes, resume, progress_gauge_callback, cret); */
+/*		ret = CtdlIPCReadDownload(ipc, buf, bytes, resume, progress_gauge_callback, cret); */
+		ret = CtdlIPCHighSpeedReadDownload(ipc, buf, bytes, resume, progress_gauge_callback, cret);
 		ret = CtdlIPCEndDownload(ipc, cret);
 		if (ret / 100 == 2)
 			sprintf(cret, "%d|%ld|%s|%s", (int)bytes, last_mod,
@@ -1192,6 +1192,7 @@ int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part,
 		bytes = extract_long(cret, 0);
 		last_mod = extract_int(cret, 1);
 		extract(mimetype, cret, 2);
+/*		ret = CtdlIPCReadDownload(ipc, buf, bytes, 0, progress_gauge_callback, cret); */
 		ret = CtdlIPCHighSpeedReadDownload(ipc, buf, bytes, 0, progress_gauge_callback, cret);
 		ret = CtdlIPCEndDownload(ipc, cret);
 		if (ret / 100 == 2)
@@ -1230,7 +1231,8 @@ int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf,
 		bytes = extract_long(cret, 0);
 		last_mod = extract_int(cret, 1);
 		extract(mimetype, cret, 2);
-		ret = CtdlIPCReadDownload(ipc, buf, bytes, 0, progress_gauge_callback, cret);
+/*		ret = CtdlIPCReadDownload(ipc, buf, bytes, 0, progress_gauge_callback, cret); */
+		ret = CtdlIPCHighSpeedReadDownload(ipc, buf, bytes, 0, progress_gauge_callback, cret);
 		ret = CtdlIPCEndDownload(ipc, cret);
 		if (ret / 100 == 2)
 			sprintf(cret, "%d|%ld|%s|%s", (int)bytes, last_mod,
@@ -1343,6 +1345,7 @@ int CtdlIPCCreateFloor(CtdlIPC *ipc, int for_real, const char *name, char *cret)
 
 	if (!cret) return -2;
 	if (!name) return -2;
+	if (!*name) return -2;
 
 	aaa = (char *)malloc(strlen(name) + 17);
 	if (!aaa) return -1;
