@@ -1,25 +1,6 @@
 Some notes on the build process...
   
-  
-  
  Oct 28 01:57 1998 from LoanShark @uncnsrd 
-what i've done with the Makefile.in most recently is to replace all the 
-rules that explicitly generated .o files with a set of suffix rules. these 
-are the `.c.o:', `.c.mo:', and `.c.ro:' targets that appear in the 
-Makefile.in. the idea is, make now knows how to generate files named 
-`foo.o', `foo.mo', or `foo.ro' from a file `foo.c'. a .o file is compiled 
-with standard compiler flags; a .ro (reentrant object) file is also 
-compiled with -D_REENTRANT; and a .mo (module object) is compiled with 
--D_REENTRANT plus -fPIC and -DPIC to produce position-independent code for 
-a shared library. the suffix rules, together with auto dependency 
-generation, accomplish two things: when you want to link a particular 
-module into a binary, all you have to do is list it, with the appropriate 
-extension, as a dependency of the binary, and add it to the link command 
-line for the target. you don't have to worry about writing a rule to 
-generate the object with the proper flags, or keep the header file 
-dependencies updated. secondly, using different file extensions allows us 
-to compile _REENTRANT and non-REENTRANT versions of files like config.c, 
-tools.c, and snprintf.c that are used in both the clients and the server. 
 
   autodependency generation is implemented by generating a bunch of .d  
 files (with another suffix rule) using $(CC) - M and "-include"-ing them 

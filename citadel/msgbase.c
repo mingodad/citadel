@@ -1080,18 +1080,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		return(om_not_logged_in);
 	}
 
-	/* FIXME ... small security issue
-	 * We need to check to make sure the requested message is actually
-	 * in the current room, and set msg_ok to 1 only if it is.  This
-	 * functionality is currently missing because I'm in a hurry to replace
-	 * broken production code with nonbroken pre-beta code.  :(   -- ajc
-	 *
-	 if (!msg_ok) {
-	 if (do_proto) cprintf("%d Message %ld is not in this room.\n",
-	 ERROR + MESSAGE_NOT_FOUND, msg_num);
-	 return(om_no_such_msg);
-	 }
-	 */
+	/* FIXME: check message id against msglist for this room */
 
 	/*
 	 * Fetch the message from disk.  If we're in sooper-fast headers

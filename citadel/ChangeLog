@@ -1,4 +1,9 @@
  $Log$
+ Revision 623.13  2004/08/02 02:51:03  ajc
+ * utilsmenu: removed.  Because most of the admin functions have been moved
+   into Citadel proper, what's left of this menu is now pathetic.
+ * techdoc/build.txt: removed verbage that referred to the old build system.
+
  Revision 623.12  2004/07/30 03:18:21  ajc
  * user_ops.c: limit the length of the name which can be supplied
    to CtdlLoginExistingUser() to avoid crashing it.
@@ -5951,4 +5956,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -35,7 +35,8 @@ Goals to achieve during the 6.xx cycle
  
   Doing CAP or WCAP seems less important now that vCalendar-over-IMAP seems
   to be the emerging standard for open source groupware.  We will monitor the
-  direction the community takes and follow along.
+  direction the community takes and follow along.  Specifically, we will
+  probably implement whatever Mozilla Calendar ends up supporting.
  
   There is also the possibility of implementing the WebDAV/XML schema exposed
   by Exchange [ http://tinyurl.com/23bcn ] which would give us transparent
@@ -53,6 +54,7 @@ Goals to achieve during the 6.xx cycle
 
  * Reminder: after the next non-beta version of the Citadel server is
    released, email the IMAPcopy people for inclusion on their web site.
+   (Follow-up: we've done this twice now and received no answer.)
  
  * Reminder: send Citadel autoconfig settings to the SquirrelMail people
  
