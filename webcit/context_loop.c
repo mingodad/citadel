@@ -400,7 +400,7 @@ void context_loop(int sock)
 	TheSession->http_sock = sock;
 	TheSession->lastreq = time(NULL);			/* log */
 	TheSession->outside_frameset_allowed = outside_frameset_allowed;
-	session_loop(req);					/* do transaction */
+	session_loop(req);				/* do transaction */
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 
 	/* Free the request buffer */
@@ -409,4 +409,9 @@ bail:	while (req != NULL) {
 		free(req);
 		req = hptr;
 	}
+
+	/* Free up any session-local substitution variables which
+	 * were set during this transaction
+	 */
+	clear_local_substs();
 }

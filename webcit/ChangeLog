@@ -1,4 +1,14 @@
 $Log$
+Revision 526.1  2004/12/07 04:41:02  ajc
+* Finally tracked down the WC->vars heap corruption issue (for real this
+  time).  We now call clear_local_substs() at the end of each HTTP
+  transaction, whether we need to or not, instead of calling it whenever
+  we're done with something we wanted session variables for.
+* Finally tracked down the years-long "misplaced '(edit)' link" bug, by
+  copying serv_info->serv_pid to WC->ctdl_pid at the time it's loaded,
+  preventing it from getting clobbered by another session.
+* Bumped internal version number to 5.27
+
 Revision 526.0  2004/12/01 21:35:56  ajc
 * THIS IS 5.26
 
@@ -2124,4 +2134,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -59,7 +59,6 @@ void display_login(char *mesg)
 
 	do_template("login");
 
-	clear_local_substs();
 	wDumpContent(0);	/* No menu here; not logged in yet! */
 }
 
@@ -161,7 +160,6 @@ void do_welcome(void)
         svprintf("STARTPAGE", WCS_STRING, startpage);
 
         do_template("mainframeset");
-        clear_local_substs();
 }
 
 
