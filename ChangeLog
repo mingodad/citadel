@@ -8,6 +8,7 @@ Sun Dec 13 13:35:12 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* messages.c: added "delete message" functionality
 	* messages.c: added "move message" functionality
 	* userlist.c: added.  This adds "userlist" and "show user" functions.
+	* roomops.c: fixed buggy implementation of ungoto
 
 Fri Dec 11 21:14:36 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Brought over message reading and entry functions from old WebCit

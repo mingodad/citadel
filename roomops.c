@@ -18,7 +18,7 @@ struct march {
 
 char floorlist[128][256];
 char ugname[128];
-long uglsn;
+long uglsn = (-1L);
 unsigned room_flags;
 int is_aide = 0;
 int is_room_aide = 0;
@@ -189,7 +189,7 @@ void readinfo(int v)
 void gotoroom(char *gname, int display_name)
 {
 	char buf[256];
-	static long ls = 0L;
+	static long ls = (-1L);
 
 
 	printf("HTTP/1.0 200 OK\n");
@@ -198,8 +198,10 @@ void gotoroom(char *gname, int display_name)
 
 	if (display_name != 2) {
 		/* store ungoto information */
-		strcpy(ugname,wc_roomname);
+		strcpy(ugname, wc_roomname);
 		uglsn = ls;
+		fprintf(stderr, "setting ugname to %s and uglsn to %ld\n",
+			ugname, uglsn);
 		}
 
 	/* move to the new room */
@@ -218,6 +220,13 @@ void gotoroom(char *gname, int display_name)
 
 	extract(wc_roomname,&buf[4],0);
 	room_flags = extract_int(&buf[4],4);
+	/* highest_msg_read = extract_int(&buf[4],6);
+	maxmsgnum = extract_int(&buf[4],5);
+	is_mail = (char) extract_int(&buf[4],7); */
+	ls = extract_long(&buf[4], 6);
+
+	if (is_aide) is_room_aide = is_aide;
+	else is_room_aide = (char) extract_int(&buf[4],8);
 
 	remove_march(wc_roomname);
 	if (!strcasecmp(gname,"_BASEROOM_")) remove_march(gname);
@@ -260,15 +269,7 @@ void gotoroom(char *gname, int display_name)
 		wprintf("<IMG SRC=\"/static/forward.gif\" border=0></A></TD>");
 
 		wprintf("</TR></TABLE></CENTER>\n");
-
 		}
-	/* highest_msg_read = extract_int(&buf[4],6);
-	maxmsgnum = extract_int(&buf[4],5);
-	is_mail = (char) extract_int(&buf[4],7); */
-	ls = extract_long(&buf[4],6);
-
-	if (is_aide) is_room_aide = is_aide;
-	else is_room_aide = (char) extract_int(&buf[4],8);
 
 	strcpy(wc_roomname, wc_roomname);
 	wDumpContent();
@@ -375,20 +376,22 @@ void slrp_highest(void) {
 void ungoto(void) { 
 	char buf[256];
 	
-	if (!strcmp(ugname,"")) return;
-	sprintf(buf,"GOTO %s",ugname);
-	serv_puts(buf);
-	serv_gets(buf);
-	if (buf[0]!='2') {
-		wprintf("%s\n",&buf[4]);
+	if (!strcmp(ugname, "")) {
+		gotoroom(wc_roomname, 1);
 		return;
 		}
-	sprintf(buf,"SLRP %ld",uglsn);
-	serv_puts(buf);
+	serv_printf("GOTO %s", ugname);
 	serv_gets(buf);
-	if (buf[0]!='2') wprintf("%s\n",&buf[4]);
+	if (buf[0]!='2') {
+		gotoroom(wc_roomname, 1);
+		return;
+		}
+	if (uglsn >= 0L) {
+		serv_printf("SLRP %ld",uglsn);
+		serv_gets(buf);
+		}
 	strcpy(buf,ugname);
-	strcpy(ugname,"");
+	strcpy(ugname, "");
 	gotoroom(buf,1);
 	}
 
