@@ -1,4 +1,8 @@
  $Log$
+ Revision 613.8  2003/12/22 15:30:53  error
+ * Fork image viewer process in background (works now); suppress
+   stdout/stderr from the image viewer
+
  Revision 613.7  2003/12/21 20:02:28  error
  * When viewing images, append the image filename to the temp filename so
    that less-intelligent viewers can deal with the images
@@ -5186,5 +5190,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
 

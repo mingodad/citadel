@@ -358,7 +358,26 @@ void citedit(CtdlIPC *ipc, FILE * fp)
 	}
 }
 
-/* Read a message from the server
+
+/*
+ * Free the struct parts
+ */
+void free_parts(struct parts *p)
+{
+	struct parts *a_part = p;
+
+	while (a_part) {
+		struct parts *q;
+
+		q = a_part;
+		a_part = a_part->next;
+		free(q);
+	}
+}
+
+
+/*
+ * Read a message from the server
  */
 int read_message(CtdlIPC *ipc,
 	long num,   /* message number */
@@ -687,15 +706,15 @@ int read_message(CtdlIPC *ipc,
 			if ( (!strcasecmp(ptr->disposition, "attachment"))
 			   || (!strcasecmp(ptr->disposition, "inline"))) {
 				color(DIM_WHITE);
-				scr_printf("Part ");
+				pprintf("Part ");
 				color(BRIGHT_MAGENTA);
-				scr_printf("%s", ptr->number);
+				pprintf("%s", ptr->number);
 				color(DIM_WHITE);
-				scr_printf(": ");
+				pprintf(": ");
 				color(BRIGHT_CYAN);
-				scr_printf("%s", ptr->filename);
+				pprintf("%s", ptr->filename);
 				color(DIM_WHITE);
-				scr_printf(" (%s, %ld bytes)\n", ptr->mimetype, ptr->length);
+				pprintf(" (%s, %ld bytes)\n", ptr->mimetype, ptr->length);
 				if (!strncmp(ptr->mimetype, "image/", 6))
 					has_images++;
 			}
@@ -1309,36 +1328,64 @@ void list_urls(CtdlIPC *ipc)
 
 
 /*
- * Image viewer thread (for background image viewing)
+ * Run image viewer in background
  */
-void *image_view_thread(void *filename)
+int do_image_view(const char *filename)
 {
 	char cmd[SIZ];
 	pid_t childpid;
-	int retcode;
 
-	snprintf(cmd, sizeof cmd, imagecmd, (char *)filename);
+	snprintf(cmd, sizeof cmd, imagecmd, filename);
 	childpid = fork();
 	if (childpid < 0) {
-		color(BRIGHT_RED);
-		perror("Cannot fork");
-		color(DIM_WHITE);
-		unlink((char *)filename);
-		return ((void *) childpid);
+		unlink(filename);
+		return childpid;
 	}
 
 	if (childpid == 0) {
-		execlp("/bin/sh", "sh", "-c", cmd, NULL);
-		exit(127);
+		int retcode;
+		pid_t grandchildpid;
+
+		grandchildpid = fork();
+		if (grandchildpid < 0) {
+			return grandchildpid;
+		}
+
+		if (grandchildpid == 0) {
+			int nullfd;
+			int outfd = -1;
+			int errfd = -1;
+
+			nullfd = open("/dev/null", O_WRONLY);
+			if (nullfd > -1) {
+				dup2(1, outfd);
+				dup2(2, errfd);
+				dup2(nullfd, 1);
+				dup2(nullfd, 2);
+			}
+			retcode = system(cmd);
+			if (nullfd > -1) {
+				dup2(outfd, 1);
+				dup2(errfd, 2);
+				close(nullfd);
+			}
+			unlink(filename);
+			exit(retcode);
+		}
+
+		if (grandchildpid > 0) {
+			exit(0);
+		}
 	}
 
 	if (childpid > 0) {
-		waitpid(childpid, &retcode, 0);
-		unlink((char *)filename);
-		return ((void *)retcode);
-	}
+		int retcode;
 
-	return ((void *)-1);
+		waitpid(childpid, &retcode, 0);
+		return retcode;
+	}
+	
+	return -1;
 }
 
 
@@ -1347,7 +1394,6 @@ void *image_view_thread(void *filename)
  */
 void image_view(CtdlIPC *ipc, unsigned long msg)
 {
-	struct parts *selected_part = NULL;
 	struct parts *ptr = last_message_parts;
 	char part[SIZ];
 	int found = 0;
@@ -1357,68 +1403,50 @@ void image_view(CtdlIPC *ipc, unsigned long msg)
 		if ((!strcasecmp(ptr->disposition, "attachment")
 		   || !strcasecmp(ptr->disposition, "inline"))
 		   && !strncmp(ptr->mimetype, "image/", 6)) {
-			if (!found) {
-				found = 1;
-				selected_part = ptr;
-				strcpy(part, selected_part->number);
+			found++;
+			if (found == 1) {
+				strcpy(part, ptr->number);
 			}
-#if 0
-			color(DIM_WHITE);
-			scr_printf("Part ");
-			color(BRIGHT_MAGENTA);
-			scr_printf("%s", ptr->number);
-			color(DIM_WHITE);
-			scr_printf(": ");
-			color(BRIGHT_CYAN);
-			scr_printf("%s", ptr->filename);
-			color(DIM_WHITE);
-			scr_printf(" (%s, %ld bytes)\n", ptr->mimetype, ptr->length);
-#endif
 		}
 	}
 
-	while (found) {
-		found = 0;
-		strprompt("View which part (0 when done)", part, SIZ-1);
+	while (found > 0) {
+		if (found > 1)
+			strprompt("View which part (0 when done)", part, SIZ-1);
+		found = -found;
 		for (ptr = last_message_parts; ptr; ptr = ptr->next) {
 			if ((!strcasecmp(ptr->disposition, "attachment")
 			   || !strcasecmp(ptr->disposition, "inline"))
 			   && !strncmp(ptr->mimetype, "image/", 6)
-			   && !strcmp(ptr->number, part)) {
+			   && !strcasecmp(ptr->number, part)) {
 				char tmp[PATH_MAX];
 				char buf[SIZ];
 				void *file = NULL; /* The downloaded file */
-#ifdef THREADED_CLIENT
-				pthread_t *ivthread = NULL;
-#endif
 				int r;
-
+	
 				// view image
-				found = 1;
-				r = CtdlIPCAttachmentDownload(ipc, msg, selected_part->number, &file, progress, buf);
+				found = -found;
+				r = CtdlIPCAttachmentDownload(ipc, msg, ptr->number, &file, progress, buf);
 				if (r / 100 != 2) {
 					scr_printf("%s\n", buf);
 				} else {
 					size_t len;
-
+	
 					len = (size_t)extract_long(buf, 0);
 					progress(len, len);
 					scr_flush();
 					snprintf(tmp, sizeof tmp, "%s.%s",
 						tmpnam(NULL),
-						selected_part->filename);
+						ptr->filename);
 					save_buffer(file, len, tmp);
 					free(file);
-					#if 0
-					pthread_create(ivthread, NULL, image_view_thread, tmp);
-					#endif
-					snprintf(buf, sizeof buf, imagecmd, tmp);
-					system(buf);
-					unlink(tmp);
+					do_image_view(tmp);
 				}
 				break;
 			}
 		}
+		if (found == 1)
+			break;
 	}
 }
  
@@ -1503,7 +1531,7 @@ RAGAIN:		pagin = ((arcflag == 0)
 		}
 
 		/* clear parts list */
-		/* FIXME free() the old parts list */
+		free_parts(last_message_parts);
 		last_message_parts = NULL;
 
 		/* now read the message... */
@@ -1649,13 +1677,12 @@ RMSGREAD:	scr_flush();
 				scr_printf("mY next");
 				break;
 			case 'i':
-				scr_printf("Images");
 				break;
 			case '?':
 				scr_printf("? <help>");
 				break;
 			}
-			if (userflags & US_DISAPPEAR)
+			if (userflags & US_DISAPPEAR || e == 'i')
 				scr_printf("\r%79s\r", "");
 			else
 				scr_printf("\n");
