@@ -231,11 +231,16 @@ void cmd_netf(char *cmdbuf)
  */
 void OpenCmdResult(char *filename, char *mime_type) {
 	struct stat statbuf;
+	time_t modtime;
+	long filesize;
 
 	fstat(fileno(CC->download_fp), &statbuf);
-	cprintf("%d %ld|%ld|%s|%s\n", OK, statbuf.st_size, statbuf.st_mtime,
-					filename, mime_type);
-	}
+	filesize = (long) statbuf.st_size;
+	modtime = (time_t) statbuf.st_mtime;
+
+	cprintf("%d %ld|%ld|%s|%s\n",
+		OK, filesize, modtime, filename, mime_type);
+}
 
 
 /*

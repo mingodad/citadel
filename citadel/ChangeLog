@@ -1,4 +1,8 @@
 $Log$
+Revision 1.421  1999/11/22 00:27:42  ajc
+* Added some temporary variables to OpenCmdResult().  Hopefully fixes
+  bug #14 when running on FreeBSD.
+
 Revision 1.420  1999/11/21 18:30:16  ajc
 * Protected cmd_move() from buffer overrun (no longer crashes the server)
 * cmd_chat() -- truncate input at 100 characters to prevent buffer overruns.
@@ -1462,4 +1466,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
