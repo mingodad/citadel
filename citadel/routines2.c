@@ -967,6 +967,7 @@ void network_config_management(char *entrytype, char *comment) {
 	if (editor_pid == 0) {
 		chmod(filename, 0600);
 		sttybbs(SB_RESTORE);
+		setenv("WINDOW_TITLE", "Network configuration", 1);
 		execlp(editor_path, editor_path, filename, NULL);
 		exit(1);
 	}

@@ -1054,6 +1054,7 @@ void do_edit(char *desc, char *read_cmd, char *check_cmd, char *write_cmd)
 	cksum = file_checksum(temp);
 
 	if (strlen(editor_path) > 0) {
+		setenv("WINDOW_TITLE", desc, 1);
 		editor_pid = fork();
 		if (editor_pid == 0) {
 			chmod(temp, 0600);

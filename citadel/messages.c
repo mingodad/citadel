@@ -608,7 +608,8 @@ int make_message(char *filename,	/* temporary file name */
 	FILE *fp;
 	int a, b, e_ex_code;
 	long beg;
-	char datestr[64];
+	char datestr[SIZ];
+	char header[SIZ];
 	int cksum = 0;
 
 	if (mode == 2)
@@ -619,17 +620,20 @@ int make_message(char *filename,	/* temporary file name */
 		}
 
 	fmt_date(datestr, time(NULL));
+	header[0] = 0;
 
 	if (room_flags & QR_ANONONLY) {
-		printf(" ****");
+		sprintf(&header[strlen(header)], " ****");
 	}
 	else {
-		printf(" %s from %s", datestr, fullname);
+		sprintf(&header[strlen(header)],
+			" %s from %s", datestr, fullname);
 		if (strlen(recipient) > 0) {
-			printf(" to %s", recipient);
+			sprintf(&header[strlen(header)],
+				" to %s", recipient);
 		}
 	}
-	printf("\n");
+	printf("%s\n", header);
 
 	beg = 0L;
 
@@ -700,6 +704,7 @@ ME1:	switch (mode) {
 		if (editor_pid == 0) {
 			chmod(filename, 0600);
 			sttybbs(SB_RESTORE);
+			setenv("WINDOW_TITLE", header, 1);
 			execlp(editor_path, editor_path, filename, NULL);
 			exit(1);
 		}
