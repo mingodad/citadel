@@ -368,6 +368,9 @@ void load_command_set(void) {
 		ccfile = fopen(buf,"r");
 		}
 	if (ccfile==NULL) {
+		ccfile = fopen("./citadel.rc","r");
+		}
+	if (ccfile==NULL) {
 		perror("commands: cannot open citadel.rc");
 		logoff(errno);
 		}
