@@ -922,6 +922,7 @@ void forget(CtdlIPC *ipc)
 	if (yesno() == 0)
 		return;
 
+	remove_march(room_name, 0);
 	if (CtdlIPCForgetRoom(ipc, buf) / 100 != 2) {
 		scr_printf("%s\n", buf);
 		return;

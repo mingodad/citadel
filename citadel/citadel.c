@@ -543,6 +543,7 @@ void forget_all_rooms_on(CtdlIPC *ipc, int ffloor)
 
 	scr_printf("Forgetting all rooms on %s...\r", &floorlist[ffloor][0]);
 	scr_flush();
+	remove_march("_FLOOR_", ffloor);
 	r = CtdlIPCKnownRooms(ipc, AllAccessibleRooms, ffloor, &flist, buf);
 	if (r / 100 != 1) {
 		scr_printf("%-72s\n", buf);
