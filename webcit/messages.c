@@ -454,6 +454,9 @@ void readloop(char *oper)
 	int lo, hi;
 	int lowest_displayed = 0;
 	int highest_displayed = 0;
+	long pn_previous = 0L;
+	long pn_current = 0L;
+	long pn_next = 0L;
 
 	startmsg = atol(bstr("startmsg"));
 	maxmsgs = atoi(bstr("maxmsgs"));
@@ -491,9 +494,15 @@ void readloop(char *oper)
 		}
 	}
 
-	for (a = 0; ( (a < nummsgs) && (num_displayed < maxmsgs) ) ; ++a) {
-		if (WC->msgarr[a] >= startmsg) {
+	for (a = 0; a < nummsgs; ++a) {
+		if ((WC->msgarr[a] >= startmsg) && (num_displayed < maxmsgs)) {
 
+			/* Learn which msgs "Prev" & "Next" buttons go to */
+			pn_current = WC->msgarr[a];
+			if (a > 0) pn_previous = WC->msgarr[a-1];
+			if (a < (nummsgs-1)) pn_next = WC->msgarr[a+1];
+
+			/* Display the message */
 			read_message(WC->msgarr[a], is_summary);
 			if (lowest_displayed == 0) lowest_displayed = a;
 			highest_displayed = a;
@@ -510,15 +519,56 @@ void readloop(char *oper)
 	++lowest_displayed;
 	++highest_displayed;
 
+	/* If we're only looking at one message, do a prev/next thing */
+	if (num_displayed == 1) {
+
+		wprintf("<CENTER>"
+			"<TABLE BORDER=0 WIDTH=100%% BGCOLOR=DDDDDD><TR><TD>"
+			"Reading #%d of %d messages.</TD>\n"
+			"<TD ALIGN=RIGHT><FONT SIZE=+1>",
+			lowest_displayed, nummsgs);
+
+			if (pn_previous > 0L) {
+				wprintf("<A HREF=\"/%s"
+					"?startmsg=%ld"
+					"&maxmsgs=1"
+					"&summary=0\">"
+					"Previous</A> \n",
+						oper,
+						pn_previous );
+			}
+
+			if (pn_next > 0L) {
+				wprintf("<A HREF=\"/%s"
+					"?startmsg=%ld"
+					"&maxmsgs=1"
+					"&summary=0\">"
+					"Next</A> \n",
+						oper,
+						pn_next );
+			}
+
+		wprintf("<A HREF=\"/%s?startmsg=%ld"
+			"&maxmsgs=999999&summary=1\">"
+			"Summary"
+			"</A>",
+			oper,
+			WC->msgarr[0]);
+
+		wprintf("</TD></TR></TABLE></CENTER><HR>\n");
+	}
+
+
 	/*
 	 * If we're not currently looking at ALL requested
 	 * messages, then display the selector bar
 	 */
-	if (num_displayed < nummsgs) {
+	/* if (num_displayed < nummsgs) { */
+	if (num_displayed > 1) {
 
 		wprintf("<CENTER>"
 			"<TABLE BORDER=0 WIDTH=100%% BGCOLOR=DDDDDD><TR><TD>"
-			"You are reading #%d-%d of %d messages.</TD>\n"
+			"Reading #%d-%d of %d messages.</TD>\n"
 			"<TD ALIGN=RIGHT><FONT SIZE=+1>",
 			lowest_displayed, highest_displayed, nummsgs);
 
@@ -546,9 +596,17 @@ void readloop(char *oper)
 		wprintf("<A HREF=\"/%s?startmsg=%ld"
 			"&maxmsgs=999999&summary=%d\">"
 			"ALL"
-			"</A>&nbsp;&nbsp;&nbsp;",
+			"</A> ",
 			oper,
 			WC->msgarr[0], is_summary);
+
+		wprintf("<A HREF=\"/%s?startmsg=%ld"
+			"&maxmsgs=999999&summary=1\">"
+			"Summary"
+			"</A>",
+			oper,
+			WC->msgarr[0]);
+
 		wprintf("</TD></TR></TABLE></CENTER><HR>\n");
 	}
 
