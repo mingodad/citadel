@@ -270,6 +270,10 @@ void output_headers(int print_standard_html_head) {
 
 	printf("Server: %s\n", SERVER);
 	printf("Connection: close\n");
+	if (print_standard_html_head > 0) {
+		printf("Pragma: no-cache\n");
+		printf("Cache-Control: no-store\n");
+		}
 
 	stuff_to_cookie(cookie, wc_session, wc_username, wc_password, wc_roomname);
 	if (print_standard_html_head==2) {
