@@ -1411,9 +1411,14 @@ ERROR codes if it fails.
  
  Receive from the server a named user's bio.  This command should be passed
 a single argument - the name of the user whose bio is requested.  RBIO returns
-LISTING_FOLLOWS plus the bio file if the user exists and has a bio on file,
-ERROR+NO_SUCH_USER if the named user does not exist, or ERROR+FILE_NOT_FOUND
-if the user exists but has no bio on file.
+LISTING_FOLLOWS plus the bio file if the user exists and has a bio on file.
+The return has the following parameters:  the user name, user number, access
+level, date of last call, times called, and messages posted.  This command
+returns ERROR+NO_SUCH_USER if the named user does not exist.
+
+ RBIO no longer considers a user with no bio on file to be an error condition.
+It now returns a message saying the user has no bio on file as the text of the
+bio.  This allows newer servers to operate with older clients.
   
   
  STEL   (enter STEaLth mode)

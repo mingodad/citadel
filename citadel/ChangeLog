@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.74  2001/01/28 07:35:04  error
+  * serv_bio.c: RBIO now also returns stats about a user, see session.txt
+
  Revision 573.73  2001/01/16 04:03:13  ajc
  * yeesh ... more on the IMAP BODYSTRUCTURE
 
@@ -2341,3 +2344,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -79,15 +79,16 @@ void cmd_rbio(char *cmdbuf)
 	}
 	sprintf(buf,"./bio/%ld",ruser.usernum);
 	
+	cprintf("%d OK|%s|%ld|%d|%ld|%ld|%ld\n", LISTING_FOLLOWS,
+		ruser.fullname, ruser.usernum, ruser.axlevel,
+		ruser.lastcall, ruser.timescalled, ruser.posted);
 	fp = fopen(buf,"r");
-	if (fp == NULL) {
-		cprintf("%d %s has no bio on file.\n",
-			ERROR+FILE_NOT_FOUND,ruser.fullname);
-		return;
+	if (fp == NULL)
+		cprintf("%s has no bio on file.\n", ruser.fullname);
+	else {
+		while (fgets(buf,256,fp)!=NULL) cprintf("%s",buf);
+		fclose(fp);
 	}
-	cprintf("%d  \n",LISTING_FOLLOWS);
-	while (fgets(buf,sizeof buf,fp)!=NULL) cprintf("%s",buf);
-	fclose(fp);
 	cprintf("000\n");
 }
 
