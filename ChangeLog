@@ -1,4 +1,8 @@
 $Log$
+Revision 400.3  2002/09/13 20:40:53  ajc
+* Detect when the client browser is capable of gzip encoding
+  (actual encoding is not implemented yet)
+
 Revision 400.2  2002/09/13 15:54:40  ajc
 * Reversed the above change because I broke it somehow
 
@@ -943,3 +947,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

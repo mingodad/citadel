@@ -4,6 +4,8 @@ AC_INIT(webserver.c)
 
 AC_CANONICAL_HOST
 
+AC_ARG_WITH(with_zlib, [  --with-zlib	     use zlib compression if present])
+
 dnl Set some system-specific variables which are OK to set before compiler
 dnl checks:
 PTHREAD_DEFS=-D_REENTRANT
@@ -68,6 +70,20 @@ AC_TYPE_SIGNAL
 dnl AC_FUNC_VPRINTF
 dnl AC_CHECK_FUNCS(strerror)
 AC_REPLACE_FUNCS(snprintf)
+
+dnl Checks for the zlib compression library.
+if test "x$with_zlib" != xno ; then
+	AC_CHECK_HEADERS(zlib.h,
+		[AC_CHECK_LIB(z, zlibVersion,
+			[ok_zlib=yes],,
+	)])
+fi
+
+if test "x$ok_zlib" != xno ; then
+	LIBS="-lz $LIBS"
+	CFLAGS="-DWITH_ZLIB $CFLAGS"
+	AC_DEFINE(HAVE_ZLIB)
+fi
 
 AC_OUTPUT(Makefile)
 

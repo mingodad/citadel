@@ -35,6 +35,11 @@
 #include <stdarg.h>
 #include <pthread.h>
 #include <signal.h>
+
+#ifdef WITH_ZLIB
+#include <zlib.h>
+#endif
+
 #include "webcit.h"
 #include "webserver.h"
 
@@ -152,6 +157,7 @@ int req_gets(int sock, char *buf, char *hold)
 				return(0);
 			}
 	}
+
 	return(0);
 }
 
@@ -231,6 +237,10 @@ void context_loop(int sock)
 	int desired_session = 0;
 	int got_cookie = 0;
 	struct wcsession *TheSession, *sptr;
+	char enc[SIZ];
+	char encodings[SIZ];
+	int gzip = 0;
+	int i;
 
 	/*
 	 * Find out what it is that the web browser is asking for
@@ -238,10 +248,21 @@ void context_loop(int sock)
 	memset(hold, 0, sizeof(hold));
 	do {
 		if (req_gets(sock, buf, hold) < 0) return;
+
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
 			cookie_to_stuff(&buf[15], &desired_session,
 				NULL, NULL, NULL);
 			got_cookie = 1;
+		}
+
+		if (!strncasecmp(buf, "Accept-encoding: ", 17)) {
+			extract_token(encodings, &buf[17], 0, ';');
+			for (i=0; i<num_tokens(encodings, ','); ++i) {
+				extract_token(enc, encodings, i, ',');
+				if (!strcasecmp(enc, "gzip")) {
+					gzip = 1;
+				}
+			}
 		}
 
 		hptr = (struct httprequest *)
@@ -334,7 +355,7 @@ void context_loop(int sock)
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	TheSession->http_sock = sock;
 	TheSession->lastreq = time(NULL);			/* log */
-	session_loop(req);		/* perform the requested transaction */
+	session_loop(req, gzip);	/* perform the requested transaction */
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 
 	/* Free the request buffer */
