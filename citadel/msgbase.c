@@ -916,7 +916,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 	struct usersupp userbuf;
 	int a;
 	static int seqnum = 0;
-	int successful_local_recipients;
+	int successful_local_recipients = 0;
 	struct quickroom qtemp;
 
 	lprintf(9, "save_message(%s,%s,%s,%d,%d)\n",
@@ -952,35 +952,50 @@ void save_message(char *mtmp,	/* file containing proper message */
 	strcpy(actual_rm, CC->quickroom.QRname);
 	strcpy(hold_rm, "");
 
-	/* If the user is a twit, move to the twit room for posting... */
-	if (TWITDETECT)
-		if (CC->usersupp.axlevel == 2) {
-			strcpy(hold_rm, actual_rm);
-			strcpy(actual_rm, config.c_twitroom);
-		}
-	/* ...or if this message is destined for Aide> then go there. */
-	lprintf(9, "actual room forcing loop\n");
-	if (strlen(force_room) > 0) {
-		strcpy(hold_rm, actual_rm);
-		strcpy(actual_rm, force_room);
-	}
-	/* This call to usergoto() changes rooms if necessary.  It also
-	 * causes the latest message list to be read into memory.
+	/* If this is being done by the networker delivering a private
+	 * message, we want to BYPASS saving the sender's copy (because there
+	 * is no local sender; it would otherwise go to the Trashcan), and
+	 * consequently set successful_local_recipients to (-1) so it gets
+	 * set to 0 later on (a sleazy hack to make the reference count 1
+	 * instead of 2)
 	 */
-	usergoto(actual_rm, 0);
+	if (CC->internal_pgm) {
+		--successful_local_recipients;
+	} else {
 
-	/* read in the quickroom record, obtaining a lock... */
-	lgetroom(&CC->quickroom, actual_rm);
+		/* If the user is a twit, move to the twit room for posting */
+		if (TWITDETECT)
+			if (CC->usersupp.axlevel == 2) {
+				strcpy(hold_rm, actual_rm);
+				strcpy(actual_rm, config.c_twitroom);
+			}
+		/* ...or if this message is destined for Aide> then go there. */
+		lprintf(9, "actual room forcing loop\n");
+		if (strlen(force_room) > 0) {
+			strcpy(hold_rm, actual_rm);
+			strcpy(actual_rm, force_room);
+		}
+		/* This call to usergoto() changes rooms if necessary.  It also
+	 	* causes the latest message list to be read into memory.
+	 	*/
+		usergoto(actual_rm, 0);
+	
+		/* read in the quickroom record, obtaining a lock... */
+		lgetroom(&CC->quickroom, actual_rm);
+	
+		/* Fix an obscure bug */
+		if (!strcasecmp(CC->quickroom.QRname, AIDEROOM)) {
+			CC->quickroom.QRflags =
+				CC->quickroom.QRflags & ~QR_MAILBOX;
+		}
 
-	/* Fix an obscure bug */
-	if (!strcasecmp(CC->quickroom.QRname, AIDEROOM)) {
-		CC->quickroom.QRflags = CC->quickroom.QRflags & ~QR_MAILBOX;
+		/* Add the message pointer to the room */
+		CC->quickroom.QRhighest =
+			AddMessageToRoom(&CC->quickroom, newmsgid);
+	
+		/* update quickroom */
+		lputroom(&CC->quickroom);
 	}
-	/* Add the message pointer to the room */
-	CC->quickroom.QRhighest = AddMessageToRoom(&CC->quickroom, newmsgid);
-
-	/* update quickroom */
-	lputroom(&CC->quickroom);
 
 	/* Network mail - send a copy to the network program. */
 	if ((strlen(recipient) > 0) && (mailtype != MES_LOCAL)) {
@@ -997,7 +1012,6 @@ void save_message(char *mtmp,	/* file containing proper message */
 	/* If this is private, local mail, make a copy in the
 	 * recipient's mailbox and bump the reference count.
 	 */
-	successful_local_recipients = 0;
 	if ((strlen(recipient) > 0) && (mailtype == MES_LOCAL)) {
 		if (getuser(&userbuf, recipient) == 0) {
 			MailboxName(actual_rm, &userbuf, MAILROOM);

@@ -868,10 +868,12 @@ void *context_loop(struct CitContext *con)
 		lprintf(5, "citserver[%3d]: %s\n", CC->cs_pid, cmdbuf);
 
 		/*
-		 * Let other clients see the last command we executed, but
-		 * exclude NOOP because that would be boring.
+		 * Let other clients see the last command we executed, and
+		 * update the idle time, but not NOOP, PEXP, or GEXP.
 		 */
-		if (strncasecmp(cmdbuf, "NOOP", 4)) {
+		if ( (strncasecmp(cmdbuf, "NOOP", 4))
+		   && (strncasecmp(cmdbuf, "PEXP", 4))
+		   && (strncasecmp(cmdbuf, "GEXP", 4)) ) {
 			strcpy(CC->lastcmdname, "    ");
 			strncpy(CC->lastcmdname, cmdbuf, 4);
 			time(&CC->lastidle);
