@@ -42,6 +42,9 @@ void display_page(void)
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/page_user\">\n");
 
+
+	wprintf("<TABLE border=0 width=100%%><TR><TD>\n");
+
 	wprintf("Select a user to send a message to: <BR>");
 
 	wprintf("<SELECT NAME=\"recp\" SIZE=10>\n");
@@ -56,11 +59,15 @@ void display_page(void)
 		}
 	}
 	wprintf("</SELECT>\n");
-	wprintf("<BR>\n");
+
+	wprintf("</TD><TD>");
 
 	wprintf("Enter message text:<BR>");
-	wprintf("<INPUT TYPE=\"text\" NAME=\"msgtext\" MAXLENGTH=80 SIZE=80>\n");
-	wprintf("<BR><BR>\n");
+
+	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=5 COLS=40 "
+		"WIDTH=40></TEXTAREA><P>\n");
+
+	wprintf("</TD></TR></TABLE><BR>\n");
 
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Send message\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
@@ -75,27 +82,28 @@ void display_page(void)
 void page_user(void)
 {
 	char recp[256];
-	char msgtext[256];
 	char sc[256];
 	char buf[256];
 
 	output_headers(1);
 
 	strcpy(recp, bstr("recp"));
-	strcpy(msgtext, bstr("msgtext"));
 	strcpy(sc, bstr("sc"));
 
 	if (strcmp(sc, "Send message")) {
 		wprintf("<EM>Message was not sent.</EM><BR>\n");
 	} else {
-		serv_printf("SEXP %s|%s", recp, msgtext);
+		serv_printf("SEXP %s|-", recp);
 		serv_gets(buf);
 
-		if (buf[0] == '2') {
+		if (buf[0] == '4') {
+			text_to_server(bstr("msgtext"));
+			serv_puts("000");
 			wprintf("<EM>Message has been sent to ");
 			escputs(recp);
 			wprintf(".</EM><BR>\n");
-		} else {
+		}
+		else {
 			wprintf("<EM>%s</EM><BR>\n", &buf[4]);
 		}
 	}

@@ -1,4 +1,7 @@
 $Log$
+Revision 212.3  2000/06/12 03:28:44  ajc
+* added support for multi-line paging
+
 Revision 212.2  2000/06/07 04:11:28  ajc
 * HTML changes to room banner
 
@@ -454,4 +457,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

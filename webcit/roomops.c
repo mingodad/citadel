@@ -327,9 +327,9 @@ void embed_room_banner(char *got) {
 	if ((strlen(WC->ugname) > 0) && (strcasecmp(WC->ugname, WC->wc_roomname))) {
 		wprintf("<TD VALIGN=TOP><A HREF=\"/ungoto\">");
 		wprintf("<IMG SRC=\"/static/back.gif\" BORDER=0>");
-		wprintf("<BR><FONT SIZE=-3>Previous room</FONT></A></TD>");
+		wprintf("<BR><FONT SIZE=-2>Previous room</FONT></A></TD>");
 	}
-	wprintf("<TD VALIGN=TOP BGCOLOR=666677>");
+	wprintf("<TD VALIGN=TOP BGCOLOR=444455>");
 	wprintf("<FONT SIZE=+2 COLOR=FFFFEE>%s</FONT><BR>", WC->wc_roomname);
 	wprintf("<FONT COLOR=DDDDCC>%d new of %d messages</FONT></TD>\n",
 		extract_int(&got[4], 1),
@@ -360,13 +360,13 @@ void embed_room_banner(char *got) {
 			"<IMG SRC=\"/static/mail.gif\" border=0 "
 			"ALT=\"You have new mail\">"
 			"<BR><BLINK>%d</BLINK>", WC->new_mail);
-		wprintf("<FONT SIZE=-3> new mail messages</FONT></TD>");
+		wprintf("<FONT SIZE=-2> new mail messages</FONT></TD>");
 		remember_new_mail = WC->new_mail;
 	}
 
 	wprintf("<TD VALIGN=TOP><A HREF=\"/gotonext\">");
 	wprintf("<IMG SRC=\"/static/forward.gif\" border=0>");
-	wprintf("<BR><FONT SIZE=-3>Next room</FONT></A></TD>");
+	wprintf("<BR><FONT SIZE=-2>Next room</FONT></A></TD>");
 	wprintf("</TR></TABLE></CENTER>\n");
 }
 
