@@ -9,6 +9,7 @@ void do_something_with_it(char *content,
 			char *cbfilename,
 			char *cbencoding,
 			void *cbcontent,
+			char *cbtype,
 			size_t cblength)
 		);
 
@@ -20,6 +21,7 @@ void handle_part(char *content,
 			char *cbfilename,
 			char *cbencoding,
 			void *cbcontent,
+			char *cbtype,
 			size_t cblength)
 		);
 
@@ -31,5 +33,6 @@ void mime_parser(char *content,
 			char *cbfilename,
 			char *cbencoding,
 			void *cbcontent,
+			char *cbtype,
 			size_t cblength)
 		);

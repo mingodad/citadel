@@ -50,6 +50,7 @@ void do_something_with_it(char *content,
 			char *cbfilename,
 			char *cbencoding,
 			void *cbcontent,
+			char *cbtype,
 			size_t cblength)
 		) {
 	char name[256];
@@ -65,7 +66,7 @@ void do_something_with_it(char *content,
 
 	/**** OTHERWISE, HERE'S WHERE WE HANDLE THE STUFF!! *****/
 
-	CallBack(name, filename, "", content, length);
+	CallBack(name, filename, "", content, content_type, length);
 
 	/**** END OF STUFF-HANDLER ****/
 
@@ -84,6 +85,7 @@ void handle_part(char *content,
 			char *cbfilename,
 			char *cbencoding,
 			void *cbcontent,
+			char *cbtype,
 			size_t cblength)
 		) {
 	char content_type[256];
@@ -151,6 +153,7 @@ void mime_parser(char *content,
 			char *cbfilename,
 			char *cbencoding,
 			void *cbcontent,
+			char *cbtype,
 			size_t cblength)
 		) {
 	char boundary[256];

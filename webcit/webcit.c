@@ -461,12 +461,13 @@ void extract_action(char *actbuf, char *cmdbuf) {
 
 
 void upload_handler(char *name, char *filename, char *encoding,
-			void *content, size_t length) {
+			void *content, char *cbtype, size_t length) {
 
 	fprintf(stderr, "UPLOAD HANDLER CALLED\n");
 	fprintf(stderr, "    name = %s\n", name);
 	fprintf(stderr, "filename = %s\n", filename);
 	fprintf(stderr, "encoding = %s\n", encoding);
+	fprintf(stderr, "    type = %s\n", cbtype);
 	fprintf(stderr, "  length = %d\n", length);
 
         if (strlen(name)>0) {
