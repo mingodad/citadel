@@ -112,7 +112,7 @@ void ical_add(icalcomponent *cal, int recursion_level) {
  * Callback function for mime parser that hunts for calendar content types
  * and turns them into calendar objects
  */
-void ical_process_request(char *name, char *filename, char *partnum, char *disp,
+void ical_locate_part(char *name, char *filename, char *partnum, char *disp,
 		void *content, char *cbtype, size_t length, char *encoding,
 		void *cbuserdata) {
 
@@ -154,7 +154,7 @@ void ical_respond(long msgnum, char *partnum, char *action) {
 	strcpy(ird.desired_partnum, partnum);
 	mime_parser(msg->cm_fields['M'],
 		NULL,
-		*ical_process_request,		/* callback function */
+		*ical_locate_part,		/* callback function */
 		NULL, NULL,
 		(void *) &ird,			/* user data */
 		0
@@ -163,8 +163,6 @@ void ical_respond(long msgnum, char *partnum, char *action) {
 	CtdlFreeMessage(msg);
 
 	if (ird.cal != NULL) {
-		/* FIXME do something with it */
-
 		/* Save this in the user's calendar if necessary */
 		if (!strcasecmp(action, "accept")) {
 			ical_add(ird.cal, 0);
@@ -178,6 +176,64 @@ void ical_respond(long msgnum, char *partnum, char *action) {
 
 		icalcomponent_free(ird.cal);
 		cprintf("%d ok\n", CIT_OK);
+		return;
+	}
+	else {
+		cprintf("%d No calendar object found\n", ERROR);
+		return;
+	}
+
+	/* should never get here */
+}
+
+
+
+/* 
+ * Phase 2 of "hunt for conflicts" operation.
+ * At this point we have a calendar object which represents the VEVENT that
+ * we're considering adding to the calendar.  Now hunt through the user's
+ * calendar room, and output zero or more existing VEVENTs which conflict
+ * with this one.
+ */
+void ical_hunt_for_conflicts(icalcomponent *cal) {
+
+	cprintf("%d FIXME not implemented\n", ERROR);
+
+}
+
+
+
+/*
+ * Hunt for conflicts (Phase 1 -- retrieve the object and call Phase 2)
+ */
+void ical_conflicts(long msgnum, char *partnum) {
+	struct CtdlMessage *msg;
+	struct ical_respond_data ird;
+
+	msg = CtdlFetchMessage(msgnum);
+	if (msg == NULL) {
+		cprintf("%d Message %ld not found.\n",
+			ERROR+ILLEGAL_VALUE,
+			(long)msgnum
+		);
+		return;
+	}
+
+	memset(&ird, 0, sizeof ird);
+	strcpy(ird.desired_partnum, partnum);
+	mime_parser(msg->cm_fields['M'],
+		NULL,
+		*ical_locate_part,		/* callback function */
+		NULL, NULL,
+		(void *) &ird,			/* user data */
+		0
+	);
+
+	CtdlFreeMessage(msg);
+
+	if (ird.cal != NULL) {
+		ical_hunt_for_conflicts(ird.cal);
+		icalcomponent_free(ird.cal);
 		return;
 	}
 	else {
@@ -210,11 +266,17 @@ void cmd_ical(char *argbuf)
 		return;
 	}
 
-	if (!strcmp(subcmd, "respond")) {
+	else if (!strcmp(subcmd, "respond")) {
 		msgnum = extract_long(argbuf, 1);
 		extract(partnum, argbuf, 2);
 		extract(action, argbuf, 3);
 		ical_respond(msgnum, partnum, action);
+	}
+
+	else if (!strcmp(subcmd, "conflicts")) {
+		msgnum = extract_long(argbuf, 1);
+		extract(partnum, argbuf, 2);
+		ical_conflicts(msgnum, partnum);
 	}
 
 	else {
