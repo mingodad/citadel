@@ -38,9 +38,11 @@ void whobbs(void) {
 	escputs(serv_info.serv_humannode);
         wprintf("</B></FONT></TD></TR></TABLE>\n");
 
-	wprintf("<CENTER><TABLE border><TR>");
-	wprintf("<TH>Session ID</TH><TH>User Name</TH><TH>Room</TH>");
-	wprintf("<TH>From host</TH></TR>\n");
+	wprintf("<CENTER>\n<TABLE BORDER=1>\n<TR>\n");
+	wprintf("<TH><FONT FACE=\"Arial,Helvetica,sans-serif\">Session ID</FONT></TH>\n");
+	wprintf("<TH><FONT FACE=\"Arial,Helvetica,sans-serif\">User Name</FONT></TH>\n");
+	wprintf("<TH><FONT FACE=\"Arial,Helvetica,sans-serif\">Room</FONT></TH>");
+	wprintf("<TH><FONT FACE=\"Arial,Helvetica,sans-serif\">From host</FONT></TH>\n</TR>\n");
 	serv_puts("RWHO");
 	serv_gets(buf);
 	if (buf[0]=='1') {
@@ -85,7 +87,7 @@ void whobbs(void) {
 			}
 
 		while (wlist != NULL) {
-			wprintf("<TR><TD>%d", wlist->sessionnum);
+			wprintf("<TR>\n\t<TD ALIGN=center><FONT FACE=\"Arial,Helvetica,sans-serif\">%d", wlist->sessionnum);
 			if ( (is_aide) &&
 			   (wlist->sessionnum != serv_info.serv_pid) ) {
 				wprintf(" <A HREF=\"/terminate_session&which_session=%d&session_owner=", wlist->sessionnum);
@@ -96,31 +98,41 @@ void whobbs(void) {
 				wprintf(" <A HREF=\"/edit_me\">(edit)</A>");
 				}
 			/* username */
-			wprintf("</TD><TD><A HREF=\"/static/page_user_popup.html\" onMouseOver=\"window.status='Page ");
+			wprintf("</FONT></TD>\n\t<TD><FONT FACE=\"Arial,Helvetica,sans-serif\"><A HREF=\"/showuser?who=");
+			escputs(wlist->username);
+			wprintf("\" onMouseOver=\"window.status='View profile for ");
 			escputs(wlist->username);
 			wprintf("'; return true\">");
 			escputs(wlist->username);
 			wprintf("</A>");
 			/* room */
-			wprintf("</TD><TD><A HREF=\"/dotgoto&room=");
-			escputs(wlist->roomname);
-			wprintf("\" onMouseOver=\"window.status='Go to room ");
-			escputs(wlist->roomname);
-			wprintf("'; return true\">");
-			escputs(wlist->roomname);
-			wprintf("</A>");
-			wprintf("</TD><TD>");
+			wprintf("</FONT></TD>\n\t<TD><FONT FACE=\"Arial,Helvetica,sans-serif\">");
+			/* handle chat */
+			if(strstr(wlist->roomname,"chat") != NULL){
+				wprintf("<A HREF=\"/chat\" onMouseOver=\"window.status='Chat'; return true\">&lt;chat&gt;</A>");
+				}
+			else {
+				wprintf("<A HREF=\"/dotgoto&room=");
+				escputs(wlist->roomname);
+				wprintf("\" onMouseOver=\"window.status='Go to room ");
+				escputs(wlist->roomname);
+				wprintf("'; return true\">");
+				escputs(wlist->roomname);
+				wprintf("</A>");
+				}
+			wprintf("</FONT></TD><TD><FONT FACE=\"Arial,Helvetica,sans-serif\">");
 			/* hostname */
 			escputs(wlist->hostname);
-			wprintf("</TD></TR>\n");
+			wprintf("</FONT></TD>\n</TR>");
 			wptr = wlist->next;
 			free(wlist);
 			wlist = wptr;
 			}
 		}
-	wprintf("</TABLE>\n");
-	wprintf("<A HREF=\"/whobbs\">Refresh</A>\n");
-        wprintf("</CENTER>\n");
+	wprintf("</TABLE>\n<BR><BR>\n");
+	wprintf("<TABLE BORDER=0 BGCOLOR=\"#003399\">\n<TR><TD ALIGN=center VALIGN=center CELLPADING=10>\n");
+	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\" SIZE=+2><B><A HREF=\"/whobbs\"><FONT COLOR=\"#FF0000\">Refresh</FONT></A></B></FONT>\n");
+	wprintf("</TD></TR>\n</TABLE>\n</CENTER>");
         wDumpContent(1);
 	}
 
@@ -143,10 +155,10 @@ void terminate_session(void) {
 		printf("HTTP/1.0 200 OK\n");
 		output_headers(1, "bottom");
         	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
-        	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>Confirm session termination");
+        	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\" SIZE=+1 COLOR=\"FFFFFF\"<B>Confirm session termination");
         	wprintf("</B></FONT></TD></TR></TABLE>\n");
 	
-		wprintf("Are you sure you want to terminate session %s",
+		wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\">Are you sure you want to terminate session %s",
 			bstr("which_session"));
 		if (strlen(bstr("session_owner"))>0) {
 			wprintf(" (");
@@ -158,7 +170,7 @@ void terminate_session(void) {
 		wprintf("<A HREF=\"/terminate_session&which_session=%s&confirm=yes\">",
 			bstr("which_session"));
 		wprintf("Yes</A>&nbsp;&nbsp;&nbsp;");
-		wprintf("<A HREF=\"/whobbs\">No</A>");
+		wprintf("<A HREF=\"/whobbs\">No</A></FONT>");
 		wDumpContent(1);
 		}
 
@@ -196,42 +208,42 @@ void edit_me(void) {
 	else {
 
        		wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
-       		wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>");
+       		wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\" SIZE=+1 COLOR=\"FFFFFF\"><B>");
 		wprintf("Edit your session display");
        		wprintf("</B></FONT></TD></TR></TABLE>\n");
-	
+		wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\">");
 		wprintf("This screen allows you to change the way your\n");
 		wprintf("session appears in the 'Who is online' listing.\n");
 		wprintf("To turn off any 'fake' name you've previously\n");
 		wprintf("set, simply click the appropriate 'change' button\n");
 		wprintf("without typing anything in the corresponding box.\n");
-		wprintf("<BR>\n");
+		wprintf("<BR>\n</FONT>\n");
 
 	        wprintf("<FORM METHOD=\"POST\" ACTION=\"/edit_me\">\n");
 
 		wprintf("<TABLE border=0 width=100%>\n");
 
-        	wprintf("<TR><TD>Room name:</TD><TD>");
-        	wprintf("<INPUT TYPE=\"text\" NAME=\"fake_roomname\" MAXLENGTH=\"64\">\n");
-		wprintf("</TD><TD>");
-        	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Change room name\">");
-		wprintf("</TD></TR>\n");
+        	wprintf("<TR><TD><FONT FACE=\"Arial,Helvetica,sans-serif\"><B>Room name:</B></FONT></TD>\n<TD>");
+        	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><INPUT TYPE=\"text\" NAME=\"fake_roomname\" MAXLENGTH=\"64\">\n");
+		wprintf("</FONT></TD>\n<TD ALIGN=center>");
+        	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Change room name\">");
+		wprintf("</FONT></TD>\n</TR>\n");
 
-        	wprintf("<TR><TD>Host name:</TD><TD>");
-        	wprintf("<INPUT TYPE=\"text\" NAME=\"fake_hostname\" MAXLENGTH=\"64\">\n");
-		wprintf("</TD><TD>");
-        	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Change host name\">");
-		wprintf("</TD></TR>\n");
+        	wprintf("<TR><TD><FONT FACE=\"Arial,Helvetica,sans-serif\"><B>Host name:</B></FONT></TD><TD>");
+        	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><INPUT TYPE=\"text\" NAME=\"fake_hostname\" MAXLENGTH=\"64\">\n");
+		wprintf("</FONT></TD>\n<TD ALIGN=center>");
+        	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Change host name\">");
+		wprintf("</FONT></TD>\n</TR>\n");
 
 		if (is_aide) {
-        		wprintf("<TR><TD>User name:</TD><TD>");
-        		wprintf("<INPUT TYPE=\"text\" NAME=\"fake_username\" MAXLENGTH=\"64\">\n");
-			wprintf("</TD><TD>");
-        		wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Change user name\">");
-			wprintf("</TD></TR>\n");
+        		wprintf("<TR><TD><FONT FACE=\"Arial,Helvetica,sans-serif\"><B>User name:</B></FONT></TD><TD>");
+        		wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><INPUT TYPE=\"text\" NAME=\"fake_username\" MAXLENGTH=\"64\">\n");
+			wprintf("</FONT></TD>\n<TD ALIGN=center>");
+        		wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Change user name\">");
+			wprintf("</FONT></TD>\n</TR>\n");
 			}
 
-		wprintf("<TR><TD></TD><TD></TD><TD>");
+		wprintf("<TR><TD>&nbsp;</TD><TD>&nbsp;</TD><TD ALIGN=center>");
         	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 		wprintf("</TD></TR></TABLE>\n");
 
