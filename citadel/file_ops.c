@@ -665,7 +665,7 @@ void cmd_ucls(char *cmd)
 			"NEW UPLOAD: '%s'\n %s\n",
 			CC->upl_file, CC->upl_comment);
 		quickie_message(CC->curr_user, NULL, CC->quickroom.QRname,
-				upload_notice);
+				upload_notice, 0);
 	} else {
 		abort_upl(CC);
 		cprintf("%d File '%s' aborted.\n", CIT_OK, CC->upl_path);

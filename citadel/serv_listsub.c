@@ -68,10 +68,8 @@ void listsub_generate_token(char *buf) {
 	 * tinfoil-hat secure, it just needs to be reasonably unguessable
 	 * and unique.
 	 */
-	sprintf(sourcebuf, "%d%d%ld",
-		++seq,
-		getpid(),
-		time(NULL)
+	sprintf(sourcebuf, "%lx",
+		(long) (++seq + getpid() + time(NULL))
 	);
 
 	/* Convert it to base64 so it looks cool */	
@@ -88,6 +86,7 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 	char filename[SIZ];
 	char token[SIZ];
 	char confirmation_request[SIZ];
+	char urlroom[SIZ];
 
 	if (getroom(&qrbuf, room) != 0) {
 		cprintf("%d There is no list called '%s'\n", ERROR, room);
@@ -120,28 +119,32 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 
 	/* Generate and send the confirmation request */
 
+	urlesc(urlroom, qrbuf.QRname);
+
 	snprintf(confirmation_request, sizeof confirmation_request,
+		"Content-type: text/html\n\n"
+		"<HTML><BODY>"
 		"Someone (probably you) has submitted a request to subscribe\n"
-		"<%s> to the '%s' mailing list.\n\n"
-		"In order to confirm this subscription request, please\n"
-		"point your web browser at the following location:\n\n"
-		"http://%s?room=%s&token=%s\n\n"
+		"&lt;%s&gt; to the <B>%s</B> mailing list.<BR><BR>\n"
+		"<A HREF=\"http://%s?room=%s&token=%s&cmd=confirm\">"
+		"Please click here to confirm this request.</A><BR><BR>\n"
 		"If this request has been submitted in error and you do not\n"
 		"wish to receive the '%s' mailing list, simply do nothing,\n"
-		"and you will not receive any further mailings.\n",
+		"and you will not receive any further mailings.\n"
+		"</BODY></HTML>\n",
 
-		email, qrbuf.QRname, webpage, qrbuf.QRname, token, qrbuf.QRname
+		email, qrbuf.QRname, webpage, urlroom, token, qrbuf.QRname
 	);
 
-	quickie_message(
+	quickie_message(	/* This delivers the message */
 		"Citadel",
 		email,
-		qrbuf.QRname,
-		confirmation_request
+		NULL,
+		confirmation_request,
+		FMT_RFC822
 	);
 
 	cprintf("%d Subscription entered; confirmation request sent\n", CIT_OK);
-
 }
 
 

@@ -89,7 +89,25 @@ void do_listsub(void)
 			goto FORM;
 		}
 	}
-	
+
+	/* 
+	 * Confirm command
+	 */
+	else if (!strcasecmp(cmd, "confirm")) {
+		serv_printf("SUBS confirm|%s|%s",
+			room,
+			token
+		);
+		serv_gets(buf);
+		if (buf[0] == '2') {
+			wprintf("<CENTER><H1>Confirmation successful!</H1>");
+		}
+		else {
+			wprintf("<CENTER><H1>Confirmation failed.</H1>");
+		}
+		wprintf("%s</CENTER><BR>\n", &buf[4]);
+	}
+
 	/*
 	 * Any other (invalid) command causes the form to be displayed
 	 */
@@ -109,7 +127,7 @@ FORM:		wprintf("<FORM METHOD=\"POST\" ACTION=\"/listsub\">\n"
 				self = extract_int(buf, 4) & QR2_SELFLIST ;
 				if (self) {
 					wprintf("<OPTION VALUE=\"");
-					urlescputs(sroom);
+					escputs(sroom);
 					wprintf("\">");
 					escputs(sroom);
 					wprintf("</OPTION>\n");

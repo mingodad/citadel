@@ -607,3 +607,30 @@ char *myfgets(char *s, int size, FILE *stream) {
 
 	return ret;
 }
+
+/*
+ * Escape a string for feeding out as a URL.
+ * Output buffer must be big enough to handle escape expansion!
+ */
+void urlesc(char *outbuf, char *strbuf)
+{
+	int a, b, c;
+	char *ec = " #&;`'|*?-~<>^()[]{}$\\";
+
+	strcpy(outbuf, "");
+
+	for (a = 0; a < strlen(strbuf); ++a) {
+		c = 0;
+		for (b = 0; b < strlen(ec); ++b) {
+			if (strbuf[a] == ec[b])
+				c = 1;
+		}
+		b = strlen(outbuf);
+		if (c == 1)
+			sprintf(&outbuf[b], "%%%02x", strbuf[a]);
+		else
+			sprintf(&outbuf[b], "%c", strbuf[a]);
+	}
+}
+
+

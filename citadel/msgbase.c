@@ -2141,7 +2141,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 /*
  * Convenience function for generating small administrative messages.
  */
-void quickie_message(char *from, char *to, char *room, char *text)
+void quickie_message(char *from, char *to, char *room, char *text, 
+			int format_type)
 {
 	struct CtdlMessage *msg;
 	struct recptypes *recp = NULL;
@@ -2150,7 +2151,7 @@ void quickie_message(char *from, char *to, char *room, char *text)
 	memset(msg, 0, sizeof(struct CtdlMessage));
 	msg->cm_magic = CTDLMESSAGE_MAGIC;
 	msg->cm_anon_type = MES_NORMAL;
-	msg->cm_format_type = 0;
+	msg->cm_format_type = format_type;
 	msg->cm_fields['A'] = strdoop(from);
 	if (room != NULL) msg->cm_fields['O'] = strdoop(room);
 	msg->cm_fields['N'] = strdoop(NODENAME);

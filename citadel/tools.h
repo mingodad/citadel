@@ -27,3 +27,4 @@ void stripout(char *str, char leftboundary, char rightboundary);
 void stripallbut(char *str, char leftboundary, char rightboundary);
 
 char *myfgets(char *s, int size, FILE *stream);
+void urlesc(char *outbuf, char *strbuf);
