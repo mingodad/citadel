@@ -82,7 +82,6 @@ fi
 
 if test "x$ok_zlib" != xno ; then
 	LIBS="-lz $LIBS"
-	CFLAGS="-DWITH_ZLIB $CFLAGS"
 	AC_DEFINE(HAVE_ZLIB)
 fi
 
@@ -96,7 +95,6 @@ fi
 
 if test "x$ok_libical" != xno ; then
         LIBS="-lical $LIBS"
-	CFLAGS="-DWITH_LIBICAL $CFLAGS"
         AC_DEFINE(HAVE_LIBICAL)
 fi
 
