@@ -107,10 +107,6 @@ WEBCIT_SOURCE=webcit-5.22.tar.gz
 SETUP="Citadel Easy Install"
 
 LOG=$BUILD/log.txt
-CFLAGS="${CFLAGS} -I${SUPPORT}/include"
-CPPFLAGS="${CFLAGS}"
-LDFLAGS="-l${SUPPORT}/lib -Wl,--rpath -Wl,${SUPPORT}/lib"
-export CFLAGS CPPFLAGS LDFLAGS
 
 ##### BEGIN Functions #####
 
@@ -234,6 +230,12 @@ install_prerequisites () {
 
 install_sources () {
 	echo "* Installing Citadel..."
+
+	CFLAGS="${CFLAGS} -I${SUPPORT}/include"
+	CPPFLAGS="${CFLAGS}"
+	LDFLAGS="-l${SUPPORT}/lib -Wl,--rpath -Wl,${SUPPORT}/lib"
+	export CFLAGS CPPFLAGS LDFLAGS
+
 	cd $BUILD 2>&1 >>$LOG || die
 	( gzip -dc $CITADEL_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
 	cd $BUILD/citadel 2>&1 >>$LOG || die
@@ -269,6 +271,10 @@ install_sources () {
 ##### BEGIN main #####
 
 # 1. Gather information about the target system
+
+[ x$MAKE == x ] && MAKE=`which gmake`
+[ x$MAKE == x ] && MAKE=`which make`
+clear
 
 os=`uname`
 
