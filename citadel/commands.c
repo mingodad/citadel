@@ -567,14 +567,25 @@ void getline(char *string, int lim)
  */
 void strprompt(char *prompt, char *str, int len)
 {
+	int i;
 	char buf[128];
+
 	print_express();
 	color(DIM_WHITE);
 	scr_printf("%s ", prompt);
 	color(DIM_MAGENTA);
 	scr_printf("[");
 	color(BRIGHT_MAGENTA);
-	scr_printf("%s", str);
+
+	if (len >= 0) {
+		scr_printf("%s", str);
+	}
+	else {
+		for (i=0; i<strlen(str); ++i) {
+			scr_printf("*");
+		}
+	}
+
 	color(DIM_MAGENTA);
 	scr_printf("]");
 	color(DIM_WHITE);

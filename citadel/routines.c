@@ -119,6 +119,7 @@ void edituser(void)
 	long usernum;
 	time_t lastcall;
 	int userpurge;
+	int newnow = 0;
 
 	newprompt("User name: ",who,25);
 AGUP:	sprintf(buf,"AGUP %s",who);
@@ -131,7 +132,10 @@ AGUP:	sprintf(buf,"AGUP %s",who);
 			sprintf(buf, "CREU %s", who);
 			serv_puts(buf);
 			serv_gets(buf);
-			if (buf[0] == '2') goto AGUP;
+			if (buf[0] == '2') {
+				newnow = 1;
+				goto AGUP;
+			}
 			scr_printf("%s\n",&buf[4]);
 			return;
 		}
@@ -148,9 +152,14 @@ AGUP:	sprintf(buf,"AGUP %s",who);
 	userpurge = extract_int(&buf[4], 8);
 
 	val_user(who, 0); /* Display registration */
-	if (boolprompt("Change password", 0)) {
-		strprompt("Password", pass, 19);
+
+	if (newnow) {
+		newprompt("Password: ", pass, -19);
 	}
+	else if (boolprompt("Change password", 0)) {
+		strprompt("Password", pass, -19);
+	}
+
 	axlevel = intprompt("Access level", axlevel, 0, 6);
 	if (boolprompt("Ask user to register again", !(flags & US_REGIS)))
 		flags &= ~US_REGIS;

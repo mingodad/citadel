@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.123  2002/03/03 06:31:58  ajc
+ * Added password starred-out entry to newprompt() and strprompt()
+ * Applied the above setting to password set/change in <.A>ide <U>seredit
+
  Revision 590.122  2002/03/03 06:18:45  ajc
  * Implemented the CREU server command to administratively create user accounts
  * Added the ability to create new user accounts to <.A>ide <U>seredit
@@ -3376,4 +3380,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
