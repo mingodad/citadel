@@ -1,4 +1,8 @@
  $Log$
+ Revision 626.3  2004/10/03 04:11:48  ajc
+ * sysdep.c: in the main server loop, when time_to_die is detected, return
+   immediately instead of falling through to the end of the function.
+
  Revision 626.2  2004/10/03 03:57:32  ajc
  * Added pthread_attr_destroy() in the appropriate location (thanks fleeb!)
 
@@ -6128,4 +6132,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

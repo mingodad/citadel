@@ -959,7 +959,7 @@ do_select:	force_purge = 0;
 			retval = select(highest + 1, &readfds, NULL, NULL, &tv);
 		}
 		else {
-			break;
+			return;
 		}
 
 		/* Now figure out who made this select() unblock.
@@ -1029,7 +1029,7 @@ do_select:	force_purge = 0;
 		}
 
 		if (time_to_die) {
-			break;
+			return;
 		}
 
 		/* It must be a client socket.  Find a context that has data
@@ -1084,7 +1084,6 @@ SKIP_SELECT:
 	}
 
 	/* If control reaches this point, the server is shutting down */	
-	--num_threads;
 	return NULL;
 }
 
