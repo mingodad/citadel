@@ -291,45 +291,45 @@ void artv_do_export(void) {
 
 
 void artv_import_config(void) {
-	char buf[SIZ];
+	char *ibuf;
 
 	lprintf(9, "Importing config file\n");
-	client_gets(config.c_nodename);
+	client_gets(&ibuf); strcpy(config.c_nodename, ibuf);
 	lprintf(9, "c_nodename = %s\n", config.c_nodename);
-	client_gets(config.c_fqdn);
-	client_gets(config.c_humannode);
-	client_gets(config.c_phonenum);
-	client_gets(buf);	config.c_bbsuid = atoi(buf);
-	client_gets(buf);	config.c_creataide = atoi(buf);
-	client_gets(buf);	config.c_sleeping = atoi(buf);
-	client_gets(buf);	config.c_initax = atoi(buf);
-	client_gets(buf);	config.c_regiscall = atoi(buf);
-	client_gets(buf);	config.c_twitdetect = atoi(buf);
-	client_gets(config.c_twitroom);
-	client_gets(config.c_moreprompt);
-	client_gets(buf);	config.c_restrict = atoi(buf);
-	client_gets(buf);	config.c_msgbase = atol(buf);
-	client_gets(config.c_bbs_city);
-	client_gets(config.c_sysadm);
+	client_gets(&ibuf); strcpy (config.c_fqdn, ibuf);
+	client_gets(&ibuf); strcpy (config.c_humannode, ibuf);
+	client_gets(&ibuf); strcpy (config.c_phonenum, ibuf);
+	client_gets(&ibuf);	config.c_bbsuid = atoi(ibuf);
+	client_gets(&ibuf);	config.c_creataide = atoi(ibuf);
+	client_gets(&ibuf);	config.c_sleeping = atoi(ibuf);
+	client_gets(&ibuf);	config.c_initax = atoi(ibuf);
+	client_gets(&ibuf);	config.c_regiscall = atoi(ibuf);
+	client_gets(&ibuf);	config.c_twitdetect = atoi(ibuf);
+	client_gets(&ibuf); strcpy(config.c_twitroom, ibuf);
+	client_gets(&ibuf); strcpy(config.c_moreprompt, ibuf);
+	client_gets(&ibuf);	config.c_restrict = atoi(ibuf);
+	client_gets(&ibuf);	config.c_msgbase = atol(ibuf);
+	client_gets(&ibuf); strcpy(config.c_bbs_city, ibuf);
+	client_gets(&ibuf); strcpy(config.c_sysadm, ibuf);
 	lprintf(9, "c_sysadm = %s\n", config.c_sysadm);
-	client_gets(config.c_bucket_dir);
-	client_gets(buf);	config.c_setup_level = atoi(buf);
-	client_gets(buf);	config.c_maxsessions = atoi(buf);
-	client_gets(config.c_net_password);
-	client_gets(buf);	config.c_port_number = atoi(buf);
-	client_gets(buf);	config.c_ipgm_secret = atoi(buf);
-	client_gets(buf);	config.c_ep.expire_mode = atoi(buf);
-	client_gets(buf);	config.c_ep.expire_value = atoi(buf);
-	client_gets(buf);	config.c_userpurge = atoi(buf);
-	client_gets(buf);	config.c_roompurge = atoi(buf);
-	client_gets(config.c_logpages);
-	client_gets(buf);	config.c_createax = atoi(buf);
-	client_gets(buf);	config.c_maxmsglen = atol(buf);
-	client_gets(buf);	config.c_min_workers = atoi(buf);
-	client_gets(buf);	config.c_max_workers = atoi(buf);
-	client_gets(buf);	config.c_pop3_port = atoi(buf);
-	client_gets(buf);	config.c_smtp_port = atoi(buf);
-	client_gets(buf);	config.c_default_filter = atoi(buf);
+	client_gets(&ibuf); strcpy(config.c_bucket_dir, ibuf);
+	client_gets(&ibuf);	config.c_setup_level = atoi(ibuf);
+	client_gets(&ibuf);	config.c_maxsessions = atoi(ibuf);
+	client_gets(&ibuf); strcpy(config.c_net_password, ibuf);
+	client_gets(&ibuf);	config.c_port_number = atoi(ibuf);
+	client_gets(&ibuf);	config.c_ipgm_secret = atoi(ibuf);
+	client_gets(&ibuf);	config.c_ep.expire_mode = atoi(ibuf);
+	client_gets(&ibuf);	config.c_ep.expire_value = atoi(ibuf);
+	client_gets(&ibuf);	config.c_userpurge = atoi(ibuf);
+	client_gets(&ibuf);	config.c_roompurge = atoi(ibuf);
+	client_gets(&ibuf); strcpy(config.c_logpages, ibuf);
+	client_gets(&ibuf);	config.c_createax = atoi(ibuf);
+	client_gets(&ibuf);	config.c_maxmsglen = atol(ibuf);
+	client_gets(&ibuf);	config.c_min_workers = atoi(ibuf);
+	client_gets(&ibuf);	config.c_max_workers = atoi(ibuf);
+	client_gets(&ibuf);	config.c_pop3_port = atoi(ibuf);
+	client_gets(&ibuf);	config.c_smtp_port = atoi(ibuf);
+	client_gets(&ibuf);	config.c_default_filter = atoi(ibuf);
 	put_config();
 	lprintf(7, "Imported config file\n");
 }
@@ -337,67 +337,67 @@ void artv_import_config(void) {
 
 
 void artv_import_control(void) {
-	char buf[SIZ];
+	char *ibuf;
 
 	lprintf(9, "Importing control file\n");
-	client_gets(buf);	CitControl.MMhighest = atol(buf);
-	client_gets(buf);	CitControl.MMflags = atoi(buf);
-	client_gets(buf);	CitControl.MMnextuser = atol(buf);
-	client_gets(buf);	CitControl.MMnextroom = atol(buf);
-	client_gets(buf);	CitControl.version = atoi(buf);
+	client_gets(&ibuf);	CitControl.MMhighest = atol(ibuf);
+	client_gets(&ibuf);	CitControl.MMflags = atoi(ibuf);
+	client_gets(&ibuf);	CitControl.MMnextuser = atol(ibuf);
+	client_gets(&ibuf);	CitControl.MMnextroom = atol(ibuf);
+	client_gets(&ibuf);	CitControl.version = atoi(ibuf);
 	put_control();
 	lprintf(7, "Imported control file\n");
 }
 
 
 void artv_import_user(void) {
-	char buf[SIZ];
+	char *ibuf;
 	struct usersupp usbuf;
 
-	client_gets(buf);	usbuf.version = atoi(buf);
-	client_gets(buf);	usbuf.uid = atoi(buf);
-	client_gets(usbuf.password);
-	client_gets(buf);	usbuf.flags = atoi(buf);
-	client_gets(buf);	usbuf.timescalled = atol(buf);
-	client_gets(buf);	usbuf.posted = atol(buf);
-	client_gets(buf);	usbuf.axlevel = atoi(buf);
-	client_gets(buf);	usbuf.usernum = atol(buf);
-	client_gets(buf);	usbuf.lastcall = atol(buf);
-	client_gets(buf);	usbuf.USuserpurge = atoi(buf);
-	client_gets(usbuf.fullname);
-	client_gets(buf);	usbuf.USscreenwidth = atoi(buf);
-	client_gets(buf);	usbuf.USscreenheight = atoi(buf);
-	client_gets(buf);	usbuf.moderation_filter = atoi(buf);
+	client_gets(&ibuf);	usbuf.version = atoi(ibuf);
+	client_gets(&ibuf);	usbuf.uid = atoi(ibuf);
+	client_gets(&ibuf); strcpy(usbuf.password, ibuf);
+	client_gets(&ibuf);	usbuf.flags = atoi(ibuf);
+	client_gets(&ibuf);	usbuf.timescalled = atol(ibuf);
+	client_gets(&ibuf);	usbuf.posted = atol(ibuf);
+	client_gets(&ibuf);	usbuf.axlevel = atoi(ibuf);
+	client_gets(&ibuf);	usbuf.usernum = atol(ibuf);
+	client_gets(&ibuf);	usbuf.lastcall = atol(ibuf);
+	client_gets(&ibuf);	usbuf.USuserpurge = atoi(ibuf);
+	client_gets(&ibuf); strcpy(usbuf.fullname, ibuf);
+	client_gets(&ibuf);	usbuf.USscreenwidth = atoi(ibuf);
+	client_gets(&ibuf);	usbuf.USscreenheight = atoi(ibuf);
+	client_gets(&ibuf);	usbuf.moderation_filter = atoi(ibuf);
 	putuser(&usbuf);
 }
 
 
 void artv_import_room(void) {
-	char buf[SIZ];
+	char *ibuf;
 	struct quickroom qrbuf;
 	long msgnum;
 	int msgcount = 0;
 
-	client_gets(qrbuf.QRname);
-	client_gets(qrbuf.QRpasswd);
-	client_gets(buf);	qrbuf.QRroomaide = atol(buf);
-	client_gets(buf);	qrbuf.QRhighest = atol(buf);
-	client_gets(buf);	qrbuf.QRgen = atol(buf);
-	client_gets(buf);	qrbuf.QRflags = atoi(buf);
-	client_gets(qrbuf.QRdirname);
-	client_gets(buf);	qrbuf.QRinfo = atol(buf);
-	client_gets(buf);	qrbuf.QRfloor = atoi(buf);
-	client_gets(buf);	qrbuf.QRmtime = atol(buf);
-	client_gets(buf);	qrbuf.QRep.expire_mode = atoi(buf);
-	client_gets(buf);	qrbuf.QRep.expire_value = atoi(buf);
-	client_gets(buf);	qrbuf.QRnumber = atol(buf);
-	client_gets(buf);	qrbuf.QRorder = atoi(buf);
+	client_gets(&ibuf); strcpy(qrbuf.QRname, ibuf);
+	client_gets(&ibuf); strcpy(qrbuf.QRpasswd, ibuf);
+	client_gets(&ibuf);	qrbuf.QRroomaide = atol(ibuf);
+	client_gets(&ibuf);	qrbuf.QRhighest = atol(ibuf);
+	client_gets(&ibuf);	qrbuf.QRgen = atol(ibuf);
+	client_gets(&ibuf);	qrbuf.QRflags = atoi(ibuf);
+	client_gets(&ibuf); strcpy(qrbuf.QRdirname, ibuf);
+	client_gets(&ibuf);	qrbuf.QRinfo = atol(ibuf);
+	client_gets(&ibuf);	qrbuf.QRfloor = atoi(ibuf);
+	client_gets(&ibuf);	qrbuf.QRmtime = atol(ibuf);
+	client_gets(&ibuf);	qrbuf.QRep.expire_mode = atoi(ibuf);
+	client_gets(&ibuf);	qrbuf.QRep.expire_value = atoi(ibuf);
+	client_gets(&ibuf);	qrbuf.QRnumber = atol(ibuf);
+	client_gets(&ibuf);	qrbuf.QRorder = atoi(ibuf);
 	putroom(&qrbuf);
 	lprintf(7, "Imported room <%s>\n", qrbuf.QRname);
 	/* format of message list export is all message numbers output
 	 * one per line terminated by a 0.
 	 */
-	while (client_gets(buf), msgnum = atol(buf), msgnum > 0) {
+	while (client_gets(&ibuf), msgnum = atol(ibuf), msgnum > 0) {
 		CtdlSaveMsgPointerInRoom(qrbuf.QRname, msgnum, 0);
 		++msgcount;
 	}
@@ -408,14 +408,14 @@ void artv_import_room(void) {
 void artv_import_floor(void) {
         struct floor flbuf;
         int i;
-	char buf[SIZ];
+	char *ibuf;
 
-	client_gets(buf);		i = atoi(buf);
-	client_gets(buf);		flbuf.f_flags = atoi(buf);
-	client_gets(flbuf.f_name);
-	client_gets(buf);		flbuf.f_ref_count = atoi(buf);
-	client_gets(buf);		flbuf.f_ep.expire_mode = atoi(buf);
-	client_gets(buf);		flbuf.f_ep.expire_value = atoi(buf);
+	client_gets(&ibuf);		i = atoi(ibuf);
+	client_gets(&ibuf);		flbuf.f_flags = atoi(ibuf);
+	client_gets(&ibuf);     strcpy(flbuf.f_name, ibuf);
+	client_gets(&ibuf);		flbuf.f_ref_count = atoi(ibuf);
+	client_gets(&ibuf);		flbuf.f_ep.expire_mode = atoi(ibuf);
+	client_gets(&ibuf);		flbuf.f_ep.expire_value = atoi(ibuf);
 	putfloor(&flbuf, i);
 	lprintf(7, "Imported floor #%d (%s)\n", i, flbuf.f_name);
 }
@@ -425,13 +425,13 @@ void artv_import_floor(void) {
  */
 void artv_import_visit(void) {
 	struct visit vbuf;
-	char buf[SIZ];
+	char *ibuf;
 
-	client_gets(buf);	vbuf.v_roomnum = atol(buf);
-	client_gets(buf);	vbuf.v_roomgen = atol(buf);
-	client_gets(buf);	vbuf.v_usernum = atol(buf);
-	client_gets(buf);	vbuf.v_lastseen = atol(buf);
-	client_gets(buf);	vbuf.v_flags = atoi(buf);
+	client_gets(&ibuf);	vbuf.v_roomnum = atol(ibuf);
+	client_gets(&ibuf);	vbuf.v_roomgen = atol(ibuf);
+	client_gets(&ibuf);	vbuf.v_usernum = atol(ibuf);
+	client_gets(&ibuf);	vbuf.v_lastseen = atol(ibuf);
+	client_gets(&ibuf);	vbuf.v_flags = atoi(ibuf);
 	put_visit(&vbuf);
 	lprintf(7, "Imported visit %ld/%ld/%ld\n",
 		vbuf.v_roomnum, vbuf.v_roomgen, vbuf.v_usernum);
@@ -444,16 +444,17 @@ void artv_import_message(void) {
 	long msgnum;
 	int msglen;
 	FILE *fp;
+	char *ibuf;
 	char buf[SIZ];
 	char tempfile[SIZ];
 	char *mbuf;
 
 	memset(&smi, 0, sizeof(struct SuppMsgInfo));
-	client_gets(buf);	msgnum = atol(buf);
+	client_gets(&ibuf);	msgnum = atol(ibuf);
 				smi.smi_msgnum = msgnum;
-	client_gets(buf);	smi.smi_refcount = atoi(buf);
-	client_gets(smi.smi_content_type);
-	client_gets(buf);	smi.smi_mod = atoi(buf);
+	client_gets(&ibuf);	smi.smi_refcount = atoi(ibuf);
+	client_gets(&ibuf); strcpy(smi.smi_content_type, ibuf);
+	client_gets(&ibuf);	smi.smi_mod = atoi(ibuf);
 
 	lprintf(7, "message #%ld\n", msgnum);
 
@@ -461,7 +462,7 @@ void artv_import_message(void) {
 	strcpy(tempfile, tmpnam(NULL));
 	sprintf(buf, "./base64 -d >%s", tempfile);
 	fp = popen(buf, "w");
-	while (client_gets(buf), strcasecmp(buf, END_OF_MESSAGE)) {
+	while (client_gets(&ibuf), strcasecmp(ibuf, END_OF_MESSAGE)) {
 		fprintf(fp, "%s\n", buf);
 	}
 	fclose(fp);
@@ -489,41 +490,41 @@ void artv_import_message(void) {
 
 
 void artv_do_import(void) {
-	char buf[SIZ];
-	char s_version[SIZ];
+	char *ibuf;
+	char *is_version;
 	int version;
 
 	cprintf("%d sock it to me\n", SEND_LISTING);
-	while (client_gets(buf), strcmp(buf, "000")) {
+	while (client_gets(&ibuf), strcmp(ibuf, "000")) {
 
-		lprintf(9, "import keyword: <%s>\n", buf);
+		lprintf(9, "import keyword: <%s>\n", ibuf); 
 
-		if (!strcasecmp(buf, "version")) {
-			client_gets(s_version);
-			version = atoi(s_version);
+		if (!strcasecmp(ibuf, "version")) {
+			client_gets(&is_version);
+			version = atoi(is_version);
 			if ((version < REV_MIN) || (version > REV_LEVEL)) {
 				lprintf(7, "Version mismatch - aborting\n");
 				break;
 			}
 		}
-		else if (!strcasecmp(buf, "config")) artv_import_config();
-		else if (!strcasecmp(buf, "control")) artv_import_control();
-		else if (!strcasecmp(buf, "user")) artv_import_user();
-		else if (!strcasecmp(buf, "room")) artv_import_room();
-		else if (!strcasecmp(buf, "floor")) artv_import_floor();
-		else if (!strcasecmp(buf, "visit")) artv_import_visit();
-		else if (!strcasecmp(buf, "message")) artv_import_message();
+		else if (!strcasecmp(ibuf, "config")) artv_import_config();
+		else if (!strcasecmp(ibuf, "control")) artv_import_control();
+		else if (!strcasecmp(ibuf, "user")) artv_import_user();
+		else if (!strcasecmp(ibuf, "room")) artv_import_room();
+		else if (!strcasecmp(ibuf, "floor")) artv_import_floor();
+		else if (!strcasecmp(ibuf, "visit")) artv_import_visit();
+		else if (!strcasecmp(ibuf, "message")) artv_import_message();
 		else break;
 
 	}
-	lprintf(7, "Invalid keyword <%s>.  Flushing input.\n", buf);
-	while (client_gets(buf), strcmp(buf, "000"))  ;;
+	lprintf(7, "Invalid keyword <%s>.  Flushing input.\n", ibuf);
+	while (client_gets(&ibuf), strcmp(ibuf, "000"))  ;;
 }
 
 
 
 void cmd_artv(char *cmdbuf) {
-	char cmd[SIZ];
+	char cmd[SIZ]; 
 	static int is_running = 0;
 
 	if (CtdlAccessCheck(ac_aide)) return;	/* FIXME should be intpgm */
@@ -537,7 +538,7 @@ void cmd_artv(char *cmdbuf) {
 	strcpy(artv_tempfilename1, tmpnam(NULL));
 	strcpy(artv_tempfilename2, tmpnam(NULL));
 
-	extract(cmd, cmdbuf, 0);
+	extract(cmd, cmdbuf, 0); /* this is limited to SIZ */
 	if (!strcasecmp(cmd, "export")) artv_do_export();
 	else if (!strcasecmp(cmd, "import")) artv_do_import();
 	else cprintf("%d illegal command\n", ERROR);

@@ -688,74 +688,76 @@ void smtp_data(void) {
  * Main command loop for SMTP sessions.
  */
 void smtp_command_loop(void) {
-	char cmdbuf[SIZ];
+	char *icmdbuf;
 
 	time(&CC->lastcmd);
-	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
-	if (client_gets(cmdbuf) < 1) {
+	if (client_gets(&icmdbuf) < 1) {
 		lprintf(3, "SMTP socket is broken.  Ending session.\n");
 		CC->kill_me = 1;
 		return;
 	}
-	lprintf(5, "citserver[%3d]: %s\n", CC->cs_pid, cmdbuf);
-	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
+	/* Rather than fix the dynamic buffer a zillion places in here... */
+	if (strlen(icmdbuf) >= SIZ)
+	  *(icmdbuf+SIZ)= '\0'; /* no SMTP command should be this big */
+	lprintf(5, "citserver[%3d]: %s\n", CC->cs_pid, icmdbuf);
+	while (strlen(icmdbuf) < 5) strcat(icmdbuf, " ");
 
 	if (SMTP->command_state == smtp_user) {
-		smtp_get_user(cmdbuf);
+		smtp_get_user(icmdbuf);
 	}
 
 	else if (SMTP->command_state == smtp_password) {
-		smtp_get_pass(cmdbuf);
+		smtp_get_pass(icmdbuf);
 	}
 
-	else if (!strncasecmp(cmdbuf, "AUTH", 4)) {
-		smtp_auth(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf, "AUTH", 4)) {
+		smtp_auth(&icmdbuf[5]);
 	}
 
-	else if (!strncasecmp(cmdbuf, "DATA", 4)) {
+	else if (!strncasecmp(icmdbuf, "DATA", 4)) {
 		smtp_data();
 	}
 
-	else if (!strncasecmp(cmdbuf, "EHLO", 4)) {
-		smtp_hello(&cmdbuf[5], 1);
+	else if (!strncasecmp(icmdbuf, "EHLO", 4)) {
+		smtp_hello(&icmdbuf[5], 1);
 	}
 
-	else if (!strncasecmp(cmdbuf, "EXPN", 4)) {
-		smtp_expn(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf, "EXPN", 4)) {
+		smtp_expn(&icmdbuf[5]);
 	}
 
-	else if (!strncasecmp(cmdbuf, "HELO", 4)) {
-		smtp_hello(&cmdbuf[5], 0);
+	else if (!strncasecmp(icmdbuf, "HELO", 4)) {
+		smtp_hello(&icmdbuf[5], 0);
 	}
 
-	else if (!strncasecmp(cmdbuf, "HELP", 4)) {
+	else if (!strncasecmp(icmdbuf, "HELP", 4)) {
 		smtp_help();
 	}
 
-	else if (!strncasecmp(cmdbuf, "MAIL", 4)) {
-		smtp_mail(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf, "MAIL", 4)) {
+		smtp_mail(&icmdbuf[5]);
 	}
 
-	else if (!strncasecmp(cmdbuf, "NOOP", 4)) {
+	else if (!strncasecmp(icmdbuf, "NOOP", 4)) {
 		cprintf("250 This command successfully did nothing.\r\n");
 	}
 
-	else if (!strncasecmp(cmdbuf, "QUIT", 4)) {
+	else if (!strncasecmp(icmdbuf, "QUIT", 4)) {
 		cprintf("221 Goodbye...\r\n");
 		CC->kill_me = 1;
 		return;
 		}
 
-	else if (!strncasecmp(cmdbuf, "RCPT", 4)) {
-		smtp_rcpt(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf, "RCPT", 4)) {
+		smtp_rcpt(&icmdbuf[5]);
 	}
 
-	else if (!strncasecmp(cmdbuf, "RSET", 4)) {
+	else if (!strncasecmp(icmdbuf, "RSET", 4)) {
 		smtp_rset();
 	}
 
-	else if (!strncasecmp(cmdbuf, "VRFY", 4)) {
-		smtp_vrfy(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf, "VRFY", 4)) {
+		smtp_vrfy(&icmdbuf[5]);
 	}
 
 	else {

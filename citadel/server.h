@@ -109,6 +109,10 @@ struct CitContext {
 	char fake_hostname[25];			/* Fake hostname <bc> */
 	char fake_roomname[ROOMNAMELEN];	/* Fake roomname <bc> */
 
+  /* Dynamic input buffer size. stu 2/7/2001 */
+  char *readbuf;
+  long readbuf_alloc;
+
 	/* Dynamically allocated session data */
 	struct CtdlSessData *FirstSessData;
 };

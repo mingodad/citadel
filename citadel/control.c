@@ -127,7 +127,7 @@ long get_new_room_number(void) {
  */
 void cmd_conf(char *argbuf) {
 	char cmd[SIZ];
-	char buf[SIZ];
+	char *ibuf;
 	int a;
 	char *confptr;
 	char confname[SIZ];
@@ -178,92 +178,93 @@ void cmd_conf(char *argbuf) {
 		}
 
 	else if (!strcasecmp(cmd, "SET")) {
+	    char buf[SIZ];
 		cprintf("%d Send configuration...\n", SEND_LISTING);
 		a = 0;
-		while (client_gets(buf), strcmp(buf, "000")) {
+		while (client_gets(&ibuf), strcmp(ibuf, "000")) {
 		    switch(a) {
-			case 0:	safestrncpy(config.c_nodename, buf,
+			case 0:	safestrncpy(config.c_nodename, ibuf,
 					sizeof config.c_nodename);
 				break;
-			case 1:	safestrncpy(config.c_fqdn, buf,
+			case 1:	safestrncpy(config.c_fqdn, ibuf,
 					sizeof config.c_fqdn);
 				break;
-			case 2:	safestrncpy(config.c_humannode, buf,
+			case 2:	safestrncpy(config.c_humannode, ibuf,
 					sizeof config.c_humannode);
 				break;
-			case 3:	safestrncpy(config.c_phonenum, buf,
+			case 3:	safestrncpy(config.c_phonenum, ibuf,
 					sizeof config.c_phonenum);
 				break;
-			case 4:	config.c_creataide = atoi(buf);
+			case 4:	config.c_creataide = atoi(ibuf);
 				break;
-			case 5:	config.c_sleeping = atoi(buf);
+			case 5:	config.c_sleeping = atoi(ibuf);
 				break;
-			case 6:	config.c_initax = atoi(buf);
+			case 6:	config.c_initax = atoi(ibuf);
 				if (config.c_initax < 1) config.c_initax = 1;
 				if (config.c_initax > 6) config.c_initax = 6;
 				break;
-			case 7:	config.c_regiscall = atoi(buf);
+			case 7:	config.c_regiscall = atoi(ibuf);
 				if (config.c_regiscall != 0)
 					config.c_regiscall = 1;
 				break;
-			case 8:	config.c_twitdetect = atoi(buf);
+			case 8:	config.c_twitdetect = atoi(ibuf);
 				if (config.c_twitdetect != 0)
 					config.c_twitdetect = 1;
 				break;
-			case 9:	safestrncpy(config.c_twitroom, buf,
+			case 9:	safestrncpy(config.c_twitroom, ibuf,
 					sizeof config.c_twitroom);
 				break;
-			case 10: safestrncpy(config.c_moreprompt, buf,
+			case 10: safestrncpy(config.c_moreprompt, ibuf,
 					sizeof config.c_moreprompt);
 				break;
-			case 11: config.c_restrict = atoi(buf);
+			case 11: config.c_restrict = atoi(ibuf);
 				if (config.c_restrict != 0)
 					config.c_restrict = 1;
 				break;
-			case 12: safestrncpy(config.c_bbs_city, buf,
+			case 12: safestrncpy(config.c_bbs_city, ibuf,
 					sizeof config.c_bbs_city);
 				break;
-			case 13: safestrncpy(config.c_sysadm, buf,
+			case 13: safestrncpy(config.c_sysadm, ibuf,
 					sizeof config.c_sysadm);
 				break;
-			case 14: config.c_maxsessions = atoi(buf);
+			case 14: config.c_maxsessions = atoi(ibuf);
 				if (config.c_maxsessions < 1)
 					config.c_maxsessions = 1;
 				break;
-			case 15: safestrncpy(config.c_net_password, buf,
+			case 15: safestrncpy(config.c_net_password, ibuf,
 					sizeof config.c_net_password);
 				break;
-			case 16: config.c_userpurge = atoi(buf);
+			case 16: config.c_userpurge = atoi(ibuf);
 				break;
-			case 17: config.c_roompurge = atoi(buf);
+			case 17: config.c_roompurge = atoi(ibuf);
 				break;
-			case 18: safestrncpy(config.c_logpages, buf,
+			case 18: safestrncpy(config.c_logpages, ibuf,
 					sizeof config.c_logpages);
 				break;
-			case 19: config.c_createax = atoi(buf);
+			case 19: config.c_createax = atoi(ibuf);
 				if (config.c_createax < 1)
 					config.c_createax = 1;
 				if (config.c_createax > 6)
 					config.c_createax = 6;
 				break;
-			case 20: if (atoi(buf) >= 8192)
-					config.c_maxmsglen = atoi(buf);
+			case 20: if (atoi(ibuf) >= 8192)
+					config.c_maxmsglen = atoi(ibuf);
 				break;
-			case 21: if (atoi(buf) >= 2)
-					config.c_min_workers = atoi(buf);
-			case 22: if (atoi(buf) >= config.c_min_workers)
-					config.c_max_workers = atoi(buf);
-			case 23: config.c_pop3_port = atoi(buf);
+			case 21: if (atoi(ibuf) >= 2)
+					config.c_min_workers = atoi(ibuf);
+			case 22: if (atoi(ibuf) >= config.c_min_workers)
+					config.c_max_workers = atoi(ibuf);
+			case 23: config.c_pop3_port = atoi(ibuf);
 				break;
-			case 24: config.c_smtp_port = atoi(buf);
+			case 24: config.c_smtp_port = atoi(ibuf);
 				break;
-			case 25: config.c_default_filter = atoi(buf);
+			case 25: config.c_default_filter = atoi(ibuf);
 				break;
-			case 26: config.c_aide_zap = atoi(buf);
+			case 26: config.c_aide_zap = atoi(ibuf);
 				if (config.c_aide_zap != 0)
 					config.c_aide_zap = 1;
 				break;
-			case 27: config.c_imap_port = atoi(buf);
+			case 27: config.c_imap_port = atoi(ibuf);
 				break;
 			}
 		    ++a;

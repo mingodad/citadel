@@ -525,76 +525,75 @@ void pop3_uidl(char *argbuf) {
  * Main command loop for POP3 sessions.
  */
 void pop3_command_loop(void) {
-	char cmdbuf[SIZ];
+	char *icmdbuf;
 
 	time(&CC->lastcmd);
-	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
-	if (client_gets(cmdbuf) < 1) {
+	if (client_gets(&icmdbuf) < 1) {
 		lprintf(3, "POP3 socket is broken.  Ending session.\r\n");
 		CC->kill_me = 1;
 		return;
 	}
-	lprintf(5, "citserver[%3d]: %s\r\n", CC->cs_pid, cmdbuf);
-	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
+	lprintf(5, "citserver[%3d]: %s\r\n", CC->cs_pid, icmdbuf); 
+	while (strlen(icmdbuf) < 5) strcat(icmdbuf, " ");
 
-	if (!strncasecmp(cmdbuf, "NOOP", 4)) {
+	if (!strncasecmp(icmdbuf, "NOOP", 4)) {
 		cprintf("+OK No operation.\r\n");
 	}
 
-	else if (!strncasecmp(cmdbuf, "QUIT", 4)) {
+	else if (!strncasecmp(icmdbuf, "QUIT", 4)) {
 		cprintf("+OK Goodbye...\r\n");
 		pop3_update();
 		CC->kill_me = 1;
 		return;
 	}
 
-	else if (!strncasecmp(cmdbuf, "USER", 4)) {
-		pop3_user(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf, "USER", 4)) {
+		pop3_user(&icmdbuf[5]);
 	}
 
-	else if (!strncasecmp(cmdbuf, "PASS", 4)) {
-		pop3_pass(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf, "PASS", 4)) {
+		pop3_pass(&icmdbuf[5]);
 	}
 
-	else if (!strncasecmp(cmdbuf, "APOP", 4))
+	else if (!strncasecmp(icmdbuf, "APOP", 4))
 	{
-		pop3_apop(&cmdbuf[5]);
+		pop3_apop(&icmdbuf[5]);
 	}
 
 	else if (!CC->logged_in) {
 		cprintf("-ERR Not logged in.\r\n");
 	}
 
-	else if (!strncasecmp(cmdbuf, "LIST", 4)) {
-		pop3_list(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf, "LIST", 4)) {
+		pop3_list(&icmdbuf[5]);
 	}
 
-	else if (!strncasecmp(cmdbuf, "STAT", 4)) {
-		pop3_stat(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf, "STAT", 4)) {
+		pop3_stat(&icmdbuf[5]);
 	}
 
-	else if (!strncasecmp(cmdbuf, "RETR", 4)) {
-		pop3_retr(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf, "RETR", 4)) {
+		pop3_retr(&icmdbuf[5]);
 	}
 
-	else if (!strncasecmp(cmdbuf, "DELE", 4)) {
-		pop3_dele(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf, "DELE", 4)) {
+		pop3_dele(&icmdbuf[5]);
 	}
 
-	else if (!strncasecmp(cmdbuf, "RSET", 4)) {
-		pop3_rset(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf, "RSET", 4)) {
+		pop3_rset(&icmdbuf[5]);
 	}
 
-	else if (!strncasecmp(cmdbuf, "UIDL", 4)) {
-		pop3_uidl(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf, "UIDL", 4)) {
+		pop3_uidl(&icmdbuf[5]);
 	}
 
-	else if (!strncasecmp(cmdbuf, "TOP", 3)) {
-		pop3_top(&cmdbuf[4]);
+	else if (!strncasecmp(icmdbuf, "TOP", 3)) {
+		pop3_top(&icmdbuf[4]);
 	}
 
-	else if (!strncasecmp(cmdbuf, "LAST", 4)) {
-		pop3_last(&cmdbuf[4]);
+	else if (!strncasecmp(icmdbuf, "LAST", 4)) {
+		pop3_last(&icmdbuf[4]);
 	}
 
 	else {

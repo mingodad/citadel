@@ -197,6 +197,10 @@ void RemoveContext (struct CitContext *con)
 	lprintf(7, "Closing socket %d\n", con->client_socket);
 	close(con->client_socket);
 
+    /* stu 2/7/2001 free up mem used by reader */
+    if (con->readbuf != NULL)
+      phree(con->readbuf);
+      
 	/* This is where we used to check for scheduled shutdowns. */
 
 	/* Free up the memory used by this context */
@@ -519,6 +523,7 @@ void cmd_emsg(char *mname)
 	FILE *mfp;
 	char targ[SIZ];
 	char buf[SIZ];
+	char *ibuf;
 	char *dirs[2];
 	int a;
 
@@ -549,8 +554,8 @@ void cmd_emsg(char *mname)
 		}
 	cprintf("%d %s\n", SEND_LISTING, targ);
 
-	while (client_gets(buf), strcmp(buf, "000")) {
-		fprintf(mfp, "%s\n", buf);
+	while (client_gets(&ibuf), strcmp(ibuf, "000")) {
+		fprintf(mfp, "%s\n", ibuf);
 		}
 
 	fclose(mfp);
@@ -838,366 +843,367 @@ void citproto_begin_session() {
  * This loop recognizes all server commands.
  */
 void do_command_loop(void) {
-	char cmdbuf[SIZ];
+/*	char cmdbuf[SIZ]; stu */
+	char *icmdbuf;
 
 	time(&CC->lastcmd);
-	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
-	if (client_gets(cmdbuf) < 1) {
+/* 	memset(cmdbuf, 0, sizeof cmdbuf); */ /* Clear it, just in case */
+	if (client_gets(&icmdbuf) < 1) {
 		lprintf(3, "Client socket is broken.  Ending session.\n");
 		CC->kill_me = 1;
 		return;
 	}
-	lprintf(5, "citserver[%3d]: %s\n", CC->cs_pid, cmdbuf);
+	lprintf(5, "citserver[%3d]: %s\n", CC->cs_pid, icmdbuf);
 
 	/*
 	 * Let other clients see the last command we executed, and
 	 * update the idle time, but not NOOP, PEXP, or GEXP.
 	 */
-	if ( (strncasecmp(cmdbuf, "NOOP", 4))
-	   && (strncasecmp(cmdbuf, "PEXP", 4))
-	   && (strncasecmp(cmdbuf, "GEXP", 4)) ) {
+	if ( (strncasecmp(icmdbuf, "NOOP", 4))
+	   && (strncasecmp(icmdbuf, "PEXP", 4))
+	   && (strncasecmp(icmdbuf, "GEXP", 4)) ) {
 		strcpy(CC->lastcmdname, "    ");
-		safestrncpy(CC->lastcmdname, cmdbuf, 
+		safestrncpy(CC->lastcmdname, icmdbuf, 
 			sizeof(CC->lastcmdname) );
 		time(&CC->lastidle);
 		}
 		
-	if ((strncasecmp(cmdbuf, "ENT0", 4))
-	   && (strncasecmp(cmdbuf, "MESG", 4))
-	   && (strncasecmp(cmdbuf, "MSGS", 4)))
+	if ((strncasecmp(icmdbuf, "ENT0", 4))
+	   && (strncasecmp(icmdbuf, "MESG", 4))
+	   && (strncasecmp(icmdbuf, "MSGS", 4)))
 	{
 	   CC->cs_flags &= ~CS_POSTING;
 	}
 		   
-	if (!strncasecmp(cmdbuf,"NOOP",4)) {
+	if (!strncasecmp(icmdbuf,"NOOP",4)) {
 		cprintf("%d%cok\n",OK,CtdlCheckExpress());
 		}
 
-	else if (!strncasecmp(cmdbuf,"QUIT",4)) {
+	else if (!strncasecmp(icmdbuf,"QUIT",4)) {
 		cprintf("%d Goodbye.\n",OK);
 		CC->kill_me = 1;
 		}
 
-	else if (!strncasecmp(cmdbuf,"ASYN",4)) {
-		cmd_asyn(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"ASYN",4)) {
+		cmd_asyn(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"LOUT",4)) {
+	else if (!strncasecmp(icmdbuf,"LOUT",4)) {
 		if (CC->logged_in) logout(CC);
 		cprintf("%d logged out.\n",OK);
 		}
 
-	else if (!strncasecmp(cmdbuf,"USER",4)) {
-		cmd_user(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"USER",4)) {
+		cmd_user(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"PASS",4)) {
-		cmd_pass(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"PASS",4)) {
+		cmd_pass(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"NEWU",4)) {
-		cmd_newu(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"NEWU",4)) {
+		cmd_newu(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"SETP",4)) {
-		cmd_setp(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"SETP",4)) {
+		cmd_setp(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"LRMS",4)) {
-		cmd_lrms(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"LRMS",4)) {
+		cmd_lrms(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"LKRA",4)) {
-		cmd_lkra(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"LKRA",4)) {
+		cmd_lkra(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"LKRN",4)) {
-		cmd_lkrn(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"LKRN",4)) {
+		cmd_lkrn(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"LKRO",4)) {
-		cmd_lkro(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"LKRO",4)) {
+		cmd_lkro(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"LZRM",4)) {
-		cmd_lzrm(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"LZRM",4)) {
+		cmd_lzrm(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"GETU",4)) {
+	else if (!strncasecmp(icmdbuf,"GETU",4)) {
 		cmd_getu();
 		}
 
-	else if (!strncasecmp(cmdbuf,"SETU",4)) {
-		cmd_setu(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"SETU",4)) {
+		cmd_setu(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"GOTO",4)) {
-		cmd_goto(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"GOTO",4)) {
+		cmd_goto(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"MSGS",4)) {
-		cmd_msgs(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"MSGS",4)) {
+		cmd_msgs(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"WHOK",4)) {
+	else if (!strncasecmp(icmdbuf,"WHOK",4)) {
 		cmd_whok();
 		}
 
-	else if (!strncasecmp(cmdbuf,"RDIR",4)) {
+	else if (!strncasecmp(icmdbuf,"RDIR",4)) {
 		cmd_rdir();
 		}
 
-	else if (!strncasecmp(cmdbuf,"MSG0",4)) {
-		cmd_msg0(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"MSG0",4)) {
+		cmd_msg0(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"MSG2",4)) {
-		cmd_msg2(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"MSG2",4)) {
+		cmd_msg2(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"MSG3",4)) {
-		cmd_msg3(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"MSG3",4)) {
+		cmd_msg3(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"MSG4",4)) {
-		cmd_msg4(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"MSG4",4)) {
+		cmd_msg4(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"OPNA",4)) {
-		cmd_opna(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"OPNA",4)) {
+		cmd_opna(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"INFO",4)) {
+	else if (!strncasecmp(icmdbuf,"INFO",4)) {
 		cmd_info();
 		}
 
-	else if (!strncasecmp(cmdbuf,"SLRP",4)) {
-		cmd_slrp(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"SLRP",4)) {
+		cmd_slrp(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"INVT",4)) {
-		cmd_invt_kick(&cmdbuf[5],1);
+	else if (!strncasecmp(icmdbuf,"INVT",4)) {
+		cmd_invt_kick(&icmdbuf[5],1);
 		}
 
-	else if (!strncasecmp(cmdbuf,"KICK",4)) {
-		cmd_invt_kick(&cmdbuf[5],0);
+	else if (!strncasecmp(icmdbuf,"KICK",4)) {
+		cmd_invt_kick(&icmdbuf[5],0);
 		}
 
-	else if (!strncasecmp(cmdbuf,"GETR",4)) {
+	else if (!strncasecmp(icmdbuf,"GETR",4)) {
 		cmd_getr();
 		}
 
-	else if (!strncasecmp(cmdbuf,"SETR",4)) {
-		cmd_setr(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"SETR",4)) {
+		cmd_setr(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"GETA",4)) {
+	else if (!strncasecmp(icmdbuf,"GETA",4)) {
 		cmd_geta();
 		}
 
-	else if (!strncasecmp(cmdbuf,"SETA",4)) {
-		cmd_seta(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"SETA",4)) {
+		cmd_seta(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"ENT0",4)) {
-		cmd_ent0(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"ENT0",4)) {
+		cmd_ent0(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"ENT3",4)) {
-		cmd_ent3(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"ENT3",4)) {
+		cmd_ent3(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"RINF",4)) {
+	else if (!strncasecmp(icmdbuf,"RINF",4)) {
 		cmd_rinf();
 		}
 
-	else if (!strncasecmp(cmdbuf,"DELE",4)) {
-		cmd_dele(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"DELE",4)) {
+		cmd_dele(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"KILL",4)) {
-		cmd_kill(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"KILL",4)) {
+		cmd_kill(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"CRE8",4)) {
-		cmd_cre8(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"CRE8",4)) {
+		cmd_cre8(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"MOVE",4)) {
-		cmd_move(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"MOVE",4)) {
+		cmd_move(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"FORG",4)) {
+	else if (!strncasecmp(icmdbuf,"FORG",4)) {
 		cmd_forg();
 		}
 
-	else if (!strncasecmp(cmdbuf,"MESG",4)) {
-		cmd_mesg(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"MESG",4)) {
+		cmd_mesg(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"EMSG",4)) {
-		cmd_emsg(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"EMSG",4)) {
+		cmd_emsg(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"GNUR",4)) {
+	else if (!strncasecmp(icmdbuf,"GNUR",4)) {
 		cmd_gnur();
 		}
 
-	else if (!strncasecmp(cmdbuf,"VALI",4)) {
-		cmd_vali(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"VALI",4)) {
+		cmd_vali(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"EINF",4)) {
-		cmd_einf(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"EINF",4)) {
+		cmd_einf(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"LIST",4)) {
+	else if (!strncasecmp(icmdbuf,"LIST",4)) {
 		cmd_list();
 		}
 
-	else if (!strncasecmp(cmdbuf,"CHEK",4)) {
+	else if (!strncasecmp(icmdbuf,"CHEK",4)) {
 		cmd_chek();
 		}
 
-	else if (!strncasecmp(cmdbuf,"DELF",4)) {
-		cmd_delf(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"DELF",4)) {
+		cmd_delf(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"MOVF",4)) {
-		cmd_movf(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"MOVF",4)) {
+		cmd_movf(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"NETF",4)) {
-		cmd_netf(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"NETF",4)) {
+		cmd_netf(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"OPEN",4)) {
-		cmd_open(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"OPEN",4)) {
+		cmd_open(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"CLOS",4)) {
+	else if (!strncasecmp(icmdbuf,"CLOS",4)) {
 		cmd_clos();
 		}
 
-	else if (!strncasecmp(cmdbuf,"UOPN",4)) {
-		cmd_uopn(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"UOPN",4)) {
+		cmd_uopn(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"UCLS",4)) {
-		cmd_ucls(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"UCLS",4)) {
+		cmd_ucls(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"READ",4)) {
-		cmd_read(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"READ",4)) {
+		cmd_read(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"WRIT",4)) {
-		cmd_writ(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"WRIT",4)) {
+		cmd_writ(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"QUSR",4)) {
-		cmd_qusr(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"QUSR",4)) {
+		cmd_qusr(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"ECHO",4)) {
-		cmd_echo(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"ECHO",4)) {
+		cmd_echo(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"OIMG",4)) {
-		cmd_oimg(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"OIMG",4)) {
+		cmd_oimg(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"MORE",4)) {
+	else if (!strncasecmp(icmdbuf,"MORE",4)) {
 		cmd_more();
 		}
 
-	else if (!strncasecmp(cmdbuf,"NETP",4)) {
-		cmd_netp(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"NETP",4)) {
+		cmd_netp(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"NDOP",4)) {
-		cmd_ndop(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"NDOP",4)) {
+		cmd_ndop(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"NUOP",4)) {
-		cmd_nuop(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"NUOP",4)) {
+		cmd_nuop(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"LFLR",4)) {
+	else if (!strncasecmp(icmdbuf,"LFLR",4)) {
 		cmd_lflr();
 		}
 
-	else if (!strncasecmp(cmdbuf,"CFLR",4)) {
-		cmd_cflr(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"CFLR",4)) {
+		cmd_cflr(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"KFLR",4)) {
-		cmd_kflr(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"KFLR",4)) {
+		cmd_kflr(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"EFLR",4)) {
-		cmd_eflr(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"EFLR",4)) {
+		cmd_eflr(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"IDEN",4)) {
-		cmd_iden(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"IDEN",4)) {
+		cmd_iden(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"IPGM",4)) {
-		cmd_ipgm(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"IPGM",4)) {
+		cmd_ipgm(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"TERM",4)) {
-		cmd_term(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"TERM",4)) {
+		cmd_term(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"DOWN",4)) {
+	else if (!strncasecmp(icmdbuf,"DOWN",4)) {
 		cmd_down();
 		}
 
-	else if (!strncasecmp(cmdbuf,"SCDN",4)) {
-		cmd_scdn(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf,"SCDN",4)) {
+		cmd_scdn(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf, "NSET", 4)) {
-		cmd_nset(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf, "NSET", 4)) {
+		cmd_nset(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf, "UIMG", 4)) {
-		cmd_uimg(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf, "UIMG", 4)) {
+		cmd_uimg(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf, "TIME", 4)) {
+	else if (!strncasecmp(icmdbuf, "TIME", 4)) {
 		cmd_time();
 		}
 
-	else if (!strncasecmp(cmdbuf, "AGUP", 4)) {
-		cmd_agup(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf, "AGUP", 4)) {
+		cmd_agup(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf, "ASUP", 4)) {
-		cmd_asup(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf, "ASUP", 4)) {
+		cmd_asup(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf, "GPEX", 4)) {
-		cmd_gpex(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf, "GPEX", 4)) {
+		cmd_gpex(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf, "SPEX", 4)) {
-		cmd_spex(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf, "SPEX", 4)) {
+		cmd_spex(&icmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf, "CONF", 4)) {
-		cmd_conf(&cmdbuf[5]);
+	else if (!strncasecmp(icmdbuf, "CONF", 4)) {
+		cmd_conf(&icmdbuf[5]);
 		}
 
 #ifdef DEBUG_MEMORY_LEAKS
-	else if (!strncasecmp(cmdbuf, "LEAK", 4)) {
+	else if (!strncasecmp(icmdbuf, "LEAK", 4)) {
 		dump_tracked();
 		}
 #endif
 
-	else if (!DLoader_Exec_Cmd(cmdbuf))
+	else if (!DLoader_Exec_Cmd(icmdbuf))
 		{
 		   cprintf("%d Unrecognized or unsupported command.\n",
 		            ERROR);

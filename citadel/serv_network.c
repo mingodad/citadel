@@ -65,7 +65,8 @@ void cmd_gnet(char *argbuf) {
 void cmd_snet(char *argbuf) {
 	char tempfilename[SIZ];
 	char filename[SIZ];
-	char buf[SIZ];
+	char cbuf[SIZ];
+	char *ibuf;
 	FILE *fp;
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
@@ -81,8 +82,8 @@ void cmd_snet(char *argbuf) {
 	}
 
 	cprintf("%d %s\n", SEND_LISTING, tempfilename);
-	while (client_gets(buf), strcmp(buf, "000")) {
-		fprintf(fp, "%s\n", buf);
+	while (client_gets(&ibuf), strcmp(ibuf, "000")) {
+		fprintf(fp, "%s\n", ibuf);
 	}
 	fclose(fp);
 
@@ -91,8 +92,8 @@ void cmd_snet(char *argbuf) {
 	 * different filesystems)
 	 */
 	unlink(filename);
-	snprintf(buf, sizeof buf, "/bin/mv %s %s", tempfilename, filename);
-	system(buf);
+	snprintf(cbuf, sizeof cbuf, "/bin/mv %s %s", tempfilename, filename);
+	system(cbuf);
 }
 
 

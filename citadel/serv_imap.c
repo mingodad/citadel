@@ -613,34 +613,37 @@ void imap_status(int num_parms, char *parms[]) {
  * Main command loop for IMAP sessions.
  */
 void imap_command_loop(void) {
-	char cmdbuf[SIZ];
+	char *icmdbuf;
 	char *parms[SIZ];
 	int num_parms;
 
 	time(&CC->lastcmd);
-	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
-	if (client_gets(cmdbuf) < 1) {
+	if (client_gets(&icmdbuf) < 1) {
 		lprintf(3, "IMAP socket is broken.  Ending session.\r\n");
 		CC->kill_me = 1;
 		return;
 	}
 
-	lprintf(5, "citserver[%3d]: %s\r\n", CC->cs_pid, cmdbuf);
-	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
+	lprintf(5, "citserver[%3d]: %s\r\n", CC->cs_pid, icmdbuf); 
+	while (strlen(icmdbuf) < 5) strcat(icmdbuf, " ");
 
 
 	/* strip off l/t whitespace and CRLF */
-	if (cmdbuf[strlen(cmdbuf)-1]=='\n') cmdbuf[strlen(cmdbuf)-1]=0;
-	if (cmdbuf[strlen(cmdbuf)-1]=='\r') cmdbuf[strlen(cmdbuf)-1]=0;
-	striplt(cmdbuf);
+	if (icmdbuf[strlen(icmdbuf)-1]=='\n') icmdbuf[strlen(icmdbuf)-1]=0;
+	if (icmdbuf[strlen(icmdbuf)-1]=='\r') icmdbuf[strlen(icmdbuf)-1]=0;
+	striplt(icmdbuf);
 
 	/* If we're in the middle of a multi-line command, handle that */
 	if (IMAP->authstate == imap_as_expecting_username) {
-		imap_auth_login_user(cmdbuf);
+	    if (strlen(icmdbuf) >= SIZ) /* I'm going to impose some kinda limit here */
+	      *(icmdbuf+SIZ) = '\0';   /* because ialu uses SIZ */
+		imap_auth_login_user(icmdbuf);
 		return;
 	}
 	if (IMAP->authstate == imap_as_expecting_password) {
-		imap_auth_login_pass(cmdbuf);
+	    if (strlen(icmdbuf) >= SIZ) 
+	      *(icmdbuf+SIZ) = '\0';
+		imap_auth_login_pass(icmdbuf);
 		return;
 	}
 
@@ -660,7 +663,7 @@ void imap_command_loop(void) {
 	/* Now for the command set. */
 
 	/* Grab the tag, command, and parameters.  Check syntax. */
-	num_parms = imap_parameterize(parms, cmdbuf);
+	num_parms = imap_parameterize(parms, icmdbuf);
 	if (num_parms < 2) {
 		cprintf("BAD syntax error\r\n");
 	}

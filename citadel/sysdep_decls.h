@@ -12,7 +12,7 @@ void client_write (char *buf, int nbytes);
 void cprintf (const char *format, ...);
 int client_read_to (char *buf, int bytes, int timeout);
 int client_read (char *buf, int bytes);
-int client_gets (char *buf);
+int client_gets (char **buf);
 void sysdep_master_cleanup (void);
 void kill_session (int session_to_kill);
 void *sd_context_loop (struct CitContext *con);

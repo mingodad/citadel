@@ -75,6 +75,10 @@ void extract_token(char *dest, char *source, int parmnum, char separator)
 	int len;
 	int curr_parm;
 
+    /* Stu. Fixed this to deal with the possibility that somebody's
+       going to send a token bigger than SIZ, which is possible 
+       with a bigger input buffer. */
+
 	strcpy(dest,"");
 	len = 0;
 	curr_parm = 0;
@@ -88,8 +92,10 @@ void extract_token(char *dest, char *source, int parmnum, char separator)
 			++curr_parm;
 		}
 		else if (curr_parm == parmnum) {
-			dest[len+1] = 0;
-			dest[len++] = source[i];
+		    if (len < SIZ) { /* stu 2/8/2001 */
+				dest[len+1] = 0;
+				dest[len++] = source[i];
+			}
 		}
 	}
 }
