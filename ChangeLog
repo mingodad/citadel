@@ -1,4 +1,8 @@
 $Log$
+Revision 603.13  2005/03/30 17:27:55  ajc
+* serv_crypto.c: made changes to OpenSSL calls ... removed unnecessary
+  calls and also enabled SSLv3/TLSv1
+
 Revision 603.12  2005/03/10 05:13:21  ajc
 * Created the framework for the "first time setup wizard"
 
@@ -2484,4 +2488,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -256,7 +256,7 @@ extern char *ctdlhost, *ctdlport;
 extern char *server_cookie;
 extern int is_https;
 extern int setup_wizard;
-extern char wizard_filename[PATH_MAX];
+extern char wizard_filename[];
 void do_setup_wizard(void);
 
 void stuff_to_cookie(char *cookie, int session,
