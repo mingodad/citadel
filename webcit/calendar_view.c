@@ -675,10 +675,6 @@ void do_tasks_view(void) {
 
 	wprintf("</TABLE>\n");
 
-	wprintf("<hr /><A HREF=\"/display_edit_task?msgnum=0\">"
-		"Add new task</A>\n"
-	);
-
 	do_template("endbox");
 
 

@@ -137,7 +137,7 @@ void groupdav_propfind(char *dav_pathname) {
 	char buf[SIZ];
 	char uid[SIZ];
 	long *msgs = NULL;
-	int num_msgs;
+	int num_msgs = 0;
 	int i, j;
 
 	/* First, break off the "/groupdav/" prefix */
