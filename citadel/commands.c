@@ -1267,172 +1267,6 @@ void display_help(CtdlIPC *ipc, char *name)
 }
 
 
-#if 0
-/*
- * fmout()  -  Citadel text formatter and paginator
- */
-int fmout(
-	int width,	/* screen width to use */
-	FILE *fpin,	/* file to read from, or NULL to format given text */
-	char *text,	/* Text to be formatted (when fpin is NULL) */
-	FILE *fpout,	/* File to write to, or NULL to write to screen */
-	char pagin,	/* nonzero if we should use the paginator */
-	int height,	/* screen height to use */
-	int starting_lp,/* starting value for lines_printed, -1 for global */
-	int subst)	/* nonzero if we should use hypertext mode */
-{
-	int a, b, c, old;
-	int real = (-1);
-	char aaa[140];
-	char buffer[512];
-	char *e;
-	int eof_flag = 0;
-
-	num_urls = 0;	/* Start with a clean slate of embedded URL's */
-
-	if (starting_lp >= 0) {
-		lines_printed = starting_lp;
-	}
-	strcpy(aaa, "");
-	old = 255;
-	strcpy(buffer, "");
-	c = 1;			/* c is the current pos */
-	e = text;		/* e is pointer to current pos */
-
-FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
-		if (fpin != NULL) {	/* read from file */
-			if (feof(fpin))
-				eof_flag = 1;
-			if (eof_flag == 0) {
-				a = getc(fpin);
-				buffer[strlen(buffer) + 1] = 0;
-				buffer[strlen(buffer)] = a;
-			}
-		} else {	/* read from text */
-			if (!*e) {
-				eof_flag = 1;
-				while (isspace(buffer[strlen(buffer) - 1]))
-					buffer[strlen(buffer) - 1] = 0;
-				buffer[strlen(buffer) + 1] = 0;
-				buffer[strlen(buffer)] = 10;
-			}
-			if (eof_flag == 0) {
-				a = *e++;
-				buffer[strlen(buffer) + 1] = 0;
-				buffer[strlen(buffer)] = a;
-			}
-		}
-	}
-
-	if ( (!strncasecmp(buffer, "http://", 7))
-	   || (!strncasecmp(buffer, "ftp://", 6)) ) {
-		safestrncpy(urls[num_urls], buffer, (SIZ-1));
-		for (a=0; a<strlen(urls[num_urls]); ++a) {
-			b = urls[num_urls][a];
-			if ( (b==' ') || (b==')') || (b=='>') || (b==10)
-			   || (b==13) || (b==9) || (b=='\"') )
-				urls[num_urls][a] = 0;
-		}
-		++num_urls;
-	}
-
-	buffer[strlen(buffer) + 1] = 0;
-	a = buffer[0];
-	strcpy(buffer, &buffer[1]);
-
-	old = real;
-	real = a;
-	if (a <= 0)
-		goto FMTEND;
-
-	if (a == 10) scr_printf("<a==10>");
-	if (a == 13) scr_printf("<a==13>");
-
-	if ((a == 13) || (a == 10)) {
-		if ((old != 13) && (old != 10))
-			a = 32;
-		if ((old == 13) || (old == 10))
-			a = 0;
-	}
-	if (((old == 13) || (old == 10)) && (isspace(real))) {
-		if (fpout) {
-			fprintf(fpout, "\n");
-		} else {
-			scr_printf("\n");
-			++lines_printed;
-			lines_printed = checkpagin(lines_printed, pagin, height);
-		}
-		c = 1;
-	}
-	if (a > 126)
-		goto FMTA;
-
-	if (a > 32) {
-		if (((strlen(aaa) + c) > (width - 1)) && (strlen(aaa) > (width - 1))) {
-			if (fpout) {
-				fprintf(fpout, "\n%s", aaa);
-			} else {
-				scr_printf("\n%s", aaa);
-				++lines_printed;
-				lines_printed = checkpagin(lines_printed, pagin, height);
-			}
-			c = strlen(aaa);
-			aaa[0] = 0;
-		}
-		b = strlen(aaa);
-		aaa[b] = a;
-		aaa[b + 1] = 0;
-	}
-	if (a == 32) {
-		if ((strlen(aaa) + c) > (width - 1)) {
-			c = 1;
-			if (fpout) {
-				fprintf(fpout, "\n");
-			} else {
-				scr_printf("\n");
-				++lines_printed;
-				lines_printed = checkpagin(lines_printed, pagin, height);
-			}
-		}
-		if (fpout) {
-			fprintf(fpout, "%s ", aaa);
-		} else {
-			scr_printf("%s ", aaa);
-		}
-		++c;
-		c = c + strlen(aaa);
-		strcpy(aaa, "");
-		goto FMTA;
-	}
-	if ((a == 13) || (a == 10)) {
-		if (fpout) {
-			fprintf(fpout, "%s\n", aaa);
-		} else {
-			scr_printf("%s\n", aaa);
-			++lines_printed;
-			lines_printed = checkpagin(lines_printed, pagin, height);
-		}
-		c = 1;
-		if (sigcaught) goto FMTEND;
-		strcpy(aaa, "");
-		goto FMTA;
-	}
-	goto FMTA;
-
-	/* keypress caught; drain the server */
-FMTEND:
-	if (fpout) {
-		fprintf(fpout, "\n");
-	} else {
-		scr_printf("\n");
-		++lines_printed;
-		lines_printed = checkpagin(lines_printed, pagin, height);
-	}
-	return (sigcaught);
-}
-#endif
-
-
 /*
  * fmout() - Citadel text formatter and paginator
  */
@@ -1452,6 +1286,7 @@ int fmout(
 	char old = 0;		/* The previous character */
 	int column = 0;		/* Current column */
 	size_t i;		/* Generic counter */
+	size_t g = 0;
 
 	num_urls = 0;	/* Start with a clean slate of embedded URL's */
 
@@ -1465,8 +1300,6 @@ int fmout(
 
 	/* Read the entire message body into memory */
 	if (fpin) {
-		size_t got = 0;
-
 		fseek(fpin, 0, SEEK_END);
 		i = ftell(fpin);
 		rewind(fpin);
@@ -1476,17 +1309,14 @@ int fmout(
 					strerror(errno));
 			logoff(NULL, 3);
 		}
-		while (got < i) {
-			size_t g = 0;
 
-			g = fread(buffer + got, i - got, 1, fpin);
-			if (g < 1) {	/* error reading or eof */
-				i = got;
-				break;
-			}
-			got += g;
+		g = fread(buffer, i, 1, fpin);
+		if (g == 1) {
+			buffer[i] = 0;
 		}
-		buffer[i] = 0;
+		else {
+			buffer[0] = 0;
+		}
 	} else {
 		buffer = text;
 	}
