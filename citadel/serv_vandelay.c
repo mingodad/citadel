@@ -177,6 +177,7 @@ void artv_export_visits(void) {
 			cprintf("%ld\n", vbuf.v_lastseen);
 		}
 
+		cprintf("%s\n", vbuf.v_answered);
 		cprintf("%u\n", vbuf.v_flags);
 		cprintf("%d\n", vbuf.v_view);
 	}
@@ -448,6 +449,7 @@ void artv_import_visit(void) {
 	for (i=0; i<strlen(buf); ++i) if (!isdigit(buf[i])) is_textual_seen = 1;
 	if (is_textual_seen)	strcpy(vbuf.v_seen, buf);
 
+	client_gets(vbuf.v_answered);
 	client_gets(buf);	vbuf.v_flags = atoi(buf);
 	client_gets(buf);	vbuf.v_view = atoi(buf);
 	put_visit(&vbuf);

@@ -124,9 +124,17 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *,
 int CtdlCopyMsgToRoom(long msgnum, char *dest);
 int CtdlDoIHavePermissionToDeleteMessagesFromThisRoom(void);
 int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n);
-void CtdlSetSeen(long target_msgnum, int target_setting);
+
+
+/* values for which_set */
+enum {
+	ctdlsetseen_seen,
+	ctdlsetseen_answered
+};
+void CtdlSetSeen(long target_msgnum, int target_setting, int which_set);
+void CtdlGetSeen(char *buf, int which_set);
+
 struct recptypes *validate_recipients(char *recipients);
-void CtdlGetSeen(char *buf);
 struct CtdlMessage *CtdlMakeMessage(
         struct ctdluser *author,        /* author's user structure */
         char *recipient,                /* NULL if it's not mail */

@@ -288,21 +288,24 @@ int CtdlMsgCmp(struct CtdlMessage *msg, struct CtdlMessage *template) {
 /*
  * Retrieve the "seen" message list for the current room.
  */
-void CtdlGetSeen(char *buf) {
+void CtdlGetSeen(char *buf, int which_set) {
 	struct visit vbuf;
 
 	/* Learn about the user and room in question */
 	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
 
-	safestrncpy(buf, vbuf.v_seen, SIZ);
+	if (which_set == ctdlsetseen_seen)
+		safestrncpy(buf, vbuf.v_seen, SIZ);
+	if (which_set == ctdlsetseen_answered)
+		safestrncpy(buf, vbuf.v_answered, SIZ);
 }
 
 
 
 /*
- * Manipulate the "seen msgs" string.
+ * Manipulate the "seen msgs" string (or other message set strings)
  */
-void CtdlSetSeen(long target_msgnum, int target_setting) {
+void CtdlSetSeen(long target_msgnum, int target_setting, int which_set) {
 	char newseen[SIZ];
 	struct cdbdata *cdbfr;
 	int i;
@@ -313,6 +316,7 @@ void CtdlSetSeen(long target_msgnum, int target_setting) {
 	struct visit vbuf;
 	long *msglist;
 	int num_msgs = 0;
+	char vset[SIZ];
 
 	/* Learn about the user and room in question */
 	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
@@ -328,7 +332,11 @@ void CtdlSetSeen(long target_msgnum, int target_setting) {
 		return;	/* No messages at all?  No further action. */
 	}
 
-	lprintf(9, "before optimize: %s\n", vbuf.v_seen);
+	/* Decide which message set we're manipulating */
+	if (which_set == ctdlsetseen_seen) strcpy(vset, vbuf.v_seen);
+	if (which_set == ctdlsetseen_answered) strcpy(vset, vbuf.v_answered);
+
+	lprintf(9, "before optimize: %s\n", vset);
 	strcpy(newseen, "");
 
 	for (i=0; i<num_msgs; ++i) {
@@ -338,7 +346,7 @@ void CtdlSetSeen(long target_msgnum, int target_setting) {
 			is_seen = target_setting;
 		}
 		else {
-			if (is_msg_in_mset(vbuf.v_seen, msglist[i])) {
+			if (is_msg_in_mset(vset, msglist[i])) {
 				is_seen = 1;
 			}
 		}
@@ -374,8 +382,11 @@ void CtdlSetSeen(long target_msgnum, int target_setting) {
 		was_seen = is_seen;
 	}
 
-	safestrncpy(vbuf.v_seen, newseen, SIZ);
-	lprintf(9, " after optimize: %s\n", vbuf.v_seen);
+	/* Decide which message set we're manipulating */
+	if (which_set == ctdlsetseen_seen) strcpy(vbuf.v_seen, newseen);
+	if (which_set == ctdlsetseen_answered) strcpy(vbuf.v_answered, newseen);
+
+	lprintf(9, " after optimize: %s\n", newseen);
 	phree(msglist);
 	CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
 }

@@ -82,6 +82,11 @@ void imap_fetch_flags(int seq) {
 		cprintf("\\Seen");
 		++num_flags_printed;
 	}
+	if (IMAP->flags[seq] & IMAP_ANSWERED) {
+		if (num_flags_printed > 0) cprintf(" ");
+		cprintf("\\Answered");
+		++num_flags_printed;
+	}
 	cprintf(")");
 }
 
@@ -558,7 +563,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 
 	/* Mark this message as "seen" *unless* this is a "peek" operation */
 	if (is_peek == 0) {
-		CtdlSetSeen(msgnum, 1);
+		CtdlSetSeen(msgnum, 1, ctdlsetseen_seen);
 	}
 }
 

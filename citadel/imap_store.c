@@ -82,7 +82,15 @@ void imap_do_store_msg(int seq, char *oper, unsigned int bits_to_twiddle) {
 
 	if (bits_to_twiddle & IMAP_SEEN) {
 		CtdlSetSeen(IMAP->msgids[seq],
-				((IMAP->flags[seq] & IMAP_SEEN) ? 1 : 0) );
+				((IMAP->flags[seq] & IMAP_SEEN) ? 1 : 0),
+				ctdlsetseen_seen
+		);
+	}
+	if (bits_to_twiddle & IMAP_ANSWERED) {
+		CtdlSetSeen(IMAP->msgids[seq],
+				((IMAP->flags[seq] & IMAP_ANSWERED) ? 1 : 0),
+				ctdlsetseen_answered
+		);
 	}
 
 	/* 'silent' is actually the value returned from a strncasecmp() so
@@ -133,6 +141,9 @@ void imap_do_store(int num_items, char **itemlist) {
 			}
 			if (!strcasecmp(flag, "\\Seen")) {
 				bits_to_twiddle |= IMAP_SEEN;
+			}
+			if (!strcasecmp(flag, "\\Answered")) {
+				bits_to_twiddle |= IMAP_ANSWERED;
 			}
 		}
 	}

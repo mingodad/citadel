@@ -1,4 +1,7 @@
  $Log$
+ Revision 611.10  2003/11/30 03:43:34  ajc
+ * Support IMAP \Answered flag
+
  Revision 611.9  2003/11/22 03:30:14  ajc
  * Commented out the call to the 'high speed download' function and
    uncommented the call to the original 'chatty' download function.  Some
@@ -5092,4 +5095,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

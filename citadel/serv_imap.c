@@ -123,6 +123,9 @@ void imap_set_seen_flags(void) {
 			if (is_msg_in_mset(vbuf.v_seen, IMAP->msgids[i])) {
 				IMAP->flags[i] |= IMAP_SEEN;
 			}
+			if (is_msg_in_mset(vbuf.v_answered, IMAP->msgids[i])) {
+				IMAP->flags[i] |= IMAP_ANSWERED;
+			}
 		}
 	}
 }
@@ -528,8 +531,9 @@ void imap_select(int num_parms, char *parms[]) {
 	/* FIXME ... much more info needs to be supplied here */
 	cprintf("* %d EXISTS\r\n", msgs);
 	cprintf("* %d RECENT\r\n", new);
-	cprintf("* FLAGS (\\Deleted \\Seen)\r\n");
-	cprintf("* OK [PERMANENTFLAGS (\\Deleted \\Seen)] permanent flags\r\n");
+	cprintf("* FLAGS (\\Deleted \\Seen \\Answered)\r\n");
+	cprintf("* OK [PERMANENTFLAGS (\\Deleted \\Seen \\Answered)] "
+		"permanent flags\r\n");
 	cprintf("* OK [UIDVALIDITY 0] UIDs valid\r\n");
 	cprintf("%s OK [%s] %s completed\r\n",
 		parms[0],

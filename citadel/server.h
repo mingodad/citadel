@@ -415,6 +415,7 @@ struct visit {
 	long v_lastseen;
 	unsigned int v_flags;
 	char v_seen[SIZ];
+	char v_answered[SIZ];
 	int v_view;
 };
 
