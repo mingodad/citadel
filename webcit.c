@@ -18,11 +18,12 @@
 
 int wc_session;
 char wc_host[256];
-int wc_port;
+char wc_port[256];
 char wc_username[256];
 char wc_password[256];
 char wc_roomname[256];
 int TransactionCount = 0;
+int connected = 0;
 int logged_in = 0;
 
 struct webcontent *wlist = NULL;
@@ -93,7 +94,7 @@ void output_headers() {
 	printf("Connection: close\n");
 	printf("Set-cookie: wc_session=%d\n", wc_session);
 	if (strlen(wc_host)>0) printf("Set-cookie: wc_host=%s\n", wc_host);
-	if (wc_port != 0) printf("Set-cookie: wc_port=%d\n", wc_port);
+	if (strlen(wc_port)>0) printf("Set-cookie: wc_port=%s\n", wc_port);
 	if (strlen(wc_username)>0) printf("Set-cookie: wc_username=%s\n",
 		wc_username);
 	if (strlen(wc_password)>0) printf("Set-cookie: wc_password=%s\n",
@@ -145,15 +146,84 @@ void session_loop() {
 	char buf[256];
 	int a;
 
+	/* We stuff these with the values coming from the client cookies,
+	 * so we can use them to reconnect a timed out session if we have to.
+	 */
+	char c_host[256];
+	char c_port[256];
+	char c_username[256];
+	char c_password[256];
+	char c_roomname[256];
+
+	strcpy(c_host, DEFAULT_HOST);
+	strcpy(c_port, DEFAULT_PORT);
+	strcpy(c_username, "");
+	strcpy(c_password, "");
+	strcpy(c_roomname, "");
+
 	getz(cmd);
 	fprintf(stderr, "Cmd: %s\n", cmd);
 	fflush(stderr);
 
 	do {
 		getz(buf);
+
+		if (!strncasecmp(buf, "Cookie: wc_host=", 16))
+			strcpy(c_host, &buf[16]);
+		if (!strncasecmp(buf, "Cookie: wc_port=", 16))
+			strcpy(c_port, &buf[16]);
+		if (!strncasecmp(buf, "Cookie: wc_username=", 20))
+			strcpy(c_username, &buf[20]);
+		if (!strncasecmp(buf, "Cookie: wc_password=", 20))
+			strcpy(c_password, &buf[20]);
+		if (!strncasecmp(buf, "Cookie: wc_roomname=", 20))
+			strcpy(c_roomname, &buf[20]);
+
 		} while(strlen(buf)>0);
 
 	++TransactionCount;
+
+	/*
+	 * If we're not connected to a Citadel server, try to hook up the
+	 * connection now.  Preference is given to the host and port specified
+	 * by browser cookies, if cookies have been supplied.
+	 */
+	if (!connected) {
+		serv_sock = connectsock(c_host, c_port, "tcp");
+		connected = 1;
+		strcpy(wc_host, c_host);
+		strcpy(wc_port, c_port);
+		}
+
+	/*
+	 * If we're not logged in, but we have username and password cookies
+	 * supplied by the browser, try using them to log in.
+	 */
+	if ((!logged_in)&&(strlen(c_username)>0)&&(strlen(c_password)>0)) {
+		serv_printf("USER %s", c_username);
+		serv_gets(buf);
+		if (buf[0]=='3') {
+			serv_printf("PASS %s", c_password);
+			serv_gets(buf);
+			if (buf[0]=='2') {
+				logged_in = 1;
+				strcpy(wc_username, c_username);
+				strcpy(wc_password, c_password);
+				}
+			}
+		}
+
+	/*
+	 * If we don't have a current room, but a cookie specifying the
+	 * current room is supplied, make an effort to go there.
+	 */
+	if ((strlen(wc_roomname)==0) && (strlen(c_roomname)>0) ) {
+		serv_printf("GOTO %s", c_roomname);
+		serv_gets(buf);
+		if (buf[0]=='2') {
+			strcpy(wc_roomname, c_roomname);
+			}
+		}
 
 	if (!strncasecmp(cmd, "GET /static/", 12)) {
 		strcpy(buf, &cmd[12]);
@@ -161,15 +231,8 @@ void session_loop() {
 		output_static(buf);
 		}
 
-	else if (!strncasecmp(cmd, "GET /demographics", 17)) {
-		printf("HTTP/1.0 200 OK\n");
-		output_headers();
-
-		wprintf("<HTML><HEAD><TITLE>Stuff</TITLE></HEAD><BODY>\n");
-		wprintf("It's time to include an image...\n");
-		wprintf("<IMG SRC=\"/static/netscape.gif\">\n");
-		wprintf("...in the page.</BODY></HTML>\n");
-		wDumpContent();
+	else if (!logged_in) {
+		display_login_page();
 		}
 
 	else {
@@ -197,7 +260,7 @@ int main(int argc, char *argv[]) {
 
 	wc_session = atoi(argv[1]);
 	strcpy(wc_host, "");
-	wc_port = 0;
+	strcpy(wc_port, "");
 	strcpy(wc_username, "");
 	strcpy(wc_password, "");
 	strcpy(wc_roomname, "");
