@@ -834,9 +834,11 @@ int main(int argc, char **argv)
 	signal(SIGTERM, dropcarr);	/* Cleanup gracefully if terminated */
 	signal(SIGCONT, catch_sigcont);		/* Catch SIGCONT so we can reset terminal */
 
-	printf("Attaching to server...\r");
+	printf("Attaching to server... \r");
 	fflush(stdout);
 	attach_to_server(argc, argv);
+	printf("Establishing session...\r");
+	fflush(stdout);
 
 	send_ansi_detect();
 
@@ -851,7 +853,7 @@ int main(int argc, char **argv)
 	cls(0);
 	color(7);
 
-	printf("%-22s\n%s\n%s\n", serv_info.serv_software, serv_info.serv_humannode,
+	printf("%-23s\n%s\n%s\n", serv_info.serv_software, serv_info.serv_humannode,
 	       serv_info.serv_bbs_city);
 	screenwidth = 80;	/* default screen dimensions */
 	screenheight = 24;

@@ -26,6 +26,8 @@ void locate_host(char *tbuf, const struct in_addr *addr)
 	char *i;
 	int a1, a2, a3, a4;
 
+	lprintf(9, "locate_host() called\n");
+
 #ifdef HAVE_NONREENTRANT_NETDB
 	begin_critical_section(S_NETDB);
 #endif
@@ -66,4 +68,5 @@ void locate_host(char *tbuf, const struct in_addr *addr)
 #endif
 
 	tbuf[25] = 0;
+	lprintf(9, "locate_host() exiting\n");
 }

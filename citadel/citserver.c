@@ -366,8 +366,10 @@ int is_public_client(char *where)
 	char buf[256];
 	FILE *fp;
 
-	if (hostnames_match(where,"localhost")) return(1);
-	if (hostnames_match(where,config.c_fqdn)) return(1);
+	lprintf(9, "Checking whether %s is a public client\n", where);
+
+	if (hostnames_match(where, "localhost")) return(1);
+	if (hostnames_match(where, config.c_fqdn)) return(1);
 
 	fp = fopen("public_clients","r");
 	if (fp == NULL) return(0);
@@ -397,6 +399,7 @@ void cmd_iden(char *argbuf)
 	char desc[256];
 	char from_host[256];
 	struct in_addr addr;
+	int do_lookup = 0;
 
 	if (num_parms(argbuf)<4) {
 		cprintf("%d usage error\n",ERROR);
@@ -418,16 +421,28 @@ void cmd_iden(char *argbuf)
 	safestrncpy(CC->cs_clientname, desc, sizeof CC->cs_clientname);
 	CC->cs_clientname[31] = 0;
 
-	lprintf(9, "Looking up hostname '%s'\n", from_host);
-	if ((strlen(from_host)>0)
-	  && ( (CC->is_local_socket) || (is_public_client(CC->cs_host)))) {
-		if ((addr.s_addr = inet_addr(from_host)) != -1)
+	if (strlen(from_host) > 0) {
+		if (CC->is_local_socket) do_lookup = 1;
+		else if (is_public_client(CC->cs_host)) do_lookup = 1;
+	}
+
+	if (do_lookup) {
+		lprintf(9, "Looking up hostname '%s'\n", from_host);
+		if ((addr.s_addr = inet_addr(from_host)) != -1) {
 			locate_host(CC->cs_host, &addr);
+		}
 	   	else {
 			safestrncpy(CC->cs_host, from_host, sizeof CC->cs_host);
 			CC->cs_host[24] = 0;
 		}
 	}
+
+	lprintf(7, "client %d/%d/%01d.%02d (%s)\n",
+		dev_code,
+		cli_code,
+		(rev_level / 100),
+		(rev_level % 100),
+		desc);
 
 	syslog(LOG_NOTICE,"client %d/%d/%01d.%02d (%s)\n",
 		dev_code,
@@ -435,7 +450,7 @@ void cmd_iden(char *argbuf)
 		(rev_level / 100),
 		(rev_level % 100),
 		desc);
-		cprintf("%d Ok\n",OK);
+	cprintf("%d Ok\n",OK);
 }
 
 

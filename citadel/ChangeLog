@@ -1,4 +1,7 @@
  $Log$
+ Revision 571.2  2000/04/16 19:03:47  ajc
+ * Minor changes to avoid host lookup for local clients
+
  Revision 571.1  2000/04/15 19:55:52  ajc
  * Fixed "Unvalidated users appear even with registration disabled" bug #36
 
@@ -1855,4 +1858,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
