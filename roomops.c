@@ -1594,6 +1594,41 @@ void netedit(void) {
 
 
 /*
+ * Convert a room name to a folder-ish-looking name.
+ */
+void room_to_folder(char *folder, char *room, int floor, int is_mailbox)
+{
+	int i;
+
+	/*
+	 * For mailboxes, just do it straight...
+	 */
+	if (is_mailbox) {
+		sprintf(folder, "My folders|%s", room);
+	}
+
+	/*
+	 * Otherwise, prefix the floor name as a "public folders" moniker
+	 */
+	else {
+		sprintf(folder, "%s|%s", floorlist[floor], room);
+	}
+
+	/*
+	 * Replace "/" characters with "|" for pseudo-folder-delimiting
+	 */
+	for (i=0; i<strlen(folder); ++i) {
+		if (folder[i] == '/') folder[i] = '|';
+	}
+}
+
+
+
+
+
+
+
+/*
  * Change the view for this room
  */
 void change_view(void) {
@@ -1614,9 +1649,11 @@ void change_view(void) {
 void folders(void) {
 	char buf[SIZ];
 
+	int levels, oldlevels;
+
 	struct folder {
-		char name[SIZ];
 		char room[SIZ];
+		char name[SIZ];
 		int hasnewmsgs;
 		int is_mailbox;
 	};
@@ -1625,43 +1662,49 @@ void folders(void) {
 	struct folder ftmp;
 	int max_folders = 0;
 	int alloc_folders = 0;
-	int i, j;
+	int i, j, k;
 	int p;
 	int flags;
+	int floor;
+	int nests = 0;
 
 	load_floorlist();
 
 	output_headers(1);
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Folder list</B>\n");
-	wprintf("</TD></TR></TABLE><BR>\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>"
+		"<FONT SIZE=+1 COLOR=\"FFFFFF\""
+		"<B>Folder list</B>\n"
+		"</TD></TR></TABLE><BR>\n"
+	);
 
 	for (p = 0; p < 2; ++p) {
 		if (p == 0) serv_puts("LKRN");
 		else if (p == 1) serv_puts("LKRO");
-		else serv_puts("NOOP");
 		serv_gets(buf);
 		if (buf[0]=='1') while(serv_gets(buf), strcmp(buf, "000")) {
-			++max_folders;
-			if (max_folders > alloc_folders) {
+			if (max_folders >= alloc_folders) {
 				alloc_folders = max_folders + 100;
 				fold = realloc(fold,
-					max_folders * sizeof(struct folder));
+					alloc_folders * sizeof(struct folder));
 			}
-			extract(fold[max_folders-1].name, buf, 0);
-			extract(fold[max_folders-1].room, buf, 0);
-			if (p == 0) fold[max_folders-1].hasnewmsgs = 1;
+			extract(fold[max_folders].room, buf, 0);
+			if (p == 0) fold[max_folders].hasnewmsgs = 1;
 			flags = extract_int(buf, 1);
+			floor = extract_int(buf, 2);
 			if (flags & QR_MAILBOX) {
-				fold[max_folders-1].is_mailbox = 1;
+				fold[max_folders].is_mailbox = 1;
 			}
+			room_to_folder(fold[max_folders].name,
+					fold[max_folders].room,
+					floor,
+					fold[max_folders].is_mailbox);
+			++max_folders;
 		}
 	}
 
 	/* Bubble-sort the folder list */
 	for (i=0; i<max_folders; ++i) {
-		for (j=0; j<max_folders-i-1; ++j) {
+		for (j=0; j<(max_folders-1)-i; ++j) {
 			if (strcasecmp(fold[j].name, fold[j+1].name) > 0) {
 				memcpy(&ftmp, &fold[j], sizeof(struct folder));
 				memcpy(&fold[j], &fold[j+1],
@@ -1673,12 +1716,36 @@ void folders(void) {
 	}
 
 	/* Output */
+	nests = 0;
+	levels = 0;
+	oldlevels = 0;
 	for (i=0; i<max_folders; ++i) {
+
+		levels = num_tokens(fold[i].name, '|');
+		if (levels > oldlevels) {
+			for (k=0; k<(levels-oldlevels); ++k) {
+				wprintf("</UL>");
+				--nests;
+			}
+		}
+		if (levels < oldlevels) {
+			for (k=0; k<(oldlevels-levels); ++k) {
+				wprintf("<UL>");
+				++nests;
+			}
+		}
+
+		wprintf("<LI><A HREF=\"/dotgoto?room=");
+		urlescputs(fold[i].room);
+		wprintf("\">");
 		if (fold[i].hasnewmsgs) wprintf("<B>");
+		extract(buf, fold[i].name, num_tokens(fold[i].name, '|')-1 );
 		escputs(fold[i].name);
 		if (fold[i].hasnewmsgs) wprintf("</B>");
-		wprintf("<BR>\n");
+		wprintf("</A>\n");
+		oldlevels = levels;
 	}
+	while (nests-- > 0) wprintf("</UL>\n");
 
 	free(fold);
 

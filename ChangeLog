@@ -1,4 +1,7 @@
 $Log$
+Revision 323.26  2002/05/03 03:55:17  ajc
+* more folder display stuff
+
 Revision 323.25  2002/05/01 22:03:07  ajc
 * "folder list" view (not finished)
 
@@ -791,3 +794,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
