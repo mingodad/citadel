@@ -991,19 +991,20 @@ int main(int argc, char **argv)
 
 	get_serv_info(telnet_client_host);
 
-	if (!starttls()) {
-		printf("Session will not be encrypted.\n");
-	}
-	
 	look_for_ansi();
 	cls(0);
 	color(7);
 
+	if (!starttls()) {
+		printf("Session will not be encrypted.\n");
+	}
+
 	printf("%-24s\n%s\n%s\n", serv_info.serv_software, serv_info.serv_humannode,
-	       serv_info.serv_bbs_city);
+		serv_info.serv_bbs_city);
+
 	screenwidth = 80;	/* default screen dimensions */
 	screenheight = 24;
-
+	
 	printf(" pause    next    stop\n");
 	printf(" ctrl-s  ctrl-o  ctrl-c\n\n");
 	formout("hello");	/* print the opening greeting */
@@ -1237,8 +1238,14 @@ PWOK:
 				gotonext();
 				break;
 			case 47:
-				updatelsa();
+				if (!rc_alt_semantics)
+					updatelsa();
 				gotonext();
+				break;
+			case 90:
+				if (!rc_alt_semantics)
+					updatelsa();
+				dotgoto(argbuf, 0);
 				break;
 			case 58:
 				updatelsa();
@@ -1246,7 +1253,11 @@ PWOK:
 				break;
 			case 20:
 				updatels();
+				dotgoto(argbuf, 0);
+				break;
 			case 52:
+				if (rc_alt_semantics)
+					updatelsa();
 				dotgoto(argbuf, 0);
 				break;
 			case 10:
@@ -1338,11 +1349,13 @@ PWOK:
 				validate();
 				break;
 			case 29:
-				updatels();
+				if (!rc_alt_semantics)
+					updatels();
 				termn8 = 1;
 				break;
 			case 30:
-				updatels();
+				if (!rc_alt_semantics)
+					updatels();
 				termn8 = 1;
 				break;
 			case 48:
@@ -1463,6 +1476,8 @@ PWOK:
 				break;
 
 			case 6:
+				if (rc_alt_semantics)
+					updatelsa();
 				gotonext();
 				break;
 

@@ -63,6 +63,7 @@ void do_edit(char *desc, char *read_cmd, char *check_cmd, char *write_cmd);
 char reply_to[512];
 long msg_arr[MAXMSGS];
 int num_msgs;
+char rc_alt_semantics;
 extern char room_name[];
 extern unsigned room_flags;
 extern long highest_msg_read;
@@ -1123,6 +1124,7 @@ void readmsgs(
 	}
 
 	if (num_msgs == 0) {
+		if (c == 3) return;
 		printf("*** There are no ");
 		if (c == 1) printf("new ");
 		if (c == 2) printf("old ");
@@ -1190,6 +1192,13 @@ RMSGREAD:	fflush(stdout);
 					g = wait(NULL);
 				} while ((g != f) && (g >= 0));
 			printf("Message printed.\n");
+		}
+		if (rc_alt_semantics && c == 1) {
+			char buf[SIZ];
+
+			snprintf(buf, sizeof(buf), "SEEN %ld", msg_arr[a]);
+			serv_puts(buf);
+			serv_gets(buf);	/* Don't need to check this? */
 		}
 		if (e == 3)
 			return;

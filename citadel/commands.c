@@ -690,6 +690,7 @@ void load_command_set(void)
 	rc_ansi_color = 0;
 	strcpy(rc_url_cmd, "");
 	rc_encrypt = RC_DEFAULT;
+	rc_alt_semantics = 0;
 
 	/* now try to open the citadel.rc file */
 
@@ -777,6 +778,12 @@ void load_command_set(void)
 		if (!strncasecmp(buf, "urlcmd=", 7))
 			strcpy(rc_url_cmd, &buf[7]);
 
+		if (!strncasecmp(buf, "alternate_semantics=", 20)) {
+			if (!strncasecmp(&buf[11], "yes", 3))
+				rc_alt_semantics = 1;
+			if (!strncasecmp(&buf[11], "no", 2))
+				rc_alt_semantics = 0;
+		}
 		if (!strncasecmp(buf, "cmd=", 4)) {
 			strcpy(buf, &buf[4]);
 

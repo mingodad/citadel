@@ -15,6 +15,7 @@ extern char rc_password[32];
 extern char rc_floor_mode;
 extern char rc_encrypt;			/* from the citadel.rc file */
 extern char arg_encrypt;		/* from the command line */
+extern char rc_alt_semantics;
 extern char express_msgs;
 void logoff(int code);
 void formout(char *name);

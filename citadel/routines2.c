@@ -166,7 +166,19 @@ void entregis(void)
 void updatels(void)
 {				/* make all messages old in current room */
 	char buf[SIZ];
-	serv_puts("SLRP HIGHEST");
+
+	if (rc_alt_semantics) {
+		if (maxmsgnum == highest_msg_read == 0) {
+			/* fprintf(stderr, "maxmsgnum == highest_msg_read == 0\n"); */
+			return;
+		}
+		snprintf(buf, sizeof(buf), "SLRP %ld",
+				(maxmsgnum > highest_msg_read) ?
+				 maxmsgnum : highest_msg_read);
+		serv_puts(buf);
+	} else {
+		serv_puts("SLRP HIGHEST");
+	}
 	serv_gets(buf);
 	if (buf[0] != '2')
 		printf("%s\n", &buf[4]);
@@ -178,6 +190,7 @@ void updatels(void)
 void updatelsa(void)
 {
 	char buf[SIZ];
+
 	sprintf(buf, "SLRP %ld", highest_msg_read);
 	serv_puts(buf);
 	serv_gets(buf);

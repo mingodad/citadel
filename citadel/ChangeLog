@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.64  2002/01/15 12:41:53  error
+ * Implement alternate_semantics (see comments in citadel.rc file)
+
  Revision 590.63  2002/01/15 11:07:51  ajc
  * vcard.c: updated vCard "object methods" to handle multiple instances of
    the same key name when necessary.
@@ -3162,4 +3165,5 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
 

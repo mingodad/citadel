@@ -96,6 +96,30 @@ remember_passwords=0
 #urlcmd=netscape -remote "openURL(%s)"
 
 
+# MESSAGE READING SEMANTICS (experimental)
+#
+# A new set of message reading semantics is now available.  If you set
+# alternate_semantics, the following changes are made:
+#
+# * Messages are marked as read when you read them, rather than when you
+#   leave the room.  This means read <N>ew will display a new message
+#   at most once, unless last old on new is turned on.
+# * Reading <F>orward or <R>everse does not mark messages as read.
+# * When you leave a room with <G>oto, <J>ump, etc., only messages that
+#   were in the room when you arrived are marked as read.  The original
+#   semantics mark all messages read that were in the room at the time
+#   you leave the room.  This occasionally causes messages to be "lost."
+# * When you leave with <T>erminate, no additional messages are marked
+#   as read.
+# * The <S>kip and <A>bandon commands are reversed.
+#
+# This set of semantics should make Citadel easier to use on very busy
+# systems, where many messages may be posted while reading.  Users
+# accustomed to D.O.C. or its variants will want to set this option.
+#
+alternate_semantics=no
+
+
 # COMMAND SET CONFIGURATION
 #
 # All lines starting with "cmd=" are considered to be commands.  This allows
@@ -153,6 +177,7 @@ cmd=15,0,&Terminate
 cmd=16,0,&Ungoto
 cmd=17,0,&Who is online
 cmd=47,0,&Abandon ^r^c goto...
+#cmd=90,0,&Abandon ^r^c goto:
 cmd=50,0,toggle e&Xpert mode
 cmd=49,0,read &Info file
 cmd=18,2,&! <shell>
