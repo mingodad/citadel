@@ -1,4 +1,7 @@
 $Log$
+Revision 213.3  2001/01/25 23:10:00  ajc
+* "Delete message" button now confirms on client-side using JavaScript
+
 Revision 213.2  2000/12/05 18:39:49  ajc
 * Added support for non-USA countries in registration screen (requires the
   latest Citadel server, which supports the country field)
@@ -511,4 +514,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -796,8 +796,6 @@ void session_loop(struct httprequest *req)
 		display_enter();
 	} else if (!strcasecmp(action, "post")) {
 		post_message();
-	} else if (!strcasecmp(action, "confirm_delete_msg")) {
-		confirm_delete_msg();
 	} else if (!strcasecmp(action, "delete_msg")) {
 		delete_msg();
 	} else if (!strcasecmp(action, "confirm_move_msg")) {
