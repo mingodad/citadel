@@ -32,6 +32,12 @@ editor=/usr/local/bin/simped
 #
 local_screen_dimensions=0
 
+# ANSI_COLOR should be set to "on" "off" or "auto" to control the use of
+# color on the screen.  If it is set to "auto" then an autodetect will be
+# attempted.
+#
+ansi_color=auto
+
 # If DISPLAY_MESSAGE_NUMBERS is set to 1, then messages will be displayed
 # with their message numbers in the header.  This is ugly but some
 # people seem to like it anyway...

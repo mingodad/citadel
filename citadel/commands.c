@@ -52,6 +52,7 @@ char rc_exp_cmd[256];
 int rc_allow_attachments;
 int rc_display_message_numbers;
 int rc_force_mail_prompts;
+int rc_ansi_color;
 
 char *gl_string;
 int next_lazy_cmd = 5;
@@ -305,6 +306,7 @@ void load_command_set(void) {
 	strcpy(rc_exp_cmd, "");
 	rc_display_message_numbers = 0;
 	rc_force_mail_prompts = 0;
+	rc_ansi_color = 0;
 
 	/* now try to open the citadel.rc file */
 
@@ -361,6 +363,13 @@ void load_command_set(void) {
 
 	    if (!struncmp(buf,"force_mail_prompts=", 19)) {
 		rc_force_mail_prompts = atoi(&buf[19]);
+		}
+
+	    if (!struncmp(buf,"ansi_color=", 11)) {
+		if (!strncasecmp(&buf[11], "on", 2)) 
+			rc_ansi_color = 1;
+		if (!strncasecmp(&buf[11], "auto", 4)) 
+			rc_ansi_color = 2;	/* autodetect */
 		}
 
 	    if (!struncmp(buf,"username=",9))
@@ -853,22 +862,18 @@ FMTEND:	printf("\n");
  */
 void color(int colornum)
 {
-#ifdef ANSI_COLOR
 	if (enable_color) {
 		printf("\033[3%dm", colornum);
 		/* printf("\033[1m"); */ /* uncomment for bold colours */
 		fflush(stdout);
 		}
-#endif
 	}
 
 void cls(int colornum) {
-#ifdef ANSI_COLOR
 	if (enable_color) {
 		printf("\033[4%dm\033[2J\033[H", colornum);
 		fflush(stdout);
 		}
-#endif
 	}
 
 
@@ -876,20 +881,28 @@ void cls(int colornum) {
  * Detect whether ANSI color is available (answerback)
  */
 void send_ansi_detect(void) {
-#ifdef ANSI_COLOR
-	printf("\033[c");
-	fflush(stdout);
-	time(&AnsiDetect);
-#endif
+	if (rc_ansi_color == 2) {
+		printf("\033[c");
+		fflush(stdout);
+		time(&AnsiDetect);
+		}
 	}
 
 void look_for_ansi(void) {
-#ifdef ANSI_COLOR
         fd_set rfds;
         struct timeval tv;
 	char abuf[512];
 	time_t now;
 	int a;
+
+	if (rc_ansi_color == 0) {
+		enable_color = 0;
+		}
+	else if (rc_ansi_color == 1) {
+		enable_color = 1;
+		}
+
+	/* otherwise, do the auto-detect */
 
 	strcpy(abuf, "");
 
@@ -916,5 +929,4 @@ void look_for_ansi(void) {
 			enable_color = 1;
 			}
 		}
-#endif
 	}
