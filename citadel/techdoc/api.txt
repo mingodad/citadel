@@ -68,3 +68,67 @@ to facilitate a consistent development experience.
  int CtdlSendExpressMessage(char *ToUser, char *MsgText)
  
  This function sends an express message (page) to the named user.
+ 
+ 
+ 
+ USER ACCOUNT FUNCTIONS
+ ----------------------
+ The user account functions require administrative or privileged access.  They
+return -1 in the event of an error.
+ 
+
+ 
+ int CtdlGetUserPassword(char *buf, char *WhichUser)
+ int CtdlSetUserPassword(char *buf, char *WhichUser)
+ 
+ Get or set the password for a user account.
+ 
+ 
+ unsigned int CtdlGetUserFlags(char *WhichUser)
+ int CtdlSetUserFlags(unsigned int NewFlags, char *WhichUser)
+ 
+ Get or set the various bits associated with a user account.  Be careful with
+these flags; it is possible to corrupt a user account by handling them the
+wrong way.  It is best to call CtdlGetUserFlags() to acquire the current set
+of flags, then twiddle the bits you're interested in, then call
+CtdlSetUserFlags() to write them back.
+
+
+ int CtdlGetUserTimesCalled(char *WhichUser)
+ int CtdlSetUserTimesCalled(unsigned int NewValue, char *WhichUser)
+ 
+ Get or set the "number of times called" value for a user.
+
+
+ int CtdlGetUserMessagesPosted(char *WhichUser)
+ int CtdlSetUserMessagesPosted(unsigned int NewValue, char *WhichUser)
+ 
+ Get or set the "number of messages posted" value for a user.
+
+
+ int CtdlGetUserAccessLevel(char *WhichUser)
+ int CtdlSetUserAccessLevel(unsigned int NewValue, char *WhichUser)
+ 
+ Get or set a user's access level.
+
+
+ long CtdlGetUserNumber(char *WhichUser)
+ int CtdlSetUserNumber(long NewValue, char *WhichUser)
+ 
+ Get or set the user number,  In general there is never any reason to change
+a user's number.  If for some reason you need to do this, be sure not to use
+a user number which already exists, or which has not yet been assigned.
+
+ 
+ time_t CtdlGetUserLastCall(char *WhichUser)
+ int CtdlSetUserLastCall(time_t NewValue, char *WhichUser)
+  
+ Get or set the timestamp of a user's last call.
+
+
+ int CtdlForEachUser(int (*CallBack)(char *EachUser))
+ 
+ This allows a user-supplied function to be called once for each user account
+on the system; the single argument passed to the function will be the name of
+the user being processed.
+

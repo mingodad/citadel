@@ -139,7 +139,9 @@ int getuserbynumber(struct usersupp *usbuf, long int number)
 
 	while(cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
 		bzero(usbuf, sizeof(struct usersupp));
-		memcpy(usbuf, cdbus->ptr, cdbus->len);
+		memcpy(usbuf, cdbus->ptr,
+			( (cdbus->len > sizeof(struct usersupp)) ?
+			sizeof(struct usersupp) : cdbus->len) );
 		cdb_free(cdbus);
 		if (usbuf->usernum == number) {
 			return(0);
@@ -717,7 +719,9 @@ void cmd_gnur(void) {
 	cdb_rewind(CDB_USERSUPP);
 	while (cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
 		bzero(&usbuf, sizeof(struct usersupp));
-		memcpy(&usbuf, cdbus->ptr, cdbus->len);
+		memcpy(&usbuf, cdbus->ptr,
+			( (cdbus->len > sizeof(struct usersupp)) ?
+			sizeof(struct usersupp) : cdbus->len) );
 		cdb_free(cdbus);
 		if ((usbuf.flags & US_NEEDVALID)
 		   &&(usbuf.axlevel > 0)) {
@@ -859,7 +863,9 @@ void cmd_list(void) {
 
 	while(cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
 		bzero(&usbuf, sizeof(struct usersupp));
-		memcpy(&usbuf, cdbus->ptr, cdbus->len);
+		memcpy(&usbuf, cdbus->ptr,
+			( (cdbus->len > sizeof(struct usersupp)) ?
+			sizeof(struct usersupp) : cdbus->len) );
 		cdb_free(cdbus);
 
 	    if (usbuf.axlevel > 0) {

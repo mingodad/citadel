@@ -7,6 +7,13 @@
 #include <errno.h>
 #include "citadel.h"
 
+
+struct CtdlInternalList {
+	struct CtdlInternalList *next;
+	char data[256];
+	};
+
+
 struct CtdlServerHandle CtdlAppHandle;
 struct CtdlServInfo CtdlAppServInfo;
 int CtdlErrno = 0;
@@ -16,6 +23,91 @@ void CtdlMain();
 void logoff(exitcode) {
 	exit(exitcode);
 	}
+
+
+
+/*
+ * CtdlInternalNumParms()  -  discover number of parameters...
+ */
+int CtdlInternalNumParms(char *source)
+{
+	int a;
+	int count = 1;
+
+	for (a=0; a<strlen(source); ++a) 
+		if (source[a]=='|') ++count;
+	return(count);
+	}
+
+/*
+ * CtdlInternalExtract()  -  extract a parameter from a series of "|" separated
+ */
+void CtdlInternalExtract(char *dest, char *source, int parmnum)
+{
+	char buf[256];
+	int count = 0;
+	int n;
+
+	if (strlen(source)==0) {
+		strcpy(dest,"");
+		return;
+		}
+
+	n = CtdlInternalNumParms(source);
+
+	if (parmnum >= n) {
+		strcpy(dest,"");
+		return;
+		}
+	strcpy(buf,source);
+	if ( (parmnum == 0) && (n == 1) ) {
+		strcpy(dest,buf);
+		for (n=0; n<strlen(dest); ++n)
+			if (dest[n]=='|') dest[n] = 0;
+		return;
+		}
+
+	while (count++ < parmnum) do {
+		strcpy(buf,&buf[1]);
+		} while( (strlen(buf)>0) && (buf[0]!='|') );
+	if (buf[0]=='|') strcpy(buf,&buf[1]);
+	for (count = 0; count<strlen(buf); ++count)
+		if (buf[count] == '|') buf[count] = 0;
+	strcpy(dest,buf);
+	}
+
+/*
+ * CtdlInternalExtractInt()  -  CtdlInternalExtract an int parm w/o supplying a buffer
+ */
+int CtdlInternalExtractInt(char *source, int parmnum)
+{
+	char buf[256];
+	
+	CtdlInternalExtract(buf,source,parmnum);
+	return(atoi(buf));
+	}
+
+/*
+ * CtdlInternalExtractLong()  -  CtdlInternalExtract an long parm w/o supplying a buffer
+ */
+long CtdlInternalExtractLong(char *source, long int parmnum)
+{
+	char buf[256];
+	
+	CtdlInternalExtract(buf,source,parmnum);
+	return(atol(buf));
+	}
+
+
+
+
+
+
+
+
+
+
+
 
 /*
  * Programs linked against the Citadel server extension library need to
@@ -134,4 +226,175 @@ int CtdlSendExpressMessage(char *ToUser, char *MsgText) {
 	CtdlErrno = atoi(buf);
 	if (CtdlErrno == OK) CtdlErrno = 0;
 	return CtdlErrno;
+	}
+
+
+
+int CtdlInternalGetUserParam(char *ParamBuf, int ParamNum, char *WhichUser) {
+	char buf[256];
+
+	sprintf(buf, "AGUP %s", WhichUser);
+	serv_puts(buf);
+	serv_gets(buf);
+	if (buf[0] != '2') return(atoi(buf));
+	CtdlInternalExtract(ParamBuf, &buf[4], ParamNum);
+	return(0);
+	}
+
+
+int CtdlInternalSetUserParam(char *ParamBuf, int ParamNum, char *WhichUser) {
+	char buf[256];
+	char params[8][256];
+	int a;
+
+	sprintf(buf, "AGUP %s", WhichUser);
+	serv_puts(buf);
+	serv_gets(buf);
+	if (buf[0] != '2') return(atoi(buf));
+	for (a=0; a<8; ++a) {
+		CtdlInternalExtract(&params[a][0], &buf[4], a);
+		}
+	strcpy(&params[ParamNum][0], ParamBuf);
+	strcpy(buf, "ASUP ");
+	for (a=0; a<8; ++a) {
+		strcat(buf, &params[a][0]);
+		strcat(buf, "|");
+		}
+	serv_puts(buf);
+	serv_gets(buf);
+	if (buf[0] != '2') return(atoi(buf));
+	return(0);
+	}
+
+/*
+ 0 - User name
+ 1 - Password
+ 2 - Flags (see citadel.h)
+ 3 - Times called
+ 4 - Messages posted
+ 5 - Access level
+ 6 - User number
+ 7 - Timestamp of last call
+ */
+
+int CtdlGetUserPassword(char *buf, char *WhichUser) {
+	CtdlErrno = CtdlInternalGetUserParam(buf, 1, WhichUser);
+	return(CtdlErrno);
+	}
+
+int CtdlSetUserPassword(char *buf, char *WhichUser) {
+	CtdlErrno = CtdlInternalSetUserParam(buf, 1, WhichUser);
+	return(CtdlErrno);
+	}
+
+unsigned int CtdlGetUserFlags(char *WhichUser) {
+	char buf[256];
+	CtdlErrno = CtdlInternalGetUserParam(buf, 2, WhichUser);
+	return((CtdlErrno == 0) ? atoi(buf) : (-1));
+	}
+
+int CtdlSetUserFlags(unsigned int NewFlags, char *WhichUser) {
+	char buf[256];
+	sprintf(buf, "%u", NewFlags);
+	CtdlErrno = CtdlInternalGetUserParam(buf, 2, WhichUser);
+	return(CtdlErrno);
+	}
+
+int CtdlGetUserTimesCalled(char *WhichUser) {
+	char buf[256];
+	CtdlErrno = CtdlInternalGetUserParam(buf, 3, WhichUser);
+	return((CtdlErrno == 0) ? atoi(buf) : (-1));
+	}
+
+int CtdlSetUserTimesCalled(int NewValue, char *WhichUser) {
+	char buf[256];
+	sprintf(buf, "%d", NewValue);
+	CtdlErrno = CtdlInternalGetUserParam(buf, 3, WhichUser);
+	return(CtdlErrno);
+	}
+
+int CtdlGetUserMessagesPosted(char *WhichUser) {
+	char buf[256];
+	CtdlErrno = CtdlInternalGetUserParam(buf, 4, WhichUser);
+	return((CtdlErrno == 0) ? atoi(buf) : (-1));
+	}
+
+int CtdlSetUserMessagesPosted(int NewValue, char *WhichUser) {
+	char buf[256];
+	sprintf(buf, "%d", NewValue);
+	CtdlErrno = CtdlInternalGetUserParam(buf, 4, WhichUser);
+	return(CtdlErrno);
+	}
+
+int CtdlGetUserAccessLevel(char *WhichUser) {
+	char buf[256];
+	CtdlErrno = CtdlInternalGetUserParam(buf, 5, WhichUser);
+	return((CtdlErrno == 0) ? atoi(buf) : (-1));
+	}
+
+int CtdlSetUserAccessLevel(int NewValue, char *WhichUser) {
+	char buf[256];
+
+	if ( (NewValue < 1) || (NewValue > 6) ) {
+		return(ERROR + ILLEGAL_VALUE);
+		}
+
+	sprintf(buf, "%d", NewValue);
+	CtdlErrno = CtdlInternalGetUserParam(buf, 5, WhichUser);
+	return(CtdlErrno);
+	}
+
+long CtdlGetUserNumber(char *WhichUser) {
+	char buf[256];
+	CtdlErrno = CtdlInternalGetUserParam(buf, 6, WhichUser);
+	return((CtdlErrno == 0) ? atol(buf) : (-1L));
+	}
+
+int CtdlSetUserNumber(long NewValue, char *WhichUser) {
+	char buf[256];
+	sprintf(buf, "%ld", NewValue);
+	CtdlErrno = CtdlInternalGetUserParam(buf, 6, WhichUser);
+	return(CtdlErrno);
+	}
+
+time_t CtdlGetUserLastCall(char *WhichUser) {
+	char buf[256];
+	CtdlErrno = CtdlInternalGetUserParam(buf, 7, WhichUser);
+	return((CtdlErrno == 0) ? atol(buf) : (time_t)(-1L));
+	}
+
+int CtdlSetUserLastCall(time_t NewValue, char *WhichUser) {
+	char buf[256];
+	sprintf(buf, "%ld", NewValue);
+	CtdlErrno = CtdlInternalGetUserParam(buf, 7, WhichUser);
+	return(CtdlErrno);
+	}
+
+int CtdlForEachUser(int (*CallBack)(char *EachUser))  {
+	struct CtdlInternalList *TheList = NULL;
+	struct CtdlInternalList *ptr;
+	char buf[256];
+
+	serv_puts("LIST");
+	serv_gets(buf);
+	if (buf[0] != '1') return(-1);
+
+	while (serv_gets(buf), strcmp(buf, "000")) {
+		ptr = (struct CtdlInternalList *)
+			malloc(sizeof (struct CtdlInternalList));
+		if (ptr != NULL) {
+			CtdlInternalExtract(ptr->data, buf, 0);
+			ptr->next = TheList;
+			TheList = ptr;
+			}
+		}
+
+	while (TheList != NULL) {
+		(*CallBack)(TheList->data);
+		ptr = TheList->next;
+		free(TheList);
+		TheList = ptr;
+		}
+
+	return(0);
 	}

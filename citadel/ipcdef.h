@@ -13,6 +13,7 @@
 
 #define INTERNAL_ERROR		10
 #define TOO_BIG			11
+#define ILLEGAL_VALUE		12
 #define NOT_LOGGED_IN		20
 #define CMD_NOT_SUPPORTED	30
 #define PASSWORD_REQUIRED	40
