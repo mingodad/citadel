@@ -8,3 +8,6 @@ void groupdav_delete(char *, char *);
 void groupdav_propfind(char *);
 long locate_message_by_uid(char *);
 void groupdav_folder_list(void);
+void euid_escapize(char *, char *);
+void euid_unescapize(char *, char *);
+

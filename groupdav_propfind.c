@@ -42,14 +42,7 @@ long locate_message_by_uid(char *uid) {
 	long retval = (-1L);
 
 	/* Decode the uid */
-	j=0;
-	for (i=0; i<strlen(uid); i=i+2) {
-		ch = 0;
-		sscanf(&uid[i], "%02x", &ch);
-		decoded_uid[j] = ch;
-		decoded_uid[j+1] = 0;
-		++j;
-	}
+	euid_unescapize(decoded_uid, uid);
 
 	serv_puts("MSGS ALL|0|1");
 	serv_gets(buf);
@@ -149,6 +142,7 @@ void groupdav_propfind(char *dav_pathname) {
 	char msgnum[SIZ];
 	char buf[SIZ];
 	char uid[SIZ];
+	char encoded_uid[SIZ];
 	long *msgs = NULL;
 	int num_msgs = 0;
 	int i, j;
@@ -230,10 +224,8 @@ void groupdav_propfind(char *dav_pathname) {
 			}
 			wprintf("/groupdav/");
 			urlescputs(WC->wc_roomname);
-			wprintf("/");
-			for (j=0; j<strlen(uid); ++j) {
-				wprintf("%02X", uid[j]);
-			}
+			euid_escapize(encoded_uid, uid);
+			wprintf("/%s", encoded_uid);
 			wprintf("</D:href>\n");
 			wprintf("   <D:propstat>\n");
 			wprintf("    <D:status>HTTP/1.1 200 OK</D:status>\n");

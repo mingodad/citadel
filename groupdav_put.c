@@ -98,6 +98,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	 * version, so we fail...
 	 */
 	if (strlen(dav_ifmatch) > 0) {
+		lprintf(9, "* ifmatch failed, bailing out\n");
 		old_msgnum = locate_message_by_uid(dav_uid);
 		if (atol(dav_ifmatch) != old_msgnum) {
 			wprintf("HTTP/1.1 412 Precondition Failed\n");
@@ -112,6 +113,12 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	 * which allows a confirmation to be sent back to us.  That's how we
 	 * extract the message ID.
 	 */
+	lprintf(9, "* I am %s/%s/%s\n",
+		WC->wc_username,
+		WC->wc_password,
+		WC->wc_roomname
+	);
+	lprintf(9, "* allowing upload (old_msgnum=%ld, ifmatch=%s)\n", old_msgnum, dav_ifmatch);
 	serv_puts("ENT0 1|||4|||1|");
 	serv_gets(buf);
 	if (buf[0] != '8') {
@@ -145,6 +152,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	}
 
 	/* Tell the client what happened. */
+	lprintf(9, "* new_msgnum = %ld\n", new_msgnum);
 
 	/* Citadel failed in some way? */
 	if (new_msgnum < 0L) {
@@ -160,6 +168,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 
 	/* We created this item for the first time. */
 	if (old_msgnum < 0L) {
+		lprintf(9, "* new item created\n");
 		wprintf("HTTP/1.1 201 Created\n");
 		groupdav_common_headers();
 		wprintf("Content-Length: 0\n");
@@ -177,6 +186,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	}
 
 	/* We modified an existing item. */
+	lprintf(9, "* existing item replaced\n");
 	wprintf("HTTP/1.1 204 No Content\n");
 	groupdav_common_headers();
 	wprintf("Content-Length: 0\n\n");
