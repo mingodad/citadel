@@ -36,20 +36,6 @@
 #define S_KEEPALIVE	30
 
 /*
- * This is the command that gets executed when a user hits <E>nter message:
- * presses the <E>nter message key.  The possible values are:
- *   4  - .<E>nter <M>essage
- *   46 - .<E>nter message with <E>ditor
- *   36 - .<E>nter message with <A>scii
- * Normally, this value will be set to 4, to cause the <E>nter message
- * command to run Citadel's built-in editor.  However, if you have an external
- * editor installed, and you want to make it the default, set this to 46
- * to make it use your editor by default.
- */
-#define DEFAULT_ENTRY		4
-
-
-/*
  * Logging level to use if none is specified on the command line.
  */
 #define DEFAULT_VERBOSITY	9

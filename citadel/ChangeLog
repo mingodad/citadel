@@ -1,4 +1,8 @@
  $Log$
+ Revision 610.22  2003/10/17 02:18:40  ajc
+ * Replaced the DEFAULT_ENTRY definition in sysconfig.h with a new option
+   "reply_with_external_editor" in citadel.rc.
+
  Revision 610.21  2003/10/14 03:09:47  ajc
  * routines2.c: fixed an off-by-one error in filename sanitization for
    client file uploads
@@ -5048,4 +5052,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

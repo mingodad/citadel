@@ -23,6 +23,7 @@ extern char rc_screen;
 extern char arg_screen;
 #endif
 extern char rc_alt_semantics;
+extern char rc_reply_extedit;
 extern char express_msgs;
 void logoff(CtdlIPC *ipc, int code);
 void formout(CtdlIPC *ipc, char *name);
