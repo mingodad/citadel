@@ -101,7 +101,7 @@ pthread_t initial_thread;		/* tid for main() thread */
  */
 void lprintf(int loglevel, const char *format, ...) {   
         va_list arg_ptr;
-	char buf[4096];
+	char buf[SIZ];
   
         va_start(arg_ptr, format);   
         vsprintf(buf, format, arg_ptr);   

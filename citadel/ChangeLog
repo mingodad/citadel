@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.58  2002/01/13 04:06:33  ajc
+ * Repaired the problems I created when moving the_mime_parser()'s variables
+   from the stack to the heap.  (Hint: sizeof(char *) is 4, not 4096)
+
  Revision 590.57  2002/01/11 15:46:57  error
  * Allow users to move/copy messages between personal rooms
 
@@ -3139,4 +3143,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

@@ -333,7 +333,7 @@ void the_mime_parser(char *partnum,
 	/* Learn interesting things from the headers */
 	strcpy(header, "");
 	do {
-		ptr = memreadline(ptr, buf, sizeof buf);
+		ptr = memreadline(ptr, buf, SIZ);
 		if (ptr >= content_end) {
 			goto end_parser;
 		}
@@ -362,7 +362,7 @@ void the_mime_parser(char *partnum,
 				extract_key(boundary, header, "boundary");
 			strcpy(header, "");
 		}
-		if ((strlen(header) + strlen(buf) + 2) < sizeof(header))
+		if ((strlen(header) + strlen(buf) + 2) < SIZ)
 			strcat(header, buf);
 	} while ((strlen(buf) > 0) && (*ptr != 0));
 
@@ -421,7 +421,7 @@ void the_mime_parser(char *partnum,
 							userdata,
 							dont_decode);
 				}
-				ptr = memreadline(ptr, buf, sizeof(buf));
+				ptr = memreadline(ptr, buf, SIZ);
 				part_start = ptr;
 			}
 			else {
