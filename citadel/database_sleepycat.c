@@ -758,8 +758,11 @@ void cdb_rewind(int cdb)
 {
 	int ret = 0;
 
-	if (MYCURSORS[cdb] != NULL)
-		cclose(MYCURSORS[cdb]);
+	if (MYCURSORS[cdb] != NULL) {
+		lprintf(CTDL_EMERG, "cdb_rewind: must close cursor on database %d before reopening.\n", cdb);
+		abort();
+		//cclose(MYCURSORS[cdb]);
+	}
 
 	/*
 	 * Now initialize the cursor

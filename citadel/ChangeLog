@@ -1,4 +1,9 @@
  $Log$
+ Revision 627.6  2004/11/11 16:21:12  nbryant
+ * database_sleepycat.c: make cdb_rewind enforce that cursors must be
+   closed before they can be opened again. (prevents cursors being held
+   open for longer than they should be and holding database locks.)
+
  Revision 627.5  2004/11/11 14:56:16  ajc
  * Further adjustments to ldap setup
 
@@ -6207,3 +6212,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
