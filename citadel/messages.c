@@ -43,6 +43,7 @@
 #include "screen.h"
 
 #define MAXWORDBUF SIZ
+#define NO_REPLY_TO	"nobody ... xxxxxx"
 
 struct cittext {
 	struct cittext *next;
@@ -376,7 +377,8 @@ int read_message(
 		return (0);
 	}
 
-	strcpy(reply_to, "nobody ... xxxxx");
+	strcpy(reply_to, NO_REPLY_TO);
+	strcpy(reply_subject, "");
 
 	if (dest) {
 		fprintf(dest, "\n ");
@@ -526,9 +528,15 @@ int read_message(
 		scr_printf("\n");
 	}
 
-	if (strlen(message->email) > 0) {
-		strcpy(reply_to, message->email);
-	} else {
+	/* Set the reply-to address to an Internet e-mail address if possible
+	 */
+	if (message->email != NULL) if (strlen(message->email) > 0) {
+		safestrncpy(reply_to, message->email, sizeof reply_to);
+	}
+
+	/* But if we can't do that, set it to a Citadel address.
+	 */
+	if (!strcmp(reply_to, NO_REPLY_TO)) {
 		snprintf(reply_to, sizeof(reply_to), "%s @ %s",
 			 message->author, message->node);
 	}
@@ -540,21 +548,23 @@ int read_message(
 		lines_printed = checkpagin(lines_printed, pagin, screenheight);
 	}
 
-	strcpy(reply_subject, message->subject);
-	if (strlen(message->subject) > 0) {
-		if (dest) {
-			fprintf(dest, "Subject: %s\n", message->subject);
-		} else {
-			scr_printf("Subject: %s\n", message->subject);
-			++lines_printed;
-			lines_printed = checkpagin(lines_printed,
-					pagin, screenheight);
+	if (message->subject != NULL) {
+		safestrncpy(reply_subject, message->subject,
+						sizeof reply_subject);
+		if (strlen(message->subject) > 0) {
+			if (dest) {
+				fprintf(dest, "Subject: %s\n",
+							message->subject);
+			} else {
+				scr_printf("Subject: %s\n", message->subject);
+				++lines_printed;
+				lines_printed = checkpagin(lines_printed,
+						pagin, screenheight);
+			}
 		}
 	}
 
 	/******* end of header output, start of message text output *******/
-
-	/* scr_printf("message->mime_chosen is <%s>\n", message->mime_chosen); FIXME */
 
 	if (format_type == 0) {
 		fr = fmout(screenwidth, NULL, message->text, dest,
