@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.86  2001/12/02 23:36:24  ajc
+ * On a new system, set the default new user level to 4 instead of 1.
+
  Revision 580.85  2001/12/02 23:27:01  ajc
  * Removed references to the old networker from the documentation.  Did not
    write any new documentation, so what's there now is kind of sparse.
@@ -2901,3 +2904,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -794,8 +794,9 @@ int main(int argc, char *argv[])
 		strcpy(config.c_humannode, "My System");
 	if (strlen(config.c_phonenum) == 0)
 		strcpy(config.c_phonenum, "US 800 555 1212");
-	if (config.c_initax == 0)
-		config.c_initax = 1;
+	if (config.c_initax == 0) {
+		config.c_initax = 4;
+	}
 	if (strlen(config.c_moreprompt) == 0)
 		strcpy(config.c_moreprompt, "<more>");
 	if (strlen(config.c_twitroom) == 0)
