@@ -110,6 +110,8 @@ void np_attach_to_server(void)
 	{"sendcommand", NULL};
 	int r;
 
+	strcpy(hostbuf, "localhost");
+	strcpy(portbuf, "citadel");
 	fprintf(stderr, "Attaching to server...\n");
 	ipc = CtdlIPC_new(1, args, hostbuf, portbuf);
 	CtdlIPC_getline(ipc, buf);

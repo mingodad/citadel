@@ -208,7 +208,7 @@ int screen_reset(void)
 {
 #if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (myscreen) {
-		endwin();
+		if (!isendwin()) endwin();
 		return 1;
 	}
 #endif /* HAVE_CURSES_H */

@@ -21,9 +21,9 @@
 OutFile "citadel-6.06.exe"
 BGGradient off
 
-LangString $DESC_Citadel ${LANG_ENGLISH} "Citadel/UX client and core libraries (required)"
-LangString $DESC_CitadelServer ${LANG_ENGLISH} "Citadel/UX server"
-LangString $DESC_CitadelUtils ${LANG_ENGLISH} "Citadel/UX utilities"
+LangString DESC_Citadel ${LANG_ENGLISH} "Citadel/UX client and core libraries (required)"
+LangString DESC_CitadelServer ${LANG_ENGLISH} "Citadel/UX server"
+LangString DESC_CitadelUtils ${LANG_ENGLISH} "Citadel/UX utilities"
 
 SetCompress auto
 SetDatablockOptimize on
@@ -40,7 +40,7 @@ InstallDir "$PROGRAMFILES\Citadel"
 InstallDirRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Citadel\Citadel\CurrentVersion" "InstallDir"
 DirShow show
 
-Section "Citadel/UX client and core libraries (required)" Citadel ; (default section)
+Section "Citadel/UX Client and core libraries (required)" Citadel ; (default section)
 SetShellVarContext all
 SetOutPath "$INSTDIR"
 File C:\cygwin\home\error\cvs\citadel\citadel.exe
@@ -68,13 +68,25 @@ SectionEnd ; end of default section
 Section "Citadel/UX Server" CitadelServer
 SetOutPath "$INSTDIR"
 File C:\cygwin\home\error\cvs\citadel\citserver.exe
+File C:\cygwin\bin\cygz.dll
 File C:\cygwin\home\error\cvs\citadel\base64.exe
 File C:\cygwin\home\error\cvs\citadel\weekly
 File C:\cygwin\home\error\cvs\citadel\setup.exe
-File /r C:\cygwin\home\error\cvs\citadel\bitbucket
+File C:\cygwin\home\error\cvs\citadel\sendcommand.exe
+File C:\cygwin\home\error\cvs\citadel\docs\citadel.html
+File /oname=README.TXT C:\cygwin\home\error\cvs\citadel\docs\windows-readme.txt
+SetOverwrite off
 File /r C:\cygwin\home\error\cvs\citadel\help
 File /r C:\cygwin\home\error\cvs\citadel\messages
-WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\RunServices" "Citadel" '"$INSTDIR\citserver.exe" -x9 -t"$INSTDIR\citadel-debug.txt" -h"$INSTDIR"'
+SetOverwrite on
+CreateShortcut "$SMPROGRAMS\Citadel\Server Setup Utility.lnk" \
+	"$INSTDIR\rxvt.exe" "-fg white -bg black -sl 1000 -sr -fn 8x16 -e ./setup.exe" \
+	"shell32.dll" "65"
+CreateShortcut "$SMPROGRAMS\Citadel\README.lnk" \
+	"$INSTDIR\README.TXT"
+CreateShortcut "$SMPROGRAMS\Citadel\Citadel Documentation.lnk" \
+	"$INSTDIR\citadel.html"
+WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\RunServices" "Citadel" "$INSTDIR\citserver.exe -x9 -tcitadel-debug.txt"
 SectionEnd
 
 Section "Citadel/UX Utilities" CitadelUtils
@@ -83,17 +95,15 @@ File C:\cygwin\home\error\cvs\citadel\aidepost.exe
 File C:\cygwin\home\error\cvs\citadel\citmail.exe
 File C:\cygwin\home\error\cvs\citadel\migratenet.exe
 File C:\cygwin\home\error\cvs\citadel\msgform.exe
-File C:\cygwin\home\error\cvs\citadel\sendcommand.exe
 File C:\cygwin\home\error\cvs\citadel\userlist.exe
 File C:\cygwin\home\error\cvs\citadel\whobbs.exe
 SectionEnd
 !insertmacro MUI_SECTIONS_FINISHHEADER
 
 !insertmacro MUI_FUNCTIONS_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${Citadel} ${DESC_Citadel}
-  !insertmacro MUI_DESCRIPTION_TEXT ${CitadelServer} ${DESC_CitadelServer}
-  !insertmacro MUI_DESCRIPTION_TEXT ${CitadelFiles} $(DESC_CitadelFiles}
-  !insertmacro MUI_DESCRIPTION_TEXT ${CitadelUtils} $(DESC_CitadelUtils}
+  !insertmacro MUI_DESCRIPTION_TEXT ${Citadel} $(DESC_Citadel)
+  !insertmacro MUI_DESCRIPTION_TEXT ${CitadelServer} $(DESC_CitadelServer)
+  !insertmacro MUI_DESCRIPTION_TEXT ${CitadelUtils} $(DESC_CitadelUtils)
 !insertmacro MUI_FUNCTIONS_DESCRIPTION_END
 
 ; begin uninstall settings/section
@@ -127,6 +137,9 @@ RMDir /r "$INSTDIR\messages"
 RMDir /r "$INSTDIR\bitbucket"
 RMDir "$INSTDIR"
 
+Delete "$SMPROGRAMS\Citadel\README.lnk"
+Delete "$SMPROGRAMS\Citadel\Citadel Documentation.lnk"
+Delete "$SMPROGRAMS\Citadel\Server Setup Utility.lnk"
 Delete "$SMPROGRAMS\Citadel\Citadel.lnk"
 RMDir "$SMPROGRAMS\Citadel"
 Delete "$DESKTOP\Citadel.lnk"

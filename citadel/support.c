@@ -11,6 +11,8 @@
 
 #include "sysdep.h"
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -109,26 +111,18 @@ void mesg_locate(char *targ, size_t n, const char *searchfor,
 {
 	int a;
 	char buf[SIZ];
+	struct stat test;
 	FILE *ls;
 
 	for (a=0; a<numdirs; ++a) {
-		snprintf(buf, sizeof buf, "cd %s; exec ls",dirs[a]);
-		ls = (FILE *) popen(buf,"r");
-		if (ls != NULL) {
-			while(fgets(buf,sizeof buf,ls)!=NULL) {
-				while (isspace(buf[strlen(buf)-1]))
-					buf[strlen(buf)-1] = 0;
-				if (!strcasecmp(buf,searchfor)) {
-					pclose(ls);
-					snprintf(targ,n,"%s/%s",dirs[a],buf);
-					return;
-					}
-				}
-			pclose(ls);
-			}
+		snprintf(buf, sizeof buf, "%s/%s", dirs[a], searchfor);
+		if (!stat(buf, &test)) {
+			snprintf(targ,n,"%s/%s", dirs[a], searchfor);
+			return;
 		}
-	strcpy(targ,"");
 	}
+	strcpy(targ,"");
+}
 
 
 #ifndef HAVE_STRERROR

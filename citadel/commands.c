@@ -352,6 +352,12 @@ static void really_do_keepalive(void) {
 
 	time(&idlet);
 
+	/* This may sometimes get called before we are actually connected
+	 * to the server.  Don't do anything if we aren't connected. -IO
+	 */
+	if (!ipc_for_signal_handlers)
+		return;
+
 	/* If full keepalives are enabled, send a NOOP to the server and
 	 * wait for a response.
 	 */

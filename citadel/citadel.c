@@ -1049,6 +1049,8 @@ int main(int argc, char **argv)
 
 	screen_new();
 
+	newprompt("Connect to (return for local server): ", hostbuf, 64);
+
 	sln_printf("Attaching to server... \r");
 	sln_flush();
 	ipc = CtdlIPC_new(argc, argv, hostbuf, portbuf);

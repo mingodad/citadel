@@ -90,6 +90,9 @@ case "$host" in
 	*-*-solaris*)
 		PTHREAD_DEFS="-D_REENTRANT -D_PTHREADS"
 	;;
+	*-*-cygwin*)
+		SERVER_LDFLAGS="-Wl,-subsystem,windows"
+	;;
 esac
 DEFS="$DEFS $PTHREAD_DEFS"
 
@@ -537,6 +540,7 @@ AC_SUBST(RESOLV)
 AC_SUBST(chkpwd_LIBS)
 AC_SUBST(TARGETS)
 AC_SUBST(DATABASE)
+AC_SUBST(SERVER_LDFLAGS)
 AC_CONFIG_HEADER(sysdep.h)
 AC_CONFIG_FILES([Makefile weekly])
 AC_OUTPUT

@@ -1,4 +1,10 @@
  $Log$
+ Revision 606.9  2003/06/04 21:39:27  error
+ * Numerous fixups needed for Windows port:
+   * cmd_mesg() rewritten to use the stat() syscall to find files
+   * really_do_keepalive() does not try to send if we are not connected
+   * Misc. fixups; added Windows readme file
+
  Revision 606.8  2003/06/04 21:30:39  error
  * messages.c: When file attachment has no name, use message subject as name
 
@@ -4748,4 +4754,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -1,7 +1,11 @@
 /* $Id$ */
 
 #define	UDS			"_UDS_"
+#ifdef __CYGWIN__
+#define DEFAULT_HOST		"localhost"
+#else
 #define DEFAULT_HOST		UDS
+#endif
 #define DEFAULT_PORT		"citadel"
 
 #include "sysdep.h"
@@ -2820,6 +2824,13 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 	strcpy(cithost, DEFAULT_HOST);	/* default host */
 	strcpy(citport, DEFAULT_PORT);	/* default port */
 
+	/* Allow caller to supply our values (Windows) */
+	if (hostbuf && strlen(hostbuf) > 0)
+		strcpy(cithost, hostbuf);
+	if (portbuf && strlen(portbuf) > 0)
+		strcpy(citport, portbuf);
+
+	/* Read host/port from command line if present */
 	for (a = 0; a < argc; ++a) {
 		if (a == 0) {
 			/* do nothing */

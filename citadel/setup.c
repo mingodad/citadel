@@ -617,6 +617,9 @@ void edit_value(int curr)
 		break;
 
 	case 2:
+#ifdef __CYGWIN__
+		config.c_bbsuid = 0;	/* XXX Windows hack, prob. insecure */
+#else
 		i = config.c_bbsuid;
 		pw = getpwuid(i);
 		if (pw == NULL) {
@@ -634,6 +637,7 @@ void edit_value(int curr)
 				config.c_bbsuid = atoi(bbsuidname);
 			}
 		}
+#endif
 		break;
 
 	case 3:
@@ -948,7 +952,9 @@ NEW_INST:
 	unlink("citadel.log");
 
 	check_services_entry();	/* Check /etc/services */
+#ifndef __CYGWIN__
 	check_inittab_entry();	/* Check /etc/inittab */
+#endif
 
 	if ((pw = getpwuid(config.c_bbsuid)) == NULL)
 		gid = getgid();
