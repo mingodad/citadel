@@ -479,7 +479,7 @@ void mime_download(char *name, char *filename, char *partnum, char *disp,
 
 /*
  * Load a message from disk into memory.
- * (This will replace a big piece of output_message() eventually)
+ * This is used by output_message() and other fetch functions.
  *
  * NOTE: Caller is responsible for freeing the returned CtdlMessage struct
  *       using the CtdlMessageFree() function.
@@ -610,7 +610,7 @@ void output_message(char *msgid, int mode, int headers_only)
 	 */
 	TheMessage = CtdlFetchMessage(msg_num);
 	if (TheMessage == NULL) {
-		cprintf("%d Can't locate message %ld on disk\n", ERROR, msg_num);
+		cprintf("%d Can't locate msg %ld on disk\n", ERROR, msg_num);
 		return;
 	}
 
@@ -638,6 +638,7 @@ void output_message(char *msgid, int mode, int headers_only)
 		CtdlFreeMessage(TheMessage);
 		return;
 	}
+
 	/* now for the user-mode message reading loops */
 	cprintf("%d Message %ld:\n", LISTING_FOLLOWS, msg_num);
 
@@ -647,6 +648,7 @@ void output_message(char *msgid, int mode, int headers_only)
 	if ((TheMessage->cm_anon_type == MES_ANON) && (mode == MT_CITADEL)) {
 		cprintf("nhdr=yes\n");
 	}
+
 	/* begin header processing loop for Citadel message format */
 
 	if ((mode == MT_CITADEL) || (mode == MT_MIME)) {
@@ -692,6 +694,7 @@ void output_message(char *msgid, int mode, int headers_only)
 			cprintf("subj=%s\n", TheMessage->cm_fields['U']);
 		}
 	}
+
 	/* begin header processing loop for RFC822 transfer format */
 
 	strcpy(suser, "");
@@ -733,6 +736,7 @@ void output_message(char *msgid, int mode, int headers_only)
 			}
 		}
 	}
+
 	if (mode == MT_RFC822) {
 		if (!strcasecmp(snode, NODENAME)) {
 			strcpy(snode, FQDN);
@@ -743,6 +747,7 @@ void output_message(char *msgid, int mode, int headers_only)
 			suser, snode, luser);
 		cprintf("Organization: %s\n", lnode);
 	}
+
 	/* end header processing loop ... at this point, we're in the text */
 
 	mptr = TheMessage->cm_fields['M'];
@@ -758,11 +763,13 @@ void output_message(char *msgid, int mode, int headers_only)
 			return;
 		}
 	}
+
 	if (headers_only) {
 		cprintf("000\n");
 		CtdlFreeMessage(TheMessage);
 		return;
 	}
+
 	/* signify start of msg text */
 	if (mode == MT_CITADEL)
 		cprintf("text\n");
@@ -789,6 +796,7 @@ void output_message(char *msgid, int mode, int headers_only)
 		if (strlen(buf) > 0)
 			cprintf("%s\n", buf);
 	}
+
 	/* If the message on disk is format 0 (Citadel vari-format), we
 	 * output using the formatter at 80 columns.  This is the final output
 	 * form if the transfer format is RFC822, but if the transfer format
@@ -799,6 +807,7 @@ void output_message(char *msgid, int mode, int headers_only)
 	if (TheMessage->cm_format_type == 0) {
 		memfmout(80, mptr, 0);
 	}
+
 	/* If the message on disk is format 4 (MIME), we've gotta hand it
 	 * off to the MIME parser.  The client has already been told that
 	 * this message is format 1 (fixed format), so the callback function
@@ -807,6 +816,7 @@ void output_message(char *msgid, int mode, int headers_only)
 	if (TheMessage->cm_format_type == 4) {
 		mime_parser(mptr, NULL, *fixed_output);
 	}
+
 	/* now we're done */
 	cprintf("000\n");
 	CtdlFreeMessage(TheMessage);

@@ -1,4 +1,7 @@
 $Log$
+Revision 1.351  1999/08/21 18:37:29  ajc
+Minor cosmetic cleanup.  No code changes.
+
 Revision 1.350  1999/08/21 05:15:34  ajc
 * mailinglist.c, netmailer.c: fixed to allow list submissions from all posters
   on a Citadel network rather than only on the local system.
@@ -1195,4 +1198,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
