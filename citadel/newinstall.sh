@@ -237,7 +237,7 @@ download_prerequisite_sources () {
 	then
 		echo "* Downloading Berkeley DB..."
 		wget -c $DOWNLOAD_SITE/$DB_SOURCE 2>&1 >>$LOG || die
-		wget -c $DOWNLOAD_SITE/$DB_PATCHES 2>&1 >>$LOG || die
+		#wget -c $DOWNLOAD_SITE/$DB_PATCHES 2>&1 >>$LOG || die
 	fi
 	if [ -z "$OK_LDAP" ]
 	then
@@ -269,7 +269,7 @@ install_db () {
 	cd $BUILD 2>&1 >>$LOG || die
 	( gzip -dc $DB_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
 	cd $BUILD/db-4.1.25 2>&1 >>$LOG || die
-	patch -p0 < ../$DB_PATCHES 2>&1 >>$LOG || die
+	#patch -p0 < ../$DB_PATCHES 2>&1 >>$LOG || die
 	cd $BUILD/db-4.1.25/build_unix 2>&1 >>$LOG || die
 	../dist/configure --prefix=$SUPPORT --disable-compat185 --disable-cxx --disable-debug --disable-dump185 --disable-java --disable-rpc --disable-tcl --disable-test --without-rpm 2>&1 >>$LOG || die
 	$MAKE $MAKEOPTS 2>&1 >>$LOG || die
