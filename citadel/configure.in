@@ -17,6 +17,26 @@ AC_ARG_ENABLE(threaded-client, [  --disable-threaded-client
 
 AC_ARG_WITH(pam, [  --with-pam              use PAM if present (see PAM.txt before you try this)])
 AC_ARG_WITH(kthread, [  --with-kthread          use kernel threads (on FreeBSD) (not recommended yet)])
+AC_ARG_WITH(gdbm, [  --with-gdbm[=DIR]       use GDBM [DIR=/usr/local]])
+AC_ARG_WITH(db, [  --with-db[=DIR]         use Sleepycat DB 3.1 [DIR=/usr/local/BerkeleyDB.3.1]])
+
+if test "x$with_gdbm" != xno -a "x$with_gdbm" != xyeso -a "$with_gdbm"; then
+	db_dir="$with_gdbm"
+	with_gdbm=yes
+else
+	test -f /usr/local/lib/libgdbm.a -o -f /usr/local/lib/libgdbm.so && db_dir=/usr/local
+fi
+
+if test "x$with_db" != xno -a "x$with_db" != xyes -a "$with_db"; then
+	db_dir="$with_db"
+	with_db=yes
+else
+	test -d /usr/local/BerkeleyDB.3.1 && db_dir=/usr/local/BerkeleyDB.3.1
+fi
+
+if test "x$with_gdbm" = xyes -a "x$with_db" = xyes; then
+	AC_MSG_ERROR(can't enable both gdbm and db)
+fi
 
 dnl By default, we only build the client (citadel and whobbs) unless we can
 dnl figure out how to build with POSIX threads.
@@ -168,8 +188,20 @@ if test "$enable_autologin" != no; then
 	fi
 fi
 
-test -f /usr/local/lib/libgdbm.a && LDFLAGS="$LDFLAGS -L/usr/local/lib"
-AC_CHECK_LIB(gdbm, gdbm_open, GDBM="$GDBM -lgdbm")
+test "$db_dir" && LDFLAGS="$LDFLAGS -L$db_dir/lib"
+if test "x$with_gdbm" != xno -a "x$with_db" != xyes; then
+	AC_CHECK_LIB(gdbm, gdbm_open,
+		[GDBM="$GDBM -lgdbm"
+		DATABASE=database.c
+		with_db=no])
+fi
+
+if test "x$with_db" != xno -a "x$with_gdbm" != xyes; then
+	AC_CHECK_LIB(db, db_env_create,
+		[GDBM="$GDBM -ldb"
+		DATABASE=database_sleepycat.c
+		with_gdbm=no])
+fi
 
 test -f /usr/local/lib/libresolv.a && LDFLAGS="$LDFLAGS -L/usr/local/lib"
 AC_CHECK_LIB(resolv, res_query, RESOLV="$RESOLV -lresolv")
@@ -194,8 +226,8 @@ dnl Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
-test -f /usr/local/include/gdbm.h && CPPFLAGS="$CPPFLAGS -I/usr/local/include"
-AC_CHECK_HEADERS(curses.h dl.h dlfcn.h fcntl.h limits.h termios.h strings.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h gdbm.h utmp.h utmpx.h paths.h)
+test "$db_dir" && CPPFLAGS="$CPPFLAGS -I$db_dir/include"
+AC_CHECK_HEADERS(curses.h dl.h dlfcn.h fcntl.h limits.h termios.h strings.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h utmp.h utmpx.h paths.h)
 
 dnl some systems require -pthread, -D_REENTRANT, etc to be passed to cc if we
 dnl include pthread.h:
@@ -321,5 +353,6 @@ AC_SUBST(PTHREAD_LIBS)
 AC_SUBST(CLIENT_PTLIBS)
 AC_SUBST(CL_LIBOBJS)
 AC_SUBST(CX)
+AC_SUBST(DATABASE)
 AC_CONFIG_HEADER(sysdep.h)
 AC_OUTPUT(Makefile weekly)

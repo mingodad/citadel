@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.41  2000/12/07 16:59:02  nbryant
+ added --with-db and --with-gdbm options to configure
+
  Revision 573.40  2000/12/07 04:50:33  ajc
  * Wrap housekeeper and timer events in transaction open/close functions
  * Checkpoint the DB as an EVT_TIMER event instead of after each session
@@ -2188,3 +2191,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -23,9 +23,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
-#ifdef HAVE_GDBM_H
 #include <gdbm.h>
-#endif
 #include "citadel.h"
 #include "server.h"
 #include "database.h"

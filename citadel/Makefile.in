@@ -71,13 +71,14 @@ INSTALL_DATA=@INSTALL_DATA@
 SHELL=/bin/sh
 AUTOCONF=@AUTOCONF@
 YACC=@YACC@
+DATABASE=@DATABASE@
 
 # End configuration section
 
 VPATH=$(srcdir)
 
 SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
-	config.c control.c database.c dynloader.c file_ops.c \
+	config.c control.c $(DATABASE) dynloader.c file_ops.c \
 	housekeeping.c internetmail.c ipc_c_tcp.c locate_host.c \
 	logging.c mailinglist.c messages.c msgbase.c msgform.c netmailer.c \
 	netpoll.c netproc.c netsetup.c policy.c proxy.c rcit.c readlog.c \
@@ -131,7 +132,7 @@ netpoll: netpoll.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)
 
 SERV_OBJS = citserver.ro user_ops.ro support.ro room_ops.ro file_ops.ro \
 	msgbase.ro config.ro sysdep.ro locate_host.ro housekeeping.ro \
-	database.ro control.ro logging.ro policy.ro dynloader.ro tools.ro \
+	$(DATABASE:.c=.ro) control.ro logging.ro policy.ro dynloader.ro tools.ro \
 	mime_parser.ro html.ro internet_addressing.ro \
 	parsedate.ro genstamp.ro clientsocket.ro \
 	$(AUTH) $(LIBOBJS:.o=.ro)
