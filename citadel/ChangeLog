@@ -1,4 +1,9 @@
  $Log$
+ Revision 611.9  2003/11/22 03:30:14  ajc
+ * Commented out the call to the 'high speed download' function and
+   uncommented the call to the original 'chatty' download function.  Some
+   users were reporting lockups.
+
  Revision 611.8  2003/11/14 20:15:44  ajc
  * Reversed the previous change because it made things b0rken
 
@@ -5087,3 +5092,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

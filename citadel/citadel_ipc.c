@@ -1154,8 +1154,14 @@ int CtdlIPCFileDownload(CtdlIPC *ipc, const char *filename, void **buf,
 		bytes = extract_long(cret, 0);
 		last_mod = extract_int(cret, 1);
 		extract(mimetype, cret, 2);
-/*		ret = CtdlIPCReadDownload(ipc, buf, bytes, resume, progress_gauge_callback, cret); */
-		ret = CtdlIPCHighSpeedReadDownload(ipc, buf, bytes, resume, progress_gauge_callback, cret);
+
+		ret = CtdlIPCReadDownload(ipc, buf, bytes, resume,
+					progress_gauge_callback, cret);
+		/*
+		ret = CtdlIPCHighSpeedReadDownload(ipc, buf, bytes, resume,
+					progress_gauge_callback, cret);
+		*/
+
 		ret = CtdlIPCEndDownload(ipc, cret);
 		if (ret / 100 == 2)
 			sprintf(cret, "%d|%ld|%s|%s", (int)bytes, last_mod,
