@@ -8,6 +8,9 @@ import java.awt.List;
 public class roomMap {
   Hashtable	floors, rooms;
   SortedVector	nrm, srm;
+  Vector	floor_list;
+  int		cur_floor;
+
   List		nrmL, srmL;
   boolean	refreshed;
 
@@ -25,6 +28,8 @@ public class roomMap {
 
   public void loadFloorInfo() {
     floors = new Hashtable();
+    floor_list = new Vector();
+    cur_floor = 0;
     citReply	r = citadel.me.getReply( "LFLR" );
 
     if( r.error() ) return;
@@ -33,6 +38,7 @@ public class roomMap {
     for( int i = 0; (l = r.getLine( i )) != null; i++ ) {
       floor	f = new floor( l );
       floors.put( f.num(), f );
+      floor_list.addElement( f );
     }
   }
 
@@ -54,24 +60,32 @@ public class roomMap {
     if( (nrmL == null) || (srmL == null) ) return;
     if( floors == null ) loadFloorInfo();
 
+    if( floors != null ) {
+      for( Enumeration e = floor_list.elements(); e.hasMoreElements(); ) {
+	floor	f = (floor)e.nextElement();
+	f.rooms = new SortedVector( new roomCmp() );
+      }
+    }
+
     rooms = new Hashtable();
 
     nrm = new SortedVector( new roomCmp() );
     nrmL.clear(); 
-    parseRooms( nrm, nrmL, citadel.me.getReply( "LKRN" ) );
+    parseRooms( nrm, nrmL, citadel.me.getReply( "LKRN" ), true );
 
     srm = new SortedVector( new roomCmp() );
     srmL.clear();
-    parseRooms( srm, srmL, citadel.me.getReply( "LKRO" ) );
+    parseRooms( srm, srmL, citadel.me.getReply( "LKRO" ), false );
     refreshed = true;
   }
 	
-  public void parseRooms( SortedVector v, List l, citReply r ) {
+  public void parseRooms( SortedVector v, List l, citReply r, boolean nmsgs ) {
     int		i=0;
     String	s;
 
     while( (s = r.getLine( i++) ) != null ) {
       room rm = new room( s );
+      rm.setNew( nmsgs );
       if( rm.valid() ) {
 	rooms.put( rm.name(), rm );
 	addRoomToFloor( rm );
@@ -115,8 +129,23 @@ public class roomMap {
 
   public String nextNewRoom() {
     try {
+      if( nrm.size() <= 1 ) refreshed = false;
+
+      if( citadel.me.floors() ) {
+	String	name = null;
+	while( name == null ) {
+	  floor	f = (floor)floor_list.elementAt( cur_floor );
+	  name = f.nextNewRoom();
+	  if( name == null ) cur_floor++;
+	}
+	return name;
+      }
+
+      /* no floors */
       return ((room)nrm.firstElement()).name();
+
     } catch( Exception nsee ) {
+      cur_floor = 0;
       refreshed = false;
       return "_BASEROOM_";
     }
@@ -132,6 +161,9 @@ public class roomMap {
     }
 
     room r = getRoom( rm );
+    if( r == null ) return;
+
+    r.setNew( false );
     if( nrm.removeElement( r ) != -1 )
       srm.addElement( r );
   }
@@ -154,8 +186,11 @@ class roomCmp extends sorter {
 class room {
   String	name;
   int		flags, floor, order;
+  boolean	nmsgs;
 
   public room( String l ) {
+    nmsgs = false;
+
     int	i = l.indexOf( '|' );
     name = l.substring( 0, i ); 
 
@@ -187,6 +222,14 @@ class room {
   public boolean valid() {
     return true;
   }
+
+  public void  setNew( boolean nmsgs ) {
+    this.nmsgs = nmsgs;
+  }
+
+  public boolean getNew() {
+    return nmsgs;
+  }
 }
 
 class floor {
@@ -215,12 +258,25 @@ class floor {
     return num;
   }
 
+  public int number() {
+    return number;
+  }
+
   public String name() {
     return name;
   }
 
   public void addRoom( room r ) {
+    if( rooms == null ) rooms = new SortedVector( new roomCmp() );
     if( !rooms.isElement( r ) )
       rooms.addElement( r );
+  }
+
+  public String nextNewRoom() {
+    for( Enumeration e = rooms.elements(); e.hasMoreElements(); ) {
+      room	r = (room)e.nextElement();
+      if( r.getNew() ) return r.name();
+    }
+    return null;
   }
 }

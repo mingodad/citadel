@@ -85,5 +85,9 @@ public class SortedVector {
   public Enumeration elements() {
     return theList.elements();
   }
+
+  public int size() {
+    return theList.size();
+  }
 }
 

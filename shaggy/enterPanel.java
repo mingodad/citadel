@@ -71,6 +71,7 @@ public class enterPanel extends Panel {
 
   public boolean action( Event e, Object o ) {
     if( e.target == ok ) {
+      System.out.println( who.getText() );
       citadel.me.sendMessage( msg.getText(), who.getText(), mail );
       citadel.me.showMsgPane();
     } else if( e.target == cancel ) {
