@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.88  2002/12/14 23:21:29  ajc
+ * When saving a calendar event, set the message Subject to the event
+   summary string, and the message Date/time to the event start time.
+
  Revision 601.87  2002/12/10 23:36:20  ajc
  * Fixed a bug in the allocation of per-session dynamic data for calendar module
 
@@ -4299,4 +4303,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

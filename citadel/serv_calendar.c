@@ -18,7 +18,6 @@
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
-#include "serv_calendar.h"
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
@@ -31,6 +30,7 @@
 #include "tools.h"
 #include "msgbase.h"
 #include "mime_parser.h"
+#include "serv_calendar.h"
 
 #ifdef HAVE_ICAL_H
 
@@ -1209,7 +1209,9 @@ void ical_saving_vevent(icalcomponent *cal) {
 
 /*
  * Back end for ical_obj_beforesave()
- * This hunts for the UID of the calendar event.
+ * This hunts for the UID of the calendar event (becomes Citadel msg EUID),
+ * the summary of the event (becomes message subject),
+ * and the start time (becomes message date/time).
  */
 void ical_ctdl_set_extended_msgid(char *name, char *filename, char *partnum,
 		char *disp, void *content, char *cbtype, size_t length,
@@ -1217,6 +1219,9 @@ void ical_ctdl_set_extended_msgid(char *name, char *filename, char *partnum,
 {
 	icalcomponent *cal;
 	icalproperty *p;
+	struct icalmessagemod *imm;
+
+	imm = (struct icalmessagemod *)cbuserdata;
 
 	/* If this is a text/calendar object, hunt for the UID and drop it in
 	 * the "user data" pointer for the MIME parser.  When
@@ -1228,9 +1233,16 @@ void ical_ctdl_set_extended_msgid(char *name, char *filename, char *partnum,
 		if (cal != NULL) {
 			p = ical_ctdl_get_subprop(cal, ICAL_UID_PROPERTY);
 			if (p != NULL) {
-				strcpy((char *)cbuserdata,
-					icalproperty_get_comment(p)
-				);
+				strcpy(imm->uid, icalproperty_get_comment(p));
+			}
+			p = ical_ctdl_get_subprop(cal, ICAL_SUMMARY_PROPERTY);
+			if (p != NULL) {
+				strcpy(imm->subject,
+						icalproperty_get_comment(p));
+			}
+			p = ical_ctdl_get_subprop(cal, ICAL_DTSTART_PROPERTY);
+			if (p != NULL) {
+				imm->dtstart = icaltime_as_timet(icalproperty_get_dtstart(p));
 			}
 			icalcomponent_free(cal);
 		}
@@ -1248,13 +1260,16 @@ void ical_ctdl_set_extended_msgid(char *name, char *filename, char *partnum,
  * ID to the UID of the object.  This causes our replication checker to
  * automatically delete any existing instances of the same object.  (Isn't
  * that cool?)
+ *
+ * We also set the message's Subject to the event summary, and the Date/time to
+ * the event start time.
  */
 int ical_obj_beforesave(struct CtdlMessage *msg)
 {
 	char roomname[ROOMNAMELEN];
 	char *p;
 	int a;
-	char eidbuf[SIZ];
+	struct icalmessagemod imm;
 
 	/*
 	 * Only messages with content-type text/calendar
@@ -1282,19 +1297,32 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 	while (--a > 0) {
 		if (!strncasecmp(p, "Content-Type: ", 14)) {	/* Found it */
 			if (!strncasecmp(p + 14, "text/calendar", 13)) {
-				strcpy(eidbuf, "");
+				memset(&imm, 0, sizeof(struct icalmessagemod));
 				mime_parser(msg->cm_fields['M'],
 					NULL,
 					*ical_ctdl_set_extended_msgid,
 					NULL, NULL,
-					(void *)eidbuf,
+					(void *)&imm,
 					0
 				);
-				if (strlen(eidbuf) > 0) {
+				if (strlen(imm.uid) > 0) {
 					if (msg->cm_fields['E'] != NULL) {
 						phree(msg->cm_fields['E']);
 					}
-					msg->cm_fields['E'] = strdoop(eidbuf);
+					msg->cm_fields['E'] = strdoop(imm.uid);
+				}
+				if (strlen(imm.subject) > 0) {
+					if (msg->cm_fields['U'] != NULL) {
+						phree(msg->cm_fields['U']);
+					}
+					msg->cm_fields['U'] = strdoop(imm.subject);
+				}
+				if (imm.dtstart > 0) {
+					if (msg->cm_fields['T'] != NULL) {
+						phree(msg->cm_fields['T']);
+					}
+					msg->cm_fields['T'] = strdoop("000000000000000000");
+					sprintf(msg->cm_fields['T'], "%ld", imm.dtstart);
 				}
 				return 0;
 			}
