@@ -75,6 +75,7 @@ int CtdlHostAlias(char *fqdn) {
 
 	if (fqdn == NULL) return(hostalias_nomatch);
 	if (strlen(fqdn) == 0) return(hostalias_nomatch);
+	if (!strcasecmp(fqdn, "localhost")) return(hostalias_localhost);
 	if (!strcasecmp(fqdn, config.c_fqdn)) return(hostalias_localhost);
 	if (!strcasecmp(fqdn, config.c_nodename)) return(hostalias_localhost);
 	if (inetcfg == NULL) return(hostalias_nomatch);

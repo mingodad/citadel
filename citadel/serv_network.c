@@ -1667,30 +1667,42 @@ void cmd_netp(char *cmdbuf)
 {
 	char node[SIZ];
 	char pass[SIZ];
+	int v;
 
 	char secret[SIZ];
 	char nexthop[SIZ];
 
 	if (doing_queue) {
-		cprintf("%d spooling - try again in a few minutes\n", ERROR + RESOURCE_BUSY);
+		cprintf("%d spooling - try again in a few minutes\n",
+			ERROR + RESOURCE_BUSY);
 		return;
 	}
 
+	/* Authenticate */
 	extract(node, cmdbuf, 0);
 	extract(pass, cmdbuf, 1);
 
-	if (is_valid_node(nexthop, secret, node) != 0) {
-		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
+	/* Briefly load the IGnet Configuration to check node validity */
+	working_ignetcfg = CtdlGetSysConfig(IGNETCFG);
+	v = is_valid_node(nexthop, secret, node);
+	free(working_ignetcfg);
+	working_ignetcfg = NULL;
+
+	if (v != 0) {
+		cprintf("%d authentication failed\n",
+			ERROR + PASSWORD_REQUIRED);
 		return;
 	}
 
 	if (strcasecmp(pass, secret)) {
-		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
+		cprintf("%d authentication failed\n",
+			ERROR + PASSWORD_REQUIRED);
 		return;
 	}
 
 	if (network_talking_to(node, NTT_CHECK)) {
-		cprintf("%d Already talking to %s right now\n", ERROR + RESOURCE_BUSY, node);
+		cprintf("%d Already talking to %s right now\n",
+			ERROR + RESOURCE_BUSY, node);
 		return;
 	}
 

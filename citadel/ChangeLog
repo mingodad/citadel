@@ -1,4 +1,9 @@
  $Log$
+ Revision 623.14  2004/08/05 02:02:33  ajc
+ * CtdlHostAlias() now accepts "localhost" as a localhost address.
+ * working_ignetcfg is now loaded during incoming NETP commands, which
+ should theoretically take care of the missing config problem.
+
  Revision 623.13  2004/08/02 02:51:03  ajc
  * utilsmenu: removed.  Because most of the admin functions have been moved
    into Citadel proper, what's left of this menu is now pathetic.
@@ -5956,3 +5961,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
