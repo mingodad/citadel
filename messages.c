@@ -82,18 +82,12 @@ char buf[];
 }
 
 
-
-
-/*
- * Experimental output type of thing
+/* display_vcard() calls this after parsing the textual vCard into
+ * our 'struct vCard' data object.
  */
-void display_vcard(char *vcard_source) {
+void display_parsed_vcard(struct vCard *v) {
 	int i, j;
-	struct vCard *v;
 	char buf[SIZ];
-
-	v = vcard_load(vcard_source);
-	if (v == NULL) return;
 
 	wprintf("<TABLE bgcolor=#888888>");
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
@@ -144,8 +138,36 @@ void display_vcard(char *vcard_source) {
 			wprintf("</TD></TR>\n");
 		}
 	}
-
 	wprintf("</TABLE>\n");
+}
+
+
+
+/*
+ * Experimental output type of thing
+ */
+void display_vcard(char *vcard_source, char alpha) {
+	struct vCard *v;
+	char *name;
+	char buf[SIZ];
+	char this_alpha = 0;
+
+	v = vcard_load(vcard_source);
+	if (v == NULL) return;
+
+	name = vcard_get_prop(v, "n", 1, 0, 0);
+	if (name != NULL) {
+		strcpy(buf, name);
+		this_alpha = buf[0];
+	}
+
+	if ( (alpha == 0)
+	   || ((isalpha(alpha)) && (tolower(alpha) == tolower(this_alpha)) )
+	   || ((!isalpha(alpha)) && (!isalpha(this_alpha))) ) {
+
+		display_parsed_vcard(v);
+
+	}
 
 	vcard_free(v);
 }
@@ -399,7 +421,7 @@ void read_message(long msgnum) {
 			}
 
 			/* In all cases, display it */
-			display_vcard(vcard_source);
+			display_vcard(vcard_source, 0);
 			free(vcard_source);
 		}
 	}
@@ -476,6 +498,70 @@ void summarize_message(long msgnum) {
 
 
 
+void display_addressbook(long msgnum, char alpha) {
+	char buf[SIZ];
+	char mime_partnum[SIZ];
+	char mime_filename[SIZ];
+	char mime_content_type[SIZ];
+	char mime_disposition[SIZ];
+	int mime_length;
+	char vcard_partnum[SIZ];
+	char *vcard_source = NULL;
+
+	struct {
+		char date[SIZ];
+		char from[SIZ];
+		char to[SIZ];
+		char subj[SIZ];
+		int hasattachments;
+	} summ;
+
+	memset(&summ, 0, sizeof(summ));
+	strcpy(summ.subj, "(no subject)");
+
+	sprintf(buf, "MSG0 %ld|1", msgnum);	/* ask for headers only */
+	serv_puts(buf);
+	serv_gets(buf);
+	if (buf[0] != '1') return;
+
+	while (serv_gets(buf), strcmp(buf, "000")) {
+		if (!strncasecmp(buf, "part=", 5)) {
+			extract(mime_filename, &buf[5], 1);
+			extract(mime_partnum, &buf[5], 2);
+			extract(mime_disposition, &buf[5], 3);
+			extract(mime_content_type, &buf[5], 4);
+			mime_length = extract_int(&buf[5], 5);
+
+			if (!strcasecmp(mime_content_type, "text/x-vcard")) {
+				strcpy(vcard_partnum, mime_partnum);
+			}
+
+		}
+	}
+
+	if (strlen(vcard_partnum) > 0) {
+		vcard_source = load_mimepart(msgnum, vcard_partnum);
+		if (vcard_source != NULL) {
+
+			/* If it's my vCard I can edit it */
+			if ( (!strcasecmp(WC->wc_roomname, USERCONFIGROOM))
+			   || (!strcasecmp(&WC->wc_roomname[11], USERCONFIGROOM))) {
+				wprintf("<A HREF=\"/edit_vcard?"
+					"msgnum=%ld&partnum=%s\">",
+					msgnum, vcard_partnum);
+				wprintf("(edit)</A>");
+			}
+
+			/* In all cases, display it */
+			display_vcard(vcard_source, alpha);
+			free(vcard_source);
+		}
+	}
+
+}
+
+
+
 /* 
  * load message pointers from the server
  */
@@ -506,12 +592,14 @@ char *servcmd;
 void readloop(char *oper)
 {
 	char cmd[SIZ];
-	int a, b;
+	char buf[SIZ];
+	int a, b, i;
 	int nummsgs;
 	long startmsg;
 	int maxmsgs;
 	int num_displayed = 0;
 	int is_summary = 0;
+	int is_addressbook = 0;
 	int remaining_messages;
 	int lo, hi;
 	int lowest_displayed = (-1);
@@ -520,6 +608,7 @@ void readloop(char *oper)
 	long pn_current = 0L;
 	long pn_next = 0L;
 	int bg = 0;
+	char alpha = 0;
 
 	startmsg = atol(bstr("startmsg"));
 	maxmsgs = atoi(bstr("maxmsgs"));
@@ -540,6 +629,31 @@ void readloop(char *oper)
 	if ((WC->wc_view == 1) && (maxmsgs > 1)) {
 		is_summary = 1;
 		strcpy(cmd, "MSGS ALL");
+		maxmsgs = 32767;
+	}
+	if ((WC->wc_view == 2) && (maxmsgs > 1)) {
+		is_addressbook = 1;
+		strcpy(cmd, "MSGS ALL");
+		maxmsgs = 32767;
+		if (bstr("alpha") == NULL) {
+			alpha = 'A';
+		}
+		else {
+			strcpy(buf, bstr("alpha"));
+			alpha = buf[0];
+		}
+
+		for (i='A'; i<='Z'; ++i) {
+			if (i == alpha) wprintf("<FONT SIZE=+2>"
+						"%c</FONT>\n", i);
+			else {
+				wprintf("<A HREF=\"/readfwd?alpha=%c\">"
+					"%c</A>\n", i, i);
+			}
+			wprintf("&nbsp;");
+		}
+		wprintf("<A HREF=\"/readfwd?alpha=1\">(other)</A>\n");
+		wprintf("<HR width=100%%>\n");
 	}
 
 	nummsgs = load_msg_ptrs(cmd);
@@ -592,6 +706,9 @@ void readloop(char *oper)
 				);
 				summarize_message(WC->msgarr[a]);
 				wprintf("</TR>\n");
+			}
+			else if (is_addressbook) {
+				display_addressbook(WC->msgarr[a], alpha);
 			}
 			else {
 				read_message(WC->msgarr[a]);

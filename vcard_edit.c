@@ -280,10 +280,8 @@ void submit_vcard(void) {
 	}
 
 	sprintf(buf, "ENT0 1|||4||");
-	fprintf(stderr, "%s\n", buf);
 	serv_puts(buf);
 	serv_gets(buf);
-	fprintf(stderr, "%s\n", buf);
 	if (buf[0] != '4') {
 		edit_vcard();
 		return;
