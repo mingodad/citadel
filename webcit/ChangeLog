@@ -1,4 +1,7 @@
 $Log$
+Revision 400.90  2003/02/19 03:49:17  ajc
+* latest config.guess and config.sub from www.gnu.org
+
 Revision 400.89  2003/02/07 04:44:17  ajc
 * Replaced sleep() with a function that sleeps using select() in order to
   avoid potential issues with SIGALRM.  Possible fix for weird behavior
@@ -1266,3 +1269,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
