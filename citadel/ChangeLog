@@ -1,4 +1,9 @@
  $Log$
+ Revision 601.7  2002/09/17 03:18:15  ajc
+ * Create the Calendar> and Tasks> rooms at login time, and set their default
+   views to calendar and tasklist views.  Renamed "My Calendar>" to "Calendar>"
+   to be in sync with the KDE groupware project.
+
  Revision 601.6  2002/09/15 03:24:28  ajc
  * Renamed decode_base64() to CtdlDecodeBase64()
  * Renamed decode_quoted_printable() to CtdlDecodeQuotedPrintable()
@@ -4004,3 +4009,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -1,7 +1,7 @@
 /* 
  * $Id$ 
  *
- * This module implements iCalendar object processing and the My Calendar>
+ * This module implements iCalendar object processing and the Calendar>
  * room on a Citadel/UX server.  It handles iCalendar objects using the
  * iTIP protocol.  See RFCs 2445 and 2446.
  *
@@ -42,13 +42,17 @@ void cmd_ical(char *argbuf)
 }
 
 
-/* We don't know if the calendar room exists so we just create it at login */
+/*
+ * We don't know if the calendar room exists so we just create it at login
+ */
 void ical_create_room(void)
 {
 	struct quickroom qr;
+	struct visit vbuf;
 
-	/* Create the room if it doesn't already exist */
+	/* Create the calendar room if it doesn't already exist */
 	create_room(USERCALENDARROOM, 4, "", 0, 1, 0);
+
 	/* Set expiration policy to manual; otherwise objects will be lost! */
 	if (lgetroom(&qr, USERCALENDARROOM)) {
 		lprintf(3, "Couldn't get the user calendar room!\n");
@@ -56,7 +60,28 @@ void ical_create_room(void)
 	}
 	qr.QRep.expire_mode = EXPIRE_MANUAL;
 	lputroom(&qr);
-	lprintf(9, "Set user calendar room to manual expire\n");
+
+	/* Set the view to a calendar view */
+	CtdlGetRelationship(&vbuf, &CC->usersupp, &qr);
+	vbuf.v_view = 3;	/* 3 = calendar */
+	CtdlSetRelationship(&vbuf, &CC->usersupp, &qr);
+
+	/* Create the tasks list room if it doesn't already exist */
+	create_room(USERTASKSROOM, 4, "", 0, 1, 0);
+
+	/* Set expiration policy to manual; otherwise objects will be lost! */
+	if (lgetroom(&qr, USERTASKSROOM)) {
+		lprintf(3, "Couldn't get the user calendar room!\n");
+		return;
+	}
+	qr.QRep.expire_mode = EXPIRE_MANUAL;
+	lputroom(&qr);
+
+	/* Set the view to a task list view */
+	CtdlGetRelationship(&vbuf, &CC->usersupp, &qr);
+	vbuf.v_view = 4;	/* 4 = tasks */
+	CtdlSetRelationship(&vbuf, &CC->usersupp, &qr);
+
 	return;
 }
 
@@ -70,8 +95,8 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 	
 	/*
 	 * Only messages with content-type text/calendar or text/x-calendar
-	 * may be saved to My Calendar>.  If the message is bound for
-	 * My Calendar> but doesn't have this content-type, throw an error
+	 * may be saved to Calendar>.  If the message is bound for
+	 * Calendar> but doesn't have this content-type, throw an error
 	 * so that the message may not be posted.
 	 */
 
