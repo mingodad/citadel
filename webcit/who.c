@@ -129,9 +129,9 @@ void whobbs(void)
 
 
 			/* username (link to user bio/photo page) */
-			wprintf("<A HREF=\"javascript:window.opener.location='/showuser&who=");
+			wprintf("<A HREF=\"/showuser&who=");
 			urlescputs(wlist->username);
-			wprintf("';window.location='/whobbs'\">");
+			wprintf("\">");
 			escputs(wlist->username);
 			wprintf("</A>");
 
@@ -147,11 +147,7 @@ void whobbs(void)
 			wlist = wptr;
 		}
 	}
-	wprintf("</TABLE>\n<BR><BR>\n");
-	wprintf("<TABLE BORDER=0 BGCOLOR=\"#003399\">\n<TR><TD ALIGN=center VALIGN=center CELLPADING=20>\n");
-	wprintf("<B><A HREF=\"javascript:window.close()\">Close window</A></B>\n");
-	wprintf("</TD></TR>\n</TABLE></FONT>\n</CENTER>");
-
+	wprintf("</TABLE></CENTER>\n");
 	wDumpContent(1);
 }
 

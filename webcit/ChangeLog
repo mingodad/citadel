@@ -1,4 +1,7 @@
 $Log$
+Revision 213.7  2001/04/30 01:49:36  ajc
+* more work on UI overhaul
+
 Revision 213.6  2001/04/29 04:39:23  ajc
 * User interface overhaul now in progress.  WARNING: incomplete system.
 
@@ -525,3 +528,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

@@ -276,9 +276,9 @@ void urlescputs(char *strbuf)
  * 
  * Bits 0 and 1:
  * 0 = Nothing.  Do not display any leading HTTP or HTML.
- * 1 = HTTP headers plus the "fake frames" found in most windows.
+ * 1 = HTTP headers plus the room banner
  * 2 = HTTP headers required to terminate the session (unset cookies)
- * 3 = HTTP and HTML headers, but no 'fake frames'
+ * 3 = HTTP and HTML headers, but no room banner
  *
  * Bit 2: Set to 1 to auto-refresh page every 30 seconds
  *
@@ -504,6 +504,16 @@ void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
 	embed_main_menu();
 	wDumpContent(1);
 }
+
+
+/*
+ * Display a blank page.
+ */
+void blank_page(void) {
+	output_headers(7);
+	wDumpContent(2);
+}
+
 
 void display_error(char *errormessage)
 {
@@ -743,6 +753,8 @@ void session_loop(struct httprequest *req)
 
 	else if (!strcasecmp(action, "do_welcome")) {
 		do_welcome();
+	} else if (!strcasecmp(action, "blank")) {
+		blank_page();
 	} else if (!strcasecmp(action, "display_main_menu")) {
 		display_main_menu();
 	} else if (!strcasecmp(action, "advanced")) {
