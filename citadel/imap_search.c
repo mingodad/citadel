@@ -106,15 +106,19 @@ void imap_search(int num_parms, char *parms[]) {
 	int num_items;
 	int i;
 
-	if (num_parms < 4) {
+	if (num_parms < 3) {
 		cprintf("%s BAD invalid parameters\r\n", parms[0]);
 		return;
 	}
 
-	imap_pick_range(parms[2], 0);
+	for (i=1; i<num_parms; ++i) {
+		if (imap_is_message_set(parms[i])) {
+			imap_pick_range(parms[2], 0);
+		}
+	}
 
 	strcpy(items, "");
-	for (i=3; i<num_parms; ++i) {
+	for (i=2; i<num_parms; ++i) {
 		strcat(items, parms[i]);
 		if (i < (num_parms-1)) strcat(items, " ");
 	}
@@ -138,12 +142,16 @@ void imap_uidsearch(int num_parms, char *parms[]) {
 	int num_items;
 	int i;
 
-	if (num_parms < 5) {
+	if (num_parms < 4) {
 		cprintf("%s BAD invalid parameters\r\n", parms[0]);
 		return;
 	}
 
-	imap_pick_range(parms[3], 1);
+	for (i=1; i<num_parms; ++i) {
+		if (imap_is_message_set(parms[i])) {
+			imap_pick_range(parms[2], 1);
+		}
+	}
 
 	strcpy(items, "");
 	for (i=4; i<num_parms; ++i) {

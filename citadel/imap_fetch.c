@@ -500,13 +500,14 @@ void imap_fetch_bodystructure_part(
 		) {
 
 	char buf[SIZ];
+	int have_cbtype = 0;
+	int have_encoding = 0;
 
 	cprintf("(");
 
-	if (cbtype == NULL) {
-		cprintf("\"TEXT\" \"PLAIN\" ");
-	}
-	else {
+	if (cbtype != NULL) if (strlen(cbtype)>0) have_cbtype = 1;
+
+	if (have_cbtype) {
 		extract_token(buf, cbtype, 0, '/');
 		imap_strout(buf);
 		cprintf(" ");
@@ -514,15 +515,18 @@ void imap_fetch_bodystructure_part(
 		imap_strout(buf);
 		cprintf(" ");
 	}
+	else {
+		cprintf("\"TEXT\" \"PLAIN\" ");
+	}
 
 	cprintf("(\"CHARSET\" \"US-ASCII\"");
 
-	if (name != NULL) {
+	if (name != NULL) if (strlen(name)>0) {
 		cprintf(" \"NAME\" ");
 		imap_strout(name);
 	}
 
-	if (filename != NULL) {
+	if (filename != NULL) if (strlen(filename)>0) {
 		cprintf(" \"FILENAME\" ");
 		imap_strout(name);
 	}
@@ -531,7 +535,9 @@ void imap_fetch_bodystructure_part(
 
 	cprintf("NIL NIL ");
 
-	if (encoding != NULL) {
+	if (encoding != NULL) if (strlen(encoding) > 0)  have_encoding = 1;
+
+	if (have_encoding) {
 		imap_strout(encoding);
 	}
 	else {
@@ -540,7 +546,8 @@ void imap_fetch_bodystructure_part(
 	cprintf(" ");
 
 	cprintf("%ld ", length);	/* bytes */
-	cprintf("NIL) ");		/* lines */
+	cprintf("NIL ");		/* lines */
+	cprintf("NIL NIL NIL)");	/* I don't know what this is */
 
 }
 

@@ -202,3 +202,29 @@ void imap_ial_out(struct internet_address_list *ialist) {
 
 	cprintf(")");
 }
+
+
+
+/*
+ * Determine whether the supplied string is a valid message set.
+ * If the string contains only numbers, colons, commas, and asterisks,
+ * return 1 for a valid message set.  If any other character is found, 
+ * return 0.
+ */
+int imap_is_message_set(char *buf) {
+	int i;
+
+	if (buf == NULL) return(0);		/* stupidity checks */
+	if (strlen(buf) == 0) return(0);
+
+	for (i=0; i<strlen(buf); ++i)  {	/* now start the scan */
+		if (
+			(!isdigit(buf[i]))
+			&& (buf[i] != ':')
+			&& (buf[i] != ',')
+			&& (buf[i] != '*')
+		) return(0);
+	}
+
+	return(1);				/* looks like we're good */
+}
