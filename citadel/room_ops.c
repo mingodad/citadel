@@ -946,6 +946,7 @@ void cmd_getr(void) {
 void cmd_setr(char *args) {
 	char buf[256];
 	struct floor flbuf;
+	char old_name[ROOMNAMELEN];
 	int old_floor;
 
 	if (!(CC->logged_in)) {
@@ -974,6 +975,7 @@ void cmd_setr(char *args) {
 		}
 
 	lgetroom(&CC->quickroom, CC->quickroom.QRname);
+	strcpy(old_name, CC->quickroom.QRname);
 	extract(buf,args,0); buf[ROOMNAMELEN]=0;
 	strncpy(CC->quickroom.QRname,buf,ROOMNAMELEN-1);
 	extract(buf,args,1); buf[10]=0;
@@ -1002,7 +1004,19 @@ void cmd_setr(char *args) {
 		CC->quickroom.QRfloor = extract_int(args,5);
 		}
 
+	/* Write the room record back to disk */
 	lputroom(&CC->quickroom, CC->quickroom.QRname);
+
+	/* If the room name changed, then there are now two room records,
+	 * so we have to delete the old one.
+	 */
+	/* FIX - This causes everybody to think it's a new room, because the
+	 *       visit structs no longer match!  Major problem!  We have to
+	 *       assign each room a unique Object ID and index by that.
+	 */
+	if (strcasecmp(CC->quickroom.QRname, old_name)) {
+		putroom(NULL, old_name);
+		}
 
 	/* adjust the floor reference counts */
 	lgetfloor(&flbuf,old_floor);

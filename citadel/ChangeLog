@@ -1,6 +1,8 @@
 Sun Nov 15 20:32:34 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* room_ops.c: mailbox rooms always appear on the main floor
 	* made QR_MAILBOX rooms non-editable
+	* cmd_setr() delete old room record when room name changes
+	  (This causes a big mess that exposes a flaw in the whole design.)
 
 Thu Nov 12 23:59:13 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Rewrote cmd_rchg() and also increased the size of the "fakename"
