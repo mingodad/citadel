@@ -607,7 +607,7 @@ void session_loop(void) {
 		printf("HTTP/1.0 200 OK\n");
 		output_headers();
 	
-		wprintf("<HTML><HEAD><TITLE>WebCit</TITLE></HEAD><BODY>\n");
+		wprintf("<HTML><HEAD><TITLE>WebCit</TITLE></HEAD><BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
 		wprintf("TransactionCount is %d<BR>\n", TransactionCount);
 		wprintf("You're in session %d<HR>\n", wc_session);
 		wprintf("Command: <BR><PRE>\n");

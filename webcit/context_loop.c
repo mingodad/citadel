@@ -209,7 +209,7 @@ void *context_loop(int sock) {
 			printf("Content-length: 76\n");
 			printf("\n");
 			printf("<HTML><HEAD><TITLE>Error</TITLE></HEAD>\n");
-			printf("<BODY>execlp() failed</BODY></HTML>\n");
+			printf("<BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">execlp() failed</BODY></HTML>\n");
 			exit(0);
 			}
 		/* Close the ends of the pipes that we're not using */

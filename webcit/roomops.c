@@ -117,7 +117,7 @@ void list_all_rooms_by_floor(void) {
 
         printf("HTTP/1.0 200 OK\n");
         output_headers();
-        wprintf("<HTML><HEAD><TITLE>List known rooms</TITLE></HEAD><BODY>\n");
+        wprintf("<HTML><HEAD><TITLE>List known rooms</TITLE></HEAD><BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
 
 	wprintf("<TABLE width=100% border><TR><TH>Floor</TH>");
 	wprintf("<TH>Rooms with new messages</TH>");
@@ -194,7 +194,7 @@ void gotoroom(char *gname, int display_name)
 
 	printf("HTTP/1.0 200 OK\n");
 	output_headers();
-        wprintf("<HTML><BODY>\n");
+        wprintf("<HTML><BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
 
 	if (display_name != 2) {
 		/* store ungoto information */
