@@ -401,7 +401,7 @@ void cmd_iden(char *argbuf)
 	if (num_parms(argbuf)<4) {
 		cprintf("%d usage error\n",ERROR);
 		return;
-		}
+	}
 
 	dev_code = extract_int(argbuf,0);
 	cli_code = extract_int(argbuf,1);
@@ -419,15 +419,15 @@ void cmd_iden(char *argbuf)
 	CC->cs_clientname[31] = 0;
 
 	lprintf(9, "Looking up hostname '%s'\n", from_host);
-	if ((strlen(from_host)>0) && 
-	   (is_public_client(CC->cs_host))) {
+	if ((strlen(from_host)>0)
+	  && ( (CC->is_local_socket) || (is_public_client(CC->cs_host)))) {
 		if ((addr.s_addr = inet_addr(from_host)) != INADDR_NONE)
 			locate_host(CC->cs_host, &addr);
 	   	else {
 			safestrncpy(CC->cs_host, from_host, sizeof CC->cs_host);
 			CC->cs_host[24] = 0;
-			}
 		}
+	}
 
 	syslog(LOG_NOTICE,"client %d/%d/%01d.%02d (%s)\n",
 		dev_code,
@@ -436,7 +436,7 @@ void cmd_iden(char *argbuf)
 		(rev_level % 100),
 		desc);
 		cprintf("%d Ok\n",OK);
-	}
+}
 
 
 /*
@@ -721,8 +721,14 @@ void begin_session(struct CitContext *con)
 	safestrncpy(con->cs_host, config.c_fqdn, sizeof con->cs_host);
 	con->cs_host[sizeof con->cs_host - 1] = 0;
 	len = sizeof sin;
-	if (!getpeername(con->client_socket, (struct sockaddr *) &sin, &len))
-		locate_host(con->cs_host, &sin.sin_addr);
+	if (!CC->is_local_socket) {
+		if (!getpeername(con->client_socket,
+		   (struct sockaddr *) &sin, &len))
+			locate_host(con->cs_host, &sin.sin_addr);
+	}
+	else {
+		strcpy(con->cs_host, "");
+	}
 	con->cs_flags = 0;
 	con->upload_type = UPL_FILE;
 	con->dl_is_net = 0;

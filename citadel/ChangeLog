@@ -1,4 +1,9 @@
 $Log$
+Revision 1.480  2000/03/08 03:36:37  ajc
+* Shut off hostname resolution when dealing with Unix domain sockets
+* Cleaned up the 'citmail' MDA tool
+* Added POP3 and SMTP port numbers to global system configuration
+
 Revision 1.479  2000/03/07 21:54:58  ajc
 * Fixed the naming conventions and permissions for unix domain sockets.
 
@@ -1702,4 +1707,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

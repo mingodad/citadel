@@ -1044,7 +1044,7 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof(fd_set) );
 		}
 
 		/* Next, check to see if it's a new client connecting
-		 * on the master socket.
+		 * on a master socket.
 		 */
 		else for (serviceptr = ServiceHookTable; serviceptr != NULL;
 		     serviceptr = serviceptr->next ) {
@@ -1071,6 +1071,10 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof(fd_set) );
 					con->client_socket = ssock;
 					con->h_command_function =
 						serviceptr->h_command_function;
+
+					/* Determine whether local socket */
+					if (serviceptr->sockpath != NULL)
+						con->is_local_socket = 1;
 	
 					/* Set the SO_REUSEADDR socket option */
 					i = 1;

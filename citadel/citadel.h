@@ -78,6 +78,8 @@ struct config {
 	long c_maxmsglen;		/* Maximum message length           */
 	int c_min_workers;		/* Lower limit on number of threads */
 	int c_max_workers;		/* Upper limit on number of threads */
+	int c_pop3_port;		/* POP3 listener port (usually 110) */
+	int c_smtp_port;		/* SMTP listener port (usually 25)  */
 };
 
 #define NODENAME		config.c_nodename

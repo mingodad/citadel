@@ -165,6 +165,8 @@ void cmd_conf(char *argbuf) {
 		cprintf("%d\n", config.c_maxmsglen);
 		cprintf("%d\n", config.c_min_workers);
 		cprintf("%d\n", config.c_max_workers);
+		cprintf("%d\n", config.c_pop3_port);
+		cprintf("%d\n", config.c_smtp_port);
 		cprintf("000\n");
 		}
 
@@ -244,6 +246,10 @@ void cmd_conf(char *argbuf) {
 					config.c_min_workers = atoi(buf);
 			case 22: if (atoi(buf) >= config.c_min_workers)
 					config.c_max_workers = atoi(buf);
+			case 23: config.c_pop3_port = atoi(buf);
+				break;
+			case 24: config.c_smtp_port = atoi(buf);
+				break;
 			}
 		    ++a;
 		    }

@@ -843,6 +843,12 @@ int main(int argc, char *argv[])
 		config.c_ep.expire_value = 150;
 	}
 
+	/*
+	 * Default port numbers for various services
+	 */
+	if (config.c_pop3_port == 0) config.c_pop3_port = 110;
+	if (config.c_smtp_port == 0) config.c_smtp_port = 25;
+
 
 	/* Go through a series of dialogs prompting for config info */
 	for (curr = 1; curr <= MAXSETUP; ++curr) {

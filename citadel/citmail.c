@@ -30,6 +30,8 @@
 #include "snprintf.h"
 #endif
 
+/* #define DEBUG  */	/* uncomment to get protocol traces */
+
 int serv_sock;
 
 
@@ -134,6 +136,9 @@ void serv_gets(char *buf)
 	 */
 	buf[i] = 0;
 	strip_trailing_nonprint(buf);
+#ifdef DEBUG
+	printf("> %s\n", buf);
+#endif
 }
 
 
@@ -142,7 +147,9 @@ void serv_gets(char *buf)
  */
 void serv_puts(char *buf)
 {
-	/* printf("< %s\n", buf); */
+#ifdef DEBUG
+	printf("< %s\n", buf);
+#endif
 	serv_write(buf, strlen(buf));
 	serv_write("\n", 1);
 }
@@ -156,7 +163,6 @@ void cleanup(int exitcode) {
 
 	serv_puts("QUIT");
 	serv_gets(buf);
-	fprintf(stderr, "%s\n", buf);
 	exit(exitcode);
 }
 
@@ -176,32 +182,26 @@ int main(int argc, char **argv) {
 	}
 	strip_trailing_nonprint(fromline);
 
-	sprintf(buf, "%d", SMTP_PORT);
 	serv_sock = uds_connectsock("smtp.socket");
 	serv_gets(buf);
-	fprintf(stderr, "%s\n", buf);
 	if (buf[0]!='2') cleanup(1);
 
 	serv_puts("HELO localhost");
 	serv_gets(buf);
-	fprintf(stderr, "%s\n", buf);
 	if (buf[0]!='2') cleanup(1);
 
 	sprintf(buf, "MAIL %s", fromline);
 	serv_puts(buf);
 	serv_gets(buf);
-	fprintf(stderr, "%s\n", buf);
 	if (buf[0]!='2') cleanup(1);
 
 	sprintf(buf, "RCPT To: %s", argv[1]);
 	serv_puts(buf);
 	serv_gets(buf);
-	fprintf(stderr, "%s\n", buf);
 	if (buf[0]!='2') cleanup(1);
 
 	serv_puts("DATA");
 	serv_gets(buf);
-	fprintf(stderr, "%s\n", buf);
 	if (buf[0]!='3') cleanup(1);
 
 	rewind(fp);
@@ -211,7 +211,6 @@ int main(int argc, char **argv) {
 	}
 	serv_puts(".");
 	serv_gets(buf);
-	fprintf(stderr, "%s\n", buf);
 	if (buf[0]!='2') cleanup(1);
 	else cleanup(0);
 	return(0);

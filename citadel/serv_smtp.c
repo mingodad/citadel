@@ -1426,7 +1426,7 @@ char *Dynamic_Module_Init(void)
 	SYM_SMTP = CtdlGetDynamicSymbol();
 	SYM_SMTP_RECP = CtdlGetDynamicSymbol();
 
-	CtdlRegisterServiceHook(SMTP_PORT,		/* On the net... */
+	CtdlRegisterServiceHook(config.c_smtp_port,	/* On the net... */
 				NULL,
 				smtp_greeting,
 				smtp_command_loop);

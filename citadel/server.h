@@ -63,6 +63,7 @@ struct CitContext {
 	int internal_pgm;	/* authenticated as internal program */
 	char temp[32];		/* temp file name */
 	int nologin;		/* not allowed to log in */
+	int is_local_socket;	/* set to 1 if client is on unix domain sock */
 
 	char net_node[32];	/* Is the client another Citadel server? */
 	int client_socket;
