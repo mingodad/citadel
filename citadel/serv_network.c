@@ -271,6 +271,7 @@ int is_valid_node(char *nexthop, char *secret, char *node) {
 	 * First try the neighbor nodes
 	 */
 	if (working_ignetcfg == NULL) {
+		lprintf(CTDL_ERR, "working_ignetcfg is NULL!");
 		if (nexthop != NULL) {
 			strcpy(nexthop, "");
 		}
@@ -1324,6 +1325,8 @@ void network_purge_spoolout(void) {
 	if (dp == NULL) return;
 
 	while (d = readdir(dp), d != NULL) {
+		if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
+			continue;
 		snprintf(filename, sizeof filename,
 			"./network/spoolout/%s", d->d_name);
 
@@ -1673,6 +1676,7 @@ void cmd_netp(char *cmdbuf)
 	char nexthop[SIZ];
 
 	if (doing_queue) {
+		lprintf(CTDL_DEBUG, "spooling - try again in a few minutes");
 		cprintf("%d spooling - try again in a few minutes\n",
 			ERROR + RESOURCE_BUSY);
 		return;
@@ -1689,25 +1693,27 @@ void cmd_netp(char *cmdbuf)
 	working_ignetcfg = NULL;
 
 	if (v != 0) {
+		lprintf(CTDL_DEBUG, "authentication failed (node)");
 		cprintf("%d authentication failed\n",
 			ERROR + PASSWORD_REQUIRED);
 		return;
 	}
 
 	if (strcasecmp(pass, secret)) {
-		cprintf("%d authentication failed\n",
-			ERROR + PASSWORD_REQUIRED);
+		lprintf(CTDL_DEBUG, "authentication failed (password)");
+		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
 		return;
 	}
 
 	if (network_talking_to(node, NTT_CHECK)) {
-		cprintf("%d Already talking to %s right now\n",
-			ERROR + RESOURCE_BUSY, node);
+		lprintf(CTDL_DEBUG, "already talking to you");
+		cprintf("%d Already talking to %s right now\n", ERROR + RESOURCE_BUSY, node);
 		return;
 	}
 
 	safestrncpy(CC->net_node, node, sizeof CC->net_node);
 	network_talking_to(node, NTT_ADD);
+	lprintf(CTDL_DEBUG, "authenticated ok");
 	cprintf("%d authenticated as network node '%s'\n", CIT_OK,
 		CC->net_node);
 }

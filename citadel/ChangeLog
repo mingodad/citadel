@@ -1,4 +1,7 @@
  $Log$
+ Revision 624.4  2004/08/23 21:34:28  error
+ * serv_network.c: Suppress Invalid node name for "." and ".."
+
  Revision 624.3  2004/08/16 04:19:14  ajc
  * newinstall.sh: more intelligent auto-run of setup programs
  * setup.c: change inittab question to be more newbie-friendly
@@ -5981,4 +5984,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
