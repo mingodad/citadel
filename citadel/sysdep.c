@@ -849,7 +849,7 @@ int main(int argc, char **argv)
 	/* Tell 'em who's in da house */
 	lprintf(1,
 "\nMultithreaded message server for Citadel/UX\n"
-"Copyright (C) 1987-1999 by the Citadel/UX development team.\n"
+"Copyright (C) 1987-2000 by the Citadel/UX development team.\n"
 "Citadel/UX is free software, covered by the GNU General Public License, and\n"
 "you are welcome to change it and/or distribute copies of it under certain\n"
 "conditions.  There is absolutely no warranty for this software.  Please\n"
@@ -857,7 +857,7 @@ int main(int argc, char **argv)
 
 	/* Initialize... */
 	init_sysdep();
-	openlog("citserver",LOG_PID,LOG_USER);
+	openlog("citserver", LOG_PID, LOG_USER);
 
 	/* Load site-specific parameters */
 	lprintf(7, "Loading citadel.config\n");
@@ -875,7 +875,7 @@ int main(int argc, char **argv)
 				NULL,
 				citproto_begin_session,
 				do_command_loop);
-	CtdlRegisterServiceHook(0,				/* TCP */
+	CtdlRegisterServiceHook(0,				/* Unix */
 				"citadel.socket",
 				citproto_begin_session,
 				do_command_loop);

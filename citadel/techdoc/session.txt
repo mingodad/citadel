@@ -1,5 +1,5 @@
                   SESSION LAYER PROTOCOL FOR CITADEL/UX
-         (c) 1995-1999 by Art Cancro et. al.    All Rights Reserved
+         (c) 1995-2000 by Art Cancro et. al.    All Rights Reserved
    
   
  INTRODUCTION

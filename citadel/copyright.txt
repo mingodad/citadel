@@ -1,22 +1,17 @@
-                         Citadel/UX release 5.60
-
-Copyright (c) 1987-1999 by:
-        Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
-
-Portions (c) 1998-1999 by:
-	Brian Costello <btx@calyx.net>
-	Nathan Bryant <bryant@cs.usm.maine.edu>
-	Ben Mehlman <cit3252@uncnsrd.mt-kisco.ny.us>
+                         -----------------------
+                         Citadel/UX version 5.70
+                         -----------------------
+    
+Copyright (c) 1987-2000 by Art Cancro.
  
-base64 encoding/decoding for MIME parser, public domain by:
-	John Walker <http://www.fourmilab.ch>
-
-ICQ client code derived from ICQLIB written by:
-	Denis V. Dmitrienko <denis@null.net>
+Portions (c) 1998-2000 by Nathan Bryant, Brian Costello, and Ben Mehlman.
+  
+base64 encoding/decoding for MIME parser, public domain by John Walker.
  
-'parsedate' function, public domain by:
-	Steven M. Bellovin, et. al. (see parsedate.y for full credits)
- 
+ICQ client code derived from ICQLIB written by Denis V. Dmitrienko.
+  
+'parsedate' function, public domain by Steven M. Bellovin, et. al.
+  
  ------------------------------------------------------------------------------
  
     The entire package is free software; you can redistribute
