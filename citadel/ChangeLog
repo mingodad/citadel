@@ -1,4 +1,9 @@
  $Log$
+ Revision 601.99  2002/12/28 05:33:29  ajc
+ * ical_dezonify: set is_utc=1 even if we didn't convert from some arbitrary
+   timezone.  Presumably this means the time was already UTC, and we really
+   need that "Z" to get slapped on it.
+
  Revision 601.98  2002/12/28 05:12:06  ajc
  * Yet another attempt at making ical_dezonify() send outgoing calendar items
    in UTC format.  (This one will probably work -- the timestamps have the
@@ -4337,3 +4342,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

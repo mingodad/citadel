@@ -38,7 +38,7 @@ void ical_dezonify_backend(icalcomponent *cal,
 			icalcomponent *rcal,
 			icalproperty *prop) {
 
-	icaltimezone *t;
+	icaltimezone *t = NULL;
 	icalparameter *param;
 	const char *tzid;
 	struct icaltimetype TheTime;
@@ -48,15 +48,17 @@ void ical_dezonify_backend(icalcomponent *cal,
 
 	/* Hunt for a TZID parameter in this property. */
 	param = icalproperty_get_first_parameter(prop, ICAL_TZID_PARAMETER);
-	if (param == NULL) return;
 
 	/* Get the stringish name of this TZID. */
-	tzid = icalparameter_get_tzid(param);
-	if (tzid == NULL) return;
+	if (param != NULL) {
+		tzid = icalparameter_get_tzid(param);
 
-	/* Convert it to an icaltimezone type. */
-	t = icalcomponent_get_timezone(cal, tzid);
-	if (t == NULL) return;
+		/* Convert it to an icaltimezone type. */
+		if (tzid != NULL) {
+			t = icalcomponent_get_timezone(cal, tzid);
+		}
+
+	}
 
 	/* Now we know the timezone.  Convert to UTC. */
 
@@ -77,10 +79,12 @@ void ical_dezonify_backend(icalcomponent *cal,
 	}
 
 	/* Do the conversion. */
-	icaltimezone_convert_time(&TheTime,
-				t,
-				icaltimezone_get_utc_timezone()
-	);
+	if (t != NULL) {
+		icaltimezone_convert_time(&TheTime,
+					t,
+					icaltimezone_get_utc_timezone()
+		);
+	}
 	TheTime.is_utc = 1;
 	icalproperty_remove_parameter_by_kind(prop, ICAL_TZID_PARAMETER);
 
