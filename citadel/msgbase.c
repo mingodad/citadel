@@ -1896,7 +1896,12 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		}
 	}
 
-	strcpy(force_room, force);
+	if (force == NULL) {
+		strcpy(force_room, "");
+	}
+	else {
+		strcpy(force_room, force);
+	}
 
 	/* Learn about what's inside, because it's what's inside that counts */
 	lprintf(9, "Learning what's inside\n");
@@ -2147,7 +2152,7 @@ void quickie_message(char *from, char *to, char *room, char *text)
 	msg->cm_anon_type = MES_NORMAL;
 	msg->cm_format_type = 0;
 	msg->cm_fields['A'] = strdoop(from);
-	msg->cm_fields['O'] = strdoop(room);
+	if (room != NULL) msg->cm_fields['O'] = strdoop(room);
 	msg->cm_fields['N'] = strdoop(NODENAME);
 	if (to != NULL) {
 		msg->cm_fields['R'] = strdoop(to);
