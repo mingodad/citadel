@@ -178,6 +178,7 @@ struct wcsession {
 #endif
 #ifdef HAVE_ICAL_H
 	icalcomponent **disp_cal;	/* store calendar items for display */
+	long *cal_msgnum;		/* store calendar msgids for display */
 	int num_cal;
 #endif
 };
@@ -353,6 +354,7 @@ void cal_process_attachment(char *part_source);
 void display_calendar(long msgnum);
 void display_task(long msgnum);
 void do_calendar_view(void);
+ssize_t http_write(int fd, void *buf, size_t count);
 
 #ifdef HAVE_ICAL_H
 void display_edit_task(void);

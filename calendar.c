@@ -237,9 +237,14 @@ void cal_process_attachment(char *part_source) {
 void display_individual_cal(icalcomponent *cal, long msgnum) {
 
 	WC->num_cal += 1;
+
 	WC->disp_cal = realloc(WC->disp_cal,
 			(sizeof(icalcomponent *) * WC->num_cal) );
 	WC->disp_cal[WC->num_cal - 1] = icalcomponent_new_clone(cal);
+
+	WC->cal_msgnum = realloc(WC->cal_msgnum,
+			(sizeof(long) * WC->num_cal) );
+	WC->cal_msgnum[WC->num_cal - 1] = msgnum;
 }
 
 

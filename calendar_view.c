@@ -244,7 +244,9 @@ void do_calendar_view(void) {
 		icalcomponent_free(WC->disp_cal[i]);
 	}
 	WC->num_cal = 0;
+	free(WC->disp_cal);
 	WC->disp_cal = NULL;
+	free(WC->cal_msgnum);
 }
 
 

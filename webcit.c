@@ -168,7 +168,7 @@ ssize_t http_write(int fd, void *buf, size_t count) {
 
 #else
 
-ssize_t http_write(int fd, const void *buf, size_t count) {
+ssize_t http_write(int fd, void *buf, size_t count) {
 	return write(fd, buf, count);
 }
 

@@ -1,4 +1,8 @@
 $Log$
+Revision 400.24  2002/09/25 21:57:13  ajc
+* Keep track of msgnums in the two-pass calendar loop, so we can hotlink to
+  individual items
+
 Revision 400.23  2002/09/24 04:12:34  ajc
 * Rough cut of the two-pass calendar display routines (first pass: go thru
   messages gathering VEVENT items; second pass: render calendar with data)
@@ -1019,4 +1023,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
