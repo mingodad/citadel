@@ -108,7 +108,8 @@ struct ChatLine {
 #define S_CHATQUEUE	7
 #define S_CONTROL	8
 #define S_HOUSEKEEPING	9
-#define MAX_SEMAPHORES	10
+#define S_DATABASE	10
+#define MAX_SEMAPHORES	11
 
 
 /*

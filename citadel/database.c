@@ -42,24 +42,32 @@ void defrag_databases(void) {
 
 	/* defrag the message base */
 	begin_critical_section(S_MSGMAIN);
+	begin_critical_section(S_DATABASE);
 	gdbm_reorganize(gdbms[CDB_MSGMAIN]);
+	end_critical_section(S_DATABASE);
 	end_critical_section(S_MSGMAIN);
 
 	/* defrag the user file, mailboxes, and user/room relationships */
 	begin_critical_section(S_USERSUPP);
+	begin_critical_section(S_DATABASE);
 	gdbm_reorganize(gdbms[CDB_USERSUPP]);
 	gdbm_reorganize(gdbms[CDB_VISIT]);
+	end_critical_section(S_DATABASE);
 	end_critical_section(S_USERSUPP);
 
 	/* defrag the room files and message lists */
 	begin_critical_section(S_QUICKROOM);
+	begin_critical_section(S_DATABASE);
 	gdbm_reorganize(gdbms[CDB_QUICKROOM]);
 	gdbm_reorganize(gdbms[CDB_MSGLISTS]);
+	end_critical_section(S_DATABASE);
 	end_critical_section(S_QUICKROOM);
 
 	/* defrag the floor table */
 	begin_critical_section(S_FLOORTAB);
+	begin_critical_section(S_DATABASE);
 	gdbm_reorganize(gdbms[CDB_FLOORTAB]);
+	end_critical_section(S_DATABASE);
 	end_critical_section(S_FLOORTAB);
 	}
 
@@ -76,6 +84,8 @@ void open_databases(void) {
 	 * already there, no problem.
 	 */
 	system("exec mkdir data 2>/dev/null");
+
+	begin_critical_section(S_DATABASE);
 
 	gdbms[CDB_MSGMAIN] = gdbm_open("data/msgmain.gdbm", 8192,
 		GDBM_WRCREAT, 0600, NULL);
@@ -124,6 +134,8 @@ void open_databases(void) {
 		dtkey[a].dptr = NULL;
 		}
 
+	end_critical_section(S_DATABASE);
+
 	}
 
 
@@ -137,12 +149,14 @@ void close_databases(void) {
 	/* Hmm... we should decide when would be a good time to defrag.
 	 * Server shutdowns might be an opportune time.
 	 */
-	/* defrag_databases(); */
+	defrag_databases();
 
+	begin_critical_section(S_DATABASE);
 	for (a=0; a<MAXCDB; ++a) {
 		lprintf(7, "Closing database %d\n", a);
 		gdbm_close(gdbms[a]);
 		}
+	end_critical_section(S_DATABASE);
 
 	for (a=0; a<MAXKEYS; ++a) {
 		if (dtkey[a].dptr != NULL) {
@@ -162,13 +176,17 @@ int cdb_store(int cdb,
 		void *data, int datalen) {
 
 	datum dkey, ddata;
+	int retval;
 
 	dkey.dsize = keylen;
 	dkey.dptr = key;
 	ddata.dsize = datalen;
 	ddata.dptr = data;
 
- 	if ( gdbm_store(gdbms[cdb], dkey, ddata, GDBM_REPLACE) < 0 ) {
+	begin_critical_section(S_DATABASE);
+ 	retval = gdbm_store(gdbms[cdb], dkey, ddata, GDBM_REPLACE);
+	end_critical_section(S_DATABASE);
+ 	if ( retval < 0 ) {
                 lprintf(2, "gdbm error: %s\n", gdbm_strerror(gdbm_errno));
                 return(-1);
 		}
@@ -183,11 +201,15 @@ int cdb_store(int cdb,
 int cdb_delete(int cdb, void *key, int keylen) {
 
 	datum dkey;
+	int retval;
 
 	dkey.dsize = keylen;
 	dkey.dptr = key;
 
-	return(gdbm_delete(gdbms[cdb], dkey));
+	begin_critical_section(S_DATABASE);
+	retval = gdbm_delete(gdbms[cdb], dkey);
+	end_critical_section(S_DATABASE);
+	return(retval);
 
 	}
 
@@ -207,7 +229,9 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen) {
 	dkey.dsize = keylen;
 	dkey.dptr = key;
 
+	begin_critical_section(S_DATABASE);
 	dret = gdbm_fetch(gdbms[cdb], dkey);
+	end_critical_section(S_DATABASE);
 	if (dret.dptr == NULL) {
 		return NULL;
 		}
@@ -245,7 +269,9 @@ void cdb_rewind(int cdb) {
 		free(dtkey[CC->cs_pid].dptr);
 		}
 
+	begin_critical_section(S_DATABASE);
 	dtkey[CC->cs_pid] = gdbm_firstkey(gdbms[cdb]);
+	end_critical_section(S_DATABASE);
 	}
 
 
@@ -262,7 +288,9 @@ struct cdbdata *cdb_next_item(int cdb) {
 		return NULL;
 		}
 
+	begin_critical_section(S_DATABASE);
 	dret = gdbm_fetch(gdbms[cdb], dtkey[CC->cs_pid]);
+	end_critical_section(S_DATABASE);
 	if (dret.dptr == NULL) {	/* bad read */
 		free(dtkey[CC->cs_pid].dptr);
 		return NULL;
@@ -272,6 +300,8 @@ struct cdbdata *cdb_next_item(int cdb) {
 	cdbret->len = dret.dsize;
 	cdbret->ptr = dret.dptr;
 
+	begin_critical_section(S_DATABASE);
 	dtkey[CC->cs_pid] = gdbm_nextkey(gdbms[cdb], dtkey[CC->cs_pid]);
+	end_critical_section(S_DATABASE);
 	return(cdbret);
 	}
