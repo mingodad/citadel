@@ -1557,7 +1557,8 @@ void display_enter(void)
 	}
 
 	/* Now offer the ability to attach additional files... */
-	wprintf("Attach file: <input NAME=\"attachfile\" "
+	wprintf("&nbsp;&nbsp;&nbsp;"
+		"Attach file: <input NAME=\"attachfile\" "
 		"SIZE=48 TYPE=\"file\">\n&nbsp;&nbsp;"
 		"<input type=\"submit\" name=\"attach\" value=\"Add\">\n");
 

@@ -32,7 +32,7 @@ void stuff_to_cookie(char *cookie, int session, char *user, char *pass, char *ro
 {
 	char buf[SIZ];
 
-	sprintf(buf, "%d|%s|%s|%s", session, user, pass, room);
+	sprintf(buf, "%d|%s|%s|%s|END", session, user, pass, room);
 	CtdlEncodeBase64(cookie, buf, strlen(buf));
 }
 
