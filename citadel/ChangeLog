@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.3  2002/09/10 08:07:38  error
+ * update citadel.spec for 6.00* update citadel.spec for 6.00* update citadel.spec for 6.00* update citadel.spec for 6.00* update citadel.spec for 6.00* update citadel.spec for 6.00* update citadel.spec for 6.00* update citadel.spec for 6.00
+
  Revision 601.2  2002/09/09 03:03:18  ajc
  * When a user logs in, create the Mail> room if it doesn't exist.  (Should
    never happen, but one site had a situation where this patch came in handy.)
@@ -3988,3 +3991,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

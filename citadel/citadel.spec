@@ -1,13 +1,13 @@
 # $Id$
 Summary: Citadel/UX, the flexible, powerful way to build online communities
 Name: citadel
-Version: 5.90
+Version: 6.00
 Release: 1
 Copyright: GPL
 Group: Applications/Communications
 Source0: http://uncensored.citadel.org/pub/citadel/citadel-ux-%{PACKAGE_VERSION}.tar.gz
 Buildroot: /var/tmp/citadel-%{PACKAGE_VERSION}-root
-Icon: citux-64x64.xpm
+#Icon: citux-64x64.xpm
 Vendor: Citadel/UX Development Team
 URL:  http://uncensored.citadel.org/citadel/
 #Autoprov: false
@@ -107,6 +107,15 @@ upgrading this package.
 /usr/local/citadel/modules/libvandelay.la
 /usr/local/citadel/modules/libical.so
 /usr/local/citadel/modules/libical.la
+/usr/local/citadel/modules/liblistsub.so
+/usr/local/citadel/modules/liblistsub.la
+/usr/local/citadel/modules/libmrtg.so
+/usr/local/citadel/modules/libmrtg.la
+/usr/local/citadel/modules/libnetfilter.so
+/usr/local/citadel/modules/libnetfilter.la
+# Not in use yet
+#/usr/local/citadel/modules/libspam.so
+#/usr/local/citadel/modules/libspam.la
 %pre server
 # Add the "bbs" user
 /usr/sbin/useradd -c "Citadel" -s /bin/false -r -d /usr/local/citadel \
@@ -127,7 +136,7 @@ cd /usr/local/citadel
 /usr/local/citadel/setup -q
 %postun server
 if [ -f /etc/inittab ]; then
-	grep -v 'citserver' < /etc/inittab > /etc/inittab.new
+	grep -v 'citserver' < /etc/inittab > /etc/inittab.new && \
 	mv /etc/inittab.new /etc/inittab
 	/sbin/init q
 fi
