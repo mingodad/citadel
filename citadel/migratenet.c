@@ -31,10 +31,14 @@ int main(int argc, char **argv)
 	DIR *dp;
 	struct dirent *d;
 	long highest = 0L;
+	char node[SIZ];
 	char room[SIZ];
 	long thighest;
 	FILE *fp;
-	FILE *tempfp;
+	FILE *roomfp;
+	char roomfilename[SIZ];
+	FILE *nodefp;
+	char nodefilename[SIZ];
 
 	printf("\n\n\n\n\n"
 "This utility migrates your network settings (room sharing with other\n"
@@ -69,8 +73,16 @@ int main(int argc, char **argv)
 		exit(errno);
 	}
 
-	tempfp = tmpfile();
-	if (tempfp == NULL) {
+	strcpy(roomfilename, tmpnam(NULL));
+	roomfp = fopen(roomfilename, "w");
+	if (roomfp == NULL) {
+		perror("cannot open temp file");
+		exit(errno);
+	}
+
+	strcpy(nodefilename, tmpnam(NULL));
+	nodefp = fopen(nodefilename, "w");
+	if (roomfp == NULL) {
 		perror("cannot open temp file");
 		exit(errno);
 	}
@@ -87,13 +99,25 @@ int main(int argc, char **argv)
 			fp = fopen(d->d_name, "r");
 		}
 		if (fp != NULL) {
-			printf("*** Processing '%s'\n", d->d_name);
+			printf("\n*** Processing '%s'\n", d->d_name);
+
+			fprintf(nodefp, "%s|", d->d_name);
+			printf("Enter shared secret: ");
+			gets(buf);
+			fprintf(nodefp, "%s|", buf);
+			printf("Enter host name/IP : ");
+			gets(buf);
+			fprintf(nodefp, "%s|", buf);
+			printf("Enter port number  : ");
+			gets(buf);
+			fprintf(nodefp, "%s\n", buf);
+
 			while (fgets(room, sizeof room, fp),
 				fscanf(fp, "%ld\n", &thighest),
 				!feof(fp) ) {
 					room[strlen(room) - 1] = 0;
-					fprintf(tempfp, "%s|%s\n",
-						room, d->d_name);
+					fprintf(roomfp, "%s|%s\n",
+						d->d_name, room);
 					if (thighest > highest) {
 						highest = thighest;
 					}
@@ -103,7 +127,53 @@ int main(int argc, char **argv)
 	}
 
 	closedir(dp);
-	fclose(tempfp);
+	fclose(roomfp);
+	fclose(nodefp);
+
+	/* Point of no return */
+
+	/* Set up the node table */
+	printf("Creating neighbor node table\n");
+	sprintf(buf, "CONF putsys|%s", IGNETCFG);
+	serv_puts(buf);
+	serv_gets(buf);
+	if (buf[0] == '4') {
+		nodefp = fopen(nodefilename, "r");
+		if (nodefp != NULL) {
+			while (fgets(buf, sizeof buf, nodefp) != NULL) {
+				buf[strlen(buf)-1] = 0;
+				serv_puts(buf);
+			}
+			fclose(nodefp);
+		}
+		serv_puts("000");
+	}
+	else {
+		printf("%s\n", &buf[4]);
+	}
+
+
+	/* Now go through the table looking for node names to enter */
+
+	sprintf(buf, "cat %s |awk '{ FS=\"|\"; print $2 }' |sort -f |uniq -i",
+		roomfilename);
+	roomfp = popen(buf, "r");
+	if (roomfp == NULL) {
+		perror("cannot open pipe");
+		unlink(roomfilename);
+	}
+
+	while (fgets(room, sizeof room, roomfp) != NULL) {
+		room[strlen(room)-1] = 0;
+		if (strlen(room) > 0) {
+			printf("Room <%s>\n", room);
+		}
+	}
+
+	pclose(roomfp);
+
+	unlink(roomfilename);
+	unlink(nodefilename);
 	return(0);
 }
 
