@@ -259,15 +259,24 @@ void cmd_time(void)
  */
 static int hostnames_match(const char *realname, const char *testname) {
 	struct hostent *he;
+	int retval = 0;
 
 	if (!strcasecmp(realname, testname))
 		return 1;
 
+#ifdef HAVE_NONREENTRANT_NETDB
+	begin_critical_section(S_NETDB);
+#endif
+
 	if ((he = gethostbyname(testname)) != NULL)
 		if (!strcasecmp(realname, he->h_name))
-			return 1;
+			retval = 1;
 
-	return 0;
+#ifdef HAVE_NONREENTRANT_NETDB
+	end_critical_section(S_NETDB);
+#endif
+
+	return retval;
 	}
 
 /*
@@ -309,7 +318,6 @@ void cmd_iden(char *argbuf)
 	char desc[256];
 	char from_host[256];
 	struct in_addr addr;
-	struct hostent *he;
 
 	if (num_parms(argbuf)<4) {
 		cprintf("%d usage error\n",ERROR);
@@ -333,13 +341,12 @@ void cmd_iden(char *argbuf)
 
 	if ((strlen(from_host)>0) && 
 	   (is_public_client(CC->cs_host))) {
-		if (inet_aton(from_host, &addr) &&
-		    (he = gethostbyaddr((char*)&addr, sizeof addr, AF_INET)) !=
-		    NULL)
-			strncpy(CC->cs_host,he->h_name,24);
-	   	else
+		if (inet_aton(from_host, &addr))
+			locate_host(CC->cs_host, &addr);
+	   	else {
 			strncpy(CC->cs_host,from_host,24);
-		CC->cs_host[24] = 0;
+			CC->cs_host[24] = 0;
+			}
 		}
 	set_wtmpsupp_to_current_room();
 
@@ -699,7 +706,8 @@ void cmd_scdn(char *argbuf)
 void *context_loop(struct CitContext *con)
 {
 	char cmdbuf[256];
-	int num_sessions;
+	int num_sessions, len;
+	struct sockaddr_in sin;
 
 	/*
 	 * Wedge our way into the context table.
@@ -727,7 +735,9 @@ void *context_loop(struct CitContext *con)
 	strcpy(CC->cs_room, "(no room)");
 	strncpy(CC->cs_host, config.c_fqdn, sizeof CC->cs_host);
 	CC->cs_host[sizeof CC->cs_host - 1] = 0;
-	locate_host(CC->cs_host);
+	len = sizeof sin;
+	if (!getpeername(CC->client_socket, (struct sockaddr *) &sin, &len))
+		locate_host(CC->cs_host, &sin.sin_addr);
 	CC->cs_flags = 0;
 	CC->upload_type = UPL_FILE;
 	CC->dl_is_net = 0;

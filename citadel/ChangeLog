@@ -2,6 +2,7 @@
 	* citserver.c: improved is_public_client(), also if a public_client only
 	  supplies a numeric address, attempt to resolve it
 	* locate_host.c: verify that the forward DNS matches the reverse
+	* locate_host.c, locate_host.h: more general interface
 
 Wed Apr  7 21:36:16 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Implemented "access level required to create rooms" (client & server)

@@ -22,27 +22,20 @@
 #include "locate_host.h"
 #include "config.h"
 
-void locate_host(char *tbuf)
+void locate_host(char *tbuf, const struct in_addr *addr)
 {
-	struct sockaddr_in cs;
 	struct hostent *ch, *ch2;
-	int len;
 	char *i;
 	int a1, a2, a3, a4;
 
-	len = sizeof(cs);
-	if (getpeername(CC->client_socket, (struct sockaddr *) &cs, &len) < 0) {
-		strcpy(tbuf, config.c_fqdn);
-		return;
-	}
 #ifdef HAVE_NONREENTRANT_NETDB
 	begin_critical_section(S_NETDB);
 #endif
 
-	if ((ch = gethostbyaddr((char *) &cs.sin_addr, sizeof(cs.sin_addr),
-				AF_INET)) == NULL) {
+	if ((ch = gethostbyaddr((char *) addr, sizeof(*addr), AF_INET)) ==
+	    NULL) {
 	      bad_dns:
-		i = (char *) &cs.sin_addr;
+		i = (char *) addr;
 		a1 = ((*i++) & 0xff);
 		a2 = ((*i++) & 0xff);
 		a3 = ((*i++) & 0xff);
@@ -57,8 +50,8 @@ void locate_host(char *tbuf)
 
 	/* check address for consistency */
 	for (; *ch2->h_addr_list; ch2->h_addr_list++)
-		if (!memcmp(*ch2->h_addr_list, &cs.sin_addr,
-			    sizeof cs.sin_addr)) {
+		if (!memcmp(*ch2->h_addr_list, addr,
+			    sizeof *addr)) {
 			strncpy(tbuf, ch->h_name, 24);
 			goto end;
 		}
