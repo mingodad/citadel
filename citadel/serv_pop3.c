@@ -382,10 +382,10 @@ void pop3_top(char *argbuf) {
 	int lines_requested = 0;
 	int lines_dumped = 0;
 	char buf[1024];
+	char *msgtext;
 	char *ptr;
 	int in_body = 0;
 	int done = 0;
-	FILE *fp;
 
 	sscanf(argbuf, "%d %d", &which_one, &lines_requested);
 	if ( (which_one < 1) || (which_one > POP3->num_msgs) ) {
@@ -398,28 +398,41 @@ void pop3_top(char *argbuf) {
 		return;
 	}
 
-	fp = tmpfile();
-	if (fp == NULL) {
-		cprintf("-ERR Internal error: could not create temp file\r\n");
-		return;
-	}
-	CtdlRedirectOutput(fp, -1);
-	CtdlOutputMsg(POP3->msgs[which_one - 1].msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
-	CtdlRedirectOutput(NULL, -1);
+	CC->redirect_buffer = malloc(SIZ);
+	CC->redirect_len = 0;
+	CC->redirect_alloc = SIZ;
+	CtdlOutputMsg(POP3->msgs[which_one - 1].msgnum,
+			MT_RFC822, HEADERS_ALL, 0, 1);
+	CC->redirect_buffer[CC->redirect_len] = 0;
+	msgtext = CC->redirect_buffer;
+	CC->redirect_buffer = NULL;
+	CC->redirect_len = 0;
+	CC->redirect_alloc = 0;
 
 	cprintf("+OK Message %d:\r\n", which_one);
-	rewind(fp);
-	while (ptr = fgets(buf, sizeof buf, fp),
+
+	ptr = msgtext;
+
+	while (ptr = memreadline(ptr, buf, (sizeof buf - 2)),
 	      ( (ptr!=NULL) && (done == 0))) {
-		if (in_body == 1)
-			if (lines_dumped >= lines_requested) done = 1;
-		if ((in_body == 0) || (done == 0))
+		strcat(buf, "\r\n");
+		if (in_body == 1) {
+			if (lines_dumped >= lines_requested) {
+				done = 1;
+			}
+		}
+		if ((in_body == 0) || (done == 0)) {
 			client_write(buf, strlen(buf));
-		if (in_body) ++lines_dumped;
+		}
+		if (in_body) {
+			++lines_dumped;
+		}
 		if ((buf[0]==13)||(buf[0]==10)) in_body = 1;
 	}
+
 	if (buf[strlen(buf)-1] != 10) cprintf("\n");
-	fclose(fp);
+	free(msgtext);
+
 	cprintf(".\r\n");
 }
 

@@ -1,4 +1,7 @@
  $Log$
+ Revision 641.12  2005/03/02 02:42:06  ajc
+ * Finished moving the POP3 server to the new redirect_buffer semantics
+
  Revision 641.11  2005/03/02 02:16:10  ajc
  * Toned down some of the hostility in the code's comments :)
 
@@ -6469,3 +6472,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
