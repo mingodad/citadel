@@ -398,7 +398,7 @@ void progress(char *text, long int curr, long int cmax)
 
 	case UI_DIALOG:
 		if (curr == 0) {
-			sprintf(buf, "exec %s --gauge '%s' 7 72",
+			sprintf(buf, "exec %s --gauge '%s' 7 72 0",
 				getenv("CTDL_DIALOG"),
 				text);
 			fp = popen(buf, "w");
