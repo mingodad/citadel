@@ -374,7 +374,8 @@ the other work under the scope of this License. </p>
 <p align="justify"> <strong>3.</strong> You may copy and distribute
 the Program (or a work based on it, under Section 2) in object code or
 executable form under the terms of Sections 1 and 2 above provided that
-you also do one of the following:<!-- we use this doubled UL to get the sub-sections indented, --><!-- while making the bullets as unobvious as possible. --> </p>
+you also do one of the following:<!-- we use this doubled UL to get the sub-sections indented, --><!-- while making the bullets as unobvious as possible. -->
+</p>
 <div align="justify">
 <ul>
   <li><strong>a)</strong> Accompany it with the complete corresponding
@@ -696,7 +697,8 @@ If you wish to place it in a different directory, you can instead do:</p>
 <p>If you've got Berkeley DB installed in a non-standard location, you
 can help the configure script find it by doing something like this:</p>
 <pre>./configure --with-db=/usr/local/BerkeleyDB-4.1<br></pre>
-<p>Keep in mind that if you're using Berkeley DB from a non-standard location,
+<p>Keep in mind that if you're using Berkeley DB from a non-standard
+location,
 you'll have to make sure that location is available at runtime.</p>
 <p>File permissions are always a bother to work with. You don't want
 Citadel to crash because someone couldn't access a file, but you also
@@ -1796,7 +1798,7 @@ sendmail/pop and start your Citadel server again.</p>
 host system. For example, you might have multiple groups of users, some
 of
 which are using Citadel and some of which are using a legacy Unix mail
-spool. This type of configuration is discouraged, but a tool is
+spool. This type of configuration is discouraged, but two tools are
 provided
 to allow it.</p>
 <p>The tool is called <tt>citmail</tt> and it is, quite simply, a
@@ -1805,8 +1807,28 @@ for final delivery of incoming messages to Citadel users. A full
 discussion of the finer points of complex Sendmail configurations is
 beyond the scope of this document; however, you might want to visit <a
  href="http://pixel.citadel.org/citadel/docs/">Pixel BBS</a> where some
-useful HOWTO documents are provided.</p>
-<p>For outbound mail, you can either allow Citadel to perform
+useful HOWTO documents are provided.<br>
+</p>
+<p>The other tool is an <a href="http://www.faqs.org/rfcs/rfc2033.html">RFC2033</a>
+compliant LMTP service running on a local socket.&nbsp; If you're
+running a mailer that speaks LMTP (such as <a
+ href="http://www.postfix.org/">Postfix</a>), you can simply point your
+mailer at the socket called <span style="font-family: monospace;">citadel.socket</span>
+in your Citadel directory.&nbsp; For example, in Postfix you might put
+the following line into <span style="font-family: monospace;">main.cf</span>
+in order to tell it to use Citadel to deliver mail to local recipients:<br>
+</p>
+<pre>local_transport = lmtp:unix:/usr/local/citadel/lmtp.socket<br></pre>
+<p>Postfix also has something called a "fallback transport" which can
+be used to implement Citadel as a "secondary" mail system on your
+server, while keeping the existing Unix mailboxes intact.&nbsp;
+However, it is beyond the scope of this document to detail the finer
+points of the configuration of Postfix or any other mailer, so refer to
+the documentation to those programs and keep in mind that Citadel has
+LMTP support.<span style="font-family: monospace;"><br>
+</span></p>
+<p><span style="font-family: monospace;"></span>For outbound mail, you
+can either allow Citadel to perform
 deliveries directly
 (this won't affect your other mail system because outbound mail doesn't
 tie
