@@ -800,6 +800,6 @@ char *Dynamic_Module_Init(void)
 	CtdlRegisterProtoHook(cmd_qdir, "QDIR", "Query Directory");
 	CtdlRegisterUserHook(vcard_purge, EVT_PURGEUSER);
 	CtdlRegisterNetprocHook(vcard_extract_from_network);
-	create_room(ADDRESS_BOOK_ROOM, 3, "", 0, 1);
+	create_room(ADDRESS_BOOK_ROOM, 3, "", 0, 1, 0);
 	return "$Id$";
 }

@@ -1365,7 +1365,7 @@ char *Dynamic_Module_Init(void)
 				smtp_greeting,
 				smtp_command_loop);
 
-	create_room(SMTP_SPOOLOUT_ROOM, 3, "", 0, 1);
+	create_room(SMTP_SPOOLOUT_ROOM, 3, "", 0, 1, 0);
 	CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);
 	CtdlRegisterProtoHook(cmd_smtp, "SMTP", "SMTP utility commands");
 	return "$Id$";

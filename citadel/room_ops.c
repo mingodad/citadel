@@ -1444,7 +1444,8 @@ unsigned create_room(char *new_room_name,
 		     int new_room_type,
 		     char *new_room_pass,
 		     int new_room_floor,
-		     int really_create)
+		     int really_create,
+		     int avoid_access)
 {
 
 	struct quickroom qrbuf;
@@ -1509,13 +1510,17 @@ unsigned create_room(char *new_room_name,
 	flbuf.f_ref_count = flbuf.f_ref_count + 1;
 	lputfloor(&flbuf, (int) qrbuf.QRfloor);
 
-	/* be sure not to kick the creator out of the room! */
-	lgetuser(&CC->usersupp, CC->curr_user);
-	CtdlGetRelationship(&vbuf, &CC->usersupp, &qrbuf);
-	vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
-	vbuf.v_flags = vbuf.v_flags | V_ACCESS;
-	CtdlSetRelationship(&vbuf, &CC->usersupp, &qrbuf);
-	lputuser(&CC->usersupp);
+	/* Grant the creator access to the room unless the avoid_access
+	 * parameter was specified.
+	 */
+	if (avoid_access == 0) {
+		lgetuser(&CC->usersupp, CC->curr_user);
+		CtdlGetRelationship(&vbuf, &CC->usersupp, &qrbuf);
+		vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
+		vbuf.v_flags = vbuf.v_flags | V_ACCESS;
+		CtdlSetRelationship(&vbuf, &CC->usersupp, &qrbuf);
+		lputuser(&CC->usersupp);
+	}
 
 	/* resume our happy day */
 	return (qrbuf.QRflags);
@@ -1586,7 +1591,7 @@ void cmd_cre8(char *args)
 
 	/* Check to make sure the requested room name doesn't already exist */
 	newflags = create_room(new_room_name,
-			   new_room_type, new_room_pass, new_room_floor, 0);
+			   new_room_type, new_room_pass, new_room_floor, 0, 0);
 	if (newflags == 0) {
 		cprintf("%d '%s' already exists.\n",
 			ERROR + ALREADY_EXISTS, new_room_name);
@@ -1601,7 +1606,7 @@ void cmd_cre8(char *args)
 	/* If we reach this point, the room needs to be created. */
 
 	newflags = create_room(new_room_name,
-			   new_room_type, new_room_pass, new_room_floor, 1);
+			   new_room_type, new_room_pass, new_room_floor, 1, 0);
 
 	/* post a message in Aide> describing the new room */
 	safestrncpy(aaa, new_room_name, sizeof aaa);

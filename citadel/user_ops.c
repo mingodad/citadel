@@ -410,7 +410,7 @@ void session_startup(void)
 	PerformSessionHooks(EVT_LOGIN);
 
 	/* Create any personal rooms required by the system */
-	create_room(SENTITEMS, 4, "", 0, 1);
+	create_room(SENTITEMS, 4, "", 0, 1, 0);
 
 	/* Enter the lobby */
 	usergoto(BASEROOM, 0, NULL, NULL);
@@ -737,9 +737,9 @@ int create_user(char *newusername, int become_user)
 
 	/* give the user a private mailbox and a configuration room */
 	MailboxName(mailboxname, sizeof mailboxname, &usbuf, MAILROOM);
-	create_room(mailboxname, 5, "", 0, 1);
+	create_room(mailboxname, 5, "", 0, 1, 1);
 	MailboxName(mailboxname, sizeof mailboxname, &usbuf, USERCONFIGROOM);
-	create_room(mailboxname, 5, "", 0, 1);
+	create_room(mailboxname, 5, "", 0, 1, 1);
 
 	/* Everything below this line can be bypassed if administratively
 	   creating a user, instead of doing self-service account creation

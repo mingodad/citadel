@@ -1,4 +1,9 @@
  $Log$
+ Revision 591.16  2002/04/30 03:13:59  ajc
+ * When sending a page that results in the receiver's Sent/Received Pages>
+   room to be created, don't automatically grant the sender access to that room.
+ * Added a parameter to create_room() to implement the above
+
  Revision 591.15  2002/04/23 13:38:08  ajc
  * Minor docs update
 
@@ -3623,3 +3628,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -48,7 +48,7 @@ void ical_create_room(void)
 	struct quickroom qr;
 
 	/* Create the room if it doesn't already exist */
-	create_room(USERCALENDARROOM, 4, "", 0, 1);
+	create_room(USERCALENDARROOM, 4, "", 0, 1, 0);
 	/* Set expiration policy to manual; otherwise objects will be lost! */
 	if (lgetroom(&qr, USERCALENDARROOM)) {
 		lprintf(3, "Couldn't get the user calendar room!\n");
