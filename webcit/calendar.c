@@ -290,11 +290,11 @@ void display_edit_individual_task(icalcomponent *vtodo, long msgnum) {
 	icalproperty_free(p);
 	wprintf("</TEXTAREA><BR>\n");
 
-        wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save\">"
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save\">"
 		"&nbsp;&nbsp;"
-        	"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Delete\">\n"
+		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Delete\">\n"
 		"&nbsp;&nbsp;"
-        	"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">\n"
+		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">\n"
 		"</CENTER>\n"
 	);
 
@@ -306,23 +306,35 @@ void display_edit_individual_task(icalcomponent *vtodo, long msgnum) {
 /*
  * Save an edited task
  */
-void edit_individual_task(icalcomponent *vtodo, long msgnum) {
+void save_individual_task(icalcomponent *vtodo, long msgnum) {
 	char buf[SIZ];
+	int delete_existing = 0;
 
 	if (!strcasecmp(bstr("sc"), "Save")) {
 
-		/* FIXME
-			1. Replace property values with ones from the form
-			2. Serialize the task
-			3. Make a message out of it
-			4. Delete the existing message (msgnum)
-			5. Save the new message
-		*/
+		/* Replace values in the component with ones from the form */
+		/* FIXME ... do this */
 
+		/* Serialize it and save it to the message base */
+		serv_puts("ENT0 1|||4");
+		serv_gets(buf);
+		if (buf[0] == '4') {
+			serv_puts("Content-type: text/calendar");
+			serv_puts("");
+			serv_puts(icalcomponent_as_ical_string(vtodo));
+			serv_puts("000");
+			/* delete_existing = 1; */
+		}
 	}
 
-	if ( (!strcasecmp(bstr("sc"), "Save"))
-	   || (!strcasecmp(bstr("sc"), "Delete")) ) {
+	/*
+	 * If the user clicked 'Delete' then delete it, period.
+	 */
+	if (!strcasecmp(bstr("sc"), "Delete")) {
+		delete_existing = 1;
+	}
+
+	if (delete_existing) {
 		serv_printf("DELE %ld", atol(bstr("msgnum")));
 		serv_gets(buf);
 	}
@@ -423,7 +435,7 @@ void save_task(void) {
 	msgnum = atol(bstr("msgnum"));
 	display_using_handler(msgnum, "text/calendar",
 				ICAL_VTODO_COMPONENT,
-				edit_individual_task);
+				save_individual_task);
 }
 
 #endif /* HAVE_ICAL_H */
