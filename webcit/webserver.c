@@ -211,6 +211,13 @@ void start_daemon(int do_close_stdio) {
 	if (fork()!=0) exit(0);
 	}
 
+/*
+ * Issue an HTTP Redirect header
+ * url must be a complete url (with http://)
+ */
+void redirect(char *url) {
+	printf("Location: %s\n\n", url);
+}
 
 
 /*
