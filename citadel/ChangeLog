@@ -6,6 +6,8 @@
 	  in the wholist.
 	* netproc.c: sillyness fix
 	* room_ops.h: prototype delete_room()
+	* client_chat.c, commands.c, serv_chat.c, sysdep.c:
+	  use HAVE_SYS_SELECT_H macro
 
 Mon Oct  5 17:01:32 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Began fixing the stuff I broke

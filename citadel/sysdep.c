@@ -40,7 +40,7 @@
 #include "housekeeping.h"
 #include "dynloader.h"
 
-#ifdef NEED_SELECT_H
+#ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
 
