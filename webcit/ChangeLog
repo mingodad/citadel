@@ -1,4 +1,7 @@
 $Log$
+Revision 502.4  2004/01/28 04:30:48  ajc
+* Create Room can now offer calendar and address book rooms
+
 Revision 502.3  2004/01/17 21:25:30  ajc
 * Add 'base DN' and 'bind DN' and 'bind DN password' to siteconfig
 * Split the config for LDAP Connector into its own panel
@@ -1627,4 +1630,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -1429,6 +1429,18 @@ void display_entroom(void)
 	wprintf("<UL><LI>Name of room: ");
 	wprintf("<INPUT TYPE=\"text\" NAME=\"er_name\" MAXLENGTH=\"19\">\n");
 
+        wprintf("<LI>Resides on floor: ");
+        load_floorlist(); 
+        wprintf("<SELECT NAME=\"er_floor\" SIZE=\"1\">\n");
+        for (i = 0; i < 128; ++i)
+                if (strlen(floorlist[i]) > 0) {
+                        wprintf("<OPTION ");
+                        wprintf("VALUE=\"%d\">", i);
+                        escputs(floorlist[i]);
+                        wprintf("</OPTION>\n");
+                }
+        wprintf("</SELECT>\n");
+
 	wprintf("<LI>Type of room:<UL>\n");
 
 	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"public\" ");
@@ -1448,19 +1460,15 @@ void display_entroom(void)
 	wprintf("> Personal (mailbox for you only)\n");
 	wprintf("</UL>\n");
 
-        wprintf("<LI>Resides on floor: ");
-        load_floorlist(); 
-        wprintf("<SELECT NAME=\"er_floor\" SIZE=\"1\">\n");
-        for (i = 0; i < 128; ++i)
-                if (strlen(floorlist[i]) > 0) {
-                        wprintf("<OPTION ");
-                        wprintf("VALUE=\"%d\">", i);
-                        escputs(floorlist[i]);
-                        wprintf("</OPTION>\n");
-                }
-        wprintf("</SELECT>\n");                
-	wprintf("</UL>\n");
-
+	wprintf("<LI>Default view for room: "); /* FOO */
+        wprintf("<SELECT NAME=\"er_view\" SIZE=\"1\">\n");
+	for (i=0; i<(sizeof viewdefs / sizeof (char *)); ++i) {
+		wprintf("<OPTION %s VALUE=\"%d\">",
+			((i == 0) ? "SELECTED" : ""), i );
+		escputs(viewdefs[i]);
+		wprintf("</OPTION>\n");
+	}
+	wprintf("</SELECT>\n");
 
 	wprintf("<CENTER>\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
@@ -1474,6 +1482,43 @@ void display_entroom(void)
 	}
 	do_template("endbox");
 	wDumpContent(1);
+}
+
+
+
+
+/*
+ * support function for entroom() -- sets the default view 
+ */
+void er_set_default_view(int newview) {
+
+	char buf[SIZ];
+
+	char rm_name[SIZ];
+	char rm_pass[SIZ];
+	char rm_dir[SIZ];
+	int rm_bits1;
+	int rm_floor;
+	int rm_listorder;
+	int rm_bits2;
+
+	serv_puts("GETR");
+	serv_gets(buf);
+	if (buf[0] != '2') return;
+
+	extract(rm_name, &buf[4], 0);
+	extract(rm_pass, &buf[4], 1);
+	extract(rm_dir, &buf[4], 2);
+	rm_bits1 = extract_int(&buf[4], 3);
+	rm_floor = extract_int(&buf[4], 4);
+	rm_listorder = extract_int(&buf[4], 5);
+	rm_bits2 = extract_int(&buf[4], 7);
+
+	serv_printf("SETR %s|%s|%s|%d|0|%d|%d|%d|%d",
+		rm_name, rm_pass, rm_dir, rm_bits1, rm_floor,
+		rm_listorder, newview, rm_bits2
+	);
+	serv_gets(buf);
 }
 
 
@@ -1520,6 +1565,8 @@ void entroom(void)
 		display_main_menu();
 		return;
 	}
+	gotoroom(er_name, 0);
+	er_set_default_view(atoi(bstr("er_view")));
 	smart_goto(er_name);
 }
 
