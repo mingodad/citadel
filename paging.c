@@ -268,7 +268,6 @@ void chat_recv(void) {
 	char cl_text[SIZ];
 	char *output_data = NULL;
 
-	lprintf(9, "chat_recv() called\n");
 	output_headers(0, 0, 0, 0, 0, 0, 0);
 
 	wprintf("Content-type: text/html\n");
@@ -325,7 +324,6 @@ void chat_recv(void) {
 	} while ( (got_data) && (!end_chat_now) );
 
 	if (end_chat_now) {
-		lprintf(9, "exiting chat\n");
 		close(WC->chat_sock);
 		WC->chat_sock = (-1);
 		wprintf("<IMG SRC=\"/static/blank.gif\" onLoad=\"parent.window.close();\">\n");
@@ -338,7 +336,6 @@ void chat_recv(void) {
 		}
 
 		/* Output our fun to the other frame. */
-		lprintf(9, "output to other frame\n");
 		wprintf("<IMG SRC=\"/static/blank.gif\" WIDTH=1 HEIGHT=1\n"
 			"onLoad=\" \n"
 		);
@@ -400,7 +397,6 @@ void chat_recv(void) {
 		}
 
 		wprintf("parent.chat_transcript.scrollTo(999999,999999);\">\n");
-		lprintf(9, "done fun\n");
 	}
 
 	free(output_data);

@@ -412,14 +412,11 @@ void context_loop(int sock)
 	/*
 	 * Bind to the session and perform the transaction
 	 */
-	lprintf(9, "LOCKING SESSION %d\n", TheSession->wc_session);
 	pthread_mutex_lock(&TheSession->SessionMutex);		/* bind */
-	lprintf(9, "LOCKKED SESSION %d\n", TheSession->wc_session);
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	TheSession->http_sock = sock;
 	TheSession->lastreq = time(NULL);			/* log */
 	session_loop(req);				/* do transaction */
-	lprintf(9, "UNLKING SESSION %d\n", TheSession->wc_session);
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 
 	/* Free the request buffer */
