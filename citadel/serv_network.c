@@ -89,7 +89,7 @@ struct NetMap *the_netmap = NULL;
 /*
  * network_talking_to()  --  concurrency checker
  */
-int network_talking_to(char *nodename, int oper) {
+int network_talking_to(char *nodename, int operation) {
 
 	static char *nttlist = NULL;
 	char *ptr = NULL;
@@ -99,11 +99,11 @@ int network_talking_to(char *nodename, int oper) {
 
 	begin_critical_section(S_NTTLIST);
 
-	switch(oper) {
+	switch(operation) {
 
 		case NTT_ADD:
-			if (nttlist == NULL) nttlist = stdroop("");
-			if (nttlist == NULL) return;
+			if (nttlist == NULL) nttlist = strdoop("");
+			if (nttlist == NULL) break;
 			nttlist = (char *)reallok(nttlist,
 				(strlen(nttlist) + strlen(nodename) + 3) );
 			strcat(nttlist, "|");
@@ -134,10 +134,11 @@ int network_talking_to(char *nodename, int oper) {
 			for (i = 0; i < num_tokens(nttlist, '|'); ++i) {
 				extract(buf, nttlist, i);
 				if (!strcasecmp(buf, nodename)) ++retval;
+			}
 			break;
 	}
 
-	lprintf(9, "nttlist=<%s>\n", nttlist);
+	if (nttlist != NULL) lprintf(9, "nttlist=<%s>\n", nttlist);
 	end_critical_section(S_NTTLIST);
 	return(retval);
 }
@@ -1151,11 +1152,14 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 	int sock;
 	char buf[SIZ];
 
+	if (network_talking_to(node, NTT_CHECK)) return;
+	network_talking_to(node, NTT_ADD);
 	lprintf(5, "Polling node <%s> at %s:%s\n", node, host, port);
 
 	sock = sock_connect(host, port, "tcp");
 	if (sock < 0) {
 		lprintf(7, "Could not connect: %s\n", strerror(errno));
+		network_talking_to(node, NTT_REMOVE);
 		return;
 	}
 	
@@ -1179,6 +1183,7 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 
 	sock_puts(sock, "QUIT");
 bail:	sock_close(sock);
+	network_talking_to(node, NTT_REMOVE);
 }
 
 

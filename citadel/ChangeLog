@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.52  2001/10/06 20:28:06  ajc
+ * Began implementing some concurrency stuff for the networker
+
  Revision 580.51  2001/10/06 19:51:47  ajc
  * Stripped the build of obsolete parts of the old networker no longer in use.
 
@@ -2775,3 +2778,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
