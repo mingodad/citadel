@@ -112,6 +112,7 @@ int termn8 = 0;			/* Set to nonzero to cause a logoff */
 int secure;			/* Set to nonzero when wire is encrypted */
 
 extern int rc_ansi_color;	/* ansi color value from citadel.rc */
+extern int next_lazy_cmd;
 
 /*
  * here is our 'clean up gracefully and exit' routine
@@ -423,6 +424,8 @@ void dotgoto(char *towhere, int display_name, int fromungoto)
 	remove_march(room_name, 0);
 	if (!strcasecmp(towhere, "_BASEROOM_"))
 		remove_march(towhere, 0);
+	if (!extract_int(&aaa[4], 1))
+		next_lazy_cmd = 5;	/* Don't read new if no new msgs */
 	if ((from_floor != curr_floor) && (display_name > 0) && (floor_mode == 1)) {
 		if (floorlist[(int) curr_floor][0] == 0)
 			load_floorlist();
@@ -836,7 +839,7 @@ void who_is_online(int longlist)
 			idlemins = (idletime - (idlehours * 3600)) / 60;
 			idlesecs = (idletime - (idlehours * 3600) - (idlemins * 60));
 
-			if (idletime > 900) {
+			if (idletime > rc_idle_threshold) {
 				while (strlen(roomname) < 20) {
 					strcat(roomname, " ");
 				}

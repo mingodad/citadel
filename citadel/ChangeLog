@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.21  2002/05/14 01:09:57  error
+ * citadel.c: spacebar won't read New if there are no new messages
+
  Revision 591.20  2002/05/12 23:00:11  ajc
  * Removed an unused variable
 
@@ -3642,4 +3645,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
