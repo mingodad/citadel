@@ -21,7 +21,7 @@ encrypt=default
 # people might not like this, so you can turn it off here or with the
 # -s command line option.  The default is to use full screen if the
 # terminal supports it.
-#fullscreen=yes
+fullscreen=no
 
 # Set EDITOR to the name of an external editor to be used for entering
 # messages.  If you want the external editor to be used by default, be sure
