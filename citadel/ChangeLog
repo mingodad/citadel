@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.80  2004/03/15 16:48:22  error
+ * Documentation update: update citadel.html for new syslog logging
+
  Revision 614.79  2004/03/15 16:47:04  error
  * msgbase.c: cmd_move(): Fix the security logic for non-aides trying to
    move or copy messages.  The logic should do the following:
@@ -5524,3 +5527,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

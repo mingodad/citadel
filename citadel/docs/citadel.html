@@ -844,16 +844,19 @@ program against to set up some data files. If a directory is not
 specified, the directory
 name which was specified in the <tt>Makefile</tt> will be used.</p>
 <p><tt>-xDebugLevel</tt> - Set the verbosity of trace messages printed.
-The
-available debugging levels are: </p>
+When -x is used, it will suppress messages sent to syslog (see below).  In
+other words, syslog will never see certain messages if -x is used.  Normally
+you should configure logging through syslog, but -x may still be useful in
+some circumstances.  The available debugging levels are: </p>
 <ul>
-  <li>1 - Internal errors (failed thread creation, malloc problems,
-etc.) </li>
-  <li>2 - Network errors (broken sockets, failed socket creation) </li>
-  <li>3 - Begin and end of sessions, startup/shutdown of server </li>
-  <li>5 - Server commands being sent from clients </li>
-  <li>7 - Entry and exit of various functions </li>
-  <li>9 - Various debugging checkpoints (insanely verbose) </li>
+  <li>0 - Emergency condition; Citadel will exit immediately </li>
+  <li>1 - Severe errors; Citadel may be unable to continue without attention </li>
+  <li>2 - Critical errors; Citadel will continue with degraded functionality </li>
+  <li>3 - Error conditions; Citadel will recover and continue normally </li>
+  <li>4 - Warning messages; Citadel will continue normally </li>
+  <li>5 - Normal operational messages </li>
+  <li>6 - Informational messages, progress reports, etc. </li>
+  <li>7 - Debugging messages; extremely verbose </li>
 </ul>
 <p><tt>-tTraceFile</tt> - Tell the server where to send its debug/trace
 output. Normally it is sent to stdout.</p>
@@ -877,8 +880,8 @@ entry in your /etc/inittab file. This will conveniently bring the
 server up when your system is up, and terminate it gracefully when your
 system is shutting down. The exact syntax for your system may vary, but
 here's an entry that could be used on a Linux system:</p>
-<pre>cit:2345:respawn:/usr/local/citadel/citserver -h/usr/local/citadel -t/dev/tty9 -x3<br></pre>
-<p>In this example, we've chosen debugging level 3, and have the trace
+<pre>cit:2345:respawn:/usr/local/citadel/citserver -h/usr/local/citadel -t/dev/tty9 -x6<br></pre>
+<p>In this example, we've chosen debugging level 6, and have the trace
 stuff output to one of the virtual consoles. It's important to remember
 to turn off any getty that is set up on that virtual console, if you do
 this. After making this change, the command <tt>init q</tt> works on
