@@ -262,6 +262,40 @@ void urlescputs(char *strbuf)
 }
 
 
+/*
+ * Copy a string, escaping characters for JavaScript strings.
+ */
+void jsesc(char *target, char *strbuf)
+{
+	int a;
+	strcpy(target, "");
+
+	for (a = 0; a < strlen(strbuf); ++a) {
+		if (strbuf[a] == '<')
+			strcat(target, "[");
+		else if (strbuf[a] == '>')
+			strcat(target, "]");
+		else if (strbuf[a] == '\"')
+			strcat(target, "&quot;");
+		else if (strbuf[a] == '&')
+			strcat(target, "&amp;;");
+		else if (strbuf[a] == '\'') 
+			strcat(target, "\\'");
+		else {
+			strncat(target, &strbuf[a], 1);
+		}
+	}
+}
+
+void jsescputs(char *strbuf)
+{
+	char outbuf[SIZ];
+	
+	jsesc(outbuf, strbuf);
+	wprintf("%s", outbuf);
+}
+
+
 
 
 /*

@@ -1,4 +1,10 @@
 $Log$
+Revision 505.11  2004/03/03 05:21:36  ajc
+* Made the chat screen totally kick-ass sweet.  The flickering reload
+  i-frame is now tiny and hidden, and it *appends* new chat data to
+  the viewable window using JavaScript.  No flickering + scrollback!
+* Added a help button to the chat screen.
+
 Revision 505.10  2004/02/29 22:52:15  ajc
 * Close and clear (set to -1) server socket handle when socket errors are
   detected.  Fixes a chat problem reported by Winzlo.
@@ -1700,3 +1706,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
