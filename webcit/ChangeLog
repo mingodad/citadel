@@ -1,4 +1,7 @@
 $Log$
+Revision 522.9  2004/07/02 03:26:06  ajc
+*** empty log message ***
+
 Revision 522.8  2004/07/01 02:40:40  ajc
 * Clicking "Enter a message" in a groupware room now automatically calls
   the correct editor for the type of objects in the room (message, calendar
@@ -1946,3 +1949,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
