@@ -21,3 +21,4 @@ int scr_set_windowsize(void);
 void windows_new(void);
 void windows_delete(void);
 int scr_blockread(void);
+int is_curses_enabled(void);

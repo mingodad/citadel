@@ -1,4 +1,18 @@
  $Log$
+ Revision 590.150  2002/03/13 03:34:38  nbryant
+ /* when running in curses mode, the scroll bar in most
+    xterm-style programs becomes useless, so it makes sense to
+    pause after a screenful of pages if the user has been idle
+    for a while. However, this is annoying to some of the users
+    who aren't in curses mode and tend to leave their clients
+    idle. keepalives become disabled, resulting in getting booted
+    when coming back to the idle session. but they probably have
+    a working scrollback in their terminal, so disable it in this
+    case:
+  */
+ if (!is_curses_enabled())
+ 	lines_printed = 0;
+
  Revision 590.149  2002/03/12 23:34:37  nbryant
  use ncurses in preference to curses if it's installed; it handles
  background colors properly on dtterm, has a larger color pair palette,
@@ -3482,3 +3496,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

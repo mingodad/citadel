@@ -312,6 +312,19 @@ void print_express(void)
 		scr_printf(":\n");
 		lines_printed++;
 		fmout(screenwidth, NULL, NULL, 1, screenheight, -1, 0);
+
+		/* when running in curses mode, the scroll bar in most
+		   xterm-style programs becomes useless, so it makes sense to
+		   pause after a screenful of pages if the user has been idle
+		   for a while. However, this is annoying to some of the users
+		   who aren't in curses mode and tend to leave their clients
+		   idle. keepalives become disabled, resulting in getting booted
+		   when coming back to the idle session. but they probably have
+		   a working scrollback in their terminal, so disable it in this
+		   case:
+		 */
+		if (!is_curses_enabled())
+			lines_printed = 0;
 	}
 	scr_printf("\n---\n");
 	color(BRIGHT_WHITE);

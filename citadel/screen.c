@@ -45,6 +45,14 @@ extern void check_screen_dims(void);
 void do_keepalive(void);
 
 
+int is_curses_enabled(void) {
+#ifdef HAVE_CURSES_H
+	return mainwindow != NULL;
+#else
+	return 0;
+#endif
+}
+
 /*
  * status_line() is a convenience function for writing a "typical"
  * status line to the window.
