@@ -377,7 +377,6 @@ void output_message(char *msgid, int mode,
 
 	msg_len = (long) dmsgtext->len;
 	mptr = dmsgtext->ptr;
-	lprintf(9, "Returned message length is %ld\n", msg_len);
 
 	/* this loop spews out the whole message if we're doing raw format */
 	if (mode == MT_RAW) {
@@ -627,7 +626,6 @@ long send_message(char *message_in_memory,	/* pointer to buffer */
 
 	/* Write our little bundle of joy into the message base */
 
-	lprintf(9, "Storing message %ld\n", newmsgid);
 	begin_critical_section(S_MSGMAIN);
 	if ( cdb_store(CDB_MSGMAIN, &newmsgid, sizeof(long),
 			message_in_memory, message_length) < 0 ) {
@@ -689,19 +687,16 @@ void save_message(char *mtmp,	/* file containing proper message */
 	struct usersupp userbuf;
 
 	/* Measure the message */
-	lprintf(9, "Measuring the message\n");
 	stat(mtmp, &statbuf);
 	templen = statbuf.st_size;
 
 	/* Now read it into memory */
-	lprintf(9, "Allocating %ld bytes\n", templen);
 	message_in_memory = (char *) malloc(templen);
 	if (message_in_memory == NULL) {
 		lprintf(2, "Can't allocate memory to save message!\n");
 		return;
 		}
 
-	lprintf(9, "Reading it into memory\n");	
 	fp = fopen(mtmp, "rb");
 	fread(message_in_memory, templen, 1, fp);
 	fclose(fp);
@@ -744,13 +739,10 @@ void save_message(char *mtmp,	/* file containing proper message */
 	/* This call to usergoto() changes rooms if necessary.  It also
 	 * causes the latest message list to be read into memory.
 	 */
-	lprintf(9, "Changing rooms if necessary...\n");
 	usergoto(actual_rm, 0);
 
 	/* read in the quickroom record, obtaining a lock... */
-	lprintf(9, "Reading/locking <%s>...\n", actual_rm);
 	lgetroom(&CC->quickroom, actual_rm);
-	lprintf(9, "Fetching message list...\n");
 	get_msglist(&CC->quickroom);
 
 	/* FIX here's where we have to handle message expiry!! */
@@ -765,12 +757,10 @@ void save_message(char *mtmp,	/* file containing proper message */
 	SetMessageInList(CC->num_msgs - 1, newmsgid);
 
 	/* Write it back to disk. */
-	lprintf(9, "Writing message list...\n");
 	put_msglist(&CC->quickroom);
 
 	/* update quickroom */
 	CC->quickroom.QRhighest = newmsgid;
-	lprintf(9, "Writing/unlocking room <%s>...\n", actual_rm);
 	lputroom(&CC->quickroom, actual_rm);
 
 	/* Bump this user's messages posted counter.  Also, if the user is a
@@ -792,12 +782,9 @@ void save_message(char *mtmp,	/* file containing proper message */
 	 * have to now go back to the current room...
 	 */
 	if (strlen(hold_rm) > 0) {
-		lprintf(9, "Returning to <%s>\n", hold_rm);
 		usergoto(hold_rm, 0);
 		}
-	lprintf(9, "Deleting temporary file\n");
 	unlink(mtmp);		/* delete the temporary file */
-	lprintf(9, "Finished with save_message()\n");
 	}
 
 
@@ -973,9 +960,7 @@ void cmd_ent0(char *entargs)
 			strcpy(buf,recipient);
 			}
 		else strcpy(buf,"sysop");
-		lprintf(9, "aliasing...\n");
 		e=alias(buf);			/* alias and mail type */
-		lprintf(9,"...type is %d\n", e);
 		if ((buf[0]==0) || (e==M_ERROR)) {
 			cprintf("%d Unknown address - cannot send message.\n",
 				ERROR+NO_SUCH_USER);
@@ -1007,9 +992,7 @@ void cmd_ent0(char *entargs)
 		/* Check to make sure the user exists; also get the correct
 	 	* upper/lower casing of the name. 
 	 	*/
-		lprintf(9, "checking validity of %s\n", buf);
 		a = getuser(&tempUS,buf);
-		lprintf(9, "getuser() returned %d\n", a);
 		if (a != 0) {
 			cprintf("%d No such user.\n",ERROR+NO_SUCH_USER);
 			return;
@@ -1070,9 +1053,7 @@ void cmd_ent3(char *entargs)
 	/* If we're in Mail, check the recipient */
 	if (CC->quickroom.QRflags & QR_MAILBOX) {
 		extract(recp, entargs, 1);
-		lprintf(9, "aliasing...\n");
 		e=alias(recp);			/* alias and mail type */
-		lprintf(9,"...type is %d\n", e);
 		if ((buf[0]==0) || (e==M_ERROR)) {
 			cprintf("%d Unknown address - cannot send message.\n",
 				ERROR+NO_SUCH_USER);

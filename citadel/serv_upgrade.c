@@ -222,9 +222,7 @@ void import_a_user() {
 	bzero(&us, sizeof(struct usersupp));	
 	while(fpgetfield(imfp, key), strcasecmp(key, "enduser")) {
 		if ((strcasecmp(key, "mail"))
-		   &&(strcasecmp(key, "lastseen"))
-		   &&(strcasecmp(key, "generation"))
-		   &&(strcasecmp(key, "forget")) ) {
+		   &&(strcasecmp(key, "visit")) ) {
 			fpgetfield(imfp, value);
 			}
 		else {
@@ -283,7 +281,7 @@ void import_a_user() {
 			mbox[mbox_size - 1] = msgnum;
 			}
 		if (!strcasecmp(key, "visit")) {
-			lprintf(9,"visit: ");
+			lprintf(9,"v");
 			bzero(&vbuf, sizeof(struct visit));
 			bzero(&qr, sizeof(struct quickroom));
 			while(fpgetfield(imfp, vkey),
@@ -293,8 +291,6 @@ void import_a_user() {
 					strcpy(qr.QRname, vvalue);
 				if (!strcasecmp(vkey, "vgen"))	{
 					qr.QRgen = atol(vvalue);
-					lprintf(9, "<%s><%ld> ",
-						qr.QRname, qr.QRgen);
 					CtdlGetRelationship(&vbuf, &us, &qr);
 					}
 				if (!strcasecmp(vkey, "lastseen"))	
@@ -303,7 +299,6 @@ void import_a_user() {
 					vbuf.v_flags = atoi(vvalue);
 				}
 			CtdlSetRelationship(&vbuf, &us, &qr);
-			lprintf(9, ".\n");
 			}
 		}
 	

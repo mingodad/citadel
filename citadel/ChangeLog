@@ -1,7 +1,8 @@
 Mon Oct 12 15:27:21 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Killed the "rooms" subdirectory (it isn't used anymore)
 	* dynloader.c: Made dynamically added server commands case-insensitive
-	* import.c is now serv_upgrade.c, a module (unfinished)
+	* import.c is now serv_upgrade.c, a module
+	* Removed most of the "level 9" trace messages no longer needed
 
 1998-10-12 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* Makefile.in: simplified to use pattern rules; files compiled with

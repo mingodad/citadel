@@ -266,21 +266,16 @@ void get_msglist(struct quickroom *whichroom) {
 	char dbkey[256];
 	int a;
 	
-	lprintf(9, "get_msglist() called for <%s>\n", whichroom->QRname);
 	sprintf(dbkey, "%s%ld", whichroom->QRname, whichroom->QRgen);
 	for (a=0; a<strlen(dbkey); ++a) dbkey[a]=tolower(dbkey[a]);
-	lprintf(9, "database key is <%s>\n", dbkey);
 	
-	lprintf(9, "Freeing existing message list\n");
 	if (CC->msglist != NULL) {
 		free(CC->msglist);
 		}
 	CC->msglist = NULL;
 	CC->num_msgs = 0;
 
-	lprintf(9, "calling cdb_fetch\n");
 	cdbfr = cdb_fetch(CDB_MSGLISTS, dbkey, strlen(dbkey));
-	lprintf(9, "done\n");
 
 	if (cdbfr == NULL) {
 		return;
@@ -290,7 +285,6 @@ void get_msglist(struct quickroom *whichroom) {
 	memcpy(CC->msglist, cdbfr->ptr, cdbfr->len);
 	CC->num_msgs = cdbfr->len / sizeof(long);
 	cdb_free(cdbfr);
-	lprintf(9, "Leaving get_msglist()\n");
 	}
 
 
@@ -615,11 +609,8 @@ void usergoto(char *where, int display_result)
 	struct visit vbuf;
 
 	strcpy(CC->quickroom.QRname, where);
-	lprintf(9, "usergoto() fetching room record\n");
 	getroom(&CC->quickroom, where);
-	lprintf(9, "usergoto() fetching user record\n");
 	lgetuser(&CC->usersupp,CC->curr_user);
-	lprintf(9, "usergoto() fetching relationships\n");
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
 	vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
@@ -628,7 +619,6 @@ void usergoto(char *where, int display_result)
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 	lputuser(&CC->usersupp,CC->curr_user);
 
-	lprintf(9, "usergoto() about to check for new mail\n");
 	/* check for new mail */
 	newmailcount = NewMailCount();
 
@@ -636,7 +626,6 @@ void usergoto(char *where, int display_result)
 	if (CC->quickroom.QRinfo > vbuf.v_lastseen) info = 1;
 
 	get_mm();
-	lprintf(9, "Fetching message list for counting...\n");
 	get_msglist(&CC->quickroom);
 	for (a=0; a<CC->num_msgs; ++a) {
 		if (MessageFromList(a)>0L) {
@@ -646,7 +635,6 @@ void usergoto(char *where, int display_result)
 				}
 			}
 		}
-	lprintf(9, "...done counting\n");
 
 	if (CC->quickroom.QRflags & QR_MAILBOX) rmailflag = 1;
 	else rmailflag = 0;
@@ -1088,19 +1076,15 @@ void delete_room(struct quickroom *qrbuf) {
 	qrbuf->QRflags=0;
 
 	/* then delete the messages in the room */
-	lprintf(9, "calling get_msglist()\n");
 	get_msglist(qrbuf);
 	if (CC->num_msgs > 0) for (a=0; a < CC->num_msgs; ++a) {
 		MsgToDelete = MessageFromList(a);
-		lprintf(9, "Deleting message %ld\n", MsgToDelete);
 		cdb_delete(CDB_MSGMAIN, &MsgToDelete, sizeof(long));
 		}
-	lprintf(9, "calling put_msglist()\n");
 	put_msglist(qrbuf);
 	free(CC->msglist);
 	CC->msglist = NULL;
 	CC->num_msgs = 0;
-	lprintf(9, "calling delete_msglist()\n");
 	delete_msglist(qrbuf);
 	lputroom(qrbuf, qrbuf->QRname);
 
@@ -1111,7 +1095,6 @@ void delete_room(struct quickroom *qrbuf) {
 
 	/* Delete the room record from the database! */
 	putroom(NULL, qrbuf->QRname);
-	lprintf(9, "finished with delete_room()\n");
 	}
 
 
@@ -1144,16 +1127,12 @@ void cmd_kill(char *argbuf) {
 	if (kill_ok) {
 		strcpy(deleted_room_name, CC->quickroom.QRname);
 		delete_room(&CC->quickroom);	/* Do the dirty work */
-		lprintf(9, "Calling usergoto()\n");
 		usergoto(BASEROOM, 0);		/* Return to the Lobby */
 
-		lprintf(9, "Composing notice\n");
 		/* tell the world what we did */
 		sprintf(aaa,"%s> killed by %s",
 			deleted_room_name, CC->curr_user);
-		lprintf(9, "Posting notice\n");
 		aide_message(aaa);
-		lprintf(9, "done posting notice\n");
 		cprintf("%d '%s' deleted.\n", OK, deleted_room_name);
 		}
 	else {
