@@ -3,7 +3,7 @@
 Copyright (c) 1987-1998 by:
         Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
-Portions contributed by:
+Portions (c) 1998 by:
 	Brian Costello <btx@calyx.net>
 	Nathan Bryant <bryant@cs.usm.maine.edu>
  

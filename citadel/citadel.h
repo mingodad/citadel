@@ -1,14 +1,14 @@
 /* citadel.h
  * main Citadel/UX header file
- * see copyright.doc for copyright information
+ * see copyright.txt for copyright information
  */
 
 /* system customizations are in sysconfig.h */
 #include "sysdep.h"
 #include "sysconfig.h"
 #include "ipcdef.h"
-#define CITADEL	"Citadel/UX DR19980818"
-#define REV_LEVEL 503
+#define CITADEL	"Citadel/UX DR19981026"
+#define REV_LEVEL 511
 #define SERVER_TYPE 0	/* zero for stock Citadel/UX; other developers please
 			   obtain SERVER_TYPE codes for your implementations */
 

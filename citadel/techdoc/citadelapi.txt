@@ -1,8 +1,16 @@
-Here's "take two" on the CitadelAPI extension library.  These days it's not
-really a library at all, but rather a list of stuff that's inside the server that
-might be useful.  Sort of.  We'll see how it evolves.
-
+ Citadel/UX Server Extension API Documentation
+ ---------------------------------------------
  
+  This is a (very) incomplete documentation of the API for extending the
+Citadel server using dynamically loaded modules.  It really isn't an API at
+all, but rather a list of some of the functions available in the server which
+are likely to be of use to module writers.  
+  
+  Expect this document to become more complete over time, as both the API and
+the person documenting it have a chance to mature a bit.  :)
+  
+  
+   
   USER RELATED FUNCTIONS
   ----------------------
  

@@ -1,4 +1,4 @@
- hack.doc for Citadel/UX
+ hack.txt for Citadel/UX
  written by Art Cancro (ajc@uncnsrd.mt-kisco.ny.us)
    
    Much of this document is borrowed from the original hack.doc from
