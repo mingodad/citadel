@@ -237,13 +237,12 @@ void escputs(char *strbuf)
 
 /*
  * Escape a string for feeding out as a URL.
- * FIXME ... not threadsafe!
+ * Returns a pointer to a buffer that must be freed by the caller!
  */
-char *urlesc(char *strbuf)
+void urlesc(char *outbuf, char *strbuf)
 {
 	int a, b, c;
 	char *ec = " #&;`'|*?-~<>^()[]{}$\\";
-	static char outbuf[SIZ];
 
 	strcpy(outbuf, "");
 
@@ -259,12 +258,14 @@ char *urlesc(char *strbuf)
 		else
 			sprintf(&outbuf[b], "%c", strbuf[a]);
 	}
-	return (outbuf);
 }
 
 void urlescputs(char *strbuf)
 {
-	wprintf("%s", urlesc(strbuf));
+	char outbuf[SIZ];
+	
+	urlesc(outbuf, strbuf);
+	wprintf("%s", outbuf);
 }
 
 

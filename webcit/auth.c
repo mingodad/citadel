@@ -249,9 +249,10 @@ void validate(void)
 	wprintf("<CENTER><TABLE border><CAPTION>Select access level:");
 	wprintf("</CAPTION><TR>");
 	for (a = 0; a <= 6; ++a) {
-		wprintf(
-			       "<TD><A HREF=\"/validate&user=%s&WC->axlevel=%d\">%s</A></TD>\n",
-			       urlesc(user), a, axdefs[a]);
+		wprintf("<TD><A HREF=\"/validate&user=");
+		urlescputs(user);
+		wprintf("&WC->axlevel=%d\">%s</A></TD>\n",
+			a, axdefs[a]);
 	}
 	wprintf("</TR></TABLE><CENTER><BR>\n");
 	wDumpContent(1);
