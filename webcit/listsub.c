@@ -33,6 +33,8 @@ void do_listsub(void)
 	char subtype[SIZ];
 
 	char buf[SIZ];
+	int self;
+	char sroom[SIZ];
 
 	strcpy(WC->wc_username, "");
 	strcpy(WC->wc_password, "");
@@ -97,11 +99,25 @@ FORM:		wprintf("<FORM METHOD=\"POST\" ACTION=\"/listsub\">\n"
 		);
 
 		wprintf("<TR><TD>Name of list</TD><TD>"
-			"<INPUT TYPE=\"text\" NAME=\"room\" "
-			"VALUE=\""
-		);
-		escputs(room);
-		wprintf("\" MAXLENGTH=128></TD></TR>\n");
+        		"<SELECT NAME=\"room\" SIZE=1>\n");
+
+        	serv_puts("LPRM");
+        	serv_gets(buf);
+        	if (buf[0] == '1') {
+                	while (serv_gets(buf), strcmp(buf, "000")) {
+				extract(sroom, buf, 0);
+				self = extract_int(buf, 4) & QR2_SELFLIST ;
+				if (self) {
+					wprintf("<OPTION VALUE=\"");
+					urlescputs(sroom);
+					wprintf("\">");
+					escputs(sroom);
+					wprintf("</OPTION>\n");
+				}
+                	}
+		}
+        	wprintf("</SELECT>"
+			"</TD></TR>\n");
 
 		wprintf("<TR><TD>Your e-mail address</TD><TD>"
 			"<INPUT TYPE=\"text\" NAME=\"email\" "

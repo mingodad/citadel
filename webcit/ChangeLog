@@ -1,4 +1,7 @@
 $Log$
+Revision 323.59  2002/08/16 22:06:51  ajc
+* self-service
+
 Revision 323.58  2002/08/16 03:51:12  ajc
 * I think I've finally nailed the 'no session' pages now...
 
@@ -900,3 +903,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
