@@ -109,7 +109,7 @@ void print_express(void)
 		printf("%s\n", buf);
 	}
 	printf("---\n");
-	color(DIM_WHITE);
+	color(BRIGHT_WHITE);
 }
 
 
@@ -310,10 +310,11 @@ void strprompt(char *prompt, char *str, int len)
 	color(BRIGHT_MAGENTA);
 	printf("%s", str);
 	color(DIM_MAGENTA);
-	printf("]: ");
+	printf("]");
 	color(DIM_WHITE);
-	getline(buf, len);
+	printf(": ");
 	color(BRIGHT_CYAN);
+	getline(buf, len);
 	if (buf[0] != 0)
 		strcpy(str, buf);
 	color(DIM_WHITE);
@@ -663,7 +664,10 @@ int getcmd(char *argbuf)
 		cmdbuf[a] = 0;
 	/* now the room prompt... */
 	ok_to_interrupt = 1;
-	printf("\n%s%c ", room_name, room_prompt(room_flags));
+	color(BRIGHT_WHITE);
+	printf("\n%s", room_name);
+	color(DIM_WHITE);
+	printf("%c ", room_prompt(room_flags));
 	fflush(stdout);
 
 	while (1) {
