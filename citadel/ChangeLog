@@ -4,6 +4,7 @@
 	  Makefile is regenerated when Makefile.in changes (ditto);
 	  `realclean' is now known as `distclean';
 	  portability fixes for older Unix make utilities
+	* citadel.c, citadel.h, commands.c: make client suspendable
 
 Fri Oct 23 19:34:38 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* setup.c: default node name is now obtained from uname()

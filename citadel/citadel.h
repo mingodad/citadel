@@ -211,6 +211,7 @@ struct floor {
 #define SB_YES_INTR	1		/* set to bbs mode, i/q enabled */
 #define SB_SAVE		2		/* save settings */
 #define SB_RESTORE	3		/* restore settings */
+#define SB_LAST		4		/* redo the last command sent */
 
 #define	NEXT_KEY	15
 #define STOP_KEY	3

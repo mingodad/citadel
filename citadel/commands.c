@@ -659,13 +659,18 @@ void sttybbs(int cmd) 		/* SysV version of sttybbs() */
          {
 	struct termios live;
 	static struct termios saved_settings;
+	static int last_cmd = 0;
+
+	if (cmd == SB_LAST)
+		cmd = last_cmd;
+	else
+		last_cmd = cmd;
 
 	if ( (cmd == 0) || (cmd == 1) ) {
 		tcgetattr(0,&live);
 		live.c_iflag=ISTRIP|IXON|IXANY;
 		live.c_oflag=OPOST|ONLCR;
-		live.c_lflag=NOFLSH;
-		if (cmd==1) live.c_lflag=ISIG|NOFLSH;
+		live.c_lflag=ISIG|NOFLSH;
 
 		if (cmd==SB_YES_INTR) {
 			live.c_cc[VINTR]=NEXT_KEY;

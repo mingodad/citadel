@@ -142,6 +142,16 @@ void dropcarr(int signum) {
 
 
 
+/*
+ * catch SIGCONT to reset terminal modes when were are put back into the
+ * foreground.
+ */
+void catch_sigcont(int signum) {
+	sttybbs(SB_LAST);
+	}
+
+
+
 /* general purpose routines */
 
 void formout(char *name) /* display a file */
@@ -796,6 +806,7 @@ signal(SIGINT,SIG_IGN);
 signal(SIGQUIT,SIG_IGN);
 signal(SIGHUP,dropcarr);	/* Cleanup gracefully if carrier is dropped */
 signal(SIGTERM,dropcarr);	/* Cleanup gracefully if terminated */
+signal(SIGCONT,catch_sigcont);  /* Catch SIGCONT so we can reset terminal */
 
 send_ansi_detect();
 printf("Attaching to server...\r");
