@@ -1,4 +1,8 @@
 $Log$
+Revision 506.10  2004/04/21 03:43:39  ajc
+* Completed remaining SSL fixes.  Works in Moz, aIEeee, Konq; self-signed
+  certs are also no longer invalid.
+
 Revision 506.9  2004/04/21 02:25:13  ajc
 * Replaced ctdl_install_certificate() with convenience functions found
   in the OpenSSL library.
@@ -1790,4 +1794,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
