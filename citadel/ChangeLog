@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.24  2000/11/10 03:55:06  ajc
+ * Ford's Fix for Faster Functionality (save position during reply)
+
  Revision 573.23  2000/11/09 04:48:50  ajc
  * tools.c: striplt() strips all whitespace, not just spaces
 
@@ -2128,4 +2131,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

@@ -1018,6 +1018,7 @@ void readmsgs(
 	int q		/* Number of msgs to read (if c==3) */
 ) {
 	int a, b, e, f, g, start;
+	int savedpos;
 	int hold_sw = 0;
 	char arcflag = 0;
 	char quotflag = 0;
@@ -1077,7 +1078,7 @@ void readmsgs(
 				return;
 		}
 
-	      RAGAIN:pagin = ((arcflag == 0)
+RAGAIN:		pagin = ((arcflag == 0)
 			 && (quotflag == 0)
 			 && (userflags & US_PAGINATOR)) ? 1 : 0;
 
@@ -1333,7 +1334,9 @@ RMSGREAD:	fflush(stdout);
 			read_message(msg_arr[a], READ_HEADER);
 			goto RMSGREAD;
 		case 'r':
+			savedpos = num_msgs;
 			entmsg(1, (DEFAULT_ENTRY == 46 ? 2 : 0));
+			num_msgs = savedpos;
 			goto RMSGREAD;
 		case 'u':
 			list_urls();
