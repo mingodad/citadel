@@ -47,7 +47,7 @@ pthread_key_t MyConKey;                         /* TSD key for MySession() */
 
 void do_housekeeping(void)
 {
-	struct wcsession *sptr, *session_to_kill;
+	struct wcsession *sptr, *ss, *session_to_kill;
 
 	do {
 		session_to_kill = NULL;
@@ -62,7 +62,17 @@ void do_housekeeping(void)
 
 			/* Remove sessions flagged for kill */
 			if (sptr->killthis) {
-				remove session from linked list
+
+				/* remove session from linked list */
+				if (sptr == SessionList) {
+					SessionList = SessionList->next;
+				}
+				else for (ss=SessionList;ss!=NULL;ss=ss->next) {
+					if (ss->next == sptr) {
+						ss->next = ss->next->next;
+					}
+				}
+
 				session_to_kill = sptr;
 				goto BREAKOUT;
 			}
@@ -209,8 +219,6 @@ void context_loop(int sock)
 	int got_cookie = 0;
 	struct wcsession *TheSession, *sptr;
 
-	fprintf(stderr, "Reading request from socket %d\n", sock);
-
 	/*
 	 * Find out what it is that the web browser is asking for
 	 */
@@ -308,7 +316,7 @@ void context_loop(int sock)
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	TheSession->http_sock = sock;
 	TheSession->lastreq = time(NULL);			/* log */
-	fprintf(stderr, "Transaction: %s\n", req->line);
+	fprintf(stderr, "%s\n", req->line);
 	session_loop(req);		/* perform the requested transaction */
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 
@@ -323,7 +331,5 @@ void context_loop(int sock)
 	 * Now our HTTP connection is done.  Close the socket and exit this
 	 * function, so the worker thread can handle a new HTTP connection.
 	 */
-	printf("   Closing socket %d ... ret=%d\n", sock,
-	       lingering_close(sock));
-	return;
+	lingering_close(sock);
 }
