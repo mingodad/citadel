@@ -93,4 +93,15 @@ long extract_long(char *source, long int parmnum)
 	}
 
 
+/*
+ * check for the presence of a character within a string (returns count)
+ */
+int haschar(st,ch)
+char st[];
+int ch; {
+        int a,b;
+        b=0;
+        for (a=0; a<strlen(st); ++a) if (st[a]==ch) ++b;
+        return(b);
+        }
 
