@@ -801,7 +801,8 @@ void cmd_goto(char *gargs)
 		if (ok == 1) {
 			if ((QRscratch.QRflags & QR_PASSWORDED) &&
 			    ((ra & UA_KNOWN) == 0) &&
-			    (strcasecmp(QRscratch.QRpasswd, password))
+			    (strcasecmp(QRscratch.QRpasswd, password)) &&
+			    (CC->usersupp.axlevel < 6)
 			    ) {
 				cprintf("%d wrong or missing passwd\n",
 					ERROR + PASSWORD_REQUIRED);
@@ -809,7 +810,9 @@ void cmd_goto(char *gargs)
 			} else if ((QRscratch.QRflags & QR_PRIVATE) &&
 				   ((QRscratch.QRflags & QR_PASSWORDED) == 0) &&
 				   ((QRscratch.QRflags & QR_GUESSNAME) == 0) &&
-				   ((ra & UA_KNOWN) == 0)) {
+				   ((ra & UA_KNOWN) == 0) &&
+			           (CC->usersupp.axlevel < 6)
+                                  ) {
 				goto NOPE;
 			} else {
 				usergoto(towhere, 1, NULL, NULL);

@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.126  2001/04/16 19:21:14  cough
+ * Fixed bug in room_ops.c that wasn't allowing aides to goto passworded
+   rooms without knowing the password.
+
  Revision 573.125  2001/04/14 04:26:44  ajc
  * Fixed an unterminated string bug in IMAP APPEND.  Storing messages should
    work now.
