@@ -28,6 +28,7 @@
 #include <limits.h>
 #endif
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <string.h>
 #include <pwd.h>
@@ -61,14 +62,23 @@ char *ctdlport = DEFAULT_PORT;
  * This is a generic function to set up a master socket for listening on
  * a TCP port.  The server shuts down if the bind fails.
  */
-int ig_tcp_server(int port_number, int queue_len)
+int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 {
 	struct sockaddr_in sin;
 	int s, i;
 
 	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = AF_INET;
-	sin.sin_addr.s_addr = INADDR_ANY;
+	if (ip_addr == NULL) {
+		sin.sin_addr.s_addr = INADDR_ANY;
+	}
+	else {
+		sin.sin_addr.s_addr = inet_addr(ip_addr);
+	}
+
+	if (sin.sin_addr.s_addr == INADDR_NONE) {
+		sin.sin_addr.s_addr = INADDR_ANY;
+	}
 
 	if (port_number == 0) {
 		lprintf(1, "Cannot start: no port number specified.\n");
@@ -247,14 +257,18 @@ int main(int argc, char **argv)
 	int a, i;		/* General-purpose variables */
 	int port = PORT_NUM;	/* Port to listen on */
 	char tracefile[PATH_MAX];
+	char ip_addr[256];
 
 	/* Parse command line */
 #ifdef HAVE_OPENSSL
-	while ((a = getopt(argc, argv, "hp:t:cs")) != EOF)
+	while ((a = getopt(argc, argv, "hi:p:t:cs")) != EOF)
 #else
-	while ((a = getopt(argc, argv, "hp:t:c")) != EOF)
+	while ((a = getopt(argc, argv, "hi:p:t:c")) != EOF)
 #endif
 		switch (a) {
+		case 'i':
+			strcpy(ip_addr, optarg);
+			break;
 		case 'p':
 			port = atoi(optarg);
 			break;
@@ -284,7 +298,8 @@ int main(int argc, char **argv)
 			is_https = 1;
 			break;
 		default:
-			fprintf(stderr, "usage: webserver [-p http_port] "
+			fprintf(stderr, "usage: webserver "
+				"[-i ip_addr] [-p http_port] "
 				"[-t tracefile] [-c] "
 #ifdef HAVE_OPENSSL
 				"[-s] "
@@ -334,7 +349,7 @@ int main(int argc, char **argv)
 	 * exits if it doesn't succeed.
 	 */
 	lprintf(2, "Attempting to bind to port %d...\n", port);
-	msock = ig_tcp_server(port, LISTEN_QUEUE_LENGTH);
+	msock = ig_tcp_server(ip_addr, port, LISTEN_QUEUE_LENGTH);
 	lprintf(2, "Listening on socket %d\n", msock);
 	signal(SIGPIPE, SIG_IGN);
 
