@@ -12,6 +12,7 @@
 
 #include "citadel.h"
 #ifdef HAVE_OPENSSL
+#define OPENSSL_NO_KRB5		/* work around redhat b0rken ssl headers */
 #include <openssl/ssl.h>
 #endif
 
