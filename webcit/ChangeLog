@@ -1,4 +1,7 @@
 $Log$
+Revision 323.53  2002/07/26 03:20:04  ajc
+* Beautified the folder tabs in "edit room"
+
 Revision 323.52  2002/07/25 04:01:58  ajc
 * Final cleanup of changes (finally located and fixed the bug)
 
@@ -881,3 +884,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
