@@ -850,7 +850,7 @@ int is_valid_message(struct CtdlMessage *msg) {
 	if (msg == NULL)
 		return 0;
 	if ((msg->cm_magic) != CTDLMESSAGE_MAGIC) {
-		lprintf(3, "is_valid_message() -- self-check failed\n");
+		lprintf(7, "is_valid_message() -- self-check failed\n");
 		return 0;
 	}
 	return 1;

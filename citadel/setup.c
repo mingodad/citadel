@@ -461,7 +461,7 @@ void check_inittab_entry(void)
 		display_error(strerror(errno));
 	} else {
 		fprintf(infp, "# Start the Citadel/UX server...\n");
-		fprintf(infp, "%s:2345:respawn:%s -h%s\n",
+		fprintf(infp, "%s:2345:respawn:%s -h%s -x3 -llocal4\n",
 			entryname, looking_for, setup_directory);
 		fclose(infp);
 		strcpy(init_entry, entryname);

@@ -1,4 +1,9 @@
  $Log$
+ Revision 614.3  2004/01/17 03:26:17  ajc
+ * Changed a diagnostic in msgbase.c to a higher logging level so it doesn't
+   make as much noise.
+ * Setup now adds "-x3 -llocal4" to the default inittab line.
+
  Revision 614.2  2004/01/17 03:17:34  ajc
  * New server command-line option "-l" to send log output to the host
    computer's syslog facility instead of to a trace file.
@@ -5217,4 +5222,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
