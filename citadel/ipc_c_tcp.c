@@ -68,7 +68,7 @@ void timeout(int signum)
 }
 
 
-int connectsock(char *host, char *service, char *protocol)
+static int connectsock(char *host, char *service, char *protocol, int defaultPort)
 {
 	struct hostent *phe;
 	struct servent *pse;
@@ -82,10 +82,8 @@ int connectsock(char *host, char *service, char *protocol)
 	pse = getservbyname(service, protocol);
 	if (pse) {
 		sin.sin_port = pse->s_port;
-	} else if ((sin.sin_port = htons((u_short) atoi(service))) == 0) {
-		fprintf(stderr, "Can't get %s service entry: %s\n",
-			service, strerror(errno));
-		logoff(3);
+	} else {
+		sin.sin_port = htons(defaultPort);
 	}
 	phe = gethostbyname(host);
 	if (phe) {
@@ -156,7 +154,7 @@ int uds_connectsock(char *sockpath)
  * convert service and host entries into a six-byte numeric in the format
  * expected by a SOCKS v4 server
  */
-void numericize(char *buf, char *host, char *service, char *protocol)
+static void numericize(char *buf, char *host, char *service, char *protocol, int defaultPort)
 {
 	struct hostent *phe;
 	struct servent *pse;
@@ -168,10 +166,8 @@ void numericize(char *buf, char *host, char *service, char *protocol)
 	pse = getservbyname(service, protocol);
 	if (pse) {
 		sin.sin_port = pse->s_port;
-	} else if ((sin.sin_port = htons((u_short) atoi(service))) == 0) {
-		fprintf(stderr, "Can't get %s service entry: %s\n",
-			service, strerror(errno));
-		logoff(3);
+	} else {
+		sin.sin_port = htons(defaultPort);
 	}
 	buf[1] = (((sin.sin_port) & 0xFF00) >> 8);
 	buf[0] = ((sin.sin_port) & 0x00FF);
@@ -324,13 +320,13 @@ void attach_to_server(int argc, char **argv, char *hostbuf, char *portbuf)
 
 	/* if not using a SOCKS proxy server, make the connection directly */
 	if (strlen(socks4) == 0) {
-		serv_sock = connectsock(cithost, citport, "tcp");
+		serv_sock = connectsock(cithost, citport, "tcp", 504);
 		if (hostbuf != NULL) strcpy(hostbuf, cithost);
 		if (portbuf != NULL) strcpy(portbuf, citport);
 		return;
 	}
 	/* if using SOCKS, connect first to the proxy... */
-	serv_sock = connectsock(socks4, "1080", "tcp");
+	serv_sock = connectsock(socks4, "1080", "tcp", 1080);
 	printf("Connected to SOCKS proxy at %s.\n", socks4);
 	printf("Attaching to server...\r");
 	fflush(stdout);
@@ -340,7 +336,7 @@ void attach_to_server(int argc, char **argv, char *hostbuf, char *portbuf)
 		 1);		/* method = connect */
 	serv_write(buf, 2);
 
-	numericize(buf, cithost, citport, "tcp");
+	numericize(buf, cithost, citport, "tcp", 504);
 	serv_write(buf, 6);	/* port and address */
 
 	p = (struct passwd *) getpwuid(getuid());

@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.20  2001/08/06 21:33:29  nbryant
+ made the client fall back on port 504 if there's no /etc/services entry
+
  Revision 580.19  2001/08/05 23:54:14  ajc
  * prep for new network node infrastructure
 
@@ -2659,4 +2662,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
