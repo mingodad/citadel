@@ -1195,13 +1195,11 @@ int entmsg(CtdlIPC *ipc,
 	/* Reopen the temp file that was created, so we can send it */
 	fp = fopen(temp, "r");
 
-	/* Yes, unlink it now, so it doesn't stick around if we crash */
-	unlink(temp);
-
 	if (!fp || !(message.text = load_message_from_file(fp))) {
 		err_printf("*** Internal error while trying to save message!\n"
 			"%s: %s\n",
 			temp, strerror(errno));
+		unlink(temp);
 		return(errno);
 	}
 
@@ -1213,6 +1211,9 @@ int entmsg(CtdlIPC *ipc,
 		scr_printf("%s\n", buf);
 		return (1);
 	}
+
+	/* Yes, unlink it now, so it doesn't stick around if we crash */
+	unlink(temp);
 
 	if (num_msgs >= 1) highmsg = msgarr[num_msgs - 1];
 

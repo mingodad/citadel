@@ -1,4 +1,8 @@
  $Log$
+ Revision 614.14  2004/02/04 18:27:25  error
+ * Don't delete temp file when composing message until after server writes
+   it successfully (or an error occurs in the client itself).
+
  Revision 614.13  2004/02/04 04:07:56  ajc
  * More work on LDAP connector
 
@@ -5261,3 +5265,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
