@@ -364,15 +364,7 @@ void session_loop() {
 		output_static(buf);
 		}
 
-	else if ((!logged_in)&&(!strncasecmp(cmd, "POST /login", 11))) {
-		do_login();
-		}
-
-	else if (!logged_in) {
-		display_login_page();
-		}
-
-	else {
+	if (!strncasecmp(cmd, "GET /nothing", 12)) {
 		printf("HTTP/1.0 200 OK\n");
 		output_headers();
 	
@@ -381,6 +373,21 @@ void session_loop() {
 		wprintf("You're in session %d<BR>\n", wc_session);
 		wprintf("</BODY></HTML>\n");
 		wDumpContent();
+		}
+
+	else if ((!logged_in)&&(!strncasecmp(cmd, "POST /login", 11))) {
+		do_login();
+		}
+
+	else if (!logged_in) {
+		display_login_page();
+		}
+
+	/* Various commands... */
+
+	/* When all else fails, display the login page. */
+	else {
+		display_login_page();
 		}
 
 	fflush(stdout);
