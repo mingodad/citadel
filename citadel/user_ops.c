@@ -496,6 +496,16 @@ void logged_in_response(void)
  */
 void logout(struct CitContext *who)
 {
+	/*
+	 * Clear out some session data.  Most likely, the CitContext for this
+	 * session is about to get nuked when the session disconnects, but
+	 * since it's possible to log in again without reconnecting, we cannot
+	 * make that assumption.
+	 */
+	strcpy(who->fake_username, "");
+	strcpy(who->fake_postname, "");
+	strcpy(who->fake_hostname, "");
+	strcpy(who->fake_roomname, "");
 	who->logged_in = 0;
 
 	/*

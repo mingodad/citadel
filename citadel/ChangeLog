@@ -1,4 +1,8 @@
  $Log$
+ Revision 608.16  2003/08/03 17:51:52  ajc
+ * Clear out all masqueraded wholist fields when logging out, in case another
+   user logs in without reconnecting.
+
  Revision 608.15  2003/07/30 20:36:18  ajc
  * Allow users to authenticate with either their display name or any valid
    e-mail address which belongs to them.  Applies to all protocols.
@@ -4931,3 +4935,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
