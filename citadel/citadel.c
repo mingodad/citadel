@@ -929,9 +929,13 @@ void who_is_online(CtdlIPC *ipc, int longlist)
     				roomname[20] = 0;
     				pprintf("%-20s ", roomname);
 				if (idletime > rc_idle_threshold) {
-					/* over 10 days, must be gone fishing */
-					if (idlehours > 239) {
+					/* over 1000d, must be gone fishing */
+					if (idlehours > 23999) {
 						pprintf("fish");
+					/* over 10 days */
+					} else if (idlehours > 239) {
+						pprintf("%3ldd",
+							idlehours / 24);
 					/* over 10 hours */
 					} else if (idlehours > 9) {
 						pprintf("%1ldd%02ld",

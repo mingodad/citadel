@@ -1,4 +1,7 @@
  $Log$
+ Revision 607.5  2003/06/22 20:49:31  error
+ * citadel.c: display idle times in wholist up to 999 days
+
  Revision 607.4  2003/06/19 04:12:30  ajc
  * domain.c: use qsort() to sort MX records by preference.  Why have a
    custom function when the operating system provides one for free?
@@ -4777,3 +4780,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
