@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.20  2000/11/06 05:10:01  ajc
+ * Changed the mime_parser() API (again) to allow "don't decode" mode
+
  Revision 573.19  2000/10/29 18:11:07  ajc
  * Start numbering top-level MIME parts as 1, 2... not 1.1, 1.2...
 
@@ -2116,4 +2119,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

@@ -573,7 +573,7 @@ void memfmout(
  * Callback function for mime parser that simply lists the part
  */
 void list_this_part(char *name, char *filename, char *partnum, char *disp,
-		    void *content, char *cbtype, size_t length,
+		    void *content, char *cbtype, size_t length, char *encoding,
 		    void *cbuserdata)
 {
 
@@ -586,7 +586,7 @@ void list_this_part(char *name, char *filename, char *partnum, char *disp,
  * Callback function for mime parser that opens a section for downloading
  */
 void mime_download(char *name, char *filename, char *partnum, char *disp,
-		   void *content, char *cbtype, size_t length,
+		   void *content, char *cbtype, size_t length, char *encoding,
 		   void *cbuserdata)
 {
 
@@ -722,7 +722,7 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
  * Callback function for mime parser that wants to display text
  */
 void fixed_output(char *name, char *filename, char *partnum, char *disp,
-	  	void *content, char *cbtype, size_t length,
+	  	void *content, char *cbtype, size_t length, char *encoding,
 		void *cbuserdata)
 	{
 		char *ptr;
@@ -853,7 +853,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		} else {
 			/* Parse the message text component */
 			mptr = TheMessage->cm_fields['M'];
-			mime_parser(mptr, NULL, *mime_download, NULL);
+			mime_parser(mptr, NULL, *mime_download, NULL, 0);
 			/* If there's no file open by this time, the requested
 			 * section wasn't found, so print an error
 			 */
@@ -1011,10 +1011,10 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	/* Tell the client about the MIME parts in this message */
 	if (TheMessage->cm_format_type == FMT_RFC822) {
 		if (mode == MT_CITADEL) {
-			mime_parser(mptr, NULL, *list_this_part, NULL);
+			mime_parser(mptr, NULL, *list_this_part, NULL, 0);
 		}
 		else if (mode == MT_MIME) {	/* list parts only */
-			mime_parser(mptr, NULL, *list_this_part, NULL);
+			mime_parser(mptr, NULL, *list_this_part, NULL, 0);
 			if (do_proto) cprintf("000\n");
 			CtdlFreeMessage(TheMessage);
 			return(om_ok);
@@ -1092,7 +1092,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	if (TheMessage->cm_format_type == FMT_RFC822) {
 		CtdlAllocUserData(SYM_MA_INFO, sizeof(struct ma_info));
 		memset(ma, 0, sizeof(struct ma_info));
-		mime_parser(mptr, NULL, *fixed_output, NULL);
+		mime_parser(mptr, NULL, *fixed_output, NULL, 0);
 	}
 
 	/* now we're done */

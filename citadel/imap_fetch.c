@@ -162,10 +162,16 @@ void imap_fetch_rfc822(int msgnum, char *whichfmt) {
 
 
 /*
- * FIXME this is TOTALLY BROKEN!!!
+ * Load a specific part of a message into the temp file to be output to a
+ * client.  FIXME we can handle parts like "2" and "2.1" but we still have
+ * to handle parts like "2.MIME" and "2.HEADER" (the latter maybe not ...
+ * Mark Crispy's server doesn't seem to)
+ *
+ * Note: mime_parser() was called with dont_decode set to 1, so we have the
+ * luxury of simply spewing without having to re-encode.
  */
-void imap_fetch_part(char *name, char *filename, char *partnum, char *disp,
-		    void *content, char *cbtype, size_t length,
+void imap_load_part(char *name, char *filename, char *partnum, char *disp,
+		    void *content, char *cbtype, size_t length, char *encoding,
 		    void *cbuserdata)
 {
 	struct imap_fetch_part *imfp;
@@ -173,9 +179,9 @@ void imap_fetch_part(char *name, char *filename, char *partnum, char *disp,
 	imfp = (struct imap_fetch_part *)cbuserdata;
 
 	if (!strcasecmp(partnum, imfp->desired_section)) {
-		cprintf("part=%s|%s|%s|%s|%s|%d\r\n",
-			name, filename, partnum, disp, cbtype, length, NULL);
+		fwrite(content, length, 1, imfp->output_fp);
 	}
+
 }
 
 
@@ -248,6 +254,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 
 	/*
 	 * Anything else must be a part specifier.
+	 * (Note value of 1 passed as 'dont_decode' so client gets it encoded)
 	 */
 	else {
 		safestrncpy(imfp.desired_section, section,
@@ -255,8 +262,9 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 		imfp.output_fp = tmp;
 
 		mime_parser(msg->cm_fields['M'], NULL,
-				*imap_fetch_part,
-				(void *)&imfp);
+				*imap_load_part,
+				(void *)&imfp,
+				1);
 	}
 
 
