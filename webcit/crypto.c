@@ -14,7 +14,7 @@
 #include "webcit.h"
 #include "webserver.h"
 
-#define	CTDL_CRYPTO_DIR		"./keys"
+#define	CTDL_CRYPTO_DIR		WEBCITDIR "/keys"
 #define CTDL_KEY_PATH		CTDL_CRYPTO_DIR "/citadel.key"
 #define CTDL_CSR_PATH		CTDL_CRYPTO_DIR "/citadel.csr"
 #define CTDL_CER_PATH		CTDL_CRYPTO_DIR "/citadel.cer"
