@@ -17,6 +17,7 @@ struct citimap {
 	int num_msgs;		/* Number of messages being mapped */
 	long *msgids;
 	unsigned int *flags;
+	char desired_part[256];	/* for part fetches */
 };
 
 /*

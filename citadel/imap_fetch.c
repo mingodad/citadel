@@ -36,6 +36,7 @@
 #include "msgbase.h"
 #include "tools.h"
 #include "internet_addressing.h"
+#include "mime_parser.h"
 #include "serv_imap.h"
 #include "imap_tools.h"
 #include "imap_fetch.h"
@@ -154,10 +155,29 @@ void imap_fetch_rfc822(int msgnum, char *whichfmt) {
 }
 
 
+
+/*
+ * FIXME this is TOTALLY BROKEN!!!
+ */
+void imap_fetch_part(char *name, char *filename, char *partnum, char *disp,
+		    void *content, char *cbtype, size_t length)
+{
+
+	if (!strcasecmp(partnum, IMAP->desired_part)) {
+		cprintf("part=%s|%s|%s|%s|%s|%d\r\n",
+			name, filename, partnum, disp, cbtype, length);
+	}
+}
+
+
+
+
+
 /*
  * Implements the BODY and BODY.PEEK fetch items
  */
-void imap_fetch_body(long msgnum, char *item, int is_peek) {
+void imap_fetch_body(long msgnum, char *item, int is_peek,
+		struct CtdlMessage *msg) {
 	char section[1024];
 	char partial[1024];
 	int is_partial = 0;
@@ -216,6 +236,15 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 		fprintf(tmp, "\r\n");	/* add the trailing newline */
 	}
 
+	/*
+	 * Anything else must be a part specifier.
+	 */
+	else {
+		safestrncpy(IMAP->desired_part, section,
+				sizeof(IMAP->desired_part));
+		mime_parser(msg->cm_fields['M'], NULL, *imap_fetch_part);
+	}
+
 
 	fseek(tmp, 0L, SEEK_END);
 	bytes_remaining = ftell(tmp);
@@ -265,10 +294,10 @@ void imap_do_fetch_msg(int seq, struct CtdlMessage *msg,
 	for (i=0; i<num_items; ++i) {
 
 		if (!strncasecmp(itemlist[i], "BODY[", 5)) {
-			imap_fetch_body(IMAP->msgids[seq-1], itemlist[i], 0);
+			imap_fetch_body(IMAP->msgids[seq-1], itemlist[i], 0, msg);
 		}
 		else if (!strncasecmp(itemlist[i], "BODY.PEEK[", 10)) {
-			imap_fetch_body(IMAP->msgids[seq-1], itemlist[i], 1);
+			imap_fetch_body(IMAP->msgids[seq-1], itemlist[i], 1, msg);
 		}
 		else if (!strcasecmp(itemlist[i], "BODYSTRUCTURE")) {
 			/* FIXME do something here */
