@@ -15,6 +15,7 @@ SERVER_TARGETS=citserver setup
 SERV_MODULES=$(MODDIR)/serv_chat.so
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform \
 	readlog rcit stats citmail netpoll mailinglist userlist
+PROXY_TARGETS=proxy
 
 client: $(CLIENT_TARGETS)
 
@@ -169,6 +170,9 @@ setup: setup.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 
 netsetup: netsetup.c config.o citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) netsetup.c config.o $(LFLAGS) -o netsetup
+
+proxy: proxy.c ipc_c_tcp.o
+	$(CC) -O $(CFLAGS) proxy.c ipc_c_tcp.o $(LFLAGS) -o proxy
 
 whobbs: whobbs.c ipc_c_tcp.o
 	$(CC) -O $(CFLAGS) whobbs.c ipc_c_tcp.o $(LFLAGS) -o whobbs
