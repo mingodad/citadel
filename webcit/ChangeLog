@@ -1,4 +1,7 @@
 $Log$
+Revision 213.20  2001/05/31 02:26:22  ajc
+* Fixed login to take you to the Lobby instead of the next room.
+
 Revision 213.19  2001/05/30 22:37:09  ajc
 * Fix to upload handler to recognize browser uploads based on *either* a "name"
   or a "filename" from the MIME parser.
@@ -566,4 +569,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
