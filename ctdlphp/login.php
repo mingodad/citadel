@@ -19,7 +19,7 @@
 
 	<table border="0" cellspacing="5" cellpadding="5" BGCOLOR="#EEEEEE">
 		<tr><td>User name:</td>
-		<td><input type="text" name="name" maxlength="25"></td></tr>
+		<td><input type="text" name="user" maxlength="25"></td></tr>
 		<tr><td>Password:</td>
 		<td><input type="password" name="pass" maxlength="20"></td></tr>
 
@@ -36,4 +36,3 @@
 <?PHP
 	bbs_page_footer();
 ?>
-

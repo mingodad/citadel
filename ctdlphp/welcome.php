@@ -20,6 +20,7 @@ tellus tortor, vehicula at, iaculis vitae, adipiscing quis, sapien. Lorem
 ipsum dolor sit amet, consectetuer adipiscing elit.</p>
 
 <a href="page2.php">Page Two</a><BR>
+<a href="who.php">Who is online?</a><BR>
 <a href="page3.php">Page Three</a><BR>
 
 <?PHP

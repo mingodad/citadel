@@ -24,6 +24,7 @@ faucibus sit amet, magna. In pretium lacus eget mi.</p>
 
 <a href="welcome.php">Page One</a><BR>
 <a href="page3.php">Page Three</a><BR>
+<a href="who.php">Who is online?</a><BR>
 
 <?PHP
 	bbs_page_footer();

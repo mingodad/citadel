@@ -1,4 +1,8 @@
  $Log$
+ Revision 1.10  2003/11/02 05:35:11  ajc
+ * who.php: added
+ * ctdlprotocol.php: worked out a tentative data API using this function.
+
  Revision 1.9  2003/11/02 04:26:11  ajc
  * Cleaned up the pages in preparation for handing it off to the extremely
    talented developers and webmasters who will soon be working on it.
@@ -41,4 +45,3 @@
 
  Revision 1.1  2003/10/31 03:47:13  ajc
  * Initial CVS import
-

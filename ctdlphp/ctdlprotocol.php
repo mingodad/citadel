@@ -145,18 +145,61 @@ function ctdl_mesg($msgname) {
 	
 	if (substr($response, 0, 1) == "1") {
 		echo "<DIV ALIGN=CENTER>\n";
-		do {
-			$buf = serv_gets();
-			if (strcasecmp($buf, "000")) {
-				echo "<TT>", $buf, "</TT><BR>\n" ;
-			}
-		} while (strcasecmp($buf, "000"));
+		while (strcmp($buf = serv_gets(), "000")) {
+			echo "<TT>", $buf, "</TT><BR>\n" ;
+		}
 		echo "</DIV>\n";
 	}
 	else {
 		echo "<B><I>", substr($response, 4), "</I></B><BR>\n";
 	}
 }
+
+
+//
+// Fetch the list of users currently logged in.
+//
+function ctdl_rwho() {
+	global $clientsocket;
+
+	serv_puts("RWHO");
+	$response = serv_gets();
+
+	if (substr($response, 0, 1) != "1") {
+		return array(0, NULL);
+	}
+	
+	$all_lines = array();
+	$num_lines = 0;
+
+	while (strcmp($buf = serv_gets(), "000")) {
+
+		$thisline = array();
+
+		$tok = strtok($buf, "|");
+		if ($tok) $thisline["session"] = $tok;
+
+		$tok = strtok("|");
+		if ($tok) $thisline["user"] = $tok;
+		
+		$tok = strtok("|");
+		if ($tok) $thisline["room"] = $tok;
+		
+		$tok = strtok("|");
+		if ($tok) $thisline["host"] = $tok;
+		
+		$tok = strtok("|");
+		if ($tok) $thisline["client"] = $tok;
+
+		// IGnore the rest of the fields for now.
+
+		$num_lines = array_push($all_lines, $thisline);
+	}
+
+	return array($num_lines, $all_lines);
+
+}
+
 
 
 ?>
