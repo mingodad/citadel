@@ -1231,8 +1231,6 @@ void session_loop(struct httprequest *req)
 		save_edit("Your bio", "EBIO", 0);
 	} else if (!strcasecmp(action, "confirm_move_msg")) {
 		confirm_move_msg();
-	} else if (!strcasecmp(action, "confirm_delete_room")) {
-		confirm_delete_room();
 	} else if (!strcasecmp(action, "delete_room")) {
 		delete_room();
 	} else if (!strcasecmp(action, "validate")) {

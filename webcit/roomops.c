@@ -947,7 +947,8 @@ void display_editroom(void)
 
 	if (!strcmp(tab, "admin")) {
 		wprintf("<UL>"
-			"<LI><A HREF=\"/confirm_delete_room\">\n"
+			"<LI><A HREF=\"/delete_room\" "
+			"onClick=\"return confirm('Are you sure you want to delete this room?');\">\n"
 			"Delete this room</A>\n"
 			"<LI><A HREF=\"/display_editroompic\">\n"
 			"Set or change the graphic for this room's banner</A>\n"
@@ -2048,59 +2049,13 @@ void zap(void)
 
 
 
-
-/*
- * Confirm deletion of the current room
- */
-void confirm_delete_room(void)
-{
-	char buf[SIZ];
-
-	serv_puts("KILL 0");
-	serv_gets(buf);
-	if (buf[0] != '2') {
-		strcpy(WC->ImportantMessage, &buf[4]);
-		display_main_menu();
-		return;
-	}
-	output_headers(1, 1, 2, 0, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">Confirm deletion of room</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div>\n<div id=\"content\">\n");
-
-	wprintf("<CENTER>");
-	wprintf("<FORM METHOD=\"GET\" ACTION=\"/delete_room\">\n");
-
-	wprintf("Are you sure you want to delete <FONT SIZE=+1>");
-	escputs(WC->wc_roomname);
-	wprintf("</FONT>?<br />\n");
-
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Delete\">");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
-
-	wprintf("</FORM></CENTER>\n");
-	wDumpContent(1);
-}
-
-
 /*
  * Delete the current room
  */
 void delete_room(void)
 {
 	char buf[SIZ];
-	char sc[SIZ];
 
-	strcpy(sc, bstr("sc"));
-
-	if (strcasecmp(sc, "Delete")) {
-		strcpy(WC->ImportantMessage,
-			"Cancelled.  This room was not deleted.");
-		display_main_menu();
-		return;
-	}
 	serv_puts("KILL 1");
 	serv_gets(buf);
 	if (buf[0] != '2') {
