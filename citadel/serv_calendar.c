@@ -198,7 +198,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 					icalproperty_get_organizer(organizer) );
 			}
 		}
-		if (!strncasecmp(organizer, "MAILTO:", 7)) {
+		if (!strncasecmp(organizer_string, "MAILTO:", 7)) {
 			strcpy(organizer_string, &organizer_string[7]);
 			striplt(organizer_string);
 		} else {
@@ -218,10 +218,9 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 			serialized_reply
 		);
 
-		/* FIXME this still causes crashy crashy badness.  */
 		msg = CtdlMakeMessage(&CC->usersupp, organizer_string,
 			CC->quickroom.QRname, 0, FMT_RFC822,
-			NULL, "FIXME subject", reply_message_text);
+			"", "FIXME subject", reply_message_text);
 	
 		if (msg != NULL) {
 			valid = validate_recipients(organizer_string);
@@ -309,8 +308,10 @@ void ical_respond(long msgnum, char *partnum, char *action) {
 			ical_send_a_reply(ird.cal, action);
 		}
 
-		/* Delete the message from the inbox */
-		/* FIXME ... do this */
+		/* Now that we've processed this message, we don't need it
+		 * anymore.  So delete it.
+		 */
+		CtdlDeleteMessages(CC->quickroom.QRname, msgnum, "");
 
 		/* Free the memory we allocated and return a response. */
 		icalcomponent_free(ird.cal);

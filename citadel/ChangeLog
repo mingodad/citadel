@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.66  2002/11/12 04:30:16  ajc
+ * Completed the invitation accept/decline code.  It now sends back a
+   correctly formated reply!  (Tested with Evolution)
+
  Revision 601.65  2002/11/11 06:21:55  error
  * Fixed minor bugs with color handling; added explicit support for handling
    the background color e.g. for transparent terminals
@@ -4210,4 +4214,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
