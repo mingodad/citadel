@@ -44,6 +44,7 @@ void output_html(void) {
 	int output_length = 0;
 	char new_window[SIZ];
 	int brak = 0;
+	int in_link = 0;
 	int i;
 	int linklen;
 
@@ -111,8 +112,23 @@ void output_html(void) {
 	strcpy(converted_msg, "");
 	ptr = msgstart;
 	while (ptr < msgend) {
+		/* Change mailto: links to WebCit mail, by replacing the
+		 * link with one that points back to our mail room.  Due to
+		 * the way we parse URL's, it'll even handle mailto: links
+		 * that have "?subject=" in them.
+		 */
+		if (!strncasecmp(ptr, "<A HREF=\"mailto:", 16)) {
+			content_length += 64;
+			converted_msg = realloc(converted_msg, content_length);
+			sprintf(&converted_msg[output_length],
+				"<A HREF=\"/display_enter"
+				"?force_room=_MAIL_&recp=");
+			output_length += 47;
+			ptr = &ptr[16];
+			++brak;
+		}
 		/* Make links open in a separate window */
-		if (!strncasecmp(ptr, "<A HREF=", 8)) {
+		else if (!strncasecmp(ptr, "<A HREF=", 8)) {
 			content_length += 64;
 			converted_msg = realloc(converted_msg, content_length);
 			sprintf(&converted_msg[output_length], new_window);
@@ -120,8 +136,8 @@ void output_html(void) {
 			ptr = &ptr[8];
 			++brak;
 		}
-		/* Turn loose URL's into hot links */
-		else if ( (brak == 0)
+		/* Turn anything that looks like a URL into a real link */
+		else if ( (in_link == 0)
 		     && (!strncasecmp(ptr, "http://", 7))) {
 				linklen = 0;
 				/* Find the end of the link */
@@ -158,6 +174,17 @@ void output_html(void) {
 				}
 		}
 		else {
+			/*
+			 * We need to know when we're inside a pair of <A>...</A>
+			 * tags, so we don't turn things that look like URL's into
+			 * links, when they're already links.
+			 */
+			if (!strncasecmp(ptr, "<A ", 3)) {
+				++in_link;
+			}
+			if (!strncasecmp(ptr, "</A", 3)) {
+				--in_link;
+			}
 			if (*ptr == '<') ++brak;
 			if (*ptr == '>') --brak;
 			converted_msg[output_length] = *ptr++;

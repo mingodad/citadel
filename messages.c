@@ -1131,8 +1131,11 @@ void display_enter(void)
 	long now;
 	struct wc_attachment *att;
 
-	output_headers(1);
+	if (strlen(bstr("force_room")) > 0) {
+		gotoroom(bstr("force_room"), 0);
+	}
 
+	output_headers(1);
 	sprintf(buf, "ENT0 0|%s|0|0", bstr("recp"));
 	serv_puts(buf);
 	serv_gets(buf);

@@ -409,6 +409,7 @@ void ical_dezonify(icalcomponent *cal);
 void partstat_as_string(char *buf, icalproperty *attendee);
 icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp);
 void check_attendee_availability(icalcomponent *supplied_vevent);
+void do_freebusy(char *req);
 #endif
 
 extern char *months[];

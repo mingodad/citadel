@@ -1,4 +1,13 @@
 $Log$
+Revision 500.9  2003/07/06 22:06:59  ajc
+* When converting "anything that looks like a URL" to a real link, first
+  make sure that it isn't already inside a link.  This fixes most of the
+  long, ugly URL strings sent by eBay.
+* Automatically dismantle mailto: links in HTML messages, and convert
+  them to WebCit mail links (clicking on it sends the user to the Mail
+  room and begins composing a new message with the recipient and subject
+  fields pre-populated).
+
 Revision 500.8  2003/06/29 20:51:21  ajc
 * Worked around a rendering bug in Satan's Browser that was causing it
   to draw the calendar month view much wider than the actual screen wdith
@@ -1518,3 +1527,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

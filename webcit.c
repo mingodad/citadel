@@ -92,11 +92,11 @@ void addurls(char *url)
 		for (a = 0; a <= b; ++a)
 			++up;
 
-		/* locate the & sign */
+		/* locate "&" and "?" delimiters */
 		ptr = up;
 		b = strlen(up);
 		for (a = 0; a < strlen(up); ++a) {
-			if (!strncmp(ptr, "&", 1)) {
+			if ( (ptr[0] == '&') || (ptr[0] == '?') ) {
 				b = a;
 				break;
 			}
