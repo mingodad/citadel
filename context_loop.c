@@ -82,6 +82,9 @@ BREAKOUT:	pthread_mutex_unlock(&SessionListMutex);
 		if (session_to_kill != NULL) {
 			pthread_mutex_lock(&session_to_kill->SessionMutex);
 			close(session_to_kill->serv_sock);
+			if (session_to_kill->preferences != NULL) {
+				free(session_to_kill->preferences);
+			}
 			pthread_mutex_unlock(&session_to_kill->SessionMutex);
 			free(session_to_kill);
 		}
