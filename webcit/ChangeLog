@@ -1,4 +1,8 @@
 $Log$
+Revision 528.4  2005/01/11 16:20:18  ajc
+* Switching doctype from XHTML to HTML 4.01 STRICT, because nothing handles
+  XHTML properly.
+
 Revision 528.3  2005/01/11 05:05:08  ajc
 * *** HUGE CHANGES ***   *** WARNING: NOT FULLY FUNCTIONAL ***
 * Ripped things apart in a big way.  The frameset is gone (except for
@@ -2162,3 +2166,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
