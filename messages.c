@@ -171,7 +171,6 @@ void read_message(long msgnum, int is_summary) {
 			mime_length = extract_int(&buf[5], 5);
 
 			if (!strcasecmp(mime_disposition, "attachment")) {
-
 				if (mime_http == NULL) {
 					mime_http = malloc(512);
 					strcpy(mime_http, "");
@@ -180,7 +179,6 @@ void read_message(long msgnum, int is_summary) {
 					mime_http = realloc(mime_http,
 						strlen(mime_http) + 512);
 				}
-	
 				sprintf(&mime_http[strlen(mime_http)],
 					"<A HREF=\"/output_mimepart?"
 					"msgnum=%ld&partnum=%s\" "
@@ -193,6 +191,23 @@ void read_message(long msgnum, int is_summary) {
 					mime_partnum, mime_filename,
 					mime_content_type, mime_length);
 			}
+
+			if ((!strcasecmp(mime_disposition, "inline"))
+			   && (!strncasecmp(mime_content_type, "image/", 6)) ){
+				if (mime_http == NULL) {
+					mime_http = malloc(512);
+					strcpy(mime_http, "");
+				}
+				else {
+					mime_http = realloc(mime_http,
+						strlen(mime_http) + 512);
+				}
+				sprintf(&mime_http[strlen(mime_http)],
+					"<IMG SRC=\"/output_mimepart?"
+					"msgnum=%ld&partnum=%s\">",
+					msgnum, mime_partnum);
+			}
+
 		}
 
 	}
