@@ -20,6 +20,7 @@
 #include "config.h"
 #include "dynloader.h"
 #include "room_ops.h"
+#include "database.h"
 
 extern struct CitContext *ContextList;
 
@@ -71,11 +72,35 @@ void Ygorl(char *username, long usernum) {
 
 void DoPurgeMessages(struct quickroom *qrbuf) {
 	struct ExpirePolicy epbuf;
+	long delnum;
 
 	GetExpirePolicy(&epbuf, qrbuf);
 	
 	lprintf(9, "ExpirePolicy for <%s> is <%d> <%ld>\n",
 		qrbuf->QRname, epbuf.expire_mode, epbuf.expire_value);
+
+	/* If the room is set to never expire messages ... do nothing */
+	if (epbuf.expire_mode == EXPIRE_NEXTLEVEL) return;
+	if (epbuf.expire_mode == EXPIRE_MANUAL) return;
+
+	get_msglist(qrbuf);
+	
+	/* Nothing to do if there aren't any messages */
+	if (CC->num_msgs == 0) return;
+
+	/* If the room is set to expire by count, do that */
+	if (epbuf.expire_mode == EXPIRE_NUMMSGS) {
+		while (CC->num_msgs > epbuf.expire_value) {
+			delnum = MessageFromList(0);
+			lprintf(9, "Expiring message %ld\n", delnum);
+			cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));
+			memcpy(&CC->msglist[0], &CC->msglist[1],
+				(sizeof(long)*(CC->num_msgs - 1)));
+			CC->num_msgs = CC->num_msgs - 1;
+			}
+		}
+
+	put_msglist(qrbuf);
 	}
 
 void PurgeMessages(void) {
