@@ -265,8 +265,10 @@ void gotoroom(char *gname, int display_name)
 	/* highest_msg_read = extract_int(&buf[4],6);
 	maxmsgnum = extract_int(&buf[4],5);
 	is_mail = (char) extract_int(&buf[4],7); */
-	is_room_aide = (char) extract_int(&buf[4],8);
 	ls = extract_long(&buf[4],6);
+
+	if (is_aide) is_room_aide = is_aide;
+	else is_room_aide = (char) extract_int(&buf[4],8);
 
 	strcpy(wc_roomname, wc_roomname);
 	wDumpContent();

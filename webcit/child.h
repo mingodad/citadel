@@ -44,3 +44,5 @@ void readloop(char *oper);
 void text_to_server(char *ptr);
 void display_enter(void);
 void post_message(void);
+void confirm_delete_msg(void);
+void delete_msg(void);

@@ -137,13 +137,13 @@ char *oper; {
 
 		wprintf("<A HREF=\"/confirm_move_msg");
 		wprintf("&msgid=%ld", msgnum);
-		wprintf("&referer=%s\">Move</A>", oper);
+		wprintf("\">Move</A>");
 
 		wprintf("&nbsp;&nbsp;");
 
 		wprintf("<A HREF=\"/confirm_delete_msg");
 		wprintf("&msgid=%ld", msgnum);
-		wprintf("&referer=%s\">Del</A>", oper);
+		wprintf("\">Del</A>");
 
 		wprintf("</B></FONT></TD>");
 		}
@@ -375,5 +375,76 @@ void display_enter(void) {
 
 	wprintf("</FORM></CENTER>\n");
 DONE:	wprintf("</BODY></HTML>\n");
+	wDumpContent();
+	}
+
+
+
+
+
+
+
+
+
+
+
+/*
+ * Confirm deletion of a message
+ */
+void confirm_delete_msg(void) {
+	long msgid;
+
+	msgid = atol(bstr("msgid"));
+	
+	printf("HTTP/1.0 200 OK\n");
+	output_headers();
+        wprintf("<HTML>");
+        wprintf("</HEAD><BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+
+	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+	wprintf("<B>Confirm deletion of message</B>\n");
+	wprintf("</FONT></TD></TR></TABLE>\n");
+
+	wprintf("<CENTER>");
+
+	wprintf("Are you sure you want to delete this message? <BR>\n");
+
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/delete_msg\">\n");
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgid\" VALUE=\"%s\">\n",
+		bstr("msgid"));
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"yesno\" VALUE=\"Yes\">");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"yesno\" VALUE=\"No\">");
+	wprintf("</FORM></CENTER>\n");
+
+	wprintf("</CENTER>\n");
+	wprintf("</BODY></HTML>\n");
+	wDumpContent();
+	}
+
+
+
+void delete_msg(void) {
+	long msgid;
+	char buf[256];
+
+	msgid = atol(bstr("msgid"));
+
+	printf("HTTP/1.0 200 OK\n");
+	output_headers();
+        wprintf("<HTML>");
+        wprintf("</HEAD><BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+
+	if (!strcasecmp(bstr("yesno"), "Yes")) {
+		sprintf(buf, "DELE %ld", msgid);
+		serv_puts(buf);
+		serv_gets(buf);
+		wprintf("<EM>%s</EM><BR>\n", &buf[4]);
+		}
+	else {
+		wprintf("<EM>Message not deleted.</EM><BR>\n");
+		}
+
+	wprintf("</BODY></HTML>\n");
 	wDumpContent();
 	}

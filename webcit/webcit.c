@@ -579,6 +579,14 @@ fclose(fp);
 		post_message();
 		}
 
+	else if (!strcasecmp(action, "confirm_delete_msg")) {
+		confirm_delete_msg();
+		}
+
+	else if (!strcasecmp(action, "delete_msg")) {
+		delete_msg();
+		}
+
 	/* When all else fails... */
 	else {
 		printf("HTTP/1.0 200 OK\n");
