@@ -208,9 +208,16 @@ void RemoveContext (struct CitContext *con)
 	 */
 	lprintf(CTDL_DEBUG, "Removing context for session %d\n", con->cs_pid);
 	begin_critical_section(S_SESSION_TABLE);
-	  if (con->prev) con->prev->next = con->next; else ContextList = con->next;
-	  if (con->next) con->next->prev = con->prev;
-	  --num_sessions;
+	if (con->prev) {
+		con->prev->next = con->next;
+	}
+	else {
+		ContextList = con->next;
+	}
+	if (con->next) {
+		con->next->prev = con->prev;
+	}
+	--num_sessions;
 	end_critical_section(S_SESSION_TABLE);
 
 	/* Run any cleanup routines registered by loadable modules.

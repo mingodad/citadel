@@ -211,17 +211,18 @@ void init_sysdep(void) {
 	sigaddset(&set, SIGQUIT);
 	sigaddset(&set, SIGHUP);
 	sigaddset(&set, SIGTERM);
-	sigaddset(&set, SIGSEGV);
-	sigaddset(&set, SIGILL);
-	sigaddset(&set, SIGBUS);
+	// sigaddset(&set, SIGSEGV);	commented out because
+	// sigaddset(&set, SIGILL);	we want core dumps
+	// sigaddset(&set, SIGBUS);
 	sigprocmask(SIG_UNBLOCK, &set, NULL);
+
 	signal(SIGINT, signal_cleanup);
 	signal(SIGQUIT, signal_cleanup);
 	signal(SIGHUP, signal_cleanup);
 	signal(SIGTERM, signal_cleanup);
-	signal(SIGSEGV, signal_cleanup);
-	signal(SIGILL, signal_cleanup);
-	signal(SIGBUS, signal_cleanup);
+	// signal(SIGSEGV, signal_cleanup);	commented out because
+	// signal(SIGILL, signal_cleanup);	we want core dumps
+	// signal(SIGBUS, signal_cleanup);
 
 	/*
 	 * Do not shut down the server on broken pipe signals, otherwise the
@@ -409,7 +410,8 @@ struct CitContext *MyContext(void) {
  * sessions terminate.
  */
 struct CitContext *CreateNewContext(void) {
-	struct CitContext *me, *ptr;
+	struct CitContext *me;
+	static int next_pid = 0;
 
 	me = (struct CitContext *) malloc(sizeof(struct CitContext));
 	if (me == NULL) {
@@ -430,42 +432,14 @@ struct CitContext *CreateNewContext(void) {
 	 * the list.
 	 */
 	begin_critical_section(S_SESSION_TABLE);
-
-	if (ContextList == NULL) {
-		ContextList = me;
-		me->cs_pid = 1;
-		me->prev = NULL;
-		me->next = NULL;
+	me->cs_pid = ++next_pid;
+	me->prev = NULL;
+	me->next = ContextList;
+	ContextList = me;
+	if (me->next != NULL) {
+		me->next->prev = me;
 	}
-
-	else if (ContextList->cs_pid > 1) {
-		me->prev = NULL;
-		me->next = ContextList;
-		ContextList = me;
-		me->cs_pid = 1;
-	}
-
-	else {
-		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
-			if (ptr->next == NULL) {
-				ptr->next = me;
-				me->cs_pid = ptr->cs_pid + 1;
-				me->prev = ptr;
-				me->next = NULL;
-				goto DONE;
-			}
-			else if (ptr->next->cs_pid > (ptr->cs_pid+1)) {
-				me->prev = ptr;
-				me->next = ptr->next;
-				ptr->next->prev = me;
-				ptr->next = me;
-				me->cs_pid = ptr->cs_pid + 1;
-				goto DONE;
-			}
-		}
-	}
-
-DONE:	++num_sessions;
+	++num_sessions;
 	end_critical_section(S_SESSION_TABLE);
 	return(me);
 }

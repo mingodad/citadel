@@ -1,4 +1,11 @@
  $Log$
+ Revision 641.24  2005/03/10 03:11:07  ajc
+ * Altered the algorithm by which the doubly-linked session list is
+   amended and culled.  Decided that performance is better than cute
+   session numbers (which we don't display to the users anymore anyway)
+   and we now assign a session number (CC->cs_pid) starting with 1 when the
+   server starts and incrementing indefinitely.  Need to test this more.
+
  Revision 641.23  2005/03/07 04:08:07  ajc
  * vcard.c: realloc fix
 
@@ -6523,3 +6530,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -68,7 +68,7 @@ enum {
  * modification in a linked list.
  */
 struct CitContext {
-	struct CitContext *prev;
+	struct CitContext *prev;	/* Link to previous session in list */
 	struct CitContext *next;	/* Link to next session in the list */
 
 	struct ctdluser user;	/* Database record buffers */
