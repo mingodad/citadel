@@ -1,4 +1,7 @@
 $Log$
+Revision 400.43  2002/10/21 18:29:14  ajc
+* Ask server to hunt for conflicts when displaying a meeting invitation
+
 Revision 400.42  2002/10/19 21:28:32  ajc
 * Moved the calendar meeting request reply functionality to the Citadel server
 
@@ -1084,3 +1087,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

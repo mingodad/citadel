@@ -180,8 +180,21 @@ void cal_process_object(icalcomponent *cal,
 		cal_process_object(c, recursion_level+1, msgnum, cal_partnum);
 	}
 
-	/* If this is a REQUEST, display the Accept/Decline buttons */
+	/* If this is a REQUEST, display conflicts and buttons */
 	if (the_method == ICAL_METHOD_REQUEST) {
+
+		/* Check for conflicts */
+		serv_printf("ICAL conflicts|%ld|%s|", msgnum, cal_partnum);
+		serv_gets(buf);
+		if (buf[0] == '1') {
+			while (serv_gets(buf), strcmp(buf, "000")) {
+			wprintf("<TR><TD><B><I>CONFLICT:</I></B></TD><TD>");
+			escputs(buf);
+			wprintf("</TD></TR>\n");
+			}
+		}
+
+		/* Display the Accept/Decline buttons */
 		wprintf("<TR><TD COLSPAN=2>"
 			"<FORM METHOD=\"GET\" "
 			"ACTION=\"/respond_to_request\">\n"
@@ -201,11 +214,13 @@ void cal_process_object(icalcomponent *cal,
 			"</TD></TR>\n",
 			msgnum, cal_partnum
 		);
+
 	}
 
 	/* Trailing HTML for the display of this object */
 	if (recursion_level == 0) {
-		wprintf("</TD></TR></TABLE></CENTER>\n");
+
+		wprintf("</TR></TABLE></CENTER>\n");
 	}
 }
 
