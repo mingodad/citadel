@@ -877,9 +877,10 @@ void imap_create(int num_parms, char *parms[])
 
 
 /*
- * Locate a room by its IMAP folder name, and check access to it
+ * Locate a room by its IMAP folder name, and check access to it.
+ * If zapped_ok is nonzero, we can also look for the room in the zapped list.
  */
-int imap_grabroom(char *returned_roomname, char *foldername)
+int imap_grabroom(char *returned_roomname, char *foldername, int zapped_ok)
 {
 	int ret;
 	char augmented_roomname[ROOMNAMELEN];
@@ -915,6 +916,9 @@ int imap_grabroom(char *returned_roomname, char *foldername)
 		if (ra & UA_KNOWN) {
 			ok = 1;
 		}
+		if ((zapped_ok) && (ra & UA_ZAPPED)) {
+			ok = 1;
+		}
 	}
 
 	/* Fail here if no such room */
@@ -940,7 +944,7 @@ void imap_status(int num_parms, char *parms[])
 	char savedroom[ROOMNAMELEN];
 	int msgs, new;
 
-	ret = imap_grabroom(roomname, parms[2]);
+	ret = imap_grabroom(roomname, parms[2], 0);
 	if (ret != 0) {
 		cprintf
 		    ("%s NO Invalid mailbox name or location, or access denied\r\n",
@@ -999,11 +1003,13 @@ void imap_subscribe(int num_parms, char *parms[])
 	char savedroom[ROOMNAMELEN];
 	int msgs, new;
 
-	ret = imap_grabroom(roomname, parms[2]);
+	ret = imap_grabroom(roomname, parms[2], 1);
 	if (ret != 0) {
-		cprintf
-		    ("%s NO Invalid mailbox name or location, or access denied\r\n",
-		     parms[0]);
+		cprintf(
+			"%s NO Error %d: invalid mailbox name or location, or access denied\r\n",
+			parms[0],
+			ret
+		);
 		return;
 	}
 
@@ -1040,7 +1046,7 @@ void imap_unsubscribe(int num_parms, char *parms[])
 	char savedroom[ROOMNAMELEN];
 	int msgs, new;
 
-	ret = imap_grabroom(roomname, parms[2]);
+	ret = imap_grabroom(roomname, parms[2], 0);
 	if (ret != 0) {
 		cprintf
 		    ("%s NO Invalid mailbox name or location, or access denied\r\n",
@@ -1089,7 +1095,7 @@ void imap_delete(int num_parms, char *parms[])
 	char savedroom[ROOMNAMELEN];
 	int msgs, new;
 
-	ret = imap_grabroom(roomname, parms[2]);
+	ret = imap_grabroom(roomname, parms[2], 0);
 	if (ret != 0) {
 		cprintf("%s NO Invalid mailbox name, or access denied\r\n",
 			parms[0]);

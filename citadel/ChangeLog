@@ -1,4 +1,7 @@
  $Log$
+ Revision 640.13  2005/02/20 21:10:59  ajc
+ * Repaired access control problem in IMAP SUBSCRIBE
+
  Revision 640.12  2005/02/17 16:13:59  ajc
  * Removed "Log Hooks."  This enabled the removal of a buf[SIZ] in lprintf,
    where it can potentially blow lots of stacks.
@@ -6418,4 +6421,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

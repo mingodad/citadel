@@ -5,7 +5,7 @@
 void imap_cleanup_function(void);
 void imap_greeting(void);
 void imap_command_loop(void);
-int imap_grabroom(char *returned_roomname, char *foldername);
+int imap_grabroom(char *returned_roomname, char *foldername, int zapped_ok);
 void imap_free_transmitted_message(void);
 int imap_do_expunge(void);
 
