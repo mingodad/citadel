@@ -1,4 +1,8 @@
 $Log$
+Revision 323.46  2002/07/13 04:39:59  ajc
+* Handle multipart/alternative in a nicer way, giving us the opportunity to
+  output HTML instead of converting to text/plain and back.  (Not finished.)
+
 Revision 323.45  2002/07/11 03:17:03  ajc
 * hacks to text_to_server() to transmit messages as HTML
 
@@ -858,6 +862,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
-
-
