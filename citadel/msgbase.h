@@ -48,7 +48,7 @@ void get_mm (void);
 void cmd_msgs (char *cmdbuf);
 void help_subst (char *strbuf, char *source, char *dest);
 void do_help_subst (char *buffer);
-void memfmout (int width, char *mptr, char subst);
+void memfmout (int width, char *mptr, char subst, char *nl);
 void output_mime_parts(char *);
 void cmd_msg0 (char *cmdbuf);
 void cmd_msg2 (char *cmdbuf);

@@ -468,7 +468,8 @@ void do_help_subst(char *buffer)
 void memfmout(
 	int width,		/* screen width to use */
 	char *mptr,		/* where are we going to get our text from? */
-	char subst)		/* nonzero if we should do substitutions */
+	char subst,		/* nonzero if we should do substitutions */
+	char *nl)		/* string to terminate lines with */
 {
 	int a, b, c;
 	int real = 0;
@@ -507,7 +508,7 @@ FMTA:	if (subst) {
 	if (((ch == 13) || (ch == 10)) && (old != 13) && (old != 10))
 		ch = 32;
 	if (((old == 13) || (old == 10)) && (isspace(real))) {
-		cprintf("\n");
+		cprintf("%s", nl);
 		c = 1;
 	}
 	if (ch > 126)
@@ -515,7 +516,7 @@ FMTA:	if (subst) {
 
 	if (ch > 32) {
 		if (((strlen(aaa) + c) > (width - 5)) && (strlen(aaa) > (width - 5))) {
-			cprintf("\n%s", aaa);
+			cprintf("%s%s", nl, aaa);
 			c = strlen(aaa);
 			aaa[0] = 0;
 		}
@@ -525,7 +526,7 @@ FMTA:	if (subst) {
 	}
 	if (ch == 32) {
 		if ((strlen(aaa) + c) > (width - 5)) {
-			cprintf("\n");
+			cprintf("%s", nl);
 			c = 1;
 		}
 		cprintf("%s ", aaa);
@@ -535,14 +536,14 @@ FMTA:	if (subst) {
 		goto FMTA;
 	}
 	if ((ch == 13) || (ch == 10)) {
-		cprintf("%s\n", aaa);
+		cprintf("%s%s", aaa, nl);
 		c = 1;
 		strcpy(aaa, "");
 		goto FMTA;
 	}
 	goto FMTA;
 
-FMTEND:	cprintf("%s\n", aaa);
+FMTEND:	cprintf("%s%s", aaa, nl);
 }
 
 
@@ -1049,7 +1050,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	 * message to the reader's screen width.
 	 */
 	if (TheMessage->cm_format_type == FMT_CITADEL) {
-		memfmout(80, mptr, 0);
+		memfmout(80, mptr, 0, nl);
 	}
 
 	/* If the message on disk is format 4 (MIME), we've gotta hand it

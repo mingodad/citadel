@@ -403,7 +403,7 @@ void cmd_pexp(char *argbuf)
 			cprintf("Message ");
 		cprintf("from %s:\n", ptr->sender);
 		if (ptr->text != NULL)
-			memfmout(80, ptr->text, 0);
+			memfmout(80, ptr->text, 0, "\n");
 
 		holdptr = ptr->next;
 		if (ptr->text != NULL) phree(ptr->text);
@@ -438,7 +438,7 @@ void cmd_gexp(char *argbuf) {
 		ptr->sender,				/* sender of msg */
 		config.c_nodename);			/* static for now */
 	if (ptr->text != NULL) {
-		memfmout(80, ptr->text, 0);
+		memfmout(80, ptr->text, 0, "\n");
 		if (ptr->text[strlen(ptr->text)-1] != '\n') cprintf("\n");
 		phree(ptr->text);
 		}

@@ -1,4 +1,7 @@
 $Log$
+Revision 1.466  2000/02/22 16:37:28  ajc
+* Minor tweaks to RFC822 output to keep brain-damanged MS Outlook from dying
+
 Revision 1.465  2000/02/22 04:17:56  ajc
 * Got bounce messages working (mostly ... testers, please beat this up!)
 * Changed 'FIX' comments to 'FIXME' (less conflict, plus vim highlights it!)
@@ -1647,4 +1650,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
