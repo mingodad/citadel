@@ -736,6 +736,7 @@ void load_command_set(void)
 	for (i = 0; i < MAX_EDITORS; i++)
 		strcpy(editor_paths[i], "");
 	strcpy(printcmd, "");
+	strcpy(imagecmd, "");
 	strcpy(rc_username, "");
 	strcpy(rc_password, "");
 	rc_floor_mode = 0;
@@ -823,6 +824,9 @@ void load_command_set(void)
 
 		if (!strncasecmp(buf, "printcmd=", 9))
 			strcpy(printcmd, &buf[9]);
+
+		if (!strncasecmp(buf, "imagecmd=", 9))
+			strcpy(imagecmd, &buf[9]);
 
 		if (!strncasecmp(buf, "expcmd=", 7))
 			strcpy(rc_exp_cmd, &buf[7]);

@@ -137,6 +137,10 @@ remember_passwords=0
 #
 #gotmailcmd=play gotmail.wav
 
+# If IMAGECMD is defined, users can hit 'I' to view images attached to a
+# message.  (Do not enable this command for public clients.)
+#
+#imagecmd=xv "%s"
 
 # MESSAGE READING SEMANTICS (experimental)
 #

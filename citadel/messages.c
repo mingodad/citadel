@@ -90,6 +90,9 @@ extern int editor_pid;
 extern CtdlIPC *ipc_for_signal_handlers;	/* KLUDGE cover your eyes */
 int num_urls = 0;
 char urls[MAXURLS][SIZ];
+char imagecmd[SIZ];
+int has_images = 0;				/* Current msg has images */
+struct parts *last_message_parts = NULL;	/* Parts from last msg */
 
 void ka_sigcatch(int signum)
 {
@@ -371,6 +374,8 @@ int read_message(CtdlIPC *ipc,
 	char ch;
 	int linelen;
 	int final_line_is_blank = 0;
+
+	has_images = 0;
 
 	sigcaught = 0;
 	sttybbs(1);
@@ -685,9 +690,14 @@ int read_message(CtdlIPC *ipc,
 				scr_printf("%s", ptr->filename);
 				color(DIM_WHITE);
 				scr_printf(" (%s, %ld bytes)\n", ptr->mimetype, ptr->length);
+				if (!strncmp(ptr->mimetype, "image/", 6))
+					has_images++;
 			}
 		}
 	}
+
+	/* Save the attachments info for later */
+	last_message_parts = message->attachments;
 
 	/* Now we're done */
 	free(message->text);
@@ -1292,6 +1302,75 @@ void list_urls(CtdlIPC *ipc)
 }
 
 /*
+ * View an image attached to a message
+ */
+void image_view(CtdlIPC *ipc, unsigned long msg)
+{
+	char selected_part[SIZ];
+	struct parts *ptr = last_message_parts;
+	int found = 0;
+
+	scr_printf("\n");
+	/* List available parts */
+	for (ptr = last_message_parts; ptr; ptr = ptr->next) {
+		if ((!strcasecmp(ptr->disposition, "attachment")
+		   || !strcasecmp(ptr->disposition, "inline"))
+		   && !strncmp(ptr->mimetype, "image/", 6)) {
+			color(DIM_WHITE);
+			scr_printf("Part ");
+			color(BRIGHT_MAGENTA);
+			scr_printf("%s", ptr->number);
+			if (!found) {
+				found = 1;
+				strncpy(selected_part, ptr->number, SIZ-1);
+			}
+			color(DIM_WHITE);
+			scr_printf(": ");
+			color(BRIGHT_CYAN);
+			scr_printf("%s", ptr->filename);
+			color(DIM_WHITE);
+			scr_printf(" (%s, %ld bytes)\n", ptr->mimetype, ptr->length);
+		}
+	}
+
+	while (found) {
+		found = 0;
+		strprompt("View which part (0 when done)", selected_part, SIZ-1);
+		for (ptr = last_message_parts; ptr; ptr = ptr->next) {
+			if ((!strcasecmp(ptr->disposition, "attachment")
+			   || !strcasecmp(ptr->disposition, "inline"))
+			   && !strncmp(ptr->mimetype, "image/", 6)
+			   && !strcmp(ptr->number, selected_part)) {
+				char tmp[PATH_MAX];
+				char buf[SIZ];
+				void *file = NULL; /* The downloaded file */
+				int r;
+
+				// view image
+				found = 1;
+				r = CtdlIPCAttachmentDownload(ipc, msg, selected_part, &file, progress, buf);
+				if (r / 100 != 2) {
+					scr_printf("%s\n", buf);
+				} else {
+					size_t len;
+
+					len = (size_t)extract_long(buf, 0);
+					progress(len, len);
+					scr_flush();
+					strcpy(tmp, tmpnam(NULL));
+					save_buffer(file, len, tmp);
+					free(file);
+					snprintf(buf, sizeof buf, imagecmd, tmp);
+					system(buf);
+					unlink(tmp);
+				}
+			}
+		}
+	}
+}
+ 
+
+/*
  * Read the messages in the current room
  */
 void readmsgs(CtdlIPC *ipc,
@@ -1370,6 +1449,10 @@ RAGAIN:		pagin = ((arcflag == 0)
 			screenwidth = 80;
 		}
 
+		/* clear parts list */
+		/* FIXME free() the old parts list */
+		last_message_parts = NULL;
+
 		/* now read the message... */
 		e = read_message(ipc, msg_arr[a], pagin, dest);
 
@@ -1430,6 +1513,8 @@ RMSGREAD:	scr_flush();
 			keyopt("<B>ack <A>gain <Q>uote <R>eply <N>ext <S>top m<Y> next ");
 			if (rc_url_cmd[0] && num_urls)
 				keyopt("<U>RLview ");
+			if (has_images > 0 && strlen(imagecmd) > 0)
+				keyopt("<I>mages ");
 			keyopt("<?>help -> ");
 
 			do {
@@ -1458,11 +1543,15 @@ RMSGREAD:	scr_flush();
 				    if ((e == 'u')
 					&& (strlen(rc_url_cmd) == 0))
 					e = 0;
+				if ((e == 'i')
+					&& (!strlen(imagecmd) || !has_images))
+					e = 0;
 			} while ((e != 'a') && (e != 'n') && (e != 's')
 				 && (e != 'd') && (e != 'm') && (e != 'p')
 				 && (e != 'q') && (e != 'b') && (e != 'h')
 				 && (e != 'r') && (e != 'f') && (e != '?')
-				 && (e != 'u') && (e != 'c') && (e != 'y'));
+				 && (e != 'u') && (e != 'c') && (e != 'y')
+				 && (e != 'i'));
 			switch (e) {
 			case 's':
 				scr_printf("Stop");
@@ -1506,6 +1595,9 @@ RMSGREAD:	scr_flush();
 			case 'y':
 				scr_printf("mY next");
 				break;
+			case 'i':
+				scr_printf("Images");
+				break;
 			case '?':
 				scr_printf("? <help>");
 				break;
@@ -1543,6 +1635,8 @@ RMSGREAD:	scr_flush();
 				    (" F  (save attachments to a file)\n");
 			if (strlen(rc_url_cmd) > 0)
 				scr_printf(" U  (list URL's for display)\n");
+			if (strlen(imagecmd) > 0 && has_images > 0)
+				scr_printf(" I  Image viewer\n");
 			scr_printf("\n");
 			goto RMSGREAD;
 		case 'p':
@@ -1625,6 +1719,9 @@ RMSGREAD:	scr_flush();
 			goto RMSGREAD;
 		case 'u':
 			list_urls(ipc);
+			goto RMSGREAD;
+		case 'i':
+			image_view(ipc, msg_arr[a]);
 			goto RMSGREAD;
 	    case 'y':
           { /* hack hack hack */
