@@ -11,7 +11,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
-#include <sys/time.h>
 #include <limits.h>
 #include <netinet/in.h>
 #include <netdb.h>
@@ -89,11 +88,18 @@ char *oper;
 	char buf[256];
 	char m_subject[256];
 	char from[256];
-	long now;
-	struct tm *tm;
+	char node[256];
+	char rfca[256];
+	char reply_to[512];
+	char now[256];
 	int format_type = 0;
 	int nhdr = 0;
 	int bq = 0;
+
+	strcpy(from, "");
+	strcpy(node, "");
+	strcpy(rfca, "");
+	strcpy(reply_to, "");
 
 	sprintf(buf, "MSG0 %ld", msgnum);
 	serv_puts(buf);
@@ -102,11 +108,10 @@ char *oper;
 		wprintf("<STRONG>ERROR:</STRONG> %s<BR>\n", &buf[4]);
 		return;
 	}
-	wprintf("<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0 BGCOLOR=000077><TR><TD>\n");
+	wprintf("<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=1 BGCOLOR=000077><TR><TD>\n");
 	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\" SIZE=+1 COLOR=\"FFFF00\"> ");
 	strcpy(m_subject, "");
 
-	strcpy(WC->reply_to, "nobody...xxxxx");
 	while (serv_gets(buf), strncasecmp(buf, "text", 4)) {
 		if (!strncasecmp(buf, "nhdr=yes", 8))
 			nhdr = 1;
@@ -115,11 +120,11 @@ char *oper;
 		if (!strncasecmp(buf, "type=", 5))
 			format_type = atoi(&buf[5]);
 		if (!strncasecmp(buf, "from=", 5)) {
-			wprintf("from %s ", &buf[5]);
 			strcpy(from, &buf[5]);
+			wprintf("from ");
+			escputs(from);
+			wprintf(" ");
 		}
-		if (!strncasecmp(buf, "path=", 5))
-			strcpy(WC->reply_to, &buf[5]);
 		if (!strncasecmp(buf, "subj=", 5))
 			strcpy(m_subject, &buf[5]);
 		if ((!strncasecmp(buf, "hnod=", 5))
@@ -128,29 +133,42 @@ char *oper;
 		if ((!strncasecmp(buf, "room=", 5))
 		    && (strcasecmp(&buf[5], WC->wc_roomname)))
 			wprintf("in %s> ", &buf[5]);
+		if (!strncasecmp(buf, "rfca=", 5)) {
+			strcpy(rfca, &buf[5]);
+			wprintf("&lt;");
+			escputs(rfca);
+			wprintf("&gt; ");
+		}
 
 		if (!strncasecmp(buf, "node=", 5)) {
-			if ((WC->room_flags & QR_NETWORK)
+			if ( ((WC->room_flags & QR_NETWORK)
 			|| ((strcasecmp(&buf[5], serv_info.serv_nodename)
-			&& (strcasecmp(&buf[5], serv_info.serv_fqdn))))) {
+			&& (strcasecmp(&buf[5], serv_info.serv_fqdn)))))
+			&& (strlen(rfca)==0)
+			) {
 				wprintf("@%s ", &buf[5]);
-			}
-			if ((!strcasecmp(&buf[5], serv_info.serv_nodename))
-			|| (!strcasecmp(&buf[5], serv_info.serv_fqdn))) {
-				strcpy(WC->reply_to, from);
-			} else if (haschar(&buf[5], '.') == 0) {
-				sprintf(WC->reply_to, "%s @ %s", from, &buf[5]);
 			}
 		}
 		if (!strncasecmp(buf, "rcpt=", 5))
 			wprintf("to %s ", &buf[5]);
 		if (!strncasecmp(buf, "time=", 5)) {
-			now = atol(&buf[5]);
-			tm = (struct tm *) localtime(&now);
-			strcpy(buf, (char *) asctime(tm));
-			buf[strlen(buf) - 1] = 0;
-			strcpy(&buf[16], &buf[19]);
-			wprintf("%s ", &buf[4]);
+			fmt_date(now, atol(&buf[5]));
+			wprintf("%s ", now);
+		}
+	}
+
+
+	/* Generate a reply-to address */
+	if (strlen(rfca) > 0) {
+		strcpy(reply_to, rfca);
+	}
+	else {
+		if (strlen(node) > 0) {
+			snprintf(reply_to, sizeof(reply_to), "%s @ %s",
+				from, node);
+		}
+		else {
+			snprintf(reply_to, sizeof(reply_to), "%s", from);
 		}
 	}
 
@@ -158,26 +176,45 @@ char *oper;
 		wprintf("****");
 	wprintf("</FONT></TD>");
 
+	/* begin right-hand toolbar */
+	wprintf("<TD ALIGN=RIGHT>\n"
+		"<TABLE BORDER=0><TR>\n");
+
+	wprintf("<TD BGCOLOR=\"AAAADD\">"
+		"<A HREF=\"/display_enter?recp=");
+	urlescputs(reply_to);
+	wprintf("\">Reply</A>"
+		"</TD>\n", msgnum);
+
 	if (WC->is_room_aide) {
-		wprintf("<TD ALIGN=RIGHT NOWRAP><FONT FACE=\"Arial,Helvetica,sans-serif\" COLOR=\"FFFF00\"><B>");
+		wprintf("<TD BGCOLOR=\"AAAADD\">"
+			"<A HREF=\"/confirm_move_msg"
+			"&msgid=%ld"
+			"\">Move</A>"
+			"</TD>\n", msgnum);
 
-		wprintf("<A HREF=\"/confirm_move_msg");
-		wprintf("&msgid=%ld", msgnum);
-		wprintf("\">Move</A>");
+		wprintf("<TD BGCOLOR=\"AAAADD\">"
+			"<A HREF=\"/confirm_delete_msg"
+			"&msgid=%ld"
+			"\">Del</A>"
+			"</TD>\n", msgnum);
 
-		wprintf("&nbsp;&nbsp;");
-
-		wprintf("<A HREF=\"/confirm_delete_msg");
-		wprintf("&msgid=%ld", msgnum);
-		wprintf("\">Del</A>");
-
-		wprintf("</B></FONT></TD>");
 	}
-	wprintf("</TR></TABLE>\n");
+
+	wprintf("</TR></TABLE>\n"
+		"</TD>\n");
+
+	/* end right-hand toolbar */
+
 
 	if (strlen(m_subject) > 0) {
-		wprintf("Subject: %s<BR>\n", m_subject);
+		wprintf("<TR><TD><FONT COLOR=\"FFFFFF\">"
+			"Subject: %s</FONT>"
+			"</TD><TD>&nbsp;</TD></TR>\n", m_subject);
 	}
+
+	wprintf("</TR></TABLE>\n");
+
 	if (format_type == 0) {
 		fmout(NULL);
 	} else {
@@ -405,7 +442,6 @@ void display_enter(void)
 DONE:	wDumpContent(1);
 	wprintf("</FONT>");
 }
-
 
 
 

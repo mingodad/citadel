@@ -254,3 +254,4 @@ void mime_parser(char *content,
                    char *cbencoding,
                    void *cbcontent,                                                                char *cbtype,                                                                   size_t cblength)
 );
+void fmt_date(char *buf, time_t thetime);

@@ -332,7 +332,7 @@ void output_headers(int print_standard_html_head)
 	if (print_standard_html_head == 1) {
 		wprintf("<A NAME=\"TheTop\"></A>"
 			"<TABLE border=0 width=100%>"
-			"<TR VALIGN=TOP><TD>");
+			"<TR VALIGN=TOP><TD VALIGN=LEFT CELLPADDING=0>");
 
 		display_menubar(0);
 
