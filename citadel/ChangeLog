@@ -1,4 +1,8 @@
  $Log$
+ Revision 591.46  2002/06/16 21:01:11  ajc
+ * Allow Aides to create rooms in other users' namespaces (if global access
+   controls allow)
+
  Revision 591.45  2002/06/15 20:48:50  ajc
  * Fixed small bug in the e<X>pert mode toggle
 
@@ -3735,3 +3739,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -1609,9 +1609,18 @@ void cmd_cre8(char *args)
 		return;
 	}
 
-	if ((new_room_type < 0) || (new_room_type > 4)) {
+	if ((new_room_type < 0) || (new_room_type > 5)) {
 		cprintf("%d Invalid room type.\n", ERROR);
 		return;
+	}
+
+	if (new_room_type == 5) {
+		if ((config.c_aide_mailboxes == 0)
+		   || (CC->usersupp.axlevel < 6)) {
+			cprintf("%d Higher access required\n", 
+				ERROR+HIGHER_ACCESS_REQUIRED);
+			return;
+		}
 	}
 
 	/* Check to make sure the requested room name doesn't already exist */
