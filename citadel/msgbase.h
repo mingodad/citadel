@@ -32,7 +32,6 @@ enum {
 
 
 struct ma_info {
-	char prefix[SIZ];	/* Prefix for a multipart/alternative */
 	int is_ma;		/* Set to 1 if we are using this stuff */
 	int did_print;		/* One alternative has been displayed */
 };
