@@ -142,7 +142,7 @@ char was_a_key_pressed(void) {
  * we are probably in the middle of a server operation and the NOOP command
  * would confuse everything.
  */
-int checkpagin(int lp, int pagin, int height)
+int checkpagin(int lp, unsigned int pagin, unsigned int height)
 {
 	int thekey;
 
@@ -1192,8 +1192,8 @@ void sttybbs(int cmd)
 		live.c_oflag = OPOST | ONLCR;
 		live.c_lflag = ISIG | NOFLSH;
 
-		live.c_cc[VINTR] = (-1);
-		live.c_cc[VQUIT] = (-1);
+		live.c_cc[VINTR] = 0;
+		live.c_cc[VQUIT] = 0;
 
 #ifdef hpux
 		live.c_cc[VMIN] = 0;
@@ -1269,7 +1269,7 @@ int fmout(
 	char pagin,	/* nonzero if we should use the paginator */
 	int height,	/* screen height to use */
 	int starting_lp,/* starting value for lines_printed, -1 for global */
-	char subst)	/* nonzero if we should use hypertext mode */
+	int subst)	/* nonzero if we should use hypertext mode */
 {
 	int a, b, c, old;
 	int real = (-1);

@@ -74,7 +74,7 @@ int strncasecmp(char *lstr, char *rstr, int len)
 /*
  * num_tokens()  -  discover number of parameters/tokens in a string
  */
-int num_tokens(char *source, char tok) {
+int num_tokens(const char *source, char tok) {
 	int a;
 	int count = 1;
 
@@ -87,9 +87,10 @@ int num_tokens(char *source, char tok) {
 
 
 /* extract_token_fast() - a smarter string tokenizer */
-void extract_token(char *dest, char *source, int parmnum, char separator)
+void extract_token(char *dest, const char *source, unsigned long parmnum, char separator)
 {
-	char *d, *s;		/* dest, source */
+	char *d;		/* dest */
+	const char *s;		/* source */
 	int count = 0;
 
 	strcpy(dest, "");
@@ -119,7 +120,7 @@ void extract_token(char *dest, char *source, int parmnum, char separator)
 /*
  * extract_token()  -  a smarter string tokenizer
  */
-void extract_token_old(char *dest, char *source, int parmnum, char separator) 
+void extract_token_old(char *dest, const char *source, unsigned long parmnum, char separator) 
 {
 	int i;
 	int len;
@@ -131,7 +132,7 @@ void extract_token_old(char *dest, char *source, int parmnum, char separator)
 
 	if (strlen(source)==0) {
 		return;
-		}
+	}
 
 	for (i=0; i<strlen(source); ++i) {
 		if (source[i]==separator) {
@@ -147,7 +148,7 @@ void extract_token_old(char *dest, char *source, int parmnum, char separator)
 
 
 /* remove_token_fast() - a tokenizer that kills, maims, and destroys fast */
-void remove_token(char *source, int parmnum, char separator)
+void remove_token(char *source, unsigned long parmnum, char separator)
 {
 	char *d, *s;		/* dest, source */
 	int count = 0;
@@ -206,7 +207,7 @@ void remove_token_old(char *source, int parmnum, char separator)
 
 	if (strlen(source)==0) {
 		return;
-		}
+	}
 
 	for (i=0; i<strlen(source); ++i) {
 		if ( (start < 0) && (curr_parm == parmnum) ) {
@@ -232,7 +233,7 @@ void remove_token_old(char *source, int parmnum, char separator)
 /*
  * extract_int()  -  extract an int parm w/o supplying a buffer
  */
-int extract_int(char *source, int parmnum)
+int extract_int(const char *source, unsigned long parmnum)
 {
 	char buf[SIZ];
 	
@@ -243,7 +244,7 @@ int extract_int(char *source, int parmnum)
 /*
  * extract_long()  -  extract an long parm w/o supplying a buffer
  */
-long extract_long(char *source, long int parmnum)
+long extract_long(const char *source, unsigned long parmnum)
 {
 	char buf[SIZ];
 	
@@ -251,6 +252,17 @@ long extract_long(char *source, long int parmnum)
 	return(atol(buf));
 }
 
+
+/*
+ * extract_unsigned_long() - extract an unsigned long parm
+ */
+unsigned long extract_unsigned_long(const char *source, unsigned long parmnum)
+{
+	char buf[SIZ];
+
+	extract_token(buf, source, parmnum, '|');
+	return strtoul(buf, NULL, 10);
+}
 
 
 /*
@@ -260,7 +272,7 @@ long extract_long(char *source, long int parmnum)
  * the separate executables, and using the ones in our code exclusively.
  */
 
-void CtdlEncodeBase64(char *dest, char *source, int sourcelen)
+void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen)
 {
     int i, hiteof = FALSE;
     int spos = 0;
@@ -320,7 +332,7 @@ void CtdlEncodeBase64(char *dest, char *source, int sourcelen)
  * Convert base64-encoded to binary.  Returns the length of the decoded data.
  * It will stop after reading 'length' bytes.
  */
-int CtdlDecodeBase64(char *dest, char *source, size_t length)
+int CtdlDecodeBase64(char *dest, const char *source, size_t length)
 {
     int i, c;
     int dpos = 0;

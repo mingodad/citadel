@@ -14,8 +14,8 @@ struct pre555usersupp {			/* User record                      */
 	int posted;			/* Number of messages posted (ever) */
 	char fullname[26];		/* Name for Citadel messages & mail */
 	char axlevel;			/* Access level                     */
-	CIT_UBYTE USscreenwidth;	/* Screen width (for textmode users)*/
-	CIT_UBYTE USscreenheight;	/* Screen height(for textmode users)*/
+	cit_uint8_t USscreenwidth;	/* Screen width (for textmode users)*/
+	cit_uint8_t USscreenheight;	/* Screen height(for textmode users)*/
 	long usernum;			/* User number (never recycled)     */
 	time_t lastcall;		/* Last time the user called        */
 	char USname[30];		/*                                  */

@@ -37,7 +37,7 @@
 void sttybbs(int cmd);
 void hit_any_key(void);
 void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto);
-void progress(long int curr, long int cmax);
+void progress(unsigned long curr, unsigned long cmax);
 int pattern(char *search, char *patn);
 int file_checksum(char *filename);
 int nukedir(char *dirname);
@@ -305,7 +305,7 @@ void listzrooms(CtdlIPC *ipc)
 }
 
 
-int set_room_attr(CtdlIPC *ipc, int ibuf, char *prompt, unsigned int sbit)
+int set_room_attr(CtdlIPC *ipc, unsigned int ibuf, char *prompt, unsigned int sbit)
 {
 	int a;
 
@@ -377,7 +377,7 @@ int select_floor(CtdlIPC *ipc, int rfloor)
 void editthisroom(CtdlIPC *ipc)
 {
 	int rbump = 0;
-	char raide[32];
+	char raide[USERNAME_SIZE];
 	char buf[SIZ];
 	struct quickroom *attr = NULL;
 	struct ExpirePolicy *eptr = NULL;
@@ -635,7 +635,7 @@ void download(CtdlIPC *ipc, int proto)
 	int broken = 0;
 	int r;
 	void *file = NULL;	/* The downloaded file */
-	long filelen = 0L;	/* The downloaded file length */
+	size_t filelen = 0L;	/* The downloaded file length */
 
 	if ((room_flags & QR_DOWNLOAD) == 0) {
 		scr_printf("*** You cannot download from this room.\n");
@@ -652,7 +652,7 @@ void download(CtdlIPC *ipc, int proto)
 			scr_printf("%s\n", buf);
 			return;
 		}
-		save_buffer(file, extract_long(buf, 0), tempname);
+		save_buffer(file, (size_t)extract_long(buf, 0), tempname);
 		free(file);
 		return;
 	}
@@ -662,7 +662,7 @@ void download(CtdlIPC *ipc, int proto)
 		scr_printf("%s\n", buf);
 		return;
 	}
-	filelen = extract_long(buf, 0);
+	filelen = extract_unsigned_long(buf, 0);
 
 	/* Meta-download for public clients */
 	/* scr_printf("Fetching file from Citadel server...\n"); */
@@ -670,6 +670,7 @@ void download(CtdlIPC *ipc, int proto)
 	snprintf(tempname, sizeof tempname, "%s/%s", tempdir, filename);
 	tpipe = fopen(tempname, "wb");
 	if (fwrite(file, filelen, 1, tpipe) < filelen) {
+		/* FIXME: restart syscall on EINTR */
 		broken = 1;
 	}
 	fclose(tpipe);

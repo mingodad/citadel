@@ -38,7 +38,7 @@ void strprompt(char *prompt, char *str, int len);
 int boolprompt(char *prompt, int prev_val);
 int intprompt(char *prompt, int ival, int imin, int imax);
 int fmout(int width, FILE *fpin, char *text, FILE *fpout, char pagin,
-		int height, int starting_lp, char subst);
+		int height, int starting_lp, int subst);
 int getcmd(CtdlIPC *ipc, char *argbuf);
 void display_help(CtdlIPC *ipc, char *name);
 void color(int colornum);
@@ -54,7 +54,7 @@ void keyopt(char *);
 char keymenu(char *menuprompt, char *menustring);
 void async_ka_start(void);
 void async_ka_end(void);
-int checkpagin(int lp, int pagin, int height);
+int checkpagin(int lp, unsigned int pagin, unsigned int height);
 char was_a_key_pressed(void);
 
 #ifdef __GNUC__

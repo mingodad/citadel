@@ -393,7 +393,7 @@ void cmd_oimg(char *cmdbuf)
 	char filename[SIZ];
 	char pathname[SIZ];
 	struct usersupp usbuf;
-	char which_user[32];
+	char which_user[USERNAME_SIZE];
 	int which_floor;
 	int a;
 

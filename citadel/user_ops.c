@@ -61,7 +61,7 @@
 int getuser(struct usersupp *usbuf, char name[])
 {
 
-	char lowercase_name[32];
+	char lowercase_name[USERNAME_SIZE];
 	int a;
 	struct cdbdata *cdbus;
 
@@ -105,7 +105,7 @@ int lgetuser(struct usersupp *usbuf, char *name)
  */
 void putuser(struct usersupp *usbuf)
 {
-	char lowercase_name[32];
+	char lowercase_name[USERNAME_SIZE];
 	int a;
 
 	for (a = 0; a <= strlen(usbuf->fullname); ++a) {
@@ -621,7 +621,7 @@ int purge_user(char pname[])
 {
 	char filename[64];
 	struct usersupp usbuf;
-	char lowercase_name[32];
+	char lowercase_name[USERNAME_SIZE];
 	int a;
 	struct CitContext *ccptr;
 	int user_is_logged_in = 0;

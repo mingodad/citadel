@@ -60,9 +60,9 @@ int haschar(const char *st, int ch);
 void getline(char *string, int lim);
 int file_checksum(char *filename);
 void do_edit(char *desc, char *read_cmd, char *check_cmd, char *write_cmd);
-void progress(long int curr, long int cmax);
+void progress(unsigned long curr, unsigned long cmax);
 
-long *msg_arr = NULL;
+unsigned long *msg_arr = NULL;
 int msg_arr_size = 0;
 int num_msgs;
 char rc_alt_semantics;
@@ -352,7 +352,7 @@ void citedit(CtdlIPC *ipc, FILE * fp)
  */
 int read_message(CtdlIPC *ipc,
 	long num,   /* message number */
-	char pagin, /* 0 = normal read, 1 = read with pagination, 2 = header */
+	int pagin, /* 0 = normal read, 1 = read with pagination, 2 = header */
 	FILE *dest) /* Destination file, NULL for screen */
 {
 	char buf[SIZ];
@@ -1550,7 +1550,7 @@ RMSGREAD:	scr_flush();
 				scr_printf("%s\n", cmd);
 			} else {
 				save_buffer(attachment,
-						extract_long(cmd, 0),
+						extract_unsigned_long(cmd, 0),
 						save_to);
 			}
 			if (attachment) free(attachment);

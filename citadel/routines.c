@@ -159,7 +159,7 @@ void edituser(CtdlIPC *ipc)
  * yes or no.  Yes=1 and No=0, unless 'backwards' is set to a nonzero value
  * in which case No=1 and Yes=0.
  */
-int set_attr(CtdlIPC *ipc, int sval, char *prompt, unsigned int sbit, int backwards)
+int set_attr(CtdlIPC *ipc, unsigned int sval, char *prompt, unsigned int sbit, int backwards)
 {
 	int a;
 	int temp;
@@ -388,13 +388,13 @@ char *strerror(int e)
 #endif
 
 
-void progress(long int curr, long int cmax)
+void progress(unsigned long curr, unsigned long cmax)
 {
 	static char dots[] =
 		"**************************************************";
 	char dots_printed[51];
 	char fmt[42];
-	long a;
+	unsigned long a;
 
 	if (curr >= cmax) {
 		sln_printf("\r%79s\r","");

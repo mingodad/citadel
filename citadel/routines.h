@@ -10,4 +10,4 @@ int nukedir(char *dirname);
 int num_parms(char *source);
 void strproc(char *string);
 void back(int spaces);
-void progress(long int curr, long int cmax);
+void progress(unsigned long curr, unsigned long cmax);

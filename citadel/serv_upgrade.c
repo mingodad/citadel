@@ -83,13 +83,13 @@ void do_pre555_usersupp_upgrade(void) {
 		newus.flags = usbuf.flags;
 		newus.timescalled = (long) usbuf.timescalled;
 		newus.posted = (long) usbuf.posted;
-		newus.axlevel = (CIT_UBYTE) usbuf.axlevel;
+		newus.axlevel = (cit_uint8_t) usbuf.axlevel;
 		newus.usernum = (long) usbuf.usernum;
 		newus.lastcall = (long) usbuf.lastcall;
 		newus.USuserpurge = (int) usbuf.USuserpurge;
 		strcpy(newus.fullname, usbuf.fullname);
-		newus.USscreenwidth = (CIT_UBYTE) usbuf.USscreenwidth;
-		newus.USscreenheight = (CIT_UBYTE) usbuf.USscreenheight;
+		newus.USscreenwidth = (cit_uint8_t) usbuf.USscreenwidth;
+		newus.USscreenheight = (cit_uint8_t) usbuf.USscreenheight;
 
 		putuser(&newus);
 

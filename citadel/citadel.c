@@ -68,7 +68,7 @@ char tempdir[PATH_MAX];		/* Name of general temp dir */
 char editor_path[SIZ];		/* path to external editor */
 char printcmd[SIZ];		/* print command */
 int editor_pid = (-1);
-char fullname[32];
+char fullname[USERNAME_SIZE];
 jmp_buf nextbuf;
 struct CtdlServInfo serv_info;	/* Info on the server connected */
 int screenwidth;
@@ -91,7 +91,7 @@ long highest_msg_read;		/* used for <A>bandon room cmd */
 long maxmsgnum;			/* used for <G>oto */
 char sigcaught = 0;
 char have_xterm = 0;		/* are we running on an xterm? */
-char rc_username[32];
+char rc_username[USERNAME_SIZE];
 char rc_password[32];
 char hostbuf[SIZ];
 char portbuf[SIZ];

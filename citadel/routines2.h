@@ -11,7 +11,7 @@ void cli_upload(CtdlIPC *ipc);
 void validate(CtdlIPC *ipc);
 void read_bio(CtdlIPC *ipc);
 void cli_image_upload(CtdlIPC *ipc, char *keyname);
-int room_prompt(int qrflags);
+int room_prompt(unsigned int qrflags);
 void do_internet_configuration(CtdlIPC *ipc);
 void do_ignet_configuration(CtdlIPC *ipc);
 void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment);

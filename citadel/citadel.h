@@ -13,6 +13,7 @@
 #include "sysdep.h"
 #include <limits.h>
 #include "sysconfig.h"
+#include "typesize.h"
 #include "ipcdef.h"
 
 #ifdef __cplusplus
@@ -48,15 +49,6 @@ extern "C" {
 #define tolower(x)	( ((x>='A')&&(x<='Z')) ? (x+'a'-'A') : x )
 #define NEW_CONFIG
 
-/* 
- * The only typedef we do is an 8-bit unsigned, for screen dimensions.
- * All other defs are done using standard C types.  The code assumes that
- * 'int' 'unsigned' and 'short' are at least 16 bits, and that 'long' is at
- * least 32 bits.  There are no endian dependencies in any of the Citadel
- * programs.
- */
-typedef unsigned char CIT_UBYTE;
-
 /* Various length constants */
 
 #define UGLISTLEN   100   /* you get a ungoto list of this size */
@@ -66,7 +58,7 @@ typedef unsigned char CIT_UBYTE;
 					 * in the nonce, as per the APOP RFC.
 					 */
 					 
-#define USERNAME_SIZE	32		/* The size of a username string */
+#define USERNAME_SIZE	64		/* The size of a username string */
 
 /*
  * Message expiration policy stuff
@@ -156,13 +148,13 @@ struct usersupp {			/* User record                      */
 	unsigned flags;			/* See US_ flags below              */
 	long timescalled;		/* Total number of logins           */
 	long posted;			/* Number of messages posted (ever) */
-	CIT_UBYTE axlevel;		/* Access level                     */
+	cit_uint8_t axlevel;		/* Access level                     */
 	long usernum;			/* User number (never recycled)     */
 	time_t lastcall;		/* Last time the user called        */
 	int USuserpurge;		/* Purge time (in days) for user    */
 	char fullname[64];		/* Name for Citadel messages & mail */
-	CIT_UBYTE USscreenwidth;	/* Screen width (for textmode users)*/
-	CIT_UBYTE USscreenheight;	/* Screen height(for textmode users)*/
+	cit_uint8_t USscreenwidth;	/* Screen width (for textmode users)*/
+	cit_uint8_t USscreenheight;	/* Screen height(for textmode users)*/
 };
 
 

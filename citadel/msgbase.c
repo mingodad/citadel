@@ -624,7 +624,7 @@ void memfmout(
 	int a, b, c;
 	int real = 0;
 	int old = 0;
-	CIT_UBYTE ch;
+	cit_uint8_t ch;
 	char aaa[140];
 	char buffer[SIZ];
 
@@ -770,8 +770,8 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum)
 	struct cdbdata *dmsgtext;
 	struct CtdlMessage *ret = NULL;
 	char *mptr;
-	CIT_UBYTE ch;
-	CIT_UBYTE field_header;
+	cit_uint8_t ch;
+	cit_uint8_t field_header;
 	size_t field_length;
 
 	dmsgtext = cdb_fetch(CDB_MSGMAIN, &msgnum, sizeof(long));
@@ -1089,7 +1089,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 ) {
 	int i, k;
 	char buf[1024];
-	CIT_UBYTE ch;
+	cit_uint8_t ch;
 	char allkeys[SIZ];
 	char display_name[SIZ];
 	char *mptr;

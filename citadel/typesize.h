@@ -1,7 +1,7 @@
 /* $Id$ */
 
 /*
-   This file defines macros for 8, 16, and 32 bit integers.  The macros are:
+   This file defines typedefs for 8, 16, and 32 bit integers.  They are:
    cit_int8_t	default 8-bit int
    cit_int16_t	default 16-bit int
    cit_int32_t	default 32-bit int
@@ -17,8 +17,8 @@
 
    The sizes are determined during the configure process; see the 
    AC_CHECK_SIZEOF macros in configure.in.  In no way do we assume that any
-   given datatype is any particular width, e.g. we don't assume char is one
-   byte; we check for it specifically.
+   given datatype is any particular width, e.g. we don't assume short is two
+   bytes; we check for it specifically.
 
    This might seem excessively paranoid, but I've seen some WEIRD systems
    and some bizarre compilers (Domain/OS for instance) in my time.
@@ -32,45 +32,39 @@
 # include "sysdep.h"
 #endif
 
-/* 8-bit */
+/* 8-bit - If this fails, your compiler is broken */
 #if SIZEOF_CHAR == 1
-# define cit_int8_t	char
-#elif SIZEOF_SHORT == 1
-# define cit_int8_t	short
+typedef char cit_int8_t;
+typedef signed char cit_sint8_t;
+typedef unsigned char cit_uint8_t;
 #else
 # error Unable to find an 8-bit integer datatype
 #endif
 
-/* 16-bit */
+/* 16-bit - If this fails, your compiler is broken */
 #if SIZEOF_SHORT == 2
-# define cit_int16_t	short
+typedef short cit_int16_t;
+typedef signed short cit_sint16_t;
+typedef unsigned short cit_uint16_t;
 #elif SIZEOF_INT == 2
-# define cit_int16_t	int
-#elif SIZEOF_CHAR == 2
-# define cit_int16_t	char
+typedef int cit_int16_t;
+typedef signed int cit_sint16_t;
+typedef unsigned int cit_uint16_t;
 #else
 # error Unable to find a 16-bit integer datatype
 #endif
 
-/* 32-bit */
+/* 32-bit - If this fails, your compiler is broken */
 #if SIZEOF_INT == 4
-# define cit_int32_t	int
-#elif SIZEOF_SHORT == 4
-# define cit_int32_t	short
+typedef int cit_int32_t;
+typedef signed int cit_sint32_t;
+typedef unsigned int cit_uint32_t;
 #elif SIZEOF_LONG == 4
-# define cit_int32_t	long
+typedef long cit_int32_t;
+typedef signed long cit_sint32_t;
+typedef unsigned long cit_uint32_t;
 #else
 # error Unable to find a 32-bit integer datatype
 #endif
-
-/* signed */
-#define cit_sint8_t	signed cit_int8_t
-#define cit_sint16_t	signed cit_int16_t
-#define cit_sint32_t	signed cit_int32_t
-
-/* unsigned */
-#define cit_uint8_t	unsigned cit_int8_t
-#define cit_uint16_t	unsigned cit_int16_t
-#define cit_uint32_t	unsigned cit_int32_t
 
 #endif /* _CITADEL_UX_TYPESIZE_H */

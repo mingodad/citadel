@@ -69,7 +69,7 @@ int eopen(char *name, int mode)
 */
 
 
-int room_prompt(int qrflags)
+int room_prompt(unsigned int qrflags)
 {				/* return proper room prompt character */
 	int a;
 	a = '>';

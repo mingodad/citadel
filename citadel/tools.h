@@ -1,15 +1,16 @@
 /* $Id$ */
 char *safestrncpy(char *dest, const char *src, size_t n);
-int num_tokens (char *source, char tok);
-void extract_token(char *dest, char *source, int parmnum, char separator);
-int extract_int (char *source, int parmnum);
-long int extract_long (char *source, long int parmnum);
-void CtdlEncodeBase64(char *dest, char *source, int sourcelen);
-int CtdlDecodeBase64(char *dest, char *source, size_t length);
+int num_tokens (const char *source, char tok);
+void extract_token(char *dest, const char *source, unsigned long parmnum, char separator);
+int extract_int (const char *source, unsigned long parmnum);
+long extract_long (const char *source, unsigned long parmnum);
+unsigned long extract_unsigned_long(const char *source, unsigned long parmnum);
+void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen);
+int CtdlDecodeBase64(char *dest, const char *source, size_t length);
 void striplt(char *);
 int haschar(const char *st, int ch);
 int collapsed_strcmp(char *s1, char *s2);
-void remove_token(char *source, int parmnum, char separator);
+void remove_token(char *source, unsigned long parmnum, char separator);
 void fmt_date(char *buf, size_t n, time_t thetime, int seconds);
 int is_msg_in_mset(char *mset, long msgnum);
 char *memreadline(char *start, char *buf, int maxlen);

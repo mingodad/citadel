@@ -1,5 +1,5 @@
 /* $Id$ */
-extern char fullname[32];
+extern char fullname[USERNAME_SIZE];
 extern unsigned room_flags;
 extern char room_name[ROOMNAMELEN];
 extern struct CtdlServInfo serv_info;
@@ -10,7 +10,7 @@ extern char sigcaught;
 extern char editor_path[SIZ];
 extern char printcmd[SIZ];
 extern char have_xterm;
-extern char rc_username[32];
+extern char rc_username[USERNAME_SIZE];
 extern char rc_password[32];
 extern char rc_floor_mode;
 extern time_t rc_idle_threshold;
