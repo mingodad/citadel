@@ -1,4 +1,15 @@
-$Log$
+ $Log$
+ Revision 1.489  2000/03/16 17:58:54  smw
+ Created a docs directory.
+ Moved install.txt to docs.
+ Added inetmailsetup.txt (BBS server side e-mail)
+ Added inetmailsetupmx.txt (local mail AND bbs e-mail
+ Added inetsiteconfig.txt (describes the .asi command)
+ Added siteconfig.txt (describes .asg)
+ Added chat.txt (describes changes and new chat functionality)
+ Made a couple of changes to install.txt (references to new documentation)
+ Added Steve Williams to copyright.txt as the document writer.
+
 Revision 1.488  2000/03/15 03:04:51  ajc
 * Added DEXP server command to disable incoming express messages.
 * <Q>uiet mode client side command to set/clear DEXP mode.

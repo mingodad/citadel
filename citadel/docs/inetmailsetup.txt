@@ -1,0 +1,173 @@
+
+
+
+Citadel/UX Internet E-mail setup instructions (native Citadel/UX version) 
+
+This document explains how to set up your citadel as an Internet e-mail
+capable system. Once you are through with this document you should be able to 
+have your users send mail from, and receive mail to 
+systemname@system.citadel.org. For example to send e-mail to a user at
+Uncensored! BBS via e-mail you would do the following:
+mail Patriot@uncnsrd.citadel.org 
+
+To set this up is almost insanely simple. 
+
+  1. Check for the existance of a current MTA (sendmail, qmail, etc):
+     If you see something similar to the following you're running an MTA
+     already and you'll need to shut it down:
+
+      
+ smw @ pixel % telnet localhost 25
+ Trying 127.0.0.1...
+ Connected to localhost.
+ Escape character is '^]'.
+ 220 pixel.citadel.org ESMTP Sendmail 8.9.3/8.9.3; Wed, 15 Mar 2000 19:00:53 -0500
+           
+
+
+
+     The above shows that pixel is running Sendmail version 8.9.3 and the
+current date. What this means is that Pixel is running the MX version of 
+bbs e-mail, which is described in inetmailsetupmx.txt. 
+     
+If you get a 'connection refused' message when you telnet to port 25 there's 
+nothing running and you should be able to continue. You might also want to
+turn off pop (try the above test substituting 110 for 25) and use
+citadel's pop server.
+
+This pop server will ONLY allow pop'ing of mail for your BBS users.
+For those of you who are running some kind of mail transport agent
+(as Pixel is, above) or  pop server, the following will show how to remove
+it from a RedHat Linux system:
+
+
+                               Removing Sendmail
+
+          First cd to /etc/sysconfig.
+          As root, change (I don't recommend actively removing files
+          unless you REALLY know what you're doing) the sendmail file to
+	  sendmail.old or move it from that directory completely.
+          Shut down sendmail.
+          You can either reboot or /etc/rc.d/init.d/sendmail stop, OR do a
+          ps and kill sendmail manually. Your method of choice is up to you.
+
+                             Removing Pop 
+
+          cd /etc and edit inetd.conf. Look for a few lines similar to:
+
+                 # Pop and imap mail services et al
+                 #
+                 #pop-2   stream  tcp     nowait  root    /usr/sbin/tcpd ipop2d
+                 #pop-3   stream  tcp     nowait  root    /usr/sbin/tcpd ipop3d
+                 #imap    stream  tcp     nowait  root    /usr/sbin/tcpd imapd
+            
+
+          If they're already commented out you're good to go for the
+          Citadel/UX server to take over pop. If not, you'll want to
+          comment them out. 
+
+  2.Ensure you have the correct FQDN in (.A)ide (S)ystem (G)eneral
+     This is explained in siteconfig.txt. 
+  3.Add any alias FQDN's in (.A)ide (S)ystem (I)nternet
+     Explained in inetsiteconfig.txt. 
+  4.Add a Smart Host, if you need one. 
+  5.Restart your Citadel/UX server. 
+
+
+
+Some definitions:
+
+     FQDN: Fully Qualified Doman Name:
+     If your system were called 'test' on the foobar.com network, and you
+     had an entry on the internet by which you could get to your system
+     your FQDN would be test.foobar.com. For the most part, most FQDNs
+     will be your bbsname.citadel.org. Coordinate that with Freakdog on
+     DogpoundII (telnet://dogpound2.citadel.org). 
+
+     Alias FQDN:
+     Other names by which your system can be called. 
+
+     Smart Host:
+     An internet host that relays your mail for you, or a host to which 
+     you would send ALL your mail which could go out via an MX record. 
+
+
+
+Citadel will look for an existing pop/smtp server on startup. If they don't 
+exist (and you've configured them as shown in siteconfig.txt) citadel should 
+fire them up at start time. You can check your logs to be sure, or you can 
+start the  server from a shell and watch it load. It should look similar to 
+this: 
+
+
+smw @ pixel % ./citserver
+
+Multithreaded message server for Citadel/UX
+Copyright (C) 1987-2000 by the Citadel/UX development team.
+Citadel/UX is free software, covered by the GNU General Public License, and
+you are welcome to change it and/or distribute copies of it under certain
+conditions.  There is absolutely no warranty for this software.  Please
+read the 'COPYING.txt' file for details.
+
+Loading citadel.config
+Opening databases
+This is GDBM version 1.8.0, as of May 19, 1999.
+Checking floor reference counts
+Creating base rooms (if necessary)
+Registered a new service (TCP port 504)
+Registered a new service (TCP port 0)
+Initializing loadable modules
+Registered server command CHAT (Begin real-time chat)
+Registered server command PEXP (Poll for express messages)
+Registered server command GEXP (Get express messages)
+Registered server command SEXP (Send an express message)
+Registered server command DEXP (Disable express messages)
+Registered a new session function (type 0)
+Registered a new x-msg function (priority 0)
+Loaded module: $Id$
+Registered a new session function (type 1)
+Registered a new message function (type 201)
+Registered a new message function (type 202)
+Registered server command REGI (Enter registration info)
+Registered server command GREG (Get registration info)
+Registered a new user function (type 100)
+Loaded module: $Id$
+Server-hosted upgrade level is 5.62
+Loaded module: $Id$
+Registered server command EXPI (Expire old system objects)
+Registered server command FSCK (Check message ref counts)
+Loaded module: $Id$
+citserver: Can't bind: Address already in use
+ERROR: could not bind to TCP port 25.
+Registered a new service (TCP port 0)
+Registered a new session function (type 50)
+Loaded module: $Id$
+citserver: Can't bind: Address already in use
+ERROR: could not bind to TCP port 110.
+Registered a new session function (type 0)
+Loaded module: $Id$
+Registered a new message function (type 202)Loaded module: $Id:
+serv_inetcfg.c,v 1.2 2000/02/03 03:57:35 ajc Exp $
+Registered server command RWHO (Display who is online)
+Registered server command HCHG (Masquerade hostname)
+Registered server command RCHG (Masquerade roomname)
+Registered server command UCHG (Masquerade username)
+Registered server command STEL (Enter/exit stealth mode)
+Loaded module: $Id$
+Changing uid to 513
+Starting housekeeper thread
+
+Notice the two error lines below:
+citserver: Can't bind: Address already in use
+ERROR: could not bind to TCP port 110.
+
+This means that Citadel couldn't start up pop services. Generally this
+only happens if there's something on this port. In this case it's Pixel's pop 
+server (incidentally, PixelBBS uses Citadel/UX for pop).
+
+citserver: Can't bind: Address already in use
+ERROR: could not bind to TCP port 25.
+
+This occurs whenever something is on port 25. In this case sendmail is
+there. Make SURE you've followed the above steps to remove sendmail/pop and 
+start your server again. 

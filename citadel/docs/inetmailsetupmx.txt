@@ -1,0 +1,160 @@
+
+
+
+Citadel/UX Internet E-mail setup instructions (mx version) 
+
+This document explains how to set up your citadel as an Internet e-mail
+capable system using your current MTA (eg, sendmail, qmail, etc) as
+opposed to using the Citadel/UX built-in servers.
+Once you are through with this document you should be able to have your
+users send mail from, and receive mail to
+username@bbs.bbsname.citadel.org. This version of the mailsetup document
+only pertains if you want to have local e-mail as WELL as BBS e-mail. If 
+you want ONLY your BBS users to be able to receive Internet e-mail check
+out mailsetup.html. 
+
+Note: These instructions were created using Sendmail 8.9.3. Earlier
+versions in the 8.8/8.9 line should still work, but prior to 8.8 this is
+not going to work. If you're using postfix or some aother mail server
+you're pretty much on your own, but please mail Patriot @pixel, or
+smw@pixel.citadel.org and let me know your configurations so I can add
+them to this document.
+
+
+  1.Set up an MX record for your site. 
+     Probably the most important step is this first one. This will ONLY
+     work if your internet coordinator (Freakdog @dogpound2,
+     mburger@compucomis.net if you're in the citadel.org domain) sets up
+     an MX record for your site. Or, if you have your own domain, set up
+     an MX record to point to your site. For purposes of examples I'm
+     going to use pixel (my BBS) to  show the setups. Pixel is set up as
+     pixel.citadel.org. Here's what the MX record should like
+     like in DNS on a machine in the citadel.org domain: 
+
+              bbs.pixel       IN      MX      10 pixel
+
+
+     This sets up an MX (mail exchange) id for your host and says that
+     incoming mail for  bbs.pixel.citadel.org is accepted by
+     pixel.citadel.org. Once this is set up, you should be
+     able to verify it with nslookup. Check out the nslookup session I ran
+     for Pixel, below: 
+
+     smw @ pixel % nslookup
+     Default Server:  ns1.dca.net
+     Address:  204.183.80.2
+
+     > set type=mx
+     > bbs.pixel.citadel.org
+     Server:  ns1.dca.net
+     Address:  204.183.80.2
+
+     bbs.pixel.citadel.org   preference = 10, mail exchanger = pixel.citadel.org
+     citadel.org     nameserver = linux.compucomis.net
+     citadel.org     nameserver = linux2.compucomis.net
+     citadel.org     nameserver = uncnsrd.mt-kisco.ny.us
+     citadel.org     nameserver = mansrv.manhasset.techsoftwareinc.com
+     pixel.citadel.org       internet address = 207.245.90.41
+     linux.compucomis.net    internet address = 207.8.143.10
+     linux2.compucomis.net   internet address = 207.8.143.13
+     uncnsrd.mt-kisco.ny.us  internet address = 168.100.205.221
+     >
+
+     As you can see pixel.citadel.org is listed as a mail exchanger for
+     bbs.pixel.citadel.org. Since you can see that with nslookup the
+     changes are out there and you're ready to get started. 
+
+  2.Set up sendmail 
+     
+     Sendmail has 'mailertable' functionality. If you already are running
+     sendmail with mailertable you can pretty much skip this step. If not,
+     read on:
+     
+       Locate the mailertable entry in /etc/sendmail.cf. (Kmailertable hash -o
+       /etc/mail/mailertable.db) and uncomment it. 
+       Search for the word 'mailertable again'. You should eventually
+       find an entry similar to this:
+
+
+      # not local -- try mailer table lookup
+      R$* <@ $+ > $*          $: < $2 > $1 < @ $2 > $3        extract host name
+      R< $+ . > $*            $: < $1 > $2                    strip trailing dot
+      R< $+ > $*              $: < $(mailertable $1 $) > $2   lookup
+      R< $~[ : $* > $*        $>95 < $1 : $2 > $3             check -- resolved?
+      R< $+ > $*              $: $>90 <$1> $2                 try domain
+
+          This entry should look similar to yours, and should NOT be
+          commented out. Be sure that it's uncommented.
+          Add the entry for citadel to be a local mailer:
+          Search for Mlocal, in sendmail.cf. Add the following after the
+          Mprog section:
+
+
+  Mcitadel,       P=/usr/local/citadel/citmail, F=lsDFMoqeu9S, S=10/30, R=20/40,
+                  D=$z:/, T=X-Unix, U=bbs,
+                  A=/usr/local/citadel/citmail $u
+
+
+         Notice /usr/local/citadel is the path to Pixel's citadel home
+         directory. Replace this witha your citadel's home dir.
+
+         Set up the mailertable itself: In the Kmailertable line above
+         there was a path to your
+         mailertable. In this case it's /etc/mail/mailertable.db. For
+         this example that's the file we'll use. cd /etc/mail and edit
+         mailertable. (don't worry if there's no file there called
+         mailertable. Simply create a new one.) This is the mailertable
+         for pixel:
+
+
+                       bbs.pixel.citadel.org      citadel:localhost       
+
+
+          Please note that the whitespaces are tabs. You need one after
+          bbs.mysite.org and citadel:localhost.
+          Compile the mailertable.
+          makemap -v hash mailertable.db < mailertable
+          That line simply makes a readable hashed database that sendmail
+          can read out of the mailertable entry you created. For the
+          entry above this should look similar to this:
+
+          key='bbs.pixel.citadel.org', val='citadel:localhost'
+          
+          Restart sendmail. If you're running later releases of Red Hat
+          Linux (for example) you can just do: /etc/rc.d/init.d/sendmail
+          restart. For others use the kill/restart method that  works best
+          for you.
+
+  3. In your bbs now, do a .as and change your FQDN to reflect your new MX
+     record. You should NOT have to restart citadel:
+
+                     Lobby> . Aide System configuration
+                     Node name [pixel]:
+                     Fully qualified domain name [bbs.pixel.citadel.org]:
+
+
+
+A few notes: 
+
+     Mail sent from the BBS to an internet e-mail address should go out
+immediately. E-mail coming IN to a bbs user will not process until your
+next netproc session.  On my site I had to set up a relay for
+bbs.pixel.citadel.org. In later versions of sendmail relaying is turned
+off by default. Check sendmail.cf for the following line:
+
+     FR-o /etc/mail/relay-domains
+
+If that line is commented out you're allowing relaying from any host. 
+Not recommended. I won't tell you how to run your sendmail but it's 
+usually better NOT to relay. If that line is commented out, no problems
+(aside from the obvious spam issues with relaying for the entire
+planet.:). If it isn't commented out udpdate/create the file
+
+ /etc/mail/relay-domains 
+
+and put your new entry in it. For pixel this is: bbs.pixel.citadel.org. 
+
+
+
+Please contact me with questions/problems or just to let me know it's up
+and running. I'd be interested in hearing from folks. smw@pixel.citadel.org 

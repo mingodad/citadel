@@ -1,0 +1,337 @@
+                      Citadel/UX Installation Procedure
+                 See copyright.txt for copyright information
+ 
+ 
+ OVERVIEW
+ 
+   Citadel/UX is an advanced, multiuser, client/server, room-based BBS
+program.  It is designed to handle the needs of both small dialup systems and
+large-scale Internet-connected systems.  It was originally developed on an
+Altos system running Xenix, and has been installed and tested on various
+Unix and Unix-like platforms.  The author's current development environment
+(and BBS) is a Linux/GNU system.  The current distribution includes:
+  
+    - The Citadel/UX server (this is the back end that does all processing)
+    - A text-based client program designed with the traditional Citadel "look
+      and feel" (room prompts, dot commands, and the like)
+    - A networker that can share rooms and email between multiple systems.
+      Replication can be performed via TCP/IP or any external transport.
+    - Setup programs
+    - A rich set of utilities for system administration and maintenance
+    - Documentation
+ 
+ Some knowledge of the Unix system is necessary to install and manage the
+system. It is preferable that the sysop have superuser access to the operating
+system. The following are required to install Citadel/UX:
+
+    - A Unix operating system (Linux, BSD, Solaris, DEC Unix, etc.)
+    - C compiler (such as gcc or egcs) and "make"
+    - POSIX threads
+    - TCP/IP
+    - The "gdbm" record manager
+    - Enough disk space to hold all of the programs and data
+ 
+ If you are running Citadel/UX on a Linux system, it is STRONGLY recommended
+that you use a version based on glibc v2 (also called libc6).  libc5 contains
+a number of thread safety problems.  Furthermore, most modern Linux
+distributions have libc6, pthreads, gdbm, and the compiler already installed
+and integrated for you.
+  
+    
+ NOW AVAILABLE:
+ 
+    - "WebCit", a gateway program to allow full access to Citadel/UX BBS's
+      via the World Wide Web.  Interactive access through any Web browser.
+  
+ COMING SOON: 
+  
+    - Newer and better GUI based clients.
+   
+ 
+  
+ EVERYTHING IN ITS PLACE...
+
+   Hopefully you've unpacked the distribution archive into its own directory.
+This is the directory in which all Citadel files are located and in which all
+BBS activity will take place. Several subdirectories have already been created
+during the unpacking process, and others may be created by the software if
+needed.
+ 
+   Make sure you have the "gdbm" record manager installed on your system, and
+that you have installed the libraries and headers required to compile gdbm
+programs.  Likewise, if your operating system uses a separate library to
+support POSIX threads, make sure that library is installed as well.
+   
+  
+ THE BBS LOGIN
+  
+   There will be one account in /etc/passwd which all BBS users will use to
+login to the system. This account is typically called "bbs" or "citadel" or
+something to that effect. You will tell Citadel what the user-id of that
+account is, and when someone logs in under that account, Citadel will prompt
+for a user name.
+
+The BBS login should have a unique uid. The home directory should be the
+one your BBS resides in (in this example we will use /usr/citadel) and the
+shell should be either "citadel" in that directory, or a script that will start
+up citadel (you may wish to set up an external text editor; see below).
+Example:
+ 
+ bbs::100:1:BBS Login:/usr/citadel:/usr/citadel/citadel
+  
+ When you run setup later, you will be required to tell it what the BBS
+login's numeric user ID is, so it knows what user to run as.  If you create
+an account called bbs, guest, or citadel, the setup program will automatically
+pick up the user ID by default.
+
+  For all other users in /etc/passwd, Citadel will automatically set up an
+account using the "full name" field. No password is required, since it
+assumes that if a user is logged in, he/she has already entered a password.
+Note that this does have to be enabled at compile time (see ENABLE_AUTOLOGIN
+in the Makefile).  If such an account needs to be accessed remotely (such as
+from client software), these users can use *either* their Citadel login name
+or their login name on the host computer, and their password on the host
+computer.
+   
+  
+ COMPILING THE PROGRAMS
+   
+ 
+   You can easily compile Citadel with the following commands:
+ 
+   ./configure
+   make
+   make install
+ 
+   The 'configure' script will generate a Makefile from the Makefile.in, and
+it will also write the file "sysdep.h" to your Citadel directory.  Please do
+not edit sysdep.h or Makefile.in yourself.  The configure script will figure
+out your system dependencies and set everything correctly.
+ 
+   By default, the Citadel system will install in /usr/local/citadel.  If you
+wish to place it in a different directory, you can instead do:
+ 
+   ./configure --prefix=/opt/citadel      (or whatever)
+   
+  
+   File permissions are always a bother to work with. You don't want the
+board to crash because someone couldn't access a file, but you also don't
+want shell users peeking into the binaries to do things like reading others'
+mail, finding private rooms, etc.   The Citadel server needs to be started
+as root in order to bind to a privileged port, but as soon as its
+initialization is finished, it changes its user ID to your BBS user ID in
+order to avoid security holes.
+  
+    
+ THE CITADEL.RC FILE
+ 
+ This is a change from the way things were done before.  All client-side setup
+is in a "citadel.rc" file.  The standard client looks for this file in:
+ 1. $HOME/.citadelrc
+ 2. /usr/local/lib/citadel.rc
+ 3. <compiled BBSDIR>/citadel.rc
+ 
+ The next couple of sections deal with client-side configuration.
+ 
+ USING AN EXTERNAL EDITOR FOR MESSAGES
+ 
+ Citadel/UX has a built-in message editor.  However, you can also use your
+favorite text editor to write messages.  To do this you simply put a line in
+your citadel.rc file like:
+
+editor=/usr/bin/vi
+ 
+ ...would make Citadel call the vi editor when using the .<E>nter <E>ditor
+command.  You can also make it the default editor for the <E>nter command by
+editing the citadel.rc file.  (WARNING: external editors on public systems
+can create a security hole.  Make sure there is absolutely no way for users
+to drop into the shell from the editor, or save files other than the temp file
+they are editing!)
+
+ Using this mechanism, shell users can pick their favorite editor for Citadel.
+BBS users can use external editors too; just have the bbs login call a script
+that sets the variables and then calls citadel.  I used to recommend using
+an external editor as the default, but the built-in editor is now a bit more
+robust, so the use of an external editor is definitely optional.  By the
+way, be VERY careful what editor you choose and how you set up its options.
+Giving the general public to an editor like vi or emacs can open up lots of
+security holes.
+
+
+ PRINTING MESSAGES
+ 
+ Citadel/UX can send messages to a printer, or just about anywhere else in
+your system.  The variable PRINTCMD in citadel.rc specifies what command you
+use to print.  Text is sent to the standard input (stdin) of the print command.
+ 
+ So if you did this:
+ 
+printcmd="nl|pr|lpr -dlocal"
+ 
+ ...that would add line numbers, then paginate, then print on the printer
+named "local".  There's tons of stuff you can do with this feature.  For
+example, you could use a command like "cat >>$HOME/archive" to save copies
+of important messages in a textfile.
+
+
+URL VIEWING:
+
+urlcmd=netscape -remote "openURL(%s)"
+
+...that would mean that typing 'u' in a room prompt after seeing a url in
+one of the room's messages netscape will open up for you and run that url.
+
+ SETUP AND LOGIN
+  
+   Before logging in for the first time, you must run the setup program.  Type
+"./setup" to begin this procedure.
+ 
+   The setup program will ask you what directory to place your data files in.
+You can use this functionality to keep your programs and data in different
+directories, or to run more than one BBS on the same computer.  If you don't
+use the default directory (the one specified in the Makefile), remember to
+specify the directory name again when you start up the server later on.
+   
+   If you've used older versions of Citadel/UX before, you'll notice that the
+setup program does much less than it did before.  It won't create any empty
+data files; that's now done automatically by the server the first time it
+starts.  It also asks only a few questions; that's because the rest of the
+global configuration is now done from within Citadel.
+  
+      
+ PREPARING TO START THE SERVER
+  
+   The files /etc/services and /etc/inittab must be modified in order to run
+the Citadel server.  The setup program will perform the correct modifications
+for you if you allow it to.  If you'd prefer to do it manually, or if you're
+interested in what these modifications are, then read on...
+ 
+   Before you can use Citadel, you must define the "citadel" service to your 
+system.  This is accomplished by adding a line to your /etc/services file that
+looks something like this:
+ 
+ citadel		504/tcp			# Citadel/UX Server
+   
+ 504 is the port number officially designated by the IANA for use by Citadel. 
+There should not be any need to use a different port number, unless you are 
+running multiple BBS's on the same computer and therefore need a different
+port for each one.
+ 
+  The next step is to arrange for the server to start.  The "citserver"
+program is the main Citadel server.  Before we cover the recommended method of
+starting the server, let's examine its usage options:
+ 
+ citserver [-hHomeDir] [-xDebugLevel] [-tTraceFile] [-d] [-f]
+ 
+ The options are as follows:
+ 
+ -hHomeDir     - the directory your BBS data files live in.  This should, of
+course, be a directory that you've run the "setup" program against to set up
+some data files.  If a directory is not specified, the directory name which
+was specified in the Makefile will be used.
+ 
+ -xDebugLevel  - Set the verbosity of trace messages printed.  The available 
+debugging levels are:
+    1 - Internal errors (failed thread creation, malloc problems, etc.)
+    2 - Network errors (broken sockets, failed socket creation)
+    3 - Begin and end of sessions, startup/shutdown of server
+    5 - Server commands being sent from clients
+    7 - Entry and exit of various functions 
+    8 - Entry and exit of critical sections
+    9 - Various debugging checkpoints (insanely verbose)
+  
+ -tTraceFile   - Tell the server where to send its debug/trace output.  
+Normally it is sent to stdout.
+ 
+ -d            - Run as a daemon.  This switch would be necessary if you were 
+starting the Citadel server, for example, from an rc.local script (which is 
+not recommended, because this won't allow the server to automatically restart
+when it is shut down).
+ 
+ -f            - Defragment all the databases upon startup.  This isn't
+normally necessary due to the nature of the data stored in Citadel, but the
+option is provided in case you need it.
+ 
+ 
+   The preferred method of starting the Citadel server is to place an entry in
+your /etc/inittab file.  This will conveniently bring the server up when your 
+system is up, and terminate it gracefully when your system is shutting down.  
+The exact syntax for your system may vary, but here's the entry that I use on 
+my Linux system:
+  
+ cit:2345:respawn:/appl/citadel/citserver -h/appl/citadel -t/dev/tty6 -x3
+ 
+ What I've done here is to set debugging level 3, and have the trace stuff
+output to one of my virtual consoles.  It's important to remember to turn off
+any getty that is set up on that virtual console, if you do this.  After
+making this change, the command "init q" works on most systems to tell init
+to re-read the file.  If in doubt, just reboot your computer.
+   
+   
+ LOGGING IN FOR THE FIRST TIME
+   
+   At this point, your system is ready to run. Run the citadel program from
+the shell and it will automatically create your account.  NOTE: the first
+user account to be created will automatically be set to access level 6
+(Aide).  This overcomes some obvious logistical problems - normally, Aide
+access is given by another Aide, but since there aren't any on your system
+yet, this isn't possible.
+    
+   
+ SPACE FOR ADDING YOUR OWN FEATURES (doors)
+ 
+   *** PLEASE TAKE NOTE!! ***   This function really represents the "old"
+way of doing things, and it doesn't fit in well with the client/server
+paradigm.  Please consider it "deprecated" because it may be removed at any
+time.
+ 
+   The "doorway" feature is just a generic way to add features to the system.
+I called it "Doorway" to make it resemble the doors on non-Unix boards, but as
+we all know, us Unix types don't have to write special code to access the
+modem. :-)  Anyway, when a user hits the <*> (doorway) command, Citadel does...
+ 
+   USERNAME=<username>; export USERNAME
+   ./subsystem <user number> <screen width> <access level>
+ 
+   ...so you can put whatever you want in there.  I suggest putting in a menu
+program to allow the users to pick one of a number of programs, etc.
+ 
+   Do be aware that chat and door programs will only be available when two
+conditions are met:
+ 
+    1. The client and server programs are running on the same computer
+    2. The user is running the text-based Unix client.
+ 
+   Because of these restrictions, Door programs are being utilized less and
+less every day.
+ 
+
+  
+ 
+ THE PEANUT GALLERY
+  
+   That's just about all the information you need to install the system.
+ For more information, visit the Citadel/UX web site at UNCENSORED! BBS
+ http://uncnsrd.mt-kisco.ny.us
+ 
+   Please note: if you intend to report a problem getting the Citadel server
+to run, please first check the following:
+ 
+ 1. Did you do ./configure && make && make install  ??
+ 2. Did you run setup?
+ 3. Did you start the server?
+ 
+   To report a problem, you can log on to UNCENSORED! or any other BBS on the
+Citadel network which carries the Citadel/UX> room.  Please remember to mention
+all of the following information:
+ 
+ 1. The exact nature of your difficulty
+ 2. A transcript of the error message(s) if possible
+ 3. The version of Citadel you are running
+ 4. The version of GDBM present on your system
+ 5. Which operating system you are running, and what version
+ 6. If you are running a Linux system, we need to know which distribution, and
+the version of the kernel, libc, and pthreads you are using (it would help to
+post the output of a "ldd ./citserver" command).
+
+

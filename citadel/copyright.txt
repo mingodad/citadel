@@ -6,6 +6,8 @@ Copyright (c) 1987-2000 by Art Cancro.
  
 Portions (c) 1998-2000 by Nathan Bryant, Brian Costello, and Ben Mehlman.
   
+Documentation (c) 2000 by Steve Williams.
+
 base64 encoding/decoding for MIME parser, public domain by John Walker.
  
 ICQ client code derived from ICQLIB written by Denis V. Dmitrienko.
