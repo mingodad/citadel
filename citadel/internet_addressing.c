@@ -407,7 +407,6 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 	msg->cm_format_type = FMT_RFC822;	/* internet message */
 	msg->cm_fields['M'] = rfc822;
 
-	lprintf(CTDL_DEBUG, "Unconverted RFC822 message length = %ld\n", (long)strlen(rfc822));
 	pos = 0;
 	done = 0;
 
@@ -465,8 +464,6 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 		msg->cm_fields['T'] = strdup(buf);
 	}
 
-	lprintf(CTDL_DEBUG, "RFC822 length remaining after conversion = %ld\n",
-		(long)strlen(rfc822));
 	return msg;
 }
 
