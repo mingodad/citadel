@@ -1347,41 +1347,44 @@ void *image_view_thread(void *filename)
  */
 void image_view(CtdlIPC *ipc, unsigned long msg)
 {
-	char selected_part[SIZ];
+	struct parts *selected_part = NULL;
 	struct parts *ptr = last_message_parts;
+	char part[SIZ];
 	int found = 0;
 
-	scr_printf("\n");
-	/* List available parts */
+	/* Run through available parts */
 	for (ptr = last_message_parts; ptr; ptr = ptr->next) {
 		if ((!strcasecmp(ptr->disposition, "attachment")
 		   || !strcasecmp(ptr->disposition, "inline"))
 		   && !strncmp(ptr->mimetype, "image/", 6)) {
+			if (!found) {
+				found = 1;
+				selected_part = ptr;
+				strcpy(part, selected_part->number);
+			}
+#if 0
 			color(DIM_WHITE);
 			scr_printf("Part ");
 			color(BRIGHT_MAGENTA);
 			scr_printf("%s", ptr->number);
-			if (!found) {
-				found = 1;
-				strncpy(selected_part, ptr->number, SIZ-1);
-			}
 			color(DIM_WHITE);
 			scr_printf(": ");
 			color(BRIGHT_CYAN);
 			scr_printf("%s", ptr->filename);
 			color(DIM_WHITE);
 			scr_printf(" (%s, %ld bytes)\n", ptr->mimetype, ptr->length);
+#endif
 		}
 	}
 
 	while (found) {
 		found = 0;
-		strprompt("View which part (0 when done)", selected_part, SIZ-1);
+		strprompt("View which part (0 when done)", part, SIZ-1);
 		for (ptr = last_message_parts; ptr; ptr = ptr->next) {
 			if ((!strcasecmp(ptr->disposition, "attachment")
 			   || !strcasecmp(ptr->disposition, "inline"))
 			   && !strncmp(ptr->mimetype, "image/", 6)
-			   && !strcmp(ptr->number, selected_part)) {
+			   && !strcmp(ptr->number, part)) {
 				char tmp[PATH_MAX];
 				char buf[SIZ];
 				void *file = NULL; /* The downloaded file */
@@ -1392,7 +1395,7 @@ void image_view(CtdlIPC *ipc, unsigned long msg)
 
 				// view image
 				found = 1;
-				r = CtdlIPCAttachmentDownload(ipc, msg, selected_part, &file, progress, buf);
+				r = CtdlIPCAttachmentDownload(ipc, msg, selected_part->number, &file, progress, buf);
 				if (r / 100 != 2) {
 					scr_printf("%s\n", buf);
 				} else {
@@ -1401,7 +1404,9 @@ void image_view(CtdlIPC *ipc, unsigned long msg)
 					len = (size_t)extract_long(buf, 0);
 					progress(len, len);
 					scr_flush();
-					strcpy(tmp, tmpnam(NULL));
+					snprintf(tmp, sizeof tmp, "%s.%s",
+						tmpnam(NULL),
+						selected_part->filename);
 					save_buffer(file, len, tmp);
 					free(file);
 					#if 0
