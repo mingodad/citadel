@@ -12,6 +12,8 @@ Sun Nov  1 18:47:42 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-11-01 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* serv_upgrade.c: warning fixes
+	* acconfig.h: remove ANSI_COLOR
+	* Configure, Makefile.tmpl: removed
 
 Sat Oct 31 20:48:44 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* More stoopid ANSI colour additions here and there.
