@@ -15,3 +15,22 @@ void cdb_allocate_tsd(void);
 void cdb_free_tsd(void);
 void cdb_check_handles(void);
 void cdb_trunc(int cdb);
+
+/*
+ * Database records beginning with this magic number are assumed to
+ * be compressed.  In the event that a database record actually begins with
+ * this magic number, we *must* compress it whether we want to or not,
+ * because the fetch function will try to uncompress it anyway.
+ * 
+ * (No need to #ifdef this stuff; it compiles ok even if zlib is not present
+ * and doesn't declare anything so it won't bloat the code)
+ */
+#define COMPRESS_MAGIC	0xc0ffeeee
+
+struct CtdlCompressHeader {
+	int magic;
+	size_t uncompressed_len;
+	size_t compressed_len;
+};
+
+

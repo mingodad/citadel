@@ -24,3 +24,6 @@
 
 /* Define if you have OpenSSL. */
 #undef HAVE_OPENSSL
+
+/* define this if you have zlib compression available */
+#undef HAVE_ZLIB

@@ -60,6 +60,10 @@ struct cdbtsd {			/* Thread-specific DB stuff */
 	DBC *cursors[MAXCDB];	/* Cursors, for traversals... */
 };
 
+#ifdef HAVE_ZLIB
+#include <zlib.h>
+#endif
+
 static pthread_key_t tsdkey;
 
 #define MYCURSORS	(((struct cdbtsd*)pthread_getspecific(tsdkey))->cursors)
@@ -277,6 +281,10 @@ void open_databases(void)
 	u_int32_t flags = 0;
 
 	lprintf(9, "cdb_*: open_databases() starting\n");
+#ifdef HAVE_ZLIB
+	lprintf(5, "zlib compression version %s\n", zlibVersion());
+#endif
+
         /*
          * Silently try to create the database subdirectory.  If it's
          * already there, no problem.
@@ -396,6 +404,50 @@ void close_databases(void)
         }
 }
 
+
+/*
+ * Compression functions only used if we have zlib
+ */
+#ifdef HAVE_ZLIB
+
+void cdb_decompress_if_necessary(struct cdbdata *cdb) {
+	static int magic = COMPRESS_MAGIC;
+	struct CtdlCompressHeader zheader;
+	char *uncompressed_data;
+	char *compressed_data;
+	uLongf destLen, sourceLen;
+
+	if (cdb == NULL) return;
+	if (cdb->ptr == NULL) return;
+	if (memcmp(cdb->ptr, &magic, sizeof(magic))) return;
+
+	/* At this point we know we're looking at a compressed item. */
+	memcpy(&zheader, cdb->ptr, sizeof(struct CtdlCompressHeader));
+
+	compressed_data = cdb->ptr;
+	compressed_data += sizeof(struct CtdlCompressHeader);
+
+	sourceLen = (uLongf) zheader.compressed_len;
+	destLen = (uLongf) zheader.uncompressed_len;
+	uncompressed_data = mallok(zheader.uncompressed_len);
+
+	if (uncompress(	(Bytef *) uncompressed_data,
+			&destLen,
+			compressed_data,
+			sourceLen
+	) != Z_OK) {
+		lprintf(1, "uncompress() error\n");
+		abort();
+	}
+
+	phree(cdb->ptr);
+	cdb->len = (size_t) destLen;
+	cdb->ptr = uncompressed_data;
+}
+
+#endif	/* HAVE_ZLIB */
+	
+
 /*
  * Store a piece of data.  Returns 0 if the operation was successful.  If a
  * key already exists it should be overwritten.
@@ -408,6 +460,14 @@ int cdb_store(int cdb,
   DBT dkey, ddata;
   DB_TXN *tid;
   int ret;
+
+#ifdef HAVE_ZLIB
+	struct CtdlCompressHeader zheader;
+	char *compressed_data = NULL;
+	int compressing = 0;
+	size_t buffer_len;
+	uLongf destLen;
+#endif
   
   memset(&dkey, 0, sizeof(DBT));
   memset(&ddata, 0, sizeof(DBT));
@@ -415,6 +475,36 @@ int cdb_store(int cdb,
   dkey.data = ckey;
   ddata.size = cdatalen;
   ddata.data = cdata;
+
+#ifdef HAVE_ZLIB
+	/* Only compress Visit records.  Everything else is uncompressed. */
+	if (cdb == CDB_VISIT) {
+		compressing = 1;
+		zheader.magic = COMPRESS_MAGIC;
+		zheader.uncompressed_len = cdatalen;
+		buffer_len = ( (cdatalen * 101) / 100 ) + 100
+				+ sizeof(struct CtdlCompressHeader) ;
+		destLen = (uLongf) buffer_len;
+		compressed_data = mallok(buffer_len);
+		if (compress2(
+			(Bytef *) (compressed_data +
+					sizeof(struct CtdlCompressHeader)),
+			&destLen,
+			(Bytef *) cdata,
+			(uLongf) cdatalen,
+			1
+		) != Z_OK) {
+			lprintf(1, "compress2() error\n");
+			abort();
+		}
+		zheader.compressed_len = (size_t) destLen;
+		memcpy(compressed_data, &zheader,
+			sizeof(struct CtdlCompressHeader));
+		ddata.size = (size_t)  (sizeof(struct CtdlCompressHeader) +
+						zheader.compressed_len);
+		ddata.data = compressed_data;
+	}
+#endif
   
   if (MYTID != NULL)
     {
@@ -429,6 +519,9 @@ int cdb_store(int cdb,
 		  db_strerror(ret));
 	  abort();
 	}
+#ifdef HAVE_ZLIB
+      if (compressing) phree(compressed_data);
+#endif
       return ret;
       
     }
@@ -460,6 +553,9 @@ int cdb_store(int cdb,
       else
 	{
 	  txcommit(tid);
+#ifdef HAVE_ZLIB
+	  if (compressing) phree(compressed_data);
+#endif
 	  return ret;
 	}
     }
@@ -598,6 +694,7 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
 
   tempcdb->len = dret.size;
   tempcdb->ptr = dret.data;
+  cdb_decompress_if_necessary(tempcdb);
   return (tempcdb);
 }
 
@@ -675,6 +772,7 @@ struct cdbdata *cdb_next_item(int cdb)
 	cdbret = (struct cdbdata *) mallok(sizeof(struct cdbdata));
 	cdbret->len = data.size;
 	cdbret->ptr = data.data;
+	cdb_decompress_if_necessary(cdbret);
 
 	return (cdbret);
 }
