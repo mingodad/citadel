@@ -141,6 +141,79 @@ void write_network_map(void) {
 
 
 
+/* 
+ * Check the network map and determine whether the supplied node name is
+ * valid.  If it is not a neighbor node, supply the name of a neighbor node
+ * which is the next hop.
+ */
+int is_valid_node(char *nexthop, char *node) {
+	char *ignetcfg = NULL;
+	int i;
+	char linebuf[SIZ];
+	char buf[SIZ];
+	int retval;
+	struct NetMap *nmptr;
+
+	if (node == NULL) {
+		return(-1);
+	}
+
+	/*
+	 * First try the neighbor nodes
+	 */
+	ignetcfg = CtdlGetSysConfig(IGNETCFG);
+	if (ignetcfg == NULL) {
+		if (nexthop != NULL) {
+			strcpy(nexthop, "");
+		}
+		return(-1);
+	}
+
+	retval = (-1);
+	if (nexthop != NULL) {
+		strcpy(nexthop, "");
+	}
+
+	/* Use the string tokenizer to grab one line at a time */
+	for (i=0; i<num_tokens(ignetcfg, '\n'); ++i) {
+		extract_token(linebuf, ignetcfg, i, '\n');
+		extract(buf, linebuf, 0);
+		if (!strcasecmp(buf, node)) {
+			if (nexthop != NULL) {
+				strcpy(nexthop, "");
+			}
+			retval = 0;
+		}
+	}
+
+	phree(ignetcfg);
+	if (retval == 0) {
+		return(retval);		/* yup, it's a direct neighbor */
+	}
+
+	/*	
+	 * If we get to this point we have to see if we know the next hop
+	 */
+	if (the_netmap != NULL) {
+		for (nmptr = the_netmap; nmptr != NULL; nmptr = nmptr->next) {
+			if (!strcasecmp(nmptr->nodename, node)) {
+				if (nexthop != NULL) {
+					strcpy(nexthop, nmptr->nexthop);
+				}
+				return(0);
+			}
+		}
+	}
+
+	/*
+	 * If we get to this point, the supplied node name is bogus.
+	 */
+	lprintf(5, "Invalid node name <%s>\n", node);
+	return(-1);
+}
+
+
+
 
 
 void cmd_gnet(char *argbuf) {
@@ -331,7 +404,12 @@ void network_spool_msg(long msgnum, void *userdata) {
 
 				send = 1;
 
-				/* FIXME check for valid node name */
+				/* Check for valid node name */
+				if (is_valid_node(NULL, nptr->name) != 0) {
+					lprintf(3, "Invalid node <%s>\n",
+						nptr->name);
+					send = 0;
+				}
 
 				/* Check for split horizon */
 				bang = num_tokens(msg->cm_fields['P'], '!');
@@ -521,10 +599,16 @@ void network_process_buffer(char *buffer, long size) {
 	struct CtdlMessage *msg;
 	long pos;
 	int field;
-	int a, e;
+	int a;
+	int e = MES_LOCAL;
 	struct usersupp tempUS;
 	char recp[SIZ];
+	char target_room[ROOMNAMELEN];
 
+	/* Set default target room to trash */
+	strcpy(target_room, TWITROOM);
+
+	/* Load the message into memory */
         msg = (struct CtdlMessage *) mallok(sizeof(struct CtdlMessage));
         memset(msg, 0, sizeof(struct CtdlMessage));
         msg->cm_magic = CTDLMESSAGE_MAGIC;
@@ -546,6 +630,8 @@ void network_process_buffer(char *buffer, long size) {
 		}
 	}
 
+	/* FIXME check to see if we already have this message */
+
 	/* Learn network topology from the path */
 	if ((msg->cm_fields['N'] != NULL) && (msg->cm_fields['P'] != NULL)) {
 		network_learn_topology(msg->cm_fields['N'], 
@@ -553,9 +639,9 @@ void network_process_buffer(char *buffer, long size) {
 	}
 
 	/* Does it have a recipient?  If so, validate it... */
-	if (msg->cm_fields['D'] != NULL) {
+	if (msg->cm_fields['R'] != NULL) {
 
-		safestrncpy(recp, msg->cm_fields['D'], sizeof(recp));
+		safestrncpy(recp, msg->cm_fields['R'], sizeof(recp));
 
                 e = alias(recp);        /* alias and mail type */
                 if ((recp[0] == 0) || (e == MES_ERROR)) {
@@ -566,15 +652,29 @@ void network_process_buffer(char *buffer, long size) {
                 else if (e == MES_LOCAL) {
                         a = getuser(&tempUS, recp);
                         if (a != 0) {
-
 				/* FIXME bounce the msg */
-
                         }
+			else {
+				MailboxName(target_room, &tempUS, MAILROOM);
+			}
                 }
         }
 
-	/* FIXME ... do something with it! */
+	else if (msg->cm_fields['C'] != NULL) {
+		safestrncpy(target_room,
+			msg->cm_fields['C'],
+			sizeof target_room);
+	}
 
+	else if (msg->cm_fields['O'] != NULL) {
+		safestrncpy(target_room,
+			msg->cm_fields['O'],
+			sizeof target_room);
+	}
+
+	/* save the message into a room */
+	msg->cm_flags = CM_SKIP_HOOKS;
+        CtdlSaveMsg(msg, "", target_room, 0);
 	CtdlFreeMessage(msg);
 }
 
@@ -640,7 +740,7 @@ void network_process_file(char *filename) {
 	}
 
 	fclose(fp);
-	/* unlink(filename); FIXME put back in */
+	unlink(filename);
 }
 
 
@@ -675,7 +775,6 @@ void network_do_queue(void) {
 	static time_t last_run = 0L;
 	struct RoomProcList *ptr;
 
-#define NETWORK_QUEUE_FREQUENCY 3600	/* one hour ... FIXME put in config */
 	/*
 	 * Run no more frequently than once every n seconds
 	 */

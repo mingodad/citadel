@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.38  2001/09/07 04:05:27  ajc
+ * You guessed it: still more code for the new networker.
+
  Revision 580.37  2001/09/06 05:47:29  nbryant
  check for /usr/include/db3 (for RedHat 6.2; others?)
 
@@ -2728,3 +2731,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

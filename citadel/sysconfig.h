@@ -70,7 +70,6 @@
  */
 #define MAXFLOORS	16
 
-
 /*
  * Standard buffer size for string datatypes.  DO NOT CHANGE!  Not only does
  * there exist a minimum buffer size for certain protocols (such as IMAP), but
@@ -85,6 +84,10 @@
 #define	SMTP_RETRY_INTERVAL	900	/* retry sends every 15 minutes */
 #define SMTP_GIVE_UP		432000	/* give up after 5 days */
 
+/*
+ * How often to run the networker
+ */
+#define NETWORK_QUEUE_FREQUENCY 3600	/* Once per hour */
 
 /*
  * The names of rooms which are automatically created by the system
