@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.2  2001/07/11 17:01:10  ajc
+ * database_sleepycat.c: small changes to log messages
+
  Revision 580.1  2001/07/11 04:35:40  nbryant
  moved dret initialization in cdb_fetch, just in case
 
@@ -2565,4 +2568,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

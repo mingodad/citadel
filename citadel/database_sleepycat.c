@@ -490,13 +490,13 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
 	}
 
 	if ((ret != 0) && (ret != DB_NOTFOUND)) {
-		lprintf(1, "cdb_fetch: %s\n", db_strerror(ret));
+		lprintf(1, "cdb_fetch(%d): %s\n", cdb, db_strerror(ret));
 		abort();
 	}
 	if (ret != 0) return NULL;
 	tempcdb = (struct cdbdata *) mallok(sizeof(struct cdbdata));
 	if (tempcdb == NULL) {
-		lprintf(2, "cdb_fetch: Cannot allocate memory!\n");
+		lprintf(2, "cdb_fetch: Cannot allocate memory for tempcdb\n");
 		abort();
 	}
 	tempcdb->len = dret.size;
