@@ -75,13 +75,15 @@ void *context_loop(int *socknumptr) {
 	/*
 	 * Find out what it is that the web browser is asking for
 	 */
+	ContentLength = 0;
 	do {
 		client_gets(sock, buf);
 		if (!strncasecmp(buf, "Cookie: wc_session=", 19)) {
 			desired_session = atoi(&buf[19]);
 			}
-
-
+		if (!strncasecmp(buf, "Content-length: ", 16)) {
+			ContentLength = atoi(&buf[16]);
+			}
 		strcpy(&req[num_lines++][0], buf);
 		} while(strlen(buf)>0);
 
@@ -136,7 +138,10 @@ void *context_loop(int *socknumptr) {
 		write(TheSession->inpipe[1], &req[a][0], strlen(&req[a][0]));
 		write(TheSession->inpipe[1], "\n", 1);
 		}
-	/* write(TheSession->inpipe[1], "\n", 1); */
+	while (ContentLength--) {
+		read(sock, buf, 1);
+		write(TheSession->inpipe[1], buf, 1);
+		}
 
 	/*
 	 * ...and get the response (FIX for non-text)
