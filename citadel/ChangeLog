@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.54  2004/02/27 04:29:00  ajc
+ * Fixed a bug in PLAIN authentication
+
  Revision 614.53  2004/02/26 22:03:24  error
  * ;Goto floor now goes to first KNOWN room, or first room only if no known
    rooms on the floor
@@ -5417,3 +5420,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -308,7 +308,7 @@ void smtp_auth(char *argbuf) {
 		strcpy(user, &decoded_authstring[strlen(ident) + 1] );
 		strcpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2] );
 
-		if (CtdlLoginExistingUser(ident) == login_ok) {
+		if (CtdlLoginExistingUser(user) == login_ok) {
 			if (CtdlTryPassword(pass) == pass_ok) {
 				smtp_auth_greeting();
 				return;

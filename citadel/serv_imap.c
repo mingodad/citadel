@@ -746,6 +746,7 @@ void imap_create(int num_parms, char *parms[])
 	if (strchr(parms[2], '\\') != NULL) {
 		cprintf("%s NO Invalid character in folder name\r\n",
 			parms[0]);
+		lprintf(9, "invalid character in folder name\n");
 		return;
 	}
 
@@ -753,6 +754,7 @@ void imap_create(int num_parms, char *parms[])
 	if (ret < 0) {
 		cprintf("%s NO Invalid mailbox name or location\r\n",
 			parms[0]);
+		lprintf(9, "invalid mailbox name or location\n");
 		return;
 	}
 	floornum = (ret & 0x00ff);	/* lower 8 bits = floor number */
@@ -761,6 +763,7 @@ void imap_create(int num_parms, char *parms[])
 	if (flags & IR_MAILBOX) {
 		if (strncasecmp(parms[2], "INBOX|", 6)) {
 			cprintf("%s NO Personal folders must be created under INBOX\r\n", parms[0]);
+			lprintf(9, "not subordinate to inbox\n");
 			return;
 		}
 	}
@@ -782,6 +785,7 @@ void imap_create(int num_parms, char *parms[])
 	} else {
 		cprintf("%s OK CREATE completed\r\n", parms[0]);
 	}
+	lprintf(9, "imap_create() completed\n");
 }
 
 
