@@ -604,7 +604,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	char buf[SIZ];
 	int delete_existing = 0;
 	icalproperty *prop;
-	icalcomponent *vtodo;
+	icalcomponent *vtodo, *encaps;
 	int created_new_vtodo = 0;
 	int i;
 	int sequence = 0;
@@ -699,15 +699,24 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		icalcomponent_add_property(vtodo,
 			icalproperty_new_sequence(sequence)
 		);
-		
-	
+
+		/*
+		 * Encapsulate event into full VCALENDAR component.  Clone it first,
+		 * for two reasons: one, it's easier to just free the whole thing
+		 * when we're done instead of unbundling, but more importantly, we
+		 * can't encapsulate something that may already be encapsulated
+		 * somewhere else.
+		 */
+		lprintf(9, "Encapsulating into full VCALENDAR component\n");
+		encaps = ical_encapsulate_subcomponent(icalcomponent_new_clone(vtodo));
+
 		/* Serialize it and save it to the message base */
 		serv_puts("ENT0 1|||4");
 		serv_gets(buf);
 		if (buf[0] == '4') {
 			serv_puts("Content-type: text/calendar");
 			serv_puts("");
-			serv_puts(icalcomponent_as_ical_string(vtodo));
+			serv_puts(icalcomponent_as_ical_string(encaps));
 			serv_puts("000");
 
 			/* Probably not necessary; the server will see the UID
@@ -716,6 +725,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 			 */
 			delete_existing = 1;
 		}
+		icalcomponent_free(encaps);
 	}
 
 	/*

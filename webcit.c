@@ -1028,7 +1028,7 @@ void session_loop(struct httprequest *req)
 	 */
 	if (!strncasecmp(action, "groupdav", 8)) {
 						/* do GroupDAV stuff */
-		groupdav_main(req, ContentType, ContentLength, content);
+		groupdav_main(req, ContentType, ContentLength, content+body_start);
 		if (!WC->logged_in) {
 			WC->killthis = 1;	/* If not logged in, don't */
 		}				/* keep the session active */
