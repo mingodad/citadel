@@ -3,6 +3,7 @@
 *.ro
 Makefile
 aidepost
+base64
 citadel
 citadel.config
 citadel.control
@@ -22,6 +23,7 @@ netpoll
 netproc
 netsetup
 proxy
+qpdecode
 rcit
 readlog
 sendcommand
