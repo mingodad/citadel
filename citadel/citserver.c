@@ -195,15 +195,14 @@ void CtdlAllocUserData(unsigned long requested_sym, size_t num_bytes)
 
 	lprintf(9, "CtdlAllocUserData(%ld) called\n", requested_sym);
 
+	/* Fail silently if the symbol is already registered. */
 	for (ptr = CC->FirstSessData; ptr != NULL; ptr = ptr->next)  {
 		if (ptr->sym_id == requested_sym) {
-			lprintf(2, "ERROR: CtdlAllocUserData() requested for"
-			   	" symbol id %ld already registered\n", 
-				requested_sym);
 			return;
 		}
 	}
 
+	/* Grab us some memory!  Dem's good eatin' !!  */
 	ptr = mallok(sizeof(struct CtdlSessData));
 	ptr->sym_id = requested_sym;
 	ptr->sym_data = mallok(num_bytes);

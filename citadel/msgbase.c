@@ -1975,7 +1975,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 	msg->cm_anon_type = MES_NORMAL;
 	msg->cm_format_type = 4;
 	msg->cm_fields['A'] = strdoop(CC->usersupp.fullname);
-	msg->cm_fields['O'] = strdoop(roomname);
+	msg->cm_fields['O'] = strdoop(req_room);
 	msg->cm_fields['N'] = strdoop(config.c_nodename);
 	msg->cm_fields['H'] = strdoop(config.c_humannode);
 	

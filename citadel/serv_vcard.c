@@ -8,6 +8,8 @@
  *
  */
 
+#define ADDRESS_BOOK_ROOM	"Global Address Book"
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -51,6 +53,16 @@ unsigned long SYM_VCARD;
 #define VC ((struct vcard_internal_info *)CtdlGetUserData(SYM_VCARD))
 
 
+
+/*
+ * back end function used by several functions in this module
+ */
+void vcard_gm_backend(long msgnum) {
+	VC->msgnum = msgnum;
+}
+
+
+
 /*
  * This handler detects whether the user is attempting to save a new
  * vCard as part of his/her personal configuration, and handles the replace
@@ -88,14 +100,6 @@ int vcard_personal_upload(struct CtdlMessage *msg) {
 	return(0);
 }
 
-
-
-/*
- * back end function used by vcard_get_user()
- */
-void vcard_gm_backend(long msgnum) {
-	VC->msgnum = msgnum;
-}
 
 
 /*
@@ -157,8 +161,18 @@ void vcard_write_user(struct usersupp *u, struct vCard *v) {
 	}
         fclose(fp);
 
-        /* This handy API function does all the work for us */
-        CtdlWriteObject(CONFIGROOM, "text/x-vcard", temp, u, 0, 1);
+        /* This handy API function does all the work for us.
+	 * NOTE: normally we would want to set that last argument to 1, to
+	 * force the system to delete the user's old vCard.  But it doesn't
+	 * have to, because the vcard_personal_upload() hook above is going to
+	 * notice what we're trying to do, and delete the old vCard.
+	 */
+        CtdlWriteObject(CONFIGROOM,	/* which room */
+			"text/x-vcard",	/* MIME type */
+			temp,		/* temp file */
+			u,		/* which user */
+			0,		/* not binary */
+			0);		/* don't delete others of this type */
 
         unlink(temp);
 }
@@ -282,7 +296,6 @@ void cmd_greg(char *argbuf)
 
 	sprintf(adr, "%s", vcard_get_prop(v, "adr", 0));/* address... */
 
-	lprintf(9, "adr is <%s>\n", adr);
 	extract_token(buf, adr, 2, ';');
 	cprintf("%s\n", buf);				/* street */
 	extract_token(buf, adr, 3, ';');
