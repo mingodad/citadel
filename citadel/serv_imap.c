@@ -398,7 +398,7 @@ void imap_create(int num_parms, char *parms[]) {
 	int flags;
 	int newroomtype;
 
-	ret = imap_roomname(roomname, sizeof roomname, parms[1]);
+	ret = imap_roomname(roomname, sizeof roomname, parms[2]);
 	if (ret < 0) {
 		cprintf("%s NO Invalid mailbox name or location\r\n",
 			parms[0]);
