@@ -275,7 +275,7 @@ void cmd_info(void) {
 
 void cmd_rchg(char *argbuf)
 {
-	char newroomname[ROOMNAMELEN];
+	char newroomname[256];
 
 	extract(newroomname, argbuf, 0);
 	newroomname[ROOMNAMELEN-1] = 0;
@@ -291,10 +291,9 @@ void cmd_rchg(char *argbuf)
 
 void cmd_hchg(char *argbuf)
 {
-	char newhostname[25];
+	char newhostname[256];
 
 	extract(newhostname, argbuf, 0);
-	newhostname[24] = 0;
 	if (strlen(newhostname) > 0) {
 		safestrncpy(CC->fake_hostname, newhostname,
 			sizeof(CC->fake_hostname) );
@@ -305,28 +304,35 @@ void cmd_hchg(char *argbuf)
 	cprintf("%d OK\n", OK);
 }
 
-void cmd_uchg(char *newusername)
+void cmd_uchg(char *argbuf)
 {
-   if (CC->usersupp.axlevel < 6) 
-   {
-      cprintf("%d You must be an Aide to use UCHG.\n",
-		ERROR+HIGHER_ACCESS_REQUIRED);
-      return;
-   }
-   if ((newusername) && (newusername[0]))
-   {
-      CC->cs_flags &= ~CS_STEALTH;
-      memset(CC->fake_username, 0, 32);
-      if (strncasecmp(newusername, CC->curr_user, strlen(CC->curr_user)))
-         safestrncpy(CC->fake_username, newusername, sizeof(CC->fake_username));
-   }
-   else
-   {
-      CC->fake_username[0] = '\0';
-      CC->cs_flags |= CS_STEALTH;
-   }
-   cprintf("%d\n",OK);
+
+	char newusername[256];
+
+	extract(newusername, argbuf, 0);
+
+	if (CC->usersupp.axlevel < 6) {
+		cprintf("%d You must be an Aide to masquerade your name.\n",
+			ERROR+HIGHER_ACCESS_REQUIRED);
+		return;
+	}
+
+	if (strlen(newusername) > 0) {
+		CC->cs_flags &= ~CS_STEALTH;
+		memset(CC->fake_username, 0, 32);
+		if (strncasecmp(newusername, CC->curr_user,
+				strlen(CC->curr_user)))
+			safestrncpy(CC->fake_username, newusername,
+				sizeof(CC->fake_username));
+	}
+	else {
+		CC->fake_username[0] = '\0';
+		CC->cs_flags |= CS_STEALTH;
+	}
+	cprintf("%d\n",OK);
 }
+
+
 
 /*
  * returns an asterisk if there are any express messages waiting,

@@ -1,4 +1,9 @@
 $Log$
+Revision 1.411  1999/11/03 04:01:20  ajc
+* Fixed buffer overrun problems in cmd_rchg(), cmd_hchg(), and cmd_uchg()
+* Removed my email address as the feedback content from the docs; replaced
+  it with a reference to the Citadel/UX web site.
+
 Revision 1.410  1999/11/02 19:51:23  ajc
 * Fixed timeout problem for remote client sessions (all timeouts were set to
   1 second ... probably a temporary hack that was missed in the cleanup)
@@ -1417,4 +1422,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

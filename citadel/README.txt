@@ -1,6 +1,8 @@
  Citadel/UX release notes -- version 5.50
+  
+ ALL FURTHER CHANGES WILL BE IN THE "ChangeLog" FILE.
  
- Please see the file "ChangeLog" for more information.
+ Please view that file for further information.
  
  
 
@@ -184,6 +186,12 @@ off the same code.  I've looked around at the various mods people have made
 to Citadel/UX and tried to implement the most-often-added and most-requested
 features to the stock distribution.  If there's a feature you want/need that
 still isn't here, drop me a line and I'll see what I can do about adding it
-to the next release.  I can be contacted at ajc@uncnsrd.mt-kisco.ny.us or
-simply log on to my BBS at uncnsrd.mt-kisco.ny.us (internet) or 914-244-3252
-(dialup).
+to the next release.
+
+
+
+
+ For more information, visit the Citadel/UX web site at UNCENSORED! BBS
+ http://uncnsrd.mt-kisco.ny.us
+
+

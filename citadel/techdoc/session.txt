@@ -23,7 +23,8 @@ the same name but perform different functions.  If you don't coordinate new
 developments ahead of time, please at least send in an e-mail documenting
 what you did, so that your new commands can be added to this document.
  
- The coordinator of the Citadel/UX project is Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>.
+ The coordinator of the Citadel/UX project is Art Cancro
+<ajc@uncnsrd.mt-kisco.ny.us>.
     
   
  CONNECTING TO A SERVER

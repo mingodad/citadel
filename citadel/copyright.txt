@@ -29,10 +29,8 @@ ICQ client code derived from ICQLIB written by:
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  
-    Feedback concerning Citadel/UX goes to: ajc@uncnsrd.mt-kisco.ny.us 
  
-    The home of Citadel/UX is UNCENSORED! BBS:
-                    telnet://uncnsrd.mt-kisco.ny.us
-                    http://uncnsrd.mt-kisco.ny.us
-                    914-244-3252 (modem)
+ 
+ For more information, visit the Citadel/UX web site at UNCENSORED! BBS
+ http://uncnsrd.mt-kisco.ny.us
+

@@ -344,7 +344,8 @@ other.  Please refer these questions to your local sendmail wizard.
  
  THE PEANUT GALLERY
   
-   That's just about all the information you need to install the system. If
-you have any comments, suggestions, bomb threats, etc., send them to
-ajc@uncnsrd.mt-kisco.ny.us or call Uncensored Communications Group BBS at
-(914) 244-3252 (modem) or uncnsrd.mt-kisco.ny.us (Internet).
+   That's just about all the information you need to install the system.
+ For more information, visit the Citadel/UX web site at UNCENSORED! BBS
+ http://uncnsrd.mt-kisco.ny.us
+
+

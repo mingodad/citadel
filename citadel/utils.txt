@@ -120,6 +120,7 @@ properly restricted.
   
   --------------------------------------------------------------------------
    
-   That should cover all of the included utilities. Comments, suggestions,
-etc. may be sent to ajc@uncnsrd.mt-kisco.ny.us or call UNCENSORED! BBS at
-(914) 244-3252 (modem) or uncnsrd.mt-kisco.ny.us (Internet).
+   That should cover all of the included utilities.
+ For more information, visit the Citadel/UX web site at UNCENSORED! BBS
+ http://uncnsrd.mt-kisco.ny.us
+
