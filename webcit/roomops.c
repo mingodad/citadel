@@ -355,7 +355,7 @@ void embed_room_banner(char *got) {
 	if (buf[0] == '2') {
 		wprintf("<TD><FONT FACE=\"Arial,Helvetica,sans-serif\">");
 		wprintf("<IMG SRC=\"/image&name=_roompic_&room=");
-		escputs(wc_roomname);
+		urlescputs(wc_roomname);
 		wprintf("\"></FONT></TD>");
 		serv_puts("CLOS");
 		serv_gets(buf);
