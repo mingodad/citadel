@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <ctype.h>
 #include <signal.h>
 #include <pwd.h>
 #include <errno.h>
@@ -375,20 +376,19 @@ void cmd_snet(char *argbuf) {
 }
 
 
-
 /*
  * Spools out one message from the list.
  */
 void network_spool_msg(long msgnum, void *userdata) {
 	struct SpoolControl *sc;
-	struct namelist *nptr;
 	int err;
 	int i;
-	char *instr = NULL;
 	char *newpath = NULL;
+	char *instr = NULL;
 	size_t instr_len = SIZ;
 	struct CtdlMessage *msg = NULL;
 	struct CtdlMessage *imsg;
+	struct namelist *nptr;
 	struct ser_ret sermsg;
 	FILE *fp;
 	char filename[SIZ];
@@ -463,6 +463,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 		CtdlRedirectOutput(sc->digestfp, -1);
 		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
 		CtdlRedirectOutput(NULL, -1);
+		sc->num_msgs_spooled += 1;
 	}
 	
 	/*
@@ -566,6 +567,104 @@ void network_spool_msg(long msgnum, void *userdata) {
 }
 	
 
+/*
+ * Deliver digest messages
+ */
+void network_deliver_digest(struct SpoolControl *sc) {
+	char buf[SIZ];
+	int i;
+	struct CtdlMessage *msg;
+	long msglen;
+	long msgnum;
+	char *instr = NULL;
+	size_t instr_len = SIZ;
+	struct CtdlMessage *imsg;
+	struct namelist *nptr;
+
+	if (sc->num_msgs_spooled < 1) {
+		fclose(sc->digestfp);
+		sc->digestfp = NULL;
+		return;
+	}
+
+	msg = mallok(sizeof(struct CtdlMessage));
+	memset(msg, 0, sizeof(struct CtdlMessage));
+	msg->cm_magic = CTDLMESSAGE_MAGIC;
+	msg->cm_format_type = FMT_RFC822;
+	msg->cm_anon_type = MES_NORMAL;
+
+	sprintf(buf, "%ld", time(NULL));
+	msg->cm_fields['T'] = strdoop(buf);
+
+	sprintf(buf, "room_%s@%s", CC->quickroom.QRname, config.c_fqdn);
+	for (i=0; i<strlen(buf); ++i) {
+		if (isspace(buf[i])) buf[i]='_';
+		buf[i] = tolower(buf[i]);
+	}
+	msg->cm_fields['F'] = strdoop(buf);
+
+	msg->cm_fields['A'] = strdoop(CC->quickroom.QRname);
+
+	fseek(sc->digestfp, 0L, SEEK_END);
+	msglen = ftell(sc->digestfp);
+
+	msg->cm_fields['M'] = mallok(msglen + 1);
+	fseek(sc->digestfp, 0L, SEEK_SET);
+	fread(msg->cm_fields['M'], (size_t)msglen, 1, sc->digestfp);
+	msg->cm_fields['M'][msglen] = 0;
+
+	fclose(sc->digestfp);
+	sc->digestfp = NULL;
+
+	msgnum = CtdlSubmitMsg(msg, NULL, SMTP_SPOOLOUT_ROOM);
+	CtdlFreeMessage(msg);
+
+	/* Now generate the delivery instructions */
+
+	/* 
+	 * Figure out how big a buffer we need to allocate
+	 */
+	for (nptr = sc->digestrecps; nptr != NULL; nptr = nptr->next) {
+		instr_len = instr_len + strlen(nptr->name);
+	}
+	
+	/*
+ 	 * allocate...
+ 	 */
+	lprintf(9, "Generating delivery instructions\n");
+	instr = mallok(instr_len);
+	if (instr == NULL) {
+		lprintf(1, "Cannot allocate %ld bytes for instr...\n",
+			(long)instr_len);
+		abort();
+	}
+	snprintf(instr, instr_len,
+		"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
+		"bounceto|postmaster@%s\n" ,
+		SPOOLMIME, msgnum, (long)time(NULL), config.c_fqdn );
+
+	/* Generate delivery instructions for each recipient */
+	for (nptr = sc->digestrecps; nptr != NULL; nptr = nptr->next) {
+		size_t tmp = strlen(instr);
+		snprintf(&instr[tmp], instr_len - tmp,
+			 "remote|%s|0||\n", nptr->name);
+	}
+
+	/*
+ 	 * Generate a message from the instructions
+ 	 */
+  	imsg = mallok(sizeof(struct CtdlMessage));
+	memset(imsg, 0, sizeof(struct CtdlMessage));
+	imsg->cm_magic = CTDLMESSAGE_MAGIC;
+	imsg->cm_anon_type = MES_NORMAL;
+	imsg->cm_format_type = FMT_RFC822;
+	imsg->cm_fields['A'] = strdoop("Citadel");
+	imsg->cm_fields['M'] = instr;
+
+	/* Save delivery instructions in spoolout room */
+	CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM);
+	CtdlFreeMessage(imsg);
+}
 
 
 /*
@@ -634,6 +733,7 @@ void network_spoolout_room(char *room_to_spool) {
 	/* If there are digest recipients, we have to build a digest */
 	if (sc.digestrecps != NULL) {
 		sc.digestfp = tmpfile();
+		fprintf(sc.digestfp, "Content-type: text/plain\r\n\r\n");
 	}
 
 	/* Do something useful */
@@ -642,11 +742,15 @@ void network_spoolout_room(char *room_to_spool) {
 
 	/* If we wrote a digest, deliver it and then close it */
 	if (sc.digestfp != NULL) {
-		fprintf(sc->digestfp,	" -----------------------------------"
+		fprintf(sc.digestfp,	" -----------------------------------"
 					"------------------------------------"
-					"-------\r\n");
-		/* FIXME deliver it! */
-		fclose(sc.digestfp);
+					"-------\r\n"
+					"You are subscribed to the '%s' "
+					"list.\r\nTo unsubscribe, blah blah "
+					"blah FIXME.\r\n",
+					CC->quickroom.QRname
+		);
+		network_deliver_digest(&sc);	/* deliver and close */
 	}
 
 	/* Now rewrite the config file */

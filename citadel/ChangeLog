@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.76  2002/08/01 05:41:53  ajc
+ * Completion of (most of) digest mode.  Still needs some polish.
+
  Revision 591.75  2002/07/31 04:01:57  ajc
  * Began implementing "digest mode" for listserving.  (Not complete)
 
@@ -3845,4 +3848,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

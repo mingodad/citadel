@@ -9,6 +9,7 @@ struct SpoolControl {
 	struct namelist *digestrecps;
 	struct namelist *ignet_push_shares;
 	FILE *digestfp;
+	int num_msgs_spooled;
 };
 
 struct NetMap {
