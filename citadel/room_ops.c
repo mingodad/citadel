@@ -114,7 +114,7 @@ int getroom(struct quickroom *qrbuf, char *room_name)
 	for (a=0; room_name[a] && a < sizeof lowercase_name - 1; ++a) {
 		lowercase_name[a] = tolower(room_name[a]);
 		}
-	lowercase_name[sizeof lowercase_name - 1] = 0;
+	lowercase_name[a] = 0;
 
 	memset(qrbuf, 0, sizeof(struct quickroom));
 	cdbqr = cdb_fetch(CDB_QUICKROOM,
