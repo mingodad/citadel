@@ -47,6 +47,7 @@ struct UserFunctionHook *UserHookTable = NULL;
 struct XmsgFunctionHook *XmsgHookTable = NULL;
 struct MessageFunctionHook *MessageHookTable = NULL;
 struct NetprocFunctionHook *NetprocHookTable = NULL;
+struct DeleteFunctionHook *DeleteHookTable = NULL;
 struct ServiceFunctionHook *ServiceHookTable = NULL;
 
 struct ProtoFunctionHook {
@@ -398,6 +399,40 @@ void CtdlUnregisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) )
 }
 
 
+void CtdlRegisterDeleteHook(int (*handler)(char *, long) )
+{
+	struct DeleteFunctionHook *newfcn;
+
+	newfcn = (struct DeleteFunctionHook *)
+	    mallok(sizeof(struct DeleteFunctionHook));
+	newfcn->next = DeleteHookTable;
+	newfcn->h_function_pointer = handler;
+	DeleteHookTable = newfcn;
+
+	lprintf(5, "Registered a new netproc function\n");
+}
+
+
+void CtdlUnregisterDeleteHook(int (*handler)(char *, long) )
+{
+	struct DeleteFunctionHook *cur, *p;
+
+	for (cur = DeleteHookTable; cur != NULL; cur = cur->next) {
+		/* This will also remove duplicates if any */
+		while (cur != NULL &&
+				handler == cur->h_function_pointer ) {
+			lprintf(5, "Unregistered netproc function\n");
+			p = cur->next;
+			if (cur == DeleteHookTable) {
+				DeleteHookTable = p;
+			}
+			phree(cur);
+			cur = p;
+		}
+	}
+}
+
+
 void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *), int order)
 {
 
@@ -592,6 +627,16 @@ int PerformNetprocHooks(struct CtdlMessage *msg, char *target_room)
 	 * A nonzero return code will cause the message to *not* be imported.
 	 */
 	return total_retval;
+}
+
+
+void PerformDeleteHooks(char *room, long msgnum)
+{
+	struct DeleteFunctionHook *fcn;
+
+	for (fcn = DeleteHookTable; fcn != NULL; fcn = fcn->next) {
+		(*fcn->h_function_pointer) (room, msgnum);
+	}
 }
 
 

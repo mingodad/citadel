@@ -347,6 +347,16 @@ struct NetprocFunctionHook {
 extern DLEXP struct NetprocFunctionHook *NetprocHookTable;
 
 
+/*
+ * DeleteFunctionHook extensions are used for hooks which get called when a
+ * message is about to be deleted.
+ */
+struct DeleteFunctionHook {
+	struct DeleteFunctionHook *next;
+	int (*h_function_pointer) (char *target_room, long msgnum);
+};
+extern DLEXP struct DeleteFunctionHook *DeleteHookTable;
+
 
 /*
  * ExpressMessageFunctionHook extensions are used for hooks which implement

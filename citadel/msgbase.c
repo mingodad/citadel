@@ -2472,6 +2472,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	struct quickroom qrbuf;
 	struct cdbdata *cdbfr;
 	long *msglist = NULL;
+	long *dellist = NULL;
 	int num_msgs = 0;
 	int i;
 	int num_deleted = 0;
@@ -2491,6 +2492,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 
 	if (cdbfr != NULL) {
 		msglist = mallok(cdbfr->len);
+		dellist = mallok(cdbfr->len);
 		memcpy(msglist, cdbfr->ptr, cdbfr->len);
 		num_msgs = cdbfr->len / sizeof(long);
 		cdb_free(cdbfr);
@@ -2516,9 +2518,8 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 
 			/* Delete message only if all bits are set */
 			if (delete_this == 0x03) {
-				AdjRefCount(msglist[i], -1);
+				dellist[num_deleted++] = msglist[i];
 				msglist[i] = 0L;
-				++num_deleted;
 			}
 		}
 
@@ -2527,9 +2528,25 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 			  msglist, (num_msgs * sizeof(long)));
 
 		qrbuf.QRhighest = msglist[num_msgs - 1];
-		phree(msglist);
 	}
 	lputroom(&qrbuf);
+
+	/* Go through the messages we pulled out of the index, and decrement
+	 * their reference counts by 1.  If this is the only room the message
+	 * was in, the reference count will reach zero and the message will
+	 * automatically be deleted from the database.  We do this in a
+	 * separate pass because there might be plug-in hooks getting called,
+	 * and we don't want that happening during an S_QUICKROOM critical
+	 * section.
+	 */
+	if (num_deleted) for (i=0; i<num_deleted; ++i) {
+		PerformDeleteHooks(qrbuf.QRname, dellist[i]);
+		AdjRefCount(dellist[i], -1);
+	}
+
+	/* Now free the memory we used, and go away. */
+	if (msglist != NULL) phree(msglist);
+	if (dellist != NULL) phree(dellist);
 	lprintf(9, "%d message(s) deleted.\n", num_deleted);
 	return (num_deleted);
 }

@@ -37,6 +37,10 @@ void CtdlRegisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) );
 void CtdlUnregisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) );
 int PerformNetprocHooks(struct CtdlMessage *, char *);
 
+void CtdlRegisterDeleteHook(int (*handler)(char *, long) );
+void CtdlUnregisterDeleteHook(int (*handler)(char *, long) );
+void PerformDeleteHooks(char *, long);
+
 
 void CtdlRegisterCleanupHook(void (*fcn_ptr)(void));
 void CtdlUnregisterCleanupHook(void (*fcn_ptr)(void));

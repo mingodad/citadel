@@ -1,4 +1,11 @@
  $Log$
+ Revision 590.95  2002/01/30 19:03:41  ajc
+ * Added a new DeleteFunctionHook type of thing.  These get called when a
+   message is being deleted from a room.
+ * When deleting messages from a room, do the AdjRefCount() calls (and now,
+   the PerformDeleteHooks() calls) in a second pass.  This keeps that stuff
+   outside of the S_QUICKROOM critical section.
+
  Revision 590.94  2002/01/27 06:39:45  error
  * file_ops.c: fixed bug in cmd_read() which could cause server to report
    the wrong number of bytes for the client to download
@@ -3267,4 +3274,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
