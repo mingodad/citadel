@@ -158,7 +158,7 @@ void wprintf(const char *format,...)
 	char wbuf[4096];
 
 	va_start(arg_ptr, format);
-	vsprintf(wbuf, format, arg_ptr);
+	vsnprintf(wbuf, sizeof wbuf, format, arg_ptr);
 	va_end(arg_ptr);
 
 	client_write(wbuf, strlen(wbuf));
@@ -386,9 +386,9 @@ void output_headers(int controlcode)
 			WC->wc_password, WC->wc_roomname);
 
 	if (print_standard_html_head == 2) {
-		wprintf("Set-cookie: webcit=%s\n", unset);
+		wprintf("Set-cookie: webcit=%s; path=/\n", unset);
 	} else {
-		wprintf("Set-cookie: webcit=%s\n", cookie);
+		wprintf("Set-cookie: webcit=%s; path=/\n", cookie);
 		if (server_cookie != NULL) {
 			wprintf("%s\n", server_cookie);
 		}
@@ -516,7 +516,6 @@ void output_static(char *what)
 	char *bigbuffer;
 	char content_type[SIZ];
 
-	lprintf(9, "output_static(%s)\n", what);
 	sprintf(buf, "static/%s", what);
 	fp = fopen(buf, "rb");
 	if (fp == NULL) {
@@ -558,7 +557,7 @@ void output_static(char *what)
 
 		fstat(fileno(fp), &statbuf);
 		bytes = statbuf.st_size;
-		lprintf(3, "Static: %s, %ld bytes\n", what, bytes);
+		lprintf(3, "Static: %s, (%s; %ld bytes)\n", what, content_type, bytes);
 		bigbuffer = malloc(bytes + 2);
 		fread(bigbuffer, bytes, 1, fp);
 		fclose(fp);
