@@ -70,7 +70,8 @@ void imap_greeting(void) {
 	CC->internal_pgm = 1;
 	CtdlAllocUserData(SYM_IMAP, sizeof(struct citimap));
 
-	cprintf("don't go here!  this doesn't work!\r\n");
+	cprintf("* OK %s Citadel/UX IMAP4rev1 server ready\r\n",
+		config.c_fqdn);
 }
 
 
@@ -81,6 +82,7 @@ void imap_greeting(void) {
  */
 void imap_command_loop(void) {
 	char cmdbuf[256];
+	char tag[256];
 
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
@@ -89,30 +91,42 @@ void imap_command_loop(void) {
 		CC->kill_me = 1;
 		return;
 	}
+
 	lprintf(5, "citserver[%3d]: %s\r\n", CC->cs_pid, cmdbuf);
 	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
 
-	if (!strncasecmp(cmdbuf, "NOOP", 4)) {	/* FIXME */
-		cprintf("+OK This command successfully did nothing.\r\n");
+
+	/* strip off l/t whitespace and CRLF */
+	if (cmdbuf[strlen(cmdbuf)-1]=='\n') cmdbuf[strlen(cmdbuf)-1]=0;
+	if (cmdbuf[strlen(cmdbuf)-1]=='\r') cmdbuf[strlen(cmdbuf)-1]=0;
+	striplt(cmdbuf);
+
+	/* grab the tag */
+	extract_token(tag, cmdbuf, 0, ' ');
+	remove_token(cmdbuf, 0, ' ');
+	lprintf(9, "tag=<%s> cmd=<%s>\n", tag, cmdbuf);
+
+	if (!strncasecmp(cmdbuf, "NOOP", 4)) {
+		cprintf("%s OK This command successfully did nothing.\r\n",
+			tag);
 	}
 
-	else if (!strncasecmp(cmdbuf, "QUIT", 4)) {  /* FIXME */
-		cprintf("+OK Goodbye...\r\n");
+	else if (!strncasecmp(cmdbuf, "LOGOUT", 4)) {
+		cprintf("%s OK thank you for using Citadel IMAP\r\n", tag);
 		CC->kill_me = 1;
 		return;
 	}
 
 	/*   FIXME   ...   implement login commands HERE      */
 
-	else if (!CC->logged_in) {	/* FIXME */
-		cprintf("-ERR Not logged in.\r\n");
+	else if (!CC->logged_in) {
+		cprintf("%s BAD Not logged in.\r\n", tag);
 	}
 
 	/*    FIXME    ...   implement commands requiring login here   */
 
-
-	else {	/* FIXME */
-		cprintf("500 I'm afraid I can't do that, Dave.\r\n");
+	else {
+		cprintf("%s BAD command unrecognized\r\n", tag);
 	}
 
 }
@@ -122,7 +136,7 @@ void imap_command_loop(void) {
 char *Dynamic_Module_Init(void)
 {
 	SYM_IMAP = CtdlGetDynamicSymbol();
-	CtdlRegisterServiceHook(143,		/* FIXME */
+	CtdlRegisterServiceHook(143,	/* FIXME put in config setup */
 				NULL,
 				imap_greeting,
 				imap_command_loop);
