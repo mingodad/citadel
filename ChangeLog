@@ -1,4 +1,8 @@
 $Log$
+Revision 603.5  2005/03/04 04:21:05  ajc
+* When a room is set to the "mailbox" view, "Read new / read all" is
+  replaced by "View message list."
+
 Revision 603.4  2005/02/28 04:01:55  ajc
 * Updated to the latest version of Kevin Roth's richtext editor.  Had to
   modify it a bit (removal of 'px' suffix, and addition of 'cols=80') to
@@ -2450,6 +2454,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
-
-

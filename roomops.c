@@ -379,12 +379,7 @@ void embed_room_banner(char *got, int navbar_style) {
 			"</td>\n"
 		);
 
-		if ( (navbar_style == navbar_default)
-		   && (WC->wc_view != VIEW_CALENDAR) 
-		   && (WC->wc_view != VIEW_ADDRESSBOOK) 
-		   && (WC->wc_view != VIEW_NOTES) 
-		   && (WC->wc_view != VIEW_TASKS) 
-		   ) {
+		if ( (navbar_style == navbar_default) && (WC->wc_view == VIEW_BBS) ) {
 			wprintf(
 				"<td>"
 				"<A HREF=\"/readnew\">"
@@ -446,6 +441,17 @@ void embed_room_banner(char *got, int navbar_style) {
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
 						"View notes"
+						"</span></a></td>\n"
+					);
+					break;
+				case VIEW_MAILBOX:
+					wprintf(
+						"<td>"
+						"<A HREF=\"/readfwd\">"
+						"<img align=\"middle\" src=\"/static/readmsgs.gif\" "
+						"border=\"0\">"
+						"<span class=\"navbar_link\">"
+						"View message list"
 						"</span></a></td>\n"
 					);
 					break;
