@@ -1093,6 +1093,89 @@ void cmd_opna(char *cmdbuf)
 	output_message(msgid, MT_DOWNLOAD, 0);
 }			
 
+
+
+/*
+ * Save a message pointer into a specified room
+ * (Returns 0 for success, nonzero for failure)
+ */
+int CtdlSaveMsgPointerInRoom(char *roomname, long msgid) {
+	int i;
+	struct quickroom qrbuf;
+        struct cdbdata *cdbfr;
+        int num_msgs;
+        long *msglist;
+        long highest_msg = 0L;
+
+	lprintf(9, "CtdlSaveMsgPointerInRoom(%s, %ld)\n", roomname, msgid);
+
+	if (lgetroom(&qrbuf, roomname) != 0) {
+		lprintf(9, "No such room <%s>\n", roomname);
+		return(ERROR + ROOM_NOT_FOUND);
+	}
+
+        cdbfr = cdb_fetch(CDB_MSGLISTS, &qrbuf.QRnumber, sizeof(long));
+        if (cdbfr == NULL) {
+                msglist = NULL;
+                num_msgs = 0;
+        } else {
+                msglist = mallok(cdbfr->len);
+                if (msglist == NULL)
+                        lprintf(3, "ERROR malloc msglist!\n");
+                num_msgs = cdbfr->len / sizeof(long);
+                memcpy(msglist, cdbfr->ptr, cdbfr->len);
+                cdb_free(cdbfr);
+        }
+
+
+	/* Make sure the message doesn't already exist in this room.  It
+	 * is absolutely taboo to have more than one reference to the same
+	 * message in a room.
+	 */
+        if (num_msgs > 0) for (i=0; i<num_msgs; ++i) {
+		if (msglist[i] == msgid) {
+			lputroom(&qrbuf);	/* unlock the room */
+			return(ERROR + ALREADY_EXISTS);
+		}
+	}
+
+        /* Now add the new message */
+        ++num_msgs;
+        msglist = reallok(msglist,
+                          (num_msgs * sizeof(long)));
+
+        if (msglist == NULL) {
+                lprintf(3, "ERROR: can't realloc message list!\n");
+        }
+        msglist[num_msgs - 1] = msgid;
+
+        /* Sort the message list, so all the msgid's are in order */
+        num_msgs = sort_msglist(msglist, num_msgs);
+
+        /* Determine the highest message number */
+        highest_msg = msglist[num_msgs - 1];
+
+        /* Write it back to disk. */
+        cdb_store(CDB_MSGLISTS, &qrbuf.QRnumber, sizeof(long),
+                  msglist, num_msgs * sizeof(long));
+
+        /* Free up the memory we used. */
+        phree(msglist);
+
+	/* Update the highest-message pointer and unlock the room. */
+	qrbuf.QRhighest = highest_msg;
+	lputroom(&qrbuf);
+
+	/* Bump the reference count for this message. */
+	AdjRefCount(msgid, +1);
+
+	/* Return success. */
+	lprintf(9, "CtdlSaveMsgPointerInRoom() succeeded\n");
+        return (0);
+}
+
+
+
 /*
  * Message base operation to send a message to the master file
  * (returns new message number)
@@ -1296,14 +1379,12 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	char hold_rm[ROOMNAMELEN];
 	char actual_rm[ROOMNAMELEN];
 	char force_room[ROOMNAMELEN];
-	char content_type[256];	/* We have to learn this */
+	char content_type[256];			/* We have to learn this */
 	char recipient[256];
 	long newmsgid;
 	char *mptr;
 	struct usersupp userbuf;
 	int a;
-	int successful_local_recipients = 0;
-	struct quickroom qtemp;
 	struct SuppMsgInfo smi;
 	FILE *network_fp = NULL;
 	static int seqnum = 1;
@@ -1391,11 +1472,22 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 		fclose(network_fp);
 		system("exec nohup ./netproc -i >/dev/null 2>&1 &");
 	}
-	if (newmsgid <= 0L)
-		return;
+
+	if (newmsgid <= 0L) return;
+
+	/* Write a supplemental message info record.  This doesn't have to
+	 * be a critical section because nobody else knows about this message
+	 * yet.
+	 */
+	memset(&smi, 0, sizeof(struct SuppMsgInfo));
+	smi.smi_msgnum = newmsgid;
+	smi.smi_refcount = 0;
+	safestrncpy(smi.smi_content_type, content_type, 64);
+	PutSuppMsgInfo(&smi);
+
+	/* Now figure out where to store the pointers */
 
 	strcpy(actual_rm, CC->quickroom.QRname);
-	strcpy(hold_rm, "");
 
 	/* If this is being done by the networker delivering a private
 	 * message, we want to BYPASS saving the sender's copy (because there
@@ -1403,36 +1495,17 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	 */
 	if ((!CC->internal_pgm) || (strlen(recipient) == 0)) {
 		/* If the user is a twit, move to the twit room for posting */
-		if (TWITDETECT)
+		if (TWITDETECT) {
 			if (CC->usersupp.axlevel == 2) {
 				strcpy(hold_rm, actual_rm);
 				strcpy(actual_rm, config.c_twitroom);
 			}
+		}
 		/* ...or if this message is destined for Aide> then go there. */
 		if (strlen(force_room) > 0) {
-			strcpy(hold_rm, actual_rm);
 			strcpy(actual_rm, force_room);
 		}
-		/* This call to usergoto() changes rooms if necessary.  It also
-		   * causes the latest message list to be read into memory.
-		 */
-		usergoto(actual_rm, 0);
-
-		/* read in the quickroom record, obtaining a lock... */
-		lgetroom(&CC->quickroom, actual_rm);
-
-		/* Fix an obscure bug */
-		if (!strcasecmp(CC->quickroom.QRname, AIDEROOM)) {
-			CC->quickroom.QRflags =
-			    CC->quickroom.QRflags & ~QR_MAILBOX;
-		}
-		/* Add the message pointer to the room */
-		CC->quickroom.QRhighest =
-		    AddMessageToRoom(&CC->quickroom, newmsgid);
-
-		/* update quickroom */
-		lputroom(&CC->quickroom);
-		++successful_local_recipients;
+		CtdlSaveMsgPointerInRoom(actual_rm, newmsgid);
 	}
 
 	/* Bump this user's messages posted counter. */
@@ -1446,30 +1519,9 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	if ((strlen(recipient) > 0) && (mailtype == MES_LOCAL)) {
 		if (getuser(&userbuf, recipient) == 0) {
 			MailboxName(actual_rm, &userbuf, MAILROOM);
-			if (lgetroom(&qtemp, actual_rm) == 0) {
-				qtemp.QRhighest =
-				    AddMessageToRoom(&qtemp, newmsgid);
-				lputroom(&qtemp);
-				++successful_local_recipients;
-			}
+			CtdlSaveMsgPointerInRoom(actual_rm, newmsgid);
 		}
 	}
-	/* If we've posted in a room other than the current room, then we
-	 * have to now go back to the current room...
-	 */
-	if (strlen(hold_rm) > 0) {
-		usergoto(hold_rm, 0);
-	}
-
-	/* Write a supplemental message info record.  This doesn't have to
-	 * be a critical section because nobody else knows about this message
-	 * yet.
-	 */
-	memset(&smi, 0, sizeof(struct SuppMsgInfo));
-	smi.smi_msgnum = newmsgid;
-	smi.smi_refcount = successful_local_recipients;
-	safestrncpy(smi.smi_content_type, content_type, 64);
-	PutSuppMsgInfo(&smi);
 
 	/* Perform "after save" hooks */
 	PerformMessageHooks(msg, EVT_AFTERSAVE);
@@ -1983,6 +2035,7 @@ void cmd_move(char *args)
 	char targ[32];
 	struct quickroom qtemp;
 	int foundit;
+	int err;
 
 	num = extract_long(args, 0);
 	extract(targ, args, 1);
@@ -1994,12 +2047,14 @@ void cmd_move(char *args)
 			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;
 	}
+
 	if (getroom(&qtemp, targ) != 0) {
 		cprintf("%d '%s' does not exist.\n", ERROR, targ);
 		return;
 	}
-	/* Bump the reference count, otherwise the message will be deleted
-	 * from disk when we remove it from the source room.
+
+	/* Temporarily bump the reference count to avoid having the message
+	 * deleted while it's in transit.
 	 */
 	AdjRefCount(num, 1);
 
@@ -2008,14 +2063,20 @@ void cmd_move(char *args)
 
 	if (foundit) {
 		/* put the message into the target room */
-		lgetroom(&qtemp, targ);
-		qtemp.QRhighest = AddMessageToRoom(&qtemp, num);
-		lputroom(&qtemp);
-		cprintf("%d Message moved.\n", OK);
-	} else {
-		AdjRefCount(num, (-1));		/* oops */
-		cprintf("%d msg %ld does not exist.\n", ERROR, num);
+		if (err = CtdlSaveMsgPointerInRoom(targ, num), (err !=0) ) {
+			cprintf("%d Could not save message %ld in %s.\n",
+				err, num, targ);
+		}
+		else {
+			cprintf("%d Message moved.\n", OK);
+		}
 	}
+	else {
+		cprintf("%d No such message.\n", ERROR);
+	}
+
+	/* Fix the reference count. */
+	AdjRefCount(num, (-1));	
 }
 
 

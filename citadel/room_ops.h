@@ -15,7 +15,6 @@ void getfloor (struct floor *flbuf, int floor_num);
 void lgetfloor (struct floor *flbuf, int floor_num);
 void putfloor (struct floor *flbuf, int floor_num);
 void lputfloor (struct floor *flbuf, int floor_num);
-long AddMessageToRoom(struct quickroom *whichroom, long newmsgid);
 int sort_msglist (long int *listptrs, int oldcount);
 void cmd_lrms (char *argbuf);
 void cmd_lkra (char *argbuf);

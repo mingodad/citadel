@@ -328,58 +328,6 @@ void delete_msglist(struct quickroom *whichroom)
 }
 
 
-/* 
- * Add a message number to a room's message list.  
- *
- * This function returns the highest message number present in the room after
- * the add operation is performed - which is not necessarily the message
- * being added.
- */
-long AddMessageToRoom(struct quickroom *whichroom, long newmsgid)
-{
-	struct cdbdata *cdbfr;
-	int num_msgs;
-	long *msglist;
-	long highest_msg = 0L;
-
-	lprintf(9, "AddMessageToRoom(%s, %ld)\n", whichroom->QRname, newmsgid);
-	cdbfr = cdb_fetch(CDB_MSGLISTS, &whichroom->QRnumber, sizeof(long));
-	if (cdbfr == NULL) {
-		msglist = NULL;
-		num_msgs = 0;
-	} else {
-		msglist = mallok(cdbfr->len);
-		if (msglist == NULL)
-			lprintf(3, "ERROR malloc msglist!\n");
-		num_msgs = cdbfr->len / sizeof(long);
-		memcpy(msglist, cdbfr->ptr, cdbfr->len);
-		cdb_free(cdbfr);
-	}
-
-	/* Now add the new message */
-	++num_msgs;
-	msglist = reallok(msglist,
-			  (num_msgs * sizeof(long)));
-
-	if (msglist == NULL) {
-		lprintf(3, "ERROR: can't realloc message list!\n");
-	}
-	msglist[num_msgs - 1] = newmsgid;
-
-	/* Sort the message list, so all the msgid's are in order */
-	num_msgs = sort_msglist(msglist, num_msgs);
-
-	/* Determine the highest message number */
-	highest_msg = msglist[num_msgs - 1];
-
-	/* Write it back to disk. */
-	cdb_store(CDB_MSGLISTS, &whichroom->QRnumber, sizeof(long),
-		  msglist, num_msgs * sizeof(long));
-
-	/* And finally, free up the memory we used. */
-	phree(msglist);
-	return (highest_msg);
-}
 
 
 /*
