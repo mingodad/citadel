@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.64  2001/01/13 06:12:15  ajc
+ * Added the ASYN command
+
  Revision 573.63  2001/01/12 22:05:46  ajc
  * Fixed a bug that caused bogus wholist lines to be displayed when a non-aide
    reads a list containing stealth mode sessions.
@@ -2266,3 +2269,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

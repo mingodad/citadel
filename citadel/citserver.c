@@ -730,7 +730,22 @@ void cmd_scdn(char *argbuf)
 		ScheduledShutdown = new_state;
 		}
 	cprintf("%d %d\n", OK, ScheduledShutdown);
+}
+
+
+/*
+ * Set or unset asynchronous protocol mode
+ */
+void cmd_asyn(char *argbuf)
+{
+	int new_state;
+
+	new_state = extract_int(argbuf, 0);
+	if ((new_state == 0) || (new_state == 1)) {
+		CC->is_async = new_state;
 	}
+	cprintf("%d %d\n", OK, CC->is_async);
+}
 
 
 /*
@@ -867,6 +882,10 @@ void do_command_loop(void) {
 	else if (!strncasecmp(cmdbuf,"QUIT",4)) {
 		cprintf("%d Goodbye.\n",OK);
 		CC->kill_me = 1;
+		}
+
+	else if (!strncasecmp(cmdbuf,"ASYN",4)) {
+		cmd_asyn(&cmdbuf[5]);
 		}
 
 	else if (!strncasecmp(cmdbuf,"LOUT",4)) {

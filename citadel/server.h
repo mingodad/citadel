@@ -74,6 +74,7 @@ struct CitContext {
 	char lastcmdname[5];	/* name of last command executed */
 	unsigned cs_flags;	/* miscellaneous flags */
 	void (*h_command_function) (void) ;	/* service command function */
+	int is_async;		/* Nonzero if client accepts async msgs */
 
 	/* feeping creaturisms... */
 	int cs_clientdev;	/* client developer ID */
@@ -83,7 +84,7 @@ struct CitContext {
 	char cs_host[26];	/* host logged in from */
 
 	/* Beginning of cryptography - session nonce */
-	char cs_nonce[NONCE_SIZE];		/* The nonce for this session's next auth transaction */
+	char cs_nonce[NONCE_SIZE];	/* The nonce for this session's next auth transaction */
 
 	FILE *download_fp;	/* Fields relating to file transfer */
 	FILE *upload_fp;
@@ -103,11 +104,10 @@ struct CitContext {
 	int disable_exp;	/* Set to 1 to disable incoming pages */
 
 	/* Masquerade... */
-	char fake_username[USERNAME_SIZE];	/* Fake username <bc>                */
-	char fake_postname[USERNAME_SIZE];	/* Fake postname <bc>                */
-	char fake_hostname[25];	/* Name of the fake hostname <bc>    */
-	char fake_roomname[ROOMNAMELEN];	/* Name of the fake room <bc> */
-	
+	char fake_username[USERNAME_SIZE];	/* Fake username <bc> */ 
+	char fake_postname[USERNAME_SIZE];	/* Fake postname <bc> */
+	char fake_hostname[25];			/* Fake hostname <bc> */
+	char fake_roomname[ROOMNAMELEN];	/* Fake roomname <bc> */
 
 	/* Dynamically allocated session data */
 	struct CtdlSessData *FirstSessData;
@@ -269,7 +269,6 @@ extern struct SessionFunctionHook *SessionHookTable;
 #define EVT_CMD		6	/* Called after each server command */
 #define EVT_RWHO	7	/* An RWHO command is being executed */
 
-
 #define EVT_TIMER	50	/* Timer events are called once per minute
 				   and are not tied to any session */
 
@@ -287,7 +286,6 @@ extern struct UserFunctionHook *UserHookTable;
 
 #define EVT_PURGEUSER	100	/* Deleting a user */
 #define EVT_OUTPUTMSG	101	/* Outputting a message */
-
 
 /*
  * MessageFunctionHook extensions are used for hooks which implement handlers

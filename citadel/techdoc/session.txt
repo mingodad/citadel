@@ -92,7 +92,15 @@ it wants to or not.  The end of the listing is signified by the string
 should begin sending a listing of some sort.  The client *must* send something,
 even if it is an empty listing.  Again, the listing ends with "000" on a line
 by itself.
-  
+ BINARY_FOLLOWS and SEND_BINARY mean that the client must immediately send
+or receive a block of binary data.  The first parameter will always be the
+number of bytes.
+ ASYNC_MESSAGE_FOLLOWS means that an asynchronous, or unsolicited, message
+follows.  The next line will be one of the above codes, and if a data transfer
+is involved it must be handled immediately.  Note that the client will not
+receive this type of response unless it indicates to the server that it is
+capable of handling them; see the writeup of the ASYN command later in this
+document.
   
  PARAMETERIZATION
  ----------------
@@ -1811,4 +1819,21 @@ issue a REQT command, then wait a little while (from 30 seconds up to a few
 minutes) for well-behaved clients to voluntarily terminate, and then issue a
 TERM command to forcibly disconnect the client (or perhaps a DOWN command, if
 you are logging off users for the purpose of shutting down the server).
-
+    
+  
+ ASYN   (ASYNchronous message support)
+ 
+ Negotiate the use of asynchronous, or unsolicited, protocol messages.  The
+only parameter specified should be 1 or 0 to indicate that the client can or
+cannot handle this type of messages.  The server will reply OK followed by a
+1 or 0 to tell the client which mode it is now operating in.
+ 
+ If the command is not available on the server (i.e. it returns ERROR), or
+if the command has not been executed by the client, it should be assumed that
+this mode of operation is NOT in effect.
+ 
+ The client may also send any value other than 0 or 1 to simply cause the
+server to output its current state without changing it.
+ 
+ When asynchronous protocol mode is in effect, the client MUST handle any
+asynchronous messages as they arrive, before doing anything else.
