@@ -344,6 +344,7 @@ void context_loop(int sock)
 	   || (!strncasecmp(buf, "/login", 6))
 	   || (!strncasecmp(buf, "/page_popup", 11))
 	   || (!strncasecmp(buf, "/page_user", 10))	/* Sometimes this is wrong */
+	   || (!strncasecmp(buf, "/display_page", 10))	/* Sometimes this is wrong */
 	   || (!strncasecmp(buf, "/listsub", 8))
 	   || (!strncasecmp(buf, "/freebusy", 9))
 	   || (!strncasecmp(buf, "/termquit", 9)) ) {
