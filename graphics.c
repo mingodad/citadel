@@ -27,7 +27,8 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 	serv_puts(check_cmd);
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		display_error(&buf[4]);
+		strcpy(WC->ImportantMessage, &buf[4]);
+		display_main_menu();
 		return;
 	}
 	output_headers(3);
@@ -68,18 +69,23 @@ void do_graphics_upload(char *upl_cmd)
 	int thisblock;
 
 	if (!strcasecmp(bstr("sc"), "Cancel")) {
+		strcpy(WC->ImportantMessage,
+			"Graphics upload cancelled.");
 		display_main_menu();
 		return;
 	}
 
 	if (WC->upload_length == 0) {
-		display_error("You didn't upload a file.\n");
+		strcpy(WC->ImportantMessage,
+			"You didn't upload a file.");
+		display_main_menu();
 		return;
 	}
 	serv_puts(upl_cmd);
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		display_error(&buf[4]);
+		strcpy(WC->ImportantMessage, &buf[4]);
+		display_main_menu();
 		return;
 	}
 	bytes_remaining = WC->upload_length;
@@ -88,9 +94,10 @@ void do_graphics_upload(char *upl_cmd)
 		serv_printf("WRIT %d", thisblock);
 		serv_gets(buf);
 		if (buf[0] != '7') {
-			display_error(&buf[4]);
+			strcpy(WC->ImportantMessage, &buf[4]);
 			serv_puts("UCLS 0");
 			serv_gets(buf);
+			display_main_menu();
 			return;
 		}
 		thisblock = extract_int(&buf[4], 0);

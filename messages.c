@@ -364,10 +364,13 @@ void read_message(long msgnum) {
 	wprintf("<TD ALIGN=RIGHT>\n"
 		"<TABLE BORDER=0><TR>\n");
 
-	wprintf("<TD BGCOLOR=\"#AAAADD\">"
-		"<A HREF=\"/readfwd?startmsg=%ld", msgnum);
-	wprintf("&maxmsgs=1&summary=0\">Read</A>"
-		"</TD>\n", msgnum);
+	/***  "Read" button is now superfluous
+	 ***
+	 ***wprintf("<TD BGCOLOR=\"#AAAADD\">"
+	 ***	"<A HREF=\"/readfwd?startmsg=%ld", msgnum);
+	 ***wprintf("&maxmsgs=1&summary=0\">Read</A>"
+	 ***	"</TD>\n", msgnum);
+	 ***/
 
 	wprintf("<TD BGCOLOR=\"#AAAADD\">"
 		"<A HREF=\"/display_enter?recp=");
@@ -424,7 +427,7 @@ void read_message(long msgnum) {
 
 	/* Messages in legacy Citadel variformat get handled thusly... */
 	if (!strcasecmp(mime_content_type, "text/x-citadel-variformat")) {
-		fmout(NULL);
+		fmout(NULL, "JUSTIFY");
 	}
 
 	/* Boring old 80-column fixed format text gets handled this way... */
@@ -1088,13 +1091,13 @@ void post_message(void)
 		return;
 	}
 
-	output_headers(1);
-
 	if (strcasecmp(bstr("sc"), "Save message")) {
-		wprintf("Cancelled.  Message was not posted.<BR>\n");
+		sprintf(WC->ImportantMessage, 
+			"Cancelled.  Message was not posted.");
 	} else if (atol(bstr("postseq")) == dont_post) {
-		wprintf("Automatically cancelled because you have already "
-			"saved this message.<BR>\n");
+		sprintf(WC->ImportantMessage, 
+			"Automatically cancelled because you have already "
+			"saved this message.");
 	} else {
 		sprintf(buf, "ENT0 1|%s|0|4|%s",
 			bstr("recp"),
@@ -1103,15 +1106,17 @@ void post_message(void)
 		serv_gets(buf);
 		if (buf[0] == '4') {
 			post_mime_to_server();
-			wprintf("Message has been posted.<BR>\n");
+			sprintf(WC->ImportantMessage, 
+				"Message has been posted.\n");
 			dont_post = atol(bstr("postseq"));
 		} else {
-			wprintf("<EM>%s</EM><BR>\n", &buf[4]);
+			sprintf(WC->ImportantMessage, 
+				"%s", &buf[4]);
 		}
 	}
 
-	wDumpContent(1);
 	free_attachments(WC);
+	readloop("readnew");
 }
 
 

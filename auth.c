@@ -191,7 +191,7 @@ void do_logout(void)
 
 	if (WC->serv_sock >= 0) {
 		if (buf[0] == '1') {
-			fmout(NULL);
+			fmout(NULL, "CENTER");
 		} else {
 			wprintf("Goodbye\n");
 		}
@@ -337,7 +337,7 @@ void display_changepw(void)
 	serv_puts("MESG changepw");
 	serv_gets(buf);
 	if (buf[0] == '1') {
-		fmout(NULL);
+		fmout(NULL, "CENTER");
 	}
 
 	wprintf("<FORM ACTION=\"changepw\" METHOD=\"POST\">\n");
@@ -366,20 +366,22 @@ void changepw(void)
 	char newpass1[32], newpass2[32];
 
 	if (strcmp(bstr("action"), "Change")) {
-		display_error("Cancelled.  Password was not changed.");
+		strcpy(WC->ImportantMessage, 
+			"Cancelled.  Password was not changed.");
+		display_main_menu();
 		return;
 	}
 	strcpy(newpass1, bstr("newpass1"));
 	strcpy(newpass2, bstr("newpass2"));
 
 	if (strcasecmp(newpass1, newpass2)) {
-		display_error("They don't match.  Password was not changed.");
+		strcpy(WC->ImportantMessage, 
+			"They don't match.  Password was not changed.");
+		display_main_menu();
 		return;
 	}
 	serv_printf("SETP %s", newpass1);
 	serv_gets(buf);
-	if (buf[0] == '2')
-		display_success(&buf[4]);
-	else
-		display_error(&buf[4]);
+	strcpy(WC->ImportantMessage, &buf[4]);
+	display_main_menu();
 }

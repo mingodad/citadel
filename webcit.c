@@ -304,8 +304,10 @@ void output_headers(int controlcode)
 			"Cache-Control: no-store\n"
 		);
 	}
+
 	stuff_to_cookie(cookie, WC->wc_session, WC->wc_username,
 			WC->wc_password, WC->wc_roomname);
+
 	if (print_standard_html_head == 2) {
 		wprintf("Set-cookie: webcit=%s\n", unset);
 	} else {
@@ -346,14 +348,20 @@ void output_headers(int controlcode)
 
 		do_template("background");
 		clear_local_substs();
+	}
 
 	if (print_standard_html_head == 1) {
 		wprintf("<A NAME=\"TheTop\"></A>");
-
 		embed_room_banner(NULL);
-
-		}
 	}
+
+	if (strlen(WC->ImportantMessage) > 0) {
+		do_template("beginbox_nt");
+		wprintf("<SPAN CLASS=\"errormsg\">"
+			"%s</SPAN><BR>\n", WC->ImportantMessage);
+		do_template("endbox");
+		strcpy(WC->ImportantMessage, "");
+	}	
 }
 
 
@@ -628,7 +636,9 @@ void offer_start_page(void) {
 void change_start_page(void) {
 
 	if (bstr("startpage") == NULL) {
-		display_error("startpage set to null");
+		strcpy(WC->ImportantMessage,
+			"startpage set to null");
+		display_main_menu();
 		return;
 	}
 
@@ -641,11 +651,6 @@ void change_start_page(void) {
 
 
 
-
-void display_error(char *errormessage)
-{
-	convenience_page("770000", "Error", errormessage);
-}
 
 void display_success(char *successmessage)
 {
@@ -693,9 +698,6 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 {
 	struct urlcontent *u;
 
-	lprintf(5, "Upload handler called: %s, %ld bytes\n",
-		cbtype, (long)length);
-
 	/* Form fields */
 	if ( (length > 0) && (strlen(cbtype) == 0) ) {
 		u = (struct urlcontent *) malloc(sizeof(struct urlcontent));
@@ -719,8 +721,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 			memcpy(WC->upload, content, length);
 		}
 		else {
-			lprintf(9, "malloc() failed: %s\n",
-				strerror(errno));
+			lprintf(3, "malloc() failed: %s\n", strerror(errno));
 		}
 	}
 
@@ -782,11 +783,9 @@ void session_loop(struct httprequest *req)
 				      c_username, c_password, c_roomname);
 		}
 		else if (!strncasecmp(buf, "Content-length: ", 16)) {
-			lprintf(9, "%s\n", buf);
 			ContentLength = atoi(&buf[16]);
 		}
 		else if (!strncasecmp(buf, "Content-type: ", 14)) {
-			lprintf(9, "%s\n", buf);
 			safestrncpy(ContentType, &buf[14], sizeof ContentType);
 		}
 		else if (!strncasecmp(buf, "User-agent: ", 12)) {
@@ -822,7 +821,6 @@ void session_loop(struct httprequest *req)
 			addurls(&content[body_start]);
 		} else if (!strncasecmp(ContentType, "multipart", 9)) {
 			content_end = content + ContentLength + body_start;
-			lprintf(9, "Calling MIME parser\n");
 			mime_parser(content, content_end, *upload_handler,
 					NULL, NULL, NULL, 0);
 		}

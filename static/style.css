@@ -1,15 +1,15 @@
 a:link {
-  color: #FF0000;
+  color: #0000FF;
   text-decoration: none;
 }
 
 a:visited {
-  color: #800080;
+  color: #0000FF;
   text-decoration: none;
 }
 
 a:active {
-  color: #00FF00;
+  color: #0000FF;
   text-decoration: none;
 }
 
@@ -240,8 +240,6 @@ dt a {
   color: #008000;
   background: none
 }
-
-.example { margin-left: 10% }
 
 dfn {
   font-style: normal;

@@ -161,7 +161,7 @@ void page_popup(void)
 		escputs(pagefrom);
 		wprintf("</SPAN></TD></TR></TABLE>\n");
 		
-		fmout(NULL);
+		fmout(NULL, "LEFT");
 	}
 
 	wprintf("<CENTER>");

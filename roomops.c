@@ -301,7 +301,7 @@ void readinfo(void)
 	serv_puts("RINF");
 	serv_gets(buf);
 	if (buf[0] == '1') {
-		fmout(NULL);
+		fmout(NULL, "CENTER");
 	}
 }
 
@@ -743,7 +743,8 @@ void display_editroom(void)
 	serv_gets(buf);
 
 	if (buf[0] != '2') {
-		display_error(&buf[4]);
+		strcpy(WC->ImportantMessage, &buf[4]);
+		display_main_menu();
 		return;
 	}
 	extract(er_name, &buf[4], 0);
@@ -1178,14 +1179,17 @@ void editroom(void)
 
 
 	if (strcmp(bstr("sc"), "OK")) {
-		display_error("Cancelled.  Changes were not saved.");
+		strcpy(WC->ImportantMessage,
+			"Cancelled.  Changes were not saved.");
+		display_main_menu();
 		return;
 	}
 	serv_puts("GETR");
 	serv_gets(buf);
 
 	if (buf[0] != '2') {
-		display_error(&buf[4]);
+		strcpy(WC->ImportantMessage, &buf[4]);
+		display_main_menu();
 		return;
 	}
 	extract(er_name, &buf[4], 0);
@@ -1291,7 +1295,8 @@ void editroom(void)
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		display_error(&buf[4]);
+		strcpy(WC->ImportantMessage, &buf[4]);
+		display_main_menu();
 		return;
 	}
 	gotoroom(er_name, 0);
@@ -1301,7 +1306,8 @@ void editroom(void)
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] != '2') {
-			display_error(&buf[4]);
+			strcpy(WC->ImportantMessage, &buf[4]);
+			display_main_menu();
 			return;
 		}
 	}
@@ -1319,17 +1325,13 @@ void display_whok(void)
         serv_gets(buf);
 
         if (buf[0] != '2') {
-                display_error(&buf[4]);
-                return;
+		strcpy(WC->ImportantMessage, &buf[4]);
+		display_main_menu();
+		return;
         }
         extract(room, &buf[4], 0);
 
         strcpy(username, bstr("username"));
-
-        output_headers(1);
-	stresc(buf, WC->wc_roomname, 1);
-	svprintf("BOXTITLE", WCS_STRING, "Access control list for %s", buf);
-	do_template("beginbox");
 
         if(!strcmp(bstr("sc"), "Kick")) {
                 sprintf(buf, "KICK %s", username);
@@ -1337,10 +1339,10 @@ void display_whok(void)
                 serv_gets(buf);
 
                 if (buf[0] != '2') {
-                        display_error(&buf[4]);
-                        return;
+                        strcpy(WC->ImportantMessage, &buf[4]);
                 } else {
-                        wprintf("<B><I>User %s kicked out of room %s.</I></B>\n", 
+                        sprintf(WC->ImportantMessage,
+				"<B><I>User %s kicked out of room %s.</I></B>\n", 
                                 username, room);
                 }
         } else if(!strcmp(bstr("sc"), "Invite")) {
@@ -1349,15 +1351,18 @@ void display_whok(void)
                 serv_gets(buf);
 
                 if (buf[0] != '2') {
-                        display_error(&buf[4]);
-                        return;
+                        strcpy(WC->ImportantMessage, &buf[4]);
                 } else {
-                        wprintf("<B><I>User %s invited to room %s.</I></B>\n", 
+                        sprintf(WC->ImportantMessage,
+                        	"<B><I>User %s invited to room %s.</I></B>\n", 
                                 username, room);
                 }
         }
         
-
+        output_headers(1);
+	stresc(buf, WC->wc_roomname, 1);
+	svprintf("BOXTITLE", WCS_STRING, "Access control list for %s", buf);
+	do_template("beginbox");
 
 	wprintf("<TABLE border=0 CELLSPACING=10><TR VALIGN=TOP>"
 		"<TD>The users listed below have access to this room.  "
@@ -1411,7 +1416,8 @@ void display_entroom(void)
 	serv_gets(buf);
 
 	if (buf[0] != '2') {
-		display_error(&buf[4]);
+		strcpy(WC->ImportantMessage, &buf[4]);
+		display_main_menu();
 		return;
 	}
 	output_headers(3);
@@ -1464,7 +1470,7 @@ void display_entroom(void)
 	serv_printf("MESG roomaccess");
 	serv_gets(buf);
 	if (buf[0] == '1') {
-		fmout(NULL);
+		fmout(NULL, "CENTER");
 	}
 	do_template("endbox");
 	wDumpContent(1);
@@ -1485,7 +1491,9 @@ void entroom(void)
 	int er_num_type;
 
 	if (strcmp(bstr("sc"), "OK")) {
-		display_error("Cancelled.  No new room was created.");
+		strcpy(WC->ImportantMessage,
+			"Cancelled.  No new room was created.");
+		display_main_menu();
 		return;
 	}
 	strcpy(er_name, bstr("er_name"));
@@ -1508,7 +1516,8 @@ void entroom(void)
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		display_error(&buf[4]);
+		strcpy(WC->ImportantMessage, &buf[4]);
+		display_main_menu();
 		return;
 	}
 	smart_goto(er_name);
@@ -1660,7 +1669,8 @@ void confirm_delete_room(void)
 	serv_puts("KILL 0");
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		display_error(&buf[4]);
+		strcpy(WC->ImportantMessage, &buf[4]);
+		display_main_menu();
 		return;
 	}
 	output_headers(1);
@@ -1694,13 +1704,17 @@ void delete_room(void)
 	strcpy(sc, bstr("sc"));
 
 	if (strcasecmp(sc, "Delete")) {
-		display_error("Cancelled.  This room was not deleted.");
+		strcpy(WC->ImportantMessage,
+			"Cancelled.  This room was not deleted.");
+		display_main_menu();
 		return;
 	}
 	serv_puts("KILL 1");
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		display_error(&buf[4]);
+		strcpy(WC->ImportantMessage, &buf[4]);
+		display_main_menu();
+		return;
 	} else {
 		smart_goto("_BASEROOM_");
 	}
