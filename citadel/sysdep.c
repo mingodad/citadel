@@ -499,8 +499,8 @@ void sysdep_master_cleanup(void) {
 
 /*
  * Terminate another session.
- * FIX ... now we need some way to wake that session up so it knows it
- * needs to terminate.
+ * (This could justifiably be moved out of sysdep.c because it
+ * no longer does anything that is system-dependent.)
  */
 void kill_session(int session_to_kill) {
 	struct CitContext *ptr;
@@ -509,10 +509,10 @@ void kill_session(int session_to_kill) {
 	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 		if (ptr->cs_pid == session_to_kill) {
 			ptr->kill_me = 1;
-			}
 		}
-	end_critical_section(S_SESSION_TABLE);
 	}
+	end_critical_section(S_SESSION_TABLE);
+}
 
 
 

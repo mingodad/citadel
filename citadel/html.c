@@ -58,7 +58,6 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 		/* Fill the input buffer */
 		if ( (done_reading == 0) && (strlen(inbuf) < 128) ) {
 
-			/* FIX ... genericize this */
 			ch = *inputmsg++;
 			if (ch > 0) {
 				inbuf[strlen(inbuf)+1] = 0;

@@ -1,4 +1,7 @@
 $Log$
+Revision 1.404  1999/10/31 04:17:17  ajc
+* Fixed a bug which was crashing the server during very long message entry.
+
 Revision 1.403  1999/10/29 01:48:45  ajc
 * database.c: Removed arbitrary limit on maximum number of sessions
 
@@ -1391,3 +1394,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

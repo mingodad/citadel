@@ -708,7 +708,13 @@ void transmit_message(FILE *fp)
 {
 	char buf[256];
 	int ch,a;
-	
+	long msglen;
+	time_t lasttick;
+
+	fseek(fp, 0L, SEEK_END);
+	msglen = ftell(fp);
+	rewind(fp);
+	lasttick = time(NULL);
 	strcpy(buf,"");
 	while (ch=getc(fp), (ch>=0)) {
 		if (ch==10) {
@@ -732,8 +738,18 @@ void transmit_message(FILE *fp)
 				strcpy(buf,"");
 				}
 			}
+
+		if ( (time(NULL) - lasttick) > 2L ) {
+			printf(" %3ld%% completed\r",
+				((ftell(fp) * 100L) / msglen) );
+			fflush(stdout);
+			lasttick = time(NULL);
+			}
+
 		}
 	serv_puts(buf);
+	printf("                \r");
+	fflush(stdout);
 	}
 
 
