@@ -39,7 +39,7 @@ SERV_MODULES=modules/libchat.la modules/libvcard.la \
 	modules/libexpire.la \
 	modules/libvandelay.la \
 	modules/libical.la
-UTIL_TARGETS=aidepost netsetup msgform readlog \
+UTIL_TARGETS=aidepost msgform readlog \
 	stats citmail userlist sendcommand \
 	base64 migratenet$(EXEEXT)
 
@@ -77,7 +77,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c \
 	client_crypto.c commands.c config.c control.c $(DATABASE) \
 	dynloader.c file_ops.c housekeeping.c ipc_c_tcp.c locate_host.c \
 	logging.c messages.c msgbase.c msgform.c \
-	netsetup.c policy.c readlog.c migratenet.c screen.c \
+	policy.c readlog.c migratenet.c screen.c \
 	room_ops.c rooms.c routines.c routines2.c serv_chat.c serv_crypto.c \
 	serv_info.c serv_test.c setup.c snprintf.c stats.c serv_vcard.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
@@ -208,9 +208,6 @@ setup: setup.o tools.o
 chkpwd: chkpwd.o auth.o config.o
 	$(CC) chkpwd.o auth.o config.o $(LDFLAGS) -o chkpwd $(chkpwd_LIBS)
 
-netsetup: netsetup.o config.o
-	$(CC) netsetup.o config.o $(LDFLAGS) -o netsetup
-
 whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o tools.o client_crypto.o $(LIBOBJS)
 	$(CC) whobbs.o ipc_c_tcp.o tools.o client_crypto.o $(LIBOBJS) $(LDFLAGS) -o whobbs $(LIBS)
 
@@ -278,7 +275,7 @@ install-exec: all weekly
 			(cd modules && ../$(LIBTOOL) --mode=install $(INSTALL) `basename $$i` $(root)$(prefix)/$$i) ; \
 		fi \
 	done
-	@for i in utilsmenu weekly dnetsetup; do \
+	@for i in utilsmenu weekly do \
 		if test -f $(srcdir)/$$i; then \
 			echo $(INSTALL) $(srcdir)/$$i $(root)$(prefix)/$$i; \
 			$(INSTALL) $(srcdir)/$$i $(root)$(prefix)/$$i; \

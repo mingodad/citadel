@@ -72,12 +72,10 @@ upgrading this package.
 %attr(4755,root,root) /usr/local/citadel/chkpwd
 /usr/local/citadel/citmail
 /usr/local/citadel/citserver
-/usr/local/citadel/dnetsetup
 /usr/local/citadel/libcitserver.so
 /usr/local/citadel/libcitserver.la
 /usr/local/citadel/migratenet
 /usr/local/citadel/msgform
-/usr/local/citadel/netsetup
 /usr/local/citadel/readlog
 /usr/local/citadel/sendcommand
 /usr/local/citadel/setup
