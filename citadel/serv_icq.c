@@ -1976,6 +1976,12 @@ void CtdlICQ_Refresh_Contact_List(void) {
 	}
 
 	icq_SendContactList();
+
+	if (ThisICQ->icq_numcl) for (i=0; i<ThisICQ->icq_numcl; ++i) {
+		if (ThisICQ->icq_cl[i].uin > 0L) {
+			icq_SendInfoReq(ThisICQ->icq_cl[i].uin);
+		}
+	}
 }
 
 
@@ -2058,7 +2064,7 @@ void CtdlICQ_session_stopdown_hook(void) {
 void CtdlICQ_after_cmd_hook(void)
 {
 	if (ThisICQ->icq_Sok >= 0) {
-		if ( (time(NULL) - ThisICQ->icq_LastKeepAlive) > 90 ) {
+		if ( (time(NULL) - ThisICQ->icq_LastKeepAlive) > 60 ) {
 			icq_KeepAlive();
 			ThisICQ->icq_LastKeepAlive = time(NULL);
 		}
@@ -2107,8 +2113,18 @@ void CtdlICQ_Incoming_Message(DWORD uin, BYTE hour, BYTE minute,
 	
 	char from[256];
 	int num_delivered;
+	int i;
 
+	/* Default sender is 'uin@icq' syntax */
 	sprintf(from, "%ld@icq", uin);
+
+	/* Use the sender's name if we have it  inthe contact list */
+	if (ThisICQ->icq_numcl) for (i=0; i<ThisICQ->icq_numcl; ++i) {
+		if (uin == ThisICQ->icq_cl[i].uin) {
+			safestrncpy(from, ThisICQ->icq_cl[i].name, 256);
+		}
+	}
+
 	num_delivered = PerformXmsgHooks(from, CC->curr_user, (char *)msg);
 	lprintf(9, "Delivered to %d users\n", num_delivered);
 }
@@ -2121,6 +2137,7 @@ void CtdlICQ_InfoReply(unsigned long uin, const char *nick,
 
 	struct CtdlICQ_CL *ptr;
 	
+	CtdlICQ_Read_CL();
 	ptr = CtdlICQ_CLent(uin);
 	safestrncpy(ptr->name, nick, 32);
 	ptr->status = STATUS_OFFLINE;
@@ -2234,7 +2251,6 @@ void cmd_cicq(char *argbuf) {
 			uin = extract_long(buf, 0);
 			if (uin > 0L) {
 				CtdlICQ_CLent(uin);
-				icq_SendInfoReq(uin);
 			}
 		}
 		CtdlICQ_Write_CL();

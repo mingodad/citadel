@@ -1677,3 +1677,36 @@ execute a random GEXP every now and then.  Or, it can check the byte in
 server return code messages, between the return code and the parameters.  In
 much the same way as FTP uses "-" to signify a continuation, Citadel uses
 an "*" in this position to signify the presence of waiting express messages.
+ 
+  
+ 
+ CICQ   (Citadel ICQ metaclient setup)
+ 
+ If a Citadel server has the ICQ Metaclient installed, this command is used
+to configure it.  It has several usages:
+ 
+ CICQ login|uin|pass
+ 
+  This tells Citadel the user's ICQ uin (second argument) and password (third
+argument).  When called in this fashion, CICQ will return either OK or ERROR.
+It should be noted, however, that the only way an ERROR code can be returned
+is if the uin and/or password is not supplied.  Authentication failures cannot
+be immediately detected, because the ICQ protocol is asynchronous.
+ 
+ CICQ getcl
+ 
+ Request the current contact list.  If successful, CICQ will return
+LISTING_FOLLOWS followed by zero or more contacts in the format 
+   
+   uin|nickname|status
+ 
+ CICQ putcl
+ 
+ Upload a new contact list.  If successful, CICQ will return SEND_LISTING
+after which the client should transmit zero or more uin's, one per line.  The
+server will then attempt to contact the ICQ server to determine nicknames
+and statuses.
+ 
+ CICQ status
+ 
+ Always returns OK followed by a 1 (connected to ICQ) or 0 (not connected).
