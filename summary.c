@@ -164,7 +164,7 @@ void calendar_section(void) {
 	int i;
 
 	section_title("Today on your calendar");
-#ifdef HAVE_ICAL_H
+#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	gotoroom("Calendar", 0);
 	if (strcasecmp(WC->wc_roomname, "Calendar")) {
 		wprintf("<i>(You do not have a calendar)</i><BR>\n");
@@ -182,7 +182,7 @@ void calendar_section(void) {
 	}
 
 	calendar_summary_view();
-#endif /* HAVE_ICAL_H */
+#endif /* WEBCIT_WITH_CALENDAR_SERVICE */
 }
 
 

@@ -26,17 +26,16 @@
 #include "webcit.h"
 #include "webserver.h"
 
-#ifndef HAVE_ICAL_H
+#ifndef WEBCIT_WITH_CALENDAR_SERVICE
 
 void do_calendar_view(void) {	/* stub for non-libical builds */
 	wprintf("<CENTER><I>Calendar view not available</I></CENTER><BR>\n");
 }
 
-#else	/* HAVE_ICAL_H */
+#else	/* WEBCIT_WITH_CALENDAR_SERVICE */
 
 /****************************************************************************/
 
-#include "ical.h"
 
 void calendar_month_view_display_events(time_t thetime) {
 	int i;
@@ -545,4 +544,4 @@ void do_calendar_view(void) {
 
 }
 
-#endif	/* HAVE_ICAL_H */
+#endif	/* WEBCIT_WITH_CALENDAR_SERVICE */

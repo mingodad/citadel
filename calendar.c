@@ -27,7 +27,7 @@
 #include "webcit.h"
 #include "webserver.h"
 
-#ifndef HAVE_ICAL_H
+#ifndef WEBCIT_WITH_CALENDAR_SERVICE
 
 /*
  * Handler stubs for builds with no calendar library available
@@ -59,7 +59,7 @@ void display_task(long msgnum) {
 		"</i><br>\n");
 }
 
-#else /* HAVE_ICAL_H */
+#else /* WEBCIT_WITH_CALENDAR_SERVICE */
 
 
 /******   End of handler stubs.  Everything below this line is real.   ******/
@@ -835,4 +835,4 @@ void save_event(void) {
 	}
 }
 
-#endif /* HAVE_ICAL_H */
+#endif /* WEBCIT_WITH_CALENDAR_SERVICE */

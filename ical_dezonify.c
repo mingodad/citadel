@@ -16,8 +16,7 @@
 #include <strings.h>
 #include "webcit.h"
 
-#ifdef HAVE_ICAL_H
-#include <ical.h>
+#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 
 
 /*
@@ -160,4 +159,4 @@ void ical_dezonify(icalcomponent *cal) {
 }
 
 
-#endif /* HAVE_ICAL_H */
+#endif /* WEBCIT_WITH_CALENDAR_SERVICE */

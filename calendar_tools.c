@@ -43,7 +43,7 @@ char *hourname[] = {
 	"7pm", "8pm", "9pm", "10pm", "11pm"
 };
 
-#ifdef HAVE_ICAL_H
+#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 
 /*
  * The display_icaltimetype_as_webform() and icaltime_from_webform() functions

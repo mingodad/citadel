@@ -1150,7 +1150,7 @@ void session_loop(struct httprequest *req)
 		display_floorconfig(NULL);
 	} else if (!strcasecmp(action, "toggle_self_service")) {
 		toggle_self_service();
-#ifdef HAVE_ICAL_H
+#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	} else if (!strcasecmp(action, "display_edit_task")) {
 		display_edit_task();
 	} else if (!strcasecmp(action, "save_task")) {

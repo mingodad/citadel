@@ -1,5 +1,5 @@
                       WEBCIT for the Citadel/UX System
-                               version 4.00
+                               version 4.10
  
    Copyright (C) 1996-2002 by the authors.  Portions written by:
 	Art Cancro
@@ -14,15 +14,15 @@ Public License.  Please read COPYING.txt for more licensing information.
  INTRODUCTION
  ------------
  
- Citadel/UX is a sophisticated BBS package which allows multiple users to
-simultaneously access the system using a variety of user interfaces.  This
-package (WebCit) is a "middleware" package which presents an HTML/HTTP user
-interface to the Citadel system.
+ Citadel/UX is a sophisticated BBS and groupware package which allows multiple
+users to simultaneously access the system using a variety of user interfaces.
+This package (WebCit) is a "middleware" package which presents an HTML/HTTP
+user interface to the Citadel system.
  
  What this means in practice is that after you've installed WebCit, users can
-access all functions of your BBS using any web browser.  Since this may be the
-first Citadel experience for many new users, the screens have been designed to
-be attractive and easy to navigate.
+access all functions of your system using any web browser.  Since this may be
+the first Citadel experience for many new users, the screens have been designed
+to be attractive and easy to navigate.
  
  
  INSTALLATION
@@ -115,6 +115,15 @@ ones which you may be interested in are:
  -> background.gif: a background texture displayed under all web pages
  -> hello.gif: your system's logo.  It is displayed along with the logon
     banner, and on the top left corner of each page.
+ 
+ 
+ CALENDAR SERVICE
+ ----------------
+ 
+ WebCit contains support for calendaring and scheduling.  In order to use it
+you must have libical v0.24 (or newer) on your system.  You must also be
+running a Citadel server with calendaring support.  The calendar service will
+be automatically configured and installed if your host system supports it.
  
  
  CONCLUSION
