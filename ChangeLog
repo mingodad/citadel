@@ -1,4 +1,7 @@
 $Log$
+Revision 500.16  2003/08/07 22:18:03  ajc
+* Add the Summary Page to the customizable iconbar
+
 Revision 500.15  2003/08/07 03:51:51  ajc
 * Customizable icon bar as: pictures and text, pictures, text
 
@@ -1548,4 +1551,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -221,7 +221,8 @@ void server_info_section(void) {
 void summary(void) {
 	output_headers(7);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=#007700><TR><TD>"
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=#007700><TR>"
+		"<TD><IMG SRC=\"/static/summary.gif\"></TD><TD>"
 		"<SPAN CLASS=\"titlebar\">"
 		"Summary page for ");
 	escputs(WC->wc_username);
