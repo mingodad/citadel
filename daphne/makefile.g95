@@ -1,8 +1,5 @@
 # Makefile for Daphne on wxWindows/MSW built with Cygwin
 
-WXDIR           = /wx
-WXHTMLDIR       = /wxhtml
-
 TARGET          = daphne
 
 MY_OBJECTS	= citclient.o enter.o express_message.o main.o message.o \
@@ -10,10 +7,7 @@ MY_OBJECTS	= citclient.o enter.o express_message.o main.o message.o \
 		servprops.o testwindow.o userlogin.o \
 		utils.o who.o
 
-MY_LIBS         = $(WXHTMLDIR)/lib/libwxhtml.a
-
-EXTRAINC        = -I$(WXHTMLDIR)/include
-OBJECTS         = $(MY_OBJECTS) $(MY_LIBS)
+OBJECTS         = $(MY_OBJECTS)
 
 include $(WXDIR)/src/makeprog.g95
 
