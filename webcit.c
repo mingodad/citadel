@@ -463,8 +463,8 @@ void session_loop(void) {
 	char buf[256];
 	int a, b;
 	int ContentLength = 0;
+	char ContentType[512];
 	char *content;
-FILE *fp;
 
 	/* We stuff these with the values coming from the client cookies,
 	 * so we can use them to reconnect a timed out session if we have to.
@@ -497,11 +497,12 @@ FILE *fp;
 			strcpy(c_password, &buf[20]);
 		if (!strncasecmp(buf, "Cookie: wc_roomname=", 20))
 			strcpy(c_roomname, &buf[20]);
-
 		if (!strncasecmp(buf, "Content-length: ", 16)) {
 			ContentLength = atoi(&buf[16]);
 			}
-
+		if (!strncasecmp(buf, "Content-type: ", 14)) {
+			strcpy(ContentType, &buf[14]);
+			}
 		} while(strlen(buf)>0);
 
 	++TransactionCount;
@@ -509,11 +510,16 @@ FILE *fp;
 	if (ContentLength > 0) {
 		content = malloc(ContentLength+1);
 		fread(content, ContentLength, 1, stdin);
-fp = fopen("content", "wb");
-fwrite(content, ContentLength, 1, fp);
-fclose(fp);
+
 		content[ContentLength] = 0;
-		addurls(content);
+
+		if (!strncasecmp(ContentType,
+		   "application/x-www-form-urlencoded", 33)) {
+			addurls(content);
+			}
+		else if (!strncasecmp(ContentType, "multipart", 9)) {
+			mime_parser(content, ContentLength, ContentType);
+			}
 		}
 	else {
 		content = NULL;

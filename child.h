@@ -70,3 +70,4 @@ void gotoroom(char *gname, int display_name);
 void confirm_delete_room(void);
 void delete_room(void);
 void validate(void);
+void mime_parser(char *content, int ContentLength, char *ContentType);
