@@ -1566,8 +1566,8 @@ void entroom(void)
 		return;
 	}
 	gotoroom(er_name, 0);
-	er_set_default_view(atoi(bstr("er_view")));
-	smart_goto(er_name);
+	er_set_default_view(atoi(bstr("er_view")));	/* Set default view */
+	do_change_view(atoi(bstr("er_view")));		/* Now go there */
 }
 
 
@@ -1864,6 +1864,16 @@ void room_to_folder(char *folder, char *room, int floor, int is_mailbox)
 
 
 
+/*
+ * Back end for change_view()
+ */
+void do_change_view(int newview) {
+	char buf[SIZ];
+
+	serv_printf("VIEW %d", newview);
+	serv_gets(buf);
+	smart_goto(WC->wc_roomname);
+}
 
 
 
@@ -1872,13 +1882,9 @@ void room_to_folder(char *folder, char *room, int floor, int is_mailbox)
  */
 void change_view(void) {
 	int view;
-	char buf[SIZ];
 
 	view = atol(bstr("view"));
-
-	serv_printf("VIEW %d", view);
-	serv_gets(buf);
-	smart_goto(WC->wc_roomname);
+	do_change_view(view);
 }
 
 

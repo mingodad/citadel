@@ -1,4 +1,8 @@
 $Log$
+Revision 505.13  2004/03/07 22:04:32  ajc
+* Fix the current view not being set to the default view for the creator
+  of a room.
+
 Revision 505.12  2004/03/07 21:31:17  ajc
 * serv_read() now zeroes out the supplied buffer (with the supplied
   length) if a server read fails.  This causes serv_gets() to return
@@ -1711,3 +1715,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

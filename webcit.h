@@ -367,6 +367,7 @@ void select_user_to_edit(char *message, char *preselect);
 void display_edituser(char *who);
 void create_user(void);
 void edituser(void);
+void do_change_view(int);
 void change_view(void);
 void folders(void);
 void do_stuff_to_msgs(void);
