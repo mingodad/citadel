@@ -334,7 +334,7 @@ void init_ssl(void)
 	/*
 	 * Now try to bind to the key and certificate.
 	 */
-        SSL_CTX_use_certificate_file(ssl_ctx, CTDL_CER_PATH, SSL_FILETYPE_PEM);
+        SSL_CTX_use_certificate_chain_file(ssl_ctx, CTDL_CER_PATH);
         SSL_CTX_use_PrivateKey_file(ssl_ctx, CTDL_KEY_PATH, SSL_FILETYPE_PEM);
         if ( !SSL_CTX_check_private_key(ssl_ctx) ) {
 		lprintf(CTDL_CRIT, "Cannot install certificate: %s\n",

@@ -1,4 +1,7 @@
  $Log$
+ Revision 641.22  2005/03/05 22:31:01  ajc
+ * Allow the use of chained certificates for crypto
+
  Revision 641.21  2005/03/04 20:04:00  ajc
  * IMAP FETCH RFC822.SIZE now honors the cached rfc822 size in each
    message's metadata, using it if present and storing it for next time
@@ -6517,3 +6520,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -2311,6 +2311,10 @@ Authority
 when you order the certificate. </li>
   <li>When the certificate is received, simply save it as <tt>citadel.cer</tt>
 and restart the Citadel server. </li>
+  <li>If your certificate authority delivers a 'chained' certificate (one
+with intermediate certificate authorities), simply append the intermediate
+certificate after your server's own certificate in the <tt>citadel.cer</tt>
+file.</li>
 </ul>
 <br>
 <hr style="width: 100%; height: 2px;">
