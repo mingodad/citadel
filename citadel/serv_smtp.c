@@ -14,6 +14,7 @@
  * RFC 2033 - Local Mail Transfer Protocol
  * RFC 2034 - SMTP Service Extension for Returning Enhanced Error Codes
  * RFC 2197 - SMTP Service Extension for Command Pipelining
+ * RFC 2487 - SMTP Service Extension for Secure SMTP over TLS
  * RFC 2554 - SMTP Service Extension for Authentication
  * RFC 2821 - Simple Mail Transfer Protocol
  * RFC 2822 - Internet Message Format
@@ -68,6 +69,11 @@
 #include "domain.h"
 #include "clientsocket.h"
 #include "locate_host.h"
+
+#ifdef HAVE_OPENSSL
+#include "serv_crypto.h"
+#endif
+
 
 
 #ifndef HAVE_SNPRINTF
@@ -182,6 +188,9 @@ void smtp_hello(char *argbuf, int which_command) {
 		cprintf("250-SIZE %ld\r\n", config.c_maxmsglen);
 		cprintf("250-PIPELINING\r\n");
 		cprintf("250-AUTH=LOGIN\r\n");
+#ifdef HAVE_OPENSSL
+		cprintf("250-STARTTLS\r\n");
+#endif
 		cprintf("250 ENHANCEDSTATUSCODES\r\n");
 	}
 }
@@ -358,8 +367,10 @@ void smtp_expn(char *argbuf) {
  * Currently this just zeroes out the state buffer.  If pointers to data
  * allocated with mallok() are ever placed in the state buffer, we have to
  * be sure to phree() them first!
+ *
+ * Set do_response to nonzero to output the SMTP RSET response code.
  */
-void smtp_rset(void) {
+void smtp_rset(int do_response) {
 	int is_lmtp;
 
 	/*
@@ -387,7 +398,9 @@ void smtp_rset(void) {
 	 */
 	SMTP->is_lmtp = is_lmtp;
 
-	cprintf("250 2.0.0 Zap!\r\n");
+	if (do_response) {
+		cprintf("250 2.0.0 Zap!\r\n");
+	}
 }
 
 /*
@@ -653,6 +666,27 @@ void smtp_data(void) {
 }
 
 
+/*
+ * implements the STARTTLS command (Citadel API version)
+ */
+#ifdef HAVE_OPENSSL
+void smtp_starttls(void)
+{
+	char ok_response[SIZ];
+	char nosup_response[SIZ];
+	char error_response[SIZ];
+
+	sprintf(ok_response,
+		"200 2.0.0 Begin TLS negotiation now\r\n");
+	sprintf(nosup_response,
+		"554 5.7.3 TLS not supported here\r\n");
+	sprintf(error_response,
+		"554 5.7.3 Internal error\r\n");
+	CtdlStartTLS(ok_response, nosup_response, error_response);
+	smtp_rset(0);
+}
+#endif
+
 
 
 /* 
@@ -728,9 +762,13 @@ void smtp_command_loop(void) {
 	}
 
 	else if (!strncasecmp(cmdbuf, "RSET", 4)) {
-		smtp_rset();
+		smtp_rset(1);
 	}
-
+#ifdef HAVE_OPENSSL
+	else if (!strcasecmp(cmdbuf, "STARTTLS")) {
+		smtp_starttls();
+	}
+#endif
 	else if (!strncasecmp(cmdbuf, "VRFY", 4)) {
 		smtp_vrfy(&cmdbuf[5]);
 	}

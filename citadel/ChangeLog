@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.37  2004/02/16 21:45:43  ajc
+ * Implement RFC 2487 - SMTP Service Extension for Secure SMTP over TLS
+
  Revision 614.36  2004/02/16 21:02:28  ajc
  * IMAP and Citadel protocols now use the same code path for TLS negotiation
 
@@ -5350,4 +5353,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

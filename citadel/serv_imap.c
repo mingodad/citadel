@@ -34,13 +34,6 @@
 #include <ctype.h>
 #include <string.h>
 #include <limits.h>
-
-#ifdef HAVE_OPENSSL
-#include <openssl/ssl.h>
-#include <openssl/err.h>
-#include <openssl/rand.h>
-#endif
-
 #include "citadel.h"
 #include "server.h"
 #include "sysdep_decls.h"
@@ -1263,7 +1256,6 @@ void imap_command_loop(void)
 		imap_starttls(num_parms, parms);
 	}
 #endif
-
 	else if (!CC->logged_in) {
 		cprintf("%s BAD Not logged in.\r\n", parms[0]);
 	}
