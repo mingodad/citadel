@@ -1,12 +1,14 @@
 $Log$
+Revision 1.329  1999/07/24 22:16:41  ajc
+Experimenting with automatic updating of ChangeLog by CVS.  Simply twiddle
+ChangeLog a bit (i.e. by adding or removing a newline from the end of the
+file) before issusing "cvs commit", and the comments recorded by CVS will
+automatically appear at the beginning of ChangeLog.
+
 Revision 1.328  1999/07/24 22:14:21  ajc
 cmd_move() now uses CtdlDeleteMessages().
 WARNING: build is temporarily broken.  Currently removing all references
 to the "msglist" kept in CitContext.  It's ugly and must die.
-
-Revision 1.327  1999/07/24 21:32:01  ajc
-Test of automatically updating ChangeLog
-
 
 Thu Jul 22 22:26:50 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Moved message deletion into new API function CtdlDeleteMessages()
