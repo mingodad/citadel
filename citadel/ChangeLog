@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.36  2001/09/06 05:23:14  nbryant
+ #include fix for glibc 2.1.3
+
  Revision 580.35  2001/09/06 04:02:34  ajc
  * A few more updates to the networker
 
@@ -2722,3 +2725,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -1,6 +1,8 @@
 /* $Id$ */
 
-#include "dynloader.h"
+#include <pthread.h>
+#include "sysdep.h"
+#include "server.h"
 
 void lprintf (int loglevel, const char *format, ...);
 void init_sysdep (void);
