@@ -612,12 +612,12 @@ void replace_string(char *filename, long int startpos)
 	long msglen = 0L;
 
 	scr_printf("Enter text to be replaced:\n: ");
-	getline(srch_str, 128);
+	getline(srch_str, (sizeof(srch_str)-1) );
 	if (strlen(srch_str) == 0)
 		return;
 
 	scr_printf("Enter text to replace it with:\n: ");
-	getline(rplc_str, 128);
+	getline(rplc_str, (sizeof(rplc_str)-1) );
 
 	fp = fopen(filename, "r+");
 	if (fp == NULL)

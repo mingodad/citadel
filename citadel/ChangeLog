@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.87  2002/08/12 03:00:20  ajc
+ * Fixed bug in <R>eplacestring which caused it to lock up in certain conditions
+
  Revision 591.86  2002/08/12 00:09:05  ajc
  * Compress VISIT records using zlib if available.  This reduces the object
    size from over 4k to about 70 bytes.  Experimental.
@@ -3885,3 +3888,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -694,7 +694,9 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
 
   tempcdb->len = dret.size;
   tempcdb->ptr = dret.data;
+#ifdef HAVE_ZLIB
   cdb_decompress_if_necessary(tempcdb);
+#endif
   return (tempcdb);
 }
 
@@ -772,7 +774,9 @@ struct cdbdata *cdb_next_item(int cdb)
 	cdbret = (struct cdbdata *) mallok(sizeof(struct cdbdata));
 	cdbret->len = data.size;
 	cdbret->ptr = data.data;
+#ifdef HAVE_ZLIB
 	cdb_decompress_if_necessary(cdbret);
+#endif
 
 	return (cdbret);
 }
