@@ -46,6 +46,8 @@ char setup_directory[SIZ];
 char init_entry[SIZ];
 int using_web_installer = 0;
 
+void contemplate_ldap(void);
+
 char *setup_titles[] =
 {
 	"Citadel Home Directory",
@@ -426,7 +428,7 @@ void check_inittab_entry(void)
 	FILE *infp;
 	char buf[SIZ];
 	char looking_for[SIZ];
-	char question[128];
+	char question[SIZ];
 	char entryname[5];
 
 	/* Determine the fully qualified path name of citserver */
@@ -605,12 +607,7 @@ int test_server(void) {
 	return(-1);
 }
 
-
-
-
-
-
-void set_str_val(int msgpos, char str[])
+void strprompt(char *prompt_title, char *prompt_text, char *str)
 {
 #ifdef HAVE_NEWT
 	newtComponent form;
@@ -624,8 +621,8 @@ void set_str_val(int msgpos, char str[])
 
 	switch (setup_type) {
 	case UI_TEXT:
-		title(setup_titles[msgpos]);
-		printf("\n%s\n", setup_text[msgpos]);
+		title(prompt_title);
+		printf("\n%s\n", prompt_text);
 		printf("This is currently set to:\n%s\n", str);
 		printf("Enter new value or press return to leave unchanged:\n");
 		fgets(buf, sizeof buf, stdin);
@@ -636,10 +633,10 @@ void set_str_val(int msgpos, char str[])
 #ifdef HAVE_NEWT
 	case UI_NEWT:
 
-		newtCenteredWindow(76, 10, setup_titles[msgpos]);
+		newtCenteredWindow(76, 10, prompt_title);
 		form = newtForm(NULL, NULL, 0);
-		for (i=0; i<num_tokens(setup_text[msgpos], '\n'); ++i) {
-			extract_token(buf, setup_text[msgpos], i, '\n');
+		for (i=0; i<num_tokens(prompt_text, '\n'); ++i) {
+			extract_token(buf, prompt_text, i, '\n');
 			newtFormAddComponent(form, newtLabel(1, 1+i, buf));
 		}
 		newtFormAddComponent(form, newtEntry(1, 8, str, 74, &result,
@@ -653,6 +650,12 @@ void set_str_val(int msgpos, char str[])
 #endif
 	}
 }
+
+void set_str_val(int msgpos, char *str) {
+	strprompt(setup_titles[msgpos], setup_text[msgpos], str);
+}
+
+
 
 void set_int_val(int msgpos, int *ip)
 {
@@ -1078,6 +1081,9 @@ NEW_INST:
 	chmod("citadel.config", S_IRUSR | S_IWUSR);
 	progress("Setting file permissions", 4, 4);
 
+	/* Contemplate the possibility of auto-configuring OpenLDAP */
+	contemplate_ldap();
+
 	/* See if we can start the Citadel service. */
 	if (strlen(init_entry) > 0) {
 		for (a=0; a<=3; ++a) {
@@ -1103,4 +1109,58 @@ NEW_INST:
 
 	cleanup(0);
 	return 0;
+}
+
+
+/*
+ * If we're in the middle of an Easy Install, we might just be able to
+ * auto-configure a standalone OpenLDAP server.
+ */
+void contemplate_ldap(void) {
+	char question[SIZ];
+	char base_dn[SIZ];
+	FILE *fp;
+
+	/* If conditions are not ideal, give up on this idea. */
+	if (using_web_installer == 0) return;
+	if (getenv("LDAP_CONFIG") == NULL) return;
+	if (getenv("SLAPD_BINARY") == NULL) return;
+
+	/* Otherwise, prompt the user to create an entry. */
+	snprintf(question, sizeof question,
+		"\n"
+		"Do you want this computer configured to start a standalone\n"
+		"LDAP service automatically?  (If you answer yes, a custom\n"
+		"slapd.conf will be written, and an /etc/inittab entry\n"
+		"pointing to %s will be added.)\n"
+		"\n",
+		getenv("SLAPD_BINARY")
+	);
+	if (yesno(question) == 0)
+		return;
+
+	strcpy(base_dn, "dc=example,dc=com");
+	strprompt("Base DN",
+		"\n"
+		"Please enter the Base DN for your directory.  This will\n"
+		"generally be something based on the primary DNS domain in\n"
+		"which you receive mail, but it doesn't have to be.  Your\n"
+		"LDAP tree will be built using this Distinguished Name.\n"
+		"\n",
+		base_dn
+	);
+
+	fp = fopen(getenv("LDAP_CONFIG"), "w");
+	if (fp == NULL) {
+		sprintf(question, "\nCannot create %s:\n%s\n\n"
+				"Citadel will still function, but you will "
+				"not have an LDAP service.\n\n",
+				getenv("LDAP_CONFIG"),
+				strerror(errno)
+		);
+		important_message("Error", question);
+		return;
+	}
+	fprintf(fp, "FIXME\n");
+	fclose(fp);
 }

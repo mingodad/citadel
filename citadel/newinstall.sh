@@ -3,6 +3,7 @@
 #
 #   Automatic script to install Citadel on a target system.
 #   Copyright (C) 2004 Michael Hampton <error@citadel.org>
+#   Copyright (C) 2004 Art Cancro <ajc@uncensored.citadel.org>
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -23,7 +24,7 @@
 # If you're seeing this in your browser, it's probably not what you want.
 # You can either save it to disk and run it, or do it the easy way:
 #
-# wget -q -O - http://my.citadel.org/install | sh
+# wget -q -O - http://easyinstall.citadel.org/install | sh
 #
 # Note that this script installs software on your system and so it requires
 # root privileges.  Feel free to inspect the script to make sure I didn't
@@ -84,6 +85,7 @@ MAKEOPTS="-j2"
 # WEBCIT		Directory where WebCit is installed
 # SUPPORT		Directory where support programs are installed
 # LDAP_CONFIG		Location of the slapd.conf file
+# SLAPD_BINARY		Location of the slapd binary
 # DISTRO_MAJOR		Linux distribution name, if applicable
 # DISTRO_MINOR		Linux distribution name, if applicable
 # DISTRO_VERSION	Linux distribution version (major digit) if applicable
@@ -97,7 +99,7 @@ MAKEOPTS="-j2"
 CITADEL_INSTALLER=web
 export CITADEL_INSTALLER
 
-DOWNLOAD_SITE=http://my.citadel.org/download
+DOWNLOAD_SITE=http://easyinstall.citadel.org
 
 # Original source code packages.
 DB_SOURCE=db-4.1.25.tar.gz
@@ -203,6 +205,8 @@ install_ldap () {
 	$MAKE $MAKEOPTS 2>&1 >>$LOG || die
 	LDAP_CONFIG=$SUPPORT/etc/openldap/slapd.conf
 	export LDAP_CONFIG
+	SLAPD_BINARY=$SUPPORT/libexec/slapd
+	export SLAPD_BINARY
 	$MAKE install 2>&1 >>$LOG || die
 	echo "  Complete."
 }
@@ -332,7 +336,7 @@ fi
 echo ""
 echo -n "Perform the above installation steps now? (yes) "
 
-read junk
+read junk </dev/tty
 if [ "`echo $junk | cut -c 1 | tr N n`" = "n" ]; then
 	exit 2
 fi
