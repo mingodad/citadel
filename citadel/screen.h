@@ -2,10 +2,12 @@
 
 /* client code may need the ERR define: */
 
+#ifndef DISABLE_CURSES
 #ifdef HAVE_NCURSES_H
 #include <ncurses.h>
 #elif defined(HAVE_CURSES_H)
 #include <curses.h>
+#endif
 #endif
 
 void status_line(const char *humannode, const char *bbs_city,

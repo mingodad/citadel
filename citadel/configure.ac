@@ -74,6 +74,10 @@ case "$host" in
 	*-*-bsdi*)
 		AC_DEFINE(HAVE_NONREENTRANT_NETDB)
 	;;
+	dnl Curses support on Mac OS X is kind of screwed at the moment.
+	*-*-darwin*)
+		AC_DEFINE(DISABLE_CURSES)
+	;;
 	dnl Digital Unix has an odd way to build for pthreads, and we can't
 	dnl build pthreads programs with gcc due to header problems.
 	alpha*-dec-osf*)

@@ -26,14 +26,14 @@
 #include "config.h"
 #include "tools.h"
 
+#ifndef DISABLE_CURSES
 #if defined(HAVE_CURSES_H) || defined(HAVE_NCURSES_H)
-
 #ifdef HAVE_NCURSES_H
 #include <ncurses.h>
 #else
 #include <curses.h>
 #endif
-
+#endif
 #endif
 
 #define MAXSETUP 3	/* How many setup questions to ask */
@@ -236,7 +236,7 @@ void start_the_service(void) {
 
 void cleanup(int exitcode)
 {
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (setup_type == UI_CURSES) {
 		clear();
 		refresh();
@@ -252,7 +252,7 @@ void cleanup(int exitcode)
 /* Where on the screen to start */
 /* Pointer to string buffer */
 /* Maximum length - if negative, no-show */
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 void getlin(int yp, int xp, char *string, int lim) {
 	int a, b;
 	char flag;
@@ -324,7 +324,7 @@ void hit_any_key(void)
 {
 	char junk[5];
 
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (setup_type == UI_CURSES) {
 		mvprintw(20, 0, "Press any key to continue... ");
 		refresh();
@@ -357,7 +357,7 @@ int yesno(char *question)
 		} while ((answer < 0) || (answer > 1));
 		break;
 
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	case UI_CURSES:
 		do {
 			clear();
@@ -394,7 +394,7 @@ void important_message(char *title, char *msgtext)
 		hit_any_key();
 		break;
 
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	case UI_CURSES:
 		clear();
 		move(1, 20);
@@ -450,7 +450,7 @@ void progress(char *text, long int curr, long int cmax)
 		}
 		break;
 
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	case UI_CURSES:
 		if (curr == 0) {
 			clear();
@@ -593,7 +593,7 @@ void set_str_val(int msgpos, char str[])
 		if (strlen(buf) != 0)
 			strcpy(str, buf);
 		break;
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	case UI_CURSES:
 		clear();
 		move(1, ((80 - strlen(setup_titles[msgpos])) / 2));
@@ -690,7 +690,7 @@ void write_config_to_disk(void)
 int discover_ui(void)
 {
 
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	return UI_CURSES;
 #endif
 	return UI_TEXT;
@@ -738,7 +738,7 @@ int main(int argc, char *argv[])
 	if (setup_type < 0) {
 		setup_type = discover_ui();
 	}
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (setup_type == UI_CURSES) {
 		initscr();
 		raw();

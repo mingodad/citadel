@@ -499,9 +499,11 @@ int inkey(void)
 		    && ((a < 32) || (a > 126)))
 			a = 0;
 
+#ifndef DISABLE_CURSES
 #if defined(HAVE_CURSES_H) || defined(HAVE_NCURSES_H)
 		if (a == ERR)
 			a = 0;
+#endif
 #endif
 
 	} while (a == 0);
@@ -741,7 +743,7 @@ void load_command_set(void)
 #ifdef HAVE_OPENSSL
 	rc_encrypt = RC_DEFAULT;
 #endif
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	rc_screen = RC_DEFAULT;
 #endif
 	rc_alt_semantics = 0;
@@ -790,7 +792,7 @@ void load_command_set(void)
 #endif
 		}
 
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 		if (!strncasecmp(buf, "fullscreen=", 11)) {
 			if (!strcasecmp(&buf[11], "yes"))
 				rc_screen = RC_YES;
@@ -1439,7 +1441,7 @@ void color(int colornum)
 
 	current_color = colornum;
 	if (enable_color) {
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 		if (scr_color(colornum))
 			return;
 #endif

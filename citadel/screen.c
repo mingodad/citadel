@@ -26,25 +26,25 @@
 #include "citadel_decls.h"
 #include "commands.h"
 
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 static SCREEN *myscreen = NULL;
 static WINDOW *mainwindow = NULL;
 static WINDOW *statuswindow = NULL;
 
 char rc_screen;
 char arg_screen;
+#endif
 
 extern int screenheight;
 extern int screenwidth;
 extern int rc_ansi_color;
 extern void check_screen_dims(void);
-#endif
 
 void do_keepalive(void);
 
 
 int is_curses_enabled(void) {
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	return mainwindow != NULL;
 #else
 	return 0;
@@ -58,7 +58,7 @@ int is_curses_enabled(void) {
 void status_line(const char *humannode, const char *bbs_city,
 		 const char *room_name, int secure, int newmailcount)
 {
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (statuswindow) {
 		if (secure) {
 			sln_printf("Encrypted ");
@@ -85,7 +85,7 @@ void status_line(const char *humannode, const char *bbs_city,
  */
 void screen_new(void)
 {
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (arg_screen != RC_NO && rc_screen != RC_NO)
 		myscreen = newterm(NULL, stdout, stdin);
 	if (myscreen) {
@@ -130,7 +130,7 @@ void screen_delete(void)
 {
 	windows_delete();
 	screen_reset();
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (myscreen)
 		delscreen(myscreen);
 	myscreen = NULL;
@@ -144,7 +144,7 @@ void screen_delete(void)
  */
 int screen_set(void)
 {
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (myscreen) {
 		set_term(myscreen);
 		wrefresh(curscr);
@@ -160,7 +160,7 @@ int screen_set(void)
  */
 int screen_reset(void)
 {
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (myscreen) {
 		endwin();
 		return 1;
@@ -179,7 +179,7 @@ int scr_printf(char *fmt, ...)
 	register int retval;
 
 	va_start(ap, fmt);
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (mainwindow) {
 		retval = _vwprintw(mainwindow, fmt, ap);
 	} else
@@ -199,7 +199,7 @@ int err_printf(char *fmt, ...)
 	register int retval;
 
 	va_start(ap, fmt);
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (mainwindow)	{		/* FIXME: direct to error window */
 		retval = _vwprintw(mainwindow, fmt, ap);
 		if (fmt[strlen(fmt) - 1] == '\n')
@@ -219,12 +219,12 @@ int sln_printf(char *fmt, ...)
 {
 	va_list ap;
 	register int retval;
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	static char buf[4096];
 #endif
 
 	va_start(ap, fmt);
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (statuswindow) {
 		register char *i;
 		
@@ -252,7 +252,7 @@ int sln_printf(char *fmt, ...)
 int sln_printf_if(char *fmt, ...)
 {
 	register int retval = 1;
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	static char buf[4096];
 	va_list ap;
 
@@ -281,7 +281,7 @@ int scr_getc(int delay)
 {
   unsigned char buf;
 
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (mainwindow) {
 		wtimeout(mainwindow, delay);
 		return wgetch(mainwindow);
@@ -301,7 +301,7 @@ int scr_getc(int delay)
 int scr_blockread(void)
   {
     int a = 0;
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
     wtimeout(mainwindow, S_KEEPALIVE); 
     while (1)
       {
@@ -321,7 +321,7 @@ int scr_blockread(void)
  */
 int scr_putc(int c)
 {
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (mainwindow) {
 		if (c == 7) beep();
 		return ((waddch(mainwindow, c) == OK) ? c : EOF);
@@ -333,7 +333,7 @@ int scr_putc(int c)
 
 int sln_putc(int c)
 {
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (statuswindow)
 		return ((waddch(statuswindow, c) == OK) ? c : EOF);
 #endif
@@ -343,7 +343,7 @@ int sln_putc(int c)
 
 int sln_putc_if(int c)
 {
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (statuswindow)
 		return ((waddch(statuswindow, c) == OK) ? c : EOF);
 #endif
@@ -356,7 +356,7 @@ int sln_putc_if(int c)
  */
 int scr_color(int colornum)
 {
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (mainwindow) {
 #ifdef HAVE_WCOLOR_SET
 		wcolor_set(mainwindow, (colornum & 7), NULL);
@@ -377,7 +377,7 @@ int scr_color(int colornum)
 
 void scr_flush(void)
 {
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (mainwindow)
 		wrefresh(mainwindow);
 	else
@@ -388,7 +388,7 @@ void scr_flush(void)
 
 void err_flush(void)
 {
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (mainwindow)		/* FIXME: error status window needed */
 		wrefresh(mainwindow);
 	else
@@ -399,7 +399,7 @@ void err_flush(void)
 
 void sln_flush(void)
 {
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (statuswindow)
 		wrefresh(statuswindow);
 	else
@@ -414,7 +414,7 @@ static volatile int caught_sigwinch = 0;
  */
 int scr_set_windowsize()
 {
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (mainwindow && caught_sigwinch) {
 		caught_sigwinch = 0;
 #ifdef HAVE_RESIZETERM
@@ -456,7 +456,7 @@ RETSIGTYPE scr_winch(int signum)
  */
 void windows_new(void)
 {
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	register int x, y;
 
 	if (myscreen) {
@@ -491,7 +491,7 @@ void windows_new(void)
  */
 void windows_delete(void)
 {
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (mainwindow)
 		delwin(mainwindow);
 	mainwindow = NULL;

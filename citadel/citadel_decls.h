@@ -18,7 +18,7 @@ extern time_t rc_idle_threshold;
 extern char rc_encrypt;			/* from the citadel.rc file */
 extern char arg_encrypt;		/* from the command line */
 #endif
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 extern char rc_screen;
 extern char arg_screen;
 #endif

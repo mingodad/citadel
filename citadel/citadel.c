@@ -949,7 +949,7 @@ int main(int argc, char **argv)
 #ifdef HAVE_OPENSSL
 	arg_encrypt = RC_DEFAULT;
 #endif
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	arg_screen = RC_DEFAULT;
 #endif
 
@@ -978,13 +978,13 @@ int main(int argc, char **argv)
 #endif
 		}
 		if (!strcmp(argv[a], "-s")) {
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 			arg_screen = RC_NO;
 #endif
 			argc = shift(argc, argv, a, 1);
 		}
 		if (!strcmp(argv[a], "-S")) {
-#ifdef HAVE_CURSES_H
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 			arg_screen = RC_YES;
 #endif
 			argc = shift(argc, argv, a, 1);
