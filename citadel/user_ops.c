@@ -1079,7 +1079,6 @@ void cmd_regi(void) {
 	CitControl.MMflags = CitControl.MMflags | MM_VALID ;
 	put_control();
 	end_critical_section(S_CONTROL);
-	cprintf("%d *** End of registration.\n",OK);
 	}
 
 
