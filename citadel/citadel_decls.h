@@ -7,7 +7,7 @@ extern char axlevel;
 extern char is_room_aide;
 extern unsigned userflags;
 extern char sigcaught;
-extern char editor_path[SIZ];
+extern char editor_paths[MAX_EDITORS][SIZ];
 extern char printcmd[SIZ];
 extern char have_xterm;
 extern char rc_username[USERNAME_SIZE];

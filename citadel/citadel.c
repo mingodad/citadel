@@ -65,7 +65,7 @@ struct march *march = NULL;
 char temp[PATH_MAX];		/* Name of general temp file */
 char temp2[PATH_MAX];		/* Name of general temp file */
 char tempdir[PATH_MAX];		/* Name of general temp dir */
-char editor_path[SIZ];		/* path to external editor */
+char editor_paths[MAX_EDITORS][SIZ];	/* paths to external editors */
 char printcmd[SIZ];		/* print command */
 int editor_pid = (-1);
 char fullname[USERNAME_SIZE];
@@ -1699,6 +1699,17 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 				page_user(ipc);
 				break;
 
+			default: /* allow some math on the command */
+				/* commands 100... to 100+MAX_EDITORS-1 will
+				   call the appropriate editor... in other
+				   words, command numbers 100+ will match
+				   the citadel.rc keys editor0, editor1, etc.*/
+				if (mcmd >= 100 && mcmd < (100+MAX_EDITORS))
+				{
+					/* entmsg mode >=2 select editor */
+					entmsg(ipc, 0, mcmd - 100 + 2);
+					break;
+				}
 			}	/* end switch */
 	} while (termn8 == 0);
 

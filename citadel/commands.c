@@ -719,15 +719,18 @@ void load_command_set(void)
 {
 	FILE *ccfile;
 	char buf[1024];
+	char editor_key[100];
 	struct citcmd *cptr;
 	struct citcmd *lastcmd = NULL;
 	int a, d;
 	int b = 0;
+	int i;
 
 
 	/* first, set up some defaults for non-required variables */
 
-	strcpy(editor_path, "");
+	for (i = 0; i < MAX_EDITORS; i++)
+		strcpy(editor_paths[i], "");
 	strcpy(printcmd, "");
 	strcpy(rc_username, "");
 	strcpy(rc_password, "");
@@ -804,7 +807,14 @@ void load_command_set(void)
 #endif
 
 		if (!strncasecmp(buf, "editor=", 7))
-			strcpy(editor_path, &buf[7]);
+			strcpy(editor_paths[0], &buf[7]);
+
+		for (i = 0; i < MAX_EDITORS; i++)
+		{
+			sprintf(editor_key, "editor%d=", i);
+			if (!strncasecmp(buf, editor_key, strlen(editor_key)))
+				strcpy(editor_paths[i], &buf[strlen(editor_key)]);
+		}
 
 		if (!strncasecmp(buf, "printcmd=", 9))
 			strcpy(printcmd, &buf[9]);

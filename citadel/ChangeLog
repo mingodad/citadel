@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.130  2003/02/13 20:13:51  ajc
+ * Applied "multi editor" patch supplied by georbit
+
  Revision 601.129  2003/02/12 04:51:44  ajc
  * More docs update
 
@@ -4459,4 +4462,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -47,7 +47,6 @@ extern char room_name[];
 extern char temp[];
 extern char tempdir[];
 extern int editor_pid;
-extern char editor_path[];
 extern int screenwidth;
 extern int screenheight;
 extern char fullname[];
@@ -1037,7 +1036,7 @@ void do_edit(CtdlIPC *ipc,
 	char cmd[SIZ];
 	int b, cksum, editor_exit;
 
-	if (strlen(editor_path) == 0) {
+	if (strlen(editor_paths[0]) == 0) {
 		scr_printf("Do you wish to re-enter %s? ", desc);
 		if (yesno() == 0)
 			return;
@@ -1053,7 +1052,7 @@ void do_edit(CtdlIPC *ipc,
 		return;
 	}
 
-	if (strlen(editor_path) > 0) {
+	if (strlen(editor_paths[0]) > 0) {
 		CtdlIPC_putline(ipc, read_cmd);
 		CtdlIPC_getline(ipc, cmd);
 		if (cmd[0] == '1') {
@@ -1067,7 +1066,7 @@ void do_edit(CtdlIPC *ipc,
 
 	cksum = file_checksum(temp);
 
-	if (strlen(editor_path) > 0) {
+	if (strlen(editor_paths[0]) > 0) {
 		char tmp[SIZ];
 
 		snprintf(tmp, sizeof tmp, "WINDOW_TITLE=%s", desc);
@@ -1077,7 +1076,7 @@ void do_edit(CtdlIPC *ipc,
 		editor_pid = fork();
 		if (editor_pid == 0) {
 			chmod(temp, 0600);
-			execlp(editor_path, editor_path, temp, NULL);
+			execlp(editor_paths[0], editor_paths[0], temp, NULL);
 			exit(1);
 		}
 		if (editor_pid > 0)
@@ -1086,7 +1085,7 @@ void do_edit(CtdlIPC *ipc,
 				b = ka_wait(&editor_exit);
 			} while ((b != editor_pid) && (b >= 0));
 		editor_pid = (-1);
-		scr_printf("Executed %s\n", editor_path);
+		scr_printf("Executed %s\n", editor_paths[0]);
 		sttybbs(0);
 		screen_set();
 	} else {

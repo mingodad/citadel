@@ -68,6 +68,8 @@ extern "C" {
 					 */
 					 
 #define USERNAME_SIZE	64		/* The size of a username string */
+#define MAX_EDITORS	5		/* # of external editors supported */
+					/* MUST be at least 1 */
 
 /*
  * Message expiration policy stuff

@@ -27,7 +27,14 @@ fullscreen=no
 # messages.  If you want the external editor to be used by default, be sure
 # to reflect this in the command set below.
 #
-editor=pico
+# editor=pico
+
+# Or, you could have multiple editors available, like this:
+# ("editor" and "editor0" are the same internally)
+# You can go up to MAX_EDITORS number of editors (5 by default)
+# editor0=pico
+# editor1=vi
+# editor2=nano
 
 # If you define PRINTCMD, it will be a pipe through which messages are
 # printed when the user hits the <P>rint key after a message.
@@ -308,8 +315,15 @@ cmd=44,0,&.,&Enter,file using &Zmodem
 #
 cmd=41,0,&.,&Enter,re&Gistration
 cmd=4,0,&.,&Enter,&Message
+
+# If you have an external editor defined, it will appear on command 46.
 cmd=46,0,&.,&Enter,message with &Editor
-#
+
+# If you have multiple editors defined, they will appear on
+# commands 46, 101, 102, 103... up to MAX_EDITORS (5 by default)
+#cmd=101,0,&.,&Enter,message with &VI
+#cmd=102,0,&.,&Enter,message with &Nano
+
 cmd=59,0,&;,&Configure floor mode
 cmd=60,0,&;,&Goto floor:
 cmd=61,0,&;,&Skip to floor:

@@ -81,7 +81,6 @@ extern char fullname[];
 extern char axlevel;
 extern unsigned userflags;
 extern char sigcaught;
-extern char editor_path[];
 extern char printcmd[];
 extern int rc_allow_attachments;
 extern int rc_display_message_numbers;
@@ -733,14 +732,21 @@ int client_make_message(CtdlIPC *ipc,
 	long beg;
 	char datestr[SIZ];
 	char header[SIZ];
+	char *editor_path = NULL;
 	int cksum = 0;
 
-	if (mode == 2)
-		if (strlen(editor_path) == 0) {
+	if (mode >= 2)
+	{
+		if((mode-2) < MAX_EDITORS && strlen(editor_paths[mode-2]) > 0) {
+			editor_path = editor_paths[mode-2];
+		} else if (strlen(editor_paths[0]) > 0) {
+			editor_path = editor_paths[0];
+		} else {
 			err_printf
 			    ("*** No editor available, using built-in editor\n");
 			mode = 0;
 		}
+	}
 
 	fmt_date(datestr, sizeof datestr, time(NULL), 0);
 	header[0] = 0;
@@ -825,6 +831,7 @@ ME1:	switch (mode) {
 		break;
 
 	case 2:
+	default:	/* allow 2+ modes */
 		e_ex_code = 1;	/* start with a failed exit code */
 		editor_pid = fork();
 		cksum = file_checksum(filename);
@@ -850,7 +857,7 @@ ME1:	switch (mode) {
 		break;
 	}
 
-MECR:	if (mode == 2) {
+MECR:	if (mode >= 2) {
 		if (file_checksum(filename) == cksum) {
 			err_printf("*** Aborted message.\n");
 			e_ex_code = 1;

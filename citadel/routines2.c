@@ -917,7 +917,7 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 	FILE *tempfp;
 	FILE *changefp;
 
-	if (strlen(editor_path) == 0) {
+	if (strlen(editor_paths[0]) == 0) {
 		scr_printf("You must have an external editor configured in"
 			" order to use this function.\n");
 		return;
@@ -958,7 +958,7 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 	if (editor_pid == 0) {
 		chmod(filename, 0600);
 		putenv("WINDOW_TITLE=Network configuration");
-		execlp(editor_path, editor_path, filename, NULL);
+		execlp(editor_paths[0], editor_paths[0], filename, NULL);
 		exit(1);
 	}
 	if (editor_pid > 0) {
