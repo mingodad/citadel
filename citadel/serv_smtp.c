@@ -373,6 +373,7 @@ void smtp_rcpt(char *argbuf) {
 void smtp_data(void) {
 	char *body;
 	struct CtdlMessage *msg;
+	FILE *fp;
 
 /*
 	if (strlen(SMTP->from) == 0) {
@@ -394,10 +395,11 @@ void smtp_data(void) {
 		return;
 	}
 
-	fprintf(stderr, "Converting message...\n");
+	lprintf(9, "Converting message...\n");
 	msg = convert_internet_message(body);
 
 	/*   FIX do something with it!  */
+	lprintf(9, "Saving message...\n");
 	CtdlSaveMsg(msg, "", BASEROOM, MES_LOCAL, 1);
 
 	CtdlFreeMessage(msg);

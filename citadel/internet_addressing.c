@@ -304,12 +304,13 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 
 	if (colonpos < 0) return(0);	/* no colon? not a valid header line */
 
-	value = mallok((end - beg) + 2);
-	safestrncpy(value, &rfc822[beg], (end-beg)+1);
-	key = value;
+	key = mallok((end - beg) + 2);
+	safestrncpy(key, &rfc822[beg], (end-beg)+1);
 	key[colonpos - beg] = 0;
 	value = &key[(colonpos - beg) + 1];
 	unfold_rfc822_field(value);
+
+	lprintf(9, "Key=<%s> Value=<%s>\n", key, value);
 
 	/* Here's the big rfc822-to-citadel loop. */
 
@@ -325,15 +326,19 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 		node = mallok(strlen(value));
 		name = mallok(strlen(value));
 		process_rfc822_addr(value, user, node, name);
+		lprintf(9, "Converted to <%s@%s> (%s)\n", user, node, name);
 		if (msg->cm_fields['A'] == NULL)
-			msg->cm_fields['A'] = strdoop(user);
+			msg->cm_fields['A'] = user;
+		else
+			phree(user);
 		if (msg->cm_fields['N'] == NULL)
-			msg->cm_fields['N'] = strdoop(node);
+			msg->cm_fields['N'] = node;
+		else
+			phree(node);
 		if (msg->cm_fields['H'] == NULL)
-			msg->cm_fields['H'] = strdoop(name);
-		phree(user);
-		phree(node);
-		phree(name);
+			msg->cm_fields['H'] = name;
+		else
+			phree(name);
 		processed = 1;
 	}
 
@@ -356,7 +361,6 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 
 	struct CtdlMessage *msg;
 	int pos, beg, end;
-	int msglen;
 	int done;
 	char buf[256];
 	int converted;
@@ -370,7 +374,7 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 	msg->cm_format_type = 4;		/* always MIME */
 	msg->cm_fields['M'] = rfc822;
 
-	msglen = strlen(rfc822);
+	lprintf(9, "Unconverted RFC822 message length = %d\n", strlen(rfc822));
 	pos = 0;
 	done = 0;
 
@@ -414,6 +418,8 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 		msg->cm_fields['T'] = strdoop(buf);
 	}
 
+	lprintf(9, "RFC822 length remaining after conversion = %d\n",
+		strlen(rfc822));
 	return msg;
 }
 
