@@ -1,4 +1,9 @@
  $Log$
+ Revision 601.122  2003/01/21 04:42:12  ajc
+ * Moved login-to-screenname code ... no longer part of CtdlTryExistingUser(),
+   it's now part of getuser() so it always gets called, even when looking up
+   addresses for mail and stuff.
+
  Revision 601.121  2003/01/19 08:59:02  error
  * Remove irrelevant file hpsux.h (was part of dynloader)
 
@@ -4431,4 +4436,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

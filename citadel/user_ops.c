@@ -67,9 +67,17 @@ int getuser(struct usersupp *usbuf, char name[])
 	struct cdbdata *cdbus;
 
 	memset(usbuf, 0, sizeof(struct usersupp));
-	for (a = 0; a <= strlen(name); ++a) {
-		if (a < sizeof(lowercase_name))
-			lowercase_name[a] = tolower(name[a]);
+
+	if (CtdlAssociateSystemUser(lowercase_name, name) == 0) {
+		for (a = 0; a <= strlen(lowercase_name); ++a) {
+			lowercase_name[a] = tolower(lowercase_name[a]);
+		}
+	}
+	else {
+		for (a = 0; a <= strlen(name); ++a) {
+			if (a < sizeof(lowercase_name))
+				lowercase_name[a] = tolower(name[a]);
+		}
 	}
 	lowercase_name[sizeof(lowercase_name) - 1] = 0;
 
@@ -306,15 +314,35 @@ int getuserbynumber(struct usersupp *usbuf, long int number)
 
 
 /*
+ * See if we can translate a system login name (i.e. from /etc/passwd)
+ * to a Citadel screen name.  Returns 0 if one is found.
+ */
+int CtdlAssociateSystemUser(char *screenname, char *loginname) {
+	struct passwd *p;
+	int a;
+
+	p = (struct passwd *) getpwnam(loginname);
+	if (p != NULL) {
+		strcpy(screenname, p->pw_gecos);
+		for (a = 0; a < strlen(screenname); ++a) {
+			if (screenname[a] == ',') {
+				screenname[a] = 0;
+			}
+		}
+		return(0);
+	}
+	return(1);
+}
+
+
+
+/*
  * Back end for cmd_user() and its ilk
  */
 int CtdlLoginExistingUser(char *trythisname)
 {
 	char username[SIZ];
-	char autoname[SIZ];
-	int found_user = 0;
-	struct passwd *p;
-	int a;
+	int found_user;
 
 	if (trythisname == NULL) return login_not_found;
 	safestrncpy(username, trythisname, sizeof username);
@@ -323,17 +351,9 @@ int CtdlLoginExistingUser(char *trythisname)
 	if ((CC->logged_in)) {
 		return login_already_logged_in;
 	}
+
 	found_user = getuser(&CC->usersupp, username);
-	if (found_user != 0) {
-		p = (struct passwd *) getpwnam(username);
-		if (p != NULL) {
-			strcpy(autoname, p->pw_gecos);
-			for (a = 0; a < strlen(autoname); ++a)
-				if (autoname[a] == ',')
-					autoname[a] = 0;
-			found_user = getuser(&CC->usersupp, autoname);
-		}
-	}
+
 	if (found_user == 0) {
 		if (((CC->nologin)) && (CC->usersupp.axlevel < 6)) {
 			return login_too_many_users;
