@@ -2930,6 +2930,7 @@ void cmd_move(char *args)
 	struct ctdlroom qtemp;
 	int err;
 	int is_copy = 0;
+	int ra;
 
 	num = extract_long(args, 0);
 	extract(targ, args, 1);
@@ -2942,16 +2943,19 @@ void cmd_move(char *args)
 	}
 
 	getuser(&CC->user, CC->curr_user);
+	ra = CtdlRoomAccess(&qtemp, &CC->user);
 	/* Aides can move/copy */
 	if ((CC->user.axlevel < 6)
 	    /* Roomaides can move/copy */
 	    && (CC->user.usernum != CC->room.QRroomaide)
-	    /* Permit move/copy to/from personal rooms */
+	    /* Permit move/copy from personal rooms */
 	    && (!((CC->room.QRflags & QR_MAILBOX)
 			    && (qtemp.QRflags & QR_MAILBOX)))
 	    /* Permit only copy from public to personal room */
-	    && (!(is_copy && !(CC->room.QRflags & QR_MAILBOX)
-			    && (qtemp.QRflags & QR_MAILBOX)))) {
+	    && (!(is_copy && (CC->room.QRflags & QR_MAILBOX)
+			    || (qtemp.QRflags & QR_MAILBOX)))
+	    /* User must have access to target room */
+	    && !((ra & UA_KNOWN))) {
 		cprintf("%d Higher access required.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;

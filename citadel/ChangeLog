@@ -1,4 +1,14 @@
  $Log$
+ Revision 614.79  2004/03/15 16:47:04  error
+ * msgbase.c: cmd_move(): Fix the security logic for non-aides trying to
+   move or copy messages.  The logic should do the following:
+   * Allow move/copy for Aides
+   * Allow regular users to:
+     * Move a message between two personal rooms
+     * Copy a message from a Personal room to a room the user is subscribed to
+     * Copy a message from a room the user is subscribed to, to a personal room
+   * Prohibit other moves/copies
+
  Revision 614.78  2004/03/15 16:39:27  error
  * Multiple files: Set permissions on existing Citadel directories to prevent
    access to the database by local unix users to prevent direct database reads.
@@ -5514,4 +5524,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
