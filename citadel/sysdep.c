@@ -6,8 +6,6 @@
  *
  * Here's where we (hopefully) have all the parts of the Citadel server that
  * would need to be altered to run the server in a non-POSIX environment.
- * Wherever possible, we use function wrappers and type definitions to create
- * abstractions that are platform-independent from the calling side.
  * 
  * Eventually we'll try porting to a different platform and either have
  * multiple variants of this file or simply load it up with #ifdefs.
@@ -189,7 +187,7 @@ static volatile int time_to_die = 0;
 
 static RETSIGTYPE signal_cleanup(int signum) {
 	time_to_die = 1;
-	}
+}
 
 
 /*
@@ -201,7 +199,7 @@ void init_sysdep(void) {
 	/* Set up a bunch of semaphores to be used for critical sections */
 	for (a=0; a<MAX_SEMAPHORES; ++a) {
 		pthread_mutex_init(&Critters[a], NULL);
-		}
+	}
 
 	/*
 	 * Set up a place to put thread-specific data.
@@ -210,7 +208,7 @@ void init_sysdep(void) {
 	 */
 	if (pthread_key_create(&MyConKey, NULL) != 0) {
 		lprintf(1, "Can't create TSD key!!  %s\n", strerror(errno));
-		}
+	}
 
 	/*
 	 * The action for unexpected signals and exceptions should be to
@@ -227,7 +225,7 @@ void init_sysdep(void) {
 	 * socket breaks.
 	 */
 	signal(SIGPIPE, SIG_IGN);
-	}
+}
 
 
 /*
@@ -265,7 +263,7 @@ int ig_tcp_server(int port_number, int queue_len)
 		lprintf(1,
 			"citserver: No port number specified.  Run setup.\n");
 		exit(1);
-		}
+	}
 	
 	sin.sin_port = htons((u_short)port_number);
 
@@ -274,7 +272,7 @@ int ig_tcp_server(int port_number, int queue_len)
 		lprintf(1, "citserver: Can't create a socket: %s\n",
 			strerror(errno));
 		exit(errno);
-		}
+	}
 
 	/* Set the SO_REUSEADDR socket option, because it makes sense. */
 	i = 1;
@@ -283,15 +281,15 @@ int ig_tcp_server(int port_number, int queue_len)
 	if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
 		lprintf(1, "citserver: Can't bind: %s\n", strerror(errno));
 		exit(errno);
-		}
+	}
 
 	if (listen(s, queue_len) < 0) {
 		lprintf(1, "citserver: Can't listen: %s\n", strerror(errno));
 		exit(errno);
-		}
+	}
 
 	return(s);
-	}
+}
 
 
 
@@ -305,7 +303,7 @@ struct CitContext *MyContext(void) {
 	retCC = (struct CitContext *) pthread_getspecific(MyConKey);
 	if (retCC == NULL) retCC = &masterCC;
 	return(retCC);
-	}
+}
 
 
 /*
@@ -314,12 +312,13 @@ struct CitContext *MyContext(void) {
 struct CitContext *CreateNewContext(void) {
 	struct CitContext *me, *ptr;
 	int num = 1;
+	int startover = 0;
 
 	me = (struct CitContext *) mallok(sizeof(struct CitContext));
 	if (me == NULL) {
 		lprintf(1, "citserver: can't allocate memory!!\n");
 		return NULL;
-		}
+	}
 	memset(me, 0, sizeof(struct CitContext));
 
 	/* The new context will be created already in the CON_EXECUTING state
@@ -331,12 +330,15 @@ struct CitContext *CreateNewContext(void) {
 	begin_critical_section(S_SESSION_TABLE);
 
 	/* obtain a unique session number */
-	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
-		if (ptr->cs_pid == num) {
-			++num;
-			ptr = ContextList;
+	do {
+		startover = 0;
+		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
+			if (ptr->cs_pid == num) {
+				++num;
+				startover = 1;
+			}
 		}
-	}
+	} while (startover == 1);
 
 	me->cs_pid = num;
 	me->next = ContextList;
@@ -344,7 +346,7 @@ struct CitContext *CreateNewContext(void) {
 
 	end_critical_section(S_SESSION_TABLE);
 	return(me);
-	}
+}
 
 
 
@@ -359,11 +361,11 @@ int session_count(void) {
 	begin_critical_section(S_SESSION_TABLE);
 	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 		++TheCount;
-		}
+	}
 	end_critical_section(S_SESSION_TABLE);
 
 	return(TheCount);
-	}
+}
 
 
 /*
@@ -381,10 +383,10 @@ void client_write(char *buf, int nbytes)
 				strerror(errno));
 			CC->kill_me = 1;
 			return;
-			}
-		bytes_written = bytes_written + retval;
 		}
+		bytes_written = bytes_written + retval;
 	}
+}
 
 
 /*
@@ -401,7 +403,7 @@ void cprintf(const char *format, ...) {
 		buf[sizeof buf - 2] = '\n';
 	client_write(buf, strlen(buf)); 
 	va_end(arg_ptr);
-	}   
+}   
 
 
 /*
@@ -430,7 +432,7 @@ int client_read_to(char *buf, int bytes, int timeout)
 
 		if (FD_ISSET(CC->client_socket, &rfds) == 0) {
 			return(0);
-			}
+		}
 
 		rlen = read(CC->client_socket, &buf[len], bytes-len);
 		if (rlen<1) {
@@ -438,11 +440,11 @@ int client_read_to(char *buf, int bytes, int timeout)
 				strerror(errno));
 			CC->kill_me = 1;
 			return(-1);
-			}
-		len = len + rlen;
 		}
-	return(1);
+		len = len + rlen;
 	}
+	return(1);
+}
 
 /*
  * Read data from the client socket with default timeout.
@@ -452,7 +454,7 @@ int client_read_to(char *buf, int bytes, int timeout)
 int client_read(char *buf, int bytes)
 {
 	return(client_read_to(buf, bytes, config.c_sleeping));
-	}
+}
 
 
 /*
@@ -470,7 +472,7 @@ int client_gets(char *buf)
 		retval = client_read(&buf[i], 1);
 		if (retval != 1 || buf[i] == '\n' || i == 255)
 			break;
-		}
+	}
 
 	/* If we got a long line, discard characters until the newline.
 	 */
@@ -484,7 +486,7 @@ int client_gets(char *buf)
 	while ((strlen(buf)>0)&&(!isprint(buf[strlen(buf)-1])))
 		buf[strlen(buf)-1] = 0;
 	return(retval);
-	}
+}
 
 
 
@@ -494,7 +496,7 @@ int client_gets(char *buf)
 void sysdep_master_cleanup(void) {
 	lprintf(7, "Closing master socket %d\n", msock);
 	close(msock);
-	}
+}
 
 
 /*
@@ -525,12 +527,12 @@ void start_daemon(int do_close_stdio) {
 		/* close(0); */
 		close(1);
 		close(2);
-		}
+	}
 	signal(SIGHUP,SIG_IGN);
 	signal(SIGINT,SIG_IGN);
 	signal(SIGQUIT,SIG_IGN);
 	if (fork()!=0) exit(0);
-	}
+}
 
 
 
@@ -552,7 +554,7 @@ void cmd_nset(char *cmdbuf)
 		cprintf("%d Higher access required.\n", 
 			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;
-		}
+	}
 
 	for (a=1; a<=3; ++a) {
 		if (num_parms(cmdbuf) >= a) {
@@ -560,13 +562,13 @@ void cmd_nset(char *cmdbuf)
 			for (b=0; b<strlen(netsetup_args[a-1]); ++b) {
 				if (netsetup_args[a-1][b] == 34) {
 					netsetup_args[a-1][b] = '_';
-					}
 				}
 			}
+		}
 		else {
 			netsetup_args[a-1][0] = 0;
-			}
 		}
+	}
 
 	sprintf(fbuf, "./netsetup \"%s\" \"%s\" \"%s\" </dev/null 2>&1",
 		netsetup_args[0], netsetup_args[1], netsetup_args[2]);
@@ -574,30 +576,30 @@ void cmd_nset(char *cmdbuf)
 	if (netsetup == NULL) {
 		cprintf("%d %s\n", ERROR, strerror(errno));
 		return;
-		}
+	}
 
 	fbuf[0] = 0;
 	while (ch = getc(netsetup), (ch > 0)) {
 		fbuf[strlen(fbuf)+1] = 0;
 		fbuf[strlen(fbuf)] = ch;
-		}
+	}
 
 	retcode = pclose(netsetup);
 
 	if (retcode != 0) {
 		for (a=0; a<strlen(fbuf); ++a) {
 			if (fbuf[a] < 32) fbuf[a] = 32;
-			}
+		}
 		fbuf[245] = 0;
 		cprintf("%d %s\n", ERROR, fbuf);
 		return;
-		}
+	}
 
 	cprintf("%d Command succeeded.  Output follows:\n", LISTING_FOLLOWS);
 	cprintf("%s", fbuf);
 	if (fbuf[strlen(fbuf)-1] != 10) cprintf("\n");
 	cprintf("000\n");
-	}
+}
 
 
 
@@ -612,15 +614,15 @@ int convert_login(char NameToConvert[]) {
 	pw = getpwnam(NameToConvert);
 	if (pw == NULL) {
 		return(0);
-		}
+	}
 	else {
 		strcpy(NameToConvert, pw->pw_gecos);
 		for (a=0; a<strlen(NameToConvert); ++a) {
 			if (NameToConvert[a] == ',') NameToConvert[a] = 0;
-			}
-		return(1);
 		}
+		return(1);
 	}
+}
 
 
 
@@ -683,27 +685,27 @@ int main(int argc, char **argv)
 			freopen(tracefile, "r", stdin);
 			freopen(tracefile, "w", stdout);
 			freopen(tracefile, "w", stderr);
-			}
+		}
 
 		/* run in the background if -d was specified */
 		else if (!strcmp(argv[a], "-d")) {
 			start_daemon( (strlen(tracefile) > 0) ? 0 : 1 ) ;
-			}
+		}
 
 		/* -x specifies the desired logging level */
 		else if (!strncmp(argv[a], "-x", 2)) {
 			verbosity = atoi(&argv[a][2]);
-			}
+		}
 
 		else if (!strncmp(argv[a], "-h", 2)) {
 			safestrncpy(bbs_home_directory, &argv[a][2],
 				    sizeof bbs_home_directory);
 			home_specified = 1;
-			}
+		}
 
 		else if (!strncmp(argv[a], "-f", 2)) {
 			do_defrag = 1;
-			}
+		}
 
 		/* -r tells the server not to drop root permissions. don't use
 		 * this unless you know what you're doing. this should be
@@ -717,9 +719,9 @@ int main(int argc, char **argv)
 					"citserver [-tTraceFile] [-d] [-f]"
 					" [-xLogLevel] [-hHomeDir]\n");
 			exit(1);
-			}
-
 		}
+
+	}
 
 	/* Tell 'em who's in da house */
 	lprintf(1,
@@ -761,12 +763,12 @@ int main(int argc, char **argv)
 			if (setgid(pw->pw_gid))
 				lprintf(3, "setgid(%d): %s\n", pw->pw_gid,
 					strerror(errno));
-			}
+		}
 		lprintf(7, "Changing uid to %d\n", BBSUID);
 		if (setuid(BBSUID) != 0) {
 			lprintf(3, "setuid() failed: %s\n", strerror(errno));
-			}
 		}
+	}
 
 	/*
 	 * Do non system dependent startup functions.
@@ -781,7 +783,7 @@ int main(int argc, char **argv)
 		sprintf(moddir, "%s/modules", bbs_home_directory);
 		DLoader_Init(moddir);
 		free(moddir);
-		}
+	}
 
 	lprintf(7, "Starting housekeeper thread\n");
 	pthread_attr_init(&attr);
@@ -884,7 +886,7 @@ SETUP_FD:	FD_ZERO(&readfds);
 		 */
 		if (retval < 0) {
 			end_critical_section(S_I_WANNA_SELECT);
-			lprintf(9, "Exiting (%s)\n", errno);
+			lprintf(9, "Exiting (%s)\n", strerror(errno));
 			time_to_die = 1;
 		}
 
@@ -969,8 +971,7 @@ SETUP_FD:	FD_ZERO(&readfds);
 				write(rescan[1], &junk, 1);
 			}
 			else {
-				lprintf(9, "Thread %02d found nothing to do!\n",
-					getpid());
+				lprintf(9, "Thread found nothing to do!\n");
 			}
 
 		}
