@@ -63,8 +63,8 @@ int rc_force_mail_prompts;
 int rc_remember_passwords;
 int rc_ansi_color;
 int num_urls = 0;
-char urls[MAXURLS][1024];
-char rc_url_cmd[1024];
+char urls[MAXURLS][SIZ];
+char rc_url_cmd[SIZ];
 
 char *gl_string;
 int next_lazy_cmd = 5;

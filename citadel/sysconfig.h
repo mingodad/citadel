@@ -90,7 +90,7 @@
 /*
  * Command buffer size (do not change!)
  */
-#define SIZ		1024
+#define SIZ		4096
 
 /*
  * SMTP delivery retry and give-up times

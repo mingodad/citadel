@@ -380,7 +380,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 		if (partial[i]=='>') partial[i] = 0;
 	}
 	if (is_partial == 0) strcpy(partial, "");
-	lprintf(9, "Partial is %s\n", partial);
+	if (strlen(partial) > 0) lprintf(9, "Partial is %s\n", partial);
 
 	tmp = tmpfile();
 	if (tmp == NULL) {
