@@ -5,7 +5,7 @@ Notes on building a set of portable binaries
 This is kind of a work in progress.  Here's what we've done so far to 
 build a portable tarball.  We keep all the stuff that Citadel needs, but
 is not part of Citadel itself, in /usr/local/ctdlsupport, and we keep
-Citadel in /usr/local/citadel.
+Citadel in /usr/local/citadel.  (This is only known to work on Linux+GCC.)
 
 We build in /usr/src.
 

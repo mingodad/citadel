@@ -29,7 +29,7 @@ Goals to achieve during the 6.xx cycle
   Status: full functionlity is present in the current implementation, including
   the ability to keep a personal calendar, send/receive invitations, manage
   attendees, check free/busy times, etc.  It is fully usable via WebCit
-  and also works with Kolab-compatible clients (vCalendar over IMAP for the
+  and also works with both Aethera and Kolab1 (vCalendar over IMAP for the
   calendar store, and vCalendar over HTTPS for checking other users' free/busy
   times).
  
@@ -69,8 +69,9 @@ Goals to achieve during the 6.xx cycle
  Items recently removed from TODO list
  -------------------------------------
 
-* WebCit support for HTTP transactions performed by Kolab clients
-  (The current WebCit build works with the KDE Kolab klient using HTTPS.)
+* WebCit support for HTTP transactions performed by Kolab1 clients
+  (The current WebCit build works with the Kolab1 klient, and with Aethera,
+  both using HTTPS.)
  
 * RFC 2739 compliance (provide calendar free/busy URL's in vCard and LDAP)
   (If anyone knows of clients that make use of this, let us know / test it)

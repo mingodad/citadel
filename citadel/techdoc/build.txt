@@ -19,10 +19,9 @@ SOURCES macro near the top of Makefile.in.
 possible to build RPM's, and bring the installation process closer to that 
 of other packages, which if you're using the new configure script goes 
 like this: 
-  ./configure [--enable-ansi-color] [--disable-auto-login] [--prefix=/foo] 
- 
+  ./configure [--enable-ansi-color] [--disable-autologin] [--prefix=/foo] 
   
-  --prefix specifies the location the BBS will run from,  
+  --prefix specifies the location Citadel will run from,  
 /usr/local/citadel by default. 
   to build a highly optimized version without debugging symbols, you could 
  do something like this (with the bourne shell): 
