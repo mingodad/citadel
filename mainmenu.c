@@ -33,10 +33,8 @@ void display_main_menu(void)
 {
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770077><TR><TD>"
-		"<FONT SIZE=+1 COLOR=\"FFFFFF\""
-		"<B>Basic commands</B>\n"
-		"</FONT></TD>"
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770077\"><TR><TD>"
+		"<SPAN CLASS=\"titlebar\">Basic commands</SPAN>\n"
 		"</TD></TR></TABLE>\n"
 		"<CENTER><TABLE border=0><TR>"
 	);
@@ -93,10 +91,9 @@ void display_main_menu(void)
 
 	wprintf("<TABLE WIDTH=100%%><TR VALIGN=TOP><TD>");
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Interaction</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">Interaction</SPAN>\n");
+	wprintf("</TD></TR></TABLE>\n");
 
 	wprintf("<UL>");
 	wprintf("<LI><A HREF=\"/whobbs\">\n");
@@ -112,10 +109,9 @@ void display_main_menu(void)
 
 	wprintf("</TD><TD>");
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Your info</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">Your info</SPAN>\n");
+	wprintf("</TD></TR></TABLE>\n");
 
 	wprintf("<UL>");
 	wprintf("<LI><A HREF=\"/display_editbio\">\n");
@@ -135,10 +131,9 @@ void display_main_menu(void)
 
 	wprintf("</TD></TR><TR VALIGN=TOP><TD>");
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Advanced room commands</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#000077\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">Advanced room commands</SPAN>\n");
+	wprintf("</TD></TR></TABLE>\n");
 
 	wprintf("<UL>");
 	wprintf("<LI><A HREF=\"/display_private\">\n");
@@ -161,10 +156,9 @@ void display_main_menu(void)
 	wprintf("</TD><TD>");
 
 	if ((WC->axlevel >= 6) || (WC->is_room_aide)) {
-		wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007777><TR><TD>");
-		wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-		wprintf("<B>Administrative functions</B>\n");
-		wprintf("</FONT></TD></TR></TABLE>\n");
+		wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007777\"><TR><TD>");
+		wprintf("<SPAN CLASS=\"titlebar\">Administrative functions</SPAN>\n");
+		wprintf("</TD></TR></TABLE>\n");
 
 		wprintf("<UL>");
 		wprintf("<LI><A HREF=\"/display_editroom\">\n");
@@ -205,10 +199,9 @@ void display_generic(void)
 {
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770077><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Enter a server command</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770077\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">Enter a server command</SPAN>\n");
+	wprintf("</TD></TR></TABLE>\n");
 
 	wprintf("<CENTER>");
 	wprintf("This screen allows you to enter Citadel server commands which are\n");
@@ -249,10 +242,9 @@ void do_generic(void)
 	serv_printf("%s", bstr("g_cmd"));
 	serv_gets(buf);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770077><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Server command results</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770077\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">Server command results</SPAN>\n");
+	wprintf("</TD></TR></TABLE>\n");
 
 	wprintf("<TABLE border=0><TR><TD>Command:</TD><TD><TT>");
 	escputs(bstr("g_cmd"));

@@ -33,10 +33,9 @@ void display_page(void)
 
 	output_headers(3);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Page another user</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">Page another user</SPAN>\n");
+	wprintf("</TD></TR></TABLE>\n");
 
 	wprintf("<CENTER>This will send a page (instant message) "
 		"to %s.\n", recp);
@@ -120,10 +119,9 @@ void do_chat(void)
 
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Real-time chat</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#000077\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">Real-time chat</SPAN>\n");
+	wprintf("</TD></TR></TABLE>\n");
 
 	if (!strcasecmp(ctdlhost, "uds")) {
 		wprintf("<I>Sorry ... chat is not available here.</i></BR>\n");
@@ -162,11 +160,10 @@ void page_popup(void)
 
 		extract(pagefrom, &buf[4], 3);
 
-		wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
-		wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\""
-			"<B>Express message from ");
+		wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
+		wprintf("<SPAN CLASS=\"titlebar\">Express message from ");
 		escputs(pagefrom);
-		wprintf("</B></FONT></TD></TR></TABLE>\n");
+		wprintf("</SPAN></TD></TR></TABLE>\n");
 		
 		fmout(NULL);
 	}

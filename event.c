@@ -87,11 +87,10 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 
 	/* Begin output */
 	output_headers(3);
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>"
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>"
 		"<IMG ALIGN=CENTER SRC=\"/static/vcalendar.gif\">"
-		"<FONT SIZE=+1 COLOR=\"FFFFFF\""
-		"<B>Edit event</B>"
-		"</FONT></TD></TR></TABLE><BR>\n"
+		"<SPAN CLASS=\"titlebar\">Edit event</SPAN>"
+		"</TD></TR></TABLE><BR>\n"
 	);
 
 	/************************************************************

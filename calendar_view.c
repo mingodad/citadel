@@ -78,7 +78,7 @@ void calendar_month_view_display_events(time_t thetime) {
 
 					if (all_day_event) {
 						wprintf("<TABLE border=0 cellpadding=2><TR>"
-							"<TD BGCOLOR=#CCCCDD>"
+							"<TD BGCOLOR=\"#CCCCDD\">"
 						);
 					}
 
@@ -164,7 +164,7 @@ void calendar_month_view(int year, int month, int day) {
 	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/back.gif\" BORDER=0></A>\n");
 
 	wprintf("&nbsp;&nbsp;"
-		"<FONT COLOR=#FFFFFF>"
+		"<FONT COLOR=\"#FFFFFF\">"
 		"%s %d"
 		"</FONT>"
 		"&nbsp;&nbsp;", months[month-1], year);
@@ -182,7 +182,7 @@ void calendar_month_view(int year, int month, int day) {
 	wprintf("<TABLE width=100%% border=0 cellpadding=1 cellspacing=1 "
 		"bgcolor=#4444FF>");
 	for (i=0; i<7; ++i) {
-		wprintf("<TH><FONT COLOR=#FFFFFF>%s</FONT></TH>", days[i]);
+		wprintf("<TH><FONT COLOR=\"#FFFFFF\">%s</FONT></TH>", days[i]);
 	}
 
 	/* Now do 35 days */
@@ -194,7 +194,7 @@ void calendar_month_view(int year, int month, int day) {
 			wprintf("<TR>");
 		}
 
-		wprintf("<TD BGCOLOR=%s WIDTH=14%% HEIGHT=60 VALIGN=TOP><B>",
+		wprintf("<TD BGCOLOR=\"#%s\" WIDTH=14%% HEIGHT=60 VALIGN=TOP><B>",
 			((tm.tm_mon != month-1) ? "DDDDDD" :
 			((tm.tm_wday==0 || tm.tm_wday==6) ? "EEEECC" :
 			"FFFFFF"))
@@ -273,7 +273,7 @@ void calendar_day_view_display_events(int year, int month,
 
 					if (all_day_event) {
 						wprintf("<TABLE border=1 cellpadding=2><TR>"
-							"<TD BGCOLOR=#CCCCCC>"
+							"<TD BGCOLOR=\"#CCCCCC\">"
 						);
 					}
 
@@ -337,8 +337,8 @@ void calendar_day_view(int year, int month, int day) {
 
 	/* Display events before 8:00 (hour=-1 is all-day events) */
 	wprintf("<TR>"
-		"<TD BGCOLOR=CCCCDD VALIGN=MIDDLE WIDTH=10%%></TD>"
-		"<TD BGCOLOR=FFFFFF VALIGN=TOP>");
+		"<TD BGCOLOR=\"#CCCCDD\" VALIGN=MIDDLE WIDTH=10%%></TD>"
+		"<TD BGCOLOR=\"#FFFFFF\" VALIGN=TOP>");
 	for (hour = (-1); hour <= 7; ++hour) {
 		calendar_day_view_display_events(year, month, day, hour);
 	}
@@ -346,7 +346,7 @@ void calendar_day_view(int year, int month, int day) {
 
 	/* Now the middle of the day... */	
 	for (hour = 8; hour <= 17; ++hour) {	/* could do HEIGHT=xx */
-		wprintf("<TR HEIGHT=30><TD BGCOLOR=CCCCDD ALIGN=MIDDLE "
+		wprintf("<TR HEIGHT=30><TD BGCOLOR=\"#CCCCDD\" ALIGN=MIDDLE "
 			"VALIGN=MIDDLE WIDTH=10%%>");
 		wprintf("<A HREF=\"/display_edit_event?msgnum=0"
 			"&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
@@ -356,7 +356,7 @@ void calendar_day_view(int year, int month, int day) {
 			(hour <= 12 ? hour : hour-12),
 			(hour < 12 ? "am" : "pm")
 		);
-		wprintf("</TD><TD BGCOLOR=FFFFFF VALIGN=TOP>");
+		wprintf("</TD><TD BGCOLOR=\"#FFFFFF\" VALIGN=TOP>");
 
 		/* put the data here, stupid */
 		calendar_day_view_display_events(year, month, day, hour);
@@ -366,8 +366,8 @@ void calendar_day_view(int year, int month, int day) {
 
 	/* Display events after 5:00... */
 	wprintf("<TR>"
-		"<TD BGCOLOR=CCCCDD VALIGN=MIDDLE WIDTH=10%%></TD>"
-		"<TD BGCOLOR=FFFFFF VALIGN=TOP>");
+		"<TD BGCOLOR=\"#CCCCDD\" VALIGN=MIDDLE WIDTH=10%%></TD>"
+		"<TD BGCOLOR=\"#FFFFFF\" VALIGN=TOP>");
 	for (hour = 18; hour <= 23; ++hour) {
 		calendar_day_view_display_events(year, month, day, hour);
 	}
@@ -391,7 +391,7 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/back.gif\" BORDER=0></A>"
 		"</TD>\n");
 
-	wprintf("<TD ALIGN=MIDDLE><FONT COLOR=#FFFFFF>"
+	wprintf("<TD ALIGN=MIDDLE><FONT COLOR=\"#FFFFFF\">"
 		"<H2>%s</H2><H1>%d</H1><H3>%d</H3>"
 		"</FONT></TD>",
 		months[month-1], day, year);

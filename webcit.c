@@ -581,10 +581,9 @@ void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
 {
 	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=%s><TR><TD>", titlebarcolor);
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>%s</B>\n", titlebarmsg);
-	wprintf("</FONT></TD></TR></TABLE><BR>\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#%s\"><TR><TD>", titlebarcolor);
+	wprintf("<SPAN CLASS=\"titlebar\">%s</SPAN>\n", titlebarmsg);
+	wprintf("</TD></TR></TABLE><BR>\n");
 	escputs(messagetext);
 
 	wprintf("<HR>\n");
@@ -610,7 +609,7 @@ void offer_start_page(void) {
 	wprintf("<A HREF=\"/change_start_page?startpage=");
 	urlescputs(WC->this_page);
 	wprintf("\">"
-		"<FONT SIZE=-2 COLOR=#AAAAAA>Make this my start page</FONT>"
+		"<FONT SIZE=-2 COLOR=\"#AAAAAA\">Make this my start page</FONT>"
 		"</A>"
 	);
 }

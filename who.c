@@ -45,11 +45,11 @@ void whobbs(void)
 		"</SCRIPT>\n"
 	);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
 	wprintf("<IMG SRC=\"/static/users-icon.gif\" ALT=\" \" ALIGN=MIDDLE>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\">&nbsp;&nbsp;<B>Users currently on ");
+	wprintf("<SPAN CLASS=\"titlebar\">Users currently on ");
 	escputs(serv_info.serv_humannode);
-	wprintf("</B></FONT></TD><TD>");
+	wprintf("</SPAN></TD><TD>");
 	offer_start_page();
 	wprintf("</TD></TR></TABLE>\n");
 
@@ -182,10 +182,10 @@ void edit_me(void)
 
 		output_headers(3);
 
-		wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
-		wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"><B>");
+		wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#000077\"><TR><TD>");
+		wprintf("<SPAN CLASS=\"titlebar\">");
 		wprintf("Edit your session display");
-		wprintf("</B></FONT></TD></TR></TABLE>\n");
+		wprintf("</SPAN></TD></TR></TABLE>\n");
 		wprintf("This screen allows you to change the way your\n");
 		wprintf("session appears in the 'Who is online' listing.\n");
 		wprintf("To turn off any 'fake' name you've previously\n");

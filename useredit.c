@@ -39,10 +39,10 @@ void select_user_to_edit(char *message, char *preselect)
 
 	if (message != NULL) wprintf(message);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>"
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">"
 		"Add/change/delete user accounts"
-		"</B></FONT></TD></TR></TABLE>\n");
+		"</SPAN></TD></TR></TABLE>\n");
 
 	wprintf("<TABLE border=0 CELLSPACING=10><TR VALIGN=TOP>"
 		"<TD>To edit an existing user account, select the user "
@@ -255,11 +255,11 @@ void display_edituser(char *supplied_username) {
 	}
 
 	output_headers(3);	/* No room banner on this screen */
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>"
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">"
 		"Edit user account: ");
 	escputs(username);
-	wprintf("</B></FONT></TD></TR></TABLE>\n");
+	wprintf("</SPAN></TD></TR></TABLE>\n");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/edituser\">\n"
 		"<INPUT TYPE=\"hidden\" NAME=\"username\" VALUE=\"");

@@ -31,10 +31,9 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 		return;
 	}
 	output_headers(3);
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Set/change %s</B>\n", description);
-	wprintf("</FONT></TD></TR></TABLE>\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">Set/change %s</SPAN>\n", description);
+	wprintf("</TD></TR></TABLE>\n");
 
 	wprintf("<CENTER>\n");
 
