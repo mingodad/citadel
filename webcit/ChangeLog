@@ -1,4 +1,7 @@
 $Log$
+Revision 523.10  2004/09/25 03:34:21  ajc
+* summary.c: Fixed a calling syntax problem
+
 Revision 523.9  2004/09/25 03:18:43  ajc
 * small stylesheet fix
 
@@ -2067,4 +2070,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
