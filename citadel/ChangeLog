@@ -1,4 +1,7 @@
  $Log$
+ Revision 620.17  2004/04/14 16:16:47  nbryant
+ * citadel.spec: don't BuildRequire newt-devel
+
  Revision 620.16  2004/04/14 03:42:01  ajc
  * ICAL FREEBUSY output now includes ORGANIZER, DTSTART, and DTEND fields.
    (Required for Kolab compatibility.)
@@ -5697,4 +5700,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -27,7 +27,11 @@ BuildRequires: glibc-devel
 BuildRequires: openldap-devel
 BuildRequires: db4-devel >= 4.1
 BuildRequires: pam-devel
-BuildRequires: newt-devel
+
+# Newt is not supported by redhat for binary compatibility with future
+# distributions, so we've disabled it.
+#BuildRequires: newt-devel
+
 BuildRequires: openssl-devel
 BuildRequires: ncurses-devel
 BuildRequires: zlib-devel
