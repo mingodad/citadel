@@ -265,6 +265,7 @@ void imap_strip_headers(FILE *fp) {
 	while (fgets(buf, sizeof buf, fp) != NULL) {
 		striplt(buf);
 		if (strlen(buf) == 0) {
+			fflush(fp);
 			ftruncate(fileno(fp), ftell(fp));
 		}
 	}
