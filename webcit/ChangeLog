@@ -1,4 +1,7 @@
 $Log$
+Revision 527.0  2004/12/07 04:41:37  ajc
+* THIS IS 5.27
+
 Revision 526.1  2004/12/07 04:41:02  ajc
 * Finally tracked down the WC->vars heap corruption issue (for real this
   time).  We now call clear_local_substs() at the end of each HTTP
