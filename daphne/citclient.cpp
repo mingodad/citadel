@@ -171,7 +171,7 @@ int CitClient::serv_trans(
 	// it must begin HERE.
 	cout << "Beginning transaction\n";
 	Critter.Enter();
-	wxBeginBusyCursor();
+	// wxBeginBusyCursor();
 
 	serv_puts(command);
 
@@ -220,7 +220,7 @@ int CitClient::serv_trans(
 	// If a mutex is to be wrapped around this function in the future,
 	// it must end HERE.
 	cout << "Ending transaction...\n";
-	wxEndBusyCursor();
+	// wxEndBusyCursor();
 	Critter.Leave();
 	cout << "...done.\n";
 
