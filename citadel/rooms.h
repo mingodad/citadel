@@ -19,6 +19,7 @@ void edit_floor(void);
 void kill_floor(void);
 void enter_bio(void);
 void download_to_local_disk(char *, long);
+void hit_any_key(void);
 
 
 /* 

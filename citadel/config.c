@@ -58,7 +58,7 @@ void get_config(void) {
 	}
 	fclose(cfp);
 
-	if (config.c_setup_level != REV_LEVEL) {
+	if (config.c_setup_level < REV_MIN) {
 		fprintf(stderr, "config: Your data files are out of date.  ");
 		fprintf(stderr, "Run setup to update them.\n");
 		fprintf(stderr,

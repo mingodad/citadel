@@ -8,8 +8,19 @@
 #include "sysdep.h"
 #include "sysconfig.h"
 #include "ipcdef.h"
-#define CITADEL	"Citadel/UX 5.70"
-#define REV_LEVEL 570
+
+#define CITADEL	"Citadel/UX 5.71"	/* Text description of this software */
+
+/*
+ * REV_LEVEL is the current version number (multiplied by 100 to avoid having
+ * to fiddle with the decimal).  REV_MIN is the oldest version of Citadel
+ * whose data files are compatible with the current version.  If the data files
+ * are older than REV_MIN, none of the programs will work until the setup
+ * program is run again to bring things up to date.
+ */
+#define REV_LEVEL	571		/* This version */
+#define REV_MIN		570		/* Oldest compatible version */
+
 #define SERVER_TYPE 0	/* zero for stock Citadel/UX; other developers please
 			   obtain SERVER_TYPE codes for your implementations */
 

@@ -1,4 +1,10 @@
  $Log$
+ Revision 571.0  2000/04/13 02:43:24  ajc
+ * Fixed a problem that crashed the client during <G>oto commands if a room
+   existed with a name more than 32 characters (thanks to Magus for reporting
+   this one).
+ * Tagged everything and updated docs for the 5.71 release
+
  Revision 570.18  2000/04/10 01:47:22  ajc
  * More paginator changes.  Shuffled code around, added pagination to a bunch
    of other functions, and replaced the old, cumbersome pagination with the
@@ -1846,4 +1852,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

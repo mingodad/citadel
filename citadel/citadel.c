@@ -42,7 +42,7 @@
 
 struct march {
 	struct march *next;
-	char march_name[32];
+	char march_name[ROOMNAMELEN];
 	char march_floor;
 	char march_order;
 };
@@ -441,7 +441,7 @@ void gotonext(void)
 {
 	char buf[256];
 	struct march *mptr, *mptr2;
-	char next_room[32];
+	char next_room[ROOMNAMELEN];
 
 	/* Check to see if the march-mode list is already allocated.
 	 * If it is, pop the first room off the list and go there.
