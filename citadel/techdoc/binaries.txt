@@ -36,7 +36,7 @@ we carry our own along.  It's better than static linking everything.
 
 4. If LDAP support is required, build OpenLDAP with:
 
-./configure --prefix=/usr/local/citadel --with-db=/usr/local/ctdlsupport
+./configure --prefix=/usr/local/ctdlsupport --with-db=/usr/local/ctdlsupport
 make
 make depend
 make install

@@ -32,20 +32,13 @@ Goals to achieve during the 6.xx cycle
   and also works with both Aethera and Kolab1 (vCalendar over IMAP for the
   calendar store, and vCalendar over HTTPS for checking other users' free/busy
   times).
- 
-  Doing CAP or WCAP seems less important now that vCalendar-over-IMAP seems
-  to be the emerging standard for open source groupware.  We will monitor the
-  direction the community takes and follow along.  Specifically, we will
-  probably implement whatever Mozilla Calendar ends up supporting.
- 
-  There is also the possibility of implementing the WebDAV/XML schema exposed
-  by Exchange [ http://tinyurl.com/23bcn ] which would give us transparent
-  compatibility with Evolution and Entourage (but ironically, not with
-  Outlook).
 
-* Move the WebCit presentation mode from frames to CSS.
-  
- 
+  After several false starts, it appears that the emerging standard will be
+  the draft GroupDAV specification.  Citadel *will* implement this, providing
+  out-of-the-box compatibility with upcoming versions of Evolution,
+  KOrganizer, and any other client which follows the standard.
+
+
  Short-term TODO list
  --------------------
 * Configuration front ends (particularly in WebCit) for the new feature
@@ -66,12 +59,17 @@ Goals to achieve during the 6.xx cycle
  
 * Land a book deal with O'Reilly.  :)
  
+
  Items recently removed from TODO list
  -------------------------------------
 
-* WebCit support for HTTP transactions performed by Kolab1 clients
+* WebCit support for HTTP/HTTPS transactions performed by Kolab1 clients
   (The current WebCit build works with the Kolab1 klient, and with Aethera,
   both using HTTPS.)
  
 * RFC 2739 compliance (provide calendar free/busy URL's in vCard and LDAP)
   (If anyone knows of clients that make use of this, let us know / test it)
+
+* Move the WebCit presentation mode from frames to CSS.
+  (Status: completed as of 2005jan25.  This was a prerequisite to DAV-enabling
+  the WebCit service.)
