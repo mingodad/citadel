@@ -36,6 +36,10 @@
  * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
  * $Log$
+ * Revision 1.2  1999/06/03 03:48:52  ajc
+ *         * Ditched the frames mode completely.  It wasn't working properly in,
+ *           among other places, IE 5.  Die, Bill, Die.
+ *
  * Revision 1.1  1999/03/07 03:09:55  ajc
  *         * wildmat.c, braindamage.c: added
  *
@@ -43,12 +47,6 @@
  * Initial revision
  * 
  */
-
-#ifndef lint
-static char *ident = "$Id$";
-static char *copyright = "Copyright (c) 1989 Mark H. Colburn.\nAll rights reserved.\n";
-#endif				/* ! lint */
-
 
 /* Includes */
 

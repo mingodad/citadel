@@ -22,8 +22,6 @@
 #include "child.h"
 #include "mime_parser.h"
 
-int fake_frames = 0;
-
 int wc_session;
 char wc_username[256];
 char wc_password[256];
@@ -33,9 +31,13 @@ int connected = 0;
 int logged_in = 0;
 int axlevel;
 char *ExpressMessages = NULL;
-int noframes = 0;
 int new_mail = 0;
 int need_vali = 0;
+
+/* This variable is set to 1 if the room banner and menubar have been
+ * displayed, and we need to close the <TABLE> tags.
+ */
+int fake_frames = 0;
 
 struct webcontent *wlist = NULL;
 struct webcontent *wlast = NULL;
@@ -201,7 +203,7 @@ int wContentLength(void)
  * calculate a Content-length: header.
  *
  * print_standard_html_footer should be set to 0 to transmit only, 1 to
- * append the main menu (if in noframes mode) and closing tags, or 2 to
+ * append the main menu and closing tags, or 2 to
  * append the closing tags only.
  */
 void wDumpContent(int print_standard_html_footer)
@@ -214,9 +216,8 @@ void wDumpContent(int print_standard_html_footer)
 	}
 
 	if (print_standard_html_footer) {
-		if ((noframes) && (print_standard_html_footer != 2)) {
+		if (print_standard_html_footer != 2) {
 			wprintf("<BR>");
-			/* embed_main_menu(); */  /* not any more */
 		}
 		wprintf("</BODY></HTML>\n");
 	}
@@ -333,8 +334,11 @@ char *getz(char *buf)
 /*
  * Output all that important stuff that the browser will want to see
  *
- * If print_standard_html_head is nonzero, we also get some standard HTML
- * headers.  If it's set to 2, the session is considered to be closing.
+ * print_standard_html_head values:
+ * 0 = Nothing.  Do not display any leading HTTP or HTML.
+ * 1 = HTTP headers plus the "fake frames" found in most windows.
+ * 2 = HTTP headers required to terminate the session (unset cookies)
+ * 3 = HTTP headers only.
  */
 void output_headers(int print_standard_html_head)
 {
@@ -349,8 +353,8 @@ void output_headers(int print_standard_html_head)
 		printf("Pragma: no-cache\n");
 		printf("Cache-Control: no-store\n");
 	}
-	stuff_to_cookie(cookie, wc_session, wc_username, wc_password,
-			wc_roomname, noframes);
+	stuff_to_cookie(cookie, wc_session, wc_username,
+			wc_password, wc_roomname);
 	if (print_standard_html_head == 2) {
 		printf("X-WebCit-Session: close\n");
 		printf("Set-cookie: webcit=%s\n", unset);
@@ -379,9 +383,9 @@ void output_headers(int print_standard_html_head)
 		wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
 	
 	
-	if ((print_standard_html_head == 1) && (noframes == 1)) {
-		wprintf("<TABLE border=0 width=100%>");
-		wprintf("<TR VALIGN=TOP><TD>");
+	if (print_standard_html_head == 1) {
+		wprintf("<TABLE border=0 width=100%>"
+			"<TR VALIGN=TOP><TD>");
 
 		display_menubar(0);
 
@@ -393,7 +397,6 @@ void output_headers(int print_standard_html_head)
 
 		wprintf("</TD></TR><TR VALIGN=TOP><TD>\n");
 		
-
 		fake_frames = 1;
 		}
 	}
@@ -533,10 +536,8 @@ void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
 	wprintf("</FONT></TD></TR></TABLE><BR>\n");
 	escputs(messagetext);
 
-	if (noframes) {
-		wprintf("<HR>\n");
-		embed_main_menu();
-	}
+	wprintf("<HR>\n");
+	embed_main_menu();
 	wDumpContent(1);
 }
 
@@ -646,8 +647,7 @@ void session_loop(char *browser_host, char *user_agent)
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
 			strcpy(cookie, &buf[15]);
 			cookie_to_stuff(cookie, NULL,
-				      c_username, c_password, c_roomname,
-					&noframes);
+				      c_username, c_password, c_roomname);
 		}
 		if (!strncasecmp(buf, "Content-length: ", 16)) {
 			ContentLength = atoi(&buf[16]);
@@ -950,10 +950,6 @@ int main(int argc, char *argv[])
 
 	strcpy(browser, argv[5]);
 	bd = browser_braindamage_check(browser);
-	if (bd == B_NO)
-		noframes = 1;
-	else
-		noframes = 0;
 
 	while (1) {
 		session_loop(argv[4], browser);

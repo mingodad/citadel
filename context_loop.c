@@ -271,7 +271,7 @@ void *context_loop(int sock)
 		req_gets(sock, buf, hold);
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
 			cookie_to_stuff(&buf[15], &desired_session,
-				NULL, NULL, NULL, NULL);
+				NULL, NULL, NULL);
 			got_cookie = 1;
 		}
 		else if (!strncasecmp(buf, "Content-length: ", 16)) {

@@ -11,12 +11,12 @@
 /*
  * Pack all session info into one easy-to-digest cookie.  Healthy and delicious!
  */
-void stuff_to_cookie(char *cookie, int session, char *user, char *pass, char *room, int nofr)
+void stuff_to_cookie(char *cookie, int session, char *user, char *pass, char *room)
 {
 	char buf[256];
 	int i;
 
-	sprintf(buf, "%d|%s|%s|%s|%d", session, user, pass, room, nofr);
+	sprintf(buf, "%d|%s|%s|%s", session, user, pass, room);
 	strcpy(cookie, "");
 
 	for (i = 0; i < strlen(buf); ++i)
@@ -28,7 +28,7 @@ void stuff_to_cookie(char *cookie, int session, char *user, char *pass, char *ro
 /*
  * Extract all that fun stuff out of the cookie.
  */
-void cookie_to_stuff(char *cookie, int *session, char *user, char *pass, char *room, int *nofr)
+void cookie_to_stuff(char *cookie, int *session, char *user, char *pass, char *room)
 {
 	char buf[256];
 	int i;
@@ -46,6 +46,4 @@ void cookie_to_stuff(char *cookie, int *session, char *user, char *pass, char *r
 		extract(pass, buf, 2);
 	if (room != NULL)
 		extract(room, buf, 3);
-	if (nofr != NULL)
-		*nofr = extract_int(buf, 4);
 }
