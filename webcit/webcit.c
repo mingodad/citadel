@@ -355,12 +355,13 @@ void output_headers(int controlcode)
 		 * were finished
 		 */
 
-		wprintf("<BODY MARGINWIDTH=0 MARGINHEIGHT=0 ");
 		if (!suppress_check) if (WC->HaveExpressMessages) {
-			wprintf("onload=\"launch_page_popup()\" ");
+			svprintf("extrabodyparms", WCS_STRING, "%s", 
+				"onload=\"launch_page_popup()\" ");
 			WC->HaveExpressMessages = 0;
 		}
-		wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+		do_template("background.html");
+		clear_local_substs();
 
 	if (print_standard_html_head == 1) {
 		wprintf("<A NAME=\"TheTop\"></A>"

@@ -324,8 +324,6 @@ void do_generic(void)
  * that the menubar is being embedded in another page.
  */
 void display_menubar(int as_single_page) {
-	FILE *menubar_body;
-	char buf[256];
 
 	if (as_single_page) {
 		output_headers(0);
@@ -335,22 +333,11 @@ void display_menubar(int as_single_page) {
 			"<STYLE TYPE=\"text/css\">\n"
 			"BODY	{ text-decoration: none; }\n"
 			"</STYLE>\n"
-			"</HEAD>\n"
-			"<BODY BACKGROUND=\"/image&name=background\" "
-			"TEXT=\"#000000\" LINK=\"#FFFFFF\" "
-			"ALINK=\"#FFFFFF\" VLINK=\"#FFFFFF\">\n");
+			"</HEAD>\n");
+		do_template("background.html");
 	}
 
-	menubar_body = fopen("static/menubar.html", "r");
-	if (menubar_body == NULL) {
-		wprintf("menubar<BR>%s", strerror(errno));
-	} else {
-		while (fgets(buf, sizeof(buf), menubar_body) != NULL) {
-			wprintf("%s", buf);
-		}
-		fclose(menubar_body);
-	}
-		
+	do_template("menubar.html");
 
 	if (as_single_page) {
 		wDumpContent(2);
