@@ -1,4 +1,4 @@
-1998-02-02 Nathan Bryant <bryant@cs.usm.maine.edu>
+1999-02-02 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* Fixes for Cygwin:
 	  - ifdef out file download methods that require named pipes (client)
 	  - include pthread.h and gdbm.h only if they are present (fixes
