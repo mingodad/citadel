@@ -14,7 +14,7 @@ TARGETS=@TARGETS@
 
 all: $(TARGETS)
 
-.SUFFIXES: .ro .d
+.SUFFIXES: .ro .mo .d
 
 CLIENT_TARGETS=citadel whobbs
 SERVER_TARGETS=citserver setup
@@ -23,7 +23,8 @@ UTIL_TARGETS=aidepost netmailer netproc netsetup msgform \
 	readlog rcit stats citmail netpoll mailinglist userlist
 PROXY_TARGETS=proxy
 DEFS=@DEFS@
-CPPFLAGS=@CPPFLAGS@
+srcdir=@srcdir@
+CPPFLAGS=@CPPFLAGS@ -I.
 CFLAGS=@CFLAGS@
 CC=@CC@
 LIBS=@LIBS@
@@ -31,6 +32,8 @@ LDFLAGS=@LDFLAGS@
 SERVER_LDFLAGS=@SERVER_LDFLAGS@
 CURSES=@CURSES@
 SNPRINTF=@SNPRINTF@
+VPATH=$(srcdir)
+
 PTHREAD_DEFS=-D_REENTRANT
 
 SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
@@ -85,17 +88,15 @@ citserver: citserver.ro user_ops.ro support.ro room_ops.ro file_ops.ro \
 .c.ro:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c $< -o $@
 
-modules/serv_chat.so: serv_chat.o
-	$(CC) -shared -o modules/serv_chat.so serv_chat.o
+modules/serv_chat.so: serv_chat.mo
+	$(CC) -shared -o modules/serv_chat.so serv_chat.mo
 
-serv_chat.o: serv_chat.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -fPIC -DPIC -c serv_chat.c
+.c.mo:
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -fPIC -DPIC -c $< \
+		-o $@
 
-modules/serv_test.so: serv_test.o
-	$(CC) -shared -o modules/serv_test.so serv_test.o
-
-serv_test.o: serv_test.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -fPIC -DPIC -c serv_test.c
+modules/serv_test.so: serv_test.mo
+	$(CC) -shared -o modules/serv_test.so serv_test.mo
 
 aidepost: aidepost.o config.o
 	$(CC) aidepost.o config.o $(LDFLAGS) -o aidepost
@@ -167,7 +168,7 @@ distclean: cleaner
 	rm -f Makefile sysdep.h config.cache config.log config.status *.d
 
 .c.d:
-	$(CC) -M $(CPPFLAGS) $< | sed -e 's!$*.o!$*.o $@!' > $@
+	$(CC) -M $(CPPFLAGS) $< | sed -e 's!$*.o!$*.o $*.ro $*.mo $@!' > $@
 	test -s $@ || rm -f $@
 
 Makefile: Makefile.in

@@ -412,22 +412,25 @@ int client_read(char *buf, int bytes)
  */
 int client_gets(char *buf)
 {
-	int retval = 0;
+	int i, retval;
 
-	/* Clear the buffer, and read one character at a time.
+	/* Read one character at a time.
 	 */
-	buf[0] = 0;
-	do {
-		if (strlen(buf)<255) {
-			buf[strlen(buf) + 1] = 0;
-			retval = client_read(&buf[strlen(buf)], 1);
-			}
-		else break;
-		} while ( (buf[strlen(buf)-1] != 10) && (retval==1) );
+	for (i = 0;;i++) {
+		retval = client_read(&buf[i], 1);
+		if (retval != 1 || buf[i] == '\n' || i == 255)
+			break;
+		}
+
+	/* If we got a long line, discard characters until the newline.
+	 */
+	if (i == 255)
+		while (buf[i] != '\n' && retval == 1)
+			retval = client_read(&buf[i], 1);
 
 	/* Strip the trailing newline.
 	 */
-	if (strlen(buf) > 0) buf[strlen(buf)-1] = 0;
+	buf[i] = 0;
 	return(retval);
 	}
 

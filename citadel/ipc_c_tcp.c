@@ -204,14 +204,25 @@ void serv_write(char *buf, int nbytes)
  */
 void serv_gets(char *buf)
 {
-	buf[0] = 0;
-	do {
-		buf[strlen(buf) + 1] = 0;
-		if (strlen(buf) < 255) serv_read(&buf[strlen(buf)], 1);
-		else break;
-		} while (buf[strlen(buf)-1] != 10);
-	if (strlen(buf) > 0) buf[strlen(buf)-1] = 0;
-	/* printf("> %s\n", buf); */
+	int i;
+
+	/* Read one character at a time.
+	 */
+	for (i = 0;;i++) {
+		serv_read(&buf[i], 1);
+		if (buf[i] == '\n' || i == 255)
+			break;
+		}
+
+	/* If we got a long line, discard characters until the newline.
+	 */
+	if (i == 255)
+		while (buf[i] != '\n')
+			serv_read(&buf[i], 1);
+
+	/* Strip the trailing newline.
+	 */
+	buf[i] = 0;
 	}
 
 
