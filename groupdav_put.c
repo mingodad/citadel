@@ -98,9 +98,12 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	 * version, so we fail...
 	 */
 	if (strlen(dav_ifmatch) > 0) {
+		lprintf(9, "dav_ifmatch: %s\n", dav_ifmatch);
 		old_msgnum = locate_message_by_uid(dav_uid);
+		lprintf(9, "old_msgnum:  %ld\n", old_msgnum);
 		if (atol(dav_ifmatch) != old_msgnum) {
 			wprintf("HTTP/1.1 412 Precondition Failed\r\n");
+			lprintf(9, "HTTP/1.1 412 Precondition Failed\r\n");
 			groupdav_common_headers();
 			wprintf("Content-Length: 0\r\n\r\n");
 			return;
@@ -162,6 +165,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	/* We created this item for the first time. */
 	if (old_msgnum < 0L) {
 		wprintf("HTTP/1.1 201 Created\r\n");
+		lprintf(9, "HTTP/1.1 201 Created\r\n");
 		groupdav_common_headers();
 		wprintf("Content-Length: 0\r\n");
 		wprintf("Location: ");
@@ -179,6 +183,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 
 	/* We modified an existing item. */
 	wprintf("HTTP/1.1 204 No Content\r\n");
+	lprintf(9, "HTTP/1.1 204 No Content\r\n");
 	groupdav_common_headers();
 	wprintf("Content-Length: 0\r\n\r\n");
 

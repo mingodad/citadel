@@ -1038,6 +1038,19 @@ void session_loop(struct httprequest *req)
 		goto SKIP_ALL_THIS_CRAP;
 	}
 
+
+	/*
+	 * If this isn't a GroupDAV session, it's an ordinary browser
+	 * connecting to the user interface.  Only allow GET and POST
+	 * methods.
+	 */
+	if ((strcasecmp(method, "GET")) && (strcasecmp(method, "POST"))) {
+		wprintf("HTTP/1.1 405 Method Not Allowed\r\n");
+		groupdav_common_headers();
+		wprintf("Content-Length: 0\r\n\r\n");
+		goto SKIP_ALL_THIS_CRAP;
+	}
+
 	check_for_instant_messages();
 
 	/*
