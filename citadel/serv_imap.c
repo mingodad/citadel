@@ -1235,7 +1235,7 @@ void imap_rename(int num_parms, char *parms[])
 	 * (already did that) and create a new inbox.
 	 */
 	if (!strcasecmp(parms[2], "INBOX")) {
-		create_room(MAILROOM, 4, "", 0, 1, 0, VIEW_BBS);
+		create_room(MAILROOM, 4, "", 0, 1, 0, VIEW_MAILBOX);
 	}
 
 	/* Otherwise, do the subfolders.  Build a list of rooms to rename... */

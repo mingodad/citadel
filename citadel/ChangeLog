@@ -1,4 +1,7 @@
  $Log$
+ Revision 641.1  2005/02/23 04:24:57  ajc
+ * When auto-creating Mail>, Sent Items>, etc... set view to VIEW_MAILBOX
+
  Revision 641.0  2005/02/21 21:59:33  ajc
  * THIS IS 6.41
 
@@ -6427,4 +6430,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

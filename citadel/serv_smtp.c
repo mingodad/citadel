@@ -1635,7 +1635,7 @@ void smtp_init_spoolout(void) {
 	 * Create the room.  This will silently fail if the room already
 	 * exists, and that's perfectly ok, because we want it to exist.
 	 */
-	create_room(SMTP_SPOOLOUT_ROOM, 3, "", 0, 1, 0, VIEW_BBS);
+	create_room(SMTP_SPOOLOUT_ROOM, 3, "", 0, 1, 0, VIEW_MAILBOX);
 
 	/*
 	 * Make sure it's set to be a "system room" so it doesn't show up
