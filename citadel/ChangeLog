@@ -1,3 +1,8 @@
+Thu Oct  1 23:02:20 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Rewrote [l][get|put]room() functions to use room names rather than
+	  room index numbers.  Temporarily prepended a "n" to these four
+	  function names until they are put to use.
+
 Thu Oct  1 16:27:13 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Removed a few more references to usersupp.lastseen[]
 

@@ -94,7 +94,7 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf) {
 	return(retval);
 	}
 
-
+/*************** START OF OLD ROOM DATABASE FUNCTIONS ***********************/
 /*
  * getroom()  -  retrieve room data from disk
  */
@@ -167,6 +167,79 @@ void lputroom(struct quickroom *qrbuf, int room_num)
 
 	}
 
+
+/*************** START OF NEW ROOM DATABASE FUNCTIONS ***********************/
+/*
+ * ngetroom()  -  retrieve room data from disk
+ */
+void ngetroom(struct quickroom *qrbuf, char *room_name)
+{
+	struct cdbdata *cdbqr;
+	char lowercase_name[20];
+	int a;
+
+	for (a=0; a<=strlen(room_name); ++a) {
+		lowercase_name[a] = tolower(room_name[a]);
+		}
+
+	bzero(qrbuf, sizeof(struct quickroom));
+	cdbqr = cdb_fetch(CDB_QUICKROOM,
+			lowercase_name, strlen(lowercase_name));
+	if (cdbqr != NULL) {
+		memcpy(qrbuf, cdbqr->ptr,
+	                ( (cdbqr->len > sizeof(struct quickroom)) ?
+                	sizeof(struct quickroom) : cdbqr->len) );
+		cdb_free(cdbqr);
+		}
+
+	/** FIX **   VILE SLEAZY HACK ALERT!!  
+	 * This is a temporary fix until we can track down where room names
+	 * are getting corrupted on some systems.
+	 */
+	for (a=0; a<20; ++a) if (qrbuf->QRname[a] < 32) qrbuf->QRname[a] = 0;
+	qrbuf->QRname[19] = 0;
+	}
+
+/*
+ * lngetroom()  -  same as ngetroom() but locks the record (if supported)
+ */
+void lngetroom(struct quickroom *qrbuf, char *room_name)
+{
+	begin_critical_section(S_QUICKROOM);
+	ngetroom(qrbuf, room_name);
+	}
+
+
+/*
+ * nputroom()  -  store room data on disk
+ */
+void nputroom(struct quickroom *qrbuf, char *room_name)
+{
+	char lowercase_name[20];
+	int a;
+
+	for (a=0; a<=strlen(room_name); ++a) {
+		lowercase_name[a] = tolower(room_name[a]);
+		}
+
+	time(&qrbuf->QRmtime);
+	cdb_store(CDB_QUICKROOM, lowercase_name, strlen(lowercase_name),
+		qrbuf, sizeof(struct quickroom));
+	}
+
+
+/*
+ * lnputroom()  -  same as nputroom() but unlocks the record (if supported)
+ */
+void lnputroom(struct quickroom *qrbuf, char *room_name)
+{
+
+	nputroom(qrbuf, room_name);
+	end_critical_section(S_QUICKROOM);
+
+	}
+
+/****************************************************************************/
 
 /*
  * getfloor()  -  retrieve floor data from disk
