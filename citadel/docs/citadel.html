@@ -1243,84 +1243,141 @@ need arises.</P>
 Directory room [Yes]? Yes
 </PRE>
  
-<P>...enter Yes if you wish to associate a directory with this room.  If you
+<P>...enter Yes if you wish to associate a directory with this room.  This can
+be used as a small file repository for files relevant to the topic of the room.
+If you
 enter Yes, you will also be prompted with the following four questions:</p>
 
+<PRE>
 Directory name [mydirname]: 
+</PRE>
  
-   ...the name of the subdirectory to put this room's files in.  The name of
-the directory created will be <your BBS directory>/files/<room dir name>.
+<P>...the name of the subdirectory to put this room's files in.  The name of
+the directory created will be
+<TT><I>&lt;your BBS directory&gt;</i>/files/<I>&lt;room dir
+name&gt;</i></tt>.</p>
     
+<PRE>
 Uploading allowed [Yes]? Yes
+</PRE>
  
-   ...enter Yes if users are allowed to upload to this room.
+<P>...enter Yes if users are allowed to upload to this room.</P>
 
+<PRE>
 Downloading allowed [Yes]? Yes
+</PRE>
   
-   ...enter Yes if users are allowed to download from this room.
+<P>...enter Yes if users are allowed to download from this room.</P>
 
+<PRE>
 Visible directory [Yes]? Yes
+</PRE>
   
-   ...enter Yes if users can read the directory of this room.
+<P>...enter Yes if users can read the directory of this room.</P>
 
-
+<PRE>
 Network shared room [No]? No
+</PRE>
   
-   ...you can share a room over a network without setting this flag, and
+<P>...you can share a room over a network without setting this flag, and
 vice versa, but what this flag does is twofold:
-   1. It prevents people with no network access from entering messages here
-   2. Messages are displayed with the name of their originating system in
-      the header.
+<UL>
+<LI>It prevents people with no network access from entering messages here
+<LI>Messages are displayed with the name of their originating system in
+the header.
+</UL></P>
 
+<PRE>
 Permanent room [No]? No
+</PRE>
  
-   ...the sysop utilities have an option to purge rooms which have not been posted
-in for two weeks.  If you wish to keep this from happening to a particular room, you
-can set this option.  (Keep in mind that Lobby>, Mail>, Aide>, any network rooms, and
-any directory rooms are automatically permanent.)
+<P>Citadel contains an 'auto purger' which is capable of removing rooms which
+have not been posted in for a pre-defined period of time (by default this is
+set to two weeks).  If you wish to keep this from happening to a particular
+room, you can set this option.  (Keep in mind that
+<tt>Lobby&gt;</tt>,
+<tt>Aide&gt;</tt>,
+any private mailbox rooms, any network shared rooms, and any rooms with a
+file directory are automatically permanent.)</P>
 
-
+<PRE>
 Anonymous messages [No]? No
 Ask users whether to make messages anonymous [No]? No
+</PRE>
   
-   ...you can have rooms in which all messages are automatically anonymous,
+<P>...you can have rooms in which all messages are automatically anonymous,
 and you can have rooms in which users are prompted whether to make a message
-anonymous when they enter it.
+anonymous when they enter it.  The real identity of the author of each
+message is still revealed to the Room Aide for this room, as well as any
+system-wide Aides.</P>
 
+<PRE>
 Room aide [Joe Responsible]: 
+</PRE>
  
-   ...on larger systems, it helps to designate a person to be responsible for
+<P>...on larger systems, it helps to designate a person to be responsible for
 a room.  Room Aides have access to a restricted set of Aide commands, ONLY
 when they are in the room in which they have this privilege.  They can edit
 the room, delete the room, delete and move messages, and invite or kick out
 users (if it is a private room), but they cannot perform aide commands that
-are not room-related (such as changing users access levels).
+are not room-related (such as changing users access levels).</P>
 
+<PRE>
+Listing order [64]: 
+</PRE>
+
+<P>This is just a simple way to try to control the order rooms are listed in
+when users call up a <TT><B>K</B>nown Rooms</tt> listing.  Rooms with a lower
+listing order are displayed prior to rooms with a higher listing order.  It
+has no other effect.  For users who list rooms in floor order, the display
+will sort first by floor, then by listing order.</p>
+
+<PRE>
+Message expire policy (? for list) [0]:
+</PRE>
+
+<P>This provides you with the opportunity to select how long each message will
+remain in a room before automatically being deleted.  Press <tt><b>?</b></tt>
+for a list of options.  You can choose to keep messages around forever (or
+until they are manually deleted), until they become a certain number of days
+old, or until a certain number of additional messages are posted in the room,
+at which time the oldest ones will scroll out.</P>
+
+<P>You will notice that you can also fall back to the default expire policy for
+the floor upon which the room resides.  This is the default setting.  You can
+change the floor's default with the
+<TT><b>;A</b>ide <b>E</b>dit floor</tt> command.  The default setting for
+the floor default, in turn, is the system default setting, which can be
+changed using the
+<tt><b>.A</b>ide <B>S</b>ystem configuration <b>G</b>eneral</tt> command.</p>
+
+<PRE>
 Save changes (y/n)? Yes
-  
-    ...this gives you an opportunity to back out, if you feel you really
-messed things up while editing.
+</PRE>
 
+<P>...this gives you an opportunity to back out, if you feel you really
+messed things up while editing.</p>
 
+<h3>File directories</h3>
  
-   FILE DIRECTORIES 
- 
- If you have created any directory rooms, you can attach file descriptions to
-the filenames through a special file called "filedir".  Each line contains
+<p>If you have created any directory rooms, you can attach file descriptions to
+the filenames through a special file called <tt>filedir</tt>. Each line contains
 the name of a file in the directory, followed by a space and then a description
-of the file, such as:
+of the file, such as:</p>
  
- myfile.txt This is a description of my file.
- phluff A phile phull of phluff!
+<PRE>
+myfile.txt This is a description of my file.
+phluff A phile phull of phluff!
+</pre>
  
- ...this would create file descriptions for the files 'myfile.txt' and 'phluff'
+<P>...this would create file descriptions for the files <tt>myfile.txt</tt>
+and <TT>phluff</tt>
 which would be displayed along with the directory.  It should also be noted
 that when users upload files to your system, they will be prompted for file
-descriptions, which will be added to the 'filedir' file.  If one does not
-exist, it will be created.
- 
- 
-   EDITING USERS
+descriptions, which will be added to the <tt>filedir</tt> file.  If one does
+not exist, it will be created.</p>
+
+<h3>Creating and editing user accounts</h3> 
  
    This command allows any aide to change certain parameters of any user's
 account. Entering this command will ask for the name of a user to edit, and
