@@ -71,12 +71,12 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		return;
 	}
 
-	/* Ugly hack to mess with the content type.  KOrganizer is either
+	/**********************
+	 * Ugly hack to mess with the content type.  KOrganizer is either
 	 * not supplying one, or supplying the wrong one.
-	 * FIXME - remove this after KOrg gets fixed.
-	 */
+	 * (Commented out because Reinhold has fixed this bug in KOrg.)
 	strcpy(dav_content_type, supplied_content_type);
-	/* lprintf(9, "Supplied content type: %s\n", dav_content_type); */
+	lprintf(9, "Supplied content type: %s\n", dav_content_type);
 	switch (WC->wc_view) {
 		case VIEW_ADDRESSBOOK:
 			strcpy(dav_content_type, "text/x-vcard");
@@ -90,7 +90,8 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		default:
 			break;
 	}
-	/* lprintf(9, "  Forced content type: %s\n", dav_content_type); */
+	lprintf(9, "  Forced content type: %s\n", dav_content_type);
+	******************/
 
 	/*
 	 * If an HTTP If-Match: header is present, the client is attempting
