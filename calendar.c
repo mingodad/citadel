@@ -236,7 +236,32 @@ void display_individual_cal(icalcomponent *cal) {
 }
 
 void display_individual_task(icalcomponent *vtodo) {
+	icalproperty *p;
+
 	wprintf("display_individual_task() called<BR>\n");
+
+	for (
+	    p = icalcomponent_get_first_property(vtodo,
+						ICAL_ANY_PROPERTY);
+	    p != 0;
+	    p = icalcomponent_get_next_property(vtodo,
+						ICAL_ANY_PROPERTY)
+	) {
+
+		/* Get a string representation of the property's value 
+		wprintf("Prop value: %s<BR>\n",
+					icalproperty_get_comment(p) ); */
+
+		/* Spit out the property in its RFC 2445 representation */
+		wprintf("<TT>%s</TT><BR>\n",
+					icalproperty_as_ical_string(p) );
+
+
+	}
+
+
+
+
 }
 
 /*
