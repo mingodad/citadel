@@ -468,15 +468,24 @@ void buffer_output(void) {
 }
 
 /*
- * unbuffer_output()  ...  dump out all that output we've been buffering.
+ * flush_output()  ...   dump out all that output we've been buffering.
+ */
+void flush_output(void) {
+	if (CC->buffering == 1) {
+		client_write(CC->output_buffer, CC->buffer_len);
+		CC->buffer_len = 0;
+	}
+}
+
+/*
+ * unbuffer_output()  ...  stop buffering output.
  */
 void unbuffer_output(void) {
 	if (CC->buffering == 1) {
+		flush_output();
 		CC->buffering = 0;
-		client_write(CC->output_buffer, CC->buffer_len);
 		free(CC->output_buffer);
 		CC->output_buffer = NULL;
-		CC->buffer_len = 0;
 	}
 }
 

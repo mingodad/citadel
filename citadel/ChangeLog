@@ -1,4 +1,8 @@
  $Log$
+ Revision 625.11  2004/09/05 15:20:41  error
+ * sysdep.c: unbuffer_output(): Split the writing part to a new function
+   flush_output() for more precise control
+
  Revision 625.10  2004/09/03 04:34:30  ajc
  * setup.c: when creating an inittab entry for slapd, use "-d 0" instead
    of "-d 1" to avoid spewing messages to the console, while still remaining
@@ -6038,3 +6042,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
