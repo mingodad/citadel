@@ -541,21 +541,25 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		"<SPAN CLASS=\"titlebar\">Edit task</SPAN>"
 		"</TD></TR></TABLE><BR>\n"
 	);
+	
+	do_template("beginbox_nt");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/save_task\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n",
 		msgnum);
 
-	wprintf("Summary: "
+	wprintf("<TABLE border=0>\n");
+
+	wprintf("<TR><TD>Summary:</TD><TD>"
 		"<INPUT TYPE=\"text\" NAME=\"summary\" "
 		"MAXLENGTH=\"64\" SIZE=\"64\" VALUE=\"");
 	p = icalcomponent_get_first_property(vtodo, ICAL_SUMMARY_PROPERTY);
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_comment(p));
 	}
-	wprintf("\"><BR>\n");
+	wprintf("\"></TD></TR>\n");
 
-	wprintf("Start date: ");
+	wprintf("<TR><TD>Start date:</TD><TD>");
 	p = icalcomponent_get_first_property(vtodo, ICAL_DTSTART_PROPERTY);
 	if (p != NULL) {
 		t = icalproperty_get_dtstart(p);
@@ -564,9 +568,9 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		t = icaltime_from_timet(now, 0);
 	}
 	display_icaltimetype_as_webform(&t, "dtstart");
-	wprintf("<BR>\n");
+	wprintf("</TD></TR>\n");
 
-	wprintf("Due date: ");
+	wprintf("<TR><TD>Due date:</TD><TD>");
 	p = icalcomponent_get_first_property(vtodo, ICAL_DUE_PROPERTY);
 	if (p != NULL) {
 		t = icalproperty_get_due(p);
@@ -575,18 +579,19 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		t = icaltime_from_timet(now, 0);
 	}
 	display_icaltimetype_as_webform(&t, "due");
-	wprintf("<BR>\n");
-
-	wprintf("<CENTER><TEXTAREA NAME=\"description\" wrap=soft "
+	wprintf("</TD></TR>\n");
+	wprintf("<TR><TD>Description:</TD><TD>");
+	wprintf("<TEXTAREA NAME=\"description\" wrap=soft "
 		"ROWS=10 COLS=80 WIDTH=80>\n"
 	);
 	p = icalcomponent_get_first_property(vtodo, ICAL_DESCRIPTION_PROPERTY);
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_comment(p));
 	}
-	wprintf("</TEXTAREA><BR>\n");
+	wprintf("</TEXTAREA></TD></TR></TABLE>\n");
 
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save\">"
+	wprintf("<CENTER>"
+		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save\">"
 		"&nbsp;&nbsp;"
 		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Delete\">\n"
 		"&nbsp;&nbsp;"
@@ -596,6 +601,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 
 	wprintf("</FORM>\n");
 
+	do_template("endbox");
 	wDumpContent(1);
 
 	if (created_new_vtodo) {

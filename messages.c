@@ -1498,8 +1498,24 @@ void display_enter(void)
 	/* Are we perhaps in an address book view?  If so, then an "enter
 	 * message" command really means "add new entry."
 	 */
-	if (WC->wc_view == 2) {
+	if (WC->wc_view == VIEW_ADDRESSBOOK) {
 		do_edit_vcard(-1, "", "");
+		return;
+	}
+
+	/* Are we perhaps in a calendar view?  If so, then an "enter
+	 * message" command really means "add new calendar item."
+	 */
+	if (WC->wc_view == VIEW_CALENDAR) {
+		display_edit_event();
+		return;
+	}
+
+	/* Are we perhaps in a tasks view?  If so, then an "enter
+	 * message" command really means "add new task."
+	 */
+	if (WC->wc_view == VIEW_TASKS) {
+		display_edit_task();
 		return;
 	}
 
