@@ -3,7 +3,7 @@ use uncnsrd
 phonenum US 612 470 9635
 gdom MN
 humannode C-86 Test System
-lastcontact 953174223 Wed Mar 15 21:37:03 2000
+lastcontact 953365023 Sat Mar 18 02:37:03 2000
 
 bccs
 use uncnsrd
@@ -15,13 +15,13 @@ lastcontact 953246224 Thu Mar 16 17:37:04 2000
 internet
 uum %s
 humannode Internet Gateway
-lastcontact 953307423 Fri Mar 17 10:37:03 2000
+lastcontact 953440623 Sat Mar 18 23:37:03 2000
 
 uncnsrd
 bin Mail
 phonenum US 914 244 3252
 humannode Uncensored
-lastcontact 953282223 Fri Mar 17 03:37:03 2000
+lastcontact 953343423 Fri Mar 17 20:37:03 2000
 
 test
 bin Mail
@@ -36,7 +36,7 @@ tesseract
 bin Mail
 phonenum US 800 555 1212
 humannode Tesseract Project
-lastcontact 953307423 Fri Mar 17 10:37:03 2000
+lastcontact 953440623 Sat Mar 18 23:37:03 2000
 
 pixel
 use uncnsrd
@@ -99,7 +99,7 @@ use uncnsrd
 phonenum CA (604) 589-8539
 gdom BC
 humannode Feathers & Furballs
-lastcontact 952925823 Mon Mar 13 00:37:03 2000
+lastcontact 953325424 Fri Mar 17 15:37:04 2000
 
 sbn
 use uncnsrd
@@ -113,7 +113,7 @@ use uncnsrd
 phonenum netproc[4026]: Adding non-neighbor system <sbn> to map
 gdom or system <sbn> to map
 humannode Dog Pound BBS II
-lastcontact 953217423 Thu Mar 16 09:37:03 2000
+lastcontact 953339823 Fri Mar 17 19:37:03 2000
 
 jacs
 use uncnsrd

@@ -1,4 +1,7 @@
  $Log$
+ Revision 1.493  2000/03/19 05:02:39  ajc
+ * SMTP hacks to deal with AOL braindamage
+
  Revision 1.492  2000/03/18 18:18:04  ajc
  * Support multiline responses from SMTP servers when sending mail
 
@@ -1759,4 +1762,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

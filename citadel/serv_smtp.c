@@ -885,7 +885,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	/* Do a HELO command */
 	snprintf(buf, sizeof buf, "HELO %s", config.c_fqdn);
 	lprintf(9, ">%s\n", buf);
-	sock_puts(sock, buf);
+	sock_puts_crlf(sock, buf);
 	if (ml_sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
@@ -907,9 +907,9 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 
 
 	/* HELO succeeded, now try the MAIL From: command */
-	snprintf(buf, sizeof buf, "MAIL From: %s", mailfrom);
+	snprintf(buf, sizeof buf, "MAIL From: <%s>", mailfrom);
 	lprintf(9, ">%s\n", buf);
-	sock_puts(sock, buf);
+	sock_puts_crlf(sock, buf);
 	if (ml_sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
@@ -931,9 +931,9 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 
 
 	/* MAIL succeeded, now try the RCPT To: command */
-	snprintf(buf, sizeof buf, "RCPT To: %s", addr);
+	snprintf(buf, sizeof buf, "RCPT To: <%s>", addr);
 	lprintf(9, ">%s\n", buf);
-	sock_puts(sock, buf);
+	sock_puts_crlf(sock, buf);
 	if (ml_sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
@@ -956,7 +956,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 
 	/* RCPT succeeded, now try the DATA command */
 	lprintf(9, ">DATA\n");
-	sock_puts(sock, "DATA");
+	sock_puts_crlf(sock, "DATA");
 	if (ml_sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
@@ -1016,7 +1016,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	*status = 2;
 
 	lprintf(9, ">QUIT\n");
-	sock_puts(sock, "QUIT");
+	sock_puts_crlf(sock, "QUIT");
 	ml_sock_gets(sock, buf);
 	lprintf(9, "<%s\n", buf);
 

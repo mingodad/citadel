@@ -10,6 +10,7 @@ int sock_write(int sock, char *buf, int nbytes);
 int ml_sock_gets(int sock, char *buf);
 int sock_gets(int sock, char *buf);
 int sock_puts(int sock, char *buf);
+int sock_puts_crlf(int sock, char *buf);
 
 /* 
  * This looks dumb, but it's being done for future portability

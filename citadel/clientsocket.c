@@ -169,8 +169,8 @@ int ml_sock_gets(int sock, char *buf) {
 	int g;
 
 	g = sock_gets(sock, buf);
-	if (g < 0) return(g);
-	if ( (g < 4) || (buf[3] != '-')) return(g);
+	if (g < 4) return(g);
+	if (buf[3] != '-') return(g);
 
 	do {
 		g = sock_gets(sock, bigbuf);
@@ -192,6 +192,22 @@ int sock_puts(int sock, char *buf)
 	i = sock_write(sock, buf, strlen(buf));
 	if (i<0) return(i);
 	j = sock_write(sock, "\n", 1);
+	if (j<0) return(j);
+	return(i+j);
+}
+
+
+/*
+ * sock_puts_crlf() - same as sock_puts() but ends line with CRLF, not LF
+ * Returns the number of bytes written, or -1 for error.
+ */
+int sock_puts_crlf(int sock, char *buf)
+{
+	int i, j;
+
+	i = sock_write(sock, buf, strlen(buf));
+	if (i<0) return(i);
+	j = sock_write(sock, "\r\n", 2);
 	if (j<0) return(j);
 	return(i+j);
 }
