@@ -708,6 +708,14 @@ fclose(fp);
 		zap();
 		}
 
+	else if (!strcasecmp(action, "display_entroom")) {
+		display_entroom();
+		}
+
+	else if (!strcasecmp(action, "entroom")) {
+		entroom();
+		}
+
 	/* When all else fails... */
 	else {
 		printf("HTTP/1.0 200 OK\n");

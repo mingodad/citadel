@@ -59,3 +59,5 @@ void zapped_list(void);
 void display_zap(void);
 void zap(void);
 void display_error(char *errormessage);
+void display_entroom(void);
+void entroom(void);

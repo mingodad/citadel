@@ -699,16 +699,19 @@ int editroom(void) {
 /*
  * display the form for entering a new room
  */
-int display_entroom(void) {
+void display_entroom(void) {
 	char buf[256];
 
 	serv_puts("CRE8 0");
 	serv_gets(buf);
 	
 	if (buf[0]!='2') {
-		wprintf("<EM>%s</EM><HR>\n",&buf[4]);
-		return(0);
+		display_error(&buf[4]);
+		return;
 		}
+
+        printf("HTTP/1.0 200 OK\n");
+        output_headers(1);
 
         wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
         wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -739,8 +742,8 @@ int display_entroom(void) {
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 	wprintf("</CENTER>\n");
-	wprintf("</FORM>\n");
-	return(1);
+	wprintf("</FORM></HTML>\n");
+	wDumpContent();
 	}
 
 
@@ -748,7 +751,7 @@ int display_entroom(void) {
 /*
  * enter a new room
  */
-int entroom(void) {
+void entroom(void) {
 	char buf[256];
 	char er_name[20];
 	char er_type[20];
@@ -756,8 +759,8 @@ int entroom(void) {
 	int er_num_type;
 
 	if (strcmp(bstr("sc"),"OK")) {
-		wprintf("<EM>Changes have <STRONG>not</STRONG> been saved.</EM><BR>");
-		return(0);
+		display_error("Cancelled.  No new room was created.");
+		return;
 		}
 	
 	strcpy(er_name,bstr("er_name"));
@@ -773,11 +776,10 @@ int entroom(void) {
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]!='2') {
-		wprintf("<EM>%s</EM><HR>\n",&buf[4]);
-		return(display_editroom());
+		display_error(&buf[4]);
+		return;
 		}
-	gotoroom(er_name,0);
-	return(0);
+	gotoroom(er_name, 1);
 	}
 
 
