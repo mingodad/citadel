@@ -1,3 +1,7 @@
+Mon May 10 23:09:34 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Replaced _most_ gotoroom() calls with smart_goto(), a version
+	  which can differentiate the needs of frames and noframes modes
+
 Sat May  8 01:07:06 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* webserver.c: added "-t" option to send traces somewhere else
 

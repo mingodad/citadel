@@ -115,7 +115,9 @@ void room_tree_list(struct roomlisting *rp)
 
 	wprintf("<A HREF=\"/dotgoto&room=");
 	urlescputs(rmname);
-	wprintf("\" TARGET=\"top\">");
+	wprintf("\"");
+	if (!noframes) wprintf("TARGET=\"top\"");
+	wprintf(">");
 	escputs1(rmname, 1);
 	if ((f & QR_DIRECTORY) && (f & QR_NETWORK))
 		wprintf("}");
@@ -536,6 +538,12 @@ void gotonext(void)
 		strcpy(next_room, "_BASEROOM_");
 	}
 
+
+	smart_goto(next_room);
+}
+
+
+void smart_goto(char *next_room) {
 	/* In noframes mode, we goto the room silently, then do a
 	 * read-new-messages which causes the banner to show up anyway.
 	 */
@@ -578,13 +586,13 @@ void ungoto(void)
 	char buf[256];
 
 	if (!strcmp(ugname, "")) {
-		gotoroom(wc_roomname, 1);
+		smart_goto(wc_roomname);
 		return;
 	}
 	serv_printf("GOTO %s", ugname);
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		gotoroom(wc_roomname, 1);
+		smart_goto(wc_roomname);
 		return;
 	}
 	if (uglsn >= 0L) {
@@ -593,7 +601,7 @@ void ungoto(void)
 	}
 	strcpy(buf, ugname);
 	strcpy(ugname, "");
-	gotoroom(buf, 1);
+	smart_goto(buf);
 }
 
 /*
@@ -908,7 +916,7 @@ void editroom(void)
 			return;
 		}
 	}
-	gotoroom(er_name, 1);
+	smart_goto(er_name);
 }
 
 
@@ -999,7 +1007,7 @@ void entroom(void)
 		display_error(&buf[4]);
 		return;
 	}
-	gotoroom(er_name, 1);
+	smart_goto(er_name);
 }
 
 
@@ -1065,7 +1073,7 @@ void goto_private(void)
 	serv_gets(buf);
 
 	if (buf[0] == '2') {
-		gotoroom(bstr("gr_name"), 1);
+		smart_goto(bstr("gr_name"));
 		return;
 	}
 	if (!strncmp(buf, "540", 3)) {
@@ -1128,7 +1136,7 @@ void zap(void)
 		display_error(&buf[4]);
 		return;
 	}
-	gotoroom(bstr("_BASEROOM_"), 1);
+	smart_goto(bstr("_BASEROOM_"));
 }
 
 
@@ -1188,6 +1196,6 @@ void delete_room(void)
 	if (buf[0] != '2') {
 		display_error(&buf[4]);
 	} else {
-		gotoroom("_BASEROOM_", 1);
+		smart_goto("_BASEROOM_");
 	}
 }
