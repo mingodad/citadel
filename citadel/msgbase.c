@@ -10,6 +10,7 @@
 #include "citadel.h"
 #include "server.h"
 #include <errno.h>
+#include <sys/stat.h>
 #include "proto.h"
 
 #define MSGS_ALL	0
@@ -606,27 +607,26 @@ long send_message(char *filename, int generate_id)
 
 	FILE *fp;
 	long newmsgid;
-
+	struct stat statbuf;
 	char *message_in_memory;
 	size_t templen;
 
-	fp = fopen(filename, "rb");
 
 	/* Measure the message */
 	lprintf(9, "Measuring the message\n");
-	fseek(fp, 0L, SEEK_END);
-	templen = ftell(fp);
+	stat(filename, &statbuf);
+	templen = statbuf.st_size;
 
 	/* Now read it into memory */
 	lprintf(9, "Allocating %ld bytes\n", templen);
 	message_in_memory = (char *) malloc(templen);
 	if (message_in_memory == NULL) {
 		lprintf(2, "Can't allocate memory to save message!\n");
-		fclose(fp);	
 		return 0L;
 		}
 
 	lprintf(9, "Reading it into memory\n");	
+	fp = fopen(filename, "rb");
 	fseek(fp, 0L, SEEK_SET);
 	fread(message_in_memory, templen, 1, fp);
 	fclose(fp);
