@@ -825,11 +825,6 @@ void write_config_to_disk(void) {
 		display_error("setup: cannot open citadel.config");
 		cleanup(1);
 		}
-/************************************************************************/
-/* FIX - This is a temporary system-wide default.  Add configurability. */
-	config.c_ep.expire_mode = EXPIRE_NUMMSGS;
-	config.c_ep.expire_value = 150;
-/************************************************************************/
 	fwrite((char *)&config,sizeof(struct config),1,fp);
 	fclose(fp);
 	}
@@ -979,6 +974,14 @@ int main(int argc, char *argv[]) {
 		}
 	if (config.c_sleeping == 0) {
 		config.c_sleeping = 900;
+		}
+
+	/* We need a system default message expiry policy, because this is
+	 * the top level and there's no 'higher' policy to fall back on.
+	 */
+	if (config.c_ep.expire_mode == 0) {
+		config.c_ep.expire_mode = EXPIRE_NUMMSGS;
+		config.c_ep.expire_value = 150;
 		}
 
 	/* Go through a series of dialogs prompting for config info */
