@@ -28,7 +28,7 @@
 #include CURSES_INC
 #endif
 
-#define MAXSETUP 20
+#define MAXSETUP 19
 
 #define UI_TEXT		0	/* Default setup type -- text only */
 #define UI_DIALOG	1	/* Use the 'dialog' program */
@@ -50,7 +50,6 @@ char *setup_titles[] = {
 	"BBS City and State",
 	"System Administrator",
 	"BBS User ID",
-	"Password encryption seed",
 	"'Room Creator = Room Aide' flag",
 	"Server timeout period",
 	"Initial access level",
@@ -116,14 +115,6 @@ char *setup_text[] = {
 "under this user ID.  Please specify that (numeric) user ID here.",
 
 "8",
-"Citadel uses a (very) simple password encryption scheme",
-"to thwart breakins that could occur if someone snatched",
-"a copy of your userlog.  This parameter is part of the",
-"algorithm, so that the code can be different on each",
-"system.  Once it has been set, DO NOT change it --",
-"otherwise no one will be able to log in!",
-
-"9",
 "This is a boolean value.  If you set it to 1, anyone who",
 "creates a class 3 (passworded) or class 4 (invitation",
 "only) room will automatically become the Room Aide for",
@@ -132,7 +123,7 @@ char *setup_text[] = {
 "some systems, and not so well on others.  Set this to 0 to",
 "disable this function.",
 
-"10",
+"9",
 "This setting specifies how long a server session may sit idle before it is",
 "automatically terminated.  The recommended value is 900 seconds (15",
 "minutes).  Note that this has *nothing* to do with any watchdog timer that",
@@ -141,7 +132,7 @@ char *setup_text[] = {
 "You MUST set this to a reasonable value.  Setting it to zero will cause",
 "the server to malfunction.",
 
-"11",
+"10",
 "This is the access level new users are assigned.",
 "",
 "The most common settings for this will be either 1, for",
@@ -150,7 +141,7 @@ char *setup_text[] = {
 "boards!), or 4, for systems which give instant access.",
 "The current access levels available are:",
 
-"12",
+"11",
 "'Registration' refers to the boring part of logging into a BBS for the first",
 "time: typing your name, address, and telephone number.  Set this value to 1",
 "to automatically do registration for new users, or 0 to not auto-register.",
@@ -159,7 +150,7 @@ char *setup_text[] = {
 "value is 1 if you've set your inital access level to 1, or 0 if you've set",
 "your initial access level to something higher.",
 
-"13",
+"12",
 "Every BBS has its share of problem users.  This is one",
 "good way to deal with them: if you enable this option,",
 "anyone you flag as a 'problem user' (access level 2) can",
@@ -167,24 +158,24 @@ char *setup_text[] = {
 "automatically moved to a room of your choosing.  Set this",
 "value to 1 to enable Twit Detect, or 0 to disable it.",
 
-"14",
+"13",
 "This is the name of the room that problem user messages",
 "get moved to if you have Twit Detect enabled.",
 "(Note: don't forget to *create* this room!)",
 
-"15",
+"14",
 "This is the maximum number of concurrent Citadel sessions which may be",
 "running at any given time.  Use this to keep very busy systems from being",
 "overloaded.",
 "  Set this value to 0 to allow an unlimited number of sessions.",
 
-"16",
+"15",
 "This is the prompt that appears after each screenful of",
 "text - for users that have chosen that option.  Usually",
 "a simple '<more>' will do, but some folks like to be",
 "creative...",
 
-"17",
+"16",
 "If you have a gateway set up to allow Citadel users to",
 "send Internet mail, with sendmail, qmail, or whatever, and",
 "you wish to restrict this to only users to whom you have",
@@ -193,24 +184,25 @@ char *setup_text[] = {
 "(Obviously, if your system doesn't have the ability to",
 "send mail to the outside world, this is all irrelevant.)",
 
-"18",
+"17",
 "Select the name of a subdirectory (relative to the main",
 "Citadel directory - do not type an absolute pathname!) in",
 "which to place arriving file transfers that otherwise",
 "don't have a home.",
 
-"19",
+"18",
 "If you use Citadel client/server sessions to transport network spool data",
 "between systems, this is the password other systems will use to authenticate",
 "themselves as network nodes rather than regular callers.",
 
-"20",
+"19",
 "Specify the TCP port number on which your server will run.  Normally, this",
 "will be port 504, which is the official port assigned by the IANA for",
 "Citadel servers.  You'll only need to specify a different port number if",
 "you run multiple BBS's on the same computer and there's something else",
 "already using port 504.",
 
+"20",
 "21",
 "22",
 "23",
@@ -816,49 +808,43 @@ case 7:
 	set_int_val(curr, &config.c_bbsuid);
 	break;
 
-/*
 case 8:
-	set_int_val(curr, &config.c_pwcrypt);
-	break;
-*/
-
-case 9:
 	set_char_val(curr, &config.c_creataide);
 	break;
 
-case 10:
+case 9:
 	set_int_val(curr, &config.c_sleeping);
 	break;
 
-case 11:
+case 10:
 	set_char_val(curr, &config.c_initax);
 	break;
 
-case 12:
+case 11:
 	set_char_val(curr, &config.c_regiscall);
 	break;
 
-case 13:
+case 12:
 	set_char_val(curr, &config.c_twitdetect);
 	break;
 
-case 14:
+case 13:
 	set_str_val(curr, config.c_twitroom);
 	break;
 
-case 15:
+case 14:
 	set_int_val(curr, &config.c_maxsessions);
 	break;
 
-case 16:
+case 15:
 	set_str_val(curr, config.c_moreprompt);
 	break;
 
-case 17:
+case 16:
 	set_char_val(curr, &config.c_restrict);
 	break;
 
-case 18:
+case 17:
 	set_str_val(curr, config.c_bucket_dir);
 	config.c_bucket_dir[14] = 0;
 	for (a=0; a<strlen(config.c_bucket_dir); ++a)
@@ -867,11 +853,11 @@ case 18:
 				&config.c_bucket_dir[a+1]);
 	break;
 
-case 19:
+case 18:
 	set_str_val(curr, config.c_net_password);
 	break;
 
-case 20:
+case 19:
 	set_int_val(curr, &config.c_port_number);
 	break;
 

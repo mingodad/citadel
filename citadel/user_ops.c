@@ -20,16 +20,6 @@ extern struct config config;
 
 
 /*
- * pwcrypt()  -  simple password encryption (not in use)
-void pwcrypt(char *text, int code)
-{
-	int a;
-	for (a=0; a<strlen(text); ++a) text[a]=(text[a]^(((code|128)^a)&0xFF));
-	}
- */
-
-
-/*
  * hash()  -  hash table function for user lookup
  */
 int hash(char *str)
@@ -288,10 +278,8 @@ void cmd_pass(char *buf)
 	code = (-1);
 	if (CC->usersupp.USuid == BBSUID) {
 		strproc(password);
-		/* pwcrypt(CC->usersupp.password,config.c_pwcrypt); */
 		strproc(CC->usersupp.password);
 		code = strucmp(CC->usersupp.password,password);
-		/* pwcrypt(CC->usersupp.password,config.c_pwcrypt); */
 		}
 	else {
 		p = (struct passwd *)getpwuid(CC->usersupp.USuid);
@@ -302,7 +290,6 @@ void cmd_pass(char *buf)
 				code = 0;
 				lgetuser(&CC->usersupp, CC->curr_user);
 				strcpy(CC->usersupp.password, password);
-				/* pwcrypt(CC->usersupp.password, config.c_pwcrypt); */
 				lputuser(&CC->usersupp, CC->curr_user);
 				}
 			}
@@ -519,7 +506,6 @@ void cmd_setp(char *new_pw)
 		}
 	lgetuser(&CC->usersupp,CC->curr_user);
 	strcpy(CC->usersupp.password,new_pw);
-	/* pwcrypt(CC->usersupp.password,config.c_pwcrypt); */
 	lputuser(&CC->usersupp,CC->curr_user);
 	cprintf("%d Password changed.\n",OK);
 	rec_log(CL_PWCHANGE,CC->curr_user);
@@ -772,7 +758,6 @@ void cmd_greg(char *who)
 
 	cprintf("%d %s\n",LISTING_FOLLOWS,usbuf.fullname);
 	cprintf("%ld\n",usbuf.usernum);
-	/* pwcrypt(usbuf.password,PWCRYPT); */
 	cprintf("%s\n",usbuf.password);
 	cprintf("%s\n",usbuf.USname);
 	cprintf("%s\n",usbuf.USaddr);
@@ -876,7 +861,6 @@ void cmd_list(void) {
 				usbuf.lastcall,
 				usbuf.timescalled,
 				usbuf.posted);
-			/* pwcrypt(usbuf.password,config.c_pwcrypt); */
 			if (CC->usersupp.axlevel >= 6) cprintf("%s",usbuf.password);
 			cprintf("\n");
 			}

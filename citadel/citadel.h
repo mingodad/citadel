@@ -32,7 +32,6 @@ struct config {
 	char c_humannode[21];		/* Long name of system              */
 	char c_phonenum[16];		/* Dialup number of system          */
 	int c_bbsuid;			/* UID of the bbs-only user         */
-	int c_pwcrypt;			/* password encryption seed         */
 	char c_creataide;		/* room creator = room aide  flag   */
 	int c_sleeping;			/* watchdog timer setting           */
 	char c_initax;			/* initial access level             */
@@ -58,7 +57,6 @@ struct config {
 #define HUMANNODE		config.c_humannode
 #define PHONENUM		config.c_phonenum
 #define BBSUID			config.c_bbsuid
-#define PWCRYPT			config.c_pwcrypt
 #define CREATAIDE		config.c_creataide
 #define INITAX			config.c_initax
 #define REGISCALL		config.c_regiscall
