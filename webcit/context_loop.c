@@ -53,13 +53,37 @@ void gets0(int fd, char buf[]) {
 	buf[strlen(buf)-1] = 0;
 	}
 
+/*
+ * Collapse multiple cookies on one line
+ */
+void req_gets(int sock, char *buf, char *hold) {
+	int a;
+
+	if (strlen(hold)==0) {
+		client_gets(sock, buf);
+		}
+	else {
+		strcpy(buf, hold);
+		}
+	strcpy(hold, "");
+
+	if (!strncasecmp(buf, "Cookie: ", 8)) {
+		for (a=0; a<strlen(buf); ++a) if (buf[a]==';') {
+			sprintf(hold, "Cookie: %s", &buf[a+1]);
+			buf[a]=0;
+			while (isspace(hold[8])) strcpy(&hold[8], &hold[9]);
+			return;
+			}
+		}
+	}
+
 
 /*
  * This loop gets called once for every HTTP connection made to WebCit.
  */
 void *context_loop(int *socknumptr) {
 	char req[256][256];
-	char buf[256];
+	char buf[256], hold[256];
 	int num_lines = 0;
 	int a;
 	int f;
@@ -77,7 +101,7 @@ void *context_loop(int *socknumptr) {
 	 */
 	ContentLength = 0;
 	do {
-		client_gets(sock, buf);
+		req_gets(sock, buf, hold);
 		if (!strncasecmp(buf, "Cookie: wc_session=", 19)) {
 			desired_session = atoi(&buf[19]);
 			}
