@@ -15,3 +15,7 @@ void serv_read_ssl(char *buf, int bytes);
 void serv_write_ssl(char *buf, int nbytes);
 void ssl_lock(int mode, int n, const char *file, int line);
 #endif /* HAVE_OPENSSL */
+
+extern int ssl_is_connected;
+
+void setCryptoStatusHook(void (*hook)(char *s));

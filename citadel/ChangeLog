@@ -1,4 +1,15 @@
  $Log$
+ Revision 590.163  2002/03/26 04:38:31  nbryant
+  * support autoconf 2.53
+  * make a note that people should be using libtool 1.4d
+  * cut some of the more pointless bells and whistles out of the configure
+    script in an effort to make it more maintainable
+  * modularized ipc_c_tcp.c and client_crypto.o so that they're not tied
+    to the curses stuff.
+  * timezone/daylight and other FreeBSD fixes
+  * more effort in the configure script to detect the common
+    bastardizations (ahem, ports) of Berkeley DB without falling down
+
  Revision 590.162  2002/03/25 03:09:39  nbryant
  fix warning on platforms where pthread_t may be a pointer
 
@@ -3538,4 +3549,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

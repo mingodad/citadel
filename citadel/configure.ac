@@ -39,6 +39,10 @@ if test "x$with_db" != xno -a "x$with_db" != xyes -a "$with_db"; then
 	db_dir="$with_db"
 	with_db=yes
 else
+	test -f /usr/local/lib/libdb.a -o -f /usr/local/lib/libdb.so \
+	  -o -f /usr/local/lib/libdb4.a -o -f /usr/local/lib/libdb4.so \
+	  -o -f /usr/local/lib/libdb3.a -o -f /usr/local/lib/libdb3.so && db_dir=/usr/local
+
 	test -d /usr/local/BerkeleyDB.3.1 && db_dir=/usr/local/BerkeleyDB.3.1
 	test -d /usr/local/BerkeleyDB.3.2 && db_dir=/usr/local/BerkeleyDB.3.2
 	test -d /usr/local/BerkeleyDB.3.3 && db_dir=/usr/local/BerkeleyDB.3.3
@@ -70,21 +74,21 @@ case "$host" in
 	dnl build pthreads programs with gcc due to header problems.
 	alpha*-dec-osf*)
 		test -z "$CC" && CC=cc
-		PTHREAD_LIBS="-lpthread -lexc"
+		LIBS="-lpthread -lexc $LIBS"
 		check_pthread=no
 	;;
 	dnl FreeBSD is similar to Digital UNIX with DEC C, which has a -pthread flag:
 	*-*-freebsd*)
 		if test "$with_kthread" = yes; then
-			PTHREAD_LIBS=-kthread
+			LIBS="-kthread $LIBS"
 		else
-			PTHREAD_LIBS=-pthread
+			LIBS="-pthread $LIBS"
 		fi
 		check_pthread=no
 		PTHREAD_DEFS=-D_THREAD_SAFE
 	;;
 	*-*-openbsd*)
-		PTHREAD_LIBS=-pthread
+		LIBS="-pthread $LIBS"
 		check_pthread=no
 		PTHREAD_DEFS=-pthread
 	;;
@@ -92,6 +96,7 @@ case "$host" in
 		PTHREAD_DEFS="-D_REENTRANT -D_PTHREADS"
 	;;
 esac
+DEFS="$DEFS $PTHREAD_DEFS"
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -122,22 +127,17 @@ dnl Checks for system services.
 
 dnl Checks for libraries.
 
-dnl libdl, libgdbm, and libcrypt are only used in the server, so the
-dnl Makefile only passes $(LIBS) to that target. If other programs start
-dnl requiring additional libraries, we'll have to use other variables, as is
-dnl done with curses.
-
 dnl We want to test for the following in libc before checking for their
 dnl respective libraries, because some systems (like Irix) have both, and the
 dnl non-libc versions may be broken.
 AC_CHECK_FUNCS(crypt dlopen gethostbyname connect)
 
 if test "$ac_cv_func_gethostbyname" = no; then
-	AC_CHECK_LIB(nsl, gethostbyname, NETLIBS="-lnsl $NETLIBS")
+	AC_CHECK_LIB(nsl, gethostbyname)
 fi
 
 if test "$ac_cv_func_connect" = no; then
-        AC_CHECK_LIB(socket, connect, NETLIBS="-lsocket $NETLIBS",, $NETLIBS)
+        AC_CHECK_LIB(socket, connect)
 fi
 
 if test "$ac_cv_func_dlopen" = no; then
@@ -190,19 +190,18 @@ fi
 if test "x$with_db" != xno -a "x$with_gdbm" != xyes; then
 	test "$db_dir" && LDFLAGS="$LDFLAGS -L$db_dir/lib"
 
-	test "$db_dir" && CPPFLAGS="$CPPFLAGS -I$db_dir/include" || \
-		( test -d /usr/include/db4 && CPPFLAGS="$CPPFLAGS -I/usr/include/db4" ) || \
-		( test -d /usr/local/include/db4 && CPPFLAGS="$CPPFLAGS -I/usr/local/include/db4" ) || \
-		( test -d /usr/include/db3 && CPPFLAGS="$CPPFLAGS -I/usr/include/db3" ) || \
-		( test -d /usr/local/include/db3 && CPPFLAGS="$CPPFLAGS -I/usr/local/include/db3" )
+	dblib=""
+	test -d "$db_dir/include/db4" && CPPFLAGS="$CPPFLAGS -I$db_dir/include/db4" && dblib="db4" || \
+	( test -d "$db_dir/include/db3" && CPPFLAGS="$CPPFLAGS -I$db_dir/include/db3" && dblib="db3" ) || \
+	( test "$db_dir" -a -d "$db_dir/include" && CPPFLAGS="$CPPFLAGS -I$db_dir/include" ) || \
+	( test -d /usr/include/db4 && CPPFLAGS="$CPPFLAGS -I/usr/include/db4" && dblib="db4" ) || \
+	( test -d /usr/include/db3 && CPPFLAGS="$CPPFLAGS -I/usr/include/db3" && dblib="db3" )
 
-	AC_CHECK_LIB(db3, db_env_create,
-		[GDBM="$GDBM -ldb3"
+	AC_SEARCH_LIBS(db_env_create, [$dblib db db4 db3], [
 		DATABASE=database_sleepycat.c
-		with_gdbm=no], [AC_CHECK_LIB(db, db_env_create,
-					[GDBM="$GDBM -ldb"
-					DATABASE=database_sleepycat.c
-					with_gdbm=no], [], [$NETLIBS])], [$NETLIBS])
+		with_gdbm=no
+	])
+
 fi
 
 if test "x$with_gdbm" != xno -a "x$with_db" != xyes; then
@@ -212,7 +211,7 @@ if test "x$with_gdbm" != xno -a "x$with_db" != xyes; then
 	test "$db_dir" && CPPFLAGS="$CPPFLAGS -I$db_dir/include"
 
         AC_CHECK_LIB(gdbm, gdbm_open,
-                [GDBM="$GDBM -lgdbm"
+                [LIBS="-lgdbm $LIBS"
                 DATABASE=database.c
                 with_db=no])
 fi
@@ -220,21 +219,15 @@ fi
 test -f /usr/local/lib/libresolv.a && LDFLAGS="$LDFLAGS -L/usr/local/lib"
 AC_CHECK_LIB(resolv, res_query, RESOLV="$RESOLV -lresolv")
 
-save_LIBS=$LIBS
-LIBS=$CURSES
 AC_SEARCH_LIBS(tgetent, [ncurses curses termcap])
 AC_SEARCH_LIBS(initscr, [ncurses curses])
 AC_CHECK_FUNCS(vw_printw wcolor_set)
-CURSES=$LIBS
-LIBS=$save_LIBS
 
 dnl Check for libpthread(s) if we're not using Digital UNIX or FreeBSD. (On
 dnl which the -pthread flag takes care of this.)
 if test "$check_pthread" != no; then
-	AC_CHECK_LIB(pthread, pthread_create,
-		PTHREAD_LIBS="-lpthread $PTHREAD_LIBS")
-	AC_CHECK_LIB(pthreads, pthread_create,
-		PTHREAD_LIBS="-lpthreads $PTHREAD_LIBS")
+	AC_CHECK_LIB(pthread, pthread_create)
+	AC_CHECK_LIB(pthreads, pthread_create)
 fi
 
 # The big search for OpenSSL
@@ -319,8 +312,7 @@ if test "$with_ssl" != "no"; then
 	
 	if test "x$ac_cv_openssldir" != "xno" ; then
 		AC_DEFINE(HAVE_OPENSSL)
-		LIBS="$saved_LIBS"
-		SSL_LIBS="-lssl -lcrypto"
+		LIBS="-lssl -lcrypto $LIBS"
 		dnl Need to recover ssldir - test above runs in subshell
 		ssldir=$ac_cv_openssldir
 		if test ! -z "$ssldir" -a "x$ssldir" != "x/usr" -a "x$ssldir" != "x(system)"; then
@@ -357,18 +349,18 @@ dnl
 dnl TODO: for the DB header checks, we should check whether the headers
 dnl define db_env_create, somehow
 dnl
-AC_CHECK_HEADERS(curses.h ncurses.h dl.h fcntl.h limits.h termios.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h utmp.h utmpx.h paths.h db.h db3/db.h db4/db.h)
+AC_CHECK_HEADERS(curses.h ncurses.h dl.h fcntl.h limits.h termios.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h utmp.h utmpx.h paths.h db.h db3/db.h db4/db.h pthread.h netinet/in.h)
 
-AC_CHECK_HEADER(resolv.h, [SMTP=modules/libsmtp.la; DOMAIN=domain.c])
+AC_CHECK_HEADER(resolv.h, [SMTP=modules/libsmtp.la; DOMAIN=domain.c],,
+[#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif])
+
 AC_SUBST(SMTP)
 AC_SUBST(DOMAIN)
-
-dnl some systems require -pthread, -D_REENTRANT, etc to be passed to cc if we
-dnl include pthread.h:
-save_CPPFLAGS=$CPPFLAGS
-CPPFLAGS="$CPPFLAGS $PTHREAD_DEFS"
-AC_CHECK_HEADERS(pthread.h)
-CPPFLAGS=$save_CPPFLAGS
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -409,10 +401,7 @@ AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(getspnam getutxline mkdir mkfifo mktime rmdir select socket strerror strcasecmp strncasecmp)
 
-dnl Now check for pthreads -- set up variables so that the compiler will be run
-dnl with proper flags for pthread programs
-save_LIBS=$LIBS
-LIBS="$PTHREAD_LIBS $LIBS"
+dnl Now check for pthreads
 
 dnl On some platforms, AC_CHECK_FUNC[S] doesn't work for pthreads programs;
 dnl we need to include pthread.h
@@ -449,38 +438,18 @@ if test "$ac_cv_func_pthread_create" = yes; then
 	test "$DATABASE" && TARGETS="client server utils serv_modules"
 	if test "x$enable_threaded_client" != xno; then
 		AC_DEFINE(THREADED_CLIENT)
-		CLIENT_PTLIBS=$PTHREAD_LIBS
-		CL_LIBOBJS='$(LIBOBJS:.o=.ro)'
-		CX=.ro
 	fi
 fi
-
-if test "x$CX" != x.ro; then
-	CL_LIBOBJS='$(LIBOBJS)'
-	CX=.o
-fi
-
-dnl Now restore the old libs so we don't pass the wrong stuff to makefile
-LIBS=$save_LIBS
 
 AC_REPLACE_FUNCS(snprintf getutline)
 
 dnl Done! Now write the Makefile and sysdep.h
 AC_SUBST(AUTH)
 AC_SUBST(CHKPWD)
-AC_SUBST(CURSES)
-AC_SUBST(GDBM)
 AC_SUBST(RESOLV)
-AC_SUBST(NETLIBS)
 AC_SUBST(chkpwd_LIBS)
 AC_SUBST(TARGETS)
-AC_SUBST(PTHREAD_DEFS)
-AC_SUBST(PTHREAD_LIBS)
-AC_SUBST(CLIENT_PTLIBS)
-AC_SUBST(CL_LIBOBJS)
-AC_SUBST(CX)
 AC_SUBST(DATABASE)
-AC_SUBST(SSL_LIBS)
 AC_CONFIG_HEADER(sysdep.h)
 AC_CONFIG_FILES([Makefile weekly])
 AC_OUTPUT

@@ -30,16 +30,11 @@
 #include "citadel_decls.h"
 #include "ipc.h"
 #include "tools.h"
-#if defined(HAVE_OPENSSL) && defined(CIT_CLIENT)
+#if defined(HAVE_OPENSSL)
 #include "client_crypto.h"
 #endif
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
-#endif
-#ifdef CIT_CLIENT
-#include "screen.h"
-#else
-extern int err_printf(char *fmt, ...);
 #endif
 
 /*
@@ -61,16 +56,22 @@ int server_is_local = 0;
 
 int serv_sock;
 
-#if defined(HAVE_OPENSSL) && defined(CIT_CLIENT)
-extern int ssl_is_connected;
-#endif
+static void (*deathHook)(void) = NULL;
+int (*error_printf)(char *s, ...) = (int (*)(char *, ...))printf;
 
+void setIPCDeathHook(void (*hook)(void)) {
+	deathHook = hook;
+}
+
+void setIPCErrorPrintf(int (*func)(char *s, ...)) {
+	error_printf = func;
+}
 
 void connection_died(void) {
-#ifdef CIT_CLIENT
-	screen_delete();
-#endif
-	err_printf("\rYour connection to this Citadel server is broken.\n"
+	if (deathHook != NULL)
+		deathHook();
+
+	error_printf("\rYour connection to this Citadel server is broken.\n"
 			"Last error: %s\n"
 			"Please re-connect and log in again.\n",
 			strerror(errno));
@@ -80,7 +81,7 @@ void connection_died(void) {
 
 static void ipc_timeout(int signum)
 {
-	err_printf("\rConnection timed out.\n");
+	error_printf("\rConnection timed out.\n");
 	logoff(3);
 }
 
@@ -110,12 +111,12 @@ static int connectsock(char *host, char *service, char *protocol, int defaultPor
 	if (phe) {
 		memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
 	} else if ((sin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE) {
-		err_printf("Can't get %s host entry: %s\n",
+		error_printf("Can't get %s host entry: %s\n",
 			host, strerror(errno));
 		logoff(3);
 	}
 	if ((ppe = getprotobyname(protocol)) == 0) {
-		err_printf("Can't get %s protocol entry: %s\n",
+		error_printf("Can't get %s protocol entry: %s\n",
 			protocol, strerror(errno));
 		logoff(3);
 	}
@@ -127,14 +128,14 @@ static int connectsock(char *host, char *service, char *protocol, int defaultPor
 
 	s = socket(PF_INET, type, ppe->p_proto);
 	if (s < 0) {
-		err_printf("Can't create socket: %s\n", strerror(errno));
+		error_printf("Can't create socket: %s\n", strerror(errno));
 		logoff(3);
 	}
 	signal(SIGALRM, ipc_timeout);
 	alarm(30);
 
 	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-		err_printf("can't connect to %s:%s: %s\n",
+		error_printf("can't connect to %s:%s: %s\n",
 			host, service, strerror(errno));
 		logoff(3);
 	}
@@ -155,12 +156,12 @@ int uds_connectsock(char *sockpath)
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
-		err_printf("Can't create socket: %s\n", strerror(errno));
+		error_printf("Can't create socket: %s\n", strerror(errno));
 		logoff(3);
 	}
 
 	if (connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-		err_printf("can't connect: %s\n", strerror(errno));
+		error_printf("can't connect: %s\n", strerror(errno));
 		logoff(3);
 	}
 
@@ -253,7 +254,7 @@ void serv_gets(char *buf)
  */
 void serv_puts(char *buf)
 {
-	/* err_printf("< %s\n", buf); */
+	/* error_printf("< %s\n", buf); */
 	serv_write(buf, strlen(buf));
 	serv_write("\n", 1);
 }
@@ -281,8 +282,8 @@ void attach_to_server(int argc, char **argv, char *hostbuf, char *portbuf)
 			strcpy(citport, argv[a]);
 		}
    		else {
-			err_printf("%s: usage: ",argv[0]);
-			err_printf("%s [host] [port] ",argv[0]);
+			error_printf("%s: usage: ",argv[0]);
+			error_printf("%s [host] [port] ",argv[0]);
 			logoff(2);
    		}
 	}

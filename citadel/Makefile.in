@@ -17,10 +17,9 @@ CHKPWD=@CHKPWD@
 
 all: $(TARGETS)
 
-.SUFFIXES: .lo .ro .d .c
+.SUFFIXES: .lo .d .c
 
 EXEEXT=@EXEEXT@
-CX=@CX@
 
 SMTP=@SMTP@
 
@@ -53,19 +52,11 @@ DEFS=@DEFS@
 CPPFLAGS=@CPPFLAGS@ -I.
 CFLAGS=@CFLAGS@
 CC=@CC@
-GDBM=@GDBM@
 RESOLV=@RESOLV@
 LIBS=@LIBS@
 LDFLAGS=@LDFLAGS@
-CURSES=@CURSES@
-NETLIBS=@NETLIBS@
 chkpwd_LIBS=@chkpwd_LIBS@
 LIBOBJS=@LIBOBJS@
-CL_LIBOBJS=@CL_LIBOBJS@
-PTHREAD_DEFS=@PTHREAD_DEFS@
-PTHREAD_LIBS=@PTHREAD_LIBS@
-SSL_LIBS=@SSL_LIBS@
-CLIENT_PTLIBS=@CLIENT_PTLIBS@
 INSTALL=@INSTALL@
 INSTALL_DATA=@INSTALL_DATA@
 SHELL=/bin/sh
@@ -114,18 +105,15 @@ serv_modules: $(SERV_MODULES)
 #
 #
 
-citadel$(EXEEXT): ipc_c_tcp$(CX) citadel$(CX) rooms$(CX) routines$(CX) \
-	routines2$(CX) messages$(CX) screen$(CX) \
-	client_passwords$(CX) md5$(CX) client_crypto$(CX) \
-	commands$(CX) client_chat$(CX) serv_info$(CX) tools$(CX) $(LIBOBJS)
-	$(CC) ipc_c_tcp$(CX) citadel$(CX) rooms$(CX) routines$(CX) \
-	routines2$(CX) messages$(CX) screen$(CX) \
-	commands$(CX) client_chat$(CX) serv_info$(CX) tools$(CX) \
-	client_passwords$(CX) md5$(CX) client_crypto$(CX) \
-	$(LIBOBJS) $(LDFLAGS) -o citadel $(CURSES) $(NETLIBS) $(SSL_LIBS) $(CLIENT_PTLIBS)
-
-.c.o:
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c $<
+citadel$(EXEEXT): ipc_c_tcp.o citadel.o rooms.o routines.o \
+	routines2.o messages.o screen.o \
+	client_passwords.o md5.o client_crypto.o \
+	commands.o client_chat.o serv_info.o tools.o $(LIBOBJS)
+	$(CC) ipc_c_tcp.o citadel.o rooms.o routines.o \
+	routines2.o messages.o screen.o \
+	commands.o client_chat.o serv_info.o tools.o \
+	client_passwords.o md5.o client_crypto.o \
+	$(LIBOBJS) $(LDFLAGS) -o citadel $(LIBS)
 
 .y.c:
 	$(YACC) $(YFLAGS) $<
@@ -134,9 +122,9 @@ citadel$(EXEEXT): ipc_c_tcp$(CX) citadel$(CX) rooms$(CX) routines$(CX) \
 #
 #
 
-SERV_OBJS = server_main.ro
+SERV_OBJS = server_main.o
 
-parsedate.ro: parsedate.c
+parsedate.o: parsedate.c
 
 LIBSERV_OBJS = user_ops.lo citserver.lo sysdep.lo dynloader.lo tools.lo $(DATABASE:.c=.lo) \
 	control.lo policy.lo config.lo support.lo room_ops.lo file_ops.lo msgbase.lo \
@@ -145,18 +133,18 @@ LIBSERV_OBJS = user_ops.lo citserver.lo sysdep.lo dynloader.lo tools.lo $(DATABA
 
 libcitserver.la: $(LIBSERV_OBJS)
 	$(LIBTOOL) $(CC) $(LDFLAGS) -rpath $(prefix) -no-undefined -avoid-version \
-	-o libcitserver.la $(LIBSERV_OBJS) $(GDBM) $(LIBS) $(PTHREAD_LIBS) $(NETLIBS) $(SSL_LIBS) $(RESOLV)
+	-o libcitserver.la $(LIBSERV_OBJS) $(LIBS) $(RESOLV)
 
 citserver: $(SERV_OBJS) $(LIBTOOL) libcitserver.la
 	$(LIBTOOL) --mode=link $(CC) $(SERV_OBJS) $(LDFLAGS) libcitserver.la -o \
-	citserver $(PTHREAD_LIBS)
+	citserver $(LIBS)
 
-.c.ro:
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -DCIT_CLIENT $(PTHREAD_DEFS) -c $< -o $@
+.c.o:
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -DCIT_CLIENT -c $< -o $@
 
 .c.lo: $(LIBTOOL)
 	@test -d modules || mkdir -p modules
-	$(LIBTOOL) --mode=compile $(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c $< -o $@
+	$(LIBTOOL) --mode=compile $(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c $< -o $@
 
 modules/libchat.la: serv_chat.lo libcitserver.la $(LIBTOOL)
 	$(LTSHARE) -o libchat.la ../serv_chat.lo ../libcitserver.la
@@ -207,7 +195,7 @@ modules/libimap.la: serv_imap.lo imap_tools.lo imap_fetch.lo \
 		../imap_fetch.lo ../imap_search.lo ../imap_store.lo ../imap_misc.lo ../libcitserver.la
 
 aidepost: aidepost.o libcitserver.la $(LIBOBJS)
-	$(LIBTOOL) $(CC) aidepost.o libcitserver.la $(LIBOBJS) $(LDFLAGS) -o aidepost $(PTHREAD_LIBS)
+	$(LIBTOOL) $(CC) aidepost.o libcitserver.la $(LIBOBJS) $(LDFLAGS) -o aidepost $(LIBS)
 
 modules/libpas2.la: serv_pas2.lo md5.lo $(LIBTOOL) libcitserver.la
 	$(LTSHARE) -o libpas2.la ../serv_pas2.lo ../md5.lo ../libcitserver.la
@@ -216,10 +204,10 @@ modules/libical.la: serv_ical.lo $(LIBTOOL) libcitserver.la
 	$(LTSHARE) -o libical.la ../serv_ical.lo ../libcitserver.la
 
 citmail: citmail.o config.o
-	$(CC) citmail.o config.o $(LDFLAGS) -o citmail $(NETLIBS)
+	$(CC) citmail.o config.o $(LDFLAGS) -o citmail $(LIBS)
 
 setup: setup.o tools.o
-	$(CC) setup.o tools.o $(CURSES) $(NETLIBS) $(LDFLAGS) -o setup
+	$(CC) setup.o tools.o $(LIBS) $(LDFLAGS) -o setup
 
 chkpwd: chkpwd.o auth.o config.o
 	$(CC) chkpwd.o auth.o config.o $(LDFLAGS) -o chkpwd $(chkpwd_LIBS)
@@ -227,22 +215,22 @@ chkpwd: chkpwd.o auth.o config.o
 netsetup: netsetup.o config.o
 	$(CC) netsetup.o config.o $(LDFLAGS) -o netsetup
 
-whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o tools.o $(LIBOBJS)
-	$(CC) whobbs.o ipc_c_tcp.o tools.o $(LIBOBJS) $(LDFLAGS) -o whobbs $(NETLIBS)
+whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o tools.o client_crypto.o $(LIBOBJS)
+	$(CC) whobbs.o ipc_c_tcp.o tools.o client_crypto.o $(LIBOBJS) $(LDFLAGS) -o whobbs $(LIBS)
 
-migratenet$(EXEEXT): migratenet.o config.o ipc_c_tcp.o tools.o libcitserver.la $(LIBOBJS)
-	$(LIBTOOL) $(CC) migratenet.o config.o ipc_c_tcp.o tools.o libcitserver.la $(LIBOBJS) $(LDFLAGS) -o migratenet $(NETLIBS)
+migratenet$(EXEEXT): migratenet.o config.o ipc_c_tcp.o client_crypto.o tools.o libcitserver.la $(LIBOBJS)
+	$(LIBTOOL) $(CC) migratenet.o config.o ipc_c_tcp.o client_crypto.o tools.o libcitserver.la $(LIBOBJS) $(LDFLAGS) -o migratenet $(LIBS)
 
-sendcommand: sendcommand.o ipc_c_tcp.o libcitserver.la $(LIBOBJS)
-	$(LIBTOOL) $(CC) sendcommand.o ipc_c_tcp.o libcitserver.la \
-	 $(LIBOBJS) $(LDFLAGS) -o sendcommand $(NETLIBS) $(PTHREAD_LIBS)
+sendcommand: sendcommand.o ipc_c_tcp.o client_crypto.o libcitserver.la $(LIBOBJS)
+	$(LIBTOOL) $(CC) sendcommand.o ipc_c_tcp.o client_crypto.o libcitserver.la \
+	 $(LIBOBJS) $(LDFLAGS) -o sendcommand $(LIBS)
 
 base64: base64.o
 	$(CC) base64.o $(LDFLAGS) -o base64
 
-userlist: userlist.o ipc_c_tcp.o tools.o $(LIBOBJS)
-	$(CC) userlist.o ipc_c_tcp.o tools.o \
-	$(LIBOBJS) $(LDFLAGS) -o userlist $(NETLIBS)
+userlist: userlist.o ipc_c_tcp.o client_crypto.o tools.o $(LIBOBJS)
+	$(CC) userlist.o ipc_c_tcp.o client_crypto.o tools.o \
+	$(LIBOBJS) $(LDFLAGS) -o userlist $(LIBS)
 
 msgform: msgform.o
 	$(CC) msgform.o $(LDFLAGS) -o msgform
@@ -250,8 +238,8 @@ msgform: msgform.o
 readlog: readlog.o config.o
 	$(CC) readlog.o config.o $(LDFLAGS) -o readlog
 
-stats: stats.o ipc_c_tcp.o libcitserver.la $(LIBOBJS)
-	$(LIBTOOL) $(CC) stats.o ipc_c_tcp.o libcitserver.la $(LIBOBJS) $(LDFLAGS) -o stats $(NETLIBS) $(PTHREAD_LIBS)
+stats: stats.o ipc_c_tcp.o client_crypto.o libcitserver.la $(LIBOBJS)
+	$(LIBTOOL) $(CC) stats.o ipc_c_tcp.o client_crypto.o libcitserver.la $(LIBOBJS) $(LDFLAGS) -o stats $(LIBS)
 
 .PHONY: install-data install-doc install-exec clean cleaner distclean
 
@@ -306,7 +294,7 @@ install-exec: all weekly
 	fi
 
 clean:
-	rm -f *.o *.ro *.lo parsedate.c
+	rm -f *.o *.lo parsedate.c
 
 cleaner: clean
 	rm -rf $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) \
@@ -318,7 +306,7 @@ distclean: cleaner
 
 .c.d:
 	@echo Checking dependencies for $<
-	@$(CC) -M $(CPPFLAGS) $(PTHREAD_DEFS) $< | sed -e 's!$*.o!$*.o $*.ro $*.lo $@!' > $@
+	@$(CC) -M $(CPPFLAGS) $< | sed -e 's!$*.o!$*.o $*.lo $@!' > $@
 	@test -s $@ || rm -f $@
 
 Makefile: $(srcdir)/Makefile.in config.status

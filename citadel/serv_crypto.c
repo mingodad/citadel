@@ -42,7 +42,7 @@ SSL_CTX *ssl_ctx;				/* SSL context */
 pthread_mutex_t **SSLCritters;			/* Things needing locking */
 
 static unsigned long id_callback(void) {
-	return pthread_self();
+	return (unsigned long)pthread_self();
 }
 
 void init_ssl(void)

@@ -13,7 +13,7 @@
 #include <sys/types.h>
 #include "citadel.h"
 #include "client_crypto.h"
-#include "screen.h"
+#include "ipc.h"
 
 #ifdef HAVE_OPENSSL
 SSL *ssl;
@@ -30,6 +30,13 @@ extern int server_is_local;
 #endif /* HAVE_OPENSSL */
 
 
+static void (*status_hook)(char *s) = NULL;
+
+void setCryptoStatusHook(void (*hook)(char *s)) {
+	status_hook = hook;
+}
+
+
 #ifdef HAVE_OPENSSL
 /*
  * input binary data from encrypted connection
@@ -43,7 +50,7 @@ void serv_read_ssl(char *buf, int bytes)
 	while (len < bytes) {
 		if (SSL_want_read(ssl)) {
 			if ((SSL_write(ssl, junk, 0)) < 1) {
-				err_printf("SSL_write in serv_read:\n");
+				error_printf("SSL_write in serv_read:\n");
 				ERR_print_errors_fp(stderr);
 			}
 		}
@@ -63,7 +70,7 @@ void serv_read_ssl(char *buf, int bytes)
 				serv_read(&buf[len], bytes - len);
 				return;
 			}
-			err_printf("SSL_read in serv_read:\n");
+			error_printf("SSL_read in serv_read:\n");
 			ERR_print_errors_fp(stderr);
 			connection_died();
 			return;
@@ -85,7 +92,7 @@ void serv_write_ssl(char *buf, int nbytes)
 	while (bytes_written < nbytes) {
 		if (SSL_want_write(ssl)) {
 			if ((SSL_read(ssl, junk, 0)) < 1) {
-				err_printf("SSL_read in serv_write:\n");
+				error_printf("SSL_read in serv_write:\n");
 				ERR_print_errors_fp(stderr);
 			}
 		}
@@ -107,7 +114,7 @@ void serv_write_ssl(char *buf, int nbytes)
 						nbytes - bytes_written);
 				return;
 			}
-			err_printf("SSL_write in serv_write:\n");
+			error_printf("SSL_write in serv_write:\n");
 			ERR_print_errors_fp(stderr);
 			connection_died();
 			return;
@@ -168,13 +175,13 @@ int starttls(void)
 	ssl_method = SSLv23_client_method();
 	ssl_ctx = SSL_CTX_new(ssl_method);
 	if (!ssl_ctx) {
-		err_printf("SSL_CTX_new failed: %s\n",
+		error_printf("SSL_CTX_new failed: %s\n",
 				ERR_reason_error_string(ERR_get_error()));
 		return 0;
 	}
 	/* Any reasonable cipher we can get */
 	if (!(SSL_CTX_set_cipher_list(ssl_ctx, CIT_CIPHERS))) {
-		err_printf("No ciphers available for encryption\n");
+		error_printf("No ciphers available for encryption\n");
 		SSL_CTX_free(ssl_ctx);
 		ssl_ctx = NULL;
 		return 0;
@@ -184,17 +191,17 @@ int starttls(void)
 	/* Load DH parameters into the context */
 	dh = DH_new();
 	if (!dh) {
-		err_printf("Can't allocate a DH object: %s\n",
+		error_printf("Can't allocate a DH object: %s\n",
 				ERR_reason_error_string(ERR_get_error()));
 		return 0;
 	}
 	if (!(BN_hex2bn(&(dh->p), DH_P))) {
-		err_printf("Can't assign DH_P: %s\n",
+		error_printf("Can't assign DH_P: %s\n",
 				ERR_reason_error_string(ERR_get_error()));
 		return 0;
 	}
 	if (!(BN_hex2bn(&(dh->g), DH_G))) {
-		err_printf("Can't assign DH_G: %s\n",
+		error_printf("Can't assign DH_G: %s\n",
 				ERR_reason_error_string(ERR_get_error()));
 		return 0;
 	}
@@ -227,7 +234,7 @@ int starttls(void)
 	/* New SSL object */
 	ssl = SSL_new(ssl_ctx);
 	if (!ssl) {
-		err_printf("SSL_new failed: %s\n",
+		error_printf("SSL_new failed: %s\n",
 				ERR_reason_error_string(ERR_get_error()));
 		SSL_CTX_free(ssl_ctx);
 		ssl_ctx = NULL;
@@ -242,13 +249,13 @@ int starttls(void)
 		RAND_egd("/var/run/egd-pool");
 
 	if (!RAND_status()) {
-		err_printf("PRNG not properly seeded\n");
+		error_printf("PRNG not properly seeded\n");
 		return 0;
 	}
 
 	/* Associate network connection with SSL object */
 	if (SSL_set_fd(ssl, serv_sock) < 1) {
-		err_printf("SSL_set_fd failed: %s\n",
+		error_printf("SSL_set_fd failed: %s\n",
 				ERR_reason_error_string(ERR_get_error()));
 		SSL_CTX_free(ssl_ctx);
 		ssl_ctx = NULL;
@@ -257,20 +264,20 @@ int starttls(void)
 		return 0;
 	}
 
-	sln_printf("Requesting encryption...\r");
-	sln_flush();
+	if (status_hook != NULL)
+		status_hook("Requesting encryption...\r");
 
 	/* Ready to start SSL/TLS */
 	serv_puts("STLS");
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		err_printf("Server can't start TLS: %s\n", &buf[4]);
+		error_printf("Server can't start TLS: %s\n", &buf[4]);
 		return 0;
 	}
 
 	/* Do SSL/TLS handshake */
 	if ((a = SSL_connect(ssl)) < 1) {
-		err_printf("SSL_connect failed: %s\n",
+		error_printf("SSL_connect failed: %s\n",
 				ERR_reason_error_string(ERR_get_error()));
 		SSL_CTX_free(ssl_ctx);
 		ssl_ctx = NULL;
@@ -283,7 +290,7 @@ int starttls(void)
 		int bits, alg_bits;
 
 		bits = SSL_CIPHER_get_bits(SSL_get_current_cipher(ssl), &alg_bits);
-		err_printf("Encrypting with %s cipher %s (%d of %d bits)\n",
+		error_printf("Encrypting with %s cipher %s (%d of %d bits)\n",
 				SSL_CIPHER_get_version(SSL_get_current_cipher(ssl)),
 				SSL_CIPHER_get_name(SSL_get_current_cipher(ssl)),
 				bits, alg_bits);

@@ -918,6 +918,11 @@ int shift(int argc, char **argv, int start, int count) {
 	return argc;
 }
 
+static void statusHook(char *s) {
+	sln_printf(s);
+	sln_flush();
+}
+
 /*
  * main
  */
@@ -932,6 +937,10 @@ int main(int argc, char **argv)
 	char hexstring[MD5_HEXSTRING_SIZE];
 	int stored_password = 0;
 	char password[SIZ];
+
+	setIPCDeathHook(screen_delete);
+	setIPCErrorPrintf(err_printf);
+	setCryptoStatusHook(statusHook);
 	
 	/* Permissions sanity check - don't run citadel setuid/setgid */
 	if (getuid() != geteuid()) {

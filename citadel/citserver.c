@@ -66,12 +66,6 @@ char *unique_session_numbers;
 int ScheduledShutdown = 0;
 int do_defrag = 0;
 
-/* These are commented out.  Why do we need them?  They're defined in time.h
- * anyway, and declaring them again here makes FreeBSD barf on it.
-extern long int timezone;
-extern int daylight;
- */
-
 /*
  * Various things that need to be initialized at startup
  */
@@ -356,11 +350,17 @@ char CtdlCheckExpress(void) {
 void cmd_time(void)
 {
    time_t tv;
+   struct tm *tmp;
    
    tv = time(NULL);
-   localtime(&tv);
+   tmp = localtime(&tv);
    
-   cprintf("%d %ld|%ld|%d\n", CIT_OK, (long)tv, timezone, daylight);
+   /* timezone and daylight global variables are not portable. */
+#ifdef HAVE_STRUCT_TM_TM_GMTOFF
+   cprintf("%d %ld|%ld|%d\n", CIT_OK, (long)tv, tmp->tm_gmtoff, tmp->tm_isdst);
+#else
+   cprintf("%d %ld|%ld|%d\n", CIT_OK, (long)tv, timezone, tmp->tm_isdst);
+#endif
 }
 
 /*

@@ -9,8 +9,7 @@
 #define IN_LIBCIT
 #endif
 
-#define timezonevar 1
-
+#include "sysdep.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
