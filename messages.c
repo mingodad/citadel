@@ -1276,14 +1276,10 @@ void readloop(char *oper)
 	 * messages, then display the selector bar
 	 */
 	if (num_displayed > 1) {
-	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook) && (!is_notes) && (!is_singlecard)) {
-		wprintf("Reading #%d-%d of %d messages.",
-			lowest_displayed, highest_displayed, nummsgs);
+	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook)
+	      && (!is_notes) && (!is_singlecard)) {
 
-		if (is_summary) {
-			wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" "
-				"VALUE=\"Delete selected\">\n");
-		}
+		wprintf("Reading #", lowest_displayed, highest_displayed);
 
 		wprintf("<SELECT NAME=\"whichones\" SIZE=\"1\" "
 			"OnChange=\"location.href=msgomatic.whichones.options"
@@ -1319,6 +1315,13 @@ void readloop(char *oper)
 			"</OPTION>",
 			oper,
 			WC->msgarr[0]);
+
+		wprintf("</SELECT> of %d messages.", nummsgs);
+
+		if (is_summary) {
+			wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" "
+				"VALUE=\"Delete selected\">\n");
+		}
 
 	    }
 	}

@@ -666,13 +666,16 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 		/* If the user clicked 'Save' then save it to the server. */
 		lprintf(9, "Serializing it for saving\n");
 		if ( (encaps != NULL) && (!strcasecmp(bstr("sc"), "Save")) ) {
-			serv_puts("ENT0 1|||4");
+			serv_puts("ENT0 1|||4|||1|");
 			serv_gets(buf);
-			if (buf[0] == '4') {
+			if (buf[0] == '8') {
 				serv_puts("Content-type: text/calendar");
 				serv_puts("");
 				serv_puts(icalcomponent_as_ical_string(encaps));
 				serv_puts("000");
+			}
+			while (serv_gets(buf), strcmp(buf, "000")) {
+				lprintf(9, "ENT0 REPLY: %s\n", buf);
 			}
 			icalcomponent_free(encaps);
 		}

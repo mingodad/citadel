@@ -34,8 +34,9 @@ void groupdav_get(char *dav_pathname) {
 	char dav_uid[SIZ];
 	long dav_msgnum = (-1);
 	char buf[SIZ];
-	int found_content_type = 0;
 	int n = 0;
+	int in_body = 0;
+	int found_content_type = 0;
 
 	/* First, break off the "/groupdav/" prefix */
 	remove_token(dav_pathname, 0, '/');
@@ -88,12 +89,21 @@ void groupdav_get(char *dav_pathname) {
 	groupdav_common_headers();
 	wprintf("ETag: \"%ld\"\n", dav_msgnum);
 	while (serv_gets(buf), strcmp(buf, "000")) {
+		if (!strncasecmp(buf, "Date: ", 6)) {
+			wprintf("%s\n", buf);
+		}
 		if (!strncasecmp(buf, "Content-type: ", 14)) {
+			wprintf("%s\n", buf);
 			found_content_type = 1;
 		}
-		if ((strlen(buf) == 0) && (found_content_type == 0)) {
-			wprintf("Content-type: text/plain\n");
+		if ((strlen(buf) == 0) && (in_body == 0)) {
+			if (!found_content_type) {
+				wprintf("Content-type: text/plain\n");
+			}
+			in_body = 1;
 		}
-		wprintf("%s\n", buf);
+		if (in_body) {
+			wprintf("%s\n", buf);
+		}
 	}
 }
