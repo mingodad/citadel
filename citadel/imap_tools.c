@@ -13,6 +13,7 @@
 #include "citadel.h"
 #include "sysdep_decls.h"
 #include "tools.h"
+#include "internet_addressing.h"
 #include "imap_tools.h"
 
 
@@ -99,3 +100,29 @@ void imap_mailboxname(char *buf, int bufsize, struct quickroom *qrbuf) {
 	}
 }
 
+
+/*
+ * Output a struct internet_address_list in the form an IMAP client wants
+ */
+void imap_ial_out(struct internet_address_list *ialist) {
+	struct internet_address_list *iptr;
+
+	if (ialist == NULL) {
+		cprintf("NIL");
+		return;
+	}
+
+	cprintf("(");	
+
+	for (iptr = ialist; iptr != NULL; iptr = iptr->next) {
+		cprintf("(");	
+		imap_strout(iptr->ial_name);
+		cprintf(" NIL ");
+		imap_strout(iptr->ial_user);
+		cprintf(" ");
+		imap_strout(iptr->ial_node);
+		cprintf(")");	
+	}
+
+	cprintf(")");
+}

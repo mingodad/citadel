@@ -3,6 +3,14 @@
  *
  */
 
+struct internet_address_list {
+	struct internet_address_list *next;
+	char ial_user[256];
+	char ial_node[256];
+	char ial_name[256];
+};
+
+
 int fuzzy_match(struct usersupp *us, char *matchstring);
 void process_rfc822_addr(char *rfc822, char *user, char *node, char *name);
 char *rfc822_fetch_field(char *rfc822, char *fieldname);
