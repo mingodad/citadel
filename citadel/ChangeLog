@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.44  2001/09/18 04:05:04  ajc
+ * Added host/IP and port to node config (client side only)
+
  Revision 580.43  2001/09/17 23:55:45  ajc
  * Support for IGnet routing (not tested)
 
@@ -2748,3 +2751,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

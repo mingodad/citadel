@@ -1050,13 +1050,17 @@ void do_ignet_configuration(void) {
 	do {
 		printf("\n");
 		color(BRIGHT_WHITE);
-		printf("### ");
-		printf("    Node         ");
-		printf("   Secret           \n");
+		printf(	"### "
+			"   Node          "
+			"  Secret         "
+			"          Host or IP             "
+			"Port#\n");
 		color(DIM_WHITE);
-		printf("--- ");
-		printf("---------------- ");
-		printf("--------------------\n");
+		printf(	"--- "
+			"---------------- "
+			"---------------- "
+			"-------------------------------- "
+			"-----\n");
 		for (i=0; i<num_recs; ++i) {
 		color(DIM_WHITE);
 		printf("%3d ", i+1);
@@ -1065,7 +1069,13 @@ void do_ignet_configuration(void) {
 		printf("%-16s ", buf);
 		extract(buf, recs[i], 1);
 		color(BRIGHT_MAGENTA);
-		printf("%-16s\n", buf);
+		printf("%-16s ", buf);
+		extract(buf, recs[i], 2);
+		color(BRIGHT_CYAN);
+		printf("%-32s ", buf);
+		extract(buf, recs[i], 3);
+		color(BRIGHT_MAGENTA);
+		printf("%-3s\n", buf);
 		color(DIM_WHITE);
 		}
 
@@ -1077,10 +1087,16 @@ void do_ignet_configuration(void) {
 					recs = malloc(sizeof(char *));
 				else recs = realloc(recs,
 					(sizeof(char *)) * num_recs);
-				newprompt("Enter host name    : ", buf, 16);
+				newprompt("Enter node name    : ", buf, 16);
 				strcat(buf, "|");
 				newprompt("Enter shared secret: ",
 					&buf[strlen(buf)], 16);
+				strcat(buf, "|");
+				newprompt("Enter host or IP   : ",
+					&buf[strlen(buf)], 32);
+				strcat(buf, "|504");
+				strprompt("Enter port number  : ",
+					&buf[strlen(buf)-3], 5);
 				recs[num_recs-1] = strdup(buf);
 				break;
 			case 'd':
