@@ -728,7 +728,7 @@ void cmd_goto(char *gargs)
 	extract(password,gargs,1);
 
 	c=0;
-	getuser(&CC->usersupp,CC->curr_user);
+	getuser(&CC->usersupp, CC->curr_user);
 
 	if (!strcasecmp(towhere, "_BASEROOM_"))
 		strcpy(towhere, BASEROOM);
