@@ -148,14 +148,14 @@ int main(int argc, char **argv)
 	lprintf(1,"General Public License.\n");
 	lprintf(1, "\n");
 
-	/* Initialize... */
-	init_sysdep();
-
 	/* Load site-specific parameters, and set the ipgm secret */
 	lprintf(7, "Loading citadel.config\n");
 	get_config();
 	config.c_ipgm_secret = rand();
 	put_config();
+
+	/* Initialize... */
+	init_sysdep();
 
 	/*
 	 * Do non system dependent startup functions.

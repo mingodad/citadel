@@ -251,9 +251,24 @@ void init_ssl(void)
 
 					name = X509_REQ_get_subject_name(x);
 
-					/* Tell it who we are (FIXME more here later) */
+					/* Tell it who we are */
+
+					/*
 					X509_NAME_add_entry_by_txt(name, "C",
 						MBSTRING_ASC, "US", -1, -1, 0);
+
+					X509_NAME_add_entry_by_txt(name, "ST",
+						MBSTRING_ASC, "New York", -1, -1, 0);
+
+					X509_NAME_add_entry_by_txt(name, "L",
+						MBSTRING_ASC, "Mount Kisco", -1, -1, 0);
+					*/
+
+					X509_NAME_add_entry_by_txt(name, "O",
+						MBSTRING_ASC, config.c_humannode, -1, -1, 0);
+
+					X509_NAME_add_entry_by_txt(name, "OU",
+						MBSTRING_ASC, "Citadel server", -1, -1, 0);
 
 					X509_NAME_add_entry_by_txt(name, "CN",
 						MBSTRING_ASC, config.c_fqdn, -1, -1, 0);
