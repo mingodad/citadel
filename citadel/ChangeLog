@@ -1,3 +1,8 @@
+Tue Sep  1 23:09:50 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* userpurge.c: rewrote using functions from the server core, rather
+	  than the now-defunct external API.  This'll be ready once the module
+	  loading code is done.  (I just had to commit _something_ tonight.)
+
 Mon Aug 31 22:47:58 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Yanked the citadelapi.c module.  This wasn't working out well.
 	* techdocs/citadelapi.txt - began documenting the new API to be used

@@ -20,12 +20,9 @@
 #include <errno.h>
 #include "citadel.h"
 
-void do_purge(char *who) {
+void do_user_purge(struct usersupp *us) {
 	int purge;
-	time_t call, now;
-	int calls;
-	char password[64];
-	unsigned int flags;
+	time_t now;
 
 	/* The default rule is to not purge. */
 	purge = 0;
@@ -33,41 +30,37 @@ void do_purge(char *who) {
 	/* If the user hasn't called in two months, his/her account
 	 * has expired, so purge the record.
 	 */
-	call = CtdlGetUserLastCall(who);
 	now = time(NULL);
-	if ((now - call) > PURGE_TIME) purge = 1;
+	if ((now - us->lastcall) > PURGE_TIME) purge = 1;
 
 	/* If the user set his/her password to 'deleteme', he/she
 	 * wishes to be deleted, so purge the record.
 	 */
-	CtdlGetUserPassword(password, who);
-	if (!strcasecmp(password, "deleteme")) purge = 1;
+	if (!strcasecmp(us->password, "deleteme")) purge = 1;
 
 	/* If the record is marked as permanent, don't purge it.
 	 */
-	flags = CtdlGetUserFlags(who);
-	if (flags & US_PERM) purge = 0;
+	if (us->flags & US_PERM) purge = 0;
 
 	/* If the access level is 0, the record should already have been
 	 * deleted, but maybe the user was logged in at the time or something.
 	 * Delete the record now.
 	 */
-	if (CtdlGetUserAccessLevel(who) == 0) purge = 1;
+	if (us->axlevel == 0) purge = 1;
 
 	/* 0 calls is impossible.  If there are 0 calls, it must
 	 * be a corrupted record, so purge it.
 	 */
-	calls = CtdlGetUserTimesCalled(who);
-	if (calls == 0) purge = 1;
+	if (us->timescalled == 0) purge = 1;
 
 	if (purge == 1) {
-		CtdlSendExpressMessage("IGnatius T Foobar", "who");
+		/* FIX add the delete call here. */
 		}
 
 
 	}
 
 
-void CtdlMain() {
-	CtdlForEachUser(do_purge);
+void MyReallyCoolModuleEntryPoint() {
+	ForEachUser(do_user_purge);
 	}
