@@ -1,3 +1,6 @@
+1999-04-13 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* dynloader.c: OpenBSD places underscores in front of symbol names
+
 Mon Apr 12 22:13:26 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* aidepost.c: rewrote to unlink temp file before writing to it so that
 	  it will automatically go away if interrupted. Also ran indent -kr -i8

@@ -111,7 +111,11 @@ void DLoader_Init(char *pathname)
       }
       
       h_init_fcn = (struct DLModule_Info * (*)(void))
+#ifndef __OpenBSD__
 	dlsym(fcn_handle, "Dynamic_Module_Init");
+#else
+	dlsym(fcn_handle, "_Dynamic_Module_Init");
+#endif
 
       if ((dl_error = dlerror()) != NULL)
       {
