@@ -1,4 +1,12 @@
 $Log$
+Revision 410.46  2003/06/06 02:22:07  ajc
+* Changed the upper left and upper right bounded box corners to a solid
+  blue (#204B78) instead of gradiated, because it was looking funny in
+  256-color mode.  It also looked funny in Internet Explorer, but people
+  who use Internet Explorer are contributing to terrorism and really don't
+  deserve Web access in the first place.  So I really just fixed this to make
+  it look good in 256-color Netscape.
+
 Revision 410.45  2003/06/05 21:37:37  ajc
 * Cosmetic changes.  Attempting to fix b0rken rendering of main menu
   in b0rken IE browser.  Die, Bill, Die.
@@ -1458,4 +1466,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
