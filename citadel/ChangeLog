@@ -1,10 +1,15 @@
+Sun Jul 19 17:26:12 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* ChangeLog: reordered; the GNU standard is to add new entries to the
+	  top.
+	* .cvsignore: added userlist
+
+Sun Jul 12 20:58:59 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+        * Finished migrating everything to the new data store.
+        * Replaced the binary "calllog" with the ASCII "citadel.log"
+        * Began converting broken utilities that depend on the old data store
+
 Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* Makefile.in: removed msgstats
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import
-
-Sun Jul 12 20:58:59 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
-	* Finished migrating everything to the new data store.
-	* Replaced the binary "calllog" with the ASCII "citadel.log"
-	* Began converting broken utilities that depend on the old data store
