@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.44  2004/02/20 02:55:18  ajc
+ * Fixed one of the prompts (bugzilla #118)
+
  Revision 614.43  2004/02/19 04:12:56  ajc
  * Instead of doing the silly "Kolab reserved folder names" thing, instead
    implemented the Cyrus-compatible style of forcing all personal mailbox
@@ -5379,3 +5382,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
