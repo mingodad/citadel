@@ -105,10 +105,10 @@ void read_message(long msgnum, int is_summary) {
 		wprintf("<STRONG>ERROR:</STRONG> %s<BR>\n", &buf[4]);
 		return;
 	}
-	wprintf("<TABLE WIDTH=100%% BORDER=0 CELLSPACING=0 CELLPADDING=1 BGCOLOR=000077><TR><TD>\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 CELLSPACING=0 CELLPADDING=1 BGCOLOR=444455><TR><TD>\n");
 	wprintf("<FONT ");
 	if (!is_summary) wprintf("SIZE=+1 ");
-	wprintf("COLOR=\"FFFF00\"> ");
+	wprintf("COLOR=\"DDDDCC\"> ");
 	strcpy(m_subject, "");
 
 	while (serv_gets(buf), strncasecmp(buf, "text", 4)) {
@@ -120,9 +120,11 @@ void read_message(long msgnum, int is_summary) {
 			format_type = atoi(&buf[5]);
 		if (!strncasecmp(buf, "from=", 5)) {
 			strcpy(from, &buf[5]);
-			wprintf("from ");
+			wprintf("from <A HREF=\"/showuser&who=");
+			urlescputs(from);
+			wprintf("\">");
 			escputs(from);
-			wprintf(" ");
+			wprintf("</A> ");
 		}
 		if (!strncasecmp(buf, "subj=", 5))
 			strcpy(m_subject, &buf[5]);
