@@ -1049,7 +1049,9 @@ int main(int argc, char **argv)
 
 	screen_new();
 
+#ifdef __CYGWIN__
 	newprompt("Connect to (return for local server): ", hostbuf, 64);
+#endif
 
 	sln_printf("Attaching to server... \r");
 	sln_flush();

@@ -1,4 +1,7 @@
  $Log$
+ Revision 606.10  2003/06/04 21:46:13  error
+ * citadel.c: Added a missing #ifdef __CYGWIN__
+
  Revision 606.9  2003/06/04 21:39:27  error
  * Numerous fixups needed for Windows port:
    * cmd_mesg() rewritten to use the stat() syscall to find files
@@ -4754,3 +4757,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
