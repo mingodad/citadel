@@ -439,6 +439,7 @@ void session_loop(void) {
 	int a, b;
 	int ContentLength = 0;
 	char *content;
+FILE *fp;
 
 	/* We stuff these with the values coming from the client cookies,
 	 * so we can use them to reconnect a timed out session if we have to.
@@ -483,6 +484,9 @@ void session_loop(void) {
 	if (ContentLength > 0) {
 		content = malloc(ContentLength+1);
 		fread(content, ContentLength, 1, stdin);
+fp = fopen("content", "wb");
+fwrite(content, ContentLength, 1, fp);
+fclose(fp);
 		content[ContentLength] = 0;
 		addurls(content);
 		}
