@@ -324,7 +324,7 @@ cleaner: clean
 		modules/*.[ms]o $(PROXY_TARGETS) so_locations
 
 distclean: cleaner
-	find . -name '*~' -or -name '.#*' | xargs rm -f
+	find . -name '*~' -o -name '.#*' | xargs rm -f
 	rm -f Makefile sysdep.h config.cache config.log config.status *.d weekly
 
 .c.d:
