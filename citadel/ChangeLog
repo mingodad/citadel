@@ -1,4 +1,7 @@
  $Log$
+ Revision 612.8  2003/12/09 05:12:49  ajc
+ * Don't give away anonymous poster information in IMAP or RFC822
+
  Revision 612.7  2003/12/09 04:50:16  ajc
  * Painstakingly combed through IMAP headers and responses for two hours in
    an attempt to figure out why the horrendous pile of crap called Microsoft
@@ -5128,3 +5131,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -253,9 +253,21 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 void imap_output_envelope_from(struct CtdlMessage *msg) {
 	char user[1024], node[1024], name[1024];
 
+	/* For anonymous messages, it's so easy! */
+	if (!is_room_aide() && (msg->cm_anon_type == MES_ANONONLY)) {
+		cprintf("((\"----\" NIL \"x\" \"x.org\")) ");
+		return;
+	}
+	if (!is_room_aide() && (msg->cm_anon_type == MES_ANONOPT)) {
+		cprintf("((\"anonymous\" NIL \"x\" \"x.org\")) ");
+		return;
+	}
+
+	/* For everything else, we do stuff. */
 	cprintf("((");				/* open double-parens */
 	imap_strout(msg->cm_fields['A']);	/* personal name */
 	cprintf(" NIL ");			/* source route (not used) */
+
 
 	if (msg->cm_fields['F'] != NULL) {
 		process_rfc822_addr(msg->cm_fields['F'], user, node, name);

@@ -1319,7 +1319,13 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 
 		PerformUserHooks(luser, (-1L), EVT_OUTPUTMSG);
 
-		if (strlen(fuser) > 0) {
+		if (!is_room_aide() && (TheMessage->cm_anon_type == MES_ANONONLY)) {
+			cprintf("From: x@x.org (----)%s", nl);
+		}
+		else if (!is_room_aide() && (TheMessage->cm_anon_type == MES_ANONOPT)) {
+			cprintf("From: x@x.org (anonymous)%s", nl);
+		}
+		else if (strlen(fuser) > 0) {
 			cprintf("From: %s (%s)%s", fuser, luser, nl);
 		}
 		else {
