@@ -366,11 +366,17 @@ void main(int argc, char *argv[]) {
 	char buf[256];
 	int pid;
 
-	/* Create the cache directory.  Ignore any error return, 'cuz that
-	 * just means it's already there.  FIX... this really should check
-	 * for that particular error.
+	/* Create the cache directory.  Die on any error *except* EEXIST
+	 * because it's perfectly ok if the cache already exists.
 	 */
-	mkdir(CACHE_DIR, 0700);
+	if (mkdir(CACHE_DIR, 0700)!=0) {
+		if (errno != EEXIST) {
+			printf("%d Error creating cache directory: %s\n",
+				ERROR+INTERNAL_ERROR,
+				strerror(errno));
+			exit(errno);
+			}
+		}
 
 	/* Now go there */
 	if (chdir(CACHE_DIR) != 0) exit(errno);
