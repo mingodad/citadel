@@ -232,10 +232,13 @@ void context_loop(int sock)
 	int desired_session = 0;
 	int got_cookie = 0;
 	struct wcsession *TheSession, *sptr;
+	int gzip = 0;
+
+#ifdef WITH_ZLIB
+	int i;
 	char enc[SIZ];
 	char encodings[SIZ];
-	int gzip = 0;
-	int i;
+#endif
 
 	/*
 	 * Find out what it is that the web browser is asking for
