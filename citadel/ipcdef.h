@@ -28,6 +28,9 @@
 #define NO_SUCH_SYSTEM		73
 #define ALREADY_EXISTS		74
 
+#define ASYNC_MSG		900
+#define ASYNC_GEXP		01
+
 struct CtdlServInfo {
 	int serv_pid;
 	char serv_nodename[32];

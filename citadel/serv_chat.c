@@ -449,6 +449,20 @@ void cmd_gexp(char *argbuf) {
 	phree(ptr);
 }
 
+/*
+ * Asynchronously deliver express messages'
+ */
+void cmd_gexp_async(void) {
+
+	/* Only do this if the session can handle asynchronous protocol */
+	if (CC->is_async == 0) return;
+
+	/* And don't do it if there's nothing to send. */
+	if (CC->FirstExpressMessage == NULL) return;
+
+	cprintf("%d express msg\n", ASYNC_MSG + ASYNC_GEXP);
+	cmd_gexp("");
+}
 
 /*
  * Back end support function for send_express_message() and company
@@ -723,6 +737,7 @@ char *Dynamic_Module_Init(void)
 	CtdlRegisterProtoHook(cmd_sexp, "SEXP", "Send an express message");
 	CtdlRegisterProtoHook(cmd_dexp, "DEXP", "Disable express messages");
 	CtdlRegisterProtoHook(cmd_reqt, "REQT", "Request client termination");
+	CtdlRegisterSessionHook(cmd_gexp_async, EVT_CMD);
 	CtdlRegisterSessionHook(delete_express_messages, EVT_STOP);
 	CtdlRegisterXmsgHook(send_express_message, XMSG_PRI_LOCAL);
 	return "$Id$";

@@ -1837,3 +1837,21 @@ server to output its current state without changing it.
  
  When asynchronous protocol mode is in effect, the client MUST handle any
 asynchronous messages as they arrive, before doing anything else.
+   
+ 
+ 
+   
+ ASYNCHRONOUS MESSAGES
+ ---------------------
+ 
+ When the client protocol is operating in asynchronous mode (please refer to
+the writeup of the ASYN command above), the following messages may arrive at
+any time:
+  
+ 
+ 901  (express message arriving)
+ 
+ There is an express message intended for this client.  When the client
+receives this message, it MUST act as if it just sent a GEXP command (the data
+following the 901 message WILL be a LISTING_FOLLOWS data transfer; in fact,
+the current implementation simply executes a GEXP command internally).

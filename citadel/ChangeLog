@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.67  2001/01/15 16:30:31  ajc
+ * temporary implementation of 901 asynchronous express messages
+
  Revision 573.66  2001/01/14 14:55:39  ajc
  * Changed the format of <.W>holist <L>ong
 
@@ -2318,3 +2321,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
