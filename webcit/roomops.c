@@ -264,6 +264,7 @@ void gotoroom(char *gname, int display_name)
  * operation to goto a room
  */
 void dotgoto(void) {
+	fprintf(stderr, "DOTGOTO: <%s>\n", bstr("room"));
 	gotoroom(bstr("room"),1);
 	}
 
