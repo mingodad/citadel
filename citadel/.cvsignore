@@ -21,9 +21,9 @@ mailinglist
 citadel.config
 calllog.pos
 calllog
-*.gdbm
 citadel.control
 userlist
 citadel.log
 data
 .depend
+import
