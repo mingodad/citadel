@@ -43,7 +43,7 @@ void receive_spool(void) {
 	long plen;
 	FILE *fp;
 
-	sprintf(tempfilename,"/tmp/netpoll.%d",getpid());
+	sprintf(tempfilename,"/tmp/netpoll.%ld",(long)getpid());
 	serv_puts("NDOP");
 	serv_gets(buf);
 	printf("%s\n",buf);
@@ -76,8 +76,8 @@ void receive_spool(void) {
 	serv_puts("CLOS");
 	serv_gets(buf);
 	printf("%s\n",buf);
-	sprintf(buf,"mv %s %s/network/spoolin/netpoll.%d",
-		tempfilename,BBSDIR,getpid());
+	sprintf(buf,"mv %s %s/network/spoolin/netpoll.%ld",
+		tempfilename,BBSDIR,(long)getpid());
 	system(buf);
 	system("exec nohup ./netproc >/dev/null 2>&1 &");
 	}

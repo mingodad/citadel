@@ -867,8 +867,8 @@ lprintf(9, "6\n");
 
 	/* Network mail - send a copy to the network program. */
 	if ( (strlen(recipient)>0) && (mailtype != M_LOCAL) ) {
-		sprintf(aaa,"./network/spoolin/netmail.%04x.%04x.%04x",
-			getpid(), CC->cs_pid, ++seqnum);
+		sprintf(aaa,"./network/spoolin/netmail.%04lx.%04x.%04x",
+			(long)getpid(), CC->cs_pid, ++seqnum);
 		copy_file(mtmp,aaa);
 		system("exec nohup ./netproc -i >/dev/null 2>&1 &");
 		}
@@ -1048,7 +1048,7 @@ void cmd_ent0(char *entargs)
               return;
            }
     	   extract(newusername,entargs,4);
-    	   bzero(CC->fake_postname, 32);
+    	   memset(CC->fake_postname, 0, 32);
            strcpy(CC->fake_postname, newusername);
            cprintf("%d Ok\n",OK);
            return;

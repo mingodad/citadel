@@ -1,8 +1,8 @@
 # $Id$
-Summary: Citadel/UX 5.50
+Summary: Citadel/UX
 Name: citadel
-Version: 5.50
-Release: 0.4
+Version: 5.52
+Release: 1
 Copyright: GPL
 Group: Applications/Communications
 Source0: citadel.tar.gz

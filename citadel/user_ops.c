@@ -1,11 +1,13 @@
 /* $Id$ */
 
+#ifndef _SGI_SOURCE
 /* needed to properly enable crypt() stuff on some systems */
 #define _XOPEN_SOURCE
 /* needed for str[n]casecmp() on some systems if the above is defined */
 #define _XOPEN_SOURCE_EXTENDED
 /* needed to enable threads on some systems if the above are defined */
 #define _POSIX_C_SOURCE 199506L
+#endif
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -46,7 +48,7 @@ int getuser(struct usersupp *usbuf, char name[]) {
 	int a;
 	struct cdbdata *cdbus;
 
-	bzero(usbuf, sizeof(struct usersupp));
+	memset(usbuf, 0, sizeof(struct usersupp));
 	for (a=0; a<=strlen(name); ++a) {
 		lowercase_name[a] = tolower(name[a]);
 		}
@@ -175,7 +177,7 @@ void CtdlGetRelationship(struct visit *vbuf,
 		rel_user->usernum);
 
 	/* Clear out the buffer */
-	bzero(vbuf, sizeof(struct visit));
+	memset(vbuf, 0, sizeof(struct visit));
 
 	cdbvisit = cdb_fetch(CDB_VISIT, IndexBuf, IndexLen);
 	if (cdbvisit != NULL) {
@@ -226,7 +228,7 @@ int getuserbynumber(struct usersupp *usbuf, long int number)
 	cdb_rewind(CDB_USERSUPP);
 
 	while(cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
-		bzero(usbuf, sizeof(struct usersupp));
+		memset(usbuf, 0, sizeof(struct usersupp));
 		memcpy(usbuf, cdbus->ptr,
 			( (cdbus->len > sizeof(struct usersupp)) ?
 			sizeof(struct usersupp) : cdbus->len) );
@@ -812,7 +814,7 @@ void cmd_gnur(void) {
 	 */
 	cdb_rewind(CDB_USERSUPP);
 	while (cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
-		bzero(&usbuf, sizeof(struct usersupp));
+		memset(&usbuf, 0, sizeof(struct usersupp));
 		memcpy(&usbuf, cdbus->ptr,
 			( (cdbus->len > sizeof(struct usersupp)) ?
 			sizeof(struct usersupp) : cdbus->len) );
@@ -956,7 +958,7 @@ void ForEachUser(void (*CallBack)(struct usersupp *EachUser)) {
 	cdb_rewind(CDB_USERSUPP);
 
 	while(cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
-		bzero(&usbuf, sizeof(struct usersupp));
+		memset(&usbuf, 0, sizeof(struct usersupp));
 		memcpy(&usbuf, cdbus->ptr,
 			( (cdbus->len > sizeof(struct usersupp)) ?
 			sizeof(struct usersupp) : cdbus->len) );

@@ -195,7 +195,7 @@ void cmd_hchg(char *newhostname)
 {
    if ((newhostname) && (newhostname[0]))
    {
-      bzero(CC->fake_hostname, 25);
+      memset(CC->fake_hostname, 0, 25);
       strncpy(CC->fake_hostname, newhostname, 24);
    }
    else
@@ -214,7 +214,7 @@ void cmd_uchg(char *newusername)
    if ((newusername) && (newusername[0]))
    {
       CC->cs_flags &= ~CS_STEALTH;
-      bzero(CC->fake_username, 32);
+      memset(CC->fake_username, 0, 32);
       if (strncasecmp(newusername, CC->curr_user, strlen(CC->curr_user)))
          strncpy(CC->fake_username, newusername, 31);
    }
@@ -726,7 +726,7 @@ void *context_loop(struct CitContext *con)
 
 	do {
 		time(&CC->lastcmd);
-		bzero(cmdbuf, sizeof cmdbuf); /* Clear it, just in case */
+		memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 		if (client_gets(cmdbuf) < 1) cleanup(EXIT_NULL);
 		lprintf(5, "citserver[%3d]: %s\n", CC->cs_pid, cmdbuf);
 

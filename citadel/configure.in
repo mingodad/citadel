@@ -1,5 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_PREREQ(2.12)
+dnl $Id$
+AC_PREREQ(2.13)
 AC_INIT(citserver.c)
 AC_PREFIX_DEFAULT(/usr/local/citadel)
 if test "$prefix" = NONE; then
@@ -33,7 +34,13 @@ if test "$GCC" = yes; then
 	CFLAGS="$CFLAGS -Wall -Wstrict-prototypes"
 	dnl pass -rdynamic to the linker to enable dlopen() modules to
 	dnl refer to symbols in the main executable (applies to citserver)
-	SERVER_LDFLAGS=-rdynamic
+	case "$host" in
+		mips*-sgi-irix*)
+		;;
+		*)
+			SERVER_LDFLAGS=-rdynamic
+		;;
+	esac
 	PICFLAGS=-fPIC
 fi
 AC_PROG_RANLIB
@@ -48,13 +55,26 @@ dnl Makefile only passes $(LIBS) to that target. If other programs start
 dnl requiring additional libraries, we'll have to use other variables, as is
 dnl done with curses.
 
+dnl We want to test for crypt() and dlopen() in libc before checking for
+dnl -lcrypt and -ldl, because some systems (like Irix) have both.
+AC_CHECK_FUNCS(crypt dlopen)
+
 dnl We only need crypt() if we're using autologin. FIXME: implement shadow
 dnl passwords and/or PAM...
-if test "$enable_autologin" != no; then
+if test "$enable_autologin" != no -a "$ac_cv_func_crypt" = no; then
 	AC_CHECK_LIB(crypt, crypt)
 fi
 
-AC_CHECK_LIB(dl, dlopen)
+dnl Enable autologin if the feature is requested (which is the default) and
+dnl a crypt() functin is available.
+if test "$enable_autologin" != no -a \( "$ac_cv_func_crypt" = yes -o "$ac_cv_lib_crypt_crypt" = yes \); then
+	AC_DEFINE(ENABLE_AUTOLOGIN)
+fi
+
+if test "$ac_cv_func_dlopen" = no; then
+	AC_CHECK_LIB(dl, dlopen)
+fi
+
 AC_CHECK_LIB(gdbm, gdbm_open)
 AC_CHECK_LIB(curses, initscr, CURSES=-lcurses)
 
@@ -87,12 +107,6 @@ AC_PROG_GCC_TRADITIONAL
 AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(snprintf mkdir mktime rmdir select socket strerror)
-
-dnl Enable autologin if the feature is requested (which is the default) and
-dnl a crypt() function is available.
-if test "$enable_autologin" != no; then
-	AC_CHECK_FUNC(crypt, AC_DEFINE(ENABLE_AUTOLOGIN))
-fi
 
 dnl Tell the Makefile whether we need to use our snprintf() replacement.
 if test "$ac_cv_func_snprintf" = no; then

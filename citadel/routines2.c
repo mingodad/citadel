@@ -21,13 +21,13 @@
 #include "routines.h"
 #include "commands.h"
 #include "tools.h"
+#include "messages.h"
 
 void interr(int errnum);
 void strprompt(char *prompt, char *str, int len);
 void newprompt(char *prompt, char *str, int len);
 void sttybbs(int cmd);
 int inkey(void);
-int ka_wait(pid_t *kstatus);
 void serv_write(char *buf, int nbytes);
 void extract(char *dest, char *source, int parmnum);
 int haschar(char *st, int ch);
@@ -583,7 +583,7 @@ void do_system_configuration(void) {
 	int a;
 
 	/* Clear out the config buffers */
-	bzero(&sc[0][0], sizeof(sc));
+	memset(&sc[0][0], 0, sizeof(sc));
 
 	/* Fetch the current config */
 	serv_puts("CONF get");

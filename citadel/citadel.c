@@ -806,7 +806,7 @@ int main(int argc, char **argv)
 int a,b,mcmd;
 char aaa[100],bbb[100],eee[100];		/* general purpose variables */
 char argbuf[32];				/* command line buf */
-int termn8 = 0;
+volatile int termn8 = 0;
 
 
 sttybbs(SB_SAVE);		/* Store the old terminal parameters */

@@ -23,7 +23,7 @@ void CtdlInternalGetServInfo(struct CtdlServInfo *infobuf) {
 	serv_gets(buf);
 	if (buf[0]!='1') return;
 
-	bzero(infobuf, sizeof(struct CtdlServInfo));
+	memset(infobuf, 0, sizeof(struct CtdlServInfo));
 	a = 0;
 	while(serv_gets(buf), strcmp(buf,"000")) {
 	    switch(a) {

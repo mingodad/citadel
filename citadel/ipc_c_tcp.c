@@ -60,7 +60,7 @@ int connectsock(char *host, char *service, char *protocol)
 	struct sockaddr_in sin;
 	int s,type;
 
-	bzero((char *)&sin,sizeof(sin));
+	memset(&sin,0,sizeof(sin));
 	sin.sin_family = AF_INET;
 
 	pse=getservbyname(service,protocol);
@@ -128,7 +128,7 @@ void numericize(char *buf, char *host, char *service, char *protocol)
 	struct servent *pse;
 	struct sockaddr_in sin;
 
-	bzero((char *)&sin,sizeof(sin));
+	memset(&sin,0,sizeof(sin));
 	sin.sin_family = AF_INET;
 
 	pse=getservbyname(service,protocol);

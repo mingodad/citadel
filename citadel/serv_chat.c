@@ -392,7 +392,7 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 				if (ccptr->ExpressMessages == NULL) {
 					newlen = strlen(x_msg) + 80;
 					msgptr = mallok(newlen);
-					bzero(msgptr, newlen);
+					memset(msgptr, 0, newlen);
 				} else {
 					newlen = (strlen(ccptr->ExpressMessages)
 						  + strlen(x_msg) + 80);
@@ -476,7 +476,7 @@ void cmd_sexp(char *argbuf)
 		cprintf("%d Transmit message (will deliver to %d users)\n",
 			SEND_LISTING, message_sent);
 		x_big_msgbuf = mallok(256);
-		bzero(x_big_msgbuf, 256);
+		memset(x_big_msgbuf, 0, 256);
 		while (client_gets(x_msg), strcmp(x_msg, "000")) {
 			x_big_msgbuf = reallok(x_big_msgbuf,
 			       strlen(x_big_msgbuf) + strlen(x_msg) + 4);

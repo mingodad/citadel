@@ -40,7 +40,7 @@ int set_lockfile(void) {
 		}
 
 	lfp=fopen(LOCKFILE,"w");
-	fprintf(lfp,"%d\n",getpid());
+	fprintf(lfp,"%ld\n",(long)getpid());
 	fclose(lfp);
 	return(0);
 	}
@@ -141,7 +141,7 @@ int main(int argc, char **argv)
 	signal(SIGHUP,cleanup);
 	signal(SIGTERM,cleanup);
 
-	fprintf(stderr, "sendcommand: started.  pid=%d\n",getpid());
+	fprintf(stderr, "sendcommand: started.  pid=%ld\n",(long)getpid());
 	fflush(stderr);
 	np_attach_to_server();
 	fflush(stderr);

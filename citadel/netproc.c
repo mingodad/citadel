@@ -298,7 +298,7 @@ int set_lockfile(void) {
 		}
 
 	lfp=fopen(LOCKFILE,"w");
-	fprintf(lfp,"%d\n",getpid());
+	fprintf(lfp,"%ld\n",(long)getpid());
 	fclose(lfp);
 	return(0);
 	}
@@ -608,7 +608,8 @@ void bounce(struct minfo *bminfo)
 	static int bseq = 1;
 	time_t now;
 
-	sprintf(bfilename,"./network/spoolin/bounce.%d.%d",getpid(),bseq++);
+	sprintf(bfilename,"./network/spoolin/bounce.%ld.%d",(long)getpid(),
+		bseq++);
 	bounce = fopen(bfilename,"wb");
 	time(&now);
 		
@@ -656,8 +657,8 @@ void inprocess(void) {
 	int bloklen;
 
 
-	sprintf(tname,"/tmp/net.t%d",getpid());	/* temp file name */
-	sprintf(iname,"/tmp/net.i%d",getpid());	/* temp file name */
+	sprintf(tname,"/tmp/net.t%ld",(long)getpid());	/* temp file name */
+	sprintf(iname,"/tmp/net.i%ld",(long)getpid());	/* temp file name */
 
 	load_filterlist();
 
@@ -953,7 +954,7 @@ int spool_out(struct msglist *cmlist, FILE *destfp, char *sysname)	/* spool list
 	char curr_rm[256];
 
 	strcpy(curr_rm, "");
-	sprintf(mmtemp, "/tmp/net.m%d", getpid());
+	sprintf(mmtemp, "/tmp/net.m%ld", (long)getpid());
 
 	/* for each message in the list... */
 	for (cmptr=cmlist; cmptr!=NULL; cmptr=cmptr->next) {
@@ -1038,7 +1039,7 @@ void outprocess(char *sysname) /* send new room messages to sysname */
 	int outgoing_msgs;
 	long thismsg;
 
-	sprintf(tempflnm,"/tmp/%s.%d",NODENAME,getpid());
+	sprintf(tempflnm,"/tmp/%s.%ld",NODENAME,(long)getpid());
 	tempflfp=fopen(tempflnm,"w");
 	if (tempflfp==NULL) return;
 

@@ -173,7 +173,7 @@ int main(int argc, char **argv)
 	openlog("netmailer", LOG_PID, LOG_USER);
 	get_config();	
 	LoadInternetConfig();
-	sprintf(temp, "/tmp/netmailer.%d", getpid()); /* temp file name */
+	sprintf(temp,"/tmp/netmailer.%ld",(long)getpid()); /* temp file name */
 
 	if ( (argc < 2) || (argc > 3) ) {
 		fprintf(stderr, "netmailer: usage: netmailer recipient@node.dom [mlist]\n");

@@ -82,7 +82,7 @@ void ka_sigcatch(int signum) {
 /*
  * server keep-alive version of wait() (needed for external editor)
  */
-pid_t ka_wait(pid_t *kstatus)
+pid_t ka_wait(int *kstatus)
 {
 	pid_t p;
 
@@ -589,7 +589,6 @@ ME1:	switch(mode) {
 		citedit(fp,beg);
 		fclose(fp);
 		goto MECR;
-		break;
 
 	   case 1:
 		fp=fopen(filename,"w");
@@ -903,7 +902,7 @@ void readmsgs(int c, int rdir, int q)	/* read contents of a room */
 	if (c<0) b=(MAXMSGS-1);
 	else b=0;
 
-	sprintf(prtfile,"/tmp/CPrt%d",getpid());
+	sprintf(prtfile,"/tmp/CPrt%ld",(long)getpid());
 
 	num_msgs = 0;
 	strcpy(cmd,"MSGS ");

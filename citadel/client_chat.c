@@ -229,7 +229,7 @@ void page_user() {
 			}
 
 		printf("Type message to send.  Enter a blank line when finished.\n");
-		bzero(longmsg, sizeof longmsg);
+		memset(longmsg, 0, sizeof longmsg);
 		for (i=0; i<5; ++i) {
 			printf("> ");
 			getline(&longmsg[i][0], 77);

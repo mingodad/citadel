@@ -219,7 +219,7 @@ cleaner: clean
 		$(SERV_MODULES) $(PROXY_TARGETS) so_locations
 
 distclean: cleaner
-	rm -f Makefile sysdep.h config.cache config.log config.status *.d
+	rm -f Makefile sysdep.h config.cache config.log config.status *.d weekly
 
 .c.d:
 	$(CC) -M $(CPPFLAGS) $< | sed -e 's!$*.o!$*.o $*.ro $*.mo $@!' > $@

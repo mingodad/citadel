@@ -95,7 +95,7 @@ void imp_floors(void) {
 	while(fpgetfield(imfp, key), strcasecmp(key, "endsection")) {
 
 		if (!strcasecmp(key, "floor")) {
-			bzero(&fl, sizeof(struct floor));
+			memset(&fl, 0, sizeof(struct floor));
 
 			while(fpgetfield(imfp, tag),
 			     strcasecmp(tag, "endfloor")) {
@@ -139,7 +139,7 @@ void imp_rooms(void) {
 	
 	while(fpgetfield(imfp, key), strcasecmp(key, "endsection")) {
 		if (!strcasecmp(key, "room")) {
-			bzero(&qr, sizeof(struct quickroom));
+			memset(&qr, 0, sizeof(struct quickroom));
 			msglist = NULL;
 			num_msgs = 0;
 			lprintf(9, "Room ");
@@ -225,7 +225,7 @@ void import_a_user(void) {
 	char key[256], value[256];
 	struct usersupp us;
 
-	bzero(&us, sizeof(struct usersupp));	
+	memset(&us, 0, sizeof(struct usersupp));	
 	while(fpgetfield(imfp, key), strcasecmp(key, "enduser")) {
 		if (strcasecmp(key, "mail")) {
 			fpgetfield(imfp, value);

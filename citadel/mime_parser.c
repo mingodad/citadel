@@ -55,7 +55,7 @@ char *memreadline(char *start, char *buf, int maxlen) {
 	char *ptr;
 
 	ptr = start;
-	bzero(buf, maxlen);
+	memset(buf, 0, maxlen);
 
 	while(1) {
 		ch = *ptr++;
@@ -126,9 +126,9 @@ void the_mime_parser(char *partnum,
 	char nested_partnum[256];
 
 	ptr = content_start;
-	bzero(boundary, sizeof boundary);
-	bzero(content_type, sizeof content_type);
-	bzero(encoding, sizeof encoding);
+	memset(boundary, 0, sizeof boundary);
+	memset(content_type, 0, sizeof content_type);
+	memset(encoding, 0, sizeof encoding);
 
 	/* Learn interesting things from the headers */
 	strcpy(header, "");

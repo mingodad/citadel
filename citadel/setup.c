@@ -549,7 +549,7 @@ void set_str_val(int msgpos, char str[]) {
 	char tempfile[64];
 	FILE *fp;
 
-	sprintf(tempfile, "/tmp/setup.%d", getpid());
+	sprintf(tempfile, "/tmp/setup.%ld", (long)getpid());
 
 	switch (setup_type) {
 		case UI_TEXT:

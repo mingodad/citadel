@@ -1,3 +1,10 @@
+1999-01-29 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* fixes for IRIX (thanks to wr and family for use of the Indy):
+	  - use memset()/memcpy() instead of bzero()/bcopy() in all cases
+	  - configure updates
+	  - handle `long' pid's
+	  - a few other little bits
+
 Mon Jan 25 21:23:07 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Fixed bug in save_message() which crashed the server on mail to sysop
 	* Rewrote pop_march() to be smarter about <G>oto heuristics
