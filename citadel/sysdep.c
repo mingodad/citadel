@@ -41,6 +41,7 @@
 #endif
 
 #include <limits.h>
+#include <sys/resource.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -199,15 +200,27 @@ static RETSIGTYPE signal_cleanup(int signum) {
  * Some initialization stuff...
  */
 void init_sysdep(void) {
-	int a;
+	int i;
 
+	/* Avoid vulnerabilities related to FD_SETSIZE if we can. */
+#ifdef FD_SETSIZE
+#ifdef RLIMIT_NOFILE
+	struct rlimit rl;
+	getrlimit(RLIMIT_NOFILE, &rl);
+	rl.rlim_cur = FD_SETSIZE;
+	rl.rlim_max = FD_SETSIZE;
+	setrlimit(RLIMIT_NOFILE, &rl);
+#endif
+#endif
+
+	/* If we've got OpenSSL, we're going to use it. */
 #ifdef HAVE_OPENSSL
 	init_ssl();
 #endif
 
 	/* Set up a bunch of semaphores to be used for critical sections */
-	for (a=0; a<MAX_SEMAPHORES; ++a) {
-		pthread_mutex_init(&Critters[a], NULL);
+	for (i=0; i<MAX_SEMAPHORES; ++i) {
+		pthread_mutex_init(&Critters[i], NULL);
 	}
 
 	/*

@@ -1,4 +1,9 @@
  $Log$
+ Revision 628.1  2005/01/04 02:06:28  ajc
+ * sysdep.c: if we have enough information to do so, adjust maximum file
+   descriptors to avoid exceeding FD_SETSIZE.  This is done to circumvent
+   a rare but specific vulnerability.
+
  Revision 628.0  2004/12/14 03:16:19  ajc
  * THIS IS 6.28
 
@@ -6238,4 +6243,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
