@@ -205,7 +205,7 @@ void read_message(long msgnum) {
 	char mime_content_type[SIZ];
 	char mime_disposition[SIZ];
 	int mime_length;
-	char *mime_http = NULL;
+	char mime_http[SIZ];
 	char m_subject[SIZ];
 	char from[SIZ];
 	char node[SIZ];
@@ -225,6 +225,7 @@ void read_message(long msgnum) {
 	strcpy(reply_to, "");
 	strcpy(vcard_partnum, "");
 	strcpy(cal_partnum, "");
+	strcpy(mime_http, "");
 
 	serv_printf("MSG4 %ld", msgnum);
 	serv_gets(buf);
@@ -299,15 +300,8 @@ void read_message(long msgnum) {
 			mime_length = extract_int(&buf[5], 5);
 
 			if (!strcasecmp(mime_disposition, "attachment")) {
-				if (mime_http == NULL) {
-					mime_http = malloc(512);
-					strcpy(mime_http, "");
-				}
-				else {
-					mime_http = realloc(mime_http,
-						strlen(mime_http) + 512);
-				}
-				sprintf(&mime_http[strlen(mime_http)],
+				snprintf(&mime_http[strlen(mime_http)],
+					(sizeof(mime_http) - strlen(mime_http) - 1),
 					"<A HREF=\"/output_mimepart?"
 					"msgnum=%ld&partnum=%s\" "
 					"TARGET=\"wc.%ld.%s\">"
@@ -322,15 +316,8 @@ void read_message(long msgnum) {
 
 			if ((!strcasecmp(mime_disposition, "inline"))
 			   && (!strncasecmp(mime_content_type, "image/", 6)) ){
-				if (mime_http == NULL) {
-					mime_http = malloc(512);
-					strcpy(mime_http, "");
-				}
-				else {
-					mime_http = realloc(mime_http,
-						strlen(mime_http) + 512);
-				}
-				sprintf(&mime_http[strlen(mime_http)],
+				snprintf(&mime_http[strlen(mime_http)],
+					(sizeof(mime_http) - strlen(mime_http) - 1),
 					"<IMG SRC=\"/output_mimepart?"
 					"msgnum=%ld&partnum=%s\">",
 					msgnum, mime_partnum);
@@ -471,9 +458,8 @@ void read_message(long msgnum) {
 
 
 	/* Afterwards, offer links to download attachments 'n' such */
-	if (mime_http != NULL) {
+	if (strlen(mime_http) > 0) {
 		wprintf("%s", mime_http);
-		free(mime_http);
 	}
 
 	/* Handler for vCard parts */
