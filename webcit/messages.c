@@ -419,6 +419,7 @@ void summarize_message(long msgnum) {
 	} summ;
 
 	memset(&summ, 0, sizeof(summ));
+	strcpy(summ.subj, "(no subject)");
 
 	sprintf(buf, "MSG0 %ld", msgnum);
 	serv_puts(buf);
@@ -431,11 +432,6 @@ void summarize_message(long msgnum) {
 		}
 		if (!strncasecmp(buf, "subj=", 5)) {
 			strcpy(summ.subj, &buf[5]);
-		}
-		if (!strncasecmp(buf, "hnod=", 5)) {
-			strcat(summ.from, " (");
-			strcat(summ.from, &buf[5]);
-			strcat(summ.from, ")");
 		}
 		if (!strncasecmp(buf, "rfca=", 5)) {
 			strcat(summ.from, " <");
@@ -462,13 +458,11 @@ void summarize_message(long msgnum) {
 		}
 	}
 
-	wprintf("<TD BGCOLOR=\"AAAADD\">"
-		"<A HREF=\"/readfwd?startmsg=%ld", msgnum);
-	wprintf("&maxmsgs=1&summary=0\">Read</A>"
-		"</TD>\n", msgnum);
-	wprintf("<TD>");
+	wprintf("<TD><A HREF=\"/readfwd?startmsg=%ld"
+		"&maxmsgs=1&summary=0\">", 
+		msgnum);
 	escputs(summ.subj);
-	wprintf(" </TD><TD>");
+	wprintf("</A></TD><TD>");
 	escputs(summ.from);
 	wprintf(" </TD><TD>");
 	escputs(summ.date);
@@ -525,7 +519,7 @@ void readloop(char *oper)
 	int is_summary = 0;
 	int remaining_messages;
 	int lo, hi;
-	int lowest_displayed = 0;
+	int lowest_displayed = (-1);
 	int highest_displayed = 0;
 	long pn_previous = 0L;
 	long pn_current = 0L;
@@ -575,8 +569,14 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {
-		wprintf("Message summary<BR>\n");
-		wprintf("<TABLE border=0 width=100%%>\n");
+		wprintf("<TABLE border=0 width=100%%>\n"
+			"<TR>"
+			"<TD><I>Subject</I></TD>"
+			"<TD><I>Sender</I></TD>"
+			"<TD><I>Date</I></TD>"
+			"<TD></TD>"
+			"</TR>\n"
+		);
 	}
 
 	for (a = 0; a < nummsgs; ++a) {
@@ -599,9 +599,8 @@ void readloop(char *oper)
 			else {
 				read_message(WC->msgarr[a]);
 			}
-			if (lowest_displayed == 0) lowest_displayed = a;
+			if (lowest_displayed < 0) lowest_displayed = a;
 			highest_displayed = a;
-			if (is_summary) wprintf("<BR>");
 
 			++num_displayed;
 			--remaining_messages;
@@ -654,7 +653,7 @@ void readloop(char *oper)
 			oper,
 			WC->msgarr[0]);
 
-		wprintf("</TD></TR></TABLE></CENTER><HR>\n");
+		wprintf("</TD></TR></TABLE></CENTER>\n");
 	}
 
 
@@ -662,9 +661,7 @@ void readloop(char *oper)
 	 * If we're not currently looking at ALL requested
 	 * messages, then display the selector bar
 	 */
-	/* if (num_displayed < nummsgs) { */
 	if (num_displayed > 1) {
-
 		wprintf("<CENTER>"
 			"<TABLE BORDER=0 WIDTH=100%% BGCOLOR=DDDDDD><TR><TD>"
 			"Reading #%d-%d of %d messages.</TD>\n"
@@ -706,7 +703,7 @@ void readloop(char *oper)
 			oper,
 			WC->msgarr[0]);
 
-		wprintf("</TD></TR></TABLE></CENTER><HR>\n");
+		wprintf("</TD></TR></TABLE></CENTER>\n");
 	}
 
 DONE:	wDumpContent(1);
