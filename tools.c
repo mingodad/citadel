@@ -376,3 +376,35 @@ void read_server_binary(char *buffer, size_t total_len) {
 		}
 	}
 }
+
+
+
+/*
+ * Strip a boundarized substring out of a string (for example, remove
+ * parentheses and anything inside them).
+ *
+ * This improved version can strip out *multiple* boundarized substrings.
+ */
+void stripout(char *str, char leftboundary, char rightboundary) {
+	int a;
+        int lb = (-1);
+        int rb = (-1);
+
+	do {
+		lb = (-1);
+		rb = (-1);
+	
+        	for (a = 0; a < strlen(str); ++a) {
+                	if (str[a] == leftboundary) lb = a;
+                	if (str[a] == rightboundary) rb = a;
+        	}
+
+        	if ( (lb > 0) && (rb > lb) ) {
+                	strcpy(&str[lb - 1], &str[rb + 1]);
+        	}
+
+	} while ( (lb > 0) && (rb > lb) );
+
+}
+
+

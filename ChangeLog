@@ -1,4 +1,7 @@
 $Log$
+Revision 400.76  2003/01/05 20:51:01  ajc
+* Display PARTSTAT for attendees
+
 Revision 400.75  2003/01/05 05:01:00  ajc
 * Add "today's calendar events" to the summary page.
 
@@ -1214,4 +1217,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
