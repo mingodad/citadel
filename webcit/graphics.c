@@ -38,8 +38,15 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 	}
 	output_headers(1, 1, 0, 0, 0, 0, 0);
 
-	svprintf("BOXTITLE", WCS_STRING, "Set/change your photo");
-	do_template("beginbox");
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n"
+		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<SPAN CLASS=\"titlebar\">Set/change your photo</SPAN>"
+		"</TD></TR></TABLE>\n"
+		"</div>\n<div id=\"content\">\n"
+	);
+
+	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<CENTER>\n");
 
@@ -64,7 +71,7 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 	wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" VALUE=\"Cancel\">\n");
 	wprintf("</FORM>\n");
 	wprintf("</CENTER>\n");
-	do_template("endbox");
+	wprintf("</td></tr></table></center>\n");
 	wDumpContent(1);
 }
 

@@ -1139,8 +1139,8 @@ void readloop(char *oper)
 		"METHOD=\"POST\" ACTION=\"/do_stuff_to_msgs\">\n");
 	if (is_summary) {
 		wprintf(
-			"<TABLE border=0 cellspacing=0 "
-			"cellpadding=0 width=100%%>\n"
+			"<center><table border=0 cellspacing=0 "
+			"cellpadding=0 width=99%%>\n"
 			"<TR>"
 			"<TD><I>Subject</I></TD>"
 			"<TD><I>Sender</I></TD>"
@@ -1217,7 +1217,7 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {
-		wprintf("</TABLE>\n");
+		wprintf("</table></center>\n");
 	}
 
 	/* Bump these because although we're thinking in zero base, the user
@@ -1231,7 +1231,7 @@ void readloop(char *oper)
 	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook) && (!is_notes) && (!is_singlecard)) {
 
 		wprintf("<CENTER>"
-			"<TABLE BORDER=0 WIDTH=100%% BGCOLOR=\"#DDDDDD\"><TR><TD>"
+			"<TABLE BORDER=0 WIDTH=99%% BGCOLOR=\"#DDDDDD\"><TR><TD>"
 			"Reading #%d of %d messages.</TD>\n"
 			"<TD ALIGN=RIGHT><FONT SIZE=+1>",
 			lowest_displayed, nummsgs);
@@ -1693,10 +1693,10 @@ void confirm_move_msg(void)
 
 	output_headers(1, 1, 1, 0, 0, 0, 0);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"#FFFFFF\"");
-	wprintf("<B>Confirm move of message</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
+	wprintf("<center><table width=99%% border=0 bgcolor=\"#444455\"><tr><td>");
+	wprintf("<font size=+1 color=\"#ffffff\"");
+	wprintf("<b>Confirm move of message</b>\n");
+	wprintf("</font></td></tr></table></center>\n");
 
 	wprintf("<CENTER>");
 

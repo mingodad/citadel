@@ -54,7 +54,15 @@ void userlist(void)
 			strcpy(bptr->name, buf);
 			bio = bptr;
 		}
-	output_headers(1, 1, 0, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n"
+		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<SPAN CLASS=\"titlebar\">User list for ");
+	escputs(serv_info.serv_humannode);
+	wprintf("</SPAN>"
+		"</TD></TR></TABLE>\n"
+		"</div>\n<div id=\"content\">\n"
+	);
 
 	serv_puts("LIST");
 	serv_gets(buf);
@@ -63,12 +71,7 @@ void userlist(void)
 		goto DONE;
 	}
 
-	svprintf("BOXTITLE", WCS_STRING, "User list for %s",
-			serv_info.serv_humannode);
-
-	do_template("beginbox");
-	wprintf("<CENTER>");
-	wprintf("<TABLE border=0 width=100%%>");
+	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
 	wprintf("<TR><TH>User Name</TH><TH>Number</TH><TH>Access Level</TH>");
 	wprintf("<TH>Last Login</TH><TH>Total Logins</TH><TH>Total Posts</TH></TR>\n");
 
@@ -107,9 +110,7 @@ void userlist(void)
 			extract_long(buf, 4), extract_long(buf, 5));
 
 	}
-	wprintf("</TABLE>");
-	wprintf("</CENTER>\n");
-	do_template("endbox");
+	wprintf("</table></center>\n");
 DONE:	wDumpContent(1);
 }
 
