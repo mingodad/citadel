@@ -1,3 +1,8 @@
+Wed Dec  9 18:50:46 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* context_loop.c: After fork(), child process closes the HTTP socket
+	  so when the parent process closes it, it actually _does_ close.
+	  Otherwise, aIEeeee and possibly other browsers will hang.
+
 1998-12-09 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* context_loop.c, webserver.c, webserver.h: SO_LINGER and locking fix
 
