@@ -1,7 +1,7 @@
 /*
  * $Id$ 
  *
- * POP3 service for the Citadel/UX system
+ * POP3 service for the Citadel system
  * Copyright (C) 1998-2001 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.
  *
@@ -100,7 +100,7 @@ void pop3_greeting(void) {
 	POP3->msgs = NULL;
 	POP3->num_msgs = 0;
 
-	cprintf("+OK Citadel/UX POP3 server %s\r\n",
+	cprintf("+OK Citadel POP3 server %s\r\n",
 		CC->cs_nonce);
 }
 

@@ -1,4 +1,7 @@
  $Log$
+ Revision 623.16  2004/08/11 04:09:14  ajc
+ * Replaced all "Citadel/UX" references with "Citadel"
+
  Revision 623.15  2004/08/05 03:19:48  ajc
  * html.c: handle the <BLOCKQUOTE> tag properly
 
@@ -257,7 +260,7 @@
 
  Revision 620.19  2004/04/20 02:42:54  ajc
  * techdoc/binaries.txt : updated, now includes WebCit instructions
- * setup.c: detect when setup is run from within the Citadel/UX Ridiculously
+ * setup.c: detect when setup is run from within the Citadel Ridiculously
    Easy Installer and skip the directory prompt; the installer sets it.
 
  Revision 620.18  2004/04/14 18:43:51  nbryant
@@ -2875,7 +2878,7 @@
  * Add some #includes I apparently somehow missed
 
  Revision 590.42  2002/01/06 10:33:10  error
- * SSL/TLS support for the Citadel/UX wire protocol
+ * SSL/TLS support for the Citadel wire protocol
 
  Revision 590.41  2002/01/06 08:54:58  error
  * user_ops.c: fixed become_session() when calling EVT_LOGOUT session hooks
@@ -4544,7 +4547,7 @@ Revision 1.412  1999/11/05 03:53:47  ajc
 Revision 1.411  1999/11/03 04:01:20  ajc
 * Fixed buffer overrun problems in cmd_rchg(), cmd_hchg(), and cmd_uchg()
 * Removed my email address as the feedback content from the docs; replaced
-  it with a reference to the Citadel/UX web site.
+  it with a reference to the Citadel web site.
 
 Revision 1.410  1999/11/02 19:51:23  ajc
 * Fixed timeout problem for remote client sessions (all timeouts were set to

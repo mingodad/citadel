@@ -1,4 +1,4 @@
-# Makefile for Citadel/UX
+# Makefile for Citadel
 #
 # NOTE: normally you should not have to modify the Makefile.  All
 # system-dependent configuration is in the "configure" script, which

@@ -1,13 +1,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-  <title>Citadel/UX Documentation</title>
+  <title>Citadel Documentation</title>
   <meta http-equiv="content-type"
  content="text/html; charset=ISO-8859-1">
 </head>
 <body>
 <div align="center">
-<h1>Citadel/UX</h1>
+<h1>Citadel</h1>
 <h2>a messaging and collaboration platform for BBS and groupware
 applications</h2>
 Copyright &copy;1987-2004 by the Citadel development team:<br>
@@ -552,7 +552,7 @@ DAMAGES. </p>
 </div>
 <div align="justify">
 <h3>Overview</h3>
-<p>Citadel/UX is an advanced, multiuser, client/server messaging system
+<p>Citadel is an advanced, multiuser, client/server messaging system
 suitable for BBS, e-mail, and groupware applications. It is designed to
 handle the needs of both small dialup systems and large-scale
 Internet-connected systems. It was originally developed on an Altos
@@ -561,7 +561,7 @@ and Unix-like platforms. The current development environment (and
 public BBS) is an ordinary Linux system. The current distribution
 includes: </p>
 <ul>
-  <li>The Citadel/UX server (this is the back end that does all
+  <li>The Citadel server (this is the back end that does all
 processing) </li>
   <li>A text-based client program designed with the traditional Citadel
 "look and feel" (room prompts, dot commands, and the like) </li>
@@ -571,7 +571,7 @@ processing) </li>
 </ul>
 <p>Some knowledge of the Unix system is necessary to install and manage
 the system. It is mandatory that the sysop have "root" access to the
-operating system. The following are required to install Citadel/UX: </p>
+operating system. The following are required to install Citadel: </p>
 <ul>
   <li>A Unix operating system (Linux, BSD, Solaris, Tru64, HP/UX) </li>
   <li>C compiler (<a href="http://gcc.gnu.org/">GCC</a> with <a
@@ -585,7 +585,7 @@ newer (if you want the calendar service to work)<br>
   </li>
   <li>Enough disk space to hold all of the programs and data </li>
 </ul>
-<p>If you are running Citadel/UX on a Linux system, it is STRONGLY
+<p>If you are running Citadel on a Linux system, it is STRONGLY
 recommended that you run it on a recent distribution (such as <a
  href="http://www.redhat.com">Red Hat</a> 7.3 or newer). A new-ish
 distribution will have most or all of the prerequisite tools and
@@ -751,7 +751,7 @@ The next couple of sections deal with client-side configuration.
 <h3><a name="Using_an_external_editor_for_message"></a>Using an
 external editor
 for message composition</h3>
-<p>Citadel/UX has a built-in message editor. However, you can also use
+<p>Citadel has a built-in message editor. However, you can also use
 your favorite text editor to write messages. To do this you simply put
 a line in your citadel.rc file like this:</p>
 <pre>editor=/usr/bin/vi<br></pre>
@@ -771,7 +771,7 @@ as'
 commands disabled, as well as any other functions which a destructive
 user could use to gain unauthorized access to your host system.</p>
 <h3><a name="Printing_messages"></a>Printing messages</h3>
-<p>Citadel/UX can send messages to a printer, or just about anywhere
+<p>Citadel can send messages to a printer, or just about anywhere
 else in your system. The variable <tt>PRINTCMD</tt> in <tt>citadel.rc</tt>
 specifies what command you use to print. Text is sent to the standard
 input (stdin) of the print command.</p>
@@ -841,7 +841,7 @@ this section and do what you need to in order to get things configured.</p>
 <p>Before you can use Citadel, you must define the "citadel" service to
 your system. This is accomplished by adding a line to your
 /etc/services file that looks something like this:</p>
-<pre>citadel		504/tcp			# Citadel/UX Server<br></pre>
+<pre>citadel		504/tcp			# Citadel Server<br></pre>
 <p>504 is the port number officially designated by the IANA for use by
 Citadel. There should not be any need to use a different port number,
 unless you are running multiple Citadels on the same computer and
@@ -982,7 +982,7 @@ install</tt> ?? </li>
 </ul>
 <p>To report a problem, you can log on to <a
  href="http://uncensored.citadel.org">UNCENSORED!</a> or any other BBS
-on the Citadel network which carries the <tt>Citadel/UX&gt;</tt> room.
+on the Citadel network which carries the <tt>Citadel&gt;</tt> room.
 Please DO NOT e-mail the developers directly. Post a request for help
 on the BBS, with all of the following information: </p>
 <ul>
@@ -1003,7 +1003,7 @@ command). </li>
 </div>
 <div align="justify">
 <h3><a name="Overview_"></a>Overview</h3>
-<p>Citadel/UX, when installed properly, will do most of its maintenance
+<p>Citadel, when installed properly, will do most of its maintenance
 by itself. It is intended to be run unattended for extended periods of
 time, and most installations do just that without any software failures.</p>
 <p>The system has seven access levels. Most users are at the bottom and
@@ -1410,7 +1410,7 @@ help files to suit whatever is appropriate for your system.</p>
 <p>There are several strings that you can put in help files that will
 be automatically
 substituted with other strings. They are:</p>
-<pre> <br> ^nodename    = The node name of your system on a Citadel/UX network<br> ^humannode   = Human-readable node name (also your node name on C86Net)<br> ^fqdn        = Your system's fully-qualified domain name<br> ^username    = The name of the user reading the help file<br> ^usernum     = The user number of the user reading the help file<br> ^sysadm      = The name of the system administraor (i.e., you)<br> ^variantname = The name of the software you're running<br> ^bbsdir      = The directory on the host system in which you have<br>                installed the Citadel system.<br></pre>
+<pre> <br> ^nodename    = The node name of your system on a Citadel network<br> ^humannode   = Human-readable node name (also your node name on C86Net)<br> ^fqdn        = Your system's fully-qualified domain name<br> ^username    = The name of the user reading the help file<br> ^usernum     = The user number of the user reading the help file<br> ^sysadm      = The name of the system administraor (i.e., you)<br> ^variantname = The name of the software you're running<br> ^bbsdir      = The directory on the host system in which you have<br>                installed the Citadel system.<br></pre>
 <p>So, for example, you could create a help file which looked like:</p>
 <pre>  "Lots of help, of course, is available right here on ^humannode.  Of<br>course, if you still have trouble, you could always bug ^sysadm about it!"<br><br></pre>
 <h3><a name="Site_configuration"></a>Site configuration</h3>
@@ -1829,7 +1829,7 @@ the
 server from a shell and watch it load. It might look something like
 this:</p>
 <font size="-2"> </font>
-<pre><font size="-2">smw @ pixel % ./citserver<br><br>Multithreaded message server for Citadel/UX<br>Copyright (C) 1987-2003 by the Citadel/UX development team.<br>Citadel/UX is open source, covered by the GNU General Public License, and<br>you are welcome to change it and/or distribute copies of it under certain<br>conditions.  There is absolutely no warranty for this software.  Please<br>read the 'COPYING.txt' file for details.<br><br>Loading citadel.config<br>Opening databases<br>This is GDBM version 1.8.0, as of May 19, 1999.<br>Checking floor reference counts<br>Creating base rooms (if necessary)<br>Registered a new service (TCP port 504)<br>Registered a new service (TCP port 0)<br>Initializing loadable modules<br>Registered server command CHAT (Begin real-time chat)<br>Registered server command PEXP (Poll for instant messages)<br>Registered server command GEXP (Get instant messages)<br>Registered server command SEXP (Send an instant message)<br>Registered server command DEXP (Disable instant messages)<br>Registered a new session function (type 0)<br>Registered a new x-msg function (priority 0)<br>Loaded module: $Id$<br>Registered a new session function (type 1)<br>Registered a new message function (type 201)<br>Registered a new message function (type 202)<br>Registered server command REGI (Enter registration info)<br>Registered server command GREG (Get registration info)<br>Registered a new user function (type 100)<br>Loaded module: $Id$<br>Server-hosted upgrade level is 5.62<br>Loaded module: $Id$<br>Registered server command EXPI (Expire old system objects)<br>Registered server command FSCK (Check message ref counts)<br>Loaded module: $Id$<br><b>citserver: Can't bind: Address already in use<br>ERROR: could not bind to TCP port 25.</b><br>Registered a new service (TCP port 0)<br>Registered a new session function (type 50)<br>Loaded module: $Id$<br><b>citserver: Can't bind: Address already in use<br>ERROR: could not bind to TCP port 110.</b><br>Registered a new session function (type 0)<br>Loaded module: $Id$<br>Registered a new message function (type 202)Loaded module: $Id$<br>Registered server command RWHO (Display who is online)<br>Registered server command HCHG (Masquerade hostname)<br>Registered server command RCHG (Masquerade roomname)<br>Registered server command UCHG (Masquerade username)<br>Registered server command STEL (Enter/exit stealth mode)<br>Loaded module: $Id$<br>Changing uid to 513<br>Starting housekeeper thread<br></font></pre>
+<pre><font size="-2">smw @ pixel % ./citserver<br><br>Multithreaded message server for Citadel<br>Copyright (C) 1987-2003 by the Citadel development team.<br>Citadel is open source, covered by the GNU General Public License, and<br>you are welcome to change it and/or distribute copies of it under certain<br>conditions.  There is absolutely no warranty for this software.  Please<br>read the 'COPYING.txt' file for details.<br><br>Loading citadel.config<br>Opening databases<br>This is GDBM version 1.8.0, as of May 19, 1999.<br>Checking floor reference counts<br>Creating base rooms (if necessary)<br>Registered a new service (TCP port 504)<br>Registered a new service (TCP port 0)<br>Initializing loadable modules<br>Registered server command CHAT (Begin real-time chat)<br>Registered server command PEXP (Poll for instant messages)<br>Registered server command GEXP (Get instant messages)<br>Registered server command SEXP (Send an instant message)<br>Registered server command DEXP (Disable instant messages)<br>Registered a new session function (type 0)<br>Registered a new x-msg function (priority 0)<br>Loaded module: $Id$<br>Registered a new session function (type 1)<br>Registered a new message function (type 201)<br>Registered a new message function (type 202)<br>Registered server command REGI (Enter registration info)<br>Registered server command GREG (Get registration info)<br>Registered a new user function (type 100)<br>Loaded module: $Id$<br>Server-hosted upgrade level is 5.62<br>Loaded module: $Id$<br>Registered server command EXPI (Expire old system objects)<br>Registered server command FSCK (Check message ref counts)<br>Loaded module: $Id$<br><b>citserver: Can't bind: Address already in use<br>ERROR: could not bind to TCP port 25.</b><br>Registered a new service (TCP port 0)<br>Registered a new session function (type 50)<br>Loaded module: $Id$<br><b>citserver: Can't bind: Address already in use<br>ERROR: could not bind to TCP port 110.</b><br>Registered a new session function (type 0)<br>Loaded module: $Id$<br>Registered a new message function (type 202)Loaded module: $Id$<br>Registered server command RWHO (Display who is online)<br>Registered server command HCHG (Masquerade hostname)<br>Registered server command RCHG (Masquerade roomname)<br>Registered server command UCHG (Masquerade username)<br>Registered server command STEL (Enter/exit stealth mode)<br>Loaded module: $Id$<br>Changing uid to 513<br>Starting housekeeper thread<br></font></pre>
 <p>The lines emphasized in boldface in the above log output tell you
 that Citadel "can't bind" to various ports. The error 'address already
 in use' generally means that something else is already running on the
@@ -2161,7 +2161,7 @@ backup.<br>
 <h3><a name="ImportingExporting_your_Citadel"></a>Importing/Exporting
 your Citadel database<br>
 </h3>
-<p>Citadel/UX contains an importer/exporter module, affectionately
+<p>Citadel contains an importer/exporter module, affectionately
 known as the "Art Vandelay" module (a not-so-obscure Seinfeld
 reference). It
 allows you to export the entire contents of your Citadel databases to a

@@ -1,16 +1,16 @@
-Every client for the Citadel/UX system is capable of identifying itself with
+Every client for the Citadel system is capable of identifying itself with
 a developer code, client code, and client version.  Here are the known values
 for these fields.
  
  
 Developer codes (and where known, client codes)
 
- 0	The Citadel/UX core development team
+ 0	The Citadel core development team
 	(See copyright.doc for the list of people involved in the project)
 	Here are the client ID's we've used:
 
 	Client	Name		Status		Description
-	0	Citadel		in production	Citadel/UX text based client
+	0	Citadel		in production	Citadel text based client
 	1	lcit		dead		Curses-based text client
 	2	WinCit		deprecated	MS Visual Basic client.
 						Version 1.0 is stable but there
@@ -27,7 +27,7 @@ Developer codes (and where known, client codes)
 
 	Client	Name		Status		Description
 	0	libCxClient	in production	Client-side API library
-	1	Infusion	in production	Groupware for Citadel/UX
+	1	Infusion	in production	Groupware for Citadel
 
  2	Matthew Scott <gldnspud@telcomplus.com>
  

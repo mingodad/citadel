@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * main Citadel/UX header file
+ * main Citadel header file
  * see copyright.txt for copyright information
  */
 
@@ -32,7 +32,7 @@ extern "C" {
 /*
  * Text description of this software
  */
-#define CITADEL	"Citadel/UX 6.23"
+#define CITADEL	"Citadel 6.23"
 
 /*
  * REV_LEVEL is the current version number (multiplied by 100 to avoid having
@@ -48,7 +48,7 @@ extern "C" {
 #define REV_MIN		591		/* Oldest compatible database */
 #define EXPORT_REV_MIN	623		/* Oldest compatible export files */
 
-#define SERVER_TYPE 0	/* zero for stock Citadel/UX; other developers please
+#define SERVER_TYPE 0	/* zero for stock Citadel; other developers please
 			   obtain SERVER_TYPE codes for your implementations */
 
 /* Various length constants */

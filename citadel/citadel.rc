@@ -10,7 +10,7 @@
 # 4. <current directory>/citadel.rc
 
 # Set ENCRYPT to yes to force SSL/TLS encryption when connecting to a
-# Citadel/UX server, even if the server is on the same machine as the
+# Citadel server, even if the server is on the same machine as the
 # client.  Set it to no to disable SSL/TLS encryption.  The default is to
 # enable encryption for remote systems and to disable encryption for
 # systems on the same machine as the client.

@@ -1425,7 +1425,7 @@ int CtdlIPCIdentifySoftware(CtdlIPC *ipc, int developerid, int clientid,
 		developerid = 8;
 		clientid = 0;
 		revision = REV_LEVEL - 600;
-		software_name = "Citadel/UX (libcitadel)";
+		software_name = "Citadel (libcitadel)";
 	}
 	if (!hostname) return -2;
 
@@ -1911,7 +1911,7 @@ int CtdlIPCStartEncryption(CtdlIPC *ipc, char *cret)
 	}
 	/* Pointless flag waving */
 #if SSLEAY_VERSION_NUMBER >= 0x0922
-	SSL_set_session_id_context(temp_ssl, "Citadel/UX SID", 14);
+	SSL_set_session_id_context(temp_ssl, "Citadel SID", 14);
 #endif
 
 	if (!access("/var/run/egd-pool", F_OK))

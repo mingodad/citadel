@@ -1,7 +1,7 @@
 /*
  * $Id$ 
  *
- * IMAP server for the Citadel/UX system
+ * IMAP server for the Citadel system
  * Copyright (C) 2000-2002 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.
  *
@@ -343,7 +343,7 @@ void imap_greeting(void)
 	IMAP->cached_fetch = NULL;
 	IMAP->cached_msgnum = (-1);
 
-	cprintf("* OK %s Citadel/UX IMAP4rev1 server ready\r\n",
+	cprintf("* OK %s Citadel IMAP4rev1 server ready\r\n",
 		config.c_fqdn);
 }
 

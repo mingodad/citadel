@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Citadel/UX "system dependent" stuff.
+ * Citadel "system dependent" stuff.
  * See copyright.txt for copyright information.
  *
  * Here's where we (hopefully) have most parts of the Citadel server that

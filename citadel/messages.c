@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Citadel/UX message support routines
+ * Citadel message support routines
  * see copyright.txt for copyright information
  */
 

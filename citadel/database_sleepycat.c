@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Sleepycat (Berkeley) DB driver for Citadel/UX
+ * Sleepycat (Berkeley) DB driver for Citadel
  *
  */
 

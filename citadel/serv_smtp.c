@@ -135,7 +135,7 @@ void smtp_greeting(void) {
 	snprintf(SMTP_RECPS, SIZ, "%s", "");
 	snprintf(SMTP_ROOMS, SIZ, "%s", "");
 
-	cprintf("220 %s ESMTP Citadel/UX server ready.\r\n", config.c_fqdn);
+	cprintf("220 %s ESMTP Citadel server ready.\r\n", config.c_fqdn);
 }
 
 /*

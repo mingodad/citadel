@@ -11,7 +11,7 @@ user's name, followed by @ and then the system name. For example,
  Enter Recipient: Joe Schmoe @ citadrool
   
    To send mail to a user on the Internet, type their network address
-at the recipient prompt.  Citadel/UX will send it over the network:
+at the recipient prompt.  Citadel will send it over the network:
   
  Enter Recipient: ajc@herring.fishnet.com
    

@@ -925,7 +925,7 @@ void citproto_begin_session() {
 			config.c_nodename, config.c_maxsessions);
 	}
 	else {
-		cprintf("%d %s Citadel/UX server ready.\n",
+		cprintf("%d %s Citadel server ready.\n",
 			CIT_OK, config.c_nodename);
 	}
 }

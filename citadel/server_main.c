@@ -144,10 +144,10 @@ int main(int argc, char **argv)
 	lprintf(CTDL_NOTICE, "\n");
 	lprintf(CTDL_NOTICE, "\n");
 	lprintf(CTDL_NOTICE,
-		"*** Citadel/UX messaging server engine v%d.%02d ***\n",
+		"*** Citadel server engine v%d.%02d ***\n",
 		(REV_LEVEL/100), (REV_LEVEL%100));
 	lprintf(CTDL_NOTICE,
-		"Copyright (C) 1987-2003 by the Citadel/UX development team.\n");
+		"Copyright (C) 1987-2004 by the Citadel development team.\n");
 	lprintf(CTDL_NOTICE,
 		"This program is distributed under the terms of the GNU "
 		"General Public License.\n");

@@ -42,7 +42,7 @@ e-mail address instead of the sender's e-mail address.
  SYNTAX:       ignet_push_share|uncnsrd
  DESCRIPTION:
     Specifies that the second argument is the name of a neighboring node on an
-IGnet (Citadel/UX networking) network, to which this room should be pushed
+IGnet (Citadel networking) network, to which this room should be pushed
 (spooled).  Conceptually, this node will have a corresponding record pushing
 data in the other direction.
  

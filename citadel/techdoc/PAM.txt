@@ -5,7 +5,7 @@ if you have Red Hat 7.1, you should look at the file anyway and understand how
 it affects your system security.  The original PAM.txt is included below:
  
  
-	Citadel/UX 5.53 and later include support for Pluggable Authentication
+	Citadel 5.53 and later include support for Pluggable Authentication
 Modules (PAM.) However, we don't recommend enabling this feature (./configure
 --with-pam) unless you understand exactly how it will affect your system's
 security. Specifically, the system administrator must supply a configuration
@@ -24,7 +24,7 @@ authentication modules on other platforms to be able to provide secure
 configurations.
  
 	That said, the configuration we've provided should work on at least
-Red Hat Linux 4.2-5.2, (although we don't recommend building Citadel/UX on Red
+Red Hat Linux 4.2-5.2, (although we don't recommend building Citadel on Red
 Hat 4.x due to libc thread-safety issues) and if you understand PAM
-configuration on your system, feel free to build Citadel/UX with PAM support,
+configuration on your system, feel free to build Citadel with PAM support,
 as long as you realize that YOU'RE ON YOUR OWN.

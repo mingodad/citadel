@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * iCalendar implementation for Citadel/UX
+ * iCalendar implementation for Citadel
  *
  */
 

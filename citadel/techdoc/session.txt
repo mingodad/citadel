@@ -1,4 +1,4 @@
-                  SESSION LAYER PROTOCOL FOR CITADEL/UX
+                SESSION LAYER PROTOCOL FOR THE CITADEL SYSTEM
          (c) 1995-2004 by Art Cancro et. al.    All Rights Reserved
 
 
@@ -6,7 +6,7 @@
  ------------
 
  This is an attempt to document the session layer protocol used by the
-Citadel/UX system, beginning with version 4.00, which is the first version
+Citadel system, beginning with version 4.00, which is the first version
 to implement a client/server paradigm.  It is intended as a resource for
 programmers who intend to develop their own Citadel clients, but it may have
 other uses as well.
@@ -23,7 +23,7 @@ the same name but perform different functions.  If you don't coordinate new
 developments ahead of time, please at least send in an e-mail documenting
 what you did, so that your new commands can be added to this document.
 
- The coordinator of the Citadel/UX project is Art Cancro
+ The coordinator of the Citadel project is Art Cancro
 <ajc@uncensored.citadel.org>.
 
 
@@ -31,9 +31,9 @@ what you did, so that your new commands can be added to this document.
  ----------------------
 
  The protocols used below the session layer are beyond the scope of this
-document, but we will briefly cover the methodology employed by Citadel/UX.
+document, but we will briefly cover the methodology employed by Citadel.
 
- Citadel/UX offers Citadel BBS service using TCP/IP.  It does so via a
+ Citadel offers Citadel BBS service using TCP/IP.  It does so via a
 multithreaded server listening on a TCP port.  Local connections may also
 be made using the same protocol using Unix domain sockets.
 
@@ -124,7 +124,7 @@ an OK result code (the '2' in the 200) and three parameters: 80, 24, and
  COMMANDS
  --------
 
- This is a listing of all the commands that a Citadel/UX server can execute.
+ This is a listing of all the commands that a Citadel server can execute.
 
 
  NOOP   (NO OPeration)
@@ -453,11 +453,11 @@ which case that many message pointers will be returned, or "first" plus a
 number, for the corresponding effect.  If no parameters are specified, "all"
 is assumed.
 
- In Citadel/UX 5.00 and above, the client may also specify "gt" plus a number,
+ In Citadel 5.00 and above, the client may also specify "gt" plus a number,
 to list all messages in the current room with a message number greater than
 the one specified.
 
- The third argument, valid only in Citadel/UX 5.60 and above, may be either
+ The third argument, valid only in Citadel 5.60 and above, may be either
 0 or 1.  If it is 1, this command behaves differently: before a listing is
 returned, the client must transmit a list of fields to search for.  The field
 headers are listed below in the writeup for the "MSG0" command.
@@ -588,7 +588,7 @@ parts of the listing:
  Line 2  - The node name of the server BBS
  Line 3  - Human-readable node name of the server BBS
  Line 4  - The fully-qualified domain name (FQDN) of the server
- Line 5  - The name of the server software, i.e. "Citadel/UX 4.00"
+ Line 5  - The name of the server software, i.e. "Citadel 4.00"
  Line 6  - (The revision level of the server code) * 100
  Line 7  - The geographical location of the BBS (city and state if in the US)
  Line 8  - The name of the system administrator
@@ -619,7 +619,7 @@ even if your proprietary extensions aren't supported.
  -> Please contact Art Cancro <ajc@uncensored.citadel.org> and obtain a unique
 server type code, which can be assigned to your server program.
  -> If you document what you did in detail, perhaps it can be added to a
-future release of the Citadel/UX program, so everyone can enjoy it.  Better
+future release of the Citadel program, so everyone can enjoy it.  Better
 yet, just work with the Citadel development team on the main source tree.
 
  If everyone follows this scheme, we can avoid a chaotic situation with lots
@@ -758,7 +758,7 @@ always in some room.
 
  The opposite of GETA, used to set the Room Aide for the current room.  One
 parameter should be passed, which is the name of the user who is to be the
-new Room Aide.  Under Citadel/UX, this command may only be executed by Aides
+new Room Aide.  Under Citadel, this command may only be executed by Aides
 and by the *current* Room Aide for the room.  Return codes possible are:
  ERROR + NOT_LOGGED_IN          (Not logged in.)
  ERROR + HIGHER_ACCESS_REQUIRED (Higher access required.)
@@ -785,7 +785,7 @@ recipient of the message.
   2  -  Anonymous flag.  This argument is ignored unless the room allows
 anonymous messages.  In such rooms, this flag may be set to 1 to flag a
 message as anonymous, otherwise 0 for a normal message.
-  3  -  Format type.  Any valid Citadel/UX format type may be used (this will
+  3  -  Format type.  Any valid Citadel format type may be used (this will
 typically be 0; see the MSG0 command above).
   4  -  Subject.  If present, this argument will be used as the subject of
 the message.
@@ -923,7 +923,7 @@ this will be _BASEROOM_ since it is always there).
 
  This command is used to display system messages and/or help files.  The
 single argument it accepts is the name of the file to display.  IT IS CASE
-SENSITIVE.  Citadel/UX looks for these files first in the "messages"
+SENSITIVE.  Citadel looks for these files first in the "messages"
 subdirectory and then in the "help" subdirectory.
 
  If the file is found, LISTING_FOLLOWS is returned, followed by a pathname
@@ -947,7 +947,7 @@ may expect most servers to carry:
                  really paranoid, and warns that aides can still see
                  unlisted userlog entries.
 
- Citadel/UX provides these for the Citadel/UX Unix text client.  They are
+ Citadel provides these for the Citadel Unix text client.  They are
 probably not very useful for other clients:
 
  mainmenu     -  Main menu (when in idiot mode).
@@ -1126,7 +1126,7 @@ see elsewhere for more details.
 ever returned.  LISTING_FOLLOWS will be returned, followed by zero or more
 lines containing the following three fields:
 
- 0 - Session ID.  Citadel/UX fills this with the pid of a server program.
+ 0 - Session ID.  Citadel fills this with the pid of a server program.
  1 - User name.
  2 - The name of the room the user is currently in.  This field might not
 be displayed (for example, if the user is in a private room) or it might
@@ -1246,7 +1246,7 @@ read as if it were a download file.  This implies that an image and a download
 cannot be opened at the same time.  OIMG returns the same result codes as OPEN.
 
  All images will be in GIF (Graphics Interchange Format).  In the case of
-Citadel/UX, the server will convert the supplied filename to all lower case,
+Citadel, the server will convert the supplied filename to all lower case,
 append the characters ".gif" to the filename, and look for it in the "images"
 subdirectory.  As with the MESG command, there are several "well known"
 images which are likely to exist on most servers:
@@ -1255,7 +1255,7 @@ images which are likely to exist on most servers:
  goodbye      - Logoff banner graphics to be displayed alongside MESG "goodbye"
  background   - Background image (usually tiled) for graphical clients
 
- The following "special" image names are defined in Citadel/UX server version
+ The following "special" image names are defined in Citadel server version
 5.00 and above:
 
  _userpic_    - Picture of a user (send the username as the second argument)
@@ -1435,7 +1435,7 @@ this line, it must immediately exit from chat mode without sending any
 further traffic to the server.  The next transmission sent to the server
 will be a regular server command.
 
- The Citadel/UX server understands the following commands:
+ The Citadel server understands the following commands:
  /quit   -   Exit from chat mode (causes the server to do an 000 end)
  /who    -   List users currently in chat
  /whobbs -   List users currently in chat and on the bbs
@@ -1547,7 +1547,7 @@ is returned.
 
  MSG2 follows the same calling convention as MSG0.  The difference between
 the two commands is that MSG2 outputs messages in standard RFC822 format
-rather than in Citadel/UX proprietary format.
+rather than in Citadel proprietary format.
 
  This command was implemented in order to make various gateway programs
 easier to implement, and to provide some sort of multimedia support in the
@@ -1620,7 +1620,7 @@ are to be saved.
 The first parameter supplied to UIMG should be 0 if the client is only checking
 for permission to upload, or 1 if the client is actually attempting to begin
 the upload operation.  The second argument is the name of the file to be
-transmitted.  In Citadel/UX, the filename is converted to all lower case,
+transmitted.  In Citadel, the filename is converted to all lower case,
 appended with the characters ".gif", and stored in the "images" directory.
 
  UIMG returns OK if the client has permission to perform the requested upload,

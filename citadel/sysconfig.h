@@ -6,7 +6,7 @@
 /****************************************************************************/
 /*                  YOUR SYSTEM CONFIGURATION                               */
 /* Set all the values in this file appropriately BEFORE compiling any of the*/
-/* C programs. If you are upgrading from an older version of Citadel/UX, it */
+/* C programs. If you are upgrading from an older version of Citadel, it */
 /* is vitally important that the #defines which are labelled "structure size*/
 /* variables" are EXACTLY the same as they were in your old system,         */
 /* otherwise your files will be munged beyond repair.                       */

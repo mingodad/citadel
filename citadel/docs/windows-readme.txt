@@ -3,7 +3,7 @@ README for Windows distribution
 
 Installation:
 
-  To install Citadel/UX for Windows, run the citadel-X.XX.exe file.  It is
+  To install Citadel for Windows, run the citadel-X.XX.exe file.  It is
   recommended that you do not change the installation folder.  Unlike the
   Unix version, you do NOT need to run Citadel's setup utility before
   starting the server.  However, the system operator will be set to the
@@ -20,12 +20,12 @@ Installation:
 
 Removal:
 
-  To remove Citadel/UX for Windows, go to Start > Control Panel > Add/Remove
+  To remove Citadel for Windows, go to Start > Control Panel > Add/Remove
   Programs, click Citadel, then click Add/Remove (or Change/Remove).  Your
   server data (users, messages, etc.) will NOT be removed.  To remove these
   files, delete the C:\Program Files\Citadel\data directory.
 
-Known Issues in Citadel/UX for Windows:
+Known Issues in Citadel for Windows:
 
 * Calendaring support is not included.  Status:  TO_BE_FIXED
 

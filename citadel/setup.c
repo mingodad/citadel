@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Citadel/UX setup utility
+ * Citadel setup utility
  *
  */
 
@@ -84,7 +84,7 @@ char *setup_text[] =
 "you run multiple instances of Citadel on the same computer and there's\n"
 "something else already using port 504.\n",
 
-"Setup has detected that you currently have data files from a Citadel/UX\n"
+"Setup has detected that you currently have data files from a Citadel\n"
 "version 3.2x installation.  The program 'conv_32_40' can upgrade your\n"
 "files to version 4.0x format.\n"
 " Setup will now exit.  Please either run 'conv_32_40' or delete your data\n"
@@ -467,7 +467,7 @@ void check_inittab_entry(void)
 	if (infp == NULL) {
 		display_error(strerror(errno));
 	} else {
-		fprintf(infp, "# Start the Citadel/UX server...\n");
+		fprintf(infp, "# Start the Citadel server...\n");
 		fprintf(infp, "%s:2345:respawn:%s -h%s -x3 -llocal4\n",
 			entryname, looking_for, setup_directory);
 		fclose(infp);
@@ -761,7 +761,7 @@ int discover_ui(void)
 #ifdef HAVE_NEWT
 	newtInit();
 	newtCls();
-	newtDrawRootText(0, 0, "Citadel/UX Setup");
+	newtDrawRootText(0, 0, "Citadel Setup");
 	return UI_NEWT;
 #endif
 	return UI_TEXT;
@@ -815,7 +815,7 @@ int main(int argc, char *argv[])
 		setup_type = discover_ui();
 	}
 	if (info_only == 1) {
-		important_message("Citadel/UX Setup", CITADEL);
+		important_message("Citadel Setup", CITADEL);
 		cleanup(0);
 	}
 
@@ -829,7 +829,7 @@ int main(int argc, char *argv[])
 	}
 
 	if (chdir(setup_directory) != 0) {
-		important_message("Citadel/UX Setup",
+		important_message("Citadel Setup",
 			  "The directory you specified does not exist.");
 		cleanup(errno);
 	}
@@ -846,7 +846,7 @@ int main(int argc, char *argv[])
 
 	/* Make sure it's stopped. */
 	if (test_server() == 0) {
-		important_message("Citadel/UX Setup",
+		important_message("Citadel Setup",
 			"The Citadel service is still running.\n"
 			"Please stop the service manually and run "
 			"setup again.");
@@ -858,7 +858,7 @@ int main(int argc, char *argv[])
 
 	case UI_TEXT:
 		printf("\n\n\n"
-			"               *** Citadel/UX setup program ***\n\n");
+			"               *** Citadel setup program ***\n\n");
 		break;
 
 	}
@@ -979,7 +979,7 @@ int main(int argc, char *argv[])
 
 	/*
 	   if (setuid(config.c_bbsuid) != 0) {
-	   important_message("Citadel/UX Setup",
+	   important_message("Citadel Setup",
 	   "Failed to change the user ID to your Citadel user.");
 	   cleanup(errno);
 	   }
@@ -995,8 +995,8 @@ int main(int argc, char *argv[])
 	}
 
 	if (old_setup_level < 555) {
-		important_message("Citadel/UX Setup",
-				  "This Citadel/UX installation is too old "
+		important_message("Citadel Setup",
+				  "This Citadel installation is too old "
 				  "to be upgraded.");
 		cleanup(1);
 	}

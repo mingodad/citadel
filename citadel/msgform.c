@@ -6,7 +6,7 @@
  * 
  * If the -q (quiet or qwk) flag is used, only the message text prints, and
  * then it stops at the end of the first message it prints.
- * This is used by the QWK reader for Citadel/UX during message format
+ * This is used by the QWK reader for Citadel during message format
  * translation.
  *
  */

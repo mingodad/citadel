@@ -3,7 +3,7 @@
 ; Get NSIS at http://www.nullsoft.com/
 
 !include "${NSISDIR}\Contrib\Modern UI\System.nsh"
-!define MUI_PRODUCT "Citadel/UX"
+!define MUI_PRODUCT "Citadel"
 !define MUI_VERSION "6.21"
 !define MUI_WELCOMEPAGE
 !define MUI_LICENSEPAGE
@@ -21,13 +21,13 @@
 OutFile "citadel-6.07.exe"
 BGGradient off
 
-LangString DESC_Citadel ${LANG_ENGLISH} "Citadel/UX client and core libraries (required)"
-LangString DESC_CitadelServer ${LANG_ENGLISH} "Citadel/UX server"
-LangString DESC_CitadelUtils ${LANG_ENGLISH} "Citadel/UX utilities"
+LangString DESC_Citadel ${LANG_ENGLISH} "Citadel client and core libraries (required)"
+LangString DESC_CitadelServer ${LANG_ENGLISH} "Citadel server"
+LangString DESC_CitadelUtils ${LANG_ENGLISH} "Citadel utilities"
 
 SetCompress auto
 SetDatablockOptimize on
-BrandingText "Citadel/UX "
+BrandingText "Citadel "
 CRCCheck force
 AutoCloseWindow true
 ShowInstDetails hide
@@ -40,7 +40,7 @@ InstallDir "$PROGRAMFILES\Citadel"
 InstallDirRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Citadel\Citadel\CurrentVersion" "InstallDir"
 DirShow show
 
-Section "Citadel/UX Client and core libraries (required)" Citadel ; (default section)
+Section "Citadel Client and core libraries (required)" Citadel ; (default section)
 SetShellVarContext all
 SetOutPath "$INSTDIR"
 File C:\cygwin\home\error\cvs\citadel\citadel.exe
@@ -65,7 +65,7 @@ WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninst
 WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Citadel\Citadel\CurrentVersion" "InstallDir" "$INSTDIR"
 SectionEnd ; end of default section
 
-Section "Citadel/UX Server" CitadelServer
+Section "Citadel Server" CitadelServer
 SetOutPath "$INSTDIR"
 File C:\cygwin\home\error\cvs\citadel\citserver.exe
 File C:\cygwin\bin\cygz.dll
@@ -88,7 +88,7 @@ CreateShortcut "$SMPROGRAMS\Citadel\Citadel Documentation.lnk" \
 WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\RunServices" "Citadel" "$INSTDIR\citserver.exe -x9 -tcitadel-debug.txt"
 SectionEnd
 
-Section "Citadel/UX Utilities" CitadelUtils
+Section "Citadel Utilities" CitadelUtils
 SetOutPath $INSTDIR
 File C:\cygwin\home\error\cvs\citadel\aidepost.exe
 File C:\cygwin\home\error\cvs\citadel\citmail.exe

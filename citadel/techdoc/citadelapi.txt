@@ -1,4 +1,4 @@
- Citadel/UX Server Extension API Documentation
+ Citadel Server Extension API Documentation
  ---------------------------------------------
  
   This is a VERY INCOMPLETE documentation of the API for extending the

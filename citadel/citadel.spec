@@ -1,5 +1,5 @@
 # $Id$
-Summary: Citadel/UX, the flexible, powerful way to build online communities
+Summary: Citadel, the flexible, powerful way to build online communities
 Name: citadel
 Version: 6.24
 Release: 1
@@ -8,7 +8,7 @@ Group: Applications/Communications
 Source0: http://my.citadel.org/download/citadel-ux-%{PACKAGE_VERSION}.tar.gz
 Buildroot: /var/tmp/citadel-%{PACKAGE_VERSION}-root
 #Icon: citux-64x64.xpm
-Vendor: Citadel/UX Development Team
+Vendor: Citadel Development Team
 URL:  http://uncensored.citadel.org/citadel/
 
 # I don't think we should actually Require this because we can be configured
@@ -70,7 +70,7 @@ rm -rf $RPM_BUILD_ROOT/usr/local/citadel/techdoc
 rm -rf "$RPM_BUILD_ROOT"
 
 %package server
-Summary: Citadel/UX, the flexible, powerful way to build online communities
+Summary: Citadel, the flexible, powerful way to build online communities
 Group: System Environment/Daemons
 Requires: citadel-data
 Obsoletes: citadel
@@ -81,7 +81,7 @@ Obsoletes: citadel-imap
 Obsoletes: citadel-mrtg
 Obsoletes: citadel-calendar
 %description server
-Citadel/UX is an advanced messaging system which can be used for BBS, email,
+Citadel is an advanced messaging system which can be used for BBS, email,
 groupware and online community applications.  It is multithreaded,
 client/server, database driven, and accessible via a growing selection of
 front ends.
@@ -133,11 +133,11 @@ if [ -f /etc/inittab ]; then
 fi
 
 %package data
-Summary: Data files for the Citadel/UX messaging system.
+Summary: Data files for the Citadel messaging system.
 Group: System Environment/Daemons
 %description data
-Default data files for the Citadel/UX messaging system.  These files are
-required by the Citadel/UX server.
+Default data files for the Citadel messaging system.  These files are
+required by the Citadel server.
 %defattr(-,root,root)
 %files data
 /usr/local/citadel/.hushlogin
@@ -179,11 +179,11 @@ required by the Citadel/UX server.
 /bin/ls /usr/local/citadel/help > "/usr/local/citadel/help/?"
 
 %package client
-Summary: Client for the Citadel/UX messaging system
+Summary: Client for the Citadel messaging system
 Group: Applications/Communications
 %description client
-This is the text client software for the Citadel/UX messaging system.
-Install this software if you need to connect to a Citadel/UX server.
+This is the text client software for the Citadel messaging system.
+Install this software if you need to connect to a Citadel server.
 %defattr(-,root,root)
 %files client
 /usr/local/citadel/citadel

@@ -1,5 +1,5 @@
             ------------------------------------------------------
-             The totally incomplete guide to Citadel/UX internals
+             The totally incomplete guide to Citadel internals
             ------------------------------------------------------
 
  Citadel has evolved quite a bit since its early days, and the data structures
@@ -280,7 +280,7 @@ T	Date/Time	A 32-bit integer containing the date and time of
                         the message in standard UNIX format (the number
                         of seconds since January 1, 1970 GMT).
 U       Subject         Optional.  Developers may choose whether they wish to
-                        generate or display subject fields.  Citadel/UX does
+                        generate or display subject fields.  Citadel does
                         not generate them, but it does print them when found.
 0	Error		This field is typically never found in a message on
 			disk or in transit.  Message scanning modules are
@@ -352,7 +352,7 @@ please see network.txt on its operation and functionality (if any).
 
 			Portability issues
  
- Citadel/UX is 64-bit clean, architecture-independent, and Year 2000
+ Citadel is 64-bit clean, architecture-independent, and Year 2000
 compliant.  The software should compile on any POSIX compliant system with
 a full pthreads implementation and TCP/IP support.  In the future we may
 try to port it to non-POSIX systems as well.

@@ -2,7 +2,7 @@
  * $Id$ 
  *
  * This module implements iCalendar object processing and the Calendar>
- * room on a Citadel/UX server.  It handles iCalendar objects using the
+ * room on a Citadel server.  It handles iCalendar objects using the
  * iTIP protocol.  See RFCs 2445 and 2446.
  *
  */

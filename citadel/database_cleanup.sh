@@ -3,7 +3,7 @@
 clear
 cat <<!
 
-Citadel/UX Database Cleanup
+Citadel Database Cleanup
 ---------------------------
 
 This script exports, deletes, and re-imports your database.  If you have

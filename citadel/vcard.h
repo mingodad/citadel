@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * vCard implementation for Citadel/UX
+ * vCard implementation for Citadel
  *
  * Copyright (C) 1999 by Art Cancro
  * This code is freely redistributable under the terms of the GNU General
