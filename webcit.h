@@ -57,18 +57,18 @@
  *
  * bucket one...
  */
-#define QR_PERMANENT	1		/* Room does not purge              */
+#define QR_PERMANENT	1		/* Room does not purge	      */
 #define QR_INUSE	2		/* Set if in use, clear if avail    */
 #define QR_PRIVATE	4		/* Set for any type of private room */
 #define QR_PASSWORDED	8		/* Set if there's a password too    */
 #define QR_GUESSNAME	16		/* Set if it's a guessname room     */
-#define QR_DIRECTORY	32		/* Directory room                   */
-#define QR_UPLOAD	64		/* Allowed to upload                */
-#define QR_DOWNLOAD	128		/* Allowed to download              */
-#define QR_VISDIR	256		/* Visible directory                */
-#define QR_ANONONLY	512		/* Anonymous-Only room              */
-#define QR_ANONOPT	1024		/* Anonymous-Option room            */
-#define QR_NETWORK	2048		/* Shared network room              */
+#define QR_DIRECTORY	32		/* Directory room		   */
+#define QR_UPLOAD	64		/* Allowed to upload		*/
+#define QR_DOWNLOAD	128		/* Allowed to download	      */
+#define QR_VISDIR	256		/* Visible directory		*/
+#define QR_ANONONLY	512		/* Anonymous-Only room	      */
+#define QR_ANONOPT	1024		/* Anonymous-Option room	    */
+#define QR_NETWORK	2048		/* Shared network room	      */
 #define QR_PREFONLY	4096		/* Preferred status needed to enter */
 #define QR_READONLY	8192		/* Aide status required to post     */
 #define QR_MAILBOX	16384		/* Set if this is a private mailbox */
@@ -80,10 +80,10 @@
 #define QR2_SELFLIST	2		/* Self-service mailing list mgmt   */
 
 
-#define UA_KNOWN                2
-#define UA_GOTOALLOWED          4
-#define UA_HASNEWMSGS           8
-#define UA_ZAPPED               16
+#define UA_KNOWN		2
+#define UA_GOTOALLOWED	  4
+#define UA_HASNEWMSGS	   8
+#define UA_ZAPPED	       16
 
 
 
@@ -176,7 +176,7 @@ struct wc_attachment {
  * HTTP transactions are bound to one at a time.
  */
 struct wcsession {
-        struct wcsession *next;		/* Linked list */
+	struct wcsession *next;		/* Linked list */
 	int wc_session;			/* WebCit session ID */
 	char wc_username[SIZ];
 	char wc_password[SIZ];
@@ -204,13 +204,12 @@ struct wcsession {
 	int need_regi;			/* This user needs to register. */
 	int need_vali;			/* New users require validation. */
 	char cs_inet_email[SIZ];	/* User's preferred Internet addr. */
-        pthread_mutex_t SessionMutex;	/* mutex for exclusive access */
-        time_t lastreq;			/* Timestamp of most recent HTTP */
+	pthread_mutex_t SessionMutex;	/* mutex for exclusive access */
+	time_t lastreq;			/* Timestamp of most recent HTTP */
 	int killthis;			/* Nonzero == purge this session */
 	struct march *march;		/* march mode room list */
 	char reply_to[SIZ];		/* reply-to address */
 	long msgarr[4096];		/* for read operations */
-	int fake_frames;
 	int is_wap;			/* Client is a WAP gateway */
 	struct urlcontent *urlstrings;
 	int HaveExpressMessages;	/* Nonzero if incoming msgs exist */
@@ -227,8 +226,6 @@ struct wcsession {
 #endif
 	struct wc_attachment *first_attachment;
 	char ImportantMessage[SIZ];
-	int outside_frameset_allowed;	/* nonzero if current req is allowed
-					 * outside of the main frameset */
 	char last_chat_user[SIZ];
 	int ctdl_pid;			/* Session ID on the Citadel server */
 };
@@ -283,7 +280,13 @@ void urlesc(char *, char *);
 void urlescputs(char *);
 void jsesc(char *, char *);
 void jsescputs(char *);
-void output_headers(int);
+void output_headers(    int do_httpheaders,
+			int do_htmlhead,
+			int do_room_banner,
+			int unset_cookies,
+			int refresh30,
+			int suppress_check,
+			int cache);
 void wprintf(const char *format,...);
 void output_static(char *what);
 void stresc(char *target, char *strbuf, int nbsp, int nolinebreaks);
@@ -328,7 +331,7 @@ void display_whok(void);
 void server_to_text(void);
 void save_edit(char *description, char *enter_cmd, int regoto);
 void display_edit(char *description, char *check_cmd,
-		  char *read_cmd, char *save_cmd, int headers_type);
+		  char *read_cmd, char *save_cmd, int with_room_banner);
 void gotoroom(char *gname);
 void confirm_delete_room(void);
 void delete_room(void);

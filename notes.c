@@ -35,7 +35,7 @@ void display_note(long msgnum) {
 	serv_printf("MSG0 %ld", msgnum);
 	serv_gets(buf);
 	if (buf[0] != '1') {
-		wprintf("%s<BR>\n", &buf[4]);
+		wprintf("%s<br />\n", &buf[4]);
 		return;
 	}
 
@@ -60,5 +60,5 @@ void display_note(long msgnum) {
 
 	/* Make it HTML-happy and print it. */
 	stresc(display_notetext, notetext, 1, 1);
-	wprintf("%s<BR>\n", display_notetext);
+	wprintf("%s<br />\n", display_notetext);
 }

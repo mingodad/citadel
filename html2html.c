@@ -57,7 +57,7 @@ void output_html(void) {
 		msg = realloc(msg, buffer_length);
 		if (msg == NULL) {
 			wprintf("<B>realloc() error!  "
-				"couldn't get %d bytes: %s</B><BR><BR>\n",
+				"couldn't get %d bytes: %s</B><br /><br />\n",
 				buffer_length + 1,
 				strerror(errno));
 			return;
@@ -196,7 +196,7 @@ void output_html(void) {
 	client_write(converted_msg, output_length);
 
 	/* A little trailing vertical whitespace... */
-	wprintf("<BR><BR>\n");
+	wprintf("<br /><br />\n");
 
 	/* Now give back the memory */
 	free(converted_msg);

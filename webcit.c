@@ -175,9 +175,16 @@ void wprintf(const char *format,...)
 void wDumpContent(int print_standard_html_footer)
 {
 	if (print_standard_html_footer) {
+		wprintf("</DIV>\n");	/* end of "text" div */
+	
+		/* NAVBAR 
+		wprintf("<div id=\"navbar\">");
+		wprintf("FIXME the navbar should go here, dude...\n");
+		wprintf("</div>\n");
+		 */
+
 		do_template("trailing");
 	}
-
 
 }
 
@@ -338,41 +345,28 @@ void msgescputs(char *strbuf) {
 
 /*
  * Output all that important stuff that the browser will want to see
- *
- * control codes:
- * 
- * Bits 0 and 1:
- * 0 = Nothing.  Do not display any leading HTTP or HTML.
- * 1 = HTTP headers plus the room banner
- * 2 = HTTP headers required to terminate the session (unset cookies)
- * 3 = HTTP and HTML headers, but no room banner
- *
- * Bit 2: Set to 1 to auto-refresh page every 30 seconds
- * Bit 3: suppress check for express messages
- * Bit 4: Allow browser to cache this document
- *
  */
-void output_headers(int controlcode)
-{
+void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers                          */
+			int do_htmlhead,	/* 1 = output HTML <head> section and <body> opener */
+
+			int do_room_banner,	/* 0=no, 1=yes,                                     */
+						/* 2 = I'm going to embed my own, so don't open the */
+						/*     <div id="text"> either.                      */
+
+			int unset_cookies,	/* 1 = session is terminating, so unset the cookies */
+			int refresh30,		/* 1 = automatically refresh page every 30 seconds  */
+			int suppress_check,	/* 1 = suppress check for instant messages          */
+			int cache		/* 1 = allow browser to cache this page             */
+) {
 	char cookie[SIZ];
-	int print_standard_html_head = 0;
-	int refresh30 = 0;
-	int suppress_check = 0;
-	int cache = 0;
 	char httpnow[SIZ];
 	char onload_fcn[SIZ];
 	static int pageseq = 0;
-	print_standard_html_head	=	controlcode & 0x03;
-	refresh30			=	((controlcode & 0x04) >> 2);
-	suppress_check			=	((controlcode & 0x08) >> 3);
-	cache				=	((controlcode & 0x10) >> 4);
-
 
 	wprintf("HTTP/1.0 200 OK\n");
-
 	httpdate(httpnow, time(NULL));
 
-	if (print_standard_html_head > 0) {
+	if (do_httpheaders) {
 		wprintf("Content-type: text/html\n"
 			"Server: %s\n", SERVER
 		);
@@ -386,7 +380,7 @@ void output_headers(int controlcode)
 	stuff_to_cookie(cookie, WC->wc_session, WC->wc_username,
 			WC->wc_password, WC->wc_roomname);
 
-	if (print_standard_html_head == 2) {
+	if (unset_cookies) {
 		wprintf("Set-cookie: webcit=%s; path=/\n", unset);
 	} else {
 		wprintf("Set-cookie: webcit=%s; path=/\n", cookie);
@@ -395,44 +389,37 @@ void output_headers(int controlcode)
 		}
 	}
 
-	if (print_standard_html_head > 0) {
+	if (do_htmlhead) {
 		wprintf("\n");
 
 		if (refresh30) {
 			svprintf("REFRESHTAG", WCS_STRING, "%s",
-				"<META HTTP-EQUIV=\"refresh\" CONTENT=\"30\">\n");
+				"<meta http-equiv=\"refresh\" content=\"30\" />\n");
 		}
 		else {
 			svprintf("REFRESHTAG", WCS_STRING, "%s",
-				"<META HTTP-EQUIV=\"refresh\" CONTENT=\"500363689;\">\n");
+				"<meta http-equiv=\"refresh\" content=\"500363689;\" />\n");
 		}
 
 		/* script for checking for pages (not always launched) */
 
 		sprintf(onload_fcn, "function onload_fcn() { \n");
-		if (!WC->outside_frameset_allowed) {
-			strcat(onload_fcn, "  force_frameset();  \n");
-		}
 		if (!suppress_check) if (WC->HaveExpressMessages) {
 			strcat(onload_fcn, "  launch_page_popup();  \n");
 			WC->HaveExpressMessages = 0;
 		}
 		strcat(onload_fcn, "} \n");
 
-		svprintf("PAGERSCRIPT", WCS_STRING,
-			"<SCRIPT LANGUAGE=\"JavaScript\">\n"
+		svprintf("PAGERscript", WCS_STRING,
+			"<script language=\"JavaScript\">\n"
 			"function launch_page_popup() {\n"
 			"pwin = window.open('/page_popup', 'CitaPage%d', "
 			"'toolbar=no,location=no,copyhistory=no,status=no,"
 			"scrollbars=yes,resizable=no,height=250,width=400');\n"
 			"}\n"
-			"function force_frameset() { \n"
-			" if (top.frames.length == 0) { \n"
-			"  top.location.replace('/do_welcome'); \n"
-			" } \n"
-			"} \n"
+
 			"%s\n"
-			"</SCRIPT>\n",
+			"</script>\n",
 			++pageseq,
 			onload_fcn
 		);
@@ -446,18 +433,31 @@ void output_headers(int controlcode)
 		do_template("background");
 	}
 
-	if (print_standard_html_head == 1) {
-		wprintf("<A NAME=\"TheTop\"></A>");
-		embed_room_banner(NULL);
+	/* ICONBAR */
+	if (do_htmlhead) {
+		if ( (WC->logged_in) && (!unset_cookies) ) {
+			wprintf("<div id=\"iconbar\">");
+			do_iconbar();
+			wprintf("</div>\n");
+		}
+		if (do_room_banner == 1) {
+			wprintf("<div id=\"banner\">\n");
+			embed_room_banner(NULL);
+			wprintf("</div>\n");
+		}
+	}
+
+	if (do_room_banner != 2) {
+		wprintf("<div id=\"text\">\n");
 	}
 
 	if (strlen(WC->ImportantMessage) > 0) {
 		do_template("beginbox_nt");
 		wprintf("<SPAN CLASS=\"errormsg\">"
-			"%s</SPAN><BR>\n", WC->ImportantMessage);
+			"%s</SPAN><br />\n", WC->ImportantMessage);
 		do_template("endbox");
 		strcpy(WC->ImportantMessage, "");
-	}	
+	}
 }
 
 
@@ -494,7 +494,12 @@ void check_for_express_messages()
  */
 void http_transmit_thing(char *thing, size_t length, char *content_type,
 			 int is_static) {
-	output_headers(is_static ? 0x10 : 0x00);
+	if (is_static) {
+		output_headers(0, 0, 0, 0, 0, 0, 1);
+	}
+	else {
+		output_headers(0, 0, 0, 0, 0, 0, 0);
+	}
 	wprintf("Content-type: %s\n"
 		"Content-length: %ld\n"
 		"Server: %s\n"
@@ -608,7 +613,7 @@ void output_image()
 
 		/*
 		wprintf("HTTP/1.0 404 %s\n", &buf[4]);
-		output_headers(0);
+		output_headers(0, 0, 0, 0, 0, 0, 0);
 		wprintf("Content-Type: text/plain\n"
 			"\n"
 			"Error retrieving image: %s\n",
@@ -637,7 +642,7 @@ void output_mimepart()
 		bytes = extract_long(&buf[4], 0);
 		content = malloc(bytes + 2);
 		extract(content_type, &buf[4], 3);
-		output_headers(0);
+		output_headers(0, 0, 0, 0, 0, 0, 0);
 		read_server_binary(content, bytes);
 		serv_puts("CLOS");
 		serv_gets(buf);
@@ -645,7 +650,7 @@ void output_mimepart()
 		free(content);
 	} else {
 		wprintf("HTTP/1.0 404 %s\n", &buf[4]);
-		output_headers(0);
+		output_headers(0, 0, 0, 0, 0, 0, 0);
 		wprintf("Content-Type: text/plain\n");
 		wprintf("\n");
 		wprintf("Error retrieving part: %s\n", &buf[4]);
@@ -690,13 +695,15 @@ char *load_mimepart(long msgnum, char *partnum)
 void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
 {
 	wprintf("HTTP/1.0 200 OK\n");
-	output_headers(1);
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#%s\"><TR><TD>", titlebarcolor);
 	wprintf("<SPAN CLASS=\"titlebar\">%s</SPAN>\n", titlebarmsg);
-	wprintf("</TD></TR></TABLE><BR>\n");
+	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</div><div id=\"text\">\n");
 	escputs(messagetext);
 
-	wprintf("<HR>\n");
+	wprintf("<hr />\n");
 	wDumpContent(1);
 }
 
@@ -705,7 +712,7 @@ void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
  * Display a blank page.
  */
 void blank_page(void) {
-	output_headers(7);
+	output_headers(1, 1, 0, 0, 1, 0, 0);
 	wDumpContent(2);
 }
 
@@ -746,7 +753,7 @@ void change_start_page(void) {
 
 	set_preference("startpage", bstr("startpage"));
 
-	output_headers(3);
+	output_headers(1, 1, 0, 0, 0, 0, 0);
 	do_template("newstartpage");
 	wDumpContent(1);
 }
@@ -1274,15 +1281,15 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "save_inetconf")) {
 		save_inetconf();
 	} else if (!strcasecmp(action, "diagnostics")) {
-		output_headers(1);
+		output_headers(1, 1, 1, 0, 0, 0, 0);
 
-		wprintf("You're in session %d<HR>\n", WC->wc_session);
-		wprintf("Command: <BR><PRE>\n");
+		wprintf("You're in session %d<hr />\n", WC->wc_session);
+		wprintf("Command: <br /><PRE>\n");
 		escputs(cmd);
-		wprintf("</PRE><HR>\n");
-		wprintf("Variables: <BR><PRE>\n");
+		wprintf("</PRE><hr />\n");
+		wprintf("Variables: <br /><PRE>\n");
 		dump_vars();
-		wprintf("</PRE><HR>\n");
+		wprintf("</PRE><hr />\n");
 		wDumpContent(1);
 	}
 	/* When all else fais, display the main menu. */

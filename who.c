@@ -37,22 +37,25 @@ void whobbs(void)
 	time_t now;
 	int bg = 0;
 
-	output_headers(7);
+	output_headers(1, 1, 2, 0, 1, 0, 0);
 
-	wprintf("<SCRIPT LANGUAGE=\"JavaScript\">\n"
+	wprintf("<script language=\"JavaScript\">\n"
 		"function ConfirmKill() { \n"
 		"return confirm('Do you really want to kill this session?');\n"
 		"}\n"
-		"</SCRIPT>\n"
+		"</script>\n"
 	);
 
+	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<IMG SRC=\"/static/users-icon.gif\" ALT=\" \" ALIGN=MIDDLE>");
 	wprintf("<SPAN CLASS=\"titlebar\">&nbsp;Users currently on ");
 	escputs(serv_info.serv_humannode);
 	wprintf("</SPAN></TD><TD ALIGN=RIGHT>");
 	offer_start_page();
-	wprintf("</TD></TR></TABLE><BR>\n");
+	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</div>\n"
+		"<div id=\"text\">\n");
 
 	do_template("beginbox_nt");
 	wprintf("<CENTER>"
@@ -136,7 +139,7 @@ void whobbs(void)
 			wprintf("</TD>\n\t<TD>");
 			escputs(room);
 			if (strlen(realroom) > 0) {
-				wprintf("<BR><I>");
+				wprintf("<br /><I>");
 				escputs(realroom);
 				wprintf("</I>");
 			}
@@ -145,7 +148,7 @@ void whobbs(void)
 			/* hostname */
 			escputs(host);
 			if (strlen(realhost) > 0) {
-				wprintf("<BR><I>");
+				wprintf("<br /><I>");
 				escputs(realhost);
 				wprintf("</I>");
 			}
@@ -156,7 +159,7 @@ void whobbs(void)
 		"Click on a name to read user info.  Click on "
 		"<IMG ALIGN=MIDDLE SRC=\"/static/page.gif\" ALT=\"(p)\" "
 		"BORDER=0> to send "
-		"a page (instant message) to that user.<BR></CENTER>\n");
+		"a page (instant message) to that user.<br /></CENTER>\n");
 	do_template("endbox");
 	wDumpContent(1);
 }
@@ -195,18 +198,21 @@ void edit_me(void)
 		http_redirect("/whobbs");
 	} else {
 
-		output_headers(3);
+		output_headers(1, 1, 0, 0, 0, 0, 0);
 
+		wprintf("<div id=\"banner\">\n");
 		wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 		wprintf("<SPAN CLASS=\"titlebar\">");
 		wprintf("Edit your session display");
 		wprintf("</SPAN></TD></TR></TABLE>\n");
+		wprintf("</div>\n<div id=\"text\">\n");
+
 		wprintf("This screen allows you to change the way your\n");
 		wprintf("session appears in the 'Who is online' listing.\n");
 		wprintf("To turn off any 'fake' name you've previously\n");
 		wprintf("set, simply click the appropriate 'change' button\n");
 		wprintf("without typing anything in the corresponding box.\n");
-		wprintf("<BR>\n");
+		wprintf("<br />\n");
 
 		wprintf("<FORM METHOD=\"POST\" ACTION=\"/edit_me\">\n");
 

@@ -51,7 +51,7 @@ void do_listsub(void)
 	wprintf("<CENTER>"
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">List subscribe/unsubscribe</SPAN>\n"
-		"</TD></TR></TABLE><BR>\n"
+		"</TD></TR></TABLE><br />\n"
 	);
 
 	/*
@@ -77,16 +77,16 @@ void do_listsub(void)
 				"your subscription.  This extra step is for "
 				"your protection, as it prevents others from "
 				"being able to subscribe you to lists "
-				"without your consent.<BR><BR>"
+				"without your consent.<br /><br />"
 				"Please click on the link which is being "
 				"e-mailed to you and your subscription will "
-				"be confirmed.<BR>\n"
+				"be confirmed.<br />\n"
 				"<A HREF=\"/listsub\">Back...</A></CENTER>\n"
 			);
 		}
 		else {
 			wprintf("<FONT SIZE=+1><B>ERROR: %s</B>"
-				"</FONT><BR><BR>\n",
+				"</FONT><br /><br />\n",
 				&buf[4]);
 			goto FORM;
 		}
@@ -114,16 +114,16 @@ void do_listsub(void)
 				"your unsubscription.  This extra step is for "
 				"your protection, as it prevents others from "
 				"being able to unsubscribe you from "
-				"lists without your consent.<BR><BR>"
+				"lists without your consent.<br /><br />"
 				"Please click on the link which is being "
 				"e-mailed to you and your unsubscription will "
-				"be confirmed.<BR>\n"
+				"be confirmed.<br />\n"
 				"<A HREF=\"/listsub\">Back...</A></CENTER>\n"
 			);
 		}
 		else {
 			wprintf("<FONT SIZE=+1><B>ERROR: %s</B>"
-				"</FONT><BR><BR>\n",
+				"</FONT><br /><br />\n",
 				&buf[4]);
 			goto FORM;
 		}
@@ -154,7 +154,7 @@ void do_listsub(void)
 				"The error returned by the server was: "
 			);
 		}
-		wprintf("%s</CENTER><BR>\n", &buf[4]);
+		wprintf("%s</CENTER><br />\n", &buf[4]);
 	}
 
 	/*
@@ -199,7 +199,7 @@ FORM:		wprintf("<FORM METHOD=\"GET\" ACTION=\"/listsub\">\n"
 			"VALUE=\"list\">One message at a time&nbsp; "
 			"<INPUT TYPE=\"radio\" NAME=\"subtype\""
 			"VALUE=\"digest\" CHECKED>Digest format&nbsp; "
-			"<BR>\n"
+			"<br />\n"
 			"<INPUT TYPE=\"submit\" NAME=\"cmd\""
 			" VALUE=\"subscribe\">\n"
 			"<INPUT TYPE=\"submit\" NAME=\"cmd\""
@@ -207,12 +207,12 @@ FORM:		wprintf("<FORM METHOD=\"GET\" ACTION=\"/listsub\">\n"
 			"</FORM>\n"
 		);
 
-		wprintf("<BR>When you attempt to subscribe or unsubscribe to "
+		wprintf("<br />When you attempt to subscribe or unsubscribe to "
 			"a mailing list, you will receive an e-mail containing"
 			" one additional web link to click on for final "
 			"confirmation.  This extra step is for your "
 			"protection, as it prevents others from being able to "
-			"subscribe or unsubscribe you to lists.<BR>\n"
+			"subscribe or unsubscribe you to lists.<br />\n"
 		);
 
 	}

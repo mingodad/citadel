@@ -223,7 +223,7 @@ void do_template(void *templatename) {
 	fp = fopen(filename, "r");
 	if (fp == NULL) {
 		wprintf("<BLINK>ERROR</BLINK> - could not open template ");
-		wprintf("'%s' - %s<BR>\n",
+		wprintf("'%s' - %s<br />\n",
 			templatename, strerror(errno));
 		return;
 	}

@@ -221,14 +221,14 @@ void listrms(char *variety)
  */
 void zapped_list(void)
 {
-	output_headers(3);
+	output_headers(1, 1, 0, 0, 0, 0, 0);
 
 	svprintf("BOXTITLE", WCS_STRING, "Zapped (forgotten) rooms");
 	do_template("beginbox");
 
 	listrms("LZRM -1");
 
-	wprintf("<BR><BR>\n");
+	wprintf("<br /><br />\n");
 	wprintf("Click on any room to un-zap it and goto that room.\n");
 	do_template("endbox");
 	wDumpContent(1);
@@ -282,7 +282,7 @@ void embed_newmail_button(void) {
 			"<A HREF=\"/dotgoto?room=_MAIL_\">"
 			"<IMG SRC=\"/static/mail.gif\" border=0 "
 			"ALT=\"You have new mail\">"
-			"<BR><SPAN CLASS=\"youhavemail\">"
+			"<br /><SPAN CLASS=\"youhavemail\">"
 			"%d new mail</SPAN></A>", WC->new_mail);
 		WC->remember_new_mail = WC->new_mail;
 	}
@@ -357,7 +357,6 @@ void embed_room_banner(char *got) {
 	svcallback("YOUHAVEMAIL", embed_newmail_button);
 	svcallback("VIEWOMATIC", embed_view_o_matic);
 	svcallback("START", offer_start_page);
-
 	do_template("roombanner");
 }
 
@@ -533,7 +532,7 @@ void slrp_highest(void)
 	serv_puts("SLRP HIGHEST");
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		wprintf("<EM>%s</EM><BR>\n", &buf[4]);
+		wprintf("<EM>%s</EM><br />\n", &buf[4]);
 		return;
 	}
 }
@@ -674,10 +673,10 @@ void display_editroom(void)
 	er_flags = extract_int(&buf[4], 3);
 	er_floor = extract_int(&buf[4], 4);
 
-	output_headers(1);
+	output_headers(1, 1, 1, 0, 0, 0, 0);
 
 	/* print the tabbed dialog */
-	wprintf("<BR><TABLE border=0 cellspacing=0 cellpadding=0 width=100%%>"
+	wprintf("<br /><TABLE border=0 cellspacing=0 cellpadding=0 width=100%%>"
 		"<TR ALIGN=CENTER>"
 		"<TD>&nbsp;</TD>\n");
 
@@ -965,7 +964,7 @@ void display_editroom(void)
 		}
 
 		/* Display the stuff */
-		wprintf("<CENTER><BR>"
+		wprintf("<CENTER><br />"
 			"<TABLE border=1 cellpadding=5><TR>"
 			"<TD><B><I>Shared with</I></B></TD>"
 			"<TD><B><I>Not shared with</I></B></TD></TR>\n"
@@ -1051,7 +1050,7 @@ void display_editroom(void)
 
 		wprintf("</TABLE>\n");
 		wprintf("</TD></TR>"
-			"</TABLE></CENTER><BR>\n"
+			"</TABLE></CENTER><br />\n"
 			"<I><B>Notes:</B><UL><LI>When sharing a room, "
 			"it must be shared from both ends.  Adding a node to "
 			"the 'shared' list sends messages out, but in order to"
@@ -1061,7 +1060,7 @@ void display_editroom(void)
 			"that the room name is identical on the remote node."
 			"<LI>If the remote room name is different, the remote "
 			"node must also configure the name of the room here."
-			"</UL></I><BR>\n"
+			"</UL></I><br />\n"
 		);
 
 	}
@@ -1069,14 +1068,14 @@ void display_editroom(void)
 	/* Mailing list management */
 	if (!strcmp(tab, "listserv")) {
 
-		wprintf("<BR><center>"
+		wprintf("<br /><center>"
 			"<TABLE BORDER=0 WIDTH=100%% CELLPADDING=5>"
 			"<TR><TD VALIGN=TOP>");
 
 		wprintf("<i>The contents of this room are being "
 			"mailed <b>as individual messages</b> "
 			"to the following list recipients:"
-			"</i><br><br>\n");
+			"</i><br /><br />\n");
 
 		serv_puts("GNET");
 		serv_gets(buf);
@@ -1089,11 +1088,11 @@ void display_editroom(void)
 				wprintf(" <A HREF=\"/netedit&cmd=remove&line="
 					"listrecp|");
 				urlescputs(recp);
-				wprintf("&tab=listserv\">(remove)</A><BR>");
+				wprintf("&tab=listserv\">(remove)</A><br />");
 
 			}
 		}
-		wprintf("<BR><FORM METHOD=\"POST\" ACTION=\"/netedit\">\n"
+		wprintf("<br /><FORM METHOD=\"POST\" ACTION=\"/netedit\">\n"
 			"<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"listserv\">\n"
 			"<INPUT TYPE=\"hidden\" NAME=\"prefix\" VALUE=\"listrecp|\">\n");
 		wprintf("<INPUT TYPE=\"text\" NAME=\"line\">\n");
@@ -1105,7 +1104,7 @@ void display_editroom(void)
 		wprintf("<i>The contents of this room are being "
 			"mailed <b>in digest form</b> "
 			"to the following list recipients:"
-			"</i><br><br>\n");
+			"</i><br /><br />\n");
 
 		serv_puts("GNET");
 		serv_gets(buf);
@@ -1118,27 +1117,27 @@ void display_editroom(void)
 				wprintf(" <A HREF=\"/netedit&cmd=remove&line="
 					"digestrecp|");
 				urlescputs(recp);
-				wprintf("&tab=listserv\">(remove)</A><BR>");
+				wprintf("&tab=listserv\">(remove)</A><br />");
 
 			}
 		}
-		wprintf("<BR><FORM METHOD=\"POST\" ACTION=\"/netedit\">\n"
+		wprintf("<br /><FORM METHOD=\"POST\" ACTION=\"/netedit\">\n"
 			"<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"listserv\">\n"
 			"<INPUT TYPE=\"hidden\" NAME=\"prefix\" VALUE=\"digestrecp|\">\n");
 		wprintf("<INPUT TYPE=\"text\" NAME=\"line\">\n");
 		wprintf("<INPUT TYPE=\"submit\" NAME=\"cmd\" VALUE=\"Add\">");
 		wprintf("</FORM>\n");
 		
-		wprintf("</TD></TR></TABLE><HR>\n");
+		wprintf("</TD></TR></TABLE><hr />\n");
 
 		if (self_service(999) == 1) {
 			wprintf("This room is configured to allow "
 				"self-service subscribe/unsubscribe requests."
 				" <A HREF=\"/toggle_self_service?newval=0&"
 				"tab=listserv\">"
-				"Click to disable.</A><BR>\n"
+				"Click to disable.</A><br />\n"
 				"The URL for subscribe/unsubscribe is: "
-				"<TT>http://%s/listsub</TT><BR>\n",
+				"<TT>http://%s/listsub</TT><br />\n",
 				WC->http_host
 			);
 		}
@@ -1147,7 +1146,7 @@ void display_editroom(void)
 				"self-service subscribe/unsubscribe requests."
 				" <A HREF=\"/toggle_self_service?newval=1&"
 				"tab=listserv\">"
-				"Click to enable.</A><BR>\n"
+				"Click to enable.</A><br />\n"
 			);
 		}
 
@@ -1173,51 +1172,51 @@ void display_editroom(void)
 			floorvalue = extract_int(&buf[4], 1);
 		}
 		
-		wprintf("<BR><FORM METHOD=\"POST\" ACTION=\"/set_room_policy\">\n");
+		wprintf("<br /><FORM METHOD=\"POST\" ACTION=\"/set_room_policy\">\n");
 		wprintf("<TABLE border=0 cellspacing=5>\n");
-		wprintf("<TR><TD>Message expire policy for this room<BR>(");
+		wprintf("<TR><TD>Message expire policy for this room<br />(");
 		escputs(WC->wc_roomname);
 		wprintf(")</TD><TD>");
 		wprintf("<INPUT TYPE=\"radio\" NAME=\"roompolicy\" VALUE=\"0\" %s>",
 			((roompolicy == 0) ? "CHECKED" : "") );
-		wprintf("Use the default policy for this floor<BR>\n");
+		wprintf("Use the default policy for this floor<br />\n");
 		wprintf("<INPUT TYPE=\"radio\" NAME=\"roompolicy\" VALUE=\"1\" %s>",
 			((roompolicy == 1) ? "CHECKED" : "") );
-		wprintf("Never automatically expire messages<BR>\n");
+		wprintf("Never automatically expire messages<br />\n");
 		wprintf("<INPUT TYPE=\"radio\" NAME=\"roompolicy\" VALUE=\"2\" %s>",
 			((roompolicy == 2) ? "CHECKED" : "") );
-		wprintf("Expire by message count<BR>\n");
+		wprintf("Expire by message count<br />\n");
 		wprintf("<INPUT TYPE=\"radio\" NAME=\"roompolicy\" VALUE=\"3\" %s>",
 			((roompolicy == 3) ? "CHECKED" : "") );
-		wprintf("Expire by message age<BR>");
+		wprintf("Expire by message age<br />");
 		wprintf("Number of messages or days: ");
 		wprintf("<INPUT TYPE=\"text\" NAME=\"roomvalue\" MAXLENGTH=\"5\" VALUE=\"%d\">", roomvalue);
 		wprintf("</TD></TR>\n");
 
 		if (WC->axlevel >= 6) {
-			wprintf("<TR><TD COLSPAN=2><HR></TD></TR>\n");
-			wprintf("<TR><TD>Message expire policy for this floor<BR>(");
+			wprintf("<TR><TD COLSPAN=2><hr /></TD></TR>\n");
+			wprintf("<TR><TD>Message expire policy for this floor<br />(");
 			escputs(floorlist[WC->wc_floor]);
 			wprintf(")</TD><TD>");
 			wprintf("<INPUT TYPE=\"radio\" NAME=\"floorpolicy\" VALUE=\"0\" %s>",
 				((floorpolicy == 0) ? "CHECKED" : "") );
-			wprintf("Use the system default<BR>\n");
+			wprintf("Use the system default<br />\n");
 			wprintf("<INPUT TYPE=\"radio\" NAME=\"floorpolicy\" VALUE=\"1\" %s>",
 				((floorpolicy == 1) ? "CHECKED" : "") );
-			wprintf("Never automatically expire messages<BR>\n");
+			wprintf("Never automatically expire messages<br />\n");
 			wprintf("<INPUT TYPE=\"radio\" NAME=\"floorpolicy\" VALUE=\"2\" %s>",
 				((floorpolicy == 2) ? "CHECKED" : "") );
-			wprintf("Expire by message count<BR>\n");
+			wprintf("Expire by message count<br />\n");
 			wprintf("<INPUT TYPE=\"radio\" NAME=\"floorpolicy\" VALUE=\"3\" %s>",
 				((floorpolicy == 3) ? "CHECKED" : "") );
-			wprintf("Expire by message age<BR>");
+			wprintf("Expire by message age<br />");
 			wprintf("Number of messages or days: ");
 			wprintf("<INPUT TYPE=\"text\" NAME=\"floorvalue\" MAXLENGTH=\"5\" VALUE=\"%d\">",
 				floorvalue);
 		}
 
 		wprintf("<CENTER>\n");
-		wprintf("<TR><TD COLSPAN=2><HR><CENTER>\n");
+		wprintf("<TR><TD COLSPAN=2><hr /><CENTER>\n");
 		wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 		wprintf("&nbsp;");
 		wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
@@ -1456,7 +1455,7 @@ void display_whok(void)
                 }
         }
         
-        output_headers(1);
+        output_headers(1, 1, 1, 0, 0, 0, 0);
 	stresc(buf, WC->wc_roomname, 1, 1);
 	svprintf("BOXTITLE", WCS_STRING, "Access control list for %s", buf);
 	do_template("beginbox");
@@ -1464,7 +1463,7 @@ void display_whok(void)
 	wprintf("<TABLE border=0 CELLSPACING=10><TR VALIGN=TOP>"
 		"<TD>The users listed below have access to this room.  "
 		"To remove a user from the access list, select the user "
-		"name from the list and click 'Kick'.<BR><BR>");
+		"name from the list and click 'Kick'.<br /><br />");
 	
         wprintf("<CENTER><FORM METHOD=\"POST\" ACTION=\"/display_whok\">\n");
         wprintf("<SELECT NAME=\"username\" SIZE=10>\n");
@@ -1478,18 +1477,18 @@ void display_whok(void)
                         wprintf("\n");
                 }
         }
-        wprintf("</SELECT><BR>\n");
+        wprintf("</SELECT><br />\n");
 
         wprintf("<input type=submit name=sc value=\"Kick\">");
         wprintf("</FORM></CENTER>\n");
 
 	wprintf("</TD><TD>"
 		"To grant another user access to this room, enter the "
-		"user name in the box below and click 'Invite'.<BR><BR>");
+		"user name in the box below and click 'Invite'.<br /><br />");
 
         wprintf("<CENTER><FORM METHOD=\"POST\" ACTION=\"/display_whok\">\n");
         wprintf("Invite: ");
-        wprintf("<input type=text name=username><BR>\n"
+        wprintf("<input type=text name=username><br />\n"
         	"<input type=hidden name=sc value=\"Invite\">"
         	"<input type=submit value=\"Invite\">"
 		"</FORM></CENTER>\n");
@@ -1517,7 +1516,7 @@ void display_entroom(void)
 		display_main_menu();
 		return;
 	}
-	output_headers(3);
+	output_headers(1, 1, 0, 0, 0, 0, 0);
 	svprintf("BOXTITLE", WCS_STRING, "Create a new room");
 	do_template("beginbox");
 
@@ -1572,7 +1571,7 @@ void display_entroom(void)
 	wprintf("&nbsp;");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 	wprintf("</CENTER>\n");
-	wprintf("</FORM>\n<HR>");
+	wprintf("</FORM>\n<hr />");
 	serv_printf("MESG roomaccess");
 	serv_gets(buf);
 	if (buf[0] == '1') {
@@ -1676,18 +1675,18 @@ void entroom(void)
 void display_private(char *rname, int req_pass)
 {
 
-	output_headers(3);
+	output_headers(1, 1, 0, 0, 0, 0, 0);
 
 	svprintf("BOXTITLE", WCS_STRING, "Go to a hidden room");
 	do_template("beginbox");
 
 	wprintf("<CENTER>\n");
-	wprintf("<BR>If you know the name of a hidden (guess-name) or\n");
+	wprintf("<br />If you know the name of a hidden (guess-name) or\n");
 	wprintf("passworded room, you can enter that room by typing\n");
 	wprintf("its name below.  Once you gain access to a private\n");
 	wprintf("room, it will appear in your regular room listings\n");
 	wprintf("so you don't have to keep returning here.\n");
-	wprintf("<BR><BR>");
+	wprintf("<br /><br />");
 
 	wprintf("<FORM METHOD=\"GET\" ACTION=\"/goto_private\">\n");
 
@@ -1703,7 +1702,7 @@ void display_private(char *rname, int req_pass)
 		wprintf("Enter room password:</TD><TD>");
 		wprintf("<INPUT TYPE=\"password\" NAME=\"gr_pass\" MAXLENGTH=\"9\">\n");
 	}
-	wprintf("</TD></TR></TABLE><BR>\n");
+	wprintf("</TD></TR></TABLE><br />\n");
 
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">"
 		"&nbsp;"
@@ -1741,7 +1740,7 @@ void goto_private(void)
 		display_private(bstr("gr_name"), 1);
 		return;
 	}
-	output_headers(1);
+	output_headers(1, 1, 1, 0, 0, 0, 0);
 	wprintf("%s\n", &buf[4]);
 	wDumpContent(1);
 	return;
@@ -1753,15 +1752,17 @@ void goto_private(void)
  */
 void display_zap(void)
 {
-	output_headers(1);
+	output_headers(1, 1, 2, 0, 0, 0, 0);
 
+	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">Zap (forget) the current room</SPAN>\n");
+	wprintf("<SPAN CLASS=\"titlebar\">Zap (forget/unsubscribe) the current room</SPAN>\n");
 	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</div><div id=\"text\">\n");
 
 	wprintf("If you select this option, <em>%s</em> will ", WC->wc_roomname);
 	wprintf("disappear from your room list.  Is this what you wish ");
-	wprintf("to do?<BR>\n");
+	wprintf("to do?<br />\n");
 
 	wprintf("<FORM METHOD=\"GET\" ACTION=\"/zap\">\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
@@ -1820,17 +1821,19 @@ void confirm_delete_room(void)
 		display_main_menu();
 		return;
 	}
-	output_headers(1);
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">Confirm deletion of room</SPAN>\n");
 	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</div><div id=\"text\">\n");
 
 	wprintf("<CENTER>");
 	wprintf("<FORM METHOD=\"GET\" ACTION=\"/delete_room\">\n");
 
 	wprintf("Are you sure you want to delete <FONT SIZE=+1>");
 	escputs(WC->wc_roomname);
-	wprintf("</FONT>?<BR>\n");
+	wprintf("</FONT>?<br />\n");
 
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Delete\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
@@ -2113,7 +2116,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 
 	/* Outer table (for columnization) */
 	wprintf("<TABLE BORDER=0 WIDTH=100%% CELLPADDING=5>"
-		"<TR><TD VALIGN=TOP>");
+		"<tr><td valign=top width=33%%>");
 
 	levels = 0;
 	oldlevels = 0;
@@ -2130,7 +2133,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 			if ((num_boxes % boxes_per_column) == 0) {
 				++current_column;
 				if (current_column < columns) {
-					wprintf("</TD><TD VALIGN=TOP>\n");
+					wprintf("</td><td valign=top width=33%%>\n");
 				}
 			}
 		}
@@ -2176,7 +2179,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 			if (!strcasecmp(fold[i].name, "My Folders|Mail")) {
 				wprintf(" (INBOX)");
 			}
-			wprintf("<BR>\n");
+			wprintf("<br />\n");
 		}
 	}
 	/* End the final inner box */
@@ -2278,6 +2281,14 @@ void list_all_rooms_by_floor(char *viewpref) {
 		}
 	}
 
+/* test only hackish view 
+	wprintf("<table><TR><TD>A Table</TD></TR></table>\n");
+	for (i=0; i<max_folders; ++i) {
+		escputs(fold[i].name);
+		wprintf("<br />\n");
+	}
+ */
+
 	if (!strcasecmp(viewpref, "folders")) {
 		do_folder_view(fold, max_folders, num_floors);
 	}
@@ -2296,7 +2307,7 @@ void list_all_rooms_by_floor(char *viewpref) {
 void knrooms() {
 	char listviewpref[SIZ];
 
-	output_headers(3);
+	output_headers(1, 1, 2, 0, 0, 0, 0);
 	load_floorlist();
 
 	/* Determine whether the user is trying to change views */
@@ -2314,7 +2325,8 @@ void knrooms() {
 	}
 
 	/* title bar */
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+	wprintf("<div id=\"banner\">\n"
+		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">"
 	);
 	if (!strcasecmp(listviewpref, "rooms")) {
@@ -2327,7 +2339,6 @@ void knrooms() {
 		wprintf("Room list");
 	}
 	wprintf("</SPAN></TD>\n");
-
 
 	/* offer the ability to switch views */
 	wprintf("<TD ALIGN=RIGHT><FORM NAME=\"roomlistomatic\">\n"
@@ -2347,9 +2358,11 @@ void knrooms() {
 		( !strcasecmp(listviewpref, "folders") ? "SELECTED" : "" )
 	);
 
-	wprintf("</SELECT><BR>");
+	wprintf("</SELECT><br />");
 	offer_start_page();
 	wprintf("</FORM></TD></TR></TABLE>\n");
+	wprintf("</div>\n"
+		"<div id=\"text\">\n");
 
 	/* Display the room list in the user's preferred format */
 	list_all_rooms_by_floor(listviewpref);
@@ -2375,7 +2388,7 @@ void set_room_policy(void) {
 	strcpy(WC->ImportantMessage, &buf[4]);
 
 	if (WC->axlevel >= 6) {
-		strcat(WC->ImportantMessage, "<BR>\n");
+		strcat(WC->ImportantMessage, "<br />\n");
 		serv_printf("SPEX floor|%d|%d", atoi(bstr("floorpolicy")), atoi(bstr("floorvalue")));
 		serv_gets(buf);
 		strcat(WC->ImportantMessage, &buf[4]);

@@ -46,7 +46,8 @@ void display_login(char *mesg)
 {
 	char buf[SIZ];
 
-	output_headers(3);
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"text\">\n");
 
 	if (mesg != NULL) if (strlen(mesg) > 0) {
 		stresc(buf, mesg, 0, 0);
@@ -59,7 +60,7 @@ void display_login(char *mesg)
 
 	do_template("login");
 
-	wDumpContent(0);	/* No menu here; not logged in yet! */
+	wDumpContent(2);
 }
 
 
@@ -159,7 +160,8 @@ void do_welcome(void)
 
         svprintf("STARTPAGE", WCS_STRING, startpage);
 
-        do_template("mainframeset");
+	/* FIXME ... go to my start page, not to the summary */
+	summary();
 }
 
 
@@ -181,7 +183,8 @@ void do_logout(void)
 	strcpy(WC->wc_password, "");
 	strcpy(WC->wc_roomname, "");
 
-	output_headers(2);	/* note "2" causes cookies to be unset */
+	/* Calling output_headers() this way causes the cookies to be un-set */
+	output_headers(1, 1, 0, 1, 0, 0, 0);
 
 	wprintf("<CENTER>");
 	serv_puts("MESG goodbye");
@@ -201,13 +204,12 @@ void do_logout(void)
 		);
 	}
 
-	wprintf("<HR><A HREF=\"/\">Log in again</A>&nbsp;&nbsp;&nbsp;"
+	wprintf("<hr /><A HREF=\"/\">Log in again</A>&nbsp;&nbsp;&nbsp;"
 		"<A HREF=\"javascript:window.close();\">Close window</A>"
 		"</CENTER>\n");
 	wDumpContent(2);
 	end_webcit_session();
 }
-
 
 
 /* 
@@ -220,7 +222,7 @@ void validate(void)
 	char buf[SIZ];
 	int a;
 
-	output_headers(3);
+	output_headers(1, 1, 0, 0, 0, 0, 0);
 
 	strcpy(buf, bstr("user"));
 	if (strlen(buf) > 0)
@@ -228,14 +230,14 @@ void validate(void)
 			serv_printf("VALI %s|%s", buf, bstr("axlevel"));
 			serv_gets(buf);
 			if (buf[0] != '2') {
-				wprintf("<EM>%s</EM><BR>\n", &buf[4]);
+				wprintf("<EM>%s</EM><br />\n", &buf[4]);
 			}
 		}
 	serv_puts("GNUR");
 	serv_gets(buf);
 
 	if (buf[0] != '3') {
-		wprintf("<EM>%s</EM><BR>\n", &buf[4]);
+		wprintf("<EM>%s</EM><br />\n", &buf[4]);
 		wDumpContent(1);
 		return;
 	}
@@ -253,38 +255,38 @@ void validate(void)
 			serv_gets(buf);
 			++a;
 			if (a == 1)
-				wprintf("User #%s<BR><H1>%s</H1>",
+				wprintf("User #%s<br /><H1>%s</H1>",
 					buf, &cmd[4]);
 			if (a == 2)
-				wprintf("PW: %s<BR>\n", buf);
+				wprintf("PW: %s<br />\n", buf);
 			if (a == 3)
-				wprintf("%s<BR>\n", buf);
+				wprintf("%s<br />\n", buf);
 			if (a == 4)
-				wprintf("%s<BR>\n", buf);
+				wprintf("%s<br />\n", buf);
 			if (a == 5)
 				wprintf("%s, ", buf);
 			if (a == 6)
 				wprintf("%s ", buf);
 			if (a == 7)
-				wprintf("%s<BR>\n", buf);
+				wprintf("%s<br />\n", buf);
 			if (a == 8)
-				wprintf("%s<BR>\n", buf);
+				wprintf("%s<br />\n", buf);
 			if (a == 9)
 				wprintf("Current access level: %d (%s)\n",
 					atoi(buf), axdefs[atoi(buf)]);
 		} while (strcmp(buf, "000"));
 	} else {
-		wprintf("<H1>%s</H1>%s<BR>\n", user, &cmd[4]);
+		wprintf("<H1>%s</H1>%s<br />\n", user, &cmd[4]);
 	}
 
-	wprintf("<HR>Select access level for this user:<BR>\n");
+	wprintf("<hr />Select access level for this user:<br />\n");
 	for (a = 0; a <= 6; ++a) {
 		wprintf("<A HREF=\"/validate&user=");
 		urlescputs(user);
 		wprintf("&axlevel=%d\">%s</A>&nbsp;&nbsp;&nbsp;\n",
 			a, axdefs[a]);
 	}
-	wprintf("<BR>\n");
+	wprintf("<br />\n");
 
 	wprintf("</CENTER>\n");
 	do_template("endbox");
@@ -335,11 +337,11 @@ void display_changepw(void)
 {
 	char buf[SIZ];
 
-	output_headers(3);
+	output_headers(1, 1, 0, 0, 0, 0, 0);
 
 	svprintf("BOXTITLE", WCS_STRING, "Change your password");
 	do_template("beginbox");
-	wprintf("<CENTER><BR>");
+	wprintf("<CENTER><br />");
 	serv_puts("MESG changepw");
 	serv_gets(buf);
 	if (buf[0] == '1') {
@@ -354,7 +356,7 @@ void display_changepw(void)
 	wprintf("<TD><INPUT TYPE=\"password\" NAME=\"newpass1\" VALUE=\"\" MAXLENGTH=\"20\"></TD></TR>\n");
 	wprintf("<TR><TD>Enter it again to confirm:</TD>\n");
 	wprintf("<TD><INPUT TYPE=\"password\" NAME=\"newpass2\" VALUE=\"\" MAXLENGTH=\"20\"></TD></TR>\n");
-	wprintf("</TABLE><BR>\n");
+	wprintf("</TABLE><br />\n");
 	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Change\">\n"
 		"&nbsp;"
 		"<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Cancel\">\n");

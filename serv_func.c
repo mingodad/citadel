@@ -132,11 +132,11 @@ void fmout(FILE *fp, char *align)
 		if (!strcmp(buf, "000")) {
 			if (bq == 1)
 				wprintf("</I>");
-			wprintf("</DIV><BR>\n");
+			wprintf("</DIV><br />\n");
 			return;
 		}
 		if ((intext == 1) && (isspace(buf[0]))) {
-			wprintf("<BR>");
+			wprintf("<br />");
 		}
 		intext = 1;
 
@@ -188,7 +188,7 @@ void text_to_server(char *ptr, int convert_to_html)
 			serv_puts(buf);
 			strcpy(buf, "");
 			if (convert_to_html) {
-				strcat(buf, "<BR>");
+				strcat(buf, "<br />");
 			}
 			else {
 				if (ptr[pos] != 0) strcat(buf, " ");

@@ -38,7 +38,7 @@ void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) {
 		" but support for calendars is not available on this "
 		"particular system.  Please ask your system administrator to "
 		"install a new version of the Citadel web service with "
-		"calendaring enabled.</I><BR>\n"
+		"calendaring enabled.</I><br />\n"
 	);
 
 }
@@ -48,7 +48,7 @@ void display_calendar(long msgnum) {
 		"Cannot display calendar item.  You are seeing this error "
 		"because your WebCit service has not been installed with "
 		"calendar support.  Please contact your system administrator."
-		"</i><br>\n");
+		"</i><br />\n");
 }
 
 void display_task(long msgnum) {
@@ -56,7 +56,7 @@ void display_task(long msgnum) {
 		"Cannot display to-do item.  You are seeing this error "
 		"because your WebCit service has not been installed with "
 		"calendar support.  Please contact your system administrator."
-		"</i><br>\n");
+		"</i><br />\n");
 }
 
 #else /* WEBCIT_WITH_CALENDAR_SERVICE */
@@ -332,7 +332,7 @@ void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) {
 	cal = icalcomponent_new_from_string(part_source);
 
 	if (cal == NULL) {
-		wprintf("Error parsing calendar object<BR>\n");
+		wprintf("Error parsing calendar object<br />\n");
 		return;
 	}
 
@@ -352,12 +352,14 @@ void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) {
 void respond_to_request(void) {
 	char buf[SIZ];
 
-	output_headers(3);
+	output_headers(1, 1, 2, 0, 0, 0, 0);
 
+	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">Respond to meeting request</SPAN>"
-		"</TD></TR></TABLE><BR>\n"
+		"</TD></TR></TABLE>\n"
 	);
+	wprintf("</div>\n<div id=\"text\">\n");
 
 	serv_printf("ICAL respond|%s|%s|%s|",
 		bstr("msgnum"),
@@ -394,7 +396,7 @@ void respond_to_request(void) {
 
 	wprintf("<A HREF=\"/dotskip?room=");
 	urlescputs(WC->wc_roomname);
-	wprintf("\"><BR>Return to messages</A><BR>\n");
+	wprintf("\"><br />Return to messages</A><br />\n");
 
 	wDumpContent(1);
 }
@@ -407,12 +409,14 @@ void respond_to_request(void) {
 void handle_rsvp(void) {
 	char buf[SIZ];
 
-	output_headers(3);
+	output_headers(1, 1, 2, 0, 0, 0, 0);
 
+	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">"
 		"Update your calendar with this RSVP</SPAN>"
-		"</TD></TR></TABLE><BR>\n"
+		"</TD></TR></TABLE>\n"
+		"</div><div id=\"text\">\n"
 	);
 
 	serv_printf("ICAL handle_rsvp|%s|%s|%s|",
@@ -445,7 +449,7 @@ void handle_rsvp(void) {
 
 	wprintf("<A HREF=\"/dotskip?room=");
 	urlescputs(WC->wc_roomname);
-	wprintf("\"><BR>Return to messages</A><BR>\n");
+	wprintf("\"><br />Return to messages</A><br />\n");
 
 	wDumpContent(1);
 }
@@ -517,10 +521,12 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		created_new_vtodo = 1;
 	}
 
-	output_headers(3);
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n"
+		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">Edit task</SPAN>"
-		"</TD></TR></TABLE><BR>\n"
+		"</TD></TR></TABLE>\n"
+		"</div><div id=\"text\">\n"
 	);
 	
 	do_template("beginbox_nt");
@@ -913,7 +919,7 @@ void do_freebusy(char *req) {
 
 	if (buf[0] != '1') {
 		wprintf("HTTP/1.0 404 %s\n", &buf[4]);
-		output_headers(0);
+		output_headers(0, 0, 0, 0, 0, 0, 0);
 		wprintf("Content-Type: text/plain\n");
 		wprintf("\n");
 		wprintf("%s\n", &buf[4]);

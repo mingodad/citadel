@@ -263,7 +263,6 @@ void context_loop(int sock)
 	int desired_session = 0;
 	int got_cookie = 0;
 	struct wcsession *TheSession, *sptr;
-	int outside_frameset_allowed = 0;
 
 	/*
 	 * Find out what it is that the web browser is asking for
@@ -333,27 +332,6 @@ void context_loop(int sock)
 				"?force_close_session=yes HTTP/1.0");
 	}
 
-	/* These are the URL's which may be executed outside of the
-	 * main frameset.  If it's not one of these, the page will
-	 * need JavaScript added to force the frameset to reload.
-	 */
-	if ( (!strcasecmp(buf, "/"))
-	   || (!strncasecmp(buf, "/static/", 8))
-	   || (!strncasecmp(buf, "/do_welcome", 11))
-	   || (!strncasecmp(buf, "/do_logout", 10))
-	   || (!strncasecmp(buf, "/login", 6))
-	   || (!strncasecmp(buf, "/page_popup", 11))
-	   || (!strncasecmp(buf, "/page_user", 10))	/* Sometimes this is wrong */
-	   || (!strncasecmp(buf, "/display_page", 10))	/* Sometimes this is wrong */
-	   || (!strncasecmp(buf, "/listsub", 8))
-	   || (!strncasecmp(buf, "/freebusy", 9))
-	   || (!strncasecmp(buf, "/termquit", 9)) ) {
-		outside_frameset_allowed = 1;
-	}
-	else {
-		outside_frameset_allowed = 0;
-	}
-
 	/*
 	 * See if there's an existing session open with the desired ID
 	 */
@@ -399,7 +377,6 @@ void context_loop(int sock)
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	TheSession->http_sock = sock;
 	TheSession->lastreq = time(NULL);			/* log */
-	TheSession->outside_frameset_allowed = outside_frameset_allowed;
 	session_loop(req);				/* do transaction */
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 

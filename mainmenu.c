@@ -31,7 +31,7 @@
  */
 void display_main_menu(void)
 {
-	output_headers(1);
+	output_headers(1, 1, 1, 0, 0, 0, 0);
 
 	wprintf("<TABLE WIDTH=100%%>"
 		"<TR><TD COLSPAN=2>\n");
@@ -46,32 +46,32 @@ void display_main_menu(void)
 
 	wprintf("<A HREF=\"/knrooms\">"
 		"<span class=\"mainmenu\">"
-		"List known rooms</span></A><BR>"
+		"List known rooms</span></A><br />"
 		"<span class=\"menudesc\">"
-		"Where can I go from here?</span><BR>\n"
+		"Where can I go from here?</span><br />\n"
 	);
 
 	wprintf("<A HREF=\"/gotonext\">"
 		"<span class=\"mainmenu\">"
-		"Goto next room</span></A><BR>"
+		"Goto next room</span></A><br />"
 		"<span class=\"menudesc\">"
 		"...with <EM>unread</EM> messages"
-		"</span><BR>\n"
+		"</span><br />\n"
 	);
 
 	wprintf("<A HREF=\"/skip\">"
 		"<span class=\"mainmenu\">"
-		"Skip to next room</span></a><BR>"
+		"Skip to next room</span></a><br />"
 		"<span class=\"menudesc\">"
 		"(come back here later)"
 		"</span>\n"
 	);
 
 	if ((strlen(WC->ugname) > 0) && (strcasecmp(WC->ugname, WC->wc_roomname))) {
-		wprintf("<BR>"
+		wprintf("<br />"
 			"<A HREF=\"/ungoto\">"
 			"<span class=\"mainmenu\">"
-			"Ungoto</span></A><BR>"
+			"Ungoto</span></A><br />"
 			"<span class=\"menudesc\">"
 			"(oops! Back to %s)"
 			"</span>\n", WC->ugname
@@ -82,21 +82,21 @@ void display_main_menu(void)
 
 	wprintf("<A HREF=\"/readnew\">"
 		"<span class=\"mainmenu\">"
-		"Read new messages</span></A><BR>"
+		"Read new messages</span></A><br />"
 		"<span class=\"menudesc\">"
-		"...in this room</span><BR>\n"
+		"...in this room</span><br />\n"
 	);
 
 	wprintf("<A HREF=\"/readfwd\">"
 		"<span class=\"mainmenu\">"
-		"Read all messages</span></A><BR>"
+		"Read all messages</span></A><br />"
 		"<span class=\"menudesc\">"
-		"...old <EM>and</EM> new</span><BR>\n"
+		"...old <EM>and</EM> new</span><br />\n"
 	);
 
 	wprintf("<A HREF=\"/display_enter\">"
 		"<span class=\"mainmenu\">"
-		"Enter a message</span></A><BR>"
+		"Enter a message</span></A><br />"
 		"<span class=\"menudesc\">"
 		"(post in this room)</span>\n"
 	);
@@ -105,21 +105,21 @@ void display_main_menu(void)
 
 	wprintf("<A HREF=\"/summary\">"
 		"<span class=\"mainmenu\">"
-		"Summary page</span></A><BR>"
+		"Summary page</span></A><br />"
 		"<span class=\"menudesc\">"
-		"Summary of my account</span><BR>\n"
+		"Summary of my account</span><br />\n"
 	);
 
 	wprintf("<A HREF=\"/userlist\">\n"
 		"<span class=\"mainmenu\">"
-		"User list</span></A><BR>"
+		"User list</span></A><br />"
 		"<span class=\"menudesc\">"
-		"(all registered users)</span><BR>\n"
+		"(all registered users)</span><br />\n"
 	);
 
 	wprintf("<A HREF=\"/termquit\" TARGET=\"_top\">"
 		"<span class=\"mainmenu\">"
-		"Log off</span></A><BR>"
+		"Log off</span></A><br />"
 		"<span class=\"menudesc\">"
 		"Bye!</span>\n"
 	);
@@ -138,7 +138,7 @@ void display_main_menu(void)
 		"Who is online?</span></A>"
 		"<span class=\"menudesc\">"
 		" (users <EM>currently</EM> logged on)"
-		"</span><BR>\n"
+		"</span><br />\n"
 	);
 
 	wprintf("<A HREF=\"#\" onClick=\"window.open('/chat', "
@@ -150,7 +150,7 @@ void display_main_menu(void)
 		"Chat with other users in <i>"
 	);
 	escputs(WC->wc_roomname);
-	wprintf("</i></span></A><BR>\n");
+	wprintf("</i></span></A><br />\n");
 
 	wprintf("<A HREF=\"/display_generic\">\n");
 	wprintf("<span class=\"menudesc\">"
@@ -167,18 +167,18 @@ void display_main_menu(void)
 		"<span class=\"mainmenu\">"
 		"Update your contact information "
 		"</span><span class=\"menudesc\">"
-		"(name, address, etc.)</span></A><BR>\n");
+		"(name, address, etc.)</span></A><br />\n");
 
 	wprintf("<A HREF=\"/display_changepw\">"
 		"<span class=\"mainmenu\">"
-		"Change your password</span></A><BR>\n");
+		"Change your password</span></A><br />\n");
 
 	wprintf("<A HREF=\"/display_editbio\">"
 		"<span class=\"mainmenu\">"
 		"Enter your 'bio' "
 		"</span><span class=\"menudesc\">"
 		"(a few words about yourself)"
-		"</span></A><BR>\n");
+		"</span></A><br />\n");
 
 	wprintf("<A HREF=\"/display_editpic\">"
 		"<span class=\"mainmenu\">"
@@ -194,25 +194,25 @@ void display_main_menu(void)
 	if ((WC->axlevel >= 6) || (WC->is_room_aide)) {
 		wprintf("<A HREF=\"/display_editroom\">"
 			"<span class=\"mainmenu\">"
-			"Edit or delete this room</span></A><BR>\n");
+			"Edit or delete this room</span></A><br />\n");
 	}
 
 	wprintf("<A HREF=\"/display_private\">"
 		"<span class=\"mainmenu\">"
-		"Go to a &quot;hidden&quot; room</span></A><BR>\n");
+		"Go to a &quot;hidden&quot; room</span></A><br />\n");
 
 	wprintf("<A HREF=\"/display_entroom\">"
 		"<span class=\"mainmenu\">"
-		"Create a new room</span></A><BR>\n");
+		"Create a new room</span></A><br />\n");
 
 	wprintf("<A HREF=\"/display_zap\">"
 		"<span class=\"mainmenu\">"
-		"Zap (forget) this room (%s)</span></A><BR>\n",
+		"Zap (forget) this room (%s)</span></A><br />\n",
 		WC->wc_roomname);
 
         wprintf("<A HREF=\"/display_whok\">\n"
 		"<span class=\"mainmenu\">"
-        	"Access controls for this room</span></A><BR>\n");
+        	"Access controls for this room</span></A><br />\n");
 
 	wprintf("<A HREF=\"/zapped_list\">"
 		"<span class=\"mainmenu\">"
@@ -231,31 +231,31 @@ void display_main_menu(void)
 			"Edit site-wide configuration</span></A>\n");
 
 		if (WC->axlevel >= 6) {
-			wprintf("<BR>"
+			wprintf("<br />"
 				"<A HREF=\"/select_user_to_edit\">"
 				"<span class=\"mainmenu\">"
 				"Add, change, delete user accounts"
-				"</span></A><BR>\n");
+				"</span></A><br />\n");
 
 			wprintf("<A HREF=\"/validate\">"
 				"<span class=\"mainmenu\">"
-				"Validate new users</span></A><BR>\n");
+				"Validate new users</span></A><br />\n");
 
 			wprintf("<A HREF=\"/display_floorconfig\">"
 				"<span class=\"mainmenu\">"
 				"Add, change, or delete floors"
-				"</span></A><BR>\n");
+				"</span></A><br />\n");
 
 			wprintf("<A HREF=\"/display_netconf\">"
 				"<span class=\"mainmenu\">"
 				"Configure networking with other systems"
-				"</span></A><BR>\n");
+				"</span></A><br />\n");
 
 			wprintf("<A HREF=\"/display_inetconf\">"
 				"<span class=\"mainmenu\">"
 				"Internet configuration "
 				"</span><span class=\"menudesc\">"
-				"(domain names, etc.)</span></A><BR>\n");
+				"(domain names, etc.)</span></A><br />\n");
 		}
 		do_template("endbox");
 	}
@@ -272,7 +272,7 @@ void display_main_menu(void)
  */
 void display_generic(void)
 {
-	output_headers(3);
+	output_headers(1, 1, 0, 0, 0, 0, 0);
 
 	svprintf("BOXTITLE", WCS_STRING, "Enter a server command");
 	do_template("beginbox");
@@ -280,21 +280,21 @@ void display_generic(void)
 	wprintf("<CENTER>");
 	wprintf("This screen allows you to enter Citadel server commands which are\n");
 	wprintf("not supported by WebCit.  If you do not know what that means,\n");
-	wprintf("then this screen will not be of much use to you.<BR>\n");
+	wprintf("then this screen will not be of much use to you.<br />\n");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/do_generic\">\n");
 
-	wprintf("Enter command:<BR>\n");
-	wprintf("<INPUT TYPE=\"text\" NAME=\"g_cmd\" SIZE=80 MAXLENGTH=\"250\"><BR>\n");
+	wprintf("Enter command:<br />\n");
+	wprintf("<INPUT TYPE=\"text\" NAME=\"g_cmd\" SIZE=80 MAXLENGTH=\"250\"><br />\n");
 
-	wprintf("Command input (if requesting SEND_LISTING transfer mode):<BR>\n");
-	wprintf("<TEXTAREA NAME=\"g_input\" ROWS=10 COLS=80 WIDTH=80></TEXTAREA><BR>\n");
+	wprintf("Command input (if requesting SEND_LISTING transfer mode):<br />\n");
+	wprintf("<TEXTAREA NAME=\"g_input\" ROWS=10 COLS=80 WIDTH=80></TEXTAREA><br />\n");
 
 	wprintf("<FONT SIZE=-2>Detected host header is http://%s</FONT>\n",
 		WC->http_host);
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Send command\">");
 	wprintf("&nbsp;");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><br />\n");
 
 	wprintf("</FORM></CENTER>\n");
 	do_template("endbox");
@@ -313,7 +313,7 @@ void do_generic(void)
 		return;
 	}
 
-	output_headers(3);
+	output_headers(1, 1, 0, 0, 0, 0, 0);
 
 	serv_printf("%s", bstr("g_cmd"));
 	serv_gets(buf);
@@ -325,7 +325,7 @@ void do_generic(void)
 	escputs(bstr("g_cmd"));
 	wprintf("</TT></TD></TR><TR><TD>Result:</TD><TD><TT>");
 	escputs(buf);
-	wprintf("</TT></TD></TR></TABLE><BR>\n");
+	wprintf("</TT></TD></TR></TABLE><br />\n");
 
 	if (buf[0] == '8') {
 		serv_printf("\n\n000");
@@ -333,7 +333,7 @@ void do_generic(void)
 	if ((buf[0] == '1') || (buf[0] == '8')) {
 		while (serv_gets(gcontent), strcmp(gcontent, "000")) {
 			escputs(gcontent);
-			wprintf("<BR>\n");
+			wprintf("<br />\n");
 		}
 		wprintf("000");
 	}
@@ -354,8 +354,8 @@ void do_generic(void)
 		serv_write(junk, len);
 		free(junk);
 	}
-	wprintf("<HR>");
-	wprintf("<A HREF=\"/display_generic\">Enter another command</A><BR>\n");
+	wprintf("<hr />");
+	wprintf("<A HREF=\"/display_generic\">Enter another command</A><br />\n");
 	wprintf("<A HREF=\"/display_advanced\">Return to menu</A>\n");
 	do_template("endbox");
 	wDumpContent(1);
@@ -372,7 +372,7 @@ void do_generic(void)
 void display_menubar(int as_single_page) {
 
 	if (as_single_page) {
-		output_headers(0);
+		output_headers(0, 0, 0, 0, 0, 0, 0);
 		wprintf("<HTML>\n"
 			"<HEAD>\n"
 			"<TITLE>MenuBar</TITLE>\n"

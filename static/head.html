@@ -1,13 +1,401 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-<HTML>
-<HEAD>
-	<TITLE><?SERV_HUMANNODE> - Citadel</TITLE>
-	<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-	<META HTTP-EQUIV="expired" CONTENT="28-May-1971 18:10:00 GMT">
-	<META NAME="MSSmartTagsPreventParsing" CONTENT="TRUE">
-	<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
-	<META HTTP-EQUIV="Content-Language" CONTENT="en">
-	<LINK REL="StyleSheet" HREF="/static/style.css" TYPE="text/css" MEDIA="screen">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+
+<head>
 <?REFRESHTAG>
-</HEAD>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+<title>Citadel: <?SERV_HUMANNODE></title>
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="expired" content="28-May-1971 18:10:00 GMT" />
+<meta name="MSSmartTagsPreventParsing" content="TRUE" />
+<style type="text/css">
+
+* html {
+	overflow:hidden;
+}
+
+body {
+	margin:0;
+	margin-right: 1px;
+	padding:0 10px 0 10px;
+	height:100%;
+	overflow:auto;
+	background: #aaaaaa;
+	color: #000000;
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-weight: normal;
+	font-size: 10pt;
+}
+
+#iconbar {
+	position:fixed;
+	display:block;
+	top:0px;
+	left:0px;
+	width:75px;
+	height:100%;
+	background:transparent;
+}
+
+* html #iconbar {
+	position:absolute;
+	display:block;
+	top:0px;
+	left:0px;
+	width:75px;
+	height:100%;
+	background:transparent;
+}
+
+#banner {
+	position:fixed;
+	display:block;
+	top:0px;
+	left:78px;
+	width:90%;
+	height:75px;
+	background: #444455;
+}
+
+* html #banner {
+	position:absolute;
+	display:block;
+	top:0px;
+	left:78px;
+	width: 90%;
+	height:75px;
+	background: #444455;
+}
+
+#text {
+	display:block;
+	margin-top: 78px;
+	margin-left:75px;
+	width:90%;
+}
+
+a:link {
+	color: #0000FF;
+	text-decoration: none;
+}
+
+a:visited {
+	color: #0000FF;
+	text-decoration: none;
+}
+
+a:active {
+	color: #0000FF;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+.menubar_link {
+	font-family: "Bitstream Vera Sans",Tahoma,Arial,Helvetica,sans-serif;
+	font-size: 9pt;
+}
+
+.navbar_link {
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 7pt;
+}
+
+.titlebar {
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 12pt;
+	color: #FFFFEE;
+}
+
+.mainmenu {
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 10pt;
+	font-weight: bold;
+	color: #880000;
+}
+
+.menudesc {
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 8pt;
+	color: #000088;
+}
+
+.message_header {
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 10pt;
+	color: #000000;
+}
+
+.message_subject {
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 10pt;
+	color: #000000;
+	font-style: italic;
+}
+
+.tablabel {
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 10pt;
+	font-weight: bold;
+	color: #000000;
+}
+
+.boxlabel {
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 7pt;
+	font-weight: bold;
+	color: #FFFFEE;
+}
+
+.youhavemail {
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 6pt;
+	font-style: italic;
+	color: #000044;
+}
+
+.customize {
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 8pt;
+	font-style: italic;
+	color: #000044;
+	background-color: #DDDDCC;
+}
+
+.room_banner_room_name {
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 14pt;
+	font-weight: bold;
+	color: #FFFFEE;
+}
+
+.room_banner_room_info {
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 10pt;
+	color: #FFFFEE;
+}
+
+.room_banner_new_messages {
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 10pt;
+	color: #DDDDCC;
+}
+
+.room_banner_start_page {
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 7pt;
+	color: #DDDDCC;
+}
+
+.menubar_bg {
+	background-color: #FF0000;
+}
+
+.iconbar_link {
+	font-family: "Bitstream Vera Sans",Tahoma,Arial,Helvetica,sans-serif;
+	font-size: 7pt;
+}
+
+.powered_by {
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 6pt;
+}
+
+.roomlist_floor {
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 12pt;
+	font-weight: bold;
+	color: #000000;
+}
+
+.roomlist_new {
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 10pt;
+	color: #880000;
+	font-weight: bold;
+}
+
+.roomlist_old {
+	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
+	font-size: 10pt;
+	color: #000088;
+}
+
+blockquote {
+  margin-left: 8%;
+  margin-right: 8%;
+  border: thin ridge #dc143c;
+}
+
+blockquote pre {
+  margin-left: 1%;
+  margin-right: 1%;
+}
+
+var sub {
+	font-style: normal;
+}
+
+.note {
+	font-size: 85%;
+	margin-left: 10%;
+}
+
+.toolbar {
+	text-align: center;
+}
+
+.toolbar IMG {
+	float: right;
+}
+
+.errormsg {
+	color: #AA0000;
+	background: none;
+	font-style: italic;
+}
+
+.warning {
+	color: #FF4500;
+	background: none;
+	text-decoration: none;
+}
+
+.error strong {
+	color: #DC143C;
+	background: #FFD700;
+	text-decoration: none;
+}
+
+.warning strong {
+	color: #FF4500;
+	background: #FFD700;
+	text-decoration: none;
+}
+
+.warning a:link, .warning a:visited, .warning a:active {
+	color: #FF4500;
+	background: none;
+	text-decoration: underline;
+}
+
+.error a:link, .error a:visited, .error a:active {
+	color: #DC143C;
+	background: none;
+	text-decoration: underline;
+}
+
+.error strong a:link, .error strong a:visited, .error strong a:active {
+	color: #DC143C;
+	background: #FFD700;
+}
+
+.warning strong a:link, .warning strong a:visited, .warning strong a:active {
+	color: #FF4500;
+	background: #FFD700;
+}
+
+colgroup.entity {
+	text-align: center;
+}
+
+.default {
+	text-decoration: underline;
+	font-style: normal;
+}
+
+.required {
+	font-weight: bold;
+}
+
+td li.transitional, .elements li.transitional {
+	font-weight: lighter;
+	color: #696969;
+	background: none;
+}
+
+td li.frameset, .elements li.frameset {
+	font-weight: lighter;
+	color: #808080;
+	background: none;
+}
+
+.footer, .checkedDocument {
+	margin-top: 2em;
+	padding-top: 1em;
+	border-top: solid thin black;
+}
+
+@media print {
+  input#toggler, .toolbar { display: none }
+}
+
+<!-- begin tree view styles -->
+
+#mainMenu {
+  background-color: #EEE;
+  border: 1px solid #CCC;
+  color: #000;
+  width: 203px;
+}
+
+#menuList {
+  margin: 0px;
+  padding: 10px 0px 10px 15px;
+}
+
+li.menubar {
+  background: url(/static/plus.gif) no-repeat 0em 0.3em;
+  font-size: 12px;
+  line-height: 1.5em;
+  list-style: none outside;
+}
+
+.menu, .submenu {
+  display: none;
+  margin-left: 15px;
+  padding: 0px;
+}
+
+.menu li, .submenu li {
+  background: url(/static/square.gif) no-repeat 0em 0.3em;
+  list-style: none outside;
+}
+
+a.actuator {
+  background-color: transparent;
+  color: #000;
+  font-size: 12px;
+  padding-left: 15px;
+  text-decoration: none;
+}
+
+a.actuator:hover {
+  text-decoration: underline;
+}
+
+.menu li a, .submenu li a {
+  background-color: transparent;
+  color: #000;
+  font-size: 12px;
+  padding-left: 15px;
+  text-decoration: none;
+}
+
+.menu li a:hover, submenu li a:hover {
+  /*border-bottom: 1px dashed #000;*/
+  text-decoration: underline;
+}
+
+span.key {
+  text-decoration: underline;
+}
+
+<!-- end tree view styles -->
+
+</style>
 <?PAGERSCRIPT>
+</head>

@@ -84,7 +84,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	}
 
 	/* Begin output */
-	output_headers(3);
+	output_headers(1, 1, 0, 0, 0, 0, 0);
 	do_template("beginbox_nt");
 	wprintf("<h3>&nbsp;<IMG ALIGN=CENTER SRC=\"/static/vcalendar.gif\">"
 		"&nbsp;Add or edit an event</h3>\n");
@@ -96,8 +96,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_comment(p));
 	}
-	wprintf("<BR>\n");
-	wprintf("SEQUENCE == %d<BR>\n", sequence);
+	wprintf("<br />\n");
+	wprintf("SEQUENCE == %d<br />\n", sequence);
 	*************************************************************/
 
 	wprintf("<FORM NAME=\"EventForm\" METHOD=\"POST\" ACTION=\"/save_event\">\n");
@@ -323,7 +323,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	wprintf("</TD></TR>\n");
 
 	/* Attendees */
-	wprintf("<TR><TD><B>Attendees</B><BR>"
+	wprintf("<TR><TD><B>Attendees</B><br />"
 		"<FONT SIZE=-2>(One per line)"
 		"</FONT></TD><TD>"
 		"<TEXTAREA %s NAME=\"attendees\" wrap=soft "
@@ -366,7 +366,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 
 	wprintf("</FORM>\n");
 	
-	wprintf("<SCRIPT language=\"javascript\">"
+	wprintf("<script language=\"javascript\">"
 		"<!--"
 			"if (document.EventForm.alldayevent.checked) {"
 				"document.EventForm.dtstart_hour.value='0';"
@@ -391,7 +391,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 				"document.EventForm.dtend_year.disabled = false;"
 			"}"
 		"//-->"
-		"</SCRIPT>\n"
+		"</script>\n"
 	);
 
 	do_template("endbox");
