@@ -23,13 +23,9 @@
 #include <stdarg.h>
 #include <pthread.h>
 #include <signal.h>
+#include <time.h>
 #include "webcit.h"
 #include "webserver.h"
-
-#ifdef HAVE_ICAL_H
-#include <ical.h>
-#endif
-
 
 #ifndef HAVE_ICAL_H
 
@@ -247,17 +243,32 @@ void display_individual_task(icalcomponent *vtodo, long msgnum) {
 
 	p = icalcomponent_get_first_property(vtodo, ICAL_SUMMARY_PROPERTY);
 	wprintf("<LI><A HREF=\"/display_edit_task?msgnum=%ld\">", msgnum);
-	if (p != NULL) escputs((char *)icalproperty_get_comment(p));
+	if (p != NULL) {
+		escputs((char *)icalproperty_get_comment(p));
+	}
 	wprintf("</A>\n");
-	icalproperty_free(p);
 }
 
 
 /*
  * Display a task by itself (for editing)
  */
-void display_edit_individual_task(icalcomponent *vtodo, long msgnum) {
+void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
+	icalcomponent *vtodo;
 	icalproperty *p;
+	struct icaltimetype t;
+	time_t now;
+	int created_new_vtodo = 0;
+
+	now = time(NULL);
+
+	if (supplied_vtodo != NULL) {
+		vtodo = supplied_vtodo;
+	}
+	else {
+		vtodo = icalcomponent_new(ICAL_VTODO_COMPONENT);
+		created_new_vtodo = 1;
+	}
 
 	output_headers(3);
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>"
@@ -274,20 +285,40 @@ void display_edit_individual_task(icalcomponent *vtodo, long msgnum) {
 		"<INPUT TYPE=\"text\" NAME=\"summary\" "
 		"MAXLENGTH=\"64\" SIZE=\"64\" VALUE=\"");
 	p = icalcomponent_get_first_property(vtodo, ICAL_SUMMARY_PROPERTY);
-	if (p != NULL) escputs((char *)icalproperty_get_comment(p));
-	icalproperty_free(p);
+	if (p != NULL) {
+		escputs((char *)icalproperty_get_comment(p));
+	}
 	wprintf("\"><BR>\n");
 
-	wprintf("Start date: FIXME <BR>\n");
+	wprintf("Start date: ");
+	p = icalcomponent_get_first_property(vtodo, ICAL_DTSTART_PROPERTY);
+	if (p != NULL) {
+		t = icalproperty_get_dtstart(p);
+	}
+	else {
+		t = icaltime_from_timet(now, 0);
+	}
+	display_icaltimetype_as_webform(&t, "dtstart");
+	wprintf("<BR>\n");
 
-	wprintf("Due date: FIXME <BR>\n");
+	wprintf("Due date: ");
+	p = icalcomponent_get_first_property(vtodo, ICAL_DUE_PROPERTY);
+	if (p != NULL) {
+		t = icalproperty_get_due(p);
+	}
+	else {
+		t = icaltime_from_timet(now, 0);
+	}
+	display_icaltimetype_as_webform(&t, "due");
+	wprintf("<BR>\n");
 
-	wprintf("<CENTER><TEXTAREA NAME=\"msgtext\" wrap=soft "
+	wprintf("<CENTER><TEXTAREA NAME=\"description\" wrap=soft "
 		"ROWS=10 COLS=80 WIDTH=80>\n"
 	);
 	p = icalcomponent_get_first_property(vtodo, ICAL_DESCRIPTION_PROPERTY);
-	if (p != NULL) escputs((char *)icalproperty_get_comment(p));
-	icalproperty_free(p);
+	if (p != NULL) {
+		escputs((char *)icalproperty_get_comment(p));
+	}
 	wprintf("</TEXTAREA><BR>\n");
 
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save\">"
@@ -301,20 +332,68 @@ void display_edit_individual_task(icalcomponent *vtodo, long msgnum) {
 	wprintf("</FORM>\n");
 
 	wDumpContent(1);
+
+	if (created_new_vtodo) {
+		icalcomponent_free(vtodo);
+	}
 }
 
 /*
  * Save an edited task
  */
-void save_individual_task(icalcomponent *vtodo, long msgnum) {
+void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	char buf[SIZ];
 	int delete_existing = 0;
+	icalproperty *prop;
+	icalcomponent *vtodo;
+	int created_new_vtodo = 0;
+
+	if (supplied_vtodo != NULL) {
+		vtodo = supplied_vtodo;
+	}
+	else {
+		vtodo = icalcomponent_new(ICAL_VTODO_COMPONENT);
+		created_new_vtodo = 1;
+	}
 
 	if (!strcasecmp(bstr("sc"), "Save")) {
 
 		/* Replace values in the component with ones from the form */
-		/* FIXME ... do this */
 
+		while (prop = icalcomponent_get_first_property(vtodo,
+		      ICAL_SUMMARY_PROPERTY), prop != NULL) {
+			icalcomponent_remove_property(vtodo, prop);
+		}
+		icalcomponent_add_property(vtodo,
+			icalproperty_new_summary(bstr("summary")));
+		
+		while (prop = icalcomponent_get_first_property(vtodo,
+		      ICAL_DESCRIPTION_PROPERTY), prop != NULL) {
+			icalcomponent_remove_property(vtodo, prop);
+		}
+		icalcomponent_add_property(vtodo,
+			icalproperty_new_description(bstr("description")));
+	
+		while (prop = icalcomponent_get_first_property(vtodo,
+		      ICAL_DTSTART_PROPERTY), prop != NULL) {
+			icalcomponent_remove_property(vtodo, prop);
+		}
+		icalcomponent_add_property(vtodo,
+			icalproperty_new_dtstart(
+				icaltime_from_webform("dtstart")
+			)
+		);
+	
+		while (prop = icalcomponent_get_first_property(vtodo,
+		      ICAL_DUE_PROPERTY), prop != NULL) {
+			icalcomponent_remove_property(vtodo, prop);
+		}
+		icalcomponent_add_property(vtodo,
+			icalproperty_new_due(
+				icaltime_from_webform("due")
+			)
+		);
+	
 		/* Serialize it and save it to the message base */
 		serv_puts("ENT0 1|||4");
 		serv_gets(buf);
@@ -323,7 +402,7 @@ void save_individual_task(icalcomponent *vtodo, long msgnum) {
 			serv_puts("");
 			serv_puts(icalcomponent_as_ical_string(vtodo));
 			serv_puts("000");
-			/* delete_existing = 1; */
+			delete_existing = 1;
 		}
 	}
 
@@ -334,9 +413,13 @@ void save_individual_task(icalcomponent *vtodo, long msgnum) {
 		delete_existing = 1;
 	}
 
-	if (delete_existing) {
+	if ( (delete_existing) && (msgnum > 0L) ) {
 		serv_printf("DELE %ld", atol(bstr("msgnum")));
 		serv_gets(buf);
+	}
+
+	if (created_new_vtodo) {
+		icalcomponent_free(vtodo);
 	}
 
 	/* Go back to the task list */
@@ -390,9 +473,15 @@ void display_using_handler(long msgnum,
 		relevant_source = load_mimepart(msgnum, relevant_partnum);
 		if (relevant_source != NULL) {
 
-			/* Display the task */
 			cal = icalcomponent_new_from_string(relevant_source);
 			if (cal != NULL) {
+
+				/* Simple components of desired type */
+				if (icalcomponent_isa(cal) == which_kind) {
+					callback(cal, msgnum);
+				}
+
+				/* Subcomponents of desired type */
 				for (c = icalcomponent_get_first_component(cal,
 				    which_kind);
 	    			    (c != 0);
@@ -424,18 +513,30 @@ void display_edit_task(void) {
 	long msgnum = 0L;
 
 	msgnum = atol(bstr("msgnum"));
-	display_using_handler(msgnum, "text/calendar",
+	if (msgnum > 0L) {
+		/* existing task */
+		display_using_handler(msgnum, "text/calendar",
 				ICAL_VTODO_COMPONENT,
 				display_edit_individual_task);
+	}
+	else {
+		/* new task */
+		display_edit_individual_task(NULL, 0L);
+	}
 }
 
 void save_task(void) {
 	long msgnum = 0L;
 
 	msgnum = atol(bstr("msgnum"));
-	display_using_handler(msgnum, "text/calendar",
+	if (msgnum > 0L) {
+		display_using_handler(msgnum, "text/calendar",
 				ICAL_VTODO_COMPONENT,
 				save_individual_task);
+	}
+	else {
+		save_individual_task(NULL, 0L);
+	}
 }
 
 #endif /* HAVE_ICAL_H */

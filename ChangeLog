@@ -1,4 +1,9 @@
 $Log$
+Revision 400.20  2002/09/21 04:38:05  ajc
+* Added utility functions for displaying vcalendar timestamps in web forms
+  and translating form data back to timestamps.
+* Completed the "edit task" and "add new task" screens.
+
 Revision 400.19  2002/09/20 20:28:08  ajc
 * Smooth transition between "list tasks" & "edit task" screens
 
@@ -1004,4 +1009,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

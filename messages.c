@@ -837,7 +837,10 @@ void readloop(char *oper)
 	}
 
 	if (is_tasks) {
-		wprintf("</UL>\n");
+		wprintf("</UL>\n"
+			"<A HREF=\"/display_edit_task?msgnum=0\">"
+			"Add new task</A>\n"
+		);
 	}
 
 	/* Bump these because although we're thinking in zero base, the user
