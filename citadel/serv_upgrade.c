@@ -470,6 +470,24 @@ void do_import(char *argbuf) {
 	}
 
 
+void dump_message(long msg_num) {
+	struct cdbdata *dmsgtext;
+
+	dmsgtext = cdb_fetch(CDB_MSGMAIN, &msg_num, sizeof(long));
+	
+	if (dmsgtext == NULL) {
+		lprintf(9, "%d Can't find message %ld\n", msg_num);
+		return;
+		}
+
+	fprintf(exfp, "message%c%ld%c", 0, msg_num, 0);
+	fprintf(exfp, "%ld%c", (long)dmsgtext->len, 0);
+	fwrite(dmsgtext->ptr, dmsgtext->len, 1, exfp);
+
+	cdb_free(dmsgtext);
+	}
+
+
 void export_a_room(struct quickroom *qr) {
 	int b = 0;
 	int msgcount = 0;
@@ -486,20 +504,18 @@ void export_a_room(struct quickroom *qr) {
 	fprintf(exfp, "qrinfo%c%ld%c", 0, qr->QRinfo, 0);
 	fprintf(exfp, "qrfloor%c%d%c", 0, qr->QRfloor, 0);
 
-	/*
-	for (b=0; b<MSGSPERRM; ++b) if (fr.FRnum[b]>=mm.MMlowest) {
+	get_msglist(qr);
+	if (CC->num_msgs > 0) for (b=0; b<(CC->num_msgs); ++b) {
 		++msgcount;
-		fprintf(exfp, "message%c%ld%c", 0, fr.FRnum[b], 0);
-		dump_message(exfp, fr.FRnum[b], fr.FRpos[b]);
+		lprintf(9, "Message #%ld\n", MessageFromList(b));
+		dump_message(MessageFromList(b));
 		}
-	*/
 
 	fprintf(exfp, "endroom%c", 0);
 	}
 
 
-void export_rooms() {
-
+void export_rooms(void) {
 	lprintf(9,"Rooms\n");
 	fprintf(exfp, "rooms%c", 0);
 	ForEachRoom(export_a_room);
@@ -508,9 +524,95 @@ void export_rooms() {
 
 
 
+void export_floors(void) {
+	int floornum;
+	struct floor fl;
+
+	fprintf(exfp, "floors%c", 0);
+	for (floornum=0; floornum<MAXFLOORS; ++floornum) {
+		getfloor(&fl, floornum);
+		fprintf(exfp, "floor%c", 0);
+		fprintf(exfp, "f_flags%c%d%c", 0, fl.f_flags, 0);
+		fprintf(exfp, "f_name%c%s%c", 0, fl.f_name, 0);
+		fprintf(exfp, "f_ref_count%c%d%c", 0, fl.f_ref_count, 0);
+		fprintf(exfp, "endfloor%c", 0);
+		}
+	fprintf(exfp, "endsection%c", 0);
+	}
 
 
 
+
+void export_a_user(struct usersupp *us) {
+	struct cdbdata *cdbvisit;
+	struct visit *visits;
+	int num_visits;
+	int a;
+
+	lprintf(9, "User <%s>\n", us->fullname);
+
+	fprintf(exfp, "user%c", 0);
+	fprintf(exfp, "usuid%c%d%c", 0, us->USuid, 0);
+	fprintf(exfp, "password%c%s%c", 0, us->password, 0);
+	fprintf(exfp, "flags%c%d%c", 0, us->flags, 0);
+	fprintf(exfp, "timescalled%c%d%c", 0, us->timescalled, 0);
+	fprintf(exfp, "posted%c%d%c", 0, us->posted, 0);
+	fprintf(exfp, "fullname%c%s%c", 0, us->fullname, 0);
+	fprintf(exfp, "axlevel%c%d%c", 0, us->axlevel, 0);
+	fprintf(exfp, "usscreenwidth%c%d%c", 0, us->USscreenwidth, 0);
+	fprintf(exfp, "usscreenheight%c%d%c", 0, us->USscreenheight, 0);
+	fprintf(exfp, "usernum%c%ld%c", 0, us->usernum, 0);
+	fprintf(exfp, "lastcall%c%ld%c", 0, us->lastcall, 0);
+	fprintf(exfp, "usname%c%s%c", 0, us->USname, 0);
+	fprintf(exfp, "usaddr%c%s%c", 0, us->USaddr, 0);
+	fprintf(exfp, "uscity%c%s%c", 0, us->UScity, 0);
+	fprintf(exfp, "usstate%c%s%c", 0, us->USstate, 0);
+	fprintf(exfp, "uszip%c%s%c", 0, us->USzip, 0);
+	fprintf(exfp, "usphone%c%s%c", 0, us->USphone, 0);
+	fprintf(exfp, "usemail%c%s%c", 0, us->USemail, 0);
+
+
+	cdbvisit = cdb_fetch(CDB_VISIT, &CC->usersupp.usernum, sizeof(long));
+	if (cdbvisit != NULL) {
+		if ((num_visits = cdbvisit->len / sizeof(struct visit)) == 0) {
+			cdb_free(cdbvisit);
+			return;
+			}
+		visits = (struct visit *)
+			malloc(num_visits * sizeof(struct visit));
+		memcpy(visits, cdbvisit->ptr,
+			(num_visits * sizeof(struct visit)));
+		cdb_free(cdbvisit);
+
+		if (num_visits > 0) for (a=0; a<num_visits; ++a) {
+			fprintf(exfp, "visit%c", 0);
+			fprintf(exfp, "vname%c%s%c", 0,
+					visits[a].v_roomname, 0);
+			fprintf(exfp, "vgen%c%ld%c", 0,
+					visits[a].v_generation, 0);
+			fprintf(exfp, "lastseen%c%ld%c", 0,
+					visits[a].v_lastseen, 0);
+			fprintf(exfp, "flags%c%d%c", 0,
+					visits[a].v_flags, 0);
+			fprintf(exfp, "endvisit%c", 0);
+			}
+		free(visits);
+		}
+
+
+	fprintf(exfp, "enduser%c", 0);
+	}
+
+
+void export_usersupp(void) {
+	lprintf(9, "Users\n");
+	fprintf(exfp, "usersupp%c", 0);
+
+	ForEachUser(export_a_user);
+
+	fprintf(exfp, "endsection%c", 0);
+	}
+	
 
 void do_export(char *argbuf) {
 	char export_filename[PATH_MAX];
@@ -565,11 +667,12 @@ void do_export(char *argbuf) {
 	fprintf(exfp, "mmflags%c%d%c", 0, CitControl.MMflags, 0);
 	fprintf(exfp, "endsection%c", 0);
 
+	/* Export all of the databases */
 	export_rooms();
-	/* export_floors(exfp); */
-	/* export_usersupp(exfp); */
-	fprintf(exfp, "endfile%c", 0);
+	export_floors();
+	export_usersupp();
 
+	fprintf(exfp, "endfile%c", 0);
 	fclose(exfp);
 	lprintf(1, "Export is finished.\n");
 	cprintf("%d Export is finished.\n", OK);
