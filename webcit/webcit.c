@@ -326,36 +326,35 @@ void output_headers(int controlcode)
 	if (print_standard_html_head > 0) {
 		wprintf("\n");
 
-		wprintf("<HTML><HEAD><TITLE>");
-		escputs(serv_info.serv_humannode);
-		wprintf("</TITLE>\n"
-			"<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">\n"
-			"<META HTTP-EQUIV=\"expired\" CONTENT=\"28-May-1971 18:10:00 GMT\">\n"
-			"<META NAME=\"MSSmartTagsPreventParsing\" CONTENT=\"TRUE\">\n");
-		if (refresh30) wprintf(
-			"<META HTTP-EQUIV=\"refresh\" CONTENT=\"30\">\n");
-		else wprintf(
-			"<META HTTP-EQUIV=\"refresh\" CONTENT=\"500363689;\">\n");
-		wprintf("</HEAD>\n");
+		svprintf("NODENAME", WCS_STRING, "%s",
+						serv_info.serv_humannode);
 
+		if (refresh30) svprintf("REFRESHTAG", WCS_STRING,
+			"<META HTTP-EQUIV=\"refresh\" CONTENT=\"30\">\n");
+		else svprintf("REFRESHTAG", WCS_STRING,
+			"<META HTTP-EQUIV=\"refresh\" CONTENT=\"500363689;\">\n");
 		/* script for checking for pages (not always launched) */
-		wprintf("<SCRIPT LANGUAGE=\"JavaScript\">\n");
-		wprintf("function launch_page_popup() {\n");
-		wprintf("pwin = window.open('/page_popup', 'CitaPage%d', "
+		svprintf("PAGERSCRIPT", WCS_STRING,
+			"<SCRIPT LANGUAGE=\"JavaScript\">\n"
+			"function launch_page_popup() {\n"
+			"pwin = window.open('/page_popup', 'CitaPage%d', "
 			"'toolbar=no,location=no,copyhistory=no,status=no,"
-			"scrollbars=yes,resizable=no,height=250,width=400');\n",
-			++pageseq);
-		wprintf("}\n");
-		wprintf("</SCRIPT>\n");
+			"scrollbars=yes,resizable=no,height=250,width=400');\n"
+			"}\n"
+			"</SCRIPT>\n",
+			++pageseq
+		);
 		/* end script */
 
-		/* (JavaScript keyboard-based navigation would go here) */
+		do_template("head");
+		clear_local_substs();
 
 		if (!suppress_check) if (WC->HaveExpressMessages) {
 			svprintf("extrabodyparms", WCS_STRING, "%s", 
 				"onload=\"launch_page_popup()\" ");
 			WC->HaveExpressMessages = 0;
 		}
+
 		do_template("background");
 		clear_local_substs();
 
