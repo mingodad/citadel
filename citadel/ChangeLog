@@ -1,4 +1,9 @@
  $Log$
+ Revision 608.17  2003/08/05 03:06:58  ajc
+ * Added a README.txt file because some Joker kept bugging me about it
+ * Reloaded the code that extracts embedded URL's to a place where it'll
+   get picked up on *every* message, not just the old variformat stuff
+
  Revision 608.16  2003/08/03 17:51:52  ajc
  * Clear out all masqueraded wholist fields when logging out, in case another
    user logs in without reconnecting.
@@ -4935,4 +4940,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -87,6 +87,8 @@ extern int rc_display_message_numbers;
 extern int rc_force_mail_prompts;
 extern int editor_pid;
 extern CtdlIPC *ipc_for_signal_handlers;	/* KLUDGE cover your eyes */
+int num_urls = 0;
+char urls[MAXURLS][SIZ];
 
 void ka_sigcatch(int signum)
 {
@@ -363,6 +365,9 @@ int read_message(CtdlIPC *ipc,
 	char *converted_text = NULL;
 	char *lineptr;
 	char *nextline;
+	char *searchptr;
+	int i;
+	char ch;
 	int linelen;
 	int final_line_is_blank = 0;
 
@@ -588,6 +593,26 @@ int read_message(CtdlIPC *ipc,
 	/* Text/plain is a different type */
 	if (!strcasecmp(message->content_type, "text/plain")) {
 		format_type = 1;
+	}
+
+	/* Extract URL's */
+	num_urls = 0;	/* Start with a clean slate */
+	searchptr = message->text;
+	while (searchptr != NULL) {
+		searchptr = strstr(searchptr, "http://");
+		if (searchptr != NULL) {
+			safestrncpy(urls[num_urls], searchptr, sizeof(urls[num_urls]));
+			for (i = 0; i < strlen(urls[num_urls]); i++) {
+				ch = urls[num_urls][i];
+				if (ch == '>' || ch == '\"' || ch == ')' ||
+				    ch == ' ' || ch == '\n') {
+					urls[num_urls][i] = 0;
+					break;
+				}
+			}
+			num_urls++;
+			++searchptr;
+		}
 	}
 
 	/*
@@ -1612,7 +1637,8 @@ RMSGREAD:	scr_flush();
                 char buf[SIZ];
                 int founda = 0;
                 
-               	snprintf(buf, sizeof buf, "MSG0 %ld|1", msg_arr[finda]); /* read the header so we can get 'from=' */
+		/* read the header so we can get 'from=' */
+               	snprintf(buf, sizeof buf, "MSG0 %ld|1", msg_arr[finda]);
              	CtdlIPC_putline(ipc, buf);
             	CtdlIPC_getline(ipc, buf);
             	while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) 

@@ -26,8 +26,6 @@
 #define COLOR_POP	17	/* Restore saved color */
 #define ORIGINAL_PAIR	-1	/* Default terminal colors */
 
-#define MAXURLS		50	/* Max embedded URL's per message */
-
 /*
  * declarations
  */
@@ -65,8 +63,6 @@ void pprintf(const char *format, ...);
 
 
 
-extern int num_urls;
-extern char urls[MAXURLS][SIZ];
 extern char rc_url_cmd[SIZ];
 extern char rc_gotmail_cmd[SIZ];
 extern int lines_printed;

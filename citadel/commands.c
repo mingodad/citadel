@@ -76,10 +76,8 @@ int rc_force_mail_prompts;
 int rc_remember_passwords;
 int rc_ansi_color;
 int rc_color_use_bg;
-int num_urls = 0;
 int rc_prompt_control = 0;
 time_t rc_idle_threshold = (time_t)900;
-char urls[MAXURLS][SIZ];
 char rc_url_cmd[SIZ];
 char rc_gotmail_cmd[SIZ];
 
@@ -1312,8 +1310,6 @@ int fmout(
 	int column = 0;		/* Current column */
 	size_t i;		/* Generic counter */
 
-	num_urls = 0;	/* Start with a clean slate of embedded URL's */
-
 	/* Space for a single word, which can be at most screenwidth */
 	word = (char *)calloc(1, width);
 	if (!word) {
@@ -1409,30 +1405,6 @@ int fmout(
 		/* We should never see these, but... slightly messy */
 		if (e[i] == '\t' || e[i] == '\f' || e[i] == '\v')
 			e[i] = ' ';
-
-		/*
-		 * Check for and copy URLs
-		 * We will get the entire URL even if it's longer than the
-		 * screen width, as long as the server didn't break it up
-		 */
-		if (!strncasecmp(e, "http://", 7) ||
-		    !strncasecmp(e, "ftp://", 6)) {
-			int j;
-
-			strncpy(urls[num_urls], e, i);
-			urls[num_urls][i] = 0;
-			for (j = 0; j < strlen(e); j++) {
-				char c;
-
-				c = urls[num_urls][j];
-				if (c == '>' || c == '\"' || c == ')' ||
-				    c == ' ' || c == '\n') {
-					urls[num_urls][j] = 0;
-					break;
-				}
-			}
-			num_urls++;
-		}
 
 		/* Break up really long words */
 		/* TODO: auto-hyphenation someday? */

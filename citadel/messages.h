@@ -1,4 +1,9 @@
 /* $Id$ */
+
+#define MAXURLS		50	/* Max embedded URL's per message */
+extern int num_urls;
+extern char urls[MAXURLS][SIZ];
+
 int ka_system(char *shc);
 int entmsg(CtdlIPC *ipc, int is_reply, int c);
 void readmsgs(CtdlIPC *ipc, enum MessageList c, enum MessageDirection rdir, int q);
