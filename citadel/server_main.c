@@ -74,7 +74,7 @@ int main(int argc, char **argv)
 	struct passwd *pw;
 	int drop_root_perms = 1;
 	size_t size;
-        
+
 	/* initialize the master context */
 	InitializeMasterCC();
 
@@ -147,6 +147,7 @@ int main(int argc, char **argv)
 		"This program is distributed under the terms of the GNU "
 		"General Public License.\n");
 	lprintf(CTDL_NOTICE, "\n");
+	lprintf(CTDL_DEBUG, "Called as: %s\n", argv[0]);
 
 	/* Load site-specific parameters, and set the ipgm secret */
 	lprintf(CTDL_INFO, "Loading citadel.config\n");

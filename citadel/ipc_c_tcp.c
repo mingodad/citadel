@@ -67,20 +67,11 @@ void connection_died(CtdlIPC* ipc, int using_ssl) {
 	fflush(stdout);
 
 #ifdef HAVE_OPENSSL
-	/*  ...don't try to shut down a connection on a dead socket?
-	SSL_shutdown(ipc->ssl);
-	*/
-
 	SSL_free(ipc->ssl);
 	ipc->ssl = NULL;
 #endif
 	shutdown(ipc->sock, 2);
 	ipc->sock = -1;
-
-	/* Hangup - let any children know as well */
-	/* kill(0, SIGHUP); */
-	/* This is disabled because it makes the setup program and other
-	 * users of sendcommand do really unhappy things. */
 }
 
 

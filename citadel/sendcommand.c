@@ -129,6 +129,10 @@ void np_attach_to_server(void)
 }
 
 
+void sendcommand_die(void) {
+	exit(0);
+}
+
 
 /*
  * main
@@ -171,6 +175,7 @@ int main(int argc, char **argv)
 	fflush(stderr);
 	np_attach_to_server();
 	fflush(stderr);
+	setIPCDeathHook(sendcommand_die);
 
 	fprintf(stderr, "%s\n", cmd);
 	CtdlIPC_chat_send(ipc, cmd);

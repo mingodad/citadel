@@ -177,6 +177,7 @@ static RETSIGTYPE signal_cleanup(int signum) {
  */
 void init_sysdep(void) {
 	int i;
+	sigset_t set;
 
 	/* Avoid vulnerabilities related to FD_SETSIZE if we can. */
 #ifdef FD_SETSIZE
@@ -213,6 +214,13 @@ void init_sysdep(void) {
 	 * The action for unexpected signals and exceptions should be to
 	 * call signal_cleanup() to gracefully shut down the server.
 	 */
+	sigemptyset(&set);
+	sigaddset(&set, SIGINT);
+	sigaddset(&set, SIGQUIT);
+	sigaddset(&set, SIGHUP);
+	sigaddset(&set, SIGTERM);
+	sigaddset(&set, SIGSEGV);
+	sigprocmask(SIG_UNBLOCK, &set, NULL);
 	signal(SIGINT, signal_cleanup);
 	signal(SIGQUIT, signal_cleanup);
 	signal(SIGHUP, signal_cleanup);

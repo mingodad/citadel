@@ -129,6 +129,7 @@ void master_startup(void) {
 void master_cleanup(int exitcode) {
 	struct CleanupFunctionHook *fcn;
 	static int already_cleaning_up = 0;
+	int i;
 
 	if (already_cleaning_up) while(1) sleep(1);
 	already_cleaning_up = 1;
@@ -150,8 +151,9 @@ void master_cleanup(int exitcode) {
 #endif
 
 	/* Now go away. */
-	lprintf(CTDL_NOTICE, "citserver: Exiting with status %d.\n", exitcode);
+	lprintf(CTDL_NOTICE, "citserver: Exiting with status %d\n", exitcode);
 	fflush(stdout); fflush(stderr);
+
 	exit(exitcode);
 }
 
