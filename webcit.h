@@ -1,7 +1,7 @@
 /* $Id$ */
 
 #define SLEEPING	180			/* TCP connection timeout */
-#define PORT_NUM	32767			/* port number to listen on */
+#define PORT_NUM	2000			/* port number to listen on */
 #define SERVER		"WebCit v2.0 (Velma)"	/* who's in da house */
 #define DEVELOPER_ID	0
 #define CLIENT_ID	4
