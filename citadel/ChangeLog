@@ -1,4 +1,7 @@
  $Log$
+ Revision 625.27  2004/09/21 01:43:23  ajc
+ * imap_search.c: when search criteria permit, do not fetch messages.
+
  Revision 625.26  2004/09/17 16:54:13  ajc
  * Updated documentation to include information about setting up MSA 587 port.
 
@@ -6097,3 +6100,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
