@@ -140,9 +140,6 @@ void cleanup_stuff(void *arg)
 
 	syslog(LOG_NOTICE,"session %d ended", CC->cs_pid);
 	
-	/* Deallocate any message list we might have in memory */
-	if (CC->msglist != NULL) phree(CC->msglist);
-
 	/* Deallocate any user-data attached to this session */
 	deallocate_user_data(CC);
 
@@ -821,8 +818,6 @@ void *context_loop(struct CitContext *con)
 	CC->upload_fp = NULL;
 	CC->cs_pid = con->client_socket;	/* not necessarily portable */
 	CC->FirstExpressMessage = NULL;
-	CC->msglist = NULL;
-	CC->num_msgs = 0;
 	time(&CC->lastcmd);
 	time(&CC->lastidle);
 	strcpy(CC->lastcmdname, "    ");

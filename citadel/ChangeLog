@@ -1,4 +1,8 @@
 $Log$
+Revision 1.333  1999/07/27 20:00:24  ajc
+Removed all references to CC->msglist and CC->num_msgs, and all utility
+functions which relied upon them.  Citadel Is Now Better.
+
 Revision 1.332  1999/07/27 19:32:22  ajc
 Removed serv_upgrade.c and all references to it in Makefile.in
 Reworked new-mail-count to not use MessageFromList() etc.
@@ -1118,6 +1122,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import
-
-
- 

@@ -115,6 +115,9 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 	time_t xtime, now;
 	char msgid[64];
 	int a;
+        struct cdbdata *cdbfr;
+	long *msglist = NULL;
+	int num_msgs = 0;
 
 	time(&now);
 	GetExpirePolicy(&epbuf, qrbuf);
@@ -129,31 +132,38 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 	if (epbuf.expire_mode == EXPIRE_MANUAL) return;
 
 	begin_critical_section(S_QUICKROOM);
-	get_msglist(qrbuf);
+        cdbfr = cdb_fetch(CDB_MSGLISTS, &qrbuf->QRnumber, sizeof(long));
+
+        if (cdbfr != NULL) {
+        	msglist = mallok(cdbfr->len);
+        	memcpy(msglist, cdbfr->ptr, cdbfr->len);
+        	num_msgs = cdbfr->len / sizeof(long);
+        	cdb_free(cdbfr);
+	}
 	
 	/* Nothing to do if there aren't any messages */
-	if (CC->num_msgs == 0) {
+	if (num_msgs == 0) {
 		end_critical_section(S_QUICKROOM);
 		return;
 		}
 
 	/* If the room is set to expire by count, do that */
 	if (epbuf.expire_mode == EXPIRE_NUMMSGS) {
-		while (CC->num_msgs > epbuf.expire_value) {
-			delnum = MessageFromList(0);
+		while (num_msgs > epbuf.expire_value) {
+			delnum = msglist[0];
 			lprintf(5, "Expiring message %ld\n", delnum);
 			AdjRefCount(delnum, -1); 
-			memcpy(&CC->msglist[0], &CC->msglist[1],
-				(sizeof(long)*(CC->num_msgs - 1)));
-			CC->num_msgs = CC->num_msgs - 1;
+			memcpy(&msglist[0], &msglist[1],
+				(sizeof(long)*(num_msgs - 1)));
+			--num_msgs;
 			++messages_purged;
 			}
 		}
 
 	/* If the room is set to expire by age... */
 	if (epbuf.expire_mode == EXPIRE_AGE) {
-		for (a=0; a<(CC->num_msgs); ++a) {
-			delnum = MessageFromList(a);
+		for (a=0; a<num_msgs; ++a) {
+			delnum = msglist[a];
 			sprintf(msgid, "%ld", delnum);
 			xtime = output_message(msgid, MT_DATE, 0);
 
@@ -161,13 +171,21 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 			   && (now - xtime > (time_t)(epbuf.expire_value * 86400L))) {
 				lprintf(5, "Expiring message %ld\n", delnum);
 				AdjRefCount(delnum, -1); 
-				SetMessageInList(a, 0L);
+				msglist[a] = 0L;
 				++messages_purged;
 				}
 			}
 		}
-	CC->num_msgs = sort_msglist(CC->msglist, CC->num_msgs);
-	put_msglist(qrbuf);
+
+	if (num_msgs > 0) {
+		num_msgs = sort_msglist(msglist, num_msgs);
+	}
+	
+	cdb_store(CDB_MSGLISTS, &qrbuf->QRnumber, sizeof(long),
+		msglist, (num_msgs * sizeof(long)) );
+
+	if (msglist != NULL) phree(msglist);
+
 	end_critical_section(S_QUICKROOM);
 	}
 

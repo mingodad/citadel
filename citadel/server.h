@@ -40,9 +40,6 @@ struct CitContext {
 	struct usersupp usersupp;	/* Database record buffers */
 	struct quickroom quickroom;
 
-	long *msglist;
-	int num_msgs;
-
 	char curr_user[32];	/* name of current user */
 	int logged_in;		/* logged in */
 	int internal_pgm;	/* authenticated as internal program */

@@ -1372,5 +1372,7 @@ int NewMailCount() {
 			}
 		}
 
+	if (msglist != NULL) phree(msglist);
+
 	return(num_newmsgs);
 	}

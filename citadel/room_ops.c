@@ -314,43 +314,6 @@ void ForEachRoom(void (*CallBack) (struct quickroom * EachRoom))
 }
 
 
-
-/*
- * get_msglist()  -  retrieve room message pointers
- */
-void get_msglist(struct quickroom *whichroom)
-{
-	struct cdbdata *cdbfr;
-
-	if (CC->msglist != NULL) {
-		phree(CC->msglist);
-	}
-	CC->msglist = NULL;
-	CC->num_msgs = 0;
-
-	cdbfr = cdb_fetch(CDB_MSGLISTS, &whichroom->QRnumber, sizeof(long));
-	if (cdbfr == NULL) {
-		return;
-	}
-	CC->msglist = mallok(cdbfr->len);
-	memcpy(CC->msglist, cdbfr->ptr, cdbfr->len);
-	CC->num_msgs = cdbfr->len / sizeof(long);
-	cdb_free(cdbfr);
-}
-
-
-/*
- * put_msglist()  -  retrieve room message pointers
- */
-void put_msglist(struct quickroom *whichroom)
-{
-
-	if (CC->msglist != NULL)
-		cdb_store(CDB_MSGLISTS, &whichroom->QRnumber, sizeof(long),
-			  CC->msglist, CC->num_msgs * sizeof(long));
-}
-
-
 /*
  * delete_msglist()  -  delete room message pointers
  * FIX - this really should check first to make sure there's actually a
@@ -420,34 +383,6 @@ long AddMessageToRoom(struct quickroom *whichroom, long newmsgid)
 
 
 /*
- * MessageFromList()  -  get a message number from the list currently in memory
- */
-long MessageFromList(int whichpos)
-{
-
-	/* Return zero if the position is invalid */
-	if (whichpos >= CC->num_msgs)
-		return 0L;
-
-	return (CC->msglist[whichpos]);
-}
-
-/* 
- * SetMessageInList()  -  set a message number in the list currently in memory
- */
-void SetMessageInList(int whichpos, long newmsgnum)
-{
-
-	/* Return zero if the position is invalid */
-	if (whichpos >= CC->num_msgs)
-		return;
-
-	CC->msglist[whichpos] = newmsgnum;
-}
-
-
-
-/*
  * sort message pointers
  * (returns new msg count)
  */
@@ -476,7 +411,7 @@ int sort_msglist(long listptrs[], int oldcount)
 	/* and yank any nulls */
 	while ((numitems > 0) && (listptrs[0] == 0L)) {
 		memcpy(&listptrs[0], &listptrs[1],
-		       (sizeof(long) * (CC->num_msgs - 1)));
+		       (sizeof(long) * (numitems - 1)));
 		--numitems;
 	}
 
@@ -724,6 +659,9 @@ void usergoto(char *where, int display_result)
 	int newmailcount = 0;
 	struct visit vbuf;
 	char truncated_roomname[ROOMNAMELEN];
+        struct cdbdata *cdbfr;
+	long *msglist = NULL;
+	int num_msgs = 0;
 
 	strcpy(CC->quickroom.QRname, where);
 	getroom(&CC->quickroom, where);
@@ -747,15 +685,24 @@ void usergoto(char *where, int display_result)
 		info = 1;
 
 	get_mm();
-	get_msglist(&CC->quickroom);
-	for (a = 0; a < CC->num_msgs; ++a) {
-		if (MessageFromList(a) > 0L) {
+        cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->quickroom.QRnumber, sizeof(long));
+        if (cdbfr != NULL) {
+        	msglist = mallok(cdbfr->len);
+        	memcpy(msglist, cdbfr->ptr, cdbfr->len);
+        	num_msgs = cdbfr->len / sizeof(long);
+        	cdb_free(cdbfr);
+	}
+
+	if (num_msgs > 0) for (a = 0; a < num_msgs; ++a) {
+		if (msglist[a] > 0L) {
 			++total_messages;
-			if (MessageFromList(a) > vbuf.v_lastseen) {
+			if (msglist[a] > vbuf.v_lastseen) {
 				++new_messages;
 			}
 		}
 	}
+
+	if (msglist != NULL) phree(msglist);
 
 	if (CC->quickroom.QRflags & QR_MAILBOX)
 		rmailflag = 1;
