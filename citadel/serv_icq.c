@@ -30,6 +30,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <limits.h>
 #include "sysdep.h"
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
@@ -1924,6 +1925,16 @@ void CtdlICQ_session_startup_hook(void)
 }
 
 
+
+/* 
+ * End-of-session cleanup
+ */
+void CtdlICQ_session_stopdown_hook(void) {
+	icq_Done();
+}
+
+
+
 /*
  * icq_Main() needs to be called as frequently as possible.  We'll do it
  * following the completion of each Citadel server command.
@@ -1948,8 +1959,8 @@ void CtdlICQ_after_cmd_hook(void)
  */
 void CtdlICQ_session_logout_hook(void)
 {
+	lprintf(9, "Shutting down ICQ\n");
 	CtdlICQ_Logout_If_Connected();
-	icq_Done();
 }
 
 
@@ -1989,6 +2000,7 @@ void CtdlICQ_Incoming_Message(DWORD uin, BYTE hour, BYTE minute,
 	sprintf(from, "%ld@icq", uin);
 	if (CtdlSendExpressMessageFunc) {
 		CtdlSendExpressMessageFunc(from, CC->curr_user, msg);
+		lprintf(9, "Converted incoming message.\n");
 	} else {
 		lprintf(7, "Hmm, no CtdlSendExpressMessageFunc defined!\n");
 	}
@@ -2013,6 +2025,7 @@ char *Dynamic_Module_Init(void)
 
 	/* Tell the Citadel server about our wonderful ICQ hooks */
 	CtdlRegisterSessionHook(CtdlICQ_session_startup_hook, EVT_START);
+	CtdlRegisterSessionHook(CtdlICQ_session_stopdown_hook, EVT_STOP);
 	CtdlRegisterSessionHook(CtdlICQ_session_logout_hook, EVT_LOGOUT);
 	CtdlRegisterSessionHook(CtdlICQ_session_login_hook, EVT_LOGIN);
 	CtdlRegisterSessionHook(CtdlICQ_after_cmd_hook, EVT_CMD);
