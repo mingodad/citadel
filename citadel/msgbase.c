@@ -760,13 +760,14 @@ void copy_file(char *from, char *to)
  */
 void save_message(char *mtmp,	/* file containing proper message */
 		char *rec,	/* Recipient (if mail) */
-		char *force_room, /* if non-zero length, force a room */
+		char *force,	/* if non-zero length, force a room */
 		int mailtype,	/* local or remote type, see citadel.h */
 		int generate_id) /* set to 1 to generate an 'I' field */
 {
 	char aaa[100];
 	char hold_rm[ROOMNAMELEN];
 	char actual_rm[ROOMNAMELEN];
+	char force_room[ROOMNAMELEN];
 	char recipient[256];
 	long newmsgid;
 	char *message_in_memory;
@@ -779,6 +780,8 @@ void save_message(char *mtmp,	/* file containing proper message */
 
 	lprintf(9, "save_message(%s,%s,%s,%d,%d)\n",
 		mtmp, rec, force_room, mailtype, generate_id);
+
+	strcpy(force_room, force);
 
 	/* Strip non-printable characters out of the recipient name */
 	strcpy(recipient, rec);
@@ -815,21 +818,29 @@ void save_message(char *mtmp,	/* file containing proper message */
 		}
 
 	/* ...or if this is a private message, go to the target mailbox. */
+	lprintf(9, "mailbox aliasing loop\n");
+lprintf(9, "1\n");
 	if (strlen(recipient) > 0) {
+lprintf(9, "2\n");
 		/* mailtype = alias(recipient); */
 		if (mailtype == M_LOCAL) {
+lprintf(9, "3\n");
 			if (getuser(&userbuf, recipient)!=0) {
 				/* User not found, goto Aide */
+lprintf(9, "4\n");
 				strcpy(force_room, AIDEROOM);
 				}
 			else {
+lprintf(9, "5\n");
 				strcpy(hold_rm, actual_rm);
+lprintf(9, "6\n");
 				MailboxName(actual_rm, &userbuf, MAILROOM);
 				}
 			}
 		}
 
 	/* ...or if this message is destined for Aide> then go there. */
+	lprintf(9, "actual room forcing loop\n");
 	if (strlen(force_room) > 0) {
 		strcpy(hold_rm, actual_rm);
 		strcpy(actual_rm, force_room);
