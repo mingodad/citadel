@@ -38,9 +38,13 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf) {
 			}
 		}
 
+	/* Locate any applicable user/room relationships */
+	CtdlGetRelationship(&vbuf, userbuf, roombuf);
+
 	/* Force the properties of the Aide room */
 	/* FIX FIX FIX ... this doesn't work */
 	if (!strcasecmp(roombuf->QRname, AIDEROOM)) {
+	lprintf(9, "Room <%s> is special!\n", roombuf->QRname);
 		if (userbuf->axlevel >= 6) {
 			retval = UA_KNOWN | UA_GOTOALLOWED;
 			}
@@ -49,9 +53,6 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf) {
 			}
 		goto NEWMSG;
 		}
-
-	/* Locate any applicable user/room relationships */
-	CtdlGetRelationship(&vbuf, userbuf, roombuf);
 
 	/* For mailboxes, we skip all the access stuff (and we've
 	 * already checked by this point that the mailbox belongs

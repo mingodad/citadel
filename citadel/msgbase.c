@@ -767,6 +767,11 @@ void save_message(char *mtmp,	/* file containing proper message */
 	/* read in the quickroom record, obtaining a lock... */
 	lgetroom(&CC->quickroom, actual_rm);
 
+	/* Fix an obscure bug */
+	if (!strcasecmp(CC->quickroom.QRname, AIDEROOM)) {
+		CC->quickroom.QRflags = CC->quickroom.QRflags & ~QR_MAILBOX;
+		}
+
 	/* Add the message pointer to the room */
 	AddMessageToRoom(&CC->quickroom, newmsgid);
 
