@@ -1,4 +1,10 @@
 $Log$
+Revision 410.7  2003/03/30 06:13:19  ajc
+* When reading from the server, do not treat CR as end-of-line because
+  there's probably an LF coming after it.  Instead, keep reading to the LF
+  and then strip both.
+* No not underline links in the icon bars
+
 Revision 410.6  2003/03/17 04:17:41  ajc
 * Call to accept() was being made with an uninitialized variable for the
   third argument.  Changed the second and third argument to NULL and 0 because
@@ -1306,3 +1312,6 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
+
+
