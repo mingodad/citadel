@@ -135,10 +135,12 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	wprintf("Minute: ");
 	wprintf("<SELECT NAME=\"%s_minute\" SIZE=\"1\">\n", prefix);
 	for (i=0; i<=59; ++i) {
-		wprintf("<OPTION %s VALUE=\"%d\">:%02d</OPTION>\n",
-			((tm.tm_min == i) ? "SELECTED" : ""),
-			i, i
-		);
+		if ( (i % 5 == 0) || (tm.tm_min == i) ) {
+			wprintf("<OPTION %s VALUE=\"%d\">:%02d</OPTION>\n",
+				((tm.tm_min == i) ? "SELECTED" : ""),
+				i, i
+			);
+		}
 	}
 	wprintf("</SELECT>\n");
 }
