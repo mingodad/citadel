@@ -1,4 +1,8 @@
  $Log$
+ Revision 605.47  2003/05/06 03:38:59  ajc
+ * IMAP folder create and rename commands -- don't allow backslashes in
+   folder names.
+
  Revision 605.46  2003/05/03 16:50:52  ajc
  * Change folder delimiter in room names from / to \
 
@@ -4679,3 +4683,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

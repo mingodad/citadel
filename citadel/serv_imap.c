@@ -662,6 +662,11 @@ void imap_create(int num_parms, char *parms[]) {
 	int flags;
 	int newroomtype;
 
+	if (strchr(parms[2], '\\') != NULL) {
+		cprintf("%s NO Invalid character in folder name\r\n", parms[0]);
+		return;
+	}
+
 	ret = imap_roomname(roomname, sizeof roomname, parms[2]);
 	if (ret < 0) {
 		cprintf("%s NO Invalid mailbox name or location\r\n",
@@ -986,6 +991,11 @@ void imap_rename(int num_parms, char *parms[]) {
 	struct irl *irl = NULL;		/* the list */
 	struct irl *irlp = NULL;	/* scratch pointer */
 	struct irlparms irlparms;
+
+	if (strchr(parms[3], '\\') != NULL) {
+		cprintf("%s NO Invalid character in folder name\r\n", parms[0]);
+		return;
+	}
 
 	oldr = imap_roomname(old_room, sizeof old_room, parms[2]);
 	newr = imap_roomname(new_room, sizeof new_room, parms[3]);
