@@ -1,4 +1,9 @@
  $Log$
+ Revision 591.64  2002/07/13 03:24:32  ajc
+ * CtdlOutputMsg() caches the most recently fetched message in memory.  This
+   eliminates the need to do multiple database fetches when we go back for
+   additional MIME parts, etc.
+
  Revision 591.63  2002/07/11 03:40:51  ajc
  * When outputting a multipart MIME message, supply the client with "pref="
    and "suff=" lines in addition to the "part=" lines.
@@ -3800,4 +3805,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
