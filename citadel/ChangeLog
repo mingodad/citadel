@@ -1,4 +1,7 @@
  $Log$
+ Revision 620.30  2004/05/07 20:27:46  ajc
+ # citadel-openldap.schema: updated to include RFC2739 objects & attributes
+
  Revision 620.29  2004/05/07 19:31:40  ajc
  * More RFC2739 compliance: when converting vCard to LDAP, include
    the calFBURL attribute.
@@ -5749,3 +5752,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
