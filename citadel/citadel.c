@@ -331,7 +331,6 @@ void dotgoto(char *towhere, int display_name, int fromungoto)
 	char aaa[SIZ], bbb[SIZ], psearch[SIZ];
 	static long ls = 0L;
 	int newmailcount = 0;
-	static int oldmailcount = (-1);
 	int partial_match, best_match;
 	char from_floor;
     int ugpos = uglistsize;
@@ -458,12 +457,11 @@ void dotgoto(char *towhere, int display_name, int fromungoto)
 	/* check for newly arrived mail if we can */
 	if (num_parms(&aaa[4]) >= 10) {
 		newmailcount = extract_int(&aaa[4], 9);
-		if ((oldmailcount >= 0) && (newmailcount > oldmailcount)) {
+		if (newmailcount > 0) {
 			color(BRIGHT_RED);
 			scr_printf("*** You have new mail\n");
 			color(DIM_WHITE);
 		}
-		oldmailcount = newmailcount;
 		status_line(serv_info.serv_humannode, serv_info.serv_bbs_city,
 				room_name, secure, newmailcount);
 	} else {
