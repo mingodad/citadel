@@ -859,11 +859,11 @@ void inprocess(void)
 			do {
 SKIP:				ptr = fgets(sfilename, sizeof sfilename, ls);
 				if (ptr != NULL) {
+					sfilename[strlen(sfilename) - 1] = 0;
 #ifdef DEBUG
 					syslog(LOG_DEBUG,
-						"Trying %s", sfilename);
+						"Trying <%s>", sfilename);
 #endif
-					sfilename[strlen(sfilename) - 1] = 0;
 					if (!strcmp(sfilename, ".")) goto SKIP;
 					if (!strcmp(sfilename, "..")) goto SKIP;
 					if (!strcmp(sfilename, "CVS")) goto SKIP;
@@ -1210,12 +1210,23 @@ void process_purgelist(void) {
 			sprintf(buf, "GOTO %s", purgelist->m_rmname);
 			serv_puts(buf);
 			serv_gets(buf);
-			if (buf[0] == '2') extract(curr_rm, &buf[4], 0);
+			if (buf[0] == '2') {
+				extract(curr_rm, &buf[4], 0);
+			}
+			else {
+				syslog(LOG_ERR, "%s", buf);
+			}
 		}
-		if (strcasecmp(curr_rm, purgelist->m_rmname)) {
+		if (!strcasecmp(curr_rm, purgelist->m_rmname)) {
+			syslog(LOG_NOTICE, "Purging <%ld> in <%s>",
+				purgelist->m_num, purgelist->m_rmname);
 			sprintf(buf, "DELE %ld", purgelist->m_num);
 			serv_puts(buf);
 			serv_gets(buf);
+			if (buf[0] != '2') {
+				syslog(LOG_ERR, "%s", buf);
+			}
+
 		}
 		mptr = purgelist->next;
 		free(purgelist);
@@ -1570,7 +1581,8 @@ int main(int argc, char **argv)
 		if (allfp != NULL) {
 			while (fgets(allst, 32, allfp) != NULL) {
 				allst[strlen(allst) - 1] = 0;
-				outprocess(allst);
+				if (strcmp(allst, "CVS"))
+					outprocess(allst);
 			}
 			pclose(allfp);
 		}
@@ -1582,6 +1594,7 @@ int main(int argc, char **argv)
 	rewrite_syslist();
 
 	/* Delete any messages which need to be purged locally */
+	syslog(LOG_NOTICE, "calling process_purgelist()");
 	process_purgelist();
 
 	/* Close the use table */

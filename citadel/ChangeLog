@@ -1,4 +1,8 @@
 $Log$
+Revision 1.414  1999/11/15 03:07:24  ajc
+* Fixed the network-wide vCard purge logic so that it (1) actually works,
+  and (2) forces a netproc run immediately when a purge is entered
+
 Revision 1.413  1999/11/09 21:20:44  nbryant
 * configure.in: include <sys/types.h> when doing checks which require <utmp.h>
   (should fix Bug #10 on FreeBSD)
@@ -1430,3 +1434,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

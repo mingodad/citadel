@@ -409,6 +409,11 @@ void vcard_purge(char *username, long usernum) {
 
         CtdlSaveMsg(msg, "", ADDRESS_BOOK_ROOM, MES_LOCAL, 1);
         CtdlFreeMessage(msg);
+
+	/* Start a netproc run in the background, so the "purge" message
+	 * gets flushed out of the room immediately
+	 */
+	system("./netproc &");
 }
 	
 	
