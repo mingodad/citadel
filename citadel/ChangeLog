@@ -1,4 +1,9 @@
  $Log$
+ Revision 628.2  2005/01/04 03:57:21  ajc
+ * newinstall.sh: save tarball checksums after successful install of each
+   component; skip subsequent installs for components which have not changed
+ * Bumped internal version number to 6.29
+
  Revision 628.1  2005/01/04 02:06:28  ajc
  * sysdep.c: if we have enough information to do so, adjust maximum file
    descriptors to avoid exceeding FD_SETSIZE.  This is done to circumvent
@@ -6243,3 +6248,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
