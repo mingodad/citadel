@@ -1,4 +1,7 @@
 $Log$
+Revision 410.22  2003/05/03 21:28:41  ajc
+* Added in a slick new box style and put the room lists in it
+
 Revision 410.21  2003/05/03 16:57:04  ajc
 * In the 'folders' and 'portal' views, change the folder delimiter
   from / to \ to avoid conflict with room names that have slashes
@@ -1368,4 +1371,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
