@@ -136,7 +136,9 @@ struct icaltimetype icaltime_from_webform(char *prefix) {
 	if (!strcasecmp(bstr(vname), "yes")) {
 		t.hour = 0;
 		t.minute = 0;
+		t.second = 0;
 		t.is_date = 1;
+		lprintf(9, "icaltime_from_webform() setting is_date\n");
 	}
 
 	t = icaltime_normalize(t);

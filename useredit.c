@@ -119,7 +119,7 @@ void display_edit_address_book_entry(char *username, long usernum) {
 		serv_gets(buf);
 		if (buf[0] != '2') {
 			sprintf(error_message,
-				"<IMG SRC=\"static/error.gif\" VALIGN=CENTER>"
+				"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
 				"%s<BR><BR>\n", &buf[4]);
 			select_user_to_edit(error_message, username);
 			return;
@@ -178,7 +178,7 @@ TRYAGAIN:
 
 	if (vcard_msgnum < 0) {
 		sprintf(error_message,
-			"<IMG SRC=\"static/error.gif\" VALIGN=CENTER>"
+			"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
 			"Could not create/edit vCard<BR><BR>\n");
 		select_user_to_edit(error_message, username);
 		return;
@@ -221,7 +221,7 @@ void display_edituser(char *supplied_username) {
 	serv_gets(buf);
 	if (buf[0] != '2') {
 		sprintf(error_message,
-			"<IMG SRC=\"static/error.gif\" VALIGN=CENTER>"
+			"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
 			"%s<BR><BR>\n", &buf[4]);
 		select_user_to_edit(error_message, username);
 		return;
@@ -347,7 +347,7 @@ void edituser(void) {
 		serv_gets(buf);
 		if (buf[0] != '2') {
 			sprintf(message,
-				"<IMG SRC=\"static/error.gif\" VALIGN=CENTER>"
+				"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
 				"%s<BR><BR>\n", &buf[4]);
 		}
 		else {
@@ -377,7 +377,7 @@ void create_user(void) {
 	}
 	else {
 		sprintf(error_message,
-			"<IMG SRC=\"static/error.gif\" VALIGN=CENTER>"
+			"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
 			"%s<BR><BR>\n", &buf[4]);
 		select_user_to_edit(error_message, NULL);
 	}

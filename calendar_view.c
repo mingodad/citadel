@@ -299,7 +299,10 @@ void calendar_day_view(int year, int month, int day) {
 	/* Now the middle of the day... */	
 	for (hour = 8; hour <= 17; ++hour) {	/* could do HEIGHT=xx */
 		wprintf("<TR><TD BGCOLOR=FFFFFF VALIGN=TOP>");
-		wprintf("%d:00 ", hour);
+		wprintf("%d:00%s ",
+			(hour <= 12 ? hour : hour-12),
+			(hour < 12 ? "am" : "pm")
+		);
 
 		/* put the data here, stupid */
 		calendar_day_view_display_events(year, month, day, hour);

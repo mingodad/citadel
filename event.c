@@ -53,7 +53,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 
 	output_headers(3);
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>"
-		"<IMG VALIGN=CENTER SRC=\"/static/vcalendar.gif\">"
+		"<IMG ALIGN=CENTER SRC=\"/static/vcalendar.gif\">"
 		"<FONT SIZE=+1 COLOR=\"FFFFFF\""
 		"<B>Edit event</B>"
 		"</FONT></TD></TR></TABLE><BR>\n"
@@ -158,6 +158,8 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 	icalproperty *prop;
 	icalcomponent *vevent;
 	int created_new_vevent = 0;
+	int all_day_event = 0;
+	struct icaltimetype event_start;
 
 	if (supplied_vevent != NULL) {
 		vevent = supplied_vevent;
@@ -196,21 +198,30 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		      ICAL_DTSTART_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vevent, prop);
 		}
+		event_start = icaltime_from_webform("dtstart");
+		if (event_start.is_date) {
+			lprintf(9, "*** all day event ***\n");
+			all_day_event = 1;
+		}
 		icalcomponent_add_property(vevent,
-			icalproperty_new_dtstart(
-				icaltime_from_webform("dtstart")
-			)
+			icalproperty_new_dtstart(event_start)
 		);
 	
 		while (prop = icalcomponent_get_first_property(vevent,
-		      ICAL_DUE_PROPERTY), prop != NULL) {
+		      ICAL_DTEND_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vevent, prop);
 		}
-		icalcomponent_add_property(vevent,
-			icalproperty_new_due(
-				icaltime_from_webform("due")
-			)
-		);
+		while (prop = icalcomponent_get_first_property(vevent,
+		      ICAL_DURATION_PROPERTY), prop != NULL) {
+			icalcomponent_remove_property(vevent, prop);
+		}
+		if (all_day_event == 0) {
+			icalcomponent_add_property(vevent,
+				icalproperty_new_dtend(
+					icaltime_from_webform("dtend")
+				)
+			);
+		}
 
 		/* Give this event a UID if it doesn't have one. */
 		if (icalcomponent_get_first_property(vevent,
