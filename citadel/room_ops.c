@@ -138,6 +138,14 @@ int getroom(struct quickroom *qrbuf, char *room_name)
 	                ( (cdbqr->len > sizeof(struct quickroom)) ?
                 	sizeof(struct quickroom) : cdbqr->len) );
 		cdb_free(cdbqr);
+
+/*** FIX FIX FIX REMOVE THIS!!!!  IT'S ONLY TO FIX A PROBLEM SPECIFIC TO UNCENSORED ***/
+		if (!strcasecmp(qrbuf->QRname, "Linux")) {
+			qrbuf->QRflags = qrbuf->QRflags & ~QR_MAILBOX;
+			}
+
+
+
 		return(0);
 		}
 	else {
@@ -716,12 +724,7 @@ void usergoto(char *where, int display_result)
 		vbuf.v_lastseen,
 		rmailflag,raideflag,newmailcount,CC->quickroom.QRfloor);
 
-	if (CC->quickroom.QRflags & QR_PRIVATE) {
-		set_wtmpsupp("<private room>");
-		}
-	else {
-		set_wtmpsupp(CC->quickroom.QRname);
-		}
+	set_wtmpsupp_to_current_room();
 	}
 
 
