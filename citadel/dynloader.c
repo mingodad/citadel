@@ -99,7 +99,11 @@ void DLoader_Init(char *pathname)
          continue;
    
       snprintf(pathbuf, PATH_MAX, "%s/%s", pathname, dptr->d_name);
+#ifdef RTLD_NOW
       if (!(fcn_handle = dlopen(pathbuf, RTLD_NOW)))
+#else /* OpenBSD */
+      if (!(fcn_handle = dlopen(pathbuf, DL_LAZY)))
+#endif
       {
          dl_error = dlerror();
          fprintf(stderr, "DLoader_Init dlopen failed (%s)\n", dl_error);
