@@ -11,3 +11,4 @@
 	  libcli_cit/client_api.c, libcli_cit/tcp_trans.c: portability
 	  enhancements, warning fixes
 	* libcli_cit/tcp_trans.c: implement DNS lookups
+	* gtk/gcit.c: crash fix

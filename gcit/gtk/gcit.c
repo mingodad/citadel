@@ -465,9 +465,11 @@ int get_room_msgs_func(int allrooms)
    free_citadel_list(&list);
    reset_parms(&parms);
 
-   if (goto_room(&our_context, our_context.selected_room, NULL, parms, 0)<0)
+   if (*our_context.selected_room &&
+       goto_room(&our_context, our_context.selected_room, NULL, parms, 0)<0)
    {
-      fprintf(stderr, "Error: Unable to go to room %s.\n", t_list->listitem);
+      fprintf(stderr, "Error: Unable to go to room %s.\n",
+	      our_context.selected_room);
       return TRUE;
    }
    free_citadel_parms(&parms);
