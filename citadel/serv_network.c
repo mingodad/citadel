@@ -736,12 +736,15 @@ void network_spoolout_room(char *room_to_spool) {
 			 * purge nodes which do not exist from room network
 			 * configurations at this time.
 			 */
-			if (is_valid_node(NULL, NULL, buf) == 0) {
-				nptr = (struct namelist *)
-					malloc(sizeof(struct namelist));
-				nptr->next = sc.ignet_push_shares;
-				extract(nptr->name, buf, 1);
+			nptr = (struct namelist *)
+				malloc(sizeof(struct namelist));
+			nptr->next = sc.ignet_push_shares;
+			extract(nptr->name, buf, 1);
+			if (is_valid_node(NULL, NULL, nptr->name) == 0) {
 				sc.ignet_push_shares = nptr;
+			}
+			else {
+				free(nptr);
 			}
 		}
 		else {
