@@ -49,8 +49,10 @@ SendExpress::SendExpress(	CitClient *sock,
 			"SendExpress"
 			) {
 
-	wxString sendcmd, recvcmd;
+	wxString sendcmd, recvcmd, buf;
 	wxStringList xferbuf;
+        int i;
+        wxString user;
 
 	citsock = sock;
 	citMyMDI = MyMDI;
@@ -80,6 +82,42 @@ SendExpress::SendExpress(	CitClient *sock,
 		"cancel_button"
 		);
 
+	wxStaticBox *ToWhomFrame = new wxStaticBox(
+		this,
+		-1,
+		"Send to:",
+		wxDefaultPosition, wxDefaultSize, 0,
+		"ToWhomFrame"
+		);
+
+	wxListBox *ToWhom = new wxListBox(
+		this,
+		-1,
+		wxDefaultPosition, wxDefaultSize,
+		0, NULL,
+		wxLB_MULTIPLE | wxLB_SORT,
+		wxDefaultValidator,
+		"ToWhom"
+		);
+
+	wxStaticBox *TheMessageFrame = new wxStaticBox(
+		this,
+		-1,
+		"Message:",
+		wxDefaultPosition, wxDefaultSize, 0,
+		"TheMessageFrame"
+		);
+
+	wxTextCtrl *TheMessage = new wxTextCtrl(
+		this,
+		-1,
+		"",
+		wxDefaultPosition, wxDefaultSize,
+		wxTE_MULTILINE,
+		wxDefaultValidator,
+		"TheMessage"
+		);
+
 	wxLayoutConstraints *c1 = new wxLayoutConstraints;
 	c1->bottom.SameAs(this, wxBottom, 10);
 	c1->left.SameAs(this, wxLeft, 10);
@@ -92,20 +130,54 @@ SendExpress::SendExpress(	CitClient *sock,
 	c3->height.AsIs(); c3->width.AsIs();
 	cancel_button->SetConstraints(c3);
 
+	wxLayoutConstraints *c4 = new wxLayoutConstraints;
+	c4->top.SameAs(this, wxTop, 10);
+	c4->left.SameAs(this, wxLeft, 10);
+	c4->right.SameAs(this, wxRight, 10);
+	c4->height.PercentOf(this, wxHeight, 30);
+	ToWhomFrame->SetConstraints(c4);
+
+	wxLayoutConstraints *c5 = new wxLayoutConstraints;
+	c5->top.SameAs(ToWhomFrame, wxTop, 15);
+	c5->left.SameAs(ToWhomFrame, wxLeft, 5);
+	c5->right.SameAs(ToWhomFrame, wxRight, 5);
+	c5->bottom.SameAs(ToWhomFrame, wxBottom, 5);
+	ToWhom->SetConstraints(c5);
+
+	wxLayoutConstraints *c6 = new wxLayoutConstraints;
+	c6->top.SameAs(ToWhomFrame, wxBottom, 10);
+	c6->left.SameAs(ToWhomFrame, wxLeft);
+	c6->right.SameAs(ToWhomFrame, wxRight);
+	c6->bottom.SameAs(send_button, wxTop, 10);
+	TheMessageFrame->SetConstraints(c6);
+
+	wxLayoutConstraints *c7 = new wxLayoutConstraints;
+	c7->top.SameAs(TheMessageFrame, wxTop, 15);
+	c7->left.SameAs(TheMessageFrame, wxLeft, 5);
+	c7->right.SameAs(TheMessageFrame, wxRight, 5);
+	c7->bottom.SameAs(TheMessageFrame, wxBottom, 5);
+	TheMessage->SetConstraints(c7);
+
 	SetAutoLayout(TRUE);
 	Show(TRUE);
+
+        sendcmd = "RWHO";
+        if (citsock->serv_trans(sendcmd, recvcmd, xferbuf) != 1) return;
+
+        for (i=0; i<xferbuf.Number(); ++i) {
+                buf.Printf("%s", (wxString *)xferbuf.Nth(i)->GetData());
+                extract(user, buf, 1);
+		ToWhom->Append(user);
+	}
 
 }
 
 
 
 void SendExpress::OnButtonPressed(wxCommandEvent& whichbutton) {
-	wxString sendbuf;
-	wxString recvbuf;
-	int r;
-
 	if (whichbutton.GetId() == BUTTON_CANCEL) {
 		delete this;
+	} else if (whichbutton.GetId() == BUTTON_SEND) {
+		// FIX ... perform the server command!
 	}
-
 }
