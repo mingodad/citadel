@@ -337,52 +337,55 @@ void chat_recv(void) {
 			extract_token(cl_user, buf, 0, '|');
 			extract_token(cl_text, buf, 1, '|');
 
-			wprintf("parent.chat_transcript.document.write('");
+			if (strcasecmp(cl_text, "NOOP")) {
 
-			if (strcasecmp(cl_user, WC->last_chat_user)) {
+				wprintf("parent.chat_transcript.document.write('");
+	
+				if (strcasecmp(cl_user, WC->last_chat_user)) {
+					wprintf("<TABLE border=0 WIDTH=100%% "
+						"CELLSPACING=1 CELLPADDING=0 "
+						"BGCOLOR=&quot;#FFFFFF&quot;>"
+						"<TR><TD></TR></TD></TABLE>"
+					);
+	
+				}
+
 				wprintf("<TABLE border=0 WIDTH=100%% "
-					"CELLSPACING=1 CELLPADDING=0 "
-					"BGCOLOR=&quot;#FFFFFF&quot;>"
-					"<TR><TD></TR></TD></TABLE>"
-				);
+					"CELLSPACING=0 CELLPADDING=0 "
+					"BGCOLOR=&quot;#EEEEEE&quot;>");
+	
+				wprintf("<TR><TD>");
+	
+				if (!strcasecmp(cl_user, ":")) {
+					wprintf("<I>");
+				}
 
-			}
-
-			wprintf("<TABLE border=0 WIDTH=100%% "
-				"CELLSPACING=0 CELLPADDING=0 "
-				"BGCOLOR=&quot;#EEEEEE&quot;>");
-
-			wprintf("<TR><TD>");
-
-			if (!strcasecmp(cl_user, ":")) {
-				wprintf("<I>");
-			}
-
-			if (strcasecmp(cl_user, WC->last_chat_user)) {
-				wprintf("<B>");
-
-				if (!strcasecmp(cl_user, WC->wc_username)) {
-					wprintf("<FONT COLOR=&quot;#FF0000&quot;>");
+				if (strcasecmp(cl_user, WC->last_chat_user)) {
+					wprintf("<B>");
+	
+					if (!strcasecmp(cl_user, WC->wc_username)) {
+						wprintf("<FONT COLOR=&quot;#FF0000&quot;>");
+					}
+					else {
+						wprintf("<FONT COLOR=&quot;#0000FF&quot;>");
+					}
+					jsescputs(cl_user);
+	
+					wprintf("</FONT>: </B>");
 				}
 				else {
-					wprintf("<FONT COLOR=&quot;#0000FF&quot;>");
+					wprintf("&nbsp;&nbsp;&nbsp;");
 				}
-				jsescputs(cl_user);
+				jsescputs(cl_text);
+				if (!strcasecmp(cl_user, ":")) {
+					wprintf("</I>");
+				}
 
-				wprintf("</FONT>: </B>");
-			}
-			else {
-				wprintf("&nbsp;&nbsp;&nbsp;");
-			}
-			jsescputs(cl_text);
-			if (!strcasecmp(cl_user, ":")) {
-				wprintf("</I>");
-			}
+				wprintf("</TD></TR></TABLE>");
+				wprintf("'); \n");
 
-			wprintf("</TD></TR></TABLE>");
-			wprintf("'); \n");
-
-			strcpy(WC->last_chat_user, cl_user);
+				strcpy(WC->last_chat_user, cl_user);
+			}
 		}
 
 		wprintf("parent.chat_transcript.scrollTo(999999,999999);\">\n");

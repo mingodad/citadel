@@ -1,4 +1,10 @@
 $Log$
+Revision 505.20  2004/03/20 05:03:14  ajc
+* Original startup thread becomes a worker thread after initialization.
+  Doing otherwise turns it into a zombie (at least on Linux) and possibly
+  leads to other problems
+* Filter out NOOP's received in chat
+
 Revision 505.19  2004/03/18 04:32:24  ajc
 * Removed the language in README.TXT which told everyone that chat wouldn't
   work with a non-local Citadel server, because that's no longer true.
@@ -1740,4 +1746,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

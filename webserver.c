@@ -311,8 +311,8 @@ int main(int argc, char **argv)
 		spawn_another_worker_thread();
 	}
 
-	/* now the original thread can go away. */
-	pthread_exit(NULL);
+	/* now the original thread becomes another worker */
+	worker_entry();
 	return 0;
 }
 
