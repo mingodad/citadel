@@ -1,16 +1,16 @@
 /* $Id$ */
-int is_known (struct quickroom *roombuf, int roomnum,
-	      struct usersupp *userbuf);
-int has_newmsgs (struct quickroom *roombuf, int roomnum,
-		 struct usersupp *userbuf);
-int is_zapped (struct quickroom *roombuf, int roomnum,
-	       struct usersupp *userbuf);
-int getroom(struct quickroom *qrbuf, char *room_name);
-void b_putroom(struct quickroom *qrbuf, char *room_name);
-void putroom(struct quickroom *);
+int is_known (struct room *roombuf, int roomnum,
+	      struct user *userbuf);
+int has_newmsgs (struct room *roombuf, int roomnum,
+		 struct user *userbuf);
+int is_zapped (struct room *roombuf, int roomnum,
+	       struct user *userbuf);
+int getroom(struct room *qrbuf, char *room_name);
+void b_putroom(struct room *qrbuf, char *room_name);
+void putroom(struct room *);
 void b_deleteroom(char *);
-int lgetroom(struct quickroom *qrbuf, char *room_name);
-void lputroom(struct quickroom *qrbuf);
+int lgetroom(struct room *qrbuf, char *room_name);
+void lputroom(struct room *qrbuf);
 void getfloor (struct floor *flbuf, int floor_num);
 struct floor *cgetfloor(int floor_num);
 void lgetfloor (struct floor *flbuf, int floor_num);
@@ -46,15 +46,15 @@ void cmd_lflr (void);
 void cmd_cflr (char *argbuf);
 void cmd_kflr (char *argbuf);
 void cmd_eflr (char *argbuf);
-void ForEachRoom(void (*CallBack)(struct quickroom *EachRoom, void *out_data),
+void ForEachRoom(void (*CallBack)(struct room *EachRoom, void *out_data),
 	void *in_data);
 void assoc_file_name(char *buf, size_t n,
-		     struct quickroom *qrbuf, const char *prefix);
-void delete_room(struct quickroom *qrbuf);
-void list_roomname(struct quickroom *qrbuf, int ra);
-int is_noneditable(struct quickroom *qrbuf);
-int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf);
-int CtdlDoIHavePermissionToDeleteThisRoom(struct quickroom *qr);
+		     struct room *qrbuf, const char *prefix);
+void delete_room(struct room *qrbuf);
+void list_roomname(struct room *qrbuf, int ra);
+int is_noneditable(struct room *qrbuf);
+int CtdlRoomAccess(struct room *roombuf, struct user *userbuf);
+int CtdlDoIHavePermissionToDeleteThisRoom(struct room *qr);
 
 int CtdlRenameRoom(char *old_name, char *new_name, int new_floor);
 /*

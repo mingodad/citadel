@@ -63,18 +63,18 @@ void CopyNewUserGreetings(void) {
 
 
 	/* Only do this for new users. */
-	if (CC->usersupp.timescalled != 1) return;
+	if (CC->user.timescalled != 1) return;
 
 	/* This user's mailbox. */
-	MailboxName(mailboxname, sizeof mailboxname, &CC->usersupp, MAILROOM);
+	MailboxName(mailboxname, sizeof mailboxname, &CC->user, MAILROOM);
 
 	/* Go to the source room ... bail out silently if it's not there,
 	 * or if it's not private.
 	 */
-	if (getroom(&CC->quickroom, NEWUSERGREETINGS) != 0) return;
-	if (! CC->quickroom.QRflags & QR_PRIVATE ) return;
+	if (getroom(&CC->room, NEWUSERGREETINGS) != 0) return;
+	if (! CC->room.QRflags & QR_PRIVATE ) return;
 
-	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->quickroom.QRnumber, sizeof(long));
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
 
 	if (cdbfr != NULL) {
 		msglist = mallok(cdbfr->len);

@@ -92,7 +92,7 @@ void check_sched_shutdown(void) {
  * NOTE: this function pair should ONLY be called during startup.  It is NOT
  * thread safe.
  */
-void check_ref_counts_backend(struct quickroom *qrbuf, void *data) {
+void check_ref_counts_backend(struct room *qrbuf, void *data) {
 	struct floor flbuf;
 
 	getfloor(&flbuf, qrbuf->QRfloor);

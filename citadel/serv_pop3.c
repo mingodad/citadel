@@ -161,14 +161,14 @@ int pop3_grab_mailbox(void) {
         struct visit vbuf;
 	int i;
 
-	if (getroom(&CC->quickroom, MAILROOM) != 0) return(-1);
+	if (getroom(&CC->room, MAILROOM) != 0) return(-1);
 
 	/* Load up the messages */
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL,
 		pop3_add_message, NULL);
 
 	/* Figure out which are old and which are new */
-        CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+        CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
 	POP3->lastseen = (-1);
 	if (POP3->num_msgs) for (i=0; i<POP3->num_msgs; ++i) {
 		if (is_msg_in_mset(vbuf.v_seen,
@@ -187,7 +187,7 @@ void pop3_login(void)
 	msgs = pop3_grab_mailbox();
 	if (msgs >= 0) {
 		cprintf("+OK %s is logged in (%d messages)\r\n",
-			CC->usersupp.fullname, msgs);
+			CC->user.fullname, msgs);
 		lprintf(9, "POP3 password login successful\n");
 	}
 	else {
@@ -232,13 +232,13 @@ void pop3_apop(char *argbuf)
    	return;
    }
    
-   if (getuser(&CC->usersupp, CC->curr_user))
+   if (getuser(&CC->user, CC->curr_user))
    {
    	cprintf("-ERR No such user.\r\n");
    	return;
    }
    
-   make_apop_string(CC->usersupp.password, CC->cs_nonce, realdigest, sizeof realdigest);
+   make_apop_string(CC->user.password, CC->cs_nonce, realdigest, sizeof realdigest);
    if (!strncasecmp(realdigest, userdigest, MD5_HEXSTRING_SIZE-1))
    {
 	do_login();
@@ -447,14 +447,14 @@ void pop3_update(void) {
 
 	/* Set last read pointer */
 	if (POP3->num_msgs > 0) {
-		lgetuser(&CC->usersupp, CC->curr_user);
+		lgetuser(&CC->user, CC->curr_user);
 
-		CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+		CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
 		snprintf(vbuf.v_seen, sizeof vbuf.v_seen, "*:%ld",
 			POP3->msgs[POP3->num_msgs-1].msgnum);
-		CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+		CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
 
-		lputuser(&CC->usersupp);
+		lputuser(&CC->user);
 	}
 
 }

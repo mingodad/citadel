@@ -44,7 +44,7 @@
 /*
  * Retrieve the applicable expire policy for a specific room
  */
-void GetExpirePolicy(struct ExpirePolicy *epbuf, struct quickroom *qrbuf) {
+void GetExpirePolicy(struct ExpirePolicy *epbuf, struct room *qrbuf) {
 	struct floor *fl;
 
 	/* If the room has its own policy, return it */	
@@ -75,10 +75,10 @@ void cmd_gpex(char *argbuf) {
 
 	extract(which, argbuf, 0);
 	if (!strcasecmp(which, "room")) {
-		memcpy(&exp, &CC->quickroom.QRep, sizeof(struct ExpirePolicy));
+		memcpy(&exp, &CC->room.QRep, sizeof(struct ExpirePolicy));
 	}
 	else if (!strcasecmp(which, "floor")) {
-		fl = cgetfloor(CC->quickroom.QRfloor);
+		fl = cgetfloor(CC->room.QRfloor);
 		memcpy(&exp, &fl->f_ep, sizeof(struct ExpirePolicy));
 	}
 	else if (!strcasecmp(which, "site")) {
@@ -117,23 +117,23 @@ void cmd_spex(char *argbuf) {
 				ERROR+HIGHER_ACCESS_REQUIRED);
 			return;
 		}
-		lgetroom(&CC->quickroom, CC->quickroom.QRname);
-		memcpy(&CC->quickroom.QRep, &exp, sizeof(struct ExpirePolicy));
-		lputroom(&CC->quickroom);
+		lgetroom(&CC->room, CC->room.QRname);
+		memcpy(&CC->room.QRep, &exp, sizeof(struct ExpirePolicy));
+		lputroom(&CC->room);
 		cprintf("%d Room expire policy set.\n", CIT_OK);
 		return;
 	}
 
-	if (CC->usersupp.axlevel < 6) {
+	if (CC->user.axlevel < 6) {
 		cprintf("%d Higher access required.\n",
 			ERROR+HIGHER_ACCESS_REQUIRED);
 		return;
 	}
 
 	if (!strcasecmp(which, "floor")) {
-		lgetfloor(&flbuf, CC->quickroom.QRfloor);
+		lgetfloor(&flbuf, CC->room.QRfloor);
 		memcpy(&flbuf.f_ep, &exp, sizeof(struct ExpirePolicy));
-		lputfloor(&flbuf, CC->quickroom.QRfloor);
+		lputfloor(&flbuf, CC->room.QRfloor);
 		cprintf("%d Floor expire policy set.\n", CIT_OK);
 		return;
 	}

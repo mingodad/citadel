@@ -89,9 +89,9 @@ int imap_parameterize(char **args, char *buf)
 }
 
 /*
- * Convert a struct quickroom to an IMAP-compatible mailbox name.
+ * Convert a struct room to an IMAP-compatible mailbox name.
  */
-void imap_mailboxname(char *buf, int bufsize, struct quickroom *qrbuf)
+void imap_mailboxname(char *buf, int bufsize, struct room *qrbuf)
 {
 	struct floor *fl;
 	int i;
@@ -190,7 +190,7 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 	if (ret & IR_MAILBOX) {
 		if (atol(rbuf) == 0L) {
 			strcpy(buf, rbuf);
-			sprintf(rbuf, "%010ld.%s", CC->usersupp.usernum, buf);
+			sprintf(rbuf, "%010ld.%s", CC->user.usernum, buf);
 		}
 	}
  ***/

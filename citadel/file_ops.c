@@ -120,7 +120,7 @@ void cmd_delf(char *filename)
 	if (CtdlAccessCheck(ac_room_aide))
 		return;
 
-	if ((CC->quickroom.QRflags & QR_DIRECTORY) == 0) {
+	if ((CC->room.QRflags & QR_DIRECTORY) == 0) {
 		cprintf("%d No directory in this room.\n",
 			ERROR + NOT_HERE);
 		return;
@@ -137,7 +137,7 @@ void cmd_delf(char *filename)
 		}
 	}
 	snprintf(pathname, sizeof pathname, "./files/%s/%s",
-		 CC->quickroom.QRdirname, filename);
+		 CC->room.QRdirname, filename);
 	a = unlink(pathname);
 	if (a == 0) {
 		cprintf("%d File '%s' deleted.\n", CIT_OK, pathname);
@@ -162,14 +162,14 @@ void cmd_movf(char *cmdbuf)
 	char newroom[SIZ];
 	char buf[SIZ];
 	int a;
-	struct quickroom qrbuf;
+	struct room qrbuf;
 
 	extract(filename, cmdbuf, 0);
 	extract(newroom, cmdbuf, 1);
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
 
-	if ((CC->quickroom.QRflags & QR_DIRECTORY) == 0) {
+	if ((CC->room.QRflags & QR_DIRECTORY) == 0) {
 		cprintf("%d No directory in this room.\n",
 			ERROR + NOT_HERE);
 		return;
@@ -187,7 +187,7 @@ void cmd_movf(char *cmdbuf)
 		}
 	}
 	snprintf(pathname, sizeof pathname, "./files/%s/%s",
-		 CC->quickroom.QRdirname, filename);
+		 CC->room.QRdirname, filename);
 	if (access(pathname, 0) != 0) {
 		cprintf("%d File '%s' not found.\n",
 			ERROR + FILE_NOT_FOUND, pathname);
@@ -215,7 +215,7 @@ void cmd_movf(char *cmdbuf)
 	/* this is a crude method of copying the file description */
 	snprintf(buf, sizeof buf,
 		 "cat ./files/%s/filedir |grep %s >>./files/%s/filedir",
-		 CC->quickroom.QRdirname, filename, qrbuf.QRdirname);
+		 CC->room.QRdirname, filename, qrbuf.QRdirname);
 	system(buf);
 	cprintf("%d File '%s' has been moved.\n", CIT_OK, filename);
 }
@@ -238,7 +238,7 @@ void cmd_netf(char *cmdbuf)
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
 
-	if ((CC->quickroom.QRflags & QR_DIRECTORY) == 0) {
+	if ((CC->room.QRflags & QR_DIRECTORY) == 0) {
 		cprintf("%d No directory in this room.\n",
 			ERROR + NOT_HERE);
 		return;
@@ -256,7 +256,7 @@ void cmd_netf(char *cmdbuf)
 		}
 	}
 	snprintf(pathname, sizeof pathname, "./files/%s/%s",
-		 CC->quickroom.QRdirname, filename);
+		 CC->room.QRdirname, filename);
 	if (access(pathname, 0) != 0) {
 		cprintf("%d File '%s' not found.\n",
 			ERROR + FILE_NOT_FOUND, pathname);
@@ -281,14 +281,14 @@ void cmd_netf(char *cmdbuf)
 	putc(255, ofp);
 	putc(MES_NORMAL, ofp);
 	putc(0, ofp);
-	fprintf(ofp, "Pcit%ld", CC->usersupp.usernum);
+	fprintf(ofp, "Pcit%ld", CC->user.usernum);
 	putc(0, ofp);
 	time(&now);
 	fprintf(ofp, "T%ld", (long) now);
 	putc(0, ofp);
-	fprintf(ofp, "A%s", CC->usersupp.fullname);
+	fprintf(ofp, "A%s", CC->user.fullname);
 	putc(0, ofp);
-	fprintf(ofp, "O%s", CC->quickroom.QRname);
+	fprintf(ofp, "O%s", CC->room.QRname);
 	putc(0, ofp);
 	fprintf(ofp, "N%s", NODENAME);
 	putc(0, ofp);
@@ -301,7 +301,7 @@ void cmd_netf(char *cmdbuf)
 
 	snprintf(buf, sizeof buf,
 		 "cd ./files/%s; uuencode %s <%s 2>/dev/null >>%s",
-		 CC->quickroom.QRdirname, filename, filename, outfile);
+		 CC->room.QRdirname, filename, filename, outfile);
 	system(buf);
 
 	ofp = fopen(outfile, "a");
@@ -349,7 +349,7 @@ void cmd_open(char *cmdbuf)
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
-	if ((CC->quickroom.QRflags & QR_DIRECTORY) == 0) {
+	if ((CC->room.QRflags & QR_DIRECTORY) == 0) {
 		cprintf("%d No directory in this room.\n",
 			ERROR + NOT_HERE);
 		return;
@@ -374,7 +374,7 @@ void cmd_open(char *cmdbuf)
 	}
 
 	snprintf(pathname, sizeof pathname,
-		 "./files/%s/%s", CC->quickroom.QRdirname, filename);
+		 "./files/%s/%s", CC->room.QRdirname, filename);
 	CC->download_fp = fopen(pathname, "r");
 
 	if (CC->download_fp == NULL) {
@@ -393,7 +393,7 @@ void cmd_oimg(char *cmdbuf)
 {
 	char filename[SIZ];
 	char pathname[SIZ];
-	struct usersupp usbuf;
+	struct user usbuf;
 	char which_user[USERNAME_SIZE];
 	int which_floor;
 	int a;
@@ -426,7 +426,7 @@ void cmd_oimg(char *cmdbuf)
 		snprintf(pathname, sizeof pathname,
 			 "./images/floor.%d.gif", which_floor);
 	} else if (!strcasecmp(filename, "_roompic_")) {
-		assoc_file_name(pathname, sizeof pathname, &CC->quickroom, "images");
+		assoc_file_name(pathname, sizeof pathname, &CC->room, "images");
 	} else {
 		for (a = 0; a < strlen(filename); ++a) {
 			filename[a] = tolower(filename[a]);
@@ -460,7 +460,7 @@ void cmd_uopn(char *cmdbuf)
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
-	if ((CC->quickroom.QRflags & QR_DIRECTORY) == 0) {
+	if ((CC->room.QRflags & QR_DIRECTORY) == 0) {
 		cprintf("%d No directory in this room.\n",
 			ERROR + NOT_HERE);
 		return;
@@ -484,9 +484,9 @@ void cmd_uopn(char *cmdbuf)
 		}
 	}
 	snprintf(CC->upl_path, sizeof CC->upl_path, "./files/%s/%s",
-		 CC->quickroom.QRdirname, CC->upl_file);
+		 CC->room.QRdirname, CC->upl_file);
 	snprintf(CC->upl_filedir, sizeof CC->upl_filedir,
-		 "./files/%s/filedir", CC->quickroom.QRdirname);
+		 "./files/%s/filedir", CC->room.QRdirname);
 
 	CC->upload_fp = fopen(CC->upl_path, "r");
 	if (CC->upload_fp != NULL) {
@@ -540,25 +540,25 @@ void cmd_uimg(char *cmdbuf)
 		}
 	}
 
-	if (CC->usersupp.axlevel >= 6) {
+	if (CC->user.axlevel >= 6) {
 		snprintf(CC->upl_path, sizeof CC->upl_path, "./images/%s",
 			 basenm);
 	}
 
 	if (!strcasecmp(basenm, "_userpic_")) {
 		snprintf(CC->upl_path, sizeof CC->upl_path,
-			 "./userpics/%ld.gif", CC->usersupp.usernum);
+			 "./userpics/%ld.gif", CC->user.usernum);
 	}
 
 	if ((!strcasecmp(basenm, "_floorpic_"))
-	    && (CC->usersupp.axlevel >= 6)) {
+	    && (CC->user.axlevel >= 6)) {
 		which_floor = extract_int(cmdbuf, 2);
 		snprintf(CC->upl_path, sizeof CC->upl_path,
 			 "./images/floor.%d.gif", which_floor);
 	}
 
 	if ((!strcasecmp(basenm, "_roompic_")) && (is_room_aide())) {
-		assoc_file_name(CC->upl_path, sizeof CC->upl_path, &CC->quickroom, "images");
+		assoc_file_name(CC->upl_path, sizeof CC->upl_path, &CC->room, "images");
 	}
 
 	if (strlen(CC->upl_path) == 0) {
@@ -665,7 +665,7 @@ void cmd_ucls(char *cmd)
 		snprintf(upload_notice, sizeof upload_notice,
 			"NEW UPLOAD: '%s'\n %s\n",
 			CC->upl_file, CC->upl_comment);
-		quickie_message(CC->curr_user, NULL, CC->quickroom.QRname,
+		quickie_message(CC->curr_user, NULL, CC->room.QRname,
 				upload_notice, 0, NULL);
 	} else {
 		abort_upl(CC);

@@ -1,12 +1,12 @@
 /* $Id$ */
 int hash (char *str);
-int getuser (struct usersupp *, char *);
-int lgetuser (struct usersupp *, char *);
-void putuser (struct usersupp *);
-void lputuser (struct usersupp *);
+int getuser (struct user *, char *);
+int lgetuser (struct user *, char *);
+void putuser (struct user *);
+void lputuser (struct user *);
 int is_aide (void);
 int is_room_aide (void);
-int getuserbynumber (struct usersupp *usbuf, long int number);
+int getuserbynumber (struct user *usbuf, long int number);
 void cmd_user (char *cmdbuf);
 void session_startup (void);
 void logout (struct CitContext *who);
@@ -24,9 +24,9 @@ void cmd_invt_kick (char *iuser, int op);
 void cmd_forg (void);
 void cmd_gnur (void);
 void cmd_vali (char *v_args);
-void ForEachUser(void (*CallBack)(struct usersupp *EachUser, void *out_data),
+void ForEachUser(void (*CallBack)(struct user *EachUser, void *out_data),
 	void *in_data);
-void ListThisUser(struct usersupp *usbuf, void *data);
+void ListThisUser(struct user *usbuf, void *data);
 void cmd_list (void);
 void cmd_chek (void);
 void cmd_qusr (char *who);
@@ -37,12 +37,12 @@ int NewMailCount(void);
 int InitialMailCheck(void);
 void put_visit(struct visit *newvisit);
 void CtdlGetRelationship(struct visit *vbuf,
-                        struct usersupp *rel_user,
-                        struct quickroom *rel_room);
+                        struct user *rel_user,
+                        struct room *rel_room);
 void CtdlSetRelationship(struct visit *newvisit,
-                        struct usersupp *rel_user,
-                        struct quickroom *rel_room);
-void MailboxName(char *buf, size_t n, const struct usersupp *who,
+                        struct user *rel_user,
+                        struct room *rel_room);
+void MailboxName(char *buf, size_t n, const struct user *who,
 		 const char *prefix);
 int GenerateRelationshipIndex(  char *IndexBuf,
                                 long RoomID,

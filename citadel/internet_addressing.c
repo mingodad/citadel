@@ -113,7 +113,7 @@ int CtdlHostAlias(char *fqdn) {
  *
  * FIXME ... this needs to be updated to handle aliases.
  */
-int fuzzy_match(struct usersupp *us, char *matchstring) {
+int fuzzy_match(struct user *us, char *matchstring) {
 	int a;
 
 	if ( (!strncasecmp(matchstring, "cit", 3)) 

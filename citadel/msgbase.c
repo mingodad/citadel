@@ -292,7 +292,7 @@ void CtdlGetSeen(char *buf) {
 	struct visit vbuf;
 
 	/* Learn about the user and room in question */
-	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
 
 	safestrncpy(buf, vbuf.v_seen, SIZ);
 }
@@ -315,10 +315,10 @@ void CtdlSetSeen(long target_msgnum, int target_setting) {
 	int num_msgs = 0;
 
 	/* Learn about the user and room in question */
-	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
 
 	/* Load the message list */
-	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->quickroom.QRnumber, sizeof(long));
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
 	if (cdbfr != NULL) {
 		msglist = mallok(cdbfr->len);
 		memcpy(msglist, cdbfr->ptr, cdbfr->len);
@@ -377,7 +377,7 @@ void CtdlSetSeen(long target_msgnum, int target_setting) {
 	safestrncpy(vbuf.v_seen, newseen, SIZ);
 	lprintf(9, " after optimize: %s\n", vbuf.v_seen);
 	phree(msglist);
-	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+	CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
 }
 
 
@@ -407,11 +407,11 @@ int CtdlForEachMessage(int mode, long ref,
 
 	/* Learn about the user and room in question */
 	get_mm();
-	getuser(&CC->usersupp, CC->curr_user);
-	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+	getuser(&CC->user, CC->curr_user);
+	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
 
 	/* Load the message list */
-	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->quickroom.QRnumber, sizeof(long));
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
 	if (cdbfr != NULL) {
 		msglist = mallok(cdbfr->len);
 		memcpy(msglist, cdbfr->ptr, cdbfr->len);
@@ -490,7 +490,7 @@ int CtdlForEachMessage(int mode, long ref,
 				|| ((mode == MSGS_EQ) && (thismsg == ref))
 			    )
 			    ) {
-				if ((mode == MSGS_NEW) && (CC->usersupp.flags & US_LASTOLD) && (lastold > 0L) && (printed_lastold == 0) && (!is_seen)) {
+				if ((mode == MSGS_NEW) && (CC->user.flags & US_LASTOLD) && (lastold > 0L) && (printed_lastold == 0) && (!is_seen)) {
 					if (CallBack)
 						CallBack(lastold, userdata);
 					printed_lastold = 1;
@@ -597,8 +597,8 @@ void do_help_subst(char *buffer)
 	help_subst(buffer, "^nodename", config.c_nodename);
 	help_subst(buffer, "^humannode", config.c_humannode);
 	help_subst(buffer, "^fqdn", config.c_fqdn);
-	help_subst(buffer, "^username", CC->usersupp.fullname);
-	snprintf(buf2, sizeof buf2, "%ld", CC->usersupp.usernum);
+	help_subst(buffer, "^username", CC->user.fullname);
+	snprintf(buf2, sizeof buf2, "%ld", CC->user.usernum);
 	help_subst(buffer, "^usernum", buf2);
 	help_subst(buffer, "^sysadm", config.c_sysadm);
 	help_subst(buffer, "^variantname", CITADEL);
@@ -1588,7 +1588,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 	lprintf(9, "CtdlSaveMsgPointerInRoom(%s, %ld, %d)\n",
 		roomname, msgid, flags);
 
-	strcpy(hold_rm, CC->quickroom.QRname);
+	strcpy(hold_rm, CC->room.QRname);
 
 	/* We may need to check to see if this message is real */
 	if (  (flags & SM_VERIFY_GOODNESS)
@@ -1601,8 +1601,8 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 	/* Perform replication checks if necessary */
 	if ( (flags & SM_DO_REPL_CHECK) && (msg != NULL) ) {
 
-		if (getroom(&CC->quickroom,
-		   ((roomname != NULL) ? roomname : CC->quickroom.QRname) )
+		if (getroom(&CC->room,
+		   ((roomname != NULL) ? roomname : CC->room.QRname) )
 	   	   != 0) {
 			lprintf(9, "No such room <%s>\n", roomname);
 			if (msg != NULL) CtdlFreeMessage(msg);
@@ -1610,7 +1610,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 		}
 
 		if (ReplicationChecks(msg) != 0) {
-			getroom(&CC->quickroom, hold_rm);
+			getroom(&CC->room, hold_rm);
 			if (msg != NULL) CtdlFreeMessage(msg);
 			lprintf(9, "Did replication, and newer exists\n");
 			return(0);
@@ -1618,15 +1618,15 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 	}
 
 	/* Now the regular stuff */
-	if (lgetroom(&CC->quickroom,
-	   ((roomname != NULL) ? roomname : CC->quickroom.QRname) )
+	if (lgetroom(&CC->room,
+	   ((roomname != NULL) ? roomname : CC->room.QRname) )
 	   != 0) {
 		lprintf(9, "No such room <%s>\n", roomname);
 		if (msg != NULL) CtdlFreeMessage(msg);
 		return(ERROR + ROOM_NOT_FOUND);
 	}
 
-        cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->quickroom.QRnumber, sizeof(long));
+        cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
         if (cdbfr == NULL) {
                 msglist = NULL;
                 num_msgs = 0;
@@ -1646,8 +1646,8 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 	 */
         if (num_msgs > 0) for (i=0; i<num_msgs; ++i) {
 		if (msglist[i] == msgid) {
-			lputroom(&CC->quickroom);	/* unlock the room */
-			getroom(&CC->quickroom, hold_rm);
+			lputroom(&CC->room);	/* unlock the room */
+			getroom(&CC->room, hold_rm);
 			if (msg != NULL) CtdlFreeMessage(msg);
 			return(ERROR + ALREADY_EXISTS);
 		}
@@ -1670,16 +1670,16 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
         highest_msg = msglist[num_msgs - 1];
 
         /* Write it back to disk. */
-        cdb_store(CDB_MSGLISTS, &CC->quickroom.QRnumber, sizeof(long),
+        cdb_store(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long),
                   msglist, num_msgs * sizeof(long));
 
         /* Free up the memory we used. */
         phree(msglist);
 
 	/* Update the highest-message pointer and unlock the room. */
-	CC->quickroom.QRhighest = highest_msg;
-	lputroom(&CC->quickroom);
-	getroom(&CC->quickroom, hold_rm);
+	CC->room.QRhighest = highest_msg;
+	lputroom(&CC->room);
+	getroom(&CC->room, hold_rm);
 
 	/* Bump the reference count for this message. */
 	if ((flags & SM_DONT_BUMP_REF)==0) {
@@ -1822,7 +1822,7 @@ void check_repl(long msgnum, void *userdata) {
 	lprintf(9, "older!\n");
 
 	/* Existing isn't newer?  Then delete the old one(s). */
-	CtdlDeleteMessages(CC->quickroom.QRname, msgnum, "");
+	CtdlDeleteMessages(CC->room.QRname, msgnum, "");
 }
 
 
@@ -1884,7 +1884,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	char recipient[SIZ];
 	long newmsgid;
 	char *mptr = NULL;
-	struct usersupp userbuf;
+	struct user userbuf;
 	int a, i;
 	struct MetaData smi;
 	FILE *network_fp = NULL;
@@ -1967,8 +1967,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* Goto the correct room */
 	lprintf(9, "Switching rooms\n");
-	strcpy(hold_rm, CC->quickroom.QRname);
-	strcpy(actual_rm, CC->quickroom.QRname);
+	strcpy(hold_rm, CC->room.QRname);
+	strcpy(actual_rm, CC->room.QRname);
 	if (recps != NULL) {
 		strcpy(actual_rm, SENTITEMS);
 	}
@@ -1976,7 +1976,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	/* If the user is a twit, move to the twit room for posting */
 	lprintf(9, "Handling twit stuff\n");
 	if (TWITDETECT) {
-		if (CC->usersupp.axlevel == 2) {
+		if (CC->user.axlevel == 2) {
 			strcpy(hold_rm, actual_rm);
 			strcpy(actual_rm, config.c_twitroom);
 		}
@@ -1988,15 +1988,15 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	lprintf(9, "Possibly relocating\n");
-	if (strcasecmp(actual_rm, CC->quickroom.QRname)) {
-		getroom(&CC->quickroom, actual_rm);
+	if (strcasecmp(actual_rm, CC->room.QRname)) {
+		getroom(&CC->room, actual_rm);
 	}
 
 	/*
 	 * If this message has no O (room) field, generate one.
 	 */
 	if (msg->cm_fields['O'] == NULL) {
-		msg->cm_fields['O'] = strdoop(CC->quickroom.QRname);
+		msg->cm_fields['O'] = strdoop(CC->room.QRname);
 	}
 
 	/* Perform "before save" hooks (aborting if any return nonzero) */
@@ -2054,9 +2054,9 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* Bump this user's messages posted counter. */
 	lprintf(9, "Updating user\n");
-	lgetuser(&CC->usersupp, CC->curr_user);
-	CC->usersupp.posted = CC->usersupp.posted + 1;
-	lputuser(&CC->usersupp);
+	lgetuser(&CC->user, CC->curr_user);
+	CC->user.posted = CC->user.posted + 1;
+	lputuser(&CC->user);
 
 	/* If this is private, local mail, make a copy in the
 	 * recipient's mailbox and bump the reference count.
@@ -2123,8 +2123,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* Go back to the room we started from */
 	lprintf(9, "Returning to original room\n");
-	if (strcasecmp(hold_rm, CC->quickroom.QRname))
-		getroom(&CC->quickroom, hold_rm);
+	if (strcasecmp(hold_rm, CC->room.QRname))
+		getroom(&CC->room, hold_rm);
 
 	/* For internet mail, generate delivery instructions.
 	 * Yes, this is recursive.  Deal with it.  Infinite recursion does
@@ -2292,7 +2292,7 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
  */
 
 struct CtdlMessage *CtdlMakeMessage(
-	struct usersupp *author,	/* author's usersupp structure */
+	struct user *author,	/* author's user structure */
 	char *recipient,		/* NULL if it's not mail */
 	char *room,			/* room where it's going */
 	int type,			/* see MES_ types in header file */
@@ -2327,11 +2327,11 @@ struct CtdlMessage *CtdlMakeMessage(
 	else
 		msg->cm_fields['A'] = strdoop(author->fullname);
 
-	if (CC->quickroom.QRflags & QR_MAILBOX) {		/* room */
-		msg->cm_fields['O'] = strdoop(&CC->quickroom.QRname[11]);
+	if (CC->room.QRflags & QR_MAILBOX) {		/* room */
+		msg->cm_fields['O'] = strdoop(&CC->room.QRname[11]);
 	}
 	else {
-		msg->cm_fields['O'] = strdoop(CC->quickroom.QRname);
+		msg->cm_fields['O'] = strdoop(CC->room.QRname);
 	}
 
 	msg->cm_fields['N'] = strdoop(NODENAME);		/* nodename */
@@ -2344,7 +2344,7 @@ struct CtdlMessage *CtdlMakeMessage(
 		msg->cm_fields['D'] = strdoop(dest_node);
 	}
 
-	if ( (author == &CC->usersupp) && (strlen(CC->cs_inet_email) > 0) ) {
+	if ( (author == &CC->user) && (strlen(CC->cs_inet_email) > 0) ) {
 		msg->cm_fields['F'] = strdoop(CC->cs_inet_email);
 	}
 
@@ -2379,21 +2379,21 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n) {
 		return (ERROR + NOT_LOGGED_IN);
 	}
 
-	if ((CC->usersupp.axlevel < 2)
-	    && ((CC->quickroom.QRflags & QR_MAILBOX) == 0)) {
+	if ((CC->user.axlevel < 2)
+	    && ((CC->room.QRflags & QR_MAILBOX) == 0)) {
 		snprintf(errmsgbuf, n, "Need to be validated to enter "
 				"(except in %s> to sysop)", MAILROOM);
 		return (ERROR + HIGHER_ACCESS_REQUIRED);
 	}
 
-	if ((CC->usersupp.axlevel < 4)
-	   && (CC->quickroom.QRflags & QR_NETWORK)) {
+	if ((CC->user.axlevel < 4)
+	   && (CC->room.QRflags & QR_NETWORK)) {
 		snprintf(errmsgbuf, n, "Need net privileges to enter here.");
 		return (ERROR + HIGHER_ACCESS_REQUIRED);
 	}
 
-	if ((CC->usersupp.axlevel < 6)
-	   && (CC->quickroom.QRflags & QR_READONLY)) {
+	if ((CC->user.axlevel < 6)
+	   && (CC->room.QRflags & QR_READONLY)) {
 		snprintf(errmsgbuf, n, "Sorry, this is a read-only room.");
 		return (ERROR + HIGHER_ACCESS_REQUIRED);
 	}
@@ -2407,7 +2407,7 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n) {
  * Check to see if the specified user has Internet mail permission
  * (returns nonzero if permission is granted)
  */
-int CtdlCheckInternetMailPermission(struct usersupp *who) {
+int CtdlCheckInternetMailPermission(struct user *who) {
 
 	/* Globally enabled? */
 	if (config.c_restrict == 0) return(1);
@@ -2437,8 +2437,8 @@ struct recptypes *validate_recipients(char *recipients) {
 	int i, j;
 	int mailtype;
 	int invalid;
-	struct usersupp tempUS;
-	struct quickroom tempQR;
+	struct user tempUS;
+	struct room tempQR;
 
 	/* Initialize */
 	ret = (struct recptypes *) malloc(sizeof(struct recptypes));
@@ -2636,7 +2636,7 @@ void cmd_ent0(char *entargs)
 	/* Check some other permission type things. */
 
 	if (post == 2) {
-	 	if (CC->usersupp.axlevel < 6) {
+	 	if (CC->user.axlevel < 6) {
 			cprintf("%d You don't have permission to masquerade.\n",
 				ERROR + HIGHER_ACCESS_REQUIRED);
 			return;
@@ -2654,10 +2654,10 @@ void cmd_ent0(char *entargs)
 	 * make sure the user has specified at least one recipient.  Then
 	 * validate the recipient(s).
 	 */
-	if ( (CC->quickroom.QRflags & QR_MAILBOX)
-	   && (!strcasecmp(&CC->quickroom.QRname[11], MAILROOM)) ) {
+	if ( (CC->room.QRflags & QR_MAILBOX)
+	   && (!strcasecmp(&CC->room.QRname[11], MAILROOM)) ) {
 
-		if (CC->usersupp.axlevel < 2) {
+		if (CC->user.axlevel < 2) {
 			strcpy(recp, "sysop");
 		}
 
@@ -2669,7 +2669,7 @@ void cmd_ent0(char *entargs)
 			return;
 		}
 		if (valid->num_internet > 0) {
-			if (CtdlCheckInternetMailPermission(&CC->usersupp)==0) {
+			if (CtdlCheckInternetMailPermission(&CC->user)==0) {
 				cprintf("%d You do not have permission "
 					"to send Internet mail.\n",
 					ERROR + HIGHER_ACCESS_REQUIRED);
@@ -2679,7 +2679,7 @@ void cmd_ent0(char *entargs)
 		}
 
 		if ( ( (valid->num_internet + valid->num_ignet) > 0)
-		   && (CC->usersupp.axlevel < 4) ) {
+		   && (CC->user.axlevel < 4) ) {
 			cprintf("%d Higher access required for network mail.\n",
 				ERROR + HIGHER_ACCESS_REQUIRED);
 			phree(valid);
@@ -2687,7 +2687,7 @@ void cmd_ent0(char *entargs)
 		}
 	
 		if ((RESTRICT_INTERNET == 1) && (valid->num_internet > 0)
-		    && ((CC->usersupp.flags & US_INTERNET) == 0)
+		    && ((CC->user.flags & US_INTERNET) == 0)
 		    && (!CC->internal_pgm)) {
 			cprintf("%d You don't have access to Internet mail.\n",
 				ERROR + HIGHER_ACCESS_REQUIRED);
@@ -2699,16 +2699,16 @@ void cmd_ent0(char *entargs)
 
 	/* Is this a room which has anonymous-only or anonymous-option? */
 	anonymous = MES_NORMAL;
-	if (CC->quickroom.QRflags & QR_ANONONLY) {
+	if (CC->room.QRflags & QR_ANONONLY) {
 		anonymous = MES_ANONONLY;
 	}
-	if (CC->quickroom.QRflags & QR_ANONOPT) {
+	if (CC->room.QRflags & QR_ANONOPT) {
 		if (anon_flag == 1) {	/* only if the user requested it */
 			anonymous = MES_ANONOPT;
 		}
 	}
 
-	if ((CC->quickroom.QRflags & QR_MAILBOX) == 0) {
+	if ((CC->room.QRflags & QR_MAILBOX) == 0) {
 		recp[0] = 0;
 	}
 
@@ -2735,8 +2735,8 @@ void cmd_ent0(char *entargs)
 
 	/* Read in the message from the client. */
 	cprintf("%d send message\n", SEND_LISTING);
-	msg = CtdlMakeMessage(&CC->usersupp, recp,
-		CC->quickroom.QRname, anonymous, format_type,
+	msg = CtdlMakeMessage(&CC->user, recp,
+		CC->room.QRname, anonymous, format_type,
 		masquerade_as, subject, NULL);
 
 	if (msg != NULL) {
@@ -2760,7 +2760,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 )
 {
 
-	struct quickroom qrbuf;
+	struct room qrbuf;
 	struct cdbdata *cdbfr;
 	long *msglist = NULL;
 	long *dellist = NULL;
@@ -2849,10 +2849,10 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
  * the current room (returns 1 for yes, 0 for no)
  */
 int CtdlDoIHavePermissionToDeleteMessagesFromThisRoom(void) {
-	getuser(&CC->usersupp, CC->curr_user);
-	if ((CC->usersupp.axlevel < 6)
-	    && (CC->usersupp.usernum != CC->quickroom.QRroomaide)
-	    && ((CC->quickroom.QRflags & QR_MAILBOX) == 0)
+	getuser(&CC->user, CC->curr_user);
+	if ((CC->user.axlevel < 6)
+	    && (CC->user.usernum != CC->room.QRroomaide)
+	    && ((CC->room.QRflags & QR_MAILBOX) == 0)
 	    && (!(CC->internal_pgm))) {
 		return(0);
 	}
@@ -2876,7 +2876,7 @@ void cmd_dele(char *delstr)
 	}
 	delnum = extract_long(delstr, 0);
 
-	num_deleted = CtdlDeleteMessages(CC->quickroom.QRname, delnum, "");
+	num_deleted = CtdlDeleteMessages(CC->room.QRname, delnum, "");
 
 	if (num_deleted) {
 		cprintf("%d %d message%s deleted.\n", CIT_OK,
@@ -2909,7 +2909,7 @@ void cmd_move(char *args)
 {
 	long num;
 	char targ[SIZ];
-	struct quickroom qtemp;
+	struct room qtemp;
 	int err;
 	int is_copy = 0;
 
@@ -2923,16 +2923,16 @@ void cmd_move(char *args)
 		return;
 	}
 
-	getuser(&CC->usersupp, CC->curr_user);
+	getuser(&CC->user, CC->curr_user);
 	/* Aides can move/copy */
-	if ((CC->usersupp.axlevel < 6)
+	if ((CC->user.axlevel < 6)
 	    /* Roomaides can move/copy */
-	    && (CC->usersupp.usernum != CC->quickroom.QRroomaide)
+	    && (CC->user.usernum != CC->room.QRroomaide)
 	    /* Permit move/copy to/from personal rooms */
-	    && (!((CC->quickroom.QRflags & QR_MAILBOX)
+	    && (!((CC->room.QRflags & QR_MAILBOX)
 			    && (qtemp.QRflags & QR_MAILBOX)))
 	    /* Permit only copy from public to personal room */
-	    && (!(is_copy && !(CC->quickroom.QRflags & QR_MAILBOX)
+	    && (!(is_copy && !(CC->room.QRflags & QR_MAILBOX)
 			    && (qtemp.QRflags & QR_MAILBOX)))) {
 		cprintf("%d Higher access required.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);
@@ -2950,7 +2950,7 @@ void cmd_move(char *args)
 	 * if this is a 'move' rather than a 'copy' operation.
 	 */
 	if (is_copy == 0) {
-		CtdlDeleteMessages(CC->quickroom.QRname, num, "");
+		CtdlDeleteMessages(CC->room.QRname, num, "");
 	}
 
 	cprintf("%d Message %s.\n", CIT_OK, (is_copy ? "copied" : "moved") );
@@ -3052,7 +3052,7 @@ void AdjRefCount(long msgnum, int incr)
 void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 			char *content_type,	/* MIME type of this object */
 			char *tempfilename,	/* Where to fetch it from */
-			struct usersupp *is_mailbox,	/* Mailbox room? */
+			struct user *is_mailbox,	/* Mailbox room? */
 			int is_binary,		/* Is encoding necessary? */
 			int is_unique,		/* Del others of this type? */
 			unsigned int flags	/* Internal save flags */
@@ -3060,7 +3060,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 {
 
 	FILE *fp;
-	struct quickroom qrbuf;
+	struct room qrbuf;
 	char roomname[ROOMNAMELEN];
 	struct CtdlMessage *msg;
 
@@ -3135,7 +3135,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 	msg->cm_magic = CTDLMESSAGE_MAGIC;
 	msg->cm_anon_type = MES_NORMAL;
 	msg->cm_format_type = 4;
-	msg->cm_fields['A'] = strdoop(CC->usersupp.fullname);
+	msg->cm_fields['A'] = strdoop(CC->user.fullname);
 	msg->cm_fields['O'] = strdoop(req_room);
 	msg->cm_fields['N'] = strdoop(config.c_nodename);
 	msg->cm_fields['H'] = strdoop(config.c_humannode);
@@ -3178,9 +3178,9 @@ char *CtdlGetSysConfig(char *sysconfname) {
 	struct CtdlMessage *msg;
 	char buf[SIZ];
 	
-	strcpy(hold_rm, CC->quickroom.QRname);
-	if (getroom(&CC->quickroom, SYSCONFIGROOM) != 0) {
-		getroom(&CC->quickroom, hold_rm);
+	strcpy(hold_rm, CC->room.QRname);
+	if (getroom(&CC->room, SYSCONFIGROOM) != 0) {
+		getroom(&CC->room, hold_rm);
 		return NULL;
 	}
 
@@ -3207,7 +3207,7 @@ char *CtdlGetSysConfig(char *sysconfname) {
 		}
 	}
 
-	getroom(&CC->quickroom, hold_rm);
+	getroom(&CC->room, hold_rm);
 
 	if (conf != NULL) do {
 		extract_token(buf, conf, 0, '\n');
@@ -3251,7 +3251,7 @@ int CtdlIsMe(char *addr) {
 
 	for (i=0; i<recp->num_local; ++i) {
 		extract(addr, recp->recp_local, i);
-		if (!strcasecmp(addr, CC->usersupp.fullname)) {
+		if (!strcasecmp(addr, CC->user.fullname)) {
 			phree(recp);
 			return(1);
 		}

@@ -429,7 +429,7 @@ void editthisroom(CtdlIPC *ipc)
 	int rbump = 0;
 	char raide[USERNAME_SIZE];
 	char buf[SIZ];
-	struct quickroom *attr = NULL;
+	struct room *attr = NULL;
 	struct ExpirePolicy *eptr = NULL;
 	int r;				/* IPC response code */
 

@@ -342,7 +342,7 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 	char from_floor;
 	int ugpos = uglistsize;
 	int r;				/* IPC result code */
-	struct ctdlipcroom *roomrec = NULL;
+	struct ctdlipcroom *room = NULL;
 
 	/* store ungoto information */
 	if (fromungoto == 0) {
@@ -365,10 +365,10 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 	}
       
 	/* first try an exact match */
-	r = CtdlIPCGotoRoom(ipc, towhere, "", &roomrec, aaa);
+	r = CtdlIPCGotoRoom(ipc, towhere, "", &room, aaa);
 	if (r / 10 == 54) {
 		newprompt("Enter room password: ", bbb, 9);
-		r = CtdlIPCGotoRoom(ipc, towhere, bbb, &roomrec, aaa);
+		r = CtdlIPCGotoRoom(ipc, towhere, bbb, &room, aaa);
 		if (r / 10 == 54) {
 			scr_printf("Wrong password.\n");
 			return;
@@ -415,22 +415,22 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 			scr_printf("No room '%s'.\n", towhere);
 			return;
 		}
-		roomrec = NULL;
-		r = CtdlIPCGotoRoom(ipc, bbb, "", &roomrec, aaa);
+		room = NULL;
+		r = CtdlIPCGotoRoom(ipc, bbb, "", &room, aaa);
 	}
 	if (r / 100 != 1 && r / 100 != 2) {
 		scr_printf("%s\n", aaa);
 		return;
 	}
-	safestrncpy(room_name, roomrec->RRname, ROOMNAMELEN);
-	room_flags = roomrec->RRflags;
+	safestrncpy(room_name, room->RRname, ROOMNAMELEN);
+	room_flags = room->RRflags;
 	from_floor = curr_floor;
-	curr_floor = roomrec->RRfloor;
+	curr_floor = room->RRfloor;
 
 	remove_march(room_name, 0);
 	if (!strcasecmp(towhere, "_BASEROOM_"))
 		remove_march(towhere, 0);
-	if (!roomrec->RRunread)
+	if (!room->RRunread)
 		next_lazy_cmd = 5;	/* Don't read new if no new msgs */
 	if ((from_floor != curr_floor) && (display_name > 0) && (floor_mode == 1)) {
 		if (floorlist[(int) curr_floor][0] == 0)
@@ -445,26 +445,26 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 	}
 	if (display_name != 2) {
 		color(BRIGHT_YELLOW);
-		scr_printf("%d ", roomrec->RRunread);
+		scr_printf("%d ", room->RRunread);
 		color(DIM_WHITE);
 		scr_printf("new of ");
 		color(BRIGHT_YELLOW);
-		scr_printf("%d ", roomrec->RRtotal);
+		scr_printf("%d ", room->RRtotal);
 		color(DIM_WHITE);
 		scr_printf("messages.\n");
 	}
-	highest_msg_read = roomrec->RRlastread;
-	maxmsgnum = roomrec->RRhighest;
-	is_mail = roomrec->RRismailbox;
-	is_room_aide = roomrec->RRaide;
-	ls = roomrec->RRlastread;
+	highest_msg_read = room->RRlastread;
+	maxmsgnum = room->RRhighest;
+	is_mail = room->RRismailbox;
+	is_room_aide = room->RRaide;
+	ls = room->RRlastread;
 
 	/* read info file if necessary */
-	if (roomrec->RRinfoupdated > 0)
+	if (room->RRinfoupdated > 0)
 		readinfo(ipc);
 
 	/* check for newly arrived mail if we can */
-	newmailcount = roomrec->RRnewmail;
+	newmailcount = room->RRnewmail;
 	if (newmailcount > 0) {
 		color(BRIGHT_RED);
 		if (newmailcount == 1) {
@@ -538,7 +538,7 @@ void forget_all_rooms_on(CtdlIPC *ipc, int ffloor)
 {
 	char buf[SIZ];
 	struct march *flist, *fptr;
-	struct ctdlipcroom *roomrec;	/* Ignored */
+	struct ctdlipcroom *room;	/* Ignored */
 	int r;				/* IPC response code */
 
 	scr_printf("Forgetting all rooms on %s...\r", &floorlist[ffloor][0]);
@@ -549,7 +549,7 @@ void forget_all_rooms_on(CtdlIPC *ipc, int ffloor)
 		return;
 	}
 	while (flist) {
-		r = CtdlIPCGotoRoom(ipc, flist->march_name, "", &roomrec, buf);
+		r = CtdlIPCGotoRoom(ipc, flist->march_name, "", &room, buf);
 		if (r / 100 == 2) {
 			r = CtdlIPCForgetRoom(ipc, buf);
 		}
@@ -1001,7 +1001,7 @@ int main(int argc, char **argv)
 	int stored_password = 0;
 	char password[SIZ];
 	struct ctdlipcmisc chek;
-	struct usersupp *myself = NULL;
+	struct user *myself = NULL;
 	CtdlIPC* ipc;			/* Our server connection */
 	int r;				/* IPC result code */
 

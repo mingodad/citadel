@@ -60,7 +60,7 @@ void cmd_ebio(char *cmdbuf) {
 		return;
 	}
 
-	snprintf(buf, sizeof buf, "./bio/%ld",CC->usersupp.usernum);
+	snprintf(buf, sizeof buf, "./bio/%ld",CC->user.usernum);
 	fp = fopen(buf,"w");
 	if (fp == NULL) {
 		cprintf("%d Cannot create file\n",ERROR);
@@ -78,7 +78,7 @@ void cmd_ebio(char *cmdbuf) {
  */
 void cmd_rbio(char *cmdbuf)
 {
-	struct usersupp ruser;
+	struct user ruser;
 	char buf[SIZ];
 	FILE *fp;
 
@@ -108,7 +108,7 @@ void cmd_rbio(char *cmdbuf)
 void cmd_lbio(char *cmdbuf) {
 	char buf[SIZ];
 	FILE *ls;
-	struct usersupp usbuf;
+	struct user usbuf;
 
 	ls=popen("cd ./bio; ls","r");
 	if (ls==NULL) {

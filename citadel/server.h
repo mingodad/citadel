@@ -67,8 +67,8 @@ enum {
 struct CitContext {
 	struct CitContext *next;	/* Link to next session in the list */
 
-	struct usersupp usersupp;	/* Database record buffers */
-	struct quickroom quickroom;
+	struct user user;	/* Database record buffers */
+	struct room room;
 
 	int state;		/* thread state (see CON_ values below) */
 	int kill_me;		/* Set to nonzero to flag for termination */

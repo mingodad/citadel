@@ -156,10 +156,9 @@ struct march {
 #define RESTRICT_INTERNET	config.c_restrict
 
 /*
- * User records.  (It's called "usersupp" because in ancient times it was
- * a supplement to /etc/passwd, but not anymore.)
+ * User records.
  */
-struct usersupp {			/* User record                      */
+struct user {			/* User record                      */
 	int version;			/* Cit vers. which created this rec */
 	uid_t uid;			/* Associate with a unix account?   */
 	char password[32];		/* password (for BBS-only users)    */
@@ -194,10 +193,9 @@ struct CitControl {
 #define MM_VALID	4		/* New users need validating        */
 
 /*
- * Room records.  (It's called "quickroom" because it was once merely an
- * index to a "fullroom" file, but the new database layout changed everything.)
+ * Room records.
  */
-struct quickroom {
+struct room {
 	char QRname[ROOMNAMELEN];	/* Name of room                     */
 	char QRpasswd[10];		/* Only valid if it's a private rm  */
 	long QRroomaide;		/* User number of room aide         */

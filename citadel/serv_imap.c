@@ -123,7 +123,7 @@ void imap_set_seen_flags(void) {
 	struct visit vbuf;
 	int i;
 
-	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
 	if (IMAP->num_msgs > 0) {
 		for (i=0; i<IMAP->num_msgs; ++i) {
 			if (is_msg_in_mset(vbuf.v_seen, IMAP->msgids[i])) {
@@ -210,7 +210,7 @@ void imap_rescan_msgids(void) {
 	/* Load the *current* message list from disk, so we can compare it
 	 * to what we have in memory.
 	 */
-	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->quickroom.QRnumber, sizeof(long));
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
 	if (cdbfr != NULL) {
 		msglist = mallok(cdbfr->len);
 		memcpy(msglist, cdbfr->ptr, cdbfr->len);
@@ -465,7 +465,7 @@ void imap_select(int num_parms, char *parms[]) {
 	int c = 0;
 	int ok = 0;
 	int ra = 0;
-	struct quickroom QRscratch;
+	struct room QRscratch;
 	int msgs, new;
 	int floornum;
 	int roomflags;
@@ -487,7 +487,7 @@ void imap_select(int num_parms, char *parms[]) {
         /* Then try a mailbox name match */
         if (c != 0) {
                 MailboxName(augmented_roomname, sizeof augmented_roomname,
-			    &CC->usersupp, towhere);
+			    &CC->user, towhere);
                 c = getroom(&QRscratch, augmented_roomname);
                 if (c == 0)
                         strcpy(towhere, augmented_roomname);
@@ -496,7 +496,7 @@ void imap_select(int num_parms, char *parms[]) {
 	/* If the room exists, check security/access */
         if (c == 0) {
                 /* See if there is an existing user/room relationship */
-                ra = CtdlRoomAccess(&QRscratch, &CC->usersupp);
+                ra = CtdlRoomAccess(&QRscratch, &CC->user);
 
                 /* normal clients have to pass through security */
                 if (ra & UA_KNOWN) {
@@ -516,7 +516,7 @@ void imap_select(int num_parms, char *parms[]) {
 	 * usergoto() formally takes us to the desired room, happily returning
 	 * the number of messages and number of new messages.
 	 */
-	memcpy(&CC->quickroom, &QRscratch, sizeof(struct quickroom));
+	memcpy(&CC->room, &QRscratch, sizeof(struct room));
 	usergoto(NULL, 0, 0, &msgs, &new);
 	IMAP->selected = 1;
 
@@ -552,7 +552,7 @@ int imap_do_expunge(void) {
 
 	if (IMAP->num_msgs > 0) for (i=0; i<IMAP->num_msgs; ++i) {
 		if (IMAP->flags[i] & IMAP_DELETED) {
-			CtdlDeleteMessages(CC->quickroom.QRname,
+			CtdlDeleteMessages(CC->room.QRname,
 					IMAP->msgids[i], "");
 			++num_expunged;
 			lprintf(9, "%ld ... deleted\n", IMAP->msgids[i]);
@@ -625,7 +625,7 @@ void imap_list_floors(char *cmd, char *pattern) {
  * IMAP "subscribed folder" is equivocated to Citadel "known rooms."  This
  * may or may not be the desired behavior in the future.
  */
-void imap_lsub_listroom(struct quickroom *qrbuf, void *data) {
+void imap_lsub_listroom(struct room *qrbuf, void *data) {
 	char buf[SIZ];
 	int ra;
 	char *pattern;
@@ -633,7 +633,7 @@ void imap_lsub_listroom(struct quickroom *qrbuf, void *data) {
 	pattern = (char *)data;
 
 	/* Only list rooms to which the user has access!! */
-	ra = CtdlRoomAccess(qrbuf, &CC->usersupp);
+	ra = CtdlRoomAccess(qrbuf, &CC->user);
 	if (ra & UA_KNOWN) {
 		imap_mailboxname(buf, sizeof buf, qrbuf);
 		if (imap_mailbox_matches_pattern(pattern, buf)) {
@@ -673,7 +673,7 @@ void imap_lsub(int num_parms, char *parms[]) {
 /*
  * Back end for imap_list()
  */
-void imap_list_listroom(struct quickroom *qrbuf, void *data) {
+void imap_list_listroom(struct room *qrbuf, void *data) {
 	char buf[SIZ];
 	int ra;
 	char *pattern;
@@ -681,7 +681,7 @@ void imap_list_listroom(struct quickroom *qrbuf, void *data) {
 	pattern = (char *)data;
 
 	/* Only list rooms to which the user has access!! */
-	ra = CtdlRoomAccess(qrbuf, &CC->usersupp);
+	ra = CtdlRoomAccess(qrbuf, &CC->user);
 	if ( (ra & UA_KNOWN) 
 	  || ((ra & UA_GOTOALLOWED) && (ra & UA_ZAPPED))) {
 		imap_mailboxname(buf, sizeof buf, qrbuf);
@@ -773,7 +773,7 @@ int imap_grabroom(char *returned_roomname, char *foldername) {
 	char augmented_roomname[ROOMNAMELEN];
 	char roomname[ROOMNAMELEN];
 	int c;
-	struct quickroom QRscratch;
+	struct room QRscratch;
 	int ra;
 	int ok = 0;
 
@@ -788,7 +788,7 @@ int imap_grabroom(char *returned_roomname, char *foldername) {
         /* Then try a mailbox name match */
         if (c != 0) {
                 MailboxName(augmented_roomname, sizeof augmented_roomname,
-			    &CC->usersupp, roomname);
+			    &CC->user, roomname);
                 c = getroom(&QRscratch, augmented_roomname);
                 if (c == 0)
                         strcpy(roomname, augmented_roomname);
@@ -797,7 +797,7 @@ int imap_grabroom(char *returned_roomname, char *foldername) {
 	/* If the room exists, check security/access */
         if (c == 0) {
                 /* See if there is an existing user/room relationship */
-                ra = CtdlRoomAccess(&QRscratch, &CC->usersupp);
+                ra = CtdlRoomAccess(&QRscratch, &CC->user);
 
                 /* normal clients have to pass through security */
                 if (ra & UA_KNOWN) {
@@ -841,7 +841,7 @@ void imap_status(int num_parms, char *parms[]) {
 	 * folder is selected, save its name so we can return there!!!!!)
 	 */
 	if (IMAP->selected) {
-		strcpy(savedroom, CC->quickroom.QRname);
+		strcpy(savedroom, CC->room.QRname);
 	}
 	usergoto(roomname, 0, 0, &msgs, &new);
 
@@ -851,7 +851,7 @@ void imap_status(int num_parms, char *parms[]) {
 	 * names and simply spew all possible data items.  It's far easier to
 	 * code and probably saves us some processing time too.
 	 */
-	imap_mailboxname(buf, sizeof buf, &CC->quickroom);
+	imap_mailboxname(buf, sizeof buf, &CC->room);
 	cprintf("* STATUS ");
 	imap_strout(buf);
 	cprintf(" (MESSAGES %d ", msgs);
@@ -898,7 +898,7 @@ void imap_subscribe(int num_parms, char *parms[]) {
 	 * we're looking for.
 	 */
 	if (IMAP->selected) {
-		strcpy(savedroom, CC->quickroom.QRname);
+		strcpy(savedroom, CC->room.QRname);
 	}
 	usergoto(roomname, 0, 0, &msgs, &new);
 
@@ -935,7 +935,7 @@ void imap_unsubscribe(int num_parms, char *parms[]) {
 	 * usergoto() formally takes us to the desired room.
 	 */
 	if (IMAP->selected) {
-		strcpy(savedroom, CC->quickroom.QRname);
+		strcpy(savedroom, CC->room.QRname);
 	}
 	usergoto(roomname, 0, 0, &msgs, &new);
 
@@ -984,16 +984,16 @@ void imap_delete(int num_parms, char *parms[]) {
 	 * folder is selected, save its name so we can return there!!!!!)
 	 */
 	if (IMAP->selected) {
-		strcpy(savedroom, CC->quickroom.QRname);
+		strcpy(savedroom, CC->room.QRname);
 	}
 	usergoto(roomname, 0, 0, &msgs, &new);
 
 	/*
 	 * Now delete the room.
 	 */
-	if (CtdlDoIHavePermissionToDeleteThisRoom(&CC->quickroom)) {
+	if (CtdlDoIHavePermissionToDeleteThisRoom(&CC->room)) {
 		cprintf("%s OK DELETE completed\r\n", parms[0]);
-		delete_room(&CC->quickroom);
+		delete_room(&CC->room);
 	}
 	else {
 		cprintf("%s NO Can't delete this folder.\r\n", parms[0]);
@@ -1012,7 +1012,7 @@ void imap_delete(int num_parms, char *parms[]) {
 /*
  * Back end function for imap_rename()
  */
-void imap_rename_backend(struct quickroom *qrbuf, void *data) {
+void imap_rename_backend(struct room *qrbuf, void *data) {
 	char foldername[SIZ];
 	char newfoldername[SIZ];
 	char newroomname[ROOMNAMELEN];

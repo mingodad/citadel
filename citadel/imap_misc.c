@@ -281,7 +281,7 @@ void imap_append(int num_parms, char *parms[]) {
 	 * folder is selected, save its name so we can return there!!!!!)
 	 */
 	if (IMAP->selected) {
-		strcpy(savedroom, CC->quickroom.QRname);
+		strcpy(savedroom, CC->room.QRname);
 	}
 	usergoto(roomname, 0, 0, &msgs, &new);
 
@@ -293,11 +293,11 @@ void imap_append(int num_parms, char *parms[]) {
 	 * private mailboxes.
          */
         if (CC->logged_in) {
-	   if ( (CC->quickroom.QRflags & QR_MAILBOX) == 0) {
+	   if ( (CC->room.QRflags & QR_MAILBOX) == 0) {
                 if (msg->cm_fields['A'] != NULL) phree(msg->cm_fields['A']);
                 if (msg->cm_fields['N'] != NULL) phree(msg->cm_fields['N']);
                 if (msg->cm_fields['H'] != NULL) phree(msg->cm_fields['H']);
-                msg->cm_fields['A'] = strdoop(CC->usersupp.fullname);
+                msg->cm_fields['A'] = strdoop(CC->user.fullname);
                 msg->cm_fields['N'] = strdoop(config.c_nodename);
                 msg->cm_fields['H'] = strdoop(config.c_humannode);
 	    }

@@ -185,10 +185,10 @@ void cmd_igab(char *argbuf) {
 
 	if (CtdlAccessCheck(ac_aide)) return;
 
-        strcpy(hold_rm, CC->quickroom.QRname);	/* save current room */
+        strcpy(hold_rm, CC->room.QRname);	/* save current room */
 
-        if (getroom(&CC->quickroom, ADDRESS_BOOK_ROOM) != 0) {
-                getroom(&CC->quickroom, hold_rm);
+        if (getroom(&CC->room, ADDRESS_BOOK_ROOM) != 0) {
+                getroom(&CC->room, hold_rm);
 		cprintf("%d cannot get address book room\n", ERROR);
 		return;
         }
@@ -201,7 +201,7 @@ void cmd_igab(char *argbuf) {
         CtdlForEachMessage(MSGS_ALL, 0, "text/x-vcard",
 		NULL, vcard_add_to_directory, NULL);
 
-        getroom(&CC->quickroom, hold_rm);	/* return to saved room */
+        getroom(&CC->room, hold_rm);	/* return to saved room */
 	cprintf("%d Directory has been rebuilt.\n", CIT_OK);
 }
 
@@ -255,14 +255,14 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	char *ptr;
 	int linelen;
 	char buf[SIZ];
-	struct usersupp usbuf;
+	struct user usbuf;
 	long what_user;
 
 	if (!CC->logged_in) return(0);	/* Only do this if logged in. */
 
 	/* If this isn't a "My Citadel Config" room, don't bother. */
-	if ( (CC->quickroom.QRflags && QR_MAILBOX)
-	   && (!strcasecmp(&CC->quickroom.QRname[11], USERCONFIGROOM)) ) {
+	if ( (CC->room.QRflags && QR_MAILBOX)
+	   && (!strcasecmp(&CC->room.QRname[11], USERCONFIGROOM)) ) {
 		/* Yes, we want to do this */
 	}
 	else {
@@ -286,12 +286,12 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 			 * delete the old one.  First, figure out which user
 			 * is being re-registered...
 			 */
-			what_user = atol(CC->quickroom.QRname);
+			what_user = atol(CC->room.QRname);
 
-			if (what_user == CC->usersupp.usernum) {
+			if (what_user == CC->user.usernum) {
 				/* It's the logged in user.  That was easy. */
-				memcpy(&usbuf, &CC->usersupp,
-					sizeof(struct usersupp) );
+				memcpy(&usbuf, &CC->user,
+					sizeof(struct user) );
 			}
 			
 			else if (getuserbynumber(&usbuf, what_user) == 0) {
@@ -308,7 +308,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 			 * want to make sure there is absolutely only one
 			 * vCard in the user's config room at all times.
 			 */
-			CtdlDeleteMessages(CC->quickroom.QRname,
+			CtdlDeleteMessages(CC->room.QRname,
 					0L, "text/x-vcard");
 
 			/* Set the Extended-ID to a standardized one so the
@@ -393,9 +393,9 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			set_mm_valid();
 
 			/* ...which also means we need to flag the user */
-			lgetuser(&CC->usersupp, CC->curr_user);
-			CC->usersupp.flags |= (US_REGIS|US_NEEDVALID);
-			lputuser(&CC->usersupp);
+			lgetuser(&CC->user, CC->curr_user);
+			CC->user.flags |= (US_REGIS|US_NEEDVALID);
+			lputuser(&CC->user);
 
 			return(0);
 		}
@@ -421,17 +421,17 @@ void vcard_gu_backend(long msgnum, void *userdata) {
  * If this user has a vcard on disk, read it into memory, otherwise allocate
  * and return an empty vCard.
  */
-struct vCard *vcard_get_user(struct usersupp *u) {
+struct vCard *vcard_get_user(struct user *u) {
         char hold_rm[ROOMNAMELEN];
         char config_rm[ROOMNAMELEN];
 	struct CtdlMessage *msg;
 	struct vCard *v;
 
-        strcpy(hold_rm, CC->quickroom.QRname);	/* save current room */
+        strcpy(hold_rm, CC->room.QRname);	/* save current room */
         MailboxName(config_rm, sizeof config_rm, u, USERCONFIGROOM);
 
-        if (getroom(&CC->quickroom, config_rm) != 0) {
-                getroom(&CC->quickroom, hold_rm);
+        if (getroom(&CC->room, config_rm) != 0) {
+                getroom(&CC->room, hold_rm);
                 return vcard_new();
         }
 
@@ -439,7 +439,7 @@ struct vCard *vcard_get_user(struct usersupp *u) {
 	VC->msgnum = (-1);
         CtdlForEachMessage(MSGS_LAST, 1, "text/x-vcard",
 		NULL, vcard_gu_backend, NULL);
-        getroom(&CC->quickroom, hold_rm);	/* return to saved room */
+        getroom(&CC->room, hold_rm);	/* return to saved room */
 
 	if (VC->msgnum < 0L) return vcard_new();
 
@@ -458,7 +458,7 @@ struct vCard *vcard_get_user(struct usersupp *u) {
 /*
  * Write our config to disk
  */
-void vcard_write_user(struct usersupp *u, struct vCard *v) {
+void vcard_write_user(struct user *u, struct vCard *v) {
         char temp[PATH_MAX];
         FILE *fp;
 	char *ser;
@@ -517,7 +517,7 @@ void cmd_regi(char *argbuf) {
 		return;
 	}
 
-	my_vcard = vcard_get_user(&CC->usersupp);
+	my_vcard = vcard_get_user(&CC->user);
 	strcpy(tmpaddr, "");
 	strcpy(tmpcity, "");
 	strcpy(tmpstate, "");
@@ -549,7 +549,7 @@ void cmd_regi(char *argbuf) {
 	snprintf(tmpaddress, sizeof tmpaddress, ";;%s;%s;%s;%s;%s",
 		tmpaddr, tmpcity, tmpstate, tmpzip, tmpcountry);
 	vcard_set_prop(my_vcard, "adr", tmpaddress, 0);
-	vcard_write_user(&CC->usersupp, my_vcard);
+	vcard_write_user(&CC->user, my_vcard);
 	vcard_free(my_vcard);
 }
 
@@ -559,7 +559,7 @@ void cmd_regi(char *argbuf) {
  */
 void cmd_greg(char *argbuf)
 {
-	struct usersupp usbuf;
+	struct user usbuf;
 	struct vCard *v;
 	char *s;
 	char who[SIZ];
@@ -575,7 +575,7 @@ void cmd_greg(char *argbuf)
 
 	if (!strcasecmp(who,"_SELF_")) strcpy(who,CC->curr_user);
 
-	if ((CC->usersupp.axlevel < 6) && (strcasecmp(who,CC->curr_user))) {
+	if ((CC->user.axlevel < 6) && (strcasecmp(who,CC->curr_user))) {
 		cprintf("%d Higher access required.\n",
 			ERROR+HIGHER_ACCESS_REQUIRED);
 		return;
@@ -774,7 +774,7 @@ void vcard_session_startup_hook(void) {
 void vcard_session_login_hook(void) {
 	struct vCard *v;
 
-	v = vcard_get_user(&CC->usersupp);
+	v = vcard_get_user(&CC->user);
 	vcard_populate_cs_inet_email(v);
 
 	vcard_free(v);

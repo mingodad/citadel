@@ -64,7 +64,7 @@ void allwrite(char *cmdbuf, int flag, char *username)
 	if (CC->fake_username[0])
 		un = CC->fake_username;
 	else
-		un = CC->usersupp.fullname;
+		un = CC->user.fullname;
 	if (flag == 1) {
 		snprintf(bcast, sizeof bcast, ":|<%s %s>", un, cmdbuf);
 	} else if (flag == 0) {
@@ -88,7 +88,7 @@ void allwrite(char *cmdbuf, int flag, char *username)
 	time(&now);
 	clnew->next = NULL;
 	clnew->chat_time = now;
-	safestrncpy(clnew->chat_room, CC->quickroom.QRname,
+	safestrncpy(clnew->chat_room, CC->room.QRname,
 			sizeof clnew->chat_room);
 	clnew->chat_room[sizeof clnew->chat_room - 1] = 0;
 	if (username) {
@@ -166,8 +166,8 @@ void do_chat_listing(int allflag)
 	begin_critical_section(S_SESSION_TABLE);
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 		if (ccptr->cs_flags & CS_CHAT) {
-			if (!strcasecmp(ccptr->quickroom.QRname,
-			   CC->quickroom.QRname)) {
+			if (!strcasecmp(ccptr->room.QRname,
+			   CC->room.QRname)) {
 				++count;
 			}
 			else {
@@ -176,7 +176,7 @@ void do_chat_listing(int allflag)
 		}
 
 		GenerateRoomDisplay(roomname, ccptr, CC);
-		if ((CC->usersupp.axlevel < 6)
+		if ((CC->user.axlevel < 6)
 		   && (strlen(ccptr->fake_roomname)>0)) {
 			strcpy(roomname, ccptr->fake_roomname);
 		}
@@ -196,7 +196,7 @@ void do_chat_listing(int allflag)
 		for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 
 			GenerateRoomDisplay(roomname, ccptr, CC);
-			if ((CC->usersupp.axlevel < 6)
+			if ((CC->user.axlevel < 6)
 		   	&& (strlen(ccptr->fake_roomname)>0)) {
 				strcpy(roomname, ccptr->fake_roomname);
 			}
@@ -358,7 +358,7 @@ void cmd_chat(char *argbuf)
 			ThisLastMsg = ChatLastMsg;
 			for (clptr = ChatQueue; clptr != NULL; clptr = clptr->next) {
 				if ((clptr->chat_seq > MyLastMsg) && ((!clptr->chat_username[0]) || (!strncasecmp(un, clptr->chat_username, 32)))) {
-					if ((!clptr->chat_room[0]) || (!strncasecmp(CC->quickroom.QRname, clptr->chat_room, ROOMNAMELEN))) {
+					if ((!clptr->chat_room[0]) || (!strncasecmp(CC->room.QRname, clptr->chat_room, ROOMNAMELEN))) {
 						cprintf("%s\n", clptr->chat_text);
 					}
 				}
@@ -532,12 +532,12 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 		if (ccptr->fake_username[0])	/* <bc> */
 			un = ccptr->fake_username;
 		else
-			un = ccptr->usersupp.fullname;
+			un = ccptr->user.fullname;
 
 		if ( ((!strcasecmp(un, x_user))
 		    || (!strcasecmp(x_user, "broadcast")))
 		    && ((ccptr->disable_exp == 0)
-		    || (CC->usersupp.axlevel >= 6)) ) {
+		    || (CC->user.axlevel >= 6)) ) {
 			if (do_send) {
 				newmsg = (struct ExpressMessage *)
 					mallok(sizeof (struct ExpressMessage));
@@ -559,7 +559,7 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 					sptr->next = sl;
 					MailboxName(sptr->roomname,
 						    sizeof sptr->roomname,
-						&ccptr->usersupp, PAGELOGROOM);
+						&ccptr->user, PAGELOGROOM);
 					sl = sptr;
 				}
 			}
@@ -632,7 +632,7 @@ void cmd_sexp(char *argbuf)
 	if (CC->fake_username[0])
 		lun = CC->fake_username;
 	else
-		lun = CC->usersupp.fullname;
+		lun = CC->user.fullname;
 
 	extract(x_user, argbuf, 0);
 
@@ -642,7 +642,7 @@ void cmd_sexp(char *argbuf)
 		cprintf("%d You were not previously paged.\n", ERROR);
 		return;
 	}
-	if ((!strcasecmp(x_user, "broadcast")) && (CC->usersupp.axlevel < 6)) {
+	if ((!strcasecmp(x_user, "broadcast")) && (CC->user.axlevel < 6)) {
 		cprintf("%d Higher access required to send a broadcast.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;
@@ -734,7 +734,7 @@ void cmd_reqt(char *argbuf) {
 			memset(newmsg, 0,
 				sizeof (struct ExpressMessage));
 			time(&(newmsg->timestamp));
-			safestrncpy(newmsg->sender, CC->usersupp.fullname,
+			safestrncpy(newmsg->sender, CC->user.fullname,
 				    sizeof newmsg->sender);
 			newmsg->flags |= EM_GO_AWAY;
 			newmsg->text = strdoop("Automatic logoff requested.");

@@ -62,7 +62,7 @@
 struct citsmtp {		/* Information about the current session */
 	int command_state;
 	char helo_node[SIZ];
-	struct usersupp vrfy_buffer;
+	struct user vrfy_buffer;
 	int vrfy_count;
 	char vrfy_match[SIZ];
 	char from[SIZ];
@@ -192,7 +192,7 @@ void smtp_get_pass(char *argbuf) {
 	CtdlDecodeBase64(password, argbuf, SIZ);
 	lprintf(9, "Trying <%s>\n", password);
 	if (CtdlTryPassword(password) == pass_ok) {
-		cprintf("235 2.0.0 Hello, %s\r\n", CC->usersupp.fullname);
+		cprintf("235 2.0.0 Hello, %s\r\n", CC->user.fullname);
 		lprintf(9, "SMTP authenticated login successful\n");
 		CC->internal_pgm = 0;
 		CC->cs_flags &= ~CS_STEALTH;
@@ -230,11 +230,11 @@ void smtp_auth(char *argbuf) {
 /*
  * Back end for smtp_vrfy() command
  */
-void smtp_vrfy_backend(struct usersupp *us, void *data) {
+void smtp_vrfy_backend(struct user *us, void *data) {
 
 	if (!fuzzy_match(us, SMTP->vrfy_match)) {
 		++SMTP->vrfy_count;
-		memcpy(&SMTP->vrfy_buffer, us, sizeof(struct usersupp));
+		memcpy(&SMTP->vrfy_buffer, us, sizeof(struct user));
 	}
 }
 
@@ -269,7 +269,7 @@ void smtp_vrfy(char *argbuf) {
 /*
  * Back end for smtp_expn() command
  */
-void smtp_expn_backend(struct usersupp *us, void *data) {
+void smtp_expn_backend(struct user *us, void *data) {
 
 	if (!fuzzy_match(us, SMTP->vrfy_match)) {
 
@@ -281,7 +281,7 @@ void smtp_expn_backend(struct usersupp *us, void *data) {
 		}
 
 		++SMTP->vrfy_count;
-		memcpy(&SMTP->vrfy_buffer, us, sizeof(struct usersupp));
+		memcpy(&SMTP->vrfy_buffer, us, sizeof(struct user));
 	}
 }
 
@@ -530,7 +530,7 @@ void smtp_data(void) {
 		if (msg->cm_fields['H'] != NULL) phree(msg->cm_fields['H']);
 		if (msg->cm_fields['F'] != NULL) phree(msg->cm_fields['F']);
 		if (msg->cm_fields['O'] != NULL) phree(msg->cm_fields['O']);
-		msg->cm_fields['A'] = strdoop(CC->usersupp.fullname);
+		msg->cm_fields['A'] = strdoop(CC->user.fullname);
 		msg->cm_fields['N'] = strdoop(config.c_nodename);
 		msg->cm_fields['H'] = strdoop(config.c_humannode);
 		msg->cm_fields['F'] = strdoop(CC->cs_inet_email);
@@ -1348,7 +1348,7 @@ void smtp_do_queue(void) {
 	 */
 	lprintf(7, "SMTP: processing outbound queue\n");
 
-	if (getroom(&CC->quickroom, SMTP_SPOOLOUT_ROOM) != 0) {
+	if (getroom(&CC->room, SMTP_SPOOLOUT_ROOM) != 0) {
 		lprintf(3, "Cannot find room <%s>\n", SMTP_SPOOLOUT_ROOM);
 		return;
 	}
@@ -1407,7 +1407,7 @@ void cmd_smtp(char *argbuf) {
  * Initialize the SMTP outbound queue
  */
 void smtp_init_spoolout(void) {
-	struct quickroom qrbuf;
+	struct room qrbuf;
 
 	/*
 	 * Create the room.  This will silently fail if the room already

@@ -81,7 +81,7 @@ void listsub_generate_token(char *buf) {
  * Enter a subscription request
  */
 void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
-	struct quickroom qrbuf;
+	struct room qrbuf;
 	FILE *ncfp;
 	char filename[SIZ];
 	char token[SIZ];
@@ -193,7 +193,7 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
  * Enter an unsubscription request
  */
 void do_unsubscribe(char *room, char *email, char *webpage) {
-	struct quickroom qrbuf;
+	struct room qrbuf;
 	FILE *ncfp;
 	char filename[SIZ];
 	char token[SIZ];
@@ -307,7 +307,7 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
  * Confirm a subscribe/unsubscribe request.
  */
 void do_confirm(char *room, char *token) {
-	struct quickroom qrbuf;
+	struct room qrbuf;
 	FILE *ncfp;
 	char filename[SIZ];
 	char line_token[SIZ];

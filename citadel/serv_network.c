@@ -334,10 +334,10 @@ void cmd_gnet(char *argbuf) {
 	FILE *fp;
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
-	assoc_file_name(filename, sizeof filename, &CC->quickroom, "netconfigs");
+	assoc_file_name(filename, sizeof filename, &CC->room, "netconfigs");
 	cprintf("%d Network settings for room #%ld <%s>\n",
 		LISTING_FOLLOWS,
-		CC->quickroom.QRnumber, CC->quickroom.QRname);
+		CC->room.QRnumber, CC->room.QRname);
 
 	fp = fopen(filename, "r");
 	if (fp != NULL) {
@@ -360,7 +360,7 @@ void cmd_snet(char *argbuf) {
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
 	safestrncpy(tempfilename, tmpnam(NULL), sizeof tempfilename);
-	assoc_file_name(filename, sizeof filename, &CC->quickroom, "netconfigs");
+	assoc_file_name(filename, sizeof filename, &CC->room, "netconfigs");
 
 	fp = fopen(tempfilename, "w");
 	if (fp == NULL) {
@@ -508,7 +508,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 			if (msg->cm_fields['C'] != NULL) {
 				phree(msg->cm_fields['C']);
 			}
-			msg->cm_fields['C'] = strdoop(CC->quickroom.QRname);
+			msg->cm_fields['C'] = strdoop(CC->room.QRname);
 
 			/*
 			 * Determine if this message is set to be deleted
@@ -573,7 +573,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 
 	/* Delete this message if delete-after-send is set */
 	if (delete_after_send) {
-		CtdlDeleteMessages(CC->quickroom.QRname, msgnum, "");
+		CtdlDeleteMessages(CC->room.QRname, msgnum, "");
 	}
 
 }
@@ -607,9 +607,9 @@ void network_deliver_digest(struct SpoolControl *sc) {
 
 	sprintf(buf, "%ld", time(NULL));
 	msg->cm_fields['T'] = strdoop(buf);
-	msg->cm_fields['A'] = strdoop(CC->quickroom.QRname);
-	msg->cm_fields['U'] = strdoop(CC->quickroom.QRname);
-	sprintf(buf, "room_%s@%s", CC->quickroom.QRname, config.c_fqdn);
+	msg->cm_fields['A'] = strdoop(CC->room.QRname);
+	msg->cm_fields['U'] = strdoop(CC->room.QRname);
+	sprintf(buf, "room_%s@%s", CC->room.QRname, config.c_fqdn);
 	for (i=0; i<strlen(buf); ++i) {
 		if (isspace(buf[i])) buf[i]='_';
 		buf[i] = tolower(buf[i]);
@@ -694,13 +694,13 @@ void network_spoolout_room(char *room_to_spool) {
 	int i;
 
 	lprintf(7, "Spooling <%s>\n", room_to_spool);
-	if (getroom(&CC->quickroom, room_to_spool) != 0) {
+	if (getroom(&CC->room, room_to_spool) != 0) {
 		lprintf(1, "ERROR: cannot load <%s>\n", room_to_spool);
 		return;
 	}
 
 	memset(&sc, 0, sizeof(struct SpoolControl));
-	assoc_file_name(filename, sizeof filename, &CC->quickroom, "netconfigs");
+	assoc_file_name(filename, sizeof filename, &CC->room, "netconfigs");
 
 	begin_critical_section(S_NETCONFIGS);
 	end_critical_section(S_NETCONFIGS);
@@ -708,13 +708,13 @@ void network_spoolout_room(char *room_to_spool) {
 	fp = fopen(filename, "r");
 	if (fp == NULL) {
 		lprintf(7, "Outbound batch processing skipped for <%s>\n",
-			CC->quickroom.QRname);
+			CC->room.QRname);
 		end_critical_section(S_NETCONFIGS);
 		return;
 	}
 
 	lprintf(5, "Outbound batch processing started for <%s>\n",
-		CC->quickroom.QRname);
+		CC->room.QRname);
 
 	while (fgets(buf, sizeof buf, fp) != NULL) {
 		buf[strlen(buf)-1] = 0;
@@ -786,7 +786,7 @@ void network_spoolout_room(char *room_to_spool) {
 
 	/* If we wrote a digest, deliver it and then close it */
 	snprintf(buf, sizeof buf, "room_%s@%s",
-		CC->quickroom.QRname, config.c_fqdn);
+		CC->room.QRname, config.c_fqdn);
 	for (i=0; i<strlen(buf); ++i) {
 		buf[i] = tolower(buf[i]);
 		if (isspace(buf[i])) buf[i] = '_';
@@ -798,7 +798,7 @@ void network_spoolout_room(char *room_to_spool) {
 					"You are subscribed to the '%s' "
 					"list.\n"
 					"To post to the list: %s\n",
-					CC->quickroom.QRname, buf
+					CC->room.QRname, buf
 		);
 		network_deliver_digest(&sc);	/* deliver and close */
 	}
@@ -845,14 +845,14 @@ void network_spoolout_room(char *room_to_spool) {
 	end_critical_section(S_NETCONFIGS);
 
 	lprintf(5, "Outbound batch processing finished for <%s>\n",
-		CC->quickroom.QRname);
+		CC->room.QRname);
 }
 
 
 /*
  * Batch up and send all outbound traffic from the current room
  */
-void network_queue_room(struct quickroom *qrbuf, void *data) {
+void network_queue_room(struct room *qrbuf, void *data) {
 	struct RoomProcList *ptr;
 
 	ptr = (struct RoomProcList *) mallok(sizeof (struct RoomProcList));

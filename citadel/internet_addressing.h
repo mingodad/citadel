@@ -13,7 +13,7 @@ struct internet_address_list {
 };
 
 
-int fuzzy_match(struct usersupp *us, char *matchstring);
+int fuzzy_match(struct user *us, char *matchstring);
 void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name);
 char *rfc822_fetch_field(char *rfc822, char *fieldname);
 

@@ -44,9 +44,9 @@
 #include "tools.h"
 #include "serv_upgrade.h"
 
-void do_pre555_usersupp_upgrade(void) {
-        struct pre555usersupp usbuf;
-	struct usersupp newus;
+void do_pre555_user_upgrade(void) {
+        struct pre555user usbuf;
+	struct user newus;
         struct cdbdata *cdbus;
 	char tempfilename[PATH_MAX];
 	FILE *fp, *tp;
@@ -63,20 +63,20 @@ void do_pre555_usersupp_upgrade(void) {
 	/* First, back out all old version records to a flat file */
         cdb_rewind(CDB_USERSUPP);
         while(cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
-                memset(&usbuf, 0, sizeof(struct pre555usersupp));
+                memset(&usbuf, 0, sizeof(struct pre555user));
                 memcpy(&usbuf, cdbus->ptr,
-                       	( (cdbus->len > sizeof(struct pre555usersupp)) ?
-                       	sizeof(struct pre555usersupp) : cdbus->len) );
+                       	( (cdbus->len > sizeof(struct pre555user)) ?
+                       	sizeof(struct pre555user) : cdbus->len) );
                 cdb_free(cdbus);
-		fwrite(&usbuf, sizeof(struct pre555usersupp), 1, fp);
+		fwrite(&usbuf, sizeof(struct pre555user), 1, fp);
 	}
 
 	/* ...and overwrite the records with new format records */
 	rewind(fp);
-	while (fread(&usbuf, sizeof(struct pre555usersupp), 1, fp) > 0) {
+	while (fread(&usbuf, sizeof(struct pre555user), 1, fp) > 0) {
 	    if (strlen(usbuf.fullname) > 0) {
 		lprintf(9, "Upgrading <%s>\n", usbuf.fullname);
-		memset(&newus, 0, sizeof(struct usersupp));
+		memset(&newus, 0, sizeof(struct user));
 
 		newus.uid = usbuf.USuid;
 		strcpy(newus.password, usbuf.password);
@@ -133,10 +133,10 @@ void do_pre555_usersupp_upgrade(void) {
 /* 
  * Back end processing function for cmd_bmbx
  */
-void cmd_bmbx_backend(struct quickroom *qrbuf, void *data) {
+void cmd_bmbx_backend(struct room *qrbuf, void *data) {
 	static struct RoomProcList *rplist = NULL;
 	struct RoomProcList *ptr;
-	struct quickroom qr;
+	struct room qr;
 
 	/* Lazy programming here.  Call this function as a ForEachRoom backend
 	 * in order to queue up the room names, or call it with a null room
@@ -188,10 +188,10 @@ void bump_mailbox_generation_numbers(void) {
 /* 
  * Back end processing function for convert_bbsuid_to_minusone()
  */
-void cbtm_backend(struct usersupp *usbuf, void *data) {
+void cbtm_backend(struct user *usbuf, void *data) {
 	static struct UserProcList *uplist = NULL;
 	struct UserProcList *ptr;
-	struct usersupp us;
+	struct user us;
 
 	/* Lazy programming here.  Call this function as a ForEachUser backend
 	 * in order to queue up the room names, or call it with a null user
@@ -263,7 +263,7 @@ void check_server_upgrades(void) {
 		return;
 	}
 
-	if (CitControl.version < 555) do_pre555_usersupp_upgrade();
+	if (CitControl.version < 555) do_pre555_user_upgrade();
 	if (CitControl.version < 591) bump_mailbox_generation_numbers();
 	if (CitControl.version < 606) initialize_c_rfc822_strict_from();
 	if (CitControl.version < 608) convert_bbsuid_to_minusone();

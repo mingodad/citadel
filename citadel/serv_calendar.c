@@ -107,7 +107,7 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
  * 
  * ok
  */
-void ical_write_to_cal(struct usersupp *u, icalcomponent *cal) {
+void ical_write_to_cal(struct user *u, icalcomponent *cal) {
 	char temp[PATH_MAX];
 	FILE *fp;
 	char *ser;
@@ -164,7 +164,7 @@ void ical_add(icalcomponent *cal, int recursion_level) {
 	 */
 	if (icalcomponent_isa(cal) == ICAL_VEVENT_COMPONENT) {
 	
-		ical_write_to_cal(&CC->usersupp, cal);
+		ical_write_to_cal(&CC->user, cal);
 
 	}
 
@@ -242,7 +242,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 					striplt(attendee_string);
 					recp = validate_recipients(attendee_string);
 					if (recp != NULL) {
-						if (!strcasecmp(recp->recp_local, CC->usersupp.fullname)) {
+						if (!strcasecmp(recp->recp_local, CC->user.fullname)) {
 							if (me_attend) icalproperty_free(me_attend);
 							me_attend = icalproperty_new_clone(attendee);
 						}
@@ -316,8 +316,8 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 			serialized_reply
 		);
 
-		msg = CtdlMakeMessage(&CC->usersupp, organizer_string,
-			CC->quickroom.QRname, 0, FMT_RFC822,
+		msg = CtdlMakeMessage(&CC->user, organizer_string,
+			CC->room.QRname, 0, FMT_RFC822,
 			"",
 			summary_string,		/* Use summary for subject */
 			reply_message_text);
@@ -429,7 +429,7 @@ void ical_respond(long msgnum, char *partnum, char *action) {
 		/* Now that we've processed this message, we don't need it
 		 * anymore.  So delete it.
 		 */
-		CtdlDeleteMessages(CC->quickroom.QRname, msgnum, "");
+		CtdlDeleteMessages(CC->room.QRname, msgnum, "");
 
 		/* Free the memory we allocated and return a response. */
 		icalcomponent_free(ird.cal);
@@ -623,10 +623,10 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	ical_learn_uid_of_reply(uid, cal);
 	lprintf(9, "UID of event being replied to is <%s>\n", uid);
 
-	strcpy(hold_rm, CC->quickroom.QRname);	/* save current room */
+	strcpy(hold_rm, CC->room.QRname);	/* save current room */
 
-	if (getroom(&CC->quickroom, USERCALENDARROOM) != 0) {
-		getroom(&CC->quickroom, hold_rm);
+	if (getroom(&CC->room, USERCALENDARROOM) != 0) {
+		getroom(&CC->room, hold_rm);
 		lprintf(3, "cannot get user calendar room\n");
 		return(2);
 	}
@@ -644,7 +644,7 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	CtdlForEachMessage(MSGS_ALL, 0, "text/calendar",
 		template, ical_hunt_for_event_to_update, &msgnum_being_replaced);
 	CtdlFreeMessage(template);
-	getroom(&CC->quickroom, hold_rm);	/* return to saved room */
+	getroom(&CC->room, hold_rm);	/* return to saved room */
 
 	lprintf(9, "msgnum_being_replaced == %ld\n", msgnum_being_replaced);
 	if (msgnum_being_replaced == 0) {
@@ -685,7 +685,7 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	icalcomponent_free(original_event);	/* Don't need this anymore. */
 	if (serialized_event == NULL) return(2);
 
-	MailboxName(roomname, sizeof roomname, &CC->usersupp, USERCALENDARROOM);
+	MailboxName(roomname, sizeof roomname, &CC->user, USERCALENDARROOM);
 
 	message_text = mallok(strlen(serialized_event) + SIZ);
 	if (message_text != NULL) {
@@ -694,7 +694,7 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 			serialized_event
 		);
 
-		msg = CtdlMakeMessage(&CC->usersupp,
+		msg = CtdlMakeMessage(&CC->user,
 			"",			/* No recipient */
 			roomname,
 			0, FMT_RFC822,
@@ -785,7 +785,7 @@ void ical_handle_rsvp(long msgnum, char *partnum, char *action) {
 		/* Now that we've processed this message, we don't need it
 		 * anymore.  So delete it.  (Maybe make this optional?)
 		 */
-		CtdlDeleteMessages(CC->quickroom.QRname, msgnum, "");
+		CtdlDeleteMessages(CC->room.QRname, msgnum, "");
 
 		/* Free the memory we allocated and return a response. */
 		icalcomponent_free(ird.cal);
@@ -974,10 +974,10 @@ void ical_hunt_for_conflicts_backend(long msgnum, void *data) {
 void ical_hunt_for_conflicts(icalcomponent *cal) {
 	char hold_rm[ROOMNAMELEN];
 
-	strcpy(hold_rm, CC->quickroom.QRname);	/* save current room */
+	strcpy(hold_rm, CC->room.QRname);	/* save current room */
 
-	if (getroom(&CC->quickroom, USERCALENDARROOM) != 0) {
-		getroom(&CC->quickroom, hold_rm);
+	if (getroom(&CC->room, USERCALENDARROOM) != 0) {
+		getroom(&CC->room, hold_rm);
 		cprintf("%d You do not have a calendar.\n", ERROR);
 		return;
 	}
@@ -991,7 +991,7 @@ void ical_hunt_for_conflicts(icalcomponent *cal) {
 	);
 
 	cprintf("000\n");
-	getroom(&CC->quickroom, hold_rm);	/* return to saved room */
+	getroom(&CC->room, hold_rm);	/* return to saved room */
 
 }
 
@@ -1137,7 +1137,7 @@ void ical_freebusy_backend(long msgnum, void *data) {
  * Grab another user's free/busy times
  */
 void ical_freebusy(char *who) {
-	struct usersupp usbuf;
+	struct user usbuf;
 	char calendar_room_name[ROOMNAMELEN];
 	char hold_rm[ROOMNAMELEN];
 	char *serialized_request = NULL;
@@ -1152,11 +1152,11 @@ void ical_freebusy(char *who) {
 	MailboxName(calendar_room_name, sizeof calendar_room_name,
 		&usbuf, USERCALENDARROOM);
 
-	strcpy(hold_rm, CC->quickroom.QRname);	/* save current room */
+	strcpy(hold_rm, CC->room.QRname);	/* save current room */
 
-	if (getroom(&CC->quickroom, calendar_room_name) != 0) {
+	if (getroom(&CC->room, calendar_room_name) != 0) {
 		cprintf("%d Cannot open calendar\n", ERROR+ROOM_NOT_FOUND);
-		getroom(&CC->quickroom, hold_rm);
+		getroom(&CC->room, hold_rm);
 		return;
 	}
 
@@ -1167,7 +1167,7 @@ void ical_freebusy(char *who) {
 		cprintf("%d Internal error: cannot allocate memory.\n",
 			ERROR+INTERNAL_ERROR);
 		icalcomponent_free(encaps);
-		getroom(&CC->quickroom, hold_rm);
+		getroom(&CC->room, hold_rm);
 		return;
 	}
 
@@ -1193,7 +1193,7 @@ void ical_freebusy(char *who) {
 		icalcomponent_free(fb);
 		cprintf("%d Internal error: cannot allocate memory.\n",
 			ERROR+INTERNAL_ERROR);
-		getroom(&CC->quickroom, hold_rm);
+		getroom(&CC->room, hold_rm);
 		return;
 	}
 
@@ -1214,7 +1214,7 @@ void ical_freebusy(char *who) {
 	cprintf("\n000\n");
 
 	/* Go back to the room from which we came... */
-	getroom(&CC->quickroom, hold_rm);
+	getroom(&CC->room, hold_rm);
 }
 
 
@@ -1281,7 +1281,7 @@ void cmd_ical(char *argbuf)
  */
 void ical_create_room(void)
 {
-	struct quickroom qr;
+	struct room qr;
 	struct visit vbuf;
 
 	/* Create the calendar room if it doesn't already exist */
@@ -1297,9 +1297,9 @@ void ical_create_room(void)
 	lputroom(&qr);
 
 	/* Set the view to a calendar view */
-	CtdlGetRelationship(&vbuf, &CC->usersupp, &qr);
+	CtdlGetRelationship(&vbuf, &CC->user, &qr);
 	vbuf.v_view = 3;	/* 3 = calendar */
-	CtdlSetRelationship(&vbuf, &CC->usersupp, &qr);
+	CtdlSetRelationship(&vbuf, &CC->user, &qr);
 
 	/* Create the tasks list room if it doesn't already exist */
 	create_room(USERTASKSROOM, 4, "", 0, 1, 0);
@@ -1314,9 +1314,9 @@ void ical_create_room(void)
 	lputroom(&qr);
 
 	/* Set the view to a task list view */
-	CtdlGetRelationship(&vbuf, &CC->usersupp, &qr);
+	CtdlGetRelationship(&vbuf, &CC->user, &qr);
 	vbuf.v_view = 4;	/* 4 = tasks */
-	CtdlSetRelationship(&vbuf, &CC->usersupp, &qr);
+	CtdlSetRelationship(&vbuf, &CC->user, &qr);
 
 	return;
 }
@@ -1441,9 +1441,9 @@ void ical_send_out_invitations(icalcomponent *cal) {
 			serialized_request
 		);
 
-		msg = CtdlMakeMessage(&CC->usersupp,
+		msg = CtdlMakeMessage(&CC->user,
 			"",			/* No single recipient here */
-			CC->quickroom.QRname, 0, FMT_RFC822,
+			CC->room.QRname, 0, FMT_RFC822,
 			"",
 			summary_string,		/* Use summary for subject */
 			request_message_text);
@@ -1594,8 +1594,8 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 	 */
 
 	/* First determine if this is our room */
-	MailboxName(roomname, sizeof roomname, &CC->usersupp, USERCALENDARROOM);
-	if (strcasecmp(roomname, CC->quickroom.QRname)) {
+	MailboxName(roomname, sizeof roomname, &CC->user, USERCALENDARROOM);
+	if (strcasecmp(roomname, CC->room.QRname)) {
 		return 0;	/* It's not the Calendar room. */
 	}
 
@@ -1692,8 +1692,8 @@ int ical_obj_aftersave(struct CtdlMessage *msg)
 	 */
 
 	/* First determine if this is our room */
-	MailboxName(roomname, sizeof roomname, &CC->usersupp, USERCALENDARROOM);
-	if (strcasecmp(roomname, CC->quickroom.QRname)) {
+	MailboxName(roomname, sizeof roomname, &CC->user, USERCALENDARROOM);
+	if (strcasecmp(roomname, CC->room.QRname)) {
 		return 0;	/* It's not the Calendar room. */
 	}
 

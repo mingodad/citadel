@@ -71,7 +71,7 @@ time_t server_startup_time;
  */
 void master_startup(void) {
 	struct timeval tv;
-	struct quickroom qrbuf;
+	struct room qrbuf;
 	
 	lprintf(9, "master_startup() started\n");
 	time(&server_startup_time);
@@ -610,12 +610,12 @@ void GenerateRoomDisplay(char *real_room,
 			struct CitContext *viewed,
 			struct CitContext *viewer) {
 
-	strcpy(real_room, viewed->quickroom.QRname);
-	if (viewed->quickroom.QRflags & QR_MAILBOX) {
+	strcpy(real_room, viewed->room.QRname);
+	if (viewed->room.QRflags & QR_MAILBOX) {
 		strcpy(real_room, &real_room[11]);
 	}
-	if (viewed->quickroom.QRflags & QR_PRIVATE) {
-		if ( (CtdlRoomAccess(&viewed->quickroom, &viewer->usersupp)
+	if (viewed->room.QRflags & QR_PRIVATE) {
+		if ( (CtdlRoomAccess(&viewed->room, &viewer->user)
 		   & UA_KNOWN) == 0) {
 			strcpy(real_room, "<private room>");
 		}
@@ -642,7 +642,7 @@ int CtdlAccessCheck(int required_level) {
 		return(-1);
 	}
 
-	if (CC->usersupp.axlevel >= 6) return(0);
+	if (CC->user.axlevel >= 6) return(0);
  	if (required_level >= ac_aide) {
 		cprintf("%d This command requires Aide access.\n",
 			ERROR+HIGHER_ACCESS_REQUIRED);
@@ -689,8 +689,8 @@ void cmd_term(char *cmdbuf)
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 		if (session_num == ccptr->cs_pid) {
 			found_it = 1;
-			if ((ccptr->usersupp.usernum == CC->usersupp.usernum)
-			   || (CC->usersupp.axlevel >= 6)) {
+			if ((ccptr->user.usernum == CC->user.usernum)
+			   || (CC->user.axlevel >= 6)) {
 				allowed = 1;
 				ccptr->kill_me = 1;
 			}

@@ -52,14 +52,14 @@ void cmd_pas2(char *argbuf)
 	
 	extract(pw, argbuf, 0);
 	
-	if (getuser(&CC->usersupp, CC->curr_user))
+	if (getuser(&CC->user, CC->curr_user))
 	{
 		cprintf("%d Unable to find user record for %s.\n", ERROR, CC->curr_user);
 		return;
 	}
 	
 	strproc(pw);
-	strproc(CC->usersupp.password);
+	strproc(CC->user.password);
 	
 	if (strlen(pw) != (MD5_HEXSTRING_SIZE-1))
 	{
@@ -67,7 +67,7 @@ void cmd_pas2(char *argbuf)
 		return;
 	}
 	
-	make_apop_string(CC->usersupp.password, CC->cs_nonce, hexstring, sizeof hexstring);
+	make_apop_string(CC->user.password, CC->cs_nonce, hexstring, sizeof hexstring);
 	
 	if (!strcmp(hexstring, pw))
 	{

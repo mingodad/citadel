@@ -117,7 +117,7 @@ extern struct CitContext *ContextList;
  * First phase of message purge -- gather the locations of messages which
  * qualify for purging and write them to a temp file.
  */
-void GatherPurgeMessages(struct quickroom *qrbuf, void *data) {
+void GatherPurgeMessages(struct room *qrbuf, void *data) {
 	struct ExpirePolicy epbuf;
 	long delnum;
 	time_t xtime, now;
@@ -233,7 +233,7 @@ void PurgeMessages(void) {
 }
 
 
-void AddValidUser(struct usersupp *usbuf, void *data) {
+void AddValidUser(struct user *usbuf, void *data) {
 	struct ValidUser *vuptr;
 
 	vuptr = (struct ValidUser *)mallok(sizeof(struct ValidUser));
@@ -242,7 +242,7 @@ void AddValidUser(struct usersupp *usbuf, void *data) {
 	ValidUserList = vuptr;
 }
 
-void AddValidRoom(struct quickroom *qrbuf, void *data) {
+void AddValidRoom(struct room *qrbuf, void *data) {
 	struct ValidRoom *vrptr;
 
 	vrptr = (struct ValidRoom *)mallok(sizeof(struct ValidRoom));
@@ -252,7 +252,7 @@ void AddValidRoom(struct quickroom *qrbuf, void *data) {
 	ValidRoomList = vrptr;
 }
 
-void DoPurgeRooms(struct quickroom *qrbuf, void *data) {
+void DoPurgeRooms(struct room *qrbuf, void *data) {
 	time_t age, purge_secs;
 	struct PurgeList *pptr;
 	struct ValidUser *vuptr;
@@ -307,7 +307,7 @@ void DoPurgeRooms(struct quickroom *qrbuf, void *data) {
 int PurgeRooms(void) {
 	struct PurgeList *pptr;
 	int num_rooms_purged = 0;
-	struct quickroom qrbuf;
+	struct room qrbuf;
 	struct ValidUser *vuptr;
 	char *transcript = NULL;
 
@@ -353,7 +353,7 @@ int PurgeRooms(void) {
 }
 
 
-void do_user_purge(struct usersupp *us, void *data) {
+void do_user_purge(struct user *us, void *data) {
 	int purge;
 	time_t now;
 	time_t purge_time;
@@ -361,7 +361,7 @@ void do_user_purge(struct usersupp *us, void *data) {
 
 	/* stupid recovery routine to re-create missing mailboxen.
 	 * don't enable this.
-	struct quickroom qrbuf;
+	struct room qrbuf;
 	char mailboxname[ROOMNAMELEN];
 	MailboxName(mailboxname, us, MAILROOM);
 	create_room(mailboxname, 4, "", 0, 1, 1);
@@ -648,9 +648,9 @@ void do_fsck_msg(long msgnum, void *userdata) {
 	rr = ptr;
 }
 
-void do_fsck_room(struct quickroom *qrbuf, void *data)
+void do_fsck_room(struct room *qrbuf, void *data)
 {
-	getroom(&CC->quickroom, qrbuf->QRname);
+	getroom(&CC->room, qrbuf->QRname);
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, do_fsck_msg, NULL);
 }
 

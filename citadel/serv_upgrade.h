@@ -4,9 +4,9 @@
  */
 
 /*
- * Format of a usersupp record prior to version 5.55
+ * Format of a user record prior to version 5.55
  */
-struct pre555usersupp {			/* User record                      */
+struct pre555user {			/* User record                      */
 	int USuid;			/* userid (==BBSUID for bbs only)   */
 	char password[20];		/* password (for BBS-only users)    */
 	unsigned flags;			/* See US_ flags below              */
