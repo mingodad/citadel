@@ -219,48 +219,6 @@ void updatelsa(CtdlIPC *ipc)
 
 
 /*
- * This routine completes a client upload
- */
-void do_upload(CtdlIPC *ipc, int fd)
-{
-	char buf[SIZ];
-	char tbuf[4096];
-	long transmitted_bytes, total_bytes;
-	int bytes_to_send;
-	int bytes_expected;
-
-	/* learn the size of the file */
-	total_bytes = lseek(fd, 0L, 2);
-	lseek(fd, 0L, 0);
-
-	transmitted_bytes = 0L;
-	progress(transmitted_bytes, total_bytes);
-	do {
-		bytes_to_send = read(fd, tbuf, 4096);
-		if (bytes_to_send > 0) {
-			snprintf(buf, sizeof buf, "WRIT %d", bytes_to_send);
-			CtdlIPC_putline(ipc, buf);
-			CtdlIPC_getline(ipc, buf);
-			if (buf[0] == '7') {
-				bytes_expected = atoi(&buf[4]);
-				serv_write(ipc, tbuf, bytes_expected);
-			} else {
-				scr_printf("%s\n", &buf[4]);
-			}
-		}
-		transmitted_bytes = transmitted_bytes + (long) bytes_to_send;
-		progress(transmitted_bytes, total_bytes);
-	} while (bytes_to_send > 0);
-
-	/* close the upload file, locally and at the server */
-	close(fd);
-	CtdlIPC_putline(ipc, "UCLS 1");
-	CtdlIPC_getline(ipc, buf);
-	scr_printf("%s\n", &buf[4]);
-}
-
-
-/*
  * client-based uploads (for users with their own clientware)
  */
 void cli_upload(CtdlIPC *ipc)
@@ -269,6 +227,7 @@ void cli_upload(CtdlIPC *ipc)
 	char desc[151];
 	char buf[SIZ];
 	char tbuf[SIZ];
+	int r;		/* IPC response code */
 	int a;
 	int fd;
 
@@ -285,28 +244,25 @@ void cli_upload(CtdlIPC *ipc)
 	scr_printf("Enter a description of this file:\n");
 	newprompt(": ", desc, 75);
 
-	/* keep generating filenames in hope of finding a unique one */
+	/* Keep generating filenames in hope of finding a unique one */
 	a = 0;
-	do {
-		if (a == 10)
-			return;	/* fail if tried 10 times */
-		strcpy(buf, flnm);
-		while ((strlen(buf) > 0) && (haschar(buf, '/')))
-			strcpy(buf, &buf[1]);
+	while (a < 10) {
+		/* basename of filename */
+		strcpy(tbuf, flnm);
+		if (haschar(tbuf, '/'))
+			strcpy(tbuf, strrchr(tbuf, '/'));
+		/* filename.1, filename.2, etc */
 		if (a > 0) {
-			size_t tmp = strlen(buf);
-			snprintf(&buf[tmp], sizeof buf - tmp, "%d", a);
+			sprintf(buf + strlen(buf), ".%d", a);
 		}
-		snprintf(tbuf, sizeof tbuf, "UOPN %s|%s", buf, desc);
-		CtdlIPC_putline(ipc, tbuf);
-		CtdlIPC_getline(ipc, buf);
-		if (buf[0] != '2')
-			scr_printf("%s\n", &buf[4]);
+		/* Try upload */
+		r = CtdlIPCFileUpload(ipc, tbuf, desc, flnm, progress, buf);
+		if (r / 100 == 5 || r < 0)
+			scr_printf("%s\n", buf);
+		else
+			break;
 		++a;
-	} while (buf[0] != '2');
-
-	/* at this point we have an open upload file at the server */
-	do_upload(ipc, fd);
+	};
 }
 
 
@@ -317,29 +273,22 @@ void cli_image_upload(CtdlIPC *ipc, char *keyname)
 {
 	char flnm[SIZ];
 	char buf[SIZ];
-	int fd;
+	int r;
 
-	snprintf(buf, sizeof buf, "UIMG 0|%s", keyname);
-	CtdlIPC_putline(ipc, buf);
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] != '2') {
-		scr_printf("%s\n", &buf[4]);
+	/* Can we upload this image? */
+	r = CtdlIPCImageUpload(ipc, 0, NULL, keyname, NULL, buf);
+	if (r / 100 != 2) {
+		err_printf("%s\n", buf);
 		return;
 	}
 	newprompt("Image file to be uploaded: ", flnm, 55);
-	fd = open(flnm, O_RDONLY);
-	if (fd < 0) {
-		scr_printf("Cannot open '%s': %s\n", flnm, strerror(errno));
-		return;
+	r = CtdlIPCImageUpload(ipc, 1, flnm, keyname, progress, buf);
+	if (r / 100 == 5) {
+		err_printf("%s\n", buf);
+	} else if (r < 0) {
+		err_printf("Cannot upload '%s': %s\n", flnm, strerror(errno));
 	}
-	snprintf(buf, sizeof buf, "UIMG 1|%s", keyname);
-	CtdlIPC_putline(ipc, buf);
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] != '2') {
-		scr_printf("%s\n", &buf[4]);
-		return;
-	}
-	do_upload(ipc, fd);
+	/* else upload succeeded */
 }
 
 
@@ -355,7 +304,7 @@ void upload(CtdlIPC *ipc, int c)
 	int xfer_pid;
 	int a, b;
 	FILE *fp, *lsfp;
-	int fd;
+	int r;
 
 	if ((room_flags & QR_UPLOAD) == 0) {
 		scr_printf("*** You cannot upload to this room.\n");
@@ -372,8 +321,6 @@ void upload(CtdlIPC *ipc, int c)
 		    || (flnm[a] == '?') || (flnm[a] == '*')
 		    || (flnm[a] == ';') || (flnm[a] == '&'))
 			flnm[a] = '_';
-
-	newprompt("Enter a short description of the file:\n: ", desc, 150);
 
 	/* create a temporary directory... */
 	if (mkdir(tempdir, 0700) != 0) {
@@ -430,44 +377,19 @@ void upload(CtdlIPC *ipc, int c)
 		nukedir(tempdir);
 		return;
 	}
-	scr_printf("\r*** Transfer successful.  Sending file(s) to server...\n");
+	scr_printf("\r*** Transfer successful.\n");
 	snprintf(buf, sizeof buf, "cd %s; ls", tempdir);
 	lsfp = popen(buf, "r");
 	if (lsfp != NULL) {
 		while (fgets(flnm, sizeof flnm, lsfp) != NULL) {
-			flnm[strlen(flnm) - 1] = 0;
+			flnm[strlen(flnm) - 1] = 0;	/* chop newline */
+			snprintf(buf, sizeof buf,
+				 "Enter a short description of '%s':\n: ",
+				 flnm);
+			newprompt(buf, desc, 150);
 			snprintf(buf, sizeof buf, "%s/%s", tempdir, flnm);
-			fd = open(buf, O_RDONLY);
-			if (fd >= 0) {
-				a = 0;
-				do {
-					snprintf(buf, sizeof buf, "UOPN %s|%s", flnm, desc);
-					if (a > 0) {
-						size_t tmp = strlen(buf);
-						snprintf(&buf[tmp],
-							sizeof buf - tmp,
-							".%d", a);
-					}
-					++a;
-					CtdlIPC_putline(ipc, buf);
-					CtdlIPC_getline(ipc, buf);
-				} while ((buf[0] != '2') && (a < 100));
-				if (buf[0] == '2')
-					do {
-						a = read(fd, tbuf, 4096);
-						if (a > 0) {
-							snprintf(buf, sizeof buf, "WRIT %d", a);
-							CtdlIPC_putline(ipc, buf);
-							CtdlIPC_getline(ipc, buf);
-							if (buf[0] == '7')
-								serv_write(ipc, tbuf, a);
-						}
-					} while (a > 0);
-				close(fd);
-				CtdlIPC_putline(ipc, "UCLS 1");
-				CtdlIPC_getline(ipc, buf);
-				scr_printf("%s\n", &buf[4]);
-			}
+			r = CtdlIPCFileUpload(ipc, flnm, desc, buf, progress, tbuf);
+			scr_printf("%s\n", tbuf);
 		}
 		pclose(lsfp);
 	}

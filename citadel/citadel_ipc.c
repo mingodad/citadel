@@ -1159,50 +1159,62 @@ int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf,
 
 
 /* UOPN */
-int CtdlIPCFileUpload(CtdlIPC *ipc, const char *filename, const char *comment, void *buf,
-		size_t bytes, char *cret)
-{
-	register int ret;
-	char *aaa;
-
-	if (!cret) return -1;
-	if (!filename) return -1;
-	if (!comment) return -1;
-	if (ipc->uploading) return -1;
-
-	aaa = (char *)malloc(strlen(filename) + strlen(comment) + 7);
-	if (!aaa) return -1;
-
-	sprintf(aaa, "UOPN %s|%s", filename, comment);
-	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
-	free(aaa);
-	if (ret / 100 == 2)
-		ipc->uploading = 1;
-	ret = CtdlIPCWriteUpload(ipc, buf, bytes, cret);
-	ret = CtdlIPCEndUpload(ipc, cret);
-	return ret;
-}
-
-
-/* UIMG */
-int CtdlIPCImageUpload(CtdlIPC *ipc, int for_real, const char *filename, size_t bytes,
+int CtdlIPCFileUpload(CtdlIPC *ipc, const char *save_as, const char *comment,
+		const char *path, void (*progress_gauge_callback)(long, long),
 		char *cret)
 {
 	register int ret;
 	char *aaa;
 
 	if (!cret) return -1;
-	if (!filename) return -1;
+	if (!save_as) return -1;
+	if (!comment) return -1;
+	if (!path) return -1;
+	if (!*path) return -1;
 	if (ipc->uploading) return -1;
 
-	aaa = (char *)malloc(strlen(filename) + 17);
+	aaa = (char *)malloc(strlen(save_as) + strlen(comment) + 7);
 	if (!aaa) return -1;
 
-	sprintf(aaa, "UIMG %d|%s", for_real, filename);
+	sprintf(aaa, "UOPN %s|%s", save_as, comment);
 	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
 	free(aaa);
-	if (ret / 100 == 2)
+	if (ret / 100 == 2) {
 		ipc->uploading = 1;
+		ret = CtdlIPCWriteUpload(ipc, path, progress_gauge_callback, cret);
+		ret = CtdlIPCEndUpload(ipc, (ret == -2 ? 1 : 0), cret);
+		ipc->uploading = 0;
+	}
+	return ret;
+}
+
+
+/* UIMG */
+int CtdlIPCImageUpload(CtdlIPC *ipc, int for_real, const char *path,
+		const char *save_as,
+		void (*progress_gauge_callback)(long, long), char *cret)
+{
+	register int ret;
+	char *aaa;
+
+	if (!cret) return -1;
+	if (!save_as) return -1;
+	if (!path && for_real) return -1;
+	if (!*path && for_real) return -1;
+	if (ipc->uploading) return -1;
+
+	aaa = (char *)malloc(strlen(save_as) + 17);
+	if (!aaa) return -1;
+
+	sprintf(aaa, "UIMG %d|%s", for_real, save_as);
+	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
+	free(aaa);
+	if (ret / 100 == 2 && for_real) {
+		ipc->uploading = 1;
+		ret = CtdlIPCWriteUpload(ipc, path, progress_gauge_callback, cret);
+		ret = CtdlIPCEndUpload(ipc, (ret == -2 ? 1 : 0), cret);
+		ipc->uploading = 0;
+	}
 	return ret;
 }
 
@@ -2008,49 +2020,75 @@ int CtdlIPCHighSpeedReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
 
 
 /* UCLS */
-int CtdlIPCEndUpload(CtdlIPC *ipc, char *cret)
+int CtdlIPCEndUpload(CtdlIPC *ipc, int discard, char *cret)
 {
 	register int ret;
+	char cmd[8];
 
 	if (!cret) return -1;
 	if (!ipc->uploading) return -1;
 
-	ret = CtdlIPCGenericCommand(ipc, "UCLS", NULL, 0, NULL, NULL, cret);
-	if (ret / 100 == 2)
-		ipc->uploading = 0;
+	sprintf(cmd, "UCLS %d", discard ? 0 : 1);
+	ret = CtdlIPCGenericCommand(ipc, cmd, NULL, 0, NULL, NULL, cret);
+	ipc->uploading = 0;
 	return ret;
 }
 
 
 /* WRIT */
-int CtdlIPCWriteUpload(CtdlIPC *ipc, void *buf, size_t bytes, char *cret)
+int CtdlIPCWriteUpload(CtdlIPC *ipc, const char *path,
+		void (*progress_gauge_callback)(long, long), char *cret)
 {
 	register int ret = -1;
-	register size_t offset;
+	register size_t offset = 0;
+	size_t bytes;
 	char aaa[SIZ];
+	char buf[4096];
+	FILE *fd;
 
 	if (!cret) return -1;
-	if (!buf) return -1;
-	if (bytes < 1) return -1;
+	if (!path) return -1;
+	if (!*path) return -1;
 
-	offset = 0;
+	fd = fopen(path, "r");
+	if (!fd) return -2;
+
+	fseek(fd, 0L, SEEK_END);
+	bytes = ftell(fd);
+	rewind(fd);
+
+	if (progress_gauge_callback)
+		progress_gauge_callback(0, bytes);
+
 	while (offset < bytes) {
-		sprintf(aaa, "WRIT %d", bytes - offset);
+		register size_t to_write;
+
+		/* Read some data in */
+		to_write = fread(buf, 1, 4096, fd);
+		if (!to_write) {
+			if (feof(fd) || ferror(fd)) break;
+		}
+		sprintf(aaa, "WRIT %d", to_write);
 		CtdlIPC_putline(ipc, aaa);
 		CtdlIPC_getline(ipc, aaa);
 		strcpy(cret, &aaa[4]);
 		ret = atoi(aaa);
 		if (aaa[0] == '7') {
-			register size_t to_write;
-
 			to_write = extract_long(&aaa[4], 0);
-			serv_write(ipc, buf + offset, to_write);
+			
+			serv_write(ipc, buf, to_write);
 			offset += to_write;
+			if (progress_gauge_callback)
+				progress_gauge_callback(offset, bytes);
+			/* Detect short reads and back up if needed */
+			fseek(fd, offset, SEEK_SET);
 		} else {
 			break;
 		}
 	}
-	return ret;
+	if (progress_gauge_callback)
+		progress_gauge_callback(1, 1);
+	return (!ferror(fd) ? ret : -2);
 }
 
 

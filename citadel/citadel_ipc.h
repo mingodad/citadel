@@ -113,10 +113,12 @@ int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part, void 
 		void (*progress_gauge_callback)(long, long), char *cret);
 int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf,
 		void (*progress_gauge_callback)(long, long), char *cret);
-int CtdlIPCFileUpload(CtdlIPC *ipc, const char *filename, const char *comment, void *buf,
-		size_t bytes, char *cret);
-int CtdlIPCImageUpload(CtdlIPC *ipc, int for_real, const char *filename, size_t bytes,
+int CtdlIPCFileUpload(CtdlIPC *ipc, const char *save_as, const char *comment,
+		const char *path, void (*progress_gauge_callback)(long, long),
 		char *cret);
+int CtdlIPCImageUpload(CtdlIPC *ipc, int for_real, const char *path,
+		const char *save_as,
+		void (*progress_gauge_callback)(long, long), char *cret);
 int CtdlIPCQueryUsername(CtdlIPC *ipc, const char *username, char *cret);
 int CtdlIPCFloorListing(CtdlIPC *ipc, char **listing, char *cret);
 int CtdlIPCCreateFloor(CtdlIPC *ipc, int for_real, const char *name, char *cret);
@@ -170,8 +172,9 @@ inline void CtdlIPC_unlock(CtdlIPC *ipc);
 char *CtdlIPCReadListing(CtdlIPC *ipc, char *dest);
 int CtdlIPCSendListing(CtdlIPC *ipc, const char *listing);
 size_t CtdlIPCPartialRead(CtdlIPC *ipc, void **buf, size_t offset, size_t bytes, char *cret);
-int CtdlIPCEndUpload(CtdlIPC *ipc, char *cret);
-int CtdlIPCWriteUpload(CtdlIPC *ipc, void *buf, size_t bytes, char *cret);
+int CtdlIPCEndUpload(CtdlIPC *ipc, int discard, char *cret);
+int CtdlIPCWriteUpload(CtdlIPC *ipc, const char *path,
+		void (*progress_gauge_callback)(long, long), char *cret);
 int CtdlIPCEndDownload(CtdlIPC *ipc, char *cret);
 int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
 	       void (*progress_gauge_callback)(long, long), char *cret);

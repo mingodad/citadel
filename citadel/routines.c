@@ -398,6 +398,8 @@ void progress(long int curr, long int cmax)
 
 	if (curr >= cmax) {
 		sln_printf("\r%79s\r","");
+		status_line(serv_info.serv_humannode, serv_info.serv_bbs_city,
+			room_name, secure, 0);
 	} else {
 		/* a will be range 0-50 rather than 0-100 */
 		a=(curr * 50) / cmax;
