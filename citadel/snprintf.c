@@ -1,6 +1,8 @@
 /*
  * modified from Sten Gunterberg's BUGTRAQ post of 22 Jul 1997
  * --nathan bryant <bryant@cs.usm.maine.edu>
+ *
+ * $Id$
  */
 
 /*

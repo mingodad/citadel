@@ -4,6 +4,8 @@
  * client_chat.c  --  front end for chat mode
  *                    (the "single process" version - no more fork() anymore)
  *
+ * $Id$
+ *
  */
 
 #include "sysdep.h"

@@ -1,5 +1,5 @@
 /*
- * mailinglist.c
+ * $Id$
  *
  * This program is designed to be a filter which allows two-way interaction
  * between a traditional e-mail mailing list and a Citadel room.

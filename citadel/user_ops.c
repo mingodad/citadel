@@ -1,3 +1,5 @@
+/* $Id$ */
+
 /* needed to properly enable crypt() stuff on some systems */
 #define _XOPEN_SOURCE
 /* needed for str[n]casecmp() on some systems if the above is defined */

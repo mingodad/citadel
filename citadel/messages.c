@@ -1,6 +1,7 @@
 /*
  * Citadel/UX message support routines
  * see copyright.txt for copyright information
+ * $Id$
  */
 
 #include <stdlib.h>

@@ -1,5 +1,6 @@
 /*
  * tools.c -- Miscellaneous routines used by both the client and server.
+ * $Id$
  */
 
 #include <stdio.h>

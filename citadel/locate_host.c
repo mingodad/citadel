@@ -1,5 +1,6 @@
 /*
  * locate the originating host
+ * $Id$
  */
 
 #include <stdlib.h>

@@ -3,6 +3,8 @@
  * an older version of Citadel, or a different hardware architecture, or
  * whatever.  You should only run an import when your installed system is
  * brand new and _empty_ !!
+ *
+ * $Id$
  */
 
 #include <stdlib.h>

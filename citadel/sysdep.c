@@ -2,6 +2,8 @@
  * Citadel/UX "system dependent" stuff.
  * See copyright.txt for copyright information.
  *
+ * $Id$
+ *
  * Here's where we (hopefully) have all the parts of the Citadel server that
  * would need to be altered to run the server in a non-POSIX environment.
  * Wherever possible, we use function wrappers and type definitions to create

@@ -3,7 +3,7 @@
  * 
  * Citadel/UX client/server IPC - client module using TCP/IP
  *
- * version 1.3
+ * version 1.3 $Id$
  *
  */
 

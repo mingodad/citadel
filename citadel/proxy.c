@@ -1,6 +1,7 @@
 /*
  * Session layer proxy for Citadel
  * (c) 1998 by Art Cancro, All Rights Reserved, released under GNU GPL v2
+ * $Id$
  */
 
 /*

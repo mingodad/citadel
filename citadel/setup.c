@@ -1,5 +1,6 @@
 /*
  * Citadel/UX setup program
+ * $Id$
  *
  * *** YOU MUST EDIT sysconfig.h >BEFORE< COMPILING SETUP ***
  */

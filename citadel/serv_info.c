@@ -1,5 +1,5 @@
 /*
- * serv_info.c
+ * $Id$
  *
  * The CtdlGetServerInfo() function is useful for 
  */

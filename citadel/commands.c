@@ -5,6 +5,8 @@
  *
  * This version is the traditional command parser for room prompts.
  *
+ * $Id$
+ *
  */
 
 #include "sysdep.h"

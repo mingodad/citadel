@@ -1,3 +1,4 @@
+/* $Id$ */
 /* cc import.c database.o control.o -lgdbm -o import */
 
 #include <stdlib.h>

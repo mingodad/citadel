@@ -3,7 +3,7 @@
  * see copyright.doc for copyright information
  *
  * netproc calls this to export Citadel mail to RFC822-compliant mailers.
- *
+ * $Id$
  */
 
 #include <stdlib.h>

@@ -1,5 +1,5 @@
 /*
- * netsetup.c
+ * $Id$
  *
  * Copyright (c) 1998  Art Cancro
  *

@@ -4,6 +4,9 @@
  *
  * This program is a filter which converts Citadel/UX binary message format
  * to standard UseNet news format.  Useful for Citadel<->News gateways.
+ *
+ * $Id$
+ *
  */
 
 #include <fcntl.h>

@@ -1,6 +1,6 @@
 #define UNCOMPRESS "/usr/bin/gunzip"
 
-/* Citadel/UX rcit
+/* Citadel/UX rcit $Id$
  * version 2.9
  *
  * This program functions the same as the standard rnews program for

@@ -3,6 +3,8 @@
  *
  * This module handles states which are global to the entire server.
  *
+ * $Id$
+ *
  */
 
 #include <stdlib.h>

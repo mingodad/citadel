@@ -2,7 +2,7 @@
  * Citadel/UX  
  *
  * citadel.c - Main source file.
- *
+ * $Id$
  */
 
 #include "sysdep.h"

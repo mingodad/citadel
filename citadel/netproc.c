@@ -2,6 +2,7 @@
  * Citadel/UX Intelligent Network Processor for IGnet/Open networks v3.6
  * Designed and written by Art Cancro @ Uncensored Communications Group
  * See copyright.txt for copyright information
+ * $Id$
  */
 
 /*

@@ -1,5 +1,5 @@
 /*
- * msgform.c v2.1
+ * msgform.c v2.1 $Id$
  * see copyright.doc for copyright information
  * 
  * This is simply a filter that converts Citadel binary message format

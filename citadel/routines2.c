@@ -1,5 +1,6 @@
 /* More Citadel/UX routines...
  * unlike routines.c, some of these DO use global variables.
+ * $Id$
  */
 
 #include <stdlib.h>

@@ -1,5 +1,5 @@
 /*
- * userpurge.c
+ * $Id$
  *
  * This program is a server extension which purges the user file of any user
  * who has not logged in for a period of time, or who has elected to delete
