@@ -1,4 +1,7 @@
 $Log$
+Revision 320.1  2001/12/25 00:14:44  error
+* Fixed the iconbar and navbar buttons; they now work in Netscape 4.x
+
 Revision 320.0  2001/12/21 06:04:03  ajc
 * THIS IS 3.20
 
@@ -681,4 +684,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
