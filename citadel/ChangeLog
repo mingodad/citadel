@@ -1,3 +1,6 @@
+Mon Jun 21 00:04:15 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* netproc.c: started writing a vortex checker.  Not finished.
+
 Wed Jun  9 23:34:25 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Replaced all code that generated temporary filenames with calls to
 	  tmpnam().  Rewrote using tmpfile() where possible.
