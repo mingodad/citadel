@@ -32,7 +32,7 @@ char express_msgs = 0;
 
 static volatile int download_in_progress = 0;	/* download file open */
 static volatile int upload_in_progress = 0;	/* upload file open */
-/* static volatile int serv_sock;	/* Socket on which we talk to server */
+/* static volatile int serv_sock; */	/* Socket on which we talk to server */
 
 
 /*
@@ -204,7 +204,7 @@ int CtdlIPCKnownRooms(int which, int floor, struct march **listing, char *cret)
 	register int ret;
 	struct march *march = NULL;
 	static char *proto[] = {"LRMS", "LKRN", "LKRO", "LKRA", "LZRM" };
-	char aaa[256];
+	char aaa[SIZ];
 	char *bbb = NULL;
 	size_t bbbsize;
 
@@ -999,7 +999,7 @@ int CtdlIPCFileDownload(const char *filename, void **buf, char *cret)
 	register int ret;
 	size_t bytes;
 	time_t last_mod;
-	char mimetype[256];
+	char mimetype[SIZ];
 	char *aaa;
 
 	if (!cret) return -2;
@@ -1037,8 +1037,8 @@ int CtdlIPCAttachmentDownload(long msgnum, const char *part, void **buf,
 	register int ret;
 	size_t bytes;
 	time_t last_mod;
-	char filename[256];
-	char mimetype[256];
+	char filename[SIZ];
+	char mimetype[SIZ];
 	char *aaa;
 
 	if (!cret) return -2;
@@ -1076,7 +1076,7 @@ int CtdlIPCImageDownload(const char *filename, void **buf, char *cret)
 	register int ret;
 	size_t bytes;
 	time_t last_mod;
-	char mimetype[256];
+	char mimetype[SIZ];
 	char *aaa;
 
 	if (!cret) return -1;
@@ -1723,7 +1723,7 @@ char *CtdlIPCReadListing(char *dest)
 {
 	long length = 0;
 	char *ret;
-	char aaa[256];
+	char aaa[SIZ];
 
 	ret = dest;
 	if (ret) length = strlen(ret);
@@ -1767,7 +1767,7 @@ int CtdlIPCSendListing(const char *listing)
 size_t CtdlIPCPartialRead(void **buf, size_t offset, size_t bytes, char *cret)
 {
 	register size_t len = 0;
-	char aaa[256];
+	char aaa[SIZ];
 
 	if (!buf) return -1;
 	if (!cret) return -1;
@@ -1854,7 +1854,7 @@ int CtdlIPCWriteUpload(void *buf, size_t bytes, char *cret)
 {
 	register int ret = -1;
 	register size_t offset;
-	char aaa[256];
+	char aaa[SIZ];
 
 	if (!cret) return -1;
 	if (!buf) return -1;

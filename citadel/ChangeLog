@@ -1,4 +1,8 @@
  $Log$
+ Revision 591.68  2002/07/19 02:28:11  ajc
+ * citadel_ipc.c: changed various buffer lengths from 256 to SIZ in order to
+   accomodate long lines which often spew out (usually from spam unfortunately)
+
  Revision 591.67  2002/07/18 21:29:37  nbryant
  added a note about GNU make to the configure script output
 
@@ -3814,4 +3818,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
