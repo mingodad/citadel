@@ -1,4 +1,11 @@
  $Log$
+ Revision 591.39  2002/06/12 03:42:21  ajc
+ * "Suppress message prompts" has been changed to "Prompt after each message"
+   and of course the effect has been reversed.
+ * "Be unlisted in userlog" has been moved to the end of the list of
+   configuration prompts, so it doesn't interrupt the flow of thought regarding
+   the prompting questions.
+
  Revision 591.38  2002/06/10 22:25:25  ajc
  * Configuration for spam filter
 
@@ -3703,4 +3710,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -176,7 +176,11 @@ AGUP:	snprintf(buf, sizeof buf, "AGUP %s",who);
 }
 
 
-int set_attr(int sval, char *prompt, unsigned int sbit)
+/* Display a prompt and flip a bit based on whether the user answers
+ * yes or no.  Yes=1 and No=0, unless 'backwards' is set to a nonzero value
+ * in which case No=1 and Yes=0.
+ */
+int set_attr(int sval, char *prompt, unsigned int sbit, int backwards)
 {
 	int a;
 	int temp;
@@ -187,14 +191,25 @@ int set_attr(int sval, char *prompt, unsigned int sbit)
 	color(DIM_MAGENTA);
 	scr_printf("[");
 	color(BRIGHT_MAGENTA);
-	scr_printf("%3s", ((temp&sbit) ? "Yes":"No"));
+
+	if (backwards) {
+		scr_printf("%3s", ((temp&sbit) ? "No":"Yes"));
+	}
+	else {
+		scr_printf("%3s", ((temp&sbit) ? "Yes":"No"));
+	}
+
 	color(DIM_MAGENTA);
 	scr_printf("]? ");
 	color(BRIGHT_CYAN);
-	a=yesno_d(temp&sbit);
+	a = (temp & sbit);
+	if (a != 0) a = 1;
+	if (backwards) a = 1 - a;
+	a = yesno_d(a);
+	if (backwards) a = 1 - a;
 	color(DIM_WHITE);
-	temp=(temp|sbit);
-	if (!a) temp=(temp^sbit);
+	temp = (temp|sbit);
+	if (!a) temp = (temp^sbit);
 	return(temp);
 }
 
@@ -226,32 +241,61 @@ void enter_config(int mode)
 	 height = intprompt("Enter your screen height",height,3,255);
  
 	 flags = set_attr(flags,
-		"Are you an experienced Citadel user",US_EXPERT);
-	 if ( ((flags&US_EXPERT)==0) && (mode==1))
+		"Are you an experienced Citadel user",
+		US_EXPERT,
+		0);
+	 if ( ((flags&US_EXPERT)==0) && (mode==1)) {
 		return;
+	 }
 	 flags = set_attr(flags,
-		"Print last old message on New message request",US_LASTOLD);
-	 if ((flags&US_EXPERT)==0) formout("unlisted");
-	 flags = set_attr(flags,"Be unlisted in userlog",US_UNLISTED);
-	 flags = set_attr(flags,"Suppress message prompts",US_NOPROMPT);
+		"Print last old message on New message request",
+		US_LASTOLD,
+		0);
+
+	 flags = set_attr(flags,
+		"Prompt after each message",
+		US_NOPROMPT,
+		1);
+
 	 if ((flags & US_NOPROMPT)==0)
-	    flags = set_attr(flags,"Use 'disappearing' prompts",US_DISAPPEAR);
+	    flags = set_attr(flags,
+		"Use 'disappearing' prompts",
+		US_DISAPPEAR,
+		0);
+
 	 flags = set_attr(flags,
-		"Pause after each screenful of text",US_PAGINATOR);
+		"Pause after each screenful of text",
+		US_PAGINATOR,
+		0);
+
 	 if ( (rc_prompt_control == 3) && (flags & US_PAGINATOR) ) {
 		flags = set_attr(flags,
-		"<N>ext and <S>top work at paginator prompt", US_PROMPTCTL);
+			"<N>ext and <S>top work at paginator prompt",
+			US_PROMPTCTL,
+			0);
 	 }
+
 	 if (rc_floor_mode == RC_DEFAULT) {
 	  flags = set_attr(flags,
-		"View rooms by floor",US_FLOORS);
+		"View rooms by floor",
+		US_FLOORS,
+		0);
 	  }
+
 	 if (rc_ansi_color == 3) {
 	  flags = set_attr(flags,
-		"Enable color support",US_COLOR);
+		"Enable color support",
+		US_COLOR,
+		0);
 	  }
 	
 	 }
+
+	 if ((flags&US_EXPERT)==0) formout("unlisted");
+	 flags = set_attr(flags,
+		"Be unlisted in userlog",
+		US_UNLISTED,
+		0);
 
 	if (mode==2) {
 	 if (flags & US_EXPERT) {
