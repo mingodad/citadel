@@ -37,7 +37,7 @@
 void sttybbs(int cmd);
 void hit_any_key(void);
 void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto);
-void progress(unsigned long curr, unsigned long cmax);
+void progress(CtdlIPC* ipc, unsigned long curr, unsigned long cmax);
 int pattern(char *search, char *patn);
 int file_checksum(char *filename);
 int nukedir(char *dirname);

@@ -604,7 +604,7 @@ int CtdlIPCWhoKnowsRoom(CtdlIPC *ipc, char **listing, char *cret)
 
 
 /* INFO */
-int CtdlIPCServerInfo(CtdlIPC *ipc, struct CtdlServInfo *ServInfo, char *cret)
+int CtdlIPCServerInfo(CtdlIPC *ipc, char *cret)
 {
 	register int ret;
 	size_t bytes;
@@ -612,7 +612,6 @@ int CtdlIPCServerInfo(CtdlIPC *ipc, struct CtdlServInfo *ServInfo, char *cret)
 	char buf[SIZ];
 
 	if (!cret) return -2;
-	if (!ServInfo) return -2;
 
 	ret = CtdlIPCGenericCommand(ipc, "INFO", NULL, 0, &listing, &bytes, cret);
 	if (ret / 100 == 1) {
@@ -622,30 +621,31 @@ int CtdlIPCServerInfo(CtdlIPC *ipc, struct CtdlServInfo *ServInfo, char *cret)
 			extract_token(buf, listing, 0, '\n');
 			remove_token(listing, 0, '\n');
 			switch (line++) {
-			case 0:		ServInfo->serv_pid = atoi(buf);
+			case 0:		ipc->ServInfo.pid = atoi(buf);
 					break;
-			case 1:		strcpy(ServInfo->serv_nodename,buf);
+			case 1:		strcpy(ipc->ServInfo.nodename,buf);
 					break;
-			case 2:		strcpy(ServInfo->serv_humannode,buf);
+			case 2:		strcpy(ipc->ServInfo.humannode,buf);
 					break;
-			case 3:		strcpy(ServInfo->serv_fqdn,buf);
+			case 3:		strcpy(ipc->ServInfo.fqdn,buf);
 					break;
-			case 4:		strcpy(ServInfo->serv_software,buf);
+			case 4:		strcpy(ipc->ServInfo.software,buf);
 					break;
-			case 5:		ServInfo->serv_rev_level = atoi(buf);
+			case 5:		ipc->ServInfo.rev_level = atoi(buf);
 					break;
-			case 6:		strcpy(ServInfo->serv_bbs_city,buf);
+			case 6:		strcpy(ipc->ServInfo.bbs_city,buf);
 					break;
-			case 7:		strcpy(ServInfo->serv_sysadm,buf);
+			case 7:		strcpy(ipc->ServInfo.sysadm,buf);
 					break;
-			case 9:		strcpy(ServInfo->serv_moreprompt,buf);
+			case 9:		strcpy(ipc->ServInfo.moreprompt,buf);
 					break;
-			case 10:	ServInfo->serv_ok_floors = atoi(buf);
+			case 10:	ipc->ServInfo.ok_floors = atoi(buf);
 					break;
-			case 11:	ServInfo->serv_paging_level = atoi(buf);
+			case 11:	ipc->ServInfo.paging_level = atoi(buf);
 					break;
-			case 13:	ServInfo->serv_supports_qnop = atoi(buf);
-			case 14:	ServInfo->serv_supports_ldap = atoi(buf);
+			case 13:	ipc->ServInfo.supports_qnop = atoi(buf);
+					break;
+			case 14:	ipc->ServInfo.supports_ldap = atoi(buf);
 					break;
 			}
 		}
@@ -1129,7 +1129,8 @@ int CtdlIPCOnlineUsers(CtdlIPC *ipc, char **listing, time_t *stamp, char *cret)
 /* OPEN */
 int CtdlIPCFileDownload(CtdlIPC *ipc, const char *filename, void **buf,
 		size_t resume,
-		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		void (*progress_gauge_callback)
+			(CtdlIPC*, unsigned long, unsigned long),
 		char *cret)
 {
 	register int ret;
@@ -1175,7 +1176,8 @@ int CtdlIPCFileDownload(CtdlIPC *ipc, const char *filename, void **buf,
 /* OPNA */
 int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part,
 		void **buf,
-		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		void (*progress_gauge_callback)
+			(CtdlIPC*, unsigned long, unsigned long),
 		char *cret)
 {
 	register int ret;
@@ -1213,7 +1215,8 @@ int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part,
 
 /* OIMG */
 int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf,
-		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		void (*progress_gauge_callback)
+			(CtdlIPC*, unsigned long, unsigned long),
 		char *cret)
 {
 	register int ret;
@@ -1253,7 +1256,8 @@ int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf,
 /* UOPN */
 int CtdlIPCFileUpload(CtdlIPC *ipc, const char *save_as, const char *comment,
 		const char *path,
-		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		void (*progress_gauge_callback)
+			(CtdlIPC*, unsigned long, unsigned long),
 		char *cret)
 {
 	register int ret;
@@ -1285,7 +1289,8 @@ int CtdlIPCFileUpload(CtdlIPC *ipc, const char *save_as, const char *comment,
 /* UIMG */
 int CtdlIPCImageUpload(CtdlIPC *ipc, int for_real, const char *path,
 		const char *save_as,
-		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		void (*progress_gauge_callback)
+			(CtdlIPC*, unsigned long, unsigned long),
 		char *cret)
 {
 	register int ret;
@@ -2139,7 +2144,8 @@ int CtdlIPCSpecifyPreferredFormats(CtdlIPC *ipc, char *cret, char *formats) {
 
 /* READ */
 int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes, size_t resume,
-	       void (*progress_gauge_callback)(unsigned long, unsigned long),
+		void (*progress_gauge_callback)
+			(CtdlIPC*, unsigned long, unsigned long),
 	       char *cret)
 {
 	register size_t len;
@@ -2151,7 +2157,7 @@ int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes, size_t resume,
 
 	len = resume;
 	if (progress_gauge_callback)
-		progress_gauge_callback(len, bytes);
+		progress_gauge_callback(ipc, len, bytes);
 	while (len < bytes) {
 		register size_t block;
 
@@ -2162,7 +2168,7 @@ int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes, size_t resume,
 		}
 		len += block;
 		if (progress_gauge_callback)
-			progress_gauge_callback(len, bytes);
+			progress_gauge_callback(ipc, len, bytes);
 	}
 	return len;
 }
@@ -2170,7 +2176,8 @@ int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes, size_t resume,
 /* READ - pipelined */
 int CtdlIPCHighSpeedReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
 	       size_t resume,
-	       void (*progress_gauge_callback)(unsigned long, unsigned long),
+		void (*progress_gauge_callback)
+			(CtdlIPC*, unsigned long, unsigned long),
 	       char *cret)
 {
 	register size_t len;
@@ -2189,7 +2196,7 @@ int CtdlIPCHighSpeedReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
 	len = 0;
 	CtdlIPC_lock(ipc);
 	if (progress_gauge_callback)
-		progress_gauge_callback(len, bytes);
+		progress_gauge_callback(ipc, len, bytes);
 
 	/* How many calls will be in the pipeline? */
 	calls = (bytes - resume) / 4096;
@@ -2212,7 +2219,7 @@ int CtdlIPCHighSpeedReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
 			serv_read(ipc, ((*buf) + (i * 4096)), len);
 		}
 		if (progress_gauge_callback)
-			progress_gauge_callback(i * 4096 + len, bytes);
+			progress_gauge_callback(ipc, i * 4096 + len, bytes);
 	}
 	CtdlIPC_unlock(ipc);
 	return len;
@@ -2237,7 +2244,8 @@ int CtdlIPCEndUpload(CtdlIPC *ipc, int discard, char *cret)
 
 /* WRIT */
 int CtdlIPCWriteUpload(CtdlIPC *ipc, const char *path,
-		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		void (*progress_gauge_callback)
+			(CtdlIPC*, unsigned long, unsigned long),
 		char *cret)
 {
 	register int ret = -1;
@@ -2259,7 +2267,7 @@ int CtdlIPCWriteUpload(CtdlIPC *ipc, const char *path,
 	rewind(fd);
 
 	if (progress_gauge_callback)
-		progress_gauge_callback(0, bytes);
+		progress_gauge_callback(ipc, 0, bytes);
 
 	while (offset < bytes) {
 		register size_t to_write;
@@ -2280,7 +2288,7 @@ int CtdlIPCWriteUpload(CtdlIPC *ipc, const char *path,
 			serv_write(ipc, buf, to_write);
 			offset += to_write;
 			if (progress_gauge_callback)
-				progress_gauge_callback(offset, bytes);
+				progress_gauge_callback(ipc, offset, bytes);
 			/* Detect short reads and back up if needed */
 			/* offset will never be negative anyway */
 			fseek(fd, (signed)offset, SEEK_SET);
@@ -2289,7 +2297,7 @@ int CtdlIPCWriteUpload(CtdlIPC *ipc, const char *path,
 		}
 	}
 	if (progress_gauge_callback)
-		progress_gauge_callback(1, 1);
+		progress_gauge_callback(ipc, 1, 1);
 	return (!ferror(fd) ? ret : -2);
 }
 
@@ -2538,7 +2546,7 @@ static void serv_read(CtdlIPC *ipc, char *buf, unsigned int bytes)
 	while (len < bytes) {
 		rlen = read(ipc->sock, &buf[len], bytes - len);
 		if (rlen < 1) {
-			connection_died(ipc);
+			connection_died(ipc, 0);
 			return;
 		}
 		len += rlen;
@@ -2564,7 +2572,7 @@ static void serv_write(CtdlIPC *ipc, const char *buf, unsigned int nbytes)
 		retval = write(ipc->sock, &buf[bytes_written],
 			       nbytes - bytes_written);
 		if (retval < 1) {
-			connection_died(ipc);
+			connection_died(ipc, 0);
 			return;
 		}
 		bytes_written += retval;
@@ -2604,9 +2612,9 @@ static void serv_read_ssl(CtdlIPC* ipc, char *buf, unsigned int bytes)
 				serv_read(ipc, &buf[len], bytes - len);
 				return;
 			}
-			error_printf("SSL_read in serv_read:\n");
-			ERR_print_errors_fp(stderr);
-			connection_died(ipc);
+			error_printf("SSL_read in serv_read: %s\n",
+					ERR_reason_error_string(ERR_peek_error()));
+			connection_died(ipc, 1);
 			return;
 		}
 		len += rlen;
@@ -2647,9 +2655,9 @@ static void serv_write_ssl(CtdlIPC *ipc, const char *buf, unsigned int nbytes)
 						nbytes - bytes_written);
 				return;
 			}
-			error_printf("SSL_write in serv_write:\n");
-			ERR_print_errors_fp(stderr);
-			connection_died(ipc);
+			error_printf("SSL_write in serv_write: %s\n",
+					ERR_reason_error_string(ERR_peek_error()));
+			connection_died(ipc, 1);
 			return;
 		}
 		bytes_written += retval;

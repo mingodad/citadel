@@ -63,7 +63,7 @@ void sttybbs(int cmd);
 int haschar(const char *st, int ch);
 void getline(char *string, int lim);
 int file_checksum(char *filename);
-void progress(unsigned long curr, unsigned long cmax);
+void progress(CtdlIPC* ipc, unsigned long curr, unsigned long cmax);
 
 unsigned long *msg_arr = NULL;
 int msg_arr_size = 0;
@@ -73,7 +73,6 @@ char rc_reply_extedit;
 extern char room_name[];
 extern unsigned room_flags;
 extern long highest_msg_read;
-extern struct CtdlServInfo serv_info;
 extern char temp[];
 extern char temp2[];
 extern int screenwidth;
@@ -510,8 +509,8 @@ int read_message(CtdlIPC *ipc,
 		}
 		if (strlen(message->node)) {
 			if ((room_flags & QR_NETWORK)
-			    || ((strcasecmp(message->node, serv_info.serv_nodename)
-			     && (strcasecmp(message->node, serv_info.serv_fqdn))))) {
+			    || ((strcasecmp(message->node, ipc->ServInfo.nodename)
+			     && (strcasecmp(message->node, ipc->ServInfo.fqdn))))) {
 				if (strlen(message->email) == 0) {
 					if (dest) {
 						fprintf(dest, "@%s ", message->node);
@@ -524,7 +523,7 @@ int read_message(CtdlIPC *ipc,
 				}
 			}
 		}
-		if (strcasecmp(message->hnod, serv_info.serv_humannode)
+		if (strcasecmp(message->hnod, ipc->ServInfo.humannode)
 		    && (strlen(message->hnod)) && (!strlen(message->email))) {
 			if (dest) {
 				fprintf(dest, "(%s) ", message->hnod);
@@ -1434,7 +1433,7 @@ void image_view(CtdlIPC *ipc, unsigned long msg)
 					size_t len;
 	
 					len = (size_t)extract_long(buf, 0);
-					progress(len, len);
+					progress(ipc, len, len);
 					scr_flush();
 					snprintf(tmp, sizeof tmp, "%s.%s",
 						tmpnam(NULL),

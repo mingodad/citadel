@@ -32,8 +32,27 @@ extern "C" {
 #define ifree(o)	free(o);
 #endif
 
+struct CtdlServInfo {
+	int pid;
+	char nodename[32];
+	char humannode[64];
+	char fqdn[64];
+	char software[64];
+	int rev_level;
+	char bbs_city[64];
+	char sysadm[64];
+	char moreprompt[256];
+	int ok_floors;
+	int paging_level;
+	int supports_qnop;
+	int supports_ldap;
+};
+
 /* This class is responsible for the server connection */
 typedef struct _CtdlIPC {
+	/* The server info for this connection */
+	struct CtdlServInfo ServInfo;
+
 #if defined(HAVE_OPENSSL)
 	/* NULL if not encrypted, non-NULL otherwise */
 	SSL *ssl;
@@ -182,7 +201,7 @@ int CtdlIPCGetMessages(CtdlIPC *ipc, enum MessageList which, int whicharg,
 int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 		struct ctdlipcmessage **mret, char *cret);
 int CtdlIPCWhoKnowsRoom(CtdlIPC *ipc, char **listing, char *cret);
-int CtdlIPCServerInfo(CtdlIPC *ipc, struct CtdlServInfo *ServInfo, char *cret);
+int CtdlIPCServerInfo(CtdlIPC *ipc, char *cret);
 /* int CtdlIPCReadDirectory(CtdlIPC *ipc, struct ctdlipcfile **files, char *cret); */
 int CtdlIPCReadDirectory(CtdlIPC *ipc, char **listing, char *cret);
 int CtdlIPCSetLastRead(CtdlIPC *ipc, long msgnum, char *cret);
@@ -223,22 +242,22 @@ int CtdlIPCNetSendFile(CtdlIPC *ipc, const char *filename,
 int CtdlIPCOnlineUsers(CtdlIPC *ipc, char **listing, time_t *stamp, char *cret);
 int CtdlIPCFileDownload(CtdlIPC *ipc, const char *filename, void **buf,
 		size_t resume,
-		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		void (*progress_gauge_callback)(CtdlIPC*, unsigned long, unsigned long),
 		char *cret);
 int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part,
 		void **buf,
-		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		void (*progress_gauge_callback)(CtdlIPC*, unsigned long, unsigned long),
 		char *cret);
 int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf,
-		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		void (*progress_gauge_callback)(CtdlIPC*, unsigned long, unsigned long),
 		char *cret);
 int CtdlIPCFileUpload(CtdlIPC *ipc, const char *save_as, const char *comment,
 		const char *path,
-		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		void (*progress_gauge_callback)(CtdlIPC*, unsigned long, unsigned long),
 		char *cret);
 int CtdlIPCImageUpload(CtdlIPC *ipc, int for_real, const char *path,
 		const char *save_as,
-		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		void (*progress_gauge_callback)(CtdlIPC*, unsigned long, unsigned long),
 		char *cret);
 int CtdlIPCQueryUsername(CtdlIPC *ipc, const char *username, char *cret);
 int CtdlIPCFloorListing(CtdlIPC *ipc, char **listing, char *cret);
@@ -301,15 +320,15 @@ size_t CtdlIPCPartialRead(CtdlIPC *ipc, void **buf, size_t offset,
 		size_t bytes, char *cret);
 int CtdlIPCEndUpload(CtdlIPC *ipc, int discard, char *cret);
 int CtdlIPCWriteUpload(CtdlIPC *ipc, const char *path,
-		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		void (*progress_gauge_callback)(CtdlIPC*, unsigned long, unsigned long),
 		char *cret);
 int CtdlIPCEndDownload(CtdlIPC *ipc, char *cret);
 int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes, size_t resume,
-		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		void (*progress_gauge_callback)(CtdlIPC*, unsigned long, unsigned long),
 		char *cret);
 int CtdlIPCHighSpeedReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
 		size_t resume,
-		void (*progress_gauge_callback)(unsigned long, unsigned long),
+		void (*progress_gauge_callback)(CtdlIPC*, unsigned long, unsigned long),
 		char *cret);
 int CtdlIPCGenericCommand(CtdlIPC *ipc, const char *command,
 		const char *to_send, size_t bytes_to_send, char **to_receive,
@@ -323,7 +342,7 @@ void CtdlIPC_SetNetworkStatusCallback(CtdlIPC *ipc, void (*hook)(int state));
 extern int (*error_printf)(char *s, ...);
 void setIPCDeathHook(void (*hook)(void));
 void setIPCErrorPrintf(int (*func)(char *s, ...));
-void connection_died(CtdlIPC *ipc);
+void connection_died(CtdlIPC* ipc, int using_ssl);
 int CtdlIPC_getsockfd(CtdlIPC* ipc);
 char CtdlIPC_get(CtdlIPC* ipc);
 

@@ -161,7 +161,7 @@ void entregis(CtdlIPC *ipc)
 			striplt(diruser);
 			striplt(dirnode);
 			if ((strcasecmp(diruser, fullname))
-			   || (strcasecmp(dirnode, serv_info.serv_nodename))) {
+			   || (strcasecmp(dirnode, ipc->ServInfo.nodename))) {
 				scr_printf(
 					"\nYou can't use %s as your address.\n",
 					tmpemail);
@@ -752,7 +752,7 @@ void do_system_configuration(CtdlIPC *ipc)
 	snprintf(sc[25], sizeof sc[25], "%d", a);
 
 	/* LDAP settings */
-	if (serv_info.serv_supports_ldap) {
+	if (ipc->ServInfo.supports_ldap) {
 		a = strlen(&sc[32][0]);
 		a = (a ? 1 : 0);	/* Set only to 1 or 0 */
 		a = boolprompt("Connect this Citadel to an LDAP directory", a);

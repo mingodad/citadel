@@ -60,7 +60,6 @@ int main(int argc, char **argv)
 	int r;			/* IPC response code */
 	time_t timenow;
 	char *listing = NULL;
-	struct CtdlServInfo serv_info;
 	CtdlIPC *ipc = NULL;
 
 	/* If this environment variable is set, we assume that the program
@@ -80,10 +79,10 @@ int main(int argc, char **argv)
 		logoff(atoi(buf));
 		}
 	strcpy(nodetitle, "this BBS");
-	r = CtdlIPCServerInfo(ipc, &serv_info, buf);
+	r = CtdlIPCServerInfo(ipc, buf);
 	if (r / 100 == 1) {
-		my_pid = serv_info.serv_pid;
-		strcpy(nodetitle, serv_info.serv_humannode);
+		my_pid = ipc->ServInfo.pid;
+		strcpy(nodetitle, ipc->ServInfo.humannode);
 	}
 	
 	if (www) {

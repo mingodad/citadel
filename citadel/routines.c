@@ -61,7 +61,6 @@ struct utmp *getutline(struct utmp *ut);
 extern unsigned userflags;
 extern char *axdefs[7];
 extern char sigcaught;
-extern struct CtdlServInfo serv_info;
 extern char rc_floor_mode;
 extern int rc_ansi_color;
 extern int rc_prompt_control;
@@ -81,11 +80,11 @@ void hit_any_key(CtdlIPC *ipc) {	/* hit any key to continue */
 
 	color(COLOR_PUSH);
 	color(DIM_RED);
-	scr_printf("%s\r",serv_info.serv_moreprompt);
+	scr_printf("%s\r", ipc->ServInfo.moreprompt);
 	color(COLOR_POP);
 	sttybbs(0);
 	b=inkey();
-	for (a=0; a<strlen(serv_info.serv_moreprompt); ++a)
+	for (a=0; a<strlen(ipc->ServInfo.moreprompt); ++a)
 		scr_putc(' ');
 	scr_putc(13);
 	sttybbs(1);
@@ -382,7 +381,7 @@ char *strerror(int e)
 #endif
 
 
-void progress(unsigned long curr, unsigned long cmax)
+void progress(CtdlIPC* ipc, unsigned long curr, unsigned long cmax)
 {
 	static char dots[] =
 		"**************************************************";
@@ -392,7 +391,7 @@ void progress(unsigned long curr, unsigned long cmax)
 
 	if (curr >= cmax) {
 		sln_printf("\r%79s\r","");
-		status_line(serv_info.serv_humannode, serv_info.serv_bbs_city,
+		status_line(ipc->ServInfo.humannode, ipc->ServInfo.bbs_city,
 			room_name, secure, 0);
 	} else {
 		/* a will be range 0-50 rather than 0-100 */
@@ -411,7 +410,7 @@ void progress(unsigned long curr, unsigned long cmax)
  * NOT the same locate_host() in locate_host.c.  This one just does a
  * 'who am i' to try to discover where the user is...
  */
-void locate_host(char *hbuf)
+void locate_host(CtdlIPC* ipc, char *hbuf)
 {
 #ifndef HAVE_UTMP_H
 	char buf[SIZ];
@@ -420,7 +419,7 @@ void locate_host(char *hbuf)
 
 	who = (FILE *)popen("who am i","r");
 	if (who==NULL) {
-		strcpy(hbuf,serv_info.serv_fqdn);
+		strcpy(hbuf, ipc->ServInfo.fqdn);
 		return;	
 	}
 	fgets(buf,sizeof buf,who);
@@ -431,7 +430,7 @@ void locate_host(char *hbuf)
 		if ((buf[a]=='(')||(buf[a]==')')) ++b;
 	}
 	if (b<2) {
-		strcpy(hbuf,serv_info.serv_fqdn);
+		strcpy(hbuf, ipc->ServInfo.fqdn);
 		return;
 	}
 
@@ -444,7 +443,7 @@ void locate_host(char *hbuf)
 		if (buf[a]==')') buf[a] = 0;
 	}
 
-	if (strlen(buf)==0) strcpy(hbuf,serv_info.serv_fqdn);
+	if (strlen(buf)==0) strcpy(hbuf, ipc->ServInfo.fqdn);
 	else strncpy(hbuf,buf,24);
 #else
 	char *tty = ttyname(0);
@@ -456,7 +455,7 @@ void locate_host(char *hbuf)
 
 	if (tty == NULL) {
 	    fail:
-		safestrncpy(hbuf, serv_info.serv_fqdn, 24);
+		safestrncpy(hbuf, ipc->ServInfo.fqdn, 24);
 		return;
 	}
 

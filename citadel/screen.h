@@ -31,7 +31,7 @@ int scr_color(int colornum);
 void scr_flush(void);
 void err_flush(void);
 void sln_flush(void);
-int scr_set_windowsize(void);
+int scr_set_windowsize(CtdlIPC* ipc);
 void windows_new(void);
 void windows_delete(void);
 int scr_blockread(void);

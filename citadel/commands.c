@@ -270,7 +270,7 @@ void print_express(void)
 					fprintf(outpipe, "at %d:%02dam",
 						stamp->tm_hour, stamp->tm_min);
 				fprintf(outpipe, " from %s", sender);
-				if (strncmp(serv_info.serv_nodename, node, 32))
+				if (strncmp(ipc_for_signal_handlers->ServInfo.nodename, node, 32))
 					fprintf(outpipe, " @%s", node);
 				fprintf(outpipe, ":\n%s\n", listing);
 				pclose(outpipe);
@@ -307,7 +307,7 @@ void print_express(void)
 		scr_printf(" from %s", sender);
 	
 		/* Remote node, if any */
-		if (strncmp(serv_info.serv_nodename, node, 32))
+		if (strncmp(ipc_for_signal_handlers->ServInfo.nodename, node, 32))
 			scr_printf(" @%s", node);
 	
 		scr_printf(":\n");
@@ -376,7 +376,7 @@ static void really_do_keepalive(void) {
 	 * server supports it) and then do nothing.
 	 */
 	if ( (keepalives_enabled == KA_HALF)
-	   && (serv_info.serv_supports_qnop > 0) ) {
+	   && (ipc_for_signal_handlers->ServInfo.supports_qnop > 0) ) {
 		CtdlIPC_putline(ipc_for_signal_handlers, "QNOP");
 	}
 }
@@ -478,9 +478,9 @@ int inkey(void)
 		 * necessary and then waits again.
 		 */
 		do {
-			scr_set_windowsize();
+			scr_set_windowsize(ipc_for_signal_handlers);
 			do_keepalive();
-			scr_set_windowsize();
+			scr_set_windowsize(ipc_for_signal_handlers);
 
 			FD_ZERO(&rfds);
 			FD_SET(0, &rfds);

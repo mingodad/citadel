@@ -47,14 +47,22 @@ void setIPCErrorPrintf(int (*func)(char *s, ...)) {
 	error_printf = func;
 }
 
-void connection_died(CtdlIPC *ipc) {
+void connection_died(CtdlIPC* ipc, int using_ssl) {
 	if (deathHook != NULL)
 		deathHook();
 
-	error_printf("\rYour connection to this Citadel server is broken.\n"
-			"Last error: %s\n"
-			"Please re-connect and log in again.\n",
-			strerror(errno));
+	error_printf("\r\nYour connection to %s is broken.\n",
+			ipc->ServInfo.humannode);
+
+#ifdef HAVE_OPENSSL
+	if (using_ssl) {
+		error_printf("Last error: %s\n",
+				ERR_reason_error_string(ERR_get_error()));
+	} else
+#endif
+		error_printf("Last error: %s\n", strerror(errno));
+
+	error_printf("Please re-connect and log in again.\n");
 	fflush(stderr);
 	fflush(stdout);
 
@@ -68,6 +76,9 @@ void connection_died(CtdlIPC *ipc) {
 #endif
 	shutdown(ipc->sock, 2);
 	ipc->sock = -1;
+
+	/* Hangup - let any children know as well */
+	kill(0, SIGHUP);
 }
 
 

@@ -48,7 +48,6 @@
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-extern struct CtdlServInfo serv_info;
 extern char temp[];
 void getline(char *, int);
 
@@ -237,7 +236,7 @@ void page_user(CtdlIPC *ipc)
 	strprompt("Page who", touser, 30);
 
 	/* old server -- use inline paging */
-	if (serv_info.serv_paging_level == 0) {
+	if (ipc->ServInfo.paging_level == 0) {
 		newprompt("Message: ", msg, 69);
 		snprintf(buf, sizeof buf, "SEXP %s|%s", touser, msg);
 		CtdlIPC_putline(ipc, buf);
@@ -249,7 +248,7 @@ void page_user(CtdlIPC *ipc)
 		return;
 	}
 	/* new server -- use extended paging */
-	else if (serv_info.serv_paging_level >= 1) {
+	else if (ipc->ServInfo.paging_level >= 1) {
 		snprintf(buf, sizeof buf, "SEXP %s||", touser);
 		CtdlIPC_putline(ipc, buf);
 		CtdlIPC_getline(ipc, buf);

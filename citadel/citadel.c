@@ -68,7 +68,6 @@ char editor_paths[MAX_EDITORS][SIZ];	/* paths to external editors */
 char printcmd[SIZ];		/* print command */
 int editor_pid = (-1);
 char fullname[USERNAME_SIZE];
-struct CtdlServInfo serv_info;	/* Info on the server connected */
 int screenwidth;
 int screenheight;
 unsigned room_flags;
@@ -480,7 +479,7 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 			system(rc_gotmail_cmd);
 		}
 	}
-	status_line(serv_info.serv_humannode, serv_info.serv_bbs_city,
+	status_line(ipc->ServInfo.humannode, ipc->ServInfo.bbs_city,
 			room_name, secure, newmailcount);
 }
 
@@ -700,9 +699,9 @@ void check_screen_dims(void)
 /*
  * set floor mode depending on client, server, and user settings
  */
-void set_floor_mode(void)
+void set_floor_mode(CtdlIPC* ipc)
 {
-	if (serv_info.serv_ok_floors == 0) {
+	if (ipc->ServInfo.ok_floors == 0) {
 		floor_mode = 0;	/* Don't use floors if the server */
 	}
 	/* doesn't support them!          */
@@ -758,14 +757,14 @@ void get_serv_info(CtdlIPC *ipc, char *supplied_hostname)
 {
 	char buf[SIZ];
 
-	CtdlIPCServerInfo(ipc, &serv_info, buf);
+	CtdlIPCServerInfo(ipc, buf);
 
 	/* be nice and identify ourself to the server */
 	CtdlIPCIdentifySoftware(ipc, SERVER_TYPE, 0, REV_LEVEL,
 		 (ipc->isLocal ? "local" : CITADEL),
 		 (supplied_hostname) ? supplied_hostname : 
 		 /* Look up the , in the bible if you're confused */
-		 (locate_host(buf), buf), buf);
+		 (locate_host(ipc, buf), buf), buf);
 
 	/* Tell the server what our preferred content formats are */
 	if ((CtdlIPCSpecifyPreferredFormats(ipc, buf, "text/html|text/plain") / 100 )== 2) {
@@ -1024,6 +1023,7 @@ int main(int argc, char **argv)
 	load_command_set();	/* parse the citadel.rc file */
 	sttybbs(SB_NO_INTR);	/* Install the new ones */
 	signal(SIGHUP, dropcarr);	/* Cleanup gracefully if carrier is dropped */
+	signal(SIGPIPE, dropcarr);	/* Cleanup gracefully if local conn. dropped */
 	signal(SIGTERM, dropcarr);	/* Cleanup gracefully if terminated */
 	signal(SIGCONT, catch_sigcont);	/* Catch SIGCONT so we can reset terminal */
 #ifdef SIGWINCH
@@ -1167,11 +1167,11 @@ int main(int argc, char **argv)
 #endif
 
 	get_serv_info(ipc, telnet_client_host);
-	scr_printf("%-24s\n%s\n%s\n", serv_info.serv_software, serv_info.serv_humannode,
-		   serv_info.serv_bbs_city);
+	scr_printf("%-24s\n%s\n%s\n", ipc->ServInfo.software, ipc->ServInfo.humannode,
+		   ipc->ServInfo.bbs_city);
 	scr_flush();
 
-	status_line(serv_info.serv_humannode, serv_info.serv_bbs_city, NULL,
+	status_line(ipc->ServInfo.humannode, ipc->ServInfo.bbs_city, NULL,
 		    secure, -1);
 
 	screenwidth = 80;	/* default screen dimensions */
@@ -1348,7 +1348,7 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 	check_screen_dims();
 #endif
 
-	set_floor_mode();
+	set_floor_mode(ipc);
 
 	/* Enter the lobby */
 	dotgoto(ipc, "_BASEROOM_", 1, 0);
@@ -1708,12 +1708,12 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 
 			case 37:
 				enter_config(ipc, 0);
-				set_floor_mode();
+				set_floor_mode(ipc);
 				break;
 
 			case 59:
 				enter_config(ipc, 3);
-				set_floor_mode();
+				set_floor_mode(ipc);
 				break;
 
 			case 60:

@@ -37,22 +37,6 @@ extern "C" {
 #define ASYNC_MSG		900
 #define ASYNC_GEXP		01
 
-struct CtdlServInfo {
-	int serv_pid;
-	char serv_nodename[32];
-	char serv_humannode[64];
-	char serv_fqdn[64];
-	char serv_software[64];
-	int serv_rev_level;
-	char serv_bbs_city[64];
-	char serv_sysadm[64];
-	char serv_moreprompt[256];
-	int serv_ok_floors;
-	int serv_paging_level;
-	int serv_supports_qnop;
-	int serv_supports_ldap;
-};
-
 #define QR_PERMANENT	1		/* Room does not purge              */
 #define QR_INUSE	2		/* Set if in use, clear if avail    */
 #define QR_PRIVATE	4		/* Set for any type of private room */

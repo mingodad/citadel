@@ -5,7 +5,6 @@
  */
 
 #include "sysdep.h"
-#include "screen.h"
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
@@ -25,6 +24,7 @@
 #include "citadel_ipc.h"
 #include "citadel_decls.h"
 #include "commands.h"
+#include "screen.h"
 
 #if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 static SCREEN *myscreen = NULL;
@@ -463,7 +463,7 @@ static volatile int caught_sigwinch = 0;
 /*
  * this is not supposed to be called from a signal handler.
  */
-int scr_set_windowsize()
+int scr_set_windowsize(CtdlIPC* ipc)
 {
 #if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (mainwindow && caught_sigwinch) {
@@ -476,8 +476,8 @@ int scr_set_windowsize()
 		wresize(statuswindow, 1, screenwidth);
 #endif
 		mvwin(statuswindow, screenheight, 0);
-		status_line(serv_info.serv_humannode, serv_info.serv_bbs_city,
-                            room_name, secure, -1);
+		status_line(ipc->ServInfo.humannode, ipc->ServInfo.bbs_city,
+				room_name, secure, -1);
 		wnoutrefresh(mainwindow);
 		wnoutrefresh(statuswindow);
 		doupdate();
