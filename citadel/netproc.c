@@ -871,8 +871,8 @@ void inprocess(void)
 	int valid_msg;
 
 	/* temp file names */
-	strcpy(tname, tmpnam(NULL));
-	strcpy(iname, tmpnam(NULL));
+	sprintf(tname, "%s.netproc.%d", tmpnam(NULL), __LINE__);
+	sprintf(iname, "%s.netproc.%d", tmpnam(NULL), __LINE__);
 
 	load_filterlist();
 
@@ -1274,7 +1274,7 @@ int spool_out(struct msglist *cmlist, FILE * destfp, char *sysname)
 {
 	struct msglist *cmptr;
 	FILE *mmfp;
-	char fbuf[128];
+	char fbuf[1024];
 	int a;
 	int msgs_spooled = 0;
 	long msg_len;
@@ -1302,6 +1302,10 @@ int spool_out(struct msglist *cmlist, FILE * destfp, char *sysname)
 		}
 		/* download the message from the server... */
 		mmfp = tmpfile();
+		if (mmfp == NULL) {
+			syslog(LOG_NOTICE, "tmpfile() failed: %s\n",
+				strerror(errno) );
+		}
 		sprintf(buf, "MSG3 %ld", cmptr->m_num);
 		serv_puts(buf);
 		serv_gets(buf);
@@ -1373,14 +1377,15 @@ void outprocess(char *sysname)
 	char tempflnm[64];
 	char buf[256];
 	struct msglist *cmlist = NULL;
+	struct msglist *cmlast = NULL;
 	struct rmlist *crmlist = NULL;
 	struct rmlist *rmptr, *rmptr2;
-	struct msglist *cmptr, *cmptr2;
+	struct msglist *cmptr;
 	FILE *sysflfp, *tempflfp;
-	int outgoing_msgs;
+	int outgoing_msgs = 0;
 	long thismsg;
 
-	strcpy(tempflnm, tmpnam(NULL));
+	sprintf(tempflnm, "%s.netproc.%d", tmpnam(NULL), __LINE__);
 	tempflfp = fopen(tempflnm, "w");
 	if (tempflfp == NULL)
 		return;
@@ -1446,14 +1451,14 @@ void outprocess(char *sysname)
 						cmptr->m_num = thismsg;
 						strcpy(cmptr->m_rmname, rmptr->rm_name);
 
-						if (cmlist == NULL)
+						if (cmlist == NULL) {
 							cmlist = cmptr;
-						else {
-							cmptr2 = cmlist;
-							while (cmptr2->next != NULL)
-								cmptr2 = cmptr2->next;
-							cmptr2->next = cmptr;
 						}
+						else {
+							cmlast->next = cmptr;
+						}
+						cmlast = cmptr;
+						++outgoing_msgs;
 					}
 			} else {	/* print error from "msgs all" */
 				syslog(LOG_ERR, "%s", buf);
@@ -1461,22 +1466,17 @@ void outprocess(char *sysname)
 		}
 	}
 
-	outgoing_msgs = 0;
-	cmptr2 = cmlist;	/* this loop counts the messages */
-	while (cmptr2 != NULL) {
-		++outgoing_msgs;
-		cmptr2 = cmptr2->next;
-	}
 	syslog(LOG_NOTICE, "%d messages to be spooled to %s",
 	       outgoing_msgs, sysname);
 
 /*
  * Spool out the messages, but only if there are any.
  */
-	if (outgoing_msgs != 0)
+	if (outgoing_msgs != 0) {
 		outgoing_msgs = spool_out(cmlist, tempflfp, sysname);
-	syslog(LOG_NOTICE, "%d messages actually spooled",
-	       outgoing_msgs);
+	}
+
+	syslog(LOG_NOTICE, "%d messages actually spooled", outgoing_msgs);
 
 /*
  * Deallocate list of spooled messages.

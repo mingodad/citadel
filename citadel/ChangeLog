@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.54  2000/12/20 04:09:24  ajc
+ * A few memory handling fixes to netproc.
+
  Revision 573.53  2000/12/20 01:57:37  ajc
  * netproc.c: added bounds check to fpgetfield()
 
@@ -2231,3 +2234,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
