@@ -1,4 +1,7 @@
  $Log$
+ Revision 608.4  2003/07/20 20:46:06  ajc
+ * build system: link Berkeley DB only to the server, not to the client & utils
+
  Revision 608.3  2003/07/20 03:51:46  ajc
  * setup.c: offer to disable sendmail, postfix, and qmail if found (only if
    using the /etc/init.d type of startup scripts)
@@ -4878,3 +4881,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

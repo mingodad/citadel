@@ -35,6 +35,8 @@ do
       ])
    AS_IF([test AS_VAR_GET(ac_tr_db) = yes],
          [$2
+	  LIBS="$bogo_saved_LIBS"
+	  SERVER_LIBS="$SERVER_LIBS -l$lib"
           db=yes],
          [LIBS="$bogo_saved_LIBS"
           db=no])

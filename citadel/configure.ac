@@ -349,7 +349,7 @@ if test "x$with_zlib" != xno ; then
 fi
 
 if test "x$ok_zlib" = xyes ; then
-	LIBS="-lz $LIBS"
+	SERVER_LIBS="-lz $SERVER_LIBS"
 	AC_DEFINE(HAVE_ZLIB)
 fi
 
@@ -404,7 +404,7 @@ main() {
 }
 		], 
 		[
-			LIBS="-lical $LIBS"
+			SERVER_LIBS="-lical $SERVER_LIBS"
 			AC_DEFINE(HAVE_LIBICAL)
 		]
 	)
@@ -562,6 +562,7 @@ AC_SUBST(chkpwd_LIBS)
 AC_SUBST(TARGETS)
 AC_SUBST(DATABASE)
 AC_SUBST(SERVER_LDFLAGS)
+AC_SUBST(SERVER_LIBS)
 AC_SUBST(SETUP_LIBS)
 AC_CONFIG_HEADER(sysdep.h)
 AC_CONFIG_FILES([Makefile weekly])
