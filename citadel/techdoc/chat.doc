@@ -1,0 +1,99 @@
+Chat subsystem information
+Brian Costello
+btx@calyx.net
+
+Chat / Messaging system
+-----------------------
+
+I envision a chat system that can be used for a variety of uses, from
+chatting in realtime to file exchange to slide presentations.
+
+Rooms will be able to have invitation lists -- perfect for scheduling a
+private meeting with various people around the world.
+
+Meetings will be scheduled by the system scheduler.  The scheduler is not
+part of this project -- the scheduler will do the work of determining a time
+when all participants are free.  When a time is decided on, the scheduler
+will call the chat subsystem which will write this schedule to a file.  This
+is to make sure that if the chat subsystem is shut down for some reason, it
+will remember the reserved rooms and invite lists.
+
+Rooms
+-----
+I think a conference call-like system would be good.  Chat sessions can be
+scheduled with a predetermined list of people or started manually and their
+invite lists manually made.  Either someone is designated a conference
+leader or whoever created the room is the conference leader.  The conference
+leader(s) can invite new people to the room, and kick & ban people out of
+the room.
+
+Messages should be able to be sent to anyone on the bbs from the page system
+to the chat system and vice versa.
+
+This can be implemented with the current citadel clients.
+
+Tranfers
+--------
+An addition that would be useful here would be the ability to send a file to
+everyone in a room as well as individual users.
+
+This cannot be implemented with the current citadel clients -- I DON'T
+THINK.  I'm not sure.
+
+Graphics transfers
+------------------
+The idea is to allow slides to be shown to clients.  The transfers mechanism
+will be used to send the graphics so you would be able to send slides to
+everyone or just one user.
+
+This will have to be written into the client (Unix client calls xv, for
+example)  
+
+Structures
+----------
+
+/* hold the invite / ban info in this structure.  Username and host are each
+ * used only if they are specified.  This allows banning all hosts from a
+ * particular site.
+ */
+
+typedef struct s_chat_userlist		
+{
+   char username[32];
+   char host[64];
+   struct s_chat_userlist *next;
+} chat_userlist;
+
+typedef struct s_chat_joinlist
+{
+   struct CitContext *user_context;
+   struct s_chat_joinlist *next;
+} chat_joinlist;
+
+/* Simple chatroom definition */
+
+typedef struct s_chatroom
+{
+   char room_name[20];
+   char room_password[20];
+   time_t scheduled_start;
+   time_t scheduled_stop;
+   int room_flags;
+   chat_userlist *invite_list;
+   chat_userlist *ban_list;
+   chat_joinlist *join_list;		/* Context's of who's in this room */
+   chat_joinlist *chanops_list;		/* Context's of channel ops */
+   struct s_chatroom *next;
+} chatroom;
+
+
+Definitions
+-----------
+#define CHATROOM_PRIVATE	1	/* Invite only */
+#define CHATROOM_HIDDEN		2	/* Hidden from listing */
+#define CHATROOM_PASSWORD	4	/* Password protected */
+
+Schedule
+--------
+The stuff that can be implemented in terms of the currentl client will go
+first.  The transfers will come next.
