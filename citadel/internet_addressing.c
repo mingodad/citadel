@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <ctype.h>
 #include <signal.h>
 #include <pwd.h>
 #include <errno.h>
@@ -263,12 +264,12 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 struct CtdlMessage *convert_internet_message(char *rfc822) {
 
 	struct CtdlMessage *msg;
-	char *buf;
-	int pos;
+	int pos, beg, end;
 	int msglen;
 	int done;
-	char *field;
 	char buf[256];
+	char field[256];
+	int i;
 
 	msg = mallok(sizeof(struct CtdlMessage));
 	if (msg == NULL) return msg;
@@ -283,15 +284,42 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 	msglen = strlen(rfc822);
 	pos = 0;
 	done = 0;
-	field = NULL;
 
 	while (!done) {
 
-		for (i=pos; i<=strlen(rfc822); ++i) {
+		/* Locate beginning and end of field, keeping in mind that
+		 * some fields might be multiline
+		 */
+		beg = pos;
+		end = (-1);
+		for (pos=beg; ((pos<=strlen(rfc822))&&(end<0)); ++pos) {
+			if ((rfc822[pos]=='\n')
+			   && (!isspace(rfc822[pos+1]))) {
+				end = pos;
+			}
+			if ( (rfc822[pos]=='\n')	/* done w. headers? */
+			   && ( (rfc822[pos+1]=='\n')
+			      ||(rfc822[pos+1]=='\r'))) {
+				end = pos;
+				done = 1;
+			}
 
-		
+		}
+
+		/* At this point we have a field.  Are we interested in it? */
+		strcpy(field, "");
+		for (i = beg; i <= end; ++i) {
+			if ((rfc822[i] == ':') && ((i-beg)<sizeof(field))) {
+				safestrncpy(field, &rfc822[beg], i-beg+1);
+			}
+		}
+		fprintf(stderr,
+			"Field: %6d .. %-6d ... <%s>\n",
+			beg, end, field);
 
 
+		/* If we've hit the end of the message, bail out */
+		if (pos > strlen(rfc822)) done = 1;
 	}
 
 

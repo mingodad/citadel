@@ -368,7 +368,9 @@ void smtp_rcpt(char *argbuf) {
  */
 void smtp_data(void) {
 	char *body;
+	struct CtdlMessage *msg;
 
+/*
 	if (strlen(SMTP->from) == 0) {
 		cprintf("503 Need MAIL command first.\n");
 		return;
@@ -379,12 +381,17 @@ void smtp_data(void) {
 		return;
 	}
 
+*/
+
 	cprintf("354 Transmit message now; terminate with '.' by itself\n");
 	body = CtdlReadMessageBody(".", config.c_maxmsglen);
 	if (body == NULL) {
 		cprintf("550 Unable to save message text: internal error.\n");
 		return;
 	}
+
+	fprintf(stderr, "Converting message...\n");
+	msg = convert_internet_message(body);
 
 	phree(body);
 	cprintf("599 command unfinished\n");
