@@ -1,4 +1,8 @@
 $Log$
+Revision 323.43  2002/07/06 03:10:26  ajc
+* Enable a "make this my start page" link that works in lots of places.
+  Configures a user's preference of where to go after login.
+
 Revision 323.42  2002/06/19 22:01:31  ajc
 * When editing another user's vCard, do a "transient goto" to their config
   room so you don't automatically gain access to their config room.
@@ -848,4 +852,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -369,6 +369,13 @@ void embed_room_banner(char *got) {
 		got = fakegot;
 	}
 
+	/* If the user happens to select the "make this my start page" link,
+	 * we want it to remember the URL as a "/dotskip" one instead of
+	 * a "skip" or "gotonext" or something like that.
+	 */
+	snprintf(WC->this_page, sizeof(WC->this_page), "/dotskip&room=%s",
+		WC->wc_roomname);
+
 	/* Check for new mail. */
 	WC->new_mail = extract_int(&got[4], 9);
 	WC->wc_view = extract_int(&got[4], 11);
@@ -380,6 +387,7 @@ void embed_room_banner(char *got) {
 	svcallback("ROOMINFO", readinfo);
 	svcallback("YOUHAVEMAIL", embed_newmail_button);
 	svcallback("VIEWOMATIC", embed_view_o_matic);
+	svcallback("START", offer_start_page);
 
 	do_template("roombanner");
 	clear_local_substs();
@@ -1820,8 +1828,9 @@ void knrooms() {
 		( !strcasecmp(listviewpref, "folders") ? "SELECTED" : "" )
 	);
 
-	wprintf("</SELECT></FORM></TD>\n"
-		"</TR></TABLE><BR>\n");
+	wprintf("</SELECT></FORM></TD><TD>\n");
+	offer_start_page();
+	wprintf("</TD></TR></TABLE><BR>\n");
 
 	/* Display the room list in the user's preferred format */
 	if (!strcasecmp(listviewpref, "folders")) {

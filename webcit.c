@@ -643,6 +643,55 @@ void blank_page(void) {
 }
 
 
+
+
+/*
+ * Offer to make any page the user's "start page."
+ */
+void offer_start_page(void) {
+	wprintf("<A HREF=\"/change_start_page?startpage=");
+	urlescputs(WC->this_page);
+	wprintf("\">"
+		"<FONT SIZE=-2 COLOR=#AAAAAA>Make this my start page</FONT>"
+		"</A>"
+	);
+}
+
+
+/* 
+ * Change the user's start page
+ */
+void change_start_page(void) {
+
+	if (bstr("startpage") == NULL) {
+		display_error("startpage set to null");
+		return;
+	}
+
+	set_preference("startpage", bstr("startpage"));
+
+	output_headers(3);
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+	wprintf("<B>New start page</B>\n");
+	wprintf("</FONT></TD></TR></TABLE>\n");
+
+	wprintf("<CENTER>"
+		"<font size=+2>Your start page has been changed.</font>"
+		"<BR><BR>\n"
+		"<I>(Note: this does not change your browser's home page. "
+		"It changes the page you begin on when you log on to ");
+	escputs(serv_info.serv_humannode);
+	wprintf(".)</I><BR><BR>"
+		"<a href = \"javascript:history.back()\">Back...</a>"
+		"</CENTER>");
+
+	wDumpContent(1);
+}
+
+
+
+
 void display_error(char *errormessage)
 {
 	convenience_page("770000", "Error", errormessage);
@@ -712,6 +761,8 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 		}
 	}
 }
+
+
 
 
 /*
@@ -809,8 +860,13 @@ void session_loop(struct httprequest *req)
 		content = NULL;
 	}
 
+	/* make a note of where we are in case the user wants to save it */
+	safestrncpy(WC->this_page, cmd, sizeof(WC->this_page));
+	remove_token(WC->this_page, 2, ' ');
+	remove_token(WC->this_page, 0, ' ');
+
 	/* If there are variables in the URL, we must grab them now */
-	for (a = 0; a < strlen(cmd); ++a)
+	for (a = 0; a < strlen(cmd); ++a) {
 		if ((cmd[a] == '?') || (cmd[a] == '&')) {
 			for (b = a; b < strlen(cmd); ++b)
 				if (isspace(cmd[b]))
@@ -818,6 +874,8 @@ void session_loop(struct httprequest *req)
 			addurls(&cmd[a + 1]);
 			cmd[a] = 0;
 		}
+	}
+
 	/*
 	 * If we're not connected to a Citadel server, try to hook up the
 	 * connection now.  Preference is given to the host and port specified
@@ -1066,6 +1124,8 @@ void session_loop(struct httprequest *req)
 		folders();
 	} else if (!strcasecmp(action, "do_stuff_to_msgs")) {
 		do_stuff_to_msgs();
+	} else if (!strcasecmp(action, "change_start_page")) {
+		change_start_page();
 	} else if (!strcasecmp(action, "diagnostics")) {
 		output_headers(1);
 

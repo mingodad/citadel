@@ -144,7 +144,7 @@ struct wcsession {
         time_t lastreq;			/* Timestamp of most recent HTTP */
 	int killthis;			/* Nonzero == purge this session */
 	struct march *march;		/* march mode room list */
-	char reply_to[512];		/* reply-to address */
+	char reply_to[SIZ];		/* reply-to address */
 	long msgarr[1024];		/* for read operations */
 	int fake_frames;
 	int is_wap;			/* Client is a WAP gateway */
@@ -152,6 +152,7 @@ struct wcsession {
 	int HaveExpressMessages;	/* Nonzero if incoming msgs exist */
 	struct wcsubst *vars;
 	char *preferences;
+	char this_page[SIZ];		/* address of current page */
 };
 
 #define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
@@ -311,3 +312,5 @@ void knrooms(void);
 int is_msg_in_mset(char *mset, long msgnum);
 char *safestrncpy(char *dest, const char *src, size_t n);
 void display_addressbook(long msgnum, char alpha);
+void offer_start_page(void);
+void change_start_page(void);
