@@ -37,8 +37,6 @@
 long locate_message_by_uid(char *uid) {
 	char buf[SIZ];
 	char decoded_uid[SIZ];
-	int i, j;
-	int ch;
 	long retval = (-1L);
 
 	/* Decode the uid */
@@ -145,7 +143,7 @@ void groupdav_propfind(char *dav_pathname) {
 	char encoded_uid[SIZ];
 	long *msgs = NULL;
 	int num_msgs = 0;
-	int i, j;
+	int i;
 
 	/* First, break off the "/groupdav/" prefix */
 	remove_token(dav_pathname, 0, '/');

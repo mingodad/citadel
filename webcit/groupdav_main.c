@@ -52,8 +52,16 @@ void euid_escapize(char *target, char *source) {
 			target[target_length] = source[i];
 			target[++target_length] = 0;
 		}
+		else if (source[i] == ' ') {
+			target[target_length] = '_';
+			target[++target_length] = 0;
+		}
+		else if (source[i] == '-') {
+			target[target_length] = '-';
+			target[++target_length] = 0;
+		}
 		else {
-			sprintf(&target[target_length], "_%02X", source[i]);
+			sprintf(&target[target_length], "$%02X", source[i]);
 			target_length += 3;
 		}
 	}
@@ -70,7 +78,7 @@ void euid_unescapize(char *target, char *source) {
 	strcpy(target, "");
 
 	for (a = 0; a < strlen(source); ++a) {
-		if (source[a] == '_') {
+		if (source[a] == '$') {
 			hex[0] = source[a + 1];
 			hex[1] = source[a + 2];
 			hex[2] = 0;
@@ -79,6 +87,14 @@ void euid_unescapize(char *target, char *source) {
 			target[target_length] = b;
 			target[++target_length] = 0;
 			a += 2;
+		}
+		else if (source[a] == '_') {
+			target[target_length] = ' ';
+			target[++target_length] = 0;
+		}
+		else if (source[a] == '-') {
+			target[target_length] = '-';
+			target[++target_length] = 0;
 		}
 		else {
 			target[target_length] = source[a];
