@@ -986,9 +986,18 @@ void entroom(void)
 void readinfo(void)
 {				/* read info file for current room */
 	char cmd[SIZ];
+	char raide[64];
 
-	snprintf(cmd, sizeof cmd, "RINF");
-	serv_puts(cmd);
+	/* Name of currernt room aide */
+	serv_puts("GETA");
+	serv_gets(cmd);
+	if (cmd[0] == '2') {
+		safestrncpy(raide, &cmd[4], sizeof raide);
+		scr_printf("Room aide is %s.\n\n", raide);
+	} else {
+		strcpy(raide, "");
+
+	serv_puts("RINF");
 	serv_gets(cmd);
 
 	if (cmd[0] != '1') {
@@ -996,7 +1005,8 @@ void readinfo(void)
 	}
 
 	fmout(screenwidth, NULL, NULL,
-	      ((userflags & US_PAGINATOR) ? 1 : 0), screenheight, 0, 1);
+	      ((userflags & US_PAGINATOR) ? 1 : 0), screenheight, 
+	      (*raide) ? 2 : 0, 1);
 }
 
 

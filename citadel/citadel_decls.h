@@ -13,6 +13,7 @@ extern char have_xterm;
 extern char rc_username[32];
 extern char rc_password[32];
 extern char rc_floor_mode;
+extern int rc_idle_threshold;
 #ifdef HAVE_OPENSSL
 extern char rc_encrypt;			/* from the citadel.rc file */
 extern char arg_encrypt;		/* from the command line */

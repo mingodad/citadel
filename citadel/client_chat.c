@@ -238,7 +238,7 @@ void page_user()
 
 	/* old server -- use inline paging */
 	if (serv_info.serv_paging_level == 0) {
-		newprompt("Message:  ", msg, 69);
+		newprompt("Message: ", msg, 69);
 		snprintf(buf, sizeof buf, "SEXP %s|%s", touser, msg);
 		serv_puts(buf);
 		serv_gets(buf);

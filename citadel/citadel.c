@@ -462,7 +462,10 @@ void dotgoto(char *towhere, int display_name, int fromungoto)
 		newmailcount = extract_int(&aaa[4], 9);
 		if (newmailcount > 0) {
 			color(BRIGHT_RED);
-			scr_printf("*** You have new mail\n");
+			scr_printf("*** You have %d new mail message%s\n",
+					newmailcount - oldmailcount,
+					(newmailcount - oldmailcount == 1) ?
+					"" : "s");
 			color(DIM_WHITE);
 		}
 		status_line(serv_info.serv_humannode, serv_info.serv_bbs_city,
