@@ -89,9 +89,24 @@ struct roomlisting {
 
 
 
+/*
+ * Dynamic content for variable substitution in templates
+ */
+struct wcsubst {
+	struct wcsubst *next;
+	int wcs_type;
+	char wcs_key[32];
+	void *wcs_value;
+};
 
-
-
+/*
+ * Values for wcs_type
+ */
+enum {
+	WCS_STRING,
+	WCS_FUNCTION
+};
+	
 
 /*
  * One of these is kept for each active Citadel session.
@@ -126,6 +141,7 @@ struct wcsession {
 	int fake_frames;
 	struct urlcontent *urlstrings;
 	int HaveExpressMessages;	/* Nonzero if incoming msgs exist */
+	struct wcsubst *vars;
 };
 
 
@@ -137,6 +153,8 @@ struct serv_info serv_info;
 extern char floorlist[128][256];
 extern char *axdefs[];
 extern char *defaulthost, *defaultport;
+
+extern struct wcsubst *global_subst;
 
 
 void stuff_to_cookie(char *cookie, int session,
@@ -260,3 +278,6 @@ void httpdate(char *buf, time_t thetime);
 void end_webcit_session(void);
 void page_popup(void);
 void http_redirect(char *);
+void clear_local_substs(void);
+void svprintf(char *keyname, const char *format,...);
+void do_template(void *templatename);
