@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.86  2002/01/26 03:50:26  error
+ * Better error reporting in connection_died(), kills curses before printing
+   error message, prints last errno.
+
  Revision 590.85  2002/01/25 05:19:03  ajc
  * Greatly simplified the logic for validating recipient addresses for incoming
    SMTP.  This logic destroys the whitespace mangling for local names; I will
@@ -3234,3 +3238,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

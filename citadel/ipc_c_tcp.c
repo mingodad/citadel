@@ -71,7 +71,9 @@ void connection_died(void) {
 	screen_delete();
 #endif
 	err_printf("\rYour connection to this Citadel server is broken.\n"
-			"Please re-connect and log in again.\n");
+			"Last error: %s\n"
+			"Please re-connect and log in again.\n",
+			strerror(errno));
 	logoff(3);
 }
 
