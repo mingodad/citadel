@@ -389,9 +389,9 @@ void imap_list(int num_parms, char *parms[]) {
  */
 void imap_create(int num_parms, char *parms[]) {
 	int floornum;
-	int levels;
+	char roomname[SIZ];
 
-	floornum = imap_roomname(parms[1]);
+	floornum = imap_roomname(roomname, sizeof roomname, parms[1]);
 	if (floornum < 0) {
 		cprintf("%s NO Invalid name\r\n", parms[0]);
 		return;
