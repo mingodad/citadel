@@ -244,7 +244,6 @@ void imap_append(int num_parms, char *parms[]) {
 	struct CtdlMessage *msg;
 	long new_msgnum = (-1L);
 	int ret = 0;
-	size_t blksize;
 	char roomname[ROOMNAMELEN];
 	char buf[SIZ];
 	char savedroom[ROOMNAMELEN];
@@ -297,22 +296,9 @@ void imap_append(int num_parms, char *parms[]) {
 
 	bytes_transferred = 0;
 
-	do {
-		blksize = literal_length - bytes_transferred;
-		if (blksize > SIZ) blksize = SIZ;
-
-		flush_output();
-		ret = client_read(&IMAP->transmitted_message[bytes_transferred],
-			 blksize);
-		if (ret < 1) {
-			bytes_transferred = literal_length;	/* bail out */
-		}
-		else {
-			bytes_transferred += blksize;		/* keep going */
-		}
-	} while (bytes_transferred < literal_length);
-
+	ret = client_read(IMAP->transmitted_message, literal_length);
 	IMAP->transmitted_message[literal_length] = 0;
+
 	if (ret != 1) {
 		cprintf("%s NO Read failed.\r\n", parms[0]);
 		return;
@@ -325,10 +311,12 @@ void imap_append(int num_parms, char *parms[]) {
 	client_getln(buf, sizeof buf);
 
 	/* Convert RFC822 newlines (CRLF) to Unix newlines (LF) */
+	lprintf(CTDL_DEBUG, "Converting CRLF to LF\n");
 	stripped_length = 0;
 	for (i=0; i<literal_length; ++i) {
 		if (strncmp(&IMAP->transmitted_message[i], "\r\n", 2)) {
-			IMAP->transmitted_message[stripped_length++] = IMAP->transmitted_message[i];
+			IMAP->transmitted_message[stripped_length++] =
+				IMAP->transmitted_message[i];
 		}
 	}
 	literal_length = stripped_length;
