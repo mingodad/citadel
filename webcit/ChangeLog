@@ -1,4 +1,7 @@
 $Log$
+Revision 410.48  2003/06/10 03:47:41  ajc
+* style.css: added font selection to default <BODY> tag
+
 Revision 410.47  2003/06/06 03:26:03  ajc
 * Satan's Browser insists on putting bloody acres of whitespace to the
   right of any bulleted list items, making any multi-column table containing
@@ -1473,4 +1476,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -141,6 +141,8 @@ a:active {
 body {
   background: #aaaaaa;
   color: #000000;
+  font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
+  font-weight: normal;
 }
 
 h1 {
@@ -251,26 +253,6 @@ var sub { font-style: normal }
 .note {
   font-size: 85%;
   margin-left: 10%
-}
-
-.SMA {
-  color: fuchsia;
-  background: none;
-  font-family: Kids, "Comic Sans MS", Jester
-}
-
-.oops {
-  font-family: Jester, "Comic Sans MS"
-}
-
-.author {
- font-style: italic;
-}
-
-.copyright {
-  font-size: smaller;
-  text-align: right;
-  clear: right
 }
 
 .toolbar {
