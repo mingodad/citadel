@@ -49,44 +49,6 @@ static unsigned long id_callback(void)
 	return (unsigned long) pthread_self();
 }
 
- /*
-  * Set up the cert things on the server side. We do need both the
-  * private key (in key_file) and the cert (in cert_file).
-  * Both files may be identical.
-  *
-  * This function is taken from OpenSSL apps/s_cb.c
-  */
-
-static int ctdl_install_certificate(SSL_CTX * ctx,
-			  const char *cert_file, const char *key_file)
-{
-	if (cert_file != NULL) {
-		if (SSL_CTX_use_certificate_file(ctx, cert_file,
-						 SSL_FILETYPE_PEM) <= 0) {
-			lprintf(CTDL_CRIT, "unable to get certificate from '%s'",
-				cert_file);
-			return (0);
-		}
-		if (key_file == NULL)
-			key_file = cert_file;
-		if (SSL_CTX_use_PrivateKey_file(ctx, key_file,
-						SSL_FILETYPE_PEM) <= 0) {
-			lprintf(CTDL_CRIT, "unable to get private key from '%s'",
-				key_file);
-			return (0);
-		}
-		/* Now we know that a key and cert have been set against
-		 * the SSL context */
-		if (!SSL_CTX_check_private_key(ctx)) {
-			lprintf(CTDL_CRIT,
-				"Private key does not match the certificate public key");
-			return (0);
-		}
-	}
-	return (1);
-}
-
-
 void init_ssl(void)
 {
 	SSL_METHOD *ssl_method;
@@ -371,13 +333,12 @@ void init_ssl(void)
 	/*
 	 * Now try to bind to the key and certificate.
 	 */
-	if (ctdl_install_certificate(ssl_ctx,
-			CTDL_CER_PATH,
-			CTDL_KEY_PATH) != 1)
-	{
+        SSL_CTX_use_certificate_file(ssl_ctx, CTDL_CER_PATH, SSL_FILETYPE_PEM);
+        SSL_CTX_use_PrivateKey_file(ssl_ctx, CTDL_KEY_PATH, SSL_FILETYPE_PEM);
+        if ( !SSL_CTX_check_private_key(ssl_ctx) ) {
 		lprintf(CTDL_CRIT, "Cannot install certificate: %s\n",
 				ERR_reason_error_string(ERR_get_error()));
-	}
+        }
 
 	/* Finally let the server know we're here */
 	CtdlRegisterProtoHook(cmd_stls, "STLS", "Start SSL/TLS session");

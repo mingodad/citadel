@@ -1,4 +1,8 @@
  $Log$
+ Revision 620.20  2004/04/21 03:00:06  ajc
+ * Replace ctdl_install_certificate() with convenience functions found
+   in the OpenSSL library.
+
  Revision 620.19  2004/04/20 02:42:54  ajc
  * techdoc/binaries.txt : updated, now includes WebCit instructions
  * setup.c: detect when setup is run from within the Citadel/UX Ridiculously
@@ -5708,3 +5712,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
