@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.101  2002/02/05 05:05:53  ajc
+ * Don't crash when posting if the user doesn't have an Internet directory address
+
  Revision 590.100  2002/02/03 15:29:03  error
  * fixed a silly oversight in serv_crypto.c when removing the ETLS command
 
@@ -3292,4 +3295,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
