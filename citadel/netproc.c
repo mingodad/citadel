@@ -11,7 +11,7 @@
 #define USE_TIME	(604800L)
 
 /* Where do we keep our lock file? */
-#define LOCKFILE	"/var/lock/LCK.netproc"
+#define LOCKFILE	"/tmp/netproc.LCK"
 
 /* Path to the 'uudecode' utility (needed for network file transfers) */
 #define UUDECODE	"/usr/bin/uudecode"

@@ -1,4 +1,9 @@
 $Log$
+Revision 1.415  1999/11/15 03:17:39  ajc
+* Put lockfile in /tmp instead of in /var/lock.   The latter is not guaranteed
+  to exist, nor is it guaranteed to be writable by BBSUID
+  (Resolves bug #11 from the Bugzilla repository)
+
 Revision 1.414  1999/11/15 03:07:24  ajc
 * Fixed the network-wide vCard purge logic so that it (1) actually works,
   and (2) forces a netproc run immediately when a purge is entered
@@ -1434,4 +1439,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
