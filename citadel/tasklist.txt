@@ -1,0 +1,11 @@
+Priority items
+--------------
+* There's a memory leak in the server.  Fix it.
+
+Important items
+---------------
+* In the client, make <G>oto go directly to Mail> when there's new mail.
+
+Honeydew items
+--------------
+* Don't try to delete a msglist that doesn't exist. (marked with FIX in code)
