@@ -358,7 +358,7 @@ int CtdlLoginExistingUser(char *trythisname)
 	struct recptypes *valid = NULL;
 
 	if (trythisname == NULL) return login_not_found;
-	safestrncpy(username, trythisname, sizeof username);
+	safestrncpy(username, trythisname, USERNAME_SIZE-1);
 	strproc(username);
 
 	if ((CC->logged_in)) {
