@@ -35,7 +35,7 @@
 #include <string.h>
 #include <limits.h>
 
-#ifdef HAVE_OPENSSL
+#ifdef HAVE_OPENSSL_XXX /* temporarily disabled due to bugs */
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/rand.h>
@@ -62,7 +62,7 @@
 #include "imap_store.h"
 #include "imap_misc.h"
 
-#ifdef HAVE_OPENSSL
+#ifdef HAVE_OPENSSL_XXX /* temporarily disabled due to bugs */
 #include "serv_crypto.h"
 #endif
 
@@ -386,9 +386,11 @@ void imap_auth_login_pass(char *cmd) {
  */
 void imap_capability(int num_parms, char *parms[]) {
 	cprintf("* CAPABILITY IMAP4 IMAP4REV1 AUTH=LOGIN");
-#ifdef HAVE_OPENSSL
+
+#ifdef HAVE_OPENSSL_XXX /* temporarily disabled due to bugs */
 	cprintf(" STARTTLS");
 #endif
+
 	cprintf("\r\n");
 	cprintf("%s OK CAPABILITY completed\r\n", parms[0]);
 }
@@ -397,7 +399,7 @@ void imap_capability(int num_parms, char *parms[]) {
 /*
  * implements the STARTTLS command
  */
-#ifdef HAVE_OPENSSL
+#ifdef HAVE_OPENSSL_XXX /* temporarily disabled due to bugs */
 void imap_starttls(int num_parms, char *parms[]) {
 	int retval, bits, alg_bits;
 
@@ -1214,7 +1216,7 @@ void imap_command_loop(void) {
 		imap_capability(num_parms, parms);
 	}
 
-#ifdef HAVE_OPENSSL
+#ifdef HAVE_OPENSSL_XXX /* temporarily disabled due to bugs */
 	else if (!strcasecmp(parms[1], "STARTTLS")) {
 		imap_starttls(num_parms, parms);
 	}
