@@ -21,6 +21,7 @@ mailinglist
 Makefile
 *.mo
 msgform
+netconfigs
 netmailer
 netpoll
 netproc
