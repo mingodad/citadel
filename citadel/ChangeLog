@@ -1,3 +1,6 @@
+Fri Sep 18 21:14:41 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* citserver.c: removed cmd_extn() and related code
+
 1998-09-18 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* user_ops.c: include dynloader.h
 	* roomstats.{c,mk}: removed
