@@ -79,7 +79,7 @@ void svprintf(char *keyname, const char *format,...)
  * Print the value of a variable
  */
 void print_value_of(char *keyname) {
-	struct wbsubst *ptr;
+	struct wcsubst *ptr;
 
 	for (ptr = WC->vars; ptr != NULL; ptr = ptr->next) {
 		if (!strcasecmp(ptr->wcs_key, keyname)) {

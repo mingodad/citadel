@@ -1,4 +1,7 @@
 $Log$
+Revision 212.8  2000/09/11 17:08:16  ajc
+* Started templatizing the login screen.  Not finished yet.
+
 Revision 212.7  2000/09/11 03:29:50  ajc
 * Started working on a variable-substitution thing
 
@@ -470,3 +473,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
