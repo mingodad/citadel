@@ -1066,8 +1066,7 @@ RMSGREAD:	fflush(stdout);
 			color(DIM_WHITE);
 			printf(") ");
 
-			if (is_mail==1) keyopt("<R>eply ");
-			keyopt("<B>ack <A>gain <Q>uote <N>ext <S>top ");
+			keyopt("<B>ack <A>gain <Q>uote <R>eply <N>ext <S>top ");
 			if (rc_url_cmd[0] && num_urls) keyopt("<U>RL View ");
 			keyopt("<?>Help/others -> ");
 			
@@ -1081,7 +1080,6 @@ RMSGREAD:	fflush(stdout);
 					if ((e=='d')||(e=='m')||(e=='c')) e=0;
 					}
 /* print only if available */	if ((e=='p')&&(strlen(printcmd)==0)) e=0;
-/* can't reply in public rms */	if ((e=='r')&&(is_mail!=1)) e=0;
 /* can't file if not allowed */	if ((e=='f')&&(rc_allow_attachments==0)) e=0;
 /* link only if browser avail*/	if ((e=='u')&&(strlen(rc_url_cmd)==0)) e=0;
 				} while((e!='a')&&(e!='n')&&(e!='s')
