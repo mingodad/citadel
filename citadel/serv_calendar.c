@@ -946,6 +946,43 @@ void ical_conflicts(long msgnum, char *partnum) {
 
 
 
+/*
+ * Grab another user's free/busy times
+ */
+void ical_freebusy(char *who) {
+	struct usersupp usbuf;
+	char calendar_room_name[ROOMNAMELEN];
+	char hold_rm[ROOMNAMELEN];
+
+	if (getuser(&usbuf, who) != 0) {
+		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
+		return;
+	}
+
+	MailboxName(calendar_room_name, sizeof calendar_room_name,
+		&usbuf, USERCALENDARROOM);
+
+	strcpy(hold_rm, CC->quickroom.QRname);	/* save current room */
+
+	if (getroom(&CC->quickroom, USERCALENDARROOM) != 0) {
+		cprintf("%d Cannot open calendar\n", ERROR+ROOM_NOT_FOUND);
+		getroom(&CC->quickroom, hold_rm);
+		return;
+	}
+
+/*
+	CtdlForEachMessage(MSGS_ALL, 0, "text/calendar",
+		template, the_FIXME_function, NULL);
+ */
+
+	/* Go back to the room from which we came... */
+	getroom(&CC->quickroom, hold_rm);
+
+	cprintf("%d not implemented yet\n", ERROR);
+}
+
+
+
 
 /*
  * All Citadel calendar commands from the client come through here.
@@ -956,6 +993,7 @@ void cmd_ical(char *argbuf)
 	long msgnum;
 	char partnum[SIZ];
 	char action[SIZ];
+	char who[SIZ];
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
@@ -984,6 +1022,11 @@ void cmd_ical(char *argbuf)
 		msgnum = extract_long(argbuf, 1);
 		extract(partnum, argbuf, 2);
 		ical_conflicts(msgnum, partnum);
+	}
+
+	else if (!strcmp(subcmd, "freebusy")) {
+		extract(who, argbuf, 1);
+		ical_freebusy(who);
 	}
 
 	else {

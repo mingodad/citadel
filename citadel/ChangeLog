@@ -1,4 +1,7 @@
  $Log$
+ Revision 605.2  2003/02/20 04:51:17  ajc
+ * Began framing up a command to view other users' free/busy times
+
  Revision 605.1  2003/02/19 22:38:43  ajc
  * Changed socklen_t to int (to allow compile on Macintosh)
 
@@ -4484,4 +4487,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
