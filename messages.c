@@ -24,6 +24,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include "webcit.h"
+#include "vcard.h"
 
 
 /*
@@ -79,6 +80,76 @@ char buf[];
 	if ( strlen(outbuf) < 250 )
 		strcpy(buf, outbuf);
 }
+
+
+
+
+/*
+ * Experimental output type of thing
+ */
+void display_vcard(char *vcard_source) {
+	int i, j;
+	struct vCard *v;
+	char buf[SIZ];
+
+	v = vcard_load(vcard_source);
+	if (v == NULL) return;
+
+	wprintf("<TABLE bgcolor=#888888>");
+	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
+		if (!strcasecmp(v->prop[i].name, "n")) {
+			wprintf("<TR BGCOLOR=#AAAAAA><TD><FONT SIZE=+1><B>");
+			escputs(v->prop[i].value);
+			wprintf("</B></FONT></TD></TR>\n");
+		}
+		else if (!strcasecmp(v->prop[i].name, "email;internet")) {
+			wprintf("<TR><TD>Internet e-mail:</TD>"
+				"<TD><A HREF=\"mailto:");
+			urlescputs(v->prop[i].value);
+			wprintf("\">");
+			escputs(v->prop[i].value);
+			wprintf("</A></TD></TR>\n");
+		}
+		else if (!strcasecmp(v->prop[i].name, "adr")) {
+			wprintf("<TR><TD>Address:</TD><TD>");
+			for (j=0; j<num_tokens(v->prop[i].value, ';'); ++j) {
+				extract_token(buf, v->prop[i].value, j, ';');
+				if (strlen(buf) > 0) {
+					escputs(buf);
+					wprintf("<BR>");
+				}
+			}
+			wprintf("</TD></TR>\n");
+		}
+		else if (!strncasecmp(v->prop[i].name, "tel;", 4)) {
+			wprintf("<TR><TD>%s telephone:</TD><TD>",
+				&v->prop[i].name[4]);
+			for (j=0; j<num_tokens(v->prop[i].value, ';'); ++j) {
+				extract_token(buf, v->prop[i].value, j, ';');
+				if (strlen(buf) > 0) {
+					escputs(buf);
+					wprintf("<BR>");
+				}
+			}
+			wprintf("</TD></TR>\n");
+		}
+		else {
+			wprintf("<TR><TD>");
+			escputs(v->prop[i].name);
+			wprintf("</TD><TD>");
+			escputs(v->prop[i].value);
+			wprintf("</TD></TR>\n");
+		}
+	}
+
+	wprintf("</TABLE>\n");
+
+	vcard_free(v);
+}
+
+
+
+
 
 
 void read_message(long msgnum, int is_summary) {
@@ -320,8 +391,7 @@ void read_message(long msgnum, int is_summary) {
 	if (strlen(vcard_partnum) > 0) {
 		vcard_source = load_mimepart(msgnum, vcard_partnum);
 		if (vcard_source != NULL) {
-			wprintf("vcard object length = %d<BR>\n",
-				strlen(vcard_source));
+			display_vcard(vcard_source);
 			free(vcard_source);
 		}
 	}

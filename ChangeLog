@@ -1,4 +1,7 @@
 $Log$
+Revision 323.3  2002/02/13 22:47:51  ajc
+* Added some rudimentary support for displaying vCards as card-looking things
+
 Revision 323.2  2002/02/13 15:04:25  ajc
 * Began some hacks for vCard processing
 
@@ -716,4 +719,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
