@@ -2211,6 +2211,8 @@ struct recptypes *validate_recipients(char *recipients) {
 		striplt(this_recp);
 		lprintf(9, "Evaluating recipient #%d <%s>\n", i, this_recp);
 		mailtype = alias(this_recp);
+		mailtype = alias(this_recp);
+		mailtype = alias(this_recp);
 		invalid = 0;
 		switch(mailtype) {
 			case MES_LOCAL:
@@ -2286,6 +2288,13 @@ struct recptypes *validate_recipients(char *recipients) {
 		++ret->num_error;
 		strcpy(ret->errormsg, "No recipients specified.");
 	}
+
+	lprintf(9, "validate_recipients()\n");
+	lprintf(9, " local: %d <%s>\n", ret->num_local, ret->recp_local);
+	lprintf(9, "  room: %d <%s>\n", ret->num_room, ret->recp_room);
+	lprintf(9, "  inet: %d <%s>\n", ret->num_internet, ret->recp_internet);
+	lprintf(9, " ignet: %d <%s>\n", ret->num_ignet, ret->recp_ignet);
+	lprintf(9, " error: %d <%s>\n", ret->num_error, ret->errormsg);
 
 	return(ret);
 }

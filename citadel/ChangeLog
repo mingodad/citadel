@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.89  2002/01/26 04:59:57  ajc
+ * smtp FROM command now validates sender using the validate_recipients() loop
+   (yeah, it's good for that too) making it directory-aware
+
  Revision 590.88  2002/01/26 04:01:10  error
  * Formatter now uses more of the available screen width
 
@@ -3244,4 +3248,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

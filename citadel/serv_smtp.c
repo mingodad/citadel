@@ -336,7 +336,8 @@ void smtp_data_clear(void) {
 void smtp_mail(char *argbuf) {
 	char user[SIZ];
 	char node[SIZ];
-	int cvt;
+	char name[SIZ];
+	struct recptypes *valid;
 
 	if (strlen(SMTP->from) != 0) {
 		cprintf("503 Only one sender permitted\r\n");
@@ -350,37 +351,39 @@ void smtp_mail(char *argbuf) {
 
 	strcpy(SMTP->from, &argbuf[5]);
 	striplt(SMTP->from);
+	stripallbut(SMTP->from, '<', '>');
 
 	if (strlen(SMTP->from) == 0) {
 		cprintf("501 Empty sender name is not permitted\r\n");
 		return;
 	}
 
-
 	/* If this SMTP connection is from a logged-in user, make sure that
 	 * the user only sends email from his/her own address.
 	 */
 	if (CC->logged_in) {
-		cvt = convert_internet_address(user, node, SMTP->from);
-		lprintf(9, "cvt=%d, citaddr=<%s@%s>\n", cvt, user, node);
-		if ( (cvt != 0) || (strcasecmp(user, CC->usersupp.fullname))) {
+		valid = validate_recipients(SMTP->from);
+		if ( (valid->num_local == 1) &&
+		   (!strcasecmp(valid->recp_local, CC->usersupp.fullname)) ) {
+			cprintf("250 Sender ok <%s>\r\n", valid->recp_local);
+			SMTP->message_originated_locally = 1;
+		}
+		else {
 			cprintf("550 <%s> is not your address.\r\n",
 				SMTP->from);
 			strcpy(SMTP->from, "");
-			return;
 		}
-		else {
-			SMTP->message_originated_locally = 1;
-		}
+		phree(valid);
+		return;
 	}
+
 
 	/* Otherwise, make sure outsiders aren't trying to forge mail from
 	 * this system.
 	 */
 	else {
-		cvt = convert_internet_address(user, node, SMTP->from);
-		lprintf(9, "cvt=%d, citaddr=<%s@%s>\n", cvt, user, node);
-		if (CtdlHostAlias(node) == hostalias_localhost) {
+		process_rfc822_addr(SMTP->from, user, node, name);
+		if (CtdlHostAlias(node) != hostalias_nomatch) {
 			cprintf("550 You must log in to send mail from %s\r\n",
 				node);
 			strcpy(SMTP->from, "");
