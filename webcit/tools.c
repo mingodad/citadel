@@ -311,8 +311,10 @@ int pattern2(char *search, char *patn)
  */
 void striplt(char *buf)
 {
+	if (strlen(buf) == 0) return;
 	while ((strlen(buf) > 0) && (isspace(buf[0])))
 		strcpy(buf, &buf[1]);
+	if (strlen(buf) == 0) return;
 	while (isspace(buf[strlen(buf) - 1]))
 		buf[strlen(buf) - 1] = 0;
 }
