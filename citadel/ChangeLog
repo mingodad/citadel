@@ -1,6 +1,9 @@
 1998-12-15 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* msgbase.c: remove extra call to alias() which was causing
 	  Citadel-to-Citadel mail to fall into the bit bucket.
+	* msgbase.c: fixed tempfile naming problem that could cause a new
+	  outgoing netmail message to overwrite another if netproc had not been
+	  run in between
 
 1998-12-14 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* More session table stability nonsense

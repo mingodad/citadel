@@ -718,6 +718,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 	FILE *fp;
 	struct usersupp userbuf;
 	int a;
+	static int seqnum = 0;
 
 	lprintf(9, "save_message(%s,%s,%d,%d,%d)\n",
 		mtmp, rec, mtsflag, mailtype, generate_id);
@@ -797,7 +798,8 @@ void save_message(char *mtmp,	/* file containing proper message */
 
 	/* Network mail - send a copy to the network program. */
 	if ( (strlen(recipient)>0) && (mailtype != M_LOCAL) ) {
-		sprintf(aaa,"./network/spoolin/nm.%d",getpid());
+		sprintf(aaa,"./network/spoolin/netmail.%04x.%04x.%04x",
+			getpid(), CC->cs_pid, ++seqnum);
 		copy_file(mtmp,aaa);
 		system("exec nohup ./netproc >/dev/null 2>&1 &");
 		}

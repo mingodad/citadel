@@ -51,8 +51,8 @@ int main(int argc, char **argv)
 	char movecmd[256];
 	
 	get_config();
-	snprintf(tempbase,sizeof tempbase,"ap.%d",getpid());
-	snprintf(temptmp,sizeof temptmp,"/tmp/%s", tempbase);
+	snprintf(tempbase, sizeof tempbase,"ap.%d", getpid());
+	snprintf(temptmp, sizeof temptmp,"/tmp/%s", tempbase);
 	snprintf(tempspool,sizeof tempspool,"./network/spoolin/%s", tempbase);
 	make_message(temptmp);
 
