@@ -33,6 +33,8 @@ void display_main_menu(void)
 {
 	output_headers(1);
 
+	wprintf("<BR>");
+
 	svprintf("BOXTITLE", WCS_STRING, "Basic commands");
 	do_template("beginbox");
 

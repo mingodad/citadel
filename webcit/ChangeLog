@@ -1,4 +1,7 @@
 $Log$
+Revision 410.30  2003/05/18 02:05:33  ajc
+* More conversion of screens to the new look-and-feel.
+
 Revision 410.29  2003/05/16 04:11:29  ajc
 * We don't need no steenking workaround.  Problem fixed.  MIME parser not
   broken.  Web server was calling it with bad parameters.  All fixed now.
@@ -1397,4 +1400,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
