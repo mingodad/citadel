@@ -1,4 +1,7 @@
 $Log$
+Revision 400.51  2002/11/15 05:05:47  ajc
+* Put in back/forward (yesterday/tomorrow) links in calendar day view
+
 Revision 400.50  2002/11/15 04:11:46  ajc
 * Added even more nifty JavaScript to cause the hour/minute and end date
   fields of a calendar event form to render as disabled when the "all day
@@ -1118,3 +1121,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
