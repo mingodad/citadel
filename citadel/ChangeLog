@@ -1,3 +1,7 @@
+Sun Oct 11 02:51:55 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Moved "struct visit" and its associated defs from citadel.h to
+	  server.h where they belong
+
 1998-10-10 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* citserver.c: fix overrun which caused segv's on servers with long
 	  hostnames.

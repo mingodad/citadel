@@ -180,3 +180,22 @@ extern struct UserFunctionHook *UserHookTable;
 
 #define EVT_PURGEUSER	100	/* Deleting a user */
 #define EVT_OUTPUTMSG	101	/* Outputting a message */
+
+
+/* Defines the relationship of a user to a particular room */
+struct visit {
+	char v_roomname[ROOMNAMELEN];
+	long v_generation;
+	long v_lastseen;
+	unsigned int v_flags;
+	};
+
+#define V_FORGET	1		/* User has zapped this room        */
+#define V_LOCKOUT	2		/* User is locked out of this room  */
+#define V_ACCESS	4		/* Access is granted to this room   */
+
+#define UA_INUSE                1
+#define UA_KNOWN                2
+#define UA_GOTOALLOWED          4
+#define UA_HASNEWMSGS           8
+#define UA_ZAPPED		16

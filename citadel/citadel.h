@@ -66,25 +66,6 @@ struct config {
 #define TWITROOM		config.c_twitroom
 #define RESTRICT_INTERNET	config.c_restrict
 
-
-/* Defines the relationship of a user to a particular room */
-struct visit {
-	char v_roomname[ROOMNAMELEN];
-	long v_generation;
-	long v_lastseen;
-	unsigned int v_flags;
-	};
-
-#define V_FORGET	1		/* User has zapped this room        */
-#define V_LOCKOUT	2		/* User is locked out of this room  */
-#define V_ACCESS	4		/* Access is granted to this room   */
-
-#define UA_INUSE                1
-#define UA_KNOWN                2
-#define UA_GOTOALLOWED          4
-#define UA_HASNEWMSGS           8
-#define UA_ZAPPED		16
-
 /* Defines the actual user record */
 struct usersupp {			/* User record                      */
 	int USuid;			/* userid (==BBSUID for bbs only)   */
