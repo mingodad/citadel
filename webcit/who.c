@@ -61,9 +61,9 @@ void whobbs(void)
 	wprintf("</div>\n"
 		"<div id=\"content\">\n");
 
-	do_template("beginbox_nt");
-	wprintf("<CENTER>"
-		"<TABLE BORDER=0 CELLSPACING=0 WIDTH=100%%>\n<TR>\n");
+	wprintf("<center>"
+		"<table border=0 cellspacing=0 width=99%% bgcolor=\"#FFFFFF\">"
+		"<tr>\n");
 	wprintf("<TH COLSPAN=4>Session ID</TH>\n");
 	wprintf("<TH>User Name</TH>\n");
 	wprintf("<TH>Room</TH>");
@@ -164,7 +164,6 @@ void whobbs(void)
 		"<IMG ALIGN=MIDDLE SRC=\"/static/page.gif\" ALT=\"(p)\" "
 		"BORDER=0> to send "
 		"a page (instant message) to that user.<br /></CENTER>\n");
-	do_template("endbox");
 	wDumpContent(1);
 }
 

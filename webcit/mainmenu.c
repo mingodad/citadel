@@ -35,7 +35,7 @@ void display_main_menu(void)
 {
 	output_headers(1, 1, 1, 0, 0, 0, 0);
 
-	wprintf("<TABLE WIDTH=100%%>"
+	wprintf("<center><TABLE WIDTH=99%%>"
 		"<TR><TD COLSPAN=2>\n");
 
 	svprintf("BOXTITLE", WCS_STRING, "Basic commands");
@@ -252,7 +252,7 @@ void display_main_menu(void)
 		}
 		do_template("endbox");
 	}
-	wprintf("</TD></TR></TABLE>");
+	wprintf("</td></tr></table></center>");
 	wDumpContent(2);
 }
 

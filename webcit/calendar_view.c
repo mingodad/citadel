@@ -155,7 +155,8 @@ void calendar_month_view(int year, int month, int day) {
 	}
 
 	/* Outer table (to get the background color) */
-	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0 "
+	wprintf("<center>"
+		"<TABLE width=99%% border=0 cellpadding=0 cellspacing=0 "
 		"bgcolor=#204B78><TR><TD>\n");
 
 	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0><tr>\n");
@@ -198,7 +199,7 @@ void calendar_month_view(int year, int month, int day) {
 			wprintf("<TR>");
 		}
 
-		wprintf("<TD BGCOLOR=\"#%s\" WIDTH=14%% HEIGHT=60 VALIGN=TOP><B>",
+		wprintf("<TD BGCOLOR=\"#%s\" WIDTH=14%% HEIGHT=60 align=left VALIGN=TOP><B>",
 			((tm.tm_mon != month-1) ? "DDDDDD" :
 			((tm.tm_wday==0 || tm.tm_wday==6) ? "EEEECC" :
 			"FFFFFF"))
@@ -334,7 +335,8 @@ void calendar_day_view(int year, int month, int day) {
 
 
 	/* Outer table (to get the background color) */
-	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0 "
+	wprintf("<center>"
+		"<TABLE width=99%% border=0 cellpadding=0 cellspacing=0 "
 		"bgcolor=#204B78><TR><TD>\n");
 
 	/* Inner table (the real one) */
@@ -441,7 +443,7 @@ void calendar_day_view(int year, int month, int day) {
 
 
 	wprintf("</TR></TABLE>"			/* end of inner table */
-		"</TD></TR></TABLE>"		/* end of outer table */
+		"</TD></TR></TABLE></center>"	/* end of outer table */
 	);
 
 
