@@ -245,6 +245,9 @@ void spawn_another_worker_thread() {
 		lprintf(1, "Can't create thread: %s\n",
 			strerror(errno));
 	}
+
+	/* free up the attributes */
+	pthread_attr_destroy(&attr);
 }
 
 /*

@@ -1,4 +1,7 @@
 $Log$
+Revision 524.3  2004/10/03 02:56:35  ajc
+* Added a pthread_attr_destroy() in the appropriate place (thanks fleeb!)
+
 Revision 524.2  2004/10/01 16:23:23  ajc
 * Set up framework for "notes" view, and added a skeleton function for
   the actual display.
@@ -2087,3 +2090,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
