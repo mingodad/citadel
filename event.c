@@ -58,6 +58,13 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		"</FONT></TD></TR></TABLE><BR>\n"
 	);
 
+	wprintf("UID == ");
+	p = icalcomponent_get_first_property(vevent, ICAL_UID_PROPERTY);
+	if (p != NULL) {
+		escputs((char *)icalproperty_get_comment(p));
+	}
+	wprintf(" (FIXME remove this when done)<BR>\n");
+
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/save_event\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n",
 		msgnum);
@@ -70,7 +77,6 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"day\" VALUE=\"%s\">\n",
 		bstr("day"));
 
-
 	/* Put it in a borderless table so it lines up nicely */
 	wprintf("<TABLE border=0 width=100%%>\n");
 
@@ -78,6 +84,15 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		"<INPUT TYPE=\"text\" NAME=\"summary\" "
 		"MAXLENGTH=\"64\" SIZE=\"64\" VALUE=\"");
 	p = icalcomponent_get_first_property(vevent, ICAL_SUMMARY_PROPERTY);
+	if (p != NULL) {
+		escputs((char *)icalproperty_get_comment(p));
+	}
+	wprintf("\"></TD></TR>\n");
+
+	wprintf("<TR><TD><B>Location</B></TD><TD>\n"
+		"<INPUT TYPE=\"text\" NAME=\"location\" "
+		"MAXLENGTH=\"64\" SIZE=\"64\" VALUE=\"");
+	p = icalcomponent_get_first_property(vevent, ICAL_LOCATION_PROPERTY);
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_comment(p));
 	}
@@ -163,6 +178,13 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 			icalproperty_new_summary(bstr("summary")));
 		
 		while (prop = icalcomponent_get_first_property(vevent,
+		      ICAL_LOCATION_PROPERTY), prop != NULL) {
+			icalcomponent_remove_property(vevent, prop);
+		}
+		icalcomponent_add_property(vevent,
+			icalproperty_new_location(bstr("location")));
+		
+		while (prop = icalcomponent_get_first_property(vevent,
 		      ICAL_DESCRIPTION_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vevent, prop);
 		}
@@ -188,6 +210,15 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 				icaltime_from_webform("due")
 			)
 		);
+
+		/* Give this event a UID if it doesn't have one. */
+		if (icalcomponent_get_first_property(vevent,
+		   ICAL_UID_PROPERTY) == NULL) {
+			generate_new_uid(buf);
+			icalcomponent_add_property(vevent,
+				icalproperty_new_uid(buf)
+			);
+		}
 	
 		/* Serialize it and save it to the message base */
 		serv_puts("ENT0 1|||4");

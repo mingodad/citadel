@@ -76,7 +76,7 @@ void calendar_month_view_display_events(time_t thetime) {
 					);
 					escputs((char *)
 						icalproperty_get_comment(p));
-					wprintf("</A></FONT>\n");
+					wprintf("</A></FONT><BR>\n");
 				}
 
 			}
@@ -242,7 +242,7 @@ void calendar_day_view_display_events(int year, int month,
 					);
 					escputs((char *)
 						icalproperty_get_comment(p));
-					wprintf("</A></FONT>\n");
+					wprintf("</A></FONT><BR>\n");
 				}
 
 			}

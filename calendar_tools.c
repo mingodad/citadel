@@ -144,6 +144,17 @@ struct icaltimetype icaltime_from_webform(char *prefix) {
 }
 
 
+/*
+ * Generae a new, globally unique UID parameter for a calendar object.
+ */
+void generate_new_uid(char *buf) {
+	static int seq = 0;
+
+	sprintf(buf, "%ld-%d@%s",
+		(long)time(NULL),
+		(seq++),
+		serv_info.serv_fqdn);
+}
 
 
 #endif

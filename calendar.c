@@ -44,17 +44,27 @@ void cal_process_attachment(char *part_source) {
 }
 
 void display_calendar(long msgnum) {
-	wprintf("<i>Cannot display calendar item</i><br>\n");
+	wprintf("<i>"
+		"Cannot display calendar item.  You are seeing this error "
+		"because your WebCit service has not been installed with "
+		"calendar support.  Please contact your system administrator."
+		"</i><br>\n");
 }
 
 void display_task(long msgnum) {
-	wprintf("<i>Cannot display item from task list</i><br>\n");
+	wprintf("<i>"
+		"Cannot display to-do item.  You are seeing this error "
+		"because your WebCit service has not been installed with "
+		"calendar support.  Please contact your system administrator."
+		"</i><br>\n");
 }
 
 #else /* HAVE_ICAL_H */
 
 
 /******   End of handler stubs.  Everything below this line is real.   ******/
+
+
 
 
 /*
