@@ -1,4 +1,8 @@
-$Log$
+ $Log$
+ Revision 1.15  2000/01/08 20:25:21  smw
+ Fixed a condition in goto where the message window would eat itself
+ prior to importing the messages, forcing daphne to crash.
+
 Revision 1.14  2000/01/08 20:06:38  smw
 Added hosts.cpp (for user configurable bbs additions to bbslist)
 

@@ -253,10 +253,12 @@ void RoomView::OnButtonPressed(wxCommandEvent& whichbutton) {
 		wxMessageBox("You are not connected to a BBS.");
 		return;
 		} else
-		delete this;
+		/*delete this; */
 		sendcmd = "SLRP HIGHEST";	// mark messages as read
 		citsock->serv_trans(sendcmd, recvcmd, xferbuf, ThisRoom);
 		new RoomView(citsock, citMyMDI, RoomList->GetNextRoom());
+		delete this;
+
 	} else if (whichbutton.GetId() == BUTTON_ZAP) {
 		if (citadel->IsConnected()==FALSE) {
 		wxMessageBox("You are not connected to a BBS.");
@@ -322,6 +324,7 @@ void RoomView::do_readloop(wxString readcmd) {
 	allmsgs += "</BODY></HTML>";
 
 	message_window = new wxHtmlWindow(this);
+	Maximize(TRUE);
 
 	wxLayoutConstraints *m1 = new wxLayoutConstraints;
 	m1->top.Below(banner, 2);
