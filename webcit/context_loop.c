@@ -20,10 +20,10 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <string.h>
-
 #include <errno.h>
 #include <stdarg.h>
 #include <pthread.h>
+#include "webcit.h"
 
 /*
  * We keep one of these around for each active session
@@ -118,6 +118,7 @@ void *context_loop(int *socknumptr) {
 			dup2(TheSession->outpipe[1], 1);
 			execlp("./webcit", "webcit", str_session, NULL);
 			printf("HTTP/1.0 404 WebCit Failure\n\n");
+			printf("Server: %s\n", SERVER);
 			printf("Content-type: text/html\n");
 			printf("Content-length: 76\n");
 			printf("\n");
@@ -135,7 +136,7 @@ void *context_loop(int *socknumptr) {
 		write(TheSession->inpipe[1], &req[a][0], strlen(&req[a][0]));
 		write(TheSession->inpipe[1], "\n", 1);
 		}
-	write(TheSession->inpipe[1], "\n", 1);
+	/* write(TheSession->inpipe[1], "\n", 1); */
 
 	/*
 	 * ...and get the response (FIX for non-text)
