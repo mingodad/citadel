@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.102  2004/03/26 05:40:47  ajc
+ *** empty log message ***
+
  Revision 614.101  2004/03/26 05:13:15  ajc
  * citadel-slapd.conf: comment out the reference to the Citadel schema
    and add "schemacheck off" to make it easier to get started with the
@@ -5618,5 +5621,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
-

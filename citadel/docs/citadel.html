@@ -214,13 +214,22 @@ interval</a></li>
 your Citadel database</a><br>
     </li>
   </ol>
-
   <li><a href="#crypto">Cryptography support (TLS/SSL)</a></li>
   <ol>
-	<li><a href="#crypto_intro">Overview</a></li>
-	<li><a href="#real_cert">Generating and installing a Trusted Certificate</a></li>
+    <li><a href="#crypto_intro">Overview</a></li>
+    <li><a href="#real_cert">Generating and installing a Trusted
+Certificate</a></li>
   </ol>
-
+  <li><a href="#LDAP_Directory_Support">LDAP directory support</a></li>
+  <ol>
+    <li><a href="#Introduction_ldap">Introduction</a></li>
+    <li><a href="#Preparing_your_LDAP_server_for_Citadel">Preparing
+your LDAP server for Citadel connections</a><br>
+    </li>
+    <li><a href="#Configuring_the_LDAP_Connector_for">Configuring the
+LDAP Connector for Citadel</a><br>
+    </li>
+  </ol>
   <li><a href="#utilities">Included utilities</a></li>
   <ol>
     <li><a href="#overview">Overview</a></li>
@@ -652,9 +661,11 @@ than telnet (such as ssh), you might want the telnet service to go
 straight into Citadel, instead of displaying the <tt>login:</tt>
 prompt first. You
 can do this by having telnetd start citadel directly instead of
-<tt>/bin/login</tt>.  The <tt>setup</tt> program will offer to configure
+<tt>/bin/login</tt>. The <tt>setup</tt> program will offer to
+configure
 this automatically for you if it sees a configuration it understands.
-If you would prefer to configure it manually, all you need to do is make a
+If you would prefer to configure it manually, all you need to do is
+make a
 simple change to your <tt>inetd</tt> or <tt>xinetd</tt>
 configuration. Here are some configuration examples.</p>
 <p>An example for <tt>inetd</tt> (put the following line in <tt>/etc/inetd.conf</tt>,
@@ -663,14 +674,17 @@ replacing any existing telnet configuration line already there):</p>
 <p>An example for <tt>xinetd</tt> (if you have a file called <tt>/etc/xinetd.d/telnet</tt>
 then simply replace that file with this one):</p>
 <pre>service telnet<br>{<br>	flags           = REUSE<br>	socket_type     = stream<br>	wait            = no<br>	user            = root<br>	server          = /usr/sbin/in.telnetd<br>	server_args     = -L /usr/local/citadel/citadel<br>	log_on_failure  += USERID<br>	disable         = no<br>}<br></pre>
-<p>Please make sure you know what you're doing before you install this!  If
+<p>Please make sure you know what you're doing before you install this!
+If
 you are going to put Citadel somewhere other than <tt>/usr/local/citadel</tt>
 then change the directory name accordingly. If you know of any other
 local peculiarities which need to be observed, edit the above
 configuration
 accordingly as well. And, of course, if you're working remotely, make
-sure you can successfully log in using SSH <b>before</b> you start making
-changes to telnet, because if you accidentally break telnet and don't have
+sure you can successfully log in using SSH <b>before</b> you start
+making
+changes to telnet, because if you accidentally break telnet and don't
+have
 SSH running, you'll have effectively locked yourself out of your system
 until you can get physical access to the console.<br>
 <br>
@@ -844,14 +858,19 @@ program against to set up some data files. If a directory is not
 specified, the directory
 name which was specified in the <tt>Makefile</tt> will be used.</p>
 <p><tt>-xDebugLevel</tt> - Set the verbosity of trace messages printed.
-When -x is used, it will suppress messages sent to syslog (see below).  In
-other words, syslog will never see certain messages if -x is used.  Normally
-you should configure logging through syslog, but -x may still be useful in
-some circumstances.  The available debugging levels are: </p>
+When -x is used, it will suppress messages sent to syslog (see below).
+In
+other words, syslog will never see certain messages if -x is used.
+Normally
+you should configure logging through syslog, but -x may still be useful
+in
+some circumstances. The available debugging levels are: </p>
 <ul>
   <li>0 - Emergency condition; Citadel will exit immediately </li>
-  <li>1 - Severe errors; Citadel may be unable to continue without attention </li>
-  <li>2 - Critical errors; Citadel will continue with degraded functionality </li>
+  <li>1 - Severe errors; Citadel may be unable to continue without
+attention </li>
+  <li>2 - Critical errors; Citadel will continue with degraded
+functionality </li>
   <li>3 - Error conditions; Citadel will recover and continue normally </li>
   <li>4 - Warning messages; Citadel will continue normally </li>
   <li>5 - Normal operational messages </li>
@@ -860,14 +879,20 @@ some circumstances.  The available debugging levels are: </p>
 </ul>
 <p><tt>-tTraceFile</tt> - Tell the server where to send its debug/trace
 output. Normally it is sent to stdout.</p>
-<p><tt>-lLogFacility</tt> - Tell the server to send its debug/trace output
-to the <tt>syslog</tt> service on the host system <i>instead of</i> to a
-trace file.  <tt>LogFacility</tt> must be one of: <tt><i>kern, user, mail,
+<p><tt>-lLogFacility</tt> - Tell the server to send its debug/trace
+output
+to the <tt>syslog</tt> service on the host system <i>instead of</i>
+to a
+trace file. <tt>LogFacility</tt> must be one of: <tt><i>kern, user,
+mail,
 daemon, auth, syslog, lpr, news, uucp, local0, local1, local2, local3,
-local4, local5, local6, local7</i></tt>.  Please note that use of the
-<tt>-l</tt> option will cancel any use of the <tt>-t</tt> option; that is,
-if you specify a trace file <i>and</i> a syslog facility, log output will
+local4, local5, local6, local7</i></tt>. Please note that use of the
+<tt>-l</tt> option will cancel any use of the <tt>-t</tt> option; that
+is,
+if you specify a trace file <i>and</i> a syslog facility, log output
+will
 only go to the syslog facility.
+</p>
 <p><tt>-d</tt> - Run as a daemon; i.e. in the background. This switch
 would be necessary if you were starting the Citadel server, for
 example, from an rc.local script (which is not recommended, because
@@ -1616,12 +1641,7 @@ headers
 will never be altered.</p>
 <p>The final set of options configures system-wide defaults for the
 auto-purger:</p>
-<pre>Default user purge time (days) [120]: <br>
-Default room purge time (days) [30]: <br>
-System default message expire policy (? for list) [2]: <br>
-Keep how many messages online? [150]:<br>
-Mailbox default message expire policy (? for list) [1]: <br>
-</pre>
+<pre>Default user purge time (days) [120]: <br><br>Default room purge time (days) [30]: <br><br>System default message expire policy (? for list) [2]: <br><br>Keep how many messages online? [150]:<br><br>Mailbox default message expire policy (? for list) [1]: <br><br></pre>
 <p>Any user who does not log in for the period specified in 'Default
 user purge time' will be deleted the next time a purge is run. This
 setting may be modified on a per-user basis.</p>
@@ -1635,10 +1655,12 @@ messages are expired (purged) off the system. You can specify any of:</p>
   <li>Do not purge at all </li>
 </ul>
 <p>Again, this setting may be overridden on a per-floor basis, and the
-floor setting may be overridden on a per-room basis.  You'll also notice
-that you can set a <i>different</i> default for mailbox rooms if you want
-to.  This can allow you, for example, to set a policy under which old
-messages scroll out of public rooms, but private mail stays online indefinitely
+floor setting may be overridden on a per-room basis. You'll also notice
+that you can set a <i>different</i> default for mailbox rooms if you
+want
+to. This can allow you, for example, to set a policy under which old
+messages scroll out of public rooms, but private mail stays online
+indefinitely
 until deleted by the mailbox owners.</p>
 <pre>Save this configuration? No<br></pre>
 <p>When you're done, enter 'Yes' to confirm the changes, or 'No' to
@@ -1848,7 +1870,7 @@ points of the configuration of Postfix or any other mailer, so refer to
 the documentation to those programs and keep in mind that Citadel has
 LMTP support.<span style="font-family: monospace;"><br>
 </span></p>
-<p><span style="font-family: monospace;"></span>For outbound mail, you
+<p>For outbound mail, you
 can either allow Citadel to perform
 deliveries directly
 (this won't affect your other mail system because outbound mail doesn't
@@ -2208,54 +2230,139 @@ From the command line, you can do it with a command like:<br>
 exported.dat at this time, or you might want to save it somewhere as a
 sort of pseudo-backup. </li>
 </ol>
-
 <hr>
 <center>
 <h2><a name="crypto"></a>Cryptography support (TLS/SSL)</h2>
 </center>
-
-<h3><a name="crypto_intro"</a>Overview</h3>
+<h3><a name="crypto_intro"></a>Overview</h3>
 <p>Citadel provides built-in support for encryption using Transport
-Layer Security (TLS) for ESMTP, IMAP, POP3, and the Citadel client protocol.
-A simple cryptographic configuration is installed automatically when you
-bring the system online.  The remainder of this section describes how this
+Layer Security (TLS) for ESMTP, IMAP, POP3, and the Citadel client
+protocol.
+A simple cryptographic configuration is installed automatically when
+you
+bring the system online. The remainder of this section describes how
+this
 configuration is built, and what you can do to make changes to it.</p>
-<p>Encryption files are kept in the <tt>keys/</tt> directory.  The three
-files used by Citadel are:<ul>
-<li><tt>citadel.key</tt> - Contains your system's RSA private key.  Citadel
-generates a new key automatically if one is not found.
-<li><tt>citadel.csr</tt> - Contains a Certificate Signing Request (CSR)
-for your system.  Citadel generates a new CSR automatically, using your
-private key, if one is not found.
-<li><tt>citadel.cer</tt> - Contains the public certificate for your
-system.  The public key in the certificate <b>must</b> correspond with the
+<p>Encryption files are kept in the <tt>keys/</tt> directory. The
+three
+files used by Citadel are:</p>
+<ul>
+  <li><tt>citadel.key</tt> - Contains your system's RSA private key.
+Citadel
+generates a new key automatically if one is not found. </li>
+  <li><tt>citadel.csr</tt> - Contains a Certificate Signing Request
+(CSR)
+for your system. Citadel generates a new CSR automatically, using your
+private key, if one is not found. </li>
+  <li><tt>citadel.cer</tt> - Contains the public certificate for your
+system. The public key in the certificate <b>must</b> correspond with
+the
 private key in <tt>citadel.key</tt>, otherwise encryption will not
-function properly.  Citadel will generate a self-signed certificate, again
-using your private key, if a certificate is not found.
-</ul></p>
-
-<h3><a name="real_cert"</a>Generating and installing a Trusted Certificate</h3>
+function properly. Citadel will generate a self-signed certificate,
+again
+using your private key, if a certificate is not found. </li>
+</ul>
+<h3><a name="real_cert"></a>Generating and installing a Trusted
+Certificate</h3>
 <p>If you wish to interact with 3rd party clients
-that have hard coded lists of acceptable Certificate Authorities, and you
-do not want annoying dialog boxes popping up for the user on the first (or
+that have hard coded lists of acceptable Certificate Authorities, and
+you
+do not want annoying dialog boxes popping up for the user on the first
+(or
 all) connections, then you will have to have your key signed by a valid
 Certificate Authority.</p>
-<p>It is beyond the scope of this document to provide a complete tutorial
-on SSL certificates.  Here are the general rules to follow:<UL>
-<LI>Generally, the Certificate Signing Requeste which is automatically
-generated by Citadel will not contain enough information for any Certificate
-Authority to sign it.  Generate a new CSR with the following commands:<BR>
-<BR>
-<TT>cd keys</TT><BR>
-<TT>openssl req -new -key citadel.key -out citadel.csr</TT><BR>
-<BR>
-Answer all questions (your geographic location, organization name, etc.)
-and then send the new <TT>citadel.csr</TT> to your Certificate Authority
-when you order the certificate.
-<LI>When the certificate is received, simply save it as <TT>citadel.cer</TT>
-and restart the Citadel server.
-</UL></p>
-
+<p>It is beyond the scope of this document to provide a complete
+tutorial
+on SSL certificates. Here are the general rules to follow:</p>
+<ul>
+  <li>Generally, the Certificate Signing Requeste which is
+automatically
+generated by Citadel will not contain enough information for any
+Certificate
+Authority to sign it. Generate a new CSR with the following commands:<br>
+    <br>
+    <tt>cd keys</tt><br>
+    <tt>openssl req -new -key citadel.key -out citadel.csr</tt><br>
+    <br>
+Answer all questions (your geographic location, organization name,
+etc.)
+and then send the new <tt>citadel.csr</tt> to your Certificate
+Authority
+when you order the certificate. </li>
+  <li>When the certificate is received, simply save it as <tt>citadel.cer</tt>
+and restart the Citadel server. </li>
+</ul>
+<br>
+<hr style="width: 100%; height: 2px;">
+<div style="text-align: center;">
+<h2><a name="LDAP_Directory_Support"></a>LDAP (Directory) Support</h2>
+<div style="text-align: justify;">
+<h3><a name="Introduction_ldap"></a>Introduction</h3>
+LDAP (Lightweight Directory Access Protocol) has become the open
+standard protocol for directory access.&nbsp; There are many client
+programs which are capable of making use of an LDAP directory
+service.&nbsp; Therefore it may be beneficial for some sites to have a
+directory available which is populated with Citadel user information.<br>
+<br>
+Citadel does not contain its own LDAP service, because that would
+eliminate its ability to coexist with any existing directory you may
+already have in place at your organization.&nbsp; Instead, we provide
+the LDAP Connector for Citadel, which allows the Citadel service to
+populate an external LDAP directory.&nbsp; If you do not already have
+an LDAP directory in place, you can use the OpenLDAP server, which is
+probably already present in your operating system, or at least can be
+loaded from the installation CD's.&nbsp; The supplied configuration
+file <tt>citadel-slapd.conf</tt> can be used as a starting
+point to get your LDAP server running.<br>
+<br>
+<h3><a name="Preparing_your_LDAP_server_for_Citadel"></a>Preparing your
+LDAP server for Citadel connections</h3>
+It is difficult to find a commonly accepted LDAP scheme. It seems, most
+real life LDAP installations go for the domain oriented apporach
+and lay out the structure after an existing domain/subdomain structure.
+<p> The most widely accepted and standardized object for storing
+personal data
+clearly is "inetOrgPerson".&nbsp; Citadel therefore attempts to follow
+this type of schema.<br>
+</p>
+<p>If you are using OpenLDAP as your directory server, you should
+choose options similar to the following:<br>
+</p>
+<pre>database        ldbm<br>schemacheck     off<br>allow           bind_v2<br>suffix          "dc=servername,dc=domain,dc=org"<br>rootdn          "cn=manager,dc=servername,dc=domain,dc=org"<br>rootpw          secret<br></pre>
+<ul>
+  <li>Obviously, you can make your suffix and rootdn whatever you wish,
+but in most cases you'd simply follow a DC path that looks similar to
+your DNS domain.</li>
+  <li>If you don't want LDBM, feel free to choose any backend available
+on your system.</li>
+  <li><span style="font-family: monospace;">bind_v2</span> is <span
+ style="font-style: italic;">required</span> because Citadel will make
+v2 protocol connections.</li>
+  <li><span style="font-family: monospace;">schemacheck off</span> is <span
+ style="font-style: italic;">recommended</span> because Citadel uses
+fields that do not necessarily exist in your system's default
+schema.&nbsp; If you don't like that idea, your other option is to
+reference the included <span style="font-family: monospace;">citadel-openldap.schema</span>
+in your configuration.</li>
+  <li>Your <span style="font-family: monospace;">rootdn</span> and <span
+ style="font-family: monospace;">rootpw</span> can be whatever you
+want.&nbsp; Usually the rootdn is <span style="font-family: monospace;">cn=manager,</span>
+followed by your usual suffix.&nbsp; Please don't use <span
+ style="font-family: monospace;">secret</span> as your password, as in
+this example.&nbsp; Select a new password for your site.</li>
+</ul>
+<br>
+Your LDAP service <span style="font-weight: bold;">must</span> be up
+and running before you attempt to connect Citadel to it.<br>
+<br>
+<h3><a name="Configuring_the_LDAP_Connector_for"></a>Configuring the
+LDAP Connector for Citadel</h3>
+FIXME&nbsp;&nbsp; finish writing this<br>
+<br>
+<br>
+</div>
+<br>
+</div>
 <hr>
 <center>
 <h2><a name="utilities"></a>Utilities</h2>
