@@ -484,6 +484,10 @@ void session_loop() {
 		gotonext();
 		}
 
+	else if (!strncasecmp(cmd, "GET /ungoto", 11)) {
+		ungoto();
+		}
+
 	else if (!strncasecmp(cmd, "GET /dotgoto", 12)) {
 		dotgoto();
 		}
