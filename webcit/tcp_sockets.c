@@ -7,8 +7,8 @@
 
 /*
  * Uncomment this to log all communications with the Citadel server
-#define SERV_TRACE 1
  */
+#define SERV_TRACE 1
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -178,7 +178,7 @@ void serv_gets(char *strbuf)
 	if (strbuf[len-1] == 10) strbuf[--len] = 0;
 	if (strbuf[len-1] == 13) strbuf[--len] = 0;
 #ifdef SERV_TRACE
-	lprintf(9, ">%s\n", strbuf);
+	lprintf(9, "%3d>%s\n", WC->serv_sock, strbuf);
 #endif
 }
 
@@ -216,7 +216,7 @@ void serv_puts(char *string)
 	char buf[SIZ];
 
 #ifdef SERV_TRACE
-	lprintf(9, "<%s\n", string);
+	lprintf(9, "%3d<%s\n", WC->serv_sock, string);
 #endif
 	sprintf(buf, "%s\n", string);
 	serv_write(buf, strlen(buf));

@@ -59,61 +59,67 @@ void free_attachments(struct wcsession *sess) {
 
 void do_housekeeping(void)
 {
-	struct wcsession *sptr, *ss, *session_to_kill;
+	struct wcsession *sptr, *ss;
+	struct wcsession *sessions_to_kill = NULL;
 	int num_sessions = 0;
 	static int num_threads = MIN_WORKER_THREADS;
 
-	do {
-		session_to_kill = NULL;
-		pthread_mutex_lock(&SessionListMutex);
-		num_sessions = 0;
-		for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
-			++num_sessions;
+	/*
+	 * Lock the session list, moving any candidates for euthanasia into
+	 * a separate list.
+	 */
+	pthread_mutex_lock(&SessionListMutex);
+	num_sessions = 0;
+	for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
+		++num_sessions;
 
-			/* Kill idle sessions */
-			if ((time(NULL) - (sptr->lastreq)) >
-			   (time_t) WEBCIT_TIMEOUT) {
-				sptr->killthis = 1;
-			}
-
-			/* Remove sessions flagged for kill */
-			if (sptr->killthis) {
-
-				lprintf(3, "Destroying session %d\n",
-					sptr->wc_session);
-
-				/* remove session from linked list */
-				if (sptr == SessionList) {
-					SessionList = SessionList->next;
-				}
-				else for (ss=SessionList;ss!=NULL;ss=ss->next) {
-					if (ss->next == sptr) {
-						ss->next = ss->next->next;
-					}
-				}
-
-				session_to_kill = sptr;
-				goto BREAKOUT;
-			}
-		}
-BREAKOUT:	pthread_mutex_unlock(&SessionListMutex);
-
-		if (session_to_kill != NULL) {
-			pthread_mutex_lock(&session_to_kill->SessionMutex);
-			close(session_to_kill->serv_sock);
-			close(session_to_kill->chat_sock);
-			if (session_to_kill->preferences != NULL) {
-				free(session_to_kill->preferences);
-			}
-			free_attachments(session_to_kill);
-			pthread_mutex_unlock(&session_to_kill->SessionMutex);
-			free(session_to_kill);
+		/* Kill idle sessions */
+		if ((time(NULL) - (sptr->lastreq)) >
+		   (time_t) WEBCIT_TIMEOUT) {
+			sptr->killthis = 1;
 		}
 
-	} while (session_to_kill != NULL);
+		/* Remove sessions flagged for kill */
+		if (sptr->killthis) {
+
+			/* remove session from linked list */
+			if (sptr == SessionList) {
+				SessionList = SessionList->next;
+			}
+			else for (ss=SessionList;ss!=NULL;ss=ss->next) {
+				if (ss->next == sptr) {
+					ss->next = ss->next->next;
+				}
+			}
+
+			sptr->next = sessions_to_kill;
+			sessions_to_kill = sptr;
+		}
+	}
+	pthread_mutex_unlock(&SessionListMutex);
 
 	/*
-	 * See if we need more worker threads
+	 * Now free up and destroy the culled sessions.
+	 */
+	while (sessions_to_kill != NULL) {
+		lprintf(3, "Destroying session %d\n", sessions_to_kill->wc_session);
+		pthread_mutex_lock(&sessions_to_kill->SessionMutex);
+		close(sessions_to_kill->serv_sock);
+		close(sessions_to_kill->chat_sock);
+		if (sessions_to_kill->preferences != NULL) {
+			free(sessions_to_kill->preferences);
+		}
+		free_attachments(sessions_to_kill);
+		pthread_mutex_unlock(&sessions_to_kill->SessionMutex);
+		sptr = sessions_to_kill->next;
+		free(sessions_to_kill);
+		sessions_to_kill = sessions_to_kill->next;
+		--num_sessions;
+	}
+
+	/*
+	 * If there are more sessions than threads, then we should spawn
+	 * more threads ... up to a predefined maximum.
 	 */
 	while ( (num_sessions > num_threads)
 	      && (num_threads <= MAX_WORKER_THREADS) ) {
@@ -357,23 +363,22 @@ void context_loop(int sock)
 	 */
 	TheSession = NULL;
 
-	if ( (TheSession == NULL) && (strlen(httpauth_user) > 0) ) {
+	if (TheSession == NULL) {
 		pthread_mutex_lock(&SessionListMutex);
 		for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
-			if ( (!strcasecmp(sptr->httpauth_user, httpauth_user))
+
+			/* If HTTP-AUTH, look for a session with matching credentials */
+			if ( (strlen(httpauth_user) > 0)
+			   &&(!strcasecmp(sptr->httpauth_user, httpauth_user))
 			   &&(!strcasecmp(sptr->httpauth_pass, httpauth_pass)) ) {
 				TheSession = sptr;
 			}
-		}
-		pthread_mutex_unlock(&SessionListMutex);
-	}
 
-	if ( (TheSession == NULL) && (desired_session != 0) ) {
-		pthread_mutex_lock(&SessionListMutex);
-		for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
-			if (sptr->wc_session == desired_session) {
+			/* If cookie-session, look for a session with matching session ID */
+			if ( (desired_session != 0) && (sptr->wc_session == desired_session)) {
 				TheSession = sptr;
 			}
+
 		}
 		pthread_mutex_unlock(&SessionListMutex);
 	}
@@ -407,11 +412,14 @@ void context_loop(int sock)
 	/*
 	 * Bind to the session and perform the transaction
 	 */
+	lprintf(9, "LOCKING SESSION %d\n", TheSession->wc_session);
 	pthread_mutex_lock(&TheSession->SessionMutex);		/* bind */
+	lprintf(9, "LOCKKED SESSION %d\n", TheSession->wc_session);
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	TheSession->http_sock = sock;
 	TheSession->lastreq = time(NULL);			/* log */
 	session_loop(req);				/* do transaction */
+	lprintf(9, "UNLKING SESSION %d\n", TheSession->wc_session);
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 
 	/* Free the request buffer */
