@@ -69,42 +69,48 @@ void defrag_databases(void) {
 void open_databases(void) {
 	int a;
 
-	gdbms[CDB_MSGMAIN] = gdbm_open("msgmain.gdbm", 8192,
+	/*
+	 * Silently try to create the database subdirectory.  If it's
+	 * already there, no problem.
+	 */
+	system("exec mkdir data 2>/dev/null");
+
+	gdbms[CDB_MSGMAIN] = gdbm_open("data/msgmain.gdbm", 8192,
 		GDBM_WRCREAT, 0600, NULL);
 	if (gdbms[CDB_MSGMAIN] == NULL) {
 		lprintf(2, "Cannot open msgmain: %s\n",
 			gdbm_strerror(gdbm_errno));
 		}
 
-	gdbms[CDB_USERSUPP] = gdbm_open("usersupp.gdbm", 0,
+	gdbms[CDB_USERSUPP] = gdbm_open("data/usersupp.gdbm", 0,
 		GDBM_WRCREAT, 0600, NULL);
 	if (gdbms[CDB_USERSUPP] == NULL) {
 		lprintf(2, "Cannot open usersupp: %s\n",
 			gdbm_strerror(gdbm_errno));
 		}
 
-	gdbms[CDB_QUICKROOM] = gdbm_open("quickroom.gdbm", 0,
+	gdbms[CDB_QUICKROOM] = gdbm_open("data/quickroom.gdbm", 0,
 		GDBM_WRCREAT, 0600, NULL);
 	if (gdbms[CDB_QUICKROOM] == NULL) {
 		lprintf(2, "Cannot open quickroom: %s\n",
 			gdbm_strerror(gdbm_errno));
 		}
 
-	gdbms[CDB_FLOORTAB] = gdbm_open("floortab.gdbm", 0,
+	gdbms[CDB_FLOORTAB] = gdbm_open("data/floortab.gdbm", 0,
 		GDBM_WRCREAT, 0600, NULL);
 	if (gdbms[CDB_FLOORTAB] == NULL) {
 		lprintf(2, "Cannot open floortab: %s\n",
 			gdbm_strerror(gdbm_errno));
 		}
 
-	gdbms[CDB_MSGLISTS] = gdbm_open("msglists.gdbm", 0,
+	gdbms[CDB_MSGLISTS] = gdbm_open("data/msglists.gdbm", 0,
 		GDBM_WRCREAT, 0600, NULL);
 	if (gdbms[CDB_MSGLISTS] == NULL) {
 		lprintf(2, "Cannot open msglists: %s\n",
 			gdbm_strerror(gdbm_errno));
 		}
 
-	gdbms[CDB_MAILBOXES] = gdbm_open("mailboxes.gdbm", 0,
+	gdbms[CDB_MAILBOXES] = gdbm_open("data/mailboxes.gdbm", 0,
 		GDBM_WRCREAT, 0600, NULL);
 	if (gdbms[CDB_MAILBOXES] == NULL) {
 		lprintf(2, "Cannot open mailboxes: %s\n",
