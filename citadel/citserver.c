@@ -182,9 +182,6 @@ void deallocate_user_data(struct CitContext *con)
  */
 void RemoveContext (struct CitContext *con)
 {
-	struct CitContext *ptr = NULL;
-	struct CitContext *ToFree = NULL;
-
 	if (con==NULL) {
 		lprintf(CTDL_ERR, "WARNING: RemoveContext() called with NULL!\n");
 		return;
@@ -197,29 +194,10 @@ void RemoveContext (struct CitContext *con)
 	 */
 	lprintf(CTDL_DEBUG, "Removing context for session %d\n", con->cs_pid);
 	begin_critical_section(S_SESSION_TABLE);
-	if (ContextList == con) {
-		ToFree = ContextList;
-		ContextList = ContextList->next;
-		--num_sessions;
-	}
-	else {
-		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
-			if (ptr->next == con) {
-				/* See fair scheduling in sysdep.c */
-				if (next_session == ptr->next)
-					next_session = ptr->next->next;
-				ToFree = ptr->next;
-				ptr->next = ptr->next->next;
-				--num_sessions;
-			}
-		}
-	}
+	  if (con->prev) con->prev->next = con->next; else ContextList = con->next;
+	  if (con->next) con->next->prev = con->prev;
+	  --num_sessions;
 	end_critical_section(S_SESSION_TABLE);
-
-	if (ToFree == NULL) {
-		lprintf(CTDL_DEBUG, "RemoveContext() found nothing to remove\n");
-		return;
-	}
 
 	/* Run any cleanup routines registered by loadable modules.
 	 * Note 1: This must occur *before* deallocate_user_data() because the

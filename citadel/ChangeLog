@@ -1,4 +1,8 @@
  $Log$
+ Revision 640.6  2005/02/16 03:02:28  ajc
+ * Applied patches submitted by Kevin Kilbride for TCP_CORK and for
+   turning CitContext into a doubly-linked list.
+
  Revision 640.5  2005/02/13 04:55:18  ajc
  * Did the server port hooks etc. for SSL listeners.  For some reason it
    doesn't work.  :(
@@ -6392,3 +6396,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -43,6 +43,7 @@
 #include <limits.h>
 #include <sys/resource.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <sys/un.h>
@@ -415,10 +416,12 @@ struct CitContext *CreateNewContext(void) {
 	if (ContextList == NULL) {
 		ContextList = me;
 		me->cs_pid = 1;
+		me->prev = NULL;
 		me->next = NULL;
 	}
 
 	else if (ContextList->cs_pid > 1) {
+		me->prev = NULL;
 		me->next = ContextList;
 		ContextList = me;
 		me->cs_pid = 1;
@@ -429,11 +432,14 @@ struct CitContext *CreateNewContext(void) {
 			if (ptr->next == NULL) {
 				ptr->next = me;
 				me->cs_pid = ptr->cs_pid + 1;
+				me->prev = ptr;
 				me->next = NULL;
 				goto DONE;
 			}
 			else if (ptr->next->cs_pid > (ptr->cs_pid+1)) {
+				me->prev = ptr;
 				me->next = ptr->next;
+				ptr->next->prev = me;
 				ptr->next = me;
 				me->cs_pid = ptr->cs_pid + 1;
 				goto DONE;
@@ -448,9 +454,40 @@ DONE:	++num_sessions;
 
 
 /*
- * buffer_output() ... tell client_write to buffer all output until
- *		     instructed to dump it all out later
+ * The following functions implement output buffering. If the kernel supplies
+ * native TCP buffering (Linux & *BSD), use that; otherwise, emulate it with
+ * user-space buffering.
  */
+#ifdef TCP_CORK
+#	define HAVE_TCP_BUFFERING
+#else
+#	ifdef TCP_NOPUSH
+#		define HAVE_TCP_BUFFERING
+#		define TCP_CORK TCP_NOPUSH
+#	endif
+#endif
+
+
+#ifdef HAVE_TCP_BUFFERING
+static unsigned on = 1, off = 0;
+void buffer_output(void) {
+	struct CitContext *ctx = MyContext();
+	setsockopt(ctx->client_socket, IPPROTO_TCP, TCP_CORK, &on, 4);
+	ctx->buffering = 1;
+}
+
+void unbuffer_output(void) {
+	struct CitContext *ctx = MyContext();
+	setsockopt(ctx->client_socket, IPPROTO_TCP, TCP_CORK, &off, 4);
+	ctx->buffering = 0;
+}
+
+void flush_output(void) {
+	struct CitContext *ctx = MyContext();
+	setsockopt(ctx->client_socket, IPPROTO_TCP, TCP_CORK, &off, 4);
+	setsockopt(ctx->client_socket, IPPROTO_TCP, TCP_CORK, &on, 4);
+}
+#else
 void buffer_output(void) {
 	if (CC->buffering == 0) {
 		CC->buffering = 1;
@@ -459,9 +496,6 @@ void buffer_output(void) {
 	}
 }
 
-/*
- * flush_output()  ...   dump out all that output we've been buffering.
- */
 void flush_output(void) {
 	if (CC->buffering == 1) {
 		client_write(CC->output_buffer, CC->buffer_len);
@@ -469,9 +503,6 @@ void flush_output(void) {
 	}
 }
 
-/*
- * unbuffer_output()  ...  stop buffering output.
- */
 void unbuffer_output(void) {
 	if (CC->buffering == 1) {
 		CC->buffering = 0;
@@ -482,6 +513,7 @@ void unbuffer_output(void) {
 		CC->output_buffer = NULL;
 	}
 }
+#endif
 
 
 
@@ -507,6 +539,7 @@ void client_write(char *buf, int nbytes)
 		sock = CC->client_socket;
 	}
 
+#ifndef HAVE_TCP_BUFFERING
 	/* If we're buffering for later, do that now. */
 	if (CC->buffering) {
 		old_buffer_len = CC->buffer_len;
@@ -515,6 +548,7 @@ void client_write(char *buf, int nbytes)
 		memcpy(&CC->output_buffer[old_buffer_len], buf, nbytes);
 		return;
 	}
+#endif
 
 	/* Ok, at this point we're not buffering.  Go ahead and write. */
 
