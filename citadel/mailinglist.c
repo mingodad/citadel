@@ -83,7 +83,7 @@ int main(void) {
 
 	get_config();
 	LoadInternetConfig();
-	sprintf(tempfile, "/tmp/mlist.%ld", (long)getpid() );
+	sprintf(tempfile, tmpnam(NULL));
 
 	while(1) {
 

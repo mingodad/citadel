@@ -824,7 +824,7 @@ void *context_loop(struct CitContext *con)
 	strcpy(CC->cs_clientname, "(unknown)");
 	strcpy(CC->curr_user,"(not logged in)");
 	strcpy(CC->net_node,"");
-	snprintf(CC->temp, sizeof CC->temp, "/tmp/CitServer.%d.%d", getpid(), CC->cs_pid);
+	snprintf(CC->temp, sizeof CC->temp, tmpnam(NULL));
 	strcpy(CC->cs_room, "(no room)");
 	strncpy(CC->cs_host, config.c_fqdn, sizeof CC->cs_host);
 	CC->cs_host[sizeof CC->cs_host - 1] = 0;

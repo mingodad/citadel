@@ -15,6 +15,7 @@
 #include <time.h>
 #include <signal.h>
 #include <errno.h>
+#include <limits.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <stdarg.h>
@@ -913,7 +914,7 @@ void readmsgs(int c, int rdir, int q)	/* read contents of a room */
 	char arcflag = 0;
 	char quotflag = 0;
 	int hold_color = 0;
-	char prtfile[16];
+	char prtfile[PATH_MAX];
 	char pagin;
 	char cmd[256];
 	char targ[ROOMNAMELEN];
@@ -925,7 +926,7 @@ void readmsgs(int c, int rdir, int q)	/* read contents of a room */
 	if (c<0) b=(MAXMSGS-1);
 	else b=0;
 
-	sprintf(prtfile,"/tmp/CPrt%ld",(long)getpid());
+	sprintf(prtfile, tmpnam(NULL));
 
 	num_msgs = 0;
 	strcpy(cmd,"MSGS ");
@@ -1000,7 +1001,7 @@ RMSGREAD:	fflush(stdout);
 			enable_color = hold_color;
 			f=fork();
 			if (f==0) {
-				freopen(prtfile,"r",stdin);
+				freopen(prtfile, "r", stdin);
 				sttybbs(SB_RESTORE);
 				ka_system(printcmd);
 				sttybbs(SB_NO_INTR);

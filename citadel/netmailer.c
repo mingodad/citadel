@@ -13,6 +13,7 @@
 #include <time.h>
 #include <string.h>
 #include <ctype.h>
+#include <limits.h>
 #include <syslog.h>
 #include "citadel.h"
 
@@ -20,7 +21,7 @@ void LoadInternetConfig(void);
 void get_config(void);
 struct config config;
 
-char temp[32];
+char temp[PATH_MAX];
 
 char ALIASES[128];
 char CIT86NET[128];
@@ -173,7 +174,7 @@ int main(int argc, char **argv)
 	openlog("netmailer", LOG_PID, LOG_USER);
 	get_config();	
 	LoadInternetConfig();
-	sprintf(temp,"/tmp/netmailer.%ld",(long)getpid()); /* temp file name */
+	sprintf(temp, tmpnam(NULL));	/* temp file name */
 
 	if ( (argc < 2) || (argc > 3) ) {
 		fprintf(stderr, "netmailer: usage: netmailer recipient@node.dom [mlist]\n");
@@ -191,7 +192,7 @@ int main(int argc, char **argv)
 		}
 
 	/* convert to ASCII & get info */
-	fp=fopen(temp,"w");
+	fp=fopen(temp, "w");
 	msgform(argv[1], fp, sbuf, rbuf, nbuf, pbuf, &mid_buf, rmname, subject);
 	fclose(fp);
 

@@ -364,25 +364,14 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 void mime_download(char *name, char *filename, char *partnum, char *disp,
                         void *content, char *cbtype, size_t length) {
 
-	char tmpname[PATH_MAX];
-	static int seq = 0;
-
 	/* Silently go away if there's already a download open... */
 	if (CC->download_fp != NULL) return;
 
 	/* ...or if this is not the desired section */
 	if (strcasecmp(desired_section, partnum)) return;
 
-	snprintf(tmpname, sizeof tmpname,
-		"/tmp/CitServer.download.%4x.%4x", getpid(), ++seq);
-
-	CC->download_fp = fopen(tmpname, "wb+");
+	CC->download_fp = tmpfile();
 	if (CC->download_fp == NULL) return;
-
-	/* Unlink the file while it's open, to guarantee that the
-	 * temp file will always be deleted.
-	 */
-	unlink(tmpname);
 
 	fwrite(content, length, 1, CC->download_fp);
 	fflush(CC->download_fp);

@@ -120,7 +120,7 @@ int load_syslist(void) {
 	char insys = 0;
 	char buf[128];
 
-	fp=fopen("network/mail.sysinfo","rb");
+	fp=fopen("network/mail.sysinfo", "r");
 	if (fp==NULL) return(1);
 
 	while(1) {
@@ -658,9 +658,9 @@ void inprocess(void) {
 	long msglen;
 	int bloklen;
 
-
-	sprintf(tname,"/tmp/net.t%ld",(long)getpid());	/* temp file name */
-	sprintf(iname,"/tmp/net.i%ld",(long)getpid());	/* temp file name */
+	/* temp file names */
+	sprintf(tname, tmpnam(NULL));
+	sprintf(iname, tmpnam(NULL));
 
 	load_filterlist();
 
@@ -703,7 +703,7 @@ NXMSG:	/* Seek to the beginning of the next message */
 		} while((a!=255)&&(a>=0));
 	if (a<0) goto ENDSTR;
 
-	message = fopen(tname,"wb");	/* This crates the temporary file. */
+	message = fopen(tname, "wb");	/* This crates the temporary file. */
 	if (message == NULL) {
 		syslog(LOG_ERR, "error creating %s: %s", tname,strerror(errno));
 		goto ENDSTR;
@@ -938,14 +938,14 @@ int ismsgok(long int mpos, FILE *mmfp, char *sysname)
 	return(ok);
 	}
 
-int spool_out(struct msglist *cmlist, FILE *destfp, char *sysname)	/* spool list of messages to a file */
-                       			/* returns # of msgs spooled */
-              
-              
+
+
+/* spool list of messages to a file */
+/* returns # of msgs spooled */
+int spool_out(struct msglist *cmlist, FILE *destfp, char *sysname)
 {
 	struct msglist *cmptr;
 	FILE *mmfp;
-	char mmtemp[128];
 	char fbuf[128];
 	int a;
 	int msgs_spooled = 0;
@@ -956,7 +956,6 @@ int spool_out(struct msglist *cmlist, FILE *destfp, char *sysname)	/* spool list
 	char curr_rm[256];
 
 	strcpy(curr_rm, "");
-	sprintf(mmtemp, "/tmp/net.m%ld", (long)getpid());
 
 	/* for each message in the list... */
 	for (cmptr=cmlist; cmptr!=NULL; cmptr=cmptr->next) {
@@ -975,7 +974,7 @@ int spool_out(struct msglist *cmlist, FILE *destfp, char *sysname)	/* spool list
 			}
 
 		/* download the message from the server... */
-		mmfp = fopen(mmtemp, "wb");
+		mmfp = tmpfile();
 		sprintf(buf, "MSG3 %ld", cmptr->m_num);
 		serv_puts(buf);
 		serv_gets(buf);
@@ -991,9 +990,8 @@ int spool_out(struct msglist *cmlist, FILE *destfp, char *sysname)	/* spool list
 		else {					/* or print the err */
 			syslog(LOG_ERR, "%s", buf);
 			}
-		fclose(mmfp);
-	
-		mmfp = fopen(mmtemp,"rb");
+
+		rewind(mmfp);
 
 		if (ismsgok(0L,mmfp,sysname)) {
 			++msgs_spooled;
@@ -1021,7 +1019,6 @@ int spool_out(struct msglist *cmlist, FILE *destfp, char *sysname)	/* spool list
 		fclose(mmfp);
 		}
 
-	unlink(mmtemp);
 	return(msgs_spooled);
 	}
 
@@ -1041,9 +1038,9 @@ void outprocess(char *sysname) /* send new room messages to sysname */
 	int outgoing_msgs;
 	long thismsg;
 
-	sprintf(tempflnm,"/tmp/%s.%ld",NODENAME,(long)getpid());
-	tempflfp=fopen(tempflnm,"w");
-	if (tempflfp==NULL) return;
+	sprintf(tempflnm, tmpnam(NULL));
+	tempflfp = fopen(tempflnm,"w");
+	if (tempflfp == NULL) return;
 
 
 /*

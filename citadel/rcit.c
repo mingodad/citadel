@@ -85,8 +85,8 @@ int main(int argc, char **argv)
 	char spool_only = 0;
 
 	get_config();
-	sprintf(flnm,"./network/spoolin/rnews.%ld",(long)getpid());
-	sprintf(tname,"/tmp/rnews.%ld",(long)getpid());
+	sprintf(flnm,"./network/spoolin/rnews.%d", getpid());
+	sprintf(tname, tmpnam(NULL));
 
 	for (a=1; a<argc; ++a) {
 		if (!strcmp(argv[a],"-c")) binary_input = 1;

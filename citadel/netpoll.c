@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <errno.h>
+#include <limits.h>
 #include "citadel.h"
 #include "tools.h"
 
@@ -40,11 +41,11 @@ void receive_spool(void)
 	long bytes_received;
 	char buf[256];
 	static char pbuf[IGNET_PACKET_SIZE];
-	char tempfilename[64];
+	char tempfilename[PATH_MAX];
 	long plen;
 	FILE *fp;
 
-	sprintf(tempfilename, "/tmp/netpoll.%ld", (long) getpid());
+	sprintf(tempfilename, tmpnam(NULL));
 	serv_puts("NDOP");
 	serv_gets(buf);
 	printf("%s\n", buf);

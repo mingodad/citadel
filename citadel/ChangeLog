@@ -1,3 +1,7 @@
+Wed Jun  9 23:34:25 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Replaced all code that generated temporary filenames with calls to
+	  tmpnam().  Rewrote using tmpfile() where possible.
+
 Thu Jun  3 11:35:18 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* base64.c: mapped fi and fo to stdin and stdout using
 	  actual code rather than assignment at declaration time

@@ -51,8 +51,6 @@ void make_message(FILE *fp, char *target_room)
 
 int main(int argc, char **argv)
 {
-	char tempbase[32];
-	char temptmp[64];
 	char tempspool[64];
 	char target_room[ROOMNAMELEN];
 	FILE *tempfp, *spoolfp;
@@ -74,18 +72,14 @@ int main(int argc, char **argv)
 	}
 
 
-	snprintf(tempbase, sizeof tempbase, "ap.%d", getpid());
-	snprintf(temptmp, sizeof temptmp, "/tmp/%s", tempbase);
-	snprintf(tempspool, sizeof tempspool, "./network/spoolin/%s", tempbase);
+	snprintf(tempspool, sizeof tempspool, "./network/spoolin/ap.%d",
+		getpid());
 
-	tempfp = fopen(temptmp, "wb+");
+	tempfp = tmpfile();
 	if (tempfp == NULL) {
 		perror("cannot open temp file");
 		exit(errno);
 	}
-	/* Unlink the temp file, so it automatically gets deleted by the OS if
-	 * this program is interrupted or crashes.
-	 */ unlink(temptmp);
 
 	/* Generate a message from stdin */
 	make_message(tempfp, target_room);

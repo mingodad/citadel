@@ -13,6 +13,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <time.h>
+#include <limits.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
@@ -53,9 +54,9 @@ struct march {
 struct march *march = NULL;
 
 /* globals associated with the client program */
-char temp[16];			/* Name of general temp file */
-char temp2[16];			/* Name of general temp file */
-char tempdir[16];		/* Name of general temp dir */
+char temp[PATH_MAX];		/* Name of general temp file */
+char temp2[PATH_MAX];		/* Name of general temp file */
+char tempdir[PATH_MAX];		/* Name of general temp dir */
 char editor_path[256];		/* path to external editor */
 char printcmd[256];		/* print command */
 int editor_pid = (-1);
@@ -968,9 +969,9 @@ int main(int argc, char **argv)
 	 * program.  Don't mess with these once they've been set, because we
 	 * will be unlinking them later on in the program and we don't
 	 * want to delete something that we didn't create. */
-	snprintf(temp, sizeof temp, "/tmp/citA%d", getpid());
-	snprintf(temp2, sizeof temp2, "/tmp/citB%d", getpid());
-	snprintf(tempdir, sizeof tempdir, "/tmp/citC%d", getpid());
+	snprintf(temp, sizeof temp, tmpnam(NULL));
+	snprintf(temp2, sizeof temp2, tmpnam(NULL));
+	snprintf(tempdir, sizeof tempdir, tmpnam(NULL));
 
 	/* Get screen dimensions.  First we go to a default of 80x24.  Then
 	 * we try to get the user's actual screen dimensions off the server.
