@@ -370,7 +370,8 @@ void dotgoto(char *towhere, int display_name, int fromungoto)
 			scr_printf("Wrong password.\n");
 			return;
 		}
-	}
+	}	
+
 	/*
 	 * If a match is not found, try a partial match.
 	 * Partial matches anywhere in the string carry a weight of 1,
@@ -401,6 +402,7 @@ void dotgoto(char *towhere, int display_name, int fromungoto)
 			scr_printf("No room '%s'.\n", towhere);
 			return;
 		}
+		roomrec = NULL;
 		r = CtdlIPCGotoRoom(bbb, "", &roomrec, aaa);
 	}
 	if (r / 100 != 2) {

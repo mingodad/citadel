@@ -1,4 +1,8 @@
  $Log$
+ Revision 591.78  2002/08/03 19:48:40  ajc
+ * NULLify 'roomrec' before attempting partial match in <G>oto
+   (fixes heap corruption when this command is executed)
+
  Revision 591.77  2002/08/03 04:13:46  ajc
  * citadel_ipc.c: Attempted to clean up memory allocation
 
@@ -3851,4 +3855,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
