@@ -1,4 +1,8 @@
  $Log$
+ Revision 614.66  2004/03/06 05:09:04  ajc
+ * serv_smtp.c: don't offer the STARTTLS extension if TLS is already
+   active.  Done for to-the-letter compliance with RFC2487.
+
  Revision 614.65  2004/03/06 02:03:39  ajc
  * serv_smtp.c: do not offer the PIPELINING extension when TLS is
    running.  Doing so causes sessions to hang unexpectedly.
@@ -5459,3 +5463,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
