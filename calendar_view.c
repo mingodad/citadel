@@ -67,8 +67,12 @@ void calendar_month_view_display_events(time_t thetime) {
 							ICAL_SUMMARY_PROPERTY);
 				if (p != NULL) {
 					wprintf("<FONT SIZE=-1>"
-						"<A HREF=\"/display_edit_event?msgnum=%ld\">",
-						WC->cal_msgnum[i]
+						"<A HREF=\"/display_edit_event?msgnum=%ld&calview=%s&year=%s&month=%s&day=%s\">",
+						WC->cal_msgnum[i],
+						bstr("calview"),
+						bstr("year"),
+						bstr("month"),
+						bstr("day")
 					);
 					escputs((char *)
 						icalproperty_get_comment(p));

@@ -573,9 +573,10 @@ void save_event(void) {
 	long msgnum = 0L;
 
 	msgnum = atol(bstr("msgnum"));
+
 	if (msgnum > 0L) {
 		display_using_handler(msgnum, "text/calendar",
-				ICAL_VTODO_COMPONENT,
+				ICAL_VEVENT_COMPONENT,
 				save_individual_event);
 	}
 	else {
