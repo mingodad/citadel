@@ -1,4 +1,10 @@
 $Log$
+Revision 211.15  2000/04/20 02:42:23  ajc
+* tcp_sockets.c: changed memcpy() to memset() in tcp_connectsock; this was
+  crashing every session, every time.  (?)
+* End the session after displaying robots.txt or nocookies.html, to prevent
+  big session logjams when either of these conditions are met
+
 Revision 211.14  2000/04/15 15:43:46  nbryant
 * warning fix for 64-bit compile on ultrasparc. (kids don't try this at home,
   64-bit gcc on sparc is evil)
@@ -422,3 +428,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

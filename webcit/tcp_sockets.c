@@ -82,7 +82,7 @@ int tcp_connectsock(char *host, char *service)
 	struct sockaddr_in sin;
 	int s;
 
-	memcpy(&sin, 0, sizeof(sin));
+	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = AF_INET;
 
 	pse = getservbyname(service, "tcp");

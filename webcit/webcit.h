@@ -1,5 +1,7 @@
 /* $Id$ */
 
+#define TRACE fprintf(stderr, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
+
 #define SLEEPING		180		/* TCP connection timeout */
 #define WEBCIT_TIMEOUT		900		/* WebCit session timeout */
 #define PORT_NUM		2000		/* port number to listen on */
@@ -255,3 +257,4 @@ void mime_parser(char *content,
                    void *cbcontent,                                                                char *cbtype,                                                                   size_t cblength)
 );
 void fmt_date(char *buf, time_t thetime);
+void end_webcit_session(void);
