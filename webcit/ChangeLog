@@ -1,4 +1,9 @@
 $Log$
+Revision 522.10  2004/07/02 03:28:08  ajc
+* Much-improved alphabet tabs for Address Book view.  Now divides the
+  total number of names by (names per page, currently 60) and sets up
+  that many tabs, with proper [Aaa-Bbb] labels on them.
+
 Revision 522.9  2004/07/02 03:26:06  ajc
 *** empty log message ***
 
@@ -1949,4 +1954,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
