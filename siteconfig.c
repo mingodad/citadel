@@ -149,6 +149,11 @@ void display_siteconfig(void)
 			wprintf("<INPUT TYPE=\"text\" NAME=\"c_maxmsglen\" MAXLENGTH=\"20\" VALUE=\"%s\">", buf);
 			wprintf("</TD></TR>\n");
 			break;
+		case 22:
+			wprintf("<TR><TD>Number of worker threads</TD><TD>");
+			wprintf("<INPUT TYPE=\"text\" NAME=\"c_worker_threads\" MAXLENGTH=\"3\" VALUE=\"%s\">", buf);
+			wprintf("</TD></TR>\n");
+			break;
 		}
 	}
 
@@ -195,6 +200,7 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_logpages"));
 	serv_printf("%d", bstr("c_createax"));
 	serv_printf("%d", bstr("c_maxmsglen"));
+	serv_printf("%d", bstr("c_worker_threads"));
 	serv_printf("000");
 	display_success("System configuration has been updated.");
 }
