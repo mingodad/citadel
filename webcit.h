@@ -422,6 +422,8 @@ void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen);
 int CtdlDecodeBase64(char *dest, const char *source, size_t length);
 void free_attachments(struct wcsession *sess);
 void set_room_policy(void);
+void display_inetconf(void);
+void save_inetconf(void);
 
 
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE

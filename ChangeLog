@@ -1,4 +1,7 @@
 $Log$
+Revision 522.13  2004/07/13 03:25:08  ajc
+* inetconf.c: added.  Not finished yet.
+
 Revision 522.12  2004/07/10 03:10:19  ajc
 * Completed web screens for THE DREADED AUTO-PURGER by adding room and
   floor level configurations.
@@ -1968,3 +1971,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

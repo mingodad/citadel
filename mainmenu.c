@@ -249,7 +249,13 @@ void display_main_menu(void)
 			wprintf("<A HREF=\"/display_netconf\">"
 				"<span class=\"mainmenu\">"
 				"Configure networking with other systems"
-				"</span></A>\n");
+				"</span></A><BR>\n");
+
+			wprintf("<A HREF=\"/display_inetconf\">"
+				"<span class=\"mainmenu\">"
+				"Internet configuration "
+				"</span><span class=\"menudesc\">"
+				"(domain names, etc.)</span></A><BR>\n");
 		}
 		do_template("endbox");
 	}

@@ -1268,6 +1268,10 @@ void session_loop(struct httprequest *req)
 		commit_iconbar();
 	} else if (!strcasecmp(action, "set_room_policy")) {
 		set_room_policy();
+	} else if (!strcasecmp(action, "display_inetconf")) {
+		display_inetconf();
+	} else if (!strcasecmp(action, "save_inetconf")) {
+		save_inetconf();
 	} else if (!strcasecmp(action, "diagnostics")) {
 		output_headers(1);
 
