@@ -1,4 +1,7 @@
 $Log$
+Revision 528.22  2005/01/26 18:02:22  ajc
+* Initial implementation of GroupDAV PROPFIND
+
 Revision 528.21  2005/01/26 16:28:23  ajc
 * Output ETags in double quotes to conform with the new GroupDAV draft.
 * Output HTTP Server: header in GroupDAV transactions
@@ -2233,4 +2236,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

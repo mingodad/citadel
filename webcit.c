@@ -745,13 +745,17 @@ void extract_action(char *actbuf, char *cmdbuf)
 	int i;
 
 	strcpy(actbuf, cmdbuf);
-	if (!strncasecmp(actbuf, "GET /", 5))
-		strcpy(actbuf, &actbuf[5]);
-	if (!strncasecmp(actbuf, "PUT /", 5))
-		strcpy(actbuf, &actbuf[5]);
-	if (!strncasecmp(actbuf, "POST /", 6))
-		strcpy(actbuf, &actbuf[6]);
 
+	/*
+	 * First strip out the http method
+	 */
+	remove_token(actbuf, 0, ' ');
+	if (actbuf[0] == ' ') strcpy(actbuf, &actbuf[1]);
+	if (actbuf[0] == '/') strcpy(actbuf, &actbuf[1]);
+
+	/*
+	 * Now kill invalid (for webcit) characters
+	 */
 	for (i = 0; i < strlen(actbuf); ++i) {
 		if (actbuf[i] == ' ') {
 			actbuf[i] = 0;
