@@ -1,4 +1,7 @@
  $Log$
+ Revision 629.10  2005/01/21 20:24:34  ajc
+ * Internal version number is now 6.30
+
  Revision 629.9  2005/01/21 20:20:06  ajc
  * Increase per-thread stack size from 128k to 256k.  This fixes the
    crashing IMAP service on 64-bit Linux.
@@ -6287,3 +6290,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
