@@ -360,6 +360,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *, char *);
 struct icaltimetype icaltime_from_webform(char *prefix);
 void display_edit_individual_event(icalcomponent *supplied_vtodo, long msgnum);
 void save_individual_event(icalcomponent *supplied_vtodo, long msgnum);
+void generate_new_uid(char *);
 #endif
 
 extern char *months[];
