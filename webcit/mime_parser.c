@@ -15,12 +15,27 @@
 #include "webcit.h"
 #include "child.h"
 
+/*
+ * Take a part, figure out its length, and do something with it
+ */
+void process_part(char *content, int part_length) {
+	fprintf(stderr, "MIME: process_part() called with a length o' %d\n",
+		part_length);
+	}
+
+
+/*
+ * Main function of parser
+ */
 void mime_parser(char *content, int ContentLength, char *ContentType) {
 	char boundary[256];
+	char endary[256];
 	int have_boundary = 0;
 	int a;
 	char *ptr;
+	char *beginning;
 	int bytes_processed = 0;
+	int part_length;
 
 	fprintf(stderr, "MIME: ContentLength: %d, ContentType: %s\n",
 		ContentLength, ContentType);
@@ -39,6 +54,8 @@ void mime_parser(char *content, int ContentLength, char *ContentType) {
 
 	/* We can't process multipart messages without a boundary. */
 	if (have_boundary == 0) return;
+	strcpy(endary, boundary);
+	strcat(endary, "--");
 
 	ptr = content;
 
@@ -48,6 +65,12 @@ void mime_parser(char *content, int ContentLength, char *ContentType) {
 		++ptr;
 		++bytes_processed;
 
+		/* See if we're at the end */
+		if (!strncasecmp(ptr, endary, strlen(endary))) {
+			fprintf(stderr, "MIME: the end.\n");
+			return;
+			}
+
 		/* Seek to the end of the boundary string */
 		if (!strncasecmp(ptr, boundary, strlen(boundary))) {
 			fprintf(stderr, "MIME: founda bounda\n");
@@ -56,6 +79,18 @@ void mime_parser(char *content, int ContentLength, char *ContentType) {
 				++ptr;
 				++bytes_processed;
 				}
+			beginning = ptr;
+			part_length = 0;
+			while ( (bytes_processed < ContentLength)
+	      		  && (strncasecmp(ptr, boundary, strlen(boundary))) ) {
+				++ptr;
+				++bytes_processed;
+				++part_length;
+				}
+			process_part(beginning, part_length);
+			/* Back off so we can see the next boundary */
+			--ptr;
+			--bytes_processed;
 			}
 		}
 	}
