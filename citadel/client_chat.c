@@ -40,7 +40,8 @@ extern struct CtdlServInfo serv_info;
 extern char temp[];
 void getline(char *, int);
 
-void chatmode(void) {
+void chatmode(void)
+{
 	char wbuf[256];
 	char buf[256];
 	char c_user[256];
@@ -50,169 +51,171 @@ void chatmode(void) {
 	int send_complete_line;
 	int recv_complete_line;
 	char ch;
-	int a,pos;
-	
+	int a, pos;
+	time_t last_transmit;
+
 	fd_set rfds;
 	struct timeval tv;
 	int retval;
 
 	serv_puts("CHAT");
 	serv_gets(buf);
-	if (buf[0]!='8') {
-		printf("%s\n",&buf[4]);
+	if (buf[0] != '8') {
+		printf("%s\n", &buf[4]);
 		return;
-		}
-
+	}
 	printf("Entering chat mode (type /quit to exit, /help for other cmds)\n");
-	set_keepalives(KA_CHAT);
+	set_keepalives(KA_NO);
+	last_transmit = time(NULL);
 
-	strcpy(buf,"");
-	strcpy(wbuf,"");
+	strcpy(buf, "");
+	strcpy(wbuf, "");
 	color(BRIGHT_YELLOW);
 	printf("> ");
 	send_complete_line = 0;
 	recv_complete_line = 0;
 
-	while(1) {
-	    fflush(stdout);
-	    FD_ZERO(&rfds);
-	    FD_SET(0,&rfds);
-	    FD_SET(getsockfd(),&rfds);
-	    tv.tv_sec = S_KEEPALIVE;
-	    tv.tv_usec = 0;
-	    retval = select(getsockfd()+1, &rfds, NULL, NULL, &tv);
+	while (1) {
+		fflush(stdout);
+		FD_ZERO(&rfds);
+		FD_SET(0, &rfds);
+		FD_SET(getsockfd(), &rfds);
+		tv.tv_sec = S_KEEPALIVE;
+		tv.tv_usec = 0;
+		retval = select(getsockfd() + 1, &rfds, NULL, NULL, &tv);
 
-	    if (FD_ISSET(getsockfd(), &rfds)) {
-		ch = serv_getc();
-		if (ch == 10) {
-			recv_complete_line = 1;
-			goto RCL; /* ugly, but we've gotta get out! */
+		if (FD_ISSET(getsockfd(), &rfds)) {
+			ch = serv_getc();
+			if (ch == 10) {
+				recv_complete_line = 1;
+				goto RCL;	/* ugly, but we've gotta get out! */
+			} else {
+				buf[strlen(buf) + 1] = 0;
+				buf[strlen(buf)] = ch;
 			}
-		else {
-			buf[strlen(buf) + 1] = 0;
-			buf[strlen(buf)] = ch;
-			}
-		goto RCL;
+			goto RCL;
 		}
-
-	    if (FD_ISSET(0, &rfds)) {
-		ch = inkey();
-		if ((ch == 10) || (ch == 13)) {
-			send_complete_line = 1;
-			}
-		else if ((ch == 8) || (ch == 127)) {
-			if (strlen(wbuf) > 0) {
-				wbuf[strlen(wbuf)-1] = 0;
-				printf("%c %c",8,8);
+		if (FD_ISSET(0, &rfds)) {
+			ch = inkey();
+			if ((ch == 10) || (ch == 13)) {
+				send_complete_line = 1;
+			} else if ((ch == 8) || (ch == 127)) {
+				if (strlen(wbuf) > 0) {
+					wbuf[strlen(wbuf) - 1] = 0;
+					printf("%c %c", 8, 8);
 				}
-			}
-		else {
-			putc(ch,stdout);
-			wbuf[strlen(wbuf) + 1] = 0;
-			wbuf[strlen(wbuf)] = ch;
+			} else {
+				putc(ch, stdout);
+				wbuf[strlen(wbuf) + 1] = 0;
+				wbuf[strlen(wbuf)] = ch;
 			}
 		}
-
-
-	/* if the user hit return, send the line */
-RCL:	    if (send_complete_line) {
-		serv_puts(wbuf);
-		strcpy(wbuf,"");
-		send_complete_line = 0;
-		}
-
-	/* if it's time to word wrap, send a partial line */
-	    if ( strlen(wbuf) >= (77-strlen(fullname)) ) {
-		pos = 0;
-		for (a=0; a<strlen(wbuf); ++a) {
-			if (wbuf[a] == 32) pos = a;
-			}
-		if (pos == 0) {
+		/* if the user hit return, send the line */
+	      RCL:if (send_complete_line) {
 			serv_puts(wbuf);
+			last_transmit = time(NULL);
 			strcpy(wbuf, "");
 			send_complete_line = 0;
+		}
+		/* if it's time to word wrap, send a partial line */
+		if (strlen(wbuf) >= (77 - strlen(fullname))) {
+			pos = 0;
+			for (a = 0; a < strlen(wbuf); ++a) {
+				if (wbuf[a] == 32)
+					pos = a;
 			}
-		else {
-			wbuf[pos] = 0;
-			serv_puts(wbuf);
-			strcpy(wbuf,&wbuf[pos+1]);
+			if (pos == 0) {
+				serv_puts(wbuf);
+				last_transmit = time(NULL);
+				strcpy(wbuf, "");
+				send_complete_line = 0;
+			} else {
+				wbuf[pos] = 0;
+				serv_puts(wbuf);
+				last_transmit = time(NULL);
+				strcpy(wbuf, &wbuf[pos + 1]);
 			}
 		}
+		if (recv_complete_line) {
+			printf("\r%79s\r", "");
+			if (!strcmp(buf, "000")) {
+				color(BRIGHT_WHITE);
+				printf("Exiting chat mode\n");
 
-	    if (recv_complete_line) {	
-		printf("\r%79s\r","");
-		if (!strcmp(buf,"000")) {
-			color(BRIGHT_WHITE);
-			printf("Exiting chat mode\n");
-
-			fflush(stdout);
-			set_keepalives(KA_YES);
-
-
-			/* Some users complained about the client and server
-			 * losing protocol synchronization when exiting chat.
-			 * This little dialog forces everything to be
-			 * hunky-dory.
-			 */
-			serv_puts("ECHO __ExitingChat__");
-			do {
-				serv_gets(buf);
-			} while (strcmp(buf, "200 __ExitingChat__"));
-
-
-			return;
-			}
-		if (num_parms(buf)>=2) {
-			extract(c_user,buf,0);
-			extract(c_text,buf,1);
-			if (num_parms(buf)>2)
-			{
-   			   extract(c_room,buf,2);
-   			   printf("Got room %s\n", c_room);
-   			}
-   			   
-			if (strcasecmp(c_text,"NOOP")) {
-				if (!strcmp(c_user, fullname)) {
-					color(BRIGHT_YELLOW);
-					}
-				else if (!strcmp(c_user,":")) {
-					color(BRIGHT_RED);
-					}
-				else {
-					color(BRIGHT_GREEN);
-					}
-				if (strcmp(c_user,last_user)) {
-					snprintf(buf,sizeof buf,"%s: %s",c_user,c_text);
-					}
-				else {
-					size_t i = MIN(sizeof buf - 1,
-						       strlen(c_user) + 2);
-
-					memset(buf, ' ', i);
-					safestrncpy(&buf[i], c_text,
-						    sizeof buf - i);
-					}
-				while (strlen(buf)<79) strcat(buf," ");
-				if (strcmp(c_user,last_user)) {
-					printf("\r%79s\n","");
-					strcpy(last_user,c_user);
-					}
-				printf("\r%s\n",buf);
 				fflush(stdout);
+				set_keepalives(KA_YES);
+
+
+				/* Some users complained about the client and server
+				 * losing protocol synchronization when exiting chat.
+				 * This little dialog forces everything to be
+				 * hunky-dory.
+				 */
+				serv_puts("ECHO __ExitingChat__");
+				do {
+					serv_gets(buf);
+				} while (strcmp(buf, "200 __ExitingChat__"));
+
+
+				return;
+			}
+			if (num_parms(buf) >= 2) {
+				extract(c_user, buf, 0);
+				extract(c_text, buf, 1);
+				if (num_parms(buf) > 2) {
+					extract(c_room, buf, 2);
+					printf("Got room %s\n", c_room);
+				}
+				if (strcasecmp(c_text, "NOOP")) {
+					if (!strcmp(c_user, fullname)) {
+						color(BRIGHT_YELLOW);
+					} else if (!strcmp(c_user, ":")) {
+						color(BRIGHT_RED);
+					} else {
+						color(BRIGHT_GREEN);
+					}
+					if (strcmp(c_user, last_user)) {
+						snprintf(buf, sizeof buf, "%s: %s", c_user, c_text);
+					} else {
+						size_t i = MIN(sizeof buf - 1,
+						     strlen(c_user) + 2);
+
+						memset(buf, ' ', i);
+						safestrncpy(&buf[i], c_text,
+							 sizeof buf - i);
+					}
+					while (strlen(buf) < 79)
+						strcat(buf, " ");
+					if (strcmp(c_user, last_user)) {
+						printf("\r%79s\n", "");
+						strcpy(last_user, c_user);
+					}
+					printf("\r%s\n", buf);
+					fflush(stdout);
 				}
 			}
-		color(BRIGHT_YELLOW);
-		printf("> %s",wbuf);
-		recv_complete_line = 0;
-		strcpy(buf,"");
+			color(BRIGHT_YELLOW);
+			printf("> %s", wbuf);
+			recv_complete_line = 0;
+			strcpy(buf, "");
 		}
-	    }
+
+		/* If the user is sitting idle, send a half-keepalive to the
+		 * server to prevent session timeout.
+		 */
+		if ((time(NULL) - last_transmit) >= S_KEEPALIVE) {
+			serv_puts("NOOP");
+			last_transmit = time(NULL);
+		}
+
 	}
+}
 
 /*
  * send an express message
  */
-void page_user() {
+void page_user()
+{
 	static char last_paged[32] = "";
 	char buf[256], touser[256], msg[256];
 	FILE *pagefp;
@@ -223,17 +226,16 @@ void page_user() {
 	/* old server -- use inline paging */
 	if (serv_info.serv_paging_level == 0) {
 		newprompt("Message:  ", msg, 69);
-		snprintf(buf,sizeof buf,"SEXP %s|%s",touser,msg);
+		snprintf(buf, sizeof buf, "SEXP %s|%s", touser, msg);
 		serv_puts(buf);
 		serv_gets(buf);
 		if (!strncmp(buf, "200", 3)) {
-	   		strcpy(last_paged, touser);
-			}
+			strcpy(last_paged, touser);
+		}
 		printf("%s\n", &buf[4]);
 		return;
 	}
-
-	/* new server -- use extended paging */ 
+	/* new server -- use extended paging */
 	else if (serv_info.serv_paging_level >= 1) {
 		snprintf(buf, sizeof buf, "SEXP %s||", touser);
 		serv_puts(buf);
@@ -241,29 +243,26 @@ void page_user() {
 		if (buf[0] != '2') {
 			printf("%s\n", &buf[4]);
 			return;
-			}
-
-		if ( make_message(temp, touser, 0, 0, 0) != 0 ) {
+		}
+		if (make_message(temp, touser, 0, 0, 0) != 0) {
 			printf("No message sent.\n");
 			return;
 		}
-
 		pagefp = fopen(temp, "r");
 		unlink(temp);
 		snprintf(buf, sizeof buf, "SEXP %s|-", touser);
 		serv_puts(buf);
 		serv_gets(buf);
-		if (buf[0]=='4') {
-	   		strcpy(last_paged, touser);
+		if (buf[0] == '4') {
+			strcpy(last_paged, touser);
 			while (fgets(buf, 256, pagefp) != NULL) {
-				buf[strlen(buf)-1] = 0;
+				buf[strlen(buf) - 1] = 0;
 				serv_puts(buf);
-				}
+			}
 			fclose(pagefp);
 			serv_puts("000");
 			printf("Message sent.\n");
-		}
-		else {
+		} else {
 			printf("%s\n", &buf[4]);
 		}
 	}
@@ -272,31 +271,33 @@ void page_user() {
 
 
 
-void quiet_mode(void) {
+void quiet_mode(void)
+{
 	int qstate;
 	char buf[256];
 
 	serv_puts("DEXP 2");
 	serv_gets(buf);
-	if (buf[0]!='2') {
+	if (buf[0] != '2') {
 		printf("%s\n", &buf[4]);
 		return;
 	}
 	qstate = atoi(&buf[4]);
-	if (qstate == 0) qstate = 1;
-	else qstate = 0;
+	if (qstate == 0)
+		qstate = 1;
+	else
+		qstate = 0;
 	sprintf(buf, "DEXP %d", qstate);
 	serv_puts(buf);
 	serv_gets(buf);
-	if (buf[0]!='2') {
+	if (buf[0] != '2') {
 		printf("%s\n", &buf[4]);
 		return;
 	}
 	qstate = atoi(&buf[4]);
 	if (qstate) {
 		printf("Quiet mode enabled (no other users may page you)\n");
-	}
-	else {
+	} else {
 		printf("Quiet mode disabled (other users may page you)\n");
 	}
 }

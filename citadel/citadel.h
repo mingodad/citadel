@@ -238,7 +238,6 @@ struct floor {
 /* keepalives */
 #define KA_NO		0		/* no keepalives */
 #define KA_YES		1		/* full keepalives */
-#define KA_CHAT		2		/* half keepalives (for chat mode) */
 
 /* for <;G>oto and <;S>kip commands */
 #define GF_GOTO		0		/* <;G>oto floor mode */

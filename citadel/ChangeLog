@@ -1,4 +1,7 @@
  $Log$
+ Revision 572.13  2000/07/09 02:47:40  ajc
+ * Overhauled the keepalive logic in the chat client.  Closes bug #20.
+
  Revision 572.12  2000/07/09 02:27:02  ajc
  * Eliminated the whole SIGINT/SIGQUIT based handling of Ctrl-O and Ctrl-C
    keyboard interrupts.  Replaced with a non-blocking check for keyboard input
@@ -1935,4 +1938,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
