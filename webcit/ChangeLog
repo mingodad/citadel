@@ -1,4 +1,7 @@
 $Log$
+Revision 603.8  2005/03/07 01:45:30  ajc
+* Rolled back to the old RTE because the new one doesn't work in Safari.
+
 Revision 603.7  2005/03/05 22:26:26  ajc
 * crypto.c: allow use of chained certificates
 
@@ -2460,3 +2463,6 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
+
+
