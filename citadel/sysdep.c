@@ -118,7 +118,7 @@ void lprintf(int loglevel, const char *format, ...) {
 		 * microsecond accuracy and your OS supports it, change
 		 * %03ld to %06ld and remove " / 1000" after tv.tv_usec.
 		 */
-		if (CC) {
+		if (CC && CC->cs_pid) {
 			fprintf(stderr,
 				"%04d/%02d/%02d %2d:%02d:%02d.%03ld [%3d] %s",
 				tim->tm_year + 1900, tim->tm_mon + 1,

@@ -206,7 +206,7 @@ void RemoveContext (struct CitContext *con)
 
 	rec_log(CL_TERMINATE, con->curr_user);
 	unlink(con->temp);
-	lprintf(3, "[%3d] session ended.\n", con->cs_pid);
+	lprintf(3, "[%3d] Session ended.\n", con->cs_pid);
 	
 
 	syslog(LOG_NOTICE,"session %d: ended", con->cs_pid);
@@ -843,7 +843,7 @@ void begin_session(struct CitContext *con)
 	if ((config.c_maxsessions > 0)&&(num_sessions > config.c_maxsessions))
 		con->nologin = 1;
 
-	lprintf(3, "[%3d] session started.\n", con->cs_pid);
+	lprintf(3, "Session started.\n");
 
 	/* Run any session startup routines registered by loadable modules */
 	PerformSessionHooks(EVT_START);
