@@ -255,6 +255,10 @@ void RoomView::do_readloop(wxString readcmd) {
         int i, r, pos;
 	CitMessage *message;
 	
+        if (citadel->IsConnected()==FALSE) {
+                wxMessageBox("You have lost your connection.");
+        } else
+  
 	if (message_window != NULL) {
 		delete message_window;
 		message_window = NULL;
