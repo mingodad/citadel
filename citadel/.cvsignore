@@ -33,4 +33,5 @@ sysdep.h.in
 sysoputil
 useradmin
 userlist
+weekly
 whobbs
