@@ -26,8 +26,9 @@ struct citimap {
 	long cached_rfc822_msgnum;
 	size_t cached_rfc822_len;
 
-	FILE *cached_body;		/* cache our most recent BODY FETCH */
-	char cached_bodypart[SIZ];	/* because the client might ask for it in pieces */
+	/* Cache most recent BODY FETCH because client might load in pieces */
+	FILE *cached_body;
+	char cached_bodypart[SIZ];
 	long cached_bodymsgnum;
 };
 
