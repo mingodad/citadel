@@ -21,6 +21,7 @@
 #include "control.h"
 #include "dynloader.h"
 #include "tools.h"
+#include "mime_parser.h"
 
 #define MSGS_ALL	0
 #define MSGS_OLD	1
@@ -333,12 +334,77 @@ FMTEND:	cprintf("\n");
 	}
 
 
+
+/*
+ */
+void part_handler(char *name, char *filename, char *encoding,
+                        void *content, char *cbtype, size_t length) {
+
+	cprintf("part=%s|%s|%s|%s|%d\n",
+		name, filename, encoding, cbtype, length);
+	}
+
+
+
+/*
+ * Feed MIME-encoded stuff to the mime_parser
+ */
+void output_mime_parts(char *msg) {
+	char content_type[256];
+	int content_length = (-1);
+	char buf[256];
+	CIT_UBYTE rch;
+	char *mptr, *meas;
+	int i;
+
+	strcpy(content_type, "");
+	mptr = msg;
+
+	while(1) {
+		buf[0] = 0;
+		do {
+			do {
+				buf[strlen(buf)+1] = 0;
+				rch = *mptr++;
+				if (strlen(buf)<((sizeof buf)-1))
+					buf[strlen(buf)] = rch;
+				} while ( (rch > 0) && (rch != 10) );
+			if (buf[strlen(buf)-1]==10) {
+				buf[strlen(buf)-1] = 0;
+				}
+			else {
+				return;
+				}
+			if (buf[strlen(buf)-1]==13) buf[strlen(buf)-1]=0;
+			} while (buf[strlen(buf)-1]==';');
+		for (i=0; i<strlen(buf); ++i) if (isspace(buf[i])) buf[i]=' ';
+		if (!strncasecmp(buf, "Content-type: ", 14))
+			strcpy(content_type, &buf[14]);
+		if (!strncasecmp(buf, "Content-length: ", 16))
+			content_length = atoi(&buf[16]);
+		if (strlen(buf)==0) {
+			if (content_length < 0) {
+				content_length = 0;
+				meas = mptr;
+				while (*mptr++ != 0) ++content_length;
+				}
+			cprintf("mime=type=%s\n", content_type);
+			cprintf("mime=len=%d\n", content_length);
+			mime_parser(mptr, content_length, content_type,
+					*part_handler);
+			return;
+			}
+		}
+	}
+
+
+
+
 /*
  * Get a message off disk.  (return value is the message's timestamp)
  * 
  */
-time_t output_message(char *msgid, int mode,
-			int headers_only, int desired_section) {
+time_t output_message(char *msgid, int mode, int headers_only) {
 	long msg_num;
 	int a;
 	CIT_UBYTE ch, rch;
@@ -450,7 +516,8 @@ time_t output_message(char *msgid, int mode,
 
 	/* begin header processing loop for Citadel message format */
 
-	if (mode == MT_CITADEL) while(ch = *mptr++, (ch!='M' && ch!=0)) {
+	if ((mode == MT_CITADEL)||(mode == MT_MIME))
+	   while(ch = *mptr++, (ch!='M' && ch!=0)) {
 		buf[0] = 0;
 		do {
 			buf[strlen(buf)+1] = 0;
@@ -535,6 +602,14 @@ time_t output_message(char *msgid, int mode,
 		return(xtime);
 		}
 
+	/* do some sort of MIME output */
+	if ( (mode == MT_MIME) && (format_type == 4) ) {
+		output_mime_parts(mptr);
+		cprintf("000\n");
+		cdb_free(dmsgtext);
+		return(xtime);
+		}
+
 	if (headers_only) {
 		/* give 'em a length */
 		msg_len = 0L;
@@ -597,13 +672,11 @@ void cmd_msg0(char *cmdbuf)
 {
 	char msgid[256];
 	int headers_only = 0;
-	int desired_section = 0;
 
 	extract(msgid,cmdbuf,0);
 	headers_only = extract_int(cmdbuf, 1);
-	desired_section = extract_int(cmdbuf, 2);
 
-	output_message(msgid, MT_CITADEL, headers_only, desired_section);
+	output_message(msgid, MT_CITADEL, headers_only);
 	return;
 	}
 
@@ -619,7 +692,7 @@ void cmd_msg2(char *cmdbuf)
 	extract(msgid,cmdbuf,0);
 	headers_only = extract_int(cmdbuf,1);
 
-	output_message(msgid,MT_RFC822,headers_only,0);
+	output_message(msgid,MT_RFC822,headers_only);
 	}
 
 /* 
@@ -639,7 +712,19 @@ void cmd_msg3(char *cmdbuf)
 	extract(msgid,cmdbuf,0);
 	headers_only = extract_int(cmdbuf,1);
 
-	output_message(msgid,MT_RAW,headers_only,0);
+	output_message(msgid,MT_RAW,headers_only);
+	}
+
+/* 
+ * display a message (mode 4 - MIME) (FIX ... still evolving, not complete)
+ */
+void cmd_msg4(char *cmdbuf)
+{
+	char msgid[256];
+
+	extract(msgid, cmdbuf, 0);
+
+	output_message(msgid, MT_MIME, 0);
 	}
 
 

@@ -238,13 +238,6 @@ struct floor {
 #define GF_SKIP		1		/* <;S>kip floor mode */
 #define GF_ZAP		2		/* <;Z>ap floor mode */
 
-/* message transfer formats */
-#define MT_CITADEL	0		/* Citadel proprietary */
-#define MT_RFC822	2		/* RFC822 */
-#define MT_RAW		3		/* IGnet raw format */
-#define MT_DATE		4		/* We're only looking for the date */
-
-
 
 #define BASEROOM	"Lobby"
 #define MAILROOM	"Mail"

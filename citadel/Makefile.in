@@ -57,7 +57,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	room_ops.c rooms.c routines.c routines2.c serv_chat.c \
 	serv_info.c serv_test.c serv_upgrade.c setup.c snprintf.c stats.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
-	whobbs.c sendcommand.c
+	whobbs.c sendcommand.c mime_parser.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
@@ -91,12 +91,13 @@ netpoll: netpoll.o config.o ipc_c_tcp.o tools.o $(SNPRINTF)
 citserver: citserver.ro user_ops.ro support.ro room_ops.ro file_ops.ro \
 	msgbase.ro config.ro sysdep.ro locate_host.ro \
 	housekeeping.ro database.ro control.ro logging.ro \
-	policy.ro dynloader.ro tools.ro $(SNPRINTF:.o=.ro)
+	policy.ro dynloader.ro tools.ro mime_parser.ro $(SNPRINTF:.o=.ro)
 	$(CC) \
 		citserver.ro user_ops.ro room_ops.ro file_ops.ro support.ro \
 		msgbase.ro config.ro sysdep.ro locate_host.ro \
 		housekeeping.ro database.ro control.ro logging.ro \
-		policy.ro dynloader.ro tools.ro $(SNPRINTF:.o=.ro)\
+		policy.ro dynloader.ro tools.ro mime_parser.ro \
+		$(SNPRINTF:.o=.ro)\
 		$(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) -o citserver
 
 .c.ro:

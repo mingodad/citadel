@@ -1623,6 +1623,8 @@ fails for any reason, ERROR is returned.
  
     "messages"     (purge old messages out of each room)
     "users"        (purge old users from the userlog)
+    "rooms"        (remove rooms which have not been posted in for some time)
+    "visits"       (purge dereferenced user/room relationship records)
   
  EXPI returns OK (probably after a long delay while it does its work) if it
 succeeds; otherwise it returns an ERROR code.

@@ -124,6 +124,15 @@ struct ChatLine {
 #define UPL_IMAGE	2
 
 
+/*
+ * message transfer formats
+ */
+#define MT_CITADEL	0		/* Citadel proprietary */
+#define MT_DATE		1		/* We're only looking for the date */
+#define MT_RFC822	2		/* RFC822 */
+#define MT_RAW		3		/* IGnet raw format */
+#define MT_MIME		4		/* We're only looking for the date */
+
 
 /*
  * Citadel DataBases (define one for each cdb we need to open)

@@ -1,3 +1,7 @@
+Thu Jan 14 21:21:15 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Brought over the mime_parser from WebCit and began preliminary work
+	  on supporting MIME format messages.
+
 Tue Jan 12 22:30:00 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Various changes to begin work on support for MIME messages
 		- Defined format type 4 for MIME

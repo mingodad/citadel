@@ -152,7 +152,7 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 		for (a=0; a<(CC->num_msgs); ++a) {
 			delnum = MessageFromList(a);
 			sprintf(msgid, "%ld", delnum);
-			xtime = output_message(msgid, MT_DATE, 0, 0);
+			xtime = output_message(msgid, MT_DATE, 0);
 
 			if ((xtime > 0L)
 			   && (now - xtime > (time_t)(epbuf.expire_value * 86400L))) {
