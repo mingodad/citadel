@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.88  2002/01/26 04:01:10  error
+ * Formatter now uses more of the available screen width
+
  Revision 590.87  2002/01/26 03:57:30  error
  * Revised status_line() display, it's much more compact now
 
@@ -3241,3 +3244,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -1270,7 +1270,7 @@ FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
 		goto FMTA;
 
 	if (a > 32) {
-		if (((strlen(aaa) + c) > (width - 5)) && (strlen(aaa) > (width - 5))) {
+		if (((strlen(aaa) + c) > (width - 1)) && (strlen(aaa) > (width - 1))) {
 			if (fpout) {
 				fprintf(fpout, "\n%s", aaa);
 			} else {
@@ -1286,7 +1286,7 @@ FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
 		aaa[b + 1] = 0;
 	}
 	if (a == 32) {
-		if ((strlen(aaa) + c) > (width - 5)) {
+		if ((strlen(aaa) + c) > (width - 1)) {
 			c = 1;
 			if (fpout) {
 				fprintf(fpout, "\n");
