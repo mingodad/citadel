@@ -2672,6 +2672,8 @@ void cmd_ent0(char *entargs)
 	struct recptypes *valid = NULL;
 	char subject[SIZ];
 
+	unbuffer_output();
+
 	post = extract_int(entargs, 0);
 	extract(recp, entargs, 1);
 	anon_flag = extract_int(entargs, 2);
@@ -2788,7 +2790,6 @@ void cmd_ent0(char *entargs)
 
 	/* Read in the message from the client. */
 	cprintf("%d send message\n", SEND_LISTING);
-	flush_output();
 	msg = CtdlMakeMessage(&CC->user, recp,
 		CC->room.QRname, anonymous, format_type,
 		masquerade_as, subject, NULL);
