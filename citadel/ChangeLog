@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.15  2002/04/23 13:38:08  ajc
+ * Minor docs update
+
  Revision 591.14  2002/04/21 21:28:06  ajc
  * Create the My Citadel Config> room along with the user account
 
@@ -3620,4 +3623,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
