@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.45  2002/06/15 20:48:50  ajc
+ * Fixed small bug in the e<X>pert mode toggle
+
  Revision 591.44  2002/06/15 20:14:55  ajc
  * Fixed a memory allocation bug in the vCard parser
 
@@ -3732,4 +3735,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

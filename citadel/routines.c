@@ -289,13 +289,14 @@ void enter_config(int mode)
 		0);
 	  }
 	
-	 }
 
-	 if ((flags&US_EXPERT)==0) formout("unlisted");
-	 flags = set_attr(flags,
+	  if ((flags&US_EXPERT)==0) formout("unlisted");
+	  flags = set_attr(flags,
 		"Be unlisted in userlog",
 		US_UNLISTED,
 		0);
+
+	 }
 
 	if (mode==2) {
 	 if (flags & US_EXPERT) {
