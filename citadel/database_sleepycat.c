@@ -97,7 +97,6 @@ void defrag_databases(void)
 void cdb_checkpoint(void) {
 	int ret;
 
-	lprintf(7, "DB checkpoint\n");
 	ret = txn_checkpoint(dbenv,
 				MAX_CHECKPOINT_KBYTES,
 				MAX_CHECKPOINT_MINUTES,
