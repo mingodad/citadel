@@ -1,4 +1,7 @@
  $Log$
+ Revision 624.5  2004/08/23 21:40:04  error
+ * No longer accept MD5 as a hash when encrypting
+
  Revision 624.4  2004/08/23 21:34:28  error
  * serv_network.c: Suppress Invalid node name for "." and ".."
 
@@ -5984,3 +5987,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
