@@ -8,6 +8,23 @@
 #include "bitmaps/mailroom.xpm"
 
 
+
+class RoomItem : public wxTreeItemData {
+public:
+	RoomItem(wxString name);
+	wxString RoomName;
+};
+
+RoomItem::RoomItem(wxString name) 
+	: wxTreeItemData() {
+
+	RoomName = name;	
+}
+
+
+
+
+
 enum {
 
         ROOMTREE_CTRL
@@ -95,7 +112,8 @@ void RoomTree::LoadRoomList(void) {
 			roomname,
 			2,
 			-1,
-			NULL);
+			new RoomItem(roomname)
+			);
 		SetItemBold(item, TRUE);
 		SetItemBold(floorboards[floornum], TRUE);
 	}
@@ -112,7 +130,8 @@ void RoomTree::LoadRoomList(void) {
 			roomname,
 			3,
 			-1,
-			NULL);
+			new RoomItem(roomname)
+			);
 	}
 
 }
@@ -123,6 +142,7 @@ void RoomTree::LoadRoomList(void) {
 void RoomTree::OnDoubleClick(wxTreeEvent& evt) {
 	wxTreeItemId itemId;
 	int i;
+	RoomItem *r;
 
 	itemId = GetSelection();
 
@@ -130,5 +150,9 @@ void RoomTree::OnDoubleClick(wxTreeEvent& evt) {
 	if (itemId == GetRootItem()) return;
 	for (i=0; i<MAXFLOORS; ++i)
 		if (itemId == floorboards[i]) return;
-	cout << "doubleclickroom\n";
+
+	// Ok, it's a room, so go there.
+	r = (RoomItem *)GetItemData(itemId);
+
+	cout << r->RoomName << "\n";
 }

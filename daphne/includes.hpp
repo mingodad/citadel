@@ -230,6 +230,3 @@ void load_roomlist(RoomTree *tree, CitClient *citsock);
 
 extern wxMDIParentFrame *BigMDI;
 extern RoomTree *RoomList;
-
-
-
