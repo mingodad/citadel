@@ -290,12 +290,58 @@ void imap_output_envelope_from(struct CtdlMessage *msg) {
 }
 
 
+
+/*
+ * Output an envelope address (or set of addresses) in the official,
+ * Crispin-approved braindead format.  (Note that we can't use this for
+ * the "From" address because its data may come from a number of different
+ * fields.  But we can use it for "To" and possibly others.
+ */
+void imap_output_envelope_addr(char *addr) {
+	char individual_addr[SIZ];
+	int num_addrs;
+	int i;
+	char user[SIZ];
+	char node[SIZ];
+	char name[SIZ];
+
+	if (addr == NULL) {
+		cprintf("NIL ");
+		return;
+	}
+
+	if (strlen(addr) == 0) {
+		cprintf("NIL ");
+		return;
+	}
+
+	cprintf("(");
+
+	/* How many addresses are listed here? */
+	num_addrs = num_tokens(addr, ',');
+
+	/* Output them one by one. */
+	for (i=0; i<num_addrs; ++i) {
+		extract_token(individual_addr, addr, i, ',');
+		striplt(individual_addr);
+		process_rfc822_addr(individual_addr, user, node, name);
+		cprintf("(");
+		imap_strout(name);
+		cprintf(" NIL ");
+		imap_strout(user);
+		cprintf(" ");
+		imap_strout(node);
+		cprintf(")");
+		if (i < (num_addrs-1)) cprintf(" ");
+	}
+
+	cprintf(") ");
+}
+
+
 /*
  * Implements the ENVELOPE fetch item
  * 
- * FIXME ... we only output some of the fields right now.  Definitely need
- *           to do all of them.  Accurately, too.
- *
  * Note that the imap_strout() function can cleverly output NULL fields as NIL,
  * so we don't have to check for that condition like we do elsewhere.
  */
@@ -332,27 +378,38 @@ void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
 	/* From */
 	imap_output_envelope_from(msg);
 
-	/* Sender */
-	if (0) {
-		/* FIXME */
+	/* Sender (default to same as 'From' if not present) */
+	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Sender");
+	if (fieldptr != NULL) {
+		imap_output_envelope_addr(fieldptr);
+		phree(fieldptr);
 	}
 	else {
 		imap_output_envelope_from(msg);
 	}
 
 	/* Reply-to */
-	if (0) {
-		/* FIXME */
+	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Reply-to");
+	if (fieldptr != NULL) {
+		imap_output_envelope_addr(fieldptr);
+		phree(fieldptr);
 	}
 	else {
 		imap_output_envelope_from(msg);
 	}
 
-	cprintf("NIL ");	/* to */
+	/* To */
+	imap_output_envelope_addr(msg->cm_fields['R']);
 
-	cprintf("NIL ");	/* cc */
+	/* Cc */
+	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Cc");
+	imap_output_envelope_addr(fieldptr);
+	if (fieldptr != NULL) phree(fieldptr);
 
-	cprintf("NIL ");	/* bcc */
+	/* Bcc */
+	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Bcc");
+	imap_output_envelope_addr(fieldptr);
+	if (fieldptr != NULL) phree(fieldptr);
 
 	/* In-reply-to */
 	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "In-reply-to");
