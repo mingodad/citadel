@@ -32,6 +32,7 @@
 #include <pwd.h>
 #include <setjmp.h>
 #include <stdarg.h>
+#include <errno.h>
 
 #include "citadel.h"
 #include "citadel_ipc.h"
@@ -1054,6 +1055,7 @@ int main(int argc, char **argv)
 				}
 		}
 
+#ifdef HAVE_OPENSSL
 	/* Evaluate encryption preferences */
 	if (arg_encrypt != RC_NO && rc_encrypt != RC_NO) {
 		if (!ipc->isLocal || arg_encrypt == RC_YES || rc_encrypt == RC_YES) {
@@ -1062,6 +1064,7 @@ int main(int argc, char **argv)
 				error_printf("Can't encrypt: %s\n", aaa);
 		}
 	}
+#endif
 
 	get_serv_info(ipc, telnet_client_host);
 	scr_printf("%-24s\n%s\n%s\n", serv_info.serv_software, serv_info.serv_humannode,

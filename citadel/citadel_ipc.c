@@ -27,6 +27,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <sys/un.h>
+#include <errno.h>
 #ifdef THREADED_CLIENT
 #include <pthread.h>
 #endif
@@ -49,6 +50,9 @@ pthread_mutex_t **Critters;			/* Things that need locking */
 
 #endif /* HAVE_OPENSSL */
 
+#ifndef INADDR_NONE
+#define INADDR_NONE 0xffffffff
+#endif
 
 static void (*status_hook)(char *s) = NULL;
 
@@ -2259,7 +2263,9 @@ int CtdlIPCGenericCommand(CtdlIPC *ipc,
 	if (!command) return -2;
 	if (!proto_response) return -2;
 
+#ifdef HAVE_OPENSSL
 	if (ipc->ssl) watch_ssl = 1;
+#endif
 
 	CtdlIPC_lock(ipc);
 	CtdlIPC_putline(ipc, command);
