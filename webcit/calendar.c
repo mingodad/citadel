@@ -180,6 +180,9 @@ void cal_process_object(icalcomponent *cal,
 				"VALUE=\"Accept\">\n"
 			"&nbsp;&nbsp;"
 			"<INPUT TYPE=\"submit\" NAME=\"sc\" "
+				"VALUE=\"Tentative\">\n"
+			"&nbsp;&nbsp;"
+			"<INPUT TYPE=\"submit\" NAME=\"sc\" "
 				"VALUE=\"Decline\">\n"
 			"<INPUT TYPE=\"hidden\" NAME=\"msgnum\" "
 				"VALUE=\"%ld\">"
@@ -233,7 +236,7 @@ void pencil_it_in(icalcomponent *cal) {
 /*
  * Add a calendar object to the user's calendar
  */
-void cal_add(icalcomponent *cal, int recursion_level) {
+void cal_add(icalcomponent *cal, int recursion_level, int tentative) {
 	icalcomponent *c;
 
 	/*
@@ -250,7 +253,7 @@ void cal_add(icalcomponent *cal, int recursion_level) {
 	    (c != 0);
 	    c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
 		/* Recursively process subcomponent */
-		cal_add(c, recursion_level+1);
+		cal_add(c, recursion_level+1, tentative);
 	}
 
 }
@@ -328,7 +331,10 @@ void respond_to_request(void) {
 
 	/* Save this in the user's calendar if necessary */
 	if (!strcasecmp(bstr("sc"), "Accept")) {
-		cal_add(cal, 0);
+		cal_add(cal, 0, 0);
+	}
+	if (!strcasecmp(bstr("sc"), "Tentative")) {
+		cal_add(cal, 0, 1);
 	}
 
 	/* Send a reply if necessary */
