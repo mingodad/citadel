@@ -406,7 +406,10 @@ void session_startup(void)
 	/* Run any startup routines registered by loadable modules */
 	PerformSessionHooks(EVT_LOGIN);
 
-	/* Create any personal rooms required by the system */
+	/* Create any personal rooms required by the system.
+	 * (Technically, MAILROOM should be there already, but just in case...)
+	 */
+	create_room(MAILROOM, 4, "", 0, 1, 0);
 	create_room(SENTITEMS, 4, "", 0, 1, 0);
 
 	/* Enter the lobby */
