@@ -387,7 +387,9 @@ void gotoroom(char *gname, int display_name)
                 wprintf("Cache-Control: no-store\n");
 
 		wprintf("<HTML><HEAD>\n"
+			"<META HTTP-EQUIV=\"refresh\" CONTENT=\"500363689;\">\n"
 			"<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">\n"
+			"<META HTTP-EQUIV=\"expired\" CONTENT=\"28-May-1971 18:10:00 GMT\">\n"
 			"<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\">\n"
 			"</HEAD>\n");
 		do_template("background.html");

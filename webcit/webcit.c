@@ -322,11 +322,13 @@ void output_headers(int controlcode)
 		wprintf("<HTML><HEAD><TITLE>");
 		escputs(serv_info.serv_humannode);
 		wprintf("</TITLE>\n"
-			"<META HTTP-EQUIV=\"Expires\" CONTENT=\"0\">\n"
 			"<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">\n"
+			"<META HTTP-EQUIV=\"expired\" CONTENT=\"28-May-1971 18:10:00 GMT\">\n"
 			"<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\">\n");
 		if (refresh30) wprintf(
 			"<META HTTP-EQUIV=\"refresh\" CONTENT=\"30\">\n");
+		else wprintf(
+			"<META HTTP-EQUIV=\"refresh\" CONTENT=\"500363689;\">\n");
 		wprintf("</HEAD>\n");
 
 		/* script for checking for pages (not always launched) */
