@@ -493,6 +493,7 @@ void begin_burst(void);
 void end_burst(void);
 
 extern char *ascmonths[];
+void http_datestring(char *buf, size_t n, time_t xtime);
 
 
 /* Views (from citadel.h) */

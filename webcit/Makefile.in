@@ -38,7 +38,7 @@ webserver: webserver.o context_loop.o tools.o ical_dezonify.o \
 	calendar.o calendar_tools.o calendar_view.o event.o \
 	availability.o iconbar.o crypto.o inetconf.o notes.o \
 	groupdav_main.o groupdav_get.o groupdav_propfind.o \
-	groupdav_delete.o groupdav_put.o \
+	groupdav_delete.o groupdav_put.o http_datestring.o \
 	$(LIBOBJS)
 	$(CC) webserver.o context_loop.o tools.o cookie_conversion.o \
 	webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o listsub.o \
@@ -48,7 +48,7 @@ webserver: webserver.o context_loop.o tools.o ical_dezonify.o \
 	summary.o calendar.o calendar_tools.o calendar_view.o event.o \
 	availability.o ical_dezonify.o iconbar.o crypto.o inetconf.o notes.o \
 	groupdav_main.o groupdav_get.o groupdav_propfind.o groupdav_delete.o \
-	groupdav_put.o \
+	groupdav_put.o http_datestring.o \
 	$(LIBOBJS) $(LIBS) $(LDFLAGS) -o webserver
 
 .c.o:
