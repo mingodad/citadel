@@ -102,8 +102,9 @@ void DLoader_Init(char *pathname)
 			continue;
 
 		snprintf(pathbuf, PATH_MAX, "%s/%s", pathname, dptr->d_name);
-#ifdef RTLD_NOW
-		if (!(fcn_handle = dlopen(pathbuf, RTLD_NOW)))
+
+#ifdef RTLD_LAZY
+		if (!(fcn_handle = dlopen(pathbuf, RTLD_LAZY)))
 #else				/* OpenBSD */
 		if (!(fcn_handle = dlopen(pathbuf, DL_LAZY)))
 #endif

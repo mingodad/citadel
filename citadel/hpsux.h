@@ -32,7 +32,7 @@ extern int errno;
 
 
 /* local variables */
-static char *dlerrmsg;	/* pointer to last error message */
+static int dlerrmsg;	/* Last errno received */
 
 
 /* functions mapped */
@@ -44,7 +44,9 @@ void *dlopen(const char *filename, int flag)
 
 	handle = shl_load(filename, flag, 0L);
 	if (handle == NULL)
-		dlerrmsg = strerror(errno);
+		dlerrmsg = errno;
+	else
+		dlerrmsg = 0;
 	return (void *)handle;
 }
 
@@ -58,22 +60,27 @@ int dlclose(void *handle)
 /* I think this is as thread safe as it's going to get */
 const char *dlerror(void)
 {
-	const char *msg;
+	int msg;
 
 	msg = dlerrmsg;
-	dlerrmsg = NULL;
-	return msg;
+	dlerrmsg = 0;
+	if (msg)
+		return strerror(msg);
+	return NULL;
 }
 
 /* dlsym() */
 void *dlsym(void *handle, char *symbol)
 {
-	void *value = NULL;	/* Linux man page says 0 is a valid symbol */
+	void *symaddr = NULL;	/* Linux man page says 0 is a valid symbol */
 	/* address.  I don't understand this, of course, but what do I know? */
 
-	if (shl_findsym(handle, symbol, TYPE_UNDEFINED, value) == -1)
-		dlerrmsg = strerror(errno);
-	return value;
+	if (shl_findsym((shl_t *)&handle, symbol, TYPE_PROCEDURE, &symaddr) == -1)
+		dlerrmsg = errno;
+	else {
+		dlerrmsg = 0;
+	}
+	return symaddr;
 }
 
 #endif /* _CITADEL_UX_HPSUX_H */
