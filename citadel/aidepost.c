@@ -51,12 +51,12 @@ int main(int argc, char **argv)
 	char movecmd[256];
 	
 	get_config();
-	sprintf(tempbase,"ap.%d",getpid());
-	sprintf(temptmp,"/tmp/%s", tempbase);
-	sprintf(tempspool,"./network/spoolin/%s", tempbase);
+	snprintf(tempbase,sizeof tempbase,ap.%d",getpid());
+	snprintf(temptmp,sizeof temptmp,"/tmp/%s", tempbase);
+	snprintf(tempspool,sizeof tempspool,"./network/spoolin/%s", tempbase);
 	make_message(temptmp);
 
-	sprintf(movecmd, "/bin/mv %s %s", temptmp, tempspool);
+	snprintf(movecmd, sizeof movecmd, "/bin/mv %s %s", temptmp, tempspool);
 	system(movecmd);
 
 	execlp("./netproc","netproc",NULL);

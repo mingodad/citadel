@@ -64,16 +64,11 @@ struct CitContext masterCC;
  */
 void lprintf(int loglevel, const char *format, ...) {   
         va_list arg_ptr;   
-        char buf[256];   
-        int rc;   
   
 	if (loglevel <= verbosity) { 
         	va_start(arg_ptr, format);   
-        	rc = vsprintf(buf, format, arg_ptr);   
+        	rc = vfprintf(stderr, format, arg_ptr);   
         	va_end(arg_ptr);   
-		
-		fprintf(stderr, "%s", buf);
-		fflush(stderr);
 		}
   
 	}   

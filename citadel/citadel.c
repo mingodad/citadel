@@ -158,7 +158,7 @@ void formout(char *name) /* display a file */
             
 	{
 	char cmd[256];
-	sprintf(cmd,"MESG %s",name);
+	snprintf(cmd,sizeof cmd,"MESG %s",name);
 	serv_puts(cmd);
 	serv_gets(cmd);
 	if (cmd[0]!='1') {
@@ -332,13 +332,13 @@ void dotgoto(char *towhere, int display_name)
 	uglsn = ls;
 
 	/* first try an exact match */
-	sprintf(aaa,"GOTO %s",towhere);
+	snprintf(aaa,sizeof aaa,"GOTO %s",towhere);
 	serv_puts(aaa);
 	serv_gets(aaa);
 	if (aaa[3]=='*') express_msgs = 1;
 	if (!strncmp(aaa,"54",2)) {
 		newprompt("Enter room password: ",bbb,9);
-		sprintf(aaa,"GOTO %s|%s",towhere,bbb);
+		snprintf(aaa,sizeof aaa,"GOTO %s|%s",towhere,bbb);
 		serv_puts(aaa);
 		serv_gets(aaa);
 		if (aaa[3]=='*') express_msgs = 1;
@@ -378,7 +378,7 @@ void dotgoto(char *towhere, int display_name)
 			printf("No room '%s'.\n",towhere);
 			return;
 			}
-		sprintf(aaa,"GOTO %s",bbb);
+		snprintf(aaa,sizeof aaa,"GOTO %s",bbb);
 		serv_puts(aaa);
 		serv_gets(aaa);
 		if (aaa[3]=='*') express_msgs = 1;
@@ -499,7 +499,7 @@ void forget_all_rooms_on(int ffloor)
 
 	printf("Forgetting all rooms on %s...\r",&floorlist[ffloor][0]);
 	fflush(stdout);
-	sprintf(buf,"LKRA %d",ffloor);
+	snprintf(buf,sizeof buf,"LKRA %d",ffloor);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]!='1') {
@@ -514,7 +514,7 @@ void forget_all_rooms_on(int ffloor)
 		extract(fptr->march_name,buf,0);
 		}
 	while (flist != NULL) {
-		sprintf(buf,"GOTO %s",flist->march_name);
+		snprintf(buf,sizeof buf,"GOTO %s",flist->march_name);
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0]=='2') {
@@ -596,7 +596,7 @@ void gotofloor(char *towhere, int mode)
 		}
 
 	strcpy(targ,"");
-	sprintf(buf,"LKRA %d",tofloor);
+	snprintf(buf,sizeof buf,"LKRA %d",tofloor);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]=='1') while (serv_gets(buf), strcmp(buf,"000")) {
@@ -691,7 +691,7 @@ int set_password(void) {
 		newprompt("Enter it again to confirm: ", pass2, -19);
 		}
 	if (!strucmp(pass1,pass2)) {
-		sprintf(buf,"SETP %s",pass1);
+		snprintf(buf,sizeof buf,"SETP %s",pass1);
 		serv_puts(buf);
 		serv_gets(buf);
 		printf("%s\n",&buf[4]);
@@ -714,7 +714,7 @@ void get_serv_info(void) {
 	CtdlInternalGetServInfo(&serv_info);
 
 	/* be nice and identify ourself to the server */
-	sprintf(buf,"IDEN %d|%d|%d|%s|",
+	snprintf(buf,sizeof buf,"IDEN %d|%d|%d|%s|",
 		SERVER_TYPE,0,REV_LEVEL,
 		(server_is_local ? "local" : CITADEL));
 	locate_host(&buf[strlen(buf)]);	/* append to the end */
@@ -789,7 +789,7 @@ void who_is_online(int longlist)
 void enternew(char *desc, char *buf, int maxlen)
 {
    char bbb[128];
-   sprintf(bbb, "Enter in your new %s: ", desc);
+   snprintf(bbb, sizeof bbb, "Enter in your new %s: ", desc);
    newprompt(bbb, buf, maxlen);
 }
 
@@ -873,7 +873,7 @@ GSTA:	termn8=0; newnow=0;
 		}
 
 	/* sign on to the server */
-	sprintf(aaa,"USER %s",fullname);
+	snprintf(aaa,sizeof aaa,"USER %s",fullname);
 	serv_puts(aaa);
 	serv_gets(aaa);
 	if (aaa[0]!='3') goto NEWUSR;
@@ -886,7 +886,7 @@ GSTA:	termn8=0; newnow=0;
 		newprompt("\rPlease enter your password: ",eee,-19);
 		}
 	strproc(eee);
-	sprintf(aaa,"PASS %s",eee);
+	snprintf(aaa,sizeof aaa,"PASS %s",eee);
 	serv_puts(aaa);
 	serv_gets(aaa);
 	if (aaa[0]=='2') {
@@ -903,7 +903,7 @@ NEWUSR:	if (strlen(rc_password)==0) {
 		if (yesno()==0) goto GSTA;
 		}
 
-	sprintf(aaa,"NEWU %s",fullname);
+	snprintf(aaa,sizeof aaa,"NEWU %s",fullname);
 	serv_puts(aaa);
 	serv_gets(aaa);
 	if (aaa[0]!='2') {
@@ -944,9 +944,9 @@ PWOK:	printf("%s\nAccess level: %d (%s)\nUser #%ld / Call #%d\n",
 	 * program.  Don't mess with these once they've been set, because we
 	 * will be unlinking them later on in the program and we don't
 	 * want to delete something that we didn't create. */
-	sprintf(temp,"/tmp/citA%d",getpid());
-	sprintf(temp2,"/tmp/citB%d",getpid());
-	sprintf(tempdir,"/tmp/citC%d",getpid());
+	snprintf(temp,sizeof temp"/tmp/citA%d",getpid());
+	snprintf(temp2,sizeof temp2,"/tmp/citB%d",getpid());
+	snprintf(tempdir,sizeof tempdir,"/tmp/citC%d",getpid());
 
 	/* Get screen dimensions.  First we go to a default of 80x24.  Then
 	 * we try to get the user's actual screen dimensions off the server.
@@ -1001,7 +1001,7 @@ do {	/* MAIN LOOP OF PROGRAM */
 	   case 46:	entmsg(0,2);
 			break;
 	   case 78:	newprompt("What do you want your username to be? ", aaa, 32);
-	   		sprintf(bbb, "ENT0 2|0|0|0|%s", aaa);
+	   		snprintf(bbb, sizeof bbb, "ENT0 2|0|0|0|%s", aaa);
 	   		serv_puts(bbb);
 	   		serv_gets(aaa);
 	   		if (strncmp("200", aaa, 3))
@@ -1073,13 +1073,13 @@ do {	/* MAIN LOOP OF PROGRAM */
 			break;
 
 case 74:
-	sprintf(aaa, "_floorpic_|%d", curr_floor);
+	snprintf(aaa, sizeof aaa, "_floorpic_|%d", curr_floor);
 	cli_image_upload(aaa);
 	break;
 	
 case 75:
 	enternew("roomname", aaa, 20);
-	sprintf(bbb, "RCHG %s", aaa);
+	snprintf(bbb, sizeof bbb, "RCHG %s", aaa);
 	serv_puts(bbb);
 	serv_gets(aaa);
 	if (strncmp("200",aaa, 3))
@@ -1087,7 +1087,7 @@ case 75:
 	break;
 case 76:
 	enternew("hostname", aaa, 25);
-	sprintf(bbb, "HCHG %s", aaa);
+	snprintf(bbb, sizeof bbb, "HCHG %s", aaa);
 	serv_puts(bbb);
 	serv_gets(aaa);
 	if (strncmp("200",aaa, 3))
@@ -1095,7 +1095,7 @@ case 76:
 	break;
 case 77:
 	enternew("username", aaa, 32);
-	sprintf(bbb, "UCHG %s", aaa);
+	snprintf(bbb, sizeof bbb, "UCHG %s", aaa);
 	serv_puts(bbb);
 	serv_gets(aaa);
 	if (strncmp("200",aaa, 3))
@@ -1134,8 +1134,8 @@ case 3:	chatmode();
 
 case 2: if (server_is_local) {
 		sttybbs(SB_RESTORE);
-sprintf(aaa,"USERNAME=\042%s\042; export USERNAME; exec ./subsystem %ld %d %d",
-			fullname,
+		snprintf(aaa,sizeof aaa,"USERNAME=\042%s\042; export USERNAME;"
+			"exec ./subsystem %ld %d %d", fullname,
 			usernum,screenwidth,axlevel);
 		ka_system(aaa);
 		sttybbs(SB_NO_INTR);
@@ -1244,15 +1244,15 @@ case 54:
 
 case 56:
         if (last_paged[0])
-           sprintf(bbb, "Page who [%s]? ", last_paged);
+           snprintf(bbb, sizeof bbb, "Page who [%s]? ", last_paged);
         else
-           sprintf(bbb, "Page who? ");
+           snprintf(bbb, sizeof bbb, "Page who? ");
 	newprompt(bbb,aaa,30);
 	if (!aaa[0])
 	   strcpy(aaa, last_paged);
 	strproc(aaa);
 	newprompt("Message:  ",bbb,69);
-	sprintf(ccc,"SEXP %s|%s",aaa,bbb);
+	snprintf(ccc,sizeof ccc,"SEXP %s|%s",aaa,bbb);
 	serv_puts(ccc);
 	serv_gets(ccc);
 	if (!strncmp("200", ccc, 3))
@@ -1267,7 +1267,7 @@ TERMN8:	printf("%s logged out.\n",fullname);
 	while (march!=NULL) remove_march(march->march_name,0);
 	if (mcmd==30)
 		printf("\n\nType 'off' to hang up, or next user...\n");
-	sprintf(aaa,"LOUT");
+	snprintf(aaa,sizeof aaa,"LOUT");
 	serv_puts(aaa);
 	serv_gets(aaa);
 	if ((mcmd==29)||(mcmd==15)) {

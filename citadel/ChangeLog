@@ -1,3 +1,8 @@
+1998-11-08 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* useradmin.c: really removed (cvs remove)
+	* aidepost.c, citadel.c: convert all sprintf() calls to snprintf()
+	* sysdep.c: fix overrun in lprintf() described by dme/Dead Monkey
+
 Sun Nov  8 13:19:36 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* useradmin.c: removed
 	* utils.doc: removed references to useradmin and sysoputil
