@@ -409,7 +409,7 @@ dnl
 dnl TODO: for the DB header checks, we should check whether the headers
 dnl define db_env_create, somehow
 dnl
-AC_CHECK_HEADERS(curses.h dl.h fcntl.h limits.h termios.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h utmp.h utmpx.h paths.h db.h db3/db.h db4/db.h pthread.h netinet/in.h)
+AC_CHECK_HEADERS(curses.h dl.h fcntl.h limits.h malloc.h termios.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h utmp.h utmpx.h paths.h db.h db3/db.h db4/db.h pthread.h netinet/in.h)
 
 dnl
 dnl need to check if this is actually compilable, sometimes there are
