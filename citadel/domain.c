@@ -117,6 +117,8 @@ int getmx(char *mxbuf, char *dest) {
 	int ret;
 	unsigned char *startptr, *endptr, *ptr;
 	char expanded_buf[1024];
+	char buf[SIZ];
+	FILE *fp;
 	unsigned short pref, type;
 	int n = 0;
 	int qdcount;
@@ -130,9 +132,33 @@ int getmx(char *mxbuf, char *dest) {
 	n = get_hosts(mxbuf, "smarthost");
 	if (n > 0) return(n);
 
+
 	/*
 	 * No smart-host?  Look up the best MX for a site.
 	 */
+
+#ifdef __CYGWIN__
+
+	/*
+	 * On systems with b0rken or non-standard resolver libraries, learn
+	 * the MX records by calling "nslookup" from the command line.
+	 */
+	sprintf(buf, "nslookup -query=mx %s", dest);
+	fp = popen(buf, "r");
+	if (fp == NULL) return(0);
+	while (fgets(buf, sizeof buf, fp) != NULL) {
+		buf[strlen(buf) - 1] = 0;
+		lprintf(9, "RESOLV: %s\n", buf);
+	}
+	pclose(fp);
+	return(0);	/* FIXME */
+
+#else /* __CYGWIN__ */
+
+	/*
+	 * Make a call to the standard resolver library.
+	 */
+
 	ret = res_query(
 		dest,
 		C_IN, T_MX, (unsigned char *)answer.bytes, sizeof(answer)  );
@@ -204,6 +230,7 @@ int getmx(char *mxbuf, char *dest) {
 			}
 		}
 	}
+#endif /* __CYGWIN__ */
 
 	sort_mxrecs(mxrecs, num_mxrecs);
 

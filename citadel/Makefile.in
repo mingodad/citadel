@@ -21,13 +21,12 @@ all: $(TARGETS)
 
 EXEEXT=@EXEEXT@
 
-SMTP=@SMTP@
-
 CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT)
 SERVER_TARGETS=citserver setup $(CHKPWD)
 SERV_MODULES=serv_chat.o \
 	serv_upgrade.o \
-	$(SMTP) \
+	serv_smtp.o \
+	serv_spam.o \
 	serv_pop3.o \
 	serv_vcard.o vcard.o \
 	serv_mrtg.o \
@@ -74,12 +73,10 @@ DATABASE=@DATABASE@
 
 VPATH=$(srcdir)
 
-DOMAIN=@DOMAIN@
-
 SOURCES=aidepost.c auth.c base64.c chkpwd.c citadel.c citadel_ipc.c \
 	citmail.c citserver.c client_chat.c client_passwords.c \
 	clientsocket.c commands.c config.c control.c $(DATABASE) \
-	$(DOMAIN) serv_extensions.c file_ops.c genstamp.c getutline.c \
+	domain.c serv_extensions.c file_ops.c genstamp.c getutline.c \
 	housekeeping.c html.c imap_fetch.c imap_misc.c imap_search.c \
 	imap_store.c imap_tools.c internet_addressing.c ipc_c_tcp.c \
 	locate_host.c logging.c md5.c messages.c migratenet.c \
@@ -121,7 +118,7 @@ parsedate.o: parsedate.c
 
 SERV_OBJS = server_main.o \
 	user_ops.o citserver.o sysdep.o serv_extensions.o \
-	tools.o $(DATABASE:.c=.o) $(DOMAIN:.c=.o) \
+	tools.o $(DATABASE:.c=.o) domain.o \
 	control.o policy.o config.o support.o room_ops.o \
 	file_ops.o msgbase.o \
 	locate_host.o housekeeping.o logging.o mime_parser.o html.o \
