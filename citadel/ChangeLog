@@ -1,4 +1,9 @@
  $Log$
+ Revision 625.24  2004/09/17 03:54:47  ajc
+ * citadel-openldap.schema: replaced.  Dunno why it was missing.
+ * serv_calendar.c: fixed a return with no value for a function returning
+   int; this was causing a before-save hook to abandon messages
+
  Revision 625.23  2004/09/16 01:46:40  ajc
  * CRE8 command: allow setting default view during room creation
 
@@ -6086,4 +6091,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
