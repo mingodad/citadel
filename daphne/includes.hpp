@@ -9,7 +9,8 @@
 #include <wxhtml/wxhtml.h>
 
 #define MAXFLOORS	128
-
+#define DEFAULT_HOST	"uncnsrd.mt-kisco.ny.us"
+#define DEFAULT_PORT	"504"
 
 // TCPsocket represents a socket-level TCP connection to a server.
 class TCPsocket {
@@ -143,6 +144,7 @@ private:
 	void OnButtonPressed(wxCommandEvent& whichbutton);
 	CitClient *citsock;
 	wxMDIParentFrame *citMyMDI;
+	wxTextCtrl *server_host, *server_port;
 	DECLARE_EVENT_TABLE()
 };
 

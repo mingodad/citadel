@@ -374,9 +374,8 @@ void MyFrame::OnConnect(wxCommandEvent& unused) {
 	int retval;
 	wxString DefaultHost, DefaultPort;
 
-	ini->Read("/Citadel Server/Host", &DefaultHost,
-		"uncnsrd.mt-kisco.ny.us");
-	ini->Read("/Citadel Server/Port", &DefaultPort, "504");
+	ini->Read("/Citadel Server/Host", &DefaultHost, DEFAULT_HOST);
+	ini->Read("/Citadel Server/Port", &DefaultPort, DEFAULT_PORT);
 
 	if (citadel->IsConnected()) {
 		wxMessageBox("You are currently connected to "
