@@ -1,4 +1,9 @@
  $Log$
+ Revision 1.3  2003/11/01 05:10:49  ajc
+ * When sending the QUIT command to the server, output a bunch more newlines
+   so the session proxy has a chance to see that the Citadel server closed
+   the connection.  This will make the proxy shut down as well.
+
  Revision 1.2  2003/10/31 05:03:46  ajc
  * Stabilized the session proxy
  * Added 100 mode text downloads
@@ -6,3 +11,4 @@
 
  Revision 1.1  2003/10/31 03:47:13  ajc
  * Initial CVS import
+

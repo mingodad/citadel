@@ -11,10 +11,15 @@ function establish_citadel_session() {
 
 	global $session, $clientsocket;
 
-	// echo "Calling session_start()<BR>\n";
-	// flush();
 	session_start();
-	$session = "CtdlSession." . session_id();
+
+	if ($_SESSION["ctdlsession"]) {
+		$session = $_SESSION["ctdlsession"];
+	}
+	else {
+		$session = "CtdlSession." . time() . rand(1000,9999) ;
+		$_SESSION["ctdlsession"] = $session;
+	}
 
 	// See if there's a Citadel connection proxy open for this session.
 	// The name of the socket is identical to the name of the
@@ -22,8 +27,6 @@ function establish_citadel_session() {
 
 	$sockname = "/tmp/" . $session . ".socket" ;
 
-	// echo "Connecting to ", $sockname, "...<BR>\n";
-	// flush();
 	$clientsocket = fsockopen($sockname, 0, $errno, $errstr, 5);
 	if (!$clientsocket) {
 		// It ain't there, dude.  Open up the proxy. (C version)
@@ -73,13 +76,16 @@ function ctdl_end_session() {
 	global $clientsocket, $session;
 
 	// Tell the Citadel server to terminate our connection.
-	fwrite($clientsocket, "QUIT\n");
+	// (The extra newlines force it to see that the Citadel session
+	// ended, and the proxy will quit.)
+	//
+	fwrite($clientsocket, "QUIT\n\n\n\n\n\n\n\n\n\n\n");
 	$response = fgets($clientsocket, 4096);		// IGnore response
 	fclose($clientsocket);
 	unset($clientsocket);
 
 	// Now clear our PHP session.
-	unset($session); 
+	$_SESSION = array();
 	session_write_close();
 }
 
