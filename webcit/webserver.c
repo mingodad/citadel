@@ -247,7 +247,6 @@ int main(int argc, char **argv)
         pthread_attr_t attr;		/* Thread attributes */
 	int a, i;			/* General-purpose variables */
 	int port = PORT_NUM;		/* Port to listen on */
-	/*struct linger WebLinger = { 1, 9000 };*/
 
 	/* Parse command line */
 	while ((a = getopt(argc, argv, "hp:")) != EOF)
@@ -299,8 +298,6 @@ int main(int argc, char **argv)
 			i = 1;
 			setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR,
 				&i, sizeof(i));
-/*			setsockopt(ssock, SOL_SOCKET, SO_LINGER,
-				&WebLinger, sizeof(struct linger));*/
 
 			/* set attributes for the new thread */
 		        pthread_attr_init(&attr);
