@@ -1,4 +1,7 @@
  $Log$
+ Revision 570.1  2000/03/20 14:43:19  ajc
+ * "Brown paper bag" fix for SMTP bug (incoming long fields crash logger)
+
  Revision 570.0  2000/03/19 23:42:34  ajc
  * This is the official 5.70 release.
 
@@ -1768,4 +1771,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

@@ -10,12 +10,12 @@ use uncnsrd
 phonenum netproc[7145]: Adding non-neighbor system <internet> to map
 gdom or system <internet> to map
 humannode BCCS
-lastcontact 953246224 Thu Mar 16 17:37:04 2000
+lastcontact 953519823 Sun Mar 19 21:37:03 2000
 
 internet
 uum %s
 humannode Internet Gateway
-lastcontact 953440623 Sat Mar 18 23:37:03 2000
+lastcontact 953559424 Mon Mar 20 08:37:04 2000
 
 uncnsrd
 bin Mail
@@ -36,14 +36,14 @@ tesseract
 bin Mail
 phonenum US 800 555 1212
 humannode Tesseract Project
-lastcontact 953440623 Sat Mar 18 23:37:03 2000
+lastcontact 953559424 Mon Mar 20 08:37:04 2000
 
 pixel
 use uncnsrd
 phonenum netproc[4026]: Adding non-neighbor system <tesseract> to map
 gdom or system <tesseract> to map
 humannode PixelBBS
-lastcontact 953271423 Fri Mar 17 00:37:03 2000
+lastcontact 953527024 Sun Mar 19 23:37:04 2000
 
 barbaria
 use uncnsrd

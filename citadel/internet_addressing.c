@@ -287,8 +287,6 @@ void try_name(struct usersupp *us, void *data) {
 	struct trynamebuf *tnb;
 	tnb = (struct trynamebuf *)data;
 
-	lprintf(9, "Trying <%s>\n", us->fullname);
-	
 	if (!strncasecmp(tnb->buffer1, "cit", 3))
 		if (atol(&tnb->buffer1[3]) == us->usernum)
 			strcpy(tnb->buffer2, us->fullname);
@@ -422,8 +420,6 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 	value = &key[(colonpos - beg) + 1];
 	unfold_rfc822_field(value);
 
-	lprintf(9, "Key=<%s> Value=<%s>\n", key, value);
-
 	/*
 	 * Here's the big rfc822-to-citadel loop.
 	 */
@@ -434,8 +430,6 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 	if (!strcasecmp(key, "Date")) {
 		parsed_date = parsedate(value);
 		if (parsed_date < 0L) parsed_date = time(NULL);
-		lprintf(9, "Parsed date is %s",
-			asctime(localtime(&parsed_date)));
 		snprintf(buf, sizeof buf, "%ld", parsed_date );
 		if (msg->cm_fields['T'] == NULL)
 			msg->cm_fields['T'] = strdoop(buf);
@@ -484,10 +478,6 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 			}
 		}
 
-		if (msg->cm_fields['I'] != NULL) {
-			lprintf(9, "Converted message id <%s>\n",
-				msg->cm_fields['I'] );
-		}
 		processed = 1;
 	}
 
@@ -523,7 +513,6 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 
 	while (!done) {
 
-		TRACE; lprintf(9, "I field is %s\n", msg->cm_fields['I']);
 		/* Locate beginning and end of field, keeping in mind that
 		 * some fields might be multiline
 		 */
@@ -557,7 +546,6 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 	}
 
 	/* Follow-up sanity checks... */
-	TRACE; lprintf(9, "I field is %s\n", msg->cm_fields['I']);
 
 	/* If there's no timestamp on this message, set it to now. */
 	if (msg->cm_fields['T'] == NULL) {
@@ -565,7 +553,6 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 		msg->cm_fields['T'] = strdoop(buf);
 	}
 
-	TRACE; lprintf(9, "I field is %s\n", msg->cm_fields['I']);
 	lprintf(9, "RFC822 length remaining after conversion = %d\n",
 		strlen(rfc822));
 	return msg;
