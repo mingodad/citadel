@@ -55,7 +55,9 @@ char* const message =
  *
  * After posting all messages, each thread takes a second timestamp, and
  * subtracts the first timestamp.  The resulting value (in seconds) is
- * sent to standard output.  The thread then exits.
+ * sent to standard output, followed by the minimum, average, and maximum
+ * amounts of time (in milliseconds) it took to post a message.  The
+ * thread then exits.
  *
  * Once all threads have exited, the program exits.
  */
@@ -207,8 +209,6 @@ void* worker(void* data)
 		pthread_mutex_unlock(&rand_mutex);
 		sleep(wait);
 
-		gettimeofday(&tv, NULL);
-		tstart = tv.tv_sec * 1000 + tv.tv_usec / 1000; /* cvt to msec */
 		/* Select the room to goto */
 		pthread_mutex_lock(&rand_mutex);
 		/* See Numerical Recipes in C or Knuth vol. 2 ch. 3 */
@@ -227,6 +227,8 @@ void* worker(void* data)
 			CtdlIPC_delete_ptr(&ipc);
 			return NULL;
 		}
+		gettimeofday(&tv, NULL);
+		tstart = tv.tv_sec * 1000 + tv.tv_usec / 1000; /* cvt to msec */
 		r = CtdlIPCGotoRoom(ipc, room, "", &rret, aaa);
 		if (r / 100 != 2) {
 			fprintf(stderr, "Citadel refused room change: %s\n", aaa);
@@ -252,7 +254,7 @@ void* worker(void* data)
 		pthread_mutex_lock(&count_mutex);
 		count++;
 		pthread_mutex_unlock(&count_mutex);
-		fprintf(stderr, "%d of %d - %d%%        \r",
+		fprintf(stderr, " %d/%d=%d%%             \r",
 			count, total,
 			(int)(100 * count / total));
 		gettimeofday(&tv, NULL);
@@ -264,6 +266,7 @@ void* worker(void* data)
 	}
 	end = time(NULL);
 	pthread_mutex_lock(&output_mutex);
+	fprintf(stderr, "               \r");
 	printf("%ld %ld %ld %ld\n", end - start, tmin, trun / c, tmax);
 	pthread_mutex_unlock(&output_mutex);
 	return (void*)(end - start);
@@ -349,8 +352,8 @@ int main(int argc, char** argv)
 		if (i == 0) sleep(3);
 	}
 
-	fprintf(stderr, "Starting in 10 seconds\r");
-	sleep(10);
+	fprintf(stderr, "Starting in %d seconds\r", n);
+	sleep(n);
 	fprintf(stderr, "                      \r");
 
 	/* Then, signal the conditional they all are waiting on */
