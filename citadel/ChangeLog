@@ -1,4 +1,7 @@
 $Log$
+Revision 1.482  2000/03/11 04:09:03  nbryant
+ * new threaded client code for background keepalives
+
 Revision 1.481  2000/03/10 21:40:04  ajc
 * Changes to message base and networker to support Internet-style message
   ID's instead of the conventional Citadel style.
@@ -1711,4 +1714,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

@@ -195,15 +195,6 @@ void citedit(FILE *fp)
 	struct cittext *textlist = NULL;
 	struct cittext *ptr;
 	char wordbuf[MAXWORDBUF];
-	char buf[256];
-	time_t last_server_msg,now;
-
-	/*
-	 * we're going to keep track of the last time we talked to
-	 * the server, so we can periodically send keep-alive messages
-	 * out so it doesn't time out.
-	 */
-	time(&last_server_msg);
 
 	/* first, load the text into the buffer */
 	fseek(fp, 0L, 0);
@@ -239,6 +230,7 @@ void citedit(FILE *fp)
 	finished = 0;
 	prev = (appending ? 13 : (-1));
 	strcpy(wordbuf,"");
+	async_ka_start();
 	do {
 		a=inkey();
 		if (a==10) a=13;
@@ -302,16 +294,8 @@ void citedit(FILE *fp)
 				}
 			}
 		prev = a;
-
-		/* this check implements the server keep-alive */
-		time(&now);
-		if ( (now - last_server_msg) > S_KEEPALIVE ) {
-			serv_puts("NOOP");
-			serv_gets(buf);
-			last_server_msg = now;
-			}
-
 		} while (finished==0);
+	async_ka_end();
 
 	/* write the buffer back to disk */
 	fseek(fp, 0L, 0);

@@ -18,3 +18,6 @@
 
 /* define this if you have the pthread_cancel() function */
 #undef HAVE_PTHREAD_CANCEL
+
+/* define this if you want to enable the multithreaded client */
+#undef THREADED_CLIENT

@@ -26,6 +26,9 @@
 #include <sys/select.h>
 #endif
 
+#ifdef THREADED_CLIENT
+#include <pthread.h>
+#endif
 
 #include <signal.h>
 #include <errno.h>
@@ -122,20 +125,9 @@ void set_keepalives(int s)
 /* 
  * This loop handles the "keepalive" messages sent to the server when idling.
  */
-void do_keepalive(void)
-{
+
+static void really_do_keepalive(void) {
 	char buf[256];
-	static time_t idlet = 0;
-	time_t now;
-
-	time(&now);
-	if ((now - idlet) < ((long) S_KEEPALIVE))
-		return;
-	time(&idlet);
-
-	/* Do a space-backspace to keep telnet sessions from idling out */
-	printf(" %c", 8);
-	fflush(stdout);
 
 	if (keepalives_enabled != KA_NO) {
 		serv_puts("NOOP");
@@ -153,6 +145,90 @@ void do_keepalive(void)
 			}
 		}
 	}
+}
+
+/* threaded nonblocking keepalive stuff starts here. I'm going for a simple
+   encapsulated interface; in theory there should be no need to touch these
+   globals outside of the async_ka_* functions. */
+
+#ifdef THREADED_CLIENT
+static pthread_t ka_thr_handle;
+static int ka_thr_active = 0;
+static pthread_mutex_t ka_thr_mutex = PTHREAD_MUTEX_INITIALIZER;
+static int async_ka_enabled = 0;
+
+static void *ka_thread(void *arg)
+{
+	really_do_keepalive();
+	pthread_detach(ka_thr_handle);
+	ka_thr_active = 0;
+	return NULL;
+}
+
+/* start up a thread to handle a keepalive in the background */
+static void async_ka_exec(void)
+{
+	if (ka_thr_active)
+		return;
+
+	pthread_mutex_lock(&ka_thr_mutex);
+
+	if (!ka_thr_active) {
+		ka_thr_active = 1;
+		if (pthread_create(&ka_thr_handle, NULL, ka_thread, NULL)) {
+			perror("pthread_create");
+			exit(1);
+		}
+	}
+	pthread_mutex_unlock(&ka_thr_mutex);
+}
+#endif /* THREADED_CLIENT */
+
+static void do_keepalive(void)
+{
+	static time_t idlet = 0;
+	time_t now;
+
+	time(&now);
+	if ((now - idlet) < ((long) S_KEEPALIVE))
+		return;
+	time(&idlet);
+
+	/* Do a space-backspace to keep telnet sessions from idling out */
+	printf(" %c", 8);
+	fflush(stdout);
+
+#ifdef THREADED_CLIENT
+	if (async_ka_enabled)
+		async_ka_exec();
+	else
+#endif
+		really_do_keepalive();
+}
+
+
+/* Now the actual async-keepalve API that we expose to higher levels:
+   async_ka_start() and async_ka_end(). These do nothing when we don't have
+   threading enabled, so we avoid sprinkling ifdef's throughout the code. */
+
+/* wait for a background keepalive to complete. this must be done before
+   attempting any further server requests! */
+void async_ka_end(void)
+{
+#ifdef THREADED_CLIENT
+	if (ka_thr_active)
+		pthread_join(ka_thr_handle, NULL);
+
+	async_ka_enabled--;
+#endif
+}
+
+/* tell do_keepalive() that keepalives are asynchronous. */
+void async_ka_start(void)
+{
+#ifdef THREADED_CLIENT
+	async_ka_enabled++;
+#endif
 }
 
 
@@ -175,6 +251,7 @@ int inkey(void)
 		 */
 		do {
 			do_keepalive();
+
 			FD_ZERO(&rfds);
 			FD_SET(0, &rfds);
 			tv.tv_sec = S_KEEPALIVE;
@@ -265,6 +342,7 @@ void getline(char *string, int lim)
 	}
 	strcpy(string, "");
 	gl_string = string;
+	async_ka_start();
       GLA:a = inkey();
 	a = (a & 127);
 	if ((a == 8) && (strlen(string) == 0))
@@ -281,6 +359,7 @@ void getline(char *string, int lim)
 	if ((a == 13) || (a == 10)) {
 		putc(13, stdout);
 		putc(10, stdout);
+		async_ka_end();
 		return;
 	}
 	if (a < 32)

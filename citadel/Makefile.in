@@ -21,6 +21,7 @@ all: $(TARGETS)
 
 EXEEXT=@EXEEXT@
 SO=@SO@
+CX=@CX@
 SERV_ICQ=@SERV_ICQ@
 
 CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT)
@@ -55,7 +56,10 @@ CURSES=@CURSES@
 NETLIBS=@NETLIBS@
 chkpwd_LIBS=@chkpwd_LIBS@
 LIBOBJS=@LIBOBJS@
+CL_LIBOBJS=@CL_LIBOBJS@
 PTHREAD_DEFS=@PTHREAD_DEFS@
+PTHREAD_LIBS=@PTHREAD_LIBS@
+CLIENT_PTLIBS=@CLIENT_PTLIBS@
 INSTALL=@INSTALL@
 INSTALL_DATA=@INSTALL_DATA@
 SHELL=/bin/sh
@@ -91,13 +95,13 @@ serv_modules: $(SERV_MODULES)
 #
 #
 
-citadel$(EXEEXT): ipc_c_tcp.o citadel.o rooms.o routines.o \
-	routines2.o messages.o client_icq.o \
-	commands.o client_chat.o serv_info.o tools.o $(LIBOBJS)
-	$(CC) ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o \
-	messages.o client_icq.o \
-	commands.o client_chat.o serv_info.o tools.o $(LIBOBJS) $(LDFLAGS) \
-	-o citadel $(NETLIBS)
+citadel$(EXEEXT): ipc_c_tcp$(CX) citadel$(CX) rooms$(CX) routines$(CX) \
+	routines2$(CX) messages$(CX) client_icq$(CX) \
+	commands$(CX) client_chat$(CX) serv_info$(CX) tools$(CX) $(LIBOBJS)
+	$(CC) ipc_c_tcp$(CX) citadel$(CX) rooms$(CX) routines$(CX) \
+	routines2$(CX) messages$(CX) client_icq$(CX) \
+	commands$(CX) client_chat$(CX) serv_info$(CX) tools$(CX) \
+	$(LIBOBJS) $(LDFLAGS) -o citadel $(NETLIBS) $(CLIENT_PTLIBS)
 
 netpoll: netpoll.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)
 	$(CC) netpoll.o config.o ipc_c_tcp.o tools.o \
@@ -117,8 +121,8 @@ SERV_OBJS = citserver.ro user_ops.ro support.ro room_ops.ro file_ops.ro \
 	$(AUTH) $(LIBOBJS:.o=.ro)
 
 citserver: $(SERV_OBJS)
-	$(CC) $(SERV_OBJS) $(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) $(NETLIBS) \
-	$(GDBM) $(RESOLV) -o citserver
+	$(CC) $(SERV_OBJS) $(LDFLAGS) $(SERVER_LDFLAGS) $(PTHREAD_LIBS) \
+	$(LIBS) $(NETLIBS) $(GDBM) $(RESOLV) -o citserver
 
 .c.ro:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c $< -o $@

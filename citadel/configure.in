@@ -12,10 +12,12 @@ fi
 AC_ARG_ENABLE(autologin, [  --disable-autologin     disable autologin (default is enabled if possible)])
 AC_ARG_ENABLE(chkpwd, [  --disable-chkpwd        don't build 'chkpwd'])
 
-AC_ARG_ENABLE(icq, [  --enable-icq            include server ICQ support], [
+AC_ARG_ENABLE(icq,             [  --enable-icq            include server ICQ support], [
 	if test "x$enableval" = xyes; then
 		SERV_ICQ='modules/serv_icq$(SO)'
 	fi])
+AC_ARG_ENABLE(threaded-client, [  --disable-threaded-client
+			  disable multithreaded client])
 
 AC_ARG_WITH(pam, [  --with-pam              use PAM if present (see PAM.txt before you try this)])
 AC_ARG_WITH(kthread, [  --with-kthread          use kernel threads (on FreeBSD) (not recommended yet)])
@@ -45,21 +47,21 @@ case "$host" in
 	alpha*-dec-osf*)
 		test -z "$CC" && CC=cc
 		PTHREAD_DEFS=-pthread
-		SERVER_LDFLAGS=-pthread
+		PTHREAD_LIBS=-pthread
 		check_pthread=no
 	;;
 	dnl FreeBSD is similar to Digital UNIX:
 	*-*-freebsd*)
 		if test "$with_kthread" = yes; then
-			SERVER_LDFLAGS=-kthread
+			PTHREAD_LIBS=-kthread
 		else
-			SERVER_LDFLAGS=-pthread
+			PTHREAD_LIBS=-pthread
 		fi
 		check_pthread=no
 		PTHREAD_DEFS=-D_THREAD_SAFE
 	;;
 	*-*-openbsd*)
-		SERVER_LDFLAGS=-pthread
+		PTHREAD_LIBS=-pthread
 		check_pthread=no
 		PTHREAD_DEFS=-pthread
 		LINK_SHARED="ld -x -Bshareable"
@@ -169,8 +171,10 @@ LIBS=$save_LIBS
 dnl Check for libpthread(s) if we're not using Digital UNIX or FreeBSD. (On
 dnl which the -pthread flag takes care of this.)
 if test "$check_pthread" != no; then
-	AC_CHECK_LIB(pthread, pthread_create)
-	AC_CHECK_LIB(pthreads, pthread_create)
+	AC_CHECK_LIB(pthread, pthread_create,
+		PTHREAD_LIBS="-lpthread $PTHREAD_LIBS")
+	AC_CHECK_LIB(pthreads, pthread_create,
+		PTHREAD_LIBS="-lpthreads $PTHREAD_LIBS")
 fi
 
 dnl Checks for header files.
@@ -221,6 +225,8 @@ dnl Now check for pthreads -- set up variables so that the compiler will be run
 dnl with proper flags for pthread programs
 save_LDFLAGS=$LDFLAGS
 LDFLAGS="$LDFLAGS $SERVER_LDFLAGS"
+save_LIBS=$LIBS
+LIBS="$PTHREAD_LIBS $LIBS"
 
 dnl On some platforms, AC_CHECK_FUNC[S] doesn't work for pthreads programs;
 dnl we need to include pthread.h
@@ -258,10 +264,22 @@ AC_CACHE_CHECK([for pthread_create], ac_cv_func_pthread_create,
 ac_cv_func_pthread_create=yes, ac_cv_func_pthread_create=no)])
 if test "$ac_cv_func_pthread_create" = yes; then
 	TARGETS="client server utils serv_modules"
+	if test "x$enable_threaded_client" != xno; then
+		AC_DEFINE(THREADED_CLIENT)
+		CLIENT_PTLIBS=$PTHREAD_LIBS
+		CL_LIBOBJS='$(LIBOBJS:.o=.ro)'
+		CX=.ro
+	fi
+fi
+
+if test "x$CX" != x.ro; then
+	CL_LIBOBJS='$(LIBOBJS)'
+	CX=.o
 fi
 
 dnl Now restore the old ldflags so we don't pass the wrong stuff to makefile
 LDFLAGS=$save_LDFLAGS
+LIBS=$save_LIBS
 
 AC_REPLACE_FUNCS(snprintf getutline)
 
@@ -280,5 +298,9 @@ AC_SUBST(SERV_ICQ)
 AC_SUBST(PICFLAGS)
 AC_SUBST(LINK_SHARED)
 AC_SUBST(PTHREAD_DEFS)
+AC_SUBST(PTHREAD_LIBS)
+AC_SUBST(CLIENT_PTLIBS)
+AC_SUBST(CL_LIBOBJS)
+AC_SUBST(CX)
 AC_CONFIG_HEADER(sysdep.h)
 AC_OUTPUT(Makefile weekly)

@@ -48,6 +48,8 @@ int yesno(void);
 int yesno_d(int d);
 void keyopt(char *);
 char keymenu(char *menuprompt, char *menustring);
+void async_ka_start(void);
+void async_ka_end(void);
 
 extern int num_urls;
 extern char urls[MAXURLS][256];
