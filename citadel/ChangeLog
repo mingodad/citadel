@@ -1,4 +1,7 @@
  $Log$
+ Revision 605.5  2003/03/01 17:25:33  ajc
+ * citadel.rc default for alternate_semantics = no
+
  Revision 605.4  2003/02/23 05:34:45  ajc
  * When the <N>ew command is used to read new messages, the next "lazy"
    command (space bar) now always does <G>oto, regardless of the last one.
@@ -4495,3 +4498,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

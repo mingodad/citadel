@@ -159,7 +159,7 @@ remember_passwords=0
 # systems, where many messages may be posted while reading.  Users
 # accustomed to D.O.C. or its variants will want to set this option.
 #
-alternate_semantics=yes
+alternate_semantics=no
 
 
 # COMMAND SET CONFIGURATION
