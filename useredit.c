@@ -29,12 +29,14 @@
 
 
 
-void select_user_to_edit(void)
+void select_user_to_edit(char *message)
 {
 	char buf[SIZ];
 	char username[SIZ];
 
 	output_headers(3);	/* No room banner on this screen */
+
+	if (message != NULL) wprintf(message);
 
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>"
@@ -77,3 +79,73 @@ void select_user_to_edit(void)
 	wDumpContent(1);
 }
 
+
+
+/*
+ * Edit a user.  If supplied_username is null, look in the "username"
+ * web variable for the name of the user to edit.
+ */
+void display_edituser(char *supplied_username) {
+	char username[SIZ];
+	char buf[SIZ];
+	char error_message[SIZ];
+
+	if (supplied_username != NULL) {
+		strcpy(username, supplied_username);
+	}
+	else {
+		strcpy(username, bstr("username") );
+	}
+
+	serv_printf("AGUP %s", username);
+	serv_gets(buf);
+	if (buf[0] != '2') {
+		sprintf(error_message,
+			"<IMG SRC=\"static/error.gif\" VALIGN=CENTER>"
+			"%s<BR><BR>\n", &buf[4]);
+		select_user_to_edit(error_message);
+		return;
+	}
+
+	output_headers(3);	/* No room banner on this screen */
+
+	wprintf("this is %s", username);
+
+	wDumpContent(1);
+
+}
+
+
+
+void create_user(void) {
+	char buf[SIZ];
+	char username[SIZ];
+	char error_message[SIZ];
+
+	strcpy(username, bstr("username"));
+
+	serv_printf("CREU %s", username);
+	serv_gets(buf);
+
+	if (buf[0] == '2') {
+		display_edituser(username);
+	}
+	else {
+		sprintf(error_message,
+			"<IMG SRC=\"static/error.gif\" VALIGN=CENTER>"
+			"%s<BR><BR>\n", &buf[4]);
+		select_user_to_edit(error_message);
+		return;
+	}
+
+	output_headers(3);
+
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>"
+		"Edit user account: ");
+	escputs(username);
+	wprintf("</B></FONT></TD></TR></TABLE>\n");
+
+	wDumpContent(1);
+
+}
