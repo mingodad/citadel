@@ -197,29 +197,45 @@ void CtdlForEachMessage(int mode, long ref,
 
 	int a;
 	struct visit vbuf;
+        struct cdbdata *cdbfr;
+	long *msglist = NULL;
+	int num_msgs = 0;
+	long thismsg;
 
 	get_mm();
-	get_msglist(&CC->quickroom);
 	getuser(&CC->usersupp, CC->curr_user);
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
-	if (CC->num_msgs != 0) for (a = 0; a < (CC->num_msgs); ++a) {
-		if ((MessageFromList(a) >= 0)
+        cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->quickroom.QRnumber, sizeof(long));
+        if (cdbfr != NULL) {
+        	msglist = mallok(cdbfr->len);
+        	memcpy(msglist, cdbfr->ptr, cdbfr->len);
+        	num_msgs = cdbfr->len / sizeof(long);
+        	cdb_free(cdbfr);
+	} else {
+		return;
+	}
+
+	if (num_msgs > 0) for (a = 0; a < (num_msgs); ++a) {
+		thismsg = msglist[a];
+		lprintf(9, "CtdlForEachMessage() iterating msg %ld\n", thismsg);
+		if ((thismsg >= 0)
 		    && (
 
 			       (mode == MSGS_ALL)
-			       || ((mode == MSGS_OLD) && (MessageFromList(a) <= vbuf.v_lastseen))
-			       || ((mode == MSGS_NEW) && (MessageFromList(a) > vbuf.v_lastseen))
-			       || ((mode == MSGS_NEW) && (MessageFromList(a) >= vbuf.v_lastseen)
+			       || ((mode == MSGS_OLD) && (thismsg <= vbuf.v_lastseen))
+			       || ((mode == MSGS_NEW) && (thismsg > vbuf.v_lastseen))
+			       || ((mode == MSGS_NEW) && (thismsg >= vbuf.v_lastseen)
 			    && (CC->usersupp.flags & US_LASTOLD))
-			       || ((mode == MSGS_LAST) && (a >= (CC->num_msgs - ref)))
+			       || ((mode == MSGS_LAST) && (a >= (num_msgs - ref)))
 		    || ((mode == MSGS_FIRST) && (a < ref))
-			       || ((mode == MSGS_GT) && (MessageFromList(a) > ref))
+			       || ((mode == MSGS_GT) && (thismsg > ref))
 		    )
 		    ) {
-			CallBack(MessageFromList(a));
+			CallBack(thismsg);
 		}
 	}
+	phree(msglist);
 }
 
 
@@ -1456,12 +1472,10 @@ int CtdlDeleteMessages(	char *room_name,	/* which room */
 
 	if (num_msgs > 0) {
 		for (i=0; i<num_msgs; ++i) {
-			lprintf(9, "Evaluating message d\n", i);
 			delete_this = 0x00;
 
 			/* Set/clear a bit for each criterion */
 
-			lprintf(9, "Message number is <%ld>\n", msglist[i]);
 			if ( (dmsgnum == 0L) || (msglist[i]==dmsgnum) ) {
 				delete_this  |= 0x01;
 			}
@@ -1470,8 +1484,6 @@ int CtdlDeleteMessages(	char *room_name,	/* which room */
 				delete_this |= 0x02;
 			} else {
 				GetSuppMsgInfo(&smi, msglist[i]);
-				lprintf(9, "Content type is <%s>\n",
-					smi.smi_content_type);
 				if (!strcasecmp(smi.smi_content_type,
 				   content_type)) {
 					delete_this |= 0x02;

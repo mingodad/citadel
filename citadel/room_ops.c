@@ -367,9 +367,6 @@ void delete_msglist(struct quickroom *whichroom)
 
 /* 
  * Add a message number to a room's message list.  
- * So, why doesn't this function use the get_msglist() and put_msglist() stuff
- * defined above?  Because the room the message number is being written to
- * may not be the current room (as is the case with cmd_move() for example).
  *
  * This function returns the highest message number present in the room after
  * the add operation is performed - which is not necessarily the message
