@@ -1205,7 +1205,7 @@ RMSGREAD:	fflush(stdout);
 			printf(") ");
 
 			keyopt
-			    ("<B>ack <A>gain <Q>uote <R>eply <N>ext <S>top ");
+			    ("<B>ack <A>gain <Q>uote <R>eply <N>ext <S>top M<y> next ");
 			if (rc_url_cmd[0] && num_urls)
 				keyopt("<U>RL View ");
 			keyopt("<?>Help/others -> ");
@@ -1241,7 +1241,7 @@ RMSGREAD:	fflush(stdout);
 				 && (e != 'd') && (e != 'm') && (e != 'p')
 				 && (e != 'q') && (e != 'b') && (e != 'h')
 				 && (e != 'r') && (e != 'f') && (e != '?')
-				 && (e != 'u') && (e != 'c'));
+				 && (e != 'u') && (e != 'c') && (e != 'y'));
 			switch (e) {
 			case 's':
 				printf("Stop\r");
@@ -1282,6 +1282,9 @@ RMSGREAD:	fflush(stdout);
 			case 'u':
 				printf("URL's\r");
 				break;
+			case 'y':
+				printf("My next\r");
+				break;
 			case '?':
 				printf("? <help>\r");
 				break;
@@ -1299,6 +1302,7 @@ RMSGREAD:	fflush(stdout);
 			printf(" S  Stop reading immediately\n");
 			printf(" A  Again (repeats last message)\n");
 			printf(" N  Next (continue with next message)\n");
+			printf(" Y  My Next (continue with next message you authored)\n");
 			printf(" B  Back (go back to previous message)\n");
 			if ((is_room_aide)
 			    || (room_flags & QR_MAILBOX)) {
@@ -1403,7 +1407,44 @@ RMSGREAD:	fflush(stdout);
 		case 'u':
 			list_urls();
 			goto RMSGREAD;
-		}
+	    case 'y':
+          { /* hack hack hack */
+            /* find the next message by me, stay here if we find nothing */
+            int finda;
+            int lasta = a;
+            for (finda = a; ((finda < num_msgs) && (finda >= 0)); finda += rdir)
+              {
+                /* this is repetitivly dumb, but that's what computers are for.
+                   We have to load up messages until we find one by us */
+                char buf[SIZ];
+                int founda = 0;
+                
+               	sprintf(buf, "MSG0 %ld|%d", msg_arr[finda], 0); /* read whole message so we can get 'from=' */
+             	serv_puts(buf);
+            	serv_gets(buf);
+            	while (serv_gets(buf), strncasecmp(buf, "text", 4)) 
+                  {
+            		if ((!strncasecmp(buf, "from=", 5)) && (finda != a)) /* Skip current message. */
+            	      { 
+                        if (strcasecmp(buf+5, fullname) == 0)
+                          {
+                            a = lasta; /* meesa current */
+                            founda = 1;
+                            break; /* while */
+                          }
+            		  }
+            	  }
+                /* Now read the content of the message > /dev/null */
+        		while (serv_gets(buf), strcmp(buf, "000")) 
+        	      {
+        		  }
+        	    // we are now in synch with the server
+                if (founda)
+                  break; /* for */
+                lasta = finda; /* keep one behind or we skip on the reentrance to the for */
+              } /* for */
+          } /* case 'y' */
+      } /* switch */
 	}			/* end for loop */
 }				/* end read routine */
 

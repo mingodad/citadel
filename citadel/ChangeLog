@@ -1,4 +1,9 @@
  $Log$
+ Revision 590.22  2001/12/28 22:32:38  nixo
+ Added a "read m<y> next" function in read mode. It will skip to the next
+ message by the user in the current message list (whatever mode you're in
+ be it read forward, last 50, whatever.)
+
  Revision 590.21  2001/12/28 11:06:53  error
  * More server support for hostnames up to 63 characters (oops I missed a spot)
 
@@ -3015,3 +3020,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
