@@ -125,12 +125,12 @@ remember_passwords=0
 # for 'safe' public clients.)
 #
 # This one works on Linux and most other X11-based Unices.  Specify the full
-# path to Netscape (or a Netscape-compatible like Mozilla) if necessary.
-#urlcmd=netscape -remote "openURL(%s)"
+# path to Mozilla (or a Mozilla derivative like Netscape) if necessary.
+#urlcmd=mozilla -remote "openURL(%s)"
 #
 # This one works really well on a Macintosh -- it opens URL's in whatever
 # browser you have configured as the system default.
-#urlcmd=open %s
+#urlcmd=open "%s"
 
 # If GOTMAILCMD is defined, the specified command will be executed.  This
 # might be nice for playing sounds or providing any other type of notification.

@@ -598,7 +598,7 @@ int read_message(CtdlIPC *ipc,
 	/* Extract URL's */
 	num_urls = 0;	/* Start with a clean slate */
 	searchptr = message->text;
-	while (searchptr != NULL) {
+	while ( (searchptr != NULL) && (num_urls < MAXURLS) ) {
 		searchptr = strstr(searchptr, "http://");
 		if (searchptr != NULL) {
 			safestrncpy(urls[num_urls], searchptr, sizeof(urls[num_urls]));
