@@ -114,7 +114,7 @@ void np_attach_to_server(void)
 	strcpy(portbuf, ".");	/* IPGM will refuse to run on the network */
 	fprintf(stderr, "Attaching to server...\n");
 	ipc = CtdlIPC_new(1, args, hostbuf, portbuf);
-	CtdlIPC_getline(ipc, buf);
+	CtdlIPC_chat_recv(ipc, buf);
 	fprintf(stderr, "%s\n", &buf[4]);
 	snprintf(buf, sizeof buf, "IPGM %d", config.c_ipgm_secret);
 	r = CtdlIPCInternalProgram(ipc, config.c_ipgm_secret, buf);
@@ -169,12 +169,12 @@ int main(int argc, char **argv)
 	fflush(stderr);
 
 	fprintf(stderr, "%s\n", cmd);
-	CtdlIPC_putline(ipc, cmd);
-	CtdlIPC_getline(ipc, buf);
+	CtdlIPC_chat_send(ipc, cmd);
+	CtdlIPC_chat_recv(ipc, buf);
 	fprintf(stderr, "%s\n", buf);
 
 	if (buf[0] == '1') {
-		while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
+		while (CtdlIPC_chat_recv(ipc, buf), strcmp(buf, "000")) {
 			printf("%s\n", buf);
 		}
 	} else if (buf[0] == '4') {
@@ -188,9 +188,9 @@ int main(int argc, char **argv)
 				if (buf[strlen(buf) - 1] == '\r')
 					buf[strlen(buf) - 1] = 0;
 			if (strcmp(buf, "000"))
-				CtdlIPC_putline(ipc, buf);
+				CtdlIPC_chat_send(ipc, buf);
 		} while (strcmp(buf, "000"));
-		CtdlIPC_putline(ipc, "000");
+		CtdlIPC_chat_send(ipc, "000");
 	}
 	fprintf(stderr, "sendcommand: processing ended.\n");
 	cleanup(0);

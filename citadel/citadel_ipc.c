@@ -77,8 +77,8 @@ static void endtls(SSL *ssl);
 static unsigned long id_callback(void);
 #endif /* THREADED_CLIENT */
 #endif /* HAVE_OPENSSL */
-/* static */ void CtdlIPC_getline(CtdlIPC* ipc, char *buf);
-/* static */ void CtdlIPC_putline(CtdlIPC *ipc, const char *buf);
+static void CtdlIPC_getline(CtdlIPC* ipc, char *buf);
+static void CtdlIPC_putline(CtdlIPC *ipc, const char *buf);
 
 
 /*
@@ -2802,7 +2802,7 @@ static unsigned long id_callback(void) {
 /*
  * input string from socket - implemented in terms of serv_read()
  */
-/* static */ void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
+static void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
 {
 	int i;
 
@@ -2831,7 +2831,7 @@ void CtdlIPC_chat_recv(CtdlIPC* ipc, char* buf)
 /*
  * send line to server - implemented in terms of serv_write()
  */
-/* static */ void CtdlIPC_putline(CtdlIPC *ipc, const char *buf)
+static void CtdlIPC_putline(CtdlIPC *ipc, const char *buf)
 {
 	/* error_printf("< %s\n", buf); */
 	serv_write(ipc, buf, strlen(buf));

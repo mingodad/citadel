@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 	CtdlIPC *ipc = NULL;
 
 	ipc = CtdlIPC_new(argc, argv, hostbuf, portbuf);
-	CtdlIPC_getline(ipc, buf);
+	CtdlIPC_chat_recv(ipc, buf);
 	if ((buf[0]!='2')&&(strncmp(buf,"551",3))) {
 		fprintf(stderr,"%s: %s\n",argv[0],&buf[4]);
 		logoff(atoi(buf));

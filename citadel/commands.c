@@ -377,7 +377,7 @@ static void really_do_keepalive(void) {
 	 */
 	if ( (keepalives_enabled == KA_HALF)
 	   && (ipc_for_signal_handlers->ServInfo.supports_qnop > 0) ) {
-		CtdlIPC_putline(ipc_for_signal_handlers, "QNOP");
+		CtdlIPC_chat_send(ipc_for_signal_handlers, "QNOP");
 	}
 }
 
@@ -1631,7 +1631,7 @@ char keymenu(char *menuprompt, char *menustring) {
 					scr_printf(" ");
 				}
 			}
-			scr_printf(" -> ");
+			scr_printf("-> ");
 			display_prompt = 0;
 		}
 		ch = lkey();
@@ -1660,7 +1660,7 @@ char keymenu(char *menuprompt, char *menustring) {
 							scr_putc(buf[a]);
 						}
 					}
-					scr_printf("\n\n");
+					scr_printf("\n");
 					return ch;
 				}
 			}

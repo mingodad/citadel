@@ -71,8 +71,8 @@ void chatmode(CtdlIPC *ipc)
 	struct timeval tv;
 	int retval;
 
-	CtdlIPC_putline(ipc, "CHAT");
-	CtdlIPC_getline(ipc, buf);
+	CtdlIPC_chat_send(ipc, "CHAT");
+	CtdlIPC_chat_recv(ipc, buf);
 	if (buf[0] != '8') {
 		scr_printf("%s\n", &buf[4]);
 		return;
@@ -102,7 +102,7 @@ void chatmode(CtdlIPC *ipc)
 
 		/* If there's data from the server... */
 		if (FD_ISSET(CtdlIPC_getsockfd(ipc), &rfds)) {
-			CtdlIPC_getline(ipc, buf);
+			CtdlIPC_chat_recv(ipc, buf);
 			recv_complete_line = 1;
 			goto RCL;	/* ugly, but we've gotta get out! */
 		}
@@ -126,7 +126,7 @@ void chatmode(CtdlIPC *ipc)
 
 		/* if the user hit return, send the line */
 RCL:		if (send_complete_line) {
-			CtdlIPC_putline(ipc, wbuf);
+			CtdlIPC_chat_send(ipc, wbuf);
 			last_transmit = time(NULL);
 			strcpy(wbuf, "");
 			send_complete_line = 0;
@@ -140,13 +140,13 @@ RCL:		if (send_complete_line) {
 					pos = a;
 			}
 			if (pos == 0) {
-				CtdlIPC_putline(ipc, wbuf);
+				CtdlIPC_chat_send(ipc, wbuf);
 				last_transmit = time(NULL);
 				strcpy(wbuf, "");
 				send_complete_line = 0;
 			} else {
 				wbuf[pos] = 0;
-				CtdlIPC_putline(ipc, wbuf);
+				CtdlIPC_chat_send(ipc, wbuf);
 				last_transmit = time(NULL);
 				strcpy(wbuf, &wbuf[pos + 1]);
 			}
@@ -165,9 +165,9 @@ RCL:		if (send_complete_line) {
 				 * exiting chat.  This little dialog forces
 				 * everything to be hunky-dory.
 				 */
-				CtdlIPC_putline(ipc, "ECHO __ExitingChat__");
+				CtdlIPC_chat_send(ipc, "ECHO __ExitingChat__");
 				do {
-					CtdlIPC_getline(ipc, buf);
+					CtdlIPC_chat_recv(ipc, buf);
 				} while (strcmp(buf, "200 __ExitingChat__"));
 				return;
 			}
@@ -217,7 +217,7 @@ RCL:		if (send_complete_line) {
 		 * server to prevent session timeout.
 		 */
 		if ((time(NULL) - last_transmit) >= S_KEEPALIVE) {
-			CtdlIPC_putline(ipc, "NOOP");
+			CtdlIPC_chat_send(ipc, "NOOP");
 			last_transmit = time(NULL);
 		}
 
@@ -239,8 +239,8 @@ void page_user(CtdlIPC *ipc)
 	if (ipc->ServInfo.paging_level == 0) {
 		newprompt("Message: ", msg, 69);
 		snprintf(buf, sizeof buf, "SEXP %s|%s", touser, msg);
-		CtdlIPC_putline(ipc, buf);
-		CtdlIPC_getline(ipc, buf);
+		CtdlIPC_chat_send(ipc, buf);
+		CtdlIPC_chat_recv(ipc, buf);
 		if (!strncmp(buf, "200", 3)) {
 			strcpy(last_paged, touser);
 		}
@@ -250,8 +250,8 @@ void page_user(CtdlIPC *ipc)
 	/* new server -- use extended paging */
 	else if (ipc->ServInfo.paging_level >= 1) {
 		snprintf(buf, sizeof buf, "SEXP %s||", touser);
-		CtdlIPC_putline(ipc, buf);
-		CtdlIPC_getline(ipc, buf);
+		CtdlIPC_chat_send(ipc, buf);
+		CtdlIPC_chat_recv(ipc, buf);
 		if (buf[0] != '2') {
 			scr_printf("%s\n", &buf[4]);
 			return;
@@ -263,16 +263,16 @@ void page_user(CtdlIPC *ipc)
 		pagefp = fopen(temp, "r");
 		unlink(temp);
 		snprintf(buf, sizeof buf, "SEXP %s|-", touser);
-		CtdlIPC_putline(ipc, buf);
-		CtdlIPC_getline(ipc, buf);
+		CtdlIPC_chat_send(ipc, buf);
+		CtdlIPC_chat_recv(ipc, buf);
 		if (buf[0] == '4') {
 			strcpy(last_paged, touser);
 			while (fgets(buf, sizeof buf, pagefp) != NULL) {
 				buf[strlen(buf) - 1] = 0;
-				CtdlIPC_putline(ipc, buf);
+				CtdlIPC_chat_send(ipc, buf);
 			}
 			fclose(pagefp);
-			CtdlIPC_putline(ipc, "000");
+			CtdlIPC_chat_send(ipc, "000");
 			scr_printf("Message sent.\n");
 		} else {
 			scr_printf("%s\n", &buf[4]);

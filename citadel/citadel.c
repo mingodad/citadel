@@ -1151,7 +1151,7 @@ int main(int argc, char **argv)
 #endif
 	ipc_for_signal_handlers = ipc;	/* KLUDGE cover your eyes */
 
-	CtdlIPC_getline(ipc, aaa);
+	CtdlIPC_chat_recv(ipc, aaa);
 	if (aaa[0] != '2') {
 		scr_printf("%s\n", &aaa[4]);
 		logoff(ipc, atoi(aaa));
@@ -1408,14 +1408,16 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 				entmsg(ipc, 0, 2);
 				break;
 			case 78:
-				newprompt("What do you want your username to be? ", aaa, 32);
-				snprintf(bbb, sizeof bbb, "ENT0 2|0|0|0|%s", aaa);
-				CtdlIPC_putline(ipc, bbb);
-				CtdlIPC_getline(ipc, aaa);
-				if (strncmp("200", aaa, 3))
-					scr_printf("\n%s\n", aaa);
-				else
-					entmsg(ipc, 0, 0);
+				{
+					/* Only m.author is used */
+					struct ctdlipcmessage m;
+					newprompt("What do you want your username to be? ", m.author, USERNAME_SIZE - 1);
+					r = CtdlIPCPostMessage(ipc, 2, &m, aaa);
+					if (r / 100 != 2)
+						scr_printf("%s\n", aaa);
+					else
+						entmsg(ipc, 0, 0);
+				}
 				break;
 			case 5:				/* <G>oto */
 				updatels(ipc);

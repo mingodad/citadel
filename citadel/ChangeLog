@@ -1,4 +1,9 @@
  $Log$
+ Revision 614.77  2004/03/15 16:36:50  error
+ * Multiple files:  Convert most remaining client code to use new Citadel IPC
+   functions.  A few bits remain and will be converted when the chat system
+   is rewritten.
+
  Revision 614.76  2004/03/14 06:35:46  ajc
  * Cache IMAP "BODY" fetches in an already-converted format.  This speeds
    up clients like Mozilla and Thunderbird that request big messages in
@@ -5505,4 +5510,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -908,6 +908,7 @@ void do_internet_configuration(CtdlIPC *ipc)
 	int badkey;
 	int i, j;
 	int quitting = 0;
+	int modified = 0;
 	int r;
 	
 	r = CtdlIPCGetSystemConfigByType(ipc, INTERNETCFG, &resp, buf);
@@ -959,6 +960,7 @@ void do_internet_configuration(CtdlIPC *ipc)
 							&buf[strlen(buf)]);
 					recs[num_recs-1] = strdup(buf);
 				}
+				modified = 1;
 				break;
 			case 'd':
 				i = intprompt("Delete which one",
@@ -967,6 +969,7 @@ void do_internet_configuration(CtdlIPC *ipc)
 				--num_recs;
 				for (j=i; j<num_recs; ++j)
 					recs[j] = recs[j+1];
+				modified = 1;
 				break;
 			case 's':
 				r = 1;
@@ -984,17 +987,19 @@ void do_internet_configuration(CtdlIPC *ipc)
 				r = CtdlIPCSetSystemConfigByType(ipc, INTERNETCFG, resp, buf);
 				if (r / 100 != 4) {
 					err_printf("%s\n", buf);
+				} else {
+					scr_printf("Wrote %d records.\n", num_recs);
+					modified = 0;
 				}
-				quitting = 1;
 				break;
 			case 'q':
-				quitting = boolprompt(
+				quitting = !modified || boolprompt(
 					"Quit without saving", 0);
 				break;
 			default:
 				badkey = 1;
 		}
-	} while (quitting == 0);
+	} while (!quitting);
 
 	if (recs != NULL) {
 		for (i=0; i<num_recs; ++i) free(recs[i]);
@@ -1089,15 +1094,20 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 
 	if (e_ex_code == 0) { 		/* Save changes */
 		changefp = fopen(changefile, "w");
-		CtdlIPC_putline(ipc, "GNET");
-		CtdlIPC_getline(ipc, buf);
-		if (buf[0] == '1') {
-			while(CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
+		r = CtdlIPCGetRoomNetworkConfig(ipc, &listing, buf);
+		if (r / 100 == 1) {
+			while(listing && strlen(listing)) {
+				extract_token(buf, listing, 0, '\n');
+				remove_token(listing, 0, '\n');
 				extract(instr, buf, 0);
 				if (strcasecmp(instr, entrytype)) {
 					fprintf(changefp, "%s\n", buf);
 				}
 			}
+		}
+		if (listing) {
+			free(listing);
+			listing = NULL;
 		}
 		tempfp = fopen(filename, "r");
 		while (fgets(buf, sizeof buf, tempfp) != NULL) {
@@ -1113,19 +1123,15 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 		fclose(changefp);
 
 		/* now write it to the server... */
-		CtdlIPC_putline(ipc, "SNET");
-		CtdlIPC_getline(ipc, buf);
-		if (buf[0] == '4') {
-			changefp = fopen(changefile, "r");
-			if (changefp != NULL) {
-				while (fgets(buf, sizeof buf,
-				       changefp) != NULL) {
-					buf[strlen(buf) - 1] = 0;
-					CtdlIPC_putline(ipc, buf);
-				}
-				fclose(changefp);
+		changefp = fopen(changefile, "r");
+		if (changefp != NULL) {
+			listing = load_message_from_file(changefp);
+			if (listing) {
+				r = CtdlIPCSetRoomNetworkConfig(ipc, listing, buf);
+				free(listing);
+				listing = NULL;
 			}
-			CtdlIPC_putline(ipc, "000");
+			fclose(changefp);
 		}
 	}
 
@@ -1145,6 +1151,7 @@ void do_ignet_configuration(CtdlIPC *ipc) {
 	int badkey;
 	int i, j;
 	int quitting = 0;
+	int modified = 0;
 	char *listing = NULL;
 	int r;
 
@@ -1192,6 +1199,7 @@ void do_ignet_configuration(CtdlIPC *ipc) {
 		scr_printf("%-3s\n", buf);
 		color(DIM_WHITE);
 		}
+		scr_printf("\n");
 
 		ch = keymenu("", "<A>dd|<D>elete|<S>ave|<Q>uit");
 		switch(ch) {
@@ -1212,6 +1220,7 @@ void do_ignet_configuration(CtdlIPC *ipc) {
 				strprompt("Enter port number  : ",
 					&buf[strlen(buf)-3], 5);
 				recs[num_recs-1] = strdup(buf);
+				modified = 1;
 				break;
 			case 'd':
 				i = intprompt("Delete which one",
@@ -1220,6 +1229,7 @@ void do_ignet_configuration(CtdlIPC *ipc) {
 				--num_recs;
 				for (j=i; j<num_recs; ++j)
 					recs[j] = recs[j+1];
+				modified = 1;
 				break;
 			case 's':
 				r = 1;
@@ -1237,17 +1247,19 @@ void do_ignet_configuration(CtdlIPC *ipc) {
 				r = CtdlIPCSetSystemConfigByType(ipc, IGNETCFG, listing, buf);
 				if (r / 100 != 4) {
 					scr_printf("%s\n", buf);
+				} else {
+					scr_printf("Wrote %d records.\n", num_recs);
+					modified = 0;
 				}
-				quitting = 1;
 				break;
 			case 'q':
-				quitting = boolprompt(
+				quitting = !modified || boolprompt(
 					"Quit without saving", 0);
 				break;
 			default:
 				badkey = 1;
 		}
-	} while (quitting == 0);
+	} while (!quitting);
 
 	if (recs != NULL) {
 		for (i=0; i<num_recs; ++i) free(recs[i]);
@@ -1267,6 +1279,7 @@ void do_filterlist_configuration(CtdlIPC *ipc)
 	int badkey;
 	int i, j;
 	int quitting = 0;
+	int modified = 0;
 	char *listing = NULL;
 	int r;
 
@@ -1330,6 +1343,7 @@ void do_filterlist_configuration(CtdlIPC *ipc)
 					&buf[strlen(buf)], 16);
 				strcat(buf, "|");
 				recs[num_recs-1] = strdup(buf);
+				modified = 1;
 				break;
 			case 'd':
 				i = intprompt("Delete which one",
@@ -1338,6 +1352,7 @@ void do_filterlist_configuration(CtdlIPC *ipc)
 				--num_recs;
 				for (j=i; j<num_recs; ++j)
 					recs[j] = recs[j+1];
+				modified = 1;
 				break;
 			case 's':
 				r = 1;
@@ -1355,17 +1370,19 @@ void do_filterlist_configuration(CtdlIPC *ipc)
 				r = CtdlIPCSetSystemConfigByType(ipc, FILTERLIST, listing, buf);
 				if (r / 100 != 4) {
 					scr_printf("%s\n", buf);
+				} else {
+					scr_printf("Wrote %d records.\n", num_recs);
+					modified = 0;
 				}
-				quitting = 1;
 				break;
 			case 'q':
-				quitting = boolprompt(
+				quitting = !modified || boolprompt(
 					"Quit without saving", 0);
 				break;
 			default:
 				badkey = 1;
 		}
-	} while (quitting == 0);
+	} while (!quitting);
 
 	if (recs != NULL) {
 		for (i=0; i<num_recs; ++i) free(recs[i]);

@@ -845,19 +845,23 @@ void roomdir(CtdlIPC *ipc)
 	char flsz[32];
 	char comment[SIZ];
 	char buf[SIZ];
+	char *listing = NULL;	/* Returned directory listing */
+	int r;
 
-	CtdlIPC_putline(ipc, "RDIR");
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] != '1') {
-		pprintf("%s\n", &buf[4]);
+	r = CtdlIPCReadDirectory(ipc, &listing, buf);
+	if (r / 100 != 1) {
+		pprintf("%s\n", buf);
 		return;
 	}
 
-	extract(comment, &buf[4], 0);
-	extract(flnm, &buf[4], 1);
+	extract(comment, buf, 0);
+	extract(flnm, buf, 1);
 	pprintf("\nDirectory of %s on %s\n", flnm, comment);
 	pprintf("-----------------------\n");
-	while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
+	while (*listing && strlen(listing)) {
+		extract_token(buf, listing, 0, '\n');
+		remove_token(listing, 0, '\n');
+
 		extract(flnm, buf, 0);
 		extract(flsz, buf, 1);
 		extract(comment, buf, 2);
@@ -1107,19 +1111,19 @@ void do_edit(CtdlIPC *ipc,
 	fp = fopen(temp, "w");
 	fclose(fp);
 
-	CtdlIPC_putline(ipc, check_cmd);
-	CtdlIPC_getline(ipc, cmd);
+	CtdlIPC_chat_send(ipc, check_cmd);
+	CtdlIPC_chat_recv(ipc, cmd);
 	if (cmd[0] != '2') {
 		scr_printf("%s\n", &cmd[4]);
 		return;
 	}
 
 	if (strlen(editor_paths[0]) > 0) {
-		CtdlIPC_putline(ipc, read_cmd);
-		CtdlIPC_getline(ipc, cmd);
+		CtdlIPC_chat_send(ipc, read_cmd);
+		CtdlIPC_chat_recv(ipc, cmd);
 		if (cmd[0] == '1') {
 			fp = fopen(temp, "w");
-			while (CtdlIPC_getline(ipc, cmd), strcmp(cmd, "000")) {
+			while (CtdlIPC_chat_recv(ipc, cmd), strcmp(cmd, "000")) {
 				fprintf(fp, "%s\n", cmd);
 			}
 			fclose(fp);
@@ -1163,8 +1167,8 @@ void do_edit(CtdlIPC *ipc,
 	}
 
 	else {
-		CtdlIPC_putline(ipc, write_cmd);
-		CtdlIPC_getline(ipc, cmd);
+		CtdlIPC_chat_send(ipc, write_cmd);
+		CtdlIPC_chat_recv(ipc, cmd);
 		if (cmd[0] != '4') {
 			scr_printf("%s\n", &cmd[4]);
 			return;
@@ -1173,10 +1177,10 @@ void do_edit(CtdlIPC *ipc,
 		fp = fopen(temp, "r");
 		while (fgets(cmd, SIZ - 1, fp) != NULL) {
 			cmd[strlen(cmd) - 1] = 0;
-			CtdlIPC_putline(ipc, cmd);
+			CtdlIPC_chat_send(ipc, cmd);
 		}
 		fclose(fp);
-		CtdlIPC_putline(ipc, "000");
+		CtdlIPC_chat_send(ipc, "000");
 	}
 
 	unlink(temp);

@@ -493,12 +493,12 @@ void locate_host(CtdlIPC* ipc, char *hbuf)
 void misc_server_cmd(CtdlIPC *ipc, char *cmd) {
 	char buf[SIZ];
 
-	CtdlIPC_putline(ipc, cmd);
-	CtdlIPC_getline(ipc, buf);
+	CtdlIPC_chat_send(ipc, cmd);
+	CtdlIPC_chat_recv(ipc, buf);
 	scr_printf("%s\n",buf);
 	if (buf[0]=='1') {
 		set_keepalives(KA_HALF);
-		while (CtdlIPC_getline(ipc, buf), strcmp(buf,"000")) {
+		while (CtdlIPC_chat_recv(ipc, buf), strcmp(buf,"000")) {
 			scr_printf("%s\n",buf);
 		}
 		set_keepalives(KA_YES);
@@ -507,7 +507,7 @@ void misc_server_cmd(CtdlIPC *ipc, char *cmd) {
 	if (buf[0]=='4') {
 		do {
 			newprompt("> ",buf,255);
-			CtdlIPC_putline(ipc, buf);
+			CtdlIPC_chat_send(ipc, buf);
 		} while(strcmp(buf,"000"));
 		return;
 	}
