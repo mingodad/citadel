@@ -16,7 +16,8 @@ END_EVENT_TABLE()
 
 // frame constructor
 EnterMessage::EnterMessage(
-	CitClient *sock, wxMDIParentFrame *MyMDI, wxString roomname)
+	CitClient *sock, wxMDIParentFrame *MyMDI,
+	wxString roomname, unsigned int roomflags)
 	: wxMDIChildFrame(MyMDI,	//parent
 			-1,	//window id
 			roomname + ": enter message",
@@ -61,6 +62,9 @@ EnterMessage::EnterMessage(
 
 
 
+
+	// If the user has a choice of several posting names, present them.
+
 	wxStaticText *fromlabel = new wxStaticText(this, -1, "From: ");
 
 	wxLayoutConstraints *c6 = new wxLayoutConstraints;
@@ -70,11 +74,24 @@ EnterMessage::EnterMessage(
 	c6->height.AsIs();
 	fromlabel->SetConstraints(c6);
 
-	wxString posting_name_choices[] = {
-		citsock->curr_user
-		};
+	wxString posting_name_choices[2];
+	int num_choices;
+
+	if (roomflags & QR_ANONONLY) {
+		posting_name_choices[0] = "****";
+		num_choices = 1;
+	} else {
+		posting_name_choices[0] = citsock->curr_user;
+		num_choices = 1;
+	}
+	
+	if (roomflags & QR_ANONOPT) {
+		posting_name_choices[num_choices++] = "Anonymous";
+	}
+
 	fromname = new wxChoice(this, -1,
-		wxDefaultPosition, wxSize(150,25), 1, posting_name_choices);
+		wxDefaultPosition, wxSize(150,25),
+			num_choices, posting_name_choices);
 
 	wxLayoutConstraints *c7 = new wxLayoutConstraints;
 	c7->centreY.SameAs(fromlabel, wxCentreY);
@@ -82,6 +99,11 @@ EnterMessage::EnterMessage(
 	c7->width.AsIs();
 	c7->height.AsIs();
 	fromname->SetConstraints(c7);
+
+
+
+	// There may also be the opportunity to present a recipient.
+	// FIX ... disable this if we're not in a mail room
 
 	wxStaticText *tolabel = new wxStaticText(this, -1, "To: ");
 
@@ -117,6 +139,9 @@ EnterMessage::EnterMessage(
 
 
 
+
+	// The main portion of this screen is a text entry box.
+
 	TheMessage = new wxTextCtrl(this, -1, "",
 		wxDefaultPosition, wxDefaultSize,
 		wxTE_MULTILINE);
@@ -127,6 +152,8 @@ EnterMessage::EnterMessage(
 	d9->left.SameAs(this, wxLeft, 2);
 	d9->right.SameAs(this, wxRight, 2);
 	TheMessage->SetConstraints(d9);
+
+
 
 	SetAutoLayout(TRUE);
 	Show(TRUE);

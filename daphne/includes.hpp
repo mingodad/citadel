@@ -12,6 +12,28 @@
 #define DEFAULT_HOST	"uncnsrd.mt-kisco.ny.us"
 #define DEFAULT_PORT	"504"
 
+
+// Room flags (from ipcdef.h in the main Citadel distribution)
+
+#define QR_PERMANENT	1		/* Room does not purge              */
+#define QR_INUSE	2		/* Set if in use, clear if avail    */
+#define QR_PRIVATE	4		/* Set for any type of private room */
+#define QR_PASSWORDED	8		/* Set if there's a password too    */
+#define QR_GUESSNAME	16		/* Set if it's a guessname room     */
+#define QR_DIRECTORY	32		/* Directory room                   */
+#define QR_UPLOAD	64		/* Allowed to upload                */
+#define QR_DOWNLOAD	128		/* Allowed to download              */
+#define QR_VISDIR	256		/* Visible directory                */
+#define QR_ANONONLY	512		/* Anonymous-Only room              */
+#define QR_ANONOPT	1024		/* Anonymous-Option room            */
+#define QR_NETWORK	2048		/* Shared network room              */
+#define QR_PREFONLY	4096		/* Preferred status needed to enter */
+#define QR_READONLY	8192		/* Aide status required to post     */
+#define QR_MAILBOX	16384		/* Set if this is a private mailbox */
+
+
+
+
 // TCPsocket represents a socket-level TCP connection to a server.
 class TCPsocket {
 public:
@@ -299,7 +321,7 @@ private:
 class EnterMessage : public wxMDIChildFrame {
 public:
 	EnterMessage(CitClient *sock, wxMDIParentFrame *MyMDI,
-		wxString roomname);
+		wxString roomname, unsigned int roomflags);
 private:
 	void OnCancel(wxCommandEvent& whichbutton);
 	void OnSave(wxCommandEvent& whichbutton);

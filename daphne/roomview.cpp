@@ -50,6 +50,7 @@ RoomView::RoomView(
 	extract(ThisRoom, recvcmd.Mid(4), 0);	// actual name of room
 	new_messages = extract_int(recvcmd.Mid(4), 1);
 	total_messages = extract_int(recvcmd.Mid(4), 2);
+	RoomFlags = extract_int(recvcmd.Mid(4), 4);
 	is_roomaide = (extract_int(recvcmd.Mid(4), 8) ? TRUE : FALSE);
 
 	SetTitle(ThisRoom);	// FIX why doesn't this work?
@@ -215,7 +216,7 @@ void RoomView::OnButtonPressed(wxCommandEvent& whichbutton) {
 	} else if (whichbutton.GetId() == BUTTON_READALL) {
 		do_readloop("MSGS ALL");
 	} else if (whichbutton.GetId() == BUTTON_ENTER) {
-		new EnterMessage(citsock, citMyMDI, ThisRoom);
+		new EnterMessage(citsock, citMyMDI, ThisRoom, RoomFlags);
 	} else if (whichbutton.GetId() == BUTTON_SKIP) {
 		new RoomView(citsock, citMyMDI, RoomList->GetNextRoom());
 		delete this;
