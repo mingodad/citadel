@@ -24,15 +24,12 @@
 
 
 void sttybbs(int cmd);
-void extract(char *dest, char *source, int parmnum);
-int extract_int(char *source, int parmnum);
 void hit_any_key(void);
 int yesno(void);
 void strprompt(char *prompt, char *str, int len);
 void newprompt(char *prompt, char *str, int len);
 int struncmp(char *lstr, char *rstr, int len);
 void dotgoto(char *towhere, int display_name);
-long extract_long(char *source, int parmnum);
 void serv_read(char *buf, int bytes);
 void formout(char *name);
 int inkey(void);

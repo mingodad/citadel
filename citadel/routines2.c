@@ -20,6 +20,7 @@
 #include "routines2.h"
 #include "routines.h"
 #include "commands.h"
+#include "tools.h"
 
 void interr(int errnum);
 void strprompt(char *prompt, char *str, int len);

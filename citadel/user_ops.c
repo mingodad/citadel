@@ -33,6 +33,7 @@
 #include "config.h"
 #include "dynloader.h"
 #include "sysdep.h"
+#include "tools.h"
 
 
 /*

@@ -39,6 +39,7 @@
 #include <signal.h>
 #include <errno.h>
 #include "citadel.h"
+#include "tools.h"
 
 /* A list of users you wish to filter out of incoming traffic can be kept
  * in ./network/filterlist -- messages from these users will be automatically
@@ -556,13 +557,12 @@ void ship_to(char *filenm, char *sysnm)	/* send spool file filenm to system sysn
 /*
  * proc_file_transfer()  -  handle a simple file transfer packet
  *
- * FIX  This shouldn't be like this.  What it needs to do is begin
- * FIX  an upload and transmit the file to the server.
  */
 void proc_file_transfer(char *tname)
 {	/* name of temp file containing the whole message */
-	char buf[128];
-	char dest_room[32];
+	char buf[256];
+	char dest_room[ROOMNAMELEN];
+	char subdir_name[256];
 	FILE *tfp,*uud;
 	int a;
 
@@ -586,7 +586,23 @@ void proc_file_transfer(char *tname)
 		return;
 		}
 
-	sprintf(buf,"cd %s/files/%s; exec %s",bbs_home_directory,config.c_bucket_dir,UUDECODE);
+	strcpy(subdir_name, "---xxx---");
+	sprintf(buf, "GOTO %s", dest_room);
+	serv_puts(buf);
+	serv_gets(buf);
+	if (buf[0]=='2') {
+		extract(subdir_name, &buf[4], 2);
+		if (strlen(subdir_name) == 0) strcpy(subdir_name, "--xxx--");
+		}
+
+	/* Change to the room's directory; if that fails, change to the
+	 * bitbucket directory.  Then run uudecode.
+	 */
+	sprintf(buf,"(cd %s/files/%s || cd %s/files/%s ) ; exec %s",
+		bbs_home_directory, subdir_name,
+		bbs_home_directory, config.c_bucket_dir,
+		UUDECODE);
+
 	uud=(FILE *)popen(buf,"w");
 	if (uud==NULL) {
 		printf("netproc: cannot open uudecode pipe\n");
@@ -1271,4 +1287,3 @@ int main(int argc, char **argv)
 	cleanup(0);
 	return 0;
 	}
-

@@ -24,6 +24,7 @@
 #include "support.h"
 #include "config.h"
 #include "dynloader.h"
+#include "tools.h"
 
 struct ChatLine *ChatQueue = NULL;
 int ChatLastMsg = 0;

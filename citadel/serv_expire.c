@@ -51,6 +51,7 @@
 #include "msgbase.h"
 #include "user_ops.h"
 #include "control.h"
+#include "tools.h"
 
 
 struct oldvisit {

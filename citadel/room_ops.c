@@ -19,6 +19,7 @@
 #include "serv_chat.h"
 #include "citserver.h"
 #include "control.h"
+#include "tools.h"
 
 /*
  * Generic routine for determining user access to rooms

@@ -19,6 +19,7 @@
 #include "support.h"
 #include "room_ops.h"
 #include "msgbase.h"
+#include "tools.h"
 
 void cmd_delf(char *filename)
 {

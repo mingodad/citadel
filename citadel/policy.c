@@ -18,6 +18,7 @@
 #include "msgbase.h"
 #include "serv_chat.h"
 #include "citserver.h"
+#include "tools.h"
 
 
 /*

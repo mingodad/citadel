@@ -25,6 +25,7 @@
 #include "support.h"
 #include "config.h"
 #include "msgbase.h"
+#include "tools.h"
 
 struct CitControl CitControl;
 struct config config;

@@ -42,6 +42,7 @@
 #include "database.h"
 #include "housekeeping.h"
 #include "dynloader.h"
+#include "tools.h"
 
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>

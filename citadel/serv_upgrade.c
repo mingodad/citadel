@@ -32,6 +32,7 @@
 #include "user_ops.h"
 #include "database.h"
 #include "control.h"
+#include "tools.h"
 
 extern struct CitContext *ContextList;
 FILE *imfp, *exfp;

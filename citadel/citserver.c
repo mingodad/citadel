@@ -29,6 +29,7 @@
 #include "dynloader.h"
 #include "policy.h"
 #include "control.h"
+#include "tools.h"
 
 struct CitContext *ContextList = NULL;
 int ScheduledShutdown = 0;

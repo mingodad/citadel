@@ -6,6 +6,8 @@ Sat Nov 21 16:53:30 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* serv_expire.c: finished the code to purge stale visits
 	* sysdep.c: strip trailing nonprintables in client_gets()
 	* routines2.c: fixed <.AS> command; all configs now work properly
+	* Moved num_parms() and all the extract() type functions into tools.c
+	  and removed them from all other files.  Linked in tools.[o|ro] there.
 
 Fri Nov 20 20:29:07 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* setup.c: removed all prompts that can be configured from within the

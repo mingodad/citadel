@@ -32,6 +32,7 @@
 #include "ipc.h"
 #include "client_chat.h"
 #include "citadel_decls.h"
+#include "tools.h"
 
 struct march {
 	struct march *next;

@@ -5,62 +5,7 @@
 #include <string.h>
 #include "citadel.h"
 #include "ipc.h"
-
-/*
- * num_parms()  -  discover number of parameters...
- */
-int num_parms(char *source)
-{
-	int a;
-	int count = 1;
-
-	for (a=0; a<strlen(source); ++a) 
-		if (source[a]=='|') ++count;
-	return(count);
-	}
-
-
-/*
- * extract()  -  extract a parameter from a series of "|" separated...
- */
-void extract(char *dest, char *source, int parmnum)
-{
-	char buf[256];
-	int count = 0;
-	int n;
-
-	n = num_parms(source);
-
-	if (parmnum >= n) {
-		strcpy(dest,"");
-		return;
-		}
-	strcpy(buf,source);
-	if ( (parmnum == 0) && (n == 1) ) {
-		strcpy(dest,buf);
-		return;
-		}
-
-	while (count++ < parmnum) do {
-		strcpy(buf,&buf[1]);
-		} while( (strlen(buf)>0) && (buf[0]!='|') );
-	if (buf[0]=='|') strcpy(buf,&buf[1]);
-	for (count = 0; count<strlen(buf); ++count)
-		if (buf[count] == '|') buf[count] = 0;
-	strcpy(dest,buf);
-	}
-
-/*
- * extract_int()  -  extract an int parm w/o supplying a buffer
- */
-int extract_int(char *source, int parmnum)
-{
-	char buf[256];
-	
-	extract(buf,source,parmnum);
-	return(atoi(buf));
-	}
-
+#include "tools.h"
 
 void logoff(int code)
 {
