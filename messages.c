@@ -439,10 +439,6 @@ void display_enter(void)
 		wprintf("<EM>%s</EM><BR>\n", &buf[4]);
 		goto DONE;
 	}
-	wprintf("<CENTER>Enter message below.  Messages are formatted to\n");
-	wprintf("the <EM>reader's</EM> screen width.  To defeat the\n");
-	wprintf("formatting, indent a line at least one space.  \n");
-	wprintf("<BR>");
 
 	now = time(NULL);
 	tm = (struct tm *) localtime(&now);
