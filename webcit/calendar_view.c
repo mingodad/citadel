@@ -129,8 +129,6 @@ void calendar_month_view(int year, int month, int day) {
 	/* Determine previous and next months ... for links */
 	previous_month = thetime - (time_t)864000L;	/* back 10 days */
 	next_month = thetime + (time_t)(31L * 86400L);	/* ahead 31 days */
-	lprintf(9, "previous month is %s", asctime(localtime(&previous_month)));
-	lprintf(9, "next month is %s", asctime(localtime(&next_month)));
 
 	/* Now back up until we're on a Sunday */
 	tm = localtime(&thetime);
