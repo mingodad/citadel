@@ -79,7 +79,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	}
 	wprintf("\"><BR>\n");
 
-	wprintf("Start date: ");
+	wprintf("Start date/time: ");
 	p = icalcomponent_get_first_property(vevent, ICAL_DTSTART_PROPERTY);
 	if (p != NULL) {
 		t = icalproperty_get_dtstart(p);
@@ -88,6 +88,17 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		t = icaltime_from_timet(now, 0);
 	}
 	display_icaltimetype_as_webform(&t, "dtstart");
+	wprintf("<BR>\n");
+
+	wprintf("End date/time: ");
+	p = icalcomponent_get_first_property(vevent, ICAL_DTEND_PROPERTY);
+	if (p != NULL) {
+		t = icalproperty_get_dtend(p);
+	}
+	else {
+		t = icaltime_from_timet(now, 0);
+	}
+	display_icaltimetype_as_webform(&t, "dtend");
 	wprintf("<BR>\n");
 
 	wprintf("<CENTER><TEXTAREA NAME=\"description\" wrap=soft "

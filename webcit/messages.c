@@ -902,6 +902,7 @@ void readloop(char *oper)
 	 * messages, then display the selector bar
 	 */
 	if (num_displayed > 1) {
+	   if ((!is_tasks) && (!is_calendar)) {
 		wprintf("<CENTER>"
 			"<TABLE BORDER=0 WIDTH=100%% BGCOLOR=DDDDDD><TR><TD>"
 			"Reading #%d-%d of %d messages.</TD>\n"
@@ -950,6 +951,7 @@ void readloop(char *oper)
 			WC->msgarr[0]);
 
 		wprintf("</TD></TR></TABLE></CENTER>\n");
+	    }
 	}
 	if (is_summary) wprintf("</FORM>\n");
 
@@ -962,12 +964,6 @@ DONE:
 
 	if (is_calendar) {
 		do_calendar_view();	/* Render the calendar */
-
-		wprintf("<A HREF=\"/display_edit_event?msgnum=0\">"
-			"Add new calendar event</A>\n"
-		);
-
-
 	}
 
 	wDumpContent(1);
