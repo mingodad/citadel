@@ -639,7 +639,21 @@ void display_editroom(void)
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Edit this room</B>\n");
+	wprintf("<B>Room administration</B>\n");
+	wprintf("</FONT></TD></TR></TABLE>\n");
+
+	wprintf("<UL>"
+		"<LI><A HREF=\"/confirm_delete_room\">\n"
+		"Delete this room</A>\n"
+		"<LI><A HREF=\"/display_editroompic\">\n"
+		"Set or change the graphic for this room's banner</A>\n"
+		"<LI><A HREF=\"/display_editinfo\">\n"
+		"Edit this room's Info file</A>\n"
+		"</UL>");
+
+	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+	wprintf("<B>Room editing</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/editroom\">\n");
