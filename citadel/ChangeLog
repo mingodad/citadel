@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.56  2004/02/28 16:37:41  ajc
+ * setup.c: removed an unused temp file name variable
+
  Revision 614.55  2004/02/27 17:23:21  error
  * Use syslog-compatible logging levels in lprintf(); the loglevel chosen
    is passed directly to syslog().  The available levels are docuemnted in
@@ -5425,3 +5428,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
