@@ -153,32 +153,37 @@ void edit_vcard(void) {
 	wprintf("<H2><IMG VALIGN=CENTER SRC=\"/static/vcard.gif\">"
 		"Contact information for FIXME</H2>\n");
 
-	wprintf("Last name: "
-		"<INPUT TYPE=\"text\" NAME=\"lastname\" "
-		"VALUE=\"%s\" MAXLENGTH=\"29\"><BR>\n",
-		lastname);
-	wprintf("First name: "
-		"<INPUT TYPE=\"text\" NAME=\"firstname\" "
-		"VALUE=\"%s\" MAXLENGTH=\"29\"><BR>\n",
-		firstname);
-	wprintf("Prefix: "
-		"<INPUT TYPE=\"text\" NAME=\"prefix\" "
-		"VALUE=\"%s\" MAXLENGTH=\"5\"><BR>\n",
+	wprintf("<TABLE border=0><TR>"
+		"<TD>Prefix</TD>"
+		"<TD>First</TD>"
+		"<TD>Middle</TD>"
+		"<TD>Last</TD>"
+		"<TD>Suffix</TD></TR>\n");
+	wprintf("<TR><TD><INPUT TYPE=\"text\" NAME=\"prefix\" "
+		"VALUE=\"%s\" MAXLENGTH=\"5\"></TD>",
 		prefix);
-	wprintf("Suffix: "
-		"<INPUT TYPE=\"text\" NAME=\"suffix\" "
-		"VALUE=\"%s\" MAXLENGTH=\"10\"><BR><BR>\n",
+	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"firstname\" "
+		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD>",
+		firstname);
+	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"middlename\" "
+		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD>",
+		firstname);
+	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"lastname\" "
+		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD>",
+		lastname);
+	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"suffix\" "
+		"VALUE=\"%s\" MAXLENGTH=\"10\"></TD></TR></TABLE>\n",
 		suffix);
 
-	wprintf("<TABLE border=0><TR><TD>Address - PO box; optional:</TD>"
+	wprintf("<TABLE border=0><TR><TD>PO box (optional):</TD>"
 		"<TD><INPUT TYPE=\"text\" NAME=\"pobox\" "
 		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR>\n",
 		pobox);
-	wprintf("<TR><TD>Street:</TD>"
+	wprintf("<TR><TD>Address line 1:</TD>"
 		"<TD><INPUT TYPE=\"text\" NAME=\"extadr\" "
 		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR>\n",
 		extadr);
-	wprintf("<TR><TD>&nbsp;</TD>"
+	wprintf("<TR><TD>Address line 2:</TD>"
 		"<TD><INPUT TYPE=\"text\" NAME=\"street\" "
 		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR>\n",
 		street);
