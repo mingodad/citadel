@@ -1,4 +1,7 @@
 $Log$
+Revision 528.39  2005/02/04 03:43:31  ajc
+* fixed the tasks view in the summary screen
+
 Revision 528.38  2005/02/03 05:13:57  ajc
 * More tuning for GroupDAV compliance.
 
@@ -2303,3 +2306,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

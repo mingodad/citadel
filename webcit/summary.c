@@ -143,7 +143,6 @@ void tasks_section(void) {
 		num_msgs = load_msg_ptrs("MSGS ALL");
 	}
 
-	wprintf("FIXME start tasks<br>\n");
 	if (num_msgs < 1) {
 		wprintf("<i>(None)</i><br />\n");
 	}
@@ -152,7 +151,8 @@ void tasks_section(void) {
 			display_task(WC->msgarr[i]);
 		}
 	}
-	wprintf("FIXME end tasks<br>\n");
+
+	calendar_summary_view();
 
 #else /* WEBCIT_WITH_CALENDAR_SERVICE */
 	wprintf("<I>(This server does not support task lists)</I>\n");
@@ -180,7 +180,6 @@ void calendar_section(void) {
 	else {
 		num_msgs = load_msg_ptrs("MSGS ALL");
 	}
-	wprintf("FIXME start calendar<br>\n");
 
 	if (num_msgs < 1) {
 		wprintf("<i>(Nothing)</i><br />\n");
@@ -191,7 +190,6 @@ void calendar_section(void) {
 		}
 		calendar_summary_view();
 	}
-	wprintf("FIXME end calendar<br>\n");
 
 #else /* WEBCIT_WITH_CALENDAR_SERVICE */
 	wprintf("<I>(This server does not support calendars)</I>\n");
@@ -247,18 +245,18 @@ void summary(void) {
 	 * not people I consider worthwhile, I still want them to use WebCit.
 	 */
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 CELLPADDING=10><TR VALIGN=TOP>");
+	wprintf("<table border=0><tr valign=top>");
 
 	/*
 	 * Column One
 	 */
-	wprintf("<TD WIDTH=33%%>");
+	wprintf("<td width=33%%>");
 	wholist_section();
 
 	/*
 	 * Column Two
 	 */
-	wprintf("</TD><TD WIDTH=33%%>");
+	wprintf("</td><td width=33%%>");
 	server_info_section();
 	wprintf("<br />");
 	tasks_section();
@@ -266,7 +264,7 @@ void summary(void) {
 	/*
 	 * Column Three
 	 */
-	wprintf("</TD><TD WIDTH=33%%>");
+	wprintf("</td><td width=33%%>");
 	new_messages_section();
 	wprintf("<br />");
 	calendar_section();
@@ -274,7 +272,7 @@ void summary(void) {
 	/*
 	 * End of columns
 	 */
-	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</td></tr></table>\n");
 
 	wDumpContent(1);
 }
