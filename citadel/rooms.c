@@ -993,10 +993,11 @@ void readinfo(void)
 	serv_gets(cmd);
 	if (cmd[0] == '2') {
 		safestrncpy(raide, &cmd[4], sizeof raide);
-		scr_printf("Room aide is %s.\n\n", raide);
 	} else {
 		strcpy(raide, "");
 	}
+	if (strlen(raide) > 0)
+		scr_printf("Room aide is %s.\n\n", raide);
 
 	serv_puts("RINF");
 	serv_gets(cmd);
