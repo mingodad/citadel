@@ -118,7 +118,21 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 	char *ptr;
 	size_t headers_size, text_size, total_size;
 	size_t bytes_to_send;
+	struct MetaData smi;
+	int need_to_rewrite_metadata = 0;
 
+	/* If this is an RFC822.SIZE fetch, first look in the message's
+	 * metadata record to see if we've saved that information.
+	 */
+	if (!strcasecmp(whichfmt, "RFC822.SIZE")) {
+		GetMetaData(&smi, msgnum);
+		if (smi.meta_rfc822_length > 0L) {
+			cprintf("RFC822.SIZE %ld", smi.meta_rfc822_length);
+			return;
+		}
+		need_to_rewrite_metadata = 1;
+	}
+	
 	/* Cache the most recent RFC822 FETCH because some clients like to
 	 * fetch in pieces, and we don't want to have to go back to the
 	 * message store for each piece.
@@ -152,6 +166,10 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 		CC->redirect_buffer = NULL;
 		CC->redirect_len = 0;
 		CC->redirect_alloc = 0;
+		if (need_to_rewrite_metadata) {
+			smi.meta_rfc822_length = (long)IMAP->cached_rfc822_len;
+			PutMetaData(&smi);
+		}
 	}
 
 	/*

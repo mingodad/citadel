@@ -1,4 +1,13 @@
  $Log$
+ Revision 641.21  2005/03/04 20:04:00  ajc
+ * IMAP FETCH RFC822.SIZE now honors the cached rfc822 size in each
+   message's metadata, using it if present and storing it for next time
+   otherwise.
+ * Fixed bug in POP3 server that was causing it to fail to store the
+   correct RFC822 size in metadata.  Fortunately it was failing in a way
+   that merely affected performance rather than corrupting the data on
+   existing installations.
+
  Revision 641.20  2005/03/04 02:24:31  ajc
  * SMTP: only offer TLS on the MSA port (587), not on the MTA port (25).
    There seem to be some other MTA's out there that make things go haywire
@@ -6508,4 +6517,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

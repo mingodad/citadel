@@ -150,7 +150,7 @@ void pop3_add_message(long msgnum, void *userdata) {
 	 * metadata record.  If so, great; if not, measure it and then cache
 	 * it for next time.
 	 */
-	GetMetaData(&smi, POP3->num_msgs-1);
+	GetMetaData(&smi, msgnum);
 	if (smi.meta_rfc822_length <= 0L) {
 		CC->redirect_buffer = malloc(SIZ);
 		CC->redirect_len = 0;
@@ -413,7 +413,7 @@ void pop3_top(char *argbuf) {
 	ptr = msgtext;
 
 	while (ptr = memreadline(ptr, buf, (sizeof buf - 2)),
-	      ( (*ptr != NULL) && (done == 0))) {
+	      ( (*ptr != 0) && (done == 0))) {
 		strcat(buf, "\r\n");
 		if (in_body == 1) {
 			if (lines_dumped >= lines_requested) {
