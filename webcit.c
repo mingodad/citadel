@@ -842,6 +842,16 @@ void session_loop(struct httprequest *req)
 		}
 	}
 
+	/* Static content can be sent without connecting to Citadel. */
+	if (!strcasecmp(action, "static")) {
+		strcpy(buf, &cmd[12]);
+		for (a = 0; a < strlen(buf); ++a)
+			if (isspace(buf[a]))
+				buf[a] = 0;
+		output_static(buf);
+		goto SKIP_ALL_THIS_CRAP;	/* Don't try to connect */
+	}
+
 	/*
 	 * If we're not connected to a Citadel server, try to hook up the
 	 * connection now.
@@ -919,13 +929,8 @@ void session_loop(struct httprequest *req)
 			strcpy(WC->wc_roomname, c_roomname);
 		}
 	}
-	if (!strcasecmp(action, "static")) {
-		strcpy(buf, &cmd[12]);
-		for (a = 0; a < strlen(buf); ++a)
-			if (isspace(buf[a]))
-				buf[a] = 0;
-		output_static(buf);
-	} else if (!strcasecmp(action, "image")) {
+
+	if (!strcasecmp(action, "image")) {
 		output_image();
 
 	/*

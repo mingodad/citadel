@@ -1072,6 +1072,17 @@ void post_message(void)
 		strcpy(att->content_type, WC->upload_content_type);
 		strcpy(att->filename, WC->upload_filename);
 
+		/* Netscape sends a simple filename, which is what we want,
+		 * but Satan's browser sends an entire pathname.  Reduce
+		 * the path to just a filename if we need to.
+		 */
+		while (num_tokens(att->filename, '/') > 1) {
+			remove_token(att->filename, 0, '/');
+		}
+		while (num_tokens(att->filename, '\\') > 1) {
+			remove_token(att->filename, 0, '\\');
+		}
+
 		/* Transfer control of this memory from the upload struct
 		 * to the attachment struct.
 		 */
