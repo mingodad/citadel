@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.115  2002/02/15 04:28:57  ajc
+ * Wrote the expire/purge routine for the new use table
+
  Revision 590.114  2002/02/15 04:05:08  ajc
  * Began implementation of a networker use table that doesn't chew up oodles
    of CPU time.  (It uses a cdb instead.)
@@ -3348,4 +3351,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

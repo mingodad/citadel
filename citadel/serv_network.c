@@ -85,7 +85,7 @@ int network_usetable(struct CtdlMessage *msg) {
 
 	char msgid[SIZ];
 	struct cdbdata *cdbut;
-	time_t timestamp;
+	struct UseTable ut;
 
 	/* Bail out if we can't generate a message ID */
 	if (msg == NULL) {
@@ -117,9 +117,10 @@ int network_usetable(struct CtdlMessage *msg) {
 	}
 
 	/* If we got to this point, it's unique: add it. */
-	timestamp = time(NULL);
+	strcpy(ut.ut_msgid, msgid);
+	ut.ut_timestamp = time(NULL);
 	cdb_store(CDB_USETABLE, msgid, strlen(msgid),
-		&timestamp, sizeof(timestamp) );
+		&ut, sizeof(struct UseTable) );
 	return(0);
 }
 

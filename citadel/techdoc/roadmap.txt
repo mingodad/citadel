@@ -14,10 +14,10 @@ Goals for 6.00
 * Multiple recipients allowed in Citadel protocol.  Rework the code to feed
   all deliveries through the same set of functions, regardless of whether a
   message is submitted through Citadel protocol, SMTP, or from the networker.
-  (Done.  Needs to be tested more extensively.)
-
+  (Done.)
+* Get the Global Address Book working (Done, just need some polish)
 * Optimize the IMAP server and add the search command
-* Get the Global Address Book working
+* Nested folders ... at least in IMAP
 * LDAP directory support?
 
 
@@ -26,3 +26,4 @@ Goals for beyond 6.00
 * Calendar server
 * Address book server
 * Integration with Evolution, Mozilla Calendar, etc.
+* NNTP

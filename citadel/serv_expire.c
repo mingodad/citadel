@@ -63,6 +63,7 @@
 #include "msgbase.h"
 #include "user_ops.h"
 #include "control.h"
+#include "serv_network.h"
 #include "tools.h"
 
 
@@ -542,6 +543,35 @@ int PurgeVisits(void) {
 	return(purged);
 }
 
+/*
+ * Purge the use table of old entries.
+ *
+ */
+int PurgeUseTable(void) {
+	int purged = 0;
+	struct cdbdata *cdbut;
+	struct UseTable ut;
+
+	/* Traverse through the table, purging old records... */
+	cdb_rewind(CDB_USETABLE);
+	while(cdbut = cdb_next_item(CDB_USETABLE), cdbut != NULL) {
+
+                memcpy(&ut, cdbut->ptr,
+                       ((cdbut->len > sizeof(struct UseTable)) ?
+                        sizeof(struct UseTable) : cdbut->len));
+                cdb_free(cdbut);
+
+		if ( (time(NULL) - ut.ut_timestamp) > USETABLE_RETAIN ) {
+			cdb_delete(CDB_USETABLE, ut.ut_msgid,
+						strlen(ut.ut_msgid) );
+			++purged;
+		}
+
+	}
+
+	return(purged);
+}
+
 
 void cmd_expi(char *argbuf) {
 	char cmd[SIZ];
@@ -568,6 +598,11 @@ void cmd_expi(char *argbuf) {
 	else if (!strcasecmp(cmd, "visits")) {
 		retval = PurgeVisits();
 		cprintf("%d Purged %d visits.\n", OK, retval);
+	}
+	else if (!strcasecmp(cmd, "usetable")) {
+		retval = PurgeUseTable();
+		cprintf("%d Purged %d entries from the use table.\n",
+			OK, retval);
 	}
 	else if (!strcasecmp(cmd, "defrag")) {
 		defrag_databases();

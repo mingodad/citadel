@@ -21,3 +21,8 @@ struct NetMap {
 	char nexthop[SIZ];
 };
 
+
+struct UseTable {
+	char ut_msgid[SIZ];
+	time_t ut_timestamp;
+};
