@@ -305,7 +305,7 @@ void artv_import_config(void) {
 	client_gets(buf);	config.c_restrict = atoi(buf);
 	client_gets(buf);	config.c_msgbase = atol(buf);
 	client_gets(config.c_bbs_city);
-	client_gets(config.c_bbs_sysadm);
+	client_gets(config.c_sysadm);
 	client_gets(config.c_bucket_dir);
 	client_gets(buf);	config.c_setup_level = atoi(buf);
 	client_gets(buf);	config.c_maxsessions = atoi(buf);
