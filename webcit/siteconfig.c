@@ -194,6 +194,11 @@ void display_siteconfig(void)
 			wprintf("<INPUT TYPE=\"text\" NAME=\"c_net_freq\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
 			wprintf("</TD></TR>\n");
 			break;
+		case 30:
+			wprintf("<TR><TD>Disable self-service user account creation</TD><TD>");
+			wprintf("<INPUT TYPE=\"checkbox\" NAME=\"c_disable_newu\" VALUE=\"yes\" %s>", ((atoi(buf) != 0) ? "CHECKED" : ""));
+			wprintf("</TD></TR>\n");
+			break;
 
 		}
 	}
@@ -249,6 +254,7 @@ void siteconfig(void)
 	serv_printf("%s", ((!strcasecmp(bstr("c_aide_zap"), "yes") ? "1" : "0")));
 	serv_printf("%s", bstr("c_imap_port"));
 	serv_printf("%s", bstr("c_net_freq"));
+	serv_printf("%s", bstr("c_disable_newu"));
 	serv_printf("000");
 	display_success("System configuration has been updated.");
 }

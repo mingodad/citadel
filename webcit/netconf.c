@@ -27,11 +27,6 @@
 
 
 
-struct sharelist {
-	struct sharelist *next;
-	char shname[SIZ];
-};
-
 
 void edit_node(void) {
 	char buf[SIZ];
