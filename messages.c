@@ -932,8 +932,10 @@ int load_msg_ptrs(char *servcmd)
 {
 	char buf[SIZ];
 	int nummsgs;
+	int maxload = 0;
 
 	nummsgs = 0;
+	maxload = sizeof(WC->msgarr) / sizeof(long) ;
 	serv_puts(servcmd);
 	serv_gets(buf);
 	if (buf[0] != '1') {
@@ -941,9 +943,10 @@ int load_msg_ptrs(char *servcmd)
 		return (nummsgs);
 	}
 	while (serv_gets(buf), strcmp(buf, "000")) {
-		WC->msgarr[nummsgs] = atol(buf);
-		/* FIXME check for overflow */
-		++nummsgs;
+		if (nummsgs < maxload) {
+			WC->msgarr[nummsgs] = atol(buf);
+			++nummsgs;
+		}
 	}
 	return (nummsgs);
 }
@@ -994,14 +997,13 @@ void readloop(char *oper)
 		strcpy(cmd, "MSGS ALL");
 	}
 
-	/* FIXME put in the correct constant #defs */
-	if ((WC->wc_view == 1) && (maxmsgs > 1)) {
+	if ((WC->wc_view == VIEW_MAILBOX) && (maxmsgs > 1)) {
 		is_summary = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
 	}
 
-	if ((WC->wc_view == 2) && (maxmsgs > 1)) {
+	if ((WC->wc_view == VIEW_ADDRESSBOOK) && (maxmsgs > 1)) {
 		is_addressbook = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
@@ -1040,12 +1042,12 @@ void readloop(char *oper)
 		wprintf("<HR width=100%%>\n");
 	}
 
-	if (WC->wc_view == 3) {		/* calendar */
+	if (WC->wc_view == VIEW_CALENDAR) {		/* calendar */
 		is_calendar = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
 	}
-	if (WC->wc_view == 4) {		/* tasks */
+	if (WC->wc_view == VIEW_TASKS) {		/* tasks */
 		is_tasks = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;

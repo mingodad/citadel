@@ -44,7 +44,6 @@ void output_html(void) {
 	int output_length = 0;
 	char new_window[SIZ];
 	int brak = 0;
-	int in_link = 0;
 	int i;
 	int linklen;
 
@@ -136,8 +135,10 @@ void output_html(void) {
 			ptr = &ptr[8];
 			++brak;
 		}
-		/* Turn anything that looks like a URL into a real link */
-		else if ( (in_link == 0)
+		/* Turn anything that looks like a URL into a real link, as long
+		 * as it's not inside a tag already
+		 */
+		else if ( (brak == 0)
 		     && (!strncasecmp(ptr, "http://", 7))) {
 				linklen = 0;
 				/* Find the end of the link */
@@ -175,16 +176,10 @@ void output_html(void) {
 		}
 		else {
 			/*
-			 * We need to know when we're inside a pair of <A>...</A>
-			 * tags, so we don't turn things that look like URL's into
-			 * links, when they're already links.
+			 * We need to know when we're inside a tag,
+			 * so we don't turn things that look like URL's into
+			 * links, when they're already links - or image sources.
 			 */
-			if (!strncasecmp(ptr, "<A ", 3)) {
-				++in_link;
-			}
-			if (!strncasecmp(ptr, "</A", 3)) {
-				--in_link;
-			}
 			if (*ptr == '<') ++brak;
 			if (*ptr == '>') --brak;
 			converted_msg[output_length] = *ptr++;

@@ -386,7 +386,6 @@ void check_inittab_entry(void)
 	char looking_for[SIZ];
 	char question[SIZ];
 	char entryname[5];
-	char entryname2[5];
 	char http_port[128];
 	char https_port[128];
 	char hostname[128];

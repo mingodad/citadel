@@ -1,4 +1,11 @@
 $Log$
+Revision 510.15  2004/06/06 19:32:15  ajc
+* Cleaned up a couple of FIXME's sitting around in the code
+* Altered the conditions under which stray http://... strings are
+  automatically turned into links, to prevent that logic from
+  transforming IMG tags into gibberish.
+* Set internal version number to 5.21
+
 Revision 510.14  2004/06/04 02:29:07  ajc
 * Fixed bug in "validate new users" screen (thanks Campy)
 
@@ -1862,3 +1869,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

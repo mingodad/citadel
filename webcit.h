@@ -33,10 +33,10 @@
 #define SLEEPING		180		/* TCP connection timeout */
 #define WEBCIT_TIMEOUT		900		/* WebCit session timeout */
 #define PORT_NUM		2000		/* port number to listen on */
-#define SERVER			"WebCit v5.20"	/* who's in da house */
+#define SERVER			"WebCit v5.21"	/* who's in da house */
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
-#define CLIENT_VERSION		520		/* This version of WebCit */
+#define CLIENT_VERSION		521		/* This version of WebCit */
 #define MINIMUM_CIT_VERSION	611		/* min required Citadel vers */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
@@ -468,3 +468,11 @@ int client_read_ssl(char *buf, int bytes, int timeout);
 void client_write_ssl(char *buf, int nbytes);
 #endif
 
+
+
+/* Views (from citadel.h) */
+#define	VIEW_BBS		0	/* Traditional Citadel BBS view */
+#define VIEW_MAILBOX		1	/* Mailbox summary */
+#define VIEW_ADDRESSBOOK	2	/* Address book view */
+#define VIEW_CALENDAR		3	/* Calendar view */
+#define VIEW_TASKS		4	/* Tasks view */
