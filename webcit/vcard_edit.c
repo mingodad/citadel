@@ -182,7 +182,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 
 	/* Display the form */
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/submit_vcard\">\n");
-	wprintf("<H2><IMG VALIGN=CENTER SRC=\"/static/vcard.gif\">"
+	wprintf("<H2><IMG ALIGN=CENTER SRC=\"/static/vcard.gif\">"
 		"Contact information for ");
 	escputs(whatuser);
 	wprintf("</H2>\n");

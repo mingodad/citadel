@@ -1507,7 +1507,7 @@ void display_private(char *rname, int req_pass)
 	wprintf("so you don't have to keep returning here.\n");
 	wprintf("<BR><BR>");
 
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/goto_private\">\n");
+	wprintf("<FORM METHOD=\"GET\" ACTION=\"/goto_private\">\n");
 
 	wprintf("<TABLE border><TR><TD>");
 	wprintf("Enter room name:</TD><TD>");
@@ -1577,7 +1577,7 @@ void display_zap(void)
 	wprintf("disappear from your room list.  Is this what you wish ");
 	wprintf("to do?<BR>\n");
 
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/zap\">\n");
+	wprintf("<FORM METHOD=\"GET\" ACTION=\"/zap\">\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 	wprintf("</FORM>\n");
@@ -1639,7 +1639,7 @@ void confirm_delete_room(void)
 	wprintf("</FONT></TD></TR></TABLE>\n");
 
 	wprintf("<CENTER>");
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/delete_room\">\n");
+	wprintf("<FORM METHOD=\"GET\" ACTION=\"/delete_room\">\n");
 
 	wprintf("Are you sure you want to delete <FONT SIZE=+1>");
 	escputs(WC->wc_roomname);

@@ -112,7 +112,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 		if (!strcasecmp(v->prop[i].name, "n")) {
 			wprintf("<TR BGCOLOR=#AAAAAA>"
 			"<TD BGCOLOR=#FFFFFF>"
-			"<IMG VALIGN=CENTER SRC=\"/static/vcard.gif\"></TD>"
+			"<IMG ALIGN=CENTER SRC=\"/static/vcard.gif\"></TD>"
 			"<TD><FONT SIZE=+1><B>");
 			escputs(v->prop[i].value);
 			wprintf("</B></FONT></TD></TR>\n");

@@ -77,6 +77,9 @@ void cal_process_object(icalcomponent *cal,
 	icalcomponent *c;
 	icalproperty *method = NULL;
 	icalproperty_method the_method;
+	icalproperty *p;
+	struct icaltimetype t;
+	time_t tt;
 
 	/* Look for a method */
 	method = icalcomponent_get_first_property(cal, ICAL_METHOD_PROPERTY);
@@ -86,13 +89,56 @@ void cal_process_object(icalcomponent *cal,
 		the_method = icalproperty_get_method(method);
 		switch(the_method) {
 		    case ICAL_METHOD_REQUEST:
-			wprintf("This is a request.<BR>\n");
+			wprintf("<CENTER><IMG ALIGN=CENTER "
+				"SRC=\"/static/vcalendar.gif\">"
+				"&nbsp;&nbsp;"	
+				"<B>Meeting invitation</B></CENTER><BR>\n"
+			);
 			break;
 		    default:
 			wprintf("I don't know what to do with this.<BR>\n");
 			break;
 		}
 	}
+
+      	p = icalcomponent_get_first_property(cal, ICAL_SUMMARY_PROPERTY);
+        if (p != NULL) {
+		wprintf("<B>Summary:</B> ");
+		escputs((char *)icalproperty_get_comment(p));
+		wprintf("<BR>\n");
+        }
+
+      	p = icalcomponent_get_first_property(cal, ICAL_LOCATION_PROPERTY);
+        if (p != NULL) {
+		wprintf("<B>Location:</B> ");
+		escputs((char *)icalproperty_get_comment(p));
+		wprintf("<BR>\n");
+        }
+
+      	p = icalcomponent_get_first_property(cal, ICAL_DTSTART_PROPERTY);
+        if (p != NULL) {
+		t = icalproperty_get_dtstart(p);
+		tt = icaltime_as_timet(t);
+		wprintf("<B>Starting date/time:</B> %s<BR>",
+			asctime(localtime(&tt))
+		);
+	}
+
+      	p = icalcomponent_get_first_property(cal, ICAL_DTEND_PROPERTY);
+        if (p != NULL) {
+		t = icalproperty_get_dtstart(p);
+		tt = icaltime_as_timet(t);
+		wprintf("<B>Ending date/time:</B> %s<BR>",
+			asctime(localtime(&tt))
+		);
+	}
+
+      	p = icalcomponent_get_first_property(cal, ICAL_DESCRIPTION_PROPERTY);
+        if (p != NULL) {
+		wprintf("<B>Description:</B> ");
+		escputs((char *)icalproperty_get_comment(p));
+		wprintf("<BR>\n");
+        }
 
 	/* If the component has subcomponents, recurse through them. */
 	for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
@@ -102,6 +148,17 @@ void cal_process_object(icalcomponent *cal,
 		cal_process_object(c, recursion_level+1);
 	}
 
+	if (recursion_level == 0) {
+		wprintf("<CENTER><FORM METHOD=\"GET\" "
+			"ACTION=\"/respond_to_request\">\n"
+			"<INPUT TYPE=\"submit\" NAME=\"sc\" "
+				"VALUE=\"Accept\">"
+			"&nbsp;&nbsp;"
+			"<INPUT TYPE=\"submit\" NAME=\"sc\" "
+				"VALUE=\"Decline\">"
+			"</FORM></CENTER>\n"
+		);
+	}
 }
 
 
@@ -112,7 +169,6 @@ void cal_process_object(icalcomponent *cal,
 void cal_process_attachment(char *part_source) {
 	icalcomponent *cal;
 
-	wprintf("Processing calendar attachment<BR>\n");
 	cal = icalcomponent_new_from_string(part_source);
 
 	if (cal == NULL) {
