@@ -27,11 +27,56 @@
 
 
 /*
+ * Given an encoded UID, translate that to an unencoded Citadel EUID and
+ * then search for it in the current room.  Return a message number or -1
+ * if not found.
+ *
+ * NOTE: this function relies on the Citadel server's brute-force search.
+ * There's got to be a way to optimize this better.
+ */
+long locate_message_by_uid(char *uid) {
+	char buf[SIZ];
+	char decoded_uid[SIZ];
+	int i, j;
+	int ch;
+	long retval = (-1L);
+
+	/* Decode the uid */
+	j=0;
+	for (i=0; i<strlen(uid); i=i+2) {
+		ch = 0;
+		sscanf(&uid[i], "%02x", &ch);
+		decoded_uid[j] = ch;
+		decoded_uid[j+1] = 0;
+		++j;
+	}
+
+	serv_puts("MSGS ALL|0|1");
+	serv_gets(buf);
+	if (buf[0] == '8') {
+		serv_printf("exti|%s", decoded_uid);
+		serv_puts("000");
+		while (serv_gets(buf), strcmp(buf, "000")) {
+			retval = atol(buf);
+		}
+	}
+	return(retval);
+}
+
+
+
+
+/*
  * The pathname is always going to be /groupdav/room_name/msg_num
  */
 void groupdav_propfind(char *dav_pathname) {
 	char dav_roomname[SIZ];
+	char msgnum[SIZ];
 	char buf[SIZ];
+	char uid[SIZ];
+	long *msgs = NULL;
+	int num_msgs;
+	int i, j;
 
 	/* First, break off the "/groupdav/" prefix */
 	remove_token(dav_pathname, 0, '/');
@@ -74,19 +119,45 @@ void groupdav_propfind(char *dav_pathname) {
 
 	serv_puts("MSGS ALL");
 	serv_gets(buf);
-	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
-		wprintf(" <D:response>\n");
-		wprintf("  <D:href>%s://%s/groupdav/Calendar/%s</D:href>\n",
-			(is_https ? "https" : "http"),
-			WC->http_host,
-			buf
-		);
-		wprintf("   <D:propstat>\n");
-		wprintf("    <D:status>HTTP/1.1 200 OK</D:status>\n");
-		wprintf("    <D:prop><D:getetag>\"%s\"</D:getetag></D:prop>\n", buf);
-		wprintf("   </D:propstat>\n");
-		wprintf(" </D:response>\n");
+	if (buf[0] == '1') while (serv_gets(msgnum), strcmp(msgnum, "000")) {
+		msgs = realloc(msgs, ++num_msgs * sizeof(long));
+		msgs[num_msgs-1] = atol(msgnum);
+	}
+
+	if (num_msgs > 0) for (i=0; i<num_msgs; ++i) {
+
+		strcpy(uid, "");
+		serv_printf("MSG0 %ld|3", msgs[i]);
+		serv_gets(buf);
+		if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
+			if (!strncasecmp(buf, "exti=", 5)) {
+				strcpy(uid, &buf[5]);
+			}
+		}
+
+		if (strlen(uid) > 0) {
+			wprintf(" <D:response>\n");
+			wprintf("  <D:href>");
+			if (strlen(WC->http_host) > 0) {
+				wprintf("%s://%s",
+					(is_https ? "https" : "http"),
+					WC->http_host);
+			}
+			wprintf("/groupdav/Calendar/");
+			for (j=0; j<strlen(uid); ++j) {
+				wprintf("%02X", uid[j]);
+			}
+			wprintf("</D:href>\n");
+			wprintf("   <D:propstat>\n");
+			wprintf("    <D:status>HTTP/1.1 200 OK</D:status>\n");
+			wprintf("    <D:prop><D:getetag>\"%ld\"</D:getetag></D:prop>\n", msgs[i]);
+			wprintf("   </D:propstat>\n");
+			wprintf(" </D:response>\n");
+		}
 	}
 
 	wprintf("</D:multistatus>\n");
+	if (msgs != NULL) {
+		free(msgs);
+	}
 }
