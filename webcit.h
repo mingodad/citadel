@@ -283,3 +283,4 @@ char *memreadline(char *start, char *buf, int maxlen);
 int num_tokens (char *source, char tok);
 void extract_token(char *dest, char *source, int parmnum, char separator);
 void remove_token(char *source, int parmnum, char separator);
+int decode_base64(char *dest, char *source);
