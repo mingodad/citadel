@@ -221,7 +221,6 @@ void mime_decode(char *partnum,
 
 
 
-
 /*
  * Break out the components of a multipart message
  * (This function expects to be fed HEADERS + CONTENT)
@@ -268,16 +267,16 @@ void the_mime_parser(char *partnum,
 	char *ptr;
 	char *part_start, *part_end = NULL;
 	char buf[SIZ];
-	char header[SIZ];
-	char boundary[SIZ];
-	char startary[SIZ];
-	char endary[SIZ];
-	char content_type[SIZ];
+	char *header;
+	char *boundary;
+	char *startary;
+	char *endary;
+	char *content_type;
 	size_t content_length;
-	char encoding[SIZ];
-	char disposition[SIZ];
-	char name[SIZ];
-	char filename[SIZ];
+	char *encoding;
+	char *disposition;
+	char *name;
+	char *filename;
 	int is_multipart;
 	int part_seq = 0;
 	int i;
@@ -286,13 +285,34 @@ void the_mime_parser(char *partnum,
 
 	fprintf(stderr, "the_mime_parser() called\n");
 	ptr = content_start;
-	memset(boundary, 0, sizeof boundary);
-	memset(content_type, 0, sizeof content_type);
-	memset(encoding, 0, sizeof encoding);
-	memset(name, 0, sizeof name);
-	memset(filename, 0, sizeof filename);
-	memset(disposition, 0, sizeof disposition);
 	content_length = 0;
+
+	boundary = malloc(SIZ);
+	memset(boundary, 0, SIZ);
+
+	startary = malloc(SIZ);
+	memset(startary, 0, SIZ);
+
+	endary = malloc(SIZ);
+	memset(endary, 0, SIZ);
+
+	header = malloc(SIZ);
+	memset(header, 0, SIZ);
+
+	content_type = malloc(SIZ);
+	memset(content_type, 0, SIZ);
+
+	encoding = malloc(SIZ);
+	memset(encoding, 0, SIZ);
+
+	name = malloc(SIZ);
+	memset(name, 0, SIZ);
+
+	filename = malloc(SIZ);
+	memset(filename, 0, SIZ);
+
+	disposition = malloc(SIZ);
+	memset(disposition, 0, SIZ);
 
 	/* If the caller didn't supply an endpointer, generate one by measure */
 	if (content_end == NULL) {
@@ -303,8 +323,9 @@ void the_mime_parser(char *partnum,
 	strcpy(header, "");
 	do {
 		ptr = memreadline(ptr, buf, sizeof buf);
-		if (ptr >= content_end)
-			return;
+		if (ptr >= content_end) {
+			goto end_parser;
+		}
 
 		for (i = 0; i < strlen(buf); ++i)
 			if (isspace(buf[i]))
@@ -313,6 +334,8 @@ void the_mime_parser(char *partnum,
 			if (!strncasecmp(header, "Content-type: ", 14)) {
 				strcpy(content_type, &header[14]);
 				extract_key(name, content_type, "name");
+				fprintf(stderr, "Extracted content-type <%s>\n",
+					content_type);
 			}
 			if (!strncasecmp(header, "Content-Disposition: ", 21)) {
 				strcpy(disposition, &header[21]);
@@ -367,8 +390,6 @@ void the_mime_parser(char *partnum,
 		sprintf(startary, "--%s", boundary);
 		sprintf(endary, "--%s--", boundary);
 		do {
-			/* if (ptr >= content_end) goto END_MULTI; */
-
 			if ( (!strncasecmp(ptr, startary, strlen(startary)))
 			   || (!strncasecmp(ptr, endary, strlen(endary))) ) {
 				fprintf(stderr, "hit boundary!\n");
@@ -401,7 +422,7 @@ void the_mime_parser(char *partnum,
 			PostMultiPartCallBack("", "", partnum, "", NULL,
 				content_type, 0, encoding, userdata);
 		}
-		return;
+		goto end_parser;
 	}
 
 	/* If it's not a multipart message, then do something with it */
@@ -418,7 +439,7 @@ void the_mime_parser(char *partnum,
 		/* Truncate if the header told us to */
 		if ( (content_length > 0) && (length > content_length) ) {
 			length = content_length;
-			fprintf(stderr, "truncated to %d\n", content_length);
+			fprintf(stderr, "truncated to %ld\n", (long)content_length);
 		}
 		
 		mime_decode(partnum,
@@ -428,7 +449,22 @@ void the_mime_parser(char *partnum,
 			    CallBack, NULL, NULL,
 			    userdata, dont_decode);
 	}
+
+end_parser:	/* free the buffers!  end the oppression!! */
+	free(boundary);
+	free(startary);
+	free(endary);	
+	free(header);
+	free(content_type);
+	free(encoding);
+	free(name);
+	free(filename);
+	free(disposition);
 }
+
+
+
+
 
 
 
