@@ -119,6 +119,17 @@ void free_urls(void) {
 		}
 	}
 
+/*
+ * Diagnostic function to display the contents of all variables
+ */
+void dump_vars() {
+	struct urlcontent *u;
+
+	for (u = urlstrings; u != NULL; u = u->next) {
+		fprintf(stderr, "%38s = %s\n", u->url_key, u->url_data);
+		}
+	}
+
 char *bstr(char *key) {
 	struct urlcontent *u;
 
@@ -446,18 +457,20 @@ void session_loop(void) {
 		}
 
 	/* If there are variables in the URL, we must grab them now */	
-	for (a=0; a<strlen(cmd); ++a) if (cmd[a]=='?') {
+	for (a=0; a<strlen(cmd); ++a) if ((cmd[a]=='?')||(cmd[a]=='&')) {
 		for (b=a; b<strlen(cmd); ++b) if (isspace(cmd[b])) cmd[b]=0;
 		addurls(&cmd[a+1]);
 		cmd[a] = 0;
 		}
+
+	/* Verbose but informative; uncomment if you want to trace variables */
+	/* dump_vars(); */
 
 	if (!strncasecmp(cmd, "GET /static/", 12)) {
 		strcpy(buf, &cmd[12]);
 		for (a=0; a<strlen(buf); ++a) if (isspace(buf[a])) buf[a]=0;
 		output_static(buf);
 		}
-
 
 	else if ((!logged_in)&&(!strncasecmp(cmd, "POST /login", 11))) {
 		do_login();
