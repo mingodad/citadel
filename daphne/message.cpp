@@ -41,7 +41,7 @@ CitMessage::CitMessage(CitClient *sock, wxString getmsg_cmd, wxString inRoom) {
 				room = buf.Mid(5);
 			else if (!key.CmpNoCase("type")) {
 				format_type = atoi(buf.Mid(5));
-				if (format_type == 1) {
+				if (format_type != 0) {
 					msgtext.Append("<PRE>\n");
 				}
 			}
@@ -50,7 +50,7 @@ CitMessage::CitMessage(CitClient *sock, wxString getmsg_cmd, wxString inRoom) {
 
 		// Otherwise, process message text
 		} else {
-			if (format_type == 1) {
+			if (format_type != 0) {
 				msgtext.Append(buf);
 				msgtext.Append("\n");
 			} else {
@@ -61,6 +61,6 @@ CitMessage::CitMessage(CitClient *sock, wxString getmsg_cmd, wxString inRoom) {
 			}
 		}
 	}
-	if (format_type == 1) 
+	if (format_type != 0) 
 		msgtext.Append("</PRE>\n");
 }
