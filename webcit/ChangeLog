@@ -1,4 +1,9 @@
 $Log$
+Revision 528.46  2005/02/07 22:02:00  ajc
+* groupdav_propfind.c: output all XML on a single line, with no linebreaks,
+  and no whitespace between tags.  We have discovered that doing otherwise
+  will break certain clients.
+
 Revision 528.45  2005/02/06 03:59:33  ajc
 * Added some HTTP Date: header output
 
@@ -2326,4 +2331,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
