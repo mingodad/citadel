@@ -42,8 +42,7 @@
  * enter user bio
  */
 void cmd_ebio(char *cmdbuf) {
-	char cbuf[SIZ];
-	char *ibuf;
+	char buf[SIZ];
 	FILE *fp;
 
 	if (!(CC->logged_in)) {
@@ -51,15 +50,15 @@ void cmd_ebio(char *cmdbuf) {
 		return;
 	}
 
-	sprintf(cbuf,"./bio/%ld",CC->usersupp.usernum);
-	fp = fopen(cbuf,"w");
+	sprintf(buf,"./bio/%ld",CC->usersupp.usernum);
+	fp = fopen(buf,"w");
 	if (fp == NULL) {
 		cprintf("%d Cannot create file\n",ERROR);
 		return;
 	}
 	cprintf("%d  \n",SEND_LISTING);
-	while(client_gets(&ibuf), strcmp(ibuf,"000")) {
-		fprintf(fp,"%s\n",ibuf);
+	while(client_gets(buf), strcmp(buf,"000")) {
+		fprintf(fp,"%s\n",buf);
 	}
 	fclose(fp);
 }

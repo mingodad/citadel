@@ -89,37 +89,10 @@ static pthread_t initial_thread;		/* tid for main() thread */
  * Note: the variable "buf" below needs to be large enough to handle any
  * log data sent through this function.  BE CAREFUL!
  */
- 
-static int /* I stole this from snprintf.c because it might not get configed in */
-neededalso (const char *fmt, va_list argp)
-{
-  static FILE *sink = NULL;
-
-  /* ok, there's a small race here that could result in the sink being
-   * opened more than once if we're threaded, but I'd rather ignore it than
-   * spend cycles synchronizing :-) */
-
-  if (sink == NULL)
-    {
-      if ((sink = fopen("/dev/null", "w")) == NULL)
-	{
-	  perror("/dev/null");
-	  exit(1);
-	}
-    }
-
-  return vfprintf(sink, fmt, argp);
-}
-
 void lprintf(int loglevel, const char *format, ...) {   
         va_list arg_ptr;
-	char *buf;
+	char buf[4096];
   
-    /*  stu We'll worry about speed later if it's a problem. */
-        va_start(arg_ptr, format);   
-        buf = mallok(neededalso(format, arg_ptr)+1);
-        va_end(arg_ptr);   
-        
         va_start(arg_ptr, format);   
         vsprintf(buf, format, arg_ptr);   
         va_end(arg_ptr);   
@@ -143,76 +116,23 @@ void lprintf(int loglevel, const char *format, ...) {
 	}
 
 	PerformLogHooks(loglevel, buf);
-	phree(buf);
 }   
 
 
 
 #ifdef DEBUG_MEMORY_LEAKS
-
-/* These functions presume a long is 32 bits. */
-
-void *getmem (long m)
-  {
-    /* must zero out data */
-    char *z;
-    char *zf;
-
-    z = malloc(m+8);  /* make room for size and "CITX" */
-    zf = z + m+6;
-
-    /* store check info */
-    memcpy (z, &m, 4); /* copy the long in */
-    memcpy (z+m+4, "CITX", 4); /* my over run check bytes */
-
-    return z + 4;
-  }
-
-void freemem (void *m)
-  {
-    /* check to see if we overran */
-    long sz;
-
-    memcpy (&sz, m-4, 4); /* get long back */
-
-    if (memcmp (m + sz, "CITX", 4) != 0)
-      {
-		lprintf(3, "DANGER! Memory overrun!\n", "", "", "");
-      }
-    free(m - 4); // nobody tells me these things
-  }
-
-void *reallocmem(void *m, ULONG newsize)
-  {
-    /* check to see if we overran */
-    ULONG sz;
-    char *ret;
-
-    memcpy (&sz, m-4, 4); /* get long back */
-
-    if (memcmp (m + sz, "CITX", 4) != 0)
-		lprintf(3, "DANGER! Memory overrun!\n", "", "", "");
-
-    /* just like malloc */
-    ret = (char *)realloc (m-4, newsize+8);
-    memcpy (ret, &newsize, 4); /* copy the long in */
-    memcpy (ret + newsize + 4, "CITX", 4); /* my over run check bytes */
-
-    return (ret + 4);
-  }
-
 void *tracked_malloc(size_t tsize, char *tfile, int tline) {
 	void *ptr;
 	struct TheHeap *hptr;
 
-	ptr = getmem(tsize); /* stu, thought you might like this for debugging */
+	ptr = malloc(tsize);
 	if (ptr == NULL) {
 		lprintf(3, "DANGER!  mallok(%d) at %s:%d failed!\n",
 			tsize, tfile, tline);
 		return(NULL);
 	}
 
-	hptr = (struct TheHeap *) getmem(sizeof(struct TheHeap));
+	hptr = (struct TheHeap *) malloc(sizeof(struct TheHeap));
 	strcpy(hptr->h_file, tfile);
 	hptr->h_line = tline;
 	hptr->next = heap;
@@ -236,7 +156,7 @@ void tracked_free(void *ptr) {
 
 	if (heap->h_ptr == ptr) {
 		hptr = heap->next;
-		freemem(heap);
+		free(heap);
 		heap = hptr;
 	}
 	else {
@@ -244,19 +164,19 @@ void tracked_free(void *ptr) {
 			if (hptr->next->h_ptr == ptr) {
 				freeme = hptr->next;
 				hptr->next = hptr->next->next;
-				freemem(freeme);
+				free(freeme);
 			}
 		}
 	}
 
-	freemem(ptr);
+	free(ptr);
 }
 
 void *tracked_realloc(void *ptr, size_t size) {
 	void *newptr;
 	struct TheHeap *hptr;
 	
-	newptr = reallocmem(ptr, size);
+	newptr = realloc(ptr, size);
 
 	for (hptr=heap; hptr!=NULL; hptr=hptr->next) {
 		if (hptr->h_ptr == ptr) hptr->h_ptr = newptr;
@@ -525,6 +445,13 @@ void client_write(char *buf, int nbytes)
 	int retval;
 	int sock;
 
+	/*
+	 * Yes, this is where we want this signal() call to be.  Evidently the
+	 * DB library is screwing with this binding and we don't want the
+	 * server to crash, so we force this to be correct.
+	 */
+	signal(SIGPIPE, SIG_IGN);
+
 	if (CC->redirect_fp != NULL) {
 		fwrite(buf, nbytes, 1, CC->redirect_fp);
 		return;
@@ -625,69 +552,7 @@ int client_read(char *buf, int bytes)
  * (This is implemented in terms of client_read() and could be
  * justifiably moved out of sysdep.c)
  */
- 
-/* stu 2/7/2001. Rigging this to do dynamic allocating to recieve 
-   random length commands. The memory is held by the session. The
-   pointer returned to the caller is for reading only for they do
-   not know how big it is. The context owns the buffer. Thus there
-   is one per session, gets cleaned up in remove_session or something
-   like that. Not going for killer speed here since this isn't really
-   a bottleneck function. */
-
-int client_gets(char **retbuf)
-{
-	int i, retval;
-
-	/* Read one character at a time. */
-	char *b = CC->readbuf;
-	int sz = CC->readbuf_alloc;
-	if (b == NULL) /* first time in? */
-	  {
-	    b = mallok(SIZ+1); /* start with something */
-	    sz = SIZ;
-	  }
-	else
-	  {
-	    /* take this out if you prefer not wasting the time. */
-	    if (sz > (SIZ*2)) /* if it went up, don't put at min */
-	      {
-	        b = reallok(b, SIZ*2+1); /* resize down */
-	        sz = SIZ*2;
-	      }
-	  }
-	*b = '\0'; /* in case we bail early */
-	i = 0;
-	while (1)
-      {
-        retval = client_read(b+i, 1);
-        if (retval != 1 || b[i] == '\n')
-          break;
-        if (i == 1024*1024) // set some obscene upper limit
-          break;
-        i++;
-        if (i >= sz)
-          {
-            sz *= 2; /* resize up */
-            b = reallok(b, sz+1);
-          }
-      }
-
-	/* Strip the trailing newline and any trailing nonprintables (cr's) */
-	*(b+i) = '\0';
-	while ((strlen(b)>0)&&(!isprint(*(b+strlen(b)-1))))
-		*(b+strlen(b)-1) = '\0';
-	if (retval < 0) 
-	  strcpy(b, "000");
-
-    CC->readbuf = b; /* faster if we do it once at the end */
-    CC->readbuf_alloc = sz;
-
-
-    *retbuf = b;
-	return(retval);
-}
-
-int oldclient_gets(char *buf)
+int client_gets(char *buf)
 {
 	int i, retval;
 

@@ -365,7 +365,6 @@ void imap_select(int num_parms, char *parms[]) {
 	cprintf("* %d EXISTS\r\n", msgs);
 	cprintf("* %d RECENT\r\n", new);
 	cprintf("* OK [UIDVALIDITY 0] UIDs valid\r\n");
-	cprintf("* FLAGS (\\Deleted)\r\n");
 	cprintf("%s OK [%s] %s completed\r\n",
 		parms[0],
 		(IMAP->readonly ? "READ-ONLY" : "READ-WRITE"),
@@ -614,37 +613,34 @@ void imap_status(int num_parms, char *parms[]) {
  * Main command loop for IMAP sessions.
  */
 void imap_command_loop(void) {
-	char *icmdbuf;
+	char cmdbuf[SIZ];
 	char *parms[SIZ];
 	int num_parms;
 
 	time(&CC->lastcmd);
-	if (client_gets(&icmdbuf) < 1) {
+	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
+	if (client_gets(cmdbuf) < 1) {
 		lprintf(3, "IMAP socket is broken.  Ending session.\r\n");
 		CC->kill_me = 1;
 		return;
 	}
 
-	lprintf(5, "citserver[%3d]: %s\r\n", CC->cs_pid, icmdbuf); 
-	while (strlen(icmdbuf) < 5) strcat(icmdbuf, " ");
+	lprintf(5, "citserver[%3d]: %s\r\n", CC->cs_pid, cmdbuf);
+	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
 
 
 	/* strip off l/t whitespace and CRLF */
-	if (icmdbuf[strlen(icmdbuf)-1]=='\n') icmdbuf[strlen(icmdbuf)-1]=0;
-	if (icmdbuf[strlen(icmdbuf)-1]=='\r') icmdbuf[strlen(icmdbuf)-1]=0;
-	striplt(icmdbuf);
+	if (cmdbuf[strlen(cmdbuf)-1]=='\n') cmdbuf[strlen(cmdbuf)-1]=0;
+	if (cmdbuf[strlen(cmdbuf)-1]=='\r') cmdbuf[strlen(cmdbuf)-1]=0;
+	striplt(cmdbuf);
 
 	/* If we're in the middle of a multi-line command, handle that */
 	if (IMAP->authstate == imap_as_expecting_username) {
-	    if (strlen(icmdbuf) >= SIZ) /* I'm going to impose some kinda limit here */
-	      *(icmdbuf+SIZ) = '\0';   /* because ialu uses SIZ */
-		imap_auth_login_user(icmdbuf);
+		imap_auth_login_user(cmdbuf);
 		return;
 	}
 	if (IMAP->authstate == imap_as_expecting_password) {
-	    if (strlen(icmdbuf) >= SIZ) 
-	      *(icmdbuf+SIZ) = '\0';
-		imap_auth_login_pass(icmdbuf);
+		imap_auth_login_pass(cmdbuf);
 		return;
 	}
 
@@ -664,7 +660,7 @@ void imap_command_loop(void) {
 	/* Now for the command set. */
 
 	/* Grab the tag, command, and parameters.  Check syntax. */
-	num_parms = imap_parameterize(parms, icmdbuf);
+	num_parms = imap_parameterize(parms, cmdbuf);
 	if (num_parms < 2) {
 		cprintf("BAD syntax error\r\n");
 	}

@@ -613,7 +613,6 @@ void cmd_sexp(char *argbuf)
 	char x_msg[SIZ];
 	char *lun;		/* <bc> */
 	char *x_big_msgbuf = NULL;
-    char *ix_msg;
 
 	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
 		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
@@ -650,13 +649,13 @@ void cmd_sexp(char *argbuf)
 			SEND_LISTING, message_sent);
 		x_big_msgbuf = mallok(SIZ);
 		memset(x_big_msgbuf, 0, SIZ);
-		while (client_gets(&ix_msg), strcmp(ix_msg, "000")) {
+		while (client_gets(x_msg), strcmp(x_msg, "000")) {
 			x_big_msgbuf = reallok(x_big_msgbuf,
-			       strlen(x_big_msgbuf) + strlen(ix_msg) + 4);
+			       strlen(x_big_msgbuf) + strlen(x_msg) + 4);
 			if (strlen(x_big_msgbuf) > 0)
 			   if (x_big_msgbuf[strlen(x_big_msgbuf)] != '\n')
 				strcat(x_big_msgbuf, "\n");
-			strcat(x_big_msgbuf, ix_msg);
+			strcat(x_big_msgbuf, x_msg);
 		}
 		PerformXmsgHooks(lun, x_user, x_big_msgbuf);
 		phree(x_big_msgbuf);

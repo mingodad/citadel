@@ -386,7 +386,7 @@ void cmd_msgs(char *cmdbuf)
 {
 	int mode = 0;
 	char which[SIZ];
-	char *ibuf;
+	char buf[SIZ];
 	char tfield[SIZ];
 	char tvalue[SIZ];
 	int cm_ref = 0;
@@ -394,7 +394,7 @@ void cmd_msgs(char *cmdbuf)
 	int with_template = 0;
 	struct CtdlMessage *template = NULL;
 
-	extract(which, cmdbuf, 0); /* extract makes sure we don't overrun */
+	extract(which, cmdbuf, 0);
 	cm_ref = extract_int(cmdbuf, 1);
 	with_template = extract_int(cmdbuf, 2);
 
@@ -422,9 +422,9 @@ void cmd_msgs(char *cmdbuf)
 		template = (struct CtdlMessage *)
 			mallok(sizeof(struct CtdlMessage));
 		memset(template, 0, sizeof(struct CtdlMessage));
-		while(client_gets(&ibuf), strcmp(ibuf,"000")) {
-			extract(tfield, ibuf, 0);
-			extract(tvalue, ibuf, 1);
+		while(client_gets(buf), strcmp(buf,"000")) {
+			extract(tfield, buf, 0);
+			extract(tvalue, buf, 1);
 			for (i='A'; i<='Z'; ++i) if (msgkeys[i]!=NULL) {
 				if (!strcasecmp(tfield, msgkeys[i])) {
 					template->cm_fields[i] =
@@ -1835,7 +1835,7 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 			char *exist		/* if non-null, append to it;
 						   exist is ALWAYS freed  */
 			) {
-	char *ibuf;
+	char buf[SIZ];
 	int linelen;
 	size_t message_len = 0;
 	size_t buffer_len = 0;
@@ -1850,7 +1850,7 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 		if (m == NULL) phree(exist);
 	}
 	if (m == NULL) {
-		while ( (client_gets(&ibuf)>0) && strcmp(ibuf, terminator) ) ;;
+		while ( (client_gets(buf)>0) && strcmp(buf, terminator) ) ;;
 		return(NULL);
 	} else {
 		buffer_len = 4096;
@@ -1858,21 +1858,21 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 		message_len = 0;
 	}
 	/* read in the lines of message text one by one */
-	while ( (client_gets(&ibuf)>0) && strcmp(ibuf, terminator) ) {
+	while ( (client_gets(buf)>0) && strcmp(buf, terminator) ) {
 
 		/* strip trailing newline type stuff */
-		if (ibuf[strlen(ibuf)-1]==10) ibuf[strlen(ibuf)-1]=0;
-		if (ibuf[strlen(ibuf)-1]==13) ibuf[strlen(ibuf)-1]=0;
+		if (buf[strlen(buf)-1]==10) buf[strlen(buf)-1]=0;
+		if (buf[strlen(buf)-1]==13) buf[strlen(buf)-1]=0;
 
-		linelen = strlen(ibuf);
+		linelen = strlen(buf);
 
 		/* augment the buffer if we have to */
 		if ((message_len + linelen + 2) > buffer_len) {
 			lprintf(9, "realloking\n");
 			ptr = reallok(m, (buffer_len * 2) );
 			if (ptr == NULL) {	/* flush if can't allocate */
-				while ( (client_gets(&ibuf)>0) &&
-					strcmp(ibuf, terminator)) ;;
+				while ( (client_gets(buf)>0) &&
+					strcmp(buf, terminator)) ;;
 				return(m);
 			} else {
 				buffer_len = (buffer_len * 2);
@@ -1885,15 +1885,15 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 		 * because that would involve traversing the entire message
 		 * after each line, and this function needs to run fast.
 		 */
-		strcpy(&m[message_len], ibuf);
+		strcpy(&m[message_len], buf);
 		m[message_len + linelen] = '\n';
 		m[message_len + linelen + 1] = 0;
 		message_len = message_len + linelen + 1;
 
 		/* if we've hit the max msg length, flush the rest */
 		if (message_len >= maxlen) {
-			while ( (client_gets(&ibuf)>0)
-				&& strcmp(ibuf, terminator)) ;;
+			while ( (client_gets(buf)>0)
+				&& strcmp(buf, terminator)) ;;
 			return(m);
 		}
 	}

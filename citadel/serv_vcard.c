@@ -276,7 +276,7 @@ void vcard_write_user(struct usersupp *u, struct vCard *v) {
  */
 void cmd_regi(char *argbuf) {
 	int a,b,c;
-	char *ibuf;
+	char buf[SIZ];
 	struct vCard *my_vcard;
 
 	char tmpaddr[SIZ];
@@ -300,23 +300,23 @@ void cmd_regi(char *argbuf) {
 
 	cprintf("%d Send registration...\n", SEND_LISTING);
 	a=0;
-	while (client_gets(&ibuf), strcmp(ibuf,"000")) {
-		if (a==0) vcard_set_prop(my_vcard, "n", ibuf);
-		if (a==1) strcpy(tmpaddr,ibuf);
-		if (a==2) strcpy(tmpcity,ibuf);
-		if (a==3) strcpy(tmpstate,ibuf);
+	while (client_gets(buf), strcmp(buf,"000")) {
+		if (a==0) vcard_set_prop(my_vcard, "n", buf);
+		if (a==1) strcpy(tmpaddr,buf);
+		if (a==2) strcpy(tmpcity,buf);
+		if (a==3) strcpy(tmpstate,buf);
 		if (a==4) {
-			for (c=0; c<strlen(ibuf); ++c) {
-				if ((ibuf[c]>='0')&&(ibuf[c]<='9')) {
+			for (c=0; c<strlen(buf); ++c) {
+				if ((buf[c]>='0')&&(buf[c]<='9')) {
 					b=strlen(tmpzip);
-					tmpzip[b]=ibuf[c];
+					tmpzip[b]=buf[c];
 					tmpzip[b+1]=0;
 					}
 				}
 			}
-		if (a==5) vcard_set_prop(my_vcard, "tel;home", ibuf);
-		if (a==6) vcard_set_prop(my_vcard, "email;internet", ibuf);
-		if (a==7) strcpy(tmpcountry, ibuf);
+		if (a==5) vcard_set_prop(my_vcard, "tel;home", buf);
+		if (a==6) vcard_set_prop(my_vcard, "email;internet", buf);
+		if (a==7) strcpy(tmpcountry, buf);
 		++a;
 		}
 	sprintf(tmpaddress, ";;%s;%s;%s;%s;%s",

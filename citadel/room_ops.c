@@ -1418,7 +1418,7 @@ void cmd_einf(char *ok)
 {				/* enter info file for current room */
 	FILE *fp;
 	char infofilename[SIZ];
-	char *ibuf;
+	char buf[SIZ];
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
 
@@ -1438,10 +1438,10 @@ void cmd_einf(char *ok)
 	cprintf("%d Send info...\n", SEND_LISTING);
 
 	do {
-		client_gets(&ibuf);
-		if (strcmp(ibuf, "000"))
-			fprintf(fp, "%s\n", ibuf);
-	} while (strcmp(ibuf, "000"));
+		client_gets(buf);
+		if (strcmp(buf, "000"))
+			fprintf(fp, "%s\n", buf);
+	} while (strcmp(buf, "000"));
 	fclose(fp);
 
 	/* now update the room index so people will see our new info */

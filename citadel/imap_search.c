@@ -82,7 +82,7 @@ void imap_do_search(int num_items, char **itemlist, int is_uid) {
 	cprintf("* SEARCH ");
 	if (IMAP->num_msgs > 0)
 	 for (i = 0; i < IMAP->num_msgs; ++i)
-	  if (IMAP->flags[i] && IMAP_SELECTED) {
+	  if (IMAP->flags[i] && IMAP_FETCHED) {
 		msg = CtdlFetchMessage(IMAP->msgids[i]);
 		if (msg != NULL) {
 			imap_do_search_msg(i+1, msg, num_items,
