@@ -340,8 +340,12 @@ int main(int argc, char** argv)
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
 	/* Then, create some threads */
+	fprintf(stderr, "Creating threads      \r");
 	for (i = 0; i < n; ++i) {
 		pthread_create(&threads[i], &attr, worker, (void*)data);
+		
+		/* Give thread #0 time to create the user account */
+		if (i == 0) sleep(3);
 	}
 
 	fprintf(stderr, "Starting in 10 seconds\r");

@@ -1,4 +1,11 @@
  $Log$
+ Revision 614.98  2004/03/24 15:04:06  ajc
+ * stress.c: fix "wrong password" race condition by giving the very
+   first worker thread time to finish creating the user account before the
+   other threads start using it.  (Ok, I fixed it by creating a different
+   race condition, but if your Citadel takes more than three seconds to
+   create an account, your problems can't be fixed with the stress tester.)
+
  Revision 614.97  2004/03/24 03:46:40  ajc
  * Reorg header stuff to make it more compatible with leak checkers
 
@@ -5597,3 +5604,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
