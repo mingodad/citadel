@@ -57,10 +57,8 @@ void display_floorconfig(char *prepend_html)
 		return;
 	}
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">Floor configuration</SPAN>"
-		"</TD></TR></TABLE>\n"
-	);
+	svprintf("BOXTITLE", WCS_STRING, "Floor configuration");
+	do_template("beginbox");
 
 	wprintf("<TABLE BORDER=1 WIDTH=100%>\n"
 		"<TR><TH>Floor number</TH>"
@@ -112,7 +110,7 @@ void display_floorconfig(char *prepend_html)
 		"<TD>&nbsp;</TD></TR>\n");
 
 	wprintf("</TABLE>\n");
-
+	do_template("endbox");
 	wDumpContent(1);
 }
 
