@@ -177,7 +177,7 @@ void		CxClDisconnect() {
 }
 
 /**
- ** CxClStat(): Send a string to the server.
+ ** CxClStat(): Return connection status.
  **/
 int		CxClStat() {
 
@@ -195,6 +195,11 @@ void		CxClSend(const char *s) {
 int 		bytes_written = 0;
 int 		retval,nbytes;
 char		*ss;
+
+	/**
+	 ** Don't try to do anything if we are not connected.
+	 **/
+	if(!CxClStat()) return;
 
 	DPF((DFA,"SEND: \"%s\"", s));
 
@@ -267,9 +272,10 @@ int		CxClRecv(char *s) {
 char		substr[4];
 int		i, tmp;
 
-	if(!CxClStat()) {
-		return(NULL);
-	}
+	/**
+	 ** If we are not connected, do nothing.
+	 **/
+	if(!CxClStat()) return(NULL);
 
 	/**
 	 ** At this point, we should wait for the semaphore to be cleared.
