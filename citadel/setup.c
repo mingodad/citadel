@@ -1171,6 +1171,7 @@ NEW_INST:
 	disable_other_mta("popd");
 	disable_other_mta("pop3d");
 	disable_other_mta("exim");
+	disable_other_mta("dovecot");
 #endif
 
 	if ((pw = getpwuid(config.c_bbsuid)) == NULL)
