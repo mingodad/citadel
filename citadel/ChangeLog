@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.136  2001/06/06 15:44:37  ajc
+ * msgbase.c: output extra newline at end of RFC822 message if necessary to
+   ensure that 000 termination string appears on a line by itself.
+
  Revision 573.135  2001/06/06 04:22:25  ajc
  * Moved memreadline() to tools.c
  * internet_addressing.c: fixed conversion of fields to (hopefully) never get
@@ -2531,3 +2535,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

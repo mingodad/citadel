@@ -815,7 +815,7 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 		char *ptr;
 		char *wptr;
 		size_t wlen;
-		CIT_UBYTE ch;
+		CIT_UBYTE ch = 0;
 	
 		if (!strcasecmp(cbtype, "multipart/alternative")) {
 			strcpy(ma->prefix, partnum);
@@ -840,9 +840,13 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 			wptr = content;
 			while (wlen--) {
 				ch = *wptr++;
+				/**********
 				if (ch==10) cprintf("\r\n");
 				else cprintf("%c", ch);
+				 **********/
+				cprintf("%c", ch);
 			}
+			if (ch != '\n') cprintf("\n");
 		}
 		else if (!strcasecmp(cbtype, "text/html")) {
 			ptr = html_to_ascii(content, 80, 0);
