@@ -63,3 +63,12 @@ config.sub
 config.guess
 openldap-data
 keys
+bio
+bitbucket
+citadel-easyinstall.sum
+files
+gmon.out
+images
+info
+network
+userpics
