@@ -184,35 +184,96 @@ void print_express(void)
 {
 	char buf[256];
 	FILE *outpipe;
+	time_t timestamp;
+	struct tm *stamp;
+	int flags;
+	char sender[64];
+	char node[64];
 
 	if (express_msgs == 0)
 		return;
-	express_msgs = 0;
-	serv_puts("PEXP");
-	serv_gets(buf);
-	if (buf[0] != '1')
-		return;
 
-	if (strlen(rc_exp_cmd) > 0) {
-		outpipe = popen(rc_exp_cmd, "w");
-		if (outpipe != NULL) {
-			while (serv_gets(buf), strcmp(buf, "000")) {
-				fprintf(outpipe, "%s\n", buf);
-			}
-			pclose(outpipe);
-			return;
-		}
-	}
-	/* fall back to built-in express message display */
 	if (rc_exp_beep) {
 		putc(7, stdout);
 	}
 	color(BRIGHT_RED);
-	printf("\r---\n");
-	while (serv_gets(buf), strcmp(buf, "000")) {
-		printf("%s\n", buf);
+	printf("\r---");
+	
+	while (express_msgs != 0) {
+		serv_puts("GEXP");
+		serv_gets(buf);
+		if (buf[0] != '1')
+			return;
+	
+		express_msgs = extract_int(&buf[4], 0);
+		timestamp = extract_long(&buf[4], 1);
+		flags = extract_int(&buf[4], 2);
+		extract(sender, &buf[4], 3);
+		extract(node, &buf[4], 4);
+	
+		stamp = localtime(&timestamp);
+	
+		if (strlen(rc_exp_cmd) > 0) {
+			outpipe = popen(rc_exp_cmd, "w");
+			if (outpipe != NULL) {
+				/* Header derived from flags */
+				if (flags & 2)
+					fprintf(outpipe,
+					       "Please log off now, as requested ");
+				else if (flags & 1)
+					fprintf(outpipe, "Broadcast message ");
+				else if (flags & 4)
+					fprintf(outpipe, "Chat request ");
+				else
+					fprintf(outpipe, "Message ");
+				/* 24hr format.  Can be changed, I guess. */
+				fprintf(outpipe, "at %d:%02d from %s @%s:\n",
+					stamp->tm_hour, stamp->tm_min,
+					sender, node);
+				while (serv_gets(buf), strcmp(buf, "000")) {
+					fprintf(outpipe, "%s\n", buf);
+				}
+				pclose(outpipe);
+				return;
+			}
+		}
+		/* fall back to built-in express message display */
+		printf("\n");
+
+		/* Header derived from flags */
+		if (flags & 2)
+			printf("Please log off now, as requested ");
+		else if (flags & 1)
+			printf("Broadcast message ");
+		else if (flags & 4)
+			printf("Chat request ");
+		else
+			printf("Message ");
+	
+		/* Timestamp.  Can this be improved? */
+		if (stamp->tm_hour == 0 || stamp->tm_hour == 12)/* 12am/12pm */
+			printf("at 12:%02d%cm", stamp->tm_min, 
+				stamp->tm_hour ? 'p' : 'a');
+		else if (stamp->tm_hour > 12)			/* pm */
+			printf("at %d:%02dpm",
+				stamp->tm_hour - 12, stamp->tm_min);
+		else						/* am */
+			printf("at %d:%02dam", stamp->tm_hour, stamp->tm_min);
+		
+		/* Sender */
+		printf(" from %s", sender);
+	
+		/* Remote node, if any */
+		if (strncmp(serv_info.serv_nodename, node, 32))
+			printf(" @%s", node);
+	
+		printf(":\n");
+	
+		while (serv_gets(buf), strcmp(buf, "000")) {
+			printf("%s", buf);
+		}
 	}
-	printf("---\n");
+	printf("\n---\n");
 	color(BRIGHT_WHITE);
 }
 
