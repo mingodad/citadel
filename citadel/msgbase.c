@@ -600,36 +600,11 @@ void cmd_msg3(char *cmdbuf)
  * Message base operation to send a message to the master file
  * (returns new message number)
  */
-long send_message(char *filename, int generate_id)
-                /* tempfilename of proper message */
-                		/* set to 1 to generate an 'I' field */
-{
+long send_message(char *message_in_memory,	/* pointer to buffer */
+		size_t message_length,		/* length of buffer */
+		int generate_id) {		/* 1 to generate an I field */
 
-	FILE *fp;
 	long newmsgid;
-	struct stat statbuf;
-	char *message_in_memory;
-	size_t templen;
-
-
-	/* Measure the message */
-	lprintf(9, "Measuring the message\n");
-	stat(filename, &statbuf);
-	templen = statbuf.st_size;
-
-	/* Now read it into memory */
-	lprintf(9, "Allocating %ld bytes\n", templen);
-	message_in_memory = (char *) malloc(templen);
-	if (message_in_memory == NULL) {
-		lprintf(2, "Can't allocate memory to save message!\n");
-		return 0L;
-		}
-
-	lprintf(9, "Reading it into memory\n");	
-	fp = fopen(filename, "rb");
-	fseek(fp, 0L, SEEK_SET);
-	fread(message_in_memory, templen, 1, fp);
-	fclose(fp);
 
 	/* Get a new message number */
 	newmsgid = get_new_message_number();
@@ -639,15 +614,12 @@ long send_message(char *filename, int generate_id)
 	lprintf(9, "Storing message %ld\n", newmsgid);
 	begin_critical_section(S_MSGMAIN);
 	if ( cdb_store(CDB_MSGMAIN, &newmsgid, sizeof(long),
-			message_in_memory, templen) < 0 ) {
+			message_in_memory, message_length) < 0 ) {
 		lprintf(2, "Can't store message\n");
 		end_critical_section(S_MSGMAIN);
-		free(message_in_memory);
 		return 0L;
 		}
 	end_critical_section(S_MSGMAIN);
-	free(message_in_memory);
-
 
 	/* Finally, return the pointers */
 	return(newmsgid);
@@ -725,26 +697,50 @@ void save_message(char *mtmp,	/* file containing proper message */
 	long *dmailbox;
 	int dnum_mails;
 	long newmsgid;
+	char *message_in_memory;
+	struct stat statbuf;
+	size_t templen;
+	FILE *fp;
 
-	newmsgid = send_message(mtmp,generate_id);
+	/* Measure the message */
+	lprintf(9, "Measuring the message\n");
+	stat(mtmp, &statbuf);
+	templen = statbuf.st_size;
+
+	/* Now read it into memory */
+	lprintf(9, "Allocating %ld bytes\n", templen);
+	message_in_memory = (char *) malloc(templen);
+	if (message_in_memory == NULL) {
+		lprintf(2, "Can't allocate memory to save message!\n");
+		return;
+		}
+
+	lprintf(9, "Reading it into memory\n");	
+	fp = fopen(mtmp, "rb");
+	fread(message_in_memory, templen, 1, fp);
+	fclose(fp);
+
+	newmsgid = send_message(message_in_memory, templen, generate_id);
+	free(message_in_memory);
 	if (newmsgid <= 0L) return;
 	hold_rm=(-1);
 
-	/* if the user is a twit, move to the twit room for posting */
+	/* If the user is a twit, move to the twit room for posting... */
 	if (TWITDETECT) if (CC->usersupp.axlevel==2) {
 		if (twitroom<0) loadtroom();
 		hold_rm=CC->curr_rm;
 		CC->curr_rm=twitroom;
 		}
 
-	/* and if this message is destined for Aide> then go there */
+	/* ...or if this message is destined for Aide> then go there. */
 	if (mtsflag) {
 		hold_rm=CC->curr_rm;
 		CC->curr_rm=2;
 		}
 
-	/* this call to usergoto() changes rooms if necessary.  It also
-	   causes the latest message list to be read into memory */
+	/* This call to usergoto() changes rooms if necessary.  It also
+	 * causes the latest message list to be read into memory.
+	 */
 	usergoto(CC->curr_rm,0);
 
 	/* Store the message pointer, but NOT for sent mail! */
@@ -774,28 +770,32 @@ void save_message(char *mtmp,	/* file containing proper message */
 		}
 
 	/* Bump this user's messages posted counter.  Also, if the user is a
-	   twit, give them access to the twit room. */
+	 * twit, give them access to the twit room.
+	 */
 	lgetuser(&CC->usersupp,CC->curr_user);
 	CC->usersupp.posted = CC->usersupp.posted + 1;
-	if (CC->curr_rm==twitroom) CC->usersupp.generation[twitroom]=CC->quickroom.QRgen;
-	lputuser(&CC->usersupp,CC->curr_user);
+	if (CC->curr_rm==twitroom) {
+		CC->usersupp.generation[twitroom] = CC->quickroom.QRgen;
+		}
+	lputuser(&CC->usersupp, CC->curr_user);
 
-	/* if mail, there's still more to do, if not, skip it */
+	/* If mail, there's still more to do, if not, skip it. */
 	if ((CC->curr_rm!=1)||(mtsflag)) goto ENTFIN;
 
-	/* network mail - send a copy to the network program */
+	/* Network mail - send a copy to the network program. */
 	if (mailtype!=M_LOCAL) {
 		sprintf(aaa,"./network/spoolin/nm.%d",getpid());
 		copy_file(mtmp,aaa);
 		system("exec nohup ./netproc >/dev/null 2>&1 &");
 		}
 
-	/* local mail - put a copy in the recipient's mailbox */
+	/* Local mail - put a copy in the recipient's mailbox. */
 	/* FIX here's where we have to handle expiry, stuffed boxes, etc. */
-	if (mailtype==M_LOCAL) {
+	if (mailtype == M_LOCAL) {
 		if (lgetuser(&tempUS,rec)==0) {
 
-			cdbmb = cdb_fetch(CDB_MAILBOXES, &tempUS.usernum, sizeof(long));
+			cdbmb = cdb_fetch(CDB_MAILBOXES,
+					&tempUS.usernum, sizeof(long));
 			if (cdbmb != NULL) {
 				memcpy(dmailbox, cdbmb->ptr, cdbmb->len);
 				dnum_mails = cdbmb->len / sizeof(long);
@@ -823,8 +823,9 @@ void save_message(char *mtmp,	/* file containing proper message */
 			}
 		}
 
-	/* if we've posted in a room other than the current room, then we
-	   have to now go back to the current room... */
+	/* If we've posted in a room other than the current room, then we
+	 * have to now go back to the current room...
+	 */
 ENTFIN:	if (hold_rm!=(-1)) {
 		usergoto(hold_rm,0);
 		}
@@ -833,7 +834,7 @@ ENTFIN:	if (hold_rm!=(-1)) {
 
 
 /*
- * generate an administrative message and post it in the Aide> room
+ * Generate an administrative message and post it in the Aide> room.
  */
 void aide_message(char *text)
 {
@@ -857,11 +858,11 @@ void aide_message(char *text)
 
 
 /*
- * build a binary message to be saved on disk
+ * Build a binary message to be saved on disk.
  */
 void make_message(char *filename, struct usersupp *author, char *recipient, char *room, int type, int net_type, int format_type, char *fake_name)
                 	/* temporary file name */
-                          /* author's usersupp structure */
+                        /* author's usersupp structure */
                  	/* NULL if it's not mail */
             		/* room where it's going */
          		/* see MES_ types in header file */
@@ -874,10 +875,10 @@ void make_message(char *filename, struct usersupp *author, char *recipient, char
 	char dest_node[32];
 	char buf[256];
 
-	/* don't confuse the poor folks if it's not routed mail. */
-	strcpy(dest_node,"");
+	/* Don't confuse the poor folks if it's not routed mail. */
+	strcpy(dest_node, "");
 
-	/* if net_type is M_BINARY, split out the destination node */
+	/* If net_type is M_BINARY, split out the destination node. */
 	if (net_type == M_BINARY) {
 		strcpy(dest_node,NODENAME);
 		for (a=0; a<strlen(recipient); ++a) {
