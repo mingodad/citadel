@@ -45,13 +45,71 @@ struct ical_respond_data {
 /* Session-local data for calendaring. */
 long SYM_CIT_ICAL;
 
+
+/*
+ * Utility function to encapsulate a subcomponent into a full VCALENDAR
+ */
+icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
+	icalcomponent *encaps;
+
+	/* If we're already looking at a full VCALENDAR component,
+	 * don't bother ... just return itself.
+	 */
+	if (icalcomponent_isa(subcomp) == ICAL_VCALENDAR_COMPONENT) {
+		return subcomp;
+	}
+
+	/* Encapsulate the VEVENT component into a complete VCALENDAR */
+	encaps = icalcomponent_new(ICAL_VCALENDAR_COMPONENT);
+	if (encaps == NULL) {
+		lprintf(3, "Error at %s:%d - could not allocate component!\n",
+			__FILE__, __LINE__);
+		return NULL;
+	}
+
+	/* Set the Product ID */
+	icalcomponent_add_property(encaps, icalproperty_new_prodid(PRODID));
+
+	/* Set the Version Number */
+	icalcomponent_add_property(encaps, icalproperty_new_version("2.0"));
+
+	/* Encapsulate the subcomponent inside */
+	icalcomponent_add_component(encaps, subcomp);
+
+	/* Convert all timestamps to UTC so we don't have to deal with
+	 * stupid VTIMEZONE crap.
+	 */
+	ical_dezonify(encaps);
+
+	/* Return the object we just created. */
+	return(encaps);
+}
+
+
+
+
 /*
  * Write a calendar object into the specified user's calendar room.
+ * 
+ * ok
  */
 void ical_write_to_cal(struct usersupp *u, icalcomponent *cal) {
 	char temp[PATH_MAX];
 	FILE *fp;
 	char *ser;
+
+	if (cal == NULL) return;
+
+	/* If the supplied object is a subcomponent, encapsulate it in
+	 * a full VCALENDAR component, and save that instead.
+	 */
+	if (icalcomponent_isa(cal) != ICAL_VCALENDAR_COMPONENT) {
+		ical_write_to_cal(
+			u,
+			ical_encapsulate_subcomponent(cal)
+		);
+		return;
+	}
 
 	strcpy(temp, tmpnam(NULL));
 	ser = icalcomponent_as_ical_string(cal);
@@ -79,6 +137,8 @@ void ical_write_to_cal(struct usersupp *u, icalcomponent *cal) {
 
 /*
  * Add a calendar object to the user's calendar
+ * 
+ * ok because it uses ical_write_to_cal()
  */
 void ical_add(icalcomponent *cal, int recursion_level) {
 	icalcomponent *c;
@@ -112,6 +172,8 @@ void ical_add(icalcomponent *cal, int recursion_level) {
  *
  * (Sorry about this being more than 80 columns ... there was just
  * no easy way to break it down sensibly.)
+ * 
+ * ok
  */
 void ical_send_a_reply(icalcomponent *request, char *action) {
 	icalcomponent *the_reply = NULL;
@@ -955,6 +1017,17 @@ void ical_freebusy_strip(icalcomponent *cal) {
 	icalproperty *p;
 	int did_something = 1;
 
+	if (cal == NULL) return;
+
+	if (icalcomponent_isa(cal) != ICAL_VEVENT_COMPONENT) {
+		ical_freebusy_strip(
+			icalcomponent_get_first_component(
+				cal, ICAL_VEVENT_COMPONENT
+			)
+		);
+		return;
+	}
+
 	ical_dezonify(cal);
 
 	while (did_something) {
@@ -1222,6 +1295,17 @@ void ical_send_out_invitations(icalcomponent *cal) {
 		return;
 	}
 
+
+	/* If this is a VCALENDAR component, look for a VEVENT subcomponent. */
+	if (icalcomponent_isa(cal) == ICAL_VCALENDAR_COMPONENT) {
+		ical_send_out_invitations(
+			icalcomponent_get_first_component(
+				cal, ICAL_VEVENT_COMPONENT
+			)
+		);
+		return;
+	}
+
 	/* Clone the event */
 	the_request = icalcomponent_new_clone(cal);
 	if (the_request == NULL) {
@@ -1404,6 +1488,13 @@ void ical_ctdl_set_extended_msgid(char *name, char *filename, char *partnum,
 	 */
 	if (!strcasecmp(cbtype, "text/calendar")) {
 		cal = icalcomponent_new_from_string(content);
+		if (cal != NULL) {
+			if (icalcomponent_isa(cal) == ICAL_VCALENDAR_COMPONENT) {
+				cal = icalcomponent_get_first_component(
+					cal, ICAL_VEVENT_COMPONENT
+				);
+			}
+		}
 		if (cal != NULL) {
 			p = ical_ctdl_get_subprop(cal, ICAL_UID_PROPERTY);
 			if (p != NULL) {

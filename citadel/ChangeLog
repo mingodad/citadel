@@ -1,4 +1,8 @@
  $Log$
+ Revision 605.15  2003/03/13 05:48:33  ajc
+ * Move towards storing calendar objects as fully encapsulated VCALENDAR
+   components instead of just VEVENT subcomponents.
+
  Revision 605.14  2003/03/12 03:33:54  ajc
  * More changes to the handling of RFC822 headers with regard to
    splitting up the headers and body.  (Blank lines and such.)
@@ -4541,3 +4545,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
