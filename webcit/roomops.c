@@ -476,7 +476,7 @@ void gotoroom(char *gname, int display_name)
  */
 char *pop_march(int desired_floor)
 {
-	static char TheRoom[64];
+	static char TheRoom[128];
 	int TheFloor = 0;
 	int TheOrder = 32767;
 	int TheWeight = 0;
@@ -520,7 +520,7 @@ void gotonext(void)
 {
 	char buf[SIZ];
 	struct march *mptr, *mptr2;
-	char next_room[32];
+	char next_room[128];
 
 	/* First check to see if the march-mode list is already allocated.
 	 * If it is, pop the first room off the list and go there.
@@ -1531,7 +1531,7 @@ void display_private(char *rname, int req_pass)
  */
 void goto_private(void)
 {
-	char hold_rm[32];
+	char hold_rm[SIZ];
 	char buf[SIZ];
 
 	if (strcasecmp(bstr("sc"), "OK")) {

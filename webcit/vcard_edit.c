@@ -34,8 +34,6 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	char buf[SIZ];
 	char *serialized_vcard = NULL;
 	size_t total_len = 0;
-	size_t bytes = 0;
-	size_t thisblock = 0;
 	struct vCard *v;
 	int i;
 	char *key, *value;
@@ -95,9 +93,6 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		}
 	}
 
-	total_len = atoi(&buf[4]);
-
-
 	sprintf(buf, "OPNA %ld|%s", msgnum, partnum);
 	serv_puts(buf);
 	serv_gets(buf);
@@ -108,21 +103,8 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 
 	total_len = atoi(&buf[4]);
 	serialized_vcard = malloc(total_len + 1);
-	while (bytes < total_len) {
-		thisblock = 4000;
-		if ((total_len - bytes) < thisblock) thisblock = total_len - bytes;
-		sprintf(buf, "READ %d|%d", (int)bytes, (int)thisblock);
-		serv_puts(buf);
-		serv_gets(buf);
-		if (buf[0] == '6') {
-			thisblock = atoi(&buf[4]);
-			serv_read(&serialized_vcard[bytes], thisblock);
-			bytes += thisblock;
-		}
-		else {
-			wprintf("Error: %s<BR>\n", &buf[4]);
-		}
-	}
+
+	read_server_binary(serialized_vcard, total_len);
 
 	serv_puts("CLOS");
 	serv_gets(buf);

@@ -328,3 +328,29 @@ int is_msg_in_mset(char *mset, long msgnum) {
 }
 
 
+
+/*
+ * Read binary data from server into memory
+ */
+void read_server_binary(char *buffer, size_t total_len) {
+	char buf[SIZ];
+	size_t bytes = 0;
+	size_t thisblock = 0;
+
+	while (bytes < total_len) {
+		thisblock = 4095;
+		if ((total_len - bytes) < thisblock) {
+			thisblock = total_len - bytes;
+		}
+		serv_printf("READ %d|%d", (int)bytes, (int)thisblock);
+		serv_gets(buf);
+		if (buf[0] == '6') {
+			thisblock = (size_t)atoi(&buf[4]);
+			serv_read(&buffer[bytes], thisblock);
+			bytes += thisblock;
+		}
+		else {
+			wprintf("Error: %s<BR>\n", &buf[4]);
+		}
+	}
+}
