@@ -47,7 +47,7 @@ struct citcmd {
 #define IFNEXPERT if ((userflags&US_EXPERT)==0)
 
 
-char rc_exp_beep;
+int rc_exp_beep;
 char rc_exp_cmd[256];
 
 char *gl_string;
@@ -296,6 +296,7 @@ void load_command_set(void) {
 	strcpy(rc_password,"");
 	rc_floor_mode = 0;
 	rc_exp_beep = 1;
+	rc_allow_attachments = 0;
 	strcpy(rc_exp_cmd, "");
 
 	/* now try to open the citadel.rc file */
@@ -341,6 +342,10 @@ void load_command_set(void) {
 
 	    if (!struncmp(buf,"beep=",5)) {
 		rc_exp_beep = atoi(&buf[5]);
+		}
+
+	    if (!struncmp(buf,"allow_attachments=", 18)) {
+		rc_allow_attachments = atoi(&buf[18]);
 		}
 
 	    if (!struncmp(buf,"username=",9))

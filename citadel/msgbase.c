@@ -70,7 +70,7 @@ GNA:	strcpy(aaa,""); strcpy(bbb,"");
 	if (strcasecmp(name,aaa)) goto GNA;
 	fclose(fp);
 	strcpy(name,bbb);
-	/* cprintf("*** Mail is being forwarded to %s\n",name); */
+	lprintf(7, "Mail is being forwarded to %s\n", name);
 
 DETYPE:	/* determine local or remote type, see citadel.h */
 	for (a=0; a<strlen(name); ++a) if (name[a]=='!') return(M_INTERNET);
@@ -80,7 +80,7 @@ DETYPE:	/* determine local or remote type, see citadel.h */
 				if (name[b]=='.') return(M_INTERNET);
 	b=0; for (a=0; a<strlen(name); ++a) if (name[a]=='@') ++b;
 	if (b>1) {
-		/* cprintf("Too many @'s in address\n"); */
+		lprintf(7, "Too many @'s in address\n");
 		return(M_ERROR);
 		}
 	if (b==1) {
@@ -321,6 +321,10 @@ void output_message(char *msgid, int mode, int headers_only)
 	char buf[1024];
 	long msg_len;
 	int msg_ok = 0;
+	char boundary[256];		/* attachment boundary */
+	char current_section = 0;	/* section currently being parsed */
+	char desired_section = 0;	/* section desired for printing */
+	int has_attachments = 0;
 
 	struct cdbdata *dmsgtext;
 	char *mptr;
@@ -334,6 +338,7 @@ void output_message(char *msgid, int mode, int headers_only)
 	long xtime;
 	/* */
 
+	strcpy(boundary, "");
 	msg_num = atol(msgid);
 
 
@@ -428,6 +433,10 @@ void output_message(char *msgid, int mode, int headers_only)
 				cprintf(" [%s]",buf);
 			cprintf("\n");
 			}
+		else if (ch=='Z') {
+			has_attachments = 1;
+			sprintf(boundary, "--%s", buf);
+			}
 		else if (ch=='P') cprintf("path=%s\n",buf);
 		else if (ch=='U') cprintf("subj=%s\n",buf);
 		else if (ch=='I') cprintf("msgn=%s\n",buf);
@@ -520,7 +529,14 @@ void output_message(char *msgid, int mode, int headers_only)
 		while(ch = *mptr++, ch>0) {
 			if (ch == 13) ch = 10;
 			if ( (ch == 10) || (strlen(buf)>250) ) {
-				cprintf("%s\n", buf);
+				if (has_attachments) if (!strncmp(buf, boundary, strlen(boundary))) {
+					++current_section;
+					}
+				if (current_section == desired_section) {
+					if ( (has_attachments == 0) || (strncmp(buf, boundary, strlen(boundary)))) {
+						cprintf("%s\n", buf);
+						}
+					}
 				strcpy(buf, "");
 				}
 			else {
@@ -872,7 +888,7 @@ void make_message(
 	int net_type,			/* see MES_ types in header file */
 	int format_type,		/* local or remote (see citadel.h) */
 	char *fake_name,		/* who we're masquerading as */
-	char *separator) {		/* separator (if exist attachments) */
+	char *boundary) {		/* boundary (if exist attachments) */
 
 	FILE *fp;
 	int a;
@@ -919,7 +935,7 @@ void make_message(
 
 	if (recipient[0]!=0) fprintf(fp, "R%s%c", recipient, 0);
 	if (dest_node[0]!=0) fprintf(fp, "D%s%c", dest_node, 0);
-	if (separator[0]!=0) fprintf(fp, "Z%s%c", separator, 0);
+	if (boundary[0]!=0) fprintf(fp, "Z%s%c", boundary, 0);
 
 	putc('M',fp);
 
@@ -946,7 +962,7 @@ void cmd_ent0(char *entargs)
 	int anon_flag = 0;
 	int format_type = 0;
 	char newusername[256];		/* <bc> */
-	char separator[256];
+	char boundary[256];
 
 	int a,b,e;
 	int mtsflag = 0;
@@ -957,7 +973,7 @@ void cmd_ent0(char *entargs)
 	extract(recipient,entargs,1);
 	anon_flag = extract_int(entargs,2);
 	format_type = extract_int(entargs,3);
-	extract(separator, entargs, 4);
+	extract(boundary, entargs, 4);
 
 	/* first check to make sure the request is valid. */
 
@@ -1070,12 +1086,12 @@ SKFALL: b=MES_NORMAL;
 	
 	cprintf("%d send message\n",SEND_LISTING);
 	if (CC->fake_postname[0])
-  	   make_message(CC->temp,&CC->usersupp,buf,CC->quickroom.QRname,b,e,format_type, CC->fake_postname, separator);
+  	   make_message(CC->temp,&CC->usersupp,buf,CC->quickroom.QRname,b,e,format_type, CC->fake_postname, boundary);
   	else
   	   if (CC->fake_username[0])
-  	      make_message(CC->temp,&CC->usersupp,buf,CC->quickroom.QRname,b,e,format_type, CC->fake_username, separator);
+  	      make_message(CC->temp,&CC->usersupp,buf,CC->quickroom.QRname,b,e,format_type, CC->fake_username, boundary);
   	   else
-  	      make_message(CC->temp,&CC->usersupp,buf,CC->quickroom.QRname,b,e,format_type, "", separator);
+  	      make_message(CC->temp,&CC->usersupp,buf,CC->quickroom.QRname,b,e,format_type, "", boundary);
 	save_message(CC->temp,buf,mtsflag,e,1);
         CC->fake_postname[0]='\0';
 	return;

@@ -61,6 +61,7 @@ extern unsigned userflags;
 extern char sigcaught;
 extern char editor_path[];
 extern char printcmd[];
+extern int rc_allow_attachments;
 
 extern int editor_pid;
 
@@ -517,7 +518,7 @@ void replace_string(char *filename, long int startpos)
 	}
 
 
-int make_message(char *filename, char *recipient, int anon_type, int format_type, int mode)
+int make_message(char *filename, char *recipient, int anon_type, int format_type, int mode, char *boundary)
                 	/* temporary file name */
                  	/* NULL if it's not mail */
               		/* see MES_ types in header file */
@@ -651,6 +652,14 @@ MECR2:	b=inkey();
 		printf("Hold message\n");
 		return(2);
 		}
+	if ((b=='f')&&(rc_allow_attachments==1)) {
+		printf("attach File\n");
+		if (strlen(boundary)==0) {
+			sprintf(boundary, "Citadel-Attachment-%ld.%d",
+				time(NULL), getpid() );
+			}
+		/* FIX FIX now you have to attach the file, stupid */
+		}
 	goto MECR2;
 
 MEFIN:	return(0);
@@ -707,6 +716,7 @@ int entmsg(int is_reply, int c)
        {		/* */
 	char buf[300];
 	char cmd[256];
+	char boundary[256];
 	int a,b;
 	int need_recp = 0;
 	int mode;
@@ -777,14 +787,11 @@ int entmsg(int is_reply, int c)
 		}
 
 /* now put together the message */
-	a=make_message(temp,buf,b,0,c);
-	if (a!=0)
-	{
-	   return(2);
-	}
+	strcpy(boundary, "");
+	if ( make_message(temp,buf,b,0,c,boundary) != 0 ) return(2);
 
 /* and send it to the server */
-	sprintf(cmd,"ENT0 1|%s|%d|%d",buf,b,mode);
+	sprintf(cmd,"ENT0 1|%s|%d|%d||%s|",buf,b,mode,boundary);
 	serv_puts(cmd);
 	serv_gets(cmd);
 	if (cmd[0]!='4') {

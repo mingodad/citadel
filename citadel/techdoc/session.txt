@@ -676,7 +676,7 @@ message as anonymous, otherwise 0 for a normal message.
 typically be 0; see the MSG0 command above).
   4  -  Post name.  When postflag is 2, this is the name you are posting as.
 This is an Aide only command.
-  5  -  Separator string to be used when there are MIME attachments following
+  5  -  Boundary string to be used when there are MIME attachments following
 the normal message text.
 
  Possible result codes:

@@ -113,8 +113,8 @@ U       Subject         Optional.  Developers may choose whether they wish to
 X	eXtension field	Extension fields are used to carry additional RFC822
 			type lines.  X fields contain the X byte followed by
 			the RFC822 field name, a colon, a space, and the value.
-Z	Separator	If there are MIME attachments following the message
-			text, the Z field specifies the separator string.
+Z	Boundary	If there are MIME attachments following the message
+			text, the Z field specifies the boundary string.
   
 			EXAMPLE
 
