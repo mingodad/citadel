@@ -268,7 +268,7 @@ void output_chosen_part(long msgnum, char *multipart_chosen) {
 	if (!strcasecmp(content_type, "text/plain")) {
 		output_text_plain(partbuf, total_length);
 	}
-	if (!strcasecmp(content_type, "text/html")) {
+	else if (!strcasecmp(content_type, "text/html")) {
 		output_text_html(partbuf, total_length);
 	}
 	else {

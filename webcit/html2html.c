@@ -74,5 +74,8 @@ void output_text_html(char *partbuf, int total_length) {
 	}
 
 	write(WC->http_sock, msgstart, strlen(msgstart));
+
+	/* Close a bunch of tags that might have been opened */
+	wprintf("</I></B></FONT></TD></TR></TABLE></TT></PRE></A><BR>\n");
 }
 
