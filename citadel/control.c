@@ -178,7 +178,7 @@ void cmd_conf(char *argbuf) {
 		cprintf("%d\n", config.c_roompurge);
 		cprintf("%s\n", config.c_logpages);
 		cprintf("%d\n", config.c_createax);
-		cprintf("%d\n", config.c_maxmsglen);
+		cprintf("%ld\n", config.c_maxmsglen);
 		cprintf("%d\n", config.c_min_workers);
 		cprintf("%d\n", config.c_max_workers);
 		cprintf("%d\n", config.c_pop3_port);

@@ -60,7 +60,7 @@ void artv_export_users_backend(struct usersupp *usbuf, void *data) {
 	cprintf("%ld\n", usbuf->posted);
 	cprintf("%d\n", usbuf->axlevel);
 	cprintf("%ld\n", usbuf->usernum);
-	cprintf("%ld\n", usbuf->lastcall);
+	cprintf("%ld\n", (long)usbuf->lastcall);
 	cprintf("%d\n", usbuf->USuserpurge);
 	cprintf("%s\n", usbuf->fullname);
 	cprintf("%d\n", usbuf->USscreenwidth);
@@ -86,12 +86,12 @@ void artv_export_rooms_backend(struct quickroom *qrbuf, void *data) {
 	cprintf("%s\n", qrbuf->QRpasswd);
 	cprintf("%ld\n", qrbuf->QRroomaide);
 	cprintf("%ld\n", qrbuf->QRhighest);
-	cprintf("%ld\n", qrbuf->QRgen);
+	cprintf("%ld\n", (long)qrbuf->QRgen);
 	cprintf("%u\n", qrbuf->QRflags);
 	cprintf("%s\n", qrbuf->QRdirname);
 	cprintf("%ld\n", qrbuf->QRinfo);
 	cprintf("%d\n", qrbuf->QRfloor);
-	cprintf("%ld\n", qrbuf->QRmtime);
+	cprintf("%ld\n", (long)qrbuf->QRmtime);
 	cprintf("%d\n", qrbuf->QRep.expire_mode);
 	cprintf("%d\n", qrbuf->QRep.expire_value);
 	cprintf("%ld\n", qrbuf->QRnumber);
@@ -238,7 +238,7 @@ void artv_export_messages(void) {
 		}
 	}
 	fclose(artv_global_message_list);
-	lprintf(7, "Exported %ld messages.\n", count);
+	lprintf(7, "Exported %d messages.\n", count);
 }
 
 
@@ -465,7 +465,7 @@ void artv_import_visit(void) {
 void artv_import_message(void) {
 	struct SuppMsgInfo smi;
 	long msgnum;
-	int msglen;
+	long msglen;
 	FILE *fp;
 	char buf[SIZ];
 	char tempfile[SIZ];

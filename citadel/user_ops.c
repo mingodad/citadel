@@ -410,7 +410,7 @@ void session_startup(void)
 
 void logged_in_response(void)
 {
-	cprintf("%d %s|%d|%d|%d|%u|%ld\n",
+	cprintf("%d %s|%d|%ld|%ld|%u|%ld\n",
 		OK, CC->usersupp.fullname, CC->usersupp.axlevel,
 		CC->usersupp.timescalled, CC->usersupp.posted,
 		CC->usersupp.flags,
@@ -750,7 +750,7 @@ void cmd_newu(char *cmdbuf)
 	if ((!strcasecmp(username, "bbs")) ||
 	    (!strcasecmp(username, "new")) ||
 	    (!strcasecmp(username, "."))) {
-		cprintf("%d '%s' is an invalid login name.\n", ERROR);
+		cprintf("%d '%s' is an invalid login name.\n", ERROR, username);
 		return;
 	}
 	if (a == ERROR + ALREADY_EXISTS) {
@@ -1123,7 +1123,7 @@ void ListThisUser(struct usersupp *usbuf, void *data)
 		if ((CC->usersupp.axlevel >= 6)
 		    || ((usbuf->flags & US_UNLISTED) == 0)
 		    || ((CC->internal_pgm))) {
-			cprintf("%s|%d|%ld|%ld|%d|%d|",
+			cprintf("%s|%d|%ld|%d|%ld|%ld|",
 				usbuf->fullname,
 				usbuf->axlevel,
 				usbuf->usernum,
@@ -1212,7 +1212,7 @@ void cmd_agup(char *cmdbuf)
 		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
 		return;
 	}
-	cprintf("%d %s|%s|%u|%d|%d|%d|%ld|%ld|%d\n",
+	cprintf("%d %s|%s|%u|%ld|%ld|%d|%ld|%d|%d\n",
 		OK,
 		usbuf.fullname,
 		usbuf.password,

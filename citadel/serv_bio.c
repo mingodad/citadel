@@ -89,7 +89,7 @@ void cmd_rbio(char *cmdbuf)
 	}
 	sprintf(buf,"./bio/%ld",ruser.usernum);
 	
-	cprintf("%d OK|%s|%ld|%d|%ld|%ld|%ld\n", LISTING_FOLLOWS,
+	cprintf("%d OK|%s|%ld|%d|%d|%ld|%ld\n", LISTING_FOLLOWS,
 		ruser.fullname, ruser.usernum, ruser.axlevel,
 		ruser.lastcall, ruser.timescalled, ruser.posted);
 	fp = fopen(buf,"r");

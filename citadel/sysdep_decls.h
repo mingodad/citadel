@@ -4,7 +4,14 @@
 #include "sysdep.h"
 #include "server.h"
 
+#ifdef __GNUC__
+void lprintf (int loglevel, const char *format, ...) __attribute__((__format__(__printf__,2,3)));
+void cprintf (const char *format, ...) __attribute__((__format__(__printf__,1,2)));
+#else
 void lprintf (int loglevel, const char *format, ...);
+void cprintf (const char *format, ...);
+#endif
+
 void init_sysdep (void);
 void begin_critical_section (int which_one);
 void end_critical_section (int which_one);
@@ -14,7 +21,6 @@ struct CitContext *MyContext (void);
 struct CitContext *CreateNewContext (void);
 void InitMyContext (struct CitContext *con);
 void client_write (char *buf, int nbytes);
-void cprintf (const char *format, ...);
 int client_read_to (char *buf, int bytes, int timeout);
 int client_read (char *buf, int bytes);
 int client_gets (char *buf);

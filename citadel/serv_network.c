@@ -439,7 +439,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 		lprintf(9, "Generating delivery instructions\n");
 		instr = mallok(instr_len);
 		if (instr == NULL) {
-			lprintf(1, "Cannot allocate %d bytes for instr...\n",
+			lprintf(1, "Cannot allocate %ld bytes for instr...\n",
 				instr_len);
 			abort();
 		}
@@ -1369,7 +1369,7 @@ void cmd_netp(char *cmdbuf)
 	}
 
 	if (network_talking_to(node, NTT_CHECK)) {
-		cprintf("%d Already talking to %s right now\n", ERROR);
+		cprintf("%d Already talking to %s right now\n", ERROR, node);
 		return;
 	}
 

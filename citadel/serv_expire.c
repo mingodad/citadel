@@ -283,7 +283,7 @@ void DoPurgeRooms(struct quickroom *qrbuf, void *data) {
 		age = time(NULL) - (qrbuf->QRmtime);
 		purge_secs = (time_t)config.c_roompurge * (time_t)86400;
 		if (purge_secs <= (time_t)0) return;
-		lprintf(9, "<%s> is <%ld> seconds old\n", qrbuf->QRname, age);
+		lprintf(9, "<%s> is <%ld> seconds old\n", qrbuf->QRname, (long)age);
 		if (age > purge_secs) do_purge = 1;
 	} /* !QR_MAILBOX */
 

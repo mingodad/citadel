@@ -353,7 +353,7 @@ void cmd_time(void)
    
    tv = time(NULL);
    
-   cprintf("%d %ld\n", OK, tv);
+   cprintf("%d %ld\n", OK, (long)tv);
 }
 
 /*
@@ -785,7 +785,7 @@ void generate_nonce(struct CitContext *con) {
 	gettimeofday(&tv, NULL);
 	memset(con->cs_nonce, NONCE_SIZE, 0);
 	snprintf(con->cs_nonce, NONCE_SIZE, "<%d%ld@%s>",
-		rand(), tv.tv_usec, config.c_fqdn);
+		rand(), (long)tv.tv_usec, config.c_fqdn);
 }
 
 

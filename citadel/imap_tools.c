@@ -41,7 +41,7 @@ void imap_strout(char *buf)
 	}
 
 	if (is_literal) {
-		cprintf("{%d}\r\n%s", strlen(buf), buf);
+		cprintf("{%ld}\r\n%s", strlen(buf), buf);
 	} else {
 		cprintf("\"%s\"", buf);
 	}

@@ -55,7 +55,12 @@ void async_ka_start(void);
 void async_ka_end(void);
 int checkpagin(int lp, int pagin, int height);
 char was_a_key_pressed(void);
+
+#ifdef __GNUC__
+void pprintf(const char *format, ...) __attribute__((__format__(__printf__,1,2)));
+#else
 void pprintf(const char *format, ...);
+#endif
 
 
 

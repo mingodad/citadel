@@ -679,7 +679,7 @@ void list_this_part(char *name, char *filename, char *partnum, char *disp,
 		    void *cbuserdata)
 {
 
-	cprintf("part=%s|%s|%s|%s|%s|%d\n",
+	cprintf("part=%s|%s|%s|%s|%s|%ld\n",
 		name, filename, partnum, disp, cbtype, length);
 }
 
@@ -907,7 +907,7 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 			phree(ptr);
 		}
 		else if (strncasecmp(cbtype, "multipart/", 10)) {
-			cprintf("Part %s: %s (%s) (%d bytes)\r\n",
+			cprintf("Part %s: %s (%s) (%ld bytes)\r\n",
 				partnum, filename, cbtype, length);
 		}
 	}
@@ -1579,7 +1579,7 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 		ret->len = ret->len +
 			strlen(msg->cm_fields[(int)forder[i]]) + 2;
 
-	lprintf(9, "serialize_message() calling malloc(%d)\n", ret->len);
+	lprintf(9, "serialize_message() calling malloc(%ld)\n", ret->len);
 	ret->ser = mallok(ret->len);
 	if (ret->ser == NULL) {
 		ret->len = 0;
@@ -1596,7 +1596,7 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 		strcpy(&ret->ser[wlen], msg->cm_fields[(int)forder[i]]);
 		wlen = wlen + strlen(msg->cm_fields[(int)forder[i]]) + 1;
 	}
-	if (ret->len != wlen) lprintf(3, "ERROR: len=%d wlen=%d\n",
+	if (ret->len != wlen) lprintf(3, "ERROR: len=%ld wlen=%ld\n",
 		ret->len, wlen);
 
 	return;
@@ -2015,7 +2015,7 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 			} else {
 				buffer_len = (buffer_len * 2);
 				m = ptr;
-				lprintf(9, "buffer_len is %d\n", buffer_len);
+				lprintf(9, "buffer_len is %ld\n", buffer_len);
 			}
 		}
 

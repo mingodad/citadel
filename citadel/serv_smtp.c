@@ -558,7 +558,7 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 	snprintf(instr, 1024,
 			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
 			"bounceto|%s\n",
-		SPOOLMIME, msgid, time(NULL),
+		SPOOLMIME, msgid, (long)time(NULL),
 		SMTP->from );
 
 	for (i=0; i<SMTP->number_of_recipients; ++i) {
@@ -1427,7 +1427,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 			"Content-type: %s\n\n%s\n"
 			"attempted|%ld\n"
 			"retry|%ld\n",
-			SPOOLMIME, instr, time(NULL), retry );
+			SPOOLMIME, instr, (long)time(NULL), (long)retry );
 		phree(instr);
 		CtdlSaveMsg(msg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL);
 		CtdlFreeMessage(msg);

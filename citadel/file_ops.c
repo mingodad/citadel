@@ -331,7 +331,7 @@ void OpenCmdResult(char *filename, char *mime_type)
 	modtime = (time_t) statbuf.st_mtime;
 
 	cprintf("%d %ld|%ld|%s|%s\n",
-		OK, filesize, modtime, filename, mime_type);
+		OK, filesize, (long)modtime, filename, mime_type);
 }
 
 

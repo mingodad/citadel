@@ -413,7 +413,7 @@ void the_mime_parser(char *partnum,
 		/* Truncate if the header told us to */
 		if ( (content_length > 0) && (length > content_length) ) {
 			length = content_length;
-			lprintf(9, "truncated to %d\n", content_length);
+			lprintf(9, "truncated to %ld\n", content_length);
 		}
 		
 		mime_decode(partnum,

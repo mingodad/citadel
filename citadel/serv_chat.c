@@ -334,7 +334,7 @@ void cmd_chat(char *argbuf)
 						if (strcasecmp(CC->curr_user, t_context->curr_user))
 							allwrite(strptr1, 2, t_context->curr_user);
 					} else
-						cprintf(":|User not found.\n", cmdbuf);
+						cprintf(":|User not found.\n");
 					cprintf("\n");
 				}
 				if ((cmdbuf[0] != '/') && (strlen(cmdbuf) > 0)) {
@@ -447,7 +447,7 @@ void cmd_gexp(char *argbuf) {
 	cprintf("%d %d|%ld|%d|%s|%s\n",
 		LISTING_FOLLOWS,
 		((ptr->next != NULL) ? 1 : 0),		/* more msgs? */
-		ptr->timestamp,				/* time sent */
+		(long)ptr->timestamp,				/* time sent */
 		ptr->flags,				/* flags */
 		ptr->sender,				/* sender of msg */
 		config.c_nodename);			/* static for now */

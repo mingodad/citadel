@@ -100,7 +100,7 @@ void pop3_greeting(void) {
 	POP3->num_msgs = 0;
 
 	cprintf("+OK Citadel/UX POP3 server %s\r\n",
-		CC->cs_nonce, config.c_fqdn);
+		CC->cs_nonce);
 }
 
 
@@ -294,7 +294,7 @@ void pop3_list(char *argbuf) {
 			return;
 		}
 		else {
-			cprintf("+OK %d %d\r\n",
+			cprintf("+OK %d %ld\r\n",
 				which_one,
 				POP3->msgs[which_one-1].rfc822_length
 				);
@@ -307,7 +307,7 @@ void pop3_list(char *argbuf) {
 		cprintf("+OK Here's your mail:\r\n");
 		if (POP3->num_msgs > 0) for (i=0; i<POP3->num_msgs; ++i) {
 			if (! POP3->msgs[i].deleted) {
-				cprintf("%d %d\r\n",
+				cprintf("%d %ld\r\n",
 					i+1,
 					POP3->msgs[i].rfc822_length);
 			}
@@ -332,7 +332,7 @@ void pop3_stat(char *argbuf) {
 		}
 	}
 
-	cprintf("+OK %d %d\r\n", total_msgs, total_octets);
+	cprintf("+OK %d %ld\r\n", total_msgs, total_octets);
 }
 
 

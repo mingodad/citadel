@@ -422,7 +422,7 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 	if (!strcasecmp(key, "Date")) {
 		parsed_date = parsedate(value);
 		if (parsed_date < 0L) parsed_date = time(NULL);
-		snprintf(buf, sizeof buf, "%ld", parsed_date );
+		snprintf(buf, sizeof buf, "%ld", (long)parsed_date );
 		if (msg->cm_fields['T'] == NULL)
 			msg->cm_fields['T'] = strdoop(buf);
 		processed = 1;
@@ -497,7 +497,7 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 	msg->cm_format_type = FMT_RFC822;	/* internet message */
 	msg->cm_fields['M'] = rfc822;
 
-	lprintf(9, "Unconverted RFC822 message length = %d\n", strlen(rfc822));
+	lprintf(9, "Unconverted RFC822 message length = %ld\n", strlen(rfc822));
 	pos = 0;
 	done = 0;
 
@@ -552,11 +552,11 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 
 	/* If there's no timestamp on this message, set it to now. */
 	if (msg->cm_fields['T'] == NULL) {
-		snprintf(buf, sizeof buf, "%ld", time(NULL));
+		snprintf(buf, sizeof buf, "%ld", (long)time(NULL));
 		msg->cm_fields['T'] = strdoop(buf);
 	}
 
-	lprintf(9, "RFC822 length remaining after conversion = %d\n",
+	lprintf(9, "RFC822 length remaining after conversion = %ld\n",
 		strlen(rfc822));
 	return msg;
 }
