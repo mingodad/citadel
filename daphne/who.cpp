@@ -77,10 +77,10 @@ who::who(CitClient *sock, wxMDIParentFrame *MyMDI)
 	c1->right.SameAs(this, wxRight, 10);
 	wholist->SetConstraints(c1);
 
-	wholist->InsertColumn(0, "Session", wxLIST_FORMAT_CENTER, 50);
-	wholist->InsertColumn(1, "User name", wxLIST_FORMAT_CENTER, 100);
-	wholist->InsertColumn(2, "Room", wxLIST_FORMAT_CENTER, 100);
-	wholist->InsertColumn(3, "From host", wxLIST_FORMAT_CENTER, 100);
+	wholist->InsertColumn(0, "Session", wxLIST_FORMAT_CENTER, 60);
+	wholist->InsertColumn(1, "User name", wxLIST_FORMAT_CENTER, 150);
+	wholist->InsertColumn(2, "Room", wxLIST_FORMAT_CENTER, 150);
+	wholist->InsertColumn(3, "From host", wxLIST_FORMAT_CENTER, 150);
 
 	SetAutoLayout(TRUE);
 	Show(TRUE);
