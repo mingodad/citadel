@@ -652,44 +652,56 @@ void do_system_configuration(void)
 		expire_mode = extract_int(&buf[4], 0);
 		expire_value = extract_int(&buf[4], 1);
 	}
+
+
+	/* Identification parameters */
+
 	strprompt("Node name", &sc[0][0], 15);
 	strprompt("Fully qualified domain name", &sc[1][0], 63);
 	strprompt("Human readable node name", &sc[2][0], 20);
 	strprompt("Modem dialup number", &sc[3][0], 15);
+	strprompt("Geographic location of this system", &sc[12][0], 31);
+	strprompt("Name of system administrator", &sc[13][0], 25);
+	strprompt("Paginator prompt", &sc[10][0], 79);
 
-	sprintf(&sc[4][0], "%d", (boolprompt(
-						    "Automatically give room aide privs to a user who creates a private room",
-						    atoi(&sc[4][0]))));
 
-	strprompt("Server connection idle timeout (in seconds)", &sc[5][0], 4);
-	strprompt("Initial access level for new users", &sc[6][0], 1);
-	strprompt("Access level required to create rooms", &sc[19][0], 1);
+	/* Security parameters */
 
 	sprintf(&sc[7][0], "%d", (boolprompt(
 				    "Require registration for new users",
 						    atoi(&sc[7][0]))));
+	strprompt("Initial access level for new users", &sc[6][0], 1);
+	strprompt("Access level required to create rooms", &sc[19][0], 1);
+	sprintf(&sc[4][0], "%d", (boolprompt(
+						    "Automatically give room aide privs to a user who creates a private room",
+						    atoi(&sc[4][0]))));
 
 	sprintf(&sc[8][0], "%d", (boolprompt(
 		 "Automatically move problem user messages to twit room",
 						    atoi(&sc[8][0]))));
 
 	strprompt("Name of twit room", &sc[9][0], ROOMNAMELEN);
-	strprompt("Paginator prompt", &sc[10][0], 79);
-
 	sprintf(&sc[11][0], "%d", (boolprompt(
 	      "Restrict Internet mail to only those with that privilege",
 						     atoi(&sc[11][0]))));
 
-	strprompt("Geographic location of this system", &sc[12][0], 31);
-	strprompt("Name of system administrator", &sc[13][0], 25);
-	strprompt("Maximum concurrent sessions", &sc[14][0], 4);
-	strprompt("Server-to-server networking password", &sc[15][0], 19);
-	strprompt("Default user purge time (days)", &sc[16][0], 5);
-	strprompt("Default room purge time (days)", &sc[17][0], 5);
 	strprompt("Name of room to log pages", &sc[18][0], ROOMNAMELEN);
+
+
+	/* Server tuning */
+
+	strprompt("Server connection idle timeout (in seconds)", &sc[5][0], 4);
+	strprompt("Maximum concurrent sessions", &sc[14][0], 4);
 	strprompt("Maximum message length", &sc[20][0], 20);
 	strprompt("Minimum number of worker threads", &sc[21][0], 3);
 	strprompt("Maximum number of worker threads", &sc[22][0], 3);
+	strprompt("Server-to-server networking password", &sc[15][0], 19);
+
+
+	/* Expiry settings */
+
+	strprompt("Default user purge time (days)", &sc[16][0], 5);
+	strprompt("Default room purge time (days)", &sc[17][0], 5);
 
 	/* Angels and demons dancing in my head... */
 	do {
