@@ -338,14 +338,3 @@ struct cdbdata *cdb_next_item(int cdb)
 	return (cdbret);
 }
 
-
-
-/*
- * GDBM doesn't support transaction-based logging.  Stub out these functions.
- */
-
-void cdb_begin_transaction(void) {
-}
-
-void cdb_end_transaction(void) {
-}

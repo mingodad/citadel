@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.50  2000/12/12 18:06:46  ajc
+ * Removed the transaction stuff (but left the log in).  It wasn't working.
+
  Revision 573.49  2000/12/12 06:19:55  ajc
  * Stabilize, dammit!!
 
@@ -2219,4 +2222,6 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
+
 

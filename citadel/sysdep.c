@@ -1060,8 +1060,6 @@ void worker_thread(void) {
 		 */
 
 		begin_critical_section(S_I_WANNA_SELECT);
-		cdb_end_transaction();
-		cdb_begin_transaction();
 SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 		highest = masterhighest;
 		begin_critical_section(S_SESSION_TABLE);

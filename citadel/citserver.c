@@ -57,7 +57,6 @@ void master_startup(void) {
 	lprintf(9, "master_startup() started\n");
 	lprintf(7, "Opening databases\n");
 	open_databases();
-	cdb_begin_transaction();
 
 	if (do_defrag) {
 		defrag_databases();
@@ -100,7 +99,6 @@ void master_cleanup(void) {
 
 	/* Close databases */
 	lprintf(7, "Closing databases\n");
-	cdb_end_transaction();
 	close_databases();
 
 	/* Do system-dependent stuff */

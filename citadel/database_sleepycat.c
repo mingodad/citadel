@@ -5,17 +5,6 @@
  *
  */
 
-/*****************************************************************************
-       Tunable configuration parameters for the Sleepycat DB back end
- *****************************************************************************/
-
-/* Citadel will checkpoint the db at the end of every session, but only if
- * the specified number of kilobytes has been written, or if the specified
- * number of minutes has passed, since the last checkpoint.
- */
-#define MAX_CHECKPOINT_KBYTES	0
-#define MAX_CHECKPOINT_MINUTES	15
-
 /*****************************************************************************/
 
 #include "sysdep.h"
@@ -38,7 +27,6 @@
 
 DB *dbp[MAXCDB];		/* One DB handle for each Citadel database */
 DB_ENV *dbenv;			/* The DB environment (global) */
-DB_TXN *MYTID;
 
 struct cdbssd {			/* Session-specific DB stuff */
 	DBC *cursor;		/* Cursor, for traversals... */
@@ -48,11 +36,12 @@ struct cdbssd *ssd_arr = NULL;
 int num_ssd = 0;
 
 #define MYCURSOR	ssd_arr[CC->cs_pid].cursor
+#define MYTID		NULL
 
 /*
  * Ensure that we have enough space for session-specific data.  We don't
  * put anything in here that Citadel cares about; this is just database
- * related stuff like cursors and transactions.
+ * related stuff like cursors.
  */
 void cdb_allocate_ssd(void) {
 	/*
@@ -86,22 +75,6 @@ void defrag_databases(void)
 	/* do nothing */
 }
 
-
-
-/*
- * Request a checkpoint of the database.
- */
-void cdb_checkpoint(void) {
-	int ret;
-
-	ret = txn_checkpoint(dbenv,
-				MAX_CHECKPOINT_KBYTES,
-				MAX_CHECKPOINT_MINUTES,
-				0);
-	if (ret) {
-		lprintf(1, "txn_checkpoint: %s\n", db_strerror(ret));
-	}
-}
 
 
 /*
@@ -150,7 +123,7 @@ void open_databases(void)
 	 * is serialized already, so don't bother the database manager with
 	 * it.  Besides, it locks up when we do it that way.
          */
-        flags = DB_CREATE|DB_RECOVER|DB_INIT_MPOOL|DB_PRIVATE|DB_INIT_TXN;
+        flags = DB_CREATE|DB_RECOVER|DB_INIT_MPOOL|DB_PRIVATE|DB_INIT_LOG;
 	/* flags |= DB_INIT_LOCK | DB_THREAD; */
         ret = dbenv->open(dbenv, "./data", flags, 0);
 	if (ret) {
@@ -190,7 +163,6 @@ void open_databases(void)
 
 	cdb_allocate_ssd();
 	CtdlRegisterSessionHook(cdb_allocate_ssd, EVT_START);
-	CtdlRegisterSessionHook(cdb_checkpoint, EVT_TIMER);
 	lprintf(9, "open_databases() finished\n");
 }
 
@@ -380,28 +352,3 @@ struct cdbdata *cdb_next_item(int cdb)
 	return (cdbret);
 }
 
-
-/*
- * Transaction-based stuff.  I'm writing this as I bake cookies...
- */
-
-void cdb_begin_transaction(void) {
-
-	begin_critical_section(S_DATABASE);
-
-	if (MYTID != NULL) {	/* FIXME this slows it down, take it out */
-		lprintf(1, "ERROR: thread %d is opening a new transaction with one already open!\n", getpid());
-	}
-	else {
-		txn_begin(dbenv, NULL, &MYTID, 0);
-	}
-	end_critical_section(S_DATABASE);
-}
-
-void cdb_end_transaction(void) {
-	begin_critical_section(S_DATABASE);
-	if (MYTID == NULL) lprintf(1, "ERROR: txn_commit(NULL) !!\n");
-	else txn_commit(MYTID, 0);
-	MYTID = NULL;	/* FIXME take out */
-	end_critical_section(S_DATABASE);
-}
