@@ -49,6 +49,7 @@
 #include "dynloader.h"
 #include "citserver.h"
 #include "database.h"
+#include "msgbase.h"
 #include "sysdep_decls.h"
 
 static DB *dbp[MAXCDB];		/* One DB handle for each Citadel database */
@@ -187,6 +188,7 @@ static void cdb_cull_logs(void) {
 	u_int32_t flags;
 	int ret;
 	char **file, **list;
+	char errmsg[SIZ];
 
 	lprintf(5, "Database log file cull started.\n");
 
@@ -208,7 +210,19 @@ static void cdb_cull_logs(void) {
 	if (list != NULL) {
 		for (file = list; *file != NULL; ++file) {
 			lprintf(9, "Deleting log: %s\n", *file);
-			unlink(*file);
+			ret = unlink(*file);
+			if (ret != 0) {
+				snprintf(errmsg, sizeof(errmsg),
+					" ** ERROR **\n \n \n "
+					"Citadel was unable to delete the "
+					"database log file '%s' because of the "
+					"following error:\n \n %s\n \n"
+					" This log file is no longer in use "
+					"and may be safely deleted.\n",
+					*file,
+					strerror(errno));
+				aide_message(errmsg);
+			}
 		}
 		free(list);
 	}

@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.155  2002/03/16 05:22:59  ajc
+ * Post an error message to Aide> when unlink() is unable to delete old
+   database log files.
+
  Revision 590.154  2002/03/14 04:35:26  nbryant
  avoid symbol clash with curses' "timeout" function (which may be a macro
  in some versions)
@@ -3509,4 +3513,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
