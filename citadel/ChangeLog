@@ -1,4 +1,7 @@
 $Log$
+Revision 1.439  2000/01/12 03:56:27  ajc
+* sysdep.c: start the housekeeping thread *after* dropping root perms.
+
 Revision 1.438  2000/01/09 19:03:16  ajc
 * Removed the fifo-based protocol downloads and replaced it with a less
   elegant "download temporary file to client, then sx/sb/sz" because
@@ -1532,3 +1535,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

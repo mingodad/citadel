@@ -784,16 +784,6 @@ int main(int argc, char **argv)
 		free(moddir);
 	}
 
-	lprintf(7, "Starting housekeeper thread\n");
-	pthread_attr_init(&attr);
-       	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-	if (pthread_create(&HousekeepingThread, &attr,
-	   (void* (*)(void*)) housekeeping_loop, NULL) != 0) {
-		lprintf(1, "Can't create housekeeping thead: %s\n",
-			strerror(errno));
-	}
-
-
 	/*
 	 * The rescan pipe exists so that worker threads can be woken up and
 	 * told to re-scan the context list for fd's to listen on.  This is
@@ -856,6 +846,19 @@ int main(int argc, char **argv)
 			lprintf(3, "setuid() failed: %s\n", strerror(errno));
 		}
 	}
+
+	/*
+	 * Create the housekeeper thread
+	 */
+	lprintf(7, "Starting housekeeper thread\n");
+	pthread_attr_init(&attr);
+       	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+	if (pthread_create(&HousekeepingThread, &attr,
+	   (void* (*)(void*)) housekeeping_loop, NULL) != 0) {
+		lprintf(1, "Can't create housekeeping thead: %s\n",
+			strerror(errno));
+	}
+
 
 	/*
 	 * Now create a bunch of worker threads.
