@@ -42,7 +42,7 @@ struct ical_respond_data {
 
 
 /*
- * Write our config to disk
+ * Write a calendar object into the specified user's calendar room.
  */
 void ical_write_to_cal(struct usersupp *u, icalcomponent *cal) {
         char temp[PATH_MAX];
@@ -96,6 +96,120 @@ void ical_add(icalcomponent *cal, int recursion_level) {
 		ical_add(c, recursion_level+1);
 	}
 
+}
+
+
+
+/*
+ * Send a reply to a meeting invitation.
+ *
+ * 'request' is the invitation to reply to.
+ * 'action' is the string "accept" or "decline".
+ */
+void ical_send_a_reply(icalcomponent *request, char *action) {
+	icalcomponent *the_reply = NULL;
+	icalcomponent *vevent = NULL;
+	icalproperty *attendee = NULL;
+	char attendee_string[SIZ];
+	icalproperty *organizer = NULL;
+	char organizer_string[SIZ];
+	icalproperty *me_attend = NULL;
+	struct recptypes *recp = NULL;
+	icalparameter *partstat = NULL;
+
+	strcpy(organizer_string, "");
+
+	if (request == NULL) {
+		lprintf(3, "ERROR: trying to reply to NULL event?\n");
+		return;
+	}
+
+	the_reply = icalcomponent_new_clone(request);
+	if (the_reply == NULL) {
+		lprintf(3, "ERROR: cannot clone request\n");
+		return;
+	}
+
+	/* Change the method from REQUEST to REPLY */
+	icalcomponent_set_method(the_reply, ICAL_METHOD_REPLY);
+
+	vevent = icalcomponent_get_first_component(the_reply,
+							ICAL_VEVENT_COMPONENT);
+	if (vevent != NULL) {
+		/* Hunt for attendees, removing ones that aren't us.
+		 * (Actually, remove them all, cloning our own one so we can
+		 * re-insert it later)
+		 */
+		while (attendee = icalcomponent_get_first_property(vevent,
+		    ICAL_ATTENDEE_PROPERTY), (attendee != NULL)
+		) {
+			if (icalproperty_get_attendee(attendee)) {
+				strcpy(attendee_string,
+					icalproperty_get_attendee(attendee) );
+				if (!strncasecmp(attendee_string, "MAILTO:",
+				   7)) {
+					strcpy(attendee_string, &attendee_string[7]);
+					striplt(attendee_string);
+					recp = validate_recipients(attendee_string);
+					if (recp != NULL) {
+						if (!strcasecmp(recp->recp_local, CC->usersupp.fullname)) {
+							if (me_attend) icalproperty_free(me_attend);
+							me_attend = icalproperty_new_clone(attendee);
+						}
+						phree(recp);
+					}
+				}
+			}
+			/* Remove it... */
+			icalcomponent_remove_property(vevent, attendee);
+		}
+
+		/* We found our own address in the attendee list. */
+		if (me_attend) {
+			/* Change the partstat from NEEDS-ACTION to ACCEPT or DECLINE */
+			icalproperty_remove_parameter(me_attend, ICAL_PARTSTAT_PARAMETER);
+
+			if (!strcasecmp(action, "accept")) {
+				partstat = icalparameter_new_partstat(ICAL_PARTSTAT_ACCEPTED);
+			}
+			else if (!strcasecmp(action, "decline")) {
+				partstat = icalparameter_new_partstat(ICAL_PARTSTAT_DECLINED);
+			}
+			else if (!strcasecmp(action, "tentative")) {
+				partstat = icalparameter_new_partstat(ICAL_PARTSTAT_TENTATIVE);
+			}
+
+			if (partstat) icalproperty_add_parameter(me_attend, partstat);
+
+			/* Now insert it back into the vevent. */
+			icalcomponent_add_property(vevent, me_attend);
+		}
+
+		/* Figure out who to send this thing to */
+		organizer = icalcomponent_get_first_property(vevent, ICAL_ORGANIZER_PROPERTY);
+		if (organizer != NULL) {
+			if (icalproperty_get_organizer(organizer)) {
+				strcpy(organizer_string,
+					icalproperty_get_organizer(organizer) );
+			}
+		}
+		if (!strncasecmp(organizer, "MAILTO:", 7)) {
+			strcpy(organizer_string, &organizer_string[7]);
+			striplt(organizer_string);
+		} else {
+			strcpy(organizer_string, "");
+		}
+	}
+
+	/********* FIXME **********  
+	All we have to do now is send the reply.  Generate it with:
+	icalcomponent_as_ical_string(the_reply)
+	...and send it to 'organizer_string'
+	(I'm just too tired to do it now)
+	 **********************************/
+
+	/* clean up */
+	icalcomponent_free(the_reply);
 }
 
 
@@ -156,8 +270,14 @@ void ical_respond(long msgnum, char *partnum, char *action) {
 		0
 	);
 
+	/* We're done with the incoming message, because we now have a
+	 * calendar object in memory.
+	 */
 	CtdlFreeMessage(msg);
 
+	/*
+	 * Here is the real meat of this function.  Handle the event.
+	 */
 	if (ird.cal != NULL) {
 		/* Save this in the user's calendar if necessary */
 		if (!strcasecmp(action, "accept")) {
@@ -165,11 +285,14 @@ void ical_respond(long msgnum, char *partnum, char *action) {
 		}
 
 		/* Send a reply if necessary */
-		/* FIXME ... do this */
+		if (icalcomponent_get_method(ird.cal) == ICAL_METHOD_REQUEST) {
+			ical_send_a_reply(ird.cal, action);
+		}
 
 		/* Delete the message from the inbox */
 		/* FIXME ... do this */
 
+		/* Free the memory we allocated and return a response. */
 		icalcomponent_free(ird.cal);
 		ird.cal = NULL;
 		cprintf("%d ok\n", CIT_OK);

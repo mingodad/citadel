@@ -1,4 +1,10 @@
  $Log$
+ Revision 601.59  2002/11/08 05:28:54  ajc
+ * Reply to VEVENT invitations: generate reply by cloning the request,
+   stripping out non-me attendees, setting the partstat to accept/decline,
+   and extracting the address of the organizer.   (Still not finished: right
+   now it does everything except actually sending the reply.)
+
  Revision 601.58  2002/11/07 04:40:07  ajc
  * Repaired the "remember username/password" functionality of the client
    (it was broken during the transition to the new client protocol library)
@@ -4184,3 +4190,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
