@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.68  2004/03/09 20:46:33  error
+ * Add a Linux Software Map file
+
  Revision 614.67  2004/03/08 05:26:49  ajc
  * When the last argument of an IMAP APPEND command is a binary literal
    (i.e. all the time), the client will still be sending a CRLF after the
@@ -5469,3 +5472,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

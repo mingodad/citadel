@@ -1,4 +1,7 @@
 $Log$
+Revision 505.14  2004/03/09 20:45:45  error
+* Add a Linux Software Map file
+
 Revision 505.13  2004/03/07 22:04:32  ajc
 * Fix the current view not being set to the default view for the creator
   of a room.
@@ -1715,4 +1718,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

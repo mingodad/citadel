@@ -1,0 +1,23 @@
+Begin4
+Title: Citadel/UX
+Version: 6.14
+Entered-date: Tue Mar  9 14:06:19 CST 2004 
+Description: The Citadel/UX messaging platform for Unix systems.
+        In addition to BBS functionality, Citadel/UX also offers advanced
+	messaging and groupware applications, including Internet e-mail
+	through SMTP, POP3 and IMAP, instant messaging, and caledaring
+	and scheduling.
+Keywords: citadel citadel/ux bbs ignet smtp pop3 imap calendar messaging mail
+Author: Art Cancro <ajc@uncensored.citadel.org>
+Maintained-by: Citadel/UX Developers <devel@citadel.org>
+Primary-site: http://uncensored.citadel.org/citadel/
+Alternate-site: http://www.tux.org/pub/net/citadel/
+Original-site: http://uncensored.citadel.org/citadel/
+Platforms: Unix or Unix-like operating systems.
+        Citadel/UX is known to work on Linux, Solaris and Mac OS X 10.2
+	(Jaguar) or later.  GNU make is required and GCC is strongly
+	recommended.  We've also had reports of success on Free/NetBSD
+	and Windows with Cygwin.  For calendaring, libical-0.24.RC4
+	is required (0.23 won't work).
+Copying-policy: GPL
+End
