@@ -833,7 +833,7 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 		if (field_length == 0)
 			break;
 		field_header = *mptr++;
-		ret->cm_fields[field_header] = malloc(field_length);
+		ret->cm_fields[field_header] = malloc(field_length + 1);
 		strcpy(ret->cm_fields[field_header], mptr);
 
 		while (*mptr++ != 0);	/* advance to next field */
@@ -1070,13 +1070,11 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		int do_proto,		/* do Citadel protocol responses? */
 		int crlf		/* Use CRLF newlines instead of LF? */
 ) {
-	struct CtdlMessage *TheMessage;
-	int retcode;
+	struct CtdlMessage *TheMessage = NULL;
+	int retcode = om_no_such_msg;
 
 	lprintf(CTDL_DEBUG, "CtdlOutputMsg() msgnum=%ld, mode=%d\n", 
 		msg_num, mode);
-
-	TheMessage = NULL;
 
 	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
 		if (do_proto) cprintf("%d Not logged in.\n",
@@ -1104,10 +1102,12 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		return(om_no_such_msg);
 	}
 	
+	TRACE;
 	retcode = CtdlOutputPreLoadedMsg(
 			TheMessage, msg_num, mode,
 			headers_only, do_proto, crlf);
 
+	TRACE;
 	CtdlFreeMessage(TheMessage);
 
 	return(retcode);
@@ -1118,7 +1118,8 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
  * Get a message off disk.  (returns om_* values found in msgbase.h)
  * 
  */
-int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
+int CtdlOutputPreLoadedMsg(
+		struct CtdlMessage *TheMessage,
 		long msg_num,
 		int mode,		/* how would you like that message? */
 		int headers_only,	/* eschew the message body? */
@@ -1126,7 +1127,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 		int crlf		/* Use CRLF newlines instead of LF? */
 ) {
 	int i, k;
-	char buf[1024];
+	char buf[SIZ];
 	cit_uint8_t ch;
 	char allkeys[SIZ];
 	char display_name[SIZ];
@@ -1145,9 +1146,16 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	char datestamp[SIZ];
 	/*                                       */
 
+	lprintf(CTDL_DEBUG, "CtdlOutputPreLoadedMsg(TheMessage=%s, %ld, %d, %d, %d, %d\n",
+		((TheMessage == NULL) ? "NULL" : "not null"),
+		msg_num,
+		mode, headers_only, do_proto, crlf);
+
+	TRACE;
 	snprintf(mid, sizeof mid, "%ld", msg_num);
 	nl = (crlf ? "\r\n" : "\n");
 
+	TRACE;
 	if (!is_valid_message(TheMessage)) {
 		lprintf(CTDL_ERR,
 			"ERROR: invalid preloaded message for output\n");
@@ -1155,6 +1163,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	}
 
 	/* Are we downloading a MIME component? */
+	TRACE;
 	if (mode == MT_DOWNLOAD) {
 		if (TheMessage->cm_format_type != FMT_RFC822) {
 			if (do_proto)
@@ -1180,8 +1189,10 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 					desired_section);
 			}
 		}
+		TRACE;
 		return((CC->download_fp != NULL) ? om_ok : om_mime_error);
 	}
+	TRACE;
 
 	/* now for the user-mode message reading loops */
 	if (do_proto) cprintf("%d Message %ld:\n", LISTING_FOLLOWS, msg_num);
@@ -1204,6 +1215,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 
 	/* begin header processing loop for Citadel message format */
 
+	TRACE;
 	if ((mode == MT_CITADEL) || (mode == MT_MIME)) {
 
 		strcpy(display_name, "<unknown>");
@@ -1267,31 +1279,25 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	}
 
 	/* begin header processing loop for RFC822 transfer format */
+	TRACE;
 
 	strcpy(suser, "");
 	strcpy(luser, "");
 	strcpy(fuser, "");
 	strcpy(snode, NODENAME);
 	strcpy(lnode, HUMANNODE);
+	TRACE;
 	if (mode == MT_RFC822) {
-		cprintf("X-UIDL: %ld%s", msg_num, nl);
 		for (i = 0; i < 256; ++i) {
+	TRACE;
 			if (TheMessage->cm_fields[i]) {
 				mptr = TheMessage->cm_fields[i];
+	TRACE;
 
 				if (i == 'A') {
-					strcpy(luser, mptr);
-					strcpy(suser, mptr);
+					safestrncpy(luser, mptr, sizeof luser);
+					safestrncpy(suser, mptr, sizeof suser);
 				}
-/****
- "Path:" removed for now because it confuses brain-dead Microsoft shitware
- into thinking that mail messages are newsgroup messages instead.  When we
- add NNTP support back into Citadel we'll have to add code to only output
- this field when appropriate.
-				else if (i == 'P') {
-					cprintf("Path: %s%s", mptr, nl);
-				}
- ****/
 				else if (i == 'U') {
 					cprintf("Subject: %s%s", mptr, nl);
 					subject_found = 1;
@@ -1317,19 +1323,23 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 			}
 		}
 		if (subject_found == 0) {
+	TRACE;
 			cprintf("Subject: (no subject)%s", nl);
 		}
 	}
+	TRACE;
 
 	for (i=0; i<strlen(suser); ++i) {
 		suser[i] = tolower(suser[i]);
 		if (!isalnum(suser[i])) suser[i]='_';
 	}
+	TRACE;
 
 	if (mode == MT_RFC822) {
 		if (!strcasecmp(snode, NODENAME)) {
-			strcpy(snode, FQDN);
+			safestrncpy(snode, FQDN, sizeof snode);
 		}
+	TRACE;
 
 		/* Construct a fun message id */
 		cprintf("Message-ID: <%s", mid);
@@ -1337,6 +1347,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 			cprintf("@%s", snode);
 		}
 		cprintf(">%s", nl);
+	TRACE;
 
 		if (!is_room_aide() && (TheMessage->cm_anon_type == MES_ANONONLY)) {
 			cprintf("From: x@x.org (----)%s", nl);
@@ -1352,6 +1363,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 		}
 
 		cprintf("Organization: %s%s", lnode, nl);
+	TRACE;
 
 		/* Blank line signifying RFC822 end-of-headers */
 		if (TheMessage->cm_format_type != FMT_RFC822) {
@@ -1361,6 +1373,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 
 	/* end header processing loop ... at this point, we're in the text */
 START_TEXT:
+	TRACE;
 	if (headers_only == HEADERS_FAST) goto DONE;
 	mptr = TheMessage->cm_fields['M'];
 
@@ -1427,11 +1440,13 @@ START_TEXT:
 	if ( (mode == MT_CITADEL) || (mode == MT_MIME) ) {
 		if (do_proto) cprintf("text\n");
 	}
+	TRACE;
 
 	/* If the format type on disk is 1 (fixed-format), then we want
 	 * everything to be output completely literally ... regardless of
 	 * what message transfer format is in use.
 	 */
+	TRACE;
 	if (TheMessage->cm_format_type == FMT_FIXED) {
 		if (mode == MT_MIME) {
 			cprintf("Content-type: text/plain\n\n");
@@ -1459,6 +1474,7 @@ START_TEXT:
 	 * for new paragraphs is correct and the client will reformat the
 	 * message to the reader's screen width.
 	 */
+	TRACE;
 	if (TheMessage->cm_format_type == FMT_CITADEL) {
 		if (mode == MT_MIME) {
 			cprintf("Content-type: text/x-citadel-variformat\n\n");
@@ -1471,6 +1487,7 @@ START_TEXT:
 	 * this message is format 1 (fixed format), so the callback function
 	 * we use will display those parts as-is.
 	 */
+	TRACE;
 	if (TheMessage->cm_format_type == FMT_RFC822) {
 		CtdlAllocUserData(SYM_MA_INFO, sizeof(struct ma_info));
 		memset(ma, 0, sizeof(struct ma_info));
@@ -1492,6 +1509,7 @@ START_TEXT:
 
 DONE:	/* now we're done */
 	if (do_proto) cprintf("000\n");
+	TRACE;
 	return(om_ok);
 }
 
@@ -1708,8 +1726,8 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
         highest_msg = msglist[num_msgs - 1];
 
         /* Write it back to disk. */
-        cdb_store(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long),
-                  msglist, num_msgs * sizeof(long));
+        cdb_store(CDB_MSGLISTS, &CC->room.QRnumber, (int)sizeof(long),
+                  msglist, (int)(num_msgs * sizeof(long)));
 
         /* Free up the memory we used. */
         free(msglist);
@@ -1779,7 +1797,7 @@ long send_message(struct CtdlMessage *msg) {
         }
 
 	/* Write our little bundle of joy into the message base */
-	if (cdb_store(CDB_MSGMAIN, &newmsgid, sizeof(long),
+	if (cdb_store(CDB_MSGMAIN, &newmsgid, (int)sizeof(long),
 		      smr.ser, smr.len) < 0) {
 		lprintf(CTDL_ERR, "Can't store message\n");
 		retval = 0L;
@@ -1787,7 +1805,7 @@ long send_message(struct CtdlMessage *msg) {
 		if (is_bigmsg) {
 			cdb_store(CDB_BIGMSGS,
 				&newmsgid,
-				sizeof(long),
+				(int)sizeof(long),
 				holdM,
 				(strlen(holdM) + 1)
 			);
@@ -2875,8 +2893,8 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 		}
 
 		num_msgs = sort_msglist(msglist, num_msgs);
-		cdb_store(CDB_MSGLISTS, &qrbuf.QRnumber, sizeof(long),
-			  msglist, (num_msgs * sizeof(long)));
+		cdb_store(CDB_MSGLISTS, &qrbuf.QRnumber, (int)sizeof(long),
+			  msglist, (int)(num_msgs * sizeof(long)));
 
 		qrbuf.QRhighest = msglist[num_msgs - 1];
 	}
@@ -3079,8 +3097,8 @@ void PutMetaData(struct MetaData *smibuf)
 		smibuf->meta_msgnum, smibuf->meta_refcount);
 
 	cdb_store(CDB_MSGMAIN,
-		  &TheIndex, sizeof(long),
-		  smibuf, sizeof(struct MetaData));
+		  &TheIndex, (int)sizeof(long),
+		  smibuf, (int)sizeof(struct MetaData));
 
 }
 
@@ -3114,12 +3132,12 @@ void AdjRefCount(long msgnum, int incr)
 	if (smi.meta_refcount == 0) {
 		lprintf(CTDL_DEBUG, "Deleting message <%ld>\n", msgnum);
 		delnum = msgnum;
-		cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));
-		cdb_delete(CDB_BIGMSGS, &delnum, sizeof(long));
+		cdb_delete(CDB_MSGMAIN, &delnum, (int)sizeof(long));
+		cdb_delete(CDB_BIGMSGS, &delnum, (int)sizeof(long));
 
 		/* We have to delete the metadata record too! */
 		delnum = (0L - msgnum);
-		cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));
+		cdb_delete(CDB_MSGMAIN, &delnum, (int)sizeof(long));
 	}
 }
 

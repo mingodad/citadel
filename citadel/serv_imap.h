@@ -13,9 +13,9 @@ int imap_do_expunge(void);
 struct citimap {
 	int authstate;
 	char authseq[SIZ];
-	int selected;		/* set to 1 if in the SELECTED state */
-	int readonly;		/* mailbox is open read only */
-	int num_msgs;		/* Number of messages being mapped */
+	int selected;			/* set to 1 if in the SELECTED state */
+	int readonly;			/* mailbox is open read only */
+	int num_msgs;			/* Number of messages being mapped */
 	long *msgids;
 	unsigned int *flags;
 	char *transmitted_message;	/* for APPEND command... */

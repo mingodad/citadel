@@ -119,7 +119,7 @@ void imap_fetch_internaldate(struct CtdlMessage *msg) {
  *	"RFC822.TEXT"	body only (without leading blank line)
  */
 void imap_fetch_rfc822(long msgnum, char *whichfmt) {
-	char buf[1024];
+	char buf[SIZ];
 	char *ptr;
 	long headers_size, text_size, total_size;
 	long bytes_remaining = 0;
@@ -134,12 +134,11 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 		/* Good to go! */
 		tmp = IMAP->cached_fetch;
 	}
-	else if ((IMAP->cached_fetch != NULL) && (IMAP->cached_msgnum != msgnum)) {
+	else if (IMAP->cached_fetch != NULL) {
 		/* Some other message is cached -- free it */
 		fclose(IMAP->cached_fetch);
 		IMAP->cached_fetch == NULL;
 		IMAP->cached_msgnum = (-1);
-		tmp = NULL;
 	}
 
 	/* At this point, we now can fetch and convert the message iff it's not
@@ -154,12 +153,16 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 		}
 	
 		/*
-	 	* Load the message into a temp file for translation
-	 	* and measurement
-	 	*/
+		 * Load the message into a temp file for translation
+		 * and measurement
+		 */
+		TRACE;
 		CtdlRedirectOutput(tmp, -1);
+		TRACE;
 		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
+		TRACE;
 		CtdlRedirectOutput(NULL, -1);
+		TRACE;
 
 		IMAP->cached_fetch = tmp;
 		IMAP->cached_msgnum = msgnum;
@@ -183,6 +186,8 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 	fseek(tmp, 0L, SEEK_END);
 	total_size = ftell(tmp);
 	text_size = total_size - headers_size;
+	lprintf(CTDL_DEBUG, "RFC822: headers=%ld, text=%ld, total=%ld\n",
+		headers_size, text_size, total_size);
 
 	if (!strcasecmp(whichfmt, "RFC822.SIZE")) {
 		cprintf("RFC822.SIZE %ld", total_size);
@@ -205,11 +210,11 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 	}
 
 	cprintf("%s {%ld}\r\n", whichfmt, bytes_remaining);
-	blocksize = sizeof(buf);
+	blocksize = (long)sizeof(buf);
 	while (bytes_remaining > 0L) {
 		if (blocksize > bytes_remaining) blocksize = bytes_remaining;
-		fread(buf, blocksize, 1, tmp);
-		client_write(buf, blocksize);
+		fread(buf, (size_t)blocksize, 1, tmp);
+		client_write(buf, (int)blocksize);
 		bytes_remaining = bytes_remaining - blocksize;
 	}
 
@@ -231,7 +236,7 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 		    void *cbuserdata)
 {
 	struct imap_fetch_part *imfp;
-	char mbuf2[1024];
+	char mbuf2[SIZ];
 
 	imfp = (struct imap_fetch_part *)cbuserdata;
 
@@ -272,7 +277,7 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
  * really need to make this suck less.
  */
 void imap_output_envelope_from(struct CtdlMessage *msg) {
-	char user[1024], node[1024], name[1024];
+	char user[SIZ], node[SIZ], name[SIZ];
 
 	/* For anonymous messages, it's so easy! */
 	if (!is_room_aide() && (msg->cm_anon_type == MES_ANONONLY)) {
@@ -450,7 +455,7 @@ void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
  * then boil it down to just the fields we want.
  */
 void imap_strip_headers(FILE *fp, char *section) {
-	char buf[1024];
+	char buf[SIZ];
 	char *which_fields = NULL;
 	int doing_headers = 0;
 	int headers_not = 0;
@@ -530,11 +535,10 @@ void imap_strip_headers(FILE *fp, char *section) {
  */
 void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	struct CtdlMessage *msg = NULL;
-	char section[1024];
-	char partial[1024];
+	char section[SIZ];
+	char partial[SIZ];
 	int is_partial = 0;
-	char buf[1024];
-	int i;
+	char buf[SIZ];
 	FILE *tmp = NULL;
 	long bytes_remaining = 0;
 	long blocksize;
@@ -542,14 +546,11 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	struct imap_fetch_part imfp;
 
 	/* extract section */
-	strcpy(section, item);
-	for (i=0; i<strlen(section); ++i) {
-		if (section[i]=='[') strcpy(section, &section[i+1]);
+	safestrncpy(section, item, sizeof section);
+	if (strchr(section, '[') != NULL) {
+		stripallbut(section, '[', ']');
 	}
-	for (i=0; i<strlen(section); ++i) {
-		if (section[i]==']') section[i] = 0;
-	}
-	lprintf(CTDL_DEBUG, "Section is %s\n", section);
+	lprintf(CTDL_DEBUG, "Section is: %s%s\n", section, ((strlen(section)==0) ? "(empty)" : "") );
 
 	/* Burn the cache if we don't have the same section of the 
 	 * same message again.
@@ -565,15 +566,10 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	}
 
 	/* extract partial */
-	strcpy(partial, item);
-	for (i=0; i<strlen(partial); ++i) {
-		if (partial[i]=='<') {
-			strcpy(partial, &partial[i+1]);
-			is_partial = 1;
-		}
-	}
-	for (i=0; i<strlen(partial); ++i) {
-		if (partial[i]=='>') partial[i] = 0;
+	safestrncpy(partial, item, sizeof partial);
+	if (strchr(partial, '<') != NULL) {
+		stripallbut(partial, '<', '>');
+		is_partial = 1;
 	}
 	if (is_partial == 0) strcpy(partial, "");
 	if (strlen(partial) > 0) lprintf(CTDL_DEBUG, "Partial is %s\n", partial);
@@ -585,25 +581,37 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 			return;
 		}
 		msg = CtdlFetchMessage(msgnum, 1);
+TRACE;
 	}
 
 	/* Now figure out what the client wants, and get it */
+TRACE;
 
 	if (IMAP->cached_body != NULL) {
 		tmp = IMAP->cached_body;
+TRACE;
 	}
 	else if ( (!strcmp(section, "1")) && (msg->cm_format_type != 4) ) {
+TRACE;
 		CtdlRedirectOutput(tmp, -1);
 		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
 						HEADERS_NONE, 0, 1);
 		CtdlRedirectOutput(NULL, -1);
+TRACE;
 	}
 
 	else if (!strcmp(section, "")) {
+TRACE;
 		CtdlRedirectOutput(tmp, -1);
+TRACE;
+		lprintf(CTDL_DEBUG, "calling CtdlOutputPreLoadedMsg()\n");
+		lprintf(CTDL_DEBUG, "msg %s null\n", ((msg == NULL) ? "is" : "is not") );
+		lprintf(CTDL_DEBUG, "msgnum is %ld\n", msgnum);
 		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
 						HEADERS_ALL, 0, 1);
+TRACE;
 		CtdlRedirectOutput(NULL, -1);
+TRACE;
 	}
 
 	/*
@@ -611,9 +619,15 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	 * fields, strip it down.
 	 */
 	else if (!strncasecmp(section, "HEADER", 6)) {
+TRACE;
 		CtdlRedirectOutput(tmp, -1);
+TRACE;
+		lprintf(CTDL_DEBUG, "calling CtdlOutputPreLoadedMsg()\n");
+		lprintf(CTDL_DEBUG, "msg %s null\n", ((msg == NULL) ? "is" : "is not") );
+		lprintf(CTDL_DEBUG, "msgnum is %ld\n", msgnum);
 		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
 						HEADERS_ONLY, 0, 1);
+TRACE;
 		CtdlRedirectOutput(NULL, -1);
 		imap_strip_headers(tmp, section);
 	}
@@ -623,9 +637,14 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	 */
 	else if (!strncasecmp(section, "TEXT", 4)) {
 		CtdlRedirectOutput(tmp, -1);
+		lprintf(CTDL_DEBUG, "calling CtdlOutputPreLoadedMsg()\n");
+		lprintf(CTDL_DEBUG, "msg %s null\n", ((msg == NULL) ? "is" : "is not") );
+		lprintf(CTDL_DEBUG, "msgnum is %ld\n", msgnum);
 		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
 						HEADERS_NONE, 0, 1);
+TRACE;
 		CtdlRedirectOutput(NULL, -1);
+TRACE;
 	}
 
 	/*
@@ -633,57 +652,83 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	 * (Note value of 1 passed as 'dont_decode' so client gets it encoded)
 	 */
 	else {
+TRACE;
 		safestrncpy(imfp.desired_section, section,
 				sizeof(imfp.desired_section));
+TRACE;
 		imfp.output_fp = tmp;
+TRACE;
 
 		mime_parser(msg->cm_fields['M'], NULL,
 				*imap_load_part, NULL, NULL,
 				(void *)&imfp,
 				1);
+TRACE;
 	}
 
 
+TRACE;
 	fseek(tmp, 0L, SEEK_END);
+TRACE;
 	bytes_remaining = ftell(tmp);
+TRACE;
 
 	if (is_partial == 0) {
+TRACE;
 		rewind(tmp);
 		cprintf("BODY[%s] {%ld}\r\n", section, bytes_remaining);
+TRACE;
 	}
 	else {
+TRACE;
 		sscanf(partial, "%ld.%ld", &pstart, &pbytes);
 		if ((bytes_remaining - pstart) < pbytes) {
 			pbytes = bytes_remaining - pstart;
 		}
+TRACE;
 		fseek(tmp, pstart, SEEK_SET);
+TRACE;
 		bytes_remaining = pbytes;
+TRACE;
 		cprintf("BODY[%s]<%ld> {%ld}\r\n",
 			section, pstart, bytes_remaining);
 	}
+TRACE;
 
-	blocksize = sizeof(buf);
+	blocksize = (long)sizeof(buf);
+TRACE;
 	while (bytes_remaining > 0L) {
+TRACE;
 		if (blocksize > bytes_remaining) blocksize = bytes_remaining;
+TRACE;
 		fread(buf, blocksize, 1, tmp);
-		client_write(buf, blocksize);
+TRACE;
+		client_write(buf, (int)blocksize);
+TRACE;
 		bytes_remaining = bytes_remaining - blocksize;
+TRACE;
 	}
 
+TRACE;
 	/* Don't close it ... cache it! */
 	/* fclose(tmp); */
+TRACE;
 	IMAP->cached_body = tmp;
 	IMAP->cached_bodymsgnum = msgnum;
 	strcpy(IMAP->cached_bodypart, section);
+TRACE;
 
 	if (msg != NULL) {
+TRACE;
 		CtdlFreeMessage(msg);
 	}
 
 	/* Mark this message as "seen" *unless* this is a "peek" operation */
+TRACE;
 	if (is_peek == 0) {
 		CtdlSetSeen(msgnum, 1, ctdlsetseen_seen);
 	}
+TRACE;
 }
 
 /*
@@ -839,7 +884,7 @@ void imap_fetch_bodystructure_part(
 void imap_fetch_bodystructure (long msgnum, char *item,
 		struct CtdlMessage *msg) {
 	FILE *tmp;
-	char buf[1024];
+	char buf[SIZ];
 	long lines = 0L;
 	long start_of_body = 0L;
 	long body_bytes = 0L;
@@ -895,6 +940,11 @@ void imap_do_fetch_msg(int seq,
 			int num_items, char **itemlist) {
 	int i;
 	struct CtdlMessage *msg = NULL;
+
+	lprintf(CTDL_DEBUG, "imap_do_fetch_msg(%d, %d)\n", seq, num_items);
+	for (i=0; i<num_items; ++i) {
+		lprintf(CTDL_DEBUG, "                  %s\n", itemlist[i]);
+	}
 
 	cprintf("* %d FETCH (", seq);
 
@@ -983,7 +1033,7 @@ void imap_do_fetch(int num_items, char **itemlist) {
  * is not a generic search-and-replace function.
  */
 void imap_macro_replace(char *str, char *find, char *replace) {
-	char holdbuf[1024];
+	char holdbuf[SIZ];
 
 	if (!strncasecmp(str, find, strlen(find))) {
 		if (str[strlen(find)]==' ') {
@@ -1120,8 +1170,8 @@ void imap_pick_range(char *supplied_range, int is_uid) {
 	int i;
 	int num_sets;
 	int s;
-	char setstr[SIZ], lostr[SIZ], histr[SIZ];	/* was 1024 */
-	int lo, hi;
+	char setstr[SIZ], lostr[SIZ], histr[SIZ];
+	long lo, hi;
 	char actual_range[SIZ];
 
 	/* 
@@ -1151,13 +1201,13 @@ void imap_pick_range(char *supplied_range, int is_uid) {
 		extract_token(lostr, setstr, 0, ':');
 		if (num_tokens(setstr, ':') >= 2) {
 			extract_token(histr, setstr, 1, ':');
-			if (!strcmp(histr, "*")) snprintf(histr, sizeof histr, "%d", INT_MAX);
+			if (!strcmp(histr, "*")) snprintf(histr, sizeof histr, "%ld", LONG_MAX);
 		} 
 		else {
 			strcpy(histr, lostr);
 		}
-		lo = atoi(lostr);
-		hi = atoi(histr);
+		lo = atol(lostr);
+		hi = atol(histr);
 
 		/* Loop through the array, flipping bits where appropriate */
 		for (i = 1; i <= IMAP->num_msgs; ++i) {
@@ -1185,7 +1235,7 @@ void imap_pick_range(char *supplied_range, int is_uid) {
  * This function is called by the main command loop.
  */
 void imap_fetch(int num_parms, char *parms[]) {
-	char items[SIZ];	/* was 1024 */
+	char items[SIZ];
 	char *itemlist[SIZ];
 	int num_items;
 	int i;
@@ -1217,7 +1267,7 @@ void imap_fetch(int num_parms, char *parms[]) {
  * This function is called by the main command loop.
  */
 void imap_uidfetch(int num_parms, char *parms[]) {
-	char items[SIZ];	/* was 1024 */
+	char items[SIZ];
 	char *itemlist[SIZ];
 	int num_items;
 	int i;

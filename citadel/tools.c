@@ -91,8 +91,10 @@ int num_tokens(const char *source, char tok) {
 }
 
 
-/* extract_token() - a smarter string tokenizer */
-void extract_token(char *dest, const char *source, unsigned long parmnum, char separator)
+/*
+ * extract_token() - a string tokenizer
+ */
+void extract_token(char *dest, const char *source, int parmnum, char separator)
 {
 	char *d;		/* dest */
 	const char *s;		/* source */
@@ -122,8 +124,10 @@ void extract_token(char *dest, const char *source, unsigned long parmnum, char s
 }
 
 
-/* remove_token() - a tokenizer that kills, maims, and destroys fast */
-void remove_token(char *source, unsigned long parmnum, char separator)
+/*
+ * remove_token() - a tokenizer that kills, maims, and destroys
+ */
+void remove_token(char *source, int parmnum, char separator)
 {
 	char *d, *s;		/* dest, source */
 	int count = 0;
@@ -168,7 +172,7 @@ void remove_token(char *source, unsigned long parmnum, char separator)
 /*
  * extract_int()  -  extract an int parm w/o supplying a buffer
  */
-int extract_int(const char *source, unsigned long parmnum)
+int extract_int(const char *source, int parmnum)
 {
 	char buf[SIZ];
 	
@@ -179,7 +183,7 @@ int extract_int(const char *source, unsigned long parmnum)
 /*
  * extract_long()  -  extract an long parm w/o supplying a buffer
  */
-long extract_long(const char *source, unsigned long parmnum)
+long extract_long(const char *source, int parmnum)
 {
 	char buf[SIZ];
 	
@@ -191,7 +195,7 @@ long extract_long(const char *source, unsigned long parmnum)
 /*
  * extract_unsigned_long() - extract an unsigned long parm
  */
-unsigned long extract_unsigned_long(const char *source, unsigned long parmnum)
+unsigned long extract_unsigned_long(const char *source, int parmnum)
 {
 	char buf[SIZ];
 
@@ -533,7 +537,7 @@ void urlesc(char *outbuf, char *strbuf)
 
 	strcpy(outbuf, "");
 
-	for (a = 0; a < strlen(strbuf); ++a) {
+	for (a = 0; a < (int)strlen(strbuf); ++a) {
 		c = 0;
 		for (b = 0; b < strlen(ec); ++b) {
 			if (strbuf[a] == ec[b])

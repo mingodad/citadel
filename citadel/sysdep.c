@@ -109,7 +109,7 @@ int syslog_facility = (-1);
 void lprintf(enum LogLevel loglevel, const char *format, ...) {   
 	va_list arg_ptr;
 	char buf[SIZ];
- 
+
 	va_start(arg_ptr, format);   
 	vsnprintf(buf, sizeof(buf), format, arg_ptr);   
 	va_end(arg_ptr);   

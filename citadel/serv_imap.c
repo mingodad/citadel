@@ -217,7 +217,11 @@ void imap_rescan_msgids(void)
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
 	if (cdbfr != NULL) {
 		msglist = malloc(cdbfr->len);
-		memcpy(msglist, cdbfr->ptr, cdbfr->len);
+		if (msglist == NULL) {
+			lprintf(CTDL_CRIT, "malloc() failed\n");
+			abort();
+		}
+		memcpy(msglist, cdbfr->ptr, (size_t)cdbfr->len);
 		num_msgs = cdbfr->len / sizeof(long);
 		cdb_free(cdbfr);
 	} else {
@@ -602,7 +606,7 @@ int imap_do_expunge(void)
 		imap_rescan_msgids();
 	}
 
-	lprintf(9, "Expunged %d messages.\n", num_expunged);
+	lprintf(CTDL_DEBUG, "Expunged %d messages.\n", num_expunged);
 	return (num_expunged);
 }
 
@@ -1253,7 +1257,7 @@ void imap_command_loop(void)
 	char *parms[SIZ];
 	int num_parms;
 
-	time(&CC->lastcmd);
+	CC->lastcmd = time(NULL);
 	memset(cmdbuf, 0, sizeof cmdbuf);	/* Clear it, just in case */
 	flush_output();
 	if (client_gets(cmdbuf) < 1) {
@@ -1265,7 +1269,6 @@ void imap_command_loop(void)
 	lprintf(CTDL_INFO, "IMAP: %s\r\n", cmdbuf);
 	while (strlen(cmdbuf) < 5)
 		strcat(cmdbuf, " ");
-
 
 	/* strip off l/t whitespace and CRLF */
 	if (cmdbuf[strlen(cmdbuf) - 1] == '\n')
@@ -1283,7 +1286,6 @@ void imap_command_loop(void)
 		imap_auth_login_pass(cmdbuf);
 		return;
 	}
-
 
 	/* Ok, at this point we're in normal command mode.  The first thing
 	 * we do is print any incoming pages (yeah! we really do!)

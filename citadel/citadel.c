@@ -849,7 +849,7 @@ char *SortOnlineUsers(char *listing) {
 	for (i=0; i<rows; ++i) {
 		memset(buf, 0, SIZ);
 		extract_token(buf, listing, i, '\n');
-		memcpy(&sortbuf[i*SIZ], buf, SIZ);
+		memcpy(&sortbuf[i*SIZ], buf, (size_t)SIZ);
 	}
 
 	/* Do the sort */
@@ -1186,7 +1186,7 @@ int main(int argc, char **argv)
 				{
 					sptr2++;
 					*sptr2 = '\0';
-					strncpy(nonce, sptr, NONCE_SIZE);
+					strncpy(nonce, sptr, (size_t)NONCE_SIZE);
 				}
 		}
 

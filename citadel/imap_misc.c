@@ -210,9 +210,9 @@ void imap_print_instant_messages(void) {
  * This function is called by the main command loop.
  */
 void imap_append(int num_parms, char *parms[]) {
-	size_t literal_length;
-	size_t bytes_transferred;
-	size_t stripped_length = 0;
+	long literal_length;
+	long bytes_transferred;
+	long stripped_length = 0;
 	struct CtdlMessage *msg;
 	int ret = 0;
 	size_t blksize;
@@ -234,7 +234,7 @@ void imap_append(int num_parms, char *parms[]) {
 		return;
 	}
 
-	literal_length = (size_t) atol(&parms[num_parms-1][1]);
+	literal_length = atol(&parms[num_parms-1][1]);
 	if (literal_length < 1) {
 		cprintf("%s BAD Message length must be at least 1.\r\n",
 			parms[0]);
@@ -250,7 +250,7 @@ void imap_append(int num_parms, char *parms[]) {
 	IMAP->transmitted_length = literal_length;
 
 	cprintf("+ Transmit message now.\r\n");
-	lprintf(CTDL_DEBUG, "imap_append() expecting %d bytes\n",
+	lprintf(CTDL_DEBUG, "imap_append() expecting %ld bytes\n",
 		literal_length);
 
 	bytes_transferred = 0;
@@ -267,7 +267,7 @@ void imap_append(int num_parms, char *parms[]) {
 		else {
 			bytes_transferred += blksize;		/* keep going */
 		}
-		lprintf(CTDL_DEBUG, "Received %d of %d bytes (%d%%)\n",
+		lprintf(CTDL_DEBUG, "Received %ld of %ld bytes (%ld%%)\n",
 			bytes_transferred,
 			literal_length,
 			((bytes_transferred * 100) / literal_length)

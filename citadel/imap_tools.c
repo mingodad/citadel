@@ -43,21 +43,6 @@ static void string_init(struct string* s, char* buf, int bufsize)
 	s->size = strlen(buf);
 }
 
-static int string_overflow(struct string* s)
-{
-	return (s->size == s->maxsize);
-}
-
-static int string_length(struct string* s)
-{
-	return s->size;
-}
-
-static char* string_ptr(struct string* s)
-{
-	return s->buffer;
-}
-
 static char* string_end(struct string* s)
 {
 	return s->buffer + s->size;
@@ -125,13 +110,6 @@ static void string_append_c(struct string* s, int c)
 
 	string_append_sn(s, buf, len);
 }	
-
-/* Append another string structure. */
-
-static void string_append(struct string* dest, struct string* src)
-{
-	string_append_sn(dest, src->buffer, src->size);
-}
 
 /* Reads a UTF8 character from a char*, advancing the pointer. */
 
