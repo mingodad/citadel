@@ -35,8 +35,9 @@
  */
 void whobbs(void)
 {
-	char buf[SIZ], sess, user[SIZ], room[SIZ], host[SIZ],
+	char buf[SIZ], user[SIZ], room[SIZ], host[SIZ],
 		realroom[SIZ], realhost[SIZ];
+	int sess;
 	time_t last_activity;
 	time_t now;
 	int bg = 0;
@@ -64,7 +65,7 @@ void whobbs(void)
 	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 cellspacing=0 width=100%% bgcolor=\"#FFFFFF\">"
 		"<tr>\n");
-	wprintf("<TH COLSPAN=4>Session ID</TH>\n");
+	wprintf("<TH COLSPAN=3>&nbsp;</TH>\n");
 	wprintf("<TH>User Name</TH>\n");
 	wprintf("<TH>Room</TH>");
 	wprintf("<TH>From host</TH>\n</TR>\n");
@@ -96,7 +97,7 @@ void whobbs(void)
 			);
 
 
-			wprintf("<TD>%d</TD><TD>", sess);
+			wprintf("<td>");
 			if ((WC->is_aide) &&
 			    (sess != WC->ctdl_pid)) {
 				wprintf(" <A HREF=\"/terminate_session&which_session=%d&session_owner=", sess);
