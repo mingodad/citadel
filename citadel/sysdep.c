@@ -95,10 +95,10 @@ void lprintf(int loglevel, const char *format, ...) {
 	if (loglevel <= verbosity) { 
 		fprintf(stderr, "%s", buf);
 		fflush(stderr);
-		}
+	}
 
 	PerformLogHooks(loglevel, buf);
-	}   
+}   
 
 
 
@@ -121,7 +121,7 @@ void *tracked_malloc(size_t tsize, char *tfile, int tline) {
 	hptr->h_ptr = ptr;
 	heap = hptr;
 	return ptr;
-	}
+}
 
 char *tracked_strdup(const char *orig, char *tfile, int tline) {
 	char *s;
@@ -140,19 +140,19 @@ void tracked_free(void *ptr) {
 		hptr = heap->next;
 		free(heap);
 		heap = hptr;
-		}
+	}
 	else {
 		for (hptr=heap; hptr->next!=NULL; hptr=hptr->next) {
 			if (hptr->next->h_ptr == ptr) {
 				freeme = hptr->next;
 				hptr->next = hptr->next->next;
 				free(freeme);
-				}
 			}
 		}
+	}
 
 	free(ptr);
-	}
+}
 
 void *tracked_realloc(void *ptr, size_t size) {
 	void *newptr;
@@ -162,10 +162,10 @@ void *tracked_realloc(void *ptr, size_t size) {
 
 	for (hptr=heap; hptr!=NULL; hptr=hptr->next) {
 		if (hptr->h_ptr == ptr) hptr->h_ptr = newptr;
-		}
+	}
 
 	return newptr;
-	}
+}
 
 
 void dump_tracked() {
@@ -175,13 +175,13 @@ void dump_tracked() {
 	for (hptr=heap; hptr!=NULL; hptr=hptr->next) {
 		cprintf("%20s %5d\n",
 			hptr->h_file, hptr->h_line);
-		}
+	}
 #ifdef __GNUC__
         malloc_stats();
 #endif
 
 	cprintf("000\n");
-	}
+}
 #endif
 
 
@@ -983,7 +983,7 @@ int main(int argc, char **argv)
 
 
 /*
- * Bind a thread to a context.
+ * Bind a thread to a context.  (It's inline merely to speed things up.)
  */
 inline void become_session(struct CitContext *which_con) {
 	pthread_setspecific(MyConKey, (void *)which_con );
@@ -1018,7 +1018,7 @@ void worker_thread(void) {
 		 * calling select() and then they'd all wake up at once.  We
 		 * solve this problem by putting the select() in a critical
 		 * section, so only one thread has the opportunity to wake
-		 * up.  If we wake up on the master socket, create a new
+		 * up.  If we wake up on a master socket, create a new
 		 * session context; otherwise, just bind the thread to the
 		 * context we want and go on our merry way.
 		 */

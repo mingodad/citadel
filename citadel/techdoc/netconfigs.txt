@@ -1,0 +1,25 @@
+           Description of the files in the "netconfigs" directory
+
+ These files contain a set of network configurations for a room.  They are
+stored in the directory $BBSDIR/netconfigs and are named according to each
+room's internal ID number.  When a room is deleted, its network configuration
+file is deleted as well.
+  
+ The configuration file contains one or more lines of text, each line
+containing a configuration option.  These lines may specify message pointers,
+room sharing instructions, mailing list recipients, etc.  Fields are separated
+by the vertical bar character ("|") and there will always be at least one
+field on each line.
+  
+ 
+ INSTRUCTION:  lastsent
+ SYNTAX:       lastsent|0000000
+ DESCRIPTION:
+    Defines the *local* message number of the last message in this room which
+we have performed outbound network processing on.  Any batch job which sends
+out messages should do stuff.
+ 
+ 
+ INSTRUCTION:  foo
+ SYNTAX:       lastsent|0000000
+ DESCRIPTION:
