@@ -85,4 +85,5 @@ struct CtdlServerHandle {
 
 struct CtdlRoomInfo {
 	char RoomName[32];
+	time_t mtime;
 	};

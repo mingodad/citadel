@@ -124,6 +124,7 @@ struct quickroom {
 	char QRdirname[15];		/* Directory name, if applicable    */
 	long QRinfo;			/* Info file update relative to msgs*/
 	char QRfloor;			/* Which floor this room is on      */
+	time_t QRmtime;			/* Date/time of last post           */
 	};
 
 

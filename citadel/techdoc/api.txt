@@ -150,3 +150,10 @@ the user being processed.
 administrative or privileged access may enter any room on the system.  An
 extension running in the context of an ordinary user may enter any room to
 which the user has access.
+ 
+ 
+ int CtdlForEachRoom(int (*CallBack)(char *EachRoom))  
+ 
+ This allows a user-supplied function to be called once for each active room
+on the system; the single argument passed to the function will be the name of
+the room being processed.

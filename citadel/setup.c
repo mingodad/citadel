@@ -1,7 +1,5 @@
 /*
  * Citadel/UX setup program
- * v4.1 / by Art Cancro
- * see copyright.txt for copyright information
  *
  * *** YOU MUST EDIT sysconfig.h >BEFORE< COMPILING SETUP ***
  */
@@ -139,8 +137,7 @@ char *setup_text[] = {
 "",
 "The most common settings for this will be either 1, for",
 "systems which require new user validation by the system",
-"administrator ('sysop' is a word for people who run DOS",
-"boards!), or 4, for systems which give instant access.",
+"administrator, or 4, for systems which give instant access.",
 "The current access levels available are:",
 
 "11",
@@ -724,50 +721,6 @@ void set_long_val(int msgpos, long int *ip)
 	set_str_val(msgpos, buf);
 	*ip = atol(buf);
 	}
-
-
-#if 0 /* FIXME: this isn't used, can we remove it? */
-int yesno_s(char *question) {
-	int a;
-	char buf[4096];
-	char tempfile[64];
-	FILE *fp;
-
-	sprintf(tempfile, "/tmp/setup.%d", getpid());
-	switch (setup_type) {
-	
-		case UI_TEXT:
-			a=yesno(question);
-			if (a==1) a=yesno("Are you SURE you want to reinitialize this file? ");
-			return(a);
-			break;
-
-		case UI_CURSES:
-			a=yesno(question);
-			if (a==1) a=yesno("Are you SURE you want to reinitialize this file? ");
-			return(a);
-			break;
-
-		case UI_DIALOG:
-			a = yesno(question);
-			if (a==0) return(a);
-			sprintf(buf, "dialog --title \"Confirm file overwrite\" --menu \"\nAre you SURE you want to reinitialize this file?\n\" 13 80 2 NO \"No, don't overwrite\" YES \"Yes, overwrite the existing file\" 2>%s", tempfile);
-			a = system(buf);
-			if (a != 0) return(0);
-			fp = fopen(tempfile, "rb");
-			fgets(buf, 4095, fp);
-			fclose(fp);
-			if (strlen(buf)>0) 
-				if (buf[strlen(buf)-1]==10)
-					buf[strlen(buf)-1]=0;
-			return( (!strcmp(buf, "YES")) ? 1 : 0 );
-			break;
-
-		}
-
-	return(0); /* just in case */
-	}
-#endif
 
 
 void edit_value(int curr)

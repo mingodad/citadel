@@ -103,7 +103,7 @@ void getroom(struct quickroom *qrbuf, int room_num)
 
 
 	/** FIX **   VILE SLEAZY HACK ALERT!!  
-	 * This is a temporary fix until I can track down where room names
+	 * This is a temporary fix until we can track down where room names
 	 * are getting corrupted on some systems.
 	 */
 	for (a=0; a<20; ++a) if (qrbuf->QRname[a] < 32) qrbuf->QRname[a] = 0;
@@ -125,7 +125,7 @@ void lgetroom(struct quickroom *qrbuf, int room_num)
  */
 void putroom(struct quickroom *qrbuf, int room_num)
 {
-
+	time(&qrbuf->QRmtime);
 	cdb_store(CDB_QUICKROOM, &room_num, sizeof(int),
 		qrbuf, sizeof(struct quickroom));
 	}

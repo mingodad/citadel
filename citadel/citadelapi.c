@@ -402,6 +402,39 @@ int CtdlForEachUser(int (*CallBack)(char *EachUser))  {
 
 
 
+
+
+int CtdlForEachRoom(int (*CallBack)(char *EachRoom))  {
+	struct CtdlInternalList *TheList = NULL;
+	struct CtdlInternalList *ptr;
+	char buf[256];
+
+	serv_puts("LKRA");
+	serv_gets(buf);
+	if (buf[0] != '1') return(-1);
+
+	while (serv_gets(buf), strcmp(buf, "000")) {
+		ptr = (struct CtdlInternalList *)
+			malloc(sizeof (struct CtdlInternalList));
+		if (ptr != NULL) {
+			CtdlInternalExtract(ptr->data, buf, 0);
+			ptr->next = TheList;
+			TheList = ptr;
+			}
+		}
+
+	while (TheList != NULL) {
+		(*CallBack)(TheList->data);
+		ptr = TheList->next;
+		free(TheList);
+		TheList = ptr;
+		}
+
+	return(0);
+	}
+
+
+
 /*
  * Goto a different room
  */
