@@ -997,6 +997,11 @@ void sttybbs(int cmd)
 		live.c_cc[VINTR] = (-1);
 		live.c_cc[VQUIT] = (-1);
 
+#ifdef hpux
+		live.c_cc[VMIN] = 0;
+		live.c_cc[VTIME] = 0;
+#endif
+
 		/* do we even need this stuff anymore? */
 		/* live.c_line=0; */
 		live.c_cc[VERASE] = 8;

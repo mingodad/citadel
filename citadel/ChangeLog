@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.4  2000/09/28 10:27:38  error
+ * commands.c: changed sttybbs() to support HP/UX termios VMIN and VTIME
+
  Revision 573.3  2000/09/24 22:01:45  ajc
  * ipc_c_tcp.c: don't hardcode BBSDIR path for unix domain sockets
 
@@ -2063,3 +2066,5 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
+
