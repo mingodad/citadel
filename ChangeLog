@@ -1,4 +1,8 @@
 $Log$
+Revision 522.25  2004/08/11 03:49:15  ajc
+* Replaced all instances of the name "Citadel/UX" with "Citadel"
+* Installed the "simple logo" in the iconbar
+
 Revision 522.24  2004/08/09 03:11:20  ajc
 * Changed DOCTYPE to HTML 3.2 because that's really what it resembles
 
@@ -231,7 +235,7 @@ Revision 506.8  2004/04/21 02:19:41  ajc
   ).  Still doesn't work with Internet Monopolizer, though.
 
 Revision 506.7  2004/04/20 02:32:44  ajc
-* Allow setup to run seamlessly from within the Citadel/UX Ridiculously
+* Allow setup to run seamlessly from within the Citadel Ridiculously
   Easy Installer by observing the values of environment variables
   CITADEL_INSTALLER, CITADEL, and WEBCIT.
 
@@ -1934,7 +1938,7 @@ Thu Dec 17 20:38:00 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Added goto private rooms
 
 Wed Dec 16 16:23:58 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
-	* Replace "Citadel/UX" in menu bar with the Citadel/UX logo
+	* Replace "Citadel" in menu bar with the Citadel logo
 
 1998-12-14 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* automatically regenerate Makefile when Makefile.in changes

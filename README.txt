@@ -1,4 +1,4 @@
-                      WEBCIT for the Citadel/UX System
+                        WEBCIT for the Citadel System
                                version 5.20
  
    Copyright (C) 1996-2004 by the authors.  Portions written by:
@@ -15,7 +15,7 @@ Public License.  Please read COPYING.txt for more licensing information.
  INTRODUCTION
  ------------
  
- Citadel/UX is a sophisticated BBS and groupware package which allows multiple
+ Citadel is a sophisticated BBS and groupware package which allows multiple
 users to simultaneously access the system using a variety of user interfaces.
 This package (WebCit) is a "middleware" package which presents an HTML/HTTP
 user interface to the Citadel system.
@@ -103,10 +103,10 @@ the "webserver" program:
      service.  If you want to do both HTTP and HTTPS, you can simply run two
      instances of WebCit on two different ports.
  
-  -> remotehost: the name or IP address of the host on which your Citadel/UX
+  -> remotehost: the name or IP address of the host on which your Citadel
      server is running.  The default is "localhost".
  
-  -> remoteport: the port number on which your Citadel/UX server is running.
+  -> remoteport: the port number on which your Citadel server is running.
      The default is port 504, the IANA-designated standard port for Citadel.
  
   -> "uds" is a keyword which tells WebCit that you wish to connect to a
@@ -124,7 +124,7 @@ the "webserver" program:
 in its "static" subdirectory.  All site-specific graphics, however, are
 fetched from the Citadel server.
  
- The "images" directory on a Citadel/UX system contains these graphics.  The
+ The "images" directory on a Citadel system contains these graphics.  The
 ones which you may be interested in are:
  
  -> background.gif: a background texture displayed under all web pages
@@ -177,5 +177,5 @@ authority.
  ----------
  
  That's all you need to know to get started.  If you have any questions or
-comments, please visit UNCENSORED! BBS, the home of Citadel/UX, at
+comments, please visit UNCENSORED! BBS, the home of Citadel, at
 uncensored.citadel.org.
