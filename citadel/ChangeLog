@@ -1,4 +1,8 @@
  $Log$
+ Revision 607.13  2003/06/29 04:07:11  ajc
+ * Globally renamed "struct quickroom" and "struct usersupp" to
+   "struct room" and "struct user".
+
  Revision 607.12  2003/06/29 04:06:41  ajc
  *** empty log message ***
 
@@ -4811,3 +4815,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
