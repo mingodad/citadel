@@ -381,7 +381,8 @@ void output_headers(int print_standard_html_head)
 	if (print_standard_html_head > 0) {
 		wprintf("<HTML><HEAD><TITLE>");
 		escputs(serv_info.serv_humannode);
-		wprintf("</TITLE></HEAD>");
+		wprintf("<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">\n");
+		wprintf("</TITLE></HEAD>\n");
 		if (ExpressMessages != NULL) {
 			wprintf("<SCRIPT language=\"javascript\">\n");
 			wprintf("function ExpressMessage() {\n");
@@ -391,51 +392,11 @@ void output_headers(int print_standard_html_head)
 			wprintf(" }\n </SCRIPT>\n");
 		}
 
-		/* Print JavaScript key capture
-		 *  for key-based navigation
+
+
+		/* JavaScript key-based navigation would go here if it
+		 * were finished
 		 */
-		wprintf(
-		"<SCRIPT LANGUAGE=\"JavaScript\">\n"
-		"function nav(e) {\n"
-		"var keyChar = String.fromCharCode(e.which);\n"
-		"switch(keyChar.toLowerCase()) {\n"
-		);
-		wprintf(
-		"case \"g\": document.location=\"/gotonext\";\n"
-		"break;\n"
-		"case \"e\": document.location=\"/display_enter\";\n"
-		"break;\n"
-		"case \"k\": document.location=\"/knrooms\";\n"
-		"break;\n"
-		"case \"s\": document.location=\"/skip\";\n"
-		"break;\n"
-		);
-		wprintf(
-		"case \"u\": document.location=\"/ungoto\";\n"
-		"break;\n"
-		"case \"n\": document.location=\"/readnew\";\n"
-		"break;\n"
-		"case \"w\": document.location=\"/whobbs\";\n"
-		"break;\n"
-		);
-		wprintf(
-		"case \"p\": document.location=\"/display_page\";\n"
-		"break;\n"
-		"case \"c\": document.location=\"/chat\";\n"
-		"break;\n"
-		"case \"z\": document.location=\"/display_zap\";\n"
-		"break;\n"
-		);
-		wprintf(
-		"}\n"
-		"}\n"
-		"document.captureEvents(Event.KEYPRESS);\n"
-		"document.onKeyPress = nav;\n"
-		"</SCRIPT>\n"
-		);
-
-		/* end JavaScript-based key navigation */
-
 
 		wprintf("<BODY ");
 		if (ExpressMessages != NULL) {
