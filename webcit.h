@@ -493,6 +493,13 @@ int client_read_ssl(char *buf, int bytes, int timeout);
 void client_write_ssl(char *buf, int nbytes);
 #endif
 
+#ifdef HAVE_ZLIB
+#include <zlib.h>
+int ZEXPORT compress_gzip(Bytef * dest, uLongf * destLen,
+                          const Bytef * source, uLong sourceLen, int level);
+#endif
+
+
 void begin_burst(void);
 void end_burst(void);
 

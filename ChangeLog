@@ -1,4 +1,8 @@
 $Log$
+Revision 603.3  2005/02/23 05:08:20  ajc
+* Better control of HTTP headers which control browser caches.  Static
+  objects are getting properly cached now.
+
 Revision 603.2  2005/02/22 05:15:28  ajc
 * When the "begin_burst() / end_burst()" semantics are in use, perform
   gzip compression when the client indicates support for it.
@@ -2437,4 +2441,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -43,10 +43,6 @@
 #include "webcit.h"
 #include "webserver.h"
 
-#ifdef HAVE_ZLIB
-#include <zlib.h>
-#endif
-
 #ifndef HAVE_SNPRINTF
 int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp);
 #endif
@@ -289,7 +285,7 @@ void end_burst(void)
 		if (compress_gzip((Bytef *) compressed_data,
 				  &compressed_len,
 				  (Bytef *) the_data,
-				  (uLongf) the_len, 9) == Z_OK) {
+				  (uLongf) the_len, Z_BEST_SPEED) == Z_OK) {
 			wprintf("Content-encoding: gzip\r\n");
 			free(the_data);
 			the_data = compressed_data;
