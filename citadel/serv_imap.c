@@ -337,18 +337,44 @@ void imap_login(int num_parms, char *parms[]) {
  */
 void imap_authenticate(int num_parms, char *parms[]) {
 	char buf[SIZ];
-
-	if (num_parms != 3) {
-		cprintf("%s BAD incorrect number of parameters\r\n", parms[0]);
-		return;
-	}
+	char plain_authident[SIZ];
+	char plain_username[SIZ];
+	char plain_password[SIZ];
 
 	if (!strcasecmp(parms[2], "LOGIN")) {
+		if (num_parms != 3) {
+			cprintf("%s BAD incorrect number of parameters\r\n",
+				parms[0]);
+			return;
+		}
 		CtdlEncodeBase64(buf, "Username:", 9);
 		cprintf("+ %s\r\n", buf);
 		IMAP->authstate = imap_as_expecting_username;
 		strcpy(IMAP->authseq, parms[0]);
 		return;
+	}
+
+	else if (!strcasecmp(parms[2], "PLAIN")) {
+		if (num_parms != 4) {
+			cprintf("%s BAD incorrect number of parameters\r\n",
+				parms[0]);
+			return;
+		}
+		if (CC->logged_in) {
+			cprintf("%s BAD Already logged in.\r\n", parms[0]);
+			return;
+		}
+		strcpy(plain_authident, parms[3]);
+		strcpy(plain_username, &parms[3][strlen(plain_authident)+2]);
+		strcpy(plain_password, &parms[3][strlen(plain_authident)+strlen(plain_username)+3]);
+		if (CtdlLoginExistingUser(plain_username) == login_ok) {
+			if (CtdlTryPassword(plain_password) == pass_ok) {
+				cprintf("%s OK login successful\r\n", parms[0]);
+				return;
+			}
+        	}
+		cprintf("%s BAD i=%s u=%s p=%s FIXME\r\n", parms[0],
+			plain_authident, plain_username, plain_password);
 	}
 
 	else {
@@ -388,7 +414,7 @@ void imap_auth_login_pass(char *cmd) {
  * implements the CAPABILITY command
  */
 void imap_capability(int num_parms, char *parms[]) {
-	cprintf("* CAPABILITY IMAP4 IMAP4REV1 AUTH=LOGIN");
+	cprintf("* CAPABILITY IMAP4 IMAP4REV1 AUTH=PLAIN AUTH=LOGIN");
 
 #ifdef HAVE_OPENSSL_XXX /* temporarily disabled due to bugs */
 	cprintf(" STARTTLS");

@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.27  2004/02/12 04:16:38  ajc
+ * Support for PLAIN logins in IMAP (need to test!)
+
  Revision 614.26  2004/02/11 03:50:49  ajc
  * The groupware folders "Calendar", "Contacts", "Notes", and "Tasks" are
    now presented as subfolders of INBOX when using IMAP.  This is for the
@@ -5313,4 +5316,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
