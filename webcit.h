@@ -163,8 +163,6 @@ struct wc_attachment {
 	char *data;
 };
 
-#define CHATLINES 8
-
 /*
  * One of these is kept for each active Citadel session.
  * HTTP transactions are bound to one at a time.
@@ -220,7 +218,6 @@ struct wcsession {
 	char ImportantMessage[SIZ];
 	int outside_frameset_allowed;	/* nonzero if current req is allowed
 					 * outside of the main frameset */
-	char chatlines[CHATLINES][SIZ];
 };
 
 #define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
@@ -265,6 +262,8 @@ void serv_printf(const char *format,...);
 char *bstr(char *key);
 void urlesc(char *, char *);
 void urlescputs(char *);
+void jsesc(char *, char *);
+void jsescputs(char *);
 void output_headers(int);
 void wprintf(const char *format,...);
 void output_static(char *what);

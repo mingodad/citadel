@@ -118,23 +118,32 @@ void page_user(void)
 void do_chat(void)
 {
 
-	output_headers(1);
+	output_headers(3);
 
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#000077\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">"
 		"<IMG SRC=\"/static/chat-icon.gif\" WIDTH=16 HEIGHT=16 ALIGN=MIDDLE>"
-		"Real-time chat</SPAN>\n"
+	);
+	escputs(WC->wc_roomname);
+	wprintf(": real-time chat</SPAN>\n"
 		"</TD></TR></TABLE>\n"
-		"<IFRAME WIDTH=100%% HEIGHT=200 SRC=\"/chat_recv\" "
-		"NAME=\"chat_recv\">\n"
+
+		"<IFRAME WIDTH=100%% HEIGHT=200 SRC=\"about:blank\" "
+		"NAME=\"chat_transcript\">\n"
 		"<!-- Alternate content for non-supporting browsers -->\n"
 		"If you are seeing this message, your browser does not contain\n"
 		"the IFRAME support required for the chat window.  Please upgrade\n"
 		"to a supported browser, such as\n"
 		"<A HREF=\"http://www.mozilla.org\">Mozilla</A>.\n"
 		"</IFRAME>\n"
-		"<HR width=100%%>\n"
-		"<IFRAME WIDTH=100%% HEIGHT=50 SRC=\"/chat_send\" "
+
+		"<IFRAME WIDTH=100%% HEIGHT=1 SRC=\"/chat_recv\" "
+		"NAME=\"chat_recv\">\n"
+		"</IFRAME>"
+
+		"<BR>\n"
+
+		"<IFRAME WIDTH=100%% HEIGHT=60 SRC=\"/chat_send\" "
 		"NAME=\"chat_send\">\n"
 		"</IFRAME>\n"
 	);
@@ -191,10 +200,6 @@ int setup_chat_socket(void) {
 
 	if (WC->chat_sock < 0) {
 
-		for (i=0; i<CHATLINES; ++i) {
-			strcpy(WC->chatlines[i], "");
-		}
-
 		if (!strcasecmp(ctdlhost, "uds")) {
 			/* unix domain socket */
 			sprintf(buf, "%s/citadel.socket", ctdlport);
@@ -229,7 +234,6 @@ int setup_chat_socket(void) {
 						serv_gets(buf);
 						if (buf[0] == '8') {
 							good_chatmode = 1;
-							serv_puts("/help");
 						}
 					}
 				}
@@ -250,15 +254,19 @@ int setup_chat_socket(void) {
 
 
 /*
- * receiving side of the chat window
+ * Receiving side of the chat window.  This is implemented in a
+ * tiny hidden IFRAME that just does JavaScript writes to
+ * other frames whenever it refreshes and finds new data.
  */
 void chat_recv(void) {
 	int i;
-	char name[SIZ];
-	char text[SIZ];
 	struct pollfd pf;
 	int got_data = 0;
 	int end_chat_now = 0;
+	char buf[SIZ];
+	char cl_user[SIZ];
+	char cl_text[SIZ];
+	char *output_data = NULL;
 
 	output_headers(0);
 
@@ -268,7 +276,8 @@ void chat_recv(void) {
 		"<HEAD>\n"
 		"<META HTTP-EQUIV=\"refresh\" CONTENT=\"3\">\n"
 		"</HEAD>\n"
-		"<BODY BGCOLOR=\"#FFFFFF\">"
+
+		"<BODY BGCOLOR=\"#FFFFFF\">\n"
 	);
 
 	if (setup_chat_socket() != 0) {
@@ -280,6 +289,7 @@ void chat_recv(void) {
 	/*
 	 * See if there is any chat data waiting.
 	 */
+	output_data = strdup("");
 	do {
 		got_data = 0;
 		pf.fd = WC->chat_sock;
@@ -288,56 +298,66 @@ void chat_recv(void) {
 		if (poll(&pf, 1, 1) > 0) if (pf.revents & POLLIN) {
 			++got_data;
 
-			for (i=0; i<CHATLINES-1; ++i) {
-				strcpy(WC->chatlines[i], WC->chatlines[i+1]);
-			}
-	
 			/* Temporarily swap the serv and chat sockets during chat talk */
 			i = WC->serv_sock;
 			WC->serv_sock = WC->chat_sock;
 			WC->chat_sock = i;
 	
-			serv_gets(WC->chatlines[CHATLINES-1]);
-			if (!strcmp(WC->chatlines[CHATLINES-1], "000")) {
+			serv_gets(buf);
+
+			if (!strcmp(buf, "000")) {
+				strcpy(buf, ":|exiting chat mode");
 				end_chat_now = 1;
-				strcpy(WC->chatlines[CHATLINES-1], ":|exiting chat mode");
 			}
 			
 			/* Unswap the sockets. */
 			i = WC->serv_sock;
 			WC->serv_sock = WC->chat_sock;
 			WC->chat_sock = i;
-		}
-	} while ( (got_data) && (!end_chat_now) );
 
-	/*
-	 * Display appropriately.
-	 */
-	for (i=0; i<CHATLINES; ++i) {
-		if (strlen(WC->chatlines[i]) > 0) {
-			extract(name, WC->chatlines[i], 0);
-			extract(text, WC->chatlines[i], 1);
-			if (!strcasecmp(name, WC->wc_username)) {
-				wprintf("<FONT COLOR=\"#004400\">");
-			}
-			else if (!strcmp(name, ":")) {
-				wprintf("<FONT COLOR=\"#440000\">");
-			}
-			else {
-				wprintf("<FONT COLOR=\"#000044\">");
-			}
-			escputs(name);
-			wprintf(": </FONT>");
-			escputs(text);
-			wprintf("<BR>\n");
+			/* Append our output data */
+			output_data = realloc(output_data, strlen(output_data) + strlen(buf) + 4);
+			strcat(output_data, buf);
+			strcat(output_data, "\n");
 		}
-	}
+
+	} while ( (got_data) && (!end_chat_now) );
 
 	if (end_chat_now) {
 		close(WC->chat_sock);
 		WC->chat_sock = (-1);
-		wprintf("<IMG SRC=\"/static/blank.gif\" onLoad=\"top.location.replace('/do_welcome');\">\n");
+		wprintf("<IMG SRC=\"/static/blank.gif\" onLoad=\"parent.location.replace('/display_main_menu');\">\n");
 	}
+
+	if (strlen(output_data) > 0) {
+
+		if (output_data[strlen(output_data)-1] == '\n') {
+			output_data[strlen(output_data)-1] = 0;
+		}
+
+		/* Output our fun to the other frame. */
+		wprintf("<IMG SRC=\"/static/blank.gif\" WIDTH=1 HEIGHT=1\n"
+			"onLoad=\" \n"
+		);
+
+		for (i=0; i<num_tokens(output_data, '\n'); ++i) {
+			extract_token(buf, output_data, i, '\n');
+			extract_token(cl_user, buf, 0, '|');
+			extract_token(cl_text, buf, 1, '|');
+
+			wprintf("parent.chat_transcript.document.write('");
+			wprintf("<FONT SIZE=-1><B>");
+			jsescputs(cl_user);
+			wprintf(":</B> ");
+			jsescputs(cl_text);
+			wprintf("</FONT><BR>");
+			wprintf("'); \n");
+		}
+
+		wprintf("parent.chat_transcript.scrollTo(999999,999999);\">\n");
+	}
+
+	free(output_data);
 
 	wprintf("</BODY></HTML>\n");
 	wDumpContent(0);
@@ -367,6 +387,10 @@ void chat_send(void) {
 
 	if (bstr("sendbutton") != NULL) {
 
+		if (!strcasecmp(bstr("sendbutton"), "Help")) {
+			strcpy(send_this, "/help");
+		}
+
 		if (!strcasecmp(bstr("sendbutton"), "Exit")) {
 			strcpy(send_this, "/quit");
 		}
@@ -391,10 +415,10 @@ void chat_send(void) {
 
 	}
 
-	wprintf("Send: ");
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/chat_send\" NAME=\"chatsendform\">\n");
 	wprintf("<INPUT TYPE=\"text\" SIZE=\"80\" MAXLENGTH=\"80\" NAME=\"send_this\">\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sendbutton\" VALUE=\"Send\">\n");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"sendbutton\" VALUE=\"Help\">\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sendbutton\" VALUE=\"Exit\">\n");
 	wprintf("</FORM>\n");
 
