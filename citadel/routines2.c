@@ -610,7 +610,7 @@ void do_system_configuration(void) {
 	strprompt("Modem dialup number", &sc[3][0], 15);
 
 	sprintf(&sc[4][0], "%d", (boolprompt(
-		"Automatically give room aide privs to creators of private rooms",
+		"Automatically give room aide privs to a user who creates a private room",
 		atoi(&sc[4][0]))));
 
 	strprompt("Server connection idle timeout (in seconds)", &sc[5][0], 4);
@@ -671,7 +671,7 @@ void do_system_configuration(void) {
 		serv_puts("CONF set");
 		serv_gets(buf);
 		if (buf[0] == '4') {
-			for (a=0; a<16; ++a) serv_puts(&sc[a][0]);
+			for (a=0; a<18; ++a) serv_puts(&sc[a][0]);
 			serv_puts("000");
 			}
 
