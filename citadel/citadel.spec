@@ -2,7 +2,7 @@
 Summary: Citadel/UX, the flexible, powerful way to build online communities
 Name: citadel
 Version: 6.20p1
-Release: 2
+Release: 3
 Copyright: GPL
 Group: Applications/Communications
 Source0: http://my.citadel.org/download/citadel-ux-%{PACKAGE_VERSION}.tar.gz
@@ -42,7 +42,7 @@ driven, and accessible via a growing selection of front ends.
 %setup -n citadel
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" ./configure --with-pam --enable-autologin --with-ldap --with-newt --with-libical
+CFLAGS="$RPM_OPT_FLAGS" ./configure --with-pam --enable-autologin --with-ldap --without-newt --with-libical
 make
 
 %install
