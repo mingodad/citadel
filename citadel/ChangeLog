@@ -1,6 +1,8 @@
 Thu Nov 19 23:28:33 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Fixed serv_upgrade.c and export5.c (found elsewhere) to use a new
 	  export format which treats visits as a separate section
+	* serv_expire.c: began writing functions to purge rooms and visits
+	  (neither work yet), and added a way to call defrag_databases()
 
 Wed Nov 18 23:51:17 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Reimplemented 'visit' structs stored globally instead of as

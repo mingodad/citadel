@@ -135,6 +135,19 @@ void PurgeMessages(void) {
 	}
 
 
+void DoPurgeRooms(struct quickroom *qrbuf) {
+	lprintf(9, "%30s (%5ld) %s",
+		qrbuf->QRname,
+		qrbuf->QRnumber,
+		asctime(localtime(&qrbuf->QRmtime)));
+	}
+
+
+void PurgeRooms(void) {
+	ForEachRoom(DoPurgeRooms);
+	}
+
+
 void do_user_purge(struct usersupp *us) {
 	int purge;
 	time_t now;
@@ -211,6 +224,29 @@ int PurgeUsers(void) {
 	}
 
 
+
+int PurgeVisits(void) {
+	struct cdbdata *cdbvisit;
+	struct visit vbuf;
+	int purged = 0;
+
+	struct quickroom qr;
+	struct usersupp us;
+
+	cdb_rewind(CDB_VISIT);
+	while(cdbvisit = cdb_next_item(CDB_VISIT), cdbvisit != NULL) {
+		memset(&vbuf, 0, sizeof(struct visit));
+		memcpy(&vbuf, cdbvisit->ptr,
+			( (cdbvisit->len > sizeof(struct visit)) ?
+			sizeof(struct visit) : cdbvisit->len) );
+		cdb_free(cdbvisit);
+
+		++purged;
+		}
+	return(purged);
+	}
+
+
 void cmd_expi(char *argbuf) {
 	char cmd[256];
 	int retval;
@@ -238,123 +274,29 @@ void cmd_expi(char *argbuf) {
 		cprintf("%d Finished purging messages.\n", OK);
 		return;
 		}
+	else if (!strcasecmp(cmd, "rooms")) {
+		PurgeRooms();
+		cprintf("%d Finished purging rooms.\n", OK);
+		return;
+		}
+	else if (!strcasecmp(cmd, "visits")) {
+		retval = PurgeVisits();
+		cprintf("%d There are %d visits...\n", OK, retval);
+		}
+	else if (!strcasecmp(cmd, "defrag")) {
+		defrag_databases();
+		cprintf("%d Defragmented the databases.\n", OK);
+		}
 	else {
 		cprintf("%d Invalid command.\n", ERROR+ILLEGAL_VALUE);
 		return;
 		}
 	}
 
-/****************************************************************************
-                  BEGIN TEMPORARY STUFF 
- */
 
-void reindex_this_msglist(struct quickroom *qrbuf) {
-	struct cdbdata *c;
-	char dbkey[256];
-	int a;
-
-	getroom(qrbuf, qrbuf->QRname);
-
-	sprintf(dbkey, "%s%ld", qrbuf->QRname, qrbuf->QRgen);
-	for (a=0; a<strlen(dbkey); ++a) dbkey[a]=tolower(dbkey[a]);
-
-	c = cdb_fetch(CDB_MSGLISTS, dbkey, strlen(dbkey));
-	if (c != NULL) {
-		cprintf("Converting msglist for <%s><%ld>\n",
-			qrbuf->QRname, qrbuf->QRnumber);
-		cdb_delete(CDB_MSGLISTS, dbkey, strlen(dbkey));
-		cdb_store(CDB_MSGLISTS,
-			&qrbuf->QRnumber, sizeof(long),
-			c->ptr, c->len);
-		cdb_free(c);
-		}
-	else {
-		cprintf("NOT converting msglist for <%s><%ld>\n",
-			qrbuf->QRname, qrbuf->QRnumber);
-		}
-
-	}
-
-void reindex_msglists(void) {
-	ForEachRoom(reindex_this_msglist);
-	}
-
-void number_thisroom(struct quickroom *qrbuf) {
-	getroom(qrbuf, qrbuf->QRname);
-	cprintf("%s\n", qrbuf->QRname);
-	if (qrbuf->QRnumber == 0L) {
-		qrbuf->QRnumber = get_new_room_number();
-		cprintf("    * assigned room number %ld\n", qrbuf->QRnumber);
-		}
-	putroom(qrbuf, qrbuf->QRname);
-	}
-
-void rewrite_a_visit(struct usersupp *rel_user) {
-	struct cdbdata *cdbvisit;
-	struct oldvisit *visits;
-	struct quickroom qrbuf;
-	int num_visits;
-	int a;
-	struct visit vbuf;
-
-	cdbvisit = cdb_fetch(CDB_VISIT, &rel_user->usernum, sizeof(long));
-	if (cdbvisit != NULL) {
-		num_visits = cdbvisit->len / sizeof(struct oldvisit);
-		visits = (struct oldvisit *)
-			malloc(num_visits * sizeof(struct oldvisit));
-		memcpy(visits, cdbvisit->ptr,
-			(num_visits * sizeof(struct oldvisit)));
-		cdb_free(cdbvisit);
-		cdb_delete(CDB_VISIT, &rel_user->usernum, sizeof(long));
-		}
-	else {
-		num_visits = 0;
-		visits = NULL;
-		}
-
-	if (num_visits > 0) {
-		for (a=0; a<num_visits; ++a) {
-			getroom(&qrbuf, visits[a].v_roomname);
-			vbuf.v_flags = visits[a].v_flags;
-			vbuf.v_lastseen = visits[a].v_lastseen;
-			CtdlSetRelationship(&vbuf,
-				rel_user,
-				&qrbuf);
-			cprintf("SetR: <%ld><%ld><%ld> <%d> <%ld>\n",
-				vbuf.v_roomnum,
-				vbuf.v_roomgen,
-				vbuf.v_usernum,
-				vbuf.v_flags,
-				vbuf.v_lastseen);
-			}
-		free(visits);
-		}
-	}
-
-void rewrite_visits(void) {
-	ForEachUser(rewrite_a_visit);
-	}
-
-void number_rooms(void) {
-	ForEachRoom(number_thisroom);
-	}
-
-void cmd_aaaa(char *argbuf) {
-	cprintf("%d Here goes...\n", LISTING_FOLLOWS);
-	number_rooms();
-	reindex_msglists();
-	rewrite_visits();
-	cprintf("000\n");
-	}
-
-
-
-/*                  END TEMPORARY STUFF
- ****************************************************************************/
 
 struct DLModule_Info *Dynamic_Module_Init(void)
 {
-   CtdlRegisterProtoHook(cmd_aaaa, "AAAA", "convert");
    CtdlRegisterProtoHook(cmd_expi, "EXPI", "Expire old system objects");
    return &info;
 }
