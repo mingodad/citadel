@@ -250,7 +250,6 @@ void list_all_rooms_by_floor(void)
 
 	load_floorlist();
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE width=100% border><TR><TH>Floor</TH>");
@@ -297,7 +296,6 @@ void list_all_rooms_by_floor(void)
  */
 void zapped_list(void)
 {
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\" SIZE=+1 COLOR=\"FFFFFF\"");
@@ -409,10 +407,9 @@ void gotoroom(char *gname, int display_name)
 
 
 	if (display_name) {
-		wprintf("HTTP/1.0 200 OK\n");
-                printf("Pragma: no-cache\n");
-                printf("Cache-Control: no-store\n");
 		output_headers(0);
+                wprintf("Pragma: no-cache\n");
+                wprintf("Cache-Control: no-store\n");
 
 		wprintf("<HTML><HEAD>\n"
 			"<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">\n"
@@ -647,7 +644,6 @@ void display_editroom(void)
 	er_floor = extract_int(&buf[4], 4);
 
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
@@ -964,7 +960,6 @@ void display_entroom(void)
 		display_error(&buf[4]);
 		return;
 	}
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
@@ -1046,7 +1041,6 @@ void entroom(void)
 void display_private(char *rname, int req_pass)
 {
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
@@ -1109,7 +1103,6 @@ void goto_private(void)
 		display_private(bstr("gr_name"), 1);
 		return;
 	}
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 	wprintf("%s\n", &buf[4]);
 	wDumpContent(1);
@@ -1122,7 +1115,6 @@ void goto_private(void)
  */
 void display_zap(void)
 {
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
@@ -1189,7 +1181,6 @@ void confirm_delete_room(void)
 		display_error(&buf[4]);
 		return;
 	}
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");

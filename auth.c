@@ -47,7 +47,6 @@ void display_login(char *mesg)
 {
 	char buf[256];
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(3);
 
 	/* Da banner */
@@ -184,7 +183,6 @@ void do_logout(void)
 	strcpy(WC->wc_password, "");
 	strcpy(WC->wc_roomname, "");
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(2);	/* note "2" causes cookies to be unset */
 
 	wprintf("<CENTER>");
@@ -218,7 +216,6 @@ void validate(void)
 	char buf[256];
 	int a;
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	strcpy(buf, bstr("user"));
@@ -297,7 +294,6 @@ void display_reg(int during_login)
 	char buf[256];
 	int a;
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
@@ -401,7 +397,6 @@ void display_changepw(void)
 {
 	char buf[256];
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");

@@ -49,7 +49,6 @@ void whobbs(void)
 	char buf[256], sess, user[256], room[256], host[256];
 	int foundit;
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
@@ -168,7 +167,6 @@ void terminate_session(void)
 			display_error(&buf[4]);
 		}
 	} else {
-		wprintf("HTTP/1.0 200 OK\n");
 		output_headers(1);
 		wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
 		wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\" SIZE=+1 COLOR=\"FFFFFF\"<B>Confirm session termination");
@@ -217,7 +215,6 @@ void edit_me(void)
 		whobbs();
 	} else {
 
-		wprintf("HTTP/1.0 200 OK\n");
 		output_headers(1);
 
 		wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");

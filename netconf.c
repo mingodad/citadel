@@ -41,7 +41,6 @@ void display_edit_node(void)
 
 	strcpy(node, bstr("node"));
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -86,7 +85,6 @@ void display_netconf(void)
 	char buf[256];
 	char node[256];
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -130,7 +128,6 @@ void display_confirm_unshare(void)
 	char node[256];
 	char sroom[256];
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -158,7 +155,6 @@ void display_confirm_delete_node(void)
 {
 	char node[256];
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -187,7 +183,6 @@ void delete_node(void)
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] == '1') {
-		wprintf("HTTP/1.0 200 OK\n");
 		output_headers(1);
 		server_to_text();
 		wprintf("<A HREF=\"/display_netconf\">Back to menu</A>\n");
@@ -210,7 +205,6 @@ void unshare(void)
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] == '1') {
-		wprintf("HTTP/1.0 200 OK\n");
 		output_headers(1);
 		server_to_text();
 		wprintf("<A HREF=\"/display_netconf\">Back to menu</A>\n");
@@ -225,7 +219,6 @@ void unshare(void)
 void display_add_node(void)
 {
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -261,7 +254,6 @@ void add_node(void)
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] == '1') {
-			wprintf("HTTP/1.0 200 OK\n");
 			output_headers(1);
 			server_to_text();
 			wprintf("<A HREF=\"/display_netconf\">Back to menu</A>\n");
@@ -285,7 +277,6 @@ void display_share(void)
 
 	strcpy(node, bstr("node"));
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -365,7 +356,6 @@ void share(void)
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] == '1') {
-			wprintf("HTTP/1.0 200 OK\n");
 			output_headers(1);
 			server_to_text();
 			wprintf("<A HREF=\"/display_netconf\">Back to menu</A>\n");

@@ -34,7 +34,6 @@ void display_siteconfig(void)
 	char buf[256];
 	int i;
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	serv_printf("CONF get");

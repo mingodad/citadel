@@ -30,7 +30,6 @@ void display_page(void)
 	char buf[256];
 	char user[256];
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
@@ -80,7 +79,6 @@ void page_user(void)
 	char sc[256];
 	char buf[256];
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	strcpy(recp, bstr("recp"));
@@ -112,7 +110,6 @@ void page_user(void)
 void do_chat(void)
 {
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");

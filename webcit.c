@@ -295,6 +295,8 @@ void output_headers(int print_standard_html_head)
 	static char *unset = "; expires=28-May-1971 18:10:00 GMT";
 	char cookie[256];
 
+	wprintf("HTTP/1.0 200 OK\n");
+
 	if (print_standard_html_head > 0) {
 		wprintf("Content-type: text/html\n");
 		wprintf("Server: %s\n", SERVER);
@@ -409,7 +411,6 @@ void output_static(char *what)
 		wprintf("\n");
 		wprintf("Cannot open %s: %s\n", what, strerror(errno));
 	} else {
-		wprintf("HTTP/1.0 200 OK\n");
 		output_headers(0);
 
 		if (!strncasecmp(&what[strlen(what) - 4], ".gif", 4))
@@ -456,7 +457,6 @@ void output_image()
 	serv_gets(buf);
 	if (buf[0] == '2') {
 		bytes = extract_long(&buf[4], 0);
-		wprintf("HTTP/1.0 200 OK\n");
 		output_headers(0);
 		wprintf("Content-type: image/gif\n");
 		wprintf("Content-length: %ld\n", (long) bytes);
@@ -874,7 +874,6 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "display_menubar")) {
 		display_menubar(1);
 	} else if (!strcasecmp(action, "diagnostics")) {
-		wprintf("HTTP/1.0 200 OK\n");
 		output_headers(1);
 
 		wprintf("You're in session %d<HR>\n", WC->wc_session);

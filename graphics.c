@@ -30,7 +30,6 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 		display_error(&buf[4]);
 		return;
 	}
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -104,7 +103,6 @@ void select_floor_to_edit_pic(void)
 {
 	int a;
 
-	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
