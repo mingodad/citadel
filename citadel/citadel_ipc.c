@@ -11,7 +11,6 @@
 #  include <time.h>
 # endif
 #endif
-#include <signal.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <string.h>
@@ -403,7 +402,6 @@ int CtdlIPCGetSingleMessage(long msgnum, int headers, int as_mime,
 				int a;
 
 				extract_token(aaa, bbb, 0, '\n');
-				raise(SIGTRAP);
 				a = strlen(aaa);
 				safestrncpy(bbb, &bbb[a + 1], strlen(bbb) - a);
 

@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.55  2002/06/25 14:21:35  error
+ * remove a debugging trap I accidentally left in the code
+
  Revision 591.54  2002/06/24 20:17:43  error
  * Fixed code for client segfault at login
 
@@ -3770,3 +3773,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
