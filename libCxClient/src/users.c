@@ -149,15 +149,17 @@ int		rc;
 			sprintf(xmit,"PASS %s",passwd);
 		} else {
 			tmp = CxClGetPass( id );
-			if(!tmp) tmp = strdup("");
-
-			xmit = (char *)CxMalloc(strlen(tmp)+6);
-			sprintf(xmit,"PASS %s",tmp);
+			if(tmp) {
+				xmit = (char *)CxMalloc(strlen(tmp)+6);
+				sprintf(xmit,"PASS %s",tmp);
+			} else {
+				xmit = (char *)CxMalloc(6);
+				sprintf(xmit, "PASS ");
+			}
 		}
 		CxClSend(id, xmit);
 		CxFree(xmit);
-
-		if(tmp) free(tmp);
+		if(tmp) CxFree(tmp);
 
 		DPF((DFA,"Validating password"));
 		rc = CxClRecv(id, buf);

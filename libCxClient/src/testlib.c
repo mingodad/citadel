@@ -71,6 +71,7 @@ int		hndl;
 		}
 
 		CxClCbShutdown();
+		CxClDelete( hndl );
 
 	} else {
 		printf("Unable to connect to '%s'!\n", argv[1]);

@@ -105,7 +105,7 @@ CXHNDL		ret = 0;
 
 	DPF((DFA, "Creating new CXTBL handle."));
 
-	ret = (CXHNDL) malloc( sizeof(CXTBLENT) );
+	ret = (CXHNDL) CxMalloc( sizeof(CXTBLENT) );
 	if(ret<=0) return(NULL);
 
 	/**
@@ -175,10 +175,12 @@ char		*tmp;
 	DPF((DFA,"Copying host"));
 	if(host && *host) {
 		if(strlen(host) >= 254) {
-			tmp = strdup(host);
+			tmp = (char *)CxMalloc( 255 );
+			strcpy( tmp, host );
 			tmp[254] = 0;
 			strcpy(n->host, tmp);
-			free(tmp);
+			CxFree(tmp);
+
 		} else {
 			strcpy(n->host, host);
 		}
@@ -187,10 +189,11 @@ char		*tmp;
 	DPF((DFA,"Copying user"));
 	if(user && *user) {
 		if(strlen(user) >= 64) {
-			tmp = strdup(user);
+			tmp = (char *)CxMalloc( 65 );
+			strcpy( tmp, user );
 			tmp[64] = 0;
 			strcpy(n->user, tmp);
-			free(tmp);
+			CxFree(tmp);
 		} else {
 			strcpy(n->user, user);
 		}
@@ -199,10 +202,11 @@ char		*tmp;
 	DPF((DFA,"Copying pass"));
 	if(pass && *pass) {
 		if(strlen(pass) >= 64) {
-			tmp = strdup(pass);
+			tmp = (char *)CxMalloc( 65 );
+			strcpy( tmp, pass );
 			tmp[64] = 0;
 			strcpy(n->pass, tmp);
-			free(tmp);
+			CxFree(tmp);
 		} else {
 			strcpy(n->pass, pass);
 		}
@@ -260,7 +264,7 @@ CXHNDL		p;
 		 ** This was the only entry in the CxTbl.
 		 **/
 		if( !p->_next && !p->_prev ) {
-			free(p);
+			CxFree(p);
 			g_CxTbl = NULL;
 
 		/**
@@ -272,7 +276,7 @@ CXHNDL		p;
 
 			if( g_CxTbl == p ) g_CxTbl = p->_next;
 
-			free( p );
+			CxFree(p);
 		}
 	}
 	DPF((DFA,"g_CxTbl @0x%08x", g_CxTbl));
@@ -331,15 +335,23 @@ CXHNDL		e;
 
 /**
  ** CxClGetUser(): Set the username for a specific connection handle.
+ ** [*] FREE the results of this operation!!
  **/
 char		*CxClGetUser( int id ) {
 CXHNDL		e;
+char		*ret;
 
 	e = _CxTbEntry( g_CxTbl, id );
 	if(!e) return(NULL);
 
-	if(e->user) return(strdup(e->user));
-	else return(NULL);
+	if(e->user[0]) {
+		ret = (char *)CxMalloc( strlen( e->user ) + 1 );
+		strcpy( ret, e->user );
+		return( ret );
+
+	} else {
+		return(NULL);
+	}
 }
 
 /**
@@ -362,12 +374,19 @@ CXHNDL		e;
  **/
 char		*CxClGetPass( int id ) {
 CXHNDL		e;
+char		*ret;
 
 	e = _CxTbEntry( g_CxTbl, id );
 	if(!e) return(NULL);
 
-	if(e->user) return(strdup(e->pass));
-	else return(NULL);
+	if(e->pass) {
+		ret = (char *)CxMalloc( strlen(e->pass) +1 );
+		strcpy(ret, e->pass);
+		return(ret);
+
+	} else {
+		return(NULL);
+	}
 }
 
 /**
