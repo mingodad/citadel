@@ -172,6 +172,9 @@ int main (int argc, char *argv[]) {
 		fprintf(fp, "O%s%c", argv[2], 0);	/* room */
 		fprintf(fp, "C%s%c", argv[2], 0);	/* room */
 		fprintf(fp, "N%s%c", argv[3], 0);	/* orig node */
+		if (itemptr->data->guid != NULL) {
+			fprintf(fp, "E%s%c", itemptr->data->guid, 0);	/* guid=euid*/
+		}
 		if (itemptr->data->title != NULL) {
 			fprintf(fp, "U%s%c", itemptr->data->title, 0);	/* subject */
 		}
