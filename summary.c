@@ -127,8 +127,10 @@ void wholist_section(void) {
  * Task list section
  */
 void tasks_section(void) {
+#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	int num_msgs = 0;
 	int i;
+#endif
 
 	svprintf("BOXTITLE", WCS_STRING, "Tasks");
 	do_template("beginbox");
@@ -163,8 +165,10 @@ void tasks_section(void) {
  * Calendar section
  */
 void calendar_section(void) {
+#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	int num_msgs = 0;
 	int i;
+#endif
 
 	svprintf("BOXTITLE", WCS_STRING, "Today&nbsp;on&nbsp;your&nbsp;calendar");
 	do_template("beginbox");

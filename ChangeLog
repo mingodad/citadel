@@ -1,4 +1,8 @@
 $Log$
+Revision 410.31  2003/05/19 19:55:09  ajc
+* summary.c: eliminate compiler warnings about unused variables when
+  compiling a WebCit service without calendar support
+
 Revision 410.30  2003/05/18 02:05:33  ajc
 * More conversion of screens to the new look-and-feel.
 
@@ -1400,3 +1404,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
