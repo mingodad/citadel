@@ -54,12 +54,10 @@ unsigned long SYM_VCARD;
 
 
 /*
- * back end function used by vcard_upload_beforesave()
+ * back end function used for callbacks
  */
-void vcard_replace_backend(long msgnum) {
-	lprintf(9, "doing the replace thing for <%ld>\n", msgnum);
-	CtdlDeleteMessages(CONFIGROOM, msgnum, NULL);
-	CtdlDeleteMessages(ADDRESS_BOOK_ROOM, msgnum, NULL);
+void vcard_gm_backend(long msgnum) {
+	VC->msgnum = msgnum;
 }
 
 
@@ -74,6 +72,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	int linelen;
         char hold_rm[ROOMNAMELEN];
         char config_rm[ROOMNAMELEN];
+	char buf[256];
 
 	/* If this isn't the configuration room, or if this isn't a MIME
 	 * message, don't bother.
@@ -99,8 +98,20 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
                 		getroom(&CC->quickroom, hold_rm);
                 		return(1);			/* abort */
         		}
+			VC->msgnum = (-1L);
         		CtdlForEachMessage(MSGS_ALL, 0,
-				"text/x-vcard", vcard_replace_backend);
+				"text/x-vcard", vcard_gm_backend);
+
+			if (VC->msgnum >= 0) {
+				if (msg->cm_fields['Z'] != NULL)
+					phree(msg->cm_fields['Z']);
+				sprintf(buf, "%ld@%s", VC->msgnum, NODENAME);
+				msg->cm_fields['Z'] = strdoop(buf);
+				lprintf(9, "replacing <%s>\n", buf);
+			}
+
+			CtdlDeleteMessages(config_rm, 0L, "text/x-vcard");
+
         		getroom(&CC->quickroom, hold_rm);	/* return rm */
 			return(0);
 		}
@@ -123,8 +134,11 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 int vcard_upload_aftersave(struct CtdlMessage *msg) {
 	char *ptr;
 	int linelen;
-	long msgid;
+	long Z, I;
 	struct quickroom qrbuf;
+	char buf[256];
+
+	lprintf(9, "entering aftersave hook\n");
 
 	/* If this isn't the configuration room, or if this isn't a MIME
 	 * message, don't bother.
@@ -140,16 +154,36 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 		
 		if (!strncasecmp(ptr, "Content-type: text/x-vcard", 26)) {
 			/* Bingo!  The user is uploading a new vCard, so
-			 * delete the old one.
+			 * copy it to the Global Address Book room.
 			 */
+			lprintf(9, "activated aftersave hook\n");
 
-			msgid = atol(msg->cm_fields['I']);
-			if (msgid < 0L) return(0);
+			I = atol(msg->cm_fields['I']);
+			if (I < 0L) return(0);
 
+			Z = (-1L);
+			if (msg->cm_fields['Z'] != NULL) {
+				extract_token(buf, msg->cm_fields['Z'], 1, '@');
+				if (!strcasecmp(buf, NODENAME)) {
+					extract_token(buf, msg->cm_fields['Z'],
+						0, '@');
+					Z = atol(buf);
+				}
+			}
+
+			lprintf(9, "calling getroom\n");
 			if (getroom(&qrbuf, ADDRESS_BOOK_ROOM) != 0) return(0);
-			AddMessageToRoom(&qrbuf, msgid);
-			AdjRefCount(msgid, +1);
+			lprintf(9, "calling AddMessageToRoom\n");
+			AddMessageToRoom(&qrbuf, I);
+			lprintf(9, "calling AdjRefCount\n");
+			AdjRefCount(I, +1);
 
+			if (Z > 0L) {
+				lprintf(9, "Deleting the old one\n");
+				CtdlDeleteMessages(ADDRESS_BOOK_ROOM, Z, NULL); 
+			}
+
+			lprintf(9, "finishing aftersave hook\n");
 			return(0);
 		}
 
@@ -157,17 +191,10 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 		if (ptr != NULL) ++ptr;
 	}
 
+	lprintf(9, "didn't do anything in hook\n");
 	return(0);
 }
 
-
-
-/*
- * back end function used by vcard_get_user()
- */
-void vcard_gm_backend(long msgnum) {
-	VC->msgnum = msgnum;
-}
 
 
 /*
@@ -404,5 +431,6 @@ char *Dynamic_Module_Init(void)
 	CtdlRegisterMessageHook(vcard_upload_aftersave, EVT_AFTERSAVE);
 	CtdlRegisterProtoHook(cmd_regi, "REGI", "Enter registration info");
 	CtdlRegisterProtoHook(cmd_greg, "GREG", "Get registration info");
+	create_room(ADDRESS_BOOK_ROOM, 0, "", 0);
 	return "$Id$";
 }

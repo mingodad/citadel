@@ -1,12 +1,7 @@
 $Log$
-Revision 1.379  1999/10/06 23:17:44  ajc
-* vCard upload now copies the user's card to the global address book (but it
-  hangs the server if the target room doesn't exist)
-
-Revision 1.378  1999/10/06 03:51:01  ajc
-* Figured out a way to get the user's vCard to automatically delete in the
-  global address book when it's replaced.  Now to find a way to add the new
-  one...
+Revision 1.380  1999/10/07 02:58:46  ajc
+* Semi-broken vCard replacement implementation in place.
+* Added "Z" (Zap, supersede) field to message format
 
 Revision 1.377  1999/10/04 03:19:52  ajc
 * We now have a housekeeping thread and a housekeeping queue.

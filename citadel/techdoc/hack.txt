@@ -113,6 +113,9 @@ T	Date/Time	A 32-bit integer containing the date and time of
 U       Subject         Optional.  Developers may choose whether they wish to
                         generate or display subject fields.  Citadel/UX does
                         not generate them, but it does print them when found.
+Z	Zap (supersede)	Indicates a message which this message supersedes.
+			The format is "user@node" and if the specified message
+			is found, it should be deleted.
   
 			EXAMPLE
 

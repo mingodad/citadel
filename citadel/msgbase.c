@@ -746,6 +746,9 @@ void output_message(char *msgid, int mode, int headers_only)
 		if (TheMessage->cm_fields['U']) {
 			cprintf("subj=%s\n", TheMessage->cm_fields['U']);
 		}
+		if (TheMessage->cm_fields['Z']) {
+			cprintf("zaps=%s\n", TheMessage->cm_fields['Z']);
+		}
 	}
 
 	/* begin header processing loop for RFC822 transfer format */
@@ -1078,8 +1081,8 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 	ret->ser[1] = msg->cm_anon_type;
 	ret->ser[2] = msg->cm_format_type;
 	wlen = 3;
-	lprintf(9, "stuff\n");
 
+	lprintf(9, "stuff\n");
 	for (i=0; i<26; ++i) if (msg->cm_fields[(int)forder[i]] != NULL) {
 		ret->ser[wlen++] = (char)forder[i];
 		strcpy(&ret->ser[wlen], msg->cm_fields[(int)forder[i]]);
@@ -1087,6 +1090,7 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 	}
 	if (ret->len != wlen) lprintf(3, "ERROR: len=%d wlen=%d\n",
 		ret->len, wlen);
+	lprintf(9, "done serializing\n");
 
 	return;
 }
