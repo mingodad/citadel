@@ -1315,6 +1315,11 @@ int fmout(
 
 	/* Run the message body */
 	while (*e) {
+		/* Catch characters that shouldn't be there at all */
+		if (*e == '\r') {
+			e++;
+			continue;
+		}
 		/* First, are we looking at a newline? */
 		if (*e == '\n') {
 			e++;
