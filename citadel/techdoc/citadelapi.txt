@@ -18,26 +18,26 @@ the person documenting it have a chance to mature a bit.  :)
   USER RELATED FUNCTIONS
   ----------------------
  
- The fundamental user data is stored in "struct usersupp" which is defined
+ The fundamental user data is stored in "struct user" which is defined
 in citadel.h.  The following functions are available:
   
  
- int getuser(struct usersupp *usbuf, char name[])
+ int getuser(struct user *usbuf, char name[])
  
- Given the name of a requested user and a buffer to store the usersupp
+ Given the name of a requested user and a buffer to store the user
 record in, getuser() will search the userlog for the named user and load its
 data into the buffer.  getuser() returns 0 upon success or a nonzero error
 code if the requested operation could not be performed.
  
  
- void putuser(struct usersupp *usbuf, char *name)
+ void putuser(struct user *usbuf, char *name)
  
  After reading in a user record with getuser() and perhaps modifying the data
 in some way, a program may use putuser() to write it back to disk.
  
  
- int lgetuser(struct usersupp *usbuf, char *name)
- void lputuser(struct usersupp *usbuf, char *name)
+ int lgetuser(struct user *usbuf, char *name)
+ void lputuser(struct user *usbuf, char *name)
  
  If critical-section operation is required, this pair of calls may be used.
 They function the same as getuser() and putuser(), except that lgetuser()
@@ -51,14 +51,14 @@ multiple files may result in a deadlock condition which would freeze the
 entire server.
  
    
- void ForEachUser(void (*CallBack)(struct usersupp *EachUser))
+ void ForEachUser(void (*CallBack)(struct user *EachUser))
  
  This allows a user-supplied function to be called once for each user on
 the system.  The user-supplied function will be called with a pointer to a
-usersupp structure as its only argument.
+user structure as its only argument.
   
  
- int getuserbynumber(struct usersupp *usbuf, long int number)
+ int getuserbynumber(struct user *usbuf, long int number)
  
  getuserbynumber() functions similarly to getuser(), except that it is
 supplied with a user number rather than a name.  Calling this function
@@ -187,11 +187,11 @@ registered.
   FUNCTIONS WHICH MANIPULATE USER/ROOM RELATIONSHIPS
 
  void CtdlGetRelationship(struct visit *vbuf,
-                        struct usersupp *rel_user,
-                        struct quickroom *rel_room);
+                        struct user *rel_user,
+                        struct room *rel_room);
  void CtdlSetRelationship(struct visit *newvisit,
-                        struct usersupp *rel_user,
-                        struct quickroom *rel_room);
+                        struct user *rel_user,
+                        struct room *rel_room);
  
  These functions get/set a "struct visit" structure which may contain
 information about the relationship between a user and a room.  Specifically:
@@ -221,7 +221,7 @@ as "new messages."
  
   
  
- int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf)
+ int CtdlRoomAccess(struct room *roombuf, struct user *userbuf)
  
  This is a convenience function which uses CtdlGetRelationship() to determine
 whether a user has access to a room.  It returns a bucket of bits which may
@@ -266,7 +266,7 @@ caller may merely check to see if it's possible to create the room without
 actually creating it by setting really_create to 0.
   
  create_room() returns the flags associated with the new room (as in the
-data structure item quickroom.QRflags).  If the room cannot be created (for
+data structure item room.QRflags).  If the room cannot be created (for
 example, a room with the name already exists), it returns 0.
  
  

@@ -196,7 +196,7 @@ int getroom(struct room *qrbuf, char *room_name)
 	memset(qrbuf, 0, sizeof(struct room));
 
 	/* First, try the public namespace */
-	cdbqr = cdb_fetch(CDB_QUICKROOM,
+	cdbqr = cdb_fetch(CDB_ROOMS,
 			  lowercase_name, strlen(lowercase_name));
 
 	/* If that didn't work, try the user's personal namespace */
@@ -204,7 +204,7 @@ int getroom(struct room *qrbuf, char *room_name)
 		snprintf(personal_lowercase_name,
 			 sizeof personal_lowercase_name, "%010ld.%s",
 			 CC->user.usernum, lowercase_name);
-		cdbqr = cdb_fetch(CDB_QUICKROOM,
+		cdbqr = cdb_fetch(CDB_ROOMS,
 				  personal_lowercase_name,
 				  strlen(personal_lowercase_name));
 	}
@@ -229,7 +229,7 @@ int lgetroom(struct room *qrbuf, char *room_name)
 {
 	register int retval;
 	retval = getroom(qrbuf, room_name);
-	if (retval == 0) begin_critical_section(S_QUICKROOM);
+	if (retval == 0) begin_critical_section(S_ROOMS);
 	return(retval);
 }
 
@@ -248,11 +248,11 @@ void b_putroom(struct room *qrbuf, char *room_name)
 	}
 
 	if (qrbuf == NULL) {
-		cdb_delete(CDB_QUICKROOM,
+		cdb_delete(CDB_ROOMS,
 			   lowercase_name, strlen(lowercase_name));
 	} else {
 		time(&qrbuf->QRmtime);
-		cdb_store(CDB_QUICKROOM,
+		cdb_store(CDB_ROOMS,
 			  lowercase_name, strlen(lowercase_name),
 			  qrbuf, sizeof(struct room));
 	}
@@ -283,7 +283,7 @@ void lputroom(struct room *qrbuf)
 {
 
 	putroom(qrbuf);
-	end_critical_section(S_QUICKROOM);
+	end_critical_section(S_ROOMS);
 
 }
 
@@ -387,9 +387,9 @@ void ForEachRoom(void (*CallBack) (struct room *EachRoom, void *out_data),
 	struct room qrbuf;
 	struct cdbdata *cdbqr;
 
-	cdb_rewind(CDB_QUICKROOM);
+	cdb_rewind(CDB_ROOMS);
 
-	while (cdbqr = cdb_next_item(CDB_QUICKROOM), cdbqr != NULL) {
+	while (cdbqr = cdb_next_item(CDB_ROOMS), cdbqr != NULL) {
 		memset(&qrbuf, 0, sizeof(struct room));
 		memcpy(&qrbuf, cdbqr->ptr,
 		       ((cdbqr->len > sizeof(struct room)) ?
@@ -756,7 +756,7 @@ void usergoto(char *where, int display_result, int transiently,
 
 	/* Take care of all the formalities. */
 
-	begin_critical_section(S_USERSUPP);
+	begin_critical_section(S_USERS);
 	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
 
 	/* Know the room ... but not if it's the page log room, or if the
@@ -768,7 +768,7 @@ void usergoto(char *where, int display_result, int transiently,
 		vbuf.v_flags = vbuf.v_flags | V_ACCESS;
 	}
 	CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
-	end_critical_section(S_USERSUPP);
+	end_critical_section(S_USERS);
 
 	/* Check for new mail */
 	newmailcount = NewMailCount();
@@ -965,8 +965,8 @@ void cmd_whok(void)
         }
 
 	cprintf("%d Who knows room:\n", LISTING_FOLLOWS);
-	cdb_rewind(CDB_USERSUPP);
-	while (cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
+	cdb_rewind(CDB_USERS);
+	while (cdbus = cdb_next_item(CDB_USERS), cdbus != NULL) {
 		memset(&temp, 0, sizeof temp);
 		memcpy(&temp, cdbus->ptr, sizeof temp);
 		cdb_free(cdbus);
@@ -1105,7 +1105,7 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 		}
 	}
 
-	begin_critical_section(S_QUICKROOM);
+	begin_critical_section(S_ROOMS);
 
 	if ( (getroom(&qrtmp, new_name) == 0) 
 	   && (strcasecmp(new_name, old_name)) ) {
@@ -1179,7 +1179,7 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 		ret = crr_ok;
 	}
 
-	end_critical_section(S_QUICKROOM);
+	end_critical_section(S_ROOMS);
 
 	/* Adjust the floor reference counts if necessary */
 	if (new_floor != old_floor) {
@@ -1457,7 +1457,7 @@ void delete_room(struct room *qrbuf)
 	unlink(filename);
 
 	/* Delete the messages in the room
-	 * (Careful: this opens an S_QUICKROOM critical section!)
+	 * (Careful: this opens an S_ROOMS critical section!)
 	 */
 	CtdlDeleteMessages(qrbuf->QRname, 0L, "");
 

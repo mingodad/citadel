@@ -184,8 +184,8 @@ struct ChatLine {
  * Various things we need to lock and unlock
  */
 enum {
-	S_USERSUPP,
-	S_QUICKROOM,
+	S_USERS,
+	S_ROOMS,
 	S_SESSION_TABLE,
 	S_FLOORTAB,
 	S_CHATQUEUE,
@@ -235,8 +235,8 @@ enum {
  */
 enum {
 	CDB_MSGMAIN,		/* message base                  */
-	CDB_USERSUPP,		/* user file                     */
-	CDB_QUICKROOM,		/* room index                    */
+	CDB_USERS,		/* user file                     */
+	CDB_ROOMS,		/* room index                    */
 	CDB_FLOORTAB,		/* floor index                   */
 	CDB_MSGLISTS,		/* room message lists            */
 	CDB_VISIT,		/* user/room relationships       */

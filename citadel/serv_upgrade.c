@@ -61,8 +61,8 @@ void do_pre555_user_upgrade(void) {
 	strcpy(tempfilename, tmpnam(NULL));
 
 	/* First, back out all old version records to a flat file */
-        cdb_rewind(CDB_USERSUPP);
-        while(cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
+        cdb_rewind(CDB_USERS);
+        while(cdbus = cdb_next_item(CDB_USERS), cdbus != NULL) {
                 memset(&usbuf, 0, sizeof(struct pre555user));
                 memcpy(&usbuf, cdbus->ptr,
                        	( (cdbus->len > sizeof(struct pre555user)) ?

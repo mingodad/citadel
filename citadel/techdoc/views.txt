@@ -16,7 +16,7 @@ hint as to how to display the contents of a room.  This is kept on a per-user
 basis by storing it in the 'visit' record for a particular room/user
 combination.  It is visit.v_view and is an integer.  Naturally, there also
 needs to be a default, for users who have never visited the room before.  This
-is in the room record as quickroom.QRdefaultview (and is also an integer).
+is in the room record as room.QRdefaultview (and is also an integer).
  
  The values currently defined are:
 

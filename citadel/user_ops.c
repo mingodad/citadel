@@ -88,7 +88,7 @@ int getuser(struct user *usbuf, char name[])
 	}
 	lowercase_name[sizeof(lowercase_name) - 1] = 0;
 
-	cdbus = cdb_fetch(CDB_USERSUPP, lowercase_name, strlen(lowercase_name));
+	cdbus = cdb_fetch(CDB_USERS, lowercase_name, strlen(lowercase_name));
 	if (cdbus == NULL) {	/* user not found */
 		return(1);
 	}
@@ -110,7 +110,7 @@ int lgetuser(struct user *usbuf, char *name)
 
 	retcode = getuser(usbuf, name);
 	if (retcode == 0) {
-		begin_critical_section(S_USERSUPP);
+		begin_critical_section(S_USERS);
 	}
 	return (retcode);
 }
@@ -131,7 +131,7 @@ void putuser(struct user *usbuf)
 	lowercase_name[sizeof(lowercase_name) - 1] = 0;
 
 	usbuf->version = REV_LEVEL;
-	cdb_store(CDB_USERSUPP,
+	cdb_store(CDB_USERS,
 		  lowercase_name, strlen(lowercase_name),
 		  usbuf, sizeof(struct user));
 
@@ -144,7 +144,7 @@ void putuser(struct user *usbuf)
 void lputuser(struct user *usbuf)
 {
 	putuser(usbuf);
-	end_critical_section(S_USERSUPP);
+	end_critical_section(S_USERS);
 }
 
 /*
@@ -303,16 +303,16 @@ int getuserbynumber(struct user *usbuf, long int number)
 {
 	struct cdbdata *cdbus;
 
-	cdb_rewind(CDB_USERSUPP);
+	cdb_rewind(CDB_USERS);
 
-	while (cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
+	while (cdbus = cdb_next_item(CDB_USERS), cdbus != NULL) {
 		memset(usbuf, 0, sizeof(struct user));
 		memcpy(usbuf, cdbus->ptr,
 		       ((cdbus->len > sizeof(struct user)) ?
 			sizeof(struct user) : cdbus->len));
 		cdb_free(cdbus);
 		if (usbuf->usernum == number) {
-			cdb_close_cursor(CDB_USERSUPP);
+			cdb_close_cursor(CDB_USERS);
 			return (0);
 		}
 	}
@@ -706,7 +706,7 @@ int purge_user(char pname[])
 	cdb_delete(CDB_VISIT, &usbuf.usernum, sizeof(long));
 
 	/* delete the userlog entry */
-	cdb_delete(CDB_USERSUPP, lowercase_name, strlen(lowercase_name));
+	cdb_delete(CDB_USERS, lowercase_name, strlen(lowercase_name));
 
 	/* remove the user's bio file */
 	snprintf(filename, sizeof filename, "./bio/%ld", usbuf.usernum);
@@ -1178,8 +1178,8 @@ void cmd_gnur(void)
 	/* There are unvalidated users.  Traverse the user database,
 	 * and return the first user we find that needs validation.
 	 */
-	cdb_rewind(CDB_USERSUPP);
-	while (cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
+	cdb_rewind(CDB_USERS);
+	while (cdbus = cdb_next_item(CDB_USERS), cdbus != NULL) {
 		memset(&usbuf, 0, sizeof(struct user));
 		memcpy(&usbuf, cdbus->ptr,
 		       ((cdbus->len > sizeof(struct user)) ?
@@ -1188,7 +1188,7 @@ void cmd_gnur(void)
 		if ((usbuf.flags & US_NEEDVALID)
 		    && (usbuf.axlevel > 0)) {
 			cprintf("%d %s\n", MORE_DATA, usbuf.fullname);
-			cdb_close_cursor(CDB_USERSUPP);
+			cdb_close_cursor(CDB_USERS);
 			return;
 		}
 	}
@@ -1255,9 +1255,9 @@ void ForEachUser(void (*CallBack) (struct user * EachUser, void *out_data),
 	struct user usbuf;
 	struct cdbdata *cdbus;
 
-	cdb_rewind(CDB_USERSUPP);
+	cdb_rewind(CDB_USERS);
 
-	while (cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
+	while (cdbus = cdb_next_item(CDB_USERS), cdbus != NULL) {
 		memset(&usbuf, 0, sizeof(struct user));
 		memcpy(&usbuf, cdbus->ptr,
 		       ((cdbus->len > sizeof(struct user)) ?

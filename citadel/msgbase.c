@@ -2827,7 +2827,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	 * was in, the reference count will reach zero and the message will
 	 * automatically be deleted from the database.  We do this in a
 	 * separate pass because there might be plug-in hooks getting called,
-	 * and we don't want that happening during an S_QUICKROOM critical
+	 * and we don't want that happening during an S_ROOMS critical
 	 * section.
 	 */
 	if (num_deleted) for (i=0; i<num_deleted; ++i) {

@@ -17,16 +17,14 @@ manager rather than a relational database, all record structures are managed
 by Citadel.  Here are some of the tables we keep on disk:
 
 
- USERSUPP
- --------
+ USER RECORDS
+ ------------
  
- This table contains all user records.  It's called 'usersupp' because it was
-once a supplementary file (at one point in ancient history, we created a user
-record on the underlying operating system for each user).  It's indexed by
+ This table contains all user records.  It's indexed by
 user name (translated to lower case for indexing purposes).  The records in
 this file look something like this:
 
-struct usersupp {                       /* User record                      */
+struct user {                       /* User record                      */
         int version;                    /* Cit vers. which created this rec */
         uid_t uid;                      /* Associate with a unix account?   */
         char password[32];              /* password (for BBS-only users)    */
@@ -61,16 +59,14 @@ user's screen dimensions, but modern networks almost always transmit this
 information so we set it up dynamically.
  
  
- QUICKROOM
- ---------
+ ROOM RECORDS
+ ------------
  
- These are room records.  One per room.  It's called 'quickroom' because at
-one time it was a quick index hash type of thing (there was a pair called
-quickroom and fullroom).  There is a quickroom record for every room on the
+ These are room records.  There is a room record for every room on the
 system, public or private or mailbox.  It's indexed by room name (also in
 lower case for easy indexing) and it contains records which look like this:
 
-struct quickroom {
+struct room {
         char QRname[ROOMNAMELEN];       /* Name of room                     */
         char QRpasswd[10];              /* Only valid if it's a private rm  */
         long QRroomaide;                /* User number of room aide         */
@@ -200,8 +196,8 @@ for quick lookup.  It is generated from data in the Global Address Book room.
 to prevent duplicates from being posted if someone misconfigures the network
 and a loop is created.  This table goes unused on a non-networked Citadel.
 
- MSGMAIN
- -------
+ THE MESSAGE STORE
+ -----------------
  
  This is where all message text is stored.  It's indexed by message number:
 give it a number, get back a message.  Messages are numbered sequentially, and
@@ -389,7 +385,7 @@ regular.
  
   This has changed a couple of times over the course of Citadel's history.  At
 this point it's very simple, again due to the fact that record managers are
-used for everything.    The user file (usersupp) is indexed using the user's
+used for everything.    The user file (user) is indexed using the user's
 name, converted to all lower-case.  Searching for a user, then, is easy.  We
 just lowercase the name we're looking for and query the database.  If no
 match is found, it is assumed that the user does not exist.
