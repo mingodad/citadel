@@ -1,4 +1,8 @@
 $Log$
+Revision 1.419  1999/11/19 01:57:40  ajc
+* Fixed a *serious* memory leak in the database function wrappers.
+* Updated version number to 5.60 -- run setup when installing this version.
+
 Revision 1.418  1999/11/18 03:29:20  ajc
 * Changed the order of parameters in <.A>ide <S>ystem config into a more
   logical grouping.
@@ -1453,4 +1457,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
