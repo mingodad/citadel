@@ -1,4 +1,7 @@
 $Log$
+Revision 521.2  2004/06/10 03:08:48  ajc
+* Improved the appearance of tabs in the room config screen
+
 Revision 521.1  2004/06/10 02:58:55  ajc
 * Made all the title boxes the same background color.  The old scheme was
   cute but not professional looking.
@@ -1876,3 +1879,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
