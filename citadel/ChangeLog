@@ -1,4 +1,9 @@
  $Log$
+ Revision 607.3  2003/06/19 03:55:22  ajc
+ * Fixed a subtle but ugly bug in the SMTP sender that was causing it to
+   ignore all successful connections except the last one.  Now when it gets
+   a connection it uses it.
+
  Revision 607.2  2003/06/17 22:05:11  ajc
  * New format for wholist.
 
@@ -4767,3 +4772,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

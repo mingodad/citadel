@@ -758,7 +758,8 @@ void smtp_try(const char *key, const char *addr, int *status,
 		return;
 	}
 
-	for (mx=0; mx<num_mxhosts; ++mx) {
+	sock = (-1);
+	for (mx=0; (mx<num_mxhosts && sock < 0); ++mx) {
 		extract(buf, mxhosts, mx);
 		lprintf(9, "Trying <%s>\n", buf);
 		sock = sock_connect(buf, "25", "tcp");
