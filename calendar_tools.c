@@ -110,11 +110,6 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 		);
 	}
 	wprintf("</SELECT>\n");
-
-	wprintf("<INPUT TYPE=\"checkbox\" NAME=\"%s_alldayevent\" "
-		"VALUE=\"yes\" %s> All day event",
-		prefix,
-		((t->is_date) ? "CHECKED" : ""));
 }
 
 
@@ -131,15 +126,6 @@ struct icaltimetype icaltime_from_webform(char *prefix) {
 	sprintf(vname, "%s_year", prefix);	t.year = atoi(bstr(vname));
 	sprintf(vname, "%s_hour", prefix);	t.hour = atoi(bstr(vname));
 	sprintf(vname, "%s_minute", prefix);	t.minute = atoi(bstr(vname));
-
-	sprintf(vname, "%s_alldayevent", prefix);
-	if (!strcasecmp(bstr(vname), "yes")) {
-		t.hour = 0;
-		t.minute = 0;
-		t.second = 0;
-		t.is_date = 1;
-		lprintf(9, "icaltime_from_webform() setting is_date\n");
-	}
 
 	t = icaltime_normalize(t);
 	return(t);
