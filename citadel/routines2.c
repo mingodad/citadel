@@ -581,7 +581,7 @@ void read_bio(void) {
 /* 
  * General system configuration command
  */
-void do_system_configuration() {
+void do_system_configuration(void) {
 	char buf[256];
 	int expire_mode = 0;
 	int expire_value = 0;
