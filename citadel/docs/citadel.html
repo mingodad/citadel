@@ -1377,52 +1377,138 @@ that when users upload files to your system, they will be prompted for file
 descriptions, which will be added to the <tt>filedir</tt> file.  If one does
 not exist, it will be created.</p>
 
-<h3>Creating and editing user accounts</h3> 
+<h3>Creating and editing user accounts</h3>
+
+<p>Anyone with Aide level access may use the
+<tt><b>.A</b>ide edit <b>U</b>ser</tt>
+command to create and/or edit user accounts.  There are several
+parameters which can be set here.</p>
+
+<p>To create a user:</p>
+
+<PRE>
+Lobby> . Aide edit User 
+User name: New User Name
+No such user.
+Do you want to create this user? Yes
+</PRE>
+
+<p>At this point, the new user account has been created, and the command will
+continue as if you were editing an existing account.  Therefore the remainder
+of this procedure is the same for creating and editing:</p>
+
+<PRE>
+Lobby> . Aide edit User 
+User name: person of significance
+User #70 - Person of Significance  PW: 
  
-   This command allows any aide to change certain parameters of any user's
-account. Entering this command will ask for the name of a user to edit, and
-then prompt with the user's current access level, then ask for the new one.
-  0 - Marked for deletion
-  1 - New unvalidated user
-  2 - Problem user
-  3 - User with no network privileges
-  4 - Normal user
-  5 - Preferred user
-  6 - Aide
+
+,  
+ 
+ 
+
+Current access level: 4 (Network User)
+</PRE>
+
+<P>The blank lines are the user's 'registration' information -- personal
+information such as full name, address, telephone number, etc.  This
+information will comprise the user's vCard in both their user profile and
+in the Global Address Book.</p>
+
+<PRE>
+Change password [No]: No
+</PRE>
+
+<P>...answer Yes to set or change the password for this account.</p>
+
+<PRE>
+Access level [4]: 
+</PRE>
+
+<P>...this allows you to set or change the access level for this account.  The
+access levels available are as follows:
+<UL>
+<LI>0 - Deleted.  (This immediately deletes the account.)
+<LI>1 - New, unvalidated user
+<LI>2 - Problem user (severely restricts account - use for probationary access)
+<LI>3 - User with no network privileges.  Same access as a normal user except
+cannot post messages in rooms shared on a network.
+<LI>4 - Normal user
+<LI>5 - Preferred user (access is granted to privileged rooms)
+<LI>6 - Aide (administrative access to the whole system)
+</UL>
+</P>
+
+<PRE>
+Permission to send/receive Internet mail [ No]? No
+</PRE>
+
+<P>If your system is configured to only allow Internet mail privileges to
+certain users, this is where you can grant or revoke that privilege.</p>
+
+<PRE>
+Ask user to register again [Yes]: Yes
+</PRE>
+
+<P>If you answer Yes to this question, the user will be presented with a
+'registration' screen or set of prompts, the next time they log in using a
+Citadel client.  This will prompt them for their full name, address,
+telephone number, etc.</p>
+
+<PRE>
+Times called [0]: 
+Messages posted [0]: 
+</PRE>
+
+<P>These statistics are available for informational purposes only, so there
+is normally no need to change them.</p>
+
+<PRE>
+Set last call to now [No]: No
+Purge time (in days, 0 for system default [0]: 
+</PRE>
+
+<P>Citadel contains an auto-purger which is capable of automatically deleting
+accounts which have not been accessed in a predefined period of time.  If
+you choose to perform this operation, you can 'touch' the account of a wayward
+user by setting their 'last call' time to 'now'.  You can also adjust, on a
+per-user basis, the amount of time which must pass before their account is
+purged by the system.  This time is set in days.  You can also specify 0 days
+to indicate that you wish to use the system default setting.</P>
+
+
+<H3>Deleting and moving messages</h3>
+
+<P>Aides and Room Aides have the ability to delete and move messages.  After
+each message, the normal prompt appears:</p>
+
+<PRE>
+(8) &lt;B&gt;ack &lt;A&gt;gain &lt;Q&gt;uote &lt;R&gt;eply &lt;N&gt;ext &lt;S&gt;top m&lt;Y&gt; next &lt;?&gt;help -&gt;
+</PRE>
    
-   DELETING AND MOVING MESSAGES
-   
-   Aides have the ability to delete and move messages; however, they must have
-message prompting turned on in order to do this. After each message, the
-normal prompt appears:
-   <A>gain, <N>ext message, <S>top ->
-  Entering <D> will delete the message. A (y/n) prompt will appear to confirm
+<P>Entering <TT><B>D</B>elete</TT> will delete the message.
+A <TT>(y/n)</TT> prompt will appear to confirm
 that you really want to delete the message.
-  Entering <M> will prompt for a room to move the message to.
+Entering <TT><B>M</B>ove</tt> will prompt for a room to which the message
+should be moved.</P>
+
+<h3>Customizing the help files</h3>
      
-   
-   SYSOP UTILITIES
-   
-   There are a number of utilities which may be accessed from the shell. It
-is up to the system operator to decide which should be "sysop" utilities and
-which should be accessible to all shell users. Please see utils.doc for a
-description of these programs.
-    
-   
-   CUSTOMIZING THE HELP FILES
- 
-   The subdirectory called "help" contains your system's help files.  There's
+<P>The subdirectory called <TT>help</TT> contains your system's help files.
+There's
 nothing hard-coded into the system that dictates what files should be there.
-Whenever a user types the command "<.H>elp" followed by the name of a help
-file, it displays the contents of that help file.
+Whenever a user types the command
+<TT><B>.H</B>elp</TT> followed by the name of a help
+file, it displays the contents of that help file.</p>
  
-   The help files that come with the system, of course, are enough to guide
+<P>The help files that come with the system, of course, are enough to guide
 a user through its operation.  But you can add, change, or remove help files
-to suit whatever is appropriate for your system. 
+to suit whatever is appropriate for your system.</P>
  
-   Now for the fun part.  There are several strings that you can put in help
-files that will be automatically substituted with other strings.  They are:
- 
+<P>There are several strings that you can put in help
+files that will be automatically substituted with other strings.  They are:</p>
+
+<PRE> 
  ^nodename    = The node name of your system on a Citadel/UX network
  ^humannode   = Human-readable node name (also your node name on C86Net)
  ^fqdn        = Your system's fully-qualified domain name
@@ -1432,30 +1518,14 @@ files that will be automatically substituted with other strings.  They are:
  ^variantname = The name of the BBS software you're running
  ^bbsdir      = The directory on the host system in which you have
                 installed the Citadel system.
+</PRE>
  
-   So, for example, you could create a help file which looked like:
+<P>So, for example, you could create a help file which looked like:</P>
  
+<PRE>
   "Lots of help, of course, is available right here on ^humannode.  Of
 course, if you still have trouble, you could always bug ^sysadm about it!"
-   
-        
-   CONCLUSION
-   
- For more information, visit the Citadel/UX web site at UNCENSORED! BBS
- http://uncensored.citadel.org
-
-
-
-
-
-
-
-
-
-
-
-
-
+</PRE>
        
 </body>
 </html>
