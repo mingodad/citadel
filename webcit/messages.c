@@ -242,6 +242,10 @@ void read_message(long msgnum) {
 	strcpy(m_subject, "");
 
 	while (serv_gets(buf), strcasecmp(buf, "text")) {
+		if (!strcmp(buf, "000")) {
+			wprintf("<I>unexpected end of message</I><BR><BR>\n");
+			return;
+		}
 		if (!strncasecmp(buf, "nhdr=yes", 8))
 			nhdr = 1;
 		if (nhdr == 1)
@@ -348,7 +352,6 @@ void read_message(long msgnum) {
 
 	}
 
-
 	/* Generate a reply-to address */
 	if (strlen(rfca) > 0) {
 		strcpy(reply_to, rfca);
@@ -414,6 +417,10 @@ void read_message(long msgnum) {
 	 */
 	strcpy(mime_content_type, "text/plain");
 	while (serv_gets(buf), (strlen(buf) > 0)) {
+		if (!strcmp(buf, "000")) {
+			wprintf("<I>unexpected end of message</I><BR><BR>\n");
+			return;
+		}
 		if (!strncasecmp(buf, "Content-type: ", 14)) {
 			safestrncpy(mime_content_type, &buf[14],
 				sizeof(mime_content_type));

@@ -1,4 +1,8 @@
 $Log$
+Revision 410.8  2003/03/31 03:32:19  ajc
+* messages.c: check for 000 terminator while parsing RFC822 headers to
+  prevent getting hung up while displaying certain badly formatted messages.
+
 Revision 410.7  2003/03/30 06:13:19  ajc
 * When reading from the server, do not treat CR as end-of-line because
   there's probably an LF coming after it.  Instead, keep reading to the LF
@@ -1312,6 +1316,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
-
-
