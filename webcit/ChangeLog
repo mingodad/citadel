@@ -1,4 +1,10 @@
 $Log$
+Revision 505.15  2004/03/15 04:27:44  ajc
+* Chat now appears in a separate window
+* Use regular frames instead of IFRAMEs for chat
+* Display user's own chat text in bold+italic
+* Added a "List Users" button
+
 Revision 505.14  2004/03/09 20:45:45  error
 * Add a Linux Software Map file
 
@@ -1718,3 +1724,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
