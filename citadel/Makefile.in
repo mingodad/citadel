@@ -110,11 +110,11 @@ serv_modules: $(SERV_MODULES)
 
 citadel$(EXEEXT): ipc_c_tcp.o citadel.o rooms.o routines.o \
 	routines2.o messages.o screen.o citadel_ipc.o \
-	client_passwords.o md5.o client_crypto.o \
+	client_passwords.o md5.o client_crypto.o html.o \
 	commands.o client_chat.o tools.o $(LIBOBJS)
 	$(CC) ipc_c_tcp.o citadel.o rooms.o routines.o \
 	routines2.o messages.o screen.o citadel_ipc.o \
-	commands.o client_chat.o tools.o \
+	commands.o client_chat.o tools.o html.o \
 	client_passwords.o md5.o client_crypto.o \
 	$(LIBOBJS) $(LDFLAGS) -o citadel $(LIBS)
 

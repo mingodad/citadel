@@ -150,7 +150,7 @@ int starttls(void)
 {
 #ifdef HAVE_OPENSSL
 	int a;
-	int r;				/* IPC response code */
+	/* int r; */				/* IPC response code */
 	char buf[SIZ];
 	SSL_METHOD *ssl_method;
 	DH *dh;
@@ -276,6 +276,7 @@ int starttls(void)
 		error_printf("Server can't start TLS: %s\n", buf);
 		return 0;
 	}
+
 	/* New code
 	r = CtdlIPCStartEncryption(buf);
 	if (r / 100 != 2) {

@@ -22,6 +22,7 @@
 #endif
 #include "citadel.h"
 #include "citadel_ipc.h"
+#include "citadel_decls.h"
 #include "client_crypto.h"
 #include "tools.h"
 
@@ -393,10 +394,11 @@ int CtdlIPCGetSingleMessage(long msgnum, int headers, int as_mime,
 	if (!*mret) return -1;
 	if (!msgnum) return -1;
 
-	sprintf(aaa, "MSG%c %ld|%d", as_mime ? '2' : '0', msgnum, headers);
+	strcpy(mret[0]->content_type, "");
+	sprintf(aaa, "MSG%d %ld|%d", as_mime, msgnum, headers);
 	ret = CtdlIPCGenericCommand(aaa, NULL, 0, &bbb, &bbbsize, cret);
 	if (ret / 100 == 1) {
-		if (!as_mime) {
+		if (as_mime != 2) {
 			strcpy(mret[0]->mime_chosen, "1");	/* Default chosen-part is "1" */
 			while (strlen(bbb) > 4 && bbb[4] == '=') {
 				extract_token(aaa, bbb, 0, '\n');
@@ -481,6 +483,21 @@ int CtdlIPCGetSingleMessage(long msgnum, int headers, int as_mime,
 			}
 			/* Eliminate "text\n" */
 			remove_token(bbb, 0, '\n');
+
+			/* If doing a MIME thing, pull out the extra headers */
+			if (as_mime == 4) {
+				do {
+					if (!strncasecmp(bbb, "Content-type: ", 14)) {
+						extract_token(mret[0]->content_type, bbb, 0, '\n');
+						strcpy(mret[0]->content_type,
+							&mret[0]->content_type[14]);
+						striplt(mret[0]->content_type);
+					}
+					remove_token(bbb, 0, '\n');
+				} while ((bbb[0] != 0) && (bbb[0] != '\n'));
+			}
+
+
 		}
 		if (strlen(bbb)) {
 			/* Strip trailing whitespace */
@@ -1858,6 +1875,18 @@ int CtdlIPCEndDownload(char *cret)
 		download_in_progress = 0;
 	return ret;
 }
+
+
+/* MSGP */
+int CtdlIPCSpecifyPreferredFormats(char *cret, char *formats) {
+	register int ret;
+	char cmd[SIZ];
+	
+	snprintf(cmd, sizeof cmd, "MSGP %s", formats);
+	ret = CtdlIPCGenericCommand(cmd, NULL, 0, NULL, NULL, cret);
+	return ret;
+}
+
 
 
 /* READ */

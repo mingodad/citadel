@@ -32,10 +32,12 @@
 
 #include <stdarg.h>
 #include "citadel.h"
+#include "citadel_decls.h"
 #include "messages.h"
 #include "commands.h"
 #include "rooms.h"
 #include "tools.h"
+#include "html.h"
 #include "citadel_ipc.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
@@ -363,6 +365,7 @@ int read_message(
 	int nhdr = 0;
 	struct ctdlipcmessage *message = NULL;
 	int r;				/* IPC response code */
+	char *converted_text = NULL;
 
 	sigcaught = 0;
 	sttybbs(1);
@@ -370,8 +373,9 @@ int read_message(
 	strcpy(reply_to, NO_REPLY_TO);
 	strcpy(reply_subject, "");
 
-	r = CtdlIPCGetSingleMessage(num, (pagin == READ_HEADER ? 1 : 0), 0,
-				    &message, buf);
+	r = CtdlIPCGetSingleMessage(num, (pagin == READ_HEADER ? 1 : 0),
+				(can_do_msg4 ? 4 : 0),
+				&message, buf);
 	if (r / 100 != 1) {
 		err_printf("*** msg #%ld: %d %s\n", num, r, buf);
 		++lines_printed;
@@ -567,6 +571,22 @@ int read_message(
 
 	/******* end of header output, start of message text output *******/
 
+	/*
+	 * Convert HTML to plain text, formatting for the actual width
+	 * of the client screen.
+	 */
+	if (!strcasecmp(message->content_type, "text/html")) {
+		converted_text = html_to_ascii(message->text, screenwidth, 0);
+		if (converted_text != NULL) {
+			free(message->text);
+			message->text = converted_text;
+			format_type = 1;
+		}
+	}
+
+	/*
+	 * Here we go
+	 */
 	if (format_type == 0) {
 		fr = fmout(screenwidth, NULL, message->text, dest,
 			   ((pagin == 1) ? 1 : 0), screenheight, (-1), 1);

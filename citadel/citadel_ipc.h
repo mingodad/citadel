@@ -44,6 +44,7 @@ struct ctdlipcmessage {
 	char nhdr;			/* Suppress message header? */
 	char anonymous;			/* An anonymous message */
 	char mime_chosen[SIZ];		/* Chosen MIME part to output */
+	char content_type[SIZ];		/* How would you like that? */
 };
 
 
@@ -149,6 +150,7 @@ int CtdlIPCRequestClientLogout(int session, char *cret);
 int CtdlIPCSetMessageSeen(long msgnum, int seen, char *cret);
 int CtdlIPCStartEncryption(char *cret);
 int CtdlIPCDirectoryLookup(const char *address, char *cret);
+int CtdlIPCSpecifyPreferredFormats(char *cret, char *formats);
 
 /* ************************************************************************** */
 /*             Stuff below this line is not for public consumption            */

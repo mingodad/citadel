@@ -1,4 +1,8 @@
  $Log$
+ Revision 591.108  2002/09/03 04:42:15  ajc
+ * Added MSG4 support to client-side IPC
+ * Moved HTML-to-text conversion to the client side
+
  Revision 591.107  2002/09/02 20:40:34  ajc
  * Automation work for setup
 
@@ -3959,4 +3963,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -98,6 +98,8 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 			if (inbuf[i]==9) inbuf[i]=32;
 			if ((inbuf[i]<32) || (inbuf[i]>126))
 				strcpy(&inbuf[i], &inbuf[i+1]);
+		    }
+		    for (i=0; i<strlen(inbuf); ++i) {
 			while ((inbuf[i]==32)&&(inbuf[i+1]==32))
 				strcpy(&inbuf[i], &inbuf[i+1]);
 		    }
@@ -244,7 +246,7 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 			    for (i = 0; i<strlen(outbuf); ++i) {
 				if ( (i<(screenwidth-2)) && (outbuf[i]=='\n')) {
 					strncat(outptr, outbuf, i+1);
-					strcat(outptr, "\n");
+					/* strcat(outptr, "\n"); */
 					if (do_citaformat)
 						strcat(outptr, " ");
 					strcpy(outbuf, &outbuf[i+1]);
@@ -279,7 +281,8 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 	} while (done_reading == 0);
 
 	strcat(outptr, outbuf);
-	strcat(outptr, "\n");
+	striplt(outptr);
+	if (outptr[strlen(outptr)-1] != '\n') strcat(outptr, "\n");
 
 	return outptr;
 

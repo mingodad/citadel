@@ -102,6 +102,7 @@ char curr_floor = 0;		/* number of current floor */
 char floorlist[128][SIZ];	/* names of floors */
 int termn8 = 0;			/* Set to nonzero to cause a logoff */
 int secure;			/* Set to nonzero when wire is encrypted */
+int can_do_msg4 = 0;		/* Set to nonzero if the server can handle MSG4 commands */
 
 extern char express_msgs;	/* express messages waiting! */
 extern int rc_ansi_color;	/* ansi color value from citadel.rc */
@@ -749,6 +750,11 @@ void get_serv_info(char *supplied_hostname)
 		 (server_is_local ? "local" : CITADEL),
 		 (supplied_hostname) ? supplied_hostname : "", buf);
 		 /* (locate_host(buf), buf)); */
+
+	/* Tell the server what our preferred content formats are */
+	if ((CtdlIPCSpecifyPreferredFormats(buf, "text/html|text/plain") / 100 )== 2) {
+		can_do_msg4 = 1;
+	}
 }
 
 
@@ -763,7 +769,7 @@ void who_is_online(int longlist)
 	char buf[SIZ], username[SIZ], roomname[SIZ], fromhost[SIZ];
 	char flags[SIZ];
 	char actual_user[SIZ], actual_room[SIZ], actual_host[SIZ];
-	char tbuf[SIZ], clientsoft[SIZ];
+	char clientsoft[SIZ];
 	time_t timenow = 0;
 	time_t idletime, idlehours, idlemins, idlesecs;
 	int last_session = (-1);
