@@ -35,6 +35,7 @@
 #define MAXSETUP 4	/* How many setup questions to ask */
 
 #define UI_TEXT		0	/* Default setup type -- text only */
+#define UI_DIALOG	2	/* Use the 'dialog' program */
 #define UI_SILENT	3	/* Silent running, for use in scripts */
 #define UI_NEWT		4	/* Use the "newt" window library */
 
@@ -79,20 +80,14 @@ char *setup_text[] =
 
 "Specify the IP address on which your server will run.  If you leave this\n"
 "blank, or if you specify 0.0.0.0, Citadel will listen on all addresses.\n"
-"You can usually skip this unless you're running multiple instances of\n"
+"You can usually skip this unless you are running multiple instances of\n"
 "Citadel on the same computer.\n",
 
 "Specify the TCP port number on which your server will run.  Normally, this\n"
 "will be port 504, which is the official port assigned by the IANA for\n"
-"Citadel servers.  You'll only need to specify a different port number if\n"
-"you run multiple instances of Citadel on the same computer and there's\n"
+"Citadel servers.  You will only need to specify a different port number if\n"
+"you run multiple instances of Citadel on the same computer and there is\n"
 "something else already using port 504.\n",
-
-"Setup has detected that you currently have data files from a Citadel\n"
-"version 3.2x installation.  The program 'conv_32_40' can upgrade your\n"
-"files to version 4.0x format.\n"
-" Setup will now exit.  Please either run 'conv_32_40' or delete your data\n"
-"files, and run setup again.\n"
 
 };
 
@@ -263,6 +258,17 @@ int yesno(char *question)
 		} while ((answer < 0) || (answer > 1));
 		break;
 
+	case UI_DIALOG:
+		sprintf(buf, "%s --yesno '%s' 0 0",
+			getenv("CTDL_DIALOG"),
+			question);
+		i = system(buf);
+		if (buf == 0)
+			answer = 1;
+		else
+			answer = 0;
+		break;
+
 #ifdef HAVE_NEWT
 	case UI_NEWT:
 		prompt_window_height = num_tokens(question, '\n') + 5;
@@ -310,6 +316,14 @@ void important_message(char *title, char *msgtext)
 		fgets(buf, sizeof buf, stdin);
 		break;
 
+	case UI_DIALOG:
+		sprintf(buf, "%s --backtitle '%s' --msgbox '%s' 0 0",
+			getenv("CTDL_DIALOG"),
+			title,
+			msgtext);
+		system(buf);
+		break;
+
 #ifdef HAVE_NEWT
 	case UI_NEWT:
 		newtCenteredWindow(76, 10, title);
@@ -352,6 +366,8 @@ void progress(char *text, long int curr, long int cmax)
 #endif
 	static long dots_printed = 0L;
 	long a = 0;
+	static FILE *fp = NULL;
+	char buf[SIZ];
 
 	switch (setup_type) {
 
@@ -373,6 +389,32 @@ void progress(char *text, long int curr, long int cmax)
 				printf("*");
 				++dots_printed;
 				fflush(stdout);
+			}
+		}
+		break;
+
+	case UI_DIALOG:
+		if (curr == 0) {
+			sprintf(buf, "%s --gauge '%s' 10 72",
+				getenv("CTDL_DIALOG"),
+				text);
+			fp = popen(buf, "w");
+			if (fp != NULL) {
+				fprintf(fp, "0\n");
+			}
+		} 
+		else if (curr == cmax) {
+			if (fp != NULL) {
+				fprintf(fp, "100\n");
+				pclose(fp);
+				fp = NULL;
+			}
+		}
+		else {
+			a = (curr * 100) / cmax;
+			if (fp != NULL) {
+				fprintf(fp, "%ld\n", a);
+				fflush(fp);
 			}
 		}
 		break;
@@ -524,9 +566,9 @@ void check_xinetd_entry(void) {
 
 	/* Otherwise, prompt the user to create an entry. */
 	snprintf(buf, sizeof buf,
-		"Setup can configure the 'xinetd' service to automatically\n"
+		"Setup can configure the \"xinetd\" service to automatically\n"
 		"connect incoming telnet sessions to Citadel, bypassing the\n"
-		"host system's login prompt.  Would you like to do this?\n"
+		"host system login: prompt.  Would you like to do this?\n"
 	);
 	if (yesno(buf) == 0)
 		return;
@@ -575,10 +617,9 @@ void disable_other_mta(char *mta) {
 
 	/* Offer to replace other MTA with the vastly superior Citadel :)  */
 	snprintf(buf, sizeof buf,
-		"You appear to have the '%s' email program\n"
+		"You appear to have the \"%s\" email program\n"
 		"running on your system.  Would you like to disable it,\n"
-		"allowing Citadel to handle your system's Internet mail\n"
-		"instead?\n",
+		"allowing Citadel to handle your Internet mail instead?\n",
 		mta
 	);
 	if (yesno(buf) == 0)
@@ -641,6 +682,8 @@ void strprompt(char *prompt_title, char *prompt_text, char *str)
 #endif
 	char buf[SIZ];
 	char setupmsg[SIZ];
+	char *dialog_result;
+	FILE *fp = NULL;
 
 	strcpy(setupmsg, "");
 
@@ -655,6 +698,27 @@ void strprompt(char *prompt_title, char *prompt_text, char *str)
 		if (strlen(buf) != 0)
 			strcpy(str, buf);
 		break;
+
+	case UI_DIALOG:
+		dialog_result = tmpnam(NULL);
+		sprintf(buf, "%s --backtitle '%s' --inputbox '%s' 0 0 '%s' 2>%s",
+			getenv("CTDL_DIALOG"),
+			prompt_title,
+			prompt_text,
+			str,
+			dialog_result);
+		system(buf);
+		fp = fopen(dialog_result, "r");
+		if (fp != NULL) {
+			fgets(str, sizeof buf, fp);
+			if (str[strlen(str)-1] == 10) {
+				str[strlen(str)-1] = 0;
+			}
+			fclose(fp);
+			unlink(dialog_result);
+		}
+		break;
+
 #ifdef HAVE_NEWT
 	case UI_NEWT:
 
@@ -795,6 +859,12 @@ void write_config_to_disk(void)
  */
 int discover_ui(void)
 {
+
+	/* Use "dialog" if we have it */
+	if (getenv("CTDL_DIALOG") != NULL) {
+		return UI_DIALOG;
+	}
+		
 
 #ifdef HAVE_NEWT
 	newtInit();
@@ -1183,7 +1253,7 @@ void contemplate_ldap(void) {
 		"\n"
 		"Please enter the Base DN for your directory.  This will\n"
 		"generally be something based on the primary DNS domain in\n"
-		"which you receive mail, but it doesn't have to be.  Your\n"
+		"which you receive mail, but it does not have to be.  Your\n"
 		"LDAP tree will be built using this Distinguished Name.\n"
 		"\n",
 		config.c_ldap_base_dn

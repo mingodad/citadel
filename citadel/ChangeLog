@@ -1,4 +1,9 @@
  $Log$
+ Revision 625.17  2004/09/08 04:16:07  ajc
+ * setup.c: initial changes to use a 'dialog' based setup (yes, it's back,
+   because the b0rken version is now long gone and it appears to be more
+   portable than newt)
+
  Revision 625.16  2004/09/07 04:15:35  error
  * msgbase.c: cmd_msgs(): Call unbuffer_output() when a message list is
    requested using a search template.
@@ -6061,3 +6066,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
