@@ -180,7 +180,7 @@ TRYAGAIN:
 		return;
 	}
 
-	display_addressbook(vcard_msgnum, 0);
+	do_edit_vcard(vcard_msgnum, "1", "/select_user_to_edit");
 }
 
 

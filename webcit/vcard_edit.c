@@ -30,7 +30,7 @@
 
 
 
-void edit_vcard(void) {
+void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	char buf[SIZ];
 	char *serialized_vcard = NULL;
 	size_t total_len = 0;
@@ -78,7 +78,7 @@ void edit_vcard(void) {
 	output_headers(3);
 
 	strcpy(whatuser, "");
-	sprintf(buf, "MSG0 %s|1", bstr("msgnum") );
+	sprintf(buf, "MSG0 %ld|1", msgnum);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '1') {
@@ -98,7 +98,7 @@ void edit_vcard(void) {
 	total_len = atoi(&buf[4]);
 
 
-	sprintf(buf, "OPNA %s|%s", bstr("msgnum"), bstr("partnum") );
+	sprintf(buf, "OPNA %ld|%s", msgnum, partnum);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '2') {
@@ -259,6 +259,10 @@ void edit_vcard(void) {
 	escputs(extrafields);
 	wprintf("\">\n");
 
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"return_to\" VALUE=\"");
+	urlescputs(return_to);
+	wprintf("\">\n");
+
 	wprintf("<CENTER>\n");
                 wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
                 wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
@@ -267,6 +271,18 @@ void edit_vcard(void) {
 	 
 	wDumpContent(1);
 }
+
+
+
+void edit_vcard(void) {
+	long msgnum;
+	char *partnum;
+
+	msgnum = atol(bstr("msgnum"));
+	partnum = bstr("partnum");
+	do_edit_vcard(msgnum, partnum, "");
+}
+
 
 
 
@@ -318,5 +334,10 @@ void submit_vcard(void) {
 	serv_puts("end:vcard");
 	serv_puts("000");
 
-	readloop("readnew");
+	if (!strcmp(bstr("return_to"), "/select_user_to_edit")) {
+		select_user_to_edit(NULL);
+	}
+	else {
+		readloop("readnew");
+	}
 }

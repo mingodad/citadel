@@ -1,4 +1,7 @@
 $Log$
+Revision 323.41  2002/06/17 03:48:44  ajc
+* Finished the thing to edit other users' vCards.
+
 Revision 323.40  2002/06/16 21:49:02  ajc
 * Administratively edit other users' vCards.  Still needs a couple of lines
   of glue code to make it work.
@@ -839,4 +842,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

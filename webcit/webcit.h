@@ -292,6 +292,7 @@ void remove_token(char *source, int parmnum, char separator);
 int decode_base64(char *dest, char *source, size_t length);
 char *load_mimepart(long msgnum, char *partnum);
 int pattern2(char *search, char *patn);
+void do_edit_vcard(long, char *, char *);
 void edit_vcard(void);
 void submit_vcard(void);
 void striplt(char *);
