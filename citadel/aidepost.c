@@ -90,7 +90,8 @@ int main(int argc, char **argv)
 	}
 
 
-	snprintf(tempspool, sizeof tempspool, "./network/spoolin/ap.%d",
+	snprintf(tempspool, sizeof tempspool,
+		"./network/spoolin/ap.%04x",
 		getpid());
 
 	tempfp = tmpfile();
@@ -116,7 +117,5 @@ int main(int argc, char **argv)
 	fclose(tempfp);
 	fclose(spoolfp);
 
-	execlp("./netproc", "netproc", "-i", NULL);
-	perror("cannot run netproc");
-	exit(errno);
+	exit(0);
 }

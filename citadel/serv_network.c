@@ -1,8 +1,8 @@
 /*
  * $Id$ 
  *
- * This module will eventually replace netproc and some of its utilities.  In
- * the meantime, it serves as a mailing list manager.
+ * This module handles shared rooms, inter-Citadel mail, and outbound
+ * mailing list processing.
  *
  * Copyright (C) 2000-2001 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.

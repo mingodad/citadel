@@ -1811,7 +1811,7 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	newmsgid = send_message(msg, network_fp);
 	if (network_fp != NULL) {
 		fclose(network_fp);
-		system("exec nohup ./netproc -i >/dev/null 2>&1 &");
+		/* FIXME start a network run here */
 	}
 
 	if (newmsgid <= 0L) return(-1);

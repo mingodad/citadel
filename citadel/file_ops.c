@@ -246,7 +246,7 @@ void cmd_netf(char *cmdbuf)
 
 	cprintf("%d File '%s' has been sent to %s.\n", OK, filename,
 		destsys);
-	system("nohup ./netproc -i >/dev/null 2>&1 &");
+	/* FIXME start a network run here. */
 	return;
 }
 

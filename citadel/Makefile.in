@@ -40,8 +40,8 @@ SERV_MODULES=modules/libchat.la modules/libvcard.la \
 	modules/libexpire.la \
 	modules/libvandelay.la \
 	modules/libical.la
-UTIL_TARGETS=aidepost netmailer netproc netsetup msgform readlog rcit \
-	stats citmail mailinglist userlist sendcommand \
+UTIL_TARGETS=aidepost netsetup msgform readlog \
+	stats citmail userlist sendcommand \
 	base64 qpdecode
 
 prefix=@prefix@
@@ -82,9 +82,9 @@ DOMAIN=@DOMAIN@
 
 SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	config.c control.c $(DATABASE) dynloader.c file_ops.c \
-	housekeeping.c internetmail.c ipc_c_tcp.c locate_host.c \
-	logging.c mailinglist.c messages.c msgbase.c msgform.c netmailer.c \
-	netproc.c netsetup.c policy.c rcit.c readlog.c \
+	housekeeping.c ipc_c_tcp.c locate_host.c \
+	logging.c messages.c msgbase.c msgform.c \
+	netsetup.c policy.c readlog.c \
 	room_ops.c rooms.c routines.c routines2.c serv_chat.c \
 	serv_info.c serv_test.c setup.c snprintf.c stats.c serv_vcard.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
@@ -209,26 +209,8 @@ modules/libpas2.la: serv_pas2.lo md5.lo $(LIBTOOL) libcitserver.la
 modules/libical.la: serv_ical.lo $(LIBTOOL) libcitserver.la
 	$(LTSHARE) -o libical.la ../serv_ical.lo ../libcitserver.la
 
-
-
-#
-# 'netmailer' needs to run setuid because it generates headers for Internet
-# mail.  If it is not run setuid, all outgoing mail may always show as coming
-# from your BBSUID rather than the actual sending user.
-#
-netmailer: netmailer.o internetmail.o config.o genstamp.o
-	$(CC) netmailer.o config.o internetmail.o genstamp.o \
-	$(LDFLAGS) -o netmailer
-
-netproc: netproc.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)
-	$(CC) netproc.o config.o ipc_c_tcp.o tools.o \
-	$(LIBOBJS) $(LDFLAGS) -o netproc $(NETLIBS)
-
 citmail: citmail.o config.o
 	$(CC) citmail.o config.o $(LDFLAGS) -o citmail $(NETLIBS)
-
-mailinglist: mailinglist.o config.o internetmail.o
-	$(CC) mailinglist.o config.o internetmail.o $(LDFLAGS) -o mailinglist
 
 setup: setup.o tools.o
 	$(CC) setup.o tools.o $(CURSES) $(NETLIBS) $(LDFLAGS) -o setup
@@ -261,9 +243,6 @@ msgform: msgform.o
 
 readlog: readlog.o config.o
 	$(CC) readlog.o config.o $(LDFLAGS) -o readlog
-
-rcit: rcit.o config.o
-	$(CC) rcit.o config.o $(LDFLAGS) -o rcit
 
 stats: stats.o ipc_c_tcp.o libcitserver.la $(LIBOBJS)
 	$(LIBTOOL) $(CC) stats.o ipc_c_tcp.o libcitserver.la $(LIBOBJS) $(LDFLAGS) -o stats $(NETLIBS)
