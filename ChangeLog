@@ -1,4 +1,7 @@
 $Log$
+Revision 323.0  2002/01/13 09:07:06  ajc
+* THIS IS 3.23
+
 Revision 322.4  2002/01/13 09:06:38  ajc
 * Brought over the debugged mime parser from Citadel
 
