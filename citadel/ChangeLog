@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.158  2002/03/19 04:34:42  ajc
+ * mime_parser.c: minor changes for easier porting between Citadel and WebCit
+
  Revision 590.157  2002/03/19 04:19:33  ajc
  * Saw what IO did with strchr() and did the same in a few more places
 
@@ -3519,3 +3522,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
