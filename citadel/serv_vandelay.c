@@ -271,7 +271,6 @@ void artv_do_export(void) {
 	cprintf("%d\n", config.c_maxsessions);
 	cprintf("%s\n", config.c_net_password);
 	cprintf("%d\n", config.c_port_number);
-	cprintf("%d\n", config.c_ipgm_secret);
 	cprintf("%d\n", config.c_ep.expire_mode);
 	cprintf("%d\n", config.c_ep.expire_value);
 	cprintf("%d\n", config.c_userpurge);
@@ -329,7 +328,6 @@ void artv_import_config(void) {
 	client_gets(buf);	config.c_maxsessions = atoi(buf);
 	client_gets(config.c_net_password);
 	client_gets(buf);	config.c_port_number = atoi(buf);
-	client_gets(buf);	config.c_ipgm_secret = atoi(buf);
 	client_gets(buf);	config.c_ep.expire_mode = atoi(buf);
 	client_gets(buf);	config.c_ep.expire_value = atoi(buf);
 	client_gets(buf);	config.c_userpurge = atoi(buf);

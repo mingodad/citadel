@@ -761,26 +761,32 @@ void cmd_ipgm(char *argbuf)
 {
 	int secret;
 
+	secret = extract_int(argbuf, 0);
+
 	/* For security reasons, we do NOT allow this command to run
 	 * over the network.  Local sockets only.
 	 */
 	if (!CC->is_local_socket) {
 		sleep(5);
 		cprintf("%d Authentication failed.\n",ERROR);
-		return;
 	}
-
-	secret = extract_int(argbuf, 0);
-	if (secret == config.c_ipgm_secret) {
+	else if (secret == config.c_ipgm_secret) {
 		CC->internal_pgm = 1;
 		strcpy(CC->curr_user, "<internal program>");
 		CC->cs_flags = CC->cs_flags|CS_STEALTH;
 		cprintf("%d Authenticated as an internal program.\n",CIT_OK);
 	}
 	else {
+		sleep(5);
 		cprintf("%d Authentication failed.\n",ERROR);
 		lprintf(3, "Warning: ipgm authentication failed.\n");
+		CC->kill_me = 1;
 	}
+
+	/* Now change the ipgm secret for the next round. */
+	get_config();
+	config.c_ipgm_secret = rand();
+	put_config();
 }
 
 

@@ -769,10 +769,6 @@ int main(int argc, char *argv[])
 	if (config.c_port_number == 0) {
 		config.c_port_number = 504;
 	}
-	if (config.c_ipgm_secret == 0) {
-		srand(getpid());
-		config.c_ipgm_secret = rand();
-	}
 	if (config.c_sleeping == 0) {
 		config.c_sleeping = 900;
 	}
