@@ -1,4 +1,9 @@
  $Log$
+ Revision 611.5  2003/11/13 04:25:38  ajc
+ * mime_parser.c: handle multipart *much* more efficiently now.  Instead
+   of scanning line by line, we snag the boundaries using the Boyer-Moore
+   algorithm.
+
  Revision 611.4  2003/11/12 04:28:22  ajc
  * Replaced bmstrcasestr() with a more generic function, bmstrstr(), which
    can be supplied with *any* strncmp()-compatible compare function.
@@ -5073,3 +5078,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

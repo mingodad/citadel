@@ -275,6 +275,7 @@ void the_mime_parser(char *partnum,
 	char *boundary;
 	char *startary;
 	char *endary;
+	char *next_boundary;
 	char *content_type;
 	size_t content_length;
 	char *encoding;
@@ -394,46 +395,53 @@ void the_mime_parser(char *partnum,
 		/* Figure out where the boundaries are */
 		snprintf(startary, SIZ, "--%s", boundary);
 		snprintf(endary, SIZ, "--%s--", boundary);
+
+		part_start = NULL;
 		do {
-			if ( (!strncasecmp(ptr, startary, strlen(startary)))
-			   || (!strncasecmp(ptr, endary, strlen(endary))) ) {
-				if (part_start != NULL) {
-					if (strlen(partnum) > 0) {
-						snprintf(nested_partnum,
-							 sizeof nested_partnum,
-							 "%s.%d", partnum,
-							 ++part_seq);
-					}
-					else {
-						snprintf(nested_partnum,
-							 sizeof nested_partnum,
-							 "%d", ++part_seq);
-					}
-					the_mime_parser(nested_partnum,
-						    part_start, part_end,
-							CallBack,
-							PreMultiPartCallBack,
-							PostMultiPartCallBack,
-							userdata,
-							dont_decode);
+			next_boundary = bmstrstr(ptr, startary, strncmp);
+			if ( (part_start != NULL) && (next_boundary != NULL) ) {
+				part_end = next_boundary;
+				--part_end;
+
+				if (strlen(partnum) > 0) {
+					snprintf(nested_partnum,
+						 sizeof nested_partnum,
+						 "%s.%d", partnum,
+						 ++part_seq);
 				}
-				ptr = memreadline(ptr, buf, SIZ);
-				part_start = ptr;
+				else {
+					snprintf(nested_partnum,
+						 sizeof nested_partnum,
+						 "%d", ++part_seq);
+				}
+				the_mime_parser(nested_partnum,
+					    part_start, part_end,
+						CallBack,
+						PreMultiPartCallBack,
+						PostMultiPartCallBack,
+						userdata,
+						dont_decode);
+			}
+
+			if (next_boundary != NULL) {
+				/* If we pass out of scope, don't attempt to read
+				 * past the end boundary. */
+				if (!strcmp(next_boundary, endary)) {
+					ptr = content_end;
+				}
+				else {
+					/* Set up for the next part. */
+					part_start = strstr(next_boundary, "\n");
+					++part_start;
+					ptr = part_start;
+				}
 			}
 			else {
-				part_end = ptr;
-				++ptr;
+				/* Invalid end of multipart.  Bail out! */
+				ptr = content_end;
 			}
-			/* If we pass out of scope in the MIME multipart (by
-			 * hitting the end boundary), force the pointer out
-			 * of scope so this loop ends.
-			 */
-			if (ptr < content_end) {
-				if (!strcasecmp(ptr, endary)) {
-					ptr = content_end++;
-				}
-			}
-		} while (ptr <= content_end);
+		} while ( (ptr < content_end) && (next_boundary != NULL) );
+
 		if (PostMultiPartCallBack != NULL) {
 			PostMultiPartCallBack("", "", partnum, "", NULL,
 				content_type, 0, encoding, userdata);
