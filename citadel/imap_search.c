@@ -219,12 +219,16 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos], "NEW")) {
-		/* FIXME */
+		if ( (IMAP->flags[seq-1] & IMAP_RECENT) && (!(IMAP->flags[seq-1] & IMAP_SEEN))) {
+			match = 1;
+		}
 		++pos;
 	}
 
 	else if (!strcasecmp(itemlist[pos], "OLD")) {
-		/* FIXME */
+		if (!(IMAP->flags[seq-1] & IMAP_RECENT)) {
+			match = 1;
+		}
 		++pos;
 	}
 
@@ -243,7 +247,9 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos], "RECENT")) {
-		/* FIXME */
+		if (IMAP->flags[seq-1] & IMAP_RECENT) {
+			match = 1;
+		}
 		++pos;
 	}
 

@@ -85,6 +85,11 @@ void imap_fetch_flags(int seq) {
 		cprintf("\\Answered");
 		++num_flags_printed;
 	}
+	if (IMAP->flags[seq] & IMAP_RECENT) {
+		if (num_flags_printed > 0) cprintf(" ");
+		cprintf("\\Recent");
+		++num_flags_printed;
+	}
 	cprintf(")");
 }
 

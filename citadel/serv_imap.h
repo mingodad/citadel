@@ -41,16 +41,17 @@ enum {
 /* Flags for the above struct.  Note that some of these are for internal use,
  * and are not to be reported to IMAP clients.
  */
-#define IMAP_ANSWERED		1
-#define IMAP_FLAGGED		2
-#define IMAP_DELETED		4
-#define IMAP_DRAFT		8
-#define IMAP_SEEN		16
+#define IMAP_ANSWERED		1	/* reportable and setable */
+#define IMAP_FLAGGED		2	/* reportable and setable */
+#define IMAP_DELETED		4	/* reportable and setable */
+#define IMAP_DRAFT		8	/* reportable and setable */
+#define IMAP_SEEN		16	/* reportable and setable */
 
 #define IMAP_MASK_SETABLE	0x1f
 #define IMAP_MASK_SYSTEM	0xe0
 
-#define IMAP_SELECTED		32	/* internal */
+#define IMAP_SELECTED		32	/* neither reportable nor setable */
+#define IMAP_RECENT		64	/* reportable but not setable */
 
 
 #define IMAP ((struct citimap *)CtdlGetUserData(SYM_IMAP))

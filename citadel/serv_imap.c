@@ -119,6 +119,9 @@ void imap_set_seen_flags(void)
 			if (is_msg_in_mset(vbuf.v_seen, IMAP->msgids[i])) {
 				IMAP->flags[i] |= IMAP_SEEN;
 			}
+			else {
+				IMAP->flags[i] |= IMAP_RECENT;
+			}
 			if (is_msg_in_mset
 			    (vbuf.v_answered, IMAP->msgids[i])) {
 				IMAP->flags[i] |= IMAP_ANSWERED;
@@ -199,6 +202,7 @@ void imap_rescan_msgids(void)
 	struct cdbdata *cdbfr;
 	long *msglist = NULL;
 	int num_msgs = 0;
+	int num_recent = 0;
 
 
 	if (IMAP->selected == 0) {
@@ -281,7 +285,15 @@ void imap_rescan_msgids(void)
 	 * If new messages have arrived, tell the client about them.
 	 */
 	if (IMAP->num_msgs > original_num_msgs) {
+
+		for (j = 0; j < num_msgs; ++j) {
+			if (IMAP->flags[j] & IMAP_RECENT) {
+				++num_recent;
+			}
+		}
+
 		cprintf("* %d EXISTS\r\n", IMAP->num_msgs);
+		cprintf("* %d RECENT\r\n", num_recent);
 	}
 
 	if (num_msgs != 0)
@@ -937,7 +949,7 @@ void imap_status(int num_parms, char *parms[])
 	cprintf("* STATUS ");
 	imap_strout(buf);
 	cprintf(" (MESSAGES %d ", msgs);
-	cprintf("RECENT 0 ");	/* FIXME we need to implement this */
+	cprintf("RECENT %d ", new);	/* Initially, new==recent */
 	cprintf("UIDNEXT %ld ", CitControl.MMhighest + 1);
 	cprintf("UNSEEN %d)\r\n", new);
 
