@@ -375,6 +375,8 @@ void imap_select(int num_parms, char *parms[]) {
 	/* FIXME ... much more info needs to be supplied here */
 	cprintf("* %d EXISTS\r\n", msgs);
 	cprintf("* %d RECENT\r\n", new);
+	cprintf("* FLAGS (\\Deleted)\r\n");
+	cprintf("* OK [PERMANENTFLAGS (\\Deleted)] permanent flags\r\n");
 	cprintf("* OK [UIDVALIDITY 0] UIDs valid\r\n");
 	cprintf("%s OK [%s] %s completed\r\n",
 		parms[0],

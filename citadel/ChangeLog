@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.109  2001/03/07 04:02:27  ajc
+ * Fixed some small IMAP bugs
+
  Revision 573.108  2001/03/06 04:44:00  ajc
  * Probable completion of STATUS, COPY, STORE, and EXPUNGE commands in IMAP
 
@@ -2438,4 +2441,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

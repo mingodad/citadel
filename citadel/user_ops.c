@@ -287,14 +287,16 @@ int getuserbynumber(struct usersupp *usbuf, long int number)
 /*
  * Back end for cmd_user() and its ilk
  */
-int CtdlLoginExistingUser(char *username)
+int CtdlLoginExistingUser(char *trythisname)
 {
+	char username[SIZ];
 	char autoname[SIZ];
 	int found_user = 0;
 	struct passwd *p;
 	int a;
 
-	username[25] = 0;
+	if (trythisname == NULL) return login_not_found;
+	safestrncpy(username, trythisname, sizeof username);
 	strproc(username);
 
 	if ((CC->logged_in)) {
@@ -486,15 +488,19 @@ int CtdlTryPassword(char *password)
 	int code;
 
 	if ((CC->logged_in)) {
+		lprintf(5, "CtdlTryPassword: already logged in\n");
 		return pass_already_logged_in;
 	}
 	if (!strcmp(CC->curr_user, NLI)) {
+		lprintf(5, "CtdlTryPassword: no user selected\n");
 		return pass_no_user;
 	}
 	if (getuser(&CC->usersupp, CC->curr_user)) {
+		lprintf(5, "CtdlTryPassword: internal error\n");
 		return pass_internal_error;
 	}
 	if (password == NULL) {
+		lprintf(5, "CtdlTryPassword: NULL password string supplied\n");
 		return pass_wrong_password;
 	}
 	code = (-1);
