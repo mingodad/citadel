@@ -40,7 +40,9 @@ void do_calendar_view(void) {	/* stub for non-libical builds */
 
 void calendar_month_view_display_events(time_t thetime) {
 	int i;
-	struct tm *tm;
+	time_t event_tt;
+	struct tm event_tm;
+	struct tm today_tm;
 	icalproperty *p;
 	struct icaltimetype t;
 	int month, day, year;
@@ -51,19 +53,21 @@ void calendar_month_view_display_events(time_t thetime) {
 		return;
 	}
 
-	tm = localtime(&thetime);
-	month = tm->tm_mon + 1;
-	day = tm->tm_mday;
-	year = tm->tm_year + 1900;
+	memcpy(&today_tm, localtime(&thetime), sizeof(struct tm));
+	month = today_tm.tm_mon + 1;
+	day = today_tm.tm_mday;
+	year = today_tm.tm_year + 1900;
 
 	for (i=0; i<(WC->num_cal); ++i) {
 		p = icalcomponent_get_first_property(WC->disp_cal[i],
 						ICAL_DTSTART_PROPERTY);
 		if (p != NULL) {
 			t = icalproperty_get_dtstart(p);
-			if ((t.year == year)
-			   && (t.month == month)
-			   && (t.day == day)) {
+			event_tt = icaltime_as_timet(t);
+			memcpy(&event_tm, localtime(&event_tt), sizeof(struct tm));
+			if ((event_tm.tm_year == today_tm.tm_year)
+			   && (event_tm.tm_mon == today_tm.tm_mon)
+			   && (event_tm.tm_mday == today_tm.tm_mday)) {
 
 				if (t.is_date) all_day_event = 1;
 				else all_day_event = 0;
@@ -236,6 +240,8 @@ void calendar_day_view_display_events(int year, int month,
 	int i;
 	icalproperty *p;
 	struct icaltimetype t;
+	time_t event_tt;
+	struct tm *event_tm;
 	int all_day_event = 0;
 
 	if (WC->num_cal == 0) {
@@ -248,10 +254,12 @@ void calendar_day_view_display_events(int year, int month,
 						ICAL_DTSTART_PROPERTY);
 		if (p != NULL) {
 			t = icalproperty_get_dtstart(p);
-			if ((t.year == year)
-			   && (t.month == month)
-			   && (t.day == day)
-			   && ( ((t.hour == hour)&&(!t.is_date)) || ((hour<0)&&(t.is_date)) )
+			event_tt = icaltime_as_timet(t);
+			event_tm = localtime(&event_tt);
+			if ((event_tm->tm_year == (year-1900))
+			   && (event_tm->tm_mon == (month-1))
+			   && (event_tm->tm_mday == day)
+			   && ( ((event_tm->tm_hour == hour)&&(!t.is_date)) || ((hour<0)&&(t.is_date)) )
 			   ) {
 
 				if (t.is_date) all_day_event = 1;
@@ -359,7 +367,9 @@ void calendar_day_view(int year, int month, int day) {
 		"bgcolor=#4444FF>\n");
 
 	/* Display events before 8:00 (hour=-1 is all-day events) */
-	wprintf("<TR><TD BGCOLOR=FFFFFF VALIGN=TOP>");
+	wprintf("<TR>"
+		"<TD BGCOLOR=FFFFFF VALIGN=TOP></TD>"
+		"<TD BGCOLOR=FFFFFF VALIGN=TOP>");
 	for (hour = (-1); hour <= 7; ++hour) {
 		calendar_day_view_display_events(year, month, day, hour);
 	}
@@ -367,7 +377,7 @@ void calendar_day_view(int year, int month, int day) {
 
 	/* Now the middle of the day... */	
 	for (hour = 8; hour <= 17; ++hour) {	/* could do HEIGHT=xx */
-		wprintf("<TR><TD BGCOLOR=FFFFFF VALIGN=TOP>");
+		wprintf("<TR><TD BGCOLOR=FFFFFF ALIGN=RIGHT VALIGN=TOP>");
 		wprintf("<A HREF=\"/display_edit_event?msgnum=0"
 			"&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
 			year, month, day, hour
@@ -376,6 +386,7 @@ void calendar_day_view(int year, int month, int day) {
 			(hour <= 12 ? hour : hour-12),
 			(hour < 12 ? "am" : "pm")
 		);
+		wprintf("</TD><TD BGCOLOR=FFFFFF VALIGN=TOP>");
 
 		/* put the data here, stupid */
 		calendar_day_view_display_events(year, month, day, hour);
@@ -384,7 +395,9 @@ void calendar_day_view(int year, int month, int day) {
 	}
 
 	/* Display events after 5:00... */
-	wprintf("<TR><TD BGCOLOR=FFFFFF VALIGN=TOP>");
+	wprintf("<TR>"
+		"<TD BGCOLOR=FFFFFF VALIGN=TOP></TD>"
+		"<TD BGCOLOR=FFFFFF VALIGN=TOP>");
 	for (hour = 18; hour <= 23; ++hour) {
 		calendar_day_view_display_events(year, month, day, hour);
 	}
