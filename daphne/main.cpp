@@ -20,7 +20,7 @@
 // ----------------------------------------------------------------------------
 
 // Define a new application type, each program should derive a class from wxApp
-class MyApp : public wxApp
+class Daphne : public wxApp
 {
 public:
     // override base class virtuals
@@ -33,7 +33,7 @@ public:
 };
 
 // Define a new frame type: this is going to be our main frame
-class MyFrame : public wxFrame
+class MyFrame : public wxMDIParentFrame
 {
 public:
     // constructor(s)
@@ -46,8 +46,6 @@ public:
 	void OnConnect(wxCommandEvent& event);
 
 private:
-	wxTextCtrl *sendcmd;
-	wxTextCtrl *recvcmd;
 	wxButton *do_cmd;
 	// any class wishing to process wxWindows events must use this macro
 	DECLARE_EVENT_TABLE()
@@ -74,7 +72,7 @@ enum
 // the event tables connect the wxWindows events with the functions (event
 // handlers) which process them. It can be also done at run-time, but for the
 // simple menu events like this the static method is much simpler.
-BEGIN_EVENT_TABLE(	MyFrame, wxFrame)
+BEGIN_EVENT_TABLE(	MyFrame, wxMDIParentFrame)
 	EVT_MENU(	IG_Quit,		MyFrame::OnQuit)
 	EVT_MENU(	IG_About,		MyFrame::OnAbout)
 	EVT_MENU(	MENU_CONNECT,		MyFrame::OnConnect)
@@ -84,9 +82,9 @@ END_EVENT_TABLE()
 // Create a new application object: this macro will allow wxWindows to create
 // the application object during program execution (it's better than using a
 // static object for many reasons) and also declares the accessor function
-// wxGetApp() which will return the reference of the right type (i.e. MyApp and
+// wxGetApp() which will return the reference of the right type (i.e. Daphne and
 // not wxApp)
-IMPLEMENT_APP(MyApp)
+IMPLEMENT_APP(Daphne)
 
 // ============================================================================
 // implementation
@@ -101,7 +99,7 @@ CitClient *citadel;
 // ----------------------------------------------------------------------------
 
 // `Main program' equivalent: the program execution "starts" here
-bool MyApp::OnInit()
+bool Daphne::OnInit()
 {
 
 	citadel = new CitClient();
@@ -127,10 +125,11 @@ bool MyApp::OnInit()
 
 // frame constructor
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
-       : wxFrame((wxFrame *)NULL, -1, title, pos, size)
-{
-    // set the frame icon
-    /* SetIcon(wxICON(mondrian)); */
+       : wxMDIParentFrame(
+		(wxMDIParentFrame *)NULL,
+		-1,
+		title, pos, size, wxDEFAULT_FRAME_STYLE
+		) {
 
 	// create a menu bar
 	wxMenu *menuFile = new wxMenu;
@@ -146,48 +145,12 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	menuBar->Append(menuFile, "&File");
 	menuBar->Append(menuHelp, "&Help");
 
-    // ... and attach this menu bar to the frame
-    SetMenuBar(menuBar);
+	// ... and attach this menu bar to the frame
+	SetMenuBar(menuBar);
 
-    // create a status bar just for fun (by default with 1 pane only)
-    CreateStatusBar(1);
-    SetStatusText("Not connected");
-
-    wxPanel *panel = new wxPanel(this);
-
-	sendcmd = new wxTextCtrl(
-		panel,
-		-1,
-		"",
-		wxPoint(10,10),
-		wxSize(300,30),
-		0, // no style
-		wxDefaultValidator,
-		"sendcmd"
-		);
-
-	recvcmd = new wxTextCtrl(
-		panel,
-		-1,
-		"",
-		wxPoint(10,100),
-		wxSize(300,30),
-		0, // no style
-		wxDefaultValidator,
-		"sendcmd"
-		);
-
-	do_cmd = new wxButton(
-		panel,
-		BUTTON_DO_CMD,
-		"Send command",
-		wxPoint(350,10),
-		wxSize(100,30),
-		0L,
-		wxDefaultValidator,
-		"do_cmd"
-		);
-
+	// create a status bar just for fun (by default with 1 pane only)
+	CreateStatusBar(1);
+	SetStatusText("Not connected");
 }
 
 
@@ -204,25 +167,17 @@ void MyFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 
 void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
 {
-    wxString msg;
-    msg.Printf(
-	"This is the development version of a project code-named 'Daphne',\n"
-	"a GUI client for the Citadel/UX groupware system.  It is being\n"
-	"developed using the wxWindows toolkit, and therefore should be\n"
-	"easy to port to Linux, Windows, and eventually Macintosh."
-	);
-    wxMessageBox(msg, "Daphne", wxOK | wxICON_INFORMATION, this);
+	wxString msg;
+	msg.Printf(
+	  "This is the development version of a project code-named 'Daphne',\n"
+	  "a GUI client for the Citadel/UX groupware system.  It is being\n"
+	  "developed using the wxWindows toolkit, and therefore should be\n"
+	  "easy to port to Linux, Windows, and eventually Macintosh."
+	  );
+	wxMessageBox(msg, "Daphne", wxOK | wxICON_INFORMATION, this);
 }
 
 void MyFrame::OnDoCmd(wxCommandEvent& whichbutton) {
-	int retval;
-	wxString sendbuf;
-	wxString retbuf;
-
-	sendbuf = sendcmd->GetLineText(0);
-	
-	retval = citadel->serv_trans(sendbuf, retbuf);
-	recvcmd->SetValue(retbuf);
 }
 
 void MyFrame::OnConnect(wxCommandEvent& unused) {
@@ -235,7 +190,7 @@ void MyFrame::OnConnect(wxCommandEvent& unused) {
 		retval = citadel->attach("uncnsrd.mt-kisco.ny.us", "citadel");
 		if (retval == 0) {
     			SetStatusText("** connected **");
-			new UserLogin(citadel);
+			new UserLogin(citadel, this);
 		} else {
 			wxMessageBox("Could not connect to server.", "Error");
 		}

@@ -1,7 +1,7 @@
 // userlogin is the frame for logging in.
-class UserLogin : public wxFrame {
+class UserLogin : public wxMDIChildFrame {
 public:
-	UserLogin(CitClient *sock);
+	UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI);
 	int do_login();
 private:
 	wxPanel *panel;

@@ -32,7 +32,7 @@ enum
 // the event tables connect the wxWindows events with the functions (event
 // handlers) which process them. It can be also done at run-time, but for the
 // simple menu events like this the static method is much simpler.
-BEGIN_EVENT_TABLE(	UserLogin, wxFrame)
+BEGIN_EVENT_TABLE(	UserLogin, wxMDIChildFrame)
 	EVT_BUTTON(	BUTTON_LOGIN,		UserLogin::OnButtonPressed)
 END_EVENT_TABLE()
 
@@ -46,11 +46,18 @@ END_EVENT_TABLE()
 // ----------------------------------------------------------------------------
 
 // frame constructor
-UserLogin::UserLogin(CitClient *sock)
-       : wxFrame((wxFrame *)NULL, -1, "", wxPoint(50,50), wxSize(500,350)) {
+UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
+       : wxMDIChildFrame(MyMDI,	//parent
+			-1,	//window id
+			"Please log in",
+			wxDefaultPosition,
+			wxDefaultSize,
+			wxDEFAULT_FRAME_STYLE,
+			"UserLogin"
+			) {
 
-    // set the frame icon
-    /* SetIcon(wxICON(mondrian)); */
+	// set the frame icon
+	/* SetIcon(wxICON(mondrian)); */
 
 	panel = new wxPanel(this);
 
