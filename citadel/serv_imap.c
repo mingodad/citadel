@@ -427,144 +427,29 @@ void imap_capability(int num_parms, char *parms[])
 }
 
 
-/*
- * implements the STARTTLS command (lifted-from-Cyrus version)
- */
-#ifdef HAVE_OPENSSX
-void imap_starttls(int num_parms, char *parms[])
-{
-	int sts;
-	SSL_CIPHER *cipher;
-	const char *tls_protocol = NULL;
-	const char *tls_cipher_name = NULL;
-	int tls_cipher_usebits = 0;
-	int tls_cipher_algbits = 0;
-	SSL *tls_conn;
-	int r = 0;
-
-	lprintf(9, "imap_starttls() called\n");
-	tls_conn = (SSL *) SSL_new(ssl_ctx);
-	if (tls_conn == NULL) {
-		CC->ssl = NULL;
-		r = -1;
-		goto done;
-	}
-	SSL_clear(tls_conn);
-
-	/* set the file descriptors for SSL to use */
-	if (SSL_set_fd(tls_conn, CC->client_socket) == 0) {
-		r = -1;
-		goto done;
-	}
-
-	/*
-	 * This is the actual handshake routine. It will do all the negotiations
-	 * and will check the client cert etc.
-	 */
-	SSL_set_accept_state(tls_conn);
-
-	cprintf("%s OK begin TLS negotiation now\r\n", parms[0]);
-	if ((sts = SSL_accept(tls_conn)) <= 0) {
-		SSL_SESSION *session = SSL_get_session(tls_conn);
-		if (session) {
-			SSL_CTX_remove_session(ssl_ctx, session);
-		}
-		r = -1;
-		goto done;
-	}
-
-	tls_protocol = SSL_get_version(tls_conn);
-	cipher = SSL_get_current_cipher(tls_conn);
-	tls_cipher_name = SSL_CIPHER_get_name(cipher);
-	tls_cipher_usebits =
-		SSL_CIPHER_get_bits(cipher, &tls_cipher_algbits);
-
-	lprintf(9, "starttls: %s with cipher %s (%d/%d bits %s)\n",
-		tls_protocol, tls_cipher_name,
-		tls_cipher_usebits, tls_cipher_algbits,
-		SSL_session_reused(tls_conn) ? "reused" : "new");
-
-done:
-	if (r && tls_conn) {
-		/* error; clean up */
-		SSL_free(tls_conn);
-		tls_conn = NULL;
-		cprintf("%s NO negotiation failed\r\n", parms[0]);
-	} else {
-		CC->ssl = tls_conn;
-		CC->redirect_ssl = 1;
-	}
-}
-
-#endif
-
 
 /*
- * implements the STARTTLS command (original version)
+ * implements the STARTTLS command (Citadel API version)
  */
 #ifdef HAVE_OPENSSL
 void imap_starttls(int num_parms, char *parms[])
 {
-	int retval, bits, alg_bits;
-	long ssloptions;
+	char ok_response[SIZ];
+	char nosup_response[SIZ];
+	char error_response[SIZ];
 
-	if (!ssl_ctx) {
-		cprintf("%s NO No SSL_CTX available\r\n", parms[0]);
-		return;
-	}
-	if (!(CC->ssl = SSL_new(ssl_ctx))) {
-		lprintf(2, "SSL_new failed: %s\n",
-			ERR_reason_error_string(ERR_peek_error()));
-		cprintf("%s NO SSL_new: %s\r\n", parms[0],
-			ERR_reason_error_string(ERR_get_error()));
-		return;
-	}
-
-	/* Set the options */
-	ssloptions = SSL_get_options(CC->ssl);
-	ssloptions |= SSL_OP_ALL;	/* Work around all known bugs */
-	ssloptions |= SSL_OP_NO_SSLv2;
-	ssloptions |= SSL_OP_NO_SSLv3;
-	SSL_set_options(CC->ssl, ssloptions);
-
-	if (!(SSL_set_fd(CC->ssl, CC->client_socket))) {
-		lprintf(2, "SSL_set_fd failed: %s\n",
-			ERR_reason_error_string(ERR_peek_error()));
-		SSL_free(CC->ssl);
-		CC->ssl = NULL;
-		cprintf("%s NO SSL_set_fd: %s\r\n", parms[0],
-			ERR_reason_error_string(ERR_get_error()));
-		return;
-	}
-	cprintf("%s OK begin TLS negotiation now\r\n", parms[0]);
-	retval = SSL_accept(CC->ssl);
-	if (retval < 1) {
-		/*
-		 * Can't notify the client of an error here; they will
-		 * discover the problem at the SSL layer and should
-		 * revert to unencrypted communications.
-		 */
-		long errval;
-
-		errval = SSL_get_error(CC->ssl, retval);
-		lprintf(2, "SSL_accept failed: %s\n",
-			ERR_reason_error_string(ERR_get_error()));
-		SSL_free(CC->ssl);
-		CC->ssl = NULL;
-		return;
-	}
-	BIO_set_close(CC->ssl->rbio, BIO_NOCLOSE);
-	bits =
-	    SSL_CIPHER_get_bits(SSL_get_current_cipher(CC->ssl),
-				&alg_bits);
-	lprintf(3, "SSL/TLS using %s on %s (%d of %d bits)\n",
-		SSL_CIPHER_get_name(SSL_get_current_cipher(CC->ssl)),
-		SSL_CIPHER_get_version(SSL_get_current_cipher(CC->ssl)),
-		bits, alg_bits);
-	CC->redirect_ssl = 1;
+	sprintf(ok_response,
+		"%s OK begin TLS negotiation now\r\n",
+		parms[0]);
+	sprintf(nosup_response,
+		"%s NO TLS not supported here\r\n",
+		parms[0]);
+	sprintf(error_response,
+		"%s BAD Internal error\r\n",
+		parms[0]);
+	CtdlStartTLS(ok_response, nosup_response, error_response);
 }
 #endif
-
 
 
 /*
