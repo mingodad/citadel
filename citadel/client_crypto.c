@@ -128,6 +128,11 @@ void ssl_lock(int mode, int n, const char *file, int line)
 }
 #endif /* HAVE_OPENSSL */
 
+#if defined(THREADED_CLIENT) && defined(HAVE_OPENSSL)
+static unsigned long id_callback(void) {
+	return pthread_self();
+}
+#endif
 
 /*
  * starttls() starts SSL/TLS if possible
@@ -200,7 +205,7 @@ int starttls(void)
 #ifdef THREADED_CLIENT
 	/* OpenSSL requires callbacks for threaded clients */
 	CRYPTO_set_locking_callback(ssl_lock);
-	CRYPTO_set_id_callback(pthread_self);
+	CRYPTO_set_id_callback(id_callback);
 
 	/* OpenSSL requires us to do semaphores for threaded clients */
 	Critters = malloc(CRYPTO_num_locks() * sizeof (pthread_mutex_t *));

@@ -1,5 +1,6 @@
 /* $Id$ */
 
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include "sysdep.h"
@@ -40,6 +41,9 @@
 SSL_CTX *ssl_ctx;				/* SSL context */
 pthread_mutex_t **SSLCritters;			/* Things needing locking */
 
+static unsigned long id_callback(void) {
+	return pthread_self();
+}
 
 void init_ssl(void)
 {
@@ -93,7 +97,7 @@ void init_ssl(void)
 #endif
 #endif
 	CRYPTO_set_locking_callback(ssl_lock);
-	CRYPTO_set_id_callback(pthread_self);
+	CRYPTO_set_id_callback(id_callback);
 
 	/* Load DH parameters into the context */
 	dh = DH_new();
@@ -300,7 +304,7 @@ void cmd_gtls(char *params)
  */
 void endtls(void)
 {
-	lprintf(7, "Ending SSL/TLS%s\n");
+	lprintf(7, "Ending SSL/TLS\n");
 
 	if (!CC->ssl) {
 		CC->redirect_ssl = 0;

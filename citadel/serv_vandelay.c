@@ -53,7 +53,7 @@ FILE *artv_global_message_list;
 void artv_export_users_backend(struct usersupp *usbuf, void *data) {
 	cprintf("user\n");
 	cprintf("%d\n", usbuf->version);
-	cprintf("%d\n", usbuf->uid);
+	cprintf("%ld\n", (long)usbuf->uid);
 	cprintf("%s\n", usbuf->password);
 	cprintf("%u\n", usbuf->flags);
 	cprintf("%ld\n", usbuf->timescalled);
@@ -256,7 +256,7 @@ void artv_do_export(void) {
 	cprintf("%s\n", config.c_fqdn);
 	cprintf("%s\n", config.c_humannode);
 	cprintf("%s\n", config.c_phonenum);
-	cprintf("%d\n", config.c_bbsuid);
+	cprintf("%ld\n", (long)config.c_bbsuid);
 	cprintf("%d\n", config.c_creataide);
 	cprintf("%d\n", config.c_sleeping);
 	cprintf("%d\n", config.c_initax);

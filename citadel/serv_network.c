@@ -718,8 +718,8 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 	if (msg->cm_fields['I'] != NULL) {
 		phree(msg->cm_fields['I']);
 	}
-	sprintf(buf, "%ld.%04x.%04x@%s",
-		(long)time(NULL), getpid(), ++serialnum, config.c_fqdn);
+	sprintf(buf, "%ld.%04lx.%04x@%s",
+		(long)time(NULL), (long)getpid(), ++serialnum, config.c_fqdn);
 	msg->cm_fields['I'] = strdoop(buf);
 
 	/*

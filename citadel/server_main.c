@@ -195,16 +195,16 @@ int main(int argc, char **argv)
 	 */
 	if (drop_root_perms) {
 		if ((pw = getpwuid(BBSUID)) == NULL)
-			lprintf(1, "WARNING: getpwuid(%d): %s\n"
-				   "Group IDs will be incorrect.\n", BBSUID,
+			lprintf(1, "WARNING: getpwuid(%ld): %s\n"
+				   "Group IDs will be incorrect.\n", (long)BBSUID,
 				strerror(errno));
 		else {
 			initgroups(pw->pw_name, pw->pw_gid);
 			if (setgid(pw->pw_gid))
-				lprintf(3, "setgid(%d): %s\n", pw->pw_gid,
+				lprintf(3, "setgid(%ld): %s\n", (long)pw->pw_gid,
 					strerror(errno));
 		}
-		lprintf(7, "Changing uid to %d\n", BBSUID);
+		lprintf(7, "Changing uid to %ld\n", (long)BBSUID);
 		if (setuid(BBSUID) != 0) {
 			lprintf(3, "setuid() failed: %s\n", strerror(errno));
 		}

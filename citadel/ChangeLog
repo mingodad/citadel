@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.136  2002/03/11 04:16:20  nbryant
+ warning fixes on sparc-sun-solaris2.8 with gcc 3.0.4, mostly for *printf
+ format strings
+
  Revision 590.135  2002/03/11 03:55:24  nbryant
   - fixes for building without OpenSSL
   - setenv doesn't exist on all systems, use putenv instead
@@ -3420,3 +3424,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
