@@ -19,8 +19,6 @@
 #include "config.h"
 #include "dynloader.h"
 
-symtab *My_Symtab = NULL;	/* dyn */
-
 extern struct CitContext *ContextList;
 
 #define MODULE_NAME 	"Dummy test module"
@@ -28,6 +26,14 @@ extern struct CitContext *ContextList;
 #define MODULE_EMAIL	"ajc@uncnsrd.mt-kisco.ny.us"
 #define MAJOR_VERSION	0
 #define MINOR_VERSION	1
+
+static struct DLModule_Info info = {
+  MODULE_NAME,
+  MODULE_AUTHOR,
+  MODULE_EMAIL,
+  MAJOR_VERSION,
+  MINOR_VERSION
+};
 
 void CleanupTest(void) {
 	lprintf(9, "--- test of adding an unload hook --- \n");
@@ -49,24 +55,12 @@ void LoginTest(void) {
 	lprintf(9, "--- Hello, %s ---\n", CC->curr_user);
 	}
 
-void Dynamic_Module_Init(struct DLModule_Info *info)
+struct DLModule_Info *Dynamic_Module_Init(void)
 {
-   strncpy(info->module_name, MODULE_NAME, 30);
-   strncpy(info->module_author, MODULE_AUTHOR, 30);
-   strncpy(info->module_author_email, MODULE_EMAIL, 30);
-   info->major_version = MAJOR_VERSION;
-   info->minor_version = MINOR_VERSION;
-
    CtdlRegisterCleanupHook(CleanupTest);
    CtdlRegisterNewRoomHook(NewRoomTest);
    CtdlRegisterSessionHook(SessionStartTest, 1);
    CtdlRegisterSessionHook(SessionStopTest, 0);
    CtdlRegisterLoginHook(LoginTest);
-
-}
-
-void Get_Symtab(symtab **the_symtab)
-{
-   (*the_symtab) = My_Symtab;
-   return;
+   return &info;
 }

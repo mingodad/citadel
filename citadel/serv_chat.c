@@ -25,7 +25,6 @@
 
 struct ChatLine *ChatQueue = NULL;
 int ChatLastMsg = 0;
-symtab *My_Symtab = NULL;	/* dyn */
 
 extern struct CitContext *ContextList;
 
@@ -35,27 +34,23 @@ extern struct CitContext *ContextList;
 #define MAJOR_VERSION	0
 #define MINOR_VERSION	2
 
-
-void Dynamic_Module_Init(struct DLModule_Info *info)
+static struct DLModule_Info info =
 {
-   add_symbol("cmd_chat", "CHAT", "Initiates a real-time chat session", &My_Symtab);
-   add_symbol("cmd_pexp", "PEXP", "Poll for express messages", &My_Symtab);
-   add_symbol("cmd_sexp", "SEXP", "Send an express message", &My_Symtab);
-   strncpy(info->module_name, MODULE_NAME, 30);
-   strncpy(info->module_author, MODULE_AUTHOR, 30);
-   strncpy(info->module_author_email, MODULE_EMAIL, 30);
-   info->major_version = MAJOR_VERSION;
-   info->minor_version = MINOR_VERSION;
+  MODULE_NAME,
+  MODULE_AUTHOR,
+  MODULE_EMAIL,
+  MAJOR_VERSION,
+  MINOR_VERSION
+};
 
-}
-
-void Get_Symtab(symtab **the_symtab)
+struct DLModule_Info *Dynamic_Module_Init(void)
 {
-   (*the_symtab) = My_Symtab;
-   return;
+   CtdlRegisterProtoHook(cmd_chat, "CHAT",
+			 "Initiates a real-time chat session");
+   CtdlRegisterProtoHook(cmd_pexp, "PEXP", "Poll for express messages");
+   CtdlRegisterProtoHook(cmd_sexp, "SEXP", "Send an express message");
+   return &info;
 }
-
-
 
 void allwrite(char *cmdbuf, int flag, char *roomname, char *username)
 {	
@@ -358,7 +353,7 @@ void cmd_chat(char *argbuf)
 /*
  * poll for express messages
  */
-void cmd_pexp(void) {
+void cmd_pexp(char *argbuf) /* arg unused */ {
 	struct ExpressMessage *emptr;
 
 	if (CC->FirstExpressMessage == NULL) {

@@ -1,24 +1,16 @@
 struct DLModule_Info
 {
-   char module_name[30];
-   char module_author[30];
-   char module_author_email[30];
+   char *module_name;
+   char *module_author;
+   char *module_author_email;
    int major_version, minor_version;
 };
 
-typedef struct s_symtab
-{
-   char *fcn_name;
-   char *server_cmd;
-   char *info_msg;
-   char *module_path;
-   struct s_symtab *next;
-} symtab;
-
-void DLoader_Init(char *pathname, symtab **);
+void DLoader_Init(char *pathname);
 int DLoader_Exec_Cmd(char *cmdbuf);
-void add_symbol(char *fcn_name, char *server_cmd, char *info_msg, symtab **);
 void CtdlRegisterCleanupHook(void *fcn_ptr);
 void CtdlRegisterNewRoomHook(void *fcn_ptr);
 void CtdlRegisterSessionHook(void *fcn_ptr, int StartStop);
 void CtdlRegisterLoginHook(void *fcn_ptr);
+void CtdlRegisterProtoHook(void (*handler)(char *), char *cmd, char *desc);
+struct DLModule_Info *Dynamic_Module_Init(void);

@@ -45,7 +45,6 @@
 
 pthread_mutex_t Critters[MAX_SEMAPHORES];	/* Things needing locking */
 pthread_key_t MyConKey;				/* TSD key for MyContext() */
-symtab *my_symtab;				/* Dynamic modules symbol table */
 
 int msock;					/* master listening socket */
 int verbosity = 3;				/* Logging level */
@@ -646,7 +645,7 @@ int main(int argc, char **argv)
 	openlog("citserver",LOG_PID,LOG_USER);
         lprintf(1, "Initting modules...\n");
         snprintf(modpath, 128, "%s/modules", BBSDIR);
-        DLoader_Init(modpath, &my_symtab);
+        DLoader_Init(modpath);
         lprintf(1, "Modules done initializing...\n");
 /*
         lprintf(1, "First symtab item:");

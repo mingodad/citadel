@@ -1,3 +1,15 @@
+1998-09-17 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* Makefile.in: add SERV_MODULES and PROXY_TARGETS to `cleaner'
+	* dynloader.[ch], serv_{chat,test}.[ch], sysdep.c: cleaned
+	  up the dynamic loader interface as follows:
+	  - all the symbol table stuff is gone.
+	  - modules are loaded once at server startup and never unloaded.
+	  - Added a new function CtdlRegisterProtoHook() to handle the stuff
+	    that was being done with the symbol tables.
+	  - Dynamic_Module_Init() now returns a pointer to a static struct
+	    DLModule_Info; this structure itself has been modified to use char*
+	    fields instead of fixed char arrays.
+
 Wed Sep 16 22:25:13 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Implemented separate structs, lists, and functions for each type
 	  of server-side hook available.
