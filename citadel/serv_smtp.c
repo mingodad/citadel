@@ -122,7 +122,7 @@ void smtp_hello(char *argbuf, int is_esmtp) {
 		cprintf("250 Greetings and joyous salutations.\r\n");
 	}
 	else {
-		cprintf("250-Extended greetings and joyous salutations.\r\n");
+		cprintf("250-Greetings and joyous salutations.\r\n");
 		cprintf("250-HELP\r\n");
 		cprintf("250-SIZE %ld\r\n", config.c_maxmsglen);
 		cprintf("250-PIPELINING\r\n");
@@ -370,12 +370,9 @@ void smtp_mail(char *argbuf) {
 	 * this system.
 	 */
 	else {
-		TRACE;
 		cvt = convert_internet_address(user, node, SMTP->from);
-		TRACE;
 		lprintf(9, "cvt=%d, citaddr=<%s@%s>\n", cvt, user, node);
 		if (CtdlHostAlias(node) == hostalias_localhost) {
-			TRACE;
 			cprintf("550 You must log in to send mail from %s\r\n",
 				node);
 			strcpy(SMTP->from, "");
@@ -409,9 +406,7 @@ void smtp_rcpt(char *argbuf) {
 
 	strcpy(recp, &argbuf[3]);
 	striplt(recp);
-	TRACE;
 	alias(recp);
-	TRACE;
 
 	cvt = convert_internet_address(user, node, recp);
 	snprintf(recp, sizeof recp, "%s@%s", user, node);
@@ -456,7 +451,7 @@ void smtp_rcpt(char *argbuf) {
 
 		case rfc822_address_nonlocal:
 			if (SMTP->message_originated_locally == 0) {
-				cprintf("551 Third-party relaying denied.\r\n");
+				cprintf("551 Relaying denied.\r\n");
 			}
 			else {
 				cprintf("250 Remote recipient %s ok\r\n", recp);
@@ -665,7 +660,7 @@ void smtp_data(void) {
 	
 	body = CtdlReadMessageBody(".", config.c_maxmsglen, body);
 	if (body == NULL) {
-		cprintf("550 Unable to save message text: internal error.\r\n");
+		cprintf("550 Unable to save message: internal error.\r\n");
 		return;
 	}
 
@@ -673,7 +668,8 @@ void smtp_data(void) {
 	msg = convert_internet_message(body);
 
 	/* If the user is locally authenticated, FORCE the From: header to
-	 * show up as the real sender
+	 * show up as the real sender.  Yes, this violates the RFC standard,
+	 * but IT MAKES SENSE.  Comment it out if you don't like this behavior.
 	 */
 	if (CC->logged_in) {
 		if (msg->cm_fields['A'] != NULL) phree(msg->cm_fields['A']);
@@ -684,11 +680,12 @@ void smtp_data(void) {
 		msg->cm_fields['H'] = strdoop(config.c_humannode);
 	}
 
+	/* Submit the message into the Citadel system. */
 	retval = smtp_message_delivery(msg);
 	CtdlFreeMessage(msg);
 
 	if (!retval) {
-		cprintf("250 ok terrific\r\n");
+		cprintf("250 Message accepted.\r\n");
 	}
 	else {
 		cprintf("550 Internal delivery errors: %d\r\n", retval);
