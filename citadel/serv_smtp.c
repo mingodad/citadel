@@ -457,6 +457,7 @@ void smtp_data(void) {
 	long msgnum;
 	char nowstamp[SIZ];
 	struct recptypes *valid;
+	int scan_errors;
 
 	if (strlen(SMTP->from) == 0) {
 		cprintf("503 Need MAIL command first.\r\n");
@@ -508,17 +509,35 @@ void smtp_data(void) {
 
 	/* Submit the message into the Citadel system. */
 	valid = validate_recipients(SMTP->recipients);
-	msgnum = CtdlSubmitMsg(msg, valid, "");
+
+	/* If there are modules that want to scan this message before final
+	 * submission (such as virus checkers or spam filters), call them now
+	 * and give them an opportunity to reject the message.
+	 */
+	scan_errors = PerformMessageHooks(msg, EVT_SMTPSCAN);
+
+	if (scan_errors > 0) {	/* We don't want this message! */
+
+		if (msg->cm_fields['0'] == NULL) {
+			msg->cm_fields['0'] = strdoop(
+				"Message rejected by filter");
+		}
+
+		cprintf("552 %s\r\n", msg->cm_fields['0']);
+	}
+	
+	else {			/* Ok, we'll accept this message. */
+		msgnum = CtdlSubmitMsg(msg, valid, "");
+		if (msgnum > 0L) {
+			cprintf("250 Message accepted.\r\n");
+		}
+		else {
+			cprintf("550 Internal delivery error\r\n");
+		}
+	}
+
 	CtdlFreeMessage(msg);
 	phree(valid);
-
-	if (msgnum > 0L) {
-		cprintf("250 Message accepted.\r\n");
-	}
-	else {
-		cprintf("550 Internal delivery error\r\n");
-	}
-
 	smtp_data_clear();	/* clear out the buffers now */
 }
 

@@ -1,4 +1,9 @@
  $Log$
+ Revision 591.36  2002/06/07 22:10:51  ajc
+ * Added a new message function hook type EVT_SMTPSCAN which permits modules to
+   register hooks that can scan incoming SMTP messages and elect to reject them
+   (due to virus or spam content, for example).
+
  Revision 591.35  2002/06/07 03:22:13  ajc
  * Added a module "serv_mrtg" which allows activity reporting to MRTG
    (http://www.mrtg.org) -- this will replace our stats program.
@@ -3692,3 +3697,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

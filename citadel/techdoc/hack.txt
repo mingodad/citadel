@@ -117,6 +117,11 @@ T	Date/Time	A 32-bit integer containing the date and time of
 U       Subject         Optional.  Developers may choose whether they wish to
                         generate or display subject fields.  Citadel/UX does
                         not generate them, but it does print them when found.
+0	Error		This field is typically never found in a message on
+			disk or in transit.  Message scanning modules are
+			expected to fill in this field when rejecting a message
+			with an explanation as to what happened (virus found,
+			message looks like spam, etc.)
   
 			EXAMPLE
 
