@@ -347,4 +347,5 @@ void display_task(long msgnum);
 
 #ifdef HAVE_ICAL_H
 void display_edit_task(void);
+void save_task(void);
 #endif
