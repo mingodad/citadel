@@ -1,8 +1,7 @@
 /*
  * $Id$
  *
- * This file contains a set of abstractions that allow Citadel to plug into any
- * record manager or database system for its data store.
+ * GDBM database driver for Citadel/UX
  *
  */
 
@@ -339,4 +338,16 @@ struct cdbdata *cdb_next_item(int cdb)
 	}
 
 	return (cdbret);
+}
+
+
+
+/*
+ * GDBM doesn't support transaction-based logging.  Stub out these functions.
+ */
+
+void cdb_begin_transaction(void) {
+}
+
+void cdb_end_transaction(void) {
 }

@@ -8,3 +8,5 @@ struct cdbdata *cdb_fetch (int cdb, void *key, int keylen);
 void cdb_free (struct cdbdata *cdb);
 void cdb_rewind (int cdb);
 struct cdbdata *cdb_next_item (int cdb);
+void cdb_begin_transaction(void);
+void cdb_end_transaction(void);

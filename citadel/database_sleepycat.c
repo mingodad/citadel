@@ -19,18 +19,51 @@
 #include "citserver.h"
 #include "database.h"
 #include "sysdep_decls.h"
+#include "dynloader.h"
 
+
+/* 
+ * FIXME this should be defined somewhere else.
+ */
+int transaction_based = 1;
+
+DB *dbp[MAXCDB];		/* One DB handle for each Citadel database */
+DB_ENV *dbenv;			/* The DB environment (global) */
+
+struct cdbssd {			/* Session-specific DB stuff */
+	DBC *cursor;		/* Cursor, for traversals... */
+	DB_TXN *tid;		/* Transaction ID */
+};
+
+struct cdbssd *ssd_arr = NULL;
+int num_ssd = 0;
+#define MYCURSOR	ssd_arr[CC->cs_pid].cursor
+#define MYTID		ssd_arr[CC->cs_pid].tid
 
 /*
- * This array holds one DB handle for each Citadel database.
+ * Ensure that we have enough space for session-specific data.  We don't
+ * put anything in here that Citadel cares about; this is just database
+ * related stuff like cursors and transactions.
  */
-DB *dbp[MAXCDB];
+void cdb_allocate_ssd(void) {
+	/*
+	 * Make sure we have a cursor allocated for this session
+	 */
 
-DB_ENV *dbenv;
+	lprintf(9, "num_ssd before realloc = %d\n", num_ssd);
+	if (num_ssd <= CC->cs_pid) {
+		num_ssd = CC->cs_pid + 1;
+		if (ssd_arr == NULL) {
+			ssd_arr = (struct cdbssd *)
+			    mallok((sizeof(struct cdbssd) * num_ssd));
+		} else {
+			ssd_arr = (struct cdbssd *)
+			    reallok(ssd_arr, (sizeof(struct cdbssd) * num_ssd));
+		}
+	}
+	lprintf(9, "num_ssd  after realloc = %d\n", num_ssd);
+}
 
-DBC **cursorz = NULL;
-int num_cursorz = 0;
-#define MYCURSOR cursorz[CC->cs_pid]
 
 /*
  * Reclaim unused space in the databases.  We need to do each one of
@@ -56,6 +89,7 @@ void open_databases(void)
 	int ret;
 	int i;
 	char dbfilename[256];
+	u_int32_t flags = 0;
 
         /*
          * Silently try to create the database subdirectory.  If it's
@@ -89,10 +123,9 @@ void open_databases(void)
 	 * is serialized already, so don't bother the database manager with
 	 * it.  Besides, it locks up when we do it that way.
          */
-        /* (void)dbenv->set_data_dir(dbenv, "/database/files"); */
-        ret = dbenv->open(dbenv, "./data",
-        	( DB_CREATE | DB_INIT_MPOOL | DB_PRIVATE ),
-		0);
+        flags = DB_CREATE | DB_INIT_MPOOL | DB_PRIVATE;
+	if (transaction_based) flags = flags | DB_INIT_TXN;
+        ret = dbenv->open(dbenv, "./data", flags, 0);
 	if (ret) {
 		lprintf(1, "dbenv->open: %s\n", db_strerror(ret));
                 dbenv->close(dbenv, 0);
@@ -128,6 +161,10 @@ void open_databases(void)
 		}
 
 	}
+
+	cdb_allocate_ssd();
+	CtdlRegisterSessionHook(cdb_allocate_ssd, EVT_START);
+
 
 }
 
@@ -186,7 +223,7 @@ int cdb_store(int cdb,
 
 	begin_critical_section(S_DATABASE);
 	ret = dbp[cdb]->put(dbp[cdb],		/* db */
-				NULL,		/* transaction ID (hmm...) */
+				MYTID,		/* transaction ID */
 				&dkey,		/* key */
 				&ddata,		/* data */
 				0);		/* flags */
@@ -212,7 +249,7 @@ int cdb_delete(int cdb, void *key, int keylen)
 	dkey.data = key;
 
 	begin_critical_section(S_DATABASE);
-	ret = dbp[cdb]->del(dbp[cdb], NULL, &dkey, 0);
+	ret = dbp[cdb]->del(dbp[cdb], MYTID, &dkey, 0);
 	end_critical_section(S_DATABASE);
 	return (ret);
 
@@ -240,7 +277,7 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
 	dret.flags = DB_DBT_MALLOC;
 
 	begin_critical_section(S_DATABASE);
-	ret = dbp[cdb]->get(dbp[cdb], NULL, &dkey, &dret, 0);
+	ret = dbp[cdb]->get(dbp[cdb], MYTID, &dkey, &dret, 0);
 	end_critical_section(S_DATABASE);
 	if ((ret != 0) && (ret != DB_NOTFOUND)) {
 		lprintf(1, "cdb_fetch: %s\n", db_strerror(ret));
@@ -276,27 +313,13 @@ void cdb_rewind(int cdb)
 {
 	int ret = 0;
 
-	/*
-	 * Make sure we have a cursor allocated for this session
-	 */
-
-	if (num_cursorz <= CC->cs_pid) {
-		num_cursorz = CC->cs_pid + 1;
-		if (cursorz == NULL) {
-			cursorz = (DBC **)
-			    mallok((sizeof(DBC *) * num_cursorz));
-		} else {
-			cursorz = (DBC **)
-			    reallok(cursorz, (sizeof(DBC *) * num_cursorz));
-		}
-	}
-
+	cdb_allocate_ssd();
 
 	/*
 	 * Now initialize the cursor
 	 */
 	begin_critical_section(S_DATABASE);
-	ret = dbp[cdb]->cursor(dbp[cdb], NULL, &MYCURSOR, 0);
+	ret = dbp[cdb]->cursor(dbp[cdb], MYTID, &MYCURSOR, 0);
 	if (ret) {
 		lprintf(1, "db_cursor: %s\n", db_strerror(ret));
 	}
@@ -331,4 +354,22 @@ struct cdbdata *cdb_next_item(int cdb)
 	cdbret->ptr = data.data;
 
 	return (cdbret);
+}
+
+
+/*
+ * Transaction-based stuff.  I'm writing this as I bake cookies...
+ */
+
+void cdb_begin_transaction(void) {
+	if (!transaction_based) {
+		MYTID = NULL;
+		return;
+	}
+
+	txn_begin(dbenv, NULL, &MYTID, 0);
+}
+
+void cdb_end_transaction(void) {
+	if (transaction_based) txn_commit(MYTID, 0);
 }

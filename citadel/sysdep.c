@@ -7,8 +7,8 @@
  * Here's where we (hopefully) have most parts of the Citadel server that
  * would need to be altered to run the server in a non-POSIX environment.
  * 
- * Eventually we'll try porting to a different platform and either have
- * multiple variants of this file or simply load it up with #ifdefs.
+ * If we ever port to a different platform and either have multiple
+ * variants of this file or simply load it up with #ifdefs.
  *
  */
 
@@ -186,7 +186,7 @@ void dump_tracked() {
 
 
 /*
- * we used to use master_cleanup() as a signal handler to shut down the server.
+ * We used to use master_cleanup() as a signal handler to shut down the server.
  * however, master_cleanup() and the functions it calls do some things that
  * aren't such a good idea to do from a signal handler: acquiring mutexes,
  * playing with signal masks on BSDI systems, etc. so instead we install the
@@ -215,7 +215,8 @@ void init_sysdep(void) {
 	/*
 	 * Set up a place to put thread-specific data.
 	 * We only need a single pointer per thread - it points to the
-	 * thread's CitContext structure in the ContextList linked list.
+	 * CitContext structure (in the ContextList linked list) of the
+	 * session to which the calling thread is currently bound.
 	 */
 	if (pthread_key_create(&MyConKey, NULL) != 0) {
 		lprintf(1, "Can't create TSD key!!  %s\n", strerror(errno));
@@ -370,7 +371,11 @@ struct CitContext *MyContext(void) {
 
 
 /*
- * Initialize a new context and place it in the list.
+ * Initialize a new context and place it in the list.  The session number
+ * used to be the PID (which is why it's called cs_pid), but that was when we
+ * had one process per session.  Now we just assign them sequentially, starting
+ * at 1 (don't change it to 0 because masterCC uses 0) and re-using them when
+ * sessions terminate.
  */
 struct CitContext *CreateNewContext(void) {
 	struct CitContext *me, *ptr;
@@ -563,8 +568,15 @@ void sysdep_master_cleanup(void) {
 	 */
 	for (serviceptr = ServiceHookTable; serviceptr != NULL;
 	    serviceptr = serviceptr->next ) {
-		lprintf(3, "Closing listener on port %d\n",
-			serviceptr->tcp_port);
+
+		if (serviceptr->tcp_port > 0)
+			lprintf(3, "Closing listener on port %d\n",
+				serviceptr->tcp_port);
+
+		if (serviceptr->sockpath != NULL)
+			lprintf(3, "Closing listener on '%s'\n",
+				serviceptr->sockpath);
+
 		close(serviceptr->msock);
 
 		/* If it's a Unix domain socket, remove the file. */
@@ -792,6 +804,7 @@ void CtdlRedirectOutput(FILE *fp, int sock) {
 void InitializeMasterCC(void) {
 	memset(&masterCC, 0, sizeof(struct CitContext));
 	masterCC.internal_pgm = 1;
+	masterCC.cs_pid = 0;
 }
 
 
@@ -1167,7 +1180,9 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 			/* We're bound to a session, now do *one* command */
 			if (bind_me != NULL) {
 				become_session(bind_me);
+				cdb_begin_transaction();
 				CC->h_command_function();
+				cdb_end_transaction();
 				become_session(NULL);
 				bind_me->state = CON_IDLE;
 				if (bind_me->kill_me == 1) {
