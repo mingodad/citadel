@@ -278,16 +278,16 @@ void the_mime_parser(char *partnum,
 	char *ptr;
 	char *part_start, *part_end = NULL;
 	char buf[SIZ];
-	char header[SIZ];
-	char boundary[SIZ];
-	char startary[SIZ];
-	char endary[SIZ];
-	char content_type[SIZ];
+	char *header;
+	char *boundary;
+	char *startary;
+	char *endary;
+	char *content_type;
 	size_t content_length;
-	char encoding[SIZ];
-	char disposition[SIZ];
-	char name[SIZ];
-	char filename[SIZ];
+	char *encoding;
+	char *disposition;
+	char *name;
+	char *filename;
 	int is_multipart;
 	int part_seq = 0;
 	int i;
@@ -296,13 +296,34 @@ void the_mime_parser(char *partnum,
 
 	lprintf(9, "the_mime_parser() called\n");
 	ptr = content_start;
-	memset(boundary, 0, sizeof boundary);
-	memset(content_type, 0, sizeof content_type);
-	memset(encoding, 0, sizeof encoding);
-	memset(name, 0, sizeof name);
-	memset(filename, 0, sizeof filename);
-	memset(disposition, 0, sizeof disposition);
 	content_length = 0;
+
+	boundary = mallok(SIZ);
+	memset(boundary, 0, SIZ);
+
+	startary = mallok(SIZ);
+	memset(startary, 0, SIZ);
+
+	endary = mallok(SIZ);
+	memset(endary, 0, SIZ);
+
+	header = mallok(SIZ);
+	memset(header, 0, SIZ);
+
+	content_type = mallok(SIZ);
+	memset(content_type, 0, SIZ);
+
+	encoding = mallok(SIZ);
+	memset(encoding, 0, SIZ);
+
+	name = mallok(SIZ);
+	memset(name, 0, SIZ);
+
+	filename = mallok(SIZ);
+	memset(filename, 0, SIZ);
+
+	disposition = mallok(SIZ);
+	memset(disposition, 0, SIZ);
 
 	/* If the caller didn't supply an endpointer, generate one by measure */
 	if (content_end == NULL) {
@@ -313,8 +334,9 @@ void the_mime_parser(char *partnum,
 	strcpy(header, "");
 	do {
 		ptr = memreadline(ptr, buf, sizeof buf);
-		if (ptr >= content_end)
-			return;
+		if (ptr >= content_end) {
+			goto end_parser;
+		}
 
 		for (i = 0; i < strlen(buf); ++i)
 			if (isspace(buf[i]))
@@ -411,7 +433,7 @@ void the_mime_parser(char *partnum,
 			PostMultiPartCallBack("", "", partnum, "", NULL,
 				content_type, 0, encoding, userdata);
 		}
-		return;
+		goto end_parser;
 	}
 
 	/* If it's not a multipart message, then do something with it */
@@ -438,6 +460,17 @@ void the_mime_parser(char *partnum,
 			    CallBack, NULL, NULL,
 			    userdata, dont_decode);
 	}
+
+end_parser:	/* free the buffers!  end the oppression!! */
+	phree(boundary);
+	phree(startary);
+	phree(endary);	
+	phree(header);
+	phree(content_type);
+	phree(encoding);
+	phree(name);
+	phree(filename);
+	phree(disposition);
 }
 
 
