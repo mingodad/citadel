@@ -154,15 +154,47 @@ void do_login(void)
 
 void do_welcome(void)
 {
-	char startpage[SIZ];
+	char buf[SIZ];
+	FILE *fp;
+	int i;
 
-	get_preference("startpage", startpage);
-	if (strlen(startpage)==0) {
-		strcpy(startpage, "/dotskip&room=_BASEROOM_");
-		set_preference("startpage", startpage);
+	/*
+	 * See if we have to run the first-time setup wizard
+	 */
+	if (!setup_wizard) {
+		sprintf(wizard_filename, "setupwiz.%s.%s", ctdlhost, ctdlport);
+		for (i=0; i<strlen(wizard_filename); ++i) {
+			if (	(wizard_filename[i]==' ')
+				|| (wizard_filename[i] == '/')
+			) {
+				wizard_filename[i] = '_';
+			}
+		}
+
+		fp = fopen(wizard_filename, "r");
+		if (fp != NULL) {
+			fgets(buf, sizeof buf, fp);
+			buf[strlen(buf)-1] = 0;
+			fclose(fp);
+			if (atoi(buf) != serv_info.serv_rev_level) {
+				setup_wizard = 1;	/* already run */
+			}
+		}
 	}
 
-	http_redirect(startpage);
+	if (!setup_wizard) {
+		http_redirect("/setup_wizard");
+	}
+
+	/*
+	 * Go to the user's preferred start page
+	 */
+	get_preference("startpage", buf);
+	if (strlen(buf)==0) {
+		strcpy(buf, "/dotskip&room=_BASEROOM_");
+		set_preference("startpage", buf);
+	}
+	http_redirect(buf);
 }
 
 

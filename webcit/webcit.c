@@ -1354,6 +1354,8 @@ void session_loop(struct httprequest *req)
 		display_inetconf();
 	} else if (!strcasecmp(action, "save_inetconf")) {
 		save_inetconf();
+	} else if (!strcasecmp(action, "setup_wizard")) {
+		do_setup_wizard();
 	} else if (!strcasecmp(action, "diagnostics")) {
 		output_headers(1, 1, 1, 0, 0, 0, 0);
 
