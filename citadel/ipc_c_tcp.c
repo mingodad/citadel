@@ -78,7 +78,7 @@ void connection_died(void) {
 }
 
 
-void timeout(int signum)
+static void ipc_timeout(int signum)
 {
 	err_printf("\rConnection timed out.\n");
 	logoff(3);
@@ -130,7 +130,7 @@ static int connectsock(char *host, char *service, char *protocol, int defaultPor
 		err_printf("Can't create socket: %s\n", strerror(errno));
 		logoff(3);
 	}
-	signal(SIGALRM, timeout);
+	signal(SIGALRM, ipc_timeout);
 	alarm(30);
 
 	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
