@@ -1,4 +1,7 @@
 $Log$
+Revision 213.17  2001/05/28 19:27:29  ajc
+* Fixed bug which marked all messages in Lobby as old before reading at login
+
 Revision 213.16  2001/05/25 22:39:26  ajc
 * Brought over the new MIME parser from Citadel.  WARNING: BROKEN BUILD!!
 
@@ -556,3 +559,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
