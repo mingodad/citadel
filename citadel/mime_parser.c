@@ -251,6 +251,7 @@ void the_mime_parser(char *partnum,
 	memset(encoding, 0, sizeof encoding);
 	memset(name, 0, sizeof name);
 	memset(filename, 0, sizeof filename);
+	memset(disposition, 0, sizeof disposition);
 
 	/* Learn interesting things from the headers */
 	strcpy(header, "");
@@ -305,6 +306,11 @@ void the_mime_parser(char *partnum,
 	/* If this is a multipart message, then recursively process it */
 	part_start = NULL;
 	if (is_multipart) {
+
+		/* Tell the client about this message's multipartedness */
+		CallBack("", "", partnum, "", NULL, content_type, 0);
+
+		/* Figure out where the boundaries are */
 		sprintf(startary, "--%s", boundary);
 		sprintf(endary, "--%s--", boundary);
 		do {
@@ -344,10 +350,6 @@ void the_mime_parser(char *partnum,
 			    name, filename, CallBack);
 	}
 
-	/* Otherwise, merely tell the client about our multipartedness */
-	else {
-		CallBack("", "", partnum, "", NULL, content_type, 0);
-	}
 
 }
 
