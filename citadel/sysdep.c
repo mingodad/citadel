@@ -896,7 +896,7 @@ void *worker_thread(void *arg) {
 	struct CitContext *ptr;
 	struct CitContext *bind_me = NULL;
 	fd_set readfds;
-	int retval;
+	int retval = 0;
 	struct CitContext *con= NULL;	/* Temporary context pointer */
 	struct ServiceFunctionHook *serviceptr;
 	int ssock;			/* Descriptor for client socket */

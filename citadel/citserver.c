@@ -669,6 +669,11 @@ int CtdlAccessCheck(int required_level) {
 		return(-1);
 	}
 
+	if ((required_level >= ac_logged_in) && (CC->logged_in == 0)) {
+		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
+		return(-1);
+	}
+
 	if (CC->user.axlevel >= 6) return(0);
  	if (required_level >= ac_aide) {
 		cprintf("%d This command requires Aide access.\n",
@@ -680,12 +685,6 @@ int CtdlAccessCheck(int required_level) {
 	if (required_level >= ac_room_aide) {
 		cprintf("%d This command requires Aide or Room Aide access.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);
-		return(-1);
-	}
-
-	if (CC->logged_in) return(0);
-	if (required_level >= ac_logged_in) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
 		return(-1);
 	}
 

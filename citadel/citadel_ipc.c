@@ -2714,6 +2714,7 @@ static void CtdlIPC_init_OpenSSL(void)
 	}
 
 	/* Get started */
+	a = 0;
 	ssl_ctx = NULL;
 	dh = NULL;
 	SSL_load_error_strings();

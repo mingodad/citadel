@@ -1,4 +1,10 @@
  $Log$
+ Revision 626.9  2004/10/12 02:17:49  ajc
+ * Cleaned up some things that generated compiler warnings
+ * crypto keys directory is now relative to the server's working directory,
+   not to the compiled-in BBSDIR
+ * Re-ordered the security checks in CtdlAccessCheck()
+
  Revision 626.8  2004/10/06 21:23:21  error
  * Fixup a few more compiler warnings from icc
 
@@ -6147,4 +6153,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
