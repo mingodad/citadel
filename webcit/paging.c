@@ -117,7 +117,25 @@ void page_user(void)
  */
 void do_chat(void)
 {
+	char buf[SIZ];
 
+	/* First, check to make sure we're still allowed in this room. */
+	serv_printf("GOTO %s", WC->wc_roomname);
+	serv_gets(buf);
+	if (buf[0] != '2') {
+		smart_goto("_BASEROOM_");
+		return;
+	}
+
+	/* If the chat socket is still open from a previous chat,
+	 * close it -- because it might be stale or in the wrong room.
+	 */
+	if (WC->chat_sock < 0) {
+		close(WC->chat_sock);
+		WC->chat_sock = (-1);
+	}
+
+	/* Ok, we're good.  Here we go. */
 	output_headers(3);
 
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#000077\"><TR><TD>"
