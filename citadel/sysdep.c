@@ -297,8 +297,7 @@ int ig_tcp_server(int port_number, int queue_len)
 	sin.sin_addr.s_addr = INADDR_ANY;
 	sin.sin_port = htons((u_short)port_number);
 
-	s = socket(PF_INET, SOCK_STREAM,
-		(getprotobyname("tcp")->p_proto));
+	s = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	if (s < 0) {
 		lprintf(1, "citserver: Can't create a socket: %s\n",

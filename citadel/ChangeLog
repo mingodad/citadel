@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.87  2001/02/12 04:31:34  ajc
+ * sysdep.c ig_tcp_server() - use IPPROTO_TCP instead of getprotobyname()
+
  Revision 573.86  2001/02/08 04:45:58  ajc
  * Fixed namespace problems resulting from the automatic namespece prefixing
    added to create_room().  Also added the ability to specify "create a mailbox
@@ -2394,4 +2397,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
