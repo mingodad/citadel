@@ -637,6 +637,14 @@ void kill_session(int session_to_kill) {
 		pthread_cancel(killme);
 #else
 		pthread_kill(killme, SIGUSR1);
+#ifdef __FreeBSD__
+		/* there's a very stupid bug in the user threads package on
+		   FreeBSD 3.1 which prevents a signal from being properly
+		   dispatched to a thread that's in a blocking syscall. the
+		   first signal interrupts the syscall, the second one actually
+		   gets delivered. */
+		pthread_kill(killme, SIGUSR1);
+#endif
 #endif
 		}
 	}

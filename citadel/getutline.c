@@ -8,6 +8,7 @@
 #include "sysdep.h"
 #ifdef HAVE_UTMP_H
 #include <stdio.h>
+#include <sys/types.h>
 #include <utmp.h>
 #include <paths.h>
 #include <string.h>

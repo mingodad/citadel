@@ -19,6 +19,7 @@ TARGETS=client
 
 AC_CANONICAL_HOST
 SO=.so
+PTHREAD_DEFS=-D_REENTRANT
 case "$host" in
 	dnl BSDI 3.0 wants relocatable object modules instead of shared libs
 	dnl for dlopen(), and has a wrapper script to link with shared libs.
@@ -33,6 +34,18 @@ case "$host" in
 	alpha*-dec-osf*)
 		test -z "$CC" && CC=cc
 		SERVER_LDFLAGS=-pthread
+		check_pthread=no
+	;;
+	dnl FreeBSD is similar to Digital UNIX:
+	*-*-freebsd*)
+		AC_ARG_WITH(kthread, [  --with-kthread          use kernel threads, not user])
+		if test "$with_kthread" = yes; then
+			SERVER_LDFLAGS=-kthread
+		else
+			SERVER_LDFLAGS=-pthread
+		fi
+		check_pthread=no
+		PTHREAD_DEFS=-D_THREAD_SAFE
 	;;
 	*-*-cygwin32)
 		SUFFIX=.exe
@@ -52,7 +65,7 @@ if test "$GCC" = yes; then
 			PICFLAGS=-fPIC
 		;;
 		*)
-			SERVER_LDFLAGS=-rdynamic
+			SERVER_LDFLAGS="$SERVER_LDFLAGS -rdynamic"
 			PICFLAGS=-fPIC
 		;;
 	esac
@@ -108,6 +121,7 @@ if test "$enable_autologin" != no; then
 	fi
 fi
 
+test -f /usr/local/lib/libgdbm.a && LDFLAGS="$LDFLAGS -L/usr/local/lib"
 AC_CHECK_LIB(gdbm, gdbm_open)
 
 save_LIBS=$LIBS
@@ -117,9 +131,9 @@ AC_CHECK_LIB(curses, initscr, CURSES="-lcurses $CURSES", [
 	AC_CHECK_LIB(ncurses, initscr, CURSES="-lncurses")])
 LIBS=$save_LIBS
 
-dnl Check for libpthread(s) if we're not using Digital UNIX. (On which the
-dnl -pthread flag takes care of this.)
-if test "$SERVER_LDFLAGS" != -pthread; then
+dnl Check for libpthread(s) if we're not using Digital UNIX or FreeBSD. (On
+dnl which the -pthread flag takes care of this.)
+if test "$check_pthread" != no; then
 	AC_CHECK_LIB(pthread, pthread_create)
 	AC_CHECK_LIB(pthreads, pthread_create)
 fi
@@ -128,6 +142,7 @@ dnl Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
+test -f /usr/local/include/gdbm.h && CPPFLAGS="$CPPFLAGS -I/usr/local/include"
 AC_CHECK_HEADERS(curses.h fcntl.h limits.h termios.h strings.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h pthread.h gdbm.h utmp.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
@@ -149,8 +164,14 @@ AC_FUNC_GETPGRP
 AC_PROG_GCC_TRADITIONAL
 AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS(getspnam mkdir mkfifo mktime pthread_cancel rmdir select socket strerror)
+AC_CHECK_FUNCS(getspnam mkdir mkfifo mktime rmdir select socket strerror)
+
+save_LDFLAGS=$LDFLAGS
+LDFLAGS="$LDFLAGS $SERVER_LDFLAGS"
+AC_CHECK_FUNCS(pthread_cancel)
 AC_CHECK_FUNC(pthread_create, TARGETS="client server utils serv_modules")
+LDFLAGS=$save_LDFLAGS
+
 AC_REPLACE_FUNCS(snprintf getutline)
 
 dnl Done! Now write the Makefile and sysdep.h
@@ -163,5 +184,6 @@ AC_SUBST(TARGETS)
 AC_SUBST(SERVER_LDFLAGS)
 AC_SUBST(PICFLAGS)
 AC_SUBST(SUFFIX)
+AC_SUBST(PTHREAD_DEFS)
 AC_CONFIG_HEADER(sysdep.h)
 AC_OUTPUT(Makefile weekly)
