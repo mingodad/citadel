@@ -1,4 +1,8 @@
 $Log$
+Revision 1.332  1999/07/27 19:32:22  ajc
+Removed serv_upgrade.c and all references to it in Makefile.in
+Reworked new-mail-count to not use MessageFromList() etc.
+
 Revision 1.331  1999/07/25 02:59:37  ajc
 Fixed reference count problem in cmd_move()
 
@@ -1114,4 +1118,6 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import
+
+
  

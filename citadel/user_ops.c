@@ -1344,18 +1344,29 @@ void cmd_asup(char *cmdbuf) {
 int NewMailCount() {
 	int num_newmsgs = 0;
 	int a;
-	char mailboxname[32];
+	char mailboxname[ROOMNAMELEN];
 	struct quickroom mailbox;
 	struct visit vbuf;
+        struct cdbdata *cdbfr;
+	long *msglist = NULL;
+	int num_msgs = 0;
 
 	MailboxName(mailboxname, &CC->usersupp, MAILROOM);
 	if (getroom(&mailbox, mailboxname)!=0) return(0);
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &mailbox);
 
-	get_msglist(&mailbox);
-	for (a=0; a<CC->num_msgs; ++a) {
-		if (MessageFromList(a)>0L) {
-			if (MessageFromList(a) > vbuf.v_lastseen) {
+        cdbfr = cdb_fetch(CDB_MSGLISTS, &mailbox.QRnumber, sizeof(long));
+
+        if (cdbfr != NULL) {
+        	msglist = mallok(cdbfr->len);
+        	memcpy(msglist, cdbfr->ptr, cdbfr->len);
+        	num_msgs = cdbfr->len / sizeof(long);
+        	cdb_free(cdbfr);
+	}
+
+	if (num_msgs > 0) for (a=0; a<num_msgs; ++a) {
+		if (msglist[a]>0L) {
+			if (msglist[a] > vbuf.v_lastseen) {
 				++num_newmsgs;
 				}
 			}

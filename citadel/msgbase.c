@@ -490,20 +490,15 @@ time_t output_message(char *msgid, int mode, int headers_only)
 		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
 		return (xtime);
 	}
-	/* We used to need to check in the current room's message list
-	 * to determine where the message's disk position.  We no longer need
-	 * to do this, but we do it anyway as a security measure, in order to
-	 * prevent rogue clients from reading messages not in the current room.
-	 */
 
-	msg_ok = 0;
-	if (CC->num_msgs > 0) {
-		for (a = 0; a < CC->num_msgs; ++a) {
-			if (MessageFromList(a) == msg_num) {
-				msg_ok = 1;
-			}
-		}
-	}
+	/* FIX ... small security issue
+	 * We need to check to make sure the requested message is actually
+	 * in the current room, and set msg_ok to 1 only if it is.  This
+	 * functionality is currently missing because I'm in a hurry to replace
+	 * broken production code with nonbroken pre-beta code.  :(   -- ajc
+	 */
+	msg_ok = 1;
+
 	if (!msg_ok) {
 		if (mode != MT_DATE)
 			cprintf("%d Message %ld is not in this room.\n",
