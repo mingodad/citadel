@@ -1975,7 +1975,6 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 			wprintf("\">");
 		}
 
-/*
 		if (levels == 1) {
 			wprintf("<SPAN CLASS=\"roomlist_floor\">");
 		}
@@ -1985,12 +1984,9 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 		else {
 			wprintf("<SPAN CLASS=\"roomlist_old\">");
 		}
-*/
 		extract(buf, fold[i].name, levels-1);
 		escputs(buf);
-/*
 		wprintf("</SPAN>");
-*/
 
 		if (!strcasecmp(fold[i].name, "My Folders|Mail")) {
 			wprintf(" (INBOX)");
