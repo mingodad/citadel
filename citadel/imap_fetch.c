@@ -57,7 +57,7 @@ struct imap_fetch_part {
  */
 void imap_output_flags(int num) {
 	cprintf("FLAGS (");
-	if (IMAP->flags[num] & IMAP_DELETED) cprintf("\\Deleted ");
+	if (IMAP->flags[num] & IMAP_DELETED) cprintf("\\Deleted");
 	cprintf(")");
 }
 

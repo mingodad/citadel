@@ -79,9 +79,9 @@ void imap_do_store_msg(int num, int num_items, char **itemlist) {
 	/*
 	 * Tell the client what happen (someone set up us the bomb!)
 	 */
-	cprintf("* %d FETCH ", num+1);	/* output sequence number */
+	cprintf("* %d FETCH (", num+1);	/* output sequence number */
 	imap_output_flags(num);
-	cprintf("\r\n");
+	cprintf(")\r\n");
 }
 
 

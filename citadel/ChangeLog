@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.100  2001/02/24 17:23:21  ajc
+ * More of IMAP STORE.  Works for \Deleted now, but we don't have EXPUNGE yet
+
  Revision 573.99  2001/02/24 06:06:28  ajc
  * Wrote a bit of the IMAP STORE command
 
@@ -2471,3 +2474,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
