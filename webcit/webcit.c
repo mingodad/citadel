@@ -422,7 +422,8 @@ void session_loop() {
 			serv_printf("PASS %s", c_password);
 			serv_gets(buf);
 			if (buf[0]=='2') {
-				become_logged_in(c_username, c_password, buf);
+				extract(c_username, &buf[4], 0);
+				become_logged_in(c_username, c_password);
 				}
 			}
 		}
