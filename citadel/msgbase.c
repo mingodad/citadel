@@ -2362,6 +2362,27 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n) {
 
 
 /*
+ * Check to see if the specified user has Internet mail permission
+ * (returns nonzero if permission is granted)
+ */
+int CtdlCheckInternetMailPermission(struct usersupp *who) {
+
+	/* Globally enabled? */
+	if (config.c_restrict == 0) return(1);
+
+	/* User flagged ok? */
+	if (who->flags & US_INTERNET) return(2);
+
+	/* Aide level access? */
+	if (who->axlevel >= 6) return(3);
+
+	/* No mail for you! */
+	return(0);
+}
+
+
+
+/*
  * Validate recipients, count delivery types and errors, and handle aliasing
  * FIXME check for dupes!!!!!
  */
@@ -2592,6 +2613,15 @@ void cmd_ent0(char *entargs)
 				ERROR + NO_SUCH_USER, valid->errormsg);
 			phree(valid);
 			return;
+		}
+		if (valid->num_internet > 0) {
+			if (CtdlCheckInternetMailPermission(&CC->usersupp)==0) {
+				cprintf("%d You do not have permission "
+					"to send Internet mail.\n",
+					ERROR + HIGHER_ACCESS_REQUIRED);
+				phree(valid);
+				return;
+			}
 		}
 
 		if ( ( (valid->num_internet + valid->num_ignet) > 0)

@@ -11,3 +11,4 @@ int num_parms(char *source);
 void strproc(char *string);
 void back(int spaces);
 void progress(unsigned long curr, unsigned long cmax);
+int set_attr(CtdlIPC *ipc, unsigned int sval, char *prompt, unsigned int sbit, int backwards);
