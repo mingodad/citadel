@@ -1,4 +1,9 @@
  $Log$
+ Revision 641.6  2005/02/27 15:36:28  ajc
+ * database_cleanup.sh: look for /usr/local/ctdlsupport/bin/db_dump and
+   prepend that directory to the PATH if found.
+ * database_cleanup.sh: add more warnings about how dangerous this tool is
+
  Revision 641.5  2005/02/26 16:27:54  ajc
  * setup.c: added "hula" to the list of non-Citadel MTA's which can be
    disabled during setup.
@@ -6446,3 +6451,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
