@@ -79,11 +79,13 @@ void display_floorconfig(char *prepend_html)
 			wprintf("</TD><TD>"
 				"<A HREF=\"/delete_floor?floornum=%d\">"
 				"<FONT SIZE=-1>(delete floor)</A>"
-				"</FONT><BR><FONT SIZE=-1>"
-				"<A HREF=\"/display_editfloorpic&"
-				"which_floor=%d\">(edit graphic)</A>",
-				floornum, floornum);
+				"</FONT><BR>", floornum
+			);
 		}
+		wprintf("<FONT SIZE=-1>"
+			"<A HREF=\"/display_editfloorpic&"
+			"which_floor=%d\">(edit graphic)</A>",
+			floornum);
 		wprintf("</TD></TR></TABLE>");
 		wprintf("</TD>");
 

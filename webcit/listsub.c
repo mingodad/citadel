@@ -59,9 +59,10 @@ void do_listsub(void)
 	 * Subscribe command
 	 */
 	if (!strcasecmp(cmd, "subscribe")) {
-		serv_printf("SUBS subscribe|%s|%s|digest|%s/listsub",
+		serv_printf("SUBS subscribe|%s|%s|%s|%s/listsub",
 			room,
 			email,
+			subtype,
 			WC->http_host
 		);
 		serv_gets(buf);
@@ -182,6 +183,12 @@ FORM:		wprintf("<FORM METHOD=\"POST\" ACTION=\"/listsub\">\n"
 		wprintf("\" MAXLENGTH=128></TD></TR>\n");
 
 		wprintf("</TABLE>"
+			"(If subscribing) preferred format: "
+			"<INPUT TYPE=\"radio\" NAME=\"subtype\""
+			"VALUE=\"list\">One message at a time&nbsp; "
+			"<INPUT TYPE=\"radio\" NAME=\"subtype\""
+			"VALUE=\"digest\" CHECKED>Digest format&nbsp; "
+			"<BR>\n"
 			"<INPUT TYPE=\"submit\" NAME=\"cmd\""
 			" VALUE=\"subscribe\">\n"
 			"<INPUT TYPE=\"submit\" NAME=\"cmd\""
