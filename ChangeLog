@@ -2,6 +2,7 @@
 	* tcp_sockets.c: removed some dead code
 	* context_loop.c: oops, I made a memory leak. fix fix fix. also close
 	  unused ends of pipes, fix a file descriptor leak and a race condition
+	* portability enhancements
 
 1998-12-04 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c, context_loop.c, webcit.c: add commandline args for host

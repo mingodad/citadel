@@ -7,7 +7,9 @@
  */
 
 #include <stdlib.h>
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #include <stdio.h>
 #include <signal.h>
 #include <sys/types.h>
@@ -30,7 +32,7 @@ extern int errno;
 int serv_sock;
 
 
-void timeout(int signum) {
+RETSIGTYPE timeout(int signum) {
 	printf("\rConnection timed out.\n");
 	exit(3);
 	}
