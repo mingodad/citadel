@@ -1,6 +1,7 @@
 1999-03-05 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* sysdep.c: add undocumented -r flag to citserver to prevent it from
 	  dropping root permissions.
+	* sysdep.c: also drop supplementary groups
 
 1999-03-04 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* config.c: error checking in put_config()

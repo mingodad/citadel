@@ -33,6 +33,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <syslog.h>
+#include <grp.h>
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
@@ -852,15 +853,21 @@ int main(int argc, char **argv)
 
 	/*
 	 * Now that we've bound the socket, change to the BBS user id and its
-	 * corresponding group id
+	 * corresponding group ids
 	 */
 	if (drop_root_perms) {
 		if ((pw = getpwuid(BBSUID)) == NULL)
-			lprintf(1, "getpwuid(%d): %s\n", BBSUID,
+			lprintf(1, "WARNING: getpwuid(%d): %s\n"
+				   "Group IDs will be incorrect.\n", BBSUID,
 				strerror(errno));
-		else if (setgid(pw->pw_gid))
-			lprintf(3, "setgid(%d): %s\n", pw->pw_gid,
-				strerror(errno));
+		else {
+			if (initgroups(pw->pw_name, pw->pw_gid))
+				lprintf(3, "initgroups(): %s\n",
+					strerror(errno));
+			if (setgid(pw->pw_gid))
+				lprintf(3, "setgid(%d): %s\n", pw->pw_gid,
+					strerror(errno));
+			}
 		lprintf(7, "Changing uid to %d\n", BBSUID);
 		if (setuid(BBSUID) != 0) {
 			lprintf(3, "setuid() failed: %s\n", strerror(errno));
