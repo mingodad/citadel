@@ -1,4 +1,8 @@
  $Log$
+ Revision 612.11  2003/12/11 03:44:18  nbryant
+ domain.c: include <arpa/nameser_compat.h> if present
+ configure.ac: check for <arpa/nameser_compat.h>
+
  Revision 612.10  2003/12/10 03:58:26  ajc
  * Completed a more accurate implementation of the ENVELOPE fetch in IMAP.
 
@@ -5142,4 +5146,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
