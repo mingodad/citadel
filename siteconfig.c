@@ -34,7 +34,7 @@ void display_siteconfig(void)
 	char buf[SIZ];
 	int i;
 
-	output_headers(1);
+	output_headers(3);
 
 	serv_printf("CONF get");
 	serv_gets(buf);

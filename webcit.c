@@ -1035,6 +1035,8 @@ void session_loop(struct httprequest *req)
 		edit_vcard();
 	} else if (!strcasecmp(action, "submit_vcard")) {
 		submit_vcard();
+	} else if (!strcasecmp(action, "select_user_to_edit")) {
+		select_user_to_edit();
 	} else if (!strcasecmp(action, "diagnostics")) {
 		output_headers(1);
 

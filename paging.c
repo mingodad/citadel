@@ -78,7 +78,7 @@ void page_user(void)
 	char buf[SIZ];
 	char closewin[SIZ];
 
-	output_headers(1);
+	output_headers(3);
 
 	strcpy(recp, bstr("recp"));
 	strcpy(sc, bstr("sc"));
