@@ -1,7 +1,7 @@
 #!/bin/sh
 # $Id$
 #
-#   Automatic script to install Citadel/UX on a target system.
+#   Automatic script to install Citadel on a target system.
 #   Copyright (C) 2004 Michael Hampton <error@citadel.org>
 #
 #   This program is free software; you can redistribute it and/or modify
@@ -35,7 +35,7 @@
 #
 # We install the following versions in this release:
 # Package      Version                 Status
-# Citadel      6.23                    Latest
+# Citadel      6.24                    Latest
 # WebCit       5.22                    Latest
 # libical      0.24.RC4                Latest
 # Berkeley DB  4.1.25 + 2 patches      Stable
@@ -70,7 +70,7 @@
 # NB: When binary packages are installed, these settings are ignored!
 SUPPORT=/usr/local/ctdlsupport
 CITADEL=/usr/local/citadel
-BUILD=/tmp/citadel-build
+BUILD=/tmp/citadel-build.$$
 export SUPPORT CITADEL
 
 # Change the number of jobs to one plus the number of CPUs for best
@@ -99,7 +99,7 @@ export CITADEL_INSTALLER
 DOWNLOAD_SITE=http://my.citadel.org/download
 
 # Original source code packages.
-CITADEL_SOURCE=citadel-ux-6.23.tar.gz
+CITADEL_SOURCE=citadel-6.24.tar.gz
 WEBCIT_SOURCE=webcit-5.22.tar.gz
 DB_SOURCE=db-4.1.25.tar.gz
 DB_PATCHES=db-4.1.25.patches
@@ -120,7 +120,7 @@ CITADEL_SRC_RPM=$DOWNLOAD_SITE/SRPMS/citadel-6.23-1.src.rpm
 WEBCIT_SRC_RPM=$DOWNLOAD_SITE/SRPMS/webcit-5.22-1.src.rpm
 ICAL_SRC_RPM=$DOWNLOAD_SITE/SRPMS/libical-0.24.RC4-1.src.rpm
 
-SETUP="Citadel/UX Setup"
+SETUP="Citadel Easy Install"
 
 LOG=$BUILD/log.txt
 CFLAGS="${CFLAGS} -I${SUPPORT}/include"
@@ -304,9 +304,9 @@ install_sources () {
 	cd $BUILD/citadel 2>&1 >>$LOG || die
 	if [ -z "$OK_DB" ]
 	then
-		./configure --prefix=$CITADEL --with-db=$SUPPORT --with-pam --enable-autologin --with-ldap --with-libical 2>&1 >>$LOG || die
+		./configure --prefix=$CITADEL --with-db=$SUPPORT --with-pam --enable-autologin --with-ldap --with-libical --disable-threaded-client 2>&1 >>$LOG || die
 	else
-		./configure --prefix=$CITADEL --with-db=$OK_DB --with-pam --enable-autologin --with-ldap --with-libical 2>&1 >>$LOG || die
+		./configure --prefix=$CITADEL --with-db=$OK_DB --with-pam --enable-autologin --with-ldap --with-libical --disable-threaded-client 2>&1 >>$LOG || die
 	fi
 	$MAKE $MAKEOPTS 2>&1 >>$LOG || die
 	if [ -f $CITADEL/citadel.config ]
@@ -359,7 +359,7 @@ fi
 echo "$SETUP will perform the following actions:"
 echo ""
 echo "Configuration:"
-echo "* Configure Citadel/UX"
+echo "* Configure Citadel"
 echo "* Configure WebCit"
 echo ""
 echo "Installation:"
@@ -368,7 +368,7 @@ if [ "$prepackaged" ]; then
 	show_packages_to_install
 else
 	show_prerequisites_to_install
-	echo "* Install Citadel/UX"
+	echo "* Install Citadel"
 	echo "* Install WebCit"
 fi
 
