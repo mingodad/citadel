@@ -1874,7 +1874,7 @@ void check_repl(long msgnum, void *userdata) {
 
 
 /*
- * Check to see if any messages already exist which carry the same Extended ID
+ * Check to see if any messages already exist which carry the same Exclusive ID
  * as this one.  
  *
  * If any are found:
@@ -1886,13 +1886,13 @@ int ReplicationChecks(struct CtdlMessage *msg) {
 	int abort_this = 0;
 
 	lprintf(CTDL_DEBUG, "ReplicationChecks() started\n");
-	/* No extended id?  Don't do anything. */
+	/* No exclusive id?  Don't do anything. */
 	if (msg->cm_fields['E'] == NULL) return 0;
 	if (strlen(msg->cm_fields['E']) == 0) return 0;
-	lprintf(CTDL_DEBUG, "Extended ID: <%s>\n", msg->cm_fields['E']);
+	lprintf(CTDL_DEBUG, "Exclusive ID: <%s>\n", msg->cm_fields['E']);
 
 	CtdlAllocUserData(SYM_REPL, sizeof(struct repl));
-	strcpy(msg_repl->extended_id, msg->cm_fields['E']);
+	strcpy(msg_repl->exclusive_id, msg->cm_fields['E']);
 	msg_repl->highest = atol(msg->cm_fields['T']);
 
 	template = (struct CtdlMessage *) malloc(sizeof(struct CtdlMessage));
@@ -1901,7 +1901,7 @@ int ReplicationChecks(struct CtdlMessage *msg) {
 
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL, template, check_repl, NULL);
 
-	/* If a newer message exists with the same Extended ID, abort
+	/* If a newer message exists with the same Exclusive ID, abort
 	 * this save.
 	 */
 	if (msg_repl->highest > atol(msg->cm_fields['T']) ) {
@@ -2052,7 +2052,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	lprintf(CTDL_DEBUG, "Performing before-save hooks\n");
 	if (PerformMessageHooks(msg, EVT_BEFORESAVE) > 0) return(-1);
 
-	/* If this message has an Extended ID, perform replication checks */
+	/* If this message has an Exclusive ID, perform replication checks */
 	lprintf(CTDL_DEBUG, "Performing replication checks\n");
 	if (ReplicationChecks(msg) > 0) return(-1);
 

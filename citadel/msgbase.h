@@ -46,7 +46,7 @@ struct ma_info {
 
 
 struct repl {			/* Info for replication checking */
-	char extended_id[SIZ];
+	char exclusive_id[SIZ];
 	time_t highest;
 };
 

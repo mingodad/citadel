@@ -1663,7 +1663,7 @@ void ical_saving_vevent(icalcomponent *cal) {
  * the summary of the event (becomes message subject),
  * and the start time (becomes message date/time).
  */
-void ical_ctdl_set_extended_msgid(char *name, char *filename, char *partnum,
+void ical_ctdl_set_exclusive_msgid(char *name, char *filename, char *partnum,
 		char *disp, void *content, char *cbtype, size_t length,
 		char *encoding, void *cbuserdata)
 {
@@ -1676,7 +1676,7 @@ void ical_ctdl_set_extended_msgid(char *name, char *filename, char *partnum,
 
 	/* If this is a text/calendar object, hunt for the UID and drop it in
 	 * the "user data" pointer for the MIME parser.  When
-	 * ical_obj_beforesave() sees it there, it'll set the Extended msgid
+	 * ical_obj_beforesave() sees it there, it'll set the Exclusive msgid
 	 * to that string.
 	 */
 	if (!strcasecmp(cbtype, "text/calendar")) {
@@ -1723,7 +1723,7 @@ void ical_ctdl_set_extended_msgid(char *name, char *filename, char *partnum,
 /*
  * See if we need to prevent the object from being saved (we don't allow
  * MIME types other than text/calendar in "calendar" or "tasks"  rooms).  Also,
- * when saving an event to the calendar, set the message's Citadel extended
+ * when saving an event to the calendar, set the message's Citadel exclusive
  * message ID to the UID of the object.  This causes our replication checker to
  * automatically delete any existing instances of the same object.  (Isn't
  * that cool?)
@@ -1758,7 +1758,7 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 				memset(&imm, 0, sizeof(struct icalmessagemod));
 				mime_parser(msg->cm_fields['M'],
 					NULL,
-					*ical_ctdl_set_extended_msgid,
+					*ical_ctdl_set_exclusive_msgid,
 					NULL, NULL,
 					(void *)&imm,
 					0
@@ -1808,7 +1808,7 @@ void ical_obj_aftersave_backend(char *name, char *filename, char *partnum,
 
 	/* If this is a text/calendar object, hunt for the UID and drop it in
 	 * the "user data" pointer for the MIME parser.  When
-	 * ical_obj_beforesave() sees it there, it'll set the Extended msgid
+	 * ical_obj_beforesave() sees it there, it'll set the Exclusive msgid
 	 * to that string.
 	 */
 	if (!strcasecmp(cbtype, "text/calendar")) {

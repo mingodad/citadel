@@ -47,7 +47,7 @@
 /*
  * If we are in a "notes" view room, and the client has sent an RFC822
  * message containing an X-KOrg-Note-Id: field (Aethera does this, as
- * do some Kolab clients) then set both the Subject and the Extended ID
+ * do some Kolab clients) then set both the Subject and the Exclusive ID
  * of the message to that.  It's going to be a UUID so we want to replace
  * any existing message containing that UUID.
  */

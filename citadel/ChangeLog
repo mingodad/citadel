@@ -1,4 +1,8 @@
  $Log$
+ Revision 630.8  2005/01/27 22:05:21  ajc
+ * Renamed the "Extended message ID" field to "Exclusive message ID"
+   (nothing changes except documentation and internal variable names)
+
  Revision 630.7  2005/01/27 21:59:22  ajc
  * serv_vcard.c: changed the logic a bit.  When saving a vCard to a user's
    "My Citadel Config" room, force-feed the vCard a site-compliant UID and
@@ -6326,3 +6330,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

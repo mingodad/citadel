@@ -10,7 +10,7 @@ hidden room, it does not appear in the known rooms list on subsequent visits).
 message in the queue to be delivered to one or more recipients, there will be
 *two* messages in the room: one containing the actual message, and the other
 containing delivery instructions.  It is expected that the instructions
-message may be replaced at any time (using an Extended ID field) if delivery
+message may be replaced at any time (using an Exclusive ID field) if delivery
 to only some of the recipients has been accomplished.
  
  Citadel keeps reference counts of each message on disk.  Therefore if a

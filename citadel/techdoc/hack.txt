@@ -245,12 +245,12 @@ B	Big message	This is a flag which indicates that the message is
                         internal API handles it.
 D	Destination	Contains name of the system this message should
 			be sent to, for mail routing (private mail only).
-E	Extended ID	A persistent alphanumeric Message ID used for
+E	Exclusive ID	A persistent alphanumeric Message ID used for
 			network replication.  When a message arrives that
-			contains an Extended ID, any existing messages which
-			contain the same Extended ID and are *older* than this
+			contains an Exclusive ID, any existing messages which
+			contain the same Exclusive ID and are *older* than this
 			message should be deleted.  If there exist any messages
-			with the same Extended ID that are *newer*, then this
+			with the same Exclusive ID that are *newer*, then this
 			message should be dropped.
 F	rFc822 address	For Internet mail, this is the delivery address of the
 			message author.

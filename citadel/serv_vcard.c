@@ -15,7 +15,7 @@
 #define ADDRESS_BOOK_ROOM	"Global Address Book"
 
 /*
- * Format of the "Extended ID" field of the message containing a user's
+ * Format of the "Exclusive ID" field of the message containing a user's
  * vCard.  Doesn't matter what it really looks like as long as it's both
  * unique and consistent (because we use it for replication checking to
  * delete the old vCard network-wide when the user enters a new one).
@@ -776,7 +776,7 @@ void vcard_newuser(struct ctdluser *usbuf) {
 /*
  * When a user is being deleted, we have to remove his/her vCard.
  * This is accomplished by issuing a message with 'CANCEL' in the S (special)
- * field, and the same Extended ID as the existing card.
+ * field, and the same Exclusive ID as the existing card.
  */
 void vcard_purge(struct ctdluser *usbuf) {
 	struct CtdlMessage *msg;
