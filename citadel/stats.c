@@ -86,6 +86,7 @@ void progress(long int curr, long int max)
 
 int main(int argc, char **argv)
 {
+	char hostbuf[256], portbuf[256];
 	time_t LogTime, now;
 	unsigned int LogType;
 	char LogName[256];
@@ -330,7 +331,7 @@ int main(int argc, char **argv)
 		fakeargs[2] = malloc(64);
 		sprintf(fakeargs[2], "%d", config.c_port_number);
 		fakeargs[3] = NULL;
-	        attach_to_server(3, fakeargs);
+	        attach_to_server(3, fakeargs, hostbuf, portbuf);
 		free(fakeargs[2]);
         	serv_gets(buf);
         	if ((buf[0]!='2')&&(strncmp(buf,"551",3))) {

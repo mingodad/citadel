@@ -86,14 +86,15 @@ void logoff(int e)
  * Connect sendcommand to the Citadel server running on this computer.
  */
 void np_attach_to_server(void) {
+	char hostbuf[256], portbuf[256];
 	char buf[256];
 	char portname[8];
-	char *args[] = { "sendcommand", "localhost", NULL, NULL } ;
+	char *args[] = { "sendcommand", NULL, NULL, NULL } ;
 
 	fprintf(stderr, "Attaching to server...\n");
 	sprintf(portname, "%d", config.c_port_number);
 	args[2] = portname;
-	attach_to_server(3, args);
+	attach_to_server(3, args, hostbuf, portbuf);
 	serv_gets(buf);
 	fprintf(stderr, "%s\n",&buf[4]);
 	sprintf(buf,"IPGM %d", config.c_ipgm_secret);

@@ -42,6 +42,8 @@ int main(int argc, char **argv)
 	int www = 0;
 	int s_pid = 0;
 	int my_pid = 0;
+	char hostbuf[256];
+	char portbuf[256];
 	char s_user[256];
 	char s_room[256];
 	char s_host[256];
@@ -53,7 +55,7 @@ int main(int argc, char **argv)
 	 */	
 	if (getenv("REQUEST_METHOD") != NULL) www = 1;
 
-	attach_to_server(argc,argv);
+	attach_to_server(argc,argv, hostbuf, portbuf);
 	serv_gets(buf);
 	if ((buf[0]!='2')&&(strncmp(buf,"551",3))) {
 		fprintf(stderr,"%s: %s\n",argv[0],&buf[4]);

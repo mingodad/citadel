@@ -31,7 +31,6 @@ void hit_any_key(void);
 int yesno(void);
 void strprompt(char *prompt, char *str, int len);
 void newprompt(char *prompt, char *str, int len);
-int struncmp(char *lstr, char *rstr, int len);
 void dotgoto(char *towhere, int display_name);
 void serv_read(char *buf, int bytes);
 void formout(char *name);
@@ -314,9 +313,9 @@ int select_floor(int rfloor)
 			safestrncpy(floorstr,floorlist[rfloor],sizeof floorstr);
 			strprompt("Which floor",floorstr,256);
 			for (a=0; a<128; ++a) {
-				if (!strucmp(floorstr,&floorlist[a][0]))
+				if (!strcasecmp(floorstr,&floorlist[a][0]))
 					newfloor = a;
-				if ((newfloor<0)&&(!struncmp(floorstr,
+				if ((newfloor<0)&&(!strncasecmp(floorstr,
 					&floorlist[a][0],strlen(floorstr))))
 						newfloor = a;
 				if ((newfloor<0)&&(pattern(&floorlist[a][0],
@@ -441,7 +440,7 @@ void editthisroom(void) {
 	/* Ask about the room aide */
 	do {
 		strprompt("Room aide (or 'none')",raide,29);
-		if (!strucmp(raide,"none")) {
+		if (!strcasecmp(raide,"none")) {
 			strcpy(raide,"");
 			strcpy(buf,"200");
 			}
@@ -453,7 +452,7 @@ void editthisroom(void) {
 			}
 		} while(buf[0]!='2');
 
-	if (!strucmp(raide,"none")) strcpy(raide,"");
+	if (!strcasecmp(raide,"none")) strcpy(raide,"");
 
 
 	/* Angels and demons dancing in my head... */
@@ -1109,7 +1108,7 @@ void kill_floor(void) {
 		newprompt("Delete which floor? ",buf,255);
 		if (strlen(buf)==0) return;
 		for (a=0; a<128; ++a)
-			if (!strucmp(&floorlist[a][0],buf))
+			if (!strcasecmp(&floorlist[a][0],buf))
 				floornum_to_delete = a;
 		if (floornum_to_delete < 0) {
 			printf("No such floor.  Select one of:\n");

@@ -67,15 +67,18 @@ beep=1
 #
 allow_attachments=0
 
-# If you set the USERNAME variable, the value you set here will automatically
-# be passed to the "Enter your name:" prompt.
+
+# If you set REMEMBER_PASSWORDS to 1, the Citadel client will offer to
+# remember your user name and password for every Citadel server you access,
+# automatically logging in with them on subsequent visits. 
+# (DANGER: do NOT enable this for "safe" public clients!)
+#
+remember_passwords=0
+
+# Optionally, you can force the same username and password everywhere.  This
+# obviously isn't as robust as the password manager.
 #
 #username=My User Name
-
-# If you set the PASSWORD variable, the value you set here will automatically
-# be passed to all prompts which request a password ... including the prompt
-# which asks for a password when creating a new user.
-#
 #password=mypassword
 
 # If URLCMD is defined, users can hit 'U' after reading a message which

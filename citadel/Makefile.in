@@ -82,7 +82,8 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	whobbs.c sendcommand.c mime_parser.c base64.c qpdecode.c getutline.c \
 	auth.c chkpwd.c client_icq.c html.c vcard.c serv_upgrade.c \
 	serv_smtp.c serv_pop3.c internet_addressing.c parsedate.c genstamp.c \
-	domain.c clientsocket.c serv_inetcfg.c serv_rwho.c serv_bio.c
+	domain.c clientsocket.c serv_inetcfg.c serv_rwho.c serv_bio.c \
+	client_passwords.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
@@ -99,10 +100,12 @@ serv_modules: $(SERV_MODULES)
 
 citadel$(EXEEXT): ipc_c_tcp$(CX) citadel$(CX) rooms$(CX) routines$(CX) \
 	routines2$(CX) messages$(CX) client_icq$(CX) \
+	client_passwords$(CX) \
 	commands$(CX) client_chat$(CX) serv_info$(CX) tools$(CX) $(LIBOBJS)
 	$(CC) ipc_c_tcp$(CX) citadel$(CX) rooms$(CX) routines$(CX) \
 	routines2$(CX) messages$(CX) client_icq$(CX) \
 	commands$(CX) client_chat$(CX) serv_info$(CX) tools$(CX) \
+	client_passwords$(CX) \
 	$(LIBOBJS) $(LDFLAGS) -o citadel $(NETLIBS) $(CLIENT_PTLIBS)
 
 netpoll: netpoll.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)

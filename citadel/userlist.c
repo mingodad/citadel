@@ -49,8 +49,9 @@ void userlist(void) {
 int main(int argc, char **argv)
 {
 	char buf[256];
+	char hostbuf[256], portbuf[256];
 
-	attach_to_server(argc,argv);
+	attach_to_server(argc, argv, hostbuf, portbuf);
 	serv_gets(buf);
 	if ((buf[0]!='2')&&(strncmp(buf,"551",3))) {
 		fprintf(stderr,"%s: %s\n",argv[0],&buf[4]);

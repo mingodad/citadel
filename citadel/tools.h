@@ -12,5 +12,12 @@ int collapsed_strcmp(char *s1, char *s2);
 void remove_token(char *source, int parmnum, char separator);
 void fmt_date(char *buf, time_t thetime);
 
+#ifndef HAVE_STRNCASECMP
+int strncasecmp(char *, char *, int)
+#endif
+#ifndef HAVE_STRCASECMP
+#define strcasecmp(x,y) strncasecmp(x,y,INT_MAX);
+#endif
+
 #define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
 #define num_parms(source)		num_tokens(source, '|')

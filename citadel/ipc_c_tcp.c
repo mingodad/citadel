@@ -7,7 +7,7 @@
  *
  */
 
-#define	UDS			"citadel unix domain socket type of thing"
+#define	UDS			"_UDS_"
 
 #define DEFAULT_HOST		UDS
 #define DEFAULT_PORT		"citadel"
@@ -270,7 +270,7 @@ void serv_puts(char *buf)
 /*
  * attach to server
  */
-void attach_to_server(int argc, char **argv)
+void attach_to_server(int argc, char **argv, char *hostbuf, char *portbuf)
 {
 	int a;
 	char cithost[256];
@@ -316,12 +316,16 @@ void attach_to_server(int argc, char **argv)
 	if (!strcmp(cithost, UDS)) {
 		sprintf(sockpath, "%s/citadel.socket", BBSDIR);
 		serv_sock = uds_connectsock(sockpath);
+		strcpy(hostbuf, cithost);
+		strcpy(portbuf, sockpath);
 		return;
 	}
 
 	/* if not using a SOCKS proxy server, make the connection directly */
 	if (strlen(socks4) == 0) {
 		serv_sock = connectsock(cithost, citport, "tcp");
+		strcpy(hostbuf, cithost);
+		strcpy(portbuf, citport);
 		return;
 	}
 	/* if using SOCKS, connect first to the proxy... */

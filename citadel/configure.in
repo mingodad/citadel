@@ -229,7 +229,7 @@ AC_FUNC_GETPGRP
 AC_PROG_GCC_TRADITIONAL
 AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS(getspnam getutxline mkdir mkfifo mktime rmdir select socket strerror)
+AC_CHECK_FUNCS(getspnam getutxline mkdir mkfifo mktime rmdir select socket strerror strcasecmp strncasecmp)
 
 dnl Now check for pthreads -- set up variables so that the compiler will be run
 dnl with proper flags for pthread programs

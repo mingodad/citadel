@@ -173,7 +173,7 @@ RCL:	    if (send_complete_line) {
    			   printf("Got room %s\n", c_room);
    			}
    			   
-			if (strucmp(c_text,"NOOP")) {
+			if (strcasecmp(c_text,"NOOP")) {
 				if (!strcmp(c_user, fullname)) {
 					color(BRIGHT_YELLOW);
 					}

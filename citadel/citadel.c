@@ -33,6 +33,7 @@
 #include "commands.h"
 #include "ipc.h"
 #include "client_chat.h"
+#include "client_passwords.h"
 #include "client_icq.h"
 #include "citadel_decls.h"
 #include "tools.h"
@@ -84,6 +85,8 @@ char sigcaught = 0;
 char have_xterm = 0;		/* are we running on an xterm? */
 char rc_username[32];
 char rc_password[32];
+char hostbuf[256];
+char portbuf[256];
 char rc_floor_mode;
 char floor_mode;
 char curr_floor = 0;		/* number of current floor */
@@ -245,8 +248,8 @@ void remove_march(char *roomname, int floornum)
 	if (march == NULL)
 		return;
 
-	if ((!strucmp(march->march_name, roomname))
-	    || ((!strucmp(roomname, "_FLOOR_")) && (march->march_floor == floornum))) {
+	if ((!strcasecmp(march->march_name, roomname))
+	    || ((!strcasecmp(roomname, "_FLOOR_")) && (march->march_floor == floornum))) {
 		mptr = march->next;
 		free(march);
 		march = mptr;
@@ -255,8 +258,8 @@ void remove_march(char *roomname, int floornum)
 	mptr2 = march;
 	for (mptr = march; mptr != NULL; mptr = mptr->next) {
 
-		if ((!strucmp(mptr->march_name, roomname))
-		    || ((!strucmp(roomname, "_FLOOR_"))
+		if ((!strcasecmp(mptr->march_name, roomname))
+		    || ((!strcasecmp(roomname, "_FLOOR_"))
 			&& (mptr->march_floor == floornum))) {
 
 			mptr2->next = mptr->next;
@@ -359,7 +362,7 @@ void dotgoto(char *towhere, int display_name)
 				if (pattern(psearch, towhere) >= 0) {
 					partial_match = 1;
 				}
-				if (!struncmp(towhere, psearch, strlen(towhere))) {
+				if (!strncasecmp(towhere, psearch, strlen(towhere))) {
 					partial_match = 2;
 				}
 				if (partial_match > best_match) {
@@ -387,7 +390,7 @@ void dotgoto(char *towhere, int display_name)
 	curr_floor = extract_int(&aaa[4], 10);
 
 	remove_march(room_name, 0);
-	if (!strucmp(towhere, "_BASEROOM_"))
+	if (!strcasecmp(towhere, "_BASEROOM_"))
 		remove_march(towhere, 0);
 	if ((from_floor != curr_floor) && (display_name > 0) && (floor_mode == 1)) {
 		if (floorlist[(int) curr_floor][0] == 0)
@@ -572,12 +575,12 @@ void gotofloor(char *towhere, int mode)
 		load_floorlist();
 	tofloor = (-1);
 	for (a = 0; a < 128; ++a)
-		if (!strucmp(&floorlist[a][0], towhere))
+		if (!strcasecmp(&floorlist[a][0], towhere))
 			tofloor = a;
 
 	if (tofloor < 0) {
 		for (a = 0; a < 128; ++a) {
-			if (!struncmp(&floorlist[a][0], towhere, strlen(towhere))) {
+			if (!strncasecmp(&floorlist[a][0], towhere, strlen(towhere))) {
 				tofloor = a;
 			}
 		}
@@ -701,11 +704,12 @@ int set_password(void)
 	}
 	strproc(pass1);
 	strproc(pass2);
-	if (!strucmp(pass1, pass2)) {
+	if (!strcasecmp(pass1, pass2)) {
 		snprintf(buf, sizeof buf, "SETP %s", pass1);
 		serv_puts(buf);
 		serv_gets(buf);
 		printf("%s\n", &buf[4]);
+		offer_to_remember_password(hostbuf, portbuf, fullname, pass1);
 		return (0);
 	} else {
 		printf("*** They don't match... try again.\n");
@@ -820,10 +824,11 @@ void enternew(char *desc, char *buf, int maxlen)
 int main(int argc, char **argv)
 {
 	int a, b, mcmd;
-	char aaa[100], bbb[100], eee[100];	/* general purpose variables */
+	char aaa[100], bbb[100];/* general purpose variables */
 	char argbuf[32];	/* command line buf */
 	volatile int termn8 = 0;
-
+	int stored_password = 0;
+	char password[256];
 
 	sttybbs(SB_SAVE);	/* Store the old terminal parameters */
 	load_command_set();	/* parse the citadel.rc file */
@@ -836,9 +841,7 @@ int main(int argc, char **argv)
 
 	printf("Attaching to server... \r");
 	fflush(stdout);
-	attach_to_server(argc, argv);
-	printf("Establishing session...\r");
-	fflush(stdout);
+	attach_to_server(argc, argv, hostbuf, portbuf);
 
 	send_ansi_detect();
 
@@ -863,7 +866,28 @@ int main(int argc, char **argv)
 	formout("hello");	/* print the opening greeting */
 	printf("\n");
 
-GSTA:	termn8 = 0;
+GSTA:	/* See if we have a username and password on disk */
+	if (rc_remember_passwords) {
+		get_stored_password(hostbuf, portbuf, fullname, password);
+		if (strlen(fullname) > 0) {
+			sprintf(aaa, "USER %s", fullname);
+			serv_puts(aaa);
+			serv_gets(aaa);
+			sprintf(aaa, "PASS %s", password);
+			serv_puts(aaa);
+			serv_gets(aaa);
+			if (aaa[0] == '2') {
+				load_user_info(&aaa[4]);
+				stored_password = 1;
+				goto PWOK;
+			}
+			else {
+				set_stored_password(hostbuf, portbuf, "", "");
+			}
+		}
+	}
+
+	termn8 = 0;
 	newnow = 0;
 	do {
 		if (strlen(rc_username) > 0) {
@@ -872,15 +896,15 @@ GSTA:	termn8 = 0;
 			newprompt("Enter your name: ", fullname, 29);
 		}
 		strproc(fullname);
-		if (!strucmp(fullname, "new")) {	/* just in case */
+		if (!strcasecmp(fullname, "new")) {	/* just in case */
 			printf("Please enter the name you wish to log in with.\n");
 		}
 	} while (
-			(!strucmp(fullname, "bbs"))
-			|| (!strucmp(fullname, "new"))
+			(!strcasecmp(fullname, "bbs"))
+			|| (!strcasecmp(fullname, "new"))
 			|| (strlen(fullname) == 0));
 
-	if (!strucmp(fullname, "off")) {
+	if (!strcasecmp(fullname, "off")) {
 		mcmd = 29;
 		goto TERMN8;
 	}
@@ -893,16 +917,18 @@ GSTA:	termn8 = 0;
 
 	/* password authentication */
 	if (strlen(rc_password) > 0) {
-		strcpy(eee, rc_password);
+		strcpy(password, rc_password);
 	} else {
-		newprompt("\rPlease enter your password: ", eee, -19);
+		newprompt("\rPlease enter your password: ", password, -19);
 	}
-	strproc(eee);
-	snprintf(aaa, sizeof aaa, "PASS %s", eee);
+	strproc(password);
+	snprintf(aaa, sizeof aaa, "PASS %s", password);
 	serv_puts(aaa);
 	serv_gets(aaa);
 	if (aaa[0] == '2') {
 		load_user_info(&aaa[4]);
+		offer_to_remember_password(hostbuf, portbuf,
+					fullname, password);
 		goto PWOK;
 	}
 	printf("<< wrong password >>\n");
@@ -910,7 +936,7 @@ GSTA:	termn8 = 0;
 		logoff(0);
 	goto GSTA;
 
-      NEWUSR:if (strlen(rc_password) == 0) {
+NEWUSR:	if (strlen(rc_password) == 0) {
 		printf("No record. Enter as new user? ");
 		if (yesno() == 0)
 			goto GSTA;
@@ -930,7 +956,7 @@ GSTA:	termn8 = 0;
 	enter_config(1);
 
 
-      PWOK:printf("%s\nAccess level: %d (%s)\nUser #%ld / Call #%d\n",
+PWOK:	printf("%s\nAccess level: %d (%s)\nUser #%ld / Call #%d\n",
 	       fullname, axlevel, axdefs[(int) axlevel],
 	       usernum, timescalled);
 

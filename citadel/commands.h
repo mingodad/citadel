@@ -59,3 +59,4 @@ extern int num_urls;
 extern char urls[MAXURLS][256];
 extern char rc_url_cmd[256];
 extern int lines_printed;
+extern int rc_remember_passwords;

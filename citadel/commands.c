@@ -59,6 +59,7 @@ char rc_exp_cmd[256];
 int rc_allow_attachments;
 int rc_display_message_numbers;
 int rc_force_mail_prompts;
+int rc_remember_passwords;
 int rc_ansi_color;
 int num_urls = 0;
 char urls[MAXURLS][256];
@@ -539,6 +540,7 @@ void load_command_set(void)
 	rc_floor_mode = 0;
 	rc_exp_beep = 1;
 	rc_allow_attachments = 0;
+	rc_remember_passwords = 0;
 	strcpy(rc_exp_cmd, "");
 	rc_display_message_numbers = 0;
 	rc_force_mail_prompts = 0;
@@ -570,56 +572,59 @@ void load_command_set(void)
 		while ((strlen(buf) > 0) ? (isspace(buf[strlen(buf) - 1])) : 0)
 			buf[strlen(buf) - 1] = 0;
 
-		if (!struncmp(buf, "editor=", 7))
+		if (!strncasecmp(buf, "editor=", 7))
 			strcpy(editor_path, &buf[7]);
 
-		if (!struncmp(buf, "printcmd=", 9))
+		if (!strncasecmp(buf, "printcmd=", 9))
 			strcpy(printcmd, &buf[9]);
 
-		if (!struncmp(buf, "expcmd=", 7))
+		if (!strncasecmp(buf, "expcmd=", 7))
 			strcpy(rc_exp_cmd, &buf[7]);
 
-		if (!struncmp(buf, "local_screen_dimensions=", 24))
+		if (!strncasecmp(buf, "local_screen_dimensions=", 24))
 			have_xterm = (char) atoi(&buf[24]);
 
-		if (!struncmp(buf, "use_floors=", 11)) {
-			if (!strucmp(&buf[11], "yes"))
+		if (!strncasecmp(buf, "use_floors=", 11)) {
+			if (!strcasecmp(&buf[11], "yes"))
 				rc_floor_mode = RC_YES;
-			if (!strucmp(&buf[11], "no"))
+			if (!strcasecmp(&buf[11], "no"))
 				rc_floor_mode = RC_NO;
-			if (!strucmp(&buf[11], "default"))
+			if (!strcasecmp(&buf[11], "default"))
 				rc_floor_mode = RC_DEFAULT;
 		}
-		if (!struncmp(buf, "beep=", 5)) {
+		if (!strncasecmp(buf, "beep=", 5)) {
 			rc_exp_beep = atoi(&buf[5]);
 		}
-		if (!struncmp(buf, "allow_attachments=", 18)) {
+		if (!strncasecmp(buf, "allow_attachments=", 18)) {
 			rc_allow_attachments = atoi(&buf[18]);
 		}
-		if (!struncmp(buf, "display_message_numbers=", 24)) {
+		if (!strncasecmp(buf, "remember_passwords=", 19)) {
+			rc_remember_passwords = atoi(&buf[19]);
+		}
+		if (!strncasecmp(buf, "display_message_numbers=", 24)) {
 			rc_display_message_numbers = atoi(&buf[24]);
 		}
-		if (!struncmp(buf, "force_mail_prompts=", 19)) {
+		if (!strncasecmp(buf, "force_mail_prompts=", 19)) {
 			rc_force_mail_prompts = atoi(&buf[19]);
 		}
-		if (!struncmp(buf, "ansi_color=", 11)) {
-			if (!struncmp(&buf[11], "on", 2))
+		if (!strncasecmp(buf, "ansi_color=", 11)) {
+			if (!strncasecmp(&buf[11], "on", 2))
 				rc_ansi_color = 1;
-			if (!struncmp(&buf[11], "auto", 4))
+			if (!strncasecmp(&buf[11], "auto", 4))
 				rc_ansi_color = 2;	/* autodetect */
-			if (!struncmp(&buf[11], "user", 4))
+			if (!strncasecmp(&buf[11], "user", 4))
 				rc_ansi_color = 3;	/* user config */
 		}
-		if (!struncmp(buf, "username=", 9))
+		if (!strncasecmp(buf, "username=", 9))
 			strcpy(rc_username, &buf[9]);
 
-		if (!struncmp(buf, "password=", 9))
+		if (!strncasecmp(buf, "password=", 9))
 			strcpy(rc_password, &buf[9]);
 
-		if (!struncmp(buf, "urlcmd=", 7))
+		if (!strncasecmp(buf, "urlcmd=", 7))
 			strcpy(rc_url_cmd, &buf[7]);
 
-		if (!struncmp(buf, "cmd=", 4)) {
+		if (!strncasecmp(buf, "cmd=", 4)) {
 			strcpy(buf, &buf[4]);
 
 			cptr = (struct citcmd *) malloc(sizeof(struct citcmd));
@@ -1059,8 +1064,8 @@ FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
 		}
 	}
 
-	if ( (!struncmp(buffer, "http://", 7))
-	   || (!struncmp(buffer, "ftp://", 6)) ) {
+	if ( (!strncasecmp(buffer, "http://", 7))
+	   || (!strncasecmp(buffer, "ftp://", 6)) ) {
 		safestrncpy(urls[num_urls], buffer, 255);
 		for (a=0; a<strlen(urls[num_urls]); ++a) {
 			b = urls[num_urls][a];

@@ -54,26 +54,9 @@ extern struct CtdlServInfo serv_info;
 extern char rc_floor_mode;
 extern int rc_ansi_color;
 
-int struncmp(char *lstr, char *rstr, int len)
-{
-	int pos = 0;
-	char lc,rc;
-	while (pos<len) {
-		lc=tolower(lstr[pos]);
-		rc=tolower(rstr[pos]);
-		if ((lc==0)&&(rc==0)) return(0);
-		if (lc<rc) return(-1);
-		if (lc>rc) return(1);
-		pos=pos+1;
-		}
-	return(0);
-	}
-
-
-
 void back(int spaces) /* Destructive backspace */
             {
-int a;
+	int a;
 	for (a=1; a<=spaces; ++a) {
 		putc(8,stdout); putc(32,stdout); putc(8,stdout);
 		}
@@ -279,7 +262,7 @@ int pattern(char *search, char *patn)	/* Searches for patn in search string */
 {
 	int a,b;
 	for (a=0; a<strlen(search); ++a)
-	{	b=struncmp(&search[a],patn,strlen(patn));
+	{	b=strncasecmp(&search[a],patn,strlen(patn));
 		if (b==0) return(b);
 		}
 	return(-1);

@@ -37,7 +37,6 @@ struct cittext {
 	};
 
 void sttybbs(int cmd);
-int struncmp(char *lstr, char *rstr, int len);
 int fmout(int width, FILE *fp, char pagin, int height, int starting_lp, char subst);
 int haschar(char *st, int ch);
 int checkpagin(int lp, int pagin, int height);
@@ -375,15 +374,15 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 		return(0);
 		}
 
-	while(serv_gets(buf), struncmp(buf,"text",4)) {
-		if (!struncmp(buf,"nhdr=yes",8)) nhdr=1;
-		if (!struncmp(buf,"from=",5)) {
+	while(serv_gets(buf), strncasecmp(buf,"text",4)) {
+		if (!strncasecmp(buf,"nhdr=yes",8)) nhdr=1;
+		if (!strncasecmp(buf,"from=",5)) {
 			strcpy(from,&buf[5]);
 			}
 		if (nhdr==1) buf[0]='_';
-		if (!struncmp(buf,"type=",5))
+		if (!strncasecmp(buf,"type=",5))
 			format_type=atoi(&buf[5]);
-		if ((!struncmp(buf,"msgn=",5))&&(rc_display_message_numbers)) {
+		if ((!strncasecmp(buf,"msgn=",5))&&(rc_display_message_numbers)) {
 			color(DIM_WHITE);
 			printf("[");
 			color(BRIGHT_WHITE);
@@ -391,16 +390,16 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 			color(DIM_WHITE);
 			printf("] ");
 			}
-		if (!struncmp(buf,"from=",5)) {
+		if (!strncasecmp(buf,"from=",5)) {
 			color(DIM_WHITE);
 			printf("from ");
 			color(BRIGHT_CYAN);
 			printf("%s ",&buf[5]);
 			}
-		if (!struncmp(buf,"subj=",5))
+		if (!strncasecmp(buf,"subj=",5))
 			strcpy(m_subject,&buf[5]);
 
-		if (!struncmp(buf,"rfca=",5)) {
+		if (!strncasecmp(buf,"rfca=",5)) {
 			safestrncpy(rfca, &buf[5], sizeof(rfca) - 5);
 			color(DIM_WHITE);
 			printf("<");
@@ -409,8 +408,8 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 			color(DIM_WHITE);
 			printf("> ");
 			}
-		if ((!struncmp(buf,"hnod=",5)) 
-		   && (strucmp(&buf[5],serv_info.serv_humannode))
+		if ((!strncasecmp(buf,"hnod=",5)) 
+		   && (strcasecmp(&buf[5],serv_info.serv_humannode))
 		   && (strlen(rfca) == 0) ) {
 			color(DIM_WHITE);
 			printf("(");
@@ -419,8 +418,8 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 			color(DIM_WHITE);
 			printf(") ");
 			}
-		if ((!struncmp(buf,"room=",5))
-		   && (strucmp(&buf[5],room_name)) 
+		if ((!strncasecmp(buf,"room=",5))
+		   && (strcasecmp(&buf[5],room_name)) 
 		   && (strlen(rfca) == 0)) {
 			color(DIM_WHITE);
 			printf("in ");
@@ -428,11 +427,11 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 			printf("%s> ",&buf[5]);
 			}
 
-		if (!struncmp(buf,"node=",5)) {
+		if (!strncasecmp(buf,"node=",5)) {
 			safestrncpy(node, &buf[5], sizeof(buf) - 5);
 			if ( (room_flags&QR_NETWORK)
-			   || ((strucmp(&buf[5],serv_info.serv_nodename)
-   			   &&(strucmp(&buf[5],serv_info.serv_fqdn)))) ) 
+			   || ((strcasecmp(&buf[5],serv_info.serv_nodename)
+   			   &&(strcasecmp(&buf[5],serv_info.serv_fqdn)))) ) 
 				{
 				if (strlen(rfca) == 0) {
 					color(DIM_WHITE);
@@ -443,13 +442,13 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 			}
 		}
 
-		if (!struncmp(buf,"rcpt=",5)) {
+		if (!strncasecmp(buf,"rcpt=",5)) {
 			color(DIM_WHITE);
 			printf("to ");
 			color(BRIGHT_CYAN);
 			printf("%s ",&buf[5]);
 			}
-		if (!struncmp(buf,"time=",5)) {
+		if (!strncasecmp(buf,"time=",5)) {
 			fmt_date(now, atol(&buf[5]));
 			printf("%s ", now);
 			}
@@ -542,7 +541,7 @@ void replace_string(char *filename, long int startpos)
 		buf[strlen(buf)] = a;
 		if ( strlen(buf) >= strlen(srch_str) ) {
 			ptr=&buf[strlen(buf)-strlen(srch_str)];
-			if (!struncmp(ptr,srch_str,strlen(srch_str))) {
+			if (!strncasecmp(ptr,srch_str,strlen(srch_str))) {
 				strcpy(ptr,rplc_str);
 				++substitutions;
 				}

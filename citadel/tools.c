@@ -3,6 +3,7 @@
  * $Id$
  */
 
+#include "sysdep.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -19,15 +20,34 @@ static byte dtable[256];	      /* base64 encode / decode table */
 
 char *safestrncpy(char *dest, const char *src, size_t n)
 {
-  if (dest == NULL || src == NULL)
-    {
-      fprintf(stderr, "safestrncpy: NULL argument\n");
-      abort();
-    }
-  strncpy(dest, src, n);
-  dest[n - 1] = 0;
-  return dest;
+	if (dest == NULL || src == NULL) {
+		fprintf(stderr, "safestrncpy: NULL argument\n");
+		abort();
+	}
+	strncpy(dest, src, n);
+	dest[n - 1] = 0;
+	return dest;
 }
+
+
+
+#ifndef HAVE_STRNCASECMP
+int strncasecmp(char *lstr, char *rstr, int len)
+{
+	int pos = 0;
+	char lc,rc;
+	while (pos<len) {
+		lc=tolower(lstr[pos]);
+		rc=tolower(rstr[pos]);
+		if ((lc==0)&&(rc==0)) return(0);
+		if (lc<rc) return(-1);
+		if (lc>rc) return(1);
+		pos=pos+1;
+	}
+	return(0);
+}
+#endif
+
 
 
 /*
