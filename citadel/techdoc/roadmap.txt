@@ -11,17 +11,19 @@ Goals to achieve during the 6.xx cycle
  
 * Better UI presentation for delegated access to mailboxes.
 
-* Optimize the IMAP server and add the search command.
-  Status: as of 6.06 we are working smoothly with many popular IMAP clients
-  on several platforms.  Still need to add SEARCH command.
+* Optimize the IMAP server.
+  Status: as of 6.12 we are completely functional.  Even the SEARCH command
+  works now.  We still have to make it run faster, though.
 
 * LDAP directory support
 
 * Calendar service
   Status: full functionality is present in 6.07, including the ability to
   keep a calendar, send/receive invitations, manage attendees, etc.  You
-  need to use WebCit to access it, though.  The next step will be to write
-  connector software for various external calendar clients.
+  need to use WebCit to access it, though.  We are now waiting for an open
+  source, cross platform, professional quality calendar client to emerge.
+  Once this happens, we will connect it to Citadel.  Or we might want to
+  select a protocol (such as WCAP or CAP) and implement it.
 
 * NNTP
   This needs some research, but I think it's technically going to be more
