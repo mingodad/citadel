@@ -1169,6 +1169,8 @@ void edit_floor(void)
 	}
 
 	/* Interact with the user */
+	scr_printf("You are editing the floor called \"%s\"\n", 
+		&floorlist[(int) curr_floor][0] );
 	strprompt("Floor name", &floorlist[(int) curr_floor][0], 255);
 
 	/* Angels and demons dancing in my head... */
