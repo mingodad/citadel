@@ -656,6 +656,14 @@ fclose(fp);
 		showuser();
 		}
 
+	else if (!strcasecmp(action, "display_page")) {
+		display_page();
+		}
+
+	else if (!strcasecmp(action, "page_user")) {
+		page_user();
+		}
+
 	/* When all else fails... */
 	else {
 		printf("HTTP/1.0 200 OK\n");

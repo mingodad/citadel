@@ -77,7 +77,7 @@ char *oper; {
 		}
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=0 BGCOLOR=000077><TR><TD>\n");
-	wprintf("<FONT COLOR=\"FFFF00\"><B> ");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFF00\"> ");
 	strcpy(m_subject,"");
 
 	strcpy(reply_to,"nobody...xxxxx");
@@ -130,7 +130,7 @@ char *oper; {
 		}
 
 	if (nhdr==1) wprintf("****");
-	wprintf("</B></FONT></TD>");
+	wprintf("</FONT></TD>");
 	
 	if (is_room_aide) {
 		wprintf("<TD ALIGN=RIGHT NOWRAP><FONT COLOR=\"FFFF00\"><B>");
