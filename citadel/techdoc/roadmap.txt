@@ -11,11 +11,9 @@ Goals to achieve during the 6.xx cycle
  
 * Better UI presentation for delegated access to mailboxes.
 
-* Optimize the IMAP server.
-  Status: as of 6.12 we are completely functional.  Even the SEARCH command
-  works now.  We still have to make it run faster, though.
-
 * LDAP directory support
+  (UPDATE: an LDAP connector for Citadel has been checked into CVS, and it
+  is capable of populating an external LDAP directory.)
 
 * Calendar service
   Status: full functionality is present in 6.07, including the ability to
@@ -24,7 +22,20 @@ Goals to achieve during the 6.xx cycle
   source, cross platform, professional quality calendar client to emerge.
   Once this happens, we will connect it to Citadel.  Or we might want to
   select a protocol (such as WCAP or CAP) and implement it.
+  (UPDATE: the new 'Kolab' groupware system is using a Citadel-like calendar
+  store, i.e. vCalendar objects accessed through IMAP.  We are now aiming
+  for full Kolab compatibility, as there are at least two more client projects
+  which are doing the same, and hopefully we can evolve the Kolab spec into
+  an open groupware standard.)
 
 * NNTP
   This needs some research, but I think it's technically going to be more
   trouble than it's worth. -IO
+
+ 
+ Short-term TODO list
+ --------------------
+ 
+ * STARTTLS support in IMAP, POP, and SMTP
+ * PLAIN and CRAM-MD5 authentication mechanisms
+ * WebCit support for HTTP transactions performed by Kolab clients
