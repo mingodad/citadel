@@ -42,6 +42,7 @@ void calendar_month_view_display_events(time_t thetime) {
 	icalproperty *p;
 	struct icaltimetype t;
 	int month, day, year;
+	int all_day_event = 0;
 
 	if (WC->num_cal == 0) {
 		wprintf("<BR><BR><BR>\n");
@@ -62,10 +63,19 @@ void calendar_month_view_display_events(time_t thetime) {
 			   && (t.month == month)
 			   && (t.day == day)) {
 
+				if (t.is_date) all_day_event = 1;
+
 				p = icalcomponent_get_first_property(
 							WC->disp_cal[i],
 							ICAL_SUMMARY_PROPERTY);
 				if (p != NULL) {
+
+					if (all_day_event) {
+						wprintf("<TABLE border=1 cellpadding=2><TR>"
+							"<TD BGCOLOR=#CCCCCC>"
+						);
+					}
+
 					wprintf("<FONT SIZE=-1>"
 						"<A HREF=\"/display_edit_event?msgnum=%ld&calview=%s&year=%s&month=%s&day=%s\">",
 						WC->cal_msgnum[i],
@@ -77,6 +87,11 @@ void calendar_month_view_display_events(time_t thetime) {
 					escputs((char *)
 						icalproperty_get_comment(p));
 					wprintf("</A></FONT><BR>\n");
+
+					if (all_day_event) {
+						wprintf("</TD></TR></TABLE>");
+					}
+
 				}
 
 			}
@@ -214,6 +229,7 @@ void calendar_day_view_display_events(int year, int month,
 	int i;
 	icalproperty *p;
 	struct icaltimetype t;
+	int all_day_event = 0;
 
 	if (WC->num_cal == 0) {
 		wprintf("<BR><BR><BR>\n");
@@ -228,13 +244,22 @@ void calendar_day_view_display_events(int year, int month,
 			if ((t.year == year)
 			   && (t.month == month)
 			   && (t.day == day)
-			   && ( (t.hour == hour) || ((hour<0)&&(t.is_date)) )
+			   && ( ((t.hour == hour)&&(!t.is_date)) || ((hour<0)&&(t.is_date)) )
 			   ) {
+
+				if (t.is_date) all_day_event = 1;
 
 				p = icalcomponent_get_first_property(
 							WC->disp_cal[i],
 							ICAL_SUMMARY_PROPERTY);
 				if (p != NULL) {
+
+					if (all_day_event) {
+						wprintf("<TABLE border=1 cellpadding=2><TR>"
+							"<TD BGCOLOR=#CCCCCC>"
+						);
+					}
+
 					wprintf("<FONT SIZE=-1>"
 						"<A HREF=\"/display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d\">",
 						WC->cal_msgnum[i],
@@ -243,6 +268,10 @@ void calendar_day_view_display_events(int year, int month,
 					escputs((char *)
 						icalproperty_get_comment(p));
 					wprintf("</A></FONT><BR>\n");
+
+					if (all_day_event) {
+						wprintf("</TD></TR></TABLE>");
+					}
 				}
 
 			}
