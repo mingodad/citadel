@@ -88,9 +88,6 @@ enum {				/* Delivery modes */
 #define SMTP_RECPS	((char *)CtdlGetUserData(SYM_SMTP_RECPS))
 #define SMTP_ROOMS	((char *)CtdlGetUserData(SYM_SMTP_ROOMS))
 
-long SYM_SMTP;
-long SYM_SMTP_RECPS;
-long SYM_SMTP_ROOMS;
 
 int run_queue_now = 0;	/* Set to 1 to ignore SMTP send retry times */
 
@@ -1433,8 +1430,6 @@ void smtp_init_spoolout(void) {
 
 char *serv_smtp_init(void)
 {
-	SYM_SMTP = CtdlGetDynamicSymbol();
-
 	CtdlRegisterServiceHook(config.c_smtp_port,	/* On the net... */
 				NULL,
 				smtp_greeting,

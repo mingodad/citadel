@@ -249,16 +249,6 @@ void RemoveContext (struct CitContext *con)
 
 
 
-/*
- * Get a dynamic symbol number for per-session user data.
- * This API call should be made only ONCE per symbol per citserver run.
- */
-int CtdlGetDynamicSymbol() 
-{
-	static unsigned int next_symbol = SYM_MAX;
-	return ++next_symbol;
-}
-
 
 
 /*

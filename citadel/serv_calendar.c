@@ -42,9 +42,6 @@ struct ical_respond_data {
 	icalcomponent *cal;
 };
 
-/* Session-local data for calendaring. */
-long SYM_CIT_ICAL;
-
 
 /*
  * Utility function to create a new VCALENDAR component with some of the
@@ -1745,7 +1742,6 @@ void ical_session_startup(void) {
 char *serv_calendar_init(void)
 {
 #ifdef CITADEL_WITH_CALENDAR_SERVICE
-	SYM_CIT_ICAL = CtdlGetDynamicSymbol();
 	CtdlRegisterMessageHook(ical_obj_beforesave, EVT_BEFORESAVE);
 	CtdlRegisterMessageHook(ical_obj_aftersave, EVT_AFTERSAVE);
 	CtdlRegisterSessionHook(ical_create_room, EVT_LOGIN);

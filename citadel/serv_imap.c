@@ -85,8 +85,6 @@ struct irlparms {
 	struct irl **irl;
 };
 
-long SYM_IMAP;
-
 
 /*
  * If there is a message ID map in memory, free it
@@ -1345,7 +1343,6 @@ void imap_command_loop(void) {
  */
 char *serv_imap_init(void)
 {
-	SYM_IMAP = CtdlGetDynamicSymbol();
 	CtdlRegisterServiceHook(config.c_imap_port,
 				NULL,
 				imap_greeting,

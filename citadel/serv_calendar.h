@@ -5,8 +5,6 @@
  *
  */
 
-extern long SYM_CIT_ICAL;
-
 struct cit_ical {
         int avoid_sending_invitations;
 };

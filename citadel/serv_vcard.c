@@ -69,7 +69,6 @@ struct vcard_internal_info {
 };
 
 /* Message number symbol used internally by these functions */
-unsigned long SYM_VCARD;
 #define VC ((struct vcard_internal_info *)CtdlGetUserData(SYM_VCARD))
 
 
@@ -784,7 +783,6 @@ void vcard_session_login_hook(void) {
 
 char *serv_vcard_init(void)
 {
-	SYM_VCARD = CtdlGetDynamicSymbol();
 	CtdlRegisterSessionHook(vcard_session_startup_hook, EVT_START);
 	CtdlRegisterSessionHook(vcard_session_login_hook, EVT_LOGIN);
 	CtdlRegisterMessageHook(vcard_upload_beforesave, EVT_BEFORESAVE);

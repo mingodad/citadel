@@ -693,7 +693,6 @@ void network_spoolout_room(char *room_to_spool) {
 	int skipthisline = 0;
 	int i;
 
-	lprintf(7, "Spooling <%s>\n", room_to_spool);
 	if (getroom(&CC->room, room_to_spool) != 0) {
 		lprintf(1, "ERROR: cannot load <%s>\n", room_to_spool);
 		return;
@@ -707,14 +706,11 @@ void network_spoolout_room(char *room_to_spool) {
 
 	fp = fopen(filename, "r");
 	if (fp == NULL) {
-		lprintf(7, "Outbound batch processing skipped for <%s>\n",
-			CC->room.QRname);
 		end_critical_section(S_NETCONFIGS);
 		return;
 	}
 
-	lprintf(5, "Outbound batch processing started for <%s>\n",
-		CC->room.QRname);
+	lprintf(5, "Networking started for <%s>\n", CC->room.QRname);
 
 	while (fgets(buf, sizeof buf, fp) != NULL) {
 		buf[strlen(buf)-1] = 0;
@@ -843,9 +839,6 @@ void network_spoolout_room(char *room_to_spool) {
 		fclose(fp);
 	}
 	end_critical_section(S_NETCONFIGS);
-
-	lprintf(5, "Outbound batch processing finished for <%s>\n",
-		CC->room.QRname);
 }
 
 

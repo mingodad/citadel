@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 
 		/* -t specifies where to log trace messages to */
 		if (!strncmp(argv[a], "-t", 2)) {
-			strcpy(tracefile, argv[a]);
+			safestrncpy(tracefile, argv[a], sizeof tracefile);
 			strcpy(tracefile, &tracefile[2]);
 			freopen(tracefile, "r", stdin);
 			freopen(tracefile, "w", stdout);

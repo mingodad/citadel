@@ -5,9 +5,6 @@
  */
 /* #define DEBUG_MEMORY_LEAKS */
 
-/*
- * New format for a message in memory
- */
 
 #ifndef SERVER_H
 #define SERVER_H
@@ -23,15 +20,18 @@
 #include <openssl/ssl.h>
 #endif
 
-#define	CTDLMESSAGE_MAGIC		0x159d
+/*
+ * New format for a message in memory
+ */
 struct CtdlMessage {
-	int cm_magic;			/* Self-check */
+	int cm_magic;			/* Self-check (NOT SAVED TO DISK) */
 	char cm_anon_type;		/* Anonymous or author-visible */
 	char cm_format_type;		/* Format type */
 	char *cm_fields[256];		/* Data fields */
 	unsigned int cm_flags;		/* How to handle (NOT SAVED TO DISK) */
 };
 
+#define	CTDLMESSAGE_MAGIC		0x159d
 #define	CM_SKIP_HOOKS	0x01		/* Don't run server-side handlers */
 
 
@@ -45,12 +45,20 @@ struct CtdlSessData {
 };
 
 /*
- * Static user data symbol types
+ * Static user data symbol types.  Server extensions can ask for dynamic
+ * extensions to per-session data, but the symbol ID has to be listed here.
  */
 enum {
 	SYM_DESIRED_SECTION,		/* Used by the MIME parser */
 	SYM_MA_INFO,			/* Handles multipart/alternative */
 	SYM_REPL,			/* Used for replication checking */
+	SYM_CIT_ICAL,			/* Used by the calendar service */
+	SYM_IMAP,			/* Used by the IMAP service */
+	SYM_POP3,			/* Used by the POP3 service */
+	SYM_SMTP,			/* Used by the SMTP service */
+	SYM_SMTP_RECPS,
+	SYM_SMTP_ROOMS,
+	SYM_VCARD,			/* vCard handling requires this */
 	SYM_MAX
 };
 

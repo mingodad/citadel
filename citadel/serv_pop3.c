@@ -59,8 +59,6 @@
 #include "serv_pop3.h"
 #include "md5.h"
 
-long SYM_POP3;
-
 
 /*
  * This cleanup function blows away the temporary memory and files used by
@@ -618,7 +616,6 @@ void pop3_command_loop(void) {
 
 char *serv_pop3_init(void)
 {
-	SYM_POP3 = CtdlGetDynamicSymbol();
 	CtdlRegisterServiceHook(config.c_pop3_port,
 				NULL,
 				pop3_greeting,
