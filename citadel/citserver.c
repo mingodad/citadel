@@ -1072,18 +1072,6 @@ void do_command_loop(void) {
 		cmd_ipgm(&cmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"EBIO",4)) {
-		cmd_ebio();
-		}
-
-	else if (!strncasecmp(cmdbuf,"RBIO",4)) {
-		cmd_rbio(&cmdbuf[5]);
-		}
-
-	else if (!strncasecmp(cmdbuf,"LBIO",4)) {
-		cmd_lbio();
-		}
-
 	else if (!strncasecmp(cmdbuf,"TERM",4)) {
 		cmd_term(&cmdbuf[5]);
 		}

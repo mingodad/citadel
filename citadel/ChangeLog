@@ -1,4 +1,7 @@
  $Log$
+ Revision 1.490  2000/03/17 04:11:24  ajc
+ * Moved bio-related commands out to a loadable module
+
  Revision 1.489  2000/03/16 17:58:54  smw
  Created a docs directory.
  Moved install.txt to docs.
@@ -1750,3 +1753,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
