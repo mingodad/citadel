@@ -124,6 +124,10 @@ void do_keepalive(void) {
 	if ((now - idlet) < ((long)S_KEEPALIVE)) return;
 	time(&idlet);
 
+	/* Do a space-backspace to keep socksified telnet sessions open */
+	printf(" %c", 8);
+	fflush(stdout);
+
 	if (keepalives_enabled != KA_NO) {
 		serv_puts("NOOP");
 		if (keepalives_enabled == KA_YES) {
