@@ -203,7 +203,7 @@ void display_main_menu(void) {
 	printf("HTTP/1.0 200 OK\n");
 	output_headers(1, "bottom");
 	embed_main_menu();
-	wDumpContent(1);
+	wDumpContent(2);
 	}
 
 
@@ -212,7 +212,7 @@ void display_advanced_menu(void) {
 	output_headers(1, "bottom");
 	embed_advanced_menu();
 	embed_main_menu();
-	wDumpContent(1);
+	wDumpContent(2);
 	}
 
 

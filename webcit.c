@@ -178,11 +178,21 @@ int wContentLength(void) {
 	return(len);
 	}
 
+/*
+ * wDumpContent() takes all the stuff that's been queued up using
+ * the wprintf() and escputs() functions, and sends it out to the browser.
+ * By queuing instead of transmitting as it's generated, we're able to
+ * calculate a Content-length: header.
+ *
+ * print_standard_html_footer should be set to 0 to transmit only, 1 to
+ * append the main menu (if in noframes mode) and closing tags, or 2 to
+ * append the closing tags only.
+ */
 void wDumpContent(int print_standard_html_footer) {
 	struct webcontent *wptr;
 
 	if (print_standard_html_footer) {
-		if (noframes) {
+		if ( (noframes) && (print_standard_html_footer != 2) ) {
 			wprintf("<BR>");
 			embed_main_menu();
 			}

@@ -396,39 +396,32 @@ void gotoroom(char *gname, int display_name)
 
 
 /*
- * Locate the room on the march list which we most want to go to
+ * Locate the room on the march list which we most want to go to.  Each room
+ * is measured given a "weight" of preference based on various factors.
  */
 char *pop_march(int desired_floor) {
 	static char TheRoom[64];
 	int TheFloor = 0;
 	int TheOrder = 32767;
+	int TheWeight = 0;
+	int weight;
 	struct march *mptr = NULL;
 
 	strcpy(TheRoom, "_BASEROOM_");
 	if (march == NULL) return(TheRoom);
 
 	for (mptr = march; mptr != NULL; mptr = mptr->next) {
-		if ((strcasecmp(mptr->march_name, "_BASEROOM_"))
-		   &&(!strcasecmp(TheRoom, "_BASEROOM_"))) {
-			strcpy(TheRoom, mptr->march_name);
-			TheFloor = mptr->march_floor;
-			TheOrder = mptr->march_order;
-			}
-		else if ( (mptr->march_floor == desired_floor)
-		   && (TheFloor != desired_floor)
-		   && (strcasecmp(mptr->march_name, "_BASEROOM_")) ) {
-			strcpy(TheRoom, mptr->march_name);
-			TheFloor = mptr->march_floor;
-			TheOrder = mptr->march_order;
-			}
-		else if ((mptr->march_floor < TheFloor)
-		     && (strcasecmp(mptr->march_name, "_BASEROOM_")) ) {
-			strcpy(TheRoom, mptr->march_name);
-			TheFloor = mptr->march_floor;
-			TheOrder = mptr->march_order;
-			}
-		else if ((mptr->march_order < TheOrder)
-		     && (strcasecmp(mptr->march_name, "_BASEROOM_")) ) {
+		weight = 0;
+		if ((strcasecmp(mptr->march_name, "_BASEROOM_")))
+			weight = weight + 10000;
+		if (mptr->march_floor == desired_floor)
+			weight = weight + 5000;
+
+			weight = weight + ((128-(mptr->march_floor))*128);
+			weight = weight + (128-(mptr->march_order));
+
+		if (weight > TheWeight) {
+			TheWeight = weight;
 			strcpy(TheRoom, mptr->march_name);
 			TheFloor = mptr->march_floor;
 			TheOrder = mptr->march_order;
