@@ -563,6 +563,7 @@ void cmd_msgs(char *cmdbuf)
 	}
 
 	if (with_template) {
+		unbuffer_output();
 		cprintf("%d Send template then receive message list\n",
 			START_CHAT_MODE);
 		template = (struct CtdlMessage *)
@@ -578,6 +579,7 @@ void cmd_msgs(char *cmdbuf)
 				}
 			}
 		}
+		buffer_output();
 	}
 	else {
 		cprintf("%d Message list...\n", LISTING_FOLLOWS);
