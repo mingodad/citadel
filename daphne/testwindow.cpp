@@ -47,7 +47,7 @@ TestWindow::TestWindow(CitClient *sock, wxMDIParentFrame *MyMDI)
 			"Test Window",
 			wxDefaultPosition,
 			wxDefaultSize,
-			wxDEFAULT_FRAME_STYLE,
+			wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL,
 			"TestWindow"
 			) {
 

@@ -12,10 +12,10 @@ all: daphne
 
 
 daphne: main.o citclient.o userlogin.o testwindow.o who.o \
-	utils.o express_message.o send_express.o \
+	utils.o express_message.o send_express.o prefs.o \
 	roomtree.o roomview.o tcp_sockets.o message.o enter.o
 	c++ main.o citclient.o userlogin.o testwindow.o who.o \
-	utils.o express_message.o send_express.o \
+	utils.o express_message.o send_express.o prefs.o \
 	roomtree.o roomview.o tcp_sockets.o message.o enter.o \
 	$(LFLAGS) -o daphne
 

@@ -56,6 +56,7 @@ private:
 	void OnConnect(wxCommandEvent& event);
 	void OnGotoMail(wxCommandEvent& event);
 	void OnTestWin(wxCommandEvent& event);
+	void OnEditMenu(wxCommandEvent& cmd);
 	void OnUsersMenu(wxCommandEvent& cmd);
 	void OnRoomsMenu(wxCommandEvent& cmd);
         void MyFrame::OnSize(wxSizeEvent& event);
@@ -81,6 +82,7 @@ enum
 	IG_Text,
 	MENU_CONNECT,
 	MENU_TESTWIN,
+	EMENU_PREFS,
 	UMENU_WHO,
 	UMENU_SEND_EXPRESS,
 	RMENU_GOTO,
@@ -100,6 +102,7 @@ BEGIN_EVENT_TABLE(	MyFrame, wxMDIParentFrame)
 	EVT_MENU(	IG_Quit,		MyFrame::OnQuit)
 	EVT_MENU(	IG_About,		MyFrame::OnAbout)
 	EVT_MENU(	MENU_CONNECT,		MyFrame::OnConnect)
+	EVT_MENU(	EMENU_PREFS,		MyFrame::OnEditMenu)
 	EVT_MENU(	GOTO_MAIL,		MyFrame::OnGotoMail)
 	EVT_MENU(	MENU_TESTWIN,		MyFrame::OnTestWin)
 	EVT_MENU(	UMENU_WHO,		MyFrame::OnUsersMenu)
@@ -167,7 +170,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
        : wxMDIParentFrame(
 		(wxMDIParentFrame *)NULL,
 		-1,
-		title, pos, size, wxDEFAULT_FRAME_STYLE
+		title, pos, size, wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL
 		) {
 
 	TheWholist = NULL;
@@ -192,6 +195,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	menuFile->Append(IG_Quit, "E&xit");
 
 	wxMenu *menuEdit = new wxMenu;
+	menuEdit->Append(EMENU_PREFS, "&Preferences...");
 
 	wxMenu *menuUsers = new wxMenu;
 	menuUsers->Append(UMENU_WHO, "&Who is online?");
@@ -310,6 +314,18 @@ void MyFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 
 	cleanup(0);
 }
+
+
+// Edit menu handler
+void MyFrame::OnEditMenu(wxCommandEvent& cmd) {
+	int id;
+	id = cmd.GetId();
+	if (id == EMENU_PREFS) {
+		new Preferences(citadel, this);
+	}
+}
+
+
 
 // User menu handler
 void MyFrame::OnUsersMenu(wxCommandEvent& cmd) {

@@ -20,7 +20,7 @@ EnterMessage::EnterMessage(
 			roomname + ": enter message",
 			wxDefaultPosition,
 			wxDefaultSize,
-			wxDEFAULT_FRAME_STYLE,
+			wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL,
 			roomname
 			) {
 

@@ -52,7 +52,7 @@ express_message::express_message(
 			"Express message",
 			wxDefaultPosition,
 			wxSize(500, 200),
-			wxDEFAULT_FRAME_STYLE,
+			wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL,
 			"express_message"
 			) {
 

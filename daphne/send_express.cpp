@@ -45,7 +45,7 @@ SendExpress::SendExpress(	CitClient *sock,
 			" Page another user ",
 			wxDefaultPosition,
 			wxDefaultSize,
-			wxDEFAULT_FRAME_STYLE,
+			wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL,
 			"SendExpress"
 			) {
 

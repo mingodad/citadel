@@ -44,7 +44,7 @@ who::who(CitClient *sock, wxMDIParentFrame *MyMDI)
 			"Who is online?",
 			wxDefaultPosition,
 			wxDefaultSize,
-			wxDEFAULT_FRAME_STYLE,
+			wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL,
 			"who"
 			) {
 

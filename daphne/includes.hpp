@@ -133,6 +133,20 @@ private:
 };
 
 
+// Preferences for the application.
+
+class Preferences : public wxMDIChildFrame {
+public:
+	Preferences(	CitClient *sock,
+			wxMDIParentFrame *MyMDI);
+private:
+	void OnButtonPressed(wxCommandEvent& whichbutton);
+	CitClient *citsock;
+	wxMDIParentFrame *citMyMDI;
+	DECLARE_EVENT_TABLE()
+};
+
+
 
 // Just testing...
 class TestWindow : public wxMDIChildFrame {

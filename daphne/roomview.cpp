@@ -30,7 +30,7 @@ RoomView::RoomView(
 			roomname,
 			wxDefaultPosition,
 			wxDefaultSize,
-			wxDEFAULT_FRAME_STYLE,
+			wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL,
 			roomname
 			) {
 
