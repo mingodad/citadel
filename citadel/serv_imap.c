@@ -414,7 +414,10 @@ void imap_create(int num_parms, char *parms[]) {
 		newroomtype = 0;	/* public folder */
 	}
 
-	ret = create_room(roomname, newroomtype, "", floornum);
+	lprintf(7, "Create new room <%s> on floor <%d> with type <%d>\n",
+		roomname, floornum, newroomtype);
+
+	ret = create_room(roomname, newroomtype, "", floornum, 1);
 	if (ret == 0) {
 		cprintf("%s NO Mailbox already exists, or create failed\r\n",
 			parms[0]);

@@ -13,7 +13,7 @@
 # messages.  If you want the external editor to be used by default, be sure
 # to reflect this in the command set below.
 #
-editor=vi
+editor=pico
 
 # If you define PRINTCMD, it will be a pipe through which messages are
 # printed when the user hits the <P>rint key after a message.
@@ -31,7 +31,7 @@ editor=vi
 # work for dialup connections.  Generally you should set this to 1 for a
 # private copy of the client or 0 for a shared copy of the client.
 #
-local_screen_dimensions=0
+local_screen_dimensions=1
 
 # ANSI_COLOR should be set to on/off/auto/user to control the use of
 # color on the screen.  If it is set to "auto" then an autodetect will be

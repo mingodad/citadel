@@ -289,7 +289,7 @@ struct floor *cgetfloor(int floor_num) {
 	static int initialized = 0;
 	int i;
 
-	if (!initialized) {
+	if (initialized == 0) {
 		for (i=0; i<MAXFLOORS; ++i) {
 			floorcache[floor_num] = NULL;
 		}
@@ -317,6 +317,7 @@ void putfloor(struct floor *flbuf, int floor_num)
 	/* If we've cached this, clear it out, 'cuz it's WRONG now! */
 	if (floorcache[floor_num] != NULL) {
 		phree(floorcache[floor_num]);
+		floorcache[floor_num] = NULL;
 	}
 }
 
@@ -1227,7 +1228,8 @@ void cmd_kill(char *argbuf)
 unsigned create_room(char *new_room_name,
 		     int new_room_type,
 		     char *new_room_pass,
-		     int new_room_floor)
+		     int new_room_floor,
+		     int really_create)
 {
 
 	struct quickroom qrbuf;
@@ -1240,11 +1242,10 @@ unsigned create_room(char *new_room_name,
 		return (0);	/* already exists */
 	}
 
+
 	memset(&qrbuf, 0, sizeof(struct quickroom));
-	safestrncpy(qrbuf.QRname, new_room_name, sizeof qrbuf.QRname);
 	safestrncpy(qrbuf.QRpasswd, new_room_pass, sizeof qrbuf.QRpasswd);
 	qrbuf.QRflags = QR_INUSE;
-	qrbuf.QRnumber = get_new_room_number();
 	if (new_room_type > 0)
 		qrbuf.QRflags = (qrbuf.QRflags | QR_PRIVATE);
 	if (new_room_type == 1)
@@ -1253,6 +1254,16 @@ unsigned create_room(char *new_room_name,
 		qrbuf.QRflags = (qrbuf.QRflags | QR_PASSWORDED);
 	if (new_room_type == 4)
 		qrbuf.QRflags = (qrbuf.QRflags | QR_MAILBOX);
+
+	/* If the user is requesting a personal room, set up the room
+	 * name accordingly (prepend the user number)
+	 */
+	if (new_room_type == 4) {
+		MailboxName(qrbuf.QRname, &CC->usersupp, new_room_name);
+	}
+	else {
+		safestrncpy(qrbuf.QRname, new_room_name, sizeof qrbuf.QRname);
+	}
 
 	/* If the room is private, and the system administrator has elected
 	 * to automatically grant room aide privileges, do so now; otherwise,
@@ -1264,6 +1275,14 @@ unsigned create_room(char *new_room_name,
 		qrbuf.QRroomaide = (-1L);
 	}
 
+	/* 
+	 * If the caller is only interested in testing whether this will work,
+	 * return now without creating the room.
+	 */
+	if (!really_create) return (qrbuf.QRflags);
+
+	cdb_begin_transaction();
+	qrbuf.QRnumber = get_new_room_number();
 	qrbuf.QRhighest = 0L;	/* No messages in this room yet */
 	time(&qrbuf.QRgen);	/* Use a timestamp as the generation number */
 	qrbuf.QRfloor = new_room_floor;
@@ -1285,6 +1304,7 @@ unsigned create_room(char *new_room_name,
 	lputuser(&CC->usersupp);
 
 	/* resume our happy day */
+	cdb_end_transaction();
 	return (qrbuf.QRflags);
 }
 
@@ -1352,17 +1372,10 @@ void cmd_cre8(char *args)
 		return;
 	}
 
-	/* If the user is requesting a personal room, set up the room
-	 * name accordingly (prepend the user number)
-	 */
-	if (new_room_type == 4) {
-		sprintf(aaa, "%010ld.%s",
-			CC->usersupp.usernum, new_room_name);
-		strcpy(new_room_name, aaa);
-	}
-
 	/* Check to make sure the requested room name doesn't already exist */
-	if (getroom(&qrbuf, new_room_name) == 0) {
+	newflags = create_room(new_room_name,
+			   new_room_type, new_room_pass, new_room_floor, 0);
+	if (newflags == 0) {
 		cprintf("%d '%s' already exists.\n",
 			ERROR + ALREADY_EXISTS, qrbuf.QRname);
 		return;
@@ -1373,8 +1386,10 @@ void cmd_cre8(char *args)
 		return;
 	}
 
+	/* If we reach this point, the room needs to be created. */
+
 	newflags = create_room(new_room_name,
-			   new_room_type, new_room_pass, new_room_floor);
+			   new_room_type, new_room_pass, new_room_floor, 1);
 
 	/* post a message in Aide> describing the new room */
 	safestrncpy(aaa, new_room_name, sizeof aaa);

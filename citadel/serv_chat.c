@@ -571,14 +571,14 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 		logmsg->cm_fields['M'] = strdoop(x_msg);
 
 		MailboxName(roomname, &CC->usersupp, PAGELOGROOM);
-		create_room(roomname, 4, "", 0);
+		create_room(roomname, 4, "", 0, 1);
 		msgnum = CtdlSaveMsg(logmsg, "", roomname, MES_LOCAL);
 		if (strlen(config.c_logpages) > 0) {
-			create_room(config.c_logpages, 3, "", 0);
+			create_room(config.c_logpages, 3, "", 0, 1);
 			CtdlSaveMsgPointerInRoom(config.c_logpages, msgnum, 0);
 		}
 		while (sl != NULL) {
-			create_room(sl->roomname, 4, "", 0);
+			create_room(sl->roomname, 4, "", 0, 1);
 			CtdlSaveMsgPointerInRoom(sl->roomname, msgnum, 0);
 			sptr = sl->next;
 			phree(sl);

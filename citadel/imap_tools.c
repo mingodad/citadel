@@ -109,7 +109,8 @@ void imap_mailboxname(char *buf, int bufsize, struct quickroom *qrbuf) {
 	 */
 	else {
 		fl = cgetfloor(qrbuf->QRfloor);
-		lprintf(9, "floor %d: %s\n", qrbuf->QRfloor, fl->f_name); /* FIXME take out */
+		lprintf(9, "Floor %d: \n", qrbuf->QRfloor);
+		lprintf(9, "          %s\n", fl->f_name); /* FIXME take out */
 		snprintf(buf, bufsize, "%s|%s",
 			fl->f_name,
 			qrbuf->QRname);
@@ -161,8 +162,11 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername) {
 			}
 		}
 
+		/* since we don't allow multi-level yet, fail.
 		extract(rbuf, buf, 1);
 		return(0);
+		*/
+		return(-1);
 	}
 
 	safestrncpy(rbuf, foldername, bufsize);

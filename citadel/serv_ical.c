@@ -50,7 +50,7 @@ void ical_create_room(void)
 
 	/* Create the room if it doesn't already exist */
 	MailboxName(roomname, &CC->usersupp, USERCALENDARROOM);
-	create_room(roomname, 4, "", 0);
+	create_room(roomname, 4, "", 0, 1);
 	/* Set expiration policy to manual; otherwise objects will be lost! */
 	if (lgetroom(&qr, roomname)) {
 		lprintf(3, "Couldn't get the user calendar room!\n");

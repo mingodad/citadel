@@ -1475,7 +1475,7 @@ char *Dynamic_Module_Init(void)
 				smtp_greeting,
 				smtp_command_loop);
 
-	create_room(SMTP_SPOOLOUT_ROOM, 3, "", 0);
+	create_room(SMTP_SPOOLOUT_ROOM, 3, "", 0, 1);
 	CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);
 	return "$Id$";
 }

@@ -1,4 +1,13 @@
  $Log$
+ Revision 573.84  2001/02/06 02:09:38  ajc
+ * citadel.rc: changed the default for local_screen_dimensions to 1, since
+   Internet users now outnumber dialup users 100 to 0.
+ * room_ops.c: added a really_create option to create_room().  Also moved the
+   generation of personal namespace into that function.  MODULE OWNERS PLEASE
+   CHECK YOUR CALLS TO AVOID MULTIPLE NAMESPACING!!
+ * room_ops.c: fixed a bug in cgetfloor() that left bad pointers around
+ * serv_imap.c: finished the CREATE command (finally)
+
  Revision 573.83  2001/02/05 05:20:22  ajc
  * Made some changes to functions which translate between Citadel room names
    and IMAP folder names.  They're still buggy.
@@ -2375,3 +2384,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

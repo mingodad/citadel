@@ -178,7 +178,8 @@ contain:
 unsigned create_room(char *new_room_name,
                      int new_room_type,
                      char *new_room_pass,
-                     int new_room_floor)
+                     int new_room_floor,
+		     int really_create)
 
  This function is used to create a new room.  new_room_name should be set to
 the desired name for the new room.  new_room_type should be set to 0 for a
@@ -187,6 +188,10 @@ invitation-only room, or 4 for a personal room (a mailbox).  If the room is
 a type 2 (passworded) room, new_room_pass should be set to the desired
 password.  new_room_floor should be set to the number of the floor upon which
 the new room should reside.
+ 
+ If the room is really to be created, set really_create to 1.  Otherwise, the
+caller may merely check to see if it's possible to create the room without
+actually creating it by setting really_create to 0.
  
  create_room() returns the flags associated with the new room (as in the
 data structure item quickroom.QRflags).  If the room cannot be created (for

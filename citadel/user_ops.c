@@ -675,7 +675,7 @@ int create_user(char *newusername)
 	}
 	/* give the user a private mailbox */
 	MailboxName(mailboxname, &CC->usersupp, MAILROOM);
-	create_room(mailboxname, 4, "", 0);
+	create_room(mailboxname, 4, "", 0, 1);
 
 	rec_log(CL_NEWUSER, CC->curr_user);
 	return (0);

@@ -35,7 +35,8 @@ void cmd_kill (char *argbuf);
 unsigned create_room(char *new_room_name,
 			int new_room_type,
 			char *new_room_pass,
-			int new_room_floor);
+			int new_room_floor,
+			int really_create);
 void cmd_cre8 (char *args);
 void cmd_einf (char *ok);
 void cmd_lflr (void);

@@ -2562,7 +2562,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 	if (getroom(&qrbuf, roomname) != 0) {
 		create_room(roomname, 
 			( (is_mailbox != NULL) ? 4 : 3 ),
-			"", 0);
+			"", 0, 1);
 	}
 	/* If the caller specified this object as unique, delete all
 	 * other objects of this type that are currently in the room.
