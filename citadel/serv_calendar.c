@@ -673,11 +673,91 @@ void ical_create_room(void)
 
 /*
  * ical_send_out_invitations() is called by ical_saving_vevent() when it
- * finds a VEVENT.
+ * finds a VEVENT.   FIXME ... finish implementing.
  */
 void ical_send_out_invitations(icalcomponent *cal) {
-	lprintf(9, "ORGANIZER IS ME!  Sending out invitations!\n");
-	/** FIXME ** Now go and implement this. **/
+	icalcomponent *the_request = NULL;
+	char *serialized_request = NULL;
+	char *request_message_text = NULL;
+	struct CtdlMessage *msg = NULL;
+	struct recptypes *valid = NULL;
+	char attendees_string[SIZ];
+	char this_attendee[SIZ];
+	icalproperty *attendee = NULL;
+	char *summary_string = NULL;
+	icalproperty *summary = NULL;
+
+	if (cal == NULL) {
+		lprintf(3, "ERROR: trying to reply to NULL event?\n");
+		return;
+	}
+
+	/* Clone the event */
+	the_request = icalcomponent_new_clone(cal);
+	if (the_request == NULL) {
+		lprintf(3, "ERROR: cannot clone calendar object\n");
+		return;
+	}
+
+	/* Extract the summary string -- we'll use it as the
+	 * message subject for the request
+	 */
+	strcpy(summary_string, "Meeting request");
+	summary = icalcomponent_get_first_property(the_request, ICAL_SUMMARY_PROPERTY);
+	if (summary != NULL) {
+		if (icalproperty_get_summary(summary)) {
+			strcpy(summary_string,
+				icalproperty_get_summary(summary) );
+		}
+	}
+
+	/* Set the method to REQUEST */
+	icalcomponent_set_method(the_request, ICAL_METHOD_REQUEST);
+
+	/* Determine who the recipients of this message are (the attendees) */
+	strcpy(attendees_string, "");
+	for (attendee = icalcomponent_get_first_property(the_request, ICAL_ATTENDEE_PROPERTY); attendee != NULL; attendee = icalcomponent_get_next_property(the_request, ICAL_ATTENDEE_PROPERTY)) {
+		if (icalproperty_get_attendee(attendee)) {
+			strcpy(this_attendee, icalproperty_get_attendee(attendee) );
+			if (!strncasecmp(this_attendee, "MAILTO:", 7)) {
+				strcpy(this_attendee, &this_attendee[7]);
+				snprintf(&attendees_string[strlen(attendees_string)],
+					sizeof(attendees_string) - strlen(attendees_string),
+					"%s, ",
+					this_attendee
+				);
+			}
+		}
+	}
+
+	lprintf(9, "attendees_string: <%s>\n", attendees_string);
+
+	/* Serialize it */
+	serialized_request = strdoop(icalcomponent_as_ical_string(the_request));
+	icalcomponent_free(the_request);	/* don't need this anymore */
+	if (serialized_request == NULL) return;
+
+	request_message_text = mallok(strlen(serialized_request) + SIZ);
+	if (request_message_text != NULL) {
+		sprintf(request_message_text,
+			"Content-type: text/calendar\r\n\r\n%s\r\n",
+			serialized_request
+		);
+
+		msg = CtdlMakeMessage(&CC->usersupp,
+			"",			/* No single recipient here */
+			CC->quickroom.QRname, 0, FMT_RFC822,
+			"",
+			summary_string,		/* Use summary for subject */
+			request_message_text);
+	
+		if (msg != NULL) {
+			valid = validate_recipients(attendees_string);
+			CtdlSubmitMsg(msg, valid, "");
+			CtdlFreeMessage(msg);
+		}
+	}
+	phree(serialized_request);
 }
 
 
