@@ -230,7 +230,7 @@ void RemoveContext (struct CitContext *con)
 
 	unlink(con->temp);
 	lprintf(3, "[%3d] Session ended.\n", con->cs_pid);
-	syslog(LOG_NOTICE,"session %d: ended", con->cs_pid);
+	syslog(LOG_NOTICE,"Session %d: ended.", con->cs_pid);
 
 	/* Deallocate any user-data attached to this session */
 	deallocate_user_data(con);
@@ -908,7 +908,7 @@ void begin_session(struct CitContext *con)
 		con->nologin = 1;
 
 	lprintf(3, "Session started.\n");
-	syslog(LOG_NOTICE,"session %d: ended", con->cs_pid);
+	syslog(LOG_NOTICE, "Session %d: started.", con->cs_pid);
 
 	/* Run any session startup routines registered by loadable modules */
 	PerformSessionHooks(EVT_START);
