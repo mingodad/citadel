@@ -1,5 +1,5 @@
                          -----------------------
-                         Citadel/UX version 5.70
+                         Citadel/UX version 5.71
                          -----------------------
     
 Copyright (c) 1987-2000 by Art Cancro.
