@@ -484,7 +484,7 @@ GETSN:	for (stemp = slist; stemp != NULL; stemp = stemp->next) {
 }
 
 
-void fpgetfield(FILE * fp, char *string)
+void fpgetfield(FILE *fp, char *string, int limit)
 {
 	int a, b;
 
@@ -492,7 +492,7 @@ void fpgetfield(FILE * fp, char *string)
 	a = 0;
 	do {
 		b = getc(fp);
-		if (b < 1) {
+		if ((b < 1) || (a >= limit)) {
 			string[a] = 0;
 			return;
 		}
@@ -529,7 +529,7 @@ BONFGM:	b = getc(fp);
 		goto END;
 	if (b == 'M')
 		goto END;
-	fpgetfield(fp, bbb);
+	fpgetfield(fp, bbb, sizeof bbb);
 	while ((bbb[0] == ' ') && (strlen(bbb) > 1))
 		strcpy(bbb, &bbb[1]);
 	if (b == 'A') {
@@ -655,7 +655,7 @@ void proc_file_transfer(char *tname)
 	do {
 		a = getc(tfp);
 		if (a != 'M') {
-			fpgetfield(tfp, buf);
+			fpgetfield(tfp, buf, sizeof buf);
 			if (a == 'O') {
 				strcpy(dest_room, buf);
 			}
@@ -1196,7 +1196,7 @@ int ismsgok(FILE *mmfp, char *sysname)
 	getc(mmfp);
 
 	while (a = getc(mmfp), ((a != 'M') && (a != 0))) {
-		fpgetfield(mmfp, fbuf);
+		fpgetfield(mmfp, fbuf, sizeof fbuf);
 		if (a == 'P') {
 			ok = checkpath(fbuf, sysname);
 		}
@@ -1326,13 +1326,16 @@ int spool_out(struct msglist *cmlist, FILE * destfp, char *sysname)
 			fread(fbuf, 3, 1, mmfp);
 			fwrite(fbuf, 3, 1, destfp);
 			while (a = getc(mmfp), ((a != 0) && (a != 'M'))) {
-				if (a != 'C')
+				if (a != 'C') {
 					putc(a, destfp);
-				fpgetfield(mmfp, fbuf);
-				if (a == 'P')
+				}
+				fpgetfield(mmfp, fbuf, sizeof fbuf);
+				if (a == 'P') {
 					fprintf(destfp, "%s!", NODENAME);
-				if (a != 'C')
+				}
+				if (a != 'C') {
 					fwrite(fbuf, strlen(fbuf) + 1, 1, destfp);
+				}
 				if (a == 'S') if (!strcasecmp(fbuf, "CANCEL")) {
 					delete_locally(cmptr->m_num, cmptr->m_rmname);
 				}

@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.53  2000/12/20 01:57:37  ajc
+ * netproc.c: added bounds check to fpgetfield()
+
  Revision 573.52  2000/12/19 20:41:55  ajc
  * Fixed generation of unique file names for network uploads etc.
 
@@ -2228,4 +2231,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
