@@ -542,8 +542,9 @@ void gotonext(CtdlIPC *ipc)
 void forget_all_rooms_on(CtdlIPC *ipc, int ffloor)
 {
 	char buf[SIZ];
-	struct march *flist, *fptr;
-	struct ctdlipcroom *room;	/* Ignored */
+	struct march *flist = NULL;
+	struct march *fptr = NULL;
+	struct ctdlipcroom *room = NULL;
 	int r;				/* IPC response code */
 
 	scr_printf("Forgetting all rooms on %s...\n", &floorlist[ffloor][0]);
@@ -551,13 +552,17 @@ void forget_all_rooms_on(CtdlIPC *ipc, int ffloor)
 	remove_march("_FLOOR_", ffloor);
 	r = CtdlIPCKnownRooms(ipc, AllAccessibleRooms, ffloor, &flist, buf);
 	if (r / 100 != 1) {
-		scr_printf("%s\n", buf);
+		scr_printf("Error %d: %s\n", r, buf);
 		return;
 	}
 	while (flist) {
 		r = CtdlIPCGotoRoom(ipc, flist->march_name, "", &room, buf);
 		if (r / 100 == 2) {
 			r = CtdlIPCForgetRoom(ipc, buf);
+			if (r / 100 != 2) {
+				scr_printf("Error %d: %s\n", r, buf);
+			}
+
 		}
 		fptr = flist;
 		flist = flist->next;
@@ -575,15 +580,15 @@ void gf_toroom(CtdlIPC *ipc, char *towhere, int mode)
 
 	floor_being_left = curr_floor;
 
-	if (mode == GF_GOTO) {	/* <;G>oto mode */
+	if (mode == GF_GOTO) {		/* <;G>oto mode */
 		updatels(ipc);
 		dotgoto(ipc, towhere, 1, 0);
 	}
-	if (mode == GF_SKIP) {	/* <;S>kip mode */
+	else if (mode == GF_SKIP) {	/* <;S>kip mode */
 		dotgoto(ipc, towhere, 1, 0);
 		remove_march("_FLOOR_", floor_being_left);
 	}
-	if (mode == GF_ZAP) {	/* <;Z>ap mode */
+	else if (mode == GF_ZAP) {	/* <;Z>ap mode */
 		dotgoto(ipc, towhere, 1, 0);
 		remove_march("_FLOOR_", floor_being_left);
 		forget_all_rooms_on(ipc, floor_being_left);
