@@ -1512,12 +1512,13 @@ int fmout2(
 				}
 				column++;
 			}
+			continue;
 		}
-		old = *e;
 		/* Or are we looking at a space? */
 		if (*e == ' ') {
 			e++;
 			if (column >= width - 1) {
+				/* Are we in the rightmost column? */
 				if (fpout) {
 					fprintf(fpout, "\n");
 				} else {
@@ -1527,6 +1528,7 @@ int fmout2(
 				}
 				column = 0;
 			} else if (!(column == 0 && old == ' ')) {
+				/* Eat the first space on a line */
 				if (fpout) {
 					fprintf(fpout, " ");
 				} else {
@@ -1534,8 +1536,11 @@ int fmout2(
 				}
 				column++;
 			}
+			/* ONLY eat the FIRST space on a line */
+			old = 0;
 			continue;
 		}
+		old = *e;
 
 		/* Read a word, slightly messy */
 		i = 0;
@@ -1607,6 +1612,15 @@ int fmout2(
 	free(word);
 	if (fpin)		/* We allocated this, remember? */
 		free(buffer);
+
+	if (fpout) {
+		fprintf(fpout, "\n");
+	} else {
+		scr_printf("\n");
+		++lines_printed;
+		lines_printed = checkpagin(lines_printed, pagin, height);
+	}
+
 	return sigcaught;
 }
 
