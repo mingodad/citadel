@@ -86,7 +86,11 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 	char filename[SIZ];
 	char token[SIZ];
 	char confirmation_request[SIZ];
+	char buf[SIZ];
 	char urlroom[SIZ];
+	char scancmd[SIZ];
+	char scanemail[SIZ];
+	int found_sub = 0;
 
 	if (getroom(&qrbuf, room) != 0) {
 		cprintf("%d There is no list called '%s'\n", ERROR, room);
@@ -102,6 +106,37 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 
 	listsub_generate_token(token);
 
+	/* 
+	 * Make sure the requested address isn't already subscribed
+	 */
+	begin_critical_section(S_NETCONFIGS);
+	ncfp = fopen(filename, "r");
+	if (ncfp != NULL) {
+		while (fgets(buf, sizeof buf, ncfp) != NULL) {
+			buf[strlen(buf)-1] = 0;
+			extract(scancmd, buf, 0);
+			extract(scanemail, buf, 1);
+			if ((!strcasecmp(scancmd, "listrecp"))
+			   || (!strcasecmp(scancmd, "digestrecp"))) {
+				if (!strcasecmp(scanemail, email)) {
+					++found_sub;
+				}
+			}
+		}
+		fclose(ncfp);
+	}
+	end_critical_section(S_NETCONFIGS);
+
+	if (found_sub != 0) {
+		cprintf("%d '%s' is already subscribed to '%s'.\n",
+			ERROR,
+			email, qrbuf.QRname);
+		return;
+	}
+
+	/*
+	 * Now add it to the file
+	 */	
 	begin_critical_section(S_NETCONFIGS);
 	assoc_file_name(filename, sizeof filename, &qrbuf, "netconfigs");
 	ncfp = fopen(filename, "a");
