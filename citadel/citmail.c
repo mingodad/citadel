@@ -170,17 +170,11 @@ void cleanup(int exitcode) {
 int main(int argc, char **argv) {
 	char buf[1024];
 	char fromline[1024];
-	char tempfilename[SIZ];
 	FILE *fp;
 
 	get_config();
 
-	sprintf(tempfilename, "/tmp/citmail.%04x.%04x",
-		(int)time(NULL),
-		(int)getpid()
-	);
-	fp = fopen(tempfilename, "w+b");
-	unlink(tempfilename);
+	fp = tmpfile();
 	if (fp == NULL) return(errno);
 	snprintf(fromline, sizeof fromline, "From: someone@somewhere.org");
 	while (fgets(buf, 1024, stdin) != NULL) {

@@ -547,38 +547,6 @@ void urlesc(char *outbuf, char *strbuf)
 
 
 /*
- * Citadelian replacement for tmpnam()
- */
-char *CtdlTempFileName(char *prefix1, int prefix2) {
-	static int seq = 0;
-	static char buf[SIZ];
-
-	sprintf(buf, "/tmp/Citadel-%s-%d-%04x-%04x",
-		prefix1,
-		prefix2,
-		(int)getpid(),
-		++seq
-	);
-	
-	return(buf);
-}
-
-
-/*
- * Citadelian replacement for tmpfile()
- */
-FILE *CtdlTempFile(void) {
-	char filename[SIZ];
-	FILE *fp;
-
-	strcpy(filename, tmpnam(NULL));
-	fp = fopen(filename, "w+b");
-	unlink(filename);
-	return(fp);
-}
-
-
-/*
  * bmstrstr() is a variant of strstr() that uses the Boyer-Moore search
  * algorithm, and can use any caller-supplied string compare function whose
  * calling syntax is similar to strncmp().  For example, we can supply it
