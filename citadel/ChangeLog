@@ -1,3 +1,6 @@
+Sun Mar 21 14:21:47 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* messages.c: cosmetic cleanups to message reading loop
+
 Sat Mar 13 21:33:19 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* commands.c: use bright colors by default in color mode
 	* citserver.c: initialize wholist fields with (not logged in) etc.

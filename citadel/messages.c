@@ -1001,9 +1001,7 @@ RMSGREAD:	fflush(stdout);
 		else {
 			printf("(%d) ",num_msgs-a-1);
 			if (is_mail==1) printf("<R>eply ");
-			if (strlen(printcmd)>0) printf("<P>rint ");
-			if (rc_allow_attachments) printf("<F>ile ");
-		printf("<B>ack <A>gain <Q>uote <H>eader <N>ext <S>top -> ");
+			printf("<B>ack <A>gain <Q>uote <N>ext <S>top <?>Help/others -> ");
 			do {
 				lines_printed = 2;
 				e=(inkey()&127); e=tolower(e);
@@ -1020,7 +1018,7 @@ RMSGREAD:	fflush(stdout);
 				} while((e!='a')&&(e!='n')&&(e!='s')
 					&&(e!='d')&&(e!='m')&&(e!='p')
 					&&(e!='q')&&(e!='b')&&(e!='h')
-					&&(e!='r')&&(e!='f'));
+					&&(e!='r')&&(e!='f')&&(e!='?'));
 			switch(e) {
 				case 's':	printf("Stop\r");	break;
 				case 'a':	printf("Again\r");	break;
@@ -1032,16 +1030,37 @@ RMSGREAD:	fflush(stdout);
 				case 'b':	printf("Back\r");	break;
 				case 'h':	printf("Header\r");	break;
 				case 'r':	printf("Reply\r");	break;
-				case 'f':	printf("File attachment\r");
-									break;
+				case 'f':	printf("File\r");	break;
+				case '?':	printf("? <help>\r");	break;
 				}
 			if (userflags & US_DISAPPEAR)
-				printf("%75s\r","");
+				printf("\r%79s\r","");
 			else
 				printf("\n");
 			fflush(stdout);
 			}
 		switch(e) {
+		   case '?':	printf("Options available here:\n");
+				printf(" ?  Help (prints this message)\n");
+				printf(" S  Stop reading immediately\n");
+				printf(" A  Again (repeats last message)\n");
+				printf(" N  Next (continue with next message)\n");
+				printf(" B  Back (go back to previous message)\n");
+				if ((is_room_aide)
+				    ||(room_flags&QR_MAILBOX)) {
+					printf(" D  Delete this message\n");
+					printf(" M  Move message to another room\n");
+					}
+				if (strlen(printcmd)>0)
+					printf(" P  Print this message\n");
+				printf(" Q  Quote portions of this message for your next post\n");
+				printf(" H  Headers (display message headers only)\n");
+				if (is_mail)
+					printf(" R  Reply to this message\n");
+				if (rc_allow_attachments)
+					printf(" F  (save attachments to a file)\n");
+				printf("\n");
+				goto RMSGREAD;
 		   case 'p':	fflush(stdout);
 				freopen(prtfile,"w",stdout);
 				arcflag = 1;
