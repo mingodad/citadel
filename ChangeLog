@@ -1,6 +1,7 @@
 Sat Dec 26 23:12:47 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Changed the "auto read new" functionality from a meta refresh tag
 	  to an "onload" directive (the former was causing graphics problems)
+	* Added "create room"
 
 Tue Dec 22 22:35:50 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Got the Zap and List-Zapped commands working
