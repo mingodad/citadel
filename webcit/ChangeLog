@@ -1,4 +1,7 @@
 $Log$
+Revision 505.1  2004/02/20 06:07:06  ajc
+* Replaced the Java chat with a new system based on IFRAME's and JavaScript
+
 Revision 505.0  2004/02/19 03:32:50  ajc
 * THIS IS 5.05
 
@@ -1665,4 +1668,5 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
 

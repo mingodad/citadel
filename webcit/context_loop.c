@@ -102,6 +102,7 @@ BREAKOUT:	pthread_mutex_unlock(&SessionListMutex);
 		if (session_to_kill != NULL) {
 			pthread_mutex_lock(&session_to_kill->SessionMutex);
 			close(session_to_kill->serv_sock);
+			close(session_to_kill->chat_sock);
 			if (session_to_kill->preferences != NULL) {
 				free(session_to_kill->preferences);
 			}
@@ -338,7 +339,6 @@ void context_loop(int sock)
 	   || (!strncasecmp(buf, "/do_welcome", 11))
 	   || (!strncasecmp(buf, "/page_popup", 11))
 	   || (!strncasecmp(buf, "/page_user", 10))	/* Sometimes this is wrong */
-	   || (!strncasecmp(buf, "/display_page", 13))	/* Sometimes this is wrong */
 	   || (!strncasecmp(buf, "/listsub", 8))
 	   || (!strncasecmp(buf, "/freebusy", 9))
 	   || (!strncasecmp(buf, "/termquit", 9)) ) {
@@ -370,6 +370,8 @@ void context_loop(int sock)
 		TheSession = (struct wcsession *)
 			malloc(sizeof(struct wcsession));
 		memset(TheSession, 0, sizeof(struct wcsession));
+		TheSession->serv_sock = (-1);
+		TheSession->chat_sock = (-1);
 		TheSession->wc_session = GenerateSessionID();
 		pthread_mutex_init(&TheSession->SessionMutex, NULL);
 
