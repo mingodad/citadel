@@ -32,7 +32,7 @@ extern "C" {
 /*
  * Text description of this software
  */
-#define CITADEL	"Citadel 6.25"
+#define CITADEL	"Citadel 6.26"
 
 /*
  * REV_LEVEL is the current version number (multiplied by 100 to avoid having
@@ -44,9 +44,9 @@ extern "C" {
  * usually more strict because you're not really supposed to dump/load and
  * upgrade at the same time.
  */
-#define REV_LEVEL	625		/* This version */
+#define REV_LEVEL	626		/* This version */
 #define REV_MIN		591		/* Oldest compatible database */
-#define EXPORT_REV_MIN	623		/* Oldest compatible export files */
+#define EXPORT_REV_MIN	626		/* Oldest compatible export files */
 
 #define SERVER_TYPE 0	/* zero for stock Citadel; other developers please
 			   obtain SERVER_TYPE codes for your implementations */
@@ -135,6 +135,7 @@ struct config {
 	char c_ldap_base_dn[256];	/* LDAP base DN                     */
 	char c_ldap_bind_dn[256];	/* LDAP bind DN                     */
 	char c_ldap_bind_pw[256];	/* LDAP bind password               */
+	int c_msa_port;			/* SMTP MSA listener port (usu 587) */
 };
 
 /*

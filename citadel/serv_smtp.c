@@ -92,6 +92,7 @@ struct citsmtp {		/* Information about the current session */
 	int delivery_mode;
 	int message_originated_locally;
 	int is_lmtp;
+	int is_msa;
 };
 
 enum {				/* Command states for login authentication */
@@ -137,6 +138,15 @@ void smtp_greeting(void) {
 
 	cprintf("220 %s ESMTP Citadel server ready.\r\n", config.c_fqdn);
 }
+
+/*
+ * SMTP MSA port requires authentication.
+ */
+void smtp_msa_greeting(void) {
+	smtp_greeting();
+	SMTP->is_msa = 1;
+}
+
 
 /*
  * LMTP is like SMTP but with some extra bonus footage added.
@@ -556,6 +566,13 @@ void smtp_rcpt(char *argbuf) {
 
 	if (strncasecmp(argbuf, "To:", 3)) {
 		cprintf("501 5.1.7 Syntax error\r\n");
+		return;
+	}
+
+	if ( (SMTP->is_msa) && (!CC->logged_in) ) {
+		cprintf("550 5.1.8 "
+			"You must log in to send mail on this port.\r\n");
+		strcpy(SMTP->from, "");
 		return;
 	}
 
@@ -1628,13 +1645,19 @@ void smtp_init_spoolout(void) {
 
 char *serv_smtp_init(void)
 {
-	CtdlRegisterServiceHook(config.c_smtp_port,	/* On the net... */
+	CtdlRegisterServiceHook(config.c_smtp_port,	/* SMTP MTA */
 				NULL,
 				smtp_greeting,
 				smtp_command_loop,
 				NULL);
 
-	CtdlRegisterServiceHook(0,			/* ...and locally */
+	CtdlRegisterServiceHook(config.c_msa_port,	/* SMTP MSA */
+				NULL,
+				smtp_msa_greeting,
+				smtp_command_loop,
+				NULL);
+
+	CtdlRegisterServiceHook(0,			/* local LMTP */
 				"lmtp.socket",
 				lmtp_greeting,
 				smtp_command_loop,

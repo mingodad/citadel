@@ -1083,6 +1083,7 @@ int main(int argc, char *argv[])
 	if (config.c_smtp_port == 0) config.c_smtp_port = 25;
 	if (config.c_pop3_port == 0) config.c_pop3_port = 110;
 	if (config.c_imap_port == 0) config.c_imap_port = 143;
+	if (config.c_msa_port == 0) config.c_msa_port = 587;
 
 	/* Go through a series of dialogs prompting for config info */
 	if (setup_type != UI_SILENT) {

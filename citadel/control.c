@@ -210,6 +210,7 @@ void cmd_conf(char *argbuf)
 		cprintf("\n");
 #endif
 		cprintf("%s\n", config.c_ip_addr);
+		cprintf("%d\n", config.c_msa_port);
 		cprintf("000\n");
 	}
 
@@ -372,6 +373,9 @@ void cmd_conf(char *argbuf)
 			case 37:
 				safestrncpy(config.c_ip_addr, buf,
 						sizeof config.c_ip_addr);
+			case 38:
+				config.c_msa_port = atoi(buf);
+				break;
 			}
 			++a;
 		}

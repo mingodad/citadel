@@ -644,7 +644,7 @@ void read_bio(CtdlIPC *ipc)
 void do_system_configuration(CtdlIPC *ipc)
 {
 
-#define NUM_CONFIGS 38
+#define NUM_CONFIGS 39
 
 	char buf[SIZ];
 	char sc[NUM_CONFIGS][SIZ];
@@ -737,7 +737,8 @@ void do_system_configuration(CtdlIPC *ipc)
 	strprompt("Server IP address (0.0.0.0 for 'any')", &sc[37][0], 15);
 	strprompt("POP3 server port (-1 to disable)", &sc[23][0], 5);
 	strprompt("IMAP server port (-1 to disable)", &sc[27][0], 5);
-	strprompt("SMTP server port (-1 to disable)", &sc[24][0], 5);
+	strprompt("SMTP MTA server port (-1 to disable)", &sc[24][0], 5);
+	strprompt("SMTP MSA server port (-1 to disable)", &sc[38][0], 5);
 
 	/* This logic flips the question around, because it's one of those
 	 * situations where 0=yes and 1=no
