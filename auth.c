@@ -315,13 +315,16 @@ void display_reg(int during_login)
 				wprintf("State/province:</TD><TD><INPUT TYPE=\"text\" NAME=\"state\" VALUE=\"%s\" MAXLENGTH=\"2\"><BR>\n", buf);
 				break;
 			case 7:
-				wprintf("ZIP code:</TD><TD><INPUT TYPE=\"text\" NAME=\"zip\" VALUE=\"%s\" MAXLENGTH=\"10\"><BR>\n", buf);
+				wprintf("ZIP/postal code:</TD><TD><INPUT TYPE=\"text\" NAME=\"zip\" VALUE=\"%s\" MAXLENGTH=\"10\"><BR>\n", buf);
 				break;
 			case 8:
 				wprintf("Telephone:</TD><TD><INPUT TYPE=\"text\" NAME=\"phone\" VALUE=\"%s\" MAXLENGTH=\"14\"><BR>\n", buf);
 				break;
 			case 10:
 				wprintf("E-Mail:</TD><TD><INPUT TYPE=\"text\" NAME=\"email\" VALUE=\"%s\" MAXLENGTH=\"31\"><BR>\n", buf);
+				break;
+			case 11:
+				wprintf("Country:</TD><TD><INPUT TYPE=\"text\" NAME=\"country\" VALUE=\"%s\" MAXLENGTH=\"31\"><BR>\n", buf);
 				break;
 			}
 			wprintf("</TD></TR>\n");
@@ -357,6 +360,7 @@ void register_user(void)
 	serv_puts(bstr("zip"));
 	serv_puts(bstr("phone"));
 	serv_puts(bstr("email"));
+	serv_puts(bstr("country"));
 	serv_puts("000");
 
 	if (atoi(bstr("during_login"))) {
