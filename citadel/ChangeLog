@@ -1,4 +1,7 @@
 $Log$
+Revision 1.348  1999/08/07 16:34:38  nbryant
+	* serv_icq.c: warning fixes
+
 Revision 1.347  1999/08/06 02:57:26  ajc
 * locate_host.c: use strdoop() and phree() instead of strdup() and free()
 * serv_icq.c: run learned IP's through Citadel's locate_host() & put in Wholist
@@ -1183,3 +1186,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

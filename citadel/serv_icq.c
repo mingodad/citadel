@@ -24,6 +24,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
 #include <time.h>
 #include <string.h>
@@ -40,6 +41,7 @@
 #include "dynloader.h"
 #include "tools.h"
 #include "citserver.h"
+#include "locate_host.h"
 #include "msgbase.h"
 #include "sysdep_decls.h"
 #include "support.h"
@@ -2308,7 +2310,7 @@ void CtdlICQ_UserOnline(DWORD uin, DWORD status, DWORD ip,
 	
 	CtdlICQ_Status_Update(uin, status);
 	decoded_ip = ntohl(ip);
-	locate_host(CtdlICQ_CLent(uin)->host, &decoded_ip);
+	locate_host(CtdlICQ_CLent(uin)->host, (struct in_addr *)&decoded_ip);
 }
 
 
