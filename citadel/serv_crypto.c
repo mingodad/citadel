@@ -38,12 +38,51 @@
 
 
 #ifdef HAVE_OPENSSL
-SSL_CTX *ssl_ctx;				/* SSL context */
-pthread_mutex_t **SSLCritters;			/* Things needing locking */
+SSL_CTX *ssl_ctx;		/* SSL context */
+pthread_mutex_t **SSLCritters;	/* Things needing locking */
 
-static unsigned long id_callback(void) {
-	return (unsigned long)pthread_self();
+static unsigned long id_callback(void)
+{
+	return (unsigned long) pthread_self();
 }
+
+ /*
+  * Set up the cert things on the server side. We do need both the
+  * private key (in key_file) and the cert (in cert_file).
+  * Both files may be identical.
+  *
+  * This function is taken from OpenSSL apps/s_cb.c
+  */
+
+static int set_cert_stuff(SSL_CTX * ctx,
+			  const char *cert_file, const char *key_file)
+{
+	if (cert_file != NULL) {
+		if (SSL_CTX_use_certificate_file(ctx, cert_file,
+						 SSL_FILETYPE_PEM) <= 0) {
+			lprintf(3, "unable to get certificate from '%s'",
+				cert_file);
+			return (0);
+		}
+		if (key_file == NULL)
+			key_file = cert_file;
+		if (SSL_CTX_use_PrivateKey_file(ctx, key_file,
+						SSL_FILETYPE_PEM) <= 0) {
+			lprintf(3, "unable to get private key from '%s'",
+				key_file);
+			return (0);
+		}
+		/* Now we know that a key and cert have been set against
+		 * the SSL context */
+		if (!SSL_CTX_check_private_key(ctx)) {
+			lprintf(3,
+				"Private key does not match the certificate public key");
+			return (0);
+		}
+	}
+	return (1);
+}
+
 
 void init_ssl(void)
 {
@@ -52,12 +91,14 @@ void init_ssl(void)
 
 	if (!access("/var/run/egd-pool", F_OK))
 		RAND_egd("/var/run/egd-pool");
-	
+
 	if (!RAND_status()) {
-		lprintf(2, "PRNG not adequately seeded, won't do SSL/TLS\n");
+		lprintf(2,
+			"PRNG not adequately seeded, won't do SSL/TLS\n");
 		return;
 	}
-	SSLCritters = mallok(CRYPTO_num_locks() * sizeof (pthread_mutex_t *));
+	SSLCritters =
+	    mallok(CRYPTO_num_locks() * sizeof(pthread_mutex_t *));
 	if (!SSLCritters) {
 		lprintf(1, "citserver: can't allocate memory!!\n");
 		/* Nothing's been initialized, just die */
@@ -65,10 +106,11 @@ void init_ssl(void)
 	} else {
 		int a;
 
-		for (a=0; a<CRYPTO_num_locks(); a++) {
-			SSLCritters[a] = mallok(sizeof (pthread_mutex_t));
+		for (a = 0; a < CRYPTO_num_locks(); a++) {
+			SSLCritters[a] = mallok(sizeof(pthread_mutex_t));
 			if (!SSLCritters[a]) {
-				lprintf(1, "citserver: can't allocate memory!!\n");
+				lprintf(1,
+					"citserver: can't allocate memory!!\n");
 				/* Nothing's been initialized, just die */
 				exit(1);
 			}
@@ -84,7 +126,7 @@ void init_ssl(void)
 	ssl_method = SSLv23_server_method();
 	if (!(ssl_ctx = SSL_CTX_new(ssl_method))) {
 		lprintf(2, "SSL_CTX_new failed: %s\n",
-				ERR_reason_error_string(ERR_get_error()));
+			ERR_reason_error_string(ERR_get_error()));
 		return;
 	}
 	if (!(SSL_CTX_set_cipher_list(ssl_ctx, CIT_CIPHERS))) {
@@ -96,7 +138,7 @@ void init_ssl(void)
 #if 0
 #if SSLEAY_VERSION_NUMBER >= 0x00906000L
 	SSL_CTX_set_mode(ssl_ctx, SSL_CTX_get_mode(ssl_ctx) |
-			SSL_MODE_AUTO_RETRY);
+			 SSL_MODE_AUTO_RETRY);
 #endif
 #endif
 	CRYPTO_set_locking_callback(ssl_lock);
@@ -106,21 +148,21 @@ void init_ssl(void)
 	dh = DH_new();
 	if (!dh) {
 		lprintf(2, "init_ssl() can't allocate a DH object: %s\n",
-				ERR_reason_error_string(ERR_get_error()));
+			ERR_reason_error_string(ERR_get_error()));
 		SSL_CTX_free(ssl_ctx);
 		ssl_ctx = NULL;
 		return;
 	}
 	if (!(BN_hex2bn(&(dh->p), DH_P))) {
 		lprintf(2, "init_ssl() can't assign DH_P: %s\n",
-				ERR_reason_error_string(ERR_get_error()));
+			ERR_reason_error_string(ERR_get_error()));
 		SSL_CTX_free(ssl_ctx);
 		ssl_ctx = NULL;
 		return;
 	}
 	if (!(BN_hex2bn(&(dh->g), DH_G))) {
 		lprintf(2, "init_ssl() can't assign DH_G: %s\n",
-				ERR_reason_error_string(ERR_get_error()));
+			ERR_reason_error_string(ERR_get_error()));
 		SSL_CTX_free(ssl_ctx);
 		ssl_ctx = NULL;
 		return;
@@ -129,9 +171,19 @@ void init_ssl(void)
 	SSL_CTX_set_tmp_dh(ssl_ctx, dh);
 	DH_free(dh);
 
+	/* Get our certificates in order */
+	if (set_cert_stuff(ssl_ctx,
+			   "/etc/ssh/mail01.jemcaterers.net.cer",
+			   "/etc/ssh/ssh_host_rsa_key") != 1) {
+
+		lprintf(3, "SSL ERROR: cert is bad!\n");
+
+	}
+
 	/* Finally let the server know we're here */
 	CtdlRegisterProtoHook(cmd_stls, "STLS", "Start SSL/TLS session");
-	CtdlRegisterProtoHook(cmd_gtls, "GTLS", "Get SSL/TLS session status");
+	CtdlRegisterProtoHook(cmd_gtls, "GTLS",
+			      "Get SSL/TLS session status");
 	CtdlRegisterSessionHook(endtls, EVT_STOP);
 }
 
@@ -154,21 +206,18 @@ void client_write_ssl(char *buf, int nbytes)
 				ERR_print_errors_fp(stderr);
 			}
 		}
-		retval = SSL_write(CC->ssl, &buf[nbytes - nremain], nremain);
-		lprintf(9, "SSL_write(%d) returned %d\n", nremain, retval);
+		retval =
+		    SSL_write(CC->ssl, &buf[nbytes - nremain], nremain);
 		if (retval < 1) {
 			long errval;
 
 			errval = SSL_get_error(CC->ssl, retval);
 			if (errval == SSL_ERROR_WANT_READ ||
-					errval == SSL_ERROR_WANT_WRITE) {
+			    errval == SSL_ERROR_WANT_WRITE) {
 				sleep(1);
 				continue;
 			}
-			lprintf(9, "SSL_write: error %ld: %s\n",
-				errval,
-				ERR_error_string(errval, NULL)
-			);
+			lprintf(9, "SSL_write got error %ld\n", errval);
 			endtls();
 			client_write(&buf[nbytes - nremain], nremain);
 			return;
@@ -183,7 +232,7 @@ void client_write_ssl(char *buf, int nbytes)
  */
 int client_read_ssl(char *buf, int bytes, int timeout)
 {
-	int len,rlen;
+	int len, rlen;
 	fd_set rfds;
 	struct timeval tv;
 	int retval;
@@ -191,17 +240,17 @@ int client_read_ssl(char *buf, int bytes, int timeout)
 	char junk[1];
 
 	len = 0;
-	while(len<bytes) {
+	while (len < bytes) {
 		FD_ZERO(&rfds);
 		s = BIO_get_fd(CC->ssl->rbio, NULL);
 		FD_SET(s, &rfds);
 		tv.tv_sec = timeout;
 		tv.tv_usec = 0;
 
-		retval = select(s+1, &rfds, NULL, NULL, &tv);
+		retval = select(s + 1, &rfds, NULL, NULL, &tv);
 
 		if (FD_ISSET(s, &rfds) == 0) {
-			return(0);
+			return (0);
 		}
 
 		if (SSL_want_read(CC->ssl)) {
@@ -210,27 +259,24 @@ int client_read_ssl(char *buf, int bytes, int timeout)
 				ERR_print_errors_fp(stderr);
 			}
 		}
-		rlen = SSL_read(CC->ssl, &buf[len], bytes-len);
-		lprintf(9, "SSL_read(%d) returned %d\n", bytes-len, rlen);
-		if (rlen<1) {
+		rlen = SSL_read(CC->ssl, &buf[len], bytes - len);
+		if (rlen < 1) {
 			long errval;
 
 			errval = SSL_get_error(CC->ssl, rlen);
 			if (errval == SSL_ERROR_WANT_READ ||
-					errval == SSL_ERROR_WANT_WRITE) {
+			    errval == SSL_ERROR_WANT_WRITE) {
 				sleep(1);
 				continue;
 			}
-			lprintf(9, "SSL_read: error %ld: %s\n",
-				errval,
-				ERR_error_string(errval, NULL)
-			);
+			lprintf(9, "SSL_read got error %ld\n", errval);
 			endtls();
-			return (client_read_to(&buf[len], bytes - len, timeout));
+			return (client_read_to
+				(&buf[len], bytes - len, timeout));
 		}
 		len += rlen;
 	}
-	return(1);
+	return (1);
 }
 
 
@@ -247,18 +293,18 @@ void cmd_stls(char *params)
 	}
 	if (!(CC->ssl = SSL_new(ssl_ctx))) {
 		lprintf(2, "SSL_new failed: %s\n",
-				ERR_reason_error_string(ERR_peek_error()));
+			ERR_reason_error_string(ERR_peek_error()));
 		cprintf("%d SSL_new: %s\n", ERROR,
-				ERR_reason_error_string(ERR_get_error()));
+			ERR_reason_error_string(ERR_get_error()));
 		return;
 	}
 	if (!(SSL_set_fd(CC->ssl, CC->client_socket))) {
 		lprintf(2, "SSL_set_fd failed: %s\n",
-				ERR_reason_error_string(ERR_peek_error()));
+			ERR_reason_error_string(ERR_peek_error()));
 		SSL_free(CC->ssl);
 		CC->ssl = NULL;
 		cprintf("%d SSL_set_fd: %s\n", ERROR,
-				ERR_reason_error_string(ERR_get_error()));
+			ERR_reason_error_string(ERR_get_error()));
 		return;
 	}
 	cprintf("%d \n", CIT_OK);
@@ -273,17 +319,19 @@ void cmd_stls(char *params)
 
 		errval = SSL_get_error(CC->ssl, retval);
 		lprintf(2, "SSL_accept failed: %s\n",
-				ERR_reason_error_string(ERR_get_error()));
+			ERR_reason_error_string(ERR_get_error()));
 		SSL_free(CC->ssl);
 		CC->ssl = NULL;
 		return;
 	}
 	BIO_set_close(CC->ssl->rbio, BIO_NOCLOSE);
-	bits = SSL_CIPHER_get_bits(SSL_get_current_cipher(CC->ssl), &alg_bits);
+	bits =
+	    SSL_CIPHER_get_bits(SSL_get_current_cipher(CC->ssl),
+				&alg_bits);
 	lprintf(3, "SSL/TLS using %s on %s (%d of %d bits)\n",
-			SSL_CIPHER_get_name(SSL_get_current_cipher(CC->ssl)),
-			SSL_CIPHER_get_version(SSL_get_current_cipher(CC->ssl)),
-			bits, alg_bits);
+		SSL_CIPHER_get_name(SSL_get_current_cipher(CC->ssl)),
+		SSL_CIPHER_get_version(SSL_get_current_cipher(CC->ssl)),
+		bits, alg_bits);
 	CC->redirect_ssl = 1;
 }
 
@@ -294,12 +342,14 @@ void cmd_stls(char *params)
 void cmd_gtls(char *params)
 {
 	int bits, alg_bits;
-	
+
 	if (!CC->ssl || !CC->redirect_ssl) {
 		cprintf("%d Session is not encrypted.\n", ERROR);
 		return;
 	}
-	bits = SSL_CIPHER_get_bits(SSL_get_current_cipher(CC->ssl), &alg_bits);
+	bits =
+	    SSL_CIPHER_get_bits(SSL_get_current_cipher(CC->ssl),
+				&alg_bits);
 	cprintf("%d %s|%s|%d|%d\n", CIT_OK,
 		SSL_CIPHER_get_version(SSL_get_current_cipher(CC->ssl)),
 		SSL_CIPHER_get_name(SSL_get_current_cipher(CC->ssl)),
@@ -321,7 +371,7 @@ void endtls(void)
 		CC->redirect_ssl = 0;
 		return;
 	}
-	
+
 	SSL_shutdown(CC->ssl);
 	SSL_free(CC->ssl);
 	CC->ssl = NULL;
@@ -339,4 +389,4 @@ void ssl_lock(int mode, int n, const char *file, int line)
 	else
 		pthread_mutex_unlock(SSLCritters[n]);
 }
-#endif /* HAVE_OPENSSL */
+#endif				/* HAVE_OPENSSL */

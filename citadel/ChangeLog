@@ -1,4 +1,9 @@
  $Log$
+ Revision 614.30  2004/02/15 06:06:49  ajc
+ * More work on IMAP TLS.  Still not working correctly.  :(  Added in
+   support for server-side certificates.  Now instead of failing it hangs.
+ VS: ----------------------------------------------------------------------
+
  Revision 614.29  2004/02/14 04:41:55  ajc
  * STARTTLS attempt #2.  Still disabled because it's broken.
 
@@ -5323,3 +5328,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

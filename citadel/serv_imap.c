@@ -418,7 +418,7 @@ void imap_capability(int num_parms, char *parms[])
 {
 	cprintf("* CAPABILITY IMAP4 IMAP4REV1 AUTH=LOGIN");
 
-#ifdef HAVE_OPENSSL_XXX_DISABLED
+#ifdef HAVE_OPENSSL_XXX
 	cprintf(" STARTTLS");
 #endif
 
@@ -430,7 +430,7 @@ void imap_capability(int num_parms, char *parms[])
 /*
  * implements the STARTTLS command (lifted-from-Cyrus version)
  */
-#ifdef HAVE_OPENSSL
+#ifdef HAVE_OPENSSL_XXX
 void imap_starttls(int num_parms, char *parms[])
 {
 	int sts;
@@ -502,7 +502,7 @@ done:
 /*
  * implements the STARTTLS command (original version)
  */
-#ifdef HAVE_OPENSSL_XXX
+#ifdef HAVE_OPENSSL
 void imap_starttls(int num_parms, char *parms[])
 {
 	int retval, bits, alg_bits;
