@@ -1,4 +1,8 @@
 $Log$
+Revision 522.26  2004/08/11 17:24:57  ajc
+* static/iconbar.html: removed.
+* Updated the "powered by citadel" graphic
+
 Revision 522.25  2004/08/11 03:49:15  ajc
 * Replaced all instances of the name "Citadel/UX" with "Citadel"
 * Installed the "simple logo" in the iconbar
@@ -2016,4 +2020,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
