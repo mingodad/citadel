@@ -8,6 +8,8 @@
 #include <ical.h>
 #endif
 
+#define CALENDAR_ROOM_NAME	"Calendar"
+
 #define SIZ			4096		/* generic buffer size */
 
 #define TRACE fprintf(stderr, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
@@ -366,3 +368,4 @@ void respond_to_request(void);
 
 extern char *months[];
 extern char *days[];
+void read_server_binary(char *buffer, size_t total_len);

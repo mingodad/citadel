@@ -194,6 +194,69 @@ void cal_process_object(icalcomponent *cal,
 
 
 /*
+ * Back end for cal_add() -- this writes it to the message base
+ */
+void pencil_it_in(icalcomponent *cal) {
+	char hold_rm[SIZ];
+	char buf[SIZ];
+	char *serialized_event;
+
+	/* Save the name of the room we're in */
+	strcpy(hold_rm, WC->wc_roomname);
+
+	/* Go find the user's calendar */
+	serv_printf("GOTO %s", CALENDAR_ROOM_NAME);
+	serv_gets(buf);
+	if (buf[0] != '2') return;
+
+	/* Enter the message */
+	serialized_event = icalcomponent_as_ical_string(cal);
+	if (serialized_event != NULL) {
+		sprintf(buf, "ENT0 1|||4||");
+		serv_puts(buf);
+		serv_gets(buf);
+		if (buf[0] == '4') {
+			serv_puts("Content-type: text/calendar");
+			serv_puts("");
+			serv_write(serialized_event, strlen(serialized_event));
+			serv_puts("");
+			serv_puts("000");
+		}
+	}
+
+	/* Return to the room we were in */
+	serv_printf("GOTO %s", hold_rm);
+	serv_gets(buf);
+}
+
+
+/*
+ * Add a calendar object to the user's calendar
+ */
+void cal_add(icalcomponent *cal, int recursion_level) {
+	icalcomponent *c;
+
+	/*
+ 	 * The VEVENT subcomponent is the one we're interested in saving.
+	 */
+	if (icalcomponent_isa(cal) == ICAL_VEVENT_COMPONENT) {
+		/* Save to the message base */
+		pencil_it_in(cal);
+
+	}
+
+	/* If the component has subcomponents, recurse through them. */
+	for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
+	    (c != 0);
+	    c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
+		/* Recursively process subcomponent */
+		cal_add(c, recursion_level+1);
+	}
+
+}
+
+
+/*
  * Deserialize a calendar object in a message so it can be processed.
  * (This is the main entry point for these things)
  */
@@ -221,6 +284,11 @@ void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) {
  * Respond to a meeting request
  */
 void respond_to_request(void) {
+	char buf[SIZ];
+	size_t total_len;
+	char *serialized_cal;
+	icalcomponent *cal;
+
 	output_headers(3);
 
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>"
@@ -229,12 +297,53 @@ void respond_to_request(void) {
 		"</FONT></TD></TR></TABLE><BR>\n"
 	);
 
-	wprintf("msgnum = %s<BR>\n", bstr("msgnum"));
-	wprintf("cal_partnum = %s<BR>\n", bstr("cal_partnum"));
-	wprintf("sc = %s<BR>\n", bstr("sc"));
+	sprintf(buf, "OPNA %s|%s", bstr("msgnum"), bstr("cal_partnum"));
+	serv_puts(buf);
+	serv_gets(buf);
+	if (buf[0] != '2') {
+		wprintf("Error: %s<BR>\n", &buf[4]);
+		wDumpContent(1);
+		return;
+	}
 
-	/* use OPNA command to foo this */
+	total_len = atoi(&buf[4]);
+	serialized_cal = malloc(total_len + 1);
 
+	read_server_binary(serialized_cal, total_len);
+
+	serv_puts("CLOS");
+	serv_gets(buf);
+	serialized_cal[total_len + 1] = 0;
+
+	/* Deserialize it */
+	cal = icalcomponent_new_from_string(serialized_cal);
+	free(serialized_cal);
+
+	if (cal == NULL) {
+		wprintf("Error parsing calendar object: %s<BR>\n",
+			icalerror_strerror(icalerrno));
+		wDumpContent(1);
+		return;
+	}
+
+	/* Save this in the user's calendar if necessary */
+	if (!strcasecmp(bstr("sc"), "Accept")) {
+		cal_add(cal, 0);
+	}
+
+	/* Send a reply if necessary */
+	/* FIXME ... do this */
+
+	/* Free the memory we obtained from libical's constructor */
+	icalcomponent_free(cal);
+
+	/* Delete the message from the inbox */
+	/* FIXME ... do this */
+
+
+	wprintf("Done!<BR>\n");
+
+	/* ...and now we're done. */
 	wDumpContent(1);
 }
 

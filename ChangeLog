@@ -1,4 +1,7 @@
 $Log$
+Revision 400.40  2002/10/19 04:16:37  ajc
+* Save an incoming meeting request into the user's calendar.
+
 Revision 400.39  2002/10/18 20:55:05  ajc
 * Began work on meeting request accept/decline
 
@@ -1074,4 +1077,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
