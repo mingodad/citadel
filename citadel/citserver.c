@@ -26,6 +26,7 @@
 #include "room_ops.h"
 #include "file_ops.h"
 #include "dynloader.h"
+#include "policy.h"
 
 struct CitContext *ContextList = NULL;
 int ScheduledShutdown = 0;
@@ -1054,6 +1055,14 @@ void *context_loop(struct CitContext *con)
 
 		else if (!strncasecmp(cmdbuf, "ASUP", 4)) {
 			cmd_asup(&cmdbuf[5]);
+			}
+
+		else if (!strncasecmp(cmdbuf, "GPEX", 4)) {
+			cmd_gpex(&cmdbuf[5]);
+			}
+
+		else if (!strncasecmp(cmdbuf, "SPEX", 4)) {
+			cmd_spex(&cmdbuf[5]);
 			}
 
 		else if (!DLoader_Exec_Cmd(cmdbuf))

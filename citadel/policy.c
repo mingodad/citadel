@@ -43,3 +43,19 @@ void GetExpirePolicy(struct ExpirePolicy *epbuf, struct quickroom *qrbuf) {
 	}
 
 
+/*
+ * Get Policy EXpire
+ */
+void cmd_gpex(char *argbuf) {
+	cprintf("%d Command not yet implemented.\n", ERROR);
+	}
+
+
+/*
+ * Set Policy EXpire
+ */
+void cmd_spex(char *argbuf) {
+	cprintf("%d Command not yet implemented.\n", ERROR);
+	}
+
+

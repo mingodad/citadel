@@ -1585,6 +1585,10 @@ addition, the RWHO listing will include both the spoofed and real usernames.
  This is used in allowing a client to calculate idle times.
 
 
+----------------------------------------------
+The following are for citserver 5.11 and above
+----------------------------------------------
+
  AGUP   (Administrative Get User Parameters)
  ASUP   (Administrative Set User Parameters)
   
@@ -1607,5 +1611,34 @@ as follows, and are common to both commands:
 simply returns OK.  If the client has insufficient access to perform the
 requested operation, ERROR+HIGHER_ACCESS_REQUIRED is returned.  If the
 requested user does not exist, ERROR+NO_SUCH_USER is returned.
-
  
+ 
+ 
+ GPEX   (Get Policy for message EXpiration)
+ 
+ Returns the policy of the current room, floor, or site regarding the automatic
+purging (expiration) of messages.  The following policies are available:
+   0  -  Fall back to the policy of the next higher level.  If this is a room,
+         use the floor's default policy.  If this is a floor, use the system
+         default policy.  This is an invalid value for the system policy.
+   1  -  Do not purge messages automatically.
+   2  -  Purge by message count.  (Requires a value: number of messages)
+   3  -  Purge by message age.  (Requires a value: number of days)
+ 
+ The format of this command is:  GPEX <which>
+ The value of <which> must be one of: "room" "floor" "site"
+ 
+ If successful, GPEX returns OK followed by <policy>|<value>.
+
+
+
+ SPEX   (Set Polict for message EXpiration)
+ 
+ Sets the policy of the current room, floor, or site regarding the automatic
+purging (expiration) of messages.  See the writeup for the GPEX command for
+the list of available policies.
+ 
+ The format of this command is:  SPEX <which>|<policy>|<value>
+ The value of <which> must be one of: "room" "floor" "site"
+ 
+ If successful, GPEX returns OK; otherwise, an ERROR code is returned.

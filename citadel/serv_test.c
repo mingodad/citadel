@@ -20,6 +20,7 @@
 #include "config.h"
 #include "dynloader.h"
 #include "room_ops.h"
+#include "policy.h"
 #include "database.h"
 
 extern struct CitContext *ContextList;
@@ -100,7 +101,7 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 			}
 		}
 
-	/* If the room is set to expire by age...  FIX (write this!!) (/
+	/* If the room is set to expire by age...  FIX (write this!!) */
 	if (epbuf.expire_mode == EXPIRE_AGE) {
 		}
 
