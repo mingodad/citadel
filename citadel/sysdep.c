@@ -155,14 +155,13 @@ void dump_tracked() {
 	}
 #endif
 
+static pthread_t main_thread_id;
+
 #ifndef HAVE_PTHREAD_CANCEL
 /*
  * signal handler to fake thread cancellation; only required on BSDI as far
  * as I know.
  */
-
-static pthread_t main_thread_id;
-
 static RETSIGTYPE cancel_thread(int signum) {
 	pthread_exit(NULL);
 	}
@@ -213,8 +212,8 @@ void init_sysdep(void) {
 	signal(SIGHUP, signal_cleanup);
 	signal(SIGTERM, signal_cleanup);
 	signal(SIGPIPE, SIG_IGN);
-#ifndef HAVE_PTHREAD_CANCEL /* fake it - only BSDI afaik */
 	main_thread_id = pthread_self();
+#ifndef HAVE_PTHREAD_CANCEL /* fake it - only BSDI afaik */
 	signal(SIGUSR1, cancel_thread);
 #endif
 	}
@@ -233,18 +232,22 @@ void begin_critical_section(int which_one)
 
 	/* lprintf(8, "begin_critical_section(%d)\n", which_one); */
 
-#ifdef HAVE_PTHREAD_CANCEL
-	/* Don't get interrupted during the critical section */
-	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &oldval);
-#else
-	/* We're faking cancellation with signals. Block SIGUSR1 while we're in
-	 * the critical section. */
 	if (!pthread_equal(pthread_self(), main_thread_id)) {
+		/* Keep a count of how many critical sections this thread has
+		 * open, so that end_critical_section() doesn't enable
+		 * cancellation prematurely. */
+		CC->n_crit++;
+#ifdef HAVE_PTHREAD_CANCEL
+		/* Don't get interrupted during the critical section */
+		pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &oldval);
+#else
+		/* We're faking cancellation with signals. Block SIGUSR1 while
+		 * we're in the critical section. */
 		sigemptyset(&set);
 		sigaddset(&set, SIGUSR1);
 		pthread_sigmask(SIG_BLOCK, &set, NULL);
-		}
 #endif
+		}
 
 	/* Obtain a semaphore */
 	pthread_mutex_lock(&Critters[which_one]);
@@ -267,22 +270,23 @@ void end_critical_section(int which_one)
 	/* Let go of the semaphore */
 	pthread_mutex_unlock(&Critters[which_one]);
 
+	if (!pthread_equal(pthread_self(), main_thread_id))
+	if (!--CC->n_crit) {
 #ifdef HAVE_PTHREAD_CANCEL
-	/* If a cancel was sent during the critical section, do it now.
-	 * Then re-enable thread cancellation.
-	 */
-	pthread_testcancel();
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &oldval);
-	pthread_testcancel();
+		/* If a cancel was sent during the critical section, do it now.
+		 * Then re-enable thread cancellation.
+		 */
+		pthread_testcancel();
+		pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &oldval);
+		pthread_testcancel();
 #else
-	/* We're faking it. Unblock SIGUSR1; signals sent during the critical
-	 * section should now be able to kill us. */
-	if (!pthread_equal(pthread_self(), main_thread_id)) {
+		/* We're faking it. Unblock SIGUSR1; signals sent during the
+		 * critical section should now be able to kill us. */
 		sigemptyset(&set);
 		sigaddset(&set, SIGUSR1);
 		pthread_sigmask(SIG_UNBLOCK, &set, NULL);
-		}
 #endif
+		}
 
 	}
 
