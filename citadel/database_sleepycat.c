@@ -37,11 +37,15 @@
 #include <db.h>
 #elif defined(HAVE_DB4_DB_H)
 #include <db4/db.h>
-#elif defined(HAVE_DB3_DB_H)
-#include <db3/db.h>
 #else
-#error Neither <db.h> nor <db3/db.h> was found by configure. Install db3-devel.
+#error Neither <db.h> nor <db4/db.h> was found by configure. Install db4-devel.
 #endif
+
+
+#if DB_VERSION_MAJOR < 4 || DB_VERSION_MINOR < 1
+#error Citadel requires Berkeley DB v4.1 or newer.  Please upgrade.
+#endif
+
 
 #include <pthread.h>
 #include "citadel.h"
@@ -71,7 +75,9 @@ static pthread_key_t tsdkey;
 
 /* just a little helper function */
 static void txabort(DB_TXN *tid) {
-        int ret = tid->abort(tid);
+        int ret;
+
+	ret = tid->abort(tid);
 
         if (ret) {
                 lprintf(1, "cdb_*: txn_abort: %s\n", db_strerror(ret));
@@ -81,7 +87,9 @@ static void txabort(DB_TXN *tid) {
 
 /* this one is even more helpful than the last. */
 static void txcommit(DB_TXN *tid) {
-        int ret = tid->commit(tid, 0);
+        int ret;
+
+	ret = tid->commit(tid, 0);
 
         if (ret) {
                 lprintf(1, "cdb_*: txn_commit: %s\n", db_strerror(ret));
@@ -91,7 +99,9 @@ static void txcommit(DB_TXN *tid) {
 
 /* are you sensing a pattern yet? */
 static void txbegin(DB_TXN **tid) {
-        int ret = dbenv->txn_begin(dbenv, NULL, tid, 0);
+        int ret;
+
+	ret = dbenv->txn_begin(dbenv, NULL, tid, 0);
 
         if (ret) {
                 lprintf(1, "cdb_*: txn_begin: %s\n", db_strerror(ret));
@@ -199,13 +209,7 @@ static void cdb_cull_logs(void) {
 	flags = DB_ARCH_ABS;
 
 	/* Get the list of names. */
-#if DB_VERSION_MAJOR == 3 && DB_VERSION_MINOR < 3
-	if ((ret = log_archive(dbenv, &list, flags, NULL)) != 0) {
-#elif DB_VERSION_MAJOR >= 4
 	if ((ret = dbenv->log_archive(dbenv, &list, flags)) != 0) {
-#else
-	if ((ret = log_archive(dbenv, &list, flags)) != 0) {
-#endif
 		lprintf(1, "cdb_cull_logs: %s\n", db_strerror(ret));
 		return;
 	}
@@ -242,35 +246,16 @@ static void cdb_checkpoint(void) {
 	int ret;
 	static time_t last_cull = 0L;
 
-#if DB_VERSION_MAJOR >= 4
 	ret = dbenv->txn_checkpoint(dbenv,
-#else
-	ret = txn_checkpoint(dbenv,
-#endif
 				MAX_CHECKPOINT_KBYTES,
 				MAX_CHECKPOINT_MINUTES,
 				0);
 
-/* The DB_INCOMPLETE error is no longer possible (or even defined) as of
- * Berkeley DB v4.1.  When we get to the point where v4.0 and earlier are no
- * longer supported, we can remove this ifdef.
- */
-#ifdef DB_INCOMPLETE
-	if ( (ret != 0) && (ret != DB_INCOMPLETE) ) {
-		lprintf(1, "cdb_checkpoint: txn_checkpoint: %s\n",
-			db_strerror(ret));
-		abort();
-	}
-	if (ret == DB_INCOMPLETE) {
-		lprintf(3, "WARNING: txn_checkpoint: %s\n", db_strerror(ret));
-	}
-#else /* DB_INCOMPLETE */
 	if (ret != 0) {
 		lprintf(1, "cdb_checkpoint: txn_checkpoint: %s\n",
 			db_strerror(ret));
 		abort();
 	}
-#endif /* DB_INCOMPLETE */
 
 	/* Cull the logs if we haven't done so for 24 hours */
 	if ((time(NULL) - last_cull) > 86400L) {
@@ -357,16 +342,12 @@ void open_databases(void)
 		snprintf(dbfilename, sizeof dbfilename, "cdb.%02x", i);
 
 		ret = dbp[i]->open(dbp[i],
-#if DB_VERSION_MAJOR >= 4 && DB_VERSION_MINOR >= 1
-				NULL,			/* new parameter */
-#endif
+				NULL,
 				dbfilename,
 				NULL,
 				DB_BTREE,
 				DB_CREATE|DB_THREAD
-#if DB_VERSION_MAJOR >= 4 && DB_VERSION_MINOR >= 1
 				|DB_AUTO_COMMIT
-#endif
 				,
 				0600);
 		if (ret) {
@@ -397,11 +378,7 @@ void close_databases(void)
 
 	cdb_free_tsd();
 
-#if DB_VERSION_MAJOR >= 4
 	if ((ret = dbenv->txn_checkpoint(dbenv, 0, 0, 0))) {
-#else
-	if ((ret = txn_checkpoint(dbenv, 0, 0, 0))) {
-#endif
 		lprintf(1, "cdb_*: txn_checkpoint: %s\n", db_strerror(ret));
 		abort();
 	}
@@ -848,9 +825,7 @@ void cdb_trunc(int cdb)
 {
   DB_TXN *tid;
   int ret;
-#if DB_VERSION_MAJOR > 3 || DB_VERSION_MINOR > 2
   u_int32_t count;
-#endif
   
   if (MYTID != NULL)
     {
@@ -861,56 +836,6 @@ void cdb_trunc(int cdb)
     {
       bailIfCursor(MYCURSORS, "attempt to write during r/o cursor");
       
-#if DB_VERSION_MAJOR == 3 && DB_VERSION_MINOR < 3
-      for (;;)
-	{
-	  DBT key, data;
-
-	  /* Initialize the key/data pair so the flags aren't set. */
-	  memset(&key, 0, sizeof(key));
-	  memset(&data, 0, sizeof(data));
-
-	  txbegin(&tid);
-	  
-	  ret = dbp[cdb]->cursor(dbp[cdb], tid, &MYCURSORS[cdb], 0);
-	  if (ret)
-	    {
-	      lprintf(1, "cdb_trunc: db_cursor: %s\n", db_strerror(ret));
-	      abort();
-	    }
-
-	  ret = MYCURSORS[cdb]->c_get(MYCURSORS[cdb],
-				      &key, &data, DB_NEXT);
-	  if (ret)
-	    {
-	      cclose(MYCURSORS[cdb]);
-	      txabort(tid);
-	      if (ret == DB_LOCK_DEADLOCK)
-		continue;
-
-	      if (ret == DB_NOTFOUND)
-		break;
-
-	      lprintf(1, "cdb_trunc: c_get: %s\n", db_strerror(ret));
-	      abort();
-	    }
-
-	  ret = MYCURSORS[cdb]->c_del(MYCURSORS[cdb], 0);
-	  if (ret)
-	    {
-	      cclose(MYCURSORS[cdb]);
-	      txabort(tid);
-	      if (ret == DB_LOCK_DEADLOCK)
-		continue;
-
-	      lprintf(1, "cdb_trunc: c_del: %s\n", db_strerror(ret));
-	      abort();
-	    }
-
-	  cclose(MYCURSORS[cdb]);
-	  txcommit(tid);
-	}
-#else
     retry:
       txbegin(&tid);
       
@@ -935,6 +860,5 @@ void cdb_trunc(int cdb)
 	{
 	  txcommit(tid);
 	}
-#endif
     }
 }

@@ -19,7 +19,6 @@ AC_ARG_ENABLE(threaded-client, [  --disable-threaded-client
 
 AC_ARG_WITH(pam, [  --with-pam              use PAM if present (see PAM.txt before you try this)])
 AC_ARG_WITH(kthread, [  --with-kthread          use kernel threads (on FreeBSD) (not recommended yet)])
-AC_ARG_WITH(gdbm, [  --with-gdbm@<:@=DIR@:>@       use GDBM @<:@DIR=/usr/local@:>@])
 AC_ARG_WITH(db, [  --with-db@<:@=DIR@:>@         use Sleepycat DB 3.x @<:@DIR=/usr/local/BerkeleyDB.3.@<:@123@:>@@:>@])
 AC_ARG_WITH(ssl,
 	[  --with-ssl=PATH     Specify path to OpenSSL installation ],
@@ -34,27 +33,15 @@ AC_ARG_WITH(ncurses, [  --without-ncurses       don't use ncurses])
 AC_ARG_WITH(with_zlib, [  --with-zlib             use zlib compression if present])
 AC_ARG_WITH(with_libical, [  --with-libical          use libical calendaring library])
 
-if test "x$with_gdbm" != xno -a "x$with_gdbm" != xyes -a "$with_gdbm"; then
-	db_dir="$with_gdbm"
-	with_gdbm=yes
-fi
-
 if test "x$with_db" != xno -a "x$with_db" != xyes -a "$with_db"; then
 	db_dir="$with_db"
 	with_db=yes
 else
 	test -f /usr/local/lib/libdb.a -o -f /usr/local/lib/libdb.so \
 	  -o -f /usr/local/lib/libdb4.a -o -f /usr/local/lib/libdb4.so \
-	  -o -f /usr/local/lib/libdb3.a -o -f /usr/local/lib/libdb3.so && db_dir=/usr/local
+	  && db_dir=/usr/local
 
-	test -d /usr/local/BerkeleyDB.3.1 && db_dir=/usr/local/BerkeleyDB.3.1
-	test -d /usr/local/BerkeleyDB.3.2 && db_dir=/usr/local/BerkeleyDB.3.2
-	test -d /usr/local/BerkeleyDB.3.3 && db_dir=/usr/local/BerkeleyDB.3.3
-	test -d /usr/local/BerkeleyDB.4.0 && db_dir=/usr/local/BerkeleyDB.4.0
-fi
-
-if test "x$with_gdbm" = xyes -a "x$with_db" = xyes; then
-	AC_MSG_ERROR(can't enable both gdbm and db)
+	test -d /usr/local/BerkeleyDB.4.1 && db_dir=/usr/local/BerkeleyDB.4.1
 fi
 
 dnl By default, we only build the client (citadel and whobbs) unless we can
@@ -320,7 +307,7 @@ if test "$with_ssl" != "no"; then
 	fi
 fi
 
-if test "x$with_db" != xno -a "x$with_gdbm" != xyes; then
+if test "x$with_db" != xno; then
 	test "$db_dir" && LDFLAGS="$LDFLAGS -L$db_dir/lib"
 
 	dblib=""
@@ -328,43 +315,23 @@ if test "x$with_db" != xno -a "x$with_gdbm" != xyes; then
 	if test -d "$db_dir/include/db4"; then
 		CPPFLAGS="$CPPFLAGS -I$db_dir/include/db4"
 		dblib="db4"
-	elif test -d "$db_dir/include/db3"; then
-		CPPFLAGS="$CPPFLAGS -I$db_dir/include/db3"
-		dblib="db3"
 	elif test "$db_dir"; then
 		CPPFLAGS="$CPPFLAGS -I$db_dir/include"
 	elif test -d /usr/include/db4; then
 		CPPFLAGS="$CPPFLAGS -I/usr/include/db4"
 		dblib="db4"
-	elif test -d /usr/include/db3; then
-		CPPFLAGS="$CPPFLAGS -I/usr/include/db3"
-		dblib="db3"
 	fi
 
 
-	AC_CHECK_DB([db db-4.1 db-4 db4 db-3.3 db-3.2 db-3.1 db-3 db3],
+	AC_CHECK_DB([db db-4.1 db-4 db4],
 		    [
 		     DATABASE=database_sleepycat.c
-		     with_gdbm=no
 		    ],
 		    AC_MSG_ERROR([[Can not locate a suitable Berkeley DB
 				  library.  Use --with-db=PATH to specify
 				  the path]]))
 
 fi
-
-if test "x$with_gdbm" != xno -a "x$with_db" != xyes; then
-	test -f /usr/local/lib/libgdbm.a -o -f /usr/local/lib/libgdbm.so && db_dir=/usr/local
-	test "$db_dir" && LDFLAGS="$LDFLAGS -L$db_dir/lib"
-
-	test "$db_dir" && CPPFLAGS="$CPPFLAGS -I$db_dir/include"
-
-        AC_CHECK_LIB(gdbm, gdbm_open,
-                [LIBS="-lgdbm $LIBS"
-                DATABASE=database.c
-                with_db=no])
-fi
-
 
 
 dnl Checks for the zlib compression library.
@@ -429,7 +396,7 @@ dnl
 dnl TODO: for the DB header checks, we should check whether the headers
 dnl define db_env_create, somehow
 dnl
-AC_CHECK_HEADERS(curses.h dl.h fcntl.h limits.h malloc.h termios.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h utmp.h utmpx.h paths.h db.h db3/db.h db4/db.h pthread.h netinet/in.h arpa/nameser.h)
+AC_CHECK_HEADERS(curses.h dl.h fcntl.h limits.h malloc.h termios.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h utmp.h utmpx.h paths.h db.h db4/db.h pthread.h netinet/in.h arpa/nameser.h)
 
 dnl
 dnl need to check if this is actually compilable, sometimes there are

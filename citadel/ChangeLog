@@ -1,4 +1,7 @@
  $Log$
+ Revision 605.23  2003/03/19 04:04:56  ajc
+ * Dropped support for GDBM and for versions of Berkeley DB prior to 4.1
+
  Revision 605.22  2003/03/18 05:15:05  ajc
  * Applied a patch sent in by Clint Adams <schizo@debian.org> to handle
    building on Debian's unstable with Berkeley DB 4.1, compiled with
@@ -4574,3 +4577,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
