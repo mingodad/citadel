@@ -709,7 +709,7 @@ void display_editroom(void)
 	else {
 		wprintf("<TD BGCOLOR=\"#CCCCCC\"><A HREF=\"/display_editroom&tab=admin\">");
 	}
-	wprintf("Room administration");
+	wprintf("Administration");
 	if (!strcmp(tab, "admin")) {
 		wprintf("</SPAN></TD>\n");
 	}
@@ -725,7 +725,7 @@ void display_editroom(void)
 	else {
 		wprintf("<TD BGCOLOR=\"#CCCCCC\"><A HREF=\"/display_editroom&tab=config\">");
 	}
-	wprintf("Room configuration");
+	wprintf("Configuration");
 	if (!strcmp(tab, "config")) {
 		wprintf("</SPAN></TD>\n");
 	}

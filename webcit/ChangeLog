@@ -1,4 +1,8 @@
 $Log$
+Revision 522.7  2004/06/29 17:21:25  ajc
+* Removed the word "room" in a few locations, as part of our push towards
+  not looking like a BBS when running in groupware mode
+
 Revision 522.6  2004/06/29 00:37:02  ajc
 * Made some fonts bigger because users were complaining...
 
@@ -1937,3 +1941,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
