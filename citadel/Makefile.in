@@ -247,11 +247,6 @@ readlog: readlog.o config.o
 
 rcit: rcit.o config.o
 	$(CC) rcit.o config.o $(LDFLAGS) -o rcit
-	@echo "*"
-	@echo "* NOTE: TO RECEIVE CITADEL TRAFFIC VIA THE RCIT PROGRAM (ESPECIALLY"
-	@echo "* IF YOU ARE GATEWAYING TO USENET) YOU MUST LINK RNEWS TO RCIT:"
-	@echo "* ln -s rcit /usr/bin/rnews"
-	@echo "*"
 
 stats: stats.o ipc_c_tcp.o tools.o config.o $(LIBOBJS)
 	$(CC) stats.o ipc_c_tcp.o tools.o config.o $(LIBOBJS) $(LDFLAGS) -o stats $(NETLIBS)
