@@ -1,4 +1,7 @@
  $Log$
+ Revision 620.18  2004/04/14 18:43:51  nbryant
+ * citadel.spec: BuildRequire redhat-rpm-config
+
  Revision 620.17  2004/04/14 16:16:47  nbryant
  * citadel.spec: don't BuildRequire newt-devel
 
@@ -5700,3 +5703,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

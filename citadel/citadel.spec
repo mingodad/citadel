@@ -35,6 +35,10 @@ BuildRequires: pam-devel
 BuildRequires: openssl-devel
 BuildRequires: ncurses-devel
 BuildRequires: zlib-devel
+
+# debuginfo packages don't get built unless this packages is installed:
+BuildRequires: redhat-rpm-config
+
 #Autoprov: false
 ExcludeOS: hpux
 
