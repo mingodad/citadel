@@ -582,7 +582,9 @@ void cmd_sexp(char *argbuf)
 				cprintf(" to %d users", message_sent);
 			cprintf(".\n");
 		} else {
-			cprintf("%d No user '%s' logged in.\n", ERROR, x_user);
+			cprintf("%d '%s' is not logged in "
+				"or is not accepting pages.\n",
+				ERROR, x_user);
 		}
 
 
