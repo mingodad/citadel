@@ -689,7 +689,6 @@ void session_loop(struct httprequest *req)
 		}
 		else {
 			/* tcp socket */
-			fprintf(stderr, "FIXME tcp conn\n");
 			WC->serv_sock = tcp_connectsock(c_host, c_port);
 		}
 

@@ -109,7 +109,7 @@ char *oper;
 		return;
 	}
 	wprintf("<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=1 BGCOLOR=000077><TR><TD>\n");
-	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\" SIZE=+1 COLOR=\"FFFF00\"> ");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFF00\"> ");
 	strcpy(m_subject, "");
 
 	while (serv_gets(buf), strncasecmp(buf, "text", 4)) {
@@ -223,7 +223,7 @@ char *oper;
 				buf[strlen(buf) - 1] = 0;
 			if ((bq == 0) &&
 			    ((!strncmp(buf, ">", 1)) || (!strncmp(buf, " >", 2)) || (!strncmp(buf, " :-)", 4)))) {
-				wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\" COLOR=\"000044\"><I>");
+				wprintf("<FONT COLOR=\"000044\"><I>");
 				bq = 1;
 			} else if ((bq == 1) &&
 				   (strncmp(buf, ">", 1)) && (strncmp(buf, " >", 2)) && (strncmp(buf, " :-)", 4))) {
@@ -283,7 +283,7 @@ void readloop(char *oper)
 
 	output_headers(1);
 
-	/* wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><CENTER><B>%s - ",
+	/* wprintf("<CENTER><B>%s - ",
 		WC->wc_roomname); */
 	if (!strcmp(oper, "readnew")) {
 		strcpy(cmd, "MSGS NEW");
@@ -314,7 +314,7 @@ void readloop(char *oper)
 			read_message(WC->msgarr[a], oper);
 			++num_displayed;
 			if ( (num_displayed >= maxmsgs) && (a < nummsgs) ) {
-				wprintf("<CENTER></FONT SIZE=+1>"
+				wprintf("<CENTER><FONT SIZE=+1>"
 					"There are %d more messages here."
 					"&nbsp;&nbsp;&nbsp;</FONT>",
 					nummsgs - num_displayed);

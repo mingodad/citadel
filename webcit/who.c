@@ -64,12 +64,12 @@ void whobbs(void)
 	escputs(serv_info.serv_humannode);
 	wprintf("</B></FONT></TD></TR></TABLE>\n");
 
-	wprintf("<FONT SIZE=-3>\n");
+	wprintf("<FONT SIZE=-2>\n");
 	wprintf("<CENTER>\n<TABLE BORDER=1 WIDTH=100%>\n<TR>\n");
-	wprintf("<TH>Session ID</FONT></TH>\n");
-	wprintf("<TH>User Name</FONT></TH>\n");
-	wprintf("<TH>Room</FONT></TH>");
-	wprintf("<TH>From host</FONT></TH>\n</TR>\n");
+	wprintf("<TH>Session ID</TH>\n");
+	wprintf("<TH>User Name</TH>\n");
+	wprintf("<TH>Room</TH>");
+	wprintf("<TH>From host</TH>\n</TR>\n");
 	serv_puts("RWHO");
 	serv_gets(buf);
 	if (buf[0] == '1') {
@@ -186,39 +186,38 @@ void edit_me(void)
 		output_headers(1);
 
 		wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
-		wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\" SIZE=+1 COLOR=\"FFFFFF\"><B>");
+		wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"><B>");
 		wprintf("Edit your session display");
 		wprintf("</B></FONT></TD></TR></TABLE>\n");
-		wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\">");
 		wprintf("This screen allows you to change the way your\n");
 		wprintf("session appears in the 'Who is online' listing.\n");
 		wprintf("To turn off any 'fake' name you've previously\n");
 		wprintf("set, simply click the appropriate 'change' button\n");
 		wprintf("without typing anything in the corresponding box.\n");
-		wprintf("<BR>\n</FONT>\n");
+		wprintf("<BR>\n");
 
 		wprintf("<FORM METHOD=\"POST\" ACTION=\"/edit_me\">\n");
 
 		wprintf("<TABLE border=0 width=100%>\n");
 
-		wprintf("<TR><TD><FONT FACE=\"Arial,Helvetica,sans-serif\"><B>Room name:</B></FONT></TD>\n<TD>");
-		wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><INPUT TYPE=\"text\" NAME=\"fake_roomname\" MAXLENGTH=\"64\">\n");
-		wprintf("</FONT></TD>\n<TD ALIGN=center>");
-		wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Change room name\">");
-		wprintf("</FONT></TD>\n</TR>\n");
+		wprintf("<TR><TD><B>Room name:</B></TD>\n<TD>");
+		wprintf("<INPUT TYPE=\"text\" NAME=\"fake_roomname\" MAXLENGTH=\"64\">\n");
+		wprintf("</TD>\n<TD ALIGN=center>");
+		wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Change room name\">");
+		wprintf("</TD>\n</TR>\n");
 
-		wprintf("<TR><TD><FONT FACE=\"Arial,Helvetica,sans-serif\"><B>Host name:</B></FONT></TD><TD>");
-		wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><INPUT TYPE=\"text\" NAME=\"fake_hostname\" MAXLENGTH=\"64\">\n");
-		wprintf("</FONT></TD>\n<TD ALIGN=center>");
-		wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Change host name\">");
-		wprintf("</FONT></TD>\n</TR>\n");
+		wprintf("<TR><TD><B>Host name:</B></TD><TD>");
+		wprintf("<INPUT TYPE=\"text\" NAME=\"fake_hostname\" MAXLENGTH=\"64\">\n");
+		wprintf("</TD>\n<TD ALIGN=center>");
+		wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Change host name\">");
+		wprintf("</TD>\n</TR>\n");
 
 		if (WC->is_aide) {
-			wprintf("<TR><TD><FONT FACE=\"Arial,Helvetica,sans-serif\"><B>User name:</B></FONT></TD><TD>");
-			wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><INPUT TYPE=\"text\" NAME=\"fake_username\" MAXLENGTH=\"64\">\n");
-			wprintf("</FONT></TD>\n<TD ALIGN=center>");
-			wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Change user name\">");
-			wprintf("</FONT></TD>\n</TR>\n");
+			wprintf("<TR><TD><B>User name:</B></TD><TD>");
+			wprintf("<INPUT TYPE=\"text\" NAME=\"fake_username\" MAXLENGTH=\"64\">\n");
+			wprintf("</TD>\n<TD ALIGN=center>");
+			wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Change user name\">");
+			wprintf("</TD>\n</TR>\n");
 		}
 		wprintf("<TR><TD>&nbsp;</TD><TD>&nbsp;</TD><TD ALIGN=center>");
 		wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");

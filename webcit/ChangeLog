@@ -1,4 +1,7 @@
 $Log$
+Revision 211.16  2000/05/02 17:32:06  ajc
+* Font related changes to html
+
 Revision 211.15  2000/04/20 02:42:23  ajc
 * tcp_sockets.c: changed memcpy() to memset() in tcp_connectsock; this was
   crashing every session, every time.  (?)
@@ -428,4 +431,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
