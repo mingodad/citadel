@@ -233,10 +233,12 @@ public:
 	EnterMessage(CitClient *sock, wxMDIParentFrame *MyMDI,
 		wxString roomname);
 private:
-	void OnButtonPressed(wxCommandEvent& whichbutton);
+	void OnCancel(wxCommandEvent& whichbutton);
+	void OnSave(wxCommandEvent& whichbutton);
 	CitClient *citsock;
 	wxMDIParentFrame *citMyMDI;
 	wxString ThisRoom;
+	wxTextCtrl *TheMessage;
 	DECLARE_EVENT_TABLE()
 };
 

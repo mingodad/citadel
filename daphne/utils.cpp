@@ -22,29 +22,39 @@ void ListToMultiline(wxString& outputbuf, wxStringList inputlist) {
 
 void MultilineToList(wxStringList& outputlist, wxString inputbuf) {
 	wxString buf;
-	int pos;
+	int pos, i;
 	
 	buf = inputbuf;
 	outputlist.Clear();
 
 	while (buf.Length() > 0) {
+
+		// One line with no breaks...
+		if ((buf.Length() < 250) && (buf.Find('\n', FALSE)<0)) {
+			outputlist.Add(buf);
+			goto DONE;
+		}
+
 		// First try to locate a line break
 		pos = buf.Find('\n', FALSE);
-		if ( (pos >=0) && (pos < 256) ) {
-			outputlist.Add(buf.Left(pos-1));
+		if ( (pos >=0) && (pos < 250) ) {
+			outputlist.Add(buf.Left(pos));
 			buf = buf.Mid(pos+1);
 		} else {
 		// Otherwise, try to find a space
-			pos = buf.Mid(0, 256).Find(' ', TRUE);
-			if ( (pos >=0) && (pos < 256) ) {
-				outputlist.Add(buf.Left(pos-1));
+			pos = buf.Left(250).Find(' ', TRUE);
+			if ( (pos >= 0) && (pos < 250) ) {
+				outputlist.Add(buf.Left(pos));
 				buf = buf.Mid(pos+1);
 			} else {
-				pos = 255;
-				outputlist.Add(buf.Left(pos-1));
-				buf = buf.Mid(pos);
+				outputlist.Add(buf.Left(250));
+				buf = buf.Mid(250);
 			}
 		}
+	}
+DONE:	for (i=0; i<outputlist.Number(); ++i) {
+		buf.Printf("%s", (wxString *)outputlist.Nth(i)->GetData());
+		cout << i << ": " << buf << "\n";
 	}
 }
 

@@ -1,12 +1,14 @@
 #include "includes.hpp"
 
 enum {
-	BUTTON_CLOSE
+	BUTTON_SAVE,
+	BUTTON_CANCEL
 };
 
 
 BEGIN_EVENT_TABLE(EnterMessage, wxMDIChildFrame)
-	EVT_BUTTON(BUTTON_CLOSE,	EnterMessage::OnButtonPressed)
+	EVT_BUTTON(BUTTON_CANCEL,	EnterMessage::OnCancel)
+	EVT_BUTTON(BUTTON_SAVE,		EnterMessage::OnSave)
 END_EVENT_TABLE()
 
 
@@ -28,10 +30,10 @@ EnterMessage::EnterMessage(
 	citMyMDI = MyMDI;
 	ThisRoom = roomname;
 
-        wxButton *close_button = new wxButton(
+        wxButton *cancel_button = new wxButton(
                 this,
-                BUTTON_CLOSE,
-                " Close ",
+                BUTTON_CANCEL,
+                " Cancel ",
                 wxDefaultPosition);
 
         wxLayoutConstraints *c1 = new wxLayoutConstraints;
@@ -39,16 +41,52 @@ EnterMessage::EnterMessage(
         c1->height.AsIs();
         c1->width.AsIs();
         c1->right.SameAs(this, wxRight, 2);
-        close_button->SetConstraints(c1);
+        cancel_button->SetConstraints(c1);
+
+        wxButton *save_button = new wxButton(
+                this,
+                BUTTON_SAVE,
+                " Save ",
+                wxDefaultPosition);
+
+	wxLayoutConstraints *c2 = new wxLayoutConstraints;
+	c2->bottom.SameAs(cancel_button, wxBottom);
+	c2->right.LeftOf(cancel_button, 5);
+	c2->height.SameAs(cancel_button, wxHeight);
+	c2->width.AsIs();
+	save_button->SetConstraints(c2);
+
+	TheMessage = new wxTextCtrl(this, -1, "",
+		wxDefaultPosition, wxDefaultSize,
+		wxTE_MULTILINE);
+
+	wxLayoutConstraints *c9 = new wxLayoutConstraints;
+	c9->top.SameAs(this, wxTop, 2);
+	c9->bottom.Above(cancel_button, -5);
+	c9->left.SameAs(this, wxLeft, 2);
+	c9->right.SameAs(this, wxRight, 2);
+	TheMessage->SetConstraints(c9);
 
 	SetAutoLayout(TRUE);
 	Show(TRUE);
+
 }
 
 
 
-void EnterMessage::OnButtonPressed(wxCommandEvent& whichbutton) {
-        if (whichbutton.GetId() == BUTTON_CLOSE) {
-                delete this;
+void EnterMessage::OnCancel(wxCommandEvent& whichbutton) {
+	delete this;
+}
+
+
+void EnterMessage::OnSave(wxCommandEvent& whichbutton) {
+	wxString sendcmd, recvcmd;
+	wxStringList msgbuf;
+
+	MultilineToList(msgbuf, TheMessage->GetValue());
+
+	sendcmd = "ENT0 1";
+	if (citsock->serv_trans(sendcmd, recvcmd, msgbuf, ThisRoom) == 4) {
+		delete this;
 	}
 }
