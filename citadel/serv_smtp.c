@@ -1,8 +1,13 @@
 /*
  * $Id$
  *
- * An implementation of RFC821 (Simple Mail Transfer Protocol) for the
- * Citadel system.
+ * This module implements the following protocols for the Citadel system:
+ *
+ * RFC 821 (Simple Mail Transfer Protocol)
+ * RFC 1854 (command pipelining)
+ * RFC 1869 (Extended Simple Mail Transfer Protocol)
+ * RFC 2033 (Local Mail Transfer Protocol)
+ * RFC 2034 (enhanced status codes)
  *
  */
 
@@ -68,9 +73,9 @@ struct citsmtp {		/* Information about the current session */
 	char from[SIZ];
 	char recipients[SIZ];
 	int number_of_recipients;
-	int number_of_rooms;
 	int delivery_mode;
 	int message_originated_locally;
+	int is_lmtp;
 };
 
 enum {				/* Command states for login authentication */
@@ -117,15 +122,35 @@ void smtp_greeting(void) {
 	cprintf("220 %s ESMTP Citadel/UX server ready.\r\n", config.c_fqdn);
 }
 
+/*
+ * LMTP is like SMTP but with some extra bonus footage added.
+ */
+void lmtp_greeting(void) {
+	smtp_greeting();
+	SMTP->is_lmtp = 1;
+}
+
 
 /*
  * Implement HELO and EHLO commands.
+ *
+ * which_command:  0=HELO, 1=EHLO, 2=LHLO
  */
-void smtp_hello(char *argbuf, int is_esmtp) {
+void smtp_hello(char *argbuf, int which_command) {
 
 	safestrncpy(SMTP->helo_node, argbuf, sizeof SMTP->helo_node);
 
-	if (!is_esmtp) {
+	if ( (which_command != 2) && (SMTP->is_lmtp) ) {
+		cprintf("500 Only LHLO is allowed when running LMTP\r\n");
+		return;
+	}
+
+	if ( (which_command == 2) && (SMTP->is_lmtp == 0) ) {
+		cprintf("500 LHLO is only allowed when running LMTP\r\n");
+		return;
+	}
+
+	if (which_command == 0) {
 		cprintf("250 Greetings and joyous salutations.\r\n");
 	}
 	else {
@@ -430,7 +455,8 @@ void smtp_rcpt(char *argbuf) {
 	}
 
 	/* RBL check */
-	if ( (!CC->logged_in) && (!CC->is_local_socket) ) {
+	if ( (!CC->logged_in)
+	   && (!SMTP->is_lmtp) ) {
 		if (rbl_check(message_to_spammer)) {
 			cprintf("550 %s\r\n", message_to_spammer);
 			/* no need to phree(valid), it's not allocated yet */
@@ -446,7 +472,8 @@ void smtp_rcpt(char *argbuf) {
 	}
 
 	if (valid->num_internet > 0) {
-		if (SMTP->message_originated_locally == 0) {
+		if ( (SMTP->message_originated_locally == 0)
+		   && (SMTP->is_lmtp == 0) ) {
 			cprintf("551 5.7.1 <%s> - relaying denied\r\n", recp);
 			phree(valid);
 			return;
@@ -474,6 +501,8 @@ void smtp_data(void) {
 	char nowstamp[SIZ];
 	struct recptypes *valid;
 	int scan_errors;
+	int i;
+	char result[SIZ];
 
 	if (strlen(SMTP->from) == 0) {
 		cprintf("503 5.5.1 Need MAIL command first.\r\n");
@@ -548,17 +577,32 @@ void smtp_data(void) {
 				"5.7.1 Message rejected by filter");
 		}
 
-		cprintf("550 %s\r\n", msg->cm_fields['0']);
+		sprintf(result, "550 %s\r\n", msg->cm_fields['0']);
 	}
 	
 	else {			/* Ok, we'll accept this message. */
 		msgnum = CtdlSubmitMsg(msg, valid, "");
 		if (msgnum > 0L) {
-			cprintf("250 2.0.0 Message accepted.\r\n");
+			sprintf(result, "250 2.0.0 Message accepted.\r\n");
 		}
 		else {
-			cprintf("550 5.5.0 Internal delivery error\r\n");
+			sprintf(result, "550 5.5.0 Internal delivery error\r\n");
 		}
+	}
+
+	/* For SMTP and ESTMP, just print the result message.  For LMTP, we
+	 * have to print one result message for each recipient.  Since there
+	 * is nothing in Citadel which would cause different recipients to
+	 * have different results, we can get away with just spitting out the
+	 * same message once for each recipient.
+	 */
+	if (SMTP->is_lmtp) {
+		for (i=0; i<SMTP->number_of_recipients; ++i) {
+			cprintf("%s", result);
+		}
+	}
+	else {
+		cprintf("%s", result);
 	}
 
 	CtdlFreeMessage(msg);
@@ -603,16 +647,20 @@ void smtp_command_loop(void) {
 		smtp_data();
 	}
 
-	else if (!strncasecmp(cmdbuf, "EHLO", 4)) {
-		smtp_hello(&cmdbuf[5], 1);
-	}
-
 	else if (!strncasecmp(cmdbuf, "EXPN", 4)) {
 		smtp_expn(&cmdbuf[5]);
 	}
 
 	else if (!strncasecmp(cmdbuf, "HELO", 4)) {
 		smtp_hello(&cmdbuf[5], 0);
+	}
+
+	else if (!strncasecmp(cmdbuf, "EHLO", 4)) {
+		smtp_hello(&cmdbuf[5], 1);
+	}
+
+	else if (!strncasecmp(cmdbuf, "LHLO", 4)) {
+		smtp_hello(&cmdbuf[5], 2);
 	}
 
 	else if (!strncasecmp(cmdbuf, "HELP", 4)) {
@@ -1436,8 +1484,8 @@ char *serv_smtp_init(void)
 				smtp_command_loop);
 
 	CtdlRegisterServiceHook(0,			/* ...and locally */
-				"smtp.socket",
-				smtp_greeting,
+				"lmtp.socket",
+				lmtp_greeting,
 				smtp_command_loop);
 
 	smtp_init_spoolout();

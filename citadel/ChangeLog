@@ -1,4 +1,9 @@
  $Log$
+ Revision 610.12  2003/09/08 18:48:14  ajc
+ * The unix domain socket used for citmail to talk to citserver now
+   implements LMTP (RFC2033).  Other LMTP client implementations (such as
+   Postfix) can also use the socket, eliminating the need for citmail.
+
  Revision 610.11  2003/09/07 03:29:25  ajc
  * serv_network.c: aggressively poll any node for which we have data
 
@@ -5007,4 +5012,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -2,7 +2,7 @@
  * $Id$
  *
  * This program attempts to act like a local MDA if you're using sendmail or
- * some other non-Citadel MTA.  It basically just contacts the Citadel SMTP
+ * some other non-Citadel MTA.  It basically just contacts the Citadel LMTP
  * listener on a unix domain socket and transmits the message.
  *
  */
@@ -189,13 +189,16 @@ int main(int argc, char **argv) {
 	}
 	strip_trailing_nonprint(fromline);
 
-	serv_sock = uds_connectsock("smtp.socket");
+	serv_sock = uds_connectsock("lmtp.socket");
 	serv_gets(buf);
 	if (buf[0]!='2') cleanup(1);
 
-	serv_puts("HELO localhost");
-	serv_gets(buf);
-	if (buf[0]!='2') cleanup(1);
+	serv_puts("LHLO x");
+	do {
+		serv_gets(buf);
+		strcat(buf, "    ");
+	} while (buf[3] == '-');
+	if (buf[0] != '2') cleanup(1);
 
 	snprintf(buf, sizeof buf, "MAIL %s", fromline);
 	serv_puts(buf);
