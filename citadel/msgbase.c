@@ -1320,7 +1320,9 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 	getroom(&CC->quickroom, hold_rm);
 
 	/* Bump the reference count for this message. */
-	AdjRefCount(msgid, +1);
+	if ((flags & SM_DONT_BUMP_REF)==0) {
+		AdjRefCount(msgid, +1);
+	}
 
 	/* Return success. */
 	if (msg != NULL) CtdlFreeMessage(msg);
@@ -1531,6 +1533,7 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	static int seqnum = 1;
 	struct CtdlMessage *imsg;
 	char *instr;
+	long imsgid;
 
 	lprintf(9, "CtdlSaveMsg() called\n");
 	if (is_valid_message(msg) == 0) return(-1);	/* self check */
@@ -1670,7 +1673,6 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	/* Now figure out where to store the pointers */
 	lprintf(9, "Storing pointers\n");
 
-
 	/* If this is being done by the networker delivering a private
 	 * message, we want to BYPASS saving the sender's copy (because there
 	 * is no local sender; it would otherwise go to the Trashcan).
@@ -1682,23 +1684,6 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	/* For internet mail, drop a copy in the outbound queue room */
 	if (mailtype == MES_INTERNET) {
 		CtdlSaveMsgPointerInRoom(SMTP_SPOOLOUT_ROOM, newmsgid, 0);
-
-		/* And generate delivery instructions */
-		lprintf(9, "Generating delivery instructions\n");
-		instr = mallok(2048);
-		sprintf(instr,
-			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
-			"remote|%s|0||\n",
-			SPOOLMIME, newmsgid, time(NULL), recipient );
-
-        	imsg = mallok(sizeof(struct CtdlMessage));
-		memset(imsg, 0, sizeof(struct CtdlMessage));
-		imsg->cm_magic = CTDLMESSAGE_MAGIC;
-		imsg->cm_anon_type = MES_NORMAL;
-		imsg->cm_format_type = FMT_RFC822;
-		imsg->cm_fields['M'] = instr;
-		CtdlSaveMsg(imsg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL, 1);
-		CtdlFreeMessage(imsg);
 	}
 
 	/* Bump this user's messages posted counter. */
@@ -1726,6 +1711,32 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	lprintf(9, "Returning to original room\n");
 	if (strcasecmp(hold_rm, CC->quickroom.QRname))
 		getroom(&CC->quickroom, hold_rm);
+
+	/* For internet mail, generate delivery instructions 
+	 * (Yes, this is recursive!   Deal with it!)
+	 */
+	if (mailtype == MES_INTERNET) {
+		lprintf(9, "Generating delivery instructions\n");
+		instr = mallok(2048);
+		sprintf(instr,
+			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
+			"remote|%s|0||\n",
+			SPOOLMIME, newmsgid, time(NULL), recipient );
+
+        	imsg = mallok(sizeof(struct CtdlMessage));
+		memset(imsg, 0, sizeof(struct CtdlMessage));
+		imsg->cm_magic = CTDLMESSAGE_MAGIC;
+		imsg->cm_anon_type = MES_NORMAL;
+		imsg->cm_format_type = FMT_RFC822;
+		imsg->cm_fields['M'] = instr;
+		imsgid = send_message(imsg, 1, NULL);
+		if (imsgid >= 0L) {
+			CtdlSaveMsgPointerInRoom(SMTP_SPOOLOUT_ROOM,
+						imsgid,
+						SM_DONT_BUMP_REF);
+		}
+		CtdlFreeMessage(imsg);
+	}
 
 	return(newmsgid);
 }
@@ -2377,10 +2388,11 @@ void AdjRefCount(long msgnum, int incr)
 	 */
 	begin_critical_section(S_SUPPMSGMAIN);
 	GetSuppMsgInfo(&smi, msgnum);
+	lprintf(9, "Ref count for message <%ld> before write is <%d>\n",
+		msgnum, smi.smi_refcount);
 	smi.smi_refcount += incr;
 	PutSuppMsgInfo(&smi);
 	end_critical_section(S_SUPPMSGMAIN);
-
 	lprintf(9, "Ref count for message <%ld> after write is <%d>\n",
 		msgnum, smi.smi_refcount);
 

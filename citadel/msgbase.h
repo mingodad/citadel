@@ -14,6 +14,8 @@
  */
 #define SM_VERIFY_GOODNESS	1	/* Verify this is a real msg number */
 #define SM_DO_REPL_CHECK	2	/* Perform replication checks */
+#define SM_DONT_BUMP_REF	3	/* Don't bump reference count
+					   (use with extreme care!!!!!!) */
 
 
 /*

@@ -1,4 +1,12 @@
 $Log$
+Revision 1.451  2000/01/23 21:25:45  ajc
+* Temporary hack to ig_tcp_server() to listen on an arbitrary port if the
+  one specified is not bindable (for development only)
+* Added SM_DONT_BUMP_REF flag to CtdlSaveMsgPointerInRoom() to be used only
+  in very specific and special situations
+* Generate delivery instructions when outbound SMTP mail is created from
+  within Citadel (as opposed to being from the SMTP module)
+
 Revision 1.450  2000/01/23 05:22:41  ajc
 * Coded up some more of the SMTP-sender (still not done)
 
@@ -1578,3 +1586,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
