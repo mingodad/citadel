@@ -7,6 +7,11 @@
  *
  */
 
+/*
+ * Uncomment to dump an HTTP trace to stderr
+#define HTTP_TRACING 1
+ */
+
 #include <ctype.h>
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
@@ -150,7 +155,12 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
 		}
 		len = len + rlen;
 	}
-	/* write(2, buf, bytes); FIXME */
+
+#ifdef HTTP_TRACING
+	write(2, "\033[32m", 5);
+	write(2, buf, bytes);
+	write(2, "\033[30m", 5);
+#endif
 	return (1);
 }
 
@@ -170,7 +180,11 @@ ssize_t client_write(const void *buf, size_t count) {
 		return(count);
 	}
 #endif
-	/* write(2, buf, count); FIXME */
+#ifdef HTTP_TRACING
+	write(2, "\033[34m", 5);
+	write(2, buf, count);
+	write(2, "\033[30m", 5);
+#endif
 	return(write(WC->http_sock, buf, count));
 }
 

@@ -1,4 +1,7 @@
 $Log$
+Revision 528.45  2005/02/06 03:59:33  ajc
+* Added some HTTP Date: header output
+
 Revision 528.44  2005/02/05 22:58:46  ajc
 * All GroupDAV HTTP output is now \r\n instead of \n terminated.
 
@@ -2323,3 +2326,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
