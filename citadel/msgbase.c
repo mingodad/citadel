@@ -2315,6 +2315,23 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 
 
 /*
+ * Check whether the current user has permission to delete messages from
+ * the current room (returns 1 for yes, 0 for no)
+ */
+int CtdlDoIHavePermissionToDeleteMessagesFromThisRoom(void) {
+	getuser(&CC->usersupp, CC->curr_user);
+	if ((CC->usersupp.axlevel < 6)
+	    && (CC->usersupp.usernum != CC->quickroom.QRroomaide)
+	    && ((CC->quickroom.QRflags & QR_MAILBOX) == 0)
+	    && (!(CC->internal_pgm))) {
+		return(0);
+	}
+	return(1);
+}
+
+
+
+/*
  * Delete message from current room
  */
 void cmd_dele(char *delstr)
@@ -2322,11 +2339,7 @@ void cmd_dele(char *delstr)
 	long delnum;
 	int num_deleted;
 
-	getuser(&CC->usersupp, CC->curr_user);
-	if ((CC->usersupp.axlevel < 6)
-	    && (CC->usersupp.usernum != CC->quickroom.QRroomaide)
-	    && ((CC->quickroom.QRflags & QR_MAILBOX) == 0)
-	    && (!(CC->internal_pgm))) {
+	if (CtdlDoIHavePermissionToDeleteMessagesFromThisRoom() == 0) {
 		cprintf("%d Higher access required.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;

@@ -101,3 +101,4 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *,
 		int do_proto,		/* do Citadel protocol responses? */
 		int crlf);
 int CtdlCopyMsgToRoom(long msgnum, char *dest);
+int CtdlDoIHavePermissionToDeleteMessagesFromThisRoom(void);

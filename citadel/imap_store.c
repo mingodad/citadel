@@ -91,7 +91,9 @@ void imap_do_store(int num_items, char **itemlist) {
 		striplt(flag);
 
 		if (!strcasecmp(flag, "\\Deleted")) {
+		  if (CtdlDoIHavePermissionToDeleteMessagesFromThisRoom()) {
 			bits_to_twiddle |= IMAP_DELETED;
+		  }
 		}
 	}
 	

@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.110  2001/03/10 17:29:07  ajc
+ * Implement proper access control for deleting messages from IMAP
+
  Revision 573.109  2001/03/07 04:02:27  ajc
  * Fixed some small IMAP bugs
 
@@ -2441,3 +2444,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
