@@ -673,7 +673,7 @@ void download(CtdlIPC *ipc, int proto)
 	/* Save to local disk, for folks with their own copy of the client */
 	if (proto == 5) {
 		destination_directory(tempname, filename);
-		r = CtdlIPCFileDownload(ipc, filename, &file, progress, buf);
+		r = CtdlIPCFileDownload(ipc, filename, &file, 0, progress, buf);
 		if (r / 100 != 2) {
 			scr_printf("%s\n", buf);
 			return;
@@ -683,7 +683,7 @@ void download(CtdlIPC *ipc, int proto)
 		return;
 	}
 
-	r = CtdlIPCFileDownload(ipc, filename, &file, progress, buf);
+	r = CtdlIPCFileDownload(ipc, filename, &file, 0, progress, buf);
 	if (r / 100 != 2) {
 		scr_printf("%s\n", buf);
 		return;

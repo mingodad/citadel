@@ -164,7 +164,8 @@ int CtdlIPCMoveFile(CtdlIPC *ipc, const char *filename, const char *destroom, ch
 int CtdlIPCNetSendFile(CtdlIPC *ipc, const char *filename, const char *destnode, char *cret);
 int CtdlIPCOnlineUsers(CtdlIPC *ipc, char **listing, time_t *stamp, char *cret);
 int CtdlIPCFileDownload(CtdlIPC *ipc, const char *filename, void **buf,
-		void (*progress_gauge_callback)(long, long), char *cret);
+		size_t resume, void (*progress_gauge_callback)(long, long),
+		char *cret);
 int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part, void **buf,
 		void (*progress_gauge_callback)(long, long), char *cret);
 int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf,
@@ -227,17 +228,19 @@ inline void CtdlIPC_lock(CtdlIPC *ipc);
 inline void CtdlIPC_unlock(CtdlIPC *ipc);
 char *CtdlIPCReadListing(CtdlIPC *ipc, char *dest);
 int CtdlIPCSendListing(CtdlIPC *ipc, const char *listing);
-size_t CtdlIPCPartialRead(CtdlIPC *ipc, void **buf, size_t offset, size_t bytes, char *cret);
+size_t CtdlIPCPartialRead(CtdlIPC *ipc, void **buf, size_t offset,
+		size_t bytes, char *cret);
 int CtdlIPCEndUpload(CtdlIPC *ipc, int discard, char *cret);
 int CtdlIPCWriteUpload(CtdlIPC *ipc, const char *path,
 		void (*progress_gauge_callback)(long, long), char *cret);
 int CtdlIPCEndDownload(CtdlIPC *ipc, char *cret);
-int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
-	       void (*progress_gauge_callback)(long, long), char *cret);
+int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes, size_t resume,
+		void (*progress_gauge_callback)(long, long), char *cret);
 int CtdlIPCHighSpeedReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
-	       void (*progress_gauge_callback)(long, long), char *cret);
-int CtdlIPCGenericCommand(CtdlIPC *ipc, const char *command, const char *to_send,
-		size_t bytes_to_send, char **to_receive,
+		size_t resume, void (*progress_gauge_callback)(long, long),
+		char *cret);
+int CtdlIPCGenericCommand(CtdlIPC *ipc, const char *command,
+		const char *to_send, size_t bytes_to_send, char **to_receive,
 		size_t *bytes_to_receive, char *proto_response);
 
 /* Internals */

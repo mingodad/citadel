@@ -1093,7 +1093,8 @@ int CtdlIPCOnlineUsers(CtdlIPC *ipc, char **listing, time_t *stamp, char *cret)
 
 /* OPEN */
 int CtdlIPCFileDownload(CtdlIPC *ipc, const char *filename, void **buf,
-		void (*progress_gauge_callback)(long, long), char *cret)
+		size_t resume, void (*progress_gauge_callback)(long, long),
+		char *cret)
 {
 	register int ret;
 	size_t bytes;
@@ -1118,8 +1119,8 @@ int CtdlIPCFileDownload(CtdlIPC *ipc, const char *filename, void **buf,
 		bytes = extract_long(cret, 0);
 		last_mod = extract_int(cret, 1);
 		extract(mimetype, cret, 2);
-		ret = CtdlIPCReadDownload(ipc, buf, bytes, progress_gauge_callback, cret);
-/*		ret = CtdlIPCHighSpeedReadDownload(ipc, buf, bytes, progress_gauge_callback, cret); */
+		ret = CtdlIPCReadDownload(ipc, buf, bytes, resume, progress_gauge_callback, cret);
+/*		ret = CtdlIPCHighSpeedReadDownload(ipc, buf, bytes, resume, progress_gauge_callback, cret); */
 		ret = CtdlIPCEndDownload(ipc, cret);
 		if (ret / 100 == 2)
 			sprintf(cret, "%d|%ld|%s|%s", bytes, last_mod,
@@ -1158,7 +1159,7 @@ int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part, void 
 		bytes = extract_long(cret, 0);
 		last_mod = extract_int(cret, 1);
 		extract(mimetype, cret, 2);
-		ret = CtdlIPCHighSpeedReadDownload(ipc, buf, bytes, progress_gauge_callback, cret);
+		ret = CtdlIPCHighSpeedReadDownload(ipc, buf, bytes, 0, progress_gauge_callback, cret);
 		ret = CtdlIPCEndDownload(ipc, cret);
 		if (ret / 100 == 2)
 			sprintf(cret, "%d|%ld|%s|%s", bytes, last_mod,
@@ -1195,7 +1196,7 @@ int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf,
 		bytes = extract_long(cret, 0);
 		last_mod = extract_int(cret, 1);
 		extract(mimetype, cret, 2);
-		ret = CtdlIPCReadDownload(ipc, buf, bytes, progress_gauge_callback, cret);
+		ret = CtdlIPCReadDownload(ipc, buf, bytes, 0, progress_gauge_callback, cret);
 		ret = CtdlIPCEndDownload(ipc, cret);
 		if (ret / 100 == 2)
 			sprintf(cret, "%d|%ld|%s|%s", bytes, last_mod,
@@ -2074,7 +2075,7 @@ int CtdlIPCSpecifyPreferredFormats(CtdlIPC *ipc, char *cret, char *formats) {
 
 
 /* READ */
-int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
+int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes, size_t resume,
 	       void (*progress_gauge_callback)(long, long), char *cret)
 {
 	register size_t len;
@@ -2084,7 +2085,7 @@ int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
 	if (*buf) return -1;
 	if (!ipc->downloading) return -1;
 
-	len = 0;
+	len = resume;
 	if (progress_gauge_callback)
 		progress_gauge_callback(len, bytes);
 	while (len < bytes) {
@@ -2105,7 +2106,8 @@ int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
 
 /* READ - pipelined */
 int CtdlIPCHighSpeedReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
-	       void (*progress_gauge_callback)(long, long), char *cret)
+	       size_t resume, void (*progress_gauge_callback)(long, long),
+	       char *cret)
 {
 	register size_t len;
 	register int calls;	/* How many calls in the pipeline */
@@ -2117,7 +2119,7 @@ int CtdlIPCHighSpeedReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
 	if (*buf) return -1;
 	if (!ipc->downloading) return -1;
 
-	*buf = (void *)realloc(*buf, bytes);
+	*buf = (void *)realloc(*buf, bytes - resume);
 	if (!*buf) return -1;
 
 	len = 0;
@@ -2126,12 +2128,12 @@ int CtdlIPCHighSpeedReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
 		progress_gauge_callback(len, bytes);
 
 	/* How many calls will be in the pipeline? */
-	calls = bytes / 4096;
-	if (bytes % 4096) calls++;
+	calls = (bytes - resume) / 4096;
+	if ((bytes - resume) % 4096) calls++;
 
 	/* Send all requests at once */
 	for (i = 0; i < calls; i++) {
-		sprintf(aaa, "READ %d|4096", i * 4096);
+		sprintf(aaa, "READ %d|4096", i * 4096 + resume);
 		CtdlIPC_putline(ipc, aaa);
 	}
 
@@ -2775,7 +2777,7 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 
 	/* If we're using a unix domain socket we can do a bunch of stuff */
 	if (!strcmp(cithost, UDS)) {
-		snprintf(sockpath, sizeof sockpath, "citadel.socket");
+		snprintf(sockpath, sizeof sockpath, BBSDIR "/citadel.socket");
 		ipc->sock = uds_connectsock(&(ipc->isLocal), sockpath);
 		if (ipc->sock == -1) {
 			ifree(ipc);
