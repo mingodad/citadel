@@ -821,7 +821,14 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
 
 
 /*
- * Pre callback function for mime parser that wants to display text
+ * Pre callback function for multipart/alternative
+ *
+ * NOTE: this differs from the standard behavior for a reason.  Normally when
+ *       displaying multipart/alternative you want to show the _last_ usable
+ *       format in the message.  Here we show the _first_ one, because it's
+ *       usually text/plain.  Since this set of functions is designed for text
+ *       output to non-MIME-aware clients, this is the desired behavior.
+ *
  */
 void fixed_output_pre(char *name, char *filename, char *partnum, char *disp,
 	  	void *content, char *cbtype, size_t length, char *encoding,
@@ -831,13 +838,12 @@ void fixed_output_pre(char *name, char *filename, char *partnum, char *disp,
 		if (!strcasecmp(cbtype, "multipart/alternative")) {
 			ma->is_ma = 1;
 			ma->did_print = 0;
-			lprintf(9, "multipart/alternative: <%s>\n", ma->prefix);
 			return;
 		}
 }
 
 /*
- * Pre callback function for mime parser that wants to display text
+ * Post callback function for multipart/alternative
  */
 void fixed_output_post(char *name, char *filename, char *partnum, char *disp,
 	  	void *content, char *cbtype, size_t length, char *encoding,
@@ -847,7 +853,6 @@ void fixed_output_post(char *name, char *filename, char *partnum, char *disp,
 		if (!strcasecmp(cbtype, "multipart/alternative")) {
 			ma->is_ma = 0;
 			ma->did_print = 0;
-			lprintf(9, "multipart/alternative: <%s>\n", ma->prefix);
 			return;
 		}
 }
@@ -865,12 +870,15 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 		CIT_UBYTE ch = 0;
 
 		lprintf(9, "fixed_output() type=<%s>\n", cbtype);	
-	
+
+		/*
+		 * If we're in the middle of a multipart/alternative scope and
+		 * we've already printed another section, skip this one.
+		 */	
 	   	if ( (ma->is_ma == 1) && (ma->did_print == 1) ) {
 			lprintf(9, "Skipping part %s (%s)\n", partnum, cbtype);
 			return;
 		}
-	
 		ma->did_print = 1;
 	
 		if ( (!strcasecmp(cbtype, "text/plain")) 
