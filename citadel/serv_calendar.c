@@ -271,8 +271,10 @@ void ical_hunt_for_conflicts_backend(long msgnum, void *data) {
 	icalproperty *p;
 	char conflict_event_uid[SIZ];
 	char conflict_event_summary[SIZ];
+	char compare_uid[SIZ];
 
 	cal = (icalcomponent *)data;
+	strcpy(compare_uid, "");
 	strcpy(conflict_event_uid, "");
 	strcpy(conflict_event_summary, "");
 
@@ -311,10 +313,16 @@ void ical_hunt_for_conflicts_backend(long msgnum, void *data) {
 	p = ical_ctdl_get_subprop(cal, ICAL_DTEND_PROPERTY);
 	if (p != NULL) t1end = icalproperty_get_dtend(p);
 	
+	p = ical_ctdl_get_subprop(cal, ICAL_UID_PROPERTY);
+	if (p != NULL) {
+		strcpy(compare_uid, icalproperty_get_comment(p));
+	}
+
 	p = ical_ctdl_get_subprop(ird.cal, ICAL_UID_PROPERTY);
 	if (p != NULL) {
 		strcpy(conflict_event_uid, icalproperty_get_comment(p));
 	}
+
 	p = ical_ctdl_get_subprop(ird.cal, ICAL_SUMMARY_PROPERTY);
 	if (p != NULL) {
 		strcpy(conflict_event_summary, icalproperty_get_comment(p));
@@ -324,10 +332,14 @@ void ical_hunt_for_conflicts_backend(long msgnum, void *data) {
 	icalcomponent_free(ird.cal);
 
 	if (ical_ctdl_is_overlap(t1start, t1end, t2start, t2end)) {
-		cprintf("%ld||%s|%s|\n",
+		cprintf("%ld||%s|%s|%d|\n",
 			msgnum,
 			conflict_event_uid,
-			conflict_event_summary
+			conflict_event_summary,
+			(	((strlen(compare_uid)>0)
+				&&(!strcasecmp(compare_uid,
+				conflict_event_uid))) ? 1 : 0
+			)
 		);
 	}
 }

@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.47  2002/10/23 04:06:41  ajc
+ * "conflicts" check now also tells the client whether a conflicting event
+   is really just an older version of the same object.
+
  Revision 601.46  2002/10/23 03:55:21  ajc
  * Finished: when saving an object of type text/calendar to the Calendar> room,
    set the Citadel "extended message ID" to the UID of the VEVENT object.  This
@@ -4144,3 +4148,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
