@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.110  2003/01/15 16:34:53  ajc
+ * bootstrap: don't check /etc/redhat-release if it doesn't exist (which is
+   the case on all non Red Hat Linux systems)
+
  Revision 601.109  2003/01/15 05:57:09  ajc
  * First cut at static-linking the citserver.  Ripped out libtool and
    replaced the dynloader paradigm with "server extensions" paradigm (static
@@ -4377,4 +4381,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -6,7 +6,11 @@
 #
 
 # Goofy red hat 7.3 stuff
-[ `cut -f 5 -d ' ' /etc/redhat-release` = 7.3 ] && redhat73=true
+if [ -s /etc/redhat-release ] ; then
+	[ `cut -f 5 -d ' ' /etc/redhat-release` = 7.3 ] && redhat73=true
+else
+	redhat73=false
+fi
 if [ "$redhat73" = "true" ]; then
 	aclocal=/usr/bin/aclocal-1.5
 	autoconf=/usr/bin/autoconf-2.53
