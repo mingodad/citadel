@@ -286,6 +286,8 @@ void RoomTree::OnDoubleClick(wxTreeEvent& evt) {
 
 	case RI_ROOM:
 		new RoomView(citsock, citMyMDI, r->RoomName);
+		RoomList->DeleteAllItems();
+		RoomList->LoadRoomList();
 		break;
 
 	case RI_ZAPPED:
