@@ -44,7 +44,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	char organizer_string[SIZ];
 	icalproperty *attendee = NULL;
 	char attendee_string[SIZ];
+	char buf[SIZ];
 	int i;
+	int organizer_is_me = 0;
 
 	now = time(NULL);
 	strcpy(organizer_string, "");
@@ -214,9 +216,21 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 						ICAL_ORGANIZER_PROPERTY);
 	if (organizer != NULL) {
 		strcpy(organizer_string, icalproperty_get_organizer(organizer));
+		if (!strncasecmp(organizer_string, "MAILTO:", 7)) {
+			strcpy(organizer_string, &organizer_string[7]);
+			striplt(organizer_string);
+			serv_printf("ISME %s", organizer_string);
+			serv_gets(buf);
+			if (buf[0] == '2') {
+				organizer_is_me = 1;
+			}
+		}
 	}
 	wprintf("<TR><TD>Organizer<BR>(FIXME)</TD><TD>");
 	escputs(organizer_string);
+	if (organizer_is_me) {
+		wprintf("(you. FIXME)\n");
+	}
 	wprintf("</TD></TR>\n");
 
 	/* Attendees (do more with this later) */
