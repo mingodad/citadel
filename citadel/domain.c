@@ -118,66 +118,71 @@ int getmx(char *mxbuf, char *dest) {
 		C_IN, T_MX, (unsigned char *)answer, sizeof(answer)  );
 
 	if (ret < 0) {
-		lprintf(5, "No MX found\n");
-		return(0);
+		mxrecs = mallok(sizeof(struct mx));
+		mxrecs[0].pref = 0;
+		strcpy(mxrecs[0].host, dest);
+		num_mxrecs = 1;
 	}
+	else {
 
-	/* If we had to truncate, shrink the number to avoid fireworks */
-	if (ret > sizeof(answer))
-		ret = sizeof(answer);
-
-	hp = (HEADER *)&answer[0];
-	startptr = &answer[0];		/* start and end of buffer */
-	endptr = &answer[ret];
-	ptr = startptr + HFIXEDSZ;	/* advance past header */
-
-	for (qdcount = ntohs(hp->qdcount); qdcount--; ptr += ret + QFIXEDSZ) {
-		if ((ret = dn_skipname(ptr, endptr)) < 0) {
-			lprintf(9, "dn_skipname error\n");
-			return(0);
+		/* If we had to truncate, shrink the number to avoid fireworks */
+		if (ret > sizeof(answer))
+			ret = sizeof(answer);
+	
+		hp = (HEADER *)&answer[0];
+		startptr = &answer[0];		/* start and end of buffer */
+		endptr = &answer[ret];
+		ptr = startptr + HFIXEDSZ;	/* advance past header */
+	
+		for (qdcount = ntohs(hp->qdcount); qdcount--; ptr += ret + QFIXEDSZ) {
+			if ((ret = dn_skipname(ptr, endptr)) < 0) {
+				lprintf(9, "dn_skipname error\n");
+				return(0);
+			}
 		}
-	}
-
-	while(1) {
-		memset(expanded_buf, 0, sizeof(expanded_buf));
-		ret = dn_expand(startptr,
-				endptr,
-				ptr,
-				expanded_buf,
-				sizeof(expanded_buf)
-				);
-		if (ret < 0) break;
-		ptr += ret;
-
-		GETSHORT(type, ptr);
-		ptr += INT16SZ + INT32SZ;
-		GETSHORT(n, ptr);
-
-		if (type != T_MX) {
-			ptr += n;
-		}
-
-		else {
-			GETSHORT(pref, ptr);
+	
+		while(1) {
+			memset(expanded_buf, 0, sizeof(expanded_buf));
 			ret = dn_expand(startptr,
 					endptr,
 					ptr,
 					expanded_buf,
 					sizeof(expanded_buf)
 					);
+			if (ret < 0) break;
 			ptr += ret;
-
-			++num_mxrecs;
-			if (mxrecs == NULL) {
-				mxrecs = mallok(sizeof(struct mx));
+	
+			GETSHORT(type, ptr);
+			ptr += INT16SZ + INT32SZ;
+			GETSHORT(n, ptr);
+	
+			if (type != T_MX) {
+				ptr += n;
 			}
+	
 			else {
-				mxrecs = reallok(mxrecs,
-					(sizeof(struct mx) * num_mxrecs) );
+				GETSHORT(pref, ptr);
+				ret = dn_expand(startptr,
+						endptr,
+						ptr,
+						expanded_buf,
+						sizeof(expanded_buf)
+						);
+				ptr += ret;
+	
+				++num_mxrecs;
+				if (mxrecs == NULL) {
+					mxrecs = mallok(sizeof(struct mx));
+				}
+				else {
+					mxrecs = reallok(mxrecs,
+					    (sizeof(struct mx) * num_mxrecs) );
+				}
+	
+				mxrecs[num_mxrecs - 1].pref = pref;
+				strcpy(mxrecs[num_mxrecs - 1].host,
+				       expanded_buf);
 			}
-
-			mxrecs[num_mxrecs - 1].pref = pref;
-			strcpy(mxrecs[num_mxrecs - 1].host, expanded_buf);
 		}
 	}
 

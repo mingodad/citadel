@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.11  2000/10/11 22:47:51  error
+ * domain.c: getmx() returns hostname as MX if no MX records found a la RFC 974
+
  Revision 573.10  2000/10/10 19:18:12  ajc
  * Added support of macros ALL, BODY, FAST, and FULL to the IMAP FETCH command
 
@@ -2086,3 +2089,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+	 
