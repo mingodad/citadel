@@ -22,8 +22,9 @@
 #include "snprintf.h"
 #endif
 #include "citadel.h"
-#include "commands.h"
+#include "citadel_ipc.h"
 #include "citadel_decls.h"
+#include "commands.h"
 
 #ifdef HAVE_CURSES_H
 static SCREEN *myscreen = NULL;

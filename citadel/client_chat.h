@@ -1,7 +1,7 @@
 /* $Id$ */
-void chatmode(void);
-void page_user(void);
-void quiet_mode(void);
-void stealth_mode(void);
+void chatmode(CtdlIPC *ipc);
+void page_user(CtdlIPC *ipc);
+void quiet_mode(CtdlIPC *ipc);
+void stealth_mode(CtdlIPC *ipc);
 
 extern char last_paged[];

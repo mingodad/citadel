@@ -33,12 +33,12 @@
 #include <errno.h>
 #include <stdarg.h>
 #include "citadel.h"
+#include "citadel_ipc.h"
 #include "citadel_decls.h"
 #include "routines2.h"
 #include "routines.h"
 #include "commands.h"
 #include "tools.h"
-#include "citadel_ipc.h"
 #include "messages.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
@@ -55,6 +55,7 @@ extern unsigned room_flags;
 extern int screenwidth;
 
 
+/*
 int eopen(char *name, int mode)
 {
 	int ret;
@@ -66,6 +67,7 @@ int eopen(char *name, int mode)
 	}
 	return (ret);
 }
+*/
 
 
 int room_prompt(int qrflags)
@@ -81,7 +83,7 @@ int room_prompt(int qrflags)
 	return (a);
 }
 
-void entregis(void)
+void entregis(CtdlIPC *ipc)
 {				/* register with name and address */
 
 	char buf[SIZ];
@@ -109,7 +111,7 @@ void entregis(void)
 	strcpy(tmpemail, "");
 	strcpy(tmpcountry, "");
 
-	r = CtdlIPCGetUserRegistration(NULL, &reg, buf);
+	r = CtdlIPCGetUserRegistration(ipc, NULL, &reg, buf);
 	if (r / 100 == 1) {
 		int a = 0;
 
@@ -149,7 +151,7 @@ void entregis(void)
 		ok = 1;
 		strcpy(holdemail, tmpemail);
 		strprompt("Email address", tmpemail, 31);
-		r = CtdlIPCDirectoryLookup(tmpemail, buf);
+		r = CtdlIPCDirectoryLookup(ipc, tmpemail, buf);
 		if (r / 100 == 2) {
 			extract_token(diruser, buf, 0, '@');
 			extract_token(dirnode, buf, 1, '@');
@@ -175,7 +177,7 @@ void entregis(void)
 		sprintf(reg, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
 			tmpname, tmpaddr, tmpcity, tmpstate,
 			tmpzip, tmpphone, tmpemail, tmpcountry);
-		r = CtdlIPCSetRegistration(reg, buf);
+		r = CtdlIPCSetRegistration(ipc, reg, buf);
 		if (r / 100 != 4)
 			scr_printf("%s\n", buf);
 		free(reg);
@@ -183,7 +185,7 @@ void entregis(void)
 	scr_printf("\n");
 }
 
-void updatels(void)
+void updatels(CtdlIPC *ipc)
 {				/* make all messages old in current room */
 	char buf[SIZ];
 	int r;				/* IPC response code */
@@ -193,10 +195,10 @@ void updatels(void)
 			/* err_printf("maxmsgnum == highest_msg_read == 0\n"); */
 			return;
 		}
-		r = CtdlIPCSetLastRead((maxmsgnum > highest_msg_read) ?
+		r = CtdlIPCSetLastRead(ipc, (maxmsgnum > highest_msg_read) ?
 				 maxmsgnum : highest_msg_read, buf);
 	} else {
-		r = CtdlIPCSetLastRead(0, buf);
+		r = CtdlIPCSetLastRead(ipc, 0, buf);
 	}
 	if (r / 100 != 2)
 		scr_printf("%s\n", buf);
@@ -205,12 +207,12 @@ void updatels(void)
 /*
  * only make messages old in this room that have been read
  */
-void updatelsa(void)
+void updatelsa(CtdlIPC *ipc)
 {
 	char buf[SIZ];
 	int r;				/* IPC response code */
 
-	r = CtdlIPCSetLastRead(highest_msg_read, buf);
+	r = CtdlIPCSetLastRead(ipc, highest_msg_read, buf);
 	if (r / 100 != 2)
 		scr_printf("%s\n", &buf[4]);
 }
@@ -219,7 +221,7 @@ void updatelsa(void)
 /*
  * This routine completes a client upload
  */
-void do_upload(int fd)
+void do_upload(CtdlIPC *ipc, int fd)
 {
 	char buf[SIZ];
 	char tbuf[4096];
@@ -237,11 +239,11 @@ void do_upload(int fd)
 		bytes_to_send = read(fd, tbuf, 4096);
 		if (bytes_to_send > 0) {
 			snprintf(buf, sizeof buf, "WRIT %d", bytes_to_send);
-			serv_puts(buf);
-			serv_gets(buf);
+			CtdlIPC_putline(ipc, buf);
+			CtdlIPC_getline(ipc, buf);
 			if (buf[0] == '7') {
 				bytes_expected = atoi(&buf[4]);
-				serv_write(tbuf, bytes_expected);
+				serv_write(ipc, tbuf, bytes_expected);
 			} else {
 				scr_printf("%s\n", &buf[4]);
 			}
@@ -252,8 +254,8 @@ void do_upload(int fd)
 
 	/* close the upload file, locally and at the server */
 	close(fd);
-	serv_puts("UCLS 1");
-	serv_gets(buf);
+	CtdlIPC_putline(ipc, "UCLS 1");
+	CtdlIPC_getline(ipc, buf);
 	scr_printf("%s\n", &buf[4]);
 }
 
@@ -261,7 +263,7 @@ void do_upload(int fd)
 /*
  * client-based uploads (for users with their own clientware)
  */
-void cli_upload(void)
+void cli_upload(CtdlIPC *ipc)
 {
 	char flnm[SIZ];
 	char desc[151];
@@ -296,30 +298,30 @@ void cli_upload(void)
 			snprintf(&buf[tmp], sizeof buf - tmp, "%d", a);
 		}
 		snprintf(tbuf, sizeof tbuf, "UOPN %s|%s", buf, desc);
-		serv_puts(tbuf);
-		serv_gets(buf);
+		CtdlIPC_putline(ipc, tbuf);
+		CtdlIPC_getline(ipc, buf);
 		if (buf[0] != '2')
 			scr_printf("%s\n", &buf[4]);
 		++a;
 	} while (buf[0] != '2');
 
 	/* at this point we have an open upload file at the server */
-	do_upload(fd);
+	do_upload(ipc, fd);
 }
 
 
 /*
  * Function used for various image upload commands
  */
-void cli_image_upload(char *keyname)
+void cli_image_upload(CtdlIPC *ipc, char *keyname)
 {
 	char flnm[SIZ];
 	char buf[SIZ];
 	int fd;
 
 	snprintf(buf, sizeof buf, "UIMG 0|%s", keyname);
-	serv_puts(buf);
-	serv_gets(buf);
+	CtdlIPC_putline(ipc, buf);
+	CtdlIPC_getline(ipc, buf);
 	if (buf[0] != '2') {
 		scr_printf("%s\n", &buf[4]);
 		return;
@@ -331,20 +333,20 @@ void cli_image_upload(char *keyname)
 		return;
 	}
 	snprintf(buf, sizeof buf, "UIMG 1|%s", keyname);
-	serv_puts(buf);
-	serv_gets(buf);
+	CtdlIPC_putline(ipc, buf);
+	CtdlIPC_getline(ipc, buf);
 	if (buf[0] != '2') {
 		scr_printf("%s\n", &buf[4]);
 		return;
 	}
-	do_upload(fd);
+	do_upload(ipc, fd);
 }
 
 
 /*
  * protocol-based uploads (Xmodem, Ymodem, Zmodem)
  */
-void upload(int c)
+void upload(CtdlIPC *ipc, int c)
 {				/* c = upload mode */
 	char flnm[SIZ];
 	char desc[151];
@@ -447,23 +449,23 @@ void upload(int c)
 							".%d", a);
 					}
 					++a;
-					serv_puts(buf);
-					serv_gets(buf);
+					CtdlIPC_putline(ipc, buf);
+					CtdlIPC_getline(ipc, buf);
 				} while ((buf[0] != '2') && (a < 100));
 				if (buf[0] == '2')
 					do {
 						a = read(fd, tbuf, 4096);
 						if (a > 0) {
 							snprintf(buf, sizeof buf, "WRIT %d", a);
-							serv_puts(buf);
-							serv_gets(buf);
+							CtdlIPC_putline(ipc, buf);
+							CtdlIPC_getline(ipc, buf);
 							if (buf[0] == '7')
-								serv_write(tbuf, a);
+								serv_write(ipc, tbuf, a);
 						}
 					} while (a > 0);
 				close(fd);
-				serv_puts("UCLS 1");
-				serv_gets(buf);
+				CtdlIPC_putline(ipc, "UCLS 1");
+				CtdlIPC_getline(ipc, buf);
 				scr_printf("%s\n", &buf[4]);
 			}
 		}
@@ -475,7 +477,7 @@ void upload(int c)
 /* 
  * validate a user
  */
-void val_user(char *user, int do_validate)
+void val_user(CtdlIPC *ipc, char *user, int do_validate)
 {
 	int a;
 	char cmd[SIZ];
@@ -484,12 +486,12 @@ void val_user(char *user, int do_validate)
 	int r;				/* IPC response code */
 
 	snprintf(cmd, sizeof cmd, "GREG %s", user);
-	serv_puts(cmd);
-	serv_gets(cmd);
+	CtdlIPC_putline(ipc, cmd);
+	CtdlIPC_getline(ipc, cmd);
 	if (cmd[0] == '1') {
 		a = 0;
 		do {
-			serv_gets(buf);
+			CtdlIPC_getline(ipc, buf);
 			++a;
 			if (a == 1)
 				scr_printf("User #%s - %s  ", buf, &cmd[4]);
@@ -522,7 +524,7 @@ void val_user(char *user, int do_validate)
 	if (do_validate) {
 		/* now set the access level */
 		ax = intprompt("Access level", ax, 0, 6);
-		r = CtdlIPCValidateUser(user, ax, cmd);
+		r = CtdlIPCValidateUser(ipc, user, ax, cmd);
 		if (r / 100 != 2)
 			scr_printf("%s\n", cmd);
 	}
@@ -530,7 +532,7 @@ void val_user(char *user, int do_validate)
 }
 
 
-void validate(void)
+void validate(CtdlIPC *ipc)
 {				/* validate new users */
 	char cmd[SIZ];
 	char buf[SIZ];
@@ -538,14 +540,14 @@ void validate(void)
 	int r;				/* IPC response code */
 
 	do {
-		r = CtdlIPCNextUnvalidatedUser(cmd);
+		r = CtdlIPCNextUnvalidatedUser(ipc, cmd);
 		if (r / 100 != 3)
 			finished = 1;
 		if (r / 100 == 2)
 			scr_printf("%s\n", cmd);
 		if (r / 100 == 3) {
 			extract(buf, cmd, 0);
-			val_user(buf, 1);
+			val_user(ipc, buf, 1);
 		}
 	} while (finished == 0);
 }
@@ -573,7 +575,7 @@ void subshell(void)
 /*
  * <.A>ide <F>ile <D>elete command
  */
-void deletefile(void)
+void deletefile(CtdlIPC *ipc)
 {
 	char filename[32];
 	char buf[SIZ];
@@ -581,14 +583,14 @@ void deletefile(void)
 	newprompt("Filename: ", filename, 31);
 	if (strlen(filename) == 0)
 		return;
-	CtdlIPCDeleteFile(filename, buf);
+	CtdlIPCDeleteFile(ipc, filename, buf);
 	err_printf("%s\n", buf);
 }
 
 /*
  * <.A>ide <F>ile <S>end command
  */
-void netsendfile(void)
+void netsendfile(CtdlIPC *ipc)
 {
 	char filename[32], destsys[20], buf[SIZ];
 
@@ -596,7 +598,7 @@ void netsendfile(void)
 	if (strlen(filename) == 0)
 		return;
 	newprompt("System to send to: ", destsys, 19);
-	CtdlIPCNetSendFile(filename, destsys, buf);
+	CtdlIPCNetSendFile(ipc, filename, destsys, buf);
 	err_printf("%s\n", buf);
 	return;
 }
@@ -604,7 +606,7 @@ void netsendfile(void)
 /*
  * <.A>ide <F>ile <M>ove command
  */
-void movefile(void)
+void movefile(CtdlIPC *ipc)
 {
 	char filename[64];
 	char newroom[ROOMNAMELEN];
@@ -614,7 +616,7 @@ void movefile(void)
 	if (strlen(filename) == 0)
 		return;
 	newprompt("Enter target room: ", newroom, ROOMNAMELEN - 1);
-	CtdlIPCMoveFile(filename, newroom, buf);
+	CtdlIPCMoveFile(ipc, filename, newroom, buf);
 	err_printf("%s\n", buf);
 }
 
@@ -622,18 +624,18 @@ void movefile(void)
 /* 
  * list of users who have filled out a bio
  */
-void list_bio(void)
+void list_bio(CtdlIPC *ipc)
 {
 	char buf[SIZ];
 	int pos = 1;
 
-	serv_puts("LBIO");
-	serv_gets(buf);
+	CtdlIPC_putline(ipc, "LBIO");
+	CtdlIPC_getline(ipc, buf);
 	if (buf[0] != '1') {
 		pprintf("%s\n", &buf[4]);
 		return;
 	}
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
 		if ((pos + strlen(buf) + 5) > screenwidth) {
 			pprintf("\n");
 			pos = 1;
@@ -648,7 +650,7 @@ void list_bio(void)
 /*
  * read bio
  */
-void read_bio(void)
+void read_bio(CtdlIPC *ipc)
 {
 	char who[SIZ];
 	char buf[SIZ];
@@ -657,16 +659,16 @@ void read_bio(void)
 		newprompt("Read bio for who ('?' for list) : ", who, 25);
 		pprintf("\n");
 		if (!strcmp(who, "?"))
-			list_bio();
+			list_bio(ipc);
 	} while (!strcmp(who, "?"));
 	snprintf(buf, sizeof buf, "RBIO %s", who);
-	serv_puts(buf);
-	serv_gets(buf);
+	CtdlIPC_putline(ipc, buf);
+	CtdlIPC_getline(ipc, buf);
 	if (buf[0] != '1') {
 		pprintf("%s\n", &buf[4]);
 		return;
 	}
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
 		pprintf("%s\n", buf);
 	}
 }
@@ -675,7 +677,7 @@ void read_bio(void)
 /* 
  * General system configuration command
  */
-void do_system_configuration(void)
+void do_system_configuration(CtdlIPC *ipc)
 {
 	char buf[SIZ];
 	char sc[31][SIZ];
@@ -688,11 +690,11 @@ void do_system_configuration(void)
 	memset(&sc[0][0], 0, sizeof(sc));
 
 	/* Fetch the current config */
-	serv_puts("CONF get");
-	serv_gets(buf);
+	CtdlIPC_putline(ipc, "CONF get");
+	CtdlIPC_getline(ipc, buf);
 	if (buf[0] == '1') {
 		a = 0;
-		while (serv_gets(buf), strcmp(buf, "000")) {
+		while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
 			if (a < 31) {
 				strcpy(&sc[a][0], buf);
 			}
@@ -702,8 +704,8 @@ void do_system_configuration(void)
 	/* Fetch the expire policy (this will silently fail on old servers,
 	 * resulting in "default" policy)
 	 */
-	serv_puts("GPEX site");
-	serv_gets(buf);
+	CtdlIPC_putline(ipc, "GPEX site");
+	CtdlIPC_getline(ipc, buf);
 	if (buf[0] == '2') {
 		expire_mode = extract_int(&buf[4], 0);
 		expire_value = extract_int(&buf[4], 1);
@@ -809,17 +811,17 @@ void do_system_configuration(void)
 	/* Save it */
 	scr_printf("Save this configuration? ");
 	if (yesno()) {
-		serv_puts("CONF set");
-		serv_gets(buf);
+		CtdlIPC_putline(ipc, "CONF set");
+		CtdlIPC_getline(ipc, buf);
 		if (buf[0] == '4') {
 			for (a = 0; a < 31; ++a)
-				serv_puts(&sc[a][0]);
-			serv_puts("000");
+				CtdlIPC_putline(ipc, &sc[a][0]);
+			CtdlIPC_putline(ipc, "000");
 		}
 		snprintf(buf, sizeof buf, "SPEX site|%d|%d",
 			 expire_mode, expire_value);
-		serv_puts(buf);
-		serv_gets(buf);
+		CtdlIPC_putline(ipc, buf);
+		CtdlIPC_getline(ipc, buf);
 	}
 }
 
@@ -827,7 +829,7 @@ void do_system_configuration(void)
 /*
  * support function for do_internet_configuration()
  */
-void get_inet_rec_type(char *buf) {
+void get_inet_rec_type(CtdlIPC *ipc, char *buf) {
 	int sel;
 
 	keyopt(" <1> localhost      (Alias for this computer)\n");
@@ -854,7 +856,8 @@ void get_inet_rec_type(char *buf) {
 /*
  * Internet mail configuration
  */
-void do_internet_configuration(void) {
+void do_internet_configuration(CtdlIPC *ipc)
+{
 	char buf[SIZ];
 	int num_recs = 0;
 	char **recs = NULL;
@@ -865,9 +868,9 @@ void do_internet_configuration(void) {
 	
 
 	snprintf(buf, sizeof buf, "CONF getsys|%s", INTERNETCFG);
-	serv_puts(buf);
-	serv_gets(buf);
-	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
+	CtdlIPC_putline(ipc, buf);
+	CtdlIPC_getline(ipc, buf);
+	if (buf[0] == '1') while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
 		++num_recs;
 		if (num_recs == 1) recs = malloc(sizeof(char *));
 		else recs = realloc(recs, (sizeof(char *)) * num_recs);
@@ -904,7 +907,7 @@ void do_internet_configuration(void) {
 				newprompt("Enter host name: ",
 					buf, 50);
 				strcat(buf, "|");
-				get_inet_rec_type(&buf[strlen(buf)]);
+				get_inet_rec_type(ipc, &buf[strlen(buf)]);
 				recs[num_recs-1] = strdup(buf);
 				break;
 			case 'd':
@@ -918,13 +921,13 @@ void do_internet_configuration(void) {
 			case 's':
 				snprintf(buf, sizeof buf, "CONF putsys|%s",
 					INTERNETCFG);
-				serv_puts(buf);
-				serv_gets(buf);
+				CtdlIPC_putline(ipc, buf);
+				CtdlIPC_getline(ipc, buf);
 				if (buf[0] == '4') {
 					for (i=0; i<num_recs; ++i) {
-						serv_puts(recs[i]);
+						CtdlIPC_putline(ipc, recs[i]);
 					}
-					serv_puts("000");
+					CtdlIPC_putline(ipc, "000");
 				}
 				else {
 					scr_printf("%s\n", &buf[4]);
@@ -951,7 +954,8 @@ void do_internet_configuration(void) {
 /*
  * Edit network configuration for room sharing, mailing lists, etc.
  */
-void network_config_management(char *entrytype, char *comment) {
+void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
+{
 	char filename[PATH_MAX];
 	char changefile[PATH_MAX];
 	int e_ex_code;
@@ -984,10 +988,10 @@ void network_config_management(char *entrytype, char *comment) {
 	fprintf(tempfp, "# Specify one per line.\n"
 			"\n\n");
 
-	serv_puts("GNET");
-	serv_gets(buf);
+	CtdlIPC_putline(ipc, "GNET");
+	CtdlIPC_getline(ipc, buf);
 	if (buf[0] == '1') {
-		while(serv_gets(buf), strcmp(buf, "000")) {
+		while(CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
 			extract(instr, buf, 0);
 			if (!strcasecmp(instr, entrytype)) {
 				extract(addr, buf, 1);
@@ -1025,10 +1029,10 @@ void network_config_management(char *entrytype, char *comment) {
 
 	if (e_ex_code == 0) { 		/* Save changes */
 		changefp = fopen(changefile, "w");
-		serv_puts("GNET");
-		serv_gets(buf);
+		CtdlIPC_putline(ipc, "GNET");
+		CtdlIPC_getline(ipc, buf);
 		if (buf[0] == '1') {
-			while(serv_gets(buf), strcmp(buf, "000")) {
+			while(CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
 				extract(instr, buf, 0);
 				if (strcasecmp(instr, entrytype)) {
 					fprintf(changefp, "%s\n", buf);
@@ -1049,19 +1053,19 @@ void network_config_management(char *entrytype, char *comment) {
 		fclose(changefp);
 
 		/* now write it to the server... */
-		serv_puts("SNET");
-		serv_gets(buf);
+		CtdlIPC_putline(ipc, "SNET");
+		CtdlIPC_getline(ipc, buf);
 		if (buf[0] == '4') {
 			changefp = fopen(changefile, "r");
 			if (changefp != NULL) {
 				while (fgets(buf, sizeof buf,
 				       changefp) != NULL) {
 					buf[strlen(buf) - 1] = 0;
-					serv_puts(buf);
+					CtdlIPC_putline(ipc, buf);
 				}
 				fclose(changefp);
 			}
-			serv_puts("000");
+			CtdlIPC_putline(ipc, "000");
 		}
 	}
 
@@ -1073,7 +1077,7 @@ void network_config_management(char *entrytype, char *comment) {
 /*
  * IGnet node configuration
  */
-void do_ignet_configuration(void) {
+void do_ignet_configuration(CtdlIPC *ipc) {
 	char buf[SIZ];
 	int num_recs = 0;
 	char **recs = NULL;
@@ -1084,9 +1088,9 @@ void do_ignet_configuration(void) {
 	
 
 	snprintf(buf, sizeof buf, "CONF getsys|%s", IGNETCFG);
-	serv_puts(buf);
-	serv_gets(buf);
-	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
+	CtdlIPC_putline(ipc, buf);
+	CtdlIPC_getline(ipc, buf);
+	if (buf[0] == '1') while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
 		++num_recs;
 		if (num_recs == 1) recs = malloc(sizeof(char *));
 		else recs = realloc(recs, (sizeof(char *)) * num_recs);
@@ -1156,13 +1160,13 @@ void do_ignet_configuration(void) {
 				break;
 			case 's':
 				snprintf(buf, sizeof buf, "CONF putsys|%s", IGNETCFG);
-				serv_puts(buf);
-				serv_gets(buf);
+				CtdlIPC_putline(ipc, buf);
+				CtdlIPC_getline(ipc, buf);
 				if (buf[0] == '4') {
 					for (i=0; i<num_recs; ++i) {
-						serv_puts(recs[i]);
+						CtdlIPC_putline(ipc, recs[i]);
 					}
-					serv_puts("000");
+					CtdlIPC_putline(ipc, "000");
 				}
 				else {
 					scr_printf("%s\n", &buf[4]);
@@ -1187,7 +1191,8 @@ void do_ignet_configuration(void) {
 /*
  * Filter list configuration
  */
-void do_filterlist_configuration(void) {
+void do_filterlist_configuration(CtdlIPC *ipc)
+{
 	char buf[SIZ];
 	int num_recs = 0;
 	char **recs = NULL;
@@ -1198,9 +1203,9 @@ void do_filterlist_configuration(void) {
 	
 
 	snprintf(buf, sizeof buf, "CONF getsys|%s", FILTERLIST);
-	serv_puts(buf);
-	serv_gets(buf);
-	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
+	CtdlIPC_putline(ipc, buf);
+	CtdlIPC_getline(ipc, buf);
+	if (buf[0] == '1') while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
 		++num_recs;
 		if (num_recs == 1) recs = malloc(sizeof(char *));
 		else recs = realloc(recs, (sizeof(char *)) * num_recs);
@@ -1266,13 +1271,13 @@ void do_filterlist_configuration(void) {
 				break;
 			case 's':
 				snprintf(buf, sizeof buf, "CONF putsys|%s", FILTERLIST);
-				serv_puts(buf);
-				serv_gets(buf);
+				CtdlIPC_putline(ipc, buf);
+				CtdlIPC_getline(ipc, buf);
 				if (buf[0] == '4') {
 					for (i=0; i<num_recs; ++i) {
-						serv_puts(recs[i]);
+						CtdlIPC_putline(ipc, recs[i]);
 					}
-					serv_puts("000");
+					CtdlIPC_putline(ipc, "000");
 				}
 				else {
 					scr_printf("%s\n", &buf[4]);

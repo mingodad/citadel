@@ -24,6 +24,7 @@
 #define BRIGHT_WHITE	15
 #define COLOR_PUSH	16	/* Save current color */
 #define COLOR_POP	17	/* Restore saved color */
+#define ORIGINAL_PAIR	-1	/* Default terminal colors */
 
 #define MAXURLS		50	/* Max embedded URL's per message */
 
@@ -38,8 +39,8 @@ int boolprompt(char *prompt, int prev_val);
 int intprompt(char *prompt, int ival, int imin, int imax);
 int fmout(int width, FILE *fpin, char *text, FILE *fpout, char pagin,
 		int height, int starting_lp, char subst);
-int getcmd(char *argbuf);
-void display_help(char *name);
+int getcmd(CtdlIPC *ipc, char *argbuf);
+void display_help(CtdlIPC *ipc, char *name);
 void color(int colornum);
 void cls(int colornum);
 void send_ansi_detect(void);

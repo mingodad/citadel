@@ -76,7 +76,7 @@ void back(int spaces) {
 	}
 }
 
-void hit_any_key(void) {		/* hit any key to continue */
+void hit_any_key(CtdlIPC *ipc) {	/* hit any key to continue */
 	int a,b;
 
 	color(COLOR_PUSH);
@@ -103,7 +103,7 @@ void hit_any_key(void) {		/* hit any key to continue */
 /*
  * change a user's access level
  */
-void edituser(void)
+void edituser(CtdlIPC *ipc)
 {
 	char buf[SIZ];
 	char who[USERNAME_SIZE];
@@ -112,11 +112,11 @@ void edituser(void)
 	int r;				/* IPC response code */
 
 	newprompt("User name: ", who, 25);
-	while ((r = CtdlIPCAideGetUserParameters(who, &user, buf)) / 100 != 2) {
+	while ((r = CtdlIPCAideGetUserParameters(ipc, who, &user, buf)) / 100 != 2) {
 		scr_printf("%s\n", buf);
 		scr_printf("Do you want to create this user? ");
 		if (yesno()) {
-			r = CtdlIPCCreateUser(who, 0, buf);
+			r = CtdlIPCCreateUser(ipc, who, 0, buf);
 			if (r / 100 == 2) {
 				newnow = 1;
 				continue;
@@ -127,7 +127,7 @@ void edituser(void)
 		return;
 	}
 
-	val_user(user->fullname, 0); /* Display registration */
+	val_user(ipc, user->fullname, 0); /* Display registration */
 
 	if (newnow || boolprompt("Change password", 0)) {	/* I'm lazy */
 		strprompt("Password", user->password, -19);
@@ -147,7 +147,7 @@ void edituser(void)
 	user->USuserpurge = intprompt("Purge time (in days, 0 for system default",
 				      user->USuserpurge, 0, INT_MAX);
 
-	r = CtdlIPCAideSetUserParameters(user, buf);
+	r = CtdlIPCAideSetUserParameters(ipc, user, buf);
 	if (r / 100 != 2) {
 		scr_printf("%s\n", buf);
 	}
@@ -159,7 +159,7 @@ void edituser(void)
  * yes or no.  Yes=1 and No=0, unless 'backwards' is set to a nonzero value
  * in which case No=1 and Yes=0.
  */
-int set_attr(int sval, char *prompt, unsigned int sbit, int backwards)
+int set_attr(CtdlIPC *ipc, int sval, char *prompt, unsigned int sbit, int backwards)
 {
 	int a;
 	int temp;
@@ -196,13 +196,13 @@ int set_attr(int sval, char *prompt, unsigned int sbit, int backwards)
  * modes are:  0 - .EC command, 1 - .EC for new user,
  *             2 - toggle Xpert mode  3 - toggle floor mode
  */
-void enter_config(int mode)
+void enter_config(CtdlIPC *ipc, int mode)
 {
 	char buf[SIZ];
 	struct usersupp *user = NULL;
 	int r;				/* IPC response code */
 
-	r = CtdlIPCGetConfig(&user, buf);
+	r = CtdlIPCGetConfig(ipc, &user, buf);
 	if (r / 100 != 2) {
 		scr_printf("%s\n", buf);
 		free(user);
@@ -216,7 +216,7 @@ void enter_config(int mode)
 		user->USscreenheight = intprompt("Enter your screen height",
 						 user->USscreenheight, 3, 255);
  
-		user->flags = set_attr(user->flags,
+		user->flags = set_attr(ipc, user->flags,
 				       "Are you an experienced Citadel user",
 				       US_EXPERT, 0);
 		if ((user->flags & US_EXPERT) == 0 && mode == 1) {
@@ -224,42 +224,42 @@ void enter_config(int mode)
 			return;
 		}
 
-		user->flags = set_attr(user->flags,
+		user->flags = set_attr(ipc, user->flags,
 			"Print last old message on New message request",
 			US_LASTOLD, 0);
 
-		user->flags = set_attr(user->flags,
+		user->flags = set_attr(ipc, user->flags,
 				       "Prompt after each message",
 				       US_NOPROMPT, 1);
 
 		if ((user->flags & US_NOPROMPT) == 0)
-			user->flags = set_attr(user->flags,
+			user->flags = set_attr(ipc, user->flags,
 					       "Use 'disappearing' prompts",
 					       US_DISAPPEAR, 0);
 
-		user->flags = set_attr(user->flags,
+		user->flags = set_attr(ipc, user->flags,
 				       "Pause after each screenful of text",
 				       US_PAGINATOR, 0);
 
 		if (rc_prompt_control == 3 && (user->flags & US_PAGINATOR))
-			user->flags = set_attr(user->flags,
+			user->flags = set_attr(ipc, user->flags,
 				"<N>ext and <S>top work at paginator prompt",
 				US_PROMPTCTL, 0);
 
 		if (rc_floor_mode == RC_DEFAULT)
-			user->flags = set_attr(user->flags,
+			user->flags = set_attr(ipc, user->flags,
 					       "View rooms by floor",
 					       US_FLOORS, 0);
 
 		if (rc_ansi_color == 3)
-			user->flags = set_attr(user->flags,
+			user->flags = set_attr(ipc, user->flags,
 					       "Enable color support",
 					       US_COLOR, 0);
 
 	 	if ((user->flags & US_EXPERT) == 0)
-			formout("unlisted");
+			formout(ipc, "unlisted");
 
-		user->flags = set_attr(user->flags,
+		user->flags = set_attr(ipc, user->flags,
 				       "Be unlisted in userlog",
 				       US_UNLISTED, 0);
 	}
@@ -284,7 +284,7 @@ void enter_config(int mode)
 		}
 	}
 
-	r = CtdlIPCSetConfig(user, buf);
+	r = CtdlIPCSetConfig(ipc, user, buf);
 	if (r / 100 != 2) scr_printf("%s\n", buf);
 	userflags = user->flags;
 	free(user);
@@ -327,12 +327,15 @@ int pattern(char *search, char *patn) {
 
 
 /* display internal error as defined in errmsgs */
+/*
 void interr(int errnum) {
 	scr_printf("*** INTERNAL ERROR %d\n"
 		"(Press any key to continue)\n", errnum);
 	inkey();
 	logoff(errnum);
 }
+*/
+
 
 void strproc(char *string)
 {
@@ -495,15 +498,15 @@ void locate_host(char *hbuf)
 /*
  * miscellaneous server commands (testing, etc.)
  */
-void misc_server_cmd(char *cmd) {
+void misc_server_cmd(CtdlIPC *ipc, char *cmd) {
 	char buf[SIZ];
 
-	serv_puts(cmd);
-	serv_gets(buf);
+	CtdlIPC_putline(ipc, cmd);
+	CtdlIPC_getline(ipc, buf);
 	scr_printf("%s\n",buf);
 	if (buf[0]=='1') {
 		set_keepalives(KA_HALF);
-		while (serv_gets(buf), strcmp(buf,"000")) {
+		while (CtdlIPC_getline(ipc, buf), strcmp(buf,"000")) {
 			scr_printf("%s\n",buf);
 		}
 		set_keepalives(KA_YES);
@@ -512,7 +515,7 @@ void misc_server_cmd(char *cmd) {
 	if (buf[0]=='4') {
 		do {
 			newprompt("> ",buf,255);
-			serv_puts(buf);
+			CtdlIPC_putline(ipc, buf);
 		} while(strcmp(buf,"000"));
 		return;
 	}

@@ -44,6 +44,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include "citadel.h"
+#include "citadel_ipc.h"
 #include "commands.h"
 #include "messages.h"
 #include "citadel_decls.h"
@@ -52,7 +53,6 @@
 #include "tools.h"
 #include "rooms.h"
 #include "client_chat.h"
-#include "citadel_ipc.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
@@ -88,6 +88,7 @@ int next_lazy_cmd = 5;
 int lines_printed = 0;		/* line count for paginator */
 extern int screenwidth, screenheight;
 extern int termn8;
+extern CtdlIPC *ipc_for_signal_handlers;	/* KLUDGE cover your eyes */
 
 struct citcmd *cmdlist = NULL;
 
@@ -225,7 +226,7 @@ void print_express(void)
 	}
 	
 	while (express_msgs != 0) {
-		r = CtdlIPCGetInstantMessage(&listing, buf);
+		r = CtdlIPCGetInstantMessage(ipc_for_signal_handlers, &listing, buf);
 		if (r / 100 != 1)
 			return;
 	
@@ -354,7 +355,7 @@ static void really_do_keepalive(void) {
 	 * wait for a response.
 	 */
 	if (keepalives_enabled == KA_YES) {
-		r = CtdlIPCNoop();
+		r = CtdlIPCNoop(ipc_for_signal_handlers);
 		if (express_msgs > 0) {
 			if (ok_to_interrupt == 1) {
 				scr_printf("\r%64s\r", "");
@@ -371,7 +372,7 @@ static void really_do_keepalive(void) {
 	 */
 	if ( (keepalives_enabled == KA_HALF)
 	   && (serv_info.serv_supports_qnop > 0) ) {
-		serv_puts("QNOP");
+		CtdlIPC_putline(ipc_for_signal_handlers, "QNOP");
 	}
 }
 
@@ -764,7 +765,7 @@ void load_command_set(void)
 	}
 	if (ccfile == NULL) {
 		perror("commands: cannot open citadel.rc");
-		logoff(errno);
+		logoff(NULL, 3);
 	}
 	while (fgets(buf, sizeof buf, ccfile) != NULL) {
 		while ((strlen(buf) > 0) ? (isspace(buf[strlen(buf) - 1])) : 0)
@@ -776,7 +777,7 @@ void load_command_set(void)
 				rc_encrypt = RC_YES;
 #else
 				fprintf(stderr, "citadel.rc requires encryption support but citadel is not compiled with OpenSSL");
-				logoff(1);
+				logoff(NULL, 3);
 #endif
 			}
 #ifdef HAVE_OPENSSL
@@ -1020,7 +1021,7 @@ int requires_string(struct citcmd *cptr, int ncomp)
  * This function returns an integer command number.  If the command prompts
  * for a string then it is placed in the supplied buffer.
  */
-int getcmd(char *argbuf)
+int getcmd(CtdlIPC *ipc, char *argbuf)
 {
 	char cmdbuf[5];
 	int cmdspaces[5];
@@ -1046,9 +1047,9 @@ int getcmd(char *argbuf)
 			enable_color = 0;
 	}
 	/* if we're running in idiot mode, display a cute little menu */
-	IFNEXPERT formout("mainmenu");
+	IFNEXPERT formout(ipc, "mainmenu");
 
-	print_express();	/* print express messages if there are any */
+	print_express();
 	strcpy(argbuf, "");
 	cmdpos = 0;
 	for (a = 0; a < 5; ++a)
@@ -1251,9 +1252,9 @@ void sttybbs(int cmd)
 /*
  * display_help()  -  help file viewer
  */
-void display_help(char *name)
+void display_help(CtdlIPC *ipc, char *name)
 {
-	formout(name);
+	formout(ipc, name);
 }
 
 
@@ -1403,7 +1404,7 @@ FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
 
 	/* keypress caught; drain the server */
 OOPS:	/* do {
-		serv_gets(aaa);
+		CtdlIPC_getline(ipc, aaa);
 	} while (strcmp(aaa, "000")); */
 
 FMTEND:
@@ -1444,9 +1445,11 @@ void color(int colornum)
 #endif
 		/* When switching to dim white, actually output an 'original
 		 * pair' sequence -- this looks better on black-on-white
-		 * terminals.
+		 * terminals. - Changed to ORIGINAL_PAIR as this actually
+		 * wound up looking horrible on black-on-white terminals, not
+		 * to mention transparent terminals.
 		 */
-		if (colornum == DIM_WHITE)
+		if (colornum == ORIGINAL_PAIR)
 			printf("\033[39;49m");
 		else
 			printf("\033[3%d;40m", (colornum & 7));

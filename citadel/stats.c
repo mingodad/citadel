@@ -25,8 +25,8 @@
 #include <string.h>
 #include <limits.h>
 #include "citadel.h"
+#include "citadel_ipc.h"
 #include "config.h"
-#include "ipc.h"
 #include "tools.h"
 
 #define disply(x,y) printf("%20s            %4.1f    %4.1f    %4d\n",x,((float)y)/calls,((float)y)/days,y)
@@ -126,6 +126,7 @@ int main(int argc, char **argv)
 	char buf[SIZ];
 	FILE *logfp;
 	char *fakeargs[4];
+	CtdlIPC *ipc = NULL;
 
 	for (a = 0; a < argc; ++a) {
 		if (!strcmp(argv[a], "-b"))
@@ -346,16 +347,16 @@ int main(int argc, char **argv)
 		fakeargs[2] = malloc(64);
 		snprintf(fakeargs[2], 64, "%d", config.c_port_number);
 		fakeargs[3] = NULL;
-	        attach_to_server(3, fakeargs, hostbuf, portbuf);
+	        ipc = CtdlIPC_new(3, fakeargs, hostbuf, portbuf);
 		free(fakeargs[2]);
-        	serv_gets(buf);
+        	CtdlIPC_getline(ipc, buf);
         	if ((buf[0]!='2')&&(strncmp(buf,"551",3))) {
                 	fprintf(stderr,"%s: %s\n",argv[0],&buf[4]);
                 }
 		else {
-			serv_puts("LIST");
-			serv_gets(buf);
-			if (buf[0]=='1') while (serv_gets(buf), 
+			CtdlIPC_putline(ipc, "LIST");
+			CtdlIPC_getline(ipc, buf);
+			if (buf[0]=='1') while (CtdlIPC_getline(ipc, buf), 
 						strcmp(buf, "000")) {
 				extract(LogName, buf, 0);
 				fprintf(sortpipe, "%9.2f %-30s\n",

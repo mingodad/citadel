@@ -1,33 +1,22 @@
 /* $Id$ */
 
 #include "sysdep.h"
-#ifdef HAVE_OPENSSL
-#include <openssl/ssl.h>
-#include <openssl/err.h>
-#include <openssl/rand.h>
-#endif
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
 #include <unistd.h>
 #include <sys/types.h>
 #include "citadel.h"
-#include "client_crypto.h"
 #include "citadel_ipc.h"
-#include "ipc.h"
 
 #ifdef HAVE_OPENSSL
-SSL *ssl;
-SSL_CTX *ssl_ctx;
-int ssl_is_connected = 0;
+static SSL_CTX *ssl_ctx;
 char arg_encrypt;
 char rc_encrypt;
 #ifdef THREADED_CLIENT
 pthread_mutex_t **Critters;			/* Things that need locking */
 #endif /* THREADED_CLIENT */
 
-extern int serv_sock;
-extern int server_is_local;
 #endif /* HAVE_OPENSSL */
 
 
@@ -42,24 +31,24 @@ void setCryptoStatusHook(void (*hook)(char *s)) {
 /*
  * input binary data from encrypted connection
  */
-void serv_read_ssl(char *buf, int bytes)
+void serv_read_ssl(CtdlIPC* ipc, char *buf, int bytes)
 {
 	int len, rlen;
 	char junk[1];
 
 	len = 0;
 	while (len < bytes) {
-		if (SSL_want_read(ssl)) {
-			if ((SSL_write(ssl, junk, 0)) < 1) {
+		if (SSL_want_read(ipc->ssl)) {
+			if ((SSL_write(ipc->ssl, junk, 0)) < 1) {
 				error_printf("SSL_write in serv_read:\n");
 				ERR_print_errors_fp(stderr);
 			}
 		}
-		rlen = SSL_read(ssl, &buf[len], bytes - len);
+		rlen = SSL_read(ipc->ssl, &buf[len], bytes - len);
 		if (rlen < 1) {
 			long errval;
 
-			errval = SSL_get_error(ssl, rlen);
+			errval = SSL_get_error(ipc->ssl, rlen);
 			if (errval == SSL_ERROR_WANT_READ ||
 					errval == SSL_ERROR_WANT_WRITE) {
 				sleep(1);
@@ -67,8 +56,7 @@ void serv_read_ssl(char *buf, int bytes)
 			}
 			if (errval == SSL_ERROR_ZERO_RETURN ||
 					errval == SSL_ERROR_SSL) {
-				endtls();
-				serv_read(&buf[len], bytes - len);
+				serv_read(ipc, &buf[len], bytes - len);
 				return;
 			}
 			error_printf("SSL_read in serv_read:\n");
@@ -84,25 +72,25 @@ void serv_read_ssl(char *buf, int bytes)
 /*
  * send binary to server encrypted
  */
-void serv_write_ssl(char *buf, int nbytes)
+void serv_write_ssl(CtdlIPC *ipc, const char *buf, int nbytes)
 {
 	int bytes_written = 0;
 	int retval;
 	char junk[1];
 
 	while (bytes_written < nbytes) {
-		if (SSL_want_write(ssl)) {
-			if ((SSL_read(ssl, junk, 0)) < 1) {
+		if (SSL_want_write(ipc->ssl)) {
+			if ((SSL_read(ipc->ssl, junk, 0)) < 1) {
 				error_printf("SSL_read in serv_write:\n");
 				ERR_print_errors_fp(stderr);
 			}
 		}
-		retval = SSL_write(ssl, &buf[bytes_written],
+		retval = SSL_write(ipc->ssl, &buf[bytes_written],
 				nbytes - bytes_written);
 		if (retval < 1) {
 			long errval;
 
-			errval = SSL_get_error(ssl, retval);
+			errval = SSL_get_error(ipc->ssl, retval);
 			if (errval == SSL_ERROR_WANT_READ ||
 					errval == SSL_ERROR_WANT_WRITE) {
 				sleep(1);
@@ -110,8 +98,7 @@ void serv_write_ssl(char *buf, int nbytes)
 			}
 			if (errval == SSL_ERROR_ZERO_RETURN ||
 					errval == SSL_ERROR_SSL) {
-				endtls();
-				serv_write(&buf[bytes_written],
+				serv_write(ipc, &buf[bytes_written],
 						nbytes - bytes_written);
 				return;
 			}
@@ -142,15 +129,16 @@ static unsigned long id_callback(void) {
 }
 #endif
 
+/* FIXME: per application not per ipc */
 /*
  * starttls() starts SSL/TLS if possible
  * Returns 1 if the session is encrypted, 0 otherwise
  */
-int starttls(void)
+int starttls(CtdlIPC *ipc)
 {
 #ifdef HAVE_OPENSSL
 	int a;
-	/* int r; */				/* IPC response code */
+	int r;				/* IPC response code */
 	char buf[SIZ];
 	SSL_METHOD *ssl_method;
 	DH *dh;
@@ -162,12 +150,12 @@ int starttls(void)
 	}
 	/* User expressed no preference */
 	else if (rc_encrypt == RC_DEFAULT && arg_encrypt == RC_DEFAULT &&
-			server_is_local) {
+			ipc->isLocal) {
 		return 0;
 	}
 
 	/* Get started */
-	ssl = NULL;
+	ipc->ssl = NULL;
 	ssl_ctx = NULL;
 	dh = NULL;
 	SSL_load_error_strings();
@@ -184,8 +172,7 @@ int starttls(void)
 	/* Any reasonable cipher we can get */
 	if (!(SSL_CTX_set_cipher_list(ssl_ctx, CIT_CIPHERS))) {
 		error_printf("No ciphers available for encryption\n");
-		SSL_CTX_free(ssl_ctx);
-		ssl_ctx = NULL;
+		endtls(ipc);
 		return 0;
 	}
 	SSL_CTX_set_session_cache_mode(ssl_ctx, SSL_SESS_CACHE_BOTH);
@@ -195,16 +182,21 @@ int starttls(void)
 	if (!dh) {
 		error_printf("Can't allocate a DH object: %s\n",
 				ERR_reason_error_string(ERR_get_error()));
+		endtls(ipc);
 		return 0;
 	}
 	if (!(BN_hex2bn(&(dh->p), DH_P))) {
 		error_printf("Can't assign DH_P: %s\n",
 				ERR_reason_error_string(ERR_get_error()));
+		DH_free(dh);
+		endtls(ipc);
 		return 0;
 	}
 	if (!(BN_hex2bn(&(dh->g), DH_G))) {
 		error_printf("Can't assign DH_G: %s\n",
 				ERR_reason_error_string(ERR_get_error()));
+		DH_free(dh);
+		endtls(ipc);
 		return 0;
 	}
 	dh->length = DH_L;
@@ -234,17 +226,16 @@ int starttls(void)
 #endif /* THREADED_CLIENT */
 
 	/* New SSL object */
-	ssl = SSL_new(ssl_ctx);
-	if (!ssl) {
+	ipc->ssl = SSL_new(ssl_ctx);
+	if (!ipc->ssl) {
 		error_printf("SSL_new failed: %s\n",
 				ERR_reason_error_string(ERR_get_error()));
-		SSL_CTX_free(ssl_ctx);
-		ssl_ctx = NULL;
+		endtls(ipc);
 		return 0;
 	}
 	/* Pointless flag waving */
 #if SSLEAY_VERSION_NUMBER >= 0x0922
-	SSL_set_session_id_context(ssl, "Citadel/UX SID", 14);
+	SSL_set_session_id_context(ipc->ssl, "Citadel/UX SID", 14);
 #endif
 
 	if (!access("/var/run/egd-pool", F_OK))
@@ -252,17 +243,15 @@ int starttls(void)
 
 	if (!RAND_status()) {
 		error_printf("PRNG not properly seeded\n");
+		endtls(ipc);
 		return 0;
 	}
 
 	/* Associate network connection with SSL object */
-	if (SSL_set_fd(ssl, serv_sock) < 1) {
+	if (SSL_set_fd(ipc->ssl, ipc->sock) < 1) {
 		error_printf("SSL_set_fd failed: %s\n",
 				ERR_reason_error_string(ERR_get_error()));
-		SSL_CTX_free(ssl_ctx);
-		ssl_ctx = NULL;
-		SSL_free(ssl);
-		ssl = NULL;
+		endtls(ipc);
 		return 0;
 	}
 
@@ -270,42 +259,48 @@ int starttls(void)
 		status_hook("Requesting encryption...\r");
 
 	/* Ready to start SSL/TLS */
-	serv_puts("STLS");
-	serv_gets(buf);
+	/* Old code
+	CtdlIPC_putline(ipc, "STLS");
+	CtdlIPC_getline(ipc, buf);
 	if (buf[0] != '2') {
 		error_printf("Server can't start TLS: %s\n", buf);
 		return 0;
 	}
-
-	/* New code
-	r = CtdlIPCStartEncryption(buf);
-	if (r / 100 != 2) {
-		error_printf("Server can't start TLS: %s\n", buf);
-		return 0;
-	}
 	*/
+	{
+		/*
+		 * We can't have ipc->ssl set when we call StartEncryption()
+		 * because the connection isn't yet encrypted.  So we fake it.
+		 */
+		SSL *temp_ssl;
+
+		temp_ssl = ipc->ssl;
+		ipc->ssl = NULL;
+		r = CtdlIPCStartEncryption(ipc, buf);
+		ipc->ssl = temp_ssl;
+		if (r / 100 != 2) {
+			error_printf("Server can't start TLS: %s\n", buf);
+			return 0;
+		}
+	}
 
 	/* Do SSL/TLS handshake */
-	if ((a = SSL_connect(ssl)) < 1) {
+	if ((a = SSL_connect(ipc->ssl)) < 1) {
 		error_printf("SSL_connect failed: %s\n",
 				ERR_reason_error_string(ERR_get_error()));
-		SSL_CTX_free(ssl_ctx);
-		ssl_ctx = NULL;
-		SSL_free(ssl);
-		ssl = NULL;
+		endtls(ipc);
 		return 0;
 	}
-	BIO_set_close(ssl->rbio, BIO_NOCLOSE);
+	BIO_set_close(ipc->ssl->rbio, BIO_NOCLOSE);
 	{
 		int bits, alg_bits;
 
-		bits = SSL_CIPHER_get_bits(SSL_get_current_cipher(ssl), &alg_bits);
+		bits = SSL_CIPHER_get_bits(SSL_get_current_cipher(ipc->ssl), &alg_bits);
 		error_printf("Encrypting with %s cipher %s (%d of %d bits)\n",
-				SSL_CIPHER_get_version(SSL_get_current_cipher(ssl)),
-				SSL_CIPHER_get_name(SSL_get_current_cipher(ssl)),
+				SSL_CIPHER_get_version(SSL_get_current_cipher(ipc->ssl)),
+				SSL_CIPHER_get_name(SSL_get_current_cipher(ipc->ssl)),
 				bits, alg_bits);
 	}
-	ssl_is_connected = 1;
 	return 1;
 #else
 	return 0;
@@ -316,18 +311,13 @@ int starttls(void)
 /*
  * void endtls() - end SSL/TLS session
  */
-void endtls(void)
+void endtls(CtdlIPC *ipc)
 {
 #ifdef HAVE_OPENSSL
-	if (ssl) {
-		SSL_shutdown(ssl);
-		SSL_free(ssl);
-		ssl = NULL;
-	}
-	ssl_is_connected = 0;
-	if (ssl_ctx) {
-		SSL_CTX_free(ssl_ctx);
-		ssl_ctx = NULL;
+	if (ipc->ssl) {
+		SSL_shutdown(ipc->ssl);
+		SSL_free(ipc->ssl);
+		ipc->ssl = NULL;
 	}
 #endif
 }

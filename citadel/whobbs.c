@@ -12,7 +12,6 @@
 #include <string.h>
 #include "citadel.h"
 #include "citadel_ipc.h"
-#include "ipc.h"
 #include "tools.h"
 
 void logoff(int code)
@@ -61,6 +60,7 @@ int main(int argc, char **argv)
 	time_t timenow;
 	char *listing = NULL;
 	struct CtdlServInfo *serv_info = NULL;
+	CtdlIPC *ipc = NULL;
 
 	/* If this environment variable is set, we assume that the program
 	 * is being called as a cgi-bin from a webserver and will output
@@ -68,14 +68,14 @@ int main(int argc, char **argv)
 	 */	
 	if (getenv("REQUEST_METHOD") != NULL) www = 1;
 
-	attach_to_server(argc, argv, hostbuf, portbuf);
-	serv_gets(buf);
+	ipc = CtdlIPC_new(argc, argv, hostbuf, portbuf);
+	CtdlIPC_getline(ipc, buf);
 	if ((buf[0]!='2')&&(strncmp(buf,"551",3))) {
 		fprintf(stderr,"%s: %s\n",argv[0],&buf[4]);
 		logoff(atoi(buf));
 		}
 	strcpy(nodetitle, "this BBS");
-	r = CtdlIPCServerInfo(serv_info, buf);
+	r = CtdlIPCServerInfo(ipc, serv_info, buf);
 	if (r / 100 == 1) {
 		my_pid = serv_info->serv_pid;
 		strcpy(nodetitle, serv_info->serv_humannode);
@@ -103,7 +103,7 @@ int main(int argc, char **argv)
 		printf("</H1>\n");
 	}
 
-	r = CtdlIPCOnlineUsers(&listing, &timenow, buf);
+	r = CtdlIPCOnlineUsers(ipc, &listing, &timenow, buf);
 	if (r / 100 != 1) {
 		fprintf(stderr,"%s: %s\n",argv[0], buf);
 		logoff(atoi(buf));
@@ -158,7 +158,7 @@ int main(int argc, char **argv)
 			"once per minute)</FONT>\n"
 			"</BODY></HTML>\n");
 
-	r = CtdlIPCQuit();
+	r = CtdlIPCQuit(ipc);
 	return (r / 100 == 2) ? 0 : r;
 }
 

@@ -32,13 +32,13 @@
 
 #include <stdarg.h>
 #include "citadel.h"
+#include "citadel_ipc.h"
 #include "citadel_decls.h"
 #include "messages.h"
 #include "commands.h"
 #include "rooms.h"
 #include "tools.h"
 #include "html.h"
-#include "citadel_ipc.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
@@ -57,11 +57,7 @@ struct cittext {
 
 void sttybbs(int cmd);
 int haschar(const char *st, int ch);
-int checkpagin(int lp, int pagin, int height);
 void getline(char *string, int lim);
-void formout(char *name);
-int yesno(void);
-void newprompt(char *prompt, char *str, int len);
 int file_checksum(char *filename);
 void do_edit(char *desc, char *read_cmd, char *check_cmd, char *write_cmd);
 
@@ -90,14 +86,14 @@ extern char printcmd[];
 extern int rc_allow_attachments;
 extern int rc_display_message_numbers;
 extern int rc_force_mail_prompts;
-
 extern int editor_pid;
+extern CtdlIPC *ipc_for_signal_handlers;	/* KLUDGE cover your eyes */
 
 void ka_sigcatch(int signum)
 {
 	alarm(S_KEEPALIVE);
 	signal(SIGALRM, ka_sigcatch);
-	CtdlIPCNoop();
+	CtdlIPCNoop(ipc_for_signal_handlers);
 }
 
 
@@ -204,7 +200,7 @@ void add_word(struct cittext *textlist, char *wordbuf)
 /*
  * begin editing of an opened file pointed to by fp
  */
-void citedit(FILE * fp)
+void citedit(CtdlIPC *ipc, FILE * fp)
 {
 	int a, prev, finished, b, last_space;
 	int appending = 0;
@@ -353,7 +349,7 @@ void citedit(FILE * fp)
 
 /* Read a message from the server
  */
-int read_message(
+int read_message(CtdlIPC *ipc,
 	long num,   /* message number */
 	char pagin, /* 0 = normal read, 1 = read with pagination, 2 = header */
 	FILE *dest) /* Destination file, NULL for screen */
@@ -373,7 +369,7 @@ int read_message(
 	strcpy(reply_to, NO_REPLY_TO);
 	strcpy(reply_subject, "");
 
-	r = CtdlIPCGetSingleMessage(num, (pagin == READ_HEADER ? 1 : 0),
+	r = CtdlIPCGetSingleMessage(ipc, num, (pagin == READ_HEADER ? 1 : 0),
 				(can_do_msg4 ? 4 : 0),
 				&message, buf);
 	if (r / 100 != 1) {
@@ -712,7 +708,8 @@ void replace_string(char *filename, long int startpos)
 /*
  * Function to begin composing a new message
  */
-int client_make_message(char *filename,	/* temporary file name */
+int client_make_message(CtdlIPC *ipc,
+		char *filename,		/* temporary file name */
 		char *recipient,	/* NULL if it's not mail */
 		int anon_type,		/* see MES_ types in header file */
 		int format_type,
@@ -787,7 +784,7 @@ ME1:	switch (mode) {
 				filename, strerror(errno));
 			return(1);
 		}
-		citedit(fp);
+		citedit(ipc, fp);
 		fclose(fp);
 		goto MECR;
 
@@ -910,7 +907,7 @@ MEABT2:	unlink(filename);
  * This loop also implements a "tick" counter that displays the progress, if
  * we're sending something that will take a long time to transmit.
  */
-void transmit_message(FILE *fp)
+void transmit_message(CtdlIPC *ipc, FILE *fp)
 {
 	char buf[SIZ];
 	int ch, a;
@@ -926,7 +923,7 @@ void transmit_message(FILE *fp)
 		if (ch == 10) {
 			if (!strcmp(buf, "000"))
 				strcpy(buf, ">000");
-			serv_puts(buf);
+			CtdlIPC_putline(ipc, buf);
 			strcpy(buf, "");
 		} else {
 			a = strlen(buf);
@@ -936,13 +933,13 @@ void transmit_message(FILE *fp)
 				buf[a] = 0;
 				if (!strcmp(buf, "000"))
 					strcpy(buf, ">000");
-				serv_puts(buf);
+				CtdlIPC_putline(ipc, buf);
 				strcpy(buf, "");
 			}
 			if (strlen(buf) > 250) {
 				if (!strcmp(buf, "000"))
 					strcpy(buf, ">000");
-				serv_puts(buf);
+				CtdlIPC_putline(ipc, buf);
 				strcpy(buf, "");
 			}
 		}
@@ -955,7 +952,7 @@ void transmit_message(FILE *fp)
 		}
 
 	}
-	serv_puts(buf);
+	CtdlIPC_putline(ipc, buf);
 	scr_printf("                \r");
 	scr_flush();
 }
@@ -977,7 +974,8 @@ void check_msg_arr_size(void) {
  * entmsg()  -  edit and create a message
  *              returns 0 if message was saved
  */
-int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
+int entmsg(CtdlIPC *ipc,
+		int is_reply,	/* nonzero if this was a <R>eply command */
 		int c)		/* */
 {
 	char buf[300];
@@ -1001,8 +999,8 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 	 * this room.  The server will return an error code if we can't.
 	 */
 	snprintf(cmd, sizeof cmd, "ENT0 0||0|%d", mode);
-	serv_puts(cmd);
-	serv_gets(cmd);
+	CtdlIPC_putline(ipc, cmd);
+	CtdlIPC_getline(ipc, cmd);
 
 	if ((strncmp(cmd, "570", 3)) && (strncmp(cmd, "200", 3))) {
 		scr_printf("%s\n", &cmd[4]);
@@ -1018,7 +1016,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 
 	/* If the user is a dumbass, tell them how to type. */
 	if ((userflags & US_EXPERT) == 0) {
-		formout("entermsg");
+		formout(ipc, "entermsg");
 	}
 
 	/* Handle the selection of a recipient, if necessary. */
@@ -1062,8 +1060,8 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 	/* If it's mail, we've got to check the validity of the recipient... */
 	if (strlen(buf) > 0) {
 		snprintf(cmd, sizeof cmd, "ENT0 0|%s|%d|%d|%s", buf, b, mode, subject);
-		serv_puts(cmd);
-		serv_gets(cmd);
+		CtdlIPC_putline(ipc, cmd);
+		CtdlIPC_getline(ipc, cmd);
 		if (cmd[0] != '2') {
 			scr_printf("%s\n", &cmd[4]);
 			return (1);
@@ -1074,19 +1072,19 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
  	 * tell upon saving whether someone else has posted too.
  	 */
 	num_msgs = 0;
-	serv_puts("MSGS LAST|1");
-	serv_gets(cmd);
+	CtdlIPC_putline(ipc, "MSGS LAST|1");
+	CtdlIPC_getline(ipc, cmd);
 	if (cmd[0] != '1') {
 		scr_printf("%s\n", &cmd[5]);
 	} else {
-		while (serv_gets(cmd), strcmp(cmd, "000")) {
+		while (CtdlIPC_getline(ipc, cmd), strcmp(cmd, "000")) {
 			check_msg_arr_size();
 			msg_arr[num_msgs++] = atol(cmd);
 		}
 	}
 
 	/* Now compose the message... */
-	if (client_make_message(temp, buf, b, 0, c, subject) != 0) {
+	if (client_make_message(ipc, temp, buf, b, 0, c, subject) != 0) {
 		return (2);
 	}
 
@@ -1105,26 +1103,26 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 
 	/* Transmit message to the server */
 	snprintf(cmd, sizeof cmd, "ENT0 1|%s|%d|%d|%s|", buf, b, mode, subject);
-	serv_puts(cmd);
-	serv_gets(cmd);
+	CtdlIPC_putline(ipc, cmd);
+	CtdlIPC_getline(ipc, cmd);
 	if (cmd[0] != '4') {
 		scr_printf("%s\n", &cmd[4]);
 		return (1);
 	}
 
-	transmit_message(fp);
-	serv_puts("000");
+	transmit_message(ipc, fp);
+	CtdlIPC_putline(ipc, "000");
 
 	fclose(fp);
 
 	if (num_msgs >= 1) highmsg = msg_arr[num_msgs - 1];
 	num_msgs = 0;
-	serv_puts("MSGS NEW");
-	serv_gets(cmd);
+	CtdlIPC_putline(ipc, "MSGS NEW");
+	CtdlIPC_getline(ipc, cmd);
 	if (cmd[0] != '1') {
 		scr_printf("%s\n", &cmd[5]);
 	} else {
-		while (serv_gets(cmd), strcmp(cmd, "000")) {
+		while (CtdlIPC_getline(ipc, cmd), strcmp(cmd, "000")) {
 			check_msg_arr_size();
 			msg_arr[num_msgs++] = atol(cmd);
 		}
@@ -1206,7 +1204,7 @@ void process_quote(void)
 /*
  * List the URL's which were embedded in the previous message
  */
-void list_urls()
+void list_urls(CtdlIPC *ipc)
 {
 	int i;
 	char cmd[SIZ];
@@ -1231,7 +1229,7 @@ void list_urls()
 /*
  * Read the messages in the current room
  */
-void readmsgs(
+void readmsgs(CtdlIPC *ipc,
 	int c,		/* 0=Read all  1=Read new  2=Read old 3=Read last q */
 	int rdir,	/* 1=Forward (-1)=Reverse */
 	int q		/* Number of msgs to read (if c==3) */
@@ -1273,12 +1271,12 @@ void readmsgs(
 		snprintf(&cmd[5], sizeof cmd - 5, "LAST|%d", q);
 		break;
 	}
-	serv_puts(cmd);
-	serv_gets(cmd);
+	CtdlIPC_putline(ipc, cmd);
+	CtdlIPC_getline(ipc, cmd);
 	if (cmd[0] != '1') {
 		scr_printf("%s\n", &cmd[5]);
 	} else {
-		while (serv_gets(cmd), strcmp(cmd, "000")) {
+		while (CtdlIPC_getline(ipc, cmd), strcmp(cmd, "000")) {
 			check_msg_arr_size();
 			msg_arr[num_msgs++] = atol(cmd);
 		}
@@ -1321,7 +1319,7 @@ RAGAIN:		pagin = ((arcflag == 0)
 		}
 
 		/* now read the message... */
-		e = read_message(msg_arr[a], pagin, dest);
+		e = read_message(ipc, msg_arr[a], pagin, dest);
 
 		/* ...and set the screenwidth back if we have to */
 		if ((quotflag) || (arcflag)) {
@@ -1361,7 +1359,7 @@ RMSGREAD:	scr_flush();
 		if (rc_alt_semantics && c == 1) {
 			char buf[SIZ];
 
-			r = CtdlIPCSetMessageSeen(msg_arr[a], 1, buf);
+			r = CtdlIPCSetMessageSeen(ipc, msg_arr[a], 1, buf);
 		}
 		if (e == 3)
 			return;
@@ -1521,7 +1519,7 @@ RMSGREAD:	scr_flush();
 			newprompt("Enter target room: ",
 				  targ, ROOMNAMELEN - 1);
 			if (strlen(targ) > 0) {
-				r = CtdlIPCMoveMessage((e == 'c' ? 1 : 0),
+				r = CtdlIPCMoveMessage(ipc, (e == 'c' ? 1 : 0),
 						       msg_arr[a], targ, cmd);
 				scr_printf("%s\n", cmd);
 				if (r / 100 == 2)
@@ -1537,11 +1535,11 @@ RMSGREAD:	scr_flush();
 				  ((sizeof filename) - 1));
 			snprintf(cmd, sizeof cmd,
 				 "OPNA %ld|%s", msg_arr[a], filename);
-			serv_puts(cmd);
-			serv_gets(cmd);
+			CtdlIPC_putline(ipc, cmd);
+			CtdlIPC_getline(ipc, cmd);
 			if (cmd[0] == '2') {
 				extract(filename, &cmd[4], 2);
-				download_to_local_disk(filename,
+				download_to_local_disk(ipc, filename,
 						       extract_int(&cmd[4],
 								   0));
 			} else {
@@ -1551,7 +1549,7 @@ RMSGREAD:	scr_flush();
 		case 'd':
 			scr_printf("*** Delete this message? ");
 			if (yesno() == 1) {
-				r = CtdlIPCDeleteMessage(msg_arr[a], cmd);
+				r = CtdlIPCDeleteMessage(ipc, msg_arr[a], cmd);
 				scr_printf("%s\n", cmd);
 				if (r / 100 == 2)
 					msg_arr[a] = 0L;
@@ -1560,15 +1558,15 @@ RMSGREAD:	scr_flush();
 			}
 			break;
 		case 'h':
-			read_message(msg_arr[a], READ_HEADER, NULL);
+			read_message(ipc, msg_arr[a], READ_HEADER, NULL);
 			goto RMSGREAD;
 		case 'r':
 			savedpos = num_msgs;
-			entmsg(1, (DEFAULT_ENTRY == 46 ? 2 : 0));
+			entmsg(ipc, 1, (DEFAULT_ENTRY == 46 ? 2 : 0));
 			num_msgs = savedpos;
 			goto RMSGREAD;
 		case 'u':
-			list_urls();
+			list_urls(ipc);
 			goto RMSGREAD;
 	    case 'y':
           { /* hack hack hack */
@@ -1583,9 +1581,9 @@ RMSGREAD:	scr_flush();
                 int founda = 0;
                 
                	snprintf(buf, sizeof buf, "MSG0 %ld|1", msg_arr[finda]); /* read the header so we can get 'from=' */
-             	serv_puts(buf);
-            	serv_gets(buf);
-            	while (serv_gets(buf), strcmp(buf, "000")) 
+             	CtdlIPC_putline(ipc, buf);
+            	CtdlIPC_getline(ipc, buf);
+            	while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) 
                   {
             		if ((!strncasecmp(buf, "from=", 5)) && (finda != a)) /* Skip current message. */
             	      { 
@@ -1630,7 +1628,7 @@ void edit_system_message(char *which_message)
 /*
  * Verify the message base
  */
-void check_message_base(void)
+void check_message_base(CtdlIPC *ipc)
 {
 	char buf[SIZ];
 
@@ -1640,14 +1638,14 @@ void check_message_base(void)
 	if (yesno() == 0)
 		return;
 
-	serv_puts("FSCK");
-	serv_gets(buf);
+	CtdlIPC_putline(ipc, "FSCK");
+	CtdlIPC_getline(ipc, buf);
 	if (buf[0] != '1') {
 		scr_printf("%s\n", &buf[4]);
 		return;
 	}
 
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
 		scr_printf("%s\n", buf);
 	}
 }

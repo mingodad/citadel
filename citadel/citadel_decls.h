@@ -24,9 +24,8 @@ extern char arg_screen;
 #endif
 extern char rc_alt_semantics;
 extern char express_msgs;
-void logoff(int code);
-void formout(char *name);
+void logoff(CtdlIPC *ipc, int code);
+void formout(CtdlIPC *ipc, char *name);
 void sighandler(int which_sig);
-void do_system_configuration(void);
 extern int secure;
 extern int can_do_msg4;

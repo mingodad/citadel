@@ -17,6 +17,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include "citadel.h"
+#include "citadel_ipc.h"
 #include "tools.h"
 #include "commands.h"
 
@@ -126,7 +127,7 @@ void set_stored_password(
 /*
  * Set the password if the user wants to, clear it otherwise 
  */
-void offer_to_remember_password(
+void offer_to_remember_password(CtdlIPC *ipc,
 		char *host,
 		char *port,
 		char *username,

@@ -31,12 +31,14 @@
 #include <limits.h>
 #include "citadel.h"
 #include "tools.h"
-#include "ipc.h"
+#include "citadel_ipc.h"
 #include "server.h"
 #include "dynloader.h"
 #include "config.h"
 
 #define LOCKFILE "/tmp/LCK.sendcommand"
+
+static CtdlIPC *ipc = NULL;
 
 /*
  * make sure only one copy of sendcommand runs at a time, using lock files
@@ -83,7 +85,7 @@ void cleanup(int e)
 	alarm(30);
 	signal(SIGALRM, nq_cleanup);
 	if (nested++ < 1)
-		serv_puts("QUIT");
+		CtdlIPCQuit(ipc);
 	nq_cleanup(e);
 }
 
@@ -106,16 +108,16 @@ void np_attach_to_server(void)
 	char buf[SIZ];
 	char *args[] =
 	{"sendcommand", NULL};
+	int r;
 
 	fprintf(stderr, "Attaching to server...\n");
-	attach_to_server(1, args, hostbuf, portbuf);
-	serv_gets(buf);
+	ipc = CtdlIPC_new(1, args, hostbuf, portbuf);
+	CtdlIPC_getline(ipc, buf);
 	fprintf(stderr, "%s\n", &buf[4]);
 	snprintf(buf, sizeof buf, "IPGM %d", config.c_ipgm_secret);
-	serv_puts(buf);
-	serv_gets(buf);
-	fprintf(stderr, "%s\n", &buf[4]);
-	if (buf[0] != '2') {
+	r = CtdlIPCInternalProgram(ipc, config.c_ipgm_secret, buf);
+	fprintf(stderr, "%s\n", buf);
+	if (r / 100 != 2) {
 		cleanup(2);
 	}
 }
@@ -165,12 +167,12 @@ int main(int argc, char **argv)
 	fflush(stderr);
 
 	fprintf(stderr, "%s\n", cmd);
-	serv_puts(cmd);
-	serv_gets(buf);
+	CtdlIPC_putline(ipc, cmd);
+	CtdlIPC_getline(ipc, buf);
 	fprintf(stderr, "%s\n", buf);
 
 	if (buf[0] == '1') {
-		while (serv_gets(buf), strcmp(buf, "000")) {
+		while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
 			printf("%s\n", buf);
 		}
 	} else if (buf[0] == '4') {
@@ -184,9 +186,9 @@ int main(int argc, char **argv)
 				if (buf[strlen(buf) - 1] == '\r')
 					buf[strlen(buf) - 1] = 0;
 			if (strcmp(buf, "000"))
-				serv_puts(buf);
+				CtdlIPC_putline(ipc, buf);
 		} while (strcmp(buf, "000"));
-		serv_puts("000");
+		CtdlIPC_putline(ipc, "000");
 	}
 	fprintf(stderr, "sendcommand: processing ended.\n");
 	cleanup(0);

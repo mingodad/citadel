@@ -15,6 +15,10 @@
 #include "sysconfig.h"
 #include "ipcdef.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * Text description of this software
  */
@@ -308,5 +312,9 @@ enum {
 #define	VIEW_BBS		0	/* Traditional Citadel BBS view */
 #define VIEW_MAILBOX		1	/* Mailbox summary */
 #define VIEW_ADDRESSBOOK	2	/* Address book view */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* CITADEL_H */

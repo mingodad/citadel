@@ -1,24 +1,24 @@
 /* $Id$ */
-void listzrooms(void);
-void readinfo(void);
-void forget(void);
-void entroom(void);
-void killroom(void);
-void invite(void);
-void kickout(void);
-void editthisroom(void);
-void roomdir(void);
-void download(int proto);
-void ungoto(void);
-void whoknows(void);
-void enterinfo(void);
-void knrooms(int kn_floor_mode);
-void load_floorlist(void);
-void create_floor(void);
-void edit_floor(void);
-void kill_floor(void);
-void enter_bio(void);
-void download_to_local_disk(char *, long);
+void listzrooms(CtdlIPC *ipc);
+void readinfo(CtdlIPC *ipc);
+void forget(CtdlIPC *ipc);
+void entroom(CtdlIPC *ipc);
+void killroom(CtdlIPC *ipc);
+void invite(CtdlIPC *ipc);
+void kickout(CtdlIPC *ipc);
+void editthisroom(CtdlIPC *ipc);
+void roomdir(CtdlIPC *ipc);
+void download(CtdlIPC *ipc, int proto);
+void ungoto(CtdlIPC *ipc);
+void whoknows(CtdlIPC *ipc);
+void enterinfo(CtdlIPC *ipc);
+void knrooms(CtdlIPC *ipc, int kn_floor_mode);
+void load_floorlist(CtdlIPC *ipc);
+void create_floor(CtdlIPC *ipc);
+void edit_floor(CtdlIPC *ipc);
+void kill_floor(CtdlIPC *ipc);
+void enter_bio(CtdlIPC *ipc);
+void download_to_local_disk(CtdlIPC *ipc, char *, long);
 void hit_any_key(void);
 
 

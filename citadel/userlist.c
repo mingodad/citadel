@@ -23,29 +23,32 @@
 
 #include "citadel.h"
 #include <unistd.h>
-#include "ipc.h"
+#include "citadel_ipc.h"
 #include "tools.h"
 
 void logoff(int code)
 {
 	exit(code);
-	}
+}
 
-void userlist(void) { 
+void userlist(CtdlIPC *ipc) { 
 	char buf[SIZ];
 	char fl[SIZ];
 	struct tm *tmbuf;
 	time_t lc;
+	char *listing = NULL;
+	int r;
 
-	serv_puts("LIST");
-	serv_gets(buf);
-	if (buf[0]!='1') {
-		printf("%s\n",&buf[4]);
+	r = CtdlIPCUserListing(ipc, &listing, buf);
+	if (r / 100 != 1) {
+		printf("%s\n", buf);
 		return;
-		}
+	}
 	printf("       User Name           Num  L  LastCall  Calls Posts\n");
 	printf("------------------------- ----- - ---------- ----- -----\n");
-	while (serv_gets(buf), strcmp(buf,"000")) {
+	while (strlen(listing) > 0) {
+		extract_token(buf, listing, 0, '\n');
+		remove_token(listing, 0, '\n');
 		extract(fl,buf,0);
 		printf("%-25s ",fl);
 		printf("%5ld %d ",extract_long(buf,2),
@@ -58,29 +61,29 @@ void userlist(void) {
 			(tmbuf->tm_year + 1900));
 		printf("%5ld %5ld\n",
 			extract_long(buf,4),extract_long(buf,5));
-		}
-	printf("\n");
 	}
+	printf("\n");
+}
 
 
 int main(int argc, char **argv)
 {
 	char buf[SIZ];
 	char hostbuf[SIZ], portbuf[SIZ];
+	CtdlIPC *ipc = NULL;
 
-	attach_to_server(argc, argv, hostbuf, portbuf);
-	serv_gets(buf);
+	ipc = CtdlIPC_new(argc, argv, hostbuf, portbuf);
+	CtdlIPC_getline(ipc, buf);
 	if ((buf[0]!='2')&&(strncmp(buf,"551",3))) {
 		fprintf(stderr,"%s: %s\n",argv[0],&buf[4]);
 		logoff(atoi(buf));
-		}
-
-	userlist();
-
-	serv_puts("QUIT");
-	serv_gets(buf);
-	exit(0);
 	}
+
+	userlist(ipc);
+
+	CtdlIPCQuit(ipc);
+	exit(0);
+}
 
 
 #ifndef HAVE_STRERROR
@@ -93,10 +96,5 @@ char *strerror(int e)
 
 	snprintf(buf, sizeof buf, "errno = %d",e);
 	return(buf);
-	}
+}
 #endif
-
-
-
-
-

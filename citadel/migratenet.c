@@ -16,7 +16,7 @@
 #include <limits.h>
 #endif
 #include "citadel.h"
-#include "ipc.h"
+#include "citadel_ipc.h"
 #include "tools.h"
 #include "config.h"
 
@@ -46,8 +46,11 @@ int main(int argc, char **argv)
 	char roomfilename[SIZ];
 	FILE *nodefp;
 	char nodefilename[SIZ];
+	char *listing = NULL;
 	struct mn_roomlist *mn = NULL;
 	struct mn_roomlist *mnptr = NULL;
+	CtdlIPC *ipc = NULL;
+	int r;
 
 	printf("\n\n\n\n\n"
 "This utility migrates your network settings (room sharing with other\n"
@@ -61,19 +64,17 @@ int main(int argc, char **argv)
 
 	get_config();
 
-	attach_to_server(argc, argv, hostbuf, portbuf);
-	serv_gets(buf);
+	ipc = CtdlIPC_new(argc, argv, hostbuf, portbuf);
+	CtdlIPC_getline(ipc, buf);
 	printf("%s\n", &buf[4]);
 	if ( (buf[0]!='2') && (strncmp(buf,"551",3)) ) {
 		fprintf(stderr, "%s: %s\n", argv[0], &buf[4]);
 		logoff(atoi(buf));
 	}
 
-	snprintf(buf, sizeof buf, "IPGM %d", config.c_ipgm_secret);
-	serv_puts(buf);
-	serv_gets(buf);
-	fprintf(stderr, "%s\n", &buf[4]);
-	if (buf[0] != '2') {
+	r = CtdlIPCInternalProgram(ipc, config.c_ipgm_secret, buf);
+	fprintf(stderr, "%s\n", buf);
+	if (r / 100 != 2) {
 		exit(2);
 	}
 
@@ -146,30 +147,27 @@ int main(int argc, char **argv)
 	fclose(nodefp);
 
 	/* Point of no return */
+	nodefp = fopen(nodefilename, "r");
+	if (nodefp != NULL) {
+		fseek(nodefp, 0L, SEEK_END);
+		listing = malloc(ftell(nodefp) + 1);
+		*listing = 0;
+		while (fgets(buf, sizeof buf, nodefp) != NULL) {
+			strcat(listing, buf);
+		}
+		fclose(nodefp);
+	}
 
 	/* Set up the node table */
 	printf("Creating neighbor node table\n");
-	snprintf(buf, sizeof buf, "CONF putsys|%s", IGNETCFG);
-	serv_puts(buf);
-	serv_gets(buf);
-	if (buf[0] == '4') {
-		nodefp = fopen(nodefilename, "r");
-		if (nodefp != NULL) {
-			while (fgets(buf, sizeof buf, nodefp) != NULL) {
-				buf[strlen(buf)-1] = 0;
-				serv_puts(buf);
-			}
-			fclose(nodefp);
-		}
-		serv_puts("000");
+	r = CtdlSetSystemConfigByType(ipc, IGNETCFG, listing, buf);
+	free(listing);
+	listing = NULL;
+	if (r / 100 != 4) {
+		printf("%s\n", buf);
 	}
-	else {
-		printf("%s\n", &buf[4]);
-	}
-
 
 	/* Now go through the table looking for node names to enter */
-
 	snprintf(buf, sizeof buf, "cat %s |awk -F \"|\" '{ print $2 }' |sort -f |uniq -i",
 		roomfilename);
 	roomfp = popen(buf, "r");
@@ -193,20 +191,22 @@ int main(int argc, char **argv)
 
 	/* Enter configurations for each room... */
 	while (mn != NULL) {
+		struct ctdlipcroom *current_room = NULL;
+	
 		printf("Room <%s>\n", mn->roomname);
 
-		snprintf(buf, sizeof buf, "GOTO %s", mn->roomname);
-		serv_puts(buf);
-		serv_gets(buf);
-		printf("%s\n", &buf[4]);
-		if (buf[0] != '2') goto roomerror;
+		r = CtdlIPCGotoRoom(ipc, mn->roomname, NULL,
+				&current_room, buf);
+		printf("%s\n", buf);
+		if (r / 100 != 2) goto roomerror;
 
-		serv_puts("SNET");
-		serv_gets(buf);
+		/* Hey IG, what the hell is SNET? */
+		CtdlIPC_putline(ipc, "SNET");
+		CtdlIPC_getline(ipc, buf);
 		if (buf[0] != '4') goto roomerror;
 
 		snprintf(buf, sizeof buf, "lastsent|%ld", highest);
-		serv_puts(buf);
+		CtdlIPC_putline(ipc, buf);
 
 		roomfp = fopen(roomfilename, "r");
 		if (roomfp != NULL) {
@@ -217,13 +217,13 @@ int main(int argc, char **argv)
 				if (!strcasecmp(room, mn->roomname)) {
 					snprintf(buf, sizeof buf,
 						"ignet_push_share|%s", node);
-					serv_puts(buf);
+					CtdlIPC_putline(ipc, buf);
 				}
 			}
 			fclose(roomfp);
 		}
 
-		serv_puts("000");
+		CtdlIPC_putline(ipc, "000");
 
 roomerror:	/* free this record */
 		mnptr = mn->next;

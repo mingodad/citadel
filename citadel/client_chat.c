@@ -33,10 +33,10 @@
 #endif
 #include <stdarg.h>
 #include "citadel.h"
+#include "citadel_ipc.h"
 #include "client_chat.h"
 #include "commands.h"
 #include "routines.h"
-#include "ipc.h"
 #include "citadel_decls.h"
 #include "tools.h"
 #include "rooms.h"
@@ -54,7 +54,7 @@ void getline(char *, int);
 
 char last_paged[SIZ] = "";
 
-void chatmode(void)
+void chatmode(CtdlIPC *ipc)
 {
 	char wbuf[SIZ];
 	char buf[SIZ];
@@ -72,8 +72,8 @@ void chatmode(void)
 	struct timeval tv;
 	int retval;
 
-	serv_puts("CHAT");
-	serv_gets(buf);
+	CtdlIPC_putline(ipc, "CHAT");
+	CtdlIPC_getline(ipc, buf);
 	if (buf[0] != '8') {
 		scr_printf("%s\n", &buf[4]);
 		return;
@@ -94,13 +94,13 @@ void chatmode(void)
 		sln_flush();
 		FD_ZERO(&rfds);
 		FD_SET(0, &rfds);
-		FD_SET(getsockfd(), &rfds);
+		FD_SET(CtdlIPC_getsockfd(ipc), &rfds);
 		tv.tv_sec = S_KEEPALIVE;
 		tv.tv_usec = 0;
-		retval = select(getsockfd() + 1, &rfds, NULL, NULL, &tv);
+		retval = select(CtdlIPC_getsockfd(ipc) + 1, &rfds, NULL, NULL, &tv);
 
-		if (FD_ISSET(getsockfd(), &rfds)) {
-			ch = serv_getc();
+		if (FD_ISSET(CtdlIPC_getsockfd(ipc), &rfds)) {
+			ch = CtdlIPC_get(ipc);
 			if (ch == 10) {
 				recv_complete_line = 1;
 				goto RCL;	/* ugly, but we've gotta get out! */
@@ -127,7 +127,7 @@ void chatmode(void)
 		}
 		/* if the user hit return, send the line */
 	      RCL:if (send_complete_line) {
-			serv_puts(wbuf);
+			CtdlIPC_putline(ipc, wbuf);
 			last_transmit = time(NULL);
 			strcpy(wbuf, "");
 			send_complete_line = 0;
@@ -140,13 +140,13 @@ void chatmode(void)
 					pos = a;
 			}
 			if (pos == 0) {
-				serv_puts(wbuf);
+				CtdlIPC_putline(ipc, wbuf);
 				last_transmit = time(NULL);
 				strcpy(wbuf, "");
 				send_complete_line = 0;
 			} else {
 				wbuf[pos] = 0;
-				serv_puts(wbuf);
+				CtdlIPC_putline(ipc, wbuf);
 				last_transmit = time(NULL);
 				strcpy(wbuf, &wbuf[pos + 1]);
 			}
@@ -164,9 +164,9 @@ void chatmode(void)
 				 * This little dialog forces everything to be
 				 * hunky-dory.
 				 */
-				serv_puts("ECHO __ExitingChat__");
+				CtdlIPC_putline(ipc, "ECHO __ExitingChat__");
 				do {
-					serv_gets(buf);
+					CtdlIPC_getline(ipc, buf);
 				} while (strcmp(buf, "200 __ExitingChat__"));
 
 
@@ -218,7 +218,7 @@ void chatmode(void)
 		 * server to prevent session timeout.
 		 */
 		if ((time(NULL) - last_transmit) >= S_KEEPALIVE) {
-			serv_puts("NOOP");
+			CtdlIPC_putline(ipc, "NOOP");
 			last_transmit = time(NULL);
 		}
 
@@ -228,7 +228,7 @@ void chatmode(void)
 /*
  * send an express message
  */
-void page_user()
+void page_user(CtdlIPC *ipc)
 {
 	char buf[SIZ], touser[SIZ], msg[SIZ];
 	FILE *pagefp;
@@ -240,8 +240,8 @@ void page_user()
 	if (serv_info.serv_paging_level == 0) {
 		newprompt("Message: ", msg, 69);
 		snprintf(buf, sizeof buf, "SEXP %s|%s", touser, msg);
-		serv_puts(buf);
-		serv_gets(buf);
+		CtdlIPC_putline(ipc, buf);
+		CtdlIPC_getline(ipc, buf);
 		if (!strncmp(buf, "200", 3)) {
 			strcpy(last_paged, touser);
 		}
@@ -251,29 +251,29 @@ void page_user()
 	/* new server -- use extended paging */
 	else if (serv_info.serv_paging_level >= 1) {
 		snprintf(buf, sizeof buf, "SEXP %s||", touser);
-		serv_puts(buf);
-		serv_gets(buf);
+		CtdlIPC_putline(ipc, buf);
+		CtdlIPC_getline(ipc, buf);
 		if (buf[0] != '2') {
 			scr_printf("%s\n", &buf[4]);
 			return;
 		}
-		if (client_make_message(temp, touser, 0, 0, 0, NULL) != 0) {
+		if (client_make_message(ipc, temp, touser, 0, 0, 0, NULL) != 0) {
 			scr_printf("No message sent.\n");
 			return;
 		}
 		pagefp = fopen(temp, "r");
 		unlink(temp);
 		snprintf(buf, sizeof buf, "SEXP %s|-", touser);
-		serv_puts(buf);
-		serv_gets(buf);
+		CtdlIPC_putline(ipc, buf);
+		CtdlIPC_getline(ipc, buf);
 		if (buf[0] == '4') {
 			strcpy(last_paged, touser);
 			while (fgets(buf, sizeof buf, pagefp) != NULL) {
 				buf[strlen(buf) - 1] = 0;
-				serv_puts(buf);
+				CtdlIPC_putline(ipc, buf);
 			}
 			fclose(pagefp);
-			serv_puts("000");
+			CtdlIPC_putline(ipc, "000");
 			scr_printf("Message sent.\n");
 		} else {
 			scr_printf("%s\n", &buf[4]);
@@ -282,67 +282,37 @@ void page_user()
 }
 
 
-
-
-void quiet_mode(void)
+void quiet_mode(CtdlIPC *ipc)
 {
-	int qstate;
-	char buf[SIZ];
+	static int quiet = 0;
+	char cret[SIZ];
+	int r;
 
-	serv_puts("DEXP 2");
-	serv_gets(buf);
-	if (buf[0] != '2') {
-		scr_printf("%s\n", &buf[4]);
-		return;
-	}
-	qstate = atoi(&buf[4]);
-	if (qstate == 0)
-		qstate = 1;
-	else
-		qstate = 0;
-	snprintf(buf, sizeof buf, "DEXP %d", qstate);
-	serv_puts(buf);
-	serv_gets(buf);
-	if (buf[0] != '2') {
-		scr_printf("%s\n", &buf[4]);
-		return;
-	}
-	qstate = atoi(&buf[4]);
-	if (qstate) {
-		scr_printf("Quiet mode enabled (no other users may page you)\n");
+	r = CtdlIPCEnableInstantMessageReceipt(ipc, !quiet, cret);
+	if (r / 100 == 2) {
+		quiet = !quiet;
+		scr_printf("Quiet mode %sabled (%sother users may page you)\n",
+				(quiet) ? "en" : "dis",
+				(quiet) ? "no " : "");
 	} else {
-		scr_printf("Quiet mode disabled (other users may page you)\n");
+		scr_printf("Unable to change quiet mode: %s\n", cret);
 	}
 }
 
 
-void stealth_mode(void)
+void stealth_mode(CtdlIPC *ipc)
 {
-	int qstate;
-	char buf[SIZ];
+	static int stealth = 0;
+	char cret[SIZ];
+	int r;
 
-	serv_puts("STEL 2");
-	serv_gets(buf);
-	if (buf[0] != '2') {
-		scr_printf("%s\n", &buf[4]);
-		return;
-	}
-	qstate = atoi(&buf[4]);
-	if (qstate == 0)
-		qstate = 1;
-	else
-		qstate = 0;
-	snprintf(buf, sizeof buf, "STEL %d", qstate);
-	serv_puts(buf);
-	serv_gets(buf);
-	if (buf[0] != '2') {
-		scr_printf("%s\n", &buf[4]);
-		return;
-	}
-	qstate = atoi(&buf[4]);
-	if (qstate) {
-		scr_printf("Stealth mode enabled (you are invisible)\n");
+	r = CtdlIPCStealthMode(ipc, !stealth, cret);
+	if (r / 100 == 2) {
+		stealth = !stealth;
+		scr_printf("Stealth mode %sabled (you are %s)\n",
+				(stealth) ? "en" : "dis",
+				(stealth) ? "invisible" : "listed as online");
 	} else {
-		scr_printf("Stealth mode disabled (you are listed as online)\n");
+		scr_printf("Unable to change stealth mode: %s\n", cret);
 	}
 }

@@ -23,8 +23,6 @@
 #include <stdarg.h>
 #include <limits.h>
 #include "citadel.h"
-#include "citadel_decls.h"
-#include "ipc.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
