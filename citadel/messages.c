@@ -45,7 +45,6 @@ void formout(char *name);
 int yesno(void);
 void newprompt(char *prompt, char *str, int len);
 int file_checksum(char *filename);
-void color(int colornum);
 void do_edit(char *desc, char *read_cmd, char *check_cmd, char *write_cmd);
 
 char reply_to[512];
@@ -116,9 +115,9 @@ int ka_system(char *shc)
 
 	childpid = fork();
 	if (childpid < 0) {
-		color(1);
+		color(BRIGHT_RED);
 		perror("Cannot fork");
-		color(7);
+		color(DIM_WHITE);
 		return((pid_t)childpid);
 		}
 
@@ -362,7 +361,7 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 	++lines_printed;
 	lines_printed = checkpagin(lines_printed,pagin,screenheight);
 	printf(" ");
-	if (pagin == 1) color(3);
+	if (pagin == 1) color(BRIGHT_CYAN);
 
 	if (pagin==2) {
 		while(serv_gets(buf), strcmp(buf,"000")) {
@@ -388,24 +387,36 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 		if (!struncmp(buf,"type=",5))
 			format_type=atoi(&buf[5]);
 		if ((!struncmp(buf,"msgn=",5))&&(rc_display_message_numbers)) {
-			color(1);
-			printf("[#%s] ",&buf[5]);
+			color(DIM_WHITE);
+			printf("[");
+			color(BRIGHT_WHITE);
+			printf("#%s",&buf[5]);
+			color(DIM_WHITE);
+			printf("] ");
 			}
 		if (!struncmp(buf,"from=",5)) {
-			color(3);
-			printf("from %s ",&buf[5]);
+			color(DIM_WHITE);
+			printf("from ");
+			color(BRIGHT_CYAN);
+			printf("%s ",&buf[5]);
 			}
 		if (!struncmp(buf,"subj=",5))
 			strcpy(m_subject,&buf[5]);
 		if ((!struncmp(buf,"hnod=",5)) 
 		   && (strucmp(&buf[5],serv_info.serv_humannode))) {
-			color(6);
-			printf("(%s) ",&buf[5]);
+			color(DIM_WHITE);
+			printf("(");
+			color(BRIGHT_WHITE);
+			printf("%s",&buf[5]);
+			color(DIM_WHITE);
+			printf(") ");
 			}
 		if ((!struncmp(buf,"room=",5))
 		   && (strucmp(&buf[5],room_name))) {
-			color(4);
-			printf("in %s> ",&buf[5]);
+			color(DIM_WHITE);
+			printf("in ");
+			color(BRIGHT_MAGENTA);
+			printf("%s> ",&buf[5]);
 			}
 
 		if (!struncmp(buf,"node=",5)) {
@@ -413,8 +424,10 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 			   || ((strucmp(&buf[5],serv_info.serv_nodename)
    			   &&(strucmp(&buf[5],serv_info.serv_fqdn)))))
 				{
-				color(5);
-				printf("@%s ",&buf[5]);
+				color(DIM_WHITE);
+				printf("@");
+				color(BRIGHT_YELLOW);
+				printf("%s ",&buf[5]);
 				}
 			if ((!strucmp(&buf[5],serv_info.serv_nodename))
    			   ||(!strucmp(&buf[5],serv_info.serv_fqdn)))
@@ -427,15 +440,17 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 			}
 
 		if (!struncmp(buf,"rcpt=",5)) {
-			color(3);
-			printf("to %s ",&buf[5]);
+			color(DIM_WHITE);
+			printf("to ");
+			color(BRIGHT_CYAN);
+			printf("%s ",&buf[5]);
 			}
 		if (!struncmp(buf,"time=",5)) {
 			now=atol(&buf[5]);
 			tm=(struct tm *)localtime(&now);
 			strcpy(buf,asctime(tm)); buf[strlen(buf)-1]=0;
 			strcpy(&buf[16],&buf[19]);
-			color(6);
+			color(BRIGHT_MAGENTA);
 			printf("%s ",&buf[4]);
 			}
 		}
@@ -449,7 +464,7 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 			}
 		}
 	printf("\n");
-	if (pagin == 1 ) color(2);
+	if (pagin == 1 ) color(DIM_WHITE);
 	++lines_printed;
 	lines_printed = checkpagin(lines_printed,pagin,screenheight);
 
@@ -480,7 +495,7 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 	++lines_printed;
 	lines_printed = checkpagin(lines_printed,pagin,screenheight);
 
-	if (pagin == 1) color(7);
+	if (pagin == 1) color(DIM_WHITE);
 	sttybbs(0);
 	return(fr);
 	}
@@ -1004,9 +1019,15 @@ RMSGREAD:	fflush(stdout);
 			e='n';
 			}
 		else {
-			printf("(%d) ",num_msgs-a-1);
-			if (is_mail==1) printf("<R>eply ");
-			printf("<B>ack <A>gain <Q>uote <N>ext <S>top <?>Help/others -> ");
+			color(DIM_WHITE);
+			printf("(");
+			color(BRIGHT_WHITE);
+			printf("%d",num_msgs-a-1);
+			color(DIM_WHITE);
+			printf(") ");
+
+			if (is_mail==1) keyopt("<R>eply ");
+			keyopt("<B>ack <A>gain <Q>uote <N>ext <S>top <?>Help/others -> ");
 			do {
 				lines_printed = 2;
 				e=(inkey()&127); e=tolower(e);

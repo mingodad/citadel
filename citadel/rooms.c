@@ -41,7 +41,6 @@ void progress(long int curr, long int cmax);
 int pattern(char *search, char *patn);
 int file_checksum(char *filename);
 int nukedir(char *dirname);
-void color(int colornum);
 
 extern unsigned room_flags;
 extern char room_name[];
@@ -105,13 +104,13 @@ void room_tree_list(struct roomlisting *rp) {
 			c = 1;
 			}
                	if (f & QR_MAILBOX) {
-                       color(6);
+                       color(BRIGHT_YELLOW);
                        }
 		else if (f & QR_PRIVATE) {
-			color(1);
+			color(BRIGHT_RED);
 			}
 		else {
-			color(2);
+			color(DIM_WHITE);
 			}
 		printf("%s",rmname);
 		if ((f & QR_DIRECTORY) && (f & QR_NETWORK)) printf("}  ");
@@ -200,7 +199,7 @@ void listrms(char *variety)
 	sttybbs(SB_YES_INTR);
 	room_tree_list(NULL);
 	room_tree_list(rl);
-	color(7);
+	color(DIM_WHITE);
 	sttybbs(SB_NO_INTR);
 	}
 
@@ -232,27 +231,27 @@ void knrooms(int kn_floor_mode)
 	load_floorlist();
 
 	if (kn_floor_mode == 0) {
-		color(3);
+		color(BRIGHT_CYAN);
 		printf("\n   Rooms with unread messages:\n");
 		listrms("LKRN");
-		color(3);
+		color(BRIGHT_CYAN);
 		printf("\n\n   No unseen messages in:\n");
 		listrms("LKRO");
 		printf("\n");
 		}
 
 	if (kn_floor_mode == 1) {
-		color(3);
+		color(BRIGHT_CYAN);
 		printf("\n   Rooms with unread messages on %s:\n",
 			floorlist[(int)curr_floor]);
 		sprintf(buf,"LKRN %d",curr_floor);
 		listrms(buf);
-		color(3);
+		color(BRIGHT_CYAN);
 		printf("\n\n   Rooms with no new messages on %s:\n",
 			floorlist[(int)curr_floor]);
 		sprintf(buf,"LKRO %d",curr_floor);
 		listrms(buf);
-		color(3);
+		color(BRIGHT_CYAN);
 		printf("\n\n   Other floors:\n");
 		list_other_floors();
 		printf("\n");
@@ -260,7 +259,7 @@ void knrooms(int kn_floor_mode)
 
 	if (kn_floor_mode == 2) {
 		for (a=0; a<128; ++a) if (floorlist[a][0]!=0) {
-			color(3);
+			color(BRIGHT_CYAN);
 			printf("\n   Rooms on %s:\n",floorlist[a]);
 			sprintf(buf,"LKRA %d",a);
 			listrms(buf);
@@ -268,17 +267,17 @@ void knrooms(int kn_floor_mode)
 			}
 		}
 	
-	color(7);
+	color(DIM_WHITE);
 	IFNEXPERT hit_any_key();
 	}
 
 
 void listzrooms(void) {		/* list public forgotten rooms */
-	color(3);
+	color(BRIGHT_CYAN);
 	printf("\n   Forgotten public rooms:\n");
 	listrms("LZRM");
 	printf("\n");
-	color(7);
+	color(DIM_WHITE);
 	IFNEXPERT hit_any_key();
 	}
 

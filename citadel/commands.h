@@ -42,3 +42,4 @@ void set_keepalives(int s);
 extern int enable_color;
 int yesno(void);
 int yesno_d(int d);
+void keyopt(char *);

@@ -1068,3 +1068,25 @@ void look_for_ansi(void)
 		}
 	}
 }
+
+
+/*
+ * Display key options (highlight hotkeys inside angle brackets)
+ */
+void keyopt(char *buf) {
+	int i;
+
+	color(DIM_WHITE);
+	for (i=0; i<strlen(buf); ++i) {
+		if (buf[i]=='<') {
+			putc(buf[i], stdout);
+			color(BRIGHT_MAGENTA);
+		} else {
+			if (buf[i]=='>') {
+				color(DIM_WHITE);
+			}
+			putc(buf[i], stdout);
+		}
+	}
+	color(DIM_WHITE);
+}
