@@ -68,3 +68,4 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum);
 void CtdlFreeMessage(struct CtdlMessage *msg);
 void serialize_message(struct ser_ret *, struct CtdlMessage *);
 int is_valid_message(struct CtdlMessage *);
+int ReplicationChecks(struct CtdlMessage *);

@@ -1,4 +1,7 @@
 $Log$
+Revision 1.391  1999/10/21 00:50:14  ajc
+* Finished up the flags and replication checks in CtdlSaveMsgPointerInRoom().
+
 Revision 1.390  1999/10/20 16:46:27  ajc
 * More code shuffle.  Added some flags to CtdlSaveMessagePointerInRoom() and
   enabled the MOVE command to also do a "copy" operation (actually just
@@ -1337,3 +1340,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

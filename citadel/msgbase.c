@@ -1100,7 +1100,7 @@ void cmd_opna(char *cmdbuf)
  */
 int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 	int i;
-	struct quickroom qrbuf;
+	char hold_rm[ROOMNAMELEN];
         struct cdbdata *cdbfr;
         int num_msgs;
         long *msglist;
@@ -1110,6 +1110,8 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 	lprintf(9, "CtdlSaveMsgPointerInRoom(%s, %ld, %d)\n",
 		roomname, msgid, flags);
 
+	strcpy(hold_rm, CC->quickroom.QRname);
+
 	/* We may need to check to see if this message is real */
 	if (  (flags & SM_VERIFY_GOODNESS)
 	   || (flags & SM_DO_REPL_CHECK)
@@ -1118,13 +1120,15 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 		if (msg == NULL) return(ERROR + ILLEGAL_VALUE);
 	}
 
-	if (lgetroom(&qrbuf, roomname) != 0) {
+	if (lgetroom(&CC->quickroom,
+	   ((roomname != NULL) ? roomname : CC->quickroom.QRname) )
+	   != 0) {
 		lprintf(9, "No such room <%s>\n", roomname);
 		if (msg != NULL) CtdlFreeMessage(msg);
 		return(ERROR + ROOM_NOT_FOUND);
 	}
 
-        cdbfr = cdb_fetch(CDB_MSGLISTS, &qrbuf.QRnumber, sizeof(long));
+        cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->quickroom.QRnumber, sizeof(long));
         if (cdbfr == NULL) {
                 msglist = NULL;
                 num_msgs = 0;
@@ -1144,9 +1148,21 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 	 */
         if (num_msgs > 0) for (i=0; i<num_msgs; ++i) {
 		if (msglist[i] == msgid) {
-			lputroom(&qrbuf);	/* unlock the room */
+			lputroom(&CC->quickroom);	/* unlock the room */
+			getroom(&CC->quickroom, hold_rm);
 			if (msg != NULL) CtdlFreeMessage(msg);
 			return(ERROR + ALREADY_EXISTS);
+		}
+	}
+
+	/* Perform replication checks if necessary */
+	if ( (flags & SM_DO_REPL_CHECK) && (msg != NULL) ) {
+		if (ReplicationChecks(msg) != 0) {
+			lputroom(&CC->quickroom);	/* unlock the room */
+			getroom(&CC->quickroom, hold_rm);
+			if (msg != NULL) CtdlFreeMessage(msg);
+			lprintf(9, "Did replication, and newer exists\n");
+			return(0);
 		}
 	}
 
@@ -1167,15 +1183,16 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
         highest_msg = msglist[num_msgs - 1];
 
         /* Write it back to disk. */
-        cdb_store(CDB_MSGLISTS, &qrbuf.QRnumber, sizeof(long),
+        cdb_store(CDB_MSGLISTS, &CC->quickroom.QRnumber, sizeof(long),
                   msglist, num_msgs * sizeof(long));
 
         /* Free up the memory we used. */
         phree(msglist);
 
 	/* Update the highest-message pointer and unlock the room. */
-	qrbuf.QRhighest = highest_msg;
-	lputroom(&qrbuf);
+	CC->quickroom.QRhighest = highest_msg;
+	lputroom(&CC->quickroom);
+	getroom(&CC->quickroom, hold_rm);
 
 	/* Bump the reference count for this message. */
 	AdjRefCount(msgid, +1);
@@ -2062,7 +2079,8 @@ void cmd_move(char *args)
 		return;
 	}
 
-	err = CtdlSaveMsgPointerInRoom(targ, num, SM_VERIFY_GOODNESS);
+	err = CtdlSaveMsgPointerInRoom(targ, num,
+		(SM_VERIFY_GOODNESS | SM_DO_REPL_CHECK) );
 	if (err != 0) {
 		cprintf("%d Cannot store message in %s: error %d\n",
 			err, targ, err);
