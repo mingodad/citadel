@@ -585,11 +585,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 
 	else if (!strcmp(section, "")) {
 		CtdlRedirectOutput(tmp);
-		/* lprintf(CTDL_DEBUG, "calling CtdlOutputPreLoadedMsg()\n");
-		lprintf(CTDL_DEBUG, "msg %s null\n", ((msg == NULL) ? "is" : "is not") );
-		lprintf(CTDL_DEBUG, "msgnum is %ld\n", msgnum); */
-		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
-						HEADERS_ALL, 0, 1);
+		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
 		CtdlRedirectOutput(NULL);
 	}
 
@@ -599,11 +595,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	 */
 	else if (!strncasecmp(section, "HEADER", 6)) {
 		CtdlRedirectOutput(tmp);
-		/* lprintf(CTDL_DEBUG, "calling CtdlOutputPreLoadedMsg()\n");
-		lprintf(CTDL_DEBUG, "msg %s null\n", ((msg == NULL) ? "is" : "is not") );
-		lprintf(CTDL_DEBUG, "msgnum is %ld\n", msgnum); */
-		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
-						HEADERS_ONLY, 0, 1);
+		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822, HEADERS_ONLY, 0, 1);
 		CtdlRedirectOutput(NULL);
 		imap_strip_headers(tmp, section);
 	}
@@ -613,11 +605,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	 */
 	else if (!strncasecmp(section, "TEXT", 4)) {
 		CtdlRedirectOutput(tmp);
-		/* lprintf(CTDL_DEBUG, "calling CtdlOutputPreLoadedMsg()\n");
-		lprintf(CTDL_DEBUG, "msg %s null\n", ((msg == NULL) ? "is" : "is not") );
-		lprintf(CTDL_DEBUG, "msgnum is %ld\n", msgnum); */
-		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
-						HEADERS_NONE, 0, 1);
+		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822, HEADERS_NONE, 0, 1);
 		CtdlRedirectOutput(NULL);
 	}
 
@@ -626,10 +614,8 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	 * (Note value of 1 passed as 'dont_decode' so client gets it encoded)
 	 */
 	else {
-		safestrncpy(imfp.desired_section, section,
-				sizeof(imfp.desired_section));
+		safestrncpy(imfp.desired_section, section, sizeof(imfp.desired_section));
 		imfp.output_fp = tmp;
-
 		mime_parser(msg->cm_fields['M'], NULL,
 				*imap_load_part, NULL, NULL,
 				(void *)&imfp,
