@@ -1,4 +1,8 @@
  $Log$
+ Revision 580.81  2001/12/01 07:18:28  ajc
+ * Fixed an SMTP delivery problem that was causing certain classes of
+   transient errors to cause a message to never be delivered.
+
  Revision 580.80  2001/12/01 05:26:01  ajc
  * Added a command "SMTP" to the Citadel protocol, to do some unimportant
    utility/diagnostic functions.
@@ -2882,4 +2886,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

@@ -1289,6 +1289,8 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	time_t last_attempted = 0L;
 	time_t retry = SMTP_RETRY_INTERVAL;
 
+	lprintf(9, "smtp_do_procmsg(%ld)\n", msgnum);
+
 	msg = CtdlFetchMessage(msgnum);
 	if (msg == NULL) {
 		lprintf(3, "SMTP: tried %ld but no such message!\n", msgnum);
@@ -1303,7 +1305,6 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	for (i=0; i<lines; ++i) {
 		extract_token(buf, instr, i, '\n');
 		if (num_tokens(buf, '|') < 2) {
-			lprintf(9, "removing <%s>\n", buf);
 			remove_token(instr, i, '\n');
 			--lines;
 			--i;
@@ -1353,7 +1354,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	}
 
 	/* Plow through the instructions looking for 'remote' directives and
-	 * a status of 0 (no delivery yet attempted) or 3 (transient errors
+	 * a status of 0 (no delivery yet attempted) or 3/4 (transient errors
 	 * were experienced and it's time to try again)
 	 */
 	lines = num_tokens(instr, '\n');
@@ -1364,7 +1365,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		status = extract_int(buf, 2);
 		extract(dsn, buf, 3);
 		if ( (!strcasecmp(key, "remote"))
-		   && ((status==0)||(status==3)) ) {
+		   && ((status==0)||(status==3)||(status==4)) ) {
 			remove_token(instr, i, '\n');
 			--i;
 			--lines;
