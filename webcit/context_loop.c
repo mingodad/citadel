@@ -252,8 +252,14 @@ void *context_loop(int sock) {
 	 * to support HTTP/1.1 "persistent" connections by looping back to
 	 * the top of this function.  For now, we'll just close.
 	 */
+
+	/* FIX ... This is a weird problem, exhibited on Linux 2.1.130...
+	 * the socket doesn't linger properly before closing, so we implement
+	 * a ten-second delay before closing the socket.
+	 */
 	printf("   Lingering...\n");
 	sleep(10);
+
 	printf("   Closing socket\n");
 	close(sock);
 
