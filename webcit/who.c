@@ -39,7 +39,7 @@ void whobbs(void)
 
 	output_headers(1, 1, 2, 0, 1, 0, 0);
 
-	wprintf("<script language=\"JavaScript\">\n"
+	wprintf("<script type=\"text/javascript\">\n"
 		"function ConfirmKill() { \n"
 		"return confirm('Do you really want to kill this session?');\n"
 		"}\n"

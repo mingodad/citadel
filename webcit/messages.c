@@ -1607,9 +1607,9 @@ void display_enter(void)
 		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><br />\n");
 	wprintf("</TD></TR></TABLE>\n");
 
-	wprintf("<script language=\"JavaScript\" type=\"text/javascript\" "
+	wprintf("<script type=\"text/javascript\" "
 		"src=\"static/richtext.js\"></script>\n"
-		"<script language=\"JavaScript\" type=\"text/javascript\">\n"
+		"<script type=\"text/javascript\">\n"
 		"function submitForm() { \n"
 		"  updateRTE('msgtext'); \n"
 		"  return true; \n"
@@ -1618,7 +1618,7 @@ void display_enter(void)
 		"initRTE(\"static/\", \"static/\", \"\"); \n"
 		"</script> \n"
 		"<noscript>JAVAscript MUST BE ENABLED.</noscript> \n"
-		"<script language=\"javascript\" type=\"text/javascript\"> \n"
+		"<script type=\"text/javascript\"> \n"
 		"writeRichText('msgtext', '");
 	msgescputs(bstr("msgtext"));
 	wprintf("', '100%%', 200, true, false); \n"

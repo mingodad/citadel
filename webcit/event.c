@@ -366,7 +366,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 
 	wprintf("</FORM>\n");
 	
-	wprintf("<script language=\"javascript\">"
+	wprintf("<script type=\"text/javascript\">"
 		"<!--"
 			"if (document.EventForm.alldayevent.checked) {"
 				"document.EventForm.dtstart_hour.value='0';"

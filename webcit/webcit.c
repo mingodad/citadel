@@ -411,7 +411,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 		strcat(onload_fcn, "} \n");
 
 		svprintf("PAGERscript", WCS_STRING,
-			"<script language=\"JavaScript\">\n"
+			"<script type=\"text/javascript\">\n"
 			"function launch_page_popup() {\n"
 			"pwin = window.open('/page_popup', 'CitaPage%d', "
 			"'toolbar=no,location=no,copyhistory=no,status=no,"
