@@ -1,4 +1,8 @@
  $Log$
+ Revision 620.34  2004/05/15 14:19:52  error
+ * Scheduler: when next_session is to be deleted, make it point to some
+   other session which isn't being deleted (or NULL if there aren't any).
+
  Revision 620.33  2004/05/14 03:09:54  ajc
  * When a session kills itself (for example, due to a broken socket),
    force the dead_session_purge() to run immediately.  This avoids
@@ -5772,3 +5776,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -103,6 +103,8 @@ pthread_t initial_thread;		/* tid for main() thread */
 
 int syslog_facility = (-1);
 
+/* This is synchronized below; it helps implement round robin mode */
+extern struct CitContext* next_session;
 
 /*
  * lprintf()  ...   Write logging information
@@ -905,8 +907,6 @@ void *worker_thread(void *arg) {
 	int i;
 	char junk;
 	int highest;
-	/* This is synchronized below; it helps implement round robin mode */
-	static struct CitContext* next_session = NULL;
 	struct CitContext *ptr;
 	struct CitContext *bind_me = NULL;
 	fd_set readfds;

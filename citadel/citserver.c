@@ -63,6 +63,7 @@
 #endif
 
 struct CitContext *ContextList = NULL;
+struct CitContext* next_session = NULL;
 char *unique_session_numbers;
 int ScheduledShutdown = 0;
 int do_defrag = 0;
@@ -204,6 +205,9 @@ void RemoveContext (struct CitContext *con)
 	else {
 		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 			if (ptr->next == con) {
+				/* See fair scheduling in sysdep.c */
+				if (next_session == ptr->next)
+					next_session = ptr->next->next;
 				ToFree = ptr->next;
 				ptr->next = ptr->next->next;
 				--num_sessions;
