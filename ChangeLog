@@ -1,4 +1,7 @@
 $Log$
+Revision 522.15  2004/07/16 03:14:03  ajc
+* more work on inetconf screen
+
 Revision 522.14  2004/07/16 02:50:00  ajc
 * useredit.c: put a pretty box around user editing
 
@@ -1974,3 +1977,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

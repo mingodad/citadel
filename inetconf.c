@@ -123,14 +123,23 @@ void display_inetconf(void)
 		wprintf("<span class=\"menudesc\">");
 		escputs(ic_desc[which]);
 		wprintf("</span><br>");
+		wprintf("<TABLE border=0 cellspacing=0 cellpadding=0 width=100%%>\n");
 		if (strlen(ic_spec[which]) > 0) {
 			for (i=0; i<num_tokens(ic_spec[which], '\n'); ++i) {
+				wprintf("<TR><TD ALIGN=LEFT>");
 				extract_token(buf, ic_spec[which], i, '\n');
 				escputs(buf);
-				wprintf("<BR>\n");
+				wprintf("</TD><TD ALIGN=RIGHT>"
+					"<A HREF=\"/save_inetconf?oper=delete&ename=");
+				escputs(buf);
+				wprintf("&etype=%s\" ", ic_keyword[which]);
+				wprintf("onClick=\"return confirm('Delete ");
+				jsescputs(buf);
+				wprintf("?');\">");
+				wprintf("<font size=-1>(Delete)</font></a></TD></TR>\n");
 			}
 		}
-		wprintf("<div align=right>(add)</div>\n");
+		wprintf("<TR><TD>&nbsp;</TD><TD ALIGN=RIGHT>(add)</TD></TR></TABLE>\n");
 		do_template("endbox");
 		wprintf("</TD>");
 		if (which % 2 != 0) {
