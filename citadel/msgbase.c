@@ -801,9 +801,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 	 */
 	lgetuser(&CC->usersupp,CC->curr_user);
 	CC->usersupp.posted = CC->usersupp.posted + 1;
-	if (CC->curr_rm==twitroom) {
-		CC->usersupp.generation[twitroom] = CC->quickroom.QRgen;
-		}
+	/* FIX if user is twit, grant access to twitroom here */
 	lputuser(&CC->usersupp, CC->curr_user);
 
 	/* If mail, there's still more to do, if not, skip it. */

@@ -87,9 +87,6 @@ struct visit {
 struct usersupp {			/* User record                      */
 	int USuid;			/* userid (==BBSUID for bbs only)   */
 	char password[20];		/* password (for BBS-only users)    */
-	long lastseen[MAXROOMS];	/*      deprecated                  */
-	long generation[MAXROOMS];	/*      deprecated                  */
-	long forget[MAXROOMS];		/*      deprecated                  */
 	unsigned flags;			/* See US_ flags below              */
 	int timescalled;		/* Total number of logins           */
 	int posted;			/* Number of messages posted (ever) */

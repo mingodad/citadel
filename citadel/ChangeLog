@@ -1,3 +1,7 @@
+Fri Oct  2 00:04:31 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Finally removed all three usersupp.foo[MAXROOMS] elements, and
+	  migrated all the code that used them to use "struct visit" instead.
+
 Thu Oct  1 23:02:20 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Rewrote [l][get|put]room() functions to use room names rather than
 	  room index numbers.  Temporarily prepended a "n" to these four

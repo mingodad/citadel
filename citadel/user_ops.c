@@ -297,9 +297,6 @@ void cmd_user(char *cmdbuf)
  * session startup code which is common to both cmd_pass() and cmd_newu()
  */
 void session_startup(void) {
-	int a;
-	struct quickroom qr;
-
 	syslog(LOG_NOTICE,"user <%s> logged in",CC->curr_user);
 
 	lgetuser(&CC->usersupp,CC->curr_user);
@@ -317,17 +314,6 @@ void session_startup(void) {
 	if (!strcasecmp(CC->usersupp.fullname, config.c_sysadm)) {
 		CC->usersupp.axlevel = 6;
 		}
-
- /******************************************************************************/
- /* FIX  It is safe to remove this segment during the cutover                  */
-	for (a=0; a<MAXROOMS; ++a) {
-		getroom(&qr,a);
-		if (CC->usersupp.generation[a] != qr.QRgen)
-					CC->usersupp.generation[a]=(-1);
-		if (CC->usersupp.forget[a] != qr.QRgen)
-					CC->usersupp.forget[a]=(-1);
-		}
- /******************************************************************************/
 
 	lputuser(&CC->usersupp,CC->curr_user);
 
@@ -501,14 +487,6 @@ int create_user(char *newusername)
 	strcpy(CC->usersupp.fullname,username);
 	strcpy(CC->usersupp.password,"");
 	(CC->logged_in) = 1;
-
-	/********************************************************/
-	/* FIX this can safely be removed during the cutover... */
-	for (a=0; a<MAXROOMS; ++a) {
-		CC->usersupp.generation[a]=(-1);
-		CC->usersupp.forget[a]=(-1);
-		}
-	/********************************************************/
 
 	/* These are the default flags on new accounts */
 	CC->usersupp.flags =
@@ -700,10 +678,6 @@ void cmd_slrp(char *new_ptr)
 
 	lgetuser(&CC->usersupp, CC->curr_user);
 
-	/* old method - remove */
-	CC->usersupp.lastseen[CC->curr_rm] = newlr;
-
-	/* new method */
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 	vbuf.v_lastseen = newlr;
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
@@ -754,21 +728,11 @@ void cmd_invt_kick(char *iuser, int op)
 	CtdlGetRelationship(&vbuf, &USscratch, &CC->quickroom);
 
 	if (op==1) {
-		/* old method -- FIX remove this when we're ready */
-		USscratch.generation[CC->curr_rm]=CC->quickroom.QRgen;
-		USscratch.forget[CC->curr_rm]=(-1);
-
-		/* new method */
 		vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
 		vbuf.v_flags = vbuf.v_flags | V_ACCESS;
 		}
 
 	if (op==0) {
-		/* old method -- FIX remove this when we're ready */
-		USscratch.generation[CC->curr_rm]=(-1);
-		USscratch.forget[CC->curr_rm]=CC->quickroom.QRgen;
-
-		/* new method */
 		vbuf.v_flags = vbuf.v_flags & ~V_ACCESS;
 		vbuf.v_flags = vbuf.v_flags | V_FORGET | V_LOCKOUT;
 		}
@@ -824,11 +788,6 @@ void cmd_forg(void) {
 	lgetuser(&CC->usersupp,CC->curr_user);
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
-	/* old method -- FIX remove this when we're ready */
-	CC->usersupp.forget[CC->curr_rm] = CC->quickroom.QRgen;
-	CC->usersupp.generation[CC->curr_rm] = (-1);
-
-	/* new method */
 	vbuf.v_flags = vbuf.v_flags | V_FORGET;
 
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
@@ -1351,8 +1310,10 @@ int NewMailCount() {
 		num_mails = cdbmb->len / sizeof(long);
 		mailbox = (long *) cdbmb->ptr;
 		if (num_mails > 0) for (a=0; a<num_mails; ++a) {
-			if (mailbox[a] > (CC->usersupp.lastseen[1]))
+			/*
+			if (message is new FIX FIX FIX)
 				++num_newmsgs;
+			*/
 			}
 		cdb_free(cdbmb);
 		}

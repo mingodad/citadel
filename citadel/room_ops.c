@@ -630,11 +630,6 @@ void usergoto(int where, int display_result)
 	lgetuser(&CC->usersupp,CC->curr_user);
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
-	/* old method - remove when we're ready */
-	CC->usersupp.forget[CC->curr_rm]=(-1);
-	CC->usersupp.generation[CC->curr_rm]=CC->quickroom.QRgen;
-
-	/* new method */
 	vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
 	vbuf.v_flags = vbuf.v_flags | V_ACCESS;
 
@@ -691,7 +686,7 @@ void cmd_goto(char *gargs)
 {
 	struct quickroom QRscratch;
 	int a,c;
-	int ok;
+	int ok, ra;
 	char bbb[20],towhere[32],password[20];
 
 	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
@@ -730,44 +725,31 @@ void cmd_goto(char *gargs)
 			return;
 			}
 
-		/* normal clients have to pass through security */
-		if ( 
-			(strcasecmp(bbb,towhere)==0)
-			&&	((QRscratch.QRflags&QR_INUSE)!=0)
+		if (!strcasecmp(bbb, towhere)) {
 
-			&& (	((QRscratch.QRflags&QR_PREFONLY)==0)
-			||	(CC->usersupp.axlevel>=5)
-			)
-
-			&& (	(a!=2) || (CC->usersupp.axlevel>=6) )
-
-			&& (	((QRscratch.QRflags&QR_PRIVATE)==0)
-   			|| (QRscratch.QRflags&QR_GUESSNAME)
-			|| (CC->usersupp.axlevel>=6)
-   			|| (QRscratch.QRflags&QR_PASSWORDED)
-   			||	(QRscratch.QRgen==CC->usersupp.generation[a])
-   			)
+			/* See if there is an existing user/room relationship */
+			ra = CtdlRoomAccess(&QRscratch, &CC->usersupp);
 	
-			) ok = 1;
-
-
-		if (ok==1) {
-
-			if (  (QRscratch.QRflags&QR_PASSWORDED) &&
-				(CC->usersupp.axlevel<6) &&
-				(QRscratch.QRgen!=CC->usersupp.generation[a]) &&
-				(strcasecmp(QRscratch.QRpasswd,password))
-				) {
-					cprintf("%d wrong or missing passwd\n",
-						ERROR+PASSWORD_REQUIRED);
+			/* normal clients have to pass through security */
+			if (ra & UA_GOTOALLOWED) ok = 1;
+	
+			if (ok==1) {
+				if (  (QRscratch.QRflags&QR_PASSWORDED) &&
+					((ra & UA_KNOWN) == 0) &&
+					(strcasecmp(QRscratch.QRpasswd,password))
+					) {
+						cprintf("%d wrong or missing passwd\n",
+							ERROR+PASSWORD_REQUIRED);
+						return;
+						}
+				else {
+					usergoto(a,1);
 					return;
 					}
-
-			usergoto(a,1);
-			return;
+				}
 			}
-
 		}
+	
 	cprintf("%d room '%s' not found\n",ERROR+ROOM_NOT_FOUND,towhere);
 	}
 
@@ -794,22 +776,10 @@ void cmd_whok(void) {
 		bzero(&temp, sizeof(struct usersupp));
 		memcpy(&temp, cdbus->ptr, cdbus->len);
 		cdb_free(cdbus);
-		if ((CC->quickroom.QRflags & QR_INUSE)
-			&& ( (CC->curr_rm!=2) || (temp.axlevel>=6) )
-			&& (CC->quickroom.QRgen != (temp.forget[CC->curr_rm]) )
 
-			&& (	((CC->quickroom.QRflags&QR_PREFONLY)==0)
-			||	(temp.axlevel>=5)
-			)
-
-			&& (	((CC->quickroom.QRflags&QR_PRIVATE)==0)
-   			||	(temp.axlevel>=6)
-   			||	(CC->quickroom.QRgen==(temp.generation[CC->curr_rm]))
-   			)
-
-			&& (strncmp(temp.fullname,"000",3))
-
-		) cprintf("%s\n",temp.fullname);
+		if ( (CC->quickroom.QRflags & QR_INUSE)
+			&& (CtdlRoomAccess(&CC->quickroom, &temp) & UA_KNOWN)
+		   ) cprintf("%s\n",temp.fullname);
 		}
 	cprintf("000\n");
 	}
@@ -1227,10 +1197,6 @@ unsigned create_room(int free_slot, char *new_room_name, int new_room_type, char
 	/* be sure not to kick the creator out of the room! */
 	lgetuser(&CC->usersupp,CC->curr_user);
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &qrbuf);
-	/* (old method) */
-	CC->usersupp.generation[free_slot] = qrbuf.QRgen;
-	CC->usersupp.forget[free_slot] = (-1);
-	/* (new method) */
 	vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
 	vbuf.v_flags = vbuf.v_flags | V_ACCESS;
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &qrbuf);
