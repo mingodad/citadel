@@ -1,4 +1,8 @@
 $Log$
+Revision 500.14  2003/08/05 03:52:14  ajc
+* First working version of the customizable iconbar.  It contains a basic
+  set of options and now automatically refreshes when it's customized.
+
 Revision 500.13  2003/08/04 03:50:29  ajc
 * First cut at the customizable iconbar is done.  A bunch of generic options
   are there.  Still need to get the actual iconbar to refresh when changes
@@ -1541,4 +1545,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
