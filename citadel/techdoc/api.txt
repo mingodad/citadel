@@ -1,0 +1,58 @@
+ Yeesh.
+ 
+ This is a rough start at the beginnings of what will eventually become
+something that resembles a draft of the implementation of an API for writing
+Citadel extensions...
+ 
+ In other words, as functions are developed we'll stick writeups in here.
+
+ 
+ 
+ CONVENTIONS
+ -----------
+ 
+ 1. All user-callable functions start with "Ctdl".
+ 
+ 2. The functions starting with "CtdlInternal" are only to be used by other
+API functions.  They are implemented mainly to consolidate the common code
+used by similar API functions, and make their implementation simple and
+straightforward.
+
+
+
+ ERROR HANDLING
+ --------------
+ 
+ int CtdlGetLastError()
+ 
+ Returns the error code of a failed API call.  The error codes used by the
+API are the same as those used by the Citadel session layer protocol, in order
+to facilitate a consistent development experience.
+
+
+
+ USER ACCOUNT RELATED FUNCTIONS
+ ------------------------------
+ 
+ These are functions which access or manipulate user records.  Each function
+requires a user name, but a zero-length string may be substituted to request
+the currently-logged-in user.  If a lookup fails, ERROR+NOT_LOGGED_IN or
+ERROR+NO_SUCH_USER may be set.
+
+  
+ int CtdlGetUserAccessLevel(char *UserName)
+ 
+ This function returns a user's access level, or -1 in the event of an error.
+The defined access levels are 1 through 6 and may be referenced in "axdefs.h"
+
+
+ long CtdlGetUserNumber(char *UserName)
+ 
+ This function returns a user's user number, or -1 in the event of an error.
+User numbers are always unique to the entire system and never reused, even if
+the user account is deleted.
+ 
+ time_t CtdlGetUserLastCall(char *UserName)
+ 
+ This function returns the date and time (in standard Unix timestamp format)
+when the user last logged on to the server.
