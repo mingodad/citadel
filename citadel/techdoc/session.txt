@@ -1450,7 +1450,11 @@ listing (the RWHO server command).  Only Aides may use stealth mode.  The
 STEL command accepts one argument: a 1 indicating that the user wishes to
 enter stealth mode, or a 0 indicating that the user wishes to exit stealth
 mode.  STEL returns OK if the command succeeded, ERROR+NOT_LOGGED_IN if no
-user is logged in, or ERROR+HIGHER_ACCESS_REQUIRED if the user is not an Aide.
+user is logged in, or ERROR+HIGHER_ACCESS_REQUIRED if the user is not an Aide;
+followed by a 1 or 0 indicating the new state.
+ 
+ If any value other than 1 or 0 is sent by the client, the server simply
+replies with 1 or 0 to indicate the current state without changing it.
 
 The STEL command also makes it so a user does not show up in the chat room
 /who.  
