@@ -509,16 +509,23 @@ void smtp_data(void) {
 	/* If the user is locally authenticated, FORCE the From: header to
 	 * show up as the real sender.  Yes, this violates the RFC standard,
 	 * but IT MAKES SENSE.  Comment it out if you don't like this behavior.
+	 *
+	 * We also set the "message room name" ('O' field) to MAILROOM
+	 * (which is Mail> on most systems) to prevent it from getting set
+	 * to something ugly like "0000058008.Sent Items>" when the message
+	 * is read with a Citadel client.
 	 */
 	if (CC->logged_in) {
 		if (msg->cm_fields['A'] != NULL) phree(msg->cm_fields['A']);
 		if (msg->cm_fields['N'] != NULL) phree(msg->cm_fields['N']);
 		if (msg->cm_fields['H'] != NULL) phree(msg->cm_fields['H']);
 		if (msg->cm_fields['F'] != NULL) phree(msg->cm_fields['F']);
+		if (msg->cm_fields['O'] != NULL) phree(msg->cm_fields['O']);
 		msg->cm_fields['A'] = strdoop(CC->usersupp.fullname);
 		msg->cm_fields['N'] = strdoop(config.c_nodename);
 		msg->cm_fields['H'] = strdoop(config.c_humannode);
 		msg->cm_fields['F'] = strdoop(CC->cs_inet_email);
+        	msg->cm_fields['O'] = strdoop(MAILROOM);
 	}
 
 	/* Submit the message into the Citadel system. */

@@ -1,4 +1,9 @@
  $Log$
+ Revision 605.9  2003/03/06 04:58:11  ajc
+ * When entering a message into Citadel with authenticated SMTP, stamp the
+   room name as MAILROOM (Mail>) so it doesn't end up with an ugly moniker
+   like "0000058008.Sent Items"
+
  Revision 605.8  2003/03/05 04:55:32  ajc
  * serv_smtp.c: when authenticated, do not log out when a RSET command is
    issued.  This breaks clients which carelessly issue RSET before each
@@ -4517,3 +4522,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
