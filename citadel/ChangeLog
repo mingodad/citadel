@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.13  2000/10/11 23:03:44  error
+ * utilsmenu: obey $PAGER environment var, if any.  Default to more if neither
+   $PAGER nor less is available.
+
  Revision 573.12  2000/10/11 22:55:25  error
  * citadel.c: when ansi_color=user, enable color at login, so Lobby> posts
    displayed at login are in color
@@ -2093,3 +2097,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+	 
