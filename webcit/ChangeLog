@@ -1,4 +1,7 @@
 $Log$
+Revision 500.26  2003/10/08 02:33:49  ajc
+* Begin work on better handling of vCard display
+
 Revision 500.25  2003/09/04 03:41:27  ajc
 * siteconfig.c: changed some config items to drop-down boxes
 
@@ -1585,4 +1588,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
