@@ -1,3 +1,7 @@
+Mon Jul 12 23:30:24 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us> 
+	* webcit.c: exit Webcit sessions semi-gracefully when the connection
+	  to a Citadel server fails.
+
 Sat Jul 10 17:51:39 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Recompiled the Java chat applet using a genuine JDK 1.0.2
 	  compiler.  This should make more browsers happy.

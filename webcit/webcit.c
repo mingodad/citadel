@@ -710,6 +710,10 @@ void session_loop(char *browser_host, char *user_agent)
 		if (strlen(bstr("port")) > 0)
 			strcpy(c_port, bstr("port"));
 		serv_sock = connectsock(c_host, c_port, "tcp");
+		if (serv_sock < 0) {
+			do_logout();
+		}
+
 		connected = 1;
 		serv_gets(buf);	/* get the server welcome message */
 		get_serv_info(browser_host, user_agent);
