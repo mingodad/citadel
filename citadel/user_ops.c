@@ -764,6 +764,12 @@ void cmd_newu(char *cmdbuf)
 	int a;
 	char username[SIZ];
 
+	if (config.c_disable_newu) {
+		cprintf("%d Self-service user account creation "
+			"is disabled on this system.\n", ERROR);
+		return;
+	}
+
 	if (CC->logged_in) {
 		cprintf("%d Already logged in.\n", ERROR);
 		return;

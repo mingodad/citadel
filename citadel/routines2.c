@@ -694,7 +694,7 @@ void read_bio(void)
 void do_system_configuration(void)
 {
 	char buf[SIZ];
-	char sc[29][SIZ];
+	char sc[30][SIZ];
 	int expire_mode = 0;
 	int expire_value = 0;
 	int a;
@@ -709,7 +709,7 @@ void do_system_configuration(void)
 	if (buf[0] == '1') {
 		a = 0;
 		while (serv_gets(buf), strcmp(buf, "000")) {
-			if (a < 29) {
+			if (a < 30) {
 				strcpy(&sc[a][0], buf);
 			}
 			++a;
@@ -745,6 +745,9 @@ void do_system_configuration(void)
 	sprintf(&sc[7][0], "%d", (boolprompt(
 				    "Require registration for new users",
 						    atoi(&sc[7][0]))));
+	sprintf(&sc[29][0], "%d", (boolprompt(
+	      "Disable self-service user account creation",
+						     atoi(&sc[29][0]))));
 	strprompt("Initial access level for new users", &sc[6][0], 1);
 	strprompt("Access level required to create rooms", &sc[19][0], 1);
 	sprintf(&sc[4][0], "%d", (boolprompt(
@@ -826,7 +829,7 @@ void do_system_configuration(void)
 		serv_puts("CONF set");
 		serv_gets(buf);
 		if (buf[0] == '4') {
-			for (a = 0; a < 29; ++a)
+			for (a = 0; a < 30; ++a)
 				serv_puts(&sc[a][0]);
 			serv_puts("000");
 		}
