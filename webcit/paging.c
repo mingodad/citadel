@@ -1,4 +1,8 @@
-/* $Id$ */
+/*
+ * $Id$
+ *
+ * Functions which implement the chat and paging facilities.
+ */
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -261,7 +265,7 @@ void chat_recv(void) {
 		"<HEAD>\n"
 		"<META HTTP-EQUIV=\"refresh\" CONTENT=\"3\">\n"
 		"</HEAD>\n"
-		"<BODY>"
+		"<BODY BGCOLOR=\"#FFFFFF\">"
 	);
 
 	if (setup_chat_socket() != 0) {
@@ -311,13 +315,13 @@ void chat_recv(void) {
 			extract(name, WC->chatlines[i], 0);
 			extract(text, WC->chatlines[i], 1);
 			if (!strcasecmp(name, WC->wc_username)) {
-				wprintf("<FONT COLOR=\"#00FF00\">");
+				wprintf("<FONT COLOR=\"#004400\">");
 			}
 			else if (!strcmp(name, ":")) {
-				wprintf("<FONT COLOR=\"#FF0000\">");
+				wprintf("<FONT COLOR=\"#440000\">");
 			}
 			else {
-				wprintf("<FONT COLOR=\"#0000FF\">");
+				wprintf("<FONT COLOR=\"#000044\">");
 			}
 			escputs(name);
 			wprintf(": </FONT>");
