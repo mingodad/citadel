@@ -268,17 +268,25 @@ void urlescputs(char *strbuf)
 /*
  * Output all that important stuff that the browser will want to see
  *
- * print_standard_html_head values:
+ * control codes:
+ * 
+ * Bits 0 and 1:
  * 0 = Nothing.  Do not display any leading HTTP or HTML.
  * 1 = HTTP headers plus the "fake frames" found in most windows.
  * 2 = HTTP headers required to terminate the session (unset cookies)
- * 3 = HTTP headers only.
+ * 3 = HTTP and HTML headers, but no 'fake frames'
+ *
+ * Bit 2: Set to 1 to auto-refresh page every 30 seconds
  */
-void output_headers(int print_standard_html_head)
+void output_headers(int controlcode)
 {
-
 	static char *unset = "; expires=28-May-1971 18:10:00 GMT";
 	char cookie[256];
+	int print_standard_html_head = 0;
+	int refresh30 = 0;
+
+	print_standard_html_head	=	controlcode & 0x03;
+	refresh30			=	((controlcode & 0x04) >> 2);
 
 	wprintf("HTTP/1.0 200 OK\n");
 
@@ -303,8 +311,11 @@ void output_headers(int print_standard_html_head)
 		wprintf("<HTML><HEAD><TITLE>");
 		escputs(serv_info.serv_humannode);
 		wprintf("</TITLE>\n"
-			"<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">\n"
-			"</HEAD>\n");
+			"<META HTTP-EQUIV=\"Expires\" CONTENT=\"0\">\n"
+			"<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">\n");
+		if (refresh30) wprintf(
+			"<META HTTP-EQUIV=\"refresh\" CONTENT=\"30\">\n");
+		wprintf("</HEAD>\n");
 		if (WC->ExpressMessages != NULL) {
 			wprintf("<SCRIPT language=\"javascript\">\n");
 			wprintf("function ExpressMessage() {\n");

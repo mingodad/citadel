@@ -49,18 +49,27 @@ void whobbs(void)
 	char buf[256], sess, user[256], room[256], host[256];
 	int foundit;
 
-	output_headers(1);
+	output_headers(7);
+
+
+	wprintf("<SCRIPT LANGUAGE=\"JavaScript\">\n"
+		"function ConfirmKill() { \n"
+		"return confirm('Do you really want to kill this session?');\n"
+		"}\n"
+		"</SCRIPT>\n"
+	);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>Users currently on ");
 	escputs(serv_info.serv_humannode);
 	wprintf("</B></FONT></TD></TR></TABLE>\n");
 
-	wprintf("<CENTER>\n<TABLE BORDER=1>\n<TR>\n");
-	wprintf("<TH><FONT FACE=\"Arial,Helvetica,sans-serif\">Session ID</FONT></TH>\n");
-	wprintf("<TH><FONT FACE=\"Arial,Helvetica,sans-serif\">User Name</FONT></TH>\n");
-	wprintf("<TH><FONT FACE=\"Arial,Helvetica,sans-serif\">Room</FONT></TH>");
-	wprintf("<TH><FONT FACE=\"Arial,Helvetica,sans-serif\">From host</FONT></TH>\n</TR>\n");
+	wprintf("<FONT SIZE=-3>\n");
+	wprintf("<CENTER>\n<TABLE BORDER=1 WIDTH=100%>\n<TR>\n");
+	wprintf("<TH>Session ID</FONT></TH>\n");
+	wprintf("<TH>User Name</FONT></TH>\n");
+	wprintf("<TH>Room</FONT></TH>");
+	wprintf("<TH>From host</FONT></TH>\n</TR>\n");
 	serv_puts("RWHO");
 	serv_gets(buf);
 	if (buf[0] == '1') {
@@ -105,42 +114,28 @@ void whobbs(void)
 		}
 
 		while (wlist != NULL) {
-			wprintf("<TR>\n\t<TD ALIGN=center><FONT FACE=\"Arial,Helvetica,sans-serif\">%d", wlist->sessionnum);
+			wprintf("<TR>\n\t<TD ALIGN=center>%d", wlist->sessionnum);
 			if ((WC->is_aide) &&
 			    (wlist->sessionnum != serv_info.serv_pid)) {
 				wprintf(" <A HREF=\"/terminate_session&which_session=%d&session_owner=", wlist->sessionnum);
 				urlescputs(wlist->username);
-				wprintf("\">(kill)</A>");
+				wprintf("\" onClick=\"return ConfirmKill();\" "
+				">(kill)</A>");
 			}
 			if (wlist->sessionnum == serv_info.serv_pid) {
-				wprintf(" <A HREF=\"/edit_me\">(edit)</A>");
+				wprintf(" <A HREF=\"/edit_me\" "
+					"TARGET=\"_parent\">(edit)</A>");
 			}
 			/* username */
-			wprintf("</FONT></TD>\n\t<TD><FONT FACE=\"Arial,Helvetica,sans-serif\"><A HREF=\"/showuser?who=");
-			urlescputs(wlist->username);
-			wprintf("\" onMouseOver=\"window.status='View profile for ");
+			wprintf("</TD>\n\t<TD>");
 			escputs(wlist->username);
-			wprintf("'; return true\">");
-			escputs(wlist->username);
-			wprintf("</A>");
 			/* room */
-			wprintf("</FONT></TD>\n\t<TD><FONT FACE=\"Arial,Helvetica,sans-serif\">");
-			/* handle chat */
-			if (strstr(wlist->roomname, "chat") != NULL) {
-				wprintf("<A HREF=\"/chat\" onMouseOver=\"window.status='Chat'; return true\">&lt;chat&gt;</A>");
-			} else {
-				wprintf("<A HREF=\"/dotgoto&room=");
-				urlescputs(wlist->roomname);
-				wprintf("\" onMouseOver=\"window.status='Go to room ");
-				escputs(wlist->roomname);
-				wprintf("'; return true\">");
-				escputs(wlist->roomname);
-				wprintf("</A>");
-			}
-			wprintf("</FONT></TD><TD><FONT FACE=\"Arial,Helvetica,sans-serif\">");
+			wprintf("</TD>\n\t<TD>");
+			escputs(wlist->roomname);
+			wprintf("</TD>\n\t<TD>");
 			/* hostname */
 			escputs(wlist->hostname);
-			wprintf("</FONT></TD>\n</TR>");
+			wprintf("</TD>\n</TR>");
 			wptr = wlist->next;
 			free(wlist);
 			wlist = wptr;
@@ -148,8 +143,8 @@ void whobbs(void)
 	}
 	wprintf("</TABLE>\n<BR><BR>\n");
 	wprintf("<TABLE BORDER=0 BGCOLOR=\"#003399\">\n<TR><TD ALIGN=center VALIGN=center CELLPADING=20>\n");
-	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\" SIZE=+2><B><A HREF=\"/whobbs\"><FONT COLOR=\"#FF0000\">Refresh</FONT></A></B></FONT>\n");
-	wprintf("</TD></TR>\n</TABLE>\n</CENTER>");
+	wprintf("<B><A HREF=\"javascript:window.close();\">Close window</A></B>\n");
+	wprintf("</TD></TR>\n</TABLE></FONT>\n</CENTER>");
 	wDumpContent(1);
 }
 
@@ -158,36 +153,9 @@ void terminate_session(void)
 {
 	char buf[256];
 
-	if (!strcasecmp(bstr("confirm"), "Yes")) {
-		serv_printf("TERM %s", bstr("which_session"));
-		serv_gets(buf);
-		if (buf[0] == '2') {
-			whobbs();
-		} else {
-			display_error(&buf[4]);
-		}
-	} else {
-		output_headers(1);
-		wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
-		wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\" SIZE=+1 COLOR=\"FFFFFF\"<B>Confirm session termination");
-		wprintf("</B></FONT></TD></TR></TABLE>\n");
-
-		wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\">Are you sure you want to terminate session %s",
-			bstr("which_session"));
-		if (strlen(bstr("session_owner")) > 0) {
-			wprintf(" (");
-			escputs(bstr("session_owner"));
-			wprintf(")");
-		}
-		wprintf("?<BR><BR>\n");
-
-		wprintf("<A HREF=\"/terminate_session&which_session=%s&confirm=yes\">",
-			bstr("which_session"));
-		wprintf("Yes</A>&nbsp;&nbsp;&nbsp;");
-		wprintf("<A HREF=\"/whobbs\">No</A></FONT>");
-		wDumpContent(1);
-	}
-
+	serv_printf("TERM %s", bstr("which_session"));
+	serv_gets(buf);
+	whobbs();
 }
 
 
