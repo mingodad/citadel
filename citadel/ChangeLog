@@ -1,4 +1,7 @@
  $Log$
+ Revision 641.31  2005/03/22 21:53:48  ajc
+ * Oops, forgot to initialize some data structures...
+
  Revision 641.30  2005/03/22 16:49:29  ajc
  * Fixed a couple of memory allocation bugs
 
@@ -6556,4 +6559,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

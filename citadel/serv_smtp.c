@@ -131,8 +131,9 @@ void smtp_greeting(void) {
 	SMTP = malloc(sizeof(struct citsmtp));
 	SMTP_RECPS = malloc(SIZ);
 	SMTP_ROOMS = malloc(SIZ);
-	snprintf(SMTP_RECPS, SIZ, "%s", "");
-	snprintf(SMTP_ROOMS, SIZ, "%s", "");
+	memset(SMTP, 0, sizeof(struct citsmtp));
+	memset(SMTP_RECPS, 0, SIZ);
+	memset(SMTP_ROOMS, 0, SIZ);
 
 	cprintf("220 %s ESMTP Citadel server ready.\r\n", config.c_fqdn);
 }
