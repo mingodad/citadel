@@ -214,8 +214,7 @@ void readloop(char *oper) {
 	int nummsgs;
 
 	printf("HTTP/1.0 200 OK\n");
-	printf("Window-target: bottom\n");
-	output_headers(1);
+	output_headers(1, "bottom");
 
 	wprintf("<CENTER><B>%s - ",wc_roomname);
 	if (!strcmp(oper,"readnew")) {
@@ -264,7 +263,7 @@ void post_message(void) {
 	char buf[256];
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1);
+	output_headers(1, "bottom");
 
 	strcpy(buf, bstr("sc"));
 	if (strcasecmp(buf, "Save message")) {
@@ -326,7 +325,7 @@ void display_enter(void) {
 	struct tm *tm;
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1);
+	output_headers(1, "bottom");
 
 	sprintf(buf,"ENT0 0|%s|0|0",bstr("recp"));
 	serv_puts(buf);
@@ -391,7 +390,7 @@ void confirm_delete_msg(void) {
 	msgid = atol(bstr("msgid"));
 	
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1);
+	output_headers(1, "bottom");
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -423,7 +422,7 @@ void delete_msg(void) {
 	msgid = atol(bstr("msgid"));
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1);
+	output_headers(1, "bottom");
 
 	if (!strcasecmp(bstr("yesno"), "Yes")) {
 		sprintf(buf, "DELE %ld", msgid);
@@ -453,7 +452,7 @@ void confirm_move_msg(void) {
 	msgid = atol(bstr("msgid"));
 	
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1);
+	output_headers(1, "bottom");
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -501,7 +500,7 @@ void move_msg(void) {
 	msgid = atol(bstr("msgid"));
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1);
+	output_headers(1, "bottom");
 
 	if (!strcasecmp(bstr("yesno"), "Move")) {
 		sprintf(buf, "MOVE %ld|%s", msgid, bstr("target_room"));

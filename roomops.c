@@ -113,7 +113,7 @@ void room_tree_list(struct roomlisting *rp) {
 
 	wprintf("<A HREF=\"/dotgoto&room=");
 	urlescputs(rmname);
-	wprintf("\" TARGET=\"top\">");
+	wprintf("\">");
 	escputs1(rmname,1);
 	if ((f & QR_DIRECTORY) && (f & QR_NETWORK)) wprintf("}");
 	else if (f & QR_DIRECTORY) wprintf("]");
@@ -217,7 +217,7 @@ void list_all_rooms_by_floor(void) {
 	load_floorlist();
 
         printf("HTTP/1.0 200 OK\n");
-        output_headers(1);
+        output_headers(1, "bottom");
 
 	wprintf("<TABLE width=100% border><TR><TH>Floor</TH>");
 	wprintf("<TH>Rooms with new messages</TH>");
@@ -264,7 +264,7 @@ void list_all_rooms_by_floor(void) {
  */
 void zapped_list(void) {
         printf("HTTP/1.0 200 OK\n");
-        output_headers(1);
+        output_headers(1, "bottom");
         wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
         wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
         wprintf("<B>Zapped (forgotten) rooms</B>\n");
@@ -308,8 +308,7 @@ void gotoroom(char *gname, int display_name)
 
 	if (display_name) {
 		printf("HTTP/1.0 200 OK\n");
-		printf("Window-target: top\n");
-		output_headers(0);
+		output_headers(0, "top");
         	wprintf("<HTML><HEAD></HEAD>\n<BODY ");
 	
 		/* automatically fire up a read-new-msgs in the bottom frame */
@@ -582,7 +581,7 @@ void display_editroom(void) {
 
 
         printf("HTTP/1.0 200 OK\n");
-        output_headers(1);
+        output_headers(1, "bottom");
 
         wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
         wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -875,7 +874,7 @@ void display_entroom(void) {
 		}
 
         printf("HTTP/1.0 200 OK\n");
-        output_headers(1);
+        output_headers(1, "bottom");
 
         wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
         wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -954,7 +953,7 @@ void display_private(char *rname, int req_pass)
 {
 
         printf("HTTP/1.0 200 OK\n");
-        output_headers(1);
+        output_headers(1, "bottom");
 
         wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
         wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -1020,7 +1019,7 @@ void goto_private(void) {
 		}
 
         printf("HTTP/1.0 200 OK\n");
-        output_headers(1);
+        output_headers(1, "bottom");
 	wprintf("%s\n",&buf[4]);
 	wDumpContent();
 	return;
@@ -1032,7 +1031,7 @@ void goto_private(void) {
  */
 void display_zap(void) {
         printf("HTTP/1.0 200 OK\n");
-        output_headers(1);
+        output_headers(1, "bottom");
 	
         wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
         wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -1096,7 +1095,7 @@ void confirm_delete_room(void) {
 		}
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1);
+	output_headers(1, "bottom");
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Confirm deletion of room</B>\n");

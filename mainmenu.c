@@ -26,16 +26,16 @@ void embed_main_menu(void) {
 	wprintf("List known rooms</B></A><BR>\n");
 	wprintf("Where can I go from here?</LI>\n");
 	
-	wprintf("<LI><B><A HREF=\"/gotonext\" TARGET=\"top\">\n");
+	wprintf("<LI><B><A HREF=\"/gotonext\">\n");
 	wprintf("Goto next room</B></A><BR>\n");
 	wprintf("...with <EM>unread</EM> messages</LI>\n");
 	
-	wprintf("<LI><B><A HREF=\"/skip\" TARGET=\"top\">\n");
+	wprintf("<LI><B><A HREF=\"/skip\">\n");
 	wprintf("Skip to next room</B></A><BR>\n");
 	wprintf("(come back here later)</LI>\n");
 	
 	if ( (strlen(ugname)>0) && (strcasecmp(ugname,wc_roomname)) ) {
-		wprintf("<LI><B><A HREF=\"/ungoto\" TARGET=\"top\">\n");
+		wprintf("<LI><B><A HREF=\"/ungoto\">\n");
 		wprintf("Ungoto</B></A><BR>\n");
 		wprintf("(oops! Back to %s)</LI>\n",ugname);
 		}
@@ -67,7 +67,7 @@ void embed_main_menu(void) {
 	wprintf("<LI><B><A HREF=\"/advanced\">\n");
 	wprintf("Advanced options</B></A><BR>...and maintenance</LI>\n");
 
-	wprintf("<LI><B><A HREF=\"/termquit\" TARGET=\"_top\">\n");
+	wprintf("<LI><B><A HREF=\"/termquit\">\n");
 	wprintf("Log off</B></A><BR>Bye!</LI>\n");
 	wprintf("</UL>\n");
 
@@ -201,7 +201,7 @@ wprintf("</FONT></TD></TR></TABLE>\n");
  */
 void display_main_menu(void) {
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1);
+	output_headers(1, "bottom");
 	embed_main_menu();
 	wprintf("</BODY></HTML>\n");
 	wDumpContent();
@@ -210,7 +210,7 @@ void display_main_menu(void) {
 
 void display_advanced_menu(void) {
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1);
+	output_headers(1, "bottom");
 	embed_advanced_menu();
 	embed_main_menu();
 	wprintf("</BODY></HTML>\n");
@@ -223,7 +223,7 @@ void display_advanced_menu(void) {
  */
 void display_generic(void) {
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1);
+	output_headers(1, "bottom");
 	
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770077><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -266,7 +266,7 @@ void do_generic(void) {
 	serv_gets(buf);
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1);
+	output_headers(1, "bottom");
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770077><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Server command results</B>\n");
