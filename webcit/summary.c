@@ -56,7 +56,7 @@ void output_date(void) {
  * Dummy section
  */
 void dummy_section(void) {
-	svprintf("BOXTITLE", WCS_STRING, "(dummy section)");
+	svprintf("BOXTITLE", WCS_STRING, "(dummy&nbsp;section)");
 	do_template("beginbox");
 	wprintf("(nothing)");
 	do_template("endbox");
@@ -110,7 +110,7 @@ void wholist_section(void) {
 	char buf[SIZ];
 	char user[SIZ];
 
-	svprintf("BOXTITLE", WCS_STRING, "Who's online now");
+	svprintf("BOXTITLE", WCS_STRING, "Who's&nbsp;online&nbsp;now");
 	do_template("beginbox");
 	serv_puts("RWHO");
 	serv_gets(buf);
@@ -160,7 +160,7 @@ void calendar_section(void) {
 	int num_msgs = 0;
 	int i;
 
-	svprintf("BOXTITLE", WCS_STRING, "Today on your calendar");
+	svprintf("BOXTITLE", WCS_STRING, "Today&nbsp;on&nbsp;your&nbsp;calendar");
 	do_template("beginbox");
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	gotoroom("Calendar", 0);
@@ -189,7 +189,7 @@ void calendar_section(void) {
  * Server info section (fluff, really)
  */
 void server_info_section(void) {
-	svprintf("BOXTITLE", WCS_STRING, "About this server");
+	svprintf("BOXTITLE", WCS_STRING, "About&nbsp;this&nbsp;server");
 	do_template("beginbox");
 	wprintf("You are connected to ");
 	escputs(serv_info.serv_humannode);
