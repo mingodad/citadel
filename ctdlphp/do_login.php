@@ -31,8 +31,8 @@ if ($retval == FALSE) {
 	echo "<a href=\"logout.php\">Log out</A><BR>\n" ;
 }
 else {
-	echo "Hi there.  You're online.<BR>\n" ;
-	echo "<a href=\"page2.php\">Page Two</a><BR>\n" ;
+	echo "<A HREF=\"welcome.php\">Logged in.  Click to continue.</a><BR>";
+	echo "<meta http-equiv=\"refresh\" content=\"0;url=welcome.php\">\n";
 }
 
 bbs_page_footer();

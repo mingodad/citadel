@@ -1,4 +1,10 @@
  $Log$
+ Revision 1.8  2003/11/02 04:12:27  ajc
+ * welcome.php: added.
+ * do_login.php: reworked to provide a squeaky-clean transition to
+   the welcome.php page.  welcome.php can now contain whatever the site's
+   webmaster wants it to, without being clogged up with login code.
+
  Revision 1.7  2003/11/02 04:02:36  ajc
  * Firmed up the login/logout process
  * Don't allow load of pages other than login.php logout.php do_login.php
@@ -31,4 +37,3 @@
 
  Revision 1.1  2003/10/31 03:47:13  ajc
  * Initial CVS import
-
