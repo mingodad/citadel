@@ -1,4 +1,7 @@
 $Log$
+Revision 321.1  2001/12/26 23:11:25  ajc
+* Minor change to the upload handler, to fix graphics uploads
+
 Revision 321.0  2001/12/26 05:28:02  ajc
 * THIS IS 3.21
 
@@ -692,4 +695,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
