@@ -416,11 +416,11 @@ void session_startup(void)
 
 void logged_in_response(void)
 {
-	cprintf("%d %s|%d|%ld|%ld|%u|%ld\n",
+	cprintf("%d %s|%d|%ld|%ld|%u|%ld|%ld\n",
 		OK, CC->usersupp.fullname, CC->usersupp.axlevel,
 		CC->usersupp.timescalled, CC->usersupp.posted,
-		CC->usersupp.flags,
-		CC->usersupp.usernum);
+		CC->usersupp.flags, CC->usersupp.usernum,
+		CC->usersupp.lastcall);
 }
 
 

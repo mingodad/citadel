@@ -177,6 +177,7 @@ following parameters are returned:
  3 - Messages posted
  4 - Various flags (see citadel.h)
  5 - User number
+ 6 - Time of last call (UNIX timestamp)
  
  
  NEWU   (create NEW User account)
