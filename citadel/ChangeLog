@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.98  2001/02/24 04:43:13  brian
+ * Fixed my listing in developers.txt (finally!  :)
+
  Revision 573.97  2001/02/22 18:22:38  nixo
  Mostly made changes to allow client_gets to handle reading a buffer
  larger than SIZ. This required changes all over the place.
@@ -2465,5 +2468,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
 

@@ -22,7 +22,11 @@ Developer codes (and where known, client codes)
 						<chilly@uncensored.citadel.org>
  
  
- 1	Brian Ledbetter <brian@amaranth.com>
+ 1	Brian Ledbetter <brian@shadowcom.net>
+
+	Client	Name		Status		Description
+	0	libCxClient	in production	Comprehensive Citadel/UX client API
+	1	Infusion	in production	Groupware for Citadel/UX
 
  2	Matthew Scott <gldnspud@telcomplus.com>
  
