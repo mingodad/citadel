@@ -2,7 +2,7 @@
  * $Id$
  *
  * Implements the FETCH command in IMAP.
- * This command is way too convoluted.  Marc Crispin is a fscking idiot.
+ * This is a good example of the protocol's gratuitous complexity.
  *
  */
 
@@ -315,7 +315,7 @@ void imap_output_envelope_from(struct CtdlMessage *msg) {
 
 /*
  * Output an envelope address (or set of addresses) in the official,
- * Crispin-approved braindead format.  (Note that we can't use this for
+ * convuluted, braindead format.  (Note that we can't use this for
  * the "From" address because its data may come from a number of different
  * fields.  But we can use it for "To" and possibly others.
  */
@@ -784,7 +784,7 @@ void imap_fetch_bodystructure_part(
 	cprintf("%ld ", (long)length);	/* bytes */
 
 	/* The next field is the number of lines in the part, if and only
-	 * if the part is TEXT.  Crispin is a fscking idiot.
+	 * if the part is TEXT.  More gratuitous complexity.
 	 */
 	if (!strcasecmp(cbmaintype, "TEXT")) {
 		if (length) for (i=0; i<length; ++i) {
@@ -793,7 +793,7 @@ void imap_fetch_bodystructure_part(
 		cprintf("%d ", lines);
 	}
 
-	/* More of Crispin being a fscking idiot */
+	/* More gratuitous complexity */
 	if ((!strcasecmp(cbmaintype, "MESSAGE"))
 	   && (!strcasecmp(cbsubtype, "RFC822"))) {
 		/* FIXME
@@ -832,9 +832,7 @@ void imap_fetch_bodystructure_part(
 
 
 /*
- * Spew the BODYSTRUCTURE data for a message.  (Do you need a silencer if
- * you're going to shoot a MIME?  Do you need a reason to shoot Mark Crispin?
- * No, and no.)
+ * Spew the BODYSTRUCTURE data for a message.
  *
  */
 void imap_fetch_bodystructure (long msgnum, char *item,

@@ -60,8 +60,7 @@
  * imap_do_store() calls imap_do_store_msg() to tweak the settings of
  * an individual message.
  *
- * We also implement the ".SILENT" protocol option here.  Leave it to an
- * idiot like Mark Crispin to make things unnecessarily complicated.
+ * We also implement the ".SILENT" protocol option here.  :(
  */
 void imap_do_store_msg(int seq, char *oper, unsigned int bits_to_twiddle) {
 	int silent = 0;

@@ -1,4 +1,7 @@
  $Log$
+ Revision 641.11  2005/03/02 02:16:10  ajc
+ * Toned down some of the hostility in the code's comments :)
+
  Revision 641.10  2005/03/01 22:03:35  ajc
  * Began implementation of a third RedirectOutput mode -- one which writes
    to a memory buffer.  This will replace the other two.
@@ -87,9 +90,9 @@
  Revision 640.3  2005/02/13 03:39:21  ajc
  * IMAP flag twiddling with STORE was broken because of the \Flag leading
    backslash getting stripped out.  Located problem and worked around.  Said
-   many nasty things about that piece of crap Mark Crispin and his deranged,
-   stupid, moronic idea to put backslashes in a place where they were
-   completely unnecessary.
+   many nasty things about IMAP's gratuitous complexity, particularly the
+   moronic idea to put backslashes in a place where they were completely
+   unnecessary.
 
  Revision 640.2  2005/02/12 16:58:36  ajc
  * Changes to lprintf() and start_daemon() submitted by Kevin Kilbride
@@ -971,7 +974,7 @@
  Revision 614.75  2004/03/13 23:26:10  ajc
  * imap_fetch.c: don't fetch the message from disk at all for UID and FLAGS
    fetch items.  (It's rare, but sometimes IMAP optimizations are actually
-   possible, despite Mark DIE DIE DIE Crispin's brain-dead design!)
+   possible, despite IMAP's brain-dead design!)
 
  Revision 614.74  2004/03/13 22:52:05  ajc
  * Documented the GNET and SNET commands  :)
@@ -1560,7 +1563,7 @@
    not record an "internal date" of a message, so the "sent date" and "internal
    date" searches perform identically.
  * Date search comparisons available: "before," "on," or "on or after."  Yet
-   another example of why Mark Crispin needs to be taken outside and shot.
+   another example of IMAP's gratuitous complexity.
 
  Revision 608.9  2003/07/26 04:49:40  ajc
  * Implemented a bunch of the IMAP SEARCH keywords
@@ -1574,7 +1577,6 @@
    parser working and stubbed all the search criteria.  Next step is to
    implement the functionality of each criterion keyword.
  * Implemented the functionality for the ALL (wow!) and UID criteria.
- * Mark Crispin is an idiot.
 
  Revision 608.6  2003/07/23 03:57:05  ajc
  * Optimized the updating of visit records in several places by checking to
@@ -1867,7 +1869,7 @@
  * Optimized CtdlReadMessageBody() and also gave it an option to store
    messages with CRLF newlines instead of LF.  This option is used when
    reading SMTP in order to keep Pine from barfing on LF-terminated newlines
-   while decoding quoted-printable.  Once again, Mark Crispin is an idiot.
+   while decoding quoted-printable.  *sigh*
 
  Revision 605.28  2003/03/26 05:17:12  ajc
  * Downloading of attachments was completely broken by the change to the new
@@ -4134,7 +4136,7 @@
  Revision 573.71  2001/01/16 00:46:40  ajc
  * Changed the MIME parser API *again* because we now need the ability to
    supply callback functions to be executed before and/or after parsing a
-   multipart.  (Need this for IMAP BODYSTRUCTURE output.  Crispin sucks.)
+   multipart.  (Need this for IMAP BODYSTRUCTURE output.)
 
  Revision 573.70  2001/01/15 23:59:26  ajc
  * user_ops.c: reject NULL password in CtdlTryPassword() instead of crashing
@@ -4384,7 +4386,7 @@
  * Added support of macros ALL, BODY, FAST, and FULL to the IMAP FETCH command
 
  Revision 573.9  2000/10/06 03:31:55  ajc
- * Mark Crispin is a fscking idiot.  IMAP is a convoluted mess.
+ * IMAP is a convoluted mess.
 
  Revision 573.8  2000/10/05 22:23:16  ajc
  * Slowly and painfully writing IMAP support
@@ -6467,4 +6469,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

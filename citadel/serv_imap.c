@@ -2,11 +2,12 @@
  * $Id$ 
  *
  * IMAP server for the Citadel system
- * Copyright (C) 2000-2002 by Art Cancro and others.
+ * Copyright (C) 2000-2005 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.
  *
- * WARNING: Mark Crispin is an idiot.  IMAP is the most brain-damaged protocol
- * you will ever have the profound lack of pleasure to encounter.
+ * WARNING: the IMAP protocol is badly designed.  No implementation of it
+ * is perfect.  Indeed, with so much gratuitous complexity, *all* IMAP
+ * implementations have bugs.
  */
 
 #include "sysdep.h"

@@ -2,9 +2,7 @@
  * $Id$
  *
  * Implements the SEARCH command in IMAP.
- * This command is way too convoluted.  Marc Crispin is a fscking idiot.
- *
- * NOTE: this is a partial implementation.  It is NOT FINISHED.
+ * You guessed it ... more gratuitous complexity in the protocol.
  *
  */
 
@@ -371,8 +369,8 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 
 	/* Now here come the 'UN' criteria.  Why oh why do we have to
 	 * implement *both* the 'UN' criteria *and* the 'NOT' keyword?  Why
-	 * can't there be *one* way to do things?  Answer: because Mark
-	 * Crispin is an idiot.
+	 * can't there be *one* way to do things?  Answer: the design of
+	 * IMAP suffers from gratuitous complexity.
 	 */
 
 	else if (!strcasecmp(itemlist[pos], "UNANSWERED")) {
