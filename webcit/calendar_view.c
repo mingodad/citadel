@@ -71,25 +71,35 @@ void calendar_month_view(int year, int month, int day) {
 		tm = localtime(&thetime);
 	}
 
-	wprintf("<CENTER><H2>");
+	/* Outer table (to get the background color) */
+	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0 "
+		"bgcolor=#4444FF><TR><TD>\n");
+
+	wprintf("<CENTER><H3>");
 
 	tm = localtime(&previous_month);
 	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
 		(int)(tm->tm_year)+1900, tm->tm_mon);
 	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/back.gif\" BORDER=0></A>\n");
 
-	wprintf("&nbsp;&nbsp;%s %d&nbsp;&nbsp;", months[month], year);
+	wprintf("&nbsp;&nbsp;"
+		"<FONT COLOR=#FFFFFF>"
+		"%s %d"
+		"</FONT>"
+		"&nbsp;&nbsp;", months[month], year);
 
 	tm = localtime(&next_month);
 	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
 		(int)(tm->tm_year)+1900, tm->tm_mon + 1);
 	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/forward.gif\" BORDER=0></A>\n");
 
-	wprintf("</H2>");
+	wprintf("</H3>");
 
-	wprintf("<TABLE border=1 width=100%%>");
+	/* Inner table (the real one) */
+	wprintf("<TABLE width=100%% border=0 cellpadding=1 cellspacing=1 "
+		"bgcolor=#4444FF>");
 	for (i=0; i<7; ++i) {
-		wprintf("<TH>%s</TH>", days[i]);
+		wprintf("<TH><FONT COLOR=#FFFFFF>%s</FONT></TH>", days[i]);
 	}
 
 	/* Now do 35 days */
@@ -99,7 +109,7 @@ void calendar_month_view(int year, int month, int day) {
 			wprintf("<TR>");
 		}
 
-		wprintf("<TD>");
+		wprintf("<TD BGCOLOR=FFFFFF WIDTH=14%%>");
 		if ((i==0) || (tm->tm_mday == 1)) {
 			wprintf("%s ", months[tm->tm_mon]);
 		}
@@ -117,7 +127,9 @@ void calendar_month_view(int year, int month, int day) {
 		thetime += (time_t)86400;		/* ahead 24 hours */
 	}
 
-	wprintf("</TABLE></CENTER>\n");
+	wprintf("</TABLE>"			/* end of inner table */
+		"</TD></TR></TABLE>"		/* end of outer table */
+		"</CENTER>\n");
 }
 
 
