@@ -1,28 +1,92 @@
 <HTML>
 <HEAD>
 	<TITLE>MenuBar</TITLE>
+	<STYLE TYPE="text/css">
+		BODY	{ text-decoration: none; }
+	</STYLE>
 </HEAD>
-<BODY BACKGROUND="/image&name=background" TEXT="#000000" LINK="#004400">
-	<FONT SIZE=-1>
-	<IMG SRC="/image&name=hello"><BR>
-	<A HREF="/knrooms" TARGET="bottom">List known rooms</A><BR>
-	<A HREF="/gotonext" TARGET="top">Goto next room</A><BR>
-	<A HREF="/skip" TARGET="top">Skip this room</A><BR>
-	<A HREF="/ungoto" TARGET="top">Ungoto</A><BR>
-	<HR>
-	<A HREF="/readnew" TARGET="bottom">Read new messages</A><BR>
-	<A HREF="/readfwd" TARGET="bottom">Read all messages</A><BR>
-	<A HREF="/display_enter" TARGET="bottom">Enter a message</A><BR>
-	<HR>
-	<A HREF="/whobbs" TARGET="bottom">Who is online?</A><BR>
-	<A HREF="/userlist" TARGET="bottom">User list</A><BR>
-	<A HREF="/advanced" TARGET="bottom">Advanced options</A><BR>
-	<HR>
-	<A HREF="/termquit" TARGET="_top">Log off</A><BR>
-	</FONT>
-	<HR>
-	<A HREF="http://uncnsrd.mt-kisco.ny.us/citadel" TARGET="aboutcit">
-	<FONT SIZE=-1>Powered by</FONT><BR>
-	<IMG SRC="/static/citadel-logo.jpg" ALT="Citadel/UX"></A><BR>
+<BODY BACKGROUND="/image&name=background" TEXT="#000000" LINK="#ffffff" ALINK="#ff0000" VLINK="#ffffff">
+
+<CENTER>
+<IMG SRC="/image&name=hello"><BR><BR>
+
+<TABLE BORDER=0>
+<TR>
+	<TD BGCOLOR="#3333CC">
+		<FONT FACE="Arial,Helvetica,sans-serif" SIZE=-1>
+		<A HREF="/knrooms" TARGET="bottom">List known rooms</A>
+		</FONT>
+	</TD>
+</TR><TR>
+	<TD BGCOLOR="#3333CC">
+		<FONT FACE="Arial,Helvetica,sans-serif" SIZE=-1>
+		<A HREF="/gotonext" TARGET="top">Goto next room</A>
+		</FONT>
+	</TD>
+</TR><TR>
+	<TD BGCOLOR="#3333CC">
+		<FONT FACE="Arial,Helvetica,sans-serif" SIZE=-1>
+		<A HREF="/skip" TARGET="top">Skip this room</A>
+		</FONT>
+	</TD>
+</TR><TR>
+	<TD BGCOLOR="#3333CC">
+		<FONT FACE="Arial,Helvetica,sans-serif" SIZE=-1>
+		<A HREF="/ungoto" TARGET="top">Ungoto</A>
+	</TD>
+</TR><TR>
+	<TD BGCOLOR="#003399">
+		<FONT FACE="Arial,Helvetica,sans-serif" SIZE=-1>
+		<A HREF="/readnew" TARGET="bottom">Read&nbsp;new&nbsp;messages</A>
+		</FONT>
+	</TD>
+</TR><TR>
+	<TD BGCOLOR="#003399">
+		<FONT FACE="Arial,Helvetica,sans-serif" SIZE=-1>
+		<A HREF="/readfwd" TARGET="bottom">Read&nbsp;all&nbsp;messages</A>
+		</FONT>
+	</TD>
+</TR><TR>
+	<TD BGCOLOR="#003399">
+		<FONT FACE="Arial,Helvetica,sans-serif" SIZE=-1>
+		<A HREF="/display_enter" TARGET="bottom">Enter&nbsp;a&nbsp;message</A>
+		</FONT>
+	</TD>
+</TR><TR>
+	<TD BGCOLOR="#663399">
+		<FONT FACE="Arial,Helvetica,sans-serif" SIZE=-1>
+		<A HREF="/whobbs" TARGET="bottom">Who&nbsp;is&nbsp;online?</A>
+		</FONT>
+	</TD>
+</TR><TR>
+	<TD BGCOLOR="#663399">
+		<FONT FACE="Arial,Helvetica,sans-serif" SIZE=-1>
+		<A HREF="/userlist" TARGET="bottom">User&nbsp;list</A>
+		</FONT>
+	</TD>
+</TR><TR>
+	<TD BGCOLOR="#663399">
+		<FONT FACE="Arial,Helvetica,sans-serif" SIZE=-1>
+		<A HREF="/advanced" TARGET="bottom">Advanced&nbsp;options</A>
+		</FONT>
+	</TD>
+</TR><TR>
+	<TD BGCOLOR="#CC0000">
+		<FONT FACE="Arial,Helvetica,sans-serif" SIZE=-1>
+		<A HREF="/termquit" TARGET="_top" onClick="return confirm('Do you really want to log off?');">Log&nbsp;off</A><BR>
+	</TD>
+</TR>
+</TABLE>
+
+<BR>
+
+<A HREF="http://uncnsrd.mt-kisco.ny.us/citadel" TARGET="aboutcit"
+	onMouseOver="window.status='Find out more about Citadel/UX'; return true;"><FONT 
+FACE="Arial,Helvetica,sans-serif" SIZE=-2 COLOR="#000000">
+P O W E R E D&nbsp;&nbsp;B Y<BR></FONT>
+<IMG SRC="/static/citadel-logo.jpg" WIDTH=75 HEIGHT=76 BORDER=0 ALT="Citadel/UX"></A>
+
+</CENTER>
+
 </BODY>
 </HTML>

@@ -356,11 +356,11 @@ void gotoroom(char *gname, int display_name)
 
 		if ( (strlen(ugname)>0) && (strcasecmp(ugname,wc_roomname)) ) {
 			wprintf("<TD VALIGN=TOP><A HREF=\"/ungoto\">");
-			wprintf("<IMG SRC=\"/static/back.gif\" border=0></A></TD>");
+			wprintf("<IMG SRC=\"/static/back.gif\" BORDER=0></A></TD>");
 			}
 
-		wprintf("<TD VALIGN=TOP><H1>%s</H1>",wc_roomname);
-		wprintf("<FONT SIZE=-1>%d new of %d messages</FONT></TD>\n",
+		wprintf("<TD VALIGN=TOP><FONT FACE=\"Arial,Helvetica,sans-serif\"><H1>%s</H1>",wc_roomname);
+		wprintf("%d new of %d messages</FONT></TD>\n",
 			extract_int(&buf[4],1),
 			extract_int(&buf[4],2));
 
@@ -372,17 +372,17 @@ void gotoroom(char *gname, int display_name)
 		serv_puts("OIMG _roompic_");
 		serv_gets(buf);
 		if (buf[0]=='2') {
-			wprintf("<TD>");
+			wprintf("<TD><FONT FACE=\"Arial,Helvetica,sans-serif\">");
 			wprintf("<IMG SRC=\"/image&name=_roompic_&room=");
 			escputs(wc_roomname);
-			wprintf("\"></TD>");
+			wprintf("\"></FONT></TD>");
 			serv_puts("CLOS");
 			serv_gets(buf);
 			}
 
-		wprintf("<TD VALIGN=TOP>");
+		wprintf("<TD VALIGN=TOP><FONT FACE=\"Arial,Helvetica,sans-serif\">");
 		readinfo(0);
-		wprintf("</TD>");
+		wprintf("</FONT></TD>");
 
 		wprintf("<TD VALIGN=TOP><A HREF=\"/gotonext\">");
 		wprintf("<IMG SRC=\"/static/forward.gif\" border=0></A></TD>");
