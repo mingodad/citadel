@@ -938,7 +938,7 @@ FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
 		for (a=0; a<strlen(urls[num_urls]); ++a) {
 			b = urls[num_urls][a];
 			if ( (b==' ') || (b==')') || (b=='>') || (b==10)
-			   || (b==13) || (b==9) )
+			   || (b==13) || (b==9) || (b=='\"') )
 				urls[num_urls][a] = 0;
 		}
 		++num_urls;
