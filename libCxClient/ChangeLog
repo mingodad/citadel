@@ -1,15 +1,5 @@
-libCxClient - Citadel/UX Extensible Client API
-Copyright (c) 2000, Flaming Sword Productions
-Copyright (c) 2001, The Citadel/UX Consortium
-All Rights Reserved
-
-http://www.shadowcom.net/Software/libCxClient/
-================================================================================
-
-[0.01] Project has been split off from the 'infusion' source tree.
-
-  - Implemented Ig's suggested CxClCmd() function, in server.o.  It does still
-    use the CxClSend() and CxClRecv() commands for now, though (Sorry, Ig! ;)
-
-================================================================================
 $Id$
+$Log$
+Revision 1.2  2001/02/07 22:41:51  brian
+* Updated ChangeLog to conform to Citadel/UX standards (kinda)  :)
+
