@@ -1,4 +1,5 @@
 #include "includes.hpp"
+#include <time.h>
 
 
 enum {
@@ -120,6 +121,7 @@ void RoomView::do_readloop(wxString readcmd) {
 	wxString sendcmd, recvcmd, buf, allmsgs;
 	wxStringList xferbuf, msgbuf;
         int i, r;
+	CitMessage *message;
 	
 	if (message_window != NULL) {
 		delete message_window;
@@ -154,16 +156,22 @@ void RoomView::do_readloop(wxString readcmd) {
 	allmsgs = "<HTML><BODY><CENTER><H1>List of Messages</H1></CENTER><HR>";
         for (i=0; i<xferbuf.Number(); ++i) {
                 buf.Printf("%s", (wxString *)xferbuf.Nth(i)->GetData());
+
 		sendcmd = "MSG0 " + buf;
-		r = citsock->serv_trans(sendcmd, recvcmd, msgbuf, ThisRoom);
-		if (r == 1) {
-			ListToMultiline(buf, msgbuf);
-			allmsgs += buf;
-			allmsgs += "<HR>";
-		}
-		allmsgs += "</HTML>";
-		message_window->SetPage(allmsgs);
+		message = new CitMessage(citsock, sendcmd, ThisRoom);
+
+		allmsgs += "<i>";
+		allmsgs += asctime(localtime(&message->timestamp));
+		allmsgs += " from " + message->author;
+		allmsgs += "</i><br>";
+		allmsgs += message->msgtext;
+
+		delete message;
+
+		allmsgs += "<HR>";
         }
+	allmsgs += "</BODY></HTML>";
+	message_window->SetPage(allmsgs);
 }
 
 

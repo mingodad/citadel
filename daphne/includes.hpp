@@ -228,6 +228,21 @@ private:
 
 
 
+// A message.  (This is not a GUI class; it's used for internal
+// representation.)
+class CitMessage {
+public:
+	CitMessage(CitClient *sock, wxString getmsg_cmd, wxString inRoom);
+	wxString author;
+	long timestamp;
+	wxString room;
+	wxString msgtext;
+};
+
+
+
+
+
 // Stuff from utils.cpp
 
 void ListToMultiline(wxString& outputbuf, wxStringList inputlist);
