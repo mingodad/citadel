@@ -1,4 +1,8 @@
  $Log$
+ Revision 605.41  2003/04/29 04:13:58  ajc
+ * mime parser: look for the "name=" subfield tacked onto either
+   Content-type or Content-disposition, wherever it finds it.
+
  Revision 605.40  2003/04/28 16:56:51  ajc
  * Added a site-configurable setting to suppress the automatic correction of
    forged From: lines from authenticated SMTP users, for those who prefer
@@ -4655,3 +4659,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

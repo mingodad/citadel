@@ -279,7 +279,9 @@ void the_mime_parser(char *partnum,
 	size_t content_length;
 	char *encoding;
 	char *disposition;
-	char *name;
+	char *name = NULL;
+	char *content_type_name;
+	char *content_disposition_name;
 	char *filename;
 	int is_multipart;
 	int part_seq = 0;
@@ -308,8 +310,11 @@ void the_mime_parser(char *partnum,
 	encoding = mallok(SIZ);
 	memset(encoding, 0, SIZ);
 
-	name = mallok(SIZ);
-	memset(name, 0, SIZ);
+	content_type_name = mallok(SIZ);
+	memset(content_type_name, 0, SIZ);
+
+	content_disposition_name = mallok(SIZ);
+	memset(content_disposition_name, 0, SIZ);
 
 	filename = mallok(SIZ);
 	memset(filename, 0, SIZ);
@@ -336,7 +341,7 @@ void the_mime_parser(char *partnum,
 		if (!isspace(buf[0])) {
 			if (!strncasecmp(header, "Content-type: ", 14)) {
 				strcpy(content_type, &header[14]);
-				extract_key(name, content_type, "name");
+				extract_key(content_type_name, content_type, "name");
 				/* Deal with weird headers */
 				if (strchr(content_type, ' '))
 					*(strchr(content_type, ' ')) = '\0';
@@ -345,6 +350,7 @@ void the_mime_parser(char *partnum,
 			}
 			if (!strncasecmp(header, "Content-Disposition: ", 21)) {
 				strcpy(disposition, &header[21]);
+				extract_key(content_disposition_name, disposition, "name");
 				extract_key(filename, disposition, "filename");
 			}
 			if (!strncasecmp(header, "Content-length: ", 16)) {
@@ -449,6 +455,17 @@ void the_mime_parser(char *partnum,
 		if ( (content_length > 0) && (length > content_length) ) {
 			length = content_length;
 		}
+
+		/* Sometimes the "name" field is tacked on to Content-type,
+		 * and sometimes it's tacked on to Content-disposition.  Use
+		 * whichever one we have.
+		 */
+		if (strlen(content_disposition_name) > strlen(content_type_name)) {
+			name = content_disposition_name;
+		}
+		else {
+			name = content_type_name;
+		}
 		
 		mime_decode(partnum,
 			    part_start, length,
@@ -465,7 +482,8 @@ end_parser:	/* free the buffers!  end the oppression!! */
 	phree(header);
 	phree(content_type);
 	phree(encoding);
-	phree(name);
+	phree(content_type_name);
+	phree(content_disposition_name);
 	phree(filename);
 	phree(disposition);
 }
