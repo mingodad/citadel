@@ -2145,7 +2145,7 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf) {
 }
 
 
-#define NYI_FIXME
+#ifdef NOT_YET_FINISHED /* FIXME */
 /*
  * Validate recipients, count delivery types and errors, and handle aliasing
  */
@@ -2208,7 +2208,7 @@ struct recptypes *validate_recipients(char *recipients) {
 
 	return(ret);
 }
-#endif NYI_FIXME
+#endif /* FIXME */
 
 
 

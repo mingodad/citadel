@@ -1,21 +1,16 @@
 /*
  * $Id$ 
  *
- * POP3 server for the Citadel/UX system
- * Copyright (C) 1998-2000 by Art Cancro and others.
+ * POP3 service for the Citadel/UX system
+ * Copyright (C) 1998-2001 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.
  *
  * Current status of standards conformance:
  *
  * -> All required POP3 commands described in RFC1939 are implemented.
+ *
+ * -> All optional POP3 commands described in RFC1939 are also implemented.
  * 
- * -> Nearly all of the optional commands in RFC1939 are also implemented.
- *    The only one missing is APOP, because it implements a "shared secret"
- *    method  of authentication which would require some major changes to the
- *    Citadel server core.
- *
- *    This is no longer true- APOP is implemented.
- *
  * -> The deprecated "LAST" command is included in this implementation, because
  *    there exist mail clients which insist on using it (such as Bynari
  *    TradeMail, and certain versions of Eudora).
@@ -80,7 +75,10 @@ void pop3_cleanup_function(void) {
 	lprintf(9, "Performing POP3 cleanup hook\n");
 
 	if (POP3->num_msgs > 0) for (i=0; i<POP3->num_msgs; ++i) {
-		fclose(POP3->msgs[i].temp);
+		if (POP3->msgs[i].temp != NULL) {
+			fclose(POP3->msgs[i].temp);
+			POP3->msgs[i].temp = NULL;
+		}
 	}
 	if (POP3->msgs != NULL) phree(POP3->msgs);
 
