@@ -311,8 +311,14 @@ int ig_uds_server(char *sockpath, int queue_len)
 {
 	struct sockaddr_un addr;
 	int s;
+	int i;
 
-	unlink(sockpath);
+	i = unlink(sockpath);
+	if (i != 0) if (errno != ENOENT) {
+		lprintf(1, "citserver: can't unlink %s: %s\n",
+			sockpath, strerror(errno));
+		return(-1);
+	}
 
 	memset(&addr, 0, sizeof(addr));
 	addr.sun_family = AF_UNIX;
@@ -783,6 +789,39 @@ void InitializeMasterCC(void) {
 
 
 /*
+ * Set up a fd_set containing all the master sockets to which we
+ * always listen.  It's computationally less expensive to just copy
+ * this to a local fd_set when starting a new select() and then add
+ * the client sockets than it is to initialize a new one and then
+ * figure out what to put there.
+ */
+void init_master_fdset(void) {
+	struct ServiceFunctionHook *serviceptr;
+	int m;
+
+	lprintf(9, "Initializing master fdset\n");
+
+	FD_ZERO(&masterfds);
+	masterhighest = 0;
+	lprintf(9, "Will listen on rescan pipe %d\n", rescan[0]);
+	FD_SET(rescan[0], &masterfds);
+	if (rescan[0] > masterhighest) masterhighest = rescan[0];
+
+	for (serviceptr = ServiceHookTable; serviceptr != NULL;
+	    serviceptr = serviceptr->next ) {
+		m = serviceptr->msock;
+		lprintf(9, "Will listen on master socket %d\n", m);
+		FD_SET(m, &masterfds);
+		if (m > masterhighest) {
+			masterhighest = m;
+		}
+	}
+	lprintf(9, "masterhighest = %d\n", masterhighest);
+}
+
+
+
+/*
  * Here's where it all begins.
  */
 int main(int argc, char **argv)
@@ -794,7 +833,6 @@ int main(int argc, char **argv)
 	struct passwd *pw;
 	int drop_root_perms = 1;
 	char *moddir;
-	struct ServiceFunctionHook *serviceptr;
         
 	/* specify default port name and trace file */
 	strcpy(tracefile, "");
@@ -905,28 +943,7 @@ int main(int argc, char **argv)
 		exit(errno);
 	}
 
-	/*
-	 * Set up a fd_set containing all the master sockets to which we
-	 * always listen.  It's computationally less expensive to just copy
-	 * this to a local fd_set when starting a new select() and then add
-	 * the client sockets than it is to initialize a new one and then
-	 * figure out what to put there.
-	 */
-	FD_ZERO(&masterfds);
-	masterhighest = 0;
-	FD_SET(rescan[0], &masterfds);
-	if (rescan[0] > masterhighest) masterhighest = rescan[0];
-
-	for (serviceptr = ServiceHookTable; serviceptr != NULL;
-	    serviceptr = serviceptr->next ) {
-		lprintf(9, "Will listen on master socket %d\n",
-			serviceptr->msock);
-		FD_SET(serviceptr->msock, &masterfds);
-		if (serviceptr->msock > masterhighest) {
-			masterhighest = serviceptr->msock;
-		}
-	}
-
+	init_master_fdset();
 
 	/*
 	 * Now that we've bound the sockets, change to the BBS user id and its

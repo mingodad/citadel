@@ -608,7 +608,6 @@ void pop3_command_loop(void) {
 char *Dynamic_Module_Init(void)
 {
 	SYM_POP3 = CtdlGetDynamicSymbol();
-	printf("Registering POP3 port %d\n", config.c_pop3_port);
 	CtdlRegisterServiceHook(config.c_pop3_port,
 				NULL,
 				pop3_greeting,

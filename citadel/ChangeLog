@@ -1,4 +1,7 @@
  $Log$
+ Revision 572.32  2000/08/31 21:32:44  ajc
+ * Still trying to fix a socket connect bug
+
  Revision 572.31  2000/08/31 16:37:08  ajc
  * docs/import-export.txt: added.
 
@@ -2011,3 +2014,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
