@@ -241,8 +241,6 @@ void cmd_chat(char *argbuf)
 	struct CitContext *t_context;
 	int retval;
 
-	unbuffer_output();
-
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
 		return;
@@ -251,6 +249,7 @@ void cmd_chat(char *argbuf)
 	CC->cs_flags = CC->cs_flags | CS_CHAT;
 	cprintf("%d Entering chat mode (type '/help' for available commands)\n",
 		START_CHAT_MODE);
+	unbuffer_output();
 
 	MyLastMsg = ChatLastMsg;
 

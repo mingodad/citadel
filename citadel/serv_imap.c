@@ -828,7 +828,8 @@ void imap_create(int num_parms, char *parms[])
 	char roomname[ROOMNAMELEN];
 	int floornum;
 	int flags;
-	int newroomtype;
+	int newroomtype = 0;
+	int newroomview = 0;
 
 	if (strchr(parms[2], '\\') != NULL) {
 		cprintf("%s NO Invalid character in folder name\r\n",
@@ -856,15 +857,17 @@ void imap_create(int num_parms, char *parms[])
 	}
 
 	if (flags & IR_MAILBOX) {
-		newroomtype = 4;	/* private mailbox */
+		newroomtype = 4;		/* private mailbox */
+		newroomview = VIEW_MAILBOX;
 	} else {
-		newroomtype = 0;	/* public folder */
+		newroomtype = 0;		/* public folder */
+		newroomview = VIEW_BBS;
 	}
 
 	lprintf(CTDL_INFO, "Create new room <%s> on floor <%d> with type <%d>\n",
 		roomname, floornum, newroomtype);
 
-	ret = create_room(roomname, newroomtype, "", floornum, 1, 0, VIEW_BBS);
+	ret = create_room(roomname, newroomtype, "", floornum, 1, 0, newroomview);
 	if (ret == 0) {
 		cprintf
 		    ("%s NO Mailbox already exists, or create failed\r\n",

@@ -1617,12 +1617,13 @@ unsigned create_room(char *new_room_name,
 	struct floor flbuf;
 	struct visit vbuf;
 
-	lprintf(CTDL_DEBUG, "create_room(%s)\n", new_room_name);
+	lprintf(CTDL_DEBUG, "create_room(name=%s, type=%d, view=%d)\n",
+		new_room_name, new_room_type, new_room_view);
+
 	if (getroom(&qrbuf, new_room_name) == 0) {
 		lprintf(CTDL_DEBUG, "%s already exists.\n", new_room_name);
-		return (0);	/* already exists */
+		return(0);
 	}
-
 
 	memset(&qrbuf, 0, sizeof(struct ctdlroom));
 	safestrncpy(qrbuf.QRpasswd, new_room_pass, sizeof qrbuf.QRpasswd);

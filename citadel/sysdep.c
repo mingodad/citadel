@@ -212,12 +212,16 @@ void init_sysdep(void) {
 	sigaddset(&set, SIGHUP);
 	sigaddset(&set, SIGTERM);
 	sigaddset(&set, SIGSEGV);
+	sigaddset(&set, SIGILL);
+	sigaddset(&set, SIGBUS);
 	sigprocmask(SIG_UNBLOCK, &set, NULL);
 	signal(SIGINT, signal_cleanup);
 	signal(SIGQUIT, signal_cleanup);
 	signal(SIGHUP, signal_cleanup);
 	signal(SIGTERM, signal_cleanup);
 	signal(SIGSEGV, signal_cleanup);
+	signal(SIGILL, signal_cleanup);
+	signal(SIGBUS, signal_cleanup);
 
 	/*
 	 * Do not shut down the server on broken pipe signals, otherwise the
@@ -305,6 +309,14 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 		return(-1);
 	}
 
+	/* set to nonblock - we need this for some obscure situations */
+	if (fcntl(s, F_SETFL, O_NONBLOCK) < 0) {
+		lprintf(CTDL_EMERG, "citserver: Can't set socket to non-blocking: %s\n",
+			strerror(errno));
+		close(s);
+		return(-1);
+	}
+
 	if (listen(s, actual_queue_len) < 0) {
 		lprintf(CTDL_EMERG, "citserver: Can't listen: %s\n", strerror(errno));
 		close(s);
@@ -350,6 +362,14 @@ int ig_uds_server(char *sockpath, int queue_len)
 	if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
 		lprintf(CTDL_EMERG, "citserver: Can't bind: %s\n",
 			strerror(errno));
+		return(-1);
+	}
+
+	/* set to nonblock - we need this for some obscure situations */
+	if (fcntl(s, F_SETFL, O_NONBLOCK) < 0) {
+		lprintf(CTDL_EMERG, "citserver: Can't set socket to non-blocking: %s\n",
+			strerror(errno));
+		close(s);
 		return(-1);
 	}
 
@@ -959,7 +979,9 @@ do_select:	force_purge = 0;
 		}
 		end_critical_section(S_SESSION_TABLE);
 
-		if (bind_me) goto SKIP_SELECT;
+		if (bind_me) {
+			goto SKIP_SELECT;
+		}
 
 		/* If we got this far, it means that there are no sessions
 		 * which a previous thread marked for attention, so we go
