@@ -1,4 +1,8 @@
  $Log$
+ Revision 641.18  2005/03/03 18:10:27  ajc
+ * sysdep.c: change the algorithm for dynamically expanding the redirect
+   buffer's size.  Large writes were overflowing it.
+
  Revision 641.17  2005/03/03 17:56:53  ajc
  * Finished removing the use of temp files in IMAP.
    WARNING: DON'T USE THIS ON A PRODUCTION SYSTEM, IT HAS NOT BEEN
@@ -6496,3 +6500,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
