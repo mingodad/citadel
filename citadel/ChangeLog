@@ -1,4 +1,7 @@
  $Log$
+ Revision 625.18  2004/09/09 02:26:45  ajc
+ * Completed (I think) the 'dialog' mode in setup
+
  Revision 625.17  2004/09/08 04:16:07  ajc
  * setup.c: initial changes to use a 'dialog' based setup (yes, it's back,
    because the b0rken version is now long gone and it appears to be more
@@ -6066,4 +6069,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

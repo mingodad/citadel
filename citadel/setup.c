@@ -395,12 +395,13 @@ void progress(char *text, long int curr, long int cmax)
 
 	case UI_DIALOG:
 		if (curr == 0) {
-			sprintf(buf, "%s --gauge '%s' 10 72",
+			sprintf(buf, "%s --gauge '%s' 7 72",
 				getenv("CTDL_DIALOG"),
 				text);
 			fp = popen(buf, "w");
 			if (fp != NULL) {
 				fprintf(fp, "0\n");
+				fflush(fp);
 			}
 		} 
 		else if (curr == cmax) {
@@ -456,7 +457,7 @@ void check_services_entry(void)
 	FILE *sfp;
 
 	if (getservbyname(SERVICE_NAME, PROTO_NAME) == NULL) {
-		for (i=0; i<3; ++i) {
+		for (i=0; i<=3; ++i) {
 			progress("Adding service entry...", i, 3);
 			if (i == 0) {
 				sfp = fopen("/etc/services", "a");
@@ -1174,15 +1175,19 @@ NEW_INST:
 
 	progress("Setting file permissions", 0, 4);
 	chown(".", config.c_bbsuid, gid);
+	sleep(1);
 	progress("Setting file permissions", 1, 4);
 	chown("citadel.config", config.c_bbsuid, gid);
+	sleep(1);
 	progress("Setting file permissions", 2, 4);
 	snprintf(aaa, sizeof aaa,
 		"find . | grep -v chkpwd | xargs chown %ld:%ld 2>/dev/null",
 		(long)config.c_bbsuid, (long)gid);
 	system(aaa);
+	sleep(1);
 	progress("Setting file permissions", 3, 4);
 	chmod("citadel.config", S_IRUSR | S_IWUSR);
+	sleep(1);
 	progress("Setting file permissions", 4, 4);
 
 #ifdef HAVE_LDAP
