@@ -62,6 +62,7 @@ case "$host" in
 	dnl Digital Unix has an odd way to build for pthreads, and we can't
 	dnl build pthreads programs with gcc due to header problems.
 	alpha*-dec-osf*)
+		test -z "$CC" && CC=cc
 		PTHREAD_LIBS="-lpthread -lexc"
 		check_pthread=no
 	;;
@@ -86,14 +87,7 @@ case "$host" in
 esac
 
 dnl Checks for programs.
-case "$host" in
-	alpha*-dec-osf*)
-		AC_PROG_CC(cc gcc /usr/ucb/cc c89)
-	;;
-	*)
-		AC_PROG_CC
-	;;
-esac
+AC_PROG_CC
 
 dnl Set up system-dependent compiler flags.
 if test "$GCC" = yes; then
