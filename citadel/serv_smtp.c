@@ -1,13 +1,23 @@
 /*
  * $Id$
  *
- * This module implements the following protocols for the Citadel system:
+ * This module is an SMTP and ESMTP implementation for the Citadel system.
+ * It is compliant with all of the following:
  *
- * RFC 821 (Simple Mail Transfer Protocol)
- * RFC 1854 (command pipelining)
- * RFC 1869 (Extended Simple Mail Transfer Protocol)
- * RFC 2033 (Local Mail Transfer Protocol)
- * RFC 2034 (enhanced status codes)
+ * RFC  821 - Simple Mail Transfer Protocol
+ * RFC  876 - Survey of SMTP Implementations
+ * RFC 1047 - Duplicate messages and SMTP
+ * RFC 1854 - command pipelining
+ * RFC 1869 - Extended Simple Mail Transfer Protocol
+ * RFC 1870 - SMTP Service Extension for Message Size Declaration
+ * RFC 1893 - Enhanced Mail System Status Codes
+ * RFC 2033 - Local Mail Transfer Protocol
+ * RFC 2034 - SMTP Service Extension for Returning Enhanced Error Codes
+ * RFC 2197 - SMTP Service Extension for Command Pipelining
+ * RFC 2554 - SMTP Service Extension for Authentication
+ * RFC 2821 - Simple Mail Transfer Protocol
+ * RFC 2822 - Internet Message Format
+ * RFC 2920 - SMTP Service Extension for Command Pipelining
  *
  */
 
@@ -220,7 +230,7 @@ void smtp_get_pass(char *argbuf) {
 		CC->cs_flags &= ~CS_STEALTH;
 	}
 	else {
-		cprintf("500 5.7.0 Authentication failed.\r\n");
+		cprintf("535 5.7.0 Authentication failed.\r\n");
 	}
 	SMTP->command_state = smtp_command;
 }
@@ -233,7 +243,7 @@ void smtp_auth(char *argbuf) {
 	char buf[SIZ];
 
 	if (strncasecmp(argbuf, "login", 5) ) {
-		cprintf("550 5.7.4 We only support LOGIN authentication.\r\n");
+		cprintf("504 5.7.4 We only support LOGIN authentication.\r\n");
 		return;
 	}
 

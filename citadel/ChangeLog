@@ -1,4 +1,8 @@
  $Log$
+ Revision 612.5  2003/12/08 17:41:01  ajc
+ * serv_smtp.c: validated and documented compliance with a big pile of RFC's
+   which are in one way or another related to SMTP.
+
  Revision 612.4  2003/12/07 19:59:13  error
  * Minor enhancements to a few of the trace file entries
 
@@ -5111,3 +5115,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
