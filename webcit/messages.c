@@ -272,7 +272,6 @@ void post_message(void) {
 	strcpy(buf, bstr("sc"));
 	if (strcasecmp(buf, "Save message")) {
 		wprintf("Cancelled.  Message was not posted.<BR>\n");
-		dump_vars();
 		}
 
 	else {
