@@ -712,6 +712,8 @@ int set_password(void)
 		newprompt("Enter a new password: ", pass1, -19);
 		newprompt("Enter it again to confirm: ", pass2, -19);
 	}
+	strproc(pass1);
+	strproc(pass2);
 	if (!strucmp(pass1, pass2)) {
 		snprintf(buf, sizeof buf, "SETP %s", pass1);
 		serv_puts(buf);

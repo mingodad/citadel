@@ -1,4 +1,7 @@
 $Log$
+Revision 1.362  1999/09/06 03:39:15  ajc
+* citadel.c: run strproc() on new passwords
+
 Revision 1.361  1999/09/03 17:50:26  playcow
 For URL view, don't prompt user to select url if there is only one.  Display
 <U>RL View prompt if message contains url(s). -Ben
@@ -1230,5 +1233,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
 
