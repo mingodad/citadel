@@ -46,7 +46,9 @@ char setup_directory[SIZ];
 char init_entry[SIZ];
 int using_web_installer = 0;
 
+#ifdef HAVE_LDAP
 void contemplate_ldap(void);
+#endif
 
 char *setup_titles[] =
 {
@@ -1081,8 +1083,10 @@ NEW_INST:
 	chmod("citadel.config", S_IRUSR | S_IWUSR);
 	progress("Setting file permissions", 4, 4);
 
+#ifdef HAVE_LDAP
 	/* Contemplate the possibility of auto-configuring OpenLDAP */
-	/* contemplate_ldap(); */
+	contemplate_ldap();
+#endif
 
 	/* See if we can start the Citadel service. */
 	if (strlen(init_entry) > 0) {
@@ -1112,19 +1116,21 @@ NEW_INST:
 }
 
 
+#ifdef HAVE_LDAP
 /*
  * If we're in the middle of an Easy Install, we might just be able to
  * auto-configure a standalone OpenLDAP server.
  */
 void contemplate_ldap(void) {
 	char question[SIZ];
-	char base_dn[SIZ];
 	FILE *fp;
 
 	/* If conditions are not ideal, give up on this idea. */
 	if (using_web_installer == 0) return;
 	if (getenv("LDAP_CONFIG") == NULL) return;
+	if (getenv("SUPPORT") == NULL) return;
 	if (getenv("SLAPD_BINARY") == NULL) return;
+	if (getenv("CITADEL") == NULL) return;
 
 	/* Otherwise, prompt the user to create an entry. */
 	snprintf(question, sizeof question,
@@ -1139,7 +1145,7 @@ void contemplate_ldap(void) {
 	if (yesno(question) == 0)
 		return;
 
-	strcpy(base_dn, "dc=example,dc=com");
+	strcpy(config.c_ldap_base_dn, "dc=example,dc=com");
 	strprompt("Base DN",
 		"\n"
 		"Please enter the Base DN for your directory.  This will\n"
@@ -1147,8 +1153,17 @@ void contemplate_ldap(void) {
 		"which you receive mail, but it doesn't have to be.  Your\n"
 		"LDAP tree will be built using this Distinguished Name.\n"
 		"\n",
-		base_dn
+		config.c_ldap_base_dn
 	);
+
+	strcpy(config.c_ldap_host, "localhost");
+	config.c_ldap_port = 389;
+	sprintf(config.c_ldap_bind_dn, "cn=manager,%s", config.c_ldap_base_dn);
+
+	/* FIXME ... make the generated password harder to guess */
+	sprintf(config.c_ldap_bind_pw, "%d%ld", getpid(), time(NULL));
+
+	write_config_to_disk();
 
 	fp = fopen(getenv("LDAP_CONFIG"), "w");
 	if (fp == NULL) {
@@ -1161,6 +1176,27 @@ void contemplate_ldap(void) {
 		important_message("Error", question);
 		return;
 	}
-	fprintf(fp, "FIXME\n");
+
+	fprintf(fp, "include	%s/citadel-openldap.schema\n",
+		getenv("CITADEL"));
+	fprintf(fp, "pidfile	%s/openldap-data/slapd.pid\n",
+		getenv("CITADEL"));
+	fprintf(fp, "argsfile	%s/openldap-data/slapd.args\n",
+		getenv("CITADEL"));
+	fprintf(fp,	"allow		bind_v2\n"
+			"database	bdb\n"
+			"schemacheck	off\n"
+	);
+	fprintf(fp,	"suffix		\"%s\"\n", config.c_ldap_base_dn);
+	fprintf(fp,	"rootdn		\"%s\"\n", config.c_ldap_bind_dn);
+	fprintf(fp,	"rootpw		%s\n", config.c_ldap_bind_pw);
+	fprintf(fp,	"directory	%s/openldap-data\n",
+		getenv("CITADEL"));
+	fprintf(fp,	"index		objectClass	eq\n");
+
 	fclose(fp);
+
+	/* This is where our OpenLDAP server will keep its data. */
+	mkdir("openldap-data", 0700);
 }
+#endif	/* HAVE_LDAP */
