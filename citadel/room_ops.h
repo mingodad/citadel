@@ -6,9 +6,11 @@ int has_newmsgs (struct quickroom *roombuf, int roomnum,
 int is_zapped (struct quickroom *roombuf, int roomnum,
 	       struct usersupp *userbuf);
 int getroom(struct quickroom *qrbuf, char *room_name);
-void putroom(struct quickroom *qrbuf, char *room_name);
+void b_putroom(struct quickroom *qrbuf, char *room_name);
+void putroom(struct quickroom *);
+void b_deleteroom(char *);
 int lgetroom(struct quickroom *qrbuf, char *room_name);
-void lputroom(struct quickroom *qrbuf, char *room_name);
+void lputroom(struct quickroom *qrbuf);
 void getfloor (struct floor *flbuf, int floor_num);
 void lgetfloor (struct floor *flbuf, int floor_num);
 void putfloor (struct floor *flbuf, int floor_num);

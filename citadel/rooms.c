@@ -863,17 +863,18 @@ void entroom(void) {
 
 	IFNEXPERT formout("roomaccess");
 	do {
-		printf("<?>Help\n<1>Public room\n<2>Guess-name room\n");
-		printf("<3>Passworded room\n<4>Invitation-only room\n");
+		printf(	"<?>Help\n<1>Public room\n<2>Guess-name room\n"
+			"<3>Passworded room\n<4>Invitation-only room\n"
+			"<5>Personal room\n");
 		printf("Enter room type: ");
 		do {
 			b=inkey();
-			} while (((b<'1')||(b>'4')) && (b!='?'));
+			} while (((b<'1')||(b>'5')) && (b!='?'));
 		if (b=='?') {
 			printf("?\n");
 			formout("roomaccess");
 			}
-		} while ((b<'1')||(b>'4'));
+		} while ((b<'1')||(b>'5'));
 	b=b-48;
 	printf("%d\n",b);
 	new_room_type = b - 1;
@@ -889,6 +890,7 @@ void entroom(void) {
 	if (b==2) printf(" guess-name room.");
 	if (b==3) printf(" passworded room, password: %s",new_room_pass);
 	if (b==4) printf("n invitation-only room.");
+	if (b==5) printf(" personal room.");
 	printf("\nInstall it? (y/n) : ");
 	a=yesno();
 	if (a==0) return;

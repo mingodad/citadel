@@ -954,7 +954,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 	CC->quickroom.QRhighest = AddMessageToRoom(&CC->quickroom, newmsgid);
 
 	/* update quickroom */
-	lputroom(&CC->quickroom, actual_rm);
+	lputroom(&CC->quickroom);
 
 	/* Network mail - send a copy to the network program. */
 	if ( (strlen(recipient)>0) && (mailtype != MES_LOCAL) ) {
@@ -1335,7 +1335,7 @@ void cmd_dele(char *delstr)
 	CC->quickroom.QRhighest = MessageFromList(CC->num_msgs - 1);
 
 	put_msglist(&CC->quickroom);
-	lputroom(&CC->quickroom,CC->quickroom.QRname);
+	lputroom(&CC->quickroom);
 	if (ok==1) {
 		cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));
 		cprintf("%d Message deleted.\n",OK);
@@ -1387,7 +1387,7 @@ void cmd_move(char *args)
 		put_msglist(&CC->quickroom);
 		CC->quickroom.QRhighest = MessageFromList((CC->num_msgs)-1);
 		}
-	lputroom(&CC->quickroom,CC->quickroom.QRname);
+	lputroom(&CC->quickroom);
 	if (!foundit) {
 		cprintf("%d msg %ld does not exist.\n",ERROR,num);
 		return;
@@ -1396,7 +1396,7 @@ void cmd_move(char *args)
 	/* put the message into the target room */
 	lgetroom(&qtemp, targ);
 	qtemp.QRhighest = AddMessageToRoom(&qtemp, num);
-	lputroom(&qtemp, targ);
+	lputroom(&qtemp);
 
 	cprintf("%d Message moved.\n", OK);
 	}

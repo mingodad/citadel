@@ -1,6 +1,9 @@
 Sun Jul 11 18:46:48 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* netproc.c: msgfind() no longer uses the timestamp as a message-ID
 	  when no other message-ID is available (it screws up the loopzapper)
+	* room_ops.c: eliminate room name parameter in putroom() and its ilk;
+	  get data from quickroom.QRname instead; prevents incorrect indexes
+	* Tentative implementation of "personal rooms" (user-private namespace)
 
 Wed Jul  7 23:25:09 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* control.c: create citadel.control if it doesn't exist (yikes!)

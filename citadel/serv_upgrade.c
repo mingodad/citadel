@@ -200,7 +200,7 @@ void imp_rooms(void) {
 
 			lprintf(9, "(%d messages)\n", num_msgs);
 			if (qr.QRflags&QR_INUSE) {
-				putroom(&qr, qr.QRname);
+				putroom(&qr);
 				}
 
 			if (num_msgs > 0) {

@@ -1039,7 +1039,6 @@ RMSGREAD:	fflush(stdout);
 					if ((e=='d')||(e=='m')) e=0;
 					}
 /* print only if available */	if ((e=='p')&&(strlen(printcmd)==0)) e=0;
-/* can't move from Mail> */	if ((e=='m')&&(is_mail==1)) e=0;
 /* can't reply in public rms */	if ((e=='r')&&(is_mail!=1)) e=0;
 /* can't file if not allowed */	if ((e=='f')&&(rc_allow_attachments==0)) e=0;
 				} while((e!='a')&&(e!='n')&&(e!='s')

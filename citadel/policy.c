@@ -102,7 +102,7 @@ void cmd_spex(char *argbuf) {
 			}
 		lgetroom(&CC->quickroom, CC->quickroom.QRname);
 		memcpy(&CC->quickroom.QRep, &exp, sizeof(struct ExpirePolicy));
-		lputroom(&CC->quickroom, CC->quickroom.QRname);
+		lputroom(&CC->quickroom);
 		cprintf("%d ok\n", OK);
 		return;
 		}
