@@ -7,7 +7,9 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <limits.h>
 #include "citadel.h"
+#include "config.h"
 
 #define disply(x,y) printf("%20s            %4.1f    %4.1f    %4d\n",x,((float)y)/calls,((float)y)/days,y)
 
@@ -21,9 +23,6 @@ struct caller
     char Cname[30];
     int Ctimescalled;
   };
-
-void get_config (void);
-struct config config;
 
 
 void

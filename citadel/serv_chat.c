@@ -20,9 +20,7 @@
 #include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
-
-extern struct config config;
-extern struct CitContext *ContextList;
+#include "config.h"
 
 struct ChatLine *ChatQueue = NULL;
 int ChatLastMsg = 0;

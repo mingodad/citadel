@@ -43,11 +43,6 @@
 #include <sys/select.h>
 #endif
 
-extern struct CitContext *ContextList;
-extern struct config config;
-extern char bbs_home_directory[];
-extern int home_specified;
-
 pthread_mutex_t Critters[MAX_SEMAPHORES];	/* Things needing locking */
 pthread_key_t MyConKey;				/* TSD key for MyContext() */
 
