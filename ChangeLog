@@ -1,4 +1,7 @@
 $Log$
+Revision 323.23  2002/04/28 03:56:47  ajc
+* Finished summary mode (for the most part, anyway)
+
 Revision 323.22  2002/04/26 21:13:21  ajc
 * Separated "summary mode" message listing into its own function
 * Go to summary mode automatically when the server says that view=1
@@ -782,4 +785,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
