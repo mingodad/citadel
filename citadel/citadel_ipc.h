@@ -253,13 +253,12 @@ int CtdlIPCGetMessageExpirationPolicy(CtdlIPC *ipc, int which,
 		struct ExpirePolicy **policy, char *cret);
 int CtdlIPCSetMessageExpirationPolicy(CtdlIPC *ipc, int which,
 		struct ExpirePolicy *policy, char *cret);
-int CtdlGetSystemConfig(CtdlIPC *ipc, char **listing, char *cret);
-int CtdlSetSystemConfig(CtdlIPC *ipc, const char *listing, char *cret);
-int CtdlGetSystemConfigByType(CtdlIPC *ipc, const char *mimetype,
+int CtdlIPCGetSystemConfig(CtdlIPC *ipc, char **listing, char *cret);
+int CtdlIPCSetSystemConfig(CtdlIPC *ipc, const char *listing, char *cret);
+int CtdlIPCGetSystemConfigByType(CtdlIPC *ipc, const char *mimetype,
 	       	char **listing, char *cret);
-int CtdlSetSystemConfigByType(CtdlIPC *ipc, const char *mimetype,
+int CtdlIPCSetSystemConfigByType(CtdlIPC *ipc, const char *mimetype,
 	       const char *listing, char *cret);
-int CtdlIPCModerateMessage(CtdlIPC *ipc, long msgnum, int level, char *cret);
 int CtdlIPCRequestClientLogout(CtdlIPC *ipc, int session, char *cret);
 int CtdlIPCSetMessageSeen(CtdlIPC *ipc, long msgnum, int seen, char *cret);
 int CtdlIPCStartEncryption(CtdlIPC *ipc, char *cret);

@@ -160,7 +160,7 @@ int main(int argc, char **argv)
 
 	/* Set up the node table */
 	printf("Creating neighbor node table\n");
-	r = CtdlSetSystemConfigByType(ipc, IGNETCFG, listing, buf);
+	r = CtdlIPCSetSystemConfigByType(ipc, IGNETCFG, listing, buf);
 	free(listing);
 	listing = NULL;
 	if (r / 100 != 4) {

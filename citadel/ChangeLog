@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.89  2002/12/15 09:42:37  error
+ * Converted more routines to new IPC code.
+
  Revision 601.88  2002/12/14 23:21:29  ajc
  * When saving a calendar event, set the message Subject to the event
    summary string, and the message Date/time to the event start time.
@@ -4303,3 +4306,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

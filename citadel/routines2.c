@@ -403,19 +403,19 @@ void val_user(CtdlIPC *ipc, char *user, int do_validate)
 	int a;
 	char cmd[SIZ];
 	char buf[SIZ];
+	char *resp = NULL;
 	int ax = 0;
 	int r;				/* IPC response code */
 
-	snprintf(cmd, sizeof cmd, "GREG %s", user);
-	CtdlIPC_putline(ipc, cmd);
-	CtdlIPC_getline(ipc, cmd);
-	if (cmd[0] == '1') {
+	r = CtdlIPCGetUserRegistration(ipc, user, &resp, cmd);
+	if (r / 100 == 1) {
 		a = 0;
 		do {
-			CtdlIPC_getline(ipc, buf);
+			extract_token(buf, resp, 0, '\n');
+			remove_token(resp, 0, '\n');
 			++a;
 			if (a == 1)
-				scr_printf("User #%s - %s  ", buf, &cmd[4]);
+				scr_printf("User #%s - %s  ", buf, cmd);
 			if (a == 2)
 				scr_printf("PW: %s\n", buf);
 			if (a == 3)
@@ -436,11 +436,12 @@ void val_user(CtdlIPC *ipc, char *user, int do_validate)
 				scr_printf("%s\n", buf);
 			if (a == 11)
 				scr_printf("%s\n", buf);
-		} while (strcmp(buf, "000"));
+		} while (strlen(resp));
 		scr_printf("Current access level: %d (%s)\n", ax, axdefs[ax]);
 	} else {
-		scr_printf("%-30s\n%s\n", user, &cmd[4]);
+		scr_printf("%s\n%s\n", user, &cmd[4]);
 	}
+	if (resp) free(resp);
 
 	if (do_validate) {
 		/* now set the access level */
@@ -548,15 +549,18 @@ void movefile(CtdlIPC *ipc)
 void list_bio(CtdlIPC *ipc)
 {
 	char buf[SIZ];
+	char *resp = NULL;
 	int pos = 1;
+	int r;			/* IPC response code */
 
-	CtdlIPC_putline(ipc, "LBIO");
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] != '1') {
-		pprintf("%s\n", &buf[4]);
+	r = CtdlIPCListUsersWithBios(ipc, &resp, buf);
+	if (r / 100 != 1) {
+		pprintf("%s\n", buf);
 		return;
 	}
-	while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
+	while (strlen(resp)) {
+		extract_token(buf, resp, 0, '\n');
+		remove_token(resp, 0, '\n');
 		if ((pos + strlen(buf) + 5) > screenwidth) {
 			pprintf("\n");
 			pos = 1;
@@ -565,6 +569,7 @@ void list_bio(CtdlIPC *ipc)
 		pos = pos + strlen(buf) + 2;
 	}
 	pprintf("%c%c  \n\n", 8, 8);
+	if (resp) free(resp);
 }
 
 
@@ -575,6 +580,8 @@ void read_bio(CtdlIPC *ipc)
 {
 	char who[SIZ];
 	char buf[SIZ];
+	char *resp = NULL;
+	int r;			/* IPC response code */
 
 	do {
 		newprompt("Read bio for who ('?' for list) : ", who, 25);
@@ -582,16 +589,18 @@ void read_bio(CtdlIPC *ipc)
 		if (!strcmp(who, "?"))
 			list_bio(ipc);
 	} while (!strcmp(who, "?"));
-	snprintf(buf, sizeof buf, "RBIO %s", who);
-	CtdlIPC_putline(ipc, buf);
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] != '1') {
-		pprintf("%s\n", &buf[4]);
+
+	r = CtdlIPCGetBio(ipc, who, &resp, buf);
+	if (r / 100 != 1) {
+		pprintf("%s\n", buf);
 		return;
 	}
-	while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
+	while (strlen(resp)) {
+		extract_token(buf, resp, 0, '\n');
+		remove_token(resp, 0, '\n');
 		pprintf("%s\n", buf);
 	}
+	if (resp) free(resp);
 }
 
 
@@ -602,36 +611,34 @@ void do_system_configuration(CtdlIPC *ipc)
 {
 	char buf[SIZ];
 	char sc[31][SIZ];
-	int expire_mode = 0;
-	int expire_value = 0;
+	char *resp = NULL;
+	struct ExpirePolicy *expirepolicy = NULL;
 	int a;
 	int logpages = 0;
+	int r;			/* IPC response code */
 
 	/* Clear out the config buffers */
 	memset(&sc[0][0], 0, sizeof(sc));
 
 	/* Fetch the current config */
-	CtdlIPC_putline(ipc, "CONF get");
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] == '1') {
+	r = CtdlIPCGetSystemConfig(ipc, &resp, buf);
+	if (r / 100 == 1) {
 		a = 0;
-		while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
+		while (strlen(resp)) {
+			extract_token(buf, resp, 0, '\n');
+			remove_token(resp, 0, '\n');
 			if (a < 31) {
 				strcpy(&sc[a][0], buf);
 			}
 			++a;
 		}
 	}
+	if (resp) free(resp);
+	resp = NULL;
 	/* Fetch the expire policy (this will silently fail on old servers,
 	 * resulting in "default" policy)
 	 */
-	CtdlIPC_putline(ipc, "GPEX site");
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] == '2') {
-		expire_mode = extract_int(&buf[4], 0);
-		expire_value = extract_int(&buf[4], 1);
-	}
-
+	r = CtdlIPCGetMessageExpirationPolicy(ipc, 2, &expirepolicy, buf);
 
 	/* Identification parameters */
 
@@ -706,7 +713,7 @@ void do_system_configuration(CtdlIPC *ipc)
 
 	/* Angels and demons dancing in my head... */
 	do {
-		snprintf(buf, sizeof buf, "%d", expire_mode);
+		snprintf(buf, sizeof buf, "%d", expirepolicy->expire_mode);
 		strprompt("System default message expire policy (? for list)",
 			  buf, 1);
 		if (buf[0] == '?') {
@@ -715,34 +722,44 @@ void do_system_configuration(CtdlIPC *ipc)
 				"2. Expire by message count\n"
 				"3. Expire by message age\n");
 		}
-	} while ((buf[0] < 49) || (buf[0] > 51));
-	expire_mode = buf[0] - 48;
+	} while ((buf[0] < '1') || (buf[0] > '3'));
+	expirepolicy->expire_mode = buf[0] - '0';
 
 	/* ...lunatics and monsters underneath my bed */
-	if (expire_mode == 2) {
-		snprintf(buf, sizeof buf, "%d", expire_value);
+	if (expirepolicy->expire_mode == 2) {
+		snprintf(buf, sizeof buf, "%d", expirepolicy->expire_value);
 		strprompt("Keep how many messages online?", buf, 10);
-		expire_value = atol(buf);
+		expirepolicy->expire_value = atol(buf);
 	}
-	if (expire_mode == 3) {
-		snprintf(buf, sizeof buf, "%d", expire_value);
+	if (expirepolicy->expire_mode == 3) {
+		snprintf(buf, sizeof buf, "%d", expirepolicy->expire_value);
 		strprompt("Keep messages for how many days?", buf, 10);
-		expire_value = atol(buf);
+		expirepolicy->expire_value = atol(buf);
 	}
 	/* Save it */
 	scr_printf("Save this configuration? ");
 	if (yesno()) {
-		CtdlIPC_putline(ipc, "CONF set");
-		CtdlIPC_getline(ipc, buf);
-		if (buf[0] == '4') {
-			for (a = 0; a < 31; ++a)
-				CtdlIPC_putline(ipc, &sc[a][0]);
-			CtdlIPC_putline(ipc, "000");
+		r = 1;
+		for (a = 0; a < 31; a++)
+			r += 1 + strlen(sc[a]);
+		resp = (char *)calloc(1, r);
+		if (!resp) {
+			err_printf("Can't save config - out of memory!\n");
+			logoff(ipc, 1);
 		}
-		snprintf(buf, sizeof buf, "SPEX site|%d|%d",
-			 expire_mode, expire_value);
-		CtdlIPC_putline(ipc, buf);
-		CtdlIPC_getline(ipc, buf);
+		for (a = 0; a < 31; a++) {
+			strcat(resp, sc[a]);
+			strcat(resp, "\n");
+		}
+		r = CtdlIPCSetSystemConfig(ipc, resp, buf);
+		if (r / 100 != 4) {
+			err_printf("%s\n", buf);
+		}
+		free(resp);
+		r = CtdlIPCSetMessageExpirationPolicy(ipc, 2, expirepolicy, buf);
+		if (r / 100 != 2) {
+			err_printf("%s\n", buf);
+		}
 	}
 }
 
@@ -780,24 +797,28 @@ void get_inet_rec_type(CtdlIPC *ipc, char *buf) {
 void do_internet_configuration(CtdlIPC *ipc)
 {
 	char buf[SIZ];
+	char *resp = NULL;
 	int num_recs = 0;
 	char **recs = NULL;
 	char ch;
 	int badkey;
 	int i, j;
 	int quitting = 0;
+	int r;
 	
-
-	snprintf(buf, sizeof buf, "CONF getsys|%s", INTERNETCFG);
-	CtdlIPC_putline(ipc, buf);
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] == '1') while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
-		++num_recs;
-		if (num_recs == 1) recs = malloc(sizeof(char *));
-		else recs = realloc(recs, (sizeof(char *)) * num_recs);
-		recs[num_recs-1] = malloc(SIZ);
-		strcpy(recs[num_recs-1], buf);
+	r = CtdlIPCGetSystemConfigByType(ipc, INTERNETCFG, &resp, buf);
+	if (r / 100 == 1) {
+		while (strlen(resp)) {
+			extract_token(buf, resp, 0, '\n');
+			remove_token(resp, 0, '\n');
+			++num_recs;
+			if (num_recs == 1) recs = malloc(sizeof(char *));
+			else recs = realloc(recs, (sizeof(char *)) * num_recs);
+			recs[num_recs-1] = malloc(strlen(buf) + 1);
+			strcpy(recs[num_recs-1], buf);
+		}
 	}
+	if (resp) free(resp);
 
 	do {
 		scr_printf("\n");
@@ -840,18 +861,21 @@ void do_internet_configuration(CtdlIPC *ipc)
 					recs[j] = recs[j+1];
 				break;
 			case 's':
-				snprintf(buf, sizeof buf, "CONF putsys|%s",
-					INTERNETCFG);
-				CtdlIPC_putline(ipc, buf);
-				CtdlIPC_getline(ipc, buf);
-				if (buf[0] == '4') {
-					for (i=0; i<num_recs; ++i) {
-						CtdlIPC_putline(ipc, recs[i]);
-					}
-					CtdlIPC_putline(ipc, "000");
+				r = 1;
+				for (i = 0; i < num_recs; i++)
+					r += 1 + strlen(recs[i]);
+				resp = (char *)calloc(1, r);
+				if (!resp) {
+					err_printf("Can't save config - out of memory!\n");
+					logoff(ipc, 1);
 				}
-				else {
-					scr_printf("%s\n", &buf[4]);
+				for (i = 0; i < num_recs; i++) {
+					strcat(resp, recs[i]);
+					strcat(resp, "\n");
+				}
+				r = CtdlIPCSetSystemConfigByType(ipc, INTERNETCFG, resp, buf);
+				if (r / 100 != 4) {
+					err_printf("%s\n", buf);
 				}
 				quitting = 1;
 				break;

@@ -1391,17 +1391,26 @@ int CtdlIPCEditFloor(CtdlIPC *ipc, int floornum, const char *floorname, char *cr
 }
 
 
-/* IDEN */
-int CtdlIPCIdentifySoftware(CtdlIPC *ipc, int developerid, int clientid, int revision,
-		const char *software_name, const char *hostname, char *cret)
+/*
+ * IDEN 
+ *
+ * You only need to fill out hostname, the defaults will be used if any of the
+ * other fields are not set properly.
+ */
+int CtdlIPCIdentifySoftware(CtdlIPC *ipc, int developerid, int clientid,
+		int revision, const char *software_name, const char *hostname,
+		char *cret)
 {
 	register int ret;
 	char *aaa;
 
-	if (developerid < 0) return -2;
-	if (clientid < 0) return -2;
-	if (revision < 0) return -2;
-	if (!software_name) return -2;
+	if (developerid < 0 || clientid < 0 || revision < 0 ||
+	    !software_name) {
+		developerid = 8;
+		clientid = 0;
+		revision = REV_LEVEL - 600;
+		software_name = "Citadel/UX (libcitadel)";
+	}
 	if (!hostname) return -2;
 
 	aaa = (char *)malloc(strlen(software_name) + strlen(hostname) + 29);
@@ -1753,7 +1762,7 @@ int CtdlIPCSetMessageExpirationPolicy(CtdlIPC *ipc, int which,
 
 
 /* CONF GET */
-int CtdlGetSystemConfig(CtdlIPC *ipc, char **listing, char *cret)
+int CtdlIPCGetSystemConfig(CtdlIPC *ipc, char **listing, char *cret)
 {
 	size_t bytes;
 
@@ -1767,7 +1776,7 @@ int CtdlGetSystemConfig(CtdlIPC *ipc, char **listing, char *cret)
 
 
 /* CONF SET */
-int CtdlSetSystemConfig(CtdlIPC *ipc, const char *listing, char *cret)
+int CtdlIPCSetSystemConfig(CtdlIPC *ipc, const char *listing, char *cret)
 {
 	if (!cret) return -2;
 	if (!listing) return -2;
@@ -1778,7 +1787,7 @@ int CtdlSetSystemConfig(CtdlIPC *ipc, const char *listing, char *cret)
 
 
 /* CONF GETSYS */
-int CtdlGetSystemConfigByType(CtdlIPC *ipc, const char *mimetype,
+int CtdlIPCGetSystemConfigByType(CtdlIPC *ipc, const char *mimetype,
 	       	char **listing, char *cret)
 {
 	char *aaa;
@@ -1798,7 +1807,7 @@ int CtdlGetSystemConfigByType(CtdlIPC *ipc, const char *mimetype,
 
 
 /* CONF PUTSYS */
-int CtdlSetSystemConfigByType(CtdlIPC *ipc, const char *mimetype,
+int CtdlIPCSetSystemConfigByType(CtdlIPC *ipc, const char *mimetype,
 	       const char *listing, char *cret)
 {
 	char *aaa;
@@ -1812,18 +1821,6 @@ int CtdlSetSystemConfigByType(CtdlIPC *ipc, const char *mimetype,
 	sprintf(aaa, "CONF PUTSYS|%s", mimetype);
 	return CtdlIPCGenericCommand(ipc, aaa, listing, strlen(listing),
 			NULL, NULL, cret);
-}
-
-/* MMOD */
-int CtdlIPCModerateMessage(CtdlIPC *ipc, long msgnum, int level, char *cret)
-{
-	char aaa[27];
-
-	if (!cret) return -2;
-	if (!msgnum) return -2;
-
-	sprintf(aaa, "MMOD %ld|%d", msgnum, level);
-	return CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
 }
 
 
