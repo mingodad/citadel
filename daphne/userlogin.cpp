@@ -283,4 +283,7 @@ void UserLogin::BeginSession(wxString serv_response) {
 	citsock->GotoRoom("_BASEROOM_", "", junk);
 
 	// FIX ... add code here to perform registration if necessary
+
+	load_roomlist(RoomList, citsock);
+	
 }

@@ -5,15 +5,13 @@
 #include <wx/wx.h>
 #include <wx/listctrl.h>
 #include <wx/socket.h>
-#include "utils.h"
 
 
 
 // Globals
 
 extern wxMDIParentFrame *BigMDI;
-
-
+extern wxTreeCtrl *RoomList;
 
 
 
@@ -195,4 +193,18 @@ private:
 	who *which_who;
 	void Notify(void);
 };
+
+
+
+
+// Stuff from utils.cpp
+
+void ListToMultiline(wxString& outputbuf, wxStringList inputlist);
+void MultilineToList(wxStringList& outputlist, wxString inputbuf);
+void extract(wxString& outputbuf, wxString inputbuf, int parmnum);
+void load_roomlist(wxTreeCtrl *tree, CitClient *citsock);
+
+
+
+
 

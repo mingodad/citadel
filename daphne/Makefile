@@ -22,8 +22,8 @@ testwindow.o: testwindow.cpp includes.hpp
 who.o: who.cpp includes.hpp
 	c++ -c $(CFLAGS) who.cpp
 
-utils.o: utils.c includes.hpp
-	c++ -c $(CFLAGS) utils.c
+utils.o: utils.cpp includes.hpp
+	c++ -c $(CFLAGS) utils.cpp
 
 tcp_sockets.o: tcp_sockets.cpp includes.hpp
 	c++ -c $(CFLAGS) tcp_sockets.cpp

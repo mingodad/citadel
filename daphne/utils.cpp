@@ -1,7 +1,7 @@
-// utils.c: utility functions not belonging to any particular class
+// utility functions not belonging to any particular class
 
 #include <wx/wx.h>
-#include "utils.h"
+#include "includes.hpp"
 
 
 // The following two functions convert between the wxStringList class used for
@@ -71,4 +71,22 @@ void extract(wxString& outputbuf, wxString inputbuf, int parmnum) {
 	if (p > 0) {
 		outputbuf = outputbuf.Mid(0, p);
 	}
+}
+
+
+
+// Load a tree with a room list
+//
+void load_roomlist(wxTreeCtrl *tree, CitClient *citsock) {
+
+	// First, clear it out.
+	tree->DeleteAllItems();
+
+	// Set the root with the name of the Citadel server.
+	tree->AddRoot(
+		citsock->HumanNode,
+		-1,	// FIX use an "earth" pixmap here
+		-1,
+		NULL);
+
 }
