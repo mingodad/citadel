@@ -141,8 +141,11 @@ void mime_decode(char *partnum,
 
 	/* If this part is not encoded, send as-is */
 	if ( (strlen(encoding) == 0) || (dont_decode)) {
-		CallBack(name, filename, partnum, disposition, part_start,
-			 content_type, length, encoding, userdata);
+		if (CallBack != NULL) {
+			CallBack(name, filename, partnum,
+				disposition, part_start,
+				content_type, length, encoding, userdata);
+			}
 		return;
 	}
 	if ((strcasecmp(encoding, "base64"))
@@ -219,9 +222,10 @@ void mime_decode(char *partnum,
 		bytes_recv = bytes_recv + blocksize;
 	}
 
-	if (bytes_recv > 0)
+	if (bytes_recv > 0) if (CallBack != NULL) {
 		CallBack(name, filename, partnum, disposition, decoded,
 			 content_type, bytes_recv, "binary", userdata);
+	}
 
 	phree(decoded);
 }
@@ -351,11 +355,16 @@ void the_mime_parser(char *partnum,
 	if (is_multipart) {
 
 		/* Tell the client about this message's multipartedness */
-		PreMultiPartCallBack("", "", partnum, "", NULL, content_type,
+		if (PreMultiPartCallBack != NULL) {
+			PreMultiPartCallBack("", "", partnum, "",
+				NULL, content_type,
 				0, encoding, userdata);
+		}
 		/*
-		CallBack("", "", partnum, "", NULL, content_type,
+		if (CallBack != NULL) {
+			CallBack("", "", partnum, "", NULL, content_type,
 				0, encoding, userdata);
+		}
 		 */
 
 		/* Figure out where the boundaries are */
@@ -389,8 +398,10 @@ void the_mime_parser(char *partnum,
 				part_start = ptr;
 			}
 		} while (strcasecmp(buf, endary));
-END_MULTI:	PostMultiPartCallBack("", "", partnum, "", NULL, content_type,
-				0, encoding, userdata);
+END_MULTI:	if (PostMultiPartCallBack != NULL) {
+			PostMultiPartCallBack("", "", partnum, "", NULL,
+				content_type, 0, encoding, userdata);
+		}
 		return;
 	}
 

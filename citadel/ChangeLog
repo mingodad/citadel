@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.73  2001/01/16 04:03:13  ajc
+ * yeesh ... more on the IMAP BODYSTRUCTURE
+
  Revision 573.72  2001/01/16 01:51:12  ajc
  * imap bodystructure
 
@@ -2338,4 +2341,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

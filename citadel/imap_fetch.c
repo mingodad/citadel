@@ -582,13 +582,13 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 
 		cprintf("BODYSTRUCTURE (\"TEXT\" \"PLAIN\" "
 			"(\"CHARSET\" \"US-ASCII\") NIL NIL "
-			"\"7BIT\" %ld %ld) ", bytes, lines);
+			"\"7BIT\" %ld %ld)", bytes, lines);
 
 		return;
 	}
 
 	/* For messages already stored in RFC822 format, we have to parse. */
-	cprintf("BODYSTRUCTURE (");
+	cprintf("BODYSTRUCTURE ");
 	mime_parser(msg->cm_fields['M'],
 			NULL,
 			*imap_fetch_bodystructure_part,	/* part */
@@ -596,7 +596,6 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 			*imap_fetch_bodystructure_post,	/* post-multi */
 			NULL,
 			0);
-	cprintf(") ");
 }
 
 
