@@ -50,19 +50,18 @@ void status_line(const char *humannode, const char *bbs_city,
 {
 #ifdef HAVE_CURSES_H
 	if (statuswindow) {
-		if (secure)
-			sln_printf("Secure ");
-		else
-			sln_printf("Not secure ");
-		waddch(statuswindow, ACS_VLINE);
-		waddch(statuswindow, ' ');
-		if (humannode && bbs_city)
-			sln_printf("%s at %s ", humannode, bbs_city);
+		if (secure) {
+			sln_printf("Encrypted ");
+			waddch(statuswindow, ACS_VLINE);
+			waddch(statuswindow, ' ');
+		}
 		if (room_name)
-			sln_printf("in %s ", room_name);
+			sln_printf("%s on ", room_name);
+		if (humannode)
+			sln_printf("%s ", humannode);
 		if (newmailcount > -1) {
 			waddch(statuswindow, ACS_VLINE);
-			sln_printf(" %d unread mail", newmailcount);
+			sln_printf(" Mail: %d new ", newmailcount);
 		}
 		sln_printf("\n");
 	}
