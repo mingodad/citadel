@@ -87,6 +87,10 @@ beep=1
 #
 allow_attachments=0
 
+# IDLE_THRESHOLD is the amount of time a user does nothing before being
+# listed as "idle" on the who list.  The default is 900 seconds (15 minutes).
+#
+idle_threshold=900
 
 # If you set REMEMBER_PASSWORDS to 1, the Citadel client will offer to
 # remember your user name and password for every Citadel server you access,
