@@ -78,6 +78,14 @@ void get_config(void) {
                 config.c_maxmsglen = INT_MAX;
         if (config.c_maxmsglen < 8192)
                 config.c_maxmsglen = 8192;
+
+        /* Default number of worker threads is 15 and the minimum is 5
+         */
+	/* Can't have fewer than two worker threads */
+	if (config.c_worker_threads == 0)
+		config.c_worker_threads = 15;
+	if (config.c_worker_threads < 5)
+		config.c_worker_threads = 5;
 		
 }
 

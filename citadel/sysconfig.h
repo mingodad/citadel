@@ -67,12 +67,6 @@
  */
 #define HOUSEKEEPING_WAKEUP	60
 
-/*
- * We'll almost certainly want to do this more elegantly.  For now we are
- * creating a fixed-size pool of worker threads.
- */
-#define NUM_WORKER_THREADS	15
-
 
 /*** STRUCTURE SIZE VARIABLES ***/
 

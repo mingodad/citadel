@@ -813,7 +813,7 @@ int main(int argc, char **argv)
 	/*
 	 * Now create a bunch of worker threads.
 	 */
-	for (i=0; i<(NUM_WORKER_THREADS-1); ++i) {
+	for (i=0; i<(config.c_worker_threads-1); ++i) {
 		pthread_attr_init(&attr);
        		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 		if (pthread_create(&HousekeepingThread, &attr,

@@ -624,7 +624,7 @@ void read_bio(void)
 void do_system_configuration(void)
 {
 	char buf[256];
-	char sc[21][256];
+	char sc[22][256];
 	int expire_mode = 0;
 	int expire_value = 0;
 	int a;
@@ -638,7 +638,7 @@ void do_system_configuration(void)
 	if (buf[0] == '1') {
 		a = 0;
 		while (serv_gets(buf), strcmp(buf, "000")) {
-			if (a < 21)
+			if (a < 22)
 				strcpy(&sc[a][0], buf);
 			++a;
 		}
@@ -688,6 +688,7 @@ void do_system_configuration(void)
 	strprompt("Default room purge time (days)", &sc[17][0], 5);
 	strprompt("Name of room to log pages", &sc[18][0], ROOMNAMELEN);
 	strprompt("Maximum message length", &sc[20][0], 20);
+	strprompt("Number of worker threads", &sc[21][0], 3);
 
 	/* Angels and demons dancing in my head... */
 	do {
@@ -720,7 +721,7 @@ void do_system_configuration(void)
 		serv_puts("CONF set");
 		serv_gets(buf);
 		if (buf[0] == '4') {
-			for (a = 0; a < 21; ++a)
+			for (a = 0; a < 22; ++a)
 				serv_puts(&sc[a][0]);
 			serv_puts("000");
 		}

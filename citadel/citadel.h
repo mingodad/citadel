@@ -76,7 +76,8 @@ struct config {
 	char c_logpages[ROOMNAMELEN];	/* Room to log pages to (or not)    */
 	char c_createax;		/* Axlevel required to create rooms */
 	long c_maxmsglen;		/* Maximum message length           */
-	};
+	int c_worker_threads;		/* Number of worker threads to start*/
+};
 
 #define NODENAME		config.c_nodename
 #define FQDN			config.c_fqdn

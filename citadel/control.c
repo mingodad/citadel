@@ -161,6 +161,7 @@ void cmd_conf(char *argbuf) {
 		cprintf("%s\n", config.c_logpages);
 		cprintf("%d\n", config.c_createax);
 		cprintf("%d\n", config.c_maxmsglen);
+		cprintf("%d\n", config.c_worker_threads);
 		cprintf("000\n");
 		}
 
@@ -236,6 +237,8 @@ void cmd_conf(char *argbuf) {
 			case 20: if (atoi(buf) >= 8192)
 					config.c_maxmsglen = atoi(buf);
 				break;
+			case 21: if (atoi(buf) >= 2)
+					config.c_worker_threads = atoi(buf);
 			}
 		    ++a;
 		    }
