@@ -125,8 +125,6 @@ void RoomTree::LoadRoomList(void) {
 		);
 
 		
-
-
 	sendcmd = "LFLR";
 	// Bail out silently if we can't retrieve the floor list
 	if (citsock->serv_trans(sendcmd, recvcmd, transbuf) != 1) return;
@@ -197,15 +195,18 @@ void RoomTree::LoadRoomList(void) {
 	}
 
 
+	// Create a bogus floor for zapped rooms
+
 	zapfloor = AppendItem(
 		GetRootItem(),
 		"Zapped Rooms",
 		1,
 		-1,
-		new RoomItem("Zapped Rooms", TRUE, RI_ZAPPED)
+		new RoomItem("Zapped Rooms", FALSE, RI_ZAPPED)
 		);
 
-	sendcmd = "LZRM";
+
+	sendcmd = "LZRM"; // List Zapped RooMs
 
 	if (citsock->serv_trans(sendcmd, recvcmd, transbuf) != 1) return;
 	while (pos = transbuf.Find('\n', FALSE), (pos >= 0)) {
@@ -288,9 +289,8 @@ void RoomTree::OnDoubleClick(wxTreeEvent& evt) {
 		break;
 
 	case RI_ZAPPED:
-		new RoomView(citsock, citMyMDI, r->RoomName);
-		DeleteAllItems();
-		LoadRoomList();
+		RoomList->DeleteAllItems();
+		RoomList->LoadRoomList(); 
 		break;
 
 

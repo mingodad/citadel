@@ -21,9 +21,8 @@ daphne: main.o citclient.o userlogin.o testwindow.o who.o \
 
 install: 
 	
-	cp daphne /usr/local/bin/./
-	mkdir /usr/local/share/bitmaps	
-	cp bitmaps/*.xpm /usr/local/share/bitmaps/./
-	cp bitmaps/*.bmp /usr/local/share/bitmaps/./
+	install -m 755 daphne /usr/local/bin/./
+	install bitmaps/*.xpm /usr/local/share/bitmaps
+	install bitmaps/*.bmp /usr/local/share/bitmaps
 clean:
 	rm -f *.o core daphne
