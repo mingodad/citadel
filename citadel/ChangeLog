@@ -1,4 +1,7 @@
  $Log$
+ Revision 627.1  2004/11/10 03:03:14  ajc
+ * Added a few wonderful linebreaks to >80 column lines
+
  Revision 627.0  2004/11/03 20:18:58  ajc
  * THIS IS 6.27
 
@@ -6192,4 +6195,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

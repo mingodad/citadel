@@ -818,8 +818,8 @@ int client_make_message(CtdlIPC *ipc,
 		} else if (strlen(editor_paths[0]) > 0) {
 			editor_path = editor_paths[0];
 		} else {
-			err_printf
-			    ("*** No editor available, using built-in editor\n");
+			err_printf("*** No editor available, "
+				"using built-in editor\n");
 			mode = 0;
 		}
 	}
@@ -856,7 +856,8 @@ int client_make_message(CtdlIPC *ipc,
 	if (mode == 0) {
 		fp = fopen(filename, "r");
 		if (fp != NULL) {
-			fmout(screenwidth, fp, NULL, NULL, 0, screenheight, 0, 0);
+			fmout(screenwidth, fp, NULL, NULL, 0,
+				screenheight, 0, 0);
 			beg = ftell(fp);
 			fclose(fp);
 		} else {
@@ -1187,7 +1188,8 @@ int entmsg(CtdlIPC *ipc,
 	}
 
 	/* Now compose the message... */
-	if (client_make_message(ipc, temp, message.recipient, message.anonymous, 0, c, message.subject) != 0) {
+	if (client_make_message(ipc, temp, message.recipient,
+	   message.anonymous, 0, c, message.subject) != 0) {
 		return (2);
 	}
 
