@@ -213,7 +213,7 @@ void fmt_date(char *buf, time_t thetime)
 		ascmonths[tm->tm_mon],
 		tm->tm_mday,
 		tm->tm_year + 1900,
-		hour, tm->tm_min, ((tm->tm_hour > 12) ? "pm" : "am")
+		hour, tm->tm_min, ((tm->tm_hour >= 12) ? "pm" : "am")
 	    );
 }
 
