@@ -109,6 +109,7 @@ void imap_mailboxname(char *buf, int bufsize, struct quickroom *qrbuf) {
 	 */
 	else {
 		fl = cgetfloor(qrbuf->QRfloor);
+		lprintf(9, "floor %d: %s\n", qrbuf->QRfloor, fl->f_name); /* FIXME take out */
 		snprintf(buf, bufsize, "%s|%s",
 			fl->f_name,
 			qrbuf->QRname);
@@ -151,6 +152,7 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername) {
 		extract(buf, foldername, 0);
 		for (i=0; i<MAXFLOORS; ++i) {
 			fl = cgetfloor(i);
+			lprintf(9, "floor %d: %s\n", i, fl->f_name); /* FIXME take out */
 			if (fl->f_flags & F_INUSE) {
 				if (!strcasecmp(buf, fl->f_name)) {
 					extract(rbuf, foldername, 1);

@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.83  2001/02/05 05:20:22  ajc
+ * Made some changes to functions which translate between Citadel room names
+   and IMAP folder names.  They're still buggy.
+
  Revision 573.82  2001/02/04 23:17:28  ajc
  * Implemented the IMAP CREATE command
 
@@ -2371,4 +2375,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
