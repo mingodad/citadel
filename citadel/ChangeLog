@@ -1,4 +1,7 @@
  $Log$
+ Revision 629.2  2005/01/07 15:56:14  ajc
+ * msgbase.c: fixed an incorrect variable name in the bigmsg-handler
+
  Revision 629.1  2005/01/07 03:05:04  ajc
  * serv_imap.c: fail with a "BAD" error response if the LOGIN command is
    called with the wrong number of parameters (otherwise it goes boom)
@@ -6258,3 +6261,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -789,7 +789,6 @@ void mime_download(char *name, char *filename, char *partnum, char *disp,
 struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 {
 	struct cdbdata *dmsgtext;
-	struct cdbdata *dbigmsg;
 	struct CtdlMessage *ret = NULL;
 	char *mptr;
 	cit_uint8_t ch;
@@ -811,7 +810,9 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	 */
 	ch = *mptr++;
 	if (ch != 255) {
-		lprintf(CTDL_ERR, "Message %ld appears to be corrupted.\n", msgnum);
+		lprintf(CTDL_ERR,
+			"Message %ld appears to be corrupted.\n",
+			msgnum);
 		cdb_free(dmsgtext);
 		return NULL;
 	}
@@ -846,16 +847,15 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	 * so go ahead and fetch that.  Failing that, just set a dummy
 	 * body so other code doesn't barf.
 	 */
+	if ( (ret->cm_fields['M'] == NULL) && (with_body) ) {
+		dmsgtext = cdb_fetch(CDB_BIGMSGS, &msgnum, sizeof(long));
+		if (dmsgtext != NULL) {
+			ret->cm_fields['M'] = strdup(dmsgtext->ptr);
+			cdb_free(dmsgtext);
+		}
+	}
 	if (ret->cm_fields['M'] == NULL) {
-
-		dbigmsg = cdb_fetch(CDB_BIGMSGS, &msgnum, sizeof(long));
-		if (dmsgtext == NULL) {
-			ret->cm_fields['M'] = strdup("<no text>\n");
-		}
-		else {
-			ret->cm_fields['M'] = strdup(dbigmsg->ptr);
-			cdb_free(dbigmsg);
-		}
+		ret->cm_fields['M'] = strdup("<no text>\n");
 	}
 
 	/* Perform "before read" hooks (aborting if any return nonzero) */
@@ -1149,7 +1149,8 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	nl = (crlf ? "\r\n" : "\n");
 
 	if (!is_valid_message(TheMessage)) {
-		lprintf(CTDL_ERR, "ERROR: invalid preloaded message for output\n");
+		lprintf(CTDL_ERR,
+			"ERROR: invalid preloaded message for output\n");
 	 	return(om_no_such_msg);
 	}
 
@@ -1648,7 +1649,8 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 		if (ReplicationChecks(msg) != 0) {
 			getroom(&CC->room, hold_rm);
 			if (msg != NULL) CtdlFreeMessage(msg);
-			lprintf(CTDL_DEBUG, "Did replication, and newer exists\n");
+			lprintf(CTDL_DEBUG,
+				"Did replication, and newer exists\n");
 			return(0);
 		}
 	}
@@ -1692,8 +1694,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 
         /* Now add the new message */
         ++num_msgs;
-        msglist = realloc(msglist,
-                          (num_msgs * sizeof(long)));
+        msglist = realloc(msglist, (num_msgs * sizeof(long)));
 
         if (msglist == NULL) {
                 lprintf(CTDL_ALERT, "ERROR: can't realloc message list!\n");
@@ -1731,7 +1732,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 
 
 /*
- * Message base operation to send a message to the master file
+ * Message base operation to save a new message to the message store
  * (returns new message number)
  *
  * This is the back end for CtdlSubmitMsg() and should not be directly
