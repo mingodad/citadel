@@ -331,17 +331,6 @@ int pattern(char *search, char *patn) {
 }
 
 
-/* display internal error as defined in errmsgs */
-/*
-void interr(int errnum) {
-	scr_printf("*** INTERNAL ERROR %d\n"
-		"(Press any key to continue)\n", errnum);
-	inkey();
-	logoff(errnum);
-}
-*/
-
-
 void strproc(char *string)
 {
 	int a;

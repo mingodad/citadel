@@ -586,7 +586,7 @@ int read_message(CtdlIPC *ipc,
 	 * Here we go
 	 */
 	if (format_type == 0) {
-		fr = fmout2(screenwidth, NULL, message->text, dest,
+		fr = fmout(screenwidth, NULL, message->text, dest,
 			   ((pagin == 1) ? 1 : 0), screenheight, (-1), 1);
 	} else {
 		/* FIXME: renderer for text/plain */
@@ -766,7 +766,7 @@ int client_make_message(CtdlIPC *ipc,
 	if (mode == 0) {
 		fp = fopen(filename, "r");
 		if (fp != NULL) {
-			fmout2(screenwidth, fp, NULL, NULL, 0, screenheight, 0, 0);
+			fmout(screenwidth, fp, NULL, NULL, 0, screenheight, 0, 0);
 			beg = ftell(fp);
 			fclose(fp);
 		} else {
@@ -876,7 +876,7 @@ MECR:	if (mode == 2) {
 		}
 		fp = fopen(filename, "r");
 		if (fp != NULL) {
-			fmout2(screenwidth, fp, NULL, NULL,
+			fmout(screenwidth, fp, NULL, NULL,
 			      ((userflags & US_PAGINATOR) ? 1 : 0),
 			      screenheight, 0, 0);
 			beg = ftell(fp);

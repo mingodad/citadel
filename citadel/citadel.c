@@ -190,7 +190,7 @@ void formout(CtdlIPC *ipc, char *name)
 		return;
 	}
 	if (text) {
-		fmout2(screenwidth, NULL, text, NULL,
+		fmout(screenwidth, NULL, text, NULL,
 		      ((userflags & US_PAGINATOR) ? 1 : 0),
 		      screenheight, 1, 1);
 		free(text);
@@ -1164,7 +1164,7 @@ int main(int argc, char **argv)
 	}
 	scr_printf("<< wrong password >>\n");
 	if (strlen(rc_password) > 0)
-		logoff(ipc, 0);
+		logoff(ipc, 2);
 	goto GSTA;
 
 NEWUSR:	if (strlen(rc_password) == 0) {

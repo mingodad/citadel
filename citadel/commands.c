@@ -314,7 +314,7 @@ void print_express(void)
 	
 		scr_printf(":\n");
 		lines_printed++;
-		fmout2(screenwidth, NULL, listing, NULL, 1, screenheight, -1, 0);
+		fmout(screenwidth, NULL, listing, NULL, 1, screenheight, -1, 0);
 		free(listing);
 
 		/* when running in curses mode, the scroll bar in most
@@ -1267,6 +1267,7 @@ void display_help(CtdlIPC *ipc, char *name)
 }
 
 
+#if 0
 /*
  * fmout()  -  Citadel text formatter and paginator
  */
@@ -1429,12 +1430,13 @@ FMTEND:
 	}
 	return (sigcaught);
 }
+#endif
 
 
 /*
  * fmout() - Citadel text formatter and paginator
  */
-int fmout2(
+int fmout(
 	int width,	/* screen width to use */
 	FILE *fpin,	/* file to read from, or NULL to format given text */
 	char *text,	/* text to be formatted (when fpin is NULL */
@@ -1453,6 +1455,7 @@ int fmout2(
 
 	num_urls = 0;	/* Start with a clean slate of embedded URL's */
 
+	/* Space for a single word, which can be at most screenwidth */
 	word = (char *)calloc(1, width);
 	if (!word) {
 		err_printf("Can't alloc memory to print message: %s!\n",
@@ -1460,6 +1463,7 @@ int fmout2(
 		logoff(NULL, 3);
 	}
 
+	/* Read the entire message body into memory */
 	if (fpin) {
 		size_t got = 0;
 
@@ -1491,11 +1495,12 @@ int fmout2(
 	if (starting_lp >= 0)
 		lines_printed = starting_lp;
 
+	/* Run the message body */
 	while (*e) {
 		/* First, are we looking at a newline? */
 		if (*e == '\n') {
 			e++;
-			if (*e == ' ') {
+			if (*e == ' ') {	/* Paragraph */
 				if (fpout) {
 					fprintf(fpout, "\n");
 				} else {
@@ -1504,7 +1509,7 @@ int fmout2(
 					lines_printed = checkpagin(lines_printed, pagin, height);
 				}
 				column = 0;
-			} else if (old != ' ') {
+			} else if (old != ' ') {/* Don't print two spaces */
 				if (fpout) {
 					fprintf(fpout, " ");
 				} else {
@@ -1512,6 +1517,7 @@ int fmout2(
 				}
 				column++;
 			}
+			old = '\n';
 			continue;
 		}
 		/* Or are we looking at a space? */
@@ -1528,7 +1534,7 @@ int fmout2(
 				}
 				column = 0;
 			} else if (!(column == 0 && old == ' ')) {
-				/* Eat the first space on a line */
+				/* Eat only the first space on a line */
 				if (fpout) {
 					fprintf(fpout, " ");
 				} else {
@@ -1589,6 +1595,7 @@ int fmout2(
 
 		/* Decide where to print the word */
 		if (column + i >= width) {
+			/* Wrap to the next line */
 			if (fpout) {
 				fprintf(fpout, "\n");
 			} else {
@@ -1606,13 +1613,14 @@ int fmout2(
 			scr_printf("%s", word);
 		}
 		column += i;
-		e += i;		/* Start with the whitepsace! */
+		e += i;		/* Start over with the whitepsace! */
 	}
 
 	free(word);
 	if (fpin)		/* We allocated this, remember? */
 		free(buffer);
 
+	/* Is this necessary?  It makes the output kind of spacey. */
 	if (fpout) {
 		fprintf(fpout, "\n");
 	} else {

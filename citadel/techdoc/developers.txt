@@ -40,10 +40,10 @@ Developer codes (and where known, client codes)
  
  7      Walden Leverich <waldenl@techsoftinc.com>
 
- 8      Michael Hampton <error@canandstring.com>
+ 8      Michael Hampton <error@spiritone.com>
 
         Client  Name            Status          Description
-	0       (unnamed)       in design       Client-side API library
+	0       libcitadel      in development  Client-side API library
 	1       D.O.C.          in development  Dave's Own Citadel look-alike
  
  69     Anticlimactic Teleservices
