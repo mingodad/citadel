@@ -978,6 +978,19 @@ void cmd_seen(char *argbuf) {
 }
 
 
+void cmd_gtsn(char *argbuf) {
+	char buf[SIZ];
+
+	if (CtdlAccessCheck(ac_logged_in)) {
+		return;
+	}
+
+	CtdlGetSeen(buf);
+	cprintf("%d %s\n", buf);
+}
+
+
+
 /*
  * INVT and KICK commands
  */

@@ -117,3 +117,4 @@ int CtdlDoIHavePermissionToDeleteMessagesFromThisRoom(void);
 int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n);
 void CtdlSetSeen(long target_msgnum, int target_setting);
 struct recptypes *validate_recipients(char *recipients);
+void CtdlGetSeen(char *buf);

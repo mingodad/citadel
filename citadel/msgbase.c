@@ -284,6 +284,21 @@ int CtdlMsgCmp(struct CtdlMessage *msg, struct CtdlMessage *template) {
 }
 
 
+
+/*
+ * Retrieve the "seen" message list for the current room.
+ */
+void CtdlGetSeen(char *buf) {
+	struct visit vbuf;
+
+	/* Learn about the user and room in question */
+	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+
+	safestrncpy(buf, vbuf.v_seen, SIZ);
+}
+
+
+
 /*
  * Manipulate the "seen msgs" string.
  */
@@ -300,8 +315,6 @@ void CtdlSetSeen(long target_msgnum, int target_setting) {
 	int num_msgs = 0;
 
 	/* Learn about the user and room in question */
-	get_mm();
-	getuser(&CC->usersupp, CC->curr_user);
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
 	/* Load the message list */

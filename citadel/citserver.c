@@ -1227,6 +1227,10 @@ void do_command_loop(void) {
 		cmd_seen(&cmdbuf[5]);
 	}
 
+	else if (!strncasecmp(cmdbuf, "GTSN", 4)) {
+		cmd_gtsn(&cmdbuf[5]);
+	}
+
 	else if (!strncasecmp(cmdbuf, "VIEW", 4)) {
 		cmd_view(&cmdbuf[5]);
 	}

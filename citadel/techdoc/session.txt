@@ -1824,6 +1824,12 @@ done on the supplied data; if the requested message does not exist, the SEEN
 command simply returns OK without doing anything.
  
  
+ GTSN   (GeT the list of SeeN messages)
+ 
+ This command retrieves the list of "seen" (as opposed to unread) messages for
+the current room.  It returns OK followed by an IMAP-format message list.
+ 
+ 
  SMTP   (utility commands for the SMTP gateway)
  
  This command, accessible only by Aides, supports several utility operations
