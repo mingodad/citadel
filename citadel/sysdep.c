@@ -861,9 +861,7 @@ int main(int argc, char **argv)
 				   "Group IDs will be incorrect.\n", BBSUID,
 				strerror(errno));
 		else {
-			if (initgroups(pw->pw_name, pw->pw_gid))
-				lprintf(3, "initgroups(): %s\n",
-					strerror(errno));
+			initgroups(pw->pw_name, pw->pw_gid);
 			if (setgid(pw->pw_gid))
 				lprintf(3, "setgid(%d): %s\n", pw->pw_gid,
 					strerror(errno));

@@ -79,7 +79,7 @@ int DLoader_Exec_Cmd(char *cmdbuf)
 void DLoader_Init(char *pathname)
 {
    void *fcn_handle;
-   char *dl_error;
+   const char *dl_error;
    DIR *dir;
    struct dirent *dptr;
    struct DLModule_Info* (*h_init_fcn)(void);

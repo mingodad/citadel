@@ -113,7 +113,8 @@ AC_CHECK_LIB(gdbm, gdbm_open)
 save_LIBS=$LIBS
 AC_CHECK_LIB(termcap, tgetent, [LIBS="$LIBS -ltermcap"
 	CURSES=-ltermcap])
-AC_CHECK_LIB(curses, initscr, CURSES="-lcurses $CURSES")
+AC_CHECK_LIB(curses, initscr, CURSES="-lcurses $CURSES", [
+	AC_CHECK_LIB(ncurses, initscr, CURSES="-lncurses")])
 LIBS=$save_LIBS
 
 dnl Check for libpthread(s) if we're not using Digital UNIX. (On which the
