@@ -225,19 +225,17 @@ static void really_do_keepalive(void) {
 	char buf[256];
 
 	time(&idlet);
-	if (keepalives_enabled != KA_NO) {
+	if (keepalives_enabled == KA_YES) {
 		serv_puts("NOOP");
-		if (keepalives_enabled == KA_YES) {
-			serv_gets(buf);
-			if (buf[3] == '*') {
-				express_msgs = 1;
-				if (ok_to_interrupt == 1) {
-					printf("\r%64s\r", "");
-					print_express();
-					printf("%s%c ", room_name,
-					       room_prompt(room_flags));
-					fflush(stdout);
-				}
+		serv_gets(buf);
+		if (buf[3] == '*') {
+			express_msgs = 1;
+			if (ok_to_interrupt == 1) {
+				printf("\r%64s\r", "");
+				print_express();
+				printf("%s%c ", room_name,
+				       room_prompt(room_flags));
+				fflush(stdout);
 			}
 		}
 	}

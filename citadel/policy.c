@@ -104,7 +104,7 @@ void cmd_spex(char *argbuf) {
 		lgetroom(&CC->quickroom, CC->quickroom.QRname);
 		memcpy(&CC->quickroom.QRep, &exp, sizeof(struct ExpirePolicy));
 		lputroom(&CC->quickroom);
-		cprintf("%d ok\n", OK);
+		cprintf("%d Room expire policy set.\n", OK);
 		return;
 		}
 
@@ -118,7 +118,7 @@ void cmd_spex(char *argbuf) {
 		lgetfloor(&flbuf, CC->quickroom.QRfloor);
 		memcpy(&flbuf.f_ep, &exp, sizeof(struct ExpirePolicy));
 		lputfloor(&flbuf, CC->quickroom.QRfloor);
-		cprintf("%d ok\n", OK);
+		cprintf("%d Floor expire policy set.\n", OK);
 		return;
 		}
 
@@ -130,7 +130,7 @@ void cmd_spex(char *argbuf) {
 			}
 		memcpy(&config.c_ep, &exp, sizeof(struct ExpirePolicy));
 		put_config();
-		cprintf("%d ok\n", OK);
+		cprintf("%d Site expire policy set.\n", OK);
 		return;
 		}
 

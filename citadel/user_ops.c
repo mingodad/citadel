@@ -995,7 +995,7 @@ void cmd_vali(char *v_args)
 			}
 		}
 
-	cprintf("%d ok\n",OK);
+	cprintf("%d User '%s' validated.\n", OK, userbuf.fullname);
 	}
 
 

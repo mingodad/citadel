@@ -1,4 +1,8 @@
  $Log$
+ Revision 572.24  2000/08/10 02:42:13  ajc
+ * Changed all the "200 ok" responses to more descriptive strings
+ * Added a *temporary* protocol sync check.  Remove this!
+
  Revision 572.23  2000/08/09 17:14:34  ajc
  msgbase.c: fixed a bug in
             remove_any_whitespace_to_the_left_or_right_of_at_symbol() that was
@@ -1983,3 +1987,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

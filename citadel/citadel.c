@@ -823,6 +823,35 @@ void enternew(char *desc, char *buf, int maxlen)
 	newprompt(bbb, buf, maxlen);
 }
 
+
+void proto_sync_check(void) {		/* FIXME ... remove this */
+	char buf[256];
+	char token[256];
+	FILE *fp;
+
+	safestrncpy(token, tmpnam(NULL), sizeof token);
+	sprintf(buf, "ECHO %s", token);
+	serv_puts(buf);
+	serv_gets(buf);
+	if (!strcmp(&buf[4], token)) return;
+
+	fp = fopen(token, "w");
+	fprintf(fp, "%s\n", buf);
+	while (serv_gets(buf), strcmp(&buf[4], token)) {
+		fprintf(fp, "%s\n", buf);
+	}
+	fclose(fp);
+
+	sprintf(buf, "gedit %s &", token);
+	system(buf);
+	sleep(3);
+	unlink(token);
+}
+
+
+
+
+
 /*
  * main
  */
@@ -838,8 +867,6 @@ int main(int argc, char **argv)
 	sttybbs(SB_SAVE);	/* Store the old terminal parameters */
 	load_command_set();	/* parse the citadel.rc file */
 	sttybbs(SB_NO_INTR);	/* Install the new ones */
-	signal(SIGINT, SIG_IGN);
-	signal(SIGQUIT, SIG_IGN);
 	signal(SIGHUP, dropcarr);	/* Cleanup gracefully if carrier is dropped */
 	signal(SIGTERM, dropcarr);	/* Cleanup gracefully if terminated */
 	signal(SIGCONT, catch_sigcont);		/* Catch SIGCONT so we can reset terminal */
@@ -1033,8 +1060,7 @@ PWOK:	printf("%s\nAccess level: %d (%s)\nUser #%ld / Call #%d\n",
 
 	do {			/* MAIN LOOP OF PROGRAM */
 
-		signal(SIGINT, SIG_IGN);
-		signal(SIGQUIT, SIG_IGN);
+		proto_sync_check();	/* FIXME ... remove this */
 		mcmd = getcmd(argbuf);
 
 #ifdef TIOCGWINSZ

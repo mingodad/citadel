@@ -190,7 +190,7 @@ void cmd_batc(char *argbuf) {
 
 	network_spoolout_current_room();
 
-	cprintf("%d ok\n", OK);
+	cprintf("%d FIXME cmd_batc() ok\n", OK);
 }
 
 
