@@ -1,6 +1,9 @@
 all: webserver webcit
 
 
+clean:
+	rm *.o webcit webserver
+
 
 webserver: webserver.o context_loop.o
 	cc webserver.o context_loop.o \
