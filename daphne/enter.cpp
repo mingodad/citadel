@@ -61,7 +61,7 @@ EnterMessage::EnterMessage(
 	wxStaticText *fromlabel = new wxStaticText(this, -1, "From: ");
 
 	wxLayoutConstraints *c6 = new wxLayoutConstraints;
-	c6->top.SameAs(this, wxTop, 12);
+	c6->top.SameAs(this, wxTop, 10);
 	c6->left.SameAs(this, wxLeft, 2);
 	c6->width.AsIs();
 	c6->height.AsIs();
@@ -74,22 +74,52 @@ EnterMessage::EnterMessage(
 		wxDefaultPosition, wxSize(150,25), 1, posting_name_choices);
 
 	wxLayoutConstraints *c7 = new wxLayoutConstraints;
-	c7->bottom.SameAs(fromlabel, wxBottom);
+	c7->centreY.SameAs(fromlabel, wxCentreY);
 	c7->left.RightOf(fromlabel, 3);
 	c7->width.AsIs();
 	c7->height.AsIs();
 	fromname->SetConstraints(c7);
 
+	wxStaticText *tolabel = new wxStaticText(this, -1, "To: ");
+
+	wxLayoutConstraints *c8 = new wxLayoutConstraints;
+	c8->centreY.SameAs(fromname, wxCentreY);
+	c8->left.RightOf(fromname, 5);
+	c8->width.AsIs();
+	c8->height.AsIs();
+	tolabel->SetConstraints(c8);
+
+	toname = new wxTextCtrl(this, -1, "",
+		wxDefaultPosition, wxSize(150,25));
+	
+	wxLayoutConstraints *c9 = new wxLayoutConstraints;
+	c9->centreY.SameAs(tolabel, wxCentreY);
+	c9->left.RightOf(tolabel, 3);
+	c9->width.AsIs();
+	c9->height.AsIs();
+	toname->SetConstraints(c9);
+
+	wxButton *findrecp = new wxButton(this, -1, " Find ");
+
+	wxLayoutConstraints *d1 = new wxLayoutConstraints;
+	d1->centreY.SameAs(toname, wxCentreY);
+	d1->left.RightOf(toname, 3);
+	d1->width.AsIs();
+	d1->height.AsIs();
+	findrecp->SetConstraints(d1);
+
+
+
 	TheMessage = new wxTextCtrl(this, -1, "",
 		wxDefaultPosition, wxDefaultSize,
 		wxTE_MULTILINE);
 
-	wxLayoutConstraints *c9 = new wxLayoutConstraints;
-	c9->top.SameAs(fromlabel, wxBottom, 2);
-	c9->bottom.Above(cancel_button, -5);
-	c9->left.SameAs(this, wxLeft, 2);
-	c9->right.SameAs(this, wxRight, 2);
-	TheMessage->SetConstraints(c9);
+	wxLayoutConstraints *d9 = new wxLayoutConstraints;
+	d9->top.Below(fromname, 2);
+	d9->bottom.Above(cancel_button, -5);
+	d9->left.SameAs(this, wxLeft, 2);
+	d9->right.SameAs(this, wxRight, 2);
+	TheMessage->SetConstraints(d9);
 
 	SetAutoLayout(TRUE);
 	Show(TRUE);
@@ -106,10 +136,19 @@ void EnterMessage::OnCancel(wxCommandEvent& whichbutton) {
 void EnterMessage::OnSave(wxCommandEvent& whichbutton) {
 	wxString sendcmd, recvcmd, xferbuf;
 
-	sendcmd = "ENT0 1";
+	sendcmd = "ENT0 1|" + toname->GetValue();
 	xferbuf = TheMessage->GetValue();
 	if (citsock->serv_trans(sendcmd, recvcmd,
 				xferbuf, ThisRoom) == 4) {
 		delete this;
+	} else {
+		// Display the error message
+                wxMessageDialog save_error(this,
+                        recvcmd.Mid(4),
+                        "Error",
+                        wxOK | wxCENTRE | wxICON_INFORMATION,
+                        wxDefaultPosition);
+                        save_error.ShowModal();
+
 	}
 }

@@ -263,6 +263,7 @@ private:
 	wxMDIParentFrame *citMyMDI;
 	wxString ThisRoom;
 	wxChoice *fromname;
+	wxTextCtrl *toname;
 	wxTextCtrl *TheMessage;
 	DECLARE_EVENT_TABLE()
 };

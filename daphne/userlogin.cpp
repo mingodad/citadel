@@ -222,6 +222,8 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 			+ buf + "</CENTER></BODY></HTML>\n";
 		hello->SetPage(buf);
 	}
+
+	username->SetFocus();
 }
 
 

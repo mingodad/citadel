@@ -152,7 +152,6 @@ RoomView::RoomView(
         Layout();
 	wxYield();
 	do_readloop("MSGS NEW");	// FIX make this configurable
-
 }
 
 
@@ -206,7 +205,7 @@ void RoomView::do_readloop(wxString readcmd) {
 
 
 	// Read the messages into the window, one at a time
-	allmsgs = "<HTML><BODY><CENTER><H1>List of Messages</H1></CENTER><HR>";
+	allmsgs = "<HTML><BODY>";
 	i = 0;
 	while (pos = xferbuf.Find('\n', FALSE), (pos >= 0)) {
 
@@ -220,7 +219,7 @@ void RoomView::do_readloop(wxString readcmd) {
 		sendcmd = "MSG0 " + buf;
 		message = new CitMessage(citsock, sendcmd, ThisRoom);
 
-		allmsgs += "&nbsp;&nbsp;&nbsp;<em><font size=+1>";
+		allmsgs += "&nbsp;&nbsp;&nbsp;<H3>";
 		allmsgs += asctime(localtime(&message->timestamp));
 		allmsgs += " from " + message->author;
 		if (message->room.CmpNoCase(ThisRoom))
@@ -229,7 +228,7 @@ void RoomView::do_readloop(wxString readcmd) {
 			allmsgs += " @ " + message->nodename;
 		if (message->recipient.Length() > 0)
 			allmsgs += " to " + message->recipient;
-		allmsgs += "</font></em><br>";
+		allmsgs += "</h3><br>";
 		allmsgs += message->msgtext;
 
 		delete message;
