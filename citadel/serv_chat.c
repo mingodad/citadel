@@ -386,6 +386,7 @@ void cmd_chat(char *argbuf)
 
 						/* See if we've been force-quitted (kicked etc.) */
 						if (!strcmp(&clptr->chat_text[2], KICKEDMSG)) {
+							allwrite("<kicked out of this room>", 0, NULL);
 							cprintf("000\n");
 							CC->cs_flags = CC->cs_flags - CS_CHAT;
 

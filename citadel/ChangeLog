@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.62  2004/03/03 05:43:29  ajc
+ * Generate better output when a user is kicked out of chat
+
  Revision 614.61  2004/03/01 22:36:14  ajc
  * Implement the NAMESPACE extension of IMAP (RFC 2342)
 
@@ -5443,3 +5446,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
