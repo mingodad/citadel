@@ -1171,7 +1171,7 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 			goto GSTA;
 	}
 
-	r = CtdlIPCCreateUser(ipc, fullname, 0, aaa);
+	r = CtdlIPCCreateUser(ipc, fullname, 1, aaa);
 	if (r / 100 != 2) {
 		scr_printf("%s\n", aaa);
 		goto GSTA;

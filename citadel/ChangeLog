@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.35  2002/10/18 07:56:30  error
+ * fix self-service account creation at login prompt (accidentally called
+   CREU instead of NEWU).
+
  Revision 601.34  2002/10/18 03:44:13  ajc
  * Fixed a bug in CtdlRenameRoom() that caused the old room record not to be
    deleted when there was a mailbox namespace attached.
@@ -4102,3 +4106,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
