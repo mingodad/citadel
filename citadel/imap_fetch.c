@@ -86,9 +86,9 @@ void imap_fetch_rfc822(int msgnum, char *whichfmt) {
 	FILE *tmp;
 	char buf[1024];
 	char *ptr;
-	size_t headers_size, text_size, total_size;
-	size_t bytes_remaining = 0;
-	size_t blocksize;
+	long headers_size, text_size, total_size;
+	long bytes_remaining = 0;
+	long blocksize;
 
 	tmp = tmpfile();
 	if (tmp == NULL) {
@@ -154,6 +154,102 @@ void imap_fetch_rfc822(int msgnum, char *whichfmt) {
 }
 
 
+/*
+ * Implements the BODY and BODY.PEEK fetch items
+ */
+void imap_fetch_body(long msgnum, char *item, int is_peek) {
+	char section[1024];
+	char partial[1024];
+	int is_partial = 0;
+	char buf[1024];
+	int i;
+	FILE *tmp;
+	long bytes_remaining = 0;
+	long blocksize;
+	long pstart, pbytes;
+
+	/* extract section */
+	strcpy(section, item);
+	for (i=0; i<strlen(section); ++i) {
+		if (section[i]=='[') strcpy(section, &section[i+1]);
+	}
+	for (i=0; i<strlen(section); ++i) {
+		if (section[i]==']') section[i] = 0;
+	}
+	lprintf(9, "Section is %s\n", section);
+
+	/* extract partial */
+	strcpy(partial, item);
+	for (i=0; i<strlen(partial); ++i) {
+		if (partial[i]=='<') {
+			strcpy(partial, &partial[i+1]);
+			is_partial = 1;
+		}
+	}
+	for (i=0; i<strlen(partial); ++i) {
+		if (partial[i]=='>') partial[i] = 0;
+	}
+	lprintf(9, "Partial is %s\n", partial);
+
+	tmp = tmpfile();
+	if (tmp == NULL) {
+		lprintf(1, "Cannot open temp file: %s\n", strerror(errno));
+		return;
+	}
+
+	/* Now figure out what the client wants, and get it */
+
+	if (!strcmp(section, "")) {		/* the whole thing */
+		CtdlRedirectOutput(tmp, -1);
+		CtdlOutputMsg(msgnum, MT_RFC822, 0, 0, 1);
+		CtdlRedirectOutput(NULL, -1);
+	}
+
+	/*
+	 * Be obnoxious and send the entire header, even if the client only
+	 * asks for certain fields.  FIXME this shortcut later.
+	 */
+	else if (!strncasecmp(section, "HEADER", 6)) {
+		CtdlRedirectOutput(tmp, -1);
+		CtdlOutputMsg(msgnum, MT_RFC822, 1, 0, 1);
+		CtdlRedirectOutput(NULL, -1);
+	}
+
+
+	fseek(tmp, 0L, SEEK_END);
+	bytes_remaining = ftell(tmp);
+
+	if (is_partial == 0) {
+		rewind(tmp);
+		cprintf("BODY[%s] {%ld}\r\n", section, bytes_remaining);
+	}
+	else {
+		sscanf(partial, "%ld.%ld", &pstart, &pbytes);
+		if ((bytes_remaining - pstart) < pbytes) {
+			pbytes = bytes_remaining - pstart;
+		}
+		fseek(tmp, pstart, SEEK_SET);
+		bytes_remaining = pbytes;
+		cprintf("BODY[%s] {%ld}<%ld>\r\n",
+			section, bytes_remaining, pstart);
+	}
+
+	blocksize = sizeof(buf);
+	while (bytes_remaining > 0L) {
+		if (blocksize > bytes_remaining) blocksize = bytes_remaining;
+		fread(buf, blocksize, 1, tmp);
+		client_write(buf, blocksize);
+		bytes_remaining = bytes_remaining - blocksize;
+	}
+
+	fclose(tmp);
+
+	if (is_peek) {
+		/* FIXME set the last read pointer or something */
+	}
+}
+
+
 
 /*
  * imap_do_fetch() calls imap_do_fetch_msg() to output the deta of an
@@ -168,10 +264,10 @@ void imap_do_fetch_msg(int seq, struct CtdlMessage *msg,
 	for (i=0; i<num_items; ++i) {
 
 		if (!strncasecmp(itemlist[i], "BODY[", 5)) {
-			/* FIXME do something here */
+			imap_fetch_body(IMAP->msgids[seq-1], itemlist[i], 0);
 		}
 		else if (!strncasecmp(itemlist[i], "BODY.PEEK[", 10)) {
-			/* FIXME do something here */
+			imap_fetch_body(IMAP->msgids[seq-1], itemlist[i], 1);
 		}
 		else if (!strcasecmp(itemlist[i], "BODYSTRUCTURE")) {
 			/* FIXME do something here */
