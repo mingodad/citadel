@@ -1,7 +1,7 @@
  
-  < this logoff banner resides in ./messages/goodbye >
+  < this logoff banner resides in ^bbsdir/messages/goodbye >
  
- Thanks for calling ^humannode - please call again soon!
+ Thanks for visiting ^humannode - please come back soon!
  
  Also be sure to visit UNCENSORED! BBS at uncensored.citadel.org
 

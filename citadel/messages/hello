@@ -1,3 +1,5 @@
-  
- < this logon banner resides in ./messages/hello >
  
+ Welcome to ^humannode!
+ 
+ This logon banner resides in ^bbsdir/messages/hello -- please customize it for your site.
+  

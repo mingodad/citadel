@@ -41,6 +41,8 @@ struct ical_respond_data {
 	icalcomponent *cal;
 };
 
+/* Session-local data for calendaring. */
+long SYM_CIT_ICAL;
 
 /*
  * Write a calendar object into the specified user's calendar room.
@@ -414,6 +416,91 @@ void ical_locate_original_event(char *name, char *filename, char *partnum, char 
 
 
 /*
+ * Merge updated attendee information from a REPLY into an existing event.
+ */
+void ical_merge_attendee_reply(icalcomponent *event, icalcomponent *reply) {
+	icalcomponent *c;
+	icalproperty *e_attendee, *r_attendee;
+
+	/* First things first.  If we're not looking at a VEVENT component,
+	 * recurse through subcomponents until we find one.
+	 */
+	if (icalcomponent_isa(event) != ICAL_VEVENT_COMPONENT) {
+		for (c = icalcomponent_get_first_component(event, ICAL_VEVENT_COMPONENT);
+		    c != NULL;
+		    c = icalcomponent_get_next_component(event, ICAL_VEVENT_COMPONENT) ) {
+			ical_merge_attendee_reply(c, reply);
+		}
+		return;
+	}
+
+	/* Now do the same thing with the reply.
+	 */
+	if (icalcomponent_isa(reply) != ICAL_VEVENT_COMPONENT) {
+		for (c = icalcomponent_get_first_component(reply, ICAL_VEVENT_COMPONENT);
+		    c != NULL;
+		    c = icalcomponent_get_next_component(reply, ICAL_VEVENT_COMPONENT) ) {
+			ical_merge_attendee_reply(event, c);
+		}
+		return;
+	}
+
+	/* Clone the reply, because we're going to rip its guts out. */
+	reply = icalcomponent_new_clone(reply);
+
+	/* At this point we're looking at the correct subcomponents.
+	 * Iterate through the attendees looking for a match.
+	 */
+STARTOVER:
+	for (e_attendee = icalcomponent_get_first_property(event, ICAL_ATTENDEE_PROPERTY);
+	    e_attendee != NULL;
+	    e_attendee = icalcomponent_get_next_property(event, ICAL_ATTENDEE_PROPERTY)) {
+
+		for (r_attendee = icalcomponent_get_first_property(reply, ICAL_ATTENDEE_PROPERTY);
+		    r_attendee != NULL;
+		    r_attendee = icalcomponent_get_next_property(reply, ICAL_ATTENDEE_PROPERTY)) {
+
+			/* Check to see if these two attendees match...
+			 */
+			if (!strcasecmp(
+			   icalproperty_get_attendee(e_attendee),
+			   icalproperty_get_attendee(r_attendee)
+			)) {
+				/* ...and if they do, remove the attendee from the event
+				 * and replace it with the attendee from the reply.  (The
+				 * reply's copy will have the same address, but an updated
+				 * status.)
+				 */
+				TRACE;
+				icalcomponent_remove_property(event, e_attendee);
+				TRACE;
+				icalproperty_free(e_attendee);
+				TRACE;
+				icalcomponent_remove_property(reply, r_attendee);
+				TRACE;
+				icalcomponent_add_property(event, r_attendee);
+				TRACE;
+
+				/* Since we diddled both sets of attendees, we have to start
+				 * the iteration over again.  This will not create an infinite
+				 * loop because we removed the attendee from the reply.  (That's
+				 * why we cloned the reply, and that's what we mean by "ripping
+				 * its guts out.")
+				 */
+				goto STARTOVER;
+			}
+	
+		}
+	}
+
+	/* Free the *clone* of the reply. */
+	icalcomponent_free(reply);
+}
+
+
+
+
+/*
  * Handle an incoming RSVP (object with method==ICAL_METHOD_REPLY) for a
  * calendar event.  The object has already been deserialized for us; all
  * we have to do here is hunt for the event in our calendar, merge in the
@@ -430,6 +517,9 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	struct CtdlMessage *msg;
 	struct original_event_container oec;
 	icalcomponent *original_event;
+	char *serialized_event = NULL;
+	char roomname[ROOMNAMELEN];
+	char *message_text = NULL;
 
 	/* Figure out just what event it is we're dealing with */
 	strcpy(uid, "--==<< InVaLiD uId >>==--");
@@ -487,14 +577,42 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	original_event = oec.c;
 	if (original_event == NULL) {
 		lprintf(3, "ERROR: Original_component is NULL.\n");
-		return(1);
+		return(2);
 	}
 
-	/* FIXME finish this */
-	/* merge "cal" into "original_event" */
-	/* reserialize "original_event" and save to disk */
+	/* Merge the attendee's updated status into the event */
+	ical_merge_attendee_reply(original_event, cal);
 
-	icalcomponent_free(original_event);
+	/* Serialize it */
+	serialized_event = strdoop(icalcomponent_as_ical_string(original_event));
+	icalcomponent_free(original_event);	/* Don't need this anymore. */
+	if (serialized_event == NULL) return(2);
+
+	MailboxName(roomname, sizeof roomname, &CC->usersupp, USERCALENDARROOM);
+
+	message_text = mallok(strlen(serialized_event) + SIZ);
+	if (message_text != NULL) {
+		sprintf(message_text,
+			"Content-type: text/calendar\r\n\r\n%s\r\n",
+			serialized_event
+		);
+
+		msg = CtdlMakeMessage(&CC->usersupp,
+			"",			/* No recipient */
+			roomname,
+			0, FMT_RFC822,
+			"",
+			"",		/* no subject */
+			message_text);
+	
+		if (msg != NULL) {
+			CIT_ICAL->avoid_sending_invitations = 1;
+			CtdlSubmitMsg(msg, NULL, roomname);
+			CtdlFreeMessage(msg);
+			CIT_ICAL->avoid_sending_invitations = 0;
+		}
+	}
+	phree(serialized_event);
 	return(0);
 }
 
@@ -569,8 +687,8 @@ void ical_handle_rsvp(long msgnum, char *partnum, char *action) {
 
 		/* Now that we've processed this message, we don't need it
 		 * anymore.  So delete it.  FIXME uncomment this when ready!
-		CtdlDeleteMessages(CC->quickroom.QRname, msgnum, "");
 		 */
+		CtdlDeleteMessages(CC->quickroom.QRname, msgnum, "");
 
 		/* Free the memory we allocated and return a response. */
 		icalcomponent_free(ird.cal);
@@ -1043,6 +1161,11 @@ void ical_saving_vevent(icalcomponent *cal) {
 	icalproperty *organizer = NULL;
 	char organizer_string[SIZ];
 
+	/* Don't send out invitations if we've been asked not to. */
+	if (CIT_ICAL->avoid_sending_invitations) {
+		return;
+	}
+
 	strcpy(organizer_string, "");
 	/*
  	 * The VEVENT subcomponent is the one we're interested in.
@@ -1263,6 +1386,11 @@ int ical_obj_aftersave(struct CtdlMessage *msg)
 }
 
 
+void ical_session_startup(void) {
+	CtdlAllocUserData(SYM_CIT_ICAL, sizeof(struct cit_ical));
+}
+
+
 #endif	/* HAVE_ICAL_H */
 
 /*
@@ -1275,6 +1403,7 @@ char *Dynamic_Module_Init(void)
 	CtdlRegisterMessageHook(ical_obj_aftersave, EVT_AFTERSAVE);
 	CtdlRegisterSessionHook(ical_create_room, EVT_LOGIN);
 	CtdlRegisterProtoHook(cmd_ical, "ICAL", "Citadel iCal commands");
+	CtdlRegisterSessionHook(ical_session_startup, EVT_START);
 #endif
 	return "$Id$";
 }

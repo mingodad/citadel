@@ -262,6 +262,8 @@ files that will be automatically substituted with other strings.  They are:
  ^usernum     = The user number of the user reading the help file
  ^sysadm      = The name of the system administraor (i.e., you)
  ^variantname = The name of the BBS software you're running
+ ^bbsdir      = The directory on the host system in which you have
+                installed the Citadel system.
  
    So, for example, you could create a help file which looked like:
  

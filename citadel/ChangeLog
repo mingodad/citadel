@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.86  2002/12/09 06:07:29  ajc
+ * Finished the code to accept incoming calendar REPLY messages and
+   merge/save the updated event in the user's calendar.
+
  Revision 601.85  2002/12/08 06:01:48  ajc
  * More work on the reply handler.  Wrote functions to locate the message
    containing the invitation being replied to.  Just need to write the
@@ -4292,4 +4296,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
