@@ -1,4 +1,8 @@
  $Log$
+ Revision 605.3  2003/02/21 04:24:51  ajc
+ * Completed the "ICAL freebusy" subcommand, which fetches free/busy times
+   for any requested user (output in stripped-down VCALENDAR format)
+
  Revision 605.2  2003/02/20 04:51:17  ajc
  * Began framing up a command to view other users' free/busy times
 
@@ -4487,3 +4491,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

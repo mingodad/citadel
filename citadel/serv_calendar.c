@@ -947,12 +947,98 @@ void ical_conflicts(long msgnum, char *partnum) {
 
 
 /*
+ * Remove all properties from a VEVENT that are not supplying the
+ * bare minimum for free/busy data.
+ */
+void ical_freebusy_strip(icalcomponent *cal) {
+
+	icalproperty *p;
+	int did_something = 1;
+
+	ical_dezonify(cal);
+
+	while (did_something) {
+		did_something = 0;
+		for (	p=icalcomponent_get_first_property
+				(cal, ICAL_ANY_PROPERTY);
+			p != NULL;
+			p = icalcomponent_get_next_property
+				(cal, ICAL_ANY_PROPERTY)
+		) {
+
+			if (
+				(icalproperty_isa(p)==ICAL_DTSTART_PROPERTY)
+			   ||	(icalproperty_isa(p)==ICAL_DTEND_PROPERTY)
+			   ||	(icalproperty_isa(p)==ICAL_DURATION_PROPERTY)
+			   ||	(icalproperty_isa(p)==ICAL_FREEBUSY_PROPERTY)
+			   ||	(icalproperty_isa(p)==ICAL_TRANSP_PROPERTY)
+			   ) {
+				/* keep it */
+			}
+			else {
+				/* delete it */
+				icalcomponent_remove_property(cal, p);
+				icalproperty_free(p);
+				did_something = 1;
+			}
+
+		}
+	}
+
+}
+
+
+
+/*
+ * Backend for ical_freebusy()
+ *
+ * This function simply loads the messages in the user's calendar room,
+ * which contain VEVENTs, then strips them of all non-freebusy data, and
+ * adds them to the supplied VCALENDAR.
+ *
+ */
+void ical_freebusy_backend(long msgnum, void *data) {
+	icalcomponent *cal;
+	struct CtdlMessage *msg;
+	struct ical_respond_data ird;
+
+	cal = (icalcomponent *)data;
+
+	msg = CtdlFetchMessage(msgnum);
+	if (msg == NULL) return;
+	memset(&ird, 0, sizeof ird);
+	strcpy(ird.desired_partnum, "1");	/* hopefully it's always 1 */
+	mime_parser(msg->cm_fields['M'],
+		NULL,
+		*ical_locate_part,		/* callback function */
+		NULL, NULL,
+		(void *) &ird,			/* user data */
+		0
+	);
+	CtdlFreeMessage(msg);
+
+	if (ird.cal == NULL) return;
+
+	/* Strip it!  Strip it good! */
+	ical_freebusy_strip(ird.cal);
+
+	/* Encapsulate ird.cal inside cal (thereby also transferring
+	 * ownership of the memory it consumes).
+	 */
+	icalcomponent_add_component(cal, ird.cal);
+}
+
+
+
+/*
  * Grab another user's free/busy times
  */
 void ical_freebusy(char *who) {
 	struct usersupp usbuf;
 	char calendar_room_name[ROOMNAMELEN];
 	char hold_rm[ROOMNAMELEN];
+	char *serialized_request = NULL;
+	icalcomponent *encaps = NULL;
 
 	if (getuser(&usbuf, who) != 0) {
 		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
@@ -970,10 +1056,38 @@ void ical_freebusy(char *who) {
 		return;
 	}
 
-/*
+
+	/* Create a VCALENDAR in which we will encapsulate all the VEVENTs */
+	encaps = icalcomponent_new(ICAL_VCALENDAR_COMPONENT);
+	if (encaps == NULL) {
+		cprintf("%d Internal error: cannot allocate memory.\n",
+			ERROR+INTERNAL_ERROR);
+		getroom(&CC->quickroom, hold_rm);
+		return;
+	}
+
+	/* Set the Product ID */
+	icalcomponent_add_property(encaps, icalproperty_new_prodid(PRODID));
+
+	/* Set the Version Number */
+	icalcomponent_add_property(encaps, icalproperty_new_version("2.0"));
+
+	/* Set the method to ???? FIXME
+	icalcomponent_set_method(encaps, ICAL_METHOD_REQUEST); */
+
 	CtdlForEachMessage(MSGS_ALL, 0, "text/calendar",
-		template, the_FIXME_function, NULL);
- */
+		NULL, ical_freebusy_backend, (void *)encaps
+	);
+
+	/* Serialize it */
+	serialized_request = strdoop(icalcomponent_as_ical_string(encaps));
+	icalcomponent_free(encaps);	/* Don't need this anymore. */
+
+	cprintf("%d Here is the free/busy data:\n", LISTING_FOLLOWS);
+	if (serialized_request != NULL) {
+		client_write(serialized_request, strlen(serialized_request));
+	}
+	cprintf("\n000\n");
 
 	/* Go back to the room from which we came... */
 	getroom(&CC->quickroom, hold_rm);
@@ -1092,6 +1206,7 @@ void ical_create_room(void)
 void ical_send_out_invitations(icalcomponent *cal) {
 	icalcomponent *the_request = NULL;
 	char *serialized_request = NULL;
+	icalcomponent *encaps = NULL;
 	char *request_message_text = NULL;
 	struct CtdlMessage *msg = NULL;
 	struct recptypes *valid = NULL;
@@ -1101,7 +1216,6 @@ void ical_send_out_invitations(icalcomponent *cal) {
 	icalproperty *attendee = NULL;
 	char summary_string[SIZ];
 	icalproperty *summary = NULL;
-	icalcomponent *encaps = NULL;
 
 	if (cal == NULL) {
 		lprintf(3, "ERROR: trying to reply to NULL event?\n");

@@ -2010,11 +2010,21 @@ may be issued:
   way, the reply message is deleted from the current room.  This subcommand will
   return either OK or ERROR.
  
- Readers who are paying attention will notice that there is no subcommand to send
- out meeting invitations.  This is because that task is handled automatically by
- the Citadel server.  When an event is saved to the user's Calendar> room and it
- contains attendees, Citadel will automatically turn the event into vCalendar
- REQUEST messages and mail them out to all listed attendees.
+ ICAL freebusy|username
+  Output the free/busy times for the requested user.  If the user specified
+  has a calendar available, this command will return LISTING_FOLLOWS and a
+  compound VCALENDAR object.  That object, in turn, will contain VEVENT
+  objects that have been stripped of all properties except for the bare
+  minimum needed to learn free/busy times (such as DTSTART, DTEND, and
+  TRANSP).  If there is no such user, or no calendar available, the usual
+  ERROR codes will be returned.
+ 
+ Readers who are paying attention will notice that there is no subcommand to
+send out meeting invitations.  This is because that task is handled
+automatically by the Citadel server.  When an event is saved to the user's
+Calendar> room and it contains attendees, Citadel will automatically turn
+the event into vCalendar REQUEST messages and mail them out to all listed
+attendees.
 
 
 
