@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.100  2002/02/03 15:29:03  error
+ * fixed a silly oversight in serv_crypto.c when removing the ETLS command
+
  Revision 590.99  2002/02/03 15:21:48  error
  * Remove the ETLS command, it is no longer needed
 
@@ -3289,3 +3292,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

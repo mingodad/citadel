@@ -158,7 +158,7 @@ void client_write_ssl(char *buf, int nbytes)
 				continue;
 			}
 			lprintf(9, "SSL_write got error %ld\n", errval);
-			endtls(1);
+			endtls();
 			client_write(&buf[nbytes - nremain], nremain);
 			return;
 		}
@@ -210,7 +210,7 @@ int client_read_ssl(char *buf, int bytes, int timeout)
 				continue;
 			}
 			lprintf(9, "SSL_read got error %ld\n", errval);
-			endtls(1);
+			endtls();
 			return (client_read_to(&buf[len], bytes - len, timeout));
 		}
 		len += rlen;
