@@ -65,15 +65,19 @@ struct CitContext masterCC;
  * lprintf()  ...   Write logging information
  */
 void lprintf(int loglevel, const char *format, ...) {   
-        va_list arg_ptr;   
+        va_list arg_ptr;
+	char buf[256];
   
+        va_start(arg_ptr, format);   
+        vsprintf(buf, format, arg_ptr);   
+        va_end(arg_ptr);   
+
 	if (loglevel <= verbosity) { 
-        	va_start(arg_ptr, format);   
-        	vfprintf(stderr, format, arg_ptr);   
-        	va_end(arg_ptr);   
+		fprintf(stderr, "%s", buf);
 		fflush(stderr);
 		}
-  
+
+	PerformLogHooks(loglevel, buf);
 	}   
 
 

@@ -9,8 +9,10 @@ struct DLModule_Info
 
 void DLoader_Init(char *pathname);
 int DLoader_Exec_Cmd(char *cmdbuf);
+void CtdlRegisterLogHook(void (*fcn_ptr)(char *), int loglevel);
 void CtdlRegisterCleanupHook(void (*fcn_ptr)(void));
 void CtdlRegisterSessionHook(void (*fcn_ptr)(void), int EventType);
+void PerformLogHooks(int loglevel, char *logmsg);
 void PerformSessionHooks(int EventType);
 void PerformUserHooks(char *username, long usernum, int EventType);
 void CtdlRegisterProtoHook(void (*handler)(char *), char *cmd, char *desc);

@@ -28,6 +28,7 @@
 #include "snprintf.h"
 #endif
 
+struct LogFunctionHook *LogHookTable = NULL;
 struct CleanupFunctionHook *CleanupHookTable = NULL;
 struct SessionFunctionHook *SessionHookTable = NULL;
 struct UserFunctionHook *UserHookTable = NULL;
@@ -121,6 +122,21 @@ void DLoader_Init(char *pathname)
 
 
 
+void CtdlRegisterLogHook(void (*fcn_ptr)(char *), int loglevel) {
+
+	struct LogFunctionHook *newfcn;
+
+	newfcn = (struct LogFunctionHook *)
+		malloc(sizeof(struct LogFunctionHook));
+	newfcn->next = LogHookTable;
+	newfcn->h_function_pointer = fcn_ptr;
+	newfcn->loglevel = loglevel;
+	LogHookTable = newfcn;
+
+	lprintf(5, "Registered a new logging function\n");
+	}
+
+
 void CtdlRegisterCleanupHook(void (*fcn_ptr)(void)) {
 
 	struct CleanupFunctionHook *newfcn;
@@ -175,6 +191,16 @@ void PerformSessionHooks(int EventType) {
                 	(*fcn->h_function_pointer)();
 			}
                 }
+	}
+
+void PerformLogHooks(int loglevel, char *logmsg) {
+	struct LogFunctionHook *fcn;
+
+	for (fcn = LogHookTable; fcn != NULL; fcn = fcn->next) {
+		if (fcn->loglevel >= loglevel) {
+			(*fcn->h_function_pointer)(logmsg);
+			}
+		}
 	}
 
 void PerformUserHooks(char *username, long usernum, int EventType) {

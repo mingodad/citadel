@@ -140,6 +140,13 @@ struct cdbdata {
 
 /* Structures and declarations for function hooks of various types */
 
+struct LogFunctionHook {
+	struct LogFunctionHook *next;
+	int loglevel;
+	void (*h_function_pointer) (char *);
+	};
+extern struct LogFunctionHook *LogHookTable;
+
 struct CleanupFunctionHook {
 	struct CleanupFunctionHook *next;
 	void (*h_function_pointer) (void);

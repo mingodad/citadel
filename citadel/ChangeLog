@@ -1,3 +1,6 @@
+Sat Dec  5 01:24:03 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Added a new type of module hook for adding logging functions
+
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* setup.c: create citadel.config with mode 0600
 	* Makefile.in: don't chmod sendcommand

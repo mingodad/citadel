@@ -72,6 +72,11 @@ void Ygorl(char *username, long usernum) {
 		}
 	}
 
+void LogTest(char *buf) {
+	fprintf(stderr,"%c[1m%s%c[0m", 27, buf, 27);
+	fflush(stderr);
+	}
+
 
 struct DLModule_Info *Dynamic_Module_Init(void)
 {
@@ -81,5 +86,6 @@ struct DLModule_Info *Dynamic_Module_Init(void)
    CtdlRegisterSessionHook(SessionStopTest, EVT_STOP);
    CtdlRegisterSessionHook(LoginTest, EVT_LOGIN);
    CtdlRegisterUserHook(Ygorl, EVT_OUTPUTMSG);
+   CtdlRegisterLogHook(LogTest, 1);
    return &info;
 }
