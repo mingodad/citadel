@@ -1,4 +1,7 @@
 $Log$
+Revision 400.86  2003/01/19 06:28:04  ajc
+* Minimum required Citadel version 6.05
+
 Revision 400.85  2003/01/16 04:41:26  ajc
 * When displaying edit controls for time of day in the calendar, only show
   minutes that are multiples of 5 ... unless the existing value is not a
@@ -12,7 +15,7 @@ Revision 400.83  2003/01/14 04:21:27  ajc
 * Only offer views which make sense for the default view of a room
 
 Revision 400.82  2003/01/13 03:34:33  ajc
-* Get ready for the 6.10 release
+* Get ready for the 4.10 release
 
 Revision 400.81  2003/01/12 23:22:53  ajc
 * configure.in: check for libical v0.24 or newer

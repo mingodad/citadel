@@ -906,6 +906,20 @@ void session_loop(struct httprequest *req)
 			serv_gets(buf);	/* get the server welcome message */
 			locate_host(browser_host, WC->http_sock);
 			get_serv_info(browser_host, user_agent);
+			if (serv_info.serv_rev_level < MINIMUM_CIT_VERSION) {
+				wprintf("You are connected to a Citadel "
+					"server running Citadel %d.%02d;\nin "
+					"order to run this version of WebCit "
+					"you must also have Citadel %d.%02d or"
+					" newer.\n\n\n",
+						serv_info.serv_rev_level / 100,
+						serv_info.serv_rev_level % 100,
+						MINIMUM_CIT_VERSION / 100,
+						MINIMUM_CIT_VERSION % 100
+					);
+				end_webcit_session();
+				goto SKIP_ALL_THIS_CRAP;
+			}
 		}
 	}
 
