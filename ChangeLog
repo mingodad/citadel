@@ -1,4 +1,7 @@
 $Log$
+Revision 210.0  1999/12/24 04:57:18  ajc
+* 2.10 release
+
 Revision 1.121  1999/12/23 04:54:48  ajc
 * Changed session cookie from hexadecimal encoding to base64
 * Removed overly verbose logging
