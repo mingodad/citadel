@@ -8,6 +8,8 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
+#include <errno.h>
 #include "citadel.h"
 
 void get_config ();
@@ -23,7 +25,6 @@ main (argc, argv)
   char LogName[256];
 
   char buf[256];
-  int a, b;
   char aaa[100];
   struct tm *tm;
   char *tstring;
@@ -36,15 +37,6 @@ main (argc, argv)
     {
       perror ("Could not open citadel.log");
       exit (errno);
-    }
-  if (argc >= 2)
-    {
-      if (!strcmp (argv[1], "-t"))
-	last20 (file, (long) pos);
-      else
-	fprintf (stderr, "%s: usage: %s [-t]\n", argv[0], argv[0]);
-      close (file);
-      exit (0);
     }
   else
     {
