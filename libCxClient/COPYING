@@ -1,0 +1,60 @@
+libCxClient - Citadel/UX Extensible Client API
+Copyright (c) 2000, Flaming Sword Productions
+Copyright (c) 2001, The Citadel/UX Consortium
+All Rights Reserved
+
+http://www.shadowcom.net/Software/libCxClient/
+================================================================================
+
+What are the Restrictions upon copying libCxClient?
+---------------------------------------------------
+Please refer to the LICENSE file for complete legal details on redistributing
+the libCxClient program.
+
+In plain english, this license means a few things:
+	- Copying libCxClient shall be at no charge.
+	- Creating works based upon libCxClient is allowed. *
+	- Using libCxClient code in your projects is allowed. *
+
+The nitty gritty is as such:  You can copy/redistribute this program at no 
+charge, provided you keep the LICENSE file intact and present with the rest of
+the source code.  Creating works based upon the libCxClient libraries is 
+allowed, without any restrictions, whatsoever (no nagging notifications allowed,
+no redistribution of your code is required).  It is even O.K. for you to take
+portions of the code present under libCxClient and use it in commercial (non-
+open-sourced) projects, but herein lies the catch: Any work based upon PORTIONS
+OF libCxClient CODE (in other words, projects which directly compile libCxClient
+into any portion of proprietary code, instead of using the libCxClient API 
+copyrighted as specified in LICENSE) must MUST _MUST_ include the above copyright
+notice in some portion of the documentation for the project, and the copyright
+notice should be accessible to end-users of your project.  This ensures that,
+even though you chose to use our code for your project, you still give us credit
+where credit is due.
+
+Why did we choose a BSD-like License?
+-------------------------------------
+The BSD-style license was chosen to promote the greatest level of freedom 
+possible.  It is in this author's opinion that the GNU General Public License
+contains too many restrictions on any code licensed underneath it, which, in
+the end, prohibits productive use of licensed code.  I feel that the BSD
+license allows developers to share ideas on a more free level, without having
+to worry about whether or not they must redistribute portions of code, some
+of which they may have worked on in the past.
+
+If you don't think that the BSD license works, I refer you to products such
+as Windows 9x/NT/2000 (which use portions of the 4.xBSD TCP/IP subsystem) and 
+Internet Explorer (which uses portions of Mosaic).  These projects incorporated 
+public-domain code into their codebase, but were not required to release ALL (or
+ANY) of their code to the public as a result.  You will notice that appropriate
+copyright notices can be found amongst the user documentation, though.
+
+The BSD license works, for everyone.
+
+(...and that's the end of my diatribe)
+
+Other Sources of Information:
+-----------------------------
+	http://www.softpanorama.org/OSS/bsd_vs_gpl.shtml
+
+================================================================================
+$Id$
