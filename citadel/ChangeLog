@@ -1,4 +1,8 @@
  $Log$
+ Revision 623.1  2004/07/10 02:51:01  ajc
+ * Changed "policy set" message to "policy has been updated" to make it
+   clearer.
+
  Revision 623.0  2004/07/06 18:15:04  ajc
  * THIS IS 6.23
 
@@ -5903,4 +5907,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

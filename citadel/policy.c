@@ -138,7 +138,7 @@ void cmd_spex(char *argbuf) {
 		lgetroom(&CC->room, CC->room.QRname);
 		memcpy(&CC->room.QRep, &exp, sizeof(struct ExpirePolicy));
 		lputroom(&CC->room);
-		cprintf("%d Room expire policy set.\n", CIT_OK);
+		cprintf("%d Room expire policy has been updated.\n", CIT_OK);
 		return;
 	}
 
@@ -152,7 +152,7 @@ void cmd_spex(char *argbuf) {
 		lgetfloor(&flbuf, CC->room.QRfloor);
 		memcpy(&flbuf.f_ep, &exp, sizeof(struct ExpirePolicy));
 		lputfloor(&flbuf, CC->room.QRfloor);
-		cprintf("%d Floor expire policy set.\n", CIT_OK);
+		cprintf("%d Floor expire policy has been updated.\n", CIT_OK);
 		return;
 	}
 
@@ -172,7 +172,7 @@ void cmd_spex(char *argbuf) {
 		}
 		memcpy(&config.c_ep, &exp, sizeof(struct ExpirePolicy));
 		put_config();
-		cprintf("%d Site expire policy set.\n", CIT_OK);
+		cprintf("%d Site expire policy has been updated.\n", CIT_OK);
 		return;
 	}
 
