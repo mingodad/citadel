@@ -977,9 +977,15 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 					strcpy(luser, mptr);
 					strcpy(suser, mptr);
 				}
+/****
+ "Path:" removed for now because it confuses brain-dead Microsoft shitware
+ into thinking that mail messages are newsgroup messages instead.  When we
+ add NNTP support back into Citadel we'll have to add code to only output
+ this field when appropriate.
 				else if (i == 'P') {
 					cprintf("Path: %s%s", mptr, nl);
 				}
+ ****/
 				else if (i == 'U')
 					cprintf("Subject: %s%s", mptr, nl);
 				else if (i == 'I')

@@ -1,4 +1,10 @@
  $Log$
+ Revision 573.68  2001/01/15 20:34:04  ajc
+  * "Path:" removed for now because it confuses brain-dead Microsoft shitware
+    into thinking that mail messages are newsgroup messages instead.  When we
+    add NNTP support back into Citadel we'll have to add code to only output
+    this field when appropriate.
+
  Revision 573.67  2001/01/15 16:30:31  ajc
  * temporary implementation of 901 asynchronous express messages
 
@@ -2321,4 +2327,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
