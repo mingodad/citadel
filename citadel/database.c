@@ -23,9 +23,6 @@
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
-#ifdef HAVE_PTHREAD_H
-#include <pthread.h>
-#endif
 #ifdef HAVE_GDBM_H
 #include <gdbm.h>
 #endif

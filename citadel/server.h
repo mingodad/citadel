@@ -1,5 +1,4 @@
 /* $Id$ */
-typedef pthread_t THREAD;
 
 /* Uncomment this if you want to track memory leaks.
  * This incurs some overhead, so don't use it unless you're debugging the code!

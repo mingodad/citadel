@@ -5,9 +5,6 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#ifdef HAVE_PTHREAD_H
-#include <pthread.h>
-#endif
 #include "citadel.h"
 #include "server.h"
 #include "support.h"

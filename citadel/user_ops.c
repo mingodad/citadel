@@ -14,9 +14,6 @@
 #include <string.h>
 #include <syslog.h>
 #include <limits.h>
-#ifdef HAVE_PTHREAD_H
-#include <pthread.h>
-#endif
 #ifndef ENABLE_CHKPWD
 #include "auth.h"
 #endif

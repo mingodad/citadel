@@ -10,9 +10,6 @@
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
-#ifdef HAVE_PTHREAD_H
-#include <pthread.h>
-#endif
 #include <syslog.h>
 #include <dlfcn.h>
 #include <netdb.h>
@@ -116,34 +113,72 @@ void deallocate_user_data(struct CitContext *con)
 
 
 /*
- * Gracefully terminate the session and thread.
- * (This is called as a cleanup handler by the thread library.)
- *
- * All NON-system-dependent stuff is done in this function.
- * System-dependent session/thread cleanup is in cleanup() in sysdep.c
+ * Gracefully terminate a session which is marked as CON_DYING.
  */
-void cleanup(int exit_code)
+void cleanup(struct CitContext *con)
 {
-	lprintf(9, "cleanup(%d) called\n", exit_code);
+	struct CitContext *ptr = NULL;
+	struct CitContext *ToFree = NULL;
 
-	lprintf(7, "Calling logout(%d)\n", CC->cs_pid);
-	logout(CC);
+	lprintf(9, "cleanup() called\n");
+	if (con==NULL) {
+		lprintf(5, "WARNING: cleanup() called with NULL!\n");
+		return;
+		}
 
-	rec_log(CL_TERMINATE,CC->curr_user);
-	unlink(CC->temp);
-	lprintf(3, "citserver[%3d]: ended.\n",CC->cs_pid);
+	lprintf(7, "Calling logout(%d)\n", con->cs_pid);
+	logout(con);
+
+	rec_log(CL_TERMINATE, con->curr_user);
+	unlink(con->temp);
+	lprintf(3, "citserver[%3d]: ended.\n", con->cs_pid);
 	
 	/* Run any cleanup routines registered by loadable modules */
 	PerformSessionHooks(EVT_STOP);
 
-	syslog(LOG_NOTICE,"session %d ended", CC->cs_pid);
+	syslog(LOG_NOTICE,"session %d ended", con->cs_pid);
 	
 	/* Deallocate any user-data attached to this session */
-	deallocate_user_data(CC);
+	deallocate_user_data(con);
 
-	/* And flag the context as in need of being killed */
-	CC->state = CON_DYING;
-	}
+	/* And flag the context as in need of being killed.
+	 * (Probably done already, but just in case)
+	 */
+	con->state = CON_DYING;
+
+	/* delete context */
+
+	lprintf(7, "Removing context\n");
+
+	begin_critical_section(S_SESSION_TABLE);
+	if (ContextList == con) {
+		ToFree = ContextList;
+		ContextList = ContextList->next;
+		}
+	else {
+		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
+			if (ptr->next == con) {
+				ToFree = ptr->next;
+				ptr->next = ptr->next->next;
+				}
+			}
+		}
+	end_critical_section(S_SESSION_TABLE);
+
+	lprintf(7, "Closing socket %d\n", ToFree->client_socket);
+	close(ToFree->client_socket);
+
+        /* Tell the housekeeping thread to check to see if this is the time
+         * to initiate a scheduled shutdown event.
+         */
+        enter_housekeeping_cmd("SCHED_SHUTDOWN");
+
+	/* Free up the memory used by this context */
+	phree(ToFree);
+
+	lprintf(7, "Done with cleanup()\n");
+}
+
 
 
 /*
@@ -866,7 +901,8 @@ void do_command_loop(void) {
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_gets(cmdbuf) < 1) {
 		lprintf(3, "Client socket is broken.  Ending session.\n");
-		cleanup(EXIT_NULL);
+		CC->state = CON_DYING;
+		return;
 	}
 	lprintf(5, "citserver[%3d]: %s\n", CC->cs_pid, cmdbuf);
 
@@ -896,7 +932,7 @@ void do_command_loop(void) {
 
 	else if (!strncasecmp(cmdbuf,"QUIT",4)) {
 		cprintf("%d Goodbye.\n",OK);
-		cleanup(0);
+		CC->state = CON_DYING;
 		}
 
 	else if (!strncasecmp(cmdbuf,"LOUT",4)) {

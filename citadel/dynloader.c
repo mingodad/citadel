@@ -17,9 +17,6 @@
 #include <dirent.h>
 #include <strings.h>
 #include <syslog.h>
-#ifdef HAVE_PTHREAD_H
-#include <pthread.h>
-#endif
 #include <limits.h>
 #include <ctype.h>
 #include "citadel.h"

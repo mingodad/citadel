@@ -21,9 +21,6 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <errno.h>
-#ifdef HAVE_PTHREAD_H
-#include <pthread.h>
-#endif
 #include "citadel.h"
 #include "mime_parser.h"
 #include "sysdep_decls.h"

@@ -1,4 +1,10 @@
 $Log$
+Revision 1.400  1999/10/28 05:08:49  ajc
+* Removed all of the thread cancellation cruft that is no longer necessary
+* Moved the now non-system-dependent RemoveContext() out of sysdep.c (now
+  it's part of cleanup() in citserver.c)
+* Removed all references to pthread_* from all modules except sysdep.c
+
 Revision 1.399  1999/10/28 03:20:17  ajc
 * Fixed the problem of worker threads waking up prematurely.
 * 'QUIT'-terminated sessions now exit properly.  Still need to fix code for
@@ -1374,3 +1380,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

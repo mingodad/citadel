@@ -20,9 +20,6 @@
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
-#ifdef HAVE_PTHREAD_H
-#include <pthread.h>
-#endif
 #include "tools.h"
 #include "citadel.h"
 #include "server.h"

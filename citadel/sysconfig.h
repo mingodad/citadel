@@ -51,8 +51,13 @@
  * editor installed, and you want to make it the default, set this to 46
  * to make it use your editor by default.
  */
-#define DEFAULT_ENTRY	4
+#define DEFAULT_ENTRY		4
 
+
+/*
+ * Logging level to use if none is specified on the command line.
+ */
+#define DEFAULT_VERBOSITY	9
 
 
 /*

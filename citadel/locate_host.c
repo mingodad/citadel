@@ -14,9 +14,6 @@
 #include <limits.h>
 #include <netdb.h>
 #include <string.h>
-#ifdef HAVE_PTHREAD_H
-#include <pthread.h>
-#endif
 #include "citadel.h"
 #include "server.h"
 #include "locate_host.h"

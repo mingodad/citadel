@@ -33,9 +33,6 @@
 #include <sys/stat.h>
 #include <limits.h>
 #include "sysdep.h"
-#ifdef HAVE_PTHREAD_H
-#include <pthread.h>
-#endif
 #include "citadel.h"
 #include "server.h"
 #include "dynloader.h"

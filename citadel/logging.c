@@ -13,9 +13,6 @@
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
-#ifdef HAVE_PTHREAD_H
-#include <pthread.h>
-#endif
 #include <syslog.h>
 #include "citadel.h"
 #include "server.h"

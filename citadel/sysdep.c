@@ -67,7 +67,7 @@ pthread_mutex_t Critters[MAX_SEMAPHORES];	/* Things needing locking */
 pthread_key_t MyConKey;				/* TSD key for MyContext() */
 
 int msock;					/* master listening socket */
-int verbosity = 9;				/* Logging level */
+int verbosity = DEFAULT_VERBOSITY;		/* Logging level */
 
 struct CitContext masterCC;
 int rescan[2];					/* The Rescan Pipe */
@@ -175,17 +175,6 @@ void dump_tracked() {
 	}
 #endif
 
-static pthread_t main_thread_id;
-
-#ifndef HAVE_PTHREAD_CANCEL
-/*
- * signal handler to fake thread cancellation; only required on BSDI as far
- * as I know.
- */
-static RETSIGTYPE cancel_thread(int signum) {
-	pthread_exit(NULL);
-	}
-#endif
 
 /*
  * we used to use master_cleanup() as a signal handler to shut down the server.
@@ -231,11 +220,13 @@ void init_sysdep(void) {
 	signal(SIGQUIT, signal_cleanup);
 	signal(SIGHUP, signal_cleanup);
 	signal(SIGTERM, signal_cleanup);
+
+	/*
+	 * Do not shut down the server on broken pipe signals, otherwise the
+	 * whole Citadel service would come down whenever a single client
+	 * socket breaks.
+	 */
 	signal(SIGPIPE, SIG_IGN);
-	main_thread_id = pthread_self();
-#ifndef HAVE_PTHREAD_CANCEL /* fake it - only BSDI afaik */
-	signal(SIGUSR1, cancel_thread);
-#endif
 	}
 
 
@@ -305,7 +296,9 @@ int ig_tcp_server(int port_number, int queue_len)
 
 
 /*
- * Return a pointer to a thread's own CitContext structure (new)
+ * Return a pointer to the CitContext structure bound to the thread which
+ * called this function.  If there's no such binding (for example, if it's
+ * called by the housekeeper thread) then a generic 'master' CC is returned.
  */
 struct CitContext *MyContext(void) {
 	struct CitContext *retCC;
@@ -316,7 +309,7 @@ struct CitContext *MyContext(void) {
 
 
 /*
- * Wedge our way into the context list.
+ * Initialize a new context and place it in the list.
  */
 struct CitContext *CreateNewContext(void) {
 	struct CitContext *me;
@@ -341,55 +334,6 @@ struct CitContext *CreateNewContext(void) {
 	return(me);
 	}
 
-/*
- * Remove a context from the context list.
- */
-void RemoveContext(struct CitContext *con)
-{
-	struct CitContext *ptr = NULL;
-	struct CitContext *ToFree = NULL;
-
-	lprintf(7, "Starting RemoveContext()\n");
-	if (con==NULL) {
-		lprintf(5, "WARNING: RemoveContext() called with NULL!\n");
-		return;
-		}
-
-	/*
-	 * session_count() starts its own S_SESSION_TABLE critical section;
-	 * so do not call it from within this loop.
-	 */
-	begin_critical_section(S_SESSION_TABLE);
-
-	if (ContextList == con) {
-		ToFree = ContextList;
-		ContextList = ContextList->next;
-		}
-	else {
-		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
-			if (ptr->next == con) {
-				ToFree = ptr->next;
-				ptr->next = ptr->next->next;
-				}
-			}
-		}
-
-
-	end_critical_section(S_SESSION_TABLE);
-
-	lprintf(7, "Closing socket %d\n", ToFree->client_socket);
-	close(ToFree->client_socket);
-
-        /* Tell the housekeeping thread to check to see if this is the time
-         * to initiate a scheduled shutdown event.
-         */
-        enter_housekeeping_cmd("SCHED_SHUTDOWN");
-
-	/* Free up the memory used by this context */
-	phree(ToFree);
-
-	lprintf(7, "Done with RemoveContext\n");
-	}
 
 
 /*
@@ -423,7 +367,7 @@ void client_write(char *buf, int nbytes)
 		if (retval < 1) {
 			lprintf(2, "client_write() failed: %s\n",
 				strerror(errno));
-			cleanup(errno);
+			CC->state = CON_DYING;
 			}
 		bytes_written = bytes_written + retval;
 		}
@@ -479,7 +423,7 @@ int client_read_to(char *buf, int bytes, int timeout)
 		if (rlen<1) {
 			lprintf(2, "client_read() failed: %s\n",
 				strerror(errno));
-			cleanup(errno);
+			CC->state = CON_DYING;
 			}
 		len = len + rlen;
 		}
@@ -541,6 +485,8 @@ void sysdep_master_cleanup(void) {
 
 /*
  * Terminate another session.
+ * FIX ... now we need some way to wake that session up so it knows it
+ * needs to terminate.
  */
 void kill_session(int session_to_kill) {
 	struct CitContext *ptr;
@@ -672,7 +618,7 @@ int convert_login(char NameToConvert[]) {
  */
 int main(int argc, char **argv)
 {
-	THREAD HousekeepingThread;	/* Thread descriptor */
+	pthread_t HousekeepingThread;	/* Thread descriptor */
         pthread_attr_t attr;		/* Thread attributes */
 	char tracefile[128];		/* Name of file to log traces to */
 	int a, i;			/* General-purpose variables */
@@ -743,6 +689,7 @@ int main(int argc, char **argv)
 	/* Initialize... */
 	init_sysdep();
 	openlog("citserver",LOG_PID,LOG_USER);
+
 	/* Load site-specific parameters */
 	lprintf(7, "Loading citadel.config\n");
 	get_config();
@@ -853,7 +800,7 @@ void worker_thread(void) {
 	struct CitContext *con= NULL;	/* Temporary context pointer */
 	struct sockaddr_in fsin;	/* Data for master socket */
 	int alen;			/* Data for master socket */
-	int ssock;			/* Descriptor for master socket */
+	int ssock;			/* Descriptor for client socket */
 
 	while (!time_to_die) {
 
@@ -972,7 +919,7 @@ SETUP_FD:	FD_ZERO(&readfds);
 				do_command_loop();
 				pthread_setspecific(MyConKey, (void *)NULL);
 				if (bind_me->state == CON_DYING) {
-					RemoveContext(bind_me);
+					cleanup(bind_me);
 				} 
 				else {
 					bind_me->state = CON_IDLE;

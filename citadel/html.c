@@ -14,9 +14,6 @@
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
-#ifdef HAVE_PTHREAD_H
-#include <pthread.h>
-#endif
 #include <syslog.h>
 #include "citadel.h"
 #include "server.h"
