@@ -352,8 +352,8 @@ int main(int argc, char** argv)
 		if (i == 0) sleep(3);
 	}
 
-	fprintf(stderr, "Starting in %d seconds\r", n);
-	sleep(n);
+	//fprintf(stderr, "Starting in %d seconds\r", n);
+	//sleep(n);
 	fprintf(stderr, "                      \r");
 
 	/* Then, signal the conditional they all are waiting on */

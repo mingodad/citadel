@@ -48,11 +48,6 @@ enum {
 	SYM_DESIRED_SECTION,		/* Used by the MIME parser */
 	SYM_MA_INFO,			/* Handles multipart/alternative */
 	SYM_CIT_ICAL,			/* Used by the calendar service */
-	SYM_IMAP,			/* Used by the IMAP service */
-	SYM_POP3,			/* Used by the POP3 service */
-	SYM_SMTP,			/* Used by the SMTP service */
-	SYM_SMTP_RECPS,
-	SYM_SMTP_ROOMS,
 	SYM_VCARD,			/* vCard handling requires this */
 	SYM_MAX
 };
@@ -151,6 +146,11 @@ struct CitContext {
 
 	/* Dynamically allocated session data */
 	struct CtdlSessData *FirstSessData;
+	struct citimap *IMAP;
+	struct citpop3 *POP3;
+	struct citsmtp *SMTP;
+	char *SMTP_RECPS;
+	char *SMTP_ROOMS;
 };
 
 typedef struct CitContext t_context;

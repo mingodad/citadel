@@ -20,7 +20,7 @@ struct citpop3 {		/* Information about the current session */
 				 * incremented by one.
 				 */
 
-#define POP3 ((struct citpop3 *)CtdlGetUserData(SYM_POP3))
+#define POP3 CC->POP3
 
 void pop3_cleanup_function(void);
 void pop3_greeting(void);

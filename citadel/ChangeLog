@@ -1,4 +1,10 @@
  $Log$
+ Revision 641.26  2005/03/12 05:42:35  ajc
+ * Trying to fix a memory bug somewhere.
+ * While working on the above, noticed that the way we did the per-session
+   dynamic symbols loses badly in terms of performance.  Began moving to
+   a less modular but better performing way of doing the same.
+
  Revision 641.25  2005/03/10 03:36:25  ajc
  * Silenced a compiler warning
  * Our graceful cleanup handler no longer gracefully cleans up after
@@ -6535,3 +6541,6 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
+
+

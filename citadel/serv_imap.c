@@ -344,6 +344,7 @@ void imap_cleanup_function(void)
 		IMAP->cached_bodymsgnum = (-1);
 	}
 
+	free(IMAP);
 	lprintf(CTDL_DEBUG, "Finished IMAP cleanup hook\n");
 }
 
@@ -356,7 +357,7 @@ void imap_greeting(void)
 {
 
 	strcpy(CC->cs_clientname, "IMAP session");
-	CtdlAllocUserData(SYM_IMAP, sizeof(struct citimap));
+	IMAP = malloc(sizeof (struct citimap));
 	IMAP->authstate = imap_as_normal;
 	IMAP->cached_rfc822_data = NULL;
 	IMAP->cached_rfc822_msgnum = (-1);

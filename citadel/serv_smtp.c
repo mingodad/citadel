@@ -106,9 +106,9 @@ enum {				/* Delivery modes */
 	smtp_deliver_remote
 };
 
-#define SMTP		((struct citsmtp *)CtdlGetUserData(SYM_SMTP))
-#define SMTP_RECPS	((char *)CtdlGetUserData(SYM_SMTP_RECPS))
-#define SMTP_ROOMS	((char *)CtdlGetUserData(SYM_SMTP_ROOMS))
+#define SMTP		CC->SMTP
+#define SMTP_RECPS	CC->SMTP_RECPS
+#define SMTP_ROOMS	CC->SMTP_ROOMS
 
 
 int run_queue_now = 0;	/* Set to 1 to ignore SMTP send retry times */
@@ -120,8 +120,6 @@ int run_queue_now = 0;	/* Set to 1 to ignore SMTP send retry times */
 /*****************************************************************************/
 
 
-
-
 /*
  * Here's where our SMTP session begins its happy day.
  */
@@ -130,9 +128,9 @@ void smtp_greeting(void) {
 	strcpy(CC->cs_clientname, "SMTP session");
 	CC->internal_pgm = 1;
 	CC->cs_flags |= CS_STEALTH;
-	CtdlAllocUserData(SYM_SMTP, sizeof(struct citsmtp));
-	CtdlAllocUserData(SYM_SMTP_RECPS, SIZ);
-	CtdlAllocUserData(SYM_SMTP_ROOMS, SIZ);
+	SMTP = malloc(sizeof(struct citsmtp));
+	SMTP_RECPS = malloc(SIZ);
+	SMTP_ROOMS = malloc(SIZ);
 	snprintf(SMTP_RECPS, SIZ, "%s", "");
 	snprintf(SMTP_ROOMS, SIZ, "%s", "");
 
@@ -1642,6 +1640,23 @@ void smtp_init_spoolout(void) {
 /*****************************************************************************/
 /*                      MODULE INITIALIZATION STUFF                          */
 /*****************************************************************************/
+/*
+ * This cleanup function blows away the temporary memory used by
+ * the SMTP server.
+ */
+void smtp_cleanup_function(void) {
+
+	/* Don't do this stuff if this is not an SMTP session! */
+	if (CC->h_command_function != smtp_command_loop) return;
+
+	lprintf(CTDL_DEBUG, "Performing SMTP cleanup hook\n");
+	free(SMTP);
+	free(SMTP_ROOMS);
+	free(SMTP_RECPS);
+}
+
+
+
 
 
 char *serv_smtp_init(void)
@@ -1674,6 +1689,7 @@ char *serv_smtp_init(void)
 
 	smtp_init_spoolout();
 	CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);
+	CtdlRegisterSessionHook(smtp_cleanup_function, EVT_STOP);
 	CtdlRegisterProtoHook(cmd_smtp, "SMTP", "SMTP utility commands");
 	return "$Id$";
 }

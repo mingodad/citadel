@@ -76,6 +76,8 @@ void pop3_cleanup_function(void) {
 
 	lprintf(CTDL_DEBUG, "Performing POP3 cleanup hook\n");
 	if (POP3->msgs != NULL) free(POP3->msgs);
+
+	free(POP3);
 }
 
 
@@ -86,7 +88,7 @@ void pop3_cleanup_function(void) {
 void pop3_greeting(void) {
 	strcpy(CC->cs_clientname, "POP3 session");
 	CC->internal_pgm = 1;
-	CtdlAllocUserData(SYM_POP3, sizeof(struct citpop3));
+	POP3 = malloc(sizeof(struct citpop3));
 	POP3->msgs = NULL;
 	POP3->num_msgs = 0;
 

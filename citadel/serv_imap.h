@@ -58,7 +58,7 @@ enum {
 #define IMAP_RECENT		64	/* reportable but not setable */
 
 
-#define IMAP ((struct citimap *)CtdlGetUserData(SYM_IMAP))
+#define IMAP CC->IMAP
 
 /*
  * When loading arrays of message ID's into memory, increase the buffer to
