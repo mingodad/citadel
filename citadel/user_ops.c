@@ -986,7 +986,7 @@ void cmd_gtsn(char *argbuf) {
 	}
 
 	CtdlGetSeen(buf);
-	cprintf("%d %s\n", buf);
+	cprintf("%d %s\n", CIT_OK, buf);
 }
 
 

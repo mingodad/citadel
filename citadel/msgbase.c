@@ -892,7 +892,6 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 		char *ptr;
 		char *wptr;
 		size_t wlen;
-		CIT_UBYTE ch = 0;
 
 		lprintf(9, "fixed_output() type=<%s>\n", cbtype);	
 
