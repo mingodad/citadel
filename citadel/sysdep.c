@@ -256,7 +256,7 @@ void begin_critical_section(int which_one)
 		/* Keep a count of how many critical sections this thread has
 		 * open, so that end_critical_section() doesn't enable
 		 * cancellation prematurely. */
-		CC->n_crit++;
+		if (CC != NULL) CC->n_crit++;
 #ifdef HAVE_PTHREAD_CANCEL
 		/* Don't get interrupted during the critical section */
 		pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &oldval);
@@ -291,6 +291,7 @@ void end_critical_section(int which_one)
 	pthread_mutex_unlock(&Critters[which_one]);
 
 	if (!pthread_equal(pthread_self(), main_thread_id))
+	if (CC != NULL)
 	if (!--CC->n_crit) {
 #ifdef HAVE_PTHREAD_CANCEL
 		/* If a cancel was sent during the critical section, do it now.
@@ -464,11 +465,19 @@ void RemoveContext(int con)
 		}
 
 
+	end_critical_section(S_SESSION_TABLE);
+
 	lprintf(7, "Closing socket %d\n", ToFree->client_socket);
 	close(ToFree->client_socket);
+
+        /* Tell the housekeeping thread to check to see if this is the time
+         * to initiate a scheduled shutdown event.
+         */
+        enter_housekeeping_cmd("SCHED_SHUTDOWN");
+
+	/* Free up the memory used by this context */
 	phree(ToFree);
 
-	end_critical_section(S_SESSION_TABLE);
 	lprintf(7, "Done with RemoveContext\n");
 	}
 

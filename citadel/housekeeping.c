@@ -134,11 +134,6 @@ void housekeeping_loop(void) {
 				check_sched_shutdown();
 			}
 
-			/* Remove a context (session ending) */
-			else if (!strcmp(cmd, "REMOVE_CONTEXT")) {
-				RemoveContext( extract_int(house_cmd, 1) );
-			}
-
 			/* Unknown */
 			else {
 				lprintf(7, "Unknown housekeeping command\n");
@@ -156,10 +151,12 @@ void housekeeping_loop(void) {
 void enter_housekeeping_cmd(char *cmd) {
 	char cmdbuf[256];
 
+	lprintf(9, "enter_housekeeping_cmd(%s)\n", cmd);
 	safestrncpy(cmdbuf, cmd, 256);
 	begin_critical_section(S_HOUSEKEEPING);
 	write(housepipe[1], cmdbuf, 256);
 	end_critical_section(S_HOUSEKEEPING);
+	lprintf(9, "leaving enter_housekeeping_cmd()\n");
 }
 	
 

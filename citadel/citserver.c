@@ -124,8 +124,6 @@ void deallocate_user_data(struct CitContext *con)
  */
 void cleanup_stuff(void *arg)
 {
-	char buf[256];
-
 	lprintf(9, "cleanup_stuff() called\n");
 
 	lprintf(7, "Calling logout(%d)\n", CC->cs_pid);
@@ -148,14 +146,8 @@ void cleanup_stuff(void *arg)
 	 * halfway through, and the context being destroyed can't be the one
 	 * doing the work.
 	 */
-	lprintf(7, "Scheduling housekeeper REMOVE_CONTEXT(%d)\n", CC->cs_pid);
-	sprintf(buf, "REMOVE_CONTEXT|%d", CC->cs_pid);
-	enter_housekeeping_cmd(buf);
-
-	/* Tell the housekeeping thread to check to see if this is the time
-	 * to initiate a scheduled shutdown event.
-	 */
-	enter_housekeeping_cmd("SCHED_SHUTDOWN");
+	lprintf(7, "Calling RemoveContext(%d)\n", CC->cs_pid);
+	RemoveContext(CC->cs_pid);
 	}
 
 

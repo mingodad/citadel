@@ -1,10 +1,13 @@
 $Log$
+Revision 1.395  1999/10/26 03:48:39  ajc
+* Shuffled around the order of events when a thread is terminating.  All
+  mutex operations now happen prior to the freeing of the CitContext structure,
+  otherwise begin_critical_section() and end_critical_section() try to
+  manipulate the context's mutex count when there isn't any context.
+
 Revision 1.394  1999/10/26 03:21:16  ajc
 * Changed a lot of strncpy() calls to safestrncpy() and replaced most of their
   hardcoded size arguments with 'sizeof' based arguments.
-* Moved the CitContext destruction into the housekeeper thread and out of the
-  thread being cancelled.  Didn't fix it, though (to see what happens, link
-  the server against ElectricFence and watch what happens when a session ends).
 
 Revision 1.393  1999/10/24 19:22:51  nbryant
 	* Makefile.in, configure.in: added --enable-icq flag; made checks for
