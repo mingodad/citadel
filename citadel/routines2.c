@@ -16,21 +16,22 @@
 #include <setjmp.h>
 #include <errno.h>
 #include "citadel.h"
+#include "routines2.h"
 
-void interr();
-void strprompt();
-void newprompt();
-void sttybbs();
-int inkey();
-int ka_wait();
-void serv_write();
-void extract();
-long finduser();
-int haschar();
-void progress();
-void citedit();
-int yesno();
-void nukedir();
+void interr(int errnum);
+void strprompt(char *prompt, char *str, int len);
+void newprompt(char *prompt, char *str, int len);
+void sttybbs(int cmd);
+int inkey(void);
+int ka_wait(pid_t *kstatus);
+void serv_write(char *buf, int nbytes);
+void extract(char *dest, char *source, int parmnum);
+long finduser(int file, char *name);
+int haschar(char *st, int ch);
+void progress(long int curr, long int cmax);
+void citedit(FILE *fp, long int base_pos);
+int yesno(void);
+void nukedir(char *dirname);
 
 extern char temp[];
 extern char tempdir[];
@@ -41,9 +42,8 @@ extern unsigned room_flags;
 extern int screenwidth;
 
 
-int eopen(name,mode)
-char *name;
-int mode; {
+int eopen(char *name, int mode)
+{
 	int ret;
 	ret = open(name,mode);
 	if (ret<0) {
@@ -55,8 +55,8 @@ int mode; {
 	}
 
 
-int room_prompt(qrflags)	/* return proper room prompt character */
-int qrflags; {
+int room_prompt(int qrflags)	/* return proper room prompt character */
+             {
 	int a;
 	a='>';
 	if (qrflags&QR_DIRECTORY) a=']';
@@ -65,7 +65,7 @@ int qrflags; {
 	return(a);
 	}
 
-void entregis()	/* register with name and address */
+void entregis(void)	/* register with name and address */
 	{
 
 	char buf[256];
@@ -128,14 +128,14 @@ void entregis()	/* register with name and address */
 	printf("\n");
 	}
 
-void updatels() {	/* make all messages old in current room */
+void updatels(void) {	/* make all messages old in current room */
 	char buf[256];
 	serv_puts("SLRP HIGHEST");
 	serv_gets(buf);
 	if (buf[0]!='2') printf("%s\n",&buf[4]);
 	}
 
-void updatelsa() {   /* only make messages old in this room that have been read */
+void updatelsa(void) {   /* only make messages old in this room that have been read */
 	char buf[256];
 	sprintf(buf,"SLRP %ld",highest_msg_read);
 	serv_puts(buf);
@@ -189,7 +189,7 @@ void do_upload(int fd) {
 /*
  * client-based uploads (for users with their own clientware)
  */
-void cli_upload() {
+void cli_upload(void) {
 	char flnm[256];
 	char desc[151];
 	char buf[256];
@@ -269,8 +269,8 @@ void cli_image_upload(char *keyname) {
 /*
  * protocol-based uploads (Xmodem, Ymodem, Zmodem)
  */
-void upload(c)	/* c = upload mode */
-int c; {
+void upload(int c)	/* c = upload mode */
+       {
 	char flnm[256];
 	char desc[151];
 	char buf[256];
@@ -392,8 +392,8 @@ int c; {
 /* 
  * validate a user
  */
-void val_user(user)
-char *user; {
+void val_user(char *user)
+{
 	int a,b;
 	char cmd[256];
 	char buf[256];
@@ -445,7 +445,7 @@ char *user; {
 	}
 
 
-void validate() {	/* validate new users */
+void validate(void) {	/* validate new users */
 	char cmd[256];
 	char buf[256];
 	int finished = 0;
@@ -462,7 +462,7 @@ void validate() {	/* validate new users */
 		} while(finished==0);
 	}
 
-void subshell() {
+void subshell(void) {
 	int a,b;
 	a=fork();
 	if (a==0) {
@@ -482,7 +482,7 @@ void subshell() {
 /*
  * <.A>ide <F>ile <D>elete command
  */
-void deletefile() {
+void deletefile(void) {
 	char filename[32];
 	char cmd[256];
 
@@ -497,7 +497,7 @@ void deletefile() {
 /*
  * <.A>ide <F>ile <S>end command
  */
-void netsendfile() {
+void netsendfile(void) {
 	char filename[32],destsys[20],cmd[256];
 
 	newprompt("Filename: ",filename,31);
@@ -513,7 +513,7 @@ void netsendfile() {
 /*
  * <.A>ide <F>ile <M>ove command
  */
-void movefile() {
+void movefile(void) {
 	char filename[64];
 	char newroom[20];
 	char cmd[256];
@@ -532,7 +532,7 @@ void movefile() {
 /* 
  * list of users who have filled out a bio
  */
-void list_bio() {
+void list_bio(void) {
 	char buf[256];
 	int pos = 1;
 
@@ -557,7 +557,7 @@ void list_bio() {
 /*
  * read bio
  */
-void read_bio() {
+void read_bio(void) {
 	char who[256];
 	char buf[256];
 

@@ -15,6 +15,7 @@
 #include "citadel.h"
 #include "server.h"
 #include "proto.h"
+#include "citserver.h"
 
 /*
  * Terminate idle sessions.  This function pounds through the session table
@@ -42,7 +43,7 @@ void terminate_idle_sessions(void) {
 /*
  * Main housekeeping function.  This gets run whenever a session terminates.
  */
-void do_housekeeping() {
+void do_housekeeping(void) {
 
 	begin_critical_section(S_HOUSEKEEPING);
 	/*
@@ -68,7 +69,7 @@ void do_housekeeping() {
  * Check (and fix) floor reference counts.  This doesn't need to be done
  * very often, since the counts should remain correct during normal operation.
  */
-void check_ref_counts() {
+void check_ref_counts(void) {
 	int ref[MAXFLOORS];
 	struct quickroom qrbuf;
 	struct floor flbuf;

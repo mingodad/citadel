@@ -11,13 +11,11 @@
 #include <errno.h>
 #include "citadel.h"
 
-void get_config ();
+void get_config (void);
 struct config config;
 
 void 
-main (argc, argv)
-     int argc;
-     char *argv[];
+main (int argc, char **argv)
 {
   time_t LogTime;
   unsigned int LogType;

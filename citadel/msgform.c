@@ -21,19 +21,19 @@
 #include <time.h>
 #include <errno.h>
 
-long finduser();
-int fmout();
-int fpgetfield();
 
 int qwk = 0;
+
+int fpgetfield(FILE *fp, char *string);
+int fmout(int width, FILE *fp);
 
 
 #ifdef NO_STRERROR
 /*
  * replacement strerror() for systems that don't have it
  */
-char *strerror(e)
-int e; {
+char *strerror(int e)
+{
 	static char buf[32];
 
 	sprintf(buf,"errno = %d",e);
@@ -41,9 +41,8 @@ int e; {
 	}
 #endif
 
-void main(argc,argv)
-int argc;
-char *argv[]; {
+void main(int argc, char **argv)
+{
 	struct tm *tm;
 	int a,b,e,mtype,aflag;
 	char bbb[1024];
@@ -104,9 +103,9 @@ TOP:	do {
 	goto TOP;
 }
 
-int fpgetfield(fp,string) /* level-2 break out next null-terminated string */
-FILE *fp;
-char string[];
+int fpgetfield(FILE *fp, char *string) /* level-2 break out next null-terminated string */
+         
+              
 {
 int a,b;
 strcpy(string,"");
@@ -120,10 +119,8 @@ a=0;
 	return(0);
 }
 
-int fmout(width,fp)
-int width;
-FILE *fp;
-	{
+int fmout(int width, FILE *fp)
+{
 	int a,b,c;
 	int real = 0;
 	int old = 0;

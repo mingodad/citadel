@@ -16,6 +16,7 @@
 #include "citadel.h"
 #include "server.h"
 #include "proto.h"
+#include "database.h"
 
 
 /*
@@ -35,7 +36,7 @@ datum dtkey[MAXKEYS];
  * Reclaim unused space in the databases.  We need to do each one of
  * these discretely, rather than in a loop.
  */
-void defrag_databases() {
+void defrag_databases(void) {
 
 	/* defrag the message base */
 	begin_critical_section(S_MSGMAIN);
@@ -65,7 +66,7 @@ void defrag_databases() {
  * Open the various gdbm databases we'll be using.  Any database which
  * does not exist should be created.
  */
-void open_databases() {
+void open_databases(void) {
 	int a;
 
 	gdbms[CDB_MSGMAIN] = gdbm_open("msgmain.gdbm", 8192,
@@ -122,7 +123,7 @@ void open_databases() {
  * Close all of the gdbm database files we've opened.  This can be done
  * in a loop, since it's just a bunch of closes.
  */
-void close_databases() {
+void close_databases(void) {
 	int a;
 
 	defrag_databases();
@@ -145,8 +146,8 @@ void close_databases() {
  * datum already exists it should be overwritten.
  */
 int cdb_store(int cdb,
-		char *key, int keylen,
-		char *data, int datalen) {
+		void *key, int keylen,
+		void *data, int datalen) {
 
 	datum dkey, ddata;
 
@@ -167,7 +168,7 @@ int cdb_store(int cdb,
 /*
  * Delete a piece of data.  Returns 0 if the operation was successful.
  */
-int cdb_delete(int cdb, char *key, int keylen) {
+int cdb_delete(int cdb, void *key, int keylen) {
 
 	datum dkey;
 
@@ -186,7 +187,7 @@ int cdb_delete(int cdb, char *key, int keylen) {
  * a struct cdbdata which it is the caller's responsibility to free later on
  * using the cdb_free() routine.
  */
-struct cdbdata *cdb_fetch(int cdb, char *key, int keylen) {
+struct cdbdata *cdb_fetch(int cdb, void *key, int keylen) {
 	
 	struct cdbdata *tempcdb;
 	datum dkey, dret;

@@ -12,6 +12,7 @@
 #include <string.h>
 #include <errno.h>
 #include "citadel.h"
+#include "serv_info.h"
 
 void CtdlInternalGetServInfo(struct CtdlServInfo *infobuf) {
 	char buf[256];

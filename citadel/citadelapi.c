@@ -6,6 +6,9 @@
 #include <string.h>
 #include <errno.h>
 #include "citadel.h"
+#include "serv_info.h"
+#include "ipc.h"
+#include "citadelapi.h"
 
 
 struct CtdlInternalList {
@@ -18,9 +21,7 @@ struct CtdlServerHandle CtdlAppHandle;
 struct CtdlServInfo CtdlAppServInfo;
 int CtdlErrno = 0;
 
-void CtdlMain();
-
-void logoff(exitcode) {
+void logoff(int exitcode) {
 	exit(exitcode);
 	}
 
@@ -123,9 +124,9 @@ long CtdlInternalExtractLong(char *source, long int parmnum)
  * 
  */
 
-main(argc, argv)
-int argc;
-char *argv[]; {
+int
+main(int argc, char *argv[])
+{
 	int a;
 	char buf[256];
 
@@ -168,7 +169,7 @@ char *argv[]; {
 
 	/* Set up the server environment to our liking */
 
-	CtdlInternalGetServInfo(&CtdlAppServInfo, 0);
+	CtdlInternalGetServInfo(&CtdlAppServInfo);
 
 	sprintf(buf, "IDEN 0|5|006|CitadelAPI Client");
 	serv_puts(buf);
@@ -206,7 +207,7 @@ char *argv[]; {
 	}
 
 
-int CtdlGetLastError() {
+int CtdlGetLastError(void) {
 	return CtdlErrno;
 	}
 

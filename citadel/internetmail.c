@@ -33,7 +33,7 @@ void StripLeadingAndTrailingWhitespace(char *str) {
 	while (isspace(str[strlen(str)-1])) str[strlen(str)-1] = 0;
 	}
 
-void LoadInternetConfig() {
+void LoadInternetConfig(void) {
 	char ParamName[256], ParamValue[256], buf[256];
 	FILE *conf;
 	int a, eqpos;

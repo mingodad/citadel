@@ -1,3 +1,12 @@
+Tue Aug 18 00:42:33 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* Makefile.in: `clean' target no longer rm's sysdep.h; new target
+	  `realclean' removes everything clean does, plus sysdep.h, plus
+	  target binaries.
+	* *.[ch]: protoized. Added several new header files containing
+	  prototypes and other external declarations; many duplicated
+	  declarations still should be moved to header files. proto.h must die
+	  as well, IMHO.
+
 Mon Aug 17 23:52:13 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Implemented a bunch of user account related functions in the
 	  CitadelAPI library.

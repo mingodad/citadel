@@ -16,8 +16,8 @@
 #include <syslog.h>
 #include "citadel.h"
 
-void LoadInternetConfig();
-void get_config();
+void LoadInternetConfig(void);
+void get_config(void);
 struct config config;
 
 char temp[20];
@@ -30,9 +30,8 @@ char GW_DOMAIN[128];
 char TABLEFILE[128];
 int RUN_NETPROC = 1;
 
-int haschar(st,ch)
-char st[];
-int ch; {
+int haschar(char *st, int ch)
+{
 	int a,b;
 	b=0;
 	for (a=0; a<strlen(st); ++a) if (st[a]==ch) ++b;
@@ -41,9 +40,7 @@ int ch; {
 
 
 
-void fpgetfield(fp,string)
-FILE *fp;
-char string[];
+void fpgetfield(FILE *fp, char *string)
 {
 	int a,b;
 	strcpy(string,"");
@@ -64,16 +61,16 @@ char string[];
  * modified to format 80 columns into a temporary file, and extract the
  * sender and recipient names for use within the main() loop.
  */
-void msgform(msgfile,mfout,sbuf,rbuf,nbuf,pbuf,mid_buf,rmname,subj)
-char *msgfile;
-FILE *mfout;
-char *sbuf;		/* sender */
-char *rbuf;		/* recipient (in this case, an Internet address) */
-char *nbuf;		/* source node */
-char *pbuf;		/* path */
-long *mid_buf;		/* message ID */
-char *rmname;		/* room name */
-char *subj;		/* subject */
+void msgform(char *msgfile, FILE *mfout, char *sbuf, char *rbuf, char *nbuf, char *pbuf, long int *mid_buf, char *rmname, char *subj)
+              
+            
+           		/* sender */
+           		/* recipient (in this case, an Internet address) */
+           		/* source node */
+           		/* path */
+              		/* message ID */
+             		/* room name */
+           		/* subject */
 	{
 	int a,b,c,e,old,mtype,aflag;
 	int real = 0;
@@ -161,9 +158,8 @@ BONFGM:	b=getc(fp); if (b<0) goto END;
 	goto BONFGM;
 	}
 
-void main(argc,argv)
-int argc;
-char *argv[]; {
+void main(int argc, char **argv)
+{
 	int a;
 	FILE *fp,*rmail;
 	char sbuf[200],rbuf[200],cstr[100],fstr[128];

@@ -7,6 +7,7 @@
 #include "citadel.h"
 #include "server.h"
 #include "proto.h"
+#include "database.h"
 
 extern struct config config;
 

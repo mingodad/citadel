@@ -12,6 +12,7 @@
 #include <sys/wait.h>
 #include <errno.h>
 #include "citadel.h"
+#include "rooms.h"
 
 #define IFEXPERT if (userflags&US_EXPERT)
 #define IFNEXPERT if ((userflags&US_EXPERT)==0)
@@ -19,28 +20,28 @@
 #define IFNAIDE if (axlevel<6)
 
 
-long finduser();
-void sttybbs();
-void extract();
-int extract_int();
-void hit_any_key();
-int yesno();
-int yesno_d();
-void strprompt();
-void newprompt();
-int struncmp();
-void dotgoto();
-long extract_long();
-void serv_read();
-void formout();
-int inkey();
-int fmout();
-void citedit();
-void progress();
-int pattern();
-int file_checksum();
-int nukedir();
-void color();
+long finduser(int file, char *name);
+void sttybbs(int cmd);
+void extract(char *dest, char *source, int parmnum);
+int extract_int(char *source, int parmnum);
+void hit_any_key(void);
+int yesno(void);
+int yesno_d(int d);
+void strprompt(char *prompt, char *str, int len);
+void newprompt(char *prompt, char *str, int len);
+int struncmp(char *lstr, char *rstr, int len);
+void dotgoto(char *towhere, int display_name);
+long extract_long(char *source, int parmnum);
+void serv_read(char *buf, int bytes);
+void formout(char *name);
+int inkey(void);
+int fmout(int width, FILE *fp, char pagin, int height, int starting_lp, char subst);
+void citedit(FILE *fp, long int base_pos);
+void progress(long int curr, long int cmax);
+int pattern(char *search, char *patn);
+int file_checksum(char *filename);
+int nukedir(char *dirname);
+void color(int colornum);
 
 extern unsigned room_flags;
 extern char room_name[];
@@ -64,7 +65,7 @@ extern char ugname[];
 extern char floorlist[128][256];
 
 
-void load_floorlist() {
+void load_floorlist(void) {
 	int a;
 	char buf[256];
 
@@ -81,8 +82,8 @@ void load_floorlist() {
 		}
 	}
 
-void listrms(variety)
-char *variety; {
+void listrms(char *variety)
+{
 	char buf[256];
 	char rmname[32];
 	int f,c;
@@ -118,7 +119,7 @@ char *variety; {
 	}
 
 
-void list_other_floors() {
+void list_other_floors(void) {
 	int a,c;
 
 	c = 1;
@@ -137,8 +138,8 @@ void list_other_floors() {
  * List known rooms.  kn_floor_mode should be set to 0 for a 'flat' listing,
  * 1 to list rooms on the current floor, or 1 to list rooms on all floors.
  */
-void knrooms(kn_floor_mode)
-int kn_floor_mode; {
+void knrooms(int kn_floor_mode)
+{
 	char buf[256];
 	int a;
 
@@ -186,7 +187,7 @@ int kn_floor_mode; {
 	}
 
 
-void listzrooms() {		/* list public forgotten rooms */
+void listzrooms(void) {		/* list public forgotten rooms */
 	color(3);
 	printf("\n   Forgotten public rooms:\n");
 	listrms("LZRM");
@@ -196,10 +197,8 @@ void listzrooms() {		/* list public forgotten rooms */
 	}
 
 
-int set_room_attr(ibuf,prompt,sbit)
-int ibuf;
-char *prompt;
-unsigned sbit; {
+int set_room_attr(int ibuf, char *prompt, unsigned int sbit)
+{
 	int a;
 
 	printf("%s [%s]? ",prompt,((ibuf&sbit) ? "Yes":"No"));
@@ -216,8 +215,8 @@ unsigned sbit; {
  * The supplied argument is the 'default' floor number.
  * This function returns the selected floor number.
  */
-int select_floor(rfloor)
-int rfloor; {
+int select_floor(int rfloor)
+{
 	int a, newfloor;
 	char floorstr[256];
 
@@ -256,7 +255,7 @@ int rfloor; {
 /*
  * .<A>ide <E>dit room
  */
-void editthisroom() {
+void editthisroom(void) {
 	char rname[20];
 	char rpass[10];
 	char rdir[15];
@@ -370,7 +369,7 @@ void editthisroom() {
 /*
  * un-goto the previous room
  */
-void ungoto() { 
+void ungoto(void) { 
 	char buf[256];
 	
 	if (!strcmp(ugname,"")) return;
@@ -395,8 +394,8 @@ void ungoto() {
  * download()  -  download a file or files.  The argument passed to this
  *                function determines which protocol to use.
  */
-void download(proto)
-int proto; {
+void download(int proto)
+{
 
 /*
   - 0 = paginate, 1 = xmodem, 2 = raw, 3 = ymodem, 4 = zmodem, 5 = save
@@ -574,7 +573,7 @@ int proto; {
 /*
  * read directory of this room
  */
-void roomdir() {
+void roomdir(void) {
 	char flnm[256];
 	char flsz[32];
 	char comment[256];
@@ -606,7 +605,7 @@ void roomdir() {
 /*
  * add a user to a private room
  */
-void invite() {
+void invite(void) {
 	char aaa[31],bbb[256];
 
 	if ((room_flags & QR_PRIVATE)==0) {
@@ -627,7 +626,7 @@ void invite() {
 /*
  * kick a user out of a room
  */
-void kickout() {
+void kickout(void) {
 	char aaa[31],bbb[256];
 
 	if ((room_flags & QR_PRIVATE)==0) {
@@ -649,7 +648,7 @@ void kickout() {
 /*
  * aide command: kill the current room
  */
-void killroom() {
+void killroom(void) {
 	char aaa[100];
 
 	serv_puts("KILL 0");
@@ -669,7 +668,7 @@ void killroom() {
 	dotgoto("_BASEROOM_",0);
 	}
 
-void forget() {	/* forget the current room */
+void forget(void) {	/* forget the current room */
 	char cmd[256];
 
 	printf("Are you sure you want to forget this room? ");
@@ -690,7 +689,7 @@ void forget() {	/* forget the current room */
 /*
  * create a new room
  */
-void entroom() {
+void entroom(void) {
 	char cmd[256];
 	char new_room_name[20];
 	int new_room_type;
@@ -760,7 +759,7 @@ void entroom() {
 
 
 
-void readinfo() {	/* read info file for current room */
+void readinfo(void) {	/* read info file for current room */
 	char cmd[256];
 	
 	sprintf(cmd,"RINF");
@@ -778,7 +777,7 @@ void readinfo() {	/* read info file for current room */
 /*
  * <W>ho knows room...
  */
-void whoknows() {
+void whoknows(void) {
 	char buf[256];
 	serv_puts("WHOK");
 	serv_gets(buf);
@@ -795,12 +794,8 @@ void whoknows() {
 	}
 
 
-void do_edit(desc,read_cmd,check_cmd,write_cmd)
-char *desc;
-char *read_cmd;
-char *check_cmd;
-char *write_cmd;
-	{
+void do_edit(char *desc, char *read_cmd, char *check_cmd, char *write_cmd)
+{
 	FILE *fp;
 	char cmd[256];
 	int b,cksum,editor_exit;
@@ -884,11 +879,11 @@ char *write_cmd;
 	}
 
 
-void enterinfo() {		/* edit info file for current room */
+void enterinfo(void) {		/* edit info file for current room */
 	do_edit("the Info file for this room","RINF","EINF 0","EINF 1");
 	}
 
-void enter_bio() {
+void enter_bio(void) {
 	char cmd[256];
 	sprintf(cmd,"RBIO %s",fullname);
 	do_edit("your Bio",cmd,"NOOP","EBIO");
@@ -897,7 +892,7 @@ void enter_bio() {
 /*
  * create a new floor
  */
-void create_floor() {
+void create_floor(void) {
 	char buf[256];
 	char newfloorname[256];
 
@@ -923,7 +918,7 @@ void create_floor() {
 /*
  * edit the current floor
  */
-void edit_floor() {
+void edit_floor(void) {
 	char buf[256];
 
 	if (floorlist[(int)curr_floor][0]==0) load_floorlist();
@@ -941,7 +936,7 @@ void edit_floor() {
 /*
  * kill the current floor 
  */
-void kill_floor() {
+void kill_floor(void) {
 	int floornum_to_delete,a;
 	char buf[256];
 

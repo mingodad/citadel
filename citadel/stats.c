@@ -22,12 +22,12 @@ struct caller
     int Ctimescalled;
   };
 
-void get_config ();
+void get_config (void);
 struct config config;
 
 
 void
-prompt ()
+prompt (void)
 {
   char buf[16];
   if (batch_mode == 0)
@@ -42,8 +42,8 @@ prompt ()
 }
 
 int
-halfhour (time)			/* Returns half-hour time period of time */
-     long time;
+halfhour (long int time)			/* Returns half-hour time period of time */
+               
 {
   int a;
   struct tm *tm;
@@ -59,9 +59,7 @@ halfhour (time)			/* Returns half-hour time period of time */
 
 
 void
-progress (curr, max)
-     long curr;
-     long max;
+progress (long int curr, long int max)
 {
   static int dots;
   int pos;
@@ -95,9 +93,7 @@ progress (curr, max)
 
 
 void
-main (argc, argv)
-     int argc;
-     char *argv[];
+main (int argc, char **argv)
 {
   time_t LogTime;
   unsigned int LogType;

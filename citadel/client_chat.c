@@ -21,20 +21,13 @@
 #include <sys/select.h>
 #endif
 #include "citadel.h"
+#include "client_chat.h"
+#include "commands.h"
+#include "routines.h"
+#include "ipc.h"
+#include "citadel_decls.h"
 
-extern char fullname[];
-
-int inkey();
-void set_keepalives();
-int num_parms();
-void extract();
-int struncmp();
-int getsockfd();
-char serv_getc();
-void color();
-
-
-void chatmode() {
+void chatmode(void) {
 	char wbuf[256];
 	char buf[256];
 	char c_user[256];

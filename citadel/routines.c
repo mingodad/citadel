@@ -18,18 +18,19 @@
 #define ROUTINES_C
 
 #include "citadel.h"
+#include "routines.h"
 
-char inkey();
-void sttybbs();
-void newprompt();
-void val_user();
-int intprompt();
-void formout();
-void logoff();
-void set_keepalives();
-void strprompt();
-void newprompt();
-void color();
+char inkey(void);
+void sttybbs(int cmd);
+void newprompt(char *prompt, char *str, int len);
+void val_user(char *user);
+int intprompt(char *prompt, int ival, int imin, int imax);
+void formout(char *name);
+void logoff(int code);
+void set_keepalives(int s);
+void strprompt(char *prompt, char *str, int len);
+void newprompt(char *prompt, char *str, int len);
+void color(int colornum);
 
 #define IFAIDE if(axlevel>=6)
 #define IFNAIDE if (axlevel<6)
@@ -40,9 +41,8 @@ extern char sigcaught;
 extern struct CtdlServInfo serv_info;
 extern char rc_floor_mode;
 
-int struncmp(lstr,rstr,len)
-char lstr[],rstr[];
-int len; {
+int struncmp(char *lstr, char *rstr, int len)
+{
 	int pos = 0;
 	char lc,rc;
 	while (pos<len) {
@@ -60,9 +60,8 @@ int len; {
 /* 
  * check for the presence of a character within a string (returns count)
  */
-int haschar(st,ch)
-char st[];
-int ch; {
+int haschar(char *st, int ch)
+{
 	int a,b;
 	b=0;
 	for (a=0; a<strlen(st); ++a) if (st[a]==ch) ++b;
@@ -73,8 +72,8 @@ int ch; {
 /*
  * num_parms()  -  discover number of parameters...
  */
-int num_parms(source)
-char source[]; {
+int num_parms(char *source)
+{
 	int a;
 	int count = 1;
 
@@ -86,10 +85,8 @@ char source[]; {
 /*
  * extract()  -  extract a parameter from a series of "|" separated...
  */
-void extract(dest,source,parmnum)
-char dest[];
-char source[];
-int parmnum; {
+void extract(char *dest, char *source, int parmnum)
+{
 	char buf[256];
 	int count = 0;
 	int n;
@@ -118,9 +115,8 @@ int parmnum; {
 /*
  * extract_int()  -  extract an int parm w/o supplying a buffer
  */
-int extract_int(source,parmnum)
-char *source;
-int parmnum; {
+int extract_int(char *source, int parmnum)
+{
 	char buf[256];
 	
 	extract(buf,source,parmnum);
@@ -130,24 +126,23 @@ int parmnum; {
 /*
  * extract_long()  -  extract a long parm w/o supplying a buffer
  */
-long extract_long(source,parmnum)
-char *source;
-int parmnum; {
+long extract_long(char *source, int parmnum)
+{
 	char buf[256];
 	
 	extract(buf,source,parmnum);
 	return(atol(buf));
 	}
 
-void back(spaces) /* Destructive backspace */
-int spaces; {
+void back(int spaces) /* Destructive backspace */
+            {
 int a;
 	for (a=1; a<=spaces; ++a) {
 		putc(8,stdout); putc(32,stdout); putc(8,stdout);
 		}
 	}
 
-int yesno() { /* Returns 1 for yes, 0 for no */
+int yesno(void) { /* Returns 1 for yes, 0 for no */
 int a;
 	while (1) {
 		a=inkey(); a=tolower(a);
@@ -156,8 +151,8 @@ int a;
 		}
 	}
 
-int yesno_d(d) /* Returns 1 for yes, 0 for no, arg is default value */
-int d; {
+int yesno_d(int d) /* Returns 1 for yes, 0 for no, arg is default value */
+       {
 int a;
 	while (1) {
 		a=inkey(); a=tolower(a);
@@ -168,7 +163,7 @@ int a;
 	}
 
 
-void hit_any_key() {		/* hit any key to continue */
+void hit_any_key(void) {		/* hit any key to continue */
 	int a,b;
 
 	printf("%s\r",serv_info.serv_moreprompt);
@@ -185,8 +180,8 @@ void hit_any_key() {		/* hit any key to continue */
 /*
  * change a user's access level
  */
-void edituser(userbuf)
-struct usersupp *userbuf; {
+void edituser(void)
+{
 	char who[256];
 	char buf[256];
 
@@ -203,10 +198,8 @@ struct usersupp *userbuf; {
 	}
 
 
-int set_attr(sval,prompt,sbit)
-int sval;
-char *prompt;
-unsigned sbit; {
+int set_attr(int sval, char *prompt, unsigned int sbit)
+{
 	int a;
 	int temp;
 
@@ -229,8 +222,8 @@ unsigned sbit; {
  * modes are:  0 - .EC command, 1 - .EC for new user,
  *             2 - toggle Xpert mode  3 - toggle floor mode
  */
-void enter_config(mode)
-int mode; {
+void enter_config(int mode)
+{
  	int width,height,flags;
 	char buf[128];
 
@@ -303,9 +296,8 @@ int mode; {
  * getstring()  -  get a line of text from a file
  *		   ignores lines beginning with "#"
  */
-int getstring(fp,string)
-FILE *fp;		
-char string[]; {
+int getstring(FILE *fp, char *string)
+{
 	int a,c;
 	do {
 		strcpy(string,"");
@@ -323,9 +315,9 @@ char string[]; {
 	return(strlen(string));
 	}
 
-int pattern(search,patn)	/* Searches for patn in search string */
-char search[];
-char patn[];
+int pattern(char *search, char *patn)	/* Searches for patn in search string */
+              
+            
 {
 	int a,b;
 	for (a=0; a<strlen(search); ++a)
@@ -335,8 +327,8 @@ char patn[];
 	return(-1);
 }
 
-void interr(errnum)	/* display internal error as defined in errmsgs */
-int errnum; {
+void interr(int errnum)	/* display internal error as defined in errmsgs */
+            {
 	printf("*** INTERNAL ERROR %d\n",errnum);
 	printf("(Press any key to continue)\n");
 	inkey();
@@ -351,9 +343,8 @@ int errnum; {
  * we are probably in the middle of a server operation and the NOOP command
  * would confuse everything.
  */
-int checkpagin(lp,pagin,height)
-int lp;
-int pagin; {
+int checkpagin(int lp, int pagin, int height)
+{
 	if (pagin!=1) return(0);
 	if (lp>=(height-1)) {
 		set_keepalives(KA_NO);
@@ -365,8 +356,7 @@ int pagin; {
 	}
 
 
-void strproc(string)
-char string[];
+void strproc(char *string)
 {
 	int a;
 
@@ -403,8 +393,8 @@ char string[];
 	}
 
 
-int hash(str)
-char str[]; {
+int hash(char *str)
+{
 	int h = 0;
 	int i;
 
@@ -412,9 +402,8 @@ char str[]; {
 	return(h);
 	}
 
-long finduser(file,name)
-int file;
-char *name; {
+long finduser(int file, char *name)
+{
 	FILE *fp;
 	int uh,fh;
 	long pp=0L;
@@ -433,8 +422,8 @@ char *name; {
 	}
 
 
-int alias(name)		/* process alias and routing info for mail */
-char name[]; {
+int alias(char *name)		/* process alias and routing info for mail */
+             {
 	FILE *fp;
 	int a,b;
 	char aaa[300],bbb[300];
@@ -519,8 +508,8 @@ GETSN:		do {
 /*
  * replacement strerror() for systems that don't have it
  */
-char *strerror(e)
-int e; {
+char *strerror(int e)
+{
 	static char buf[32];
 
 	sprintf(buf,"errno = %d",e);
@@ -529,9 +518,8 @@ int e; {
 #endif
 
 
-void progress(curr,cmax)
-long curr;
-long cmax; {
+void progress(long int curr, long int cmax)
+{
 	static long dots_printed;
 	long a;
 
@@ -560,8 +548,8 @@ long cmax; {
  * NOT the same locate_host() in locate_host.c.  This one just does a
  * 'who am i' to try to discover where the user is...
  */
-void locate_host(hbuf)
-char hbuf[]; {
+void locate_host(char *hbuf)
+{
 	char buf[256];
 	FILE *who;
 	int a,b;
@@ -624,8 +612,8 @@ void misc_server_cmd(char *cmd) {
 /*
  * compute the checksum of a file
  */
-int file_checksum(filename)
-char *filename; {
+int file_checksum(char *filename)
+{
 	int cksum = 0;
 	int ch;
 	FILE *fp;
@@ -647,8 +635,8 @@ char *filename; {
 /*
  * nuke a directory and its contents
  */
-int nukedir(dirname)
-char *dirname; {
+int nukedir(char *dirname)
+{
 	DIR *dp;
 	struct dirent *d;
 	char filename[256];

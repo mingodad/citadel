@@ -19,12 +19,14 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <string.h>
 #include <pwd.h>
 #include <errno.h>
+#include "ipc.h"
 
-void logoff();
+void logoff(int code);
 
 /*
  * If server_is_local is set to nonzero, the client assumes that it is running
@@ -45,17 +47,13 @@ char server_is_local = 0;
 
 int serv_sock;
 
-u_long inet_addr();
-
-void CtdlInternalTCPtimeout() {
+void CtdlInternalTCPtimeout(int signum) {
 	printf("\rConnection timed out.\n");
 	logoff(3);
 	}
 
-int CtdlInternalTCPConnectSock(host,service,protocol)
-char *host;
-char *service;
-char *protocol; {
+int CtdlInternalTCPConnectSock(char *host, char *service, char *protocol)
+{
 	struct hostent *phe;
 	struct servent *pse;
 	struct protoent *ppe;
@@ -124,11 +122,8 @@ char *protocol; {
  * convert service and host entries into a six-byte numeric in the format
  * expected by a SOCKS v4 server
  */
-void CtdlInternalTCPnumericize(buf,host,service,protocol)
-unsigned char buf[];
-char *host;
-char *service;
-char *protocol; {
+void CtdlInternalTCPnumericize(unsigned char *buf, char *host, char *service, char *protocol)
+{
 	struct hostent *phe;
 	struct servent *pse;
 	struct sockaddr_in sin;
@@ -167,9 +162,8 @@ char *protocol; {
 /*
  * input binary data from socket
  */
-void serv_read(buf,bytes)
-char buf[];
-int bytes; {
+void serv_read(char *buf, int bytes)
+{
 	int len,rlen;
 
 	len = 0;
@@ -188,9 +182,8 @@ int bytes; {
 /*
  * send binary to server
  */
-void serv_write(buf, nbytes)
-char buf[];
-int nbytes; {
+void serv_write(char *buf, int nbytes)
+{
 	int bytes_written = 0;
 	int retval;
 	while (bytes_written < nbytes) {
@@ -210,8 +203,8 @@ int nbytes; {
 /*
  * input string from socket - implemented in terms of serv_read()
  */
-void serv_gets(buf)
-char buf[]; {
+void serv_gets(char *buf)
+{
 	buf[0] = 0;
 	do {
 		buf[strlen(buf) + 1] = 0;
@@ -225,8 +218,8 @@ char buf[]; {
 /*
  * send line to server - implemented in terms of serv_write()
  */
-void serv_puts(buf)
-char *buf; {
+void serv_puts(char *buf)
+{
 	/* printf("< %s\n", buf); */
 	serv_write(buf, strlen(buf));
 	serv_write("\n", 1);
@@ -236,9 +229,8 @@ char *buf; {
 /*
  * attach to server
  */
-void attach_to_server(argc,argv)
-int argc;
-char *argv[]; {
+void attach_to_server(int argc, char **argv)
+{
 	int a;
 	char cithost[256];	int host_copied = 0;
 	char citport[256];	int port_copied = 0;
@@ -316,7 +308,7 @@ char *argv[]; {
 /*
  * return the file descriptor of the server socket so we can select() on it.
  */
-int getsockfd() {
+int getsockfd(void) {
 	return serv_sock;
 	}
 
@@ -324,7 +316,7 @@ int getsockfd() {
 /*
  * return one character
  */
-char serv_getc() {
+char serv_getc(void) {
 	char buf[2];
 	char ch;
 

@@ -97,10 +97,10 @@ struct minfo {
 	};
 
 
-void attach_to_server();
-void serv_read();
-void serv_write();
-void get_config();
+void attach_to_server(int argc, char **argv);
+void serv_read(char *buf, int bytes);
+void serv_write(char *buf, int nbytes);
+void get_config(void);
 
 struct filterlist *filter = NULL;
 char roomnames[MAXROOMS][20];
@@ -116,8 +116,8 @@ extern int home_specified;
 /*
  * replacement strerror() for systems that don't have it
  */
-char *strerror(e)
-int e; {
+char *strerror(int e)
+{
 	static char buf[32];
 
 	sprintf(buf,"errno = %d",e);
@@ -126,8 +126,8 @@ int e; {
 #endif
 
 
-void strip_trailing_whitespace(buf)
-char buf[]; {
+void strip_trailing_whitespace(char *buf)
+{
 	while(isspace(buf[strlen(buf)-1]))
 		buf[strlen(buf)-1]=0;
 	}
@@ -137,7 +137,7 @@ char buf[]; {
  * for performance optimization, netproc loads the list of room names (and
  * their corresponding directory names, if applicable) into a table in memory.
  */
-int load_roomnames() {
+int load_roomnames(void) {
 	FILE *fp;
 	struct quickroom qbuf;
 	int i;
@@ -162,7 +162,7 @@ int load_roomnames() {
  * as we learn more about the network from incoming messages, and write
  * the table back to disk when we're done.
  */
-int load_syslist() {
+int load_syslist(void) {
 	FILE *fp;
 	struct syslist *stemp;
 	char insys = 0;
@@ -225,7 +225,7 @@ int load_syslist() {
 /* now we have to set up two "special" nodes on the list: one
  * for the local node, and one for an Internet gateway
  */
-void setup_special_nodes() {
+void setup_special_nodes(void) {
 	struct syslist *stemp,*slocal;
 
 	slocal = NULL;
@@ -266,7 +266,7 @@ void setup_special_nodes() {
 /*
  * here's the routine to write the table back to disk.
  */
-void rewrite_syslist() {
+void rewrite_syslist(void) {
 	struct syslist *stemp;
 	FILE *newfp;
 	long now;
@@ -311,8 +311,8 @@ void rewrite_syslist() {
 /* call this function with the node name of a system and it returns a pointer
  * to its syslist structure.
  */
-struct syslist *get_sys_ptr(sysname)
-char *sysname; {
+struct syslist *get_sys_ptr(char *sysname)
+{
 	static char sysnambuf[16];
 	static struct syslist *sysptrbuf = NULL;
 	struct syslist *stemp;
@@ -335,7 +335,7 @@ char *sysname; {
 /*
  * make sure only one copy of netproc runs at a time, using lock files
  */
-int set_lockfile() {
+int set_lockfile(void) {
 	FILE *lfp;
 	int ok = 1;
 	int onppid;
@@ -366,7 +366,7 @@ int set_lockfile() {
 	return(0);
 	}
 
-void remove_lockfile() {
+void remove_lockfile(void) {
 	unlink(LOCKFILE);
 	}
 
@@ -377,14 +377,14 @@ void remove_lockfile() {
  * The cleanup() routine makes a check to ensure it's not reentering, in
  * case the ipc module looped it somehow.
  */
-void nq_cleanup(e)
-int e; {
+void nq_cleanup(int e)
+{
 	remove_lockfile();
 	exit(e);
 	}
 
-void cleanup(e)
-int e; {
+void cleanup(int e)
+{
 	static int nested = 0;
 
 	alarm(30);
@@ -398,15 +398,15 @@ int e; {
  * client-side IPC modules expect logoff() to be defined.  They call logoff()
  * when a problem connecting or staying connected to the server occurs.
  */
-void logoff(e)
-int e; {
+void logoff(int e)
+{
 	cleanup(e);
 	}
 
 /*
  * If there is a kill file in place, this function will process it.
  */
-void load_filterlist() {
+void load_filterlist(void) {
 	FILE *fp;
 	struct filterlist *fbuf;
 	char sbuf[256];
@@ -443,8 +443,8 @@ void load_filterlist() {
 	}
 
 /* returns 1 if user/message/room combination is in the kill file */
-int is_banned(k_person,k_room,k_system)
-char *k_person,*k_room,*k_system; {
+int is_banned(char *k_person, char *k_room, char *k_system)
+{
 	struct filterlist *fptr;
 
 	for (fptr=filter; fptr!=NULL; fptr=fptr->next) if (
@@ -458,8 +458,8 @@ char *k_person,*k_room,*k_system; {
 	return(0);
 	}
 
-int get_sysinfo_type(name)	/* determine routing from sysinfo file */
-char name[]; {
+int get_sysinfo_type(char *name)	/* determine routing from sysinfo file */
+             {
 	struct syslist *stemp;
 GETSN:	for (stemp=slist; stemp!=NULL; stemp=stemp->next) {
 	    if (!strcasecmp(stemp->s_name,name)) {
@@ -480,9 +480,8 @@ GETSN:	for (stemp=slist; stemp!=NULL; stemp=stemp->next) {
 	}
 
 
-void fpgetfield(fp,string)
-FILE *fp;
-char string[]; {
+void fpgetfield(FILE *fp, char *string)
+{
 	int a,b;
 
 	strcpy(string,"");
@@ -504,9 +503,8 @@ char string[]; {
  * Load all of the fields of a message, except the actual text, into a
  * table in memory (so we know how to process the message).
  */
-void msgfind(msgfile,buffer)
-char *msgfile;
-struct minfo *buffer; {
+void msgfind(char *msgfile, struct minfo *buffer)
+{
 	int b,e,mtype,aflag;
 	char bbb[1024];
 	char userid[1024];
@@ -574,9 +572,9 @@ END:	if (buffer->I==0L) buffer->I=buffer->T;
 	fclose(fp);
 	}
 
-void ship_to(filenm,sysnm)	/* send spool file filenm to system sysnm */
-char *filenm;
-char *sysnm; {
+void ship_to(char *filenm, char *sysnm)	/* send spool file filenm to system sysnm */
+             
+             {
 	char sysflnm[100];
 	char commbuf1[100];
 	char commbuf2[100];
@@ -598,8 +596,8 @@ char *sysnm; {
 /*
  * proc_file_transfer()  -  handle a simple file transfer packet
  */
-void proc_file_transfer(tname)
-char *tname; {	/* name of temp file containing the whole message */
+void proc_file_transfer(char *tname)
+{	/* name of temp file containing the whole message */
 	char buf[128];
 	char dest_dir[32];
 	FILE *tfp,*uud;
@@ -648,8 +646,8 @@ char *tname; {	/* name of temp file containing the whole message */
 
 
 /* send a bounce message */
-void bounce(bminfo)
-struct minfo *bminfo; {
+void bounce(struct minfo *bminfo)
+{
 
 	FILE *bounce;
 	char bfilename[64];
@@ -690,7 +688,7 @@ struct minfo *bminfo; {
 /*
  * process incoming files in ./network/spoolin
  */
-void inprocess() {
+void inprocess(void) {
 	FILE *fp,*message,*testfp,*ls;
 	static struct minfo minfo;
 	struct recentmsg recentmsg;
@@ -946,9 +944,9 @@ ENDSTR:	fclose(fp);
     }
 
 
-int checkpath(path,sys)	/* Checks to see whether its ok to send */
-char path[];		/* Returns 1 for ok, send message	*/
-char sys[]; {		/* Returns 0 if message already there	*/
+int checkpath(char *path, char *sys)	/* Checks to see whether its ok to send */
+            		/* Returns 1 for ok, send message	*/
+            {		/* Returns 0 if message already there	*/
 	int a;
 	char sys2[512];
 	strcpy(sys2,sys);
@@ -966,10 +964,8 @@ char sys[]; {		/* Returns 0 if message already there	*/
 /*
  * implement split horizon algorithm
  */
-int ismsgok(mpos,mmfp,sysname)
-long mpos;
-FILE *mmfp;
-char *sysname; {
+int ismsgok(long int mpos, FILE *mmfp, char *sysname)
+{
 	int a;
 	int ok = 0;		/* fail safe - no path, don't send it */
 	char fbuf[256];
@@ -990,10 +986,10 @@ char *sysname; {
 	return(ok);
 	}
 
-int spool_out(cmlist,destfp,sysname)	/* spool list of messages to a file */
-struct msglist *cmlist;			/* returns # of msgs spooled */
-FILE *destfp; 
-char *sysname;
+int spool_out(struct msglist *cmlist, FILE *destfp, char *sysname)	/* spool list of messages to a file */
+                       			/* returns # of msgs spooled */
+              
+              
 {
 	struct msglist *cmptr;
 	FILE *mmfp;
@@ -1077,8 +1073,8 @@ char *sysname;
 	return(msgs_spooled);
 	}
 
-void outprocess(sysname) /* send new room messages to sysname */
-char *sysname; {
+void outprocess(char *sysname) /* send new room messages to sysname */
+               {
 	char sysflnm[64];
 	char srmname[32];
 	char shiptocmd[128];
@@ -1224,7 +1220,7 @@ char *sysname; {
 /*
  * Connect netproc to the Citadel server running on this computer.
  */
-void np_attach_to_server() {
+void np_attach_to_server(void) {
 	char buf[256];
 	char portname[8];
 	char *args[] = { "netproc", "localhost", NULL, NULL } ;
@@ -1249,9 +1245,7 @@ void np_attach_to_server() {
 /*
  * main
  */
-void main(argc,argv)
-int argc;
-char *argv[];
+void main(int argc, char **argv)
 {
 	char allst[32];
 	FILE *allfp;

@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include "proto.h"
+#include "database.h"
 
 #define MSGS_ALL	0
 #define MSGS_OLD	1

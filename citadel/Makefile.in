@@ -10,12 +10,16 @@
 #
 ########################################################################
 
-client: citadel whobbs
+CLIENT_TARGETS=citadel whobbs
+SERVER_TARGETS=citserver setup citadelapi.a
+UTIL_TARGETS=aidepost netmailer netproc netsetup msgform \
+	readlog rcit stats sysoputil citmail netpoll mailinglist userlist
 
-server: citserver setup citadelapi.a
+client: $(CLIENT_TARGETS)
 
-utils: aidepost netmailer netproc netsetup msgform \
-readlog rcit stats sysoputil citmail netpoll mailinglist userlist
+server: $(SERVER_TARGETS)
+
+utils: $(UTIL_TARGETS)
 
 #
 #
@@ -109,7 +113,7 @@ control.o: control.c citadel.h
 logging.o: logging.c citadel.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c logging.c
 
-config.o: config.c config_decls.h citadel.h axdefs.h
+config.o: config.c citadel.h axdefs.h
 	$(CC) -O $(CFLAGS) -D_REENTRANT -c config.c
 
 sysdep.o: sysdep.c citadel.h
@@ -186,7 +190,7 @@ rcit: rcit.c config.o citadel.h
 stats: stats.c config.o citadel.h
 	$(CC) -O $(CFLAGS) stats.c config.o $(LFLAGS) -o stats
 
-sysoputil: sysoputil.c config.o config_decls.h citadel.h
+sysoputil: sysoputil.c config.o citadel.h
 	$(CC) -O $(CFLAGS) sysoputil.c config.o $(LFLAGS) -o sysoputil
 	chmod 4750 sysoputil
 
@@ -195,4 +199,6 @@ citadel.h: sysdep.h sysconfig.h ipcdef.h server.h
 
 clean:
 	find . -name \*.[o] -print -exec rm -f {} \;
-	rm -f sysdep.h
+
+realclean: clean
+	rm -f sysdep.h $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS)

@@ -25,12 +25,12 @@ struct netnode {
 	};
 
 
-void get_config();
+void get_config(void);
 struct config config;
 
 
-struct netnode *load_node(nodename)
-char *nodename; {
+struct netnode *load_node(char *nodename)
+{
 	FILE *fp;
 	char buf[256];
 	char filename[256];
@@ -68,8 +68,8 @@ char *nodename; {
 
 
 
-void save_node(nnptr)
-struct netnode *nnptr; {
+void save_node(struct netnode *nnptr)
+{
 
 	FILE *fp;
 	char filename[256];
@@ -95,7 +95,7 @@ struct netnode *nnptr; {
 
 
 
-void display_usage() {
+void display_usage(void) {
 	fprintf(stderr, "netsetup for %s\n", CITADEL);
 	fprintf(stderr, "usage: netsetup <command> [arguments]\n\n");
 	fprintf(stderr, "Commands: \n");
@@ -115,7 +115,7 @@ void display_usage() {
  * Display all neighboring nodes
  * (This is inherently nonportable)
  */
-void display_nodelist() {
+void display_nodelist(void) {
 	FILE *ls;
 	char buf[256];
 
@@ -137,8 +137,8 @@ void display_nodelist() {
 
 /*
  */
-void add_node(NewNodeName)
-char *NewNodeName; {
+void add_node(char *NewNodeName)
+{
 	FILE *fp;
 	char sysfilename[256];
 
@@ -165,8 +165,8 @@ char *NewNodeName; {
 
 /*
  */
-void delete_node(NodeName)
-char *NodeName; {
+void delete_node(char *NodeName)
+{
 	FILE *fp;
 	char sysfilename[256];
 	char spooloutfilename[256];
@@ -193,8 +193,8 @@ char *NodeName; {
 
 /*
  */
-void do_roomlist(NodeName)
-char *NodeName; {
+void do_roomlist(char *NodeName)
+{
 	FILE *fp;
 	char sysfilename[256];
 	char buf[256];
@@ -221,8 +221,8 @@ char *NodeName; {
 
 /*
  */
-void show_spool_cmd(NodeName)
-char *NodeName; {
+void show_spool_cmd(char *NodeName)
+{
 	FILE *fp;
 	char sysfilename[256];
 	char buf[256];
@@ -244,9 +244,8 @@ char *NodeName; {
 
 /*
  */
-void set_spool_cmd(nodename, spoolcmd)
-char *nodename;
-char *spoolcmd; {
+void set_spool_cmd(char *nodename, char *spoolcmd)
+{
 	struct netnode *nnptr;
 
 	nnptr = load_node(nodename);
@@ -262,9 +261,8 @@ char *spoolcmd; {
 
 /*
  */
-void add_share(nodename, roomname)
-char *nodename;
-char *roomname; {
+void add_share(char *nodename, char *roomname)
+{
 	struct netnode *nnptr;
 	struct roomshare *rsptr;
 	long highest = 0L;
@@ -299,9 +297,8 @@ char *roomname; {
 
 /*
  */
-void remove_share(nodename, roomname)
-char *nodename;
-char *roomname; {
+void remove_share(char *nodename, char *roomname)
+{
 	struct netnode *nnptr;
 	struct roomshare *rsptr, *rshold;
 	int foundit = 0;
@@ -341,9 +338,8 @@ char *roomname; {
 	}
 
 
-int main(argc, argv)
-int argc;
-char *argv[]; {
+int main(int argc, char **argv)
+{
 
 	if (argc < 2) {
 		display_usage();

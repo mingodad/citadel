@@ -16,10 +16,12 @@
 #include <sys/stat.h>
 #include <netdb.h>
 #include <errno.h>
+#include <limits.h>
 
 #include "citadel.h"
 #include "axdefs.h"
 #include "sysdep.h"
+#include "config.h"
 
 #ifdef CURSES_INC
 # ifdef OK
@@ -225,9 +227,6 @@ char *setup_text[] = {
 
 };
 
-
-long atol();
-void get_config();
 struct config config;
 int direction;
 
@@ -258,10 +257,10 @@ void cleanup(int exitcode) {
 
 
 #ifdef CURSES_INC
-void getlin(yp,xp,string,lim)	/* Gets a line from the terminal */
-int yp,xp;			/* Where on the screen to start */
-char string[];	 		/* Pointer to string buffer */
-int lim;			/* Maximum length - if negative, no-show */
+void getlin(int yp, int xp, char *string, int lim)	/* Gets a line from the terminal */
+          			/* Where on the screen to start */
+              	 		/* Pointer to string buffer */
+        			/* Maximum length - if negative, no-show */
 {
 int a,b; char flag;
 
@@ -308,15 +307,15 @@ GLA:	move(yp,xp+strlen(string));
 
 
 
-void title(text)
-char *text; {
+void title(char *text)
+{
 	if (setup_type == UI_TEXT) {
 		printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n<%s>\n",text);
 		}
 	}
 
 
-void hit_any_key() {
+void hit_any_key(void) {
 	char junk[5];
 
 #ifdef CURSES_INC
@@ -331,8 +330,8 @@ void hit_any_key() {
 	fgets(junk, 5, stdin);
 	}
 
-int yesno(question)
-char *question; {
+int yesno(char *question)
+{
 	int answer = 0;
 	char buf[4096];
 
@@ -377,7 +376,7 @@ char *question; {
 
 
 
-void dump_access_levels() {
+void dump_access_levels(void) {
 	int a;
 	for (a=0; a<=6; ++a) printf("%d %s\n",a,axdefs[a]);
 	}
@@ -396,7 +395,7 @@ void get_setup_msg(char *dispbuf, int msgnum) {
 		} while(atol(setup_text[a])!=(msgnum+1));
 	}
 
-void print_setup(msgnum) {
+void print_setup(int msgnum) {
 	char dispbuf[4096];
 
 	get_setup_msg(dispbuf, msgnum);
@@ -448,10 +447,8 @@ void display_error(char *error_message) {
 	important_message("Error", error_message);
 	}
 
-void progress(text,curr,cmax)
-char *text;
-long curr;
-long cmax; {
+void progress(char *text, long int curr, long int cmax)
+{
 	static long dots_printed;
 	long a;
 	static long prev;
@@ -544,7 +541,7 @@ long cmax; {
  * check_services_entry()  -- Make sure "citadel" is in /etc/services
  *
  */
-void check_services_entry() {
+void check_services_entry(void) {
 	char question[128];
 	FILE *sfp;
 
@@ -573,7 +570,7 @@ void check_services_entry() {
  * check_inittab_entry()  -- Make sure "citadel" is in /etc/inittab
  *
  */
-void check_inittab_entry() {
+void check_inittab_entry(void) {
 	FILE *infp;
 	char buf[256];
 	char looking_for[256];
@@ -702,9 +699,8 @@ void set_str_val(int msgpos, char str[]) {
 		}
 	}
 
-void set_int_val(msgpos, ip)
-int msgpos;
-int *ip; {
+void set_int_val(int msgpos, int *ip)
+{
 	char buf[16];
 	sprintf(buf,"%d",(int)*ip);
 	set_str_val(msgpos, buf);
@@ -712,9 +708,8 @@ int *ip; {
 	}
 
 
-void set_char_val(msgpos, ip)
-int msgpos;
-char *ip; {
+void set_char_val(int msgpos, char *ip)
+{
 	char buf[16];
 	sprintf(buf,"%d",(int)*ip);
 	set_str_val(msgpos, buf);
@@ -722,9 +717,8 @@ char *ip; {
 	}
 
 
-void set_long_val(msgpos, ip)
-int msgpos;
-long *ip; {
+void set_long_val(int msgpos, long int *ip)
+{
 	char buf[16];
 	sprintf(buf,"%ld",*ip);
 	set_str_val(msgpos, buf);
@@ -732,7 +726,8 @@ long *ip; {
 	}
 
 
-int yesno_s(question) {
+#if 0 /* FIXME: this isn't used, can we remove it? */
+int yesno_s(char *question) {
 	int a;
 	char buf[4096];
 	char tempfile[64];
@@ -772,10 +767,11 @@ int yesno_s(question) {
 
 	return(0); /* just in case */
 	}
+#endif
 
 
-void edit_value(curr)
-int curr; {
+void edit_value(int curr)
+{
  int a;
  
  switch(curr) {
@@ -868,7 +864,7 @@ case 19:
 /*
  * (re-)write the config data to disk
  */
-void write_config_to_disk() {
+void write_config_to_disk(void) {
 	FILE *fp;
 
 	fp=fopen("citadel.config","wb");
@@ -886,7 +882,7 @@ void write_config_to_disk() {
 /*
  * Figure out what type of user interface we're going to use
  */
-int discover_ui() {
+int discover_ui(void) {
 
 #ifdef CURSES_INC
 	return UI_CURSES;

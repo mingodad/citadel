@@ -16,6 +16,7 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include "citadel.h"
+#include "messages.h"
 
 #define MAXWORDBUF 256
 #define MAXMSGS 512
@@ -25,20 +26,20 @@ struct cittext {
 	char text[MAXWORDBUF];
 	};
 
-long finduser();
-char inkey();
-void sttybbs();
-int struncmp();
-int fmout();
-int haschar();
-int checkpagin();
-void getline();
-void formout();
-int yesno();
-void newprompt();
-int file_checksum();
-void color();
-void do_edit();
+long finduser(int file, char *name);
+char inkey(void);
+void sttybbs(int cmd);
+int struncmp(char *lstr, char *rstr, int len);
+int fmout(int width, FILE *fp, char pagin, int height, int starting_lp, char subst);
+int haschar(char *st, int ch);
+int checkpagin(int lp, int pagin, int height);
+void getline(char *string, int lim);
+void formout(char *name);
+int yesno(void);
+void newprompt(char *prompt, char *str, int len);
+int file_checksum(char *filename);
+void color(int colornum);
+void do_edit(char *desc, char *read_cmd, char *check_cmd, char *write_cmd);
 
 char reply_to[512];
 long msg_arr[MAXMSGS];

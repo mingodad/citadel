@@ -32,6 +32,8 @@
 #include "citadel.h"
 #include "server.h"
 #include "proto.h"
+#include "sysdep_decls.h"
+#include "citserver.h"
 
 #ifdef NEED_SELECT_H
 #include <sys/select.h>
@@ -93,10 +95,10 @@ void init_sysdep(void) {
 	 * The action for unexpected signals and exceptions should be to
 	 * call master_cleanup() to gracefully shut down the server.
 	 */
-	signal(SIGINT, master_cleanup);
-	signal(SIGQUIT, master_cleanup);
-	signal(SIGHUP, master_cleanup);
-	signal(SIGTERM, master_cleanup);
+	signal(SIGINT, (void(*)(int))master_cleanup);
+	signal(SIGQUIT, (void(*)(int))master_cleanup);
+	signal(SIGHUP, (void(*)(int))master_cleanup);
+	signal(SIGTERM, (void(*)(int))master_cleanup);
 	}
 
 

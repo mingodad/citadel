@@ -4,13 +4,13 @@
 #include <string.h>
 #include "citadel.h"
 
-void attach_to_server();
+void attach_to_server(int argc, char **argv);
 
 /*
  * num_parms()  -  discover number of parameters...
  */
-int num_parms(source)
-char source[]; {
+int num_parms(char *source)
+{
 	int a;
 	int count = 1;
 
@@ -23,10 +23,8 @@ char source[]; {
 /*
  * extract()  -  extract a parameter from a series of "|" separated...
  */
-void extract(dest,source,parmnum)
-char dest[];
-char source[];
-int parmnum; {
+void extract(char *dest, char *source, int parmnum)
+{
 	char buf[256];
 	int count = 0;
 	int n;
@@ -55,9 +53,8 @@ int parmnum; {
 /*
  * extract_int()  -  extract an int parm w/o supplying a buffer
  */
-int extract_int(source,parmnum)
-char *source;
-int parmnum; {
+int extract_int(char *source, int parmnum)
+{
 	char buf[256];
 	
 	extract(buf,source,parmnum);
@@ -65,14 +62,13 @@ int parmnum; {
 	}
 
 
-void logoff(code)
-int code; {
+void logoff(int code)
+{
 	exit(code);
 	}
 
-void main(argc,argv)
-int argc;
-char *argv[]; {
+void main(int argc, char **argv)
+{
 	char buf[256];
 	char nodetitle[256];
 	int a;
@@ -132,8 +128,8 @@ char *argv[]; {
 /*
  * replacement strerror() for systems that don't have it
  */
-char *strerror(e)
-int e; {
+char *strerror(int e)
+{
 	static char buf[32];
 
 	sprintf(buf,"errno = %d",e);

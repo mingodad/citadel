@@ -11,7 +11,7 @@
 #include <string.h>
 #include <limits.h>
 #include "citadel.h"
-#include "config_decls.h"
+#include "config.h"
 
 struct config config;
 char bbs_home_directory[PATH_MAX];

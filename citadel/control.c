@@ -25,7 +25,7 @@ struct CitControl CitControl;
 /*
  * get_control  -  read the control record into memory.
  */
-void get_control() {
+void get_control(void) {
 	FILE *fp;
 
 	/* Zero it out.  If the control record on disk is missing or short,
@@ -43,7 +43,7 @@ void get_control() {
 /*
  * put_control  -  write the control record to disk.
  */
-void put_control() {
+void put_control(void) {
 	FILE *fp;
 
 	fp = fopen("citadel.control", "wb");
@@ -57,7 +57,7 @@ void put_control() {
 /*
  * get_new_message_number()  -  Obtain a new, unique ID to be used for a message.
  */
-long get_new_message_number() {
+long get_new_message_number(void) {
 	begin_critical_section(S_CONTROL);
 	get_control();
 	++CitControl.MMhighest;
@@ -70,7 +70,7 @@ long get_new_message_number() {
 /*
  * get_new_user_number()  -  Obtain a new, unique ID to be used for a user.
  */
-long get_new_user_number() {
+long get_new_user_number(void) {
 	begin_critical_section(S_CONTROL);
 	get_control();
 	++CitControl.MMnextuser;

@@ -25,8 +25,8 @@
 #include <string.h>
 #include "citadel.h"
 
-void LoadInternetConfig();
-void get_config();
+void LoadInternetConfig(void);
+void get_config(void);
 struct config config;
 
 char ALIASES[128];
@@ -42,9 +42,9 @@ int RUN_NETPROC = 1;
  * Consult the mailinglists table to find out where we should send the
  * mailing list postings to.
  */
-void xref(room,listaddr)		/* xref table */
-char room[]; 
-char listaddr[]; {
+void xref(char *room, char *listaddr)		/* xref table */
+             
+                 {
 	FILE *fp;
 	int a;
 	char buf[128];
@@ -68,7 +68,7 @@ char listaddr[]; {
 /*
  * The main loop.  We don't need any command-line parameters to this program.
  */
-void main() {
+void main(void) {
 
 	char header[3];
 	char fields[32][1024];

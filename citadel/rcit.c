@@ -33,12 +33,12 @@
 #include <time.h>
 #include "citadel.h"
 
-void get_config();
+void get_config(void);
 struct config config;
 
 char roomlist[MAXROOMS][20];
 
-void load_roomlist() {
+void load_roomlist(void) {
 	FILE *fp;
 	struct quickroom QRtemp;
 	int a;
@@ -56,9 +56,9 @@ void load_roomlist() {
 
 
 
-int rnewsxref(room,ngroup)		/* xref table */
-char room[]; 
-char ngroup[]; {
+int rnewsxref(char *room, char *ngroup)		/* xref table */
+             
+               {
 	FILE *fp;
 	int a,b;
 	char aaa[50],bbb[50];
@@ -87,9 +87,8 @@ GNA:	strcpy(aaa,""); strcpy(bbb,"");
 	}
 
 
-void getroom(room,ngroup)
-char room[];
-char ngroup[]; {
+void getroom(char *room, char *ngroup)
+{
 	char ngbuf[256];
 	char tryme[256];
 	int a,b;
@@ -112,9 +111,8 @@ char ngroup[]; {
 		}
 	}
 
-void main(argc,argv)
-int argc;
-char *argv[]; {
+void main(int argc, char **argv)
+{
 	char aaa[128],bbb[128],ccc[128];
 	char author[128],recipient[128],room[128],node[128],path[512];
 	char subject[128];

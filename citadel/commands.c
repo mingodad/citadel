@@ -31,6 +31,7 @@
 #include <signal.h>
 #include <errno.h>
 #include "citadel.h"
+#include "commands.h"
 
 struct citcmd {
 	struct citcmd *next;
@@ -64,14 +65,14 @@ char *gl_string;
 
 struct citcmd *cmdlist = NULL;
 
-void sighandler();
-void logoff();
-int struncmp();
-void formout();
-int room_prompt();
-void back();
-int checkpagin();
-void color();
+void sighandler(int which_sig);
+void logoff(int code);
+int struncmp(char *lstr, char *rstr, int len);
+void formout(char *name);
+int room_prompt(int qrflags);
+void back(int spaces);
+int checkpagin(int lp, int pagin, int height);
+void color(int colornum);
 
 
 /* these variables are local to this module */
@@ -84,7 +85,7 @@ int enable_color = 0;			/* nonzero for ANSI color */
 /*
  * print_express()  -  print express messages if there are any
  */
-void print_express() {
+void print_express(void) {
 	char buf[256];
 	FILE *outpipe;
 
@@ -119,15 +120,15 @@ void print_express() {
 	}
 
 
-void set_keepalives(s)
-int s; {
+void set_keepalives(int s)
+{
 	keepalives_enabled = (char)s;
 	}
 
 /* 
  * This loop handles the "keepalive" messages sent to the server when idling.
  */
-void do_keepalive() {
+void do_keepalive(void) {
 	char buf[256];
 	static long idlet = 0L;
 	long now;
@@ -155,7 +156,7 @@ void do_keepalive() {
 	}
 
 
-int inkey() {		/* get a character from the keyboard, with   */
+int inkey(void) {		/* get a character from the keyboard, with   */
 	int a;		/* the watchdog timer in effect if necessary */
         fd_set rfds;
         struct timeval tv;
@@ -205,9 +206,9 @@ int inkey() {		/* get a character from the keyboard, with   */
 	return(a);
 	}
 
-void getline(string,lim)	/* Gets a line from the terminal */
-char string[]; 		/* Pointer to string buffer */
-int lim;		/* Maximum length - if negative, no-show */
+void getline(char *string, int lim)	/* Gets a line from the terminal */
+               		/* Pointer to string buffer */
+        		/* Maximum length - if negative, no-show */
 {
 	int a,b;
 	char flag = 0;
@@ -240,10 +241,8 @@ GLA:	a=inkey(); a=(a&127);
  * strprompt()  -  prompt for a string, print the existing value and
  *                 allow the user to press return to keep it...
  */
-void strprompt(prompt,str,len)
-char *prompt;
-char *str;
-int len; {
+void strprompt(char *prompt, char *str, int len)
+{
 	char buf[128];
 	print_express();
 	color(3);
@@ -262,11 +261,8 @@ int len; {
  * intprompt()  -  like strprompt(), except for an integer
  *                 (note that it RETURNS the new value!)
  */
-int intprompt(prompt,ival,imin,imax)
-char *prompt;
-int ival;
-int imin;
-int imax; {
+int intprompt(char *prompt, int ival, int imin, int imax)
+{
 	char buf[16];
 	int i;
 	i = ival;
@@ -284,10 +280,8 @@ int imax; {
  * newprompt()  -  prompt for a string with no existing value
  *                 (clears out string buffer first)
  */
-void newprompt(prompt,str,len)
-char *prompt;
-char *str;
-int len; {
+void newprompt(char *prompt, char *str, int len)
+{
 	color(3);
 	printf("%s",prompt);
 	color(2);
@@ -296,7 +290,7 @@ int len; {
 	}
 
 
-int lkey() {	/* returns a lower case value */
+int lkey(void) {	/* returns a lower case value */
 	int a;
 	a=inkey();
 	if (isupper(a)) a=tolower(a);
@@ -306,7 +300,7 @@ int lkey() {	/* returns a lower case value */
 /*
  * parse the citadel.rc file
  */
-void load_command_set() {
+void load_command_set(void) {
 	FILE *ccfile;
 	char buf[256];
 	struct citcmd *cptr;
@@ -420,8 +414,8 @@ void load_command_set() {
 /*
  * return the key associated with a command
  */
-char keycmd(cmdstr)
-char cmdstr[]; {
+char keycmd(char *cmdstr)
+{
 	int a;
 
 	for (a=0; a<strlen(cmdstr); ++a)
@@ -435,9 +429,8 @@ char cmdstr[]; {
  * Output the string from a key command without the ampersand
  * "mode" should be set to 0 for normal or 1 for <C>ommand key highlighting
  */
-char *cmd_expand(strbuf,mode)
-char strbuf[];
-int mode; {
+char *cmd_expand(char *strbuf, int mode)
+{
 	int a;
 	static char exp[64];
 	char buf[256];
@@ -483,10 +476,8 @@ int mode; {
  * Comparison function to determine if entered commands match a
  * command loaded from the config file.
  */
-int cmdmatch(cmdbuf,cptr,ncomp)
-char cmdbuf[];
-struct citcmd *cptr;
-int ncomp; {
+int cmdmatch(char *cmdbuf, struct citcmd *cptr, int ncomp)
+{
 	int a;
 	int cmdax;
 
@@ -506,9 +497,8 @@ int ncomp; {
 /*
  * This function returns 1 if a given command requires a string input
  */
-int requires_string(cptr,ncomp)
-struct citcmd *cptr;
-int ncomp; {
+int requires_string(struct citcmd *cptr, int ncomp)
+{
 	int a;
 	char buf[64];
 	
@@ -525,8 +515,8 @@ int ncomp; {
  * This function returns an integer command number.  If the command prompts
  * for a string then it is placed in the supplied buffer.
  */
-int getcmd(argbuf)
-char *argbuf;  {
+int getcmd(char *argbuf)
+{
 	char cmdbuf[5];
 	int cmdspaces[5];
 	int cmdpos;
@@ -625,8 +615,8 @@ char *argbuf;  {
  * 3 - restore saved settings
  */
 #ifdef POSIX_TERMIO
-void sttybbs(cmd) 		/* SysV version of sttybbs() */
-int cmd; {
+void sttybbs(int cmd) 		/* SysV version of sttybbs() */
+         {
 	struct termios live;
 	static struct termios saved_settings;
 
@@ -668,8 +658,8 @@ int cmd; {
 		}
 	}
 #else
-void sttybbs(cmd) 		/* BSD version of sttybbs() */
-int cmd; {
+void sttybbs(int cmd) 		/* BSD version of sttybbs() */
+{
 	struct sgttyb live;
 	static struct sgttyb saved_settings;
 
@@ -695,8 +685,8 @@ int cmd; {
 /*
  * display_help()  -  help file viewer
  */
-void display_help(name)
-char name[]; {
+void display_help(char *name)
+{
 	formout(name);
 	}
 
@@ -704,13 +694,13 @@ char name[]; {
 /*
  * fmout()  -  Citadel text formatter and paginator
  */
-int fmout(width,fp,pagin,height,starting_lp,subst)
-int width;		/* screen width to use */
-FILE *fp;		/* file to read from, or NULL to read from server */
-char pagin;		/* nonzero if we should use the paginator */
-int height;		/* screen height to use */
-int starting_lp;	/* starting value for lines_printed, -1 for global */
-char subst;		/* nonzero if we should use hypertext mode */
+int fmout(int width, FILE *fp, char pagin, int height, int starting_lp, char subst)
+          		/* screen width to use */
+         		/* file to read from, or NULL to read from server */
+           		/* nonzero if we should use the paginator */
+           		/* screen height to use */
+                	/* starting value for lines_printed, -1 for global */
+           		/* nonzero if we should use hypertext mode */
 	{
 	int a,b,c,d,old;
 	int real = (-1);
@@ -816,8 +806,8 @@ FMTEND:	printf("\n");
 /*
  * support ANSI color if defined
  */
-void color(colornum)
-int colornum;  {
+void color(int colornum)
+{
 
 #ifdef ANSI_COLOR
 	if (enable_color) {
@@ -828,7 +818,7 @@ int colornum;  {
 #endif
 	}
 
-void cls() {
+void cls(void) {
 #ifdef ANSI_COLOR
 	fflush(stdout);
 	printf("%c[2J%c[H", 27, 27);
@@ -840,7 +830,7 @@ void cls() {
 /*
  * Detect whether ANSI color is available (answerback)
  */
-void send_ansi_detect() {
+void send_ansi_detect(void) {
 #ifdef ANSI_COLOR
 	printf("%c[c", 27);
 	fflush(stdout);
@@ -848,7 +838,7 @@ void send_ansi_detect() {
 #endif
 	}
 
-void look_for_ansi() {
+void look_for_ansi(void) {
 #ifdef ANSI_COLOR
         fd_set rfds;
         struct timeval tv;

@@ -1,0 +1,1 @@
+void strproc(char *string);

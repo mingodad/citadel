@@ -12,17 +12,17 @@
 #include "citadel.h"
 #include "server.h"
 #include "proto.h"
-
-struct config config;
+#include "sysdep_decls.h"
+#include "citserver.h"
+#include "config.h"
 
 struct CitContext *ContextList = NULL;
 int ScheduledShutdown = 0;
 
-	
 /*
  * Various things that need to be initialized at startup
  */
-void master_startup() {
+void master_startup(void) {
 	lprintf(7, "Opening databases\n");
 	open_databases();
 
@@ -33,7 +33,7 @@ void master_startup() {
 /*
  * Cleanup routine to be called when the server is shutting down.
  */
-void master_cleanup() {
+void master_cleanup(void) {
 
 	/* Cancel all running sessions */
 	lprintf(7, "Cancelling running sessions...\n");
@@ -62,7 +62,7 @@ void master_cleanup() {
  * All NON-system-dependent stuff is done in this function.
  * System-dependent session/thread cleanup is in cleanup() in sysdep.c
  */
-void cleanup_stuff()
+void cleanup_stuff(void *arg)
 {
 	struct ExpressMessage *emptr;
 
@@ -178,7 +178,7 @@ void cmd_uchg(char *newusername)
    cprintf("%d\n",OK);
 }
 
-void cmd_time()
+void cmd_time(void)
 {
    time_t tv;
    
@@ -1059,7 +1059,7 @@ void *context_loop(struct CitContext *con)
 			}
 
 		else if (!strncasecmp(cmdbuf, "TIME", 4)) {
-			cmd_time(&cmdbuf[5]);
+			cmd_time();
 			}
 
 		else if (!strncasecmp(cmdbuf, "HCHG", 4)) {

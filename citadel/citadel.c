@@ -23,6 +23,16 @@
 
 #include "citadel.h"
 #include "axdefs.h"
+#include "serv_info.h"
+#include "routines.h"
+#include "routines2.h"
+#include "commands.h"
+#include "rooms.h"
+#include "messages.h"
+#include "support.h"
+#include "ipc.h"
+#include "client_chat.h"
+#include "citadel_decls.h"
 
 struct march {
 	struct march *next;
@@ -36,72 +46,6 @@ struct march {
 #define IFNAIDE if (axlevel<6)
 
 struct march *march = NULL;
-long finduser();
-void extract();
-long extract_long();
-int extract_int();
-void load_command_set();
-void updatelsa();
-void movefile();
-void deletefile();
-void netsendfile();
-void listzrooms();
-int ka_system();
-void interr();
-int struncmp();
-int yesno();
-void sttybbs();
-void newprompt();
-void strprompt();
-int fmout();
-int checkpagin();
-int pattern();
-int pattern2();
-void readinfo();
-int num_parms();
-void attach_to_server();
-void strproc();
-void enter_config();
-void entregis();
-int entmsg();
-void updatels();
-void forget();
-void readmsgs();
-int getcmd();
-void subshell();
-void entroom();
-void killroom();
-void invite();
-void kickout();
-void editthisroom();
-void roomdir();
-void download();
-void upload();
-void cli_upload();
-void ungoto();
-void whoknows();
-void validate();
-void enterinfo();
-void display_help();
-void edituser();
-void knrooms();
-void locate_host();
-void chatmode();
-void load_floorlist();
-void create_floor();
-void edit_floor();
-void kill_floor();
-void enter_bio();
-void read_bio();
-void misc_server_cmd();
-int nukedir();
-void color();
-void cls();
-void edit_system_message();
-void send_ansi_detect();
-void look_for_ansi();
-void cli_image_upload();
-
 
 /* globals associated with the client program */
 char temp[16];				/* Name of general temp file */
@@ -140,13 +84,11 @@ char floorlist[128][256];		/* names of floors */
 char express_msgs = 0;			/* express messages waiting! */
 char last_paged[32]="";
 
-extern char server_is_local;		/* defined in ipc module */
-
 /*
  * here is our 'clean up gracefully and exit' routine
  */
-void logoff(code)
-int code; {
+void logoff(int code)
+{
 	if (editor_pid>0) {		/* kill the editor if it's running */
 		kill(editor_pid,SIGHUP);
 		}
@@ -183,8 +125,8 @@ int code; {
  * We handle "next" and "stop" much differently than in earlier versions.
  * The signal catching routine simply sets a flag and returns.
  */
-void sighandler(which_sig)
-int which_sig; {
+void sighandler(int which_sig)
+{
 	signal(SIGINT,SIG_IGN);
 	signal(SIGQUIT,SIG_IGN);
 	sigcaught = which_sig;
@@ -195,7 +137,7 @@ int which_sig; {
 /*
  * signal catching function for hangups...
  */
-void dropcarr() {
+void dropcarr(int signum) {
 	logoff(SIGHUP);
 	}
 
@@ -203,8 +145,8 @@ void dropcarr() {
 
 /* general purpose routines */
 
-void formout(name) /* display a file */
-char name[];
+void formout(char *name) /* display a file */
+            
 	{
 	char cmd[256];
 	sprintf(cmd,"MESG %s",name);
@@ -220,7 +162,7 @@ char name[];
 	}
 
 
-void userlist() { 
+void userlist(void) { 
 	char buf[256];
 	char fl[256];
 	struct tm *tmbuf;
@@ -266,8 +208,8 @@ void userlist() {
 /*
  * grab assorted info about the user...
  */
-void load_user_info(params)
-char *params; {
+void load_user_info(char *params)
+{
 	extract(fullname,params,0);
 	axlevel = extract_int(params,1);
 	timescalled = extract_int(params,2);
@@ -282,9 +224,8 @@ char *params; {
  * 'roomname' is set to _FLOOR_, in which case all rooms on the requested
  * floor will be removed from the march list.
  */
-void remove_march(roomname,floornum)
-char *roomname;
-int floornum; {
+void remove_march(char *roomname, int floornum)
+{
 	struct march *mptr,*mptr2;
 
 	if (march==NULL) return;
@@ -317,7 +258,7 @@ int floornum; {
 /*
  * sort the march list by floor
  */
-void sort_march_list() {
+void sort_march_list(void) {
 	struct march *mlist[129];
 	struct march *mptr = NULL;
 	int a;
@@ -368,9 +309,8 @@ void sort_march_list() {
 /*
  * jump directly to a room
  */
-void dotgoto(towhere,display_name)
-char *towhere;
-int display_name; {
+void dotgoto(char *towhere, int display_name)
+{
 	char aaa[256],bbb[256],psearch[256];
 	static long ls = 0L;
 	int newmailcount;
@@ -480,7 +420,7 @@ int display_name; {
  * We start the search in the current room rather than the beginning to prevent
  * two or more concurrent users from dragging each other back to the same room.
  */
-void gotonext() {
+void gotonext(void) {
 	char buf[256];
 	struct march *mptr,*mptr2;
 	char next_room[32];
@@ -546,8 +486,8 @@ void gotonext() {
 /*
  * forget all rooms on a given floor
  */
-void forget_all_rooms_on(ffloor)
-int ffloor; {
+void forget_all_rooms_on(int ffloor)
+{
 	char buf[256];
 	struct march *flist,*fptr;
 
@@ -586,9 +526,8 @@ int ffloor; {
 /*
  * routine called by gotofloor() to move to a new room on a new floor
  */
-void gf_toroom(towhere,mode)
-char *towhere;
-int mode; {
+void gf_toroom(char *towhere, int mode)
+{
 	int floor_being_left;
 
 	floor_being_left = curr_floor;
@@ -614,9 +553,8 @@ int mode; {
 /*
  * go to a new floor
  */
-void gotofloor(towhere,mode)
-char *towhere;
-int mode; {
+void gotofloor(char *towhere, int mode)
+{
 	int a,tofloor;
 	struct march *mptr;
 	char buf[256],targ[256];
@@ -671,7 +609,7 @@ int mode; {
 /*
  * forget all rooms on current floor
  */
-void forget_this_floor() {
+void forget_this_floor(void) {
 	
 	if (curr_floor == 0) {
 		printf("Can't forget this floor.\n");
@@ -690,7 +628,7 @@ void forget_this_floor() {
 /* 
  * Figure out the physical screen dimensions, if we can
  */
-void check_screen_dims() {
+void check_screen_dims(void) {
 #ifdef TIOCGWINSZ
 	struct {
 		unsigned short height;		/* rows */
@@ -712,7 +650,7 @@ void check_screen_dims() {
 /*
  * set floor mode depending on client, server, and user settings
  */
-void set_floor_mode() {
+void set_floor_mode(void) {
 	if (serv_info.serv_ok_floors == 0) {
 		floor_mode = 0;		/* Don't use floors if the server */
 		}			/* doesn't support them!          */
@@ -732,7 +670,7 @@ void set_floor_mode() {
 /*
  * Set or change the user's password
  */
-int set_password() {
+int set_password(void) {
 	char pass1[20];
 	char pass2[20];
 	char buf[256];
@@ -764,7 +702,7 @@ int set_password() {
 /*
  * get info about the server we've connected to
  */
-void get_serv_info() {
+void get_serv_info(void) {
 	char buf[256];
 
 	CtdlInternalGetServInfo(&serv_info);
@@ -847,9 +785,8 @@ void enternew(char *desc, char *buf, int maxlen)
 /*
  * main
  */
-void main(argc,argv)
-int argc;
-char *argv[]; {
+void main(int argc, char **argv)
+{
 int a,b,mcmd;
 int termn8 = 0;
 char aaa[100],bbb[100],ccc[100],eee[100];	/* general purpose variables */

@@ -26,7 +26,10 @@
 #include <pwd.h>
 #include <errno.h>
 #include <syslog.h>
+#include <limits.h>
 #include "citadel.h"
+#include "config.h"
+#include "internetmail.h"
 
 #define LOCAL 0
 #define REMOTE 1
@@ -39,13 +42,6 @@
 char *monthdesc[] = {	"Jan","Feb","Mar","Apr","May","Jun",
 			"Jul","Aug","Sep","Oct","Nov","Dec" };
 
-
-
-void LoadInternetConfig();
-void get_config();
-int IsHostLocal();
-struct config config;
-
 char ALIASES[128];
 char CIT86NET[128];
 char SENDMAIL[128];
@@ -56,8 +52,8 @@ char OUTGOING_FQDN[128];
 int RUN_NETPROC = 1;
 
 
-long conv_date(sdbuf)
-char sdbuf[]; {
+long conv_date(char *sdbuf)
+{
 	int a,b,cpos,tend,tval;
 	long now;
 	struct tm *tmbuf;
@@ -131,8 +127,8 @@ char sdbuf[]; {
 /*
  * replacement strerror() for systems that don't have it
  */
-char *strerror(e)
-int e; {
+char *strerror(int e)
+{
 	static char buf[32];
 
 	sprintf(buf,"errno = %d",e);
@@ -140,24 +136,23 @@ int e; {
 	}
 #endif
 
-int haschar(st,ch)
-char st[];
-int ch; {
+int haschar(char *st, int ch)
+{
 	int a,b;
 	b=0;
 	for (a=0; a<strlen(st); ++a) if (st[a]==ch) ++b;
 	return(b);
 	}
 
-void strip_trailing_whitespace(buf)
-char buf[]; {
+void strip_trailing_whitespace(char *buf)
+{
 	while(isspace(buf[strlen(buf)-1]))
 		buf[strlen(buf)-1]=0;
 	}
 
 /* strip leading and trailing spaces */
-void striplt(buf)
-char buf[]; {
+void striplt(char *buf)
+{
 	while ( (strlen(buf)>0) && (buf[0]==32) ) strcpy(buf,&buf[1]);
 	while (buf[strlen(buf)-1] == 32) buf[strlen(buf)-1] = 0;
 	}
@@ -196,11 +191,8 @@ void host_alias(char host[]) {
 /*
  * Split an RFC822-style address into userid, host, and full name
  */
-void process_rfc822_addr(rfc822,user,node,name)
-char rfc822[];
-char user[];
-char node[];
-char name[];  {
+void process_rfc822_addr(char *rfc822, char *user, char *node, char *name)
+{
 	int a;
 
 	/* extract full name - first, it's From minus <userid> */
@@ -434,8 +426,8 @@ void do_citmail(char recp[], int dtype) {
 	}
 
 
-void do_uudecode(target)
-char *target;  {
+void do_uudecode(char *target)
+{
 	static char buf[1024];
 	FILE *fp;
 	
@@ -450,8 +442,8 @@ char *target;  {
 
 	}
 
-int alias(name)
-char *name; {
+int alias(char *name)
+{
 	FILE *fp;
 	int a;
 	char abuf[256];
@@ -516,9 +508,8 @@ void deliver(char recp[], int is_test, int deliver_to_ignet) {
 
 
 
-void main(argc,argv)
-int argc;
-char *argv[]; {
+void main(int argc, char **argv)
+{
 	int is_test = 0;
 	int deliver_to_ignet = 0;
 	int smtp = 0;

@@ -219,7 +219,7 @@ void cmd_netf(char *cmdbuf)
  * It examines the file and displays the OK result code and some information
  * about the file.  NOTE: this stuff is Unix dependent.
  */
-void OpenCmdResult() {
+void OpenCmdResult(void) {
 	struct stat statbuf;
 
 	fstat(fileno(CC->download_fp), &statbuf);

@@ -7,13 +7,12 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <time.h>
+#include <limits.h>
 #include "citadel.h"
+#include "config.h"
 
-void get_config();
-struct config config;
-
-void make_message(filename)
-char *filename; {
+void make_message(char *filename)
+{
 	FILE *fp;
 	int a;
 	long bb,cc,now;
@@ -42,9 +41,7 @@ char *filename; {
 	fclose(fp);
 	}
 
-void main(argc,argv)
-int argc;
-char *argv[];
+void main(int argc, char **argv)
 {
 	char tempbase[32];
 	char temptmp[64];

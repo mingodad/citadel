@@ -70,8 +70,8 @@ struct CtdlServInfo {
 #define US_USER_SET	(US_LASTOLD | US_EXPERT | US_UNLISTED | \
 			US_NOPROMPT | US_DISAPPEAR | US_PAGINATOR | US_FLOORS)
 
-void serv_puts();
-void serv_gets();
+void serv_puts(char *buf);
+void serv_gets(char *buf);
 
 struct CtdlServerHandle {
 	char ServerAddress[64];

@@ -14,20 +14,20 @@
  */
 #define IGNET_PACKET_SIZE 64
 
-long atol();
+long atol(const char *);
 
-void attach_to_server();
-void serv_read();
-void serv_write();
-void get_config();
+void attach_to_server(int argc, char **argv);
+void serv_read(char *buf, int bytes);
+void serv_write(char *buf, int nbytes);
+void get_config(void);
 struct config config;
 
 
 /*
  * num_parms()  -  discover number of parameters...
  */
-int num_parms(source)
-char source[]; {
+int num_parms(char *source)
+{
 	int a;
 	int count = 1;
 
@@ -40,10 +40,8 @@ char source[]; {
 /*
  * extract()  -  extract a parameter from a series of "|" separated...
  */
-void extract(dest,source,parmnum)
-char dest[];
-char source[];
-int parmnum; {
+void extract(char *dest, char *source, int parmnum)
+{
 	char buf[256];
 	int count = 0;
 	int n;
@@ -72,9 +70,8 @@ int parmnum; {
 /*
  * extract_int()  -  extract an int parm w/o supplying a buffer
  */
-int extract_int(source,parmnum)
-char *source;
-int parmnum; {
+int extract_int(char *source, int parmnum)
+{
 	char buf[256];
 	
 	extract(buf,source,parmnum);
@@ -84,9 +81,8 @@ int parmnum; {
 /*
  * extract_long()  -  extract a long parm w/o supplying a buffer
  */
-long extract_long(source,parmnum)
-char *source;
-int parmnum; {
+long extract_long(char *source, int parmnum)
+{
 	char buf[256];
 	
 	extract(buf,source,parmnum);
@@ -94,8 +90,8 @@ int parmnum; {
 	}
 
 
-void logoff(code)
-int code; {
+void logoff(int code)
+{
 	exit(code);
 	}
 
@@ -103,7 +99,7 @@ int code; {
 /*
  * receive network spool from the remote system
  */
-void receive_spool() {
+void receive_spool(void) {
 	long download_len;
 	long bytes_received;
 	char buf[256];
@@ -154,8 +150,8 @@ void receive_spool() {
 /*
  * transmit network spool to the remote system
  */
-void transmit_spool(remote_nodename)
-char *remote_nodename; {
+void transmit_spool(char *remote_nodename)
+{
 	char buf[256];
 	char pbuf[4096];
 	long plen;
@@ -208,9 +204,8 @@ ABORTUPL:
 
 
 
-void main(argc,argv)
-int argc;
-char *argv[]; {
+void main(int argc, char **argv)
+{
 	char buf[256];
 	char remote_nodename[32];
 	int a;
