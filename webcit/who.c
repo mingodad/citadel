@@ -1,8 +1,6 @@
 /* $Id$ */
 
 
-
-
 #include <ctype.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -64,7 +62,11 @@ void whobbs(void)
 	escputs(serv_info.serv_humannode);
 	wprintf("</B></FONT></TD></TR></TABLE>\n");
 
-	wprintf("<CENTER>\n<TABLE BORDER=1 WIDTH=100%%>\n<TR>\n");
+	wprintf("<CENTER>\n"
+		"Click on a name to read user info.  Click on "
+		"<IMG SRC=\"/static/page.gif\" ALT=\"(p)\" BORDER=0> to send "
+		"a page (instant message) to that user.<BR>"
+		"<TABLE BORDER=1 WIDTH=100%%>\n<TR>\n");
 	wprintf("<TH>Session ID</TH>\n");
 	wprintf("<TH>User Name</TH>\n");
 	wprintf("<TH>Room</TH>");
@@ -113,7 +115,7 @@ void whobbs(void)
 		}
 
 		while (wlist != NULL) {
-			wprintf("<TR>\n\t<TD ALIGN=center><FONT SIZE=-1>%d", wlist->sessionnum);
+			wprintf("<TR>\n\t<TD ALIGN=center>%d", wlist->sessionnum);
 			if ((WC->is_aide) &&
 			    (wlist->sessionnum != serv_info.serv_pid)) {
 				wprintf(" <A HREF=\"/terminate_session&which_session=%d&session_owner=", wlist->sessionnum);
@@ -125,7 +127,7 @@ void whobbs(void)
 				wprintf(" <A HREF=\"/edit_me\" "
 					">(edit)</A>");
 			}
-			wprintf("</FONT></TD>\n\t<TD><FONT SIZE=-1>");
+			wprintf("</TD>\n\t<TD>");
 
 
 			/* username (link to user bio/photo page) */
@@ -136,17 +138,21 @@ void whobbs(void)
 			wprintf("</A>");
 
 			/* (link to page this user) */
-			wprintf("<A HREF=\"/display_page&recp=");
+			wprintf("<DIV ALIGN=RIGHT>"
+				"<A HREF=\"/whobbs\" "
+				" onClick=\"return window.open('/display_page&recp=");
 			urlescputs(wlist->username);
-			wprintf("\">(p)</A>");
+			wprintf("', 'CitaPageWin', 'toolbar=no,location=no,copyhistory=no,status=no,scrollbars=yes,resizable=no,height=400,width=400');\">"
+				"<IMG SRC=\"/static/page.gif\" ALT=\"(p)\""
+				" BORDER=0></A></DIV>");
 
 			/* room */
-			wprintf("</FONT></TD>\n\t<TD><FONT SIZE=-1>");
+			wprintf("</TD>\n\t<TD>");
 			escputs(wlist->roomname);
-			wprintf("</FONT></TD>\n\t<TD><FONT SIZE=-1>");
+			wprintf("</TD>\n\t<TD>");
 			/* hostname */
 			escputs(wlist->hostname);
-			wprintf("</FONT></TD>\n</TR>");
+			wprintf("</TD>\n</TR>");
 			wptr = wlist->next;
 			free(wlist);
 			wlist = wptr;

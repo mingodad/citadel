@@ -33,7 +33,7 @@ void display_page(void)
 
 	strcpy(recp, bstr("recp"));
 
-	output_headers(1);
+	output_headers(3);
 
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -48,28 +48,9 @@ void display_page(void)
 
 	wprintf("<TABLE border=0 width=100%%><TR><TD>\n");
 
-	wprintf("Select a user to send a message to: <BR>");
-
-	wprintf("<SELECT NAME=\"recp\" SIZE=10>\n");
-	serv_puts("RWHO");
-	serv_gets(buf);
-	if (buf[0] == '1') {
-		while (serv_gets(buf), strcmp(buf, "000")) {
-			extract(user, buf, 1);
-			wprintf("<OPTION");
-			if (strlen(recp)>0) {
-				if (!strcmp(user, recp)) {
-					wprintf(" SELECTED");
-				}
-			}
-			wprintf(">");
-			escputs(user);
-			wprintf("\n");
-		}
-	}
-	wprintf("</SELECT>\n");
-
-	wprintf("</TD><TD>");
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"recp\" VALUE=\"");
+	escputs(recp);
+	wprintf("\">\n");
 
 	wprintf("Enter message text:<BR>");
 
@@ -79,7 +60,7 @@ void display_page(void)
 	wprintf("</TD></TR></TABLE><BR>\n");
 
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Send message\">");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
+	wprintf("<BR><A HREF=\"javascript:window.close();\"Cancel</A>\n");
 
 	wprintf("</FORM></CENTER>\n");
 	wDumpContent(1);
