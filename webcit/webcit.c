@@ -1008,14 +1008,17 @@ void session_loop(struct httprequest *req)
 	 * If we're not logged in, but we have HTTP Authentication data,
 	 * try logging in to Citadel using that.
 	 */
-	if ((!WC->logged_in) && (strlen(c_httpauth_user) > 0) && (strlen(c_httpauth_pass) > 0)) {
+	if ((!WC->logged_in)
+	   && (strlen(c_httpauth_user) > 0)
+	   && (strlen(c_httpauth_pass) > 0)) {
 		serv_printf("USER %s", c_httpauth_user);
 		serv_gets(buf);
 		if (buf[0] == '3') {
 			serv_printf("PASS %s", c_httpauth_pass);
 			serv_gets(buf);
 			if (buf[0] == '2') {
-				become_logged_in(c_httpauth_user, c_httpauth_pass, buf);
+				become_logged_in(c_httpauth_user,
+						c_httpauth_pass, buf);
 				strcpy(WC->httpauth_user, c_httpauth_user);
 				strcpy(WC->httpauth_pass, c_httpauth_pass);
 			}
@@ -1027,8 +1030,8 @@ void session_loop(struct httprequest *req)
 	 * our session's authentication.
 	 */
 	if (!strncasecmp(action, "groupdav", 8)) {
-						/* do GroupDAV stuff */
-		groupdav_main(req, ContentType, ContentLength, content+body_start);
+		groupdav_main(req, ContentType, /* do GroupDAV methods */
+			ContentLength, content+body_start);
 		if (!WC->logged_in) {
 			WC->killthis = 1;	/* If not logged in, don't */
 		}				/* keep the session active */
@@ -1041,7 +1044,9 @@ void session_loop(struct httprequest *req)
 	 * If we're not logged in, but we have username and password cookies
 	 * supplied by the browser, try using them to log in.
 	 */
-	if ((!WC->logged_in) && (strlen(c_username) > 0) && (strlen(c_password) > 0)) {
+	if ((!WC->logged_in)
+	   && (strlen(c_username) > 0)
+	   && (strlen(c_password) > 0)) {
 		serv_printf("USER %s", c_username);
 		serv_gets(buf);
 		if (buf[0] == '3') {
