@@ -1,4 +1,7 @@
 $Log$
+Revision 603.7  2005/03/05 22:26:26  ajc
+* crypto.c: allow use of chained certificates
+
 Revision 603.6  2005/03/05 05:04:34  ajc
 * minor html changes
 
@@ -2457,4 +2460,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
