@@ -6,21 +6,14 @@
 // Extract a field from a string returned by the server
 //
 void extract(wxString& outputbuf, wxString inputbuf, int parmnum) {
-	int a;
-	int p;
-	
-	outputbuf = inputbuf;
+	int i;
+	wxStringTokenizer *tok = new wxStringTokenizer(inputbuf, "|", FALSE);
 
-	for (a=0; a<parmnum; ++a) {
-		p = outputbuf.First('|');
-		if (p >= 0) {
-			outputbuf = outputbuf.Mid(p+1);
+	for (i=0; tok->HasMoreToken(); ++i) {
+		outputbuf = tok->NextToken();
+		if (i == parmnum) {
+			return;
 		}
-	}
-
-	p = outputbuf.First('|');
-	if (p > 0) {
-		outputbuf = outputbuf.Left(p);
 	}
 }
 

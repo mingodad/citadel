@@ -5,6 +5,7 @@
 #include <wx/imaglist.h>
 #include <wx/treectrl.h>
 #include <wx/toolbar.h>
+#include <wx/tokenzr.h>
 #include <wxhtml/wxhtml.h>
 
 
