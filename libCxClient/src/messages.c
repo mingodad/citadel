@@ -152,40 +152,40 @@ int		rc, message_contents = 0, line_width;
 
 				if(strstr(buf,"From:") && 
 					!message_contents) {
-					strcpy(toret->author, buf+5);
+					strcpy(toret->author, buf+6);
 
 				} else if((strstr(buf,"To:") == (char *)&buf) && 
 					!message_contents) {
-					strcpy(toret->rcpt, buf+3);
+					strcpy(toret->rcpt, buf+4);
 
 				} else if(strstr(buf,"X-UIDL:")
 					&& !message_contents) {
-					DPF((DFA,"Message ID: %s",buf+7));
-					toret->message_id = atoi(buf+7);
+					DPF((DFA,"Message ID: %s",buf+8));
+					toret->message_id = atoi(buf+8);
 
 				} else if(strstr(buf,"X-Citadel-Room:")
 					&& !message_contents) {
-					DPF((DFA,"Room: %s",buf+15));
-					strcpy(toret->room, buf+15);
+					DPF((DFA,"Room: %s",buf+16));
+					strcpy(toret->room, buf+16);
 					toret->room[
 						strlen(toret->room)-1
 					] = 0;
 
 				} else if(strstr(buf,"Subject:") 
 					&& !message_contents) {
-					strcpy(toret->subject, buf+8);
+					strcpy(toret->subject, buf+9);
 
 				} else if(strstr(buf,"Path:") 
 					&& !message_contents) {
-					strcpy(toret->path, buf+5);
+					strcpy(toret->path, buf+6);
 
 				} else if(strstr(buf,"Node:") 
 					&& !message_contents) {
-					strcpy(toret->node, buf+5);
+					strcpy(toret->node, buf+6);
 
 				} else if((strstr(buf,"Date:") == (char *)&buf) 
 					&& !message_contents) {
-					strcpy(toret->date, buf+5);
+					strcpy(toret->date, buf+6);
 
 				} else if((buf[0] == 0) || (buf[0] == '\r') || 
 					message_contents) {
