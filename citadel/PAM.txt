@@ -8,7 +8,7 @@ for Linux by supplying a file which is placed in /etc/pam.d during the
 installation process, but not on other systems, for 2 reasons:
 
 	1) Other systems don't have /etc/pam.d; instead they use one big
-configuration file, usually /etc/pamconfig. It's not quite as trivial to
+configuration file, usually /etc/pam.conf. It's not quite as trivial to
 automatically modify this file in a safe and secure fashion.
 
 	2) Other systems have a different set of available authentication
