@@ -1,4 +1,7 @@
 $Log$
+Revision 500.30  2003/10/21 04:26:27  ajc
+* bumped the version string to 5.01
+
 Revision 500.29  2003/10/17 03:08:28  ajc
 * Finished prettying up the vCard display
 
@@ -1599,4 +1602,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
