@@ -248,7 +248,7 @@ void MyFrame::InitToolBar(wxToolBar* toolBar) {
 			currentX, -1, (wxObject *) NULL, "Print");
 	currentX += width + 5;
 	toolBar->AddSeparator();
-	toolBar->AddTool(7, *bitmaps[7], wxNullBitmap, TRUE,s
+	toolBar->AddTool(7, *bitmaps[7], wxNullBitmap, TRUE,
 		 currentX, -1, (wxObject *) NULL, "Help");
 
 	toolBar->Realize();
@@ -327,7 +327,7 @@ void MyFrame::OnConnect(wxCommandEvent& unused) {
 	} else {
 		retval = citadel->attach("uncnsrd", "citadel");
 		if (retval == 0) {
-    			SetStatusText("** connected **");
+    			SetStatusText("Connected to " + citadel->HumanNode);
 			new TestWindow(citadel, this);
 			new UserLogin(citadel, this);
 		} else {
