@@ -1,4 +1,8 @@
 $Log$
+Revision 400.63  2002/12/15 05:50:59  ajc
+* Form editing of date/time fields now assumes that the icaltimetype being
+  manipulated is in UTC.  It converts to/from local time for editing.
+
 Revision 400.62  2002/12/10 23:25:47  ajc
 * Display attendees in message view of calendar objects
 
@@ -1164,3 +1168,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
