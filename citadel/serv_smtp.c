@@ -66,6 +66,7 @@ struct citsmtp {		/* Information about the current session */
 	int number_of_rooms;
 	int delivery_mode;
 	int message_originated_locally;
+	struct recptypes *valid;
 };
 
 enum {				/* Command states for login authentication */
@@ -309,9 +310,9 @@ void smtp_expn(char *argbuf) {
  */
 void smtp_rset(void) {
 	memset(SMTP, 0, sizeof(struct citsmtp));
-	if (SMTP_RECPS != NULL) strcpy(SMTP_RECPS, "");
-	if (SMTP_ROOMS != NULL) strcpy(SMTP_ROOMS, "");
-	if (CC->logged_in) logout(CC);
+	if (CC->logged_in) {
+		logout(CC);
+	}
 	cprintf("250 Zap!\r\n");
 }
 
@@ -322,11 +323,9 @@ void smtp_rset(void) {
 void smtp_data_clear(void) {
 	strcpy(SMTP->from, "");
 	SMTP->number_of_recipients = 0;
-	SMTP->number_of_rooms = 0;
 	SMTP->delivery_mode = 0;
 	SMTP->message_originated_locally = 0;
-	if (SMTP_RECPS != NULL) strcpy(SMTP_RECPS, "");
-	if (SMTP_ROOMS != NULL) strcpy(SMTP_ROOMS, "");
+	memset(SMTP->valid, 0, sizeof(struct recptypes));
 }
 
 
@@ -365,7 +364,8 @@ void smtp_mail(char *argbuf) {
 		cvt = convert_internet_address(user, node, SMTP->from);
 		lprintf(9, "cvt=%d, citaddr=<%s@%s>\n", cvt, user, node);
 		if ( (cvt != 0) || (strcasecmp(user, CC->usersupp.fullname))) {
-			cprintf("550 <%s> is not your address.\r\n", SMTP->from);
+			cprintf("550 <%s> is not your address.\r\n",
+				SMTP->from);
 			strcpy(SMTP->from, "");
 			return;
 		}
@@ -422,6 +422,9 @@ void smtp_rcpt(char *argbuf) {
 
 	switch(cvt) {
 		case rfc822_address_locally_validated:
+			SMTP->valid.num_local += 1;
+			strcat
+			return;
 		case rfc822_address_on_citadel_network:
 			cprintf("250 %s is a valid recipient.\r\n", user);
 			CtdlReallocUserData(SYM_SMTP_RECPS,
@@ -487,7 +490,6 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 	struct usersupp userbuf;
 	char *instr;			/* Remote delivery instructions */
 	struct CtdlMessage *imsg;
-	struct recptypes *valid;
 
 	lprintf(9, "smtp_message_delivery() called\n");
 

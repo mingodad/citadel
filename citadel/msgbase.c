@@ -1834,6 +1834,16 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		CtdlSaveMsgPointerInRoom(SMTP_SPOOLOUT_ROOM, newmsgid, 0);
 	}
 
+	/* If other rooms are specified, drop them there too. */
+	if (recps != NULL)
+	 if (recps->num_room > 0)
+	  for (i=0; i<num_tokens(recps->recp_room, '|'); ++i) {
+		extract(recipient, recps->recp_room, i);
+		lprintf(9, "Delivering to local room <%s>\n",
+			recipient);
+		CtdlSaveMsgPointerInRoom(recipient, newmsgid, 0);
+	}
+
 	/* Bump this user's messages posted counter. */
 	lprintf(9, "Updating user\n");
 	lgetuser(&CC->usersupp, CC->curr_user);
@@ -2259,8 +2269,8 @@ struct recptypes *validate_recipients(char *recipients) {
 		}
 	}
 
-	if ((ret->num_local + ret->num_internet +
-	   ret->num_ignet + ret->num_error) == 0) {
+	if ((ret->num_local + ret->num_internet + ret->num_ignet +
+	   ret->num_room + ret->num_error) == 0) {
 		++ret->num_error;
 		strcpy(ret->errormsg, "No recipients specified.");
 	}
@@ -2324,18 +2334,9 @@ void cmd_ent0(char *entargs)
 		}
 
 		valid = validate_recipients(recp);
-		lprintf(9, "validate_recipients(%s)\n", recp);
-		lprintf(9, " num_local    = %d\n", valid->num_local);
-		lprintf(9, " num_internet = %d\n", valid->num_internet);
-		lprintf(9, " num_ignet    = %d\n", valid->num_ignet);
-		lprintf(9, " num_error    = %d\n", valid->num_error);
-		lprintf(9, " errormsg     = %s\n", valid->errormsg);
-		lprintf(9, " display_recp = %s\n", valid->display_recp);
-
 		if (valid->num_error > 0) {
 			cprintf("%d %s\n",
-				ERROR + NO_SUCH_USER,
-				valid->errormsg);
+				ERROR + NO_SUCH_USER, valid->errormsg);
 			phree(valid);
 			return;
 		}

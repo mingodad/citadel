@@ -48,11 +48,13 @@ struct recptypes {
         int num_local;
         int num_internet;
         int num_ignet;
+	int num_room;
         int num_error;
 	char errormsg[SIZ];
 	char recp_local[SIZ];
 	char recp_internet[SIZ];
 	char recp_ignet[SIZ];
+	char recp_room[SIZ];
 	char display_recp[SIZ];
 };
 
