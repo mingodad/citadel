@@ -154,7 +154,6 @@ static void really_do_keepalive(void) {
 #ifdef THREADED_CLIENT
 static pthread_t ka_thr_handle;
 static int ka_thr_active = 0;
-static pthread_mutex_t ka_thr_mutex = PTHREAD_MUTEX_INITIALIZER;
 static int async_ka_enabled = 0;
 
 static void *ka_thread(void *arg)
@@ -168,11 +167,6 @@ static void *ka_thread(void *arg)
 /* start up a thread to handle a keepalive in the background */
 static void async_ka_exec(void)
 {
-	if (ka_thr_active)
-		return;
-
-	pthread_mutex_lock(&ka_thr_mutex);
-
 	if (!ka_thr_active) {
 		ka_thr_active = 1;
 		if (pthread_create(&ka_thr_handle, NULL, ka_thread, NULL)) {
@@ -180,7 +174,6 @@ static void async_ka_exec(void)
 			exit(1);
 		}
 	}
-	pthread_mutex_unlock(&ka_thr_mutex);
 }
 #endif /* THREADED_CLIENT */
 
