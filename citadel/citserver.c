@@ -572,7 +572,8 @@ void cmd_term(char *cmdbuf)
 	lprintf(9, "session_to_kill == %d\n", session_to_kill);
 
 	if (session_to_kill > 0) {
-		kill_session(ccptr->cs_pid);
+		lprintf(9, "calling kill_session()\n");
+		kill_session(session_to_kill);
 		cprintf("%d Session terminated.\n", OK);
 		}
 	else {

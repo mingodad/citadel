@@ -479,12 +479,21 @@ void cleanup(int exit_code)
  */
 void kill_session(int session_to_kill) {
 	struct CitContext *ptr;
+	THREAD killme = 0;
 
-	/* FIX ... do a lock-discover-unlock-kill sequence here. */
+	lprintf(9, "kill_session() scanning for thread to cancel...\n");
+	begin_critical_section(S_SESSION_TABLE);
 	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 		if (ptr->cs_pid == session_to_kill) {
-			pthread_cancel(ptr->mythread);
+			killme = ptr->mythread;
 			}
+		}
+	end_critical_section(S_SESSION_TABLE);
+	lprintf(9, "kill_session() finished scanning.\n");
+
+	if (killme != 0) {
+		lprintf(9, "calling pthread_cancel()\n");
+		pthread_cancel(killme);
 		}
 	}
 
