@@ -135,6 +135,7 @@ int lgetroom(struct quickroom *qrbuf, char *room_name)
 
 /*
  * putroom()  -  store room data on disk
+ *		(if the supplied buffer is NULL, delete the room record)
  */
 void putroom(struct quickroom *qrbuf, char *room_name)
 {
@@ -145,9 +146,16 @@ void putroom(struct quickroom *qrbuf, char *room_name)
 		lowercase_name[a] = tolower(room_name[a]);
 		}
 
-	time(&qrbuf->QRmtime);
-	cdb_store(CDB_QUICKROOM, lowercase_name, strlen(lowercase_name),
-		qrbuf, sizeof(struct quickroom));
+	if (qrbuf == NULL) {
+		cdb_delete(CDB_QUICKROOM,
+			lowercase_name, strlen(lowercase_name));
+		}
+	else {
+		time(&qrbuf->QRmtime);
+		cdb_store(CDB_QUICKROOM,
+			lowercase_name, strlen(lowercase_name),
+			qrbuf, sizeof(struct quickroom));
+		}
 	}
 
 
@@ -250,17 +258,22 @@ void get_msglist(struct quickroom *whichroom) {
 	struct cdbdata *cdbfr;
 	char dbkey[256];
 	int a;
-
+	
+	lprintf(9, "get_msglist() called for <%s>\n", whichroom->QRname);
 	sprintf(dbkey, "%s%ld", whichroom->QRname, whichroom->QRgen);
 	for (a=0; a<strlen(dbkey); ++a) dbkey[a]=tolower(dbkey[a]);
-
+	lprintf(9, "database key is <%s>\n", dbkey);
+	
+	lprintf(9, "Freeing existing message list\n");
 	if (CC->msglist != NULL) {
 		free(CC->msglist);
 		}
 	CC->msglist = NULL;
 	CC->num_msgs = 0;
 
+	lprintf(9, "calling cdb_fetch\n");
 	cdbfr = cdb_fetch(CDB_MSGLISTS, dbkey, strlen(dbkey));
+	lprintf(9, "done\n");
 
 	if (cdbfr == NULL) {
 		return;
@@ -270,6 +283,7 @@ void get_msglist(struct quickroom *whichroom) {
 	memcpy(CC->msglist, cdbfr->ptr, cdbfr->len);
 	CC->num_msgs = cdbfr->len / sizeof(long);
 	cdb_free(cdbfr);
+	lprintf(9, "Leaving get_msglist()\n");
 	}
 
 
@@ -558,9 +572,12 @@ void usergoto(char *where, int display_result)
 	int newmailcount = 0;
 	struct visit vbuf;
 
-	strcpy(CC->cs_room, where);
-	getroom(&CC->quickroom, CC->cs_room);
+	strcpy(CC->quickroom.QRname, where);
+	lprintf(9, "usergoto() fetching room record\n");
+	getroom(&CC->quickroom, where);
+	lprintf(9, "usergoto() fetching user record\n");
 	lgetuser(&CC->usersupp,CC->curr_user);
+	lprintf(9, "usergoto() fetching relationships\n");
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
 	vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
@@ -569,6 +586,7 @@ void usergoto(char *where, int display_result)
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 	lputuser(&CC->usersupp,CC->curr_user);
 
+	lprintf(9, "usergoto() about to check for new mail\n");
 	/* check for new mail */
 	newmailcount = NewMailCount();
 
@@ -576,6 +594,7 @@ void usergoto(char *where, int display_result)
 	if (CC->quickroom.QRinfo > vbuf.v_lastseen) info = 1;
 
 	get_mm();
+	lprintf(9, "Fetching message list for counting...\n");
 	get_msglist(&CC->quickroom);
 	for (a=0; a<CC->num_msgs; ++a) {
 		if (MessageFromList(a)>0L) {
@@ -585,9 +604,9 @@ void usergoto(char *where, int display_result)
 				}
 			}
 		}
+	lprintf(9, "...done counting\n");
 
-
-	if (0) rmailflag = 1; /* FIX to handle mail rooms!!! */
+	if (CC->quickroom.QRflags & QR_MAILBOX) rmailflag = 1;
 	else rmailflag = 0;
 
 	if ( (CC->quickroom.QRroomaide == CC->usersupp.usernum)
@@ -724,7 +743,7 @@ void cmd_rdir(void) {
 		return;
 		}
 
-	getroom(&CC->quickroom, CC->cs_room);
+	getroom(&CC->quickroom, CC->quickroom.QRname);
 	getuser(&CC->usersupp, CC->curr_user);
 
 	if ((CC->quickroom.QRflags & QR_DIRECTORY) == 0) {
@@ -792,13 +811,13 @@ void cmd_getr(void) {
 		return;
 		}
 
-	if ( (!strcasecmp(CC->cs_room, BASEROOM))
-	     || (!strcasecmp(CC->cs_room, AIDEROOM)) ) {
+	if ( (!strcasecmp(CC->quickroom.QRname, BASEROOM))
+	     || (!strcasecmp(CC->quickroom.QRname, AIDEROOM)) ) {
 		cprintf("%d Can't edit this room.\n",ERROR+NOT_HERE);
 		return;
 		}
 
-	getroom(&CC->quickroom, CC->cs_room);
+	getroom(&CC->quickroom, CC->quickroom.QRname);
 	cprintf("%d%c%s|%s|%s|%d|%d\n",
 		OK,check_express(),
 		CC->quickroom.QRname,
@@ -828,8 +847,8 @@ void cmd_setr(char *args) {
 		return;
 		}
 
-	if ( (!strcasecmp(CC->cs_room, BASEROOM))
-	     || (!strcasecmp(CC->cs_room, AIDEROOM)) ) {
+	if ( (!strcasecmp(CC->quickroom.QRname, BASEROOM))
+	     || (!strcasecmp(CC->quickroom.QRname, AIDEROOM)) ) {
 		cprintf("%d Can't edit this room.\n",ERROR+NOT_HERE);
 		return;
 		}
@@ -843,7 +862,7 @@ void cmd_setr(char *args) {
 			}
 		}
 
-	lgetroom(&CC->quickroom, CC->cs_room);
+	lgetroom(&CC->quickroom, CC->quickroom.QRname);
 	extract(buf,args,0); buf[ROOMNAMELEN]=0;
 	strncpy(CC->quickroom.QRname,buf,ROOMNAMELEN-1);
 	extract(buf,args,1); buf[10]=0;
@@ -872,7 +891,7 @@ void cmd_setr(char *args) {
 		CC->quickroom.QRfloor = extract_int(args,5);
 		}
 
-	lputroom(&CC->quickroom, CC->cs_room);
+	lputroom(&CC->quickroom, CC->quickroom.QRname);
 
 	/* adjust the floor reference counts */
 	lgetfloor(&flbuf,old_floor);
@@ -908,8 +927,8 @@ void cmd_geta(void) {
 		return;
 		}
 
-	if ( (!strcasecmp(CC->cs_room, BASEROOM))
-	     || (!strcasecmp(CC->cs_room, AIDEROOM)) ) {
+	if ( (!strcasecmp(CC->quickroom.QRname, BASEROOM))
+	     || (!strcasecmp(CC->quickroom.QRname, AIDEROOM)) ) {
 		cprintf("%d Can't edit this room.\n",ERROR+NOT_HERE);
 		return;
 		}
@@ -951,13 +970,13 @@ void cmd_seta(char *new_ra)
 		newu = usbuf.usernum;
 		}
 
-	lgetroom(&CC->quickroom, CC->cs_room);
+	lgetroom(&CC->quickroom, CC->quickroom.QRname);
 	post_notice = 0;
 	if (CC->quickroom.QRroomaide != newu) {
 		post_notice = 1;
 		}
 	CC->quickroom.QRroomaide = newu;
-	lputroom(&CC->quickroom, CC->cs_room);
+	lputroom(&CC->quickroom, CC->quickroom.QRname);
 
 	/*
 	 * We have to post the change notice _after_ writing changes to 
@@ -1009,15 +1028,61 @@ void cmd_rinf(void) {
 	}
 
 /*
- * aide command: kill the current room
+ * Back end processing to delete a room and everything associated with it
  */
-void cmd_kill(char *argbuf)
-{
-	char aaa[100];
-	int a;
-	int kill_ok;
+void delete_room(struct quickroom *qrbuf) {
 	struct floor flbuf;
 	long MsgToDelete;
+	char aaa[100];
+	int a;
+
+	/* Delete the info file */
+	assoc_file_name(aaa, qrbuf, "info");
+	unlink(aaa);
+
+	/* Delete the image file */
+	assoc_file_name(aaa, qrbuf, "images");
+	unlink(aaa);
+
+	/* first flag the room record as not in use */
+	lgetroom(qrbuf, qrbuf->QRname);
+	qrbuf->QRflags=0;
+
+	/* then delete the messages in the room */
+	lprintf(9, "calling get_msglist()\n");
+	get_msglist(qrbuf);
+	if (CC->num_msgs > 0) for (a=0; a < CC->num_msgs; ++a) {
+		MsgToDelete = MessageFromList(a);
+		lprintf(9, "Deleting message %ld\n", MsgToDelete);
+		cdb_delete(CDB_MSGMAIN, &MsgToDelete, sizeof(long));
+		}
+	lprintf(9, "calling put_msglist()\n");
+	put_msglist(qrbuf);
+	free(CC->msglist);
+	CC->msglist = NULL;
+	CC->num_msgs = 0;
+	lprintf(9, "calling delete_msglist()\n");
+	delete_msglist(qrbuf);
+	lputroom(qrbuf, qrbuf->QRname);
+
+	/* then decrement the reference count for the floor */
+	lgetfloor(&flbuf,(int)(qrbuf->QRfloor));
+	flbuf.f_ref_count = flbuf.f_ref_count - 1;
+	lputfloor(&flbuf,(int)(qrbuf->QRfloor));
+
+	/* Delete the room record from the database! */
+	putroom(NULL, qrbuf->QRname);
+	lprintf(9, "finished with delete_room()\n");
+	}
+
+
+/*
+ * aide command: kill the current room
+ */
+void cmd_kill(char *argbuf) {
+	char aaa[100];
+	char deleted_room_name[ROOMNAMELEN];
+	int kill_ok;
 	
 	kill_ok = extract_int(argbuf,0);
 
@@ -1032,50 +1097,26 @@ void cmd_kill(char *argbuf)
 		return;
 		}
 
-	if ( (!strcasecmp(CC->cs_room, BASEROOM))
-	     || (!strcasecmp(CC->cs_room, AIDEROOM)) ) {
+	if ( (!strcasecmp(CC->quickroom.QRname, BASEROOM))
+	     || (!strcasecmp(CC->quickroom.QRname, AIDEROOM)) ) {
 		cprintf("%d Can't edit this room.\n",ERROR+NOT_HERE);
 		return;
 		}
 
 	if (kill_ok) {
+		strcpy(deleted_room_name, CC->quickroom.QRname);
+		delete_room(&CC->quickroom);	/* Do the dirty work */
+		lprintf(9, "Calling usergoto()\n");
+		usergoto(BASEROOM, 0);		/* Return to the Lobby */
 
-		/* Delete the info file */
-		assoc_file_name(aaa, &CC->quickroom, "info");
-		unlink(aaa);
-
-		/* first flag the room record as not in use */
-		lgetroom(&CC->quickroom, CC->cs_room);
-		CC->quickroom.QRflags=0;
-
-		/* then delete the messages in the room */
-		get_msglist(&CC->quickroom);
-		if (CC->num_msgs > 0) for (a=0; a < CC->num_msgs; ++a) {
-			MsgToDelete = MessageFromList(a);
-			cdb_delete(CDB_MSGMAIN, &MsgToDelete, sizeof(long));
-			}
-		put_msglist(&CC->quickroom);
-		free(CC->msglist);
-		CC->num_msgs = 0;
-		delete_msglist(&CC->quickroom);
-		lputroom(&CC->quickroom, CC->cs_room);
-
-		/*    FIX FIX FIX
-		 * To do at this location in the code:
-		 * 1. Delete the associated files (info, image)
-		 * 2. Delete the room record from the database
-		 */ 
-
-		/* then decrement the reference count for the floor */
-		lgetfloor(&flbuf,(int)CC->quickroom.QRfloor);
-		flbuf.f_ref_count = flbuf.f_ref_count - 1;
-		lputfloor(&flbuf,(int)CC->quickroom.QRfloor);
-
+		lprintf(9, "Composing notice\n");
 		/* tell the world what we did */
-		sprintf(aaa,"%s> killed by %s",CC->quickroom.QRname,CC->curr_user);
+		sprintf(aaa,"%s> killed by %s",
+			deleted_room_name, CC->curr_user);
+		lprintf(9, "Posting notice\n");
 		aide_message(aaa);
-		usergoto(BASEROOM, 0);
-		cprintf("%d '%s' deleted.\n",OK,CC->quickroom.QRname);
+		lprintf(9, "done posting notice\n");
+		cprintf("%d '%s' deleted.\n", OK, deleted_room_name);
 		}
 	else {
 		cprintf("%d ok to delete.\n",OK);
@@ -1107,11 +1148,20 @@ unsigned create_room(char *new_room_name,
 	if (new_room_type == 1) qrbuf.QRflags=(qrbuf.QRflags|QR_GUESSNAME);
 	if (new_room_type == 2) qrbuf.QRflags=(qrbuf.QRflags|QR_PASSWORDED);
 	if (new_room_type == 4) qrbuf.QRflags=(qrbuf.QRflags|QR_MAILBOX);
-	qrbuf.QRroomaide = (-1L);
-	if ((new_room_type > 0)&&(CREATAIDE==1))
+
+	/* If the room is private, and the system administrator has elected
+	 * to automatically grant room aide privileges, do so now; otherwise,
+	 * set the room aide to undefined.
+	 */
+	if ( (qrbuf.QRflags & QR_PRIVATE) && (CREATAIDE==1) ) {
 		qrbuf.QRroomaide=CC->usersupp.usernum;
-	qrbuf.QRhighest = 0L;
-	time(&qrbuf.QRgen);
+		}
+	else {
+		qrbuf.QRroomaide = (-1L);
+		}
+
+	qrbuf.QRhighest = 0L;	/* No messages in this room yet */
+	time(&qrbuf.QRgen);	/* Use a timestamp as the generation number */
 	qrbuf.QRfloor = new_room_floor;
 
 	/* save what we just did... */
@@ -1262,9 +1312,9 @@ void cmd_einf(char *ok)
 	fclose(fp);
 
 	/* now update the room index so people will see our new info */
-	lgetroom(&CC->quickroom,CC->cs_room); /* lock so no one steps on us */
+	lgetroom(&CC->quickroom,CC->quickroom.QRname); /* lock so no one steps on us */
 	CC->quickroom.QRinfo = CC->quickroom.QRhighest + 1L;
-	lputroom(&CC->quickroom,CC->cs_room);
+	lputroom(&CC->quickroom,CC->quickroom.QRname);
 	}
 
 

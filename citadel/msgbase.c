@@ -679,11 +679,14 @@ void save_message(char *mtmp,	/* file containing proper message */
 {
 	char aaa[100];
 	char hold_rm[ROOMNAMELEN];
+	char actual_rm[ROOMNAMELEN];
+	char recipient[256];
 	long newmsgid;
 	char *message_in_memory;
 	struct stat statbuf;
 	size_t templen;
 	FILE *fp;
+	struct usersupp userbuf;
 
 	/* Measure the message */
 	lprintf(9, "Measuring the message\n");
@@ -707,43 +710,57 @@ void save_message(char *mtmp,	/* file containing proper message */
 	free(message_in_memory);
 	if (newmsgid <= 0L) return;
 
+	strcpy(actual_rm, CC->quickroom.QRname);
 	strcpy(hold_rm, "");
+	strcpy(recipient, rec);
 
 	/* If the user is a twit, move to the twit room for posting... */
 	if (TWITDETECT) if (CC->usersupp.axlevel==2) {
-		strcpy(hold_rm, CC->cs_room);
-		strcpy(CC->cs_room, config.c_twitroom);
+		strcpy(hold_rm, actual_rm);
+		strcpy(actual_rm, config.c_twitroom);
+		}
+
+	/* ...or if this is a private message, go to the target mailbox. */
+	if (strlen(recipient) > 0) {
+		mailtype = alias(recipient);
+		if (mailtype == M_LOCAL) {
+			if (getuser(&userbuf, recipient)!=0) {
+				mtsflag = 1; /* User not found, goto Aide */
+				}
+			else {
+				strcpy(hold_rm, actual_rm);
+				MailboxName(actual_rm, &userbuf, MAILROOM);
+				}
+			}
 		}
 
 	/* ...or if this message is destined for Aide> then go there. */
 	if (mtsflag) {
-		strcpy(hold_rm, CC->cs_room);
-		strcpy(CC->cs_room, "Aide");
+		strcpy(hold_rm, actual_rm);
+		strcpy(actual_rm, AIDEROOM);
 		}
 
-	/* ...or if this is a private message, go to the target mailbox. */
-	/* FIX FIX FIX do this! */
 
 	/* This call to usergoto() changes rooms if necessary.  It also
 	 * causes the latest message list to be read into memory.
 	 */
 	lprintf(9, "Changing rooms if necessary...\n");
-	usergoto(CC->cs_room, 0);
+	usergoto(actual_rm, 0);
 
 	/* read in the quickroom record, obtaining a lock... */
-	lprintf(9, "Reading/locking <%s>...\n", CC->cs_room);
-	lgetroom(&CC->quickroom, CC->cs_room);
+	lprintf(9, "Reading/locking <%s>...\n", actual_rm);
+	lgetroom(&CC->quickroom, actual_rm);
 	lprintf(9, "Fetching message list...\n");
 	get_msglist(&CC->quickroom);
 
-	/* FIX here's where we have to to message expiry!! */
+	/* FIX here's where we have to handle message expiry!! */
 
 	/* Now add the new message */
 	CC->num_msgs = CC->num_msgs + 1;
 	CC->msglist = realloc(CC->msglist,
 		((CC->num_msgs) * sizeof(long)) );
 	if (CC->msglist == NULL) {
-		lprintf(3, "ERROR can't realloc message list!\n");
+		lprintf(3, "ERROR: can't realloc message list!\n");
 		}
 	SetMessageInList(CC->num_msgs - 1, newmsgid);
 
@@ -753,8 +770,8 @@ void save_message(char *mtmp,	/* file containing proper message */
 
 	/* update quickroom */
 	CC->quickroom.QRhighest = newmsgid;
-	lprintf(9, "Writing/unlocking room <%s>...\n", CC->cs_room);
-	lputroom(&CC->quickroom,CC->cs_room);
+	lprintf(9, "Writing/unlocking room <%s>...\n", actual_rm);
+	lputroom(&CC->quickroom, actual_rm);
 
 	/* Bump this user's messages posted counter.  Also, if the user is a
 	 * twit, give them access to the twit room.
@@ -765,7 +782,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 	lputuser(&CC->usersupp, CC->curr_user);
 
 	/* Network mail - send a copy to the network program. */
-	if (mailtype!=M_LOCAL) {
+	if ((strlen(recipient)>0)&&(mailtype != M_LOCAL)) {
 		sprintf(aaa,"./network/spoolin/nm.%d",getpid());
 		copy_file(mtmp,aaa);
 		system("exec nohup ./netproc >/dev/null 2>&1 &");
@@ -1122,7 +1139,7 @@ void cmd_dele(char *delstr)
 		}
 	
 	/* get room records, obtaining a lock... */
-	lgetroom(&CC->quickroom,CC->cs_room);
+	lgetroom(&CC->quickroom,CC->quickroom.QRname);
 	get_msglist(&CC->quickroom);
 
 	ok = 0;
@@ -1137,7 +1154,7 @@ void cmd_dele(char *delstr)
 	CC->quickroom.QRhighest = MessageFromList(CC->num_msgs - 1);
 
 	put_msglist(&CC->quickroom);
-	lputroom(&CC->quickroom,CC->cs_room);
+	lputroom(&CC->quickroom,CC->quickroom.QRname);
 	if (ok==1) {
 		cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));
 		cprintf("%d Message deleted.\n",OK);
@@ -1174,7 +1191,7 @@ void cmd_move(char *args)
 		}
 
 	/* yank the message out of the current room... */
-	lgetroom(&CC->quickroom, CC->cs_room);
+	lgetroom(&CC->quickroom, CC->quickroom.QRname);
 	get_msglist(&CC->quickroom);
 
 	foundit = 0;
@@ -1189,7 +1206,7 @@ void cmd_move(char *args)
 		put_msglist(&CC->quickroom);
 		CC->quickroom.QRhighest = MessageFromList((CC->num_msgs)-1);
 		}
-	lputroom(&CC->quickroom,CC->cs_room);
+	lputroom(&CC->quickroom,CC->quickroom.QRname);
 	if (!foundit) {
 		cprintf("%d msg %ld does not exist.\n",ERROR,num);
 		return;

@@ -410,11 +410,9 @@ void cmd_pass(char *buf)
  */
 int purge_user(char *pname) {
 	char filename[64];
+	char mailboxname[ROOMNAMELEN];
 	struct usersupp usbuf;
-	int a;
-	struct cdbdata *cdbmb;
-	long *mailbox;
-	int num_mails;
+	struct quickroom qrbuf;
 
 	if (getuser(&usbuf, pname) != 0) {
 		lprintf(5, "Cannot purge user <%s> - not found\n", pname);
@@ -426,21 +424,14 @@ int purge_user(char *pname) {
 	/* Perform any purge functions registered by server extensions */
 	PerformUserHooks(usbuf.fullname, usbuf.usernum, EVT_PURGEUSER);
 
-	/* delete any messages in the user's mailbox */
-	cdbmb = cdb_fetch(CDB_MAILBOXES, &usbuf.usernum, sizeof(long));
-	if (cdbmb != NULL) {
-		num_mails = cdbmb->len / sizeof(long);
-		mailbox = (long *) cdbmb->ptr;
-		if (num_mails > 0) for (a=0; a<num_mails; ++a) {
-			cdb_delete(CDB_MSGMAIN, &mailbox[a], sizeof(long));
-			}
-		cdb_free(cdbmb);
-		/* now delete the mailbox itself */
-		cdb_delete(CDB_MAILBOXES, &usbuf.usernum, sizeof(long));
-		}
-
 	/* delete any existing user/room relationships */
 	cdb_delete(CDB_VISIT, &usbuf.usernum, sizeof(long));
+
+	/* Delete the user's mailbox and its contents */
+	MailboxName(mailboxname, &usbuf, MAILROOM);
+	if (getroom(&qrbuf, mailboxname)==0) {
+		delete_room(&qrbuf);
+		}
 
 	/* delete the userlog entry */
 	cdb_delete(CDB_USERSUPP, pname, strlen(pname));
@@ -523,7 +514,7 @@ int create_user(char *newusername)
 	if (getuser(&CC->usersupp,CC->curr_user)) {
 		return(ERROR+INTERNAL_ERROR);
 		}
-	
+
 	/* give the user a private mailbox */
 	MailboxName(mailboxname, &CC->usersupp, MAILROOM);
 	create_room(mailboxname, 4, "", 0);
@@ -711,13 +702,6 @@ void cmd_invt_kick(char *iuser, int op)
 		return;
 		}
 
-	/* FIX - with the new relationships scheme we can lock users out,
-	   so it'll make sense to remove this routine */
-	if ( (op==1) && ((CC->quickroom.QRflags&QR_PRIVATE)==0) ) {
-		cprintf("%d Not a private room.\n",ERROR+NOT_HERE);
-		return;
-		}
-
 	if (lgetuser(&USscratch,iuser)!=0) {
 		cprintf("%d No such user.\n",ERROR);
 		return;
@@ -747,12 +731,10 @@ void cmd_invt_kick(char *iuser, int op)
 		CC->usersupp.fullname);
 	aide_message(bbb);
 
-	if ((op==0)&&((CC->quickroom.QRflags&QR_PRIVATE)==0)) {
-		cprintf("%d Ok. (Not a private room, <Z>ap effect only)\n",OK);
-		}
-	else {
-		cprintf("%d Ok.\n",OK);
-		}
+	cprintf("%d %s %s %s.\n",
+		OK, iuser,
+		((op == 1) ? "invited to" : "kicked out of"),
+		CC->quickroom.QRname);
 	return;
 	}
 
@@ -1288,28 +1270,11 @@ void cmd_asup(char *cmdbuf) {
  */
 int NewMailCount() {
 	int num_newmsgs = 0;
-	struct cdbdata *cdbmb;
-	int num_mails;
-	long *mailbox;
-	int a;
 	char mailboxname[32];
 
 	MailboxName(mailboxname, &CC->usersupp, MAILROOM);
-	for (a=0; a<=strlen(mailboxname); ++a) {
-		mailboxname[a] = tolower(mailboxname[a]);
-		}
 
-	cdbmb = cdb_fetch(CDB_MAILBOXES, mailboxname, strlen(mailboxname));
-	if (cdbmb != NULL) {
-		num_mails = cdbmb->len / sizeof(long);
-		mailbox = (long *) cdbmb->ptr;
-		if (num_mails > 0) for (a=0; a<num_mails; ++a) {
-			/*
-			if (message is new FIX FIX FIX)
-				++num_newmsgs;
-			*/
-			}
-		cdb_free(cdbmb);
-		}
+	/* FIX FIX FIX FIX FIX   This needs implementation */
+
 	return(num_newmsgs);
 	}

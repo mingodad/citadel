@@ -127,9 +127,8 @@ struct ChatLine {
 #define CDB_QUICKROOM	2	/* room index                    */
 #define CDB_FLOORTAB	3	/* floor index                   */
 #define CDB_MSGLISTS	4	/* room message lists            */
-#define CDB_MAILBOXES	5	/* mailbox message lists         */
-#define CDB_VISIT	6	/* user/room relationships       */
-#define MAXCDB		7	/* total number of CDB's defined */
+#define CDB_VISIT	5	/* user/room relationships       */
+#define MAXCDB		6	/* total number of CDB's defined */
 
 struct cdbdata {
 	size_t len;

@@ -46,7 +46,6 @@ void defrag_databases(void) {
 	/* defrag the user file, mailboxes, and user/room relationships */
 	begin_critical_section(S_USERSUPP);
 	gdbm_reorganize(gdbms[CDB_USERSUPP]);
-	gdbm_reorganize(gdbms[CDB_MAILBOXES]);
 	gdbm_reorganize(gdbms[CDB_VISIT]);
 	end_critical_section(S_USERSUPP);
 
@@ -115,13 +114,6 @@ void open_databases(void) {
 		GDBM_WRCREAT, 0600, NULL);
 	if (gdbms[CDB_MSGLISTS] == NULL) {
 		lprintf(2, "Cannot open msglists: %s\n",
-			gdbm_strerror(gdbm_errno));
-		}
-
-	gdbms[CDB_MAILBOXES] = gdbm_open("data/mailboxes.gdbm", 0,
-		GDBM_WRCREAT, 0600, NULL);
-	if (gdbms[CDB_MAILBOXES] == NULL) {
-		lprintf(2, "Cannot open mailboxes: %s\n",
 			gdbm_strerror(gdbm_errno));
 		}
 
