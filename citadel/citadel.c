@@ -860,7 +860,7 @@ int main(int argc, char **argv)
 	get_serv_info();
 
 	look_for_ansi();
-	/* cls(0); */
+	cls(0);
 	color(7);
 
 	printf("%-22s\n%s\n%s\n", serv_info.serv_software, serv_info.serv_humannode,

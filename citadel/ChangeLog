@@ -1,4 +1,10 @@
  $Log$
+ Revision 570.15  2000/04/08 03:58:12  nbryant
+  * backed out the previous changes since they didn't look good on some
+    xterms with a blue bold mode. just set the background color to black
+    instead. this makes black-on-white terminals actually readable, if not
+    particularly good looking.
+
  Revision 570.14  2000/04/08 01:36:30  nbryant
   * citadel.c, commands.c: comment out cls() as this wasn't called if
     ansi_color=user anyway, and we have no way of knowing whether the user's
@@ -1826,4 +1832,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
