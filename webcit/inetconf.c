@@ -139,7 +139,13 @@ void display_inetconf(void)
 				wprintf("<font size=-1>(Delete)</font></a></TD></TR>\n");
 			}
 		}
-		wprintf("<TR><TD>&nbsp;</TD><TD ALIGN=RIGHT>(add)</TD></TR></TABLE>\n");
+		wprintf("<FORM METHOD=\"POST\" ACTION=\"/save_inetconf\">\n"
+			"<TR><TD>"
+			"<INPUT TYPE=\"text\" NAME=\"ename\" MAXLENGTH=\"64\">"
+			"<INPUT TYPE=\"hidden\" NAME=\"etype\" VALUE=\"%s\">", ic_keyword[which]);
+		wprintf("</TD><TD ALIGN=RIGHT>"
+			"<INPUT TYPE=\"submit\" NAME=\"oper\" VALUE=\"Add\">"
+			"</TD></TR></TABLE></FORM>\n");
 		do_template("endbox");
 		wprintf("</TD>");
 		if (which % 2 != 0) {
@@ -158,8 +164,42 @@ void display_inetconf(void)
 
 
 void save_inetconf(void) {
+	char buf[SIZ];
+	char ename[SIZ];
+	char etype[SIZ];
+	char newconfig[65536];
 
-	strcpy(WC->ImportantMessage, "FIXME did we do anything?");
+	strcpy(newconfig, "");
+	serv_printf("CONF GETSYS|application/x-citadel-internet-config");
+	serv_gets(buf);
+	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
+		extract(ename, buf, 0);
+		extract(etype, buf, 1);
+		if (strlen(buf) == 0) {
+			/* skip blank lines */
+		}
+		else if ((!strcasecmp(ename, bstr("ename")))
+		   &&   (!strcasecmp(etype, bstr("etype")))
+		   &&	(!strcasecmp(bstr("oper"), "delete"))
+		) {
+			sprintf(WC->ImportantMessage, "%s deleted.", ename);
+		}
+		else {
+			if (strlen(newconfig) > 0) strcat(newconfig, "\n");
+			strcat(newconfig, buf);
+		}
+	}
 
+	serv_printf("CONF PUTSYS|application/x-citadel-internet-config");
+	serv_gets(buf);
+	if (buf[0] == '4') {
+		serv_puts(newconfig);
+		if (!strcasecmp(bstr("oper"), "add")) {
+			serv_printf("%s|%s", bstr("ename"), bstr("etype") );
+			sprintf(WC->ImportantMessage, "%s added.", bstr("ename"));
+		}
+		serv_puts("000");
+	}
+	
 	display_inetconf();
 }
