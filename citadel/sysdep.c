@@ -408,8 +408,6 @@ struct CitContext *MyContext(void) {
  */
 struct CitContext *CreateNewContext(void) {
 	struct CitContext *me, *ptr;
-	int num = 1;
-	int startover = 0;
 
 	me = (struct CitContext *) mallok(sizeof(struct CitContext));
 	if (me == NULL) {
@@ -424,24 +422,43 @@ struct CitContext *CreateNewContext(void) {
 	 */
 	me->state = CON_EXECUTING;
 
+
+	/*
+	 * Generate a unique session number and insert this context into
+	 * the list.
+	 */
 	begin_critical_section(S_SESSION_TABLE);
 
-	/* obtain a unique session number */
-	do {
-		startover = 0;
+	if (ContextList == NULL) {
+		ContextList = me;
+		me->cs_pid = 1;
+		me->next = NULL;
+	}
+
+	else if (ContextList->cs_pid > 1) {
+		me->next = ContextList;
+		ContextList = me;
+		me->cs_pid = 1;
+	}
+
+	else {
 		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
-			if (ptr->cs_pid == num) {
-				++num;
-				startover = 1;
+			if (ptr->next == NULL) {
+				ptr->next = me;
+				me->cs_pid = ptr->cs_pid + 1;
+				me->next = NULL;
+				goto DONE;
+			}
+			else if (ptr->next->cs_pid > (ptr->cs_pid+1)) {
+				me->next = ptr->next;
+				ptr->next = me;
+				me->cs_pid = ptr->cs_pid + 1;
+				goto DONE;
 			}
 		}
-	} while (startover == 1);
+	}
 
-	me->cs_pid = num;
-	me->next = ContextList;
-	ContextList = me;
-	++num_sessions;
-
+DONE:	++num_sessions;
 	end_critical_section(S_SESSION_TABLE);
 	return(me);
 }
