@@ -528,7 +528,6 @@ void imap_select(int num_parms, char *parms[]) {
 
 	imap_load_msgids();
 
-	/* FIXME ... much more info needs to be supplied here */
 	cprintf("* %d EXISTS\r\n", msgs);
 	cprintf("* %d RECENT\r\n", new);
 	cprintf("* FLAGS (\\Deleted \\Seen \\Answered)\r\n");

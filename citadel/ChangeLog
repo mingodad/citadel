@@ -1,4 +1,8 @@
  $Log$
+ Revision 612.13  2003/12/11 04:21:23  ajc
+ * Removed a "FIXME this needs blah blah" comment because blah blah has
+   since been completed
+
  Revision 612.12  2003/12/11 04:06:55  nbryant
  configure.ac: add support for position-independent executables. can be disabled
  with --disable-pie
@@ -5150,4 +5154,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
