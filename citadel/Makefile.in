@@ -252,4 +252,4 @@ realclean: cleaner
 	rm -f Makefile sysdep.h
 
 .depend: $(wildcard *.c) $(wildcard *.h)
-	gcc -MM *.c | sed -e 's#/usr/include/ncurses/curses.h##' > .depend
+	gcc -MM *.c > .depend
