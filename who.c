@@ -50,17 +50,17 @@ void whobbs() {
 			for (wptr = wlist; wptr != NULL; wptr = wptr -> next) {
 				if (wptr->sessionnum == sess) {
 					foundit = 1;
-					if (strcasecmp(user, &wptr->username)) {
+					if (strcasecmp(user, wptr->username)) {
 						sprintf(buf, "%cBR%c%s", 
 							LB, RB, user);
 						strcat(wptr->username, buf);
 						}
-					if (strcasecmp(room, &wptr->roomname)) {
+					if (strcasecmp(room, wptr->roomname)) {
 						sprintf(buf, "%cBR%c%s", 
 							LB, RB, room);
 						strcat(wptr->roomname, buf);
 						}
-					if (strcasecmp(host, &wptr->hostname)) {
+					if (strcasecmp(host, wptr->hostname)) {
 						sprintf(buf, "%cBR%c%s", 
 							LB, RB, host);
 						strcat(wptr->hostname, buf);
@@ -94,7 +94,7 @@ void whobbs() {
 			}
 		}
 	wprintf("</TABLE></CENTER>\n");
-        printf("</BODY></HTML>\n");
+        wprintf("</BODY></HTML>\n");
         wDumpContent();
 	}
 

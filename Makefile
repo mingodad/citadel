@@ -17,8 +17,10 @@ context_loop.o: context_loop.c webcit.h
 
 
 
-webcit: webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o
-	cc webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o -o webcit
+webcit: webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
+	roomops.o tools.o
+	cc webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
+	tools.o roomops.o -o webcit
 
 webcit.o: webcit.c webcit.h
 	cc -c webcit.c
@@ -37,3 +39,9 @@ serv_func.o: serv_func.c webcit.h
 
 who.o: who.c webcit.h
 	cc -c who.c
+
+tools.o: tools.c webcit.h
+	cc -c tools.c
+
+roomops.o: roomops.c webcit.h
+	cc -c roomops.c

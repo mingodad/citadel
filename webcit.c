@@ -174,6 +174,109 @@ void wDumpContent() {
 	wlast = NULL;
 	}
 
+
+void escputs1(strbuf,nbsp)
+char strbuf[];
+int nbsp; {
+	int a;
+
+	for (a=0; a<strlen(strbuf); ++a) {
+		if (strbuf[a]=='<') wprintf("&lt;");
+		else if (strbuf[a]=='>') wprintf("&gt;");
+		else if (strbuf[a]=='&') wprintf("&amp;");
+		else if (strbuf[a]==34) wprintf("&quot;");
+		else if (strbuf[a]==LB) wprintf("<");
+		else if (strbuf[a]==RB) wprintf(">");
+		else if (strbuf[a]==QU) wprintf("\"");
+		else if ((strbuf[a]==32)&&(nbsp==1)) {
+			wprintf("&nbsp;");
+			}
+		else {
+			wprintf("%c", strbuf[a]);
+			}
+		}
+	}
+
+void escputs(strbuf)
+char *strbuf; {
+	escputs1(strbuf,0);
+	}
+
+
+
+char *urlesc(strbuf)
+char strbuf[]; {
+	int a,b,c;
+        char *ec = " #&;`'|*?-~<>^()[]{}$\\";
+	static char outbuf[512];
+	
+	strcpy(outbuf,"");
+
+	for (a=0; a<strlen(strbuf); ++a) {
+		c = 0;
+		for (b=0; b<strlen(ec); ++b) {
+			if (strbuf[a]==ec[b]) c=1;
+			}
+		b = strlen(outbuf);
+		if (c==1) sprintf(&outbuf[b],"%%%02x",strbuf[a]);
+		else sprintf(&outbuf[b],"%c",strbuf[a]);
+		}
+	return(outbuf);
+	}
+
+void urlescputs(strbuf)
+char strbuf[]; {
+	wprintf("%s",urlesc(strbuf));
+	}
+
+
+/*
+ * Look for URL's embedded in a buffer and make them linkable.  We use a
+ * target window in order to keep the BBS session in its own window.
+ */
+void url(buf)
+char buf[]; {
+
+	int pos;
+	int start,end;
+	char ench;
+	char urlbuf[256];
+	char outbuf[256];
+
+	start = (-1);
+	end = strlen(buf);
+	ench = 0;
+
+	for (pos=0; pos<strlen(buf); ++pos) {
+		if (!strncasecmp(&buf[pos],"http://",7)) start = pos;
+		if (!strncasecmp(&buf[pos],"ftp://",6)) start = pos;
+		}
+
+	if (start<0) return;
+
+	if ((start>0)&&(buf[start-1]=='<')) ench = '>';
+	if ((start>0)&&(buf[start-1]=='[')) ench = ']';
+	if ((start>0)&&(buf[start-1]=='(')) ench = ')';
+	if ((start>0)&&(buf[start-1]=='{')) ench = '}';
+
+	for (pos=strlen(buf); pos>start; --pos) {
+		if ((buf[pos]==' ')||(buf[pos]==ench)) end = pos;
+		}
+
+	strncpy(urlbuf,&buf[start],end-start);
+	urlbuf[end-start] = 0;
+
+
+	strncpy(outbuf,buf,start);
+	sprintf(&outbuf[start],"%cA HREF=%c%s%c TARGET=%c%s%c%c%s%c/A%c", 
+		LB,QU,urlbuf,QU,QU,TARGET,QU,RB,urlbuf,LB,RB);
+	strcat(outbuf,&buf[end]);
+	strcpy(buf,outbuf);
+	}
+
+
+
+
 void getz(char *buf) {
 	if (fgets(buf, 256, stdin) == NULL) strcpy(buf, "");
 	else {
@@ -373,8 +476,11 @@ void session_loop() {
 		whobbs();
 		}
 
-	/* When all else fails, display the oops page. */
-	else {
+	else if (!strncasecmp(cmd, "GET /knrooms", 12)) {
+		list_all_rooms_by_floor();
+		}
+
+	else if (!strncasecmp(cmd, "GET /test", 9)) {
 		printf("HTTP/1.0 200 OK\n");
 		output_headers();
 	
@@ -383,6 +489,11 @@ void session_loop() {
 		wprintf("You're in session %d<BR>\n", wc_session);
 		wprintf("</BODY></HTML>\n");
 		wDumpContent();
+		}
+
+	/* When all else fails, display the frameset again. */
+	else {
+		output_frameset();
 		}
 
 	fflush(stdout);
