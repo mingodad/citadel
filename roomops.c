@@ -1055,7 +1055,12 @@ void display_entroom(void)
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 	wprintf("</CENTER>\n");
-	wprintf("</FORM>\n");
+	wprintf("</FORM>\n<HR>");
+	serv_printf("MESG roomaccess");
+	serv_gets(buf);
+	if (buf[0] == '1') {
+		fmout(NULL);
+	}
 	wDumpContent(1);
 }
 
