@@ -48,6 +48,7 @@ struct wc_session {
 	int inpipe[2];			/* Data from webserver to session */
 	int outpipe[2];			/* Data from session to webserver */
 	pthread_mutex_t critter;	/* Critical section uses pipes */
+	time_t lastreq;			/* Timestamp of most recent http */
 	};
 
 struct wc_session *SessionList = NULL;
@@ -56,6 +57,93 @@ extern const char *defaultport;
 
 /* Only one thread may manipulate SessionList at a time... */
 pthread_mutex_t MasterCritter;
+
+
+/*
+ * Grab a lock on the session, so other threads don't try to access
+ * the pipes at the same time.
+ */
+static void lock_session(struct wc_session *session) {
+        printf("Locking session %d...\n", session->session_id);
+        pthread_mutex_lock(&session->critter);
+        printf("   ...got lock\n");
+	}
+
+/*
+ * Let go of the lock.
+ */
+static void unlock_session(struct wc_session *session) {
+	printf("Unlocking.\n");
+	pthread_mutex_unlock(&session->critter);
+	}
+
+/*
+ * Remove a session context from the list
+ */
+void remove_session(struct wc_session *TheSession, int do_lock) {
+	struct wc_session *sptr;
+
+	printf("Removing session.\n");
+	if (do_lock) pthread_mutex_lock(&MasterCritter);
+
+	if (SessionList==TheSession) {
+		SessionList = SessionList->next;
+		}
+	else {
+		for (sptr=SessionList; sptr!=NULL; sptr=sptr->next) {
+			if (sptr->next == TheSession) {
+				sptr->next = TheSession->next;
+				}
+			}
+		}
+
+	close(TheSession->inpipe[1]);
+	close(TheSession->outpipe[0]);
+	if (do_lock) unlock_session(TheSession);
+	free(TheSession);
+
+	pthread_mutex_unlock(&MasterCritter);
+	}
+
+
+
+
+void do_housekeeping(void) {
+	struct wc_session *sptr;
+
+	pthread_mutex_lock(&MasterCritter);
+
+	/* Kill idle sessions */
+	for (sptr=SessionList; sptr!=NULL; sptr=sptr->next) {
+		if ((time(NULL) - (sptr->lastreq)) > (time_t)WEBCIT_TIMEOUT) {
+			kill(sptr->webcit_pid, 15);
+			}
+		}
+
+	/* Remove dead sessions */
+	for (sptr=SessionList; sptr!=NULL; sptr=sptr->next) {
+		if (kill(sptr->webcit_pid, 0)) {
+			remove_session(sptr, 0);
+			}
+		}
+
+	pthread_mutex_unlock(&MasterCritter);
+	}
+
+
+/* 
+ * Wake up occasionally and clean house
+ */
+void housekeeping_loop(void) {
+	while(1) {
+		sleep(HOUSEKEEPING);
+		do_housekeeping();
+		}
+	}
+
+
+
+
 
 int GenerateSessionID(void) {
 	return getpid();
@@ -97,24 +185,6 @@ void req_gets(int sock, char *buf, char *hold) {
 	}
 
 /*
- * Grab a lock on the session, so other threads don't try to access
- * the pipes at the same time.
- */
-static void lock_session(struct wc_session *session) {
-        printf("Locking session %d...\n", session->session_id);
-        pthread_mutex_lock(&session->critter);
-        printf("   ...got lock\n");
-	}
-
-/*
- * Let go of the lock.
- */
-static void unlock_session(struct wc_session *session) {
-	printf("Unlocking.\n");
-	pthread_mutex_unlock(&session->critter);
-	}
-
-/*
  * lingering_close() a`la Apache. see
  * http://www.apache.org/docs/misc/fin_wait_2.html for rationale
  */
@@ -149,34 +219,6 @@ static int lingering_close(int fd) {
 		} while (i != 0 && (i != -1 || errno == EINTR));
 
 	return close(fd);
-	}
-
-/*
- * Remove a session context from the list
- */
-void remove_session(struct wc_session *TheSession) {
-	struct wc_session *sptr;
-
-	printf("Removing session.\n");
-	pthread_mutex_lock(&MasterCritter);
-
-	if (SessionList==TheSession) {
-		SessionList = SessionList->next;
-		}
-	else {
-		for (sptr=SessionList; sptr!=NULL; sptr=sptr->next) {
-			if (sptr->next == TheSession) {
-				sptr->next = TheSession->next;
-				}
-			}
-		}
-
-	close(TheSession->inpipe[1]);
-	close(TheSession->outpipe[0]);
-	unlock_session(TheSession);
-	free(TheSession);
-
-	pthread_mutex_unlock(&MasterCritter);
 	}
 
 /*
@@ -242,7 +284,7 @@ void *context_loop(int sock) {
 	if (TheSession != NULL) {
 		if (kill(TheSession->webcit_pid, 0)) {
 			printf("   Session is *DEAD* !!\n");
-			remove_session(TheSession);
+			remove_session(TheSession, 1);
 			TheSession = NULL;
 			}
 		}
@@ -306,6 +348,7 @@ void *context_loop(int sock) {
 	/* 
 	 * Send the request to the appropriate session...
 	 */
+	TheSession->lastreq = time(NULL);
 	printf("   Writing %d lines of command\n", num_lines);
 	printf("%s\n", &req[0][0]);
 	for (a=0; a<num_lines; ++a) {
@@ -348,7 +391,7 @@ void *context_loop(int sock) {
 	 * remove the context now.
 	 */
 	if (CloseSession) {
-		remove_session(TheSession);
+		remove_session(TheSession, 1);
 		}
 	else {
 end:		unlock_session(TheSession);

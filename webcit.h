@@ -1,6 +1,7 @@
 /* $Id$ */
 
 #define SLEEPING	180			/* TCP connection timeout */
+#define WEBCIT_TIMEOUT	900			/* WebCit session timeout */
 #define PORT_NUM	2000			/* port number to listen on */
 #define SERVER		"WebCit v2.0 (Velma)"	/* who's in da house */
 #define DEVELOPER_ID	0
@@ -12,6 +13,7 @@
 #define RB		(2)
 #define QU		(3)
 #define TARGET		"webcit01"
+#define HOUSEKEEPING	60			/* Housekeeping frequency */
 
 
 #define QR_PERMANENT	1		/* Room does not purge              */

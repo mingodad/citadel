@@ -34,6 +34,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <pthread.h>
+#include <signal.h>
 #include "webcit.h"
 
 #ifndef HAVE_SNPRINTF
@@ -42,6 +43,7 @@ int vsnprintf (char *buf, size_t max, const char *fmt, va_list argp);
 
 int msock;					/* master listening socket */
 extern void *context_loop(int);
+extern void *housekeeping_loop(void);
 extern pthread_mutex_t MasterCritter;
 
 /*
@@ -279,8 +281,21 @@ int main(int argc, char **argv)
 	printf("Attempting to bind to port %d...\n", port);
 	msock = ig_tcp_server(port, 5);
 	printf("Listening on socket %d\n", msock);
+	signal(SIGPIPE, SIG_IGN);
 
 	pthread_mutex_init(&MasterCritter, NULL);
+
+
+
+	/*
+	 * Start up the housekeeping thread
+	 */
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+	pthread_create(&SessThread, &attr,
+		(void* (*)(void*)) housekeeping_loop, NULL);
+
+
 
 	/* 
 	 * Endless loop.  Listen on the master socket.  When a connection
