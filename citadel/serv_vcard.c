@@ -3,11 +3,25 @@
  * 
  * A server-side module for Citadel which supports address book information
  * using the standard vCard format.
- *
+ * 
+ * Copyright (c) 1999-2001 / released under the GNU General Public License
  */
 
+/*
+ * Where we keep messages containing the vCards that source our directory.  It
+ * makes no sense to change this, because you'd have to change it on every
+ * system on the network.  That would be stupid.
+ */
 #define ADDRESS_BOOK_ROOM	"Global Address Book"
+
+/*
+ * Format of the "Extended ID" field of the message containing a user's
+ * vCard.  Doesn't matter what it really looks like as long as it's both
+ * unique and consistent (because we use it for replication checking to
+ * delete the old vCard network-wide when the user enters a new one).
+ */
 #define VCARD_EXT_FORMAT	"Citadel vCard: personal card for %s at %s"
+
 
 #include "sysdep.h"
 #include <stdlib.h>
@@ -58,22 +72,39 @@ unsigned long SYM_VCARD;
 #define VC ((struct vcard_internal_info *)CtdlGetUserData(SYM_VCARD))
 
 
-
+void temporary_FIXME_backend(char *internet_addr, char *citadel_addr) {
+	cprintf("extracted '%s' --> '%s'\n", internet_addr, citadel_addr);
+}
 
 /*
- * Extract Internet e-mail addresses from a message containing a vCard
- * FIXME give this a callback ability
+ * Extract Internet e-mail addresses from a message containing a vCard, and
+ * perform a callback for any found.
  */
-void vcard_extract_internet_addresses(struct CtdlMessage *msg) {
+void vcard_extract_internet_addresses(struct CtdlMessage *msg,
+				void (*callback)(char *, char *) ) {
 	struct vCard *v;
 	char *s;
+	char *addr;
+	char citadel_address[SIZ];
+
+	if (msg->cm_fields['A'] == NULL) return;
+	if (msg->cm_fields['N'] == NULL) return;
+	sprintf(citadel_address, "%s @ %s",
+		msg->cm_fields['A'], msg->cm_fields['N']);
 
 	v = vcard_load(msg->cm_fields['M']);
 	if (v == NULL) return;
 
-	s = vcard_get_prop(v, "email;internet", 0);
+	s = vcard_get_prop(v, "email;internet", 0); /* FIXME handle multiples */
 	if (s != NULL) {
-		lprintf(9, "extracted internet address <%s>\n", s);
+		addr = strdoop(s);
+		striplt(addr);
+		if (strlen(addr) > 0) {
+			if (callback != NULL) {
+				callback(addr, citadel_address);
+			}
+		}
+		phree(addr);
 	}
 
 	vcard_free(v);
@@ -81,14 +112,14 @@ void vcard_extract_internet_addresses(struct CtdlMessage *msg) {
 
 /*
  * Back end function for cmd_igab()
- * FIXME actually write to the database, dumbass...
+ * FIXME use a callback that actually writes to the database, dumbass...
  */
 void vcard_igab_backend(long msgnum, void *data) {
 	struct CtdlMessage *msg;
 
 	msg = CtdlFetchMessage(msgnum);
 	if (msg != NULL) {
-		vcard_extract_internet_addresses(msg);
+		vcard_extract_internet_addresses(msg, temporary_FIXME_backend);
 	}
 
 	CtdlFreeMessage(msg);
