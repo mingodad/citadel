@@ -826,6 +826,8 @@ void process_zaplist(void) {
 	char room[256];
 	char id[256];
 	char node[256];
+	long localzap = 0L;
+	int numzap = 0;
 
 	zaplist = fopen(ZAPLIST, "r");
 	if (zaplist == NULL) {
@@ -857,18 +859,41 @@ void process_zaplist(void) {
 
 		/* And only do the zap if we succeeded */
 		if (!strcasecmp(curr_rm, room)) {
-
-
-
-		/* FIX    not finished */
-
-
+		
+			serv_puts("MSGS ALL|0|1");
+			serv_gets(buf);
+			if (buf[0]=='1') {
+				/* This is bogus, flush and go away */
+				while (serv_gets(buf), strcmp(buf, "000")) ;
+			}
+			else if (buf[0]=='8') {
+				sprintf(buf, "msgn|%s\nnode|%s\n000",
+					id, node);
+				serv_puts(buf);
+				numzap = 0;
+				while (serv_gets(buf), strcmp(buf, "000")) {
+					localzap = atol(buf);
+					++numzap;
+				}
+			}
+	
+			if (numzap > 0) {
+				sprintf(buf, "DELE %ld", localzap);
+				serv_puts(buf);
+				serv_gets(buf);
+				if (buf[0] != '2') {
+					syslog(LOG_ERR, "%s", buf);
+				}
+			}
+			if (numzap > 1) {
+				syslog(LOG_ERR, "Multiple messages are <%s@%s>",
+					id, node);
+			}
+	
 		}
-
 	}
-
 	fclose(zaplist);
-
+	unlink(ZAPLIST);
 }
 
 

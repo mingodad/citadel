@@ -56,7 +56,7 @@ char *msgkeys[] = {
 	"path",
 	"",
 	"rcpt",
-	""
+	"",
 	"time",
 	"subj",
 	"",
@@ -730,6 +730,7 @@ void output_message(char *msgid, int mode, int headers_only)
 	time_t xtime;
 	CIT_UBYTE ch;
 	char allkeys[256];
+	char display_name[256];
 
 	struct CtdlMessage *TheMessage = NULL;
 
@@ -819,32 +820,41 @@ void output_message(char *msgid, int mode, int headers_only)
 
 	if ((mode == MT_CITADEL) || (mode == MT_MIME)) {
 
+		strcpy(display_name, "<unknown>");
 		if (TheMessage->cm_fields['A']) {
 			strcpy(buf, TheMessage->cm_fields['A']);
 			PerformUserHooks(buf, (-1L), EVT_OUTPUTMSG);
 			if (TheMessage->cm_anon_type == MES_ANON)
-				cprintf("from=****");
+				strcpy(display_name, "****");
 			else if (TheMessage->cm_anon_type == MES_AN2)
-				cprintf("from=anonymous");
+				strcpy(display_name, "anonymous");
 			else
-				cprintf("from=%s", buf);
+				strcpy(display_name, buf);
 			if ((is_room_aide())
 			    && ((TheMessage->cm_anon_type == MES_ANON)
 			     || (TheMessage->cm_anon_type == MES_AN2))) {
-				cprintf(" [%s]", buf);
+				sprintf(&display_name[strlen(display_name)],
+					" [%s]", buf);
 			}
-			cprintf("\n");
 		}
 
 		strcpy(allkeys, FORDER);
 		for (i=0; i<strlen(allkeys); ++i) {
 			k = (int) allkeys[i];
-			if ((k != 'A') && (k != 'M')) {
-				if (TheMessage->cm_fields[k] != NULL)
-					cprintf("%s=%s\n",
-						msgkeys[k],
-						TheMessage->cm_fields[k]
+			if (k != 'M') {
+				if (TheMessage->cm_fields[k] != NULL) {
+					if (k == 'A') {
+						cprintf("%s=%s\n",
+							msgkeys[k],
+							display_name);
+					}
+					else {
+						cprintf("%s=%s\n",
+							msgkeys[k],
+							TheMessage->cm_fields[k]
 					);
+					}
+				}
 			}
 		}
 
@@ -1864,7 +1874,8 @@ void cmd_dele(char *delstr)
 	getuser(&CC->usersupp, CC->curr_user);
 	if ((CC->usersupp.axlevel < 6)
 	    && (CC->usersupp.usernum != CC->quickroom.QRroomaide)
-	    && ((CC->quickroom.QRflags & QR_MAILBOX) == 0)) {
+	    && ((CC->quickroom.QRflags & QR_MAILBOX) == 0)
+	    && (!(CC->internal_pgm))) {
 		cprintf("%d Higher access required.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;
