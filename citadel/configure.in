@@ -84,6 +84,10 @@ if test "$GCC" = yes; then
 			CFLAGS="$CFLAGS -Wall -Wno-char-subscripts"
 			PICFLAGS=-fPIC
 		;;
+		*-*-hpux*)
+			SERVER_LDFLAGS="$SERVER_LDFLAGS -Wl,-E"
+			PICFLAGS=-fPIC
+		;;
 		*)
 			CFLAGS="$CFLAGS -Wall -Wstrict-prototypes"
 			SERVER_LDFLAGS="$SERVER_LDFLAGS -rdynamic"
