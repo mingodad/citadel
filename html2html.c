@@ -44,6 +44,7 @@ void output_html(void) {
 	int output_length = 0;
 	char new_window[SIZ];
 	int brak = 0;
+	int alevel = 0;
 	int i;
 	int linklen;
 
@@ -124,7 +125,7 @@ void output_html(void) {
 				"?force_room=_MAIL_&recp=");
 			output_length += 47;
 			ptr = &ptr[16];
-			++brak;
+			++alevel;
 		}
 		/* Make links open in a separate window */
 		else if (!strncasecmp(ptr, "<A HREF=", 8)) {
@@ -133,12 +134,12 @@ void output_html(void) {
 			sprintf(&converted_msg[output_length], new_window);
 			output_length += strlen(new_window);
 			ptr = &ptr[8];
-			++brak;
+			++alevel;
 		}
 		/* Turn anything that looks like a URL into a real link, as long
 		 * as it's not inside a tag already
 		 */
-		else if ( (brak == 0)
+		else if ( (brak == 0) && (alevel == 0)
 		     && (!strncasecmp(ptr, "http://", 7))) {
 				linklen = 0;
 				/* Find the end of the link */
@@ -147,8 +148,11 @@ void output_html(void) {
 					   ||(isspace(ptr[i]))
 					   ||(ptr[i]==10)
 					   ||(ptr[i]==13)
+					   ||(ptr[i]=='(')
 					   ||(ptr[i]==')')
+					   ||(ptr[i]=='<')
 					   ||(ptr[i]=='>')
+					   ||(ptr[i]=='[')
 					   ||(ptr[i]==']')
 					) linklen = i;
 					if (linklen > 0) break;
@@ -182,6 +186,7 @@ void output_html(void) {
 			 */
 			if (*ptr == '<') ++brak;
 			if (*ptr == '>') --brak;
+			if (!strncasecmp(ptr, "</A>", 3)) --alevel;
 			converted_msg[output_length] = *ptr++;
 			converted_msg[++output_length] = 0;
 		}

@@ -1,4 +1,8 @@
 $Log$
+Revision 521.5  2004/06/12 04:26:38  ajc
+* Fixed some garbled output resulting from turning things that look like
+  links into links.
+
 Revision 521.4  2004/06/11 16:09:36  ajc
 * Moved the room graphic to the left of the room name in the banner, to
   make it more consistent with the rest of the site.
@@ -1889,4 +1893,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
