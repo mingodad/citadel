@@ -33,6 +33,10 @@ system. The following are required to install Citadel/UX:
     - TCP/IP
     - the "make" utility (you don't want to try compiling it manually!)
     - Enough disk space to hold all of the programs and data
+    - A record manager or database capable of handling binary large objects
+      (blobs).  The current distribution is designed to work with the free
+      GDBM record manager; however, modifying it to work with others should
+      be straightforward.
  
    
  NOW AVAILABLE:
@@ -192,11 +196,10 @@ You can use this functionality to keep your programs and data in different
 directories, or to run more than one BBS on the same computer.  If you don't
 use the default directory (the one specified in the Makefile), remember to
 specify the directory name again when you start up the server later on.
- 
-   If this is a new installation, the setup program will automatically
-create all of your data files.  Otherwise, it will ask you if you want to
-re-initialize them.  Normally you will answer "no" unless you want to wipe
-out your system for some reason.
+  
+   Unlike in previous versions of Citadel/UX, the setup program is no longer
+responsible for creating empty data files.  This is now done automatically by
+the server the first time it is started.
   
       
  PREPARING TO START THE SERVER
@@ -271,6 +274,11 @@ accomplish the same thing, but this makes it a bit easier.
    
  SPACE FOR ADDING YOUR OWN FEATURES (doors)
  
+   *** PLEASE TAKE NOTE!! ***   This function really represents the "old"
+way of doing things, and it doesn't fit in well with the client/server
+paradigm.  Please consider it "deprecated" because it may be removed at any
+time.
+ 
    The "doorway" feature is just a generic way to add features to the system.
 I called it "Doorway" to make it resemble the doors on non-Unix boards, but as
 we all know, us Unix types don't have to write special code to access the
@@ -297,12 +305,12 @@ less every day.
  
  Mail programs are now elaborate enough that it is trivial to set up Citadel
 to act as your system's local mail delivery agent.  It couples easily with
-either sendmail or smail, or with any other mail system that is capable of
+either sendmail or qmail, or with any other mail system that is capable of
 invoking a separate program to deliver local mail.
  
  Unlike earlier versions of Citadel/UX, there is no longer a need to play
 with rmail or to patch other pieces of your system's existing mailer.  Simply
-make a few quick configurations, compile the Citadel/UX package "as is, and
+make a few quick configurations, compile the Citadel/UX package "as is" and
 you're ready to go.  Here's how to do it:
  
  1. First, open up the config file "internetmail.config" in the "network"
