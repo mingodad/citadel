@@ -29,6 +29,9 @@
 
 struct citsmtp {
 	int command_state;
+	struct usersupp vrfy_buffer;
+	int vrfy_count;
+	char vrfy_match[256];
 };
 
 enum {
@@ -78,11 +81,13 @@ void smtp_hello(char *argbuf, int is_esmtp) {
 void smtp_help(void) {
 	cprintf("214-Here's the frequency, Kenneth:\n");
 	cprintf("214-    EHLO\n");
+	cprintf("214-    EXPN\n");
 	cprintf("214-    HELO\n");
 	cprintf("214-    HELP\n");
 	cprintf("214-    NOOP\n");
 	cprintf("214-    QUIT\n");
-	cprintf("214 I'd tell you more, but then I'd have to kill you.\n");
+	cprintf("214-    VRFY\n");
+	cprintf("214 I could tell you more, but then I'd have to kill you.\n");
 }
 
 
@@ -149,6 +154,107 @@ void smtp_auth(char *argbuf) {
 }
 
 
+/*
+ * Return 0 if a given string fuzzy-matches a Citadel user account
+ *
+ * FIX ... this needs to be updated to match any and all ways of addressing
+ *         a user.  It may even be appropriate to move this out of SMTP and
+ *         into the server core.
+ */
+int fuzzy_match(struct usersupp *us, char *matchstring) {
+	int a;
+
+	for (a=0; a<strlen(us->fullname); ++a) {
+		if (!strncasecmp(&us->fullname[a],
+		   matchstring, strlen(matchstring))) {
+			return 0;
+		}
+	}
+	return -1;
+}
+
+
+/*
+ * Back end for smtp_vrfy() command
+ */
+void smtp_vrfy_backend(struct usersupp *us) {
+
+	if (!fuzzy_match(us, SMTP->vrfy_match)) {
+		++SMTP->vrfy_count;
+		memcpy(&SMTP->vrfy_buffer, us, sizeof(struct usersupp));
+	}
+}
+
+
+/* 
+ * Implements the VRFY (verify user name) command.
+ * Performs fuzzy match on full user names.
+ */
+void smtp_vrfy(char *argbuf) {
+	SMTP->vrfy_count = 0;
+	strcpy(SMTP->vrfy_match, argbuf);
+	ForEachUser(smtp_vrfy_backend);
+
+	if (SMTP->vrfy_count < 1) {
+		cprintf("550 String does not match anything.\n");
+	}
+	else if (SMTP->vrfy_count == 1) {
+		cprintf("250 %s <cit%ld@%s>\n",
+			SMTP->vrfy_buffer.fullname,
+			SMTP->vrfy_buffer.usernum,
+			config.c_fqdn);
+	}
+	else if (SMTP->vrfy_count > 1) {
+		cprintf("553 Request ambiguous: %d users matched.\n",
+			SMTP->vrfy_count);
+	}
+
+}
+
+
+
+/*
+ * Back end for smtp_expn() command
+ */
+void smtp_expn_backend(struct usersupp *us) {
+
+	if (!fuzzy_match(us, SMTP->vrfy_match)) {
+
+		if (SMTP->vrfy_count >= 1) {
+			cprintf("250-%s <cit%ld@%s>\n",
+				SMTP->vrfy_buffer.fullname,
+				SMTP->vrfy_buffer.usernum,
+				config.c_fqdn);
+		}
+
+		++SMTP->vrfy_count;
+		memcpy(&SMTP->vrfy_buffer, us, sizeof(struct usersupp));
+	}
+}
+
+
+/* 
+ * Implements the EXPN (expand user name) command.
+ * Performs fuzzy match on full user names.
+ */
+void smtp_expn(char *argbuf) {
+	SMTP->vrfy_count = 0;
+	strcpy(SMTP->vrfy_match, argbuf);
+	ForEachUser(smtp_expn_backend);
+
+	if (SMTP->vrfy_count < 1) {
+		cprintf("550 String does not match anything.\n");
+	}
+	else if (SMTP->vrfy_count >= 1) {
+		cprintf("250 %s <cit%ld@%s>\n",
+			SMTP->vrfy_buffer.fullname,
+			SMTP->vrfy_buffer.usernum,
+			config.c_fqdn);
+	}
+}
+
+
+
 /* 
  * Main command loop for SMTP sessions.
  */
@@ -181,6 +287,10 @@ void smtp_command_loop(void) {
 		smtp_hello(&cmdbuf[5], 1);
 	}
 
+	else if (!strncasecmp(cmdbuf, "EXPN", 4)) {
+		smtp_expn(&cmdbuf[5]);
+	}
+
 	else if (!strncasecmp(cmdbuf, "HELO", 4)) {
 		smtp_hello(&cmdbuf[5], 0);
 	}
@@ -198,6 +308,10 @@ void smtp_command_loop(void) {
 		CC->kill_me = 1;
 		return;
 		}
+
+	else if (!strncasecmp(cmdbuf, "VRFY", 4)) {
+		smtp_vrfy(&cmdbuf[5]);
+	}
 
 	else {
 		cprintf("500 I'm afraid I can't do that, Dave.\n");
