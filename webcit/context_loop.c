@@ -130,9 +130,9 @@ void *context_loop(int sock) {
 		TheSession = (struct wc_session *)
 			malloc(sizeof(struct wc_session));
 		TheSession->session_id = GenerateSessionID();
-		pthread_mutex_init(&TheSession->critter, NULL);
 		pipe(TheSession->inpipe);
 		pipe(TheSession->outpipe);
+		pthread_mutex_init(&TheSession->critter, NULL);
 		TheSession->next = SessionList;
 		SessionList = TheSession;
 		sprintf(str_session, "%d", TheSession->session_id);

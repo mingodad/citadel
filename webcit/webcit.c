@@ -323,6 +323,8 @@ void output_static(char *what) {
 
 		if (!strncasecmp(&what[strlen(what)-4], ".gif", 4))
 			printf("Content-type: image/gif\n");
+		else if (!strncasecmp(&what[strlen(what)-5], ".html", 5))
+			printf("Content-type: text/html\n");
 		else
 			printf("Content-type: application/octet-stream\n");
 
@@ -484,9 +486,16 @@ void session_loop() {
 		wDumpContent();
 		}
 
-	/* When all else fails, display the frameset again. */
+	/* When all else fails... */
 	else {
-		output_frameset();
+		printf("HTTP/1.0 200 OK\n");
+		output_headers();
+	
+		wprintf("<HTML><HEAD><TITLE>WebCit</TITLE></HEAD><BODY>\n");
+		wprintf("TransactionCount is %d<HR>\n", TransactionCount);
+		wprintf("You're in session %d<BR>\n", wc_session);
+		wprintf("</BODY></HTML>\n");
+		wDumpContent();
 		}
 
 	fflush(stdout);

@@ -46,25 +46,6 @@ void display_login_page() {
 
 
 
-void output_frameset() {
-	printf("HTTP/1.0 200 OK\n");
-	output_headers();
-
-	wprintf("<HTML><HEAD><TITLE>FrameSet</TITLE></HEAD>\n");
-	wprintf("<FRAMESET cols=\"15%, 80%\">\n");
-	wprintf("  <FRAME name=\"left\" src=\"/static/velma.gif\">\n");
-	wprintf("  <FRAME name=\"right\" src=\"/display_main_menu\">\n");
-	wprintf("<NOFRAMES>\n");
-	wprintf("Your browser doesn't support frames.<BR>\n");
-	wprintf("This site uses frames.<BR>\n");
-	wprintf("Therefore, you cannot view this site.<BR>\n");
-	wprintf("Perhaps you should telnet instead?<BR>\n");
-	wprintf("</NOFRAMES>\n");
-	wprintf("</FRAMESET></HTML>\n");
-	wDumpContent();
-	}
-
-
 /*
  * This function needs to get called whenever a PASS or NEWU succeeds
  */
@@ -93,7 +74,7 @@ void do_login() {
 		}
 
 	if (logged_in) {
-		output_frameset();
+		output_static("frameset.html");
 		}
 	else {
 		printf("HTTP/1.0 200 OK\n");
