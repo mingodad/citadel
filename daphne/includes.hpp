@@ -218,7 +218,13 @@ class RoomView : public wxMDIChildFrame {
 public:
 	RoomView(CitClient *sock, wxMDIParentFrame *MyMDI, wxString roomname);
 private:
+	void OnButtonPressed(wxCommandEvent& whichbutton);
 	CitClient *citsock;
+	DECLARE_EVENT_TABLE()
+	void do_readloop(wxString readcmd);
+	wxTextCtrl *message_window;
+        wxPanel *banner;
+        wxButton *close_button;
 };
 
 

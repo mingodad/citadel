@@ -155,7 +155,6 @@ void RoomTree::OnDoubleClick(wxTreeEvent& evt) {
 	// Ok, it's a room, so go there.
 	r = (RoomItem *)GetItemData(itemId);
 
-	cout << r->RoomName << "\n";
 	new RoomView(citsock, citMyMDI, r->RoomName);
 }
 

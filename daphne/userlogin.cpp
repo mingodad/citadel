@@ -57,6 +57,7 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 
 	wxString sendcmd, recvcmd;
 	wxStringList xferbuf;
+	wxPanel *banner;
 
 	citsock = sock;
 	citMyMDI = MyMDI;
@@ -135,23 +136,38 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 		wxTE_MULTILINE | wxTE_READONLY,
 		wxDefaultValidator, "");
 
-	wxStaticText *humannode = new wxStaticText(
-		this, -1, citsock->HumanNode,
-		wxDefaultPosition, wxDefaultSize, 0, "");
-	humannode->SetBackgroundColour(wxColour(0x00, 0x00, 0x77));
-	humannode->SetForegroundColour(wxColour(0xFF, 0xFF, 0x00));
-	/*humannode->SetFont(wxFont(24, wxDEFAULT, wxNORMAL, wxNORMAL,
-				FALSE, ""));*/
+
+
+        // Set up a panel for the title...
+        banner = new wxPanel(this, -1);
+        banner->SetBackgroundColour(wxColour(0x00, 0x00, 0x77));
+        banner->SetForegroundColour(wxColour(0xFF, 0xFF, 0x00));
+        wxLayoutConstraints *b1 = new wxLayoutConstraints;
+        b1->top.SameAs(this, wxTop, 2);
+        b1->left.SameAs(this, wxLeft, 2);
+        b1->right.SameAs(this, wxRight, 2);
+        b1->height.PercentOf(this, wxHeight, 25);
+        banner->SetConstraints(b1);
 
 	wxLayoutConstraints *t1 = new wxLayoutConstraints;
-	t1->top.SameAs(this, wxTop, 10);
+	t1->top.SameAs(this, wxTop, 5);
+	t1->left.SameAs(this, wxLeft, 5);
+	t1->right.SameAs(this, wxRight, 5);
 	t1->height.AsIs();
-	t1->centreX.SameAs(this, wxCentreX);
-	t1->width.AsIs();
-	humannode->SetConstraints(t1);
+	banner->SetConstraints(t1);
+
+        wxStaticText *rname = new wxStaticText(banner, -1, citsock->HumanNode);
+        rname->SetFont(wxFont(18, wxDEFAULT, wxNORMAL, wxNORMAL));
+        rname->SetForegroundColour(wxColour(0xFF, 0xFF, 0x00));
+        wxLayoutConstraints *t2 = new wxLayoutConstraints;
+        t2->top.SameAs(banner, wxTop, 1);
+        t2->centreX.SameAs(banner, wxCentreX);
+        t2->width.SameAs(banner, wxWidth);
+        t2->height.AsIs();
+        rname->SetConstraints(t2);
 
 	wxLayoutConstraints *h0 = new wxLayoutConstraints;
-	h0->top.Below(humannode, 10);
+	h0->top.Below(banner, 10);
 	h0->bottom.Above(username, -10);
 	h0->left.SameAs(this, wxLeft, 10);
 	h0->right.SameAs(this, wxRight, 10);
