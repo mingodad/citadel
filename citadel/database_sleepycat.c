@@ -415,16 +415,18 @@ void close_databases(void)
 	cdb_free_tsd();
 
 	if ((ret = dbenv->txn_checkpoint(dbenv, 0, 0, 0))) {
-		lprintf(CTDL_EMERG, "cdb_*: txn_checkpoint: %s\n", db_strerror(ret));
-		abort();
+		lprintf(CTDL_EMERG,
+			"cdb_*: txn_checkpoint: %s\n",
+			db_strerror(ret));
 	}
 
 	for (a = 0; a < MAXCDB; ++a) {
 		lprintf(CTDL_INFO, "cdb_*: Closing database %d\n", a);
 		ret = dbp[a]->close(dbp[a], 0);
 		if (ret) {
-			lprintf(CTDL_EMERG, "cdb_*: db_close: %s\n", db_strerror(ret));
-			abort();
+			lprintf(CTDL_EMERG,
+				"cdb_*: db_close: %s\n",
+				db_strerror(ret));
 		}
 		
 	}
@@ -432,8 +434,9 @@ void close_databases(void)
         /* Close the handle. */
         ret = dbenv->close(dbenv, 0);
 	if (ret) {
-                lprintf(CTDL_EMERG, "cdb_*: DBENV->close: %s\n", db_strerror(ret));
-		abort();
+                lprintf(CTDL_EMERG,
+			"cdb_*: DBENV->close: %s\n",
+			db_strerror(ret));
         }
 }
 

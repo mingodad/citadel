@@ -1,4 +1,8 @@
  $Log$
+ Revision 640.8  2005/02/16 17:37:16  ajc
+ * Be more aggressive about shutting down when told to.  Getting the
+   databases closed is the highest priority.
+
  Revision 640.7  2005/02/16 04:08:42  ajc
  * newinstall.sh: put the checksum files server-side to avoid
    unnecessary downloads
@@ -6400,3 +6404,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

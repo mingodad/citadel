@@ -171,7 +171,9 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 volatile int time_to_die = 0;
 
 static RETSIGTYPE signal_cleanup(int signum) {
+	lprintf(CTDL_DEBUG, "Signal %d received.\n", signum);
 	time_to_die = 1;
+	master_cleanup();	/* will this work? */
 }
 
 
@@ -525,7 +527,9 @@ void client_write(char *buf, int nbytes)
 	int bytes_written = 0;
 	int retval;
 	int sock;
+#ifndef HAVE_TCP_BUFFERING
 	int old_buffer_len = 0;
+#endif
 
 	if (CC->redirect_fp != NULL) {
 		fwrite(buf, (size_t)nbytes, (size_t)1, CC->redirect_fp);

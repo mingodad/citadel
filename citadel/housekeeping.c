@@ -82,6 +82,7 @@ void check_sched_shutdown(void) {
 	if ((ScheduledShutdown == 1) && (ContextList == NULL)) {
 		lprintf(CTDL_NOTICE, "Scheduled shutdown initiating.\n");
 		time_to_die = 1;
+		master_cleanup();
 	}
 }
 
