@@ -226,7 +226,7 @@ void list_all_rooms_by_floor(void)
 
 	output_headers(1);
 
-	wprintf("<TABLE width=100% border><TR><TH>Floor</TH>");
+	wprintf("<TABLE width=100%% border><TR><TH>Floor</TH>");
 	wprintf("<TH>Rooms with new messages</TH>");
 	wprintf("<TH>Rooms with no new messages</TH></TR>\n");
 
@@ -271,7 +271,7 @@ void list_all_rooms_by_floor(void)
 void zapped_list(void)
 {
 	output_headers(1);
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Zapped (forgotten) rooms</B>\n");
 	wprintf("</TD></TR></TABLE><BR>\n");
@@ -627,7 +627,7 @@ void display_editroom(void)
 
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Room administration</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
@@ -641,7 +641,7 @@ void display_editroom(void)
 		"Edit this room's Info file</A>\n"
 		"</UL>");
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Room editing</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
@@ -943,7 +943,7 @@ void display_entroom(void)
 	}
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Enter (create) a new room</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
@@ -1024,7 +1024,7 @@ void display_private(char *rname, int req_pass)
 
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Goto a private room</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
@@ -1098,7 +1098,7 @@ void display_zap(void)
 {
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Zap (forget) the current room</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
@@ -1163,7 +1163,7 @@ void confirm_delete_room(void)
 		return;
 	}
 	output_headers(1);
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Confirm deletion of room</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");

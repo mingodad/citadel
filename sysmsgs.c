@@ -45,7 +45,7 @@ void display_edit(char *description, char *check_cmd,
 	}
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Edit ");
 	escputs(description);

@@ -39,7 +39,7 @@ void display_siteconfig(void)
 	serv_printf("CONF get");
 	serv_gets(buf);
 	if (buf[0] != '1') {
-        	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+        	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
         	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
         	wprintf("<B>Error</B>\n");
         	wprintf("</FONT></TD></TR></TABLE><BR>\n");
@@ -48,7 +48,7 @@ void display_siteconfig(void)
 		return;
 	}
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>Site configuration");
 	wprintf("</B></FONT></TD></TR></TABLE>\n");
 

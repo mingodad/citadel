@@ -174,7 +174,7 @@ void wDumpContent(int print_standard_html_footer)
 {
 	if (WC->fake_frames) {
 		wprintf("<CENTER><FONT SIZE=-1>"
-			"<TABLE border=0 width=100%><TR>"
+			"<TABLE border=0 width=100%%><TR>"
 			"<TD><A HREF=\"/ungoto\">"
 			"<IMG SRC=\"/static/back.gif\" BORDER=0>"
 			"Ungoto</A></TD>");
@@ -364,13 +364,13 @@ void output_headers(int controlcode)
 
 	if (print_standard_html_head == 1) {
 		wprintf("<A NAME=\"TheTop\"></A>"
-			"<TABLE border=0 width=100%>"
+			"<TABLE border=0 width=100%%>"
 			"<TR VALIGN=TOP><TD VALIGN=LEFT CELLPADDING=0>");
 
 		display_menubar(0);
 
 		wprintf("</TD><TD VALIGN=TOP>"
-			"<TABLE border=0 width=100%><TR VALIGN=TOP>"
+			"<TABLE border=0 width=100%%><TR VALIGN=TOP>"
 			"<TD>\n");
 
 		embed_room_banner(NULL);
@@ -514,7 +514,7 @@ void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
 {
 	wprintf("HTTP/1.0 200 OK\n");
 	output_headers(1);
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=%s><TR><TD>", titlebarcolor);
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=%s><TR><TD>", titlebarcolor);
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>%s</B>\n", titlebarmsg);
 	wprintf("</FONT></TD></TR></TABLE><BR>\n");

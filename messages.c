@@ -102,7 +102,7 @@ void read_message(long msgnum, int is_summary) {
 		wprintf("<STRONG>ERROR:</STRONG> %s<BR>\n", &buf[4]);
 		return;
 	}
-	wprintf("<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=1 BGCOLOR=000077><TR><TD>\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 CELLSPACING=0 CELLPADDING=1 BGCOLOR=000077><TR><TD>\n");
 	wprintf("<FONT ");
 	if (!is_summary) wprintf("SIZE=+1 ");
 	wprintf("COLOR=\"FFFF00\"> ");
@@ -421,7 +421,7 @@ void post_message(void)
 void prompt_for_recipient()
 {
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Send private e-mail</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
@@ -511,7 +511,7 @@ void confirm_delete_msg(void)
 
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Confirm deletion of message</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
@@ -570,7 +570,7 @@ void confirm_move_msg(void)
 
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Confirm move of message</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");

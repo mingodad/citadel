@@ -1,4 +1,8 @@
 $Log$
+Revision 212.10  2000/09/14 11:43:37  error
+Replace occurrences of % throughout the HTML with %% so as to be friendly
+to HP/UX printf() and possibly others.
+
 Revision 212.9  2000/09/13 04:13:59  ajc
 * Completed the initial hack of the variable substitution template thingy.
   Check out static/login.html to see the first template.
@@ -477,3 +481,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

@@ -57,7 +57,7 @@ void userlist(void)
 		wprintf("<EM>%s</EM><BR>\n", &buf[4]);
 		goto DONE;
 	}
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>User list for ");
 	escputs(serv_info.serv_humannode);
@@ -116,7 +116,7 @@ void showuser(void)
 	output_headers(1);
 
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>User profile");
 	wprintf("</B></FONT></TD></TR></TABLE>\n");
 
