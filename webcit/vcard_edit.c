@@ -246,10 +246,12 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	urlescputs(return_to);
 	wprintf("\">\n");
 
-	wprintf("<CENTER>\n");
-                wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
-                wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
-                wprintf("</CENTER></FORM>\n");
+	wprintf("<CENTER>\n"
+		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">"
+		"&nbsp;"
+		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">"
+		"</CENTER></FORM>\n"
+	);
 	
 	do_template("endbox");
 	wDumpContent(1);

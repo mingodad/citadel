@@ -3,10 +3,19 @@
 Send private e-mail
 </SPAN></TD></TR></TABLE>
 
+<?=beginbox_nt>
+<?RECPERROR>
 <CENTER>
+<table border="0" cellspacing="5" cellpadding="5" BGCOLOR="#EEEEEE">
+<TR><TD>
 <FORM METHOD="POST" ACTION="/display_enter">
-Enter recipient:
-<INPUT TYPE="text" NAME="recp" MAXLENGTH="64"><BR>
+Enter recipient(s):&nbsp;
+<INPUT TYPE="text" NAME="recp" MAXLENGTH="64"><BR><BR>
 <INPUT TYPE="submit" NAME="sc" VALUE="Enter message">
+&nbsp;
 <INPUT TYPE="submit" NAME="sc" VALUE="Cancel">
-</FORM></CENTER>
+</FORM>
+<BR>
+</TD></TR></TABLE>
+</CENTER>
+<?=endbox>

@@ -31,9 +31,9 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 		return;
 	}
 	output_headers(3);
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">Set/change %s</SPAN>\n", description);
-	wprintf("</TD></TR></TABLE>\n");
+
+	svprintf("BOXTITLE", WCS_STRING, "Set/change your photo");
+	do_template("beginbox");
 
 	wprintf("<CENTER>\n");
 
@@ -48,14 +48,15 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 	wprintf("as long as it is in GIF format (JPEG, PNG, etc. won't\n");
 	wprintf("work).<BR><BR>\n");
 
-	wprintf("Please select a file to upload:<BR>\n");
+	wprintf("Please select a file to upload:<BR><BR>\n");
 	wprintf("<INPUT TYPE=\"FILE\" NAME=\"filename\" SIZE=\"35\">\n");
-	wprintf("<BR>");
-	wprintf("<INPUT TYPE=\"SUBMIT\" VALUE=\"Upload\">\n");
+	wprintf("<BR><BR>");
+	wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" VALUE=\"Upload\">\n");
 	wprintf("<INPUT TYPE=\"RESET\" VALUE=\"Reset Form\">\n");
+	wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" VALUE=\"Cancel\">\n");
 	wprintf("</FORM>\n");
-	wprintf("<A HREF=\"/display_main_menu\">Cancel</A>\n");
 	wprintf("</CENTER>\n");
+	do_template("endbox");
 	wDumpContent(1);
 }
 
@@ -65,6 +66,11 @@ void do_graphics_upload(char *upl_cmd)
 	int bytes_remaining;
 	int pos = 0;
 	int thisblock;
+
+	if (!strcasecmp(bstr("sc"), "Cancel")) {
+		display_main_menu();
+		return;
+	}
 
 	if (WC->upload_length == 0) {
 		display_error("You didn't upload a file.\n");

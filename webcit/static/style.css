@@ -268,10 +268,10 @@ var sub { font-style: normal }
   float: right
 }
 
-.error {
-  color: #DC143C;
+.errormsg {
+  color: #AA0000;
   background: none;
-  text-decoration: none
+  font-style: italic;
 }
 
 .warning {
