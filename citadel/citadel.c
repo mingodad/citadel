@@ -871,7 +871,7 @@ int main(int argc, char **argv)
 	formout("hello");	/* print the opening greeting */
 	printf("\n");
 
-      GSTA:termn8 = 0;
+GSTA:	termn8 = 0;
 	newnow = 0;
 	do {
 		if (strlen(rc_username) > 0) {
