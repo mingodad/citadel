@@ -21,7 +21,7 @@ void serv_gets(char *strbuf);
 void serv_puts(char *string);
 void whobbs(void);
 void fmout(FILE *fp);
-void wDumpContent(void);
+void wDumpContent(int);
 void serv_printf(const char *format, ...);
 char *bstr(char *key);
 char *urlesc(char *);

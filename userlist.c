@@ -90,8 +90,7 @@ void userlist(void) {
 
 		}
 	wprintf("</TABLE></CENTER>\n");
-DONE:   wprintf("</BODY></HTML>\n");
-        wDumpContent();
+DONE:	wDumpContent(1);
 	}
 
 
@@ -133,6 +132,5 @@ void showuser(void) {
 	serv_printf("RBIO %s",who);
 	serv_gets(buf);
 	if (buf[0]=='1') fmout(NULL);
-	wprintf("</BODY></HTML>\n");
-        wDumpContent();
+        wDumpContent(1);
 	}

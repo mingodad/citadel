@@ -1,3 +1,9 @@
+Fri Jan 29 14:49:49 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* wDumpContent() is now responsible for </BODY></HTML> most of the
+	  time (parameter settable) so that the main menu can easily be
+	  embedded in every page when running in noframes mode
+	* noframes mode selection is now carried in the cookie
+
 Thu Jan 28 20:30:08 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Made the frames stuff less dependent on the HTML TARGET= directive
 	  and more dependent on the HTTP Window-target: directive.

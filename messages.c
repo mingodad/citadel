@@ -249,8 +249,7 @@ void readloop(char *oper) {
 		read_message(msgarr[a], oper);
 		}
 
-DONE:	wprintf("</BODY></HTML>\n");
-	wDumpContent();
+DONE:	wDumpContent(1);
 	}
 
 
@@ -284,8 +283,7 @@ void post_message(void) {
 			}
 		}
 
-	wprintf("</BODY></HTML>\n");
-	wDumpContent();
+	wDumpContent(1);
 	}	
 
 
@@ -368,11 +366,8 @@ void display_enter(void) {
 	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=30 COLS=80 WIDTH=80></TEXTAREA><P>\n");
 
 	wprintf("</FORM></CENTER>\n");
-DONE:	wprintf("</BODY></HTML>\n");
-	wDumpContent();
+DONE:	wDumpContent(1);
 	}
-
-
 
 
 
@@ -409,8 +404,7 @@ void confirm_delete_msg(void) {
 	wprintf("</FORM></CENTER>\n");
 
 	wprintf("</CENTER>\n");
-	wprintf("</BODY></HTML>\n");
-	wDumpContent();
+	wDumpContent(1);
 	}
 
 
@@ -434,8 +428,7 @@ void delete_msg(void) {
 		wprintf("<EM>Message not deleted.</EM><BR>\n");
 		}
 
-	wprintf("</BODY></HTML>\n");
-	wDumpContent();
+	wDumpContent(1);
 	}
 
 
@@ -487,8 +480,7 @@ void confirm_move_msg(void) {
 	wprintf("</FORM></CENTER>\n");
 
 	wprintf("</CENTER>\n");
-	wprintf("</BODY></HTML>\n");
-	wDumpContent();
+	wDumpContent(1);
 	}
 
 
@@ -512,7 +504,6 @@ void move_msg(void) {
 		wprintf("<EM>Message not deleted.</EM><BR>\n");
 		}
 
-	wprintf("</BODY></HTML>\n");
-	wDumpContent();
+	wDumpContent(1);
 	}
 

@@ -178,8 +178,16 @@ int wContentLength(void) {
 	return(len);
 	}
 
-void wDumpContent(void) {
+void wDumpContent(int print_standard_html_footer) {
 	struct webcontent *wptr;
+
+	if (print_standard_html_footer) {
+		if (noframes) {
+			wprintf("<BR>");
+			embed_main_menu();
+			}
+		wprintf("</BODY></HTML>\n");
+		}
 
 	printf("Content-type: text/html\n");
 	printf("Content-length: %d\n", wContentLength());
@@ -282,7 +290,8 @@ void output_headers(int print_standard_html_head, char *target) {
 		printf("Cache-Control: no-store\n");
 		}
 
-	stuff_to_cookie(cookie, wc_session, wc_username, wc_password, wc_roomname);
+	stuff_to_cookie(cookie, wc_session, wc_username, wc_password,
+			wc_roomname, noframes);
 	if (print_standard_html_head==2) {
 		printf("X-WebCit-Session: close\n");
 		printf("Set-cookie: webcit=%s\n", unset);
@@ -446,8 +455,7 @@ void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
 		embed_main_menu();
 		}
 
-        wprintf("</BODY></HTML>\n");
-        wDumpContent();
+        wDumpContent(1);
 	}
 
 void display_error(char *errormessage) {
@@ -535,7 +543,8 @@ void session_loop(void) {
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
 			strcpy(cookie, &buf[15]);
 			cookie_to_stuff(cookie, NULL,
-					c_username, c_password, c_roomname);
+					c_username, c_password, c_roomname,
+					&noframes);
 			}
 
 		if (!strncasecmp(buf, "Content-length: ", 16)) {
@@ -932,8 +941,7 @@ void session_loop(void) {
 		wprintf("Variables: <BR><PRE>\n");
 		dump_vars();
 		wprintf("</PRE><HR>\n");
-		wprintf("</BODY></HTML>\n");
-		wDumpContent();
+		wDumpContent(1);
 		}
 
 	fflush(stdout);

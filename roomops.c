@@ -254,8 +254,7 @@ void list_all_rooms_by_floor(void) {
 		wprintf("</TD></TR>\n");
 		}
 	wprintf("</TABLE>\n");
-	wprintf("</BODY></HTML>\n");
-	wDumpContent();
+	wDumpContent(1);
 	}
 
 
@@ -272,8 +271,7 @@ void zapped_list(void) {
 	listrms("LZRM -1");
 	wprintf("<BR><BR>\n");
 	wprintf("Click on any room to un-zap it and goto that room.\n");
-	wprintf("</BODY></HTML>\n");
-	wDumpContent();
+	wDumpContent(1);
 	}
 	
 
@@ -333,8 +331,8 @@ void gotoroom(char *gname, int display_name)
 		}
 	if (buf[0]!='2') {
 		if (display_name) {
-			wprintf("<EM>%s</EM><BR></BODY></HTML>\n",&buf[4]);
-			wDumpContent();
+			wprintf("<EM>%s</EM><BR>\n",&buf[4]);
+			wDumpContent(1);
 			}
 		return;
 		}
@@ -390,10 +388,7 @@ void gotoroom(char *gname, int display_name)
 		wprintf("<IMG SRC=\"/static/forward.gif\" border=0></A></TD>");
 		wprintf("</TR></TABLE></CENTER>\n");
 
-		if (noframes) embed_main_menu();
-
-		wprintf("</BODY></HTML>\n");
-		wDumpContent();
+		wDumpContent(1);
 		}
 
 	strcpy(wc_roomname, wc_roomname);
@@ -707,8 +702,7 @@ void display_editroom(void) {
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 	wprintf("</CENTER>\n");
 
-	wprintf("</FORM></HTML>\n");
-	wDumpContent();
+	wDumpContent(1);
 	}
 
 
@@ -909,8 +903,8 @@ void display_entroom(void) {
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 	wprintf("</CENTER>\n");
-	wprintf("</FORM></HTML>\n");
-	wDumpContent();
+	wprintf("</FORM>\n");
+	wDumpContent(1);
 	}
 
 
@@ -988,8 +982,8 @@ void display_private(char *rname, int req_pass)
 	
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
-	wprintf("</FORM></HTML>\n");
-	wDumpContent();
+	wprintf("</FORM>\n");
+	wDumpContent(1);
 	}
 
 /* 
@@ -1025,7 +1019,7 @@ void goto_private(void) {
         printf("HTTP/1.0 200 OK\n");
         output_headers(1, "bottom");
 	wprintf("%s\n",&buf[4]);
-	wDumpContent();
+	wDumpContent(1);
 	return;
 	}
 
@@ -1049,8 +1043,8 @@ void display_zap(void) {
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/zap\">\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
-	wprintf("</FORM></HTML>\n");
-	wDumpContent();
+	wprintf("</FORM>\n");
+	wDumpContent(1);
 	}
 
 
@@ -1115,8 +1109,8 @@ void confirm_delete_room(void) {
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Delete\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 
-	wprintf("</FORM></CENTER></BODY></HTML>\n");
-	wDumpContent();
+	wprintf("</FORM></CENTER>\n");
+	wDumpContent(1);
 	}
 
 

@@ -83,8 +83,7 @@ void display_login(char *mesg) {
 	wprintf("and <i>cookies</i>.\n");
 	wprintf("</EM></UL>\n");
 
-	wprintf("</BODY></HTML>\n");
-	wDumpContent();
+	wDumpContent(1);
 	}
 
 
@@ -187,8 +186,7 @@ void do_welcome(void) {
 		wprintf("<HR>");
 		embed_main_menu();
 	
-		wprintf("</BODY></HTML>\n");
-		wDumpContent();
+		wDumpContent(1);
 		}
 
 	else {
@@ -214,9 +212,8 @@ void do_logout(void) {
 	if (buf[0]=='1') fmout(NULL);
 	else wprintf("Goodbye\n");
 
-	wprintf("<HR><A HREF=\"/\">Log in again</A>\n");
-	wprintf("</CENTER></BODY></HTML>\n");
-	wDumpContent();
+	wprintf("<HR><A HREF=\"/\">Log in again</A></CENTER>\n");
+	wDumpContent(1);
 	serv_puts("QUIT");
 	exit(0);
 	}
@@ -250,8 +247,8 @@ void validate(void) {
 	serv_gets(buf);
 
 	if (buf[0]!='3') {
-		wprintf("<EM>%s</EM><BR></BODY></HTML>\n", &buf[4]);
-		wDumpContent();
+		wprintf("<EM>%s</EM><BR>\n", &buf[4]);
+		wDumpContent(1);
 		return;
 		}
 
@@ -288,7 +285,7 @@ void validate(void) {
 			urlesc(user), a, axdefs[a]);
 		}
 	wprintf("</TR></TABLE><CENTER><BR>\n");
-	wDumpContent();
+	wDumpContent(1);
 	}
 
 
@@ -355,8 +352,8 @@ void display_reg(int during_login) {
 		}
 	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Register\">\n");
 	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Cancel\">\n");
-	wprintf("</CENTER></BODY></HTML>\n");
-	wDumpContent();
+	wprintf("</CENTER>\n");
+	wDumpContent(1);
 	}
 
 /*
@@ -424,8 +421,8 @@ void display_changepw(void) {
 	wprintf("</TABLE>\n");	
 	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Change\">\n");
 	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Cancel\">\n");
-	wprintf("</CENTER></BODY></HTML>\n");
-	wDumpContent();
+	wprintf("</CENTER>\n");
+	wDumpContent(1);
 	}
 
 /*

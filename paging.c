@@ -56,8 +56,7 @@ void display_page(void) {
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
 
 	wprintf("</FORM></CENTER>\n");
-        wprintf("</BODY></HTML>\n");
-        wDumpContent();
+        wDumpContent(1);
 	}
 
 /*
@@ -93,8 +92,7 @@ void page_user(void) {
 		wprintf("<EM>%s</EM><BR>\n",&buf[4]);
 		}
 
-        wprintf("</BODY></HTML>\n");
-        wDumpContent();
+        wDumpContent(1);
 	}
 
 
@@ -124,6 +122,5 @@ void do_chat(void) {
 	wprintf("<H2>Oops!</H2>Looks like your browser doesn't support Java, ");
 	wprintf("so you won't be able to access Chat.  Sorry.\n");
 	wprintf("</applet>\n");
-        wprintf("</BODY></HTML>\n");
-        wDumpContent();
+        wDumpContent(1);
 	}

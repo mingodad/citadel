@@ -120,8 +120,8 @@ void display_siteconfig(void) {
 	wprintf("</TABLE><CENTER>");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">\n");
-	wprintf("</CENTER></FORM></BODY></HTML>\n");
-	wDumpContent();
+	wprintf("</CENTER></FORM>\n");
+	wDumpContent(1);
 }
 
 
