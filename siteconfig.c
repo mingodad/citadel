@@ -128,6 +128,10 @@ void display_siteconfig(void)
 		wprintf("<CENTER><H2>Advanced server fine-tuning controls</H2></CENTER>\n");
 	}
 
+	if (!strcasecmp(whichmenu, "ldap")) {
+		wprintf("<CENTER><H2>Citadel LDAP connector configuration</H2></CENTER>\n");
+	}
+
 	serv_printf("CONF get");
 	serv_gets(buf);
 	if (buf[0] != '1') {
