@@ -91,7 +91,7 @@ struct vCard *vcard_load(char *vtext) {
 		colonpos = pattern2(ptr, ":");
 		nlpos = pattern2(ptr, "\n");
 
-		if (nlpos > colonpos > 0) {
+		if ((nlpos > colonpos) && (colonpos > 0)) {
 			namebuf = mallok(colonpos + 1);
 			valuebuf = mallok(nlpos - colonpos + 1);
 			strncpy(namebuf, ptr, colonpos);
