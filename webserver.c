@@ -51,8 +51,8 @@ extern pthread_key_t MyConKey;
 
 
 
-const char *defaulthost = DEFAULT_HOST;
-const char *defaultport = DEFAULT_PORT;
+char *defaulthost = DEFAULT_HOST;
+char *defaultport = DEFAULT_PORT;
 
 pthread_mutex_t AcceptQueue;
 

@@ -112,6 +112,7 @@ void free_urls(void)
 {
 	struct urlcontent *u;
 
+	fprintf(stderr, "freeing urlstrings\n");
 	while (WC->urlstrings != NULL) {
 		free(WC->urlstrings->url_data);
 		u = WC->urlstrings->next;
