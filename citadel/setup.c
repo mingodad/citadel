@@ -153,12 +153,11 @@ void set_init_entry(char *which_entry, char *new_state) {
 /*
  * Locate the name of an inittab entry for a specific program
  */
-void locate_init_entry(char *init_entry, char *program) {
+void locate_init_entry(char *init_entry, char *looking_for) {
 
 	FILE *infp;
 	char buf[SIZ];
 	int have_entry = 0;
-	char looking_for[SIZ];
 	char entry[SIZ];
 	char prog[SIZ];
 
@@ -193,7 +192,7 @@ void locate_init_entry(char *init_entry, char *program) {
 void shutdown_citserver(void) {
 	char looking_for[SIZ];
 
-	snprintf(looking_for, sizeof looking_for, "%s/citserver", BBSDIR);
+	snprintf(looking_for, sizeof looking_for, "%s/citserver", setup_directory);
 	locate_init_entry(citserver_init_entry, looking_for);
 	if (strlen(citserver_init_entry) > 0) {
 		set_init_entry(citserver_init_entry, "off");
@@ -515,7 +514,7 @@ void check_inittab_entry(void)
 	char entryname[5];
 
 	/* Determine the fully qualified path name of citserver */
-	snprintf(looking_for, sizeof looking_for, "%s/citserver", BBSDIR);
+	snprintf(looking_for, sizeof looking_for, "%s/citserver", setup_directory);
 	locate_init_entry(citserver_init_entry, looking_for);
 
 	/* If there's already an entry, then we have nothing left to do. */

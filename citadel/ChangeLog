@@ -1,4 +1,8 @@
  $Log$
+ Revision 626.17  2004/11/02 22:59:20  ajc
+ * setup.c: fixed an incorrect variable name that was causing inittab
+   twiddling to malfunction.
+
  Revision 626.16  2004/11/02 02:47:10  ajc
  * Easy Install: put the log directly in /tmp instead of in the build
    directory so it doesn't get deleted on a failed install.
@@ -6182,4 +6186,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
