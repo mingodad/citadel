@@ -64,7 +64,7 @@ int CtdlIPCTryLogin(const char *username, char *cret);
 int CtdlIPCTryPassword(const char *passwd, char *cret);
 int CtdlIPCCreateUser(const char *username, char *cret);
 int CtdlIPCChangePassword(const char *passwd, char *cret);
-int CtdlIPCKnownRooms(int which, int floor, char *cret, struct march **listing);
+int CtdlIPCKnownRooms(int which, int floor, struct march **listing, char *cret);
 int CtdlIPCGetConfig(struct usersupp **uret, char *cret);
 int CtdlIPCSetConfig(struct usersupp *uret, char *cret);
 int CtdlIPCGotoRoom(const char *room, const char *passwd,

@@ -203,7 +203,7 @@ int CtdlIPCChangePassword(const char *passwd, char *cret)
 /* Caller must free the march list */
 /* which is 0 = LRMS, 1 = LKRN, 2 = LKRO, 3 = LKRA, 4 = LZRM */
 /* floor is -1 for all, or floornum */
-int CtdlIPCKnownRooms(int which, int floor, char *cret, struct march **listing)
+int CtdlIPCKnownRooms(int which, int floor, struct march **listing, char *cret)
 {
 	register int ret;
 	struct march *march = NULL;
@@ -223,12 +223,12 @@ int CtdlIPCKnownRooms(int which, int floor, char *cret, struct march **listing)
 	if (ret / 100 == 1) {
 		struct march *mptr;
 
-		while (strlen(bbb)) {
+		while (bbb && strlen(bbb)) {
 			int a;
 
 			extract_token(aaa, bbb, 0, '\n');
 			a = strlen(aaa);
-			memmove(aaa, bbb + a + 1, strlen(bbb) - a - 1);
+			memmove(bbb, bbb + a + 1, strlen(bbb) - a);
 			mptr = (struct march *) malloc(sizeof (struct march));
 			if (mptr) {
 				mptr->next = NULL;

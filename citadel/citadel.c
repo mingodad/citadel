@@ -472,29 +472,13 @@ void gotonext(void)
 	char buf[SIZ];
 	struct march *mptr, *mptr2;
 	char next_room[ROOMNAMELEN];
+	int r;				/* IPC response code */
 
 	/* Check to see if the march-mode list is already allocated.
 	 * If it is, pop the first room off the list and go there.
 	 */
 	if (march == NULL) {
-		serv_puts("LKRN");
-		serv_gets(buf);
-		if (buf[0] == '1')
-			while (serv_gets(buf), strcmp(buf, "000")) {
-				mptr = (struct march *) malloc(sizeof(struct march));
-				mptr->next = NULL;
-				extract(mptr->march_name, buf, 0);
-				mptr->march_floor = (char) (extract_int(buf, 2) & 0x7F);
-				mptr->march_order = (char) (extract_int(buf, 3) & 0x7F);
-				if (march == NULL) {
-					march = mptr;
-				} else {
-					mptr2 = march;
-					while (mptr2->next != NULL)
-						mptr2 = mptr2->next;
-					mptr2->next = mptr;
-				}
-			}
+		r = CtdlIPCKnownRooms(1, -1, &march, buf);
 /* add _BASEROOM_ to the end of the march list, so the user will end up
  * in the system base room (usually the Lobby>) at the end of the loop
  */

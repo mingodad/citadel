@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.56  2002/06/25 15:13:27  error
+ * gotonext() now uses new IPC code to retrieve room listing
+
  Revision 591.55  2002/06/25 14:21:35  error
  * remove a debugging trap I accidentally left in the code
 
@@ -3773,4 +3776,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
