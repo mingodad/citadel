@@ -1006,6 +1006,7 @@ void network_process_buffer(char *buffer, long size) {
 	char filename[SIZ];
 	FILE *fp;
 	char buf[SIZ];
+	char nexthop[SIZ];
 
 	/* Set default target room to trash */
 	strcpy(target_room, TWITROOM);
@@ -1028,7 +1029,8 @@ void network_process_buffer(char *buffer, long size) {
 		if (strcasecmp(msg->cm_fields['D'], config.c_nodename)) {
 
 			/* route the message */
-			if (is_valid_node(NULL, NULL,
+			strcpy(nexthop, "");
+			if (is_valid_node(nexthop, NULL,
 			   msg->cm_fields['D']) == 0) {
 
 				/* prepend our node to the path */
@@ -1049,9 +1051,11 @@ void network_process_buffer(char *buffer, long size) {
 				serialize_message(&sermsg, msg);
 
 				/* now send it */
+				if (strlen(nexthop) == 0) {
+					strcpy(nexthop, msg->cm_fields['D']);
+				}
 				snprintf(filename, sizeof filename,
-					"./network/spoolout/%s",
-					msg->cm_fields['D']);
+					"./network/spoolout/%s", nexthop);
 				fp = fopen(filename, "ab");
 				if (fp != NULL) {
 					fwrite(sermsg.ser,
