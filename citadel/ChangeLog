@@ -1,3 +1,13 @@
+1999-03-05 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* sysdep.c: add undocumented -r flag to citserver to prevent it from
+	  dropping root permissions.
+
+1999-03-04 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* config.c: error checking in put_config()
+	* setup.c: chgrp files to the login group associated with BBSUID
+	* sysdep.c: copyright 1987-1999; drop root perms; load modules and call
+	  master_startup() after dropping perms
+
 Wed Mar  3 00:00:55 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Prevent buffer overruns in lowercase_name in [get|put]user()
 	* client_chat.c: use citedit() for page composition

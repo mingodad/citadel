@@ -778,6 +778,8 @@ int main(int argc, char **argv)
 	char convbuf[128];
 	fd_set readfds;
 	struct timeval tv;
+	struct passwd *pw;
+	int drop_root_perms = 1;
         
 	/* specify default port name and trace file */
 	strcpy(tracefile, "");
@@ -811,6 +813,12 @@ int main(int argc, char **argv)
 			home_specified = 1;
 			}
 
+		/* -r tells the server not to drop root permissions. don't use
+		 * this unless you know what you're doing. this should be
+		 * removed in the next release if it proves unnecessary. */
+		else if (!strcmp(argv[a], "-r"))
+			drop_root_perms = 0;
+
 		/* any other parameter makes it crash and burn */
 		else {
 			lprintf(1, "citserver: usage: ");
@@ -823,7 +831,7 @@ int main(int argc, char **argv)
 
 	/* Tell 'em who's in da house */
 	lprintf(1, "Multithreaded message server for %s\n", CITADEL);
-	lprintf(1, "Copyright (C) 1987-1998 by Art Cancro.  ");
+	lprintf(1, "Copyright (C) 1987-1999 by Art Cancro.  ");
 	lprintf(1, "All rights reserved.\n\n");
 
 	/* Initialize... */
@@ -832,13 +840,6 @@ int main(int argc, char **argv)
 	/* Load site-specific parameters */
 	lprintf(7, "Loading citadel.config\n");
 	get_config();
-
-        lprintf(7, "Initializing loadable modules\n");
-        DLoader_Init("./modules");
-        lprintf(9, "Modules done initializing.\n");
-
-	/* Do non system dependent startup functions */
-	master_startup();
 
 	/*
 	 * Bind the server to our favourite port.
@@ -850,12 +851,30 @@ int main(int argc, char **argv)
 	lprintf(7, "Listening on socket %d\n", msock);
 
 	/*
-	 * Now that we've bound the socket, change to the BBS user id
-	lprintf(7, "Changing uid to %d\n", BBSUID);
-	if (setuid(BBSUID) != 0) {
-		lprintf(3, "setuid() failed: %s", strerror(errno));
-		}
+	 * Now that we've bound the socket, change to the BBS user id and its
+	 * corresponding group id
 	 */
+	if (drop_root_perms) {
+		if ((pw = getpwuid(BBSUID)) == NULL)
+			lprintf(1, "getpwuid(%d): %s\n", BBSUID,
+				strerror(errno));
+		else if (setgid(pw->pw_gid))
+			lprintf(3, "setgid(%d): %s\n", pw->pw_gid,
+				strerror(errno));
+		lprintf(7, "Changing uid to %d\n", BBSUID);
+		if (setuid(BBSUID) != 0) {
+			lprintf(3, "setuid() failed: %s\n", strerror(errno));
+			}
+		}
+
+	lprintf(7, "Initializing loadable modules\n");
+	DLoader_Init("./modules");
+	lprintf(9, "Modules done initializing.\n");
+
+	/*
+	 * Do non system dependent startup functions.
+	 */
+	master_startup();
 
 	/* 
 	 * Endless loop.  Listen on the master socket.  When a connection

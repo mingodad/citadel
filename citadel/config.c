@@ -60,7 +60,10 @@ void get_config(void) {
 void put_config(void) {
 	FILE *cfp;
 	
-	cfp = fopen("citadel.config", "rb+");
-	fwrite((char *)&config, sizeof(struct config), 1, cfp);
-	fclose(cfp);
+	if ((cfp = fopen("citadel.config", "rb+")) == NULL)
+		perror("citadel.config");
+	else {
+		fwrite((char *)&config, sizeof(struct config), 1, cfp);
+		fclose(cfp);
+		}
 	}

@@ -707,6 +707,7 @@ int main(int argc, char *argv[]) {
 	struct utsname my_utsname;
 	struct passwd *pw;
 	struct hostent *he;
+	gid_t gid;
 
 	/* set an invalid setup type */
 	setup_type = (-1);
@@ -936,13 +937,18 @@ NEW_INST:
 	check_services_entry();		/* Check /etc/services */
 	check_inittab_entry();		/* Check /etc/inittab */
 
+	if ((pw = getpwuid(config.c_bbsuid)) == NULL)
+		gid = getgid();
+	else
+		gid = pw->pw_gid;
+
 	progress("Setting file permissions", 0, 3);
-	chown(".", config.c_bbsuid, getgid());
+	chown(".", config.c_bbsuid, gid);
 	progress("Setting file permissions", 1, 3);
-	chown("citadel.config", config.c_bbsuid, getgid());
+	chown("citadel.config", config.c_bbsuid, gid);
 	progress("Setting file permissions", 2, 3);
-	sprintf(aaa, "find . -exec chown %d {} \\; 2>/dev/null",
-		config.c_bbsuid);
+	sprintf(aaa, "find . -exec chown %d:%d {} \\; 2>/dev/null",
+		config.c_bbsuid, gid);
 	system(aaa);
 	progress("Setting file permissions", 3, 3);
 
