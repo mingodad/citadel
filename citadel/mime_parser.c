@@ -23,6 +23,7 @@
 #include "mime_parser.h"
 #include "sysdep_decls.h"
 #include "server.h"
+#include "tools.h"
 
 
 
