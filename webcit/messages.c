@@ -514,7 +514,7 @@ void read_message(long msgnum) {
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgid\" VALUE=\"%ld\">\n",
 		msgnum);
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"recp\" VALUE=\"");
-	urlescputs(reply_to);
+	escputs(reply_to);
 	wprintf("\">\n");
 
 	if (!strncasecmp(m_subject, "Re:", 2)) {
