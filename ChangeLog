@@ -1,4 +1,9 @@
 $Log$
+Revision 528.6  2005/01/14 04:53:12  ajc
+* Got the three-pane model working not only with web browsers, but also
+  with the disgusting abomination called Internet Explorer.  It is my
+  sincere hope that a tsunami wipes out Redmond.
+
 Revision 528.5  2005/01/13 18:38:08  ajc
 * Insert a newline between </div> and <div id="text">
 
@@ -2169,3 +2174,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
