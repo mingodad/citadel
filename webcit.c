@@ -247,6 +247,7 @@ void urlescputs(char *strbuf)
 
 
 void getz(char *buf) {
+	bzero(buf, 256);
 	if (fgets(buf, 256, stdin) == NULL) strcpy(buf, "");
 	else {
 		while ((strlen(buf)>0)&&(!isprint(buf[strlen(buf)-1])))
