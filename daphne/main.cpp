@@ -56,6 +56,7 @@ private:
 	void OnTestWin(wxCommandEvent& event);
 	void OnUsersMenu(wxCommandEvent& cmd);
 	void OnWindowMenu(wxCommandEvent& cmd);
+        void MyFrame::OnSize(wxSizeEvent& event);
 	wxButton *do_cmd;
 	void InitToolBar(wxToolBar* toolBar);
 
@@ -109,6 +110,7 @@ BEGIN_EVENT_TABLE(	MyFrame, wxMDIParentFrame)
 	EVT_MENU(	WMENU_NEXT,		MyFrame::OnWindowMenu)
 	EVT_MENU(	WMENU_PREVIOUS,		MyFrame::OnWindowMenu)
 	EVT_BUTTON(	BUTTON_DO_CMD,		MyFrame::OnDoCmd)
+        EVT_SIZE(                               MyFrame::OnSize)
 END_EVENT_TABLE()
 
 // Create a new application object: this macro will allow wxWindows to create
@@ -143,8 +145,6 @@ bool Daphne::OnInit()
 
     // Show it and tell the application that it's our main window
     // @@@ what does it do exactly, in fact? is it necessary here?
-    frame->SetAutoLayout(TRUE);
-    frame->Show(TRUE);
     SetTopWindow(frame);
 
     // success: wxApp::OnRun() will be called which will enter the main message
@@ -172,6 +172,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 	RoomList = new RoomTree(this, citadel);
 
+/*
         wxLayoutConstraints *t2 = new wxLayoutConstraints;
         t2->top.SameAs(this, wxTop, 4);
         t2->left.SameAs(this, wxLeft, 0);
@@ -185,8 +186,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	t3->right.SameAs(this, wxRight, 0);
 	t3->bottom.SameAs(this, wxBottom, 0);
 	wxMDIClientWindow *children = GetClientWindow();
-	children->SetConstraints(t3);
-
+        children->SetConstraints(t3);
+   */
 
 	// Set up the toolbar
 
@@ -232,6 +233,11 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	// create a status bar just for fun (by default with 1 pane only)
 	CreateStatusBar(3);
 	SetStatusText("Not connected", 0);
+
+     /*   SetAutoLayout(TRUE);
+        Layout();  */
+        Show(TRUE);
+        
 }
 
 
@@ -357,7 +363,7 @@ void MyFrame::OnConnect(wxCommandEvent& unused) {
 	wxString DefaultHost, DefaultPort;
 
 	DefaultHost = "uncnsrd.mt-kisco.ny.us";
-	DefaultPort = "citadel";
+        DefaultPort = "504";
 
 	if (citadel->IsConnected()) {
 		wxMessageBox("You are currently connected to "
@@ -380,3 +386,11 @@ void MyFrame::OnTestWin(wxCommandEvent& unused) {
 	new TestWindow(citadel, this);
 }
 
+void MyFrame::OnSize(wxSizeEvent& WXUNUSED(event) )
+{
+    int w, h;
+    GetClientSize(&w, &h);
+    
+    RoomList->SetSize(0, 0, 200, h);
+    GetClientWindow()->SetSize(200, 0, w - 200, h);
+}
