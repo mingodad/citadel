@@ -1656,6 +1656,7 @@ void folders(void) {
 		char name[SIZ];
 		int hasnewmsgs;
 		int is_mailbox;
+		int selectable;
 	};
 
 	struct folder *fold = NULL;
@@ -1677,6 +1678,28 @@ void folders(void) {
 		"</TD></TR></TABLE><BR>\n"
 	);
 
+	/* Start with the mailboxes */
+	max_folders = 1;
+	alloc_folders = 1;
+	fold = malloc(sizeof(struct folder));
+	memset(fold, 0, sizeof(struct folder));
+	strcpy(fold[0].name, "My folders");
+
+	/* Then add floors */
+	serv_puts("LFLR");
+	serv_gets(buf);
+	if (buf[0]=='1') while(serv_gets(buf), strcmp(buf, "000")) {
+		if (max_folders >= alloc_folders) {
+			alloc_folders = max_folders + 100;
+			fold = realloc(fold,
+				alloc_folders * sizeof(struct folder));
+		}
+		memset(&fold[max_folders], 0, sizeof(struct folder));
+		extract(fold[max_folders].name, buf, 1);
+		++max_folders;
+	}
+
+	/* Now add rooms */
 	for (p = 0; p < 2; ++p) {
 		if (p == 0) serv_puts("LKRN");
 		else if (p == 1) serv_puts("LKRO");
@@ -1687,6 +1710,7 @@ void folders(void) {
 				fold = realloc(fold,
 					alloc_folders * sizeof(struct folder));
 			}
+			memset(&fold[max_folders], 0, sizeof(struct folder));
 			extract(fold[max_folders].room, buf, 0);
 			if (p == 0) fold[max_folders].hasnewmsgs = 1;
 			flags = extract_int(buf, 1);
@@ -1698,6 +1722,7 @@ void folders(void) {
 					fold[max_folders].room,
 					floor,
 					fold[max_folders].is_mailbox);
+			fold[max_folders].selectable = 1;
 			++max_folders;
 		}
 	}
@@ -1724,30 +1749,32 @@ void folders(void) {
 		levels = num_tokens(fold[i].name, '|');
 		if (levels > oldlevels) {
 			for (k=0; k<(levels-oldlevels); ++k) {
-				wprintf("</UL>");
-				--nests;
-			}
-		}
-		if (levels < oldlevels) {
-			for (k=0; k<(oldlevels-levels); ++k) {
 				wprintf("<UL>");
 				++nests;
 			}
 		}
-
-		wprintf("<LI><A HREF=\"/dotgoto?room=");
-		urlescputs(fold[i].room);
-		wprintf("\">");
-		if (fold[i].hasnewmsgs) wprintf("<B>");
-		extract(buf, fold[i].name, num_tokens(fold[i].name, '|')-1 );
-		escputs(fold[i].name);
-		if (fold[i].hasnewmsgs) wprintf("</B>");
-		wprintf("</A>\n");
+		if (levels < oldlevels) {
+			for (k=0; k<(oldlevels-levels); ++k) {
+				wprintf("</UL>");
+				--nests;
+			}
+		}
 		oldlevels = levels;
+
+		wprintf("<LI>");
+		if (fold[i].selectable) {
+			wprintf("<A HREF=\"/dotgoto?room=");
+			urlescputs(fold[i].room);
+			wprintf("\">");
+		}
+		if (fold[i].hasnewmsgs) wprintf("<B>");
+		extract(buf, fold[i].name, levels-1);
+		escputs(buf);
+		if (fold[i].hasnewmsgs) wprintf("</B>");
+		if (fold[i].selectable) wprintf("</A>\n");
 	}
 	while (nests-- > 0) wprintf("</UL>\n");
 
 	free(fold);
-
 	wDumpContent(1);
 }
