@@ -1,4 +1,10 @@
  $Log$
+ Revision 605.38  2003/04/26 04:22:51  ajc
+ * Removal of individual "remote" lines from message delivery instruction sets
+   was corrupting the end of the set, rendering the "bounceto" line unusable
+   and preventing bounces from being delivered.  Fixed this by explicitly
+   adding a trailing newline when remove_token() strips it.
+
  Revision 605.37  2003/04/25 18:28:47  ajc
  * When rejecting spam, use SMTP error code 550, not 552
 
@@ -4640,4 +4646,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

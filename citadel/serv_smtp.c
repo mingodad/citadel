@@ -1006,7 +1006,6 @@ void smtp_do_bounce(char *instr) {
 	/*
 	 * Now go through the instructions checking for stuff.
 	 */
-
 	for (i=0; i<lines; ++i) {
 		extract_token(buf, instr, i, '\n');
 		extract(key, buf, 0);
@@ -1236,7 +1235,16 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		extract(dsn, buf, 3);
 		if ( (!strcasecmp(key, "remote"))
 		   && ((status==0)||(status==3)||(status==4)) ) {
+
+			/* Remove this "remote" instruction from the set,
+			 * but replace the set's final newline if
+			 * remove_token() stripped it.  It has to be there.
+			 */
 			remove_token(instr, i, '\n');
+			if (instr[strlen(instr)-1] != '\n') {
+				strcat(instr, "\n");
+			}
+
 			--i;
 			--lines;
 			lprintf(9, "SMTP: Trying <%s>\n", addr);
