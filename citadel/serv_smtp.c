@@ -13,9 +13,9 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <limits.h>
+#include <time.h>
 #include "citadel.h"
 #include "server.h"
-#include <time.h>
 #include "sysdep_decls.h"
 #include "citserver.h"
 #include "support.h"
@@ -848,7 +848,11 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	}
 
 	/* If we reach this point, the server is expecting data */
-	CtdlOutputMsg(msgnum, MT_RFC822, 0, 0, NULL, sock, 1);
+
+	CtdlRedirectOutput(NULL, sock);
+	CtdlOutputMsg(msgnum, MT_RFC822, 0, 0, 1);
+	CtdlRedirectOutput(NULL, -1);
+
 	sock_puts(sock, ".");
 	if (sock_gets(sock, buf) < 0) {
 		*status = 4;
@@ -884,6 +888,53 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 
 
 
+/*
+ * smtp_purge_completed_deliveries() is caled by smtp_do_procmsg() to remove
+ * all of the completed deliveries from a set of delivery instructions.
+ *
+ * It returns the number of incomplete deliveries remaining.
+ */
+int smtp_purge_completed_deliveries(char *instr) {
+	int i;
+	int lines;
+	int status;
+	char buf[1024];
+	char key[1024];
+	char addr[1024];
+	char dsn[1024];
+	int completed;
+	int incomplete = 0;
+
+	lines = num_tokens(instr, '\n');
+	for (i=0; i<lines; ++i) {
+		extract_token(buf, instr, i, '\n');
+		extract(key, buf, 0);
+		extract(addr, buf, 1);
+		status = extract_int(buf, 2);
+		extract(dsn, buf, 3);
+
+		completed = 0;
+
+		if (
+		   (!strcasecmp(key, "local"))
+		   || (!strcasecmp(key, "remote"))
+		   || (!strcasecmp(key, "ignet"))
+		   || (!strcasecmp(key, "room"))
+		) {
+			if (status == 2) completed = 1;
+			else ++incomplete;
+		}
+
+		if (completed) {
+			remove_token(instr, i, '\n');
+			--i;
+			--lines;
+		}
+	}
+
+	return(incomplete);
+}
+
 
 /*
  * smtp_do_procmsg()
@@ -902,6 +953,7 @@ void smtp_do_procmsg(long msgnum) {
 	char addr[1024];
 	char dsn[1024];
 	long text_msgid = (-1);
+	int incomplete_deliveries_remaining;
 
 	msg = CtdlFetchMessage(msgnum);
 	if (msg == NULL) {
@@ -980,19 +1032,44 @@ void smtp_do_procmsg(long msgnum) {
 		phree(results);
 	}
 
-	/* Delete the instructions and replace with the updated ones */
-	CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, msgnum, NULL);    
-        msg = mallok(sizeof(struct CtdlMessage));
-	memset(msg, 0, sizeof(struct CtdlMessage));
-	msg->cm_magic = CTDLMESSAGE_MAGIC;
-	msg->cm_anon_type = MES_NORMAL;
-	msg->cm_format_type = FMT_RFC822;
-	msg->cm_fields['M'] = malloc(strlen(instr)+256);
-	sprintf(msg->cm_fields['M'],
-		"Content-type: %s\n\n%s\n", SPOOLMIME, instr);
-	phree(instr);
-	CtdlSaveMsg(msg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL, 1);
-	CtdlFreeMessage(msg);
+
+
+	/*
+	 * Go through the delivery list, deleting completed deliveries
+	 */
+	incomplete_deliveries_remaining = 
+		smtp_purge_completed_deliveries(instr);
+
+
+	/*
+	 * No delivery instructions remain, so delete both the instructions
+	 * message and the message message.
+	 */
+	if (incomplete_deliveries_remaining <= 0)  {
+		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, msgnum, NULL);    
+		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, text_msgid, NULL);    
+	}
+
+
+	/*
+	 * Uncompleted delivery instructions remain, so delete the old
+	 * instructions and replace with the updated ones.
+	 */
+	if (incomplete_deliveries_remaining > 0) {
+		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, msgnum, NULL);    
+        	msg = mallok(sizeof(struct CtdlMessage));
+		memset(msg, 0, sizeof(struct CtdlMessage));
+		msg->cm_magic = CTDLMESSAGE_MAGIC;
+		msg->cm_anon_type = MES_NORMAL;
+		msg->cm_format_type = FMT_RFC822;
+		msg->cm_fields['M'] = malloc(strlen(instr)+256);
+		sprintf(msg->cm_fields['M'],
+			"Content-type: %s\n\n%s\n", SPOOLMIME, instr);
+		phree(instr);
+		CtdlSaveMsg(msg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL, 1);
+		CtdlFreeMessage(msg);
+	}
+
 }
 
 
@@ -1015,13 +1092,6 @@ void smtp_do_queue(void) {
 }
 
 
-/**** FIX  temporary hack to run the queue *****/
-void cmd_qqqq(char *argbuf) {
-	smtp_do_queue();
-	cprintf("%d ok\n", OK);
-}
-
-
 
 /*****************************************************************************/
 /*                      MODULE INITIALIZATION STUFF                          */
@@ -1035,11 +1105,8 @@ char *Dynamic_Module_Init(void)
 	CtdlRegisterServiceHook(SMTP_PORT,
 				smtp_greeting,
 				smtp_command_loop);
-
-	/****  FIX ... temporary hack to run the queue ******/
-	CtdlRegisterProtoHook(cmd_qqqq, "QQQQ", "run the queue");  
-
 	create_room(SMTP_SPOOLOUT_ROOM, 3, "", 0);
+	CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);
 	return "$Id$";
 }
 

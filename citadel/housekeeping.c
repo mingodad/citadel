@@ -97,7 +97,7 @@ void housekeeping_loop(void) {
 			tv.tv_usec = 0;
                 	FD_ZERO(&readfds);
                 	FD_SET(housepipe[0], &readfds);
-                	select(housepipe[0] + 1, &readfds, 0L, 0L, &tv);
+                	select(housepipe[0] + 1, &readfds, NULL, NULL, &tv);
                 	if (FD_ISSET(housepipe[0], &readfds)) {
                         	did_something = 1;
 			}

@@ -20,5 +20,6 @@ void cmd_nset (char *cmdbuf);
 int convert_login (char *NameToConvert);
 void worker_thread (void);
 inline void become_session(struct CitContext *which_con);
+void CtdlRedirectOutput(FILE *fp, int sock);
 
 extern int num_sessions;

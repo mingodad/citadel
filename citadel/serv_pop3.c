@@ -131,7 +131,11 @@ void pop3_add_message(long msgnum) {
 	POP3->msgs[POP3->num_msgs-1].deleted = 0;
 	fp = tmpfile();
 	POP3->msgs[POP3->num_msgs-1].temp = fp;
-	CtdlOutputMsg(msgnum, MT_RFC822, 0, 0, fp, 0, 1);
+
+	CtdlRedirectOutput(fp, -1);
+	CtdlOutputMsg(msgnum, MT_RFC822, 0, 0, 1);
+	CtdlRedirectOutput(NULL, -1);
+
 	POP3->msgs[POP3->num_msgs-1].rfc822_length = ftell(fp);
 }
 

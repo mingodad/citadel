@@ -75,6 +75,8 @@ int num_sessions = 0;				/* Current number of sessions */
 fd_set masterfds;				/* Master sockets etc. */
 int masterhighest;
 
+time_t last_timer = 0L;				/* Last timer hook processing */
+
 
 /*
  * lprintf()  ...   Write logging information
@@ -363,13 +365,27 @@ void client_write(char *buf, int nbytes)
 {
 	int bytes_written = 0;
 	int retval;
+	int sock;
+
+	if (CC->redirect_fp != NULL) {
+		fwrite(buf, nbytes, 1, CC->redirect_fp);
+		return;
+	}
+
+	if (CC->redirect_sock > 0) {
+		sock = CC->redirect_sock;	/* and continue below... */
+	}
+	else {
+		sock = CC->client_socket;
+	}
+
 	while (bytes_written < nbytes) {
-		retval = write(CC->client_socket, &buf[bytes_written],
+		retval = write(sock, &buf[bytes_written],
 			nbytes - bytes_written);
 		if (retval < 1) {
 			lprintf(2, "client_write() failed: %s\n",
 				strerror(errno));
-			CC->kill_me = 1;
+			if (sock == CC->client_socket) CC->kill_me = 1;
 			return;
 		}
 		bytes_written = bytes_written + retval;
@@ -678,7 +694,35 @@ void dead_session_purge(void) {
 }
 
 
-	
+
+
+
+/*
+ * Redirect a session's output to a file or socket.
+ * This function may be called with a file handle *or* a socket (but not
+ * both).  Call with neither to return output to its normal client socket.
+ */
+void CtdlRedirectOutput(FILE *fp, int sock) {
+
+	if (fp != NULL) CC->redirect_fp = fp;
+	else CC->redirect_fp = NULL;
+
+	if (sock > 0) CC->redirect_sock = sock;
+	else CC->redirect_sock = (-1);
+
+}
+
+
+/*
+ * masterCC is the context we use when not attached to a session.  This
+ * function initializes it.
+ */
+void InitializeMasterCC(void) {
+	memset(&masterCC, 0, sizeof(struct CitContext));
+	masterCC.internal_pgm = 1;
+}
+
+
 
 /*
  * Here's where it all begins.
@@ -696,6 +740,9 @@ int main(int argc, char **argv)
         
 	/* specify default port name and trace file */
 	strcpy(tracefile, "");
+
+	/* initialize the master context */
+	InitializeMasterCC();
 
 	/* parse command-line arguments */
 	for (a=1; a<argc; ++a) {
@@ -905,8 +952,13 @@ void worker_thread(void) {
 	struct sockaddr_in fsin;	/* Data for master socket */
 	int alen;			/* Data for master socket */
 	int ssock;			/* Descriptor for client socket */
+	struct timeval tv;
 
 	++num_threads;
+
+	tv.tv_sec = 60;		/* wake up every minute if no input */
+	tv.tv_usec = 0;
+
 	while (!time_to_die) {
 
 		/* 
@@ -932,7 +984,7 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof(fd_set) );
 		}
 		end_critical_section(S_SESSION_TABLE);
 
-		retval = select(highest + 1, &readfds, NULL, NULL, NULL);
+		retval = select(highest + 1, &readfds, NULL, NULL, &tv);
 
 		/* Now figure out who made this select() unblock.
 		 * First, check for an error or exit condition.
@@ -1038,6 +1090,10 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof(fd_set) );
 
 		}
 		dead_session_purge();
+		if ((time(NULL) - last_timer) > 60L) {
+			last_timer = time(NULL);
+			PerformSessionHooks(EVT_TIMER);
+		}
 	}
 
 	/* If control reaches this point, the server is shutting down */	

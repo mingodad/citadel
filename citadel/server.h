@@ -91,14 +91,21 @@ struct CitContext {
 	char dl_is_net;
 	char upload_type;
 
+	/* Redirect this session's output to somewhere else? */
+	FILE *redirect_fp;
+	int redirect_sock;
+
+	/* A linked list of all express messages sent to us. */
 	struct ExpressMessage *FirstExpressMessage;
 
+	/* Masquerade... */
 	char fake_username[32];	/* Fake username <bc>                */
 	char fake_postname[32];	/* Fake postname <bc>                */
 	char fake_hostname[25];	/* Name of the fake hostname <bc>    */
 	char fake_roomname[ROOMNAMELEN];	/* Name of the fake room <bc> */
 
-	struct CtdlSessData *FirstSessData;	/* Allocated session data */
+	/* Dynamically allocated session data */
+	struct CtdlSessData *FirstSessData;
 };
 
 typedef struct CitContext t_context;
@@ -257,8 +264,8 @@ extern struct SessionFunctionHook *SessionHookTable;
 #define EVT_RWHO	7	/* An RWHO command is being executed */
 
 
-
-
+#define EVT_TIMER	50	/* Timer events are called once per minute
+				   and are not tied to any session */
 
 /*
  * UserFunctionHook extensions are used for any type of hook which implements

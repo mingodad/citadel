@@ -1,4 +1,16 @@
 $Log$
+Revision 1.458  2000/02/14 04:36:14  ajc
+* sysdep.c: added new event hook type EVT_TIMER.  Timer event hooks are called
+  once per minute by any worker thread.
+* msgbase.c: removed dependence on nested functions in CtdlOutputMsg() by
+  replacing them with an API call CtdlRedirectOutput() in sysdep.c, which
+  can temporarily redirect a session's output to an arbitrary file or socket.
+* serv_smtp.c: implemented the purging of messages in the queue for which all
+  deliveries have been completed.
+* serv_smtp.c: removed temporary 'QQQQ' server command and replaced it with
+  a timer event hook that runs the queue once per minute (this needs to be
+  made more robust)
+
 Revision 1.457  2000/02/08 21:00:47  ajc
 * Implemented the deprecated "LAST" command in POP3.  Some clients need it.
 * POP3 sessions now set the last-read pointer in Mail>.
@@ -1611,4 +1623,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

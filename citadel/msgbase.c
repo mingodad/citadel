@@ -681,129 +681,15 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
 
 
 /*
- * Get a message off disk.  (returns om_* values found in msgbase.h)
- * 
+ * Callback function for mime parser that wants to display text
  */
-int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
-		int mode,		/* how would you like that message? */
-		int headers_only,	/* eschew the message body? */
-		int do_proto,		/* do Citadel protocol responses? */
-		FILE *outfp,
-		int outsock,
-		int crlf		/* Use CRLF newlines instead of LF? */
-) {
-	int a, i, k;
-	char buf[1024];
-	time_t xtime;
-	CIT_UBYTE ch;
-	char allkeys[256];
-	char display_name[256];
-	struct CtdlMessage *TheMessage;
-	char *mptr;
-	char *nl;	/* newline string */
-
-	/* buffers needed for RFC822 translation */
-	char suser[256];
-	char luser[256];
-	char snode[256];
-	char lnode[256];
-	char mid[256];
-	/*                                       */
-
-
-	/* BEGIN NESTED FUNCTION omprintf() */
-	void omprintf(const char *format, ...) {   
-        	va_list arg_ptr;   
-        	char buf[256];   
-  	 
-        	va_start(arg_ptr, format);   
-        	if (vsnprintf(buf, sizeof buf, format, arg_ptr) == -1)
-			buf[sizeof buf - 2] = '\n';
-		if (outfp != NULL) {
-			fwrite(buf, strlen(buf), 1, outfp);
-		}
-		else if (outsock >= 0) {
-			write(outsock, buf, strlen(buf));
-		}
-		else {
-			client_write(buf, strlen(buf)); 
-		}
-		va_end(arg_ptr);
-	}   
-	/* END NESTED FUNCTION omprintf() */
-
-	/* BEGIN NESTED FUNCTION omfmout() */
-	void omfmout(char *mptr) {
-		int b, c;
-		int real = 0;
-		int old = 0;
-		CIT_UBYTE ch;
-		char aaa[140];
-		char buffer[256];
-
-		strcpy(aaa, "");
-		old = 255;
-		strcpy(buffer, "");
-		c = 1;			/* c is the current pos */
-
-FMTA:		ch = *mptr++;
-		old = real;
-		real = ch;
-		if (ch <= 0)
-			goto FMTEND;
-	
-		if (((ch == 13) || (ch == 10)) && (old != 13) && (old != 10))
-			ch = 32;
-		if (((old == 13) || (old == 10)) && (isspace(real))) {
-			omprintf("%s", nl);
-			c = 1;
-		}
-		if (ch > 126)
-			goto FMTA;
-	
-		if (ch > 32) {
-			if (((strlen(aaa) + c) > (75)) && (strlen(aaa) > (75))) {
-				omprintf("%s%s", nl, aaa);
-				c = strlen(aaa);
-				aaa[0] = 0;
-			}
-			b = strlen(aaa);
-			aaa[b] = ch;
-			aaa[b + 1] = 0;
-		}
-		if (ch == 32) {
-			if ((strlen(aaa) + c) > (75)) {
-				omprintf("%s", nl);
-				c = 1;
-			}
-			omprintf("%s ", aaa);
-			++c;
-			c = c + strlen(aaa);
-			strcpy(aaa, "");
-			goto FMTA;
-		}
-		if ((ch == 13) || (ch == 10)) {
-			omprintf("%s%s", aaa, nl);
-			c = 1;
-			strcpy(aaa, "");
-			goto FMTA;
-		}
-		goto FMTA;
-
-FMTEND:		omprintf("%s%s", aaa, nl);
-	}
-	/* END NESTED FUNCTION omfmout() */
-
-	/* BEGIN NESTED FUNCTION fixed_output() */
-	/*
- 	* Callback function for mime parser that wants to display text
- 	*/
-	void fixed_output(char *name, char *filename, char *partnum, char *disp,
-		  	void *content, char *cbtype, size_t length)
+void fixed_output(char *name, char *filename, char *partnum, char *disp,
+	  	void *content, char *cbtype, size_t length)
 	{
 		char *ptr;
 		char *wptr;
 		size_t wlen;
+		CIT_UBYTE ch;
 	
 		if (!strcasecmp(cbtype, "multipart/alternative")) {
 			strcpy(ma->prefix, partnum);
@@ -828,8 +714,8 @@ FMTEND:		omprintf("%s%s", aaa, nl);
 			wptr = content;
 			while (wlen--) {
 				ch = *wptr++;
-				if (ch==10) omprintf("%s", nl);
-				else omprintf("%c", ch);
+				if (ch==10) cprintf("\r\n");
+				else cprintf("%c", ch);
 			}
 		}
 		else if (!strcasecmp(cbtype, "text/html")) {
@@ -838,18 +724,45 @@ FMTEND:		omprintf("%s%s", aaa, nl);
 			wptr = ptr;
 			while (wlen--) {
 				ch = *wptr++;
-				if (ch==10) omprintf("%s", nl);
-				else omprintf("%c", ch);
+				if (ch==10) cprintf("\r\n");
+				else cprintf("%c", ch);
 			}
 			phree(ptr);
 		}
 		else if (strncasecmp(cbtype, "multipart/", 10)) {
-			omprintf("Part %s: %s (%s) (%d bytes)%s",
-				partnum, filename, cbtype, length, nl);
+			cprintf("Part %s: %s (%s) (%d bytes)\r\n",
+				partnum, filename, cbtype, length);
 		}
 	}
 
-	/* END NESTED FUNCTION fixed_output() */
+
+/*
+ * Get a message off disk.  (returns om_* values found in msgbase.h)
+ * 
+ */
+int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
+		int mode,		/* how would you like that message? */
+		int headers_only,	/* eschew the message body? */
+		int do_proto,		/* do Citadel protocol responses? */
+		int crlf		/* Use CRLF newlines instead of LF? */
+) {
+	int a, i, k;
+	char buf[1024];
+	time_t xtime;
+	CIT_UBYTE ch;
+	char allkeys[256];
+	char display_name[256];
+	struct CtdlMessage *TheMessage;
+	char *mptr;
+	char *nl;	/* newline string */
+
+	/* buffers needed for RFC822 translation */
+	char suser[256];
+	char luser[256];
+	char snode[256];
+	char lnode[256];
+	char mid[256];
+	/*                                       */
 
 	lprintf(7, "CtdlOutputMsg() msgnum=%ld, mode=%d\n", 
 		msg_num, mode);
@@ -987,7 +900,7 @@ FMTEND:		omprintf("%s%s", aaa, nl);
 	strcpy(snode, NODENAME);
 	strcpy(lnode, HUMANNODE);
 	if (mode == MT_RFC822) {
-		omprintf("X-UIDL: %ld%s", msg_num, nl);
+		cprintf("X-UIDL: %ld%s", msg_num, nl);
 		for (i = 0; i < 256; ++i) {
 			if (TheMessage->cm_fields[i]) {
 				mptr = TheMessage->cm_fields[i];
@@ -995,7 +908,7 @@ FMTEND:		omprintf("%s%s", aaa, nl);
 				if (i == 'A') {
 					strcpy(luser, mptr);
 				} else if (i == 'P') {
-					omprintf("Path: %s%s", mptr, nl);
+					cprintf("Path: %s%s", mptr, nl);
 					for (a = 0; a < strlen(mptr); ++a) {
 						if (mptr[a] == '!') {
 							strcpy(mptr, &mptr[a + 1]);
@@ -1004,21 +917,21 @@ FMTEND:		omprintf("%s%s", aaa, nl);
 					}
 					strcpy(suser, mptr);
 				} else if (i == 'U')
-					omprintf("Subject: %s%s", mptr, nl);
+					cprintf("Subject: %s%s", mptr, nl);
 				else if (i == 'I')
 					strcpy(mid, mptr);
 				else if (i == 'H')
 					strcpy(lnode, mptr);
 				else if (i == 'O')
-					omprintf("X-Citadel-Room: %s%s",
+					cprintf("X-Citadel-Room: %s%s",
 						mptr, nl);
 				else if (i == 'N')
 					strcpy(snode, mptr);
 				else if (i == 'R')
-					omprintf("To: %s%s", mptr, nl);
+					cprintf("To: %s%s", mptr, nl);
 				else if (i == 'T') {
 					xtime = atol(mptr);
-					omprintf("Date: %s", asctime(localtime(&xtime)));
+					cprintf("Date: %s", asctime(localtime(&xtime)));
 				}
 			}
 		}
@@ -1028,10 +941,10 @@ FMTEND:		omprintf("%s%s", aaa, nl);
 		if (!strcasecmp(snode, NODENAME)) {
 			strcpy(snode, FQDN);
 		}
-		omprintf("Message-ID: <%s@%s>%s", mid, snode, nl);
+		cprintf("Message-ID: <%s@%s>%s", mid, snode, nl);
 		PerformUserHooks(luser, (-1L), EVT_OUTPUTMSG);
-		omprintf("From: %s@%s (%s)%s", suser, snode, luser, nl);
-		omprintf("Organization: %s%s", lnode, nl);
+		cprintf("From: %s@%s (%s)%s", suser, snode, luser, nl);
+		cprintf("Organization: %s%s", lnode, nl);
 	}
 
 	/* end header processing loop ... at this point, we're in the text */
@@ -1057,8 +970,8 @@ FMTEND:		omprintf("%s%s", aaa, nl);
 			 */
 			while (ch=*(mptr++), ch!=0) {
 				if (ch==13) ;
-				else if (ch==10) omprintf("%s", nl);
-				else omprintf("%c", ch);
+				else if (ch==10) cprintf("%s", nl);
+				else cprintf("%c", ch);
 			}
 			if (do_proto) cprintf("000\n");
 			CtdlFreeMessage(TheMessage);
@@ -1076,7 +989,7 @@ FMTEND:		omprintf("%s%s", aaa, nl);
 	if (mode == MT_CITADEL)
 		if (do_proto) cprintf("text\n");
 	if (mode == MT_RFC822) {
-		omprintf("%s", nl);
+		cprintf("%s", nl);
 	}
 
 	/* If the format type on disk is 1 (fixed-format), then we want
@@ -1089,7 +1002,7 @@ FMTEND:		omprintf("%s%s", aaa, nl);
 			if (ch == 13)
 				ch = 10;
 			if ((ch == 10) || (strlen(buf) > 250)) {
-				omprintf("%s%s", buf, nl);
+				cprintf("%s%s", buf, nl);
 				strcpy(buf, "");
 			} else {
 				buf[strlen(buf) + 1] = 0;
@@ -1097,7 +1010,7 @@ FMTEND:		omprintf("%s%s", aaa, nl);
 			}
 		}
 		if (strlen(buf) > 0)
-			omprintf("%s%s", buf, nl);
+			cprintf("%s%s", buf, nl);
 	}
 
 	/* If the message on disk is format 0 (Citadel vari-format), we
@@ -1108,7 +1021,7 @@ FMTEND:		omprintf("%s%s", aaa, nl);
 	 * message to the reader's screen width.
 	 */
 	if (TheMessage->cm_format_type == FMT_CITADEL) {
-		omfmout(mptr);
+		memfmout(80, mptr, 0);
 	}
 
 	/* If the message on disk is format 4 (MIME), we've gotta hand it
@@ -1141,7 +1054,7 @@ void cmd_msg0(char *cmdbuf)
 	msgid = extract_long(cmdbuf, 0);
 	headers_only = extract_int(cmdbuf, 1);
 
-	CtdlOutputMsg(msgid, MT_CITADEL, headers_only, 1, NULL, -1, 0);
+	CtdlOutputMsg(msgid, MT_CITADEL, headers_only, 1, 0);
 	return;
 }
 
@@ -1157,7 +1070,7 @@ void cmd_msg2(char *cmdbuf)
 	msgid = extract_long(cmdbuf, 0);
 	headers_only = extract_int(cmdbuf, 1);
 
-	CtdlOutputMsg(msgid, MT_RFC822, headers_only, 1, NULL, -1, 1);
+	CtdlOutputMsg(msgid, MT_RFC822, headers_only, 1, 1);
 }
 
 
@@ -1209,7 +1122,7 @@ void cmd_msg4(char *cmdbuf)
 	long msgid;
 
 	msgid = extract_long(cmdbuf, 0);
-	CtdlOutputMsg(msgid, MT_MIME, 0, 1, NULL, -1, 0);
+	CtdlOutputMsg(msgid, MT_MIME, 0, 1, 0);
 }
 
 /*
@@ -1224,7 +1137,7 @@ void cmd_opna(char *cmdbuf)
 	msgid = extract_long(cmdbuf, 0);
 	extract(desired_section, cmdbuf, 1);
 
-	CtdlOutputMsg(msgid, MT_DOWNLOAD, 0, 1, NULL, -1, 1);
+	CtdlOutputMsg(msgid, MT_DOWNLOAD, 0, 1, 1);
 }			
 
 
@@ -2449,7 +2362,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 	FILE *fp, *tempfp;
 	char filename[PATH_MAX];
 	char cmdbuf[256];
-	int ch;
+	char ch;
 	struct quickroom qrbuf;
 	char roomname[ROOMNAMELEN];
 	struct CtdlMessage *msg;
