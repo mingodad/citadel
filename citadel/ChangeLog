@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.62  2002/07/02 16:27:06  error
+ * prototypes in citadel_ipc.h updated
+
  Revision 591.61  2002/06/29 23:26:55  error
  * fixed some memory leaks
 
@@ -3793,4 +3796,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

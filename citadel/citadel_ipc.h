@@ -62,7 +62,7 @@ int CtdlIPCQuit(void);
 int CtdlIPCLogout(void);
 int CtdlIPCTryLogin(const char *username, char *cret);
 int CtdlIPCTryPassword(const char *passwd, char *cret);
-int CtdlIPCCreateUser(const char *username, char *cret);
+int CtdlIPCCreateUser(const char *username, int selfservice, char *cret);
 int CtdlIPCChangePassword(const char *passwd, char *cret);
 int CtdlIPCKnownRooms(int which, int floor, struct march **listing, char *cret);
 int CtdlIPCGetConfig(struct usersupp **uret, char *cret);
@@ -135,7 +135,8 @@ int CtdlIPCChangeHostname(const char *hostname, char *cret);
 int CtdlIPCChangeRoomname(const char *roomname, char *cret);
 int CtdlIPCChangeUsername(const char *username, char *cret);
 time_t CtdlIPCServerTime(char *crert);
-int CtdlIPCAideGetUserParameters(struct usersupp **uret, char *cret);
+int CtdlIPCAideGetUserParameters(const char *who,
+				 struct usersupp **uret, char *cret);
 int CtdlIPCAideSetUserParameters(const struct usersupp *uret, char *cret);
 int CtdlIPCGetMessageExpirationPolicy(int which, char *cret);
 int CtdlIPCSetMessageExpirationPolicy(int which, int policy, int value,
@@ -146,6 +147,7 @@ int CtdlIPCModerateMessage(long msgnum, int level, char *cret);
 int CtdlIPCRequestClientLogout(int session, char *cret);
 int CtdlIPCSetMessageSeen(long msgnum, int seen, char *cret);
 int CtdlIPCStartEncryption(char *cret);
+int CtdlIPCDirectoryLookup(const char *address, char *cret);
 
 /* ************************************************************************** */
 /*             Stuff below this line is not for public consumption            */
