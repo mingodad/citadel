@@ -1,4 +1,8 @@
 $Log$
+Revision 523.11  2004/09/27 02:17:47  ajc
+* messages.c: fix build problem on non-calendar-enabled installations
+* floors.c: fix a warning message
+
 Revision 523.10  2004/09/25 03:34:21  ajc
 * summary.c: Fixed a calling syntax problem
 
@@ -2070,3 +2074,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

@@ -1516,6 +1516,7 @@ void display_enter(void)
 		return;
 	}
 
+#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	/* Are we perhaps in a calendar view?  If so, then an "enter
 	 * message" command really means "add new calendar item."
 	 */
@@ -1531,6 +1532,7 @@ void display_enter(void)
 		display_edit_task();
 		return;
 	}
+#endif
 
 	/* Otherwise proceed normally */
 	output_headers(1);
