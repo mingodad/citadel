@@ -59,7 +59,8 @@ void newprompt(char *prompt, char *str, int len);
 int file_checksum(char *filename);
 void do_edit(char *desc, char *read_cmd, char *check_cmd, char *write_cmd);
 
-char reply_to[512];
+char reply_to[SIZ];
+char reply_subject[SIZ];
 long msg_arr[MAXMSGS];
 int num_msgs;
 char rc_alt_semantics;
@@ -414,9 +415,10 @@ int read_message(
 		}
 		if (nhdr == 1)
 			buf[0] = '_';
+
 		if (!strncasecmp(buf, "type=", 5))
 			format_type = atoi(&buf[5]);
-		if ((!strncasecmp(buf, "msgn=", 5))
+		else if ((!strncasecmp(buf, "msgn=", 5))
 		    && (rc_display_message_numbers)) {
 			if (dest) {
 				fprintf(dest, "[#%s] ", &buf[5]);
@@ -429,7 +431,7 @@ int read_message(
 				scr_printf("] ");
 			}
 		}
-		if (!strncasecmp(buf, "from=", 5)) {
+		else if (!strncasecmp(buf, "from=", 5)) {
 			if (dest) {
 				fprintf(dest, "from %s ", &buf[5]);
 			} else {
@@ -439,10 +441,10 @@ int read_message(
 				scr_printf("%s ", &buf[5]);
 			}
 		}
-		if (!strncasecmp(buf, "subj=", 5))
+		else if (!strncasecmp(buf, "subj=", 5)) {
 			strcpy(m_subject, &buf[5]);
-
-		if (!strncasecmp(buf, "rfca=", 5)) {
+		}
+		else if (!strncasecmp(buf, "rfca=", 5)) {
 			safestrncpy(rfca, &buf[5], sizeof(rfca) - 5);
 			if (dest) {
 				fprintf(dest, "<%s> ", &buf[5]);
@@ -455,7 +457,7 @@ int read_message(
 				scr_printf("> ");
 			}
 		}
-		if ((!strncasecmp(buf, "hnod=", 5))
+		else if ((!strncasecmp(buf, "hnod=", 5))
 		    && (strcasecmp(&buf[5], serv_info.serv_humannode))
 		    && (strlen(rfca) == 0)) {
 			if (dest) {
@@ -469,7 +471,7 @@ int read_message(
 				scr_printf(") ");
 			}
 		}
-		if ((!strncasecmp(buf, "room=", 5))
+		else if ((!strncasecmp(buf, "room=", 5))
 		    && (strcasecmp(&buf[5], room_name))
 		    && (strlen(rfca) == 0)) {
 			if (dest) {
@@ -481,8 +483,7 @@ int read_message(
 				scr_printf("%s> ", &buf[5]);
 			}
 		}
-
-		if (!strncasecmp(buf, "node=", 5)) {
+		else if (!strncasecmp(buf, "node=", 5)) {
 			safestrncpy(node, &buf[5], sizeof(buf) - 5);
 			if ((room_flags & QR_NETWORK)
 			    ||
@@ -503,8 +504,7 @@ int read_message(
 				}
 			}
 		}
-
-		if (!strncasecmp(buf, "rcpt=", 5)) {
+		else if (!strncasecmp(buf, "rcpt=", 5)) {
 			if (dest) {
 				fprintf(dest, "to %s ", &buf[5]);
 			} else {
@@ -514,7 +514,7 @@ int read_message(
 				scr_printf("%s ", &buf[5]);
 			}
 		}
-		if (!strncasecmp(buf, "time=", 5)) {
+		else if (!strncasecmp(buf, "time=", 5)) {
 			fmt_date(now, atol(&buf[5]), 0);
 			if (dest) {
 				fprintf(dest, "%s ", now);
@@ -559,6 +559,7 @@ int read_message(
 		lines_printed = checkpagin(lines_printed, pagin, screenheight);
 	}
 
+	strcpy(reply_subject, m_subject);
 	if (strlen(m_subject) > 0) {
 		if (dest) {
 			fprintf(dest, "Subject: %s\n", m_subject);
@@ -680,8 +681,6 @@ int client_make_message(char *filename,	/* temporary file name */
 	char datestr[SIZ];
 	char header[SIZ];
 	int cksum = 0;
-
-	if (subject != NULL) strcpy(subject, "");
 
 	if (mode == 2)
 		if (strlen(editor_path) == 0) {
@@ -927,11 +926,13 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 	long highmsg;
 	FILE *fp;
 	char subject[SIZ];
-	
+
 	if (c > 0)
 		mode = 1;
 	else
 		mode = 0;
+
+	strcpy(subject, "");
 
 	/*
 	 * First, check to see if we have permission to enter a message in
@@ -972,6 +973,21 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 			}
 		} else
 			strcpy(buf, "sysop");
+	}
+
+	if (is_reply) {
+		if (strlen(reply_subject) > 0) {
+			if (!strncasecmp(reply_subject,
+			   "Re: ", 3)) {
+				strcpy(subject, reply_subject);
+			}
+			else {
+				snprintf(subject,
+					sizeof subject,
+					"Re: %s",
+					reply_subject);
+			}
+		}
 	}
 
 	b = 0;

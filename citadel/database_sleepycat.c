@@ -669,7 +669,19 @@ struct cdbdata *cdb_next_item(int cdb)
  * Truncate (delete every record)
  */
 void cdb_trunc(int cdb) {
-	/* FIXME this needs to be implemented */
+	int ret = 0;
+	u_int32_t records_deleted;
+
+	cdb_begin_transaction();
+
+	lprintf(9, "truncate\n");
+	ret = dbp[cdb]->truncate(dbp[cdb], MYTID, &records_deleted, 0);
+	if (ret) {
+		lprintf(1, "cdb_trunc: db_truncate: %s\n", db_strerror(ret));
+		abort();
+	}
+
+	cdb_end_transaction();
 }
 
 

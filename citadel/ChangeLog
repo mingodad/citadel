@@ -1,4 +1,10 @@
  $Log$
+ Revision 590.105  2002/02/08 22:36:23  ajc
+ * Changed the logic for printing RFC822 addresses (again)
+ * Implemented cdb_trunc() in database_sleepycat.c, using db_truncate()
+   (We need to either provide an alternative implementation or require DB >=3.3)
+ * Automatically Re: subject line in the client where appropriate
+
  Revision 590.104  2002/02/08 19:02:25  ajc
  * Added client and server side support for entering Subject lines in
    messages when not using RFC822.
@@ -3308,4 +3314,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

@@ -982,6 +982,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	char display_name[SIZ];
 	char *mptr;
 	char *nl;	/* newline string */
+	int suppress_f = 0;
 
 	/* buffers needed for RFC822 translation */
 	char suser[SIZ];
@@ -1076,6 +1077,17 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 			}
 		}
 
+		/* Don't show Internet address for users on the
+		 * local Citadel network.
+		 */
+		suppress_f = 0;
+		if (TheMessage->cm_fields['N'] != NULL)
+		   if (strlen(TheMessage->cm_fields['N']) > 0)
+		      if (haschar(TheMessage->cm_fields['N'], '.') == 0) {
+			suppress_f = 1;
+		}
+		
+		/* Now spew the header fields in the order we like them. */
 		strcpy(allkeys, FORDER);
 		for (i=0; i<strlen(allkeys); ++i) {
 			k = (int) allkeys[i];
@@ -1087,17 +1099,8 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 							msgkeys[k],
 							display_name);
 					}
-					/* Don't show Internet address for
-					 * local users
-					 */
-					else if (k == 'F') {
-						if (do_proto) if (TheMessage->cm_fields['N'] != NULL) if (strcasecmp(TheMessage->cm_fields['N'], config.c_nodename)) {
-							cprintf("%s=%s\n",
-								msgkeys[k],
-								TheMessage->cm_fields[k]
-							);
-
-						}
+					else if ((k == 'F') && (suppress_f)) {
+						/* do nothing */
 					}
 					/* Masquerade display name if needed */
 					else {
