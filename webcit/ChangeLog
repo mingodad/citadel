@@ -1,4 +1,7 @@
 $Log$
+Revision 213.18  2001/05/30 01:06:57  ajc
+* Changes to mime parser ... still something wrong
+
 Revision 213.17  2001/05/28 19:27:29  ajc
 * Fixed bug which marked all messages in Lobby as old before reading at login
 
@@ -559,4 +562,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
