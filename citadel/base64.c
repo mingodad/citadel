@@ -7,9 +7,13 @@
 
 		This program is in the public domain.
 
+Revision date: 11th August 1997
+
+Modified slightly for the Citadel/UX system, June 1999
+http://uncnsrd.mt-kisco.ny.us/citadel
+
 */
 
-#define REVDATE "11th August 1997"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,8 +27,8 @@
 
 typedef unsigned char byte;	      /* Byte type */
 
-static FILE *fi = stdin;	      /* Input file */
-static FILE *fo = stdout;	      /* Output file */
+FILE *fi;			      /* Input file */
+FILE *fo;			      /* Output file */
 static byte iobuf[256]; 	      /* I/O buffer */
 static int iolen = 0;		      /* Bytes left in I/O buffer */
 static int iocp = 256;		      /* Character removal pointer */
@@ -244,6 +248,9 @@ int main(int argc, char *argv[])
 {
     int i, f = 0, decoding = FALSE;
     char *cp, opt;
+
+    fi = stdin;
+    fo = stdout;
 
     for (i = 1; i < argc; i++) {
 	cp = argv[i];
