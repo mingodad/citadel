@@ -1,4 +1,7 @@
  $Log$
+ Revision 613.12  2003/12/30 04:13:31  ajc
+ * Commented out one of the supplied .RU commands in citadel.rc
+
  Revision 613.11  2003/12/24 05:02:49  ajc
  * Allow a separate default message expire policy for mailbox rooms.  The
    floor default setting is now ignored for mailboxes.  Updated client and
@@ -5204,3 +5207,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

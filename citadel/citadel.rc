@@ -302,7 +302,7 @@ cmd=30,0,&.,&Terminate,and &Stay online
 # users with a partial match.
 #
 cmd=32,0,&.,&Read,&User listing
-cmd=32,0,&.,&Read,&User listing:
+#cmd=32,0,&.,&Read,&User listing:
 
 cmd=33,0,&.,&Read,&Textfile formatted
 #
