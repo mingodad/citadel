@@ -1,3 +1,6 @@
+Sat Jan 30 19:00:58 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Resolve the name of the connecting host and pass it on to Citadel
+
 Fri Jan 29 14:49:49 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* wDumpContent() is now responsible for </BODY></HTML> most of the
 	  time (parameter settable) so that the main menu can easily be

@@ -20,9 +20,10 @@ distclean: clean
 	rm -f Makefile config.cache config.log config.status
 
 
-webserver: webserver.o context_loop.o tools.o cookie_conversion.o $(LIBOBJS)
+webserver: webserver.o context_loop.o tools.o \
+	cookie_conversion.o locate_host.o $(LIBOBJS)
 	$(CC) webserver.o context_loop.o tools.o cookie_conversion.o \
-	$(LIBOBJS) $(LIBS) -o webserver
+	locate_host.o $(LIBOBJS) $(LIBS) -o webserver
 
 webserver.o: webserver.c webcit.h
 	$(CC) $(CFLAGS) $(DEFS) -c -D_REENTRANT -DWEBCITDIR=\"`pwd`\" webserver.c
@@ -92,6 +93,9 @@ siteconfig.o: siteconfig.c webcit.h child.h
 
 netconf.o: netconf.c webcit.h child.h
 	$(CC) $(CFLAGS) $(DEFS) -c netconf.c
+
+locate_host.o: locate_host.c webcit.h child.h
+	$(CC) $(CFLAGS) $(DEFS) -c locate_host.c
 
 Makefile: $(srcdir)/Makefile.in config.status
 	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) ./config.status

@@ -516,7 +516,7 @@ void upload_handler(char *name, char *filename, char *encoding,
 	}
 
 
-void session_loop(void) {
+void session_loop(char *browser_host) {
 	char cmd[256];
 	char action[256];
 	char buf[256];
@@ -604,7 +604,7 @@ void session_loop(void) {
 		serv_sock = connectsock(c_host, c_port, "tcp");
 		connected = 1;
 		serv_gets(buf);	/* get the server welcome message */
-		get_serv_info();
+		get_serv_info(browser_host);
 		}
 
 	check_for_express_messages();
@@ -968,25 +968,22 @@ void session_loop(void) {
 
 int main(int argc, char *argv[]) {
 
-	if (argc < 2 || argc > 4) {
+	if (argc != 5) {
 		fprintf(stderr,
-			"webcit: usage: webcit <session_id> [host [port]]\n");
+			"webcit: usage error (argc must be 5, not %d)\n",
+			argc);
 		return 1;
 		}
 
 	wc_session = atoi(argv[1]);
-
-	if (argc > 2) {
-		defaulthost = argv[2];
-		if (argc > 3)
-			defaultport = argv[3];
-		}
+	defaulthost = argv[2];
+	defaultport = argv[3];
 
 	strcpy(wc_username, "");
 	strcpy(wc_password, "");
 	strcpy(wc_roomname, "");
 
 	while (1) {
-		session_loop();
+		session_loop(argv[4]);
 		}
 	}

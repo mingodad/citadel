@@ -15,7 +15,7 @@ struct serv_info serv_info;
 /*
  * get info about the server we've connected to
  */
-void get_serv_info(void) {
+void get_serv_info(char *browser_host) {
 	char buf[256];
 	int a;
 
@@ -24,7 +24,7 @@ void get_serv_info(void) {
 		CLIENT_ID,
 		CLIENT_VERSION,
 		SERVER,
-		""		/* FIX find out where the user is */
+		browser_host
 		);
 	serv_gets(buf);
 

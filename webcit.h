@@ -79,3 +79,5 @@ extern int noframes;
 
 void stuff_to_cookie(char *, int, char *, char *, char *, int);
 void cookie_to_stuff(char *, int *, char *, char *, char *, int *);
+void locate_host(char *, int);
+
