@@ -17,7 +17,7 @@
 #define TARGET			"webcit01"	/* Target for inline URL's */
 #define HOUSEKEEPING		15		/* Housekeeping frequency */
 #define INITIAL_WORKER_THREADS	5
-#define LISTEN_QUEUE_LENGTH	20		/* listen() backlog queue */
+#define LISTEN_QUEUE_LENGTH	100		/* listen() backlog queue */
 
 
 /* Room flags (from Citadel) */

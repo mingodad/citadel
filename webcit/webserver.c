@@ -253,7 +253,7 @@ int main(int argc, char **argv)
 	}
 	/* Tell 'em who's in da house */
 	fprintf(stderr, SERVER "\n"
-		"Copyright (C) 1996-2000\n"
+		"Copyright (C) 1996-2001\n"
 		"This software is distributed under the terms of the GNU\n"
 		"General Public License.  All other rights reserved.\n\n");
 
@@ -292,12 +292,12 @@ int main(int argc, char **argv)
 
 
 	/* Start a few initial worker threads */
-	for (i=0; i<(INITIAL_WORKER_THREADS-1); ++i) {
+	for (i=0; i<(INITIAL_WORKER_THREADS); ++i) {
 		spawn_another_worker_thread();
 	}
 
-	/* now the original thread becomes an ordinary worker thread */
-	worker_entry();
+	/* now the original thread can go away. */
+	pthread_exit(NULL);
 	return 0;
 }
 
