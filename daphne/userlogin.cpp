@@ -106,6 +106,7 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 		wxDefaultValidator,
 		"login_button"
 		);
+	login_button->SetDefault();
 
 	newuser_button = new wxButton(
 		this,

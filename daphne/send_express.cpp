@@ -69,6 +69,7 @@ SendExpress::SendExpress(	CitClient *sock,
 		wxDefaultValidator,
 		"send_button"
 		);
+	send_button->SetDefault();
 
 	wxButton *cancel_button = new wxButton(
 		this,
