@@ -68,7 +68,9 @@ void cmd_ebio(char *cmdbuf) {
 	}
 	cprintf("%d  \n",SEND_LISTING);
 	while(client_gets(buf), strcmp(buf,"000")) {
-		fprintf(fp,"%s\n",buf);
+		if (ftell(fp) < config.c_maxmsglen) {
+			fprintf(fp,"%s\n",buf);
+		}
 	}
 	fclose(fp);
 }

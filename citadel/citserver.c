@@ -74,6 +74,8 @@ time_t server_startup_time;
  */
 void master_startup(void) {
 	struct timeval tv;
+	unsigned int seed;
+	FILE *urandom;
 	struct ctdlroom qrbuf;
 	
 	lprintf(9, "master_startup() started\n");
@@ -100,13 +102,25 @@ void master_startup(void) {
                 lputroom(&qrbuf);
         }
 
-
 	lprintf(7, "Seeding the pseudo-random number generator...\n");
-	gettimeofday(&tv, NULL);
-	srand(tv.tv_usec);
+	urandom = fopen("/dev/urandom", "r");
+	if (urandom != NULL) {
+		fread(&seed, sizeof seed, 1, urandom);
+		fclose(urandom);
+	}
+	else {
+		gettimeofday(&tv, NULL);
+		seed = tv.tv_usec;
+	}
+	srandom(seed);
+
+	lprintf(7, "Initializing ipgm secret\n");
+	get_config();
+	config.c_ipgm_secret = rand();
+	put_config();
+
 	lprintf(9, "master_startup() finished\n");
 }
-
 
 
 /*
@@ -774,7 +788,7 @@ void cmd_ipgm(char *argbuf)
 		CC->internal_pgm = 1;
 		strcpy(CC->curr_user, "<internal program>");
 		CC->cs_flags = CC->cs_flags|CS_STEALTH;
-		cprintf("%d Authenticated as an internal program.\n",CIT_OK);
+		cprintf("%d Authenticated as an internal program.\n", CIT_OK);
 	}
 	else {
 		sleep(5);

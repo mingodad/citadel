@@ -143,7 +143,6 @@ int main(int argc, char **argv)
 	/* Load site-specific parameters, and set the ipgm secret */
 	lprintf(7, "Loading citadel.config\n");
 	get_config();
-	srand(getpid());
 	config.c_ipgm_secret = rand();
 	put_config();
 
