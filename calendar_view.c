@@ -167,9 +167,6 @@ void calendar_month_view(int year, int month, int day) {
 		"bgcolor=#204B78><TR><TD>\n");
 
 	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0><tr>\n");
-	wprintf("<TD align=left><font color=#FFFFFF size=-2>"
-		"Click on any date for day view&nbsp;"
-		"</FONT></TD>\n");
 
 	wprintf("<TD ALIGN=CENTER>");
 
@@ -189,9 +186,7 @@ void calendar_month_view(int year, int month, int day) {
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
 	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/forward.gif\" BORDER=0></A>\n");
 
-	wprintf("</TD><TD align=right><font color=#FFFFFF size=-2>"
-		"Click on any date for day view&nbsp;"
-		"</FONT></TD></TR></TABLE>\n");
+	wprintf("</TD></TR></TABLE>\n");
 
 	/* Inner table (the real one) */
 	wprintf("<TABLE width=100%% border=0 cellpadding=1 cellspacing=1 "

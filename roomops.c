@@ -389,30 +389,71 @@ void embed_room_banner(char *got, int navbar_style) {
 		}
 
 		if (navbar_style == navbar_default) {
-			wprintf(
-				"<td>"
-				"<A HREF=\"/readfwd\">"
-				"<img align=\"middle\" src=\"/static/readmsgs.gif\" border=\"0\">"
-				"<span class=\"navbar_link\">"
-			);
 			switch(WC->wc_view) {
 				case VIEW_ADDRESSBOOK:
-					wprintf("View contacts");
+					wprintf(
+						"<td>"
+						"<A HREF=\"/readfwd\">"
+						"<img align=\"middle\" src=\"/static/readmsgs.gif\" "
+						"border=\"0\">"
+						"<span class=\"navbar_link\">"
+						"View contacts"
+						"</span></a></td>\n"
+					);
 					break;
 				case VIEW_CALENDAR:
-					wprintf("View calendar");
+					wprintf(
+						"<td>"
+						"<A HREF=\"/readfwd?calview=day\">"
+						"<img align=\"middle\" src=\"/static/day_view.gif\" "
+						"border=\"0\">"
+						"<span class=\"navbar_link\">"
+						"Day view"
+						"</span></a></td>\n"
+					);
+					wprintf(
+						"<td>"
+						"<A HREF=\"/readfwd?calview=month\">"
+						"<img align=\"middle\" src=\"/static/month_view.gif\" "
+						"border=\"0\">"
+						"<span class=\"navbar_link\">"
+						"Month view"
+						"</span></a></td>\n"
+					);
 					break;
 				case VIEW_TASKS:
-					wprintf("View tasks");
+					wprintf(
+						"<td>"
+						"<A HREF=\"/readfwd\">"
+						"<img align=\"middle\" src=\"/static/readmsgs.gif\" "
+						"border=\"0\">"
+						"<span class=\"navbar_link\">"
+						"View tasks"
+						"</span></a></td>\n"
+					);
 					break;
 				case VIEW_NOTES:
-					wprintf("View notes");
+					wprintf(
+						"<td>"
+						"<A HREF=\"/readfwd\">"
+						"<img align=\"middle\" src=\"/static/readmsgs.gif\" "
+						"border=\"0\">"
+						"<span class=\"navbar_link\">"
+						"View notes"
+						"</span></a></td>\n"
+					);
 					break;
 				default:
-					wprintf("All messages");
+					wprintf(
+						"<td>"
+						"<A HREF=\"/readfwd\">"
+						"<img align=\"middle\" src=\"/static/readmsgs.gif\" "
+						"border=\"0\">"
+						"<span class=\"navbar_link\">"
+						"</span></a></td>\n"
+					);
 					break;
 			}
-			wprintf("</span></a></td>\n");
 		}
 
 		if (navbar_style == navbar_default) {
