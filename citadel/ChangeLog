@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.48  2004/02/23 16:10:47  nbryant
+ --disable-pie by default.
+
  Revision 614.47  2004/02/22 04:55:15  ajc
  * CSR code more or less in its final form for now.
 
@@ -5392,3 +5395,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

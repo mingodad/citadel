@@ -17,7 +17,7 @@ AC_ARG_ENABLE(chkpwd, [  --disable-chkpwd        don't build 'chkpwd'])
 AC_ARG_ENABLE(threaded-client, [  --disable-threaded-client
 			  disable multithreaded client])
 
-AC_ARG_ENABLE(pie, [  --disable-pie           don't build position-independent executables])
+AC_ARG_ENABLE(pie, [  --enable-pie            don't build position-independent executables])
 
 AC_ARG_WITH(pam, [  --with-pam              use PAM if present (see PAM.txt before you try this)])
 AC_ARG_WITH(kthread, [  --with-kthread          use kernel threads (on FreeBSD) (not recommended yet)])
@@ -115,7 +115,7 @@ if test "$GCC" = yes; then
 	esac
 fi
 
-if test "x$enable_pie" != xno; then
+if test "x$enable_pie" = xyes; then
 	save_CFLAGS="$CFLAGS"
 	save_LDFLAGS="$LDFLAGS"
 	CFLAGS="$CFLAGS -fpie"
