@@ -875,7 +875,7 @@ int main(int argc, char **argv)
 		}
 
 	lprintf(7, "Initializing loadable modules\n");
-	DLoader_Init("./modules");
+	DLoader_Init(BBSDIR "/modules");
 	lprintf(9, "Modules done initializing.\n");
 
 	/*

@@ -111,6 +111,7 @@ void open_databases(void) {
 	if (gdbms[CDB_MSGMAIN] == NULL) {
 		lprintf(2, "Cannot open msgmain: %s\n",
 			gdbm_strerror(gdbm_errno));
+		exit(1);
 		}
 
 	gdbms[CDB_USERSUPP] = gdbm_open("data/usersupp.gdbm", 0,
@@ -118,6 +119,7 @@ void open_databases(void) {
 	if (gdbms[CDB_USERSUPP] == NULL) {
 		lprintf(2, "Cannot open usersupp: %s\n",
 			gdbm_strerror(gdbm_errno));
+		exit(1);
 		}
 
 	gdbms[CDB_VISIT] = gdbm_open("data/visit.gdbm", 0,
@@ -125,6 +127,7 @@ void open_databases(void) {
 	if (gdbms[CDB_VISIT] == NULL) {
 		lprintf(2, "Cannot open visit file: %s\n",
 			gdbm_strerror(gdbm_errno));
+		exit(1);
 		}
 
 	gdbms[CDB_QUICKROOM] = gdbm_open("data/quickroom.gdbm", 0,
@@ -132,6 +135,7 @@ void open_databases(void) {
 	if (gdbms[CDB_QUICKROOM] == NULL) {
 		lprintf(2, "Cannot open quickroom: %s\n",
 			gdbm_strerror(gdbm_errno));
+		exit(1);
 		}
 
 	gdbms[CDB_FLOORTAB] = gdbm_open("data/floortab.gdbm", 0,
@@ -139,6 +143,7 @@ void open_databases(void) {
 	if (gdbms[CDB_FLOORTAB] == NULL) {
 		lprintf(2, "Cannot open floortab: %s\n",
 			gdbm_strerror(gdbm_errno));
+		exit(1);
 		}
 
 	gdbms[CDB_MSGLISTS] = gdbm_open("data/msglists.gdbm", 0,
@@ -146,6 +151,7 @@ void open_databases(void) {
 	if (gdbms[CDB_MSGLISTS] == NULL) {
 		lprintf(2, "Cannot open msglists: %s\n",
 			gdbm_strerror(gdbm_errno));
+		exit(1);
 		}
 
 	for (a=0; a<MAXKEYS; ++a) {

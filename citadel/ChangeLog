@@ -1,3 +1,8 @@
+1999-03-08 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* sysdep.c: call DLoader_Init() with an absolute path so that gdb can
+	  find module symbols
+	* database.c: bail out if opening databases fails
+
 Sat Mar  6 01:55:55 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* serv_chat.c: use memfmout(), *not* cprintf() to transmit express
 	  messages.  Calling cprintf() on strings >256 bytes crashes the server
