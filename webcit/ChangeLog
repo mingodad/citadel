@@ -1,4 +1,8 @@
 $Log$
+Revision 323.56  2002/08/13 19:55:12  ajc
+* Keep track of the HTTP "Host:" header being sent by the browser.
+  (We're going to need this in the near future)
+
 Revision 323.55  2002/08/05 16:07:30  ajc
 * Moved "edit floor label pic" to the floor editing screen
 
@@ -890,4 +894,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

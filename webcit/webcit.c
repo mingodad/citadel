@@ -824,10 +824,13 @@ void session_loop(struct httprequest *req)
 			ContentLength = atoi(&buf[16]);
 		}
 		else if (!strncasecmp(buf, "Content-type: ", 14)) {
-			strcpy(ContentType, &buf[14]);
+			safestrncpy(ContentType, &buf[14], sizeof ContentType);
 		}
 		else if (!strncasecmp(buf, "User-agent: ", 12)) {
-			strcpy(user_agent, &buf[12]);
+			safestrncpy(user_agent, &buf[12], sizeof user_agent);
+		}
+		else if (!strncasecmp(buf, "Host: ", 6)) {
+			safestrncpy(WC->http_host, &buf[6], sizeof WC->http_host);
 		}
 		/* Only WAP gateways explicitly name this content-type */
 		else if (strstr(buf, "text/vnd.wap.wml")) {

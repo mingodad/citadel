@@ -151,8 +151,9 @@ struct wcsession {
 	struct urlcontent *urlstrings;
 	int HaveExpressMessages;	/* Nonzero if incoming msgs exist */
 	struct wcsubst *vars;
-	char *preferences;
 	char this_page[SIZ];		/* address of current page */
+	char http_host[SIZ];		/* HTTP Host: header */
+	char *preferences;
 };
 
 #define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
