@@ -1382,7 +1382,6 @@ void cmd_cre8(char *args)
 	int new_room_floor;
 	char aaa[SIZ];
 	unsigned newflags;
-	struct quickroom qrbuf;
 	struct floor *fl;
 
 	cre8_ok = extract_int(args, 0);
@@ -1438,7 +1437,7 @@ void cmd_cre8(char *args)
 			   new_room_type, new_room_pass, new_room_floor, 0);
 	if (newflags == 0) {
 		cprintf("%d '%s' already exists.\n",
-			ERROR + ALREADY_EXISTS, qrbuf.QRname);
+			ERROR + ALREADY_EXISTS, new_room_name);
 		return;
 	}
 
@@ -1469,7 +1468,7 @@ void cmd_cre8(char *args)
 	strcat(aaa, "\n");
 	aide_message(aaa);
 
-	cprintf("%d '%s' has been created.\n", OK, qrbuf.QRname);
+	cprintf("%d '%s' has been created.\n", OK, new_room_name);
 }
 
 

@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.60  2002/01/14 08:49:13  error
+ * Fixed bug in cmd_cre8() causing protocol to get out of sync when creating
+   a new room
+
  Revision 590.59  2002/01/13 04:46:31  ajc
  * Allow incoming SMTP to relay to other Citadel nodes for whom we are
    providing directory service.
@@ -3147,4 +3151,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
