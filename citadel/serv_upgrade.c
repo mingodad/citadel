@@ -108,6 +108,10 @@ void imp_floors(void) {
 					}
 				if (!strcasecmp(tag, "f_ref_count")) 
 					fl.f_ref_count = atoi(tval);
+				if (!strcasecmp(tag, "f_expire_mode")) 
+					fl.f_ep.expire_mode = atoi(tval);
+				if (!strcasecmp(tag, "f_expire_value")) 
+					fl.f_ep.expire_value = atoi(tval);
 				}
 
 			putfloor(&fl, floornum);
@@ -169,6 +173,12 @@ void imp_rooms(void) {
 					qr.QRinfo = atol(tval);
 				if (!strcasecmp(tag, "qrfloor"))
 					qr.QRfloor = atoi(tval);
+				if (!strcasecmp(tag, "qrmtime"))
+					qr.QRmtime = atol(tval);
+				if (!strcasecmp(tag, "qrepmode"))
+					qr.QRep.expire_mode = atoi(tval);
+				if (!strcasecmp(tag, "qrepvalue"))
+					qr.QRep.expire_value = atoi(tval);
 				if (!strcasecmp(tag, "message")) {
 					fpgetfield(imfp, tval);
 					msgnum = atol(tval);
@@ -271,6 +281,8 @@ void import_a_user(void) {
 			strcpy(us.USphone, value);
 		if (!strcasecmp(key, "usemail"))
 			strcpy(us.USemail, value);
+		if (!strcasecmp(key, "ususerpurge"))
+			us.USuserpurge = atoi(value);
 		if (!strcasecmp(key, "visit")) {
 			++visits;
 			bzero(&vbuf, sizeof(struct visit));
@@ -386,6 +398,12 @@ void imp_config(void) {
 			strcpy(config.c_net_password, value);
 		if (!strcasecmp(key, "c_port_number"))
 			config.c_port_number = atoi(value);
+		if (!strcasecmp(key, "c_expire_policy"))
+			config.c_ep.expire_mode = atoi(value);
+		if (!strcasecmp(key, "c_expire_value"))
+			config.c_ep.expire_value = atoi(value);
+		if (!strcasecmp(key, "c_userpurge"))
+			config.c_userpurge = atoi(value);
 		}
 
 	fp = fopen("citadel.config", "wb");
@@ -503,6 +521,9 @@ void export_a_room(struct quickroom *qr) {
 	fprintf(exfp, "qrdirname%c%s%c", 0, qr->QRdirname, 0);
 	fprintf(exfp, "qrinfo%c%ld%c", 0, qr->QRinfo, 0);
 	fprintf(exfp, "qrfloor%c%d%c", 0, qr->QRfloor, 0);
+	fprintf(exfp, "qrmtime%c%ld%c", 0, qr->QRmtime, 0);
+	fprintf(exfp, "qrepmode%c%d%c", 0, qr->QRep.expire_mode, 0);
+	fprintf(exfp, "qrepvalue%c%d%c", 0, qr->QRep.expire_value, 0);
 
 	get_msglist(qr);
 	if (CC->num_msgs > 0) for (b=0; b<(CC->num_msgs); ++b) {
@@ -535,6 +556,9 @@ void export_floors(void) {
 		fprintf(exfp, "f_flags%c%d%c", 0, fl.f_flags, 0);
 		fprintf(exfp, "f_name%c%s%c", 0, fl.f_name, 0);
 		fprintf(exfp, "f_ref_count%c%d%c", 0, fl.f_ref_count, 0);
+		fprintf(exfp, "f_expire_mode%c%d%c", 0, fl.f_ep.expire_mode, 0);
+		fprintf(exfp, "f_expire_value%c%d%c", 0,
+				fl.f_ep.expire_value, 0);
 		fprintf(exfp, "endfloor%c", 0);
 		}
 	fprintf(exfp, "endsection%c", 0);
@@ -570,6 +594,7 @@ void export_a_user(struct usersupp *us) {
 	fprintf(exfp, "uszip%c%s%c", 0, us->USzip, 0);
 	fprintf(exfp, "usphone%c%s%c", 0, us->USphone, 0);
 	fprintf(exfp, "usemail%c%s%c", 0, us->USemail, 0);
+	fprintf(exfp, "ususerpurge%c%d%c", 0, us->USuserpurge, 0);
 
 
 	cdbvisit = cdb_fetch(CDB_VISIT, &CC->usersupp.usernum, sizeof(long));
@@ -655,6 +680,9 @@ void do_export(char *argbuf) {
 	fprintf(exfp, "c_maxsessions%c%d%c", 0, config.c_maxsessions, 0);
 	fprintf(exfp, "c_net_password%c%s%c", 0, config.c_net_password, 0);
 	fprintf(exfp, "c_port_number%c%d%c", 0, config.c_port_number, 0);
+	fprintf(exfp, "c_expire_policy%c%d%c", 0, config.c_ep.expire_mode, 0);
+	fprintf(exfp, "c_expire_value%c%d%c", 0, config.c_ep.expire_value, 0);
+	fprintf(exfp, "c_userpurge%c%d%c", 0, config.c_userpurge, 0);
 	fprintf(exfp, "endsection%c", 0);
 
 	/* Now some global stuff */

@@ -1271,7 +1271,7 @@ void cmd_agup(char *cmdbuf) {
 		return;
 		}
 
-	cprintf("%d %s|%s|%u|%d|%d|%d|%ld\n", 
+	cprintf("%d %s|%s|%u|%d|%d|%d|%ld|%d\n", 
 		OK,
 		usbuf.fullname,
 		usbuf.password,
@@ -1279,7 +1279,8 @@ void cmd_agup(char *cmdbuf) {
 		usbuf.timescalled,
 		usbuf.posted,
 		(int)usbuf.axlevel,
-		usbuf.usernum);
+		usbuf.usernum,
+		usbuf.USuserpurge);
 
 	}
 
@@ -1317,6 +1318,9 @@ void cmd_asup(char *cmdbuf) {
 		if ((newax >=0) && (newax <= 6)) {
 			usbuf.axlevel = extract_int(cmdbuf, 5);
 			}
+		}
+	if (np > 7) {
+		usbuf.USuserpurge = extract_int(cmdbuf, 7);
 		}
 
 	lputuser(&usbuf, requested_user);

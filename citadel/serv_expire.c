@@ -122,7 +122,13 @@ void do_user_purge(struct usersupp *us) {
 	time_t purge_time;
 	struct PurgedUser *pptr;
 
-	purge_time = ((time_t)config.c_userpurge) * 86400L;
+	/* Set purge time; if the user overrides the system default, use it */
+	if (us->USuserpurge > 0) {
+		purge_time = ((time_t)us->USuserpurge) * 86400L;
+		}
+	else {
+		purge_time = ((time_t)config.c_userpurge) * 86400L;
+		}
 
 	/* The default rule is to not purge. */
 	purge = 0;

@@ -1586,7 +1586,7 @@ addition, the RWHO listing will include both the spoofed and real usernames.
 
 
 ----------------------------------------------
-The following are for citserver 5.11 and above
+The following are for citserver 5.50 and above
 ----------------------------------------------
 
  AGUP   (Administrative Get User Parameters)
@@ -1606,6 +1606,7 @@ as follows, and are common to both commands:
  5 - Access level
  6 - User number
  7 - Timestamp of last call
+ 8 - Purge time (in days) for this user (or 0 to use system default)
 
  Upon success, AGUP returns OK followed by all these parameters, and ASUP
 simply returns OK.  If the client has insufficient access to perform the
