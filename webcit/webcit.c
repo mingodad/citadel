@@ -74,7 +74,7 @@ void addurls(char *url)
 	while (strlen(up) > 0) {
 
 		/* locate the = sign */
-		strncpy(buf, up, 255);
+		safestrncpy(buf, up, sizeof buf);
 		b = (-1);
 		for (a = 255; a >= 0; --a)
 			if (buf[a] == '=')

@@ -69,11 +69,10 @@ char buf[];
 			end = pos;
 	}
 
-	strncpy(urlbuf, &buf[start], end - start);
+	safestrncpy(urlbuf, &buf[start], end - start);
 	urlbuf[end - start] = 0;
 
-
-	strncpy(outbuf, buf, start);
+	safestrncpy(outbuf, buf, start);
 	sprintf(&outbuf[start], "%cA HREF=%c%s%c TARGET=%c%s%c%c%s%c/A%c",
 		LB, QU, urlbuf, QU, QU, TARGET, QU, RB, urlbuf, LB, RB);
 	strcat(outbuf, &buf[end]);
