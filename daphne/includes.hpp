@@ -6,8 +6,9 @@
 #include <wx/listctrl.h>
 #include <wx/socket.h>
 #include <wx/log.h>
-#include "wx/imaglist.h"
-#include "wx/treectrl.h"
+#include <wx/imaglist.h>
+#include <wx/treectrl.h>
+#include <wx/toolbar.h>
 
 
 

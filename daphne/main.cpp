@@ -202,7 +202,15 @@ void MyFrame::InitToolBar(wxToolBar* toolBar) {
 	int i;
 	wxBitmap* bitmaps[4];
 
+// wxGTK seems to do the right thing by itself, while wxMSW wants to be
+// told how big the toolbar icons are going to be, otherwise it defaults to
+// 16x16.  Strangely, wxToolBar::SetToolBitmapSize() doesn't seem to be
+// available at all in wxGTK, hence the ifdef...
+#ifdef __WXMSW__
+	toolBar->SetToolBitmapSize(wxSize(32, 32));
+#endif
 
+        // Set up the toolbar icons (BMP is available on both GTK and MSW) 
 	bitmaps[0] = new wxBitmap("bitmaps/globe.bmp",	wxBITMAP_TYPE_BMP);
 	bitmaps[1] = new wxBitmap("bitmaps/mail.bmp",	wxBITMAP_TYPE_BMP);
 	bitmaps[2] = new wxBitmap("bitmaps/who.bmp",	wxBITMAP_TYPE_BMP);
@@ -273,10 +281,10 @@ void MyFrame::OnUsersMenu(wxCommandEvent& cmd) {
 	
 	id = cmd.GetId();
 	if (id == UMENU_WHO) {
-		if (TheWholist == NULL)
+                //if (TheWholist == NULL)
 			TheWholist = new who(citadel, this);
-		else
-			TheWholist->Activate();
+                //else
+                        //TheWholist->Activate();
 	}
 	else if (id == UMENU_SEND_EXPRESS)
 		new SendExpress(citadel, this, "");
