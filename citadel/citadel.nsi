@@ -18,7 +18,7 @@
 ;!define MUI_ICON "${NSISDIR}\Contrib\Icons\modern-install.ico"
 ;!define MUI_UNICON "${NSISDIR}\Contrib\Icons\modern-uninstall.ico"
 
-OutFile "citadel-6.30.exe"
+OutFile "citadel-6.40.exe"
 BGGradient off
 
 LangString DESC_Citadel ${LANG_ENGLISH} "Citadel client and core libraries (required)"

@@ -34,7 +34,7 @@ Goals to achieve during the 6.xx cycle
   times).
 
   After several false starts, it appears that the emerging standard will be
-  the draft GroupDAV specification.  Citadel *will* implement this, providing
+  the draft GroupDAV specification.  Citadel will support GroupDAV, providing
   out-of-the-box compatibility with upcoming versions of Evolution,
   KOrganizer, and any other client which follows the standard.
 

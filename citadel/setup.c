@@ -1290,7 +1290,12 @@ void contemplate_ldap(void) {
 	config.c_ldap_port = 389;
 	sprintf(config.c_ldap_bind_dn, "cn=manager,%s", config.c_ldap_base_dn);
 
-	/* FIXME ... make the generated password harder to guess */
+	/*
+	 * Generate a bind password.  If you're some grey hat hacker who
+	 * is just dying to get some street cred on Bugtraq, and you think
+	 * this password generation scheme is too weak, please submit a patch
+	 * instead of just whining about it, ok?
+	 */
 	sprintf(config.c_ldap_bind_pw, "%d%ld", getpid(), time(NULL));
 
 	write_config_to_disk();

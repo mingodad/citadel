@@ -1,4 +1,7 @@
  $Log$
+ Revision 630.16  2005/02/10 16:52:03  ajc
+ * Updated documentation etc. for 6.40 release (and for 2005 copyright)
+
  Revision 630.15  2005/02/08 03:33:49  ajc
  * client_gets(char *buf) has been replaced by
    client_getln(char *buf, int maxbytes)
@@ -6360,3 +6363,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
