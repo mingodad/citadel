@@ -393,6 +393,7 @@ void edit_vcard(void);
 void submit_vcard(void);
 void striplt(char *);
 void select_user_to_edit(char *message, char *preselect);
+void delete_user(char *);
 void display_edituser(char *who, int is_new);
 void create_user(void);
 void edituser(void);
