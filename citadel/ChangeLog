@@ -1,4 +1,8 @@
 $Log$
+Revision 1.426  1999/12/09 05:01:14  ajc
+* Split cmd_user() and cmd_pass() into frontend/backend functions
+* serv_smtp: implemented AUTH LOGIN for client authentication
+
 Revision 1.425  1999/12/09 00:22:58  ajc
 * Finished the "arbitrary service" registration.
 * Eliminated "special" master socket for Citadel protocol - just register it
@@ -1482,3 +1486,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

@@ -763,37 +763,16 @@ int main(int argc, char **argv)
 	get_config();
 
 	/*
-	 * Bind the server to our favourite port.
+	 * Do non system dependent startup functions.
+	 */
+	master_startup();
+
+	/*
+	 * Bind the server to our favorite ports.
 	 */
 	CtdlRegisterServiceHook(config.c_port_number,
 				citproto_begin_session,
 				do_command_loop);
-
-	/*
-	 * Now that we've bound the socket, change to the BBS user id and its
-	 * corresponding group ids
-	 */
-	if (drop_root_perms) {
-		if ((pw = getpwuid(BBSUID)) == NULL)
-			lprintf(1, "WARNING: getpwuid(%d): %s\n"
-				   "Group IDs will be incorrect.\n", BBSUID,
-				strerror(errno));
-		else {
-			initgroups(pw->pw_name, pw->pw_gid);
-			if (setgid(pw->pw_gid))
-				lprintf(3, "setgid(%d): %s\n", pw->pw_gid,
-					strerror(errno));
-		}
-		lprintf(7, "Changing uid to %d\n", BBSUID);
-		if (setuid(BBSUID) != 0) {
-			lprintf(3, "setuid() failed: %s\n", strerror(errno));
-		}
-	}
-
-	/*
-	 * Do non system dependent startup functions.
-	 */
-	master_startup();
 
 	/*
 	 * Load any server-side modules (plugins) available here.
@@ -856,6 +835,27 @@ int main(int argc, char **argv)
 		}
 	}
 
+
+	/*
+	 * Now that we've bound the sockets, change to the BBS user id and its
+	 * corresponding group ids
+	 */
+	if (drop_root_perms) {
+		if ((pw = getpwuid(BBSUID)) == NULL)
+			lprintf(1, "WARNING: getpwuid(%d): %s\n"
+				   "Group IDs will be incorrect.\n", BBSUID,
+				strerror(errno));
+		else {
+			initgroups(pw->pw_name, pw->pw_gid);
+			if (setgid(pw->pw_gid))
+				lprintf(3, "setgid(%d): %s\n", pw->pw_gid,
+					strerror(errno));
+		}
+		lprintf(7, "Changing uid to %d\n", BBSUID);
+		if (setuid(BBSUID) != 0) {
+			lprintf(3, "setuid() failed: %s\n", strerror(errno));
+		}
+	}
 
 	/*
 	 * Now create a bunch of worker threads.

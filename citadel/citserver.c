@@ -243,6 +243,7 @@ void CtdlAllocUserData(unsigned long requested_sym, size_t num_bytes)
 	ptr = mallok(sizeof(struct CtdlSessData));
 	ptr->sym_id = requested_sym;
 	ptr->sym_data = mallok(num_bytes);
+	memset(ptr->sym_data, 0, num_bytes);
 
 	begin_critical_section(S_SESSION_TABLE);
 	ptr->next = CC->FirstSessData;
@@ -866,7 +867,7 @@ void begin_session(struct CitContext *con)
 	time(&con->lastidle);
 	strcpy(con->lastcmdname, "    ");
 	strcpy(con->cs_clientname, "(unknown)");
-	strcpy(con->curr_user,"(not logged in)");
+	strcpy(con->curr_user, NLI);
 	strcpy(con->net_node,"");
 	snprintf(con->temp, sizeof con->temp, tmpnam(NULL));
 	safestrncpy(con->cs_host, config.c_fqdn, sizeof con->cs_host);

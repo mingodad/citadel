@@ -242,24 +242,21 @@ int getuserbynumber(struct usersupp *usbuf, long int number)
 
 
 /*
- * USER cmd
+ * Back end for cmd_user() and its ilk
  */
-void cmd_user(char *cmdbuf)
+int CtdlLoginExistingUser(char *username)
 {
-	char username[256];
 	char autoname[256];
 	int found_user = 0;
 	struct passwd *p;
 	int a;
 
-	extract(username,cmdbuf,0);
 	username[25] = 0;
 	strproc(username);
 
 	if ((CC->logged_in)) {
-		cprintf("%d Already logged in.\n",ERROR);
-		return;
-		}
+		return login_already_logged_in;
+	}
 
 	found_user = getuser(&CC->usersupp,username);
 	if (found_user != 0) {
@@ -269,24 +266,56 @@ void cmd_user(char *cmdbuf)
 			for (a=0; a<strlen(autoname); ++a)
 				if (autoname[a]==',') autoname[a]=0;
 			found_user = getuser(&CC->usersupp,autoname);
-			}
-		}
-	if (found_user == 0) {
-		if (((CC->nologin)) && (CC->usersupp.axlevel < 6)) {
-			cprintf("%d %s: Too many users are already online (maximum is %d)\n",
-			ERROR+MAX_SESSIONS_EXCEEDED,
-			config.c_nodename,config.c_maxsessions);
-			}
-		else {
-			strcpy(CC->curr_user,CC->usersupp.fullname);
-			cprintf("%d Password required for %s\n",
-				MORE_DATA,CC->curr_user);
-			}
-		}
-	else {
-		cprintf("%d %s not found.\n",ERROR,username);
 		}
 	}
+	if (found_user == 0) {
+		if (((CC->nologin)) && (CC->usersupp.axlevel < 6)) {
+			return login_too_many_users;
+		}
+		else {
+			strcpy(CC->curr_user,CC->usersupp.fullname);
+			return login_ok;
+		}
+	}
+	return login_not_found;
+}
+
+
+
+/*
+ * USER cmd
+ */
+void cmd_user(char *cmdbuf)
+{
+	char username[256];
+	int a;
+
+	extract(username,cmdbuf,0);
+	username[25] = 0;
+	strproc(username);
+
+	a = CtdlLoginExistingUser(username);
+	switch(a) {
+		case login_already_logged_in:
+			cprintf("%d Already logged in.\n",ERROR);
+			return;
+		case login_too_many_users:
+			cprintf("%d %s: "
+				"Too many users are already online "
+				"(maximum is %d)\n",
+				ERROR+MAX_SESSIONS_EXCEEDED,
+				config.c_nodename,config.c_maxsessions);
+			return;
+		case login_ok:
+			cprintf("%d Password required for %s\n",
+				MORE_DATA,CC->curr_user);
+			return;
+		case login_not_found:
+			cprintf("%d %s not found.\n", ERROR, username);
+			return;
+		cprintf("%d Internal error\n", ERROR);
+	}
+}
 
 
 
@@ -316,12 +345,19 @@ void session_startup(void) {
         /* Run any cleanup routines registered by loadable modules */
 	PerformSessionHooks(EVT_LOGIN);
 
-	cprintf("%d %s|%d|%d|%d|%u|%ld\n",OK,CC->usersupp.fullname,CC->usersupp.axlevel,
-		CC->usersupp.timescalled,CC->usersupp.posted,CC->usersupp.flags,
-		CC->usersupp.usernum);
 	usergoto(BASEROOM,0);		/* Enter the lobby */	
 	rec_log(CL_LOGIN,CC->curr_user);
 	}
+
+
+void logged_in_response(void) {
+	cprintf("%d %s|%d|%d|%d|%u|%ld\n",
+		OK, CC->usersupp.fullname, CC->usersupp.axlevel,
+		CC->usersupp.timescalled, CC->usersupp.posted,
+		CC->usersupp.flags,
+		CC->usersupp.usernum);
+}
+
 
 
 /* 
@@ -401,24 +437,20 @@ static int validpw(uid_t uid, const char *pass)
 	}
 #endif
 
-void cmd_pass(char *buf)
+
+
+int CtdlTryPassword(char *password)
 {
-	char password[256];
 	int code;
 
-	extract(password,buf,0);
-
 	if ((CC->logged_in)) {
-		cprintf("%d Already logged in.\n",ERROR);
-		return;
+		return pass_already_logged_in;
 		}
-	if (!strcmp(CC->curr_user,"")) {
-		cprintf("%d You must send a name with USER first.\n",ERROR);
-		return;
+	if (!strcmp(CC->curr_user, NLI)) {
+		return pass_no_user;
 		}
-	if (getuser(&CC->usersupp,CC->curr_user)) {
-		cprintf("%d Can't find user record!\n",ERROR+INTERNAL_ERROR);
-		return;
+	if (getuser(&CC->usersupp, CC->curr_user)) {
+		return pass_internal_error;
 		}
 
 	code = (-1);
@@ -442,12 +474,42 @@ void cmd_pass(char *buf)
 	if (!code) {
 		(CC->logged_in) = 1;
 		session_startup();
+		return pass_ok;
 		}
 	else {
-		cprintf("%d Wrong password.\n",ERROR);
 		rec_log(CL_BADPW,CC->curr_user);
+		return pass_wrong_password;
 		}
 	}
+
+
+void cmd_pass(char *buf)
+{
+	char password[256];
+	int a;
+
+	extract(password, buf, 0);
+	a = CtdlTryPassword(password);
+
+	switch (a) {
+		case pass_already_logged_in:
+			cprintf("%d Already logged in.\n",ERROR);
+			return;
+		case pass_no_user:
+			cprintf("%d You must send a name with USER first.\n",
+				ERROR);
+			return;
+		case pass_wrong_password:
+			cprintf("%d Wrong password.\n", ERROR);
+			return;
+		case pass_ok:
+			logged_in_response();
+			return;
+		cprintf("%d Can't find user record!\n",
+			ERROR+INTERNAL_ERROR);
+	}
+}
+
 
 
 /*
@@ -632,6 +694,7 @@ void cmd_newu(char *cmdbuf)
 		}
 	else if (a==0) {
 		session_startup();
+		logged_in_response();
 		}
 	else {
 		cprintf("%d unknown error\n",ERROR);

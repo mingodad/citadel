@@ -68,6 +68,9 @@
 #define HOUSEKEEPING_WAKEUP	60
 
 
+#define NLI	"(not logged in)"
+
+
 /*** STRUCTURE SIZE VARIABLES ***/
 
 /* You may NOT change this value once you set up your system.	    */
