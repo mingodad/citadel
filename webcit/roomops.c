@@ -826,7 +826,9 @@ void display_editroom(void)
 	output_headers(1, 1, 1, 0, 0, 0, 0);
 
 	/* print the tabbed dialog */
-	wprintf("<br /><center><TABLE border=0 cellspacing=0 cellpadding=0 width=99%%>"
+	wprintf("<br />"
+		"<div style=\"margin-right:1px\">"
+		"<TABLE border=0 cellspacing=0 cellpadding=0 width=100%%>"
 		"<TR ALIGN=CENTER>"
 		"<TD>&nbsp;</TD>\n");
 
@@ -926,11 +928,12 @@ void display_editroom(void)
 
 	wprintf("<TD>&nbsp;</TD>\n");
 
-	wprintf("</TR></TABLE>\n");
+	wprintf("</TR></TABLE></div>\n");
 	/* end tabbed dialog */	
 
 	/* begin content of whatever tab is open now */
-	wprintf("<TABLE border=0 width=99%% bgcolor=\"#FFFFFF\">\n"
+	wprintf("<div style=\"margin-right:1px\">"
+		"<TABLE border=0 width=100%% bgcolor=\"#FFFFFF\">\n"
 		"<TR><TD>\n");
 
 	if (!strcmp(tab, "admin")) {
@@ -1401,7 +1404,7 @@ void display_editroom(void)
 	}
 
 	/* end content of whatever tab is open now */
-	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</TD></TR></TABLE></div>\n");
 
 	wDumpContent(1);
 }
@@ -1714,7 +1717,8 @@ void display_entroom(void)
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
+	wprintf("<div style=\"margin-right:1px\">"
+		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/entroom\">\n");
 
@@ -1773,7 +1777,7 @@ void display_entroom(void)
 	if (buf[0] == '1') {
 		fmout(NULL, "CENTER");
 	}
-	wprintf("</td></tr></table></center>\n");
+	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
 

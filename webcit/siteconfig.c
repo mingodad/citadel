@@ -51,7 +51,8 @@ void display_siteconfig(void)
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>");
+	wprintf("<div style=\"margin-right:1px\">"
+		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>");
 
 	whichmenu = bstr("whichmenu");
 
@@ -663,7 +664,7 @@ void display_siteconfig(void)
 	wprintf("&nbsp;");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">\n");
 	wprintf("</CENTER></FORM>\n");
-	wprintf("</td></tr></table></center>\n");
+	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
 

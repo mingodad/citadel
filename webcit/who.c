@@ -61,8 +61,8 @@ void whobbs(void)
 	wprintf("</div>\n"
 		"<div id=\"content\">\n");
 
-	wprintf("<center>"
-		"<table border=0 cellspacing=0 width=99%% bgcolor=\"#FFFFFF\">"
+	wprintf("<div style=\"margin-right:1px\">"
+		"<table border=0 cellspacing=0 width=100%% bgcolor=\"#FFFFFF\">"
 		"<tr>\n");
 	wprintf("<TH COLSPAN=4>Session ID</TH>\n");
 	wprintf("<TH>User Name</TH>\n");
@@ -159,11 +159,12 @@ void whobbs(void)
 			wprintf("</TD>\n</TR>");
 		}
 	}
-	wprintf("</TABLE>\n"
+	wprintf("</TABLE></div>\n"
+		"<div align=center>"
 		"Click on a name to read user info.  Click on "
 		"<IMG ALIGN=MIDDLE SRC=\"/static/page.gif\" ALT=\"(p)\" "
 		"BORDER=0> to send "
-		"a page (instant message) to that user.<br /></CENTER>\n");
+		"a page (instant message) to that user.</div>\n");
 	wDumpContent(1);
 }
 

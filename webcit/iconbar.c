@@ -97,7 +97,7 @@ void do_iconbar(void) {
 	if (ib_citadel) if (ib_displayas != IB_TEXTONLY) wprintf(
 		"<li><div align=\"center\">"
 		"<A HREF=\"http://www.citadel.org\" "
-		"title=\"Find out more about Citadel\" target=\"aboutcit\" "
+		"title=\"Find out more about Citadel\" target=\"aboutcit\">"
 		"<img border=\"0\" width=\"48\" height=\"48\" "
 		"SRC=\"/static/citadel-logo.gif\" ALT=\"CITADEL\">"
 		"CITADEL</A>"
@@ -367,7 +367,8 @@ void display_customize_iconbar(void) {
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>");
+	wprintf("<div style=\"margin-right:1px\">"
+		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/commit_iconbar\">\n");
 
@@ -565,7 +566,7 @@ void display_customize_iconbar(void) {
 		"</CENTER></FORM>\n"
 	);
 
-	wprintf("</td></tr></table></center>\n");
+	wprintf("</td></tr></table></div>\n");
 	wDumpContent(2);
 }
 

@@ -35,7 +35,8 @@ void display_main_menu(void)
 {
 	output_headers(1, 1, 1, 0, 0, 0, 0);
 
-	wprintf("<center><TABLE WIDTH=99%%>"
+	wprintf("<div style=\"margin-right:1px\">"
+		"<TABLE WIDTH=100%%>"
 		"<TR><TD COLSPAN=2>\n");
 
 	svprintf("BOXTITLE", WCS_STRING, "Basic commands");
@@ -184,7 +185,7 @@ void display_main_menu(void)
 
 	do_template("endbox");
 
-	wprintf("</td></tr></table></center>");
+	wprintf("</td></tr></table></div>");
 	wDumpContent(2);
 }
 
@@ -202,7 +203,8 @@ void display_aide_menu(void)
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<center><table border=0 width=99%%><tr valign=top><td>");
+	wprintf("<div style=\"margin-right:1px\">"
+		"<table border=0 width=100%%><tr valign=top><td>");
 
 	svprintf("BOXTITLE", WCS_STRING, "Global Configuration");
 	do_template("beginbox");
@@ -248,7 +250,7 @@ void display_aide_menu(void)
 
 	do_template("endbox");
 
-	wprintf("</td></tr></table></center>");
+	wprintf("</td></tr></table></div>");
 	wDumpContent(2);
 }
 
@@ -269,7 +271,8 @@ void display_generic(void)
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
+	wprintf("<div style=\"margin-right:1px\">"
+		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<CENTER>");
 	wprintf("This screen allows you to enter Citadel server commands which are\n");
@@ -291,7 +294,7 @@ void display_generic(void)
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><br />\n");
 
 	wprintf("</FORM></CENTER>\n");
-	wprintf("</td></tr></table></center>\n");
+	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
 

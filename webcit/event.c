@@ -92,7 +92,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
+	wprintf("<div style=\"margin-right:1px\">"
+		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	/************************************************************
 	 * Uncomment this to see the UID in calendar events for debugging
@@ -401,7 +402,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		"</script>\n"
 	);
 
-	wprintf("</td></tr></table></center>\n");
+	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 
 	if (created_new_vevent) {

@@ -44,7 +44,8 @@ void display_page(void)
                 "</div>\n<div id=\"content\">\n"
         );
                                                                                                                              
-        wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
+        wprintf("<div style=\"margin-right:1px\">"
+		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("Send an instant message to: ");
 	escputs(recp);
@@ -73,7 +74,7 @@ void display_page(void)
 	wprintf("<br /><A HREF=\"javascript:window.close();\"Cancel</A>\n");
 
 	wprintf("</FORM></CENTER>\n");
-	wprintf("</td></tr></table></center>\n");
+	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
 
