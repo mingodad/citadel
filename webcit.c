@@ -634,11 +634,15 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 	fprintf(stderr, "    type = %s\n", cbtype);
 	fprintf(stderr, "  length = %ld\n", (long)length);
 
-	if ( (strlen(name) > 0) || (strlen(filename) > 0) ) {
+	if (length > 0) {
 		WC->upload = malloc(length);
 		if (WC->upload != NULL) {
 			WC->upload_length = length;
 			memcpy(WC->upload, content, length);
+		}
+		else {
+			fprintf(stderr, "malloc() failed: %s\n",
+				strerror(errno));
 		}
 	}
 }
