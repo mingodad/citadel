@@ -35,6 +35,12 @@ void display_siteconfig(void)
 	char *whichmenu;
 	int i, j;
 
+	/* expire policy settings */
+	int sitepolicy = 0;
+	int sitevalue = 0;
+	int mboxpolicy = 0;
+	int mboxvalue = 0;
+
 	output_headers(3);
 
 	whichmenu = bstr("whichmenu");
@@ -46,7 +52,6 @@ void display_siteconfig(void)
 		wprintf("<TABLE border=0 cellspacing=0 cellpadding=3 width=100%%>\n");
 
 		wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
-			"</TD><TD>"
 			"<A HREF=\"/display_siteconfig?whichmenu=general\">"
 			"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
 			"SRC=\"/static/advanced-icon.gif\" ALT=\"&nbsp;\">"
@@ -58,7 +63,6 @@ void display_siteconfig(void)
 		);
 
 		wprintf("<TR><TD>"
-			"</TD><TD>"
 			"<A HREF=\"/display_siteconfig?whichmenu=access\">"
 			"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
 			"SRC=\"/static/advanced-icon.gif\" ALT=\"&nbsp;\">"
@@ -70,7 +74,6 @@ void display_siteconfig(void)
 		);
 
 		wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
-			"</TD><TD>"
 			"<A HREF=\"/display_siteconfig?whichmenu=network\">"
 			"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
 			"SRC=\"/static/advanced-icon.gif\" ALT=\"&nbsp;\">"
@@ -82,7 +85,6 @@ void display_siteconfig(void)
 		);
 
 		wprintf("<TR><TD>"
-			"</TD><TD>"
 			"<A HREF=\"/display_siteconfig?whichmenu=tuning\">"
 			"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
 			"SRC=\"/static/advanced-icon.gif\" ALT=\"&nbsp;\">"
@@ -94,7 +96,6 @@ void display_siteconfig(void)
 		);
 
 		wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
-			"</TD><TD>"
 			"<A HREF=\"/display_siteconfig?whichmenu=ldap\">"
 			"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
 			"SRC=\"/static/advanced-icon.gif\" ALT=\"&nbsp;\">"
@@ -102,6 +103,17 @@ void display_siteconfig(void)
 			"<A HREF=\"/display_siteconfig?whichmenu=ldap\">"
 			"<B>Directory</B><BR>"
 			"Configure the LDAP connector for Citadel"
+			"</A></TD></TR>\n"
+		);
+
+		wprintf("<TR><TD>"
+			"<A HREF=\"/display_siteconfig?whichmenu=purger\">"
+			"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
+			"SRC=\"/static/advanced-icon.gif\" ALT=\"&nbsp;\">"
+			"</TD><TD>"
+			"<A HREF=\"/display_siteconfig?whichmenu=purger\">"
+			"<B>Auto-purger</B><BR>"
+			"Configure automatic expiry of old messages"
 			"</A></TD></TR>\n"
 		);
 
@@ -136,6 +148,12 @@ void display_siteconfig(void)
 			"</CENTER>\n");
 	}
 
+	if (!strcasecmp(whichmenu, "purger")) {
+		wprintf("<CENTER><H2>Message auto-purger settings</H2>"
+			"These settings may be overridden on a per-floor or per-room basis."
+			"</CENTER>\n");
+	}
+
 	serv_printf("CONF get");
 	serv_gets(buf);
 	if (buf[0] != '1') {
@@ -147,7 +165,6 @@ void display_siteconfig(void)
 		wDumpContent(1);
 		return;
 	}
-
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/siteconfig\">\n");
 	wprintf("<TABLE border=0>\n");
@@ -534,6 +551,67 @@ void display_siteconfig(void)
 		}
 	}
 
+	serv_puts("GPEX site");
+	serv_gets(buf);
+	if (buf[0] == '2') {
+		sitepolicy = extract_int(&buf[4], 0);
+		sitevalue = extract_int(&buf[4], 1);
+	}
+
+	serv_puts("GPEX mailboxes");
+	serv_gets(buf);
+	if (buf[0] == '2') {
+		mboxpolicy = extract_int(&buf[4], 0);
+		mboxvalue = extract_int(&buf[4], 1);
+	}
+
+	if (!strcasecmp(whichmenu, "purger")) {
+
+		wprintf("<TR><TD COLSPAN=2><HR></TD></TR>\n");
+
+		wprintf("<TR><TD>Default message expire policy for public rooms</TD><TD>");
+		wprintf("<INPUT TYPE=\"radio\" NAME=\"sitepolicy\" VALUE=\"1\" %s>",
+			((sitepolicy == 1) ? "CHECKED" : "") );
+		wprintf("Never automatically expire messages<BR>\n");
+		wprintf("<INPUT TYPE=\"radio\" NAME=\"sitepolicy\" VALUE=\"2\" %s>",
+			((sitepolicy == 2) ? "CHECKED" : "") );
+		wprintf("Expire by message count<BR>\n");
+		wprintf("<INPUT TYPE=\"radio\" NAME=\"sitepolicy\" VALUE=\"3\" %s>",
+			((sitepolicy == 3) ? "CHECKED" : "") );
+		wprintf("Expire by message age<BR>");
+		wprintf("Number of messages or days: ");
+		wprintf("<INPUT TYPE=\"text\" NAME=\"sitevalue\" MAXLENGTH=\"5\" VALUE=\"%d\">", sitevalue);
+		wprintf("</TD></TR>\n");
+
+		wprintf("<TR><TD COLSPAN=2><HR></TD></TR>\n");
+
+		wprintf("<TR><TD>Default message expire policy for private mailboxes</TD><TD>");
+		wprintf("<INPUT TYPE=\"radio\" NAME=\"mboxpolicy\" VALUE=\"0\" %s>",
+			((mboxpolicy == 0) ? "CHECKED" : "") );
+		wprintf("Same policy as public rooms<BR>\n");
+		wprintf("<INPUT TYPE=\"radio\" NAME=\"mboxpolicy\" VALUE=\"1\" %s>",
+			((mboxpolicy == 1) ? "CHECKED" : "") );
+		wprintf("Never automatically expire messages<BR>\n");
+		wprintf("<INPUT TYPE=\"radio\" NAME=\"mboxpolicy\" VALUE=\"2\" %s>",
+			((mboxpolicy == 2) ? "CHECKED" : "") );
+		wprintf("Expire by message count<BR>\n");
+		wprintf("<INPUT TYPE=\"radio\" NAME=\"mboxpolicy\" VALUE=\"3\" %s>",
+			((mboxpolicy == 3) ? "CHECKED" : "") );
+		wprintf("Expire by message age<BR>");
+		wprintf("Number of messages or days: ");
+		wprintf("<INPUT TYPE=\"text\" NAME=\"mboxvalue\" MAXLENGTH=\"5\" VALUE=\"%d\">", mboxvalue);
+		wprintf("</TD></TR>\n");
+
+		wprintf("<TR><TD COLSPAN=2><HR></TD></TR>\n");
+
+	}
+	else {
+		wprintf("<INPUT TYPE=\"hidden\" NAME=\"sitepolicy\" VALUE=\"%d\">\n", sitepolicy);
+		wprintf("<INPUT TYPE=\"hidden\" NAME=\"sitevalue\" VALUE=\"%d\">\n", sitevalue);
+		wprintf("<INPUT TYPE=\"hidden\" NAME=\"mboxpolicy\" VALUE=\"%d\">\n", mboxpolicy);
+		wprintf("<INPUT TYPE=\"hidden\" NAME=\"mboxvalue\" VALUE=\"%d\">\n", mboxvalue);
+	}
+
 	wprintf("</TABLE><CENTER>");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">\n");
@@ -597,6 +675,12 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_ldap_bind_pw"));
 	serv_printf("%s", bstr("c_ip_addr"));
 	serv_printf("000");
+
+	serv_printf("SPEX site|%d|%d", atoi(bstr("sitepolicy")), atoi(bstr("sitevalue")));
+	serv_gets(buf);
+	serv_printf("SPEX mailboxes|%d|%d", atoi(bstr("mboxpolicy")), atoi(bstr("mboxvalue")));
+	serv_gets(buf);
+
 	strcpy(WC->ImportantMessage, "System configuration has been updated.");
 	display_siteconfig();
 }
