@@ -1736,7 +1736,7 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 		}
 	}
 
-	lprintf(9, "Recipient is <%s>\n", recipient);
+	lprintf(9, "Recipient is <%s>, mailtype is %d\n", recipient, mailtype);
 
 	/* Learn about what's inside, because it's what's inside that counts */
 	lprintf(9, "Learning what's inside\n");
@@ -1777,6 +1777,9 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	lprintf(9, "Switching rooms\n");
 	strcpy(hold_rm, CC->quickroom.QRname);
 	strcpy(actual_rm, CC->quickroom.QRname);
+	if (strlen(recipient) > 0) {
+		strcpy(actual_rm, SENTITEMS);
+	}
 
 	/* If the user is a twit, move to the twit room for posting */
 	lprintf(9, "Handling twit stuff\n");
@@ -2276,109 +2279,6 @@ void cmd_ent0(char *entargs)
 	return;
 }
 
-
-
-/* 
- * message entry - mode 3 (raw)
- */
-void cmd_ent3(char *entargs)
-{
-	char recp[SIZ];
-	int a;
-	int e = 0;
-	int valid_msg = 1;
-	unsigned char ch, which_field;
-	struct usersupp tempUS;
-	long msglen;
-	struct CtdlMessage *msg;
-	char *tempbuf;
-
-	if (CC->internal_pgm == 0) {
-		cprintf("%d This command is for internal programs only.\n",
-			ERROR);
-		return;
-	}
-
-	/* See if there's a recipient, but make sure it's a real one */
-	extract(recp, entargs, 1);
-	for (a = 0; a < strlen(recp); ++a)
-		if (!isprint(recp[a]))
-			strcpy(&recp[a], &recp[a + 1]);
-	while (isspace(recp[0]))
-		strcpy(recp, &recp[1]);
-	while (isspace(recp[strlen(recp) - 1]))
-		recp[strlen(recp) - 1] = 0;
-
-	/* If we're in Mail, check the recipient */
-	if (strlen(recp) > 0) {
-		e = alias(recp);	/* alias and mail type */
-		if ((recp[0] == 0) || (e == MES_ERROR)) {
-			cprintf("%d Unknown address - cannot send message.\n",
-				ERROR + NO_SUCH_USER);
-			return;
-		}
-		if (e == MES_LOCAL) {
-			a = getuser(&tempUS, recp);
-			if (a != 0) {
-				cprintf("%d No such user.\n",
-					ERROR + NO_SUCH_USER);
-				return;
-			}
-		}
-	}
-
-	/* At this point, message has been approved. */
-	if (extract_int(entargs, 0) == 0) {
-		cprintf("%d OK to send\n", OK);
-		return;
-	}
-
-	msglen = extract_long(entargs, 2);
-	msg = mallok(sizeof(struct CtdlMessage));
-	if (msg == NULL) {
-		cprintf("%d Out of memory\n", ERROR+INTERNAL_ERROR);
-		return;
-	}
-
-	memset(msg, 0, sizeof(struct CtdlMessage));
-	tempbuf = mallok(msglen);
-	if (tempbuf == NULL) {
-		cprintf("%d Out of memory\n", ERROR+INTERNAL_ERROR);
-		phree(msg);
-		return;
-	}
-
-	cprintf("%d %ld\n", SEND_BINARY, msglen);
-
-	client_read((char*)&ch, 1);				/* 0xFF magic number */
-	msg->cm_magic = CTDLMESSAGE_MAGIC;
-	client_read((char*)&ch, 1);				/* anon type */
-	msg->cm_anon_type = ch;
-	client_read((char*)&ch, 1);				/* format type */
-	msg->cm_format_type = ch;
-	msglen = msglen - 3;
-
-	while (msglen > 0) {
-		client_read((char*)&which_field, 1);
-		if (!isalpha(which_field)) valid_msg = 0;
-		--msglen;
-		tempbuf[0] = 0;
-		do {
-			client_read((char*)&ch, 1);
-			--msglen;
-			a = strlen(tempbuf);
-			tempbuf[a+1] = 0;
-			tempbuf[a] = ch;
-		} while ( (ch != 0) && (msglen > 0) );
-		if (valid_msg)
-			msg->cm_fields[which_field] = strdoop(tempbuf);
-	}
-
-	msg->cm_flags = CM_SKIP_HOOKS;
-	if (valid_msg) CtdlSaveMsg(msg, recp, "", e);
-	CtdlFreeMessage(msg);
-	phree(tempbuf);
-}
 
 
 /*

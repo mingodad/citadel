@@ -109,6 +109,7 @@
  */
 #define BASEROOM		"Lobby"
 #define MAILROOM		"Mail"
+#define SENTITEMS		"Sent Items"
 #define AIDEROOM		"Aide"
 #define USERCONFIGROOM		"My Citadel Config"
 #define USERCALENDARROOM	"My Calendar"

@@ -1033,10 +1033,6 @@ void do_command_loop(void) {
 		cmd_ent0(&cmdbuf[5]);
 		}
 
-	else if (!strncasecmp(cmdbuf,"ENT3",4)) {
-		cmd_ent3(&cmdbuf[5]);
-		}
-
 	else if (!strncasecmp(cmdbuf,"RINF",4)) {
 		cmd_rinf();
 		}

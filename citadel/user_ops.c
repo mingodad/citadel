@@ -400,10 +400,16 @@ void session_startup(void)
 	}
 	lputuser(&CC->usersupp);
 
-	/* Run any cleanup routines registered by loadable modules */
+	/* Run any startup routines registered by loadable modules */
 	PerformSessionHooks(EVT_LOGIN);
 
-	usergoto(BASEROOM, 0, NULL, NULL);	/* Enter the lobby */
+	/* Create any personal rooms required by the system */
+	create_room(SENTITEMS, 4, "", 0, 1);
+
+	/* Enter the lobby */
+	usergoto(BASEROOM, 0, NULL, NULL);
+
+	/* Record this login in the Citadel log */
 	rec_log(CL_LOGIN, CC->curr_user);
 }
 
