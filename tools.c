@@ -275,3 +275,17 @@ int pattern2(char *search, char *patn)
         }
 
 
+/*
+ * Strip leading and trailing spaces from a string
+ */
+void striplt(char *buf)
+{
+        while ((strlen(buf) > 0) && (isspace(buf[0])))
+                strcpy(buf, &buf[1]);
+        while (isspace(buf[strlen(buf) - 1]))
+                buf[strlen(buf) - 1] = 0;
+}
+
+
+
+
