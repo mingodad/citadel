@@ -62,48 +62,36 @@
 #include "snprintf.h"
 #endif
 
+int running_as_daemon = 0;
+
 /*
  * Here's where it all begins.
  */
 int main(int argc, char **argv)
 {
-	char tracefile[128];		/* Name of file to log traces to */
+	char facility[32];
 	int a, i;			/* General-purpose variables */
 	struct passwd *pw;
 	int drop_root_perms = 1;
 	size_t size;
         
-	/* specify default port name and trace file */
-	strcpy(tracefile, "");
-
 	/* initialize the master context */
 	InitializeMasterCC();
+
+	/* set default syslog facility */
+	syslog_facility = LOG_DAEMON;
 
 	/* parse command-line arguments */
 	for (a=1; a<argc; ++a) {
 
-		/* -t specifies where to log trace messages to */
-		if (!strncmp(argv[a], "-t", 2)) {
-			safestrncpy(tracefile, argv[a], sizeof tracefile);
-			strcpy(tracefile, &tracefile[2]);
-			freopen(tracefile, "r", stdin);
-			freopen(tracefile, "w", stdout);
-			freopen(tracefile, "w", stderr);
-			chmod(tracefile, 0600);
-		}
-
-		else if (!strncmp(argv[a], "-l", 2)) {
-			safestrncpy(tracefile, argv[a], sizeof tracefile);
-			strcpy(tracefile, &tracefile[2]);
-			syslog_facility = SyslogFacility(tracefile);
-			if (syslog_facility >= 0) {
-				openlog("citadel", LOG_PID, syslog_facility);
-			}
+		if (!strncmp(argv[a], "-l", 2)) {
+			safestrncpy(facility, argv[a], sizeof(facility));
+			syslog_facility = SyslogFacility(facility);
 		}
 
 		/* run in the background if -d was specified */
 		else if (!strcmp(argv[a], "-d")) {
-			start_daemon( (strlen(tracefile) > 0) ? 0 : 1 ) ;
+			running_as_daemon = 1;
 		}
 
 		/* -x specifies the desired logging level */
@@ -130,7 +118,7 @@ int main(int argc, char **argv)
 		/* any other parameter makes it crash and burn */
 		else {
 			lprintf(CTDL_EMERG,	"citserver: usage: "
-					"citserver [-tTraceFile] "
+					"citserver "
 					"[-lLogFacility] "
 					"[-d] [-f]"
 					" [-xLogLevel] [-hHomeDir]\n");
@@ -139,6 +127,14 @@ int main(int argc, char **argv)
 
 	}
 
+	/* daemonize, if we were asked to */
+	if (running_as_daemon) { start_daemon(0); drop_root_perms = 1; }
+
+	/* initialize the syslog facility */
+	if (running_as_daemon) openlog("Citadel", LOG_NDELAY, syslog_facility);
+	else openlog("Citadel", LOG_PERROR|LOG_NDELAY, syslog_facility);
+	setlogmask(LOG_UPTO(verbosity));
+	
 	/* Tell 'em who's in da house */
 	lprintf(CTDL_NOTICE, "\n");
 	lprintf(CTDL_NOTICE, "\n");

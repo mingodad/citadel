@@ -1,4 +1,8 @@
  $Log$
+ Revision 640.2  2005/02/12 16:58:36  ajc
+ * Changes to lprintf() and start_daemon() submitted by Kevin Kilbride
+   for more "true unix" approaches to each.
+
  Revision 640.1  2005/02/11 03:51:51  ajc
  * <.A>ide <U>ser-edit is now <.A>ide <U>ser <E>dit
  * Added a new <.A>ide <U>ser <D>elete command, because it is unintuitive
@@ -6371,3 +6375,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

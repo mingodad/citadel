@@ -106,26 +106,30 @@ int syslog_facility = (-1);
  * Note: the variable "buf" below needs to be large enough to handle any
  * log data sent through this function.  BE CAREFUL!
  */
+extern int running_as_daemon;
+static int enable_syslog = 1;
 void lprintf(enum LogLevel loglevel, const char *format, ...) {   
 	va_list arg_ptr;
-	char buf[SIZ];
 
-	va_start(arg_ptr, format);   
-	vsnprintf(buf, sizeof(buf), format, arg_ptr);   
-	va_end(arg_ptr);   
-
-	if (syslog_facility >= 0) {
-		if (loglevel <= verbosity) {
-			/* Hackery -IO */
-			if (CC->cs_pid != 0) {
-				memmove(&buf[6], buf, sizeof(buf) - 6);
-				snprintf(buf, 6, "[%3d]", CC->cs_pid);
-				buf[5] = ' ';
-			}
-			syslog(loglevel, "%s", buf);
-		}
+	if (enable_syslog) {
+		va_start(arg_ptr, format);
+			vsyslog(loglevel, format, arg_ptr);
+		va_end(arg_ptr);
 	}
-	else if (loglevel <= verbosity) { 
+
+	if (enable_syslog && LogHookTable == 0) return;
+
+	/* legacy output code; hooks get processed first */
+	char buf[SIZ];
+	va_start(arg_ptr, format);   
+		vsnprintf(buf, sizeof(buf), format, arg_ptr);   
+	va_end(arg_ptr);   
+	PerformLogHooks(loglevel, buf);
+
+	if (enable_syslog || running_as_daemon) return;
+
+	/* if we run in forground and syslog is disabled, log to terminal */
+	if (loglevel <= verbosity) { 
 		struct timeval tv;
 		struct tm tim;
 		time_t unixtime;
@@ -150,8 +154,6 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 		}
 		fflush(stderr);
 	}
-
-	PerformLogHooks(loglevel, buf);
 }   
 
 
@@ -696,18 +698,15 @@ void kill_session(int session_to_kill) {
 
 
 /*
- * Start running as a daemon.  Only close stdio if do_close_stdio is set.
+ * Start running as a daemon.
  */
-void start_daemon(int do_close_stdio) {
-	if (do_close_stdio) {
-		/* close(0); */
-		close(1);
-		close(2);
-	}
+void start_daemon(int unused) {
+	close(0); close(1); close(2);
+	if (fork()) exit(0);
+	setsid();
 	signal(SIGHUP,SIG_IGN);
 	signal(SIGINT,SIG_IGN);
 	signal(SIGQUIT,SIG_IGN);
-	if (fork()!=0) exit(0);
 }
 
 
@@ -1111,7 +1110,8 @@ int SyslogFacility(char *name)
 		if(!strcasecmp(name, facTbl[i].name))
 			return facTbl[i].facility;
 	}
-	return -1;
+	enable_syslog = 0;
+	return LOG_DAEMON;
 }
 
 
