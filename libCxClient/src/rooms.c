@@ -62,7 +62,7 @@ int		rc, i;
 			room_info->mailroom = (short int) atoi(g_Ser[7]);
 			room_info->aide = (short int) atoi(g_Ser[8]);
 			room_info->msgs_newmail = atol(g_Ser[9]);
-			room_info->floor_id = atol(g_Ser[9]);
+			room_info->floor_id = atol(g_Ser[10]);
 
 			DPF((DFA,"MEM/MDA:\t-1\t@0x%08x (Needs manual deallocation)", room_info));
 
