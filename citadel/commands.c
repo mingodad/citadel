@@ -849,7 +849,7 @@ void load_command_set(void)
 			rc_allow_attachments = atoi(&buf[18]);
 		}
 		if (!strncasecmp(buf, "idle_threshold=", 15)) {
-			rc_idle_threshold = atoi(&buf[15]);
+			rc_idle_threshold = atol(&buf[15]);
 		}
 		if (!strncasecmp(buf, "remember_passwords=", 19)) {
 			rc_remember_passwords = atoi(&buf[19]);

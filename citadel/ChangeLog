@@ -1,4 +1,7 @@
  $Log$
+ Revision 613.4  2003/12/21 00:44:19  error
+ * Fix for idle_threshold being ignored when reading citadel.rc
+
  Revision 613.3  2003/12/21 00:37:54  error
  * Fix for crash when downloading multiple attachments
 
@@ -5172,4 +5175,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
