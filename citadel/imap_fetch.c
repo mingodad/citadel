@@ -255,7 +255,7 @@ void imap_output_envelope_from(struct CtdlMessage *msg) {
 void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
 	char datestringbuf[256];
 	time_t msgdate;
-
+	char *fieldptr = NULL;
 
 	/* Parse the message date into an IMAP-format date string */
 	if (msg->cm_fields['T'] != NULL) {
@@ -273,21 +273,32 @@ void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
 	 */
 	cprintf("ENVELOPE (");
 
-	/* date */
+	/* Date */
 	imap_strout(datestringbuf);
 	cprintf(" ");
 
-	/* subject */
+	/* Subject */
 	imap_strout(msg->cm_fields['U']);
 	cprintf(" ");
 
-	/* from */
+	/* From */
 	imap_output_envelope_from(msg);
 
-	/* Sender (always in the RFC822 header) */
-	cprintf("NIL ");
+	/* Sender */
+	if (0) {
+		/* FIXME ... check for a *real* Sender: field */
+	}
+	else {
+		imap_output_envelope_from(msg);
+	}
 
-	cprintf("NIL ");	/* reply-to */
+	/* Reply-to */
+	if (0) {
+		/* FIXME ... check for a *real* Reply-to: field */
+	}
+	else {
+		imap_output_envelope_from(msg);
+	}
 
 	cprintf("NIL ");	/* to */
 
@@ -295,8 +306,11 @@ void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
 
 	cprintf("NIL ");	/* bcc */
 
-	cprintf("NIL ");	/* in-reply-to */
-
+	/* In-reply-to */
+	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "In-reply-to");
+	imap_strout(fieldptr);
+	cprintf(" ");
+	if (fieldptr != NULL) phree(fieldptr);
 
 	/* message ID */
 	imap_strout(msg->cm_fields['I']);

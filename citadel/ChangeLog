@@ -1,4 +1,9 @@
  $Log$
+ Revision 573.56  2000/12/25 22:50:43  ajc
+ * Added an API function to extract and unfold specific RFC822 fields.
+ * imap-->fetch-->envelope-->in-reply-to now works
+ * More robust checking and reporting of temp file errors in the client
+
  Revision 573.55  2000/12/25 20:43:24  ajc
  * imap_fetch.c: added support for fetch-->envelope-->from
 
@@ -2237,3 +2242,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

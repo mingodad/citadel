@@ -558,3 +558,70 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 	return msg;
 }
 
+
+
+/*
+ * Look for a particular header field in an RFC822 message text.  If the
+ * requested field is found, it is unfolded (if necessary) and returned to
+ * the caller.  The field name is stripped out, leaving only its contents.
+ * The caller is responsible for freeing the returned buffer.  If the requested
+ * field is not present, or anything else goes wrong, it returns NULL.
+ */
+char *rfc822_fetch_field(char *rfc822, char *fieldname) {
+	int pos = 0;
+	int beg, end;
+	int done = 0;
+	int colonpos, i;
+	char *fieldbuf = NULL;
+
+	/* Should never happen, but sometimes we get stupid */
+	if (rfc822 == NULL) return(NULL);
+	if (fieldname == NULL) return(NULL);
+
+	while (!done) {
+
+		/* Locate beginning and end of field, keeping in mind that
+		 * some fields might be multiline
+		 */
+		beg = pos;
+		end = (-1);
+		for (pos=beg; ((pos<=strlen(rfc822))&&(end<0)); ++pos) {
+			if ((rfc822[pos]=='\n')
+			   && (!isspace(rfc822[pos+1]))) {
+				end = pos;
+			}
+			if ( (rfc822[pos]=='\n')	/* done w. headers? */
+			   && ( (rfc822[pos+1]=='\n')
+			      ||(rfc822[pos+1]=='\r'))) {
+				end = pos;
+				done = 1;
+			}
+
+		}
+
+		/* At this point we have a field.  Is it The One? */
+		if (end > beg) {
+			fieldbuf = mallok((end-beg)+3);
+			if (fieldbuf == NULL) return(NULL);
+			safestrncpy(fieldbuf, &rfc822[beg], (end-beg)+1);
+			unfold_rfc822_field(fieldbuf);
+			colonpos = (-1);
+			for (i = strlen(fieldbuf); i >= 0; --i) {
+				if (fieldbuf[i] == ':') colonpos = i;
+			}
+			if (colonpos > 0) {
+				fieldbuf[colonpos] = 0;
+				if (!strcasecmp(fieldbuf, fieldname)) {
+					strcpy(fieldbuf, &fieldbuf[colonpos+1]);
+					striplt(fieldbuf);
+					return(fieldbuf);
+				}
+			}
+			phree(fieldbuf);
+		}
+
+		/* If we've hit the end of the message, bail out */
+		if (pos > strlen(rfc822)) done = 1;
+	}
+	return(NULL);
+}

@@ -589,9 +589,10 @@ void replace_string(char *filename, long int startpos)
  * Function to begin composing a new message
  */
 int make_message(char *filename,	/* temporary file name */
-		 char *recipient,	/* NULL if it's not mail */
-		 int anon_type,	/* see MES_ types in header file */
-		 int format_type, int mode)
+		char *recipient,	/* NULL if it's not mail */
+		int anon_type,		/* see MES_ types in header file */
+		int format_type,
+		int mode)
 {
 	FILE *fp;
 	int a, b, e_ex_code;
@@ -610,17 +611,20 @@ int make_message(char *filename,	/* temporary file name */
 
 	if (room_flags & QR_ANONONLY) {
 		printf(" ****");
-	} else {
+	}
+	else {
 		printf(" %s from %s", datestr, fullname);
-		if (strlen(recipient) > 0)
+		if (strlen(recipient) > 0) {
 			printf(" to %s", recipient);
+		}
 	}
 	printf("\n");
 
 	beg = 0L;
 
-	if (mode == 1)
+	if (mode == 1) {
 		printf("(Press ctrl-d when finished)\n");
+	}
 	if (mode == 0) {
 		fp = fopen(filename, "r");
 		if (fp != NULL) {
@@ -629,6 +633,12 @@ int make_message(char *filename,	/* temporary file name */
 			fclose(fp);
 		} else {
 			fp = fopen(filename, "w");
+			if (fp == NULL) {
+				printf("*** Error opening temp file!\n"
+					"    %s: %s\n",
+					filename, strerror(errno));
+			return(1);
+			}
 			fclose(fp);
 		}
 	}
@@ -637,12 +647,24 @@ ME1:	switch (mode) {
 
 	case 0:
 		fp = fopen(filename, "r+");
+		if (fp == NULL) {
+			printf("*** Error opening temp file!\n"
+				"    %s: %s\n",
+				filename, strerror(errno));
+			return(1);
+		}
 		citedit(fp);
 		fclose(fp);
 		goto MECR;
 
 	case 1:
 		fp = fopen(filename, "w");
+		if (fp == NULL) {
+			printf("*** Error opening temp file!\n"
+				"    %s: %s\n",
+				filename, strerror(errno));
+			return(1);
+		}
 		do {
 			a = inkey();
 			if (a == 255)
@@ -887,7 +909,20 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 		return (2);
 	}
 
-	/* ...and transmit it to the server. */
+	/* Reopen the temp file that was created, so we can send it */
+	fp = fopen(temp, "r");
+
+	/* Yes, unlink it now, so it doesn't stick around if we crash */
+	unlink(temp);
+
+	if (fp == NULL) {
+		printf("*** Internal error while trying to save message!\n"
+			"    %s: %s\n",
+			temp, strerror(errno));
+		return(errno);
+	}
+
+	/* Transmit message to the server */
 	sprintf(cmd, "ENT0 1|%s|%d|%d||", buf, b, mode);
 	serv_puts(cmd);
 	serv_gets(cmd);
@@ -895,13 +930,11 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 		printf("%s\n", &cmd[4]);
 		return (1);
 	}
-	fp = fopen(temp, "r");
-	if (fp != NULL) {
-		transmit_message(fp);
-		fclose(fp);
-	}
+
+	transmit_message(fp);
 	serv_puts("000");
-	unlink(temp);
+
+	fclose(fp);
 
 	highmsg = msg_arr[num_msgs - 1];
 	num_msgs = 0;
@@ -920,14 +953,18 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 
 	/* now see if anyone else has posted in here */
 	b = (-1);
-	for (a = 0; a < num_msgs; ++a)
-		if (msg_arr[a] > highmsg)
+	for (a = 0; a < num_msgs; ++a) {
+		if (msg_arr[a] > highmsg) {
 			++b;
+		}
+	}
 
-	/* in the Mail> room, this algorithm always counts one message
-	 * higher than in public rooms, so we decrement it by one */
-	if (need_recp)
+	/* In the Mail> room, this algorithm always counts one message
+	 * higher than in public rooms, so we decrement it by one.
+	 */
+	if (need_recp) {
 		--b;
+	}
 
 	if (b == 1) {
 		printf("*** 1 additional message has been entered "
