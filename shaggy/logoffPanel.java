@@ -43,7 +43,7 @@ public class logoffPanel extends Panel {
 	citadel.me.host = host.getText();
 
       citadel.me.openConnection( citadel.me.host );
-      citadel.me.cp.login();
+      citadel.me.login();
     } else if ( e.target == close ) {
       System.out.println( "Thanks!" );
       System.exit( 0 );

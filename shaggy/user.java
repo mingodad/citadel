@@ -13,23 +13,14 @@ public class user {
 
   public user( citReply r ) {
     username = r.getArg( 0 );
-    access = atoi( r.getArg( 1 ) );
-    call = atoi( r.getArg( 2 ) );
-    msg = atoi( r.getArg( 3 ) );
-    flags = atoi( r.getArg( 4 ) );
-    num = atoi( r.getArg( 5 ) );
+    access = citadel.atoi( r.getArg( 1 ) );
+    call = citadel.atoi( r.getArg( 2 ) );
+    msg = citadel.atoi( r.getArg( 3 ) );
+    flags = citadel.atoi( r.getArg( 4 ) );
+    num = citadel.atoi( r.getArg( 5 ) );
   }
 
   public boolean floors() {
     return (flags & FLOORS)==FLOORS;
-  }
-
-  public int atoi( String s ) {
-    if( s == null ) return 0;
-
-    try {
-      return Integer.parseInt( s );
-    } catch( NumberFormatException nfe ) {};
-    return 0;
   }
 }

@@ -22,7 +22,7 @@ public class citPanel extends Panel {
     add( "Enter", ep = new enterPanel() );
     add( "Logoff", offP = new logoffPanel() );
 
-    citadel.me.cp = this;
+    citadel.me.setCitPanel( this );
     login();
   }
 

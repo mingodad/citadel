@@ -21,7 +21,7 @@ public class citFrame extends Frame {
   public boolean handleEvent( Event e ) {
     if( e.id == Event.WINDOW_DESTROY ) {
       if( citadel.me.theNet != null )
-	citadel.me.theNet.println( "QUIT" );
+	citadel.me.getReply( "QUIT" );
       System.out.println( "Bye bye!" );
       System.exit( 0 );
     }

@@ -1,4 +1,4 @@
-mod: 28 Jul 1999
+mod: 29 Jul 1999
 
 Basic:
 - Connect to server and login (connects, gets "hello" and throws up window)
@@ -14,7 +14,7 @@ Basic:
 
 "main"
 - Splits rooms up into new and no-new
- * no floor support yet.
+ * limited floor support (shows in message panel)
  * doesn't sort the room names, even though there's "no pressing reason not to"
 
 - Go to next room with messages

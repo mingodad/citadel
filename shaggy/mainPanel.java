@@ -4,7 +4,7 @@
 import java.awt.*;
 
 public class mainPanel extends Panel {
-  List		new_msgs, seen;
+  List		newL, oldL;
   Button	next_room, goto_room;
   Button	who_is_online, page_user;
   Button	logout;
@@ -17,13 +17,13 @@ public class mainPanel extends Panel {
 
     NamedPanel	np = new NamedPanel( "New Messages" );
     np.setLayout( new BorderLayout() );
-    np.add( "Center", new_msgs = new List() );
+    np.add( "Center", newL = new List() );
 
     p.add( np );
 
     np = new NamedPanel( "Seen Messages" );
     np.setLayout( new BorderLayout() );
-    np.add( "Center", seen = new List() );
+    np.add( "Center", oldL = new List() );
     p.add( np );
 
     add( "Center", p );
@@ -38,10 +38,12 @@ public class mainPanel extends Panel {
     p = new Panel();
     p.add( logout = new Button( "Logout" ) );
     add( "South", p );
+
+    citadel.me.rooms.setList( newL, oldL );
   }
 
   public boolean action( Event e, Object o ) {
-    if( (e.target == new_msgs) || (e.target == seen) || (e.target == goto_room)) {
+    if( (e.target == newL) || (e.target == oldL) || (e.target == goto_room)) {
       String room = getRoom();
       if( room != null )
 	citadel.me.enterRoom( room );
@@ -51,6 +53,8 @@ public class mainPanel extends Panel {
       citadel.me.page_user();
     } else if (e.target == next_room ) {
       citadel.me.nextNewRoom();
+    } else if( e.target == goto_room ) {
+      citadel.me.gotoRoom( getRoom(), true );
     } else if( e.target == logout ) {
       citadel.me.logoff();
     } else {
@@ -62,59 +66,28 @@ public class mainPanel extends Panel {
 
   public boolean handleEvent( Event e ) {
     if( e.id == Event.LIST_SELECT ) {
-      if( e.target == new_msgs ) {
-	int	i = seen.getSelectedIndex();
+      if( e.target == newL ) {
+	int	i = oldL.getSelectedIndex();
 	if( i != -1 )
-	  seen.deselect( i );
+	  oldL.deselect( i );
       } else {
-	int	i = new_msgs.getSelectedIndex();
+	int	i = newL.getSelectedIndex();
 	if( i != -1 )
-	  new_msgs.deselect( i );
+	  newL.deselect( i );
       }
     }
     return super.handleEvent( e );
   }
 
   public void refresh() { 
-    new_msgs.clear(); 
-    parseRooms( new_msgs, citadel.me.getReply( "LKRN" ) );
-
-    seen.clear();
-    parseRooms( seen, citadel.me.getReply( "LKRO" ) );
-  }
-	
-  public void parseRooms( List l, citReply r ) {
-    int		i=0;
-    String	s;
-
-    while( (s = r.getLine( i++) ) != null ) {
-      int j = s.indexOf( '|' );
-      if( j != -1 )
-	l.addItem( s.substring( 0, j ) );
-      else
-	l.addItem( s );
-    }
+    citadel.me.rooms.refresh();
   }
 
   public String getRoom() {
-    String s = new_msgs.getSelectedItem();
-    if( s == null ) s = seen.getSelectedItem();
+    String s = newL.getSelectedItem();
+    if( s == null ) s = oldL.getSelectedItem();
 
     return s;
   }
 
-  public String nextNewRoom() {
-    if( new_msgs.countItems() == 0 ) return "Lobby";
-
-    return new_msgs.getItem( 0 );
-  }
-
-  public void visited( String room ) {
-    for( int i = 0; i < new_msgs.countItems(); i++ ) {
-      if( room.equals( new_msgs.getItem( i ) ) ) {
-	new_msgs.delItem( i );
-	seen.addItem( room );
-      }
-    }
-  }
 }

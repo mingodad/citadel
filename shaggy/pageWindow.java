@@ -77,12 +77,9 @@ public class pageWindow extends Frame {
       String m = msg.getText();
       if( m.length() > 0 ) {
 	if( multi_line ) {
-	  citReply	r = citadel.me.getReply( "SEXP " + user + "|-" );
-	  if( r.sendListing() ) {
-	    citadel.me.theNet.println( m );
-	    citadel.me.theNet.println( "" );
-	    citadel.me.theNet.println( "000" );
-	  }
+	  citReply	r = citadel.me.getReply( "SEXP " + user + "|-", m + "\n"  );
+	  if( r.error() )
+	    citadel.me.error( r );
 	} else
 	  citadel.me.getReply( "SEXP " + user + "|" + m );
       }

@@ -18,7 +18,7 @@ public class net {
     theServer = null;
   }
 
-  public void println( String s ) {
+  private void println( String s ) {
     System.out.println( ">" + s );
     try {
       if( theServer != null )
@@ -32,7 +32,7 @@ public class net {
     }
   }
 
-  public String readLine( ) {
+  private String readLine( ) {
     try {
       if( theServer != null ) {
 	String s = in.readLine();
@@ -76,15 +76,25 @@ public class net {
   }
 
   public citReply getReply() {
-    return getReply( (String)null );
+    return getReply( (String)null, (String)null );
   }
 
   public citReply getReply( String cmd ) {
+    return getReply( cmd, (String)null );
+  }
+
+  public citReply getReply( String cmd, String data ) {
     if( cmd != null ) println( cmd );
 
     citReply r = new citReply( readLine() );
     if( r.listingFollows() ) {
       while( r.addData( readLine() ) ) ;
+    }
+
+    if( r.sendListing() ) {
+      if( data != null )
+	println( data );
+      println( "000" );
     }
 
     if( r.expressMessage() )

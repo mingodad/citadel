@@ -37,15 +37,8 @@ public class passwordWindow extends Frame {
   public boolean action( Event e, Object o ) {
     if( (e.target == text) || (e.target instanceof Button) ) {
       String	s = text.getText();
-      citReply	r = citadel.me.getReply( "GOTO " + room + " " + s );
-      if( r.ok() ) {
-	citadel.me.cp.mp.visited( room );
-	citadel.me.cp.enterRoom( r );
-	dispose();
-      } else {
-	dispose();
-	new passwordWindow( room );
-      }
+      dispose();
+      citadel.me.enterRoom( room, s );
     }
     return super.action( e, o );
   }

@@ -9,10 +9,11 @@ public class citadel {
   net				theNet;
   server			serverInfo;
   user				theUser;
-  citPanel			cp;
+  private citPanel			cp;
 
   boolean			floors;
   whoWindow			wo;
+  roomMap			rooms;
 
   public static citadel	me;
 
@@ -25,11 +26,24 @@ public class citadel {
     citFrame cf = new citFrame();
   }
 
+  public static int atoi( String s ) {
+    try {
+      return Integer.parseInt( s );
+    } catch( Exception e ) {
+      return 0;
+    }
+  }
+
   public citadel( boolean applet ) {
     me = this;
     this.applet = false;
     theUser = null;
     wo = null;
+    rooms = new roomMap();
+  }
+
+  public void setCitPanel( citPanel cp ) {
+    this.cp = cp;
   }
 
   public void lostNetwork( String reason ) {
@@ -69,7 +83,7 @@ public class citadel {
   }
 
   public String getSystemMessage( String name ) {
-    citReply rep = theNet.getReply( "MESG " + name );
+    citReply rep = getReply( "MESG " + name );
     if( rep.listingFollows() )
       return rep.getData();
     else
@@ -84,13 +98,26 @@ public class citadel {
   }
 
   public citReply getReply( String s ) {
+    return getReply( s, (String)null );
+  }
+
+  public citReply getReply( String s, String d ) {
     if( theNet == null ) return null;
 
-    return theNet.getReply( s );
+    return theNet.getReply( s,d  );
   }
 
   public void enterRoom( String room ) {
     enterRoom( room, null );
+  }
+
+  public void gotoRoom( ) {
+    gotoRoom( null, false );
+  }
+
+  public void gotoRoom( String name, boolean flag ) {
+    /* TODO: prompt for room name */
+    System.out.println( "This is where I would ask you for the room's name" );
   }
 
   public void enterRoom( String room, String pass ) {
@@ -99,10 +126,23 @@ public class citadel {
       cmd = cmd + " " + pass;
     citReply	r=getReply( cmd );
     if( r.ok() ) {
-      cp.mp.visited( room );
+      rooms.visited( room );
       cp.enterRoom( r );
     } else if( r.res_code == 540 ) /* ERROR+PASSWORD_REQUIRED */
       new passwordWindow( room );
+  }
+
+  public void showMsgPane() {
+    cp.deck.show( cp, "Message" );
+  }
+
+  public void login() {
+    rooms.loadFloorInfo();
+    cp.login();
+  }
+
+  public void mainMenu() {
+    cp.mainMenu();
   }
 
   public void enterMsg( String room ) {
@@ -110,7 +150,7 @@ public class citadel {
   }
 
   public void nextNewRoom() {
-    enterRoom( cp.mp.nextNewRoom() );
+    enterRoom( rooms.nextNewRoom() );
   }
 
   public void expressMsg() {
@@ -124,16 +164,14 @@ public class citadel {
     if( mail ) cmd = cmd + rec;
     cmd = cmd + "|0|0|0";
 
-    citReply	r = getReply( cmd );
-    if( r.sendListing() ) {
-      theNet.println( body );
-      theNet.println( "000" );
-    }
+    citReply	r = getReply( cmd, body );
+    if( r.error() )
+      error( r );
   }
 
   public void logoff() {
     cp.logoff(null);
-    theNet.println( "quit" );
+    getReply( "QUIT" );
   }
 
   public void who_online() {
@@ -149,5 +187,9 @@ public class citadel {
 
   public void page_user( String who ) {
     new pageWindow( who );
+  }
+
+  public void error( citReply r ) {
+    System.out.println( r.line );
   }
 }

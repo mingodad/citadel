@@ -7,7 +7,7 @@ import java.util.*;
 public class messagePanel extends Panel {
   Choice	reading;
   Button	who_is_online, room_info;
-  Button	next_room, page_user;
+  Button	next_room, goto_room, page_user;
   Button	next_msg, prev_msg, enter_msg, back;
   TextField	msgInfo;
   TextArea	theMsg;
@@ -24,18 +24,24 @@ public class messagePanel extends Panel {
   public messagePanel() {
     setLayout( new BorderLayout() );
 
-    Panel	p = new Panel();
-    p.add( reading = new Choice() );
+    VertPanel	vp = new VertPanel();
+    vp.add( reading = new Choice() );
     reading.addItem( "Read New" );
     reading.addItem( "Read All" );
     reading.addItem( "Last 5" );
     reading.select( 0 );
 
-    //    p.add( who_is_online = new Button( "Who is Online" ) );
-    p.add( room_info = new Button( "Room Info" ) );
-    p.add( next_room = new Button( "Next Room" ) );
-    p.add( page_user = new Button( "Page User" ) );
-    add( "North", p );
+    vp.add( next_msg = new Button( "Next Message" ) );
+    vp.add( prev_msg = new Button( "Prev Message" ) );
+    vp.add( enter_msg = new Button( "Enter Message" ) );
+    vp.add( next_room = new Button( "Next Room" ) );
+    vp.add( goto_room = new Button( "Goto Room" ) );
+    vp.add( room_info = new Button( "Room Info" ) );
+    vp.add( who_is_online = new Button( "Who is Online" ) );
+    vp.add( page_user = new Button( "Page User" ) );
+    vp.add( back = new Button( "Back" ) );
+
+    add( "West", vp );
 
     np = new NamedPanel( "Message" );
     np.setLayout( new BorderLayout() );
@@ -43,12 +49,8 @@ public class messagePanel extends Panel {
     np.add( "Center", theMsg = new TextArea() );
     add( "Center", np );
 
-    p = new Panel();
-    p.add( next_msg = new Button( "Next Message" ) );
-    p.add( prev_msg = new Button( "Prev Message" ) );
-    p.add( enter_msg = new Button( "Enter Message" ) );
-    p.add( back = new Button( "Back" ) );
-    add( "South", p );
+    /*    Panel p = new Panel();
+	  add( "South", p );*/
   }
 
   public boolean action( Event e, Object o ) {
@@ -70,39 +72,33 @@ public class messagePanel extends Panel {
       citadel.me.enterMsg( name );
     } else if( e.target == next_room ) {
       citadel.me.nextNewRoom();
+    } else if( e.target == goto_room ) {
+      citadel.me.gotoRoom();
     } else if( e.target == back ) {
-      citadel.me.cp.mainMenu();
+      citadel.me.mainMenu();
     }
     return super.action( e, o );
   }
 
   public void refresh( citReply r ) {
     name = r.getArg( 0 );
-    np.setLabel( name );
-    total = atoi( r.getArg( 1 ) );
-    unread = atoi( r.getArg( 2 ) );
-    info = atoi( r.getArg( 3 ) );
-    flags = atoi( r.getArg( 4 ) );
-    highest = atoi( r.getArg( 5 ) );
-    highest_read = atoi( r.getArg( 6 ) );
-    mail = atoi( r.getArg( 7 ) ) != 0;
-    aide = atoi( r.getArg( 8 ) ) != 0;
-    mail_num = atoi( r.getArg( 9 ) ); 
-    floor = atoi( r.getArg( 10 ) );
+    np.setLabel( name + " (" + citadel.me.rooms.getRoomsFloorName( name )+")" );
+    total = citadel.atoi( r.getArg( 1 ) );
+    unread = citadel.atoi( r.getArg( 2 ) );
+    info = citadel.atoi( r.getArg( 3 ) );
+    flags = citadel.atoi( r.getArg( 4 ) );
+    highest = citadel.atoi( r.getArg( 5 ) );
+    highest_read = citadel.atoi( r.getArg( 6 ) );
+    mail = citadel.atoi( r.getArg( 7 ) ) != 0;
+    aide = citadel.atoi( r.getArg( 8 ) ) != 0;
+    mail_num = citadel.atoi( r.getArg( 9 ) ); 
+    floor = citadel.atoi( r.getArg( 10 ) );
 
     msgInfo.setText( "" );
     theMsg.setText( "" );
 
     if( info != 0 ) new displayInfo( name );
     getMsgsPtrs();
-  }
-
-  public int atoi( String s ) {
-    try {
-      return Integer.parseInt( s );
-    } catch( Exception e ) {
-      return 0;
-    }
   }
 
   public void getMsgsPtrs() {
@@ -171,7 +167,7 @@ public class messagePanel extends Panel {
     msgInfo.setText( sum );
     theMsg.setText( r.getData() ); /* this relies on the fact that we've removed the header lines above.  probably a messy way to deal with references. */
 
-    int	n = atoi( num );
+    int	n = citadel.atoi( num );
     if( n > highest_read ) {
       highest_read = n;
       citadel.me.getReply( "SLRP " + num );
