@@ -1,4 +1,7 @@
 $Log$
+Revision 1.331  1999/07/25 02:59:37  ajc
+Fixed reference count problem in cmd_move()
+
 Revision 1.330  1999/07/24 22:50:38  ajc
 Continued replacing references to [get|put]_msglist() with better code.
 For some reason, cmd_msgs() still doesn't always work right.
@@ -1111,3 +1114,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import
+ 

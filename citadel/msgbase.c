@@ -515,7 +515,7 @@ time_t output_message(char *msgid, int mode, int headers_only)
 	if (dmsgtext == NULL) {
 		if (mode != MT_DATE)
 			cprintf("%d Can't find message %ld\n",
-				ERROR + INTERNAL_ERROR);
+				(ERROR + INTERNAL_ERROR), msg_num);
 		return (xtime);
 	}
 	msg_len = (long) dmsgtext->len;
@@ -1566,6 +1566,11 @@ void cmd_move(char *args)
 		return;
 	}
 
+	/* Bump the reference count, otherwise the message will be deleted
+	 * from disk when we remove it from the source room.
+	 */
+	AdjRefCount(num, 1);
+
 	/* yank the message out of the current room... */
 	foundit = CtdlDeleteMessages(CC->quickroom.QRname, num, NULL);
 
@@ -1576,6 +1581,7 @@ void cmd_move(char *args)
 		lputroom(&qtemp);
 		cprintf("%d Message moved.\n", OK);
 	} else {
+		AdjRefCount(num, (-1));		/* oops */
 		cprintf("%d msg %ld does not exist.\n", ERROR, num);
 	}
 }
