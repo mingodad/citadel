@@ -53,10 +53,21 @@ void cal_process_attachment(char *part_source) {
  * Handler stub for builds with no calendar library available
  */
 void cal_process_attachment(char *part_source) {
+	icalcomponent *cal;
 
-	wprintf("<B><I>This is a calendar object.  "
-		"Handler coming soon!</I></B><BR>");
+	wprintf("Processing calendar attachment<BR>\n");
+	cal = icalcomponent_new_from_string(part_source);
 
+	if (cal == NULL) {
+		wprintf("Error parsing calendar object: %s<BR>\n",
+			icalerror_strerror(icalerrno));
+		return;
+	}
+
+	wprintf("Parsing went well.  Cool.<BR>\n");
+
+	/* Free the memory we obtained from libical's constructor */
+	icalcomponent_free(cal);
 }
 
 #endif /* HAVE_ICAL_H */
