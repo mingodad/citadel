@@ -1,0 +1,126 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.72 [en] (X11; U; Linux 2.2.14-5.0 i586) [Netscape]">
+</head>
+<body>
+
+<center>
+<h1>
+Using Citadel/UX&nbsp;with Sleepycat (Berkeley) DB</h1></center>
+
+<h2>
+Abstract</h2>
+<a href="http://uncensored.citadel.org/citadel">Citadel/UX</a>&nbsp;can
+now use the robust and scalable <a href="http://www.sleepycat.com">Berkeley
+DB&nbsp;from Sleepycat Software</a> as its data store, for increased scalability,
+reliability, and recoverability.
+<h2>
+History and introduction</h2>
+From its inception in 1987 until versions 5.1x in 1988, Citadel/UX&nbsp;utilized
+a built-in data store loosely modelled after Jeff Prothero's original Citadel-CP/M&nbsp;design.&nbsp;
+But as Citadel systems scaled upwards, supporting Internet-connected systems
+with heavy concurrent use, and aspirations of becoming a world-class messaging/groupware
+platform someday, the developers made the decision to switch to an embedded
+database.&nbsp; The Free Software Foundation's <a href="http://www.gnu.org/software/gdbm/gdbm.html">GDBM</a>&nbsp;product
+was chosen for its simple API&nbsp;and its free license (the LGPL).
+<p>Somewhat less than trouble-free operation from 1988 through 2000, however,
+proved that GDBM was not the best choice.&nbsp; Heavily utilized systems
+experienced occasional database corruption, often resulting in repeated
+crashes of the Citadel server.&nbsp; As a result, we made the decision
+to switch to <a href="http://www.sleepycat.com">Berkeley DB</a>.
+<p>Berkeley DB&nbsp;offers <a href="http://www.sleepycat.com/xactfeatures.html">numerous
+features</a> which help Citadel/UX&nbsp;to meet its goals as a high-end
+messaging platform:
+<ul>
+<li>
+Database sizes can scale to hundreds of terabytes</li>
+
+<li>
+A transaction-based logging system</li>
+
+<li>
+Recovery utilities</li>
+</ul>
+It is clear that Berkeley DB&nbsp;is a better choice than GDBM&nbsp;for
+a high-utilization database that requires crash recovery.&nbsp; Beginning
+on December 7, 2000, Citadel/UX supports the use of <i>either</i> GDBM
+or DB&nbsp;as the data store.&nbsp; At some point in the future, DB&nbsp;will
+become the default.&nbsp; <b>If you are setting up a potentially busy system,
+we recommend that you use DB.</b>
+<br>&nbsp;
+<h2>
+Building Citadel/UX with DB support</h2>
+Here are the steps required to get Citadel/UX running with Berkeley DB&nbsp;as
+its back end data store.
+<br>&nbsp;
+<ol>
+<li>
+First, you must download and build Berkeley DB&nbsp;itself.&nbsp; Citadel
+has been developed and tested with DB&nbsp;3.1.17, which can be downloaded
+from <a href="http://www.sleepycat.com">www.sleepycat.com</a>.&nbsp; Follow
+the "<a href="http://www.sleepycat.com/docs/ref/build_unix/intro.html">Building
+for UNIX</a>" instructions.&nbsp; <b>Make sure that you run the test suite,
+and perhaps test with some of the sample applications, before moving on.</b></li>
+
+<li>
+Start with a clean source tree.&nbsp; Either unpack a fresh copy of the
+source or do a "<tt>make distclean</tt>" before continuing.</li>
+
+<li>
+Run the configure script:&nbsp; <tt>./configure --with-db=/usr/local/BerkeleyDB.3.1</tt>&nbsp;&nbsp;
+(Specify whatever directory you've actually installed DB&nbsp;into, of
+course.&nbsp; Also specify any other configure options you need at this
+time.)</li>
+
+<li>
+Run "make" and "make install-exec."&nbsp; Continue installing Citadel as
+per the instructions supplied with the system.</li>
+</ol>
+
+<h2>
+Migrating an existing GDBM-based Citadel to a DB-based Citadel</h2>
+If you have an existing system, you must export your databases, rebuild
+Citadel with DB&nbsp;support, and then re-import your databases into the
+new system.&nbsp; Please refer to the document "<a href="http://pixel.citadel.org/citadel/docs/export.html">How
+to use the importer/exporter</a>" for detailed instructions on this.
+<p>After you export your database, but before you re-import it, you must
+perform the following steps:
+<ol>
+<li>
+Re-build Citadel with DB&nbsp;support, as described above</li>
+
+<li>
+Remove all of the *.gdbm files from your data directory.</li>
+</ol>
+
+<h2>
+Care and feeding of your DB-powered Citadel</h2>
+Citadel uses the transaction-based logging facility of Berkeley DB.&nbsp;
+Therefore you will notice log files accumulating in your data directory.&nbsp;
+These are required for automatic recovery in the event of a catastrophic
+system failure.&nbsp; Log files have filenames that look like "log.0000000001"
+whereas the normal database files have names like "cdb.05".
+<p>So do you have to keep these log files around forever?&nbsp; No, but
+there are some rules you should follow:
+<ul>
+<li>
+Don't remove a log file if it's the only log file there.</li>
+
+<li>
+Don't remove any log file that has a recent timestamp.&nbsp; Generally
+speaking, if it's more than a week old, and you've been running tape backups
+every day (you <i>are</i> doing daily backups, right?), you can safely
+remove the log file.</li>
+</ul>
+You may think that it's going to keep writing to that one log file forever,
+but don't panic; when the log file gets sufficiently large it will switch
+over to another one.&nbsp; As a general rule of thumb, your archival procedure
+should be to back up to tape every day, and only delete log files that
+are older than your oldest backup.&nbsp; Berkeley DB supports "hot" backups;
+in other words, you are permitted to back up your Citadel data without
+having to first shut down the Citadel server.
+<br>&nbsp;
+</body>
+</html>
