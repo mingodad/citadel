@@ -8,6 +8,21 @@ typedef pthread_t THREAD;
 
 
 /*
+ * Generic per-session variable or data structure storage
+ */
+struct CtdlSessData {
+	struct CtdlSessData *next;
+	unsigned long sym_id;
+	void *sym_data;
+};
+
+/*
+ * For the time being, all known userdata symbols are defined here.
+ */
+#define SYM_DESIRED_SECTION		0x00000001
+
+
+/*
  * Here's the big one... the Citadel context structure.
  *
  * This structure keeps track of all information relating to a running 
@@ -19,63 +34,63 @@ typedef pthread_t THREAD;
 struct CitContext {
 	struct CitContext *next;	/* Link to next session in the list */
 
-        struct usersupp usersupp;	/* Database record buffers */
-        struct quickroom quickroom;
-	
+	struct usersupp usersupp;	/* Database record buffers */
+	struct quickroom quickroom;
+
 	long *msglist;
 	int num_msgs;
 
-        char curr_user[32];		/* name of current user */
-        int logged_in;			/* logged in */
-        int internal_pgm;		/* authenticated as internal program */
-        char temp[32];			/* temp file name */
-        int nologin;			/* not allowed to log in */
+	char curr_user[32];	/* name of current user */
+	int logged_in;		/* logged in */
+	int internal_pgm;	/* authenticated as internal program */
+	char temp[32];		/* temp file name */
+	int nologin;		/* not allowed to log in */
 
-        char net_node[32];
+	char net_node[32];
 	THREAD mythread;
-	int n_crit;			/* number of critical sections open */
+	int n_crit;		/* number of critical sections open */
 	int client_socket;
-	int cs_pid;			/* session ID */
+	int cs_pid;		/* session ID */
 	char cs_room[ROOMNAMELEN];	/* current room */
-	time_t cs_lastupdt;		/* time of last update */
-	time_t lastcmd;			/* time of last command executed */
-	time_t lastidle;		/* For computing idle time */
-	char lastcmdname[5];		/* name of last command executed */
-	unsigned cs_flags;		/* miscellaneous flags */
+	time_t cs_lastupdt;	/* time of last update */
+	time_t lastcmd;		/* time of last command executed */
+	time_t lastidle;	/* For computing idle time */
+	char lastcmdname[5];	/* name of last command executed */
+	unsigned cs_flags;	/* miscellaneous flags */
 
-					/* feeping creaturisms... */
-	int cs_clientdev;		/* client developer ID */
-	int cs_clienttyp;		/* client type code */
-	int cs_clientver;		/* client version number */
-	char cs_clientname[32];		/* name of client software */
-	char cs_host[25];		/* host logged in from */
+				/* feeping creaturisms... */
+	int cs_clientdev;	/* client developer ID */
+	int cs_clienttyp;	/* client type code */
+	int cs_clientver;	/* client version number */
+	char cs_clientname[32];	/* name of client software */
+	char cs_host[25];	/* host logged in from */
 
-        FILE *download_fp;		/* Fields relating to file transfer */
-        FILE *upload_fp;
+	FILE *download_fp;	/* Fields relating to file transfer */
+	FILE *upload_fp;
 	char upl_file[256];
 	char upl_path[256];
 	char upl_comment[256];
 	char upl_filedir[256];
-	char chat_room[20];		/* The chat room */
+	char chat_room[20];	/* The chat room */
 	char dl_is_net;
 	char upload_type;
 
 	struct ExpressMessage *FirstExpressMessage;
 
-	char fake_username[32];		/* Fake username <bc>                */
-	char fake_postname[32];		/* Fake postname <bc>                */
-	char fake_hostname[25];		/* Name of the fake hostname <bc>    */
-	char fake_roomname[ROOMNAMELEN];/* Name of the fake room <bc>        */
+	char fake_username[32];	/* Fake username <bc>                */
+	char fake_postname[32];	/* Fake postname <bc>                */
+	char fake_hostname[25];	/* Name of the fake hostname <bc>    */
+	char fake_roomname[ROOMNAMELEN]; /* Name of the fake room <bc> */
 
-	int FloorBeingSearched;		/* This is used by cmd_lrms() etc.   */
-	char desired_section[64];	/* This is used for MIME downloads   */
-	};
+	int FloorBeingSearched;    /* This is used by cmd_lrms() etc.   */
+	struct CtdlSessData *FirstSessData;
+};
 
 typedef struct CitContext t_context;
 
-#define CS_STEALTH	1		/* stealth mode */
-#define CS_CHAT		2		/* chat mode */
-#define CS_POSTING	4		/* Posting */
+#define CS_STEALTH	1	/* stealth mode */
+#define CS_CHAT		2	/* chat mode */
+#define CS_POSTING	4	/* Posting */
 
 struct CitContext *MyContext(void);
 #define CC ((struct CitContext *)MyContext())
@@ -87,15 +102,15 @@ extern struct CitControl CitControl;
 
 struct ExpressMessage {
 	struct ExpressMessage *next;
-	time_t timestamp;		/* When this message was sent */
-	unsigned flags;			/* Special instructions */
-	char sender[64];		/* Name of sending user */
-	char *text;			/* Message text (if applicable) */
-	};
+	time_t timestamp;	/* When this message was sent */
+	unsigned flags;		/* Special instructions */
+	char sender[64];	/* Name of sending user */
+	char *text;		/* Message text (if applicable) */
+};
 
-#define EM_BROADCAST	1		/* Broadcast message */
-#define EM_GO_AWAY	2		/* Server requests client log off */
-#define EM_CHAT		4		/* Server requests client enter chat */
+#define EM_BROADCAST	1	/* Broadcast message */
+#define EM_GO_AWAY	2	/* Server requests client log off */
+#define EM_CHAT		4	/* Server requests client enter chat */
 
 struct ChatLine {
 	struct ChatLine *next;
@@ -104,7 +119,7 @@ struct ChatLine {
 	char chat_text[256];
 	char chat_room[20];
 	char chat_username[32];
-	};
+};
 
 /*
  * Various things we need to lock and unlock
@@ -135,12 +150,12 @@ struct ChatLine {
 /*
  * message transfer formats
  */
-#define MT_CITADEL	0		/* Citadel proprietary */
-#define MT_DATE		1		/* We're only looking for the date */
-#define MT_RFC822	2		/* RFC822 */
-#define MT_RAW		3		/* IGnet raw format */
-#define MT_MIME		4		/* MIME-formatted message */
-#define MT_DOWNLOAD	5		/* Download a component */
+#define MT_CITADEL	0	/* Citadel proprietary */
+#define MT_DATE		1	/* We're only looking for the date */
+#define MT_RFC822	2	/* RFC822 */
+#define MT_RAW		3	/* IGnet raw format */
+#define MT_MIME		4	/* MIME-formatted message */
+#define MT_DOWNLOAD	5	/* Download a component */
 
 
 /*
@@ -157,7 +172,7 @@ struct ChatLine {
 struct cdbdata {
 	size_t len;
 	char *ptr;
-	};
+};
 
 
 /* Structures and declarations for function hooks of various types */
@@ -166,13 +181,13 @@ struct LogFunctionHook {
 	struct LogFunctionHook *next;
 	int loglevel;
 	void (*h_function_pointer) (char *);
-	};
+};
 extern struct LogFunctionHook *LogHookTable;
 
 struct CleanupFunctionHook {
 	struct CleanupFunctionHook *next;
 	void (*h_function_pointer) (void);
-	};
+};
 extern struct CleanupFunctionHook *CleanupHookTable;
 
 
@@ -186,7 +201,7 @@ struct SessionFunctionHook {
 	struct SessionFunctionHook *next;
 	void (*h_function_pointer) (void);
 	int eventtype;
-	};
+};
 extern struct SessionFunctionHook *SessionHookTable;
 
 #define EVT_STOP	0	/* Session is terminating */
@@ -206,7 +221,7 @@ struct UserFunctionHook {
 	struct UserFunctionHook *next;
 	void (*h_function_pointer) (char *username, long usernum);
 	int eventtype;
-	};
+};
 extern struct UserFunctionHook *UserHookTable;
 
 #define EVT_PURGEUSER	100	/* Deleting a user */
@@ -220,11 +235,11 @@ struct visit {
 	long v_usernum;
 	long v_lastseen;
 	unsigned int v_flags;
-	};
+};
 
-#define V_FORGET	1		/* User has zapped this room        */
-#define V_LOCKOUT	2		/* User is locked out of this room  */
-#define V_ACCESS	4		/* Access is granted to this room   */
+#define V_FORGET	1	/* User has zapped this room        */
+#define V_LOCKOUT	2	/* User is locked out of this room  */
+#define V_ACCESS	4	/* Access is granted to this room   */
 
 #define UA_KNOWN                2
 #define UA_GOTOALLOWED          4
@@ -246,11 +261,11 @@ void *tracked_realloc(void *, size_t);
 void dump_tracked(void);
 
 struct TheHeap {
-        struct TheHeap *next;
-        char h_file[32];
-        int h_line;
-        void *h_ptr;
-        };
+	struct TheHeap *next;
+	char h_file[32];
+	int h_line;
+	void *h_ptr;
+};
 
 extern struct TheHeap *heap;
 

@@ -20,6 +20,7 @@
 #include "msgbase.h"
 #include "support.h"
 #include "sysdep_decls.h"
+#include "citserver.h"
 #include "room_ops.h"
 #include "user_ops.h"
 #include "file_ops.h"
@@ -34,6 +35,8 @@
 #define MSGS_FIRST	3
 #define MSGS_LAST	4
 #define MSGS_GT		5
+
+#define desired_section ((char *)CtdlGetUserData(SYM_DESIRED_SECTION))
 
 extern struct config config;
 
@@ -368,7 +371,7 @@ void mime_download(char *name, char *filename, char *partnum, char *disp,
 	if (CC->download_fp != NULL) return;
 
 	/* ...or if this is not the desired section */
-	if (strcasecmp(CC->desired_section, partnum)) return;
+	if (strcasecmp(desired_section, partnum)) return;
 
 	snprintf(tmpname, sizeof tmpname,
 		"/tmp/CitServer.download.%4x.%4x", getpid(), ++seq);
@@ -506,7 +509,7 @@ time_t output_message(char *msgid, int mode, int headers_only) {
 			if (CC->download_fp == NULL) {
 				cprintf("%d Section %s not found.\n",
 					ERROR+FILE_NOT_FOUND,
-					CC->desired_section);
+					desired_section);
 				}
 			}
 		cdb_free(dmsgtext);
@@ -771,8 +774,10 @@ void cmd_opna(char *cmdbuf)
 {
 	char msgid[256];
 
+	CtdlAllocUserData(SYM_DESIRED_SECTION, 64);
+
 	extract(msgid, cmdbuf, 0);
-	extract(CC->desired_section, cmdbuf, 1);
+	extract(desired_section, cmdbuf, 1);
 
 	output_message(msgid, MT_DOWNLOAD, 0);
 	}

@@ -23,3 +23,6 @@ void cmd_down (void);
 void cmd_scdn (char *argbuf);
 void cmd_extn (char *argbuf);
 void *context_loop (struct CitContext *con);
+void deallocate_user_data(struct CitContext *con);
+void *CtdlGetUserData(unsigned long requested_sym);
+void CtdlAllocUserData(unsigned long requested_sym, size_t num_bytes);

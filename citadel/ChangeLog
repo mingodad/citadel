@@ -1,6 +1,13 @@
+Thu May 20 20:01:30 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* database.c: print log messages for file defragmentations
+	* citserver.c: implemented CtdlAllocUserData() and CtdlGetUserData()
+	  for arbitrary per-session data storage (by modules etc.) without
+	  having to add fields to struct CitContext
+	* msgbase.c: removed "desired_section" from struct CitContext and
+	  implemented it using CtdlGetUserData() as a test.
+
 Wed May 19 19:30:28 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* commands.c, commands.h, routines.c: began color scheme changes
-	* database.c: print log messages for file defragmentations
 
 1999-05-15 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* configure.in: Added untested support for BSDI 4.x.

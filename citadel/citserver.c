@@ -89,6 +89,29 @@ void master_cleanup(void) {
 
 
 /*
+ * Free any per-session data allocated by modules or whatever
+ */
+void deallocate_user_data(struct CitContext *con)
+{
+	struct CtdlSessData *ptr;
+
+	begin_critical_section(S_SESSION_TABLE);
+	while (con->FirstSessData != NULL) {
+		lprintf(9, "Deallocating user data symbol %ld\n",
+			con->FirstSessData->sym_id);
+		if (con->FirstSessData->sym_data != NULL)
+			phree(con->FirstSessData->sym_data);
+		ptr = con->FirstSessData->next;
+		phree(con->FirstSessData);
+		con->FirstSessData = ptr;
+	}
+	end_critical_section(S_SESSION_TABLE);
+}
+
+
+
+
+/*
  * Gracefully terminate the session and thread.
  * (This is called as a cleanup handler by the thread library.)
  *
@@ -115,6 +138,9 @@ void cleanup_stuff(void *arg)
 	/* Deallocate any message list we might have in memory */
 	if (CC->msglist != NULL) phree(CC->msglist);
 
+	/* Deallocate any user-data attached to this session */
+	deallocate_user_data(CC);
+
 	/* Now get rid of the session and context */
 	lprintf(7, "cleanup_stuff() calling RemoveContext(%d)\n", CC->cs_pid);
 	RemoveContext(CC);
@@ -124,6 +150,62 @@ void cleanup_stuff(void *arg)
 	 */
 	do_housekeeping();
 	}
+
+
+
+/*
+ * Return a pointer to some generic per-session user data.
+ * (This function returns NULL if the requested symbol is not allocated.)
+ *
+ * NOTE: we use critical sections for allocating and de-allocating these,
+ *       but not for locating one.
+ */
+void *CtdlGetUserData(unsigned long requested_sym) 
+{
+	struct CtdlSessData *ptr;
+
+	for (ptr = CC->FirstSessData; ptr != NULL; ptr = ptr->next)
+		if (ptr->sym_id == requested_sym)
+			return(ptr->sym_data);
+
+	lprintf(2, "ERROR! CtdlGetUserData(%ld) symbol not allocated\n",
+		requested_sym);
+	return NULL;
+}
+
+
+/*
+ * Allocate some generic per-session user data.
+ */
+void CtdlAllocUserData(unsigned long requested_sym, size_t num_bytes)
+{
+	struct CtdlSessData *ptr;
+
+	lprintf(9, "CtdlAllocUserData(%ld) called\n", requested_sym);
+
+	for (ptr = CC->FirstSessData; ptr != NULL; ptr = ptr->next)  {
+		if (ptr->sym_id == requested_sym) {
+			lprintf(2, "ERROR: CtdlAllocUserData() requested for"
+			   	" symbol id %ld already registered\n", 
+				requested_sym);
+			return;
+		}
+	}
+
+	ptr = mallok(sizeof(struct CtdlSessData));
+	ptr->sym_id = requested_sym;
+	ptr->sym_data = mallok(num_bytes);
+
+	begin_critical_section(S_SESSION_TABLE);
+	ptr->next = CC->FirstSessData;
+	CC->FirstSessData = ptr;
+	end_critical_section(S_SESSION_TABLE);
+
+	lprintf(9, "CtdlAllocUserData(%ld) finished\n", requested_sym);
+}
+
+
+
 
 
 /*
@@ -741,6 +823,7 @@ void *context_loop(struct CitContext *con)
 	CC->cs_flags = 0;
 	CC->upload_type = UPL_FILE;
 	CC->dl_is_net = 0;
+	CC->FirstSessData = NULL;
 
 	num_sessions = session_count();
 	CC->nologin = 0;
