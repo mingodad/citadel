@@ -14,6 +14,7 @@
 #include <errno.h>
 #include "citadel.h"
 #include "rooms.h"
+#include "commands.h"
 #include "tools.h"
 
 #define IFEXPERT if (userflags&US_EXPERT)

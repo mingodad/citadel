@@ -618,6 +618,15 @@ void do_system_configuration(void) {
 	strprompt("Fully qualified domain name", &sc[1][0], 63);
 	strprompt("Human readable node name", &sc[2][0], 20);
 	strprompt("Modem dialup number", &sc[3][0], 15);
+	sc[4][0] = 48+(boolprompt("Automatically give room aide privs to creators of private rooms", sc[4][0]));
+	strprompt("Server connection idle timeout (in seconds)", &sc[5][0], 4);
+	strprompt("Initial access level for new users", &sc[6][0], 1);
+	sc[7][0] = 48+(boolprompt("Require registration for new users", sc[7][0]));
+	sc[8][0] = 48+(boolprompt("Automatically move problem user messages to twit room", sc[8][0]));
+	strprompt("Initial access level for new users", &sc[9][0], 1);
+	strprompt("Name of twit room", &sc[10][0], ROOMNAMELEN);
+	strprompt("Page prompt", &sc[11][0], 79);
+	sc[12][0] = 48+(boolprompt("Restrict Internet mail", sc[12][0]));
 	/* FIX add the rest of them */
 
 	/* Angels and demons dancing in my head... */
