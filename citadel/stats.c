@@ -86,7 +86,7 @@ void progress(long int curr, long int max)
 
 int main(int argc, char **argv)
 {
-	time_t LogTime;
+	time_t LogTime, now;
 	unsigned int LogType;
 	char LogName[256];
 	int a, b, lowest;
@@ -124,6 +124,7 @@ int main(int argc, char **argv)
 		       "........................................................................");
 
 	get_config();
+	time(&now);
 
 	if (pc_only)
 		goto PC_ONLY_HERE;
@@ -162,7 +163,8 @@ int main(int argc, char **argv)
 			LogType = atol(strtok(NULL, "|"));
 			strcpy(LogName, strtok(NULL, "|"));
 
-			if (LogType != 0) {
+			if ( (LogType != 0) && (LogTime > 100L)
+			   && (LogTime <= now) ) {
 				if ((LogTime < from) || (from == 0L))
 					from = LogTime;
 				if ((LogTime > to) || (to == 0L))

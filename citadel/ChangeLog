@@ -1,4 +1,7 @@
  $Log$
+ Revision 570.10  2000/03/31 04:31:02  ajc
+ * Quick fix to 'stats' utility to purge records with bogus timestamps
+
  Revision 570.9  2000/03/31 02:10:52  ajc
  * Caved in to pressure and enabled <R>eply in public rooms.
 
@@ -1801,3 +1804,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
