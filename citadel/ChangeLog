@@ -1,4 +1,7 @@
  $Log$
+ Revision 620.27  2004/05/07 18:17:26  ajc
+ * Scrawled some notes in roadmap.txt
+
  Revision 620.26  2004/05/06 03:38:26  ajc
  * Never reduce the size of the thread pool, only increase it (still
    observing the max ceiling, of course)
@@ -5738,4 +5741,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

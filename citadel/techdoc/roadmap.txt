@@ -37,20 +37,15 @@ Goals to achieve during the 6.xx cycle
   to be the emerging standard for open source groupware.  We will monitor the
   direction the community takes and follow along.
   
-* NNTP
-  This needs some research, but I think it's technically going to be more
-  trouble than it's worth. -IO
-
  
  Short-term TODO list
  --------------------
  
- * PLAIN and CRAM-MD5 authentication mechanisms
-   (Status: PLAIN is done; CRAM-MD5 will arrive a little later.)
-
  * WebCit support for HTTP transactions performed by Kolab clients
    (Status: DONE!  The current WebCit build works with the KDE Kolab klient
    using HTTPS.)
+ 
+ * RFC 2739 compliance (provide calendar free/busy URL's in vCard and LDAP)
 
  * Reminder: after the next non-beta version of the Citadel server is
    released, email the IMAPcopy people for inclusion on their web site.
