@@ -31,6 +31,7 @@
 #include "html.h"
 
 #define desired_section ((char *)CtdlGetUserData(SYM_DESIRED_SECTION))
+#define ma ((struct ma_info *)CtdlGetUserData(SYM_MA_INFO))
 
 extern struct config config;
 
@@ -417,7 +418,7 @@ void memfmout(int width, char *mptr, char subst)
 	}
 	goto FMTA;
 
-      FMTEND:cprintf("%s\n", aaa);
+FMTEND:	cprintf("%s\n", aaa);
 }
 
 
@@ -442,15 +443,32 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 {
 	char *ptr;
 
+	if (!strcasecmp(cbtype, "multipart/alternative")) {
+		strcpy(ma->prefix, partnum);
+		strcat(ma->prefix, ".");
+		ma->is_ma = 1;
+		ma->did_print = 0;
+		return;
+	}
+
+	if ( (!strncasecmp(partnum, ma->prefix, strlen(ma->prefix)))
+	   && (ma->is_ma == 1) 
+	   && (ma->did_print == 1) ) {
+		lprintf(9, "Skipping part %s (%s)\n", partnum, cbtype);
+		return;
+	}
+
+	ma->did_print = 1;
+
 	if (!strcasecmp(cbtype, "text/plain")) {
 		client_write(content, length);
 	}
 	else if (!strcasecmp(cbtype, "text/html")) {
-		ptr = html_to_ascii(content, 80, 1);
+		ptr = html_to_ascii(content, 80, 0);
 		client_write(ptr, strlen(ptr));
 		phree(ptr);
 	}
-	else {
+	else if (strncasecmp(cbtype, "multipart/", 10)) {
 		cprintf("Part %s: %s (%s) (%d bytes)\n",
 			partnum, filename, cbtype, length);
 	}
@@ -600,6 +618,7 @@ void output_message(char *msgid, int mode, int headers_only)
 		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
 		return;
 	}
+
 	/* FIX ... small security issue
 	 * We need to check to make sure the requested message is actually
 	 * in the current room, and set msg_ok to 1 only if it is.  This
@@ -650,9 +669,17 @@ void output_message(char *msgid, int mode, int headers_only)
 	/* now for the user-mode message reading loops */
 	cprintf("%d Message %ld:\n", LISTING_FOLLOWS, msg_num);
 
-	if (mode == MT_CITADEL)
-		cprintf("type=%d\n", TheMessage->cm_format_type);
+	/* Tell the client which format type we're using.  If this is a
+	 * MIME message, *lie* about it and tell the user it's fixed-format.
+	 */
+	if (mode == MT_CITADEL) {
+		if (TheMessage->cm_format_type == 4)
+			cprintf("type=1\n");
+		else
+			cprintf("type=%d\n", TheMessage->cm_format_type);
+	}
 
+	/* nhdr=yes means that we're only displaying headers, no body */
 	if ((TheMessage->cm_anon_type == MES_ANON) && (mode == MT_CITADEL)) {
 		cprintf("nhdr=yes\n");
 	}
@@ -751,8 +778,7 @@ void output_message(char *msgid, int mode, int headers_only)
 		}
 		cprintf("Message-ID: <%s@%s>\n", mid, snode);
 		PerformUserHooks(luser, (-1L), EVT_OUTPUTMSG);
-		cprintf("From: %s@%s (%s)\n",
-			suser, snode, luser);
+		cprintf("From: %s@%s (%s)\n", suser, snode, luser);
 		cprintf("Organization: %s\n", lnode);
 	}
 
@@ -760,12 +786,13 @@ void output_message(char *msgid, int mode, int headers_only)
 
 	mptr = TheMessage->cm_fields['M'];
 
-	/* do some sort of MIME output */
-	if (TheMessage->cm_format_type == 4) {
-		if ((mode == MT_CITADEL) || (mode == MT_MIME)) {
+	/* Tell the client about the MIME parts in this message */
+	if (TheMessage->cm_format_type == 4) {	/* legacy textual dump */
+		if (mode == MT_CITADEL) {
 			mime_parser(mptr, NULL, *list_this_part);
 		}
-		if (mode == MT_MIME) {	/* If MT_MIME then it's parts only */
+		else if (mode == MT_MIME) {	/* list parts only */
+			mime_parser(mptr, NULL, *list_this_part);
 			cprintf("000\n");
 			CtdlFreeMessage(TheMessage);
 			return;
@@ -822,6 +849,8 @@ void output_message(char *msgid, int mode, int headers_only)
 	 * we use will display those parts as-is.
 	 */
 	if (TheMessage->cm_format_type == 4) {
+		CtdlAllocUserData(SYM_MA_INFO, sizeof(struct ma_info));
+		memset(ma, 0, sizeof(struct ma_info));
 		mime_parser(mptr, NULL, *fixed_output);
 	}
 

@@ -47,4 +47,8 @@ void CtdlFreeMessage(struct CtdlMessage *msg);
 #define MSGS_LAST       4
 #define MSGS_GT         5
 
-
+struct ma_info {
+	char prefix[256];	/* Prefix for a multipart/alternative */
+	int is_ma;		/* Set to 1 if we are using this stuff */
+	int did_print;		/* One alternative has been displayed */
+};

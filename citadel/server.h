@@ -21,6 +21,7 @@ struct CtdlSessData {
  */
 enum {
 	SYM_DESIRED_SECTION,		/* Used by the MIME parser */
+	SYM_MA_INFO,			/* Handles multipart/alternative */
 	SYM_MAX
 };
 

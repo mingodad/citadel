@@ -1,4 +1,8 @@
 $Log$
+Revision 1.355  1999/08/31 00:57:17  ajc
+* Handle multipart/alternative properly during legacy message outputs.
+  Basically it just prints the first alternative and skips the rest.
+
 Revision 1.354  1999/08/29 21:12:24  ajc
 * Made some changes to the output of MIME (especially multipart) messages.
 
@@ -1207,3 +1211,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
