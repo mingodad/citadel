@@ -1,4 +1,10 @@
 $Log$
+Revision 603.9  2005/03/07 04:03:28  ajc
+* auth.c: shrink the margins on the login screen so the user sees something
+  resembling a window.
+* Allow editing of address book entries wherever possible.
+* Anything that was a (link) is now a [link]
+
 Revision 603.8  2005/03/07 01:45:30  ajc
 * Rolled back to the old RTE because the new one doesn't work in Safari.
 
@@ -2463,6 +2469,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
-
-

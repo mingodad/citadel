@@ -323,9 +323,10 @@ void display_vcard(char *vcard_source, char alpha, int full, char *storename) {
 	if (storename != NULL) {
 		fetchname_parsed_vcard(v, storename);
 	}
-	else if ( (alpha == 0)
-	   || ((isalpha(alpha)) && (tolower(alpha) == tolower(this_alpha)) )
-	   || ((!isalpha(alpha)) && (!isalpha(this_alpha))) ) {
+	else if (	(alpha == 0)
+			|| ((isalpha(alpha)) && (tolower(alpha) == tolower(this_alpha)) )
+			|| ((!isalpha(alpha)) && (!isalpha(this_alpha)))
+		) {
 		display_parsed_vcard(v, full);
 	}
 
@@ -613,12 +614,14 @@ void read_message(long msgnum) {
 		if (part_source != NULL) {
 
 			/* If it's my vCard I can edit it */
-			if ( (!strcasecmp(WC->wc_roomname, USERCONFIGROOM))
-			   || (!strcasecmp(&WC->wc_roomname[11], USERCONFIGROOM))) {
+			if (	(!strcasecmp(WC->wc_roomname, USERCONFIGROOM))
+				|| (!strcasecmp(&WC->wc_roomname[11], USERCONFIGROOM))
+				|| (WC->wc_view == VIEW_ADDRESSBOOK)
+			) {
 				wprintf("<A HREF=\"/edit_vcard?"
 					"msgnum=%ld&partnum=%s\">",
 					msgnum, vcard_partnum);
-				wprintf("(edit)</A>");
+				wprintf("[edit]</A>");
 			}
 
 			/* In all cases, display the full card */
@@ -775,12 +778,14 @@ void display_addressbook(long msgnum, char alpha) {
 			display_vcard(vcard_source, alpha, 0, NULL);
 
 			/* If it's my vCard I can edit it */
-			if ( (!strcasecmp(WC->wc_roomname, USERCONFIGROOM))
-			   || (!strcasecmp(&WC->wc_roomname[11], USERCONFIGROOM))) {
+			if (	(!strcasecmp(WC->wc_roomname, USERCONFIGROOM))
+				|| (!strcasecmp(&WC->wc_roomname[11], USERCONFIGROOM))
+				|| (WC->wc_view == VIEW_ADDRESSBOOK)
+			) {
 				wprintf("<A HREF=\"/edit_vcard?"
 					"msgnum=%ld&partnum=%s\">",
 					msgnum, vcard_partnum);
-				wprintf("(edit)</A>");
+				wprintf("[edit]</A>");
 			}
 
 			free(vcard_source);
