@@ -269,6 +269,13 @@ function ctdl_knrooms() {
 		$tok = strtok("|");
 		if ($tok) $thisline["access"] = $tok;
 
+		if ($thisline["access"] & 8) {
+			$thisline["hasnewmsgs"] = TRUE;
+		}
+		else {
+			$thisline["hasnewmsgs"] = FALSE;
+		}
+
 		$num_lines = array_push($all_lines, $thisline);
 	}
 

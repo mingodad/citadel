@@ -1,4 +1,8 @@
  $Log$
+ Revision 1.14  2003/11/07 15:56:13  ajc
+ * ctdlprotocol.php: known room list fetch now sets subscript "hasnewmsgs"
+ * listrooms.php: render rooms with unseen messages in boldface
+
  Revision 1.13  2003/11/05 03:29:12  ajc
  * Added a room list function to the library
  * Threw together temporary room list and goto pages to demonstrate
@@ -57,4 +61,3 @@
 
  Revision 1.1  2003/10/31 03:47:13  ajc
  * Initial CVS import
-

@@ -11,9 +11,13 @@
 	list($num_rooms, $roomlist) = ctdl_knrooms();
 
 	if ($num_rooms > 0) foreach ($roomlist as $x) {
-		echo '<LI><A HREF="goto.php?towhere=' .
+		echo '<LI>';
+		if ($x["hasnewmsgs"]) echo '<B>';
+		echo '<A HREF="goto.php?towhere=' .
 			urlencode($x["name"]) . '">' .
-			htmlspecialchars($x["name"]) . "</A></LI>\n" ;
+			htmlspecialchars($x["name"]) . "</A>" ;
+		if ($x["hasnewmsgs"]) echo '</B>';
+		echo "</LI>\n" ;
 	}
 ?>
 
