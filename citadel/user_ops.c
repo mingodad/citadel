@@ -95,6 +95,7 @@ void putuser(struct usersupp *usbuf)
 		}
 	lowercase_name[sizeof(lowercase_name)-1] = 0;
 
+	usbuf->version = config.c_setup_level;
 	cdb_store(CDB_USERSUPP,
 		lowercase_name, strlen(lowercase_name),
 		usbuf, sizeof(struct usersupp));
@@ -424,14 +425,14 @@ void cmd_pass(char *buf)
 		}
 
 	code = (-1);
-	if (CC->usersupp.USuid == BBSUID) {
+	if (CC->usersupp.uid == BBSUID) {
 		strproc(password);
 		strproc(CC->usersupp.password);
 		code = strcasecmp(CC->usersupp.password,password);
 		}
 #ifdef ENABLE_AUTOLOGIN
 	else {
-		if (validpw(CC->usersupp.USuid, password)) {
+		if (validpw(CC->usersupp.uid, password)) {
 			code = 0;
 			lgetuser(&CC->usersupp, CC->curr_user);
 			safestrncpy(CC->usersupp.password, password,
@@ -536,10 +537,10 @@ int create_user(char *newusername)
 		for (a=0; a<strlen(username); ++a) {
 			if (username[a] == ',') username[a] = 0;
 			}
-		CC->usersupp.USuid = p->pw_uid;
+		CC->usersupp.uid = p->pw_uid;
 		}
 	else {
-		CC->usersupp.USuid = BBSUID;
+		CC->usersupp.uid = BBSUID;
 		}
 
 	if (!getuser(&usbuf,username)) {
@@ -561,12 +562,6 @@ int create_user(char *newusername)
 	CC->usersupp.USscreenwidth = 80;
 	CC->usersupp.USscreenheight = 24;
 	time(&CC->usersupp.lastcall);
-	strcpy(CC->usersupp.USname, "");
-	strcpy(CC->usersupp.USaddr, "");
-	strcpy(CC->usersupp.UScity, "");
-	strcpy(CC->usersupp.USstate, "");
-	strcpy(CC->usersupp.USzip, "");
-	strcpy(CC->usersupp.USphone, "");
 
 	/* fetch a new user number */
 	CC->usersupp.usernum = get_new_user_number();
@@ -658,7 +653,7 @@ void cmd_setp(char *new_pw)
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
 		return;
 		}
-	if (CC->usersupp.USuid != BBSUID) {
+	if (CC->usersupp.uid != BBSUID) {
 		cprintf("%d Not allowed.  Use the 'passwd' command.\n",ERROR);
 		return;
 		}

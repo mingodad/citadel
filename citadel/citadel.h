@@ -8,8 +8,8 @@
 #include "sysdep.h"
 #include "sysconfig.h"
 #include "ipcdef.h"
-#define CITADEL	"Citadel/UX 5.53"
-#define REV_LEVEL 553
+#define CITADEL	"Citadel/UX 5.55"
+#define REV_LEVEL 555
 #define SERVER_TYPE 0	/* zero for stock Citadel/UX; other developers please
 			   obtain SERVER_TYPE codes for your implementations */
 
@@ -90,26 +90,21 @@ struct config {
 #define RESTRICT_INTERNET	config.c_restrict
 
 /* Defines the actual user record */
+ 
 struct usersupp {			/* User record                      */
-	int USuid;			/* userid (==BBSUID for bbs only)   */
-	char password[20];		/* password (for BBS-only users)    */
+	int version;			/* Cit vers. which created this rec */
+	uid_t uid;			/* Associate with a unix account?   */
+	char password[32];		/* password (for BBS-only users)    */
 	unsigned flags;			/* See US_ flags below              */
-	int timescalled;		/* Total number of logins           */
-	int posted;			/* Number of messages posted (ever) */
-	char fullname[26];		/* Name for Citadel messages & mail */
-	char axlevel;			/* Access level                     */
-	CIT_UBYTE USscreenwidth;	/* Screen width (for textmode users)*/
-	CIT_UBYTE USscreenheight;	/* Screen height(for textmode users)*/
+	long timescalled;		/* Total number of logins           */
+	long posted;			/* Number of messages posted (ever) */
+	CIT_UBYTE axlevel;		/* Access level                     */
 	long usernum;			/* User number (never recycled)     */
 	time_t lastcall;		/* Last time the user called        */
-	char USname[30];		/* Real name (i.e. not a handle)    */
-	char USaddr[25];		/* Street address                   */
-	char UScity[15];		/* Municipality                     */
-	char USstate[3];		/* State or province                */
-	char USzip[10];			/* ZIP code                         */
-	char USphone[11];		/* Voice telephone number           */
-	char USemail[32];		/* E-mail address (elsewhere)       */
 	int USuserpurge;		/* Purge time (in days) for user    */
+	char fullname[64];		/* Name for Citadel messages & mail */
+	CIT_UBYTE USscreenwidth;	/* Screen width (for textmode users)*/
+	CIT_UBYTE USscreenheight;	/* Screen height(for textmode users)*/
 	};
 
 
@@ -121,6 +116,7 @@ struct CitControl {
 	unsigned MMflags;		/* Global system flags              */
 	long MMnextuser;		/* highest user number on system    */
 	long MMnextroom;		/* highest room number on system    */
+	int version;			/* Server-hosted upgrade level      */
 	};
 
 /* Bits which may appear in CitControl.MMflags.  Note that these don't
@@ -149,12 +145,11 @@ struct quickroom {
 	};
 
 
-/* Private rooms are always flagged with QR_PRIVATE. If neither QR_PASSWORDED
- * or QR_GUESSNAME is set, then it is invitation-only. Passworded rooms are
+/* Private rooms are always flagged with QR_PRIVATE.  If neither QR_PASSWORDED
+ * or QR_GUESSNAME is set, then it is invitation-only.  Passworded rooms are
  * flagged with both QR_PRIVATE and QR_PASSWORDED while guess-name rooms are
- * flagged with both QR_PRIVATE and QR_GUESSNAME. DO NOT set all three flags.
- *
- ****************************************************************************/
+ * flagged with both QR_PRIVATE and QR_GUESSNAME.  NEVER set all three flags.
+ */
 
 /*
  * Events which might show up in the Citadel Log
@@ -177,7 +172,7 @@ struct quickroom {
 #define MES_ERROR	(-1)	/* Can't send message due to bad address   */
 #define MES_LOCAL	0	/* Local message, do no network processing */
 #define MES_INTERNET	1	/* Convert msg and send as Internet mail   */
-#define MES_BINARY	2	/* Process recipient and send via C/UX net */
+#define MES_BINARY	2	/* Process recipient and send via Cit net  */
 
 /****************************************************************************/
 

@@ -25,6 +25,7 @@ SO=@SO@
 CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT)
 SERVER_TARGETS=citserver setup $(CHKPWD)
 SERV_MODULES=modules/serv_chat$(SO) modules/serv_vcard$(SO) \
+	modules/serv_upgrade$(SO) \
 	modules/serv_expire$(SO) modules/serv_icq$(SO)
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform readlog rcit \
 	stats citmail netpoll mailinglist userlist sendcommand \
@@ -68,7 +69,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	serv_info.c serv_test.c setup.c snprintf.c stats.c serv_vcard.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
 	whobbs.c sendcommand.c mime_parser.c base64.c qpdecode.c getutline.c \
-	auth.c chkpwd.c client_icq.c html.c vcard.c
+	auth.c chkpwd.c client_icq.c html.c vcard.c serv_upgrade.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
@@ -138,6 +139,12 @@ modules/serv_icq.so: serv_icq.mo
 
 modules/serv_icq.mo: serv_icq.mo
 	ln -f serv_icq.mo modules
+
+modules/serv_upgrade.so: serv_upgrade.mo
+	$(LINK_SHARED) -o modules/serv_upgrade.so serv_upgrade.mo
+
+modules/serv_upgrade.mo: serv_upgrade.mo
+	ln -f serv_upgrade.mo modules
 
 modules/serv_vcard.so: serv_vcard.mo vcard.mo
 	$(LINK_SHARED) -o modules/serv_vcard.so serv_vcard.mo vcard.mo

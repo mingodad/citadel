@@ -907,6 +907,14 @@ int main(int argc, char **argv)
 			}
 		}
 
+	/*
+	 * Do non system dependent startup functions.
+	 */
+	master_startup();
+
+	/*
+	 * Load any server-side modules (plugins) available here.
+	 */
 	lprintf(7, "Initializing loadable modules\n");
 	if ((moddir = malloc(strlen(bbs_home_directory) + 9)) != NULL) {
 		sprintf(moddir, "%s/modules", bbs_home_directory);
@@ -914,11 +922,6 @@ int main(int argc, char **argv)
 		free(moddir);
 		}
 	lprintf(9, "Modules done initializing.\n");
-
-	/*
-	 * Do non system dependent startup functions.
-	 */
-	master_startup();
 
 	/* 
 	 * Endless loop.  Listen on the master socket.  When a connection
