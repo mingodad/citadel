@@ -330,7 +330,7 @@ void display_reg(int during_login)
 			case 8:
 				wprintf("Telephone:</TD><TD><INPUT TYPE=\"text\" NAME=\"phone\" VALUE=\"%s\" MAXLENGTH=\"14\"><BR>\n", buf);
 				break;
-			case 9:
+			case 10:
 				wprintf("E-Mail:</TD><TD><INPUT TYPE=\"text\" NAME=\"email\" VALUE=\"%s\" MAXLENGTH=\"31\"><BR>\n", buf);
 				break;
 			}

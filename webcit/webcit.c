@@ -381,8 +381,9 @@ void output_headers(int print_standard_html_head)
 	if (print_standard_html_head > 0) {
 		wprintf("<HTML><HEAD><TITLE>");
 		escputs(serv_info.serv_humannode);
-		wprintf("<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">\n");
-		wprintf("</TITLE></HEAD>\n");
+		wprintf("</TITLE>\n"
+			"<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">\n"
+			"</HEAD>\n");
 		if (ExpressMessages != NULL) {
 			wprintf("<SCRIPT language=\"javascript\">\n");
 			wprintf("function ExpressMessage() {\n");
