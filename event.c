@@ -239,8 +239,10 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		if (!strncasecmp(organizer_string, "MAILTO:", 7)) {
 			strcpy(organizer_string, &organizer_string[7]);
 			striplt(organizer_string);
+			lprintf(9, "ISME %s\n", organizer_string);
 			serv_printf("ISME %s", organizer_string);
 			serv_gets(buf);
+			lprintf(9, "%s\n", buf);
 			if (buf[0] == '2') {
 				organizer_is_me = 1;
 			}
