@@ -1,4 +1,9 @@
  $Log$
+ Revision 580.17  2001/08/03 16:43:53  ajc
+ * database_sleepycat.c: when running txn_checkpoint(), handle DB_INCOMPLETE
+   return code as a warning instead of an error worthy of aborting the server.
+   See http://www.sleepycat.com/docs/api_c/txn_checkpoint.html for explanation.
+
  Revision 580.16  2001/07/30 03:46:14  nbryant
  made ForEachUser use a read-only cursor, too. there is now only one piece of
  code in Citadel proper (not the database driver) that needs transactions.
@@ -2647,3 +2652,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

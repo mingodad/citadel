@@ -13,7 +13,7 @@
  * the specified number of kilobytes has been written, or if the specified
  * number of minutes has passed, since the last checkpoint.
  */
-#define MAX_CHECKPOINT_KBYTES	0
+#define MAX_CHECKPOINT_KBYTES	256
 #define MAX_CHECKPOINT_MINUTES	15
 
 /*****************************************************************************/
@@ -211,11 +211,14 @@ static void cdb_checkpoint(void) {
 				MAX_CHECKPOINT_KBYTES,
 				MAX_CHECKPOINT_MINUTES,
 				0);
-	if (ret) {
+	if ( (ret != 0) && (ret != DB_INCOMPLETE) ) {
 		lprintf(1, "cdb_checkpoint: txn_checkpoint: %s\n", db_strerror(ret));
 		abort();
 	}
 
+	if (ret == DB_INCOMPLETE) {
+		lprintf(3, "WARNING: txn_checkpoint: %s\n", db_strerror(ret));
+	}
 
 	/* Cull the logs if we haven't done so for 24 hours */
 	if ((time(NULL) - last_cull) > 86400L) {
