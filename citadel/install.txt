@@ -313,8 +313,8 @@ sendmail configuration, here's what worked for me:
     
   I added the following mailer definition:
   
- Mcitadel,  P=/appl/citadel/citmail, F=lsDFMoqeu9, S=10/30, R=20/40, D=$z:/,
-            T=X-Unix,
+ Mcitadel,  P=/appl/citadel/citmail, F=lsDFMoqeu9S, S=10/30, R=20/40,
+            D=$z:/, T=X-Unix, U=bbs,
             A=/appl/citadel/citmail $u
  
   Then I replaced all instances of "#local" with "#citadel".  This seems to

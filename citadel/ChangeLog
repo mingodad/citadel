@@ -1,3 +1,6 @@
+Mon Apr 26 22:06:57 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Repaired IGnorant security hole blunder re. citmail
+
 Sun Apr 25 12:44:08 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* serv_chat.c: notify user of number of participants upon entering chat
 	* Built the 5.53 distribution
