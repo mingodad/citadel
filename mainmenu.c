@@ -74,7 +74,7 @@ void embed_main_menu(void)
 	wprintf("</TD><TD>");	/* start of third column */
 
 	wprintf("<UL>");
-	wprintf("<LI><B><A HREF=\"/whobbs\">\n");
+	wprintf("<LI><B><A HREF=\"/static/whoframeset.html\" TARGET=\"_top\">\n");
 	wprintf("Who is online?</B></A><BR>(users <EM>currently</EM> logged on)</LI>\n");
 
 	wprintf("<LI><B><A HREF=\"/userlist\">\n");
@@ -83,7 +83,7 @@ void embed_main_menu(void)
 	wprintf("<LI><B><A HREF=\"/advanced\">\n");
 	wprintf("Advanced options</B></A><BR>...and maintenance</LI>\n");
 
-	wprintf("<LI><B><A HREF=\"/termquit\">\n");
+	wprintf("<LI><B><A HREF=\"/termquit\" TARGET=\"top\">\n");
 	wprintf("Log off</B></A><BR>Bye!</LI>\n");
 	wprintf("</UL>\n");
 

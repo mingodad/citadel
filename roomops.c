@@ -292,7 +292,7 @@ void readinfo(int v)
 	serv_puts("RINF");
 	serv_gets(buf);
 	if (buf[0] == '1') {
-		wprintf("<FONT SIZE=-2>");
+		wprintf("<FONT SIZE=-1>");
 		fmout(NULL);
 		wprintf("</FONT>");
 	}

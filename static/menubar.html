@@ -1,11 +1,3 @@
-<SCRIPT LANGUAGE="JavaScript">
-
-function LaunchWho() {
-	pwin = window.open('/whobbs', 'TheWholist', 'toolbar=no,location=no,copyhistory=no,status=yes,scrollbars=yes');
-
-}
-</SCRIPT>
-
 <CENTER>
 <IMG SRC="/image&name=hello"><BR><BR>
 
@@ -54,7 +46,7 @@ function LaunchWho() {
 </TR><TR>
 	<TD BGCOLOR="#663399">
 		<FONT SIZE=-1>
-		<A HREF="javascript:LaunchWho()">
+		<A HREF="static/whoframeset.html" TARGET="_top">
 		<FONT COLOR="#FFFFFF">Who&nbsp;is&nbsp;online?</FONT>
 		</A>
 		</FONT>
@@ -74,7 +66,7 @@ function LaunchWho() {
 </TR><TR>
 	<TD BGCOLOR="#CC0000">
 		<FONT SIZE=-1>
-		<A HREF="/termquit" onClick="return confirm('Do you really want to log off?');"><FONT COLOR="#FFFFFF">Log&nbsp;off</FONT></A><BR>
+		<A HREF="/termquit" TARGET="_top" onClick="return confirm('Do you really want to log off?');"><FONT COLOR="#FFFFFF">Log&nbsp;off</FONT></A><BR>
 	</TD>
 </TR>
 </TABLE>
