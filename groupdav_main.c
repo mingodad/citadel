@@ -53,12 +53,13 @@ void groupdav_main(struct httprequest *req) {
 	strcpy(dav_ifmatch, "");
 
 	for (rptr=req; rptr!=NULL; rptr=rptr->next) {
-		lprintf(9, "> %s\n", rptr->line);	/* FIXME we can eventually remove this trace */
 		if (!strncasecmp(rptr->line, "Host: ", 6)) {
-                        safestrncpy(WC->http_host, &rptr->line[6], sizeof WC->http_host);
+                        safestrncpy(WC->http_host, &rptr->line[6],
+				sizeof WC->http_host);
                 }
 		if (!strncasecmp(rptr->line, "If-Match: ", 10)) {
-                        safestrncpy(dav_ifmatch, &rptr->line[10], sizeof dav_ifmatch);
+                        safestrncpy(dav_ifmatch, &rptr->line[10],
+				sizeof dav_ifmatch);
                 }
 
 	}
@@ -66,7 +67,8 @@ void groupdav_main(struct httprequest *req) {
 	if (!WC->logged_in) {
 		wprintf("HTTP/1.1 401 Unauthorized\n");
 		groupdav_common_headers();
-		wprintf("WWW-Authenticate: Basic realm=\"%s\"\n", serv_info.serv_humannode);
+		wprintf("WWW-Authenticate: Basic realm=\"%s\"\n",
+			serv_info.serv_humannode);
 		wprintf("Content-Type: text/plain\n");
 		wprintf("\n");
 		wprintf("GroupDAV sessions require HTTP authentication.\n");
@@ -94,7 +96,8 @@ void groupdav_main(struct httprequest *req) {
 	}
 
 	/*
-	 * The PROPFIND method is basically used to list all objects in a room.
+	 * The PROPFIND method is basically used to list all objects in a room,
+	 * or to list all relevant rooms on the server.
 	 */
 	if (!strcasecmp(dav_method, "PROPFIND")) {
 		groupdav_propfind(dav_pathname);

@@ -1,4 +1,10 @@
 $Log$
+Revision 528.33  2005/02/01 19:52:29  ajc
+* Bumped the internal version number to 6.01
+* Set the minimum required Citadel version to 6.40, because we need the
+  automatic fill-in-missing-uid groupware stuff, and the new ENT0 semantics
+  with confirmation.
+
 Revision 528.32  2005/02/01 15:15:40  ajc
 * Better purging of not-logged-in GroupDAV sessions
 
@@ -2278,3 +2284,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
