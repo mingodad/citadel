@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.31  2000/11/27 03:44:27  ajc
+ * Initial checkin of database_sleepycat.c (doesn't work yet)
+
  Revision 573.30  2000/11/26 05:24:22  ajc
  * msgbase.c: Added new API function CtdlOutputPreLoadedMsg(), and
    re-implemented the existing CtdlOutputMsg() as a wrapper around it.
@@ -2153,3 +2156,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
