@@ -428,6 +428,8 @@ void read_message(long msgnum) {
 	/* Boring old 80-column fixed format text gets handled this way... */
 	else if (!strcasecmp(mime_content_type, "text/plain")) {
 		while (serv_gets(buf), strcmp(buf, "000")) {
+			if (buf[strlen(buf)-1] == '\n') buf[strlen(buf)-1] = 0;
+			if (buf[strlen(buf)-1] == '\r') buf[strlen(buf)-1] = 0;
 			while ((strlen(buf) > 0) && (isspace(buf[strlen(buf) - 1])))
 				buf[strlen(buf) - 1] = 0;
 			if ((bq == 0) &&

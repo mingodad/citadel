@@ -166,8 +166,9 @@ void serv_gets(char *strbuf)
 		serv_read(&buf[0], 1);
 		ch = buf[0];
 		strbuf[len++] = ch;
-	} while ((ch != 10) && (ch != 13) && (ch != 0) && (len < 255));
-	strbuf[len - 1] = 0;
+	} while ((ch != 10) && (ch != 0) && (len < (SIZ-1)));
+	if (strbuf[len-1] == 10) strbuf[--len] = 0;
+	if (strbuf[len-1] == 13) strbuf[--len] = 0;
 	/* lprintf(9, ">%s\n", strbuf); */
 }
 
