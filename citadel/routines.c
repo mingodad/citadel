@@ -90,6 +90,10 @@ void hit_any_key(void) {		/* hit any key to continue */
 		putc(' ',stdout);
 	putc(13,stdout);
 	sttybbs(1);
+	if (b == 'q' || b == 'Q' || b == 's' || b == 'S')
+		b = STOP_KEY;
+	if (b == 'n' || b == 'N')
+		b = NEXT_KEY;
 	if (b==NEXT_KEY) sigcaught = SIGINT;
 	if (b==STOP_KEY) sigcaught = SIGQUIT;
 }

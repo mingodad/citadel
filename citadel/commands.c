@@ -142,6 +142,10 @@ int checkpagin(int lp, int pagin, int height)
 
 	if (sigcaught) return(lp);
 	thekey = was_a_key_pressed();
+	if (thekey == 'q' || thekey == 'Q' || thekey == 's' || thekey == 'S')
+		thekey = STOP_KEY;
+	if (thekey == 'n' || thekey == 'N')
+		thekey = NEXT_KEY;
 	if ( (thekey == NEXT_KEY) || (thekey == STOP_KEY)) sigcaught = thekey;
 	if (sigcaught) return(lp);
 
