@@ -16,7 +16,7 @@
 #ifdef HAVE_VW_PRINTW
 #define _vwprintw vw_printw
 #else
-/* Ancient curses implementations, this needs testing. Anybody got XENIX? */
+/* SYSV style curses (Solaris, etc.) */
 #define _vwprintw vwprintw
 #endif
 #ifndef HAVE_SNPRINTF
@@ -98,7 +98,9 @@ void screen_new(void)
 		init_pair(1+DIM_MAGENTA, COLOR_MAGENTA, COLOR_BLACK);
 		init_pair(1+DIM_CYAN, COLOR_CYAN, COLOR_BLACK);
 		init_pair(1+DIM_WHITE, COLOR_WHITE, COLOR_BLACK);
-		init_pair(17, COLOR_WHITE, COLOR_BLUE);
+
+		if (COLOR_PAIRS > 8)
+			init_pair(9, COLOR_WHITE, COLOR_BLUE);
 	} else
 #endif /* HAVE_CURSES_H */
 	{
@@ -338,6 +340,8 @@ int scr_color(int colornum)
 	if (mainwindow) {
 #ifdef HAVE_WCOLOR_SET
 		wcolor_set(mainwindow, 1 + (colornum & 7), NULL);
+#else
+		wattron(mainwindow, COLOR_PAIR(1 + (colornum & 7)));
 #endif
 		if (colornum & 8) {
 			wattron(mainwindow, A_BOLD);
@@ -430,7 +434,10 @@ void windows_new(void)
 		leaveok(mainwindow, FALSE);
 		scrollok(mainwindow, TRUE);
 		statuswindow = newwin(1, x, y - 1, 0);
-		wbkgdset(statuswindow, COLOR_PAIR(17));
+
+		if (COLOR_PAIRS > 8)
+			wbkgdset(statuswindow, COLOR_PAIR(9));
+
 		werase(statuswindow);
 		immedok(statuswindow, FALSE);
 		leaveok(statuswindow, FALSE);
