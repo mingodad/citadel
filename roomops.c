@@ -1797,6 +1797,7 @@ void folders(void) {
 	char buf[SIZ];
 
 	int levels, oldlevels;
+	int swap = 0;
 
 	struct folder {
 		char room[SIZ];
@@ -1810,7 +1811,7 @@ void folders(void) {
 	struct folder ftmp;
 	int max_folders = 0;
 	int alloc_folders = 0;
-	int i, j, k;
+	int i, j, k, t;
 	int p;
 	int flags;
 	int floor;
@@ -1822,6 +1823,7 @@ void folders(void) {
 	fold = malloc(sizeof(struct folder));
 	memset(fold, 0, sizeof(struct folder));
 	strcpy(fold[0].name, "My folders");
+	fold[0].is_mailbox = 1;
 
 	/* Then add floors */
 	serv_puts("LFLR");
@@ -1868,7 +1870,19 @@ void folders(void) {
 	/* Bubble-sort the folder list */
 	for (i=0; i<max_folders; ++i) {
 		for (j=0; j<(max_folders-1)-i; ++j) {
-			if (strcasecmp(fold[j].name, fold[j+1].name) > 0) {
+			if (fold[j].is_mailbox == fold[j+1].is_mailbox) {
+				swap = strcasecmp(fold[j].name, fold[j+1].name);
+			}
+			else {
+				if ( (fold[j+1].is_mailbox)
+				   && (!fold[j].is_mailbox)) {
+					swap = 1;
+				}
+				else {
+					swap = 0;
+				}
+			}
+			if (swap > 0) {
 				memcpy(&ftmp, &fold[j], sizeof(struct folder));
 				memcpy(&fold[j], &fold[j+1],
 							sizeof(struct folder));
@@ -1887,31 +1901,41 @@ void folders(void) {
 		levels = num_tokens(fold[i].name, '|');
 		if (levels > oldlevels) {
 			for (k=0; k<(levels-oldlevels); ++k) {
-				wprintf("<UL>");
 				++nests;
 			}
 		}
 		if (levels < oldlevels) {
 			for (k=0; k<(oldlevels-levels); ++k) {
-				wprintf("</UL>");
 				--nests;
 			}
 		}
 		oldlevels = levels;
 
-		wprintf("<LI>");
+		for (t=0; t<nests; ++t) wprintf("&nbsp;&nbsp;&nbsp;");
 		if (fold[i].selectable) {
 			wprintf("<A HREF=\"/dotgoto?room=");
 			urlescputs(fold[i].room);
 			wprintf("\">");
 		}
+		else {
+			wprintf("<i>");
+		}
 		if (fold[i].hasnewmsgs) wprintf("<B>");
 		extract(buf, fold[i].name, levels-1);
 		escputs(buf);
 		if (fold[i].hasnewmsgs) wprintf("</B>");
-		if (fold[i].selectable) wprintf("</A>\n");
+		if (fold[i].selectable) {
+			wprintf("</A>");
+		}
+		else {
+			wprintf("</i>");
+		}
+		if (!strcasecmp(fold[i].name, "My Folders|Mail")) {
+			wprintf(" (INBOX)");
+		}
+		wprintf("<BR>\n");
 	}
-	while (nests-- > 0) wprintf("</UL>\n");
+	while (nests-- > 0) ;; 
 
 	free(fold);
 	wDumpContent(1);
