@@ -3,7 +3,7 @@
  *
  * This is the MIME parser for Citadel.  Sometimes it actually works.
  *
- * Copyright (c) 1998-2001 by Art Cancro
+ * Copyright (c) 1998-2002 by Art Cancro
  * This code is distributed under the terms of the GNU General Public License.
  *
  */
@@ -17,9 +17,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <errno.h>
-#include <pthread.h>
 #include "webcit.h"
-#include "mime_parser.h"
 
 
 void extract_key(char *target, char *source, char *key)
@@ -166,6 +164,8 @@ void mime_decode(char *partnum,
 	char *decoded;
 	size_t bytes_decoded = 0;
 
+	fprintf(stderr, "mime_decode() called\n");
+
 	/* Some encodings aren't really encodings */
 	if (!strcasecmp(encoding, "7bit"))
 		strcpy(encoding, "");
@@ -183,6 +183,7 @@ void mime_decode(char *partnum,
 			}
 		return;
 	}
+	
 	if ((strcasecmp(encoding, "base64"))
 	    && (strcasecmp(encoding, "quoted-printable"))) {
 		fprintf(stderr, "ERROR: unknown MIME encoding '%s'\n", encoding);
@@ -192,15 +193,18 @@ void mime_decode(char *partnum,
 	 * Allocate a buffer for the decoded data.  The output buffer is the
 	 * same size as the input buffer; this assumes that the decoded data
 	 * will never be larger than the encoded data.  This is a safe
-	 * assumption with base64, uuencode, and quoted-printable.  Just to
-	 * be safe, we still pad the buffer a bit.
+	 * assumption with base64, uuencode, and quoted-printable.
 	 */
-	decoded = malloc(length + 1024);
+	fprintf(stderr, "About to allocate %d bytes for decoded part\n",
+		length+2048);
+	decoded = malloc(length+2048);
 	if (decoded == NULL) {
 		fprintf(stderr, "ERROR: cannot allocate memory.\n");
 		return;
 	}
+	fprintf(stderr, "Got it!\n");
 
+	fprintf(stderr, "Decoding %s\n", encoding);
 	if (!strcasecmp(encoding, "base64")) {
 		bytes_decoded = decode_base64(decoded, part_start);
 	}
@@ -208,6 +212,7 @@ void mime_decode(char *partnum,
 		bytes_decoded = decode_quoted_printable(decoded,
 							part_start, length);
 	}
+	fprintf(stderr, "Bytes decoded: %d\n", bytes_decoded);
 
 	if (bytes_decoded > 0) if (CallBack != NULL) {
 		CallBack(name, filename, fixed_partnum(partnum),
@@ -217,9 +222,6 @@ void mime_decode(char *partnum,
 
 	free(decoded);
 }
-
-
-
 
 /*
  * Break out the components of a multipart message
@@ -322,7 +324,7 @@ void the_mime_parser(char *partnum,
 	/* Learn interesting things from the headers */
 	strcpy(header, "");
 	do {
-		ptr = memreadline(ptr, buf, sizeof buf);
+		ptr = memreadline(ptr, buf, SIZ);
 		if (ptr >= content_end) {
 			goto end_parser;
 		}
@@ -351,7 +353,7 @@ void the_mime_parser(char *partnum,
 				extract_key(boundary, header, "boundary");
 			strcpy(header, "");
 		}
-		if ((strlen(header) + strlen(buf) + 2) < sizeof(header))
+		if ((strlen(header) + strlen(buf) + 2) < SIZ)
 			strcat(header, buf);
 	} while ((strlen(buf) > 0) && (*ptr != 0));
 
@@ -410,7 +412,7 @@ void the_mime_parser(char *partnum,
 							userdata,
 							dont_decode);
 				}
-				ptr = memreadline(ptr, buf, sizeof(buf));
+				ptr = memreadline(ptr, buf, SIZ);
 				part_start = ptr;
 			}
 			else {
@@ -461,10 +463,6 @@ end_parser:	/* free the buffers!  end the oppression!! */
 	free(filename);
 	free(disposition);
 }
-
-
-
-
 
 
 
