@@ -1345,6 +1345,7 @@ void cmd_asup(char *cmdbuf)
 {
 	struct usersupp usbuf;
 	char requested_user[SIZ];
+	char notify[SIZ];
 	int np;
 	int newax;
 	int deleted = 0;
@@ -1384,6 +1385,13 @@ void cmd_asup(char *cmdbuf)
 			deleted = 1;
 		}
 	}
+
+	if (deleted) {
+		sprintf(notify, "User <%s> deleted by %s\n",
+			usbuf.fullname, CC->usersupp.fullname);
+		aide_message(notify);
+	}
+
 	cprintf("%d Ok", CIT_OK);
 	if (deleted)
 		cprintf(" (%s deleted)", requested_user);
