@@ -63,6 +63,7 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 	size_t output_len = 0;
 	int i, j, ch, did_out, rb, scanch;
 	int nest = 0;		/* Bracket nesting level */
+	int blockquote = 0;	/* BLOCKQUOTE nesting level */
 
 	inptr = inputmsg;
 	strcpy(inbuf, "");
@@ -99,7 +100,6 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 			if (inbuf[i]==9) inbuf[i]=32;
 			if ((inbuf[i]<32) || (inbuf[i]>126)) {
 				inbuf[i] = '?';
-				/* strcpy(&inbuf[i], &inbuf[i+1]); */
 			}
 		    }
 		    for (i=0; i<strlen(inbuf); ++i) {
@@ -181,6 +181,16 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 
 				else if (!strcasecmp(tag, "/TABLE")) {
 					strcat(outbuf, "\n");
+				}
+
+				else if (!strcasecmp(tag, "BLOCKQUOTE")) {
+					strcat(outbuf, "\n\n <<\n");
+					++blockquote;
+				}
+
+				else if (!strcasecmp(tag, "/BLOCKQUOTE")) {
+					strcat(outbuf, "\n >>\n\n");
+					--blockquote;
 				}
 
 			}
@@ -269,7 +279,7 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 		/* Output any lines terminated with hard line breaks */
 		do {
 			did_out = 0;
-			if (strlen(outbuf)>0)
+			if (strlen(outbuf)>0) {
 			    for (i = 0; i<strlen(outbuf); ++i) {
 				if ( (i<(screenwidth-2)) && (outbuf[i]=='\n')) {
 
@@ -288,10 +298,11 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 					did_out = 1;
 				}
 			}
+		    }
 		} while (did_out);
 
 		/* Add soft line breaks */
-		if (strlen(outbuf) > (screenwidth - 2)) {
+		if (strlen(outbuf) > (screenwidth - 2 )) {
 			rb = (-1);
 			for (i=0; i<(screenwidth-2); ++i) {
 				if (outbuf[i]==32) rb = i;

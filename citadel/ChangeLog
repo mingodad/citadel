@@ -1,4 +1,7 @@
  $Log$
+ Revision 623.15  2004/08/05 03:19:48  ajc
+ * html.c: handle the <BLOCKQUOTE> tag properly
+
  Revision 623.14  2004/08/05 02:02:33  ajc
  * CtdlHostAlias() now accepts "localhost" as a localhost address.
  * working_ignetcfg is now loaded during incoming NETP commands, which
@@ -5961,4 +5964,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
