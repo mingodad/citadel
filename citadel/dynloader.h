@@ -18,4 +18,7 @@ typedef struct s_symtab
 void DLoader_Init(char *pathname, symtab **);
 int DLoader_Exec_Cmd(char *cmdbuf);
 void add_symbol(char *fcn_name, char *server_cmd, char *info_msg, symtab **);
-void CtdlRegisterHook(void *fcn_ptr, int fcn_type);
+void CtdlRegisterCleanupHook(void *fcn_ptr);
+void CtdlRegisterNewRoomHook(void *fcn_ptr);
+void CtdlRegisterSessionHook(void *fcn_ptr, int StartStop);
+void CtdlRegisterLoginHook(void *fcn_ptr);
