@@ -1,6 +1,8 @@
 1998-12-04 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c, context_loop.c, webcit.c: add commandline args for host
 	  and port
+	* converted to autoconf and began port to Digital UNIX
+	* warning fixes
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix

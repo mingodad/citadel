@@ -1,9 +1,13 @@
+/* $Id$ */
+
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <signal.h>
 #include <sys/types.h>
 #include "webcit.h"
+#include "child.h"
 
 struct march {
 	struct march *next;
@@ -22,7 +26,7 @@ struct march *march = NULL;
 /*
  * load the list of floors
  */
-void load_floorlist() {
+void load_floorlist(void) {
 	int a;
 	char buf[256];
 
@@ -44,8 +48,8 @@ void load_floorlist() {
 /*
  * remove a room from the march list
  */
-void remove_march(aaa)
-char *aaa; {
+void remove_march(char *aaa)
+{
 	struct march *mptr,*mptr2;
 
 	if (march==NULL) return;
@@ -71,8 +75,8 @@ char *aaa; {
 	}
 
 
-void listrms(variety)
-char *variety; {
+void listrms(char *variety)
+{
 	char buf[256];
 	char rmname[32];
 	int f;
@@ -103,10 +107,9 @@ char *variety; {
 /*
  * list all rooms by floor
  */
-void list_all_rooms_by_floor() {
+void list_all_rooms_by_floor(void) {
 	int a;
 	char buf[256];
-	char pic[256];
 
 	load_floorlist();
 
@@ -151,9 +154,7 @@ void list_all_rooms_by_floor() {
 /*
  * list all forgotten rooms
  */
-void zapped_list() {
-	char buf[256];
-
+void zapped_list(void) {
 	wprintf("<CENTER><H1>Forgotten rooms</H1>\n");
 	listrms("LZRM -1");
 	wprintf("</CENTER><HR>\n");
@@ -163,8 +164,8 @@ void zapped_list() {
 /*
  * read this room's info file (set v to 1 for verbose mode)
  */
-void readinfo(v)
-int v; {
+void readinfo(int v)
+{
 	char buf[256];
 
 	serv_puts("RINF");
@@ -183,11 +184,9 @@ int v; {
  *                       1 = goto and display
  *                       2 = display only
  */
-void gotoroom(gname,display_name)
-char *gname;
-int display_name; {
+void gotoroom(char *gname, int display_name)
+{
 	char buf[256];
-	char pic[256];
 	static long ls = 0L;
 
 
@@ -262,7 +261,7 @@ int display_name; {
 /*
  * operation to goto a room
  */
-void dotgoto() {
+void dotgoto(void) {
 	gotoroom(bstr("room"),1);
 	}
 
@@ -274,9 +273,7 @@ void dotgoto() {
  * We start the search in the current room rather than the beginning to prevent
  * two or more concurrent users from dragging each other back to the same room.
  */
-gotonext() {
-	int a,newroom;
-	FILE *fp;
+void gotonext(void) {
 	char buf[256];
 	struct march *mptr,*mptr2;
 	char next_room[32];
@@ -341,7 +338,7 @@ gotonext() {
 /*
  * mark all messages in current room as having been read
  */
-void slrp_highest() {
+void slrp_highest(void) {
 	char buf[256];
 
 	/* set pointer */
@@ -357,7 +354,7 @@ void slrp_highest() {
 /*
  * un-goto the previous room
  */
-void ungoto() { 
+void ungoto(void) { 
 	char buf[256];
 	
 	if (!strcmp(ugname,"")) return;
@@ -380,7 +377,7 @@ void ungoto() {
 /*
  * display the form for editing a room
  */
-int display_editroom() {
+int display_editroom(void) {
 	char buf[256];
 	char er_name[20];
 	char er_password[10];
@@ -518,7 +515,7 @@ int display_editroom() {
 /*
  * save new parameters for a room
  */
-int editroom() {
+int editroom(void) {
 	char buf[256];
 	char er_name[20];
 	char er_password[10];
@@ -667,7 +664,7 @@ int editroom() {
 /*
  * display the form for entering a new room
  */
-int display_entroom() {
+int display_entroom(void) {
 	char buf[256];
 
 	serv_puts("CRE8 0");
@@ -716,7 +713,7 @@ int display_entroom() {
 /*
  * enter a new room
  */
-int entroom() {
+int entroom(void) {
 	char buf[256];
 	char er_name[20];
 	char er_type[20];
@@ -752,9 +749,8 @@ int entroom() {
 /*
  * display the screen to enter a private room
  */
-void display_private(rname,req_pass)
-char *rname;
-int req_pass; {
+void display_private(char *rname, int req_pass)
+{
 
 
         wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
@@ -792,7 +788,7 @@ int req_pass; {
 /* 
  * goto a private room
  */
-int goto_private() {
+int goto_private(void) {
 	char hold_rm[32];
 	char buf[256];
 	
@@ -826,7 +822,7 @@ int goto_private() {
 /*
  * display the screen to zap a room
  */
-void display_zap() {
+void display_zap(void) {
 	char zaproom[32];
 	
 	strcpy(zaproom, bstr("room"));
@@ -850,7 +846,7 @@ void display_zap() {
 /* 
  * zap a room
  */
-int zap() {
+int zap(void) {
 	char zaproom[32];
 	char buf[256];
 

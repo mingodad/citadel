@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -5,13 +7,14 @@
 #include <string.h>
 #include <errno.h>
 #include "webcit.h"
+#include "child.h"
 
 
 /* 
  * menu of commands (just the menu html itself)
  */
 
-void embed_main_menu() {
+void embed_main_menu(void) {
 	wprintf("<CENTER><TABLE border=0><TR>");
 
 	wprintf("<TD>");	/* start of first column */
@@ -74,7 +77,7 @@ void embed_main_menu() {
 /*
  * advanced options
  */
-void embed_advanced_menu() {
+void embed_advanced_menu(void) {
 
 wprintf("<TABLE WIDTH=100%><TR VALIGN=TOP><TD>");
 
@@ -188,7 +191,7 @@ wprintf("</FONT></TD></TR></TABLE>\n");
 /*
  * menu of commands (as a page)
  */
-void display_main_menu() {
+void display_main_menu(void) {
 	printf("HTTP/1.0 200 OK\n");
 	output_headers();
 	wprintf("<HTML><HEAD><TITLE>WebCit main menu</TITLE></HEAD><BODY>\n");
@@ -198,7 +201,7 @@ void display_main_menu() {
 	}
 
 
-void display_advanced_menu() {
+void display_advanced_menu(void) {
 	printf("HTTP/1.0 200 OK\n");
 	output_headers();
 	wprintf("<HTML><HEAD><TITLE>WebCit main menu</TITLE></HEAD><BODY>\n");

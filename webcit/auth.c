@@ -3,6 +3,7 @@
  *
  * This file contains code which relates to authentication of users to Citadel.
  *
+ * $Id$
  */
 
 #include <stdlib.h>
@@ -12,13 +13,14 @@
 #include <string.h>
 #include <errno.h>
 #include "webcit.h"
+#include "child.h"
 
 
 
 /*
  * Display the login screen
  */
-void display_login() {
+void display_login(void) {
 	char buf[256];
 
 	printf("HTTP/1.0 200 OK\n");
@@ -70,9 +72,8 @@ void become_logged_in(char *user, char *pass, char *serv_response) {
 	}
 
 
-void do_login() {
+void do_login(void) {
 	char buf[256];
-	char actual_username[256];
 
 	if (!strcasecmp(bstr("action"), "Login")) {
 		serv_printf("USER %s", bstr("name"));
@@ -102,7 +103,7 @@ void do_login() {
 
 	}
 
-void do_welcome() {
+void do_welcome(void) {
 	printf("HTTP/1.0 200 OK\n");
 	output_headers();
 	wprintf("<HTML><BODY>\n");
@@ -115,7 +116,7 @@ void do_welcome() {
 	}
 
 
-void do_logout() {
+void do_logout(void) {
 	char buf[256];
 
 	strcpy(wc_username, "");

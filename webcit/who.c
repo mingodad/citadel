@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -6,6 +8,7 @@
 #include <ctype.h>
 #include <string.h>
 #include "webcit.h"
+#include "child.h"
 
 struct whouser {
 	struct whouser *next;
@@ -19,7 +22,7 @@ struct whouser {
 /*
  * who is on?
  */
-void whobbs() {
+void whobbs(void) {
 	struct whouser *wlist = NULL;
 	struct whouser *wptr = NULL;
 	char buf[256],sess,user[256],room[256],host[256];

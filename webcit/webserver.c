@@ -8,6 +8,7 @@
  * $Id$
  */
 
+#include <ctype.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -236,7 +237,6 @@ int main(int argc, char **argv)
         pthread_attr_t attr;		/* Thread attributes */
 	int a, i;			/* General-purpose variables */
 	int port = PORT_NUM;		/* Port to listen on */
-	char convbuf[128];
 
 	/* Parse command line */
 	while ((a = getopt(argc, argv, "hp:")) != EOF)

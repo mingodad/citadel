@@ -1,14 +1,19 @@
+/* $Id$ */
+
+#include <ctype.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <stdio.h>
 #include "webcit.h"
+#include "child.h"
 
 struct serv_info serv_info;
 
 /*
  * get info about the server we've connected to
  */
-void get_serv_info() {
+void get_serv_info(void) {
 	char buf[256];
 	int a;
 
@@ -58,12 +63,11 @@ void get_serv_info() {
  * If fp is non-null, it is considered to be the file handle to read the
  * text from.  Otherwise, text is read from the server.
  */
-void fmout(fp)
-FILE *fp; {
+void fmout(FILE *fp)
+{
 
 	int intext = 0;
 	int bq = 0;
-	int a;
 	char buf[256];
 
 	while(1) {

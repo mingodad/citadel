@@ -3,8 +3,7 @@
  * 
  * TCP socket module for WebCit
  *
- * version 1.3
- *
+ * $Id$
  */
 
 #include <stdlib.h>
@@ -14,6 +13,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <string.h>
 #include <stdarg.h>
@@ -29,21 +29,14 @@ extern int errno;
 
 int serv_sock;
 
-#ifndef DONT_PROTO_HTONS
-u_short htons();
-#endif
-u_long inet_addr();
 
-
-void timeout() {
+void timeout(int signum) {
 	printf("\rConnection timed out.\n");
 	exit(3);
 	}
 
-int connectsock(host,service,protocol)
-char *host;
-char *service;
-char *protocol; {
+int connectsock(char *host, char *service, char *protocol)
+{
 	struct hostent *phe;
 	struct servent *pse;
 	struct protoent *ppe;
@@ -112,9 +105,8 @@ char *protocol; {
 /*
  * Input binary data from socket
  */
-void serv_read(buf,bytes)
-char buf[];
-int bytes; {
+void serv_read(char *buf, int bytes)
+{
         int len,rlen;
 
         len = 0;
@@ -135,9 +127,9 @@ int bytes; {
 /*
  * input string from pipe
  */
-void serv_gets(strbuf)
-char strbuf[]; {
-	int ch,len,rlen;
+void serv_gets(char *strbuf)
+{
+	int ch,len;
 	char buf[2];
 
 	len = 0;
@@ -156,9 +148,8 @@ char strbuf[]; {
 /*
  * Attach to a Citadel server
  */
-void attach_to_server(argc,argv)
-int argc;
-char *argv[]; {
+void attach_to_server(int argc, char **argv)
+{
 	if (argc==1) {
 		server_is_local = 1;
 		serv_sock = connectsock("localhost","citadel","tcp");
@@ -177,9 +168,8 @@ char *argv[]; {
 /*
  * send binary to server
  */
-void serv_write(buf, nbytes)
-char buf[];
-int nbytes; {
+void serv_write(char *buf, int nbytes)
+{
         int bytes_written = 0;
         int retval;
         while (bytes_written < nbytes) {
@@ -200,8 +190,8 @@ int nbytes; {
 /*
  * send line to server
  */
-void serv_puts(string)
-char *string; {
+void serv_puts(char *string)
+{
 	char buf[256];
 
 	sprintf(buf,"%s\n",string);
