@@ -220,7 +220,7 @@ bool CitClient::GotoRoom(wxString roomname, wxString password,
 
 	if (retval != 2) return FALSE;
 
-	extract(CurrentRoom, recvcmd.Mid(4, 255), 0);
+	extract(CurrentRoom, recvcmd.Mid(4), 0);
 	BigMDI->SetStatusText(CurrentRoom, 2);
 	return TRUE;
 }

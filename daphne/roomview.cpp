@@ -31,7 +31,7 @@ RoomView::RoomView(
 	message_window = NULL;
 
 
-	if (citsock->GotoRoom(roomname, "", recvcmd) != 2) {
+        if (citsock->GotoRoom(roomname, "", recvcmd) != TRUE) {
 		delete this;
 	}
 

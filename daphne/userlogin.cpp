@@ -295,7 +295,7 @@ void UserLogin::OnButtonPressed(wxCommandEvent& whichbutton) {
 void UserLogin::BeginSession(wxString serv_response) {
 	wxString junk, username;
 
-	extract(username, serv_response.Mid(4, 255), 0);
+	extract(username, serv_response.Mid(4), 0);
 	BigMDI->SetStatusText(username, 1);
 	citsock->GotoRoom("_BASEROOM_", "", junk);
 
