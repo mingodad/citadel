@@ -26,12 +26,18 @@
 #include "webcit.h"
 #include "webserver.h"
 
-#ifdef HAVE_ICAL_H
-
 char *months[] = {
 	"January", "February", "March", "April", "May", "June", "July",
 	"August", "September", "October", "November", "December"
 };
+
+char *days[] = {
+	"Sunday", "Monday", "Tuesday", "Wednesday",
+	"Thursday", "Friday", "Saturday"
+};
+
+#ifdef HAVE_ICAL_H
+
 
 void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	int i;
