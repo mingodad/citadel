@@ -1300,6 +1300,8 @@ int fmout(
 
 	/* Read the entire message body into memory */
 	if (fpin) {
+		size_t got = 0;
+
 		fseek(fpin, 0, SEEK_END);
 		i = ftell(fpin);
 		rewind(fpin);
@@ -1310,12 +1312,20 @@ int fmout(
 			logoff(NULL, 3);
 		}
 
-		g = fread(buffer, i, 1, fpin);
-		if (g == 1) {
+		while (got < i) {
+			size_t g;
+
+			g = fread(buffer + got, 1, i - got, fpin);
+			got += g;
+			if (g < i - got) {
+				/* Interrupted system call, keep going */
+				if (errno == EINTR)
+					continue;
+				/* At this point we have either EOF or error */
+				i = got;
+				break;
+			}
 			buffer[i] = 0;
-		}
-		else {
-			buffer[0] = 0;
 		}
 	} else {
 		buffer = text;
