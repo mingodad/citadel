@@ -105,6 +105,9 @@ void ical_add(icalcomponent *cal, int recursion_level) {
  *
  * 'request' is the invitation to reply to.
  * 'action' is the string "accept" or "decline".
+ *
+ * (Sorry about this being more than 80 columns ... there was just
+ * no easy way to break it down sensibly.)
  */
 void ical_send_a_reply(icalcomponent *request, char *action) {
 	icalcomponent *the_reply = NULL;
@@ -116,6 +119,10 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 	icalproperty *me_attend = NULL;
 	struct recptypes *recp = NULL;
 	icalparameter *partstat = NULL;
+	char *serialized_reply = NULL;
+	char *reply_message_text = NULL;
+	struct CtdlMessage *msg = NULL;
+	struct recptypes *valid = NULL;
 
 	strcpy(organizer_string, "");
 
@@ -133,8 +140,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 	/* Change the method from REQUEST to REPLY */
 	icalcomponent_set_method(the_reply, ICAL_METHOD_REPLY);
 
-	vevent = icalcomponent_get_first_component(the_reply,
-							ICAL_VEVENT_COMPONENT);
+	vevent = icalcomponent_get_first_component(the_reply, ICAL_VEVENT_COMPONENT);
 	if (vevent != NULL) {
 		/* Hunt for attendees, removing ones that aren't us.
 		 * (Actually, remove them all, cloning our own one so we can
@@ -146,8 +152,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 			if (icalproperty_get_attendee(attendee)) {
 				strcpy(attendee_string,
 					icalproperty_get_attendee(attendee) );
-				if (!strncasecmp(attendee_string, "MAILTO:",
-				   7)) {
+				if (!strncasecmp(attendee_string, "MAILTO:", 7)) {
 					strcpy(attendee_string, &attendee_string[7]);
 					striplt(attendee_string);
 					recp = validate_recipients(attendee_string);
@@ -201,15 +206,30 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 		}
 	}
 
-	/********* FIXME **********  
-	All we have to do now is send the reply.  Generate it with:
-	icalcomponent_as_ical_string(the_reply)
-	...and send it to 'organizer_string'
-	(I'm just too tired to do it now)
-	 **********************************/
+	/* Now generate the reply message and send it out. */
+	serialized_reply = strdoop(icalcomponent_as_ical_string(the_reply));
+	icalcomponent_free(the_reply);	/* don't need this anymore */
+	if (serialized_reply == NULL) return;
 
-	/* clean up */
-	icalcomponent_free(the_reply);
+	reply_message_text = mallok(strlen(serialized_reply) + SIZ);
+	if (reply_message_text != NULL) {
+		sprintf(reply_message_text,
+			"Content-type: text/calendar\r\n\r\n%s\r\n",
+			serialized_reply
+		);
+
+		/* FIXME this still causes crashy crashy badness.  */
+		msg = CtdlMakeMessage(&CC->usersupp, organizer_string,
+			CC->quickroom.QRname, 0, FMT_RFC822,
+			NULL, "FIXME subject", reply_message_text);
+	
+		if (msg != NULL) {
+			valid = validate_recipients(organizer_string);
+			CtdlSubmitMsg(msg, valid, "");
+			CtdlFreeMessage(msg);
+		}
+	}
+	phree(serialized_reply);
 }
 
 

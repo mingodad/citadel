@@ -2159,7 +2159,7 @@ void quickie_message(char *from, char *to, char *room, char *text,
 
 
 /*
- * Back end function used by make_message() and similar functions
+ * Back end function used by CtdlMakeMessage() and similar functions
  */
 char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 			size_t maxlen,		/* maximum message length */
@@ -2243,16 +2243,21 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 
 /*
  * Build a binary message to be saved on disk.
+ * (NOTE: if you supply 'preformatted_text', the buffer you give it
+ * will become part of the message.  This means you are no longer
+ * responsible for managing that memory -- it will be freed along with
+ * the rest of the fields when CtdlFreeMessage() is called.)
  */
 
-static struct CtdlMessage *make_message(
+struct CtdlMessage *CtdlMakeMessage(
 	struct usersupp *author,	/* author's usersupp structure */
 	char *recipient,		/* NULL if it's not mail */
 	char *room,			/* room where it's going */
 	int type,			/* see MES_ types in header file */
 	int format_type,		/* variformat, plain text, MIME... */
 	char *fake_name,		/* who we're masquerading as */
-	char *subject			/* Subject (optional) */
+	char *subject,			/* Subject (optional) */
+	char *preformatted_text		/* ...or NULL to read text from client */
 ) {
 	char dest_node[SIZ];
 	char buf[SIZ];
@@ -2308,8 +2313,13 @@ static struct CtdlMessage *make_message(
 		}
 	}
 
-	msg->cm_fields['M'] = CtdlReadMessageBody("000",
+	if (preformatted_text != NULL) {
+		msg->cm_fields['M'] = preformatted_text;
+	}
+	else {
+		msg->cm_fields['M'] = CtdlReadMessageBody("000",
 						config.c_maxmsglen, NULL);
+	}
 
 	return(msg);
 }
@@ -2641,9 +2651,9 @@ void cmd_ent0(char *entargs)
 
 	/* Read in the message from the client. */
 	cprintf("%d send message\n", SEND_LISTING);
-	msg = make_message(&CC->usersupp, recp,
+	msg = CtdlMakeMessage(&CC->usersupp, recp,
 		CC->quickroom.QRname, anonymous, format_type,
-		masquerade_as, subject);
+		masquerade_as, subject, NULL);
 
 	if (msg != NULL) {
 		CtdlSubmitMsg(msg, valid, "");

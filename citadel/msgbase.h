@@ -126,3 +126,13 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n);
 void CtdlSetSeen(long target_msgnum, int target_setting);
 struct recptypes *validate_recipients(char *recipients);
 void CtdlGetSeen(char *buf);
+struct CtdlMessage *CtdlMakeMessage(
+        struct usersupp *author,        /* author's usersupp structure */
+        char *recipient,                /* NULL if it's not mail */
+        char *room,                     /* room where it's going */
+        int type,                       /* see MES_ types in header file */
+        int format_type,                /* variformat, plain text, MIME... */
+        char *fake_name,                /* who we're masquerading as */
+        char *subject,                  /* Subject (optional) */
+        char *preformatted_text         /* ...or NULL to read text from client */
+);
