@@ -113,6 +113,19 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 			CtdlDeleteMessages(config_rm, 0L, "text/x-vcard");
 
         		getroom(&CC->quickroom, hold_rm);	/* return rm */
+
+
+			/* This will do better */
+
+                        if (msg->cm_fields['E'] != NULL) /* Free any old E */
+                                phree(msg->cm_fields['E']);
+
+                        sprintf(buf,
+                                "Citadel vCard: personal card for %s at %s",
+                                msg->cm_fields['A'], NODENAME);
+                        msg->cm_fields['E'] = strdoop(buf);
+
+
 			return(0);
 		}
 
@@ -134,9 +147,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 int vcard_upload_aftersave(struct CtdlMessage *msg) {
 	char *ptr;
 	int linelen;
-	long Z, I;
-	struct quickroom qrbuf;
-	char buf[256];
+	long I;
 
 
 	/* If this isn't the configuration room, or if this isn't a MIME
@@ -159,23 +170,8 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			I = atol(msg->cm_fields['I']);
 			if (I < 0L) return(0);
 
-			Z = (-1L);
-			if (msg->cm_fields['Z'] != NULL) {
-				extract_token(buf, msg->cm_fields['Z'], 1, '@');
-				if (!strcasecmp(buf, NODENAME)) {
-					extract_token(buf, msg->cm_fields['Z'],
-						0, '@');
-					Z = atol(buf);
-				}
-			}
+			/* FIX */
 
-			if (getroom(&qrbuf, ADDRESS_BOOK_ROOM) != 0) return(0);
-			AddMessageToRoom(&qrbuf, I);
-			AdjRefCount(I, +1);
-
-			if (Z > 0L) {
-				CtdlDeleteMessages(ADDRESS_BOOK_ROOM, Z, NULL); 
-			}
 
 			return(0);
 		}
