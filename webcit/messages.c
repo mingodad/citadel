@@ -155,7 +155,7 @@ void display_vcard(char *vcard_source) {
 
 
 
-void read_message(long msgnum, int is_summary) {
+void read_message(long msgnum) {
 	char buf[SIZ];
 	char mime_partnum[SIZ];
 	char mime_filename[SIZ];
@@ -188,9 +188,12 @@ void read_message(long msgnum, int is_summary) {
 		wprintf("<STRONG>ERROR:</STRONG> %s<BR>\n", &buf[4]);
 		return;
 	}
-	wprintf("<TABLE WIDTH=100%% BORDER=0 CELLSPACING=0 CELLPADDING=1 BGCOLOR=CCCCCC><TR><TD>\n");
+
+	wprintf("<TABLE WIDTH=100%% BORDER=0 CELLSPACING=0 "
+		"CELLPADDING=1 BGCOLOR=CCCCCC><TR><TD>\n");
+
 	wprintf("<FONT ");
-	if (!is_summary) wprintf("SIZE=+1 ");
+	wprintf("SIZE=+1 ");
 	wprintf("COLOR=\"000000\"> ");
 	strcpy(m_subject, "");
 
@@ -308,20 +311,19 @@ void read_message(long msgnum, int is_summary) {
 		}
 	}
 
-	if (nhdr == 1)
+	if (nhdr == 1) {
 		wprintf("****");
+	}
+
 	wprintf("</FONT></TD>");
 
-	/* begin right-hand toolbar */
 	wprintf("<TD ALIGN=RIGHT>\n"
 		"<TABLE BORDER=0><TR>\n");
 
-	if (is_summary) {
-		wprintf("<TD BGCOLOR=\"AAAADD\">"
-			"<A HREF=\"/readfwd?startmsg=%ld", msgnum);
-		wprintf("&maxmsgs=1&summary=0\">Read</A>"
-			"</TD>\n", msgnum);
-	}
+	wprintf("<TD BGCOLOR=\"AAAADD\">"
+		"<A HREF=\"/readfwd?startmsg=%ld", msgnum);
+	wprintf("&maxmsgs=1&summary=0\">Read</A>"
+		"</TD>\n", msgnum);
 
 	wprintf("<TD BGCOLOR=\"AAAADD\">"
 		"<A HREF=\"/display_enter?recp=");
@@ -347,9 +349,6 @@ void read_message(long msgnum, int is_summary) {
 	wprintf("</TR></TABLE>\n"
 		"</TD>\n");
 
-	/* end right-hand toolbar */
-
-
 	if (strlen(m_subject) > 0) {
 		wprintf("<TR><TD><FONT COLOR=\"0000FF\">"
 			"Subject: %s</FONT>"
@@ -357,11 +356,6 @@ void read_message(long msgnum, int is_summary) {
 	}
 
 	wprintf("</TR></TABLE>\n");
-
-	if (is_summary) {
-		while (serv_gets(buf), strcmp(buf, "000")) ;
-		return;
-	}
 
 	if (format_type == 0) {
 		fmout(NULL);
@@ -413,6 +407,85 @@ void read_message(long msgnum, int is_summary) {
 }
 
 
+void summarize_message(long msgnum) {
+	char buf[SIZ];
+
+	struct {
+		char date[SIZ];
+		char from[SIZ];
+		char to[SIZ];
+		char subj[SIZ];
+		int hasattachments;
+	} summ;
+
+	memset(&summ, 0, sizeof(summ));
+
+	sprintf(buf, "MSG0 %ld", msgnum);
+	serv_puts(buf);
+	serv_gets(buf);
+	if (buf[0] != '1') return;
+
+	while (serv_gets(buf), strncasecmp(buf, "text", 4)) {
+		if (!strncasecmp(buf, "from=", 5)) {
+			strcpy(summ.from, &buf[5]);
+		}
+		if (!strncasecmp(buf, "subj=", 5)) {
+			strcpy(summ.subj, &buf[5]);
+		}
+		if (!strncasecmp(buf, "hnod=", 5)) {
+			strcat(summ.from, " (");
+			strcat(summ.from, &buf[5]);
+			strcat(summ.from, ")");
+		}
+		if (!strncasecmp(buf, "rfca=", 5)) {
+			strcat(summ.from, " <");
+			strcat(summ.from, &buf[5]);
+			strcat(summ.from, ">");
+		}
+
+		if (!strncasecmp(buf, "node=", 5)) {
+			if ( ((WC->room_flags & QR_NETWORK)
+			|| ((strcasecmp(&buf[5], serv_info.serv_nodename)
+			&& (strcasecmp(&buf[5], serv_info.serv_fqdn)))))
+			) {
+				strcat(summ.from, " @ ");
+				strcat(summ.from, &buf[5]);
+			}
+		}
+
+		if (!strncasecmp(buf, "rcpt=", 5)) {
+			strcpy(summ.to, &buf[5]);
+		}
+
+		if (!strncasecmp(buf, "time=", 5)) {
+			fmt_date(summ.date, atol(&buf[5]));
+		}
+	}
+
+	wprintf("<TD BGCOLOR=\"AAAADD\">"
+		"<A HREF=\"/readfwd?startmsg=%ld", msgnum);
+	wprintf("&maxmsgs=1&summary=0\">Read</A>"
+		"</TD>\n", msgnum);
+	wprintf("<TD>");
+	escputs(summ.subj);
+	wprintf(" </TD><TD>");
+	escputs(summ.from);
+	wprintf(" </TD><TD>");
+	escputs(summ.date);
+	wprintf(" </TD>");
+	wprintf("<TD BGCOLOR=\"AAAADD\">"
+		"<A HREF=\"/delete_msg"
+		"&msgid=%ld\""
+		"onClick=\"return confirm('Delete this message?');\""
+		"><FONT SIZE=-1>Del</FONT></A>"
+		" </TD>\n", msgnum);
+
+	/* flush the msg */
+	while (serv_gets(buf), strcmp(buf, "000"));
+	return;
+}
+
+
 
 /* 
  * load message pointers from the server
@@ -457,14 +530,12 @@ void readloop(char *oper)
 	long pn_previous = 0L;
 	long pn_current = 0L;
 	long pn_next = 0L;
+	int bg = 0;
 
 	startmsg = atol(bstr("startmsg"));
 	maxmsgs = atoi(bstr("maxmsgs"));
 	is_summary = atoi(bstr("summary"));
 	if (maxmsgs == 0) maxmsgs = 20;
-
-	/* FIXME put in the correct constant #defs */
-	if ((is_summary == 0) && (WC->wc_view == 1)) is_summary = 1;
 
 	output_headers(1);
 
@@ -473,6 +544,12 @@ void readloop(char *oper)
 	} else if (!strcmp(oper, "readold")) {
 		strcpy(cmd, "MSGS OLD");
 	} else {
+		strcpy(cmd, "MSGS ALL");
+	}
+
+	/* FIXME put in the correct constant #defs */
+	if ((WC->wc_view == 1) && (maxmsgs > 1)) {
+		is_summary = 1;
 		strcpy(cmd, "MSGS ALL");
 	}
 
@@ -497,6 +574,11 @@ void readloop(char *oper)
 		}
 	}
 
+	if (is_summary) {
+		wprintf("Message summary<BR>\n");
+		wprintf("<TABLE border=0 width=100%%>\n");
+	}
+
 	for (a = 0; a < nummsgs; ++a) {
 		if ((WC->msgarr[a] >= startmsg) && (num_displayed < maxmsgs)) {
 
@@ -506,7 +588,17 @@ void readloop(char *oper)
 			if (a < (nummsgs-1)) pn_next = WC->msgarr[a+1];
 
 			/* Display the message */
-			read_message(WC->msgarr[a], is_summary);
+			if (is_summary) {
+				bg = 1 - bg;
+				wprintf("<TR BGCOLOR=%s>",
+					(bg ? "DDDDDD" : "FFFFFF")
+				);
+				summarize_message(WC->msgarr[a]);
+				wprintf("</TR>\n");
+			}
+			else {
+				read_message(WC->msgarr[a]);
+			}
 			if (lowest_displayed == 0) lowest_displayed = a;
 			highest_displayed = a;
 			if (is_summary) wprintf("<BR>");
@@ -514,6 +606,10 @@ void readloop(char *oper)
 			++num_displayed;
 			--remaining_messages;
 		}
+	}
+
+	if (is_summary) {
+		wprintf("</TABLE>\n");
 	}
 
 	/* Bump these because although we're thinking in zero base, the user
