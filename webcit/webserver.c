@@ -5,6 +5,7 @@
  * waiting on the specified port for incoming HTTP connections.  When a
  * connection is established, it calls context_loop() from context_loop.c.
  *
+ * $Id$
  */
 
 #include <stdlib.h>
@@ -275,7 +276,7 @@ int main(int argc, char **argv)
 			/* now create the thread */
 			if (pthread_create(&SessThread, &attr,
 					   (void* (*)(void*)) context_loop,
-					   ssock)
+					   (void*) ssock)
 			    != 0) {
 				printf("webcit: can't create thread: %s\n",
 					strerror(errno));
