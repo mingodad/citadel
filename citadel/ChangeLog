@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.16  2001/12/23 09:57:47  error
+ * tools.c: added parameter to fmt_date() to allow for printing the seconds
+   along with the time, e.g. 12:34 pm or 12:34:56 pm
+
  Revision 590.15  2001/12/20 04:54:26  ajc
  * If you paid for this software, someone is ripping you off.
 
@@ -2995,3 +2999,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

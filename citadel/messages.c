@@ -478,7 +478,7 @@ int read_message(
 			printf("%s ", &buf[5]);
 		}
 		if (!strncasecmp(buf, "time=", 5)) {
-			fmt_date(now, atol(&buf[5]));
+			fmt_date(now, atol(&buf[5]), 0);
 			printf("%s ", now);
 		}
 	}
@@ -619,7 +619,7 @@ int make_message(char *filename,	/* temporary file name */
 			mode = 0;
 		}
 
-	fmt_date(datestr, time(NULL));
+	fmt_date(datestr, time(NULL), 0);
 	header[0] = 0;
 
 	if (room_flags & QR_ANONONLY) {

@@ -378,8 +378,9 @@ int collapsed_strcmp(char *s1, char *s2) {
 
 /*
  * Format a date/time stamp for output 
+ * seconds is whether to print the seconds
  */
-void fmt_date(char *buf, time_t thetime) {
+void fmt_date(char *buf, time_t thetime, int seconds) {
 	struct tm *tm;
 	int hour;
 
@@ -395,14 +396,26 @@ void fmt_date(char *buf, time_t thetime) {
 	if (hour == 0)	hour = 12;
 	else if (hour > 12) hour = hour - 12;
 
-	sprintf(buf, "%s %d %4d %d:%02d%s",
-		ascmonths[tm->tm_mon],
-		tm->tm_mday,
-		tm->tm_year + 1900,
-		hour,
-		tm->tm_min,
-		( (tm->tm_hour >= 12) ? "pm" : "am" )
-	);
+	if (seconds) {
+		sprintf(buf, "%s %d %4d %d:%02d:%02d%s",
+			ascmonths[tm->tm_mon],
+			tm->tm_mday,
+			tm->tm_year + 1900,
+			hour,
+			tm->tm_min,
+			tm->tm_sec,
+			( (tm->tm_hour >= 12) ? "pm" : "am" )
+		);
+	} else {
+		sprintf(buf, "%s %d %4d %d:%02d%s",
+			ascmonths[tm->tm_mon],
+			tm->tm_mday,
+			tm->tm_year + 1900,
+			hour,
+			tm->tm_min,
+			( (tm->tm_hour >= 12) ? "pm" : "am" )
+		);
+	}
 }
 
 
