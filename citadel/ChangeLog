@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.17  2000/10/25 21:37:09  ajc
+ * Implemented the AUTHENTICATE LOGIN command in IMAP
+
  Revision 573.16  2000/10/25 19:20:37  ajc
  * FETCH now works for ranges *and* sets, and with sequence numbers *and* UID's
 
@@ -2106,3 +2109,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

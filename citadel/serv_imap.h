@@ -10,11 +10,22 @@ void imap_command_loop(void);
 
 
 struct citimap {
+	int authstate;
+	char authseq[256];
 	int selected;		/* set to 1 if in the SELECTED state */
 	int readonly;		/* mailbox is open read only */
 	int num_msgs;		/* Number of messages being mapped */
 	long *msgids;
 	unsigned int *flags;
+};
+
+/*
+ * values of 'authstate'
+ */
+enum {
+	imap_as_normal,
+	imap_as_expecting_username,
+	imap_as_expecting_password
 };
 
 /* Flags for the above struct.  Note that some of these are for internal use,

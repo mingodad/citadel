@@ -136,6 +136,7 @@ void imap_greeting(void) {
 	strcpy(CC->cs_clientname, "IMAP session");
 	CC->internal_pgm = 1;
 	CtdlAllocUserData(SYM_IMAP, sizeof(struct citimap));
+	IMAP->authstate = imap_as_normal;
 
 	cprintf("* OK %s Citadel/UX IMAP4rev1 server ready\r\n",
 		config.c_fqdn);
@@ -155,6 +156,58 @@ void imap_login(int num_parms, char *parms[]) {
 
 	cprintf("%s BAD Login incorrect\r\n", parms[0]);
 }
+
+
+/*
+ * Implements the AYTHENTICATE command
+ */
+void imap_authenticate(int num_parms, char *parms[]) {
+	char buf[256];
+
+	if (num_parms != 3) {
+		cprintf("%s BAD incorrect number of parameters\r\n", parms[0]);
+		return;
+	}
+
+	if (!strcasecmp(parms[2], "LOGIN")) {
+		encode_base64(buf, "Username:");
+		cprintf("+ %s\r\n", buf);
+		IMAP->authstate = imap_as_expecting_username;
+		strcpy(IMAP->authseq, parms[0]);
+		return;
+	}
+
+	else {
+		cprintf("%s NO AUTHENTICATE %s failed\r\n",
+			parms[0], parms[1]);
+	}
+}
+
+void imap_auth_login_user(char *cmd) {
+	char buf[256];
+
+	decode_base64(buf, cmd);
+	CtdlLoginExistingUser(buf);
+	encode_base64(buf, "Password:");
+	cprintf("+ %s\r\n", buf);
+	IMAP->authstate = imap_as_expecting_password;
+	return;
+}
+
+void imap_auth_login_pass(char *cmd) {
+	char buf[256];
+
+	decode_base64(buf, cmd);
+	if (CtdlTryPassword(buf) == pass_ok) {
+		cprintf("%s OK authentication succeeded\r\n", IMAP->authseq);
+	}
+	else {
+		cprintf("%s NO authentication failed\r\n", IMAP->authseq);
+	}
+	IMAP->authstate = imap_as_normal;
+	return;
+}
+
 
 
 /*
@@ -337,6 +390,19 @@ void imap_command_loop(void) {
 	if (cmdbuf[strlen(cmdbuf)-1]=='\r') cmdbuf[strlen(cmdbuf)-1]=0;
 	striplt(cmdbuf);
 
+	/* If we're in the middle of a multi-line command, handle that */
+	if (IMAP->authstate == imap_as_expecting_username) {
+		imap_auth_login_user(cmdbuf);
+		return;
+	}
+	if (IMAP->authstate == imap_as_expecting_password) {
+		imap_auth_login_pass(cmdbuf);
+		return;
+	}
+
+
+	/* Ok, at this point we're in normal command mode */
+
 	/* grab the tag */
 	num_parms = imap_parameterize(parms, cmdbuf);
 	for (i=0; i<num_parms; ++i) {
@@ -360,6 +426,10 @@ void imap_command_loop(void) {
 
 	else if (!strcasecmp(parms[1], "LOGIN")) {
 		imap_login(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "AUTHENTICATE")) {
+		imap_authenticate(num_parms, parms);
 	}
 
 	else if (!strcasecmp(parms[1], "CAPABILITY")) {
