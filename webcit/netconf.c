@@ -34,15 +34,75 @@ struct sharelist {
 
 
 void edit_node(void) {
+	char buf[SIZ];
+	char node[SIZ];
+	char cnode[SIZ];
+	FILE *fp;
 
-	if (strcmp(bstr("sc"), "OK")) {
-		/* FIXME do something */
+	if (!strcmp(bstr("sc"), "OK")) {
+		strcpy(node, bstr("node") );
+		fp = tmpfile();
+		if (fp != NULL) {
+			serv_puts("CONF getsys|application/x-citadel-ignet-config");
+			serv_gets(buf);
+			if (buf[0] == '1') {
+				while (serv_gets(buf), strcmp(buf, "000")) {
+					extract(cnode, buf, 0);
+					if (strcasecmp(node, cnode)) {
+						fprintf(fp, "%s\n", buf);
+					}
+				}
+			fprintf(fp, "%s|%s|%s|%s\n", 
+				bstr("node"),
+				bstr("secret"),
+				bstr("host"),
+				bstr("port") );
+			}
+			rewind(fp);
+
+			serv_puts("CONF putsys|application/x-citadel-ignet-config");
+			serv_gets(buf);
+			if (buf[0] == '4') {
+				while (fgets(buf, sizeof buf, fp) != NULL) {
+					buf[strlen(buf)-1] = 0;
+					serv_puts(buf);
+				}
+				serv_puts("000");
+			}
+			fclose(fp);
+		}
 	}
 
 	display_netconf();
 }
 
 
+
+void display_add_node(void)
+{
+	output_headers(1);
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+	wprintf("<B>Add new node</B>");
+	wprintf("</FONT></TD></TR></TABLE>\n");
+
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/edit_node\">\n");
+	wprintf("<CENTER><TABLE border=0>\n");
+	wprintf("<TR><TD>Node name</TD>");
+	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"node\" MAXLENGTH=\"8\"></TD></TR>\n");
+	wprintf("<TR><TD>Shared secret</TD>");
+	wprintf("<TD><INPUT TYPE=\"password\" NAME=\"secret\" MAXLENGTH=\"8\"></TD></TR>\n");
+	wprintf("<TR><TD>Host or IP</TD>");
+	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"host\" MAXLENGTH=\"32\"></TD></TR>\n");
+	wprintf("<TR><TD>Port</TD>");
+	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"port\" MAXLENGTH=\"8\"></TD></TR>\n");
+	wprintf("</TABLE><BR>");
+       	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
+       	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
+	wprintf("</CENTER></FORM>\n");
+
+	wDumpContent(1);
+}
 
 void display_edit_node(void)
 {
@@ -168,46 +228,40 @@ void display_confirm_delete_node(void)
 
 void delete_node(void)
 {
-	char node[SIZ];
 	char buf[SIZ];
+	char node[SIZ];
+	char cnode[SIZ];
+	FILE *fp;
 
-	strcpy(node, bstr("node"));
-	sprintf(buf, "NSET deletenode|%s", node);
-	serv_puts(buf);
-	serv_gets(buf);
-	if (buf[0] == '1') {
-		output_headers(1);
-		server_to_text();
-		wprintf("<A HREF=\"/display_netconf\">Back to menu</A>\n");
-		wDumpContent(1);
-	} else {
-		display_error(&buf[4]);
+	strcpy(node, bstr("node") );
+	fp = tmpfile();
+	if (fp != NULL) {
+		serv_puts("CONF getsys|application/x-citadel-ignet-config");
+		serv_gets(buf);
+		if (buf[0] == '1') {
+			while (serv_gets(buf), strcmp(buf, "000")) {
+				extract(cnode, buf, 0);
+				if (strcasecmp(node, cnode)) {
+					fprintf(fp, "%s\n", buf);
+				}
+			}
+		}
+		rewind(fp);
+
+		serv_puts("CONF putsys|application/x-citadel-ignet-config");
+		serv_gets(buf);
+		if (buf[0] == '4') {
+			while (fgets(buf, sizeof buf, fp) != NULL) {
+				buf[strlen(buf)-1] = 0;
+				serv_puts(buf);
+			}
+			serv_puts("000");
+		}
+		fclose(fp);
 	}
+
+	display_netconf();
 }
-
-
-void display_add_node(void)
-{
-
-	output_headers(1);
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Add a new node</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
-
-	wprintf("<CENTER>");
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/add_node\">\n");
-
-	wprintf("Enter name of new node: ");
-	wprintf("<INPUT TYPE=\"text\" NAME=\"node\" MAXLENGTH=\"64\"><BR>\n");
-
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Add\">");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
-
-	wprintf("</FORM></CENTER>\n");
-	wDumpContent(1);
-}
-
 
 
 void add_node(void)
