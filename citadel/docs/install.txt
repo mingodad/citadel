@@ -100,30 +100,10 @@ computer.
  If you normally log in to your host system using some method other than
 telnet (such as ssh), you might want the telnet service to go straight to
 the Citadel BBS, instead of displaying the "login:" prompt first.  You can
-do this using the "citlogin" wrapper program.
+do this using the "loginwrapper.sh" wrapper program.
  
- Simply specify "citlogin" as the login program to your telnetd.  For example,
-you might configure your /etc/inetd.conf like this:
- 
- telnet stream tcp nowait root /usr/sbin/tcpd in.telnetd -L /usr/local/citadel/citlogin
- 
- Why does the wrapper program exist?  Why not just go directly to the client?
-There are several reasons:
- 1. If you just execute the client directly from inetd, your terminal
-emulation will be really crappy.  telnetd handles this for you.
- 2. If you specify the citadel client as your login program (-L), it will
-usually be passed a bunch of command-line arguments that confuse it.  Also,
-it'll be running as root, which is bad.
- 3. If you try to solve the root problem by specifying some other username
-to inetd, you'll run into problems when that user can't correctly set the
-permissions of the allocated pseudotty.
- 
- Here's what the wrapper does:
- 
- 1. Locate your Citadel installation (by loading its config file)
- 2. Drop root privileges.  Change the user id to your BBS user.
- 3. Execute the Citadel client.
- 
+ telnet stream tcp nowait root /usr/sbin/tcpd in.telnetd -L /usr/local/citadel/loginwrapper.sh
+  
  Please make sure you know what you're doing before you install this!
   
      
