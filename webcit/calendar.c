@@ -125,18 +125,18 @@ void cal_process_object(icalcomponent *cal,
 	}
 
       	p = icalcomponent_get_first_property(cal, ICAL_SUMMARY_PROPERTY);
-        if (p != NULL) {
+	if (p != NULL) {
 		wprintf("<TR><TD><B>Summary:</B></TD><TD>");
 		escputs((char *)icalproperty_get_comment(p));
 		wprintf("</TD></TR>\n");
-        }
+	}
 
       	p = icalcomponent_get_first_property(cal, ICAL_LOCATION_PROPERTY);
-        if (p != NULL) {
+	if (p != NULL) {
 		wprintf("<TR><TD><B>Location:</B></TD><TD>");
 		escputs((char *)icalproperty_get_comment(p));
 		wprintf("</TD></TR>\n");
-        }
+	}
 
 	/*
 	 * Only show start/end times if we're actually looking at the VEVENT
@@ -146,7 +146,7 @@ void cal_process_object(icalcomponent *cal,
 
       		p = icalcomponent_get_first_property(cal,
 						ICAL_DTSTART_PROPERTY);
-        	if (p != NULL) {
+		if (p != NULL) {
 			t = icalproperty_get_dtstart(p);
 			tt = icaltime_as_timet(t);
 			fmt_date(buf, tt);
@@ -156,7 +156,7 @@ void cal_process_object(icalcomponent *cal,
 		}
 	
       		p = icalcomponent_get_first_property(cal, ICAL_DTEND_PROPERTY);
-        	if (p != NULL) {
+		if (p != NULL) {
 			t = icalproperty_get_dtend(p);
 			tt = icaltime_as_timet(t);
 			fmt_date(buf, tt);
@@ -168,11 +168,11 @@ void cal_process_object(icalcomponent *cal,
 	}
 
       	p = icalcomponent_get_first_property(cal, ICAL_DESCRIPTION_PROPERTY);
-        if (p != NULL) {
+	if (p != NULL) {
 		wprintf("<TR><TD><B>Description:</B></TD><TD>");
 		escputs((char *)icalproperty_get_comment(p));
 		wprintf("</TD></TR>\n");
-        }
+	}
 
 	/* If the component has subcomponents, recurse through them. */
 	for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
@@ -290,7 +290,36 @@ void respond_to_request(void) {
 		bstr("sc")
 	);
 	serv_gets(buf);
-	escputs(buf);
+
+	if (buf[0] == '2') {
+		wprintf("<TABLE BORDER=0><TR><TD>"
+			"<IMG SRC=\"static/vcalendar.gif\" ALIGN=CENTER>"
+			"</TD><TD>"
+		);
+		if (!strcasecmp(bstr("sc"), "accept")) {
+			wprintf("You have accepted this meeting invitation.  "
+				"It has been entered into your calendar, "
+			);
+		} else if (!strcasecmp(bstr("sc"), "tentative")) {
+			wprintf("You have tentatively accepted this meeting invitation.  "
+				"It has been 'pencilled in' to your calendar, "
+			);
+		} else if (!strcasecmp(bstr("sc"), "decline")) {
+			wprintf("You have declined this meeting invitation.  "
+				"It has <b>not</b> been entered into your calendar, "
+			);
+		}
+		wprintf("and a reply has been sent to the meeting organizer."
+			"</TD></TR></TABLE>\n"
+		);
+	} else {
+		wprintf("<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
+			"%s\n", &buf[4]);
+	}
+
+	wprintf("<A HREF=\"/dotskip?room=");
+	urlescputs(WC->wc_roomname);
+	wprintf("\">Return to messages</A><BR>\n");
 
 	wDumpContent(1);
 }
