@@ -28,3 +28,7 @@ void cmd_move (char *args);
 void GetSuppMsgInfo(struct SuppMsgInfo *, long);
 void PutSuppMsgInfo(struct SuppMsgInfo *);
 void AdjRefCount(long, int);
+void simple_listing(long);
+void CtdlForEachMessage(int mode, long ref,
+                        void (*CallBack) (long msgnum) );
+ 

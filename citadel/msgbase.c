@@ -181,68 +181,85 @@ void get_mm(void)
 	fclose(fp);
 }
 
+
+
+void simple_listing(long msgnum) {
+	cprintf("%ld\n", msgnum);
+}
+
+
 /*
- * cmd_msgs()  -  get list of message #'s in this room
+ * API function to perform an operation for each qualifying message in the
+ * current room.
  */
-void cmd_msgs(char *cmdbuf)
-{
-	int a = 0;
-	int mode = 0;
-	char which[256];
-	int cm_howmany = 0;
-	long cm_gt = 0L;
+void CtdlForEachMessage(int mode, long ref,
+			void (*CallBack) (long msgnum) ) {
+
+	int a;
 	struct visit vbuf;
 
-	extract(which, cmdbuf, 0);
-
-	mode = MSGS_ALL;
-	strcat(which, "   ");
-	if (!strncasecmp(which, "OLD", 3))
-		mode = MSGS_OLD;
-	if (!strncasecmp(which, "NEW", 3))
-		mode = MSGS_NEW;
-	if (!strncasecmp(which, "FIRST", 5)) {
-		mode = MSGS_FIRST;
-		cm_howmany = extract_int(cmdbuf, 1);
-	}
-	if (!strncasecmp(which, "LAST", 4)) {
-		mode = MSGS_LAST;
-		cm_howmany = extract_int(cmdbuf, 1);
-	}
-	if (!strncasecmp(which, "GT", 2)) {
-		mode = MSGS_GT;
-		cm_gt = extract_long(cmdbuf, 1);
-	}
-	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
-		cprintf("%d not logged in\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
 	get_mm();
 	get_msglist(&CC->quickroom);
 	getuser(&CC->usersupp, CC->curr_user);
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
-	cprintf("%d Message list...\n", LISTING_FOLLOWS);
-	if (CC->num_msgs != 0) {
-		for (a = 0; a < (CC->num_msgs); ++a)
-			if ((MessageFromList(a) >= 0)
-			    && (
+	if (CC->num_msgs != 0) for (a = 0; a < (CC->num_msgs); ++a) {
+		if ((MessageFromList(a) >= 0)
+		    && (
 
-				       (mode == MSGS_ALL)
-				       || ((mode == MSGS_OLD) && (MessageFromList(a) <= vbuf.v_lastseen))
-				       || ((mode == MSGS_NEW) && (MessageFromList(a) > vbuf.v_lastseen))
-				       || ((mode == MSGS_NEW) && (MessageFromList(a) >= vbuf.v_lastseen)
-				    && (CC->usersupp.flags & US_LASTOLD))
-				       || ((mode == MSGS_LAST) && (a >= (CC->num_msgs - cm_howmany)))
-			    || ((mode == MSGS_FIRST) && (a < cm_howmany))
-				       || ((mode == MSGS_GT) && (MessageFromList(a) > cm_gt))
-			    )
-			    ) {
-				cprintf("%ld\n", MessageFromList(a));
-			}
+			       (mode == MSGS_ALL)
+			       || ((mode == MSGS_OLD) && (MessageFromList(a) <= vbuf.v_lastseen))
+			       || ((mode == MSGS_NEW) && (MessageFromList(a) > vbuf.v_lastseen))
+			       || ((mode == MSGS_NEW) && (MessageFromList(a) >= vbuf.v_lastseen)
+			    && (CC->usersupp.flags & US_LASTOLD))
+			       || ((mode == MSGS_LAST) && (a >= (CC->num_msgs - ref)))
+		    || ((mode == MSGS_FIRST) && (a < ref))
+			       || ((mode == MSGS_GT) && (MessageFromList(a) > ref))
+		    )
+		    ) {
+			CallBack(MessageFromList(a));
+		}
 	}
+}
+
+
+
+/*
+ * cmd_msgs()  -  get list of message #'s in this room
+ *                implements the MSGS server command using CtdlForEachMessage()
+ */
+void cmd_msgs(char *cmdbuf)
+{
+	int mode = 0;
+	char which[256];
+	int cm_ref = 0;
+
+	extract(which, cmdbuf, 0);
+	cm_ref = extract_int(cmdbuf, 1);
+
+	mode = MSGS_ALL;
+	strcat(which, "   ");
+	if (!strncasecmp(which, "OLD", 3))
+		mode = MSGS_OLD;
+	else if (!strncasecmp(which, "NEW", 3))
+		mode = MSGS_NEW;
+	else if (!strncasecmp(which, "FIRST", 5))
+		mode = MSGS_FIRST;
+	else if (!strncasecmp(which, "LAST", 4))
+		mode = MSGS_LAST;
+	else if (!strncasecmp(which, "GT", 2))
+		mode = MSGS_GT;
+
+	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
+		cprintf("%d not logged in\n", ERROR + NOT_LOGGED_IN);
+		return;
+	}
+
+	cprintf("%d Message list...\n", LISTING_FOLLOWS);
+	CtdlForEachMessage(mode, cm_ref, simple_listing);
 	cprintf("000\n");
 }
+
 
 
 
