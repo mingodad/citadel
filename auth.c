@@ -143,12 +143,7 @@ void do_login(void)
 
 void do_welcome(void)
 {
-	/* smart_goto("_BASEROOM_"); */
-
-	output_headers(3);
-	wprintf("<A HREF=\"/static/mainframeset.html\">Click here</A>\n");
-	wDumpContent(2);
-	/* output_static("mainframeset.html"); */
+	http_redirect("/static/mainframeset.html");
 }
 
 
