@@ -32,6 +32,7 @@
 
 #define desired_section ((char *)CtdlGetUserData(SYM_DESIRED_SECTION))
 #define ma ((struct ma_info *)CtdlGetUserData(SYM_MA_INFO))
+#define msg_repl ((struct repl *)CtdlGetUserData(SYM_REPL))
 
 extern struct config config;
 
@@ -63,7 +64,7 @@ char *msgkeys[] = {
 	"",
 	"",
 	"",
-	"zaps"
+	""
 };
 
 /*
@@ -1207,6 +1208,73 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 
 
 /*
+ * Back end for the ReplicationChecks() function
+ */
+void check_repl(long msgnum) {
+	struct CtdlMessage *msg;
+	time_t timestamp;
+
+	msg = NULL;  /* FIX change to get */
+
+
+	if (msg->cm_fields['T'] != NULL) {
+		timestamp = atol(msg->cm_fields['T']);
+		if (timestamp > msg_repl->highest) {
+			msg_repl->highest = timestamp;	/* newer! */
+			return;
+		}
+	}
+
+	/* Existing isn't newer?  Then delete the old one(s). */
+	CtdlDeleteMessages(&CC->quickroom.QRname, msgnum, NULL);
+}
+
+
+/*
+ * Check to see if any messages already exist which carry the same Extended ID
+ * as this one.  
+ *
+ * If any are found:
+ * -> With older timestamps: delete them and return 0.  Message will be saved.
+ * -> With newer timestamps: return 1.  Message save will be aborted.
+ */
+int ReplicationChecks(struct CtdlMessage *msg) {
+	struct CtdlMessage *template;
+	int abort_this = 0;
+
+	/* No extended id?  Don't do anything. */
+	if (msg->cm_fields['E'] == NULL) return 0;
+	if (strlen(msg->cm_fields['E']) == 0) return 0;
+
+	CtdlAllocUserData(SYM_REPL, sizeof(struct repl));
+	strcpy(msg_repl->extended_id, msg->cm_fields['E']);
+	msg_repl->highest = (-1L);
+
+	template = (struct CtdlMessage *) malloc(sizeof(struct CtdlMessage));
+	memset(template, 0, sizeof(struct CtdlMessage));
+	template->cm_fields['E'] = strdoop(msg->cm_fields['E']);
+
+	CtdlForEachMessage(MSGS_ALL, 0L, NULL, template, check_repl);
+
+	/* If a newer message exists with the same Extended ID, abort
+	 * this save.
+	 */
+	if (msg_repl->highest > atol(msg->cm_fields['T']) ) {
+		abort_this = 1;
+		}
+
+	CtdlFreeMessage(template);
+	return(abort_this);
+}
+
+
+
+
+
+
+
+
+/*
  * Save a message to disk
  */
 void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
@@ -1294,6 +1362,9 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* Perform "before save" hooks (aborting if any return nonzero) */
 	if (PerformMessageHooks(msg, EVT_BEFORESAVE) > 0) return;
+
+	/* If this message has an Extended ID, perform replication checks */
+	if (ReplicationChecks(msg) > 0) return;
 
 	/* Network mail - send a copy to the network program. */
 	if ((strlen(recipient) > 0) && (mailtype != MES_LOCAL)) {

@@ -83,6 +83,13 @@ B	Phone number	The dialup number of the system this message
 			defined for helping implement C86Net gateways.
 D	Destination	Contains name of the system this message should
 			be sent to, for mail routing (private mail only).
+E	Extended ID	A persistent alphanumeric Message ID used for
+			network replication.  When a message arrives that
+			contains an Extended ID, any existing messages which
+			contain the same Extended ID and are *older* than this
+			message should be deleted.  If there exist any messages
+			with the same Extended ID that are *newer*, then this
+			message should be dropped.
 G	Gateway domain	This field is provided solely for the implementation
                         of C86Net gateways, and holds the C86Net domain of
                         the system this message originated on.  Unless you're
@@ -113,9 +120,6 @@ T	Date/Time	A 32-bit integer containing the date and time of
 U       Subject         Optional.  Developers may choose whether they wish to
                         generate or display subject fields.  Citadel/UX does
                         not generate them, but it does print them when found.
-Z	Zap (supersede)	Indicates a message which this message supersedes.
-			The format is "user@node" and if the specified message
-			is found, it should be deleted.
   
 			EXAMPLE
 

@@ -17,7 +17,6 @@
 #define UUDECODE	"/usr/bin/uudecode"
 
 /* Files used by the networker */
-#define ZAPLIST		"./network/zaplist"
 #define MAILSYSINFO	"./network/mail.sysinfo"
 
 /* Uncomment the DEBUG def to see noisy traces */
@@ -816,88 +815,6 @@ void purge_use_table(GDBM_FILE ut) {
 
 
 
-/*
- * Delete any messages on the zapped list
- */
-void process_zaplist(void) {
-	FILE *zaplist;
-	char curr_rm[ROOMNAMELEN];
-	char buf[256];
-	char room[256];
-	char id[256];
-	char node[256];
-	long localzap = 0L;
-	int numzap = 0;
-
-	zaplist = fopen(ZAPLIST, "r");
-	if (zaplist == NULL) {
-		syslog(LOG_ERR, "cannot open %s: %s\n",
-			ZAPLIST, strerror(errno));
-		return;
-	}
-
-	strcpy(curr_rm, "_nothing_");
-
-	while (fgets(buf, 256, zaplist) != NULL) {
-		buf[strlen(buf) - 1] = 0;
-
-		extract(room, buf, 0);
-		extract(id, buf, 1);
-		extract(node, buf, 2);
-
-		/* Change rooms if we have to */
-		if (strcasecmp(curr_rm, room)) {
-			sprintf(buf, "GOTO %s", room);
-			serv_puts(buf);
-			serv_gets(buf);
-			if (buf[0] == '2') {
-				extract(curr_rm, &buf[4], 0);
-			} else {
-				syslog(LOG_ERR, "%s", buf);
-			}
-		}
-
-		/* And only do the zap if we succeeded */
-		if (!strcasecmp(curr_rm, room)) {
-		
-			serv_puts("MSGS ALL|0|1");
-			serv_gets(buf);
-			if (buf[0]=='1') {
-				/* This is bogus, flush and go away */
-				while (serv_gets(buf), strcmp(buf, "000")) ;
-			}
-			else if (buf[0]=='8') {
-				sprintf(buf, "msgn|%s\nnode|%s\n000",
-					id, node);
-				serv_puts(buf);
-				numzap = 0;
-				while (serv_gets(buf), strcmp(buf, "000")) {
-					localzap = atol(buf);
-					++numzap;
-				}
-			}
-	
-			if (numzap > 0) {
-				sprintf(buf, "DELE %ld", localzap);
-				serv_puts(buf);
-				serv_gets(buf);
-				if (buf[0] != '2') {
-					syslog(LOG_ERR, "%s", buf);
-				}
-			}
-			if (numzap > 1) {
-				syslog(LOG_ERR, "Multiple messages are <%s@%s>",
-					id, node);
-			}
-	
-		}
-	}
-	fclose(zaplist);
-	unlink(ZAPLIST);
-}
-
-
-
 
 
 /*
@@ -905,7 +822,7 @@ void process_zaplist(void) {
  */
 void inprocess(void)
 {
-	FILE *fp, *message, *testfp, *ls, *duplist, *zaplist;
+	FILE *fp, *message, *testfp, *ls, *duplist;
 	static struct minfo minfo;
 	struct recentmsg recentmsg;
 	char tname[128], aaa[1024], iname[256], sfilename[256], pfilename[256];
@@ -928,9 +845,6 @@ void inprocess(void)
 
 	/* temporary file to contain a log of rejected dups */
 	duplist = tmpfile();
-
-	/* Open the zapped-list for appending */
-	zaplist = fopen(ZAPLIST, "a");
 
 	/* Let the shell do the dirty work. Get all data from spoolin */
 	do {
@@ -1156,20 +1070,6 @@ NXMSG:	/* Seek to the beginning of the next message */
 
 				fclose(message);
 				
-				/* If this message supersedes an existing one,
-				 * add it to the zap list
-				 */
-				if (strlen(minfo.Z) > 0) {
-					if (strlen(minfo.C) > 0) {
-						fprintf(zaplist, "%s", minfo.C);
-					} else {
-						fprintf(zaplist, "%s", minfo.O);
-					}
-					extract_token(buf, minfo.Z, 0, '@');
-					fprintf(zaplist, "|%s", minfo.Z);
-					extract_token(buf, minfo.Z, 1, '@');
-					fprintf(zaplist, "|%s\n", minfo.Z);
-				}
 			}
 
 			unlink(tname);
@@ -1206,12 +1106,6 @@ ENDSTR:			fclose(fp);
 
 	fclose(duplist);
 
-
-	/* Now delete any messages which were zapped (superseded) by
-	 * other incoming messages.
-	 */
-	fclose(zaplist);
-	process_zaplist();
 }
 
 

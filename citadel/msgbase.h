@@ -17,6 +17,10 @@ struct ma_info {
 };
 
 
+struct repl {			/* Info for replication checking */
+	char extended_id[256];
+	time_t highest;
+};
 
 
 int alias (char *name);
