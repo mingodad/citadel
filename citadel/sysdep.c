@@ -101,7 +101,7 @@ int syslog_facility = (-1);
  * Note: the variable "buf" below needs to be large enough to handle any
  * log data sent through this function.  BE CAREFUL!
  */
-void lprintf(int loglevel, const char *format, ...) {   
+void lprintf(enum LogLevel loglevel, const char *format, ...) {   
         va_list arg_ptr;
 	char buf[SIZ];
  
@@ -117,7 +117,7 @@ void lprintf(int loglevel, const char *format, ...) {
 				snprintf(buf, 6, "[%3d]", CC->cs_pid);
 				buf[5] = ' ';
 			}
-			syslog(LOG_NOTICE, buf);
+			syslog(loglevel, buf);
 		}
 	}
 	else if (loglevel <= verbosity) { 
@@ -163,7 +163,7 @@ void *tracked_malloc(size_t tsize, char *tfile, int tline) {
 
 	ptr = malloc(tsize);
 	if (ptr == NULL) {
-		lprintf(3, "DANGER!  mallok(%d) at %s:%d failed!\n",
+		lprintf(CTDL_ALERT, "DANGER!  mallok(%d) at %s:%d failed!\n",
 			tsize, tfile, tline);
 		return(NULL);
 	}
@@ -277,7 +277,7 @@ void init_sysdep(void) {
 	 * session to which the calling thread is currently bound.
 	 */
 	if (pthread_key_create(&MyConKey, NULL) != 0) {
-		lprintf(1, "Can't create TSD key!!  %s\n", strerror(errno));
+		lprintf(CTDL_CRIT, "Can't create TSD key!!  %s\n", strerror(errno));
 	}
 
 	/*
@@ -303,7 +303,7 @@ void init_sysdep(void) {
  */
 void begin_critical_section(int which_one)
 {
-	/* lprintf(9, "begin_critical_section(%d)\n", which_one); */
+	/* lprintf(CTDL_DEBUG, "begin_critical_section(%d)\n", which_one); */
 	/* ensure nobody ever tries to do a critical section within a
 	   transaction; this could lead to deadlock. */
 	cdb_check_handles();
@@ -315,7 +315,7 @@ void begin_critical_section(int which_one)
  */
 void end_critical_section(int which_one)
 {
-	/* lprintf(9, "end_critical_section(%d)\n", which_one); */
+	/* lprintf(CTDL_DEBUG, "end_critical_section(%d)\n", which_one); */
 	pthread_mutex_unlock(&Critters[which_one]);
 }
 
@@ -343,7 +343,7 @@ int ig_tcp_server(int port_number, int queue_len)
 	s = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	if (s < 0) {
-		lprintf(1, "citserver: Can't create a socket: %s\n",
+		lprintf(CTDL_EMERG, "citserver: Can't create a socket: %s\n",
 			strerror(errno));
 		return(-1);
 	}
@@ -352,14 +352,14 @@ int ig_tcp_server(int port_number, int queue_len)
 	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
 
 	if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
-		lprintf(1, "citserver: Can't bind: %s\n",
+		lprintf(CTDL_EMERG, "citserver: Can't bind: %s\n",
 			strerror(errno));
 		close(s);
 		return(-1);
 	}
 
 	if (listen(s, actual_queue_len) < 0) {
-		lprintf(1, "citserver: Can't listen: %s\n", strerror(errno));
+		lprintf(CTDL_EMERG, "citserver: Can't listen: %s\n", strerror(errno));
 		close(s);
 		return(-1);
 	}
@@ -384,7 +384,7 @@ int ig_uds_server(char *sockpath, int queue_len)
 
 	i = unlink(sockpath);
 	if (i != 0) if (errno != ENOENT) {
-		lprintf(1, "citserver: can't unlink %s: %s\n",
+		lprintf(CTDL_EMERG, "citserver: can't unlink %s: %s\n",
 			sockpath, strerror(errno));
 		return(-1);
 	}
@@ -395,19 +395,19 @@ int ig_uds_server(char *sockpath, int queue_len)
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
-		lprintf(1, "citserver: Can't create a socket: %s\n",
+		lprintf(CTDL_EMERG, "citserver: Can't create a socket: %s\n",
 			strerror(errno));
 		return(-1);
 	}
 
 	if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-		lprintf(1, "citserver: Can't bind: %s\n",
+		lprintf(CTDL_EMERG, "citserver: Can't bind: %s\n",
 			strerror(errno));
 		return(-1);
 	}
 
 	if (listen(s, actual_queue_len) < 0) {
-		lprintf(1, "citserver: Can't listen: %s\n", strerror(errno));
+		lprintf(CTDL_EMERG, "citserver: Can't listen: %s\n", strerror(errno));
 		return(-1);
 	}
 
@@ -444,7 +444,7 @@ struct CitContext *CreateNewContext(void) {
 
 	me = (struct CitContext *) mallok(sizeof(struct CitContext));
 	if (me == NULL) {
-		lprintf(1, "citserver: can't allocate memory!!\n");
+		lprintf(CTDL_ALERT, "citserver: can't allocate memory!!\n");
 		return NULL;
 	}
 	memset(me, 0, sizeof(struct CitContext));
@@ -568,7 +568,7 @@ void client_write(char *buf, int nbytes)
 		retval = write(sock, &buf[bytes_written],
 			nbytes - bytes_written);
 		if (retval < 1) {
-			lprintf(2, "client_write() failed: %s\n",
+			lprintf(CTDL_ERR, "client_write() failed: %s\n",
 				strerror(errno));
 			if (sock == CC->client_socket) CC->kill_me = 1;
 			return;
@@ -631,7 +631,7 @@ int client_read_to(char *buf, int bytes, int timeout)
 
 		rlen = read(CC->client_socket, &buf[len], bytes-len);
 		if (rlen<1) {
-			lprintf(2, "client_read() failed: %s\n",
+			lprintf(CTDL_ERR, "client_read() failed: %s\n",
 				strerror(errno));
 			CC->kill_me = 1;
 			return(-1);
@@ -699,11 +699,11 @@ void sysdep_master_cleanup(void) {
 	    serviceptr = serviceptr->next ) {
 
 		if (serviceptr->tcp_port > 0)
-			lprintf(3, "Closing listener on port %d\n",
+			lprintf(CTDL_INFO, "Closing listener on port %d\n",
 				serviceptr->tcp_port);
 
 		if (serviceptr->sockpath != NULL)
-			lprintf(3, "Closing listener on '%s'\n",
+			lprintf(CTDL_INFO, "Closing listener on '%s'\n",
 				serviceptr->sockpath);
 
 		close(serviceptr->msock);
@@ -788,13 +788,13 @@ void create_worker(void) {
 
 	n = mallok(sizeof(struct worker_node));
 	if (n == NULL) {
-		lprintf(1, "can't allocate worker_node, exiting\n");
+		lprintf(CTDL_EMERG, "can't allocate worker_node, exiting\n");
 		time_to_die = -1;
 		return;
 	}
 
 	if ((ret = pthread_attr_init(&attr))) {
-		lprintf(1, "pthread_attr_init: %s\n", strerror(ret));
+		lprintf(CTDL_EMERG, "pthread_attr_init: %s\n", strerror(ret));
 		time_to_die = -1;
 		return;
 	}
@@ -802,7 +802,7 @@ void create_worker(void) {
 	/* we seem to need something bigger than FreeBSD's default 64k stack */
 
 	if ((ret = pthread_attr_setstacksize(&attr, 128 * 1024))) {
-		lprintf(1, "pthread_attr_setstacksize: %s\n", strerror(ret));
+		lprintf(CTDL_EMERG, "pthread_attr_setstacksize: %s\n", strerror(ret));
 		time_to_die = -1;
 		return;
 	}
@@ -810,7 +810,7 @@ void create_worker(void) {
 	if ((ret = pthread_create(&n->tid, &attr, worker_thread, NULL) != 0))
 	{
 
-		lprintf(1, "Can't create worker thread: %s\n",
+		lprintf(CTDL_ALERT, "Can't create worker thread: %s\n",
 			strerror(ret));
 	}
 
@@ -851,7 +851,7 @@ void dead_session_purge(void) {
 		 * section, so we have to do it like this.
 		 */	
 		if (rem != NULL) {
-			lprintf(9, "Purging session %d\n", rem->cs_pid);
+			lprintf(CTDL_DEBUG, "Purging session %d\n", rem->cs_pid);
 			RemoveContext(rem);
 		}
 
@@ -942,25 +942,25 @@ void init_master_fdset(void) {
 	struct ServiceFunctionHook *serviceptr;
 	int m;
 
-	lprintf(9, "Initializing master fdset\n");
+	lprintf(CTDL_DEBUG, "Initializing master fdset\n");
 
 	FD_ZERO(&masterfds);
 	masterhighest = 0;
 
-	lprintf(9, "Will listen on rescan pipe %d\n", rescan[0]);
+	lprintf(CTDL_DEBUG, "Will listen on rescan pipe %d\n", rescan[0]);
 	FD_SET(rescan[0], &masterfds);
 	if (rescan[0] > masterhighest) masterhighest = rescan[0];
 
 	for (serviceptr = ServiceHookTable; serviceptr != NULL;
 	    serviceptr = serviceptr->next ) {
 		m = serviceptr->msock;
-		lprintf(9, "Will listen on master socket %d\n", m);
+		lprintf(CTDL_DEBUG, "Will listen on master socket %d\n", m);
 		FD_SET(m, &masterfds);
 		if (m > masterhighest) {
 			masterhighest = m;
 		}
 	}
-	lprintf(9, "masterhighest = %d\n", masterhighest);
+	lprintf(CTDL_DEBUG, "masterhighest = %d\n", masterhighest);
 }
 
 
@@ -1041,7 +1041,7 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 		 */
 		if (retval < 0) {
 			if (errno != EINTR) {
-				lprintf(9, "Exiting (%s)\n", strerror(errno));
+				lprintf(CTDL_EMERG, "Exiting (%s)\n", strerror(errno));
 				time_to_die = 1;
 			} else if (!time_to_die)
 				goto do_select;
@@ -1056,11 +1056,12 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 			if (FD_ISSET(serviceptr->msock, &readfds)) {
 				ssock = accept(serviceptr->msock, NULL, 0);
 				if (ssock < 0) {
-					lprintf(2, "citserver: accept(): %s\n",
+					lprintf(CTDL_CRIT,
+						"citserver: accept(): %s\n",
 						strerror(errno));
 				}
 				else {
-					lprintf(7, "citserver: "
+					lprintf(CTDL_NOTICE,
 						"New client socket %d\n",
 						ssock);
 

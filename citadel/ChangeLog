@@ -1,4 +1,9 @@
  $Log$
+ Revision 614.55  2004/02/27 17:23:21  error
+ * Use syslog-compatible logging levels in lprintf(); the loglevel chosen
+   is passed directly to syslog().  The available levels are docuemnted in
+   sysdep_decls.h.
+
  Revision 614.54  2004/02/27 04:29:00  ajc
  * Fixed a bug in PLAIN authentication
 
@@ -5420,4 +5425,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -77,10 +77,10 @@ void master_startup(void) {
 	FILE *urandom;
 	struct ctdlroom qrbuf;
 	
-	lprintf(9, "master_startup() started\n");
+	lprintf(CTDL_DEBUG, "master_startup() started\n");
 	time(&server_startup_time);
 
-	lprintf(7, "Opening databases\n");
+	lprintf(CTDL_INFO, "Opening databases\n");
 	open_databases();
 
 	if (do_defrag) {
@@ -89,7 +89,7 @@ void master_startup(void) {
 
 	check_ref_counts();
 
-	lprintf(7, "Creating base rooms (if necessary)\n");
+	lprintf(CTDL_INFO, "Creating base rooms (if necessary)\n");
 	create_room(BASEROOM,		0, "", 0, 1, 0);
 	create_room(AIDEROOM,		3, "", 0, 1, 0);
 	create_room(SYSCONFIGROOM,	3, "", 0, 1, 0);
@@ -101,7 +101,7 @@ void master_startup(void) {
                 lputroom(&qrbuf);
         }
 
-	lprintf(7, "Seeding the pseudo-random number generator...\n");
+	lprintf(CTDL_INFO, "Seeding the pseudo-random number generator...\n");
 	urandom = fopen("/dev/urandom", "r");
 	if (urandom != NULL) {
 		fread(&seed, sizeof seed, 1, urandom);
@@ -113,12 +113,12 @@ void master_startup(void) {
 	}
 	srandom(seed);
 
-	lprintf(7, "Initializing ipgm secret\n");
+	lprintf(CTDL_INFO, "Initializing ipgm secret\n");
 	get_config();
 	config.c_ipgm_secret = rand();
 	put_config();
 
-	lprintf(9, "master_startup() finished\n");
+	lprintf(CTDL_DEBUG, "master_startup() finished\n");
 }
 
 
@@ -136,14 +136,14 @@ void master_cleanup(void) {
 	}
 
 	/* Close databases */
-	lprintf(7, "Closing databases\n");
+	lprintf(CTDL_INFO, "Closing databases\n");
 	close_databases();
 
 	/* Do system-dependent stuff */
 	sysdep_master_cleanup();
 
 	/* Now go away. */
-	lprintf(3, "citserver: exiting.\n");
+	lprintf(CTDL_NOTICE, "citserver: exiting.\n");
 	fflush(stdout); fflush(stderr);
 	exit(0);
 }
@@ -158,7 +158,7 @@ void deallocate_user_data(struct CitContext *con)
 
 	begin_critical_section(S_SESSION_TABLE);
 	while (con->FirstSessData != NULL) {
-		lprintf(9, "Deallocating user data symbol %ld\n",
+		lprintf(CTDL_DEBUG, "Deallocating user data symbol %ld\n",
 			con->FirstSessData->sym_id);
 		if (con->FirstSessData->sym_data != NULL)
 			phree(con->FirstSessData->sym_data);
@@ -181,16 +181,16 @@ void RemoveContext (struct CitContext *con)
 	struct CitContext *ToFree = NULL;
 
 	if (con==NULL) {
-		lprintf(5, "WARNING: RemoveContext() called with NULL!\n");
+		lprintf(CTDL_ERR, "WARNING: RemoveContext() called with NULL!\n");
 		return;
 	}
-	lprintf(9, "RemoveContext() called\n");
+	lprintf(CTDL_DEBUG, "RemoveContext() called\n");
 
 	/* Remove the context from the global context list.  This needs
 	 * to get done FIRST to avoid concurrency problems.  It is *vitally*
 	 * important to keep num_sessions accurate!!
 	 */
-	lprintf(7, "Removing context for session %d\n", con->cs_pid);
+	lprintf(CTDL_DEBUG, "Removing context for session %d\n", con->cs_pid);
 	begin_critical_section(S_SESSION_TABLE);
 	if (ContextList == con) {
 		ToFree = ContextList;
@@ -209,7 +209,7 @@ void RemoveContext (struct CitContext *con)
 	end_critical_section(S_SESSION_TABLE);
 
 	if (ToFree == NULL) {
-		lprintf(9, "RemoveContext() found nothing to remove\n");
+		lprintf(CTDL_DEBUG, "RemoveContext() found nothing to remove\n");
 		return;
 	}
 
@@ -224,17 +224,17 @@ void RemoveContext (struct CitContext *con)
 	become_session(NULL);
 
 	/* Now handle all of the administrivia. */
-	lprintf(7, "Calling logout(%d)\n", con->cs_pid);
+	lprintf(CTDL_DEBUG, "Calling logout(%d)\n", con->cs_pid);
 	logout(con);
 
 	unlink(con->temp);
-	lprintf(3, "Session %d: ended.\n", con->cs_pid);
+	lprintf(CTDL_NOTICE, "Session %d: ended.\n", con->cs_pid);
 
 	/* Deallocate any user-data attached to this session */
 	deallocate_user_data(con);
 
 	/* If the client is still connected, blow 'em away. */
-	lprintf(7, "Closing socket %d\n", con->client_socket);
+	lprintf(CTDL_DEBUG, "Closing socket %d\n", con->client_socket);
 	close(con->client_socket);
 
 	/* This is where we used to check for scheduled shutdowns. */
@@ -242,7 +242,7 @@ void RemoveContext (struct CitContext *con)
 	/* Free up the memory used by this context */
 	phree(con);
 
-	lprintf(9, "Done with RemoveContext()\n");
+	lprintf(CTDL_DEBUG, "Done with RemoveContext()\n");
 }
 
 
@@ -264,7 +264,7 @@ void *CtdlGetUserData(unsigned long requested_sym)
 		if (ptr->sym_id == requested_sym)
 			return(ptr->sym_data);
 
-	lprintf(2, "ERROR! CtdlGetUserData(%ld) symbol not allocated\n",
+	lprintf(CTDL_ERR, "ERROR! CtdlGetUserData(%ld) symbol not allocated\n",
 		requested_sym);
 	return NULL;
 }
@@ -277,7 +277,7 @@ void CtdlAllocUserData(unsigned long requested_sym, size_t num_bytes)
 {
 	struct CtdlSessData *ptr;
 
-	lprintf(9, "CtdlAllocUserData(%ld) called\n", requested_sym);
+	lprintf(CTDL_DEBUG, "CtdlAllocUserData(%ld) called\n", requested_sym);
 
 	/* Fail silently if the symbol is already registered. */
 	for (ptr = CC->FirstSessData; ptr != NULL; ptr = ptr->next)  {
@@ -297,7 +297,7 @@ void CtdlAllocUserData(unsigned long requested_sym, size_t num_bytes)
 	CC->FirstSessData = ptr;
 	end_critical_section(S_SESSION_TABLE);
 
-	lprintf(9, "CtdlAllocUserData(%ld) finished\n", requested_sym);
+	lprintf(CTDL_DEBUG, "CtdlAllocUserData(%ld) finished\n", requested_sym);
 }
 
 
@@ -315,7 +315,7 @@ void CtdlReallocUserData(unsigned long requested_sym, size_t num_bytes)
 		}
 	}
 
-	lprintf(2, "CtdlReallocUserData() ERROR: symbol %ld not found!\n",
+	lprintf(CTDL_ERR, "CtdlReallocUserData() ERROR: symbol %ld not found!\n",
 		requested_sym);
 }
 
@@ -408,13 +408,13 @@ int is_public_client(void)
 	 */
 	if (stat(PUBLIC_CLIENTS, &statbuf) != 0) {
 		/* No public_clients file exists, so bail out */
-		lprintf(5, "Warning: '%s' does not exist\n", PUBLIC_CLIENTS);
+		lprintf(CTDL_WARNING, "Warning: '%s' does not exist\n", PUBLIC_CLIENTS);
 		return(0);
 	}
 
 	if (statbuf.st_mtime > pc_timestamp) {
 		begin_critical_section(S_PUBLIC_CLIENTS);
-		lprintf(7, "Loading %s\n", PUBLIC_CLIENTS);
+		lprintf(CTDL_INFO, "Loading %s\n", PUBLIC_CLIENTS);
 
 		strcpy(public_clients, "127.0.0.1");
 		if (hostname_to_dotted_quad(addrbuf, config.c_fqdn) == 0) {
@@ -443,18 +443,18 @@ int is_public_client(void)
 		end_critical_section(S_PUBLIC_CLIENTS);
 	}
 
-	lprintf(9, "Checking whether %s is a local or public client\n",
+	lprintf(CTDL_DEBUG, "Checking whether %s is a local or public client\n",
 		CC->cs_addr);
 	for (i=0; i<num_parms(public_clients); ++i) {
 		extract(addrbuf, public_clients, i);
 		if (!strcasecmp(CC->cs_addr, addrbuf)) {
-			lprintf(9, "... yes it is.\n");
+			lprintf(CTDL_DEBUG, "... yes it is.\n");
 			return(1);
 		}
 	}
 
 	/* No hits.  This is not a public client. */
-	lprintf(9, "... no it isn't.\n");
+	lprintf(CTDL_DEBUG, "... no it isn't.\n");
 	return(0);
 }
 
@@ -498,7 +498,7 @@ void cmd_iden(char *argbuf)
 	}
 
 	if (do_lookup) {
-		lprintf(9, "Looking up hostname '%s'\n", from_host);
+		lprintf(CTDL_DEBUG, "Looking up hostname '%s'\n", from_host);
 		if ((addr.s_addr = inet_addr(from_host)) != -1) {
 			locate_host(CC->cs_host, sizeof CC->cs_host,
 				NULL, 0,
@@ -510,7 +510,7 @@ void cmd_iden(char *argbuf)
 		}
 	}
 
-	lprintf(3,"Client %d/%d/%01d.%02d (%s) from %s\n",
+	lprintf(CTDL_NOTICE, "Client %d/%d/%01d.%02d (%s) from %s\n",
 		dev_code,
 		cli_code,
 		(rev_level / 100),
@@ -701,7 +701,7 @@ void cmd_term(char *cmdbuf)
 		return;
 	}
 
-	lprintf(9, "Locating session to kill\n");
+	lprintf(CTDL_DEBUG, "Locating session to kill\n");
 	begin_critical_section(S_SESSION_TABLE);
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 		if (session_num == ccptr->cs_pid) {
@@ -778,7 +778,7 @@ void cmd_ipgm(char *argbuf)
 	else {
 		sleep(5);
 		cprintf("%d Authentication failed.\n", ERROR + PASSWORD_REQUIRED);
-		lprintf(3, "Warning: ipgm authentication failed.\n");
+		lprintf(CTDL_ERR, "Warning: ipgm authentication failed.\n");
 		CC->kill_me = 1;
 	}
 
@@ -902,7 +902,7 @@ void begin_session(struct CitContext *con)
 	if ((config.c_maxsessions > 0)&&(num_sessions > config.c_maxsessions))
 		con->nologin = 1;
 
-	lprintf(3, "Session started.\n");
+	lprintf(CTDL_NOTICE, "Session started.\n");
 
 	/* Run any session startup routines registered by loadable modules */
 	PerformSessionHooks(EVT_START);
@@ -934,11 +934,11 @@ void do_command_loop(void) {
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_gets(cmdbuf) < 1) {
-		lprintf(3, "Client socket is broken.  Ending session.\n");
+		lprintf(CTDL_ERR, "Client socket is broken.  Ending session.\n");
 		CC->kill_me = 1;
 		return;
 	}
-	lprintf(5, "Citadel: %s\n", cmdbuf);
+	lprintf(CTDL_INFO, "Citadel: %s\n", cmdbuf);
 
 	/*
 	 * Let other clients see the last command we executed, and

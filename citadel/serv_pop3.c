@@ -75,7 +75,7 @@ void pop3_cleanup_function(void) {
 	/* Don't do this stuff if this is not a POP3 session! */
 	if (CC->h_command_function != pop3_command_loop) return;
 
-	lprintf(9, "Performing POP3 cleanup hook\n");
+	lprintf(CTDL_DEBUG, "Performing POP3 cleanup hook\n");
 
 	if (POP3->num_msgs > 0) for (i=0; i<POP3->num_msgs; ++i) {
 		if (POP3->msgs[i].temp != NULL) {
@@ -85,7 +85,7 @@ void pop3_cleanup_function(void) {
 	}
 	if (POP3->msgs != NULL) phree(POP3->msgs);
 
-	lprintf(9, "Finished POP3 cleanup hook\n");
+	lprintf(CTDL_DEBUG, "Finished POP3 cleanup hook\n");
 }
 
 
@@ -119,7 +119,7 @@ void pop3_user(char *argbuf) {
 	strcpy(username, argbuf);
 	striplt(username);
 
-	lprintf(9, "Trying <%s>\n", username);
+	lprintf(CTDL_DEBUG, "Trying <%s>\n", username);
 	if (CtdlLoginExistingUser(username) == login_ok) {
 		cprintf("+OK Password required for %s\r\n", username);
 	}
@@ -135,7 +135,7 @@ void pop3_user(char *argbuf) {
  */
 void pop3_add_message(long msgnum, void *userdata) {
 	FILE *fp;
-	lprintf(9, "in pop3_add_message()\n");
+	lprintf(CTDL_DEBUG, "in pop3_add_message()\n");
 
 	++POP3->num_msgs;
 	if (POP3->num_msgs < 2) POP3->msgs = mallok(sizeof(struct pop3msg));
@@ -191,7 +191,7 @@ void pop3_login(void)
 	if (msgs >= 0) {
 		cprintf("+OK %s is logged in (%d messages)\r\n",
 			CC->user.fullname, msgs);
-		lprintf(9, "POP3 password login successful\n");
+		lprintf(CTDL_NOTICE, "POP3 authenticated %s\n", CC->user.fullname);
 	}
 	else {
 		cprintf("-ERR Can't open your mailbox\r\n");
@@ -263,7 +263,7 @@ void pop3_pass(char *argbuf) {
 	strcpy(password, argbuf);
 	striplt(password);
 
-	lprintf(9, "Trying <%s>\n", password);
+	lprintf(CTDL_DEBUG, "Trying <%s>\n", password);
 	if (CtdlTryPassword(password) == pass_ok) {
 		pop3_login();
 	}
@@ -365,7 +365,7 @@ void pop3_retr(char *argbuf) {
 		cprintf("%c", ch);
 	}
 	if (ch != 10) {
-		lprintf(5, "Problem: message ends with 0x%2x, not 0x0a\n", ch);
+		lprintf(CTDL_WARNING, "Problem: message ends with 0x%2x, not 0x0a\n", ch);
 	}
 	cprintf(".\r\n");
 }
@@ -568,11 +568,11 @@ void pop3_command_loop(void) {
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_gets(cmdbuf) < 1) {
-		lprintf(3, "POP3 socket is broken.  Ending session.\r\n");
+		lprintf(CTDL_ERR, "POP3 socket is broken.  Ending session.\r\n");
 		CC->kill_me = 1;
 		return;
 	}
-	lprintf(5, "POP3: %s\r\n", cmdbuf);
+	lprintf(CTDL_INFO, "POP3: %s\r\n", cmdbuf);
 	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
 
 	if (!strncasecmp(cmdbuf, "NOOP", 4)) {

@@ -152,7 +152,7 @@ void lmtp_greeting(void) {
  */
 void smtp_auth_greeting(void) {
 		cprintf("235 2.0.0 Hello, %s\r\n", CC->user.fullname);
-		lprintf(9, "SMTP authenticated login successful\n");
+		lprintf(CTDL_NOTICE, "SMTP authenticated %s\n", CC->user.fullname);
 		CC->internal_pgm = 0;
 		CC->cs_flags &= ~CS_STEALTH;
 }
@@ -237,7 +237,7 @@ void smtp_get_user(char *argbuf) {
 	char username[SIZ];
 
 	CtdlDecodeBase64(username, argbuf, SIZ);
-	lprintf(9, "Trying <%s>\n", username);
+	lprintf(CTDL_DEBUG, "Trying <%s>\n", username);
 	if (CtdlLoginExistingUser(username) == login_ok) {
 		CtdlEncodeBase64(buf, "Password:", 9);
 		cprintf("334 %s\r\n", buf);
@@ -257,7 +257,7 @@ void smtp_get_pass(char *argbuf) {
 	char password[SIZ];
 
 	CtdlDecodeBase64(password, argbuf, SIZ);
-	lprintf(9, "Trying <%s>\n", password);
+	lprintf(CTDL_DEBUG, "Trying <%s>\n", password);
 	if (CtdlTryPassword(password) == pass_ok) {
 		smtp_auth_greeting();
 	}
@@ -633,7 +633,7 @@ void smtp_data(void) {
 		return;
 	}
 
-	lprintf(9, "Converting message...\n");
+	lprintf(CTDL_DEBUG, "Converting message...\n");
 	msg = convert_internet_message(body);
 
 	/* If the user is locally authenticated, FORCE the From: header to
@@ -741,11 +741,11 @@ void smtp_command_loop(void) {
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_gets(cmdbuf) < 1) {
-		lprintf(3, "SMTP socket is broken.  Ending session.\n");
+		lprintf(CTDL_CRIT, "SMTP socket is broken.  Ending session.\n");
 		CC->kill_me = 1;
 		return;
 	}
-	lprintf(5, "SMTP: %s\n", cmdbuf);
+	lprintf(CTDL_INFO, "SMTP: %s\n", cmdbuf);
 	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
 
 	if (SMTP->command_state == smtp_user) {
@@ -855,7 +855,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	/* Parse out the host portion of the recipient address */
 	process_rfc822_addr(addr, user, node, name);
 
-	lprintf(9, "Attempting SMTP delivery to <%s> @ <%s> (%s)\n",
+	lprintf(CTDL_DEBUG, "Attempting SMTP delivery to <%s> @ <%s> (%s)\n",
 		user, node, name);
 
 	/* Load the message out of the database into a temp file */
@@ -920,7 +920,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 
 	/* Figure out what mail exchanger host we have to connect to */
 	num_mxhosts = getmx(mxhosts, node);
-	lprintf(9, "Number of MX hosts for <%s> is %d\n", node, num_mxhosts);
+	lprintf(CTDL_DEBUG, "Number of MX hosts for <%s> is %d\n", node, num_mxhosts);
 	if (num_mxhosts < 1) {
 		*status = 5;
 		snprintf(dsn, SIZ, "No MX hosts found for <%s>", node);
@@ -930,10 +930,10 @@ void smtp_try(const char *key, const char *addr, int *status,
 	sock = (-1);
 	for (mx=0; (mx<num_mxhosts && sock < 0); ++mx) {
 		extract(buf, mxhosts, mx);
-		lprintf(9, "Trying <%s>\n", buf);
+		lprintf(CTDL_DEBUG, "Trying <%s>\n", buf);
 		sock = sock_connect(buf, "25", "tcp");
 		snprintf(dsn, SIZ, "Could not connect: %s", strerror(errno));
-		if (sock >= 0) lprintf(9, "Connected!\n");
+		if (sock >= 0) lprintf(CTDL_DEBUG, "Connected!\n");
 		if (sock < 0) snprintf(dsn, SIZ, "%s", strerror(errno));
 	}
 
@@ -948,7 +948,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 		strcpy(dsn, "Connection broken during SMTP conversation");
 		goto bail;
 	}
-	lprintf(9, "<%s\n", buf);
+	lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
@@ -966,14 +966,14 @@ void smtp_try(const char *key, const char *addr, int *status,
 
 	/* Do a HELO command */
 	snprintf(buf, sizeof buf, "HELO %s\r\n", config.c_fqdn);
-	lprintf(9, ">%s", buf);
+	lprintf(CTDL_DEBUG, ">%s", buf);
 	sock_write(sock, buf, strlen(buf));
 	if (ml_sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP HELO");
 		goto bail;
 	}
-	lprintf(9, "<%s\n", buf);
+	lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
@@ -990,14 +990,14 @@ void smtp_try(const char *key, const char *addr, int *status,
 
 	/* HELO succeeded, now try the MAIL From: command */
 	snprintf(buf, sizeof buf, "MAIL From: <%s>\r\n", mailfrom);
-	lprintf(9, ">%s", buf);
+	lprintf(CTDL_DEBUG, ">%s", buf);
 	sock_write(sock, buf, strlen(buf));
 	if (ml_sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP MAIL");
 		goto bail;
 	}
-	lprintf(9, "<%s\n", buf);
+	lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
@@ -1014,14 +1014,14 @@ void smtp_try(const char *key, const char *addr, int *status,
 
 	/* MAIL succeeded, now try the RCPT To: command */
 	snprintf(buf, sizeof buf, "RCPT To: <%s>\r\n", addr);
-	lprintf(9, ">%s", buf);
+	lprintf(CTDL_DEBUG, ">%s", buf);
 	sock_write(sock, buf, strlen(buf));
 	if (ml_sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP RCPT");
 		goto bail;
 	}
-	lprintf(9, "<%s\n", buf);
+	lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
@@ -1037,14 +1037,14 @@ void smtp_try(const char *key, const char *addr, int *status,
 
 
 	/* RCPT succeeded, now try the DATA command */
-	lprintf(9, ">DATA\n");
+	lprintf(CTDL_DEBUG, ">DATA\n");
 	sock_write(sock, "DATA\r\n", 6);
 	if (ml_sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP DATA");
 		goto bail;
 	}
-	lprintf(9, "<%s\n", buf);
+	lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (buf[0] != '3') {
 		if (buf[0] == '4') {
 			*status = 3;
@@ -1068,8 +1068,8 @@ void smtp_try(const char *key, const char *addr, int *status,
 		msg_size -= blocksize;
 	}
 	if (buf[blocksize-1] != 10) {
-		lprintf(5, "Possible problem: message did not correctly "
-			"terminate. (expecting 0x10, got 0x%02x)\n",
+		lprintf(CTDL_WARNING, "Possible problem: message did not "
+			"correctly terminate. (expecting 0x10, got 0x%02x)\n",
 				buf[blocksize-1]);
 	}
 
@@ -1079,7 +1079,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 		strcpy(dsn, "Connection broken during SMTP message transmit");
 		goto bail;
 	}
-	lprintf(9, "%s\n", buf);
+	lprintf(CTDL_DEBUG, "%s\n", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
@@ -1097,10 +1097,12 @@ void smtp_try(const char *key, const char *addr, int *status,
 	safestrncpy(dsn, &buf[4], 1023);
 	*status = 2;
 
-	lprintf(9, ">QUIT\n");
+	lprintf(CTDL_DEBUG, ">QUIT\n");
 	sock_write(sock, "QUIT\r\n", 6);
 	ml_sock_gets(sock, buf);
-	lprintf(9, "<%s\n", buf);
+	lprintf(CTDL_DEBUG, "<%s\n", buf);
+	lprintf(CTDL_INFO, "SMTP delivery to <%s> @ <%s> (%s) succeeded\n",
+		user, node, name);
 
 bail:	if (msg_fp != NULL) fclose(msg_fp);
 	sock_close(sock);
@@ -1132,7 +1134,7 @@ void smtp_do_bounce(char *instr) {
 	struct recptypes *valid;
 	int successful_bounce = 0;
 
-	lprintf(9, "smtp_do_bounce() called\n");
+	lprintf(CTDL_DEBUG, "smtp_do_bounce() called\n");
 	strcpy(bounceto, "");
 
 	lines = num_tokens(instr, '\n');
@@ -1187,7 +1189,7 @@ void smtp_do_bounce(char *instr) {
 		extract(dsn, buf, 3);
 		bounce_this = 0;
 
-		lprintf(9, "key=<%s> addr=<%s> status=%d dsn=<%s>\n",
+		lprintf(CTDL_DEBUG, "key=<%s> addr=<%s> status=%d dsn=<%s>\n",
 			key, addr, status, dsn);
 
 		if (!strcasecmp(key, "bounceto")) {
@@ -1208,7 +1210,7 @@ void smtp_do_bounce(char *instr) {
 			++num_bounces;
 
 			if (bmsg->cm_fields['M'] == NULL) {
-				lprintf(2, "ERROR ... M field is null "
+				lprintf(CTDL_ERR, "ERROR ... M field is null "
 					"(%s:%d)\n", __FILE__, __LINE__);
 			}
 
@@ -1226,13 +1228,13 @@ void smtp_do_bounce(char *instr) {
 	}
 
 	/* Deliver the bounce if there's anything worth mentioning */
-	lprintf(9, "num_bounces = %d\n", num_bounces);
+	lprintf(CTDL_DEBUG, "num_bounces = %d\n", num_bounces);
 	if (num_bounces > 0) {
 
 		/* First try the user who sent the message */
-		lprintf(9, "bounce to user? <%s>\n", bounceto);
+		lprintf(CTDL_DEBUG, "bounce to user? <%s>\n", bounceto);
 		if (strlen(bounceto) == 0) {
-			lprintf(7, "No bounce address specified\n");
+			lprintf(CTDL_ERR, "No bounce address specified\n");
 			bounce_msgid = (-1L);
 		}
 
@@ -1257,7 +1259,7 @@ void smtp_do_bounce(char *instr) {
 	}
 
 	CtdlFreeMessage(bmsg);
-	lprintf(9, "Done processing bounces\n");
+	lprintf(CTDL_DEBUG, "Done processing bounces\n");
 }
 
 
@@ -1331,11 +1333,11 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	time_t last_attempted = 0L;
 	time_t retry = SMTP_RETRY_INTERVAL;
 
-	lprintf(9, "smtp_do_procmsg(%ld)\n", msgnum);
+	lprintf(CTDL_DEBUG, "smtp_do_procmsg(%ld)\n", msgnum);
 
 	msg = CtdlFetchMessage(msgnum);
 	if (msg == NULL) {
-		lprintf(3, "SMTP: tried %ld but no such message!\n", msgnum);
+		lprintf(CTDL_ERR, "SMTP: tried %ld but no such message!\n", msgnum);
 		return;
 	}
 
@@ -1380,7 +1382,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	 * Postpone delivery if we've already tried recently.
 	 */
 	if (((time(NULL) - last_attempted) < retry) && (run_queue_now == 0)) {
-		lprintf(7, "Retry time not yet reached.\n");
+		lprintf(CTDL_DEBUG, "Retry time not yet reached.\n");
 		phree(instr);
 		return;
 	}
@@ -1390,7 +1392,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	 * Bail out if there's no actual message associated with this
 	 */
 	if (text_msgid < 0L) {
-		lprintf(3, "SMTP: no 'msgid' directive found!\n");
+		lprintf(CTDL_ERR, "SMTP: no 'msgid' directive found!\n");
 		phree(instr);
 		return;
 	}
@@ -1420,7 +1422,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 
 			--i;
 			--lines;
-			lprintf(9, "SMTP: Trying <%s>\n", addr);
+			lprintf(CTDL_DEBUG, "SMTP: Trying <%s>\n", addr);
 			smtp_try(key, addr, &status, dsn, sizeof dsn, text_msgid);
 			if (status != 2) {
 				if (results == NULL) {
@@ -1510,16 +1512,16 @@ void smtp_do_queue(void) {
 	/* 
 	 * Go ahead and run the queue
 	 */
-	lprintf(7, "SMTP: processing outbound queue\n");
+	lprintf(CTDL_INFO, "SMTP: processing outbound queue\n");
 
 	if (getroom(&CC->room, SMTP_SPOOLOUT_ROOM) != 0) {
-		lprintf(3, "Cannot find room <%s>\n", SMTP_SPOOLOUT_ROOM);
+		lprintf(CTDL_ERR, "Cannot find room <%s>\n", SMTP_SPOOLOUT_ROOM);
 		return;
 	}
 	CtdlForEachMessage(MSGS_ALL, 0L,
 		SPOOLMIME, NULL, smtp_do_procmsg, NULL);
 
-	lprintf(7, "SMTP: queue run completed\n");
+	lprintf(CTDL_INFO, "SMTP: queue run completed\n");
 	run_queue_now = 0;
 	doing_queue = 0;
 }

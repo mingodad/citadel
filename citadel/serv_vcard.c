@@ -146,18 +146,19 @@ void vcard_directory_add_user(char *internet_addr, char *citadel_addr) {
 	 * probably just the networker or something.
 	 */
 	if (CC->logged_in) {
-		lprintf(9, "Checking for <%s>...\n", internet_addr);
+		lprintf(CTDL_DEBUG, "Checking for <%s>...\n", internet_addr);
 		if (CtdlDirectoryLookup(buf, internet_addr) == 0) {
 			if (strcasecmp(buf, citadel_addr)) {
 				/* This address belongs to someone else.
 				 * Bail out silently without saving.
 				 */
-				lprintf(9, "DOOP!\n");
+				lprintf(CTDL_DEBUG, "DOOP!\n");
 				return;
 			}
 		}
 	}
-	lprintf(9, "ADDING!\n");
+	lprintf(CTDL_INFO, "Adding %s (%s) to directory\n",
+			citadel_addr, internet_addr);
 	CtdlDirectoryAddUser(internet_addr, citadel_addr);
 }
 
@@ -778,7 +779,7 @@ void vcard_create_room(void)
 
 	/* Set expiration policy to manual; otherwise objects will be lost! */
 	if (lgetroom(&qr, USERCONTACTSROOM)) {
-		lprintf(3, "Couldn't get the user CONTACTS room!\n");
+		lprintf(CTDL_ERR, "Couldn't get the user CONTACTS room!\n");
 		return;
 	}
 	qr.QRep.expire_mode = EXPIRE_MANUAL;

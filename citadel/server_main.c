@@ -127,7 +127,7 @@ int main(int argc, char **argv)
 
 		/* any other parameter makes it crash and burn */
 		else {
-			lprintf(1,	"citserver: usage: "
+			lprintf(CTDL_EMERG,	"citserver: usage: "
 					"citserver [-tTraceFile] "
 					"[-lLogFacility] "
 					"[-d] [-f]"
@@ -138,18 +138,20 @@ int main(int argc, char **argv)
 	}
 
 	/* Tell 'em who's in da house */
-	lprintf(1, "\n");
-	lprintf(1, "\n");
-	lprintf(1,"*** Citadel/UX messaging server engine v%d.%02d ***\n",
-		(REV_LEVEL/100),
-		(REV_LEVEL%100) );
-	lprintf(1,"Copyright (C) 1987-2003 by the Citadel/UX development team.\n");
-	lprintf(1,"This program is distributed under the terms of the GNU ");
-	lprintf(1,"General Public License.\n");
-	lprintf(1, "\n");
+	lprintf(CTDL_NOTICE, "\n");
+	lprintf(CTDL_NOTICE, "\n");
+	lprintf(CTDL_NOTICE,
+		"*** Citadel/UX messaging server engine v%d.%02d ***\n",
+		(REV_LEVEL/100), (REV_LEVEL%100));
+	lprintf(CTDL_NOTICE,
+		"Copyright (C) 1987-2003 by the Citadel/UX development team.\n");
+	lprintf(CTDL_NOTICE,
+		"This program is distributed under the terms of the GNU "
+		"General Public License.\n");
+	lprintf(CTDL_NOTICE, "\n");
 
 	/* Load site-specific parameters, and set the ipgm secret */
-	lprintf(7, "Loading citadel.config\n");
+	lprintf(CTDL_INFO, "Loading citadel.config\n");
 	get_config();
 	config.c_ipgm_secret = rand();
 	put_config();
@@ -181,7 +183,7 @@ int main(int argc, char **argv)
 	/*
 	 * Load any server-side extensions available here.
 	 */
-	lprintf(7, "Initializing server extensions\n");
+	lprintf(CTDL_INFO, "Initializing server extensions\n");
 	size = strlen(bbs_home_directory) + 9;
 	initialize_server_extensions();
 
@@ -192,7 +194,7 @@ int main(int argc, char **argv)
 	 * to get back on that list.
 	 */
 	if (pipe(rescan)) {
-		lprintf(1, "Can't create rescan pipe!\n");
+		lprintf(CTDL_EMERG, "Can't create rescan pipe!\n");
 		exit(errno);
 	}
 
@@ -204,18 +206,18 @@ int main(int argc, char **argv)
 	 */
 	if (drop_root_perms) {
 		if ((pw = getpwuid(BBSUID)) == NULL)
-			lprintf(1, "WARNING: getpwuid(%ld): %s\n"
+			lprintf(CTDL_CRIT, "WARNING: getpwuid(%ld): %s\n"
 				   "Group IDs will be incorrect.\n", (long)BBSUID,
 				strerror(errno));
 		else {
 			initgroups(pw->pw_name, pw->pw_gid);
 			if (setgid(pw->pw_gid))
-				lprintf(3, "setgid(%ld): %s\n", (long)pw->pw_gid,
+				lprintf(CTDL_CRIT, "setgid(%ld): %s\n", (long)pw->pw_gid,
 					strerror(errno));
 		}
-		lprintf(7, "Changing uid to %ld\n", (long)BBSUID);
+		lprintf(CTDL_INFO, "Changing uid to %ld\n", (long)BBSUID);
 		if (setuid(BBSUID) != 0) {
-			lprintf(3, "setuid() failed: %s\n", strerror(errno));
+			lprintf(CTDL_CRIT, "setuid() failed: %s\n", strerror(errno));
 		}
 	}
 
@@ -225,7 +227,7 @@ int main(int argc, char **argv)
 	/*
 	 * Now create a bunch of worker threads.
 	 */
-	lprintf(9, "Starting %d worker threads\n", config.c_min_workers-1);
+	lprintf(CTDL_DEBUG, "Starting %d worker threads\n", config.c_min_workers-1);
 	begin_critical_section(S_WORKER_LIST);
 	for (i=0; i<(config.c_min_workers-1); ++i) {
 		create_worker();
@@ -237,7 +239,7 @@ int main(int argc, char **argv)
 	worker_thread(NULL);
 
 	/* Server is exiting. Wait for workers to shutdown. */
-	lprintf(7, "Waiting for worker threads to shut down\n");
+	lprintf(CTDL_INFO, "Waiting for worker threads to shut down\n");
 
 	begin_critical_section(S_WORKER_LIST);
 	while (worker_list != NULL) {
@@ -247,7 +249,7 @@ int main(int argc, char **argv)
 		/* avoid deadlock with an exiting thread */
 		end_critical_section(S_WORKER_LIST);
 		if ((i = pthread_join(wnp->tid, NULL)))
-			lprintf(1, "pthread_join: %s\n", strerror(i));
+			lprintf(CTDL_CRIT, "pthread_join: %s\n", strerror(i));
 		phree(wnp);
 		begin_critical_section(S_WORKER_LIST);
 	}

@@ -52,7 +52,7 @@ icalcomponent *icalcomponent_new_citadel_vcalendar(void) {
 
 	encaps = icalcomponent_new_vcalendar();
 	if (encaps == NULL) {
-		lprintf(3, "Error at %s:%d - could not allocate component!\n",
+		lprintf(CTDL_CRIT, "Error at %s:%d - could not allocate component!\n",
 			__FILE__, __LINE__);
 		return NULL;
 	}
@@ -209,13 +209,13 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 	strcpy(summary_string, "Calendar item");
 
 	if (request == NULL) {
-		lprintf(3, "ERROR: trying to reply to NULL event?\n");
+		lprintf(CTDL_ERR, "ERROR: trying to reply to NULL event?\n");
 		return;
 	}
 
 	the_reply = icalcomponent_new_clone(request);
 	if (the_reply == NULL) {
-		lprintf(3, "ERROR: cannot clone request\n");
+		lprintf(CTDL_ERR, "ERROR: cannot clone request\n");
 		return;
 	}
 
@@ -618,13 +618,13 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	/* Figure out just what event it is we're dealing with */
 	strcpy(uid, "--==<< InVaLiD uId >>==--");
 	ical_learn_uid_of_reply(uid, cal);
-	lprintf(9, "UID of event being replied to is <%s>\n", uid);
+	lprintf(CTDL_DEBUG, "UID of event being replied to is <%s>\n", uid);
 
 	strcpy(hold_rm, CC->room.QRname);	/* save current room */
 
 	if (getroom(&CC->room, USERCALENDARROOM) != 0) {
 		getroom(&CC->room, hold_rm);
-		lprintf(3, "cannot get user calendar room\n");
+		lprintf(CTDL_CRIT, "cannot get user calendar room\n");
 		return(2);
 	}
 
@@ -643,7 +643,7 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	CtdlFreeMessage(template);
 	getroom(&CC->room, hold_rm);	/* return to saved room */
 
-	lprintf(9, "msgnum_being_replaced == %ld\n", msgnum_being_replaced);
+	lprintf(CTDL_DEBUG, "msgnum_being_replaced == %ld\n", msgnum_being_replaced);
 	if (msgnum_being_replaced == 0) {
 		return(1);			/* no calendar event found */
 	}
@@ -670,7 +670,7 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 
 	original_event = oec.c;
 	if (original_event == NULL) {
-		lprintf(3, "ERROR: Original_component is NULL.\n");
+		lprintf(CTDL_ERR, "ERROR: Original_component is NULL.\n");
 		return(2);
 	}
 
@@ -1158,7 +1158,7 @@ void ical_freebusy(char *who) {
 	}
 
 	/* Create a VFREEBUSY subcomponent */
-	lprintf(9, "Creating VFREEBUSY component\n");
+	lprintf(CTDL_DEBUG, "Creating VFREEBUSY component\n");
 	fb = icalcomponent_new_vfreebusy();
 	if (fb == NULL) {
 		cprintf("%d Internal error: cannot allocate memory.\n",
@@ -1168,7 +1168,7 @@ void ical_freebusy(char *who) {
 		return;
 	}
 
-	lprintf(9, "Adding busy time from events\n");
+	lprintf(CTDL_DEBUG, "Adding busy time from events\n");
 	CtdlForEachMessage(MSGS_ALL, 0, "text/calendar",
 		NULL, ical_freebusy_backend, (void *)fb
 	);
@@ -1184,7 +1184,7 @@ void ical_freebusy(char *who) {
 	 */
 
 	/* Put the freebusy component into the calendar component */
-	lprintf(9, "Encapsulating\n");
+	lprintf(CTDL_DEBUG, "Encapsulating\n");
 	encaps = ical_encapsulate_subcomponent(fb);
 	if (encaps == NULL) {
 		icalcomponent_free(fb);
@@ -1195,11 +1195,11 @@ void ical_freebusy(char *who) {
 	}
 
 	/* Set the method to PUBLISH */
-	lprintf(9, "Setting method\n");
+	lprintf(CTDL_DEBUG, "Setting method\n");
 	icalcomponent_set_method(encaps, ICAL_METHOD_PUBLISH);
 
 	/* Serialize it */
-	lprintf(9, "Serializing\n");
+	lprintf(CTDL_DEBUG, "Serializing\n");
 	serialized_request = strdoop(icalcomponent_as_ical_string(encaps));
 	icalcomponent_free(encaps);	/* Don't need this anymore. */
 
@@ -1294,7 +1294,7 @@ void ical_create_room(void)
 
 	/* Set expiration policy to manual; otherwise objects will be lost! */
 	if (lgetroom(&qr, USERCALENDARROOM)) {
-		lprintf(3, "Couldn't get the user calendar room!\n");
+		lprintf(CTDL_CRIT, "Couldn't get the user calendar room!\n");
 		return;
 	}
 	qr.QRep.expire_mode = EXPIRE_MANUAL;
@@ -1311,7 +1311,7 @@ void ical_create_room(void)
 
 	/* Set expiration policy to manual; otherwise objects will be lost! */
 	if (lgetroom(&qr, USERTASKSROOM)) {
-		lprintf(3, "Couldn't get the user calendar room!\n");
+		lprintf(CTDL_CRIT, "Couldn't get the user calendar room!\n");
 		return;
 	}
 	qr.QRep.expire_mode = EXPIRE_MANUAL;
@@ -1346,7 +1346,7 @@ void ical_send_out_invitations(icalcomponent *cal) {
 	icalproperty *summary = NULL;
 
 	if (cal == NULL) {
-		lprintf(3, "ERROR: trying to reply to NULL event?\n");
+		lprintf(CTDL_ERR, "ERROR: trying to reply to NULL event?\n");
 		return;
 	}
 
@@ -1364,7 +1364,7 @@ void ical_send_out_invitations(icalcomponent *cal) {
 	/* Clone the event */
 	the_request = icalcomponent_new_clone(cal);
 	if (the_request == NULL) {
-		lprintf(3, "ERROR: cannot clone calendar object\n");
+		lprintf(CTDL_ERR, "ERROR: cannot clone calendar object\n");
 		return;
 	}
 
@@ -1400,7 +1400,7 @@ void ical_send_out_invitations(icalcomponent *cal) {
 		}
 	}
 
-	lprintf(9, "<%d> attendees: <%s>\n", num_attendees, attendees_string);
+	lprintf(CTDL_DEBUG, "<%d> attendees: <%s>\n", num_attendees, attendees_string);
 
 	/* If there are no attendees, there are no invitations to send, so...
 	 * don't bother putting one together!  Punch out, Maverick!
@@ -1413,7 +1413,7 @@ void ical_send_out_invitations(icalcomponent *cal) {
 	/* Encapsulate the VEVENT component into a complete VCALENDAR */
 	encaps = icalcomponent_new_vcalendar();
 	if (encaps == NULL) {
-		lprintf(3, "Error at %s:%d - could not allocate component!\n",
+		lprintf(CTDL_DEBUG, "Error at %s:%d - could not allocate component!\n",
 			__FILE__, __LINE__);
 		icalcomponent_free(the_request);
 		return;
@@ -1660,7 +1660,7 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 	}
 	
 	/* Oops!  No Content-Type in this message!  How'd that happen? */
-	lprintf(7, "RFC822 message with no Content-Type header!\n");
+	lprintf(CTDL_ERR, "RFC822 message with no Content-Type header!\n");
 	return 1;
 }
 
@@ -1737,7 +1737,7 @@ int ical_obj_aftersave(struct CtdlMessage *msg)
 	}
 	
 	/* Oops!  No Content-Type in this message!  How'd that happen? */
-	lprintf(7, "RFC822 message with no Content-Type header!\n");
+	lprintf(CTDL_ERR, "RFC822 message with no Content-Type header!\n");
 	return 1;
 }
 

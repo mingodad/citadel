@@ -170,7 +170,7 @@ void imap_load_msgids(void)
 {
 
 	if (IMAP->selected == 0) {
-		lprintf(5,
+		lprintf(CTDL_ERR,
 			"imap_load_msgids() can't run; no room selected\n");
 		return;
 	}
@@ -181,7 +181,7 @@ void imap_load_msgids(void)
 			   imap_add_single_msgid, NULL);
 
 	imap_set_seen_flags();
-	lprintf(9, "imap_load_msgids() mapped %d messages\n",
+	lprintf(CTDL_DEBUG, "imap_load_msgids() mapped %d messages\n",
 		IMAP->num_msgs);
 }
 
@@ -202,7 +202,7 @@ void imap_rescan_msgids(void)
 
 
 	if (IMAP->selected == 0) {
-		lprintf(5,
+		lprintf(CTDL_ERR,
 			"imap_load_msgids() can't run; no room selected\n");
 		return;
 	}
@@ -305,10 +305,10 @@ void imap_cleanup_function(void)
 	if (CC->h_command_function != imap_command_loop)
 		return;
 
-	lprintf(9, "Performing IMAP cleanup hook\n");
+	lprintf(CTDL_DEBUG, "Performing IMAP cleanup hook\n");
 	imap_free_msgids();
 	imap_free_transmitted_message();
-	lprintf(9, "Finished IMAP cleanup hook\n");
+	lprintf(CTDL_DEBUG, "Finished IMAP cleanup hook\n");
 }
 
 
@@ -548,7 +548,7 @@ int imap_do_expunge(void)
 	int i;
 	int num_expunged = 0;
 
-	lprintf(9, "imap_do_expunge() called\n");
+	lprintf(CTDL_DEBUG, "imap_do_expunge() called\n");
 	if (IMAP->selected == 0)
 		return (0);
 
@@ -558,10 +558,10 @@ int imap_do_expunge(void)
 				CtdlDeleteMessages(CC->room.QRname,
 						   IMAP->msgids[i], "");
 				++num_expunged;
-				lprintf(9, "%ld ... deleted\n",
+				lprintf(CTDL_DEBUG, "%ld ... deleted\n",
 					IMAP->msgids[i]);
 			} else {
-				lprintf(9, "%ld ... not deleted\n",
+				lprintf(CTDL_DEBUG, "%ld ... not deleted\n",
 					IMAP->msgids[i]);
 			}
 		}
@@ -774,7 +774,7 @@ void imap_create(int num_parms, char *parms[])
 		newroomtype = 0;	/* public folder */
 	}
 
-	lprintf(7, "Create new room <%s> on floor <%d> with type <%d>\n",
+	lprintf(CTDL_INFO, "Create new room <%s> on floor <%d> with type <%d>\n",
 		roomname, floornum, newroomtype);
 
 	ret = create_room(roomname, newroomtype, "", floornum, 1, 0);
@@ -1156,7 +1156,7 @@ void imap_rename(int num_parms, char *parms[])
 					   irl->irl_newfloor);
 			if (r != crr_ok) {
 				/* FIXME handle error returns better */
-				lprintf(5, "CtdlRenameRoom() error %d\n",
+				lprintf(CTDL_ERR, "CtdlRenameRoom() error %d\n",
 					r);
 			}
 			irlp = irl;
@@ -1183,12 +1183,12 @@ void imap_command_loop(void)
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf);	/* Clear it, just in case */
 	if (client_gets(cmdbuf) < 1) {
-		lprintf(3, "IMAP socket is broken.  Ending session.\r\n");
+		lprintf(CTDL_ERR, "IMAP socket is broken.  Ending session.\r\n");
 		CC->kill_me = 1;
 		return;
 	}
 
-	lprintf(5, "IMAP: %s\r\n", cmdbuf);
+	lprintf(CTDL_INFO, "IMAP: %s\r\n", cmdbuf);
 	while (strlen(cmdbuf) < 5)
 		strcat(cmdbuf, " ");
 

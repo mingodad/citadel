@@ -216,12 +216,12 @@ void DoPurgeMessages(FILE *purgelist) {
 void PurgeMessages(void) {
 	FILE *purgelist;
 
-	lprintf(5, "PurgeMessages() called\n");
+	lprintf(CTDL_DEBUG, "PurgeMessages() called\n");
 	messages_purged = 0;
 
 	purgelist = tmpfile();
 	if (purgelist == NULL) {
-		lprintf(3, "Can't create purgelist temp file: %s\n",
+		lprintf(CTDL_CRIT, "Can't create purgelist temp file: %s\n",
 			strerror(errno));
 		return;
 	}
@@ -288,7 +288,7 @@ void DoPurgeRooms(struct ctdlroom *qrbuf, void *data) {
 		age = time(NULL) - (qrbuf->QRmtime);
 		purge_secs = (time_t)config.c_roompurge * (time_t)86400;
 		if (purge_secs <= (time_t)0) return;
-		lprintf(9, "<%s> is <%ld> seconds old\n", qrbuf->QRname, (long)age);
+		lprintf(CTDL_DEBUG, "<%s> is <%ld> seconds old\n", qrbuf->QRname, (long)age);
 		if (age > purge_secs) do_purge = 1;
 	} /* !QR_MAILBOX */
 
@@ -310,7 +310,7 @@ int PurgeRooms(void) {
 	struct ValidUser *vuptr;
 	char *transcript = NULL;
 
-	lprintf(5, "PurgeRooms() called\n");
+	lprintf(CTDL_DEBUG, "PurgeRooms() called\n");
 
 
 	/* Load up a table full of valid user numbers so we can delete
@@ -347,7 +347,7 @@ int PurgeRooms(void) {
 	if (num_rooms_purged > 0) aide_message(transcript);
 	phree(transcript);
 
-	lprintf(5, "Purged %d rooms.\n", num_rooms_purged);
+	lprintf(CTDL_DEBUG, "Purged %d rooms.\n", num_rooms_purged);
 	return(num_rooms_purged);
 }
 
@@ -365,7 +365,7 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	MailboxName(mailboxname, us, MAILROOM);
 	create_room(mailboxname, 4, "", 0, 1, 1);
 	if (getroom(&qrbuf, mailboxname) != 0) return;
-	lprintf(9, "Got %s\n", qrbuf.QRname);
+	lprintf(CTDL_DEBUG, "Got %s\n", qrbuf.QRname);
 	 */
 
 
@@ -422,7 +422,7 @@ int PurgeUsers(void) {
 	int num_users_purged = 0;
 	char *transcript = NULL;
 
-	lprintf(5, "PurgeUsers() called\n");
+	lprintf(CTDL_DEBUG, "PurgeUsers() called\n");
 	if (config.c_userpurge > 0) {
 		ForEachUser(do_user_purge, NULL);
 	}
@@ -444,7 +444,7 @@ int PurgeUsers(void) {
 	if (num_users_purged > 0) aide_message(transcript);
 	phree(transcript);
 
-	lprintf(5, "Purged %d users.\n", num_users_purged);
+	lprintf(CTDL_DEBUG, "Purged %d users.\n", num_users_purged);
 	return(num_users_purged);
 }
 
@@ -559,7 +559,7 @@ int PurgeUseTable(void) {
 	struct UPurgeList *uptr; 
 
 	/* Phase 1: traverse through the table, discovering old records... */
-	lprintf(9, "Purge use table: phase 1\n");
+	lprintf(CTDL_DEBUG, "Purge use table: phase 1\n");
 	cdb_rewind(CDB_USETABLE);
 	while(cdbut = cdb_next_item(CDB_USETABLE), cdbut != NULL) {
 
@@ -581,7 +581,7 @@ int PurgeUseTable(void) {
 	}
 
 	/* Phase 2: delete the records */
-	lprintf(9, "Purge use table: phase 2\n");
+	lprintf(CTDL_DEBUG, "Purge use table: phase 2\n");
 	while (ul != NULL) {
 		cdb_delete(CDB_USETABLE, ul->up_key, strlen(ul->up_key));
 		uptr = ul->next;
@@ -589,7 +589,7 @@ int PurgeUseTable(void) {
 		ul = uptr;
 	}
 
-	lprintf(9, "Purge use table: finished (purged %d records)\n", purged);
+	lprintf(CTDL_DEBUG, "Purge use table: finished (purged %d records)\n", purged);
 	return(purged);
 }
 
@@ -609,24 +609,24 @@ void purge_databases(void) {
 	if (tm.tm_hour != config.c_purge_hour) return;
 	if ((now - last_purge) < 43200) return;
 
-	lprintf(3, "Auto-purger: starting.\n");
+	lprintf(CTDL_INFO, "Auto-purger: starting.\n");
 
 	retval = PurgeUsers();
-	lprintf(3, "Purged %d users.\n", retval);
+	lprintf(CTDL_NOTICE, "Purged %d users.\n", retval);
 
 	PurgeMessages();
-	lprintf(3, "Expired %d messages.\n", messages_purged);
+	lprintf(CTDL_NOTICE, "Expired %d messages.\n", messages_purged);
 
 	retval = PurgeRooms();
-	lprintf(3, "Expired %d rooms.\n", retval);
+	lprintf(CTDL_NOTICE, "Expired %d rooms.\n", retval);
 
 	retval = PurgeVisits();
-	lprintf(3, "Purged %d visits.\n", retval);
+	lprintf(CTDL_NOTICE, "Purged %d visits.\n", retval);
 
 	retval = PurgeUseTable();
-	lprintf(3, "Purged %d entries from the use table.\n", retval);
+	lprintf(CTDL_NOTICE, "Purged %d entries from the use table.\n", retval);
 
-	lprintf(3, "Auto-purger: finished.\n");
+	lprintf(CTDL_INFO, "Auto-purger: finished.\n");
 
 	last_purge = now;	/* So we don't do it again soon */
 }

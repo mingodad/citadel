@@ -118,9 +118,9 @@ int spam_assassin(struct CtdlMessage *msg) {
 	/* Try them one by one until we get a working one */
         for (sa=0; sa<num_sahosts; ++sa) {
                 extract(buf, sahosts, sa);
-                lprintf(9, "Connecting to SpamAssassin at <%s>\n", buf);
+                lprintf(CTDL_INFO, "Connecting to SpamAssassin at <%s>\n", buf);
                 sock = sock_connect(buf, SPAMASSASSIN_PORT, "tcp");
-                if (sock >= 0) lprintf(9, "Connected!\n");
+                if (sock >= 0) lprintf(CTDL_DEBUG, "Connected!\n");
         }
 
 	if (sock < 0) {
@@ -131,7 +131,7 @@ int spam_assassin(struct CtdlMessage *msg) {
 	}
 
 	/* Command */
-	lprintf(9, "Transmitting command\n");
+	lprintf(CTDL_DEBUG, "Transmitting command\n");
 	sprintf(buf, "CHECK SPAMC/1.2\r\n\r\n");
 	sock_write(sock, buf, strlen(buf));
 
@@ -146,18 +146,18 @@ int spam_assassin(struct CtdlMessage *msg) {
 	sock_shutdown(sock, SHUT_WR);
 	
 	/* Response */
-	lprintf(9, "Awaiting response\n");
+	lprintf(CTDL_DEBUG, "Awaiting response\n");
         if (sock_gets(sock, buf) < 0) {
                 goto bail;
         }
-        lprintf(9, "<%s\n", buf);
+        lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (strncasecmp(buf, "SPAMD", 5)) {
 		goto bail;
 	}
         if (sock_gets(sock, buf) < 0) {
                 goto bail;
         }
-        lprintf(9, "<%s\n", buf);
+        lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (!strncasecmp(buf, "Spam: True", 10)) {
 		is_spam = 1;
 	}

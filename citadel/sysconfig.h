@@ -37,8 +37,9 @@
 
 /*
  * Logging level to use if none is specified on the command line.
+ * Note that this will suppress messages before they even get to syslog().
  */
-#define DEFAULT_VERBOSITY	9
+#define DEFAULT_VERBOSITY	7
 
 
 

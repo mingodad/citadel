@@ -125,8 +125,8 @@ void imap_fetch_rfc822(int msgnum, char *whichfmt, struct CtdlMessage *msg) {
 
 	tmp = tmpfile();
 	if (tmp == NULL) {
-		lprintf(1, "Cannot open temp file: %s\n",
-						strerror(errno));
+		lprintf(CTDL_CRIT, "Cannot open temp file: %s\n",
+				strerror(errno));
 		return;
 	}
 
@@ -139,7 +139,7 @@ void imap_fetch_rfc822(int msgnum, char *whichfmt, struct CtdlMessage *msg) {
 				HEADERS_ALL, 0, 1);
 	CtdlRedirectOutput(NULL, -1);
 	if (!is_valid_message(msg)) {
-		lprintf(1, "WARNING: output clobbered the message!\n");
+		lprintf(CTDL_ERR, "WARNING: output clobbered the message!\n");
 	}
 
 	/*
@@ -528,7 +528,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 	for (i=0; i<strlen(section); ++i) {
 		if (section[i]==']') section[i] = 0;
 	}
-	lprintf(9, "Section is %s\n", section);
+	lprintf(CTDL_DEBUG, "Section is %s\n", section);
 
 	/* extract partial */
 	strcpy(partial, item);
@@ -542,11 +542,11 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 		if (partial[i]=='>') partial[i] = 0;
 	}
 	if (is_partial == 0) strcpy(partial, "");
-	if (strlen(partial) > 0) lprintf(9, "Partial is %s\n", partial);
+	if (strlen(partial) > 0) lprintf(CTDL_DEBUG, "Partial is %s\n", partial);
 
 	tmp = tmpfile();
 	if (tmp == NULL) {
-		lprintf(1, "Cannot open temp file: %s\n", strerror(errno));
+		lprintf(CTDL_CRIT, "Cannot open temp file: %s\n", strerror(errno));
 		return;
 	}
 

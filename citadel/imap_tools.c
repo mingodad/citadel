@@ -208,7 +208,7 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 	}
  ***/
 
-	lprintf(9, "(That translates to \"%s\")\n", rbuf);
+	lprintf(CTDL_DEBUG, "(That translates to \"%s\")\n", rbuf);
 	return(ret);
 }
 

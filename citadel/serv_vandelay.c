@@ -231,7 +231,7 @@ void artv_export_messages(void) {
 	int count = 0;
 
 	artv_global_message_list = fopen(artv_tempfilename1, "r");
-	lprintf(7, "Opened %s\n", artv_tempfilename1);
+	lprintf(CTDL_INFO, "Opened %s\n", artv_tempfilename1);
 	while (fgets(buf, sizeof(buf), artv_global_message_list) != NULL) {
 		msgnum = atol(buf);
 		if (msgnum > 0L) {
@@ -240,7 +240,7 @@ void artv_export_messages(void) {
 		}
 	}
 	fclose(artv_global_message_list);
-	lprintf(7, "Exported %d messages.\n", count);
+	lprintf(CTDL_INFO, "Exported %d messages.\n", count);
 }
 
 
@@ -314,9 +314,9 @@ void artv_do_export(void) {
 void artv_import_config(void) {
 	char buf[SIZ];
 
-	lprintf(9, "Importing config file\n");
+	lprintf(CTDL_DEBUG, "Importing config file\n");
 	client_gets(config.c_nodename);
-	lprintf(9, "c_nodename = %s\n", config.c_nodename);
+	lprintf(CTDL_DEBUG, "c_nodename = %s\n", config.c_nodename);
 	client_gets(config.c_fqdn);
 	client_gets(config.c_humannode);
 	client_gets(config.c_phonenum);
@@ -331,7 +331,7 @@ void artv_import_config(void) {
 	client_gets(buf);	config.c_restrict = atoi(buf);
 	client_gets(config.c_bbs_city);
 	client_gets(config.c_sysadm);
-	lprintf(9, "c_sysadm = %s\n", config.c_sysadm);
+	lprintf(CTDL_DEBUG, "c_sysadm = %s\n", config.c_sysadm);
 	client_gets(buf);	config.c_setup_level = atoi(buf);
 	client_gets(buf);	config.c_maxsessions = atoi(buf);
 	client_gets(buf);	config.c_port_number = atoi(buf);
@@ -355,7 +355,7 @@ void artv_import_config(void) {
 	client_gets(config.c_ldap_bind_dn);
 	client_gets(config.c_ldap_bind_pw);
 	put_config();
-	lprintf(7, "Imported config file\n");
+	lprintf(CTDL_INFO, "Imported config file\n");
 }
 
 
@@ -363,14 +363,14 @@ void artv_import_config(void) {
 void artv_import_control(void) {
 	char buf[SIZ];
 
-	lprintf(9, "Importing control file\n");
+	lprintf(CTDL_DEBUG, "Importing control file\n");
 	client_gets(buf);	CitControl.MMhighest = atol(buf);
 	client_gets(buf);	CitControl.MMflags = atoi(buf);
 	client_gets(buf);	CitControl.MMnextuser = atol(buf);
 	client_gets(buf);	CitControl.MMnextroom = atol(buf);
 	client_gets(buf);	CitControl.version = atoi(buf);
 	put_control();
-	lprintf(7, "Imported control file\n");
+	lprintf(CTDL_INFO, "Imported control file\n");
 }
 
 
@@ -418,7 +418,7 @@ void artv_import_room(void) {
 	client_gets(buf);	qrbuf.QRflags2 = atoi(buf);
 	client_gets(buf);	qrbuf.QRdefaultview = atoi(buf);
 	putroom(&qrbuf);
-	lprintf(7, "Imported room <%s>\n", qrbuf.QRname);
+	lprintf(CTDL_INFO, "Imported room <%s>\n", qrbuf.QRname);
 	/* format of message list export is all message numbers output
 	 * one per line terminated by a 0.
 	 */
@@ -426,7 +426,7 @@ void artv_import_room(void) {
 		CtdlSaveMsgPointerInRoom(qrbuf.QRname, msgnum, 0);
 		++msgcount;
 	}
-	lprintf(7, "(%d messages)\n", msgcount);
+	lprintf(CTDL_INFO, "(%d messages)\n", msgcount);
 }
 
 
@@ -442,7 +442,7 @@ void artv_import_floor(void) {
 	client_gets(buf);		flbuf.f_ep.expire_mode = atoi(buf);
 	client_gets(buf);		flbuf.f_ep.expire_value = atoi(buf);
 	putfloor(&flbuf, i);
-	lprintf(7, "Imported floor #%d (%s)\n", i, flbuf.f_name);
+	lprintf(CTDL_INFO, "Imported floor #%d (%s)\n", i, flbuf.f_name);
 }
 
 
@@ -467,7 +467,7 @@ void artv_import_visit(void) {
 	client_gets(buf);	vbuf.v_flags = atoi(buf);
 	client_gets(buf);	vbuf.v_view = atoi(buf);
 	put_visit(&vbuf);
-	lprintf(7, "Imported visit %ld/%ld/%ld\n",
+	lprintf(CTDL_INFO, "Imported visit %ld/%ld/%ld\n",
 		vbuf.v_roomnum, vbuf.v_roomgen, vbuf.v_usernum);
 }
 
@@ -488,7 +488,7 @@ void artv_import_message(void) {
 	client_gets(buf);	smi.meta_refcount = atoi(buf);
 	client_gets(smi.meta_content_type);
 
-	lprintf(7, "message #%ld\n", msgnum);
+	lprintf(CTDL_INFO, "message #%ld\n", msgnum);
 
 	/* decode base64 message text */
 	strcpy(tempfile, tmpnam(NULL));
@@ -502,7 +502,7 @@ void artv_import_message(void) {
 	fseek(fp, 0L, SEEK_END);
 	msglen = ftell(fp);
 	fclose(fp);
-	lprintf(9, "msglen = %ld\n", msglen);
+	lprintf(CTDL_DEBUG, "msglen = %ld\n", msglen);
 
 	mbuf = mallok(msglen);
 	fp = fopen(tempfile, "rb");
@@ -515,7 +515,7 @@ void artv_import_message(void) {
 	unlink(tempfile);
 
 	PutMetaData(&smi);
-	lprintf(7, "Imported message %ld\n", msgnum);
+	lprintf(CTDL_INFO, "Imported message %ld\n", msgnum);
 }
 
 
@@ -529,13 +529,13 @@ void artv_do_import(void) {
 	cprintf("%d sock it to me\n", SEND_LISTING);
 	while (client_gets(buf), strcmp(buf, "000")) {
 
-		lprintf(9, "import keyword: <%s>\n", buf);
+		lprintf(CTDL_DEBUG, "import keyword: <%s>\n", buf);
 
 		if (!strcasecmp(buf, "version")) {
 			client_gets(s_version);
 			version = atoi(s_version);
 			if ((version<EXPORT_REV_MIN) || (version>REV_LEVEL)) {
-				lprintf(7, "Version mismatch - aborting\n");
+				lprintf(CTDL_ERR, "Version mismatch in ARTV import; aborting\n");
 				break;
 			}
 		}
@@ -549,7 +549,7 @@ void artv_do_import(void) {
 		else break;
 
 	}
-	lprintf(7, "Invalid keyword <%s>.  Flushing input.\n", buf);
+	lprintf(CTDL_INFO, "Invalid keyword <%s>.  Flushing input.\n", buf);
 	while (client_gets(buf), strcmp(buf, "000"))  ;;
 }
 

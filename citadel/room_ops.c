@@ -824,7 +824,7 @@ void usergoto(char *where, int display_result, int transiently,
 
 	if (retmsgs != NULL) *retmsgs = total_messages;
 	if (retnew != NULL) *retnew = new_messages;
-	lprintf(9, "<%s> %d new of %d total messages\n",
+	lprintf(CTDL_DEBUG, "<%s> %d new of %d total messages\n",
 		CC->room.QRname,
 		new_messages, total_messages
 	);
@@ -934,7 +934,7 @@ void cmd_goto(char *gargs)
 				   ((ra & UA_KNOWN) == 0) &&
 			           (CC->user.axlevel < 6)
                                   ) {
-				lprintf(9, "Failed to acquire private room\n");
+				lprintf(CTDL_DEBUG, "Failed to acquire private room\n");
 			} else {
 				memcpy(&CC->room, &QRscratch,
 					sizeof(struct ctdlroom));
@@ -1101,7 +1101,7 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 	long owner = 0L;
 	char actual_old_name[SIZ];
 
-	lprintf(9, "CtdlRenameRoom(%s, %s, %d)\n",
+	lprintf(CTDL_DEBUG, "CtdlRenameRoom(%s, %s, %d)\n",
 		old_name, new_name, new_floor);
 
 	if (new_floor >= 0) {
@@ -1192,11 +1192,11 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 		lgetfloor(&flbuf, old_floor);
 		--flbuf.f_ref_count;
 		lputfloor(&flbuf, old_floor);
-		lprintf(9, "Reference count for floor %d is now %d\n", old_floor, flbuf.f_ref_count);
+		lprintf(CTDL_DEBUG, "Reference count for floor %d is now %d\n", old_floor, flbuf.f_ref_count);
 		lgetfloor(&flbuf, new_floor);
 		++flbuf.f_ref_count;
 		lputfloor(&flbuf, new_floor);
-		lprintf(9, "Reference count for floor %d is now %d\n", new_floor, flbuf.f_ref_count);
+		lprintf(CTDL_DEBUG, "Reference count for floor %d is now %d\n", new_floor, flbuf.f_ref_count);
 	}
 
 	/* ...and everybody say "YATTA!" */	
@@ -1450,7 +1450,7 @@ void delete_room(struct ctdlroom *qrbuf)
 	struct floor flbuf;
 	char filename[100];
 
-	lprintf(9, "Deleting room <%s>\n", qrbuf->QRname);
+	lprintf(CTDL_NOTICE, "Deleting room <%s>\n", qrbuf->QRname);
 
 	/* Delete the info file */
 	assoc_file_name(filename, sizeof filename, qrbuf, "info");
@@ -1580,9 +1580,9 @@ unsigned create_room(char *new_room_name,
 	struct floor flbuf;
 	struct visit vbuf;
 
-	lprintf(9, "create_room(%s)\n", new_room_name);
+	lprintf(CTDL_DEBUG, "create_room(%s)\n", new_room_name);
 	if (getroom(&qrbuf, new_room_name) == 0) {
-		lprintf(9, "%s already exists.\n", new_room_name);
+		lprintf(CTDL_DEBUG, "%s already exists.\n", new_room_name);
 		return (0);	/* already exists */
 	}
 
@@ -1783,9 +1783,9 @@ void cmd_einf(char *ok)
 		return;
 	}
 	assoc_file_name(infofilename, sizeof infofilename, &CC->room, "info");
-	lprintf(9, "opening\n");
+	lprintf(CTDL_DEBUG, "opening\n");
 	fp = fopen(infofilename, "w");
-	lprintf(9, "checking\n");
+	lprintf(CTDL_DEBUG, "checking\n");
 	if (fp == NULL) {
 		cprintf("%d Cannot open %s: %s\n",
 		  ERROR + INTERNAL_ERROR, infofilename, strerror(errno));

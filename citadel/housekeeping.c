@@ -72,14 +72,15 @@ void terminate_idle_sessions(void) {
 		}
 	}
 	end_critical_section(S_SESSION_TABLE);
-	lprintf(9, "Terminated %d idle sessions\n", killed);
+	if (killed > 0)
+		lprintf(CTDL_INFO, "Terminated %d idle sessions\n", killed);
 }
 
 
 
 void check_sched_shutdown(void) {
 	if ((ScheduledShutdown == 1) && (ContextList == NULL)) {
-		lprintf(3, "Scheduled shutdown initiating.\n");
+		lprintf(CTDL_NOTICE, "Scheduled shutdown initiating.\n");
 		time_to_die = 1;
 	}
 }
@@ -105,7 +106,7 @@ void check_ref_counts(void) {
 	struct floor flbuf;
 	int a;
 
-	lprintf(7, "Checking floor reference counts\n");
+	lprintf(CTDL_DEBUG, "Checking floor reference counts\n");
 	for (a=0; a<MAXFLOORS; ++a) {
 		getfloor(&flbuf, a);
 		flbuf.f_ref_count = 0;

@@ -319,7 +319,7 @@ int is_valid_node(char *nexthop, char *secret, char *node) {
 	/*
 	 * If we get to this point, the supplied node name is bogus.
 	 */
-	lprintf(5, "Invalid node name <%s>\n", node);
+	lprintf(CTDL_ERR, "Invalid node name <%s>\n", node);
 	return(-1);
 }
 
@@ -429,10 +429,10 @@ void network_spool_msg(long msgnum, void *userdata) {
 		/*
 	 	 * allocate...
 	 	 */
-		lprintf(9, "Generating delivery instructions\n");
+		lprintf(CTDL_DEBUG, "Generating delivery instructions\n");
 		instr = mallok(instr_len);
 		if (instr == NULL) {
-			lprintf(1, "Cannot allocate %ld bytes for instr...\n",
+			lprintf(CTDL_EMERG, "Cannot allocate %ld bytes for instr...\n",
 				(long)instr_len);
 			abort();
 		}
@@ -533,13 +533,13 @@ void network_spool_msg(long msgnum, void *userdata) {
 
 				/* Check for valid node name */
 				if (is_valid_node(NULL,NULL,nptr->name) != 0) {
-					lprintf(3, "Invalid node <%s>\n",
+					lprintf(CTDL_ERR, "Invalid node <%s>\n",
 						nptr->name);
 					send = 0;
 				}
 
 				/* Check for split horizon */
-				lprintf(9, "Path is %s\n", msg->cm_fields['P']);
+				lprintf(CTDL_DEBUG, "Path is %s\n", msg->cm_fields['P']);
 				bang = num_tokens(msg->cm_fields['P'], '!');
 				if (bang > 1) for (i=0; i<(bang-1); ++i) {
 					extract_token(buf, msg->cm_fields['P'],
@@ -641,10 +641,10 @@ void network_deliver_digest(struct SpoolControl *sc) {
 	/*
  	 * allocate...
  	 */
-	lprintf(9, "Generating delivery instructions\n");
+	lprintf(CTDL_DEBUG, "Generating delivery instructions\n");
 	instr = mallok(instr_len);
 	if (instr == NULL) {
-		lprintf(1, "Cannot allocate %ld bytes for instr...\n",
+		lprintf(CTDL_EMERG, "Cannot allocate %ld bytes for instr...\n",
 			(long)instr_len);
 		abort();
 	}
@@ -693,7 +693,7 @@ void network_spoolout_room(char *room_to_spool) {
 	int i;
 
 	if (getroom(&CC->room, room_to_spool) != 0) {
-		lprintf(1, "ERROR: cannot load <%s>\n", room_to_spool);
+		lprintf(CTDL_CRIT, "ERROR: cannot load <%s>\n", room_to_spool);
 		return;
 	}
 
@@ -709,7 +709,7 @@ void network_spoolout_room(char *room_to_spool) {
 		return;
 	}
 
-	lprintf(5, "Networking started for <%s>\n", CC->room.QRname);
+	lprintf(CTDL_INFO, "Networking started for <%s>\n", CC->room.QRname);
 
 	while (fgets(buf, sizeof buf, fp) != NULL) {
 		buf[strlen(buf)-1] = 0;
@@ -801,7 +801,7 @@ void network_spoolout_room(char *room_to_spool) {
 	/* Now rewrite the config file */
 	fp = fopen(filename, "w");
 	if (fp == NULL) {
-		lprintf(1, "ERROR: cannot open %s: %s\n",
+		lprintf(CTDL_CRIT, "ERROR: cannot open %s: %s\n",
 			filename, strerror(errno));
 	}
 	else {
@@ -873,7 +873,7 @@ int network_sync_to(char *target_node) {
 	/* Concise cleanup because we know there's only one node in the sc */
 	phree(sc.ignet_push_shares);
 
-	lprintf(7, "Synchronized %d messages to <%s>\n",
+	lprintf(CTDL_INFO, "Synchronized %d messages to <%s>\n",
 		num_spooled, target_node);
 	return(num_spooled);
 }
@@ -953,7 +953,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 	static int serialnum = 0;
 	size_t size;
 
-	lprintf(9, "entering network_bounce()\n");
+	lprintf(CTDL_DEBUG, "entering network_bounce()\n");
 
 	if (msg == NULL) return;
 
@@ -1038,7 +1038,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 	/* Clean up */
 	if (valid != NULL) phree(valid);
 	CtdlFreeMessage(msg);
-	lprintf(9, "leaving network_bounce()\n");
+	lprintf(CTDL_DEBUG, "leaving network_bounce()\n");
 }
 
 
@@ -1068,7 +1068,7 @@ void network_process_buffer(char *buffer, long size) {
 	memcpy(&firstbyte, &buffer[0], 1);
 	memcpy(&lastbyte, &buffer[size-1], 1);
 	if ( (firstbyte != 255) || (lastbyte != 0) ) {
-		lprintf(7, "Corrupt message!  Ignoring.\n");
+		lprintf(CTDL_ERR, "Corrupt message!  Ignoring.\n");
 		return;
 	}
 
@@ -1240,12 +1240,12 @@ void network_process_file(char *filename) {
 
 	fp = fopen(filename, "rb");
 	if (fp == NULL) {
-		lprintf(5, "Error opening %s: %s\n",
+		lprintf(CTDL_CRIT, "Error opening %s: %s\n",
 			filename, strerror(errno));
 		return;
 	}
 
-	lprintf(5, "network: processing <%s>\n", filename);
+	lprintf(CTDL_INFO, "network: processing <%s>\n", filename);
 
 	/* Look for messages in the data stream and break them out */
 	while (ch = getc(fp), ch >= 0) {
@@ -1340,7 +1340,7 @@ void receive_spool(int sock, char *remote_nodename) {
 	strcpy(tempfilename, tmpnam(NULL));
 	if (sock_puts(sock, "NDOP") < 0) return;
 	if (sock_gets(sock, buf) < 0) return;
-	lprintf(9, "<%s\n", buf);
+	lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (buf[0] != '2') {
 		return;
 	}
@@ -1349,7 +1349,7 @@ void receive_spool(int sock, char *remote_nodename) {
 	bytes_received = 0L;
 	fp = fopen(tempfilename, "w");
 	if (fp == NULL) {
-		lprintf(9, "cannot open download file locally: %s\n",
+		lprintf(CTDL_CRIT, "cannot open download file locally: %s\n",
 			strerror(errno));
 		return;
 	}
@@ -1390,7 +1390,7 @@ void receive_spool(int sock, char *remote_nodename) {
 		unlink(tempfilename);
 		return;
 	}
-	lprintf(9, "%s\n", buf);
+	lprintf(CTDL_DEBUG, "%s\n", buf);
 	snprintf(buf, sizeof buf, "mv %s ./network/spoolin/%s.%ld",
 		tempfilename, remote_nodename, (long) getpid());
 	system(buf);
@@ -1412,7 +1412,7 @@ void transmit_spool(int sock, char *remote_nodename)
 
 	if (sock_puts(sock, "NUOP") < 0) return;
 	if (sock_gets(sock, buf) < 0) return;
-	lprintf(9, "<%s\n", buf);
+	lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (buf[0] != '2') {
 		return;
 	}
@@ -1421,9 +1421,9 @@ void transmit_spool(int sock, char *remote_nodename)
 	fd = open(sfname, O_RDONLY);
 	if (fd < 0) {
 		if (errno == ENOENT) {
-			lprintf(9, "Nothing to send.\n");
+			lprintf(CTDL_INFO, "Nothing to send.\n");
 		} else {
-			lprintf(5, "cannot open upload file locally: %s\n",
+			lprintf(CTDL_CRIT, "cannot open upload file locally: %s\n",
 				strerror(errno));
 		}
 		return;
@@ -1458,7 +1458,7 @@ ABORTUPL:
 	close(fd);
 	if (sock_puts(sock, "UCLS 1") < 0) return;
 	if (sock_gets(sock, buf) < 0) return;
-	lprintf(9, "<%s\n", buf);
+	lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (buf[0] == '2') {
 		unlink(sfname);
 	}
@@ -1475,27 +1475,27 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 
 	if (network_talking_to(node, NTT_CHECK)) return;
 	network_talking_to(node, NTT_ADD);
-	lprintf(5, "Polling node <%s> at %s:%s\n", node, host, port);
+	lprintf(CTDL_INFO, "Polling node <%s> at %s:%s\n", node, host, port);
 
 	sock = sock_connect(host, port, "tcp");
 	if (sock < 0) {
-		lprintf(7, "Could not connect: %s\n", strerror(errno));
+		lprintf(CTDL_ERR, "Could not connect: %s\n", strerror(errno));
 		network_talking_to(node, NTT_REMOVE);
 		return;
 	}
 	
-	lprintf(9, "Connected!\n");
+	lprintf(CTDL_DEBUG, "Connected!\n");
 
 	/* Read the server greeting */
 	if (sock_gets(sock, buf) < 0) goto bail;
-	lprintf(9, ">%s\n", buf);
+	lprintf(CTDL_DEBUG, ">%s\n", buf);
 
 	/* Identify ourselves */
 	snprintf(buf, sizeof buf, "NETP %s|%s", config.c_nodename, secret);
-	lprintf(9, "<%s\n", buf);
+	lprintf(CTDL_DEBUG, "<%s\n", buf);
 	if (sock_puts(sock, buf) <0) goto bail;
 	if (sock_gets(sock, buf) < 0) goto bail;
-	lprintf(9, ">%s\n", buf);
+	lprintf(CTDL_DEBUG, ">%s\n", buf);
 	if (buf[0] != '2') goto bail;
 
 	/* At this point we are authenticated. */
@@ -1606,10 +1606,10 @@ void network_do_queue(void) {
 	 * Go ahead and run the queue
 	 */
 	if (full_processing) {
-		lprintf(7, "network: loading outbound queue\n");
+		lprintf(CTDL_INFO, "network: loading outbound queue\n");
 		ForEachRoom(network_queue_room, NULL);
 
-		lprintf(7, "network: running outbound queue\n");
+		lprintf(CTDL_INFO, "network: running outbound queue\n");
 		while (rplist != NULL) {
 			network_spoolout_room(rplist->name);
 			ptr = rplist;
@@ -1618,7 +1618,7 @@ void network_do_queue(void) {
 		}
 	}
 
-	lprintf(7, "network: processing inbound queue\n");
+	lprintf(CTDL_INFO, "network: processing inbound queue\n");
 	network_do_spoolin();
 
 	/* Save the network map back to disk */
@@ -1630,7 +1630,7 @@ void network_do_queue(void) {
 
 	network_purge_spoolout();
 
-	lprintf(7, "network: queue run completed\n");
+	lprintf(CTDL_INFO, "network: queue run completed\n");
 
 	if (full_processing) {
 		last_run = time(NULL);

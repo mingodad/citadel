@@ -35,7 +35,7 @@ void locate_host(char *tbuf, size_t n,
 	int a1, a2, a3, a4;
 	char address_string[SIZ];
 
-	lprintf(9, "locate_host() called\n");
+	lprintf(CTDL_DEBUG, "locate_host() called\n");
 
 #ifdef HAVE_NONREENTRANT_NETDB
 	begin_critical_section(S_NETDB);
@@ -83,7 +83,7 @@ bad_dns:
 #endif
 
 	tbuf[63] = 0;
-	lprintf(9, "locate_host() exiting\n");
+	lprintf(CTDL_DEBUG, "locate_host() exiting\n");
 }
 
 

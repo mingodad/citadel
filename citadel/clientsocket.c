@@ -55,7 +55,7 @@ int sock_connect(char *host, char *service, char *protocol)
 	if (pse) {
 		sin.sin_port = pse->s_port;
 	} else if ((sin.sin_port = htons((u_short) atoi(service))) == 0) {
-		lprintf(3, "Can't get %s service entry: %s\n",
+		lprintf(CTDL_CRIT, "Can't get %s service entry: %s\n",
 			service, strerror(errno));
 		return(-1);
 	}
@@ -63,12 +63,12 @@ int sock_connect(char *host, char *service, char *protocol)
 	if (phe) {
 		memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
 	} else if ((sin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE) {
-		lprintf(3, "Can't get %s host entry: %s\n",
+		lprintf(CTDL_ERR, "Can't get %s host entry: %s\n",
 			host, strerror(errno));
 		return(-1);
 	}
 	if ((ppe = getprotobyname(protocol)) == 0) {
-		lprintf(3, "Can't get %s protocol entry: %s\n",
+		lprintf(CTDL_CRIT, "Can't get %s protocol entry: %s\n",
 			protocol, strerror(errno));
 		return(-1);
 	}
@@ -80,12 +80,12 @@ int sock_connect(char *host, char *service, char *protocol)
 
 	s = socket(PF_INET, type, ppe->p_proto);
 	if (s < 0) {
-		lprintf(3, "Can't create socket: %s\n", strerror(errno));
+		lprintf(CTDL_CRIT, "Can't create socket: %s\n", strerror(errno));
 		return(-1);
 	}
 
 	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-		lprintf(3, "Can't connect to %s:%s: %s\n",
+		lprintf(CTDL_ERR, "Can't connect to %s:%s: %s\n",
 			host, service, strerror(errno));
 		close(s);
 		return(-1);
@@ -117,13 +117,13 @@ int sock_read_to(int sock, char *buf, int bytes, int timeout)
 		retval = select(sock+1, &rfds, NULL, NULL, &tv);
 
 		if (FD_ISSET(sock, &rfds) == 0) {	/* timed out */
-			lprintf(9, "sock_read() timed out.\n");
+			lprintf(CTDL_ERR, "sock_read() timed out.\n");
 			return(-1);
 		}
 
 		rlen = read(sock, &buf[len], bytes-len);
 		if (rlen<1) {
-			lprintf(2, "sock_read() failed: %s\n",
+			lprintf(CTDL_ERR, "sock_read() failed: %s\n",
 				strerror(errno));
 			return(-1);
 		}

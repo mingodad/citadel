@@ -175,14 +175,14 @@ int alias(char *name)
 		strcpy(name, aaa);
 	}
 
-	lprintf(7, "Mail is being forwarded to %s\n", name);
+	lprintf(CTDL_INFO, "Mail is being forwarded to %s\n", name);
 
 	/* Change "user @ xxx" to "user" if xxx is an alias for this host */
 	for (a=0; a<strlen(name); ++a) {
 		if (name[a] == '@') {
 			if (CtdlHostAlias(&name[a+1]) == hostalias_localhost) {
 				name[a] = 0;
-				lprintf(7, "Changed to <%s>\n", name);
+				lprintf(CTDL_INFO, "Changed to <%s>\n", name);
 			}
 		}
 	}
@@ -335,7 +335,7 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set) {
 	if (which_set == ctdlsetseen_seen) strcpy(vset, vbuf.v_seen);
 	if (which_set == ctdlsetseen_answered) strcpy(vset, vbuf.v_answered);
 
-	lprintf(9, "before optimize: %s\n", vset);
+	lprintf(CTDL_DEBUG, "before optimize: %s\n", vset);
 	strcpy(newseen, "");
 
 	for (i=0; i<num_msgs; ++i) {
@@ -385,7 +385,7 @@ void CtdlSetSeen(long target_msgnum, int target_setting, int which_set) {
 	if (which_set == ctdlsetseen_seen) strcpy(vbuf.v_seen, newseen);
 	if (which_set == ctdlsetseen_answered) strcpy(vbuf.v_answered, newseen);
 
-	lprintf(9, " after optimize: %s\n", newseen);
+	lprintf(CTDL_DEBUG, " after optimize: %s\n", newseen);
 	phree(msglist);
 	CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
 }
@@ -798,7 +798,7 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum)
 	 */
 	ch = *mptr++;
 	if (ch != 255) {
-		lprintf(5, "Message %ld appears to be corrupted.\n", msgnum);
+		lprintf(CTDL_ERR, "Message %ld appears to be corrupted.\n", msgnum);
 		cdb_free(dmsgtext);
 		return NULL;
 	}
@@ -850,7 +850,7 @@ int is_valid_message(struct CtdlMessage *msg) {
 	if (msg == NULL)
 		return 0;
 	if ((msg->cm_magic) != CTDLMESSAGE_MAGIC) {
-		lprintf(7, "is_valid_message() -- self-check failed\n");
+		lprintf(CTDL_WARNING, "is_valid_message() -- self-check failed\n");
 		return 0;
 	}
 	return 1;
@@ -890,7 +890,7 @@ void fixed_output_pre(char *name, char *filename, char *partnum, char *disp,
 	  	void *content, char *cbtype, size_t length, char *encoding,
 		void *cbuserdata)
 {
-		lprintf(9, "fixed_output_pre() type=<%s>\n", cbtype);	
+		lprintf(CTDL_DEBUG, "fixed_output_pre() type=<%s>\n", cbtype);	
 		if (!strcasecmp(cbtype, "multipart/alternative")) {
 			++ma->is_ma;
 			ma->did_print = 0;
@@ -905,7 +905,7 @@ void fixed_output_post(char *name, char *filename, char *partnum, char *disp,
 	  	void *content, char *cbtype, size_t length, char *encoding,
 		void *cbuserdata)
 {
-		lprintf(9, "fixed_output_post() type=<%s>\n", cbtype);	
+		lprintf(CTDL_DEBUG, "fixed_output_post() type=<%s>\n", cbtype);	
 		if (!strcasecmp(cbtype, "multipart/alternative")) {
 			--ma->is_ma;
 			ma->did_print = 0;
@@ -924,14 +924,14 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 		char *wptr;
 		size_t wlen;
 
-		lprintf(9, "fixed_output() type=<%s>\n", cbtype);	
+		lprintf(CTDL_DEBUG, "fixed_output() type=<%s>\n", cbtype);	
 
 		/*
 		 * If we're in the middle of a multipart/alternative scope and
 		 * we've already printed another section, skip this one.
 		 */	
 	   	if ( (ma->is_ma == 1) && (ma->did_print == 1) ) {
-			lprintf(9, "Skipping part %s (%s)\n", partnum, cbtype);
+			lprintf(CTDL_DEBUG, "Skipping part %s (%s)\n", partnum, cbtype);
 			return;
 		}
 		ma->did_print = 1;
@@ -1047,7 +1047,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	struct CtdlMessage *TheMessage;
 	int retcode;
 
-	lprintf(7, "CtdlOutputMsg() msgnum=%ld, mode=%d\n", 
+	lprintf(CTDL_DEBUG, "CtdlOutputMsg() msgnum=%ld, mode=%d\n", 
 		msg_num, mode);
 
 	TheMessage = NULL;
@@ -1127,7 +1127,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	nl = (crlf ? "\r\n" : "\n");
 
 	if (!is_valid_message(TheMessage)) {
-		lprintf(1, "ERROR: invalid preloaded message for output\n");
+		lprintf(CTDL_ERR, "ERROR: invalid preloaded message for output\n");
 	 	return(om_no_such_msg);
 	}
 
@@ -1601,7 +1601,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
         long highest_msg = 0L;
 	struct CtdlMessage *msg = NULL;
 
-	lprintf(9, "CtdlSaveMsgPointerInRoom(%s, %ld, %d)\n",
+	lprintf(CTDL_DEBUG, "CtdlSaveMsgPointerInRoom(%s, %ld, %d)\n",
 		roomname, msgid, flags);
 
 	strcpy(hold_rm, CC->room.QRname);
@@ -1620,7 +1620,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 		if (getroom(&CC->room,
 		   ((roomname != NULL) ? roomname : CC->room.QRname) )
 	   	   != 0) {
-			lprintf(9, "No such room <%s>\n", roomname);
+			lprintf(CTDL_ERR, "No such room <%s>\n", roomname);
 			if (msg != NULL) CtdlFreeMessage(msg);
 			return(ERROR + ROOM_NOT_FOUND);
 		}
@@ -1628,7 +1628,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 		if (ReplicationChecks(msg) != 0) {
 			getroom(&CC->room, hold_rm);
 			if (msg != NULL) CtdlFreeMessage(msg);
-			lprintf(9, "Did replication, and newer exists\n");
+			lprintf(CTDL_DEBUG, "Did replication, and newer exists\n");
 			return(0);
 		}
 	}
@@ -1637,7 +1637,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 	if (lgetroom(&CC->room,
 	   ((roomname != NULL) ? roomname : CC->room.QRname) )
 	   != 0) {
-		lprintf(9, "No such room <%s>\n", roomname);
+		lprintf(CTDL_ERR, "No such room <%s>\n", roomname);
 		if (msg != NULL) CtdlFreeMessage(msg);
 		return(ERROR + ROOM_NOT_FOUND);
 	}
@@ -1649,7 +1649,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
         } else {
                 msglist = mallok(cdbfr->len);
                 if (msglist == NULL)
-                        lprintf(3, "ERROR malloc msglist!\n");
+                        lprintf(CTDL_ALERT, "ERROR malloc msglist!\n");
                 num_msgs = cdbfr->len / sizeof(long);
                 memcpy(msglist, cdbfr->ptr, cdbfr->len);
                 cdb_free(cdbfr);
@@ -1675,7 +1675,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
                           (num_msgs * sizeof(long)));
 
         if (msglist == NULL) {
-                lprintf(3, "ERROR: can't realloc message list!\n");
+                lprintf(CTDL_ALERT, "ERROR: can't realloc message list!\n");
         }
         msglist[num_msgs - 1] = msgid;
 
@@ -1745,7 +1745,7 @@ long send_message(struct CtdlMessage *msg,	/* pointer to buffer */
 	/* Write our little bundle of joy into the message base */
 	if (cdb_store(CDB_MSGMAIN, &newmsgid, sizeof(long),
 		      smr.ser, smr.len) < 0) {
-		lprintf(2, "Can't store message\n");
+		lprintf(CTDL_ERR, "Can't store message\n");
 		retval = 0L;
 	} else {
 		retval = newmsgid;
@@ -1790,7 +1790,7 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 		ret->len = ret->len +
 			strlen(msg->cm_fields[(int)forder[i]]) + 2;
 
-	lprintf(9, "serialize_message() calling malloc(%ld)\n", (long)ret->len);
+	lprintf(CTDL_DEBUG, "serialize_message() calling malloc(%ld)\n", (long)ret->len);
 	ret->ser = mallok(ret->len);
 	if (ret->ser == NULL) {
 		ret->len = 0;
@@ -1807,7 +1807,7 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 		strcpy(&ret->ser[wlen], msg->cm_fields[(int)forder[i]]);
 		wlen = wlen + strlen(msg->cm_fields[(int)forder[i]]) + 1;
 	}
-	if (ret->len != wlen) lprintf(3, "ERROR: len=%ld wlen=%ld\n",
+	if (ret->len != wlen) lprintf(CTDL_ERR, "ERROR: len=%ld wlen=%ld\n",
 		(long)ret->len, (long)wlen);
 
 	return;
@@ -1822,7 +1822,7 @@ void check_repl(long msgnum, void *userdata) {
 	struct CtdlMessage *msg;
 	time_t timestamp = (-1L);
 
-	lprintf(9, "check_repl() found message %ld\n", msgnum);
+	lprintf(CTDL_DEBUG, "check_repl() found message %ld\n", msgnum);
 	msg = CtdlFetchMessage(msgnum);
 	if (msg == NULL) return;
 	if (msg->cm_fields['T'] != NULL) {
@@ -1832,10 +1832,10 @@ void check_repl(long msgnum, void *userdata) {
 
 	if (timestamp > msg_repl->highest) {
 		msg_repl->highest = timestamp;	/* newer! */
-		lprintf(9, "newer!\n");
+		lprintf(CTDL_DEBUG, "newer!\n");
 		return;
 	}
-	lprintf(9, "older!\n");
+	lprintf(CTDL_DEBUG, "older!\n");
 
 	/* Existing isn't newer?  Then delete the old one(s). */
 	CtdlDeleteMessages(CC->room.QRname, msgnum, "");
@@ -1854,11 +1854,11 @@ int ReplicationChecks(struct CtdlMessage *msg) {
 	struct CtdlMessage *template;
 	int abort_this = 0;
 
-	lprintf(9, "ReplicationChecks() started\n");
+	lprintf(CTDL_DEBUG, "ReplicationChecks() started\n");
 	/* No extended id?  Don't do anything. */
 	if (msg->cm_fields['E'] == NULL) return 0;
 	if (strlen(msg->cm_fields['E']) == 0) return 0;
-	lprintf(9, "Extended ID: <%s>\n", msg->cm_fields['E']);
+	lprintf(CTDL_DEBUG, "Extended ID: <%s>\n", msg->cm_fields['E']);
 
 	CtdlAllocUserData(SYM_REPL, sizeof(struct repl));
 	strcpy(msg_repl->extended_id, msg->cm_fields['E']);
@@ -1878,7 +1878,7 @@ int ReplicationChecks(struct CtdlMessage *msg) {
 		}
 
 	CtdlFreeMessage(template);
-	lprintf(9, "ReplicationChecks() returning %d\n", abort_this);
+	lprintf(CTDL_DEBUG, "ReplicationChecks() returning %d\n", abort_this);
 	return(abort_this);
 }
 
@@ -1910,14 +1910,14 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	struct ser_ret smr;
 	char *hold_R, *hold_D;
 
-	lprintf(9, "CtdlSubmitMsg() called\n");
+	lprintf(CTDL_DEBUG, "CtdlSubmitMsg() called\n");
 	if (is_valid_message(msg) == 0) return(-1);	/* self check */
 
 	/* If this message has no timestamp, we take the liberty of
 	 * giving it one, right now.
 	 */
 	if (msg->cm_fields['T'] == NULL) {
-		lprintf(9, "Generating timestamp\n");
+		lprintf(CTDL_DEBUG, "Generating timestamp\n");
 		snprintf(aaa, sizeof aaa, "%ld", (long)time(NULL));
 		msg->cm_fields['T'] = strdoop(aaa);
 	}
@@ -1939,7 +1939,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	/* If this message has no path, we generate one.
 	 */
 	if (msg->cm_fields['P'] == NULL) {
-		lprintf(9, "Generating path\n");
+		lprintf(CTDL_DEBUG, "Generating path\n");
 		if (msg->cm_fields['A'] != NULL) {
 			msg->cm_fields['P'] = strdoop(msg->cm_fields['A']);
 			for (a=0; a<strlen(msg->cm_fields['P']); ++a) {
@@ -1961,9 +1961,9 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* Learn about what's inside, because it's what's inside that counts */
-	lprintf(9, "Learning what's inside\n");
+	lprintf(CTDL_DEBUG, "Learning what's inside\n");
 	if (msg->cm_fields['M'] == NULL) {
-		lprintf(1, "ERROR: attempt to save message with NULL body\n");
+		lprintf(CTDL_ERR, "ERROR: attempt to save message with NULL body\n");
 		return(-1);
 	}
 
@@ -1997,7 +1997,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* Goto the correct room */
-	lprintf(9, "Selected room %s\n", (recps) ? CC->room.QRname : SENTITEMS);
+	lprintf(CTDL_DEBUG, "Selected room %s\n", (recps) ? CC->room.QRname : SENTITEMS);
 	strcpy(hold_rm, CC->room.QRname);
 	strcpy(actual_rm, CC->room.QRname);
 	if (recps != NULL) {
@@ -2005,7 +2005,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* If the user is a twit, move to the twit room for posting */
-	lprintf(9, "Handling twit stuff: %s\n",
+	lprintf(CTDL_DEBUG, "Handling twit stuff: %s\n",
 			(CC->user.axlevel == 2) ? config.c_twitroom : "OK");
 	if (TWITDETECT) {
 		if (CC->user.axlevel == 2) {
@@ -2019,7 +2019,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		strcpy(actual_rm, force_room);
 	}
 
-	lprintf(9, "Final selection: %s\n", actual_rm);
+	lprintf(CTDL_DEBUG, "Final selection: %s\n", actual_rm);
 	if (strcasecmp(actual_rm, CC->room.QRname)) {
 		getroom(&CC->room, actual_rm);
 	}
@@ -2032,15 +2032,15 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* Perform "before save" hooks (aborting if any return nonzero) */
-	lprintf(9, "Performing before-save hooks\n");
+	lprintf(CTDL_DEBUG, "Performing before-save hooks\n");
 	if (PerformMessageHooks(msg, EVT_BEFORESAVE) > 0) return(-1);
 
 	/* If this message has an Extended ID, perform replication checks */
-	lprintf(9, "Performing replication checks\n");
+	lprintf(CTDL_DEBUG, "Performing replication checks\n");
 	if (ReplicationChecks(msg) > 0) return(-1);
 
 	/* Save it to disk */
-	lprintf(9, "Saving to disk\n");
+	lprintf(CTDL_DEBUG, "Saving to disk\n");
 	newmsgid = send_message(msg, NULL);
 	if (newmsgid <= 0L) return(-1);
 
@@ -2048,7 +2048,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 * be a critical section because nobody else knows about this message
 	 * yet.
 	 */
-	lprintf(9, "Creating MetaData record\n");
+	lprintf(CTDL_DEBUG, "Creating MetaData record\n");
 	memset(&smi, 0, sizeof(struct MetaData));
 	smi.meta_msgnum = newmsgid;
 	smi.meta_refcount = 0;
@@ -2056,7 +2056,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	PutMetaData(&smi);
 
 	/* Now figure out where to store the pointers */
-	lprintf(9, "Storing pointers\n");
+	lprintf(CTDL_DEBUG, "Storing pointers\n");
 
 	/* If this is being done by the networker delivering a private
 	 * message, we want to BYPASS saving the sender's copy (because there
@@ -2064,7 +2064,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 */
 	if ((!CC->internal_pgm) || (recps == NULL)) {
 		if (CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0) != 0) {
-			lprintf(3, "ERROR saving message pointer!\n");
+			lprintf(CTDL_ERR, "ERROR saving message pointer!\n");
 			CtdlSaveMsgPointerInRoom(config.c_aideroom, newmsgid, 0);
 		}
 	}
@@ -2080,12 +2080,12 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 if (recps->num_room > 0)
 	  for (i=0; i<num_tokens(recps->recp_room, '|'); ++i) {
 		extract(recipient, recps->recp_room, i);
-		lprintf(9, "Delivering to local room <%s>\n", recipient);
+		lprintf(CTDL_DEBUG, "Delivering to local room <%s>\n", recipient);
 		CtdlSaveMsgPointerInRoom(recipient, newmsgid, 0);
 	}
 
 	/* Bump this user's messages posted counter. */
-	lprintf(9, "Updating user\n");
+	lprintf(CTDL_DEBUG, "Updating user\n");
 	lgetuser(&CC->user, CC->curr_user);
 	CC->user.posted = CC->user.posted + 1;
 	lputuser(&CC->user);
@@ -2097,7 +2097,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 if (recps->num_local > 0)
 	  for (i=0; i<num_tokens(recps->recp_local, '|'); ++i) {
 		extract(recipient, recps->recp_local, i);
-		lprintf(9, "Delivering private local mail to <%s>\n",
+		lprintf(CTDL_DEBUG, "Delivering private local mail to <%s>\n",
 			recipient);
 		if (getuser(&userbuf, recipient) == 0) {
 			MailboxName(actual_rm, sizeof actual_rm, &userbuf, MAILROOM);
@@ -2105,13 +2105,13 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 			BumpNewMailCounter(userbuf.usernum);
 		}
 		else {
-			lprintf(9, "No user <%s>\n", recipient);
+			lprintf(CTDL_DEBUG, "No user <%s>\n", recipient);
 			CtdlSaveMsgPointerInRoom(config.c_aideroom, newmsgid, 0);
 		}
 	}
 
 	/* Perform "after save" hooks */
-	lprintf(9, "Performing after-save hooks\n");
+	lprintf(CTDL_DEBUG, "Performing after-save hooks\n");
 	PerformMessageHooks(msg, EVT_AFTERSAVE);
 
 	/* For IGnet mail, we have to save a new copy into the spooler for
@@ -2154,7 +2154,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* Go back to the room we started from */
-	lprintf(9, "Returning to original room %s\n", hold_rm);
+	lprintf(CTDL_DEBUG, "Returning to original room %s\n", hold_rm);
 	if (strcasecmp(hold_rm, CC->room.QRname))
 		getroom(&CC->room, hold_rm);
 
@@ -2165,7 +2165,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 */
 	if (recps != NULL)
 	 if (recps->num_internet > 0) {
-		lprintf(9, "Generating delivery instructions\n");
+		lprintf(CTDL_DEBUG, "Generating delivery instructions\n");
 		instr = mallok(SIZ * 2);
 		snprintf(instr, SIZ * 2,
 			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
@@ -2292,7 +2292,7 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 				} else {
 					buffer_len = (buffer_len * 2);
 					m = ptr;
-					lprintf(9, "buffer_len is now %ld\n", (long)buffer_len);
+					lprintf(CTDL_DEBUG, "buffer_len is now %ld\n", (long)buffer_len);
 				}
 			}
 	
@@ -2504,7 +2504,7 @@ struct recptypes *validate_recipients(char *recipients) {
 	if (num_recps > 0) for (i=0; i<num_recps; ++i) {
 		extract_token(this_recp, recipients, i, ',');
 		striplt(this_recp);
-		lprintf(9, "Evaluating recipient #%d <%s>\n", i, this_recp);
+		lprintf(CTDL_DEBUG, "Evaluating recipient #%d <%s>\n", i, this_recp);
 		mailtype = alias(this_recp);
 		mailtype = alias(this_recp);
 		mailtype = alias(this_recp);
@@ -2621,12 +2621,12 @@ struct recptypes *validate_recipients(char *recipients) {
 		strcpy(ret->errormsg, "No recipients specified.");
 	}
 
-	lprintf(9, "validate_recipients()\n");
-	lprintf(9, " local: %d <%s>\n", ret->num_local, ret->recp_local);
-	lprintf(9, "  room: %d <%s>\n", ret->num_room, ret->recp_room);
-	lprintf(9, "  inet: %d <%s>\n", ret->num_internet, ret->recp_internet);
-	lprintf(9, " ignet: %d <%s>\n", ret->num_ignet, ret->recp_ignet);
-	lprintf(9, " error: %d <%s>\n", ret->num_error, ret->errormsg);
+	lprintf(CTDL_DEBUG, "validate_recipients()\n");
+	lprintf(CTDL_DEBUG, " local: %d <%s>\n", ret->num_local, ret->recp_local);
+	lprintf(CTDL_DEBUG, "  room: %d <%s>\n", ret->num_room, ret->recp_room);
+	lprintf(CTDL_DEBUG, "  inet: %d <%s>\n", ret->num_internet, ret->recp_internet);
+	lprintf(CTDL_DEBUG, " ignet: %d <%s>\n", ret->num_ignet, ret->recp_ignet);
+	lprintf(CTDL_DEBUG, " error: %d <%s>\n", ret->num_error, ret->errormsg);
 
 	return(ret);
 }
@@ -2802,12 +2802,12 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	int delete_this;
 	struct MetaData smi;
 
-	lprintf(9, "CtdlDeleteMessages(%s, %ld, %s)\n",
+	lprintf(CTDL_DEBUG, "CtdlDeleteMessages(%s, %ld, %s)\n",
 		room_name, dmsgnum, content_type);
 
 	/* get room record, obtaining a lock... */
 	if (lgetroom(&qrbuf, room_name) != 0) {
-		lprintf(7, "CtdlDeleteMessages(): Room <%s> not found\n",
+		lprintf(CTDL_ERR, "CtdlDeleteMessages(): Room <%s> not found\n",
 			room_name);
 		return (0);	/* room not found */
 	}
@@ -2870,7 +2870,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	/* Now free the memory we used, and go away. */
 	if (msglist != NULL) phree(msglist);
 	if (dellist != NULL) phree(dellist);
-	lprintf(9, "%d message(s) deleted.\n", num_deleted);
+	lprintf(CTDL_DEBUG, "%d message(s) deleted.\n", num_deleted);
 	return (num_deleted);
 }
 
@@ -3028,7 +3028,7 @@ void PutMetaData(struct MetaData *smibuf)
 	/* Use the negative of the message number for the metadata db index */
 	TheIndex = (0L - smibuf->meta_msgnum);
 
-	lprintf(9, "PutMetaData(%ld) - ref count is %d\n",
+	lprintf(CTDL_DEBUG, "PutMetaData(%ld) - ref count is %d\n",
 		smibuf->meta_msgnum, smibuf->meta_refcount);
 
 	cdb_store(CDB_MSGMAIN,
@@ -3053,19 +3053,19 @@ void AdjRefCount(long msgnum, int incr)
 	 */
 	begin_critical_section(S_SUPPMSGMAIN);
 	GetMetaData(&smi, msgnum);
-	lprintf(9, "Ref count for message <%ld> before write is <%d>\n",
+	lprintf(CTDL_DEBUG, "Ref count for message <%ld> before write is <%d>\n",
 		msgnum, smi.meta_refcount);
 	smi.meta_refcount += incr;
 	PutMetaData(&smi);
 	end_critical_section(S_SUPPMSGMAIN);
-	lprintf(9, "Ref count for message <%ld> after write is <%d>\n",
+	lprintf(CTDL_DEBUG, "Ref count for message <%ld> after write is <%d>\n",
 		msgnum, smi.meta_refcount);
 
 	/* If the reference count is now zero, delete the message
 	 * (and its supplementary record as well).
 	 */
 	if (smi.meta_refcount == 0) {
-		lprintf(9, "Deleting message <%ld>\n", msgnum);
+		lprintf(CTDL_DEBUG, "Deleting message <%ld>\n", msgnum);
 		delnum = msgnum;
 		cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));
 
@@ -3104,19 +3104,19 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 		MailboxName(roomname, sizeof roomname, is_mailbox, req_room);
 	else
 		safestrncpy(roomname, req_room, sizeof(roomname));
-	lprintf(9, "CtdlWriteObject() to <%s> (flags=%d)\n", roomname, flags);
+	lprintf(CTDL_DEBUG, "CtdlWriteObject() to <%s> (flags=%d)\n", roomname, flags);
 
 
 	fp = fopen(tempfilename, "rb");
 	if (fp == NULL) {
-		lprintf(5, "Cannot open %s: %s\n",
+		lprintf(CTDL_CRIT, "Cannot open %s: %s\n",
 			tempfilename, strerror(errno));
 		return;
 	}
 	fseek(fp, 0L, SEEK_END);
 	raw_length = ftell(fp);
 	rewind(fp);
-	lprintf(9, "Raw length is %ld\n", (long)raw_length);
+	lprintf(CTDL_DEBUG, "Raw length is %ld\n", (long)raw_length);
 
 	raw_message = mallok((size_t)raw_length + 2);
 	fread(raw_message, (size_t)raw_length, 1, fp);
@@ -3161,7 +3161,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 
 	phree(raw_message);
 
-	lprintf(9, "Allocating\n");
+	lprintf(CTDL_DEBUG, "Allocating\n");
 	msg = mallok(sizeof(struct CtdlMessage));
 	memset(msg, 0, sizeof(struct CtdlMessage));
 	msg->cm_magic = CTDLMESSAGE_MAGIC;
@@ -3185,7 +3185,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 	 * other objects of this type that are currently in the room.
 	 */
 	if (is_unique) {
-		lprintf(9, "Deleted %d other msgs of this type\n",
+		lprintf(CTDL_DEBUG, "Deleted %d other msgs of this type\n",
 			CtdlDeleteMessages(roomname, 0L, content_type));
 	}
 	/* Now write the data */

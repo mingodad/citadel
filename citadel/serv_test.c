@@ -44,25 +44,25 @@
 extern struct CitContext *ContextList;
 
 void CleanupTest(void) {
-	lprintf(9, "--- test of adding an unload hook --- \n");
+	lprintf(CTDL_DEBUG, "--- test of adding an unload hook --- \n");
 	}
 
 void NewRoomTest(void) {
-	lprintf(9, "--- test module was told we're now in a new room ---\n");
+	lprintf(CTDL_DEBUG, "--- test module was told we're now in a new room ---\n");
 	}
 
 void SessionStartTest(void) {
-	lprintf(9, "--- starting up session %d ---\n",
+	lprintf(CTDL_DEBUG, "--- starting up session %d ---\n",
 		CC->cs_pid);
 	}
 
 void SessionStopTest(void) {
-	lprintf(9, "--- ending session %d ---\n", 
+	lprintf(CTDL_DEBUG, "--- ending session %d ---\n", 
 		CC->cs_pid);
 	}
 
 void LoginTest(void) {
-	lprintf(9, "--- Hello, %s ---\n", CC->curr_user);
+	lprintf(CTDL_DEBUG, "--- Hello, %s ---\n", CC->curr_user);
 	}
 
 

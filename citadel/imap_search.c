@@ -389,7 +389,7 @@ void imap_do_search(int num_items, char **itemlist, int is_uid) {
 			CtdlFreeMessage(msg);
 		}
 		else {
-			lprintf(1, "SEARCH internal error\n");
+			lprintf(CTDL_ERR, "SEARCH internal error\n");
 		}
 	}
 	cprintf("\r\n");

@@ -436,7 +436,7 @@ void session_startup(void)
 {
 	int i;
 
-	lprintf(3, "<%s> logged in\n", CC->curr_user);
+	lprintf(CTDL_NOTICE, "<%s> logged in\n", CC->curr_user);
 
 	lgetuser(&CC->user, CC->curr_user);
 	++(CC->user.timescalled);
@@ -549,13 +549,13 @@ static int validpw(uid_t uid, const char *pass)
 	char buf[24];
 
 	if (pipe(pipev)) {
-		lprintf(1, "pipe failed (%s): denying autologin access for "
+		lprintf(CTDL_ERROR, "pipe failed (%s): denying autologin access for "
 			"uid %ld\n", strerror(errno), (long)uid);
 		return 0;
 	}
 	switch (pid = fork()) {
 	case -1:
-		lprintf(1, "fork failed (%s): denying autologin access for "
+		lprintf(CTDL_ERROR, "fork failed (%s): denying autologin access for "
 			"uid %ld\n", strerror(errno), (long)uid);
 		close(pipev[0]);
 		close(pipev[1]);
@@ -583,7 +583,7 @@ static int validpw(uid_t uid, const char *pass)
 
 	while (waitpid(pid, &status, 0) == -1)
 		if (errno != EINTR) {
-			lprintf(1, "waitpid failed (%s): denying autologin "
+			lprintf(CTDL_ERROR, "waitpid failed (%s): denying autologin "
 				"access for uid %ld\n",
 				strerror(errno), (long)uid);
 			return 0;
@@ -607,19 +607,19 @@ int CtdlTryPassword(char *password)
 	int code;
 
 	if ((CC->logged_in)) {
-		lprintf(5, "CtdlTryPassword: already logged in\n");
+		lprintf(CTDL_WARNING, "CtdlTryPassword: already logged in\n");
 		return pass_already_logged_in;
 	}
 	if (!strcmp(CC->curr_user, NLI)) {
-		lprintf(5, "CtdlTryPassword: no user selected\n");
+		lprintf(CTDL_WARNING, "CtdlTryPassword: no user selected\n");
 		return pass_no_user;
 	}
 	if (getuser(&CC->user, CC->curr_user)) {
-		lprintf(5, "CtdlTryPassword: internal error\n");
+		lprintf(CTDL_ERR, "CtdlTryPassword: internal error\n");
 		return pass_internal_error;
 	}
 	if (password == NULL) {
-		lprintf(5, "CtdlTryPassword: NULL password string supplied\n");
+		lprintf(CTDL_INFO, "CtdlTryPassword: NULL password string supplied\n");
 		return pass_wrong_password;
 	}
 	code = (-1);
@@ -656,7 +656,7 @@ int CtdlTryPassword(char *password)
 		do_login();
 		return pass_ok;
 	} else {
-		lprintf(3, "Bad password specified for <%s>\n", CC->curr_user);
+		lprintf(CTDL_WARNING, "Bad password specified for <%s>\n", CC->curr_user);
 		return pass_wrong_password;
 	}
 }
@@ -705,7 +705,7 @@ int purge_user(char pname[])
 	makeuserkey(usernamekey, pname);
 
 	if (getuser(&usbuf, pname) != 0) {
-		lprintf(5, "Cannot purge user <%s> - not found\n", pname);
+		lprintf(CTDL_ERR, "Cannot purge user <%s> - not found\n", pname);
 		return (ERROR + NO_SUCH_USER);
 	}
 	/* Don't delete a user who is currently logged in.  Instead, just
@@ -721,12 +721,12 @@ int purge_user(char pname[])
 	}
 	end_critical_section(S_SESSION_TABLE);
 	if (user_is_logged_in == 1) {
-		lprintf(5, "User <%s> is logged in; not deleting.\n", pname);
+		lprintf(CTDL_WARNING, "User <%s> is logged in; not deleting.\n", pname);
 		usbuf.axlevel = 0;
 		putuser(&usbuf);
 		return (1);
 	}
-	lprintf(5, "Deleting user <%s>\n", pname);
+	lprintf(CTDL_NOTICE, "Deleting user <%s>\n", pname);
 
 	/* Perform any purge functions registered by server extensions */
 	PerformUserHooks(usbuf.fullname, usbuf.usernum, EVT_PURGEUSER);
@@ -841,7 +841,7 @@ int create_user(char *newusername, int become_user)
 		}
 	}
 
-	lprintf(3, "New user <%s> created\n", username);
+	lprintf(CTDL_NOTICE, "New user <%s> created\n", username);
 	return (0);
 }
 
@@ -928,7 +928,7 @@ void cmd_setp(char *new_pw)
 	safestrncpy(CC->user.password, new_pw, sizeof(CC->user.password));
 	lputuser(&CC->user);
 	cprintf("%d Password changed.\n", CIT_OK);
-	lprintf(3, "Password changed for user <%s>\n", CC->curr_user);
+	lprintf(CTDL_INFO, "Password changed for user <%s>\n", CC->curr_user);
 	PerformSessionHooks(EVT_SETPASS);
 }
 

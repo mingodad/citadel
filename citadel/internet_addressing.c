@@ -333,7 +333,7 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 
 	else if (!strcasecmp(key, "From")) {
 		process_rfc822_addr(value, user, node, name);
-		lprintf(9, "Converted to <%s@%s> (%s)\n", user, node, name);
+		lprintf(CTDL_DEBUG, "Converted to <%s@%s> (%s)\n", user, node, name);
 		snprintf(addr, sizeof addr, "%s@%s", user, node);
 		if (msg->cm_fields['A'] == NULL)
 			msg->cm_fields['A'] = strdoop(name);
@@ -357,7 +357,7 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 
 	else if (!strcasecmp(key, "Message-ID")) {
 		if (msg->cm_fields['I'] != NULL) {
-			lprintf(5, "duplicate message id\n");
+			lprintf(CTDL_WARNING, "duplicate message id\n");
 		}
 
 		if (msg->cm_fields['I'] == NULL) {
@@ -406,7 +406,7 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 	msg->cm_format_type = FMT_RFC822;	/* internet message */
 	msg->cm_fields['M'] = rfc822;
 
-	lprintf(9, "Unconverted RFC822 message length = %ld\n", (long)strlen(rfc822));
+	lprintf(CTDL_DEBUG, "Unconverted RFC822 message length = %ld\n", (long)strlen(rfc822));
 	pos = 0;
 	done = 0;
 
@@ -474,7 +474,7 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 		msg->cm_fields['T'] = strdoop(buf);
 	}
 
-	lprintf(9, "RFC822 length remaining after conversion = %ld\n",
+	lprintf(CTDL_DEBUG, "RFC822 length remaining after conversion = %ld\n",
 		(long)strlen(rfc822));
 	return msg;
 }
@@ -552,7 +552,7 @@ void directory_key(char *key, char *addr) {
 	}
 	key[keylen++] = 0;
 
-	lprintf(9, "Directory key is <%s>\n", key);
+	lprintf(CTDL_DEBUG, "Directory key is <%s>\n", key);
 }
 
 
@@ -568,14 +568,14 @@ int IsDirectory(char *addr) {
 	striplt(domain);
 
 	h = CtdlHostAlias(domain);
-	lprintf(9, "IsDirectory(%s)\n", domain);
+	lprintf(CTDL_DEBUG, "IsDirectory(%s)\n", domain);
 
 	if ( (h == hostalias_localhost) || (h == hostalias_directory) ) {
-		lprintf(9, " ...yes\n");
+		lprintf(CTDL_DEBUG, " ...yes\n");
 		return(1);
 	}
 	else {
-		lprintf(9, " ...no\n");
+		lprintf(CTDL_DEBUG, " ...no\n");
 		return(0);
 	}
 }
@@ -595,7 +595,7 @@ void CtdlDirectoryInit(void) {
 void CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr) {
 	char key[SIZ];
 
-	lprintf(9, "Dir: %s --> %s\n",
+	lprintf(CTDL_DEBUG, "Dir: %s --> %s\n",
 		internet_addr, citadel_addr);
 	if (IsDirectory(internet_addr) == 0) return;
 

@@ -255,7 +255,7 @@ void imap_append(int num_parms, char *parms[]) {
 	}
 
 	/* Convert RFC822 newlines (CRLF) to Unix newlines (LF) */
-	lprintf(9, "Converting newline format\n");
+	lprintf(CTDL_DEBUG, "Converting newline format\n");
 	for (i=0; i<literal_length; ++i) {
 		if (!strncmp(&IMAP->transmitted_message[i], "\r\n", 2)) {
 			strcpy(&IMAP->transmitted_message[i],
@@ -264,7 +264,7 @@ void imap_append(int num_parms, char *parms[]) {
 		}
 	}
 
-	lprintf(9, "Converting message format\n");
+	lprintf(CTDL_DEBUG, "Converting message format\n");
         msg = convert_internet_message(IMAP->transmitted_message);
 	IMAP->transmitted_message = NULL;
 	IMAP->transmitted_length = 0;

@@ -80,7 +80,7 @@ void get_control(void)
 		}
 	}
 	if (control_fp == NULL) {
-		lprintf(1, "ERROR opening citadel.control: %s\n",
+		lprintf(CTDL_ALERT, "ERROR opening citadel.control: %s\n",
 			strerror(errno));
 		return;
 	}

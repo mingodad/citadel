@@ -306,7 +306,7 @@ enum {
 #define FILTERLIST	"application/x-citadel-filter-list"
 #define SPAMSTRINGS	"application/x-citadel-spam-strings"
 
-#define TRACE	lprintf(9, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
+#define TRACE	lprintf(CTDL_DEBUG, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
 
 #ifndef LONG_MAX
 #define LONG_MAX 2147483647L
