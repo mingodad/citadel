@@ -48,6 +48,7 @@ void init_ssl(void)
 	EVP_PKEY *req_pkey = NULL;
 	X509_NAME *name = NULL;
 	FILE *fp;
+	char buf[SIZ];
 
 	if (!access("/var/run/egd-pool", F_OK))
 		RAND_egd("/var/run/egd-pool");
@@ -127,7 +128,24 @@ void init_ssl(void)
 	mkdir(CTDL_CRYPTO_DIR, 0700);
 
 	/*
-	 * Generate a key pair if we don't have one.
+	 * Before attempting to generate keys/certificates, first try
+	 * link to them from the Citadel server if it's on the same host.
+	 * We ignore any error return because it either meant that there
+	 * was nothing in Citadel to link from (in which case we just
+	 * generate new files) or the target files already exist (which
+	 * is not fatal either).
+	 */
+	if (!strcasecmp(ctdlhost, "uds")) {
+		sprintf(buf, "%s/keys/citadel.key", ctdlport);
+		symlink(buf, CTDL_KEY_PATH);
+		sprintf(buf, "%s/keys/citadel.csr", ctdlport);
+		symlink(buf, CTDL_CSR_PATH);
+		sprintf(buf, "%s/keys/citadel.cer", ctdlport);
+		symlink(buf, CTDL_CER_PATH);
+	}
+
+	/*
+	 * If we still don't have a private key, generate one.
 	 */
 	if (access(CTDL_KEY_PATH, R_OK) != 0) {
 		lprintf(5, "Generating RSA key pair.\n");

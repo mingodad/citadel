@@ -66,20 +66,27 @@ something like this:
  Several command-line options are also available.  Here's the usage for
 the "webserver" program:
   
- webserver [-p localport] [-t tracefile] [-c] [remotehost [remoteport]]
+ webserver [-p http_port] [-s https_port] [-t tracefile]
+           [-c] [remotehost [remoteport]]
  
    *or*
  
- webserver [-p localport] [-t tracefile] [-c] uds /your/citadel/directory
+ webserver [-p http_port] [-s https_port] [-t tracefile]
+           [-c] uds /your/citadel/directory
  
  Explained: 
   
-  -> localport: the TCP port on which you wish your WebCit server to run.
+  -> http_port: the TCP port on which you wish your WebCit server to run.
      this can be any port number at all; there is no standard.  Naturally,
      you'll want to create a link to this port on your system's regular web
      pages (presumably on an Apache server running on port 80).  Or, if you
      are installing WebCit on a dedicated server, then you might choose to
      use port 80 after all.
+ 
+  -> https_port: an optional TCP port on which you wish your WebCit server
+     to run an SSL-encrypted web service.  The standard port number for this
+     is 443, and if you're not already running a secure web server you might
+     choose to use that port.  Otherwise, select any free port number.
  
   -> tracefile: where you want WebCit to log to.  This can be a file, a
      virtual console, or /dev/null to suppress logging altogether.
