@@ -1,4 +1,7 @@
 $Log$
+Revision 500.29  2003/10/17 03:08:28  ajc
+* Finished prettying up the vCard display
+
 Revision 500.28  2003/10/17 02:31:45  ajc
 * Multi-line string literals are deprecated in GCC 3.1 unless each line
   is wrapped in quotes.  Performed this fix so it'll compile.
@@ -1596,3 +1599,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

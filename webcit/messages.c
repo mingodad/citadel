@@ -114,6 +114,12 @@ void fetchname_parsed_vcard(struct vCard *v, char *storename) {
  *
  * Set 'full' to nonzero to display the full card, otherwise it will only
  * show a summary line.
+ *
+ * This code is a bit ugly, so perhaps an explanation is due: we do this
+ * in two passes through the vCard fields.  On the first pass, we process
+ * fields we understand, and then render them in a pretty fashion at the
+ * end.  Then we make a second pass, outputting all the fields we don't
+ * understand in a simple two-column name/value format.
  */
 void display_parsed_vcard(struct vCard *v, int full) {
 	int i, j;
@@ -122,6 +128,8 @@ void display_parsed_vcard(struct vCard *v, int full) {
 	int is_qp = 0;
 	int is_b64 = 0;
 	char *thisname, *thisvalue;
+	char firsttoken[SIZ];
+	int pass;
 
 	char displayname[SIZ];
 	char phone[SIZ];
@@ -147,120 +155,137 @@ void display_parsed_vcard(struct vCard *v, int full) {
 	}
 
 	wprintf("<TABLE bgcolor=#888888>");
-	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
+	for (pass=1; pass<=2; ++pass) {
 
-		thisname = strdup(v->prop[i].name);
+		if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 
-		for (j=0; j<num_tokens(thisname, ';'); ++j) {
-			extract_token(buf, thisname, j, ';');
-			if (!strcasecmp(buf, "encoding=quoted-printable")) {
-				is_qp = 1;
-				remove_token(thisname, j, ';');
-			}
-			if (!strcasecmp(buf, "encoding=base64")) {
-				is_b64 = 1;
-				remove_token(thisname, j, ';');
-			}
-		}
-
-		if (is_qp) {
-			thisvalue = malloc(strlen(v->prop[i].value) + 50);
-			j = CtdlDecodeQuotedPrintable(
-				thisvalue, v->prop[i].value,
-				strlen(v->prop[i].value) );
-			thisvalue[j] = 0;
-		}
-		else if (is_b64) {
-			thisvalue = malloc(strlen(v->prop[i].value) + 50);
-			CtdlDecodeBase64(
-				thisvalue, v->prop[i].value,
-				strlen(v->prop[i].value) );
-		}
-		else {
-			thisvalue = strdup(v->prop[i].value);
-		}
-
-		/*** Various fields we may encounter ***/
-
-		/* N is name, but only if there's no FN already there */
-		if (!strcasecmp(thisname, "n")
-		   || (!strncasecmp(thisname, "n;", 2)) ) {
-			if (strlen(displayname) == 0) {
-				strcpy(displayname, thisvalue);
-			}
-		}
-
-		/* FN (full name) is a true 'display name' field */
-		else if (!strcasecmp(thisname, "fn")
-		   || (!strncasecmp(thisname, "fn;", 3)) ) {
-			strcpy(displayname, thisvalue);
-		}
-
-		else if (!strncasecmp(thisname, "email", 5)) {
-			if (strlen(mailto) > 0) strcat(mailto, "<BR>");
-			strcat(mailto,
-				"<A HREF=\"/display_enter"
-				"?force_room=_MAIL_&recp=");
-			urlesc(&mailto[strlen(mailto)], thisvalue);
-			strcat(mailto, "\">");
-			urlesc(&mailto[strlen(mailto)], thisvalue);
-			strcat(mailto, "</A>");
-		}
-		else if (!strncasecmp(thisname, "tel;", 4)) {
-			if (strlen(phone) > 0) strcat(phone, "<BR>");
-			strcat(phone, thisvalue);
+			thisname = strdup(v->prop[i].name);
+			extract_token(firsttoken, thisname, 0, ';');
+	
 			for (j=0; j<num_tokens(thisname, ';'); ++j) {
 				extract_token(buf, thisname, j, ';');
-				if (!strcasecmp(buf, "tel"))
-					strcat(phone, "");
-				else if (!strcasecmp(buf, "work"))
-					strcat(phone, " (work)");
-				else if (!strcasecmp(buf, "home"))
-					strcat(phone, " (home)");
-				else if (!strcasecmp(buf, "cell"))
-					strcat(phone, " (cell)");
-				else {
-					strcat(phone, " (");
-					strcat(phone, buf);
-					strcat(phone, ")");
+				if (!strcasecmp(buf, "encoding=quoted-printable")) {
+					is_qp = 1;
+					remove_token(thisname, j, ';');
+				}
+				if (!strcasecmp(buf, "encoding=base64")) {
+					is_b64 = 1;
+					remove_token(thisname, j, ';');
 				}
 			}
-		}
-		else if (!strcasecmp(thisname, "adr")) {
-			wprintf("<TR><TD>Address:</TD><TD>");
-			for (j=0; j<num_tokens(thisvalue, ';'); ++j) {
-				extract_token(buf, thisvalue, j, ';');
-				if (strlen(buf) > 0) {
-					escputs(buf);
-					wprintf("<BR>");
+	
+			if (is_qp) {
+				thisvalue = malloc(strlen(v->prop[i].value) + 50);
+				j = CtdlDecodeQuotedPrintable(
+					thisvalue, v->prop[i].value,
+					strlen(v->prop[i].value) );
+				thisvalue[j] = 0;
+			}
+			else if (is_b64) {
+				thisvalue = malloc(strlen(v->prop[i].value) + 50);
+				CtdlDecodeBase64(
+					thisvalue, v->prop[i].value,
+					strlen(v->prop[i].value) );
+			}
+			else {
+				thisvalue = strdup(v->prop[i].value);
+			}
+	
+			/*** Various fields we may encounter ***/
+	
+			/* N is name, but only if there's no FN already there */
+			if (!strcasecmp(firsttoken, "n")) {
+				if (strlen(displayname) == 0) {
+					strcpy(displayname, thisvalue);
 				}
 			}
-			wprintf("</TD></TR>\n");
+	
+			/* FN (full name) is a true 'display name' field */
+			else if (!strcasecmp(firsttoken, "fn")) {
+				strcpy(displayname, thisvalue);
+			}
+	
+			else if (!strcasecmp(firsttoken, "email")) {
+				if (strlen(mailto) > 0) strcat(mailto, "<BR>");
+				strcat(mailto,
+					"<A HREF=\"/display_enter"
+					"?force_room=_MAIL_&recp=");
+				urlesc(&mailto[strlen(mailto)], thisvalue);
+				strcat(mailto, "\">");
+				urlesc(&mailto[strlen(mailto)], thisvalue);
+				strcat(mailto, "</A>");
+			}
+			else if (!strcasecmp(firsttoken, "tel")) {
+				if (strlen(phone) > 0) strcat(phone, "<BR>");
+				strcat(phone, thisvalue);
+				for (j=0; j<num_tokens(thisname, ';'); ++j) {
+					extract_token(buf, thisname, j, ';');
+					if (!strcasecmp(buf, "tel"))
+						strcat(phone, "");
+					else if (!strcasecmp(buf, "work"))
+						strcat(phone, " (work)");
+					else if (!strcasecmp(buf, "home"))
+						strcat(phone, " (home)");
+					else if (!strcasecmp(buf, "cell"))
+						strcat(phone, " (cell)");
+					else {
+						strcat(phone, " (");
+						strcat(phone, buf);
+						strcat(phone, ")");
+					}
+				}
+			}
+			else if (!strcasecmp(firsttoken, "adr")) {
+				if (pass == 2) {
+					wprintf("<TR><TD>Address:</TD><TD>");
+					for (j=0; j<num_tokens(thisvalue, ';'); ++j) {
+						extract_token(buf, thisvalue, j, ';');
+						if (strlen(buf) > 0) {
+							escputs(buf);
+							wprintf("<BR>");
+						}
+					}
+					wprintf("</TD></TR>\n");
+				}
+			}
+			else if (!strcasecmp(firsttoken, "version")) {
+				/* ignore */
+			}
+			else if (!strcasecmp(firsttoken, "rev")) {
+				/* ignore */
+			}
+			else if (!strcasecmp(firsttoken, "label")) {
+				/* ignore */
+			}
+			else {
+				if (pass == 2) {
+					wprintf("<TR><TD>");
+					escputs(thisname);
+					wprintf("</TD><TD>");
+					escputs(thisvalue);
+					wprintf("</TD></TR>\n");
+				}
+			}
+	
+			free(thisname);
+			free(thisvalue);
 		}
-		else {
-			wprintf("<TR><TD>");
-			escputs(thisname);
-			wprintf("</TD><TD>");
-			escputs(thisvalue);
-			wprintf("</TD></TR>\n");
+	
+		if (pass == 1) {
+			wprintf("<TR BGCOLOR=\"#AAAAAA\">"
+			"<TD COLSPAN=2 BGCOLOR=\"#FFFFFF\">"
+			"<IMG ALIGN=CENTER SRC=\"/static/vcard.gif\">"
+			"<FONT SIZE=+1><B>");
+			escputs(displayname);
+			wprintf("</B></FONT></TD></TR>\n");
+		
+			if (strlen(phone) > 0)
+				wprintf("<TR><TD>Telephone:</TD><TD>%s</TD></TR>\n", phone);
+			if (strlen(mailto) > 0)
+				wprintf("<TR><TD>E-mail:</TD><TD>%s</TD></TR>\n", mailto);
 		}
-
-		free(thisname);
-		free(thisvalue);
 
 	}
-
-	wprintf("<TR BGCOLOR=\"#AAAAAA\">"
-	"<TD COLSPAN=2 BGCOLOR=\"#FFFFFF\">"
-	"<IMG ALIGN=CENTER SRC=\"/static/vcard.gif\">"
-	"<FONT SIZE=+1><B>");
-	escputs(displayname);
-	wprintf("</B></FONT></TD></TR>\n");
-
-	if (strlen(phone) > 0)
-		wprintf("<TR><TD>Telephone:</TD><TD>%s</TD></TR>\n", phone);
-	if (strlen(mailto) > 0)
-		wprintf("<TR><TD>E-mail:</TD><TD>%s</TD></TR>\n", mailto);
 
 	wprintf("</TABLE>\n");
 }
