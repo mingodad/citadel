@@ -927,7 +927,7 @@ void readloop(char *oper)
 
 		for (b=0; b<nummsgs; b = b + maxmsgs) {
 		lo = b+1;
-		hi = b+maxmsgs+1;
+		hi = b+maxmsgs;
 		if (hi > nummsgs) hi = nummsgs;
 			if (WC->msgarr[b] != startmsg) {
 				wprintf("<A HREF=\"/%s"

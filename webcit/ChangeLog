@@ -1,4 +1,7 @@
 $Log$
+Revision 500.17  2003/08/12 18:54:03  error
+* messages.c: fix off-by-one-error in selector bar
+
 Revision 500.16  2003/08/07 22:18:03  ajc
 * Add the Summary Page to the customizable iconbar
 
@@ -1551,3 +1554,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
