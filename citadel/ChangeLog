@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.10  2002/04/15 13:25:47  ajc
+ * Add error responses to imap_rename() and set up subfolder framework
+
  Revision 591.9  2002/04/14 22:42:49  ajc
  * Began implementing RENAME command in IMAP.
 
@@ -3602,3 +3605,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -897,7 +897,16 @@ void imap_delete(int num_parms, char *parms[]) {
 
 
 /*
- * Implements the RENAME command (FIXME, finish implementing this)
+ * Back end function for imap_rename()
+ */
+void imap_rename_backend(struct quickroom *qrbuf, void *data) {
+}
+
+
+
+
+/*
+ * Implements the RENAME command
  *
  */
 void imap_rename(int num_parms, char *parms[]) {
@@ -913,13 +922,37 @@ void imap_rename(int num_parms, char *parms[]) {
 
 	r = CtdlRenameRoom(old_room, new_room, new_floor);
 
+	if (r == crr_room_not_found) {
+		cprintf("%s NO Could not locate this folder\r\n", parms[0]);
+		return;
+	}
+	if (r == crr_already_exists) {
+		cprintf("%s '%s' already exists.\r\n", parms[0], parms[2]);
+		return;
+	}
+	if (r == crr_noneditable) {
+		cprintf("%s This folder is not editable.\r\n", parms[0]);
+		return;
+	}
+	if (r == crr_invalid_floor) {
+		cprintf("%s Folder root does not exist.\r\n", parms[0]);
+		return;
+	}
+	if (r == crr_access_denied) {
+		cprintf("%s You do not have permission to edit "
+			"this folder.\r\n", parms[0]);
+		return;
+	}
 	if (r != crr_ok) {
-		cprintf("%s NO error %d (FIXME do more here)\r\n",
+		cprintf("%s NO Rename failed - undefined error %d\r\n",
 			parms[0], r);
 		return;
 	}
 
-	cprintf("%s OK RENAME completed (FIXME do subfolders)\r\n", parms[0]);
+	/* FIXME supply something */
+	ForEachRoom(imap_rename_backend, NULL);
+
+	cprintf("%s OK RENAME completed\r\n", parms[0]);
 }
 
 
