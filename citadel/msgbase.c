@@ -28,6 +28,7 @@
 #include "dynloader.h"
 #include "tools.h"
 #include "mime_parser.h"
+#include "html.h"
 
 #define desired_section ((char *)CtdlGetUserData(SYM_DESIRED_SECTION))
 
@@ -439,10 +440,17 @@ void list_this_part(char *name, char *filename, char *partnum, char *disp,
 void fixed_output(char *name, char *filename, char *partnum, char *disp,
 		  void *content, char *cbtype, size_t length)
 {
+	char *ptr;
 
 	if (!strcasecmp(cbtype, "text/plain")) {
 		client_write(content, length);
-	} else {
+	}
+	else if (!strcasecmp(cbtype, "text/html")) {
+		ptr = html_to_ascii(content, 80);	/* FIX */
+		client_write(ptr, strlen(ptr));
+		phree(ptr);
+	}
+	else {
 		cprintf("Part %s: %s (%s) (%d bytes)\n",
 			partnum, filename, cbtype, length);
 	}
