@@ -1,4 +1,7 @@
 $Log$
+Revision 1.106  1999/11/26 01:28:10  ajc
+* 2.01 release
+
 Revision 1.105  1999/11/04 02:05:02  ajc
 * Added 'number of worker threads' to site config screen
 
@@ -309,3 +312,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

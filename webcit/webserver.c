@@ -264,7 +264,7 @@ int main(int argc, char **argv)
 			defaultport = argv[optind];
 	}
 	/* Tell 'em who's in da house */
-	printf("WebCit version 2.00\n");
+	printf("WebCit version 2.01\n");
 	printf("Copyright (C) 1996-1999.  All rights reserved.\n\n");
 
 	if (chdir(WEBCITDIR) != 0)

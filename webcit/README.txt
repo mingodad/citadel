@@ -1,5 +1,5 @@
                       WEBCIT for the Citadel/UX System
-                               version 2.00
+                               version 2.01
  
    Copyright (C) 1996-1999 by Art Cancro, Nathan Bryant, and Nick Grossman
 This program is free software released under the terms of the GNU General
