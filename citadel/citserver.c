@@ -376,16 +376,16 @@ char CtdlCheckExpress(void) {
 void cmd_time(void)
 {
    time_t tv;
-   struct tm *tmp;
+   struct tm tmp;
    
    tv = time(NULL);
-   tmp = localtime(&tv);
+   localtime_r(&tv, &tmp);
    
    /* timezone and daylight global variables are not portable. */
 #ifdef HAVE_STRUCT_TM_TM_GMTOFF
-   cprintf("%d %ld|%ld|%d\n", CIT_OK, (long)tv, tmp->tm_gmtoff, tmp->tm_isdst);
+   cprintf("%d %ld|%ld|%d\n", CIT_OK, (long)tv, tmp.tm_gmtoff, tmp.tm_isdst);
 #else
-   cprintf("%d %ld|%ld|%d\n", CIT_OK, (long)tv, timezone, tmp->tm_isdst);
+   cprintf("%d %ld|%ld|%d\n", CIT_OK, (long)tv, timezone, tmp.tm_isdst);
 #endif
 }
 

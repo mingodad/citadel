@@ -415,7 +415,7 @@ int imap_datecmp(char *datestr, time_t msgtime) {
 	}
 
 	/* Extract day/month/year from message timestamp */
-	memcpy(&msgtm, localtime(&msgtime), sizeof(struct tm));
+	localtime_r(&msgtime, &msgtm);
 	msgday = msgtm.tm_mday;
 	msgmonth = msgtm.tm_mon;
 	msgyear = msgtm.tm_year + 1900;

@@ -206,7 +206,7 @@ void userlist(CtdlIPC *ipc, char *patn)
 {
 	char buf[SIZ];
 	char fl[SIZ];
-	struct tm *tmbuf;
+	struct tm tmbuf;
 	time_t lc;
 	int r;				/* IPC response code */
 	char *listing = NULL;
@@ -230,11 +230,11 @@ void userlist(CtdlIPC *ipc, char *patn)
 			pprintf("%5ld %d ", extract_long(buf, 2),
 			       extract_int(buf, 1));
 			lc = extract_long(buf, 3);
-			tmbuf = (struct tm *) localtime(&lc);
+			localtime_r(&lc, &tmbuf);
 			pprintf("%02d/%02d/%04d ",
-			       (tmbuf->tm_mon + 1),
-			       tmbuf->tm_mday,
-			       (tmbuf->tm_year + 1900));
+			       (tmbuf.tm_mon + 1),
+			       tmbuf.tm_mday,
+			       (tmbuf.tm_year + 1900));
 			pprintf("%5ld %5ld\n", extract_long(buf, 4), extract_long(buf, 5));
 		    }
 

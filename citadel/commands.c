@@ -206,7 +206,7 @@ void print_instant(void)
 	char buf[1024];
 	FILE *outpipe;
 	time_t timestamp;
-	struct tm *stamp;
+	struct tm stamp;
 	int flags = 0;
 	char sender[64];
 	char node[64];
@@ -236,7 +236,7 @@ void print_instant(void)
 		extract(node, buf, 4);
 		strcpy(last_paged, sender);
 	
-		stamp = localtime(&timestamp);
+		localtime_r(&timestamp, &stamp);
 
 		/* If the page is a Logoff Request, honor it. */
 		if (flags & 2) {
@@ -258,17 +258,17 @@ void print_instant(void)
 				else
 					fprintf(outpipe, "Message ");
 				/* Timestamp.  Can this be improved? */
-				if (stamp->tm_hour == 0 || stamp->tm_hour == 12)
+				if (stamp.tm_hour == 0 || stamp.tm_hour == 12)
 					fprintf(outpipe, "at 12:%02d%cm",
-						stamp->tm_min, 
-						stamp->tm_hour ? 'p' : 'a');
-				else if (stamp->tm_hour > 12)		/* pm */
+						stamp.tm_min, 
+						stamp.tm_hour ? 'p' : 'a');
+				else if (stamp.tm_hour > 12)		/* pm */
 					fprintf(outpipe, "at %d:%02dpm",
-						stamp->tm_hour - 12,
-						stamp->tm_min);
+						stamp.tm_hour - 12,
+						stamp.tm_min);
 				else					/* am */
 					fprintf(outpipe, "at %d:%02dam",
-						stamp->tm_hour, stamp->tm_min);
+						stamp.tm_hour, stamp.tm_min);
 				fprintf(outpipe, " from %s", sender);
 				if (strncmp(ipc_for_signal_handlers->ServInfo.nodename, node, 32))
 					fprintf(outpipe, " @%s", node);
@@ -294,14 +294,14 @@ void print_instant(void)
 			scr_printf("Message ");
 	
 		/* Timestamp.  Can this be improved? */
-		if (stamp->tm_hour == 0 || stamp->tm_hour == 12)/* 12am/12pm */
-			scr_printf("at 12:%02d%cm", stamp->tm_min, 
-				stamp->tm_hour ? 'p' : 'a');
-		else if (stamp->tm_hour > 12)			/* pm */
+		if (stamp.tm_hour == 0 || stamp.tm_hour == 12)/* 12am/12pm */
+			scr_printf("at 12:%02d%cm", stamp.tm_min, 
+				stamp.tm_hour ? 'p' : 'a');
+		else if (stamp.tm_hour > 12)			/* pm */
 			scr_printf("at %d:%02dpm",
-				stamp->tm_hour - 12, stamp->tm_min);
+				stamp.tm_hour - 12, stamp.tm_min);
 		else						/* am */
-			scr_printf("at %d:%02dam", stamp->tm_hour, stamp->tm_min);
+			scr_printf("at %d:%02dam", stamp.tm_hour, stamp.tm_min);
 		
 		/* Sender */
 		scr_printf(" from %s", sender);

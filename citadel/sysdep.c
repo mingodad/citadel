@@ -126,13 +126,13 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 	}
 	else if (loglevel <= verbosity) { 
 		struct timeval tv;
-		struct tm *tim;
+		struct tm tim;
 		time_t unixtime;
 
 		gettimeofday(&tv, NULL);
 		/* Promote to time_t; types differ on some OSes (like darwin) */
 		unixtime = tv.tv_sec;
-		tim = localtime(&unixtime);
+		localtime_r(&unixtime, &tim);
 		/*
 		 * Log provides millisecond accuracy.  If you need
 		 * microsecond accuracy and your OS supports it, change
@@ -143,33 +143,33 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 			/* Millisecond display */
 			fprintf(stderr,
 				"%04d/%02d/%02d %2d:%02d:%02d.%03ld [%3d] %s",
-				tim->tm_year + 1900, tim->tm_mon + 1,
-				tim->tm_mday, tim->tm_hour, tim->tm_min,
-				tim->tm_sec, (long)tv.tv_usec / 1000,
+				tim.tm_year + 1900, tim.tm_mon + 1,
+				tim.tm_mday, tim.tm_hour, tim.tm_min,
+				tim.tm_sec, (long)tv.tv_usec / 1000,
 				CC->cs_pid, buf);
 #endif
 			/* Microsecond display */
 			fprintf(stderr,
 				"%04d/%02d/%02d %2d:%02d:%02d.%06ld [%3d] %s",
-				tim->tm_year + 1900, tim->tm_mon + 1,
-				tim->tm_mday, tim->tm_hour, tim->tm_min,
-				tim->tm_sec, (long)tv.tv_usec,
+				tim.tm_year + 1900, tim.tm_mon + 1,
+				tim.tm_mday, tim.tm_hour, tim.tm_min,
+				tim.tm_sec, (long)tv.tv_usec,
 				CC->cs_pid, buf);
 		} else {
 #if 0
 			/* Millisecond display */
 			fprintf(stderr,
 				"%04d/%02d/%02d %2d:%02d:%02d.%03ld %s",
-				tim->tm_year + 1900, tim->tm_mon + 1,
-				tim->tm_mday, tim->tm_hour, tim->tm_min,
-				tim->tm_sec, (long)tv.tv_usec / 1000, buf);
+				tim.tm_year + 1900, tim.tm_mon + 1,
+				tim.tm_mday, tim.tm_hour, tim.tm_min,
+				tim.tm_sec, (long)tv.tv_usec / 1000, buf);
 #endif
 			/* Microsecond display */
 			fprintf(stderr,
 				"%04d/%02d/%02d %2d:%02d:%02d.%06ld %s",
-				tim->tm_year + 1900, tim->tm_mon + 1,
-				tim->tm_mday, tim->tm_hour, tim->tm_min,
-				tim->tm_sec, (long)tv.tv_usec, buf);
+				tim.tm_year + 1900, tim.tm_mon + 1,
+				tim.tm_mday, tim.tm_hour, tim.tm_min,
+				tim.tm_sec, (long)tv.tv_usec, buf);
 		}
 		fflush(stderr);
 	}

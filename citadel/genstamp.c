@@ -44,16 +44,16 @@ static char *weekdays[] = {
  * time and date stamp.
  */
 void datestring(char *buf, size_t n, time_t xtime, int which_format) {
-	struct tm *t;
+	struct tm t;
 
 	long offset;
 	char offsign;
 
-	t = localtime(&xtime);
+	localtime_r(&xtime, &t);
 
 	/* Convert "seconds west of GMT" to "hours/minutes offset" */
 #ifdef HAVE_STRUCT_TM_TM_GMTOFF
-	offset = t->tm_gmtoff;
+	offset = t.tm_gmtoff;
 #else
 	offset = timezone;
 #endif
@@ -70,25 +70,25 @@ void datestring(char *buf, size_t n, time_t xtime, int which_format) {
 
 		case DATESTRING_RFC822:
 			snprintf(buf, n, "%s, %02d %s %04d %02d:%02d:%02d %c%04ld",
-				weekdays[t->tm_wday],
-				t->tm_mday,
-				months[t->tm_mon],
-				t->tm_year + 1900,
-				t->tm_hour,
-				t->tm_min,
-				t->tm_sec,
+				weekdays[t.tm_wday],
+				t.tm_mday,
+				months[t.tm_mon],
+				t.tm_year + 1900,
+				t.tm_hour,
+				t.tm_min,
+				t.tm_sec,
 				offsign, offset
 				);
 		break;
 
 		case DATESTRING_IMAP:
 			snprintf(buf, n, "%02d-%s-%04d %02d:%02d:%02d %c%04ld",
-				t->tm_mday,
-				months[t->tm_mon],
-				t->tm_year + 1900,
-				t->tm_hour,
-				t->tm_min,
-				t->tm_sec,
+				t.tm_mday,
+				months[t.tm_mon],
+				t.tm_year + 1900,
+				t.tm_hour,
+				t.tm_min,
+				t.tm_sec,
 				offsign, offset
 				);
 		break;

@@ -143,7 +143,7 @@ void imap_print_instant_messages(void) {
 	char tmp[SIZ];
 	int i;
 	size_t size, size2;
-	struct tm *stamp;
+	struct tm stamp;
 
 	if (CC->FirstExpressMessage == NULL) {
 		return;
@@ -154,7 +154,7 @@ void imap_print_instant_messages(void) {
 	end_critical_section(S_SESSION_TABLE);
 
 	while (ptr != NULL) {
-		stamp = localtime(&(ptr->timestamp));
+		localtime_r(&(ptr->timestamp), &stamp);
 		size = strlen(ptr->text) + SIZ;
 		dumpomatic = malloc(size);
 		strcpy(dumpomatic, "");
@@ -168,17 +168,17 @@ void imap_print_instant_messages(void) {
 			strcat(dumpomatic, "Message ");
 
 		/* Timestamp.  Can this be improved? */
-		if (stamp->tm_hour == 0 || stamp->tm_hour == 12)
+		if (stamp.tm_hour == 0 || stamp.tm_hour == 12)
 			sprintf(tmp, "at 12:%02d%cm",
-				stamp->tm_min, 
-				stamp->tm_hour ? 'p' : 'a');
-		else if (stamp->tm_hour > 12)		/* pm */
+				stamp.tm_min, 
+				stamp.tm_hour ? 'p' : 'a');
+		else if (stamp.tm_hour > 12)		/* pm */
 			sprintf(tmp, "at %d:%02dpm",
-				stamp->tm_hour - 12,
-				stamp->tm_min);
+				stamp.tm_hour - 12,
+				stamp.tm_min);
 		else					/* am */
 			sprintf(tmp, "at %d:%02dam",
-				stamp->tm_hour, stamp->tm_min);
+				stamp.tm_hour, stamp.tm_min);
 		strcat(dumpomatic, tmp);
 
 		size2 = strlen(dumpomatic);

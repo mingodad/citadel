@@ -1,4 +1,7 @@
  $Log$
+ Revision 626.7  2004/10/05 01:44:20  ajc
+ * Changed a bunch of localtime() calls to localtime_r(), for great justice.
+
  Revision 626.6  2004/10/04 21:40:29  error
  * configure.ac: Add CFLAGS for icc Intel Compiler
 
@@ -6141,4 +6144,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -366,34 +366,34 @@ int haschar(const char *st, int ch)
  * seconds is whether to print the seconds
  */
 void fmt_date(char *buf, size_t n, time_t thetime, int seconds) {
-	struct tm *tm;
+	struct tm tm;
 	int hour;
 
 	strcpy(buf, "");
-	tm = localtime(&thetime);
+	localtime_r(&thetime, &tm);
 
-	hour = tm->tm_hour;
+	hour = tm.tm_hour;
 	if (hour == 0)	hour = 12;
 	else if (hour > 12) hour = hour - 12;
 
 	if (seconds) {
 		snprintf(buf, n, "%s %d %4d %d:%02d:%02d%s",
-			ascmonths[tm->tm_mon],
-			tm->tm_mday,
-			tm->tm_year + 1900,
+			ascmonths[tm.tm_mon],
+			tm.tm_mday,
+			tm.tm_year + 1900,
 			hour,
-			tm->tm_min,
-			tm->tm_sec,
-			( (tm->tm_hour >= 12) ? "pm" : "am" )
+			tm.tm_min,
+			tm.tm_sec,
+			( (tm.tm_hour >= 12) ? "pm" : "am" )
 		);
 	} else {
 		snprintf(buf, n, "%s %d %4d %d:%02d%s",
-			ascmonths[tm->tm_mon],
-			tm->tm_mday,
-			tm->tm_year + 1900,
+			ascmonths[tm.tm_mon],
+			tm.tm_mday,
+			tm.tm_year + 1900,
 			hour,
-			tm->tm_min,
-			( (tm->tm_hour >= 12) ? "pm" : "am" )
+			tm.tm_min,
+			( (tm.tm_hour >= 12) ? "pm" : "am" )
 		);
 	}
 }

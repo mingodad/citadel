@@ -632,7 +632,7 @@ void purge_databases(void) {
 	 * last twelve hours.  This is usually enough granularity.
 	 */
 	now = time(NULL);
-	memcpy(&tm, localtime(&now), sizeof(struct tm));
+	localtime_r(&now, &tm);
 	if (tm.tm_hour != config.c_purge_hour) return;
 	if ((now - last_purge) < 43200) return;
 
