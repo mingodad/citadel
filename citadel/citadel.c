@@ -1457,7 +1457,7 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 					dotgoto(ipc, argbuf, 0, 0);
 				}
 				break;
-			case 95: /* what exactly is the numbering scheme supposed to be anyway? */
+			case 95: /* what exactly is the numbering scheme supposed to be anyway? --Ford, there isn't one. -IO */
 				dotungoto(ipc, argbuf);
 				break;
 			case 10:
