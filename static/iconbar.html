@@ -1,29 +1,46 @@
 <HTML>
 <BODY BGCOLOR=AAAAAA>
-<CENTER>
-<IMG BORDER=0 WIDTH=64 HEIGHT=64 SRC="/image&name=hello"><BR><BR>
 
-<A HREF="/knrooms" TARGET="workspace">
+<TABLE BORDER=0 CELLSPACING=3 CELLPADDING=3>
+
+<TR><TD>
+<IMG BORDER=0 WIDTH=64 HEIGHT=64 SRC="/image&name=hello"></TD></TR>
+
+<TR><TD ALIGN=CENTER
+ onClick="parent.workspace.location.href='/knrooms'"
+ onMouseOver="this.style.background='#FFFFFF'"
+ onMouseOut="this.style.background='#AAAAAA'">
 <IMG BORDER=0 WIDTH=32 HEIGHT=32 SRC="/static/rooms-icon.gif"><BR>
-<FONT SIZE=-2>Rooms</FONT></A><BR><BR>
+<FONT SIZE=-2>Rooms</FONT></A></TD></TR>
 
-<A HREF="/whobbs" TARGET="workspace">
+<TR><TD ALIGN=CENTER
+ onClick="parent.workspace.location.href='/whobbs'"
+ onMouseOver="this.style.background='#FFFFFF'"
+ onMouseOut="this.style.background='#AAAAAA'">
 <IMG BORDER=0 WIDTH=32 HEIGHT=32 SRC="/static/users-icon.gif"><BR>
-<FONT SIZE=-2>Users</FONT></A><BR><BR>
+<FONT SIZE=-2>Users</FONT></A></TD></TR>
 
-<A HREF="/display_main_menu" TARGET="workspace">
+<TR><TD ALIGN=CENTER
+ onClick="parent.workspace.location.href='/display_main_menu'"
+ onMouseOver="this.style.background='#FFFFFF'"
+ onMouseOut="this.style.background='#AAAAAA'">
 <IMG BORDER=0 WIDTH=32 HEIGHT=32 SRC="/static/advanced-icon.gif"><BR>
-<FONT SIZE=-2>Advanced options</FONT></A><BR><BR>
+<FONT SIZE=-2>Advanced options</FONT></A></TD></TR>
 
-<A HREF="/termquit" TARGET="_top" onClick="return confirm('Do you really want to log off?');">
+<TR><TD ALIGN=CENTER
+ onClick="if (confirm('Do you really want to log off?') > 0) { parent.location.href='/termquit'; }"
+ onMouseOver="this.style.background='#FFFFFF'"
+ onMouseOut="this.style.background='#AAAAAA'">
 <IMG BORDER=0 WIDTH=32 HEIGHT=32 SRC="/static/exit-icon.gif"><BR>
-<FONT SIZE=-2>Log off</FONT></A><BR><BR>
+<FONT SIZE=-2>Log off</FONT></A></TD></TR>
 
+<TR><TD ALIGN=CENTER>
 <A HREF="http://uncensored.citadel.org/citadel" TARGET="aboutcit"
 	onMouseOver="window.status='Find out more about Citadel'; return true;">
 <FONT SIZE=-2>powered by</FONT><BR>
-<IMG BORDER=0 WIDTH=64 HEIGHT=64 SRC="/static/citadel-logo.jpg" ALT="CITADEL/UX"></A>
+<IMG BORDER=0 WIDTH=64 HEIGHT=64 SRC="/static/citadel-logo.jpg" ALT="CITADEL/UX"></A></TD></TR>
 
-</CENTER>
+</TABLE>
+
 </BODY>
 </HTML>
