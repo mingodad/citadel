@@ -492,7 +492,7 @@ void check_xinetd_entry(void) {
 	snprintf(buf, sizeof buf,
 		"Setup can configure the 'xinetd' service to automatically\n"
 		"connect incoming telnet sessions to Citadel, bypassing the\n"
-		"host system's login prompt.  Would you like to do this?"
+		"host system's login prompt.  Would you like to do this?\n"
 	);
 	if (yesno(buf) == 0)
 		return;
@@ -520,6 +520,41 @@ void check_xinetd_entry(void) {
 }
 
 
+
+/*
+ * Offer to disable other MTA's
+ */
+void disable_other_mta(char *mta) {
+	char buf[SIZ];
+	FILE *fp;
+	int lines = 0;
+
+	sprintf(buf, "/bin/ls -l /etc/rc*.d/S*%s 2>/dev/null", mta);
+	fp = popen(buf, "r");
+	if (fp == NULL) return;
+
+	while (fgets(buf, sizeof buf, fp) != NULL) {
+		++lines;
+	}
+	fclose(fp);
+	if (lines == 0) return;		/* Nothing to do. */
+
+	/* Offer to replace other MTA with the vastly superior Citadel :)  */
+	snprintf(buf, sizeof buf,
+		"You appear to have the '%s' mail transport agent\n"
+		"running on your system.  Would you like to disable it,\n"
+		"allowing Citadel to handle your system's Internet mail\n"
+		"instead?\n",
+		mta
+	);
+	if (yesno(buf) == 0)
+		return;
+
+	sprintf(buf, "for x in /etc/rc*.d/S*%s; do mv $x `echo $x |sed s/S/K/g`; done >/dev/null 2>&1", mta);
+	system(buf);
+	sprintf(buf, "/etc/init.d/%s stop >/dev/null 2>&1", mta);
+	system(buf);
+}
 
 
 
@@ -936,6 +971,11 @@ NEW_INST:
 #ifndef __CYGWIN__
 	check_inittab_entry();	/* Check /etc/inittab */
 	check_xinetd_entry();	/* Check /etc/xinetd.d/telnet */
+
+	/* Offer to disable other MTA's on the system. */
+	disable_other_mta("sendmail");
+	disable_other_mta("postfix");
+	disable_other_mta("qmail");
 #endif
 
 	if ((pw = getpwuid(config.c_bbsuid)) == NULL)
