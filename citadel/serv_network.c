@@ -64,6 +64,83 @@ struct RoomProcList {
 struct RoomProcList *rplist = NULL;
 
 
+/*
+ * We build a map of the Citadel network during network runs.
+ */
+struct NetMap {
+	struct NetMap *next;
+	char nodename[SIZ];
+	time_t lastcontact;
+	char nexthop[SIZ];
+};
+
+struct NetMap *the_netmap = NULL;
+
+
+
+/* 
+ * Read the network map from its configuration file into memory.
+ */
+void read_network_map(void) {
+	char *serialized_map = NULL;
+	int i;
+	char buf[SIZ];
+	struct NetMap *nmptr;
+
+	serialized_map = CtdlGetSysConfig(IGNETMAP);
+	if (serialized_map == NULL) return;	/* if null, no entries */
+
+	/* Use the string tokenizer to grab one line at a time */
+	for (i=0; i<num_tokens(serialized_map, '\n'); ++i) {
+		extract_token(buf, serialized_map, i, '\n');
+		nmptr = (struct NetMap *) mallok(sizeof(struct NetMap));
+		extract(nmptr->nodename, buf, 0);
+		nmptr->lastcontact = extract_long(buf, 1);
+		extract(nmptr->nexthop, buf, 2);
+		nmptr->next = the_netmap;
+		the_netmap = nmptr;
+	}
+
+	phree(serialized_map);
+}
+
+
+/*
+ * Write the network map from memory back to the configuration file.
+ */
+void write_network_map(void) {
+	char *serialized_map = NULL;
+	struct NetMap *nmptr;
+
+	serialized_map = strdoop("");
+
+	if (the_netmap != NULL) {
+		for (nmptr = the_netmap; nmptr != NULL; nmptr = nmptr->next) {
+			serialized_map = reallok(serialized_map,
+						(strlen(serialized_map)+SIZ) );
+			if (strlen(nmptr->nodename) > 0) {
+				sprintf(&serialized_map[strlen(serialized_map)],
+					"%s|%ld|%s\n",
+					nmptr->nodename,
+					nmptr->lastcontact,
+					nmptr->nexthop);
+			}
+		}
+	}
+
+	CtdlPutSysConfig(IGNETMAP, serialized_map);
+	phree(serialized_map);
+
+	/* Now free the list */
+	while (the_netmap != NULL) {
+		nmptr = the_netmap->next;
+		phree(the_netmap);
+		the_netmap = nmptr;
+	}
+}
+
+
+
 
 
 void cmd_gnet(char *argbuf) {
@@ -407,6 +484,34 @@ void network_queue_room(struct quickroom *qrbuf, void *data) {
 }
 
 
+/*
+ * Learn topology from path fields
+ */
+void network_learn_topology(char *node, char *path) {
+	char nexthop[SIZ];
+	struct NetMap *nmptr;
+
+	strcpy(nexthop, "");
+
+	if (num_tokens(path, '!') < 3) return;
+	for (nmptr = the_netmap; nmptr != NULL; nmptr = nmptr->next) {
+		if (!strcasecmp(nmptr->nodename, node)) {
+			extract_token(nmptr->nexthop, path, 0, '!');
+			nmptr->lastcontact = time(NULL);
+			return;
+		}
+	}
+
+	/* If we got here then it's not in the map, so add it. */
+	nmptr = (struct NetMap *) mallok(sizeof (struct NetMap));
+	strcpy(nmptr->nodename, node);
+	nmptr->lastcontact = time(NULL);
+	extract_token(nmptr->nexthop, path, 0, '!');
+	nmptr->next = the_netmap;
+	the_netmap = nmptr;
+}
+
+
 
 /*
  * Process a buffer containing a single message from a single file
@@ -439,6 +544,12 @@ void network_process_buffer(char *buffer, long size) {
 			/* FIXME route the message, stupid */
 
 		}
+	}
+
+	/* Learn network topology from the path */
+	if ((msg->cm_fields['N'] != NULL) && (msg->cm_fields['P'] != NULL)) {
+		network_learn_topology(msg->cm_fields['N'], 
+					msg->cm_fields['P']);
 	}
 
 	/* Does it have a recipient?  If so, validate it... */
@@ -580,6 +691,8 @@ void network_do_queue(void) {
 	doing_queue = 1;
 	last_run = time(NULL);
 
+	read_network_map();
+
 	/* 
 	 * Go ahead and run the queue
 	 */
@@ -596,6 +709,8 @@ void network_do_queue(void) {
 
 	lprintf(7, "network: processing inbound queue\n");
 	network_do_spoolin();
+
+	write_network_map();
 
 	lprintf(7, "network: queue run completed\n");
 	doing_queue = 0;

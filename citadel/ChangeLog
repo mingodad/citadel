@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.35  2001/09/06 04:02:34  ajc
+ * A few more updates to the networker
+
  Revision 580.34  2001/09/06 03:32:41  nbryant
  build fix for sparc-sun-solaris2.8; i think the dependencies should be
  set up properly for all platforms now.
@@ -2719,4 +2722,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
