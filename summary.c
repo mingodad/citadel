@@ -252,13 +252,13 @@ void summary(void) {
 	/*
 	 * Column One
 	 */
-	wprintf("<TD>");
+	wprintf("<TD WIDTH=33%%>");
 	wholist_section();
 
 	/*
 	 * Column Two
 	 */
-	wprintf("</TD><TD>");
+	wprintf("</TD><TD WIDTH=33%%>");
 	server_info_section();
 	wprintf("<BR><BR>");
 	tasks_section();
@@ -266,7 +266,7 @@ void summary(void) {
 	/*
 	 * Column Three
 	 */
-	wprintf("</TD><TD>");
+	wprintf("</TD><TD WIDTH=33%%>");
 	new_messages_section();
 	wprintf("<BR><BR>");
 	calendar_section();
