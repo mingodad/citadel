@@ -1696,7 +1696,10 @@ RMSGREAD:	scr_flush();
 						extract_unsigned_long(cmd, 0),
 						save_to);
 			}
-			if (attachment) free(attachment);
+			if (attachment) {
+				free(attachment);
+				attachment = NULL;
+			}
 			goto RMSGREAD;
 		case 'd':
 			scr_printf("*** Delete this message? ");

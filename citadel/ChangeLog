@@ -1,4 +1,7 @@
  $Log$
+ Revision 613.3  2003/12/21 00:37:54  error
+ * Fix for crash when downloading multiple attachments
+
  Revision 613.2  2003/12/21 00:19:41  error
  * Image viewer code for the text client.  Hit 'I' to view an image
    attached to a file.  Hey aahz, this code actually works!
@@ -5169,5 +5172,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
 
