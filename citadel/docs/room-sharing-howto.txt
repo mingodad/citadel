@@ -134,3 +134,14 @@ the quotes), save the file... and you're done!
 will begin polling each other at regular intervals (once per hour by default)
 and sharing messages.
 
+If once/hour is not acceptable you can change the default of one hour
+polling.
+
+Type .asg (.Aide System-configuration General) and find the line:
+
+  How often to run network jobs (in seconds) [3600]:
+
+And change it to whatever you like.  For example, 15 minutes is 900
+seconds.  So if you changed the default value to 900, you'd poll out every
+15 minutes.
+
