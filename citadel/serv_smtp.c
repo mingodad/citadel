@@ -478,8 +478,7 @@ void smtp_data(void) {
 	 */
 	if (body != NULL) snprintf(body, 4096,
 		"Received: from %s (%s)\n"
-		"	by %s;\n"
-		"	%s\n",
+		"	by %s; %s\n",
 			SMTP->helo_node,
 			CC->cs_host,
 			config.c_fqdn,

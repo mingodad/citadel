@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.119  2002/03/01 04:24:20  ajc
+ * Cosmetic change to Received: line
+
  Revision 590.118  2002/03/01 04:16:22  ajc
  * CtdlReadMessageBody() -- fixed bug that caused the prepend buffer to be
    discarded instead of prepended.  "Received:" lines now work.
@@ -3361,4 +3364,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
