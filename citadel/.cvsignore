@@ -8,6 +8,7 @@
 Makefile
 aclocal.m4
 aidepost
+autom4te.cache
 base64
 chkpwd
 citadel
