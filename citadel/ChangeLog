@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.91  2001/02/14 08:11:27  error
+ * citadel.rc: added $Id$ (it's about time!)
+
  Revision 573.90  2001/02/14 04:23:54  ajc
  * Fixed POP3 server responses ending in \n instead of \r\n as they should be.
    This was causing some clients (such as Pine) to lock up.
@@ -2408,4 +2411,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
