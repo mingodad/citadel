@@ -1,4 +1,9 @@
 $Log$
+Revision 510.6  2004/05/31 21:43:27  ajc
+* Added "|END" to the session cookie before base64-ing it.  This fixes a
+  problem with certain room names causing the webserver to freak out and
+  break embedded images and stuff.  I don't know why.
+
 Revision 510.5  2004/05/31 20:34:11  ajc
 * Message entry using Kevin Roth's excellent cross-platform richtext
   editing script.
@@ -1825,4 +1830,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
