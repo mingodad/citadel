@@ -226,8 +226,8 @@ void validate(void)
 
 	strcpy(buf, bstr("user"));
 	if (strlen(buf) > 0)
-		if (strlen(bstr("WC->axlevel")) > 0) {
-			serv_printf("VALI %s|%s", buf, bstr("WC->axlevel"));
+		if (strlen(bstr("axlevel")) > 0) {
+			serv_printf("VALI %s|%s", buf, bstr("axlevel"));
 			serv_gets(buf);
 			if (buf[0] != '2') {
 				wprintf("<EM>%s</EM><BR>\n", &buf[4]);
@@ -241,6 +241,11 @@ void validate(void)
 		wDumpContent(1);
 		return;
 	}
+
+	wprintf("<CENTER>");
+	do_template("beginbox_nt");
+	wprintf("<CENTER>");
+
 	strcpy(user, &buf[4]);
 	serv_printf("GREG %s", user);
 	serv_gets(cmd);
@@ -274,15 +279,18 @@ void validate(void)
 		wprintf("<H1>%s</H1>%s<BR>\n", user, &cmd[4]);
 	}
 
-	wprintf("<CENTER><TABLE border><CAPTION>Select access level:");
-	wprintf("</CAPTION><TR>");
+	wprintf("<HR>Select access level for this user:<BR>\n");
 	for (a = 0; a <= 6; ++a) {
-		wprintf("<TD><A HREF=\"/validate&user=");
+		wprintf("<A HREF=\"/validate&user=");
 		urlescputs(user);
-		wprintf("&WC->axlevel=%d\">%s</A></TD>\n",
+		wprintf("&axlevel=%d\">%s</A>&nbsp;&nbsp;&nbsp;\n",
 			a, axdefs[a]);
 	}
-	wprintf("</TR></TABLE><CENTER><BR>\n");
+	wprintf("<BR>\n");
+
+	wprintf("</CENTER>\n");
+	do_template("endbox");
+	wprintf("</CENTER>\n");
 	wDumpContent(1);
 }
 
