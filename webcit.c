@@ -426,20 +426,27 @@ void output_image() {
 
 
 /*
- * Convenience function to display a page containing only an error string
+ * Convenience functions to display a page containing only a string
  */
-void display_error(char *errormessage) {
+void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext) {
         printf("HTTP/1.0 200 OK\n");
         output_headers(1);
-        wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+        wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=%s><TR><TD>", titlebarcolor);
         wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-        wprintf("<B>Error</B>\n");
+        wprintf("<B>%s</B>\n", titlebarmsg);
         wprintf("</FONT></TD></TR></TABLE><BR>\n");
-	escputs(errormessage);
+	escputs(messagetext);
         wprintf("</BODY></HTML>\n");
         wDumpContent();
 	}
 
+void display_error(char *errormessage) {
+	convenience_page("770000", "Error", errormessage);
+	}
+
+void display_success(char *successmessage) {
+	convenience_page("007700", "OK", successmessage);
+	}
 
 
 
@@ -584,7 +591,6 @@ void session_loop(void) {
 			}
 		}
 
-	/* FIX unfix etc. here's where the addurls() WAS... */
 	if (!strcasecmp(action, "static")) {
 		strcpy(buf, &cmd[12]);
 		for (a=0; a<strlen(buf); ++a) if (isspace(buf[a])) buf[a]=0;
@@ -812,6 +818,14 @@ void session_loop(void) {
 
 	else if (!strcasecmp(action, "register")) {
 		register_user();
+		}
+
+	else if (!strcasecmp(action, "display_changepw")) {
+		display_changepw();
+		}
+
+	else if (!strcasecmp(action, "changepw")) {
+		changepw();
 		}
 
 	/* When all else fails... */

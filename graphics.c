@@ -77,9 +77,8 @@ void do_graphics_upload(char *upl_cmd) {
 
 	serv_puts("UCLS 1");
 	serv_gets(buf);
-	/* FIX display something other than an error if it's ok */
 	if (buf[0] != 'x') {
-		display_error(&buf[4]);
+		display_success(&buf[4]);
 		return;
 		}
 	}
