@@ -1,3 +1,7 @@
+Sun Aug  2 21:09:09 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* config_defs.h: renamed to config_decls.h
+	* config.c, sysoputil.c: updated to reflect the above
+
 Sun Aug  2 18:52:05 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* config_defs.h: new file, contains external declarations from config.c
 	* config.c: moved defs to config_defs.h, use PATH_MAX from <limits.h>
