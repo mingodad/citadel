@@ -312,8 +312,8 @@ FMTEND:	cprintf("\n");
  * get a message off disk.
  * 
  */
-void output_message(char *msgid, int mode, int headers_only)
-{
+void output_message(char *msgid, int mode,
+			int headers_only, int desired_section) {
 	long msg_num;
 	int a;
 	CIT_UBYTE ch, rch;
@@ -323,7 +323,6 @@ void output_message(char *msgid, int mode, int headers_only)
 	int msg_ok = 0;
 	char boundary[256];		/* attachment boundary */
 	char current_section = 0;	/* section currently being parsed */
-	char desired_section = 0;	/* section desired for printing */
 	int has_attachments = 0;
 
 	struct cdbdata *dmsgtext;
@@ -571,11 +570,13 @@ void cmd_msg0(char *cmdbuf)
 {
 	char msgid[256];
 	int headers_only = 0;
+	int desired_section = 0;
 
 	extract(msgid,cmdbuf,0);
-	headers_only = extract_int(cmdbuf,1);
+	headers_only = extract_int(cmdbuf, 1);
+	desired_section = extract_int(cmdbuf, 2);
 
-	output_message(msgid,MT_CITADEL,headers_only);
+	output_message(msgid,MT_CITADEL, headers_only, desired_section);
 	}
 
 
@@ -590,7 +591,7 @@ void cmd_msg2(char *cmdbuf)
 	extract(msgid,cmdbuf,0);
 	headers_only = extract_int(cmdbuf,1);
 
-	output_message(msgid,MT_RFC822,headers_only);
+	output_message(msgid,MT_RFC822,headers_only,0);
 	}
 
 /* 
@@ -610,7 +611,7 @@ void cmd_msg3(char *cmdbuf)
 	extract(msgid,cmdbuf,0);
 	headers_only = extract_int(cmdbuf,1);
 
-	output_message(msgid,MT_RAW,headers_only);
+	output_message(msgid,MT_RAW,headers_only,0);
 	}
 
 

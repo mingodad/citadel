@@ -424,7 +424,9 @@ other MSG commands (MSG1, MSG2, etc.) will probably be added later on to read
 messages in more robust formats.  This command should be passed two arguments.
 The first is the message number of the message being requested.  In server 
 version 4.04 and above, the second argument may be set to either 0 to read the
-entire message, or 1 to read the headers only.
+entire message, or 1 to read the headers only.  In server version 6.00 and
+above, the third argument may be set to the desired section of the message (if
+there are attachments).
  
  The server should, of course, make sure that the client actually has access
 to the message being requested before honoring this request.  Citadel/UX does
