@@ -7,9 +7,7 @@
    The following utilities will be discussed in this document:
  aidepost   Post standard input to the Aide> room. NOTE: called by chat.c
  whobbs     Who is on the system (connected to the server, actually.)
- msgstats   Print lowest & highest message numbers, and current file position
  stats      Print the calling statistics & graph.
- mailutil   Mailbox utilities
  msgform    Format a binary message to the screen (stdin or in a file)
  userlist   Print the userlist.
  readlog    Read the caller log
@@ -50,25 +48,6 @@ RWHO command.  Note that whobbs does not list its own session.
 utility.  It has this functionality built in.
    
    
-  MSGSTATS
-   
-   This program displays the lowest and highest message numbers which currently
-exist in the master file, the current file pointer (what byte in msgmain the
-next message entered will start at), and whether the file is locked or
-unlocked. Normally the file will only be locked for a second or two during a
-message <S>ave, or network processing, but if there is a glitch somewhere and
-the file remains locked, this program will tell you so and you can use the
-unlock option in sysoputil.
- 
-   As of release 3.23, message base locking is a lot more reliable, because
-it uses file-locking system calls if they are available.  But, if you're
-running on a brain-damaged kernel that doesn't have file locking, and your
-message base appears to be locked up, this will tell you.
- 
-   This utility now also provides information on the total number of
-messages currently on the system, and the average message length.
-   
-   
   STATS
   
    (NOTE: this program no longer uses the "curses" library.)   It prints
@@ -91,12 +70,6 @@ Or it may be called with the "-p" option to only print the Post-to-Call
 ratios and nothing else.
   
   
-  MAILUTIL
-   
-    This utility allows you to perform various operations on a user's
-mailbox.  Note that reading people's mail is, of course, unethical, and
-possibly illegal.
-   
   MSGFORM
   
    On occasion, I have had messages in Citadel/UX binary format that I have
@@ -127,8 +100,6 @@ into a standalone utility for convenience.
 file. This file records all times the Citadel/UX program has been started, and
 at what baud rate, as well as logins, proper logouts, loss of carrier (SIGHUP),
 bad password attempts, and new user logins.
-   Readlog called with the -t argument displays a list of the names of the
-last twenty users who have logged in.
    
     
   USERADMIN
@@ -185,29 +156,12 @@ will ask you if you wish to save the changes.
 be called three ways: sysoputil by itself brings up the menu. Also:
  sysoputil -u      Execute option 7 (user purge) and exit
  sysoputil -r      Execute option 1 (room purge) and exit
- sysoputil -g      Execute option 2 (registration list) and exit
- sysoputil -h	   Execute option 3 (rewrite hash table) and exit
   
   The menu choices are as follows:
  
   1. Purge old rooms. This will delete any rooms which have not been written
 to (posted in) in two weeks. Notification of purged rooms is posted in the
 Aide> room (using the aidepost utility).
- 2. Read registration file. This will partially list the registration file
-to the screen (partially: street address is omitted).
- 3. Rewrite hash table.  Under normal conditions, the hash table of user
-names is updated whenever usersupp is updated.  If the system for some
-reason doesn't know about any users, but they're right there for you to see
-when you run userlist, chances are the hash table is out of sync.  This will
-hardly ever happen unless the disk was full, or you've been tinkering with
-usersupp, or if you're upgrading from a non-hashing version of Citadel.  This
-option will rewrite the hash table from scratch.
- 4. Unlock message file. The msgmain file is locked during message saves to
-prevent two users from writing to the file at once. If there is some sort of
-crash or bug and it remains locked, this will unlock it.
- 5. Sort the userlog by user ID.
- 6. Sort the userlog by user name.  (Sorting the userlog is a purely cosmetic
-option, and will not at all affect the performance of the system.)
  7. Purge old users. This will delete any users which have not called in
 two months. Notification of purged users is posted in the Aide> room (using
 the aidepost utility).
