@@ -84,7 +84,7 @@ chmod($sockname, 0600);
 // We need to get a connection to the Citadel server going now.
 
 $ctdlsock = fsockopen("uncensored.citadel.org", 504, $errno, $errstr, 30);
-// $ctdlsock = fsockopen("/appl/citadel/citadel.socket", 0, $errno, $errstr, 30);
+//$ctdlsock = fsockopen("/appl/citadel/citadel.socket", 0, $errno, $errstr, 30);
 if (!$ctdlsock) {
 	socket_close ($sock);
 	system("/bin/rm -f " . $sockname);

@@ -30,6 +30,20 @@ function serv_puts($buf) {
 	fwrite($clientsocket, $buf . "\n", (strlen($buf)+1) );
 }
 
+
+
+//
+// Identify this client, and the hostname where the user is, to Citadel.
+//
+function ctdl_iden() {
+	global $clientsocket;
+
+	serv_puts("IDEN 0|8|001|PHP web client|" . $_SERVER['REMOTE_ADDR'] );
+	$buf = serv_gets();
+}
+
+
+
 //
 // login_existing_user() -- attempt to login using a supplied username/password
 // Returns an array with two variables:

@@ -2,7 +2,6 @@
 	include "ctdlheader.php";
 	bbs_page_header();
 
-
 	echo "<TABLE border=1>";
 	echo "<TR>";
 	echo "<TD><B>User</B></TD>";

@@ -45,6 +45,7 @@ function establish_citadel_session() {
 		// Try to log the user back in.
 		if ($clientsocket) {
 
+			ctdl_iden();	// Identify client
 
 			if ($_SESSION["username"]) {
 				login_existing_user(
