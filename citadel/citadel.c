@@ -1253,6 +1253,10 @@ GSTA:	termn8 = 0;
 				do_internet_configuration();
 				break;
 
+			case 83:
+				check_message_base();
+				break;
+
 			case 50:
 				enter_config(2);
 				break;

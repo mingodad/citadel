@@ -1,4 +1,7 @@
 $Log$
+Revision 1.472  2000/02/27 03:57:35  ajc
+* Completed 'fsck'-like reference count verifier (server and client)
+
 Revision 1.471  2000/02/26 18:30:40  ajc
 * Properly handle all aliases specified in network/mail.aliases for incoming
   SMTP mail (uses the alias() function, so if we replace that function with
@@ -1672,4 +1675,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

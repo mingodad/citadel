@@ -6,3 +6,4 @@ void edit_system_message(char *which_message);
 extern int lines_printed;
 pid_t ka_wait(int *kstatus);
 void list_urls(void);
+void check_message_base(void);

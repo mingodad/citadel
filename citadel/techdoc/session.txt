@@ -1538,11 +1538,8 @@ UCLS command.
  ->  _userpic_   (Server will attempt to write to the user's online photo)
  ->  Any of the "well known" filenames described in the writeup for the 
      OIMG command.
-
-----------------------------------------------
-The following are for citserver 5.02 and above
-----------------------------------------------
-
+   
+  
  HCHG	(Hostname CHanGe)
 
  HCHG is a command, usable by any user, that allows a user to change their RWHO
@@ -1781,3 +1778,13 @@ and statuses.
  CICQ status
  
  Always returns OK followed by a 1 (connected to ICQ) or 0 (not connected).
+ 
+ 
+   
+  
+ FSCK   (check message base reference counts)
+ 
+ Verify, via the long way, that all message referenmce counts are correct.  If
+the user has permission to do this then LISTING_FOLLOWS is returned, followed
+by a transcript of the run.  Otherwise ERROR is returned.
+  

@@ -813,61 +813,51 @@ void do_internet_configuration(void) {
 		color(DIM_WHITE);
 		}
 
-		keyopt("\n<A>dd <D>elete <S>ave <Q>uit -> ");
-		do {
-			badkey = 0;
-			ch = inkey();
-			ch = tolower(ch);
-			if ( (ch=='d') && (num_recs == 0) ) ch = 0;
-			switch(ch) {
-				case 'a':
-					printf("Add\n");
-					++num_recs;
-					if (num_recs == 1)
-						recs = malloc(sizeof(char *));
-					else recs = realloc(recs,
-						(sizeof(char *)) * num_recs);
-					newprompt("Enter host name: ",
-						buf, 50);
-					strcat(buf, "|");
-					get_inet_rec_type(&buf[strlen(buf)]);
-					recs[num_recs-1] = strdup(buf);
-					break;
-				case 'd':
-					printf("Delete\n");
-					i = intprompt("Delete which one",
-						1, 1, num_recs) - 1;
-					free(recs[i]);
-					--num_recs;
-					for (j=i; j<num_recs; ++j)
-						recs[j] = recs[j+1];
-					break;
-				case 's':
-					printf("Save\n");
-					sprintf(buf, "CONF putsys|%s",
-						INTERNETCFG);
-					serv_puts(buf);
-					serv_gets(buf);
-					if (buf[0] == '4') {
-						for (i=0; i<num_recs; ++i) {
-							serv_puts(recs[i]);
-						}
-						serv_puts("000");
+		ch = keymenu("", "<A>dd|<D>elete|<S>ave|<Q>uit");
+		switch(ch) {
+			case 'a':
+				++num_recs;
+				if (num_recs == 1)
+					recs = malloc(sizeof(char *));
+				else recs = realloc(recs,
+					(sizeof(char *)) * num_recs);
+				newprompt("Enter host name: ",
+					buf, 50);
+				strcat(buf, "|");
+				get_inet_rec_type(&buf[strlen(buf)]);
+				recs[num_recs-1] = strdup(buf);
+				break;
+			case 'd':
+				i = intprompt("Delete which one",
+					1, 1, num_recs) - 1;
+				free(recs[i]);
+				--num_recs;
+				for (j=i; j<num_recs; ++j)
+					recs[j] = recs[j+1];
+				break;
+			case 's':
+				sprintf(buf, "CONF putsys|%s",
+					INTERNETCFG);
+				serv_puts(buf);
+				serv_gets(buf);
+				if (buf[0] == '4') {
+					for (i=0; i<num_recs; ++i) {
+						serv_puts(recs[i]);
 					}
-					else {
-						printf("%s\n", &buf[4]);
-					}
-					quitting = 1;
-					break;
-				case 'q':
-					printf("Quit\n");
-					quitting = boolprompt(
-						"Quit without saving", 0);
-					break;
-				default:
-					badkey = 1;
-			}
-		} while (badkey == 1);
+					serv_puts("000");
+				}
+				else {
+					printf("%s\n", &buf[4]);
+				}
+				quitting = 1;
+				break;
+			case 'q':
+				quitting = boolprompt(
+					"Quit without saving", 0);
+				break;
+			default:
+				badkey = 1;
+		}
 	} while (quitting == 0);
 
 	if (recs != NULL) {

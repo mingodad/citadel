@@ -671,21 +671,15 @@ MECR:	if (mode==2) {
 		if (e_ex_code==0) goto MEFIN;
 		goto MEABT2;
 		}
-MECR1:	printf("Entry cmd (? for options) -> ");
-MECR2:	b=inkey();
-	if (b==NEXT_KEY) b='n';
-	if (b==STOP_KEY) b='s';
-	b=(b&127); b=tolower(b);
-	if (b=='?') {
-		printf("Help\n");
-		formout("saveopt");
-		goto MECR1;
-		}
-	if (b=='a') { printf("Abort\n");	goto MEABT;	}
-	if (b=='c') { printf("Continue\n");	goto ME1;	}
-	if (b=='s') { printf("Save message\n");	goto MEFIN;	} 
+
+	b = keymenu("Entry command (? for options)",
+		"<A>bort|<C>ontinue|<S>ave message|<P>rint formatted|"
+		"<R>eplace string|<H>old message");
+
+	if (b=='a') goto MEABT;
+	if (b=='c') goto ME1;
+	if (b=='s') goto MEFIN;
 	if (b=='p') {
-		printf("Print formatted\n");
 		printf(" %s from %s",datestr,fullname);
 		if (strlen(recipient)>0) printf(" to %s",recipient);
 		printf("\n");
@@ -700,15 +694,12 @@ MECR2:	b=inkey();
 		goto MECR;
 		}
 	if (b=='r') {
-		printf("Replace string\n");
 		replace_string(filename,0L);
 		goto MECR;
 		}
 	if (b=='h') {
-		printf("Hold message\n");
 		return(2);
 		}
-	goto MECR2;
 
 MEFIN:	return(0);
 
@@ -1244,3 +1235,28 @@ void edit_system_message(char *which_message)
 	sprintf(write_cmd, "EMSG %s", which_message);
 	do_edit(desc, read_cmd, "NOOP", write_cmd);
 	}
+
+
+
+
+/*
+ * Verify the message base
+ */
+void check_message_base(void) {
+	char buf[256];
+
+	printf("Please read the documentation before running this command.\n");
+	printf("Having done so, do you still want to check the message base? ");
+	if (yesno()==0) return;
+
+	serv_puts("FSCK");
+	serv_gets(buf);
+	if (buf[0] != '1') {
+		printf("%s\n", &buf[4]);
+		return;
+	}
+
+	while (serv_gets(buf), strcmp(buf, "000")) {
+		printf("%s\n", buf);
+	}
+}

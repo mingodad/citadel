@@ -84,11 +84,20 @@ struct ValidUser {
 	long vu_usernum;
 };
 
+
+struct roomref {
+	struct roomref *next;
+	long msgnum;
+};
+
+
 struct PurgeList *UserPurgeList = NULL;
 struct PurgeList *RoomPurgeList = NULL;
 struct ValidRoom *ValidRoomList = NULL;
 struct ValidUser *ValidUserList = NULL;
 int messages_purged;
+
+struct roomref *rr = NULL;
 
 extern struct CitContext *ContextList;
 
@@ -534,16 +543,51 @@ void cmd_expi(char *argbuf) {
 /*****************************************************************************/
 
 
+void do_fsck_msg(long msgnum) {
+	struct roomref *ptr;
+
+	ptr = (struct roomref *)mallok(sizeof(struct roomref));
+	ptr->next = rr;
+	ptr->msgnum = msgnum;
+	rr = ptr;
+}
+
+void do_fsck_room(struct quickroom *qrbuf, void *data)
+{
+	getroom(&CC->quickroom, qrbuf->QRname);
+	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, do_fsck_msg);
+}
+
 /*
- * Check message reference counts (FIXME ... not yet finished)
+ * Check message reference counts
+ */
 void cmd_fsck(char *argbuf) {
 	long msgnum;
 	struct cdbdata *cdbmsg;
 	struct SuppMsgInfo smi;
+	struct roomref *ptr;
+	int realcount;
 
-	cprintf("%d This is not done yet.\n", LISTING_FOLLOWS);
+	if ( (!CC->logged_in) || (CC->usersupp.axlevel < 6) ) {
+		cprintf("%d Higher access required\n",
+			ERROR+HIGHER_ACCESS_REQUIRED);
+		return;
+	}
+
+	/* Lame way of checking whether anyone else is doing this now */
+	if (rr != NULL) {
+		cprintf("%d Another FSCK is already running.\n", ERROR);
+		return;
+	}
+
+	cprintf("%d Checking message reference counts\n", LISTING_FOLLOWS);
+
+	cprintf("\nThis could take a while.  Please be patient!\n\n");
+	cprintf("Gathering pointers...\n");
+	ForEachRoom(do_fsck_room, NULL);
 
 	get_control();
+	cprintf("Checking message base...\n");
 	for (msgnum = 0L; msgnum <= CitControl.MMhighest; ++msgnum) {
 
 		cdbmsg = cdb_fetch(CDB_MSGMAIN, &msgnum, sizeof(long));
@@ -552,15 +596,36 @@ void cmd_fsck(char *argbuf) {
 			cprintf("Message %7ld    ", msgnum);
 
 			GetSuppMsgInfo(&smi, msgnum);
-			cprintf("refcount=%-2d   \n", smi.smi_refcount);
+			cprintf("refcount=%-2d   ", smi.smi_refcount);
+
+			realcount = 0;
+			for (ptr = rr; ptr != NULL; ptr = ptr->next) {
+				if (ptr->msgnum == msgnum) ++realcount;
+			}
+			cprintf("realcount=%-2d\n", realcount);
+
+			if ( (smi.smi_refcount != realcount)
+			   || (realcount == 0) ) {
+				smi.smi_refcount = realcount;
+				PutSuppMsgInfo(&smi);
+				AdjRefCount(msgnum, 0); /* deletes if needed */
+			}
+
 		}
 
 	}
 
+	cprintf("Freeing memory...\n");
+	while (rr != NULL) {
+		ptr = rr->next;
+		phree(rr);
+		rr = ptr;
+	}
+
+	cprintf("Done!\n");
 	cprintf("000\n");
 
 }
- */
 
 
 
@@ -570,6 +635,6 @@ void cmd_fsck(char *argbuf) {
 char *Dynamic_Module_Init(void)
 {
 	CtdlRegisterProtoHook(cmd_expi, "EXPI", "Expire old system objects");
-/* CtdlRegisterProtoHook(cmd_fsck, "FSCK", "Check message ref counts"); */
+	CtdlRegisterProtoHook(cmd_fsck, "FSCK", "Check message ref counts");
 	return "$Id$";
 }

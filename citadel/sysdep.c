@@ -501,7 +501,17 @@ int client_gets(char *buf)
  * The system-dependent part of master_cleanup() - close the master socket.
  */
 void sysdep_master_cleanup(void) {
-	/* FIXME close all protocol master sockets here */
+	struct ServiceFunctionHook *serviceptr;
+
+	/*
+	 * close all protocol master sockets
+	 */
+	for (serviceptr = ServiceHookTable; serviceptr != NULL;
+	    serviceptr = serviceptr->next ) {
+		lprintf(3, "Closing listener on port %d\n",
+			serviceptr->tcp_port);
+		close(serviceptr->msock);
+	}
 }
 
 

@@ -1,11 +1,8 @@
 /*
- * Citadel/UX
- *
- * commands.c - front end for Citadel
- *
- * This version is the traditional command parser for room prompts.
- *
  * $Id$
+ *
+ * This file contains functions which implement parts of the
+ * text-mode user interface.
  *
  */
 
@@ -108,7 +105,7 @@ void print_express(void)
 		putc(7, stdout);
 	}
 	color(BRIGHT_RED);
-	printf("---\n");
+	printf("\r---\n");
 	while (serv_gets(buf), strcmp(buf, "000")) {
 		printf("%s\n", buf);
 	}
@@ -136,7 +133,7 @@ void do_keepalive(void)
 		return;
 	time(&idlet);
 
-	/* Do a space-backspace to keep socksified telnet sessions open */
+	/* Do a space-backspace to keep telnet sessions from idling out */
 	printf(" %c", 8);
 	fflush(stdout);
 
@@ -1128,4 +1125,71 @@ void keyopt(char *buf) {
 		}
 	}
 	color(DIM_WHITE);
+}
+
+
+
+/*
+ * Present a key-menu line choice type of thing
+ */
+char keymenu(char *menuprompt, char *menustring) {
+	int i, c, a;
+	int choices;
+	int do_prompt = 0;
+	char buf[256];
+	int ch;
+	int display_prompt = 1;
+
+	choices = num_tokens(menustring, '|');
+
+	if (menuprompt != NULL) do_prompt = 1;
+	if (menuprompt != NULL) if (strlen(menuprompt)==0) do_prompt = 0;
+
+	while (1) {
+		if (display_prompt) {
+			if (do_prompt) {
+				printf("%s ", menuprompt);
+			} 
+			else {
+				for (i=0; i<choices; ++i) {
+					extract(buf, menustring, i);
+					keyopt(buf);
+					printf(" ");
+				}
+			}
+			printf(" -> ");
+			display_prompt = 0;
+		}
+		ch = lkey();
+	
+		if ( (do_prompt) && (ch=='?') ) {
+			printf("\rOne of...                               ");
+			printf("                                      \n");
+			for (i=0; i<choices; ++i) {
+				extract(buf, menustring, i);
+				printf("   ");
+				keyopt(buf);
+				printf("\n");
+			}
+			printf("\n");
+			display_prompt = 1;
+		}
+
+		for (i=0; i<choices; ++i) {
+			extract(buf, menustring, i);
+			for (c=1; c<strlen(buf); ++c) {
+				if ( (ch == tolower(buf[c]))
+				   && (buf[c-1]=='<')
+				   && (buf[c+1]=='>') ) {
+					for (a=0; a<strlen(buf); ++a) {
+						if ( (a!=(c-1)) && (a!=(c+1))) {
+							putc(buf[a], stdout);
+						}
+					}
+					printf("\n\n");
+					return ch;
+				}
+			}
+		}
+	}
 }

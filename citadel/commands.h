@@ -47,6 +47,7 @@ extern int enable_color;
 int yesno(void);
 int yesno_d(int d);
 void keyopt(char *);
+char keymenu(char *menuprompt, char *menustring);
 
 extern int num_urls;
 extern char urls[MAXURLS][256];
