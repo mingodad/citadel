@@ -1,4 +1,9 @@
-$Log$
+ $Log$
+ Revision 1.10  1999/11/15 05:05:13  smw
+ Added some checks for connectivity.  The roomview commands were locking
+ Daphne if the program wasn't connected.  Now it's not.  All nice and
+ stable.
+
 Revision 1.9  1999/11/15 04:19:18  smw
 Killed the refresh timer in who.cpp
 Updated the who function so that refreshes are no longer automated, but

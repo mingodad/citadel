@@ -156,6 +156,7 @@ void who::LoadWholist(void) {
 		return; }
                 if (citadel->IsConnected()==FALSE) { 
                 wxMessageBox("You are not connected to a BBS."); 
+		wholist->DeleteAllItems();
 		return; 
         } else 
 

@@ -226,20 +226,42 @@ void RoomView::OnButtonPressed(wxCommandEvent& whichbutton) {
 	if (whichbutton.GetId() == BUTTON_CLOSE) {
 		delete this;
 /*	} else if (whichbutton.GetId() == BUTTON_READNEW) { 
+		if (citadel->IsConnected()==FALSE) {
+		wxMessageBox("You are not connected to a BBS.");
 		do_readloop("MSGS NEW"); */
 	} else if (whichbutton.GetId() == BUTTON_READALL) {
+		if (citadel->IsConnected()==FALSE) {
+		wxMessageBox("You are not connected to a BBS.");
+		return;
+		} else
 		do_readloop("MSGS ALL");
 	} else if (whichbutton.GetId() == BUTTON_ENTER) {
+		if (citadel->IsConnected()==FALSE) {
+		wxMessageBox("You are not connected to a BBS.");
+		return;
+		} else
 		new EnterMessage(citsock, citMyMDI, ThisRoom, RoomFlags);
 	} else if (whichbutton.GetId() == BUTTON_SKIP) {
+		if (citadel->IsConnected()==FALSE) {
+		wxMessageBox("You are not connected to a BBS.");
+		return;
+		} else
 		new RoomView(citsock, citMyMDI, RoomList->GetNextRoom());
 		delete this;
 	} else if (whichbutton.GetId() == BUTTON_GOTO) {
+		if (citadel->IsConnected()==FALSE) {
+		wxMessageBox("You are not connected to a BBS.");
+		return;
+		} else
 		sendcmd = "SLRP HIGHEST";	// mark messages as read
 		citsock->serv_trans(sendcmd, recvcmd, xferbuf, ThisRoom);
 		new RoomView(citsock, citMyMDI, RoomList->GetNextRoom());
 		delete this;
 	} else if (whichbutton.GetId() == BUTTON_ZAP) {
+		if (citadel->IsConnected()==FALSE) {
+		wxMessageBox("You are not connected to a BBS.");
+		return;
+		} else
 		sendcmd = "FORG";		//Zap (forget) room
 		citsock->serv_trans(sendcmd, recvcmd, xferbuf, ThisRoom);
 		new RoomView(citsock, citMyMDI, "_BASEROOM_"); 
