@@ -506,8 +506,9 @@ int inkey(void)
 
 #ifndef DISABLE_CURSES
 #if defined(HAVE_CURSES_H) || defined(HAVE_NCURSES_H)
-		if (a == ERR)
+		if (a == ERR) {
 			logoff(NULL, 3);
+		}
 #endif
 #endif
 

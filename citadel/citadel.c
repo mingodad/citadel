@@ -109,7 +109,7 @@ CtdlIPC *ipc_for_signal_handlers;	/* KLUDGE cover your eyes */
 /*
  * here is our 'clean up gracefully and exit' routine
  */
-void logoff(CtdlIPC *ipc, int code)
+void ctdl_logoff(char *file, int line, CtdlIPC *ipc, int code)
 {
 	int lp;
 
@@ -148,6 +148,11 @@ void logoff(CtdlIPC *ipc, int code)
 	}
 	color(ORIGINAL_PAIR);	/* Restore the old color settings */
 	sttybbs(SB_RESTORE);	/* return the old terminal settings */
+	/* 
+	 * uncomment the following if you need to know why Citadel exited
+	printf("*** Exit code %d at %s:%d\n", code, file, line);
+	sleep(2);
+	 */
 	exit(code);		/* exit with the proper exit code */
 }
 
@@ -1046,7 +1051,7 @@ int main(int argc, char **argv)
 	sttybbs(SB_SAVE);	/* Store the old terminal parameters */
 	load_command_set();	/* parse the citadel.rc file */
 	sttybbs(SB_NO_INTR);	/* Install the new ones */
-	signal(SIGHUP, dropcarr);	/* Cleanup gracefully if carrier is dropped */
+	/* signal(SIGHUP, dropcarr);FIXME */	/* Cleanup gracefully if carrier is dropped */
 	signal(SIGPIPE, dropcarr);	/* Cleanup gracefully if local conn. dropped */
 	signal(SIGTERM, dropcarr);	/* Cleanup gracefully if terminated */
 	signal(SIGCONT, catch_sigcont);	/* Catch SIGCONT so we can reset terminal */

@@ -1,4 +1,10 @@
  $Log$
+ Revision 623.6  2004/07/24 05:11:52  ajc
+ * citadel.c: temporarily commented out the signal() call for SIGHUP because
+   it is causing the client not to work at all on Linux 2.6 (or at least on
+   Fedora Core 2) when citadel is called as the login shell -- a SIGHUP is
+   mysteriously received at the username prompt and the program exits.
+
  Revision 623.5  2004/07/15 02:54:49  ajc
  * serv_network.c: grab and use a networker-local copy of the network
    configuration, ensuring that it doesn't accidentally get clobbered while
@@ -5923,3 +5929,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
