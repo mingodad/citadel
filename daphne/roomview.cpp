@@ -43,7 +43,15 @@ RoomView::RoomView(
 		delete this;
 	}
 
+
+	// Learn more about this room by sending away for a free brochure,
+	// or by simply parsing the returned parameters from GotoRoom().
+	//
 	extract(ThisRoom, recvcmd.Mid(4), 0);	// actual name of room
+	new_messages = extract_int(recvcmd.Mid(4), 1);
+	total_messages = extract_int(recvcmd.Mid(4), 2);
+	is_roomaide = (extract_int(recvcmd.Mid(4), 8) ? TRUE : FALSE);
+
 	SetTitle(ThisRoom);	// FIX why doesn't this work?
 
 	SetAutoLayout(TRUE);
@@ -61,6 +69,7 @@ RoomView::RoomView(
 	b1->height.PercentOf(this, wxHeight, 25);
 	banner->SetConstraints(b1);
 
+	// Room name in the banner
 	wxStaticText *rname = new wxStaticText(banner, -1, ThisRoom);
 	rname->SetFont(wxFont(18, wxDEFAULT, wxNORMAL, wxNORMAL));
 	rname->SetForegroundColour(wxColour(0xFF, 0xFF, 0x00));
@@ -72,6 +81,20 @@ RoomView::RoomView(
 	b2->height.PercentOf(banner, wxHeight, 50);
 	rname->SetConstraints(b2);
 
+	// Message counts in the banner
+	wxString *mcount_text = new wxString;
+	mcount_text->Printf("%d messages\n%d new",
+		total_messages, new_messages);
+	wxStaticText *mcount = new wxStaticText(banner, -1, *mcount_text);
+
+	wxLayoutConstraints *c0 = new wxLayoutConstraints;
+	c0->top.Below(rname, 5);
+	c0->left.SameAs(rname, wxLeft);
+	c0->width.AsIs();
+	c0->height.AsIs();
+	mcount->SetConstraints(c0);
+
+	// HTML window containing room info blurb
 	wxHtmlWindow *roominfo = new wxHtmlWindow(banner);
 
 	wxLayoutConstraints *b3 = new wxLayoutConstraints;
@@ -81,6 +104,7 @@ RoomView::RoomView(
 	b3->left.PercentOf(banner, wxWidth, 67);
 	roominfo->SetConstraints(b3);
 
+	// Buttons
 	close_button = new wxButton(
 		this,
 		BUTTON_CLOSE,

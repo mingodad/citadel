@@ -271,6 +271,10 @@ private:
         wxPanel *banner;
         wxButton *close_button;
 	wxString ThisRoom;
+	unsigned int RoomFlags;
+	unsigned int new_messages;
+	unsigned int total_messages;
+	bool is_roomaide;
 	DECLARE_EVENT_TABLE()
 };
 
