@@ -71,16 +71,35 @@ void display_task(long msgnum) {
  * Process a calendar object
  * ...at this point it's already been deserialized by cal_process_attachment()
  */
-void cal_process_object(icalcomponent *cal) {
+void cal_process_object(icalcomponent *cal,
+			int recursion_level
+) {
 	icalcomponent *c;
+	icalproperty *method = NULL;
+	icalproperty_method the_method;
 
-	/* Iterate through all subcomponents */
-	wprintf("Iterating through all sub-components<BR>\n");
+	/* Look for a method */
+	method = icalcomponent_get_first_property(cal, ICAL_METHOD_PROPERTY);
+
+	/* See what we need to do with this */
+	if (method != NULL) {
+		the_method = icalproperty_get_method(method);
+		switch(the_method) {
+		    case ICAL_METHOD_REQUEST:
+			wprintf("This is a request.<BR>\n");
+			break;
+		    default:
+			wprintf("I don't know what to do with this.<BR>\n");
+			break;
+		}
+	}
+
+	/* If the component has subcomponents, recurse through them. */
 	for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
 	    (c != 0);
 	    c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
 		/* Recursively process subcomponent */
-		cal_process_object(c);
+		cal_process_object(c, recursion_level+1);
 	}
 
 }
@@ -102,7 +121,7 @@ void cal_process_attachment(char *part_source) {
 		return;
 	}
 
-	cal_process_object(cal);
+	cal_process_object(cal, 0);
 
 	/* Free the memory we obtained from libical's constructor */
 	icalcomponent_free(cal);
