@@ -840,6 +840,7 @@ void who_is_online(int longlist)
 				roomname[20] = 0;
 				pprintf("%-20s ", roomname);
 				color(BRIGHT_CYAN);
+				fromhost[24] = '\0';
 				pprintf("%-24s\n", fromhost);
 				color(DIM_WHITE);
 			}
