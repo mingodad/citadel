@@ -644,32 +644,44 @@ void cmd_term(char *cmdbuf)
 	int session_num;
 	struct CitContext *ccptr;
 	int found_it = 0;
-
-	if (CtdlAccessCheck(ac_aide)) return;
+	int allowed = 0;
 
 	session_num = extract_int(cmdbuf, 0);
 	if (session_num == CC->cs_pid) {
 		cprintf("%d You can't kill your own session.\n", ERROR);
 		return;
-		}
+	}
 
 	lprintf(9, "Locating session to kill\n");
 	begin_critical_section(S_SESSION_TABLE);
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 		if (session_num == ccptr->cs_pid) {
-			ccptr->kill_me = 1;
 			found_it = 1;
+			if ((ccptr->usersupp.usernum == CC->usersupp.usernum)
+			   || (CC->usersupp.axlevel >= 6)) {
+				allowed = 1;
+				ccptr->kill_me = 1;
+			}
+			else {
+				allowed = 0;
 			}
 		}
+	}
 	end_critical_section(S_SESSION_TABLE);
 
 	if (found_it) {
-		cprintf("%d Session terminated.\n", OK);
+		if (allowed) {
+			cprintf("%d Session terminated.\n", OK);
 		}
-	else {
-		cprintf("%d No such session.\n", ERROR);
+		else {
+			cprintf("%d You are not allowed to do that.\n",
+				ERROR + HIGHER_ACCESS_REQUIRED);
 		}
 	}
+	else {
+		cprintf("%d No such session.\n", ERROR);
+	}
+}
 
 
 

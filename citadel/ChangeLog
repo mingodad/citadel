@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.48  2001/10/02 03:04:30  ajc
+ * Allow non-Aides to terminate sessions belonging to them
+
  Revision 580.47  2001/09/24 18:55:13  ajc
  * Completed migrating the "netpoll" utility into the serv_network module.
    Removed this utility.
@@ -2762,3 +2765,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
