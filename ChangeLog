@@ -1,4 +1,8 @@
 $Log$
+Revision 410.5  2003/03/15 20:55:03  ajc
+* When a requested image is not available on the Citadel server, send a
+  1x1 transparent GIF instead of 404 error.
+
 Revision 410.4  2003/03/14 04:21:57  ajc
 * clone events to be encapsulated before saving, because the original
   instance may already have a parent, and that makes crashy crashy
@@ -1292,3 +1296,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
