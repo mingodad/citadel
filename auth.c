@@ -189,8 +189,7 @@ void do_logout(void) {
 	strcpy(wc_roomname, "");
 
 	printf("HTTP/1.0 200 OK\n");
-	printf("X-WebCit-Session: close\n");
-	output_headers(1);
+	output_headers(2);	/* note the "2" which causes cookies to be unset */
 
 	wprintf("<CENTER>");	
 	serv_puts("MESG goodbye");

@@ -255,8 +255,8 @@ void *context_loop(int sock) {
 	ContentLength = 0;
 	do {
 		req_gets(sock, buf, hold);
-		if (!strncasecmp(buf, "Cookie: wc_session=", 19)) {
-			desired_session = atoi(&buf[19]);
+		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
+			cookie_to_stuff(&buf[15], &desired_session, NULL, NULL, NULL);
 			}
 		if (!strncasecmp(buf, "Content-length: ", 16)) {
 			ContentLength = atoi(&buf[16]);

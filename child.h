@@ -98,3 +98,5 @@ void display_share(void);
 void share(void);
 void terminate_session(void);
 void edit_me(void);
+void display_siteconfig(void);
+void siteconfig(void);

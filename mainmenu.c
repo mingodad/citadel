@@ -164,6 +164,9 @@ if ((axlevel>=6) || (is_room_aide)) {
 	wprintf("<LI><A HREF=\"/display_editinfo\">\n");
 	wprintf("Edit this room's Info file</A>\n");
 
+	wprintf("<LI><A HREF=\"/display_siteconfig\">\n");
+	wprintf("Edit site-wide configuration</A>\n");
+
 	if (axlevel>=6) {
 		wprintf("<LI><A HREF=\"/validate\">\n");
 		wprintf("Validate new users</A>\n");
