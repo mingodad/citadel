@@ -69,9 +69,11 @@ void groupdav_folder_list(void) {
 	 */
 	wprintf("HTTP/1.0 207 Multi-Status\n");
 	groupdav_common_headers();
-	wprintf("Content-type: text/xml\n"
-		"\n"
-		"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+	wprintf("Content-type: text/xml\n");
+
+	begin_burst();
+
+	wprintf("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
      		"<D:multistatus xmlns:D=\"DAV:\">\n"
 	);
 
@@ -127,7 +129,9 @@ void groupdav_folder_list(void) {
 			wprintf(" </D:response>\n");
 		}
 	}
-	wprintf("</D:multistatus>\n");
+	wprintf("</D:multistatus>\n\n\n");
+
+	end_burst();
 }
 
 
@@ -188,9 +192,11 @@ void groupdav_propfind(char *dav_pathname) {
 	 */
 	wprintf("HTTP/1.0 207 Multi-Status\n");
 	groupdav_common_headers();
-	wprintf("Content-type: text/xml\n"
-		"\n"
-		"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+	wprintf("Content-type: text/xml\n");
+
+	begin_burst();
+
+	wprintf("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
      		"<D:multistatus xmlns:D=\"DAV:\">\n"
 	);
 
@@ -233,7 +239,9 @@ void groupdav_propfind(char *dav_pathname) {
 		}
 	}
 
-	wprintf("</D:multistatus>\n");
+	wprintf("</D:multistatus>\n\n\n");
+	end_burst();
+
 	if (msgs != NULL) {
 		free(msgs);
 	}

@@ -230,6 +230,9 @@ struct wcsession {
 	int ctdl_pid;			/* Session ID on the Citadel server */
 	char httpauth_user[SIZ];	/* only for GroupDAV sessions */
 	char httpauth_pass[SIZ];	/* only for GroupDAV sessions */
+
+	size_t burst_len;
+	char *burst;
 };
 
 #define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
@@ -486,6 +489,9 @@ int client_read_ssl(char *buf, int bytes, int timeout);
 void client_write_ssl(char *buf, int nbytes);
 #endif
 
+void begin_burst(void);
+void end_burst(void);
+
 extern char *ascmonths[];
 
 
@@ -497,3 +503,7 @@ extern char *ascmonths[];
 #define VIEW_TASKS		4	/* Tasks view */
 #define VIEW_NOTES		5	/* Notes view */
 
+
+/* These should be empty, but we have them for testing */
+#define DEFAULT_HTTPAUTH_USER	""
+#define DEFAULT_HTTPAUTH_PASS	""

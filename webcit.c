@@ -850,8 +850,8 @@ void session_loop(struct httprequest *req)
 	strcpy(c_password, "");
 	strcpy(c_roomname, "");
 	strcpy(c_httpauth_string, "");
-	strcpy(c_httpauth_user, "");
-	strcpy(c_httpauth_pass, "");
+	strcpy(c_httpauth_user, DEFAULT_HTTPAUTH_USER);
+	strcpy(c_httpauth_pass, DEFAULT_HTTPAUTH_PASS);
 
 	WC->upload_length = 0;
 	WC->upload = NULL;
