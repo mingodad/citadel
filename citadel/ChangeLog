@@ -1,4 +1,8 @@
  $Log$
+ Revision 620.29  2004/05/07 19:31:40  ajc
+ * More RFC2739 compliance: when converting vCard to LDAP, include
+   the calFBURL attribute.
+
  Revision 620.28  2004/05/07 19:09:07  ajc
  * Implemented partial RFC2739 compliance (calendar free/busy URL in vCard).
    Still need to add it to LDAP.
@@ -5745,4 +5749,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -227,6 +227,7 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 	char city[SIZ];
 	char state[SIZ];
 	char zipcode[SIZ];
+	char calFBURL[SIZ];
 
 	if (dirserver == NULL) return;
 	if (msg == NULL) return;
@@ -237,6 +238,7 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 	/* Initialize variables */
 	strcpy(givenname, "");
 	strcpy(sn, "");
+	strcpy(calFBURL, "");
 
 	sprintf(this_dn, "cn=%s,ou=%s,%s",
 		msg->cm_fields['A'],
@@ -452,6 +454,17 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 
 		}
 
+		/* Calendar free/busy URL (take the first one we find, but if a subsequent
+		 * one contains the "pref" designation then we go with that instead.)
+		 */
+		if ( (!strcasecmp(v->prop[i].name, "fburl"))
+		   ||(!strncasecmp(v->prop[i].name, "fburl;", 6)) ) {
+			if ( (strlen(calFBURL) == 0)
+			   || (!strncasecmp(v->prop[i].name, "fburl;pref", 10)) ) {
+				safestrncpy(calFBURL, v->prop[i].value, sizeof calFBURL);
+			}
+		}
+
 	}
 	vcard_free(v);	/* Don't need this anymore. */
 
@@ -498,6 +511,18 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 		attrs[num_attrs-1]->mod_type		= "cn";
 		attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
 		attrs[num_attrs-1]->mod_values[0]	= strdup(msg->cm_fields['A']);
+		attrs[num_attrs-1]->mod_values[1]	= NULL;
+	}
+
+	/* Add a "calFBURL" attribute if a calendar free/busy URL exists */
+	if (strlen(calFBURL) > 0) {
+		attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
+		attrs[num_attrs-1] = malloc(sizeof(LDAPMod));
+		memset(attrs[num_attrs-1], 0, sizeof(LDAPMod));
+		attrs[num_attrs-1]->mod_op		= LDAP_MOD_ADD;
+		attrs[num_attrs-1]->mod_type		= "calFBURL";
+		attrs[num_attrs-1]->mod_values		= malloc(2 * sizeof(char *));
+		attrs[num_attrs-1]->mod_values[0]	= strdup(calFBURL);
 		attrs[num_attrs-1]->mod_values[1]	= NULL;
 	}
 	
