@@ -1082,6 +1082,19 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 							msgkeys[k],
 							display_name);
 					}
+					/* Don't show Internet address for
+					 * local users
+					 */
+					else if (k == 'F') {
+						if (do_proto) if (TheMessage->cm_fields['N'] != NULL) if (strcasecmp(TheMessage->cm_fields['N'], config.c_nodename)) {
+							cprintf("%s=%s\n",
+								msgkeys[k],
+								TheMessage->cm_fields[k]
+							);
+
+						}
+					}
+					/* Masquerade display name if needed */
 					else {
 						if (do_proto) cprintf("%s=%s\n",
 							msgkeys[k],
