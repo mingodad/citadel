@@ -618,7 +618,34 @@ void export_usersupp(void) {
 
 	fprintf(exfp, "endsection%c", 0);
 	}
-	
+
+
+void export_visits(void) {
+	struct cdbdata *cdbvisit;
+	struct visit vbuf;
+
+	lprintf(9, "Visits\n");
+	fprintf(exfp, "visits%c", 0);
+
+	cdb_rewind(CDB_VISIT);
+	while(cdbvisit = cdb_next_item(CDB_VISIT), cdbvisit != NULL) {
+		memset(&vbuf, 0, sizeof(struct visit));
+		memcpy(&vbuf, cdbvisit->ptr,
+			( (cdbvisit->len > sizeof(struct visit)) ?
+			sizeof(struct visit) : cdbvisit->len) );
+		cdb_free(cdbvisit);
+
+		fprintf(exfp, "visit%c", 0);
+		fprintf(exfp, "vrnum%c%ld%c", 0, vbuf.v_roomnum, 0);
+		fprintf(exfp, "vgen%c%ld%c", 0, vbuf.v_roomgen, 0);
+		fprintf(exfp, "vunum%c%ld%c", 0, vbuf.v_usernum, 0);
+		fprintf(exfp, "flags%c%d%c", 0, vbuf.v_flags, 0);
+		fprintf(exfp, "lastseen%c%ld%c", 0, vbuf.v_lastseen, 0);
+		fprintf(exfp, "endvisit%c", 0);
+		}
+
+	fprintf(exfp, "endsection%c", 0);
+	}	
 
 void do_export(char *argbuf) {
 	char export_filename[PATH_MAX];
@@ -680,6 +707,7 @@ void do_export(char *argbuf) {
 	export_rooms();
 	export_floors();
 	export_usersupp();
+	export_visits();
 
 	fprintf(exfp, "endfile%c", 0);
 	fclose(exfp);

@@ -67,7 +67,7 @@ void LoginTest(void) {
 
 
 void Ygorl(char *username, long usernum) {
-	if (!strcasecmp(username, "Hexslinger")) {
+	if (!strcasecmp(username, "Unsuspecting User")) {
 		strcpy(username, "Flaming Asshole");
 		}
 	}
