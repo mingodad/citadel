@@ -1,5 +1,6 @@
 
 #include "includes.hpp"
+#include <unistd.h>
 
 
 //  
@@ -16,6 +17,10 @@ int CitClient::attach(wxString host, wxString port) {
 	if (sock.attach(host, port)==0) {
 		serv_gets(ServerReady);
 		initialize_session();
+
+		curr_host = host;	// Remember host and port, in case
+		curr_port = port;	// we need to auto-reconnect later
+
 		return(0);
 	}
 	else return(1);
@@ -99,7 +104,14 @@ int CitClient::serv_trans(
 	// it must begin HERE.
 
 	serv_puts(command);
+	
+	if (IsConnected() == FALSE) {
+		reconnect_session();
+		serv_puts(command);
+	}
+
 	serv_gets(response);
+
 	first_digit = (response.GetChar(0)) - '0';
 
 	if (response.GetChar(3) == '*')
@@ -244,6 +256,35 @@ bool CitClient::GotoRoom(wxString roomname, wxString password,
 	return TRUE;
 }
 
+
+
+// Reconnect a broken session
+
+void CitClient::reconnect_session(void) {
+	wxString sendcmd;
+
+	CurrentRoom = "__ This is not the name of any valid room __";
+
+	// Give a crashed server some time to restart
+	sleep(5);
+
+	if (attach(curr_host, curr_port) != 0) {
+		// FIX do this more elegantly
+		cout << "Could not re-establish session (1)\n";
+	}
+
+	sendcmd = "USER " + curr_user;
+	if (serv_trans(sendcmd) != 3) {
+		// FIX do this more elegantly
+		cout << "Could not re-establish session (2)\n";
+	}
+
+	sendcmd = "PASS " + curr_pass;
+	if (serv_trans(sendcmd) != 2) {
+		// FIX do this more elegantly
+		cout << "Could not re-establish session (3)\n";
+	}
+}
 
 
 

@@ -99,6 +99,7 @@ public:
 	// ... and about the user ...
 	wxString curr_user;
 	wxString curr_pass;
+	int axlevel;
 	
 	// Stuff we have to keep track of ...
 	wxString CurrentRoom;
@@ -107,8 +108,13 @@ private:
 	TCPsocket sock;					// transport layer
 	void serv_gets(wxString& buf);			// session layer
 	void serv_puts(wxString buf);			// session layer
+	void reconnect_session(void);			// session layer
 	void download_express_messages(void);		// presentation layer
-	void CitClient::initialize_session(void);	// presentation layer
+	void initialize_session(void);			// presentation layer
+
+	wxString curr_host;
+	wxString curr_port;
+
 };
 
 
