@@ -1,4 +1,10 @@
 $Log$
+Revision 505.7  2004/02/26 04:08:56  ajc
+* Fixed a problem that made WebCit go to the "no cookies" screen instead
+  of the logout banner.
+* Ford's latest stupid room has a name with more than 64 characters, and
+  we still had a 64-byte room name in the march_list struct.  ooooops...
+
 Revision 505.6  2004/02/26 03:07:26  ajc
 * Put the /favicon.ico --> /static/favicon.ico hack back in.  Why not?
 
@@ -1684,3 +1690,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

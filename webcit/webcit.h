@@ -114,7 +114,7 @@ struct serv_info {
  */
 struct march {
 	struct march *next;
-	char march_name[32];
+	char march_name[128];
 	int march_floor;
 	int march_order;
 };
@@ -126,7 +126,7 @@ struct march {
 struct roomlisting {
 	struct roomlisting *lnext;
 	struct roomlisting *rnext;
-	char rlname[64];
+	char rlname[128];
 	unsigned rlflags;
 	int rlfloor;
 	int rlorder;
