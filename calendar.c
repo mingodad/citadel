@@ -481,12 +481,17 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 			serv_puts("");
 			serv_puts(icalcomponent_as_ical_string(vtodo));
 			serv_puts("000");
+
+			/* Probably not necessary; the server will see the UID
+			 * of the object and delete the old one anyway, but
+			 * just in case...
+			 */
 			delete_existing = 1;
 		}
 	}
 
 	/*
-	 * If the user clicked 'Delete' then delete it, period.
+	 * If the user clicked 'Delete' then explicitly delete the message.
 	 */
 	if (!strcasecmp(bstr("sc"), "Delete")) {
 		delete_existing = 1;
