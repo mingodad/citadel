@@ -212,7 +212,16 @@ void session_loop() {
 		connected = 1;
 		strcpy(wc_host, c_host);
 		strcpy(wc_port, c_port);
+		serv_printf("IDEN %d|%d|%d|%s|%s",
+			DEVELOPER_ID,
+			CLIENT_ID,
+			CLIENT_VERSION,
+			SERVER,
+			""
+			);
+		serv_gets(buf);	/* FIX find out where the user is */
 		}
+
 
 	/*
 	 * If we're not logged in, but we have username and password cookies
