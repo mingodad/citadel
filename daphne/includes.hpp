@@ -10,6 +10,10 @@
 #include "wx/treectrl.h"
 
 
+
+#define MAXFLOORS	128
+
+
 // TCPsocket represents a socket-level TCP connection to a server.
 class TCPsocket {
 public:
@@ -199,9 +203,11 @@ public:
 	void LoadRoomList(void);
 private:
 	void InitTreeIcons(void);
+	void OnDoubleClick(wxTreeEvent& evt);
 	CitClient *citsock;
-	wxTreeItemId floorboards[128];
+	wxTreeItemId floorboards[MAXFLOORS];
 	wxImageList *TreeIcons;
+	DECLARE_EVENT_TABLE()
 };
 
 
