@@ -1267,7 +1267,9 @@ void editroom(void)
 			return;
 		}
 	}
-	smart_goto(er_name);
+	gotoroom(er_name, 0);
+	display_main_menu();
+	return;
 }
 
 /*
