@@ -109,6 +109,7 @@ void init_sysdep(void) {
 	signal(SIGQUIT, (void(*)(int))master_cleanup);
 	signal(SIGHUP, (void(*)(int))master_cleanup);
 	signal(SIGTERM, (void(*)(int))master_cleanup);
+	signal(SIGPIPE, SIG_IGN);
 	}
 
 
