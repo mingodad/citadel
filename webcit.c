@@ -448,7 +448,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 	}
 
 	if (do_room_banner != 2) {
-		wprintf("<div id=\"text\">\n");
+		wprintf("<div id=\"content\">\n");
 	}
 
 	if (strlen(WC->ImportantMessage) > 0) {
@@ -700,7 +700,7 @@ void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#%s\"><TR><TD>", titlebarcolor);
 	wprintf("<SPAN CLASS=\"titlebar\">%s</SPAN>\n", titlebarmsg);
 	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div>\n<div id=\"text\">\n");
+	wprintf("</div>\n<div id=\"content\">\n");
 	escputs(messagetext);
 
 	wprintf("<hr />\n");

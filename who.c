@@ -55,7 +55,7 @@ void whobbs(void)
 	offer_start_page();
 	wprintf("</TD></TR></TABLE>\n");
 	wprintf("</div>\n"
-		"<div id=\"text\">\n");
+		"<div id=\"content\">\n");
 
 	do_template("beginbox_nt");
 	wprintf("<CENTER>"
@@ -205,7 +205,7 @@ void edit_me(void)
 		wprintf("<SPAN CLASS=\"titlebar\">");
 		wprintf("Edit your session display");
 		wprintf("</SPAN></TD></TR></TABLE>\n");
-		wprintf("</div>\n<div id=\"text\">\n");
+		wprintf("</div>\n<div id=\"content\">\n");
 
 		wprintf("This screen allows you to change the way your\n");
 		wprintf("session appears in the 'Who is online' listing.\n");
