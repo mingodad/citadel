@@ -192,7 +192,7 @@ install_ldap () {
 	cd $BUILD 2>&1 >>$LOG || die
 	( gzip -dc $LDAP_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
 	cd $BUILD/openldap-2.1.29 2>&1 >>$LOG || die
-	./configure --prefix=$SUPPORT --enable-crypt --enable-lmpasswd 2>&1 >>$LOG || die
+	./configure --prefix=$SUPPORT 2>&1 >>$LOG || die
 	$MAKE $MAKEOPTS 2>&1 >>$LOG || die
 	LDAP_CONFIG=$SUPPORT/etc/openldap/slapd.conf
 	export LDAP_CONFIG
