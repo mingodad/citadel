@@ -67,6 +67,8 @@ long SYM_SMTP_RECP;
 /*****************************************************************************/
 
 
+
+
 /*
  * Here's where our SMTP session begins its happy day.
  */
