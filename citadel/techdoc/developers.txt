@@ -15,6 +15,8 @@ Developer codes (and where known, client codes)
 	4	WebCit		in production	Web-based access to Citadel
 	5	Shaggy		dead		Java-powered client
 	6	Daphne		development	wx multiplatform "fat" client
+	7	Shaggy (new)	development	Java-powered client
+						<chilly@uncnsrd.mt-kisco.ny.us>
  
  
  1	Brian Ledbetter <brian@amaranth.com>
