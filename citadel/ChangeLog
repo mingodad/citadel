@@ -1,4 +1,10 @@
  $Log$
+ Revision 614.101  2004/03/26 05:13:15  ajc
+ * citadel-slapd.conf: comment out the reference to the Citadel schema
+   and add "schemacheck off" to make it easier to get started with the
+   Citadel LDAP connector.  Also made the backend in the sample conf
+   ldbm instead of bdb, because that's what RH9 ships with.
+
  Revision 614.100  2004/03/24 21:23:50  ajc
  * msgbase.c: repaired a memory leak
 
@@ -5612,4 +5618,5 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
 
