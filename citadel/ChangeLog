@@ -1,3 +1,9 @@
+Wed Sep 16 11:42:42 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* ipc_c_tcp.c: Reversed any changes that have been made to this file,
+	  because something was causing abominally slow response time.
+	* proxy.c: added.  This will eventually become a caching, pre-fetching
+	  multiuser proxy server for the Citadel protocol.
+
 1998-09-15 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* Makefile.in: remove support.o from serv_chat.so, add -fPIC to compile
 	  flags for serv_chat.o
