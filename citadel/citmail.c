@@ -399,6 +399,8 @@ void do_citmail(char recp[], int dtype) {
 			strcpy(from, &buf[6]);
 		else if (!strncasecmp(buf,"Content-type: ",14))
 			strcpy(content_type, &buf[14]);
+		else if (!strncasecmp(buf,"From ", 5))	/* ignore */
+			{ }
 		else {
 			if (extra_headers == NULL) {
 				extra_headers = malloc(strlen(buf)+2);

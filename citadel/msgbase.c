@@ -549,7 +549,7 @@ time_t output_message(char *msgid, int mode,
 
 	/* signify start of msg text */
 	if (mode == MT_CITADEL)	cprintf("text\n");
-	if (mode == MT_RFC822) cprintf("\n");
+	if ( (mode == MT_RFC822) && (format_type != 4) ) cprintf("\n");
 
 	/* If the format type on disk is 1 (fixed-format), then we want
 	 * everything to be output completely literally ... regardless of
