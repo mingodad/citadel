@@ -96,26 +96,3 @@ void do_graphics_upload(char *upl_cmd)
 		return;
 	}
 }
-
-
-
-void select_floor_to_edit_pic(void)
-{
-	int a;
-
-	output_headers(3);
-
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Select floor to edit label graphic</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
-
-	load_floorlist();
-	for (a = 0; a < 128; ++a)
-		if (strlen(floorlist[a]) > 0) {
-			wprintf("<A HREF=\"/display_editfloorpic&which_floor=%d\">", a);
-			escputs(floorlist[a]);
-			wprintf("</A>\n");
-		}
-	wDumpContent(1);
-}

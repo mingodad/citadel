@@ -74,11 +74,17 @@ void display_floorconfig(char *prepend_html)
 		extract(floorname, buf, 1);
 		refcount = extract_int(buf, 2);
 
-		wprintf("<TR><TD>%d", floornum);
+		wprintf("<TR><TD><TABLE border=0><TR><TD>%d", floornum);
 		if (refcount == 0) {
-			wprintf(" <A HREF=\"/delete_floor?floornum=%d\">"
-				"(delete floor)</A>");
+			wprintf("</TD><TD>"
+				"<A HREF=\"/delete_floor?floornum=%d\">"
+				"<FONT SIZE=-1>(delete floor)</A>"
+				"</FONT><BR><FONT SIZE=-1>"
+				"<A HREF=\"/display_editfloorpic&"
+				"which_floor=%d\">(edit graphic)</A>",
+				floornum, floornum);
 		}
+		wprintf("</TD></TR></TABLE>");
 		wprintf("</TD>");
 
 		wprintf("<TD>"

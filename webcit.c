@@ -1053,8 +1053,6 @@ void session_loop(struct httprequest *req)
 					"/editroompic");
 	} else if (!strcasecmp(action, "editroompic")) {
 		do_graphics_upload("UIMG 1|_roompic_");
-	} else if (!strcasecmp(action, "select_floor_to_edit_pic")) {
-		select_floor_to_edit_pic();
 	} else if (!strcasecmp(action, "delete_floor")) {
 		delete_floor();
 	} else if (!strcasecmp(action, "rename_floor")) {
