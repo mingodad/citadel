@@ -1,4 +1,13 @@
  $Log$
+ Revision 620.35  2004/05/20 16:14:08  ajc
+ * Changed internal version number to 6.21
+ * Added missing VIEW_* defines in citadel.h (they're used only by WebCit
+   for now, which is why Citadel didn't need them, but they should be there
+   anyway for completeness)
+ * Removed the last vestiges of the built-in spam filter.  It had been
+   commented out, but it's definitely never coming back now, so away it goes.
+ * Updated some of the docs
+
  Revision 620.34  2004/05/15 14:19:52  error
  * Scheduler: when next_session is to be deleted, make it point to some
    other session which isn't being deleted (or NULL if there aren't any).
@@ -5776,4 +5785,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -46,6 +46,8 @@ Goals to achieve during the 6.xx cycle
    using HTTPS.)
  
  * RFC 2739 compliance (provide calendar free/busy URL's in vCard and LDAP)
+   (Status: DONE.  If anyone knows of any client software that makes good use
+   of this, please let us know and/or help test it)
 
  * Reminder: after the next non-beta version of the Citadel server is
    released, email the IMAPcopy people for inclusion on their web site.

@@ -32,7 +32,7 @@ extern "C" {
 /*
  * Text description of this software
  */
-#define CITADEL	"Citadel/UX 6.20"
+#define CITADEL	"Citadel/UX 6.21"
 
 /*
  * REV_LEVEL is the current version number (multiplied by 100 to avoid having
@@ -44,7 +44,7 @@ extern "C" {
  * usually more strict because you're not really supposed to dump/load and
  * upgrade at the same time.
  */
-#define REV_LEVEL	620		/* This version */
+#define REV_LEVEL	621		/* This version */
 #define REV_MIN		591		/* Oldest compatible database */
 #define EXPORT_REV_MIN	615		/* Oldest compatible export files */
 
@@ -304,7 +304,6 @@ enum {
 #define IGNETCFG	"application/x-citadel-ignet-config"
 #define IGNETMAP	"application/x-citadel-ignet-map"
 #define FILTERLIST	"application/x-citadel-filter-list"
-#define SPAMSTRINGS	"application/x-citadel-spam-strings"
 
 #define TRACE	lprintf(CTDL_DEBUG, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
 
@@ -319,6 +318,8 @@ enum {
 #define	VIEW_BBS		0	/* Traditional Citadel BBS view */
 #define VIEW_MAILBOX		1	/* Mailbox summary */
 #define VIEW_ADDRESSBOOK	2	/* Address book view */
+#define VIEW_CALENDAR		3	/* Calendar view */
+#define VIEW_TASKS		4	/* Tasks view */
 
 #ifdef __cplusplus
 }

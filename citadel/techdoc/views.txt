@@ -23,4 +23,6 @@ is in the room record as room.QRdefaultview (and is also an integer).
 #define	VIEW_BBS		0	/* Traditional Citadel BBS view */
 #define VIEW_MAILBOX		1	/* Mailbox summary */
 #define VIEW_ADDRESSBOOK	2	/* Address book view */
+#define VIEW_CALENDAR		3	/* Calendar view */
+#define VIEW_TASKS		4	/* Tasks view */
 

@@ -1,7 +1,7 @@
 # $Id$
 Summary: Citadel/UX, the flexible, powerful way to build online communities
 Name: citadel
-Version: 6.20p1
+Version: 6.21
 Release: 3
 Copyright: GPL
 Group: Applications/Communications
