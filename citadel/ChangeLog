@@ -1,6 +1,11 @@
 1998-10-28 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* configure.in: added comments
 	* mkinstalldirs: new file to be used for `make install'
+	* aclocal.m4, missing: new files, also swiped from automake
+	* citadel.c: don't mung the terminal if we can't find citadel.rc
+	* Makefile.in: added `install' target, `clean' removes
+	  *.mo, rebuild configure when configure.in changes.
+	* configure.in: check for install and autoconf
 
 Tue Oct 27 22:25:42 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Unified the "unpacked database" format for both upgrades and

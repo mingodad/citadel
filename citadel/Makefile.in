@@ -22,8 +22,11 @@ SERV_MODULES=modules/serv_chat.so modules/serv_test.so
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform \
 	readlog rcit stats citmail netpoll mailinglist userlist
 PROXY_TARGETS=proxy
-DEFS=@DEFS@
+
+prefix=@prefix@
 srcdir=@srcdir@
+
+DEFS=@DEFS@
 CPPFLAGS=@CPPFLAGS@ -I.
 CFLAGS=@CFLAGS@
 CC=@CC@
@@ -32,9 +35,15 @@ LDFLAGS=@LDFLAGS@
 SERVER_LDFLAGS=@SERVER_LDFLAGS@
 CURSES=@CURSES@
 SNPRINTF=@SNPRINTF@
-VPATH=$(srcdir)
-
 PTHREAD_DEFS=-D_REENTRANT
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+SHELL=/bin/sh
+AUTOCONF=@AUTOCONF@
+
+# End configuration section
+
+VPATH=$(srcdir)
 
 SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	config.c control.c cux2ascii.c database.c dynloader.c file_ops.c \
@@ -108,7 +117,6 @@ aidepost: aidepost.o config.o
 #
 netmailer: netmailer.o internetmail.o config.o
 	$(CC) netmailer.o config.o internetmail.o $(LDFLAGS) -o netmailer
-	chmod 4755 netmailer
 
 netproc: netproc.o config.o ipc_c_tcp.o
 	$(CC) netproc.o config.o ipc_c_tcp.o $(LDFLAGS) -o netproc
@@ -120,7 +128,6 @@ citmail: citmail.o config.o internetmail.o
 	@echo "* set this program to be your local mail delivery agent."
 	@echo "*"
 	$(CC) citmail.o config.o internetmail.o $(LDFLAGS) -o citmail
-	chmod 4755 citmail
 
 mailinglist: mailinglist.o config.o internetmail.o
 	$(CC) mailinglist.o config.o internetmail.o $(LDFLAGS) -o mailinglist
@@ -157,8 +164,26 @@ rcit: rcit.o config.o
 stats: stats.o config.o
 	$(CC) stats.o config.o $(LDFLAGS) -o stats
 
+install: all
+	for i in modules techdoc bio bitbucket files help images info \
+		 messages network/spoolin network/spoolout network/systems \
+		 userpics; do \
+		./mkinstalldirs $(prefix)/$$i; \
+	done
+	for i in $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) \
+		 $(PROXY_TARGETS) $(SERV_MODULES) utilsmenu weekly \
+		 dnetsetup; do \
+		test -f $$i && $(INSTALL) $$i $(prefix)/$$i; \
+	done
+	test -f netmailer && chmod 4755 $(prefix)/netmailer $(prefix)/citmail
+	for i in *.txt citadel.rc public_clients \
+		 `find help messages network techdoc -type f | \
+		  grep -v CVS`; do \
+		$(INSTALL_DATA) $$i $(prefix)/$$i; \
+	done
+
 clean:
-	rm -f *.o *.ro
+	rm -f *.o *.ro *.mo
 
 cleaner: clean
 	rm -f $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) \
@@ -171,7 +196,13 @@ distclean: cleaner
 	$(CC) -M $(CPPFLAGS) $< | sed -e 's!$*.o!$*.o $*.ro $*.mo $@!' > $@
 	test -s $@ || rm -f $@
 
-Makefile: Makefile.in
-	CONFIG_FILES=Makefile CONFIG_HEADERS= ./config.status
+Makefile: $(srcdir)/Makefile.in config.status
+	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) ./config.status
+
+config.status: $(srcdir)/configure
+	$(SHELL) ./config.status --recheck
+
+$(srcdir)/configure: $(srcdir)/configure.in $(srcdir)/aclocal.m4
+	cd $(srcdir) && $(AUTOCONF)
 
 -include $(DEP_FILES)

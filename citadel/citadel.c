@@ -799,8 +799,8 @@ char aaa[100],bbb[100],ccc[100],eee[100];	/* general purpose variables */
 char argbuf[32];				/* command line buf */
 
 
-load_command_set();		/* parse the citadel.rc file */
 sttybbs(SB_SAVE);		/* Store the old terminal parameters */
+load_command_set();             /* parse the citadel.rc file */
 sttybbs(SB_NO_INTR);		/* Install the new ones */
 signal(SIGINT,SIG_IGN);
 signal(SIGQUIT,SIG_IGN);
