@@ -1001,7 +1001,6 @@ void post_message(void)
 
 	output_headers(1);
 
-	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\">");
 	strcpy(buf, bstr("sc"));
 	if (strcasecmp(buf, "Save message")) {
 		wprintf("Cancelled.  Message was not posted.<BR>\n");
@@ -1042,8 +1041,6 @@ void display_enter(void)
 	struct tm *tm;
 
 	output_headers(1);
-
-	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\">");
 
 	sprintf(buf, "ENT0 0|%s|0|0", bstr("recp"));
 	serv_puts(buf);
