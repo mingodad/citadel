@@ -1,4 +1,8 @@
  $Log$
+ Revision 641.4  2005/02/25 17:59:12  ajc
+ * Ok, now we accept *all* the flags transmitted during an IMAP APPEND, not
+   just the first one.
+
  Revision 641.3  2005/02/25 05:51:52  ajc
  * Started working on a fix for the IMAP APPEND "flags" thing.  It works
    but only for the first flag sent.  Will finish tomorrow.
@@ -6438,3 +6442,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

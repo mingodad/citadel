@@ -217,13 +217,12 @@ void imap_do_append_flags(long new_msgnum, char *new_message_flags) {
 	int i;
 
 	if (new_message_flags == NULL) return;
+	if (strlen(new_message_flags) == 0) return;
 
 	safestrncpy(flags, new_message_flags, sizeof flags);
-	stripallbut(flags, '(', ')');
 
 	for (i=0; i<num_tokens(flags, ' '); ++i) {
 		extract_token(this_flag, flags, i, ' ');
-		lprintf(CTDL_DEBUG, "setting flag <%s>\n", this_flag);
 		if (this_flag[0] == '\\') strcpy(this_flag, &this_flag[1]);
 		if (!strcasecmp(this_flag, "Seen")) {
 			CtdlSetSeen(new_msgnum, 1, ctdlsetseen_seen);
@@ -251,7 +250,7 @@ void imap_append(int num_parms, char *parms[]) {
 	char savedroom[ROOMNAMELEN];
 	int msgs, new;
 	int i;
-	char *new_message_flags = NULL;
+	char new_message_flags[SIZ];
 
 	if (num_parms < 4) {
 		cprintf("%s BAD usage error\r\n", parms[0]);
@@ -264,8 +263,13 @@ void imap_append(int num_parms, char *parms[]) {
 		return;
 	}
 
+	strcpy(new_message_flags, "");
 	if (num_parms >= 5) {
-		new_message_flags = parms[3];
+		for (i=3; i<num_parms; ++i) {
+			strcat(new_message_flags, parms[i]);
+			strcat(new_message_flags, " ");
+		}
+		stripallbut(new_message_flags, '(', ')');
 	}
 
 	/* This is how we'd do this if it were relevant in our data store.
