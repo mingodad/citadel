@@ -93,12 +93,12 @@ void room_tree_list(struct roomlisting *rp)
 	char rmname[64];
 	int f;
 
-	if (rp == NULL)
+	if (rp == NULL) {
 		return;
-
-	if (rp->lnext != NULL) {
-		room_tree_list(rp->lnext);
 	}
+
+	room_tree_list(rp->lnext);
+
 	strcpy(rmname, rp->rlname);
 	f = rp->rlflags;
 
@@ -117,9 +117,7 @@ void room_tree_list(struct roomlisting *rp)
 		wprintf("&gt;");
 	wprintf("</A><TT> </TT>\n");
 
-	if (rp->rnext != NULL) {
-		room_tree_list(rp->rnext);
-	}
+	room_tree_list(rp->rnext);
 	free(rp);
 }
 
