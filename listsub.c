@@ -141,7 +141,17 @@ void do_listsub(void)
 			wprintf("<CENTER><H1>Confirmation successful!</H1>");
 		}
 		else {
-			wprintf("<CENTER><H1>Confirmation failed.</H1>");
+			wprintf("<CENTER><H1>Confirmation failed.</H1>"
+				"This could mean one of two things:<UL>\n"
+				"<LI>You waited too long to confirm your "
+				"subscribe/unsubscribe request (the "
+				"confirmation link is only valid for three "
+				"days)\n<LI>You have <i>already</i> "
+				"successfully confirmed your "
+				"subscribe/unsubscribe request and are "
+				"attempting to do it again.</UL>\n"
+				"The error returned by the server was: "
+			);
 		}
 		wprintf("%s</CENTER><BR>\n", &buf[4]);
 	}
