@@ -99,13 +99,12 @@ static int num_threads = 0;			/* Current number of threads */
 int num_sessions = 0;				/* Current number of sessions */
 
 int syslog_facility = (-1);
-
+int enable_syslog = 0;
+extern int running_as_daemon;
 
 /*
  * lprintf()  ...   Write logging information
  */
-extern int running_as_daemon;
-static int enable_syslog = 1;
 void lprintf(enum LogLevel loglevel, const char *format, ...) {   
 	va_list arg_ptr;
 
@@ -199,7 +198,8 @@ void init_sysdep(void) {
 	 * session to which the calling thread is currently bound.
 	 */
 	if (pthread_key_create(&MyConKey, NULL) != 0) {
-		lprintf(CTDL_CRIT, "Can't create TSD key!!  %s\n", strerror(errno));
+		lprintf(CTDL_CRIT, "Can't create TSD key: %s\n",
+			strerror(errno));
 	}
 
 	/*
@@ -312,14 +312,16 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 
 	/* set to nonblock - we need this for some obscure situations */
 	if (fcntl(s, F_SETFL, O_NONBLOCK) < 0) {
-		lprintf(CTDL_EMERG, "citserver: Can't set socket to non-blocking: %s\n",
+		lprintf(CTDL_EMERG,
+			"citserver: Can't set socket to non-blocking: %s\n",
 			strerror(errno));
 		close(s);
 		return(-1);
 	}
 
 	if (listen(s, actual_queue_len) < 0) {
-		lprintf(CTDL_EMERG, "citserver: Can't listen: %s\n", strerror(errno));
+		lprintf(CTDL_EMERG, "citserver: Can't listen: %s\n",
+			strerror(errno));
 		close(s);
 		return(-1);
 	}
@@ -368,14 +370,16 @@ int ig_uds_server(char *sockpath, int queue_len)
 
 	/* set to nonblock - we need this for some obscure situations */
 	if (fcntl(s, F_SETFL, O_NONBLOCK) < 0) {
-		lprintf(CTDL_EMERG, "citserver: Can't set socket to non-blocking: %s\n",
+		lprintf(CTDL_EMERG,
+			"citserver: Can't set socket to non-blocking: %s\n",
 			strerror(errno));
 		close(s);
 		return(-1);
 	}
 
 	if (listen(s, actual_queue_len) < 0) {
-		lprintf(CTDL_EMERG, "citserver: Can't listen: %s\n", strerror(errno));
+		lprintf(CTDL_EMERG, "citserver: Can't listen: %s\n",
+			strerror(errno));
 		return(-1);
 	}
 
@@ -425,7 +429,6 @@ struct CitContext *CreateNewContext(void) {
 	 * being set up.
 	 */
 	me->state = CON_EXECUTING;
-
 
 	/*
 	 * Generate a unique session number and insert this context into
@@ -826,7 +829,8 @@ void create_worker(void) {
  * if such an action is appropriate.
  */
 void dead_session_purge(int force) {
-	struct CitContext *ptr, *rem;
+	struct CitContext *ptr;		/* general-purpose utility pointer */
+	struct CitContext *rem = NULL;	/* list of sessions to be destroyed */
 
 	if (force == 0) {
 		if ( (time(NULL) - last_purge) < 5 ) {
@@ -835,28 +839,44 @@ void dead_session_purge(int force) {
 	}
 	time(&last_purge);
 
-	do {
-		rem = NULL;
-		begin_critical_section(S_SESSION_TABLE);
-		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
-			if ( (ptr->state == CON_IDLE) && (ptr->kill_me) ) {
-				rem = ptr;
+	begin_critical_section(S_SESSION_TABLE);
+	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
+		if ( (ptr->state == CON_IDLE) && (ptr->kill_me) ) {
+
+			/* Remove the session from the active list */
+			if (ptr->prev) {
+				ptr->prev->next = ptr->next;
 			}
-		}
-		end_critical_section(S_SESSION_TABLE);
+			else {
+				ContextList = ptr->next;
+			}
+			if (ptr->next) {
+				ptr->next->prev = ptr->prev;
+			}
 
-		/* RemoveContext() enters its own S_SESSION_TABLE critical
-		 * section, so we have to do it like this.
-		 */	
-		if (rem != NULL) {
-			lprintf(CTDL_DEBUG, "Purging session %d\n", rem->cs_pid);
-			RemoveContext(rem);
-		}
+			--num_sessions;
 
-	} while (rem != NULL);
+			/* And put it on our to-be-destroyed list */
+			ptr->next = rem;
+			rem = ptr;
+
+		}
+	}
+	end_critical_section(S_SESSION_TABLE);
+
+	/* Now that we no longer have the session list locked, we can take
+	 * our time and destroy any sessions on the to-be-killed list, which
+	 * is allocated privately on this thread's stack.
+	 */
+	while (rem != NULL) {
+		lprintf(CTDL_DEBUG, "Purging session %d\n", rem->cs_pid);
+		RemoveContext(rem);
+		ptr = rem;
+		rem = rem->next;
+		free(ptr);
+	}
 
 	/* Raise the size of the worker thread pool if necessary. */
-
 	if ( (num_sessions > num_threads)
 	   && (num_threads < config.c_max_workers) ) {
 		begin_critical_section(S_WORKER_LIST);

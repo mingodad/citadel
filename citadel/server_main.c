@@ -87,6 +87,7 @@ int main(int argc, char **argv)
 		if (!strncmp(argv[a], "-l", 2)) {
 			safestrncpy(facility, argv[a], sizeof(facility));
 			syslog_facility = SyslogFacility(facility);
+			enable_syslog = 1;
 		}
 
 		/* run in the background if -d was specified */
@@ -133,12 +134,22 @@ int main(int argc, char **argv)
 	}
 
 	/* daemonize, if we were asked to */
-	if (running_as_daemon) { start_daemon(0); drop_root_perms = 1; }
+	if (running_as_daemon) {
+		start_daemon(0);
+		drop_root_perms = 1;
+	}
 
 	/* initialize the syslog facility */
-	if (running_as_daemon) openlog("Citadel", LOG_NDELAY, syslog_facility);
-	else openlog("Citadel", LOG_PERROR|LOG_NDELAY, syslog_facility);
-	setlogmask(LOG_UPTO(verbosity));
+	if (enable_syslog) {
+		if (running_as_daemon) {
+			openlog("citadel", LOG_NDELAY, syslog_facility);
+		}
+		else {
+			openlog("citadel", LOG_PERROR|LOG_NDELAY,
+				syslog_facility);
+		}
+		setlogmask(LOG_UPTO(verbosity));
+	}
 	
 	/* Tell 'em who's in da house */
 	lprintf(CTDL_NOTICE, "\n");

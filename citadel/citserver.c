@@ -170,33 +170,16 @@ void master_cleanup(int exitcode) {
 
 
 /*
- * Terminate a session and remove its context data structure.
+ * Terminate a session.
  */
 void RemoveContext (struct CitContext *con)
 {
 	if (con==NULL) {
-		lprintf(CTDL_ERR, "WARNING: RemoveContext() called with NULL!\n");
+		lprintf(CTDL_ERR,
+			"WARNING: RemoveContext() called with NULL!\n");
 		return;
 	}
-	lprintf(CTDL_DEBUG, "RemoveContext() called\n");
-
-	/* Remove the context from the global context list.  This needs
-	 * to get done FIRST to avoid concurrency problems.  It is *vitally*
-	 * important to keep num_sessions accurate!!
-	 */
-	lprintf(CTDL_DEBUG, "Removing context for session %d\n", con->cs_pid);
-	begin_critical_section(S_SESSION_TABLE);
-	if (con->prev) {
-		con->prev->next = con->next;
-	}
-	else {
-		ContextList = con->next;
-	}
-	if (con->next) {
-		con->next->prev = con->prev;
-	}
-	--num_sessions;
-	end_critical_section(S_SESSION_TABLE);
+	lprintf(CTDL_DEBUG, "RemoveContext() session %d\n", con->cs_pid);
 
 	/* Run any cleanup routines registered by loadable modules.
 	 * Note: We have to "become_session()" because the cleanup functions
@@ -216,11 +199,6 @@ void RemoveContext (struct CitContext *con)
 	/* If the client is still connected, blow 'em away. */
 	lprintf(CTDL_DEBUG, "Closing socket %d\n", con->client_socket);
 	close(con->client_socket);
-
-	/* This is where we used to check for scheduled shutdowns. */
-
-	/* Free up the memory used by this context */
-	free(con);
 
 	lprintf(CTDL_DEBUG, "Done with RemoveContext()\n");
 }

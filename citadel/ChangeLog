@@ -1,4 +1,9 @@
  $Log$
+ Revision 641.29  2005/03/20 22:55:58  ajc
+ * Logging to stderr no longer uses syslog()
+ * Reworked the way dead sessions are purged.  More efficient and more
+   reliable now.
+
  Revision 641.28  2005/03/18 21:40:36  ajc
  * Minor bugfix to previous checkin
 
@@ -6548,4 +6553,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -41,6 +41,8 @@ void lprintf (enum LogLevel loglevel, const char *format, ...);
 void cprintf (const char *format, ...);
 #endif
 
+extern int enable_syslog;
+
 void init_sysdep (void);
 void begin_critical_section (int which_one);
 void end_critical_section (int which_one);
