@@ -103,3 +103,4 @@ void do_generic(void);
 int browser_braindamage_check(char *);
 void display_menubar(int);
 void embed_room_banner(char *);
+void smart_goto(char *);

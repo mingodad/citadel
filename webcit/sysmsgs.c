@@ -76,7 +76,7 @@ void save_edit(char *description, char *enter_cmd, int regoto)
 	serv_puts("000");
 
 	if (regoto) {
-		gotoroom(wc_roomname, 1);
+		smart_goto(wc_roomname);
 	} else {
 		printf("HTTP/1.0 200 OK\n");
 		output_headers(1);
