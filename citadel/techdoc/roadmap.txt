@@ -6,10 +6,12 @@ some code and deciding what to work on.
 Goals to achieve during the 6.xx cycle
 --------------------------------------
 
-* Address books: allow personal address books as well as global, and give
-  the system the ability to use those addresses as e-mail shortcuts.
+* Address books: the current implementation has both a 'Contacts' personal
+  folder and a 'Global Address Book' -- both which contain vCards.  Add more
+  places where these addresses can be pulled in and used.
  
-* Better UI presentation for delegated access to mailboxes.
+* Better UI presentation for delegated access to mailboxes.  (In IMAP this
+  will be easy because of "other users namespace" support.)
 
 * Additional LDAP integration
 
