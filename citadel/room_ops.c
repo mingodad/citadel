@@ -42,7 +42,6 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf) {
 	CtdlGetRelationship(&vbuf, userbuf, roombuf);
 
 	/* Force the properties of the Aide room */
-	/* FIX FIX FIX ... this doesn't work */
 	if (!strcasecmp(roombuf->QRname, AIDEROOM)) {
 	lprintf(9, "Room <%s> is special!\n", roombuf->QRname);
 		if (userbuf->axlevel >= 6) {
