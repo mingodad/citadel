@@ -1,4 +1,9 @@
  $Log$
+ Revision 580.26  2001/08/22 03:43:11  ajc
+ * internet_addressing.c: fixed a bug in process_rfc822_addr() that caused the
+   server to jump into an endless loop when an e-mail address contained
+   unbalanced angle brackets.
+
  Revision 580.25  2001/08/15 04:26:02  ajc
  * Added split horizon and delete-after-spool to the new networker
 
@@ -2684,4 +2689,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

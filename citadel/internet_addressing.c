@@ -145,6 +145,7 @@ void unfold_rfc822_field(char *field) {
 void process_rfc822_addr(char *rfc822, char *user, char *node, char *name)
 {
 	int a;
+	int lb, rb;
 
 	strcpy(user, "");
 	strcpy(node, config.c_fqdn);
@@ -152,14 +153,16 @@ void process_rfc822_addr(char *rfc822, char *user, char *node, char *name)
 
 	/* extract full name - first, it's From minus <userid> */
 	strcpy(name, rfc822);
+	lb = (-1);
+	rb = (-1);
 	for (a = 0; a < strlen(name); ++a) {
-		if (name[a] == '<') {
-			do {
-				strcpy(&name[a], &name[a + 1]);
-			} while ((strlen(name) > 0) && (name[a] != '>'));
-			strcpy(&name[a], &name[a + 1]);
-		}
+		if (name[a] == '<') lb = a;
+		if (name[a] == '>') rb = a;
 	}
+	if ( (lb > 0) && (rb > lb) ) {
+		strcpy(&name[lb - 1], &name[rb + 1]);
+	}
+
 	/* strip anything to the left of a bang */
 	while ((strlen(name) > 0) && (haschar(name, '!') > 0))
 		strcpy(name, &name[1]);
