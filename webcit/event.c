@@ -70,16 +70,20 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"day\" VALUE=\"%s\">\n",
 		bstr("day"));
 
-	wprintf("Summary: "
+
+	/* Put it in a borderless table so it lines up nicely */
+	wprintf("<TABLE border=0 width=100%%>\n");
+
+	wprintf("<TR><TD><B>Summary</B></TD><TD>\n"
 		"<INPUT TYPE=\"text\" NAME=\"summary\" "
 		"MAXLENGTH=\"64\" SIZE=\"64\" VALUE=\"");
 	p = icalcomponent_get_first_property(vevent, ICAL_SUMMARY_PROPERTY);
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_comment(p));
 	}
-	wprintf("\"><BR>\n");
+	wprintf("\"></TD></TR>\n");
 
-	wprintf("Start date/time: ");
+	wprintf("<TR><TD><B>Start</B></TD><TD>\n");
 	p = icalcomponent_get_first_property(vevent, ICAL_DTSTART_PROPERTY);
 	if (p != NULL) {
 		t = icalproperty_get_dtstart(p);
@@ -88,9 +92,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		t = icaltime_from_timet(now, 0);
 	}
 	display_icaltimetype_as_webform(&t, "dtstart");
-	wprintf("<BR>\n");
+	wprintf("</TD></TR>\n");
 
-	wprintf("End date/time: ");
+	wprintf("<TR><TD><B>End</B></TD><TD>\n");
 	p = icalcomponent_get_first_property(vevent, ICAL_DTEND_PROPERTY);
 	if (p != NULL) {
 		t = icalproperty_get_dtend(p);
@@ -99,18 +103,20 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		t = icaltime_from_timet(now, 0);
 	}
 	display_icaltimetype_as_webform(&t, "dtend");
-	wprintf("<BR>\n");
+	wprintf("</TD></TR>\n");
 
-	wprintf("<CENTER><TEXTAREA NAME=\"description\" wrap=soft "
+	wprintf("<TR><TD><B>Notes</B></TD><TD>\n"
+		"<TEXTAREA NAME=\"description\" wrap=soft "
 		"ROWS=10 COLS=80 WIDTH=80>\n"
 	);
 	p = icalcomponent_get_first_property(vevent, ICAL_DESCRIPTION_PROPERTY);
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_comment(p));
 	}
-	wprintf("</TEXTAREA><BR>\n");
+	wprintf("</TEXTAREA></TD></TR></TABLE>\n");
 
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save\">"
+	wprintf("<CENTER>"
+		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save\">"
 		"&nbsp;&nbsp;"
 		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Delete\">\n"
 		"&nbsp;&nbsp;"

@@ -1,4 +1,7 @@
 $Log$
+Revision 400.31  2002/09/29 20:15:43  ajc
+* Completed the calendar day view
+
 Revision 400.30  2002/09/28 04:01:30  ajc
 * started fleshing out the calendar day view
 
@@ -1043,3 +1046,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

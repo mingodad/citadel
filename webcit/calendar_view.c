@@ -205,21 +205,57 @@ void calendar_week_view(int year, int month, int day) {
 }
 
 
-void calendar_day_view(int year, int month, int day) {
-	struct tm starting_tm;
-	time_t thetime;
+/*
+ * Display events for a particular hour of a particular day.
+ * (Specify hour < 0 to show "all day" events)
+ */
+void calendar_day_view_display_events(int year, int month,
+					int day, int hour) {
 	int i;
+	icalproperty *p;
+	struct icaltimetype t;
 
-	/* Determine what day we're viewing.
-	 */
-	memset(&starting_tm, 0, sizeof(struct tm));
-	starting_tm.tm_year = year - 1900;
-	starting_tm.tm_mon = month - 1;
-	starting_tm.tm_mday = day;
-	thetime = mktime(&starting_tm);
+	if (WC->num_cal == 0) {
+		wprintf("<BR><BR><BR>\n");
+		return;
+	}
+
+	for (i=0; i<(WC->num_cal); ++i) {
+		p = icalcomponent_get_first_property(WC->disp_cal[i],
+						ICAL_DTSTART_PROPERTY);
+		if (p != NULL) {
+			t = icalproperty_get_dtstart(p);
+			if ((t.year == year)
+			   && (t.month == month)
+			   && (t.day == day)
+			   && ( (t.hour == hour) || ((hour<0)&&(t.is_date)) )
+			   ) {
+
+				p = icalcomponent_get_first_property(
+							WC->disp_cal[i],
+							ICAL_SUMMARY_PROPERTY);
+				if (p != NULL) {
+					wprintf("<FONT SIZE=-1>"
+						"<A HREF=\"/display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d\">",
+						WC->cal_msgnum[i],
+						year, month, day
+					);
+					escputs((char *)
+						icalproperty_get_comment(p));
+					wprintf("</A></FONT>\n");
+				}
+
+			}
 
 
-/**********************************************************************/
+		}
+	}
+}
+
+
+
+void calendar_day_view(int year, int month, int day) {
+	int hour;
 
 	/* Outer table (to get the background color) */
 	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0 "
@@ -253,15 +289,31 @@ void calendar_day_view(int year, int month, int day) {
 		"<TABLE width=100%% border=0 cellpadding=1 cellspacing=1 "
 		"bgcolor=#4444FF>\n");
 
-	/* Now do 7 hours */
-	for (i = 0; i < 7; ++i) {
-		wprintf("<TR><TD BGCOLOR=FFFFFF HEIGHT=60 VALIGN=TOP>");
+	/* Display events before 8:00 (hour=-1 is all-day events) */
+	wprintf("<TR><TD BGCOLOR=FFFFFF VALIGN=TOP>");
+	for (hour = (-1); hour <= 7; ++hour) {
+		calendar_day_view_display_events(year, month, day, hour);
+	}
+	wprintf("</TD></TR>\n");
 
-		/* put the data here, stupid  ... FIXME add hour */
-		calendar_month_view_display_events(thetime);
+	/* Now the middle of the day... */	
+	for (hour = 8; hour <= 17; ++hour) {	/* could do HEIGHT=xx */
+		wprintf("<TR><TD BGCOLOR=FFFFFF VALIGN=TOP>");
+		wprintf("%d:00 ", hour);
+
+		/* put the data here, stupid */
+		calendar_day_view_display_events(year, month, day, hour);
 
 		wprintf("</TD></TR>\n");
 	}
+
+	/* Display events after 5:00... */
+	wprintf("<TR><TD BGCOLOR=FFFFFF VALIGN=TOP>");
+	for (hour = 18; hour <= 23; ++hour) {
+		calendar_day_view_display_events(year, month, day, hour);
+	}
+	wprintf("</TD></TR>\n");
+
 
 	wprintf("</TABLE>"			/* end of innermost table */
 		"</TD></TR></TABLE>"		/* end of inner table */
