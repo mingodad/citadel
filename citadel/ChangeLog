@@ -1,4 +1,9 @@
  $Log$
+ Revision 600.1  2002/09/07 03:24:23  ajc
+ * When displaying messages using MSG4, enumerate the attachments on the
+   client side, because the server won't add their descriptions to the
+   message text.
+
  Revision 600.0  2002/09/04 03:06:58  ajc
  * Committing the current code base as version 6.00
 
@@ -3969,3 +3974,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

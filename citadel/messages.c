@@ -618,6 +618,29 @@ int read_message(
 		++lines_printed;
 		lines_printed = checkpagin(lines_printed, pagin, screenheight);
 	}
+
+	/* Enumerate any attachments */
+	if ( (pagin == 1) && (can_do_msg4) && (message->attachments) ) {
+		struct parts *ptr;
+
+		for (ptr = message->attachments; ptr; ptr = ptr->next) {
+			if ( (!strcasecmp(ptr->disposition, "attachment"))
+			   || (!strcasecmp(ptr->disposition, "inline"))) {
+				color(DIM_WHITE);
+				scr_printf("Part ");
+				color(BRIGHT_MAGENTA);
+				scr_printf("%s", ptr->number);
+				color(DIM_WHITE);
+				scr_printf(": ");
+				color(BRIGHT_CYAN);
+				scr_printf("%s", ptr->filename);
+				color(DIM_WHITE);
+				scr_printf(" (%s, %ld bytes)\n", ptr->mimetype, ptr->length);
+			}
+		}
+	}
+
+	/* Now we're done */
 	free(message->text);
 	free(message);
 
