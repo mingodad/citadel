@@ -1,4 +1,7 @@
 $Log$
+Revision 528.26  2005/01/29 03:59:25  ajc
+* Implemented the GroupDAV DELETE method.
+
 Revision 528.25  2005/01/28 05:25:43  ajc
 * iconbar no longer uses the beginbox/endbox semantics, but instead lives
   directly inside the iconbar div.
@@ -2251,4 +2254,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -46,11 +46,19 @@ void groupdav_main(struct httprequest *req) {
 	struct httprequest *rptr;
 	char dav_method[SIZ];
 	char dav_pathname[SIZ];
+	char dav_ifmatch[SIZ];
+
+	strcpy(dav_method, "");
+	strcpy(dav_pathname, "");
+	strcpy(dav_ifmatch, "");
 
 	for (rptr=req; rptr!=NULL; rptr=rptr->next) {
 		lprintf(9, "> %s\n", rptr->line);	/* FIXME we can eventually remove this trace */
 		if (!strncasecmp(rptr->line, "Host: ", 6)) {
                         safestrncpy(WC->http_host, &rptr->line[6], sizeof WC->http_host);
+                }
+		if (!strncasecmp(rptr->line, "If-Match: ", 10)) {
+                        safestrncpy(dav_ifmatch, &rptr->line[10], sizeof dav_ifmatch);
                 }
 
 	}
@@ -70,6 +78,30 @@ void groupdav_main(struct httprequest *req) {
 	unescape_input(dav_pathname);
 
 	/*
+	 * If there's an If-Match: header, strip out the quotes if present, and
+	 * then if all that's left is an asterisk, make it go away entirely.
+	 */
+	if (strlen(dav_ifmatch) > 0) {
+		if (dav_ifmatch[0] == '\"') {
+			strcpy(dav_ifmatch, &dav_ifmatch[1]);
+			if (strtok(dav_ifmatch, "\"") != NULL) {
+				strcpy(strtok(dav_ifmatch, "\""), "");
+			}
+		}
+		if (!strcmp(dav_ifmatch, "*")) {
+			strcpy(dav_ifmatch, "");
+		}
+	}
+
+	/*
+	 * The PROPFIND method is basically used to list all objects in a room.
+	 */
+	if (!strcasecmp(dav_method, "PROPFIND")) {
+		groupdav_propfind(dav_pathname);
+		return;
+	}
+
+	/*
 	 * We like the GET method ... it's nice and simple.
 	 */
 	if (!strcasecmp(dav_method, "GET")) {
@@ -78,10 +110,10 @@ void groupdav_main(struct httprequest *req) {
 	}
 
 	/*
-	 * The PROPFIND method is basically used to list all objects in a room.
+	 * The DELETE method kills, maims, and destroys.
 	 */
-	if (!strcasecmp(dav_method, "PROPFIND")) {
-		groupdav_propfind(dav_pathname);
+	if (!strcasecmp(dav_method, "DELETE")) {
+		groupdav_delete(dav_pathname, dav_ifmatch);
 		return;
 	}
 

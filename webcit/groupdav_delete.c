@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Handles GroupDAV GET requests.
+ * Handles GroupDAV DELETE requests.
  *
  */
 
@@ -29,7 +29,7 @@
 /*
  * The pathname is always going to be /groupdav/room_name/euid
  */
-void groupdav_get(char *dav_pathname) {
+void groupdav_delete(char *dav_pathname, char *dav_ifmatch) {
 	char dav_roomname[SIZ];
 	char dav_uid[SIZ];
 	long dav_msgnum = (-1);
@@ -59,41 +59,49 @@ void groupdav_get(char *dav_pathname) {
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
 		wprintf("HTTP/1.1 404 not found\n");
 		groupdav_common_headers();
-		wprintf(
-			"Content-Type: text/plain\n"
-			"\n"
-			"There is no folder called \"%s\" on this server.\n",
-			dav_roomname
-		);
+		wprintf("Content-Length: 0\n\n");
 		return;
 	}
 
 	dav_msgnum = locate_message_by_uid(dav_uid);
-	serv_printf("MSG2 %ld", dav_msgnum);
-	serv_gets(buf);
-	if (buf[0] != '1') {
-		wprintf("HTTP/1.1 404 not found\n");
+
+	/*
+	 * If no item exists with the requested uid ... simple error.
+	 */
+	if (dav_msgnum < 0L) {
+		wprintf("HTTP/1.1 404 Not Found\n");
 		groupdav_common_headers();
-		wprintf(
-			"Content-Type: text/plain\n"
-			"\n"
-			"Object \"%s\" was not found in the \"%s\" folder.\n",
-			dav_uid,
-			dav_roomname
-		);
+		wprintf("Content-Length: 0\n\n");
 		return;
 	}
 
-	wprintf("HTTP/1.1 200 OK\n");
-	groupdav_common_headers();
-	wprintf("ETag: \"%ld\"\n", dav_msgnum);
-	while (serv_gets(buf), strcmp(buf, "000")) {
-		if (!strncasecmp(buf, "Content-type: ", 14)) {
-			found_content_type = 1;
+	/*
+	 * It's there ... check the ETag and make sure it matches
+	 * the message number.
+	 */
+	if (strlen(dav_ifmatch) > 0) {
+		if (atol(dav_ifmatch) != dav_msgnum) {
+			wprintf("HTTP/1.1 412 Precondition Failed\n");
+			groupdav_common_headers();
+			wprintf("Content-Length: 0\n\n");
+			return;
 		}
-		if ((strlen(buf) == 0) && (found_content_type == 0)) {
-			wprintf("Content-type: text/plain\n");
-		}
-		wprintf("%s\n", buf);
 	}
+
+	/*
+	 * Ok, attempt to delete the item.
+	 */
+	serv_printf("DELE %ld", dav_msgnum);
+	serv_gets(buf);
+	if (buf[0] == '2') {
+		wprintf("HTTP/1.1 204 No Content\n");	/* success */
+		groupdav_common_headers();
+		wprintf("Content-Length: 0\n\n");
+	}
+	else {
+		wprintf("HTTP/1.1 403 Forbidden\n");	/* access denied */
+		groupdav_common_headers();
+		wprintf("Content-Length: 0\n\n");
+	}
+	return;
 }
