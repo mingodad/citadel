@@ -1,0 +1,26 @@
+This isn't an official list of plans.  It's basically just some notes on where
+we want to be going.  It's something to consult when sitting down to write
+some code and deciding what to work on.
+
+
+Goals for 5.90
+--------------
+* New networker (done)
+* Database enhancements (done)
+
+
+Goals for 6.00
+--------------
+* Multiple recipients allowed in Citadel protocol.  Rework the code to feed
+  all deliveries through the same set of functions, regardless of whether a
+  message is submitted through Citadel protocol, SMTP, or from the networker.
+* Optimize the IMAP server and add the search command
+* Get the Global Address Book working
+* LDAP directory support?
+
+
+Goals for beyond 6.00
+---------------------
+* Calendar server
+* Address book server
+* Integration with Evolution, Mozilla Calendar, etc.
