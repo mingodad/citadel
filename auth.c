@@ -152,9 +152,8 @@ void do_welcome(void)
  */
 void end_webcit_session(void) {
 	serv_puts("QUIT");
-	close(WC->serv_sock);
-	WC->serv_sock = (-1);
 	WC->killthis = 1;
+	/* close() of citadel socket will be done by do_housekeeping() */
 }
 
 
