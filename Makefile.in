@@ -1,10 +1,12 @@
 # $Id$
 
+AUTOCONF=@AUTOCONF@
 CC=@CC@
 CFLAGS=@CFLAGS@
 DEFS=@DEFS@
 LIBOBJS=@LIBOBJS@
 LIBS=@LIBS@
+srcdir=@srcdir@
 
 # End of configuration section
 
@@ -66,3 +68,12 @@ roomops.o: roomops.c webcit.h child.h
 
 messages.o: messages.c webcit.h child.h
 	$(CC) $(CFLAGS) $(DEFS) -c messages.c
+
+Makefile: $(srcdir)/Makefile.in config.status
+	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) ./config.status
+
+config.status: $(srcdir)/configure
+	$(SHELL) ./config.status --recheck
+
+$(srcdir)/configure: $(srcdir)/configure.in $(srcdir)/aclocal.m4
+	cd $(srcdir) && $(AUTOCONF)
