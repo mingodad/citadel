@@ -80,13 +80,18 @@ static void unlock_session(struct wc_session *session)
 }
 
 /*
- * Remove a session context from the list
+ * Remove a session context from the list.
+ * Set do_lock to 1, to lock the list while manipulating it.  The ONLY
+ * situation in which this should _not_ be done is when it's already locked
+ * by the caller.
  */
 void remove_session(struct wc_session *TheSession, int do_lock)
 {
 	struct wc_session *sptr;
 
 	printf("Removing session.\n");
+
+	/* Lock the list while manipulating it */
 	if (do_lock)
 		pthread_mutex_lock(&MasterCritter);
 
@@ -100,13 +105,16 @@ void remove_session(struct wc_session *TheSession, int do_lock)
 		}
 	}
 
+	if (do_lock)
+		pthread_mutex_unlock(&MasterCritter);
+
+	/* Now finish destroying the session */
 	close(TheSession->inpipe[1]);
 	close(TheSession->outpipe[0]);
 	if (do_lock)
 		unlock_session(TheSession);
 	free(TheSession);
 
-	pthread_mutex_unlock(&MasterCritter);
 }
 
 
@@ -307,11 +315,11 @@ void *context_loop(int sock)
 		for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
 			if (sptr->session_id == desired_session) {
 				TheSession = sptr;
-				lock_session(TheSession);
 			}
 		}
 		pthread_mutex_unlock(&MasterCritter);
 	}
+
 	/*
 	 * Before we trumpet to the universe that the session we're looking
 	 * for actually exists, check first to make sure it's still there.
@@ -323,23 +331,25 @@ void *context_loop(int sock)
 			TheSession = NULL;
 		}
 	}
+
 	/*
 	 * Create a new session if we have to
 	 */
 	if (TheSession == NULL) {
 		printf("Creating a new session\n");
 		locate_host(browser_host, sock);
-		pthread_mutex_lock(&MasterCritter);
 		TheSession = (struct wc_session *)
 		    malloc(sizeof(struct wc_session));
 		TheSession->session_id = GenerateSessionID();
 		pipe(TheSession->inpipe);
 		pipe(TheSession->outpipe);
 		pthread_mutex_init(&TheSession->critter, NULL);
-		lock_session(TheSession);
+
+		pthread_mutex_lock(&MasterCritter);
 		TheSession->next = SessionList;
 		SessionList = TheSession;
 		pthread_mutex_unlock(&MasterCritter);
+
 		sprintf(str_session, "%d", TheSession->session_id);
 		f = fork();
 		if (f > 0)
@@ -380,9 +390,11 @@ void *context_loop(int sock)
 			close(TheSession->outpipe[1]);
 		}
 	}
+
 	/* 
 	 * Send the request to the appropriate session...
 	 */
+	lock_session(TheSession);
 	TheSession->lastreq = time(NULL);
 	printf("   Writing %d lines of command\n", num_lines);
 	printf("%s\n", &req[0][0]);

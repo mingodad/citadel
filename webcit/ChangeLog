@@ -1,3 +1,6 @@
+Tue Jun 22 14:53:05 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* context_loop.c: rearranged some code to try to eliminate deadlocks
+
 Fri Jun 18 11:55:58 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Unknown URL's now display the main menu instead of diagnostics
 	* Diagnostics are now at <baseurl>/diagnostics
