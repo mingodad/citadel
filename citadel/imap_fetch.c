@@ -572,8 +572,15 @@ void imap_fetch_bodystructure_post(
 
 	char subtype[SIZ];
 
+	cprintf(" ");
+
+	/* disposition */
 	extract_token(subtype, cbtype, 1, '/');
 	imap_strout(subtype);
+
+	/* body language */
+	cprintf(" NIL");
+
 	cprintf(")");
 }
 
@@ -589,25 +596,28 @@ void imap_fetch_bodystructure_part(
 		void *cbuserdata
 		) {
 
-	char buf[SIZ];
 	int have_cbtype = 0;
 	int have_encoding = 0;
-
-	cprintf("(");
+	int lines = 0;
+	size_t i;
+	char cbmaintype[SIZ];
+	char cbsubtype[SIZ];
 
 	if (cbtype != NULL) if (strlen(cbtype)>0) have_cbtype = 1;
-
 	if (have_cbtype) {
-		extract_token(buf, cbtype, 0, '/');
-		imap_strout(buf);
-		cprintf(" ");
-		extract_token(buf, cbtype, 1, '/');
-		imap_strout(buf);
-		cprintf(" ");
+		extract_token(cbmaintype, cbtype, 0, '/');
+		extract_token(cbsubtype, cbtype, 1, '/');
 	}
 	else {
-		cprintf("\"TEXT\" \"PLAIN\" ");
+		strcpy(cbmaintype, "TEXT");
+		strcpy(cbsubtype, "PLAIN");
 	}
+
+	cprintf("(");
+	imap_strout(cbmaintype);
+	cprintf(" ");
+	imap_strout(cbsubtype);
+	cprintf(" ");
 
 	cprintf("(\"CHARSET\" \"US-ASCII\"");
 
@@ -616,17 +626,12 @@ void imap_fetch_bodystructure_part(
 		imap_strout(name);
 	}
 
-	if (filename != NULL) if (strlen(filename)>0) {
-		cprintf(" \"FILENAME\" ");
-		imap_strout(name);
-	}
-
 	cprintf(") ");
 
-	cprintf("NIL NIL ");
+	cprintf("NIL ");	/* Body ID */
+	cprintf("NIL ");	/* Body description */
 
 	if (encoding != NULL) if (strlen(encoding) > 0)  have_encoding = 1;
-
 	if (have_encoding) {
 		imap_strout(encoding);
 	}
@@ -635,8 +640,53 @@ void imap_fetch_bodystructure_part(
 	}
 	cprintf(" ");
 
+	/* The next field is the size of the part in bytes. */
 	cprintf("%ld ", (long)length);	/* bytes */
-	cprintf("NIL) ");		/* lines */
+
+	/* The next field is the number of lines in the part, if and only
+	 * if the part is TEXT.  Crispin is a fscking idiot.
+	 */
+	if (!strcasecmp(cbmaintype, "TEXT")) {
+		if (length) for (i=0; i<length; ++i) {
+			if (((char *)content)[i] == '\n') ++lines;
+		}
+		cprintf("%d ", lines);
+	}
+
+	/* More of Crispin being a fscking idiot */
+	if ((!strcasecmp(cbmaintype, "MESSAGE"))
+	   && (!strcasecmp(cbsubtype, "RFC822"))) {
+		/* FIXME
+                     A body type of type MESSAGE and subtype RFC822
+                     contains, immediately after the basic fields, the
+                     envelope structure, body structure, and size in
+                     text lines of the encapsulated message.
+		*/
+	}
+
+	/* MD5 value of body part; we can get away with NIL'ing this */
+	cprintf("NIL ");
+
+	/* Disposition */
+	if (disp == NULL) {
+		cprintf("NIL");
+	}
+	else if (strlen(disp) == 0) {
+		cprintf("NIL");
+	}
+	else {
+		cprintf("(");
+		imap_strout(disp);
+		if (filename != NULL) if (strlen(filename)>0) {
+			cprintf(" (\"FILENAME\" ");
+			imap_strout(filename);
+			cprintf(")");
+		}
+		cprintf(")");
+	}
+
+	/* Body language (not defined yet) */
+	cprintf(" NIL)");
 }
 
 
