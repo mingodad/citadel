@@ -1,4 +1,8 @@
 $Log$
+Revision 505.10  2004/02/29 22:52:15  ajc
+* Close and clear (set to -1) server socket handle when socket errors are
+  detected.  Fixes a chat problem reported by Winzlo.
+
 Revision 505.9  2004/02/29 05:34:25  ajc
 * Display the Chat menu option as "Chat with other users in <roomname>"
 
@@ -1696,4 +1700,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

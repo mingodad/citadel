@@ -145,6 +145,8 @@ void serv_read(char *buf, int bytes)
 		if (rlen < 1) {
 			lprintf(1, "Server connection broken: %s\n",
 				strerror(errno));
+			close(WC->serv_sock);
+			WC->serv_sock = (-1);
 			WC->connected = 0;
 			WC->logged_in = 0;
 			return;
@@ -189,6 +191,8 @@ void serv_write(char *buf, int nbytes)
 		if (retval < 1) {
 			lprintf(1, "Server connection broken: %s\n",
 				strerror(errno));
+			close(WC->serv_sock);
+			WC->serv_sock = (-1);
 			WC->connected = 0;
 			WC->logged_in = 0;
 			return;
