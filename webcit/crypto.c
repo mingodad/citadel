@@ -452,7 +452,6 @@ void client_write_ssl(char *buf, int nbytes)
 			if (retval == -1)
 				lprintf(9, "errno is %d\n", errno);
 			endtls();
-			client_write(&buf[nbytes - nremain], nremain);
 			return;
 		}
 		nremain -= retval;
@@ -511,8 +510,7 @@ int client_read_ssl(char *buf, int bytes, int timeout)
 			}
 			lprintf(9, "SSL_read got error %ld\n", errval);
 			endtls();
-			return (client_read_to
-				(WC->http_sock, &buf[len], bytes - len, timeout));
+			return (0);
 		}
 		len += rlen;
 	}

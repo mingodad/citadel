@@ -1,4 +1,10 @@
 $Log$
+Revision 510.11  2004/06/01 21:46:47  ajc
+* crypto.c: when an SSL connection errors out (and closes) unexpectedly
+  during a read or write operation, do not attempt to finish the operation
+  unencrypted like we do in Citadel.  Here in WebCit land it only causes
+  the server to segfault.
+
 Revision 510.10  2004/06/01 19:01:22  ajc
 * netconf.c: widened some of the text entry fields
 * webcit.h: bumped up the internal version number to 5.20
@@ -1846,3 +1852,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
