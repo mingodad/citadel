@@ -240,6 +240,7 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 	char user[256];
 	char node[256];
 	char name[256];
+	struct quickroom qrbuf;
 
 	/* Split it up */
 	process_rfc822_addr(source, user, node, name);
@@ -256,6 +257,12 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 	 * FIX ... do the multiple-addresses thing
 	 */
 	if (!strcasecmp(node, config.c_nodename)) {
+		/* Try all local rooms */
+		if (!strncasecmp(destuser, "room_", 5)) {
+			/* FIX do this here */
+		}
+
+		/* Try all local users */
 		strcpy(destuser, user);
 		strcpy(desthost, config.c_nodename);
 		strcpy(CC->buffer1, user);
