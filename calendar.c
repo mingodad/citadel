@@ -327,6 +327,7 @@ void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) {
 		return;
 	}
 
+	ical_dezonify(cal);
 	cal_process_object(cal, 0, msgnum, cal_partnum);
 
 	/* Free the memory we obtained from libical's constructor */
@@ -722,6 +723,8 @@ void display_using_handler(long msgnum,
 
 			cal = icalcomponent_new_from_string(relevant_source);
 			if (cal != NULL) {
+
+				ical_dezonify(cal);
 
 				/* Simple components of desired type */
 				if (icalcomponent_isa(cal) == which_kind) {
