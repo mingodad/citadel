@@ -743,10 +743,8 @@ void smtp_starttls(void)
 void smtp_command_loop(void) {
 	char cmdbuf[SIZ];
 
-	lprintf(CTDL_DEBUG, "Start of SMTP command loop\n");
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
-	lprintf(CTDL_DEBUG, "Awaiting SMTP command...\n");
 	if (client_gets(cmdbuf) < 1) {
 		lprintf(CTDL_CRIT, "SMTP socket is broken.  Ending session.\n");
 		CC->kill_me = 1;
@@ -792,9 +790,7 @@ void smtp_command_loop(void) {
 	}
 
 	else if (!strncasecmp(cmdbuf, "MAIL", 4)) {
-		lprintf(CTDL_DEBUG, "Performing MAIL command\n");
 		smtp_mail(&cmdbuf[5]);
-		lprintf(CTDL_DEBUG, "Finished MAIL command\n");
 	}
 
 	else if (!strncasecmp(cmdbuf, "NOOP", 4)) {
@@ -827,7 +823,6 @@ void smtp_command_loop(void) {
 		cprintf("502 5.0.0 I'm afraid I can't do that.\r\n");
 	}
 
-	lprintf(CTDL_DEBUG, "End of SMTP command loop\n");
 
 }
 
