@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.18  2001/12/26 05:01:30  ajc
+ * Added a new developer ID for Anticlimactic Teleservices
+
  Revision 590.17  2001/12/23 10:00:43  error
  * Pages are once again formatted to the caller's screen width.
 
@@ -3002,3 +3005,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
