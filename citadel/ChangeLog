@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.116  2001/03/13 17:19:33  ajc
+ * support (BODY[HEADER.FIELDS(BLAH BLAH BLAH)]) and HEADER.FIELDS.NOT
+
  Revision 573.115  2001/03/12 01:27:42  ajc
  * Implemented SUBSCRIBE and UNSUBSCRIBE commands
 
@@ -2459,3 +2462,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -336,13 +336,17 @@ void imap_strip_headers(FILE *fp, char *section) {
 	char *parms[SIZ];
         int num_parms = 0;
 	int i;
+	char *boiled_headers = NULL;
+	int ok = 0;
+	int done_headers = 0;
+
+	which_fields = strdoop(section);
 
 	if (!strncasecmp(which_fields, "HEADER.FIELDS", 13))
 		doing_headers = 1;
 	if (!strncasecmp(which_fields, "HEADER.FIELDS.NOT", 17))
 		headers_not = 1;
 
-	which_fields = strdoop(section);
 	for (i=0; i<strlen(which_fields); ++i) {
 		if (which_fields[i]=='(')
 			strcpy(which_fields, &which_fields[i+1]);
@@ -352,23 +356,50 @@ void imap_strip_headers(FILE *fp, char *section) {
 			which_fields[i] = 0;
 	}
 	num_parms = imap_parameterize(parms, which_fields);
-	for (i=0; i<num_parms; ++i) {
-		lprintf(9, "parm[%d] = <%s>\n", i, parms[i]);
-	}	/* FIXME do something here! */
 
-	phree(which_fields);
+	fseek(fp, 0L, SEEK_END);
+	boiled_headers = mallok((size_t)(ftell(fp) + 256L));
+	strcpy(boiled_headers, "");
 
 	rewind(fp);
-	while (fgets(buf, sizeof buf, fp) != NULL) {
-		striplt(buf);
-		if (strlen(buf) == 0) {
-			fflush(fp);
-			ftruncate(fileno(fp), ftell(fp));
+	ok = 0;
+	while ( (done_headers == 0) && (fgets(buf, sizeof buf, fp) != NULL) ) {
+		if (!isspace(buf[0])) {
+			ok = 0;
+			if (doing_headers == 0) ok = 1;
+			else {
+				if (headers_not) ok = 1;
+				else ok = 0;
+				for (i=0; i<num_parms; ++i) {
+					if ( (!strncasecmp(buf, parms[i],
+					   strlen(parms[i]))) &&
+					   (buf[strlen(parms[i])]==':') ) {
+						if (headers_not) ok = 0;
+						else ok = 1;
+					}
+				}
+			}
 		}
+
+		if (ok) {
+			strcat(boiled_headers, buf);
+		}
+
+		if (strlen(buf) == 0) done_headers = 1;
+		if (buf[0]=='\r') done_headers = 1;
+		if (buf[0]=='\n') done_headers = 1;
 	}
+
+	/* Now write it back */
+	rewind(fp);
+	fwrite(boiled_headers, strlen(boiled_headers), 1, fp);
+	fflush(fp);
+	ftruncate(fileno(fp), ftell(fp));
 	fflush(fp);
 	fprintf(fp, "\r\n");	/* add the trailing newline */
 	rewind(fp);
+	phree(which_fields);
+	phree(boiled_headers);
 }
 
 
