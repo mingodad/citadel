@@ -127,7 +127,7 @@ void output_static(char *what) {
 		if (!strncasecmp(&what[strlen(what)-4], ".gif", 4))
 			printf("Content-type: image/gif\n");
 		else
-			printf("Content-type: junk/data\n");
+			printf("Content-type: application/octet-stream\n");
 
 		fstat(fileno(fp), &statbuf);
 		bytes = statbuf.st_size;
