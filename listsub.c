@@ -38,7 +38,7 @@ void do_listsub(void)
 	strcpy(WC->wc_password, "");
 	strcpy(WC->wc_roomname, "");
 
-	output_headers(2);	/* note "2" causes cookies to be unset */
+	wprintf("<HTML><HEAD><TITLE>List subscription</TITLE></HEAD><BODY>\n");
 
 	strcpy(cmd, bstr("cmd"));
 	strcpy(room, bstr("room"));
@@ -81,7 +81,8 @@ void do_listsub(void)
 			);
 		}
 		else {
-			wprintf("<FONT SIZE=+1>ERROR: </FONT>%s<BR><BR>\n",
+			wprintf("<FONT SIZE=+1><B>ERROR: %s</B>"
+				"</FONT><BR><BR>\n",
 				&buf[4]);
 			goto FORM;
 		}
@@ -131,6 +132,7 @@ FORM:		wprintf("<FORM METHOD=\"POST\" ACTION=\"/listsub\">\n"
 	 * Since this isn't part of a normal Citadel session, we bail right
 	 * out without maintaining any state.
 	 */
-	wDumpContent(2);
+	/* wDumpContent(2); */
+	wprintf("</BODY></HTML>\n");
 	end_webcit_session();
 }
