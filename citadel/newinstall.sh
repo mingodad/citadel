@@ -285,35 +285,63 @@ install_sources () {
 	LDFLAGS="-L${SUPPORT}/lib -Wl,--rpath -Wl,${SUPPORT}/lib"
 	export CFLAGS CPPFLAGS LDFLAGS
 
-	echo "* Installing Citadel..."
-	cd $BUILD 2>&1 >>$LOG || die
-	( gzip -dc $CITADEL_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
-	cd $BUILD/citadel 2>&1 >>$LOG || die
-	if [ -z "$OK_DB" ]
-	then
-		./configure --prefix=$CITADEL --with-db=$SUPPORT --with-pam --enable-autologin --with-ldap --with-libical --disable-threaded-client 2>&1 >>$LOG || die
-	else
-		./configure --prefix=$CITADEL --with-db=$OK_DB --with-pam --enable-autologin --with-ldap --with-libical --disable-threaded-client 2>&1 >>$LOG || die
-	fi
-	$MAKE $MAKEOPTS 2>&1 >>$LOG || die
-	if [ $IS_UPGRADE = yes ]
-	then
-		echo "* Performing Citadel upgrade..."
-		$MAKE upgrade 2>&1 >>$LOG || die
-	else
-		echo "* Performing Citadel install..."
-		$MAKE install 2>&1 >>$LOG || die
-		useradd -c "Citadel service account" -d $CITADEL -s $CITADEL/citadel citadel 2>&1 >>$LOG
+	DO_INSTALL_CITADEL=yes
+	SUM=`sum $CITADEL_SOURCE | awk ' { print $1$2 } '`
+	SUMFILE=$CITADEL/citadel-easyinstall.sum
+	if [ -r $SUMFILE ] ; then
+		OLDSUM=`cat $SUMFILE`
+		if [ $SUM = $OLDSUM ] ; then
+		echo "* Citadel does not need updating."
+		DO_INSTALL_CITADEL=no
+		fi
 	fi
 
-	echo "* Installing WebCit..."
-	cd $BUILD 2>&1 >>$LOG || die
-	( gzip -dc $WEBCIT_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
-	cd $BUILD/webcit 2>&1 >>$LOG || die
-	./configure --prefix=$WEBCIT --with-libical 2>&1 >>$LOG || die
-	$MAKE $MAKEOPTS 2>&1 >>$LOG || die
-	$MAKE install 2>&1 >>$LOG || die
-	echo "  Complete."
+	if [ $DO_INSTALL_CITADEL = yes ] ; then
+		echo "* Installing Citadel..."
+		cd $BUILD 2>&1 >>$LOG || die
+		( gzip -dc $CITADEL_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
+		cd $BUILD/citadel 2>&1 >>$LOG || die
+		if [ -z "$OK_DB" ]
+		then
+			./configure --prefix=$CITADEL --with-db=$SUPPORT --with-pam --enable-autologin --with-ldap --with-libical --disable-threaded-client 2>&1 >>$LOG || die
+		else
+			./configure --prefix=$CITADEL --with-db=$OK_DB --with-pam --enable-autologin --with-ldap --with-libical --disable-threaded-client 2>&1 >>$LOG || die
+		fi
+		$MAKE $MAKEOPTS 2>&1 >>$LOG || die
+		if [ $IS_UPGRADE = yes ]
+		then
+			echo "* Performing Citadel upgrade..."
+			$MAKE upgrade 2>&1 >>$LOG || die
+		else
+			echo "* Performing Citadel install..."
+			$MAKE install 2>&1 >>$LOG || die
+			useradd -c "Citadel service account" -d $CITADEL -s $CITADEL/citadel citadel 2>&1 >>$LOG
+		fi
+		echo $SUM >$SUMFILE
+	fi
+
+	DO_INSTALL_WEBCIT=yes
+	SUM=`sum $WEBCIT_SOURCE | awk ' { print $1$2 } '`
+	SUMFILE=$WEBCIT/webcit-easyinstall.sum
+	if [ -r $SUMFILE ] ; then
+		OLDSUM=`cat $SUMFILE`
+		if [ $SUM = $OLDSUM ] ; then
+		echo "* WebCit does not need updating."
+		DO_INSTALL_WEBCIT=no
+		fi
+	fi
+
+	if [ $DO_INSTALL_WEBCIT = yes ] ; then
+		echo "* Installing WebCit..."
+		cd $BUILD 2>&1 >>$LOG || die
+		( gzip -dc $WEBCIT_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
+		cd $BUILD/webcit 2>&1 >>$LOG || die
+		./configure --prefix=$WEBCIT --with-libical 2>&1 >>$LOG || die
+		$MAKE $MAKEOPTS 2>&1 >>$LOG || die
+		$MAKE install 2>&1 >>$LOG || die
+		echo "  Complete."
+		echo $SUM >$SUMFILE
+	fi
 }
 
 
