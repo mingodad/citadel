@@ -1,4 +1,9 @@
  $Log$
+ Revision 601.78  2002/12/01 00:59:54  ajc
+ * Reliably detect when the user saving an event is listed as the meeting
+   organizer.  (Currently calls a stub function.  Still need to write the
+   function to generate and send invitations.)
+
  Revision 601.77  2002/11/30 21:35:30  ajc
  * just some trace messages
 
@@ -4259,4 +4264,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

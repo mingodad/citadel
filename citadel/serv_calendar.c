@@ -676,7 +676,8 @@ void ical_create_room(void)
  * finds a VEVENT.
  */
 void ical_send_out_invitations(icalcomponent *cal) {
-	lprintf(9, "Sending out invitations!\n");
+	lprintf(9, "ORGANIZER IS ME!  Sending out invitations!\n");
+	/** FIXME ** Now go and implement this. **/
 }
 
 
@@ -685,21 +686,11 @@ void ical_send_out_invitations(icalcomponent *cal) {
  * and the user saving it is the organizer.  If so, send out invitations
  * to any listed attendees.
  *
- *
- * FIXME, FIXME, FIXME!!  This doesn't work, for some reason.
- *
  */
 void ical_saving_vevent(icalcomponent *cal) {
 	icalcomponent *c;
 	icalproperty *organizer = NULL;
 	char organizer_string[SIZ];
-
-
-	lprintf(9, "ical_saving_vevent() called\n");
-
-	lprintf(9, "------------\n%s\n-------\n",
-		icalcomponent_as_ical_string(cal)
-	);
 
 	strcpy(organizer_string, "");
 	/*
@@ -707,18 +698,21 @@ void ical_saving_vevent(icalcomponent *cal) {
 	 * Send out invitations if, and only if, this user is the Organizer.
 	 */
 	if (icalcomponent_isa(cal) == ICAL_VEVENT_COMPONENT) {
-		organizer = icalcomponent_get_first_property(cal, ICAL_ORGANIZER_PROPERTY);
+		organizer = icalcomponent_get_first_property(cal,
+						ICAL_ORGANIZER_PROPERTY);
 		if (organizer != NULL) {
-			lprintf(9, "Organizer found\n");
 			if (icalproperty_get_organizer(organizer)) {
 				strcpy(organizer_string,
-					icalproperty_get_organizer(organizer) );
+					icalproperty_get_organizer(organizer));
 			}
 		}
-		lprintf(9, "organizer: <%s>\n", organizer_string);
 		if (!strncasecmp(organizer_string, "MAILTO:", 7)) {
 			strcpy(organizer_string, &organizer_string[7]);
 			striplt(organizer_string);
+			/*
+			 * If the user saving the event is listed as the
+			 * organizer, then send out invitations.
+			 */
 			if (CtdlIsMe(organizer_string)) {
 				ical_send_out_invitations(cal);
 			}
@@ -734,7 +728,6 @@ void ical_saving_vevent(icalcomponent *cal) {
 	}
 
 }
-
 
 
 
