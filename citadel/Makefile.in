@@ -77,7 +77,7 @@ VPATH=$(srcdir)
 DOMAIN=@DOMAIN@
 
 SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c \
-	client_crypto.c commands.c config.c control.c $(DATABASE) \
+	commands.c config.c control.c $(DATABASE) \
 	dynloader.c file_ops.c housekeeping.c ipc_c_tcp.c locate_host.c \
 	logging.c messages.c msgbase.c msgform.c serv_spam.c \
 	policy.c readlog.c migratenet.c screen.c serv_mrtg.c \
@@ -110,12 +110,12 @@ serv_modules: $(SERV_MODULES)
 
 citadel$(EXEEXT): ipc_c_tcp.o citadel.o rooms.o routines.o \
 	routines2.o messages.o screen.o citadel_ipc.o \
-	client_passwords.o md5.o client_crypto.o html.o \
+	client_passwords.o md5.o html.o \
 	commands.o client_chat.o tools.o $(LIBOBJS)
 	$(CC) ipc_c_tcp.o citadel.o rooms.o routines.o \
 	routines2.o messages.o screen.o citadel_ipc.o \
 	commands.o client_chat.o tools.o html.o \
-	client_passwords.o md5.o client_crypto.o \
+	client_passwords.o md5.o \
 	$(LIBOBJS) $(LDFLAGS) -o citadel $(LIBS)
 
 .y.c:
@@ -225,21 +225,21 @@ setup: setup.o tools.o
 chkpwd: chkpwd.o auth.o config.o
 	$(CC) chkpwd.o auth.o config.o $(LDFLAGS) -o chkpwd $(chkpwd_LIBS)
 
-whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o tools.o client_crypto.o citadel_ipc.o $(LIBOBJS)
-	$(CC) whobbs.o ipc_c_tcp.o tools.o client_crypto.o citadel_ipc.o  $(LIBOBJS) $(LDFLAGS) -o whobbs $(LIBS)
+whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o tools.o citadel_ipc.o $(LIBOBJS)
+	$(CC) whobbs.o ipc_c_tcp.o tools.o citadel_ipc.o  $(LIBOBJS) $(LDFLAGS) -o whobbs $(LIBS)
 
-migratenet$(EXEEXT): migratenet.o config.o ipc_c_tcp.o client_crypto.o citadel_ipc.o tools.o libcitserver.la $(LIBOBJS)
-	$(LIBTOOL) $(CC) migratenet.o config.o ipc_c_tcp.o client_crypto.o citadel_ipc.o tools.o libcitserver.la $(LIBOBJS) $(LDFLAGS) -o migratenet $(LIBS)
+migratenet$(EXEEXT): migratenet.o config.o ipc_c_tcp.o citadel_ipc.o tools.o libcitserver.la $(LIBOBJS)
+	$(LIBTOOL) $(CC) migratenet.o config.o ipc_c_tcp.o citadel_ipc.o tools.o libcitserver.la $(LIBOBJS) $(LDFLAGS) -o migratenet $(LIBS)
 
-sendcommand: sendcommand.o ipc_c_tcp.o client_crypto.o citadel_ipc.o libcitserver.la $(LIBOBJS)
-	$(LIBTOOL) $(CC) sendcommand.o ipc_c_tcp.o client_crypto.o citadel_ipc.o libcitserver.la \
+sendcommand: sendcommand.o ipc_c_tcp.o citadel_ipc.o libcitserver.la $(LIBOBJS)
+	$(LIBTOOL) $(CC) sendcommand.o ipc_c_tcp.o citadel_ipc.o libcitserver.la \
 	 $(LIBOBJS) $(LDFLAGS) -o sendcommand $(LIBS)
 
 base64: base64.o
 	$(CC) base64.o $(LDFLAGS) -o base64
 
-userlist: userlist.o ipc_c_tcp.o client_crypto.o citadel_ipc.o tools.o $(LIBOBJS)
-	$(CC) userlist.o ipc_c_tcp.o client_crypto.o citadel_ipc.o tools.o \
+userlist: userlist.o ipc_c_tcp.o citadel_ipc.o tools.o $(LIBOBJS)
+	$(CC) userlist.o ipc_c_tcp.o citadel_ipc.o tools.o \
 	$(LIBOBJS) $(LDFLAGS) -o userlist $(LIBS)
 
 msgform: msgform.o
@@ -248,8 +248,8 @@ msgform: msgform.o
 readlog: readlog.o config.o
 	$(CC) readlog.o config.o $(LDFLAGS) -o readlog
 
-stats: stats.o ipc_c_tcp.o client_crypto.o citadel_ipc.o libcitserver.la $(LIBOBJS)
-	$(LIBTOOL) $(CC) stats.o ipc_c_tcp.o client_crypto.o citadel_ipc.o libcitserver.la $(LIBOBJS) $(LDFLAGS) -o stats $(LIBS)
+stats: stats.o ipc_c_tcp.o citadel_ipc.o libcitserver.la $(LIBOBJS)
+	$(LIBTOOL) $(CC) stats.o ipc_c_tcp.o citadel_ipc.o libcitserver.la $(LIBOBJS) $(LDFLAGS) -o stats $(LIBS)
 
 .PHONY: install-data install-doc install-exec clean cleaner distclean
 

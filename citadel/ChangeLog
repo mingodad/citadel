@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.20  2002/10/07 09:40:49  error
+ * Don't try to compile non-existent client_crypto.c (oops!)
+
  Revision 601.19  2002/10/06 18:46:30  error
  * Move (nearly) all IPC-related code to citadel_ipc.[ch].
 
@@ -4052,4 +4055,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
