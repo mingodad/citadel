@@ -347,9 +347,15 @@ void display_customize_iconbar(void) {
 		if (!strcasecmp(key, "ib_citadel")) ib_citadel = atoi(value);
 	}
 
-	output_headers(1, 1, 0, 0, 0, 0, 0);
-	svprintf("BOXTITLE", WCS_STRING, "Customize the icon bar");
-	do_template("beginbox");
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n"
+		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<SPAN CLASS=\"titlebar\">Customize the icon bar</SPAN>"
+		"</TD></TR></TABLE>\n"
+		"</div>\n<div id=\"content\">\n"
+	);
+
+	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/commit_iconbar\">\n");
 
@@ -548,7 +554,7 @@ void display_customize_iconbar(void) {
 		"</CENTER></FORM>\n"
 	);
 
-	do_template("endbox");
+	wprintf("</td></tr></table></center>\n");
 	wDumpContent(2);
 }
 
@@ -593,13 +599,13 @@ void commit_iconbar(void) {
 	set_preference("iconbar", iconbar);
 
 	output_headers(1, 1, 0, 0, 0, 0, 0);
-	do_template("beginbox_nt");
 	wprintf(
+		"<center><table border=1 bgcolor=\"#ffffff\"><tr><td>"
 		"<IMG SRC=\"/static/advanced-icon.gif\">"
 		"&nbsp;"
 		"Your icon bar has been updated.  Please select any of its "
-		"choices to continue.\n"
+		"choices to continue."
+		"</td></tr></table>\n"
 	);
-	do_template("endbox");
 	wDumpContent(2);
 }

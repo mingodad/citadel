@@ -623,9 +623,7 @@ void do_tasks_view(void) {
 	char buf[SIZ];
 	icalproperty *p;
 
-	do_template("beginbox_nt");
-
-	wprintf("<TABLE BORDER=0 CELLSPACING=0 WIDTH=100%%>\n<TR>\n"
+	wprintf("<center><table border=0 cellspacing=0 width=99%% bgcolor=\"#FFFFFF\">\n<tr>\n"
 		"<TH>Name of task</TH>\n"
 		"<TH>Date due</TH></TR>\n"
 	);
@@ -667,10 +665,7 @@ void do_tasks_view(void) {
 		wprintf(">%s</FONT></TD></TR>\n", buf);
 	}
 
-	wprintf("</TABLE>\n");
-
-	do_template("endbox");
-
+	wprintf("</table></center>\n");
 
 	/* Free the list */
 	free_calendar_buffer();
