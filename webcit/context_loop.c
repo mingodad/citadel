@@ -47,18 +47,36 @@ pthread_key_t MyConKey;                         /* TSD key for MySession() */
 
 void do_housekeeping(void)
 {
-	struct wcsession *sptr;
+	struct wcsession *sptr, *session_to_kill;
 
-	pthread_mutex_lock(&SessionListMutex);
+	do {
+		session_to_kill = NULL;
+		pthread_mutex_lock(&SessionListMutex);
+		for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
 
-	/* Kill idle sessions */
-	for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
-		if ((time(NULL) - (sptr->lastreq)) > (time_t) WEBCIT_TIMEOUT) {
-			/* FIX do something here */
+			/* Kill idle sessions */
+			if ((time(NULL) - (sptr->lastreq)) >
+			   (time_t) WEBCIT_TIMEOUT) {
+				sptr->killthis = 1;
+			}
+
+			/* Remove sessions flagged for kill */
+			if (sptr->killthis) {
+				remove session from linked list
+				session_to_kill = sptr;
+				goto BREAKOUT;
+			}
 		}
-	}
+BREAKOUT:	pthread_mutex_unlock(&SessionListMutex);
 
-	pthread_mutex_unlock(&SessionListMutex);
+		if (session_to_kill != NULL) {
+			lock the session
+			shut down the session
+			unlock the session
+			free the struct
+		}
+
+	} while (session_to_kill != NULL);
 }
 
 
@@ -78,8 +96,7 @@ void housekeeping_loop(void)
  * Generate a unique WebCit session ID (which is not the same thing as the
  * Citadel session ID).
  *
- * FIX ... we really should check to make sure we're generating a truly
- * unique session ID by traversing the SessionList.
+ * FIX ... ensure that session number is truly unique
  *
  */
 int GenerateSessionID(void)
@@ -191,8 +208,6 @@ void context_loop(int sock)
 	int desired_session = 0;
 	int got_cookie = 0;
 	struct wcsession *TheSession, *sptr;
-	int CloseSession = 0;
-
 
 	fprintf(stderr, "Reading request from socket %d\n", sock);
 
@@ -287,30 +302,15 @@ void context_loop(int sock)
 
 
 	/*
-	 * Bind to the session
+	 * Bind to the session and perform the transaction
 	 */
-	pthread_mutex_lock(&TheSession->SessionMutex);
+	pthread_mutex_lock(&TheSession->SessionMutex);		/* bind */
 	pthread_setspecific(MyConKey, (void *)TheSession);
-	TheSession->lastreq = time(NULL);
 	TheSession->http_sock = sock;
-
-	/* 
-	 * Perform the WebCit transaction
-	 */
+	TheSession->lastreq = time(NULL);			/* log */
 	fprintf(stderr, "Transaction: %s\n", req->line);
-	session_loop(req);
-	fprintf(stderr, "Returned from transaction loop\n");
-
-	/*
-	 * If the last response included a "close session" directive,
-	 * remove the context now.
-	 */
-	if (CloseSession) {
-		/*  FIX   remove_session(TheSession, 1);   */
-	} else {
-
-		pthread_mutex_unlock(&TheSession->SessionMutex);
-	}
+	session_loop(req);		/* perform the requested transaction */
+	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 
 	/* Free the request buffer */
 	while (req != NULL) {

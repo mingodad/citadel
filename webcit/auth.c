@@ -199,7 +199,9 @@ void do_logout(void)
 	wprintf("<HR><A HREF=\"/\">Log in again</A></CENTER>\n");
 	wDumpContent(2);
 	serv_puts("QUIT");
-	/* FIX  ...  do something here to flag the session for removal */
+	close(WC->serv_sock);
+	WC->serv_sock = (-1);
+	WC->killthis = 1;
 }
 
 

@@ -1,4 +1,8 @@
 $Log$
+Revision 1.111  1999/12/03 17:59:53  ajc
+* BROKEN BUILD.  Wrote most of the session removal code, but some of it is
+  pseudocode so the build is currently broken.
+
 Revision 1.110  1999/12/03 16:37:46  ajc
 * Repaired HTTP output for image transfers and static content
 
@@ -327,4 +331,5 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
 
