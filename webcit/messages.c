@@ -645,7 +645,7 @@ ENDBODY:
 
 	/* end everythingamundo table */
 	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div>\n");
+	wprintf("</div><br />\n");
 }
 
 

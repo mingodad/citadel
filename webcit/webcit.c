@@ -435,10 +435,12 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 		wprintf("<div id=\"content\">\n");
 
 		if (strlen(WC->ImportantMessage) > 0) {
+			wprintf("<div id=\"fix_scrollbar_bug\">\n");
 			do_template("beginbox_nt");
 			wprintf("<SPAN CLASS=\"errormsg\">"
 				"%s</SPAN><br />\n", WC->ImportantMessage);
 			do_template("endbox");
+			wprintf("</div>\n");
 			strcpy(WC->ImportantMessage, "");
 		}
 
