@@ -18,6 +18,8 @@
 SSL *ssl;
 SSL_CTX *ssl_ctx;
 int ssl_is_connected = 0;
+char arg_encrypt;
+char rc_encrypt;
 #ifdef THREADED_CLIENT
 pthread_mutex_t **Critters;			/* Things that need locking */
 #endif /* THREADED_CLIENT */
@@ -138,8 +140,14 @@ int starttls(void)
 	SSL_METHOD *ssl_method;
 	DH *dh;
 	
-	/* TLS is pointless when server is local */
-	if (server_is_local) {
+	/* Figure out whether to encrypt the session based on user options */
+	/* User request to disable encryption */
+	if (arg_encrypt == RC_NO || rc_encrypt == RC_NO) {
+		return 0;
+	}
+	/* User expressed no preference */
+	else if (rc_encrypt == RC_DEFAULT && arg_encrypt == RC_DEFAULT &&
+			server_is_local) {
 		return 0;
 	}
 

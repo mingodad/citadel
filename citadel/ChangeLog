@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.47  2002/01/06 22:44:21  error
+ * Enable/disable encryption in client from command line and/or citadel.rc
+
  Revision 590.46  2002/01/06 21:25:26  ajc
  * sysdep.c: in client_write(), handle redirect_fp and redirect_sock *before*
    handling redirect_ssl, because these need to be done the same way regardless
@@ -3105,3 +3108,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

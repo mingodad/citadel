@@ -884,7 +884,7 @@ int main(int argc, char **argv)
 	char hexstring[MD5_HEXSTRING_SIZE];
 	int stored_password = 0;
 	char password[SIZ];
-
+	
 	/* Permissions sanity check - don't run citadel setuid/setgid */
 	if (getuid() != geteuid()) {
 		fprintf(stderr, "Please do not run citadel setuid!\n");
@@ -901,6 +901,8 @@ int main(int argc, char **argv)
 	signal(SIGTERM, dropcarr);	/* Cleanup gracefully if terminated */
 	signal(SIGCONT, catch_sigcont);		/* Catch SIGCONT so we can reset terminal */
 
+	arg_encrypt = RC_DEFAULT;
+
 	/* 
 	 * Handle command line options as if we were called like /bin/login
 	 * (i.e. from in.telnetd)
@@ -909,6 +911,14 @@ int main(int argc, char **argv)
 		if ((argc > a+1) && (!strcmp(argv[a], "-h")) ) {
 			telnet_client_host = argv[a+1];
 			argc = shift(argc, argv, a, 2);
+		}
+		if (!strcmp(argv[a], "-x")) {
+			arg_encrypt = RC_NO;
+			argc = shift(argc, argv, a, 1);
+		}
+		if (!strcmp(argv[a], "-X")) {
+			arg_encrypt = RC_YES;
+			argc = shift(argc, argv, a, 1);
 		}
 		if (!strcmp(argv[a], "-p")) {
 			struct stat st;

@@ -689,6 +689,7 @@ void load_command_set(void)
 	rc_force_mail_prompts = 0;
 	rc_ansi_color = 0;
 	strcpy(rc_url_cmd, "");
+	rc_encrypt = RC_DEFAULT;
 
 	/* now try to open the citadel.rc file */
 
@@ -714,6 +715,15 @@ void load_command_set(void)
 	while (fgets(buf, sizeof buf, ccfile) != NULL) {
 		while ((strlen(buf) > 0) ? (isspace(buf[strlen(buf) - 1])) : 0)
 			buf[strlen(buf) - 1] = 0;
+
+		if (!strncasecmp(buf, "encrypt=", 8)) {
+			if (!strcasecmp(&buf[8], "yes"))
+				rc_encrypt = RC_YES;
+			else if (!strcasecmp(&buf[8], "no"))
+				rc_encrypt = RC_NO;
+			else if (!strcasecmp(&buf[8], "default"))
+				rc_encrypt = RC_DEFAULT;
+		}
 
 		if (!strncasecmp(buf, "editor=", 7))
 			strcpy(editor_path, &buf[7]);

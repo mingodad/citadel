@@ -9,6 +9,13 @@
 # 3. <compiled BBSDIR>/citadel.rc
 # 4. <current directory>/citadel.rc
 
+# Set ENCRYPT to yes to force SSL/TLS encryption when connecting to a
+# Citadel/UX server, even if the server is on the same machine as the
+# client.  Set it to no to disable SSL/TLS encryption.  The default is to
+# enable encryption for remote systems and to disable encryption for
+# systems on the same machine as the client.
+encrypt=default
+
 # Set EDITOR to the name of an external editor to be used for entering
 # messages.  If you want the external editor to be used by default, be sure
 # to reflect this in the command set below.
