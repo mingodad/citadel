@@ -1107,7 +1107,6 @@ void readloop(char *oper)
 		is_tasks = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
-		wprintf("<UL>");
 	}
 
 	nummsgs = load_msg_ptrs(cmd);
@@ -1213,10 +1212,6 @@ void readloop(char *oper)
 
 	if (is_summary) {
 		wprintf("</TABLE>\n");
-	}
-
-	if (is_tasks) {
-		wprintf("</UL>\n");
 	}
 
 	/* Bump these because although we're thinking in zero base, the user
@@ -1331,9 +1326,7 @@ void readloop(char *oper)
 
 DONE:
 	if (is_tasks) {
-		wprintf("<A HREF=\"/display_edit_task?msgnum=0\">"
-			"Add new task</A>\n"
-		);
+		do_tasks_view();	/* Render the task list */
 	}
 
 	if (is_calendar) {
