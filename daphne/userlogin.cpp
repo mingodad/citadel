@@ -131,6 +131,36 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 		"exit_button"
 		);
 
+
+	wxPanel *hnodepanel = new wxPanel(this, -1, wxDefaultPosition,
+			wxDefaultSize, 0L, "");
+	hnodepanel->SetBackgroundColour(wxColour(0x00, 0x00, 0x77));
+	hnodepanel->SetForegroundColour(wxColour(0xFF, 0xFF, 0x00));
+
+	wxStaticText *humannode = new wxStaticText(
+		hnodepanel, -1, citsock->HumanNode,
+		wxDefaultPosition, wxDefaultSize, 0, "");
+	humannode->SetBackgroundColour(wxColour(0x00, 0x00, 0x77));
+	humannode->SetForegroundColour(wxColour(0xFF, 0xFF, 0x00));
+	humannode->SetFont(wxFont(24, wxDEFAULT, wxNORMAL, wxNORMAL,
+				FALSE, ""));
+
+	wxLayoutConstraints *t0 = new wxLayoutConstraints;
+	t0->top.SameAs(this, wxTop, 10);
+	t0->height.SameAs(this, wxTop, 50);
+	t0->left.SameAs(this, wxLeft, 10);
+	t0->right.SameAs(this, wxRight, 10);
+	hnodepanel->SetConstraints(t0);
+
+	wxLayoutConstraints *t1 = new wxLayoutConstraints;
+	t1->top.SameAs(this, wxTop, 10);
+	t1->height.AsIs();
+	//t1->left.SameAs(this, wxLeft, 10);
+	//t1->right.SameAs(this, wxRight, 10);
+	t1->centreX.SameAs(this, wxCentreX);
+	t1->width.AsIs();
+	humannode->SetConstraints(t1);
+
 	wxLayoutConstraints *c1 = new wxLayoutConstraints;
 	c1->bottom.SameAs(this, wxBottom, 10);		// 10 from the bottom
 	c1->centreX.SameAs(this, wxCentreX);		// in the middle

@@ -22,6 +22,7 @@ int CitClient::attach(const wxString& host, const wxString& port) {
 	if (sock.IsConnected()) {
 		serv_gets(ServerReady);
 		// FIX ... add check for not allowed to log in
+		initialize_session();
 		return(0);
 	}
 	else return(1);
@@ -68,6 +69,7 @@ bool CitClient::IsConnected(void) {
 void CitClient::serv_gets(wxString& buf) {
 	char charbuf[2];
 
+	buf.Empty();
 	do {
 		sock.Read(charbuf, 1);
 		if (isprint(charbuf[0])) buf.Append(charbuf[0], 1);
@@ -121,4 +123,40 @@ int CitClient::serv_trans(wxString& command, wxString& response) {
 int CitClient::serv_trans(wxString& command) {
 	wxString junkbuf;
 	return serv_trans(command, junkbuf);
+}
+
+// Set up some things that we do at the beginning of every session
+void CitClient::initialize_session(void)  {
+	wxStringList info;
+	wxString sendcmd;
+	wxString recvcmd;
+	int i;
+	wxString *infoptr;
+	wxString infoline;
+
+	sendcmd = "IDEN 0|6|000|Daphne";
+	serv_trans(sendcmd);
+
+	sendcmd = "INFO";
+	if (serv_trans(sendcmd, recvcmd, info)==1) {
+		for (i=0; i<info.Number(); ++i) {
+			infoptr = (wxString *) info.Nth(i)->GetData();
+			infoline.Printf("%s", infoptr);
+			switch(i) {
+			case 0:		SessionID	= atoi(infoline);
+			case 1:		NodeName	= infoline;
+			case 2:		HumanNode	= infoline;
+			case 3:		FQDN		= infoline;
+			case 4:		ServerSoftware	= infoline;
+			case 5:		ServerRev	= atoi(infoline);
+			case 6:		GeoLocation	= infoline;
+			case 7:		SysAdmin	= infoline;
+			case 8:		ServerType	= atoi(infoline);
+			case 9:		MorePrompt	= infoline;
+			case 10:	UseFloors	= ((atoi(infoline)>0)
+							? TRUE : FALSE);
+			case 11:	PagingLevel	= atoi(infoline);
+			}
+		}
+	}
 }
