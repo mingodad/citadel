@@ -281,7 +281,7 @@ void citedit(FILE *fp, long int base_pos)
 				for (b=0; b<strlen(wordbuf); ++b)
 				   if (wordbuf[b]==32) {
 					wordbuf[b]=0;
-					add_word(textlist,wordbuf);
+					ADD_WORD(textlist,wordbuf);
 					strcpy(wordbuf,&wordbuf[b+1]);
 					b=0;
 					}
@@ -1004,17 +1004,23 @@ void readmsgs(int c, int rdir, int q)	/* read contents of a room */
 RAGAIN:		pagin=((arcflag==0)&&(quotflag==0)&&
 			(userflags & US_PAGINATOR)) ? 1 : 0;
 
-	/* if we're doing a quote, set the screenwidth to 72 temporarily */
+	/* If we're doing a quote, set the screenwidth to 72 temporarily */
 		if (quotflag) {
 			hold_sw = screenwidth;
 			screenwidth = 72;
+			}
+
+	/* If printing or archiving, set the screenwidth to 80 temporarily */
+		if (arcflag) {
+			hold_sw = screenwidth;
+			screenwidth = 80;
 			}
 
 	/* now read the message... */
 		e=read_message(msg_arr[a],pagin);
 
 	/* ...and set the screenwidth back if we have to */
-		if (quotflag) {
+		if ((quotflag)||(arcflag)) {
 			screenwidth = hold_sw;
 			}
 RMSGREAD:	fflush(stdout);
