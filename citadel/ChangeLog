@@ -1,4 +1,7 @@
  $Log$
+ Revision 641.14  2005/03/02 03:35:18  ajc
+ * serv_smtp.c: removed use of temporary file for SMTP transmission
+
  Revision 641.13  2005/03/02 03:01:18  ajc
  * serv_spam.c: use redirect_buffer instead of redirect_sock
  * Removed redirect_sock from the API.  redirect_fp is next!
@@ -6476,3 +6479,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

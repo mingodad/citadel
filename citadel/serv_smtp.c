@@ -903,9 +903,9 @@ void smtp_try(const char *key, const char *addr, int *status,
 	char buf[1024];
 	char mailfrom[1024];
 	int lp, rp;
-	FILE *msg_fp = NULL;
+	char *msgtext;
+	char *ptr;
 	size_t msg_size;
-	size_t blocksize = 0;
 	int scan_done;
 
 	/* Parse out the host portion of the recipient address */
@@ -914,28 +914,26 @@ void smtp_try(const char *key, const char *addr, int *status,
 	lprintf(CTDL_DEBUG, "Attempting SMTP delivery to <%s> @ <%s> (%s)\n",
 		user, node, name);
 
-	/* Load the message out of the database into a temp file */
-	msg_fp = tmpfile();
-	if (msg_fp == NULL) {
-		*status = 4;
-		snprintf(dsn, n, "Error creating temporary file");
-		return;
-	}
-	else {
-		CtdlRedirectOutput(msg_fp);
-		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
-		CtdlRedirectOutput(NULL);
-		fseek(msg_fp, 0L, SEEK_END);
-		msg_size = ftell(msg_fp);
-	}
-
+	/* Load the message out of the database */
+	CC->redirect_buffer = malloc(SIZ);
+	CC->redirect_len = 0;
+	CC->redirect_alloc = SIZ;
+	CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
+	CC->redirect_buffer[CC->redirect_len] = 0;
+	msgtext = CC->redirect_buffer;
+	msg_size = CC->redirect_len;
+	CC->redirect_buffer = NULL;
+	CC->redirect_len = 0;
+	CC->redirect_alloc = 0;
 
 	/* Extract something to send later in the 'MAIL From:' command */
 	strcpy(mailfrom, "");
-	rewind(msg_fp);
 	scan_done = 0;
+	ptr = msgtext;
 	do {
-		if (fgets(buf, sizeof buf, msg_fp)==NULL) scan_done = 1;
+		if (ptr = memreadline(ptr, buf, sizeof buf), ptr==NULL) {
+			scan_done = 1;
+		}
 		if (!strncasecmp(buf, "From:", 5)) {
 			safestrncpy(mailfrom, &buf[5], sizeof mailfrom);
 			striplt(mailfrom);
@@ -1043,7 +1041,6 @@ void smtp_try(const char *key, const char *addr, int *status,
 		}
 	}
 
-
 	/* HELO succeeded, now try the MAIL From: command */
 	snprintf(buf, sizeof buf, "MAIL From: <%s>\r\n", mailfrom);
 	lprintf(CTDL_DEBUG, ">%s", buf);
@@ -1066,7 +1063,6 @@ void smtp_try(const char *key, const char *addr, int *status,
 			goto bail;
 		}
 	}
-
 
 	/* MAIL succeeded, now try the RCPT To: command */
 	snprintf(buf, sizeof buf, "RCPT To: <%s>\r\n", addr);
@@ -1091,7 +1087,6 @@ void smtp_try(const char *key, const char *addr, int *status,
 		}
 	}
 
-
 	/* RCPT succeeded, now try the DATA command */
 	lprintf(CTDL_DEBUG, ">DATA\n");
 	sock_write(sock, "DATA\r\n", 6);
@@ -1115,18 +1110,11 @@ void smtp_try(const char *key, const char *addr, int *status,
 	}
 
 	/* If we reach this point, the server is expecting data */
-	rewind(msg_fp);
-	while (msg_size > 0) {
-		blocksize = sizeof(buf);
-		if (blocksize > msg_size) blocksize = msg_size;
-		fread(buf, blocksize, 1, msg_fp);
-		sock_write(sock, buf, blocksize);
-		msg_size -= blocksize;
-	}
-	if (buf[blocksize-1] != 10) {
+	sock_write(sock, msgtext, msg_size);
+	if (msgtext[msg_size-1] != 10) {
 		lprintf(CTDL_WARNING, "Possible problem: message did not "
 			"correctly terminate. (expecting 0x10, got 0x%02x)\n",
-				buf[blocksize-1]);
+				buf[msg_size-1]);
 	}
 
 	sock_write(sock, ".\r\n", 3);
@@ -1160,7 +1148,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	lprintf(CTDL_INFO, "SMTP delivery to <%s> @ <%s> (%s) succeeded\n",
 		user, node, name);
 
-bail:	if (msg_fp != NULL) fclose(msg_fp);
+bail:	free(msgtext);
 	sock_close(sock);
 	return;
 }
