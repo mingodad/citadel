@@ -439,16 +439,18 @@ void imap_close(int num_parms, char *parms[]) {
 /*
  * Used by LIST and LSUB to show the floors in the listing
  */
-void imap_list_floors(char *cmd) {
+void imap_list_floors(char *cmd, char *pattern) {
 	int i;
 	struct floor *fl;
 
 	for (i=0; i<MAXFLOORS; ++i) {
 		fl = cgetfloor(i);
 		if (fl->f_flags & F_INUSE) {
-			cprintf("* %s (\\NoSelect) \"|\" ", cmd);
-			imap_strout(fl->f_name);
-			cprintf("\r\n");
+			if (imap_mailbox_matches_pattern(pattern, fl->f_name)) {
+				cprintf("* %s (\\NoSelect) \"|\" ", cmd);
+				imap_strout(fl->f_name);
+				cprintf("\r\n");
+			}
 		}
 	}
 }
@@ -467,7 +469,6 @@ void imap_lsub_listroom(struct quickroom *qrbuf, void *data) {
 	char *pattern;
 
 	pattern = (char *)data;
-	lprintf(9, "lsub pattern: <%s>\n", pattern);
 
 	/* Only list rooms to which the user has access!! */
 	ra = CtdlRoomAccess(qrbuf, &CC->usersupp);
@@ -500,7 +501,7 @@ void imap_lsub(int num_parms, char *parms[]) {
 	}
 
 	else {
-		imap_list_floors("LSUB");
+		imap_list_floors("LSUB", pattern);
 		ForEachRoom(imap_lsub_listroom, pattern);
 	}
 
@@ -518,7 +519,6 @@ void imap_list_listroom(struct quickroom *qrbuf, void *data) {
 	char *pattern;
 
 	pattern = (char *)data;
-	lprintf(9, "list pattern: <%s>\n", pattern);
 
 	/* Only list rooms to which the user has access!! */
 	ra = CtdlRoomAccess(qrbuf, &CC->usersupp);
@@ -552,7 +552,7 @@ void imap_list(int num_parms, char *parms[]) {
 	}
 
 	else {
-		imap_list_floors("LIST");
+		imap_list_floors("LIST", pattern);
 		ForEachRoom(imap_list_listroom, pattern);
 	}
 

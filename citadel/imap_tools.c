@@ -109,8 +109,6 @@ void imap_mailboxname(char *buf, int bufsize, struct quickroom *qrbuf) {
 	 */
 	else {
 		fl = cgetfloor(qrbuf->QRfloor);
-		lprintf(9, "Floor %d: \n", qrbuf->QRfloor);
-		lprintf(9, "          %s\n", fl->f_name); /* FIXME take out */
 		snprintf(buf, bufsize, "%s|%s",
 			fl->f_name,
 			qrbuf->QRname);
@@ -233,14 +231,95 @@ int imap_is_message_set(char *buf) {
 
 
 /*
+ * imap_match.c, based on wildmat.c from INN
+ * hacked for Citadel/IMAP by Daniel Malament
+ */
+
+/* note: not all return statements use these; don't change them */
+#define WILDMAT_TRUE	1
+#define WILDMAT_FALSE	0
+#define WILDMAT_ABORT	-1
+#define WILDMAT_DELIM 	'|'
+
+/*
+ * Match text and p, return TRUE, FALSE, or ABORT.
+ */
+static int do_imap_match(const char *text, const char *p) {
+  int matched;
+
+  for ( ; *p; text++, p++) {
+    if ((*text == '\0') && (*p != '*') && (*p != '%')) {
+      return WILDMAT_ABORT;
+    }
+    switch (*p) {
+      default:
+        if (*text != *p) {
+          return WILDMAT_FALSE;
+        }
+        continue;
+      case '*':
+      star:
+        while (++p, ((*p == '*') || (*p == '%'))) {
+          /* Consecutive stars/%'s act just like one star. */
+          continue;
+        }
+        if (*p == '\0') {
+          /* Trailing star matches everything. */
+          return WILDMAT_TRUE;
+        }
+        while (*text) {
+          if ((matched = do_imap_match(text++, p)) != WILDMAT_FALSE) {
+            return matched;
+          }
+        }
+        return WILDMAT_ABORT;
+      case '%':
+        while (++p, ((*p == '*') || (*p == '%'))) {
+          /* Consecutive %'s act just like one, but even a single
+           * star makes the sequence act like one star, instead.
+           */
+          if (*p == '*') {
+            goto star;
+          }
+          continue;
+        }
+        if (*p == '\0') {
+          /* Trailing % matches everything without a delimiter. */
+          while (*text) {
+            if (*text == WILDMAT_DELIM) {
+              return WILDMAT_FALSE;
+            }
+            text++;
+          }
+          return WILDMAT_TRUE;
+        }
+        while (*text && (*(text - 1) != WILDMAT_DELIM)) {
+          if ((matched = do_imap_match(text++, p)) != WILDMAT_FALSE) {
+            return matched;
+          }
+        }
+        return WILDMAT_ABORT;
+    }
+  }
+
+  return (*text == '\0');
+}
+
+
+
+/*
  * Support function for mailbox pattern name matching in LIST and LSUB
  * Returns nonzero if the supplied mailbox name matches the supplied pattern.
  */
 int imap_mailbox_matches_pattern(char *pattern, char *mailboxname) {
+  /* handle just-star case quickly */
+  if ((pattern[0] == '*') && (pattern[1] == '\0')) {
+    return WILDMAT_TRUE;
+  }
 
-	return 1;		/* FIXME */
-
+  return (do_imap_match(mailboxname, pattern) == WILDMAT_TRUE);
 }
+
 
 
 
