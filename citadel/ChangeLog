@@ -1,4 +1,8 @@
  $Log$
+ Revision 591.12  2002/04/18 18:44:36  nbryant
+ don't use libtool -avoid-version for libcitserver - this might help for
+ OpenBSD
+
  Revision 591.11  2002/04/17 04:35:06  ajc
  * Finished the IMAP RENAME command.  (I ended up using nested functions
    because it made the task much, much easier.  We can fix it later or convert
@@ -3610,3 +3614,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -132,7 +132,7 @@ LIBSERV_OBJS = user_ops.lo citserver.lo sysdep.lo dynloader.lo tools.lo $(DATABA
 	serv_crypto.lo parsedate.lo genstamp.lo clientsocket.lo $(AUTH) $(LIBOBJS:.o=.lo)
 
 libcitserver.la: $(LIBSERV_OBJS)
-	$(LIBTOOL) $(CC) $(LDFLAGS) -rpath $(prefix) -no-undefined -avoid-version \
+	$(LIBTOOL) $(CC) $(LDFLAGS) -rpath $(prefix) -no-undefined \
 	-o libcitserver.la $(LIBSERV_OBJS) $(LIBS) $(RESOLV)
 
 citserver: $(SERV_OBJS) $(LIBTOOL) libcitserver.la
