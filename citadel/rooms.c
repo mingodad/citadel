@@ -75,17 +75,20 @@ void load_floorlist(void)
 {
 	int a;
 	char buf[SIZ];
+	char *listing = NULL;
+	int r;			/* IPC response code */
 
 	for (a = 0; a < 128; ++a)
 		floorlist[a][0] = 0;
 
-	serv_puts("LFLR");
-	serv_gets(buf);
-	if (buf[0] != '1') {
+	r = CtdlIPCFloorListing(&listing, buf);
+	if (r / 100 != 1) {
 		strcpy(floorlist[0], "Main Floor");
 		return;
 	}
-	while (serv_gets(buf), strcmp(buf, "000")) {
+	while (*listing && strlen(listing)) {
+		extract_token(buf, listing, 0, '\n');
+		strcpy(listing, &listing[strlen(buf) + 1]);
 		extract(floorlist[extract_int(buf, 0)], buf, 1);
 	}
 }
@@ -499,20 +502,18 @@ void editthisroom(void)
 		strprompt("Room aide (or 'none')", raide, 29);
 		if (!strcasecmp(raide, "none")) {
 			strcpy(raide, "");
-			strcpy(buf, "200");
+			break;
 		} else {
-			snprintf(buf, sizeof buf, "QUSR %s", raide);
-			serv_puts(buf);
-			serv_gets(buf);
-			if (buf[0] != '2')
-				scr_printf("%s\n", &buf[4]);
+			r = CtdlIPCQueryUsername(raide, buf);
+			if (r / 100 != 2)
+				scr_printf("%s\n", buf);
 		}
-	} while (buf[0] != '2');
+	} while (r / 100 != 2);
 
+	/* FIXME: Duplicate code??? */
 	if (!strcasecmp(raide, "none")) {
 		strcpy(raide, "");
 	}
-
 
 	/* Angels and demons dancing in my head... */
 	do {
@@ -545,17 +546,13 @@ void editthisroom(void)
 	scr_printf("Save changes (y/n)? ");
 
 	if (yesno() == 1) {
-		snprintf(buf, sizeof buf, "SETA %s", raide);
-		serv_puts(buf);
-		serv_gets(buf);
-		if (buf[0] != '2') {
-			scr_printf("%s\n", &buf[4]);
+		r = CtdlIPCSetRoomAide(raide, buf);
+		if (r != 2) {
+			scr_printf("%s\n", buf);
 		}
 
-		snprintf(buf, sizeof buf, "SPEX room|%d|%d",
-			 expire_mode, expire_value);
-		serv_puts(buf);
-		serv_gets(buf);
+		r = CtdlIPCSetMessageExpirationPolicy(0, expire_mode,
+						      expire_value, buf);
 
 		snprintf(buf, sizeof buf, "SETR %s|%s|%s|%d|%d|%d|%d",
 			 rname, rpass, rdir, rflags, rbump, rfloor,
@@ -575,8 +572,11 @@ void editthisroom(void)
 void ungoto(void)
 {
 	char buf[SIZ];
-    if (uglistsize == 0)
-      return;
+	int r;				/* IPC response code */
+
+	if (uglistsize == 0)
+		return;
+
 	snprintf(buf, sizeof buf, "GOTO %s", uglist[uglistsize-1]); 
 	serv_puts(buf);
 	serv_gets(buf);
@@ -804,29 +804,16 @@ void roomdir(void)
  */
 void invite(void)
 {
-	char aaa[31], bbb[SIZ];
+	char username[USERNAME_SIZE];
+	char buf[SIZ];
+	int r;				/* IPC response code */
 
-	/* Because kicking people out of public rooms now sets a LOCKOUT
-	 * flag, we need to be able to invite people into public rooms
-	 * in order to let them back in again.
-	 *        - cough
-	 */
-
-	/*
-	 * if ((room_flags & QR_PRIVATE)==0) {
-	 *         scr_printf("This is not a private room.\n");
-	 *         return;
-	 * }
-	 */
-
-	newprompt("Name of user? ", aaa, 30);
-	if (aaa[0] == 0)
+	newprompt("Name of user? ", username, USERNAME_SIZE);
+	if (username[0] == 0)
 		return;
 
-	snprintf(bbb, sizeof bbb, "INVT %s", aaa);
-	serv_puts(bbb);
-	serv_gets(bbb);
-	scr_printf("%s\n", &bbb[4]);
+	r = CtdlIPCInviteUserToRoom(username, buf);
+	scr_printf("%s\n", buf);
 }
 
 
@@ -835,17 +822,16 @@ void invite(void)
  */
 void kickout(void)
 {
-	char username[31], cmd[SIZ];
+	char username[USERNAME_SIZE];
+	char buf[SIZ];
+	int r;				/* IPC response code */
 
-	newprompt("Name of user? ", username, 30);
-	if (strlen(username) == 0) {
+	newprompt("Name of user? ", username, USERNAME_SIZE);
+	if (username[0] == 0)
 		return;
-	}
 
-	snprintf(cmd, sizeof cmd, "KICK %s", username);
-	serv_puts(cmd);
-	serv_gets(cmd);
-	scr_printf("%s\n", &cmd[4]);
+	r = CtdlIPCKickoutUserFromRoom(username, buf);
+	scr_printf("%s\n", buf);
 }
 
 
@@ -855,11 +841,11 @@ void kickout(void)
 void killroom(void)
 {
 	char aaa[100];
+	int r;
 
-	serv_puts("KILL 0");
-	serv_gets(aaa);
-	if (aaa[0] != '2') {
-		scr_printf("%s\n", &aaa[4]);
+	r = CtdlIPCDeleteRoom(0, aaa);
+	if (r / 100 != 2) {
+		scr_printf("%s\n", aaa);
 		return;
 	}
 
@@ -867,26 +853,23 @@ void killroom(void)
 	if (yesno() == 0)
 		return;
 
-	serv_puts("KILL 1");
-	serv_gets(aaa);
-	scr_printf("%s\n", &aaa[4]);
-	if (aaa[0] != '2')
+	r = CtdlIPCDeleteRoom(1, aaa);
+	scr_printf("%s\n", aaa);
+	if (r / 100 != 2)
 		return;
 	dotgoto("_BASEROOM_", 0, 0);
 }
 
 void forget(void)
 {				/* forget the current room */
-	char cmd[SIZ];
+	char buf[SIZ];
 
 	scr_printf("Are you sure you want to forget this room? ");
 	if (yesno() == 0)
 		return;
 
-	serv_puts("FORG");
-	serv_gets(cmd);
-	if (cmd[0] != '2') {
-		scr_printf("%s\n", &cmd[4]);
+	if (CtdlIPCForgetRoom(buf) / 100 != 2) {
+		scr_printf("%s\n", buf);
 		return;
 	}
 
@@ -900,18 +883,18 @@ void forget(void)
  */
 void entroom(void)
 {
-	char cmd[SIZ];
+	char buf[SIZ];
 	char new_room_name[ROOMNAMELEN];
 	int new_room_type;
 	char new_room_pass[10];
 	int new_room_floor;
 	int a, b;
+	int r;				/* IPC response code */
 
-	serv_puts("CRE8 0");
-	serv_gets(cmd);
-
-	if (cmd[0] != '2') {
-		scr_printf("%s\n", &cmd[4]);
+	/* Check permission to create room */
+	r = CtdlIPCCreateRoom(0, "", 1, "", 0, buf);
+	if (r / 100 != 2) {
+		scr_printf("%s\n", buf);
 		return;
 	}
 
@@ -941,7 +924,7 @@ void entroom(void)
 			formout("roomaccess");
 		}
 	} while ((b < '1') || (b > '5'));
-	b = b - 48;
+	b -= '0';			/* Portable */
 	scr_printf("%d\n", b);
 	new_room_type = b - 1;
 	if (new_room_type == 2) {
@@ -969,12 +952,10 @@ void entroom(void)
 		return;
 	}
 
-	snprintf(cmd, sizeof cmd, "CRE8 1|%s|%d|%s|%d", new_room_name,
-		 new_room_type, new_room_pass, new_room_floor);
-	serv_puts(cmd);
-	serv_gets(cmd);
-	if (cmd[0] != '2') {
-		scr_printf("%s\n", &cmd[4]);
+	r = CtdlIPCCreateRoom(1, new_room_name, new_room_type,
+			      new_room_pass, new_room_floor, buf);
+	if (r / 100 != 2) {
+		scr_printf("%s\n", buf);
 		return;
 	}
 
@@ -1144,24 +1125,22 @@ void create_floor(void)
 {
 	char buf[SIZ];
 	char newfloorname[SIZ];
+	int r;			/* IPC response code */
 
 	load_floorlist();
 
-	serv_puts("CFLR xx|0");
-	serv_gets(buf);
-	if (buf[0] != '2') {
-		scr_printf("%s\n", &buf[4]);
+	r = CtdlIPCCreateFloor(0, "", buf);
+	if (r / 100 != 2) {
+		scr_printf("%s\n", buf);
 		return;
 	}
 
 	newprompt("Name for new floor: ", newfloorname, 255);
-	snprintf(buf, sizeof buf, "CFLR %s|1", newfloorname);
-	serv_puts(buf);
-	serv_gets(buf);
-	if (buf[0] == '2') {
+	r = CtdlIPCCreateFloor(1, newfloorname, buf);
+	if (r / 100 == 2) {
 		scr_printf("Floor has been created.\n");
 	} else {
-		scr_printf("%s\n", &buf[4]);
+		scr_printf("%s\n", buf);
 	}
 
 	load_floorlist();
@@ -1181,11 +1160,10 @@ void edit_floor(void)
 	/* Fetch the expire policy (this will silently fail on old servers,
 	 * resulting in "default" policy)
 	 */
-	serv_puts("GPEX floor");
-	serv_gets(buf);
-	if (buf[0] == '2') {
-		expire_mode = extract_int(&buf[4], 0);
-		expire_value = extract_int(&buf[4], 1);
+	r = CtdlIPCGetMessageExpirationPolicy(1, buf);
+	if (r / 100 == 2) {
+		expire_mode = extract_int(buf, 0);
+		expire_value = extract_int(buf, 1);
 	}
 
 	/* Interact with the user */
@@ -1204,8 +1182,8 @@ void edit_floor(void)
 				"2. Expire by message count\n"
 				"3. Expire by message age\n");
 		}
-	} while ((buf[0] < 48) || (buf[0] > 51));
-	expire_mode = buf[0] - 48;
+	} while ((buf[0] < '0') || (buf[0] > '3'));
+	expire_mode = buf[0] - '0';
 
 	/* ...lunatics and monsters underneath my bed */
 	if (expire_mode == 2) {
@@ -1221,16 +1199,10 @@ void edit_floor(void)
 	}
 
 	/* Save it */
-	snprintf(buf, sizeof buf, "SPEX floor|%d|%d",
-		 expire_mode, expire_value);
-	serv_puts(buf);
-	serv_gets(buf);
-
-	snprintf(buf, sizeof buf, "EFLR %d|%s", curr_floor,
-		 &floorlist[(int) curr_floor][0]);
-	serv_puts(buf);
-	serv_gets(buf);
-	scr_printf("%s\n", &buf[4]);
+	r = CtdlIPCSetMessageExpirationPolicy(1, expire_mode,
+					      expire_value, buf);
+	r = CtdlIPCEditFloor(curr_floor, &floorlist[(int)curr_floor][0]);
+	scr_printf("%s\n", buf);
 	load_floorlist();
 }
 
@@ -1262,9 +1234,7 @@ void kill_floor(void)
 					scr_printf("%s\n", &floorlist[a][0]);
 		}
 	} while (floornum_to_delete < 0);
-	snprintf(buf, sizeof buf, "KFLR %d|1", floornum_to_delete);
-	serv_puts(buf);
-	serv_gets(buf);
-	scr_printf("%s\n", &buf[4]);
+	CtdlIPCDeleteFloor(1, floornum_to_delete, buf);
+	scr_printf("%s\n", buf);
 	load_floorlist();
 }
