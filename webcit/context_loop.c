@@ -271,10 +271,10 @@ void *context_loop(int sock)
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
 			cookie_to_stuff(&buf[15], &desired_session, NULL, NULL, NULL, NULL);
 		}
-		if (!strncasecmp(buf, "Content-length: ", 16)) {
+		else if (!strncasecmp(buf, "Content-length: ", 16)) {
 			ContentLength = atoi(&buf[16]);
 		}
-		if (!strncasecmp(buf, "User-agent: ", 12)) {
+		else if (!strncasecmp(buf, "User-agent: ", 12)) {
 			strcpy(browser, &buf[12]);
 		}
 		strcpy(&req[num_lines++][0], buf);
@@ -413,7 +413,7 @@ void *context_loop(int sock)
 	if (CloseSession) {
 		remove_session(TheSession, 1);
 	} else {
-	      end:unlock_session(TheSession);
+end:		unlock_session(TheSession);
 	}
 	free(req);
 
