@@ -1,3 +1,8 @@
+Wed Jan 20 19:21:51 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Added some more code to the unfinished MIME parser
+	* Changed module loading path to simply "modules" because after calling
+	  get_config(), the cwd is guaranteed to be the correct BBS directory.
+
 Tue Jan 19 21:28:29 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Fixed a bug in the user editing command (client side)
 	* Started a rewrite of the MIME parser

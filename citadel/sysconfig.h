@@ -21,7 +21,7 @@
  * your system, define CHATLOG to the filename to be saved to.  Otherwise,
  * set CHATLOG to "/dev/null".
  */
-#define CHATLOG		"/dev/null"
+#define CHATLOG		"chat.log"
 
 /*
  * SLEEPING refers to the watchdog timer.  If a user sits idle without typing

@@ -706,7 +706,6 @@ int main(int argc, char **argv)
 	char tracefile[128];		/* Name of file to log traces to */
 	int a, i;			/* General-purpose variables */
 	char convbuf[128];
-	char modpath[128];
         
 	/* specify default port name and trace file */
 	strcpy(tracefile, "");
@@ -763,8 +762,7 @@ int main(int argc, char **argv)
 	get_config();
 
         lprintf(7, "Initializing loadable modules\n");
-        snprintf(modpath, 128, "%s/modules", BBSDIR);
-        DLoader_Init(modpath);
+        DLoader_Init("./modules");
         lprintf(9, "Modules done initializing.\n");
 
 	/* Do non system dependent startup functions */

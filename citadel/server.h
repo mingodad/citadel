@@ -4,7 +4,7 @@ typedef pthread_t THREAD;
 /* Uncomment this if you want to track memory leaks.
  * (Don't do this unless you're a developer!)
  */
-#define DEBUG_MEMORY_LEAKS
+/* #define DEBUG_MEMORY_LEAKS */
 
 struct ExpressMessage {
 	struct ExpressMessage *next;
