@@ -1,5 +1,5 @@
                   SESSION LAYER PROTOCOL FOR CITADEL/UX
-         (c) 1995-2000 by Art Cancro et. al.    All Rights Reserved
+         (c) 1995-2001 by Art Cancro et. al.    All Rights Reserved
    
   
  INTRODUCTION
@@ -24,7 +24,7 @@ developments ahead of time, please at least send in an e-mail documenting
 what you did, so that your new commands can be added to this document.
  
  The coordinator of the Citadel/UX project is Art Cancro
-<ajc@uncnsrd.mt-kisco.ny.us>.
+<ajc@uncensored.citadel.org>.
     
   
  CONNECTING TO A SERVER
@@ -548,7 +548,7 @@ proprietary features:
 your own.
  -> Clients other than your own should still be able to utilize your server,
 even if your proprietary extensions aren't supported.
- -> Please contact Art Cancro <ajc@uncnsrd.mt-kisco.ny.us> and obtain a unique
+ -> Please contact Art Cancro <ajc@uncensored.citadel.org> and obtain a unique
 server type code, which can be assigned to your server program.
  -> If you document what you did in detail, perhaps it can be added to a
 future release of the Citadel/UX program, so everyone can enjoy it.  Better
@@ -575,7 +575,7 @@ length of the file, and a description.
  
  The server message contained on the same line with LISTING_FOLLOWS will
 contain the name of the system and the name of the directory, such as:
-  uncnsrd.mt-kisco.ny.us|/usr/bbs/files/my_room_directory
+  uncensored.citadel.org|/usr/bbs/files/my_room_directory
  
  
  SLRP   (Set Last-message-Read Pointer)

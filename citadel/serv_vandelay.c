@@ -17,6 +17,7 @@
 #include <sys/time.h>
 #include <sys/wait.h>
 #include <string.h>
+#include <ctype.h>
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
@@ -158,7 +159,14 @@ void artv_export_visits(void) {
 		cprintf("%ld\n", vbuf.v_roomnum);
 		cprintf("%ld\n", vbuf.v_roomgen);
 		cprintf("%ld\n", vbuf.v_usernum);
-		cprintf("%ld\n", vbuf.v_lastseen);
+
+		if (strlen(vbuf.v_seen) > 0) {
+			cprintf("%s\n", vbuf.v_seen);
+		}
+		else {
+			cprintf("%ld\n", vbuf.v_lastseen);
+		}
+
 		cprintf("%u\n", vbuf.v_flags);
 	}
 	cdb_end_transaction();
@@ -426,11 +434,18 @@ void artv_import_floor(void) {
 void artv_import_visit(void) {
 	struct visit vbuf;
 	char buf[SIZ];
+	int i;
+	int is_textual_seen = 0;
 
 	client_gets(buf);	vbuf.v_roomnum = atol(buf);
 	client_gets(buf);	vbuf.v_roomgen = atol(buf);
 	client_gets(buf);	vbuf.v_usernum = atol(buf);
-	client_gets(buf);	vbuf.v_lastseen = atol(buf);
+
+	client_gets(buf);
+	vbuf.v_lastseen = atol(buf);
+	for (i=0; i<strlen(buf); ++i) if (!isdigit(buf[i])) is_textual_seen = 1;
+	if (is_textual_seen)	strcpy(vbuf.v_seen, buf);
+
 	client_gets(buf);	vbuf.v_flags = atoi(buf);
 	put_visit(&vbuf);
 	lprintf(7, "Imported visit %ld/%ld/%ld\n",

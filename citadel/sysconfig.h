@@ -88,7 +88,10 @@
 
 
 /*
- * Command buffer size (do not change!)
+ * Standard buffer size for string datatypes.  DO NOT CHANGE!  Not only does
+ * there exist a minimum buffer size for certain protocols (such as IMAP), but
+ * fixed-length buffers are now stored in some of the data structures on disk,
+ * so if you change the buffer size you'll fux0r your database.
  */
 #define SIZ		4096
 

@@ -10,7 +10,7 @@
 #include "sysconfig.h"
 #include "ipcdef.h"
 
-#define CITADEL	"Citadel/UX 5.73"	/* Text description of this software */
+#define CITADEL	"Citadel/UX 5.80"	/* Text description of this software */
 
 /*
  * REV_LEVEL is the current version number (multiplied by 100 to avoid having
@@ -19,7 +19,7 @@
  * are older than REV_MIN, none of the programs will work until the setup
  * program is run again to bring things up to date.
  */
-#define REV_LEVEL	573		/* This version */
+#define REV_LEVEL	580		/* This version */
 #define REV_MIN		570		/* Oldest compatible version */
 
 #define SERVER_TYPE 0	/* zero for stock Citadel/UX; other developers please

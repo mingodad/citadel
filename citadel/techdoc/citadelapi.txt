@@ -4,7 +4,11 @@
   This is a VERY INCOMPLETE documentation of the API for extending the
 Citadel server using dynamically loaded modules.  It really isn't an API at
 all, but rather a list of some of the functions available in the server which
-are likely to be of use to module writers.  
+are likely to be of use to module writers.
+ 
+  The current trend is to move as much stuff as possible out of the server
+proper and into loadable modules.  This makes the code much easier to read and
+understand.
   
   Expect this document to become more complete over time, as both the API and
 the person documenting it have a chance to mature a bit.  :)
