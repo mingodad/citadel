@@ -1,4 +1,7 @@
 $Log$
+Revision 323.6  2002/03/03 06:58:25  ajc
+* Login errors displayed in red
+
 Revision 323.5  2002/03/03 06:52:59  ajc
 * Allow editing of the "disable self-service user account creation" site config option
 
@@ -726,3 +729,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
