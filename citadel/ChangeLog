@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.123  2001/04/03 00:47:23  ajc
+ * Began implementing IMAP APPEND
+
  Revision 573.122  2001/04/01 22:05:44  cough
  * *Actually* fixed a botched ChangeLog entry.
 
@@ -2482,5 +2485,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
-

@@ -8,6 +8,7 @@ void imap_cleanup_function(void);
 void imap_greeting(void);
 void imap_command_loop(void);
 int imap_grabroom(char *returned_roomname, char *foldername);
+void imap_free_transmitted_message(void);
 
 
 
@@ -19,6 +20,8 @@ struct citimap {
 	int num_msgs;		/* Number of messages being mapped */
 	long *msgids;
 	unsigned int *flags;
+	char *transmitted_message;	/* for APPEND command... */
+	size_t transmitted_length;
 };
 
 /*

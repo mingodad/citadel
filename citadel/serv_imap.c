@@ -70,6 +70,18 @@ void imap_free_msgids(void) {
 
 
 /*
+ * If there is a transmitted message in memory, free it
+ */
+void imap_free_transmitted_message(void) {
+	if (IMAP->transmitted_message != NULL) {
+		phree(IMAP->transmitted_message);
+		IMAP->transmitted_message = NULL;
+		IMAP->transmitted_length = 0;
+	}
+}
+
+
+/*
  * Back end for imap_load_msgids()
  *
  * FIXME: this should be optimized by figuring out a way to allocate memory
@@ -203,6 +215,7 @@ void imap_cleanup_function(void) {
 
 	lprintf(9, "Performing IMAP cleanup hook\n");
 	imap_free_msgids();
+	imap_free_transmitted_message();
 	lprintf(9, "Finished IMAP cleanup hook\n");
 }
 
@@ -993,6 +1006,10 @@ void imap_command_loop(void) {
 		imap_unsubscribe(num_parms, parms);
 	}
 
+	else if (!strcasecmp(parms[1], "APPEND")) {
+		imap_append(num_parms, parms);
+	}
+
 	else if (IMAP->selected == 0) {
 		cprintf("%s BAD no folder selected\r\n", parms[0]);
 	}
@@ -1051,6 +1068,8 @@ void imap_command_loop(void) {
 		cprintf("%s BAD command unrecognized\r\n", parms[0]);
 	}
 
+	/* If the client transmitted a message we can free it now */
+	imap_free_transmitted_message();
 }
 
 

@@ -175,3 +175,45 @@ void imap_print_express_messages(void) {
 
 
 
+/*
+ * This function is called by the main command loop.
+ */
+void imap_append(int num_parms, char *parms[]) {
+	size_t literal_length;
+	int ret;
+
+	if (num_parms < 4) {
+		cprintf("%s BAD usage error\r\n", parms[0]);
+		return;
+	}
+
+	if ( (parms[num_parms-1][0] != '{')
+	   || (parms[num_parms-1][strlen(parms[num_parms-1])-1] != '}') )  {
+		cprintf("%s BAD no message literal supplied\r\n", parms[0]);
+		return;
+	}
+
+	literal_length = (size_t) atol(&parms[num_parms-1][1]);
+	if (literal_length < 1) {
+		cprintf("%s BAD Message length must be at least 1.\r\n",
+			parms[0]);
+		return;
+	}
+
+	imap_free_transmitted_message();	/* just in case. */
+	IMAP->transmitted_message = mallok(literal_length);
+	if (IMAP->transmitted_message == NULL) {
+		cprintf("%s NO Cannot allocate memory.\r\n", parms[0]);
+		return;
+	}
+	IMAP->transmitted_length = literal_length;
+
+	cprintf("+ Transmit message now.\r\n");
+	ret = client_read(IMAP->transmitted_message, literal_length);
+	if (ret != 1) {
+		cprintf("%s NO Read failed.\r\n", parms[0]);
+		return;
+	}
+
+	cprintf("%s NO not implemented yet ** FIXME ** \r\n", parms[0]);
+}
