@@ -1144,11 +1144,11 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 		return((CC->download_fp != NULL) ? om_ok : om_mime_error);
 	}
 
-	/* Does the caller want to skip the headers? */
-	if (headers_only == HEADERS_NONE) goto START_TEXT;
-
 	/* now for the user-mode message reading loops */
 	if (do_proto) cprintf("%d Message %ld:\n", LISTING_FOLLOWS, msg_num);
+
+	/* Does the caller want to skip the headers? */
+	if (headers_only == HEADERS_NONE) goto START_TEXT;
 
 	/* Tell the client which format type we're using. */
 	if ( (mode == MT_CITADEL) && (do_proto) ) {
