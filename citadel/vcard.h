@@ -31,4 +31,3 @@ void vcard_set_prop(struct vCard *v, char *name, char *value, int append);
 char *vcard_get_prop(struct vCard *v, char *propname, int is_partial,
 			int instance);
 char *vcard_serialize(struct vCard *);
-char *vcard_to_html(struct vCard *);

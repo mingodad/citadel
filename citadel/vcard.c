@@ -183,39 +183,6 @@ void vcard_free(struct vCard *v) {
 }
 
 
-/*
- * Experimental output type of thing
- */
-char *vcard_to_html(struct vCard *v) {
-	char *html = NULL;
-	int i;
-	size_t len = 256;
-
-	if (v == NULL) return NULL;
-
-	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
-		len += strlen(v->prop[i].name);
-		len += strlen(v->prop[i].value);
-	}
-
-	html = mallok(len);
-	if (html == NULL) return NULL;
-
-	sprintf(html, "<TABLE bgcolor=#888888>");
-	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
-		sprintf(&html[strlen(html)],
-			"<TR><TD>%s</TD><TD>%s</TD></TR>\n",
-			v->prop[i].name,
-			v->prop[i].value
-		);
-	}
-
-	strcat(html, "</TABLE>");
-
-	return(html);
-}
-
-
 
 
 /*
