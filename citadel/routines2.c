@@ -189,13 +189,13 @@ void updatels(CtdlIPC *ipc)
 	int r;				/* IPC response code */
 
 	if (rc_alt_semantics) {
-		if (maxmsgnum == highest_msg_read == 0) {
+		if (maxmsgnum == 0 && highest_msg_read == 0) {
 			return;
 		}
 		r = CtdlIPCSetLastRead(ipc, (maxmsgnum > highest_msg_read) ?
 				 maxmsgnum : highest_msg_read, buf);
 	} else {
-		r = CtdlIPCSetLastRead(ipc, 0, buf);
+		r = CtdlIPCSetLastRead(ipc, maxmsgnum, buf);
 	}
 	if (r / 100 != 2)
 		scr_printf("%s\n", buf);

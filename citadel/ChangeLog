@@ -1,4 +1,7 @@
  $Log$
+ Revision 605.21  2003/03/17 11:56:35  error
+ * Fix <G>oto in alternate_semantics - it actually marks messages read now.
+
  Revision 605.20  2003/03/17 04:03:14  ajc
  * Supply a NULL argument as the second argument to accept() instead of an
    empty buffer whose contents we never even look at.
@@ -4566,3 +4569,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
