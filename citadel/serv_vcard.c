@@ -197,7 +197,7 @@ void cmd_igab(char *argbuf) {
 
 /*
  * See if there is a valid Internet address in a vCard to use for outbound
- * Interet messages.  If there is, stick it in CC->cs_inet_email.
+ * Internet messages.  If there is, stick it in CC->cs_inet_email.
  */
 void vcard_populate_cs_inet_email(struct vCard *v) {
 	char *s, *addr;
@@ -643,7 +643,8 @@ void vcard_purge(char *username, long usernum) {
         msg->cm_fields['N'] = strdoop(NODENAME);
         msg->cm_fields['M'] = strdoop("Purge this vCard\n");
 
-        snprintf(buf, sizeof buf, VCARD_EXT_FORMAT, msg->cm_fields['A'], NODENAME);
+        snprintf(buf, sizeof buf, VCARD_EXT_FORMAT,
+			msg->cm_fields['A'], NODENAME);
         msg->cm_fields['E'] = strdoop(buf);
 
 	msg->cm_fields['S'] = strdoop("CANCEL");
@@ -718,7 +719,8 @@ void vcard_delete_remove(char *room, long msgnum) {
 		if (!strncasecmp(ptr, "Content-type: text/x-vcard", 26)) {
 			/* Bingo!  A vCard is being deleted.
 		 	*/
-			vcard_extract_internet_addresses(msg, CtdlDirectoryDelUser);
+			vcard_extract_internet_addresses(msg,
+							CtdlDirectoryDelUser);
 		}
 		ptr = strchr((char *)ptr, '\n');
 		if (ptr != NULL) ++ptr;
