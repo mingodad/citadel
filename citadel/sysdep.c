@@ -95,8 +95,6 @@ time_t last_purge = 0;				/* Last dead session purge */
 static int num_threads = 0;			/* Current number of threads */
 int num_sessions = 0;				/* Current number of sessions */
 
-pthread_t initial_thread;		/* tid for main() thread */
-
 int syslog_facility = (-1);
 
 
@@ -958,9 +956,8 @@ do_select:	force_purge = 0;
 			tv.tv_usec = 0;
 			retval = select(highest + 1, &readfds, NULL, NULL, &tv);
 		}
-		else {
-			return;
-		}
+
+		if (time_to_die) return(NULL);
 
 		/* Now figure out who made this select() unblock.
 		 * First, check for an error or exit condition.
@@ -1028,10 +1025,6 @@ do_select:	force_purge = 0;
 			}
 		}
 
-		if (time_to_die) {
-			return;
-		}
-
 		/* It must be a client socket.  Find a context that has data
 		 * waiting on its socket *and* is in the CON_IDLE state.  Any
 		 * active sockets other than our chosen one are marked as
@@ -1084,7 +1077,7 @@ SKIP_SELECT:
 	}
 
 	/* If control reaches this point, the server is shutting down */	
-	return NULL;
+	return(NULL);
 }
 
 

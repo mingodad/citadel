@@ -273,9 +273,9 @@ static void cdb_checkpoint(void) {
 
 /*
  * Open the various databases we'll be using.  Any database which
- * does not exist should be created.  Note that we don't need an S_DATABASE
- * critical section here, because there aren't any active threads manipulating
- * the database yet -- and besides, it causes problems on BSDI.
+ * does not exist should be created.  Note that we don't need a
+ * critical section here, because there aren't any active threads
+ * manipulating the database yet.
  */
 void open_databases(void)
 {

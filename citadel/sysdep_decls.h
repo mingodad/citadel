@@ -73,7 +73,6 @@ extern int num_sessions;
 extern volatile int time_to_die;
 extern int verbosity;
 extern int rescan[];
-extern pthread_t initial_thread;
 
 extern struct worker_node {
         pthread_t tid;

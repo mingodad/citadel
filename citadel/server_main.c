@@ -230,7 +230,6 @@ int main(int argc, char **argv)
 	end_critical_section(S_WORKER_LIST);
 
 	/* Now this thread can become a worker as well. */
-	initial_thread = pthread_self();
 	worker_thread(NULL);
 
 	/* Server is exiting. Wait for workers to shutdown. */
@@ -243,8 +242,9 @@ int main(int argc, char **argv)
 
 		/* avoid deadlock with an exiting thread */
 		end_critical_section(S_WORKER_LIST);
-		if ((i = pthread_join(wnp->tid, NULL)))
+		if ((i = pthread_join(wnp->tid, NULL))) {
 			lprintf(CTDL_CRIT, "pthread_join: %s\n", strerror(i));
+		}
 		free(wnp);
 		begin_critical_section(S_WORKER_LIST);
 	}
