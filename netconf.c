@@ -1,5 +1,10 @@
-
-
+/* 
+ * netconf.c
+ *
+ * Functions which handle network and sharing configuration.
+ *
+ * $Id$
+ */
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -21,10 +26,6 @@
 #include <pthread.h>
 #include <signal.h>
 #include "webcit.h"
-
-
-
-
 
 
 
