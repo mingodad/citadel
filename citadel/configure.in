@@ -142,7 +142,7 @@ if test "$enable_autologin" != no; then
 fi
 
 test -f /usr/local/lib/libgdbm.a && LDFLAGS="$LDFLAGS -L/usr/local/lib"
-AC_CHECK_LIB(gdbm, gdbm_open)
+AC_CHECK_LIB(gdbm, gdbm_open, GDBM="$GDBM -lgdbm")
 
 save_LIBS=$LIBS
 AC_CHECK_LIB(termcap, tgetent, [LIBS="$LIBS -ltermcap"
@@ -253,6 +253,7 @@ AC_SUBST(AUTH)
 AC_SUBST(SO)
 AC_SUBST(CHKPWD)
 AC_SUBST(CURSES)
+AC_SUBST(GDBM)
 AC_SUBST(NETLIBS)
 AC_SUBST(chkpwd_LIBS)
 AC_SUBST(TARGETS)

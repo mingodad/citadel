@@ -39,6 +39,7 @@ DEFS=@DEFS@
 CPPFLAGS=@CPPFLAGS@ -I.
 CFLAGS=@CFLAGS@
 CC=@CC@
+GDBM=@GDBM@
 LINK_SHARED=@LINK_SHARED@
 LIBS=@LIBS@
 LDFLAGS=@LDFLAGS@
@@ -98,17 +99,13 @@ netpoll: netpoll.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)
 #
 #
 
-citserver: citserver.ro user_ops.ro support.ro room_ops.ro file_ops.ro \
-	msgbase.ro config.ro sysdep.ro locate_host.ro \
-	housekeeping.ro database.ro control.ro logging.ro \
-	policy.ro dynloader.ro tools.ro mime_parser.ro $(AUTH) $(LIBOBJS:.o=.ro)
-	$(CC) \
-		citserver.ro user_ops.ro room_ops.ro file_ops.ro support.ro \
-		msgbase.ro config.ro sysdep.ro locate_host.ro \
-		housekeeping.ro database.ro control.ro logging.ro \
-		policy.ro dynloader.ro tools.ro mime_parser.ro \
-		$(AUTH) $(LIBOBJS:.o=.ro)\
-		$(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) $(NETLIBS) -o citserver
+SERV_OBJS = citserver.ro user_ops.ro support.ro room_ops.ro file_ops.ro \
+	msgbase.ro config.ro sysdep.ro locate_host.ro housekeeping.ro \
+	database.ro control.ro logging.ro policy.ro dynloader.ro tools.ro \
+	mime_parser.ro $(AUTH) $(LIBOBJS:.o=.ro)
+
+citserver: $(SERV_OBJS)
+	$(CC) $(SERV_OBJS) $(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) $(NETLIBS) $(GDBM) -o citserver
 
 .c.ro:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c $< -o $@
@@ -153,7 +150,7 @@ netmailer: netmailer.o internetmail.o config.o
 
 netproc: netproc.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)
 	$(CC) netproc.o config.o ipc_c_tcp.o tools.o \
-	$(LIBOBJS) $(LDFLAGS) -o netproc $(NETLIBS)
+	$(LIBOBJS) $(LDFLAGS) -o netproc $(NETLIBS) $(GDBM)
 
 citmail: citmail.o config.o internetmail.o $(LIBOBJS)
 	@echo "*"

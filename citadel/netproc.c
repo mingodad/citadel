@@ -33,7 +33,9 @@
 #include <signal.h>
 #include <errno.h>
 #include <syslog.h>
+#ifdef HAVE_GDBM_H
 #include <gdbm.h>
+#endif
 #include "citadel.h"
 #include "tools.h"
 
