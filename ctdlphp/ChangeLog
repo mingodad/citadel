@@ -1,4 +1,8 @@
  $Log$
+ Revision 1.9  2003/11/02 04:26:11  ajc
+ * Cleaned up the pages in preparation for handing it off to the extremely
+   talented developers and webmasters who will soon be working on it.
+
  Revision 1.8  2003/11/02 04:12:27  ajc
  * welcome.php: added.
  * do_login.php: reworked to provide a squeaky-clean transition to
@@ -37,3 +41,4 @@
 
  Revision 1.1  2003/10/31 03:47:13  ajc
  * Initial CVS import
+

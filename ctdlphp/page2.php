@@ -1,11 +1,7 @@
 <?PHP
 	include "ctdlheader.php";
-
 	bbs_page_header();
-
-	echo "Hi there.  The date is ", `date`, "<BR>";
-
-	echo <<<LITERAL
+?>
 
 <h1>Page Two</h1>
 
@@ -26,11 +22,9 @@ sit amet, turpis. Aliquam ipsum magna, vulputate sit amet, iaculis eget,
 molestie rutrum, felis. Curabitur ante metus, rutrum in, vestibulum nec,
 faucibus sit amet, magna. In pretium lacus eget mi.</p>
 
-<a href="login.php">Page One</a><BR>
+<a href="welcome.php">Page One</a><BR>
 <a href="page3.php">Page Three</a><BR>
 
-LITERAL;
-
+<?PHP
 	bbs_page_footer();
 ?>
-

@@ -67,12 +67,13 @@ LITERAL;
 	alink="#DD0000"
 >
 
+<div align=right>
+<A HREF="logout.php">Log out</A>
+</div>
+<HR>
+
 LITERAL;
 
-	echo "Your session ID is ", $session, "<BR>\n";
-	echo "<A HREF=\"logout.php\">Log out</A><HR>";
-	// flush();
-	// test_for_echo();
 }
 
 
