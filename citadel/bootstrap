@@ -6,3 +6,13 @@ aclocal
 libtoolize --force
 autoconf
 autoheader
+
+echo
+echo This script has been tested with autoconf 2.52, libtool 1.4.2, and
+echo automake 1.5. Other versions of automake will probably work, but I
+echo recommend the latest compatible versions of autoconf and libtool.
+echo
+echo Some versions of libtool may have outputted, above, a spurious warning
+echo that you have to regenerate your aclocal.m4. This is a mostly harmless bug
+echo and can be ignored.
+echo
