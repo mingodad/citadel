@@ -1149,6 +1149,13 @@ int getcmd(CtdlIPC *ipc, char *argbuf)
 				    || (cptr->c_cmdnum == 20))
 					next_lazy_cmd = 13;
 
+				/* If this command is "read new"
+				 * then the next lazy-command (space bar)
+				 * should be "goto"
+				 */
+				if (cptr->c_cmdnum == 13)
+					next_lazy_cmd = 5;
+
 				return (cptr->c_cmdnum);
 
 			}
