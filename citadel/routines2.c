@@ -29,7 +29,6 @@
 
 #include <signal.h>
 #include <pwd.h>
-#include <setjmp.h>
 #include <errno.h>
 #include <stdarg.h>
 #include "citadel.h"

@@ -30,7 +30,6 @@
 #include <sys/ioctl.h>
 #include <signal.h>
 #include <pwd.h>
-#include <setjmp.h>
 #include <stdarg.h>
 #include <errno.h>
 
@@ -62,14 +61,13 @@
 struct march *march = NULL;
 
 /* globals associated with the client program */
-char temp[PATH_MAX];		/* Name of general temp file */
-char temp2[PATH_MAX];		/* Name of general temp file */
-char tempdir[PATH_MAX];		/* Name of general temp dir */
+char temp[PATH_MAX];		/* Name of general-purpose temp file */
+char temp2[PATH_MAX];		/* Name of general-purpose temp file */
+char tempdir[PATH_MAX];		/* Name of general-purpose temp directory */
 char editor_paths[MAX_EDITORS][SIZ];	/* paths to external editors */
 char printcmd[SIZ];		/* print command */
 int editor_pid = (-1);
 char fullname[USERNAME_SIZE];
-jmp_buf nextbuf;
 struct CtdlServInfo serv_info;	/* Info on the server connected */
 int screenwidth;
 int screenheight;
@@ -114,25 +112,27 @@ CtdlIPC *ipc_for_signal_handlers;	/* KLUDGE cover your eyes */
  */
 void logoff(CtdlIPC *ipc, int code)
 {
-    int lp;
+	int lp;
+
 	if (editor_pid > 0) {	/* kill the editor if it's running */
 		kill(editor_pid, SIGHUP);
 	}
 
-    /* Free the ungoto list */
-    for (lp = 0; lp < uglistsize; lp++)
-      free (uglist[lp]);
+	/* Free the ungoto list */
+	for (lp = 0; lp < uglistsize; lp++) {
+		free(uglist[lp]);
+	}
 
-/* shut down the server... but not if the logoff code is 3, because
- * that means we're exiting because we already lost the server
+/* Shut down the server connection ... but not if the logoff code is 3,
+ * because that means we're exiting because we already lost the server.
  */
-	if (code != 3)
+	if (code != 3) {
 		CtdlIPCQuit(ipc);
+	}
 
 /*
  * now clean up various things
  */
-
 	screen_delete();
 
 	unlink(temp);
@@ -175,8 +175,8 @@ void catch_sigcont(int signum)
 }
 
 
-
 /* general purpose routines */
+
 /* display a file */
 void formout(CtdlIPC *ipc, char *name)
 {
@@ -355,8 +355,9 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 				uglistlsn[lp] = uglistlsn[lp+1];
 			}
 			ugpos--;
-		} else
+		} else {
 			uglistsize++;
+		}
         
 		uglist[ugpos] = malloc(strlen(room_name)+1);
 		strcpy(uglist[ugpos], room_name);
@@ -1430,8 +1431,9 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 				break;
 			case 29:
 			case 30:
-				if (!rc_alt_semantics)
+				if (!rc_alt_semantics) {
 					updatels(ipc);
+				}
 				termn8 = 1;
 				break;
 			case 48:
@@ -1714,6 +1716,7 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 	} while (termn8 == 0);
 
 TERMN8:	scr_printf("%s logged out.", fullname);
+	termn8 = 0;
 	color(ORIGINAL_PAIR);
 	scr_printf("\n");
 	while (march != NULL) {

@@ -1,4 +1,10 @@
  $Log$
+ Revision 601.134  2003/02/17 05:23:20  ajc
+ * Fixed a small bug in the GDBM backend (deprecated, but the bug was very
+   obvious and a kind user pointed it out)
+ * Removed vestiges of setjmp/longjmp from the client
+ * When doing .TS, don't get caught in a constant-logout loop
+
  Revision 601.133  2003/02/14 16:12:04  ajc
  * Added support for any standard RBL
 
@@ -4472,4 +4478,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

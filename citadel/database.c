@@ -406,8 +406,8 @@ void cdb_trunc(int cdb) {
 	datum key;
 
 	begin_critical_section(S_DATABASE);
-	key = gdbm_firstkey ( dbf );
-	while (key = gdbm_firstkey(gdbms[cdb], key.dptr != NULL) {
+	key = gdbm_firstkey (gdbms[cdb]);
+	while (key = gdbm_firstkey(gdbms[cdb], key.dptr) {
 		gdbm_delete(gdbms[cdb], key);
 	}
 	end_critical_section(S_DATABASE);
