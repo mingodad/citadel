@@ -17,9 +17,12 @@ struct CtdlSessData {
 };
 
 /*
- * For the time being, all known userdata symbols are defined here.
+ * Static user data symbol types
  */
-#define SYM_DESIRED_SECTION		0x00000001
+enum {
+	SYM_DESIRED_SECTION,		/* Used by the MIME parser */
+	SYM_MAX
+};
 
 
 /*
@@ -58,7 +61,7 @@ struct CitContext {
 	char lastcmdname[5];	/* name of last command executed */
 	unsigned cs_flags;	/* miscellaneous flags */
 
-				/* feeping creaturisms... */
+	/* feeping creaturisms... */
 	int cs_clientdev;	/* client developer ID */
 	int cs_clienttyp;	/* client type code */
 	int cs_clientver;	/* client version number */
@@ -80,9 +83,9 @@ struct CitContext {
 	char fake_username[32];	/* Fake username <bc>                */
 	char fake_postname[32];	/* Fake postname <bc>                */
 	char fake_hostname[25];	/* Name of the fake hostname <bc>    */
-	char fake_roomname[ROOMNAMELEN]; /* Name of the fake room <bc> */
+	char fake_roomname[ROOMNAMELEN];	/* Name of the fake room <bc> */
 
-	int FloorBeingSearched;    /* This is used by cmd_lrms() etc.   */
+	int FloorBeingSearched;	/* This is used by cmd_lrms() etc.   */
 	struct CtdlSessData *FirstSessData;
 };
 
@@ -124,19 +127,21 @@ struct ChatLine {
 /*
  * Various things we need to lock and unlock
  */
-#define S_USERSUPP	0
-#define S_USER_TRANS	1
-#define S_QUICKROOM	2
-#define S_MSGMAIN	3
-#define S_CALLLOG	4
-#define S_SESSION_TABLE	5
-#define S_FLOORTAB	6
-#define S_CHATQUEUE	7
-#define S_CONTROL	8
-#define S_HOUSEKEEPING	9
-#define S_DATABASE	10
-#define S_NETDB		11
-#define MAX_SEMAPHORES	12
+enum {
+	S_USERSUPP,
+	S_USER_TRANS,
+	S_QUICKROOM,
+	S_MSGMAIN,
+	S_CALLLOG,
+	S_SESSION_TABLE,
+	S_FLOORTAB,
+	S_CHATQUEUE,
+	S_CONTROL,
+	S_HOUSEKEEPING,
+	S_DATABASE,
+	S_NETDB,
+	MAX_SEMAPHORES
+};
 
 
 /*
@@ -150,24 +155,28 @@ struct ChatLine {
 /*
  * message transfer formats
  */
-#define MT_CITADEL	0	/* Citadel proprietary */
-#define MT_DATE		1	/* We're only looking for the date */
-#define MT_RFC822	2	/* RFC822 */
-#define MT_RAW		3	/* IGnet raw format */
-#define MT_MIME		4	/* MIME-formatted message */
-#define MT_DOWNLOAD	5	/* Download a component */
+enum {
+	MT_CITADEL,		/* Citadel proprietary */
+	MT_DATE,		/* We're only looking for the date */
+	MT_RFC822,		/* RFC822 */
+	MT_RAW,			/* IGnet raw format */
+	MT_MIME,		/* MIME-formatted message */
+	MT_DOWNLOAD		/* Download a component */
+};
 
 
 /*
  * Citadel DataBases (define one for each cdb we need to open)
  */
-#define CDB_MSGMAIN	0	/* message base                  */
-#define CDB_USERSUPP	1	/* user file                     */
-#define CDB_QUICKROOM	2	/* room index                    */
-#define CDB_FLOORTAB	3	/* floor index                   */
-#define CDB_MSGLISTS	4	/* room message lists            */
-#define CDB_VISIT	5	/* user/room relationships       */
-#define MAXCDB		6	/* total number of CDB's defined */
+enum {
+	CDB_MSGMAIN,		/* message base                  */
+	CDB_USERSUPP,		/* user file                     */
+	CDB_QUICKROOM,		/* room index                    */
+	CDB_FLOORTAB,		/* floor index                   */
+	CDB_MSGLISTS,		/* room message lists            */
+	CDB_VISIT,		/* user/room relationships       */
+	MAXCDB			/* total number of CDB's defined */
+};
 
 struct cdbdata {
 	size_t len;
@@ -204,6 +213,10 @@ struct SessionFunctionHook {
 };
 extern struct SessionFunctionHook *SessionHookTable;
 
+/* 
+ * Event types can't be enum'ed, because they must remain consistent between
+ * builds (to allow for binary modules built somewhere else)
+ */
 #define EVT_STOP	0	/* Session is terminating */
 #define EVT_START	1	/* Session is starting */
 #define EVT_LOGIN	2	/* A user is logging in */

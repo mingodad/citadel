@@ -152,6 +152,17 @@ void cleanup_stuff(void *arg)
 	}
 
 
+/*
+ * Get a dynamic symbol number for per-session user data.
+ * This API call should be made only ONCE per symbol per citserver run.
+ */
+int CtdlGetDynamicSymbol() 
+{
+	static unsigned int next_symbol = SYM_MAX;
+	return ++next_symbol;
+}
+
+
 
 /*
  * Return a pointer to some generic per-session user data.

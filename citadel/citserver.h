@@ -26,3 +26,4 @@ void *context_loop (struct CitContext *con);
 void deallocate_user_data(struct CitContext *con);
 void *CtdlGetUserData(unsigned long requested_sym);
 void CtdlAllocUserData(unsigned long requested_sym, size_t num_bytes);
+int CtdlGetDynamicSymbol(void);

@@ -1,3 +1,9 @@
+Fri May 21 20:05:00 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Added function CtdlGetDynamicSymbol() for dynamic symbol allocation
+	* server.h: Changed discrete #define's to enum's where appropriate
+	* sysdep.c: Changed the startup message to give credit to the whole
+	  development team :)  Also made the message more GNU-ish.
+
 Thu May 20 20:01:30 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* database.c: print log messages for file defragmentations
 	* citserver.c: implemented CtdlAllocUserData() and CtdlGetUserData()
@@ -86,8 +92,8 @@ Thu Apr  8 22:51:28 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  is checked for in config.c
 
 1999-04-08 Nathan Bryant <bryant@cs.usm.maine.edu>
-	* citserver.c: improved is_public_client(), also if a public_client only
-	  supplies a numeric address, attempt to resolve it
+	* citserver.c: improved is_public_client(), also if a public_client
+	  only supplies a numeric address, attempt to resolve it
 	* locate_host.c: verify that the forward DNS matches the reverse
 	* locate_host.c, locate_host.h: more general interface
 	* configure.in, acconfig.h: fixes for Digital UNIX
@@ -97,8 +103,8 @@ Wed Apr  7 21:36:16 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1999-04-07 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* configure.in: updated help messages, OpenBSD support
-	* setup.c: if /etc/inittab doesn't exist, don't ask to create an entry
-	  in it
+	* setup.c: if /etc/inittab doesn't exist, don't ask to create an
+	  entry in it
 	* server.h, sysdep.c: fix a potential deadlock/data corruption bug
 	* room_ops.c: fixed the 'gdbm error: Illegal data' message when
 	  deleting a room which had never been posted to

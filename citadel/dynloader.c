@@ -36,191 +36,186 @@ struct CleanupFunctionHook *CleanupHookTable = NULL;
 struct SessionFunctionHook *SessionHookTable = NULL;
 struct UserFunctionHook *UserHookTable = NULL;
 
-struct ProtoFunctionHook
-{
-  void (*handler)(char *cmdbuf);
-  char *cmd;
-  char *desc;
-  struct ProtoFunctionHook *next;
+struct ProtoFunctionHook {
+	void (*handler) (char *cmdbuf);
+	char *cmd;
+	char *desc;
+	struct ProtoFunctionHook *next;
 } *ProtoHookList = NULL;
 
-void CtdlRegisterProtoHook(void (*handler)(char *), char *cmd, char *desc)
+void CtdlRegisterProtoHook(void (*handler) (char *), char *cmd, char *desc)
 {
-  struct ProtoFunctionHook *p = mallok(sizeof *p);
-  
-  if (p == NULL)
-    {
-      fprintf(stderr, "can't malloc new ProtoFunctionHook\n");
-      exit(EXIT_FAILURE);
-    }
+	struct ProtoFunctionHook *p = mallok(sizeof *p);
 
-  p->handler = handler;
-  p->cmd = cmd;
-  p->desc = desc;
-  p->next = ProtoHookList;
-  ProtoHookList = p;
+	if (p == NULL) {
+		fprintf(stderr, "can't malloc new ProtoFunctionHook\n");
+		exit(EXIT_FAILURE);
+	}
+	p->handler = handler;
+	p->cmd = cmd;
+	p->desc = desc;
+	p->next = ProtoHookList;
+	ProtoHookList = p;
 }
 
 int DLoader_Exec_Cmd(char *cmdbuf)
 {
-  struct ProtoFunctionHook *p;
+	struct ProtoFunctionHook *p;
 
-  for (p = ProtoHookList; p; p = p->next)
-    {
-      if (!strncasecmp(cmdbuf, p->cmd, 4))
-	{
-	  p->handler(&cmdbuf[5]);
-	  return 1;
+	for (p = ProtoHookList; p; p = p->next) {
+		if (!strncasecmp(cmdbuf, p->cmd, 4)) {
+			p->handler(&cmdbuf[5]);
+			return 1;
+		}
 	}
-    }
-  return 0;
+	return 0;
 }
 
 void DLoader_Init(char *pathname)
 {
-   void *fcn_handle;
-   const char *dl_error;
-   DIR *dir;
-   struct dirent *dptr;
-   struct DLModule_Info* (*h_init_fcn)(void);
-   struct DLModule_Info *dl_info;
+	void *fcn_handle;
+	const char *dl_error;
+	DIR *dir;
+	struct dirent *dptr;
+	struct DLModule_Info *(*h_init_fcn) (void);
+	struct DLModule_Info *dl_info;
 
-   char pathbuf[PATH_MAX];
-   
-   if ((dir = opendir(pathname))==NULL)
-   {
-      perror("opendir");
-      exit(1);
-   }
-   
-   while ((dptr=readdir(dir))!= NULL)
-   {
-      if (dptr->d_name[0] == '.')
-         continue;
-   
-      snprintf(pathbuf, PATH_MAX, "%s/%s", pathname, dptr->d_name);
+	char pathbuf[PATH_MAX];
+
+	if ((dir = opendir(pathname)) == NULL) {
+		perror("opendir");
+		exit(1);
+	}
+	while ((dptr = readdir(dir)) != NULL) {
+		if (dptr->d_name[0] == '.')
+			continue;
+
+		snprintf(pathbuf, PATH_MAX, "%s/%s", pathname, dptr->d_name);
 #ifdef RTLD_NOW
-      if (!(fcn_handle = dlopen(pathbuf, RTLD_NOW)))
-#else /* OpenBSD */
-      if (!(fcn_handle = dlopen(pathbuf, DL_LAZY)))
+		if (!(fcn_handle = dlopen(pathbuf, RTLD_NOW)))
+#else				/* OpenBSD */
+		if (!(fcn_handle = dlopen(pathbuf, DL_LAZY)))
 #endif
-      {
-         dl_error = dlerror();
-         fprintf(stderr, "DLoader_Init dlopen failed (%s)\n", dl_error);
-         continue;
-      }
-      
-      h_init_fcn = (struct DLModule_Info * (*)(void))
+		{
+			/* dl_error = dlerror(); */
+			fprintf(stderr, "DLoader_Init dlopen failed\n");
+			continue;
+		}
+		h_init_fcn = (struct DLModule_Info * (*)(void))
 #ifndef __OpenBSD__
-	dlsym(fcn_handle, "Dynamic_Module_Init");
+		    dlsym(fcn_handle, "Dynamic_Module_Init");
 #else
-	dlsym(fcn_handle, "_Dynamic_Module_Init");
+		    dlsym(fcn_handle, "_Dynamic_Module_Init");
 #endif
 
-      if ((dl_error = dlerror()) != NULL)
-      {
-         fprintf(stderr,"DLoader_Init dlsym failed (%s)\n", dl_error);
-         continue;
-      }
-      
-      dl_info = h_init_fcn();
+		if ((dl_error = dlerror()) != NULL) {
+			fprintf(stderr, "DLoader_Init dlsym failed (%s)\n", dl_error);
+			continue;
+		}
+		dl_info = h_init_fcn();
 
-      printf("Loaded module %s v%d.%d\nBy %s (%s)\n", dl_info->module_name, 
-	     dl_info->major_version, dl_info->minor_version,
-	     dl_info->module_author, dl_info->module_author_email);
-   }	/* While */
+		printf("Loaded module: %s v%d.%d\nBy %s (%s)\n", dl_info->module_name,
+		       dl_info->major_version, dl_info->minor_version,
+		   dl_info->module_author, dl_info->module_author_email);
+	}			/* While */
 }
 
 
 
-void CtdlRegisterLogHook(void (*fcn_ptr)(char *), int loglevel) {
+void CtdlRegisterLogHook(void (*fcn_ptr) (char *), int loglevel)
+{
 
 	struct LogFunctionHook *newfcn;
 
 	newfcn = (struct LogFunctionHook *)
-		mallok(sizeof(struct LogFunctionHook));
+	    mallok(sizeof(struct LogFunctionHook));
 	newfcn->next = LogHookTable;
 	newfcn->h_function_pointer = fcn_ptr;
 	newfcn->loglevel = loglevel;
 	LogHookTable = newfcn;
 
 	lprintf(5, "Registered a new logging function\n");
-	}
+}
 
 
-void CtdlRegisterCleanupHook(void (*fcn_ptr)(void)) {
+void CtdlRegisterCleanupHook(void (*fcn_ptr) (void))
+{
 
 	struct CleanupFunctionHook *newfcn;
 
 	newfcn = (struct CleanupFunctionHook *)
-		mallok(sizeof(struct CleanupFunctionHook));
+	    mallok(sizeof(struct CleanupFunctionHook));
 	newfcn->next = CleanupHookTable;
 	newfcn->h_function_pointer = fcn_ptr;
 	CleanupHookTable = newfcn;
 
 	lprintf(5, "Registered a new cleanup function\n");
-	}
+}
 
 
-void CtdlRegisterSessionHook(void (*fcn_ptr)(void), int EventType) {
+void CtdlRegisterSessionHook(void (*fcn_ptr) (void), int EventType)
+{
 
 	struct SessionFunctionHook *newfcn;
 
 	newfcn = (struct SessionFunctionHook *)
-		mallok(sizeof(struct SessionFunctionHook));
+	    mallok(sizeof(struct SessionFunctionHook));
 	newfcn->next = SessionHookTable;
 	newfcn->h_function_pointer = fcn_ptr;
 	newfcn->eventtype = EventType;
 	SessionHookTable = newfcn;
 
-	lprintf(5, "Registered a new session function (type %d)\n", 
+	lprintf(5, "Registered a new session function (type %d)\n",
 		EventType);
-	}
+}
 
 
-void CtdlRegisterUserHook(void (*fcn_ptr)(char*, long), int EventType) {
+void CtdlRegisterUserHook(void (*fcn_ptr) (char *, long), int EventType)
+{
 
 	struct UserFunctionHook *newfcn;
 
 	newfcn = (struct UserFunctionHook *)
-		mallok(sizeof(struct UserFunctionHook));
+	    mallok(sizeof(struct UserFunctionHook));
 	newfcn->next = UserHookTable;
 	newfcn->h_function_pointer = fcn_ptr;
 	newfcn->eventtype = EventType;
 	UserHookTable = newfcn;
 
-	lprintf(5, "Registered a new user function (type %d)\n", 
+	lprintf(5, "Registered a new user function (type %d)\n",
 		EventType);
-	}
+}
 
 
-void PerformSessionHooks(int EventType) {
+void PerformSessionHooks(int EventType)
+{
 	struct SessionFunctionHook *fcn;
 
-        for (fcn = SessionHookTable; fcn != NULL; fcn = fcn->next) {
+	for (fcn = SessionHookTable; fcn != NULL; fcn = fcn->next) {
 		if (fcn->eventtype == EventType) {
-                	(*fcn->h_function_pointer)();
-			}
-                }
+			(*fcn->h_function_pointer) ();
+		}
 	}
+}
 
-void PerformLogHooks(int loglevel, char *logmsg) {
+void PerformLogHooks(int loglevel, char *logmsg)
+{
 	struct LogFunctionHook *fcn;
 
 	for (fcn = LogHookTable; fcn != NULL; fcn = fcn->next) {
 		if (fcn->loglevel >= loglevel) {
-			(*fcn->h_function_pointer)(logmsg);
-			}
+			(*fcn->h_function_pointer) (logmsg);
 		}
 	}
+}
 
-void PerformUserHooks(char *username, long usernum, int EventType) {
+void PerformUserHooks(char *username, long usernum, int EventType)
+{
 	struct UserFunctionHook *fcn;
 
-        for (fcn = UserHookTable; fcn != NULL; fcn = fcn->next) {
+	for (fcn = UserHookTable; fcn != NULL; fcn = fcn->next) {
 		if (fcn->eventtype == EventType) {
-                	(*fcn->h_function_pointer)(username, usernum);
-			}
-                }
+			(*fcn->h_function_pointer) (username, usernum);
+		}
 	}
-
+}

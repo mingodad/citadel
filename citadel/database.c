@@ -179,8 +179,8 @@ void close_databases(void) {
 
 	/* Hmm... we should decide when would be a good time to defrag.
 	 * Server shutdowns might be an opportune time.
-	 */
 	defrag_databases();
+	 */
 
 	begin_critical_section(S_DATABASE);
 	for (a=0; a<MAXCDB; ++a) {
