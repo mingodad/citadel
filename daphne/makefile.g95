@@ -1,4 +1,5 @@
 # Makefile for Daphne on wxWindows/MSW built with Cygwin
+# $Id$
 
 TARGET          = daphne
 
@@ -10,4 +11,3 @@ MY_OBJECTS	= citclient.o enter.o express_message.o main.o message.o \
 OBJECTS         = $(MY_OBJECTS)
 
 include $(WXDIR)/src/makeprog.g95
-
