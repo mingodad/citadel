@@ -730,15 +730,16 @@ void readloop(char *oper)
 		else wprintf("<A HREF=\"/readfwd?alpha=1\">(other)</A>\n");
 		wprintf("<HR width=100%%>\n");
 	}
-	if (WC->wc_view == 3) {
+	if (WC->wc_view == 3) {		/* calendar */
 		is_calendar = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
 	}
-	if (WC->wc_view == 4) {
+	if (WC->wc_view == 4) {		/* tasks */
 		is_tasks = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
+		wprintf("<UL>");
 	}
 
 	nummsgs = load_msg_ptrs(cmd);
@@ -833,6 +834,10 @@ void readloop(char *oper)
 
 	if (is_addressbook) {
 		wprintf("</TABLE>\n");
+	}
+
+	if (is_tasks) {
+		wprintf("</UL>\n");
 	}
 
 	/* Bump these because although we're thinking in zero base, the user
