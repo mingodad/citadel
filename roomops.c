@@ -1918,7 +1918,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 			do_template("endbox");
 
 			++num_boxes;
-			if ((num_boxes % boxes_per_column) == 0) {
+			if ((num_boxes % boxes_per_column) == boxes_per_column) {
 				++current_column;
 				if (current_column < columns) {
 					wprintf("</TD><TD VALIGN=TOP>\n");
