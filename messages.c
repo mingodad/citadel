@@ -880,8 +880,8 @@ void fetch_ab_name(long msgnum, char *namebuf) {
  */
 int abcmp(const void *ab1, const void *ab2) {
 	return(strcasecmp(
-        	(((const struct addrbookent *)ab1)->ab_name),
-        	(((const struct addrbookent *)ab2)->ab_name)
+		(((const struct addrbookent *)ab1)->ab_name),
+		(((const struct addrbookent *)ab2)->ab_name)
 	));
 }
 
@@ -1135,8 +1135,10 @@ void readloop(char *oper)
 		}
 	}
 
+	wprintf("<FORM NAME=\"msgomatic\" "
+		"METHOD=\"POST\" ACTION=\"/do_stuff_to_msgs\">\n");
 	if (is_summary) {
-		wprintf("<FORM METHOD=\"POST\" ACTION=\"/do_stuff_to_msgs\">\n"
+		wprintf(
 			"<TABLE border=0 cellspacing=0 "
 			"cellpadding=0 width=100%%>\n"
 			"<TR>"
@@ -1266,7 +1268,6 @@ void readloop(char *oper)
 			oper,
 			WC->msgarr[0]);
 
-		wprintf("</TD></TR></TABLE></CENTER>\n");
 	    }
 	}
 
@@ -1276,10 +1277,7 @@ void readloop(char *oper)
 	 */
 	if (num_displayed > 1) {
 	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook) && (!is_notes) && (!is_singlecard)) {
-		wprintf("<CENTER>"
-			"<TABLE BORDER=0 WIDTH=100%% BGCOLOR=\"#DDDDDD\"><TR><TD>"
-			"Reading #%d-%d of %d messages.</TD>\n"
-			"<TD ALIGN=RIGHT><FONT SIZE=+1>",
+		wprintf("Reading #%d-%d of %d messages.",
 			lowest_displayed, highest_displayed, nummsgs);
 
 		if (is_summary) {
@@ -1287,43 +1285,41 @@ void readloop(char *oper)
 				"VALUE=\"Delete selected\">\n");
 		}
 
+		wprintf("<SELECT NAME=\"whichones\" SIZE=\"1\" "
+			"OnChange=\"location.href=msgomatic.whichones.options"
+			"[selectedIndex].value\">\n");
 
 		for (b=0; b<nummsgs; b = b + maxmsgs) {
 		lo = b+1;
 		hi = b+maxmsgs;
 		if (hi > nummsgs) hi = nummsgs;
-			if (WC->msgarr[b] != startmsg) {
-				wprintf("<A HREF=\"/%s"
-					"?startmsg=%ld"
-					"&maxmsgs=%d"
-					"&summary=%d\">"
-					"%d-%d</A> \n",
-						oper,
-						WC->msgarr[b],
-						maxmsgs,
-						is_summary,
-						lo, hi);
-			}
-			else {
-				wprintf("%d-%d \n", lo, hi);
-			}
-
+			wprintf("<OPTION %s VALUE="
+				"\"/%s"
+				"?startmsg=%ld"
+				"&maxmsgs=%d"
+				"&summary=%d\">"
+				"%d-%d</OPTION> \n",
+				((WC->msgarr[b] == startmsg) ? "SELECTED" : ""),
+				oper,
+				WC->msgarr[b],
+				maxmsgs,
+				is_summary,
+				lo, hi);
 		}
-		wprintf("<A HREF=\"/%s?startmsg=%ld"
+		wprintf("<OPTION VALUE=\"/%s?startmsg=%ld"
 			"&maxmsgs=999999&summary=%d\">"
 			"ALL"
-			"</A> ",
+			"</OPTION> ",
 			oper,
 			WC->msgarr[0], is_summary);
 
-		wprintf("<A HREF=\"/%s?startmsg=%ld"
+		wprintf("<OPTION VALUE=\"/%s?startmsg=%ld"
 			"&maxmsgs=999999&summary=1\">"
 			"Summary"
-			"</A>",
+			"</OPTION>",
 			oper,
 			WC->msgarr[0]);
 
-		wprintf("</TD></TR></TABLE></CENTER>\n");
 	    }
 	}
 	if (is_summary) wprintf("</FORM>\n");

@@ -1,4 +1,7 @@
 $Log$
+Revision 528.41  2005/02/04 19:19:23  ajc
+* Message reading range selection is now a drop-down box.
+
 Revision 528.40  2005/02/04 17:22:18  ajc
 * Cleaned up the rcs/cvs Id tags and leading comments at the top of some files
 
@@ -2309,3 +2312,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
