@@ -116,9 +116,13 @@ void ical_locate_part(char *name, char *filename, char *partnum, char *disp,
 		void *content, char *cbtype, size_t length, char *encoding,
 		void *cbuserdata) {
 
-	struct ical_respond_data *ird;
+	struct ical_respond_data *ird = NULL;
 
 	ird = (struct ical_respond_data *) cbuserdata;
+	if (ird->cal != NULL) {
+		icalcomponent_free(ird->cal);
+		ird->cal = NULL;
+	}
 	if (strcasecmp(partnum, ird->desired_partnum)) return;
 	ird->cal = icalcomponent_new_from_string(content);
 }
@@ -175,6 +179,7 @@ void ical_respond(long msgnum, char *partnum, char *action) {
 		/* FIXME ... do this */
 
 		icalcomponent_free(ird.cal);
+		ird.cal = NULL;
 		cprintf("%d ok\n", CIT_OK);
 		return;
 	}
@@ -188,6 +193,39 @@ void ical_respond(long msgnum, char *partnum, char *action) {
 
 
 
+/*
+ * Backend for ical_hunt_for_conflicts()
+ */
+void vcard_hunt_for_conflicts_backend(long msgnum, void *data) {
+	icalcomponent *cal;
+	struct CtdlMessage *msg;
+	struct ical_respond_data ird;
+
+	cal = (icalcomponent *)data;
+
+	msg = CtdlFetchMessage(msgnum);
+	if (msg == NULL) return;
+	memset(&ird, 0, sizeof ird);
+	strcpy(ird.desired_partnum, "1");	/* hopefully it's always 1 */
+	mime_parser(msg->cm_fields['M'],
+		NULL,
+		*ical_locate_part,		/* callback function */
+		NULL, NULL,
+		(void *) &ird,			/* user data */
+		0
+	);
+	CtdlFreeMessage(msg);
+
+	if (ird.cal == NULL) return;
+
+	/* Now compare cal to ird.cal */
+	cprintf("hunted msg %ld\n", msgnum);
+
+	icalcomponent_free(ird.cal);
+}
+
+
+
 /* 
  * Phase 2 of "hunt for conflicts" operation.
  * At this point we have a calendar object which represents the VEVENT that
@@ -196,8 +234,26 @@ void ical_respond(long msgnum, char *partnum, char *action) {
  * with this one.
  */
 void ical_hunt_for_conflicts(icalcomponent *cal) {
+        char hold_rm[ROOMNAMELEN];
 
-	cprintf("%d FIXME not implemented\n", ERROR);
+        strcpy(hold_rm, CC->quickroom.QRname);	/* save current room */
+
+        if (getroom(&CC->quickroom, USERCALENDARROOM) != 0) {
+                getroom(&CC->quickroom, hold_rm);
+		cprintf("%d You do not have a calendar.\n", ERROR);
+		return;
+        }
+
+	cprintf("%d Conflicting events:\n", LISTING_FOLLOWS);
+
+        CtdlForEachMessage(MSGS_ALL, 0, "text/calendar",
+		NULL,
+		vcard_hunt_for_conflicts_backend,
+		(void *) cal
+	);
+
+	cprintf("000\n");
+        getroom(&CC->quickroom, hold_rm);	/* return to saved room */
 
 }
 

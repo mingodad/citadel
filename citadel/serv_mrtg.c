@@ -84,10 +84,12 @@ void mrtg_users(void) {
 
         for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
 
-		++connected_users;
+		if (cptr->internal_pgm == 0) {
+			++connected_users;
 
-		if ( (time(NULL) - (cptr->lastidle)) < 900L) {
-			++active_users;
+			if ( (time(NULL) - (cptr->lastidle)) < 900L) {
+				++active_users;
+			}
 		}
 
 	}

@@ -1959,6 +1959,32 @@ the output of an INFO command to ensure that the server supports quiet noops.
  
   
  
+ ICAL   (Internet CALendaring commands)
+ 
+ This command supports a number of subcommands which are used to process the
+calendaring/scheduling support in Citadel.  Here are the subcommands which
+may be issued:
+ 
+ ICAL test
+  Test server for calendaring support.  Always returns OK unless the server
+  does not have the calendar module enabled.
+ 
+ ICAL respond|msgnum|partnum|action
+  Respond to a meeting request.  'msgnum' and 'partnum' refer to a MIME-encoded
+  meeting invitation in the current room.  'action' must be set to either
+  "accept" or "decline" to determine the action to take.  This subcommand will
+  return either OK or ERROR.
+ 
+ ICAL conflicts|msgnum|partnum
+  Determine whether an incoming VEVENT will fit in the user's calendar by
+  checking it against the existing VEVENTs.  'msgnum' and 'partnum' refer to
+  a MIME-encoded meeting invitation in the current room (usually the inbox).
+  This command may return ERROR if something went wrong, but usually it will
+  return LISTING_FOLLOWS followed by a list of zero or more conflicting
+  events.  A zero-length list means that there were no conflicts.
+ 
+ 
+ 
  MRTG   (Multi Router Traffic Grapher)
  
  Multi Router Traffic Grapher (please see http://www.mrtg.org for more info) is
