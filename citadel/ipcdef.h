@@ -80,4 +80,3 @@ struct CtdlServInfo {
 
 void serv_puts(char *buf);
 void serv_gets(char *buf);
-void connection_died(void);
