@@ -1061,13 +1061,13 @@ void do_ignet_configuration(void) {
 		color(BRIGHT_WHITE);
 		printf(	"### "
 			"   Node          "
-			"  Secret         "
+			"  Secret           "
 			"          Host or IP             "
 			"Port#\n");
 		color(DIM_WHITE);
 		printf(	"--- "
 			"---------------- "
-			"---------------- "
+			"------------------ "
 			"-------------------------------- "
 			"-----\n");
 		for (i=0; i<num_recs; ++i) {
@@ -1078,7 +1078,7 @@ void do_ignet_configuration(void) {
 		printf("%-16s ", buf);
 		extract(buf, recs[i], 1);
 		color(BRIGHT_MAGENTA);
-		printf("%-16s ", buf);
+		printf("%-18s ", buf);
 		extract(buf, recs[i], 2);
 		color(BRIGHT_CYAN);
 		printf("%-32s ", buf);
@@ -1099,7 +1099,7 @@ void do_ignet_configuration(void) {
 				newprompt("Enter node name    : ", buf, 16);
 				strcat(buf, "|");
 				newprompt("Enter shared secret: ",
-					&buf[strlen(buf)], 16);
+					&buf[strlen(buf)], 18);
 				strcat(buf, "|");
 				newprompt("Enter host or IP   : ",
 					&buf[strlen(buf)], 32);

@@ -1,4 +1,8 @@
  $Log$
+ Revision 580.93  2001/12/04 05:24:15  ajc
+ * Added two more bytes to the possible length of shared secrets in networking
+   due to some legacy support requirements.
+
  Revision 580.92  2001/12/04 05:16:19  ajc
  * mime_parser.c: change to memory allocation algorithm ... some badly done
    messages were crashing the server
@@ -2926,4 +2930,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
