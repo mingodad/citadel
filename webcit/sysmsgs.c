@@ -32,7 +32,7 @@
  * display the form for editing something (room info, bio, etc)
  */
 void display_edit(char *description, char *check_cmd,
-		  char *read_cmd, char *save_cmd, int headers_type)
+		  char *read_cmd, char *save_cmd, int with_room_banner)
 {
 	char buf[SIZ];
 
@@ -44,7 +44,12 @@ void display_edit(char *description, char *check_cmd,
 		display_main_menu();
 		return;
 	}
-	output_headers(headers_type);
+	if (with_room_banner) {
+		output_headers(1, 1, 1, 0, 0, 0, 0);
+	}
+	else {
+		output_headers(1, 1, 0, 0, 0, 0, 0);
+	}
 
 	svprintf("BOXTITLE", WCS_STRING, "Edit %s", description);
 	do_template("beginbox");
@@ -52,7 +57,7 @@ void display_edit(char *description, char *check_cmd,
 	wprintf("<CENTER>Enter %s below.  Text is formatted to\n", description);
 	wprintf("the <EM>reader's</EM> screen width.  To defeat the\n");
 	wprintf("formatting, indent a line at least one space.  \n");
-	wprintf("<BR>");
+	wprintf("<br />");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"%s\">\n", save_cmd);
 	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft "
@@ -61,10 +66,10 @@ void display_edit(char *description, char *check_cmd,
 	serv_gets(buf);
 	if (buf[0] == '1')
 		server_to_text();
-	wprintf("</TEXTAREA><BR><BR>\n");
+	wprintf("</TEXTAREA><br /><br />\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save\">");
 	wprintf("&nbsp;");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><br />\n");
 
 	wprintf("</FORM></CENTER>\n");
 	do_template("endbox");

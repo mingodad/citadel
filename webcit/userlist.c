@@ -50,12 +50,12 @@ void userlist(void)
 			strcpy(bptr->name, buf);
 			bio = bptr;
 		}
-	output_headers(3);
+	output_headers(1, 1, 0, 0, 0, 0, 0);
 
 	serv_puts("LIST");
 	serv_gets(buf);
 	if (buf[0] != '1') {
-		wprintf("<EM>%s</EM><BR>\n", &buf[4]);
+		wprintf("<EM>%s</EM><br />\n", &buf[4]);
 		goto DONE;
 	}
 
@@ -119,7 +119,7 @@ void showuser(void)
 	char buf[SIZ];
 	int have_pic;
 
-	output_headers(3);
+	output_headers(1, 1, 0, 0, 0, 0, 0);
 
 	svprintf("BOXTITLE", WCS_STRING, "User profile");
 	do_template("beginbox");
@@ -147,7 +147,7 @@ void showuser(void)
 	if (buf[0] == '1') {
 		fmout(NULL, "JUSTIFY");
 	}
-	wprintf("<BR><A HREF=\"/display_page&recp=");
+	wprintf("<br /><A HREF=\"/display_page&recp=");
 	urlescputs(who);
 	wprintf("\">"
 		"<IMG SRC=\"/static/page.gif\" ALIGN=MIDDLE BORDER=0>"

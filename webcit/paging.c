@@ -36,7 +36,7 @@ void display_page(void)
 
 	strcpy(recp, bstr("recp"));
 
-	output_headers(3);
+	output_headers(1, 1, 0, 0, 0, 0, 0);
 
 	svprintf("BOXTITLE", WCS_STRING, "Page: %s", recp);
 	do_template("beginbox");
@@ -53,15 +53,15 @@ void display_page(void)
 	escputs(bstr("closewin"));
 	wprintf("\">\n");
 
-	wprintf("Enter message text:<BR>");
+	wprintf("Enter message text:<br />");
 
 	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=5 COLS=40 "
 		"WIDTH=40></TEXTAREA>\n");
 
-	wprintf("</TD></TR></TABLE><BR>\n");
+	wprintf("</TD></TR></TABLE><br />\n");
 
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Send message\">");
-	wprintf("<BR><A HREF=\"javascript:window.close();\"Cancel</A>\n");
+	wprintf("<br /><A HREF=\"javascript:window.close();\"Cancel</A>\n");
 
 	wprintf("</FORM></CENTER>\n");
 	do_template("endbox");
@@ -78,14 +78,14 @@ void page_user(void)
 	char buf[SIZ];
 	char closewin[SIZ];
 
-	output_headers(3);
+	output_headers(1, 1, 0, 0, 0, 0, 0);
 
 	strcpy(recp, bstr("recp"));
 	strcpy(sc, bstr("sc"));
 	strcpy(closewin, bstr("closewin"));
 
 	if (strcmp(sc, "Send message")) {
-		wprintf("<EM>Message was not sent.</EM><BR>\n");
+		wprintf("<EM>Message was not sent.</EM><br />\n");
 	} else {
 		serv_printf("SEXP %s|-", recp);
 		serv_gets(buf);
@@ -95,10 +95,10 @@ void page_user(void)
 			serv_puts("000");
 			wprintf("<EM>Message has been sent to ");
 			escputs(recp);
-			wprintf(".</EM><BR>\n");
+			wprintf(".</EM><br />\n");
 		}
 		else {
-			wprintf("<EM>%s</EM><BR>\n", &buf[4]);
+			wprintf("<EM>%s</EM><br />\n", &buf[4]);
 		}
 	}
 	
@@ -151,8 +151,8 @@ void page_popup(void)
 	char buf[SIZ];
 	char pagefrom[SIZ];
 
-	/* suppress express message check, do headers but no frames */
-	output_headers(0x08 | 0x03);
+	/* suppress express message check, do headers but no banner */
+	output_headers(1, 1, 0, 0, 0, 1, 0);
 
 	while (serv_puts("GEXP"), serv_gets(buf), buf[0]=='1') {
 
@@ -260,16 +260,16 @@ void chat_recv(void) {
 	char cl_text[SIZ];
 	char *output_data = NULL;
 
-	output_headers(0);
+	output_headers(0, 0, 0, 0, 0, 0, 0);
 
 	wprintf("Content-type: text/html\n");
 	wprintf("\n");
-	wprintf("<HTML>\n"
-		"<HEAD>\n"
-		"<META HTTP-EQUIV=\"refresh\" CONTENT=\"3\">\n"
-		"</HEAD>\n"
+	wprintf("<html>\n"
+		"<head>\n"
+		"<meta http-equiv=\"refresh\" content=\"3\" />\n"
+		"</head>\n"
 
-		"<BODY BGCOLOR=\"#FFFFFF\">\n"
+		"<body bgcolor=\"#FFFFFF\">\n"
 	);
 
 	if (setup_chat_socket() != 0) {
@@ -406,7 +406,7 @@ void chat_send(void) {
 	char send_this[SIZ];
 	char buf[SIZ];
 
-	output_headers(0);
+	output_headers(0, 0, 0, 0, 0, 0, 0);
 	wprintf("Content-type: text/html\n");
 	wprintf("\n");
 	wprintf("<HTML>"
@@ -471,7 +471,7 @@ void chat_send(void) {
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/chat_send\" NAME=\"chatsendform\">\n");
 	wprintf("<INPUT TYPE=\"text\" SIZE=\"80\" MAXLENGTH=\"%d\" "
 		"NAME=\"send_this\">\n", SIZ-10);
-	wprintf("<BR>");
+	wprintf("<br />");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sendbutton\" VALUE=\"Send\">\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sendbutton\" VALUE=\"Help\">\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sendbutton\" VALUE=\"List Users\">\n");

@@ -78,7 +78,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	other_inetemail[0] = 0;
 	extrafields[0] = 0;
 
-	output_headers(3);
+	output_headers(1, 1, 0, 0, 0, 0, 0);
 
 	strcpy(whatuser, "");
 
@@ -243,17 +243,17 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR></TABLE>\n",
 		worktel);
 
-	wprintf("<BR><TABLE border=0><TR>"
-		"<TD VALIGN=TOP>Primary Internet e-mail address<BR>"
+	wprintf("<br /><TABLE border=0><TR>"
+		"<TD VALIGN=TOP>Primary Internet e-mail address<br />"
 		"<INPUT TYPE=\"text\" NAME=\"primary_inetemail\" "
 		"SIZE=40 MAXLENGTH=40 VALUE=\"");
 	escputs(primary_inetemail);
-	wprintf("\"><BR>"
+	wprintf("\"><br />"
 		"</TD><TD VALIGN=TOP>"
-		"Other Internet e-mail addresses<BR>"
+		"Other Internet e-mail addresses<br />"
 		"<TEXTAREA NAME=\"other_inetemail\" ROWS=5 COLS=40 WIDTH=40>");
 	escputs(other_inetemail);
-	wprintf("</TEXTAREA></TD></TR></TABLE><BR>\n");
+	wprintf("</TEXTAREA></TD></TR></TABLE><br />\n");
 
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"extrafields\" VALUE=\"");
 	escputs(extrafields);

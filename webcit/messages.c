@@ -206,7 +206,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 			}
 	
 			else if (!strcasecmp(firsttoken, "email")) {
-				if (strlen(mailto) > 0) strcat(mailto, "<BR>");
+				if (strlen(mailto) > 0) strcat(mailto, "<br />");
 				strcat(mailto,
 					"<A HREF=\"/display_enter"
 					"?force_room=_MAIL_&recp=");
@@ -216,7 +216,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 				strcat(mailto, "</A>");
 			}
 			else if (!strcasecmp(firsttoken, "tel")) {
-				if (strlen(phone) > 0) strcat(phone, "<BR>");
+				if (strlen(phone) > 0) strcat(phone, "<br />");
 				strcat(phone, thisvalue);
 				for (j=0; j<num_tokens(thisname, ';'); ++j) {
 					extract_token(buf, thisname, j, ';');
@@ -242,7 +242,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 						extract_token(buf, thisvalue, j, ';');
 						if (strlen(buf) > 0) {
 							escputs(buf);
-							wprintf("<BR>");
+							wprintf("<br />");
 						}
 					}
 					wprintf("</TD></TR>\n");
@@ -364,7 +364,7 @@ void read_message(long msgnum) {
 	serv_printf("MSG4 %ld", msgnum);
 	serv_gets(buf);
 	if (buf[0] != '1') {
-		wprintf("<STRONG>ERROR:</STRONG> %s<BR>\n", &buf[4]);
+		wprintf("<STRONG>ERROR:</STRONG> %s<br />\n", &buf[4]);
 		return;
 	}
 
@@ -381,7 +381,7 @@ void read_message(long msgnum) {
 
 	while (serv_gets(buf), strcasecmp(buf, "text")) {
 		if (!strcmp(buf, "000")) {
-			wprintf("<I>unexpected end of message</I><BR><BR>\n");
+			wprintf("<I>unexpected end of message</I><br /><br />\n");
 			wprintf("</SPAN>\n");
 			return;
 		}
@@ -447,7 +447,7 @@ void read_message(long msgnum) {
 					"TARGET=\"wc.%ld.%s\">"
 					"<IMG SRC=\"/static/attachment.gif\" "
 					"BORDER=0 ALIGN=MIDDLE>\n"
-					"Part %s: %s (%s, %d bytes)</A><BR>\n",
+					"Part %s: %s (%s, %d bytes)</A><br />\n",
 					msgnum, mime_partnum,
 					msgnum, mime_partnum,
 					mime_partnum, mime_filename,
@@ -500,7 +500,7 @@ void read_message(long msgnum) {
 
 	wprintf("</SPAN>");
 	if (strlen(m_subject) > 0) {
-		wprintf("<BR>"
+		wprintf("<br />"
 			"<SPAN CLASS=\"message_subject\">"
 			"Subject: %s"
 			"</SPAN>", m_subject
@@ -549,7 +549,7 @@ void read_message(long msgnum) {
 	strcpy(mime_content_type, "text/plain");
 	while (serv_gets(buf), (strlen(buf) > 0)) {
 		if (!strcmp(buf, "000")) {
-			wprintf("<I>unexpected end of message</I><BR><BR>\n");
+			wprintf("<I>unexpected end of message</I><br /><br />\n");
 			goto ENDBODY;
 		}
 		if (!strncasecmp(buf, "Content-type: ", 14)) {
@@ -582,9 +582,9 @@ void read_message(long msgnum) {
 			wprintf("<TT>");
 			url(buf);
 			escputs(buf);
-			wprintf("</TT><BR>\n");
+			wprintf("</TT><br />\n");
 		}
-		wprintf("</I><BR>");
+		wprintf("</I><br />");
 	}
 
 	else /* HTML is fun, but we've got to strip it first */
@@ -594,7 +594,7 @@ void read_message(long msgnum) {
 
 	/* Unknown weirdness */
 	else {
-		wprintf("I don't know how to display %s<BR>\n",
+		wprintf("I don't know how to display %s<br />\n",
 			mime_content_type);
 		while (serv_gets(buf), strcmp(buf, "000")) { }
 	}
@@ -642,7 +642,7 @@ ENDBODY:
 	wprintf("</TD></TR></TABLE>\n");
 
 	/* end everythingamundo table */
-	wprintf("</TD></TR></TABLE><BR>\n");
+	wprintf("</TD></TR></TABLE><br />\n");
 }
 
 
@@ -950,7 +950,7 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 			wprintf("</B>\n");
 		}
 	}
-	wprintf("<BR>\n");
+	wprintf("<br />\n");
 
 	wprintf("<TABLE border=0 cellspacing=0 "
 		"cellpadding=3 width=100%%>\n"
@@ -1000,7 +1000,7 @@ int load_msg_ptrs(char *servcmd)
 	serv_puts(servcmd);
 	serv_gets(buf);
 	if (buf[0] != '1') {
-		wprintf("<EM>%s</EM><BR>\n", &buf[4]);
+		wprintf("<EM>%s</EM><br />\n", &buf[4]);
 		return (nummsgs);
 	}
 	while (serv_gets(buf), strcmp(buf, "000")) {
@@ -1049,7 +1049,7 @@ void readloop(char *oper)
 	is_summary = atoi(bstr("summary"));
 	if (maxmsgs == 0) maxmsgs = DEFAULT_MAXMSGS;
 
-	output_headers(1);
+	output_headers(1, 1, 1, 0, 0, 0, 0);
 
 	/* When in summary mode, always show ALL messages instead of just
 	 * new or old.  Otherwise, show what the user asked for.
@@ -1544,7 +1544,7 @@ void display_enter(void)
 #endif
 
 	/* Otherwise proceed normally */
-	output_headers(1);
+	output_headers(1, 1, 1, 0, 0, 0, 0);
 	sprintf(buf, "ENT0 0|%s|0|0", bstr("recp"));
 	serv_puts(buf);
 	serv_gets(buf);
@@ -1552,7 +1552,7 @@ void display_enter(void)
 	if (!strncmp(buf, "570", 3)) {
 		if (strlen(bstr("recp")) > 0) {
 			svprintf("RECPERROR", WCS_STRING,
-				"<SPAN CLASS=\"errormsg\">%s</SPAN><BR>\n",
+				"<SPAN CLASS=\"errormsg\">%s</SPAN><br />\n",
 				&buf[4]
 			);
 		}
@@ -1560,7 +1560,7 @@ void display_enter(void)
 		goto DONE;
 	}
 	if (buf[0] != '2') {
-		wprintf("<EM>%s</EM><BR>\n", &buf[4]);
+		wprintf("<EM>%s</EM><br />\n", &buf[4]);
 		goto DONE;
 	}
 
@@ -1604,12 +1604,12 @@ void display_enter(void)
 	wprintf("<TD ALIGN=RIGHT>");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save message\">"
 		"&nbsp;"
-		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
+		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><br />\n");
 	wprintf("</TD></TR></TABLE>\n");
 
-	wprintf("<SCRIPT language=\"JavaScript\" type=\"text/javascript\" "
-		"src=\"static/richtext_compressed.js\"></SCRIPT>\n"
-		"<SCRIPT language=\"JavaScript\" type=\"text/javascript\">\n"
+	wprintf("<script language=\"JavaScript\" type=\"text/javascript\" "
+		"src=\"static/richtext.js\"></script>\n"
+		"<script language=\"JavaScript\" type=\"text/javascript\">\n"
 		"function submitForm() { \n"
 		"  updateRTE('msgtext'); \n"
 		"  return true; \n"
@@ -1617,8 +1617,8 @@ void display_enter(void)
 		"  \n"
 		"initRTE(\"static/\", \"static/\", \"\"); \n"
 		"</script> \n"
-		"<noscript>JAVASCRIPT MUST BE ENABLED.</noscript> \n"
-		"<SCRIPT language=\"javascript\" type=\"text/javascript\"> \n"
+		"<noscript>JAVAscript MUST BE ENABLED.</noscript> \n"
+		"<script language=\"javascript\" type=\"text/javascript\"> \n"
 		"writeRichText('msgtext', '");
 	msgescputs(bstr("msgtext"));
 	wprintf("', '100%%', 200, true, false); \n"
@@ -1630,7 +1630,7 @@ void display_enter(void)
 	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=25 COLS=80 "
 		"WIDTH=80>");
 	escputs(bstr("msgtext"));
-	wprintf("</TEXTAREA><BR>\n");
+	wprintf("</TEXTAREA><br />\n");
  */
 
 	/* Enumerate any attachments which are already in place... */
@@ -1638,7 +1638,7 @@ void display_enter(void)
 		wprintf("<IMG SRC=\"/static/attachment.gif\" "
 			"BORDER=0 ALIGN=MIDDLE> Attachment: ");
 		escputs(att->filename);
-		wprintf(" (%s, %d bytes)<BR>\n",
+		wprintf(" (%s, %d bytes)<br />\n",
 			att->content_type, att->length);
 	}
 
@@ -1667,12 +1667,12 @@ void delete_msg(void)
 
 	msgid = atol(bstr("msgid"));
 
-	output_headers(1);
+	output_headers(1, 1, 1, 0, 0, 0, 0);
 
 	sprintf(buf, "DELE %ld", msgid);
 	serv_puts(buf);
 	serv_gets(buf);
-	wprintf("<EM>%s</EM><BR>\n", &buf[4]);
+	wprintf("<EM>%s</EM><br />\n", &buf[4]);
 
 	wDumpContent(1);
 }
@@ -1691,7 +1691,7 @@ void confirm_move_msg(void)
 
 	msgid = atol(bstr("msgid"));
 
-	output_headers(1);
+	output_headers(1, 1, 1, 0, 0, 0, 0);
 
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"#FFFFFF\"");
@@ -1700,7 +1700,7 @@ void confirm_move_msg(void)
 
 	wprintf("<CENTER>");
 
-	wprintf("Move this message to:<BR>\n");
+	wprintf("Move this message to:<br />\n");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/move_msg\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgid\" VALUE=\"%s\">\n",
@@ -1719,7 +1719,7 @@ void confirm_move_msg(void)
 		}
 	}
 	wprintf("</SELECT>\n");
-	wprintf("<BR>\n");
+	wprintf("<br />\n");
 
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"yesno\" VALUE=\"Move\">");
 	wprintf("&nbsp;");
@@ -1739,15 +1739,15 @@ void move_msg(void)
 
 	msgid = atol(bstr("msgid"));
 
-	output_headers(1);
+	output_headers(1, 1, 1, 0, 0, 0, 0);
 
 	if (!strcasecmp(bstr("yesno"), "Move")) {
 		sprintf(buf, "MOVE %ld|%s", msgid, bstr("target_room"));
 		serv_puts(buf);
 		serv_gets(buf);
-		wprintf("<EM>%s</EM><BR>\n", &buf[4]);
+		wprintf("<EM>%s</EM><br />\n", &buf[4]);
 	} else {
-		wprintf("<EM>Message not moved.</EM><BR>\n");
+		wprintf("<EM>Message not moved.</EM><br />\n");
 	}
 
 	wDumpContent(1);

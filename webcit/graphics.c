@@ -31,7 +31,7 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 		display_main_menu();
 		return;
 	}
-	output_headers(3);
+	output_headers(1, 1, 0, 0, 0, 0, 0);
 
 	svprintf("BOXTITLE", WCS_STRING, "Set/change your photo");
 	do_template("beginbox");
@@ -47,11 +47,11 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 
 	wprintf("You can upload any image directly from your computer,\n");
 	wprintf("as long as it is in GIF format (JPEG, PNG, etc. won't\n");
-	wprintf("work).<BR><BR>\n");
+	wprintf("work).<br /><br />\n");
 
-	wprintf("Please select a file to upload:<BR><BR>\n");
+	wprintf("Please select a file to upload:<br /><br />\n");
 	wprintf("<INPUT TYPE=\"FILE\" NAME=\"filename\" SIZE=\"35\">\n");
-	wprintf("<BR><BR>");
+	wprintf("<br /><br />");
 	wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" VALUE=\"Upload\">\n");
 	wprintf("&nbsp;");
 	wprintf("<INPUT TYPE=\"RESET\" VALUE=\"Reset Form\">\n");

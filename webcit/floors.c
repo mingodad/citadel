@@ -41,7 +41,7 @@ void display_floorconfig(char *prepend_html)
 	char floorname[SIZ];
 	int refcount;
 
-	output_headers(3);
+	output_headers(1, 1, 2, 0, 0, 0, 0);
 
 	if (prepend_html != NULL) {
 		client_write(prepend_html, strlen(prepend_html));
@@ -50,10 +50,12 @@ void display_floorconfig(char *prepend_html)
 	serv_printf("LFLR");	/* FIXME put a real test here */
 	serv_gets(buf);
 	if (buf[0] != '1') {
+		wprintf("<div id=\"banner\">\n");
         	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
         	wprintf("<SPAN CLASS=\"titlebar\">Error</SPAN>\n");
-        	wprintf("</TD></TR></TABLE><BR>\n");
-        	wprintf("%s<BR>\n", &buf[4]);
+        	wprintf("</TD></TR></TABLE>\n");
+		wprintf("</div><div id=\"text\">\n");
+        	wprintf("%s<br />\n", &buf[4]);
 		wDumpContent(1);
 		return;
 	}
@@ -77,7 +79,7 @@ void display_floorconfig(char *prepend_html)
 			wprintf("</TD><TD>"
 				"<A HREF=\"/delete_floor?floornum=%d\">"
 				"<FONT SIZE=-1>(delete floor)</A>"
-				"</FONT><BR>", floornum
+				"</FONT><br />", floornum
 			);
 		}
 		wprintf("<FONT SIZE=-1>"
@@ -129,10 +131,10 @@ void delete_floor(void) {
 
 	if (buf[0] == '2') {
 		sprintf(message, "<B><I>Floor has been deleted."
-				"</I></B><BR><BR>\n");
+				"</I></B><br /><br />\n");
 	}
 	else {
-		sprintf(message, "<B><I>%s</I></B>><BR>", &buf[4]);
+		sprintf(message, "<B><I>%s</I></B>><br />", &buf[4]);
 	}
 
 	display_floorconfig(message);
@@ -149,7 +151,7 @@ void create_floor(void) {
 	serv_printf("CFLR %s|1", floorname);
 	serv_gets(buf);
 
-	sprintf(message, "<B><I>%s</I></B>><BR>", &buf[4]);
+	sprintf(message, "<B><I>%s</I></B>><br />", &buf[4]);
 
 	display_floorconfig(message);
 }
@@ -167,7 +169,7 @@ void rename_floor(void) {
 	serv_printf("EFLR %d|%s", floornum, floorname);
 	serv_gets(buf);
 
-	sprintf(message, "<B><I>%s</I></B>><BR>", &buf[4]);
+	sprintf(message, "<B><I>%s</I></B>><br />", &buf[4]);
 
 	display_floorconfig(message);
 }

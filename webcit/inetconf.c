@@ -81,10 +81,12 @@ void display_inetconf(void)
 	}
 	ic_misc = strdup("");
 
-	output_headers(3);
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">Internet configuration</SPAN>\n");
 	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</div><div id=\"text\">\n");
 
 	serv_printf("CONF GETSYS|application/x-citadel-internet-config");
 	serv_gets(buf);
@@ -121,7 +123,7 @@ void display_inetconf(void)
 		do_template("beginbox");
 		wprintf("<span class=\"menudesc\">");
 		escputs(ic_desc[which]);
-		wprintf("</span><br>");
+		wprintf("</span><br />");
 		wprintf("<TABLE border=0 cellspacing=0 cellpadding=0 width=100%%>\n");
 		if (strlen(ic_spec[which]) > 0) {
 			for (i=0; i<num_tokens(ic_spec[which], '\n'); ++i) {

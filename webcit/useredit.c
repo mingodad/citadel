@@ -35,7 +35,7 @@ void select_user_to_edit(char *message, char *preselect)
 	char buf[SIZ];
 	char username[SIZ];
 
-	output_headers(3);	/* No room banner on this screen */
+	output_headers(1, 1, 0, 0, 0, 0, 0);	/* No room banner on this screen */
 
 	if (message != NULL) wprintf(message);
 
@@ -45,7 +45,7 @@ void select_user_to_edit(char *message, char *preselect)
 	do_template("beginbox");
 
 	wprintf("To edit an existing user account, select the user "
-		"name from the list and click 'Edit'.<BR><BR>");
+		"name from the list and click 'Edit'.<br /><br />");
 	
         wprintf("<CENTER>"
 		"<FORM METHOD=\"POST\" ACTION=\"/display_edituser\">\n");
@@ -64,7 +64,7 @@ void select_user_to_edit(char *message, char *preselect)
                         wprintf("\n");
                 }
         }
-        wprintf("</SELECT><BR>\n");
+        wprintf("</SELECT><br />\n");
 
         wprintf("<input type=submit name=sc value=\"Edit configuration\">");
         wprintf("<input type=submit name=sc value=\"Edit address book entry\">");
@@ -77,11 +77,11 @@ void select_user_to_edit(char *message, char *preselect)
 	do_template("beginbox");
 
 	wprintf("To create a new user account, enter the desired "
-		"user name in the box below and click 'Create'.<BR><BR>");
+		"user name in the box below and click 'Create'.<br /><br />");
 
         wprintf("<CENTER><FORM METHOD=\"POST\" ACTION=\"/create_user\">\n");
         wprintf("New user: ");
-        wprintf("<input type=text name=username><BR>\n"
+        wprintf("<input type=text name=username><br />\n"
         	"<input type=submit value=\"Create\">"
 		"</FORM></CENTER>\n");
 
@@ -184,7 +184,7 @@ void display_edit_address_book_entry(char *username, long usernum) {
 		if (buf[0] != '2') {
 			sprintf(error_message,
 				"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
-				"%s<BR><BR>\n", &buf[4]);
+				"%s<br /><br />\n", &buf[4]);
 			select_user_to_edit(error_message, username);
 			return;
 		}
@@ -196,7 +196,7 @@ void display_edit_address_book_entry(char *username, long usernum) {
 		sprintf(error_message,
 			"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
 			"Could not create/edit vCard"
-			"<BR><BR>\n"
+			"<br /><br />\n"
 		);
 		select_user_to_edit(error_message, username);
 		return;
@@ -243,7 +243,7 @@ void display_edituser(char *supplied_username, int is_new) {
 	if (buf[0] != '2') {
 		sprintf(error_message,
 			"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
-			"%s<BR><BR>\n", &buf[4]);
+			"%s<br /><br />\n", &buf[4]);
 		select_user_to_edit(error_message, username);
 		return;
 	}
@@ -263,12 +263,14 @@ void display_edituser(char *supplied_username, int is_new) {
 		return;
 	}
 
-	output_headers(3);	/* No room banner on this screen */
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">"
 		"Edit user account: ");
 	escputs(username);
 	wprintf("</SPAN></TD></TR></TABLE>\n");
+	wprintf("</div><div id=\"text\">\n");
 
 	do_template("beginbox_nt");
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/edituser\">\n"
@@ -339,7 +341,7 @@ void display_edituser(char *supplied_username, int is_new) {
 	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"OK\">\n"
 		"&nbsp;"
 		"<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Cancel\">\n"
-		"<BR><BR></FORM>\n");
+		"<br /><br /></FORM>\n");
 
 	wprintf("</CENTER>\n");
 	do_template("endbox");
@@ -378,7 +380,7 @@ void edituser(void) {
 		if (buf[0] != '2') {
 			sprintf(message,
 				"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
-				"%s<BR><BR>\n", &buf[4]);
+				"%s<br /><br />\n", &buf[4]);
 		}
 		else {
 			strcpy(message, "");
@@ -417,7 +419,7 @@ void create_user(void) {
 	else {
 		sprintf(error_message,
 			"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
-			"%s<BR><BR>\n", &buf[4]);
+			"%s<br /><br />\n", &buf[4]);
 		select_user_to_edit(error_message, NULL);
 	}
 

@@ -29,11 +29,11 @@
 #ifndef WEBCIT_WITH_CALENDAR_SERVICE
 
 void do_calendar_view(void) {	/* stub for non-libical builds */
-	wprintf("<CENTER><I>Calendar view not available</I></CENTER><BR>\n");
+	wprintf("<CENTER><I>Calendar view not available</I></CENTER><br />\n");
 }
 
 void do_tasks_view(void) {	/* stub for non-libical builds */
-	wprintf("<CENTER><I>Tasks view not available</I></CENTER><BR>\n");
+	wprintf("<CENTER><I>Tasks view not available</I></CENTER><br />\n");
 }
 
 #else	/* WEBCIT_WITH_CALENDAR_SERVICE */
@@ -52,7 +52,7 @@ void calendar_month_view_display_events(time_t thetime) {
 	int all_day_event = 0;
 
 	if (WC->num_cal == 0) {
-		wprintf("<BR><BR><BR>\n");
+		wprintf("<br /><br /><br />\n");
 		return;
 	}
 
@@ -112,7 +112,7 @@ lprintf(9, "Event: %04d/%02d/%02d, Now: %04d/%02d/%02d\n",
 					);
 					escputs((char *)
 						icalproperty_get_comment(p));
-					wprintf("</A></FONT><BR>\n");
+					wprintf("</A></FONT><br />\n");
 
 					if (all_day_event) {
 						wprintf("</TD></TR></TABLE>");
@@ -225,7 +225,7 @@ void calendar_month_view(int year, int month, int day) {
 			wprintf("%s ", months[tm.tm_mon]);
 		}
 		wprintf("<A HREF=\"readfwd?calview=day&year=%d&month=%d&day=%d\">"
-			"%d</A></B><BR>",
+			"%d</A></B><br />",
 			tm.tm_year + 1900,
 			tm.tm_mon + 1,
 			tm.tm_mday,
@@ -251,7 +251,7 @@ void calendar_month_view(int year, int month, int day) {
 
 
 void calendar_week_view(int year, int month, int day) {
-	wprintf("<CENTER><I>week view FIXME</I></CENTER><BR>\n");
+	wprintf("<CENTER><I>week view FIXME</I></CENTER><br />\n");
 }
 
 
@@ -269,7 +269,7 @@ void calendar_day_view_display_events(int year, int month,
 	int all_day_event = 0;
 
 	if (WC->num_cal == 0) {
-		wprintf("<BR><BR><BR>\n");
+		wprintf("<br /><br /><br />\n");
 		return;
 	}
 
@@ -313,7 +313,7 @@ void calendar_day_view_display_events(int year, int month,
 					);
 					escputs((char *)
 						icalproperty_get_comment(p));
-					wprintf("</A></FONT><BR>\n");
+					wprintf("</A></FONT><br />\n");
 
 					if (all_day_event) {
 						wprintf("</TD></TR></TABLE>");
@@ -424,9 +424,9 @@ void calendar_day_view(int year, int month, int day) {
 
 	/* Today's date */
 	wprintf("<TD ALIGN=CENTER>");
-	wprintf("<FONT SIZE=+2>%s</FONT><BR>"
-		"<FONT SIZE=+3>%d</FONT><BR>"
-		"<FONT SIZE=+2>%d</FONT><BR>",
+	wprintf("<FONT SIZE=+2>%s</FONT><br />"
+		"<FONT SIZE=+3>%d</FONT><br />"
+		"<FONT SIZE=+2>%d</FONT><br />",
 		months[month-1], day, year);
 	wprintf("</TD>");
 
@@ -441,11 +441,11 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("</TR></TABLE>\n");
 	/* End todays-date-with-left-and-right-arrows */
 
-	wprintf("<BR><BR><CENTER><font color=#FFFFFF>"
+	wprintf("<br /><br /><CENTER><font color=#FFFFFF>"
 		"&nbsp;<A HREF=\"/display_edit_event?msgnum=0"
 		"&year=%d&month=%d&day=%d\">"
 		"Add new calendar event</A>"
-		"<BR><BR>\n",
+		"<br /><br />\n",
 		year, month, day
 	);
 
@@ -515,7 +515,7 @@ void calendar_summary_view(void) {
 				if (p != NULL) {
 					escputs((char *)
 						icalproperty_get_comment(p));
-					wprintf(" (%s)<BR>\n", timestring);
+					wprintf(" (%s)<br />\n", timestring);
 				}
 			}
 		}
@@ -685,7 +685,7 @@ void do_tasks_view(void) {
 
 	wprintf("</TABLE>\n");
 
-	wprintf("<HR><A HREF=\"/display_edit_task?msgnum=0\">"
+	wprintf("<hr /><A HREF=\"/display_edit_task?msgnum=0\">"
 		"Add new task</A>\n"
 	);
 

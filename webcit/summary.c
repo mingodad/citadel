@@ -117,7 +117,7 @@ void wholist_section(void) {
 	if (buf[0] == '1') while(serv_gets(buf), strcmp(buf, "000")) {
 		extract(user, buf, 1);
 		escputs(user);
-		wprintf("<BR>\n");
+		wprintf("<br />\n");
 	}
 	do_template("endbox");
 }
@@ -144,7 +144,7 @@ void tasks_section(void) {
 	}
 
 	if (num_msgs < 1) {
-		wprintf("<i>(None)</i><BR>\n");
+		wprintf("<i>(None)</i><br />\n");
 	}
 	else {
 		for (i=0; i<num_msgs; ++i) {
@@ -180,7 +180,7 @@ void calendar_section(void) {
 	}
 
 	if (num_msgs < 1) {
-		wprintf("<i>(Nothing)</i><BR>\n");
+		wprintf("<i>(Nothing)</i><br />\n");
 	}
 	else {
 		for (i=0; i<num_msgs; ++i) {
@@ -208,7 +208,7 @@ void server_info_section(void) {
 	escputs(serv_info.serv_software);
 	wprintf(", and located in ");
 	escputs(serv_info.serv_bbs_city);
-	wprintf(".<BR>\nYour system administrator is ");
+	wprintf(".<br />\nYour system administrator is ");
 	escputs(serv_info.serv_sysadm);
 	wprintf(".\n");
 	do_template("endbox");
@@ -219,8 +219,9 @@ void server_info_section(void) {
  * Display this user's summary page
  */
 void summary(void) {
-	output_headers(7);
 
+	output_headers(1, 1, 2, 0, 1, 0, 0);
+	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=#444455><TR>"
 		"<TD><IMG SRC=\"/static/summary.gif\"></TD><TD>"
 		"<SPAN CLASS=\"titlebar\">"
@@ -229,9 +230,10 @@ void summary(void) {
 	wprintf("</SPAN></TD><TD>\n");
 	wprintf("</TD><TD ALIGN=RIGHT><SPAN CLASS=\"titlebar\">");
 	output_date();
-	wprintf("</SPAN><BR>");
+	wprintf("</SPAN><br />");
 	offer_start_page();
 	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</div><div id=\"text\">\n");
 
 	/*
 	 * Now let's do three columns of crap.  All portals and all groupware
@@ -254,7 +256,7 @@ void summary(void) {
 	 */
 	wprintf("</TD><TD WIDTH=33%%>");
 	server_info_section();
-	wprintf("<BR>");
+	wprintf("<br />");
 	tasks_section();
 
 	/*
@@ -262,7 +264,7 @@ void summary(void) {
 	 */
 	wprintf("</TD><TD WIDTH=33%%>");
 	new_messages_section();
-	wprintf("<BR>");
+	wprintf("<br />");
 	calendar_section();
 
 	/*

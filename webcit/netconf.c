@@ -76,10 +76,12 @@ void edit_node(void) {
 
 void display_add_node(void)
 {
-	output_headers(3);
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">Add new node</SPAN>");
 	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</div><div id=\"text\">\n");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/edit_node\">\n");
 	wprintf("<CENTER><TABLE border=0>\n");
@@ -91,7 +93,7 @@ void display_add_node(void)
 	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"host\" MAXLENGTH=\"64\"></TD></TR>\n");
 	wprintf("<TR><TD>Port</TD>");
 	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"port\" MAXLENGTH=\"8\"></TD></TR>\n");
-	wprintf("</TABLE><BR>");
+	wprintf("</TABLE><br />");
        	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 	wprintf("&nbsp;");
        	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
@@ -111,12 +113,14 @@ void display_edit_node(void)
 
 	strcpy(node, bstr("node"));
 
-	output_headers(3);
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">Edit node configuration for ");
 	escputs(node);
 	wprintf("</SPAN>\n");
 	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</div><div id=\"text\">\n");
 
 	serv_puts("CONF getsys|application/x-citadel-ignet-config");
 	serv_gets(buf);
@@ -138,7 +142,7 @@ void display_edit_node(void)
 				wprintf("<TD><INPUT TYPE=\"text\" NAME=\"host\" MAXLENGTH=\"64\" VALUE=\"%s\"></TD></TR>\n", chost);
 				wprintf("<TR><TD>Port</TD>");
 				wprintf("<TD><INPUT TYPE=\"text\" NAME=\"port\" MAXLENGTH=\"8\" VALUE=\"%s\"></TD></TR>\n", cport);
-				wprintf("</TABLE><BR>");
+				wprintf("</TABLE><br />");
         			wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 				wprintf("&nbsp;");
         			wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
@@ -149,7 +153,7 @@ void display_edit_node(void)
 	}
 
 	else {		/* command error getting configuration */
-		wprintf("%s<BR>\n", &buf[4]);
+		wprintf("%s<br />\n", &buf[4]);
 	}
 
 	wDumpContent(1);
@@ -162,14 +166,16 @@ void display_netconf(void)
 	char buf[SIZ];
 	char node[SIZ];
 
-	output_headers(3);
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">Network configuration</SPAN>\n");
 	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</div><div id=\"text\">\n");
 
 	wprintf("<CENTER>");
 	wprintf("<A HREF=\"/display_add_node\">");
-	wprintf("Add a new node</A><BR>\n");
+	wprintf("Add a new node</A><br />\n");
 	wprintf("</CENTER>");
 
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
@@ -202,19 +208,21 @@ void display_confirm_delete_node(void)
 {
 	char node[SIZ];
 
-	output_headers(3);
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">Confirm delete</SPAN>\n");
 	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</div><div id=\"text\">\n");
 
 	strcpy(node, bstr("node"));
 	wprintf("<CENTER>Are you sure you want to delete <FONT SIZE=+1>");
 	escputs(node);
-	wprintf("</FONT>?<BR>\n");
+	wprintf("</FONT>?<br />\n");
 	wprintf("<A HREF=\"/delete_node&node=");
 	urlescputs(node);
 	wprintf("\">Yes</A>&nbsp;&nbsp;&nbsp;");
-	wprintf("<A HREF=\"/display_netconf\">No</A><BR>\n");
+	wprintf("<A HREF=\"/display_netconf\">No</A><br />\n");
 	wDumpContent(1);
 }
 
@@ -271,7 +279,7 @@ void add_node(void)
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] == '1') {
-			output_headers(3);
+			output_headers(1, 1, 0, 0, 0, 0, 0);
 			server_to_text();
 			wprintf("<A HREF=\"/display_netconf\">Back to menu</A>\n");
 			wDumpContent(1);
