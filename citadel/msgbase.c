@@ -1018,7 +1018,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 	 * message, we want to BYPASS saving the sender's copy (because there
 	 * is no local sender; it would otherwise go to the Trashcan).
 	 */
-	if (!CC->internal_pgm) {
+	if ( (!CC->internal_pgm) || (strlen(recipient)==0) ) {
 		/* If the user is a twit, move to the twit room for posting */
 		if (TWITDETECT)
 			if (CC->usersupp.axlevel == 2) {
