@@ -1,4 +1,8 @@
 $Log$
+Revision 510.5  2004/05/31 20:34:11  ajc
+* Message entry using Kevin Roth's excellent cross-platform richtext
+  editing script.
+
 Revision 510.4  2004/05/31 15:54:13  ajc
 * "text" and "HTML" options for message entry.
 
@@ -1821,3 +1825,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

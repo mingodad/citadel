@@ -6,6 +6,7 @@
 	Nathan Bryant
 	Nick Grossman
 	Andru Luvisi
+        Kevin Roth
  
 This program is free software released under the terms of the GNU General
 Public License.  Please read COPYING.txt for more licensing information.

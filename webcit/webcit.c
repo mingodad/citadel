@@ -186,7 +186,7 @@ void wDumpContent(int print_standard_html_footer)
  * Copy a string, escaping characters which have meaning in HTML.  If
  * nbsp is nonzero, spaces are converted to non-breaking spaces.
  */
-void stresc(char *target, char *strbuf, int nbsp)
+void stresc(char *target, char *strbuf, int nbsp, int nolinebreaks)
 {
 	int a;
 	strcpy(target, "");
@@ -208,24 +208,31 @@ void stresc(char *target, char *strbuf, int nbsp)
 			strcat(target, ">");
 		else if (strbuf[a] == QU)
 			strcat(target, "\"");
-		else if ((strbuf[a] == 32) && (nbsp == 1)) {
+		else if ((strbuf[a] == 32) && (nbsp == 1))
 			strcat(target, "&nbsp;");
-		} else {
+		else if ((strbuf[a] == '\n') && (nolinebreaks))
+			strcat(target, "");	/* nothing */
+		else if ((strbuf[a] == '\r') && (nolinebreaks))
+			strcat(target, "");	/* nothing */
+		else
 			strncat(target, &strbuf[a], 1);
-		}
 	}
 }
 
-void escputs1(char *strbuf, int nbsp)
+void escputs1(char *strbuf, int nbsp, int nolinebreaks)
 {
-	char buf[1024];
-	stresc(buf, strbuf, nbsp);
+	char *buf;
+
+	if (strbuf == NULL) return;
+	buf = malloc(2 * strlen(strbuf));
+	stresc(buf, strbuf, nbsp, nolinebreaks);
 	wprintf("%s", buf);
+	free(buf);
 }
 
 void escputs(char *strbuf)
 {
-	escputs1(strbuf, 0);
+	escputs1(strbuf, 0, 0);
 }
 
 /*
@@ -293,6 +300,37 @@ void jsescputs(char *strbuf)
 	
 	jsesc(outbuf, strbuf);
 	wprintf("%s", outbuf);
+}
+
+/*
+ * Copy a string, escaping characters for message text hold
+ */
+void msgesc(char *target, char *strbuf)
+{
+	int a;
+	strcpy(target, "");
+
+	for (a = 0; a < strlen(strbuf); ++a) {
+		if (strbuf[a] == '\'') 
+			strcat(target, "\\'");
+		else if (strbuf[a] == '\n')
+			strcat(target, " ");
+		else if (strbuf[a] == '\r')
+			strcat(target, " ");
+		else {
+			strncat(target, &strbuf[a], 1);
+		}
+	}
+}
+
+void msgescputs(char *strbuf) {
+	char *outbuf;
+
+	if (strbuf == NULL) return;
+	outbuf = malloc(2 * strlen(strbuf));
+	msgesc(outbuf, strbuf);
+	wprintf("%s", outbuf);
+	free(outbuf);
 }
 
 
@@ -501,6 +539,8 @@ void output_static(char *what)
 			strcpy(content_type, "image/x-icon");
 		else if (!strncasecmp(&what[strlen(what) - 5], ".html", 5))
 			strcpy(content_type, "text/html");
+		else if (!strncasecmp(&what[strlen(what) - 4], ".htm", 4))
+			strcpy(content_type, "text/html");
 		else if (!strncasecmp(&what[strlen(what) - 4], ".wml", 4))
 			strcpy(content_type, "text/vnd.wap.wml");
 		else if (!strncasecmp(&what[strlen(what) - 5], ".wmls", 5))
@@ -510,9 +550,11 @@ void output_static(char *what)
 		else if (!strncasecmp(&what[strlen(what) - 6], ".wmlsc", 6))
 			strcpy(content_type, "application/vnd.wap.wmlscriptc");
 		else if (!strncasecmp(&what[strlen(what) - 5], ".wbmp", 5))
-			wprintf("Content-type: image/vnd.wap.wbmp");
+			strcpy(content_type, "image/vnd.wap.wbmp");
+		else if (!strncasecmp(&what[strlen(what) - 3], ".js", 3))
+			strcpy(content_type, "text/javascript");
 		else
-			wprintf("Content-type: application/octet-stream");
+			strcpy(content_type, "application/octet-stream");
 
 		fstat(fileno(fp), &statbuf);
 		bytes = statbuf.st_size;

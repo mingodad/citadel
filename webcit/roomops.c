@@ -114,7 +114,7 @@ void room_tree_list(struct roomlisting *rp)
 	urlescputs(rmname);
 	wprintf("\"");
 	wprintf(">");
-	escputs1(rmname, 1);
+	escputs1(rmname, 1, 1);
 	if ((f & QR_DIRECTORY) && (f & QR_NETWORK))
 		wprintf("}");
 	else if (f & QR_DIRECTORY)
@@ -1360,7 +1360,7 @@ void display_whok(void)
         }
         
         output_headers(1);
-	stresc(buf, WC->wc_roomname, 1);
+	stresc(buf, WC->wc_roomname, 1, 1);
 	svprintf("BOXTITLE", WCS_STRING, "Access control list for %s", buf);
 	do_template("beginbox");
 
@@ -1986,7 +1986,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 
 			/* Begin inner box */
 			extract(buf, fold[i].name, levels-1);
-			stresc(boxtitle, buf, 1);
+			stresc(boxtitle, buf, 1, 0);
 			svprintf("BOXTITLE", WCS_STRING, boxtitle);
 			do_template("beginbox");
 
