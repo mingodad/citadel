@@ -1,4 +1,7 @@
 $Log$
+Revision 212.14  2000/09/28 03:37:23  ajc
+* who.c: provide links to bio/photo pages for each user in the wholist
+
 Revision 212.13  2000/09/24 21:37:21  ajc
 * When reading large numbers of messages, group them in smaller numbers and
   display the selector bar in search engine style (like AltaVista and Google)
@@ -491,3 +494,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
