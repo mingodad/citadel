@@ -15,23 +15,24 @@
 class TCPsocket {
 public:
 	TCPsocket::TCPsocket(void);
-	int attach(char *, char *);
+	int attach(const char *, const char *);
 	void detach(void);
 	void serv_read(char *, int);
 	void serv_write(char *, int);
 	void serv_gets(char *);
-	void serv_puts(char *);
+	void serv_puts(const char *);
 	bool is_connected(void);
 private:
 	int serv_sock;
-	int connectsock(char *, char *, char *);
-	void timeout(int);
+	int connectsock(const char *, const char *, const char *);
+	static void timeout(int);
 };
 
 
 
 // CitClient represents an application-level connection to a Citadel server.
 class CitClient {
+	friend TCPsocket::timeout(int);
 public:
 	CitClient(void);
 	~CitClient(void);
@@ -263,3 +264,4 @@ void load_roomlist(RoomTree *tree, CitClient *citsock);
 
 extern wxMDIParentFrame *BigMDI;
 extern RoomTree *RoomList;
+extern CitClient *citadel;

@@ -32,11 +32,11 @@ TCPsocket::TCPsocket(void) {
 
 void TCPsocket::timeout(int signum) {
 	fprintf(stderr, "Connection timed out.\n");
-	serv_sock = (-1);
+	citadel->sock.serv_sock = (-1);
 }
 
-int TCPsocket::connectsock(char *host, char *service,
-			char *protocol)
+int TCPsocket::connectsock(const char *host, const char *service,
+			const char *protocol)
 {
 	struct hostent *phe;
 	struct servent *pse;
@@ -169,7 +169,7 @@ void TCPsocket::serv_write(char *buf, int nbytes)
 /*
  * send line to server
  */
-void TCPsocket::serv_puts(char *string)
+void TCPsocket::serv_puts(const char *string)
 {
 	char buf[256];
 
@@ -178,7 +178,7 @@ void TCPsocket::serv_puts(char *string)
 	}
 
 
-int TCPsocket::attach(char *host, char *port) {
+int TCPsocket::attach(const char *host, const char *port) {
 	serv_sock = connectsock(host, port, "tcp");
 	if (serv_sock >= 0) return 0;
 	else return (-1);
