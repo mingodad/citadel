@@ -1279,11 +1279,11 @@ void readmsgs(CtdlIPC *ipc,
 			;
 	}
 
-	if (num_msgs == 0) {
-		if (c == 3) return;
+	if (num_msgs == 0) {	/* TODO look at this later */
+		if (c == LastMessages) return;
 		scr_printf("*** There are no ");
-		if (c == 1) scr_printf("new ");
-		if (c == 2) scr_printf("old ");
+		if (c == NewMessages) scr_printf("new ");
+		if (c == OldMessages) scr_printf("old ");
 		scr_printf("messages in this room.\n");
 		return;
 	}

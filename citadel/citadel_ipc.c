@@ -434,7 +434,7 @@ int CtdlIPCGetMessages(CtdlIPC *ipc, enum MessageList which, int whicharg,
 	if (ret / 100 != 1)
 		return ret;
 	count = 0;
-	*mret = (unsigned long *)malloc(sizeof(unsigned long));
+	*mret = (unsigned long *)calloc(1, sizeof(unsigned long));
 	if (!*mret)
 		return -1;
 	while (bbb && strlen(bbb)) {
