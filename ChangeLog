@@ -1,4 +1,7 @@
 $Log$
+Revision 1.108  1999/12/03 00:18:20  ajc
+* Added ".c.o" rule to Makefile
+
 Revision 1.107  1999/11/26 03:32:59  ajc
 * Started moving all of the global variables into a struct, to facilitate
   multithreaded server.
@@ -316,3 +319,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

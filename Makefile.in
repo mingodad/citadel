@@ -12,6 +12,7 @@ srcdir=@srcdir@
 
 all: webserver webcit
 
+.SUFFIXES: .c .o
 
 clean:
 	rm -f *.o webcit webserver
@@ -25,15 +26,8 @@ webserver: webserver.o context_loop.o tools.o \
 	$(CC) webserver.o context_loop.o tools.o cookie_conversion.o \
 	locate_host.o $(LIBOBJS) $(LIBS) -o webserver
 
-webserver.o: webserver.c webcit.h
-	$(CC) $(CFLAGS) $(DEFS) -c -D_REENTRANT -DWEBCITDIR=\"`pwd`\" webserver.c
-
-context_loop.o: context_loop.c webcit.h webserver.h
-	$(CC) $(CFLAGS) $(DEFS) -c -D_REENTRANT context_loop.c
-
-snprintf.o: snprintf.c
-	$(CC) $(CFLAGS) $(DEFS) -c -D_REENTRANT snprintf.c
-
+.c.o:
+	$(CC) $(CFLAGS) $(DEFS) -c -D_REENTRANT -DWEBCITDIR=\"`pwd`\" $<
 
 
 webcit: webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
@@ -44,66 +38,6 @@ webcit: webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
 	tools.o roomops.o messages.o userlist.o paging.o sysmsgs.o siteconfig.o \
 	mime_parser.o graphics.o netconf.o cookie_conversion.o \
 	wildmat.o braindamage.o -o webcit
-
-webcit.o: webcit.c webcit.h child.h
-	$(CC) $(CFLAGS) $(DEFS) -c webcit.c
-
-auth.o: auth.c webcit.h child.h
-	$(CC) $(CFLAGS) $(DEFS) -c auth.c
-
-tcp_sockets.o: tcp_sockets.c webcit.h
-	$(CC) $(CFLAGS) $(DEFS) -c tcp_sockets.c
-
-mainmenu.o: mainmenu.c webcit.h child.h
-	$(CC) $(CFLAGS) $(DEFS) -c mainmenu.c
-
-serv_func.o: serv_func.c webcit.h child.h
-	$(CC) $(CFLAGS) $(DEFS) -c serv_func.c
-
-who.o: who.c webcit.h child.h
-	$(CC) $(CFLAGS) $(DEFS) -c who.c
-
-userlist.o: userlist.c webcit.h child.h
-	$(CC) $(CFLAGS) $(DEFS) -c userlist.c
-
-tools.o: tools.c webcit.h
-	$(CC) $(CFLAGS) $(DEFS) -c tools.c
-
-roomops.o: roomops.c webcit.h child.h
-	$(CC) $(CFLAGS) $(DEFS) -c roomops.c
-
-messages.o: messages.c webcit.h child.h
-	$(CC) $(CFLAGS) $(DEFS) -c messages.c
-
-graphics.o: graphics.c webcit.h child.h
-	$(CC) $(CFLAGS) $(DEFS) -c graphics.c
-
-paging.o: paging.c webcit.h child.h
-	$(CC) $(CFLAGS) $(DEFS) -c paging.c
-
-sysmsgs.o: sysmsgs.c webcit.h child.h
-	$(CC) $(CFLAGS) $(DEFS) -c sysmsgs.c
-
-mime_parser.o: mime_parser.c webcit.h child.h mime_parser.h
-	$(CC) $(CFLAGS) $(DEFS) -c mime_parser.c
-
-cookie_conversion.o: cookie_conversion.c webcit.h child.h
-	$(CC) $(CFLAGS) $(DEFS) -c cookie_conversion.c
-
-siteconfig.o: siteconfig.c webcit.h child.h
-	$(CC) $(CFLAGS) $(DEFS) -c siteconfig.c
-
-netconf.o: netconf.c webcit.h child.h
-	$(CC) $(CFLAGS) $(DEFS) -c netconf.c
-
-locate_host.o: locate_host.c webcit.h child.h
-	$(CC) $(CFLAGS) $(DEFS) -c locate_host.c
-
-wildmat.o: wildmat.c webcit.h child.h
-	$(CC) $(CFLAGS) $(DEFS) -c wildmat.c
-
-braindamage.o: braindamage.c webcit.h child.h
-	$(CC) $(CFLAGS) $(DEFS) -c braindamage.c
 
 Makefile: $(srcdir)/Makefile.in config.status
 	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) ./config.status
