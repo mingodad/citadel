@@ -145,6 +145,8 @@ void session_loop() {
 	char cmd[256];
 	char buf[256];
 	int a;
+	int ContentLength = 0;
+	char *content;
 
 	/* We stuff these with the values coming from the client cookies,
 	 * so we can use them to reconnect a timed out session if we have to.
@@ -162,11 +164,13 @@ void session_loop() {
 	strcpy(c_roomname, "");
 
 	getz(cmd);
-	fprintf(stderr, "Cmd: %s\n", cmd);
+	fprintf(stderr, "\nCmd: %s\n", cmd);
 	fflush(stderr);
 
 	do {
 		getz(buf);
+		fprintf(stderr, "Buf: %s\n", buf);
+		fflush(stderr);
 
 		if (!strncasecmp(buf, "Cookie: wc_host=", 16))
 			strcpy(c_host, &buf[16]);
@@ -179,9 +183,24 @@ void session_loop() {
 		if (!strncasecmp(buf, "Cookie: wc_roomname=", 20))
 			strcpy(c_roomname, &buf[20]);
 
+		if (!strncasecmp(buf, "Content-length: ", 16)) {
+			ContentLength = atoi(&buf[16]);
+			fprintf(stderr, "ContentLength is %d\n", ContentLength);
+			}
+
 		} while(strlen(buf)>0);
 
 	++TransactionCount;
+
+	if (ContentLength > 0) {
+		content = malloc(ContentLength+1);
+		fread(content, ContentLength, 1, stdin);
+		content[ContentLength] = 0;
+		fprintf(stderr, "CONTENT:\n%s\n", content);
+		}
+	else {
+		content = NULL;
+		}
 
 	/*
 	 * If we're not connected to a Citadel server, try to hook up the
@@ -247,6 +266,10 @@ void session_loop() {
 		}
 
 	fflush(stdout);
+	if (content != NULL) {
+		free(content);
+		content = NULL;
+		}
 	}
 
 
