@@ -632,3 +632,75 @@ char *rfc822_fetch_field(char *rfc822, char *fieldname) {
 	}
 	return(NULL);
 }
+
+
+
+/*****************************************************************************
+ *                      DIRECTORY MANAGEMENT FUNCTIONS                       *
+ *****************************************************************************/
+
+
+/* Return nonzero if the supplied address is in a domain we keep in
+ * the directory
+ */
+int IsDirectory(char *addr) {
+	char domain[SIZ];
+	int h;
+
+	extract_token(domain, addr, 1, '@');
+	striplt(domain);
+
+	h = CtdlHostAlias(domain);
+
+	if ( (h == hostalias_localhost) || (h == hostalias_directory) ) {
+		return(1);
+	}
+	else {
+		return(0);
+	}
+}
+
+
+/*
+ * Initialize the directory database (erasing anything already there)
+ */
+void CtdlDirectoryInit(void) {
+	/* FIXME ... write this */
+}
+
+
+/*
+ * Add an Internet e-mail address to the directory for a user
+ */
+void CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr) {
+
+	lprintf(9, "Dir: %s --> %s\n",
+		internet_addr, citadel_addr);
+	if (IsDirectory(internet_addr) == 0) return;
+
+	lprintf(9, "** FIXME write to db\n");
+	/* FIXME ... write this */
+
+}
+
+
+/*
+ * Delete an Internet e-mail address from the directory
+ */
+void CtdlDirectoryDelUser(char *internet_addr) {
+	/* FIXME ... write this */
+}
+
+
+/*
+ * Look up an Internet e-mail address in the directory.
+ * On success: returns 0, and Citadel address stored in 'target'
+ * On failure: returns nonzero
+ */
+int CtdlDirectoryLookup(char *target, char *internet_addr) {
+
+	if (IsDirectory(internet_addr) == 0) return(-1);
+
+	/* FIXME ... write this */
+	return(-1);
+}

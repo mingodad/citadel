@@ -60,6 +60,7 @@
 #include "policy.h"
 #include "database.h"
 #include "msgbase.h"
+#include "internet_addressing.h"
 #include "tools.h"
 #include "vcard.h"
 
@@ -71,10 +72,6 @@ struct vcard_internal_info {
 unsigned long SYM_VCARD;
 #define VC ((struct vcard_internal_info *)CtdlGetUserData(SYM_VCARD))
 
-
-void temporary_FIXME_backend(char *internet_addr, char *citadel_addr) {
-	cprintf("extracted '%s' --> '%s'\n", internet_addr, citadel_addr);
-}
 
 /*
  * Extract Internet e-mail addresses from a message containing a vCard, and
@@ -119,7 +116,7 @@ void vcard_add_to_directory(long msgnum, void *data) {
 
 	msg = CtdlFetchMessage(msgnum);
 	if (msg != NULL) {
-		vcard_extract_internet_addresses(msg, temporary_FIXME_backend);
+		vcard_extract_internet_addresses(msg, CtdlDirectoryAddUser);
 	}
 
 	CtdlFreeMessage(msg);
@@ -148,14 +145,13 @@ void cmd_igab(char *argbuf) {
 	 * client when finished.
 	 */
 	
-	cprintf("%d FIXME\n", LISTING_FOLLOWS);
+	cprintf("%d Directory will be rebuilt\n", OK);
 
         /* We want the last (and probably only) vcard in this room */
         CtdlForEachMessage(MSGS_ALL, 0, (-127), "text/x-vcard",
 		NULL, vcard_add_to_directory, NULL);
 
         getroom(&CC->quickroom, hold_rm);	/* return to saved room */
-	cprintf("000\n");
 }
 
 

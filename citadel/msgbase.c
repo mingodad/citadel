@@ -794,7 +794,6 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
 {
 	int i;
 
-	lprintf(9, "CtdlFreeMessage() called\n");
 	if (is_valid_message(msg) == 0) return;
 
 	for (i = 0; i < 256; ++i)

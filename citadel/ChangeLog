@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.53  2002/01/10 21:22:37  ajc
+ * Minor changes for global directory service
+
  Revision 590.52  2002/01/10 04:29:28  ajc
  * Minor updates for directory service
 
@@ -3124,3 +3127,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
