@@ -268,7 +268,8 @@ void RemoveContext(struct CitContext *con)
 	struct CitContext *ptr;
 
 	lprintf(7, "Starting RemoveContext()\n");
-	lprintf(9, "session count before RemoveContext is %d\n", session_count());
+	lprintf(9, "Session count before RemoveContext is %d\n",
+		session_count());
 	if (con==NULL) {
 		lprintf(7, "WARNING: RemoveContext() called with null!\n");
 		return;
@@ -278,20 +279,24 @@ void RemoveContext(struct CitContext *con)
 	lprintf(7, "Closing socket %d\n", con->client_socket);
 	close(con->client_socket);
 
+	lprintf(9, "Dereferencing session context\n");
 	if (ContextList==con) {
 		ContextList = ContextList->next;
 		}
 	else {
 		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 			if (ptr->next == con) {
-				ptr->next = ptr->next->next;
+				ptr->next = con->next;
 				}
 			}
 		}
-	
-	free(con);
 
-	lprintf(9, "session count after RemoveContext is %d\n", session_count());
+	lprintf(9, "Freeing session context...\n");	
+	free(con);
+	lprintf(9, "...done.\n");
+
+	lprintf(9, "Session count after RemoveContext is %d\n",
+		session_count());
 
 	lprintf(7, "Done with RemoveContext\n");
 	end_critical_section(S_SESSION_TABLE);
