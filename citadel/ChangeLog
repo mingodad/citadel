@@ -2,6 +2,7 @@ Mon Nov  9 19:15:31 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* serv_upgrade.c: added all missing fields to export/import
 	* serv_expire.c: support per-user purge time when purging users
 	* user_ops.c: added per-user purge time to AGUP and ASUP commands
+	* routines.c: added more stuff to <.A>ide <E>dit user
 
 Sun Nov  8 22:56:53 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* serv_expire.c: created; moved message expiry from serv_test.c,

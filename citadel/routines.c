@@ -14,7 +14,8 @@
 #include <signal.h>
 #include <dirent.h>
 #include <errno.h>
-
+#include <time.h>
+#include <limits.h>
 
 #define ROUTINES_C
 
@@ -162,19 +163,51 @@ void hit_any_key(void) {		/* hit any key to continue */
  */
 void edituser(void)
 {
-	char who[256];
 	char buf[256];
+	char who[256];
+	char pass[256];
+	int flags;
+	int timescalled;
+	int posted;
+	int axlevel;
+	long usernum;
+	time_t lastcall;
+	int userpurge;
 
 	newprompt("User name: ",who,25);
-	sprintf(buf,"QUSR %s",who);
+	sprintf(buf,"AGUP %s",who);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]!='2') {
 		printf("%s\n",&buf[4]);
 		return;
 		}
-	
-	val_user(who);
+	extract(who, &buf[4], 0);
+	extract(pass, &buf[4], 1);
+	flags = extract_int(&buf[4], 2);
+	timescalled = extract_int(&buf[4], 3);
+	posted = extract_int(&buf[4], 4);
+	axlevel = extract_int(&buf[4], 5);
+	usernum = extract_long(&buf[4], 6);
+	lastcall = extract_long(&buf[4], 7);
+	userpurge = extract_int(&buf[4], 8);
+
+	val_user(who); /* Display registration, and set access level */
+	strprompt("Password", pass, 19);
+	timescalled = intprompt("Times called", timescalled, 0, INT_MAX);
+	posted = intprompt("Messages posted", posted, 0, INT_MAX);
+	lastcall = (boolprompt("Set last call to now", 0)?time(NULL):lastcall);
+	userpurge = intprompt("Purge time (in days, 0 for system default",
+				userpurge, 0, INT_MAX);
+
+	sprintf(buf, "ASUP %s|%s|%d|%d|%d|%d|%ld|%ld|%d",
+		who, pass, flags, timescalled, posted, axlevel, usernum,
+		lastcall, userpurge);
+	serv_puts(buf);
+	serv_gets(buf);
+	if (buf[0]!='2') {
+		printf("%s\n",&buf[4]);
+		}
 	}
 
 

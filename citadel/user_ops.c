@@ -1281,7 +1281,6 @@ void cmd_agup(char *cmdbuf) {
 		(int)usbuf.axlevel,
 		usbuf.usernum,
 		usbuf.USuserpurge);
-
 	}
 
 
