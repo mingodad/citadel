@@ -1,6 +1,5 @@
 Priority items
 --------------
-* There's a memory leak in the server.  Fix it.  (Is there?)
 
 Important items
 ---------------
