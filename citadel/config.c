@@ -80,11 +80,12 @@ void get_config(void) {
 		exit(1);
 	}
 
-        /* Default maximum message length is 'unlimited' (max int)
-         * and the minimum is 8192
+        /* Default maximum message length is 10 megabytes.  This is site
+	 * configurable.  Also check to make sure the limit has not been
+	 * set below 8192 bytes.
          */
         if (config.c_maxmsglen <= 0)
-                config.c_maxmsglen = INT_MAX;
+                config.c_maxmsglen = 10485760;
         if (config.c_maxmsglen < 8192)
                 config.c_maxmsglen = 8192;
 

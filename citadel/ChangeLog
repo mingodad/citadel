@@ -1,4 +1,7 @@
  $Log$
+ Revision 641.19  2005/03/04 02:18:46  ajc
+ * config.c: default setting for "maxmsglen" is now 10 megabytes, not INT_MAX
+
  Revision 641.18  2005/03/03 18:10:27  ajc
  * sysdep.c: change the algorithm for dynamically expanding the redirect
    buffer's size.  Large writes were overflowing it.
@@ -6500,4 +6503,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
