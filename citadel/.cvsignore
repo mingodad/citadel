@@ -35,3 +35,4 @@ sysdep.h.in
 so_locations
 *.ro
 proxy
+*.d

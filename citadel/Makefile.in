@@ -14,6 +14,8 @@ TARGETS=@TARGETS@
 
 all: $(TARGETS)
 
+.SUFFIXES: .ro .d
+
 CLIENT_TARGETS=citadel whobbs
 SERVER_TARGETS=citserver setup
 SERV_MODULES=modules/serv_chat.so modules/serv_test.so
@@ -31,6 +33,18 @@ CURSES=@CURSES@
 SNPRINTF=@SNPRINTF@
 PTHREAD_DEFS=-D_REENTRANT
 
+SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
+	config.c control.c cux2ascii.c database.c dynloader.c file_ops.c \
+	housekeeping.c import.c internetmail.c ipc_c_tcp.c locate_host.c \
+	logging.c mailinglist.c messages.c msgbase.c msgform.c netmailer.c \
+	netpoll.c netproc.c netsetup.c policy.c proxy.c rcit.c readlog.c \
+	room_ops.c rooms.c roomutil.c routines.c routines2.c serv_chat.c \
+	serv_info.c serv_test.c serv_upgrade.c setup.c snprintf.c stats.c \
+	support.c sysdep.c tools.c user_ops.c useradmin.c userlist.c \
+	userpurge.c whobbs.c
+
+DEP_FILES=$(SOURCES:.c=.d)
+
 client: $(CLIENT_TARGETS)
 
 server: $(SERVER_TARGETS)
@@ -44,12 +58,14 @@ serv_modules: $(SERV_MODULES)
 
 citadel: ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o messages.o \
 	commands.o client_chat.o serv_info.o tools.o $(SNPRINTF)
-	$(CC) $^ $(LDFLAGS) -o citadel
+	$(CC) ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o messages.o \
+		commands.o client_chat.o serv_info.o tools.o $(SNPRINTF) $(LDFLAGS) \
+		-o citadel
 
 netpoll: netpoll.o config.o ipc_c_tcp.o
 	$(CC) netpoll.o config.o ipc_c_tcp.o $(LDFLAGS) -o netpoll
 
-%.o: %.c
+.c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c $<
 
 #
@@ -66,20 +82,20 @@ citserver: citserver.ro user_ops.ro support.ro room_ops.ro file_ops.ro \
 		policy.ro dynloader.ro $(SNPRINTF:.o=.ro)\
 		$(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) -o citserver
 
-%.ro: %.c
+.c.ro:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c $< -o $@
 
 modules/serv_chat.so: serv_chat.o
 	$(CC) -shared -o modules/serv_chat.so serv_chat.o
 
 serv_chat.o: serv_chat.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -fPIC -c serv_chat.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -fPIC -DPIC -c serv_chat.c
 
 modules/serv_test.so: serv_test.o
 	$(CC) -shared -o modules/serv_test.so serv_test.o
 
 serv_test.o: serv_test.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -fPIC -c serv_test.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -fPIC -DPIC -c serv_test.c
 
 aidepost: aidepost.o config.o
 	$(CC) aidepost.o config.o $(LDFLAGS) -o aidepost
@@ -141,15 +157,20 @@ stats: stats.o config.o
 	$(CC) stats.o config.o $(LDFLAGS) -o stats
 
 clean:
-	find . -name \*.o -print -exec rm -f {} \;
-	find . -name \*.ro -print -exec rm -f {} \;
+	rm -f *.o *.ro
 
 cleaner: clean
 	rm -f $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) \
 		$(SERV_MODULES) $(PROXY_TARGETS) so_locations
 
-realclean: cleaner
-	rm -f Makefile sysdep.h config.cache config.log config.status
+distclean: cleaner
+	rm -f Makefile sysdep.h config.cache config.log config.status *.d
 
-.depend: $(wildcard *.c) $(wildcard *.h)
-	$(CC) -MM *.c > .depend
+.c.d:
+	$(CC) -M $(CPPFLAGS) $< | sed -e 's!$*.o!$*.o $@!' > $@
+	test -s $@ || rm -f $@
+
+Makefile: Makefile.in
+	CONFIG_FILES=Makefile CONFIG_HEADERS= ./config.status
+
+-include $(DEP_FILES)
