@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.61  2004/03/01 22:36:14  ajc
+ * Implement the NAMESPACE extension of IMAP (RFC 2342)
+
  Revision 614.60  2004/03/01 17:47:28  error
  * Fix missing arg in m<Y> next rewrite.
 
@@ -5440,4 +5443,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

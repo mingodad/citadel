@@ -409,7 +409,7 @@ void imap_auth_login_pass(char *cmd)
  */
 void imap_capability(int num_parms, char *parms[])
 {
-	cprintf("* CAPABILITY IMAP4 IMAP4REV1 AUTH=LOGIN");
+	cprintf("* CAPABILITY IMAP4 IMAP4REV1 NAMESPACE AUTH=LOGIN");
 
 #ifdef HAVE_OPENSSL
 	cprintf(" STARTTLS");
@@ -601,6 +601,44 @@ void imap_close(int num_parms, char *parms[])
 	cprintf("%s OK CLOSE completed\r\n", parms[0]);
 }
 
+
+/*
+ * Implements the NAMESPACE command.
+ */
+void imap_namespace(int num_parms, char *parms[])
+{
+	int i;
+	struct floor *fl;
+	int floors = 0;
+	char buf[SIZ];
+
+	cprintf("* NAMESPACE ");
+
+	/* All personal folders are subordinate to INBOX. */
+	cprintf("((\"INBOX|\" \"|\")) ");
+
+	/* Other users' folders ... coming soon! FIXME */
+	cprintf("NIL ");
+
+	/* Show all floors as shared namespaces.  Neato! */
+	cprintf("(");
+	for (i = 0; i < MAXFLOORS; ++i) {
+		fl = cgetfloor(i);
+		if (fl->f_flags & F_INUSE) {
+			if (floors > 0) cprintf(" ");
+			cprintf("(");
+			sprintf(buf, "%s|", fl->f_name);
+			imap_strout(buf);
+			cprintf(" \"|\")");
+			++floors;
+		}
+	}
+	cprintf(")");
+
+	/* Wind it up with a newline and a completion message. */
+	cprintf("\r\n");
+	cprintf("%s OK NAMESPACE completed\r\n", parms[0]);
+}
 
 
 
@@ -1315,6 +1353,10 @@ void imap_command_loop(void)
 
 	else if (!strcasecmp(parms[1], "APPEND")) {
 		imap_append(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "NAMESPACE")) {
+		imap_namespace(num_parms, parms);
 	}
 
 	else if (IMAP->selected == 0) {
