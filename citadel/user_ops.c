@@ -319,9 +319,9 @@ void cmd_pass(char *buf)
 
 
 /*
- * purge related files when removing or overwriting a user record
+ * Delete a user record *and* all of its related resources.
  */
-void purge_user(char *pname) {
+int purge_user(char *pname) {
 	char filename[64];
 	struct usersupp usbuf;
 	int a;
@@ -331,8 +331,10 @@ void purge_user(char *pname) {
 
 	if (getuser(&usbuf, pname) != 0) {
 		lprintf(5, "Cannot purge user <%s> - not found\n", pname);
-		return;
+		return(1);
 		}
+
+	/* FIX   Don't delete a user who is currently logged in. */
 
 	/* delete any messages in the user's mailbox */
 	cdbmb = cdb_fetch(CDB_MAILBOXES, &usbuf.usernum, sizeof(long));
@@ -358,7 +360,8 @@ void purge_user(char *pname) {
 	/* remove the user's picture */
 	sprintf(filename, "./userpics/%ld.gif", usbuf.usernum);
 	unlink(filename);
-	
+
+	return(0);
 	}
 
 
@@ -842,9 +845,10 @@ void cmd_vali(char *v_args)
 
 	/* If the access level was set to zero, delete the user */
 	if (newax == 0) {
-		purge_user(user);
-		cprintf("%d %s Deleted.\n", OK, userbuf.fullname);
-		return;
+		if (purge_user(user)==0) {
+			cprintf("%d %s Deleted.\n", OK, userbuf.fullname);
+			return;
+			}
 		}
 
 	cprintf("%d ok\n",OK);
@@ -1151,6 +1155,7 @@ void cmd_asup(char *cmdbuf) {
 	struct usersupp usbuf;
 	char requested_user[256];
 	int np;
+	int newax;
 	
 	if ( (CC->internal_pgm==0)
 	   && ( (CC->logged_in == 0) || (is_aide()==0) ) ) {
@@ -1170,8 +1175,18 @@ void cmd_asup(char *cmdbuf) {
 	if (np > 2) usbuf.flags = extract_int(cmdbuf, 2);
 	if (np > 3) usbuf.timescalled = extract_int(cmdbuf, 3);
 	if (np > 4) usbuf.posted = extract_int(cmdbuf, 4);
-	if (np > 5) usbuf.axlevel = extract_int(cmdbuf, 5);
+	if (np > 5) {
+		newax = extract_int(cmdbuf, 5);
+		if ((newax >=0) && (newax <= 6)) {
+			usbuf.axlevel = extract_int(cmdbuf, 5);
+			}
+		}
 
 	lputuser(&usbuf, requested_user);
+	if (usbuf.axlevel == 0) {
+		if (purge_user(requested_user)==0) {
+			cprintf("%d %s deleted.\n", OK, requested_user);
+			}
+		}
 	cprintf("%d Ok\n", OK);
 	}

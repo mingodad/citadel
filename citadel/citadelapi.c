@@ -336,7 +336,7 @@ int CtdlGetUserAccessLevel(char *WhichUser) {
 int CtdlSetUserAccessLevel(int NewValue, char *WhichUser) {
 	char buf[256];
 
-	if ( (NewValue < 1) || (NewValue > 6) ) {
+	if ( (NewValue < 0) || (NewValue > 6) ) {
 		return(ERROR + ILLEGAL_VALUE);
 		}
 
