@@ -145,26 +145,6 @@ void serv_gets(char *strbuf)
 
 
 /*
- * Attach to a Citadel server
- */
-void attach_to_server(int argc, char **argv)
-{
-	if (argc==1) {
-		server_is_local = 1;
-		serv_sock = connectsock("localhost","citadel","tcp");
-		}
-	if (argc==2) {
-		serv_sock = connectsock(argv[1],"citadel","tcp");
-		if ( (!strcmp(argv[1],"localhost"))
-	   	|| (!strcmp(argv[1],"127.0.0.1")) ) server_is_local = 1;
-		}
-	if (argc>=3) serv_sock = connectsock(argv[1],argv[2],"tcp");
-
-	if (serv_sock < 0) exit(errno);
-	}
-
-
-/*
  * send binary to server
  */
 void serv_write(char *buf, int nbytes)
