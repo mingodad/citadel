@@ -83,10 +83,11 @@ void cal_process_object(icalcomponent *cal,
 	struct icaltimetype t;
 	time_t tt;
 	char buf[SIZ];
+	char conflict_name[SIZ];
 
 	/* Leading HTML for the display of this object */
 	if (recursion_level == 0) {
-		wprintf("<CENTER><TABLE border=0 cellpadding=5>\n");
+		wprintf("<CENTER><TABLE border=0>\n");
 	}
 
 	/* Look for a method */
@@ -188,9 +189,16 @@ void cal_process_object(icalcomponent *cal,
 		serv_gets(buf);
 		if (buf[0] == '1') {
 			while (serv_gets(buf), strcmp(buf, "000")) {
-			wprintf("<TR><TD><B><I>CONFLICT:</I></B></TD><TD>");
-			escputs(buf);
-			wprintf("</TD></TR>\n");
+				extract(conflict_name, buf, 3);
+				wprintf("<TR><TD><B><I>CONFLICT:</I></B></TD>"
+					"<TD>"
+					"This event would conflict with "
+					"<I>&quot;"
+				);
+				escputs(conflict_name);
+				wprintf("&quot;</I> "
+					"which is already in your calendar."
+					"</TD></TR>\n");
 			}
 		}
 
