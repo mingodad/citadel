@@ -42,6 +42,7 @@
 
 #include <limits.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <sys/un.h>
 #include <string.h>

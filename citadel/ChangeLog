@@ -1,4 +1,7 @@
  $Log$
+ Revision 626.5  2004/10/04 21:39:35  error
+ * Fix a couple of minor compiler warnings
+
  Revision 626.4  2004/10/03 04:25:23  ajc
  * Removed some vestiges
 
@@ -6135,4 +6138,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

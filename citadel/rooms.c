@@ -701,7 +701,7 @@ int save_buffer(void *file, size_t filelen, const char *pathname)
 		return 0;
 	}
 	do {
-		block = fwrite(file + bytes_written, 1,
+		block = fwrite((char *)file + bytes_written, 1,
 				filelen - bytes_written, fp);
 		bytes_written += block;
 	} while (errno == EINTR && bytes_written < filelen);
