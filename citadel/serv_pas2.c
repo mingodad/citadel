@@ -34,7 +34,7 @@
 
 void cmd_pas2(char *argbuf)
 {
-	char pw[SIZ];
+	char pw[256];
 	char hexstring[MD5_HEXSTRING_SIZE];
 	
 
@@ -50,7 +50,7 @@ void cmd_pas2(char *argbuf)
 		return;
 	}
 	
-	extract(pw, argbuf, 0);
+	extract_token(pw, argbuf, 0, '|', sizeof pw);
 	
 	if (getuser(&CC->user, CC->curr_user))
 	{

@@ -224,7 +224,7 @@ void imap_do_append_flags(long new_msgnum, char *new_message_flags) {
 	safestrncpy(flags, new_message_flags, sizeof flags);
 
 	for (i=0; i<num_tokens(flags, ' '); ++i) {
-		extract_token(this_flag, flags, i, ' ');
+		extract_token(this_flag, flags, i, ' ', sizeof this_flag);
 		if (this_flag[0] == '\\') strcpy(this_flag, &this_flag[1]);
 		if (!strcasecmp(this_flag, "Seen")) {
 			CtdlSetSeen(new_msgnum, 1, ctdlsetseen_seen);

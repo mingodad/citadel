@@ -47,7 +47,7 @@ void get_stored_password(
 	FILE *fp;
 	char buf[SIZ];
 	char buf64[SIZ];
-	char hostbuf[SIZ], portbuf[SIZ], ubuf[SIZ], pbuf[SIZ];
+	char hostbuf[256], portbuf[256], ubuf[256], pbuf[256];
 
 	strcpy(username, "");
 	strcpy(password, "");
@@ -59,10 +59,10 @@ void get_stored_password(
 	if (fp == NULL) return;
 	while (fgets(buf64, sizeof buf64, fp) != NULL) {
 		CtdlDecodeBase64(buf, buf64, sizeof(buf64));
-		extract(hostbuf, buf, 0);
-		extract(portbuf, buf, 1);
-		extract(ubuf, buf, 2);
-		extract(pbuf, buf, 3);
+		extract_token(hostbuf, buf, 0, '|', sizeof hostbuf);
+		extract_token(portbuf, buf, 1, '|', sizeof portbuf);
+		extract_token(ubuf, buf, 2, '|', sizeof ubuf);
+		extract_token(pbuf, buf, 3, '|', sizeof pbuf);
 
 		if (!strcasecmp(hostbuf, host)) {
 			if (!strcasecmp(portbuf, port)) {
@@ -88,7 +88,7 @@ void set_stored_password(
 	FILE *fp, *oldfp;
 	char buf[SIZ];
 	char buf64[SIZ];
-	char hostbuf[SIZ], portbuf[SIZ], ubuf[SIZ], pbuf[SIZ];
+	char hostbuf[256], portbuf[256], ubuf[256], pbuf[256];
 
 	determine_pwfilename(pwfile, sizeof pwfile);
 	if (strlen(pwfile)==0) return;
@@ -100,10 +100,10 @@ void set_stored_password(
 	if (fp == NULL) fp = fopen("/dev/null", "w");
 	while (fgets(buf64, sizeof buf64, oldfp) != NULL) {
 		CtdlDecodeBase64(buf, buf64, sizeof(buf64));
-		extract(hostbuf, buf, 0);
-		extract(portbuf, buf, 1);
-		extract(ubuf, buf, 2);
-		extract(pbuf, buf, 3);
+		extract_token(hostbuf, buf, 0, '|', sizeof hostbuf);
+		extract_token(portbuf, buf, 1, '|', sizeof portbuf);
+		extract_token(ubuf, buf, 2, '|', sizeof ubuf);
+		extract_token(pbuf, buf, 3, '|', sizeof pbuf);
 
 		if ( (strcasecmp(hostbuf, host)) 
 		   || (strcasecmp(portbuf, port)) ) {

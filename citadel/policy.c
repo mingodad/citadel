@@ -86,9 +86,9 @@ void GetExpirePolicy(struct ExpirePolicy *epbuf, struct ctdlroom *qrbuf) {
 void cmd_gpex(char *argbuf) {
 	struct ExpirePolicy exp;
 	struct floor *fl;
-	char which[SIZ];
+	char which[128];
 
-	extract(which, argbuf, 0);
+	extract_token(which, argbuf, 0, '|', sizeof which);
 	if (!strcasecmp(which, "room")) {
 		memcpy(&exp, &CC->room.QRep, sizeof(struct ExpirePolicy));
 	}
@@ -117,10 +117,10 @@ void cmd_gpex(char *argbuf) {
 void cmd_spex(char *argbuf) {
 	struct ExpirePolicy exp;
 	struct floor flbuf;
-	char which[SIZ];
+	char which[128];
 
 	memset(&exp, 0, sizeof(struct ExpirePolicy));
-	extract(which, argbuf, 0);
+	extract_token(which, argbuf, 0, '|', sizeof which);
 	exp.expire_mode = extract_int(argbuf, 1);
 	exp.expire_value = extract_int(argbuf, 2);
 

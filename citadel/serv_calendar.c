@@ -1175,9 +1175,9 @@ void ical_freebusy(char *who) {
 	icalcomponent *fb = NULL;
 	int found_user = (-1);
 	struct recptypes *recp = NULL;
-	char buf[SIZ];
-	char host[SIZ];
-	char type[SIZ];
+	char buf[256];
+	char host[256];
+	char type[256];
 	int i = 0;
 	int config_lines = 0;
 
@@ -1218,9 +1218,9 @@ void ical_freebusy(char *who) {
 	if (found_user != 0) {
 		config_lines = num_tokens(inetcfg, '\n');
 		for (i=0; ((i < config_lines) && (found_user != 0)); ++i) {
-			extract_token(buf, inetcfg, i, '\n');
-			extract_token(host, buf, 0, '|');
-			extract_token(type, buf, 1, '|');
+			extract_token(buf, inetcfg, i, '\n', sizeof buf);
+			extract_token(host, buf, 0, '|', sizeof host);
+			extract_token(type, buf, 1, '|', sizeof type);
 
 			if ( (!strcasecmp(type, "localhost"))
 			   || (!strcasecmp(type, "directory")) ) {
@@ -1336,13 +1336,13 @@ void ical_freebusy(char *who) {
  */
 void cmd_ical(char *argbuf)
 {
-	char subcmd[SIZ];
+	char subcmd[64];
 	long msgnum;
-	char partnum[SIZ];
-	char action[SIZ];
-	char who[SIZ];
+	char partnum[256];
+	char action[256];
+	char who[256];
 
-	extract(subcmd, argbuf, 0);
+	extract_token(subcmd, argbuf, 0, '|', sizeof subcmd);
 
 	/* Allow "test" and "freebusy" subcommands without logging in. */
 
@@ -1352,7 +1352,7 @@ void cmd_ical(char *argbuf)
 	}
 
 	if (!strcasecmp(subcmd, "freebusy")) {
-		extract(who, argbuf, 1);
+		extract_token(who, argbuf, 1, '|', sizeof who);
 		ical_freebusy(who);
 		return;
 	}
@@ -1369,23 +1369,23 @@ void cmd_ical(char *argbuf)
 
 	if (!strcasecmp(subcmd, "respond")) {
 		msgnum = extract_long(argbuf, 1);
-		extract(partnum, argbuf, 2);
-		extract(action, argbuf, 3);
+		extract_token(partnum, argbuf, 2, '|', sizeof partnum);
+		extract_token(action, argbuf, 3, '|', sizeof action);
 		ical_respond(msgnum, partnum, action);
 		return;
 	}
 
 	if (!strcasecmp(subcmd, "handle_rsvp")) {
 		msgnum = extract_long(argbuf, 1);
-		extract(partnum, argbuf, 2);
-		extract(action, argbuf, 3);
+		extract_token(partnum, argbuf, 2, '|', sizeof partnum);
+		extract_token(action, argbuf, 3, '|', sizeof action);
 		ical_handle_rsvp(msgnum, partnum, action);
 		return;
 	}
 
 	if (!strcasecmp(subcmd, "conflicts")) {
 		msgnum = extract_long(argbuf, 1);
-		extract(partnum, argbuf, 2);
+		extract_token(partnum, argbuf, 2, '|', sizeof partnum);
 		ical_conflicts(msgnum, partnum);
 		return;
 	}
@@ -1471,7 +1471,7 @@ void ical_send_out_invitations(icalcomponent *cal) {
 	struct recptypes *valid = NULL;
 	char attendees_string[SIZ];
 	int num_attendees = 0;
-	char this_attendee[SIZ];
+	char this_attendee[256];
 	icalproperty *attendee = NULL;
 	char summary_string[SIZ];
 	icalproperty *summary = NULL;
@@ -1515,11 +1515,11 @@ void ical_send_out_invitations(icalcomponent *cal) {
 	strcpy(attendees_string, "");
 	for (attendee = icalcomponent_get_first_property(the_request, ICAL_ATTENDEE_PROPERTY); attendee != NULL; attendee = icalcomponent_get_next_property(the_request, ICAL_ATTENDEE_PROPERTY)) {
 		if (icalproperty_get_attendee(attendee)) {
-			strcpy(this_attendee, icalproperty_get_attendee(attendee) );
+			safestrncpy(this_attendee, icalproperty_get_attendee(attendee), sizeof this_attendee);
 			if (!strncasecmp(this_attendee, "MAILTO:", 7)) {
 				strcpy(this_attendee, &this_attendee[7]);
 
-				if (!CtdlIsMe(this_attendee)) {	/* don't send an invitation to myself! */
+				if (!CtdlIsMe(this_attendee, sizeof this_attendee)) {	/* don't send an invitation to myself! */
 					snprintf(&attendees_string[strlen(attendees_string)],
 						sizeof(attendees_string) - strlen(attendees_string),
 						"%s, ",
@@ -1639,7 +1639,7 @@ void ical_saving_vevent(icalcomponent *cal) {
 			 * If the user saving the event is listed as the
 			 * organizer, then send out invitations.
 			 */
-			if (CtdlIsMe(organizer_string)) {
+			if (CtdlIsMe(organizer_string, sizeof organizer_string)) {
 				ical_send_out_invitations(cal);
 			}
 		}

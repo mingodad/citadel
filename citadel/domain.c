@@ -38,8 +38,8 @@
 int get_hosts(char *mxbuf, char *rectype) {
 	int config_lines;
 	int i;
-	char buf[SIZ];
-	char host[SIZ], type[SIZ];
+	char buf[256];
+	char host[256], type[256];
 	int total_smarthosts = 0;
 
 	if (inetcfg == NULL) return(0);
@@ -47,9 +47,9 @@ int get_hosts(char *mxbuf, char *rectype) {
 
 	config_lines = num_tokens(inetcfg, '\n');
 	for (i=0; i<config_lines; ++i) {
-		extract_token(buf, inetcfg, i, '\n');
-		extract_token(host, buf, 0, '|');
-		extract_token(type, buf, 1, '|');
+		extract_token(buf, inetcfg, i, '\n', sizeof buf);
+		extract_token(host, buf, 0, '|', sizeof host);
+		extract_token(type, buf, 1, '|', sizeof type);
 
 		if (!strcasecmp(type, rectype)) {
 			strcat(mxbuf, host);

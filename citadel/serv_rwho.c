@@ -162,17 +162,17 @@ void cmd_rwho(char *argbuf) {
  */
 void cmd_rchg(char *argbuf)
 {
-	char newroomname[SIZ];
+	char newroomname[ROOMNAMELEN];
 
-	extract(newroomname, argbuf, 0);
+	extract_token(newroomname, argbuf, 0, '|', sizeof newroomname);
 	newroomname[ROOMNAMELEN-1] = 0;
 	if (strlen(newroomname) > 0) {
 		safestrncpy(CC->fake_roomname, newroomname,
 			sizeof(CC->fake_roomname) );
-		}
+	}
 	else {
-		strcpy(CC->fake_roomname, "");
-		}
+		safestrncpy(CC->fake_roomname, "", sizeof CC->fake_roomname);
+	}
 	cprintf("%d OK\n", CIT_OK);
 }
 
@@ -181,16 +181,16 @@ void cmd_rchg(char *argbuf)
  */
 void cmd_hchg(char *argbuf)
 {
-	char newhostname[SIZ];
+	char newhostname[64];
 
-	extract(newhostname, argbuf, 0);
+	extract_token(newhostname, argbuf, 0, '|', sizeof newhostname);
 	if (strlen(newhostname) > 0) {
 		safestrncpy(CC->fake_hostname, newhostname,
 			sizeof(CC->fake_hostname) );
-		}
+	}
 	else {
-		strcpy(CC->fake_hostname, "");
-		}
+		safestrncpy(CC->fake_hostname, "", sizeof CC->fake_hostname);
+	}
 	cprintf("%d OK\n", CIT_OK);
 }
 
@@ -201,9 +201,9 @@ void cmd_hchg(char *argbuf)
 void cmd_uchg(char *argbuf)
 {
 
-	char newusername[SIZ];
+	char newusername[USERNAME_SIZE];
 
-	extract(newusername, argbuf, 0);
+	extract_token(newusername, argbuf, 0, '|', sizeof newusername);
 
 	if (CtdlAccessCheck(ac_aide)) return;
 

@@ -506,8 +506,8 @@ void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
 int imap_roomname(char *rbuf, int bufsize, char *foldername)
 {
 	int levels;
-	char floorname[SIZ];
-	char roomname[SIZ];
+	char floorname[256];
+	char roomname[ROOMNAMELEN];
 	int i;
 	struct floor *fl;
 	int ret = (-1);
@@ -551,7 +551,7 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 	{
 		/* Extract the main room name. */
 		
-		extract_token(floorname, rbuf, 0, FDELIM);
+		extract_token(floorname, rbuf, 0, FDELIM, sizeof floorname);
 		strcpy(roomname, &rbuf[strlen(floorname)+1]);
 
 		/* Try and find it on any floor. */
@@ -565,7 +565,7 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 				{
 					/* Got it! */
 
-					strcpy(rbuf, roomname);
+					safestrncpy(rbuf, roomname, bufsize);
 					ret = i;
 					goto exit;
 				}
@@ -761,9 +761,9 @@ int imap_mailbox_matches_pattern(char *pattern, char *mailboxname)
  * a Unix timestamp.
  */
 int imap_datecmp(char *datestr, time_t msgtime) {
-	char daystr[SIZ];
-	char monthstr[SIZ];
-	char yearstr[SIZ];
+	char daystr[256];
+	char monthstr[256];
+	char yearstr[256];
 	int i;
 	int day, month, year;
 	int msgday, msgmonth, msgyear;
@@ -772,9 +772,9 @@ int imap_datecmp(char *datestr, time_t msgtime) {
 	if (datestr == NULL) return(0);
 
 	/* Expecting a date in the form dd-Mmm-yyyy */
-	extract_token(daystr, datestr, 0, '-');
-	extract_token(monthstr, datestr, 1, '-');
-	extract_token(yearstr, datestr, 2, '-');
+	extract_token(daystr, datestr, 0, '-', sizeof daystr);
+	extract_token(monthstr, datestr, 1, '-', sizeof monthstr);
+	extract_token(yearstr, datestr, 2, '-', sizeof yearstr);
 
 	day = atoi(daystr);
 	year = atoi(yearstr);

@@ -1766,7 +1766,7 @@ RMSGREAD:	scr_flush();
 			if (r / 100 != 2) {
 				scr_printf("%s\n", cmd);
 			} else {
-				extract(filename, cmd, 2);
+				extract_token(filename, cmd, 2, '|', sizeof filename);
 				/*
 				 * Part 1 won't have a filename; use the
 				 * subject of the message instead. IO
@@ -1883,7 +1883,7 @@ void check_message_base(CtdlIPC *ipc)
 
 	while (transcript && strlen(transcript)) {
 		lines_printed = 1;
-		extract_token(buf, transcript, 0, '\n');
+		extract_token(buf, transcript, 0, '\n', sizeof buf);
 		remove_token(transcript, 0, '\n');
 		pprintf("%s\n", buf);
 	}

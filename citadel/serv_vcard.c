@@ -636,11 +636,11 @@ void cmd_greg(char *argbuf)
 	struct ctdluser usbuf;
 	struct vCard *v;
 	char *s;
-	char who[SIZ];
-	char adr[SIZ];
-	char buf[SIZ];
+	char who[USERNAME_SIZE];
+	char adr[256];
+	char buf[256];
 
-	extract(who, argbuf, 0);
+	extract_token(who, argbuf, 0, '|', sizeof who);
 
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
@@ -671,13 +671,13 @@ void cmd_greg(char *argbuf)
 	s = vcard_get_prop(v, "adr", 0, 0, 0);
 	snprintf(adr, sizeof adr, "%s", s ? s : " ");/* address... */
 
-	extract_token(buf, adr, 2, ';');
+	extract_token(buf, adr, 2, ';', sizeof buf);
 	cprintf("%s\n", buf);				/* street */
-	extract_token(buf, adr, 3, ';');
+	extract_token(buf, adr, 3, ';', sizeof buf);
 	cprintf("%s\n", buf);				/* city */
-	extract_token(buf, adr, 4, ';');
+	extract_token(buf, adr, 4, ';', sizeof buf);
 	cprintf("%s\n", buf);				/* state */
-	extract_token(buf, adr, 5, ';');
+	extract_token(buf, adr, 5, ';', sizeof buf);
 	cprintf("%s\n", buf);				/* zip */
 
 	s = vcard_get_prop(v, "tel;home", 0, 0, 0);
@@ -696,7 +696,7 @@ void cmd_greg(char *argbuf)
 	s = vcard_get_prop(v, "adr", 0, 0, 0);
 	snprintf(adr, sizeof adr, "%s", s ? s : " ");/* address... */
 
-	extract_token(buf, adr, 6, ';');
+	extract_token(buf, adr, 6, ';', sizeof buf);
 	cprintf("%s\n", buf);				/* country */
 	cprintf("000\n");
 }
@@ -706,14 +706,14 @@ void cmd_greg(char *argbuf)
  * When a user is being created, create his/her vCard.
  */
 void vcard_newuser(struct ctdluser *usbuf) {
-	char buf[SIZ];
-	char vname[SIZ];
+	char buf[256];
+	char vname[256];
 
-	char lastname[SIZ];
-	char firstname[SIZ];
-	char middlename[SIZ];
-	char honorific_prefixes[SIZ];
-	char honorific_suffixes[SIZ];
+	char lastname[256];
+	char firstname[256];
+	char middlename[256];
+	char honorific_prefixes[256];
+	char honorific_suffixes[256];
 
 	struct vCard *v;
 	int i;
@@ -722,42 +722,43 @@ void vcard_newuser(struct ctdluser *usbuf) {
 	 * fully expanded vCard name based on the number of
 	 * words in the name
 	 */
-	strcpy(lastname, "");
-	strcpy(firstname, "");
-	strcpy(middlename, "");
-	strcpy(honorific_prefixes, "");
-	strcpy(honorific_suffixes, "");
+	safestrncpy(lastname, "", sizeof lastname);
+	safestrncpy(firstname, "", sizeof firstname);
+	safestrncpy(middlename, "", sizeof middlename);
+	safestrncpy(honorific_prefixes, "", sizeof honorific_prefixes);
+	safestrncpy(honorific_suffixes, "", sizeof honorific_suffixes);
 
-	strcpy(buf, usbuf->fullname);
+	safestrncpy(buf, usbuf->fullname, sizeof buf);
 
 	/* Honorific suffixes */
 	if (num_tokens(buf, ',') > 1) {
-		extract_token(honorific_suffixes, buf, (num_tokens(buf, ' ') - 1), ',');
+		extract_token(honorific_suffixes, buf, (num_tokens(buf, ' ') - 1), ',',
+			sizeof honorific_suffixes);
 		remove_token(buf, (num_tokens(buf, ',') - 1), ',');
 	}
 
 	/* Find a last name */
-	extract_token(lastname, buf, (num_tokens(buf, ' ') - 1), ' ');
+	extract_token(lastname, buf, (num_tokens(buf, ' ') - 1), ' ', sizeof lastname);
 	remove_token(buf, (num_tokens(buf, ' ') - 1), ' ');
 
 	/* Find honorific prefixes */
 	if (num_tokens(buf, ' ') > 2) {
-		extract_token(honorific_prefixes, buf, 0, ' ');
+		extract_token(honorific_prefixes, buf, 0, ' ', sizeof honorific_prefixes);
 		remove_token(buf, 0, ' ');
 	}
 
 	/* Find a middle name */
 	if (num_tokens(buf, ' ') > 1) {
-		extract_token(middlename, buf, (num_tokens(buf, ' ') - 1), ' ');
+		extract_token(middlename, buf, (num_tokens(buf, ' ') - 1), ' ', sizeof middlename);
 		remove_token(buf, (num_tokens(buf, ' ') - 1), ' ');
 	}
 
 	/* Anything left is probably the first name */
-	strcpy(firstname, buf);
+	safestrncpy(firstname, buf, sizeof firstname);
 	striplt(firstname);
 
 	/* Compose the structured name */
-	sprintf(vname, "%s;%s;%s;%s;%s", lastname, firstname, middlename,
+	snprintf(vname, sizeof vname, "%s;%s;%s;%s;%s", lastname, firstname, middlename,
 		honorific_prefixes, honorific_suffixes);
 
 	lprintf(CTDL_DEBUG, "Converted <%s> to <%s>\n", usbuf->fullname, vname);
@@ -894,12 +895,12 @@ EOH:	CtdlFreeMessage(msg);
  * Query Directory
  */
 void cmd_qdir(char *argbuf) {
-	char citadel_addr[SIZ];
-	char internet_addr[SIZ];
+	char citadel_addr[256];
+	char internet_addr[256];
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
-	extract(internet_addr, argbuf, 0);
+	extract_token(internet_addr, argbuf, 0, '|', sizeof internet_addr);
 
 	if (CtdlDirectoryLookup(citadel_addr, internet_addr) != 0) {
 		cprintf("%d %s was not found.\n",

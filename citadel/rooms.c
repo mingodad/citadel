@@ -79,9 +79,9 @@ void load_floorlist(CtdlIPC *ipc)
 		return;
 	}
 	while (*listing && strlen(listing)) {
-		extract_token(buf, listing, 0, '\n');
+		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
-		extract(floorlist[extract_int(buf, 0)], buf, 1);
+		extract_token(floorlist[extract_int(buf, 0)], buf, 1, '|', SIZ);
 	}
 	free(listing);
 }
@@ -841,10 +841,10 @@ void download(CtdlIPC *ipc, int proto)
  */
 void roomdir(CtdlIPC *ipc)
 {
-	char flnm[SIZ];
+	char flnm[256];
 	char flsz[32];
-	char comment[SIZ];
-	char buf[SIZ];
+	char comment[256];
+	char buf[256];
 	char *listing = NULL;	/* Returned directory listing */
 	int r;
 
@@ -854,17 +854,17 @@ void roomdir(CtdlIPC *ipc)
 		return;
 	}
 
-	extract(comment, buf, 0);
-	extract(flnm, buf, 1);
+	extract_token(comment, buf, 0, '|', sizeof comment);
+	extract_token(flnm, buf, 1, '|', sizeof flnm);
 	pprintf("\nDirectory of %s on %s\n", flnm, comment);
 	pprintf("-----------------------\n");
 	while (*listing && strlen(listing)) {
-		extract_token(buf, listing, 0, '\n');
+		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
 
-		extract(flnm, buf, 0);
-		extract(flsz, buf, 1);
-		extract(comment, buf, 2);
+		extract_token(flnm, buf, 0, '|', sizeof flnm);
+		extract_token(flsz, buf, 1, '|', sizeof flsz);
+		extract_token(comment, buf, 2, '|', sizeof comment);
 		if (strlen(flnm) <= 14)
 			pprintf("%-14s %8s %s\n", flnm, flsz, comment);
 		else
@@ -1076,7 +1076,7 @@ void readinfo(CtdlIPC *ipc)
  */
 void whoknows(CtdlIPC *ipc)
 {
-	char buf[SIZ];
+	char buf[256];
 	char *listing = NULL;
 	int r;
 
@@ -1086,7 +1086,7 @@ void whoknows(CtdlIPC *ipc)
 		return;
 	}
 	while (strlen(listing) > 0) {
-		extract_token(buf, listing, 0, '\n');
+		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
 		if (sigcaught == 0)
 			pprintf("%s\n", buf);

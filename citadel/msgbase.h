@@ -147,4 +147,4 @@ struct CtdlMessage *CtdlMakeMessage(
         char *preformatted_text         /* ...or NULL to read text from client */
 );
 int CtdlCheckInternetMailPermission(struct ctdluser *who);
-int CtdlIsMe(char *addr);
+int CtdlIsMe(char *addr, int addr_buf_len);

@@ -94,11 +94,12 @@ int num_tokens(const char *source, char tok) {
 /*
  * extract_token() - a string tokenizer
  */
-void extract_token(char *dest, const char *source, int parmnum, char separator)
+void extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen)
 {
 	char *d;		/* dest */
 	const char *s;		/* source */
 	int count = 0;
+	int len = 0;
 
 	strcpy(dest, "");
 
@@ -117,7 +118,7 @@ void extract_token(char *dest, const char *source, int parmnum, char separator)
 	}
 	if (!s) return;		/* Parameter not found */
 
-	for (d = dest; *s && *s != separator; s++, d++) {
+	for (d = dest; *s && *s != separator && ++len<maxlen; s++, d++) {
 		*d = *s;
 	}
 	*d = 0;
@@ -174,9 +175,9 @@ void remove_token(char *source, int parmnum, char separator)
  */
 int extract_int(const char *source, int parmnum)
 {
-	char buf[SIZ];
+	char buf[32];
 	
-	extract_token(buf, source, parmnum, '|');
+	extract_token(buf, source, parmnum, '|', sizeof buf);
 	return(atoi(buf));
 }
 
@@ -185,9 +186,9 @@ int extract_int(const char *source, int parmnum)
  */
 long extract_long(const char *source, int parmnum)
 {
-	char buf[SIZ];
+	char buf[32];
 	
-	extract_token(buf, source, parmnum, '|');
+	extract_token(buf, source, parmnum, '|', sizeof buf);
 	return(atol(buf));
 }
 
@@ -197,9 +198,9 @@ long extract_long(const char *source, int parmnum)
  */
 unsigned long extract_unsigned_long(const char *source, int parmnum)
 {
-	char buf[SIZ];
+	char buf[32];
 
-	extract_token(buf, source, parmnum, '|');
+	extract_token(buf, source, parmnum, '|', sizeof buf);
 	return strtoul(buf, NULL, 10);
 }
 
@@ -421,11 +422,11 @@ int is_msg_in_mset(char *mset, long msgnum) {
 	 */
 	num_sets = num_tokens(mset, ',');
 	for (s=0; s<num_sets; ++s) {
-		extract_token(setstr, mset, s, ',');
+		extract_token(setstr, mset, s, ',', sizeof setstr);
 
-		extract_token(lostr, setstr, 0, ':');
+		extract_token(lostr, setstr, 0, ':', sizeof lostr);
 		if (num_tokens(setstr, ':') >= 2) {
-			extract_token(histr, setstr, 1, ':');
+			extract_token(histr, setstr, 1, ':', sizeof histr);
 			if (!strcmp(histr, "*")) {
 				snprintf(histr, sizeof histr, "%ld", LONG_MAX);
 			}

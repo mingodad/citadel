@@ -95,7 +95,7 @@ int rbl_check_addr(struct in_addr *addr, char *message_to_spammer)
 {
 	const char *i;
 	int a1, a2, a3, a4;
-	char tbuf[SIZ];
+	char tbuf[256];
 	int rbl;
 	int num_rbl;
 	char rbl_domains[SIZ];
@@ -117,12 +117,11 @@ int rbl_check_addr(struct in_addr *addr, char *message_to_spammer)
 		snprintf(tbuf, sizeof tbuf,
 			"%d.%d.%d.%d.",
 			a4, a3, a2, a1);
-                extract(&tbuf[strlen(tbuf)], rbl_domains, rbl);
+                extract_token(&tbuf[strlen(tbuf)], rbl_domains, rbl, '|', (sizeof tbuf - strlen(tbuf)));
 
 		if (gethostbyname(tbuf) != NULL) {
 			strcpy(message_to_spammer,
-		    		"5.7.1 Message rejected due to "
-				"known spammer source IP address"
+		    		"5.7.1 Message rejected due to known spammer source IP address"
 			);
 			return(1);
 		}

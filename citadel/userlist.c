@@ -47,11 +47,11 @@ void userlist(CtdlIPC *ipc) {
 	printf("       User Name           Num  L  LastCall  Calls Posts\n");
 	printf("------------------------- ----- - ---------- ----- -----\n");
 	while (strlen(listing) > 0) {
-		extract_token(buf, listing, 0, '\n');
+		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
-		extract(fl,buf,0);
+		extract_token(fl, buf, 0, '|', sizeof fl);
 		printf("%-25s ",fl);
-		printf("%5ld %d ",extract_long(buf,2),
+		printf("%5ld %d ", extract_long(buf,2),
 			extract_int(buf,1));
 		lc = extract_long(buf,3);
 		localtime_r(&lc, &tmbuf);

@@ -311,41 +311,41 @@ void smtp_get_pass(char *argbuf) {
  *
  */
 void smtp_auth(char *argbuf) {
-	char buf[SIZ];
-	char method[SIZ];
-	char encoded_authstring[SIZ];
-	char decoded_authstring[SIZ];
-	char ident[SIZ];
-	char user[SIZ];
-	char pass[SIZ];
+	char username_prompt[64];
+	char method[64];
+	char encoded_authstring[1024];
+	char decoded_authstring[1024];
+	char ident[256];
+	char user[256];
+	char pass[256];
 
 	if (CC->logged_in) {
 		cprintf("504 5.7.4 Already logged in.\r\n");
 		return;
 	}
 
-	extract_token(method, argbuf, 0, ' ');
+	extract_token(method, argbuf, 0, ' ', sizeof method);
 
 	if (!strncasecmp(method, "login", 5) ) {
 		if (strlen(argbuf) >= 7) {
 			smtp_get_user(&argbuf[6]);
 		}
 		else {
-			CtdlEncodeBase64(buf, "Username:", 9);
-			cprintf("334 %s\r\n", buf);
+			CtdlEncodeBase64(username_prompt, "Username:", 9);
+			cprintf("334 %s\r\n", username_prompt);
 			SMTP->command_state = smtp_user;
 		}
 		return;
 	}
 
 	if (!strncasecmp(method, "plain", 5) ) {
-		extract_token(encoded_authstring, argbuf, 1, ' ');
+		extract_token(encoded_authstring, argbuf, 1, ' ', sizeof encoded_authstring);
 		CtdlDecodeBase64(decoded_authstring,
 				encoded_authstring,
 				strlen(encoded_authstring) );
-		strcpy(ident, decoded_authstring);
-		strcpy(user, &decoded_authstring[strlen(ident) + 1] );
-		strcpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2] );
+		safestrncpy(ident, decoded_authstring, sizeof ident);
+		safestrncpy(user, &decoded_authstring[strlen(ident) + 1], sizeof user);
+		safestrncpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2], sizeof pass);
 
 		if (CtdlLoginExistingUser(user) == login_ok) {
 			if (CtdlTryPassword(pass) == pass_ok) {
@@ -983,7 +983,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 
 	sock = (-1);
 	for (mx=0; (mx<num_mxhosts && sock < 0); ++mx) {
-		extract(buf, mxhosts, mx);
+		extract_token(buf, mxhosts, mx, '|', sizeof buf);
 		lprintf(CTDL_DEBUG, "Trying <%s>\n", buf);
 		sock = sock_connect(buf, "25", "tcp");
 		snprintf(dsn, SIZ, "Could not connect: %s", strerror(errno));
@@ -1186,9 +1186,9 @@ void smtp_do_bounce(char *instr) {
 
 	/* See if it's time to give up on delivery of this message */
 	for (i=0; i<lines; ++i) {
-		extract_token(buf, instr, i, '\n');
-		extract(key, buf, 0);
-		extract(addr, buf, 1);
+		extract_token(buf, instr, i, '\n', sizeof buf);
+		extract_token(key, buf, 0, '|', sizeof key);
+		extract_token(addr, buf, 1, '|', sizeof addr);
 		if (!strcasecmp(key, "submitted")) {
 			submitted = atol(addr);
 		}
@@ -1226,11 +1226,11 @@ void smtp_do_bounce(char *instr) {
 	 * Now go through the instructions checking for stuff.
 	 */
 	for (i=0; i<lines; ++i) {
-		extract_token(buf, instr, i, '\n');
-		extract(key, buf, 0);
-		extract(addr, buf, 1);
+		extract_token(buf, instr, i, '\n', sizeof buf);
+		extract_token(key, buf, 0, '|', sizeof key);
+		extract_token(addr, buf, 1, '|', sizeof addr);
 		status = extract_int(buf, 2);
-		extract(dsn, buf, 3);
+		extract_token(dsn, buf, 3, '|', sizeof dsn);
 		bounce_this = 0;
 
 		lprintf(CTDL_DEBUG, "key=<%s> addr=<%s> status=%d dsn=<%s>\n",
@@ -1326,11 +1326,11 @@ int smtp_purge_completed_deliveries(char *instr) {
 
 	lines = num_tokens(instr, '\n');
 	for (i=0; i<lines; ++i) {
-		extract_token(buf, instr, i, '\n');
-		extract(key, buf, 0);
-		extract(addr, buf, 1);
+		extract_token(buf, instr, i, '\n', sizeof buf);
+		extract_token(key, buf, 0, '|', sizeof key);
+		extract_token(addr, buf, 1, '|', sizeof addr);
 		status = extract_int(buf, 2);
-		extract(dsn, buf, 3);
+		extract_token(dsn, buf, 3, '|', sizeof dsn);
 
 		completed = 0;
 
@@ -1391,7 +1391,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	/* Strip out the headers amd any other non-instruction line */
 	lines = num_tokens(instr, '\n');
 	for (i=0; i<lines; ++i) {
-		extract_token(buf, instr, i, '\n');
+		extract_token(buf, instr, i, '\n', sizeof buf);
 		if (num_tokens(buf, '|') < 2) {
 			remove_token(instr, i, '\n');
 			--lines;
@@ -1402,8 +1402,8 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	/* Learn the message ID and find out about recent delivery attempts */
 	lines = num_tokens(instr, '\n');
 	for (i=0; i<lines; ++i) {
-		extract_token(buf, instr, i, '\n');
-		extract(key, buf, 0);
+		extract_token(buf, instr, i, '\n', sizeof buf);
+		extract_token(key, buf, 0, '|', sizeof key);
 		if (!strcasecmp(key, "msgid")) {
 			text_msgid = extract_long(buf, 1);
 		}
@@ -1447,11 +1447,11 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	 */
 	lines = num_tokens(instr, '\n');
 	for (i=0; i<lines; ++i) {
-		extract_token(buf, instr, i, '\n');
-		extract(key, buf, 0);
-		extract(addr, buf, 1);
+		extract_token(buf, instr, i, '\n', sizeof buf);
+		extract_token(key, buf, 0, '|', sizeof key);
+		extract_token(addr, buf, 1, '|', sizeof addr);
 		status = extract_int(buf, 2);
-		extract(dsn, buf, 3);
+		extract_token(dsn, buf, 3, '|', sizeof dsn);
 		if ( (!strcasecmp(key, "remote"))
 		   && ((status==0)||(status==3)||(status==4)) ) {
 
@@ -1577,23 +1577,23 @@ void smtp_do_queue(void) {
 /*****************************************************************************/
 
 void cmd_smtp(char *argbuf) {
-	char cmd[SIZ];
-	char node[SIZ];
-	char buf[SIZ];
+	char cmd[64];
+	char node[256];
+	char buf[1024];
 	int i;
 	int num_mxhosts;
 
 	if (CtdlAccessCheck(ac_aide)) return;
 
-	extract(cmd, argbuf, 0);
+	extract_token(cmd, argbuf, 0, '|', sizeof cmd);
 
 	if (!strcasecmp(cmd, "mx")) {
-		extract(node, argbuf, 1);
+		extract_token(node, argbuf, 1, '|', sizeof node);
 		num_mxhosts = getmx(buf, node);
 		cprintf("%d %d MX hosts listed for %s\n",
 			LISTING_FOLLOWS, num_mxhosts, node);
 		for (i=0; i<num_mxhosts; ++i) {
-			extract(node, buf, i);
+			extract_token(node, buf, i, '|', sizeof node);
 			cprintf("%s\n", node);
 		}
 		cprintf("000\n");

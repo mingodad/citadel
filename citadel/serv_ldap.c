@@ -220,14 +220,14 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 	int have_addr = 0;
 	int have_cn = 0;
 
-	char givenname[SIZ];
-	char sn[SIZ];
-	char uid[SIZ];
-	char street[SIZ];
-	char city[SIZ];
-	char state[SIZ];
-	char zipcode[SIZ];
-	char calFBURL[SIZ];
+	char givenname[128];
+	char sn[128];
+	char uid[256];
+	char street[256];
+	char city[128];
+	char state[3];
+	char zipcode[10];
+	char calFBURL[256];
 
 	if (dirserver == NULL) return;
 	if (msg == NULL) return;
@@ -290,8 +290,8 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) if (striplt(v->prop[i].value), strlen(v->prop[i].value) > 0) {
 
 		if (!strcasecmp(v->prop[i].name, "n")) {
-			extract_token(sn,		v->prop[i].value, 0, ';');
-			extract_token(givenname,	v->prop[i].value, 1, ';');
+			extract_token(sn,		v->prop[i].value, 0, ';', sizeof sn);
+			extract_token(givenname,	v->prop[i].value, 1, ';', sizeof givenname);
 		}
 
 		if (!strcasecmp(v->prop[i].name, "fn")) {
@@ -335,17 +335,17 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 				have_addr = 1;
 				strcpy(street, "");
 				extract_token(&street[strlen(street)],
-					v->prop[i].value, 0, ';'); /* po box */
+					v->prop[i].value, 0, ';', (sizeof street - strlen(street))); /* po box */
 				strcat(street, " ");
 				extract_token(&street[strlen(street)],
-					v->prop[i].value, 1, ';'); /* extend addr */
+					v->prop[i].value, 1, ';', (sizeof street - strlen(street))); /* extend addr */
 				strcat(street, " ");
 				extract_token(&street[strlen(street)],
-					v->prop[i].value, 2, ';'); /* street */
+					v->prop[i].value, 2, ';', (sizeof street - strlen(street))); /* street */
 				striplt(street);
-				extract_token(city, v->prop[i].value, 3, ';');
-				extract_token(state, v->prop[i].value, 4, ';');
-				extract_token(zipcode, v->prop[i].value, 5, ';');
+				extract_token(city, v->prop[i].value, 3, ';', sizeof city);
+				extract_token(state, v->prop[i].value, 4, ';', sizeof state);
+				extract_token(zipcode, v->prop[i].value, 5, ';', sizeof zipcode);
 
 				attrs = realloc(attrs, (sizeof(LDAPMod *) * ++num_attrs) );
 				attrs[num_attrs-1] = malloc(sizeof(LDAPMod));

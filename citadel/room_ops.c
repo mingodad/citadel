@@ -893,27 +893,27 @@ void cmd_goto(char *gargs)
 	int c;
 	int ok = 0;
 	int ra;
-	char augmented_roomname[SIZ];
-	char towhere[SIZ];
-	char password[SIZ];
+	char augmented_roomname[ROOMNAMELEN];
+	char towhere[ROOMNAMELEN];
+	char password[32];
 	int transiently = 0;
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
-	extract(towhere, gargs, 0);
-	extract(password, gargs, 1);
+	extract_token(towhere, gargs, 0, '|', sizeof towhere);
+	extract_token(password, gargs, 1, '|', sizeof password);
 	transiently = extract_int(gargs, 2);
 
 	getuser(&CC->user, CC->curr_user);
 
 	if (!strcasecmp(towhere, "_BASEROOM_"))
-		strcpy(towhere, config.c_baseroom);
+		safestrncpy(towhere, config.c_baseroom, sizeof towhere);
 
 	if (!strcasecmp(towhere, "_MAIL_"))
-		strcpy(towhere, MAILROOM);
+		safestrncpy(towhere, MAILROOM, sizeof towhere);
 
 	if (!strcasecmp(towhere, "_BITBUCKET_"))
-		strcpy(towhere, config.c_twitroom);
+		safestrncpy(towhere, config.c_twitroom, sizeof towhere);
 
 
 	/* First try a regular match */
@@ -925,7 +925,7 @@ void cmd_goto(char *gargs)
 			    &CC->user, towhere);
 		c = getroom(&QRscratch, augmented_roomname);
 		if (c == 0)
-			strcpy(towhere, augmented_roomname);
+			safestrncpy(towhere, augmented_roomname, sizeof towhere);
 	}
 
 	/* And if the room was found... */
@@ -1245,7 +1245,7 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
  */
 void cmd_setr(char *args)
 {
-	char buf[SIZ];
+	char buf[256];
 	int new_order = 0;
 	int r;
 	int new_floor;
@@ -1267,7 +1267,7 @@ void cmd_setr(char *args)
 	} else {
 		strcpy(new_name, "");
 	}
-	extract(&new_name[strlen(new_name)], args, 0);
+	extract_token(&new_name[strlen(new_name)], args, 0, '|', (sizeof new_name - strlen(new_name)));
 
 	r = CtdlRenameRoom(CC->room.QRname, new_name, new_floor);
 
@@ -1309,7 +1309,7 @@ void cmd_setr(char *args)
 	lgetroom(&CC->room, CC->room.QRname);
 
 	/* Directory room */
-	extract(buf, args, 2);
+	extract_token(buf, args, 2, '|', sizeof buf);
 	buf[15] = 0;
 	safestrncpy(CC->room.QRdirname, buf,
 		sizeof CC->room.QRdirname);
@@ -1347,7 +1347,7 @@ void cmd_setr(char *args)
 		if (num_parms(args) >= 7)
 			CC->room.QRorder = (char) new_order;
 		/* Room password */
-		extract(buf, args, 1);
+		extract_token(buf, args, 1, '|', sizeof buf);
 		buf[10] = 0;
 		safestrncpy(CC->room.QRpasswd, buf,
 			    sizeof CC->room.QRpasswd);
@@ -1371,8 +1371,7 @@ void cmd_setr(char *args)
 
 	/* Create a room directory if necessary */
 	if (CC->room.QRflags & QR_DIRECTORY) {
-		snprintf(buf, sizeof buf, "./files/%s",
-			CC->room.QRdirname);
+		snprintf(buf, sizeof buf, "./files/%s", CC->room.QRdirname);
 		mkdir(buf, 0755);
 	}
 	snprintf(buf, sizeof buf, "%s> edited by %s\n", CC->room.QRname, CC->curr_user);
@@ -1700,21 +1699,21 @@ unsigned create_room(char *new_room_name,
 void cmd_cre8(char *args)
 {
 	int cre8_ok;
-	char new_room_name[SIZ];
+	char new_room_name[ROOMNAMELEN];
 	int new_room_type;
-	char new_room_pass[SIZ];
+	char new_room_pass[32];
 	int new_room_floor;
 	int new_room_view;
-	char aaa[SIZ];
+	char *notification_message = NULL;
 	unsigned newflags;
 	struct floor *fl;
 	int avoid_access = 0;
 
 	cre8_ok = extract_int(args, 0);
-	extract(new_room_name, args, 1);
+	extract_token(new_room_name, args, 1, '|', sizeof new_room_name);
 	new_room_name[ROOMNAMELEN - 1] = 0;
 	new_room_type = extract_int(args, 2);
-	extract(new_room_pass, args, 3);
+	extract_token(new_room_pass, args, 3, '|', sizeof new_room_pass);
 	avoid_access = extract_int(args, 5);
 	new_room_view = extract_int(args, 6);
 	new_room_pass[9] = 0;
@@ -1795,21 +1794,19 @@ void cmd_cre8(char *args)
 			   new_room_view);
 
 	/* post a message in Aide> describing the new room */
-	safestrncpy(aaa, new_room_name, sizeof aaa);
-	strcat(aaa, "> created by ");
-	strcat(aaa, CC->user.fullname);
-	if (newflags & QR_MAILBOX)
-		strcat(aaa, " [personal]");
-	else if (newflags & QR_PRIVATE)
-		strcat(aaa, " [private]");
-	if (newflags & QR_GUESSNAME)
-		strcat(aaa, "[guessname] ");
-	if (newflags & QR_PASSWORDED) {
-		strcat(aaa, "\n Password: ");
-		strcat(aaa, new_room_pass);
-	}
-	strcat(aaa, "\n");
-	aide_message(aaa);
+	notification_message = malloc(1024);
+	snprintf(notification_message, 1024,
+		"%s> created by %s%s%s%s%s%s\n",
+		new_room_name,
+		CC->user.fullname,
+		((newflags & QR_MAILBOX) ? " [personal]" : ""),
+		((newflags & QR_PRIVATE) ? " [private]" : ""),
+		((newflags & QR_GUESSNAME) ? " [hidden]" : ""),
+		((newflags & QR_PASSWORDED) ? " Password: " : ""),
+		((newflags & QR_PASSWORDED) ? new_room_pass : "")
+	);
+	aide_message(notification_message);
+	free(notification_message);
 
 	cprintf("%d '%s' has been created.\n", CIT_OK, new_room_name);
 }
@@ -1886,13 +1883,13 @@ void cmd_lflr(void)
  */
 void cmd_cflr(char *argbuf)
 {
-	char new_floor_name[SIZ];
+	char new_floor_name[256];
 	struct floor flbuf;
 	int cflr_ok;
 	int free_slot = (-1);
 	int a;
 
-	extract(new_floor_name, argbuf, 0);
+	extract_token(new_floor_name, argbuf, 0, '|', sizeof new_floor_name);
 	cflr_ok = extract_int(argbuf, 1);
 
 	if (CtdlAccessCheck(ac_aide)) return;
@@ -2010,7 +2007,7 @@ void cmd_eflr(char *argbuf)
 		return;
 	}
 	if (np >= 2)
-		extract(flbuf.f_name, argbuf, 1);
+		extract_token(flbuf.f_name, argbuf, 1, '|', sizeof flbuf.f_name);
 	lputfloor(&flbuf, floor_num);
 
 	cprintf("%d Ok\n", CIT_OK);

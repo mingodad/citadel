@@ -110,9 +110,9 @@ void mrtg_messages(void) {
  * Fetch data for MRTG
  */
 void cmd_mrtg(char *argbuf) {
-	char which[SIZ];
+	char which[32];
 
-	extract(which, argbuf, 0);
+	extract_token(which, argbuf, 0, '|', sizeof which);
 
 	if (!strcasecmp(which, "users")) {
 		mrtg_users();

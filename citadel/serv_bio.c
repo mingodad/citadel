@@ -84,11 +84,11 @@ void cmd_ebio(char *cmdbuf) {
 void cmd_rbio(char *cmdbuf)
 {
 	struct ctdluser ruser;
-	char buf[SIZ];
+	char buf[256];
 	FILE *fp;
 
-	extract(buf,cmdbuf,0);
-	if (getuser(&ruser,buf)!=0) {
+	extract_token(buf, cmdbuf, 0, '|', sizeof buf);
+	if (getuser(&ruser, buf) != 0) {
 		cprintf("%d No such user.\n",ERROR + NO_SUCH_USER);
 		return;
 	}
@@ -101,7 +101,7 @@ void cmd_rbio(char *cmdbuf)
 	if (fp == NULL)
 		cprintf("%s has no bio on file.\n", ruser.fullname);
 	else {
-		while (fgets(buf,256,fp)!=NULL) cprintf("%s",buf);
+		while (fgets(buf, sizeof buf, fp) != NULL) cprintf("%s",buf);
 		fclose(fp);
 	}
 	cprintf("000\n");
@@ -111,20 +111,20 @@ void cmd_rbio(char *cmdbuf)
  * list of users who have entered bios
  */
 void cmd_lbio(char *cmdbuf) {
-	char buf[SIZ];
+	char buf[256];
 	FILE *ls;
 	struct ctdluser usbuf;
 
-	ls=popen("cd ./bio; ls","r");
-	if (ls==NULL) {
-		cprintf("%d Cannot open listing.\n",ERROR + FILE_NOT_FOUND);
+	ls = popen("cd ./bio; ls", "r");
+	if (ls == NULL) {
+		cprintf("%d Cannot open listing.\n", ERROR + FILE_NOT_FOUND);
 		return;
 	}
 
-	cprintf("%d\n",LISTING_FOLLOWS);
-	while (fgets(buf,sizeof buf,ls)!=NULL)
+	cprintf("%d\n", LISTING_FOLLOWS);
+	while (fgets(buf, sizeof buf, ls)!=NULL)
 		if (getuserbynumber(&usbuf,atol(buf))==0)
-			cprintf("%s\n",usbuf.fullname);
+			cprintf("%s\n", usbuf.fullname);
 	pclose(ls);
 	cprintf("000\n");
 }

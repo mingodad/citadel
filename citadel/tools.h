@@ -1,7 +1,7 @@
 /* $Id$ */
 char *safestrncpy(char *dest, const char *src, size_t n);
 int num_tokens (const char *source, char tok);
-void extract_token(char *dest, const char *source, int parmnum, char separator);
+void extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen);
 int extract_int (const char *source, int parmnum);
 long extract_long (const char *source, int parmnum);
 unsigned long extract_unsigned_long(const char *source, int parmnum);
@@ -21,7 +21,6 @@ int strncasecmp(char *, char *, int);
 #define strcasecmp(x,y) strncasecmp(x,y,INT_MAX);
 #endif
 
-#define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,(char)'|')
 #define num_parms(source)		num_tokens(source,(char)'|')
 void stripout(char *str, char leftboundary, char rightboundary);
 void stripallbut(char *str, char leftboundary, char rightboundary);

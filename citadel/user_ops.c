@@ -417,10 +417,10 @@ int CtdlLoginExistingUser(char *trythisname)
  */
 void cmd_user(char *cmdbuf)
 {
-	char username[SIZ];
+	char username[256];
 	int a;
 
-	extract(username, cmdbuf, 0);
+	extract_token(username, cmdbuf, 0, '|', sizeof username);
 	striplt(username);
 
 	a = CtdlLoginExistingUser(username);
@@ -684,10 +684,10 @@ int CtdlTryPassword(char *password)
 
 void cmd_pass(char *buf)
 {
-	char password[SIZ];
+	char password[256];
 	int a;
 
-	extract(password, buf, 0);
+	extract_token(password, buf, 0, '|', sizeof password);
 	a = CtdlTryPassword(password);
 
 	switch (a) {
@@ -778,7 +778,7 @@ int create_user(char *newusername, int become_user)
 {
 	struct ctdluser usbuf;
 	struct ctdlroom qrbuf;
-	char username[SIZ];
+	char username[256];
 	char mailboxname[ROOMNAMELEN];
 	uid_t uid;
 
@@ -790,7 +790,7 @@ int create_user(char *newusername, int become_user)
 		struct passwd *p = (struct passwd *) getpwnam(username);
 
 		if (p != NULL) {
-			extract_token(username, p->pw_gecos, 0, ',');
+			extract_token(username, p->pw_gecos, 0, ',', sizeof username);
 			uid = p->pw_uid;
 		} else {
 			uid = (-1);
@@ -877,7 +877,7 @@ int create_user(char *newusername, int become_user)
 void cmd_newu(char *cmdbuf)
 {
 	int a;
-	char username[SIZ];
+	char username[26];
 
 	if (config.c_disable_newu) {
 		cprintf("%d Self-service user account creation "
@@ -894,7 +894,7 @@ void cmd_newu(char *cmdbuf)
 			ERROR + MAX_SESSIONS_EXCEEDED,
 			config.c_nodename, config.c_maxsessions);
 	}
-	extract(username, cmdbuf, 0);
+	extract_token(username, cmdbuf, 0, '|', sizeof username);
 	username[25] = 0;
 	strproc(username);
 
@@ -962,16 +962,16 @@ void cmd_setp(char *new_pw)
 void cmd_creu(char *cmdbuf)
 {
 	int a;
-	char username[SIZ];
-	char password[SIZ];
+	char username[26];
+	char password[32];
 	struct ctdluser tmp;
 
 	if (CtdlAccessCheck(ac_aide)) {
 		return;
 	}
 
-	extract(username, cmdbuf, 0);
-	extract(password, cmdbuf, 1);
+	extract_token(username, cmdbuf, 0, '|', sizeof username);
+	extract_token(password, cmdbuf, 1, '|', sizeof password);
 	username[25] = 0;
 	password[31] = 0;
 	strproc(username);
@@ -1295,11 +1295,11 @@ void cmd_gnur(void)
  */
 void cmd_vali(char *v_args)
 {
-	char user[SIZ];
+	char user[128];
 	int newax;
 	struct ctdluser userbuf;
 
-	extract(user, v_args, 0);
+	extract_token(user, v_args, 0, '|', sizeof user);
 	newax = extract_int(v_args, 1);
 
 	if (CtdlAccessCheck(ac_aide)) {
@@ -1437,13 +1437,13 @@ void cmd_qusr(char *who)
 void cmd_agup(char *cmdbuf)
 {
 	struct ctdluser usbuf;
-	char requested_user[SIZ];
+	char requested_user[128];
 
 	if (CtdlAccessCheck(ac_aide)) {
 		return;
 	}
 
-	extract(requested_user, cmdbuf, 0);
+	extract_token(requested_user, cmdbuf, 0, '|', sizeof requested_user);
 	if (getuser(&usbuf, requested_user) != 0) {
 		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
 		return;
@@ -1469,7 +1469,7 @@ void cmd_agup(char *cmdbuf)
 void cmd_asup(char *cmdbuf)
 {
 	struct ctdluser usbuf;
-	char requested_user[SIZ];
+	char requested_user[128];
 	char notify[SIZ];
 	int np;
 	int newax;
@@ -1478,14 +1478,14 @@ void cmd_asup(char *cmdbuf)
 	if (CtdlAccessCheck(ac_aide))
 		return;
 
-	extract(requested_user, cmdbuf, 0);
+	extract_token(requested_user, cmdbuf, 0, '|', sizeof requested_user);
 	if (lgetuser(&usbuf, requested_user) != 0) {
 		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
 		return;
 	}
 	np = num_parms(cmdbuf);
 	if (np > 1)
-		extract(usbuf.password, cmdbuf, 1);
+		extract_token(usbuf.password, cmdbuf, 1, '|', sizeof usbuf.password);
 	if (np > 2)
 		usbuf.flags = extract_int(cmdbuf, 2);
 	if (np > 3)

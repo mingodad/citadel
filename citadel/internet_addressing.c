@@ -70,8 +70,8 @@ struct spamstrings_t *spamstrings = NULL;
 int CtdlHostAlias(char *fqdn) {
 	int config_lines;
 	int i;
-	char buf[SIZ];
-	char host[SIZ], type[SIZ];
+	char buf[256];
+	char host[256], type[256];
 
 	if (fqdn == NULL) return(hostalias_nomatch);
 	if (strlen(fqdn) == 0) return(hostalias_nomatch);
@@ -82,9 +82,9 @@ int CtdlHostAlias(char *fqdn) {
 
 	config_lines = num_tokens(inetcfg, '\n');
 	for (i=0; i<config_lines; ++i) {
-		extract_token(buf, inetcfg, i, '\n');
-		extract_token(host, buf, 0, '|');
-		extract_token(type, buf, 1, '|');
+		extract_token(buf, inetcfg, i, '\n', sizeof buf);
+		extract_token(host, buf, 0, '|', sizeof host);
+		extract_token(type, buf, 1, '|', sizeof type);
 
 		if ( (!strcasecmp(type, "localhost"))
 		   && (!strcasecmp(fqdn, host)))
@@ -549,21 +549,18 @@ void directory_key(char *key, char *addr) {
  * the directory
  */
 int IsDirectory(char *addr) {
-	char domain[SIZ];
+	char domain[256];
 	int h;
 
-	extract_token(domain, addr, 1, '@');
+	extract_token(domain, addr, 1, '@', sizeof domain);
 	striplt(domain);
 
 	h = CtdlHostAlias(domain);
-	lprintf(CTDL_DEBUG, "IsDirectory(%s)\n", domain);
 
 	if ( (h == hostalias_localhost) || (h == hostalias_directory) ) {
-		lprintf(CTDL_DEBUG, " ...yes\n");
 		return(1);
 	}
 	else {
-		lprintf(CTDL_DEBUG, " ...no\n");
 		return(0);
 	}
 }

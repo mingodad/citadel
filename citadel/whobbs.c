@@ -128,17 +128,17 @@ int main(int argc, char **argv)
 
 
 	while (strlen(listing) > 0) {
-		extract_token(buf, listing, 0, '\n');
+		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
 
 		/* Escape some stuff if we're using www mode */
 		if (www) escapize(buf, sizeof buf);
 
 		s_pid = extract_int(buf,0);
-		extract(s_user,buf,1);
-		extract(s_room,buf,2);
-		extract(s_host,buf,3);
-		extract(s_client,buf,4);
+		extract_token(s_user, buf, 1, '|', sizeof s_user);
+		extract_token(s_room, buf, 2, '|', sizeof s_room);
+		extract_token(s_host, buf, 3, '|', sizeof s_host);
+		extract_token(s_client, buf, 4, '|', sizeof s_client);
 		if (s_pid != my_pid) {
 
 			if (www) printf("<TR><TD>");

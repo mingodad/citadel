@@ -80,7 +80,7 @@ int network_talking_to(char *nodename, int operation) {
 			if (ptr == NULL) break;
 			strcpy(ptr, "");
 			for (i = 0; i < num_tokens(nttlist, '|'); ++i) {
-				extract(buf, nttlist, i);
+				extract_token(buf, nttlist, i, '|', sizeof buf);
 				if ( (strlen(buf) > 0)
 				     && (strcasecmp(buf, nodename)) ) {
 						strcat(ptr, buf);
@@ -95,7 +95,7 @@ int network_talking_to(char *nodename, int operation) {
 			if (nttlist == NULL) break;
 			if (strlen(nttlist) == 0) break;
 			for (i = 0; i < num_tokens(nttlist, '|'); ++i) {
-				extract(buf, nttlist, i);
+				extract_token(buf, nttlist, i, '|', sizeof buf);
 				if (!strcasecmp(buf, nodename)) ++retval;
 			}
 			break;
@@ -156,16 +156,16 @@ void cmd_delf(char *filename)
  */
 void cmd_movf(char *cmdbuf)
 {
-	char filename[SIZ];
-	char pathname[SIZ];
-	char newpath[SIZ];
-	char newroom[SIZ];
-	char buf[SIZ];
+	char filename[PATH_MAX];
+	char pathname[PATH_MAX];
+	char newpath[PATH_MAX];
+	char newroom[ROOMNAMELEN];
+	char buf[PATH_MAX];
 	int a;
 	struct ctdlroom qrbuf;
 
-	extract(filename, cmdbuf, 0);
-	extract(newroom, cmdbuf, 1);
+	extract_token(filename, cmdbuf, 0, '|', sizeof filename);
+	extract_token(newroom, cmdbuf, 1, '|', sizeof newroom);
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
 
@@ -226,15 +226,15 @@ void cmd_movf(char *cmdbuf)
  */
 void cmd_netf(char *cmdbuf)
 {
-	char pathname[SIZ], filename[SIZ], destsys[SIZ], buf[SIZ];
-	char outfile[SIZ];
+	char pathname[256], filename[256], destsys[256], buf[256];
+	char outfile[256];
 	int a, e;
 	time_t now;
 	FILE *ofp;
 	static int seq = 1;
 
-	extract(filename, cmdbuf, 0);
-	extract(destsys, cmdbuf, 1);
+	extract_token(filename, cmdbuf, 0, '|', sizeof filename);
+	extract_token(destsys, cmdbuf, 1, '|', sizeof destsys);
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
 
@@ -341,11 +341,11 @@ void OpenCmdResult(char *filename, char *mime_type)
  */
 void cmd_open(char *cmdbuf)
 {
-	char filename[SIZ];
-	char pathname[SIZ];
+	char filename[256];
+	char pathname[PATH_MAX];
 	int a;
 
-	extract(filename, cmdbuf, 0);
+	extract_token(filename, cmdbuf, 0, '|', sizeof filename);
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
@@ -391,14 +391,14 @@ void cmd_open(char *cmdbuf)
  */
 void cmd_oimg(char *cmdbuf)
 {
-	char filename[SIZ];
-	char pathname[SIZ];
+	char filename[256];
+	char pathname[PATH_MAX];
 	struct ctdluser usbuf;
 	char which_user[USERNAME_SIZE];
 	int which_floor;
 	int a;
 
-	extract(filename, cmdbuf, 0);
+	extract_token(filename, cmdbuf, 0, '|', sizeof filename);
 
 	if (strlen(filename) == 0) {
 		cprintf("%d You must specify a file name.\n",
@@ -413,7 +413,7 @@ void cmd_oimg(char *cmdbuf)
 	}
 
 	if (!strcasecmp(filename, "_userpic_")) {
-		extract(which_user, cmdbuf, 1);
+		extract_token(which_user, cmdbuf, 1, '|', sizeof which_user);
 		if (getuser(&usbuf, which_user) != 0) {
 			cprintf("%d No such user.\n",
 				ERROR + NO_SUCH_USER);
@@ -455,8 +455,8 @@ void cmd_uopn(char *cmdbuf)
 {
 	int a;
 
-	extract(CC->upl_file, cmdbuf, 0);
-	extract(CC->upl_comment, cmdbuf, 1);
+	extract_token(CC->upl_file, cmdbuf, 0, '|', sizeof CC->upl_file);
+	extract_token(CC->upl_comment, cmdbuf, 1, '|', sizeof CC->upl_comment);
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
@@ -514,7 +514,7 @@ void cmd_uopn(char *cmdbuf)
 void cmd_uimg(char *cmdbuf)
 {
 	int is_this_for_real;
-	char basenm[SIZ];
+	char basenm[256];
 	int which_floor;
 	int a;
 
@@ -524,7 +524,7 @@ void cmd_uimg(char *cmdbuf)
 	}
 
 	is_this_for_real = extract_int(cmdbuf, 0);
-	extract(basenm, cmdbuf, 1);
+	extract_token(basenm, cmdbuf, 1, '|', sizeof basenm);
 	if (CC->upload_fp != NULL) {
 		cprintf("%d You already have an upload file open.\n",
 			ERROR + RESOURCE_BUSY);
@@ -588,7 +588,7 @@ void cmd_uimg(char *cmdbuf)
  */
 void cmd_clos(void)
 {
-	char buf[SIZ];
+	char buf[256];
 
 	if (CC->download_fp == NULL) {
 		cprintf("%d You don't have a download file open.\n",
@@ -683,7 +683,7 @@ void cmd_read(char *cmdbuf)
 	long start_pos;
 	size_t bytes;
 	size_t actual_bytes;
-	char buf[4096];
+	char *buf = NULL;
 
 	start_pos = extract_long(cmdbuf, 0);
 	bytes = extract_int(cmdbuf, 1);
@@ -694,12 +694,14 @@ void cmd_read(char *cmdbuf)
 		return;
 	}
 
-	if (bytes > 4096) bytes = 4096;
+	if (bytes > 100000) bytes = 100000;
+	buf = malloc(bytes + 1);
 
 	fseek(CC->download_fp, start_pos, 0);
 	actual_bytes = fread(buf, 1, bytes, CC->download_fp);
 	cprintf("%d %d\n", BINARY_FOLLOWS, (int)actual_bytes);
 	client_write(buf, actual_bytes);
+	free(buf);
 }
 
 
@@ -710,7 +712,7 @@ void cmd_read(char *cmdbuf)
 void cmd_writ(char *cmdbuf)
 {
 	int bytes;
-	char buf[4096];
+	char *buf;
 
 	unbuffer_output();
 
@@ -721,15 +723,17 @@ void cmd_writ(char *cmdbuf)
 		return;
 	}
 
-	if (bytes > 4096) {
-		cprintf("%d You may not write more than 4096 bytes.\n",
+	if (bytes > 100000) {
+		cprintf("%d You may not write more than 100000 bytes.\n",
 			ERROR + TOO_BIG);
 		return;
 	}
 
 	cprintf("%d %d\n", SEND_BINARY, bytes);
+	buf = malloc(bytes + 1);
 	client_read(buf, bytes);
 	fwrite(buf, bytes, 1, CC->upload_fp);
+	free(buf);
 }
 
 
@@ -740,7 +744,7 @@ void cmd_writ(char *cmdbuf)
  */
 void cmd_ndop(char *cmdbuf)
 {
-	char pathname[SIZ];
+	char pathname[256];
 	struct stat statbuf;
 
 	if (strlen(CC->net_node) == 0) {

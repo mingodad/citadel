@@ -124,13 +124,13 @@ struct FilterList *load_filter_list(void) {
 
 	/* Use the string tokenizer to grab one line at a time */
 	for (i=0; i<num_tokens(serialized_list, '\n'); ++i) {
-		extract_token(buf, serialized_list, i, '\n');
+		extract_token(buf, serialized_list, i, '\n', sizeof buf);
 		nptr = (struct FilterList *) malloc(sizeof(struct FilterList));
-		extract(nptr->fl_user, buf, 0);
+		extract_token(nptr->fl_user, buf, 0, '|', sizeof nptr->fl_user);
 		striplt(nptr->fl_user);
-		extract(nptr->fl_room, buf, 1);
+		extract_token(nptr->fl_room, buf, 1, '|', sizeof nptr->fl_room);
 		striplt(nptr->fl_room);
-		extract(nptr->fl_node, buf, 2);
+		extract_token(nptr->fl_node, buf, 2, '|', sizeof nptr->fl_node);
 		striplt(nptr->fl_node);
 
 		/* Cowardly refuse to add an any/any/any entry that would
@@ -223,11 +223,11 @@ void read_network_map(void) {
 
 	/* Use the string tokenizer to grab one line at a time */
 	for (i=0; i<num_tokens(serialized_map, '\n'); ++i) {
-		extract_token(buf, serialized_map, i, '\n');
+		extract_token(buf, serialized_map, i, '\n', sizeof buf);
 		nmptr = (struct NetMap *) malloc(sizeof(struct NetMap));
-		extract(nmptr->nodename, buf, 0);
+		extract_token(nmptr->nodename, buf, 0, '|', sizeof nmptr->nodename);
 		nmptr->lastcontact = extract_long(buf, 1);
-		extract(nmptr->nexthop, buf, 2);
+		extract_token(nmptr->nexthop, buf, 2, '|', sizeof nmptr->nexthop);
 		nmptr->next = the_netmap;
 		the_netmap = nmptr;
 	}
@@ -308,14 +308,14 @@ int is_valid_node(char *nexthop, char *secret, char *node) {
 
 	/* Use the string tokenizer to grab one line at a time */
 	for (i=0; i<num_tokens(working_ignetcfg, '\n'); ++i) {
-		extract_token(linebuf, working_ignetcfg, i, '\n');
-		extract(buf, linebuf, 0);
+		extract_token(linebuf, working_ignetcfg, i, '\n', sizeof linebuf);
+		extract_token(buf, linebuf, 0, '|', sizeof buf);
 		if (!strcasecmp(buf, node)) {
 			if (nexthop != NULL) {
 				strcpy(nexthop, "");
 			}
 			if (secret != NULL) {
-				extract(secret, linebuf, 1);
+				extract_token(secret, linebuf, 1, '|', 256);
 			}
 			retval = 0;
 		}
@@ -650,7 +650,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 				bang = num_tokens(msg->cm_fields['P'], '!');
 				if (bang > 1) for (i=0; i<(bang-1); ++i) {
 					extract_token(buf, msg->cm_fields['P'],
-						i, '!');
+						i, '!', sizeof buf);
 					if (!strcasecmp(buf, mptr->remote_nodename)) {
 						send = 0;
 					}
@@ -812,9 +812,9 @@ void network_spoolout_room(char *room_to_spool) {
 	char filename[SIZ];
 	char buf[SIZ];
 	char instr[SIZ];
-	char nodename[SIZ];
-	char roomname[SIZ];
-	char nexthop[SIZ];
+	char nodename[256];
+	char roomname[ROOMNAMELEN];
+	char nexthop[256];
 	FILE *fp;
 	struct SpoolControl sc;
 	struct namelist *nptr = NULL;
@@ -845,7 +845,7 @@ void network_spoolout_room(char *room_to_spool) {
 	while (fgets(buf, sizeof buf, fp) != NULL) {
 		buf[strlen(buf)-1] = 0;
 
-		extract(instr, buf, 0);
+		extract_token(instr, buf, 0, '|', sizeof instr);
 		if (!strcasecmp(instr, "lastsent")) {
 			sc.lastsent = extract_long(buf, 1);
 		}
@@ -853,21 +853,21 @@ void network_spoolout_room(char *room_to_spool) {
 			nptr = (struct namelist *)
 				malloc(sizeof(struct namelist));
 			nptr->next = sc.listrecps;
-			extract(nptr->name, buf, 1);
+			extract_token(nptr->name, buf, 1, '|', sizeof nptr->name);
 			sc.listrecps = nptr;
 		}
 		else if (!strcasecmp(instr, "participate")) {
 			nptr = (struct namelist *)
 				malloc(sizeof(struct namelist));
 			nptr->next = sc.participates;
-			extract(nptr->name, buf, 1);
+			extract_token(nptr->name, buf, 1, '|', sizeof nptr->name);
 			sc.participates = nptr;
 		}
 		else if (!strcasecmp(instr, "digestrecp")) {
 			nptr = (struct namelist *)
 				malloc(sizeof(struct namelist));
 			nptr->next = sc.digestrecps;
-			extract(nptr->name, buf, 1);
+			extract_token(nptr->name, buf, 1, '|', sizeof nptr->name);
 			sc.digestrecps = nptr;
 		}
 		else if (!strcasecmp(instr, "ignet_push_share")) {
@@ -875,8 +875,8 @@ void network_spoolout_room(char *room_to_spool) {
 			 * purge nodes which do not exist from room network
 			 * configurations at this time.
 			 */
-			extract(nodename, buf, 1);
-			extract(roomname, buf, 2);
+			extract_token(nodename, buf, 1, '|', sizeof nodename);
+			extract_token(roomname, buf, 2, '|', sizeof roomname);
 			strcpy(nexthop, "xxx");
 			if (is_valid_node(nexthop, NULL, nodename) == 0) {
 				if (strlen(nexthop) == 0) {
@@ -1018,11 +1018,11 @@ int network_sync_to(char *target_node) {
 	struct SpoolControl sc;
 	int num_spooled = 0;
 	int found_node = 0;
-	char buf[SIZ];
-	char sc_type[SIZ];
-	char sc_node[SIZ];
-	char sc_room[SIZ];
-	char filename[SIZ];
+	char buf[256];
+	char sc_type[256];
+	char sc_node[256];
+	char sc_room[256];
+	char filename[256];
 	FILE *fp;
 
 	/* Grab the configuration line we're looking for */
@@ -1035,9 +1035,9 @@ int network_sync_to(char *target_node) {
 	}
 	while (fgets(buf, sizeof buf, fp) != NULL) {
 		buf[strlen(buf)-1] = 0;
-		extract(sc_type, buf, 0);
-		extract(sc_node, buf, 1);
-		extract(sc_room, buf, 2);
+		extract_token(sc_type, buf, 0, '|', sizeof sc_type);
+		extract_token(sc_node, buf, 1, '|', sizeof sc_node);
+		extract_token(sc_room, buf, 2, '|', sizeof sc_room);
 		if ( (!strcasecmp(sc_type, "ignet_push_share"))
 		   && (!strcasecmp(sc_node, target_node)) ) {
 			found_node = 1;
@@ -1078,11 +1078,11 @@ int network_sync_to(char *target_node) {
  */
 void cmd_nsyn(char *argbuf) {
 	int num_spooled;
-	char target_node[SIZ];
+	char target_node[256];
 
 	if (CtdlAccessCheck(ac_aide)) return;
 
-	extract(target_node, argbuf, 0);
+	extract_token(target_node, argbuf, 0, '|', sizeof target_node);
 	num_spooled = network_sync_to(target_node);
 	if (num_spooled >= 0) {
 		cprintf("%d Spooled %d messages.\n", CIT_OK, num_spooled);
@@ -1114,7 +1114,7 @@ void network_queue_room(struct ctdlroom *qrbuf, void *data) {
  * Learn topology from path fields
  */
 void network_learn_topology(char *node, char *path) {
-	char nexthop[SIZ];
+	char nexthop[256];
 	struct NetMap *nmptr;
 
 	strcpy(nexthop, "");
@@ -1122,7 +1122,7 @@ void network_learn_topology(char *node, char *path) {
 	if (num_tokens(path, '!') < 3) return;
 	for (nmptr = the_netmap; nmptr != NULL; nmptr = nmptr->next) {
 		if (!strcasecmp(nmptr->nodename, node)) {
-			extract_token(nmptr->nexthop, path, 0, '!');
+			extract_token(nmptr->nexthop, path, 0, '!', sizeof nmptr->nexthop);
 			nmptr->lastcontact = time(NULL);
 			return;
 		}
@@ -1132,7 +1132,7 @@ void network_learn_topology(char *node, char *path) {
 	nmptr = (struct NetMap *) malloc(sizeof (struct NetMap));
 	strcpy(nmptr->nodename, node);
 	nmptr->lastcontact = time(NULL);
-	extract_token(nmptr->nexthop, path, 0, '!');
+	extract_token(nmptr->nexthop, path, 0, '!', sizeof nmptr->nexthop);
 	nmptr->next = the_netmap;
 	the_netmap = nmptr;
 }
@@ -1729,13 +1729,13 @@ bail:	sock_close(sock);
  */
 void network_poll_other_citadel_nodes(int full_poll) {
 	int i;
-	char linebuf[SIZ];
+	char linebuf[256];
 	char node[SIZ];
-	char host[SIZ];
-	char port[SIZ];
-	char secret[SIZ];
+	char host[256];
+	char port[256];
+	char secret[256];
 	int poll = 0;
-	char spoolfile[SIZ];
+	char spoolfile[256];
 
 	if (working_ignetcfg == NULL) {
 		lprintf(CTDL_DEBUG, "No nodes defined - not polling\n");
@@ -1744,17 +1744,17 @@ void network_poll_other_citadel_nodes(int full_poll) {
 
 	/* Use the string tokenizer to grab one line at a time */
 	for (i=0; i<num_tokens(working_ignetcfg, '\n'); ++i) {
-		extract_token(linebuf, working_ignetcfg, i, '\n');
-		extract(node, linebuf, 0);
-		extract(secret, linebuf, 1);
-		extract(host, linebuf, 2);
-		extract(port, linebuf, 3);
+		extract_token(linebuf, working_ignetcfg, i, '\n', sizeof linebuf);
+		extract_token(node, linebuf, 0, '|', sizeof node);
+		extract_token(secret, linebuf, 1, '|', sizeof secret);
+		extract_token(host, linebuf, 2, '|', sizeof host);
+		extract_token(port, linebuf, 3, '|', sizeof port);
 		if ( (strlen(node) > 0) && (strlen(secret) > 0) 
 		   && (strlen(host) > 0) && strlen(port) > 0) {
 			poll = full_poll;
 			if (poll == 0) {
-				sprintf(spoolfile, "./network/spoolout/%s",
-					node);
+				snprintf(spoolfile, sizeof spoolfile,
+					"./network/spoolout/%s", node);
 				if (access(spoolfile, R_OK) == 0) {
 					poll = 1;
 				}
@@ -1860,16 +1860,16 @@ void network_do_queue(void) {
  */
 void cmd_netp(char *cmdbuf)
 {
-	char node[SIZ];
-	char pass[SIZ];
+	char node[256];
+	char pass[256];
 	int v;
 
-	char secret[SIZ];
-	char nexthop[SIZ];
+	char secret[256];
+	char nexthop[256];
 
 	/* Authenticate */
-	extract(node, cmdbuf, 0);
-	extract(pass, cmdbuf, 1);
+	extract_token(node, cmdbuf, 0, '|', sizeof node);
+	extract_token(pass, cmdbuf, 1, '|', sizeof pass);
 
 	if (doing_queue) {
 		lprintf(CTDL_WARNING, "Network node <%s> refused - spooling", node);

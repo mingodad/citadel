@@ -220,11 +220,11 @@ void userlist(CtdlIPC *ipc, char *patn)
 	pprintf("       User Name           Num  L  LastCall  Calls Posts\n");
 	pprintf("------------------------- ----- - ---------- ----- -----\n");
 	while (strlen(listing) > 0) {
-		extract_token(buf, listing, 0, '\n');
+		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
 
 		if (sigcaught == 0) {
-		    extract(fl, buf, 0);
+		    extract_token(fl, buf, 0, '|', sizeof fl);
 		    if (pattern(fl, patn) >= 0) {
 			pprintf("%-25s ", fl);
 			pprintf("%5ld %d ", extract_long(buf, 2),
@@ -250,7 +250,7 @@ void userlist(CtdlIPC *ipc, char *patn)
  */
 void load_user_info(char *params)
 {
-	extract(fullname, params, 0);
+	extract_token(fullname, params, 0, '|', sizeof fullname);
 	axlevel = extract_int(params, 1);
 	timescalled = extract_int(params, 2);
 	posted = extract_int(params, 3);
@@ -848,7 +848,7 @@ char *SortOnlineUsers(char *listing) {
 	/* Copy the list into a fixed-record-size array for sorting */
 	for (i=0; i<rows; ++i) {
 		memset(buf, 0, SIZ);
-		extract_token(buf, listing, i, '\n');
+		extract_token(buf, listing, i, '\n', sizeof buf);
 		memcpy(&sortbuf[i*SIZ], buf, (size_t)SIZ);
 	}
 
@@ -900,14 +900,14 @@ void who_is_online(CtdlIPC *ipc, int longlist)
 			int isidle = 0;
 			
 			/* Get another line */
-			extract_token(buf, listing, 0, '\n');
+			extract_token(buf, listing, 0, '\n', sizeof buf);
 			remove_token(listing, 0, '\n');
 
-			extract(username, buf, 1);
-			extract(roomname, buf, 2);
-			extract(fromhost, buf, 3);
-			extract(clientsoft, buf, 4);
-			extract(flags, buf, 7);
+			extract_token(username, buf, 1, '|', sizeof username);
+			extract_token(roomname, buf, 2, '|', sizeof roomname);
+			extract_token(fromhost, buf, 3, '|', sizeof fromhost);
+			extract_token(clientsoft, buf, 4, '|', sizeof clientsoft);
+			extract_token(flags, buf, 7, '|', sizeof flags);
 
 			idletime = timenow - extract_long(buf, 5);
 			idlehours = idletime / 3600;
@@ -926,9 +926,9 @@ void who_is_online(CtdlIPC *ipc, int longlist)
 			}
 
 			if (longlist) {
-				extract(actual_user, buf, 8);
-				extract(actual_room, buf, 9);
-				extract(actual_host, buf, 10);
+				extract_token(actual_user, buf, 8, '|', sizeof actual_user);
+				extract_token(actual_room, buf, 9, '|', sizeof actual_room);
+				extract_token(actual_host, buf, 10, '|', sizeof actual_host);
 
 				pprintf("  Flags: %s\n", flags);
 				pprintf("Session: %d\n", extract_int(buf, 0));

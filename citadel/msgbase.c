@@ -134,8 +134,8 @@ int alias(char *name)
 	char *ignetcfg = NULL;
 	char *ignetmap = NULL;
 	int at = 0;
-	char node[SIZ];
-	char testnode[SIZ];
+	char node[64];
+	char testnode[64];
 	char buf[SIZ];
 
 	striplt(name);
@@ -190,7 +190,7 @@ int alias(char *name)
 	remove_any_whitespace_to_the_left_or_right_of_at_symbol(name);
 
 	/* figure out the delivery mode */
-	extract_token(node, name, 1, '@');
+	extract_token(node, name, 1, '@', sizeof node);
 
 	/* If there are one or more dots in the nodename, we assume that it
 	 * is an FQDN and will attempt SMTP delivery to the Internet.
@@ -204,8 +204,8 @@ int alias(char *name)
 	 */
 	ignetcfg = CtdlGetSysConfig(IGNETCFG);
 	for (i=0; i<num_tokens(ignetcfg, '\n'); ++i) {
-		extract_token(buf, ignetcfg, i, '\n');
-		extract_token(testnode, buf, 0, '|');
+		extract_token(buf, ignetcfg, i, '\n', sizeof buf);
+		extract_token(testnode, buf, 0, '|', sizeof testnode);
 		if (!strcasecmp(node, testnode)) {
 			free(ignetcfg);
 			return(MES_IGNET);
@@ -218,8 +218,8 @@ int alias(char *name)
 	 */
 	ignetmap = CtdlGetSysConfig(IGNETMAP);
 	for (i=0; i<num_tokens(ignetmap, '\n'); ++i) {
-		extract_token(buf, ignetmap, i, '\n');
-		extract_token(testnode, buf, 0, '|');
+		extract_token(buf, ignetmap, i, '\n', sizeof buf);
+		extract_token(testnode, buf, 0, '|', sizeof testnode);
 		if (!strcasecmp(node, testnode)) {
 			free(ignetmap);
 			return(MES_IGNET);
@@ -536,7 +536,7 @@ void cmd_msgs(char *cmdbuf)
 	int with_template = 0;
 	struct CtdlMessage *template = NULL;
 
-	extract(which, cmdbuf, 0);
+	extract_token(which, cmdbuf, 0, '|', sizeof which);
 	cm_ref = extract_int(cmdbuf, 1);
 	with_template = extract_int(cmdbuf, 2);
 
@@ -566,8 +566,8 @@ void cmd_msgs(char *cmdbuf)
 			malloc(sizeof(struct CtdlMessage));
 		memset(template, 0, sizeof(struct CtdlMessage));
 		while(client_getln(buf, sizeof buf), strcmp(buf,"000")) {
-			extract(tfield, buf, 0);
-			extract(tvalue, buf, 1);
+			extract_token(tfield, buf, 0, '|', sizeof tfield);
+			extract_token(tvalue, buf, 1, '|', sizeof tvalue);
 			for (i='A'; i<='Z'; ++i) if (msgkeys[i]!=NULL) {
 				if (!strcasecmp(tfield, msgkeys[i])) {
 					template->cm_fields[i] =
@@ -1001,7 +1001,7 @@ void choose_preferred(char *name, char *filename, char *partnum, char *disp,
 	  	void *content, char *cbtype, size_t length, char *encoding,
 		void *cbuserdata)
 {
-	char buf[SIZ];
+	char buf[1024];
 	int i;
 	struct ma_info *ma;
 	
@@ -1009,7 +1009,7 @@ void choose_preferred(char *name, char *filename, char *partnum, char *disp,
 
 	if (ma->is_ma > 0) {
 		for (i=0; i<num_tokens(CC->preferred_formats, '|'); ++i) {
-			extract(buf, CC->preferred_formats, i);
+			extract_token(buf, CC->preferred_formats, i, '|', sizeof buf);
 			if (!strcasecmp(buf, cbtype)) {
 				strcpy(ma->chosen_part, partnum);
 			}
@@ -1039,7 +1039,7 @@ void output_preferred(char *name, char *filename, char *partnum, char *disp,
 	 * list, we can simply output it verbatim.
 	 */
 	for (i=0; i<num_tokens(CC->preferred_formats, '|'); ++i) {
-		extract(buf, CC->preferred_formats, i);
+		extract_token(buf, CC->preferred_formats, i, '|', sizeof buf);
 		if (!strcasecmp(buf, cbtype)) {
 			/* Yeah!  Go!  W00t!! */
 
@@ -1609,12 +1609,11 @@ void cmd_msgp(char *cmdbuf)
 void cmd_opna(char *cmdbuf)
 {
 	long msgid;
-	char desired_section[SIZ];
+	char desired_section[128];
 
 	msgid = extract_long(cmdbuf, 0);
-	extract(desired_section, cmdbuf, 1);
+	extract_token(desired_section, cmdbuf, 1, '|', sizeof desired_section);
 	safestrncpy(CC->download_desired_section, desired_section, sizeof CC->download_desired_section);
-
 	CtdlOutputMsg(msgid, MT_DOWNLOAD, 0, 1, 1);
 }			
 
@@ -2078,7 +2077,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	if (recps != NULL)
 	 if (recps->num_room > 0)
 	  for (i=0; i<num_tokens(recps->recp_room, '|'); ++i) {
-		extract(recipient, recps->recp_room, i);
+		extract_token(recipient, recps->recp_room, i, '|', sizeof recipient);
 		lprintf(CTDL_DEBUG, "Delivering to local room <%s>\n", recipient);
 		CtdlSaveMsgPointerInRoom(recipient, newmsgid, 0);
 	}
@@ -2095,7 +2094,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	if (recps != NULL)
 	 if (recps->num_local > 0)
 	  for (i=0; i<num_tokens(recps->recp_local, '|'); ++i) {
-		extract(recipient, recps->recp_local, i);
+		extract_token(recipient, recps->recp_local, i, '|', sizeof recipient);
 		lprintf(CTDL_DEBUG, "Delivering private local mail to <%s>\n",
 			recipient);
 		if (getuser(&userbuf, recipient) == 0) {
@@ -2124,14 +2123,14 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	if (recps != NULL)
 	 if (recps->num_ignet > 0)
 	  for (i=0; i<num_tokens(recps->recp_ignet, '|'); ++i) {
-		extract(recipient, recps->recp_ignet, i);
+		extract_token(recipient, recps->recp_ignet, i, '|', sizeof recipient);
 
 		hold_R = msg->cm_fields['R'];
 		hold_D = msg->cm_fields['D'];
 		msg->cm_fields['R'] = malloc(SIZ);
-		msg->cm_fields['D'] = malloc(SIZ);
-		extract_token(msg->cm_fields['R'], recipient, 0, '@');
-		extract_token(msg->cm_fields['D'], recipient, 1, '@');
+		msg->cm_fields['D'] = malloc(128);
+		extract_token(msg->cm_fields['R'], recipient, 0, '@', SIZ);
+		extract_token(msg->cm_fields['D'], recipient, 1, '@', 128);
 		
 		serialize_message(&smr, msg);
 		if (smr.len > 0) {
@@ -2175,7 +2174,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	  	for (i=0; i<num_tokens(recps->recp_internet, '|'); ++i) {
 			size_t tmp = strlen(instr);
-			extract(recipient, recps->recp_internet, i);
+			extract_token(recipient, recps->recp_internet, i, '|', sizeof recipient);
 			snprintf(&instr[tmp], SIZ * 2 - tmp,
 				 "remote|%s|0||\n", recipient);
 		}
@@ -2504,7 +2503,7 @@ struct recptypes *validate_recipients(char *recipients) {
 	}
 
 	if (num_recps > 0) for (i=0; i<num_recps; ++i) {
-		extract_token(this_recp, recipients, i, ',');
+		extract_token(this_recp, recipients, i, ',', sizeof this_recp);
 		striplt(this_recp);
 		lprintf(CTDL_DEBUG, "Evaluating recipient #%d <%s>\n", i, this_recp);
 		mailtype = alias(this_recp);
@@ -2658,10 +2657,10 @@ void cmd_ent0(char *entargs)
 	unbuffer_output();
 
 	post = extract_int(entargs, 0);
-	extract(recp, entargs, 1);
+	extract_token(recp, entargs, 1, '|', sizeof recp);
 	anon_flag = extract_int(entargs, 2);
 	format_type = extract_int(entargs, 3);
-	extract(subject, entargs, 4);
+	extract_token(subject, entargs, 4, '|', sizeof subject);
 	do_confirm = extract_int(entargs, 6);
 
 	/* first check to make sure the request is valid. */
@@ -2680,7 +2679,7 @@ void cmd_ent0(char *entargs)
 				ERROR + HIGHER_ACCESS_REQUIRED);
 			return;
 		}
-		extract(newusername, entargs, 5);
+		extract_token(newusername, entargs, 5, '|', sizeof newusername);
 		memset(CC->fake_postname, 0, sizeof(CC->fake_postname) );
 		safestrncpy(CC->fake_postname, newusername,
 			sizeof(CC->fake_postname) );
@@ -2968,7 +2967,7 @@ int CtdlCopyMsgToRoom(long msgnum, char *dest) {
 void cmd_move(char *args)
 {
 	long num;
-	char targ[SIZ];
+	char targ[ROOMNAMELEN];
 	struct ctdlroom qtemp;
 	int err;
 	int is_copy = 0;
@@ -2976,7 +2975,7 @@ void cmd_move(char *args)
 	int permit = 0;
 
 	num = extract_long(args, 0);
-	extract(targ, args, 1);
+	extract_token(targ, args, 1, '|', sizeof targ);
 	targ[ROOMNAMELEN - 1] = 0;
 	is_copy = extract_int(args, 2);
 
@@ -3290,7 +3289,7 @@ char *CtdlGetSysConfig(char *sysconfname) {
 	getroom(&CC->room, hold_rm);
 
 	if (conf != NULL) do {
-		extract_token(buf, conf, 0, '\n');
+		extract_token(buf, conf, 0, '\n', sizeof buf);
 		strcpy(conf, &conf[strlen(buf)+1]);
 	} while ( (strlen(conf)>0) && (strlen(buf)>0) );
 
@@ -3317,7 +3316,8 @@ void CtdlPutSysConfig(char *sysconfname, char *sysconfdata) {
 /*
  * Determine whether a given Internet address belongs to the current user
  */
-int CtdlIsMe(char *addr) {
+int CtdlIsMe(char *addr, int addr_buf_len)
+{
 	struct recptypes *recp;
 	int i;
 
@@ -3330,7 +3330,7 @@ int CtdlIsMe(char *addr) {
 	}
 
 	for (i=0; i<recp->num_local; ++i) {
-		extract(addr, recp->recp_local, i);
+		extract_token(addr, recp->recp_local, i, '|', addr_buf_len);
 		if (!strcasecmp(addr, CC->user.fullname)) {
 			free(recp);
 			return(1);
@@ -3346,12 +3346,12 @@ int CtdlIsMe(char *addr) {
  * Citadel protocol command to do the same
  */
 void cmd_isme(char *argbuf) {
-	char addr[SIZ];
+	char addr[256];
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
-	extract(addr, argbuf, 0);
+	extract_token(addr, argbuf, 0, '|', sizeof addr);
 
-	if (CtdlIsMe(addr)) {
+	if (CtdlIsMe(addr, sizeof addr)) {
 		cprintf("%d %s\n", CIT_OK, addr);
 	}
 	else {

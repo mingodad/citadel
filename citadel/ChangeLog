@@ -1,4 +1,11 @@
  $Log$
+ Revision 641.32  2005/03/24 22:13:56  ajc
+ * extract_token() now expects to be supplied with the size of the
+   destination string buffer.  This, along with the elimination of other
+   unbounded functions like strcpy(), will allow the removal of the
+   "all string buffers are of size SIZ" assumption (a process which I have
+   already begun), which will hopefully reduce stack consumption.
+
  Revision 641.31  2005/03/22 21:53:48  ajc
  * Oops, forgot to initialize some data structures...
 
@@ -6559,3 +6566,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

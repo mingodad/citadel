@@ -667,8 +667,8 @@ int send_instant_message(char *lun, char *x_user, char *x_msg)
 void cmd_sexp(char *argbuf)
 {
 	int message_sent = 0;
-	char x_user[SIZ];
-	char x_msg[SIZ];
+	char x_user[USERNAME_SIZE];
+	char x_msg[1024];
 	char *lun;		/* <bc> */
 	char *x_big_msgbuf = NULL;
 
@@ -681,9 +681,8 @@ void cmd_sexp(char *argbuf)
 	else
 		lun = CC->user.fullname;
 
-	extract(x_user, argbuf, 0);
-
-	extract(x_msg, argbuf, 1);
+	extract_token(x_user, argbuf, 0, '|', sizeof x_user);
+	extract_token(x_msg, argbuf, 1, '|', sizeof x_msg);
 
 	if (!x_user[0]) {
 		cprintf("%d You were not previously paged.\n", ERROR + NO_SUCH_USER);

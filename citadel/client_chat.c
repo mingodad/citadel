@@ -172,10 +172,10 @@ RCL:		if (send_complete_line) {
 				return;
 			}
 			if (num_parms(buf) >= 2) {
-				extract(c_user, buf, 0);
-				extract(c_text, buf, 1);
+				extract_token(c_user, buf, 0, '|', sizeof c_user);
+				extract_token(c_text, buf, 1, '|', sizeof c_text);
 				if (num_parms(buf) > 2) {
-					extract(c_room, buf, 2);
+					extract_token(c_room, buf, 2, '|', sizeof c_room);
 					scr_printf("Got room %s\n", c_room);
 				}
 				if (strcasecmp(c_text, "NOOP")) {

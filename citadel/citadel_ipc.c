@@ -301,13 +301,13 @@ int CtdlIPCKnownRooms(CtdlIPC *ipc, enum RoomList which, int floor, struct march
 		while (bbb && strlen(bbb)) {
 			int a;
 
-			extract_token(aaa, bbb, 0, '\n');
+			extract_token(aaa, bbb, 0, '\n', sizeof aaa);
 			a = strlen(aaa);
 			memmove(bbb, bbb + a + 1, strlen(bbb) - a);
 			mptr = (struct march *) malloc(sizeof (struct march));
 			if (mptr) {
 				mptr->next = NULL;
-				extract(mptr->march_name, aaa, 0);
+				extract_token(mptr->march_name, aaa, 0, '|', sizeof mptr->march_name);
 				mptr->march_flags = (unsigned int) extract_int(aaa, 1);
 				mptr->march_floor = (char) extract_int(aaa, 2);
 				mptr->march_order = (char) extract_int(aaa, 3);
@@ -396,7 +396,7 @@ int CtdlIPCGotoRoom(CtdlIPC *ipc, const char *room, const char *passwd,
 	}
 	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
 	if (ret / 100 == 2) {
-		extract(rret[0]->RRname, cret, 0);
+		extract_token(rret[0]->RRname, cret, 0, '|', sizeof rret[0]->RRname);
 		rret[0]->RRunread = extract_long(cret, 1);
 		rret[0]->RRtotal = extract_long(cret, 2);
 		rret[0]->RRinfoupdated = extract_int(cret, 3);
@@ -448,7 +448,7 @@ int CtdlIPCGetMessages(CtdlIPC *ipc, enum MessageList which, int whicharg,
 	if (!*mret)
 		return -1;
 	while (bbb && strlen(bbb)) {
-		extract_token(aaa, bbb, 0, '\n');
+		extract_token(aaa, bbb, 0, '\n', sizeof aaa);
 		remove_token(bbb, 0, '\n');
 		*mret = (unsigned long *)realloc(*mret, (size_t)((count + 2) *
 					sizeof (unsigned long)));
@@ -473,7 +473,7 @@ int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 	char *bbb = NULL;
 	size_t bbbsize;
 	int multipart_hunting = 0;
-	char multipart_prefix[SIZ];
+	char multipart_prefix[128];
 
 	if (!cret) return -1;
 	if (!mret) return -1;
@@ -488,7 +488,7 @@ int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 		if (as_mime != 2) {
 			strcpy(mret[0]->mime_chosen, "1");	/* Default chosen-part is "1" */
 			while (strlen(bbb) > 4 && bbb[4] == '=') {
-				extract_token(aaa, bbb, 0, '\n');
+				extract_token(aaa, bbb, 0, '\n', sizeof aaa);
 				remove_token(bbb, 0, '\n');
 
 				if (!strncasecmp(aaa, "nhdr=yes", 8))
@@ -518,14 +518,14 @@ int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 				 * us to determine which part we want to download.
 				 */
 				else if (!strncasecmp(aaa, "pref=", 5)) {
-					extract(multipart_prefix, &aaa[5], 1);
+					extract_token(multipart_prefix, &aaa[5], 1, '|', sizeof multipart_prefix);
 					if (!strcasecmp(multipart_prefix,
 					   "multipart/alternative")) {
 						++multipart_hunting;
 					}
 				}
 				else if (!strncasecmp(aaa, "suff=", 5)) {
-					extract(multipart_prefix, &aaa[5], 1);
+					extract_token(multipart_prefix, &aaa[5], 1, '|', sizeof multipart_prefix);
 					if (!strcasecmp(multipart_prefix,
 					   "multipart/alternative")) {
 						++multipart_hunting;
@@ -539,11 +539,11 @@ int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 					if (ptr) {
 
 						/* Fill the buffers for the caller */
-						extract(ptr->name, &aaa[5], 0);
-						extract(ptr->filename, &aaa[5], 1);
-						extract(ptr->number, &aaa[5], 2);
-						extract(ptr->disposition, &aaa[5], 3);
-						extract(ptr->mimetype, &aaa[5], 4);
+						extract_token(ptr->name, &aaa[5], 0, '|', sizeof ptr->name);
+						extract_token(ptr->filename, &aaa[5], 1, '|', sizeof ptr->filename);
+						extract_token(ptr->number, &aaa[5], 2, '|', sizeof ptr->number);
+						extract_token(ptr->disposition, &aaa[5], 3, '|', sizeof ptr->disposition);
+						extract_token(ptr->mimetype, &aaa[5], 4, '|', sizeof ptr->mimetype);
 						ptr->length = extract_long(&aaa[5], 5);
 						if (!mret[0]->attachments)
 							mret[0]->attachments = ptr;
@@ -575,7 +575,7 @@ int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 			if (as_mime == 4) {
 				do {
 					if (!strncasecmp(bbb, "Content-type: ", 14)) {
-						extract_token(mret[0]->content_type, bbb, 0, '\n');
+						extract_token(mret[0]->content_type, bbb, 0, '\n', sizeof mret[0]->content_type);
 						strcpy(mret[0]->content_type,
 							&mret[0]->content_type[14]);
 						striplt(mret[0]->content_type);
@@ -630,7 +630,7 @@ int CtdlIPCServerInfo(CtdlIPC *ipc, char *cret)
 		int line = 0;
 
 		while (*listing && strlen(listing)) {
-			extract_token(buf, listing, 0, '\n');
+			extract_token(buf, listing, 0, '\n', sizeof buf);
 			remove_token(listing, 0, '\n');
 			switch (line++) {
 			case 0:		ipc->ServInfo.pid = atoi(buf);
@@ -752,9 +752,9 @@ int CtdlIPCGetRoomAttributes(CtdlIPC *ipc, struct ctdlroom **qret, char *cret)
 
 	ret = CtdlIPCGenericCommand(ipc, "GETR", NULL, 0, NULL, NULL, cret);
 	if (ret / 100 == 2) {
-		extract(qret[0]->QRname, cret, 0);
-		extract(qret[0]->QRpasswd, cret, 1);
-		extract(qret[0]->QRdirname, cret, 2);
+		extract_token(qret[0]->QRname, cret, 0, '|', sizeof qret[0]->QRname);
+		extract_token(qret[0]->QRpasswd, cret, 1, '|', sizeof qret[0]->QRpasswd);
+		extract_token(qret[0]->QRdirname, cret, 2, '|', sizeof qret[0]->QRdirname);
 		qret[0]->QRflags = extract_int(cret, 3);
 		qret[0]->QRfloor = extract_int(cret, 4);
 		qret[0]->QRorder = extract_int(cret, 5);
@@ -1168,7 +1168,7 @@ int CtdlIPCFileDownload(CtdlIPC *ipc, const char *filename, void **buf,
 		ipc->downloading = 1;
 		bytes = extract_long(cret, 0);
 		last_mod = extract_int(cret, 1);
-		extract(mimetype, cret, 2);
+		extract_token(mimetype, cret, 2, '|', sizeof mimetype);
 
 		ret = CtdlIPCReadDownload(ipc, buf, bytes, resume,
 					progress_gauge_callback, cret);
@@ -1213,8 +1213,8 @@ int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part,
 		ipc->downloading = 1;
 		bytes = extract_long(cret, 0);
 		last_mod = extract_int(cret, 1);
-		extract(filename, cret, 2);
-		extract(mimetype, cret, 3);
+		extract_token(filename, cret, 2, '|', sizeof filename);
+		extract_token(mimetype, cret, 3, '|', sizeof mimetype);
 		/* ret = CtdlIPCReadDownload(ipc, buf, bytes, 0, progress_gauge_callback, cret); */
 		ret = CtdlIPCHighSpeedReadDownload(ipc, buf, bytes, 0, progress_gauge_callback, cret);
 		ret = CtdlIPCEndDownload(ipc, cret);
@@ -1254,7 +1254,7 @@ int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf,
 		ipc->downloading = 1;
 		bytes = extract_long(cret, 0);
 		last_mod = extract_int(cret, 1);
-		extract(mimetype, cret, 2);
+		extract_token(mimetype, cret, 2, '|', sizeof mimetype);
 /*		ret = CtdlIPCReadDownload(ipc, buf, bytes, 0, progress_gauge_callback, cret); */
 		ret = CtdlIPCHighSpeedReadDownload(ipc, buf, bytes, 0, progress_gauge_callback, cret);
 		ret = CtdlIPCEndDownload(ipc, cret);
@@ -1694,8 +1694,8 @@ int CtdlIPCAideGetUserParameters(CtdlIPC *ipc, const char *who,
 	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
 
 	if (ret / 100 == 2) {
-		extract(uret[0]->fullname, cret, 0);
-		extract(uret[0]->password, cret, 1);
+		extract_token(uret[0]->fullname, cret, 0, '|', sizeof uret[0]->fullname);
+		extract_token(uret[0]->password, cret, 1, '|', sizeof uret[0]->password);
 		uret[0]->flags = extract_int(cret, 2);
 		uret[0]->timescalled = extract_long(cret, 3);
 		uret[0]->posted = extract_long(cret, 4);

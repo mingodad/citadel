@@ -232,8 +232,8 @@ void print_instant(void)
 		instant_msgs = extract_int(buf, 0);
 		timestamp = extract_long(buf, 1);
 		flags = extract_int(buf, 2);
-		extract(sender, buf, 3);
-		extract(node, buf, 4);
+		extract_token(sender, buf, 3, '|', sizeof sender);
+		extract_token(node, buf, 4, '|', sizeof node);
 		strcpy(last_paged, sender);
 	
 		localtime_r(&timestamp, &stamp);
@@ -1627,7 +1627,7 @@ char keymenu(char *menuprompt, char *menustring) {
 			} 
 			else {
 				for (i=0; i<choices; ++i) {
-					extract(buf, menustring, i);
+					extract_token(buf, menustring, i, '|', sizeof buf);
 					keyopt(buf);
 					scr_printf(" ");
 				}
@@ -1641,7 +1641,7 @@ char keymenu(char *menuprompt, char *menustring) {
 			scr_printf("\rOne of...                               ");
 			scr_printf("                                      \n");
 			for (i=0; i<choices; ++i) {
-				extract(buf, menustring, i);
+				extract_token(buf, menustring, i, '|', sizeof buf);
 				scr_printf("   ");
 				keyopt(buf);
 				scr_printf("\n");
@@ -1651,7 +1651,7 @@ char keymenu(char *menuprompt, char *menustring) {
 		}
 
 		for (i=0; i<choices; ++i) {
-			extract(buf, menustring, i);
+			extract_token(buf, menustring, i, '|', sizeof buf);
 			for (c=1; c<strlen(buf); ++c) {
 				if ( (ch == tolower(buf[c]))
 				   && (buf[c-1]=='<')

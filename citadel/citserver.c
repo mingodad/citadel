@@ -273,8 +273,8 @@ void cmd_time(void)
  */
 int is_public_client(void)
 {
-	char buf[SIZ];
-	char addrbuf[SIZ];
+	char buf[1024];
+	char addrbuf[1024];
 	FILE *fp;
 	int i;
 	struct stat statbuf;
@@ -329,7 +329,7 @@ int is_public_client(void)
 	lprintf(CTDL_DEBUG, "Checking whether %s is a local or public client\n",
 		CC->cs_addr);
 	for (i=0; i<num_parms(public_clients); ++i) {
-		extract(addrbuf, public_clients, i);
+		extract_token(addrbuf, public_clients, i, '|', sizeof addrbuf);
 		if (!strcasecmp(CC->cs_addr, addrbuf)) {
 			lprintf(CTDL_DEBUG, "... yes it is.\n");
 			return(1);
@@ -350,8 +350,8 @@ void cmd_iden(char *argbuf)
 	int dev_code;
 	int cli_code;
 	int rev_level;
-	char desc[SIZ];
-	char from_host[SIZ];
+	char desc[128];
+	char from_host[128];
 	struct in_addr addr;
 	int do_lookup = 0;
 
@@ -363,11 +363,11 @@ void cmd_iden(char *argbuf)
 	dev_code = extract_int(argbuf,0);
 	cli_code = extract_int(argbuf,1);
 	rev_level = extract_int(argbuf,2);
-	extract(desc,argbuf,3);
+	extract_token(desc, argbuf, 3, '|', sizeof desc);
 
 	safestrncpy(from_host, config.c_fqdn, sizeof from_host);
 	from_host[sizeof from_host - 1] = 0;
-	if (num_parms(argbuf)>=5) extract(from_host,argbuf,4);
+	if (num_parms(argbuf)>=5) extract_token(from_host, argbuf, 4, '|', sizeof from_host);
 
 	CC->cs_clientdev = dev_code;
 	CC->cs_clienttyp = cli_code;
@@ -410,24 +410,24 @@ void cmd_iden(char *argbuf)
 void cmd_mesg(char *mname)
 {
 	FILE *mfp;
-	char targ[SIZ];
-	char buf[SIZ];
-	char buf2[SIZ];
+	char targ[256];
+	char buf[256];
+	char buf2[256];
 	char *dirs[2];
 
-	extract(buf,mname,0);
+	extract_token(buf, mname, 0, '|', sizeof buf);
 
 	dirs[0]=malloc(64);
 	dirs[1]=malloc(64);
 	strcpy(dirs[0],"messages");
 	strcpy(dirs[1],"help");
 	snprintf(buf2, sizeof buf2, "%s.%d.%d", buf, CC->cs_clientdev, CC->cs_clienttyp);
-	mesg_locate(targ,sizeof targ,buf2,2,(const char **)dirs);
+	mesg_locate(targ, sizeof targ, buf2, 2, (const char **)dirs);
 	if (strlen(targ) == 0) {
 		snprintf(buf2, sizeof buf2, "%s.%d", buf, CC->cs_clientdev);
-		mesg_locate(targ,sizeof targ,buf2,2,(const char **)dirs);
+		mesg_locate(targ, sizeof targ, buf2, 2, (const char **)dirs);
 		if (strlen(targ) == 0) {
-			mesg_locate(targ,sizeof targ,buf,2,(const char **)dirs);
+			mesg_locate(targ, sizeof targ, buf, 2, (const char **)dirs);
 		}	
 	}
 	free(dirs[0]);
@@ -463,8 +463,8 @@ void cmd_mesg(char *mname)
 void cmd_emsg(char *mname)
 {
 	FILE *mfp;
-	char targ[SIZ];
-	char buf[SIZ];
+	char targ[256];
+	char buf[256];
 	char *dirs[2];
 	int a;
 
@@ -472,16 +472,14 @@ void cmd_emsg(char *mname)
 
 	if (CtdlAccessCheck(ac_aide)) return;
 
-	extract(buf,mname,0);
+	extract_token(buf, mname, 0, '|', sizeof buf);
 	for (a=0; a<strlen(buf); ++a) {		/* security measure */
 		if (buf[a] == '/') buf[a] = '.';
 	}
 
-	dirs[0]=malloc(64);
-	dirs[1]=malloc(64);
-	strcpy(dirs[0],"messages");
-	strcpy(dirs[1],"help");
-	mesg_locate(targ,sizeof targ,buf,2,(const char**)dirs);
+	dirs[0] = strdup("messages");
+	dirs[1] = strdup("help");
+	mesg_locate(targ, sizeof targ, buf, 2, (const char**)dirs);
 	free(dirs[0]);
 	free(dirs[1]);
 

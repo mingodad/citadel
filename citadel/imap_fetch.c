@@ -322,12 +322,12 @@ void imap_output_envelope_from(struct CtdlMessage *msg) {
  * fields.  But we can use it for "To" and possibly others.
  */
 void imap_output_envelope_addr(char *addr) {
-	char individual_addr[SIZ];
+	char individual_addr[256];
 	int num_addrs;
 	int i;
-	char user[SIZ];
-	char node[SIZ];
-	char name[SIZ];
+	char user[256];
+	char node[256];
+	char name[256];
 
 	if (addr == NULL) {
 		cprintf("NIL ");
@@ -346,7 +346,7 @@ void imap_output_envelope_addr(char *addr) {
 
 	/* Output them one by one. */
 	for (i=0; i<num_addrs; ++i) {
-		extract_token(individual_addr, addr, i, ',');
+		extract_token(individual_addr, addr, i, ',', sizeof individual_addr);
 		striplt(individual_addr);
 		process_rfc822_addr(individual_addr, user, node, name);
 		cprintf("(");
@@ -678,12 +678,12 @@ void imap_fetch_bodystructure_post(
 		void *cbuserdata
 		) {
 
-	char subtype[SIZ];
+	char subtype[128];
 
 	cprintf(" ");
 
 	/* disposition */
-	extract_token(subtype, cbtype, 1, '/');
+	extract_token(subtype, cbtype, 1, '/', sizeof subtype);
 	imap_strout(subtype);
 
 	/* body language */
@@ -708,13 +708,13 @@ void imap_fetch_bodystructure_part(
 	int have_encoding = 0;
 	int lines = 0;
 	size_t i;
-	char cbmaintype[SIZ];
-	char cbsubtype[SIZ];
+	char cbmaintype[128];
+	char cbsubtype[128];
 
 	if (cbtype != NULL) if (strlen(cbtype)>0) have_cbtype = 1;
 	if (have_cbtype) {
-		extract_token(cbmaintype, cbtype, 0, '/');
-		extract_token(cbsubtype, cbtype, 1, '/');
+		extract_token(cbmaintype, cbtype, 0, '/', sizeof cbmaintype);
+		extract_token(cbsubtype, cbtype, 1, '/', sizeof cbsubtype);
 	}
 	else {
 		strcpy(cbmaintype, "TEXT");
@@ -1122,15 +1122,15 @@ void imap_pick_range(char *supplied_range, int is_uid) {
 	 */
 	num_sets = num_tokens(actual_range, ',');
 	for (s=0; s<num_sets; ++s) {
-		extract_token(setstr, actual_range, s, ',');
+		extract_token(setstr, actual_range, s, ',', sizeof setstr);
 
-		extract_token(lostr, setstr, 0, ':');
+		extract_token(lostr, setstr, 0, ':', sizeof lostr);
 		if (num_tokens(setstr, ':') >= 2) {
-			extract_token(histr, setstr, 1, ':');
+			extract_token(histr, setstr, 1, ':', sizeof histr);
 			if (!strcmp(histr, "*")) snprintf(histr, sizeof histr, "%ld", LONG_MAX);
 		} 
 		else {
-			strcpy(histr, lostr);
+			safestrncpy(histr, lostr, sizeof histr);
 		}
 		lo = atol(lostr);
 		hi = atol(histr);

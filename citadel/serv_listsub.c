@@ -83,13 +83,13 @@ void listsub_generate_token(char *buf) {
 void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 	struct ctdlroom qrbuf;
 	FILE *ncfp;
-	char filename[SIZ];
-	char token[SIZ];
-	char confirmation_request[SIZ];
-	char buf[SIZ];
-	char urlroom[SIZ];
-	char scancmd[SIZ];
-	char scanemail[SIZ];
+	char filename[256];
+	char token[256];
+	char confirmation_request[512];
+	char buf[512];
+	char urlroom[ROOMNAMELEN];
+	char scancmd[64];
+	char scanemail[256];
 	int found_sub = 0;
 
 	if (getroom(&qrbuf, room) != 0) {
@@ -116,8 +116,8 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 	if (ncfp != NULL) {
 		while (fgets(buf, sizeof buf, ncfp) != NULL) {
 			buf[strlen(buf)-1] = 0;
-			extract(scancmd, buf, 0);
-			extract(scanemail, buf, 1);
+			extract_token(scancmd, buf, 0, '|', sizeof scancmd);
+			extract_token(scanemail, buf, 1, '|', sizeof scanemail);
 			if ((!strcasecmp(scancmd, "listrecp"))
 			   || (!strcasecmp(scancmd, "digestrecp"))) {
 				if (!strcasecmp(scanemail, email)) {
@@ -195,13 +195,13 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 void do_unsubscribe(char *room, char *email, char *webpage) {
 	struct ctdlroom qrbuf;
 	FILE *ncfp;
-	char filename[SIZ];
-	char token[SIZ];
-	char buf[SIZ];
-	char confirmation_request[SIZ];
-	char urlroom[SIZ];
-	char scancmd[SIZ];
-	char scanemail[SIZ];
+	char filename[256];
+	char token[256];
+	char buf[512];
+	char confirmation_request[512];
+	char urlroom[ROOMNAMELEN];
+	char scancmd[256];
+	char scanemail[256];
 	int found_sub = 0;
 
 	if (getroom(&qrbuf, room) != 0) {
@@ -229,8 +229,8 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
 	if (ncfp != NULL) {
 		while (fgets(buf, sizeof buf, ncfp) != NULL) {
 			buf[strlen(buf)-1] = 0;
-			extract(scancmd, buf, 0);
-			extract(scanemail, buf, 1);
+			extract_token(scancmd, buf, 0, '|', sizeof scancmd);
+			extract_token(scanemail, buf, 1, '|', sizeof scanemail);
 			if ((!strcasecmp(scancmd, "listrecp"))
 			   || (!strcasecmp(scancmd, "digestrecp"))) {
 				if (!strcasecmp(scanemail, email)) {
@@ -309,18 +309,18 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
 void do_confirm(char *room, char *token) {
 	struct ctdlroom qrbuf;
 	FILE *ncfp;
-	char filename[SIZ];
-	char line_token[SIZ];
+	char filename[256];
+	char line_token[256];
 	long line_offset;
 	int line_length;
-	char buf[SIZ];
-	char cmd[SIZ];
-	char email[SIZ];
-	char subtype[SIZ];
+	char buf[512];
+	char cmd[256];
+	char email[256];
+	char subtype[128];
 	int success = 0;
-	char address_to_unsubscribe[SIZ];
-	char scancmd[SIZ];
-	char scanemail[SIZ];
+	char address_to_unsubscribe[256];
+	char scancmd[256];
+	char scanemail[256];
 	char *holdbuf = NULL;
 	int linelen = 0;
 	int buflen = 0;
@@ -352,17 +352,17 @@ void do_confirm(char *room, char *token) {
 		      (fgets(buf, sizeof buf, ncfp) != NULL) ) {
 			buf[strlen(buf)-1] = 0;
 			line_length = strlen(buf);
-			extract(cmd, buf, 0);
+			extract_token(cmd, buf, 0, '|', sizeof cmd);
 			if (!strcasecmp(cmd, "subpending")) {
-				extract(email, buf, 1);
-				extract(subtype, buf, 2);
-				extract(line_token, buf, 3);
+				extract_token(email, buf, 1, '|', sizeof email);
+				extract_token(subtype, buf, 2, '|', sizeof subtype);
+				extract_token(line_token, buf, 3, '|', sizeof line_token);
 				if (!strcasecmp(token, line_token)) {
 					if (!strcasecmp(subtype, "digest")) {
-						strcpy(buf, "digestrecp|");
+						safestrncpy(buf, "digestrecp|", sizeof buf);
 					}
 					else {
-						strcpy(buf, "listrecp|");
+						safestrncpy(buf, "listrecp|", sizeof buf);
 					}
 					strcat(buf, email);
 					strcat(buf, "|");
@@ -379,9 +379,10 @@ void do_confirm(char *room, char *token) {
 				}
 			}
 			if (!strcasecmp(cmd, "unsubpending")) {
-				extract(line_token, buf, 2);
+				extract_token(line_token, buf, 2, '|', sizeof line_token);
 				if (!strcasecmp(token, line_token)) {
-					extract(address_to_unsubscribe, buf, 1);
+					extract_token(address_to_unsubscribe, buf, 1, '|',
+						sizeof address_to_unsubscribe);
 				}
 			}
 		}
@@ -402,8 +403,8 @@ void do_confirm(char *room, char *token) {
 			while (line_offset = ftell(ncfp),
 			      (fgets(buf, sizeof buf, ncfp) != NULL) ) {
 				buf[strlen(buf)-1]=0;
-				extract(scancmd, buf, 0);
-				extract(scanemail, buf, 1);
+				extract_token(scancmd, buf, 0, '|', sizeof scancmd);
+				extract_token(scanemail, buf, 1, '|', sizeof scanemail);
 				if ( (!strcasecmp(scancmd, "listrecp"))
 				   && (!strcasecmp(scanemail,
 						address_to_unsubscribe)) ) {
@@ -464,37 +465,37 @@ void do_confirm(char *room, char *token) {
  */
 void cmd_subs(char *cmdbuf) {
 
-	char opr[SIZ];
-	char room[SIZ];
-	char email[SIZ];
-	char subtype[SIZ];
-	char token[SIZ];
-	char webpage[SIZ];
+	char opr[256];
+	char room[ROOMNAMELEN];
+	char email[256];
+	char subtype[256];
+	char token[256];
+	char webpage[256];
 
-	extract(opr, cmdbuf, 0);
+	extract_token(opr, cmdbuf, 0, '|', sizeof opr);
 	if (!strcasecmp(opr, "subscribe")) {
-		extract(subtype, cmdbuf, 3);
+		extract_token(subtype, cmdbuf, 3, '|', sizeof subtype);
 		if ( (strcasecmp(subtype, "list"))
 		   && (strcasecmp(subtype, "digest")) ) {
 			cprintf("%d Invalid subscription type '%s'\n",
 				ERROR + ILLEGAL_VALUE, subtype);
 		}
 		else {
-			extract(room, cmdbuf, 1);
-			extract(email, cmdbuf, 2);
-			extract(webpage, cmdbuf, 4);
+			extract_token(room, cmdbuf, 1, '|', sizeof room);
+			extract_token(email, cmdbuf, 2, '|', sizeof email);
+			extract_token(webpage, cmdbuf, 4, '|', sizeof webpage);
 			do_subscribe(room, email, subtype, webpage);
 		}
 	}
 	else if (!strcasecmp(opr, "unsubscribe")) {
-		extract(room, cmdbuf, 1);
-		extract(email, cmdbuf, 2);
-		extract(webpage, cmdbuf, 3);
+		extract_token(room, cmdbuf, 1, '|', sizeof room);
+		extract_token(email, cmdbuf, 2, '|', sizeof email);
+		extract_token(webpage, cmdbuf, 3, '|', sizeof webpage);
 		do_unsubscribe(room, email, webpage);
 	}
 	else if (!strcasecmp(opr, "confirm")) {
-		extract(room, cmdbuf, 1);
-		extract(token, cmdbuf, 2);
+		extract_token(room, cmdbuf, 1, '|', sizeof room);
+		extract_token(token, cmdbuf, 2, '|', sizeof token);
 		do_confirm(room, token);
 	}
 	else {

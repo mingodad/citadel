@@ -573,7 +573,7 @@ void artv_do_import(void) {
 
 
 void cmd_artv(char *cmdbuf) {
-	char cmd[SIZ];
+	char cmd[32];
 	static int is_running = 0;
 
 	if (CtdlAccessCheck(ac_internal)) return;
@@ -587,7 +587,7 @@ void cmd_artv(char *cmdbuf) {
 	strcpy(artv_tempfilename1, tmpnam(NULL));
 	strcpy(artv_tempfilename2, tmpnam(NULL));
 
-	extract(cmd, cmdbuf, 0);
+	extract_token(cmd, cmdbuf, 0, '|', sizeof cmd);
 	if (!strcasecmp(cmd, "export")) artv_do_export();
 	else if (!strcasecmp(cmd, "import")) artv_do_import();
 	else cprintf("%d illegal command\n", ERROR + ILLEGAL_VALUE);

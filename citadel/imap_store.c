@@ -113,8 +113,8 @@ void imap_do_store(int num_items, char **itemlist) {
 	int i, j;
 	unsigned int bits_to_twiddle = 0;
 	char *oper;
-	char flag[SIZ];
-	char whichflags[SIZ];
+	char flag[32];
+	char whichflags[256];
 	char num_flags;
 
 	if (num_items < 2) return;
@@ -122,7 +122,7 @@ void imap_do_store(int num_items, char **itemlist) {
 
 	for (i=1; i<num_items; ++i) {
 		strcpy(whichflags, itemlist[i]);
-		if (whichflags[0]=='(') strcpy(whichflags, &whichflags[1]);
+		if (whichflags[0]=='(') safestrncpy(whichflags, &whichflags[1], sizeof whichflags);
 		if (whichflags[strlen(whichflags)-1]==')') {
 			whichflags[strlen(whichflags)-1]=0;
 		}
@@ -134,7 +134,7 @@ void imap_do_store(int num_items, char **itemlist) {
 		 */
 		num_flags = num_tokens(whichflags, ' ');
 		for (j=0; j<num_flags; ++j) {
-			extract_token(flag, whichflags, j, ' ');
+			extract_token(flag, whichflags, j, ' ', sizeof flag);
 
 			if ((!strcasecmp(flag, "\\Deleted"))
 			   || (!strcasecmp(flag, "Deleted"))) {

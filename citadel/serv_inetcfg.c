@@ -61,7 +61,7 @@ void inetcfg_setTo(struct CtdlMessage *msg) {
 
 	if (conf != NULL) {
 		do {
-			extract_token(buf, conf, 0, '\n');
+			extract_token(buf, conf, 0, '\n', sizeof buf);
 			strcpy(conf, &conf[strlen(buf)+1]);
 		} while ( (strlen(conf)>0) && (strlen(buf)>0) );
 
@@ -93,7 +93,7 @@ void spamstrings_setTo(struct CtdlMessage *msg) {
 
 	n = num_tokens(conf, '\n');
 	for (i=0; i<n; ++i) {
-		extract_token(buf, conf, i, '\n');
+		extract_token(buf, conf, i, '\n', sizeof buf);
 		sptr = malloc(sizeof(struct spamstrings_t));
 		sptr->string = strdup(buf);
 		sptr->next = spamstrings;

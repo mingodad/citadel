@@ -90,16 +90,16 @@ void entregis(CtdlIPC *ipc)
 {				/* register with name and address */
 
 	char buf[SIZ];
-	char tmpname[SIZ];
-	char tmpaddr[SIZ];
-	char tmpcity[SIZ];
-	char tmpstate[SIZ];
-	char tmpzip[SIZ];
-	char tmpphone[SIZ];
+	char tmpname[30];
+	char tmpaddr[25];
+	char tmpcity[15];
+	char tmpstate[3];
+	char tmpzip[11];
+	char tmpphone[15];
 	char tmpemail[SIZ];
-	char tmpcountry[SIZ];
-	char diruser[SIZ];
-	char dirnode[SIZ];
+	char tmpcountry[32];
+	char diruser[256];
+	char dirnode[256];
 	char holdemail[SIZ];
 	char *reg = NULL;
 	int ok = 0;
@@ -120,25 +120,25 @@ void entregis(CtdlIPC *ipc)
 
 		while (reg && strlen(reg) > 0) {
 
-			extract_token(buf, reg, 0, '\n');
+			extract_token(buf, reg, 0, '\n', sizeof buf);
 			remove_token(reg, 0, '\n');
 
 			if (a == 2)
-				strcpy(tmpname, buf);
+				safestrncpy(tmpname, buf, sizeof tmpname);
 			else if (a == 3)
-				strcpy(tmpaddr, buf);
+				safestrncpy(tmpaddr, buf, sizeof tmpaddr);
 			else if (a == 4)
-				strcpy(tmpcity, buf);
+				safestrncpy(tmpcity, buf, sizeof tmpcity);
 			else if (a == 5)
-				strcpy(tmpstate, buf);
+				safestrncpy(tmpstate, buf, sizeof tmpstate);
 			else if (a == 6)
-				strcpy(tmpzip, buf);
+				safestrncpy(tmpzip, buf, sizeof tmpzip);
 			else if (a == 7)
-				strcpy(tmpphone, buf);
+				safestrncpy(tmpphone, buf, sizeof tmpphone);
 			else if (a == 9)
-				strcpy(tmpemail, buf);
+				safestrncpy(tmpemail, buf, sizeof tmpemail);
 			else if (a == 10)
-				strcpy(tmpcountry, buf);
+				safestrncpy(tmpcountry, buf, sizeof tmpcountry);
 			++a;
 		}
 	}
@@ -152,12 +152,12 @@ void entregis(CtdlIPC *ipc)
 
 	do {
 		ok = 1;
-		strcpy(holdemail, tmpemail);
+		safestrncpy(holdemail, tmpemail, sizeof holdemail);
 		strprompt("Email address", tmpemail, 31);
 		r = CtdlIPCDirectoryLookup(ipc, tmpemail, buf);
 		if (r / 100 == 2) {
-			extract_token(diruser, buf, 0, '@');
-			extract_token(dirnode, buf, 1, '@');
+			extract_token(diruser, buf, 0, '@', sizeof diruser);
+			extract_token(dirnode, buf, 1, '@', sizeof dirnode);
 			striplt(diruser);
 			striplt(dirnode);
 			if ((strcasecmp(diruser, fullname))
@@ -169,13 +169,13 @@ void entregis(CtdlIPC *ipc)
 					"It is already in use by %s @ %s.\n",
 					diruser, dirnode);
 				ok = 0;
-				strcpy(tmpemail, holdemail);
+				safestrncpy(tmpemail, holdemail, sizeof tmpemail);
 			}
 		}
 	} while (ok == 0);
 
 	/* now send the registration info back to the server */
-	reg = (char *)realloc(reg, 4096);	/* Overkill? */
+	reg = (char *)realloc(reg, SIZ);
 	if (reg) {
 		sprintf(reg, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
 			tmpname, tmpaddr, tmpcity, tmpstate,
@@ -259,7 +259,7 @@ void cli_upload(CtdlIPC *ipc)
 		if (haschar(tbuf, '/'))
 			extract_token(tbuf, flnm,
 				num_tokens(tbuf, '/') - 1,
-				'/'
+				'/', sizeof tbuf
 			);
 		/* filename.1, filename.2, etc */
 		if (a > 0) {
@@ -425,7 +425,7 @@ int val_user(CtdlIPC *ipc, char *user, int do_validate)
 	if (r / 100 == 1) {
 		a = 0;
 		do {
-			extract_token(buf, resp, 0, '\n');
+			extract_token(buf, resp, 0, '\n', sizeof buf);
 			remove_token(resp, 0, '\n');
 			++a;
 			if (a == 1)
@@ -501,7 +501,7 @@ void validate(CtdlIPC *ipc)
 		if (r / 100 == 2)
 			scr_printf("%s\n", cmd);
 		if (r / 100 == 3) {
-			extract(buf, cmd, 0);
+			extract_token(buf, cmd, 0, '|', sizeof buf);
 			if (val_user(ipc, buf, 1) != 0) finished = 1;
 		}
 	} while (finished == 0);
@@ -593,7 +593,7 @@ void list_bio(CtdlIPC *ipc)
 		return;
 	}
 	while (strlen(resp)) {
-		extract_token(buf, resp, 0, '\n');
+		extract_token(buf, resp, 0, '\n', sizeof buf);
 		remove_token(resp, 0, '\n');
 		if ((pos + strlen(buf) + 5) > screenwidth) {
 			pprintf("\n");
@@ -630,7 +630,7 @@ void read_bio(CtdlIPC *ipc)
 		return;
 	}
 	while (strlen(resp)) {
-		extract_token(buf, resp, 0, '\n');
+		extract_token(buf, resp, 0, '\n', sizeof buf);
 		remove_token(resp, 0, '\n');
 		pprintf("%s\n", buf);
 	}
@@ -663,7 +663,7 @@ void do_system_configuration(CtdlIPC *ipc)
 	if (r / 100 == 1) {
 		a = 0;
 		while (strlen(resp)) {
-			extract_token(buf, resp, 0, '\n');
+			extract_token(buf, resp, 0, '\n', sizeof buf);
 			remove_token(resp, 0, '\n');
 			if (a < NUM_CONFIGS) {
 				strcpy(&sc[a][0], buf);
@@ -916,7 +916,7 @@ void do_internet_configuration(CtdlIPC *ipc)
 	r = CtdlIPCGetSystemConfigByType(ipc, INTERNETCFG, &resp, buf);
 	if (r / 100 == 1) {
 		while (strlen(resp)) {
-			extract_token(buf, resp, 0, '\n');
+			extract_token(buf, resp, 0, '\n', sizeof buf);
 			remove_token(resp, 0, '\n');
 			++num_recs;
 			if (num_recs == 1) recs = malloc(sizeof(char *));
@@ -936,10 +936,10 @@ void do_internet_configuration(CtdlIPC *ipc)
 		for (i=0; i<num_recs; ++i) {
 		color(DIM_WHITE);
 		scr_printf("%3d ", i+1);
-		extract(buf, recs[i], 0);
+		extract_token(buf, recs[i], 0, '|', sizeof buf);
 		color(BRIGHT_CYAN);
 		scr_printf("%-50s ", buf);
-		extract(buf, recs[i], 1);
+		extract_token(buf, recs[i], 1, '|', sizeof buf);
 		color(BRIGHT_MAGENTA);
 		scr_printf("%-20s\n", buf);
 		color(DIM_WHITE);
@@ -1053,13 +1053,13 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 	r = CtdlIPCGetRoomNetworkConfig(ipc, &listing, buf);
 	if (r / 100 == 1) {
 		while(listing && strlen(listing)) {
-			extract_token(buf, listing, 0, '\n');
+			extract_token(buf, listing, 0, '\n', sizeof buf);
 			remove_token(listing, 0, '\n');
-			extract(instr, buf, 0);
+			extract_token(instr, buf, 0, '|', sizeof instr);
 			if (!strcasecmp(instr, entrytype)) {
 				tokens = num_tokens(buf, '|');
 				for (i=1; i<tokens; ++i) {
-					extract(addr, buf, i);
+					extract_token(addr, buf, i, '|', sizeof addr);
 					fprintf(tempfp, "%s", addr);
 					if (i < (tokens-1)) {
 						fprintf(tempfp, "|");
@@ -1106,9 +1106,9 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 		r = CtdlIPCGetRoomNetworkConfig(ipc, &listing, buf);
 		if (r / 100 == 1) {
 			while(listing && strlen(listing)) {
-				extract_token(buf, listing, 0, '\n');
+				extract_token(buf, listing, 0, '\n', sizeof buf);
 				remove_token(listing, 0, '\n');
-				extract(instr, buf, 0);
+				extract_token(instr, buf, 0, '|', sizeof instr);
 				if (strcasecmp(instr, entrytype)) {
 					fprintf(changefp, "%s\n", buf);
 				}
@@ -1166,7 +1166,7 @@ void do_ignet_configuration(CtdlIPC *ipc) {
 
 	r = CtdlIPCGetSystemConfigByType(ipc, IGNETCFG, &listing, buf);
 	if (r / 100 == 1) while (*listing && strlen(listing)) {
-		extract_token(buf, listing, 0, '\n');
+		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
 
 		++num_recs;
@@ -1194,16 +1194,16 @@ void do_ignet_configuration(CtdlIPC *ipc) {
 		for (i=0; i<num_recs; ++i) {
 		color(DIM_WHITE);
 		scr_printf("%3d ", i+1);
-		extract(buf, recs[i], 0);
+		extract_token(buf, recs[i], 0, '|', sizeof buf);
 		color(BRIGHT_CYAN);
 		scr_printf("%-16s ", buf);
-		extract(buf, recs[i], 1);
+		extract_token(buf, recs[i], 1, '|', sizeof buf);
 		color(BRIGHT_MAGENTA);
 		scr_printf("%-18s ", buf);
-		extract(buf, recs[i], 2);
+		extract_token(buf, recs[i], 2, '|', sizeof buf);
 		color(BRIGHT_CYAN);
 		scr_printf("%-32s ", buf);
-		extract(buf, recs[i], 3);
+		extract_token(buf, recs[i], 3, '|', sizeof buf);
 		color(BRIGHT_MAGENTA);
 		scr_printf("%-3s\n", buf);
 		color(DIM_WHITE);
@@ -1294,7 +1294,7 @@ void do_filterlist_configuration(CtdlIPC *ipc)
 
 	r = CtdlIPCGetSystemConfigByType(ipc, FILTERLIST, &listing, buf);
 	if (r / 100 == 1) while (*listing && strlen(listing)) {
-		extract_token(buf, listing, 0, '\n');
+		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
 
 		++num_recs;
@@ -1322,16 +1322,16 @@ void do_filterlist_configuration(CtdlIPC *ipc)
 		for (i=0; i<num_recs; ++i) {
 		color(DIM_WHITE);
 		scr_printf("%3d ", i+1);
-		extract(buf, recs[i], 0);
+		extract_token(buf, recs[i], 0, '|', sizeof buf);
 		color(BRIGHT_CYAN);
 		scr_printf("%-28s ", buf);
-		extract(buf, recs[i], 1);
+		extract_token(buf, recs[i], 1, '|', sizeof buf);
 		color(BRIGHT_MAGENTA);
 		scr_printf("%-28s ", buf);
-		extract(buf, recs[i], 2);
+		extract_token(buf, recs[i], 2, '|', sizeof buf);
 		color(BRIGHT_CYAN);
 		scr_printf("%-16s\n", buf);
-		extract(buf, recs[i], 3);
+		extract_token(buf, recs[i], 3, '|', sizeof buf);
 		color(DIM_WHITE);
 		}
 

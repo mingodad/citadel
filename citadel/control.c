@@ -153,15 +153,15 @@ long get_new_room_number(void)
  */
 void cmd_conf(char *argbuf)
 {
-	char cmd[SIZ];
-	char buf[SIZ];
+	char cmd[16];
+	char buf[256];
 	int a;
 	char *confptr;
-	char confname[SIZ];
+	char confname[128];
 
 	if (CtdlAccessCheck(ac_aide)) return;
 
-	extract(cmd, argbuf, 0);
+	extract_token(cmd, argbuf, 0, '|', sizeof cmd);
 	if (!strcasecmp(cmd, "GET")) {
 		cprintf("%d Configuration...\n", LISTING_FOLLOWS);
 		cprintf("%s\n", config.c_nodename);
@@ -402,7 +402,7 @@ void cmd_conf(char *argbuf)
 	}
 
 	else if (!strcasecmp(cmd, "GETSYS")) {
-		extract(confname, argbuf, 1);
+		extract_token(confname, argbuf, 1, '|', sizeof confname);
 		confptr = CtdlGetSysConfig(confname);
 		if (confptr != NULL) {
 			cprintf("%d %s\n", LISTING_FOLLOWS, confname);
@@ -418,7 +418,7 @@ void cmd_conf(char *argbuf)
 	}
 
 	else if (!strcasecmp(cmd, "PUTSYS")) {
-		extract(confname, argbuf, 1);
+		extract_token(confname, argbuf, 1, '|', sizeof confname);
 		unbuffer_output();
 		cprintf("%d %s\n", SEND_LISTING, confname);
 		confptr = CtdlReadMessageBody("000",
