@@ -88,12 +88,10 @@ static volatile int count = 0;	/* Total count of messages posted */
 static volatile int total = 0;	/* Total messages to be posted */
 static pthread_mutex_t count_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t arg_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t output_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static char username[12];
 static char password[12];
-
-static char* hostname = NULL;
-static char* portname = NULL;
 
 /*
  * Mutex for the random number generator
@@ -109,17 +107,6 @@ static pthread_mutex_t rand_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t start_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t start_cond = PTHREAD_COND_INITIALIZER;
 
-/*
- * connection died; hang it up
- */
-#if 0
-void connection_died(CtdlIPC* ipc, int using_ssl)
-{
-	CtdlIPC_delete(ipc);
-	pthread_exit(NULL);
-}
-#endif
-
 
 /*
  * This is the worker thread.  It logs in and creates the 1,000 messages
@@ -134,31 +121,28 @@ void* worker(void* data)
 	int c;		/* Message count */
 	time_t start, end;	/* Timestamps */
 	struct ctdlipcmessage msg;	/* The message we will post */
-	int* argc_;
-	char*** argv_;
+	int argc_;
+	char** argv_;
+	long tmin = LONG_MAX, trun = 0, tmax = LONG_MIN;
 
 	args = (void*)data;
-	argc_ = (int*)args[0];
-	argv_ = (char***)args[1];
-	fprintf(stderr, "Set argc to %x\n", argc_);
-	fprintf(stderr, "Set argv to %x\n", argv_);
+	argc_ = (int)args[0];
+	argv_ = (char**)args[1];
 
 	/* Setup the message we will be posting */
-	msg.text = (char*)message;
+	msg.text = message;
 	msg.anonymous = 0;
 	msg.type = 1;
 	strcpy(msg.recipient, "");
 	strcpy(msg.subject, "Test message; ignore");
 	strcpy(msg.author, username);
 
-	fprintf(stderr, "Trying to connect to Citadel\n");
 	pthread_mutex_lock(&arg_mutex);
-	ipc = CtdlIPC_new(*argc_, *argv_, "", "");
+	ipc = CtdlIPC_new(argc_, argv_, NULL, NULL);
 	pthread_mutex_unlock(&arg_mutex);
 	if (!ipc)
 		return NULL;	/* oops, something happened... */
 
-	fprintf(stderr, "Trying to login to Citadel\n");
 	CtdlIPC_chat_recv(ipc, aaa);
 	if (aaa[0] != '2') {
 		fprintf(stderr, "Citadel refused me: %s\n", &aaa[4]);
@@ -200,7 +184,9 @@ void* worker(void* data)
 	}
 
 	/* Wait for the rest of the threads */
+	pthread_mutex_lock(&start_mutex);
 	pthread_cond_wait(&start_cond, &start_mutex);
+	pthread_mutex_unlock(&start_mutex);
 
 	/* And now the fun begins!  Send out a whole shitload of messages */
 	start = time(NULL);
@@ -208,18 +194,35 @@ void* worker(void* data)
 		int rm;
 		char room[7];
 		struct ctdlipcroom *rret;
+		struct timeval tv;
+		long tstart, tend;
 
+		gettimeofday(&tv, NULL);
+		tstart = tv.tv_sec * 1000 + tv.tv_usec / 1000; /* cvt to msec */
 		/* Select the room to goto */
 		pthread_mutex_lock(&rand_mutex);
 		/* See Numerical Recipes in C or Knuth vol. 2 ch. 3 */
-		rm = (int)(99.0*rand()/(RAND_MAX+1.0));
+		rm = (int)(100.0*rand()/(RAND_MAX+1.0)); /* range 0-99 */
 		pthread_mutex_unlock(&rand_mutex);
 
 		/* Goto the selected room */
 		sprintf(room, "test%d", rm);
+		/* Create the room if not existing. Ignore the return */
+		r = CtdlIPCCreateRoom(ipc, 1, room, 0, NULL, 0, aaa);
+		if (r / 100 != 2 && r != 574) {	/* Already exists */
+			fprintf(stderr, "Citadel refused room create: %s\n", aaa);
+			pthread_mutex_lock(&count_mutex);
+			total -= m - c;
+			pthread_mutex_unlock(&count_mutex);
+			CtdlIPC_delete_ptr(&ipc);
+			return NULL;
+		}
 		r = CtdlIPCGotoRoom(ipc, room, "", &rret, aaa);
 		if (r / 100 != 2) {
 			fprintf(stderr, "Citadel refused room change: %s\n", aaa);
+			pthread_mutex_lock(&count_mutex);
+			total -= m - c;
+			pthread_mutex_unlock(&count_mutex);
 			CtdlIPC_delete_ptr(&ipc);
 			return NULL;
 		}
@@ -228,6 +231,9 @@ void* worker(void* data)
 		r = CtdlIPCPostMessage(ipc, 1, &msg, aaa);
 		if (r / 100 != 4) {
 			fprintf(stderr, "Citadel refused message entry: %s\n", aaa);
+			pthread_mutex_lock(&count_mutex);
+			total -= m - c;
+			pthread_mutex_unlock(&count_mutex);
 			CtdlIPC_delete_ptr(&ipc);
 			return NULL;
 		}
@@ -237,16 +243,24 @@ void* worker(void* data)
 			pthread_mutex_lock(&count_mutex);
 			count++;
 			pthread_mutex_unlock(&count_mutex);
-			if (!(count % 20))
-				fprintf(stderr, "%d of %d - %d%%        \r",
-					count, total,
-					(int)(100 * count / total));
+			fprintf(stderr, "%d of %d - %d%%        \r",
+				count, total,
+				(int)(100 * count / total));
 		}
+		gettimeofday(&tv, NULL);
+		tend = tv.tv_sec * 1000 + tv.tv_usec / 1000; /* cvt to msec */
+		tend -= tstart;
+		if (tend < tmin) tmin = tend;
+		if (tend > tmax) tmax = tend;
+		trun += tend;
+
 		/* Wait for a while */
 		sleep(w);
 	}
 	end = time(NULL);
-	printf("%ld\n", end - start);
+	pthread_mutex_lock(&output_mutex);
+	printf("%ld %ld %ld %ld\n", end - start, tmin, trun / c, tmax);
+	pthread_mutex_unlock(&output_mutex);
 	return (void*)(end - start);
 }
 
@@ -271,12 +285,10 @@ int shift(int argc, char **argv, int start, int count)
 int main(int argc, char** argv)
 {
 	void* data[2];		/* pass args to worker thread */
-	pthread_t** threads;	/* A shitload of threads */
+	pthread_t* threads;	/* A shitload of threads */
 	pthread_attr_t attr;	/* Thread attributes (we use defaults) */
 	int i;			/* Counters */
 	long runtime;		/* Run time for each thread */
-
-	setvbuf(stderr, NULL, _IONBF, 0);
 
 	/* Read argument list */
 	for (i = 0; i < argc; i++) {
@@ -300,9 +312,6 @@ int main(int argc, char** argv)
 
 	data[0] = (void*)argc;	/* pass args to worker thread */
 	data[1] = (void*)argv;	/* pass args to worker thread */
-	fprintf(stderr, "Set data[0] to %x\n", data[0]);
-	fprintf(stderr, "Set data[1] to %x\n", data[1]);
-	fprintf(stderr, "Data is at %x\n", data);
 
 	/* This is how many total messages will be posted */
 	total = n * m;
@@ -310,14 +319,13 @@ int main(int argc, char** argv)
 	/* Pick a randomized username */
 	pthread_mutex_lock(&rand_mutex);
 	/* See Numerical Recipes in C or Knuth vol. 2 ch. 3 */
-	i = (int)(99.0*rand()/(RAND_MAX+1.0));
+	i = (int)(100.0*rand()/(RAND_MAX+1.0));	/* range 0-99 */
 	pthread_mutex_unlock(&rand_mutex);
 	sprintf(username, "testuser%d", i);
 	strcpy(password, username);
 
-	fprintf(stderr, "Allocating threads\n");
 	/* First, memory for our shitload of threads */
-	threads = calloc(n, sizeof(pthread_t*));
+	threads = calloc(n, sizeof(pthread_t));
 	if (!threads) {
 		perror("Not enough memory");
 		return 1;
@@ -329,8 +337,7 @@ int main(int argc, char** argv)
 
 	/* Then, create some threads */
 	for (i = 0; i < n; ++i) {
-		fprintf(stderr, "\rCreating thread %d", i);
-		pthread_create(threads[i], &attr, worker, (void*)data);
+		pthread_create(&threads[i], &attr, worker, (void*)data);
 	}
 
 	fprintf(stderr, "Starting in 10 seconds\r");
@@ -344,7 +351,7 @@ int main(int argc, char** argv)
 
 	/* Then wait for them to exit */
 	for (i = 0; i < n; i++) {
-		pthread_join(*(threads[i]), (void*)&runtime);
+		pthread_join(threads[i], (void*)&runtime);
 		/* We're ignoring this value for now... TODO */
 	}
 	fprintf(stderr, "\r                                                                               \r");

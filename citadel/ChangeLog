@@ -1,4 +1,10 @@
  $Log$
+ Revision 614.89  2004/03/21 17:14:46  error
+ * stress.c: Fixed.  Now properly spawns threads and stresses out your
+   favorite Citadel server by simulating large numbers of really active
+   users.  (It's configurable on the command line, too, to vary the stress
+   level.)  Don't use it against a production system!  You've been warned!
+
  Revision 614.88  2004/03/21 17:13:15  error
  * configure.ac: Fix for defines for pthreads not being included properly
 
@@ -5559,4 +5565,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -2855,8 +2855,9 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 	char cithost[SIZ];
 	char citport[SIZ];
 	char sockpath[SIZ];
+	CtdlIPC* ipc;
 
-	CtdlIPC *ipc = ialloc(CtdlIPC);
+	ipc = ialloc(CtdlIPC);
 	if (!ipc) {
 		return 0;
 	}
