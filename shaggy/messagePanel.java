@@ -167,7 +167,7 @@ public class messagePanel extends JPanel {
 		    blurb.setText( "<error>" );
 		    message.setText( r.getArg(0) );
 		} else {
-		    message msg = new message( msgs.size(), cur_pos, r );
+		    message msg = new message( ri, msgs.size(), cur_pos, r );
 		    blurb.setText( msg.getBlurb() );
 		    message.setText( msg.getText() );
 		    int n = citadel.atoi( num );

@@ -4,7 +4,7 @@ public class message {
     String	blurb;
     String	message;
 
-    public message( int count, int cur_pos, citReply r ) {
+    public message( roomInfo ri, int count, int cur_pos, citReply r ) {
 	Vector	msg = r.listing;
 
 	String	s, from="", time="", room="", node="", rcpt="";
@@ -25,8 +25,8 @@ public class message {
 	    blurb = blurb + " (@"+node+")";
 	if( !rcpt.equals( "" ) )
 	    blurb = blurb + " to " + rcpt;
-	/*	if( !room.equals(name) )	FIXME
-		blurb = blurb + " in " + room; */
+	if( !room.equals( ri.name) )
+	  blurb = blurb + " in " + room;
    
 	/* this relies on the fact that we've removed
 	   the header lines above.  probably a messy way 

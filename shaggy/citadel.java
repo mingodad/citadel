@@ -16,6 +16,7 @@ public class citadel {
     user	      	theUser;
     roomMap		rooms;
     roomFrame		rf;
+    whoOnlineWindow	wo = null;
 
     public static void main( String args[] ) {
 	new citadel();

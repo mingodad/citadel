@@ -30,6 +30,10 @@ public class Queue {
 			tail = null;
 		return o;
 		}
+
+  public boolean empty() {
+    return( head == null );
+  }
 	}
 
 class QElement {

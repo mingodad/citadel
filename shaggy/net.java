@@ -113,7 +113,14 @@ public class net implements Runnable {
 		    } catch( Exception e ) {}
 
 		    System.out.println( "Idle event" );
-		    citadel.me.networkEvent( "NOOP" );
+		    if( citadel.me.wo == null ) {
+		      if( theQueue.empty() )
+			citadel.me.networkEvent( "NOOP" );
+		      else
+			System.out.println( "...events pending" );
+		    }
+		    else
+			citadel.me.wo.refresh();
 		}
 	    } };
 
@@ -127,6 +134,7 @@ public class net implements Runnable {
 	}
 
 	try {
+	if( theSocket != null )
 	    theSocket.close();
 	} catch( IOException ioe ) {
 	}
