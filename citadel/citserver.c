@@ -371,7 +371,7 @@ void cmd_uchg(char *argbuf)
  * returns an asterisk if there are any express messages waiting,
  * space otherwise.
  */
-char check_express(void) {
+char CtdlCheckExpress(void) {
 	if (CC->FirstExpressMessage == NULL) {
 		return(' ');
 		}
@@ -659,90 +659,6 @@ void GenerateRoomDisplay(char *real_room,
 }
 
 
-/*
- * who's online
- */
-void cmd_rwho(void) {
-	struct CitContext *cptr;
-	int spoofed = 0;
-	int aide;
-	char un[40];
-	char real_room[ROOMNAMELEN], room[ROOMNAMELEN];
-	char host[40], flags[5];
-	
-	aide = CC->usersupp.axlevel >= 6;
-	cprintf("%d%c \n", LISTING_FOLLOWS, check_express() );
-	
-	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) 
-	{
-		flags[0] = '\0';
-		spoofed = 0;
-		
-		if (cptr->cs_flags & CS_POSTING)
-		   strcat(flags, "*");
-		else
-		   strcat(flags, ".");
-		   
-		if (cptr->fake_username[0])
-		{
-		   strcpy(un, cptr->fake_username);
-		   spoofed = 1;
-		}
-		else
-		   strcpy(un, cptr->curr_user);
-		   
-		if (cptr->fake_hostname[0])
-		{
-		   strcpy(host, cptr->fake_hostname);
-		   spoofed = 1;
-		}
-		else
-		   strcpy(host, cptr->cs_host);
-
-		GenerateRoomDisplay(real_room, cptr, CC);
-
-		if (cptr->fake_roomname[0]) {
-			strcpy(room, cptr->fake_roomname);
-			spoofed = 1;
-		}
-		else {
-			strcpy(room, real_room);
-		}
-		
-                if ((aide) && (spoofed))
-                   strcat(flags, "+");
-		
-		if ((cptr->cs_flags & CS_STEALTH) && (aide))
-		   strcat(flags, "-");
-		
-		if (((cptr->cs_flags&CS_STEALTH)==0) || (aide))
-		{
-			cprintf("%d|%s|%s|%s|%s|%ld|%s|%s\n",
-				cptr->cs_pid, un, room,
-				host, cptr->cs_clientname,
-				(long)(cptr->lastidle),
-				cptr->lastcmdname, flags);
-		}
-		if ((spoofed) && (aide))
-		{
-			cprintf("%d|%s|%s|%s|%s|%ld|%s|%s\n",
-				cptr->cs_pid, cptr->curr_user,
-				real_room,
-				cptr->cs_host, cptr->cs_clientname,
-				(long)(cptr->lastidle),
-				cptr->lastcmdname, flags);
-		
-		}
-	}
-
-	/* Now it's magic time.  Before we finish, call any EVT_RWHO hooks
-	 * so that external paging modules such as serv_icq can add more
-	 * content to the Wholist.
-	 */
-	PerformSessionHooks(EVT_RWHO);
-	cprintf("000\n");
-	}
-
 
 /*
  * Terminate another running session
@@ -973,7 +889,7 @@ void do_command_loop(void) {
 	}
 		   
 	if (!strncasecmp(cmdbuf,"NOOP",4)) {
-		cprintf("%d%cok\n",OK,check_express());
+		cprintf("%d%cok\n",OK,CtdlCheckExpress());
 		}
 
 	else if (!strncasecmp(cmdbuf,"QUIT",4)) {
@@ -1168,10 +1084,6 @@ void do_command_loop(void) {
 
 	else if (!strncasecmp(cmdbuf,"NETF",4)) {
 		cmd_netf(&cmdbuf[5]);
-		}
-
-	else if (!strncasecmp(cmdbuf,"RWHO",4)) {
-		cmd_rwho();
 		}
 
 	else if (!strncasecmp(cmdbuf,"OPEN",4)) {

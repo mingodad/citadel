@@ -14,7 +14,6 @@ void cmd_iden (char *argbuf);
 void cmd_stel (char *cmdbuf);
 void cmd_mesg (char *mname);
 void cmd_emsg (char *mname);
-void cmd_rwho (void);
 void cmd_term (char *cmdbuf);
 void cmd_more (void);
 void cmd_echo (char *etext);
@@ -34,6 +33,5 @@ void citproto_begin_session(void);
 void GenerateRoomDisplay(char *real_room,
                         struct CitContext *viewed,
                         struct CitContext *viewer);
-
-
 extern int do_defrag;
+char CtdlCheckExpress(void);

@@ -680,7 +680,7 @@ void usergoto(char *where, int display_result)
 
 	if (display_result)
 		cprintf("%d%c%s|%d|%d|%d|%d|%ld|%ld|%d|%d|%d|%d\n",
-			OK, check_express(),
+			OK, CtdlCheckExpress(),
 			truncated_roomname,
 			new_messages, total_messages,
 			info, CC->quickroom.QRflags,
@@ -896,7 +896,7 @@ void cmd_getr(void)
 	}
 	getroom(&CC->quickroom, CC->quickroom.QRname);
 	cprintf("%d%c%s|%s|%s|%d|%d|%d\n",
-		OK, check_express(),
+		OK, CtdlCheckExpress(),
 		CC->quickroom.QRname,
 		((CC->quickroom.QRflags & QR_PASSWORDED) ? CC->quickroom.QRpasswd : ""),
 		((CC->quickroom.QRflags & QR_DIRECTORY) ? CC->quickroom.QRdirname : ""),
