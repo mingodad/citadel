@@ -179,7 +179,7 @@ void formout(char *name)
 }
 
 
-void userlist(void)
+void userlist(char *patn)
 {
 	char buf[256];
 	char fl[256];
@@ -199,7 +199,8 @@ void userlist(void)
 	printf("------------------------- ----- - ---------- ----- -----\n");
 	while (serv_gets(buf), strcmp(buf, "000")) {
 		if (sigcaught == 0) {
-			extract(fl, buf, 0);
+		    extract(fl, buf, 0);
+		    if (pattern(fl, patn) >= 0) {
 			printf("%-25s ", fl);
 			printf("%5ld %d ", extract_long(buf, 2),
 			       extract_int(buf, 1));
@@ -215,6 +216,7 @@ void userlist(void)
 			linecount = checkpagin(linecount,
 				    ((userflags & US_PAGINATOR) ? 1 : 0),
 					       screenheight);
+		    }
 
 		}
 	}
@@ -1091,7 +1093,7 @@ GSTA:	termn8 = 0;
 				killroom();
 				break;
 			case 32:
-				userlist();
+				userlist(argbuf);
 				break;
 			case 27:
 				invite();

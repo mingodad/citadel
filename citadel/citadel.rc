@@ -178,7 +178,14 @@ cmd=83,2,&.,&Aide,&System configuration,check &Message base
 
 cmd=29,0,&.,&Terminate,and &Quit
 cmd=30,0,&.,&Terminate,and &Stay online
+
+# The 'read user listing' command accepts two different formats.  The one with
+# the trailing colon allows the user to enter a few characters to search for
+# users with a partial match.
+#
 cmd=32,0,&.,&Read,&User listing
+cmd=32,0,&.,&Read,&User listing:
+
 cmd=33,0,&.,&Read,&Textfile formatted
 #
 # Command 55 allows the user to save a downloaded file directly to the
