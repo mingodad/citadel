@@ -70,7 +70,9 @@ int imap_do_copy(char *destination_folder) {
 		for (i = 0; i < IMAP->num_msgs; ++i) {
 			if (IMAP->flags[i] & IMAP_SELECTED) {
 				CtdlCopyMsgToRoom(
-					IMAP->msgids[i], roomname);
+					IMAP->msgids[i],
+					roomname
+				);
 			}
 		}
 	}

@@ -138,7 +138,7 @@ void imap_do_store(int num_items, char **itemlist) {
 			extract_token(flag, whichflags, j, ' ');
 
 			if ((!strcasecmp(flag, "\\Deleted"))
-			   || (!strcasecmp(flag, "\\Deleted"))) {
+			   || (!strcasecmp(flag, "Deleted"))) {
 				if (CtdlDoIHavePermissionToDeleteMessagesFromThisRoom()) {
 					bits_to_twiddle |= IMAP_DELETED;
 				}

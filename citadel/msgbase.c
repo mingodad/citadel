@@ -1959,23 +1959,17 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		break;
 	case 4:
 		strcpy(content_type, "text/plain");
-		/* advance past header fields */
-		mptr = msg->cm_fields['M'];
-		a = strlen(mptr);
-		while ((--a) > 0) {
-			if (!strncasecmp(mptr, "Content-type: ", 14)) {
-				safestrncpy(content_type, mptr,
-					    sizeof(content_type));
-				strcpy(content_type, &content_type[14]);
-				for (a = 0; a < strlen(content_type); ++a)
-					if ((content_type[a] == ';')
-					    || (content_type[a] == ' ')
-					    || (content_type[a] == 13)
-					    || (content_type[a] == 10))
-						content_type[a] = 0;
-				break;
+		mptr = bmstrstr(msg->cm_fields['M'], "Content-type: ", strncasecmp);
+		if (mptr != NULL) {
+			strcpy(content_type, &mptr[14]);
+			for (a = 0; a < strlen(content_type); ++a) {
+				if ((content_type[a] == ';')
+				    || (content_type[a] == ' ')
+				    || (content_type[a] == 13)
+				    || (content_type[a] == 10)) {
+					content_type[a] = 0;
+				}
 			}
-			++mptr;
 		}
 	}
 

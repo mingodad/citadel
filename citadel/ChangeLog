@@ -1,4 +1,8 @@
  $Log$
+ Revision 641.9  2005/03/01 04:24:52  ajc
+ * When saving an RFC822 message, use a less expensive algorithm to
+   search for the Content Type
+
  Revision 641.8  2005/02/28 20:32:50  ajc
  * IMAP APPEND command now accepts the message text using one big
    client_read() call instead of a bunch of smaller ones.
@@ -6458,4 +6462,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
