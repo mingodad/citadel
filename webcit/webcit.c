@@ -176,13 +176,6 @@ void wDumpContent(int print_standard_html_footer)
 {
 	if (print_standard_html_footer) {
 		wprintf("</DIV>\n");	/* end of "text" div */
-	
-		/* NAVBAR 
-		wprintf("<div id=\"navbar\">");
-		wprintf("FIXME the navbar should go here, dude...\n");
-		wprintf("</div>\n");
-		 */
-
 		do_template("trailing");
 	}
 
@@ -360,8 +353,6 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 ) {
 	char cookie[SIZ];
 	char httpnow[SIZ];
-	char onload_fcn[SIZ];
-	static int pageseq = 0;
 
 	wprintf("HTTP/1.0 200 OK\n");
 	httpdate(httpnow, time(NULL));
@@ -401,40 +392,18 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 				"<meta http-equiv=\"refresh\" content=\"500363689;\" />\n");
 		}
 
-		/* script for checking for pages (not always launched) */
-
-		sprintf(onload_fcn, "function onload_fcn() { \n");
-		if (!suppress_check) if (WC->HaveExpressMessages) {
-			strcat(onload_fcn, "  launch_page_popup();  \n");
-			WC->HaveExpressMessages = 0;
-		}
-		strcat(onload_fcn, "} \n");
-
-		svprintf("PAGERscript", WCS_STRING,
-			"<script type=\"text/javascript\">\n"
-			"function launch_page_popup() {\n"
-			"pwin = window.open('/page_popup', 'CitaPage%d', "
-			"'toolbar=no,location=no,copyhistory=no,status=no,"
-			"scrollbars=yes,resizable=no,height=250,width=400');\n"
-			"}\n"
-
-			"%s\n"
-			"</script>\n",
-			++pageseq,
-			onload_fcn
-		);
-		/* end script */
-
 		do_template("head");
-
-		svprintf("extrabodyparms", WCS_STRING, "%s", 
-			"onload='onload_fcn();' ");
-
-		do_template("background");
 	}
 
 	/* ICONBAR */
 	if (do_htmlhead) {
+
+		if (WC->HaveExpressMessages) {
+			wprintf("<div style=\"position:absolute; width=600px; height=400px; "
+				"background-color: #880000; z-index: 2; >\n");
+			page_popup();
+			wprintf("</div>\n");
+		}
 		if ( (WC->logged_in) && (!unset_cookies) ) {
 			wprintf("<div id=\"iconbar\">");
 			do_iconbar();
@@ -449,20 +418,22 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 
 	if (do_room_banner != 2) {
 		wprintf("<div id=\"content\">\n");
-	}
 
-	if (strlen(WC->ImportantMessage) > 0) {
-		do_template("beginbox_nt");
-		wprintf("<SPAN CLASS=\"errormsg\">"
-			"%s</SPAN><br />\n", WC->ImportantMessage);
-		do_template("endbox");
-		strcpy(WC->ImportantMessage, "");
+
+		if (strlen(WC->ImportantMessage) > 0) {
+			do_template("beginbox_nt");
+			wprintf("<SPAN CLASS=\"errormsg\">"
+				"%s</SPAN><br />\n", WC->ImportantMessage);
+			do_template("endbox");
+			strcpy(WC->ImportantMessage, "");
+		}
+
 	}
 }
 
 
 /*
- *
+ * Generic function to do an HTTP redirect.  Easy and fun.
  */
 void http_redirect(char *whichpage) {
 	wprintf("HTTP/1.0 302 Moved Temporarily\n");
@@ -1218,8 +1189,6 @@ void session_loop(struct httprequest *req)
 		chat_recv();
 	} else if (!strcasecmp(action, "chat_send")) {
 		chat_send();
-	} else if (!strcasecmp(action, "page_popup")) {
-		page_popup();
 	} else if (!strcasecmp(action, "siteconfig")) {
 		siteconfig();
 	} else if (!strcasecmp(action, "display_generic")) {

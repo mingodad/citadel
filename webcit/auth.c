@@ -158,10 +158,7 @@ void do_welcome(void)
 		set_preference("startpage", startpage);
 	}
 
-        svprintf("STARTPAGE", WCS_STRING, startpage);
-
-	/* FIXME ... go to my start page, not to the summary */
-	summary();
+	http_redirect(startpage);
 }
 
 
