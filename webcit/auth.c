@@ -379,3 +379,64 @@ void register_user(void) {
 		display_error("Registration information has been saved.");
 		}
 	}
+
+
+
+
+
+/* 
+ * display form for changing your password
+ */
+void display_changepw(void) {
+	char buf[256];
+
+	printf("HTTP/1.0 200 OK\n");
+	output_headers(1);
+
+        wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+        wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+        wprintf("<B>Change your password</B>\n");
+        wprintf("</FONT></TD></TR></TABLE>\n");
+
+	wprintf("<CENTER>");
+	serv_puts("MESG changepw");
+	serv_gets(buf);
+	if (buf[0]=='1') fmout(NULL);
+
+	wprintf("<FORM ACTION=\"changepw\" METHOD=\"POST\">\n");
+	wprintf("<CENTER><TABLE border><TR><TD>Enter new password:</TD>\n");
+	wprintf("<TD><INPUT TYPE=\"password\" NAME=\"newpass1\" VALUE=\"\" MAXLENGTH=\"20\"></TD></TR>\n");
+	wprintf("<TR><TD>Enter it again to confirm:</TD>\n");
+	wprintf("<TD><INPUT TYPE=\"password\" NAME=\"newpass2\" VALUE=\"\" MAXLENGTH=\"20\"></TD></TR>\n");
+	wprintf("</TABLE>\n");	
+	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Change\">\n");
+	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Cancel\">\n");
+	wprintf("</CENTER></BODY></HTML>\n");
+	wDumpContent();
+	}
+
+/*
+ * change password
+ */
+void changepw(void) {
+	char buf[256];
+	char newpass1[32], newpass2[32];
+	
+	if (strcmp(bstr("action"),"Change")) {
+		display_error("Cancelled.  Password was not changed.");
+		return;
+		}
+
+	strcpy(newpass1, bstr("newpass1"));
+	strcpy(newpass2, bstr("newpass2"));
+
+	if (strcasecmp(newpass1, newpass2)) {
+		display_error("They don't match.  Password was not changed.");
+		return;
+		}
+
+	serv_printf("SETP %s", newpass1);
+	serv_gets(buf);
+	if (buf[0]=='2') display_success(&buf[4]);
+	else display_error(&buf[4]);
+	}
