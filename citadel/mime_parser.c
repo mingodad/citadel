@@ -77,8 +77,10 @@ char *memreadline(char *start, char *buf, int maxlen) {
 /*
  * Break out the components of a multipart message
  * (This function expects to be fed HEADERS + CONTENT)
+ * Note: NULL can be supplied as content_end; in this case, the message is
+ * considered to have ended when the parser encounters a 0x00 byte.
  */
-void mime_parser(char *content,
+void mime_parser(char *content_start, char *content_end,
 		void (*CallBack)
 			(char *cbname,
 			char *cbfilename,
@@ -98,7 +100,7 @@ void mime_parser(char *content,
 	int content_length;
 	int i;
 
-	ptr = content;
+	ptr = content_start;
 	bzero(boundary, sizeof boundary);
 	bzero(content_type, sizeof content_type);
 	bzero(encoding, sizeof encoding);
@@ -108,6 +110,10 @@ void mime_parser(char *content,
 	strcpy(header, "");
 	do {
 		ptr = memreadline(ptr, buf, sizeof buf);
+		if (*ptr == 0) return; /* premature end of message */
+		if (content_end != NULL)
+			if (ptr >= content_end) return;
+
 		for (i=0; i<strlen(buf); ++i)
 			if (isspace(buf[i])) buf[i]=' ';
 		if (!isspace(buf[0])) {
@@ -131,7 +137,6 @@ void mime_parser(char *content,
 	cprintf("Content length is %d\n", content_length);
 	cprintf("Boundary is <%s>\n", boundary);
 
-	if (*ptr == 0) return; /* premature end of message */
 
 	/* If this is a multipart message, then recursively process it */
 	if (strlen(boundary)>0) {

@@ -551,7 +551,7 @@ time_t output_message(char *msgid, int mode, int headers_only) {
 
 	/* do some sort of MIME output */
 	if ( (mode == MT_MIME) && (format_type == 4) ) {
-		mime_parser(mptr, *part_handler);
+		mime_parser(mptr, NULL, *part_handler);
 		cprintf("000\n");
 		cdb_free(dmsgtext);
 		return(xtime);

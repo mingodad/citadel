@@ -1,6 +1,6 @@
 void extract_key(char *target, char *source, char *key);
 
-void mime_parser(char *content,
+void mime_parser(char *content_start, char *content_end,
 		void (*CallBack)
 			(char *cbname,
 			char *cbfilename,
