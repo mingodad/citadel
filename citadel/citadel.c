@@ -758,7 +758,7 @@ void who_is_online(int longlist)
 				idlehours = idletime / 3600;
 				idlemins = (idletime - (idlehours*3600)) / 60;
 				idlesecs = (idletime - (idlehours*3600) - (idlemins*60) );
-				printf("\nFlags: %-3s  Session: %-3d  Name: %-25s  Room: %s\n",
+				printf("\nFlags: %-3s  Sess# %-3d  Name: %-25s  Room: %s\n",
 					flags, extract_int(buf,0), username, roomname);
 				printf("from <%s> using <%s>, idle %ld:%02ld:%02ld\n",
 					fromhost, clientsoft,
