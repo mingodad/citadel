@@ -1,11 +1,12 @@
-                         Citadel/UX release 5.01
+                         Citadel/UX release DR1998xxxx
 
 Copyright (c) 1987-1998 by:
         Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 Portions contributed by:
 	Brian Costello <btx@calyx.net>
-
+	Nathan Bryant <bryant@cs.usm.maine.edu>
+ 
  ------------------------------------------------------------------------------
  
     The entire package is free software; you can redistribute
