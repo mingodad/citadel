@@ -384,7 +384,9 @@ void smtp_rcpt(char *argbuf) {
 
 	strcpy(recp, &argbuf[3]);
 	striplt(recp);
+	TRACE;
 	alias(recp);
+	TRACE;
 
 	cvt = convert_internet_address(user, node, recp);
 	snprintf(recp, sizeof recp, "%s@%s", user, node);
@@ -1164,6 +1166,7 @@ void smtp_do_bounce(char *instr) {
 
 		/* First try the user who sent the message */
 		lprintf(9, "bounce to user? <%s>\n", bounceto);
+		TRACE;
 		if (strlen(bounceto) == 0) {
 			lprintf(7, "No bounce address specified\n");
 			bounce_msgid = (-1L);
@@ -1177,6 +1180,7 @@ void smtp_do_bounce(char *instr) {
 				bounceto,
 				"", mes_type);
 		}
+		TRACE;
 
 		/* Otherwise, go to the Aide> room */
 		lprintf(9, "bounce to room?\n");

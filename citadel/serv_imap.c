@@ -107,6 +107,59 @@ void imap_capability(char *tag, char *cmd, char *parms) {
 
 
 
+
+/*
+ * implements the SELECT command
+ */
+void imap_select(char *tag, char *cmd, char *parms) {
+	char towhere[256];
+	char augmented_roomname[256];
+	int c = 0;
+	int ok = 0;
+	int ra = 0;
+	struct quickroom QRscratch;
+
+	extract_token(towhere, parms, 0, ' ');
+
+	/* IMAP uses the reserved name "INBOX" for the user's default incoming
+	 * mail folder.  Convert this to Citadel's reserved name "_MAIL_".
+	 */
+	if (!strcasecmp(towhere, "INBOX"))
+		strcpy(towhere, MAILROOM);
+
+        /* First try a regular match */
+        c = getroom(&QRscratch, towhere);
+
+        /* Then try a mailbox name match */
+        if (c != 0) {
+                MailboxName(augmented_roomname, &CC->usersupp, towhere);
+                c = getroom(&QRscratch, augmented_roomname);
+                if (c == 0)
+                        strcpy(towhere, augmented_roomname);
+        }
+
+	/* If the room exists, check security/access */
+        if (c == 0) {
+                /* See if there is an existing user/room relationship */
+                ra = CtdlRoomAccess(&QRscratch, &CC->usersupp);
+
+                /* normal clients have to pass through security */
+                if (ra & UA_KNOWN)
+                        ok = 1;
+	}
+
+	/* Fail here if no such room */
+	if (!ok) {
+		cprintf("%s NO ... no such room, or access denied\r\n", tag);
+		IMAP->selected = 0;
+		return;
+	}
+
+	/* FIXME */
+	cprintf("%s OK [FIXME] SELECT completed\r\n", tag);
+}
+
+
 /* 
  * Main command loop for IMAP sessions.
  */
@@ -139,6 +192,8 @@ void imap_command_loop(void) {
 	remove_token(cmdbuf, 0, ' ');
 	lprintf(9, "tag=<%s> cmd=<%s> parms=<%s>\n", tag, cmd, cmdbuf);
 
+	/* commands which may be executed in any state */
+
 	if (!strcasecmp(cmd, "NOOP")) {
 		cprintf("%s OK This command successfully did nothing.\r\n",
 			tag);
@@ -163,7 +218,13 @@ void imap_command_loop(void) {
 		cprintf("%s BAD Not logged in.\r\n", tag);
 	}
 
-	/*    FIXME    ...   implement commands requiring login here   */
+	/*  commands requiring the client to be logged in */
+
+	else if (!strcasecmp(cmd, "SELECT")) {
+		imap_select(tag, cmd, cmdbuf);
+	}
+
+	/* end of commands */
 
 	else {
 		cprintf("%s BAD command unrecognized\r\n", tag);
@@ -176,7 +237,7 @@ void imap_command_loop(void) {
 char *Dynamic_Module_Init(void)
 {
 	SYM_IMAP = CtdlGetDynamicSymbol();
-	CtdlRegisterServiceHook(143,	/* FIXME put in config setup */
+	CtdlRegisterServiceHook(1143,	/* FIXME put in config setup */
 				NULL,
 				imap_greeting,
 				imap_command_loop);
