@@ -30,7 +30,6 @@
 
 #ifdef HAVE_ICAL_H
 
-
 /*
  * Display an event by itself (for editing)
  */
@@ -40,6 +39,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	struct icaltimetype t_start, t_end;
 	time_t now;
 	int created_new_vevent = 0;
+	icalorganizertype me_as_organizer;
 	icalproperty *organizer = NULL;
 	char organizer_string[SIZ];
 	icalproperty *attendee = NULL;
@@ -209,6 +209,17 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	}
 	wprintf("</TEXTAREA></TD></TR>");
 
+	/* For a new event, the user creating the event should be the
+	 * organizer.  Set this field accordingly.
+	 */
+	if (icalcomponent_get_first_property(vevent, ICAL_ORGANIZER_PROPERTY)
+	   == NULL) {
+		sprintf(organizer_string, "MAILTO:%s", WC->cs_inet_email);
+		memset(&me_as_organizer, 0, sizeof(icalorganizertype));
+		me_as_organizer.value = strdup(organizer_string);
+		icalcomponent_set_organizer(vevent, me_as_organizer);
+	}
+
 	/* Determine who is the organizer of this event.  This is useless
 	 * for now, but we'll need to determine "me" or "not me" soon.
 	 */
@@ -326,6 +337,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		while (prop = icalcomponent_get_first_property(vevent,
 		      ICAL_SUMMARY_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vevent, prop);
+			icalproperty_free(prop);
 		}
 		icalcomponent_add_property(vevent,
 			icalproperty_new_summary(bstr("summary")));
@@ -333,6 +345,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		while (prop = icalcomponent_get_first_property(vevent,
 		      ICAL_LOCATION_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vevent, prop);
+			icalproperty_free(prop);
 		}
 		icalcomponent_add_property(vevent,
 			icalproperty_new_location(bstr("location")));
@@ -340,6 +353,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		while (prop = icalcomponent_get_first_property(vevent,
 		      ICAL_DESCRIPTION_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vevent, prop);
+			icalproperty_free(prop);
 		}
 		icalcomponent_add_property(vevent,
 			icalproperty_new_description(bstr("description")));
@@ -347,6 +361,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		while (prop = icalcomponent_get_first_property(vevent,
 		      ICAL_DTSTART_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vevent, prop);
+			icalproperty_free(prop);
 		}
 
 		if (!strcmp(bstr("alldayevent"), "yes")) {
@@ -388,10 +403,12 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		while (prop = icalcomponent_get_first_property(vevent,
 		      ICAL_DTEND_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vevent, prop);
+			icalproperty_free(prop);
 		}
 		while (prop = icalcomponent_get_first_property(vevent,
 		      ICAL_DURATION_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vevent, prop);
+			icalproperty_free(prop);
 		}
 
 		if (all_day_event == 0) {

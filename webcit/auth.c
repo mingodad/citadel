@@ -131,6 +131,7 @@ void do_login(void)
 			WC->new_mail = extract_int(&buf[4], 0);
 			need_regi = extract_int(&buf[4], 1);
 			WC->need_vali = extract_int(&buf[4], 2);
+			extract(WC->cs_inet_email, &buf[4], 3);
 		}
 		if (need_regi) {
 			display_reg(1);
