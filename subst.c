@@ -125,7 +125,39 @@ void print_value_of(char *keyname) {
 	struct wcsubst *ptr;
 	void *fcn();
 
-	for (ptr = WC->vars; ptr != NULL; ptr = ptr->next) {
+	if (!strcasecmp(keyname, "SERV_PID")) {
+		wprintf("%d", serv_info.serv_pid);
+	}
+
+	else if (!strcasecmp(keyname, "SERV_NODENAME")) {
+		wprintf("%s", serv_info.serv_nodename);
+	}
+
+	else if (!strcasecmp(keyname, "SERV_HUMANNODE")) {
+		wprintf("%s", serv_info.serv_humannode);
+	}
+
+	else if (!strcasecmp(keyname, "SERV_FQDN")) {
+		wprintf("%s", serv_info.serv_fqdn);
+	}
+
+	else if (!strcasecmp(keyname, "SERV_SOFTWARE")) {
+		wprintf("%s", serv_info.serv_software);
+	}
+
+	else if (!strcasecmp(keyname, "SERV_REV_LEVEL")) {
+		wprintf("%d.%02d",
+			serv_info.serv_rev_level / 100,
+			serv_info.serv_rev_level % 100
+		);
+	}
+
+	else if (!strcasecmp(keyname, "SERV_BBS_CITY")) {
+		wprintf("%s", serv_info.serv_bbs_city);
+	}
+
+	/* Page-local variables */
+	else for (ptr = WC->vars; ptr != NULL; ptr = ptr->next) {
 		if (!strcasecmp(ptr->wcs_key, keyname)) {
 			if (ptr->wcs_type == WCS_STRING) {
 				wprintf("%s", ptr->wcs_value);

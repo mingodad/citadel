@@ -53,9 +53,6 @@ void display_login(char *mesg)
 		svprintf("mesg", WCS_STRING, "%s", buf);
 	}
 
-	stresc(buf, serv_info.serv_humannode, 1);
-	svprintf("humannode", WCS_STRING, "%s", buf);
-
 	svprintf("hello", WCS_SERVCMD, "MESG hello");
 
 	do_template("login");
