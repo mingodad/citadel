@@ -263,7 +263,8 @@ void cmd_open(char *cmdbuf)
 	for (a=0; a<strlen(filename); ++a)
 		if (filename[a]=='/') filename[a] = '_';
 
-	sprintf(pathname,"./files/%s/%s",CC->quickroom.QRdirname,filename);
+	snprintf(pathname,sizeof pathname,
+		 "./files/%s/%s",CC->quickroom.QRdirname,filename);
 	CC->download_fp = fopen(pathname,"r");
 
 	if (CC->download_fp==NULL) {
