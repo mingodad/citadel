@@ -712,6 +712,8 @@ void cmd_writ(char *cmdbuf)
 	int bytes;
 	char buf[4096];
 
+	unbuffer_output();
+
 	bytes = extract_int(cmdbuf, 0);
 
 	if (CC->upload_fp == NULL) {
@@ -726,7 +728,6 @@ void cmd_writ(char *cmdbuf)
 	}
 
 	cprintf("%d %d\n", SEND_BINARY, bytes);
-	flush_output();
 	client_read(buf, bytes);
 	fwrite(buf, bytes, 1, CC->upload_fp);
 }
