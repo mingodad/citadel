@@ -1,4 +1,7 @@
 $Log$
+Revision 213.12  2001/05/19 02:21:40  ajc
+* Attempt to fix the dangling sockets.
+
 Revision 213.11  2001/05/15 03:22:25  ajc
 * More icon updates and link cleanup type stuff
 
@@ -541,4 +544,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

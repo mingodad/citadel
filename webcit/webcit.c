@@ -394,10 +394,10 @@ void check_for_express_messages()
 void output_static(char *what)
 {
 	char buf[4096];
-	long thisblock;
 	FILE *fp;
 	struct stat statbuf;
 	off_t bytes;
+	char *bigbuffer;
 
 	sprintf(buf, "static/%s", what);
 	fp = fopen(buf, "rb");
@@ -425,14 +425,11 @@ void output_static(char *what)
 		fprintf(stderr, "Static: %s, %ld bytes\n", what, bytes);
 		wprintf("Content-length: %ld\n", (long) bytes);
 		wprintf("\n");
-		while (bytes > 0) {
-			thisblock = sizeof(buf);
-			if (thisblock > bytes) thisblock = bytes;
-			fread(buf, thisblock, 1, fp);
-			write(WC->http_sock, buf, thisblock);
-			bytes = bytes - thisblock;
-		}
+		bigbuffer = malloc(bytes);
+		fread(bigbuffer, bytes, 1, fp);
 		fclose(fp);
+		write(WC->http_sock, bigbuffer, bytes);
+		free(bigbuffer);
 	}
 	if (!strcasecmp(bstr("force_close_session"), "yes")) {
 		end_webcit_session();
@@ -463,13 +460,18 @@ void output_image()
 
 		while (bytes > (off_t) 0) {
 			thisblock = (off_t) sizeof(xferbuf);
-			if (thisblock > bytes)
+			if (thisblock > bytes) {
 				thisblock = bytes;
+			}
 			serv_printf("READ %ld|%ld", accomplished, thisblock);
 			serv_gets(buf);
-			if (buf[0] == '6')
+			if (buf[0] == '6') {
 				thisblock = extract_long(&buf[4], 0);
-			serv_read(xferbuf, (int) thisblock);
+				serv_read(xferbuf, (int) thisblock);
+			}
+			else {
+				memset(xferbuf, 0, thisblock);
+			}
 			write(WC->http_sock, xferbuf, thisblock);
 			bytes = bytes - thisblock;
 			accomplished = accomplished + thisblock;
