@@ -217,10 +217,6 @@ void context_loop(int sock)
 	memset(hold, 0, sizeof(hold));
 	do {
 		if (req_gets(sock, buf, hold) < 0) return;
-		fprintf(stderr, "%sReq: %s%s\n",
-			( (req==NULL) ? "\033[32m" : "" ) ,
-			buf,
-			( (req==NULL) ? "\033[0m" : "" )  );
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
 			cookie_to_stuff(&buf[15], &desired_session,
 				NULL, NULL, NULL);
@@ -247,6 +243,7 @@ void context_loop(int sock)
 	 * (or doesn't support them) and we have to barf & bail.
 	 */
 	strcpy(buf, req->line);
+	fprintf(stderr, "%s\n", buf);
 	if (!strncasecmp(buf, "GET ", 4)) strcpy(buf, &buf[4]);
 	else if (!strncasecmp(buf, "HEAD ", 5)) strcpy(buf, &buf[5]);
 	if (buf[1]==' ') buf[1]=0;
