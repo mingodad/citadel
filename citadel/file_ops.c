@@ -680,7 +680,8 @@ void cmd_ucls(char *cmd)
 void cmd_read(char *cmdbuf)
 {
 	long start_pos;
-	int bytes;
+	size_t bytes;
+	size_t actual_bytes;
 	char buf[4096];
 
 	start_pos = extract_long(cmdbuf, 0);
@@ -692,16 +693,12 @@ void cmd_read(char *cmdbuf)
 		return;
 	}
 
-	if (bytes > 4096) {
-		cprintf("%d You may not read more than 4096 bytes.\n",
-			ERROR);
-		return;
-	}
+	if (bytes > 4096) bytes = 4096;
 
 	fseek(CC->download_fp, start_pos, 0);
-	fread(buf, bytes, 1, CC->download_fp);
-	cprintf("%d %d\n", BINARY_FOLLOWS, bytes);
-	client_write(buf, bytes);
+	actual_bytes = fread(buf, 1, bytes, CC->download_fp);
+	cprintf("%d %d\n", BINARY_FOLLOWS, actual_bytes);
+	client_write(buf, actual_bytes);
 }
 
 
