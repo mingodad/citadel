@@ -1,4 +1,7 @@
  $Log$
+ Revision 612.0  2003/12/01 04:11:48  ajc
+ * THIS IS 6.12
+
  Revision 611.10  2003/11/30 03:43:34  ajc
  * Support IMAP \Answered flag
 
