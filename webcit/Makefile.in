@@ -28,14 +28,15 @@ webserver: webserver.o context_loop.o tools.o ical_dezonify.o \
 	roomops.o messages.o userlist.o paging.o sysmsgs.o useredit.o \
 	vcard.o vcard_edit.o preferences.o html2html.o listsub.o \
 	mime_parser.o graphics.o netconf.o siteconfig.o subst.o \
-	calendar.o calendar_tools.o calendar_view.o event.o $(LIBOBJS)
+	calendar.o calendar_tools.o calendar_view.o event.o \
+	availability.o $(LIBOBJS)
 	$(CC) webserver.o context_loop.o tools.o cookie_conversion.o \
 	webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o listsub.o \
 	roomops.o messages.o userlist.o paging.o sysmsgs.o useredit.o \
 	locate_host.o siteconfig.o subst.o vcard.o vcard_edit.o floors.o \
 	mime_parser.o graphics.o netconf.o preferences.o html2html.o \
 	summary.o calendar.o calendar_tools.o calendar_view.o event.o \
-	ical_dezonify.o $(LIBOBJS) $(LIBS) -o webserver
+	availability.o ical_dezonify.o $(LIBOBJS) $(LIBS) -o webserver
 
 .c.o:
 	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) -DWEBCITDIR=\"`pwd`\" $<

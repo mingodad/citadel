@@ -1,4 +1,8 @@
 $Log$
+Revision 410.36  2003/05/26 03:28:02  ajc
+* Getting closer to doing the availability check.  Created new source
+  module 'availability.c' for this purpose.  Stub function is in place.
+
 Revision 410.35  2003/05/25 04:25:12  ajc
 * siteconfig.c: fixed a spelling error
 * event.c: add a "Check attendee availability" button, and the code to
@@ -1421,4 +1425,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
