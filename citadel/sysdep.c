@@ -20,6 +20,7 @@
 #include <ctype.h>
 #include <signal.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -332,6 +333,7 @@ int ig_uds_server(char *sockpath, int queue_len)
 		return(-1);
 	}
 
+	chmod(sockpath, 0777);
 	return(s);
 }
 

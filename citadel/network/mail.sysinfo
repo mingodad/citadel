@@ -1,119 +1,9 @@
-internet
-uum %s
-humannode Internet Gateway
-lastcontact 952143243 Fri Mar  3 23:14:03 2000
-
-uncnsrd
-bin Mail
-phonenum US 914 244 3252
-humannode Uncensored
-lastcontact 952138915 Fri Mar  3 22:01:55 2000
-
-test
-bin Mail
-
-tux
-bin Mail
-phonenum US 800 555 1212
-humannode My System
-lastcontact 951540103 Fri Feb 25 23:41:43 2000
-
-tesseract
-bin Mail
-phonenum US 800 555 1212
-humannode My System
-lastcontact 952143243 Fri Mar  3 23:14:03 2000
-
-pixel
+future
 use uncnsrd
-phonenum netproc[4026]: Adding non-neighbor system <tesseract> to map
-gdom or system <tesseract> to map
-humannode PixelBBS
-lastcontact 952138915 Fri Mar  3 22:01:55 2000
-
-barbaria
-use uncnsrd
-phonenum netproc[4026]: Adding non-neighbor system <pixel> to map
-gdom or system <pixel> to map
-humannode Barbaria
-lastcontact 952138915 Fri Mar  3 22:01:55 2000
-
-haven
-use uncnsrd
-phonenum netproc[4026]: Adding non-neighbor system <barbaria> to map
-gdom or system <barbaria> to map
-humannode Haven BBS
-lastcontact 952138910 Fri Mar  3 22:01:50 2000
-
-mnmensa
-use uncnsrd
-phonenum US (612) 757-7307
-gdom MN
-humannode MN-Mensa
-lastcontact 952138905 Fri Mar  3 22:01:45 2000
-
-cbbs
-use uncnsrd
-phonenum US (513) 939 1645
-gdom Cinci
-humannode The CBBS
-lastcontact 952138903 Fri Mar  3 22:01:43 2000
-
-amigazon
-use uncnsrd
-phonenum US (609) 953 8159
-gdom NJ
-humannode The Amiga Zone
-lastcontact 952138913 Fri Mar  3 22:01:53 2000
-
-gateway
-use uncnsrd
-phonenum US (609) 931-3014
-gdom NJ
-humannode Gateway
-lastcontact 952138913 Fri Mar  3 22:01:53 2000
-
-charis
-use uncnsrd
-phonenum netproc[4026]: Adding non-neighbor system <gateway> to map
-gdom or system <gateway> to map
-humannode MascotSpeak
-lastcontact 952138904 Fri Mar  3 22:01:44 2000
-
-feathers
-use uncnsrd
-phonenum CA (604) 589-8539
-gdom BC
-humannode Feathers & Furballs
-lastcontact 952138915 Fri Mar  3 22:01:55 2000
-
-sbn
-use uncnsrd
-phonenum netproc[4026]: Adding non-neighbor system <feathers> to map
-gdom or system <feathers> to map
-humannode Super BBS Network
-lastcontact 952138908 Fri Mar  3 22:01:48 2000
-
-dogpound2
-use uncnsrd
-phonenum netproc[4026]: Adding non-neighbor system <sbn> to map
-gdom or system <sbn> to map
-humannode Dog Pound BBS II
-lastcontact 952138915 Fri Mar  3 22:01:55 2000
-
-jacs
-use uncnsrd
-phonenum US6093461224
-gdom NJ
-humannode JACS
-lastcontact 952138912 Fri Mar  3 22:01:52 2000
-
-rundale
-use uncnsrd
-phonenum US 609 854 9135
-gdom NJ
-humannode Rundale
-lastcontact 952138909 Fri Mar  3 22:01:49 2000
+phonenum netproc[4026]: Adding non-neighbor system <catchat> to map
+gdom or system <catchat> to map
+humannode The Future BBS
+lastcontact 952138911 Fri Mar  3 22:01:51 2000
 
 catchat
 use uncnsrd
@@ -122,10 +12,134 @@ gdom or system <rundale> to map
 humannode 'Cat Chat
 lastcontact 952138915 Fri Mar  3 22:01:55 2000
 
-future
+rundale
 use uncnsrd
-phonenum netproc[4026]: Adding non-neighbor system <catchat> to map
-gdom or system <catchat> to map
-humannode The Future BBS
-lastcontact 952138911 Fri Mar  3 22:01:51 2000
+phonenum US 609 854 9135
+gdom NJ
+humannode Rundale
+lastcontact 952138909 Fri Mar  3 22:01:49 2000
+
+jacs
+use uncnsrd
+phonenum US6093461224
+gdom NJ
+humannode JACS
+lastcontact 952138912 Fri Mar  3 22:01:52 2000
+
+dogpound2
+use uncnsrd
+phonenum netproc[4026]: Adding non-neighbor system <sbn> to map
+gdom or system <sbn> to map
+humannode Dog Pound BBS II
+lastcontact 952349824 Mon Mar  6 08:37:04 2000
+
+sbn
+use uncnsrd
+phonenum netproc[4026]: Adding non-neighbor system <feathers> to map
+gdom or system <feathers> to map
+humannode Super BBS Network
+lastcontact 952138908 Fri Mar  3 22:01:48 2000
+
+feathers
+use uncnsrd
+phonenum CA (604) 589-8539
+gdom BC
+humannode Feathers & Furballs
+lastcontact 952138915 Fri Mar  3 22:01:55 2000
+
+charis
+use uncnsrd
+phonenum netproc[4026]: Adding non-neighbor system <gateway> to map
+gdom or system <gateway> to map
+humannode MascotSpeak
+lastcontact 952138904 Fri Mar  3 22:01:44 2000
+
+gateway
+use uncnsrd
+phonenum US (609) 931-3014
+gdom NJ
+humannode Gateway
+lastcontact 952138913 Fri Mar  3 22:01:53 2000
+
+amigazon
+use uncnsrd
+phonenum US (609) 953 8159
+gdom NJ
+humannode The Amiga Zone
+lastcontact 952138913 Fri Mar  3 22:01:53 2000
+
+cbbs
+use uncnsrd
+phonenum US (513) 939 1645
+gdom Cinci
+humannode The CBBS
+lastcontact 952138903 Fri Mar  3 22:01:43 2000
+
+mnmensa
+use uncnsrd
+phonenum US (612) 757-7307
+gdom MN
+humannode MN-Mensa
+lastcontact 952138905 Fri Mar  3 22:01:45 2000
+
+haven
+use uncnsrd
+phonenum netproc[4026]: Adding non-neighbor system <barbaria> to map
+gdom or system <barbaria> to map
+humannode Haven BBS
+lastcontact 952138910 Fri Mar  3 22:01:50 2000
+
+barbaria
+use uncnsrd
+phonenum netproc[4026]: Adding non-neighbor system <pixel> to map
+gdom or system <pixel> to map
+humannode Barbaria
+lastcontact 952138915 Fri Mar  3 22:01:55 2000
+
+pixel
+use uncnsrd
+phonenum netproc[4026]: Adding non-neighbor system <tesseract> to map
+gdom or system <tesseract> to map
+humannode PixelBBS
+lastcontact 952454224 Tue Mar  7 13:37:04 2000
+
+tesseract
+bin Mail
+phonenum US 800 555 1212
+humannode Tesseract Project
+lastcontact 952465025 Tue Mar  7 16:37:05 2000
+
+tux
+bin Mail
+phonenum US 800 555 1212
+humannode My System
+lastcontact 951540103 Fri Feb 25 23:41:43 2000
+
+test
+bin Mail
+
+uncnsrd
+bin Mail
+phonenum US 914 244 3252
+humannode Uncensored
+lastcontact 952439824 Tue Mar  7 09:37:04 2000
+
+internet
+uum %s
+humannode Internet Gateway
+lastcontact 952465024 Tue Mar  7 16:37:04 2000
+
+bccs
+use uncnsrd
+phonenum netproc[7145]: Adding non-neighbor system <internet> to map
+gdom or system <internet> to map
+humannode BCCS
+lastcontact 952418225 Tue Mar  7 03:37:05 2000
+
+ctestsys
+use uncnsrd
+phonenum US 612 470 9635
+gdom MN
+humannode C-86 Test System
+lastcontact 952375033 Mon Mar  6 15:37:13 2000
 
