@@ -680,8 +680,7 @@ int main(int argc, char **argv)
 	
 		deliver(recp, is_test, deliver_to_ignet);
 		}
-	
-	closelog();
+
 	if (RUN_NETPROC) execlp("./netproc", "netproc", "-i", NULL);
 	exit(0);
 	}

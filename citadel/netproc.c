@@ -5,14 +5,6 @@
  * $Id$
  */
 
-/*
- * Specify where netproc should log to, and the mode for opening the file.
- * If you are logging to a file, NPLOGMODE should be a; if you are logging to
- * a device or fifo it should be w.
- */
-#define NPLOGFILE	"./netproc.log" 
-#define NPLOGMODE	"a"
-
 /* How long it takes for an old node to drop off the network map */
 #define EXPIRY_TIME	(2592000L)
 
@@ -38,6 +30,7 @@
 #include <time.h>
 #include <signal.h>
 #include <errno.h>
+#include <syslog.h>
 #include "citadel.h"
 #include "tools.h"
 
@@ -341,6 +334,7 @@ void remove_lockfile(void) {
 void nq_cleanup(int e)
 {
 	remove_lockfile();
+	closelog();
 	exit(e);
 	}
 
@@ -436,7 +430,7 @@ GETSN:	for (stemp=slist; stemp!=NULL; stemp=stemp->next) {
 			}
 		}
 	    }
-	printf("netproc: cannot find system '%s' in mail.sysinfo\n",name);
+	syslog(LOG_ERR, "cannot find system '%s' in mail.sysinfo", name);
 	return(-1);
 	}
 
@@ -474,12 +468,12 @@ void msgfind(char *msgfile, struct minfo *buffer)
 	strcpy(userid,"");
 	fp=fopen(msgfile,"rb");
 	if (fp==NULL) {
-		fprintf(stderr,"Can't open message file: %s\n",strerror(errno));
+		syslog(LOG_ERR, "can't open message file: %s",strerror(errno));
 		return;
 		}
 	e=getc(fp);
 	if (e!=255) {
-		fprintf(stdout,"Incorrect message format\n");
+		syslog(LOG_ERR, "incorrect message format");
 		goto END;
 		}
 	mtype=getc(fp); aflag=getc(fp);
@@ -542,11 +536,11 @@ void ship_to(char *filenm, char *sysnm)	/* send spool file filenm to system sysn
 	FILE *sysflfd;
 
 #ifdef DEBUG
-	fprintf(stdout,"netproc: shipping %s to %s\n",filenm,sysnm);
+	syslog(LOG_NOTICE, "shipping %s to %s", filenm, sysnm);
 #endif
 	sprintf(sysflnm,"./network/systems/%s",sysnm);
 	sysflfd=fopen(sysflnm,"r");
-	if (sysflfd==NULL) fprintf(stdout,"netproc: cannot open %s\n",sysflnm);
+	if (sysflfd==NULL) syslog(LOG_ERR, "cannot open %s", sysflnm);
 	fgets(commbuf1,99,sysflfd);
 	commbuf1[strlen(commbuf1)-1] = 0;
 	fclose(sysflfd);
@@ -566,10 +560,10 @@ void proc_file_transfer(char *tname)
 	FILE *tfp,*uud;
 	int a;
 
-	printf("netproc: processing network file transfer...\n");
+	syslog(LOG_NOTICE, "processing network file transfer...");
 
 	tfp=fopen(tname,"rb");
-	if (tfp==NULL) printf("netproc: cannot open %s\n",tname);
+	if (tfp==NULL) syslog(LOG_ERR, "cannot open %s", tname);
 	getc(tfp); getc(tfp); getc(tfp);
 	do {
 		a=getc(tfp);
@@ -582,7 +576,7 @@ void proc_file_transfer(char *tname)
 		} while ((a!='M')&&(a>=0));
 	if (a!='M') {
 		fclose(tfp);
-		printf("netproc: no message text for file transfer\n");
+		syslog(LOG_ERR, "no message text for file transfer");
 		return;
 		}
 
@@ -605,7 +599,7 @@ void proc_file_transfer(char *tname)
 
 	uud=(FILE *)popen(buf,"w");
 	if (uud==NULL) {
-		printf("netproc: cannot open uudecode pipe\n");
+		syslog(LOG_ERR, "cannot open uudecode pipe");
 		fclose(tfp);
 		return;
 		}
@@ -691,8 +685,7 @@ void inprocess(void) {
 	sprintf(aaa,"cd %s/network/spoolin; ls",bbs_home_directory);
 	ls=popen(aaa,"r");
 	if (ls==NULL) {
-		fprintf(stderr,"netproc: could not open dir cmd: %s\n",
-			strerror(errno));
+		syslog(LOG_ERR, "could not open dir cmd: %s", strerror(errno));
 		}
 	if (ls!=NULL) {
 		do {
@@ -700,20 +693,17 @@ void inprocess(void) {
 			if (ptr!=NULL) sfilename[strlen(sfilename)-1] = 0;
 			} while( (ptr!=NULL)&&((!strcmp(sfilename,"."))
 				 ||(!strcmp(sfilename,".."))));
-		if (ptr!=NULL) printf("netproc: processing %s\n",sfilename);
+		if (ptr!=NULL) syslog(LOG_NOTICE, "processing %s", sfilename);
 		pclose(ls);
 		}
 
       if (ptr!=NULL) {
 	sprintf(pfilename,"%s/network/spoolin/%s",bbs_home_directory,sfilename);
-	fprintf(stderr,"netproc: processing <%s>\n", pfilename);
-	fflush(stderr);
+	syslog(LOG_NOTICE, "processing <%s>", pfilename);
 	
 	fp = fopen(pfilename, "rb");
 	if (fp == NULL) {
-	    fprintf(stderr, "netproc: cannot open <%s>: %s\n",
-			pfilename, strerror(errno));
-	    fflush(stderr);
+	    syslog(LOG_ERR, "cannot open %s: %s", pfilename, strerror(errno));
 	    fp = fopen("/dev/null" ,"rb");
 	    }
 		
@@ -725,8 +715,7 @@ NXMSG:	/* Seek to the beginning of the next message */
 
 	message = fopen(tname,"wb");	/* This crates the temporary file. */
 	if (message == NULL) {
-		fprintf(stderr, "Error creating %s: %s\n",
-			tname, strerror(errno));
+		syslog(LOG_ERR, "error creating %s: %s", tname,strerror(errno));
 		goto ENDSTR;
 		}
 	putc(255,message);		/* 0xFF (start-of-message) */
@@ -754,23 +743,22 @@ NXMSG:	/* Seek to the beginning of the next message */
 	strncpy(recentmsg.RMnodename,minfo.N,9);
 	recentmsg.RMnodename[9]=0;
 	recentmsg.RMnum=minfo.I;
-	printf("netproc: #%ld fm <%s> in <%s> @ <%s>\n",
+	syslog(LOG_NOTICE, "#%ld fm <%s> in <%s> @ <%s>",
 		minfo.I,minfo.A,minfo.O,minfo.N);
 	if (strlen(minfo.R)>0) {
-		printf("         to <%s>",minfo.R);
+		syslog(LOG_NOTICE, "     to <%s>",minfo.R);
 		if (strlen(minfo.D)>0) {
-			printf(" @ <%s>",minfo.D);
+			syslog(LOG_NOTICE, "     @ <%s>",minfo.D);
 			}
-		printf("\n");
 		}
-	fflush(stdout);
 	if (!strcasecmp(minfo.D,FQDN)) strcpy(minfo.D,NODENAME);
 
 	/* this routine updates our info on the system that sent the message */
 	stemp = get_sys_ptr(minfo.N);
 	if ((stemp == NULL) && (get_sys_ptr(minfo.nexthop) != NULL)) {
 		/* add non-neighbor system to map */
-		printf("Adding non-neighbor system <%s> to map\n", slist->s_name);
+		syslog(LOG_NOTICE, "Adding non-neighbor system <%s> to map",
+			slist->s_name);
 		stemp = (struct syslist *)malloc((long)sizeof(struct syslist));
 		stemp->next = slist;
 		slist = stemp;
@@ -781,7 +769,8 @@ NXMSG:	/* Seek to the beginning of the next message */
 		}
 	else if ((stemp == NULL) && (!strcasecmp(minfo.N,minfo.nexthop))) {
 		/* add neighbor system to map */
-		printf("Adding neighbor system <%s> to map\n", slist->s_name);
+		syslog(LOG_NOTICE, "Adding neighbor system <%s> to map",
+			slist->s_name);
 		sprintf(aaa,"%s/network/systems/%s",bbs_home_directory,minfo.N);
 		testfp=fopen(aaa,"r");
 		if (testfp!=NULL) {
@@ -807,17 +796,16 @@ NXMSG:	/* Seek to the beginning of the next message */
 	/* route the message if necessary */
 	if ((strcasecmp(minfo.D,NODENAME))&&(minfo.D[0]!=0)) { 
 		a = get_sysinfo_type(minfo.D);
-		printf("netproc: routing message to system <%s>\n",minfo.D);
+		syslog(LOG_NOTICE, "routing message to system <%s>", minfo.D);
 		fflush(stdout);
 		if (a==M_INTERNET) {
 			if (fork()==0) {
-				printf("netproc: netmailer %s\n", tname);
+				syslog(LOG_NOTICE, "netmailer %s", tname);
 				fflush(stdout);
 				execlp("./netmailer","netmailer",
 					tname,NULL);
-				printf("netproc: error running netmailer: %s\n",
+				syslog(LOG_ERR, "error running netmailer: %s",
 					strerror(errno));
-				fflush(stdout);
 				exit(errno);
 				}
 			else while (wait(&b)!=(-1));
@@ -860,7 +848,7 @@ NXMSG:	/* Seek to the beginning of the next message */
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] != '2') {
-			puts(buf); fflush(stdout);
+			syslog(LOG_ERR, "%s", buf);
 			sprintf(buf,"GOTO _BITBUCKET_");
 			serv_puts(buf);
 			serv_gets(buf);
@@ -869,7 +857,7 @@ NXMSG:	/* Seek to the beginning of the next message */
 		/* Open the temporary file containing the message */
 		message = fopen(tname, "rb");
 		if (message == NULL) {
-			fprintf(stderr, "netproc: cannot open %s: %s\n",
+			syslog(LOG_ERR, "cannot open %s: %s",
 				tname, strerror(errno));
 			unlink(tname);
 			goto NXMSG;
@@ -877,10 +865,8 @@ NXMSG:	/* Seek to the beginning of the next message */
 
 		/* Transmit the message to the server */
 		sprintf(buf, "ENT3 1|%s|%ld", minfo.R, msglen);
-		printf("< %s\n", buf);
 		serv_puts(buf);
 		serv_gets(buf);
-		printf("> %s\n", buf);
 		if (!strncmp(buf, "570", 3)) {
 			/* no such user, do a bounce */
 			bounce(&minfo);
@@ -892,9 +878,9 @@ NXMSG:	/* Seek to the beginning of the next message */
 			while (msglen > 0L) {
 				bloklen = ((msglen >= 255L) ? 255 : ((int)msglen));
 				if (fread(buf, bloklen, 1, message) < 1) {
-					fprintf(stderr, "netproc: error trying to read %d bytes: %s\n",
-						bloklen, strerror(errno));
-					fflush(stderr);
+					syslog(LOG_ERR,
+					   "error trying to read %d bytes: %s",
+					   bloklen, strerror(errno));
 					}
 				serv_write(buf, bloklen);
 				msglen = msglen - (long)bloklen;
@@ -903,8 +889,7 @@ NXMSG:	/* Seek to the beginning of the next message */
 			serv_gets(buf);
 			}
 		else {
-			puts(buf);
-			fflush(stdout);	
+			syslog(LOG_ERR, "%s", buf);
 			}
 
 		fclose(message);
@@ -930,7 +915,7 @@ int checkpath(char *path, char *sys)	/* Checks to see whether its ok to send */
 	strcat(sys2,"!");
 
 #ifdef DEBUG
-	printf("netproc: checkpath <%s> <%s> ... ",path,sys);
+	syslog(LOG_NOTICE, "checkpath <%s> <%s> ... ", path, sys);
 #endif
 	for (a=0; a<strlen(path); ++a) {
 		if (!strncmp(&path[a],sys2,strlen(sys2))) return(0);
@@ -958,7 +943,7 @@ int ismsgok(long int mpos, FILE *mmfp, char *sysname)
 			}
 		}
 #ifdef DEBUG
-	printf("%s\n", ((ok)?"SEND":"(no)") );
+	syslog(LOG_NOTICE, "%s", ((ok)?"SEND":"(no)") );
 #endif
 	return(ok);
 	}
@@ -995,7 +980,7 @@ int spool_out(struct msglist *cmlist, FILE *destfp, char *sysname)	/* spool list
 				strcpy(curr_rm, cmptr->m_rmname);
 				}
 			else {
-				fprintf(stderr,"%s\n", buf);
+				syslog(LOG_ERR, "%s", buf);
 				}
 			}
 
@@ -1014,7 +999,7 @@ int spool_out(struct msglist *cmlist, FILE *destfp, char *sysname)	/* spool list
 				}
 			}
 		else {					/* or print the err */
-			fprintf(stderr, "%s\n", buf);
+			syslog(LOG_ERR, "%s", buf);
 			}
 		fclose(mmfp);
 	
@@ -1110,7 +1095,7 @@ void outprocess(char *sysname) /* send new room messages to sysname */
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0]!='2') {
-			fprintf(stderr, "%s\n", buf);
+			syslog(LOG_ERR, "%s", buf);
 			}
 		else {
 			sprintf(buf, "MSGS GT|%ld", rmptr->rm_lastsent);
@@ -1137,7 +1122,7 @@ void outprocess(char *sysname) /* send new room messages to sysname */
 					}
 				}
 			else {		/* print error from "msgs all" */
-				fprintf(stderr, "%s\n", buf);
+				syslog(LOG_ERR, "%s", buf);
 				}
 			}
 		}
@@ -1147,18 +1132,15 @@ void outprocess(char *sysname) /* send new room messages to sysname */
 		++outgoing_msgs;
 		cmptr2 = cmptr2->next;
 		}
-	printf("netproc: %d messages to be spooled to %s\n",
+	syslog(LOG_NOTICE, "%d messages to be spooled to %s",
 		outgoing_msgs,sysname);
-	fflush(stdout);
 
 /*
  * Spool out the messages, but only if there are any.
  */
-	fflush(stdout);
 	if (outgoing_msgs!=0) outgoing_msgs=spool_out(cmlist,tempflfp,sysname);
-	printf("netproc: %d messages actually spooled\n",
+	syslog(LOG_NOTICE, "%d messages actually spooled",
 		outgoing_msgs);
-	fflush(stdout);
 
 /*
  * Deallocate list of spooled messages.
@@ -1172,8 +1154,7 @@ void outprocess(char *sysname) /* send new room messages to sysname */
 /*
  * Rewrite system file and deallocate room list.
  */
-	printf("Spooling...\n");
-	fflush(stdout);
+	syslog(LOG_NOTICE, "Spooling...");
 	sysflfp=fopen(sysflnm,"w");
 	fprintf(sysflfp,"%s\n",shiptocmd);
 	for (rmptr=crmlist; rmptr!=NULL; rmptr=rmptr->next)  
@@ -1202,16 +1183,16 @@ void np_attach_to_server(void) {
 	char portname[8];
 	char *args[] = { "netproc", "localhost", NULL, NULL } ;
 
-	printf("Attaching to server...\n");
+	syslog(LOG_NOTICE, "Attaching to server...");
 	sprintf(portname, "%d", config.c_port_number);
 	args[2] = portname;
 	attach_to_server(3, args);
 	serv_gets(buf);
-	printf("%s\n",&buf[4]);
+	syslog(LOG_NOTICE, "%s", &buf[4]);
 	sprintf(buf,"IPGM %d", config.c_ipgm_secret);
 	serv_puts(buf);
 	serv_gets(buf);
-	printf("%s\n",&buf[4]);
+	syslog(LOG_NOTICE, "%s", &buf[4]);
 	if (buf[0]!='2') {
 		cleanup(2);
 		}
@@ -1229,7 +1210,7 @@ int main(int argc, char **argv)
 	int a;
 	int import_only = 0;	/* if set to 1, don't export anything */
 
-
+	openlog("netproc", LOG_PID, LOG_USER);
 	strcpy(bbs_home_directory, BBSDIR);
 
 	/*
@@ -1253,12 +1234,8 @@ int main(int argc, char **argv)
 
 	get_config();
 
-	/* write all messages to the log from this point onward */
-	freopen(NPLOGFILE,NPLOGMODE,stdout);
-	freopen(NPLOGFILE,NPLOGMODE,stderr);
-
 	if (set_lockfile()!=0) {
-		fprintf(stderr,"netproc: lock file exists: already running\n");
+		syslog(LOG_NOTICE, "lock file exists: already running");
 		cleanup(1);
 		}
 
@@ -1267,12 +1244,12 @@ int main(int argc, char **argv)
 	signal(SIGHUP,cleanup);
 	signal(SIGTERM,cleanup);
 
-	printf("netproc: started.  pid=%d\n",getpid());
+	syslog(LOG_NOTICE, "started.  pid=%d", getpid());
 	fflush(stdout);
 	np_attach_to_server();
 	fflush(stdout);
 
-	if (load_syslist()!=0) fprintf(stdout,"netproc: cannot load sysinfo\n");
+	if (load_syslist()!=0) syslog(LOG_ERR, "cannot load sysinfo");
 	setup_special_nodes();
 
 	inprocess();	/* first collect incoming stuff */
@@ -1291,7 +1268,7 @@ int main(int argc, char **argv)
 		}
 
 	rewrite_syslist();
-	printf("netproc: processing ended.\n");
+	syslog(LOG_NOTICE, "processing ended.");
 	cleanup(0);
 	return 0;
 	}
