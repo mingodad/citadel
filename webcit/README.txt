@@ -1,5 +1,5 @@
                       WEBCIT for the Citadel/UX System
-                               version 5.06
+                               version 5.10
  
    Copyright (C) 1996-2004 by the authors.  Portions written by:
 	Art Cancro
@@ -138,6 +138,33 @@ you must have libical v0.24 (or newer) on your system.  You must also be
 running a Citadel server with calendaring support.  The calendar service will
 be automatically configured and installed if your host system supports it.
  
+ WebCit also provides Kolab-compatible free/busy data for calendar clients.
+Unlike the Kolab server, however, there is no need for each user to "publish"
+free/busy data -- it is generated on-the-fly from the server-side calendar
+of the user being queried.
+  
+ 
+ HTTPS (encryption) SUPPORT
+ --------------------------
+ 
+ WebCit now supports HTTPS for encrypted connections.  When a secure server
+port is specified via the "-s" flag, an HTTPS service is enabled.
+ 
+ The service will look in the "keys" directory for the following files:
+ 
+ citadel.key   (your server's private key)
+ citadel.csr   (a certificate signing request)
+ citadel.cer   (your server's public certificate)
+ 
+ If any of these files are not found, WebCit will first attempt to link to the
+SSL files in the Citadel service's directory (if Citadel is running on the
+same host as WebCit), and if that does not succeed, it will automatically
+generate a key and certificate.
+ 
+ It is up to you to decide whether to use an automatically generated,
+self-signed certificate, or purchase a certificate signed by a well known
+authority.
+  
  
  CONCLUSION
  ----------
