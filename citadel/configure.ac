@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl $Id$
 AC_PREREQ(2.52)
-AC_INIT([Citadel/UX], [6.02], [http://uncensored.citadel.org/])
+AC_INIT([Citadel/UX], [6.15], [http://uncensored.citadel.org/])
 AC_REVISION([$Revision$])
 AC_CONFIG_SRCDIR([citserver.c])
 AC_PREFIX_DEFAULT(/usr/local/citadel)
@@ -17,7 +17,7 @@ AC_ARG_ENABLE(chkpwd, [  --disable-chkpwd        don't build 'chkpwd'])
 AC_ARG_ENABLE(threaded-client, [  --disable-threaded-client
 			  disable multithreaded client])
 
-AC_ARG_ENABLE(pie, [  --enable-pie            don't build position-independent executables])
+AC_ARG_ENABLE(pie, [  --enable-pie            build position-independent executables])
 
 AC_ARG_WITH(pam, [  --with-pam              use PAM if present (see PAM.txt before you try this)])
 AC_ARG_WITH(kthread, [  --with-kthread          use kernel threads (on FreeBSD) (not recommended yet)])
