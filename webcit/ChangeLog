@@ -1,4 +1,8 @@
 $Log$
+Revision 528.2  2004/12/29 22:08:08  ajc
+* roomops.c: provide a way to create room shares with a mapping to an
+  alternate room name on the other end.
+
 Revision 528.1  2004/12/29 17:28:09  ajc
 * roomops.c: when adding/removing nodes in the 'Sharing' tab, don't go
   all corrupty-whatever when a remote room name mapping is found.  Display
@@ -2150,3 +2154,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
