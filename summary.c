@@ -221,16 +221,17 @@ void server_info_section(void) {
 void summary(void) {
 	output_headers(7);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=#007700><TR>"
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=#444455><TR>"
 		"<TD><IMG SRC=\"/static/summary.gif\"></TD><TD>"
 		"<SPAN CLASS=\"titlebar\">"
 		"Summary page for ");
 	escputs(WC->wc_username);
 	wprintf("</SPAN></TD><TD>\n");
-	offer_start_page();
 	wprintf("</TD><TD ALIGN=RIGHT><SPAN CLASS=\"titlebar\">");
 	output_date();
-	wprintf("</SPAN></TD></TR></TABLE>\n");
+	wprintf("</SPAN><BR>");
+	offer_start_page();
+	wprintf("</TD></TR></TABLE>\n");
 
 	/*
 	 * Now let's do three columns of crap.  All portals and all groupware

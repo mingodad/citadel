@@ -503,14 +503,6 @@ void read_message(long msgnum) {
 	wprintf("<TD ALIGN=RIGHT>\n"
 		"<TABLE BORDER=0><TR>\n");
 
-	/***  "Read" button is now superfluous
-	 ***
-	 ***wprintf("<TD BGCOLOR=\"#AAAADD\">"
-	 ***	"<A HREF=\"/readfwd?startmsg=%ld", msgnum);
-	 ***wprintf("&maxmsgs=1&summary=0\">Read</A>"
-	 ***	"</TD>\n", msgnum);
-	 ***/
-
 	wprintf("<TD BGCOLOR=\"#AAAADD\">"
 		"<A HREF=\"/display_enter?recp=");
 	urlescputs(reply_to);
@@ -1600,7 +1592,7 @@ void confirm_move_msg(void)
 
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"#FFFFFF\"");
 	wprintf("<B>Confirm move of message</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");

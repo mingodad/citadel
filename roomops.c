@@ -216,63 +216,6 @@ void listrms(char *variety)
 
 
 /*
- * list all rooms by floor (only should get called from knrooms() because
- * that's where output_headers() is called from)
- */
-void tabular_room_list(void)
-{
-	int a;
-	char buf[SIZ];
-
-	do_template("beginbox_nt");
-	wprintf("<TABLE width=100%% border><TR><TH>Floor</TH>");
-	wprintf("<TH>Rooms with new messages</TH>");
-	wprintf("<TH>Rooms with no new messages</TH></TR>\n");
-
-	for (a = 0; a < 128; ++a)
-		if (floorlist[a][0] != 0) {
-
-			/* Floor name column */
-			wprintf("<TR><TD>");
-
-			serv_printf("OIMG _floorpic_|%d", a);
-			serv_gets(buf);
-			if (buf[0] == '2') {
-				serv_puts("CLOS");
-				serv_gets(buf);
-				wprintf("<IMG SRC=\"/image&name=_floorpic_&parm=%d\" ALT=\"%s\">",
-					a, &floorlist[a][0]);
-			} else {
-				escputs(&floorlist[a][0]);
-			}
-
-			wprintf("</TD>");
-
-			/* Rooms with new messages column */
-			wprintf("<TD>");
-			sprintf(buf, "LKRN %d", a);
-			listrms(buf);
-			wprintf("</TD>\n<TD>");
-
-			/* Rooms with old messages column */
-			sprintf(buf, "LKRO %d", a);
-			listrms(buf);
-			wprintf("</TD></TR>\n");
-		}
-	wprintf("</TABLE>\n");
-	do_template("endbox");
-	wDumpContent(1);
-}
-
-
-
-
-
-
-
-
-
-/*
  * list all forgotten rooms
  */
 void zapped_list(void)
@@ -2172,7 +2115,7 @@ void knrooms() {
 	}
 
 	/* title bar */
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#000077\"><TR><TD>"
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">"
 	);
 	if (!strcasecmp(listviewpref, "rooms")) {
@@ -2188,7 +2131,7 @@ void knrooms() {
 
 
 	/* offer the ability to switch views */
-	wprintf("<TD><FORM NAME=\"roomlistomatic\">\n"
+	wprintf("<TD ALIGN=RIGHT><FORM NAME=\"roomlistomatic\">\n"
 		"<SELECT NAME=\"newview\" SIZE=\"1\" "
 		"OnChange=\"location.href=roomlistomatic.newview.options"
 		"[selectedIndex].value\">\n");
@@ -2205,21 +2148,10 @@ void knrooms() {
 		( !strcasecmp(listviewpref, "folders") ? "SELECTED" : "" )
 	);
 
-	wprintf("<OPTION %s VALUE=\"/knrooms&view=table\">"
-		"Classic table view"
-		"</OPTION>\n",
-		( !strcasecmp(listviewpref, "table") ? "SELECTED" : "" )
-	);
-
-	wprintf("</SELECT></FORM></TD><TD>\n");
+	wprintf("</SELECT><BR>");
 	offer_start_page();
-	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</FORM></TD></TR></TABLE>\n");
 
 	/* Display the room list in the user's preferred format */
-	if (!strcasecmp(listviewpref, "table")) {
-		tabular_room_list();
-	}
-	else {
-		list_all_rooms_by_floor(listviewpref);
-	}
+	list_all_rooms_by_floor(listviewpref);
 }

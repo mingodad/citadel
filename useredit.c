@@ -264,7 +264,7 @@ void display_edituser(char *supplied_username, int is_new) {
 	}
 
 	output_headers(3);	/* No room banner on this screen */
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">"
 		"Edit user account: ");
 	escputs(username);

@@ -46,11 +46,11 @@ void whobbs(void)
 		"</SCRIPT>\n"
 	);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<IMG SRC=\"/static/users-icon.gif\" ALT=\" \" ALIGN=MIDDLE>");
 	wprintf("<SPAN CLASS=\"titlebar\">&nbsp;Users currently on ");
 	escputs(serv_info.serv_humannode);
-	wprintf("</SPAN></TD><TD>");
+	wprintf("</SPAN></TD><TD ALIGN=RIGHT>");
 	offer_start_page();
 	wprintf("</TD></TR></TABLE><BR>\n");
 
@@ -197,7 +197,7 @@ void edit_me(void)
 
 		output_headers(3);
 
-		wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#000077\"><TR><TD>");
+		wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 		wprintf("<SPAN CLASS=\"titlebar\">");
 		wprintf("Edit your session display");
 		wprintf("</SPAN></TD></TR></TABLE>\n");
