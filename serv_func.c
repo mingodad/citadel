@@ -15,18 +15,18 @@ struct serv_info serv_info;
 /*
  * get info about the server we've connected to
  */
-void get_serv_info(char *browser_host)
+void get_serv_info(char *browser_host, char *user_agent)
 {
 	char buf[256];
 	int a;
 
 	serv_printf("IDEN %d|%d|%d|%s|%s",
-		    DEVELOPER_ID,
-		    CLIENT_ID,
-		    CLIENT_VERSION,
-		    SERVER,
-		    browser_host
-	    );
+		DEVELOPER_ID,
+		CLIENT_ID,
+		CLIENT_VERSION,
+		user_agent,
+		browser_host
+	);
 	serv_gets(buf);
 
 	serv_puts("INFO");

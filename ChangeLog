@@ -3,6 +3,8 @@ Sat May 29 00:25:47 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  the transition back to the Lobby after it's all done.
 	* Added ExpressMessageCat() to allow code to send the user messages
 	  along with incoming express messages
+	* WebCit now sends the name of the end user's browser as the client
+	  name in a Citadel IDEN command rather than its own name.
 
 Fri May 21 23:35:17 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Minor code cleanups
