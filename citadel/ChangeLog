@@ -1,4 +1,7 @@
  $Log$
+ Revision 606.7  2003/06/02 23:11:00  error
+ * Checkin installer script citadel.nsi for NSIS Windows installer
+
  Revision 606.6  2003/06/02 03:01:22  ajc
  * citserver.c: added another trace message to is_public_client().  Uncensored
    has crashed twice in this function, for no apparent reason.
@@ -4742,4 +4745,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
