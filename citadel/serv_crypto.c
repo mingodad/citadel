@@ -292,33 +292,34 @@ int client_read_ssl(char *buf, int bytes, int timeout)
 
 
 /*
- * cmd_stls() starts SSL/TLS encryption for the current session
+ * CtdlStartTLS() starts SSL/TLS encryption for the current session.  It
+ * must be supplied with pre-generated strings for responses of "ok," "no
+ * support for TLS," and "error" so that we can use this in any protocol.
  */
-void cmd_stls(char *params)
-{
+void CtdlStartTLS(char *ok_response, char *nosup_response,
+			char *error_response) {
+
 	int retval, bits, alg_bits;
 
 	if (!ssl_ctx) {
-		cprintf("%d No SSL_CTX available\n", ERROR + CMD_NOT_SUPPORTED);
+		cprintf("%s", nosup_response);
 		return;
 	}
 	if (!(CC->ssl = SSL_new(ssl_ctx))) {
 		lprintf(2, "SSL_new failed: %s\n",
-				ERR_reason_error_string(ERR_peek_error()));
-		cprintf("%d SSL_new: %s\n", ERROR + INTERNAL_ERROR,
 				ERR_reason_error_string(ERR_get_error()));
+		cprintf("%s", error_response);
 		return;
 	}
 	if (!(SSL_set_fd(CC->ssl, CC->client_socket))) {
 		lprintf(2, "SSL_set_fd failed: %s\n",
-			ERR_reason_error_string(ERR_peek_error()));
+			ERR_reason_error_string(ERR_get_error()));
 		SSL_free(CC->ssl);
 		CC->ssl = NULL;
-		cprintf("%d SSL_set_fd: %s\n", ERROR + INTERNAL_ERROR,
-				ERR_reason_error_string(ERR_get_error()));
+		cprintf("%s", error_response);
 		return;
 	}
-	cprintf("%d \n", CIT_OK);
+	cprintf("%s", ok_response);
 	retval = SSL_accept(CC->ssl);
 	if (retval < 1) {
 		/*
@@ -344,6 +345,29 @@ void cmd_stls(char *params)
 		SSL_CIPHER_get_version(SSL_get_current_cipher(CC->ssl)),
 		bits, alg_bits);
 	CC->redirect_ssl = 1;
+}
+
+
+/*
+ * cmd_stls() starts SSL/TLS encryption for the current session
+ */
+void cmd_stls(char *params)
+{
+	char ok_response[SIZ];
+	char nosup_response[SIZ];
+	char error_response[SIZ];
+
+	sprintf(ok_response,
+		"%d Begin TLS negotiation now\n",
+		CIT_OK);
+	sprintf(nosup_response,
+		"%d TLS not supported here\n",
+		ERROR + CMD_NOT_SUPPORTED);
+	sprintf(error_response,
+		"%d TLS negotiation error\n",
+		ERROR + INTERNAL_ERROR);
+
+	CtdlStartTLS(ok_response, nosup_response, error_response);
 }
 
 
