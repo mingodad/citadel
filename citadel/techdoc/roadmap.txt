@@ -11,9 +11,7 @@ Goals to achieve during the 6.xx cycle
  
 * Better UI presentation for delegated access to mailboxes.
 
-* LDAP directory support
-  (UPDATE: an LDAP connector for Citadel has been checked into CVS, and it
-  is capable of populating an external LDAP directory.)
+* Additional LDAP integration
 
 * Calendar service
   Status: full functionality is present in 6.07, including the ability to
@@ -36,6 +34,6 @@ Goals to achieve during the 6.xx cycle
  Short-term TODO list
  --------------------
  
- * STARTTLS support in IMAP, POP, and SMTP
  * PLAIN and CRAM-MD5 authentication mechanisms
  * WebCit support for HTTP transactions performed by Kolab clients
+ 

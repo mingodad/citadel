@@ -1788,6 +1788,9 @@ fails for any reason, ERROR is returned.
  32. Hour (0 through 23) during which database auto-purge jobs are run
  33. Name of host where an LDAP service may be found
  34. Port number of LDAP service on above host
+ 35. LDAP Base DN
+ 36. LDAP Bind DN
+ 37. PAssword for LDAP Bind DN
 
  CONF also accepts two additional commands: GETSYS and PUTSYS followed by an
 arbitrary MIME type (such as application/x-citadel-internet-config) which
