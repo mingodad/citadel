@@ -609,7 +609,9 @@ void disable_other_mta(char *mta) {
 	FILE *fp;
 	int lines = 0;
 
-	sprintf(buf, "/bin/ls -l /etc/rc*.d/S*%s 2>/dev/null", mta);
+	sprintf(buf, "/bin/ls -l /etc/rc*.d/S*%s 2>/dev/null; "
+		"/bin/ls -l /etc/rc.d/rc*.d/S*%s 2>/dev/null",
+		mta, mta);
 	fp = popen(buf, "r");
 	if (fp == NULL) return;
 
