@@ -14,6 +14,9 @@ Thu Sep 17 22:21:45 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  - Dynamic_Module_Init() now returns a pointer to a static struct
 	    DLModule_Info; this structure itself has been modified to use char*
 	    fields instead of fixed char arrays.
+	* roomstats.c: include <stdarg.h> not <stdargs.h> (is this file still
+	  in use?)
+	* Configure, Makefile.in: added autodependency support
 
 Wed Sep 16 22:25:13 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Implemented separate structs, lists, and functions for each type
