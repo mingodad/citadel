@@ -239,7 +239,8 @@ void readloop(char *oper)
 
 	output_headers(1);
 
-	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><CENTER><B>%s - ", WC->wc_roomname);
+	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><CENTER><B>%s - ",
+		WC->wc_roomname);
 	if (!strcmp(oper, "readnew")) {
 		strcpy(cmd, "MSGS NEW");
 		wprintf("new messages");
@@ -267,7 +268,7 @@ void readloop(char *oper)
 		read_message(WC->msgarr[a], oper);
 	}
 
-      DONE:wDumpContent(1);
+DONE:	wDumpContent(1);
 }
 
 

@@ -102,6 +102,7 @@ void fmout(FILE * fp)
 	int bq = 0;
 	char buf[256];
 
+	wprintf("<DIV ALIGN=JUSTIFY>\n");
 	while (1) {
 		if (fp == NULL)
 			serv_gets(buf);
@@ -113,7 +114,7 @@ void fmout(FILE * fp)
 		if (!strcmp(buf, "000")) {
 			if (bq == 1)
 				wprintf("</I>");
-			wprintf("<P>\n");
+			wprintf("</DIV><BR>\n");
 			return;
 		}
 		if ((intext == 1) && (isspace(buf[0]))) {
