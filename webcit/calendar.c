@@ -78,7 +78,7 @@ void cal_process_object(icalcomponent *cal,
 ) {
 	icalcomponent *c;
 	icalproperty *method = NULL;
-	icalproperty_method the_method;
+	icalproperty_method the_method = ICAL_METHOD_NONE;
 	icalproperty *p;
 	struct icaltimetype t;
 	time_t tt;
@@ -102,6 +102,15 @@ void cal_process_object(icalcomponent *cal,
 				"SRC=\"/static/vcalendar.gif\">"
 				"&nbsp;&nbsp;"	
 				"<B>Meeting invitation</B>
+				</TD></TR>\n"
+			);
+			break;
+		    case ICAL_METHOD_PUBLISH:
+			wprintf("<TR><TD COLSPAN=2>\n"
+				"<IMG ALIGN=CENTER "
+				"SRC=\"/static/vcalendar.gif\">"
+				"&nbsp;&nbsp;"	
+				"<B>Published event</B>
 				</TD></TR>\n"
 			);
 			break;
@@ -171,8 +180,8 @@ void cal_process_object(icalcomponent *cal,
 		cal_process_object(c, recursion_level+1, msgnum, cal_partnum);
 	}
 
-	/* Trailing HTML for the display of this object */
-	if (recursion_level == 0) {
+	/* If this is a REQUEST, display the Accept/Decline buttons */
+	if (the_method == ICAL_METHOD_REQUEST) {
 		wprintf("<TR><TD COLSPAN=2>"
 			"<FORM METHOD=\"GET\" "
 			"ACTION=\"/respond_to_request\">\n"
@@ -189,9 +198,14 @@ void cal_process_object(icalcomponent *cal,
 			"<INPUT TYPE=\"hidden\" NAME=\"cal_partnum\" "
 				"VALUE=\"%s\">"
 			"</FORM>"
-			"</TD></TR></TABLE></CENTER>\n",
+			"</TD></TR>\n",
 			msgnum, cal_partnum
 		);
+	}
+
+	/* Trailing HTML for the display of this object */
+	if (recursion_level == 0) {
+		wprintf("</TD></TR></TABLE></CENTER>\n");
 	}
 }
 

@@ -1,4 +1,8 @@
 $Log$
+Revision 400.41  2002/10/19 17:10:14  ajc
+* Add "Tentative" accept button
+* Only display Accept/Tentative/Decline button when method=REQUEST
+
 Revision 400.40  2002/10/19 04:16:37  ajc
 * Save an incoming meeting request into the user's calendar.
 
@@ -1077,3 +1081,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
