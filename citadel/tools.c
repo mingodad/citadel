@@ -572,3 +572,63 @@ FILE *CtdlTempFile(void) {
 	unlink(filename);
 	return(fp);
 }
+
+
+/*
+ * bmstrcasestr() is a variant of strstr() that is both case-insensitive
+ * and uses the Boyer-Moore search algorithm.
+ * 
+ * Original code: copyright (c) 1997-1998 by Urs Janssen <urs@tin.org>
+ * Modifications: copyright (c) 2003 by Art Cancro <ajc@uncensored.citadel.org>
+ */
+char *bmstrcasestr(char *text, char *pattern)
+{
+	register unsigned char *p, *t;
+	register int i, j, *delta;
+	register size_t p1;
+	int deltaspace[256];
+	size_t textlen;
+	size_t patlen;
+
+	textlen = strlen(text);
+	patlen = strlen(pattern);
+
+	/* algorithm fails if pattern is empty */
+	if ((p1 = patlen) == 0)
+		return (text);
+
+	/* code below fails (whenever i is unsigned) if pattern too long */
+	if (p1 > textlen)
+		return (NULL);
+
+	/* set up deltas */
+	delta = deltaspace;
+	for (i = 0; i <= 255; i++)
+		delta[i] = p1;
+	for (p = (unsigned char *) pattern, i = p1; --i > 0;)
+		delta[*p++] = i;
+
+	/*
+	 * From now on, we want patlen - 1.
+	 * In the loop below, p points to the end of the pattern,
+	 * t points to the end of the text to be tested against the
+	 * pattern, and i counts the amount of text remaining, not
+	 * including the part to be tested.
+	 */
+	p1--;
+	p = (unsigned char *) pattern + p1;
+	t = (unsigned char *) text + p1;
+	i = textlen - patlen;
+	while (1) {
+		if (tolower(*p) == tolower(*t)
+		   && strncasecmp((p - p1), (t - p1), p1) == 0)
+			return ((char *) t - p1);
+		j = delta[*t];
+		if (i < j)
+			break;
+		i -= j;
+		t += j;
+	}
+	return (NULL);
+}
+

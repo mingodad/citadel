@@ -130,7 +130,7 @@ int main(int argc, char **argv)
 	lprintf(1,
 "\n"
 "Citadel/UX messaging server engine v%d.%02d\n"
-"Copyright (C) 1987-2002 by the Citadel/UX development team.\n"
+"Copyright (C) 1987-2003 by the Citadel/UX development team.\n"
 "Citadel/UX is released under the terms of the GNU General Public License.\n"
 "If you paid for this software, someone is ripping you off.\n\n",
 	(REV_LEVEL/100),

@@ -1,4 +1,8 @@
  $Log$
+ Revision 608.8  2003/07/26 04:28:44  ajc
+ * tools.c: added bmstrcasestr(), a Boyer-Moore, case-insensitive string search
+ * imap_search.c: implement BODY criterion in search command
+
  Revision 608.7  2003/07/24 04:57:53  ajc
  * Began implementation of the IMAP SEARCH command.  Basically just got the
    parser working and stubbed all the search criteria.  Next step is to
@@ -4897,3 +4901,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

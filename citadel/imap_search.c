@@ -65,7 +65,6 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 			int num_items, char **itemlist, int is_uid) {
 
 	int match = 0;
-	int i;
 	int is_not = 0;
 	int is_or = 0;
 	int pos = 0;
@@ -109,7 +108,9 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos], "BODY")) {
-		/* FIXME */
+		if (bmstrcasestr(msg->cm_fields['M'], itemlist[pos+1])) {
+			match = 1;
+		}
 		pos += 2;
 	}
 
