@@ -1,4 +1,7 @@
  $Log$
+ Revision 620.10  2004/04/12 20:51:40  error
+ * citadel.lsm: Update LSM for 6.20p1; uploaded to ibiblio.org
+
  Revision 620.9  2004/04/09 23:11:01  error
  * serv_chat.c: Differentiate when a user does not exist when paging users.
 
@@ -5670,3 +5673,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
