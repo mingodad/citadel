@@ -1,4 +1,9 @@
 $Log$
+Revision 506.7  2004/04/20 02:32:44  ajc
+* Allow setup to run seamlessly from within the Citadel/UX Ridiculously
+  Easy Installer by observing the values of environment variables
+  CITADEL_INSTALLER, CITADEL, and WEBCIT.
+
 Revision 506.6  2004/04/20 02:02:50  ajc
 * "make install"
 
@@ -1776,3 +1781,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
