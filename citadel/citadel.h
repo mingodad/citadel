@@ -1,6 +1,7 @@
 /* citadel.h
  * main Citadel/UX header file
  * see copyright.txt for copyright information
+ * $Id$
  */
 
 /* system customizations are in sysconfig.h */

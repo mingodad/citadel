@@ -1,3 +1,4 @@
+/* $Id$ */
 void strproc (char *string);
 int num_parms (char *source);
 void extract (char *dest, char *source, int parmnum);

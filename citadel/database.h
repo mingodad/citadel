@@ -1,3 +1,4 @@
+/* $Id$ */
 void defrag_databases (void);
 void open_databases (void);
 void close_databases (void);

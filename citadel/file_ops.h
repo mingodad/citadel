@@ -1,3 +1,4 @@
+/* $Id$ */
 void cmd_delf (char *filename);
 void cmd_movf (char *cmdbuf);
 void cmd_netf (char *cmdbuf);

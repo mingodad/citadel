@@ -1,3 +1,4 @@
+/* $Id$ */
 typedef pthread_t THREAD;
 
 

@@ -1,3 +1,4 @@
+/* $Id$ */
 void edituser(void);
 void extract(char *dest, char *source, int parmnum);
 long extract_long(char *source, int parmnum);

@@ -1,3 +1,4 @@
+/* $Id$ */
 void lprintf (int loglevel, const char *format, ...);
 void init_sysdep (void);
 void begin_critical_section (int which_one);

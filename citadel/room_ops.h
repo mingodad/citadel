@@ -1,3 +1,4 @@
+/* $Id$ */
 int is_known (struct quickroom *roombuf, int roomnum,
 	      struct usersupp *userbuf);
 int has_newmsgs (struct quickroom *roombuf, int roomnum,

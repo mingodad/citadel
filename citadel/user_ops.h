@@ -1,3 +1,4 @@
+/* $Id$ */
 int hash (char *str);
 int getuser (struct usersupp *usbuf, char *name);
 int lgetuser (struct usersupp *usbuf, char *name);

@@ -1,3 +1,4 @@
+/* $Id$ */
 void updatels(void);
 void updatelsa(void);
 void movefile(void);

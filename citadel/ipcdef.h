@@ -1,3 +1,4 @@
+/* $Id$ */
 #ifdef OK
 #undef OK
 #endif

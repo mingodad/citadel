@@ -1,1 +1,2 @@
+/* $Id$ */
 void chatmode(void);

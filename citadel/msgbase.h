@@ -1,3 +1,4 @@
+/* $Id$ */
 int alias (char *name);
 void get_mm (void);
 void cmd_msgs (char *cmdbuf);

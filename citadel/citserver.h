@@ -1,3 +1,4 @@
+/* $Id$ */
 void master_startup (void);
 void master_cleanup (void);
 void cleanup_stuff (void *arg);

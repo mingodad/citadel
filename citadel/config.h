@@ -1,3 +1,4 @@
+/* $Id$ */
 void get_config(void);
 void put_config(void);
 extern struct config config;

@@ -1,3 +1,4 @@
+/* $Id$ */
 extern char fullname[32];
 extern unsigned room_flags;
 extern char room_name[32];

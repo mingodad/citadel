@@ -7,6 +7,8 @@
 /* otherwise your files will be munged beyond repair.                       */
 /****************************************************************************/
 
+/* $Id$ */
+
 /* NOTE THAT THIS FILE IS MUCH, MUCH SMALLER THAN IT USED TO BE.
  * That's because the setup program now creates a citadel.config file with
  * all of the settings that don't really need to be in a header file.

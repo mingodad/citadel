@@ -1,3 +1,4 @@
+/* $Id$ */
 void load_command_set(void);
 void sttybbs(int cmd);
 void newprompt(char *prompt, char *str, int len);

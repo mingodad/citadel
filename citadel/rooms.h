@@ -1,3 +1,4 @@
+/* $Id$ */
 void listzrooms(void);
 void readinfo(void);
 void forget(void);

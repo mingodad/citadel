@@ -1,3 +1,4 @@
+/* $Id$ */
 struct DLModule_Info
 {
    char *module_name;
