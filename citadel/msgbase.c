@@ -1099,7 +1099,7 @@ void cmd_opna(char *cmdbuf)
  * Save a message pointer into a specified room
  * (Returns 0 for success, nonzero for failure)
  */
-int CtdlSaveMsgPointerInRoom(char *roomname, long msgid) {
+int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 	int i;
 	struct quickroom qrbuf;
         struct cdbdata *cdbfr;
@@ -1107,7 +1107,8 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid) {
         long *msglist;
         long highest_msg = 0L;
 
-	lprintf(9, "CtdlSaveMsgPointerInRoom(%s, %ld)\n", roomname, msgid);
+	lprintf(9, "CtdlSaveMsgPointerInRoom(%s, %ld, %d)\n",
+		roomname, msgid, flags);
 
 	if (lgetroom(&qrbuf, roomname) != 0) {
 		lprintf(9, "No such room <%s>\n", roomname);
@@ -1362,10 +1363,6 @@ int ReplicationChecks(struct CtdlMessage *msg) {
 
 
 
-
-
-
-
 /*
  * Save a message to disk
  */
@@ -1505,7 +1502,7 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 		if (strlen(force_room) > 0) {
 			strcpy(actual_rm, force_room);
 		}
-		CtdlSaveMsgPointerInRoom(actual_rm, newmsgid);
+		CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0);
 	}
 
 	/* Bump this user's messages posted counter. */
@@ -1519,7 +1516,7 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	if ((strlen(recipient) > 0) && (mailtype == MES_LOCAL)) {
 		if (getuser(&userbuf, recipient) == 0) {
 			MailboxName(actual_rm, &userbuf, MAILROOM);
-			CtdlSaveMsgPointerInRoom(actual_rm, newmsgid);
+			CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0);
 		}
 	}
 
@@ -2063,7 +2060,7 @@ void cmd_move(char *args)
 
 	if (foundit) {
 		/* put the message into the target room */
-		if (err = CtdlSaveMsgPointerInRoom(targ, num), (err !=0) ) {
+		if (err = CtdlSaveMsgPointerInRoom(targ, num, 0), (err !=0) ) {
 			cprintf("%d Could not save message %ld in %s.\n",
 				err, num, targ);
 		}

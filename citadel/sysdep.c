@@ -99,7 +99,11 @@ void *tracked_malloc(size_t tsize, char *tfile, int tline) {
 	struct TheHeap *hptr;
 
 	ptr = malloc(tsize);
-	if (ptr == NULL) return(NULL);
+	if (ptr == NULL) {
+		lprintf(3, "DANGER!  mallok(%d) at %s:%d failed!\n",
+			tsize, tfile, tline);
+		return(NULL);
+	}
 
 	hptr = (struct TheHeap *) malloc(sizeof(struct TheHeap));
 	strcpy(hptr->h_file, tfile);

@@ -572,7 +572,7 @@ void GenerateRoomDisplay(char *real_room,
 		while (strlen(real_room) < 14)
 			strcat(real_room, " ");
 
-		strcpy(&real_room[15], "<chat>");
+		strcpy(&real_room[14], "<chat>");
 	}
 
 }
