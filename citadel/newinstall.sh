@@ -272,6 +272,15 @@ install_prerequisites () {
 }
 
 install_sources () {
+	if [ -f $CITADEL/citadel.config ]
+	then
+		IS_UPGRADE=yes
+		echo "* Upgrading your existing Citadel installation."
+	else
+		IS_UPGRADE=no
+	fi
+
+
 	echo "* Installing Citadel..."
 
 	CFLAGS="${CFLAGS} -I${SUPPORT}/include"
@@ -289,11 +298,12 @@ install_sources () {
 		./configure --prefix=$CITADEL --with-db=$OK_DB --with-pam --enable-autologin --with-ldap --with-libical --disable-threaded-client 2>&1 >>$LOG || die
 	fi
 	$MAKE $MAKEOPTS 2>&1 >>$LOG || die
-	if [ -f $CITADEL/citadel.config ]
+	if [ $IS_UPGRADE = yes ]
 	then
+		echo "* Performing Citadel upgrade..."
 		$MAKE upgrade 2>&1 >>$LOG || die
-		IS_UPGRADE=yes
 	else
+		echo "* Performing Citadel install..."
 		$MAKE install 2>&1 >>$LOG || die
 		useradd -c "Citadel service account" -d $CITADEL -s $CITADEL/citadel citadel 2>&1 >>$LOG
 	fi
