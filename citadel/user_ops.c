@@ -1050,7 +1050,8 @@ int CtdlForgetThisRoom(void) {
 	struct visit vbuf;
 
 	/* On some systems, Aides are not allowed to forget rooms */
-	if (is_aide() && (config.c_aide_zap == 0)) {
+	if (is_aide() && (config.c_aide_zap == 0)
+	   && ((CC->quickroom.QRflags & QR_MAILBOX) == 0)  ) {
 		return(1);
 	}
 
