@@ -848,7 +848,7 @@ void init_master_fdset(void) {
  */
 int main(int argc, char **argv)
 {
-	pthread_t HousekeepingThread;	/* Thread descriptor */
+	pthread_t WorkerThread;	/* Thread descriptor */
         pthread_attr_t attr;		/* Thread attributes */
 	char tracefile[128];		/* Name of file to log traces to */
 	int a, i;			/* General-purpose variables */
@@ -995,20 +995,8 @@ int main(int argc, char **argv)
 		}
 	}
 
-
-
-	/*
-	 * Create the housekeeper thread
-	 */
-	lprintf(7, "Starting housekeeper thread\n");
-	pthread_attr_init(&attr);
-       	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-	if (pthread_create(&HousekeepingThread, &attr,
-	   (void* (*)(void*)) housekeeping_loop, NULL) != 0) {
-		lprintf(1, "Can't create housekeeping thead: %s\n",
-			strerror(errno));
-	}
-
+	/* We want to check for idle sessions once per minute */
+	CtdlRegisterSessionHook(terminate_idle_sessions, EVT_TIMER);
 
 	/*
 	 * Now create a bunch of worker threads.
@@ -1016,7 +1004,7 @@ int main(int argc, char **argv)
 	for (i=0; i<(config.c_min_workers-1); ++i) {
 		pthread_attr_init(&attr);
        		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-		if (pthread_create(&HousekeepingThread, &attr,
+		if (pthread_create(&WorkerThread, &attr,
 	   	   (void* (*)(void*)) worker_thread, NULL) != 0) {
 			lprintf(1, "Can't create worker thead: %s\n",
 			strerror(errno));
@@ -1060,6 +1048,8 @@ void worker_thread(void) {
 	++num_threads;
 
 	while (!time_to_die) {
+
+		cdb_begin_transaction();
 
 		/* 
 		 * A naive implementation would have all idle threads
@@ -1185,9 +1175,7 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 			/* We're bound to a session, now do *one* command */
 			if (bind_me != NULL) {
 				become_session(bind_me);
-				cdb_begin_transaction();
 				CC->h_command_function();
-				cdb_end_transaction();
 				become_session(NULL);
 				bind_me->state = CON_IDLE;
 				if (bind_me->kill_me == 1) {
@@ -1200,10 +1188,12 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 		dead_session_purge();
 		if ((time(NULL) - last_timer) > 60L) {
 			last_timer = time(NULL);
-			cdb_begin_transaction();
 			PerformSessionHooks(EVT_TIMER);
-			cdb_end_transaction();
 		}
+
+		check_sched_shutdown();
+
+		cdb_end_transaction();
 	}
 
 	/* If control reaches this point, the server is shutting down */	

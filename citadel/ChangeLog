@@ -1,4 +1,9 @@
  $Log$
+ Revision 573.47  2000/12/11 06:08:41  ajc
+ * Removed the housekeeper thread, moved terminate_idle_sessions() out to a
+   timer event, and check_sched_shutdown() to the end of the worker thread
+   loop.  Seems to have improved reliability (but why?)
+
  Revision 573.46  2000/12/11 03:22:11  ajc
  * Added server-side REQT command to issue client termination requests
 
@@ -2207,3 +2212,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -1,8 +1,7 @@
 /*
  * $Id$
  *
- * This file contains housekeeping tasks which periodically
- * need to be executed.  It keeps a nice little queue...
+ * This file contains miscellaneous housekeeping tasks.
  *
  */
 
@@ -45,6 +44,7 @@ void terminate_idle_sessions(void) {
 	struct CitContext *ccptr;
 	time_t now;
 	int session_to_kill;
+	int killed = 0;
 
 	now = time(NULL);
 	session_to_kill = 0;
@@ -54,9 +54,11 @@ void terminate_idle_sessions(void) {
 	   	&& (config.c_sleeping > 0)
 	   	&& (now - (ccptr->lastcmd) > config.c_sleeping) ) {
 			ccptr->kill_me = 1;
+			++killed;
 		}
 	}
 	end_critical_section(S_SESSION_TABLE);
+	lprintf(9, "Terminated %d idle sessions\n", killed);
 }
 
 
@@ -68,92 +70,6 @@ void check_sched_shutdown(void) {
 	}
 }
 
-
-
-/*
- * This is the main loop for the housekeeping thread.  It remains active
- * during the entire run of the server.
- */
-void housekeeping_loop(void) {
-	long flags;
-        struct timeval tv;
-        fd_set readfds;
-        int did_something;
-	char house_cmd[256];	/* Housekeep cmds are always 256 bytes long */
-	char cmd[256];
-
-	if (pipe(housepipe) != 0) {
-		lprintf(1, "FATAL ERROR: can't create housekeeping pipe: %s\n",
-			strerror(errno));
-		exit(0);
-	}
-
-	flags = (long) fcntl(housepipe[1], F_GETFL);
-	flags |= O_NONBLOCK;
-	fcntl(housepipe[1], F_SETFL, flags);
-
-	while(1) {
-		do {
-			did_something = 0;
-			tv.tv_sec = HOUSEKEEPING_WAKEUP;
-			tv.tv_usec = 0;
-                	FD_ZERO(&readfds);
-                	FD_SET(housepipe[0], &readfds);
-                	select(housepipe[0] + 1, &readfds, NULL, NULL, &tv);
-                	if (FD_ISSET(housepipe[0], &readfds)) {
-                        	did_something = 1;
-			}
-
-			if (did_something) {
-				read(housepipe[0], house_cmd, 256);
-			}
-			else {
-				memset(house_cmd, 0, 256);
-				strcpy(house_cmd, "MINUTE");
-			}
-
-			extract(cmd, house_cmd, 0);
-			cdb_begin_transaction();
-
-			/* Do whatever this cmd requires */
-
-			/* Once-every-minute housekeeper */
-			if (!strcmp(cmd, "MINUTE")) {
-				terminate_idle_sessions();
-			}
-
-			/* Scheduled shutdown housekeeper */
-			else if (!strcmp(cmd, "SCHED_SHUTDOWN")) {
-				check_sched_shutdown();
-			}
-
-			/* Unknown */
-			else {
-				lprintf(7, "Unknown housekeeping command\n");
-			}
-
-			cdb_end_transaction();
-
-		} while (did_something);
-	}
-}
-
-
-
-
-
-
-void enter_housekeeping_cmd(char *cmd) {
-	char cmdbuf[256];
-
-	lprintf(9, "enter_housekeeping_cmd(%s)\n", cmd);
-	safestrncpy(cmdbuf, cmd, 256);
-	begin_critical_section(S_HOUSEKEEPING);
-	write(housepipe[1], cmdbuf, 256);
-	end_critical_section(S_HOUSEKEEPING);
-	lprintf(9, "leaving enter_housekeeping_cmd()\n");
-}
-	
 
 
 /*

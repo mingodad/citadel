@@ -203,10 +203,7 @@ void RemoveContext (struct CitContext *con)
 	lprintf(7, "Closing socket %d\n", con->client_socket);
 	close(con->client_socket);
 
-        /* Tell the housekeeping thread to check to see if this is the time
-         * to initiate a scheduled shutdown event.
-         */
-        enter_housekeeping_cmd("SCHED_SHUTDOWN");
+	/* This is where we used to check for scheduled shutdowns. */
 
 	/* Free up the memory used by this context */
 	phree(con);

@@ -405,6 +405,7 @@ void cdb_begin_transaction(void) {
 void cdb_end_transaction(void) {
 #ifdef TRANSACTION_BASED
 	begin_critical_section(S_DATABASE);
+	if (MYTID == NULL) lprintf(1, "WARNING: txn_commit(NULL) !!\n");
 	txn_commit(MYTID, 0);
 	end_critical_section(S_DATABASE);
 #endif
