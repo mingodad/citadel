@@ -11,15 +11,16 @@
 <style type="text/css">
 
 * html {
-	overflow:hidden;
+	overflow: hidden;
 }
 
 body {
 	margin:0;
 	margin-right: 1px;
-	padding:0 10px 0 10px;
-	height:100%;
-	overflow:auto;
+	<!-- padding: 0 10px 0 10px; -->
+	padding: 0 0 0 0;
+	height: 100%;
+	overflow: auto;
 	background: #aaaaaa;
 	color: #000000;
 	font-family: "Bitstream Vera Sans",Arial,Helvetica,sans-serif;
@@ -68,10 +69,15 @@ body {
 }
 
 #text {
-	display:block;
+	display: block;
 	margin-top: 78px;
-	margin-left:75px;
-	width:90%;
+	margin-left: 75px;
+	width: 90%;	<!-- proper browsers -->
+}
+
+* html #text {
+	margin-top: 78px;
+	width: 88%;	<!-- IE scrollbar bug -->
 }
 
 a:link {
@@ -224,14 +230,14 @@ a:hover {
 }
 
 blockquote {
-  margin-left: 8%;
-  margin-right: 8%;
-  border: thin ridge #dc143c;
+	margin-left: 8%;
+	margin-right: 8%;
+	border: thin ridge #dc143c;
 }
 
 blockquote pre {
-  margin-left: 1%;
-  margin-right: 1%;
+	margin-left: 1%;
+	margin-right: 1%;
 }
 
 var sub {
@@ -329,7 +335,7 @@ td li.frameset, .elements li.frameset {
 }
 
 @media print {
-  input#toggler, .toolbar { display: none }
+	input#toggler, .toolbar { display: none }
 }
 
 <!-- begin tree view styles -->
