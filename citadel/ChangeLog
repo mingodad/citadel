@@ -5,6 +5,9 @@ Fri Oct  9 18:34:06 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-10-09 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* serv_chat.c: fix buffer overrun that was resulting in segv's
+	* serv_chat.c: fix another overrun that could cause sessions to hang,
+	  and cleaned up some other strncpy()-related stuff. DON'T FORGET TO
+	  NULL-TERMINATE DESTINATION BUFFERS AFTER STRNCPY CALLS.
 
 Fri Oct  9 13:22:37 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Implemented "lazy mode" traversal - pressing the space bar will do

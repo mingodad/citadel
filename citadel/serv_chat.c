@@ -99,7 +99,11 @@ void allwrite(char *cmdbuf, int flag, char *roomname, char *username)
 	strncpy(clnew->chat_room, roomname, sizeof clnew->chat_room);
 	clnew->chat_room[sizeof clnew->chat_room - 1] = 0;
 	if (username)
-  	   strncpy(clnew->chat_username, username, 31); 
+	  {
+	    strncpy(clnew->chat_username, username,
+		    sizeof clnew->chat_username);
+	    clnew->chat_username[sizeof clnew->chat_username - 1] = 0;
+	  }
   	else
   	   clnew->chat_username[0] = '\0';
 	strcpy(clnew->chat_text, bcast);
@@ -310,7 +314,9 @@ void cmd_chat(char *argbuf)
 			      strcpy(CC->chat_room, "Main room");
 			   else
 			   {
-   			      strncpy(CC->chat_room, &cmdbuf[6], ROOMNAMELEN);
+   			      strncpy(CC->chat_room, &cmdbuf[6],
+				      sizeof CC->chat_room);
+			      CC->chat_room[sizeof CC->chat_room - 1] = 0;
 			   }
 		           allwrite("<joining room>",0, CC->chat_room, NULL);
 		           cprintf("\n");
