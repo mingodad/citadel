@@ -412,7 +412,7 @@ int send_express_message(char *lun, char *x_user, char *x_msg) {
 	/* Log the page to disk if configured to do so */
 	if ( (strlen(config.c_logpages)>0) && (strlen(x_msg)>0) ) {
 		fp=fopen(CC->temp,"wb");
-		fprintf(fp,"%c%c%c", 255, MES_NORMAL, 1);
+		fprintf(fp,"%c%c%c", 255, MES_NORMAL, 0);
 		fprintf(fp,"Psysop%c", 0);
 		fprintf(fp,"T%ld%c", time(NULL), 0);
 		fprintf(fp,"A%s%c", lun, 0);
