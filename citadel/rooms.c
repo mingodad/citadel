@@ -264,7 +264,10 @@ void editthisroom(void) {
 	char raide[32];
 	char buf[256];
 	int rfloor;
+	int expire_mode = 0;
+	int expire_value = 0;
 
+	/* Fetch the existing room config */
 	serv_puts("GETR");
 	serv_gets(buf);
 	if (buf[0]!='2') {
@@ -279,12 +282,24 @@ void editthisroom(void) {
 	rfloor = extract_int(&buf[4],4);
 	rbump = 0;
 
+	/* Fetch the name of the current room aide */
 	serv_puts("GETA");
 	serv_gets(buf);
 	if (buf[0]=='2') safestrncpy(raide,&buf[4],sizeof raide);
 	else strcpy(raide,"");
 	if (strlen(raide)==0) strcpy(raide,"none");
 
+	/* Fetch the expire policy (this will silently fail on old servers,
+	 * resulting in "default" policy)
+	 */
+	serv_puts("GPEX room");
+	serv_gets(buf);
+	if (buf[0]=='2') {
+		expire_mode = extract_int(&buf[4], 0);
+		expire_value = extract_int(&buf[4], 1);
+		}
+
+	/* Now interact with the user. */
 	strprompt("Room name",rname,ROOMNAMELEN-1);
 
 	rfloor = select_floor(rfloor);
@@ -335,6 +350,8 @@ void editthisroom(void) {
 			QR_ANONOPT);
 		}
 
+
+	/* Ask about the room aide */
 	do {
 		strprompt("Room aide (or 'none')",raide,29);
 		if (!strucmp(raide,"none")) {
@@ -351,16 +368,54 @@ void editthisroom(void) {
 
 	if (!strucmp(raide,"none")) strcpy(raide,"");
 
+
+	/* Angels and demons dancing in my head... */
+	do {
+		sprintf(buf, "%d", expire_mode);
+		strprompt("Message expire policy (? for list)", buf, 1);
+		if (buf[0] == '?') {
+			printf("\n");
+			printf("0. Use the default for this floor\n");
+			printf("1. Never automatically expire messages\n");
+			printf("2. Expire by message count\n");
+			printf("3. Expire by message age\n");
+			}
+		} while((buf[0]<48)||(buf[0]>51));
+	expire_mode = buf[0] - 48;
+
+	/* ...lunatics and monsters underneath my bed */
+	if (expire_mode == 2) {
+		sprintf(buf, "%d", expire_value);
+		strprompt("Keep how many messages online?", buf, 10);
+		expire_value = atol(buf);
+		}
+
+	if (expire_mode == 3) {
+		sprintf(buf, "%d", expire_value);
+		strprompt("Keep messages for how many days?", buf, 10);
+		expire_value = atol(buf);
+		}
+
+	/* Give 'em a chance to change their minds */
 	printf("Save changes (y/n)? ");
+
 	if (yesno()==1) {
+		snprintf(buf,sizeof buf,"SETA %s",raide);
+		serv_puts(buf);
+		serv_gets(buf);
+		if (buf[0]!='2') printf("%s\n",&buf[4]);
+
+		snprintf(buf, sizeof buf, "SPEX room|%d|%d",
+			expire_mode, expire_value);
+		serv_puts(buf);
+		serv_gets(buf);
+		if (buf[0]!='2') printf("%s\n",&buf[4]);
+
 		snprintf(buf,sizeof buf,"SETR %s|%s|%s|%d|%d|%d",
 			rname,rpass,rdir,rflags,rbump,rfloor);
 		serv_puts(buf);
 		serv_gets(buf);
 		printf("%s\n",&buf[4]);
-		snprintf(buf,sizeof buf,"SETA %s",raide);
-		serv_puts(buf);
-		serv_gets(buf);
 		if (buf[0]=='2') dotgoto(rname,2);
 		}
 	}
