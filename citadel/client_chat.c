@@ -69,7 +69,7 @@ void chatmode(void) {
 
 	strcpy(buf,"");
 	strcpy(wbuf,"");
-	color(3);
+	color(BRIGHT_YELLOW);
 	printf("> ");
 	send_complete_line = 0;
 	recv_complete_line = 0;
@@ -143,7 +143,7 @@ RCL:	    if (send_complete_line) {
 	    if (recv_complete_line) {	
 		printf("\r%79s\r","");
 		if (!strcmp(buf,"000")) {
-			color(7);
+			color(BRIGHT_WHITE);
 			printf("Exiting chat mode\n");
 
 			fflush(stdout);
@@ -161,13 +161,13 @@ RCL:	    if (send_complete_line) {
    			   
 			if (strucmp(c_text,"NOOP")) {
 				if (!strcmp(c_user, fullname)) {
-					color(3);
+					color(BRIGHT_YELLOW);
 					}
 				else if (!strcmp(c_user,":")) {
-					color(1);
+					color(BRIGHT_RED);
 					}
 				else {
-					color(2);
+					color(BRIGHT_GREEN);
 					}
 				if (strcmp(c_user,last_user)) {
 					snprintf(buf,sizeof buf,"%s: %s",c_user,c_text);
@@ -189,7 +189,7 @@ RCL:	    if (send_complete_line) {
 				fflush(stdout);
 				}
 			}
-		color(3);
+		color(BRIGHT_YELLOW);
 		printf("> %s",wbuf);
 		recv_complete_line = 0;
 		strcpy(buf,"");
