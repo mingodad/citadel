@@ -1842,10 +1842,15 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 		else {
 			wprintf("<i>");
 		}
-		if (fold[i].hasnewmsgs) wprintf("<B>");
+		if (fold[i].hasnewmsgs) {
+			wprintf("<SPAN CLASS=\"roomlist_new\">");
+		}
+		else {
+			wprintf("<SPAN CLASS=\"roomlist_old\">");
+		}
 		extract(buf, fold[i].name, levels-1);
 		escputs(buf);
-		if (fold[i].hasnewmsgs) wprintf("</B>");
+		wprintf("</SPAN>");
 		if (fold[i].selectable) {
 			wprintf("</A>");
 		}
@@ -1923,10 +1928,15 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 			else {
 				wprintf("<i>");
 			}
-			if (fold[i].hasnewmsgs) wprintf("<B>");
+			if (fold[i].hasnewmsgs) {
+				wprintf("<SPAN CLASS=\"roomlist_new\">");
+			}
+			else {
+				wprintf("<SPAN CLASS=\"roomlist_old\">");
+			}
 			extract(buf, fold[i].name, levels-1);
 			escputs(buf);
-			if (fold[i].hasnewmsgs) wprintf("</B>");
+			wprintf("</SPAN>");
 			if (fold[i].selectable) {
 				wprintf("</A>");
 			}
