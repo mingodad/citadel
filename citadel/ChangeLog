@@ -1,4 +1,7 @@
  $Log$
+ Revision 624.2  2004/08/15 05:04:36  ajc
+ * newinstall.sh: various tweaks to make it more reliable
+
  Revision 624.1  2004/08/14 03:59:43  ajc
  * newinstall.sh: shuffled around the environment variables to prevent
    "C compiler cannot generate executables" error.
@@ -5974,4 +5977,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -68,8 +68,9 @@
 # NB: When binary packages are installed, these settings are ignored!
 SUPPORT=/usr/local/ctdlsupport
 CITADEL=/usr/local/citadel
+WEBCIT=/usr/local/webcit
 BUILD=/tmp/citadel-build.$$
-export SUPPORT CITADEL
+export SUPPORT CITADEL WEBCIT
 
 # Change the number of jobs to one plus the number of CPUs for best
 # performance when compiling software.
@@ -113,7 +114,7 @@ LOG=$BUILD/log.txt
 die () {
 	echo Easy Install is aborting.
 	echo Please report this problem to the Citadel developers.
-	#rm -fr $BUILD
+	rm -fr $BUILD
 	exit 1
 }
 
@@ -191,12 +192,12 @@ install_ldap () {
 	echo "* Installing OpenLDAP..."
 	CFLAGS="${CFLAGS} -I${SUPPORT}/include"
 	CPPFLAGS="${CFLAGS}"
-	LDFLAGS="-l${SUPPORT}/lib -Wl,--rpath -Wl,${SUPPORT}/lib"
+	LDFLAGS="-L${SUPPORT}/lib -Wl,--rpath -Wl,${SUPPORT}/lib"
 	export CFLAGS CPPFLAGS LDFLAGS
 	cd $BUILD 2>&1 >>$LOG || die
 	( gzip -dc $LDAP_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
 	cd $BUILD/openldap-2.1.29 2>&1 >>$LOG || die
-	./configure --prefix=$SUPPORT 2>&1 >>$LOG || die
+	./configure --prefix=$SUPPORT --enable-bdb 2>&1 >>$LOG || die
 	$MAKE $MAKEOPTS 2>&1 >>$LOG || die
 	LDAP_CONFIG=$SUPPORT/etc/openldap/slapd.conf
 	export LDAP_CONFIG
@@ -237,7 +238,7 @@ install_sources () {
 
 	CFLAGS="${CFLAGS} -I${SUPPORT}/include"
 	CPPFLAGS="${CFLAGS}"
-	LDFLAGS="-l${SUPPORT}/lib -Wl,--rpath -Wl,${SUPPORT}/lib"
+	LDFLAGS="-L${SUPPORT}/lib -Wl,--rpath -Wl,${SUPPORT}/lib"
 	export CFLAGS CPPFLAGS LDFLAGS
 
 	cd $BUILD 2>&1 >>$LOG || die
@@ -264,7 +265,7 @@ install_sources () {
 	cd $BUILD 2>&1 >>$LOG || die
 	( gzip -dc $WEBCIT_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
 	cd $BUILD/webcit 2>&1 >>$LOG || die
-	./configure --prefix=$CITADEL --with-libical 2>&1 >>$LOG || die
+	./configure --prefix=$WEBCIT --with-libical 2>&1 >>$LOG || die
 	$MAKE $MAKEOPTS 2>&1 >>$LOG || die
 	$MAKE install 2>&1 >>$LOG || die
 	echo "  Complete."
@@ -354,5 +355,11 @@ else
 fi
 
 # 5. Do post-installation setup
+	cd $CITADEL
+	./setup || die
 
+	cd $WEBCIT
+	./setup || die
+
+	rm -fr $BUILD
 ##### END main #####
