@@ -32,13 +32,14 @@
 struct serv_info serv_info;
 
 /*
- * get info about the server we've WC->connected to
+ * get info about the server we've connected to
  */
 void get_serv_info(char *browser_host, char *user_agent)
 {
 	char buf[SIZ];
 	int a;
 
+	/* Tell the server what kind of client is connecting */
 	serv_printf("IDEN %d|%d|%d|%s|%s",
 		DEVELOPER_ID,
 		CLIENT_ID,
@@ -48,6 +49,11 @@ void get_serv_info(char *browser_host, char *user_agent)
 	);
 	serv_gets(buf);
 
+	/* Tell the server what kind of richtext we prefer */
+	serv_puts("MSGP text/html|text/plain");
+	serv_gets(buf);
+
+	/* Now ask the server to tell us a little bit about itself... */
 	serv_puts("INFO");
 	serv_gets(buf);
 	if (buf[0] != '1')

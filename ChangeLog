@@ -1,4 +1,8 @@
 $Log$
+Revision 323.49  2002/07/23 04:43:58  ajc
+* Updated message reading to use the new MSG4 command, so we can do output
+  of various types of richtext (mainly HTML).
+
 Revision 323.48  2002/07/16 03:37:24  ajc
 * Small change to above
 
@@ -868,3 +872,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
