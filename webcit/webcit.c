@@ -1242,6 +1242,10 @@ void session_loop(struct httprequest *req, int gzip)
 		display_edit_task();
 	} else if (!strcasecmp(action, "save_task")) {
 		save_task();
+	} else if (!strcasecmp(action, "display_edit_event")) {
+		display_edit_event();
+	} else if (!strcasecmp(action, "save_event")) {
+		save_event();
 #endif
 	} else if (!strcasecmp(action, "summary")) {
 		summary();

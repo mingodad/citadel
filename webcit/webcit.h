@@ -359,8 +359,12 @@ ssize_t http_write(int fd, void *buf, size_t count);
 #ifdef HAVE_ICAL_H
 void display_edit_task(void);
 void save_task(void);
+void display_edit_event(void);
+void save_event(void);
 void display_icaltimetype_as_webform(struct icaltimetype *, char *);
 struct icaltimetype icaltime_from_webform(char *prefix);
+void display_edit_individual_event(icalcomponent *supplied_vtodo, long msgnum);
+void save_individual_event(icalcomponent *supplied_vtodo, long msgnum);
 #endif
 
 extern char *months[];
