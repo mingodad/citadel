@@ -898,6 +898,17 @@ int main(int argc, char *argv[])
 		config.c_ep.expire_mode = EXPIRE_NUMMSGS;
 		config.c_ep.expire_value = 150;
 	}
+
+
+	/* Default maximum message length is 'unlimited' (max int)
+	 * and the minimum is 8192
+	 */
+	if (config.c_maxmsglen <= 0)
+		config.c_maxmsglen = INT_MAX;
+	if (config.c_maxmsglen < 8192)
+		config.c_maxmsglen = 8192;
+
+
 	/* Go through a series of dialogs prompting for config info */
 	for (curr = 1; curr <= MAXSETUP; ++curr) {
 		edit_value(curr);
@@ -941,7 +952,7 @@ int main(int argc, char *argv[])
 
 	/* end of version update section */
 
-      NEW_INST:
+NEW_INST:
 	config.c_setup_level = REV_LEVEL;
 
 /******************************************/

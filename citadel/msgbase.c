@@ -1313,7 +1313,7 @@ void aide_message(char *text)
 
 
 /*
- * message entry  -  mode 0 (normal) <bc>
+ * message entry  -  mode 0 (normal)
  */
 void cmd_ent0(char *entargs)
 {
@@ -1321,7 +1321,7 @@ void cmd_ent0(char *entargs)
 	char recipient[256];
 	int anon_flag = 0;
 	int format_type = 0;
-	char newusername[256];	/* <bc> */
+	char newusername[256];
 
 	int a, b;
 	int e = 0;
@@ -1359,9 +1359,9 @@ void cmd_ent0(char *entargs)
 	mtsflag = 0;
 
 
-	if (post == 2) {	/* <bc> */
+	if (post == 2) {
 		if (CC->usersupp.axlevel < 6) {
-			cprintf("%d You don't have permission to do an aide post.\n",
+			cprintf("%d You don't have permission to masquerade.\n",
 				ERROR + HIGHER_ACCESS_REQUIRED);
 			return;
 		}
@@ -1420,7 +1420,8 @@ void cmd_ent0(char *entargs)
 		}
 		strcpy(buf, tempUS.fullname);
 	}
-      SKFALL:b = MES_NORMAL;
+
+SKFALL:	b = MES_NORMAL;
 	if (CC->quickroom.QRflags & QR_ANONONLY)
 		b = MES_ANON;
 	if (CC->quickroom.QRflags & QR_ANONOPT) {
@@ -1437,13 +1438,21 @@ void cmd_ent0(char *entargs)
 		cprintf("%d %s\n", OK, buf);
 		return;
 	}
+
 	cprintf("%d send message\n", SEND_LISTING);
+
 	if (CC->fake_postname[0])
-		make_message(CC->temp, &CC->usersupp, buf, CC->quickroom.QRname, b, e, format_type, CC->fake_postname);
+		make_message(CC->temp, &CC->usersupp, buf,
+			CC->quickroom.QRname, b, e, format_type,
+			CC->fake_postname);
 	else if (CC->fake_username[0])
-		make_message(CC->temp, &CC->usersupp, buf, CC->quickroom.QRname, b, e, format_type, CC->fake_username);
+		make_message(CC->temp, &CC->usersupp, buf,
+			CC->quickroom.QRname, b, e, format_type,
+			CC->fake_username);
 	else
-		make_message(CC->temp, &CC->usersupp, buf, CC->quickroom.QRname, b, e, format_type, "");
+		make_message(CC->temp, &CC->usersupp, buf,
+			CC->quickroom.QRname, b, e, format_type, "");
+
 	save_message(CC->temp, buf, (mtsflag ? AIDEROOM : ""), e, 1);
 	CC->fake_postname[0] = '\0';
 	return;

@@ -45,7 +45,7 @@ struct ExpirePolicy {
 
 
 /* 
- * System configuration 
+ * Global system configuration 
  */
 struct config {
 	char c_nodename[16];		/* Unqualified "short" nodename     */
@@ -75,6 +75,7 @@ struct config {
 	int c_roompurge;		/* System default room purge (days) */
 	char c_logpages[ROOMNAMELEN];	/* Room to log pages to (or not)    */
 	char c_createax;		/* Axlevel required to create rooms */
+	long c_maxmsglen;		/* Maximum message length           */
 	};
 
 #define NODENAME		config.c_nodename

@@ -163,6 +163,7 @@ void cmd_conf(char *argbuf) {
 		cprintf("%d\n", config.c_roompurge);
 		cprintf("%s\n", config.c_logpages);
 		cprintf("%d\n", config.c_createax);
+		cprintf("%d\n", config.c_maxmsglen);
 		cprintf("000\n");
 		}
 
@@ -227,7 +228,10 @@ void cmd_conf(char *argbuf) {
 				if (config.c_createax > 6)
 					config.c_createax = 6;
 				break;
-				}
+			case 20: if (atoi(buf) >= 8192)
+					config.c_maxmsglen = atoi(buf);
+				break;
+			}
 		    ++a;
 		    }
 		put_config();

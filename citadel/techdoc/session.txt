@@ -1621,6 +1621,7 @@ fails for any reason, ERROR is returned.
  18. Default purge time (in days) for rooms
  19. Name of room to log express messages to (or a zero-length name for none)
  20. Access level required to create rooms
+ 21. Maximum message length which may be entered into the system
  
   
  
