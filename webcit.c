@@ -260,8 +260,10 @@ void escputs1(char *strbuf, int nbsp)
 			wprintf("&gt;");
 		else if (strbuf[a] == '&')
 			wprintf("&amp;");
-		else if (strbuf[a] == 34)
+		else if (strbuf[a] == '\"')
 			wprintf("&quot;");
+		else if (strbuf[a] == '\'') 
+			wprintf("&#39;");
 		else if (strbuf[a] == LB)
 			wprintf("<");
 		else if (strbuf[a] == RB)
