@@ -1,4 +1,7 @@
 $Log$
+Revision 301.22  2001/12/21 06:03:54  ajc
+* 3.20
+
 Revision 301.21  2001/12/20 05:02:42  ajc
 * If you paid for this software, someone is ripping you off.
 * Fixed the urlesc() function to use a caller-supplied target buffer.
@@ -675,3 +678,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
