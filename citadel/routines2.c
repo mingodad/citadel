@@ -846,7 +846,8 @@ void get_inet_rec_type(char *buf) {
 	keyopt(" <2> gateway domain (Domain for all Citadel systems)\n");
 	keyopt(" <3> smart-host     (Forward all outbound mail to this host)\n");
 	keyopt(" <4> directory      (Consult the Global Address Book)\n");
-	sel = intprompt("Which one", 1, 1, 4);
+	keyopt(" <5> SpamAssassin   (Address of SpamAssassin server)\n");
+	sel = intprompt("Which one", 1, 1, 5);
 	switch(sel) {
 		case 1:	strcpy(buf, "localhost");
 			return;
@@ -855,6 +856,8 @@ void get_inet_rec_type(char *buf) {
 		case 3:	strcpy(buf, "smarthost");
 			return;
 		case 4:	strcpy(buf, "directory");
+			return;
+		case 5:	strcpy(buf, "spamassassin");
 			return;
 	}
 }

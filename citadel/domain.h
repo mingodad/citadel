@@ -8,8 +8,8 @@ struct mx {
 	char host[1024];
 };
 
-int get_smarthosts(char *mxbuf);
 int getmx(char *mxbuf, char *dest);
+int get_hosts(char *mxbuf, char *rectype);
 
 
 /* HP/UX has old include files...these are from arpa/nameser.h */

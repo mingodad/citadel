@@ -128,10 +128,14 @@ SERV_OBJS = server_main.o
 
 parsedate.o: parsedate.c
 
-LIBSERV_OBJS = user_ops.lo citserver.lo sysdep.lo dynloader.lo tools.lo $(DATABASE:.c=.lo) \
-	control.lo policy.lo config.lo support.lo room_ops.lo file_ops.lo msgbase.lo \
-	locate_host.lo housekeeping.lo logging.lo mime_parser.lo html.lo internet_addressing.lo \
-	serv_crypto.lo parsedate.lo genstamp.lo clientsocket.lo $(AUTH) $(LIBOBJS:.o=.lo)
+LIBSERV_OBJS = user_ops.lo citserver.lo sysdep.lo dynloader.lo \
+	tools.lo $(DATABASE:.c=.lo) $(DOMAIN:.c=.lo) \
+	control.lo policy.lo config.lo support.lo room_ops.lo \
+	file_ops.lo msgbase.lo \
+	locate_host.lo housekeeping.lo logging.lo mime_parser.lo html.lo \
+	internet_addressing.lo \
+	serv_crypto.lo parsedate.lo genstamp.lo \
+	clientsocket.lo $(AUTH) $(LIBOBJS:.o=.lo)
 
 libcitserver.la: $(LIBSERV_OBJS)
 	$(LIBTOOL) $(CC) $(LDFLAGS) -rpath $(prefix) -no-undefined \
@@ -158,10 +162,10 @@ modules/libpop3.la: serv_pop3.lo md5.lo $(LIBTOOL) libcitserver.la
 	$(LTSHARE) -o libpop3.la ../serv_pop3.lo ../md5.lo ../libcitserver.la
 
 modules/libmrtg.la: serv_mrtg.lo md5.lo $(LIBTOOL) libcitserver.la
-	$(LTSHARE) -o libmrtg.la ../serv_mrtg.lo ../md5.lo ../libcitserver.la
+	$(LTSHARE) -o libmrtg.la ../serv_mrtg.lo ../libcitserver.la
 
 modules/libspam.la: serv_spam.lo md5.lo $(LIBTOOL) libcitserver.la
-	$(LTSHARE) -o libspam.la ../serv_spam.lo ../md5.lo ../libcitserver.la
+	$(LTSHARE) -o libspam.la ../serv_spam.lo ../libcitserver.la
 
 modules/libinetcfg.la: serv_inetcfg.lo $(LIBTOOL) libcitserver.la
 	$(LTSHARE) -o libinetcfg.la ../serv_inetcfg.lo ../libcitserver.la

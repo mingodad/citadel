@@ -1,11 +1,13 @@
 /*
  * $Id$
  *
- * Reject incoming SMTP messages containing strings that tell us that the
- * message is probably spam.
- *
+ * This module allows Citadel to use SpamAssassin to filter incoming messages
+ * arriving via SMTP.  For more information on SpamAssassin, visit
+ * http://www.spamassassin.org (the SpamAssassin project is not in any way
+ * affiliated with the Citadel project).
  */
 
+#define SPAMASSASSIN_PORT       "783"
 
 #include "sysdep.h"
 #include <stdlib.h>
@@ -47,10 +49,16 @@
 #include "msgbase.h"
 #include "tools.h"
 #include "internet_addressing.h"
+#include "domain.h"
 #include "clientsocket.h"
 
 
 
+/* 
+ * This is a scanner I had started writing before deciding to just farm the
+ * job out to SpamAssassin.  It *does* work but it's not in use.  We've
+ * commented it out so it doesn't even compile.
+ */
 #ifdef ___NOT_CURRENTLY_IN_USE___
 /* Scan a message for spam */
 int spam_filter(struct CtdlMessage *msg) {
@@ -92,15 +100,30 @@ int spam_filter(struct CtdlMessage *msg) {
  */
 int spam_assassin(struct CtdlMessage *msg) {
 	int sock = (-1);
+	char sahosts[SIZ];
+	int num_sahosts;
 	char buf[SIZ];
 	int is_spam = 0;
+	int sa;
 
-#define SPAMASSASSIN_HOST	"127.0.0.1"
-#define SPAMASSASSIN_PORT	"783"
+	/* For users who have authenticated to this server we never want to
+	 * apply spam filtering, because presumably they're trustworthy.
+	 */
+	if (CC->logged_in) return(0);
 
-	/* Connect to the SpamAssassin server */
-	lprintf(9, "Connecting to SpamAssassin\n");
-	sock = sock_connect(SPAMASSASSIN_HOST, SPAMASSASSIN_PORT, "tcp");
+	/* See if we have any SpamAssassin hosts configured */
+	num_sahosts = get_hosts(sahosts, "spamassassin");
+	if (num_sahosts < 1) return(0);
+
+	/* Try them one by one until we get a working one */
+        for (sa=0; sa<num_sahosts; ++sa) {
+                extract(buf, sahosts, sa);
+                lprintf(9, "Connecting to SpamAssassin at <%s>\n", buf);
+                sock = sock_connect(buf, SPAMASSASSIN_PORT, "tcp");
+                if (sock >= 0) lprintf(9, "Connected!\n");
+                if (sock >= 0) break;
+        }
+
 	if (sock < 0) {
 		/* If the service isn't running, just pass the mail
 		 * through.  Potentially throwing away mails isn't good.
@@ -111,10 +134,7 @@ int spam_assassin(struct CtdlMessage *msg) {
 	/* Command */
 	lprintf(9, "Transmitting command\n");
 	sprintf(buf, "CHECK SPAMC/1.2\r\n\r\n");
-	lprintf(9, buf);
-	lprintf(9, "sock_write() returned %d\n",
-		sock_write(sock, buf, strlen(buf))
-	);
+	sock_write(sock, buf, strlen(buf));
 
 	/* Message */
 	CtdlRedirectOutput(NULL, sock);
@@ -124,9 +144,7 @@ int spam_assassin(struct CtdlMessage *msg) {
 	/* Close one end of the socket connection; this tells SpamAssassin
 	 * that we're done.
 	 */
-	lprintf(9, "sock_shutdown() returned %d\n", 
-		sock_shutdown(sock, SHUT_WR)
-	);
+	sock_shutdown(sock, SHUT_WR);
 	
 	/* Response */
 	lprintf(9, "Awaiting response\n");
@@ -162,14 +180,11 @@ bail:	close(sock);
 char *Dynamic_Module_Init(void)
 {
 
-/* ** This one isn't in use.  It's a spam filter I wrote, but we're going to
-      try the SpamAssassin stuff instead.
+/* (disabled built-in scanner, see above)
 	CtdlRegisterMessageHook(spam_filter, EVT_SMTPSCAN);
  */
 
-
 	CtdlRegisterMessageHook(spam_assassin, EVT_SMTPSCAN);
-
 
         return "$Id$";
 }

@@ -1,4 +1,9 @@
  $Log$
+ Revision 591.42  2002/06/15 04:52:26  ajc
+ * SpamAssassin connector is now configurable in <.A>ide <S>ysconfig <I>nternet.
+ * Allow more than one SA server (it'll try 'em all)
+ * Don't run SA for logged in users
+
  Revision 591.41  2002/06/14 20:42:56  ajc
  * Discovered that spamd works even without the Content-length: command, so I
    was able to redo the spam checker to work without a temp file.
@@ -3720,3 +3725,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

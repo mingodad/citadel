@@ -21,11 +21,13 @@
 
 
 /*
- * get_smarthosts() checks the Internet configuration for "smarthost"
+ * get_hosts() checks the Internet configuration for various types of
  * entries and returns them in the same format as getmx() does -- fill the
  * buffer with a delimited list of hosts and return the number of hosts.
+ * 
+ * This is used to fetch MX smarthosts, SpamAssassin hosts, etc.
  */
-int get_smarthosts(char *mxbuf) {
+int get_hosts(char *mxbuf, char *rectype) {
 	int config_lines;
 	int i;
 	char buf[SIZ];
@@ -41,7 +43,7 @@ int get_smarthosts(char *mxbuf) {
 		extract_token(host, buf, 0, '|');
 		extract_token(type, buf, 1, '|');
 
-		if (!strcasecmp(type, "smarthost")) {
+		if (!strcasecmp(type, rectype)) {
 			strcat(mxbuf, host);
 			strcat(mxbuf, "|");
 			++total_smarthosts;
@@ -125,7 +127,7 @@ int getmx(char *mxbuf, char *dest) {
 	/* If we're configured to send all mail to a smart-host, then our
 	 * job here is really easy.
 	 */
-	n = get_smarthosts(mxbuf);
+	n = get_hosts(mxbuf, "smarthost");
 	if (n > 0) return(n);
 
 	/*
