@@ -202,11 +202,11 @@ void read_message(long msgnum, int is_summary) {
 			"</TD>\n", msgnum);
 
 		wprintf("<TD BGCOLOR=\"AAAADD\">"
-			"<A HREF=\"/confirm_delete_msg"
-			"&msgid=%ld"
-			"\"><FONT SIZE=-1>Del</FONT></A>"
+			"<A HREF=\"/delete_msg"
+			"&msgid=%ld\""
+			"onClick=\"return confirm('Delete this message?');\""
+			"><FONT SIZE=-1>Del</FONT></A>"
 			"</TD>\n", msgnum);
-
 	}
 
 	wprintf("</TR></TABLE>\n"
@@ -532,38 +532,6 @@ DONE:	wDumpContent(1);
 
 
 
-/*
- * Confirm deletion of a message
- */
-void confirm_delete_msg(void)
-{
-	long msgid;
-
-	msgid = atol(bstr("msgid"));
-
-	output_headers(1);
-
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Confirm deletion of message</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
-
-	wprintf("<CENTER>");
-
-	wprintf("Are you sure you want to delete this message? <BR>\n");
-
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/delete_msg\">\n");
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgid\" VALUE=\"%s\">\n",
-		bstr("msgid"));
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"yesno\" VALUE=\"Yes\">");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"yesno\" VALUE=\"No\">");
-	wprintf("</FORM></CENTER>\n");
-
-	wprintf("</CENTER>\n");
-	wDumpContent(1);
-}
-
-
 
 void delete_msg(void)
 {
@@ -574,14 +542,10 @@ void delete_msg(void)
 
 	output_headers(1);
 
-	if (!strcasecmp(bstr("yesno"), "Yes")) {
-		sprintf(buf, "DELE %ld", msgid);
-		serv_puts(buf);
-		serv_gets(buf);
-		wprintf("<EM>%s</EM><BR>\n", &buf[4]);
-	} else {
-		wprintf("<EM>Message not deleted.</EM><BR>\n");
-	}
+	sprintf(buf, "DELE %ld", msgid);
+	serv_puts(buf);
+	serv_gets(buf);
+	wprintf("<EM>%s</EM><BR>\n", &buf[4]);
 
 	wDumpContent(1);
 }
