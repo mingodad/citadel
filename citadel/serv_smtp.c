@@ -90,6 +90,7 @@ void smtp_help(void) {
 	cprintf("214-    HELP\n");
 	cprintf("214-    NOOP\n");
 	cprintf("214-    QUIT\n");
+	cprintf("214-    RSET\n");
 	cprintf("214-    VRFY\n");
 	cprintf("214 I could tell you more, but then I'd have to kill you.\n");
 }
@@ -238,6 +239,18 @@ void smtp_expn(char *argbuf) {
 }
 
 
+/*
+ * Implements the RSET (reset state) command.
+ * Currently this just zeroes out the state buffer.  If pointers to data
+ * allocated with mallok() are ever placed in the state buffer, we have to
+ * be sure to phree() them first!
+ */
+void smtp_rset(void) {
+	memset(SMTP, 0, sizeof(struct citsmtp));
+	cprintf("250 Zap!\n");
+}
+
+
 
 /* 
  * Main command loop for SMTP sessions.
@@ -292,6 +305,10 @@ void smtp_command_loop(void) {
 		CC->kill_me = 1;
 		return;
 		}
+
+	else if (!strncasecmp(cmdbuf, "RSET", 4)) {
+		smtp_rset();
+	}
 
 	else if (!strncasecmp(cmdbuf, "VRFY", 4)) {
 		smtp_vrfy(&cmdbuf[5]);
