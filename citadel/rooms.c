@@ -1123,6 +1123,8 @@ void create_floor(void)
 	char buf[SIZ];
 	char newfloorname[SIZ];
 
+	load_floorlist();
+
 	serv_puts("CFLR xx|0");
 	serv_gets(buf);
 	if (buf[0] != '2') {
@@ -1139,6 +1141,8 @@ void create_floor(void)
 	} else {
 		printf("%s\n", &buf[4]);
 	}
+
+	load_floorlist();
 }
 
 /*
@@ -1150,8 +1154,7 @@ void edit_floor(void)
 	int expire_mode = 0;
 	int expire_value = 0;
 
-	if (floorlist[(int) curr_floor][0] == 0)
-		load_floorlist();
+	load_floorlist();
 
 	/* Fetch the expire policy (this will silently fail on old servers,
 	 * resulting in "default" policy)
@@ -1220,8 +1223,7 @@ void kill_floor(void)
 	int floornum_to_delete, a;
 	char buf[SIZ];
 
-	if (floorlist[(int) curr_floor][0] == 0)
-		load_floorlist();
+	load_floorlist();
 	do {
 		floornum_to_delete = (-1);
 		printf("(Press return to abort)\n");
@@ -1242,4 +1244,5 @@ void kill_floor(void)
 	serv_puts(buf);
 	serv_gets(buf);
 	printf("%s\n", &buf[4]);
+	load_floorlist();
 }

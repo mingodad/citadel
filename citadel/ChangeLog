@@ -1,4 +1,9 @@
  $Log$
+ Revision 590.12  2001/12/18 05:54:16  ajc
+ * Added more load_floorlist() commands to the beginning and end of functions
+   in the client that manipulate the floor list.  This fixes a bug in which
+   new floors don't show up right away after being created.
+
  Revision 590.11  2001/12/17 08:14:26  nbryant
  restored the checks for /usr/include/db3 and /usr/local/include/db3
  in configure.  there are too many variations on db installation; this is
@@ -2980,3 +2985,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
