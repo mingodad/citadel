@@ -1,4 +1,7 @@
 $Log$
+Revision 522.1  2004/06/21 15:00:52  ajc
+* minor CSS changes
+
 Revision 522.0  2004/06/19 03:21:35  ajc
 * THIS IS 5.22
 
@@ -1916,3 +1919,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
