@@ -98,6 +98,7 @@ extern pthread_key_t MyConKey;
 struct serv_info serv_info;
 extern char floorlist[128][256];
 extern char *axdefs[];
+extern char *defaulthost, *defaultport;
 
 
 void stuff_to_cookie(char *cookie, int session,
