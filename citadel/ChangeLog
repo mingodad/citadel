@@ -1,3 +1,8 @@
+1999-04-07 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* configure.in: updated help messages, OpenBSD support
+	* setup.c: if /etc/inittab doesn't exist, don't ask to create an entry
+	  in it
+
 1999-04-06 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* Makefile.in, configure.in, getutline.c, sysdep.c:
 	  fixes/bug workarounds for FreeBSD

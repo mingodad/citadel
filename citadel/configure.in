@@ -11,7 +11,8 @@ fi
 
 AC_ARG_ENABLE(autologin, [  --disable-autologin     disable autologin (default is enabled if possible)])
 AC_ARG_ENABLE(chkpwd, [  --enable-chkpwd         build 'chkpwd' (use this if you have shadow passwords)])
-AC_ARG_WITH(pam, [  --with-pam              use PAM if present])
+AC_ARG_WITH(pam, [  --with-pam              use PAM if present (see PAM.txt before you try this)])
+AC_ARG_WITH(kthread, [  --with-kthread          use kernel threads (on FreeBSD) (not recommended yet)])
 
 dnl By default, we only build the client (citadel and whobbs) unless we can
 dnl figure out how to build with POSIX threads.
@@ -38,7 +39,6 @@ case "$host" in
 	;;
 	dnl FreeBSD is similar to Digital UNIX:
 	*-*-freebsd*)
-		AC_ARG_WITH(kthread, [  --with-kthread          use kernel threads, not user])
 		if test "$with_kthread" = yes; then
 			SERVER_LDFLAGS=-kthread
 		else
@@ -46,6 +46,11 @@ case "$host" in
 		fi
 		check_pthread=no
 		PTHREAD_DEFS=-D_THREAD_SAFE
+	;;
+	*-*-openbsd*)
+		SERVER_LDFLAGS=-pthread
+		check_pthread=no
+		PTHREAD_DEFS=-pthread
 	;;
 	*-*-cygwin32)
 		SUFFIX=.exe

@@ -483,7 +483,7 @@ void check_inittab_entry(void) {
 	 */
 	infp = fopen("/etc/inittab", "r");
 	if (infp == NULL) {
-		display_error(strerror(errno));
+		return;
 		}
 	else {
 		while (fgets(buf, 256, infp) != NULL) {
