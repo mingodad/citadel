@@ -1,4 +1,8 @@
 $Log$
+Revision 301.5  2001/08/21 04:02:56  ajc
+* Added some more meta-tags to (hopefully) prevent the "lame goto" caused by
+  unwanted page caching
+
 Revision 301.4  2001/08/13 03:43:24  ajc
 * Got it!
 
@@ -615,4 +619,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
