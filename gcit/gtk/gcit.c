@@ -10,8 +10,11 @@ btx@calyx.net
 */
 
 
+#include "config.h"
 #include <stdio.h>
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include <gtk/gtk.h>
@@ -19,9 +22,7 @@ btx@calyx.net
 #include <gdk/gdkx.h>
 #include <sys/types.h>
 #include <sys/utsname.h>
-#ifdef HAS_GDK_IMLIB
 #include <gdk_imlib.h>
-#endif
 #include "client_api.h"
 #include "citadel_util.h"
 #include "gcit.h"
@@ -68,7 +69,7 @@ void display_message(GtkWidget *text, citadel_list *list)
 {
    citadel_list *t_list;
    int textfound=0;
-   int msgn;
+   int msgn=0;
    char path[256];
    long post_time;
    char from[256];
@@ -154,7 +155,7 @@ get a list of the new messages in a room
 
 */
 
-void get_room_new_msgs()
+void get_room_new_msgs(void)
 {
    if (our_context.room_msgs)
       free_citadel_list(&our_context.room_msgs);
@@ -278,8 +279,8 @@ void do_connect(GtkWidget *widget, GtkWidget *text)
    
    get_room_new_msgs();
 
-   gtk_timeout_add(30000, update_func, NULL);
-   gtk_timeout_add(100000, get_room_msgs_func, (int)0);
+   gtk_timeout_add(30000, (GtkFunction)update_func, NULL);
+   gtk_timeout_add(100000, (GtkFunction)get_room_msgs_func, (int)0);
 }
 
 void do_close(GtkWidget *widget, GtkWidget *w)
@@ -391,7 +392,7 @@ void client_quit(GtkWidget *widget, GtkWidget *window)
 }
 
 
-int create_main_window()
+int create_main_window(void)
 {
    create_display_window();
    switchabout();
@@ -473,7 +474,7 @@ int get_room_msgs_func(int allrooms)
    return TRUE;
 }
 
-int update_func()
+int update_func(void)
 {
    citadel_list *list;
    

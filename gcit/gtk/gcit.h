@@ -14,18 +14,18 @@ btx@calyx.net
 #define DEFAULT_ROOM_REVEAL "secret room"
 
 /* Not user definables */
-#define CITADEL_VERSION "Gtk Citadel Client v0.1"
+#define CITADEL_VERSION "Gtk Citadel Client v" VERSION
 #define CITADEL_GTK_CLIID	1
 #define CITADEL_GTK_VERNO	1
 
-void display_room_window();
-void display_who_window();
+void display_room_window(void);
+void display_who_window(void);
 void do_post(GtkWidget *, GtkWidget *);
 void create_pager(GtkWidget *, GtkWidget *);
-int update_func();
+int update_func(void);
 void do_connect(GtkWidget *, GtkWidget *);
-void get_room_new_msgs();
-int get_room_msgs_func();
+void get_room_new_msgs(void);
+int get_room_msgs_func(int);
 void do_goto(GtkWidget *, GtkWidget *);
 void do_posting(GtkWidget *, GtkWidget *);
 void do_send_page(GtkWidget *, GtkWidget *);

@@ -7,10 +7,15 @@ These routines deal with the two citadel structures, parms and lists.
 
 */
 
+#include "config.h"
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef HAVE_FCNTL_H
 #include <fcntl.h>
+#endif
 #include <string.h>
 #include <sys/types.h>
 #include "client_api.h"
@@ -138,7 +143,7 @@ int free_citadel_parms(citadel_parms **parms)
    return(0);
 }
 
-citadel_parms *newparms()
+citadel_parms *newparms(void)
 {
    citadel_parms *parms;
 

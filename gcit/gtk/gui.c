@@ -4,19 +4,22 @@ GUI ugliness offloaded here!
 
 */
 
+#include "config.h"
 #include <stdio.h>
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #include <stdlib.h>
+#ifdef HAVE_FCNTL_H
 #include <fcntl.h>
+#endif
 #include <string.h>
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
 #include <gdk/gdkx.h>
 #include <sys/types.h>
 #include <sys/utsname.h>
-#ifdef HAS_GDK_IMLIB
 #include <gdk_imlib.h>
-#endif
 #include "client_api.h"
 #include "citadel_util.h"
 #include "gcit.h"
@@ -339,7 +342,7 @@ void button_win(GtkWidget *widget, GdkEventButton *event)
    gtk_widget_destroy(aboutwindow);
 }
 
-void switchabout()
+void switchabout(void)
 {
    char fn[256];
    int w, h;
@@ -690,7 +693,7 @@ void create_pager(GtkWidget *widget, GtkWidget *wdw)
 
 }
 
-int create_display_window()
+int create_display_window(void)
 {
    static GtkWidget *window = NULL;
    GtkWidget *box1, *box2, *button, *table, *separator, *hscrollbar;

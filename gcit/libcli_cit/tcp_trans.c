@@ -6,12 +6,15 @@ btx@calyx.net
 
 */
 
+#include "config.h"
 #include <stdio.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #include "client_api.h"
 #include "transport.h"
 

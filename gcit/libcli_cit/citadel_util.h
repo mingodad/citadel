@@ -21,5 +21,5 @@ int citadel_send_listing_file(int sd, char *filename);
 int add_citadel_list(citadel_list **first_list, char *item);
 
 int free_citadel_list(citadel_list **first_list);
-citadel_parms *newparms();
+citadel_parms *newparms(void);
 int reset_parms(citadel_parms **);

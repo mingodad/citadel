@@ -343,7 +343,7 @@ int send_page(client_context *our_context, char *pagewho, char *message)
    if ((!pagewho) || (!message))
       return -1;
       
-   if (cmd_sexp(our_context->sd, pagewho, message) < 0)
+   if ((ret = cmd_sexp(our_context->sd, pagewho, message)) < 0)
    {
       fprintf(stderr,"cmd_sexp failed in send_page.\n");
       return ret;

@@ -1,0 +1,12 @@
+1998-11-03 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* NEWS, README, AUTHORS, ChangeLog: new files; automake complains if
+	  these don't exist.
+	* Makefile, gtk/Makefile, libcli_cit/Makefile: removed
+	* Makefile.am, acconfig.h, config.guess, config.sub, configure.in,
+	  gtk/Makefile.am, libcli_cit/Makefile.am: added
+	* bootstrap: new script; run this to generate the build environment.
+	  I'm using libtool 1.2, automake 1.3b, and autoconf 2.12.
+	* gtk/gcit.c, gtk/gcit.h, gtk/gtk_misc.c, gtk/gtk_misc.h, gtk/gui.h,
+	  libcli_cit/citadel_util.c, libcli_cit/citadel_util.h,
+	  libcli_cit/client_api.c, libcli_cit/tcp_trans.c: portability
+	  enhancements, warning fixes

@@ -4,9 +4,11 @@ Misc. GTK display routines
 
 */
 
+#include "config.h"
 #include <stdio.h>
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#include <pthread.h>
+#endif
 #include <sys/types.h>
 #include <netinet/ip.h>
 #include <gtk/gtk.h>
@@ -35,7 +37,7 @@ void print_gtk(GtkWidget *text, char *str, ...)
    return;   
 }
 
-void gtk_killyesno()
+void gtk_killyesno(void)
 {
    if (dialog_window)
    {
