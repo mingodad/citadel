@@ -713,7 +713,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 				if (mailfrom[i] == '<') lp = i;
 				if (mailfrom[i] == '>') rp = i;
 			}
-			if ((lp>=0)&&(rp>lp)) {
+			if ( (lp>=0) && (rp>lp) ) {
 				mailfrom[rp] = 0;
 				strcpy(mailfrom, &mailfrom[lp]);
 			}
@@ -722,7 +722,6 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 		}
 	} while (scan_done == 0);
 	if (strlen(mailfrom)==0) strcpy(mailfrom, "someone@somewhere.org");
-
 
 	/* Figure out what mail exchanger host we have to connect to */
 	num_mxhosts = getmx(mxhosts, node);
@@ -1056,6 +1055,11 @@ void smtp_do_bounce(char *instr) {
 		/* If not, post it in the Aide> room */
 		if (successful_bounce == 0) {
 			CtdlSubmitMsg(bmsg, NULL, AIDEROOM);
+		}
+
+		/* Free up the memory we used */
+		if (valid != NULL) {
+			phree(valid);
 		}
 	}
 

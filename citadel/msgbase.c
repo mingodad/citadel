@@ -1821,7 +1821,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 * message, we want to BYPASS saving the sender's copy (because there
 	 * is no local sender; it would otherwise go to the Trashcan).
 	 */
-	if ((!CC->internal_pgm) || (strlen(recipient) == 0)) {
+	if ((!CC->internal_pgm) || (recps == NULL)) {
 		if (CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0) != 0) {
 			lprintf(3, "ERROR saving message pointer!\n");
 			CtdlSaveMsgPointerInRoom(AIDEROOM, newmsgid, 0);
@@ -1858,12 +1858,16 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		extract(recipient, recps->recp_local, i);
 		lprintf(9, "Delivering private local mail to <%s>\n",
 			recipient);
-		if (getuser(&userbuf, recipient) == 0) {
+		if (!strcasecmp(recipient, "sysop")) {
+			CtdlSaveMsgPointerInRoom(AIDEROOM, newmsgid, 0);
+		}
+		else if (getuser(&userbuf, recipient) == 0) {
 			MailboxName(actual_rm, &userbuf, MAILROOM);
 			CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0);
 		}
 		else {
 			lprintf(9, "No user <%s>\n", recipient);
+			CtdlSaveMsgPointerInRoom(AIDEROOM, newmsgid, 0);
 		}
 	}
 
@@ -2292,7 +2296,6 @@ void cmd_ent0(char *entargs)
 	char newusername[SIZ];
 	struct CtdlMessage *msg;
 	int anonymous = 0;
-	int mtsflag = 0;
 	char errmsg[SIZ];
 	int err = 0;
 	struct recptypes *valid = NULL;
@@ -2357,9 +2360,6 @@ void cmd_ent0(char *entargs)
 			return;
 		}
 
-		if (!strcasecmp(recp, "sysop")) {
-			mtsflag = 1;
-		}
 	}
 
 	/* Is this a room which has anonymous-only or anonymous-option? */
@@ -2404,7 +2404,7 @@ void cmd_ent0(char *entargs)
 		CC->quickroom.QRname, anonymous, format_type, masquerade_as);
 
 	if (msg != NULL) {
-		CtdlSubmitMsg(msg, valid, (mtsflag ? AIDEROOM : "") );
+		CtdlSubmitMsg(msg, valid, "");
 		CtdlFreeMessage(msg);
 	}
 	CC->fake_postname[0] = '\0';
