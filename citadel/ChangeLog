@@ -1,4 +1,8 @@
 $Log$
+Revision 1.407  1999/11/01 00:54:02  ajc
+* CtdlFetchMessage() - generate a "<no text>" message body if there's none
+  on disk.  Too much stuff goes haywire if there's no M field.
+
 Revision 1.406  1999/10/31 18:17:17  ajc
 * Fixed buffer overrun in cmd_rchg()
 * Call master_cleanup() when time_to_die==1 for proper shutdown
@@ -1401,4 +1405,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

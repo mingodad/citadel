@@ -627,7 +627,6 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum)
 	CIT_UBYTE field_header;
 	size_t field_length;
 
-
 	dmsgtext = cdb_fetch(CDB_MSGMAIN, &msgnum, sizeof(long));
 	if (dmsgtext == NULL) {
 		return NULL;
@@ -670,6 +669,10 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum)
 	} while ((field_length > 0) && (field_header != 'M'));
 
 	cdb_free(dmsgtext);
+
+	/* Always make sure there's something in the msg text field */
+	if (ret->cm_fields['M'] == NULL)
+		ret->cm_fields['M'] = strdoop("<no text>\n");
 
 	/* Perform "before read" hooks (aborting if any return nonzero) */
 	if (PerformMessageHooks(ret, EVT_BEFOREREAD) > 0) {
