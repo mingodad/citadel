@@ -61,6 +61,71 @@ char *fixed_partnum(char *supplied_partnum) {
 }
 
 
+
+/*
+ * Convert "quoted-printable" to binary.  Returns number of bytes decoded.
+ */
+int decode_quoted_printable(char *decoded, char *encoded, int sourcelen) {
+	char buf[SIZ];
+	int buf_length = 0;
+	int soft_line_break = 0;
+	int ch;
+	int decoded_length = 0;
+	int i;
+
+	decoded[0] = 0;
+	decoded_length = 0;
+	buf[0] = 0;
+	buf_length = 0;
+
+	for (i = 0; i < sourcelen; ++i) {
+
+		buf[buf_length++] = encoded[i];
+
+		if ( (encoded[i] == '\n')
+		   || (encoded[i] == 0)
+		   || (i == (sourcelen-1)) ) {
+			buf[buf_length++] = 0;
+
+			/*** begin -- process one line ***/
+
+			if (buf[strlen(buf)-1] == '\n') {
+				buf[strlen(buf)-1] = 0;
+			}
+			if (buf[strlen(buf)-1] == '\r') {
+				buf[strlen(buf)-1] = 0;
+			}
+			while (isspace(buf[strlen(buf)-1])) {
+				buf[strlen(buf)-1] = 0;
+			}
+			soft_line_break = 0;
+
+			while (strlen(buf) > 0) {
+				if (!strcmp(buf, "=")) {
+					soft_line_break = 1;
+					strcpy(buf, "");
+				} else if ((strlen(buf)>=3) && (buf[0]=='=')) {
+					sscanf(&buf[1], "%02x", &ch);
+					decoded[decoded_length++] = ch;
+					strcpy(buf, &buf[3]);
+				} else {
+					decoded[decoded_length++] = buf[0];
+					strcpy(buf, &buf[1]);
+				}
+			}
+			if (soft_line_break == 0) {
+				decoded[decoded_length++] = '\r';
+				decoded[decoded_length++] = '\n';
+			}
+			buf_length = 0;
+			/*** end -- process one line ***/
+		}
+	}
+
+	decoded[decoded_length++] = 0;
+	return(decoded_length);
+}
+
 /*
  * Given a message or message-part body and a length, handle any necessary
  * decoding and pass the request up the stack.
@@ -106,14 +171,7 @@ void mime_decode(char *partnum,
 {
 
 	char *decoded;
-	struct stat statbuf;
-	int sendpipe[2];
-	int recvpipe[2];
-	int childpid;
-	size_t bytes_sent = 0;
-	size_t bytes_recv = 0;
-	size_t blocksize;
-	int write_error = 0;
+	size_t bytes_decoded = 0;
 
 	lprintf(9, "mime_decode() called\n");
 
@@ -146,75 +204,27 @@ void mime_decode(char *partnum,
 	 * assumption with base64, uuencode, and quoted-printable.  Just to
 	 * be safe, we still pad the buffer a bit.
 	 */
-	decoded = malloc(length + 1024);
+	decoded = mallok(length + 1024);
 	if (decoded == NULL) {
 		lprintf(9, "ERROR: cannot allocate memory.\n");
 		return;
 	}
-	if (pipe(sendpipe) != 0)
-		return;
-	if (pipe(recvpipe) != 0)
-		return;
 
-	childpid = fork();
-	if (childpid < 0) {
-		free(decoded);
-		return;
+	if (!strcasecmp(encoding, "base64")) {
+		bytes_decoded = decode_base64(decoded, part_start);
 	}
-	if (childpid == 0) {
-		close(2);
-		/* send stdio to the pipes */
-		if (dup2(sendpipe[0], 0) < 0)
-			lprintf(9, "ERROR dup2()\n");
-		if (dup2(recvpipe[1], 1) < 0)
-			lprintf(9, "ERROR dup2()\n");
-		close(sendpipe[1]);	/* Close the ends we're not using */
-		close(recvpipe[0]);
-		if (!strcasecmp(encoding, "base64"))
-			execlp("./base64", "base64", "-d", NULL);
-		else if (!strcasecmp(encoding, "quoted-printable"))
-			execlp("./qpdecode", "qpdecode", NULL);
-		lprintf(9, "ERROR: cannot exec decoder for %s\n", encoding);
-		exit(1);
-	}
-	close(sendpipe[0]);	/* Close the ends we're not using  */
-	close(recvpipe[1]);
-
-	while ((bytes_sent < length) && (write_error == 0)) {
-		/* Empty the input pipe FIRST */
-		while (fstat(recvpipe[0], &statbuf), (statbuf.st_size > 0)) {
-			blocksize = read(recvpipe[0], &decoded[bytes_recv],
-					 statbuf.st_size);
-			if (blocksize < 0)
-				lprintf(9, "ERROR: cannot read from pipe\n");
-			else
-				bytes_recv = bytes_recv + blocksize;
-		}
-		/* Then put some data into the output pipe */
-		blocksize = length - bytes_sent;
-		if (blocksize > 2048)
-			blocksize = 2048;
-		if (write(sendpipe[1], &part_start[bytes_sent], blocksize) < 0) {
-			lprintf(9, "ERROR: cannot write to pipe: %s\n",
-				strerror(errno));
-			write_error = 1;
-		}
-		bytes_sent = bytes_sent + blocksize;
-	}
-	close(sendpipe[1]);
-	/* Empty the input pipe */
-	while ((blocksize = read(recvpipe[0], &decoded[bytes_recv], 1)),
-	       (blocksize > 0)) {
-		bytes_recv = bytes_recv + blocksize;
+	else if (!strcasecmp(encoding, "quoted-printable")) {
+		bytes_decoded = decode_quoted_printable(decoded,
+							part_start, length);
 	}
 
-	if (bytes_recv > 0) if (CallBack != NULL) {
+	if (bytes_decoded > 0) if (CallBack != NULL) {
 		CallBack(name, filename, fixed_partnum(partnum),
 			disposition, decoded,
-			content_type, bytes_recv, "binary", userdata);
+			content_type, bytes_decoded, "binary", userdata);
 	}
 
-	free(decoded);
+	phree(decoded);
 }
 
 /*

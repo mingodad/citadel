@@ -42,7 +42,7 @@ SERV_MODULES=modules/libchat.la modules/libvcard.la \
 	modules/libical.la
 UTIL_TARGETS=aidepost netsetup msgform readlog \
 	stats citmail userlist sendcommand \
-	base64 qpdecode migratenet
+	base64 migratenet
 
 prefix=@prefix@
 srcdir=@srcdir@
@@ -88,7 +88,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	room_ops.c rooms.c routines.c routines2.c serv_chat.c \
 	serv_info.c serv_test.c setup.c snprintf.c stats.c serv_vcard.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
-	whobbs.c sendcommand.c mime_parser.c base64.c qpdecode.c getutline.c \
+	whobbs.c sendcommand.c mime_parser.c base64.c getutline.c \
 	auth.c chkpwd.c html.c vcard.c serv_upgrade.c serv_vandelay.c \
 	serv_smtp.c serv_pop3.c internet_addressing.c parsedate.c genstamp.c \
 	$(DOMAIN) clientsocket.c serv_inetcfg.c serv_rwho.c serv_bio.c \
@@ -230,9 +230,6 @@ migratenet$(EXEEXT): migratenet.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)
 sendcommand: sendcommand.o ipc_c_tcp.o libcitserver.la $(LIBOBJS)
 	$(LIBTOOL) $(CC) sendcommand.o ipc_c_tcp.o libcitserver.la \
 	 $(LIBOBJS) $(LDFLAGS) -o sendcommand $(NETLIBS)
-
-qpdecode: qpdecode.o
-	$(CC) qpdecode.o $(LDFLAGS) -o qpdecode
 
 base64: base64.o
 	$(CC) base64.o $(LDFLAGS) -o base64

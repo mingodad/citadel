@@ -243,8 +243,10 @@ void encode_base64(char *dest, char *source)
 }
 
 
-
-void decode_base64(char *dest, char *source)
+/* 
+ * Convert base64-encoded to binary.  Returns the length of the decoded data.
+ */
+int decode_base64(char *dest, char *source)
 {
     int i;
     int dpos = 0;
@@ -275,9 +277,9 @@ void decode_base64(char *dest, char *source)
 
 	    if (c == 0) {
 		if (i > 0) {
-		    return;
+		    return(dpos);
 		}
-		return;
+		return(dpos);
 	    }
 	    if (dtable[c] & 0x80) {
 		/* Ignoring errors: discard invalid character. */
@@ -296,7 +298,7 @@ void decode_base64(char *dest, char *source)
 	if (i>=3) dest[dpos++] = o[2];
 	dest[dpos] = 0;
 	if (i < 3) {
-	    return;
+	    return(dpos);
 	}
     }
 }

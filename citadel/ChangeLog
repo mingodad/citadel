@@ -1,4 +1,8 @@
  $Log$
+ Revision 580.89  2001/12/03 04:28:02  ajc
+ * mime_parser.c: now uses built-in functions to decode base64 and
+   quoted-printable attachments, instead of piping data to outboard programs.
+
  Revision 580.88  2001/12/03 02:45:46  ajc
  * Began implementing some code to handle multiple recipients (but #define'd
    it all out because we're approaching a release)
@@ -2912,4 +2916,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
