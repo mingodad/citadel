@@ -1,4 +1,9 @@
  $Log$
+ Revision 1.5  2003/11/01 23:29:04  ajc
+ * Allow the session proxy to time out after 15 minutes.
+ * This program now requires PHP v4.3.0 or newer due to bugs in the socket
+   functions of PHP 4.1.  ctdlheader.php now enforces this.
+
  Revision 1.4  2003/11/01 06:12:20  ajc
  * Got login/logout working.  Still need to redirect unloggedin sessions to
    a login page.
@@ -15,3 +20,5 @@
 
  Revision 1.1  2003/10/31 03:47:13  ajc
  * Initial CVS import
+
+

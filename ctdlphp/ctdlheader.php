@@ -4,8 +4,11 @@ include "ctdlsession.php";
 include "ctdlprotocol.php";
 
 function bbs_page_header() {
-
 	global $session;
+
+	if(strcmp('4.3.0', phpversion()) > 0) {
+		die("This program requires PHP 4.3.0 or newer.");
+	}
 
 	establish_citadel_session();
 

@@ -58,21 +58,21 @@ if ($sockname == "/tmp/") {
 system("/bin/rm -f " . $sockname);
 
 $sock = socket_create(AF_UNIX, SOCK_STREAM, 0);
-if ($sock < 0) {
+if (!$sock) {
 	echo "socket_create() failed: ", socket_strerror($sock), "\n";
 	system("/bin/rm -f " . $sockname);
 	exit(2);
 }
 
 $ret = socket_bind($sock, $sockname);
-if ($ret < 0) {
+if (!$ret) {
 	echo "socket_bind() failed: ", socket_strerror($ret), "\n";
 	system("/bin/rm -f " . $sockname);
 	exit(3);
 }
 
 $ret = socket_listen($sock, 5);
-if ($ret < 0) {
+if (!$ret) {
 	echo "socket_listen() failed: ", socket_strerror($ret), "\n";
 	system("/bin/rm -f " . $sockname);
 	exit(4);
@@ -106,6 +106,19 @@ if (substr($buf, 0, 1) != "2") {
 }
 
 do {
+	// Wait for connections, but time out after 15 minutes.
+	if (socket_select($readsock = array($sock),
+			$writesock = NULL,
+			$exceptsock = NULL,
+			900, 0
+	) == 0) {
+		// Timing out.
+		socket_close ($sock);
+		system("/bin/rm -f " . $sockname);
+		exit(8);
+	}
+
+	// Ok, there's a valid connection coming in.  Accept it.
 	$msgsock = socket_accept($sock);
 	if ($msgsock >= 0) do {
 		$buf = sock_gets($msgsock);
@@ -114,14 +127,14 @@ do {
 				fclose($ctdlsock);
 				socket_close($sock);
 				system("/bin/rm -f " . $sockname);
-				exit(8);
+				exit(9);
 			}
 			$talkback = fgets($ctdlsock, 4096);
 			if (!$talkback) {
 				fclose($ctdlsock);
 				socket_close($sock);
 				system("/bin/rm -f " . $sockname);
-				exit(9);
+				exit(10);
 			}
         		socket_write($msgsock, $talkback, strlen($talkback));
 
