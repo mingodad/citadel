@@ -30,7 +30,10 @@
 #endif
 
 
-static void make_message(FILE *fp, char *target_room, char *author)
+/*
+ * Simplified function to generate a message in our format
+ */
+static void ap_make_message(FILE *fp, char *target_room, char *author)
 {
 	int a;
 	long bb, cc;
@@ -94,7 +97,6 @@ int main(int argc, char **argv)
 		}
 	}
 
-
 	snprintf(tempspool, sizeof tempspool,
 		"./network/spoolin/ap.%04x",
 		getpid());
@@ -106,7 +108,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Generate a message from stdin */
-	make_message(tempfp, target_room, author);
+	ap_make_message(tempfp, target_room, author);
 
 	/* Copy it to a new temp file in the spool directory */
 	rewind(tempfp);
@@ -116,8 +118,9 @@ int main(int argc, char **argv)
 		perror("cannot open spool file");
 		exit(errno);
 	}
-	while (ch = getc(tempfp), (ch >= 0))
+	while (ch = getc(tempfp), (ch >= 0)) {
 		putc(ch, spoolfp);
+	}
 
 	fclose(tempfp);
 	fclose(spoolfp);

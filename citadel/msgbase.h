@@ -50,6 +50,10 @@ struct recptypes {
         int num_ignet;
         int num_error;
 	char errormsg[SIZ];
+	char recp_local[SIZ];
+	char recp_internet[SIZ];
+	char recp_ignet[SIZ];
+	char display_recp[SIZ];
 };
 
 
@@ -68,7 +72,7 @@ void cmd_msg4 (char *cmdbuf);
 void cmd_opna (char *cmdbuf);
 long send_message (struct CtdlMessage *, FILE *);
 void loadtroom (void);
-long CtdlSaveMsg(struct CtdlMessage *, char *, char *, int);
+long CtdlSubmitMsg(struct CtdlMessage *, struct recptypes *, char *);
 void quickie_message (char *, char *, char *, char *);
 void cmd_ent0 (char *entargs);
 void cmd_dele (char *delstr);

@@ -451,7 +451,7 @@ void vcard_purge(char *username, long usernum) {
 
 	msg->cm_fields['S'] = strdoop("CANCEL");
 
-        CtdlSaveMsg(msg, "", ADDRESS_BOOK_ROOM, MES_LOCAL);
+        CtdlSubmitMsg(msg, NULL, ADDRESS_BOOK_ROOM);
         CtdlFreeMessage(msg);
 }
 	

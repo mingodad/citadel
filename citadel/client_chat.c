@@ -256,7 +256,7 @@ void page_user()
 			printf("%s\n", &buf[4]);
 			return;
 		}
-		if (make_message(temp, touser, 0, 0, 0) != 0) {
+		if (client_make_message(temp, touser, 0, 0, 0) != 0) {
 			printf("No message sent.\n");
 			return;
 		}

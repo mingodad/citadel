@@ -26,6 +26,7 @@
 # endif
 #endif
 
+
 #include <ctype.h>
 #include <string.h>
 #include <syslog.h>
@@ -793,6 +794,7 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
 {
 	int i;
 
+	lprintf(9, "CtdlFreeMessage() called\n");
 	if (is_valid_message(msg) == 0) return;
 
 	for (i = 0; i < 256; ++i)
@@ -1037,7 +1039,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	}
 
 	/* nhdr=yes means that we're only displaying headers, no body */
-	if ((TheMessage->cm_anon_type == MES_ANON) && (mode == MT_CITADEL)) {
+	if ((TheMessage->cm_anon_type == MES_ANONONLY) && (mode == MT_CITADEL)) {
 		if (do_proto) cprintf("nhdr=yes\n");
 	}
 
@@ -1049,15 +1051,18 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 		if (TheMessage->cm_fields['A']) {
 			strcpy(buf, TheMessage->cm_fields['A']);
 			PerformUserHooks(buf, (-1L), EVT_OUTPUTMSG);
-			if (TheMessage->cm_anon_type == MES_ANON)
+			if (TheMessage->cm_anon_type == MES_ANONONLY) {
 				strcpy(display_name, "****");
-			else if (TheMessage->cm_anon_type == MES_AN2)
+			}
+			else if (TheMessage->cm_anon_type == MES_ANONOPT) {
 				strcpy(display_name, "anonymous");
-			else
+			}
+			else {
 				strcpy(display_name, buf);
+			}
 			if ((is_room_aide())
-			    && ((TheMessage->cm_anon_type == MES_ANON)
-			     || (TheMessage->cm_anon_type == MES_AN2))) {
+			    && ((TheMessage->cm_anon_type == MES_ANONONLY)
+			     || (TheMessage->cm_anon_type == MES_ANONOPT))) {
 				sprintf(&display_name[strlen(display_name)],
 					" [%s]", buf);
 			}
@@ -1487,7 +1492,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
  * Message base operation to send a message to the master file
  * (returns new message number)
  *
- * This is the back end for CtdlSaveMsg() and should not be directly
+ * This is the back end for CtdlSubmitMsg() and should not be directly
  * called by server-side modules.
  *
  */
@@ -1661,14 +1666,13 @@ int ReplicationChecks(struct CtdlMessage *msg) {
 
 
 /*
- * Save a message to disk
+ * Save a message to disk and submit it into the delivery system.
  */
-long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
-		char *rec,			/* Recipient (mail) */
-		char *force,			/* force a particular room? */
-		int supplied_mailtype)		/* local or remote type */
-{
-	char aaa[100];
+long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
+		struct recptypes *recps,	/* recipients (if mail) */
+		char *force			/* force a particular room? */
+) {
+	char aaa[SIZ];
 	char hold_rm[ROOMNAMELEN];
 	char actual_rm[ROOMNAMELEN];
 	char force_room[ROOMNAMELEN];
@@ -1677,17 +1681,17 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	long newmsgid;
 	char *mptr = NULL;
 	struct usersupp userbuf;
-	int a;
+	int a, i;
 	struct MetaData smi;
 	FILE *network_fp = NULL;
 	static int seqnum = 1;
-	struct CtdlMessage *imsg;
+	struct CtdlMessage *imsg = NULL;
 	char *instr;
-	int mailtype;
+	struct ser_ret smr;
+	char *hold_R, *hold_D;
 
-	lprintf(9, "CtdlSaveMsg() called\n");
+	lprintf(9, "CtdlSubmitMsg() called\n");
 	if (is_valid_message(msg) == 0) return(-1);	/* self check */
-	mailtype = supplied_mailtype;
 
 	/* If this message has no timestamp, we take the liberty of
 	 * giving it one, right now.
@@ -1716,27 +1720,6 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	strcpy(force_room, force);
-
-	/* Strip non-printable characters out of the recipient name */
-	lprintf(9, "Checking recipient (if present)\n");
-	strcpy(recipient, rec);
-	for (a = 0; a < strlen(recipient); ++a)
-		if (!isprint(recipient[a]))
-			strcpy(&recipient[a], &recipient[a + 1]);
-
-	/* Change "user @ xxx" to "user" if xxx is an alias for this host */
-	for (a=0; a<strlen(recipient); ++a) {
-		if (recipient[a] == '@') {
-			if (CtdlHostAlias(&recipient[a+1]) 
-			   == hostalias_localhost) {
-				recipient[a] = 0;
-				lprintf(7, "Changed to <%s>\n", recipient);
-				mailtype = MES_LOCAL;
-			}
-		}
-	}
-
-	lprintf(9, "Recipient is <%s>, mailtype is %d\n", recipient, mailtype);
 
 	/* Learn about what's inside, because it's what's inside that counts */
 	lprintf(9, "Learning what's inside\n");
@@ -1777,7 +1760,7 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	lprintf(9, "Switching rooms\n");
 	strcpy(hold_rm, CC->quickroom.QRname);
 	strcpy(actual_rm, CC->quickroom.QRname);
-	if (strlen(recipient) > 0) {
+	if (recps != NULL) {
 		strcpy(actual_rm, SENTITEMS);
 	}
 
@@ -1815,25 +1798,9 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	lprintf(9, "Performing replication checks\n");
 	if (ReplicationChecks(msg) > 0) return(-1);
 
-	/* Network mail - send a copy to the network program. */
-	if ((strlen(recipient) > 0) && (mailtype == MES_IGNET)) {
-		lprintf(9, "Sending network spool\n");
-		sprintf(aaa, "./network/spoolin/netmail.%04lx.%04x.%04x",
-			(long) getpid(), CC->cs_pid, ++seqnum);
-		lprintf(9, "Saving a copy to %s\n", aaa);
-		network_fp = fopen(aaa, "ab+");
-		if (network_fp == NULL)
-			lprintf(2, "ERROR: %s\n", strerror(errno));
-	}
-
 	/* Save it to disk */
 	lprintf(9, "Saving to disk\n");
-	newmsgid = send_message(msg, network_fp);
-	if (network_fp != NULL) {
-		fclose(network_fp);
-		/* FIXME start a network run here */
-	}
-
+	newmsgid = send_message(msg, NULL);
 	if (newmsgid <= 0L) return(-1);
 
 	/* Write a supplemental message info record.  This doesn't have to
@@ -1862,7 +1829,8 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* For internet mail, drop a copy in the outbound queue room */
-	if (mailtype == MES_INTERNET) {
+	if (recps != NULL)
+	 if (recps->num_internet > 0) {
 		CtdlSaveMsgPointerInRoom(SMTP_SPOOLOUT_ROOM, newmsgid, 0);
 	}
 
@@ -1875,16 +1843,18 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	/* If this is private, local mail, make a copy in the
 	 * recipient's mailbox and bump the reference count.
 	 */
-	if ((strlen(recipient) > 0) && (mailtype == MES_LOCAL)) {
+	if (recps != NULL)
+	 if (recps->num_local > 0)
+	  for (i=0; i<num_tokens(recps->recp_local, '|'); ++i) {
+		extract(recipient, recps->recp_local, i);
+		lprintf(9, "Delivering private local mail to <%s>\n",
+			recipient);
 		if (getuser(&userbuf, recipient) == 0) {
-			lprintf(9, "Delivering private mail\n");
 			MailboxName(actual_rm, &userbuf, MAILROOM);
 			CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0);
 		}
 		else {
-			lprintf(9, "No user <%s>, saving in %s> instead\n",
-				recipient, AIDEROOM);
-			CtdlSaveMsgPointerInRoom(AIDEROOM, newmsgid, 0);
+			lprintf(9, "No user <%s>\n", recipient);
 		}
 	}
 
@@ -1892,24 +1862,71 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	lprintf(9, "Performing after-save hooks\n");
 	PerformMessageHooks(msg, EVT_AFTERSAVE);
 
-	/* */
+	/* For IGnet mail, we have to save a new copy into the spooler for
+	 * each recipient, with the R and D fields set to the recipient and
+	 * destination-node.  This has two ugly side effects: all other
+	 * recipients end up being unlisted in this recipient's copy of the
+	 * message, and it has to deliver multiple messages to the same
+	 * node.  We'll revisit this again in a year or so when everyone has
+	 * a network spool receiver that can handle the new style messages.
+	 */
+	if (recps != NULL)
+	 if (recps->num_ignet > 0)
+	  for (i=0; i<num_tokens(recps->recp_ignet, '|'); ++i) {
+		extract(recipient, recps->recp_ignet, i);
+
+		hold_R = msg->cm_fields['R'];
+		hold_D = msg->cm_fields['D'];
+		msg->cm_fields['R'] = mallok(SIZ);
+		msg->cm_fields['D'] = mallok(SIZ);
+		extract_token(msg->cm_fields['R'], recipient, 0, '@');
+		extract_token(msg->cm_fields['D'], recipient, 1, '@');
+		
+		serialize_message(&smr, msg);
+		if (smr.len > 0) {
+			sprintf(aaa,
+				"./network/spoolin/netmail.%04lx.%04x.%04x",
+                        	(long) getpid(), CC->cs_pid, ++seqnum);
+			network_fp = fopen(aaa, "wb+");
+			if (network_fp != NULL) {
+				fwrite(smr.ser, smr.len, 1, network_fp);
+				fclose(network_fp);
+			}
+			phree(smr.ser);
+		}
+
+		phree(msg->cm_fields['R']);
+		phree(msg->cm_fields['D']);
+		msg->cm_fields['R'] = hold_R;
+		msg->cm_fields['D'] = hold_D;
+	}
+
+	/* Go back to the room we started from */
 	lprintf(9, "Returning to original room\n");
 	if (strcasecmp(hold_rm, CC->quickroom.QRname))
 		getroom(&CC->quickroom, hold_rm);
 
-	/* For internet mail, generate delivery instructions 
-	 * (Yes, this is recursive!   Deal with it!)
+	/* For internet mail, generate delivery instructions.
+	 * Yes, this is recursive.  Deal with it.  Infinite recursion does
+	 * not happen because the delivery instructions message does not
+	 * contain a recipient.
 	 */
-	if (mailtype == MES_INTERNET) {
+	if (recps != NULL)
+	 if (recps->num_internet > 0) {
 		lprintf(9, "Generating delivery instructions\n");
-		instr = mallok(2048);
+		instr = mallok(SIZ * 2);
 		sprintf(instr,
 			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
-			"bounceto|%s@%s\n"
-			"remote|%s|0||\n",
+			"bounceto|%s@%s\n",
 			SPOOLMIME, newmsgid, (long)time(NULL),
-			msg->cm_fields['A'], msg->cm_fields['N'],
-			recipient );
+			msg->cm_fields['A'], msg->cm_fields['N']
+		);
+
+	  	for (i=0; i<num_tokens(recps->recp_internet, '|'); ++i) {
+			extract(recipient, recps->recp_internet, i);
+			sprintf(&instr[strlen(instr)],
+				"remote|%s|0||\n", recipient);
+		}
 
         	imsg = mallok(sizeof(struct CtdlMessage));
 		memset(imsg, 0, sizeof(struct CtdlMessage));
@@ -1918,7 +1935,7 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 		imsg->cm_format_type = FMT_RFC822;
 		imsg->cm_fields['A'] = strdoop("Citadel");
 		imsg->cm_fields['M'] = instr;
-		CtdlSaveMsg(imsg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL);
+		CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM);
 		CtdlFreeMessage(imsg);
 	}
 
@@ -1946,7 +1963,7 @@ void quickie_message(char *from, char *to, char *room, char *text)
 		msg->cm_fields['R'] = strdoop(to);
 	msg->cm_fields['M'] = strdoop(text);
 
-	CtdlSaveMsg(msg, "", room, MES_LOCAL);
+	CtdlSubmitMsg(msg, NULL, room);
 	CtdlFreeMessage(msg);
 	syslog(LOG_NOTICE, text);
 }
@@ -1975,10 +1992,15 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 		m = reallok(exist, strlen(exist) + 4096);
 		if (m == NULL) phree(exist);
 	}
+
+	/* flush the input if we have nowhere to store it */
 	if (m == NULL) {
 		while ( (client_gets(buf)>0) && strcmp(buf, terminator) ) ;;
 		return(NULL);
-	} else {
+	}
+
+	/* otherwise read it into memory */
+	else {
 		buffer_len = 4096;
 		m[0] = 0;
 		message_len = 0;
@@ -2007,9 +2029,10 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 			}
 		}
 
-		/* Add the new line to the buffer.  We avoid using strcat()
-		 * because that would involve traversing the entire message
-		 * after each line, and this function needs to run fast.
+		/* Add the new line to the buffer.  NOTE: this loop must avoid
+		 * using functions like strcat() and strlen() because they
+		 * traverse the entire buffer upon every call, and doing that
+		 * for a multi-megabyte message slows it down beyond usability.
 		 */
 		strcpy(&m[message_len], buf);
 		m[message_len + linelen] = '\n';
@@ -2038,13 +2061,10 @@ static struct CtdlMessage *make_message(
 	char *recipient,		/* NULL if it's not mail */
 	char *room,			/* room where it's going */
 	int type,			/* see MES_ types in header file */
-	int net_type,			/* see MES_ types in header file */
-	int format_type,		/* local or remote (see citadel.h) */
-	char *fake_name)		/* who we're masquerading as */
-{
-
-	int a;
-	char dest_node[32];
+	int format_type,		/* variformat, plain text, MIME... */
+	char *fake_name			/* who we're masquerading as */
+) {
+	char dest_node[SIZ];
 	char buf[SIZ];
 	struct CtdlMessage *msg;
 
@@ -2057,24 +2077,7 @@ static struct CtdlMessage *make_message(
 	/* Don't confuse the poor folks if it's not routed mail. */
 	strcpy(dest_node, "");
 
-	/* If net_type is MES_IGNET, split out the destination node. */
-	if (net_type == MES_IGNET) {
-		strcpy(dest_node, NODENAME);
-		for (a = 0; a < strlen(recipient); ++a) {
-			if (recipient[a] == '@') {
-				recipient[a] = 0;
-				strcpy(dest_node, &recipient[a + 1]);
-			}
-		}
-	}
-
-	/* if net_type is MES_INTERNET, set the dest node to 'internet' */
-	if (net_type == MES_INTERNET) {
-		strcpy(dest_node, "internet");
-	}
-
-	while (isspace(recipient[strlen(recipient) - 1]))
-		recipient[strlen(recipient) - 1] = 0;
+	striplt(recipient);
 
 	sprintf(buf, "cit%ld", author->usernum);		/* Path */
 	msg->cm_fields['P'] = strdoop(buf);
@@ -2087,23 +2090,25 @@ static struct CtdlMessage *make_message(
 	else
 		msg->cm_fields['A'] = strdoop(author->fullname);
 
-	if (CC->quickroom.QRflags & QR_MAILBOX) 		/* room */
+	if (CC->quickroom.QRflags & QR_MAILBOX) {		/* room */
 		msg->cm_fields['O'] = strdoop(&CC->quickroom.QRname[11]);
-	else
+	}
+	else {
 		msg->cm_fields['O'] = strdoop(CC->quickroom.QRname);
+	}
 
 	msg->cm_fields['N'] = strdoop(NODENAME);		/* nodename */
 	msg->cm_fields['H'] = strdoop(HUMANNODE);		/* hnodename */
 
-	if (recipient[0] != 0)
+	if (recipient[0] != 0) {
 		msg->cm_fields['R'] = strdoop(recipient);
-	if (dest_node[0] != 0)
+	}
+	if (dest_node[0] != 0) {
 		msg->cm_fields['D'] = strdoop(dest_node);
-
+	}
 
 	msg->cm_fields['M'] = CtdlReadMessageBody("000",
 						config.c_maxmsglen, NULL);
-
 
 	return(msg);
 }
@@ -2145,16 +2150,18 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf) {
 }
 
 
-#ifdef NOT_YET_FINISHED /* FIXME */
 /*
  * Validate recipients, count delivery types and errors, and handle aliasing
+ * FIXME check for dupes!!!!!
  */
 struct recptypes *validate_recipients(char *recipients) {
 	struct recptypes *ret;
 	char this_recp[SIZ];
+	char append[SIZ];
 	int num_recps;
 	int i;
 	int mailtype;
+	int invalid;
 	struct usersupp tempUS;
 
 	/* Initialize */
@@ -2167,48 +2174,99 @@ struct recptypes *validate_recipients(char *recipients) {
 	ret->num_ignet = 0;
 	ret->num_error = 0;
 
-	if (recipients == NULL) return(ret);
-	if (strlen(recipients) == NULL) return(ret);
-
-	/* Allow either , or ; separators by changing ; to , */
-	for (i=0; i<strlen(recipients); ++i) {
-		if (recipients[i] == ';') {
-			recipients[i] = ',';
+	if (recipients == NULL) {
+		num_recps = 0;
+	}
+	else if (strlen(recipients) == 0) {
+		num_recps = 0;
+	}
+	else {
+		/* Change all valid separator characters to commas */
+		for (i=0; i<strlen(recipients); ++i) {
+			if ((recipients[i] == ';') || (recipients[i] == '|')) {
+				recipients[i] = ',';
+			}
 		}
+
+		/* Count 'em up */
+		num_recps = num_tokens(recipients, ',');
 	}
 
-	/* Count 'em up */
-	num_recps = num_tokens(recipients, ',');
-	
-	for (i=0; i<num_recps; ++i) {
+	if (num_recps > 0) for (i=0; i<num_recps; ++i) {
 		extract_token(this_recp, recipients, i, ',');
+		striplt(this_recp);
 		lprintf(9, "Evaluating recipient #%d <%s>\n", i, this_recp);
 		mailtype = alias(this_recp);
+		invalid = 0;
 		switch(mailtype) {
 			case MES_LOCAL:
-				if (getuser(&tempUS, buf) == 0) {
+				if (getuser(&tempUS, this_recp) == 0) {
 					++ret->num_local;
+					strcpy(this_recp, tempUS.fullname);
+					if (strlen(ret->recp_local) > 0) {
+						strcat(ret->recp_local, "|");
+					}
+					strcat(ret->recp_local, this_recp);
 				}
 				else {
 					++ret->num_error;
+					invalid = 1;
 				}
 				break;
 			case MES_INTERNET:
 				++ret->num_internet;
+				if (strlen(ret->recp_internet) > 0) {
+					strcat(ret->recp_internet, "|");
+				}
+				strcat(ret->recp_internet, this_recp);
 				break;
 			case MES_IGNET:
 				++ret->num_ignet;
+				if (strlen(ret->recp_ignet) > 0) {
+					strcat(ret->recp_ignet, "|");
+				}
+				strcat(ret->recp_ignet, this_recp);
 				break;
 			case MES_ERROR:
 				++ret->num_error;
+				invalid = 1;
 				break;
 		}
+		if (invalid) {
+			if (strlen(ret->errormsg) == 0) {
+				sprintf(append,
+					"Invalid recipient: %s",
+					this_recp);
+			}
+			else {
+				sprintf(append, 
+					", %s", this_recp);
+			}
+			if ( (strlen(ret->errormsg) + strlen(append)) < SIZ) {
+				strcat(ret->errormsg, append);
+			}
+		}
+		else {
+			if (strlen(ret->display_recp) == 0) {
+				strcpy(append, this_recp);
+			}
+			else {
+				sprintf(append, ", %s", this_recp);
+			}
+			if ( (strlen(ret->display_recp)+strlen(append)) < SIZ) {
+				strcat(ret->display_recp, append);
+			}
+		}
+	}
 
+	if ((ret->num_local + ret->num_internet +
+	   ret->num_ignet + ret->num_error) == 0) {
+		++ret->num_error;
+		strcpy(ret->errormsg, "No recipients specified.");
 	}
 
 	return(ret);
 }
-#endif /* FIXME */
 
 
 
@@ -2218,141 +2276,139 @@ struct recptypes *validate_recipients(char *recipients) {
 void cmd_ent0(char *entargs)
 {
 	int post = 0;
-	char recipient[SIZ];
+	char recp[SIZ];
+	char masquerade_as[SIZ];
 	int anon_flag = 0;
 	int format_type = 0;
 	char newusername[SIZ];
 	struct CtdlMessage *msg;
-	int a, b;
-	int e = 0;
+	int anonymous = 0;
 	int mtsflag = 0;
-	struct usersupp tempUS;
-	char buf[SIZ];
+	char errmsg[SIZ];
 	int err = 0;
+	struct recptypes *valid = NULL;
 
 	post = extract_int(entargs, 0);
-	extract(recipient, entargs, 1);
+	extract(recp, entargs, 1);
 	anon_flag = extract_int(entargs, 2);
 	format_type = extract_int(entargs, 3);
 
 	/* first check to make sure the request is valid. */
 
-	err = CtdlDoIHavePermissionToPostInThisRoom(buf);
+	err = CtdlDoIHavePermissionToPostInThisRoom(errmsg);
 	if (err) {
-		cprintf("%d %s\n", err, buf);
+		cprintf("%d %s\n", err, errmsg);
 		return;
 	}
 
 	/* Check some other permission type things. */
 
 	if (post == 2) {
-		if (CC->usersupp.axlevel < 6) {
+	 	if (CC->usersupp.axlevel < 6) {
 			cprintf("%d You don't have permission to masquerade.\n",
 				ERROR + HIGHER_ACCESS_REQUIRED);
 			return;
 		}
 		extract(newusername, entargs, 4);
-		memset(CC->fake_postname, 0, 32);
-		strcpy(CC->fake_postname, newusername);
-		cprintf("%d Ok\n", OK);
+		memset(CC->fake_postname, 0, sizeof(CC->fake_postname) );
+		safestrncpy(CC->fake_postname, newusername,
+			sizeof(CC->fake_postname) );
+		cprintf("%d ok\n", OK);
 		return;
 	}
 	CC->cs_flags |= CS_POSTING;
 
-	buf[0] = 0;
 	if (CC->quickroom.QRflags & QR_MAILBOX) {
-		if (CC->usersupp.axlevel >= 2) {
-			strcpy(buf, recipient);
+		if (CC->usersupp.axlevel < 2) {
+			strcpy(recp, "sysop");
 		}
-		else {
-			strcpy(buf, "sysop");
-		}
-		e = alias(buf);	/* alias and mail type */
-		if ((buf[0] == 0) || (e == MES_ERROR)) {
-			cprintf("%d Unknown address - cannot send message.\n",
-				ERROR + NO_SUCH_USER);
+
+		valid = validate_recipients(recp);
+		lprintf(9, "validate_recipients(%s)\n", recp);
+		lprintf(9, " num_local    = %d\n", valid->num_local);
+		lprintf(9, " num_internet = %d\n", valid->num_internet);
+		lprintf(9, " num_ignet    = %d\n", valid->num_ignet);
+		lprintf(9, " num_error    = %d\n", valid->num_error);
+		lprintf(9, " errormsg     = %s\n", valid->errormsg);
+		lprintf(9, " display_recp = %s\n", valid->display_recp);
+
+		if (valid->num_error > 0) {
+			cprintf("%d %s\n",
+				ERROR + NO_SUCH_USER,
+				valid->errormsg);
+			phree(valid);
 			return;
 		}
-		if ((e != MES_LOCAL) && (CC->usersupp.axlevel < 4)) {
-			cprintf("%d Net privileges required for network mail.\n",
+
+		if ( ( (valid->num_internet + valid->num_ignet) > 0)
+		   && (CC->usersupp.axlevel < 4) ) {
+			cprintf("%d Higher access required for network mail.\n",
 				ERROR + HIGHER_ACCESS_REQUIRED);
+			phree(valid);
 			return;
 		}
-		if ((RESTRICT_INTERNET == 1) && (e == MES_INTERNET)
+	
+		if ((RESTRICT_INTERNET == 1) && (valid->num_internet > 0)
 		    && ((CC->usersupp.flags & US_INTERNET) == 0)
 		    && (!CC->internal_pgm)) {
 			cprintf("%d You don't have access to Internet mail.\n",
 				ERROR + HIGHER_ACCESS_REQUIRED);
+			phree(valid);
 			return;
 		}
-		if (!strcasecmp(buf, "sysop")) {
+
+		if (!strcasecmp(recp, "sysop")) {
 			mtsflag = 1;
 		}
-		else if (e == MES_LOCAL) {	/* don't search local file */
+	}
 
-
-/*** We can probably do this now.
-			if (!strcasecmp(buf, CC->usersupp.fullname)) {
-				cprintf("%d Can't send mail to yourself!\n",
-					ERROR + NO_SUCH_USER);
-				return;
-			}
-  ***  hi from Stu
-*/
-
-			/* Check to make sure the user exists; also get the correct
-			 * upper/lower casing of the name.
-			 */
-			a = getuser(&tempUS, buf);
-			if (a != 0) {
-				cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
-				return;
-			}
-			strcpy(buf, tempUS.fullname);
+	/* Is this a room which has anonymous-only or anonymous-option? */
+	anonymous = MES_NORMAL;
+	if (CC->quickroom.QRflags & QR_ANONONLY) {
+		anonymous = MES_ANONONLY;
+	}
+	if (CC->quickroom.QRflags & QR_ANONOPT) {
+		if (anon_flag == 1) {	/* only if the user requested it */
+			anonymous = MES_ANONOPT;
 		}
 	}
 
-	b = MES_NORMAL;
-	if (CC->quickroom.QRflags & QR_ANONONLY)
-		b = MES_ANON;
-	if (CC->quickroom.QRflags & QR_ANONOPT) {
-		if (anon_flag == 1)
-			b = MES_AN2;
+	if ((CC->quickroom.QRflags & QR_MAILBOX) == 0) {
+		recp[0] = 0;
 	}
-	if ((CC->quickroom.QRflags & QR_MAILBOX) == 0)
-		buf[0] = 0;
 
 	/* If we're only checking the validity of the request, return
 	 * success without creating the message.
 	 */
 	if (post == 0) {
-		cprintf("%d %s\n", OK, buf);
+		cprintf("%d %s\n", OK,
+			((valid != NULL) ? valid->display_recp : "") );
+		phree(valid);
 		return;
 	}
 
-	cprintf("%d send message\n", SEND_LISTING);
-
-	/* Read in the message from the client. */
+	/* Handle author masquerading */
 	if (CC->fake_postname[0]) {
-		msg = make_message(&CC->usersupp, buf,
-			CC->quickroom.QRname, b, e, format_type,
-			CC->fake_postname);
+		strcpy(masquerade_as, CC->fake_postname);
 	}
 	else if (CC->fake_username[0]) {
-		msg = make_message(&CC->usersupp, buf,
-			CC->quickroom.QRname, b, e, format_type,
-			CC->fake_username);
+		strcpy(masquerade_as, CC->fake_username);
 	}
 	else {
-		msg = make_message(&CC->usersupp, buf,
-			CC->quickroom.QRname, b, e, format_type, "");
+		strcpy(masquerade_as, "");
 	}
 
+	/* Read in the message from the client. */
+	cprintf("%d send message\n", SEND_LISTING);
+	msg = make_message(&CC->usersupp, recp,
+		CC->quickroom.QRname, anonymous, format_type, masquerade_as);
+
 	if (msg != NULL) {
-		CtdlSaveMsg(msg, buf, (mtsflag ? AIDEROOM : ""), e);
+		CtdlSubmitMsg(msg, valid, (mtsflag ? AIDEROOM : "") );
 		CtdlFreeMessage(msg);
 	}
 	CC->fake_postname[0] = '\0';
+	phree(valid);
 	return;
 }
 
@@ -2532,7 +2588,9 @@ void cmd_move(char *args)
 	/* Now delete the message from the source room,
 	 * if this is a 'move' rather than a 'copy' operation.
 	 */
-	if (is_copy == 0) CtdlDeleteMessages(CC->quickroom.QRname, num, "");
+	if (is_copy == 0) {
+		CtdlDeleteMessages(CC->quickroom.QRname, num, "");
+	}
 
 	cprintf("%d Message %s.\n", OK, (is_copy ? "copied" : "moved") );
 }
@@ -2574,10 +2632,10 @@ void PutMetaData(struct MetaData *smibuf)
 {
 	long TheIndex;
 
-	/* Use the negative of the message number for its supp record index */
+	/* Use the negative of the message number for the metadata db index */
 	TheIndex = (0L - smibuf->meta_msgnum);
 
-	lprintf(9, "PuttMetaData(%ld) - ref count is %d\n",
+	lprintf(9, "PutMetaData(%ld) - ref count is %d\n",
 		smibuf->meta_msgnum, smibuf->meta_refcount);
 
 	cdb_store(CDB_MSGMAIN,
@@ -2617,6 +2675,8 @@ void AdjRefCount(long msgnum, int incr)
 		lprintf(9, "Deleting message <%ld>\n", msgnum);
 		delnum = msgnum;
 		cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));
+
+		/* We have to delete the metadata record too! */
 		delnum = (0L - msgnum);
 		cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));
 	}
@@ -2720,7 +2780,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 			CtdlDeleteMessages(roomname, 0L, content_type));
 	}
 	/* Now write the data */
-	CtdlSaveMsg(msg, "", roomname, MES_LOCAL);
+	CtdlSubmitMsg(msg, NULL, roomname);
 	CtdlFreeMessage(msg);
 }
 

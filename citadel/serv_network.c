@@ -484,7 +484,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 		imsg->cm_fields['M'] = instr;
 	
 		/* Save delivery instructions in spoolout room */
-		CtdlSaveMsg(imsg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL);
+		CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM);
 		CtdlFreeMessage(imsg);
 	}
 	
@@ -983,7 +983,7 @@ void network_process_buffer(char *buffer, long size) {
 
 	/* save the message into a room */
 	msg->cm_flags = CM_SKIP_HOOKS;
-        CtdlSaveMsg(msg, "", target_room, 0);
+        CtdlSubmitMsg(msg, NULL, target_room);
 	CtdlFreeMessage(msg);
 }
 

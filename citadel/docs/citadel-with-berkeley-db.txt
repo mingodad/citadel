@@ -3,7 +3,7 @@
                                       
 Abstract
 
-   [1]Citadel/UX can now use the robust and scalable [2]Berkeley DB from
+   Citadel/UX can now use the robust and scalable Berkeley DB from
    Sleepycat Software as its data store, for increased scalability,
    reliability, and recoverability.
    
@@ -16,16 +16,16 @@ History and introduction
    concurrent use, and aspirations of becoming a world-class
    messaging/groupware platform someday, the developers made the decision
    to switch to an embedded database.  The Free Software Foundation's
-   [3]GDBM product was chosen for its simple API and its free license
+   GDBM product was chosen for its simple API and its free license
    (the LGPL).
    
    Somewhat less than trouble-free operation from 1998 through 2000,
    however, proved that GDBM was not the best choice.  Heavily utilized
    systems experienced occasional database corruption, often resulting in
    repeated crashes of the Citadel server.  As a result, we made the
-   decision to switch to [4]Berkeley DB.
+   decision to switch to Berkeley DB.
    
-   Berkeley DB offers [5]numerous features which help Citadel/UX to meet
+   Berkeley DB offers numerous features which help Citadel/UX to meet
    its goals as a high-end messaging platform:
      * Database sizes can scale to hundreds of terabytes
      * A transaction-based logging system
@@ -37,17 +37,23 @@ History and introduction
    THE USE OF GDBM IS DEPRECATED AND STRONGLY DISCOURAGED.  If you are
    bringing up a new site you should use Berkeley DB, period.  If you are
    maintaining an existing site using GDBM you should migrate it to Berkeley
-   DB as soon as possible.
+   DB as soon as possible, because support for it will be dropped in a future
+   release.
  
     
 Building Citadel/UX with DB support
+ 
+   If you are running Citadel/UX on a Red Hat Linux system, you don't have
+   to build Berekeley DB from source.  Simply install the RPM's for "db3"
+   and "db3-devel" (the latter may be on the second CD) and you're ready to
+   run Citadel.
 
-   Here are the steps required to get Citadel/UX running with Berkeley
-   DB as its back end data store.
+   Otherwise, here are the steps required to get Citadel running with
+   Berkeley DB as its back end data store.
    
     1. First, you must download and build Berkeley DB itself.  Citadel
        has been developed and tested with DB 3.1.17, which can be
-       downloaded from [6]www.sleepycat.com.  Follow the "[7]Building for
+       downloaded from www.sleepycat.com.  Follow the "Building for
        UNIX" instructions.  Make sure that you run the test suite, and
        perhaps test with some of the sample applications, before moving
        on.
@@ -72,7 +78,7 @@ Migrating an existing GDBM-based Citadel to a DB-based Citadel
 
    If you have an existing system, you must export your databases,
    rebuild Citadel with DB support, and then re-import your databases
-   into the new system.  Please refer to the document "[8]How to use the
+   into the new system.  Please refer to the document "How to use the
    importer/exporter" for detailed instructions on this.
    
    After you export your database, but before you re-import it, you must
@@ -92,10 +98,10 @@ Care and feeding of your DB-powered Citadel
    So do you have to keep these log files around forever?  No, but there
    are some rules you should follow:
      * Don't remove a log file if it's the only log file there.
-     * If it's not listed in the output of the db_archive[9] command, it's
+     * If it's not listed in the output of the db_archive command, it's
        not safe to remove.
      * After a successful backup (see below) log files listed by the
-       db_archive[9] command may be removed to conserve disk space, if 
+       db_archive command may be removed to conserve disk space, if 
        those log files were backed up.
 
    You may think that it's going to keep writing to that one log file
@@ -110,14 +116,3 @@ Care and feeding of your DB-powered Citadel
    server will automatically remove them when they're no longer needed.
  
  
-References
-
-   1. http://uncensored.citadel.org/citadel
-   2. http://www.sleepycat.com/
-   3. http://www.gnu.org/software/gdbm/gdbm.html
-   4. http://www.sleepycat.com/
-   5. http://www.sleepycat.com/xactfeatures.html
-   6. http://www.sleepycat.com/
-   7. http://www.sleepycat.com/docs/ref/build_unix/intro.html
-   8. http://pixel.citadel.org/citadel/docs/export.html
-   9. http://www.sleepycat.com/docs/utility/db_archive.html

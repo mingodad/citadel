@@ -599,7 +599,7 @@ void replace_string(char *filename, long int startpos)
 /*
  * Function to begin composing a new message
  */
-int make_message(char *filename,	/* temporary file name */
+int client_make_message(char *filename,	/* temporary file name */
 		char *recipient,	/* NULL if it's not mail */
 		int anon_type,		/* see MES_ types in header file */
 		int format_type,
@@ -922,7 +922,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 	}
 
 	/* Now compose the message... */
-	if (make_message(temp, buf, b, 0, c) != 0) {
+	if (client_make_message(temp, buf, b, 0, c) != 0) {
 		return (2);
 	}
 

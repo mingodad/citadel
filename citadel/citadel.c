@@ -90,6 +90,7 @@ int timescalled;
 int posted;
 unsigned userflags;
 long usernum = 0L;		/* user number */
+time_t lastcall = 0L;		/* Date/time of previous login */
 char newnow;
 long highest_msg_read;		/* used for <A>bandon room cmd */
 long maxmsgnum;			/* used for <G>oto */
@@ -232,6 +233,7 @@ void load_user_info(char *params)
 	posted = extract_int(params, 3);
 	userflags = extract_int(params, 4);
 	usernum = extract_long(params, 5);
+	lastcall = extract_long(params, 6);
 }
 
 
@@ -1107,9 +1109,15 @@ PWOK:
 			enable_color = 0;
 	}
 
-	printf("%s\nAccess level: %d (%s)\nUser #%ld / Call #%d\n",
-	       fullname, axlevel, axdefs[(int) axlevel],
-	       usernum, timescalled);
+	printf("%s\nAccess level: %d (%s)\n"
+		"User #%ld / Login #%d",
+		fullname, axlevel, axdefs[(int) axlevel],
+		usernum, timescalled);
+	if (lastcall > 0L) {
+		printf(" / Last login: %s\n",
+			asctime(localtime(&lastcall)) );
+	}
+	printf("\n");
 
 	serv_puts("CHEK");
 	serv_gets(aaa);
@@ -1581,7 +1589,7 @@ TERMN8:	printf("%s logged out.\n", fullname);
 		remove_march(march->march_name, 0);
 	}
 	if (mcmd == 30) {
-		printf("\n\nType 'off' to hang up, or next user...\n");
+		printf("\n\nType 'off' to disconnect, or next user...\n");
 	}
 	snprintf(aaa, sizeof aaa, "LOUT");
 	serv_puts(aaa);

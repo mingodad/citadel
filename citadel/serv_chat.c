@@ -585,7 +585,7 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 		 * creating the room if necessary.
 		 */
 		create_room(PAGELOGROOM, 4, "", 0, 1);
-		msgnum = CtdlSaveMsg(logmsg, "", PAGELOGROOM, MES_LOCAL);
+		msgnum = CtdlSubmitMsg(logmsg, NULL, PAGELOGROOM);
 
 		/* Now save a copy in the global log room, if configured */
 		if (strlen(config.c_logpages) > 0) {

@@ -545,10 +545,9 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 	if (msg->cm_fields['O']==NULL) msg->cm_fields['O'] = strdoop(MAILROOM);
 
 	/* Save the message in the queue */
-	msgid = CtdlSaveMsg(msg,
-		"",
-		SMTP_SPOOLOUT_ROOM,
-		MES_LOCAL);
+	msgid = CtdlSubmitMsg(msg,
+		NULL,
+		SMTP_SPOOLOUT_ROOM);
 	++successful_saves;
 
 	instr = mallok(1024);
@@ -610,13 +609,13 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 		imsg->cm_anon_type = MES_NORMAL;
 		imsg->cm_format_type = FMT_RFC822;
 		imsg->cm_fields['M'] = instr;
-		CtdlSaveMsg(imsg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL);
+		CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM);
 		CtdlFreeMessage(imsg);
 	}
 
 	/* If there are no remote spools, delete the message */	
 	else {
-		phree(instr);	/* only needed here, because CtdlSaveMsg()
+		phree(instr);	/* only needed here, because CtdlSubmitMsg()
 				 * would free this buffer otherwise */
 		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, msgid, ""); 
 	}
@@ -1193,22 +1192,23 @@ void smtp_do_bounce(char *instr) {
 			lprintf(7, "No bounce address specified\n");
 			bounce_msgid = (-1L);
 		}
+/* FIXME this won't work
 		else if (mes_type = alias(bounceto), mes_type == MES_ERROR) {
 			lprintf(7, "Invalid bounce address <%s>\n", bounceto);
 			bounce_msgid = (-1L);
 		}
 		else {
-			bounce_msgid = CtdlSaveMsg(bmsg,
+			bounce_msgid = CtdlSubmitMsg(bmsg,
 				bounceto,
 				"", mes_type);
 		}
+ */
 		TRACE;
 
 		/* Otherwise, go to the Aide> room */
 		lprintf(9, "bounce to room?\n");
-		if (bounce_msgid < 0L) bounce_msgid = CtdlSaveMsg(bmsg,
-			"", AIDEROOM,
-			MES_LOCAL);
+		if (bounce_msgid < 0L) bounce_msgid = CtdlSubmitMsg(bmsg,
+			NULL, AIDEROOM);
 	}
 
 	CtdlFreeMessage(bmsg);
@@ -1428,7 +1428,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 			"retry|%ld\n",
 			SPOOLMIME, instr, (long)time(NULL), (long)retry );
 		phree(instr);
-		CtdlSaveMsg(msg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL);
+		CtdlSubmitMsg(msg, NULL, SMTP_SPOOLOUT_ROOM);
 		CtdlFreeMessage(msg);
 	}
 

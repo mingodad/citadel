@@ -11,12 +11,12 @@
      Brian Costello     (cosmetics, additional commands)
      Andru Luvisi       (troubleshooting and development assistance)
      Daniel Malament    (string compare function for IMAP server)
-     Stu Mark           (IGnet/Open protocol design)
+     Stu Mark           (additional client features, IGnet protocol design)
      Ben Mehlman        (additional client features)
      Ari Samson         (project management)
      John Walker        (author of public domain base64 encoder/decoder)
      Steve Williams     (documentation)
-     Ethan Young        (IGnet/Open protocol design)
+     Ethan Young        (IGnet protocol design)
     
  ------------------------------------------------------------------------------
  

@@ -279,7 +279,7 @@ void imap_append(int num_parms, char *parms[]) {
 	else {
 		/* Yes ... go ahead and post! */
 		if (msg != NULL) {
-                	CtdlSaveMsg(msg, "", "", 0);
+                	CtdlSubmitMsg(msg, NULL, "");
 		}
 		cprintf("%s OK APPEND completed\r\n", parms[0]);
 	}

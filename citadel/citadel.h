@@ -208,8 +208,8 @@ struct quickroom {
 /* Miscellaneous                                                            */
 
 #define MES_NORMAL	65		/* Normal message                   */
-#define MES_ANON	66		/* "****" header                    */
-#define MES_AN2		67		/* "Anonymous" header               */
+#define MES_ANONONLY	66		/* "****" header                    */
+#define MES_ANONOPT	67		/* "Anonymous" header               */
 
 #define MES_ERROR	(-1)	/* Can't send message due to bad address   */
 #define MES_LOCAL	0	/* Local message, do no network processing */
