@@ -148,6 +148,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	menuFile->AppendSeparator(); 
 	menuFile->Append(IG_Quit, "E&xit");
 
+	wxMenu *menuEdit = new wxMenu;
+
 	wxMenu *menuWindow = new wxMenu;
 	menuWindow->Append(WMENU_CASCADE, "&Cascade");
 	menuWindow->Append(WMENU_TILE, "&Tile");
@@ -161,6 +163,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	// now append the freshly created menu to the menu bar...
 	wxMenuBar *menuBar = new wxMenuBar;
 	menuBar->Append(menuFile, "&File");
+	menuBar->Append(menuEdit, "&Edit");
 	menuBar->Append(menuWindow, "&Window");
 	menuBar->Append(menuHelp, "&Help");
 

@@ -36,8 +36,22 @@ public:
 private:
 	void serv_gets(wxString& buf);
 	void serv_puts(wxString buf);
+	void download_express_messages(void);
 	TCPsocket sock;
 	void CitClient::initialize_session(void);
 };
+
+
+
+
+// This is a timer that does keepalives...
+class keepalive : public wxTimer {
+public:
+        keepalive(CitClient *sock);
+private:
+	CitClient *which_sock;
+        void Notify(void);
+};
+
 
 

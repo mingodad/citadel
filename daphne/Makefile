@@ -2,9 +2,9 @@ CFLAGS=`wx-config --cflags`
 LFLAGS=`wx-config --libs`
 
 daphne: main.o citclient.o userlogin.o testwindow.o who.o \
-	utils.o tcp_sockets.o
+	utils.o tcp_sockets.o express_message.o
 	c++ main.o citclient.o userlogin.o testwindow.o who.o \
-	utils.o tcp_sockets.o \
+	utils.o tcp_sockets.o express_message.o \
 	$(LFLAGS) -o daphne
 
 main.o: main.cpp
@@ -27,3 +27,6 @@ utils.o: utils.c
 
 tcp_sockets.o: tcp_sockets.cpp tcp_sockets.hpp
 	c++ -c $(CFLAGS) tcp_sockets.cpp
+
+express_message.o: express_message.cpp express_message.hpp
+	c++ -c $(CFLAGS) express_message.cpp

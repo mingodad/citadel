@@ -4,6 +4,8 @@
 #include <wx/wx.h>
 
 #include "citclient.hpp"
+#include "express_message.hpp"
+#include "utils.h"
 
 
 //  
@@ -27,14 +29,14 @@ int CitClient::attach(const wxString& host, const wxString& port) {
 }
 
 
-// constructur
+// constructor
 CitClient::CitClient(void) {
+	(void)new keepalive(this);
 }
 
 
 // destructor
 CitClient::~CitClient(void) {
-
 	// Be nice and log out from the server if it's still connected
 	sock.detach();
 }
@@ -105,9 +107,8 @@ int CitClient::serv_trans(
 		serv_puts("000");
 	}
 
-
 	if (express_messages_waiting) {
-		// FIX do something here
+		download_express_messages();
 	}
 
 	return first_digit;
@@ -159,3 +160,44 @@ void CitClient::initialize_session(void)  {
 		}
 	}
 }
+
+
+
+void CitClient::download_express_messages(void) {
+	wxString sendcmd, recvcmd, x_user, x_sys;
+	wxStringList xferbuf;
+
+	sendcmd = "GEXP";
+	while (serv_trans(sendcmd, recvcmd, xferbuf) == 1) {
+		extract(x_user, recvcmd, 3);
+		extract(x_sys, recvcmd, 4);
+		(void)new express_message(this, x_user, x_sys, xferbuf);
+	}
+}
+
+
+
+// This is a simple timer that periodically wakes up and sends a NOOP to the
+// server.  This accomplishes two things: it keeps the server connection
+// alive by trickling some data through when it's otherwise idle, and it allows
+// the "check for express messages" loop to activate if it has to.
+
+keepalive::keepalive(CitClient *sock)
+	: wxTimer() {
+
+	which_sock = sock;		// Know which instance to refresh
+	Start(15000, FALSE);		// Call every 15 seconds
+}
+
+
+void keepalive::Notify(void) {
+	if (which_sock->IsConnected()) {
+		which_sock->serv_trans("NOOP");
+	}
+}
+
+
+
+
+
+
