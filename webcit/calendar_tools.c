@@ -230,4 +230,46 @@ void partstat_as_string(char *buf, icalproperty *attendee) {
 }
 
 
+/*
+ * Utility function to encapsulate a subcomponent into a full VCALENDAR
+ */
+icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
+	icalcomponent *encaps;
+
+	/* If we're already looking at a full VCALENDAR component,
+	 * don't bother ... just return itself.
+	 */
+	if (icalcomponent_isa(subcomp) == ICAL_VCALENDAR_COMPONENT) {
+		return subcomp;
+	}
+
+	/* Encapsulate the VEVENT component into a complete VCALENDAR */
+	encaps = icalcomponent_new(ICAL_VCALENDAR_COMPONENT);
+	if (encaps == NULL) {
+		lprintf(3, "Error at %s:%d - could not allocate component!\n",
+			__FILE__, __LINE__);
+		return NULL;
+	}
+
+	/* Set the Product ID */
+	icalcomponent_add_property(encaps, icalproperty_new_prodid(PRODID));
+
+	/* Set the Version Number */
+	icalcomponent_add_property(encaps, icalproperty_new_version("2.0"));
+
+	/* Encapsulate the subcomponent inside */
+	icalcomponent_add_component(encaps, subcomp);
+
+	/* Convert all timestamps to UTC so we don't have to deal with
+	 * stupid VTIMEZONE crap.
+	 */
+	ical_dezonify(encaps);
+
+	/* Return the object we just created. */
+	return(encaps);
+}
+
+
+
+
 #endif
