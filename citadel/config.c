@@ -26,7 +26,7 @@ void get_config(void) {
 			strerror(errno));
 		exit(errno);
 		}
-	cfp=fopen("citadel.config","r");
+	cfp=fopen("citadel.config","rb");
 	if (cfp==NULL) {
 		fprintf(stderr, "Cannot start.\n");
 		fprintf(stderr, "There is no citadel.config in %s\n%s\n",
@@ -48,4 +48,17 @@ void get_config(void) {
 				(config.c_setup_level % 100) );
 		exit(1);
 		}
+	}
+
+
+/*
+ * Occasionally, we will need to write the config file, because some operations
+ * change site-wide parameters.
+ */
+void put_config(void) {
+	FILE *cfp;
+	
+	cfp = fopen("citadel.config", "rb+");
+	fwrite((char *)&config, sizeof(struct config), 1, cfp);
+	fclose(cfp);
 	}
