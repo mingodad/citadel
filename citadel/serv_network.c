@@ -853,6 +853,7 @@ int network_sync_to(char *target_node) {
 	int num_spooled = 0;
 
 	/* Concise syntax because we don't need a full linked-list */
+	memset(&sc, 0, sizeof(struct SpoolControl));
 	sc.ignet_push_shares = (struct namelist *)
 		mallok(sizeof(struct namelist));
 	sc.ignet_push_shares->next = NULL;

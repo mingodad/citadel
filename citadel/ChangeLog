@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.20  2004/02/07 04:22:12  ajc
+ * serv_network.c: fixed a problem with an uninitialized data structure
+
  Revision 614.19  2004/02/06 04:40:50  ajc
  * Suppress posting of messages to Aide> when the loopzapper catches dupes.
  * New command NSYN to sync the entire contents of a room to a specified
@@ -5283,3 +5286,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
