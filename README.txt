@@ -1,5 +1,5 @@
                       WEBCIT for the Citadel/UX System
-                               version 2.01
+                               version 2.10
  
    Copyright (C) 1996-1999 by Art Cancro, Nathan Bryant, and Nick Grossman
 This program is free software released under the terms of the GNU General
@@ -26,7 +26,9 @@ be attractive and easy to navigate.
  If you've installed WebCit v1.xx before, you'll be pleased to know that the
 new version doesn't require all that tedious mucking about with Apache
 configuration files and directories.  WebCit now contains its own standalone
-webserver, which you run on another port (port 2000 by default).
+HTTP engine, which you run on another port (port 2000 by default).  WebCit is
+not intended to replace your regular webserver; it is merely a separate service
+that happens to talk HTTP.
  
  To compile from source, enter the usual commands:
   ./configure
