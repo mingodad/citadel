@@ -885,6 +885,8 @@ void session_loop(struct httprequest *req)
 		entroom();
 	} else if (!strcasecmp(action, "display_editroom")) {
 		display_editroom();
+	} else if (!strcasecmp(action, "netedit")) {
+		netedit();
 	} else if (!strcasecmp(action, "editroom")) {
 		editroom();
         } else if (!strcasecmp(action, "display_whok")) {

@@ -129,8 +129,6 @@ void remove_token(char *source, int parmnum, char separator)
 
 	if (end < 0) end = strlen(source);
 
-	printf("%d .. %d\n", start, end);
-
 	strcpy(&source[start], &source[end]);
 }
 

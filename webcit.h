@@ -228,6 +228,7 @@ void display_success(char *);
 void display_entroom(void);
 void entroom(void);
 void display_editroom(void);
+void netedit(void);
 void editroom(void);
 void display_whok(void);
 void server_to_text(void);
