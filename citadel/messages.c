@@ -464,7 +464,7 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 			}
 		}
 	printf("\n");
-	if (pagin == 1 ) color(DIM_WHITE);
+	if (pagin == 1) color(BRIGHT_WHITE);
 	++lines_printed;
 	lines_printed = checkpagin(lines_printed,pagin,screenheight);
 

@@ -990,7 +990,19 @@ int fmout(int width, FILE * fp, char pagin, int height, int starting_lp, char su
 void color(int colornum)
 {
 	static int is_bold = 0;
+	static int hold_color, current_color;
 
+	if (colornum == COLOR_PUSH) {
+		hold_color = current_color;
+		return;
+	}
+
+	if (colornum == COLOR_POP) {
+		color(hold_color);
+		return;
+	}
+
+	current_color = colornum;
 	if (enable_color) {
 		printf("\033[3%dm", (colornum % 8));
 		if ((colornum >= 8) && (is_bold == 0)) {

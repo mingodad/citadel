@@ -90,7 +90,10 @@ int a;
 void hit_any_key(void) {		/* hit any key to continue */
 	int a,b;
 
+	color(COLOR_PUSH);
+	color(DIM_RED);
 	printf("%s\r",serv_info.serv_moreprompt);
+	color(COLOR_POP);
 	sttybbs(0);
 	b=inkey();
 	for (a=0; a<strlen(serv_info.serv_moreprompt); ++a)

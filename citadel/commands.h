@@ -19,6 +19,8 @@
 #define BRIGHT_MAGENTA	13
 #define BRIGHT_CYAN	14
 #define BRIGHT_WHITE	15
+#define COLOR_PUSH	16	/* Save current color */
+#define COLOR_POP	17	/* Restore saved color */
 
 /*
  * declarations
