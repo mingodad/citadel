@@ -323,8 +323,7 @@ int main(int argc, char **argv)
 		       (void *(*)(void *)) housekeeping_loop, NULL);
 
 
-
-	/* FIX ... we need to auto-size the thread pool */
+	/* Start a few initial worker threads */
 	for (i=0; i<(INITIAL_WORKER_THREADS-1); ++i) {
 		spawn_another_worker_thread();
 	}
