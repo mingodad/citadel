@@ -171,10 +171,6 @@ int scr_printf(char *fmt, ...)
 #ifdef HAVE_CURSES_H
 	if (mainwindow) {
 		retval = _vwprintw(mainwindow, fmt, ap);
-		/*
-		if (fmt[strlen(fmt) - 1] == '\n')
-			wrefresh(mainwindow);
-		*/
 	} else
 #endif
 		retval = vprintf(fmt, ap);
@@ -226,8 +222,10 @@ int sln_printf(char *fmt, ...)
 			if (*i == '\r' || *i == '\n')
 				wclrtoeol(statuswindow);
 			sln_putc(*i);
-			if (*i == '\r' || *i == '\n')
+			if (*i == '\r' || *i == '\n') {
+				wrefresh(statuswindow);
 				mvwinch(statuswindow, 0, 0);
+			}
 		}
 	} else
 #endif
@@ -256,8 +254,10 @@ int sln_printf_if(char *fmt, ...)
 			if (*i == '\r' || *i == '\n')
 				wclrtoeol(statuswindow);
 			sln_putc(*i);
-			if (*i == '\r' || *i == '\n')
+			if (*i == '\r' || *i == '\n') {
+				wrefresh(statuswindow);
 				mvwinch(statuswindow, 0, 0);
+			}
 		}
 	}
 	va_end(ap);
@@ -410,7 +410,7 @@ void windows_new(void)
 		statuswindow = newwin(1, x, y - 1, 0);
 		wbkgdset(statuswindow, COLOR_PAIR(17));
 		werase(statuswindow);
-		immedok(statuswindow, TRUE);
+		immedok(statuswindow, FALSE);
 		leaveok(statuswindow, FALSE);
 		scrollok(statuswindow, FALSE);
 		wrefresh(statuswindow);

@@ -67,6 +67,9 @@ extern int ssl_is_connected;
 
 
 void connection_died(void) {
+#ifdef CIT_CLIENT
+	screen_delete();
+#endif
 	err_printf("\rYour connection to this Citadel server is broken.\n"
 			"Please re-connect and log in again.\n");
 	logoff(3);

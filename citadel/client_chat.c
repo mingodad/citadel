@@ -85,12 +85,13 @@ void chatmode(void)
 	strcpy(buf, "");
 	strcpy(wbuf, "");
 	color(BRIGHT_YELLOW);
-	scr_printf("> ");
+	sln_printf_if("\n");
+	sln_printf("> ");
 	send_complete_line = 0;
 	recv_complete_line = 0;
 
 	while (1) {
-		fflush(stdout);
+		sln_flush();
 		FD_ZERO(&rfds);
 		FD_SET(0, &rfds);
 		FD_SET(getsockfd(), &rfds);
@@ -110,16 +111,16 @@ void chatmode(void)
 			goto RCL;
 		}
 		if (FD_ISSET(0, &rfds)) {
-			ch = inkey();
+			ch = scr_getc();
 			if ((ch == 10) || (ch == 13)) {
 				send_complete_line = 1;
 			} else if ((ch == 8) || (ch == 127)) {
 				if (strlen(wbuf) > 0) {
 					wbuf[strlen(wbuf) - 1] = 0;
-					scr_printf("%c %c", 8, 8);
+					sln_printf("%c %c", 8, 8);
 				}
 			} else {
-				putc(ch, stdout);
+				sln_putc(ch);
 				wbuf[strlen(wbuf) + 1] = 0;
 				wbuf[strlen(wbuf)] = ch;
 			}
@@ -151,14 +152,12 @@ void chatmode(void)
 			}
 		}
 		if (recv_complete_line) {
-			scr_printf("\r%79s\r", "");
+			sln_printf("\r%79s\r", "");
 			if (!strcmp(buf, "000")) {
 				color(BRIGHT_WHITE);
-				scr_printf("Exiting chat mode\n");
-
-				scr_flush();
+				sln_printf("\rExiting chat mode\n");
+				sln_flush();
 				set_keepalives(KA_YES);
-
 
 				/* Some users complained about the client and server
 				 * losing protocol synchronization when exiting chat.
@@ -201,15 +200,16 @@ void chatmode(void)
 					while (strlen(buf) < 79)
 						strcat(buf, " ");
 					if (strcmp(c_user, last_user)) {
-						scr_printf("\r%79s\n", "");
+						sln_printf("\r%79s\n", "");
 						strcpy(last_user, c_user);
 					}
 					scr_printf("\r%s\n", buf);
-					fflush(stdout);
+					scr_flush();
 				}
 			}
 			color(BRIGHT_YELLOW);
-			scr_printf("> %s", wbuf);
+			sln_printf("\r> %s", wbuf);
+			sln_flush();
 			recv_complete_line = 0;
 			strcpy(buf, "");
 		}
