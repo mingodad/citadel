@@ -4,6 +4,10 @@
 #include <zlib.h>
 #endif
 
+#ifdef HAVE_ICAL_H
+#include <ical.h>
+#endif
+
 #define SIZ			4096		/* generic buffer size */
 
 #define TRACE fprintf(stderr, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
@@ -348,4 +352,6 @@ void display_task(long msgnum);
 #ifdef HAVE_ICAL_H
 void display_edit_task(void);
 void save_task(void);
+void display_icaltimetype_as_webform(struct icaltimetype *, char *);
+struct icaltimetype icaltime_from_webform(char *prefix);
 #endif
