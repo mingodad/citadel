@@ -363,13 +363,13 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 	httpdate(httpnow, time(NULL));
 
 	if (do_httpheaders) {
-		wprintf("Content-type: text/html\n"
+		wprintf("Content-type: text/html\r\n"
 			"Server: %s / %s\n", SERVER, serv_info.serv_software
 		);
 		if (!cache)
-			wprintf("Connection: close\n"
-				"Pragma: no-cache\n"
-				"Cache-Control: no-store\n"
+			wprintf("Connection: close\r\n"
+				"Pragma: no-cache\r\n"
+				"Cache-Control: no-store\r\n"
 			);
 	}
 
@@ -377,9 +377,9 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 			WC->wc_password, WC->wc_roomname);
 
 	if (unset_cookies) {
-		wprintf("Set-cookie: webcit=%s; path=/\n", unset);
+		wprintf("Set-cookie: webcit=%s; path=/\r\n", unset);
 	} else {
-		wprintf("Set-cookie: webcit=%s; path=/\n", cookie);
+		wprintf("Set-cookie: webcit=%s; path=/\r\n", cookie);
 		if (server_cookie != NULL) {
 			wprintf("%s\n", server_cookie);
 		}
@@ -441,9 +441,9 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
  */
 void http_redirect(char *whichpage) {
 	wprintf("HTTP/1.0 302 Moved Temporarily\n");
-	wprintf("Location: %s\n", whichpage);
-	wprintf("URI: %s\n", whichpage);
-	wprintf("Content-type: text/html\n\n");
+	wprintf("Location: %s\r\n", whichpage);
+	wprintf("URI: %s\r\n", whichpage);
+	wprintf("Content-type: text/html\r\n\r\n");
 	wprintf("<html><body>\n");
 	wprintf("you really want to be <A HREF=\"%s\">here</A> now\n",
 		whichpage);
@@ -456,11 +456,9 @@ void check_for_instant_messages()
 {
 	char buf[SIZ];
 
-	lprintf(9, "Checking for instant messages...\n");
 	serv_puts("NOOP");
 	serv_gets(buf);
 	if (buf[3] == '*') WC->HaveInstantMessages = 1;
-	lprintf(9, "...done\n");
 }
 
 
@@ -477,11 +475,11 @@ void http_transmit_thing(char *thing, size_t length, char *content_type,
 	else {
 		output_headers(0, 0, 0, 0, 0, 0, 0);
 	}
-	wprintf("Content-type: %s\n"
-		"Content-length: %ld\n"
-		"Server: %s\n"
-		"Connection: close\n"
-		"\n",
+	wprintf("Content-type: %s\r\n"
+		"Content-length: %ld\r\n"
+		"Server: %s\r\n"
+		"Connection: close\r\n"
+		"\r\n",
 		content_type,
 		(long) length,
 		SERVER
@@ -505,8 +503,8 @@ void output_static(char *what)
 	fp = fopen(buf, "rb");
 	if (fp == NULL) {
 		wprintf("HTTP/1.0 404 %s\n", strerror(errno));
-		wprintf("Content-Type: text/plain\n");
-		wprintf("\n");
+		wprintf("Content-Type: text/plain\r\n");
+		wprintf("\r\n");
 		wprintf("Cannot open %s: %s\n", what, strerror(errno));
 	} else {
 		if (!strncasecmp(&what[strlen(what) - 4], ".gif", 4))
@@ -542,7 +540,7 @@ void output_static(char *what)
 
 		fstat(fileno(fp), &statbuf);
 		bytes = statbuf.st_size;
-		/* lprintf(3, "Static: %s, (%s; %ld bytes)\n",
+		/* lprintf(3, "Static: %s, (%s; %ld bytes)\r\n",
 			what, content_type, bytes); */
 		bigbuffer = malloc(bytes + 2);
 		fread(bigbuffer, bytes, 1, fp);
@@ -592,8 +590,8 @@ void output_image()
 		/*
 		wprintf("HTTP/1.0 404 %s\n", &buf[4]);
 		output_headers(0, 0, 0, 0, 0, 0, 0);
-		wprintf("Content-Type: text/plain\n"
-			"\n"
+		wprintf("Content-Type: text/plain\r\n"
+			"\r\n"
 			"Error retrieving image: %s\n",
 			&buf[4]
 		);
@@ -629,8 +627,8 @@ void output_mimepart()
 	} else {
 		wprintf("HTTP/1.0 404 %s\n", &buf[4]);
 		output_headers(0, 0, 0, 0, 0, 0, 0);
-		wprintf("Content-Type: text/plain\n");
-		wprintf("\n");
+		wprintf("Content-Type: text/plain\r\n");
+		wprintf("\r\n");
 		wprintf("Error retrieving part: %s\n", &buf[4]);
 	}
 
