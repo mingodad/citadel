@@ -1000,6 +1000,7 @@ int main(int argc, char **argv)
 	 * Now create a bunch of worker threads.
 	 */
 	for (i=0; i<(config.c_min_workers-1); ++i) {
+		lprintf(9, "Creating worker thread %d\n", i);
 		pthread_attr_init(&attr);
        		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 		if (pthread_create(&WorkerThread, &attr,
@@ -1011,6 +1012,7 @@ int main(int argc, char **argv)
 
 
 	/* Now this thread can become a worker as well. */
+	lprintf(9, "Original thread entering worker loop\n");
 	worker_thread();
 
 	return(0);
@@ -1047,7 +1049,6 @@ void worker_thread(void) {
 	++num_threads;
 
 	while (!time_to_die) {
-
 
 		/* 
 		 * A naive implementation would have all idle threads
