@@ -36,7 +36,7 @@ void load_preferences(void) {
 
 	lprintf(9, "entering load_preferences()\n");
 
-	serv_printf("GOTO My Citadel Config");
+	serv_printf("GOTO %s", USERCONFIGROOM);
 	serv_gets(buf);
 	if (buf[0] != '2') return;
 	
@@ -88,12 +88,12 @@ void save_preferences(void) {
 	long msgnum = 0L;
 
 	lprintf(9, "entering save_preferences()\n");
-	serv_printf("GOTO My Citadel Config");
+	serv_printf("GOTO %s", USERCONFIGROOM);
 	serv_gets(buf);
 	if (buf[0] != '2') { /* try to create the config room if not there */
-		serv_printf("CRE8 1|My Citadel Config|4|0");
+		serv_printf("CRE8 1|%s|4|0", USERCONFIGROOM);
 		serv_gets(buf);
-		serv_printf("GOTO My Citadel Config");
+		serv_printf("GOTO %s", USERCONFIGROOM);
 		serv_gets(buf);
 		if (buf[0] != '2') return;	/* oh well. */
 	}

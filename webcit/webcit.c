@@ -1053,7 +1053,7 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "submit_vcard")) {
 		submit_vcard();
 	} else if (!strcasecmp(action, "select_user_to_edit")) {
-		select_user_to_edit(NULL);
+		select_user_to_edit(NULL, NULL);
 	} else if (!strcasecmp(action, "display_edituser")) {
 		display_edituser(NULL);
 	} else if (!strcasecmp(action, "edituser")) {

@@ -296,7 +296,7 @@ void do_edit_vcard(long, char *, char *);
 void edit_vcard(void);
 void submit_vcard(void);
 void striplt(char *);
-void select_user_to_edit(char *message);
+void select_user_to_edit(char *message, char *preselect);
 void display_edituser(char *who);
 void create_user(void);
 void edituser(void);
