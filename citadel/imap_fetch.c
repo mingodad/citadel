@@ -536,8 +536,8 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 		}
 		fseek(tmp, pstart, SEEK_SET);
 		bytes_remaining = pbytes;
-		cprintf("BODY[%s] {%ld}<%ld>\r\n",
-			section, bytes_remaining, pstart);
+		cprintf("BODY[%s]<%ld> {%ld}\r\n",
+			section, pstart, bytes_remaining);
 	}
 
 	blocksize = sizeof(buf);
