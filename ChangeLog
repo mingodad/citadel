@@ -1,4 +1,7 @@
 $Log$
+Revision 301.19  2001/12/18 16:48:06  ajc
+* Began testing new JavaScript-enabled k00l light-up buttonz
+
 Revision 301.18  2001/12/18 06:06:20  ajc
 * mime parser update
 
@@ -665,4 +668,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
