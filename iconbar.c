@@ -78,8 +78,6 @@ void do_iconbar(void) {
 		if (!strcasecmp(key, "ib_citadel")) ib_citadel = atoi(value);
 	}
 
-	do_template("beginbox_nt");
-
 	wprintf("<center>\n");
 
 	if (ib_logo) if (ib_displayas != IB_TEXTONLY) wprintf(
@@ -285,7 +283,6 @@ void do_iconbar(void) {
 	);
 
 	wprintf("</CENTER>\n");
-	do_template("endbox");
 }
 
 
