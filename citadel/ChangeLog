@@ -1,3 +1,6 @@
+Thu Jul 22 22:26:50 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Moved message deletion into new API function CtdlDeleteMessages()
+
 Tue Jul 20 22:14:54 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Moved the actual work done in cmd_msgs() into a new API function
 	  called CtdlForEachMessage() which is supplied a callback function.

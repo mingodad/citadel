@@ -1215,36 +1215,26 @@ void cmd_rinf(void)
 void delete_room(struct quickroom *qrbuf)
 {
 	struct floor flbuf;
-	long MsgToDelete;
-	char aaa[100];
-	int a;
+	char filename[100];
 
 	lprintf(9, "Deleting room <%s>\n", qrbuf->QRname);
 
 	/* Delete the info file */
-	assoc_file_name(aaa, qrbuf, "info");
-	unlink(aaa);
+	assoc_file_name(filename, qrbuf, "info");
+	unlink(filename);
 
 	/* Delete the image file */
-	assoc_file_name(aaa, qrbuf, "images");
-	unlink(aaa);
+	assoc_file_name(filename, qrbuf, "images");
+	unlink(filename);
 
-	/* first flag the room record as not in use */
+	/* Delete the messages in the room
+	 * (Careful: this opens an S_QUICKROOM critical section!)
+	 */
+	CtdlDeleteMessages(qrbuf->QRname, 0L, NULL);
+
+	/* Flag the room record as not in use */
 	lgetroom(qrbuf, qrbuf->QRname);
 	qrbuf->QRflags = 0;
-
-	/* then delete the messages in the room */
-	get_msglist(qrbuf);
-	if (CC->num_msgs > 0)
-		for (a = 0; a < CC->num_msgs; ++a) {
-			MsgToDelete = MessageFromList(a);
-			AdjRefCount(MsgToDelete, -1);
-		}
-	put_msglist(qrbuf);
-	phree(CC->msglist);
-	CC->msglist = NULL;
-	CC->num_msgs = 0;
-	delete_msglist(qrbuf);
 	lputroom(qrbuf);
 
 	/* then decrement the reference count for the floor */

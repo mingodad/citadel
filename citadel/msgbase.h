@@ -31,4 +31,4 @@ void AdjRefCount(long, int);
 void simple_listing(long);
 void CtdlForEachMessage(int mode, long ref,
                         void (*CallBack) (long msgnum) );
- 
+int CtdlDeleteMessages(char *, long, char *);

@@ -1414,12 +1414,85 @@ void cmd_ent3(char *entargs)
 
 
 /*
+ * API function to delete messages which match a set of criteria
+ * (returns the actual number of messages deleted)
+ * FIX ... still need to implement delete by content type
+ */
+int CtdlDeleteMessages(	char *room_name,	/* which room */
+			long dmsgnum,		/* or "0" for any */
+			char *content_type	/* or NULL for any */
+			) {
+
+	struct quickroom qrbuf;
+        struct cdbdata *cdbfr;
+	long *msglist = NULL;
+	int num_msgs = 0;
+	int i;
+	int num_deleted = 0;
+	int delete_this;
+	struct SuppMsgInfo smi;
+
+	/* get room record, obtaining a lock... */
+	if (lgetroom(&qrbuf, room_name) != 0) {
+		lprintf(7, "CtdlDeleteMessages(): Room <%s> not found\n",
+			room_name);
+		return(0);	/* room not found */
+	}
+
+        cdbfr = cdb_fetch(CDB_MSGLISTS, &qrbuf.QRnumber, sizeof(long));
+
+        if (cdbfr != NULL) {
+        	msglist = mallok(cdbfr->len);
+        	memcpy(msglist, cdbfr->ptr, cdbfr->len);
+        	num_msgs = cdbfr->len / sizeof(long);
+        	cdb_free(cdbfr);
+	}
+
+	if (num_msgs > 0) for (i=0; i<num_msgs; ++i) {
+		delete_this = 0x00;
+
+		/* Set/clear a bit for each criterion */
+
+		if ( (dmsgnum == 0L) || (msglist[i]==dmsgnum) ) {
+			delete_this  |= 0x01;
+		}
+
+		if (content_type == NULL) {
+			delete_this |= 0x02;
+		} else {
+			GetSuppMsgInfo(&smi, msglist[i]);
+			if (!strcasecmp(smi.smi_content_type, content_type)) {
+				delete_this |= 0x02;
+			}
+		}
+
+		/* Delete message only if all bits are set */
+		if (delete_this == 0x03) {
+			AdjRefCount(msglist[i], -1);
+			msglist[i] = 0L;
+			++num_deleted;
+		}
+	}
+
+	num_msgs = sort_msglist(msglist, num_msgs);
+	cdb_store(CDB_MSGLISTS, &qrbuf.QRnumber, sizeof(long),
+		msglist, (num_msgs * sizeof(long)) );
+
+	qrbuf.QRhighest = msglist[num_msgs - 1];
+	lputroom(&qrbuf);
+	lprintf(9, "%d message(s) deleted.\n", num_deleted);
+	return(num_deleted);
+}
+
+
+
+/*
  * Delete message from current room
  */
 void cmd_dele(char *delstr)
 {
 	long delnum;
-	int a, ok;
+	int num_deleted;
 
 	getuser(&CC->usersupp, CC->curr_user);
 	if ((CC->usersupp.axlevel < 6)
@@ -1431,28 +1504,14 @@ void cmd_dele(char *delstr)
 	}
 	delnum = extract_long(delstr, 0);
 
-	/* get room records, obtaining a lock... */
-	lgetroom(&CC->quickroom, CC->quickroom.QRname);
-	get_msglist(&CC->quickroom);
+	num_deleted = CtdlDeleteMessages(CC->quickroom.QRname, delnum, NULL);
 
-	ok = 0;
-	if (CC->num_msgs > 0)
-		for (a = 0; a < (CC->num_msgs); ++a) {
-			if (MessageFromList(a) == delnum) {
-				SetMessageInList(a, 0L);
-				ok = 1;
-			}
-		}
-	CC->num_msgs = sort_msglist(CC->msglist, CC->num_msgs);
-	CC->quickroom.QRhighest = MessageFromList(CC->num_msgs - 1);
-
-	put_msglist(&CC->quickroom);
-	lputroom(&CC->quickroom);
-	if (ok == 1) {
-		AdjRefCount(delnum, -1);
-		cprintf("%d Message deleted.\n", OK);
-	} else
-		cprintf("%d No message %ld.\n", ERROR, delnum);
+	if (num_deleted) {
+		cprintf("%d %d message%s deleted.\n", OK,
+			num_deleted, ((num_deleted!=1) ? "s" : "") );
+	} else {
+		cprintf("%d Message %ld not found.\n", ERROR, delnum);
+	}
 }
 
 
