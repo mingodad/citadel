@@ -1,3 +1,7 @@
+Wed Sep 16 22:25:13 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Implemented separate structs, lists, and functions for each type
+	  of server-side hook available.
+
 1998-09-16 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* ipc_c_tcp.c: Fixed up some #include/prototyping stuff, call memcpy()
 	  instead of bcopy()

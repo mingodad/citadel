@@ -201,9 +201,10 @@ void cmd_user(char *cmdbuf)
 void session_startup(void) {
 	int a;
 	struct quickroom qr;
+        struct LoginFunctionHook *fcn;
 
 	syslog(LOG_NOTICE,"user <%s> logged in",CC->curr_user);
-	/* hook_user_login(CC->cs_pid, CC->curr_user); FIX */
+
 	lgetuser(&CC->usersupp,CC->curr_user);
 	++(CC->usersupp.timescalled);
 	CC->fake_username[0] = '\0';
@@ -233,6 +234,11 @@ void session_startup(void) {
 		}
 
 	lputuser(&CC->usersupp,CC->curr_user);
+
+        /* Run any cleanup routines registered by loadable modules */
+        for (fcn = LoginHookTable; fcn != NULL; fcn = fcn->next) {
+                (*fcn->h_function_pointer)();
+                }
 
 	cprintf("%d %s|%d|%d|%d|%u|%ld\n",OK,CC->usersupp.fullname,CC->usersupp.axlevel,
 		CC->usersupp.timescalled,CC->usersupp.posted,CC->usersupp.flags,

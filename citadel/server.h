@@ -136,24 +136,30 @@ struct cdbdata {
 	};
 
 
+/* Structures and declarations for function hooks of various types */
 
-/*
- * Loadable module hook types
- */
-#define HOOK_START_SESSION	1
-#define HOOK_END_SESSION	2
-#define HOOK_SERVCMD		3
-#define HOOK_CRIT_GET		4
-#define HOOK_CRIT_GOT		5
-#define HOOK_CRIT_END		6
-#define HOOK_LOGIN		7
-#define HOOK_NEWROOM		8
-#define HOOK_CLEANUP		9
-
-struct FunctionHook {
-	struct FunctionHook *next;
+struct CleanupFunctionHook {
+	struct CleanupFunctionHook *next;
 	void *(*h_function_pointer) (void);
-	int h_type;
 	};
+extern struct CleanupFunctionHook *CleanupHookTable;
 
-extern struct FunctionHook *HookTable;
+struct NewRoomFunctionHook {
+	struct NewRoomFunctionHook *next;
+	void *(*h_function_pointer) (char *);
+	};
+extern struct NewRoomFunctionHook *NewRoomHookTable;
+
+struct SessionFunctionHook {
+	struct SessionFunctionHook *next;
+	void *(*h_function_pointer) (int);
+	int startstop;
+	};
+extern struct SessionFunctionHook *SessionHookTable;
+
+struct LoginFunctionHook {
+	struct LoginFunctionHook *next;
+	void *(*h_function_pointer) (void);
+	};
+extern struct LoginFunctionHook *LoginHookTable;
+

@@ -12,7 +12,7 @@
 
 CLIENT_TARGETS=citadel whobbs
 SERVER_TARGETS=citserver setup
-SERV_MODULES=$(MODDIR)/serv_chat.so
+SERV_MODULES=$(MODDIR)/serv_chat.so $(MODDIR)/serv_test.so
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform \
 	readlog rcit stats citmail netpoll mailinglist userlist
 PROXY_TARGETS=proxy
@@ -107,6 +107,12 @@ $(MODDIR)/serv_chat.so: serv_chat.o
 
 serv_chat.o: serv_chat.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -fPIC -c serv_chat.c
+
+$(MODDIR)/serv_test.so: serv_test.o
+	$(CC) -shared -o $(MODDIR)/serv_test.so serv_test.o
+
+serv_test.o: serv_test.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
+	$(CC) $(CFLAGS) -D_REENTRANT -fPIC -c serv_test.c
 
 housekeeping.o: housekeeping.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c housekeeping.c

@@ -31,14 +31,9 @@ extern struct CitContext *ContextList;
 
 #define MODULE_NAME 	"Chat module"
 #define MODULE_AUTHOR	"Art Cancro"
-#define MODULE_EMAIL	"ig@uncnsrd.mt-kisco.ny.us"
+#define MODULE_EMAIL	"ajc@uncnsrd.mt-kisco.ny.us"
 #define MAJOR_VERSION	0
-#define MINOR_VERSION	1
-
-void ChatUnloadingTest(void) {
-	lprintf(9, "--- test of adding an unload hook --- \n");
-	}
-
+#define MINOR_VERSION	2
 
 
 void Dynamic_Module_Init(struct DLModule_Info *info)
@@ -51,8 +46,6 @@ void Dynamic_Module_Init(struct DLModule_Info *info)
    strncpy(info->module_author_email, MODULE_EMAIL, 30);
    info->major_version = MAJOR_VERSION;
    info->minor_version = MINOR_VERSION;
-
-   CtdlRegisterHook(ChatUnloadingTest, HOOK_CLEANUP);
 
 }
 

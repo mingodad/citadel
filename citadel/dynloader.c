@@ -22,7 +22,10 @@
 
 symtab *global_symtab;
 
-struct FunctionHook *HookTable = NULL;
+struct CleanupFunctionHook *CleanupHookTable = NULL;
+struct NewRoomFunctionHook *NewRoomHookTable = NULL;
+struct SessionFunctionHook *SessionHookTable = NULL;
+struct LoginFunctionHook *LoginHookTable = NULL;
 
 int DLoader_Exec_Cmd(char *cmdbuf)
 {
@@ -175,16 +178,57 @@ void DLoader_Init(char *pathname, symtab **my_symtab)
 
 
 
-void CtdlRegisterHook(void *fcn_ptr, int fcn_type) {
+void CtdlRegisterCleanupHook(void *fcn_ptr) {
 
-	struct FunctionHook *newfcn;
+	struct CleanupFunctionHook *newfcn;
 
-	newfcn = (struct FunctionHook *) malloc(sizeof(struct FunctionHook));
-	newfcn->next = HookTable;
+	newfcn = (struct CleanupFunctionHook *)
+		malloc(sizeof(struct CleanupFunctionHook));
+	newfcn->next = CleanupHookTable;
 	newfcn->h_function_pointer = fcn_ptr;
-	newfcn->h_type = fcn_type;
+	CleanupHookTable = newfcn;
 
-	HookTable = newfcn;
-
-	lprintf(5, "Registered a new function (type %d)\n", fcn_type);
+	lprintf(5, "Registered a new cleanup function\n");
 	}
+
+void CtdlRegisterNewRoomHook(void *fcn_ptr) {
+
+	struct NewRoomFunctionHook *newfcn;
+
+	newfcn = (struct NewRoomFunctionHook *)
+		malloc(sizeof(struct NewRoomFunctionHook));
+	newfcn->next = NewRoomHookTable;
+	newfcn->h_function_pointer = fcn_ptr;
+	NewRoomHookTable = newfcn;
+
+	lprintf(5, "Registered a new NewRoom function\n");
+	}
+
+void CtdlRegisterSessionHook(void *fcn_ptr, int StartStop) {
+
+	struct SessionFunctionHook *newfcn;
+
+	newfcn = (struct SessionFunctionHook *)
+		malloc(sizeof(struct SessionFunctionHook));
+	newfcn->next = SessionHookTable;
+	newfcn->h_function_pointer = fcn_ptr;
+	newfcn->startstop = StartStop;
+	SessionHookTable = newfcn;
+
+	lprintf(5, "Registered a new session %s function\n",
+		(StartStop ? "start" : "stop") );
+	}
+
+void CtdlRegisterLoginHook(void *fcn_ptr) {
+
+	struct LoginFunctionHook *newfcn;
+
+	newfcn = (struct LoginFunctionHook *)
+		malloc(sizeof(struct LoginFunctionHook));
+	newfcn->next = LoginHookTable;
+	newfcn->h_function_pointer = fcn_ptr;
+	LoginHookTable = newfcn;
+
+	lprintf(5, "Registered a new login function\n");
+	}
+
