@@ -63,6 +63,7 @@ struct citsmtp {		/* Information about the current session */
 	char vrfy_match[SIZ];
 	char from[SIZ];
 	int number_of_recipients;
+	int number_of_rooms;
 	int delivery_mode;
 	int message_originated_locally;
 };
@@ -79,10 +80,12 @@ enum {				/* Delivery modes */
 };
 
 #define SMTP		((struct citsmtp *)CtdlGetUserData(SYM_SMTP))
-#define SMTP_RECP	((char *)CtdlGetUserData(SYM_SMTP_RECP))
+#define SMTP_RECPS	((char *)CtdlGetUserData(SYM_SMTP_RECPS))
+#define SMTP_ROOMS	((char *)CtdlGetUserData(SYM_SMTP_ROOMS))
 
 long SYM_SMTP;
-long SYM_SMTP_RECP;
+long SYM_SMTP_RECPS;
+long SYM_SMTP_ROOMS;
 
 int run_queue_now = 0;	/* Set to 1 to ignore SMTP send retry times */
 
@@ -104,8 +107,10 @@ void smtp_greeting(void) {
 	CC->internal_pgm = 1;
 	CC->cs_flags |= CS_STEALTH;
 	CtdlAllocUserData(SYM_SMTP, sizeof(struct citsmtp));
-	CtdlAllocUserData(SYM_SMTP_RECP, SIZ);
-	sprintf(SMTP_RECP, "%s", "");
+	CtdlAllocUserData(SYM_SMTP_RECPS, SIZ);
+	CtdlAllocUserData(SYM_SMTP_ROOMS, SIZ);
+	sprintf(SMTP_RECPS, "%s", "");
+	sprintf(SMTP_ROOMS, "%s", "");
 
 	cprintf("220 %s ESMTP Citadel/UX server ready.\r\n", config.c_fqdn);
 }
@@ -304,7 +309,8 @@ void smtp_expn(char *argbuf) {
  */
 void smtp_rset(void) {
 	memset(SMTP, 0, sizeof(struct citsmtp));
-	if (SMTP_RECP != NULL) strcpy(SMTP_RECP, "");
+	if (SMTP_RECPS != NULL) strcpy(SMTP_RECPS, "");
+	if (SMTP_ROOMS != NULL) strcpy(SMTP_ROOMS, "");
 	if (CC->logged_in) logout(CC);
 	cprintf("250 Zap!\r\n");
 }
@@ -316,9 +322,11 @@ void smtp_rset(void) {
 void smtp_data_clear(void) {
 	strcpy(SMTP->from, "");
 	SMTP->number_of_recipients = 0;
+	SMTP->number_of_rooms = 0;
 	SMTP->delivery_mode = 0;
 	SMTP->message_originated_locally = 0;
-	if (SMTP_RECP != NULL) strcpy(SMTP_RECP, "");
+	if (SMTP_RECPS != NULL) strcpy(SMTP_RECPS, "");
+	if (SMTP_ROOMS != NULL) strcpy(SMTP_ROOMS, "");
 }
 
 
@@ -414,39 +422,28 @@ void smtp_rcpt(char *argbuf) {
 
 	switch(cvt) {
 		case rfc822_address_locally_validated:
+		case rfc822_address_on_citadel_network:
 			cprintf("250 %s is a valid recipient.\r\n", user);
-			++SMTP->number_of_recipients;
-			CtdlReallocUserData(SYM_SMTP_RECP,
-				strlen(SMTP_RECP) + 1024 );
-			strcat(SMTP_RECP, "local|");
-			strcat(SMTP_RECP, user);
-			strcat(SMTP_RECP, "|0\n");
+			CtdlReallocUserData(SYM_SMTP_RECPS,
+				strlen(SMTP_RECPS) + 1024 );
+			if (strlen(SMTP_RECPS) > 0) {
+				strcat(SMTP_RECPS, "|");
+			}
+			strcat(SMTP_RECPS, user);
 			return;
 
 		case rfc822_room_delivery:
 			cprintf("250 Delivering to room '%s'\r\n", user);
-			++SMTP->number_of_recipients;
-			CtdlReallocUserData(SYM_SMTP_RECP,
-				strlen(SMTP_RECP) + 1024 );
-			strcat(SMTP_RECP, "room|");
-			strcat(SMTP_RECP, user);
-			strcat(SMTP_RECP, "|0|\n");
+			CtdlReallocUserData(SYM_SMTP_ROOMS,
+				strlen(SMTP_ROOMS) + 1024 );
+			if (strlen(SMTP_ROOMS) > 0) {
+				strcat(SMTP_ROOMS, "|");
+			}
+			strcat(SMTP_RECPS, user);
 			return;
 
 		case rfc822_no_such_user:
 			cprintf("550 %s: no such user\r\n", recp);
-			return;
-
-		case rfc822_address_on_citadel_network:
-			cprintf("250 %s is on the local network\r\n", recp);
-			++SMTP->number_of_recipients;
-			CtdlReallocUserData(SYM_SMTP_RECP,
-				strlen(SMTP_RECP) + 1024 );
-			strcat(SMTP_RECP, "ignet|");
-			strcat(SMTP_RECP, user);
-			strcat(SMTP_RECP, "|");
-			strcat(SMTP_RECP, node);
-			strcat(SMTP_RECP, "|0|\n");
 			return;
 
 		case rfc822_address_nonlocal:
@@ -455,62 +452,18 @@ void smtp_rcpt(char *argbuf) {
 			}
 			else {
 				cprintf("250 Remote recipient %s ok\r\n", recp);
-				++SMTP->number_of_recipients;
-				CtdlReallocUserData(SYM_SMTP_RECP,
-					strlen(SMTP_RECP) + 1024 );
-				strcat(SMTP_RECP, "remote|");
-				strcat(SMTP_RECP, recp);
-				strcat(SMTP_RECP, "|0|\n");
+				CtdlReallocUserData(SYM_SMTP_RECPS,
+					strlen(SMTP_RECPS) + 1024 );
+				if (strlen(SMTP_RECPS) > 0) {
+					strcat(SMTP_RECPS, "|");
+				}
+				strcat(SMTP_RECPS, user);
 				return;
 			}
 			return;
 	}
 
 	cprintf("599 Unknown error\r\n");
-}
-
-
-
-/*
- * Send a message out through the local network
- * (This is kind of ugly.  IGnet should be done using clean server-to-server
- * code instead of the old style spool.)
- */
-void smtp_deliver_ignet(struct CtdlMessage *msg, char *user, char *dest) {
-	struct ser_ret smr;
-	char *hold_R, *hold_D, *hold_O;
-	FILE *fp;
-	char filename[SIZ];
-	static int seq = 0;
-
-	lprintf(9, "smtp_deliver_ignet(msg, %s, %s)\n", user, dest);
-
-	hold_R = msg->cm_fields['R'];
-	hold_D = msg->cm_fields['D'];
-	hold_O = msg->cm_fields['O'];
-	msg->cm_fields['R'] = user;
-	msg->cm_fields['D'] = dest;
-	msg->cm_fields['O'] = MAILROOM;
-
-	serialize_message(&smr, msg);
-
-	msg->cm_fields['R'] = hold_R;
-	msg->cm_fields['D'] = hold_D;
-	msg->cm_fields['O'] = hold_O;
-
-	if (smr.len != 0) {
-		snprintf(filename, sizeof filename,
-			"./network/spoolin/%s.%04x.%04x",
-			dest, getpid(), ++seq);
-		lprintf(9, "spool file name is <%s>\n", filename);
-		fp = fopen(filename, "wb");
-		if (fp != NULL) {
-			fwrite(smr.ser, smr.len, 1, fp);
-			fclose(fp);
-		}
-		phree(smr.ser);
-	}
-
 }
 
 
@@ -534,6 +487,7 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 	struct usersupp userbuf;
 	char *instr;			/* Remote delivery instructions */
 	struct CtdlMessage *imsg;
+	struct recptypes *valid;
 
 	lprintf(9, "smtp_message_delivery() called\n");
 
@@ -550,12 +504,7 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 		SMTP_SPOOLOUT_ROOM);
 	++successful_saves;
 
-	instr = mallok(1024);
-	snprintf(instr, 1024,
-			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
-			"bounceto|%s\n",
-		SPOOLMIME, msgid, (long)time(NULL),
-		SMTP->from );
+	valid = validate_recipients(char *recipients) ;
 
 	for (i=0; i<SMTP->number_of_recipients; ++i) {
 		extract_token(buf, SMTP_RECP, i, '\n');
