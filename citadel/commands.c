@@ -1125,6 +1125,7 @@ void color(int colornum)
 	}
 }
 
+#if 0
 void cls(int colornum)
 {
 	if (enable_color) {
@@ -1132,6 +1133,7 @@ void cls(int colornum)
 		fflush(stdout);
 	}
 }
+#endif
 
 
 /*
