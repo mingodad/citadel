@@ -8,6 +8,15 @@
 #include "utils.h"
 
 
+
+// Globals
+
+extern wxMDIParentFrame *BigMDI;
+
+
+
+
+
 // TCPsocket represents a socket-level TCP connection to a server.
 class TCPsocket {
 public:
@@ -88,6 +97,7 @@ public:
 private:
 	void OnButtonPressed(wxCommandEvent& whichbutton);
 	CitClient *citsock;
+	wxString reply_to;
 	DECLARE_EVENT_TABLE()
 };
 
@@ -100,7 +110,7 @@ class SendExpress : public wxMDIChildFrame {
 public:
 	SendExpress(	CitClient *sock,
 			wxMDIParentFrame *MyMDI, 
-			wxString *touser);
+			wxString touser);
 private:
 	void OnButtonPressed(wxCommandEvent& whichbutton);
 	CitClient *citsock;

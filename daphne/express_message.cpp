@@ -28,6 +28,7 @@ enum
 // simple menu events like this the static method is much simpler.
 BEGIN_EVENT_TABLE(	express_message, wxFrame)
 	EVT_BUTTON(	BUTTON_OK,	express_message::OnButtonPressed)
+	EVT_BUTTON(	BUTTON_REPLY,	express_message::OnButtonPressed)
 END_EVENT_TABLE()
 
 // ============================================================================
@@ -59,6 +60,7 @@ express_message::express_message(
 	wxString stringized_message;
 
 	citsock = sock;
+	reply_to = sender;
 
 	ListToMultiline(stringized_message, msg);
 
@@ -132,4 +134,8 @@ void express_message::OnButtonPressed(wxCommandEvent& whichbutton) {
         if (whichbutton.GetId() == BUTTON_OK) {
                 delete this;
         }
+        if (whichbutton.GetId() == BUTTON_REPLY) {
+		new SendExpress(citsock, BigMDI, reply_to);
+		delete this;
+	}
 }

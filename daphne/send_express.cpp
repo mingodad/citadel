@@ -39,7 +39,7 @@ END_EVENT_TABLE()
 // frame constructor
 SendExpress::SendExpress(	CitClient *sock,
 				wxMDIParentFrame *MyMDI,
-				wxString *touser)
+				wxString touser)
        : wxMDIChildFrame(MyMDI,	//parent
 			-1,	//window id
 			" Page another user ",
@@ -164,10 +164,15 @@ SendExpress::SendExpress(	CitClient *sock,
         sendcmd = "RWHO";
         if (citsock->serv_trans(sendcmd, recvcmd, xferbuf) != 1) return;
 
-        for (i=0; i<xferbuf.Number(); ++i) {
-                buf.Printf("%s", (wxString *)xferbuf.Nth(i)->GetData());
-                extract(user, buf, 1);
-		ToWhom->Append(user);
+	if (touser.Length() > 0) {
+		ToWhom->Append(touser);
+		ToWhom->SetSelection(0, TRUE);
+	} else {
+        	for (i=0; i<xferbuf.Number(); ++i) {
+                	buf.Printf("%s", (wxString *)xferbuf.Nth(i)->GetData());
+                	extract(user, buf, 1);
+			ToWhom->Append(user);
+		}
 	}
 
 }
@@ -189,6 +194,8 @@ void SendExpress::OnButtonPressed(wxCommandEvent& whichbutton) {
 					"Error",
 					wxOK | wxICON_EXCLAMATION,
 					NULL, -1, -1);
+		} else {
+			delete this;
 		}
 	}
 }

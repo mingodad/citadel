@@ -9,6 +9,12 @@
 
 #include "includes.hpp"
 
+
+
+// Globals
+wxMDIParentFrame *BigMDI;
+
+
 // ----------------------------------------------------------------------------
 // private classes
 // ----------------------------------------------------------------------------
@@ -119,6 +125,7 @@ bool Daphne::OnInit()
     // Create the main application window
     MyFrame *frame = new MyFrame("Daphne",
                                  wxPoint(10, 10), wxSize(600, 450));
+    BigMDI = frame;
 
     // Show it and tell the application that it's our main window
     // @@@ what does it do exactly, in fact? is it necessary here?
@@ -209,7 +216,7 @@ void MyFrame::OnUsersMenu(wxCommandEvent& cmd) {
 			TheWholist->Activate();
 	}
 	else if (id == UMENU_SEND_EXPRESS)
-		new SendExpress(citadel, this, NULL);
+		new SendExpress(citadel, this, "");
 }
 
 // Window menu handler
