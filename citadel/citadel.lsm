@@ -1,12 +1,11 @@
 Begin3
 Title:          Citadel/UX
-Version:        5.50beta2
-Entered-date:	Tue Dec  8 07:57:41 EST 1998
+Version:        5.50
+Entered-date:	Thu Dec 17 00:16:06 EST 1998
 Description:    An advanced messaging system which can be used for BBS,
-		groupware, and
-		online community applications.  It is multithreaded,
-		client/server, database
-		driven, and accessible via a growing selection of front ends.
+		groupware, and online community applications.  It is
+		multithreaded, client/server, database driven, and
+		accessible via a growing selection of front ends.
 Keywords:       Citadel Citadel/UX UNIX POSIX room-based BBS IGnet IGnet/Open
 Author:         Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 Maintained-by:  Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
