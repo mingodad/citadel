@@ -1096,6 +1096,20 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 		qrbuf.QRfloor = new_floor;
 		putroom(&qrbuf);
 
+		begin_critical_section(S_CONFIG);
+	
+		/* If baseroom/aideroom name changes, update config */
+		if (!strncasecmp(old_name, config.c_baseroom, ROOMNAMELEN)) {
+			safestrncpy(config.c_baseroom, new_name, ROOMNAMELEN);
+			put_config();
+		}
+		if (!strncasecmp(old_name, config.c_aideroom, ROOMNAMELEN)) {
+			safestrncpy(config.c_aideroom, new_name, ROOMNAMELEN);
+			put_config();
+		}
+	
+		end_critical_section(S_CONFIG);
+	
 		/* If the room name changed, then there are now two room
 		 * records, so we have to delete the old one.
 		 */
@@ -1107,20 +1121,6 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 	}
 
 	end_critical_section(S_QUICKROOM);
-
-	begin_critical_section(S_CONFIG);
-
-	/* If baseroom/aideroom name changes, update config */
-	if (!strncasecmp(old_name, config.c_baseroom, ROOMNAMELEN)) {
-		safestrncpy(config.c_baseroom, new_name, ROOMNAMELEN);
-		put_config();
-	}
-	if (!strncasecmp(old_name, config.c_aideroom, ROOMNAMELEN)) {
-		safestrncpy(config.c_aideroom, new_name, ROOMNAMELEN);
-		put_config();
-	}
-
-	end_critical_section(S_CONFIG);
 
 	/* Adjust the floor reference counts if necessary */
 	if (new_floor != old_floor) {

@@ -1,4 +1,8 @@
  $Log$
+ Revision 591.47  2002/06/18 16:34:06  error
+ * room_ops.c: Fix for old room record not being deleted when renaming
+   baseroom or aideroom
+
  Revision 591.46  2002/06/16 21:01:11  ajc
  * Allow Aides to create rooms in other users' namespaces (if global access
    controls allow)
@@ -3739,4 +3743,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
