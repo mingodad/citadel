@@ -1,4 +1,8 @@
 $Log$
+Revision 1.473  2000/02/27 04:55:51  ajc
+* Added "keymenu()" generic menu-maker to commands.c
+* Blocked non-numeric input to intprompt()  (fixes bug #16)
+
 Revision 1.472  2000/02/27 03:57:35  ajc
 * Completed 'fsck'-like reference count verifier (server and client)
 
@@ -1675,3 +1679,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

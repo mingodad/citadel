@@ -351,11 +351,16 @@ int intprompt(char *prompt, int ival, int imin, int imax)
 {
 	char buf[16];
 	int i;
-	i = ival;
+	int p;
+
 	do {
+		i = ival;
 		snprintf(buf, sizeof buf, "%d", i);
 		strprompt(prompt, buf, 15);
 		i = atoi(buf);
+		for (p=0; p<strlen(buf); ++p) {
+			if (!isdigit(buf[p])) i = imin - 1;
+		}
 		if (i < imin)
 			printf("*** Must be no less than %d.\n", imin);
 		if (i > imax)
