@@ -132,6 +132,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 	struct SpoolControl *sc;
 	struct namelist *nptr;
 	int err;
+	int i;
 	char *instr = NULL;
 	char *newpath = NULL;
 	size_t instr_len = SIZ;
@@ -140,6 +141,10 @@ void network_spool_msg(long msgnum, void *userdata) {
 	struct ser_ret sermsg;
 	FILE *fp;
 	char filename[SIZ];
+	char buf[SIZ];
+	int bang = 0;
+	int send = 1;
+	int delete_after_send = 0;	/* Set to 1 to delete after spooling */
 
 	sc = (struct SpoolControl *)userdata;
 
@@ -226,6 +231,17 @@ void network_spool_msg(long msgnum, void *userdata) {
 			}
 			msg->cm_fields['C'] = strdoop(CC->quickroom.QRname);
 
+			/*
+			 * Determine if this message is set to be deleted
+			 * after sending out on the network
+			 */
+			if (msg->cm_fields['S'] != NULL) {
+				if (!strcasecmp(msg->cm_fields['S'],
+				   "CANCEL")) {
+					delete_after_send = 1;
+				}
+			}
+
 			/* 
 			 * Now serialize it for transmission
 			 */
@@ -236,26 +252,44 @@ void network_spool_msg(long msgnum, void *userdata) {
 			for (nptr = sc->ignet_push_shares; nptr != NULL;
 			    nptr = nptr->next) {
 
+				send = 1;
+
 				/* FIXME check for valid node name */
-				/* FIXME check for split horizon */
+
+				/* Check for split horizon */
+				bang = num_tokens(msg->cm_fields['P'], '!');
+				if (bang > 1) for (i=0; i<(bang-1); ++i) {
+					extract_token(buf, msg->cm_fields['P'],
+						i, '!');
+					if (!strcasecmp(buf, nptr->name)) {
+						send = 0;
+					}
+				}
 
 				/* Send the message */
-				sprintf(filename, "./network/spoolout/%s",
-					nptr->name);
-				fp = fopen(filename, "ab");
-				if (fp != NULL) {
-					fwrite(sermsg.ser, sermsg.len, 1, fp);
-					fclose(fp);
+				if (send == 1) {
+					sprintf(filename,
+						"./network/spoolout/%s",
+						nptr->name);
+					fp = fopen(filename, "ab");
+					if (fp != NULL) {
+						fwrite(sermsg.ser,
+							sermsg.len, 1, fp);
+						fclose(fp);
+					}
 				}
 			}
-
-
 		}
-
 	}
 
 	/* update lastsent */
 	sc->lastsent = msgnum;
+
+	/* Delete this message if delete-after-send is set */
+	if (delete_after_send) {
+		CtdlDeleteMessages(CC->quickroom.QRname, msgnum, "");
+	}
+
 }
 	
 
