@@ -24,6 +24,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include "webcit.h"
+#include "webserver.h"
 
 
 

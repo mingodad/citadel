@@ -4,7 +4,6 @@
 #include <zlib.h>
 #endif
 
-
 #ifdef HAVE_ICAL_H
 #ifdef HAVE_LIBICAL
 #define WEBCIT_WITH_CALENDAR_SERVICE 1
