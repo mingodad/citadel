@@ -1174,10 +1174,14 @@ void ical_freebusy(char *who) {
 		NULL, ical_freebusy_backend, (void *)fb
 	);
 
-	/* FIXME there are still more fields to be added here before we can
-	 * call this finished.  We need a DTSTAMP, and probably the user's
-	 * e-mail address as an ORGANIZER, and maybe a few others.  Add them
-	 * in this location.
+	/* Set the method to PUBLISH */
+	icalcomponent_set_method(fb, ICAL_METHOD_PUBLISH);
+
+	/* Set the DTSTAMP to right now. */
+	icalcomponent_set_dtstamp(fb, icaltime_from_timet(time(NULL), 0));
+
+	/* FIXME we still need (at least) DTSTART, DTEND, and the user's
+	 * e-mail address as ORGANIZER.
 	 */
 
 	/* Put the freebusy component into the calendar component */
@@ -1225,46 +1229,47 @@ void cmd_ical(char *argbuf)
 	char action[SIZ];
 	char who[SIZ];
 
-	if (CtdlAccessCheck(ac_logged_in)) return;
-
 	extract(subcmd, argbuf, 0);
+
+	/* Allow "test" and "freebusy" subcommands without logging in. */
 
 	if (!strcmp(subcmd, "test")) {
 		cprintf("%d This server supports calendaring\n", CIT_OK);
 		return;
 	}
 
-	else if (!strcmp(subcmd, "respond")) {
+	if (!strcmp(subcmd, "freebusy")) {
+		extract(who, argbuf, 1);
+		ical_freebusy(who);
+		return;
+	}
+
+	if (CtdlAccessCheck(ac_logged_in)) return;
+
+	if (!strcmp(subcmd, "respond")) {
 		msgnum = extract_long(argbuf, 1);
 		extract(partnum, argbuf, 2);
 		extract(action, argbuf, 3);
 		ical_respond(msgnum, partnum, action);
+		return;
 	}
 
-	else if (!strcmp(subcmd, "handle_rsvp")) {
+	if (!strcmp(subcmd, "handle_rsvp")) {
 		msgnum = extract_long(argbuf, 1);
 		extract(partnum, argbuf, 2);
 		extract(action, argbuf, 3);
 		ical_handle_rsvp(msgnum, partnum, action);
-	}
-
-	else if (!strcmp(subcmd, "conflicts")) {
-		msgnum = extract_long(argbuf, 1);
-		extract(partnum, argbuf, 2);
-		ical_conflicts(msgnum, partnum);
-	}
-
-	else if (!strcmp(subcmd, "freebusy")) {
-		extract(who, argbuf, 1);
-		ical_freebusy(who);
-	}
-
-	else {
-		cprintf("%d Invalid subcommand\n", ERROR+CMD_NOT_SUPPORTED);
 		return;
 	}
 
-	/* should never get here */
+	if (!strcmp(subcmd, "conflicts")) {
+		msgnum = extract_long(argbuf, 1);
+		extract(partnum, argbuf, 2);
+		ical_conflicts(msgnum, partnum);
+		return;
+	}
+
+	cprintf("%d Invalid subcommand\n", ERROR+CMD_NOT_SUPPORTED);
 }
 
 
