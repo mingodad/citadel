@@ -1,4 +1,7 @@
  $Log$
+ Revision 623.7  2004/07/25 16:16:19  error
+ * citadel_decls.h: fixed the new logoff() macro
+
  Revision 623.6  2004/07/24 05:11:52  ajc
  * citadel.c: temporarily commented out the signal() call for SIGHUP because
    it is causing the client not to work at all on Linux 2.6 (or at least on
@@ -5929,4 +5932,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -27,7 +27,7 @@ extern char rc_alt_semantics;
 extern char rc_reply_extedit;
 extern char instant_msgs;
 void ctdl_logoff(char *file, int line, CtdlIPC *ipc, int code);
-#define logoff(ipc, code)	ctdl_logoff(__FILE__, __LINE__, ipc, code)
+#define logoff(ipc, code)	ctdl_logoff(__FILE__, __LINE__, (ipc), (code))
 void formout(CtdlIPC *ipc, char *name);
 void sighandler(int which_sig);
 extern int secure;
