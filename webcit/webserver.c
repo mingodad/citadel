@@ -256,15 +256,14 @@ int main(int argc, char **argv)
 			defaultport = argv[optind];
 	}
 	/* Tell 'em who's in da house */
-	printf("WebCit v2 experimental\n");
-	printf("Copyright (C) 1996-1998 by Art Cancro.  ");
-	printf("All rights reserved.\n\n");
+	printf("WebCit version 2.00\n");
+	printf("Copyright (C) 1996-1999.  All rights reserved.\n\n");
 
 	if (chdir(WEBCITDIR) != 0)
 		perror("chdir");
 
 	/*
-	 * Bind the server to our favourite port.
+	 * Bind the server to our favorite port.
 	 * There is no need to check for errors, because ig_tcp_server()
 	 * exits if it doesn't succeed.
 	 */
