@@ -178,5 +178,45 @@ void generate_new_uid(char *buf) {
 		serv_info.serv_fqdn);
 }
 
+/*
+ * Render a PARTSTAT parameter as a string (and put it in parentheses)
+ */
+void partstat_as_string(char *buf, icalproperty *attendee) {
+	icalparameter *partstat_param;
+	icalparameter_partstat partstat;
+
+	strcpy(buf, "(status unknown)");
+
+	partstat_param = icalproperty_get_first_parameter(
+				attendee,
+				ICAL_PARTSTAT_PARAMETER
+	);
+	if (partstat_param == NULL) {
+		return;
+	}
+
+	partstat = icalparameter_get_partstat(partstat_param);
+	switch(partstat) {
+		case ICAL_PARTSTAT_X:
+			strcpy(buf, "(x)");
+		case ICAL_PARTSTAT_NEEDSACTION:
+			strcpy(buf, "(needs action)");
+		case ICAL_PARTSTAT_ACCEPTED:
+			strcpy(buf, "(accepted)");
+		case ICAL_PARTSTAT_DECLINED:
+			strcpy(buf, "(declined)");
+		case ICAL_PARTSTAT_TENTATIVE:
+			strcpy(buf, "(tenative)");
+		case ICAL_PARTSTAT_DELEGATED:
+			strcpy(buf, "(delegated)");
+		case ICAL_PARTSTAT_COMPLETED:
+			strcpy(buf, "(completed)");
+		case ICAL_PARTSTAT_INPROCESS:
+			strcpy(buf, "(in process)");
+		case ICAL_PARTSTAT_NONE:
+			strcpy(buf, "(none)");
+	}
+}
+
 
 #endif

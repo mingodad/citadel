@@ -281,10 +281,17 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDEE_PROPERTY); attendee != NULL; attendee = icalcomponent_get_next_property(vevent, ICAL_ATTENDEE_PROPERTY)) {
 		strcpy(attendee_string, icalproperty_get_attendee(attendee));
 		if (!strncasecmp(attendee_string, "MAILTO:", 7)) {
+
+			/* screen name or email address */
 			strcpy(attendee_string, &attendee_string[7]);
 			striplt(attendee_string);
 			if (i++) wprintf(", ");
 			escputs(attendee_string);
+			wprintf(" ");
+
+			/* participant status */
+			partstat_as_string(buf, attendee);
+			escputs(buf);
 		}
 	}
 	wprintf("</TEXTAREA></TD></TR>\n");
@@ -492,7 +499,12 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		/*
 		 * Add any new attendees listed in the web form
 		 */
+
+		/* First, strip out the parenthesized partstats.  */
 		strcpy(form_attendees, bstr("attendees"));
+		stripout(form_attendees, '(', ')');
+
+		/* Now iterate! */
 		for (i=0; i<num_tokens(form_attendees, ','); ++i) {
 			extract_token(buf, form_attendees, i, ',');
 			striplt(buf);

@@ -200,11 +200,17 @@ void cal_process_object(icalcomponent *cal,
 		wprintf("<TR><TD><B>Attendee:</B></TD><TD>");
 		strcpy(buf, icalproperty_get_attendee(p));
 		if (!strncasecmp(buf, "MAILTO:", 7)) {
+
+			/* screen name or email address */
 			strcpy(buf, &buf[7]);
 			striplt(buf);
 			escputs(buf);
+			wprintf(" ");
+
+			/* participant status */
+			partstat_as_string(buf, p);
+			escputs(buf);
 		}
-		/* FIXME add status */
 		wprintf("</TD></TR>\n");
 	}
 

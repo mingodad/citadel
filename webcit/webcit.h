@@ -235,6 +235,7 @@ void url(char *buf);
 void escputs1(char *strbuf, int nbsp);
 long extract_long(char *source, long int parmnum);
 int extract_int(char *source, int parmnum);
+void stripout(char *str, char leftboundary, char rightboundary);
 void dump_vars(void);
 void embed_main_menu(void);
 void serv_read(char *buf, int bytes);
@@ -356,6 +357,7 @@ void display_calendar(long msgnum);
 void display_task(long msgnum);
 void do_calendar_view(void);
 void free_calendar_buffer(void);
+void calendar_summary_view(void);
 int load_msg_ptrs(char *servcmd);
 
 #ifdef HAVE_ICAL_H
@@ -371,6 +373,7 @@ void generate_new_uid(char *);
 void respond_to_request(void);
 void handle_rsvp(void);
 void ical_dezonify(icalcomponent *cal);
+void partstat_as_string(char *buf, icalproperty *attendee);
 #endif
 
 extern char *months[];
