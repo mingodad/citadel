@@ -60,14 +60,14 @@ RoomView::RoomView(
 	b1->height.PercentOf(this, wxHeight, 25);
 	banner->SetConstraints(b1);
 
-	wxStaticText *rname = new wxStaticText(banner, -1, roomname);
+	wxStaticText *rname = new wxStaticText(banner, -1, ThisRoom);
 	rname->SetFont(wxFont(18, wxDEFAULT, wxNORMAL, wxNORMAL));
 	rname->SetForegroundColour(wxColour(0xFF, 0xFF, 0x00));
 	wxLayoutConstraints *b2 = new wxLayoutConstraints;
 	b2->top.SameAs(banner, wxTop, 1);
 	b2->left.SameAs(banner, wxLeft, 1);
-	b2->width.AsIs();
-	b2->height.AsIs();
+	b2->width.PercentOf(banner, wxWidth, 50);
+	b2->height.PercentOf(banner, wxHeight, 50);
 	rname->SetConstraints(b2);
 
 	close_button = new wxButton(

@@ -15,6 +15,7 @@ void extract(wxString& outputbuf, wxString inputbuf, int parmnum) {
 			return;
 		}
 	}
+	outputbuf = "";
 }
 
 int extract_int(wxString inputbuf, int parmnum) {

@@ -79,9 +79,8 @@ who::who(CitClient *sock, wxMDIParentFrame *MyMDI)
 
 	SetAutoLayout(TRUE);
 	Show(TRUE);
-        Layout();
-
 	LoadWholist();
+        Layout();
 }
 
 
