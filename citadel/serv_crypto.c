@@ -596,13 +596,12 @@ void cmd_gtls(char *params)
  */
 void endtls(void)
 {
-	lprintf(CTDL_INFO, "Ending SSL/TLS\n");
-
 	if (!CC->ssl) {
 		CC->redirect_ssl = 0;
 		return;
 	}
 
+	lprintf(CTDL_INFO, "Ending SSL/TLS\n");
 	SSL_shutdown(CC->ssl);
 	SSL_free(CC->ssl);
 	CC->ssl = NULL;

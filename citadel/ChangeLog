@@ -1,4 +1,7 @@
  $Log$
+ Revision 620.11  2004/04/13 02:45:07  ajc
+ * Don't display the "Ending SSL/TLS" log message unless TLS is actually present
+
  Revision 620.10  2004/04/12 20:51:40  error
  * citadel.lsm: Update LSM for 6.20p1; uploaded to ibiblio.org
 
@@ -5673,4 +5676,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
