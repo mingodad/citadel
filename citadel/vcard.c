@@ -131,6 +131,7 @@ struct vCard *vcard_load(char *vtext) {
 char *vcard_get_prop(struct vCard *v, char *propname, int is_partial) {
 	int i;
 
+	lprintf(9, "vcard_get_prop(%s, %d) called\n", propname, is_partial);
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 		if ( (!strcasecmp(v->prop[i].name, propname))
 		   || (  (!strncasecmp(v->prop[i].name,
@@ -138,9 +139,11 @@ char *vcard_get_prop(struct vCard *v, char *propname, int is_partial) {
 			 && (v->prop[i].name[strlen(propname)] == ';')
 			 && (is_partial) ) ) {
 			return(v->prop[i].value);
+			lprintf(9, "found: value is <%s>\n", v->prop[i].value);
 		}
 	}
 
+	lprintf(9, "not found: returning null\n");
 	return NULL;
 }
 

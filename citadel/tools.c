@@ -32,44 +32,35 @@ int num_parms(char *source)
 	for (a=0; a<strlen(source); ++a) 
 		if (source[a]=='|') ++count;
 	return(count);
-	}
+}
 
 /*
- * extract()  -  extract a parameter from a series of "|" separated...
+ * extract()  -  a smarter string tokenizer
  */
 void extract_token(char *dest, char *source, int parmnum, char separator)
 {
-	char buf[256];
-	int count = 0;
-	int n;
+	int i;
+	int len;
+	int curr_parm;
+
+	strcpy(dest,"");
+	len = 0;
+	curr_parm = 0;
 
 	if (strlen(source)==0) {
-		strcpy(dest,"");
 		return;
 		}
 
-	n = num_parms(source);
-
-	if (parmnum >= n) {
-		strcpy(dest,"");
-		return;
+	for (i=0; i<strlen(source); ++i) {
+		if (source[i]==separator) {
+			++curr_parm;
 		}
-	strcpy(buf,source);
-	if ( (parmnum == 0) && (n == 1) ) {
-		strcpy(dest,buf);
-		for (n=0; n<strlen(dest); ++n)
-			if (dest[n]==separator) dest[n] = 0;
-		return;
+		else if (curr_parm == parmnum) {
+			dest[len+1] = 0;
+			dest[len++] = source[i];
 		}
-
-	while (count++ < parmnum) do {
-		strcpy(buf,&buf[1]);
-		} while( (strlen(buf)>0) && (buf[0]!=separator) );
-	if (buf[0]==separator) strcpy(buf,&buf[1]);
-	for (count = 0; count<strlen(buf); ++count)
-		if (buf[count] == separator) buf[count] = 0;
-	strcpy(dest,buf);
 	}
+}
 
 /*
  * extract_int()  -  extract an int parm w/o supplying a buffer
@@ -78,9 +69,9 @@ int extract_int(char *source, int parmnum)
 {
 	char buf[256];
 	
-	extract(buf,source,parmnum);
+	extract_token(buf, source, parmnum, '|');
 	return(atoi(buf));
-	}
+}
 
 /*
  * extract_long()  -  extract an long parm w/o supplying a buffer
@@ -89,9 +80,6 @@ long extract_long(char *source, long int parmnum)
 {
 	char buf[256];
 	
-	extract(buf,source,parmnum);
+	extract_token(buf, source, parmnum, '|');
 	return(atol(buf));
-	}
-
-
-
+}

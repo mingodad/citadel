@@ -273,15 +273,16 @@ void cmd_greg(char *argbuf)
 	cprintf("%s\n", usbuf.password);
 	cprintf("%s\n", vcard_get_prop(v, "n", 0));	/* name */
 
-	strcpy(adr, vcard_get_prop(v, "adr", 0));	/* address... */
+	sprintf(adr, "%s", vcard_get_prop(v, "adr", 0));/* address... */
 
+	lprintf(9, "adr is <%s>\n", adr);
 	extract_token(buf, adr, 2, ';');
 	cprintf("%s\n", buf);				/* street */
-	extract_token(buf, adr, 2, ';');
+	extract_token(buf, adr, 3, ';');
 	cprintf("%s\n", buf);				/* city */
-	extract_token(buf, adr, 2, ';');
+	extract_token(buf, adr, 4, ';');
 	cprintf("%s\n", buf);				/* state */
-	extract_token(buf, adr, 2, ';');
+	extract_token(buf, adr, 5, ';');
 	cprintf("%s\n", buf);				/* zip */
 
 	tel = vcard_get_prop(v, "tel;home", 0);
