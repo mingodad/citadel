@@ -105,10 +105,10 @@ void read_message(long msgnum, int is_summary) {
 		wprintf("<STRONG>ERROR:</STRONG> %s<BR>\n", &buf[4]);
 		return;
 	}
-	wprintf("<TABLE WIDTH=100%% BORDER=0 CELLSPACING=0 CELLPADDING=1 BGCOLOR=444455><TR><TD>\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 CELLSPACING=0 CELLPADDING=1 BGCOLOR=CCCCCC><TR><TD>\n");
 	wprintf("<FONT ");
 	if (!is_summary) wprintf("SIZE=+1 ");
-	wprintf("COLOR=\"DDDDCC\"> ");
+	wprintf("COLOR=\"000000\"> ");
 	strcpy(m_subject, "");
 
 	while (serv_gets(buf), strncasecmp(buf, "text", 4)) {
@@ -191,20 +191,20 @@ void read_message(long msgnum, int is_summary) {
 	wprintf("<TD BGCOLOR=\"AAAADD\">"
 		"<A HREF=\"/display_enter?recp=");
 	urlescputs(reply_to);
-	wprintf("\">Reply</A>"
+	wprintf("\"><FONT SIZE=-1>Reply</FONT></A>"
 		"</TD>\n", msgnum);
 
 	if (WC->is_room_aide) {
 		wprintf("<TD BGCOLOR=\"AAAADD\">"
 			"<A HREF=\"/confirm_move_msg"
 			"&msgid=%ld"
-			"\">Move</A>"
+			"\"><FONT SIZE=-1>Move</FONT></A>"
 			"</TD>\n", msgnum);
 
 		wprintf("<TD BGCOLOR=\"AAAADD\">"
 			"<A HREF=\"/confirm_delete_msg"
 			"&msgid=%ld"
-			"\">Del</A>"
+			"\"><FONT SIZE=-1>Del</FONT></A>"
 			"</TD>\n", msgnum);
 
 	}
