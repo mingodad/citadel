@@ -39,7 +39,9 @@ fi
 AC_PROG_RANLIB
 
 dnl Checks for libraries.
-AC_CHECK_LIB(crypt, crypt)
+if test "$enable_autologin" = yes; then
+	AC_CHECK_LIB(crypt, crypt)
+fi
 AC_CHECK_LIB(dl, dlopen)
 AC_CHECK_LIB(gdbm, gdbm_open)
 AC_CHECK_LIB(curses, initscr, CURSES=-lcurses)
