@@ -33,6 +33,7 @@ SERV_MODULES=modules/libchat.la modules/libvcard.la \
 	modules/libspam.la \
 	modules/libimap.la \
 	modules/libnetwork.la \
+	modules/liblistsub.la \
 	modules/libnetfilter.la \
 	modules/libpas2.la \
 	modules/libinetcfg.la \
@@ -88,7 +89,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c \
 	serv_smtp.c serv_pop3.c internet_addressing.c parsedate.c genstamp.c \
 	$(DOMAIN) clientsocket.c serv_inetcfg.c serv_rwho.c serv_bio.c \
 	client_passwords.c imap_misc.c serv_netfilter.c serv_mrtg.c \
-	serv_spam.c citadel_ipc.c \
+	serv_spam.c citadel_ipc.c serv_listsub.c \
 	serv_imap.c imap_tools.c imap_fetch.c imap_search.c imap_store.c \
 	serv_network.c serv_pas2.c serv_ical.c md5.c server_main.c
 
@@ -184,6 +185,9 @@ modules/libvandelay.la: serv_vandelay.lo $(LIBTOOL) libcitserver.la
 
 modules/libnetwork.la: serv_network.lo $(LIBTOOL) libcitserver.la
 	$(LTSHARE) -o libnetwork.la ../serv_network.lo ../libcitserver.la
+
+modules/liblistsub.la: serv_listsub.lo $(LIBTOOL) libcitserver.la
+	$(LTSHARE) -o liblistsub.la ../serv_listsub.lo ../libcitserver.la
 
 modules/libnetfilter.la: serv_netfilter.lo $(LIBTOOL) libcitserver.la
 	$(LTSHARE) -o libnetfilter.la ../serv_netfilter.lo ../libcitserver.la

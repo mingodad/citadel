@@ -8,6 +8,7 @@ struct SpoolControl {
 	struct namelist *listrecps;
 	struct namelist *digestrecps;
 	struct namelist *ignet_push_shares;
+	char *misc;
 	FILE *digestfp;
 	int num_msgs_spooled;
 };

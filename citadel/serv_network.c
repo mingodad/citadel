@@ -676,6 +676,8 @@ void network_spoolout_room(char *room_to_spool) {
 	FILE *fp;
 	struct SpoolControl sc;
 	struct namelist *nptr;
+	size_t miscsize = 0;
+	size_t linesize = 0;
 
 	lprintf(7, "Spooling <%s>\n", room_to_spool);
 	if (getroom(&CC->quickroom, room_to_spool) != 0) {
@@ -723,6 +725,13 @@ void network_spoolout_room(char *room_to_spool) {
 			nptr->next = sc.ignet_push_shares;
 			extract(nptr->name, buf, 1);
 			sc.ignet_push_shares = nptr;
+		}
+		else {
+			linesize = strlen(buf);
+			sc.misc = realloc(sc.misc,
+				(miscsize + linesize + 2) );
+			sprintf(&sc.misc[miscsize], "%s\n", buf);
+			miscsize = miscsize + linesize + 1;
 		}
 
 
@@ -783,6 +792,8 @@ void network_spoolout_room(char *room_to_spool) {
 			phree(sc.ignet_push_shares);
 			sc.ignet_push_shares = nptr;
 		}
+		fwrite(sc.misc, strlen(sc.misc), 1, fp);
+		phree(sc.misc);
 
 		fclose(fp);
 	}
