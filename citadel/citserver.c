@@ -72,10 +72,11 @@ time_t server_startup_time;
  */
 void master_startup(void) {
 	struct timeval tv;
-	
-	time(&server_startup_time);
+	struct quickroom qrbuf;
 	
 	lprintf(9, "master_startup() started\n");
+	time(&server_startup_time);
+
 	lprintf(7, "Opening databases\n");
 	open_databases();
 
@@ -90,6 +91,13 @@ void master_startup(void) {
 	create_room(AIDEROOM,		3, "", 0, 1, 0);
 	create_room(SYSCONFIGROOM,	3, "", 0, 1, 0);
 	create_room(config.c_twitroom,	0, "", 0, 1, 0);
+
+	/* The "Local System Configuration" room doesn't need to be visible */
+        if (lgetroom(&qrbuf, SYSCONFIGROOM) == 0) {
+                qrbuf.QRflags2 |= QR2_SYSTEM;
+                lputroom(&qrbuf);
+        }
+
 
 	lprintf(7, "Seeding the pseudo-random number generator...\n");
 	gettimeofday(&tv, NULL);

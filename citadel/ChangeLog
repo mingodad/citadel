@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.101  2002/08/25 21:23:49  ajc
+ * Hide the SMTP queue and the sysconfig rooms.
+
  Revision 591.100  2002/08/24 05:58:53  ajc
  * Bugfixes and cosmetic changes to listsub system
 
@@ -3932,3 +3935,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

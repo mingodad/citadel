@@ -682,6 +682,7 @@ int purge_user(char pname[])
 int create_user(char *newusername, int become_user)
 {
 	struct usersupp usbuf;
+	struct quickroom qrbuf;
 	struct passwd *p = NULL;
 	char username[SIZ];
 	char mailboxname[ROOMNAMELEN];
@@ -731,11 +732,19 @@ int create_user(char *newusername, int become_user)
 	/* add user to userlog */
 	putuser(&usbuf);
 
-	/* give the user a private mailbox and a configuration room */
+	/*
+	 * Give the user a private mailbox and a configuration room.
+	 * Make the latter an invisible system room.
+	 */
 	MailboxName(mailboxname, sizeof mailboxname, &usbuf, MAILROOM);
 	create_room(mailboxname, 5, "", 0, 1, 1);
+
 	MailboxName(mailboxname, sizeof mailboxname, &usbuf, USERCONFIGROOM);
 	create_room(mailboxname, 5, "", 0, 1, 1);
+        if (lgetroom(&qrbuf, USERCONFIGROOM) == 0) {
+                qrbuf.QRflags2 |= QR2_SYSTEM;
+                lputroom(&qrbuf);
+        }
 
 	/* Everything below this line can be bypassed if administratively
 	   creating a user, instead of doing self-service account creation

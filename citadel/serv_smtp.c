@@ -1363,6 +1363,29 @@ void cmd_smtp(char *argbuf) {
 }
 
 
+/*
+ * Initialize the SMTP outbound queue
+ */
+void smtp_init_spoolout(void) {
+	struct quickroom qrbuf;
+
+	/*
+	 * Create the room.  This will silently fail if the room already
+	 * exists, and that's perfectly ok, because we want it to exist.
+	 */
+	create_room(SMTP_SPOOLOUT_ROOM, 3, "", 0, 1, 0);
+
+	/*
+	 * Make sure it's set to be a "system room" so it doesn't show up
+	 * in the <K>nown rooms list for Aides.
+	 */
+	if (lgetroom(&qrbuf, SMTP_SPOOLOUT_ROOM) == 0) {
+		qrbuf.QRflags2 |= QR2_SYSTEM;
+		lputroom(&qrbuf);
+	}
+}
+
+
 
 
 /*****************************************************************************/
@@ -1384,7 +1407,7 @@ char *Dynamic_Module_Init(void)
 				smtp_greeting,
 				smtp_command_loop);
 
-	create_room(SMTP_SPOOLOUT_ROOM, 3, "", 0, 1, 0);
+	smtp_init_spoolout();
 	CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);
 	CtdlRegisterProtoHook(cmd_smtp, "SMTP", "SMTP utility commands");
 	return "$Id$";
