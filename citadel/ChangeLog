@@ -1,4 +1,7 @@
  $Log$
+ Revision 627.3  2004/11/10 21:33:47  ajc
+ * Go to Berkeley DB 4.3.21 in Easy Install
+
  Revision 627.2  2004/11/10 19:59:23  nbryant
   * configure.ac: detect /usr/local/BerkeleyDB.4.3
 
@@ -6198,4 +6201,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

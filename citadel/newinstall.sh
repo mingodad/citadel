@@ -39,7 +39,7 @@
 # Citadel      6.24                    Latest
 # WebCit       5.23                    Latest
 # libical      0.24.RC4                Latest
-# Berkeley DB  4.1.25 + 2 patches      Stable
+# Berkeley DB  4.3.21                  Stable
 # OpenLDAP     2.1.30 stable-20040329  Stable
 
 
@@ -103,8 +103,8 @@ export CITADEL_INSTALLER
 DOWNLOAD_SITE=http://easyinstall.citadel.org
 
 # Original source code packages.
-DB_SOURCE=db-4.1.25.tar.gz
-DB_PATCHES=db-4.1.25.patches
+DB_SOURCE=db-4.3.21.NC.tar.gz
+# DB_PATCHES=db-x.x.x.patches
 ICAL_SOURCE=libical-0.24.RC4.tar.gz
 LDAP_SOURCE=openldap-stable-20040329.tgz
 CITADEL_SOURCE=citadel-easyinstall.tar.gz
@@ -184,9 +184,9 @@ install_db () {
 	echo "* Installing Berkeley DB..."
 	cd $BUILD 2>&1 >>$LOG || die
 	( gzip -dc $DB_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
-	cd $BUILD/db-4.1.25 2>&1 >>$LOG || die
+	cd $BUILD/db-4.3.21.NC 2>&1 >>$LOG || die
 	#patch -p0 < ../$DB_PATCHES 2>&1 >>$LOG || die
-	cd $BUILD/db-4.1.25/build_unix 2>&1 >>$LOG || die
+	cd $BUILD/db-4.3.21.NC/build_unix 2>&1 >>$LOG || die
 	../dist/configure --prefix=$SUPPORT --disable-compat185 --disable-cxx --disable-debug --disable-dump185 --disable-java --disable-rpc --disable-tcl --disable-test --without-rpm 2>&1 >>$LOG || die
 	$MAKE $MAKEOPTS 2>&1 >>$LOG || die
 	$MAKE install 2>&1 >>$LOG || die
