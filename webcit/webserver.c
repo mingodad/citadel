@@ -246,6 +246,7 @@ int main(int argc, char **argv)
 	 */	
 	while (1) {
 		ssock = accept(msock, (struct sockaddr *)&fsin, &alen);
+		printf("New connection on socket %d\n", ssock);
 		if (ssock < 0) {
 			printf("webcit: accept() failed: %s\n",
 				strerror(errno));
@@ -264,7 +265,7 @@ int main(int argc, char **argv)
 			/* now create the thread */
 			if (pthread_create(&SessThread, &attr,
 					   (void* (*)(void*)) context_loop,
-					   &ssock)
+					   ssock)
 			    != 0) {
 				printf("webcit: can't create thread: %s\n",
 					strerror(errno));
