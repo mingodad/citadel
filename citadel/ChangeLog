@@ -1,4 +1,8 @@
  $Log$
+ Revision 641.3  2005/02/25 05:51:52  ajc
+ * Started working on a fix for the IMAP APPEND "flags" thing.  It works
+   but only for the first flag sent.  Will finish tomorrow.
+
  Revision 641.2  2005/02/24 18:14:24  ajc
  * Removed excessive trace messages that were slowing the server down
  * Prepared for handling of setting flags in IMAP APPEND
@@ -6434,4 +6438,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

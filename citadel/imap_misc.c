@@ -205,6 +205,35 @@ void imap_print_instant_messages(void) {
 }
 
 
+/*
+ * imap_do_append_flags() is called by imap_append() to set any flags that
+ * the client specified at append time.
+ *
+ * FIXME find a way to do these in bulk so we don't max out our db journal
+ */
+void imap_do_append_flags(long new_msgnum, char *new_message_flags) {
+	char flags[32];
+	char this_flag[sizeof flags];
+	int i;
+
+	if (new_message_flags == NULL) return;
+
+	safestrncpy(flags, new_message_flags, sizeof flags);
+	stripallbut(flags, '(', ')');
+
+	for (i=0; i<num_tokens(flags, ' '); ++i) {
+		extract_token(this_flag, flags, i, ' ');
+		lprintf(CTDL_DEBUG, "setting flag <%s>\n", this_flag);
+		if (this_flag[0] == '\\') strcpy(this_flag, &this_flag[1]);
+		if (!strcasecmp(this_flag, "Seen")) {
+			CtdlSetSeen(new_msgnum, 1, ctdlsetseen_seen);
+		}
+		if (!strcasecmp(this_flag, "Answered")) {
+			CtdlSetSeen(new_msgnum, 1, ctdlsetseen_answered);
+		}
+	}
+}
+
 
 /*
  * This function is called by the main command loop.
@@ -214,6 +243,7 @@ void imap_append(int num_parms, char *parms[]) {
 	long bytes_transferred;
 	long stripped_length = 0;
 	struct CtdlMessage *msg;
+	long new_msgnum = (-1L);
 	int ret = 0;
 	size_t blksize;
 	char roomname[ROOMNAMELEN];
@@ -221,7 +251,7 @@ void imap_append(int num_parms, char *parms[]) {
 	char savedroom[ROOMNAMELEN];
 	int msgs, new;
 	int i;
-
+	char *new_message_flags = NULL;
 
 	if (num_parms < 4) {
 		cprintf("%s BAD usage error\r\n", parms[0]);
@@ -234,13 +264,15 @@ void imap_append(int num_parms, char *parms[]) {
 		return;
 	}
 
-	/* if (num_parms >= 5) {
-		FIXME add flags:  parms[3]
-	} */
+	if (num_parms >= 5) {
+		new_message_flags = parms[3];
+	}
 
-	/* if (num_parms >= 6) {
-		FIXME add internaldate: parms[4]
-	} */
+	/* This is how we'd do this if it were relevant in our data store.
+	 * if (num_parms >= 6) {
+	 *  new_message_internaldate = parms[4];
+	 * }
+	 */
 
 	literal_length = atol(&parms[num_parms-1][1]);
 	if (literal_length < 1) {
@@ -266,7 +298,8 @@ void imap_append(int num_parms, char *parms[]) {
 		if (blksize > SIZ) blksize = SIZ;
 
 		flush_output();
-		ret = client_read(&IMAP->transmitted_message[bytes_transferred], blksize);
+		ret = client_read(&IMAP->transmitted_message[bytes_transferred],
+			 blksize);
 		if (ret < 1) {
 			bytes_transferred = literal_length;	/* bail out */
 		}
@@ -281,9 +314,8 @@ void imap_append(int num_parms, char *parms[]) {
 		return;
 	}
 
-	/* I think there's supposed to be a trailing CRLF after the
-	 * literal (the message text) is received.  This call to
-	 * client_getln() absorbs it.
+	/* Client will transmit a trailing CRLF after the literal (the message
+	 * text) is received.  This call to client_getln() absorbs it.
 	 */
 	flush_output();
 	client_getln(buf, sizeof buf);
@@ -350,9 +382,15 @@ void imap_append(int num_parms, char *parms[]) {
 	else {
 		/* Yes ... go ahead and post! */
 		if (msg != NULL) {
-                	CtdlSubmitMsg(msg, NULL, "");
+                	new_msgnum = CtdlSubmitMsg(msg, NULL, "");
 		}
-		cprintf("%s OK APPEND completed\r\n", parms[0]);
+		if (new_msgnum >= 0L) {
+			cprintf("%s OK APPEND completed\r\n", parms[0]);
+		}
+		else {
+			cprintf("%s BAD Error %ld saving message to disk.\r\n",
+				parms[0], new_msgnum);
+		}
 	}
 
 	/*
@@ -367,4 +405,8 @@ void imap_append(int num_parms, char *parms[]) {
 
 	/* We don't need this buffer anymore */
 	CtdlFreeMessage(msg);
+
+	if (new_message_flags != NULL) {
+		imap_do_append_flags(new_msgnum, new_message_flags);
+	}
 }
