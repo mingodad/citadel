@@ -26,6 +26,8 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <dirent.h>
 #include <db.h>
 #include <pthread.h>
 #include "citadel.h"
@@ -156,12 +158,46 @@ void defrag_databases(void)
 }
 
 
+/*
+ * Cull the database logs
+ */
+void cdb_cull_logs(void) {
+	DIR *dp;
+	struct dirent *d;
+	char filename[SIZ];
+	struct stat statbuf;
+
+	lprintf(5, "Database log file cull started.\n");
+
+	dp = opendir("data");
+	if (dp == NULL) return;
+
+	while (d = readdir(dp), d != NULL) {
+		if (!strncasecmp(d->d_name, "log.", 4)) {
+			sprintf(filename, "./data/%s", d->d_name);
+			stat(filename, &statbuf);
+			if ((time(NULL) - statbuf.st_mtime) > 432000L) {
+				lprintf(5, "%s ... deleted\n", filename);
+				unlink(filename);
+			}
+			else {
+				lprintf(5, "%s ... kept\n", filename);
+			}
+		}
+	}
+
+	closedir(dp);
+
+	lprintf(5, "Database log file cull ended.\n");
+}
+
 
 /*
  * Request a checkpoint of the database.
  */
 static void cdb_checkpoint(void) {
 	int ret;
+	time_t last_checkpoint = 0L;
 
 	ret = txn_checkpoint(dbenv,
 				MAX_CHECKPOINT_KBYTES,
@@ -171,6 +207,14 @@ static void cdb_checkpoint(void) {
 		lprintf(1, "cdb_checkpoint: txn_checkpoint: %s\n", db_strerror(ret));
 		abort();
 	}
+
+
+	/* Cull the logs if we haven't done so for 24 hours */
+	if ((time(NULL) - last_checkpoint) > 86400L) {
+		last_checkpoint = time(NULL);
+		cdb_cull_logs();
+	}
+
 }
 
 /*

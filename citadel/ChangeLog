@@ -1,4 +1,9 @@
  $Log$
+ Revision 573.139  2001/06/19 03:33:19  ajc
+ * imap_fetch.c: download MIME parts without decoding first.  We like that.
+ * database_sleepycat.c: added automatic culling of log files which have not
+   been written to in five days.
+
  Revision 573.138  2001/06/17 19:42:23  nbryant
  fix all the <time.h> vs. <sys/time.h> issues, hopefully
 
@@ -2541,4 +2546,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
