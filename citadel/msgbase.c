@@ -289,7 +289,9 @@ void CtdlForEachMessage(int mode, long ref,
 		if (content_type != NULL)
 			if (strlen(content_type) > 0)
 				for (a = 0; a < num_msgs; ++a) {
+					lprintf(9, "Trying %ld\n", msglist[a]);
 					GetSuppMsgInfo(&smi, msglist[a]);
+					lprintf(9, "ct is %s\n", smi.smi_content_type);
 					if (strcasecmp(smi.smi_content_type, content_type)) {
 						msglist[a] = 0L;
 					}
@@ -1533,7 +1535,6 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	static int seqnum = 1;
 	struct CtdlMessage *imsg;
 	char *instr;
-	long imsgid;
 
 	lprintf(9, "CtdlSaveMsg() called\n");
 	if (is_valid_message(msg) == 0) return(-1);	/* self check */
@@ -1728,13 +1729,9 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 		imsg->cm_magic = CTDLMESSAGE_MAGIC;
 		imsg->cm_anon_type = MES_NORMAL;
 		imsg->cm_format_type = FMT_RFC822;
+		imsg->cm_fields['A'] = strdoop("Citadel");
 		imsg->cm_fields['M'] = instr;
-		imsgid = send_message(imsg, 1, NULL);
-		if (imsgid >= 0L) {
-			CtdlSaveMsgPointerInRoom(SMTP_SPOOLOUT_ROOM,
-						imsgid,
-						SM_DONT_BUMP_REF);
-		}
+		CtdlSaveMsg(imsg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL, 1);
 		CtdlFreeMessage(imsg);
 	}
 

@@ -285,16 +285,7 @@ int ig_tcp_server(int port_number, int queue_len)
 
 	if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
 		lprintf(1, "citserver: Can't bind: %s\n", strerror(errno));
-		sin.sin_port = 0;
-		if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
-			lprintf(1, "citserver: Can't bind: %s\n",
-				strerror(errno));
-			return(-1);
-		}
-		else {
-			lprintf(1, "bind to alternate port %d ok\n",
-				htons(sin.sin_port) );
-		}
+		return(-1);
 	}
 
 	if (listen(s, queue_len) < 0) {

@@ -810,6 +810,11 @@ void smtp_do_queue(void) {
 }
 
 
+/**** FIX  temporary hack to run the queue *****/
+void cmd_qqqq(char *argbuf) {
+	smtp_do_queue();
+	cprintf("%d ok\n", OK);
+}
 
 
 
@@ -825,6 +830,10 @@ char *Dynamic_Module_Init(void)
 	CtdlRegisterServiceHook(SMTP_PORT,
 				smtp_greeting,
 				smtp_command_loop);
+
+	/****  FIX ... temporary hack to run the queue ******/
+	CtdlRegisterProtoHook(cmd_qqqq, "QQQQ", "run the queue");  
+
 	create_room(SMTP_SPOOLOUT_ROOM, 3, "", 0);
 	return "$Id$";
 }
