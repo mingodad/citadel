@@ -59,7 +59,7 @@ struct vCard *vcard_new() {
 void vcard_add_prop(struct vCard *v, char *propname, char *propvalue) {
 	++v->numprops;
 	v->prop = realloc(v->prop,
-		(v->numprops * sizeof(char *) * 2) );
+		(v->numprops * sizeof(struct vCardProp)) );
 	v->prop[v->numprops-1].name = strdup(propname);
 	v->prop[v->numprops-1].value = strdup(propvalue);
 }
@@ -119,7 +119,7 @@ struct vCard *vcard_load(char *vtext) {
 			if ( (valid) && (strcasecmp(namebuf, "begin")) ) {
 				++v->numprops;
 				v->prop = realloc(v->prop,
-					(v->numprops * sizeof(char *) * 2) );
+					(v->numprops * sizeof(struct vCardProp)) );
 				v->prop[v->numprops-1].name = namebuf;
 				v->prop[v->numprops-1].value = valuebuf;
 			} 
@@ -220,7 +220,7 @@ void vcard_set_prop(struct vCard *v, char *name, char *value, int append) {
 	/* Otherwise, append it */
 	++v->numprops;
 	v->prop = realloc(v->prop,
-		(v->numprops * sizeof(char *) * 2) );
+		(v->numprops * sizeof(struct vCardProp)) );
 	v->prop[v->numprops-1].name = strdup(name);
 	v->prop[v->numprops-1].value = strdup(value);
 }

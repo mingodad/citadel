@@ -1,4 +1,7 @@
  $Log$
+ Revision 641.23  2005/03/07 04:08:07  ajc
+ * vcard.c: realloc fix
+
  Revision 641.22  2005/03/05 22:31:01  ajc
  * Allow the use of chained certificates for crypto
 
@@ -6520,4 +6523,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
