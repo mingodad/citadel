@@ -1,3 +1,7 @@
+1999-02-24 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* context_loop.c: warning fix
+	* webcit.c: off_t is a 64-bit `long long' on BSDI (eek!)
+
 Sat Jan 30 19:00:58 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Resolve the name of the connecting host and pass it on to Citadel
 
