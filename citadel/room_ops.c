@@ -375,7 +375,16 @@ int sort_msglist(long listptrs[], int oldcount)
 	return(numitems);
 	}
 
- 
+
+
+/*
+ * Determine whether a given room is one of the base non-editable rooms
+ */
+int is_noneditable(struct quickroom *qrbuf) {
+	if (!strcasecmp(qrbuf->QRname, BASEROOM)) return(0);
+	else if (!strcasecmp(qrbuf->QRname, AIDEROOM)) return(0);
+	elsereturn(1);
+	}
 
 /* 
  * cmd_lrms()   -  List all accessible rooms, known or forgotten
@@ -811,8 +820,7 @@ void cmd_getr(void) {
 		return;
 		}
 
-	if ( (!strcasecmp(CC->quickroom.QRname, BASEROOM))
-	     || (!strcasecmp(CC->quickroom.QRname, AIDEROOM)) ) {
+	if (is_noneditable(&CC->quickroom)) {
 		cprintf("%d Can't edit this room.\n",ERROR+NOT_HERE);
 		return;
 		}
@@ -847,8 +855,7 @@ void cmd_setr(char *args) {
 		return;
 		}
 
-	if ( (!strcasecmp(CC->quickroom.QRname, BASEROOM))
-	     || (!strcasecmp(CC->quickroom.QRname, AIDEROOM)) ) {
+	if (is_noneditable(&CC->quickroom)) {
 		cprintf("%d Can't edit this room.\n",ERROR+NOT_HERE);
 		return;
 		}
@@ -927,8 +934,7 @@ void cmd_geta(void) {
 		return;
 		}
 
-	if ( (!strcasecmp(CC->quickroom.QRname, BASEROOM))
-	     || (!strcasecmp(CC->quickroom.QRname, AIDEROOM)) ) {
+	if (is_noneditable(&CC->quickroom)) {
 		cprintf("%d Can't edit this room.\n",ERROR+NOT_HERE);
 		return;
 		}
@@ -1097,8 +1103,7 @@ void cmd_kill(char *argbuf) {
 		return;
 		}
 
-	if ( (!strcasecmp(CC->quickroom.QRname, BASEROOM))
-	     || (!strcasecmp(CC->quickroom.QRname, AIDEROOM)) ) {
+	if (is_noneditable(&CC->quickroom)) {
 		cprintf("%d Can't edit this room.\n",ERROR+NOT_HERE);
 		return;
 		}
