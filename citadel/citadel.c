@@ -626,6 +626,30 @@ void gotofloor(CtdlIPC *ipc, char *towhere, int mode)
 		return;
 	}
 
+	/* Find first known room on the floor */
+
+	strcpy(targ, "");
+	mptr = NULL;
+	r = CtdlIPCKnownRooms(ipc, SubscribedRooms, tofloor, &mptr, buf);
+	if (r / 100 == 1) {
+		struct march *tmp = mptr;
+
+		/* TODO: room order is being ignored? */
+		if (mptr)
+			strncpy(targ, mptr->march_name, ROOMNAMELEN);
+		while (mptr) {
+			tmp = mptr->next;
+			free(mptr);
+			mptr = tmp;
+		}
+	}
+	if (strlen(targ) > 0) {
+		gf_toroom(ipc, targ, mode);
+		return;
+	}
+
+	/* No known rooms on the floor; unzap the first one then */
+
 	strcpy(targ, "");
 	mptr = NULL;
 	r = CtdlIPCKnownRooms(ipc, AllAccessibleRooms, tofloor, &mptr, buf);
