@@ -1,8 +1,77 @@
+a:link {
+  color: #FF0000;
+  text-decoration: none;
+}
+
+a:visited {
+  color: #800080;
+}
+
+a:active {
+  color: #00FF00;
+}
+
+.menubar_link {
+	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
+	font-size: 9pt;
+}
+
+.navbar_link {
+	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
+	font-size: 7pt;
+}
+
+.titlebar {
+	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
+	font-size: 12pt;
+	color: #FFFFEE;
+}
+
+.room_banner_room_name {
+	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
+	font-size: 14pt;
+	font-weight: bold;
+	color: #FFFFEE;
+}
+
+.room_banner_room_info {
+	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
+	font-size: 14pt;
+	color: #FFFFEE;
+}
+
+.room_banner_new_messages {
+	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
+	font-size: 10pt;
+	color: #DDDDCC;
+}
+
+.room_banner_start_page {
+	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
+	font-size: 7pt;
+	color: #DDDDCC;
+}
+
+
+.menubar_bg {
+	background-color: #FF0000;
+}
+
+.iconbar_link {
+	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
+	font-size: 9pt;
+}
+
+.powered_by {
+	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
+	font-size: 7pt;
+	letter-spacing: 1pt;
+}
+
 body {
-  background-image:
-		url("/image&name=background");
-  background: white;
-  color: black
+  background-image: url("/image&name=background");
+  background: #FFFFFF;
+  color: #000000;
 }
 
 h1 {
@@ -85,20 +154,6 @@ dt a {
   margin-top: .8em
 }
 
-a:link {
-  color: #00f;
-  background: none;
-}
-
-a:visited {
-  color: #800080;
-  background: none;
-}
-
-a:active {
-  color: green;
-  background: #FFD700
-}
 
 .html {
   color: #000080;
@@ -140,7 +195,7 @@ var sub { font-style: normal }
 }
 
 .author {
-  font-style: italic
+ font-style: italic;
 }
 
 .copyright {
@@ -212,6 +267,7 @@ td li.transitional, .elements li.transitional {
   color: #696969;
   background: none
 }
+
 td li.frameset, .elements li.frameset {
   font-weight: lighter;
   color: #808080;

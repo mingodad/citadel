@@ -57,10 +57,10 @@ void output_date(void) {
 void section_title(char *title) {
 
 	wprintf("<TABLE width=100%% border=0 cellpadding=5 cellspacing=0>"
-		"<TR><TD BGCOLOR=444455>"
-		"<FONT COLOR=FFFFEE>");
+		"<TR><TD BGCOLOR=#444455>"
+		"<SPAN CLASS=\"titlebar\">");
 	escputs(title);
-	wprintf("</FONT></TD></TR></TABLE>\n");
+	wprintf("</SPAN></TD></TR></TABLE>\n");
 }
 
 
@@ -209,15 +209,15 @@ void server_info_section(void) {
 void summary(void) {
 	output_headers(7);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>"
-		"<FONT SIZE=+1 COLOR=\"FFFFFF\">"
-		"<B>Summary page for ");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=#007700><TR><TD>"
+		"<SPAN CLASS=\"titlebar\">"
+		"Summary page for ");
 	escputs(WC->wc_username);
-	wprintf("</B><FONT></TD><TD>\n");
+	wprintf("</SPAN></TD><TD>\n");
 	offer_start_page();
-	wprintf("</TD><TD ALIGN=RIGHT><FONT COLOR=\"FFFFFF\">");
+	wprintf("</TD><TD ALIGN=RIGHT><SPAN CLASS=\"titlebar\">");
 	output_date();
-	wprintf("</FONT></TD></TR></TABLE>\n");
+	wprintf("</SPAN></TD></TR></TABLE>\n");
 
 	/*
 	 * Now let's do three columns of crap.  All portals and all groupware
