@@ -1913,7 +1913,10 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 		else {
 			wprintf("<i>");
 		}
-		if (fold[i].hasnewmsgs) {
+		if (levels == 1) {
+			wprintf("<SPAN CLASS=\"roomlist_floor\">");
+		}
+		else if (fold[i].hasnewmsgs) {
 			wprintf("<SPAN CLASS=\"roomlist_new\">");
 		}
 		else {

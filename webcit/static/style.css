@@ -132,6 +132,13 @@ a:active {
 	letter-spacing: 1pt;
 }
 
+.roomlist_floor {
+	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
+	font-size: 12pt;
+	font-weight: bold;
+	color: #000000;
+}
+
 .roomlist_new {
 	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
 	font-size: 10pt;
