@@ -1,4 +1,8 @@
 $Log$
+Revision 1.330  1999/07/24 22:50:38  ajc
+Continued replacing references to [get|put]_msglist() with better code.
+For some reason, cmd_msgs() still doesn't always work right.
+
 Revision 1.329  1999/07/24 22:16:41  ajc
 Experimenting with automatic updating of ChangeLog by CVS.  Simply twiddle
 ChangeLog a bit (i.e. by adding or removing a newline from the end of the
@@ -1107,4 +1111,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import
-
