@@ -17,7 +17,7 @@
 void display_siteconfig(void)
 {
 	char buf[256];
-	int i = 0;
+	int i;
 
 	serv_printf("CONF get");
 	serv_gets(buf);
@@ -35,9 +35,9 @@ void display_siteconfig(void)
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/siteconfig\">\n");
 	wprintf("<TABLE border=0>\n");
 
+	i = 0;
 	while (serv_gets(buf), strcmp(buf, "000")) {
-		++i;
-		switch (i) {
+		switch (i++) {
 		case 1:
 			wprintf("<TR><TD>Node name</TD><TD>");
 			wprintf("<INPUT TYPE=\"text\" NAME=\"c_nodename\" MAXLENGTH=\"15\" VALUE=\"%s\">", buf);
