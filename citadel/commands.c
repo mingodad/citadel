@@ -50,6 +50,7 @@ struct citcmd {
 int rc_exp_beep;
 char rc_exp_cmd[256];
 int rc_allow_attachments;
+int rc_display_message_numbers;
 
 char *gl_string;
 
@@ -299,6 +300,7 @@ void load_command_set(void) {
 	rc_exp_beep = 1;
 	rc_allow_attachments = 0;
 	strcpy(rc_exp_cmd, "");
+	rc_display_message_numbers = 0;
 
 	/* now try to open the citadel.rc file */
 
@@ -347,6 +349,10 @@ void load_command_set(void) {
 
 	    if (!struncmp(buf,"allow_attachments=", 18)) {
 		rc_allow_attachments = atoi(&buf[18]);
+		}
+
+	    if (!struncmp(buf,"display_message_numbers=", 24)) {
+		rc_display_message_numbers = atoi(&buf[24]);
 		}
 
 	    if (!struncmp(buf,"username=",9))

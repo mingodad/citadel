@@ -67,6 +67,7 @@ extern char sigcaught;
 extern char editor_path[];
 extern char printcmd[];
 extern int rc_allow_attachments;
+extern int rc_display_message_numbers;
 
 extern int editor_pid;
 
@@ -382,6 +383,9 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 		if (nhdr==1) buf[0]='_';
 		if (!struncmp(buf,"type=",5))
 			format_type=atoi(&buf[5]);
+		if ((!struncmp(buf,"msgn=",5))&&(rc_display_message_numbers)) {
+			printf("[#%s] ",&buf[5]);
+			}
 		if (!struncmp(buf,"from=",5)) {
 			printf("from %s ",&buf[5]);
 			}
