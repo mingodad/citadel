@@ -1,0 +1,67 @@
+Shaggy: java-powered citadel/ux client
+by Will Schenk (chilly@alumni.psu.edu, chilly @ uncnsrd)
+
+Last mod: 27 Jul 1999
+
+This is the java client.  I would like this to be both an application and
+an applet.  Mostly this should be straight forward, but with an applet
+you're stuck in the "sandbox" so connecting to a different bbs won't work
+(unless you set up some sort of ugly proxy) and I'm not sure how downloading
+files will work -- there may be an ugly way using Applet.showUrl()
+to make it possible.
+
+At the moment, my aim is just use this client to connect, so basically 
+that means that I should get the client to do all the stuff that I use 
+the bbs for.  'm sure that there are many features that I don't use, and 
+so that'll give you an idea of where I'll need input: things like aide 
+commands and editing configuration and other stuff I don't use.  :)
+
+I've also run into some issues with non-obvious resolutions in how to
+layout the gui and it's behavior.  Ideas are welcome.
+
+I'll try and keep the STATUS file up-to-date with the current niftyness
+of the features and lack thereof.
+
+I'm developing with sun's jdk 1.1.7 (linuxppc) but trying to stay with
+the 1.0.2 api.  This is for two reasons: 1) I know the 1.0 api well
+enough so I don't have to go messing around with the docs to figure out
+the calls and 2) if we do want to use this as an applet it will allow
+the largest availability of compatable browsers.  (netscape implemented
+1.1 in 4.0, but not the new awt event model (I think it wasn't until 4.05).
+IE did something similarily goofy.)  Ergo, there will be many complaints
+about using a deprecated api when compiling.
+
+- BUILDING
+I've including a copy of my "java make script", a perl script called "jmake".
+Assuming javac is in your path and nothing funky is going on with your
+$CLASSPATH, typing 
+
+./jmake
+
+should compile any java source files that are
+newer than the corrosponding class files.  The "main" java file is
+"citadel.java", so if you are concerned about anything being out of
+whack,
+
+javac -depend citadel.java
+
+will build the main class, and recursively work down all the classes that
+it references, so everything needed will be rebuilt.  (Contrast with jmake:
+it builds all java classes in the directory, even those just hanging out
+there having nothing to do with the citadel client.)
+
+- RUNNING
+At the moment there is no applet class, so it only works as an application.
+The easiest way to run the client is:
+
+java citadel [host]
+
+where [host] is the optional network address of the server.  host defaults
+to 127.0.0.1.  You'll have to change the code in net.java if you want it
+to use a different port.
+
+ideally, when it's distributed there should be either a zip or jar file
+(both are actually zip files, only difference is the letters) with all the
+classes.  This makes the applet load faster, and it's cleaner.
+
+-- will 
