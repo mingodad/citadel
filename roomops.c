@@ -663,13 +663,15 @@ void display_editroom(void)
 	output_headers(1);
 
 	/* print the tabbed dialog */
-	wprintf("<TABLE border=0 width=100%%><TR BGCOLOR=FFFFFF><TD> </TD>");
+	wprintf("<TABLE border=0 cellspacing=0 cellpadding=0 width=100%%>"
+		"<TR ALIGN=CENTER BGCOLOR=FFFFFF>"
+		"<TD>&nbsp;</TD>\n");
 
 	if (!strcmp(tab, "admin")) {
 		wprintf("<TD BGCOLOR=000077><FONT SIZE=+1 COLOR=\"FFFFFF\"><B>");
 	}
 	else {
-		wprintf("<TD><A HREF=\"/display_editroom&tab=admin\">");
+		wprintf("<TD BGCOLOR=AAAAAA><A HREF=\"/display_editroom&tab=admin\">");
 	}
 	wprintf("Room administration");
 	if (!strcmp(tab, "admin")) {
@@ -679,13 +681,13 @@ void display_editroom(void)
 		wprintf("</A></TD>\n");
 	}
 
-	wprintf("<TD> </TD>\n");
+	wprintf("<TD>&nbsp;</TD>\n");
 
 	if (!strcmp(tab, "config")) {
 		wprintf("<TD BGCOLOR=000077><FONT SIZE=+1 COLOR=\"FFFFFF\"><B>");
 	}
 	else {
-		wprintf("<TD><A HREF=\"/display_editroom&tab=config\">");
+		wprintf("<TD BGCOLOR=AAAAAA><A HREF=\"/display_editroom&tab=config\">");
 	}
 	wprintf("Room configuration");
 	if (!strcmp(tab, "config")) {
@@ -695,13 +697,13 @@ void display_editroom(void)
 		wprintf("</A></TD>\n");
 	}
 
-	wprintf("<TD> </TD>\n");
+	wprintf("<TD>&nbsp;</TD>\n");
 
 	if (!strcmp(tab, "sharing")) {
 		wprintf("<TD BGCOLOR=000077><FONT SIZE=+1 COLOR=\"FFFFFF\"><B>");
 	}
 	else {
-		wprintf("<TD><A HREF=\"/display_editroom&tab=sharing\">");
+		wprintf("<TD BGCOLOR=AAAAAA><A HREF=\"/display_editroom&tab=sharing\">");
 	}
 	wprintf("Sharing");
 	if (!strcmp(tab, "sharing")) {
@@ -711,13 +713,13 @@ void display_editroom(void)
 		wprintf("</A></TD>\n");
 	}
 
-	wprintf("<TD> </TD>\n");
+	wprintf("<TD>&nbsp;</TD>\n");
 
 	if (!strcmp(tab, "listserv")) {
 		wprintf("<TD BGCOLOR=000077><FONT SIZE=+1 COLOR=\"FFFFFF\"><B>");
 	}
 	else {
-		wprintf("<TD><A HREF=\"/display_editroom&tab=listserv\">");
+		wprintf("<TD BGCOLOR=AAAAAA><A HREF=\"/display_editroom&tab=listserv\">");
 	}
 	wprintf("Mailing list service");
 	if (!strcmp(tab, "listserv")) {
@@ -727,7 +729,9 @@ void display_editroom(void)
 		wprintf("</A></TD>\n");
 	}
 
-	wprintf("<TD> </TD></TR></TABLE>\n");
+	wprintf("<TD>&nbsp;</TD></TR>"
+		"<TR><TD BGCOLOR=000077 COLSPAN=9 HEIGHT=5> </TD></TR>"
+		"</TABLE>\n");
 
 	/* end tabbed dialog */	
 
@@ -946,7 +950,8 @@ void display_editroom(void)
 			}
 		}
 
-		wprintf("</TD></TR></TABLE><BR>\n"
+		wprintf("</TD></TR>"
+			"</TABLE><BR>\n"
 			"<I><B>Reminder:</B> When sharing a room, "
 			"it must be shared from both ends.  Adding a node to "
 			"the 'shared' list sends messages out, but in order to"
