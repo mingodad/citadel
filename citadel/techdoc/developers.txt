@@ -6,14 +6,17 @@ Developer codes (and where known, client codes)
 	Brian Costello
 	Nick Grossman
 
-	0 = Citadel/UX text based client
-	2 = WinCit	(MS Visual Basic client.  This project reached version
-			1.0 and was then abandoned.)
-	4 = WebCit	(In production.  Version 2.0 to be released soon.)
-	5 = "Shaggy"	(unfinished Java client - postponed indefinitely)
-	6 = "Daphne"	(wx multiplatform client currently in development)
-
-
+	Client	Name		Status		Description
+	0	Citadel		in production	Citadel/UX text based client
+	1	lcit		dead		Curses-based text client
+	2	WinCit		Deprecated	MS Visual Basic vlient.
+						Version 1.0 is stable but there
+						will be no further development.
+	4	WebCit		in production	Web-based access to Citadel
+	5	Shaggy		dead		Java-powered client
+	6	Daphne		development	wx multiplatform "fat" client
+ 
+ 
  1	Brian Ledbetter <brian@amaranth.com>
 
  2	Matthew Scott <gldnspud@telcomplus.com>
