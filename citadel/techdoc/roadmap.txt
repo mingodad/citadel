@@ -14,11 +14,13 @@ Goals for 6.00
 * Multiple recipients allowed in Citadel protocol.  Rework the code to feed
   all deliveries through the same set of functions, regardless of whether a
   message is submitted through Citadel protocol, SMTP, or from the networker.
-  (Done.)
+  (Completed in 5.91)
 
-* Get the Global Address Book working (Done, just need some polish)
+* Get the Global Address Book working
+  (Completed in 5.91, needs more polish on the UI side, though)
  
-* Delegations (access controls are done, but needs more intuitive presentation)
+* Delegations
+  (Access controls complete in 5.91.  Need better presentation before 6.00)
 
 * Optimize the IMAP server and add the search command.
   Netscape makes this query:

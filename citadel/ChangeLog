@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.168  2002/04/01 05:12:57  ajc
+ * Prep for 5.91 release
+
  Revision 590.167  2002/03/29 04:43:15  ajc
  * Removed the BMBX command.  Mailbox security update now runs automatically when the
    server starts and it sees data files version <5.91.
@@ -3566,3 +3569,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
