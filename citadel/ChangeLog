@@ -1,4 +1,9 @@
 $Log$
+Revision 1.401  1999/10/28 19:50:55  ajc
+* Fixed a problem where the client protocol would spit out two responses
+  and therefore get out of sync if ASUP command set the access level to
+  0 and therefore deleted the user (thanks to Eric McDonald)
+
 Revision 1.400  1999/10/28 05:08:49  ajc
 * Removed all of the thread cancellation cruft that is no longer necessary
 * Moved the now non-system-dependent RemoveContext() out of sysdep.c (now
@@ -1380,4 +1385,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

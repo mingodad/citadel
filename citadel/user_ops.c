@@ -1144,6 +1144,7 @@ void cmd_asup(char *cmdbuf) {
 	char requested_user[256];
 	int np;
 	int newax;
+	int deleted = 0;
 	
 	if ( (CC->internal_pgm==0)
 	   && ( (CC->logged_in == 0) || (is_aide()==0) ) ) {
@@ -1179,10 +1180,12 @@ void cmd_asup(char *cmdbuf) {
 	lputuser(&usbuf);
 	if (usbuf.axlevel == 0) {
 		if (purge_user(requested_user)==0) {
-			cprintf("%d %s deleted.\n", OK, requested_user);
+			deleted = 1;
 			}
 		}
-	cprintf("%d Ok\n", OK);
+	cprintf("%d Ok", OK);
+	if (deleted) cprintf(" (%s deleted)", requested_user);
+	cprintf("\n");
 	}
 
 
