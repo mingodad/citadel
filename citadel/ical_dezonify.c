@@ -29,10 +29,14 @@
 /*
  * Back end function for ical_dezonify()
  *
- * We supply this with the master component and the property (which will
- * be a DTSTART or DTEND) which we want to convert to UTC.
+ * We supply this with the master component, the relevant component,
+ * and the property (which will be a DTSTART of DTEND)
+ * which we want to convert to UTC.
  */
-void ical_dezonify_backend(icalcomponent *cal, icalproperty *prop) {
+void ical_dezonify_backend(icalcomponent *cal,
+			icalcomponent *rcal,
+			icalproperty *prop) {
+
 	icaltimezone *t;
 	icalparameter *param;
 	const char *tzid;
@@ -61,22 +65,28 @@ void ical_dezonify_backend(icalcomponent *cal, icalproperty *prop) {
 	else if (icalproperty_isa(prop) == ICAL_DTEND_PROPERTY) {
 		TheTime = icalproperty_get_dtend(prop);
 	}
+	else {
+		return;
+	}
 
-	/* Do the conversion.
-	 */
+	/* Remove the property from the component. */
+	icalcomponent_remove_property(rcal, prop);
+	icalproperty_free(prop);
+
+	/* Do the conversion. */
 	icaltimezone_convert_time(&TheTime,
 				t,
 				icaltimezone_get_utc_timezone()
 	);
 
-	/* Now strip the TZID parameter, because it's incorrect now. */
-	icalproperty_remove_parameter(prop, ICAL_TZID_PARAMETER);
-
+	/* Now add the converted property back in. */
 	if (icalproperty_isa(prop) == ICAL_DTSTART_PROPERTY) {
-		icalproperty_set_dtstart(prop, TheTime);
+		prop = icalproperty_new_dtstart(TheTime);
+		icalcomponent_add_property(rcal, prop);
 	}
 	else if (icalproperty_isa(prop) == ICAL_DTEND_PROPERTY) {
-		icalproperty_set_dtend(prop, TheTime);
+		prop = icalproperty_new_dtend(TheTime);
+		icalcomponent_add_property(rcal, prop);
 	}
 
 }
@@ -116,7 +126,7 @@ void ical_dezonify_recur(icalcomponent *cal, icalcomponent *rcal) {
 			(icalproperty_isa(p) == ICAL_DTSTART_PROPERTY)
 			|| (icalproperty_isa(p) == ICAL_DTEND_PROPERTY)
 		   ) {
-			ical_dezonify_backend(cal, p);
+			ical_dezonify_backend(cal, rcal, p);
 		}
 	}
 }
@@ -139,6 +149,8 @@ void ical_dezonify(icalcomponent *cal) {
 		icalcomponent_remove_component(cal, vt);
 		icalcomponent_free(vt);
 	}
+
+	lprintf(9, "dezonify:\n%s\n", icalcomponent_as_ical_string(cal));
 }
 
 #endif /* HAVE_ICAL_H */
