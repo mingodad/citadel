@@ -122,14 +122,18 @@ AC_PROG_CC
 
 dnl Set up system-dependent compiler flags.
 if test "$GCC" = yes; then
-	case "$host" in
-		*-*-solaris*|alpha*-dec-osf*)
-			CFLAGS="$CFLAGS -Wall -Wcast-qual -Wcast-align -Wno-char-subscripts $PTHREAD_DEFS"
-		;;
-		*)
+	if test "$CC" = icc; then
+		CFLAGS="$CFLAGS -w1"
+	else
+		case "$host" in
+			*-*-solaris*|alpha*-dec-osf*)
+				CFLAGS="$CFLAGS -Wall -Wcast-qual -Wcast-align -Wno-char-subscripts $PTHREAD_DEFS"
+			;;
+			*)
 			CFLAGS="$CFLAGS -Wall -Wcast-qual -Wcast-align -Wstrict-prototypes $PTHREAD_DEFS"
-		;;
-	esac
+			;;
+		esac
+	fi
 fi
 
 if test "x$enable_pie" = xyes; then

@@ -1,4 +1,7 @@
  $Log$
+ Revision 626.6  2004/10/04 21:40:29  error
+ * configure.ac: Add CFLAGS for icc Intel Compiler
+
  Revision 626.5  2004/10/04 21:39:35  error
  * Fix a couple of minor compiler warnings
 
@@ -6138,3 +6141,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
