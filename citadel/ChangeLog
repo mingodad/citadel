@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.67  2002/07/18 21:29:37  nbryant
+ added a note about GNU make to the configure script output
+
  Revision 591.66  2002/07/18 20:21:18  ajc
  * Eliminated the 512-message limit in the client for reading messages.
 
@@ -3811,3 +3814,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
