@@ -615,7 +615,7 @@ void network_spoolout_room(char *room_to_spool) {
 
 
 	/* Do something useful */
-	CtdlForEachMessage(MSGS_GT, sc.lastsent, (-63), NULL, NULL,
+	CtdlForEachMessage(MSGS_GT, sc.lastsent, NULL, NULL,
 		network_spool_msg, &sc);
 
 

@@ -185,7 +185,7 @@ void cmd_igab(char *argbuf) {
 	CtdlDirectoryInit();
 
         /* We want the last (and probably only) vcard in this room */
-        CtdlForEachMessage(MSGS_ALL, 0, (-127), "text/x-vcard",
+        CtdlForEachMessage(MSGS_ALL, 0, "text/x-vcard",
 		NULL, vcard_add_to_directory, NULL);
 
         getroom(&CC->quickroom, hold_rm);	/* return to saved room */
@@ -419,7 +419,7 @@ struct vCard *vcard_get_user(struct usersupp *u) {
 
         /* We want the last (and probably only) vcard in this room */
 	VC->msgnum = (-1);
-        CtdlForEachMessage(MSGS_LAST, 1, (-127), "text/x-vcard",
+        CtdlForEachMessage(MSGS_LAST, 1, "text/x-vcard",
 		NULL, vcard_gu_backend, NULL);
         getroom(&CC->quickroom, hold_rm);	/* return to saved room */
 

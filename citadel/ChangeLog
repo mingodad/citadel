@@ -1,4 +1,9 @@
  $Log$
+ Revision 591.19  2002/05/12 22:57:04  ajc
+ * Removed the unfinished moderation system.
+ * CtdlForEachMessage() - only fetch metadata when hunting for messages with
+   a specified Content-type.  Serious performance boost.
+
  Revision 591.18  2002/05/05 17:33:09  error
  * screen.c: fix lack of beeps in curses mode
 
@@ -3634,4 +3639,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

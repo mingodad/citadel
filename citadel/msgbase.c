@@ -373,7 +373,6 @@ void CtdlSetSeen(long target_msgnum, int target_setting) {
  * current room.  (Returns the number of messages processed.)
  */
 int CtdlForEachMessage(int mode, long ref,
-			int moderation_level,
 			char *content_type,
 			struct CtdlMessage *compare,
 			void (*CallBack) (long, void *),
@@ -414,19 +413,23 @@ int CtdlForEachMessage(int mode, long ref,
 	 * Now begin the traversal.
 	 */
 	if (num_msgs > 0) for (a = 0; a < num_msgs; ++a) {
-		GetMetaData(&smi, msglist[a]);
-
-		/* Filter out messages that are moderated below the level
-		 * currently being viewed at.
-		 */
-		if (smi.meta_mod < moderation_level) {
-			msglist[a] = 0L;
-		}
 
 		/* If the caller is looking for a specific MIME type, filter
 		 * out all messages which are not of the type requested.
 	 	 */
 		if (content_type != NULL) if (strlen(content_type) > 0) {
+
+			/* This call to GetMetaData() sits inside this loop
+			 * so that we only do the extra database read per msg
+			 * if we need to.  Doing the extra read all the time
+			 * really kills the server.  If we ever need to use
+			 * metadata for another search criterion, we need to
+			 * move the read somewhere else -- but still be smart
+			 * enough to only do the read if the caller has
+			 * specified something that will need it.
+			 */
+			GetMetaData(&smi, msglist[a]);
+
 			if (strcasecmp(smi.meta_content_type, content_type)) {
 				msglist[a] = 0L;
 			}
@@ -550,7 +553,6 @@ void cmd_msgs(char *cmdbuf)
 	}
 
 	CtdlForEachMessage(mode, cm_ref,
-		CC->usersupp.moderation_filter,
 		NULL, template, simple_listing, NULL);
 	if (template != NULL) CtdlFreeMessage(template);
 	cprintf("000\n");
@@ -1691,8 +1693,7 @@ int ReplicationChecks(struct CtdlMessage *msg) {
 	memset(template, 0, sizeof(struct CtdlMessage));
 	template->cm_fields['E'] = strdoop(msg->cm_fields['E']);
 
-	CtdlForEachMessage(MSGS_ALL, 0L, (-127), NULL, template,
-		check_repl, NULL);
+	CtdlForEachMessage(MSGS_ALL, 0L, NULL, template, check_repl, NULL);
 
 	/* If a newer message exists with the same Extended ID, abort
 	 * this save.
@@ -2946,7 +2947,7 @@ char *CtdlGetSysConfig(char *sysconfname) {
 	/* We want the last (and probably only) config in this room */
 	begin_critical_section(S_CONFIG);
 	config_msgnum = (-1L);
-	CtdlForEachMessage(MSGS_LAST, 1, (-127), sysconfname, NULL,
+	CtdlForEachMessage(MSGS_LAST, 1, sysconfname, NULL,
 		CtdlGetSysConfigBackend, NULL);
 	msgnum = config_msgnum;
 	end_critical_section(S_CONFIG);

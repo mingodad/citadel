@@ -56,7 +56,8 @@ FILE *control_fp = NULL;
 /*
  * get_control  -  read the control record into memory.
  */
-void get_control(void) {
+void get_control(void)
+{
 
 	/* Zero it out.  If the control record on disk is missing or short,
 	 * the system functions with all control record fields initialized
@@ -75,7 +76,7 @@ void get_control(void) {
 			fchown(fileno(control_fp), config.c_bbsuid, -1);
 			memset(&CitControl, 0, sizeof(struct CitControl));
 			fwrite(&CitControl, sizeof(struct CitControl),
-				1, control_fp);
+			       1, control_fp);
 			rewind(control_fp);
 		}
 	}
@@ -87,66 +88,72 @@ void get_control(void) {
 
 	rewind(control_fp);
 	fread(&CitControl, sizeof(struct CitControl), 1, control_fp);
-	}
+}
 
 /*
  * put_control  -  write the control record to disk.
  */
-void put_control(void) {
+void put_control(void)
+{
 
 	if (control_fp != NULL) {
 		rewind(control_fp);
-		fwrite(&CitControl, sizeof(struct CitControl), 1, control_fp);
+		fwrite(&CitControl, sizeof(struct CitControl), 1,
+		       control_fp);
 		fflush(control_fp);
-		}
 	}
+}
 
 
 /*
  * get_new_message_number()  -  Obtain a new, unique ID to be used for a message.
  */
-long get_new_message_number(void) {
+long get_new_message_number(void)
+{
 	begin_critical_section(S_CONTROL);
 	get_control();
 	++CitControl.MMhighest;
 	put_control();
 	end_critical_section(S_CONTROL);
-	return(CitControl.MMhighest);
-	}
+	return (CitControl.MMhighest);
+}
 
 
 /*
  * get_new_user_number()  -  Obtain a new, unique ID to be used for a user.
  */
-long get_new_user_number(void) {
+long get_new_user_number(void)
+{
 	begin_critical_section(S_CONTROL);
 	get_control();
 	++CitControl.MMnextuser;
 	put_control();
 	end_critical_section(S_CONTROL);
-	return(CitControl.MMnextuser);
-	}
+	return (CitControl.MMnextuser);
+}
 
 
 
 /*
  * get_new_room_number()  -  Obtain a new, unique ID to be used for a room.
  */
-long get_new_room_number(void) {
+long get_new_room_number(void)
+{
 	begin_critical_section(S_CONTROL);
 	get_control();
 	++CitControl.MMnextroom;
 	put_control();
 	end_critical_section(S_CONTROL);
-	return(CitControl.MMnextroom);
-	}
+	return (CitControl.MMnextroom);
+}
 
 
 
 /* 
  * Get or set global configuration options
  */
-void cmd_conf(char *argbuf) {
+void cmd_conf(char *argbuf)
+{
 	char cmd[SIZ];
 	char buf[SIZ];
 	int a;
@@ -183,125 +190,156 @@ void cmd_conf(char *argbuf) {
 		cprintf("%d\n", config.c_max_workers);
 		cprintf("%d\n", config.c_pop3_port);
 		cprintf("%d\n", config.c_smtp_port);
-		cprintf("%d\n", config.c_default_filter);
+		cprintf("0\n");	/* position 25 no longer exists */
 		cprintf("%d\n", config.c_aide_zap);
 		cprintf("%d\n", config.c_imap_port);
 		cprintf("%ld\n", config.c_net_freq);
 		cprintf("%d\n", config.c_disable_newu);
 		cprintf("%d\n", config.c_aide_mailboxes);
 		cprintf("000\n");
-		}
+	}
 
 	else if (!strcasecmp(cmd, "SET")) {
 		cprintf("%d Send configuration...\n", SEND_LISTING);
 		a = 0;
 		while (client_gets(buf), strcmp(buf, "000")) {
-		    switch(a) {
-			case 0:	safestrncpy(config.c_nodename, buf,
-					sizeof config.c_nodename);
+			switch (a) {
+			case 0:
+				safestrncpy(config.c_nodename, buf,
+					    sizeof config.c_nodename);
 				break;
-			case 1:	safestrncpy(config.c_fqdn, buf,
-					sizeof config.c_fqdn);
+			case 1:
+				safestrncpy(config.c_fqdn, buf,
+					    sizeof config.c_fqdn);
 				break;
-			case 2:	safestrncpy(config.c_humannode, buf,
-					sizeof config.c_humannode);
+			case 2:
+				safestrncpy(config.c_humannode, buf,
+					    sizeof config.c_humannode);
 				break;
-			case 3:	safestrncpy(config.c_phonenum, buf,
-					sizeof config.c_phonenum);
+			case 3:
+				safestrncpy(config.c_phonenum, buf,
+					    sizeof config.c_phonenum);
 				break;
-			case 4:	config.c_creataide = atoi(buf);
+			case 4:
+				config.c_creataide = atoi(buf);
 				break;
-			case 5:	config.c_sleeping = atoi(buf);
+			case 5:
+				config.c_sleeping = atoi(buf);
 				break;
-			case 6:	config.c_initax = atoi(buf);
-				if (config.c_initax < 1) config.c_initax = 1;
-				if (config.c_initax > 6) config.c_initax = 6;
+			case 6:
+				config.c_initax = atoi(buf);
+				if (config.c_initax < 1)
+					config.c_initax = 1;
+				if (config.c_initax > 6)
+					config.c_initax = 6;
 				break;
-			case 7:	config.c_regiscall = atoi(buf);
+			case 7:
+				config.c_regiscall = atoi(buf);
 				if (config.c_regiscall != 0)
 					config.c_regiscall = 1;
 				break;
-			case 8:	config.c_twitdetect = atoi(buf);
+			case 8:
+				config.c_twitdetect = atoi(buf);
 				if (config.c_twitdetect != 0)
 					config.c_twitdetect = 1;
 				break;
-			case 9:	safestrncpy(config.c_twitroom, buf,
-					sizeof config.c_twitroom);
+			case 9:
+				safestrncpy(config.c_twitroom, buf,
+					    sizeof config.c_twitroom);
 				break;
-			case 10: safestrncpy(config.c_moreprompt, buf,
-					sizeof config.c_moreprompt);
+			case 10:
+				safestrncpy(config.c_moreprompt, buf,
+					    sizeof config.c_moreprompt);
 				break;
-			case 11: config.c_restrict = atoi(buf);
+			case 11:
+				config.c_restrict = atoi(buf);
 				if (config.c_restrict != 0)
 					config.c_restrict = 1;
 				break;
-			case 12: safestrncpy(config.c_bbs_city, buf,
-					sizeof config.c_bbs_city);
+			case 12:
+				safestrncpy(config.c_bbs_city, buf,
+					    sizeof config.c_bbs_city);
 				break;
-			case 13: safestrncpy(config.c_sysadm, buf,
-					sizeof config.c_sysadm);
+			case 13:
+				safestrncpy(config.c_sysadm, buf,
+					    sizeof config.c_sysadm);
 				break;
-			case 14: config.c_maxsessions = atoi(buf);
+			case 14:
+				config.c_maxsessions = atoi(buf);
 				if (config.c_maxsessions < 1)
 					config.c_maxsessions = 1;
 				break;
-			case 15: safestrncpy(config.c_net_password, buf,
-					sizeof config.c_net_password);
+			case 15:
+				safestrncpy(config.c_net_password, buf,
+					    sizeof config.c_net_password);
 				break;
-			case 16: config.c_userpurge = atoi(buf);
+			case 16:
+				config.c_userpurge = atoi(buf);
 				break;
-			case 17: config.c_roompurge = atoi(buf);
+			case 17:
+				config.c_roompurge = atoi(buf);
 				break;
-			case 18: safestrncpy(config.c_logpages, buf,
-					sizeof config.c_logpages);
+			case 18:
+				safestrncpy(config.c_logpages, buf,
+					    sizeof config.c_logpages);
 				break;
-			case 19: config.c_createax = atoi(buf);
+			case 19:
+				config.c_createax = atoi(buf);
 				if (config.c_createax < 1)
 					config.c_createax = 1;
 				if (config.c_createax > 6)
 					config.c_createax = 6;
 				break;
-			case 20: if (atoi(buf) >= 8192)
+			case 20:
+				if (atoi(buf) >= 8192)
 					config.c_maxmsglen = atoi(buf);
 				break;
-			case 21: if (atoi(buf) >= 2)
+			case 21:
+				if (atoi(buf) >= 2)
 					config.c_min_workers = atoi(buf);
-			case 22: if (atoi(buf) >= config.c_min_workers)
+			case 22:
+				if (atoi(buf) >= config.c_min_workers)
 					config.c_max_workers = atoi(buf);
-			case 23: config.c_pop3_port = atoi(buf);
+			case 23:
+				config.c_pop3_port = atoi(buf);
 				break;
-			case 24: config.c_smtp_port = atoi(buf);
+			case 24:
+				config.c_smtp_port = atoi(buf);
 				break;
-			case 25: config.c_default_filter = atoi(buf);
-				break;
-			case 26: config.c_aide_zap = atoi(buf);
+				/* case 25 no longer exists */
+			case 26:
+				config.c_aide_zap = atoi(buf);
 				if (config.c_aide_zap != 0)
 					config.c_aide_zap = 1;
 				break;
-			case 27: config.c_imap_port = atoi(buf);
+			case 27:
+				config.c_imap_port = atoi(buf);
 				break;
-			case 28: config.c_net_freq = atol(buf);
+			case 28:
+				config.c_net_freq = atol(buf);
 				break;
-			case 29: config.c_disable_newu = atoi(buf);
+			case 29:
+				config.c_disable_newu = atoi(buf);
 				if (config.c_disable_newu != 0)
 					config.c_disable_newu = 1;
 				break;
-			case 30: config.c_aide_mailboxes = atoi(buf);
+			case 30:
+				config.c_aide_mailboxes = atoi(buf);
 				if (config.c_aide_mailboxes != 0)
 					config.c_aide_mailboxes = 1;
 				break;
 			}
-		    ++a;
-		    }
+			++a;
+		}
 		put_config();
-		snprintf(buf,sizeof buf,
+		snprintf(buf, sizeof buf,
 			 "Global system configuration edited by %s\n",
 			 CC->curr_user);
 		aide_message(buf);
 
 		if (strlen(config.c_logpages) > 0)
 			create_room(config.c_logpages, 3, "", 0, 1, 1);
-		}
+	}
 
 	else if (!strcasecmp(cmd, "GETSYS")) {
 		extract(confname, argbuf, 1);
@@ -309,27 +347,27 @@ void cmd_conf(char *argbuf) {
 		if (confptr != NULL) {
 			cprintf("%d %s\n", LISTING_FOLLOWS, confname);
 			client_write(confptr, strlen(confptr));
-			if (confptr[strlen(confptr)-1] != 10)
+			if (confptr[strlen(confptr) - 1] != 10)
 				client_write("\n", 1);
 			cprintf("000\n");
 			phree(confptr);
-		}
-		else {
+		} else {
 			cprintf("%d No such configuration.\n",
-				ERROR+ILLEGAL_VALUE);
+				ERROR + ILLEGAL_VALUE);
 		}
 	}
 
 	else if (!strcasecmp(cmd, "PUTSYS")) {
 		extract(confname, argbuf, 1);
 		cprintf("%d %s\n", SEND_LISTING, confname);
-		confptr = CtdlReadMessageBody("000", config.c_maxmsglen, NULL);
+		confptr =
+		    CtdlReadMessageBody("000", config.c_maxmsglen, NULL);
 		CtdlPutSysConfig(confname, confptr);
 		phree(confptr);
 	}
 
 	else {
 		cprintf("%d Illegal option(s) specified.\n",
-			ERROR+ILLEGAL_VALUE);
-		}
+			ERROR + ILLEGAL_VALUE);
 	}
+}

@@ -35,7 +35,6 @@ SERV_MODULES=modules/libchat.la modules/libvcard.la \
 	modules/libpas2.la \
 	modules/libinetcfg.la \
 	modules/librwho.la \
-	modules/libmoderate.la \
 	modules/libbio.la \
 	modules/libexpire.la \
 	modules/libvandelay.la \
@@ -86,7 +85,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c \
 	auth.c chkpwd.c html.c vcard.c serv_upgrade.c serv_vandelay.c \
 	serv_smtp.c serv_pop3.c internet_addressing.c parsedate.c genstamp.c \
 	$(DOMAIN) clientsocket.c serv_inetcfg.c serv_rwho.c serv_bio.c \
-	serv_moderate.c client_passwords.c imap_misc.c serv_netfilter.c \
+	client_passwords.c imap_misc.c serv_netfilter.c \
 	serv_imap.c imap_tools.c imap_fetch.c imap_search.c imap_store.c \
 	serv_network.c serv_pas2.c serv_ical.c md5.c server_main.c
 
@@ -160,9 +159,6 @@ modules/libinetcfg.la: serv_inetcfg.lo $(LIBTOOL) libcitserver.la
 
 modules/librwho.la: serv_rwho.lo $(LIBTOOL) libcitserver.la
 	$(LTSHARE) -o librwho.la ../serv_rwho.lo ../libcitserver.la
-
-modules/libmoderate.la: serv_moderate.lo $(LIBTOOL) libcitserver.la
-	$(LTSHARE) -o libmoderate.la ../serv_moderate.lo ../libcitserver.la
 
 modules/libbio.la: serv_bio.lo $(LIBTOOL) libcitserver.la
 	$(LTSHARE) -o libbio.la ../serv_bio.lo ../libcitserver.la

@@ -65,7 +65,6 @@ void artv_export_users_backend(struct usersupp *usbuf, void *data) {
 	cprintf("%s\n", usbuf->fullname);
 	cprintf("%d\n", usbuf->USscreenwidth);
 	cprintf("%d\n", usbuf->USscreenheight);
-	cprintf("%d\n", usbuf->moderation_filter);
 }
 
 
@@ -103,7 +102,7 @@ void artv_export_rooms_backend(struct quickroom *qrbuf, void *data) {
 	/* format of message list export is all message numbers output
 	 * one per line terminated by a 0.
 	 */
-	CtdlForEachMessage(MSGS_ALL, 0L, (-127), NULL, NULL,
+	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL,
 		artv_export_room_msg, NULL);
 	cprintf("0\n");
 
@@ -200,7 +199,6 @@ void artv_export_message(long msgnum) {
 	cprintf("%ld\n", msgnum);
 	cprintf("%d\n", smi.meta_refcount);
 	cprintf("%s\n", smi.meta_content_type);
-	cprintf("%d\n", smi.meta_mod);
 
 	serialize_message(&smr, msg);
 	CtdlFreeMessage(msg);
@@ -287,7 +285,6 @@ void artv_do_export(void) {
 	cprintf("%d\n", config.c_max_workers);
 	cprintf("%d\n", config.c_pop3_port);
 	cprintf("%d\n", config.c_smtp_port);
-	cprintf("%d\n", config.c_default_filter);
 
 	/* Export the control file */
 	get_control();
@@ -348,7 +345,6 @@ void artv_import_config(void) {
 	client_gets(buf);	config.c_max_workers = atoi(buf);
 	client_gets(buf);	config.c_pop3_port = atoi(buf);
 	client_gets(buf);	config.c_smtp_port = atoi(buf);
-	client_gets(buf);	config.c_default_filter = atoi(buf);
 	put_config();
 	lprintf(7, "Imported config file\n");
 }
@@ -386,7 +382,6 @@ void artv_import_user(void) {
 	client_gets(usbuf.fullname);
 	client_gets(buf);	usbuf.USscreenwidth = atoi(buf);
 	client_gets(buf);	usbuf.USscreenheight = atoi(buf);
-	client_gets(buf);	usbuf.moderation_filter = atoi(buf);
 	putuser(&usbuf);
 }
 
@@ -482,7 +477,6 @@ void artv_import_message(void) {
 				smi.meta_msgnum = msgnum;
 	client_gets(buf);	smi.meta_refcount = atoi(buf);
 	client_gets(smi.meta_content_type);
-	client_gets(buf);	smi.meta_mod = atoi(buf);
 
 	lprintf(7, "message #%ld\n", msgnum);
 

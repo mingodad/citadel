@@ -297,18 +297,15 @@ following meanings:
  #define US_PAGINATOR	2048		/* Pause after each screen of text  */
  
  There are other bits, too, but they can't be changed by the user (see below).
- 
- The fourth parameter, if present, is the moderation level this user is
-filtering at.
- 
- 
+  
+  
  SETU   (SET User configuration)
  
  This command does the opposite of SETU: it takes the screen dimensions and
 user options (which were probably obtained with a GETU command, and perhaps
 modified by the user) and writes them to the user account.  This command
-should be passed four parameters: the screen width, the screen height,
-the option bits (see above), and the desired moderation level to filter at.
+should be passed three parameters: the screen width, the screen height, and
+the option bits (see above).
  
  Note that there exist bits here which are not listed in this document.  Some
 are flags that can only be set by Aides or the system administrator.  SETU
@@ -1708,7 +1705,7 @@ fails for any reason, ERROR is returned.
  23. Maximum number of worker threads
  24. Port number for POP3 service
  25. Port number for SMTP service
- 26. Default moderation filter level for new users (-63 to +63)
+ 26. (unused)
  27. Flag (0 or 1) - allow Aides to zap (forget) rooms
  28. Port number for IMAP service
  29. How often (in seconds) to run the networker
@@ -1792,20 +1789,6 @@ The command returns ERROR if it fails; otherwise, it returns OK followed by a
 number representing the current state of the flag.
  
   
- MMOD   (MODerate a Message)
-  
- Set or change the moderation level of a message.  The two parameters passed
-to this command should be the message number and the desired moderation level.
-Please refer to the "moderation.txt" document for a description of some
-commonly used moderation levels.
- 
- If the command succeeds, OK is returned.  If the specified message does not
-exist in the current room, or if the specified moderation level is not within
-acceptable limits, ERROR+ILLEGAL_VALUE is returned.  This command requires at
-least Room Aide access; if the calling user is not an Aide, or a Room Aide for
-the current room, ERROR+HIGHER_ACCESS_REQUIRED is returned.
- 
- 
  REQT   (REQuest client Termination)
  
  Request that the specified client (or all clients) log off.  Aide level

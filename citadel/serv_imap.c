@@ -156,7 +156,7 @@ void imap_load_msgids(void) {
 
 	imap_free_msgids();	/* If there was already a map, free it */
 
-	CtdlForEachMessage(MSGS_ALL, 0L, (-63), NULL, NULL,
+	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL,
 		imap_add_single_msgid, NULL);
 
 	imap_set_seen_flags();
@@ -187,7 +187,7 @@ void imap_rescan_msgids(void) {
 	 for (i=0; i<IMAP->num_msgs; ++i) {
 
 		count = CtdlForEachMessage(MSGS_EQ, IMAP->msgids[i],
-			(-63), NULL, NULL, NULL, NULL);
+			NULL, NULL, NULL, NULL);
 
 		if (count == 0) {
 			cprintf("* %d EXPUNGE\r\n", i+1);
@@ -221,7 +221,7 @@ void imap_rescan_msgids(void) {
 	/*
 	 * Now peruse the room for *new* messages only.
 	 */
-	CtdlForEachMessage(MSGS_GT, original_highest, (-63), NULL, NULL,
+	CtdlForEachMessage(MSGS_GT, original_highest, NULL, NULL,
 		imap_add_single_msgid, NULL);
 
 	imap_set_seen_flags();

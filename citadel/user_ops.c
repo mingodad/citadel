@@ -81,9 +81,6 @@ int getuser(struct usersupp *usbuf, char name[])
 		sizeof(struct usersupp) : cdbus->len));
 	cdb_free(cdbus);
 
-	if (usbuf->version < 573) {
-		CC->usersupp.moderation_filter = config.c_default_filter;
-	}
 	return (0);
 }
 
@@ -722,7 +719,6 @@ int create_user(char *newusername, int become_user)
 	usbuf.USscreenwidth = 80;
 	usbuf.USscreenheight = 24;
 	usbuf.lastcall = time(NULL);
-	usbuf.moderation_filter = config.c_default_filter;
 
 	/* fetch a new user number */
 	usbuf.usernum = get_new_user_number();
@@ -900,12 +896,11 @@ void cmd_getu(void)
 		return;
 
 	getuser(&CC->usersupp, CC->curr_user);
-	cprintf("%d %d|%d|%d|%d\n",
+	cprintf("%d %d|%d|%d|\n",
 		CIT_OK,
 		CC->usersupp.USscreenwidth,
 		CC->usersupp.USscreenheight,
-		(CC->usersupp.flags & US_USER_SET),
-		CC->usersupp.moderation_filter
+		(CC->usersupp.flags & US_USER_SET)
 	    );
 }
 
@@ -930,25 +925,6 @@ void cmd_setu(char *new_parms)
 	CC->usersupp.flags = CC->usersupp.flags |
 	    (extract_int(new_parms, 2) & US_USER_SET);
 
-	if (num_parms(new_parms) >= 4) {
-		new_mod = extract_int(new_parms, 3);
-		lprintf(9, "new_mod extracted to %d\n", new_mod);
-
-		/* Aides cannot set the filter level lower than -100 */
-		if (new_mod < (-100))
-			new_mod = -100;
-
-		/* Normal users cannot set the filter level lower than -63 */
-		if ((new_mod < (-63)) && (CC->usersupp.axlevel < 6))
-			new_mod = -63;
-
-		/* Nobody can set the filter level higher than +63 */
-		if (new_mod > 63)
-			new_mod = 63;
-
-		CC->usersupp.moderation_filter = new_mod;
-		lprintf(9, "new_mod processed to %d\n", new_mod);
-	}
 	lputuser(&CC->usersupp);
 	cprintf("%d Ok\n", CIT_OK);
 }

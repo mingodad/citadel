@@ -732,10 +732,6 @@ void do_system_configuration(void)
 	strprompt("Name of system administrator", &sc[13][0], 25);
 	strprompt("Paginator prompt", &sc[10][0], 79);
 
-	/* this prompt is commented out until we finish the moderation system
-	strprompt("Default moderation filter for new users", &sc[25][0], 4);
-	*/
-
 	/* Security parameters */
 
 	snprintf(sc[7], sizeof sc[7], "%d", (boolprompt(
