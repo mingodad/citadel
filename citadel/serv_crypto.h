@@ -14,4 +14,7 @@ void cmd_stls(char *params);
 void cmd_gtls(char *params);
 void endtls(void);
 void ssl_lock(int mode, int n, const char *file, int line);
+
+extern SSL_CTX *ssl_ctx;  
+
 #endif

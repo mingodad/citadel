@@ -38,6 +38,13 @@
 #include <ctype.h>
 #include <string.h>
 #include <limits.h>
+
+#ifdef HAVE_OPENSSL
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+#include <openssl/rand.h>
+#endif
+
 #include "citadel.h"
 #include "server.h"
 #include "sysdep_decls.h"
@@ -58,6 +65,10 @@
 #include "imap_search.h"
 #include "imap_store.h"
 #include "imap_misc.h"
+
+#ifdef HAVE_OPENSSL
+#include "serv_crypto.h"
+#endif
 
 /* imap_rename() uses this struct containing list of rooms to rename */
 struct irl {
@@ -380,11 +391,68 @@ void imap_auth_login_pass(char *cmd) {
  * implements the CAPABILITY command
  */
 void imap_capability(int num_parms, char *parms[]) {
-	cprintf("* CAPABILITY IMAP4 IMAP4REV1 AUTH=LOGIN\r\n");
+	cprintf("* CAPABILITY IMAP4 IMAP4REV1 AUTH=LOGIN");
+#ifdef HAVE_OPENSSL
+	cprintf(" STARTTLS");
+#endif
+	cprintf("\r\n");
 	cprintf("%s OK CAPABILITY completed\r\n", parms[0]);
 }
 
 
+/*
+ * implements the STARTTLS command
+ */
+#ifdef HAVE_OPENSSL
+void imap_starttls(int num_parms, char *parms[]) {
+	int retval, bits, alg_bits;
+
+	if (!ssl_ctx) {
+		cprintf("%s NO No SSL_CTX available\r\n", parms[0]);
+		return;
+	}
+	if (!(CC->ssl = SSL_new(ssl_ctx))) {
+		lprintf(2, "SSL_new failed: %s\n",
+				ERR_reason_error_string(ERR_peek_error()));
+		cprintf("%s NO SSL_new: %s\r\n", parms[0],
+				ERR_reason_error_string(ERR_get_error()));
+		return;
+	}
+	if (!(SSL_set_fd(CC->ssl, CC->client_socket))) {
+		lprintf(2, "SSL_set_fd failed: %s\n",
+				ERR_reason_error_string(ERR_peek_error()));
+		SSL_free(CC->ssl);
+		CC->ssl = NULL;
+		cprintf("%s NO SSL_set_fd: %s\r\n", parms[0],
+				ERR_reason_error_string(ERR_get_error()));
+		return;
+	}
+	cprintf("%s OK begin TLS negotiation now\r\n", parms[0]);
+	retval = SSL_accept(CC->ssl);
+	if (retval < 1) {
+		/*
+		 * Can't notify the client of an error here; they will
+		 * discover the problem at the SSL layer and should
+		 * revert to unencrypted communications.
+		 */
+		long errval;
+
+		errval = SSL_get_error(CC->ssl, retval);
+		lprintf(2, "SSL_accept failed: %s\n",
+				ERR_reason_error_string(ERR_get_error()));
+		SSL_free(CC->ssl);
+		CC->ssl = NULL;
+		return;
+	}
+	BIO_set_close(CC->ssl->rbio, BIO_NOCLOSE);
+	bits = SSL_CIPHER_get_bits(SSL_get_current_cipher(CC->ssl), &alg_bits);
+	lprintf(3, "SSL/TLS using %s on %s (%d of %d bits)\n",
+			SSL_CIPHER_get_name(SSL_get_current_cipher(CC->ssl)),
+			SSL_CIPHER_get_version(SSL_get_current_cipher(CC->ssl)),
+			bits, alg_bits);
+	CC->redirect_ssl = 1;
+}
+#endif
 
 
 
@@ -1151,6 +1219,12 @@ void imap_command_loop(void) {
 	else if (!strcasecmp(parms[1], "CAPABILITY")) {
 		imap_capability(num_parms, parms);
 	}
+
+#ifdef HAVE_OPENSSL
+	else if (!strcasecmp(parms[1], "STARTTLS")) {
+		imap_starttls(num_parms, parms);
+	}
+#endif
 
 	else if (!CC->logged_in) {
 		cprintf("%s BAD Not logged in.\r\n", parms[0]);
