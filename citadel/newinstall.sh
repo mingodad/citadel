@@ -156,21 +156,9 @@ determine_distribution () {
 	# TODO: check for Debian
 }
 
-download_sources () {
-	echo "* Downloading Berkeley DB..."
-	$WGET $DOWNLOAD_SITE/$DB_SOURCE 2>&1 >>$LOG || die
-	echo "* Downloading libical..."
-	$WGET $DOWNLOAD_SITE/$ICAL_SOURCE 2>&1 >>$LOG || die
-	echo "* Downloading OpenLDAP..."
-	$WGET $DOWNLOAD_SITE/$LDAP_SOURCE 2>&1 >>$LOG || die
-	echo "* Downloading Citadel..."
-	$WGET $DOWNLOAD_SITE/$CITADEL_SOURCE 2>&1 >>$LOG || die
-	echo "* Downloading WebCit..."
-	$WGET $DOWNLOAD_SITE/$WEBCIT_SOURCE 2>&1 >>$LOG || die
-}
-
 install_ical () {
-	SUM=`sum $BUILD/$ICAL_SOURCE | awk ' { print $1$2 } '`
+	$WGET $DOWNLOAD_SITE/libical-easyinstall.sum
+	SUM=`cat libical-easyinstall.sum`
 	SUMFILE=$SUPPORT/etc/libical-easyinstall.sum
 	if [ -r $SUMFILE ] ; then
 		OLDSUM=`cat $SUMFILE`
@@ -179,6 +167,8 @@ install_ical () {
 			return
 		fi
 	fi
+	echo "* Downloading libical..."
+	$WGET $DOWNLOAD_SITE/$ICAL_SOURCE 2>&1 >>$LOG || die
 	echo "* Installing libical..."
 	cd $BUILD 2>&1 >>$LOG || die
 	( gzip -dc $ICAL_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
@@ -193,7 +183,8 @@ install_ical () {
 }
 
 install_db () {
-	SUM=`sum $BUILD/$DB_SOURCE | awk ' { print $1$2 } '`
+	$WGET $DOWNLOAD_SITE/db-easyinstall.sum
+	SUM=`cat db-easyinstall.sum`
 	SUMFILE=$SUPPORT/etc/db-easyinstall.sum
 	if [ -r $SUMFILE ] ; then
 		OLDSUM=`cat $SUMFILE`
@@ -202,6 +193,8 @@ install_db () {
 			return
 		fi
 	fi
+	echo "* Downloading Berkeley DB..."
+	$WGET $DOWNLOAD_SITE/$DB_SOURCE 2>&1 >>$LOG || die
 	echo "* Installing Berkeley DB..."
 	cd $BUILD 2>&1 >>$LOG || die
 	( gzip -dc $DB_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
@@ -217,7 +210,8 @@ install_db () {
 }
 
 install_ldap () {
-	SUM=`sum $BUILD/$LDAP_SOURCE | awk ' { print $1$2 } '`
+	$WGET $DOWNLOAD_SITE/ldap-easyinstall.sum
+	SUM=`cat ldap-easyinstall.sum`
 	SUMFILE=$SUPPORT/etc/ldap-easyinstall.sum
 	if [ -r $SUMFILE ] ; then
 		OLDSUM=`cat $SUMFILE`
@@ -226,6 +220,8 @@ install_ldap () {
 			return
 		fi
 	fi
+	echo "* Downloading OpenLDAP..."
+	$WGET $DOWNLOAD_SITE/$LDAP_SOURCE 2>&1 >>$LOG || die
 	echo "* Installing OpenLDAP..."
 	CFLAGS="${CFLAGS} -I${SUPPORT}/include"
 	CPPFLAGS="${CFLAGS}"
@@ -290,7 +286,8 @@ install_sources () {
 	export CFLAGS CPPFLAGS LDFLAGS
 
 	DO_INSTALL_CITADEL=yes
-	SUM=`sum $BUILD/$CITADEL_SOURCE | awk ' { print $1$2 } '`
+	$WGET $DOWNLOAD_SITE/citadel-easyinstall.sum
+	SUM=`cat citadel-easyinstall.sum`
 	SUMFILE=$CITADEL/citadel-easyinstall.sum
 	if [ -r $SUMFILE ] ; then
 		OLDSUM=`cat $SUMFILE`
@@ -301,6 +298,8 @@ install_sources () {
 	fi
 
 	if [ $DO_INSTALL_CITADEL = yes ] ; then
+		echo "* Downloading Citadel..."
+		$WGET $DOWNLOAD_SITE/$CITADEL_SOURCE 2>&1 >>$LOG || die
 		echo "* Installing Citadel..."
 		cd $BUILD 2>&1 >>$LOG || die
 		( gzip -dc $CITADEL_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
@@ -325,7 +324,8 @@ install_sources () {
 	fi
 
 	DO_INSTALL_WEBCIT=yes
-	SUM=`sum $BUILD/$WEBCIT_SOURCE | awk ' { print $1$2 } '`
+	$WGET $DOWNLOAD_SITE/webcit-easyinstall.sum
+	SUM=`cat webcit-easyinstall.sum`
 	SUMFILE=$WEBCIT/webcit-easyinstall.sum
 	if [ -r $SUMFILE ] ; then
 		OLDSUM=`cat $SUMFILE`
@@ -336,6 +336,8 @@ install_sources () {
 	fi
 
 	if [ $DO_INSTALL_WEBCIT = yes ] ; then
+		echo "* Downloading WebCit..."
+		$WGET $DOWNLOAD_SITE/$WEBCIT_SOURCE 2>&1 >>$LOG || die
 		echo "* Installing WebCit..."
 		cd $BUILD 2>&1 >>$LOG || die
 		( gzip -dc $WEBCIT_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
@@ -415,20 +417,14 @@ clear
 
 echo "$SETUP will perform the following actions:"
 echo ""
+echo "Installation:"
+echo "* Download/install supporting libraries (if needed)"
+echo "* Download/install Citadel (if needed)"
+echo "* Download/install WebCit (if needed)"
+echo ""
 echo "Configuration:"
 echo "* Configure Citadel"
 echo "* Configure WebCit"
-echo ""
-echo "Installation:"
-
-if [ "$prepackaged" ]; then
-	show_packages_to_install
-else
-	echo "* Install supporting libraries"
-	echo "* Install Citadel"
-	echo "* Install WebCit"
-fi
-
 echo ""
 echo -n "Perform the above installation steps now? "
 read yesno </dev/tty
@@ -464,7 +460,6 @@ else
 
 # 4C. If we build our own, compile and install prerequisites then Citadel
 
-	download_sources
 	install_prerequisites
 	install_sources
 fi
