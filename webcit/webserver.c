@@ -150,21 +150,55 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
 		}
 		len = len + rlen;
 	}
-	/* write(2, buf, bytes); FIXME */
+	write(2, buf, bytes); /* FIXME */
 	return (1);
 }
 
 
 ssize_t client_write(const void *buf, size_t count) {
+
+	if (WC->burst != NULL) {
+		WC->burst = realloc(WC->burst, (WC->burst_len + count + 2));
+		memcpy(&WC->burst[WC->burst_len], buf, count);
+		WC->burst_len += count;
+		return(count);
+	}
+
 #ifdef HAVE_OPENSSL
 	if (is_https) {
 		client_write_ssl((char *)buf, count);
 		return(count);
 	}
 #endif
-	/* write(2, buf, count);  FIXME */
+	write(2, buf, count); /* FIXME */
 	return(write(WC->http_sock, buf, count));
 }
+
+
+void begin_burst(void) {
+	if (WC->burst != NULL) {
+		free(WC->burst);
+		WC->burst = NULL;
+	}
+	WC->burst_len = 0;
+	WC->burst = malloc(SIZ);
+}
+
+void end_burst(void) {
+	size_t the_len;
+	char *the_data;
+
+	the_len = WC->burst_len;
+	the_data = WC->burst;
+
+	WC->burst_len = 0;
+	WC->burst = NULL;
+
+	wprintf("Content-length: %d\n\n", the_len);
+	client_write(the_data, the_len);
+	free(the_data);
+}
+
 
 
 /*

@@ -267,8 +267,8 @@ void context_loop(int sock)
 	char httpauth_pass[SIZ];
 
 	strcpy(httpauth_string, "");
-	strcpy(httpauth_user, "");
-	strcpy(httpauth_pass, "");
+	strcpy(httpauth_user, DEFAULT_HTTPAUTH_USER);
+	strcpy(httpauth_pass, DEFAULT_HTTPAUTH_PASS);
 
 	/*
 	 * Find out what it is that the web browser is asking for

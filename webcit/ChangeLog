@@ -1,4 +1,7 @@
 $Log$
+Revision 528.43  2005/02/05 08:36:13  ajc
+* Added an everything-buffering thingi so we can do Content-length:
+
 Revision 528.42  2005/02/05 04:16:01  ajc
 * Cleanup of new message range view-o-matic
 * GroupDAV GET operations now only send the Content-type: and Date:
@@ -2317,3 +2320,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
