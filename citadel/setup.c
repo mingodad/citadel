@@ -291,13 +291,6 @@ int yesno(char *question)
 
 
 
-void dump_access_levels(void)
-{
-	int a;
-	for (a = 0; a <= 6; ++a)
-		printf("%d %s\n", a, axdefs[a]);
-}
-
 void get_setup_msg(char *dispbuf, int msgnum)
 {
 	int a, b;
@@ -468,7 +461,7 @@ void check_inittab_entry(void)
 	char question[128];
 	char *ptr;
 	int have_entry = 0;
-	char entryname[3];
+	char entryname[5];
 
 	/* Determine the fully qualified path name of citserver */
 	sprintf(looking_for, "%s/citserver ", BBSDIR);
@@ -487,7 +480,8 @@ void check_inittab_entry(void)
 			ptr = strtok(NULL, ":");
 			ptr = strtok(NULL, ":");
 			if (ptr != NULL) {
-				if (!strncmp(ptr, looking_for, strlen(looking_for))) {
+				if (!strncmp(ptr, looking_for,
+				   strlen(looking_for))) {
 					++have_entry;
 				}
 			}
@@ -501,7 +495,8 @@ void check_inittab_entry(void)
 
 	/* Otherwise, prompt the user to create an entry. */
 	sprintf(question,
-		"There is no '%s' entry in /etc/inittab.\nWould you like to add one?",
+		"There is no '%s' entry in /etc/inittab.\n"
+		"Would you like to add one?",
 		looking_for);
 	if (yesno(question) == 0)
 		return;
@@ -551,8 +546,6 @@ void set_str_val(int msgpos, char str[])
 	case UI_TEXT:
 		title(setup_titles[msgpos]);
 		print_setup(msgpos);
-		if (msgpos == 11)
-			dump_access_levels();
 		printf("This is currently set to:\n%s\n", str);
 		printf("Enter new value or press return to leave unchanged:\n");
 		fgets(buf, 4096, stdin);
@@ -743,7 +736,8 @@ int main(int argc, char *argv[])
 	switch (setup_type) {
 
 	case UI_TEXT:
-		printf("\n\n\n               *** Citadel/UX setup program ***\n\n");
+		printf("\n\n\n"
+			"               *** Citadel/UX setup program ***\n\n");
 		break;
 
 	}
@@ -886,7 +880,8 @@ int main(int argc, char *argv[])
 
 	if (old_setup_level < 323) {
 		important_message("Citadel/UX Setup",
-				  "This Citadel/UX installation is too old to be upgraded.");
+				  "This Citadel/UX installation is too old "
+				  "to be upgraded.");
 		cleanup(1);
 	}
 	write_config_to_disk();
@@ -938,7 +933,8 @@ NEW_INST:
 	progress("Setting file permissions", 1, 5);
 	chown("citadel.config", config.c_bbsuid, gid);
 	progress("Setting file permissions", 2, 5);
-	sprintf(aaa, "find . | grep -v chkpwd | xargs chown %ld:%ld 2>/dev/null",
+	sprintf(aaa,
+		"find . | grep -v chkpwd | xargs chown %ld:%ld 2>/dev/null",
 		(long)config.c_bbsuid, (long)gid);
 	system(aaa);
 	progress("Setting file permissions", 3, 5);
@@ -947,7 +943,6 @@ NEW_INST:
 
 	important_message("Setup finished",
 	    "Setup is finished.  You may now start the Citadel server.");
-
 
 	cleanup(0);
 	return 0;
