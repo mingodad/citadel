@@ -97,9 +97,6 @@ void display_main_menu(void)
 	wprintf("</FONT></TD></TR></TABLE>\n");
 
 	wprintf("<UL>");
-	wprintf("<LI><A HREF=\"/display_page\">\n");
-	wprintf("Page another user</A>\n");
-
 	wprintf("<LI><A HREF=\"/chat\">");
 	wprintf("Chat with other online users</A>\n");
 
