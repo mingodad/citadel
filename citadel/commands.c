@@ -53,6 +53,7 @@ int rc_allow_attachments;
 int rc_display_message_numbers;
 
 char *gl_string;
+int next_lazy_cmd = 5;
 
 struct citcmd *cmdlist = NULL;
 
@@ -286,6 +287,7 @@ void load_command_set(void) {
 	FILE *ccfile;
 	char buf[256];
 	struct citcmd *cptr;
+	struct citcmd *lastcmd = NULL;
 	int a,d;
 	int b = 0;
 
@@ -393,9 +395,10 @@ void load_command_set(void) {
 			++a;
 			}
 
-		cptr->next = cmdlist;
-		cmdlist = cptr;
-
+		cptr->next = NULL;
+		if (cmdlist == NULL) cmdlist = cptr;
+		else lastcmd->next = cptr;
+		lastcmd = cptr;
 		}
 	    }
 	fclose(ccfile);
@@ -515,6 +518,7 @@ int getcmd(char *argbuf)
 	int ch;
 	int a;
 	int got;
+	int this_lazy_cmd;
 	struct citcmd *cptr;
 
 	/* if we're running in idiot mode, display a cute little menu */
@@ -533,12 +537,35 @@ int getcmd(char *argbuf)
 		ch = inkey();
 		ok_to_interrupt = 0;
 
+		/* Handle the backspace key, but only if there's something
+		 * to backspace over...
+		 */
 		if ( (ch == 8) && (cmdpos > 0) ) {
 			back(cmdspaces[cmdpos-1] + 1);
 			cmdbuf[cmdpos] = 0;
 			--cmdpos;
 			}
 
+		/* Spacebar invokes "lazy traversal" commands */
+		if ( (ch == 32) && (cmdpos == 0) ) {
+			this_lazy_cmd = next_lazy_cmd;
+			if (this_lazy_cmd == 13) next_lazy_cmd = 5;
+			if (this_lazy_cmd == 5) next_lazy_cmd = 13;
+			for (cptr = cmdlist; cptr != NULL; cptr = cptr->next) {
+				if (cptr->c_cmdnum == this_lazy_cmd) {
+					for (a=0; a<5; ++a)
+					    if (cptr->c_keys[a][0] != 0)
+						printf("%s ", cmd_expand(
+							cptr->c_keys[a], 0));
+					printf("\n");
+					return(this_lazy_cmd);
+					}
+				}
+			printf("\n");
+			return(this_lazy_cmd);
+			}
+
+		/* Otherwise, process the command */
 		cmdbuf[cmdpos] = tolower(ch);
 
 		for (cptr = cmdlist; cptr != NULL; cptr = cptr->next) {
@@ -556,13 +583,28 @@ int getcmd(char *argbuf)
 
 		for (cptr = cmdlist; cptr != NULL; cptr = cptr->next) {
 			if (cmdmatch(cmdbuf,cptr,5)) {
+				/* We've found our command. */
 				if (requires_string(cptr,cmdpos)) {
 					getline(argbuf,32);
 					}
 				else {
 					printf("\n");
 					}
+
+				/* If this command is one that changes rooms,
+				 * then the next lazy-command (space bar)
+				 * should be "read new" instead of "goto"
+				 */
+				if ((cptr->c_cmdnum==5)
+					||(cptr->c_cmdnum==6)
+					||(cptr->c_cmdnum==47)
+					||(cptr->c_cmdnum==52)
+					||(cptr->c_cmdnum==16)
+					||(cptr->c_cmdnum==20))
+						next_lazy_cmd = 13;
+
 				return(cptr->c_cmdnum);
+
 				}
 			}
 

@@ -1,3 +1,7 @@
+Fri Oct  9 13:22:37 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Implemented "lazy mode" traversal - pressing the space bar will do
+	  <N>ext messsage, <G>oto next room, or read <N>ew as appropriate.
+
 Thu Oct  8 17:13:27 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* messages.c, citadel.rc: added the ability to display message numbers
 	  in the header when reading messages.  I think this is butt ugly, but
