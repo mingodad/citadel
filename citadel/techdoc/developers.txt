@@ -1,4 +1,4 @@
-Developer codes:
+Developer codes (and where known, client codes)
 
  0	The Citadel/UX core development team:
 	Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
@@ -6,9 +6,11 @@ Developer codes:
 	Brian Costello
 
 	0 = Citadel/UX text based client
-	2 = WinCit
-	4 = WebCit v1
-	5 = "Shaggy" (Java client currently stalled in development)
+	2 = WinCit	(MS Visual Basic client.  This project reached version
+			1.0 and was then abandoned.)
+	4 = WebCit	(In production.  Version 2.0 to be released soon.)
+	5 = "Shaggy"	(unfinished Java client - postponed indefinitely)
+	6 = "Daphne"	(wx multiplatform client currently in development)
 
 
  1	Brian Ledbetter <brian@amaranth.com>
