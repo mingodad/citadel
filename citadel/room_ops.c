@@ -983,22 +983,101 @@ void cmd_getr(void)
 {
 	if (CtdlAccessCheck(ac_room_aide)) return;
 
-	/********
-	if (is_noneditable(&CC->quickroom)) {
-		cprintf("%d Can't edit this room.\n", ERROR + NOT_HERE);
-		return;
-	}
-	************/
-
 	getroom(&CC->quickroom, CC->quickroom.QRname);
 	cprintf("%d%c%s|%s|%s|%d|%d|%d\n",
-		CIT_OK, CtdlCheckExpress(),
-		CC->quickroom.QRname,
-		((CC->quickroom.QRflags & QR_PASSWORDED) ? CC->quickroom.QRpasswd : ""),
-		((CC->quickroom.QRflags & QR_DIRECTORY) ? CC->quickroom.QRdirname : ""),
+		CIT_OK,
+		CtdlCheckExpress(),
+
+		((CC->quickroom.QRflags & QR_MAILBOX) ?
+			&CC->quickroom.QRname[11] : CC->quickroom.QRname),
+
+		((CC->quickroom.QRflags & QR_PASSWORDED) ?
+			CC->quickroom.QRpasswd : ""),
+
+		((CC->quickroom.QRflags & QR_DIRECTORY) ?
+			CC->quickroom.QRdirname : ""),
+
 		CC->quickroom.QRflags,
 		(int) CC->quickroom.QRfloor,
 		(int) CC->quickroom.QRorder);
+}
+
+
+/*
+ * Back end function to rename a room.
+ * You can also specify which floor to move the room to, or specify -1 to
+ * keep the room on the same floor it was on.
+ *
+ * This function is unaware of namespaces.  If you are renaming a mailbox
+ * room, you must supply the namespace prefix in both the old and new names!
+ */
+int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
+	int old_floor = 0;
+	struct quickroom qrbuf;
+	struct quickroom qrtmp;
+	int ret = 0;
+	struct floor *fl;
+	struct floor flbuf;
+
+
+	lprintf(9, "CtdlRenameRoom(%s, %s, %d)\n",
+		old_name, new_name, new_floor);
+
+	if (new_floor >= 0) {
+		fl = cgetfloor(new_floor);
+		if ((fl->f_flags & F_INUSE) == 0) {
+			return(crr_invalid_floor);
+		}
+	}
+
+	begin_critical_section(S_QUICKROOM);
+
+	if ( (getroom(&qrtmp, new_name) == 0) 
+	   && (strcasecmp(new_name, old_name)) ) {
+		ret = crr_already_exists;
+	}
+
+	else if (getroom(&qrbuf, old_name) != 0) {
+		ret = crr_room_not_found;
+	}
+
+	else if (is_noneditable(&qrbuf)) {
+		ret = crr_noneditable;
+	}
+
+	else {
+		safestrncpy(qrbuf.QRname, new_name, sizeof(qrbuf.QRname));
+		old_floor = qrbuf.QRfloor;
+		if (new_floor < 0) {
+			new_floor = old_floor;
+		}
+		qrbuf.QRfloor = new_floor;
+		putroom(&qrbuf);
+
+		/* If the room name changed, then there are now two room
+		 * records, so we have to delete the old one.
+		 */
+		if (strcasecmp(new_name, old_name)) {
+			b_deleteroom(old_name);
+		}
+
+		ret = crr_ok;
+	}
+
+	end_critical_section(S_QUICKROOM);
+
+	/* Adjust the floor reference counts if necessary */
+	if (new_floor != old_floor) {
+		lgetfloor(&flbuf, old_floor);
+		--flbuf.f_ref_count;
+		lputfloor(&flbuf, old_floor);
+		lgetfloor(&flbuf, CC->quickroom.QRfloor);
+		++flbuf.f_ref_count;
+		lputfloor(&flbuf, CC->quickroom.QRfloor);
+	}
+
+	/* ...and everybody say "YATTA!" */	
+	return(ret);
 }
 
 
@@ -1008,34 +1087,60 @@ void cmd_getr(void)
 void cmd_setr(char *args)
 {
 	char buf[SIZ];
-	struct floor *fl;
-	struct floor flbuf;
-	char old_name[ROOMNAMELEN];
-	int old_floor;
 	int new_order = 0;
-	int ne = 0;
+	int r;
+	int new_floor;
+	char new_name[ROOMNAMELEN];
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
 
-	if (is_noneditable(&CC->quickroom)) {
-		ne = 1;
+	if (num_parms(args) >= 6) {
+		new_floor = extract_int(args, 5);
+	}
+	else {
+		new_floor = (-1);	/* don't change the floor */
 	}
 
-	/***
-		cprintf("%d Can't edit this room.\n", ERROR + NOT_HERE);
+	/* When is a new name more than just a new name?  When the old name
+	 * has a namespace prefix.
+	 */
+	if (CC->quickroom.QRflags & QR_MAILBOX) {
+		sprintf(new_name, "%010ld.", atol(CC->quickroom.QRname) );
+	}
+	else {
+		strcpy(new_name, "");
+	}
+	extract(&new_name[strlen(new_name)], args, 0);
+
+	r = CtdlRenameRoom(CC->quickroom.QRname, new_name, new_floor);
+
+	if (r == crr_room_not_found) {
+		cprintf("%d Internal error - room not found?\n", ERROR);
+	}
+	else if (r == crr_already_exists) {
+		cprintf("%d '%s' already exists.\n",
+			ERROR + ALREADY_EXISTS, new_name);
+	}
+	else if (r == crr_noneditable) {
+		cprintf("%d Cannot edit this room.\n", ERROR);
+	}
+	else if (r == crr_invalid_floor) {
+		cprintf("%d Target floor does not exist.\n",
+			ERROR + INVALID_FLOOR_OPERATION);
+	}
+	else if (r != crr_ok) {
+		cprintf("%d Error: CtdlRenameRoom() returned %d\n",
+			ERROR, r);
+	}
+
+	if (r != crr_ok) {
 		return;
 	}
-	***/
 
+	getroom(&CC->quickroom, new_name);
 
-	if (num_parms(args) >= 6) {
-		fl = cgetfloor(extract_int(args, 5));
-		if ((fl->f_flags & F_INUSE) == 0) {
-			cprintf("%d Invalid floor number.\n",
-				ERROR + INVALID_FLOOR_OPERATION);
-			return;
-		}
-	}
+	/* Now we have to do a bunch of other stuff */
+
 	if (num_parms(args) >= 7) {
 		new_order = extract_int(args, 6);
 		if (new_order < 1)
@@ -1044,15 +1149,6 @@ void cmd_setr(char *args)
 			new_order = 127;
 	}
 	lgetroom(&CC->quickroom, CC->quickroom.QRname);
-
-	/* Non-editable base rooms can't be renamed */
-	strcpy(old_name, CC->quickroom.QRname);
-	if (!ne) {
-		extract(buf, args, 0);
-		buf[ROOMNAMELEN] = 0;
-		safestrncpy(CC->quickroom.QRname, buf,
-			sizeof CC->quickroom.QRname);
-	}
 
 	extract(buf, args, 1);
 	buf[10] = 0;
@@ -1079,26 +1175,9 @@ void cmd_setr(char *args)
 	if (extract_int(args, 4)) {
 		time(&CC->quickroom.QRgen);
 	}
-	old_floor = CC->quickroom.QRfloor;
-	if (num_parms(args) >= 6) {
-		CC->quickroom.QRfloor = extract_int(args, 5);
-	}
+
 	/* Write the room record back to disk */
 	lputroom(&CC->quickroom);
-
-	/* If the room name changed, then there are now two room records,
-	 * so we have to delete the old one.
-	 */
-	if (strcasecmp(CC->quickroom.QRname, old_name)) {
-		b_deleteroom(old_name);
-	}
-	/* adjust the floor reference counts */
-	lgetfloor(&flbuf, old_floor);
-	--flbuf.f_ref_count;
-	lputfloor(&flbuf, old_floor);
-	lgetfloor(&flbuf, CC->quickroom.QRfloor);
-	++flbuf.f_ref_count;
-	lputfloor(&flbuf, CC->quickroom.QRfloor);
 
 	/* create a room directory if necessary */
 	if (CC->quickroom.QRflags & QR_DIRECTORY) {

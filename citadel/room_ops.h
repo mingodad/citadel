@@ -52,3 +52,15 @@ void list_roomname(struct quickroom *qrbuf);
 int is_noneditable(struct quickroom *qrbuf);
 int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf);
 int CtdlDoIHavePermissionToDeleteThisRoom(struct quickroom *qr);
+
+int CtdlRenameRoom(char *old_name, char *new_name, int new_floor);
+/*
+ * Possible return values for CtdlRenameRoom()
+ */
+enum {
+	crr_ok,				/* success */
+	crr_room_not_found,		/* room not found */
+	crr_already_exists,		/* new name already exists */
+	crr_noneditable,		/* cannot edit this room */
+	crr_invalid_floor		/* target floor does not exist */
+};

@@ -1,4 +1,9 @@
  $Log$
+ Revision 591.7  2002/04/14 22:11:22  ajc
+ * New back end function CtdlRenameRoom() which is used to rename a room and/or
+   move it to a different floor.
+ * cmd_setr() now uses CtdlRenameRoom() to do part of its work
+
  Revision 591.6  2002/04/10 03:58:40  ajc
  * Began work on IMAP RENAME
 
@@ -3591,4 +3596,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
