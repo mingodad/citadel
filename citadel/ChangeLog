@@ -1,4 +1,7 @@
  $Log$
+ Revision 572.29  2000/08/26 20:23:18  ajc
+ * Finished up the back end code for mailing list sends.  Sends now work!
+
  Revision 572.28  2000/08/24 02:48:18  ajc
  * Merged in IO ERROR's diffs to make Citadel work with HP/UX
 
@@ -2002,4 +2005,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

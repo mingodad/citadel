@@ -7,14 +7,6 @@
  *
  */
 
-
-/* FIXME
-
-there's stuff in here that makes the assumption that /tmp is on the same
-filesystem as Citadel, and makes calls to link() on that basis.  fix this.
-
-*/
-
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -94,10 +86,13 @@ void cmd_snet(char *argbuf) {
 	}
 	fclose(fp);
 
-	/* Now that we've got the whole file, put it in place */
+	/* Now copy the temp file to its permanent location
+	 * (We use /bin/mv instead of link() because they may be on
+	 * different filesystems)
+	 */
 	unlink(filename);
-	link(tempfilename, filename);
-	unlink(tempfilename);
+	snprintf(buf, sizeof buf, "/bin/mv %s %s", tempfilename, filename);
+	system(buf);
 }
 
 
