@@ -2171,12 +2171,14 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf) {
 struct recptypes *validate_recipients(char *recipients) {
 	struct recptypes *ret;
 	char this_recp[SIZ];
+	char this_recp_cooked[SIZ];
 	char append[SIZ];
 	int num_recps;
-	int i;
+	int i, j;
 	int mailtype;
 	int invalid;
 	struct usersupp tempUS;
+	struct quickroom tempQR;
 
 	/* Initialize */
 	ret = (struct recptypes *) malloc(sizeof(struct recptypes));
@@ -2187,6 +2189,7 @@ struct recptypes *validate_recipients(char *recipients) {
 	ret->num_internet = 0;
 	ret->num_ignet = 0;
 	ret->num_error = 0;
+	ret->num_room = 0;
 
 	if (recipients == NULL) {
 		num_recps = 0;
@@ -2213,6 +2216,14 @@ struct recptypes *validate_recipients(char *recipients) {
 		mailtype = alias(this_recp);
 		mailtype = alias(this_recp);
 		mailtype = alias(this_recp);
+		for (j=0; j<=strlen(this_recp); ++j) {
+			if (this_recp[j]=='_') {
+				this_recp_cooked[j] = ' ';
+			}
+			else {
+				this_recp_cooked[j] = this_recp[j];
+			}
+		}
 		invalid = 0;
 		switch(mailtype) {
 			case MES_LOCAL:
@@ -2231,6 +2242,22 @@ struct recptypes *validate_recipients(char *recipients) {
 						strcat(ret->recp_local, "|");
 					}
 					strcat(ret->recp_local, this_recp);
+				}
+				else if (getuser(&tempUS, this_recp_cooked) == 0) {
+					++ret->num_local;
+					strcpy(this_recp, tempUS.fullname);
+					if (strlen(ret->recp_local) > 0) {
+						strcat(ret->recp_local, "|");
+					}
+					strcat(ret->recp_local, this_recp);
+				}
+				else if ( (!strncasecmp(this_recp, "room_", 5))
+				      && (!getroom(&tempQR, &this_recp_cooked[5])) ) {
+					++ret->num_room;
+					if (strlen(ret->recp_room) > 0) {
+						strcat(ret->recp_room, "|");
+					}
+					strcat(ret->recp_room, &this_recp_cooked[5]);
 				}
 				else {
 					++ret->num_error;

@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.93  2002/01/26 21:33:38  ajc
+ * More internet addressing and global directory stuff.  I think it's all working now
+   except for the purging of old entries.
+
  Revision 590.92  2002/01/26 11:02:37  error
  * citadel.spec cleaned up
 
@@ -3259,4 +3263,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
