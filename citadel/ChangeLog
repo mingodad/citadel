@@ -1,4 +1,4 @@
-Mon Feb 15 22:59:00 EST 1999 Vaggelis Tsirkas (applied by Art Cancro)
+Mon Feb 15 22:59:00 EST 1999 Vaggelis Tsirkas
 	* citadel.c: increased hostname buffer size to handle very big names
 
 1999-02-15 Nathan Bryant <bryant@cs.usm.maine.edu>
