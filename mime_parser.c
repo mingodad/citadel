@@ -314,8 +314,8 @@ void the_mime_parser(char *partnum,
 	strcpy(header, "");
 	do {
 		ptr = memreadline(ptr, buf, sizeof buf);
-		if (*ptr == 0)
-			return;	/* premature end of message */
+		/* if (*ptr == 0)
+			return;	 premature end of message */
 		if (content_end != NULL)
 			if (ptr >= content_end)
 				return;
@@ -408,7 +408,7 @@ void the_mime_parser(char *partnum,
 				}
 				part_start = ptr;
 			}
-		} while ( (strcasecmp(buf, endary)) && (ptr != 0) );
+		} while ( (strcasecmp(buf, endary)) && (ptr <= content_end) );
 END_MULTI:	if (PostMultiPartCallBack != NULL) {
 			PostMultiPartCallBack("", "", partnum, "", NULL,
 				content_type, 0, encoding, userdata);
@@ -418,10 +418,11 @@ END_MULTI:	if (PostMultiPartCallBack != NULL) {
 
 	/* If it's not a multipart message, then do something with it */
 	if (!is_multipart) {
+		fprintf(stderr, "doing non-multipart thing\n");
 		part_start = ptr;
 		length = 0;
-		while ((*ptr != 0)
-		      && ((content_end == NULL) || (ptr < content_end))) {
+		while ( ( (*ptr != 0) && (content_end != NULL) )
+		      || (ptr < content_end) ) {
 			++length;
 			part_end = ptr++;
 		}
