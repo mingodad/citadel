@@ -504,7 +504,7 @@ void cmd_mesg(char *mname)
 	dirs[1]=mallok(64);
 	strcpy(dirs[0],"messages");
 	strcpy(dirs[1],"help");
-	mesg_locate(targ,buf,2,dirs);
+	mesg_locate(targ,sizeof targ,buf,2,(const char **)dirs);
 	phree(dirs[0]);
 	phree(dirs[1]);
 
@@ -555,7 +555,7 @@ void cmd_emsg(char *mname)
 	dirs[1]=mallok(64);
 	strcpy(dirs[0],"messages");
 	strcpy(dirs[1],"help");
-	mesg_locate(targ,buf,2,dirs);
+	mesg_locate(targ,sizeof targ,buf,2,(const char**)dirs);
 	phree(dirs[0]);
 	phree(dirs[1]);
 

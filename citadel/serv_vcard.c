@@ -88,7 +88,7 @@ void vcard_extract_internet_addresses(struct CtdlMessage *msg,
 
 	if (msg->cm_fields['A'] == NULL) return;
 	if (msg->cm_fields['N'] == NULL) return;
-	sprintf(citadel_address, "%s @ %s",
+	snprintf(citadel_address, sizeof citadel_address, "%s @ %s",
 		msg->cm_fields['A'], msg->cm_fields['N']);
 
 	v = vcard_load(msg->cm_fields['M']);
@@ -289,7 +289,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
                         if (msg->cm_fields['E'] != NULL)
                                 phree(msg->cm_fields['E']);
 
-                        sprintf(buf, VCARD_EXT_FORMAT,
+                        snprintf(buf, sizeof buf, VCARD_EXT_FORMAT,
                                 msg->cm_fields['A'], NODENAME);
                         msg->cm_fields['E'] = strdoop(buf);
 
@@ -503,7 +503,7 @@ void cmd_regi(char *argbuf) {
 		++a;
 	}
 
-	sprintf(tmpaddress, ";;%s;%s;%s;%s;%s",
+	snprintf(tmpaddress, sizeof tmpaddress, ";;%s;%s;%s;%s;%s",
 		tmpaddr, tmpcity, tmpstate, tmpzip, tmpcountry);
 	vcard_set_prop(my_vcard, "adr", tmpaddress, 0);
 	vcard_write_user(&CC->usersupp, my_vcard);
@@ -564,7 +564,7 @@ void cmd_greg(char *argbuf)
 	cprintf("%s\n", s ? s : " ");	/* name */
 
 	s = vcard_get_prop(v, "adr", 0, 0, 0);
-	sprintf(adr, "%s", s ? s : " ");/* address... */
+	snprintf(adr, sizeof adr, "%s", s ? s : " ");/* address... */
 
 	extract_token(buf, adr, 2, ';');
 	cprintf("%s\n", buf);				/* street */
@@ -589,7 +589,7 @@ void cmd_greg(char *argbuf)
 	s = vcard_get_prop(v, "email;internet", 0, 0, 0);
 	cprintf("%s\n", s ? s : " ");
 	s = vcard_get_prop(v, "adr", 0, 0, 0);
-	sprintf(adr, "%s", s ? s : " ");/* address... */
+	snprintf(adr, sizeof adr, "%s", s ? s : " ");/* address... */
 
 	extract_token(buf, adr, 6, ';');
 	cprintf("%s\n", buf);				/* country */
@@ -618,7 +618,7 @@ void vcard_purge(char *username, long usernum) {
         msg->cm_fields['N'] = strdoop(NODENAME);
         msg->cm_fields['M'] = strdoop("Purge this vCard\n");
 
-        sprintf(buf, VCARD_EXT_FORMAT, msg->cm_fields['A'], NODENAME);
+        snprintf(buf, sizeof buf, VCARD_EXT_FORMAT, msg->cm_fields['A'], NODENAME);
         msg->cm_fields['E'] = strdoop(buf);
 
 	msg->cm_fields['S'] = strdoop("CANCEL");

@@ -122,9 +122,9 @@ void artv_export_rooms(void) {
 	 * this will be handled by exporting the reference count, not by
 	 * exporting the message multiple times.)
 	 */
-	sprintf(cmd, "sort <%s >%s", artv_tempfilename1, artv_tempfilename2);
+	snprintf(cmd, sizeof cmd, "sort <%s >%s", artv_tempfilename1, artv_tempfilename2);
 	system(cmd);
-	sprintf(cmd, "uniq <%s >%s", artv_tempfilename2, artv_tempfilename1);
+	snprintf(cmd, sizeof cmd, "uniq <%s >%s", artv_tempfilename2, artv_tempfilename1);
 	system(cmd);
 }
 
@@ -205,7 +205,7 @@ void artv_export_message(long msgnum) {
 
 	/* write it in base64 */
 	strcpy(tempfile, tmpnam(NULL));
-	sprintf(buf, "./base64 -e >%s", tempfile);
+	snprintf(buf, sizeof buf, "./base64 -e >%s", tempfile);
 	fp = popen(buf, "w");
 	fwrite(smr.ser, smr.len, 1, fp);
 	pclose(fp);
@@ -484,7 +484,7 @@ void artv_import_message(void) {
 
 	/* decode base64 message text */
 	strcpy(tempfile, tmpnam(NULL));
-	sprintf(buf, "./base64 -d >%s", tempfile);
+	snprintf(buf, sizeof buf, "./base64 -d >%s", tempfile);
 	fp = popen(buf, "w");
 	while (client_gets(buf), strcasecmp(buf, END_OF_MESSAGE)) {
 		fprintf(fp, "%s\n", buf);

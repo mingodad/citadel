@@ -104,14 +104,15 @@ int pattern2(char *search, char *patn)
 /*
  * mesg_locate()  -  locate a message or help file, case insensitive
  */
-void mesg_locate(char *targ, char *searchfor, int numdirs, char **dirs)
+void mesg_locate(char *targ, size_t n, const char *searchfor,
+		 int numdirs, const char * const *dirs)
 {
 	int a;
 	char buf[SIZ];
 	FILE *ls;
 
 	for (a=0; a<numdirs; ++a) {
-		sprintf(buf,"cd %s; exec ls",dirs[a]);
+		snprintf(buf, sizeof buf, "cd %s; exec ls",dirs[a]);
 		ls = (FILE *) popen(buf,"r");
 		if (ls != NULL) {
 			while(fgets(buf,sizeof buf,ls)!=NULL) {
@@ -119,7 +120,7 @@ void mesg_locate(char *targ, char *searchfor, int numdirs, char **dirs)
 					buf[strlen(buf)-1] = 0;
 				if (!strcasecmp(buf,searchfor)) {
 					pclose(ls);
-					sprintf(targ,"%s/%s",dirs[a],buf);
+					snprintf(targ,n,"%s/%s",dirs[a],buf);
 					return;
 					}
 				}
@@ -138,7 +139,7 @@ char *strerror(int e)
 {
 	static char buf[32];
 
-	sprintf(buf,"errno = %d",e);
+	snprintf(buf,sizeof buf,"errno = %d",e);
 	return(buf);
 	}
 #endif

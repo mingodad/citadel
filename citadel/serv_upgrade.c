@@ -94,7 +94,7 @@ void do_pre555_usersupp_upgrade(void) {
 		putuser(&newus);
 
 		/* write the vcard */
-		sprintf(vcard,
+		snprintf(vcard, sizeof vcard,
 			"Content-type: text/x-vcard\n\n"
 			"begin:vcard\n"
 			"n:%s\n"

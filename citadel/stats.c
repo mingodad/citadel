@@ -344,7 +344,7 @@ int main(int argc, char **argv)
 		fakeargs[0] = "whobbs";
 		fakeargs[1] = "localhost";
 		fakeargs[2] = malloc(64);
-		sprintf(fakeargs[2], "%d", config.c_port_number);
+		snprintf(fakeargs[2], 64, "%d", config.c_port_number);
 		fakeargs[3] = NULL;
 	        attach_to_server(3, fakeargs, hostbuf, portbuf);
 		free(fakeargs[2]);

@@ -430,7 +430,7 @@ void check_services_entry(void)
 	char question[128];
 	FILE *sfp;
 
-	sprintf(question,
+	snprintf(question, sizeof question,
 		"There is no '%s' entry in /etc/services.  Would you like to add one?",
 		SERVICE_NAME);
 
@@ -464,7 +464,7 @@ void check_inittab_entry(void)
 	char entryname[5];
 
 	/* Determine the fully qualified path name of citserver */
-	sprintf(looking_for, "%s/citserver ", BBSDIR);
+	snprintf(looking_for, sizeof looking_for, "%s/citserver ", BBSDIR);
 
 	/* Pound through /etc/inittab line by line.  Set have_entry to 1 if
 	 * an entry is found which we believe starts citserver.
@@ -494,7 +494,7 @@ void check_inittab_entry(void)
 		return;
 
 	/* Otherwise, prompt the user to create an entry. */
-	sprintf(question,
+	snprintf(question, sizeof question,
 		"There is no '%s' entry in /etc/inittab.\n"
 		"Would you like to add one?",
 		looking_for);
@@ -502,7 +502,7 @@ void check_inittab_entry(void)
 		return;
 
 	/* Generate a unique entry name for /etc/inittab */
-	sprintf(entryname, "c0");
+	snprintf(entryname, sizeof entryname, "c0");
 	do {
 		++entryname[1];
 		if (entryname[1] > '9') {
@@ -514,7 +514,7 @@ void check_inittab_entry(void)
 				return;
 			}
 		}
-		sprintf(buf,
+		snprintf(buf, sizeof buf,
 		     "grep %s: /etc/inittab >/dev/null 2>&1", entryname);
 	} while (system(buf) == 0);
 
@@ -573,7 +573,7 @@ void set_str_val(int msgpos, char str[])
 void set_int_val(int msgpos, int *ip)
 {
 	char buf[16];
-	sprintf(buf, "%d", (int) *ip);
+	snprintf(buf, sizeof buf, "%d", (int) *ip);
 	set_str_val(msgpos, buf);
 	*ip = atoi(buf);
 }
@@ -582,7 +582,7 @@ void set_int_val(int msgpos, int *ip)
 void set_char_val(int msgpos, char *ip)
 {
 	char buf[16];
-	sprintf(buf, "%d", (int) *ip);
+	snprintf(buf, sizeof buf, "%d", (int) *ip);
 	set_str_val(msgpos, buf);
 	*ip = (char) atoi(buf);
 }
@@ -591,7 +591,7 @@ void set_char_val(int msgpos, char *ip)
 void set_long_val(int msgpos, long int *ip)
 {
 	char buf[16];
-	sprintf(buf, "%ld", *ip);
+	snprintf(buf, sizeof buf, "%ld", *ip);
 	set_str_val(msgpos, buf);
 	*ip = atol(buf);
 }
@@ -933,7 +933,7 @@ NEW_INST:
 	progress("Setting file permissions", 1, 5);
 	chown("citadel.config", config.c_bbsuid, gid);
 	progress("Setting file permissions", 2, 5);
-	sprintf(aaa,
+	snprintf(aaa, sizeof aaa,
 		"find . | grep -v chkpwd | xargs chown %ld:%ld 2>/dev/null",
 		(long)config.c_bbsuid, (long)gid);
 	system(aaa);
