@@ -1823,8 +1823,8 @@ void folders(void) {
 	int max_folders = 0;
 	int alloc_folders = 0;
 	int i, j, k, t;
-	int p;
-	int flags;
+	int ra_flags = 0;
+	int flags = 0;
 	int floor;
 	int nests = 0;
 
@@ -1851,31 +1851,30 @@ void folders(void) {
 	}
 
 	/* Now add rooms */
-	for (p = 0; p < 2; ++p) {
-		if (p == 0) serv_puts("LKRN");
-		else if (p == 1) serv_puts("LKRO");
-		serv_gets(buf);
-		if (buf[0]=='1') while(serv_gets(buf), strcmp(buf, "000")) {
-			if (max_folders >= alloc_folders) {
-				alloc_folders = max_folders + 100;
-				fold = realloc(fold,
-					alloc_folders * sizeof(struct folder));
-			}
-			memset(&fold[max_folders], 0, sizeof(struct folder));
-			extract(fold[max_folders].room, buf, 0);
-			if (p == 0) fold[max_folders].hasnewmsgs = 1;
-			flags = extract_int(buf, 1);
-			floor = extract_int(buf, 2);
-			if (flags & QR_MAILBOX) {
-				fold[max_folders].is_mailbox = 1;
-			}
-			room_to_folder(fold[max_folders].name,
-					fold[max_folders].room,
-					floor,
-					fold[max_folders].is_mailbox);
-			fold[max_folders].selectable = 1;
-			++max_folders;
+	serv_puts("LKRA");
+	serv_gets(buf);
+	if (buf[0]=='1') while(serv_gets(buf), strcmp(buf, "000")) {
+		if (max_folders >= alloc_folders) {
+			alloc_folders = max_folders + 100;
+			fold = realloc(fold,
+				alloc_folders * sizeof(struct folder));
 		}
+		memset(&fold[max_folders], 0, sizeof(struct folder));
+		extract(fold[max_folders].room, buf, 0);
+		ra_flags = extract_int(buf, 5);
+		flags = extract_int(buf, 1);
+		floor = extract_int(buf, 2);
+		fold[max_folders].hasnewmsgs =
+			((ra_flags & UA_HASNEWMSGS) ? 1 : 0 );
+		if (flags & QR_MAILBOX) {
+			fold[max_folders].is_mailbox = 1;
+		}
+		room_to_folder(fold[max_folders].name,
+				fold[max_folders].room,
+				floor,
+				fold[max_folders].is_mailbox);
+		fold[max_folders].selectable = 1;
+		++max_folders;
 	}
 
 	/* Bubble-sort the folder list */
