@@ -1,4 +1,8 @@
 $Log$
+Revision 300.2  2001/06/28 15:03:49  ajc
+* Every generated page now includes a meta tag to disable evil "smart tags"
+  (see http://smarttags.manilasites.com/ for more information)
+
 Revision 300.1  2001/06/28 02:39:54  ajc
 * Placated users who whine about privacy policy by adding MESG ROOMACCESS to
   the screen where you can create a room...
@@ -596,3 +600,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

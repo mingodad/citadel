@@ -323,7 +323,8 @@ void output_headers(int controlcode)
 		escputs(serv_info.serv_humannode);
 		wprintf("</TITLE>\n"
 			"<META HTTP-EQUIV=\"Expires\" CONTENT=\"0\">\n"
-			"<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">\n");
+			"<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">\n"
+			"<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\">\n");
 		if (refresh30) wprintf(
 			"<META HTTP-EQUIV=\"refresh\" CONTENT=\"30\">\n");
 		wprintf("</HEAD>\n");
