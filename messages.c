@@ -823,6 +823,7 @@ void fetch_ab_name(long msgnum, char *namebuf) {
 	int mime_length;
 	char vcard_partnum[SIZ];
 	char *vcard_source = NULL;
+	int i;
 
 	struct {
 		char date[SIZ];
@@ -870,6 +871,11 @@ void fetch_ab_name(long msgnum, char *namebuf) {
 	}
 
 	lastfirst_firstlast(namebuf);
+	striplt(namebuf);
+	for (i=0; i<strlen(namebuf); ++i) {
+		if (namebuf[i] != ';') return;
+	}
+	strcpy(namebuf, "(no name)");
 }
 
 
@@ -886,15 +892,70 @@ int abcmp(const void *ab1, const void *ab2) {
 
 
 /*
+ * Helper function for do_addrbook_view()
+ * Converts a name into a three-letter tab label
+ */
+void nametab(char *tabbuf, char *name) {
+	stresc(tabbuf, name, 0, 0);
+	tabbuf[0] = toupper(tabbuf[0]);
+	tabbuf[1] = tolower(tabbuf[1]);
+	tabbuf[2] = tolower(tabbuf[2]);
+	tabbuf[3] = 0;
+}
+
+
+/*
  * Render the address book using info we gathered during the scan
  */
 void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 	int i = 0;
+	int displayed = 0;
 	int bg = 0;
+	static int NAMESPERPAGE = 60;
+	int num_pages = 0;
+	int page = 0;
+	int tabfirst = 0;
+	char tabfirst_label[SIZ];
+	int tablast = 0;
+	char tablast_label[SIZ];
+
+	if (num_ab == 0) {
+		wprintf("<I>This address book is empty.</I>\n");
+		return;
+	}
 
 	if (num_ab > 1) {
 		qsort(addrbook, num_ab, sizeof(struct addrbookent), abcmp);
 	}
+
+	num_pages = num_ab / NAMESPERPAGE;
+
+	page = atoi(bstr("page"));
+
+	wprintf("Page: ");
+	for (i=0; i<=num_pages; ++i) {
+		if (i != page) {
+			wprintf("<A HREF=\"/readfwd?page=%d\">", i);
+		}
+		else {
+			wprintf("<B>");
+		}
+		tabfirst = i * NAMESPERPAGE;
+		tablast = tabfirst + NAMESPERPAGE - 1;
+		if (tablast > (num_ab - 1)) tablast = (num_ab - 1);
+		nametab(tabfirst_label, addrbook[tabfirst].ab_name);
+		nametab(tablast_label, addrbook[tablast].ab_name);
+		wprintf("[%s&nbsp;-&nbsp;%s]",
+			tabfirst_label, tablast_label
+		);
+		if (i != page) {
+			wprintf("</A>\n");
+		}
+		else {
+			wprintf("</B>\n");
+		}
+	}
+	wprintf("<BR>\n");
 
 	wprintf("<TABLE border=0 cellspacing=0 "
 		"cellpadding=3 width=100%%>\n"
@@ -902,22 +963,27 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 
 	for (i=0; i<num_ab; ++i) {
 
-		if ((i % 4) == 0) {
-			if (i > 0) {
-				wprintf("</TR>\n");
-			}
-			bg = 1 - bg;
-			wprintf("<TR BGCOLOR=\"#%s\">",
-				(bg ? "DDDDDD" : "FFFFFF")
-			);
-		}
+		if ((i / NAMESPERPAGE) == page) {
 
-		wprintf("<TD>");
-		wprintf("<A HREF=\"/readfwd?startmsg=%ld&is_singlecard=1",
-			addrbook[i].ab_msgnum);
-		wprintf("&maxmsgs=1&summary=0&alpha=%s\">", bstr("alpha"));
-		escputs(addrbook[i].ab_name);
-		wprintf("</A></TD>\n");
+			if ((displayed % 4) == 0) {
+				if (displayed > 0) {
+					wprintf("</TR>\n");
+				}
+				bg = 1 - bg;
+				wprintf("<TR BGCOLOR=\"#%s\">",
+					(bg ? "DDDDDD" : "FFFFFF")
+				);
+			}
+	
+			wprintf("<TD>");
+	
+			wprintf("<A HREF=\"/readfwd?startmsg=%ld&is_singlecard=1",
+				addrbook[i].ab_msgnum);
+			wprintf("&maxmsgs=1&summary=0&alpha=%s\">", bstr("alpha"));
+			escputs(addrbook[i].ab_name);
+			wprintf("</A></TD>\n");
+			++displayed;
+		}
 	}
 
 	wprintf("</TR></TABLE>\n");
@@ -961,7 +1027,7 @@ void readloop(char *oper)
 	char buf[SIZ];
 	char old_msgs[SIZ];
 	int is_new = 0;
-	int a, b, i;
+	int a, b;
 	int nummsgs;
 	long startmsg;
 	int maxmsgs;
@@ -979,8 +1045,6 @@ void readloop(char *oper)
 	long pn_current = 0L;
 	long pn_next = 0L;
 	int bg = 0;
-	char alpha = 0;
-	char ab_alpha = 0;
 	struct addrbookent *addrbook = NULL;
 	int num_ab = 0;
 
@@ -1033,37 +1097,6 @@ void readloop(char *oper)
 	}
 
 	is_singlecard = atoi(bstr("is_singlecard"));
-
-	/* Display the letter indices across the top */
-	if ((is_addressbook) || (is_singlecard)) {
-		if (strlen(bstr("alpha")) == 0) {
-			alpha = 'a';
-		}
-		else {
-			strcpy(buf, bstr("alpha"));
-			alpha = buf[0];
-		}
-
-		for (i='1'; i<='z'; ++i) if ((i=='1')||(islower(i))) {
-			if ((i != alpha) || (is_singlecard)) {
-				wprintf("<A HREF=\"/readfwd?alpha=%c\">", i);
-			}
-			if (i == alpha) wprintf("<FONT SIZE=+2>");
-			if (isalpha(i)) {
-				wprintf("%c", toupper(i));
-			}
-			else {
-				wprintf("(other)");
-			}
-			if (i == alpha) wprintf("</FONT>");
-			if ((i != alpha) || (is_singlecard)) {
-				wprintf("</A>\n");
-			}
-			wprintf("&nbsp;");
-		}
-
-		wprintf("<HR width=100%%>\n");
-	}
 
 	if (WC->wc_view == VIEW_CALENDAR) {		/* calendar */
 		is_calendar = 1;
@@ -1148,20 +1181,12 @@ void readloop(char *oper)
 			}
 			else if (is_addressbook) {
 				fetch_ab_name(WC->msgarr[a], buf);
-				if ((strlen(buf) > 0) && (isalpha(buf[0]))) {
-					ab_alpha = tolower(buf[0]);
-				}
-				else {
-					ab_alpha = '1';
-				}
-				if (alpha == ab_alpha) {
-					++num_ab;
-					addrbook = realloc(addrbook,
-						(sizeof(struct addrbookent) * num_ab) );
-					safestrncpy(addrbook[num_ab-1].ab_name, buf,
-						sizeof(addrbook[num_ab-1].ab_name));
-					addrbook[num_ab-1].ab_msgnum = WC->msgarr[a];
-				}
+				++num_ab;
+				addrbook = realloc(addrbook,
+					(sizeof(struct addrbookent) * num_ab) );
+				safestrncpy(addrbook[num_ab-1].ab_name, buf,
+					sizeof(addrbook[num_ab-1].ab_name));
+				addrbook[num_ab-1].ab_msgnum = WC->msgarr[a];
 			}
 			else if (is_calendar) {
 				display_calendar(WC->msgarr[a]);
