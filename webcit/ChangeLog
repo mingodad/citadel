@@ -1,4 +1,7 @@
 $Log$
+Revision 525.4  2004/12/01 21:35:44  ajc
+* Changed internal version number to 5.26
+
 Revision 525.3  2004/12/01 21:34:17  ajc
 * Numerous memory management bugfixes.
 
@@ -2118,3 +2121,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
