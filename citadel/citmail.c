@@ -169,42 +169,6 @@ char buf[]; {
 		buf[strlen(buf)-1]=0;
 	}
 
-int islocalok(char recp[]) {
-
-	struct usersupp ust;
-	long lookfor;
-	char a_recp[128];
-	int found_closest_match = 0;
-	int a,us;
-	strcpy(a_recp,recp);
-	for (a=0; a<strlen(a_recp); ++a)
-		if (a_recp[a]=='_') a_recp[a]=32;
-	lookfor = (-1L); if (!struncmp(recp,"cit",3)) lookfor=atol(&recp[3]);
-	us=open("/appl/citadel/usersupp",O_RDONLY);
-	if (us>=0) {
-		while(read(us,&ust,sizeof(struct usersupp))>0) {
-			if (lookfor == ust.usernum) {
-				strcpy(recp,ust.fullname);
-				close(us);
-				return(2);
-				}
-			if (!strucmp(ust.fullname,a_recp)) {
-				strcpy(recp,ust.fullname);
-				close(us);
-				return(3);
-				}
-			if (!struncmp(ust.fullname,a_recp,strlen(a_recp))) {
-				strcpy(recp,ust.fullname);
-				found_closest_match = 1;
-				}
-			}
-		close(us);
-		}
-	if (getpwnam(recp)!=NULL) return(1);
-	if (found_closest_match) return(3);
-	return(0);
-	}
-
 /* strip leading and trailing spaces */
 void striplt(buf)
 char buf[]; {
@@ -567,9 +531,6 @@ char *name; {
 
 void deliver(char recp[], int is_test, int deliver_to_ignet) {
 
-	int b;
-	b=islocalok(recp);
-
 	/* various ways we can deliver mail... */
 
 	if (deliver_to_ignet) {
@@ -599,14 +560,10 @@ void deliver(char recp[], int is_test, int deliver_to_ignet) {
 		if (is_test == 0) do_roommail(recp);
 		}
 
-	else if (b==1) {
-		syslog(LOG_NOTICE,"fallback mailer to user %s",recp);
-		if (is_test == 0) do_fallback(recp);
-		}
-
 	else {
-		/* Otherwise, the user is local (or an unknown name was specified, in
-		 * which case we let netproc handle the bounce)
+		/* Otherwise, we treat the recipient as the name of a local
+		 * Citadel user.  If the username doesn't exist, we still
+		 * deliver it to Citadel -- netproc will handle the bounce.
 		 */
 		syslog(LOG_NOTICE,"to Citadel user %s",recp);
 		if (is_test == 0) do_citmail(recp, LOCAL);
