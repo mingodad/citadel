@@ -75,4 +75,4 @@ enum {
 
 
 
-
+int CtdlForgetThisRoom(void);

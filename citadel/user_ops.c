@@ -903,19 +903,15 @@ void cmd_invt_kick(char *iuser, int op)
 
 
 /*
- * forget (Zap) the current room
+ * Forget (Zap) the current room (API call)
+ * Returns 0 on success
  */
-void cmd_forg(void)
-{
+int CtdlForgetThisRoom(void) {
 	struct visit vbuf;
 
-	if (CtdlAccessCheck(ac_logged_in)) {
-		return;
-	}
-
+	/* On some systems, Aides are not allowed to forget rooms */
 	if (is_aide() && (config.c_aide_zap == 0)) {
-		cprintf("%d Aides cannot forget rooms.\n", ERROR);
-		return;
+		return(1);
 	}
 
 	lgetuser(&CC->usersupp, CC->curr_user);
@@ -926,8 +922,30 @@ void cmd_forg(void)
 
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 	lputuser(&CC->usersupp);
-	cprintf("%d Ok\n", OK);
+
+	/* Return to the Lobby, so we don't end up in an undefined room */
 	usergoto(BASEROOM, 0, NULL, NULL);
+	return(0);
+
+}
+
+
+/*
+ * forget (Zap) the current room
+ */
+void cmd_forg(void)
+{
+
+	if (CtdlAccessCheck(ac_logged_in)) {
+		return;
+	}
+
+	if (CtdlForgetThisRoom() == 0) {
+		cprintf("%d Ok\n", OK);
+	}
+	else {
+		cprintf("%d You may not forget this room.\n", ERROR);
+	}
 }
 
 /*

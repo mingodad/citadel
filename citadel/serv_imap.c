@@ -676,6 +676,92 @@ void imap_status(int num_parms, char *parms[]) {
 
 
 /*
+ * Implements the SUBSCRIBE command
+ *
+ */
+void imap_subscribe(int num_parms, char *parms[]) {
+	int ret;
+	char roomname[ROOMNAMELEN];
+	char savedroom[ROOMNAMELEN];
+	int msgs, new;
+
+	ret = imap_grabroom(roomname, parms[2]);
+	if (ret != 0) {
+		cprintf("%s NO Invalid mailbox name or location, or access denied\r\n",
+			parms[0]);
+		return;
+	}
+
+	/*
+	 * usergoto() formally takes us to the desired room, which has the side
+	 * effect of marking the room as not-zapped ... exactly the effect
+	 * we're looking for.
+	 */
+	if (IMAP->selected) {
+		strcpy(savedroom, CC->quickroom.QRname);
+	}
+	usergoto(roomname, 0, &msgs, &new);
+
+	/*
+	 * If another folder is selected, go back to that room so we can resume
+	 * our happy day without violent explosions.
+	 */
+	if (IMAP->selected) {
+		usergoto(savedroom, 0, &msgs, &new);
+	}
+
+	cprintf("%s OK SUBSCRIBE completed\r\n", parms[0]);
+}
+
+
+/*
+ * Implements the UNSUBSCRIBE command
+ *
+ */
+void imap_unsubscribe(int num_parms, char *parms[]) {
+	int ret;
+	char roomname[ROOMNAMELEN];
+	char savedroom[ROOMNAMELEN];
+	int msgs, new;
+
+	ret = imap_grabroom(roomname, parms[2]);
+	if (ret != 0) {
+		cprintf("%s NO Invalid mailbox name or location, or access denied\r\n",
+			parms[0]);
+		return;
+	}
+
+	/*
+	 * usergoto() formally takes us to the desired room.
+	 */
+	if (IMAP->selected) {
+		strcpy(savedroom, CC->quickroom.QRname);
+	}
+	usergoto(roomname, 0, &msgs, &new);
+
+	/* 
+	 * Now make the API call to zap the room
+	 */
+	if (CtdlForgetThisRoom() == 0) {
+		cprintf("%s OK UNSUBSCRIBE completed\r\n", parms[0]);
+	}
+	else {
+		cprintf("%s NO You may not unsubscribe from this folder.\r\n",
+			parms[0]);
+	}
+
+	/*
+	 * If another folder is selected, go back to that room so we can resume
+	 * our happy day without violent explosions.
+	 */
+	if (IMAP->selected) {
+		usergoto(savedroom, 0, &msgs, &new);
+	}
+}
+
+
+
+/*
  * Implements the DELETE command
  *
  */
@@ -722,6 +808,16 @@ void imap_delete(int num_parms, char *parms[]) {
 	}
 }
 
+
+
+/*
+ * Implements the RENAME command
+ *
+ */
+void imap_rename(int num_parms, char *parms[]) {
+	cprintf("%s NO The RENAME command is not yet implemented (FIXME)\r\n",
+		parms[0]);
+}
 
 
 
@@ -841,8 +937,20 @@ void imap_command_loop(void) {
 		imap_delete(num_parms, parms);
 	}
 
+	else if (!strcasecmp(parms[1], "RENAME")) {
+		imap_rename(num_parms, parms);
+	}
+
 	else if (!strcasecmp(parms[1], "STATUS")) {
 		imap_status(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "SUBSCRIBE")) {
+		imap_subscribe(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "UNSUBSCRIBE")) {
+		imap_unsubscribe(num_parms, parms);
 	}
 
 	else if (IMAP->selected == 0) {
