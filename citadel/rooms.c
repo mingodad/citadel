@@ -13,6 +13,7 @@
 #include <errno.h>
 #include "citadel.h"
 #include "rooms.h"
+#include "tools.h"
 
 #define IFEXPERT if (userflags&US_EXPERT)
 #define IFNEXPERT if ((userflags&US_EXPERT)==0)
@@ -224,7 +225,7 @@ int select_floor(int rfloor)
 
 		do {
 			newfloor = (-1);
-			strcpy(floorstr,&floorlist[rfloor][0]);
+			safestrncpy(floorstr,floorlist[rfloor],sizeof floorstr);
 			strprompt("Which floor",floorstr,256);
 			for (a=0; a<128; ++a) {
 				if (!strucmp(floorstr,&floorlist[a][0]))
@@ -280,7 +281,7 @@ void editthisroom(void) {
 
 	serv_puts("GETA");
 	serv_gets(buf);
-	if (buf[0]=='2') strcpy(raide,&buf[4]);
+	if (buf[0]=='2') safestrncpy(raide,&buf[4],sizeof raide);
 	else strcpy(raide,"");
 	if (strlen(raide)==0) strcpy(raide,"none");
 
@@ -341,7 +342,7 @@ void editthisroom(void) {
 			strcpy(buf,"200");
 			}
 		else {
-			sprintf(buf,"QUSR %s",raide);
+			snprintf(buf,sizeof buf,"QUSR %s",raide);
 			serv_puts(buf);
 			serv_gets(buf);
 			if (buf[0]!='2') printf("%s\n",&buf[4]);
@@ -352,12 +353,12 @@ void editthisroom(void) {
 
 	printf("Save changes (y/n)? ");
 	if (yesno()==1) {
-		sprintf(buf,"SETR %s|%s|%s|%d|%d|%d",
+		snprintf(buf,sizeof buf,"SETR %s|%s|%s|%d|%d|%d",
 			rname,rpass,rdir,rflags,rbump,rfloor);
 		serv_puts(buf);
 		serv_gets(buf);
 		printf("%s\n",&buf[4]);
-		sprintf(buf,"SETA %s",raide);
+		snprintf(buf,sizeof buf,"SETA %s",raide);
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0]=='2') dotgoto(rname,2);
@@ -372,7 +373,7 @@ void ungoto(void) {
 	char buf[256];
 	
 	if (!strcmp(ugname,"")) return;
-	sprintf(buf,"GOTO %s",ugname);
+	snprintf(buf,sizeof buf,"GOTO %s",ugname);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]!='2') {
@@ -383,7 +384,7 @@ void ungoto(void) {
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]!='2') printf("%s\n",&buf[4]);
-	strcpy(buf,ugname);
+	safestrncpy(buf,ugname,sizeof buf);
 	strcpy(ugname,"");
 	dotgoto(buf,0);
 	}
@@ -421,7 +422,7 @@ void download(int proto)
 	
 	newprompt("Enter filename: ",filename,255);
 
-	sprintf(buf,"OPEN %s",filename);
+	snprintf(buf,sizeof buf,"OPEN %s",filename);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]!='2') {
@@ -484,7 +485,7 @@ void download(int proto)
 
 
 	mkdir(tempdir,0700);
-	sprintf(buf,"%s/%s",tempdir,filename);
+	snprintf(buf,sizeof buf,"%s/%s",tempdir,filename);
 	mkfifo(buf, 0777);
 
 	/* We do the remainder of this function as a separate process in
@@ -510,7 +511,7 @@ void download(int proto)
 		return;
 		}
 
-	sprintf(buf,"%s/%s",tempdir,filename);	/* full pathname */
+	snprintf(buf,sizeof buf,"%s/%s",tempdir,filename); /* full pathname */
 
 	/* The next fork() creates a second child process that is used for
 	 * the actual file transfer program (usually sz).
@@ -521,7 +522,7 @@ void download(int proto)
 			sttybbs(0);
 			signal(SIGINT,SIG_DFL);
 			signal(SIGQUIT,SIG_DFL);
-			sprintf(dbuf,"SHELL=/dev/null; export SHELL; TERM=dumb; export TERM; exec more -d <%s",buf);
+			snprintf(dbuf,sizeof dbuf,"SHELL=/dev/null; export SHELL; TERM=dumb; export TERM; exec more -d <%s",buf);
 			system(dbuf);
 			sttybbs(SB_NO_INTR);
 			exit(0);
@@ -611,7 +612,7 @@ void invite(void) {
 	newprompt("Name of user? ",aaa,30);
 	if (aaa[0]==0) return;
 
-	sprintf(bbb,"INVT %s",aaa);
+	snprintf(bbb,sizeof bbb,"INVT %s",aaa);
 	serv_puts(bbb);
 	serv_gets(bbb);
 	printf("%s\n",&bbb[4]);
@@ -633,7 +634,7 @@ void kickout(void) {
 	newprompt("Name of user? ",aaa,30);
 	if (aaa[0]==0) return;
 
-	sprintf(bbb,"KICK %s",aaa);
+	snprintf(bbb,sizeof bbb,"KICK %s",aaa);
 	serv_puts(bbb);
 	serv_gets(bbb);
 	printf("%s\n",&bbb[4]);
@@ -739,7 +740,7 @@ void entroom(void) {
 	a=yesno();
 	if (a==0) return;
 
-	sprintf(cmd, "CRE8 1|%s|%d|%s|%d", new_room_name,
+	snprintf(cmd, sizeof cmd, "CRE8 1|%s|%d|%s|%d", new_room_name,
 		new_room_type, new_room_pass, new_room_floor);
 	serv_puts(cmd);
 	serv_gets(cmd);
@@ -880,7 +881,7 @@ void enterinfo(void) {		/* edit info file for current room */
 
 void enter_bio(void) {
 	char cmd[256];
-	sprintf(cmd,"RBIO %s",fullname);
+	snprintf(cmd,sizeof cmd,"RBIO %s",fullname);
 	do_edit("your Bio",cmd,"NOOP","EBIO");
 	}
 
@@ -899,7 +900,7 @@ void create_floor(void) {
 		}
 
 	newprompt("Name for new floor: ",newfloorname,255);
-	sprintf(buf,"CFLR %s|1",newfloorname);
+	snprintf(buf,sizeof buf,"CFLR %s|1",newfloorname);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]=='2') {
@@ -918,7 +919,8 @@ void edit_floor(void) {
 
 	if (floorlist[(int)curr_floor][0]==0) load_floorlist();
 	strprompt("New floor name",&floorlist[(int)curr_floor][0],255);
-	sprintf(buf,"EFLR %d|%s",curr_floor,&floorlist[(int)curr_floor][0]);
+	snprintf(buf,sizeof buf,"EFLR %d|%s",curr_floor,
+		 &floorlist[(int)curr_floor][0]);
 	serv_puts(buf);
 	serv_gets(buf);
 	printf("%s\n",&buf[4]);

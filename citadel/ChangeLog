@@ -1,3 +1,12 @@
+1998-10-12 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* Makefile.in: simplified to use pattern rules; files compiled with
+	  -D_REENTRANT go to *.ro to allow the same files to be used with both
+	  client and server
+	* tools.c, tools.h: new files; misc routines used by both client and
+	  server go here. contains safestrncpy() at the moment.
+	* rooms.c: fix several exploitable buffer overruns
+	* .cvsignore: add *.ro
+
 Sun Oct 11 23:17:48 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Built some more of the message expiry infrastructure
 

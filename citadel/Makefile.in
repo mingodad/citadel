@@ -43,84 +43,31 @@ serv_modules: $(SERV_MODULES)
 #
 
 citadel: ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o messages.o \
-	commands.o client_chat.o serv_info.o
-	$(CC) ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o \
-	messages.o commands.o client_chat.o serv_info.o $(LDFLAGS) -o citadel
+	commands.o client_chat.o serv_info.o tools.o $(SNPRINTF)
+	$(CC) $^ $(LDFLAGS) -o citadel
 
 netpoll: netpoll.o config.o ipc_c_tcp.o
 	$(CC) netpoll.o config.o ipc_c_tcp.o $(LDFLAGS) -o netpoll
 
-netpoll.o: netpoll.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c netpoll.c
-
-ipc_c_tcp.o: ipc_c_tcp.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c ipc_c_tcp.c
-
-citadel.o: citadel.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c citadel.c
-
-rooms.o: rooms.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c rooms.c
-
-messages.o: messages.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c messages.c
-
-commands.o: commands.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c commands.c
-
-routines.o: routines.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c routines.c
-
-routines2.o: routines2.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c routines2.c
-
-client_chat.o: client_chat.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c client_chat.c
-
-serv_info.o: serv_info.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c serv_info.c
-
+%.o: %.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c $<
 
 #
 #
 
-citserver: citserver.o user_ops.o support.o room_ops.o file_ops.o \
-	msgbase.o config.o sysdep.o locate_host.o \
-	housekeeping.o database.o control.o logging.o \
-	dynloader.o $(SNPRINTF)
+citserver: citserver.ro user_ops.ro support.ro room_ops.ro file_ops.ro \
+	msgbase.ro config.ro sysdep.ro locate_host.ro \
+	housekeeping.ro database.ro control.ro logging.ro \
+	dynloader.ro $(SNPRINTF:.o=.ro)
 	$(CC) \
-		citserver.o user_ops.o room_ops.o file_ops.o support.o \
-		msgbase.o config.o sysdep.o locate_host.o \
-		housekeeping.o database.o control.o logging.o \
-		dynloader.o $(SNPRINTF)\
+		citserver.ro user_ops.ro room_ops.ro file_ops.ro support.ro \
+		msgbase.ro config.ro sysdep.ro locate_host.ro \
+		housekeeping.ro database.ro control.ro logging.ro \
+		dynloader.ro $(SNPRINTF:.o=.ro)\
 		$(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) -o citserver
 
-citserver.o: citserver.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c citserver.c
-
-snprintf.o: snprintf.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c snprintf.c
-
-user_ops.o: user_ops.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c user_ops.c
-
-room_ops.o: room_ops.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c room_ops.c
-
-dynloader.o: dynloader.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c dynloader.c
-
-file_ops.o: file_ops.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c file_ops.c
-
-support.o: support.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c support.c
-
-msgbase.o: msgbase.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c msgbase.c
-
-locate_host.o: locate_host.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c locate_host.c
+%.ro: %.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c $< -o $@
 
 modules/serv_chat.so: serv_chat.o
 	$(CC) -shared -o modules/serv_chat.so serv_chat.o
@@ -134,29 +81,8 @@ modules/serv_test.so: serv_test.o
 serv_test.o: serv_test.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -fPIC -c serv_test.c
 
-housekeeping.o: housekeeping.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c housekeeping.c
-
-database.o: database.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c database.c
-
-control.o: control.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c control.c
-
-logging.o: logging.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c logging.c
-
-config.o: config.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c config.c
-
-sysdep.o: sysdep.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c sysdep.c
-
 aidepost: aidepost.o config.o
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) aidepost.o config.o $(LDFLAGS) -o aidepost
-
-aidepost.o: aidepost.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c aidepost.c
+	$(CC) aidepost.o config.o $(LDFLAGS) -o aidepost
 
 #
 # 'netmailer' needs to run setuid because it generates headers for Internet
@@ -167,18 +93,8 @@ netmailer: netmailer.o internetmail.o config.o
 	$(CC) netmailer.o config.o internetmail.o $(LDFLAGS) -o netmailer
 	chmod 4755 netmailer
 
-netmailer.o: netmailer.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c netmailer.c
-
-internetmail.o: internetmail.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c internetmail.c
-
 netproc: netproc.o config.o ipc_c_tcp.o
-	$(CC) netproc.o config.o ipc_c_tcp.o \
-		$(LDFLAGS) -o netproc
-
-netproc.o: netproc.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c netproc.c
+	$(CC) netproc.o config.o ipc_c_tcp.o $(LDFLAGS) -o netproc
 
 citmail: citmail.o config.o internetmail.o
 	@echo "*"
@@ -189,57 +105,29 @@ citmail: citmail.o config.o internetmail.o
 	$(CC) citmail.o config.o internetmail.o $(LDFLAGS) -o citmail
 	chmod 4755 citmail
 
-citmail.o: citmail.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c citmail.c
-
 mailinglist: mailinglist.o config.o internetmail.o
-	$(CC) mailinglist.o config.o internetmail.o \
-		$(LDFLAGS) -o mailinglist
-
-mailinglist.o: mailinglist.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c mailinglist.c
+	$(CC) mailinglist.o config.o internetmail.o $(LDFLAGS) -o mailinglist
 
 setup: setup.o
 	$(CC) setup.o $(CURSES) $(LDFLAGS) -o setup
 
-setup.o: setup.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c setup.c
-
 netsetup: netsetup.o config.o
 	$(CC) netsetup.o config.o $(LDFLAGS) -o netsetup
-
-netsetup.o: netsetup.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c netsetup.c
 
 proxy: proxy.o ipc_c_tcp.o
 	$(CC) proxy.o ipc_c_tcp.o $(LDFLAGS) -o proxy
 
-proxy.o: proxy.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c proxy.c
-
 whobbs: whobbs.o ipc_c_tcp.o
 	$(CC) whobbs.o ipc_c_tcp.o $(LDFLAGS) -o whobbs
-
-whobbs.o: whobbs.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c whobbs.c
 
 userlist: userlist.o ipc_c_tcp.o
 	$(CC) userlist.o ipc_c_tcp.o $(LDFLAGS) -o userlist
 
-userlist.o: userlist.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c userlist.c
-
 msgform: msgform.o
 	$(CC) msgform.o $(LDFLAGS) -o msgform
 
-msgform.o: msgform.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c msgform.c
-
 readlog: readlog.o config.o
 	$(CC) readlog.o config.o $(LDFLAGS) -o readlog
-
-readlog.o: readlog.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c readlog.c
 
 rcit: rcit.o config.o
 	$(CC) rcit.o config.o $(LDFLAGS) -o rcit
@@ -249,17 +137,12 @@ rcit: rcit.o config.o
 	@echo "* ln -s rcit /usr/bin/rnews"
 	@echo "*"
 
-rcit.o: rcit.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c rcit.c
-
 stats: stats.o config.o
 	$(CC) stats.o config.o $(LDFLAGS) -o stats
 
-stats.o: stats.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c stats.c
-
 clean:
-	find . -name \*.[o] -print -exec rm -f {} \;
+	find . -name \*.o -print -exec rm -f {} \;
+	find . -name \*.ro -print -exec rm -f {} \;
 
 cleaner: clean
 	rm -f $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) \
