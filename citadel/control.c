@@ -199,9 +199,15 @@ void cmd_conf(char *argbuf)
 #ifdef HAVE_LDAP
 		cprintf("%s\n", config.c_ldap_host);
 		cprintf("%d\n", config.c_ldap_port);
+		cprintf("%s\n", config.c_ldap_base_dn);
+		cprintf("%s\n", config.c_ldap_bind_dn);
+		cprintf("%s\n", config.c_ldap_bind_pw);
 #else
 		cprintf("\n");
 		cprintf("0\n");
+		cprintf("\n");
+		cprintf("\n");
+		cprintf("\n");
 #endif
 		cprintf("000\n");
 	}
@@ -349,6 +355,18 @@ void cmd_conf(char *argbuf)
 				break;
 			case 33:
 				config.c_ldap_port = atoi(buf);
+				break;
+			case 34:
+				safestrncpy(config.c_ldap_base_dn, buf,
+					    sizeof config.c_ldap_base_dn);
+				break;
+			case 35:
+				safestrncpy(config.c_ldap_bind_dn, buf,
+					    sizeof config.c_ldap_bind_dn);
+				break;
+			case 36:
+				safestrncpy(config.c_ldap_bind_pw, buf,
+					    sizeof config.c_ldap_bind_pw);
 				break;
 #endif
 			}

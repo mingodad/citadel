@@ -42,7 +42,9 @@ SERV_MODULES=serv_chat.o \
 	serv_bio.o \
 	serv_expire.o \
 	serv_vandelay.o \
-	serv_calendar.o ical_dezonify.o
+	serv_calendar.o \
+	ical_dezonify.o \
+	serv_ldap.o
 
 UTIL_TARGETS=aidepost msgform \
 	citmail userlist sendcommand \

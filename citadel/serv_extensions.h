@@ -12,7 +12,8 @@
  */
 char *serv_bio_init(void);
 char *serv_calendar_init(void);
-char *serv_inithat_init(void);
+char *serv_ldap_init(void);
+char *serv_chat_init(void);
 char *serv_expire_init(void);
 char *serv_imap_init(void);
 char *serv_inetcfg_init(void);

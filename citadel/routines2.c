@@ -643,7 +643,7 @@ void read_bio(CtdlIPC *ipc)
 void do_system_configuration(CtdlIPC *ipc)
 {
 
-#define NUM_CONFIGS 34
+#define NUM_CONFIGS 37
 
 	char buf[SIZ];
 	char sc[NUM_CONFIGS][SIZ];
@@ -751,7 +751,7 @@ void do_system_configuration(CtdlIPC *ipc)
 	snprintf(sc[25], sizeof sc[25], "%d", a);
 
 	/* LDAP settings */
-	if (serv_info.serv_supports_qnop) {
+	if (serv_info.serv_supports_ldap) {
 		a = strlen(&sc[32][0]);
 		a = (a ? 1 : 0);	/* Set only to 1 or 0 */
 		a = boolprompt("Connect this Citadel to an LDAP directory", a);
@@ -760,6 +760,9 @@ void do_system_configuration(CtdlIPC *ipc)
 				&sc[32][0], 127);
 			strprompt("Port number of LDAP service",
 				&sc[33][0], 5);
+			strprompt("Base DN", &sc[34][0], 255);
+			strprompt("Bind DN", &sc[35][0], 255);
+			strprompt("Password for bind DN", &sc[36][0], 255);
 		}
 		else {
 			strcpy(&sc[32][0], "");

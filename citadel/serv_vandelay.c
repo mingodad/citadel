@@ -287,6 +287,9 @@ void artv_do_export(void) {
 	cprintf("%d\n", config.c_mbxep.expire_value);
 	cprintf("%s\n", config.c_ldap_host);
 	cprintf("%d\n", config.c_ldap_port);
+	cprintf("%s\n", config.c_ldap_base_dn);
+	cprintf("%s\n", config.c_ldap_bind_dn);
+	cprintf("%s\n", config.c_ldap_bind_pw);
 
 	/* Export the control file */
 	get_control();
@@ -348,6 +351,9 @@ void artv_import_config(void) {
 	client_gets(buf);	config.c_mbxep.expire_value = atoi(buf);
 	client_gets(config.c_ldap_host);
 	client_gets(buf);	config.c_ldap_port = atoi(buf);
+	client_gets(config.c_ldap_base_dn);
+	client_gets(config.c_ldap_bind_dn);
+	client_gets(config.c_ldap_bind_pw);
 	put_config();
 	lprintf(7, "Imported config file\n");
 }

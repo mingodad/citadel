@@ -132,6 +132,9 @@ struct config {
 	struct ExpirePolicy c_mbxep;	/* Expire policy for mailbox rooms  */
 	char c_ldap_host[128];		/* Host where LDAP service lives    */
 	int c_ldap_port;		/* Port on host where LDAP lives    */
+	char c_ldap_base_dn[256];	/* LDAP base DN                     */
+	char c_ldap_bind_dn[256];	/* LDAP bind DN                     */
+	char c_ldap_bind_pw[256];	/* LDAP bind password               */
 };
 
 /*

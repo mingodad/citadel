@@ -1,4 +1,9 @@
  $Log$
+ Revision 614.5  2004/01/17 22:57:54  ajc
+ * Added "Base DN" "Bind DN" and "Bind DN password" config options
+ * serv_ldap.c: added.  (New module implementing the LDAP Connector)
+ * Upon startup, connect to LDAP directory and bind to it.  Unbind at exit.
+
  Revision 614.4  2004/01/17 04:23:28  ajc
  * Sysconfig commands for specifying where the LDAP server lives
 
@@ -5225,4 +5230,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

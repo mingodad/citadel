@@ -749,7 +749,7 @@ void cmd_reqt(char *argbuf) {
 
 
 
-char *serv_inithat_init(void)
+char *serv_chat_init(void)
 {
 	CtdlRegisterProtoHook(cmd_chat, "CHAT", "Begin real-time chat");
 	CtdlRegisterProtoHook(cmd_pexp, "PEXP", "Poll for express messages");
