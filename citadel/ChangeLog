@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.44  2000/12/09 06:20:06  ajc
+ * A few final touches to the Sleepycat DB back-end
+
  Revision 573.43  2000/12/08 17:06:33  ajc
  * Wrap txn_begin and txn_end in S_DATABASE mutex
 
@@ -2197,4 +2200,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

@@ -514,6 +514,18 @@ void artv_do_import(void) {
 		else if (!strcasecmp(buf, "visit")) artv_import_visit();
 		else if (!strcasecmp(buf, "message")) artv_import_message();
 		else break;
+
+		/* Yes, this is correct: end *then* begin.  Since we're in a
+		 * session command loop, there's already a transaction in
+		 * progress.  We want to end it and then begin a new one at the
+		 * end of every object import, otherwise the entire import
+		 * logs as a single transaction.  Not only would that be a bad
+		 * idea, but it'll actually crash the db when importing very
+		 * large files.
+		 */
+		cdb_end_transaction();
+		cdb_begin_transaction();
+
 	}
 	lprintf(7, "Invalid keyword <%s>.  Flushing input.\n", buf);
 	while (client_gets(buf), strcmp(buf, "000"))  ;;

@@ -927,6 +927,7 @@ int main(int argc, char **argv)
 	lprintf(7, "Loading citadel.config\n");
 	get_config();
 
+
 	/*
 	 * Do non system dependent startup functions.
 	 */
@@ -952,11 +953,13 @@ int main(int argc, char **argv)
 	 * Load any server-side modules (plugins) available here.
 	 */
 	lprintf(7, "Initializing loadable modules\n");
+	cdb_begin_transaction();
 	if ((moddir = malloc(strlen(bbs_home_directory) + 9)) != NULL) {
 		sprintf(moddir, "%s/modules", bbs_home_directory);
 		DLoader_Init(moddir);
 		free(moddir);
 	}
+	cdb_end_transaction();
 
 	/*
 	 * The rescan pipe exists so that worker threads can be woken up and
@@ -991,6 +994,8 @@ int main(int argc, char **argv)
 			lprintf(3, "setuid() failed: %s\n", strerror(errno));
 		}
 	}
+
+
 
 	/*
 	 * Create the housekeeper thread
