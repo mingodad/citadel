@@ -821,7 +821,7 @@ void session_loop(struct httprequest *req)
 			      "application/x-www-form-urlencoded", 33)) {
 			addurls(&content[body_start]);
 		} else if (!strncasecmp(ContentType, "multipart", 9)) {
-			content_end = content + ContentLength;
+			content_end = content + ContentLength + body_start;
 			lprintf(9, "Calling MIME parser\n");
 			mime_parser(content, content_end, *upload_handler,
 					NULL, NULL, NULL, 0);

@@ -40,8 +40,6 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 	wprintf("<FORM ENCTYPE=\"multipart/form-data\" ACTION=\"%s\" "
 		"METHOD=\"POST\" NAME=\"graphicsupload\">\n", uplurl);
 
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"foo\" VALUE=\"bar\">\n");
-
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"which_room\" VALUE=\"");
 	urlescputs(bstr("which_room"));
 	wprintf("\">\n");
@@ -55,7 +53,6 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 	wprintf("<BR>");
 	wprintf("<INPUT TYPE=\"SUBMIT\" VALUE=\"Upload\">\n");
 	wprintf("<INPUT TYPE=\"RESET\" VALUE=\"Reset Form\">\n");
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"baz\" VALUE=\"eek\">\n");
 	wprintf("</FORM>\n");
 	wprintf("<A HREF=\"/display_main_menu\">Cancel</A>\n");
 	wprintf("</CENTER>\n");

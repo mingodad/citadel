@@ -1,4 +1,10 @@
 $Log$
+Revision 410.29  2003/05/16 04:11:29  ajc
+* We don't need no steenking workaround.  Problem fixed.  MIME parser not
+  broken.  Web server was calling it with bad parameters.  All fixed now.
+* Slightly tweaked the look of the tabs in the room edit screen.  Still looks
+  like crap.
+
 Revision 410.28  2003/05/15 04:52:26  ajc
 * Minor workaround in web forms to handle mime parser problem in uploads
 
@@ -1391,3 +1397,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
