@@ -2,9 +2,10 @@
  * Utility class so I don't have to think about GridBagLayout
  */
 
+import javax.swing.*;
 import java.awt.*;
 
-public class PairPanel extends Panel {
+public class PairPanel extends JPanel {
   GridBagLayout           gbLayout;
   GridBagConstraints      gbLeft, gbRight;
 

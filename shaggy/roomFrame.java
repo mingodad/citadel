@@ -28,8 +28,59 @@ public class roomFrame extends JFrame {
 	    }
 	} );
 
-	this.pack();
-	this.show();
+	JMenuBar	mbar = new JMenuBar();
+	JMenu		m = new JMenu( "Rooms" );
+	mbar.add( m );
+	JMenuItem	mi = new JMenuItem( "Next Room" );
+	m.add( mi );
+	mi.addActionListener( new ActionListener() {
+	  public void actionPerformed( ActionEvent e ) {
+	    citadel.me.enterRoom( citadel.me.rooms.nextNewRoom() );
+	  } } );
+
+	m.add( mi = new JMenuItem( "Goto Room" ) );
+	mi.addActionListener( new ActionListener() {
+	  public void actionPerformed( ActionEvent e ) {
+	    citadel.me.enterRoom();
+	  } } );
+
+	m.add( mi = new JMenuItem( "Zap Room" ) );
+	mi.addActionListener( new ActionListener() {
+	  public void actionPerformed( ActionEvent e ) {
+	    if( JOptionPane.showConfirmDialog( null, "Zap " + mp.ri.name + "?" ) == 0 )
+	      citadel.me.zapRoom( mp.ri );
+	  } } );
+
+	m.add( new JSeparator() );
+
+	m.add( mi = new JMenuItem( "Room Info" ) );
+	mi.addActionListener( new ActionListener() {
+	  public void actionPerformed( ActionEvent e ) {
+	    new roomInfoWindow( mp.ri );
+	  } } );
+
+	mbar.add( m = new JMenu( "Messages" ) );
+	m.add( mi = new JMenuItem( "Next Message" ) );
+	mi.addActionListener( new ActionListener() {
+	  public void actionPerformed( ActionEvent e ) {
+	    mp.nextMessage();
+	  } } );
+
+	m.add( mi = new JMenuItem( "Previous Message" ) );
+	mi.addActionListener( new ActionListener() {
+	  public void actionPerformed( ActionEvent e ) {
+	    mp.prevMessage();
+	  } } );
+
+	m.add( mi = new JMenuItem( "Enter Message" ) );
+	mi.addActionListener( new ActionListener() {
+	  public void actionPerformed( ActionEvent e ) {
+	    enterMessage();
+	  } } );
+
+	setJMenuBar( mbar );
+	pack();
+	show();
     }
 
     public void setRoom( roomInfo ri ) {

@@ -42,19 +42,42 @@ public class hostPanel extends JPanel {
     PairPanel	pp = new PairPanel(3, 10);
     pp.addLeft( new JLabel( "BBS Name:" ) );
     pp.addRight( h_name = new JTextField( 20 ) );
+    h_name.addActionListener( new ActionListener() {
+      public void actionPerformed( ActionEvent e ) {
+	dns_name.requestFocus();
+      } } );
 
     pp.addLeft( new JLabel( "IP Address:" ) );
     pp.addRight( dns_name = new JTextField( 20 ) );
     dns_name.setText( "127.0.0.1" );
+    dns_name.addActionListener( new ActionListener () {
+      public void actionPerformed( ActionEvent e ) {
+	port.requestFocus();
+      } } );
    
     pp.addLeft( new JLabel( "Port:" ) );
     pp.addRight( port = new JTextField( "504" ) );
+    port.addActionListener( new ActionListener() {
+      public void actionPerformed( ActionEvent e ) {
+	user.requestFocus();
+      } } );
 
     pp.addLeft( new JLabel( "Username:" ) );
     pp.addRight( user = new JTextField( 10 ) );
+    user.addActionListener( new ActionListener() {
+      public void actionPerformed( ActionEvent e ) {
+	pass.requestFocus();
+      } } );
 
     pp.addLeft( new JLabel( "Password:" ) );
     pp.addRight( pass = new JPasswordField( 10 ) );
+    pass.addActionListener(new ActionListener() {
+      public void actionPerformed( ActionEvent e ) {
+	citadel.me.setServer( dns_name.getText(), port.getText() );
+	citadel.me.showLoginPanel( user.getText(), pass.getText() );
+      }
+    });
+
     add( "Center", pp );
 
     JButton	but = new JButton( "Connect" );

@@ -25,7 +25,7 @@ Basic:
 - go to any old room by double-clicking from list
 _ can get to hidden or guessable-named rooms
 _ can go to password protected rooms (tested)
-* can't zap rooms
+- can zap rooms
 * can't list zapped rooms
 
 "message"
@@ -43,6 +43,6 @@ _ can go to password protected rooms (tested)
   go to the next room, the three unread messages will still be unread with
   the java client while they wouldn't be with the text client.  I like it
   better personally, but hey, that's me.
-* can't view room info
+- can view room info
 
 everything else isn't done.

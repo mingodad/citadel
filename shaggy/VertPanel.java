@@ -1,6 +1,7 @@
+import javax.swing.*;
 import java.awt.*;
 
-public class VertPanel extends Panel {
+public class VertPanel extends JPanel {
   GridBagLayout		gbLayout;
   GridBagConstraints	cur;
   boolean		top = true;

@@ -76,15 +76,13 @@ public class messagePanel extends JPanel {
 	p.add( prev_msg = new JButton( "Prev Message" ) );
 	prev_msg.addActionListener( new ActionListener() {
 	    public void actionPerformed( ActionEvent e ) {
-		cur_pos--;
-		displayMessage();
+	      prevMessage();
 	    } } );
 
 	p.add( next_msg = new JButton( "Next Message" ) );
 	next_msg.addActionListener( new ActionListener() {
 	    public void actionPerformed( ActionEvent e ) {
-		cur_pos++;
-		displayMessage();
+	      nextMessage();
 	    } } );
 
 
@@ -105,6 +103,16 @@ public class messagePanel extends JPanel {
 	message.setWrapStyleWord( true );
 	add( "Center", p );
     }
+
+  public void nextMessage() {
+    cur_pos++;
+    displayMessage();
+  }
+
+  public void prevMessage() {
+    cur_pos--;
+    displayMessage();
+  }
 
     public void refresh() {
 	refresh( ri );

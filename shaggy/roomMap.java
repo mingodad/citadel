@@ -81,6 +81,10 @@ public class roomMap {
 	return cur_floor;
     }
 
+  public floor getFloor( int num ) {
+    return getFloor( "" +  num );
+  }
+
     public floor getFloor( String name ) {
 	return (floor)floors.get( name );
     }

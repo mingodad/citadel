@@ -92,6 +92,7 @@ public class citadel {
 	theNet.done = true;
 	cg.errMsg( reason );
 	cg.showHostBrowser();
+	cleanup();
     }
 
     public void warning( String text ) {
@@ -99,7 +100,9 @@ public class citadel {
     }
 
     public void closeFrame() {
-	System.out.println( "Closed the friggin frame." );
+      /* prompt here? */
+	System.out.println( "Closed the frame." );
+	System.exit( 0 );
     }
 
     public void networkEvent( String cmd ) {
@@ -199,6 +202,16 @@ public class citadel {
     }
 
     public void logoff() {
+      cleanup();
+
+	cg.showLogoffPanel();
+	networkEvent( "QUIT", new CallBack() {
+	    public void run( citReply r ) {
+		theNet.done();
+	    } } );
+    }
+
+  public void cleanup() {
 	/* close windows */
 	if( rf != null )
 	    rf.dispose();
@@ -207,13 +220,7 @@ public class citadel {
 	    JFrame	f = (JFrame)e.nextElement();
 	    f.dispose();
 	}
-
-	cg.showLogoffPanel();
-	networkEvent( "QUIT", new CallBack() {
-	    public void run( citReply r ) {
-		theNet.done();
-	    } } );
-    }
+  }
 
     public void setUser( user theUser ) {
 	this.theUser = theUser;

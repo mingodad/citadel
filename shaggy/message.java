@@ -21,7 +21,8 @@ public class message {
 	time = makeDate( time );
 
 	blurb = (cur_pos+1) + "/" + count + " " + time + " from " + from;
-	if( !node.equals( citadel.me.serverInfo.human_name ) )
+	//	if( !node.equals( citadel.me.serverInfo.human_name ) )
+	if( ri.net )
 	    blurb = blurb + " (@"+node+")";
 	if( !rcpt.equals( "" ) )
 	    blurb = blurb + " to " + rcpt;
