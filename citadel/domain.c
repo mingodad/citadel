@@ -10,8 +10,12 @@
 #include <string.h>
 #include <netinet/in.h>
 #include <stdio.h>
+
+#ifdef HAVE_RESOLV_H
 #include <arpa/nameser.h>
 #include <resolv.h>
+#endif
+
 #include "sysdep_decls.h"
 #include "citadel.h"
 #include "domain.h"
@@ -110,10 +114,14 @@ void sort_mxrecs(struct mx *mxrecs, int num_mxrecs) {
  *
  */
 int getmx(char *mxbuf, char *dest) {
+
+#ifdef HAVE_RESOLV_H
 	union {
 			u_char bytes[1024];
 			HEADER header;
     } answer;
+#endif
+
 	int ret;
 	unsigned char *startptr, *endptr, *ptr;
 	char expanded_buf[1024];
@@ -137,7 +145,7 @@ int getmx(char *mxbuf, char *dest) {
 	 * No smart-host?  Look up the best MX for a site.
 	 */
 
-#ifdef __CYGWIN__
+#ifndef HAVE_RESOLV_H
 
 	/*
 	 * On systems with b0rken or non-standard resolver libraries, learn
@@ -153,7 +161,7 @@ int getmx(char *mxbuf, char *dest) {
 	pclose(fp);
 	return(0);	/* FIXME */
 
-#else /* __CYGWIN__ */
+#else /* HAVE_RESOLV_H */
 
 	/*
 	 * Make a call to the standard resolver library.
@@ -230,7 +238,7 @@ int getmx(char *mxbuf, char *dest) {
 			}
 		}
 	}
-#endif /* __CYGWIN__ */
+#endif /* HAVE_RESOLV_H */
 
 	sort_mxrecs(mxrecs, num_mxrecs);
 

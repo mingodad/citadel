@@ -434,7 +434,7 @@ if test "x$with_ncurses" != xno; then
 	AC_CHECK_HEADERS(ncurses.h,,,[ ])
 fi
 
-AC_CHECK_HEADER(resolv.h,,,
+AC_CHECK_HEADER(resolv.h,AC_DEFINE(HAVE_RESOLV_H),,
 [#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -445,8 +445,6 @@ AC_CHECK_HEADER(resolv.h,,,
 #include <arpa/nameser.h>
 #endif])
 
-AC_SUBST(SMTP)
-AC_SUBST(DOMAIN)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST

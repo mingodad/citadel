@@ -33,3 +33,6 @@
 
 /* define this if you have the libical calendaring library available */
 #undef HAVE_LIBICAL
+
+/* define this if you have the resolv.h header file. */
+#undef HAVE_RESOLV_H
