@@ -63,3 +63,8 @@ void display_entroom(void);
 void entroom(void);
 void display_editroom(void);
 void editroom(void);
+void server_to_text(void);
+void save_edit(char *description, char *enter_cmd, int regoto);
+void display_edit(char *description, char *check_cmd,
+                char *read_cmd, char *save_cmd);
+void gotoroom(char *gname, int display_name);
