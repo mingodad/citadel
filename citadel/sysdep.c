@@ -775,6 +775,7 @@ void create_worker(void) {
 	if ((ret = pthread_attr_setstacksize(&attr, 128 * 1024))) {
 		lprintf(CTDL_EMERG, "pthread_attr_setstacksize: %s\n", strerror(ret));
 		time_to_die = -1;
+		pthread_attr_destroy(&attr);
 		return;
 	}
 
@@ -787,6 +788,7 @@ void create_worker(void) {
 
 	n->next = worker_list;
 	worker_list = n;
+	pthread_attr_destroy(&attr);
 }
 
 
