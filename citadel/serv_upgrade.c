@@ -573,7 +573,7 @@ void export_a_user(struct usersupp *us) {
 	int num_visits;
 	int a;
 
-	lprintf(9, "User <%s>\n", us->fullname);
+	lprintf(9, "User <%s> ", us->fullname);
 
 	fprintf(exfp, "user%c", 0);
 	fprintf(exfp, "usuid%c%d%c", 0, us->USuid, 0);
@@ -597,11 +597,12 @@ void export_a_user(struct usersupp *us) {
 	fprintf(exfp, "ususerpurge%c%d%c", 0, us->USuserpurge, 0);
 
 
-	cdbvisit = cdb_fetch(CDB_VISIT, &CC->usersupp.usernum, sizeof(long));
+	cdbvisit = cdb_fetch(CDB_VISIT, &us->usernum, sizeof(long));
 	if (cdbvisit != NULL) {
-		if ((num_visits = cdbvisit->len / sizeof(struct visit)) == 0) {
+		num_visits = cdbvisit->len / sizeof(struct visit);
+		if (num_visits == 0) {
 			cdb_free(cdbvisit);
-			return;
+			goto VISITS_DONE;
 			}
 		visits = (struct visit *)
 			malloc(num_visits * sizeof(struct visit));
@@ -624,7 +625,8 @@ void export_a_user(struct usersupp *us) {
 		free(visits);
 		}
 
-
+VISITS_DONE:
+	lprintf(9, "(%d rooms)\n", num_visits);
 	fprintf(exfp, "enduser%c", 0);
 	}
 
