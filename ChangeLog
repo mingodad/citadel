@@ -1,4 +1,7 @@
 $Log$
+Revision 323.11  2002/03/10 06:07:09  ajc
+* Handle multiple Internet e-mail addresses in vCard editor
+
 Revision 323.10  2002/03/07 04:56:09  ajc
 * Final polish for initial round of vCard editing functions.  Only show "edit"
   link when editing user's own vCard in the My Citadel Config> room.
@@ -742,4 +745,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -55,6 +55,7 @@ void edit_vcard(void) {
 	char country[SIZ];
 	char hometel[SIZ];
 	char worktel[SIZ];
+	char inetemail[SIZ];
 	char extrafields[SIZ];
 
 	lastname[0] = 0;
@@ -71,6 +72,7 @@ void edit_vcard(void) {
 	country[0] = 0;
 	hometel[0] = 0;
 	worktel[0] = 0;
+	inetemail[0] = 0;
 	extrafields[0] = 0;
 
 	output_headers(1);
@@ -160,6 +162,13 @@ void edit_vcard(void) {
 			extract_token(worktel, value, 0, ';');
 		}
 
+		else if (!strcasecmp(key, "email;internet")) {
+			if (inetemail[0] != 0) {
+				strcat(inetemail, "\n");
+			}
+			strcat(inetemail, value);
+		}
+
 		else {
 			strcat(extrafields, key);
 			strcat(extrafields, ":");
@@ -238,6 +247,14 @@ void edit_vcard(void) {
 		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR></TABLE>\n",
 		worktel);
 
+	wprintf("<TABLE border=0><TR><TD>Internet e-mail addresses:<BR>"
+		"<FONT size=-2>For addresses in the Citadel directory, "
+		"the topmost address will be used in outgoing mail."
+		"</FONT></TD><TD>"
+		"<TEXTAREA NAME=\"inetemail\" ROWS=5 COLS=40 WIDTH=40>");
+	escputs(inetemail);
+	wprintf("</TEXTAREA></TD></TR></TABLE><BR>\n");
+
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"extrafields\" VALUE=\"");
 	escputs(extrafields);
 	wprintf("\">\n");
@@ -255,6 +272,7 @@ void edit_vcard(void) {
 
 void submit_vcard(void) {
 	char buf[SIZ];
+	int i;
 
 	if (strcmp(bstr("sc"), "OK")) { 
 		readloop("readnew");
@@ -290,6 +308,14 @@ void submit_vcard(void) {
 		bstr("country") );
 	serv_printf("tel;home:%s", bstr("hometel") );
 	serv_printf("tel;work:%s", bstr("worktel") );
+	
+	for (i=0; i<num_tokens(bstr("inetemail"), '\n'); ++i) {
+		extract_token(buf, bstr("inetemail"), i, '\n');
+		if (strlen(buf) > 0) {
+			serv_printf("email;internet:%s", buf);
+		}
+	}
+
 	serv_printf("%s", bstr("extrafields") );
 	serv_puts("end:vcard");
 	serv_puts("000");
