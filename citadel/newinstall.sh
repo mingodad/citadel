@@ -157,6 +157,7 @@ determine_distribution () {
 }
 
 install_ical () {
+	cd $BUILD 2>&1 >>$LOG || die
 	$WGET $DOWNLOAD_SITE/libical-easyinstall.sum
 	SUM=`cat libical-easyinstall.sum`
 	SUMFILE=$SUPPORT/etc/libical-easyinstall.sum
@@ -170,7 +171,6 @@ install_ical () {
 	echo "* Downloading libical..."
 	$WGET $DOWNLOAD_SITE/$ICAL_SOURCE 2>&1 >>$LOG || die
 	echo "* Installing libical..."
-	cd $BUILD 2>&1 >>$LOG || die
 	( gzip -dc $ICAL_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
 	cd $BUILD/libical-0.24 2>&1 >>$LOG || die
 	./configure --prefix=$SUPPORT 2>&1 >>$LOG || die
@@ -183,6 +183,7 @@ install_ical () {
 }
 
 install_db () {
+	cd $BUILD 2>&1 >>$LOG || die
 	$WGET $DOWNLOAD_SITE/db-easyinstall.sum
 	SUM=`cat db-easyinstall.sum`
 	SUMFILE=$SUPPORT/etc/db-easyinstall.sum
@@ -196,7 +197,6 @@ install_db () {
 	echo "* Downloading Berkeley DB..."
 	$WGET $DOWNLOAD_SITE/$DB_SOURCE 2>&1 >>$LOG || die
 	echo "* Installing Berkeley DB..."
-	cd $BUILD 2>&1 >>$LOG || die
 	( gzip -dc $DB_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
 	cd $BUILD/db-4.3.21.NC 2>&1 >>$LOG || die
 	#patch -p0 < ../$DB_PATCHES 2>&1 >>$LOG || die
@@ -210,6 +210,7 @@ install_db () {
 }
 
 install_ldap () {
+	cd $BUILD 2>&1 >>$LOG || die
 	$WGET $DOWNLOAD_SITE/ldap-easyinstall.sum
 	SUM=`cat ldap-easyinstall.sum`
 	SUMFILE=$SUPPORT/etc/ldap-easyinstall.sum
@@ -272,6 +273,7 @@ install_prerequisites () {
 }
 
 install_sources () {
+	cd $BUILD 2>&1 >>$LOG || die
 	if [ -f $CITADEL/citadel.config ]
 	then
 		IS_UPGRADE=yes
@@ -323,6 +325,7 @@ install_sources () {
 		echo $SUM >$SUMFILE
 	fi
 
+	cd $BUILD 2>&1 >>$LOG || die
 	DO_INSTALL_WEBCIT=yes
 	$WGET $DOWNLOAD_SITE/webcit-easyinstall.sum
 	SUM=`cat webcit-easyinstall.sum`
