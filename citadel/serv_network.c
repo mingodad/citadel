@@ -459,9 +459,9 @@ void network_spool_msg(long msgnum, void *userdata) {
 	if ((sc->digestrecps != NULL) && (sc->digestfp != NULL)) {
 		fprintf(sc->digestfp,	" -----------------------------------"
 					"------------------------------------"
-					"-------\r\n");
+					"-------\n");
 		CtdlRedirectOutput(sc->digestfp, -1);
-		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
+		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 0);
 		CtdlRedirectOutput(NULL, -1);
 		sc->num_msgs_spooled += 1;
 	}
@@ -595,15 +595,14 @@ void network_deliver_digest(struct SpoolControl *sc) {
 
 	sprintf(buf, "%ld", time(NULL));
 	msg->cm_fields['T'] = strdoop(buf);
-
+	msg->cm_fields['A'] = strdoop(CC->quickroom.QRname);
+	msg->cm_fields['U'] = strdoop(CC->quickroom.QRname);
 	sprintf(buf, "room_%s@%s", CC->quickroom.QRname, config.c_fqdn);
 	for (i=0; i<strlen(buf); ++i) {
 		if (isspace(buf[i])) buf[i]='_';
 		buf[i] = tolower(buf[i]);
 	}
 	msg->cm_fields['F'] = strdoop(buf);
-
-	msg->cm_fields['A'] = strdoop(CC->quickroom.QRname);
 
 	fseek(sc->digestfp, 0L, SEEK_END);
 	msglen = ftell(sc->digestfp);
@@ -733,7 +732,7 @@ void network_spoolout_room(char *room_to_spool) {
 	/* If there are digest recipients, we have to build a digest */
 	if (sc.digestrecps != NULL) {
 		sc.digestfp = tmpfile();
-		fprintf(sc.digestfp, "Content-type: text/plain\r\n\r\n");
+		fprintf(sc.digestfp, "Content-type: text/plain\n\n");
 	}
 
 	/* Do something useful */
@@ -744,10 +743,9 @@ void network_spoolout_room(char *room_to_spool) {
 	if (sc.digestfp != NULL) {
 		fprintf(sc.digestfp,	" -----------------------------------"
 					"------------------------------------"
-					"-------\r\n"
+					"-------\n"
 					"You are subscribed to the '%s' "
-					"list.\r\nTo unsubscribe, blah blah "
-					"blah FIXME.\r\n",
+					"list.\n",
 					CC->quickroom.QRname
 		);
 		network_deliver_digest(&sc);	/* deliver and close */

@@ -1,4 +1,8 @@
  $Log$
+ Revision 591.80  2002/08/06 02:58:01  ajc
+ * Cleaned up the output of digest mode.  It's usable now, but the self-service
+   subscribe/unsubscribe functions are not there yet.
+
  Revision 591.79  2002/08/05 14:38:11  ajc
  * rooms.c: corrected a typo reported by Campagnolo (Mike Poulin)
 
@@ -3858,4 +3862,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
