@@ -350,7 +350,7 @@ void output_headers(int controlcode)
 			"}\n"
 			"function force_frameset() { \n"
 			" if (top.frames.length == 0) { \n"
-			"  top.location.replace('/static/mainframeset.html'); \n"
+			"  top.location.replace('/do_welcome'); \n"
 			" } \n"
 			"} \n"
 			"%s\n"

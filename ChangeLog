@@ -1,4 +1,8 @@
 $Log$
+Revision 504.6  2004/02/18 20:08:29  ajc
+* Fixed the frameset force reload logic.  Now it does the whole frameset
+  without displaying an error in the main frame.
+
 Revision 504.5  2004/02/18 19:17:51  ajc
 * Force reload of frameset if someone tries to escape it.  Not perfect
   but it mostly works at this poing.
@@ -1654,4 +1658,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
