@@ -154,8 +154,7 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 		safestrncpy(rbuf, MAILROOM, bufsize);
 		ret = (0 | IR_MAILBOX);
 	}
-
-	if (levels > 1) {
+	else if (levels > 1) {
 		extract(floorname, foldername, 0);
 		strcpy(roomname, &foldername[strlen(floorname)+1]);
 		for (i = 0; i < MAXFLOORS; ++i) {
