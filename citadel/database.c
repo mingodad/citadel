@@ -101,6 +101,10 @@ void defrag_databases(void)
 	begin_critical_section(S_DIRECTORY);
 	gdbm_reorganize(gdbms[CDB_DIRECTORY]);
 	end_critical_section(S_DIRECTORY);
+
+	/* defrag the use table */
+	lprintf(7, "Defragmenting the use table\n");
+	gdbm_reorganize(gdbms[CDB_USETABLE]);
 }
 
 
@@ -174,6 +178,14 @@ void open_databases(void)
 			gdbm_strerror(gdbm_errno));
 		exit(1);
 	}
+	gdbms[CDB_USETABLE] = gdbm_open("data/usetable.gdbm", 0,
+					GDBM_WRCREAT, 0600, NULL);
+	if (gdbms[CDB_USETABLE] == NULL) {
+		lprintf(2, "Cannot open use table: %s\n",
+			gdbm_strerror(gdbm_errno));
+		exit(1);
+	}
+
 	/*
 	   end_critical_section(S_DATABASE);
 	 */

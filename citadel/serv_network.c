@@ -76,138 +76,51 @@ struct NetMap *the_netmap = NULL;
 
 
 /*
- * Manage the use table.  This is a list of messages which have recently
+ * Check the use table.  This is a list of messages which have recently
  * arrived on the system.  It is maintained and queried to prevent the same
  * message from being entered into the database multiple times if it happens
  * to arrive multiple times by accident.
  */
-int network_usetable(int operation, struct CtdlMessage *msg) {
+int network_usetable(struct CtdlMessage *msg) {
 
-	static struct UseTable *ut = NULL;
-	struct UseTable *uptr = NULL;
-	char *serialized_table = NULL;
-	char *ptr;
 	char msgid[SIZ];
-	char buf[SIZ];
-	int i;
-	size_t stlen = 0;
+	struct cdbdata *cdbut;
+	time_t timestamp;
 
-	switch(operation) {
-	
-		case UT_LOAD:
-			serialized_table = CtdlGetSysConfig(USETABLE);
-			if (serialized_table == NULL) return(0);
-
-			ptr = serialized_table;
-			i = 0;
-			buf[0] = 0;
-			while (ptr[0] != 0) {
-				buf[i] = *ptr;
-		
-				if (buf[i]=='\n') {
-					buf[i] = 0;
-					if (strlen(buf) > 0) {
-
-						uptr = (struct UseTable *)
-							mallok(sizeof(struct UseTable));
-						if (uptr != NULL) {
-							uptr->next = ut;
-							extract(msgid, buf, 0);
-							uptr->message_id = strdoop(msgid);
-							uptr->timestamp = extract_long(buf, 1);
-							ut = uptr;
-						}
-					}
-
-					i = 0;
-					buf[0] = 0;
-				}
-				else {
-					++i;
-				}
-				++ptr;
-			}
-
-			phree(serialized_table);
-			serialized_table = NULL;
-			return(0);
-
-		case UT_INSERT:
-			/* Bail out if we can't generate a message ID */
-			if (msg == NULL) {
-				return(0);
-			}
-			if (msg->cm_fields['I'] == NULL) {
-				return(0);
-			}
-			if (strlen(msg->cm_fields['I']) == 0) {
-				return(0);
-			}
-
-			/* Generate the message ID */
-			strcpy(msgid, msg->cm_fields['I']);
-			if (haschar(msgid, '@') == 0) {
-				strcat(msgid, "@");
-				if (msg->cm_fields['N'] != NULL) {
-					strcat(msgid, msg->cm_fields['N']);
-				}
-				else {
-					return(0);
-				}
-			}
-
-			/* Compare to the existing list */
-			for (uptr = ut; uptr != NULL; uptr = uptr->next) {
-				if (!strcasecmp(msgid, uptr->message_id)) {
-					return(1);
-				}
-			}
-
-			/* If we got to this point, it's unique: add it. */
-			uptr = (struct UseTable *)
-				mallok(sizeof(struct UseTable));
-			if (uptr == NULL) return(0);
-			uptr->next = ut;
-			uptr->message_id = strdoop(msgid);
-			uptr->timestamp = time(NULL);
-			ut = uptr;
-			return(0);
-
-		case UT_SAVE:
-			/* Figure out how big the serialized buffer should be */
-			stlen = 0;
-			for (uptr = ut; uptr != NULL; uptr = uptr->next) {
-				stlen = stlen + strlen(uptr->message_id) + 20;
-			}
-			serialized_table = mallok(stlen);
-			memset(serialized_table, 0, stlen);
-
-			while (ut != NULL) {
-				if ( (serialized_table != NULL) 
-				   && ( (ut->timestamp - time(NULL)) <
-				      USETABLE_RETAIN) ) {
-					sprintf(&serialized_table[strlen(
-					  serialized_table)], "%s|%ld\n",
-					    ut->message_id,
-					    (long)ut->timestamp);
-				}
-
-				/* Now free the memory */
-				uptr = ut;
-				ut = ut->next;
-				phree(uptr->message_id);
-				phree(uptr);
-			}
-
-			/* Write to disk */
-			CtdlPutSysConfig(USETABLE, serialized_table);
-			phree(serialized_table);
-			return(0);
-
+	/* Bail out if we can't generate a message ID */
+	if (msg == NULL) {
+		return(0);
+	}
+	if (msg->cm_fields['I'] == NULL) {
+		return(0);
+	}
+	if (strlen(msg->cm_fields['I']) == 0) {
+		return(0);
 	}
 
-	/* should never get here unless illegal operation specified */
-	return(2);
+	/* Generate the message ID */
+	strcpy(msgid, msg->cm_fields['I']);
+	if (haschar(msgid, '@') == 0) {
+		strcat(msgid, "@");
+		if (msg->cm_fields['N'] != NULL) {
+			strcat(msgid, msg->cm_fields['N']);
+		}
+		else {
+			return(0);
+		}
+	}
+
+	cdbut = cdb_fetch(CDB_USETABLE, msgid, strlen(msgid));
+	if (cdbut != NULL) {
+		cdb_free(cdbut);
+		return(1);
+	}
+
+	/* If we got to this point, it's unique: add it. */
+	timestamp = time(NULL);
+	cdb_store(CDB_USETABLE, msgid, strlen(msgid),
+		&timestamp, sizeof(timestamp) );
+	return(0);
 }
 
 
@@ -920,7 +833,7 @@ void network_process_buffer(char *buffer, long size) {
 	/*
 	 * Check to see if we already have a copy of this message
 	 */
-	if (network_usetable(UT_INSERT, msg) != 0) {
+	if (network_usetable(msg) != 0) {
 		sprintf(buf,
 			"Loopzapper rejected message <%s> "
 			"from <%s> in <%s> @ <%s>\n",
@@ -1328,10 +1241,9 @@ void network_do_queue(void) {
 	network_poll_other_citadel_nodes();
 
 	/*
-	 * Load the network map and use table into memory.
+	 * Load the network map into memory.
 	 */
 	read_network_map();
-	network_usetable(UT_LOAD, NULL);
 
 	/* 
 	 * Go ahead and run the queue
@@ -1350,8 +1262,7 @@ void network_do_queue(void) {
 	lprintf(7, "network: processing inbound queue\n");
 	network_do_spoolin();
 
-	/* Save the usetable and network map back to disk */
-	network_usetable(UT_SAVE, NULL);
+	/* Save the network map back to disk */
 	write_network_map();
 
 	lprintf(7, "network: queue run completed\n");

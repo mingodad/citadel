@@ -250,6 +250,7 @@ enum {
 	CDB_MSGLISTS,		/* room message lists            */
 	CDB_VISIT,		/* user/room relationships       */
 	CDB_DIRECTORY,		/* address book directory        */
+	CDB_USETABLE,		/* network use table             */
 	MAXCDB			/* total number of CDB's defined */
 };
 
