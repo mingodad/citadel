@@ -30,11 +30,12 @@
  * The pathname is always going to be /groupdav/room_name/euid
  */
 void groupdav_put(char *dav_pathname, char *dav_ifmatch,
-		char *dav_content_type, char *dav_content
+		char *supplied_content_type, char *dav_content
 ) {
 	char dav_roomname[SIZ];
 	char dav_uid[SIZ];
-	long new_msgnum = (-1L);
+	char dav_content_type[SIZ];
+	long new_msgnum = (-2L);
 	long old_msgnum = (-1L);
 	char buf[SIZ];
 	int n = 0;
@@ -68,6 +69,25 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 			dav_roomname
 		);
 		return;
+	}
+
+	/* Ugly hack to mess with the content type.  KOrganizer is either
+	 * not supplying one, or supplying the wrong one.  FIXME remove this
+	 * after getting clarification or a fix from Reinhold.
+	 */
+	strcpy(dav_content_type, supplied_content_type);
+	switch (WC->wc_view) {
+		case VIEW_ADDRESSBOOK:
+			strcpy(dav_content_type, "text/x-vcard");
+			break;
+		case VIEW_CALENDAR:
+			strcpy(dav_content_type, "text/calendar");
+			break;
+		case VIEW_TASKS:
+			strcpy(dav_content_type, "text/calendar");
+			break;
+		default:
+			break;
 	}
 
 	/*
@@ -107,7 +127,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	/* Send the content to the Citadel server */
 	serv_printf("Content-type: %s\n\n", dav_content_type);
 	serv_puts(dav_content);
-	serv_puts("\n000\n");
+	serv_puts("\n000");
 
 	/* Fetch the reply from the Citadel server */
 	n = 0;
@@ -130,7 +150,11 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	if (new_msgnum < 0L) {
 		wprintf("HTTP/1.1 502 Bad Gateway\n");
 		groupdav_common_headers();
-		wprintf("Content-length: 0\n\n");
+		wprintf("Content-type: text/plain\n"
+			"\n"
+			"new_msgnum is %ld\n"
+			"\n", new_msgnum
+		);
 		return;
 	}
 

@@ -151,6 +151,7 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
 		}
 		len = len + rlen;
 	}
+	/*write(2, buf, bytes); FIXME */
 	return (1);
 }
 
@@ -162,6 +163,7 @@ ssize_t client_write(const void *buf, size_t count) {
 		return(count);
 	}
 #endif
+	/* write(2, buf, count); FIXME */
 	return(write(WC->http_sock, buf, count));
 }
 
