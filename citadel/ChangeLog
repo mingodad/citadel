@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.94  2001/12/06 05:13:34  ajc
+ * Added the documentation for room sharing and listserv
+
  Revision 580.93  2001/12/04 05:24:15  ajc
  * Added two more bytes to the possible length of shared secrets in networking
    due to some legacy support requirements.
@@ -2930,3 +2933,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

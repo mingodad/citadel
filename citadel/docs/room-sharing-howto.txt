@@ -1,67 +1,136 @@
-                      Citadel/UX Networking Documentation
-                          (A brief overview on setup)
-                  Written by Steve Williams (Patriot @ pixel)
-
-
-   Having come this far, you're ready to set up your networked rooms.  In
-and of itself it's not too difficult.  I would suggest telnetting to
-another Citadel/UX and checking out what they offer.  Currently,
-uncensored.citadel.org and dogpound2.citadel.org and pixel.citadel.org
-are your best bets.
-
-Below is a list of the networked rooms (most of them) that PixelBBS
-carries.  Note the ) after each room name.  This designates that room as a
-networked room.
-
-   Rooms with no new messages on Networked Rooms:
-A/V Talk)  Creation/Evolution)  babylon 5)  Jokes)  Networking)
-Astronomy) Books: Sci-Fi)  Food)  MP3 Universe)  TrekNet)  PaganNet)
-net.Religion) Music)  Programming)  Uncensored Magic)  Politica)  Movies)
-Video Games) Star Wars)  Linux)  Pets)  Swagazine)  Global Address Book)
-Sports) Slimies 2000)  Science Fiction)  Sysop Stuff)  Raising Kids)
-Unix) Hot Pink Amoebas)  Dreams)  Buy/Sell)  Tech Area)  Citadel
-Development) Linux Today)  Citadel/UX)  Gay/Lesbian)  Of the Weird)
-Magic-The Gathering) The Local Net)  Books)  Netlinks)  Software 
-Questions)  SCA) Abortion) NASA News)  Misheard Lyrics)  Snausages)
-Macintosh)  Gateway) Microsoft Bashing)  IGnet Unlimited)  BBS Ads)
-
-
-
-
-Basically networking your citadel is a very good idea, because not only do
-you have your own userbase to add to your rooms, you also have input from
-every other networked Citadel/UX and some other varieties of Citadel as
-well (Citadel-86, Cit:K2NE, etc), which dramatically increases the
-topical posting.  So now you're saying, "Ok, I know what it is now, how do
-I set the damned thing up?"  Good question. There are several steps to
-take.  Actually setting up the networked rooms is simple so we'll do that
-last.  The first thing you need to do is to find another network node to
-share with.  The best way to do this (at this time) is to send mail to
-smw@pixel.citadel.org.  For the time being I'll share my rooms with just
-about anyone as I have the bandwidth currently to accomplish this.  Now,
-for the step by step:
-
-
- 1.  Determine from the list above (I have most of the networked rooms
-     listed, however I have no idea or way of knowing how often new rooms
-     will be added) or from another networked citadel, which networked rooms
-     you would like.
-
- 2.  Contact me, or the sysop on another networked citadel (login to the
-     bbs and send mail to recipient Sysop), asking to share those rooms with
-     you.
+ Room Sharing in Citadel/UX
+ --------------------------
  
- 3.  Configure your neighbor nodes with <.A>ide <S>ysconfig <N>etwork
+ One way to "keep the conversation going" on your Citadel system is to share
+rooms with other Citadel systems.  This process has been streamlined in recent
+versions and is now very easy.  In a shared room, a message posted to the room
+is automatically propagated to every system on the network.  It's kind of like
+a UseNet newsgroup, but without the spam.
  
- 4.  Configure rooms to share with <.A>ide <N>etwork room sharing
-  
+ Obviously, the first thing you have to do is find another Citadel to share
+rooms with, and make arrangements with them.  The following Citadels are a good
+place to start:
  
- At this point we're all done.  Oh I admit that you might run into
- some problems, and if you do you can feel free to mail
- smw@pixel.citadel.org with the subject Citadel Problems.
+ The Dog Pound II   dogpound2.citadel.org
+ UNCENSORED!        uncensored.citadel.org
+ PixelBBS           pixel.citadel.org
+ 
+ You don't have to be a part of the citadel.org domain to participate in the
+Citadel network, but the DNS service is provided free of charge by the Citadel
+community if you wish to do this.
+ 
+ Before we get into the technical nitty gritty, there are two points of
+etiquette to keep in mind.  The first thing to keep in mind is that the
+operator of any particular Citadel may not be willing to share some of his/her
+rooms.  Some sites are proud to offer exclusive content in certain areas.
+Chances are, if a room is already being shared on the network, it's available
+for anyone to share; if not, it can't hurt to ask -- but take care not to
+demand it of them.  Ask if you may share the room instead of telling them that
+you wish to share the room.  When looking at a <K>nown rooms list, network
+rooms are the ones ending in parentheses instead of angle brackets.  For
+example, "Gateway)" would be a network room, "Lobby>" would not.
+ 
+ The other point of etiquette to remember is that you should be making the
+arrangements in advance, and then set it up.  It is extremely rude to simply
+begin networking with another Citadel without first obtaining permission from
+its operator.  Always ask first.  Most Citadel operators are more than happy
+to network with you.  Also, if later on you decide to take your system down,
+please take the time to notify the operators of any other Citadels you network
+with, so they can unconfigure their end.
  
  
-  Visit PixelBBS at:pixel.citadel.org, login as bbs.
-  Or, if you prefer:  http://pixel.citadel.org:2000
+ Ok, first things first.  On a Citadel room sharing network, the first thing
+you need to know is your own system's node name.  Presumably you set this
+up during installation, but if you want to change it you can do so using the
+<.A>ide <S>ysconfig <G>eneral command:
 
- -Steve Williams (Patriot)
+Lobby> . Aide System configuration General
+Node name [uncnsrd]:
+Fully qualified domain name [uncensored.citadel.org]:
+Human readable node name [Uncensored]:
+ 
+ The "node name" is important, it's how the network identifies messages
+coming from your system.  The "human readable node name" is simply a label;
+it shows up in messages coming from your system.  "Fully qualified domain
+name" is your DNS name; it's used for routing messages on the Internet.  In
+the above example, the node name is "uncnsrd".
+ 
+ 
+ The next thing you need to do is configure your neighbor node(s).  You need
+to do this for each node you network with.  Let's say you wanted to talk to
+a Citadel system called "frobozz".  Use the <.A>ide <S>ysconfig <N>etwork
+command:
+
+Lobby> . Aide System configuration Network
+###    Node            Secret                   Host or IP             Port#
+--- ---------------- ---------------- -------------------------------- -----
+<A>dd <D>elete <S>ave <Q>uit  -> Add
+
+Enter node name    : frobozz
+Enter shared secret: frotz
+Enter host or IP   : frobozz.magick.org
+Enter port number  :  [504]: 504
+
+###    Node            Secret                   Host or IP             Port#
+--- ---------------- ---------------- -------------------------------- -----
+  1 frobozz          frotz            frobozz.magick.org               504
+<A>dd <D>elete <S>ave <Q>uit  -> Save
+
+Lobby>
+
+ As you can see in the above example, you have to enter the Citadel node name,
+the DNS name or IP address of the server, and the port number the Citadel
+service is running on.  The "shared secret" is a password to allow the two
+Citadel nodes to connect to each other to exchange network data.  The password
+must be *identical* on both ends of the connection -- when the operator of
+the other Citadel node sets up the connection with your system, he/she must
+use the same password.
+ 
+ 
+ Now you're ready to share rooms.  You have to do this for each room you want
+to share, and you have to do it from BOTH ENDS -- again, when you share a room
+with another Citadel, they must share it with you as well.  Let's say you have
+a room called "Quiche Recipes>" and you want to share it with the node you
+set up above.  First, edit the room and flag it as a network room:
+
+Quiche Recipes> . Aide Edit this room
+Room name [Quiche Recipes]:
+Private room  [No]: No
+Preferred users only  [No]: No
+Read-only room  [No]: No
+Directory room  [No]: No
+Permanent room  [No]: No
+Network shared room  [No]: Yes
+Automatically make all messages anonymous  [No]: No
+Ask users whether to make messages anonymous  [No]: No
+Listing order [64]:
+Room aide (or 'none') [none]:
+Message expire policy (? for list) [0]:
+Save changes (y/n)? Yes
+Ok
+
+Quiche Recipes)
+ 
+ Notice how the prompt changed?  It was > before, but it's ) now.  That means
+it's a network room.  Now you can tell Citadel that you want to share the room
+with frobozz.  Enter this command:
+
+Quiche Recipes) . Aide Network room sharing
+ 
+ Your text editor will pop up (you *did* configure Citadel to use your
+favorite text editor, right?) with a screen that looks like this:
+
+# Configuration for room: Quiche Recipes
+# Nodes with which we share this room
+# Specify one per line.
+
+ All you have to do is enter the name of the other Citadel node (i.e.
+"frobozz" in our example) on a line by itself.  As usual, lines starting with
+a "#" are comments.  Just go to the end of the file, type "frobozz" (without
+the quotes), save the file... and you're done!
+ 
+ 
+ At this point, you just sit back and enjoy.  Your Citadel and the other one
+will begin polling each other at regular intervals (once per hour by default)
+and sharing messages.
+
