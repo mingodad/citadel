@@ -234,6 +234,7 @@ void DoPurgeRooms(struct quickroom *qrbuf, void *data) {
 	if (qrbuf->QRflags & QR_PERMANENT) return;
 	if (qrbuf->QRflags & QR_DIRECTORY) return;
 	if (qrbuf->QRflags & QR_NETWORK) return;
+	if (!strcasecmp(qrbuf->QRname, SYSCONFIGROOM)) return;
 	if (is_noneditable(qrbuf)) return;
 
 	/* If we don't know the modification date, be safe and don't purge */

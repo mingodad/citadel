@@ -17,6 +17,7 @@
 #include "citadel.h"
 #include "server.h"
 #include "locate_host.h"
+#include "sysdep_decls.h"
 #include "config.h"
 #include "tools.h"
 
