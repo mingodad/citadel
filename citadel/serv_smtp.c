@@ -336,6 +336,15 @@ void smtp_expn(char *argbuf) {
  * be sure to phree() them first!
  */
 void smtp_rset(void) {
+	int is_lmtp;
+
+	/*
+	 * Our entire SMTP state is discarded when a RSET command is issued,
+	 * but we need to preserve this one little piece of information, so
+	 * we save it for later.
+	 */
+	is_lmtp = SMTP->is_lmtp;
+
 	memset(SMTP, 0, sizeof(struct citsmtp));
 
 	/*
@@ -348,6 +357,11 @@ void smtp_rset(void) {
 	 *	logout(CC);
 	 * }
 	 */
+
+	/*
+	 * Reinstate this little piece of information we saved (see above).
+	 */
+	SMTP->is_lmtp = is_lmtp;
 
 	cprintf("250 2.0.0 Zap!\r\n");
 }
