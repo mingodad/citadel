@@ -39,6 +39,7 @@ void edit_vcard(void) {
 	struct vCard *v;
 	int i;
 	char *key, *value;
+	char whatuser[SIZ];
 
 	char lastname[SIZ];
 	char firstname[SIZ];
@@ -73,6 +74,28 @@ void edit_vcard(void) {
 	extrafields[0] = 0;
 
 	output_headers(1);
+
+	strcpy(whatuser, "");
+	sprintf(buf, "MSG0 %s|1", bstr("msgnum") );
+	serv_puts(buf);
+	serv_gets(buf);
+	if (buf[0] != '1') {
+		wDumpContent(1);
+		return;
+	}
+	while (serv_gets(buf), strcmp(buf, "000")) {
+		if (!strncasecmp(buf, "from=", 5)) {
+			strcpy(whatuser, &buf[5]);
+		}
+		else if (!strncasecmp(buf, "node=", 5)) {
+			strcat(whatuser, " @ ");
+			strcat(whatuser, &buf[5]);
+		}
+	}
+
+	total_len = atoi(&buf[4]);
+
+
 	sprintf(buf, "OPNA %s|%s", bstr("msgnum"), bstr("partnum") );
 	serv_puts(buf);
 	serv_gets(buf);
@@ -151,7 +174,9 @@ void edit_vcard(void) {
 	/* Display the form */
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/submit_vcard\">\n");
 	wprintf("<H2><IMG VALIGN=CENTER SRC=\"/static/vcard.gif\">"
-		"Contact information for FIXME</H2>\n");
+		"Contact information for ");
+	escputs(whatuser);
+	wprintf("</H2>\n");
 
 	wprintf("<TABLE border=0><TR>"
 		"<TD>Prefix</TD>"
@@ -231,6 +256,10 @@ void edit_vcard(void) {
 void submit_vcard(void) {
 	char buf[SIZ];
 
+	if (strcmp(bstr("sc"), "OK")) { 
+		readloop("readnew");
+		return;
+	}
 
 	sprintf(buf, "ENT0 1|||4||");
 	fprintf(stderr, "%s\n", buf);
@@ -265,5 +294,5 @@ void submit_vcard(void) {
 	serv_puts("end:vcard");
 	serv_puts("000");
 
-	edit_vcard();
+	readloop("readnew");
 }

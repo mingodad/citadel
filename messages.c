@@ -98,7 +98,10 @@ void display_vcard(char *vcard_source) {
 	wprintf("<TABLE bgcolor=#888888>");
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 		if (!strcasecmp(v->prop[i].name, "n")) {
-			wprintf("<TR BGCOLOR=#AAAAAA><TD><FONT SIZE=+1><B>");
+			wprintf("<TR BGCOLOR=#AAAAAA>"
+			"<TD BGCOLOR=#FFFFFF>"
+			"<IMG VALIGN=CENTER SRC=\"/static/vcard.gif\"></TD>"
+			"<TD><FONT SIZE=+1><B>");
 			escputs(v->prop[i].value);
 			wprintf("</B></FONT></TD></TR>\n");
 		}
@@ -392,14 +395,15 @@ void read_message(long msgnum, int is_summary) {
 		vcard_source = load_mimepart(msgnum, vcard_partnum);
 		if (vcard_source != NULL) {
 
-			/* FIXME this is a temporary hack to make the screen usable
-			 * while we build it.  We need a more intuitive way of getting
-			 * in.
-			 */
-			wprintf("<A HREF=\"/edit_vcard?msgnum=%ld&partnum=%s\">",
-				msgnum, vcard_partnum);
-			wprintf("(edit)</A>");
+			/* If it's my vCard I can edit it */
+			if (!strcasecmp(WC->wc_roomname, USERCONFIGROOM)) {
+				wprintf("<A HREF=\"/edit_vcard?"
+					"msgnum=%ld&partnum=%s\">",
+					msgnum, vcard_partnum);
+				wprintf("(edit)</A>");
+			}
 
+			/* In all cases, display it */
 			display_vcard(vcard_source);
 			free(vcard_source);
 		}

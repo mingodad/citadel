@@ -21,6 +21,8 @@
 #define INITIAL_WORKER_THREADS	5
 #define LISTEN_QUEUE_LENGTH	100		/* listen() backlog queue */
 
+#define USERCONFIGROOM		"My Citadel Config"
+
 
 /* Room flags (from Citadel) */
 #define QR_PERMANENT	1	/* Room does not purge              */
