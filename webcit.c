@@ -892,9 +892,7 @@ void session_loop(char *browser_host, char *user_agent)
 		do_generic();
 	} else if (!strcasecmp(action, "display_menubar")) {
 		display_menubar(1);
-	}
-	/* When all else fails... */
-	else {
+	} else if (!strcasecmp(action, "diagnostics")) {
 		printf("HTTP/1.0 200 OK\n");
 		output_headers(1);
 
@@ -907,6 +905,10 @@ void session_loop(char *browser_host, char *user_agent)
 		dump_vars();
 		wprintf("</PRE><HR>\n");
 		wDumpContent(1);
+	}
+	/* When all else fais, display the main menu. */
+	else {
+		display_main_menu();
 	}
 
 	fflush(stdout);
