@@ -880,8 +880,12 @@ int main(int argc, char **argv)
 }
 
 
-
-
+/*
+ * Bind a thread to a context.
+ */
+inline void become_session(struct CitContext *which_con) {
+	pthread_setspecific(MyConKey, (void *)which_con );
+}
 
 
 
@@ -974,12 +978,10 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof(fd_set) );
 						SO_REUSEADDR,
 						&i, sizeof(i));
 
-					pthread_setspecific(MyConKey,
-						(void *)con);
+					become_session(con);
 					begin_session(con);
 					serviceptr->h_greeting_function();
-					pthread_setspecific(MyConKey,
-						(void *)NULL);
+					become_session(NULL);
 					con->state = CON_IDLE;
 					goto SETUP_FD;
 				}
@@ -1021,9 +1023,9 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof(fd_set) );
 
 			/* We're bound to a session, now do *one* command */
 			if (bind_me != NULL) {
-				pthread_setspecific(MyConKey, (void *)bind_me);
+				become_session(bind_me);
 				CC->h_command_function();
-				pthread_setspecific(MyConKey, (void *)NULL);
+				become_session(NULL);
 				bind_me->state = CON_IDLE;
 				if (bind_me->kill_me == 1) {
 					RemoveContext(bind_me);

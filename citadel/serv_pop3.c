@@ -28,21 +28,8 @@
 #include "msgbase.h"
 #include "tools.h"
 #include "internet_addressing.h"
+#include "serv_pop3.h"
 
-
-struct pop3msg {
-	long msgnum;
-	size_t rfc822_length;
-	int deleted;
-	FILE *temp;
-};
-
-struct citpop3 {		/* Information about the current session */
-	struct pop3msg *msgs;
-	int num_msgs;
-};
-
-#define POP3 ((struct citpop3 *)CtdlGetUserData(SYM_POP3))
 
 long SYM_POP3;
 
@@ -50,12 +37,17 @@ long SYM_POP3;
 void pop3_cleanup_function(void) {
 	int i;
 
+	/* Don't do this stuff if this is not a POP3 session! */
+	if (CC->h_command_function != pop3_command_loop) return;
+
 	lprintf(9, "Performing POP3 cleanup hook\n");
 
 	if (POP3->num_msgs > 0) for (i=0; i<POP3->num_msgs; ++i) {
 		fclose(POP3->msgs[i].temp);
 	}
 	if (POP3->msgs != NULL) phree(POP3->msgs);
+
+	lprintf(9, "Finished POP3 cleanup hook\n");
 }
 
 

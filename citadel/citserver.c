@@ -158,6 +158,16 @@ void RemoveContext (struct CitContext *con)
 		return;
 	}
 
+	/* Run any cleanup routines registered by loadable modules.
+	 * Note 1: This must occur *before* deallocate_user_data() because the
+	 *         cleanup functions might touch dynamic session data.
+	 * Note 2: We have to "become_session()" because the cleanup functions
+	 *         might make references to "CC" assuming it's the right one.
+	 */
+	become_session(con);
+	PerformSessionHooks(EVT_STOP);
+	become_session(NULL);
+
 	/* Now handle all of the administrivia. */
 	lprintf(7, "Calling logout(%d)\n", con->cs_pid);
 	logout(con);
@@ -166,11 +176,6 @@ void RemoveContext (struct CitContext *con)
 	unlink(con->temp);
 	lprintf(3, "citserver[%3d]: ended.\n", con->cs_pid);
 	
-	/* Run any cleanup routines registered by loadable modules.
-	 * (Must occur *before* deallocate_user_data() because the cleanup
-	 * functions might touch dynamic session data)
-	 */
-	PerformSessionHooks(EVT_STOP);
 
 	syslog(LOG_NOTICE,"session %d ended", con->cs_pid);
 	
