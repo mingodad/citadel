@@ -496,6 +496,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		while (prop = icalcomponent_get_first_property(vtodo,
 		      ICAL_SUMMARY_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vtodo, prop);
+			icalproperty_free(prop);
 		}
 		icalcomponent_add_property(vtodo,
 			icalproperty_new_summary(bstr("summary")));
@@ -503,6 +504,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		while (prop = icalcomponent_get_first_property(vtodo,
 		      ICAL_DESCRIPTION_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vtodo, prop);
+			icalproperty_free(prop);
 		}
 		icalcomponent_add_property(vtodo,
 			icalproperty_new_description(bstr("description")));
@@ -510,6 +512,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		while (prop = icalcomponent_get_first_property(vtodo,
 		      ICAL_DTSTART_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vtodo, prop);
+			icalproperty_free(prop);
 		}
 		icalcomponent_add_property(vtodo,
 			icalproperty_new_dtstart(
@@ -520,6 +523,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		while (prop = icalcomponent_get_first_property(vtodo,
 		      ICAL_DUE_PROPERTY), prop != NULL) {
 			icalcomponent_remove_property(vtodo, prop);
+			icalproperty_free(prop);
 		}
 		icalcomponent_add_property(vtodo,
 			icalproperty_new_due(

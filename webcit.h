@@ -160,6 +160,7 @@ struct wcsession {
 	int new_mail;
 	int remember_new_mail;
 	int need_vali;
+	char cs_inet_email[SIZ];	/* User's preferred Internet addr. */
         pthread_mutex_t SessionMutex;	/* mutex for exclusive access */
         time_t lastreq;			/* Timestamp of most recent HTTP */
 	int killthis;			/* Nonzero == purge this session */
