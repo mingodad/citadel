@@ -11,6 +11,7 @@
 #define CITADEL_H
 
 #include "sysdep.h"
+#include <limits.h>
 #include "sysconfig.h"
 #include "ipcdef.h"
 

@@ -780,7 +780,7 @@ void cmd_ndop(char *cmdbuf)
 	CC->dl_is_net = 1;
 
 	stat(pathname, &statbuf);
-	cprintf("%d %ld\n", OK, statbuf.st_size);
+	cprintf("%d %ld\n", OK, (long)statbuf.st_size);
 }
 
 /*

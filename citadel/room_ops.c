@@ -925,7 +925,7 @@ void cmd_rdir(void)
 					    &buf[strlen(flnm) + 1],
 					    sizeof comment);
 			}
-			cprintf("%s|%ld|%s\n", flnm, statbuf.st_size, comment);
+			cprintf("%s|%ld|%s\n", flnm, (long)statbuf.st_size, comment);
 		}
 	}
 	fclose(ls);

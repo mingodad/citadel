@@ -37,9 +37,6 @@
 #include <stdarg.h>
 #include <syslog.h>
 #include <grp.h>
-#ifdef __GNUC__
-#include <malloc.h>
-#endif
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif

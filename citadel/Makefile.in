@@ -201,7 +201,7 @@ modules/libimap.la: serv_imap.lo imap_tools.lo imap_fetch.lo \
 		../imap_fetch.lo ../imap_search.lo ../imap_store.lo ../imap_misc.lo ../libcitserver.la
 
 aidepost: aidepost.o libcitserver.la $(LIBOBJS)
-	$(LIBTOOL) $(CC) aidepost.o libcitserver.la $(LIBOBJS) $(LDFLAGS) -o aidepost
+	$(LIBTOOL) $(CC) aidepost.o libcitserver.la $(LIBOBJS) $(LDFLAGS) -o aidepost $(PTHREAD_LIBS)
 
 modules/libpas2.la: serv_pas2.lo md5.lo $(LIBTOOL) libcitserver.la
 	$(LTSHARE) -o libpas2.la ../serv_pas2.lo ../md5.lo ../libcitserver.la
@@ -229,7 +229,7 @@ migratenet$(EXEEXT): migratenet.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)
 
 sendcommand: sendcommand.o ipc_c_tcp.o libcitserver.la $(LIBOBJS)
 	$(LIBTOOL) $(CC) sendcommand.o ipc_c_tcp.o libcitserver.la \
-	 $(LIBOBJS) $(LDFLAGS) -o sendcommand $(NETLIBS)
+	 $(LIBOBJS) $(LDFLAGS) -o sendcommand $(NETLIBS) $(PTHREAD_LIBS)
 
 base64: base64.o
 	$(CC) base64.o $(LDFLAGS) -o base64
@@ -245,7 +245,7 @@ readlog: readlog.o config.o
 	$(CC) readlog.o config.o $(LDFLAGS) -o readlog
 
 stats: stats.o ipc_c_tcp.o libcitserver.la $(LIBOBJS)
-	$(LIBTOOL) $(CC) stats.o ipc_c_tcp.o libcitserver.la $(LIBOBJS) $(LDFLAGS) -o stats $(NETLIBS)
+	$(LIBTOOL) $(CC) stats.o ipc_c_tcp.o libcitserver.la $(LIBOBJS) $(LDFLAGS) -o stats $(NETLIBS) $(PTHREAD_LIBS)
 
 .PHONY: install-data install-doc install-exec clean cleaner distclean
 

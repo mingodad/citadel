@@ -51,7 +51,7 @@ void datestring(char *buf, time_t xtime, int which_format) {
 	t = localtime(&xtime);
 
 	/* Convert "seconds west of GMT" to "hours/minutes offset" */
-	offset = timezone;
+	offset = t->tm_gmtoff;
 	if (offset > 0) {
 		offsign = '-';
 	}
