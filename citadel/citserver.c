@@ -129,25 +129,10 @@ void RemoveContext (struct CitContext *con)
 		return;
 		}
 
-	lprintf(7, "Calling logout(%d)\n", con->cs_pid);
-	logout(con);
-
-	rec_log(CL_TERMINATE, con->curr_user);
-	unlink(con->temp);
-	lprintf(3, "citserver[%3d]: ended.\n", con->cs_pid);
-	
-	/* Run any cleanup routines registered by loadable modules */
-	PerformSessionHooks(EVT_STOP);
-
-	syslog(LOG_NOTICE,"session %d ended", con->cs_pid);
-	
-	/* Deallocate any user-data attached to this session */
-	deallocate_user_data(con);
-
-	/* delete context */
-
-	lprintf(7, "Removing context\n");
-
+	/* Remove the context from the global context list.  This needs
+	 * to get done FIRST to avoid concurrency problems.
+	 */
+	lprintf(7, "Removing context for session %d\n", con->cs_pid);
 	begin_critical_section(S_SESSION_TABLE);
 	if (ContextList == con) {
 		ToFree = ContextList;
@@ -163,8 +148,30 @@ void RemoveContext (struct CitContext *con)
 		}
 	end_critical_section(S_SESSION_TABLE);
 
-	lprintf(7, "Closing socket %d\n", ToFree->client_socket);
-	close(ToFree->client_socket);
+	if (ToFree == NULL) {
+		lprintf(9, "RemoveContext() found nothing to remove\n");
+		return;
+	}
+
+	/* Now handle all of the administrivia. */
+	lprintf(7, "Calling logout(%d)\n", con->cs_pid);
+	logout(con);
+
+	rec_log(CL_TERMINATE, con->curr_user);
+	unlink(con->temp);
+	lprintf(3, "citserver[%3d]: ended.\n", con->cs_pid);
+	
+	/* Run any cleanup routines registered by loadable modules */
+	PerformSessionHooks(EVT_STOP);
+
+	syslog(LOG_NOTICE,"session %d ended", con->cs_pid);
+	
+	/* Deallocate any user-data attached to this session */
+	deallocate_user_data(con);
+
+	/* If the client is still connected, blow 'em away. */
+	lprintf(7, "Closing socket %d\n", con->client_socket);
+	close(con->client_socket);
 
         /* Tell the housekeeping thread to check to see if this is the time
          * to initiate a scheduled shutdown event.
@@ -172,7 +179,7 @@ void RemoveContext (struct CitContext *con)
         enter_housekeeping_cmd("SCHED_SHUTDOWN");
 
 	/* Free up the memory used by this context */
-	phree(ToFree);
+	phree(con);
 
 	lprintf(7, "Done with RemoveContext()\n");
 }

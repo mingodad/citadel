@@ -635,7 +635,7 @@ int convert_login(char NameToConvert[]) {
  */
 void dead_session_purge(void) {
 	struct CitContext *ptr, *rem;
-	
+
 	if ( (time(NULL) - last_purge) < 5 ) return;	/* Too soon, go away */
 	time(&last_purge);
 
@@ -652,7 +652,10 @@ void dead_session_purge(void) {
 		/* RemoveContext() enters its own S_SESSION_TABLE critical
 		 * section, so we have to do it like this.
 		 */	
-		if (rem != NULL) RemoveContext(rem);
+		if (rem != NULL) {
+			lprintf(9, "Purging session %d\n", rem->cs_pid);
+			RemoveContext(rem);
+		}
 
 	} while (rem != NULL);
 }

@@ -1,4 +1,8 @@
 $Log$
+Revision 1.408  1999/11/01 04:21:34  ajc
+* Fixed a concurrency bug which crashed the server when multiple sessions
+  terminated simultaneously.
+
 Revision 1.407  1999/11/01 00:54:02  ajc
 * CtdlFetchMessage() - generate a "<no text>" message body if there's none
   on disk.  Too much stuff goes haywire if there's no M field.
@@ -1405,3 +1409,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
