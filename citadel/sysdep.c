@@ -121,7 +121,7 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 				snprintf(buf, 6, "[%3d]", CC->cs_pid);
 				buf[5] = ' ';
 			}
-			syslog(loglevel, buf);
+			syslog(loglevel, "%s", buf);
 		}
 	}
 	else if (loglevel <= verbosity) { 
