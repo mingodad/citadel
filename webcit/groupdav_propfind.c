@@ -90,20 +90,34 @@ void groupdav_folder_list(void) {
 
 		extract(roomname, buf, 0);
 		view = extract_int(buf, 6);
+
+		/*
+		 * For now, only list rooms that we know a GroupDAV client
+		 * might be interested in.  In the future we may add
+		 * the rest.
+		 */
 		if ((view == VIEW_CALENDAR) || (view == VIEW_TASKS) || (view == VIEW_ADDRESSBOOK) ) {
 
 			wprintf(" <D:response>\n");
-			wprintf("   <D:href>http://splorph.xand.com/groupdav/");
-			urlescputs(					roomname);
-			wprintf(						"/</D:href>\n");
-			wprintf("   <D:propstat>\n");
-			wprintf("     <D:status>HTTP/1.1 200 OK</D:status>\n");
-			wprintf("     <D:prop>\n");
-			wprintf("      <D:displayname>");
-			urlescputs(			roomname);
-			wprintf(				"</D:displayname>\n");
-			wprintf("      <resourcetype xmlns=\"DAV:\" xmlns:G=\"http://groupdav.org/\">\n");
-			wprintf("        <collection />\n");
+
+			wprintf("  <D:href>");
+			if (strlen(WC->http_host) > 0) {
+				wprintf("%s://%s",
+					(is_https ? "https" : "http"),
+					WC->http_host);
+			}
+			wprintf("/groupdav/");
+			urlescputs(roomname);
+			wprintf("/</D:href>\n");
+
+			wprintf("  <D:propstat>\n");
+			wprintf("   <D:status>HTTP/1.1 200 OK</D:status>\n");
+			wprintf("   <D:prop>\n");
+			wprintf("    <D:displayname>");
+			escputs(		roomname);
+			wprintf(			"</D:displayname>\n");
+			wprintf("    <D:resourcetype><D:collection/>");
+
 			switch(view) {
 				case VIEW_CALENDAR:
 					wprintf("        <G:vevent-collection />\n");
@@ -115,15 +129,14 @@ void groupdav_folder_list(void) {
 					wprintf("        <G:vcard-collection />\n");
 					break;
 			}
-			wprintf("      <resourcetype>\n");
-			wprintf("     </D:prop>\n");
-			wprintf("   </D:propstat>\n");
+
+			wprintf(				"</D:resourcetype>\n");
+			wprintf("   </D:prop>\n");
+			wprintf("  </D:propstat>\n");
 			wprintf(" </D:response>\n");
 		}
 	}
-
 	wprintf("</D:multistatus>\n");
-
 }
 
 
