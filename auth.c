@@ -53,14 +53,28 @@ void output_frameset() {
 	wprintf("<HTML><HEAD><TITLE>FrameSet</TITLE></HEAD>\n");
 	wprintf("<FRAMESET cols=\"20%, 80%\">\n");
 	wprintf("    <FRAME name=\"left\" src=\"/static/velma.gif\">\n");
-	wprintf("    <FRAME name=\"right\" src=\"/nothing\">\n");
+	wprintf("    <FRAME name=\"right\" src=\"/display_main_menu\">\n");
 	wprintf("<NOFRAMES>\n");
-	wprintf("ooo!  no frames!  too bad!\n");
+	wprintf("Your browser doesn't support frames.<BR>\n");
+	wprintf("This site uses frames.<BR>\n");
+	wprintf("Therefore, you cannot view this site.<BR>\n");
+	wprintf("Perhaps you should telnet instead?<BR>\n");
 	wprintf("</NOFRAMES>\n");
 	wprintf("</FRAMESET></HTML>\n");
 	wDumpContent();
 	}
 
+
+/*
+ * This function needs to get called whenever a PASS or NEWU succeeds
+ */
+void become_logged_in(char *user, char *pass, char *serv_response) {
+
+	logged_in = 1;
+	strcpy(wc_username, user);
+	strcpy(wc_password, pass);
+	
+	}
 
 
 void do_login() {
@@ -73,7 +87,7 @@ void do_login() {
 			serv_printf("PASS %s", bstr("pass"));
 			serv_gets(buf);
 			if (buf[0]=='2') {
-				logged_in = 1;
+				become_logged_in(bstr("name"), bstr("pass"), buf);
 				}
 			}
 		}
@@ -88,7 +102,7 @@ void do_login() {
 		wprintf("Your password was not accepted.\n");
 		wprintf("<HR><A HREF=\"/\">Try again</A>\n");
 		wprintf("</BODY></HTML>\n");
+		wDumpContent();
 		}
 
-	wDumpContent();
 	}
