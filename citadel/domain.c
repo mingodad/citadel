@@ -23,6 +23,7 @@ int getmx(char *mxbuf, char *dest) {
 	int ret;
 
 
+
 	/* If we're configured to send all mail to a smart-host, then our
 	 * job here is really easy.
 	 */
@@ -38,5 +39,16 @@ int getmx(char *mxbuf, char *dest) {
 		C_IN, T_MX, answer, sizeof(answer)  );
 
 	lprintf(9, "res_query() returned %d\n", ret);
-	return(0); /* FIX not yet working!! */
+
+	if (ret < 0) {
+		lprintf(5, "No MX found\n");
+		return(0);
+	}
+
+	/* If we had to truncate, shrink the number to avoid fireworks */
+	if (ret > sizeof(answer))
+		ret = sizeof(answer);
+
+	/* FIX not done yet */
+	return(0);
 }

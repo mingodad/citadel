@@ -744,3 +744,51 @@ void do_system_configuration(void)
 		serv_gets(buf);
 	}
 }
+
+
+/*
+ * Internet mail configuration
+ */
+void do_internet_configuration(void) {
+	char buf[256];
+	int num_recs = 0;
+	char ch;
+	int badkey;
+	int i;
+	
+
+	sprintf(buf, "CONF getsys|%s", INTERNETCFG);
+	serv_puts(buf);
+	serv_gets(buf);
+	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
+	}
+
+	while (1) {
+		/* do display */
+
+		keyopt("\n<A>dd <D>elete <S>ave <Q>uit -> ");
+		badkey = 0;
+		do {
+			ch = inkey();
+			ch = tolower(ch);
+			switch(ch) {
+				case 'a':
+					printf("Add\n");
+					break;
+				case 'd':
+					printf("Delete\n");
+					break;
+				case 's':
+					printf("Save\n");
+					return;
+				case 'q':
+					printf("Quit\n");
+					i = boolprompt("Quit without saving", 0);
+					if (i == 1) return;
+					break;
+				default:
+					badkey = 1;
+			}
+		} while (badkey == 1);
+	}
+}

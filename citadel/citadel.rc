@@ -171,7 +171,8 @@ cmd=53,1,&.,&Aide,&File,&Send over net
 cmd=54,1,&.,&Aide,&File,&Move
 cmd=70,2,&.,&Aide,&Message edit:
 cmd=78,1,&.,&Aide,&Post
-cmd=80,2,&.,&Aide,&System configuration
+cmd=80,2,&.,&Aide,&System configuration,&General
+cmd=82,2,&.,&Aide,&System configuration,&Internet
 
 cmd=29,0,&.,&Terminate,and &Quit
 cmd=30,0,&.,&Terminate,and &Stay online

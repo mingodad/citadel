@@ -238,8 +238,11 @@ struct floor {
 #define GF_SKIP		1		/* <;S>kip floor mode */
 #define GF_ZAP		2		/* <;Z>ap floor mode */
 
-
+/*
+ * MIME types used in Citadel for configuration stuff
+ */
 #define SPOOLMIME	"application/x-citadel-delivery-list"
+#define	INTERNETCFG	"application/x-citadel-internet-config"
 
 /*
  * This structure is used to hold all of the fields of a message
