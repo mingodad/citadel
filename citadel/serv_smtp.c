@@ -198,16 +198,23 @@ void smtp_hello(char *argbuf, int which_command) {
 		cprintf("250-HELP\r\n");
 		cprintf("250-SIZE %ld\r\n", config.c_maxmsglen);
 
+#ifdef HAVE_OPENSSL
+
 		/* Only offer the PIPELINING command if TLS is inactive, because
 		 * of flow control issues.  Also, avoid offering TLS if TLS is
 		 * already active.
 		 */
 		if (!CC->redirect_ssl) {
 			cprintf("250-PIPELINING\r\n");
-#ifdef HAVE_OPENSSL
 			cprintf("250-STARTTLS\r\n");
-#endif
 		}
+
+#else	/* HAVE_OPENSSL */
+
+		/* Non SSL enabled server, so always offer PIPELINING. */
+		cprintf("250-PIPELINING\r\n");
+
+#endif	/* HAVE_OPENSSL */
 
 		cprintf("250-AUTH LOGIN PLAIN\r\n");
 		cprintf("250-AUTH=LOGIN PLAIN\r\n");
