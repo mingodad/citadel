@@ -92,7 +92,6 @@ void DLoader_Init(char *pathname)
 	while ((dptr = readdir(dir)) != NULL) {
 		if (dptr->d_name[0] == '.')
 			continue;
-		lprintf(9, "Attempting to load %s\n", dptr->d_name);
 
 		snprintf(pathbuf, PATH_MAX, "%s/%s", pathname, dptr->d_name);
 #ifdef RTLD_NOW
