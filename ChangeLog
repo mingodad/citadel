@@ -1,4 +1,7 @@
 $Log$
+Revision 400.16  2002/09/17 04:21:00  ajc
+* Handler chains for VCALENDAR and VTODO types
+
 Revision 400.15  2002/09/17 03:37:10  ajc
 * Implemented a 'display handler' infrastructure for various groupware types
 
@@ -991,4 +994,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -222,28 +222,33 @@ void cal_process_attachment(char *part_source) {
 	icalcomponent_free(cal);
 }
 
+/*****************************************************************************/
+
+
+
+
 
 /*
  * Display handlers for message reading
  */
-
-void display_individual_task(char *task_source) {
-	wprintf("doing display_individual_task()<BR>\n");
+void display_individual_cal(icalcomponent *cal) {
+	wprintf("display_individual_cal() called<BR>\n");
 }
 
-void display_individual_cal(char *task_source) {
-	wprintf("doing display_individual_task()<BR>\n");
+void display_individual_task(icalcomponent *vtodo) {
+	wprintf("display_individual_task() called<BR>\n");
 }
-
 
 /*
  * Code common to all display handlers.  Given a message number and a MIME
  * type, we load the message and hunt for that MIME type.  If found, we load
- * the relevant part and feed it to the specified handler.
+ * the relevant part, deserialize it into a libical component, filter it for
+ * the requested object type, and feed it to the specified handler.
  */
 void display_using_handler(long msgnum,
 			char *mimetype,
-			void (*callback)(char *)
+			icalcomponent_kind which_kind,
+			void (*callback)(icalcomponent *)
 	) {
 	char buf[SIZ];
 	char mime_partnum[SIZ];
@@ -253,17 +258,7 @@ void display_using_handler(long msgnum,
 	int mime_length;
 	char relevant_partnum[SIZ];
 	char *relevant_source = NULL;
-
-	struct {
-		char date[SIZ];
-		char from[SIZ];
-		char to[SIZ];
-		char subj[SIZ];
-		int hasattachments;
-	} summ;
-
-	memset(&summ, 0, sizeof(summ));
-	strcpy(summ.subj, "(no subject)");
+	icalcomponent *cal, *c;
 
 	sprintf(buf, "MSG0 %ld|1", msgnum);	/* ask for headers only */
 	serv_puts(buf);
@@ -290,19 +285,33 @@ void display_using_handler(long msgnum,
 		if (relevant_source != NULL) {
 
 			/* Display the task */
-			display_individual_task(relevant_source);
+			cal = icalcomponent_new_from_string(relevant_source);
+			if (cal != NULL) {
+				for (c = icalcomponent_get_first_component(cal,
+				    which_kind);
+	    			    (c != 0);
+	    			    c = icalcomponent_get_next_component(cal,
+				    which_kind)) {
+					callback(c);
+				}
+				icalcomponent_free(cal);
+			}
 			free(relevant_source);
 		}
 	}
 
 }
 
-void display_task(long msgnum) {
-	display_using_handler(msgnum, "text/calendar", display_individual_task);
+void display_calendar(long msgnum) {
+	display_using_handler(msgnum, "text/calendar",
+				ICAL_ANY_COMPONENT,
+				display_individual_cal);
 }
 
-void display_calendar(long msgnum) {
-	display_using_handler(msgnum, "text/calendar", display_individual_cal);
+void display_task(long msgnum) {
+	display_using_handler(msgnum, "text/calendar",
+				ICAL_VTODO_COMPONENT,
+				display_individual_task);
 }
 
 #endif /* HAVE_ICAL_H */
