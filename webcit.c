@@ -204,33 +204,45 @@ void wDumpContent(int print_standard_html_footer)
 }
 
 
-void escputs1(char *strbuf, int nbsp)
+/*
+ * Copy a string, escaping characters which have meaning in HTML.  If
+ * nbsp is nonzero, spaces are converted to non-breaking spaces.
+ */
+void stresc(char *target, char *strbuf, int nbsp)
 {
 	int a;
+	strcpy(target, "");
 
 	for (a = 0; a < strlen(strbuf); ++a) {
 		if (strbuf[a] == '<')
-			wprintf("&lt;");
+			strcat(target, "&lt;");
 		else if (strbuf[a] == '>')
-			wprintf("&gt;");
+			strcat(target, "&gt;");
 		else if (strbuf[a] == '&')
-			wprintf("&amp;");
+			strcat(target, "&amp;");
 		else if (strbuf[a] == '\"')
-			wprintf("&quot;");
+			strcat(target, "&quot;");
 		else if (strbuf[a] == '\'') 
-			wprintf("&#39;");
+			strcat(target, "&#39;");
 		else if (strbuf[a] == LB)
-			wprintf("<");
+			strcat(target, "<");
 		else if (strbuf[a] == RB)
-			wprintf(">");
+			strcat(target, ">");
 		else if (strbuf[a] == QU)
-			wprintf("\"");
+			strcat(target, "\"");
 		else if ((strbuf[a] == 32) && (nbsp == 1)) {
-			wprintf("&nbsp;");
+			strcat(target, "&nbsp;");
 		} else {
-			wprintf("%c", strbuf[a]);
+			strncat(target, &strbuf[a], 1);
 		}
 	}
+}
+
+void escputs1(char *strbuf, int nbsp)
+{
+	char buf[1024];
+	stresc(buf, strbuf, nbsp);
+	wprintf("%s", buf);
 }
 
 void escputs(char *strbuf)
@@ -238,13 +250,15 @@ void escputs(char *strbuf)
 	escputs1(strbuf, 0);
 }
 
-
-
+/*
+ * Escape a string for feeding out as a URL.
+ * FIXME this is not threadsafe!
+ */
 char *urlesc(char *strbuf)
 {
 	int a, b, c;
 	char *ec = " #&;`'|*?-~<>^()[]{}$\\";
-	static char outbuf[512];
+	static char outbuf[1024];
 
 	strcpy(outbuf, "");
 
