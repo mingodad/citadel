@@ -312,7 +312,8 @@ void gotoroom(char *gname, int display_name)
         	wprintf("<HTML><HEAD></HEAD>\n<BODY ");
 	
 		/* automatically fire up a read-new-msgs in the bottom frame */
-		wprintf("onload=location=\"/readnew\" ");
+		if (!noframes)
+			wprintf("onload=location=\"/readnew\" ");
 
         	wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
 		}
@@ -388,6 +389,9 @@ void gotoroom(char *gname, int display_name)
 		wprintf("<TD VALIGN=TOP><A HREF=\"/gotonext\">");
 		wprintf("<IMG SRC=\"/static/forward.gif\" border=0></A></TD>");
 		wprintf("</TR></TABLE></CENTER>\n");
+
+		if (noframes) embed_main_menu();
+
 		wprintf("</BODY></HTML>\n");
 		wDumpContent();
 		}

@@ -440,6 +440,12 @@ void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
         wprintf("<B>%s</B>\n", titlebarmsg);
         wprintf("</FONT></TD></TR></TABLE><BR>\n");
 	escputs(messagetext);
+	
+	if (noframes) {
+		wprintf("<HR>\n");
+		embed_main_menu();
+		}
+
         wprintf("</BODY></HTML>\n");
         wDumpContent();
 	}
