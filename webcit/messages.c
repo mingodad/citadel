@@ -28,6 +28,15 @@
 #include "webserver.h"
 
 
+/* Address book entry (keep it short and sweet, it's just a quickie lookup
+ * which we can use to get to the real meat and bones later)
+ */
+struct addrbookent {
+	char ab_name[64];
+	long ab_msgnum;
+};
+
+
 /*
  * Look for URL's embedded in a buffer and make them linkable.  We use a
  * target window in order to keep the BBS session in its own window.
@@ -80,6 +89,24 @@ char buf[];
 	if ( strlen(outbuf) < 250 )
 		strcpy(buf, outbuf);
 }
+
+
+/* display_vcard() calls this after parsing the textual vCard into
+ * our 'struct vCard' data object.
+ * This gets called instead of display_parsed_vcard() if we are only looking
+ * to extract the person's name instead of displaying the card.
+ */
+void fetchname_parsed_vcard(struct vCard *v, char *storename) {
+	int i;
+
+	strcpy(storename, "");
+	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
+		if (!strcasecmp(v->prop[i].name, "n")) {
+			strcpy(storename, v->prop[i].value);
+		}
+	}
+}
+
 
 
 /* display_vcard() calls this after parsing the textual vCard into
@@ -164,9 +191,11 @@ void display_parsed_vcard(struct vCard *v, int full) {
 /*
  * Display a textual vCard
  * (Converts to a vCard object and then calls the actual display function)
- * Set 'full' to nonzero to display the whole card instead of a one-liner
+ * Set 'full' to nonzero to display the whole card instead of a one-liner.
+ * Or, if "storename" is non-NULL, just store the person's name in that
+ * buffer instead of displaying the card at all.
  */
-void display_vcard(char *vcard_source, char alpha, int full) {
+void display_vcard(char *vcard_source, char alpha, int full, char *storename) {
 	struct vCard *v;
 	char *name;
 	char buf[SIZ];
@@ -181,12 +210,13 @@ void display_vcard(char *vcard_source, char alpha, int full) {
 		this_alpha = buf[0];
 	}
 
-	if ( (alpha == 0)
+	if (storename != NULL) {
+		fetchname_parsed_vcard(v, storename);
+	}
+	else if ( (alpha == 0)
 	   || ((isalpha(alpha)) && (tolower(alpha) == tolower(this_alpha)) )
 	   || ((!isalpha(alpha)) && (!isalpha(this_alpha))) ) {
-
 		display_parsed_vcard(v, full);
-
 	}
 
 	vcard_free(v);
@@ -487,7 +517,7 @@ void read_message(long msgnum) {
 			}
 
 			/* In all cases, display the full card */
-			display_vcard(part_source, 0, 1);
+			display_vcard(part_source, 0, 1, NULL);
 		}
 	}
 
@@ -625,7 +655,7 @@ void display_addressbook(long msgnum, char alpha) {
 		if (vcard_source != NULL) {
 
 			/* Display the summary line */
-			display_vcard(vcard_source, alpha, 0);
+			display_vcard(vcard_source, alpha, 0, NULL);
 
 			/* If it's my vCard I can edit it */
 			if ( (!strcasecmp(WC->wc_roomname, USERCONFIGROOM))
@@ -640,6 +670,137 @@ void display_addressbook(long msgnum, char alpha) {
 		}
 	}
 
+}
+
+
+
+/* If it's an old "Firstname Lastname" style record, try to
+ * convert it.
+ */
+void lastfirst_firstlast(char *namebuf) {
+	char firstname[SIZ];
+	char lastname[SIZ];
+	int i;
+
+	if (namebuf == NULL) return;
+	if (strchr(namebuf, ';') != NULL) return;
+
+	i = num_tokens(namebuf, ' ');
+	if (i < 2) return;
+
+	extract_token(lastname, namebuf, i-1, ' ');
+	remove_token(namebuf, i-1, ' ');
+	strcpy(firstname, namebuf);
+	sprintf(namebuf, "%s; %s", lastname, firstname);
+}
+
+
+void fetch_ab_name(long msgnum, char *namebuf) {
+	char buf[SIZ];
+	char mime_partnum[SIZ];
+	char mime_filename[SIZ];
+	char mime_content_type[SIZ];
+	char mime_disposition[SIZ];
+	int mime_length;
+	char vcard_partnum[SIZ];
+	char *vcard_source = NULL;
+
+	struct {
+		char date[SIZ];
+		char from[SIZ];
+		char to[SIZ];
+		char subj[SIZ];
+		int hasattachments;
+	} summ;
+
+	if (namebuf == NULL) return;
+	strcpy(namebuf, "");
+
+	memset(&summ, 0, sizeof(summ));
+	strcpy(summ.subj, "(no subject)");
+
+	sprintf(buf, "MSG0 %ld|1", msgnum);	/* ask for headers only */
+	serv_puts(buf);
+	serv_gets(buf);
+	if (buf[0] != '1') return;
+
+	while (serv_gets(buf), strcmp(buf, "000")) {
+		if (!strncasecmp(buf, "part=", 5)) {
+			extract(mime_filename, &buf[5], 1);
+			extract(mime_partnum, &buf[5], 2);
+			extract(mime_disposition, &buf[5], 3);
+			extract(mime_content_type, &buf[5], 4);
+			mime_length = extract_int(&buf[5], 5);
+
+			if (!strcasecmp(mime_content_type, "text/x-vcard")) {
+				strcpy(vcard_partnum, mime_partnum);
+			}
+
+		}
+	}
+
+	if (strlen(vcard_partnum) > 0) {
+		vcard_source = load_mimepart(msgnum, vcard_partnum);
+		if (vcard_source != NULL) {
+
+			/* Grab the name off the card */
+			display_vcard(vcard_source, 0, 0, namebuf);
+
+			free(vcard_source);
+		}
+	}
+
+	lastfirst_firstlast(namebuf);
+}
+
+
+
+/*
+ * Record compare function for sorting address book indices
+ */
+int abcmp(const void *ab1, const void *ab2) {
+	return(strcasecmp(
+        	(((const struct addrbookent *)ab1)->ab_name),
+        	(((const struct addrbookent *)ab2)->ab_name)
+	));
+}
+
+
+/*
+ * Render the address book using info we gathered during the scan
+ */
+void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
+	int i = 0;
+	int bg = 0;
+
+	if (num_ab > 1) {
+		qsort(addrbook, num_ab, sizeof(struct addrbookent), abcmp);
+	}
+
+	wprintf("<TABLE border=0 cellspacing=0 "
+		"cellpadding=3 width=100%%>\n"
+	);
+
+	for (i=0; i<num_ab; ++i) {
+
+		if ((i % 4) == 0) {
+			if (i > 0) {
+				wprintf("</TR>\n");
+			}
+			bg = 1 - bg;
+			wprintf("<TR BGCOLOR=\"#%s\">",
+				(bg ? "DDDDDD" : "FFFFFF")
+			);
+		}
+
+		wprintf("<TD>");
+		wprintf("<A HREF=\"/readfwd?startmsg=%ld", addrbook[i].ab_msgnum);
+		wprintf("&maxmsgs=1&summary=0\">");
+		escputs(addrbook[i].ab_name);
+		wprintf("</A></TD>\n");
+	}
+
+	wprintf("</TR></TABLE>\n");
 }
 
 
@@ -693,6 +854,9 @@ void readloop(char *oper)
 	long pn_next = 0L;
 	int bg = 0;
 	char alpha = 0;
+	char ab_alpha = 0;
+	struct addrbookent *addrbook = NULL;
+	int num_ab = 0;
 
 	startmsg = atol(bstr("startmsg"));
 	maxmsgs = atoi(bstr("maxmsgs"));
@@ -719,20 +883,20 @@ void readloop(char *oper)
 		is_addressbook = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
-		if (bstr("alpha") == NULL) {
-			alpha = 'A';
+		if (strlen(bstr("alpha")) == 0) {
+			alpha = 'a';
 		}
 		else {
 			strcpy(buf, bstr("alpha"));
 			alpha = buf[0];
 		}
 
-		for (i='A'; i<='Z'; ++i) {
+		for (i='a'; i<='z'; ++i) {
 			if (i == alpha) wprintf("<FONT SIZE=+2>"
-						"%c</FONT>\n", i);
+						"%c</FONT>\n", toupper(i));
 			else {
 				wprintf("<A HREF=\"/readfwd?alpha=%c\">"
-					"%c</A>\n", i, i);
+					"%c</A>\n", i, toupper(i));
 			}
 			wprintf("&nbsp;");
 		}
@@ -790,12 +954,6 @@ void readloop(char *oper)
 		);
 	}
 
-	if (is_addressbook) {
-		wprintf("<TABLE border=0 cellspacing=0 "
-			"cellpadding=0 width=100%%>\n"
-		);
-	}
-
 	for (a = 0; a < nummsgs; ++a) {
 		if ((WC->msgarr[a] >= startmsg) && (num_displayed < maxmsgs)) {
 
@@ -805,7 +963,7 @@ void readloop(char *oper)
 			if (a < (nummsgs-1)) pn_next = WC->msgarr[a+1];
 
 			/* If a tabular view, set up the line */
-			if ( (is_summary) || (is_addressbook) ) {
+			if (is_summary) {
 				bg = 1 - bg;
 				wprintf("<TR BGCOLOR=\"#%s\">",
 					(bg ? "DDDDDD" : "FFFFFF")
@@ -817,7 +975,21 @@ void readloop(char *oper)
 				summarize_message(WC->msgarr[a]);
 			}
 			else if (is_addressbook) {
-				display_addressbook(WC->msgarr[a], alpha);
+				fetch_ab_name(WC->msgarr[a], buf);
+				if ((strlen(buf) > 0) && (isalpha(buf[0]))) {
+					ab_alpha = tolower(buf[0]);
+				}
+				else {
+					ab_alpha = '1';
+				}
+				if (alpha == ab_alpha) {
+					++num_ab;
+					addrbook = realloc(addrbook,
+						(sizeof(struct addrbookent) * num_ab) );
+					safestrncpy(addrbook[num_ab-1].ab_name, buf,
+						sizeof(addrbook[num_ab-1].ab_name));
+					addrbook[num_ab-1].ab_msgnum = WC->msgarr[a];
+				}
 			}
 			else if (is_calendar) {
 				display_calendar(WC->msgarr[a]);
@@ -830,7 +1002,7 @@ void readloop(char *oper)
 			}
 
 			/* If a tabular view, finish the line */
-			if ( (is_summary) || (is_addressbook) ) {
+			if (is_summary) {
 				wprintf("</TR>\n");
 			}
 
@@ -846,10 +1018,6 @@ void readloop(char *oper)
 		wprintf("</TABLE>\n");
 	}
 
-	if (is_addressbook) {
-		wprintf("</TABLE>\n");
-	}
-
 	if (is_tasks) {
 		wprintf("</UL>\n");
 	}
@@ -862,7 +1030,7 @@ void readloop(char *oper)
 
 	/* If we're only looking at one message, do a prev/next thing */
 	if (num_displayed == 1) {
-	   if ((!is_tasks) && (!is_calendar)) {
+	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook)) {
 
 		wprintf("<CENTER>"
 			"<TABLE BORDER=0 WIDTH=100%% BGCOLOR=\"#DDDDDD\"><TR><TD>"
@@ -912,7 +1080,7 @@ void readloop(char *oper)
 	 * messages, then display the selector bar
 	 */
 	if (num_displayed > 1) {
-	   if ((!is_tasks) && (!is_calendar)) {
+	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook)) {
 		wprintf("<CENTER>"
 			"<TABLE BORDER=0 WIDTH=100%% BGCOLOR=\"#DDDDDD\"><TR><TD>"
 			"Reading #%d-%d of %d messages.</TD>\n"
@@ -976,7 +1144,12 @@ DONE:
 		do_calendar_view();	/* Render the calendar */
 	}
 
+	if (is_addressbook) {
+		do_addrbook_view(addrbook, num_ab);	/* Render the address book */
+	}
+
 	wDumpContent(1);
+	if (addrbook != NULL) free(addrbook);
 }
 
 
