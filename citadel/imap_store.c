@@ -59,18 +59,25 @@
 /*
  * imap_do_store() calls imap_do_store_msg() to output the deta of an
  * individual message, once it has been successfully loaded from disk.
+ *
+ * We also implement the ".SILENT" protocol option here.  Leave it to an
+ * idiot like Mark Crispin to make things unnecessarily complicated.
  */
 void imap_do_store_msg(int seq, char *oper, unsigned int bits_to_twiddle) {
+	int silent = 0;
 	
 	if (!strncasecmp(oper, "FLAGS", 5)) {
 		IMAP->flags[seq] &= IMAP_MASK_SYSTEM;
 		IMAP->flags[seq] |= bits_to_twiddle;
+		silent = strncasecmp(&oper[5], ".SILENT", 7);
 	}
 	else if (!strncasecmp(oper, "+FLAGS", 6)) {
 		IMAP->flags[seq] |= bits_to_twiddle;
+		silent = strncasecmp(&oper[6], ".SILENT", 7);
 	}
 	else if (!strncasecmp(oper, "-FLAGS", 6)) {
 		IMAP->flags[seq] &= (~bits_to_twiddle);
+		silent = strncasecmp(&oper[6], ".SILENT", 7);
 	}
 
 	if (bits_to_twiddle & IMAP_SEEN) {
@@ -78,17 +85,22 @@ void imap_do_store_msg(int seq, char *oper, unsigned int bits_to_twiddle) {
 				((IMAP->flags[seq] & IMAP_SEEN) ? 1 : 0) );
 	}
 
-	cprintf("* %d FETCH (", seq+1);
-	imap_fetch_flags(seq);
-	cprintf(")\r\n");
+	/* 'silent' is actually the value returned from a strncasecmp() so
+	 * we want that option only if its value is zero.  Seems backwards
+	 * but that's the way it's supposed to be.
+	 */
+	if (silent) {
+		cprintf("* %d FETCH (", seq+1);
+		imap_fetch_flags(seq);
+		cprintf(")\r\n");
+	}
 }
 
 
 
 /*
  * imap_store() calls imap_do_store() to perform the actual bit twiddling
- * on flags.  We brazenly ignore the ".silent" protocol option because it's not
- * harmful to send the data anyway.  Fix it yourself if you don't like that.
+ * on the flags.
  */
 void imap_do_store(int num_items, char **itemlist) {
 	int i;

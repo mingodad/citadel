@@ -184,14 +184,31 @@ void imap_rescan_msgids(void) {
 
 	int original_num_msgs = 0;
 	long original_highest = 0L;
-	int i;
-	int count;
+	int i, j;
+	int message_still_exists;
+	struct cdbdata *cdbfr;
+	long *msglist = NULL;
+	int num_msgs = 0;
+
 
 	if (IMAP->selected == 0) {
 		lprintf(5, "imap_load_msgids() can't run; no room selected\n");
 		return;
 	}
 
+	/* Load the *current* message list from disk, so we can compare it
+	 * to what we have in memory.
+	 */
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->quickroom.QRnumber, sizeof(long));
+	if (cdbfr != NULL) {
+		msglist = mallok(cdbfr->len);
+		memcpy(msglist, cdbfr->ptr, cdbfr->len);
+		num_msgs = cdbfr->len / sizeof(long);
+		cdb_free(cdbfr);
+	}
+	else {
+		num_msgs = 0;
+	}
 
 	/*
 	 * Check to see if any of the messages we know about have been expunged
@@ -199,10 +216,14 @@ void imap_rescan_msgids(void) {
 	if (IMAP->num_msgs > 0)
 	 for (i=0; i<IMAP->num_msgs; ++i) {
 
-		count = CtdlForEachMessage(MSGS_EQ, IMAP->msgids[i],
-			NULL, NULL, NULL, NULL);
+		message_still_exists = 0;
+		if (num_msgs > 0) for (j = 0; j < num_msgs; ++j) {
+			if (msglist[j] == IMAP->msgids[i]) {
+				message_still_exists = 1;
+			}
+		}
 
-		if (count == 0) {
+		if (message_still_exists == 0) {
 			cprintf("* %d EXPUNGE\r\n", i+1);
 
 			/* Here's some nice stupid nonsense.  When a message
@@ -234,9 +255,11 @@ void imap_rescan_msgids(void) {
 	/*
 	 * Now peruse the room for *new* messages only.
 	 */
-	CtdlForEachMessage(MSGS_GT, original_highest, NULL, NULL,
-		imap_add_single_msgid, NULL);
-
+	if (num_msgs > 0) for (j=0; j<num_msgs; ++j) {
+		if (msglist[j] > original_highest) {
+			imap_add_single_msgid(msglist[j], NULL);
+		}
+	}
 	imap_set_seen_flags();
 
 	/*
@@ -246,6 +269,7 @@ void imap_rescan_msgids(void) {
 		cprintf("* %d EXISTS\r\n", IMAP->num_msgs);
 	}
 
+	if (num_msgs != 0) phree(msglist);
 }
 
 
@@ -479,7 +503,8 @@ int imap_do_expunge(void) {
  */
 void imap_expunge(int num_parms, char *parms[]) {
 	int num_expunged = 0;
-	imap_do_expunge();
+
+	num_expunged = imap_do_expunge();
 	cprintf("%s OK expunged %d messages.\r\n", parms[0], num_expunged);
 }
 

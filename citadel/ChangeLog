@@ -1,4 +1,10 @@
  $Log$
+ Revision 605.34  2003/04/08 04:03:37  ajc
+ * Implemented the ".SILENT" protocol option in IMAP STORE.  Certain apps seem
+   to want to use it.
+ * Optimized the IMAP operations which scan for expunged and added messages.
+   These loops no longer make multiple traversals through the message list.
+
  Revision 605.33  2003/04/07 05:02:23  ajc
  * Reworked all the "list rooms" operations so that they only require one
    pass through the database.
@@ -4622,4 +4628,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
