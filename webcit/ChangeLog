@@ -1,4 +1,8 @@
 $Log$
+Revision 212.15  2000/09/28 03:44:52  ajc
+* Linked to the bio/photo page from message headers.  I'm not sure I like the
+  color scheme, though.
+
 Revision 212.14  2000/09/28 03:37:23  ajc
 * who.c: provide links to bio/photo pages for each user in the wholist
 
@@ -494,4 +498,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
