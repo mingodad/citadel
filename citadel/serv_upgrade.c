@@ -570,7 +570,7 @@ void export_floors(void) {
 void export_a_user(struct usersupp *us) {
 	struct cdbdata *cdbvisit;
 	struct visit *visits;
-	int num_visits;
+	int num_visits = 0;
 	int a;
 
 	lprintf(9, "User <%s> ", us->fullname);
