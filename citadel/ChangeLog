@@ -16,6 +16,7 @@ Thu Oct  8 15:34:45 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  bzero()
 	* dynloader.c, dynloader.h, messages.c, server.h, sysdep.c,
 	  sysdep_decls.h: function pointer/prototyping fixes
+	* rooms.c: use mkfifo(3) instead of system("mkfifo")
 
 1998-10-07 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* snprintf.c, snprintf.h: new files

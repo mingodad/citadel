@@ -484,12 +484,8 @@ void download(int proto)
 
 
 	mkdir(tempdir,0700);
-#ifdef USE_MKFIFO
-	sprintf(buf,"mkfifo %s/%s",tempdir,filename);
-#else
-	sprintf(buf,"mknod %s/%s p",tempdir,filename);
-#endif
-	system(buf);
+	sprintf(buf,"%s/%s",tempdir,filename);
+	mkfifo(buf, 0777);
 
 	/* We do the remainder of this function as a separate process in
 	 * order to allow recovery if the transfer is aborted.  If the
