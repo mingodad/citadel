@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.160  2002/03/22 04:35:38  ajc
+ * Handle vCard registration updates for users other than the one currently
+   logged in.  (Allows administrative editing of contact information.)
+
  Revision 590.159  2002/03/20 19:03:27  ajc
  * Don't re-declare timezone variables ('cuz FreeBSD chokes on that)
 
@@ -3525,3 +3529,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

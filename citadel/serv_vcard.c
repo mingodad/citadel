@@ -246,18 +246,25 @@ void vcard_populate_cs_inet_email(struct vCard *v) {
 int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	char *ptr;
 	int linelen;
-        char config_rm[ROOMNAMELEN];
 	char buf[SIZ];
+	struct usersupp usbuf;
+	long what_user;
 
 	if (!CC->logged_in) return(0);	/* Only do this if logged in. */
 
-	/* If this isn't the configuration room, or if this isn't a MIME
-	 * message, don't bother.  (Check for NULL room first, otherwise
-	 * some messages will cause it to crash!!)
-	 */
-	if (msg->cm_fields['O'] == NULL) return(0);
-	if (strcasecmp(msg->cm_fields['O'], USERCONFIGROOM)) return(0);
+	/* If this isn't a "My Citadel Config" room, don't bother. */
+	if ( (CC->quickroom.QRflags && QR_MAILBOX)
+	   && (!strcasecmp(&CC->quickroom.QRname[11], USERCONFIGROOM)) ) {
+		/* Yes, we want to do this */
+	}
+	else {
+		return(0);
+	}
+
+	/* If this isn't a MIME message, don't bother. */
 	if (msg->cm_format_type != 4) return(0);
+
+	/* Ok, if we got this far, look into the situation further... */
 
 	ptr = msg->cm_fields['M'];
 	if (ptr == NULL) return(0);
@@ -268,27 +275,44 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 		
 		if (!strncasecmp(ptr, "Content-type: text/x-vcard", 26)) {
 			/* Bingo!  The user is uploading a new vCard, so
-			 * delete the old one.
+			 * delete the old one.  First, figure out which user
+			 * is being re-registered...
 			 */
+			what_user = atol(CC->quickroom.QRname);
+
+			if (what_user == CC->usersupp.usernum) {
+				/* It's the logged in user.  That was easy. */
+				memcpy(&usbuf, &CC->usersupp,
+					sizeof(struct usersupp) );
+			}
+			
+			else if (getuserbynumber(&usbuf, what_user) == 0) {
+				/* We fetched a valid user record */
+			}
+		
+			else {
+				/* No user with that number! */
+				return(0);
+			}
 
 			/* Delete the user's old vCard.  This would probably
 			 * get taken care of by the replication check, but we
 			 * want to make sure there is absolutely only one
 			 * vCard in the user's config room at all times.
-			 * 
-			 * FIXME ... this needs to be tweaked to allow an admin
-			 * to make changes to another user's vCard instead of
-			 * assuming that it's always the user saving his own.
 			 */
-        		MailboxName(config_rm, sizeof config_rm,
-				    &CC->usersupp, USERCONFIGROOM);
-			CtdlDeleteMessages(config_rm, 0L, "text/x-vcard");
+			CtdlDeleteMessages(CC->quickroom.QRname,
+					0L, "text/x-vcard");
 
 			/* Set the Extended-ID to a standardized one so the
 			 * replication always works correctly
 			 */
                         if (msg->cm_fields['E'] != NULL)
                                 phree(msg->cm_fields['E']);
+
+                        if (msg->cm_fields['A'] != NULL)
+                                phree(msg->cm_fields['A']);
+
+			msg->cm_fields['A'] = strdoop(usbuf.fullname);
 
                         snprintf(buf, sizeof buf, VCARD_EXT_FORMAT,
                                 msg->cm_fields['A'], NODENAME);
