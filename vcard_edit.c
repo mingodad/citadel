@@ -56,7 +56,8 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	char country[SIZ];
 	char hometel[SIZ];
 	char worktel[SIZ];
-	char inetemail[SIZ];
+	char primary_inetemail[SIZ];
+	char other_inetemail[SIZ];
 	char extrafields[SIZ];
 
 	lastname[0] = 0;
@@ -73,7 +74,8 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	country[0] = 0;
 	hometel[0] = 0;
 	worktel[0] = 0;
-	inetemail[0] = 0;
+	primary_inetemail[0] = 0;
+	other_inetemail[0] = 0;
 	extrafields[0] = 0;
 
 	output_headers(3);
@@ -150,10 +152,15 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 			}
 	
 			else if (!strcasecmp(key, "email;internet")) {
-				if (inetemail[0] != 0) {
-					strcat(inetemail, "\n");
+				if (primary_inetemail[0] == 0) {
+					strcpy(primary_inetemail, value);
 				}
-				strcat(inetemail, value);
+				else {
+					if (other_inetemail[0] != 0) {
+						strcat(other_inetemail, "\n");
+					}
+					strcat(other_inetemail, value);
+				}
 			}
 	
 			else {
@@ -236,12 +243,16 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR></TABLE>\n",
 		worktel);
 
-	wprintf("<TABLE border=0><TR><TD>Internet e-mail addresses:<BR>"
-		"<FONT size=-2>For addresses in the Citadel directory, "
-		"the topmost address will be used in outgoing mail."
-		"</FONT></TD><TD>"
-		"<TEXTAREA NAME=\"inetemail\" ROWS=5 COLS=40 WIDTH=40>");
-	escputs(inetemail);
+	wprintf("<BR><TABLE border=0><TR>"
+		"<TD VALIGN=TOP>Primary Internet e-mail address<BR>"
+		"<INPUT TYPE=\"text\" NAME=\"primary_inetemail\" "
+		"SIZE=40 MAXLENGTH=40 VALUE=\"");
+	escputs(primary_inetemail);
+	wprintf("\"><BR>"
+		"</TD><TD VALIGN=TOP>"
+		"Other Internet e-mail addresses<BR>"
+		"<TEXTAREA NAME=\"other_inetemail\" ROWS=5 COLS=40 WIDTH=40>");
+	escputs(other_inetemail);
 	wprintf("</TEXTAREA></TD></TR></TABLE><BR>\n");
 
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"extrafields\" VALUE=\"");
@@ -313,9 +324,10 @@ void submit_vcard(void) {
 		bstr("country") );
 	serv_printf("tel;home:%s", bstr("hometel") );
 	serv_printf("tel;work:%s", bstr("worktel") );
-	
-	for (i=0; i<num_tokens(bstr("inetemail"), '\n'); ++i) {
-		extract_token(buf, bstr("inetemail"), i, '\n');
+
+	serv_printf("email;internet:%s\n", bstr("primary_inetemail"));	
+	for (i=0; i<num_tokens(bstr("other_inetemail"), '\n'); ++i) {
+		extract_token(buf, bstr("other_inetemail"), i, '\n');
 		if (strlen(buf) > 0) {
 			serv_printf("email;internet:%s", buf);
 		}
