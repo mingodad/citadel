@@ -387,7 +387,8 @@ int read_message(CtdlIPC *ipc,
 		scr_printf("\n");
 		++lines_printed;
 		lines_printed = checkpagin(lines_printed, pagin, screenheight);
-		scr_printf(" ");
+		if (pagin != 2)
+			scr_printf(" ");
 	}
 	if (pagin == 1 && !dest) {
 		color(BRIGHT_CYAN);
@@ -395,38 +396,34 @@ int read_message(CtdlIPC *ipc,
 
 	/* View headers only */
 	if (pagin == 2) {
-		sprintf(buf, "nhdr=%s\nfrom=%s\ntype=%d\nmsgn=%s\n",
+		pprintf("nhdr=%s\nfrom=%s\ntype=%d\nmsgn=%s\n",
 				message->nhdr ? "yes" : "no",
 				message->author, message->type,
 				message->msgid);
-		/* FIXME output buf */
 		if (strlen(message->subject)) {
-			sprintf(buf, "subj=%s\n", message->subject);
-			/* FIXME: output buf */
+			pprintf("subj=%s\n", message->subject);
 		}
 		if (strlen(message->email)) {
-			sprintf(buf, "rfca=%s\n", message->email);
-			/* FIXME: output buf */
+			pprintf("rfca=%s\n", message->email);
 		}
-		sprintf(buf, "hnod=%s\nroom=%s\nnode=%s\ntime=%s",
+		pprintf("hnod=%s\nroom=%s\nnode=%s\ntime=%s",
 				message->hnod, message->room,
 				message->node, 
 				asctime(localtime(&message->time)));
 		if (strlen(message->recipient)) {
-			sprintf(buf, "rcpt=%s\n", message->recipient);
-			/* FIXME: output buf */
+			pprintf("rcpt=%s\n", message->recipient);
 		}
 		if (message->attachments) {
 			struct parts *ptr;
 
 			for (ptr = message->attachments; ptr; ptr = ptr->next) {
-				sprintf(buf, "part=%s|%s|%s|%s|%s|%ld\n",
+				pprintf("part=%s|%s|%s|%s|%s|%ld\n",
 					ptr->name, ptr->filename, ptr->number,
 					ptr->disposition, ptr->mimetype,
 					ptr->length);
-				/* FIXME: output buf */
 			}
 		}
+		pprintf("\n");
 		sttybbs(0);
 		return (0);
 	}
