@@ -62,7 +62,7 @@ void embed_main_menu() {
 	wprintf("<LI><B><A HREF=\"/advanced\">\n");
 	wprintf("Advanced options</B></A><BR>...and maintenance</LI>\n");
 
-	wprintf("<LI><B><A HREF=\"/termquit\">\n");
+	wprintf("<LI><B><A HREF=\"/termquit\" TARGET=\"_top\">\n");
 	wprintf("Log off</B></A><BR>Bye!</LI>\n");
 	wprintf("</UL>\n");
 

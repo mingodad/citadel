@@ -28,6 +28,7 @@
 
 int msock;					/* master listening socket */
 extern void *context_loop(int);
+extern pthread_mutex_t MasterCritter;
 
 /*
  * This is a generic function to set up a master socket for listening on
@@ -246,6 +247,8 @@ int main(int argc, char **argv)
 	printf("Attempting to bind to port %d...\n", PORT_NUM);
 	msock = ig_tcp_server(PORT_NUM, 5);
 	printf("Listening on socket %d\n", msock);
+
+	pthread_mutex_init(&MasterCritter, NULL);
 
 	/* 
 	 * Endless loop.  Listen on the master socket.  When a connection
