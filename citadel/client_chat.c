@@ -226,20 +226,20 @@ void page_user() {
 			return;
 			}
 		fp = fopen(temp, "w");
+		fp = freopen(temp, "rb+", fp);
 		if (fp==NULL) printf("Error: %s\n", strerror(errno));
+		unlink(temp);
 		printf("Type message to send.  Enter a blank line when finished.\n");
 		citedit(fp, 0);
-		fclose(fp);
 		snprintf(buf, sizeof buf, "SEXP %s|-", touser);
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0]=='4') {
 	   		strcpy(last_paged, touser);
-			fp = fopen(temp, "r");
+			rewind(fp);
 			while (fgets(buf, sizeof buf, fp) != NULL) {
 				buf[strlen(buf)-1] = 0;
 				if (strcmp(buf, "000")) serv_puts(buf);
-			fclose(fp);
 			unlink(temp);
 			}
 			serv_puts("000");
@@ -248,6 +248,7 @@ void page_user() {
 		else {
 			printf("%s\n", &buf[4]);
 		}
+		fclose(fp);
 	}
 }
 

@@ -5,7 +5,6 @@ Priority items
 Important items
 ---------------
 * In the client, make <G>oto go directly to Mail> when there's new mail.
-* Implement multi-line pages.
 
 Honeydew items
 --------------

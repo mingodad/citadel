@@ -77,6 +77,7 @@ void print_express(void) {
 	FILE *outpipe;
 
 	if (express_msgs == 0) return;
+	printf("printing express messages\n");
 	express_msgs = 0;
 	serv_puts("PEXP");
 	serv_gets(buf);
