@@ -45,51 +45,15 @@ char *axdefs[] =
  */
 void display_login(char *mesg)
 {
-	char buf[256];
-
 	output_headers(3);
 
-	/* Da banner */
-	wprintf("<CENTER><TABLE border=0 width=100%><TR><TD>\n");
-	wprintf("<IMG SRC=\"/image&name=hello\">");
-	wprintf("</TD><TD><CENTER>\n");
+	/*
+	mesg = mesg
+	hello = "mesg hello"
+	humannode = config.c_humannode
+	*/
 
-	if (mesg != NULL) {
-		wprintf("<font size=+1><b>%s</b></font>", mesg);
-	} else {
-		serv_puts("MESG hello");
-		serv_gets(buf);
-		if (buf[0] == '1')
-			fmout(NULL);
-	}
-
-	wprintf("</CENTER></TD></TR></TABLE></CENTER>\n");
-	wprintf("<HR>\n");
-
-	/* Da login box */
-	wprintf("<CENTER><FORM ACTION=\"/login\" METHOD=\"POST\">\n");
-	wprintf("<TABLE border><TR>\n");
-	wprintf("<TD>User Name:</TD>\n");
-	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"name\" MAXLENGTH=\"25\">\n");
-	wprintf("</TD></TR><TR>\n");
-	wprintf("<TD>Password:</TD>\n");
-	wprintf("<TD><INPUT TYPE=\"password\" NAME=\"pass\" MAXLENGTH=\"20\"></TD>\n");
-	wprintf("</TR></TABLE>\n");
-	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Login\">\n");
-	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"New User\">\n");
-	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Exit\">\n");
-
-	/* Da instructions */
-	wprintf("<LI><EM>If you already have an account on %s,",
-		serv_info.serv_humannode);
-	wprintf("</EM> enter your user name\n");
-	wprintf("and password and click \"<TT>Login</TT>.\"<BR>\n");
-	wprintf("<LI><EM>If you are a new user,</EM>\n");
-	wprintf("enter the name and password you wish to use, and click\n");
-	wprintf("\"New User.\"<BR><LI>");
-	wprintf("<EM>Please log off properly when finished.</EM>");
-	wprintf("<LI>You must use a browser that supports <i>cookies</i>.<BR>\n");
-	wprintf("</EM></UL>\n");
+	do_template("login.html");
 
 	wDumpContent(0);	/* No menu here; not logged in yet! */
 }
