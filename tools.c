@@ -80,7 +80,7 @@ void extract_token(char *dest, char *source, int parmnum, char separator)
 
 	if (strlen(source)==0) {
 		return;
-		}
+	}
 
 	for (i=0; i<strlen(source); ++i) {
 		if (source[i]==separator) {
