@@ -148,6 +148,19 @@ RCL:	    if (send_complete_line) {
 
 			fflush(stdout);
 			set_keepalives(KA_YES);
+
+
+			/* Some users complained about the client and server
+			 * losing protocol synchronization when exiting chat.
+			 * This little dialog forces everything to be
+			 * hunky-dory.
+			 */
+			serv_puts("ECHO __ExitingChat__");
+			do {
+				serv_gets(buf);
+			} while (strcmp(buf, "200 __ExitingChat__"));
+
+
 			return;
 			}
 		if (num_parms(buf)>=2) {
