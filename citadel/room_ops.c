@@ -500,7 +500,7 @@ void cmd_lkra_backend(struct quickroom *qrbuf) {
 	if ( ((CtdlRoomAccess(qrbuf, &CC->usersupp)
 	     & (UA_KNOWN)))
 	&& ((qrbuf->QRfloor == (CC->FloorBeingSearched))
-	   ||((CC->FloorBeingSearched)<0)) ) 
+	   ||((CC->FloorBeingSearched)<0)) )
 		list_roomname(qrbuf);
 	}
 

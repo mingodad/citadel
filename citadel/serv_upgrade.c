@@ -31,7 +31,7 @@ FILE *imfp;
 #define MODULE_AUTHOR	"Art Cancro"
 #define MODULE_EMAIL	"ajc@uncnsrd.mt-kisco.ny.us"
 #define MAJOR_VERSION	0
-#define MINOR_VERSION	1
+#define MINOR_VERSION	2
 
 static struct DLModule_Info info = {
   MODULE_NAME,
@@ -209,15 +209,11 @@ void imp_rooms() {
 
 
 void import_a_user() {
-	char key[256], value[256], list[256];
+	char key[256], value[256];
 	char vkey[256], vvalue[256];
 	struct usersupp us;
 	struct quickroom qr;
 	struct visit vbuf;
-	long *mbox = NULL;
-	int mbox_size = 0;
-	long msgnum;
-	long msglen;
 
 	bzero(&us, sizeof(struct usersupp));	
 	while(fpgetfield(imfp, key), strcasecmp(key, "enduser")) {
@@ -269,17 +265,6 @@ void import_a_user() {
 			strcpy(us.USphone, value);
 		if (!strcasecmp(key, "usemail"))
 			strcpy(us.USemail, value);
-		if (!strcasecmp(key, "mail")) {
-			lprintf(9, ".");
-			fpgetfield(imfp, list);
-			msgnum = atol(list);
-			fpgetfield(imfp, list);
-			msglen = atol(list);
-			import_message(msgnum, msglen);
-			++mbox_size;
-			mbox = realloc(mbox, (sizeof(long)*mbox_size) );
-			mbox[mbox_size - 1] = msgnum;
-			}
 		if (!strcasecmp(key, "visit")) {
 			lprintf(9,"v");
 			bzero(&vbuf, sizeof(struct visit));
@@ -304,19 +289,6 @@ void import_a_user() {
 	
 	putuser(&us, us.fullname);
 
-	/* create a mailbox room */
-	bzero(&qr, sizeof(struct quickroom));
-	MailboxName(qr.QRname, &us, MAILROOM);
-	qr.QRflags = QR_INUSE | QR_MAILBOX;
-	time(&qr.QRgen);
-	if (mbox_size > 0) qr.QRhighest = mbox[mbox_size - 1];
-	putroom(&qr, qr.QRname);
-
-	CC->msglist = mbox;
-	CC->num_msgs = mbox_size;
-	put_msglist(&qr);
-
-	free(mbox);
 	lprintf(9, "\n");
 	}
 
