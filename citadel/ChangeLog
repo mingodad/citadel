@@ -1,4 +1,7 @@
  $Log$
+ Revision 570.0  2000/03/19 23:42:34  ajc
+ * This is the official 5.70 release.
+
  Revision 1.494  2000/03/19 23:04:08  ajc
  * Small cosmetic change to date/time output
 
