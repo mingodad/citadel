@@ -75,6 +75,7 @@ struct visit {
 
 #define V_FORGET	1		/* User has zapped this room        */
 #define V_LOCKOUT	2		/* User is locked out of this room  */
+#define V_ACCESS	4		/* Access is granted to this room   */
 
 
 /* Defines the actual user record */

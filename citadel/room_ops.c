@@ -517,6 +517,7 @@ void usergoto(int where, int display_result)
 
 	/* new method */
 	vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
+	vbuf.v_flags = vbuf.v_flags | V_ACCESS;
 
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 	lputuser(&CC->usersupp,CC->curr_user);
@@ -1101,6 +1102,7 @@ unsigned create_room(int free_slot, char *new_room_name, int new_room_type, char
 	CC->usersupp.forget[free_slot] = (-1);
 	/* (new method) */
 	vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
+	vbuf.v_flags = vbuf.v_flags | V_ACCESS;
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &qrbuf);
 	lputuser(&CC->usersupp,CC->curr_user);
 

@@ -762,6 +762,7 @@ void cmd_invt_kick(char *iuser, int op)
 
 		/* new method */
 		vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
+		vbuf.v_flags = vbuf.v_flags | V_ACCESS;
 		}
 
 	if (op==0) {
@@ -770,6 +771,7 @@ void cmd_invt_kick(char *iuser, int op)
 		USscratch.forget[CC->curr_rm]=CC->quickroom.QRgen;
 
 		/* new method */
+		vbuf.v_flags = vbuf.v_flags & ~V_ACCESS;
 		vbuf.v_flags = vbuf.v_flags | V_FORGET | V_LOCKOUT;
 		}
 
