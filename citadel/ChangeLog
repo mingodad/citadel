@@ -1,4 +1,10 @@
  $Log$
+ Revision 605.31  2003/04/01 05:01:08  ajc
+ * sysdep.c: optimized MyContext() a bit, and inlined it.  A little profiling
+   revealed that this function was getting used super heavily.
+ * tools.c: removed the older, slower string tokenizer functions that
+   weren't getting used anymore.
+
  Revision 605.30  2003/03/31 04:55:58  ajc
  * Repaired the formatting of text/plain messages with blank lines.
 
@@ -4606,3 +4612,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

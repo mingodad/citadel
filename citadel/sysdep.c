@@ -408,12 +408,14 @@ int ig_uds_server(char *sockpath, int queue_len)
  * Return a pointer to the CitContext structure bound to the thread which
  * called this function.  If there's no such binding (for example, if it's
  * called by the housekeeper thread) then a generic 'master' CC is returned.
+ *
+ * It's inlined because it's used *VERY* frequently.
  */
-struct CitContext *MyContext(void) {
-	struct CitContext *retCC;
-	retCC = (struct CitContext *) pthread_getspecific(MyConKey);
-	if (retCC == NULL) retCC = &masterCC;
-	return(retCC);
+inline struct CitContext *MyContext(void) {
+	return ((pthread_getspecific(MyConKey) == NULL)
+		? &masterCC
+		: (struct CitContext *) pthread_getspecific(MyConKey)
+	);
 }
 
 

@@ -152,7 +152,7 @@ enum {
 #define CS_POSTING	4	/* Posting */
 
 struct CitContext *MyContext(void);
-#define CC ((struct CitContext *)MyContext())
+#define CC MyContext()
 
 extern struct CitContext *ContextList;
 extern int ScheduledShutdown;

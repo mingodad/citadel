@@ -86,7 +86,7 @@ int num_tokens(const char *source, char tok) {
 }
 
 
-/* extract_token_fast() - a smarter string tokenizer */
+/* extract_token() - a smarter string tokenizer */
 void extract_token(char *dest, const char *source, unsigned long parmnum, char separator)
 {
 	char *d;		/* dest */
@@ -117,37 +117,7 @@ void extract_token(char *dest, const char *source, unsigned long parmnum, char s
 }
 
 
-/*
- * extract_token()  -  a smarter string tokenizer
- */
-void extract_token_old(char *dest, const char *source, unsigned long parmnum, char separator) 
-{
-	int i;
-	int len;
-	int curr_parm;
-
-	strcpy(dest,"");
-	len = 0;
-	curr_parm = 0;
-
-	if (strlen(source)==0) {
-		return;
-	}
-
-	for (i=0; i<strlen(source); ++i) {
-		if (source[i]==separator) {
-			++curr_parm;
-		}
-		else if (curr_parm == parmnum) {
-			dest[len+1] = 0;
-			dest[len++] = source[i];
-		}
-	}
-}
-
-
-
-/* remove_token_fast() - a tokenizer that kills, maims, and destroys fast */
+/* remove_token() - a tokenizer that kills, maims, and destroys fast */
 void remove_token(char *source, unsigned long parmnum, char separator)
 {
 	char *d, *s;		/* dest, source */
@@ -188,46 +158,6 @@ void remove_token(char *source, unsigned long parmnum, char separator)
 	*d = 0;
 	*/
 }
-
-
-/*
- * remove_token()  -  a tokenizer that kills, maims, and destroys
- */
-void remove_token_old(char *source, int parmnum, char separator)
-{
-	int i;
-	int len;
-	int curr_parm;
-	int start, end;
-
-	len = 0;
-	curr_parm = 0;
-	start = (-1);
-	end = (-1);
-
-	if (strlen(source)==0) {
-		return;
-	}
-
-	for (i=0; i<strlen(source); ++i) {
-		if ( (start < 0) && (curr_parm == parmnum) ) {
-			start = i;
-		}
-
-		if ( (end < 0) && (curr_parm == (parmnum+1)) ) {
-			end = i;
-		}
-
-		if (source[i]==separator) {
-			++curr_parm;
-		}
-	}
-
-	if (end < 0) end = strlen(source);
-	strcpy(&source[start], &source[end]);
-}
-
-
 
 
 /*
