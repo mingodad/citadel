@@ -1,4 +1,10 @@
 $Log$
+Revision 522.21  2004/08/04 03:52:23  ajc
+* Tasks view is now pretty.
+* Tasks view now displays date due for each task.
+* Tasks view is now sorted by date due.
+* Tasks view now displays overdue tasks in red.
+
 Revision 522.20  2004/08/03 03:55:37  ajc
 * Tasks view now uses the same buffer/dump logic as the calendar views, so
   we can sort them by due date and do a prettier display.  (Only the logic is
@@ -1994,4 +2000,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

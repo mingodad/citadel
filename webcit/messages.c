@@ -1582,18 +1582,24 @@ void display_enter(void)
 		bstr("recp"));
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"postseq\" VALUE=\"%ld\">\n",
 		now);
+
+	wprintf("<TABLE border=0 cellspacing=0 cellpadding=0 width=100%%>\n");
+	wprintf("<TR><TD ALIGN=LEFT>");
 	wprintf("<IMG SRC=\"static/enter.gif\" ALIGN=MIDDLE ALT=\" \">");
 		/* "onLoad=\"document.enterform.msgtext.focus();\" " */
 	wprintf("<FONT SIZE=-1>Subject (optional):</FONT>"
 		"<INPUT TYPE=\"text\" NAME=\"subject\" VALUE=\"");
 	escputs(bstr("subject"));
-	wprintf("\" MAXLENGTH=70>"
+	wprintf("\" SIZE=40 MAXLENGTH=70>"
 		"&nbsp;"
 	);
+	wprintf("</TD>");
 
+	wprintf("<TD ALIGN=RIGHT>");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save message\">"
 		"&nbsp;"
 		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
+	wprintf("</TD></TR></TABLE>\n");
 
 	wprintf("<SCRIPT language=\"JavaScript\" type=\"text/javascript\" "
 		"src=\"static/richtext_compressed.js\"></SCRIPT>\n"

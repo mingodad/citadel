@@ -62,7 +62,7 @@ void calendar_month_view_display_events(time_t thetime) {
 	year = today_tm.tm_year + 1900;
 
 	for (i=0; i<(WC->num_cal); ++i) {
-		p = icalcomponent_get_first_property(WC->disp_cal[i],
+		p = icalcomponent_get_first_property(WC->disp_cal[i].cal,
 						ICAL_DTSTART_PROPERTY);
 		if (p != NULL) {
 			t = icalproperty_get_dtstart(p);
@@ -92,7 +92,7 @@ lprintf(9, "Event: %04d/%02d/%02d, Now: %04d/%02d/%02d\n",
 			   && (event_tm.tm_mday == today_tm.tm_mday)) {
 
 				p = icalcomponent_get_first_property(
-							WC->disp_cal[i],
+							WC->disp_cal[i].cal,
 							ICAL_SUMMARY_PROPERTY);
 				if (p != NULL) {
 
@@ -104,7 +104,7 @@ lprintf(9, "Event: %04d/%02d/%02d, Now: %04d/%02d/%02d\n",
 
 					wprintf("<FONT SIZE=-1>"
 						"<A HREF=\"/display_edit_event?msgnum=%ld&calview=%s&year=%s&month=%s&day=%s\">",
-						WC->cal_msgnum[i],
+						WC->disp_cal[i].cal_msgnum,
 						bstr("calview"),
 						bstr("year"),
 						bstr("month"),
@@ -274,7 +274,7 @@ void calendar_day_view_display_events(int year, int month,
 	}
 
 	for (i=0; i<(WC->num_cal); ++i) {
-		p = icalcomponent_get_first_property(WC->disp_cal[i],
+		p = icalcomponent_get_first_property(WC->disp_cal[i].cal,
 						ICAL_DTSTART_PROPERTY);
 		if (p != NULL) {
 			t = icalproperty_get_dtstart(p);
@@ -296,7 +296,7 @@ void calendar_day_view_display_events(int year, int month,
 
 
 				p = icalcomponent_get_first_property(
-							WC->disp_cal[i],
+							WC->disp_cal[i].cal,
 							ICAL_SUMMARY_PROPERTY);
 				if (p != NULL) {
 
@@ -308,7 +308,7 @@ void calendar_day_view_display_events(int year, int month,
 
 					wprintf("<FONT SIZE=-1>"
 						"<A HREF=\"/display_edit_event?msgnum=%ld&calview=day&year=%d&month=%d&day=%d\">",
-						WC->cal_msgnum[i],
+						WC->disp_cal[i].cal_msgnum,
 						year, month, day
 					);
 					escputs((char *)
@@ -488,7 +488,7 @@ void calendar_summary_view(void) {
 	memcpy(&today_tm, localtime(&now), sizeof(struct tm));
 
 	for (i=0; i<(WC->num_cal); ++i) {
-		p = icalcomponent_get_first_property(WC->disp_cal[i],
+		p = icalcomponent_get_first_property(WC->disp_cal[i].cal,
 						ICAL_DTSTART_PROPERTY);
 		if (p != NULL) {
 			t = icalproperty_get_dtstart(p);
@@ -510,7 +510,7 @@ void calendar_summary_view(void) {
 
 
 				p = icalcomponent_get_first_property(
-							WC->disp_cal[i],
+							WC->disp_cal[i].cal,
 							ICAL_SUMMARY_PROPERTY);
 				if (p != NULL) {
 					escputs((char *)
@@ -528,13 +528,11 @@ void calendar_summary_view(void) {
 void free_calendar_buffer(void) {
 	int i;
 	if (WC->num_cal) for (i=0; i<(WC->num_cal); ++i) {
-		icalcomponent_free(WC->disp_cal[i]);
+		icalcomponent_free(WC->disp_cal[i].cal);
 	}
 	WC->num_cal = 0;
 	free(WC->disp_cal);
 	WC->disp_cal = NULL;
-	free(WC->cal_msgnum);
-	WC->cal_msgnum = NULL;
 }
 
 
@@ -583,26 +581,115 @@ void do_calendar_view(void) {
 }
 
 
-void do_tasks_view(void) {
-	int i;
+/*
+ * Helper function for do_tasks_view().  Returns the date/time due.
+ */
+time_t get_task_due_date(icalcomponent *vtodo) {
 	icalproperty *p;
 
+	if (vtodo == NULL) {
+		return(0L);
+	}
+
+	/* If we're looking at a fully encapsulated VCALENDAR
+	 * rather than a VTODO component, recurse into the data
+	 * structure until we get a VTODO.
+	 */
+	if (icalcomponent_isa(vtodo) == ICAL_VCALENDAR_COMPONENT) {
+		return get_task_due_date(
+			icalcomponent_get_first_component(
+				vtodo, ICAL_VTODO_COMPONENT
+			)
+		);
+	}
+
+	p = icalcomponent_get_first_property(vtodo, ICAL_DUE_PROPERTY);
+	if (p != NULL) {
+		return(icaltime_as_timet(icalproperty_get_due(p)));
+	}
+	else {
+		return(0L);
+	}
+}
+
+
+/*
+ * Compare the due dates of two tasks (this is for sorting)
+ */
+int task_due_cmp(const void *task1, const void *task2) {
+	time_t t1;
+	time_t t2;
+
+	t1 =  get_task_due_date(((struct disp_cal *)task1)->cal);
+	t2 =  get_task_due_date(((struct disp_cal *)task2)->cal);
+
+	if (t1 < t2) return(-1);
+	if (t1 > t2) return(1);
+	return(0);
+}
+
+
+
+
+
+void do_tasks_view(void) {
+	int i;
+	time_t due;
+	int bg = 0;
+	char buf[SIZ];
+	icalproperty *p;
+
+	do_template("beginbox_nt");
+
+	wprintf("<TABLE BORDER=0 CELLSPACING=0 WIDTH=100%%>\n<TR>\n"
+		"<TH>Name of task</TH>\n"
+		"<TH>Date due</TH></TR>\n"
+	);
+
+	/* Sort them if necessary */
+	if (WC->num_cal > 1) {
+		qsort(WC->disp_cal,
+			WC->num_cal,
+			sizeof(struct disp_cal),
+			task_due_cmp
+		);
+	}
+
 	if (WC->num_cal) for (i=0; i<(WC->num_cal); ++i) {
-		p = icalcomponent_get_first_property(WC->disp_cal[i],
+
+		bg = 1 - bg;
+		wprintf("<TR BGCOLOR=\"#%s\"><TD>",
+			(bg ? "DDDDDD" : "FFFFFF")
+		);
+
+		p = icalcomponent_get_first_property(WC->disp_cal[i].cal,
 							ICAL_SUMMARY_PROPERTY);
 		wprintf("<A HREF=\"/display_edit_task?msgnum=%ld&taskrm=",
-			WC->cal_msgnum[i] );
+			WC->disp_cal[i].cal_msgnum );
 		urlescputs(WC->wc_roomname);
 		wprintf("\">");
 		if (p != NULL) {
 			escputs((char *)icalproperty_get_comment(p));
 		}
-		wprintf("</A><BR>\n");
+		wprintf("</A>\n");
+		wprintf("</TD>\n");
+
+		due = get_task_due_date(WC->disp_cal[i].cal);
+		fmt_date(buf, due);
+		wprintf("<TD><FONT");
+		if (due < time(NULL)) {
+			wprintf(" COLOR=\"#FF0000\"");
+		}
+		wprintf(">%s</FONT></TD></TR>\n", buf);
 	}
 
-	wprintf("<BR><BR><A HREF=\"/display_edit_task?msgnum=0\">"
+	wprintf("</TABLE>\n");
+
+	wprintf("<HR><A HREF=\"/display_edit_task?msgnum=0\">"
 		"Add new task</A>\n"
 	);
+
+	do_template("endbox");
 
 
 	/* Free the list */
