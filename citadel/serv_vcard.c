@@ -58,6 +58,77 @@ unsigned long SYM_VCARD;
 #define VC ((struct vcard_internal_info *)CtdlGetUserData(SYM_VCARD))
 
 
+
+
+/*
+ * Extract Internet e-mail addresses from a message containing a vCard
+ * FIXME give this a callback ability
+ */
+void vcard_extract_internet_addresses(struct CtdlMessage *msg) {
+	struct vCard *v;
+	char *s;
+
+	v = vcard_load(msg->cm_fields['M']);
+	if (v == NULL) return;
+
+	s = vcard_get_prop(v, "email;internet", 0);
+	if (s != NULL) {
+		lprintf(9, "extracted internet address <%s>\n", s);
+	}
+
+	vcard_free(v);
+}
+
+/*
+ * Back end function for cmd_igab()
+ * FIXME actually write to the database, dumbass...
+ */
+void vcard_igab_backend(long msgnum, void *data) {
+	struct CtdlMessage *msg;
+
+	msg = CtdlFetchMessage(msgnum);
+	if (msg != NULL) {
+		vcard_extract_internet_addresses(msg);
+	}
+
+	CtdlFreeMessage(msg);
+}
+
+
+/*
+ * Initialize Global Adress Book
+ */
+void cmd_igab(char *argbuf) {
+        char hold_rm[ROOMNAMELEN];
+
+	if (CtdlAccessCheck(ac_aide)) return;
+
+        strcpy(hold_rm, CC->quickroom.QRname);	/* save current room */
+
+        if (getroom(&CC->quickroom, ADDRESS_BOOK_ROOM) != 0) {
+                getroom(&CC->quickroom, hold_rm);
+		cprintf("%d cannot get address book room\n", ERROR);
+		return;
+        }
+
+	/* FIXME empty the existing database first.  And don't be a
+	 * freakin' momo and dump addresses to the client.  We want to write
+	 * the harvested addresses into the database and send an OK to the
+	 * client when finished.
+	 */
+	
+	cprintf("%d FIXME\n", LISTING_FOLLOWS);
+
+        /* We want the last (and probably only) vcard in this room */
+        CtdlForEachMessage(MSGS_ALL, 0, (-127), "text/x-vcard",
+		NULL, vcard_igab_backend, NULL);
+
+        getroom(&CC->quickroom, hold_rm);	/* return to saved room */
+	cprintf("000\n");
+}
+
+
+
 /*
  * This handler detects whether the user is attempting to save a new
  * vCard as part of his/her personal configuration, and handles the replace
@@ -457,6 +528,8 @@ char *Dynamic_Module_Init(void)
 	CtdlRegisterMessageHook(vcard_upload_aftersave, EVT_AFTERSAVE);
 	CtdlRegisterProtoHook(cmd_regi, "REGI", "Enter registration info");
 	CtdlRegisterProtoHook(cmd_greg, "GREG", "Get registration info");
+	CtdlRegisterProtoHook(cmd_igab, "IGAB",
+					"Initialize Global Address Book");
 	CtdlRegisterUserHook(vcard_purge, EVT_PURGEUSER);
 	create_room(ADDRESS_BOOK_ROOM, 3, "", 0, 1);
 	return "$Id$";

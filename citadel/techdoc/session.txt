@@ -1877,6 +1877,16 @@ without calling this command.  If a client needs to end TLS and resume
 unencrypted communications, it should do so through the SSL/TLS layer (e.g.
 with SSL_shutdown() in OpenSSL) rather than using this command.  This command
 may be removed from future versions of Citadel/UX.
+ 
+ 
+ IGAB   (Initialize Global Address Book)
+ 
+ This command creates, or re-creates, a database of Internet e-mail addresses
+using the vCard information in the Global Address Book room.  This procedure
+is normally run internally when the server determines it necessary, but is
+also provided as a server command to be used as a troubleshooting/maintenenance
+tool.  Only a system Aide can run the command.  It returns OK on success or
+ERROR on failure.
 
 
  ASYN   (ASYNchronous message support)

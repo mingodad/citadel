@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.49  2002/01/09 04:05:53  ajc
+ * Began writing code to harvest Internet e-mail addresses from vCards, and
+   hacked together a temporary version (and writeup) of the IGAB command.
+
  Revision 590.48  2002/01/08 16:34:22  ajc
  * serv_vcard.c: cosmetic cleanup
 
@@ -3111,3 +3115,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
