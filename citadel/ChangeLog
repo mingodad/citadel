@@ -1,4 +1,10 @@
  $Log$
+ Revision 573.127  2001/04/17 00:35:19  cough
+ * Modified rooms.c in the client so that it would allow inviting into
+   public rooms.  This is important since there is now a V_LOCKOUT
+   flag which prevents users who have been kicked from rejoining
+   a room unless/until you invite them back in.
+
  Revision 573.126  2001/04/16 19:21:14  cough
  * Fixed bug in room_ops.c that wasn't allowing aides to goto passworded
    rooms without knowing the password.
