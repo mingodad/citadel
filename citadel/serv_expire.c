@@ -314,6 +314,17 @@ void do_user_purge(struct usersupp *us, void *data) {
 	time_t purge_time;
 	struct PurgeList *pptr;
 
+	/* stupid recovery routine to re-create missing mailboxen.
+	 * don't enable this.
+	struct quickroom qrbuf;
+	char mailboxname[ROOMNAMELEN];
+	MailboxName(mailboxname, us, MAILROOM);
+	create_room(mailboxname, 4, "", 0);
+	if (getroom(&qrbuf, mailboxname) != 0) return;
+	lprintf(9, "Got %s\n", qrbuf.QRname);
+	 */
+
+
 	/* Set purge time; if the user overrides the system default, use it */
 	if (us->USuserpurge > 0) {
 		purge_time = ((time_t)us->USuserpurge) * 86400L;
