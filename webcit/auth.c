@@ -107,7 +107,10 @@ void do_login(void) {
 	int need_regi = 0;
 
 
-	if (!strcasecmp(bstr("noframes"), "on")) noframes = 1;
+	if (!strcasecmp(bstr("noframes"), "on"))
+		noframes = 1;
+	else
+		noframes = 0;
 
 	if (!strcasecmp(bstr("action"), "Exit")) {
 		do_logout();
@@ -159,7 +162,7 @@ void do_login(void) {
 			display_reg(1);
 			}
 		else {
-			output_static("frameset.html");
+			do_welcome();
 			}
 		}
 	else {
@@ -169,21 +172,28 @@ void do_login(void) {
 	}
 
 void do_welcome(void) {
-	printf("HTTP/1.0 200 OK\n");
-	output_headers(1, "bottom");
-	wprintf("<CENTER><H1>");
-	escputs(wc_username);
-	wprintf("</H1>\n");
-	/* FIX add user stats here */
 
-	wprintf("<HR>");
-	/* FIX  ---  what should we put here?  the main menu,
-	 * or new messages in the lobby?
-	 */
-	embed_main_menu();
 
-	wprintf("</BODY></HTML>\n");
-	wDumpContent();
+	fprintf(stderr, "DO_WELCOME CALLED, NOFRAMES=%d\n", noframes);
+
+	if (noframes) {
+		printf("HTTP/1.0 200 OK\n");
+		output_headers(1, "_top");
+		wprintf("<CENTER><H1>");
+		escputs(wc_username);
+		wprintf("</H1>\n");
+		/* FIX add user stats here */
+	
+		wprintf("<HR>");
+		embed_main_menu();
+	
+		wprintf("</BODY></HTML>\n");
+		wDumpContent();
+		}
+
+	else {
+		output_static("frameset.html");
+		}
 	}
 
 
@@ -376,7 +386,7 @@ void register_user(void) {
 	serv_puts("000");
 	
 	if (atoi(bstr("during_login"))) {
-		output_static("frameset.html");
+		do_welcome();
 		}
 	else {
 		display_error("Registration information has been saved.");
