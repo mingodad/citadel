@@ -29,15 +29,19 @@ serv_modules: $(SERV_MODULES)
 #
 
 citadel: ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o messages.o \
-	commands.o client_chat.o serv_info.o
+	commands.o client_chat.o serv_info.o tools.o
 	$(CC) $(CFLAGS) ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o \
-	messages.o commands.o client_chat.o serv_info.o $(LFLAGS) -o citadel
+	messages.o commands.o client_chat.o serv_info.o tools.o $(LFLAGS) -o \
+	citadel
 
 netpoll: netpoll.o config.o ipc_c_tcp.o
 	$(CC) $(CFLAGS) netpoll.o config.o ipc_c_tcp.o $(LFLAGS) -o netpoll
 
 netpoll.o: netpoll.c
 	$(CC) $(CFLAGS) -c netpoll.c
+
+tools.o: tools.c
+	$(CC) $(CFLAGS) -c tools.c
 
 ipc_c_tcp.o: ipc_c_tcp.c
 	$(CC) $(CFLAGS) -c ipc_c_tcp.c
