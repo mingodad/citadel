@@ -277,10 +277,12 @@ void init_ssl(void)
 			if (req) {
 				if (cer = X509_new(), cer != NULL) {
 
+					ASN1_INTEGER_set(X509_get_serialNumber(cer), 0);
 					X509_set_issuer_name(cer, req->req_info->subject);
 					X509_set_subject_name(cer, req->req_info->subject);
-					X509_gmtime_adj(X509_get_notBefore(cer),0);
+					X509_gmtime_adj(X509_get_notBefore(cer), 0);
 					X509_gmtime_adj(X509_get_notAfter(cer),(long)60*60*24*SIGN_DAYS);
+
 					req_pkey = X509_REQ_get_pubkey(req);
 					X509_set_pubkey(cer, req_pkey);
 					EVP_PKEY_free(req_pkey);
