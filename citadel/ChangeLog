@@ -1,4 +1,10 @@
  $Log$
+ Revision 580.16  2001/07/30 03:46:14  nbryant
+ made ForEachUser use a read-only cursor, too. there is now only one piece of
+ code in Citadel proper (not the database driver) that needs transactions.
+ that's check_ref_counts; in other words it's the only thing standing in the way
+ of a clean implementation of retryable transactions.
+
  Revision 580.15  2001/07/29 22:24:04  nbryant
   - added a new function to the database interface, cdb_close_cursor().  always
  call this when you're finished with a traversal but didn't bother reading all
@@ -2641,4 +2647,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

@@ -1081,7 +1081,6 @@ void ForEachUser(void (*CallBack) (struct usersupp * EachUser, void *out_data),
 	struct usersupp usbuf;
 	struct cdbdata *cdbus;
 
-	cdb_begin_transaction();
 	cdb_rewind(CDB_USERSUPP);
 
 	while (cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
@@ -1092,7 +1091,6 @@ void ForEachUser(void (*CallBack) (struct usersupp * EachUser, void *out_data),
 		cdb_free(cdbus);
 		(*CallBack) (&usbuf, in_data);
 	}
-	cdb_end_transaction();
 }
 
 
