@@ -1278,7 +1278,7 @@ to other users currently in chat.
  This is one of two commands which implement "express messages" (also known
 as "paging").  An express message is a near-real-time message sent from one
 logged in user to another.  When an express message is sent, it will be
-displayed the next time the target user executes a PEXP command.
+displayed the next time the target user executes a PEXP or GEXP command.
  
  The SEXP command accepts two arguments: the name of the user to send the
 message to, and the text of the message.  If the message is successfully
@@ -1299,9 +1299,12 @@ in using a client that does not check for express messages, the message will
 never be received.
  
  
- PEXP   (Print EXPress messages)
+ PEXP   (Print EXPress messages)   ***DEPRECATED***
  
- This command, called without any arguments, simply dumps out the contents
+ This command is deprecated; it will eventually disappear from the protocol and
+its use is not recommended.  Please use the GEXP command instead.
+ 
+ Called without any arguments, PEXP simply dumps out the contents
 of any waiting express messages.  It returns ERROR if there is a problem,
 otherwise it returns LISTING_FOLLOWS followed by all messages.
  
@@ -1651,3 +1654,25 @@ parameters which must be passed to this command are the message number and the
 name of the desired section.  If the message or section does not exist, an
 appropriate ERROR code will be returned; otherwise, if the open is successful,
 this command will succeed returning the same information as an OPEN command.
+ 
+ 
+ GEXP   (Get EXPress messages)
+ 
+ This is a more sophisticated way of retrieving express messages than the old
+PEXP method.  If there are no express messages waiting, PEXP returns ERROR;
+otherwise, it returns LISTING_FOLLOWS and the following arguments:
+   
+ 0 - a boolean value telling the client whether there are any additional
+     express messages waiting following this one
+ 1 - a Unix-style timestamp
+ 2 - flags (see server.h for more info)
+ 3 - the name of the sender
+ 4 - the node this message originated on (for future support of PIP, ICQ, etc.)
+  
+ The text sent to the client will be the body of the express message.
+      
+ So how does the client know there are express messages waiting?  It could
+execute a random GEXP every now and then.  Or, it can check the byte in
+server return code messages, between the return code and the parameters.  In
+much the same way as FTP uses "-" to signify a continuation, Citadel uses
+an "*" in this position to signify the presence of waiting express messages.

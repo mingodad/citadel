@@ -58,6 +58,7 @@ struct DLModule_Info *Dynamic_Module_Init(void)
 {
 	CtdlRegisterProtoHook(cmd_chat, "CHAT", "Begin real-time chat");
 	CtdlRegisterProtoHook(cmd_pexp, "PEXP", "Poll for express messages");
+	CtdlRegisterProtoHook(cmd_gexp, "GEXP", "Get express messages");
 	CtdlRegisterProtoHook(cmd_sexp, "SEXP", "Send an express message");
 	CtdlRegisterSessionHook(delete_express_messages, EVT_STOP);
 	return &info;
@@ -396,6 +397,40 @@ void cmd_pexp(char *argbuf)
 	}
 	cprintf("000\n");
 }
+
+
+/*
+ * Get express messages (new method)
+ */
+void cmd_gexp(char *argbuf) {
+	struct ExpressMessage *ptr;
+
+	if (CC->FirstExpressMessage == NULL) {
+		cprintf("%d No express messages waiting.\n", ERROR);
+		return;
+	}
+
+	begin_critical_section(S_SESSION_TABLE);
+	ptr = CC->FirstExpressMessage;
+	CC->FirstExpressMessage = CC->FirstExpressMessage->next;
+	end_critical_section(S_SESSION_TABLE);
+
+	cprintf("%d %d|%ld|%d|%s|%s\n",
+		LISTING_FOLLOWS,
+		((ptr->next != NULL) ? 1 : 0),		/* more msgs? */
+		ptr->timestamp,				/* time sent */
+		ptr->flags,				/* flags */
+		ptr->sender,				/* sender of msg */
+		config.c_nodename);			/* static for now */
+	if (ptr->text != NULL) {
+		cprintf("%s", ptr->text);
+		if (ptr->text[strlen(ptr->text)-1] != '\n') cprintf("\n");
+		phree(ptr->text);
+		}
+	cprintf("000\n");
+	phree(ptr);
+}
+
 
 
 /* 
