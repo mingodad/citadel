@@ -7,6 +7,7 @@
 #include <wx/listctrl.h>
 #include "citclient.hpp"
 #include "who.hpp"
+#include "utils.h"
 
 // ----------------------------------------------------------------------------
 // private classes
@@ -74,10 +75,10 @@ who::who(CitClient *sock, wxMDIParentFrame *MyMDI)
 	c1->right.SameAs(this, wxRight, 10);
 	wholist->SetConstraints(c1);
 
-	wholist->InsertColumn(0, "Session", wxLIST_FORMAT_CENTER, (-1));
-	wholist->InsertColumn(1, "User name", wxLIST_FORMAT_CENTER, (-1));
-	wholist->InsertColumn(2, "Room", wxLIST_FORMAT_CENTER, (-1));
-	wholist->InsertColumn(3, "From host", wxLIST_FORMAT_CENTER, (-1));
+	wholist->InsertColumn(0, "Session", wxLIST_FORMAT_CENTER, 50);
+	wholist->InsertColumn(1, "User name", wxLIST_FORMAT_CENTER, 100);
+	wholist->InsertColumn(2, "Room", wxLIST_FORMAT_CENTER, 100);
+	wholist->InsertColumn(3, "From host", wxLIST_FORMAT_CENTER, 100);
 
 	SetAutoLayout(TRUE);
 	Show(TRUE);
@@ -91,6 +92,7 @@ void who::LoadWholist(void) {
 	wxString sendcmd, recvcmd, buf;
 	wxStringList rwho;
 	int i;
+	wxString sess, user, room, host;
 
 	sendcmd = "RWHO";
 	if (citsock->serv_trans(sendcmd, recvcmd, rwho) != 1) return;
@@ -98,9 +100,13 @@ void who::LoadWholist(void) {
 
 	for (i=0; i<rwho.Number(); ++i) {
 		buf.Printf("%s", (wxString *)rwho.Nth(i)->GetData());
-		wholist->InsertItem(i, buf);
-		wholist->InsertItem(i, buf);
-		wholist->InsertItem(i, buf);
-		wholist->InsertItem(i, buf);
+		extract(sess, buf, 0);
+		extract(user, buf, 1);
+		extract(room, buf, 2);
+		extract(host, buf, 3);
+		wholist->InsertItem(i, sess);
+		wholist->SetItem(i, 1, user);
+		wholist->SetItem(i, 2, room);
+		wholist->SetItem(i, 3, host);
 	}
 }

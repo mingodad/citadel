@@ -97,7 +97,7 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 		"",
 		wxPoint(10,100),
 		wxSize(300,30),
-		0, // no style
+		wxTE_PASSWORD,
 		wxDefaultValidator,
 		"sendcmd"
 		);
