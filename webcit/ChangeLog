@@ -1,4 +1,7 @@
 $Log$
+Revision 602.0  2005/02/15 05:23:10  ajc
+* THIS IS 6.02
+
 Revision 601.3  2005/02/15 05:20:44  ajc
 * Fixed an HTTP output error for static data which was causing images
   to display improperly in Konqueror
