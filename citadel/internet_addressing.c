@@ -264,6 +264,11 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 
 	struct CtdlMessage *msg;
 	char *buf;
+	int pos;
+	int msglen;
+	int done;
+	char *field;
+	char buf[256];
 
 	msg = mallok(sizeof(struct CtdlMessage));
 	if (msg == NULL) return msg;
@@ -275,6 +280,19 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 	msg->cm_fields['M'] = rfc822;
 
 	/* FIX   there's plenty to do here. */
+	msglen = strlen(rfc822);
+	pos = 0;
+	done = 0;
+	field = NULL;
+
+	while (!done) {
+
+		for (i=pos; i<=strlen(rfc822); ++i) {
+
+		
+
+
+	}
 
 
 	/* Follow-up sanity check. */
