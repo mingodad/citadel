@@ -1,4 +1,7 @@
 $Log$
+Revision 500.10  2003/07/30 03:57:49  ajc
+* Add config.c_purge_hour to config screen
+
 Revision 500.9  2003/07/06 22:06:59  ajc
 * When converting "anything that looks like a URL" to a real link, first
   make sure that it isn't already inside a link.  This fixes most of the
@@ -1527,4 +1530,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
