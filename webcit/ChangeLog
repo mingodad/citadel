@@ -1,4 +1,7 @@
 $Log$
+Revision 400.78  2003/01/05 21:02:14  ajc
+* Summary page: three columns are now all the same width
+
 Revision 400.77  2003/01/05 20:56:05  ajc
 * minor fix for previous checkin
 
@@ -1220,4 +1223,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
