@@ -31,6 +31,7 @@ int TransactionCount = 0;
 int connected = 0;
 int logged_in = 0;
 int axlevel;
+char *ExpressMessages = NULL;
 
 struct webcontent *wlist = NULL;
 struct webcontent *wlast = NULL;
@@ -286,10 +287,51 @@ void output_headers(int print_standard_html_head) {
         	wprintf("<HTML><HEAD><TITLE>");
 		escputs("WebCit");
 		wprintf("</TITLE></HEAD>");
-		wprintf("<BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+		if (ExpressMessages != NULL) {
+			wprintf("<SCRIPT language=\"javascript\">\n");
+			wprintf("function ExpressMessage() {\n");
+			wprintf(" alert(\"");
+			escputs(ExpressMessages);
+			wprintf("\")\n");
+			wprintf(" }\n </SCRIPT>\n");
+			}
+		wprintf("<BODY ");
+		if (ExpressMessages != NULL) {
+			wprintf("onload=\"ExpressMessage()\" ");
+			free(ExpressMessages);
+			ExpressMessages = NULL;
+			}
+		wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
 		}
 
 	}
+
+
+
+
+void check_for_express_messages() {
+	char buf[256];
+
+	serv_puts("PEXP");
+	serv_gets(buf);
+	if (buf[0]=='1') {
+		while (serv_gets(buf), strcmp(buf, "000")) {
+			if (ExpressMessages == NULL) {
+				ExpressMessages = malloc(strlen(buf) + 4);
+				strcpy(ExpressMessages, "");
+				}
+			else {
+				ExpressMessages = realloc(ExpressMessages,
+				 (strlen(ExpressMessages) + strlen(buf) + 4) );
+				}
+			strcat(ExpressMessages, buf);
+			strcat(ExpressMessages, "\\n");
+			}
+		}
+	}
+
+
+
 
 void output_static(char *what) {
 	char buf[256];
@@ -469,6 +511,7 @@ fclose(fp);
 		get_serv_info();
 		}
 
+	check_for_express_messages();
 
 	/*
 	 * If we're not logged in, but we have username and password cookies
