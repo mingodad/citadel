@@ -27,8 +27,6 @@
  */
 void display_page(void)
 {
-	char buf[256];
-	char user[256];
 	char recp[256];
 
 	strcpy(recp, bstr("recp"));
@@ -40,8 +38,8 @@ void display_page(void)
 	wprintf("<B>Page another user</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
 
-	wprintf("This command sends a near-real-time message to any currently\n");
-	wprintf("logged in user.<BR><BR>\n");
+	wprintf("<CENTER>This will send a page (instant message) "
+		"to %s.<BR><BR>\n", recp);
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/page_user\">\n");
 

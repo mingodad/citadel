@@ -64,7 +64,8 @@ void whobbs(void)
 
 	wprintf("<CENTER>\n"
 		"Click on a name to read user info.  Click on "
-		"<IMG SRC=\"/static/page.gif\" ALT=\"(p)\" BORDER=0> to send "
+		"<IMG ALIGN=MIDDLE SRC=\"/static/page.gif\" ALT=\"(p)\" "
+		"BORDER=0> to send "
 		"a page (instant message) to that user.<BR>"
 		"<TABLE BORDER=1 WIDTH=100%%>\n<TR>\n");
 	wprintf("<TH>Session ID</TH>\n");
@@ -129,6 +130,14 @@ void whobbs(void)
 			}
 			wprintf("</TD>\n\t<TD>");
 
+			/* (link to page this user) */
+			wprintf("<A HREF=\"/display_page&recp=");
+			urlescputs(wlist->username);
+			wprintf("\">"
+				"<IMG ALIGN=MIDDLE SRC=\"/static/page.gif\" "
+				"ALT=\"(p)\""
+				" BORDER=0></A>&nbsp;");
+
 
 			/* username (link to user bio/photo page) */
 			wprintf("<A HREF=\"/showuser&who=");
@@ -137,14 +146,6 @@ void whobbs(void)
 			escputs(wlist->username);
 			wprintf("</A>");
 
-			/* (link to page this user) */
-			wprintf("<DIV ALIGN=RIGHT>"
-				"<A HREF=\"/whobbs\" "
-				" onClick=\"return window.open('/display_page&recp=");
-			urlescputs(wlist->username);
-			wprintf("', 'CitaPageWin', 'toolbar=no,location=no,copyhistory=no,status=no,scrollbars=yes,resizable=no,height=400,width=400');\">"
-				"<IMG SRC=\"/static/page.gif\" ALT=\"(p)\""
-				" BORDER=0></A></DIV>");
 
 			/* room */
 			wprintf("</TD>\n\t<TD>");

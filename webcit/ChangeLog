@@ -1,4 +1,7 @@
 $Log$
+Revision 213.11  2001/05/15 03:22:25  ajc
+* More icon updates and link cleanup type stuff
+
 Revision 213.10  2001/05/06 05:11:48  ajc
 * Added paging icon and right-justified it
 * Send-page window is now a popup
@@ -538,3 +541,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
