@@ -1,4 +1,8 @@
  $Log$
+ Revision 614.50  2004/02/25 01:35:34  error
+ Missing parameter to a printf() function.  No idea where it went, but I
+ put it back.
+
  Revision 614.49  2004/02/24 05:09:06  ajc
  * Better validation of incoming network messages.
 
@@ -5398,3 +5402,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
