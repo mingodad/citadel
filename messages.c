@@ -651,7 +651,7 @@ ENDBODY:
 }
 
 
-void summarize_message(long msgnum) {
+void summarize_message(long msgnum, int is_new) {
 	char buf[SIZ];
 
 	struct {
@@ -702,14 +702,22 @@ void summarize_message(long msgnum) {
 		}
 	}
 
-	wprintf("<TD><A HREF=\"/readfwd?startmsg=%ld"
+	wprintf("<TD>");
+	if (is_new) wprintf("<B>");
+	wprintf("<A HREF=\"/readfwd?startmsg=%ld"
 		"&maxmsgs=1&summary=0\">", 
 		msgnum);
 	escputs(summ.subj);
-	wprintf("</A></TD><TD>");
+	wprintf("</A>");
+	if (is_new) wprintf("</B>");
+	wprintf("</TD><TD>");
+	if (is_new) wprintf("<B>");
 	escputs(summ.from);
+	if (is_new) wprintf("</B>");
 	wprintf(" </TD><TD>");
+	if (is_new) wprintf("<B>");
 	escputs(summ.date);
+	if (is_new) wprintf("</B>");
 	wprintf(" </TD>");
 	wprintf("<TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"msg_%ld\" VALUE=\"yes\">"
@@ -951,6 +959,8 @@ void readloop(char *oper)
 {
 	char cmd[SIZ];
 	char buf[SIZ];
+	char old_msgs[SIZ];
+	int is_new = 0;
 	int a, b, i;
 	int nummsgs;
 	long startmsg;
@@ -981,24 +991,45 @@ void readloop(char *oper)
 
 	output_headers(1);
 
+	/* When in summary mode, always show ALL messages instead of just
+	 * new or old.  Otherwise, show what the user asked for.
+	 */
 	if (!strcmp(oper, "readnew")) {
 		strcpy(cmd, "MSGS NEW");
-	} else if (!strcmp(oper, "readold")) {
+	}
+	else if (!strcmp(oper, "readold")) {
 		strcpy(cmd, "MSGS OLD");
-	} else {
+	}
+	else {
 		strcpy(cmd, "MSGS ALL");
 	}
 
 	if ((WC->wc_view == VIEW_MAILBOX) && (maxmsgs > 1)) {
 		is_summary = 1;
 		strcpy(cmd, "MSGS ALL");
-		/* maxmsgs = 32767; */
 	}
 
 	if ((WC->wc_view == VIEW_ADDRESSBOOK) && (maxmsgs > 1)) {
 		is_addressbook = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
+	}
+
+	if (is_summary) {
+		strcpy(cmd, "MSGS ALL");
+	}
+
+	/* Are we doing a summary view?  If so, we need to know old messages
+	 * and new messages, so we can do that pretty boldface thing for the
+	 * new messages.
+	 */
+	strcpy(old_msgs, "");
+	if (is_summary) {
+		serv_puts("GTSN");
+		serv_gets(buf);
+		if (buf[0] == '2') {
+			strcpy(old_msgs, &buf[4]);
+		}
 	}
 
 	is_singlecard = atoi(bstr("is_singlecard"));
@@ -1087,6 +1118,17 @@ void readloop(char *oper)
 	for (a = 0; a < nummsgs; ++a) {
 		if ((WC->msgarr[a] >= startmsg) && (num_displayed < maxmsgs)) {
 
+			/* Are you a new message, or an old message? */
+			is_new = 0;
+			if (is_summary) {
+				if (is_msg_in_mset(old_msgs, WC->msgarr[a])) {
+					is_new = 0;
+				}
+				else {
+					is_new = 1;
+				}
+			}
+
 			/* Learn which msgs "Prev" & "Next" buttons go to */
 			pn_current = WC->msgarr[a];
 			if (a > 0) pn_previous = WC->msgarr[a-1];
@@ -1102,7 +1144,7 @@ void readloop(char *oper)
 
 			/* Display the message */
 			if (is_summary) {
-				summarize_message(WC->msgarr[a]);
+				summarize_message(WC->msgarr[a], is_new);
 			}
 			else if (is_addressbook) {
 				fetch_ab_name(WC->msgarr[a], buf);
