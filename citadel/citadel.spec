@@ -33,9 +33,6 @@ touch $RPM_BUILD_ROOT/usr/local/citadel/.hushlogin
 
 %clean
 rm -rf "$RPM_BUILD_ROOT"
-rm -f filelist
-
-%defattr(-,root,root)
 
 %package server
 Summary: Citadel/UX, the flexible, powerful way to build online communities
@@ -49,6 +46,7 @@ groupware, and online community applications.  It is multithreaded,
 client/server, database driven, and accessible via a growing selection of
 front ends.  Remember to run /usr/local/citadel/setup after installing or
 upgrading this package.
+%defattr(-,root,root)
 %files server
 /etc/pam.d/citadel
 %doc docs/chat.txt
@@ -113,7 +111,7 @@ upgrading this package.
 /usr/local/citadel/modules/libical.la
 %pre server
 # Add the "bbs" user
-/usr/sbin/useradd -c "Citadel" -u 93 -s /bin/false -r -d /usr/local/citadel \
+/usr/sbin/useradd -c "Citadel" -s /bin/false -r -d /usr/local/citadel \
 		citadel 2> /dev/null || :
 %post server
 if [ -f /etc/inittab ]; then
@@ -126,6 +124,9 @@ if [ -f /etc/services ]; then
 		echo "citadel		504/tcp		# citadel" >> /etc/services
 	fi
 fi
+/sbin/ldconfig -n /usr/local/citadel /usr/local/citadel/modules
+cd /usr/local/citadel
+/usr/local/citadel/setup -q
 %postun server
 if [ -f /etc/inittab ]; then
 	grep -v 'citserver' < /etc/inittab > /etc/inittab.new
@@ -139,6 +140,7 @@ Group: System Environment/Daemons
 %description data
 Default data files for the Citadel/UX messaging system.  These files are
 required by the Citadel/UX server.
+%defattr(-,root,root)
 %files data
 /usr/local/citadel/.hushlogin
 #%dir /usr/local/citadel/netconfigs
@@ -154,16 +156,17 @@ required by the Citadel/UX server.
 # KLUDGE!!!!  This catches help/? otherwise RPM barfs on it
 # Drawback, it's not marked as a config file, oh well
 /usr/local/citadel/help
-%config /usr/local/citadel/help/aide
-%config /usr/local/citadel/help/software
-%config /usr/local/citadel/help/floors
-%config(noreplace) /usr/local/citadel/help/hours
-%config /usr/local/citadel/help/intro
-%config /usr/local/citadel/help/mail
-%config /usr/local/citadel/help/network
-%config /usr/local/citadel/help/nice
-%config(noreplace) /usr/local/citadel/help/policy
-%config /usr/local/citadel/help/summary
+#%config /usr/local/citadel/help/?
+#%config /usr/local/citadel/help/aide
+#%config /usr/local/citadel/help/software
+#%config /usr/local/citadel/help/floors
+#%config(noreplace) /usr/local/citadel/help/hours
+#%config /usr/local/citadel/help/intro
+#%config /usr/local/citadel/help/mail
+#%config /usr/local/citadel/help/network
+#%config /usr/local/citadel/help/nice
+#%config(noreplace) /usr/local/citadel/help/policy
+#%config /usr/local/citadel/help/summary
 %config /usr/local/citadel/messages/changepw
 %config /usr/local/citadel/messages/aideopt
 %config /usr/local/citadel/messages/entermsg
@@ -185,6 +188,7 @@ Group: Applications/Communications
 %description client
 This is the text client software for the Citadel/UX messaging system.
 Install this software if you need to connect to a Citadel/UX server.
+%defattr(-,root,root)
 %files client
 /usr/local/citadel/citadel
 /usr/local/citadel/citadel.rc
@@ -205,6 +209,7 @@ and outbound SMTP service for the Citadel/UX messaging system.  Install this
 package if your Citadel/UX users should be able to send and receive Internet
 e-mail.  If you also run another SMTP server you will need to read
 docs/inetmailsetupmx.txt to configure SMTP service.
+%defattr(-,root,root)
 %files smtp
 /usr/local/citadel/modules/libsmtp.so
 /usr/local/citadel/modules/libsmtp.la
@@ -219,6 +224,7 @@ This package provides the Citadel/UX IMAP service, which provides IMAP
 connectivity.  Install this package if you want to connect to the Citadel/UX
 server with IMAP clients such as Outlook Express or Netscape.  Using this
 access method, users can access both e-mail and all public rooms on the server.
+%defattr(-,root,root)
 %files imap
 /usr/local/citadel/modules/libimap.so
 /usr/local/citadel/modules/libimap.la
@@ -232,6 +238,7 @@ connectivity.  Install this package if you want to connect to the Citadel/UX
 server with POP3 clients such as Outlook Express or Netscape.  Note that the
 POP3 client can only receive mail; install citadel-smtp as well if you want
 users to be able to send mail.
+%defattr(-,root,root)
 %files pop3
 /usr/local/citadel/modules/libpop3.so
 /usr/local/citadel/modules/libpop3.la
