@@ -1,4 +1,9 @@
  $Log$
+ Revision 591.60  2002/06/29 18:36:31  error
+ * tools.c: Massively faster versions of extract_token() and remove_token().
+   These functions can now handle multi-kilobyte sized strings with hundreds
+   of tokens (or more?).
+
  Revision 591.59  2002/06/29 15:55:07  error
  * Convert whobbs, serv_info, misc. functions to new IPC code
 
@@ -3785,4 +3790,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

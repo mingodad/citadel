@@ -83,10 +83,41 @@ int num_tokens(char *source, char tok) {
 	return(count);
 }
 
+
+/* extract_token_fast() - a smarter string tokenizer */
+void extract_token(char *dest, char *source, int parmnum, char separator)
+{
+	char *d, *s;		/* dest, source */
+	int count = 0;
+
+	strcpy(dest, "");
+
+	/* Locate desired parameter */
+	s = source;
+	while (count < parmnum) {
+		/* End of string, bail! */
+		if (!*s) {
+			s = NULL;
+			break;
+		}
+		if (*s == separator) {
+			count++;
+		}
+		s++;
+	}
+	if (!s) return;		/* Parameter not found */
+
+	for (d = dest; *s && *s != separator; s++, d++) {
+		*d = *s;
+	}
+	*d = 0;
+}
+
+
 /*
  * extract_token()  -  a smarter string tokenizer
  */
-void extract_token(char *dest, char *source, int parmnum, char separator) 
+void extract_token_old(char *dest, char *source, int parmnum, char separator) 
 {
 	int i;
 	int len;
@@ -113,10 +144,53 @@ void extract_token(char *dest, char *source, int parmnum, char separator)
 
 
 
+/* remove_token_fast() - a tokenizer that kills, maims, and destroys fast */
+void remove_token(char *source, int parmnum, char separator)
+{
+	char *d, *s;		/* dest, source */
+	int count = 0;
+
+	/* Find desired parameter */
+	d = source;
+	while (count < parmnum) {
+		/* End of string, bail! */
+		if (!*d) {
+			d = NULL;
+			break;
+		}
+		if (*d == separator) {
+			count++;
+		}
+		d++;
+	}
+	if (!d) return;		/* Parameter not found */
+
+	/* Find next parameter */
+	s = d;
+	while (*s && *s != separator) {
+		s++;
+	}
+
+	/* Hack and slash */
+	if (*s)
+		strcpy(d, ++s);
+	else if (d == source)
+		*d = 0;
+	else
+		*--d = 0;
+	/*
+	while (*s) {
+		*d++ = *s++;
+	}
+	*d = 0;
+	*/
+}
+
+
 /*
  * remove_token()  -  a tokenizer that kills, maims, and destroys
  */
-void remove_token(char *source, int parmnum, char separator)
+void remove_token_old(char *source, int parmnum, char separator)
 {
 	int i;
 	int len;
