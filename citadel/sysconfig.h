@@ -81,7 +81,7 @@
 
 /* 
  * These define what port to listen on for various services.
- * FIX ... put this in a programmable config somewhere
+ * FIXME ... put this in a programmable config somewhere
  */
 #define POP3_PORT		110
 #define SMTP_PORT		25
