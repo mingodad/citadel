@@ -203,7 +203,7 @@ char *vcard_to_html(struct vCard *v) {
 
 	sprintf(html, "<TABLE bgcolor=#888888>");
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
-		sprintf(&html[strlen(html),
+		sprintf(&html[strlen(html)],
 			"<TR><TD>%s</TD><TD>%s</TD></TR>\n",
 			v->prop[i].name,
 			v->prop[i].value
