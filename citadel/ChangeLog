@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.142  2001/07/01 15:44:32  nbryant
+ configure.in: check for Berkeley DB first.
+
  Revision 573.141  2001/06/27 23:34:30  ajc
  * Added some verbage to messages/roomaccess to placate a user who keeps
    bitching about privacy policy.
@@ -2553,3 +2556,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
