@@ -1,4 +1,7 @@
 $Log$
+Revision 301.17  2001/12/15 20:51:33  ajc
+* "reply" button on pop-up pages
+
 Revision 301.16  2001/12/11 16:02:40  ajc
 * Completed support for add/remove mailing list recipients.
 
@@ -659,4 +662,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

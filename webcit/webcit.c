@@ -339,7 +339,7 @@ void output_headers(int controlcode)
 		wprintf("function launch_page_popup() {\n");
 		wprintf("pwin = window.open('/page_popup', 'CitaPage%d', "
 			"'toolbar=no,location=no,copyhistory=no,status=no,"
-			"scrollbars=yes,resizable=no,height=150,width=400');\n",
+			"scrollbars=yes,resizable=no,height=250,width=400');\n",
 			++pageseq);
 		wprintf("}\n");
 		wprintf("</SCRIPT>\n");
