@@ -1,3 +1,11 @@
+Fri Jan  8 12:35:09 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* control.c: include <limits.h> to fix PATH_MAX undefined
+	* serv_chat.c: made the following changes to cmd_sexp() --
+		* Send zero-length message to check only, don't send
+		* Send "-" message on the command line to invoke
+		  the SEND_LISTING transfer mode for a multi-line message
+	* Added facilities to log all pages to a room (site configurable)
+
 Tue Jan  5 23:24:52 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Replaced all occurances of malloc(), realloc(), and free() in the
 	  server and server-modules with mallok(), reallok(), and phree().

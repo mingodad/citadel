@@ -32,6 +32,10 @@
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
+extern struct CtdlServInfo serv_info;
+extern char temp[];
+void citedit(FILE *fp, long int base_pos);
+
 void chatmode(void) {
 	char wbuf[256];
 	char buf[256];
@@ -187,5 +191,65 @@ RCL:	    if (send_complete_line) {
 		}
 	    }
 	}
+
+/*
+ * send an express message
+ */
+void page_user() {
+	static char last_paged[32] = "";
+	char buf[256], touser[256], msg[256];
+	FILE *fp;
+
+	strcpy(touser, last_paged);
+	strprompt("Page who", touser, 30);
+
+	/* old server -- use inline paging */
+	if (serv_info.serv_paging_level == 0) {
+		newprompt("Message:  ",msg,69);
+		snprintf(buf,sizeof buf,"SEXP %s|%s",touser,msg);
+		serv_puts(buf);
+		serv_gets(buf);
+		if (!strncmp(buf, "200", 3)) {
+	   		strcpy(last_paged, touser);
+			}
+		printf("%s\n", &buf[4]);
+		return;
+	}
+
+	/* new server -- use extended paging */ 
+	else if (serv_info.serv_paging_level >= 1) {
+		snprintf(buf, sizeof buf, "SEXP %s||", touser);
+		serv_puts(buf);
+		serv_gets(buf);
+		if (buf[0] != '2') {
+			printf("%s\n", &buf[4]);
+			return;
+			}
+		fp = fopen(temp, "w");
+		if (fp==NULL) printf("Error: %s\n", strerror(errno));
+		printf("Type message to send.  Enter a blank line when finished.\n");
+		citedit(fp, 0);
+		fclose(fp);
+		snprintf(buf, sizeof buf, "SEXP %s|-", touser);
+		serv_puts(buf);
+		serv_gets(buf);
+		if (buf[0]=='4') {
+	   		strcpy(last_paged, touser);
+			fp = fopen(temp, "r");
+			while (fgets(buf, sizeof buf, fp) != NULL) {
+				buf[strlen(buf)-1] = 0;
+				if (strcmp(buf, "000")) serv_puts(buf);
+			fclose(fp);
+			unlink(temp);
+			}
+			serv_puts("000");
+			printf("Message sent.\n");
+		}
+		else {
+			printf("%s\n", &buf[4]);
+		}
+	}
+}
+
 
 

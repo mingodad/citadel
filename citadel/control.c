@@ -16,6 +16,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
+#include <limits.h>
 #include <pthread.h>
 #include <syslog.h>
 #include "citadel.h"
@@ -26,6 +27,7 @@
 #include "config.h"
 #include "msgbase.h"
 #include "tools.h"
+#include "room_ops.h"
 
 struct CitControl CitControl;
 struct config config;
@@ -143,6 +145,7 @@ void cmd_conf(char *argbuf) {
 		cprintf("%s\n", config.c_net_password);
 		cprintf("%d\n", config.c_userpurge);
 		cprintf("%d\n", config.c_roompurge);
+		cprintf("%s\n", config.c_logpages);
 		cprintf("000\n");
 		}
 
@@ -198,6 +201,9 @@ void cmd_conf(char *argbuf) {
 				break;
 			case 17: config.c_roompurge = atoi(buf);
 				break;
+			case 18: strncpy(config.c_logpages,
+					buf, ROOMNAMELEN);
+				break;
 				}
 		    ++a;
 		    }
@@ -206,6 +212,9 @@ void cmd_conf(char *argbuf) {
 			 "Global system configuration edited by %s",
 			 CC->curr_user);
 		aide_message(buf);
+
+		if (strlen(config.c_logpages) > 0)
+			create_room(config.c_logpages, 4, "", 0);
 		}
 
 	else {

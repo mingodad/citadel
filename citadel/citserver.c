@@ -176,6 +176,7 @@ void cmd_info(void) {
 	cprintf("%d\n",SERVER_TYPE);
 	cprintf("%s\n",config.c_moreprompt);
 	cprintf("1\n");	/* 1 = yes, this system supports floors */
+	cprintf("1\n"); /* 1 = we support the extended paging options */
 	cprintf("000\n");
 	}
 

@@ -95,8 +95,8 @@ extern struct CitContext *ContextList;
 #define MODULE_NAME 	"Expire old messages, users, rooms"
 #define MODULE_AUTHOR	"Art Cancro"
 #define MODULE_EMAIL	"ajc@uncnsrd.mt-kisco.ny.us"
-#define MAJOR_VERSION	0
-#define MINOR_VERSION	1
+#define MAJOR_VERSION	1
+#define MINOR_VERSION	0
 
 static struct DLModule_Info info = {
 	MODULE_NAME,

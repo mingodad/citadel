@@ -40,8 +40,8 @@ FILE *imfp, *exfp;
 #define MODULE_NAME 	"Import an unpacked system"
 #define MODULE_AUTHOR	"Art Cancro"
 #define MODULE_EMAIL	"ajc@uncnsrd.mt-kisco.ny.us"
-#define MAJOR_VERSION	0
-#define MINOR_VERSION	3
+#define MAJOR_VERSION	1
+#define MINOR_VERSION	0
 
 static struct DLModule_Info info = {
 	MODULE_NAME,

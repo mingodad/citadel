@@ -73,6 +73,7 @@ struct config {
 	struct ExpirePolicy c_ep;	/* System default msg expire policy */
 	int c_userpurge;		/* System default user purge (days) */
 	int c_roompurge;		/* System default room purge (days) */
+	char c_logpages[ROOMNAMELEN];	/* Room to log pages to (or not)    */
 	};
 
 #define NODENAME		config.c_nodename

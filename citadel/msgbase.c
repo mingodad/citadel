@@ -727,7 +727,7 @@ void copy_file(char *from, char *to)
  */
 void save_message(char *mtmp,	/* file containing proper message */
 		char *rec,	/* Recipient (if mail) */
-		char mtsflag,	/* 0 for normal, 1 to force Aide> room */
+		char *force_room, /* if non-zero length, force a room */
 		int mailtype,	/* local or remote type, see citadel.h */
 		int generate_id) /* set to 1 to generate an 'I' field */
 {
@@ -744,8 +744,8 @@ void save_message(char *mtmp,	/* file containing proper message */
 	int a;
 	static int seqnum = 0;
 
-	lprintf(9, "save_message(%s,%s,%d,%d,%d)\n",
-		mtmp, rec, mtsflag, mailtype, generate_id);
+	lprintf(9, "save_message(%s,%s,%s,%d,%d)\n",
+		mtmp, rec, force_room, mailtype, generate_id);
 
 	/* Strip non-printable characters out of the recipient name */
 	strcpy(recipient, rec);
@@ -786,7 +786,8 @@ void save_message(char *mtmp,	/* file containing proper message */
 		/* mailtype = alias(recipient); */
 		if (mailtype == M_LOCAL) {
 			if (getuser(&userbuf, recipient)!=0) {
-				mtsflag = 1; /* User not found, goto Aide */
+				/* User not found, goto Aide */
+				strcpy(force_room, AIDEROOM);
 				}
 			else {
 				strcpy(hold_rm, actual_rm);
@@ -796,9 +797,9 @@ void save_message(char *mtmp,	/* file containing proper message */
 		}
 
 	/* ...or if this message is destined for Aide> then go there. */
-	if (mtsflag) {
+	if (strlen(force_room) > 0) {
 		strcpy(hold_rm, actual_rm);
-		strcpy(actual_rm, AIDEROOM);
+		strcpy(actual_rm, force_room);
 		}
 
 	/* This call to usergoto() changes rooms if necessary.  It also
@@ -848,20 +849,18 @@ void save_message(char *mtmp,	/* file containing proper message */
  */
 void aide_message(char *text)
 {
-	time_t now;
 	FILE *fp;
 
-	time(&now);
 	fp=fopen(CC->temp,"wb");
 	fprintf(fp,"%c%c%c",255,MES_NORMAL,0);
 	fprintf(fp,"Psysop%c",0);
-	fprintf(fp,"T%ld%c",now,0);
+	fprintf(fp,"T%ld%c", time(NULL), 0);
 	fprintf(fp,"ACitadel%c",0);
 	fprintf(fp,"OAide%c",0);
 	fprintf(fp,"N%s%c",NODENAME,0);
 	fprintf(fp,"M%s\n%c",text,0);
 	fclose(fp);
-	save_message(CC->temp,"",1,M_LOCAL,1);
+	save_message(CC->temp,"",AIDEROOM,M_LOCAL,1);
 	syslog(LOG_NOTICE,text);
 	}
 
@@ -1082,7 +1081,7 @@ SKFALL: b=MES_NORMAL;
   	      make_message(CC->temp,&CC->usersupp,buf,CC->quickroom.QRname,b,e,format_type, CC->fake_username);
   	   else
   	      make_message(CC->temp,&CC->usersupp,buf,CC->quickroom.QRname,b,e,format_type, "");
-	save_message(CC->temp,buf,mtsflag,e,1);
+	save_message(CC->temp,buf, (mtsflag ? AIDEROOM : ""), e,1);
         CC->fake_postname[0]='\0';
 	return;
 	}
@@ -1160,7 +1159,7 @@ void cmd_ent3(char *entargs)
 		}
 	fclose(fp);
 
-	save_message(CC->temp, recp, 0, e, 0);
+	save_message(CC->temp, recp, "", e, 0);
 	}
 
 

@@ -558,7 +558,7 @@ void cmd_ucls(char *cmd)
 		fprintf(fp,"NEW UPLOAD: '%s'\n %s\n",CC->upl_file,CC->upl_comment);
 		putc(0,fp);
 		fclose(fp);
-		save_message(CC->temp, "", 0, M_LOCAL, 1);
+		save_message(CC->temp, "", "", M_LOCAL, 1);
 
 		}
 	else {

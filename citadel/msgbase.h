@@ -14,8 +14,7 @@ long int send_message (char *message_in_memory, size_t message_length,
 		       int generate_id);
 void loadtroom (void);
 void copy_file (char *from, char *to);
-void save_message (char *mtmp, char *rec, char mtsflag, int mailtype,
-		   int generate_id);
+void save_message (char *, char *, char *, int, int);
 void aide_message (char *text);
 void make_message (char *filename, struct usersupp *author, char *recipient,
 		   char *room, int type, int net_type, int format_type,

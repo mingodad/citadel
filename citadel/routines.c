@@ -436,9 +436,11 @@ void misc_server_cmd(char *cmd) {
 	serv_gets(buf);
 	printf("%s\n",buf);
 	if (buf[0]=='1') {
+		set_keepalives(KA_NO);
 		while (serv_gets(buf), strcmp(buf,"000")) {
 			printf("%s\n",buf);
 			}
+		set_keepalives(KA_YES);
 		return;
 		}
 	if (buf[0]=='4') {

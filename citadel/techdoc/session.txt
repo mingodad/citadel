@@ -456,11 +456,14 @@ parts of the listing:
  Line 4  - The fully-qualified domain name (FQDN) of the server
  Line 5  - The name of the server software, i.e. "Citadel/UX 4.00"
  Line 6  - (The revision level of the server code) * 100
- Line 7  - The geographical location of the BBS (for USA: city and state)
+ Line 7  - The geographical location of the BBS (city and state if in the US)
  Line 8  - The name of the system administrator
  Line 9  - A number identifying the server type (see below)
  Line 10 - The text of the system's paginator prompt
  Line 11 - Floor Flag.  1 if the system supports floors, 0 otherwise.
+ Line 12 - Paging level.  0 if the system only supports inline paging,
+           1 if the system supports "extended" paging (check-only and
+           multiline modes).  See the SEXP command for further information.
  
  *** NOTE! ***   The "server type" code is intended to promote global
 compatibility in a scenario in which developers have added proprietary
@@ -1275,10 +1278,15 @@ displayed the next time the target user executes a PEXP command.
 message to, and the text of the message.  If the message is successfully
 transmitted, OK is returned.  If the target user is not logged in or if
 anything else goes wrong, ERROR is returned.
+  
+ If the server supports extended paging, sending a zero-length message
+merely checks for the presence of the requested user without actually sending
+a message.  Sending a message consisting solely of a "-" (hyphen) will cause
+the server to return SEND_LISTING if the requested user is logged in, and the
+client can then transmit a multi-line page.
  
- In Citadel/UX 5.00 and above, the reserved name "broadcast" may be used
-instead of a user name, to broadcast an express message to all users
-currently connected to the server.
+ The reserved name "broadcast" may be used instead of a user name, to
+broadcast an express message to all users currently connected to the server.
  
  Do be aware that if an express message is transmitted to a user who is logged
 in using a client that does not check for express messages, the message will
@@ -1602,6 +1610,7 @@ fails for any reason, ERROR is returned.
  16. Password for server-to-server networking
  17. Default purge time (in days) for users
  18. Default purge time (in days) for rooms
+ 19. Name of room to log express messages to (or a zero-length name for none)
  
   
  

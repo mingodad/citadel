@@ -82,14 +82,12 @@ char floor_mode;
 char curr_floor = 0;			/* number of current floor */
 char floorlist[128][256];		/* names of floors */
 char express_msgs = 0;			/* express messages waiting! */
-char last_paged[32]="";
 
 jmp_buf jmp_reconnect;			/* for server reconnects */
 char re_username[32];
 char re_password[32];
 
 void sigpipehandler(int nothing) {
-	printf("Longjumpfing with %d\n", nothing);
 	longjmp(jmp_reconnect, nothing);
 	}
 
@@ -746,6 +744,7 @@ void who_is_online(int longlist)
 	char tbuf[128], clientsoft[128];
 	time_t timenow=0;
 	time_t idletime, idlehours, idlemins, idlesecs;
+	int last_session = (-1);
 	
 	if (longlist)
 	{
@@ -789,8 +788,14 @@ void who_is_online(int longlist)
 
 				}
 			else {
-				color(1); printf("%-3s ", flags);
-				color(2); printf("%-3d ", extract_int(buf,0));
+				if (extract_int(buf,0)==last_session) {
+					printf("        ");
+					}
+				else {
+					color(1); printf("%-3s ", flags);
+					color(2); printf("%-3d ", extract_int(buf,0));
+					}
+				last_session=extract_int(buf,0);
 				color(3); printf("%-25s ", username);
 				color(4); printf("%-20s ", roomname);
 				color(5); printf("%-24s\n", fromhost);
@@ -813,7 +818,7 @@ void enternew(char *desc, char *buf, int maxlen)
 int main(int argc, char **argv)
 {
 int a,b,mcmd;
-char aaa[100],bbb[100],ccc[100],eee[100];	/* general purpose variables */
+char aaa[100],bbb[100],eee[100];		/* general purpose variables */
 char argbuf[32];				/* command line buf */
 int termn8 = 0;
 
@@ -992,7 +997,11 @@ do {	/* MAIN LOOP OF PROGRAM */
 
 	/* Reconnect to the server if the connection was broken */
 	if (setjmp(jmp_reconnect)) {
+		printf("\rServer connection broken; reconnecting...\r");
+		fflush(stdout);
 		attach_to_server(argc,argv);
+		printf("                                         \r");
+		fflush(stdout);
 		serv_gets(aaa);
 		if (aaa[0]!='2') { printf("%s\n", &aaa[4]); exit(0); }
 		sprintf(aaa, "USER %s", re_username);
@@ -1267,21 +1276,7 @@ case 54:
 	break;
 
 case 56:
-        if (last_paged[0])
-           snprintf(bbb, sizeof bbb, "Page who [%s]? ", last_paged);
-        else
-           snprintf(bbb, sizeof bbb, "Page who? ");
-	newprompt(bbb,aaa,30);
-	if (!aaa[0])
-	   strcpy(aaa, last_paged);
-	strproc(aaa);
-	newprompt("Message:  ",bbb,69);
-	snprintf(ccc,sizeof ccc,"SEXP %s|%s",aaa,bbb);
-	serv_puts(ccc);
-	serv_gets(ccc);
-	if (!strncmp("200", ccc, 3))
-	   strcpy(last_paged, aaa);
-	printf("%s\n",&ccc[4]);
+	page_user();
 	break;
 
 	} /* end switch */

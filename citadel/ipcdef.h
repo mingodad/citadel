@@ -39,6 +39,7 @@ struct CtdlServInfo {
 	char serv_sysadm[64];
 	char serv_moreprompt[256];
 	int serv_ok_floors;
+	int serv_paging_level;
 	};
 
 #define QR_PERMANENT	1		/* Room does not purge              */

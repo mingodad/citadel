@@ -23,6 +23,7 @@ void CtdlInternalGetServInfo(struct CtdlServInfo *infobuf) {
 	serv_gets(buf);
 	if (buf[0]!='1') return;
 
+	bzero(infobuf, sizeof(struct CtdlServInfo));
 	a = 0;
 	while(serv_gets(buf), strcmp(buf,"000")) {
 	    switch(a) {
@@ -46,6 +47,7 @@ void CtdlInternalGetServInfo(struct CtdlServInfo *infobuf) {
 				break;
 		case 10:	infobuf->serv_ok_floors = atoi(buf);
 				break;
+		case 11:	infobuf->serv_paging_level = atoi(buf);
 		}
 	    ++a;
 	    }
