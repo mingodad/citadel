@@ -476,11 +476,12 @@ void cmd_sexp(char *argbuf)
 		cprintf("%d Transmit message (will deliver to %d users)\n",
 			SEND_LISTING, message_sent);
 		x_big_msgbuf = mallok(256);
-		strcpy(x_big_msgbuf, "");
+		bzero(x_big_msgbuf, 256);
 		while (client_gets(x_msg), strcmp(x_msg, "000")) {
 			x_big_msgbuf = reallok(x_big_msgbuf,
 			       strlen(x_big_msgbuf) + strlen(x_msg) + 4);
 			if (strlen(x_big_msgbuf) > 0)
+			   if (x_big_msgbuf[strlen(x_big_msgbuf)] != '\n')
 				strcat(x_big_msgbuf, "\n");
 			strcat(x_big_msgbuf, x_msg);
 		}

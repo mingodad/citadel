@@ -1,6 +1,10 @@
 Sat Jan 23 14:32:19 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Changed internal storage of express messages from a linked list to
 	  a single, resizable buffer.
+	* Added a "room order" key to the room record, to allow some control
+	  over room listing order.
+	* Made the room list commands aware of the room order key.
+	* Overhauled <G>oto heuristics to pay attention to floor & room order
 
 Wed Jan 20 19:21:51 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Added some more code to the unfinished MIME parser

@@ -24,6 +24,7 @@
 #include <string.h>
 #include <pwd.h>
 #include <errno.h>
+#include "citadel.h"
 #include "citadel_decls.h"
 #include "ipc.h"
 

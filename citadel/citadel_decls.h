@@ -1,7 +1,7 @@
 /* $Id$ */
 extern char fullname[32];
 extern unsigned room_flags;
-extern char room_name[32];
+extern char room_name[ROOMNAMELEN];
 extern struct CtdlServInfo serv_info;
 extern char axlevel;
 extern char is_room_aide;

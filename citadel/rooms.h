@@ -18,3 +18,18 @@ void create_floor(void);
 void edit_floor(void);
 void kill_floor(void);
 void enter_bio(void);
+
+/* 
+ * This struct holds a list of rooms for client display.
+ * (oooh, a tree!)
+ */
+struct roomlisting {
+        struct roomlisting *lnext;
+	struct roomlisting *rnext;
+        char rlname[ROOMNAMELEN];
+        unsigned rlflags;
+	int rlfloor;
+        int rlorder;
+        };
+
+

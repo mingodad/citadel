@@ -143,6 +143,7 @@ struct quickroom {
 	time_t QRmtime;			/* Date/time of last post           */
 	struct ExpirePolicy QRep;	/* Message expiration policy        */
 	long QRnumber;			/* Globally unique room number      */
+	char QRorder;			/* Sort key for room listing order  */
 	};
 
 

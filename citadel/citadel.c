@@ -38,6 +38,7 @@ struct march {
 	struct march *next;
 	char march_name[32];
 	char march_floor;
+	char march_order;
 	};
 
 #define IFEXPERT if (userflags&US_EXPERT)
@@ -60,7 +61,7 @@ struct CtdlServInfo serv_info;		/* Info on the server connected */
 int screenwidth;
 int screenheight;
 unsigned room_flags;
-char room_name[32];
+char room_name[ROOMNAMELEN];
 char ugname[ROOMNAMELEN];
 long uglsn;				/* holds <u>ngoto info */
 char is_mail = 0;			/* nonzero when we're in a mail room */
@@ -272,55 +273,48 @@ void remove_march(char *roomname, int floornum)
 		}
 	}
 
+
 /*
- * sort the march list by floor
+ * Locate the room on the march list which we most want to go to
  */
-void sort_march_list(void) {
-	struct march *mlist[129];
+char *pop_march(int desired_floor) {
+	static char TheRoom[ROOMNAMELEN];
+	int TheFloor = 0;
+	int TheOrder = 32767;
 	struct march *mptr = NULL;
-	int a;
 
-	if (march == NULL) return;
+	strcpy(TheRoom, "_BASEROOM_");
+	if (march == NULL) return(TheRoom);
 
-	for (a=0; a<129; ++a) mlist[a] = NULL;
-
-	/* first, create 128 separate lists for each floor. */
-	while (march != NULL) {
-
-		a = (int)(march->march_floor);
-
-		/* assign an illegal floor number of 128 to _BASEROOM_
-		 * in order to force it to show up last */	
-		if (!strucmp(march->march_name,"_BASEROOM_")) a = 128;
-
-		mptr = march;
-		march = march->next;
-		mptr->next = mlist[a];
-		mlist[a] = mptr;
-		}
-
-	/* now merge the lists, in order, into one big list, 
-	 * except the current floor
-	 */
-	for (a=128; a>=0; --a) if (a != curr_floor) {
-		while (mlist[a] != NULL) {
-			mptr = mlist[a];
-			mlist[a] = mlist[a]->next;
-			mptr->next = march;
-			march = mptr;
+	for (mptr = march; mptr != NULL; mptr = mptr->next) {
+		if ((strcasecmp(mptr->march_name, "_BASEROOM_"))
+		   &&(!strcasecmp(TheRoom, "_BASEROOM_"))) {
+			strcpy(TheRoom, mptr->march_name);
+			TheFloor = mptr->march_floor;
+			TheOrder = mptr->march_order;
+			}
+		else if ( (mptr->march_floor == desired_floor)
+		   && (TheFloor != desired_floor)
+		   && (strcasecmp(mptr->march_name, "_BASEROOM_")) ) {
+			strcpy(TheRoom, mptr->march_name);
+			TheFloor = mptr->march_floor;
+			TheOrder = mptr->march_order;
+			}
+		else if ((mptr->march_floor < TheFloor)
+		     && (strcasecmp(mptr->march_name, "_BASEROOM_")) ) {
+			strcpy(TheRoom, mptr->march_name);
+			TheFloor = mptr->march_floor;
+			TheOrder = mptr->march_order;
+			}
+		else if ((mptr->march_order < TheOrder)
+		     && (strcasecmp(mptr->march_name, "_BASEROOM_")) ) {
+			strcpy(TheRoom, mptr->march_name);
+			TheFloor = mptr->march_floor;
+			TheOrder = mptr->march_order;
 			}
 		}
-
-	/* now merge in rooms from the current floor */
-	while (mlist[(int)curr_floor] != NULL) {
-		mptr = mlist[(int)curr_floor];
-		mlist[(int)curr_floor] = mlist[(int)curr_floor]->next;
-		mptr->next = march;
-		march = mptr;
-		}
-
+	return(TheRoom);
 	}
-
 
 
 /*
@@ -452,6 +446,7 @@ void gotonext(void) {
 			mptr->next = NULL;
 			extract(mptr->march_name,buf,0);
 			mptr->march_floor = (char) (extract_int(buf,2) & 0x7F);
+			mptr->march_order = (char) (extract_int(buf,3) & 0x7F);
 			if (march==NULL) {
 				march = mptr;
 				}
@@ -485,10 +480,8 @@ void gotonext(void) {
 		remove_march(room_name,0);
 		}
 
-	sort_march_list();
-
 	if (march!=NULL) {
-		strcpy(next_room,march->march_name);
+		strcpy(next_room, pop_march(curr_floor));
 		}
 	else {
 		strcpy(next_room,"_BASEROOM_");
@@ -1004,6 +997,7 @@ do {	/* MAIN LOOP OF PROGRAM */
 		fflush(stdout);
 		serv_gets(aaa);
 		if (aaa[0]!='2') { printf("%s\n", &aaa[4]); exit(0); }
+		get_serv_info();
 		sprintf(aaa, "USER %s", re_username);
 		serv_puts(aaa);
 		serv_gets(aaa);
@@ -1013,6 +1007,9 @@ do {	/* MAIN LOOP OF PROGRAM */
 		serv_gets(aaa);
 		if (aaa[0]!='2') { printf("%s\n", &aaa[4]); exit(0); }
 		load_user_info(&aaa[4]);
+		sprintf(aaa, "GOTO %s", room_name);
+		serv_puts(aaa);
+		serv_gets(aaa);
 		}
 	signal(SIGPIPE, sigpipehandler);
 

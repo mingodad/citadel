@@ -216,8 +216,6 @@ by the '|' symbol, and then a number that may contain the following bits:
  Other bits may be defined in the future.  The listing terminates, as with
 all listings, with "000" on a line by itself.
  
- Version 4.01 and above only:
-
  Starting with version 4.01 and above, floors are supported.  The first 
 argument to LKRN should be the number of the floor to list rooms from.  Only
 rooms from this floor will be listed.  If no arguments are passed to LKRN, or
@@ -226,6 +224,10 @@ if the floor number requested is (-1), rooms on all floors will be listed.
  The third field displayed on each line is the number of the floor the room
 is on.  The LFLR command should be used to associate floor numbers with
 floor names.
+ 
+ The fourth field displayed on each line is a "room listing order."  Unless
+there is a compelling reason not to, clients should sort any received room
+listings by this value.
 
  
  
@@ -570,6 +572,7 @@ and the room aide associated with the current room, can access this command.
  2. The name of the room's directory (if it's a directory room)
  3. Various flags (bits) associated with the room (see LKRN cmd above)
  4. The floor number on which the room resides
+ 5. The room listing order
   
   
  SETR   (SET Room attributes)
@@ -583,6 +586,7 @@ should be passed the following arguments:
  3. Various flags (bits) associated with the room (see LKRN cmd above)
  4. "Bump" flag (see below)
  5. The floor number on which the room should reside
+ 6. The room listing order
  
  *Important: You should always use GETR to retrieve the current attributes of
 the room, then change what you want to change, and then use SETR to write it

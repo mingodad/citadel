@@ -17,10 +17,7 @@
 #include "commands.h"
 #include "tools.h"
 
-#define IFEXPERT if (userflags&US_EXPERT)
 #define IFNEXPERT if ((userflags&US_EXPERT)==0)
-#define IFAIDE if (axlevel>=6)
-#define IFNAIDE if (axlevel<6)
 
 
 void sttybbs(int cmd);
@@ -80,28 +77,31 @@ void load_floorlist(void) {
 		}
 	}
 
-void listrms(char *variety)
-{
-	char buf[256];
-	char rmname[32];
-	int f,c;
 
-	serv_puts(variety);
-	serv_gets(buf);
-	if (buf[0]!='1') return;
-	c = 1;
-	sigcaught = 0;
-	sttybbs(SB_YES_INTR);
-	while (serv_gets(buf), strcmp(buf,"000")) if (sigcaught==0) {
-		extract(rmname,buf,0);
+void room_tree_list(struct roomlisting *rp) {
+	static int c = 0;
+	char rmname[32];
+	int f;
+
+	if (rp == NULL) {
+		c = 1;
+		return;
+		}
+
+	if (rp->lnext != NULL) {
+		room_tree_list(rp->lnext);
+		}
+
+	if (sigcaught == 0) {
+		strcpy(rmname, rp->rlname);
+		f = rp->rlflags;
 		if ((c + strlen(rmname) + 4) > screenwidth) {
 			printf("\n");
 			c = 1;
 			}
-		f = extract_int(buf,1);
-                if (f & QR_MAILBOX) {
-                        color(6);
-                        }
+               	if (f & QR_MAILBOX) {
+                       color(6);
+                       }
 		else if (f & QR_PRIVATE) {
 			color(1);
 			}
@@ -115,6 +115,86 @@ void listrms(char *variety)
 		else printf(">  ");
 		c = c + strlen(rmname) + 3;
 		}
+
+	if (rp->rnext != NULL) {
+		room_tree_list(rp->rnext);
+		}
+
+	free(rp);
+	}
+
+
+/* 
+ * Room ordering stuff (compare first by floor, then by order)
+ */
+int rordercmp(struct roomlisting *r1, struct roomlisting *r2)
+{
+	if ((r1==NULL)&&(r2==NULL)) return(0);
+	if (r1==NULL) return(-1);
+	if (r2==NULL) return(1);
+	if (r1->rlfloor < r2->rlfloor) return(-1);
+	if (r1->rlfloor > r2->rlfloor) return(1);
+	if (r1->rlorder < r2->rlorder) return(-1);
+	if (r1->rlorder > r2->rlorder) return(1);
+	return(0);
+	}
+
+
+/*
+ * Common code for all room listings
+ */
+void listrms(char *variety)
+{
+	char buf[256];
+
+	struct roomlisting *rl = NULL;
+	struct roomlisting *rp;
+	struct roomlisting *rs;
+
+
+	/* Ask the server for a room list */
+	serv_puts(variety);
+	serv_gets(buf);
+	if (buf[0]!='1') return;
+	while (serv_gets(buf), strcmp(buf, "000")) {
+		rp = malloc(sizeof(struct roomlisting));
+		extract(rp->rlname, buf, 0);
+		rp->rlflags = extract_int(buf, 1);
+		rp->rlfloor = extract_int(buf, 2);
+		rp->rlorder = extract_int(buf, 3);
+		rp->lnext = NULL;
+		rp->rnext = NULL;
+
+		rs = rl;
+		if (rl == NULL) {
+			rl = rp;
+			}
+		else while (rp != NULL) {
+			if (rordercmp(rp, rs)<0) {
+				if (rs->lnext == NULL) {
+					rs->lnext = rp;
+					rp = NULL;
+					}
+				else {
+					rs = rs->lnext;
+					}
+				}
+			else {
+				if (rs->rnext == NULL) {
+					rs->rnext = rp;
+					rp = NULL;
+					}
+				else {
+					rs = rs->rnext;
+					}
+				}
+			}
+		}
+
+	sigcaught = 0;
+	sttybbs(SB_YES_INTR);
+	room_tree_list(NULL);
+	room_tree_list(rl);
 	color(7);
 	sttybbs(SB_NO_INTR);
 	}
@@ -264,6 +344,7 @@ void editthisroom(void) {
 	char raide[32];
 	char buf[256];
 	int rfloor;
+	int rorder;
 	int expire_mode = 0;
 	int expire_value = 0;
 
@@ -280,6 +361,7 @@ void editthisroom(void) {
 	extract(rdir, &buf[4],2);
 	rflags = extract_int(&buf[4],3);
 	rfloor = extract_int(&buf[4],4);
+	rorder = extract_int(&buf[4],5);
 	rbump = 0;
 
 	/* Fetch the name of the current room aide */
@@ -348,7 +430,7 @@ void editthisroom(void) {
 			"Ask users whether to make messages anonymous",
 			QR_ANONOPT);
 		}
-
+	rorder = intprompt("Listing order", rorder, 1, 127);
 
 	/* Ask about the room aide */
 	do {
@@ -409,8 +491,8 @@ void editthisroom(void) {
 		serv_puts(buf);
 		serv_gets(buf);
 
-		snprintf(buf,sizeof buf,"SETR %s|%s|%s|%d|%d|%d",
-			rname,rpass,rdir,rflags,rbump,rfloor);
+		snprintf(buf,sizeof buf,"SETR %s|%s|%s|%d|%d|%d|%d",
+			rname,rpass,rdir,rflags,rbump,rfloor,rorder);
 		serv_puts(buf);
 		serv_gets(buf);
 		printf("%s\n",&buf[4]);

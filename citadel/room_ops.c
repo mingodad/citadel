@@ -119,6 +119,22 @@ NEWMSG:	/* By the way, we also check for the presence of new messages */
 	}
 
 /*
+ * Self-checking stuff for a room record read into memory
+ */
+void room_sanity_check(struct quickroom *qrbuf) {
+	/* Mailbox rooms are always on the lowest floor */
+	if (qrbuf->QRflags & QR_MAILBOX) {
+		qrbuf->QRfloor = 0;
+		}
+
+	/* Listing order of 0 is illegal except for base rooms */
+	if (qrbuf->QRorder == 0)
+		if (!is_noneditable(qrbuf))
+			qrbuf->QRorder = 64;
+	}
+
+
+/*
  * getroom()  -  retrieve room data from disk
  */
 int getroom(struct quickroom *qrbuf, char *room_name)
@@ -141,10 +157,7 @@ int getroom(struct quickroom *qrbuf, char *room_name)
                 	sizeof(struct quickroom) : cdbqr->len) );
 		cdb_free(cdbqr);
 
-		/* Mailbox rooms are always on the lowest floor */
-		if (qrbuf->QRflags & QR_MAILBOX) {
-			qrbuf->QRfloor = 0;
-			}
+		room_sanity_check(qrbuf);
 
 		return(0);
 		}
@@ -275,6 +288,7 @@ void ForEachRoom(void (*CallBack)(struct quickroom *EachRoom)) {
 			( (cdbqr->len > sizeof(struct quickroom)) ?
 			sizeof(struct quickroom) : cdbqr->len) );
 		cdb_free(cdbqr);
+		room_sanity_check(&qrbuf);
 		if (qrbuf.QRflags & QR_INUSE) (*CallBack)(&qrbuf);
 		}
 	}
@@ -479,8 +493,10 @@ void list_roomname(struct quickroom *qrbuf) {
 		}
 
 	/* ...and now the other parameters */
-	cprintf("|%u|%d\n",
-		qrbuf->QRflags,qrbuf->QRfloor);
+	cprintf("|%u|%d|%d\n",
+		qrbuf->QRflags,
+		(int)qrbuf->QRfloor,
+		(int)qrbuf->QRorder);
 	}
 
 
@@ -936,13 +952,14 @@ void cmd_getr(void) {
 		}
 
 	getroom(&CC->quickroom, CC->quickroom.QRname);
-	cprintf("%d%c%s|%s|%s|%d|%d\n",
+	cprintf("%d%c%s|%s|%s|%d|%d|%d\n",
 		OK,check_express(),
 		CC->quickroom.QRname,
 		((CC->quickroom.QRflags & QR_PASSWORDED) ? CC->quickroom.QRpasswd : ""),
 		((CC->quickroom.QRflags & QR_DIRECTORY) ? CC->quickroom.QRdirname : ""),
 		CC->quickroom.QRflags,
-		(int)CC->quickroom.QRfloor);
+		(int)CC->quickroom.QRfloor,
+		(int)CC->quickroom.QRorder);
 	}
 
 
@@ -954,6 +971,7 @@ void cmd_setr(char *args) {
 	struct floor flbuf;
 	char old_name[ROOMNAMELEN];
 	int old_floor;
+	int new_order;
 
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
@@ -980,6 +998,10 @@ void cmd_setr(char *args) {
 			}
 		}
 
+	new_order = extract_int(args, 6);
+	if (new_order < 1) new_order = 1;
+	if (new_order > 127) new_order = 127;
+
 	lgetroom(&CC->quickroom, CC->quickroom.QRname);
 	strcpy(old_name, CC->quickroom.QRname);
 	extract(buf,args,0); buf[ROOMNAMELEN]=0;
@@ -989,6 +1011,7 @@ void cmd_setr(char *args) {
 	extract(buf,args,2); buf[15]=0;
 	strncpy(CC->quickroom.QRdirname,buf,19);
 	CC->quickroom.QRflags = ( extract_int(args,3) | QR_INUSE);
+	CC->quickroom.QRorder = (char)new_order;
 
 	/* Clean up a client boo-boo: if the client set the room to
 	 * guess-name or passworded, ensure that the private flag is
