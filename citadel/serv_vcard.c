@@ -757,6 +757,35 @@ void cmd_qdir(char *argbuf) {
 }
 
 
+/*
+ * We don't know if the Contacts room exists so we just create it at login
+ */
+void vcard_create_room(void)
+{
+	struct ctdlroom qr;
+	struct visit vbuf;
+
+	/* Create the calendar room if it doesn't already exist */
+	create_room(USERCONTACTSROOM, 4, "", 0, 1, 0);
+
+	/* Set expiration policy to manual; otherwise objects will be lost! */
+	if (lgetroom(&qr, USERCONTACTSROOM)) {
+		lprintf(3, "Couldn't get the user CONTACTS room!\n");
+		return;
+	}
+	qr.QRep.expire_mode = EXPIRE_MANUAL;
+	qr.QRdefaultview = 2;	/* 2 = address book view */
+	lputroom(&qr);
+
+	/* Set the view to a calendar view */
+	CtdlGetRelationship(&vbuf, &CC->user, &qr);
+	vbuf.v_view = 2;	/* 2 = address book view */
+	CtdlSetRelationship(&vbuf, &CC->user, &qr);
+
+	return;
+}
+
+
 
 
 /*
@@ -777,6 +806,8 @@ void vcard_session_login_hook(void) {
 	vcard_populate_cs_inet_email(v);
 
 	vcard_free(v);
+
+	vcard_create_room();
 }
 
 
