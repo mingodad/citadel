@@ -815,12 +815,10 @@ int set_password() {
 void who_is_online(int longlist) 
 {
 	char buf[128], username[128], roomname[128], fromhost[128], flags[128];
-	char tbuf[128], timestr[128], idlebuf[128];
-	long timenow=0;
-	long idletime;
+	char tbuf[128], timestr[128], idlebuf[128], clientsoft[128];
+	time_t timenow=0;
+	time_t idletime, idlehours, idlemins, idlesecs;
 	
-	printf("FLG ###        User Name                 Room                 From host\n");
-	printf("--- --- ------------------------- -------------------- ------------------------\n");
 	if (longlist)
 	{
    	   serv_puts("TIME");
@@ -828,6 +826,10 @@ void who_is_online(int longlist)
 	   extract(timestr, tbuf, 1);
 	   timenow = atol(timestr);
 	}
+	else {
+	printf("FLG ###        User Name                 Room                 From host\n");
+	printf("--- --- ------------------------- -------------------- ------------------------\n");
+		}
 	serv_puts("RWHO");
 	serv_gets(buf);
 	if (buf[0]=='1') 
@@ -837,19 +839,30 @@ void who_is_online(int longlist)
 			extract(username,buf,1);
 			extract(roomname,buf,2);
 			extract(fromhost,buf,3);
+			extract(clientsoft, buf, 4);
 			extract(idlebuf, buf,5);
 			extract(flags,buf,7);
+
+			if (longlist) {
+				idletime = timenow - atol(idlebuf);
+				idlehours = idletime / 3600;
+				idlemins = (idletime - (idlehours*3600)) / 60;
+				idlesecs = (idletime - (idlehours*3600) - (idlemins*60) );
+				printf("\nFlags: %-3s  Session: %-3d  Name: %-25s  Room: %s\n",
+					flags, extract_int(buf,0), username, roomname);
+				printf("from <%s> using <%s>, idle %ld:%02ld:%02ld\n",
+					fromhost, clientsoft,
+					idlehours, idlemins, idlesecs);
+
+				}
+			else {
 			printf("%-3s %-3d %-25s %-20s %-24s\n",
 				flags, extract_int(buf,0), username,
 				roomname, fromhost);
-			if (longlist)
-			{
-			   idletime = atol(idlebuf);
-			   printf("Idle time: %ld seconds\n", timenow-idletime);
+				}
 			}
 		}
 	}
-}
 
 void enternew(char *desc, char *buf, int maxlen)
 {
