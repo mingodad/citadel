@@ -141,7 +141,11 @@ void display_main_menu(void)
 		"</span><BR>\n"
 	);
 
-	wprintf("<A HREF=\"/chat\">"
+	wprintf("<A HREF=\"#\" onClick=\"window.open('/chat', "
+		"'ctdl_chat_window', "
+		"'toolbar=no,location=no,directories=no,copyhistory=no,"
+		"status=yes,scrollbars=yes,resizable=yes');\""
+		">"
 		"<span class=\"mainmenu\">"
 		"Chat with other users in <i>"
 	);

@@ -135,37 +135,11 @@ void do_chat(void)
 		WC->chat_sock = (-1);
 	}
 
-	/* Ok, we're good.  Here we go. */
-	output_headers(3);
-
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#000077\"><TR><TD>"
-		"<SPAN CLASS=\"titlebar\">"
-		"<IMG SRC=\"/static/chat-icon.gif\" WIDTH=16 HEIGHT=16 ALIGN=MIDDLE>"
-	);
-	escputs(WC->wc_roomname);
-	wprintf(": real-time chat</SPAN>\n"
-		"</TD></TR></TABLE>\n"
-
-		"<IFRAME WIDTH=100%% HEIGHT=200 SRC=\"about:blank\" "
-		"NAME=\"chat_transcript\">\n"
-		"<!-- Alternate content for non-supporting browsers -->\n"
-		"If you are seeing this message, your browser does not contain\n"
-		"the IFRAME support required for the chat window.  Please upgrade\n"
-		"to a supported browser, such as\n"
-		"<A HREF=\"http://www.mozilla.org\">Mozilla</A>.\n"
-		"</IFRAME>\n"
-
-		"<IFRAME WIDTH=100%% HEIGHT=1 SRC=\"/chat_recv\" "
-		"NAME=\"chat_recv\">\n"
-		"</IFRAME>"
-
-		"<BR>\n"
-
-		"<IFRAME WIDTH=100%% HEIGHT=60 SRC=\"/chat_send\" "
-		"NAME=\"chat_send\">\n"
-		"</IFRAME>\n"
-	);
-	wDumpContent(1);
+	/* WebCit Chat works by having transmit, receive, and refresh
+	 * frames.  Load the frameset.
+	 */
+	do_template("chatframeset");
+	return;
 }
 
 
@@ -344,7 +318,7 @@ void chat_recv(void) {
 	if (end_chat_now) {
 		close(WC->chat_sock);
 		WC->chat_sock = (-1);
-		wprintf("<IMG SRC=\"/static/blank.gif\" onLoad=\"parent.location.replace('/display_main_menu');\">\n");
+		wprintf("<IMG SRC=\"/static/blank.gif\" onLoad=\"parent.window.close();\">\n");
 	}
 
 	if (strlen(output_data) > 0) {
