@@ -55,9 +55,6 @@ case "$host" in
 		PTHREAD_DEFS=-pthread
 		LINK_SHARED="ld -x -Bshareable"
 	;;
-	*-*-cygwin32)
-		SUFFIX=.exe
-	;;
 esac
 
 dnl Checks for programs.
@@ -83,6 +80,9 @@ AC_PROG_INSTALL
 missing_dir=`cd $ac_aux_dir && pwd`
 AM_MISSING_PROG(AUTOCONF, autoconf, $missing_dir)
 
+dnl Checks for system services.
+AC_EXEEXT
+
 dnl Checks for libraries.
 
 dnl libdl, libgdbm, and libcrypt are only used in the server, so the
@@ -90,9 +90,18 @@ dnl Makefile only passes $(LIBS) to that target. If other programs start
 dnl requiring additional libraries, we'll have to use other variables, as is
 dnl done with curses.
 
-dnl We want to test for crypt() and dlopen() in libc before checking for
-dnl -lcrypt and -ldl, because some systems (like Irix) have both.
-AC_CHECK_FUNCS(crypt dlopen)
+dnl We want to test for the following in libc before checking for their
+dnl respective libraries, because some systems (like Irix) have both, and the
+dnl non-libc versions may be broken.
+AC_CHECK_FUNCS(crypt dlopen gethostbyname connect)
+
+if test "$ac_cv_func_gethostbyname" = no; then
+	AC_CHECK_LIB(nsl, gethostbyname, NETLIBS="-lnsl $NETLIBS")
+fi
+
+if test "$ac_cv_func_connect" = no; then
+	AC_CHECK_LIB(socket, connect, NETLIBS="-lsocket $NETLIBS",, $NETLIBS)
+fi
 
 if test "$ac_cv_func_dlopen" = no; then
         AC_CHECK_LIB(dl, dlopen, [LIBS="-ldl $LIBS"
@@ -241,12 +250,12 @@ AC_SUBST(AUTH)
 AC_SUBST(SO)
 AC_SUBST(CHKPWD)
 AC_SUBST(CURSES)
+AC_SUBST(NETLIBS)
 AC_SUBST(chkpwd_LIBS)
 AC_SUBST(TARGETS)
 AC_SUBST(SERVER_LDFLAGS)
 AC_SUBST(PICFLAGS)
 AC_SUBST(LINK_SHARED)
-AC_SUBST(SUFFIX)
 AC_SUBST(PTHREAD_DEFS)
 AC_CONFIG_HEADER(sysdep.h)
 AC_OUTPUT(Makefile weekly)

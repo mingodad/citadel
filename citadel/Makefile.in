@@ -19,10 +19,10 @@ all: $(TARGETS)
 
 .SUFFIXES: .ro .mo .d
 
-SUFFIX=@SUFFIX@
+EXEEXT=@EXEEXT@
 SO=@SO@
 
-CLIENT_TARGETS=citadel$(SUFFIX) whobbs$(SUFFIX)
+CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT)
 SERVER_TARGETS=citserver setup $(CHKPWD)
 SERV_MODULES=modules/serv_chat$(SO) \
 	modules/serv_upgrade$(SO) modules/serv_expire$(SO)
@@ -45,6 +45,7 @@ LDFLAGS=@LDFLAGS@
 SERVER_LDFLAGS=@SERVER_LDFLAGS@
 PICFLAGS=@PICFLAGS@
 CURSES=@CURSES@
+NETLIBS=@NETLIBS@
 chkpwd_LIBS=@chkpwd_LIBS@
 LIBOBJS=@LIBOBJS@
 PTHREAD_DEFS=@PTHREAD_DEFS@
@@ -81,15 +82,15 @@ serv_modules: $(SERV_MODULES)
 #
 #
 
-citadel$(SUFFIX): ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o messages.o \
+citadel$(EXEEXT): ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o messages.o \
 	commands.o client_chat.o serv_info.o tools.o $(LIBOBJS)
 	$(CC) ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o messages.o \
 	commands.o client_chat.o serv_info.o tools.o $(LIBOBJS) $(LDFLAGS) \
-	-o citadel
+	-o citadel $(NETLIBS)
 
 netpoll: netpoll.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)
 	$(CC) netpoll.o config.o ipc_c_tcp.o tools.o \
-	$(LIBOBJS) $(LDFLAGS) -o netpoll
+	$(LIBOBJS) $(LDFLAGS) -o netpoll $(NETLIBS)
 
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c $<
@@ -107,7 +108,7 @@ citserver: citserver.ro user_ops.ro support.ro room_ops.ro file_ops.ro \
 		housekeeping.ro database.ro control.ro logging.ro \
 		policy.ro dynloader.ro tools.ro mime_parser.ro \
 		$(AUTH) $(LIBOBJS:.o=.ro)\
-		$(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) -o citserver
+		$(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) $(NETLIBS) -o citserver
 
 .c.ro:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c $< -o $@
@@ -152,7 +153,7 @@ netmailer: netmailer.o internetmail.o config.o
 
 netproc: netproc.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)
 	$(CC) netproc.o config.o ipc_c_tcp.o tools.o \
-	$(LIBOBJS) $(LDFLAGS) -o netproc
+	$(LIBOBJS) $(LDFLAGS) -o netproc $(NETLIBS)
 
 citmail: citmail.o config.o internetmail.o $(LIBOBJS)
 	@echo "*"
@@ -166,7 +167,7 @@ mailinglist: mailinglist.o config.o internetmail.o
 	$(CC) mailinglist.o config.o internetmail.o $(LDFLAGS) -o mailinglist
 
 setup: setup.o tools.o
-	$(CC) setup.o tools.o $(CURSES) $(LDFLAGS) -o setup
+	$(CC) setup.o tools.o $(CURSES) $(NETLIBS) $(LDFLAGS) -o setup
 
 chkpwd: chkpwd.o auth.o config.o
 	$(CC) chkpwd.o auth.o config.o $(LDFLAGS) -o chkpwd $(chkpwd_LIBS)
@@ -175,14 +176,14 @@ netsetup: netsetup.o config.o
 	$(CC) netsetup.o config.o $(LDFLAGS) -o netsetup
 
 proxy: proxy.o ipc_c_tcp.o
-	$(CC) proxy.o ipc_c_tcp.o $(LDFLAGS) -o proxy
+	$(CC) proxy.o ipc_c_tcp.o $(LDFLAGS) -o proxy $(NETLIBS)
 
-whobbs$(SUFFIX): whobbs.o ipc_c_tcp.o tools.o $(LIBOBJS)
-	$(CC) whobbs.o ipc_c_tcp.o tools.o $(LIBOBJS) $(LDFLAGS) -o whobbs
+whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o tools.o $(LIBOBJS)
+	$(CC) whobbs.o ipc_c_tcp.o tools.o $(LIBOBJS) $(LDFLAGS) -o whobbs $(NETLIBS)
 
 sendcommand: sendcommand.o ipc_c_tcp.o tools.o config.o $(LIBOBJS)
 	$(CC) sendcommand.o ipc_c_tcp.o tools.o config.o \
-	 $(LIBOBJS) $(LDFLAGS) -o sendcommand
+	 $(LIBOBJS) $(LDFLAGS) -o sendcommand $(NETLIBS)
 
 qpdecode: qpdecode.o
 	$(CC) qpdecode.o $(LDFLAGS) -o qpdecode
@@ -192,7 +193,7 @@ base64: base64.o
 
 userlist: userlist.o ipc_c_tcp.o tools.o $(LIBOBJS)
 	$(CC) userlist.o ipc_c_tcp.o tools.o \
-	$(LIBOBJS) $(LDFLAGS) -o userlist
+	$(LIBOBJS) $(LDFLAGS) -o userlist $(NETLIBS)
 
 msgform: msgform.o
 	$(CC) msgform.o $(LDFLAGS) -o msgform
@@ -209,7 +210,7 @@ rcit: rcit.o config.o
 	@echo "*"
 
 stats: stats.o ipc_c_tcp.o tools.o config.o $(LIBOBJS)
-	$(CC) stats.o ipc_c_tcp.o tools.o config.o $(LIBOBJS) $(LDFLAGS) -o stats
+	$(CC) stats.o ipc_c_tcp.o tools.o config.o $(LIBOBJS) $(LDFLAGS) -o stats $(NETLIBS)
 
 .PHONY: install-data install-doc install-exec clean cleaner distclean
 
