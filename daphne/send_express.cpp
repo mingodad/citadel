@@ -90,12 +90,12 @@ SendExpress::SendExpress(	CitClient *sock,
 		"ToWhomFrame"
 		);
 
-	wxListBox *ToWhom = new wxListBox(
+	ToWhom = new wxListBox(
 		this,
 		-1,
 		wxDefaultPosition, wxDefaultSize,
 		0, NULL,
-		wxLB_MULTIPLE | wxLB_SORT,
+		wxLB_SORT,
 		wxDefaultValidator,
 		"ToWhom"
 		);
@@ -108,7 +108,7 @@ SendExpress::SendExpress(	CitClient *sock,
 		"TheMessageFrame"
 		);
 
-	wxTextCtrl *TheMessage = new wxTextCtrl(
+	TheMessage = new wxTextCtrl(
 		this,
 		-1,
 		"",
@@ -175,9 +175,20 @@ SendExpress::SendExpress(	CitClient *sock,
 
 
 void SendExpress::OnButtonPressed(wxCommandEvent& whichbutton) {
+	wxString target_user, sendcmd, recvcmd;
+	wxStringList msg;
+
 	if (whichbutton.GetId() == BUTTON_CANCEL) {
 		delete this;
 	} else if (whichbutton.GetId() == BUTTON_SEND) {
-		// FIX ... perform the server command!
+		target_user = ToWhom->GetStringSelection();
+		MultilineToList(msg, TheMessage->GetValue());
+		sendcmd = "SEXP " + target_user + "|-" ;
+		if (citsock->serv_trans(sendcmd, recvcmd, msg) != 4) {
+			wxMessageBox(recvcmd.Mid(4, 32767),
+					"Error",
+					wxOK | wxICON_EXCLAMATION,
+					NULL, -1, -1);
+		}
 	}
 }

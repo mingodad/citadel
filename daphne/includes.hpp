@@ -105,6 +105,8 @@ private:
 	void OnButtonPressed(wxCommandEvent& whichbutton);
 	CitClient *citsock;
 	wxMDIParentFrame *citMyMDI;
+	wxListBox *ToWhom;
+	wxTextCtrl *TheMessage;
 	DECLARE_EVENT_TABLE()
 };
 
