@@ -1,4 +1,9 @@
 $Log$
+Revision 522.4  2004/06/24 20:42:14  ajc
+* Added the "server ip address" Citadel config option
+* Site config: added "Changes will not take effect until..." language
+  to relevant screens
+
 Revision 522.3  2004/06/24 14:50:35  ajc
 * Added the ability to listen on a single IP address instead of all addresses.
 
@@ -1925,4 +1930,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

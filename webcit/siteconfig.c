@@ -121,7 +121,9 @@ void display_siteconfig(void)
 	}
 
 	if (!strcasecmp(whichmenu, "network")) {
-		wprintf("<CENTER><H2>Network services</H2></CENTER>\n");
+		wprintf("<CENTER><H2>Network services</H2>"
+			"Changes made on this screen will not take effect until you restart the Citadel server."
+			"</CENTER>\n");
 	}
 
 	if (!strcasecmp(whichmenu, "tuning")) {
@@ -129,7 +131,9 @@ void display_siteconfig(void)
 	}
 
 	if (!strcasecmp(whichmenu, "ldap")) {
-		wprintf("<CENTER><H2>Citadel LDAP connector configuration</H2></CENTER>\n");
+		wprintf("<CENTER><H2>Citadel LDAP connector configuration</H2>"
+			"Changes made on this screen will not take effect until you restart the Citadel server."
+			"</CENTER>\n");
 	}
 
 	serv_printf("CONF get");
@@ -517,6 +521,16 @@ void display_siteconfig(void)
 				wprintf("<INPUT TYPE=\"hidden\" NAME=\"c_ldap_bind_pw\" VALUE=\"%s\">", buf);
 			}
 			break;
+		case 38:
+			if (!strcasecmp(whichmenu, "network")) {
+				wprintf("<TR><TD>Server IP address (0.0.0.0 for 'any')</TD><TD>");
+				wprintf("<INPUT TYPE=\"text\" NAME=\"c_ip_addr\" MAXLENGTH=\"15\" VALUE=\"%s\">", buf);
+				wprintf("</TD></TR>\n");
+			}
+			else {
+				wprintf("<INPUT TYPE=\"hidden\" NAME=\"c_ip_addr\" VALUE=\"%s\">", buf);
+			}
+			break;
 		}
 	}
 
@@ -581,6 +595,7 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_ldap_base_dn"));
 	serv_printf("%s", bstr("c_ldap_bind_dn"));
 	serv_printf("%s", bstr("c_ldap_bind_pw"));
+	serv_printf("%s", bstr("c_ip_addr"));
 	serv_printf("000");
 	strcpy(WC->ImportantMessage, "System configuration has been updated.");
 	display_siteconfig();
