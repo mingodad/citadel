@@ -471,7 +471,7 @@ void commit_iconbar(void) {
 		return;
 	}
 
-	sprintf(iconbar, "ib_displayas=%d,", atoi(bstr("ib_displayas")));
+	sprintf(iconbar, "ib_displayas=%d", atoi(bstr("ib_displayas")));
 
 	for (i=0; i<(sizeof(boxen)/sizeof(char *)); ++i) {
 		sprintf(&iconbar[strlen(iconbar)], ",%s=", boxen[i]);
