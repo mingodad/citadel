@@ -1,4 +1,7 @@
 $Log$
+Revision 323.28  2002/05/05 03:28:15  ajc
+* Shuffled around the room banner a bit
+
 Revision 323.27  2002/05/03 19:32:39  ajc
 * Finished "folder list" mode (still need to move it to a permanent location)
 
@@ -797,3 +800,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
