@@ -253,12 +253,14 @@ void context_loop(int sock)
 	 * robots.txt file...
 	 */
 	if (!strncasecmp(buf, "/robots.txt", 11)) {
-		strcpy(req->line, "GET /static/robots.txt HTTP/1.0");
+		strcpy(req->line, "GET /static/robots.txt"
+				"?force_close_session=yes HTTP/1.0");
 	}
 
 	/* Do the non-root-cookie check now. */
 	else if ( (strcmp(buf, "/")) && (got_cookie == 0)) {
-		strcpy(req->line, "GET /static/nocookies.html HTTP/1.0");
+		strcpy(req->line, "GET /static/nocookies.html"
+				"?force_close_session=yes HTTP/1.0");
 	}
 
 
@@ -300,7 +302,6 @@ void context_loop(int sock)
 	 * FIX ... check session integrity here before continuing
 	 *
 	 */
-
 
 
 	/*

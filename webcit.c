@@ -30,6 +30,12 @@
 #include <signal.h>
 #include "webcit.h"
 
+/*
+ * String to unset the cookie.
+ * Any date "in the past" will work, so I chose my birthday, right down to
+ * the exact minute.  :)
+ */
+static char *unset = "; expires=28-May-1971 18:10:00 GMT";
 
 void unescape_input(char *buf)
 {
@@ -280,7 +286,6 @@ void urlescputs(char *strbuf)
  */
 void output_headers(int controlcode)
 {
-	static char *unset = "; expires=28-May-1971 18:10:00 GMT";
 	char cookie[256];
 	int print_standard_html_head = 0;
 	int refresh30 = 0;
@@ -300,7 +305,6 @@ void output_headers(int controlcode)
 	stuff_to_cookie(cookie, WC->wc_session, WC->wc_username,
 			WC->wc_password, WC->wc_roomname);
 	if (print_standard_html_head == 2) {
-		wprintf("X-WebCit-Session: close\n");
 		wprintf("Set-cookie: webcit=%s\n", unset);
 	} else {
 		wprintf("Set-cookie: webcit=%s\n", cookie);
@@ -433,6 +437,9 @@ void output_static(char *what)
 			bytes = bytes - thisblock;
 		}
 		fclose(fp);
+	}
+	if (!strcasecmp(bstr("force_close_session"), "yes")) {
+		end_webcit_session();
 	}
 }
 
@@ -682,6 +689,7 @@ void session_loop(struct httprequest *req)
 		}
 		else {
 			/* tcp socket */
+			fprintf(stderr, "FIXME tcp conn\n");
 			WC->serv_sock = tcp_connectsock(c_host, c_port);
 		}
 

@@ -176,6 +176,17 @@ void do_welcome(void)
 }
 
 
+/*
+ * Disconnect from the Citadel server, and end this WebCit session
+ */
+void end_webcit_session(void) {
+	serv_puts("QUIT");
+	close(WC->serv_sock);
+	WC->serv_sock = (-1);
+	WC->killthis = 1;
+}
+
+
 void do_logout(void)
 {
 	char buf[256];
@@ -199,13 +210,8 @@ void do_logout(void)
 		"<A HREF=\"javascript:window.close();\">Close window</A>"
 		"</CENTER>\n");
 	wDumpContent(2);
-	serv_puts("QUIT");
-	close(WC->serv_sock);
-	WC->serv_sock = (-1);
-	WC->killthis = 1;
+	end_webcit_session();
 }
-
-
 
 
 
