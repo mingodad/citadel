@@ -66,7 +66,7 @@ struct CitContext masterCC;
  */
 void lprintf(int loglevel, const char *format, ...) {   
         va_list arg_ptr;
-	char buf[256];
+	char buf[512];
   
         va_start(arg_ptr, format);   
         vsprintf(buf, format, arg_ptr);   
