@@ -1,4 +1,7 @@
  $Log$
+ Revision 608.14  2003/07/30 03:54:34  ajc
+ * Fixed a small client bug in the purge hour setting
+
  Revision 608.13  2003/07/30 03:47:53  ajc
  * Eliminated the EXPI command
  * Completed the configuration item of "purge hour"
@@ -4924,3 +4927,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

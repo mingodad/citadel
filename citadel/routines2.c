@@ -639,7 +639,7 @@ void read_bio(CtdlIPC *ipc)
 void do_system_configuration(CtdlIPC *ipc)
 {
 	char buf[SIZ];
-	char sc[31][SIZ];
+	char sc[32][SIZ];
 	char *resp = NULL;
 	struct ExpirePolicy *expirepolicy = NULL;
 	int a;
@@ -656,7 +656,7 @@ void do_system_configuration(CtdlIPC *ipc)
 		while (strlen(resp)) {
 			extract_token(buf, resp, 0, '\n');
 			remove_token(resp, 0, '\n');
-			if (a < 31) {
+			if (a < 32) {
 				strcpy(&sc[a][0], buf);
 			}
 			++a;
@@ -775,19 +775,19 @@ void do_system_configuration(CtdlIPC *ipc)
 		strprompt("Keep messages for how many days?", buf, 10);
 		expirepolicy->expire_value = atol(buf);
 	}
-	strprompt("Hour to run purges (0-23)", &sc[31][0], 4);
+	strprompt("Hour to run purges (0-23)", &sc[31][0], 2);
 	/* Save it */
 	scr_printf("Save this configuration? ");
 	if (yesno()) {
 		r = 1;
-		for (a = 0; a < 31; a++)
+		for (a = 0; a < 32; a++)
 			r += 1 + strlen(sc[a]);
 		resp = (char *)calloc(1, r);
 		if (!resp) {
 			err_printf("Can't save config - out of memory!\n");
 			logoff(ipc, 1);
 		}
-		for (a = 0; a < 31; a++) {
+		for (a = 0; a < 32; a++) {
 			strcat(resp, sc[a]);
 			strcat(resp, "\n");
 		}
