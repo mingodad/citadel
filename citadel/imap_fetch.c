@@ -74,6 +74,88 @@ void imap_fetch_internaldate(struct CtdlMessage *msg) {
 
 
 /*
+ * Fetch RFC822-formatted messages.
+ *
+ * 'whichfmt' should be set to one of:
+ * 	"RFC822"	entire message
+ *	"RFC822.HEADER"	headers only (with trailing blank line)
+ *	"RFC822.SIZE"	size of translated message
+ *	"RFC822.TEXT"	body only (without leading blank line)
+ */
+void imap_fetch_rfc822(int msgnum, char *whichfmt) {
+	FILE *tmp;
+	char buf[1024];
+	char *ptr;
+	size_t headers_size, text_size, total_size;
+	size_t bytes_remaining = 0;
+	size_t blocksize;
+
+	tmp = tmpfile();
+	if (tmp == NULL) {
+		lprintf(1, "Cannot open temp file: %s\n", strerror(errno));
+		return;
+	}
+
+	/*
+	 * Load the message into a temp file for translation and measurement
+	 */ 
+	CtdlRedirectOutput(tmp, -1);
+	CtdlOutputMsg(msgnum, MT_RFC822, 0, 0, 1);
+	CtdlRedirectOutput(NULL, -1);
+
+	/*
+	 * Now figure out where the headers/text break is.  IMAP considers the
+	 * intervening blank line to be part of the headers, not the text.
+	 */
+	rewind(tmp);
+	headers_size = 0L;
+	do {
+		ptr = fgets(buf, sizeof buf, tmp);
+		if (ptr != NULL) {
+			striplt(buf);
+			if (strlen(buf) == 0) headers_size = ftell(tmp);
+		}
+	} while ( (headers_size == 0L) && (ptr != NULL) );
+	fseek(tmp, 0L, SEEK_END);
+	total_size = ftell(tmp);
+	text_size = total_size - headers_size;
+
+	if (!strcasecmp(whichfmt, "RFC822.SIZE")) {
+		cprintf("RFC822.SIZE %ld", total_size);
+		fclose(tmp);
+		return;
+	}
+
+	else if (!strcasecmp(whichfmt, "RFC822")) {
+		bytes_remaining = total_size;
+		rewind(tmp);
+	}
+
+	else if (!strcasecmp(whichfmt, "RFC822.HEADER")) {
+		bytes_remaining = headers_size;
+		rewind(tmp);
+	}
+
+	else if (!strcasecmp(whichfmt, "RFC822.TEXT")) {
+		bytes_remaining = text_size;
+		fseek(tmp, headers_size, SEEK_SET);
+	}
+
+	cprintf("%s {%ld}\r\n", whichfmt, bytes_remaining);
+	blocksize = sizeof(buf);
+	while (bytes_remaining > 0L) {
+		if (blocksize > bytes_remaining) blocksize = bytes_remaining;
+		fread(buf, blocksize, 1, tmp);
+		client_write(buf, blocksize);
+		bytes_remaining = bytes_remaining - blocksize;
+	}
+
+	fclose(tmp);
+}
+
+
+
+/*
  * imap_do_fetch() calls imap_do_fetch_msg() to output the deta of an
  * individual message, once it has been successfully loaded from disk.
  */
@@ -104,16 +186,16 @@ void imap_do_fetch_msg(int seq, struct CtdlMessage *msg,
 			imap_fetch_internaldate(msg);
 		}
 		else if (!strcasecmp(itemlist[i], "RFC822")) {
-			/* FIXME do something here */
+			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i]);
 		}
 		else if (!strcasecmp(itemlist[i], "RFC822.HEADER")) {
-			/* FIXME do something here */
+			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i]);
 		}
 		else if (!strcasecmp(itemlist[i], "RFC822.SIZE")) {
-			/* FIXME do something here */
+			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i]);
 		}
 		else if (!strcasecmp(itemlist[i], "RFC822.TEXT")) {
-			/* FIXME do something here */
+			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i]);
 		}
 		else if (!strcasecmp(itemlist[i], "UID")) {
 			imap_fetch_uid(seq);
