@@ -49,19 +49,6 @@ needed (const char *fmt, va_list argp)
 }
 
 int
-snprintf (char *buf, size_t max, const char *fmt, ...)
-{
-  va_list argp;
-  int bytes;
-
-  va_start(argp, fmt);
-  bytes = vsnprintf(buf, max, fmt, argp);
-  va_end(argp);
-
-  return bytes;
-}
-
-int
 vsnprintf (char *buf, size_t max, const char *fmt, va_list argp)
 {
   char *p;
@@ -80,4 +67,17 @@ vsnprintf (char *buf, size_t max, const char *fmt, va_list argp)
   buf[max - 1] = 0;
   free(p);
   return size;
+}
+
+int
+snprintf (char *buf, size_t max, const char *fmt, ...)
+{
+  va_list argp;
+  int bytes;
+
+  va_start(argp, fmt);
+  bytes = vsnprintf(buf, max, fmt, argp);
+  va_end(argp);
+
+  return bytes;
 }
