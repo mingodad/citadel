@@ -1,4 +1,9 @@
 $Log$
+Revision 400.34  2002/10/07 04:10:37  ajc
+* When displaying meeting invitations, only show date/time for VEVENT
+  subcomponents.  Date/time for other subcomponents are irrelevant.
+* Cleaned up HTML display of meeting invitations.
+
 Revision 400.33  2002/10/03 03:40:31  ajc
 * Worked on meeting accept/decline a little bit
 
@@ -1052,4 +1057,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
