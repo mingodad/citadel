@@ -136,19 +136,13 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
         banner = new wxPanel(this, -1);
         banner->SetBackgroundColour(wxColour(0x00, 0x00, 0x77));
         banner->SetForegroundColour(wxColour(0xFF, 0xFF, 0x00));
+
         wxLayoutConstraints *b1 = new wxLayoutConstraints;
         b1->top.SameAs(this, wxTop, 2);
         b1->left.SameAs(this, wxLeft, 2);
         b1->right.SameAs(this, wxRight, 2);
-        b1->height.PercentOf(this, wxHeight, 25);
+        b1->height.PercentOf(this, wxHeight, 10);
         banner->SetConstraints(b1);
-
-	wxLayoutConstraints *t1 = new wxLayoutConstraints;
-	t1->top.SameAs(this, wxTop, 5);
-	t1->left.SameAs(this, wxLeft, 5);
-	t1->right.SameAs(this, wxRight, 5);
-	t1->height.AsIs();
-	banner->SetConstraints(t1);
 
         wxStaticText *rname = new wxStaticText(banner, -1, citsock->HumanNode);
         rname->SetFont(wxFont(18, wxDEFAULT, wxNORMAL, wxNORMAL));

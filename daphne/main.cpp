@@ -225,6 +225,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
         Show(TRUE);
 
+	wxYield();
 	ini->Read("/Citadel Server/ConnectOnStartup", &buf, "no");
 	if (!buf.CmpNoCase("yes")) {
 		wxCommandEvent cjunk;
