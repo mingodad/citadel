@@ -2,6 +2,8 @@
 #
 # run me after checking Citadel out of CVS.
 #
+# $Id$
+#
 echo ... running aclocal ...
 aclocal
 echo ... running libtoolize ...
