@@ -1,4 +1,10 @@
  $Log$
+ Revision 614.41  2004/02/17 16:56:51  ajc
+ * During SSL initialization, create the "keys" directory if it does not
+   exist ... generate a private key if that does not exist ... more code
+   coming soon to generate CSR and self-signed cert.  Hard-coded pathnames
+   have been moved to sysconfig.h.
+
  Revision 614.40  2004/02/17 04:47:22  ajc
  * Support PLAIN auth method in SMTP
 
@@ -5363,4 +5369,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

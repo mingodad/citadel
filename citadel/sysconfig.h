@@ -109,3 +109,11 @@
  * How long (in seconds) to retain message entries in the use table
  */
 #define USETABLE_RETAIN		604800L		/* 7 days */
+
+/*
+ * Pathnames for cryptographic goodness
+ */
+#define	CTDL_CRYPTO_DIR		BBSDIR "/keys"
+#define CTDL_KEY_PATH		CTDL_CRYPTO_DIR "/citadel.key"
+#define CTDL_CSR_PATH		CTDL_CRYPTO_DIR "/citadel.csr"
+#define CTDL_CER_PATH		CTDL_CRYPTO_DIR "/citadel.cer"

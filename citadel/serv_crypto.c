@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include "sysdep.h"
 
@@ -54,7 +55,7 @@ static unsigned long id_callback(void)
   * This function is taken from OpenSSL apps/s_cb.c
   */
 
-static int set_cert_stuff(SSL_CTX * ctx,
+static int ctdl_install_certificate(SSL_CTX * ctx,
 			  const char *cert_file, const char *key_file)
 {
 	if (cert_file != NULL) {
@@ -88,6 +89,8 @@ void init_ssl(void)
 {
 	SSL_METHOD *ssl_method;
 	DH *dh;
+	RSA *rsa=NULL;
+	FILE *fp;
 
 	if (!access("/var/run/egd-pool", F_OK))
 		RAND_egd("/var/run/egd-pool");
@@ -172,13 +175,55 @@ void init_ssl(void)
 	SSL_CTX_set_tmp_dh(ssl_ctx, dh);
 	DH_free(dh);
 
-	/* Get our certificates in order */
-	if (set_cert_stuff(ssl_ctx,
-			   BBSDIR "/keys/citadel.cer",
-			   BBSDIR "/keys/citadel.key") != 1) {
+	/* Get our certificates in order.
+	 * First, create the key/cert directory if it's not there already...
+	 */
+	mkdir(CTDL_CRYPTO_DIR, 0700);
 
-		lprintf(3, "SSL ERROR: cert is bad!\n");
+	/*
+	 * Generate a key pair if we don't have one.
+	 */
+	if (access(CTDL_KEY_PATH, R_OK) != 0) {
+		lprintf(3, "Generating RSA key pair.\n");
+		rsa = RSA_generate_key(1024,	/* modulus size */
+					65537,	/* exponent */
+					NULL,	/* no callback */
+					NULL);	/* no callback */
+		if (rsa == NULL) {
+			lprintf(2, "Key generation failed: %s\n",
+				ERR_reason_error_string(ERR_get_error()));
+		}
+		if (rsa != NULL) {
+			fp = fopen(CTDL_KEY_PATH, "w");
+			if (fp != NULL) {
+				chmod(CTDL_KEY_PATH, 0600);
+				if (PEM_write_RSAPrivateKey(fp,	/* the file */
+							rsa,	/* the key */
+							NULL,	/* no enc */
+							NULL,	/* no passphr */
+							0,	/* no passphr */
+							NULL,	/* no callbk */
+							NULL	/* no callbk */
+				) != 1) {
+					lprintf(2, "Cannot write key: %s\n",
+                                		ERR_reason_error_string(ERR_get_error()));
+					unlink(CTDL_KEY_PATH);
+				}
+				fclose(fp);
+			}
+			RSA_free(rsa);
+		}
+	}
 
+	/*
+	 * Now try to bind to the key and certificate.
+	 */
+	if (ctdl_install_certificate(ssl_ctx,
+			CTDL_CER_PATH,
+			CTDL_KEY_PATH) != 1)
+	{
+		lprintf(2, "Cannot install certificate: %s\n",
+				ERR_reason_error_string(ERR_get_error()));
 	}
 
 	/* Finally let the server know we're here */
