@@ -36,6 +36,7 @@ SERV_MODULES=serv_chat.o \
 	serv_listsub.o \
 	serv_netfilter.o \
 	serv_newuser.o \
+	serv_notes.o \
 	serv_pas2.o md5.o \
 	serv_inetcfg.o \
 	serv_rwho.o \
@@ -94,7 +95,7 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c citadel.c citadel_ipc.c \
 	serv_spam.c serv_test.c serv_mrtg.c serv_spam.c serv_upgrade.c \
 	serv_vandelay.c serv_vcard.c server_main.c setup.c snprintf.c \
 	stress.c support.c sysdep.c tools.c user_ops.c userlist.c \
-	whobbs.c vcard.c
+	whobbs.c vcard.c serv_notes.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 

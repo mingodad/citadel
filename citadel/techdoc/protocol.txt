@@ -1,4 +1,4 @@
-                SESSION LAYER PROTOCOL FOR THE CITADEL SYSTEM
+              APPLICATION LAYER PROTOCOL FOR THE CITADEL SYSTEM
          (c) 1995-2004 by Art Cancro et. al.    All Rights Reserved
 
 

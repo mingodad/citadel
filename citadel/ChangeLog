@@ -1,4 +1,10 @@
  $Log$
+ Revision 626.13  2004/10/22 02:53:25  ajc
+ * serv_notes.c: added skeleton module
+ * serv_newuser.c: corrected internal comment
+ * techdoc: renamed session.txt to protocol.txt because it really isn't
+   a session layer protocol, it's more of an application layer protocol.
+
  Revision 626.12  2004/10/13 02:11:00  ajc
  * Repaired a completely broken <;Z>ap floor command.
 
@@ -6162,4 +6168,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

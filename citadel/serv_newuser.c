@@ -1,7 +1,8 @@
 /*
  * $Id$
  *
- * A skeleton module to test the dynamic loader.
+ * Automaticalyl copies the contents of a "New User Greetings" room to the
+ * inbox of any new user upon account creation.
  *
  */
 

@@ -104,6 +104,7 @@ void initialize_server_extensions(void)
 {
 	serv_bio_init();
 	serv_calendar_init();
+	serv_notes_init();
 	serv_ldap_init();
 	serv_chat_init();
 	serv_expire_init();
