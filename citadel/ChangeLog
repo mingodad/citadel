@@ -1,4 +1,7 @@
  $Log$
+ Revision 611.0  2003/10/21 04:20:41  ajc
+ * THIS IS 6.11
+
  Revision 610.22  2003/10/17 02:18:40  ajc
  * Replaced the DEFAULT_ENTRY definition in sysconfig.h with a new option
    "reply_with_external_editor" in citadel.rc.
