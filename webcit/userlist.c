@@ -37,7 +37,7 @@ void userlist(void)
 			bio = bptr;
 		}
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1, "bottom");
+	output_headers(1);
 
 	serv_puts("LIST");
 	serv_gets(buf);
@@ -102,7 +102,7 @@ void showuser(void)
 	int have_pic;
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1, "bottom");
+	output_headers(1);
 
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");

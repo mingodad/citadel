@@ -24,7 +24,7 @@ void display_edit(char *description, char *check_cmd,
 		return;
 	}
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1, "bottom");
+	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -61,7 +61,7 @@ void save_edit(char *description, char *enter_cmd, int regoto)
 
 	if (strcmp(bstr("sc"), "Save")) {
 		printf("HTTP/1.0 200 OK\n");
-		output_headers(1, "bottom");
+		output_headers(1);
 		wprintf("Cancelled.  %s was not saved.<BR>\n", description);
 		wDumpContent(1);
 		return;
@@ -79,7 +79,7 @@ void save_edit(char *description, char *enter_cmd, int regoto)
 		gotoroom(wc_roomname, 1);
 	} else {
 		printf("HTTP/1.0 200 OK\n");
-		output_headers(1, "bottom");
+		output_headers(1);
 		wprintf("%s has been saved.\n", description);
 		wDumpContent(1);
 	}

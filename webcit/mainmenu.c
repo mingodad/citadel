@@ -201,7 +201,7 @@ void embed_advanced_menu(void)
 void display_main_menu(void)
 {
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1, "bottom");
+	output_headers(1);
 	embed_main_menu();
 	wDumpContent(2);
 }
@@ -210,7 +210,7 @@ void display_main_menu(void)
 void display_advanced_menu(void)
 {
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1, "bottom");
+	output_headers(1);
 	embed_advanced_menu();
 	embed_main_menu();
 	wDumpContent(2);
@@ -223,7 +223,7 @@ void display_advanced_menu(void)
 void display_generic(void)
 {
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1, "bottom");
+	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770077><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -265,7 +265,7 @@ void do_generic(void)
 	serv_gets(buf);
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1, "bottom");
+	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770077><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Server command results</B>\n");

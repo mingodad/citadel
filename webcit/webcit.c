@@ -327,7 +327,7 @@ char *getz(char *buf)
  * If print_standard_html_head is nonzero, we also get some standard HTML
  * headers.  If it's set to 2, the session is considered to be closing.
  */
-void output_headers(int print_standard_html_head, char *target)
+void output_headers(int print_standard_html_head)
 {
 
 	static char *unset = "; expires=28-May-1971 18:10:00 GMT";
@@ -336,9 +336,6 @@ void output_headers(int print_standard_html_head, char *target)
 	printf("Server: %s\n", SERVER);
 	printf("Connection: close\n");
 
-	/* if ((strlen(target) > 0) && (noframes == 0)) {
-		printf("Window-target: %s\n", target);
-	} */
 	if (print_standard_html_head > 0) {
 		printf("Pragma: no-cache\n");
 		printf("Cache-Control: no-store\n");
@@ -412,7 +409,7 @@ void output_static(char *what)
 	fp = fopen(buf, "rb");
 	if (fp == NULL) {
 		printf("HTTP/1.0 404 %s\n", strerror(errno));
-		output_headers(0, "");
+		output_headers(0);
 		printf("Content-Type: text/plain\n");
 		sprintf(buf, "%s: %s\n", what, strerror(errno));
 		printf("Content-length: %d\n", strlen(buf));
@@ -420,7 +417,7 @@ void output_static(char *what)
 		fwrite(buf, strlen(buf), 1, stdout);
 	} else {
 		printf("HTTP/1.0 200 OK\n");
-		output_headers(0, "");
+		output_headers(0);
 
 		if (!strncasecmp(&what[strlen(what) - 4], ".gif", 4))
 			printf("Content-type: image/gif\n");
@@ -457,7 +454,7 @@ void output_image()
 	if (buf[0] == '2') {
 		bytes = extract_long(&buf[4], 0);
 		printf("HTTP/1.0 200 OK\n");
-		output_headers(0, "");
+		output_headers(0);
 		printf("Content-type: image/gif\n");
 		printf("Content-length: %ld\n", (long) bytes);
 		printf("\n");
@@ -480,7 +477,7 @@ void output_image()
 		serv_gets(buf);
 	} else {
 		printf("HTTP/1.0 404 %s\n", strerror(errno));
-		output_headers(0, "");
+		output_headers(0);
 		printf("Content-Type: text/plain\n");
 		sprintf(buf, "Error retrieving image\n");
 		printf("Content-length: %d\n", strlen(buf));
@@ -497,7 +494,7 @@ void output_image()
 void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
 {
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1, "bottom");
+	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=%s><TR><TD>", titlebarcolor);
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>%s</B>\n", titlebarmsg);
@@ -865,7 +862,7 @@ void session_loop(char *browser_host)
 	/* When all else fails... */
 	else {
 		printf("HTTP/1.0 200 OK\n");
-		output_headers(1, "");
+		output_headers(1);
 
 		wprintf("TransactionCount is %d<BR>\n", TransactionCount);
 		wprintf("You're in session %d<HR>\n", wc_session);

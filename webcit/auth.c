@@ -36,7 +36,7 @@ void display_login(char *mesg)
 	char buf[256];
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1, "_top");
+	output_headers(1);
 
 	/* Da banner */
 	wprintf("<CENTER><TABLE border=0 width=100%><TR><TD>\n");
@@ -89,7 +89,7 @@ void display_login(char *mesg)
 	wprintf("<LI>You must use a browser that supports <i>cookies</i>.<BR>\n");
 	wprintf("</EM></UL>\n");
 
-	wDumpContent(1);
+	wDumpContent(0);	/* No menu here; not logged in yet! */
 }
 
 
@@ -177,7 +177,7 @@ void do_welcome(void)
 
 	if (noframes) {
 		printf("HTTP/1.0 200 OK\n");
-		output_headers(1, "_top");
+		output_headers(1);
 		wprintf("<CENTER><H1>");
 		escputs(wc_username);
 		wprintf("</H1>\n");
@@ -198,7 +198,7 @@ void do_logout(void)
 	strcpy(wc_roomname, "");
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(2, "_top");	/* note "2" causes cookies to be unset */
+	output_headers(2);	/* note "2" causes cookies to be unset */
 
 	wprintf("<CENTER>");
 	serv_puts("MESG goodbye");
@@ -230,7 +230,7 @@ void validate(void)
 	int a;
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1, "bottom");
+	output_headers(1);
 
 	strcpy(buf, bstr("user"));
 	if (strlen(buf) > 0)
@@ -309,7 +309,7 @@ void display_reg(int during_login)
 	int a;
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1, "bottom");
+	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
@@ -413,7 +413,7 @@ void display_changepw(void)
 	char buf[256];
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1, "bottom");
+	output_headers(1);
 
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
