@@ -1012,9 +1012,15 @@ GSTA:	termn8 = 0;
 
 	do {			/* MAIN LOOP OF PROGRAM */
 
-		/* Reconnect to the server if the connection was broken */
-		if (setjmp(jmp_reconnect)) {
-			printf("\rServer connection broken; reconnecting...\r");
+		if (!is_connected()) {
+			for (a=15; a>=0; --a) {
+				printf("\rServer connection broken; "
+					"will reconnect in %d seconds\r", a);
+				fflush(stdout);
+				sleep(1);
+			}
+			printf(	"                                "
+				"                                \r");
 			fflush(stdout);
 			attach_to_server(argc, argv);
 			printf("                                         \r");
@@ -1044,10 +1050,10 @@ GSTA:	termn8 = 0;
 			serv_puts(aaa);
 			serv_gets(aaa);
 		}
-		signal(SIGPIPE, sigpipehandler);
 
 		signal(SIGINT, SIG_IGN);
 		signal(SIGQUIT, SIG_IGN);
+		signal(SIGPIPE, SIG_IGN);
 		mcmd = getcmd(argbuf);
 
 #ifdef TIOCGWINSZ

@@ -1,6 +1,8 @@
 Fri Jul 16 18:39:04 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* PEXP and GEXP no longer trip the idle time display
 	* Fixed bug which duplicated incoming private mail to Trashcan
+	* Improved auto-reconnect by NOT using SIGPIPE and longjmp(); also
+	  implemented a 15 second delay to wait for a crashed server to restart
 
 Thu Jul 15 22:57:32 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* eliminate redundant "name" parameter in [l]putuser(), now uses
