@@ -1,3 +1,9 @@
+Sat May 29 00:25:47 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Fixed the behavior of the "forget room" routine, to properly handle
+	  the transition back to the Lobby after it's all done.
+	* Added ExpressMessageCat() to allow code to send the user messages
+	  along with incoming express messages
+
 Fri May 21 23:35:17 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Minor code cleanups
 	* New mail notification

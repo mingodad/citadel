@@ -401,6 +401,17 @@ void output_headers(int print_standard_html_head)
 
 
 
+void ExpressMessageCat(char *buf) {
+	if (ExpressMessages == NULL) {
+		ExpressMessages = malloc(strlen(buf) + 4);
+		strcpy(ExpressMessages, "");
+	} else {
+		ExpressMessages = realloc(ExpressMessages,
+			(strlen(ExpressMessages) + strlen(buf) + 4));
+	}
+	strcat(ExpressMessages, buf);
+	strcat(ExpressMessages, "\\n");
+}
 
 
 void check_for_express_messages()
@@ -411,15 +422,7 @@ void check_for_express_messages()
 	serv_gets(buf);
 	if (buf[0] == '1') {
 		while (serv_gets(buf), strcmp(buf, "000")) {
-			if (ExpressMessages == NULL) {
-				ExpressMessages = malloc(strlen(buf) + 4);
-				strcpy(ExpressMessages, "");
-			} else {
-				ExpressMessages = realloc(ExpressMessages,
-							  (strlen(ExpressMessages) + strlen(buf) + 4));
-			}
-			strcat(ExpressMessages, buf);
-			strcat(ExpressMessages, "\\n");
+			ExpressMessageCat(buf);
 		}
 	}
 }
