@@ -260,13 +260,13 @@ int collapsed_strcmp(char *s1, char *s2) {
 	c2 = strdup(s2);
 
 	for (i=0; i<strlen(c1); ++i) {
-		if (isupper(c1[i])) c1[i]=tolower(c1[i]);
 		while (!isalnum(c1[i])) strcpy(&c1[i], &c1[i+1]);
+		if (isupper(c1[i])) c1[i]=tolower(c1[i]);
 	}
 
 	for (i=0; i<strlen(c2); ++i) {
-		if (isupper(c2[i])) c2[i]=tolower(c2[i]);
 		while (!isalnum(c2[i])) strcpy(&c2[i], &c2[i+1]);
+		if (isupper(c2[i])) c2[i]=tolower(c2[i]);
 	}
 
 	ret = strcmp(c1, c2);

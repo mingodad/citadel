@@ -59,6 +59,10 @@ void process_rfc822_addr(char *rfc822, char *user, char *node, char *name)
 {
 	int a;
 
+	strcpy(user, "");
+	strcpy(node, config.c_fqdn);
+	strcpy(name, "");
+
 	/* extract full name - first, it's From minus <userid> */
 	strcpy(name, rfc822);
 	for (a = 0; a < strlen(name); ++a) {
@@ -204,6 +208,7 @@ void try_name(struct usersupp *us) {
 }
 
 
+
 /*
  * Convert an Internet email address to a Citadel user/host combination
  */
@@ -228,7 +233,7 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 	 * FIX ... make this work for non-local systems
 	 */
 	if (strcasecmp(node, config.c_nodename)) {
-		return(1);
+		return(rfc822_address_invalid);
 	}
 	
 	/* Now try to resolve the name
@@ -240,10 +245,45 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 		strcpy(CC->buffer1, user);
 		strcpy(CC->buffer2, "");
 		ForEachUser(try_name);
-		if (strlen(CC->buffer2) == 0) return(2);
+		if (strlen(CC->buffer2) == 0) return(rfc822_no_such_user);
 		strcpy(destuser, CC->buffer2);
-		return(0);
+		return(rfc822_address_locally_validated);
 	}
 
-	return(3);	/* unknown error */
+	return(rfc822_address_invalid);	/* unknown error */
+}
+
+
+
+
+
+/*
+ * Convert an RFC822 message (headers + body) to a CtdlMessage structure.
+ */
+struct CtdlMessage *convert_internet_message(char *rfc822) {
+
+	struct CtdlMessage *msg;
+	char *buf;
+
+	msg = mallok(sizeof(struct CtdlMessage));
+	if (msg == NULL) return msg;
+
+	memset(msg, 0, sizeof(struct CtdlMessage));
+	msg->cm_magic = CTDLMESSAGE_MAGIC;	/* self check */
+	msg->cm_anon_type = 0;			/* never anonymous */
+	msg->cm_format_type = 4;		/* always MIME */
+	msg->cm_fields['M'] = rfc822;
+
+	/* FIX   there's plenty to do here. */
+
+
+	/* Follow-up sanity check. */
+
+	/* If there's no timestamp on this message, set it to now. */
+	if (msg->cm_fields['T'] == NULL) {
+		sprintf(buf, "%ld", time(NULL));
+		msg->cm_fields['T'] = strdoop(buf);
+	}
+
+	return msg;
 }

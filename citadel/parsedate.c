@@ -17,7 +17,8 @@ static char yysccsid[] = "@(#)yaccpar	1.9 (Berkeley) 02/21/93";
 **  <rsalz@osf.org> and Jim Berets <jberets@bbn.com> in August, 1990.
 **  Further revised (removed obsolete constructs and cleaned up timezone
 **  names) in August, 1991, by Rich.  Paul Eggert <eggert@twinsun.com>
-**  helped in September, 1992.
+**  helped in September, 1992.  Art Cancro <ajc@uncnsrd.mt-kisco.ny.us> cleaned
+**  it up for ANSI C in December, 1999.
 **
 **  This grammar has six shift/reduce conflicts.
 **
@@ -32,7 +33,7 @@ static char yysccsid[] = "@(#)yaccpar	1.9 (Berkeley) 02/21/93";
 #include <ctype.h>
 #include <time.h>
 
-int date_lex();
+int date_lex(void);
 
 #define yyparse		date_parse
 #define yylex		date_lex
@@ -102,15 +103,13 @@ static time_t	yyRelMonth;
 static time_t	yyRelSeconds;
 
 
-extern struct tm	*localtime();
-
-static void		date_error();
-#line 100 "parsedate.y"
+static void		date_error(char *);
+#line 99 "parsedate.y"
 typedef union {
     time_t		Number;
     enum _MERIDIAN	Meridian;
 } YYSTYPE;
-#line 114 "y.tab.c"
+#line 113 "y.tab.c"
 #define tDAY 257
 #define tDAYZONE 258
 #define tMERIDIAN 259
@@ -294,7 +293,7 @@ YYSTYPE yylval;
 short yyss[YYSTACKSIZE];
 YYSTYPE yyvs[YYSTACKSIZE];
 #define yystacksize YYSTACKSIZE
-#line 287 "parsedate.y"
+#line 286 "parsedate.y"
 
 /* Month and day table. */
 static TABLE	MonthDayTable[] = {
@@ -457,11 +456,7 @@ date_error(s)
 
 
 static time_t
-ToSeconds(Hours, Minutes, Seconds, Meridian)
-    time_t	Hours;
-    time_t	Minutes;
-    time_t	Seconds;
-    MERIDIAN	Meridian;
+ToSeconds(time_t Hours, time_t Minutes, time_t Seconds, MERIDIAN Meridian)
 {
     if (Minutes < 0 || Minutes > 59 || Seconds < 0 || Seconds > 61)
 	return -1;
@@ -482,15 +477,9 @@ ToSeconds(Hours, Minutes, Seconds, Meridian)
 
 
 static time_t
-Convert(Month, Day, Year, Hours, Minutes, Seconds, Meridian, dst)
-    time_t	Month;
-    time_t	Day;
-    time_t	Year;
-    time_t	Hours;
-    time_t	Minutes;
-    time_t	Seconds;
-    MERIDIAN	Meridian;
-    DSTMODE	dst;
+Convert(time_t Month, time_t Day, time_t Year,
+	time_t Hours, time_t Minutes, time_t Seconds,
+	MERIDIAN Meridian, DSTMODE dst)
 {
     static int	DaysNormal[13] = {
 	0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
@@ -544,9 +533,7 @@ Convert(Month, Day, Year, Hours, Minutes, Seconds, Meridian, dst)
 
 
 static time_t
-DSTcorrect(Start, Future)
-    time_t	Start;
-    time_t	Future;
+DSTcorrect(time_t Start, time_t Future)
 {
     time_t	StartDay;
     time_t	FutureDay;
@@ -558,9 +545,7 @@ DSTcorrect(Start, Future)
 
 
 static time_t
-RelativeMonth(Start, RelMonth)
-    time_t	Start;
-    time_t	RelMonth;
+RelativeMonth(time_t Start, time_t RelMonth)
 {
     struct tm	*tm;
     time_t	Month;
@@ -578,9 +563,7 @@ RelativeMonth(Start, RelMonth)
 
 
 static int
-LookupWord(buff, length)
-    char		*buff;
-    register int	length;
+LookupWord(char *buff, register int length)
 {
     register char	*p;
     register char	*q;
@@ -670,7 +653,7 @@ LookupWord(buff, length)
 
 
 int
-date_lex()
+date_lex(void)
 {
     register char	c;
     register char	*p;
@@ -733,10 +716,9 @@ date_lex()
 
 
 time_t
-parsedate(p)
-    char		*p;
+parsedate(char *p)
 {
-    extern int		date_parse();
+    extern int		date_parse(void);
     time_t		Start;
 
     yyInput = p;
@@ -786,9 +768,7 @@ extern int	yydebug;
 
 /* ARGSUSED */
 int
-main(ac, av)
-    int		ac;
-    char	*av[];
+main(int ac, char *av[])
 {
     char	buff[128];
     time_t	d;
@@ -821,7 +801,7 @@ main(ac, av)
     /* NOTREACHED */
 }
 #endif /* TEST */
-#line 825 "y.tab.c"
+#line 805 "y.tab.c"
 #define YYABORT goto yyabort
 #define YYREJECT goto yyabort
 #define YYACCEPT goto yyaccept
@@ -963,7 +943,7 @@ yyreduce:
     switch (yyn)
     {
 case 3:
-#line 118 "parsedate.y"
+#line 117 "parsedate.y"
 {
 	    yyHaveTime++;
 #ifdef lint
@@ -975,26 +955,26 @@ case 3:
 	}
 break;
 case 4:
-#line 127 "parsedate.y"
+#line 126 "parsedate.y"
 {
 	    yyHaveTime++;
 	    yyTimezone = yyvsp[0].Number;
 	}
 break;
 case 5:
-#line 131 "parsedate.y"
+#line 130 "parsedate.y"
 {
 	    yyHaveDate++;
 	}
 break;
 case 6:
-#line 134 "parsedate.y"
+#line 133 "parsedate.y"
 {
 	    yyHaveRel = 1;
 	}
 break;
 case 7:
-#line 139 "parsedate.y"
+#line 138 "parsedate.y"
 {
 	    if (yyvsp[-1].Number < 100) {
 		yyHour = yyvsp[-1].Number;
@@ -1009,7 +989,7 @@ case 7:
 	}
 break;
 case 8:
-#line 151 "parsedate.y"
+#line 150 "parsedate.y"
 {
 	    yyHour = yyvsp[-3].Number;
 	    yyMinutes = yyvsp[-1].Number;
@@ -1018,7 +998,7 @@ case 8:
 	}
 break;
 case 9:
-#line 157 "parsedate.y"
+#line 156 "parsedate.y"
 {
 	    yyHour = yyvsp[-3].Number;
 	    yyMinutes = yyvsp[-1].Number;
@@ -1028,7 +1008,7 @@ case 9:
 	}
 break;
 case 10:
-#line 164 "parsedate.y"
+#line 163 "parsedate.y"
 {
 	    yyHour = yyvsp[-5].Number;
 	    yyMinutes = yyvsp[-3].Number;
@@ -1037,7 +1017,7 @@ case 10:
 	}
 break;
 case 11:
-#line 170 "parsedate.y"
+#line 169 "parsedate.y"
 {
 	    yyHour = yyvsp[-5].Number;
 	    yyMinutes = yyvsp[-3].Number;
@@ -1048,21 +1028,21 @@ case 11:
 	}
 break;
 case 12:
-#line 180 "parsedate.y"
+#line 179 "parsedate.y"
 {
 	    yyval.Number = yyvsp[0].Number;
 	    yyDSTmode = DSToff;
 	}
 break;
 case 13:
-#line 184 "parsedate.y"
+#line 183 "parsedate.y"
 {
 	    yyval.Number = yyvsp[0].Number;
 	    yyDSTmode = DSTon;
 	}
 break;
 case 14:
-#line 188 "parsedate.y"
+#line 187 "parsedate.y"
 {
 	    /* Only allow "GMT+300" and "GMT-0800" */
 	    if (yyvsp[-1].Number != 0) {
@@ -1073,14 +1053,14 @@ case 14:
 	}
 break;
 case 15:
-#line 196 "parsedate.y"
+#line 195 "parsedate.y"
 {
 	    yyval.Number = yyvsp[0].Number;
 	    yyDSTmode = DSToff;
 	}
 break;
 case 16:
-#line 202 "parsedate.y"
+#line 201 "parsedate.y"
 {
 	    int		i;
 
@@ -1102,14 +1082,14 @@ case 16:
 	}
 break;
 case 17:
-#line 223 "parsedate.y"
+#line 222 "parsedate.y"
 {
 	    yyMonth = yyvsp[-2].Number;
 	    yyDay = yyvsp[0].Number;
 	}
 break;
 case 18:
-#line 227 "parsedate.y"
+#line 226 "parsedate.y"
 {
 	    if (yyvsp[-4].Number > 100) {
 		yyYear = yyvsp[-4].Number;
@@ -1124,14 +1104,14 @@ case 18:
 	}
 break;
 case 19:
-#line 239 "parsedate.y"
+#line 238 "parsedate.y"
 {
 	    yyMonth = yyvsp[-1].Number;
 	    yyDay = yyvsp[0].Number;
 	}
 break;
 case 20:
-#line 243 "parsedate.y"
+#line 242 "parsedate.y"
 {
 	    yyMonth = yyvsp[-3].Number;
 	    yyDay = yyvsp[-2].Number;
@@ -1139,14 +1119,14 @@ case 20:
 	}
 break;
 case 21:
-#line 248 "parsedate.y"
+#line 247 "parsedate.y"
 {
 	    yyDay = yyvsp[-1].Number;
 	    yyMonth = yyvsp[0].Number;
 	}
 break;
 case 22:
-#line 252 "parsedate.y"
+#line 251 "parsedate.y"
 {
 	    yyDay = yyvsp[-2].Number;
 	    yyMonth = yyvsp[-1].Number;
@@ -1154,7 +1134,7 @@ case 22:
 	}
 break;
 case 23:
-#line 257 "parsedate.y"
+#line 256 "parsedate.y"
 {
 	    yyDay = yyvsp[-2].Number;
 	    yyMonth = yyvsp[-1].Number;
@@ -1162,42 +1142,42 @@ case 23:
 	}
 break;
 case 24:
-#line 264 "parsedate.y"
+#line 263 "parsedate.y"
 {
 	    yyRelSeconds += yyvsp[-1].Number * yyvsp[0].Number;
 	}
 break;
 case 25:
-#line 267 "parsedate.y"
+#line 266 "parsedate.y"
 {
 	    yyRelSeconds += yyvsp[-1].Number * yyvsp[0].Number;
 	}
 break;
 case 26:
-#line 270 "parsedate.y"
+#line 269 "parsedate.y"
 {
 	    yyRelMonth += yyvsp[-1].Number * yyvsp[0].Number;
 	}
 break;
 case 27:
-#line 273 "parsedate.y"
+#line 272 "parsedate.y"
 {
 	    yyRelMonth += yyvsp[-1].Number * yyvsp[0].Number;
 	}
 break;
 case 28:
-#line 278 "parsedate.y"
+#line 277 "parsedate.y"
 {
 	    yyval.Meridian = MER24;
 	}
 break;
 case 29:
-#line 281 "parsedate.y"
+#line 280 "parsedate.y"
 {
 	    yyval.Meridian = yyvsp[0].Meridian;
 	}
 break;
-#line 1201 "y.tab.c"
+#line 1181 "y.tab.c"
     }
     yyssp -= yym;
     yystate = *yyssp;

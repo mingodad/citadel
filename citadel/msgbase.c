@@ -1590,6 +1590,64 @@ void quickie_message(char *from, char *to, char *room, char *text)
 }
 
 
+
+/*
+ * Back end function used by make_message() and similar functions
+ */
+char *CtdlReadMessageBody(char *terminator, size_t maxlen) {
+	char buf[256];
+	size_t message_len = 0;
+	size_t buffer_len = 0;
+	char *ptr, *append;
+	char *m;
+
+	m = mallok(4096);
+	if (m == NULL) {
+		while ( (client_gets(buf)>0) && strcmp(buf, terminator) ) ;;
+		return(NULL);
+	} else {
+		buffer_len = 4096;
+		m[0] = 0;
+		message_len = 0;
+	}
+	/* read in the lines of message text one by one */
+	append = NULL;
+	while ( (client_gets(buf)>0) && strcmp(buf, terminator) ) {
+
+		/* augment the buffer if we have to */
+		if ((message_len + strlen(buf) + 2) > buffer_len) {
+			lprintf(9, "realloking\n");
+			ptr = reallok(m, (buffer_len * 2) );
+			if (ptr == NULL) {	/* flush if can't allocate */
+				while ( (client_gets(buf)>0) &&
+					strcmp(buf, terminator)) ;;
+				return(m);
+			} else {
+				buffer_len = (buffer_len * 2);
+				m = ptr;
+				append = NULL;
+				lprintf(9, "buffer_len is %d\n", buffer_len);
+			}
+		}
+
+		if (append == NULL) append = m;
+		while (strlen(append) > 0) ++append;
+		strcpy(append, buf);
+		strcat(append, "\n");
+		message_len = message_len + strlen(buf) + 1;
+
+		/* if we've hit the max msg length, flush the rest */
+		if (message_len >= maxlen) {
+			while ( (client_gets(buf)>0) && strcmp(buf, terminator)) ;;
+			return(m);
+		}
+	}
+	return(m);
+}
+
+
+
+
 /*
  * Build a binary message to be saved on disk.
  */
@@ -1607,9 +1665,6 @@ struct CtdlMessage *make_message(
 	int a;
 	char dest_node[32];
 	char buf[256];
-	size_t message_len = 0;
-	size_t buffer_len = 0;
-	char *ptr, *append;
 	struct CtdlMessage *msg;
 
 	msg = mallok(sizeof(struct CtdlMessage));
@@ -1664,47 +1719,9 @@ struct CtdlMessage *make_message(
 	if (dest_node[0] != 0)
 		msg->cm_fields['D'] = strdoop(dest_node);
 
-	msg->cm_fields['M'] = mallok(4096);
-	if (msg->cm_fields['M'] == NULL) {
-		while (client_gets(buf), strcmp(buf, "000")) ;;	/* flush */
-		return(msg);
-	} else {
-		buffer_len = 4096;
-		msg->cm_fields['M'][0] = 0;
-		message_len = 0;
-	}
 
-	/* read in the lines of message text one by one */
-	append = NULL;
-	while (client_gets(buf), strcmp(buf, "000")) {
+	msg->cm_fields['M'] = CtdlReadMessageBody("000", config.c_maxmsglen);
 
-		/* augment the buffer if we have to */
-		if ((message_len + strlen(buf) + 2) > buffer_len) {
-			lprintf(9, "realloking\n");
-			ptr = reallok(msg->cm_fields['M'], (buffer_len * 2) );
-			if (ptr == NULL) {	/* flush if can't allocate */
-				while (client_gets(buf), strcmp(buf, "000")) ;;
-				return(msg);
-			} else {
-				buffer_len = (buffer_len * 2);
-				msg->cm_fields['M'] = ptr;
-				append = NULL;
-				lprintf(9, "buffer_len is %d\n", buffer_len);
-			}
-		}
-
-		if (append == NULL) append = msg->cm_fields['M'];
-		while (strlen(append) > 0) ++append;
-		strcpy(append, buf);
-		strcat(append, "\n");
-		message_len = message_len + strlen(buf) + 1;
-
-		/* if we've hit the max msg length, flush the rest */
-		if (message_len >= config.c_maxmsglen) {
-			while (client_gets(buf), strcmp(buf, "000")) ;;
-			return(msg);
-		}
-	}
 
 	return(msg);
 }

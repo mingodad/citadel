@@ -31,15 +31,18 @@
 #include "tools.h"
 #include "internet_addressing.h"
 
-struct citsmtp {
+
+struct citsmtp {		/* Information about the current session */
 	int command_state;
 	struct usersupp vrfy_buffer;
 	int vrfy_count;
 	char vrfy_match[256];
 	char from[256];
+	char recipient[256];
+	int number_of_recipients;
 };
 
-enum {
+enum {				/* Command states for login authentication */
 	smtp_command,
 	smtp_user,
 	smtp_password
@@ -85,6 +88,7 @@ void smtp_hello(char *argbuf, int is_esmtp) {
  */
 void smtp_help(void) {
 	cprintf("214-Here's the frequency, Kenneth:\n");
+	cprintf("214-    DATA\n");
 	cprintf("214-    EHLO\n");
 	cprintf("214-    EXPN\n");
 	cprintf("214-    HELO\n");
@@ -305,6 +309,7 @@ void smtp_mail(char *argbuf) {
 		if (!strcasecmp(node, config.c_nodename)) { /* FIX use fcn */
 			cprintf("550 You must log in to send mail from %s\n",
 				config.c_fqdn);
+			strcpy(SMTP->from, "");
 			return;
 		}
 	}
@@ -318,9 +323,17 @@ void smtp_mail(char *argbuf) {
  * Implements the "RCPT To:" command
  */
 void smtp_rcpt(char *argbuf) {
+	int cvt;
+	char user[256];
+	char node[256];
 
 	if (strlen(SMTP->from) == 0) {
 		cprintf("503 MAIL first, then RCPT.  Duh.\n");
+		return;
+	}
+
+	if (strlen(SMTP->recipient) > 0) {
+		cprintf("550 Only one recipient allowed (FIX)\n");
 		return;
 	}
 
@@ -329,7 +342,52 @@ void smtp_rcpt(char *argbuf) {
 		return;
 	}
 
-	cprintf("599 this is unfinished\n");
+	strcpy(SMTP->recipient, &argbuf[3]);
+	striplt(SMTP->recipient);
+
+	cvt = convert_internet_address(user, node, SMTP->recipient);
+	switch(cvt) {
+		case rfc822_address_locally_validated:
+			cprintf("250 %s is a valid recipient.\n", user);
+			return;
+		case rfc822_no_such_user:
+			cprintf("550 %s: no such user\n", SMTP->recipient);
+			strcpy(SMTP->recipient, "");
+			return;
+	}
+
+	strcpy(SMTP->recipient, "");
+	cprintf("599 Unknown error (FIX)\n");
+}
+
+
+
+
+/*
+ * Implements the DATA command
+ */
+void smtp_data(void) {
+	char *body;
+
+	if (strlen(SMTP->from) == 0) {
+		cprintf("503 Need MAIL command first.\n");
+		return;
+	}
+
+	if (SMTP->number_of_recipients < 1) {
+		cprintf("503 Need RCPT command first.\n");
+		return;
+	}
+
+	cprintf("354 Transmit message now; terminate with '.' by itself\n");
+	body = CtdlReadMessageBody(".", config.c_maxmsglen);
+	if (body == NULL) {
+		cprintf("550 Unable to save message text: internal error.\n");
+		return;
+	}
+
+	phree(body);
+	cprintf("599 command unfinished\n");
 }
 
 
@@ -361,6 +419,10 @@ void smtp_command_loop(void) {
 
 	else if (!strncasecmp(cmdbuf, "AUTH", 4)) {
 		smtp_auth(&cmdbuf[5]);
+	}
+
+	else if (!strncasecmp(cmdbuf, "DATA", 4)) {
+		smtp_data();
 	}
 
 	else if (!strncasecmp(cmdbuf, "EHLO", 4)) {
