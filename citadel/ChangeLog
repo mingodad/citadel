@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.104  2001/03/02 03:18:33  ajc
+ * client: the "Page who?" prompt now defaults to the last user who paged
+   you or the last user you sent a page to, whichever is more recent.
+
  Revision 573.103  2001/02/28 05:49:04  ajc
  * Removed the moderation questions.
  * Added extra ignores of SIGPIPE to the code (before every client socket
@@ -2486,3 +2490,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -41,6 +41,7 @@
 #include "routines2.h"
 #include "tools.h"
 #include "rooms.h"
+#include "client_chat.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
@@ -213,6 +214,7 @@ void print_express(void)
 		flags = extract_int(&buf[4], 2);
 		extract(sender, &buf[4], 3);
 		extract(node, &buf[4], 4);
+		strcpy(last_paged, sender);
 	
 		stamp = localtime(&timestamp);
 

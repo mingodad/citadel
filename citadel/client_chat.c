@@ -40,6 +40,8 @@ extern struct CtdlServInfo serv_info;
 extern char temp[];
 void getline(char *, int);
 
+char last_paged[SIZ] = "";
+
 void chatmode(void)
 {
 	char wbuf[SIZ];
@@ -216,7 +218,6 @@ void chatmode(void)
  */
 void page_user()
 {
-	static char last_paged[32] = "";
 	char buf[SIZ], touser[SIZ], msg[SIZ];
 	FILE *pagefp;
 
