@@ -309,6 +309,7 @@ void ForEachRoom(void (*CallBack) (struct quickroom *EachRoom, void *out_data),
 	struct quickroom qrbuf;
 	struct cdbdata *cdbqr;
 
+	cdb_begin_transaction();
 	cdb_rewind(CDB_QUICKROOM);
 
 	while (cdbqr = cdb_next_item(CDB_QUICKROOM), cdbqr != NULL) {
@@ -321,6 +322,7 @@ void ForEachRoom(void (*CallBack) (struct quickroom *EachRoom, void *out_data),
 		if (qrbuf.QRflags & QR_INUSE)
 			(*CallBack)(&qrbuf, in_data);
 	}
+	cdb_end_transaction();
 }
 
 
@@ -791,6 +793,7 @@ void cmd_whok(void)
 	struct usersupp temp;
 	struct cdbdata *cdbus;
 
+	cdb_begin_transaction();
 	getuser(&CC->usersupp, CC->curr_user);
 	if (CtdlAccessCheck(ac_room_aide)) return;
 
@@ -806,6 +809,7 @@ void cmd_whok(void)
 		    )
 			cprintf("%s\n", temp.fullname);
 	}
+	cdb_end_transaction();
 	cprintf("000\n");
 }
 

@@ -436,6 +436,7 @@ int PurgeVisits(void) {
 	ForEachUser(AddValidUser, NULL);
 
 	/* Now traverse through the visits, purging irrelevant records... */
+	cdb_begin_transaction();
 	cdb_rewind(CDB_VISIT);
 	while(cdbvisit = cdb_next_item(CDB_VISIT), cdbvisit != NULL) {
 		memset(&vbuf, 0, sizeof(struct visit));
@@ -472,6 +473,8 @@ int PurgeVisits(void) {
 		}
 
 	}
+
+	cdb_end_transaction();
 
 	/* Free the valid room/gen combination list */
 	while (ValidRoomList != NULL) {

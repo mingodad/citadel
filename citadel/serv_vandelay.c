@@ -144,6 +144,7 @@ void artv_export_visits(void) {
 	struct visit vbuf;
 	struct cdbdata *cdbv;
 
+	cdb_begin_transaction();
 	cdb_rewind(CDB_VISIT);
 
 	while (cdbv = cdb_next_item(CDB_VISIT), cdbv != NULL) {
@@ -160,6 +161,7 @@ void artv_export_visits(void) {
 		cprintf("%ld\n", vbuf.v_lastseen);
 		cprintf("%u\n", vbuf.v_flags);
 	}
+	cdb_end_transaction();
 }
 
 

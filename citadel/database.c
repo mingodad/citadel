@@ -338,3 +338,13 @@ struct cdbdata *cdb_next_item(int cdb)
 	return (cdbret);
 }
 
+
+/*
+ * empty functions because GDBM doesn't have transaction support
+ */
+
+void cdb_begin_transaction(void) {
+}
+
+void cdb_end_transaction(void) {
+}

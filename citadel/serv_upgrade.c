@@ -49,6 +49,7 @@ void do_pre555_usersupp_upgrade(void) {
 	strcpy(tempfilename, tmpnam(NULL));
 
 	/* First, back out all old version records to a flat file */
+	cdb_begin_transaction();
         cdb_rewind(CDB_USERSUPP);
         while(cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
                 memset(&usbuf, 0, sizeof(struct pre555usersupp));
@@ -58,6 +59,7 @@ void do_pre555_usersupp_upgrade(void) {
                 cdb_free(cdbus);
 		fwrite(&usbuf, sizeof(struct pre555usersupp), 1, fp);
 	}
+	cdb_end_transaction();
 
 	/* ...and overwrite the records with new format records */
 	rewind(fp);
