@@ -154,7 +154,7 @@ char *bstr(char *key)
 
 #ifdef WITH_ZLIB
 
-ssize_t http_write(int fd, const void *buf, size_t count) {
+ssize_t http_write(int fd, void *buf, size_t count) {
 
 	if (WC->gzfd) {
 		return gzwrite(WC->gzfd, buf, count);
@@ -515,11 +515,20 @@ void output_image()
 {
 	char buf[SIZ];
 	char *xferbuf = NULL;
+	char *compressed_xferbuf = NULL;
 	off_t bytes;
 	off_t thisblock;
 	off_t accomplished = 0L;
+#ifdef WITH_ZLIB
+	uLongf compressed_size = 0;
+#endif
+	int do_compress = 0;
 
-	lprintf(5, "output_image() called\n");
+#ifdef WITH_ZLIB
+	do_compress = WC->gzcompressed;
+#endif
+
+	lprintf(5, "output_image() called; do_compress=%d\n", do_compress);
 	serv_printf("OIMG %s|%s", bstr("name"), bstr("parm"));
 	serv_gets(buf);
 	if (buf[0] == '2') {
@@ -548,12 +557,37 @@ void output_image()
 		serv_puts("CLOS");
 		serv_gets(buf);
 
-		/* Now write it to the browser */
-		output_headers(0);
-		wprintf("Content-type: image/gif\n");
-		wprintf("Content-length: %ld\n", (long) accomplished);
-		wprintf("\n");
-		http_write(WC->http_sock, xferbuf, accomplished);
+#ifdef WITH_ZLIB
+		if (do_compress) {
+			/* Write it to the browser -- compressed */
+			compressed_size = (uLongf)
+					((accomplished * 101) / 100) + 4096;
+			compressed_xferbuf = malloc(compressed_size);
+			lprintf(9, "uncompressed size: %d\n", accomplished);
+			compress2(compressed_xferbuf, &compressed_size,
+				xferbuf, (uLong)accomplished, 9);
+			lprintf(9, "  compressed size: %d\n", compressed_size);
+			output_headers(0);
+			wprintf("Content-type: image/gif\n"
+				"Content-length: %ld\n"
+				"Content-Encoding: gzip\n"
+				"\n",
+				(long) compressed_size
+			);
+			http_write(WC->http_sock, compressed_xferbuf,
+							compressed_size);
+		}
+#endif
+		if (!do_compress) {
+			/* Write it to the browser -- no compression */
+			output_headers(0);
+			wprintf("Content-type: image/gif\n"
+			wprintf("Content-length: %ld\n"
+			wprintf("\n",
+			(long) accomplished
+			);
+			http_write(WC->http_sock, xferbuf, accomplished);
+		}
 
 	} else {
 		wprintf("HTTP/1.0 404 %s\n", &buf[4]);
@@ -565,6 +599,9 @@ void output_image()
 
 	if (xferbuf) {
 		free(xferbuf);
+	}
+	if (compressed_xferbuf) {
+		free(compressed_xferbuf);
 	}
 
 }
