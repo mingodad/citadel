@@ -217,6 +217,8 @@ int imap_is_message_set(char *buf) {
 	if (buf == NULL) return(0);		/* stupidity checks */
 	if (strlen(buf) == 0) return(0);
 
+	if (!strcasecmp(buf, "ALL")) return(1);	/* macro?  why?  */
+
 	for (i=0; i<strlen(buf); ++i)  {	/* now start the scan */
 		if (
 			(!isdigit(buf[i]))

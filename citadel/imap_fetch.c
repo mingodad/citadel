@@ -825,16 +825,23 @@ int imap_extract_data_items(char **argv, char *items) {
  *
  * Set is_uid to 1 to fetch by UID instead of sequence number.
  */
-void imap_pick_range(char *range, int is_uid) {
+void imap_pick_range(char *supplied_range, int is_uid) {
 	int i;
 	int num_sets;
 	int s;
 	char setstr[SIZ], lostr[SIZ], histr[SIZ];	/* was 1024 */
 	int lo, hi;
-	char *actual_range;
+	char actual_range[SIZ];
 
-	actual_range = range;
-	if (!strcasecmp(range, "ALL")) actual_range = "1:*";
+	/* 
+	 * Handle the "ALL" macro
+	 */
+	if (!strcasecmp(supplied_range, "ALL")) {
+		safestrncpy(actual_range, "1:*", sizeof actual_range);
+	}
+	else {
+		safestrncpy(actual_range, supplied_range, sizeof actual_range);
+	}
 
 	/*
 	 * Clear out the IMAP_FETCHED flags for all messages.

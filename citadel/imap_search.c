@@ -113,7 +113,7 @@ void imap_search(int num_parms, char *parms[]) {
 
 	for (i=1; i<num_parms; ++i) {
 		if (imap_is_message_set(parms[i])) {
-			imap_pick_range(parms[2], 0);
+			imap_pick_range(parms[i], 0);
 		}
 	}
 
@@ -149,7 +149,7 @@ void imap_uidsearch(int num_parms, char *parms[]) {
 
 	for (i=1; i<num_parms; ++i) {
 		if (imap_is_message_set(parms[i])) {
-			imap_pick_range(parms[2], 1);
+			imap_pick_range(parms[i], 1);
 		}
 	}
 

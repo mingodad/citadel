@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.95  2001/02/21 05:15:41  ajc
+ * Repaired buggy "ALL" macro in IMAP FETCH.
+
  Revision 573.94  2001/02/20 00:02:56  ajc
  * IMAP: implemented the STATUS command (sort of).
 
@@ -2424,4 +2427,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
