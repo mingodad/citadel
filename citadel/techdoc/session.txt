@@ -1,0 +1,1583 @@
+                  SESSION LAYER PROTOCOL FOR CITADEL/UX
+            (c) 1995-1998 by Art Cancro   All Rights Reserved
+   
+  
+ INTRODUCTION
+ ------------        
+
+ This is an attempt to document the session layer protocol used by the
+Citadel/UX system, beginning with version 4.00, which is the first version
+to implement a client/server paradigm.  It is intended as a resource for
+programmers who intend to develop their own Citadel clients, but it may have
+other uses as well.
+ 
+ 
+ IMPORTANT NOTE TO DEVELOPERS!
+ -----------------------------
+ 
+ Anyone who wants to add commands or other functionality to this protocol,
+*please* get in touch so that these efforts can be coordinated.  New
+commands added by other developers can be added to this document, so we
+don't end up with new server commands from multiple developers which have
+the same name but perform different functions.  If you don't coordinate new
+developments ahead of time, please at least send in an e-mail documenting
+what you did, so that your new commands can be added to this document.
+ 
+ The coordinator of the Citadel/UX project is Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>.
+    
+  
+ CONNECTING TO A SERVER
+ ----------------------
+  
+ The protocols used below the session layer are beyond the scope of this
+document, but we will briefly cover a few of the currently used methods. 
+Keep in mind that the server program itself does not speak any protocols
+lower than the session layer.  Instead, it reads all input from stdin, and
+writes all output to stdout.  This implies that it is the responsibility of
+other programs to provide a usable transport to the client programs.
+ 
+ One way to connect to a server is to use a set of pipes.  This does of
+course assume that the client and server are running on the same computer. 
+When the client starts up, the first thing that it does is create two pipes,
+which it temporarily dup()'s to stdin and stdout.  Then it proceeds to
+fork() and exec() to a copy of the server program, which inherits the
+pipes as its standard input and output - exactly the desired effect.  The
+client program can then re-connect its own stdin and stdout to where they're
+supposed to be, and use the pipes to send and receive server messages.
+ 
+ Another way is to use TCP/IP.  Under Unix-like systems this is easily
+accomplished using the "inetd" superserver program, which can take programs
+like the Citadel/UX server and offer connections to clients over a TCP or
+UDP port.  See the install documentation (or the inetd documentation from
+your OS) for information on how to do this.  Always use TCP ports for
+Citadel/UX sessions.  Since our session layer assumes a clean, reliable,
+sequenced connection, the use of UDP would render the server unstable and
+unusable.  When operating in a TCP/IP environment, the port number officially
+assigned to Citadel is 504.
+   
+   
+ GENERAL INFORMATION ABOUT THE SERVER
+ ------------------------------------
+  
+ The server is connection-oriented and stateful: each client requires its own
+connection to a server process, and when a command is sent, the client must
+read the response, and then transfer data or change modes if necessary.
+ 
+ The session layer is very much like other Internet protocols such as SMTP
+or NNTP.  A client program sends one-line commands to the server, and the
+server responds with a three-digit numeric result code followed by a message
+describing what happened.  This cycle continues until the end of the
+session.
+ 
+ Unlike protocols such as FTP, all data transfers occur in-band.  This means
+that the same connection that is used for exchange of client/server
+messages, will also be used to transfer data back and forth.  (FTP opens a
+separate connection for data transfers.)  We do this to allow the server to
+function over transports which can only handle one session at a time (such
+as a dialup connection).
+ 
+   
+ RESULT CODES
+ ------------
+ 
+ The server will respond to all commands with a 3-digit result code, which
+will be the first three characters on the line.  The rest of the line may
+contain a human-readable string explaining what happened.  (Some client
+software will display some of these strings to the user.)
+ 
+ The first digit is the most important.  The following codes are defined for
+this position: ERROR, OK, MORE_DATA, LISTING_FOLLOWS, and SEND_LISTING.
+ 
+ The second and third digits may provide a reason as to why a command
+succeeded or failed.  See ipcdef.h for the available codes.
+ 
+ ERROR means the command did not complete.
+ OK means the command executed successfully.
+ MORE_DATA means the command executed partially.  Usually this means that
+another command needs to be executed to complete the operation.  For example,
+sending the USER command to log in a user usually results in a MORE_DATA
+result code, because the client needs to execute a PASS command to send the
+password and complete the login.
+ LISTING_FOLLOWS means that after the server response, the server will
+output a listing of some sort.  The client *must* read the listing, whether
+it wants to or not.  The end of the listing is signified by the string
+"000" on a line by itself.
+ SEND_LISTING is the opposite of LISTING_FOLLOWS.  It means that the client
+should begin sending a listing of some sort.  The client *must* send something,
+even if it is an empty listing.  Again, the listing ends with "000" on a line
+by itself.
+  
+  
+ PARAMETERIZATION
+ ----------------
+ 
+ Zero or more parameters may be passed to a command.  When more than one
+parameter is passed to a command, they should be separated by the "|"
+symbol like this:
+  SETU 80|24|260
+ In this example, we're using the "SETU" command and passing three
+parameters: 80, 24, and 260.
+ 
+ When the server spits out data that has parameters, if more than one
+parameter is returned, they will be separated by the "|" symbol like
+this:
+  200 80|24|260
+ In this example, we just executed the "GETU" command, and it returned us
+an OK result code (the '2' in the 200) and three parameters: 80, 24, and
+260.
+ 
+ 
+ COMMANDS
+ --------
+ 
+ This is a listing of all the commands that a Citadel/UX server can execute.
+ 
+   
+ NOOP   (NO OPeration)
+ 
+ This command does nothing.  It takes no arguments and always returns
+OK.  It is intended primarily for testing and development, but it might also
+be used as a "keep alive" command to prevent the server from timing out, if
+it's running over a transport that needs this type of thing.
+ 
+   
+ ECHO   (ECHO something)
+ 
+ This command also does nothing.  It simply returns OK followed by whatever
+its arguments are.
+ 
+  
+ QUIT   (QUIT)
+  
+ Terminate the server connection.  This command takes no arguments.  It
+returns OK and closes the connection immediately.
+ 
+ 
+ LOUT   (LogOUT)
+ 
+ Log out the user without closing the server connection.  It always returns
+OK even if no user is logged in.
+ 
+  
+ USER   (send USER name)
+ 
+ The first step in logging in a user.  This command takes one argument: the
+name of the user to be logged in.  If the user exists, a MORE_DATA return
+code will be sent, which means the client should execute PASS as the next
+command.  If the user does not exist, ERROR is returned.
+ 
+ 
+ PASS   (send PASSword)
+ 
+ The second step in logging in a user.  This command takes one argument: the
+password for the user we are attempting to log in.  If the password doesn't
+match the correct password for the user we specified for the USER command,
+or if a USER command has not been executed yet, ERROR is returned.  If the
+password is correct, OK is returned and the user is now logged in... and
+most of the other server commands can now be executed.  Along with OK, the
+following parameters are returned:
+ 
+ 0 - The user's name (in case the client wants the right upper/lower casing)
+ 1 - The user's current access level
+ 2 - Times called
+ 3 - Messages posted
+ 4 - Various flags (see citadel.h)
+ 5 - User number
+ 
+ 
+ NEWU   (create NEW User account)
+ 
+ This command creates a new user account and logs it in.  The argument to
+this command will be the name of the account.  No case conversion is done
+on the name.  Note that the new account is installed with a default
+configuration, and no password, so the client should immediately prompt the
+user for a password and install it with the SETP command as soon as this
+command completes.  This command returns OK if the account was created and
+logged in, or ERROR if another user already exists with this name.  If OK,
+it will also return the same parameters that PASS returns.
+ 
+  
+ AUTO   (AUTOmatic login   **OBSLETE** )
+   
+ Citadel/UX no longer supports this type of authentication.  It was formerly
+used to automatically authenticate a user based on the user ID under which
+the server was running.  Due to the new multithreaded architecture of the
+server, this is no longer possible.
+  
+   
+ SETP   (SET new Password)
+ 
+ This command sets a new password for the currently logged in user.  The
+argument to this command will be the new password.  The command always
+returns OK, unless the client is not logged in, in which case it will return
+ERROR.
+ 
+   
+ LKRN   (List Known Rooms with New messages)
+ 
+ List known rooms with new messages.  If the client is not logged in, ERROR
+is returned.  Otherwise, LISTING_FOLLOWS is returned, followed by the room
+listing.  Each line in the listing contains the full name of a room, followed
+by the '|' symbol, and then a number that may contain the following bits:
+
+
+#define QR_PERMANENT	1		/* Room does not purge              */
+#define QR_PRIVATE	4		/* Set for any type of private room */
+#define QR_PASSWORDED	8		/* Set if there's a password too    */
+#define QR_GUESSNAME	16		/* Set if it's a guessname room     */
+#define QR_DIRECTORY	32		/* Directory room                   */
+#define QR_UPLOAD	64		/* Allowed to upload                */
+#define QR_DOWNLOAD	128		/* Allowed to download              */
+#define QR_VISDIR	256		/* Visible directory                */
+#define QR_ANONONLY	512		/* Anonymous-Only room              */
+#define QR_ANON2	1024		/* Anonymous-Option room            */
+#define QR_NETWORK	2048		/* Shared network room              */
+#define QR_PREFONLY	4096		/* Preferred status needed to enter */
+#define QR_READONLY	8192		/* Aide status required to post     */
+
+
+ Other bits may be defined in the future.  The listing terminates, as with
+all listings, with "000" on a line by itself.
+ 
+ Version 4.01 and above only:
+
+ Starting with version 4.01 and above, floors are supported.  The first 
+argument to LKRN should be the number of the floor to list rooms from.  Only
+rooms from this floor will be listed.  If no arguments are passed to LKRN, or
+if the floor number requested is (-1), rooms on all floors will be listed.
+ 
+ The third field displayed on each line is the number of the floor the room
+is on.  The LFLR command should be used to associate floor numbers with
+floor names.
+
+ 
+ 
+ LKRO   (List Known Rooms with Old [no new] messages)
+ 
+ This follows the same usage and format as LKRN.
+ 
+ 
+ LZRM   (List Zapped RooMs)
+ 
+ This follows the same usage and format as LKRN and LKRO.
+  
+  
+ LKRA   (List All Known Rooms)
+ 
+ Same format.  Lists all known rooms, with or without new messages.
+ 
+ 
+ LRMS   (List all accessible RooMS)
+ 
+ Again, same format.  This command lists all accessible rooms, known and
+forgotten, with and without new messages.  It does not, however, list
+inaccessible private rooms.
+  
+ 
+ GETU   (GET User configuration)
+ 
+ This command retrieves the screen dimensions and user options for the
+currently logged in account.  ERROR will be returned if no user is logged
+in, of course.  Otherwise, OK will be returned, followed by three parameters.
+The first parameter is the user's screen width, the second parameter is the
+user's screen height, and the third parameter is a bag of bits with the
+following meanings:
+  
+ #define US_LASTOLD	16		/* Print last old message with new  */
+ #define US_EXPERT	32		/* Experienced user		    */
+ #define US_UNLISTED	64		/* Unlisted userlog entry           */
+ #define US_NOPROMPT	128		/* Don't prompt after each message  */
+ #define US_DISAPPEAR	512		/* Use "disappearing msg prompts"   */
+ #define US_PAGINATOR	2048		/* Pause after each screen of text  */
+ 
+ There are other bits, too, but they can't be changed by the user (see below).
+ 
+ 
+ SETU   (SET User configuration)
+ 
+ This command does the opposite of SETU: it takes the screen dimensions and
+user options (which were probably obtained with a GETU command, and perhaps
+modified by the user) and writes them to the user account.  This command
+should be passed three parameters: the screen width, the screen height, and
+the option bits (see above).
+ 
+ Note that there exist bits here which are not listed in this document.  Some
+are flags that can only be set by Aides or the system administrator.  SETU
+will ignore attempts to toggle these bits.  There also may be more user 
+settable bits added at a later date.  To maintain later downward compatibility,
+the following procedure is suggested:
+ 
+ 1. Execute GETU to read the current flags
+ 2. Toggle the bits that we know we can toggle
+ 3. Execute SETU to write the flags
+ 
+ If we are passed a bit whose meaning we don't know, it's best to leave it
+alone, and pass it right back to the server.  That way we can use an old
+client on a server that uses an unknown bit without accidentally clearing
+it every time we set the user's configuration.
+ 
+ 
+ GOTO   (GOTO a room)
+ 
+ This command is used to goto a new room.  When the user first logs in (login
+is completed after execution of the PASS command) this command is
+automatically and silently executed to take the user to the first room in the
+system (usually called the Lobby).
+ 
+ This command can be passed one or two parameters.  The first parameter is,
+of course, the name of the room.  Although it is not case sensitive, the
+full name of the room must be used.  Wildcard matching or unique string
+matching of room names should be the responsibility of the client.
+ 
+ Note that the reserved room name "_BASEROOM_" can be passed to the server
+to cause the goto command to take the user to the first room in the system,
+traditionally known as the Lobby>.   As long as a user is logged in, a
+GOTO command to _BASEROOM_ is guaranteed to succeed.  This is useful to
+allow client software to return to the base room when it doesn't know
+where else to go.
+ 
+ Citadel/UX server v4.01 and above, also has two additional reserved room
+names.  "_MAIL_" translates to the system's designated room for e-mail
+messages, and "_BITBUCKET_" goes to whatever room has been chosen for messages
+without a home.
+ 
+ The second (and optional) parameter is a password, if one is required for
+access to the room.  This allows for all types of rooms to be accessed via
+this command: for public rooms, invitation-only rooms to which the user
+has access, and preferred users only rooms to which the user has access, the
+room will appear in a room listing.  For guess-name rooms, this command
+will work transparently, adding the room to the user's known room list when
+it completes.  For passworded rooms, access will be denied if the password
+is not supplied or is incorrect, or the command will complete successfully
+if the password is correct.
+ 
+ The possible result codes are:
+  
+ OK    - The command completed successfully.  User is now in the room.
+         (See the list of returned parameters below)
+ 
+ ERROR - The command did not complete successfully.  Check the second and
+third positions of the result code to find out what happened:
+ 
+   NOT_LOGGED_IN     -  Of course you can't go there.  You didn't log in.
+   PASSWORD_REQUIRED -  Either a password was not supplied, or the supplied
+password was incorrect.
+   NO_SUCH_ROOM      -  The requested room does not exist.
+ 
+ The typical procedure for entering a passworded room would be:
+ 
+ 1. Execute a GOTO command without supplying any password.
+ 2. ERROR+PASSWORD_REQUIRED will be returned.  The client now knows that
+the room is passworded, and prompts the user for a password.
+ 3. Execute a GOTO command, supplying both the room name and the password.
+ 4. If OK is returned, the command is complete.  If, however,
+ERROR+PASSWORD_REQUIRED is still returned, tell the user that the supplied
+password was incorrect.  The user remains in the room he/she was previously
+in.
+ 
+ When the command succeeds, these parameters are returned:
+   0. The name of the room
+   1. Number of unread messages in this room
+   2. Total number of messages in this room
+   3. Info flag: set to nonzero if the user needs to read this room's info
+      file (see RINF command below)
+   4. Various flags associated with this room.  (See LKRN cmd above)
+   5. The highest message number present in this room
+   6. The highest message number the user has read in this room
+   7. Boolean flag: 1 if this is a Mail> room, 0 otherwise.
+   8. Aide flag: 1 if the user is either the Room Aide for this room, *or* is
+a regular Aide (this makes access checks easy).
+ 
+  ...and in server 4.01 and above:
+   9. The number of new Mail messages the user has (useful for alerting the
+user to the arrival of new mail during a session)
+  
+  ...and in server 4.03 and above:
+  10. The floor number this room resides on
+  
+  
+ MSGS   (get pointers to MeSsaGeS in this room)
+ 
+ This command obtains a listing of all the messages in the current room
+which the client may request.  This command may be passed a single parameter:
+either "all", "old", or "new" to request all messages, only old messages, or
+new messages.  Or it may be passed two parameters: "last" plus a number, in which
+case that many message pointers will be returned, or "first" plus a number, for
+the corresponding effect.  If no parameters are specified, "all" is assumed.
+ 
+ In Citadel/UX 5.00 and above, the client may also specify "gt" plus a number, to
+list all messages in the current room with a message number greater than the one
+specified.
+ 
+ This command can return two possible results.  An ERROR code may be returned
+if no user is currently logged in or if something else went wrong.  Otherwise,
+LISTING_FOLLOWS will be returned, and the listing will consist of zero or
+more message numbers, one per line.  The listing ends, as always, with the
+string "000" alone on a line by itself.  The listed message numbers can be used
+to request messages from the system.
+ 
+ 
+ MSG0   (read MeSsaGe, mode 0)
+   
+ This is a command used to read the text of a message.  "Mode 0" implies that
+other MSG commands (MSG1, MSG2, etc.) will probably be added later on to read
+messages in more robust formats.  This command should be passed two arguments.
+The first is the message number of the message being requested.  In server 
+version 4.04 and above, the second argument may be set to either 0 to read the
+entire message, or 1 to read the headers only.
+ 
+ The server should, of course, make sure that the client actually has access
+to the message being requested before honoring this request.  Citadel/UX does
+so by checking the message number against the contents of the current room.  If
+it's not there, the request is denied.
+ 
+ If the request is denied, an ERROR code will be returned.  Otherwise, the
+LISTING_FOLLOWS code will be returned, followed by the contents of the message.
+The following fields may be sent:
+  
+ type=   Formatting type.  Currently, there are two defined types.  Type 0 is
+"traditional" Citadel formatting.  This means that newlines should be treated
+as spaces UNLESS the first character on the next line is a space.  In other
+words, only indented lines should generate a newline on the user's screen when
+the message is being displayed.  This allows a message to be formatted to the
+reader's screen width.  It also allows the use of proportional fonts.
+Type 1 is a simple fixed-format message.  The message should be displayed to
+the user's screen as is, preferably in a fixed-width font that will fit 80
+columns on a screen.
+  
+ msgn=   The message ID of this message on the system it originated on.
+ path=   An e-mailable path back to the user who wrote the message.
+
+ time=   The date and time of the message, in Unix format (the number of
+seconds since midnight on January 1, 1970, GMT).
+
+ from=   The name of the author of the message.
+ rcpt=   If the message is a private e-mail, this is the recipient.
+ room=   The name of the room the message originated in.
+ node=   The short node name of the system this message originated on.
+ hnod=   The long node name of the system this message originated on.
+ 
+ text    Note that there is no "=" after the word "text".  This string
+signifies that the message text begins on the next line.
+  
+   
+ WHOK   (WHO Knows room)
+ 
+ This command is available only to Aides.  ERROR+HIGHER_ACCESS_REQUIRED will
+be returned if the user is not an Aide.  Otherwise, it returns
+LISTING_FOLLOWS and then lists, one user per line, every user who has
+access to the current room.
+ 
+ 
+ INFO   (get server INFO)
+ 
+ This command will *always* return LISTING_FOLLOWS and then print out a
+listing of zero or more strings.  Client software should be written to expect
+anywhere from a null listing to an infinite number of lines, to allow later
+backward compatibility.  The current implementation defines the following
+parts of the listing:
+ 
+ Line 1  - Your unique session ID on the server
+ Line 2  - The node name of the server BBS
+ Line 3  - Human-readable node name of the server BBS
+ Line 4  - The fully-qualified domain name (FQDN) of the server
+ Line 5  - The name of the server software, i.e. "Citadel/UX 4.00"
+ Line 6  - (The revision level of the server code) * 100
+ Line 7  - The geographical location of the BBS (for USA: city and state)
+ Line 8  - The name of the system administrator
+ Line 9  - A number identifying the server type (see below)
+ Line 10 - The text of the system's paginator prompt
+ 
+ (version 4.01 and above only)
+ Line 11 - Floor Flag.  1 if the system supports floors, 0 otherwise.
+ 
+ *** NOTE! ***   The "server type" code is intended to promote global
+compatibility in a scenario in which developers have added proprietary
+features to their servers or clients.  We are attempting to avoid a future
+situation in which users need to keep different client software around for
+each BBS they use.  *Please*, if you are a developer and plan to add
+proprietary features:
+ 
+ -> Your client programs should still be able to utilize servers other than
+your own.
+ -> Clients other than your own should still be able to utilize your server,
+even if your proprietary extensions aren't supported.
+ -> Please contact Art Cancro <ajc@uncnsrd.mt-kisco.ny.us> and obtain a unique
+server type code, which can be assigned to your server program.
+ -> If you document what you did in detail, perhaps it can be added to a
+future release of the Citadel/UX program, so everyone can enjoy it.
+ 
+ If everyone follows this scheme, we can avoid a chaotic situation with lots
+of confusion about which client program works with which server, etc.  Client
+software can simply check the server type (and perhaps the revision level)
+to determine ahead of time what commands may be utilized.  The server type
+codes currently defined are:
+ 
+ Type             Developer
+ ---- ---------------------------------------
+ 0    Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+ 1    Brian Ledbetter <brian@amaranth.com>
+ 2    Matthew Scott <gldnspud@telcomplus.com>
+ 3    Jesse Vincent <jrvincent@wesleyan.edu>
+ 4    Brian Costello <btx@calyx.net>
+ 5    Robert Abatecola <robert@tsgus.com>
+    
+  
+   
+ RDIR   (Read room DIRectory)
+ 
+ Use this command to read the directory of a directory room.  ERROR+NOT_HERE
+will be returned if the room has no directory, or some other error; ERROR +
+HIGHER_ACCESS_REQUIRED will be returned if the room's directory is not
+visible and the user does not have Aide or Room Aide privileges; otherwise
+LISTING_FOLLOWS will be returned, followed by the room's directory.  Each
+line of the directory listing will contain three fields: a filename, the
+length of the file, and a description.
+ 
+ The server message contained on the same line with LISTING_FOLLOWS will
+contain the name of the system and the name of the directory, such as:
+  uncnsrd.mt-kisco.ny.us|/usr/bbs/files/my_room_directory
+ 
+ 
+ SLRP   (Set Last-message-Read Pointer)
+ 
+ This command is used to mark messages as having been read.  Its sole parameter
+is the number of the last message that has been read.  This allows the pointer
+to be set at any arbitrary point in the room.  Optionally, the parameter
+"highest" may be used instead of a message number, to set the pointer to the
+number of the highest message in the room, effectively marking all messages
+in the room as having been read (ala the Citadel <G>oto command).
+
+ The command will return OK if the pointer was set, or ERROR if something
+went wrong.  If OK is returned, it will be followed by a single argument
+containing the message number the last-read-pointer was set to.
+ 
+ 
+ INVT   (INViTe a user to a room)
+ 
+ This command may only be executed by Aides, or by the room aide for the
+current room.  It is used primarily to add users to invitation-only rooms,
+but it may also be used in other types of private rooms as well.  Its sole
+parameter is the name of the user to invite.
+ 
+ The command will return OK if the operation succeeded, or ERROR if it did
+not.  ERROR+HIGHER_ACCESS_REQUIRED may also be returned if the operation
+would have been possible if the user had higher access, and ERROR+NOT_HERE
+may be returned if the room is not a private room.
+ 
+ 
+ KICK   (KICK a user out of a room)
+ 
+ This is the opposite of INVT: it is used to kick a user out of a private
+room.  It can also be used to kick a user out of a public room, but the
+effect will only be the same as if the user <Z>apped the room - a non-stupid
+user can simply un-zap the room to get back in.
+ 
+ 
+ GETR   (GET Room attributes)
+ 
+ This command is used for editing the various attributes associated with a
+room.  A typical "edit room" command would work like this:
+ 1. Use the GETR command to get the current attributes
+ 2. Change some of them around
+ 3. Use SETR (see below) to save the changes
+ 4. Possibly also change the room aide using the GETA and SETA commands
+ 
+ GETR takes no arguments.  It will only return OK if the SETR command will
+also return OK.  This allows client software to tell the user that he/she
+can't edit the room *before* going through the trouble of actually doing the
+editing.  Possible return codes are:
+ 
+ ERROR+NOT_LOGGED_IN          - No user is logged in.
+ ERROR+HIGHER_ACCESS_REQUIRED - Not enough access.  Typically, only aides
+and the room aide associated with the current room, can access this command.
+ ERROR+NOT_HERE               - Lobby>, Mail>, and Aide> cannot be edited.
+ OK                           - Command succeeded.  Parameters are returned.
+ 
+ If OK is returned, the following parameters will be returned as well:
+ 
+ 0. The name of the room
+ 1. The room's password (if it's a passworded room)
+ 2. The name of the room's directory (if it's a directory room)
+ 3. Various flags (bits) associated with the room (see LKRN cmd above)
+
+ (And on server version 4.01 and above ... )
+ 4. The floor number on which the room resides
+  
+  
+ SETR   (SET Room attributes)
+ 
+ This command sets various attributes associated with the current room.  It
+should be passed the following arguments:
+ 
+ 0. The name of the room
+ 1. The room's password (if it's a passworded room)
+ 2. The name of the room's directory (if it's a directory room)
+ 3. Various flags (bits) associated with the room (see LKRN cmd above)
+ 4. "Bump" flag (see below)
+ 
+ (And on server version 4.01 and above, the client may also send ... )
+ 5. The floor number on which the room should reside
+ 
+ *Important: You should always use GETR to retrieve the current attributes of
+the room, then change what you want to change, and then use SETR to write it
+all back.  This is particularly important with respect to the flags: if a
+particular bit is set, and you don't know what it means, LEAVE IT ALONE and
+only toggle the bits you want to toggle.  This will allow for upward
+compatibility.
+ 
+ If the room is a private room, you have the option of causing all users who
+currently have access, to forget the room.  If you want to do this, set the
+"bump" flag to 1, otherwise set it to 0.
+ 
+ 
+ GETA
+ 
+ This command is used to get the name of the Room Aide for the current room.
+It will return ERROR+NOT_LOGGED_IN if no user is logged in, ERROR if there
+is no current room, or OK if the command succeeded.  Along with OK there will
+be returned one parameter: the name of the Room Aide.
+   
+  
+ SETA
+ 
+ The opposite of GETA, used to set the Room Aide for the current room.  One
+parameter should be passed, which is the name of the user who is to be the
+new Room Aide.  Under Citadel/UX, this command may only be executed by Aides
+and by the *current* Room Aide for the room.  Return codes possible are:
+ ERROR+NOT_LOGGED_IN            (Not logged in.)
+ ERROR+HIGHER_ACCESS_REQUIRED   (Higher access required.)
+ ERROR+NOT_HERE                 (No current room, or room cannot be edited.
+Under Citadel/UX, the Lobby> Mail> and Aide> rooms are non-editable.)
+ OK                             (Command succeeded.)
+  
+ 
+ ENT0   (ENTer message, mode 0)
+  
+ This command is used to enter messages into the system.  It accepts four
+arguments:
+ 
+  0  -  Post flag.  This should be set to 1 to post a message.  If it is
+set to 0, the server only returns OK or ERROR (plus any flags describing
+the error) without reading in a message.  Client software should, in fact,
+perform this operation at the beginning of an "enter message" command
+*before* starting up its editor, so the user does not end up typing a message
+in vain that will not be permitted to be saved.  If it is set to 2, the
+server will accept an "apparant" post name if the user is privileged enough. 
+This post name is arg 4.
+  1  -  Recipient.  This argument is utilized only for private mail messages.
+It is ignored for public messages.  It contains, of course, the name of the
+recipient of the message.
+  2  -  Anonymous flag.  This argument is ignored unless the room allows
+anonymous messages.  In such rooms, this flag may be set to 1 to flag a
+message as anonymous, otherwise 0 for a normal message.
+  3  -  Format type.  Any valid Citadel/UX format type may be used (this will
+typically be 0; see the MSG0 command above).
+  4  -  Post name.  When postflag is 2, this is the name you are posting as.
+This is an Aide only command.
+
+ Possible result codes:
+  OK  -  The request is valid.  (Client did not set the "post" flag, so the
+server will not read in message text.)   If the message is an e-mail with
+a recipient, the text that follows the OK code will contain the exact name
+to which mail is being sent.  The client can display this to the user.  The
+implication here is that the name that the server returns will contain the
+correct upper and lower case characters.  In addition, if the recipient is
+having his/her mail forwarded, the forwarding address will be returned.
+  SEND_LISTING  -  The request is valid.  The client should now transmit
+the text of the message (ending with a 000 on a line by itself, as usual).
+  ERROR  -  Miscellaneous error.  (Explanation probably follows.)
+  ERROR + NOT_LOGGED_IN  -  Not logged in.
+  ERROR + HIGHER_ACCESS_REQUIRED  -  Higher access is required.  An
+explanation follows, worded in a form that can be displayed to the user.
+  ERROR + NO_SUCH_USER  -  The specified recipient does not exist.
+ 
+ 
+ RINF   (read Room INFormation file)
+ 
+ Each room has associated with it a text file containing a description of
+the room, perhaps containing its intended purpose or other important
+information.  The info file for the Lobby> (the system's base room) is
+often used as a repository for system bulletins and the like.
+ 
+ This command, which accepts no arguments, is simply used to read the info
+file for the current room.  It will return LISTING_FOLLOWS followed by
+the text of the message (always in format type 0) if the request can be
+honored, or ERROR if no info file exists for the current room (which is
+often the case).  Other error description codes may accompany this result.
+ 
+ When should this command be used?  This is, of course, up to the discretion
+of client software authors, but in Citadel it is executed in two situations:
+the first time the user ever enters a room; and whenever the contents of the
+file change.  The latter can be determined from the result of a GOTO command,
+which will tell the client whether the file needs to be read (see GOTO above).
+  
+  
+ DELE   (DELEte a message)
+ 
+ Delete a message from the current room.  The one argument that should be
+passed to this command is the message number of the message to be deleted.
+The return value will be OK if the message was deleted, or an ERROR code.
+
+
+ MOVE   (MOVE a message to a different room)
+ 
+ Move a message to a different room.  The two arguments that should be passed
+to this command are the message number of the message to be deleted, and the
+name of the target room.  If the operation succeeds, the message will be
+deleted from the current room and moved to the target room.  An ERROR code
+usually means that either the user does not have permission to perform this
+operation, or that the target room does not exist.
+ 
+
+ KILL   (KILL current room)
+ 
+ This command deletes the current room.  It accepts a single argument, which
+should be nonzero to actually delete the room, or zero to merely check
+whether the room can be deleted.
+ 
+ Once the room is deleted, the current room is undefined.  It is suggested
+that client software immediately GOTO another room (usually _BASEROOM_)
+after this command completes.
+ 
+ Possible return codes:
+ 
+ OK  -  room has been deleted (or, if checking only, request is valid).
+ ERROR+NOT_LOGGED_IN  -  no user is logged in.
+ ERROR+HIGHER_ACCESS_REQUIRED  -  not enough access to delete rooms.
+ ERROR+NOT_HERE  -  this room can not be deleted.
+ 
+ 
+ CRE8   (CRE[ate] a new room)
+ 
+ This command is used to create a new room.  Like some of the other
+commands, it provides a mechanism to first check to see if a room can be
+created before actually executing the command.  CRE8 accepts the following
+arguments:
+ 
+ 0  -  Create flag.  Set this to 1 to actually create the room.  If it is
+set to 0, the server merely checks that there is a free slot in which to
+create a new room, and that the user has enough access to create a room.  It
+returns OK if the client should go ahead and prompt the user for more info,
+or ERROR or ERROR+HIGHER_ACCESS_REQUIRED if the command will not succeed.
+ 1  -  Name for new room.
+ 2  -  Access type for new room:
+       0  -  Public
+       1  -  Private; can be entered by guessing the room's name
+       2  -  Private; can be entered by knowing the name *and* password
+       3  -  Private; invitation only (sometimes called "exclusive")
+ 3  -  Password for new room (if it is a type 2 room)
+ 4  -  Floor number on which the room should reside (optional, and in server
+       version 4.01 and above only)
+ 
+ If the create flag is set to 1, the room is created (unless something
+went wrong and an ERROR return is sent), and the server returns OK, but
+the session is **not** automatically sent to that room.  The client still
+must perform a GOTO command to go to the new room.
+ 
+ 
+ FORG   (FORGet the current room)
+ 
+ This command is used to forget (zap) the current room.  For those not
+familiar with Citadel, this terminology refers to removing the room from
+a user's own known rooms list, *not* removing the room itself.  After a
+room is forgotten, it no longer shows up in the user's known room list,
+but it will exist in the user's forgotten room list, and will return to the
+known room list if the user goes to the room (in Citadel, this is
+accomplished by explicitly typing the room's name in a <.G>oto command).
+ 
+ The command takes no arguments.  If the command cannot execute for any
+reason, ERROR will be returned.  ERROR+NOT_LOGGED_IN or ERROR+NOT_HERE may
+be returned as they apply.
+ 
+ If the command succeeds, OK will be returned.  At this point, the current
+room is **undefined**, and the client software is responsible for taking
+the user to another room before executing any other room commands (usually
+this will be _BASEROOM_ since it is always there).
+  
+  
+ MESG    (read system MESsaGe)
+  
+ This command is used to display system messages and/or help files.  The
+single argument it accepts is the name of the file to display.  IT IS CASE
+SENSITIVE.  Citadel/UX looks for these files first in the "messages"
+subdirectory and then in the "help" subdirectory.
+  
+ If the file is found, LISTING_FOLLOWS is returned, followed by a pathname
+to the file being displayed.  Then the message is printed, in format type 0
+(see MSG0 command for more information on this).  If the file is not found,
+ERROR is returned.
+  
+ There are some "well known" names of system messages which client software
+may expect most servers to carry:
+  
+ hello        -  Welcome message, to be displayed before the user logs in.
+ changepw     -  To be displayed whenever the user is prompted for a new
+                 password.  Warns about picking guessable passwords and such.
+ register     -  Should be displayed prior to the user entering registration.
+                 Warnings about not getting access if not registered, etc.
+ help         -  Main system help file.
+ goodbye      -  System logoff banner; display when user logs off.
+ roomaccess   -  Information about how public rooms and different types of
+                 private rooms function with regards to access.
+ unlisted     -  Tells users not to choose to be unlisted unless they're
+                 really paranoid, and warns that aides can still see
+                 unlisted userlog entries.
+  
+ Citadel/UX provides these for the Citadel/UX Unix text client.  They are
+probably not very useful for other clients:
+ 
+ mainmenu     -  Main menu (when in idiot mode).
+ aideopt      -  .A?
+ readopt      -  .R?
+ entopt       -  .E?
+ dotopt       -  .?
+ saveopt      -  Options to save a message, abort, etc.
+ entermsg     -  Displayed just before a message is entered, when in
+                 idiot mode.
+  
+  
+ GNUR   (Get Next Unvalidated User)
+ 
+ This command shows the name of a user that needs to be validated.  If there
+are no unvalidated users, OK is returned.  Otherwise, MORE_DATA is returned
+along with the name of the first unvalidated user the server finds.  All of
+the usual ERROR codes may be returned as well (for example, if the user is
+not an Aide and cannot validate users).
+ 
+ A typical "Validate New Users" command would keep executing this command,
+and then validating each user it returns, until it returns OK when all new
+users have been validated.
+ 
+ 
+ GREG   (Get REGistration for user)
+ 
+ This command retrieves the registration info for a user, whose name is the
+command's sole argument.  All the usual error messages can be returned.  If
+the command succeeds, LISTING_FOLLOWS is returned, followed by the user's name
+(retrieved from the userlog, with the right upper and lower case etc.)  The
+contents of the listing contains one field per line, followed by the usual
+000 on the last line.  
+ 
+ The following lines are defined.  Others WILL be added in the futre, so all
+software should be written to read the lines it knows about and then ignore
+all remaining lines: 
+ 
+ Line 1:  User number
+ Line 2:  Password
+ Line 3:  Real name
+ Line 4:  Street address or PO Box
+ Line 5:  City/town/village/etc.
+ Line 6:  State/province/etc.
+ Line 7:  ZIP Code
+ Line 8:  Telephone number
+ Line 9:  Access level
+ Line 10: Internet e-mail address
+ 
+ Users without Aide privileges may retrieve their own registration using
+this command.  This can be accomplished either by passing the user's own
+name as the argument, or the string "_SELF_".  The command will always
+succeed when used in this manner, unless no user is logged in.
+ 
+  
+ VALI   (VALIdate user)
+ 
+ This command is used to validate users.  Obviously, it can only be executed
+by users with Aide level access.  It should be passed two parameters: the
+name of the user to validate, and the desired access level
+ 
+ If the command succeeds, OK is returned.  The user's access level is changed
+and the "need validation" bit is cleared.  If the command fails for any 
+reason, ERROR, ERROR+NO_SUCH_USER, or ERROR+HIGHER_ACCESS_REQUIRED will be
+returned.
+   
+
+ EINF   (Enter INFo file for room)
+  
+ Transmit the info file for the current room with this command.  EINF uses
+a boolean flag (1 or 0 as the first and only argument to the command) to
+determine whether the client actually wishes to transmit a new info file, or
+is merely checking to see if it has permission to do so.
+ 
+ If the command cannot succeed, it returns ERROR.
+ If the client is only checking for permission, and permission will be
+granted, OK is returned.
+ If the client wishes to transmit the new info file, SEND_LISTING is
+returned, and the client should transmit the text of the info file, ended
+by the usual 000 on a line by itself.
+   
+   
+ LIST   (user LISTing)
+  
+ This is a simple user listing.  It always succeeds, returning
+LISTING_FOLLOWS followed by zero or more user records, 000 terminated.  The
+fields on each line are as follows:
+  
+ 1. User name
+ 2. Access level
+ 3. User number
+ 4. Date/time of last login (Unix format)
+ 5. Times called
+ 6. Messages posted
+ 7. Password (listed only if the user requesting the list is an Aide)
+ 
+ Unlisted entries will also be listed to Aides logged into the server, but
+not to ordinary users.
+  
+  
+ REGI   (send REGIstration)
+ 
+ Clients will use this command to transmit a user's registration info.  If
+no user is logged in, ERROR+NOT_LOGGED_IN is returned.  Otherwise,
+SEND_LISTING is returned, and the server will expect the following information
+(terminated by 000 on a line by itself):
+ 
+ Line 1:  Real name
+ Line 2:  Street address or PO Box
+ Line 3:  City/town/village/etc.
+ Line 4:  State/province/etc.
+ Line 5:  ZIP Code
+ Line 6:  Telephone number
+ Line 7:  e-mail address
+ 
+ 
+ CHEK   (CHEcK various things)
+ 
+ When logging in, there are various things that need to be checked.   This
+command will return ERROR+NOT_LOGGED_IN if no user is logged in.  Otherwise
+it returns OK and the following parameters:
+ 
+ 0: Number of new private messages in Mail>
+ 1: Nonzero if the user needs to register
+ 2: (Relevant to Aides only) Nonzero if new users require validation
+ 
+ 
+ DELF   (DELete a File)
+ 
+ This command deletes a file from the room's directory, if there is one.  The
+name of the file to delete is the only parameter to be supplied.  Wildcards
+are not acceptable, and any slashes in the filename will be converted to
+underscores, to prevent unauthorized access to neighboring directories.  The
+possible return codes are:
+ 
+ OK                            -  Command succeeded.  The file was deleted.
+ ERROR+NOT_LOGGED_IN           -  Not logged in.
+ ERROR+HIGHER_ACCESS_REQUIRED  -  Not an Aide or Room Aide.
+ ERROR+NOT_HERE                -  There is no directory in this room.
+ ERROR+FILE_NOT_FOUND          -  Requested file was not found.
+ 
+ 
+ MOVF   (MOVe a File)
+ 
+ This command is similar to DELF, except that it moves a file (and its
+associated file description) to another room.  It should be passed two
+parameters: the name of the file to move, and the name of the room to move
+the file to.  All of the same return codes as DELF may be returned, and also
+one additional one: ERROR+NO_SUCH_ROOM, which means that the target room
+does not exist.  ERROR+NOT_HERE could also mean that the target room does
+not have a directory.
+ 
+ 
+ NETF   (NETwork send a File)
+ 
+ This command is similar to MOVF, except that it attempts to send a file over
+the network to another system.  It should be passed two parameters: the name
+of the file to send, and the node name of the system to send it to.  All of
+the same return codes as MOVF may be returned, except for ERROR+NO_SUCH_ROOM.
+Instead, ERROR+NO_SUCH_SYSTEM may be returned if the name of the target
+system is invalid.
+ 
+ The name of the originating room will be sent along with the file.  Most
+implementations will look for a room with the same name at the receiving end
+and attempt to place the file there, otherwise it goes into a bit bucket room
+for miscellaneous files.  This is, however, beyond the scope of this document;
+see elsewhere for more details.
+ 
+ 
+ RWHO   (Read WHO's online)
+ 
+ Displays a list of all users connected to the server.  No error codes are
+ever returned.  LISTING_FOLLOWS will be returned, followed by zero or more
+lines containing the following three fields:
+ 
+ 0 - Session ID.  Citadel/UX fills this with the pid of a server program.
+ 1 - User name.
+ 2 - The name of the room the user is currently in.  This field might not
+be displayed (for example, if the user is in a private room) or it might
+contain other information (such as the name of a file the user is
+downloading).
+ 3 - (server v4.03 and above) The name of the host the client is connecting
+from, or "localhost" if the client is local.
+ 4 - (server v4.04 and above) Description of the client software being used
+ 5 - The last time, locally to the server, that a command was received from
+     this client (Note: NOOP's don't count)
+ 6 - The last command received from a client. (NOOP's don't count)
+ 7 - Session flags.  These are: + (spoofed address), - (STEALTH mode), *
+     (posting) and . (idle).
+ 
+ The listing is terminated, as always, with the string "000" on a line by
+itself.
+ 
+  
+ OPEN   (OPEN a file for download)
+ 
+ This command is used to open a file for downloading.  Only one download
+file may be open at a time.  The only argument to this command is the name
+of the file to be opened.  The user should already be in the room where the
+file resides.  Possible return codes are:
+ 
+ ERROR+NOT_LOGGED_IN
+ ERROR+NOT_HERE                (no directory in this room)
+ ERROR+FILE_NOT_FOUND          (could not open the file)
+ ERROR                         (misc errors)
+ OK                            (file is open)
+ 
+ If the file is successfully opened, OK will be returned, along with the
+size (in bytes) of the file, and (in version 5.00 and above) the time of last
+modification.
+ 
+ 
+ CLOS   (CLOSe the download file)
+ 
+ This command is used to close the download file.  It returns OK if the
+file was successfully closed, or ERROR if there wasn't any file open in the
+first place.
+ 
+ 
+ READ   (READ from the download file)
+
+ Two arguments are passed to this command.  The first is the starting position
+in the download file, and the second is the total number of bytes to be 
+read.  If the operation can be performed, BINARY_FOLLOWS will be returned,
+along with the number of bytes to follow.  Then, immediately following the
+newline, will be that many bytes of binary data.  The client *must* read 
+exactly that number of bytes, otherwise the client and server will get out
+of sync.
+ 
+ If the operation cannot be performed, any of the usual error codes will be
+returned.
+  
+ 
+ UOPN   (OPeN a file for Uploading)
+  
+ This command is similar to OPEN, except that this one is used when the 
+client wishes to upload a file to the server.  The first argument is the name
+of the file to create, and the second argument is a one-line comment
+describing the contents of the file.  Only one upload file may be open at a
+time.  Possible return codes are:
+ 
+ ERROR+NOT_LOGGED_IN
+ ERROR+NOT_HERE               (no directory in this room)
+ ERROR+FILE_NOT_FOUND         (a name must be specified)
+ ERROR                        (miscellaneous errors)
+ ERROR+ALREADY_EXISTS         (a file with the same name already exists)
+ OK 
+ 
+ If OK is returned, the command has succeeded and writes may be performed.
+ 
+ 
+ UCLS   (CLoSe the Upload file)
+ 
+ Close the file opened with UOPN.  An argument of "1" should be passed to
+this command to close and save the file; otherwise, the transfer will be
+considered aborted and the file will be deleted.  This command returns OK
+if the operation succeeded or ERROR if it did not.
+ 
+ 
+ WRIT   (WRITe to the upload file)
+ 
+ If an upload file is open, this command may be used to write to it.  The
+argument passed to this command is the number of bytes the client wishes to
+transmit.  An ERROR code will be returned if the operation cannot be
+performed.
+ 
+ If the operation can be performed, SEND_BINARY will be returned, followed
+by the number of bytes the server is expecting.  The client must then transmit
+exactly that number of bytes.  Note that in the current implementation, the
+number of bytes the server is expecting will always be the number of bytes
+the client requested to transmit, but the client software should never assume
+that this will always happen, in case changes are made later.
+   
+  
+ QUSR   (Query for a USeR)
+ 
+ This command is used to check to see if a particular user exists.  The only
+argument to this command is the name of the user being searched for.  If
+the user exists, OK is returned, along with the name of the user in the userlog
+(so the client software can learn the correct upper/lower casing of the name
+if necessary).  If the user does not exist, ERROR+NO_SUCH_USER is returned.
+No login or current room is required to utilize this command.
+ 
+ 
+ OIMG   (Open an IMaGe file)
+ 
+ Open an image (graphics) file for downloading.  Once opened, the file can be
+read as if it were a download file.  This implies that an image and a download
+cannot be opened at the same time.  OIMG returns the same result codes as OPEN.
+ 
+ All images will be in GIF (Graphics Interchange Format).  In the case of 
+Citadel/UX, the server will convert the supplied filename to all lower case,
+append the characters ".gif" to the filename, and look for it in the "images"
+subdirectory.  As with the MESG command, there are several "well known"
+images which are likely to exist on most servers:
+ 
+ hello        - "Welcome" graphics to be displayed alongside MESG "hello"
+ goodbye      - Logoff banner graphics to be displayed alongside MESG "goodbye"
+ background   - Background image (usually tiled) for graphical clients
+ 
+ The following "special" image names are defined in Citadel/UX server version
+5.00 and above:
+ 
+ _userpic_    - Picture of a user (send the username as the second argument)
+ _floorpic_   - A graphical floor label (send the floor number as the second
+                argument).  Clients which request a floor picture will display
+                the picture *instead* of the floor name.
+ _roompic_    - A graphic associated with the *current* room.  Clients which
+                request a room picture will display the picture in *addition*
+                to the room name (i.e. it's used for a room banner, as
+                opposed to the floor picture's use in a floor listing).
+ 
+   
+  
+ ---------------------------------------------------------------------------
+ The following commands are available only in Citadel/UX server version 4.01
+ and above.
+ ---------------------------------------------------------------------------
+ 
+ NETP   (authenticate as network session with system NET Password) 
+ 
+ This command is used by client software to identify itself as a transport
+session for IGnet/Open BBS to BBS networking.  It should be called with
+two arguments: the node name of the calling system, and the system net 
+password for the server.  If the authentication succeeds, NETP will return
+OK, otherwise, it returns ERROR.
+   
+  
+ NUOP   (Network Upload OPen file)
+  
+ Open a network spool file for uploading.  The client must have already
+identified itself as a network session using the NETP command.  If the command
+returns OK, the client may begin transmitting IGnet/Open spool data using
+a series of WRIT commands.  When a UCLS command is issued, the spooled data
+is entered into the BBS if the argument to UCLS is 1 or discarded if the
+argument to UCLS is 0.  If the client has not authenticated itself with a
+NETP command, ERROR+HIGHER_ACCESS_REQUIRED will be returned.
+ 
+  
+ NDOP   (Network Download OPen file)
+ 
+ Open a network spool file for downloading.  The client must have already
+identified itself as a network session using the NETP command.  If the command
+returns OK, the client may begin receiving IGnet/Open spool data using
+a series of READ commands.  When a CLOS command is issued, the spooled data
+is deleted from the server and may not be read again.  If the client has not
+authenticated itself with a NETP command, ERROR+HIGHER_ACCESS_REQUIRED will
+be returned.
+ 
+ 
+ LFLR   (List all known FLooRs)
+ 
+ On systems supporting floors, this command lists all known floors.  The
+command accepts no parameters.  It will return ERROR+NOT_LOGGED_IN if no
+user is logged in.  Otherwise it returns LISTING_FOLLOWS and a list of 
+the available floors, each line consisting of three fields:
+ 
+ 1. The floor number associated with the floor
+ 2. The name of the floor
+ 3. Reference count (number of rooms on this floor)
+ 
+ 
+ CFLR   (Create a new FLooR)
+ 
+ This command is used to create a new floor.  It should be passed two
+arguments: the name of the new floor to be created, and a 1 or 0 depending
+on whether the client is actually creating a floor or merely checking to
+see if it has permission to create the floor.   The user must be logged in
+and have Aide privileges to create a floor.
+ 
+ If the command succeeds, it will return OK followed by the floor number
+associated with the new floor.  Otherwise, it will return ERROR (plus perhaps
+HIGHER_ACCESS_REQUIRED, ALREADY_EXISTS, or INVALID_FLOOR_OPERATION)
+followed by a description of why the command failed.
+ 
+ 
+ KFLR   (Kill a FLooR)
+ 
+ This command is used to delete a floor.  It should be passed two
+argument: the *number* of the floor to be deleted, and a 1 or 0 depending
+on whether the client is actually deleting the floor or merely checking to
+see if it has permission to delete the floor.  The user must be logged in
+and have Aide privileges to delete a floor.
+ 
+ Floors that contain rooms may not be deleted.  If there are rooms on a floor,
+they must be either deleted or moved to different floors first.  This implies
+that the Main Floor (floor 0) can never be deleted, since Lobby>, Mail>, and
+Aide> all reside on the Main Floor and cannot be deleted.
+ 
+ If the command succeeds, it will return OK.  Otherwise it will return
+ERROR (plus perhaps HIGHER_ACCESS_REQUIRED or INVALID_FLOOR_OPERATION)
+followed by a description of why the command failed.
+ 
+ 
+ EFLR   (Edit a FLooR)
+ 
+ Edit the parameters of a floor.  The client may pass one or more parameters
+to this command:
+ 
+ 1. The number of the floor to be edited
+ 2. The desired new name 
+ 
+ More parameters may be added in the future.  Any parameters not passed to
+the server will remain unchanged.  A minimal command would be EFLR and a
+floor number -- which would do nothing.  EFLR plus the floor number plus a
+floor name would change the floor's name.
+ 
+ If the command succeeds, it will return OK.  Otherwise it will return
+ERROR (plus perhaps HIGHER_ACCESS_REQUIRED or INVALID_FLOOR_OPERATION)
+  
+ ---------------------------------------------------------------------------
+ The following commands are available only in Citadel/UX server version 4.02
+ and above.
+ ---------------------------------------------------------------------------
+
+IDEN (IDENtify the client software)
+
+ The client software has the option to identify itself to the server.
+Currently, the server does nothing with this information except to write
+it to the syslog to satisfy the system administrator's curiosity.  Other
+uses might become apparent in the future. 
+ 
+ The IDEN command should contain five fields: a developer ID number (same as
+the server developer ID numbers in the INFO command -- please obtain one if
+you are a new developer), a client ID number (which does not have to be
+globally unique - only unique within the domain of the developer number),
+a version number, a free-form text string describing the client, and the name
+of the host the user is located at.
+ 
+ It is up to the server to determine whether to accept the host name or to
+use the host name it has detected itself.  Generally, if the client is
+running on a trusted host (either localhost or a well-known publically
+accessible client) it should use the host name transmitted by IDEN,
+otherwise it should use the host name it has detected itself.
+ 
+ IDEN always returns OK, but since that's the only way it ever returns
+there's no point in checking the result code.
+  
+ ---------------------------------------------------------------------------
+ The following commands are available only in Citadel/UX server version 4.03
+ and above.
+ ---------------------------------------------------------------------------
+
+IPGM (identify as an Internal ProGraM)
+ 
+ IPGM is a low-level command that should not be used by normal user clients. 
+It is used for various utilities to communicate with the server on the same
+host.  For example, the networker (netproc.c) logs onto the server as an
+internal program in order to fetch and store messages.  Since user clients
+do not utilize this command (or any of its companion commands), developers
+writing Citadel-compatible servers need not implement it.
+ 
+ The sole argument to IPGM is the system's internal program password.  This
+password is generated by the setup program and stored in the config file.
+Since internal programs have access to the config file, they know the correct
+password to use.
+ 
+ IPGM returns OK for a correct authentication or ERROR otherwise.
+ 
+ 
+CHAT (enter CHAT mode)
+ 
+ This command functions differently from every other command in the system.  It
+is used to implement multi-user chat.  For this to function, a new transfer
+mode, called START_CHAT_MODE, is implemented.  If a client does not support
+chat mode, it should never send a CHAT command!
+ 
+ In chat mode, messages may arrive asynchronously from the server at any
+time.  The client may send messages at any time.  This allows the arrival of
+messages without the client having to poll for them.  Arriving messages will
+be of the form  "user|message", where the "user" portion is, of course, the
+name of the user sending the message, and "message" is the message text.
+  
+ Chat mode ends when the server says it ends.  The server will signal the end
+of chat mode by transmitting "000" on a line by itself.  When the client reads
+this line, it must immediately exit from chat mode without sending any
+further traffic to the server.  The next transmission sent to the server
+will be a regular server command.
+ 
+ The Citadel/UX server understands the following commands:
+ /quit   -   Exit from chat mode (causes the server to do an 000 end)
+ /who    -   List users currently in chat
+ /whobbs -   List users currently in chat and on the bbs
+ /me     -   Do an irc-style action.
+ /join   -   Join a new "room" in which all messages are only heard by
+             people in that room.
+ /msg    -   /msg <user> <msg> will send the msg to <user> only.
+ /help   -   Print help information
+ NOOP    -   Do nothing (silently)
+ 
+ Any other non-empty string is treated as message text and will be broadcast
+to other users currently in chat.
+ 
+  
+ SEXP   (Send EXPress messages)
+ 
+ This is one of two commands which implement "express messages" (also known
+as "paging").  An express message is a near-real-time message sent from one
+logged in user to another.  When an express message is sent, it will be
+displayed the next time the target user executes a PEXP command.
+ 
+ The SEXP command accepts two arguments: the name of the user to send the
+message to, and the text of the message.  If the message is successfully
+transmitted, OK is returned.  If the target user is not logged in or if
+anything else goes wrong, ERROR is returned.
+ 
+ In Citadel/UX 5.00 and above, the reserved name "broadcast" may be used
+instead of a user name, to broadcast an express message to all users
+currently connected to the server.
+ 
+ Do be aware that if an express message is transmitted to a user who is logged
+in using a client that does not check for express messages, the message will
+never be received.
+ 
+ 
+ PEXP   (Print EXPress messages)
+ 
+ This command, called without any arguments, simply dumps out the contents
+of any waiting express messages.  It returns ERROR if there is a problem,
+otherwise it returns LISTING_FOLLOWS followed by all messages.
+ 
+ So how does the client know there are express messages waiting?  It could
+execute a random PEXP every now and then.  Or, it can check the byte in
+server return code messages, between the return code and the parameters.  In
+much the same way as FTP uses "-" to signify a continuation, Citadel uses
+an "*" in this position to signify the presence of waiting express messages.
+  
+ ---------------------------------------------------------------------------
+ The following commands are available only in Citadel/UX server version 4.10
+ and above.
+ ---------------------------------------------------------------------------
+ 
+ EBIO   (Enter BIOgraphy)
+ 
+ Transmit to the server a free-form text file containing a little bit of
+information about the user for other users to browse.  This is typically
+referred to as a 'bio' online.  EBIO returns SEND_LISTING if it succeeds,
+after which the client is expected to transmit the file, or any of the usual
+ERROR codes if it fails.
+ 
+ 
+ RBIO   (Read BIOgraphy)
+ 
+ Receive from the server a named user's bio.  This command should be passed
+a single argument - the name of the user whose bio is requested.  RBIO returns
+LISTING_FOLLOWS plus the bio file if the user exists and has a bio on file,
+ERROR+NO_SUCH_USER if the named user does not exist, or ERROR+FILE_NOT_FOUND
+if the user exists but has no bio on file.
+  
+ ---------------------------------------------------------------------------
+ The following commands are available only in Citadel/UX server version 4.11
+ and above.
+ ---------------------------------------------------------------------------
+  
+ STEL   (enter STEaLth mode)
+ 
+ When in "stealth mode," a user will not show up in the "Who is online"
+listing (the RWHO server command).  Only Aides may use stealth mode.  The
+STEL command accepts one argument: a 1 indicating that the user wishes to
+enter stealth mode, or a 0 indicating that the user wishes to exit stealth
+mode.  STEL returns OK if the command succeeded, ERROR+NOT_LOGGED_IN if no
+user is logged in, or ERROR+HIGHER_ACCESS_REQUIRED if the user is not an Aide.
+
+The STEL command also makes it so a user does not show up in the chat room
+/who.  
+ 
+ 
+ LBIO   (List users who have BIOs on file)
+ 
+ This command is self-explanatory.  Any user who has used EBIO to place a bio
+on file is listed.  LBIO almost always returns LISTING_FOLLOWS followed by
+this listing, unless it experiences an internal error in which case ERROR
+is returned.
+ 
+ 
+ MSG2   (read MeSsaGe, mode 2)
+ 
+ MSG2 follows the same calling convention as MSG0.  The difference between
+the two commands is that MSG2 outputs messages in standard RFC822 format
+rather than in Citadel/UX proprietary format.
+ 
+ This command was implemented in order to make various gateway programs
+easier to implement, and to provide some sort of multimedia support in the
+future.  Keep in mind that when this command is used, all messages will be
+output in fixed 80-column format.
+  
+ ---------------------------------------------------------------------------
+ The following commands are available only in Citadel/UX server version 5.00
+ and above.
+ ---------------------------------------------------------------------------
+   
+ MSG3   (read MeSsaGe, mode 3 -- internal command)
+ 
+ MSG3 is for use by internal programs only and should not be utilized by
+user-mode clients.  It does require IPGM authentication.  MSG3 follows the
+same calling convention as the other MSG commands, but upon success returns
+BINARY_FOLLOWS followed by a data block containing the _raw_ message format
+on disk.
+  
+   
+ ENT3   (ENTer message, mode 3 -- internal command)
+ 
+ ENT3 is for use by internal programs only and should not be utilized by
+user-mode clients.  It does require IPGM authentication.  This command posts
+a raw message straight into the message base without modification or performing
+any checks.   It accepts the following arguments:
+ 
+  0  -  Post flag.  This should be set to 1 to post a message.  If it is
+set to 0, the server only returns OK or ERROR (plus any flags describing
+the error) without reading in a message.  This is used to verify the operation
+before actually transmitting a message.
+  1  -  Recipient.  This argument is utilized only for private mail messages.
+It is ignored for public messages.  It contains, of course, the name of the
+recipient of the message.
+  2  -  The size (in bytes) of the message to be transmitted.
+
+ ENT3 returns OK to tell the client that a message can be posted, ERROR if
+there would be a problem with the operation, or SEND_BINARY followed by a byte
+count if it is expecting the message to be transmitted.
+  
+  
+ TERM   (TERMinate another session)
+ 
+ In a multithreaded environment, it sometimes becomes necessary to terminate
+a session that is unusable for whatever reason.  The TERM command performs
+this task.  Naturally, only Aides can execute TERM.  The command should be
+called with a single argument: the session ID (obtained from an RWHO command)
+of the session to be terminated.
+ 
+ TERM returns OK if the session was terminated, or ERROR otherwise.  Note that
+a client program is prohibited from terminating the session it is currently
+running on.
+ 
+ 
+ NSET   (Network SETup commands)
+ 
+ Aides may use this command to configure the networker.  This command's
+parameters are passed directly to the 'netsetup' command line utility.   If
+netsetup returns a non-zero exit code, ERROR is returned, along with the
+error message (if any).  If netsetup returns a zero (success) exit code,
+LISTING_FOLLOWS is returned, followed by zero or more lines of output (since
+netsetup may have information to display, such as a room or node list) and
+the usual '000' listing terminator.
+ 
+ 
+ DOWN   (shut DOWN the server)
+ 
+ This command, which may only be executed by an Aide, immediately shuts down
+the server.  It is only implemented on servers on which such an operation is
+possible, such as a multithreaded Citadel engine.  The server does not restart.
+DOWN returns OK if the user is allowed to shut down the server, in which case
+the client program should expect the connection to be immediately broken.
+ 
+ 
+ SCDN   (Schedule or Cancel a shutDowN)
+ 
+ SCDN sets or clears the "scheduled shutdown" flag.  Pass this command a 1 or
+0 to respectively set or clear the flag.  When the "scheduled shutdown" flag is
+set, the server will be shut down when there are no longer any users logged in.
+Any value other than 0 or 1 will not change the flag, only report its state.
+No users will be kicked off the system, and in fact the server is still available
+for new connections.  The command returns ERROR if it fails; otherwise, it
+returns OK followed by a number representing the current state of the flag.
+ 
+ 
+ EMSG   (Enter a system MeSsaGe)
+ 
+ This is the opposite of the MESG command - it allows the creation and editing
+of system messages.  The only argument passed to EMSG is the name of the
+file being transmitted.  If the file exists in any system message directory
+on the server it will be overwritten, otherwise a new file is created.  EMSG
+returns SEND_LISTING on success or ERROR+HIGHER_ACCESS_REQUIRED if the user
+is not an Aide.
+ 
+ Typical client software would use MESG to retrieve any existing message into
+an edit buffer, then present an editor to the user and run EMSG if the changes
+are to be saved.
+ 
+ 
+ UIMG   (Upload an IMaGe file)
+ 
+ UIMG is complemenary to OIMG; it is used to upload an image to the server.
+The first parameter supplied to UIMG should be 0 if the client is only checking
+for permission to upload, or 1 if the client is actually attempting to begin
+the upload operation.  The second argument is the name of the file to be
+transmitted.  In Citadel/UX, the filename is converted to all lower case,
+appended with the characters ".gif", and stored in the "images" directory.
+  
+ UIMG returns OK if the client has permission to perform the requested upload,
+or ERROR+HIGHER_ACCESS_REQUIRED otherwise.  If the client requested to begin
+the operation (first parameter set to 1), an upload file is opened, and the
+client should begin writing to it with WRIT commands, then close it with a
+UCLS command.
+ 
+ The supplied filename should be one of:
+ 
+ ->  _userpic_   (Server will attempt to write to the user's online photo)
+ ->  Any of the "well known" filenames described in the writeup for the 
+     OIMG command.
+
+----------------------------------------------
+The following are for citserver 5.02 and above
+----------------------------------------------
+
+HCHG	(Hostname CHanGe)
+
+HCHG is a command, usable by any user, that allows a user to change their RWHO
+host value.  This will mask a client's originating hostname from normal
+users; access level 6 and higher see an entry right underneath the spoofed
+entry listing the actual hostname the user originates from.
+
+The format of an HCHG command is:
+
+HCHG <name>
+
+
+If a HCHG command is successful, the value OK (200) is returned.
+
+RCHG	(Roomname CHanGe)
+
+RCHG is a command, usable by any user, that allows a user to change their RWHO
+room value.  This will mask a client's roomname from normal users; access
+level 6 and higher see an entry right underneath the spoofed entry listing
+the actual room the user is in.
+
+The format of an RCHG command is:
+
+RCHG <name>
+
+If a RCHG command is successful, the value OK (200) is returned.
+
+UCHG	(Username CHanGe)
+
+UCHG is an aide-level command which allows an aide to effectively change their
+username.  If this value is blank, the user goes into stealth mode (see
+STEL).  Posts
+will show up as being from the real username in this mode, however.  In
+addition, the RWHO listing will include both the spoofed and real usernames.
+
+The format of an UCHG command is:
+
+UCHG <name>
+
+If a UCHG command is successful, the value OK (200) is returned.
+
+TIME	(Get server local TIME)
+
+TIME returns a string in the following format:
+
+ A|B
+
+Where A is OK (200), B is the current time measured in seconds since
+00:00:00 GMT, Jan 1, 1970.
+
+This is used in allowing a client to calculate idle times.
+
