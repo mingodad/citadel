@@ -738,7 +738,7 @@ void replace_string(char *filename, long int startpos)
 int client_make_message(CtdlIPC *ipc,
 		char *filename,		/* temporary file name */
 		char *recipient,	/* NULL if it's not mail */
-		int anon_type,		/* see MES_ types in header file */
+		int is_anonymous,
 		int format_type,
 		int mode,
 		char *subject)		/* buffer to store subject line */
@@ -772,7 +772,10 @@ int client_make_message(CtdlIPC *ipc,
 	}
 	else {
 		snprintf(header, sizeof header,
-			" %s from %s", datestr, fullname);
+			" %s from %s",
+			datestr,
+			(is_anonymous ? "[anonymous]" : fullname)
+			);
 		if (strlen(recipient) > 0) {
 			size_t tmp = strlen(header);
 			snprintf(&header[tmp], sizeof header - tmp,
