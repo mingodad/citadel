@@ -145,7 +145,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		}
 	}
 	else {
-		memcpy(&tm_now, localtime(&now), sizeof(struct tm));
+		localtime_r(&now, &tm_now);
 		tm_now.tm_year = atoi(bstr("year")) - 1900;
 		tm_now.tm_mon = atoi(bstr("month")) - 1;
 		tm_now.tm_mday = atoi(bstr("day"));

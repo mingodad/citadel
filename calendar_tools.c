@@ -74,17 +74,17 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	int all_day_event = 0;
 
 	now = time(NULL);
-	memcpy(&tm_now, localtime(&now), sizeof(struct tm));
+	localtime_r(&now, &tm_now);
 	this_year = tm_now.tm_year + 1900;
 
 	if (t == NULL) return;
 	if (t->is_date) all_day_event = 1;
 	tt = icaltime_as_timet(*t);
 	if (all_day_event) {
-		memcpy(&tm, gmtime(&tt), sizeof(struct tm));
+		gmtime_r(&tt, &tm);
 	}
 	else {
-		memcpy(&tm, localtime(&tt), sizeof(struct tm));
+		localtime_r(&tt, &tm);
 	}
 
 	wprintf("Month: ");
@@ -157,7 +157,7 @@ struct icaltimetype icaltime_from_webform(char *prefix) {
 	char vname[SIZ];
 
 	tt = time(NULL);
-	memcpy(&tm, localtime(&tt), sizeof(struct tm));
+	localtime_r(&tt, &tm);
 
 	sprintf(vname, "%s_month", prefix);	tm.tm_mon = atoi(bstr(vname)) - 1;
 	sprintf(vname, "%s_day", prefix);	tm.tm_mday = atoi(bstr(vname));

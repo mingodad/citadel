@@ -56,7 +56,7 @@ void calendar_month_view_display_events(time_t thetime) {
 		return;
 	}
 
-	memcpy(&today_tm, localtime(&thetime), sizeof(struct tm));
+	localtime_r(&thetime, &today_tm);
 	month = today_tm.tm_mon + 1;
 	day = today_tm.tm_mday;
 	year = today_tm.tm_year + 1900;
@@ -72,10 +72,10 @@ void calendar_month_view_display_events(time_t thetime) {
 			else all_day_event = 0;
 
 			if (all_day_event) {
-				memcpy(&event_tm, gmtime(&event_tt), sizeof(struct tm));
+				gmtime_r(&event_tt, &event_tm);
 			}
 			else {
-				memcpy(&event_tm, localtime(&event_tt), sizeof(struct tm));
+				localtime_r(&event_tt, &event_tm);
 			}
 
 lprintf(9, "Event: %04d/%02d/%02d, Now: %04d/%02d/%02d\n",
@@ -149,7 +149,7 @@ void calendar_month_view(int year, int month, int day) {
 	memcpy(&tm, &starting_tm, sizeof(struct tm));
 	while (tm.tm_mday != 1) {
 		thetime = thetime - (time_t)86400;	/* go back 24 hours */
-		memcpy(&tm, localtime(&thetime), sizeof(struct tm));
+		localtime_r(&thetime, &tm);
 	}
 
 	/* Determine previous and next months ... for links */
@@ -157,10 +157,10 @@ void calendar_month_view(int year, int month, int day) {
 	next_month = thetime + (time_t)(31L * 86400L);	/* ahead 31 days */
 
 	/* Now back up until we're on a Sunday */
-	memcpy(&tm, localtime(&thetime), sizeof(struct tm));
+	localtime_r(&thetime, &tm);
 	while (tm.tm_wday != 0) {
 		thetime = thetime - (time_t)86400;	/* go back 24 hours */
-		memcpy(&tm, localtime(&thetime), sizeof(struct tm));
+		localtime_r(&thetime, &tm);
 	}
 
 	/* Outer table (to get the background color) */
@@ -178,7 +178,7 @@ void calendar_month_view(int year, int month, int day) {
 
 	wprintf("<TD ALIGN=CENTER>");
 
-	memcpy(&tm, localtime(&previous_month), sizeof(struct tm));
+	localtime_r(&previous_month, &tm);
 	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
 	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/back.gif\" BORDER=0></A>\n");
@@ -189,7 +189,7 @@ void calendar_month_view(int year, int month, int day) {
 		"</FONT>"
 		"&nbsp;&nbsp;", months[month-1], year);
 
-	memcpy(&tm, localtime(&next_month), sizeof(struct tm));
+	localtime_r(&next_month, &tm);
 	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
 	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/forward.gif\" BORDER=0></A>\n");
@@ -209,7 +209,7 @@ void calendar_month_view(int year, int month, int day) {
 
 	/* Now do 35 days */
 	for (i = 0; i < 35; ++i) {
-		memcpy(&tm, localtime(&thetime), sizeof(struct tm));
+		localtime_r(&thetime, &tm);
 
 		/* Before displaying Sunday, start a new row */
 		if ((i % 7) == 0) {
@@ -485,7 +485,7 @@ void calendar_summary_view(void) {
 	}
 
 	now = time(NULL);
-	memcpy(&today_tm, localtime(&now), sizeof(struct tm));
+	localtime_r(&now, &today_tm);
 
 	for (i=0; i<(WC->num_cal); ++i) {
 		p = icalcomponent_get_first_property(WC->disp_cal[i].cal,
@@ -497,10 +497,10 @@ void calendar_summary_view(void) {
 			fmt_time(timestring, event_tt);
 
 			if (all_day_event) {
-				memcpy(&event_tm, gmtime(&event_tt), sizeof(struct tm));
+				gmtime_r(&event_tt, &event_tm);
 			}
 			else {
-				memcpy(&event_tm, localtime(&event_tt), sizeof(struct tm));
+				localtime_r(&event_tt, &event_tm);
 			}
 
 			if ( (event_tm.tm_year == today_tm.tm_year)
@@ -546,7 +546,7 @@ void do_calendar_view(void) {
 
 	/* In case no date was specified, go with today */
 	now = time(NULL);
-	memcpy(&tm, localtime(&now), sizeof(struct tm));
+	localtime_r(&now, &tm);
 	year = tm.tm_year + 1900;
 	month = tm.tm_mon + 1;
 	day = tm.tm_mday;
