@@ -1,4 +1,7 @@
  $Log$
+ Revision 572.35  2000/09/01 03:55:44  ajc
+ * Fixed a few more references to the deprecated uncnsrd.mt-kisco.ny.us name
+
  Revision 572.34  2000/09/01 03:43:09  ajc
  * Added 'author' command-line arg to aidepost.  Closes enhancement request
    #71 on bugzilla.
@@ -927,20 +930,20 @@ cmd_move() now uses CtdlDeleteMessages().
 WARNING: build is temporarily broken.  Currently removing all references
 to the "msglist" kept in CitContext.  It's ugly and must die.
 
-Thu Jul 22 22:26:50 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Thu Jul 22 22:26:50 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Moved message deletion into new API function CtdlDeleteMessages()
 	* Added CtdlWriteObject() to store generic data in the msgbase
 	* Fixed really dumb error that prevented network msgs from posting
 
-Tue Jul 20 22:14:54 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Tue Jul 20 22:14:54 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Moved the actual work done in cmd_msgs() into a new API function
 	  called CtdlForEachMessage() which is supplied a callback function.
 
-Mon Jul 19 23:24:18 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Jul 19 23:24:18 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Keep the (unqualified) content-type in the SuppMsgInfo record.  We'll
 	  be using this shortly to search rooms for specific object types.
 
-Sun Jul 18 14:53:16 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us> 
+Sun Jul 18 14:53:16 EDT 1999 Art Cancro <ajc@uncensored.citadel.org> 
 	* Changes to dynloader et al to handle ICQ module being written
 	* serv_icq.c, serv_icq.mk: added (separate makefile is temporary)
 
@@ -952,7 +955,7 @@ Sun Jul 18 14:53:16 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  being run as root.
 	* citadel.spec: chmod u+s chkpwd during %install stage
 
-Fri Jul 16 18:39:04 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Fri Jul 16 18:39:04 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* PEXP and GEXP no longer trip the idle time display
 	* Fixed bug which duplicated incoming private mail to Trashcan
 	* Improved auto-reconnect by NOT using SIGPIPE and longjmp(); also
@@ -960,7 +963,7 @@ Fri Jul 16 18:39:04 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Relaxed the security check in chkpwd.c a bit; it was just flat-out
 	  preventing logins on my system otherwise
 
-Thu Jul 15 22:57:32 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Thu Jul 15 22:57:32 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* eliminate redundant "name" parameter in [l]putuser(), now uses
 	  usbuf->fullname to guarantee the correct name for the index
 
@@ -969,12 +972,12 @@ Thu Jul 15 22:57:32 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* netproc.c: only include gdbm.h if HAVE_GDBM_H
 	* user_ops.c: warning fix
 
-Mon Jul 12 19:51:30 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Jul 12 19:51:30 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Mail is now saved in both sender and recipient mailboxes.  This is
 	  structured in a way that will allow a separate "outbox" room and/or
 	  multiple recipients in the future.
 
-Sun Jul 11 18:46:48 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Jul 11 18:46:48 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* netproc.c: msgfind() no longer uses the timestamp as a message-ID
 	  when no other message-ID is available (it screws up the loopzapper)
 	* room_ops.c: eliminate room name parameter in putroom() and its ilk;
@@ -985,41 +988,41 @@ Sun Jul 11 18:46:48 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Implemented msg reference count increment/decrement; delete messages
 	  whose reference count reaches zero
 
-Wed Jul  7 23:25:09 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Jul  7 23:25:09 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* control.c: create citadel.control if it doesn't exist (yikes!)
 	* serv_expire.c: purge mailbox rooms belonging to non-existent users
 	* user_ops.c: don't delete user's mailbox at user-delete time
 
-Mon Jul  5 17:01:29 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Jul  5 17:01:29 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* utilsmenu: removed menu items for defunct utilities
 
-Mon Jun 28 16:24:10 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Jun 28 16:24:10 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Changed any remaining references to UUCP, to "Internet" instead.
 
-Thu Jun 24 11:13:23 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Thu Jun 24 11:13:23 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* added server command line option "-f" to defrag databases on startup
 	* control.c: better performance and reliability in [get|put]_control()
 	* netproc.c: Finished the loopzapper
 
-Mon Jun 21 00:04:15 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Jun 21 00:04:15 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* netproc.c: started writing a vortex checker.  Not finished.
 
-Wed Jun  9 23:34:25 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Jun  9 23:34:25 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Replaced all code that generated temporary filenames with calls to
 	  tmpnam().  Rewrote using tmpfile() where possible.
 
-Thu Jun  3 11:35:18 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Thu Jun  3 11:35:18 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* base64.c: mapped fi and fo to stdin and stdout using
 	  actual code rather than assignment at declaration time
 	  (several users of Red Hat Linux 6.0 reported problems)
 
-Fri May 21 20:05:00 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Fri May 21 20:05:00 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Added function CtdlGetDynamicSymbol() for dynamic symbol allocation
 	* server.h: Changed discrete #define's to enum's where appropriate
 	* sysdep.c: Changed the startup message to give credit to the whole
 	  development team :)  Also made the message more GNU-ish.
 
-Thu May 20 20:01:30 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Thu May 20 20:01:30 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* database.c: print log messages for file defragmentations
 	* citserver.c: implemented CtdlAllocUserData() and CtdlGetUserData()
 	  for arbitrary per-session data storage (by modules etc.) without
@@ -1027,7 +1030,7 @@ Thu May 20 20:01:30 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* msgbase.c: removed "desired_section" from struct CitContext and
 	  implemented it using CtdlGetUserData() as a test.
 
-Wed May 19 19:30:28 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed May 19 19:30:28 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* commands.c, commands.h, routines.c: began color scheme changes
 
 1999-05-15 Nathan Bryant <bryant@cs.usm.maine.edu>
@@ -1047,34 +1050,34 @@ Wed May 19 19:30:28 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  invoked by root and BBSUID != 0
 	* Makefile.in: ignore errors while installing /etc/pam.d/citadel
 
-1999-04-27 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+1999-04-27 Art Cancro <ajc@uncensored.citadel.org>
 	* file_ops.c: fixed NDOP to not crash the server if it has trouble
 	  with a download file
 	* netpoll.c: upped default packet size
 
-Mon Apr 26 22:06:57 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Apr 26 22:06:57 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Repaired IGnorant security hole blunder re. citmail
 
-Sun Apr 25 12:44:08 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Apr 25 12:44:08 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* serv_chat.c: notify user of number of participants upon entering chat
 	* Built the 5.53 distribution
 
-Wed Apr 21 22:23:13 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Apr 21 22:23:13 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* aidepost.c: add -r flag to allow posting to rooms other than Aide>
 	* serv_expire.c: now posts transcripts of all auto-purged rooms/users
 
-Tue Apr 20 12:45:55 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Tue Apr 20 12:45:55 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* messages.c: downloading more than MAX_MSGS messages now truncates
 	  (off the beginning of the list) rather than crashing.
 
-Mon Apr 19 12:11:48 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Apr 19 12:11:48 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* whobbs.c: auto-detect when being called from a webserver, and act
 	  as a CGI (print HTTP headers and HTML output)
 
 1999-04-18 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* serv_chat.c: fixed some potential buffer overruns (thanks dme)
 
-Wed Apr 14 21:32:28 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Apr 14 21:32:28 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Makefile.in: chmod 4755 citmail to prevent citmail from aborting
 	  when called from sendmail due to citadel.config security check
 
@@ -1085,7 +1088,7 @@ Wed Apr 14 21:32:28 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  netproc.c, rcit.c, routines.c, serv_upgrade.c: fixed time_t handling
 	  (have to cast it to long for printf/scanf)
 
-Mon Apr 12 22:13:26 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Apr 12 22:13:26 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* aidepost.c: rewrote to unlink temp file before writing to it so that
 	  it will automatically go away if interrupted. Also ran indent -kr -i8
 
@@ -1100,7 +1103,7 @@ Mon Apr 12 22:13:26 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* configure.in: another OpenBSD fix, but we're still not quite there yet
 	* serv_chat.c: warning fix
 
-Thu Apr  8 22:51:28 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Thu Apr  8 22:51:28 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* config.c: now requires a setup run for *any* rev level difference
 	* Updated docs & confs for 5.53b1 release
 	* setup.c: sets the 0600 permission bits on citadel.config that
@@ -1113,7 +1116,7 @@ Thu Apr  8 22:51:28 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* locate_host.c, locate_host.h: more general interface
 	* configure.in, acconfig.h: fixes for Digital UNIX
 
-Wed Apr  7 21:36:16 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Apr  7 21:36:16 EDT 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Implemented "access level required to create rooms" (client & server)
 
 1999-04-07 Nathan Bryant <bryant@cs.usm.maine.edu>
@@ -1148,10 +1151,10 @@ Wed Apr  7 21:36:16 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* citadel.c: fix systems with SYSV-style signal handling (e.g. libc5)
 	* Makefile.in: New! Improved! Cleaner! Shinier!
 
-Sun Mar 21 14:21:47 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Mar 21 14:21:47 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* messages.c: cosmetic cleanups to message reading loop
 
-Sat Mar 13 21:33:19 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sat Mar 13 21:33:19 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* commands.c: use bright colors by default in color mode
 	* citserver.c: initialize wholist fields with (not logged in) etc.
 
@@ -1160,7 +1163,7 @@ Sat Mar 13 21:33:19 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  find module symbols
 	* database.c: bail out if opening databases fails
 
-Sat Mar  6 01:55:55 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sat Mar  6 01:55:55 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* serv_chat.c: use memfmout(), *not* cprintf() to transmit express
 	  messages.  Calling cprintf() on strings >256 bytes crashes the server
 	* msgbase.c: minor logging fix in save_message()
@@ -1176,11 +1179,11 @@ Sat Mar  6 01:55:55 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* sysdep.c: copyright 1987-1999; drop root perms; load modules and call
 	  master_startup() after dropping perms
 
-Wed Mar  3 00:00:55 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Mar  3 00:00:55 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Prevent buffer overruns in lowercase_name in [get|put]user()
 	* client_chat.c: use citedit() for page composition
 
-Sat Feb 27 07:47:36 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sat Feb 27 07:47:36 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* rooms.c: download_to_local_disk() prompts for a filename if a blank
 	  filename was supplied to it (for attachments without names)
 	* mime_parser.c: strip leading whitespace in content_type & disposition
@@ -1226,19 +1229,19 @@ Mon Feb 15 22:59:00 EST 1999 Vaggelis Tsirkas
 	  - include snprintf.h where needed
 	  - handle .exe suffixes for "make install"
 
-Tue Feb  2 22:15:08 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Tue Feb  2 22:15:08 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Overhauled the express messaging system (again)
 
-Mon Feb  1 19:48:04 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Feb  1 19:48:04 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* messages.c: implemented client download of MIME attachments
 
-Sun Jan 31 18:29:18 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Jan 31 18:29:18 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Added qpdecode.c to the distribution (decodes quoted-printable)
 	* Finished the MIME parser
 	* Gave MSG0 a reasonable behaviour for MIME messages
 	* Added the OPNA command for downloading attachments
 
-Sat Jan 30 18:39:53 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sat Jan 30 18:39:53 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Look for citadel.rc in current directory if not found elsewhere
 	* More work on the MIME parser
 	* Added base64.c to the distribution
@@ -1250,11 +1253,11 @@ Sat Jan 30 18:39:53 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  - handle `long' pid's
 	  - a few other little bits
 
-Mon Jan 25 21:23:07 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Jan 25 21:23:07 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Fixed bug in save_message() which crashed the server on mail to sysop
 	* Rewrote pop_march() to be smarter about <G>oto heuristics
 
-Sat Jan 23 14:32:19 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sat Jan 23 14:32:19 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Changed internal storage of express messages from a linked list to
 	  a single, resizable buffer.
 	* Added a "room order" key to the room record, to allow some control
@@ -1262,20 +1265,20 @@ Sat Jan 23 14:32:19 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Made the room list commands aware of the room order key.
 	* Overhauled <G>oto heuristics to pay attention to floor & room order
 
-Wed Jan 20 19:21:51 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Jan 20 19:21:51 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Added some more code to the unfinished MIME parser
 	* Changed module loading path to simply "modules" because after calling
 	  get_config(), the cwd is guaranteed to be the correct BBS directory.
 
-Tue Jan 19 21:28:29 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Tue Jan 19 21:28:29 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Fixed a bug in the user editing command (client side)
 	* Started a rewrite of the MIME parser
 
-Thu Jan 14 21:21:15 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Thu Jan 14 21:21:15 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Brought over the mime_parser from WebCit and began preliminary work
 	  on supporting MIME format messages.
 
-Tue Jan 12 22:30:00 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Tue Jan 12 22:30:00 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Various changes to begin work on support for MIME messages
 		- Defined format type 4 for MIME
 		- msgbase.c: *temporary* hacks in output_message() for Type 4
@@ -1284,10 +1287,10 @@ Tue Jan 12 22:30:00 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 		             SMTP server.
 		- Updated some of the technical documentation
 
-Sun Jan 10 13:34:36 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Jan 10 13:34:36 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Fixed access to page log room
 
-Fri Jan  8 12:35:09 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Fri Jan  8 12:35:09 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* control.c: include <limits.h> to fix PATH_MAX undefined
 	* serv_chat.c: made the following changes to cmd_sexp() --
 		* Send zero-length message to check only, don't send
@@ -1295,74 +1298,74 @@ Fri Jan  8 12:35:09 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 		  the SEND_LISTING transfer mode for a multi-line message
 	* Added facilities to log all pages to a room (site configurable)
 
-Tue Jan  5 23:24:52 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Tue Jan  5 23:24:52 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Replaced all occurances of malloc(), realloc(), and free() in the
 	  server and server-modules with mallok(), reallok(), and phree().
 	  Wrote macros and a set of leak-tracking functions.
 
-Sun Jan  3 20:38:45 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Jan  3 20:38:45 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Documentation changes
 
-Fri Jan  1 01:01:45 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Fri Jan  1 01:01:45 EST 1999 Art Cancro <ajc@uncensored.citadel.org>
 	* Fixed security problem relating to private rooms
 
-Wed Dec 30 20:10:52 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Dec 30 20:10:52 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* sysdep.c: put a bigger string buffer into lprintf() to avoid overruns
 
-Sat Dec 26 16:56:46 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sat Dec 26 16:56:46 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* internetmail.config: commented this file more clearly
 
-Wed Dec 23 20:42:49 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Dec 23 20:42:49 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* citadel.c: added some experimental code to automatically reconnect
 	  to the server if the connection is broken.  For some reason, it only
 	  works once.
 
-Wed Dec 23 18:47:12 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Dec 23 18:47:12 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* sysdep.c: ignore SIGPIPE.  This keeps broken connections from
 	  crashing the whole server.
 	* Tagged everything for the official 5.50 release.
 
-Mon Dec 21 07:54:20 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Dec 21 07:54:20 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* housekeeping.c: call kill_session() with session_to_kill,
 	  not ccptr->cs_pid (was crashing the server)
 
-Sat Dec 19 13:57:48 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sat Dec 19 13:57:48 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Added "-i" flag to netproc to make it skip the export phase.
 	  Updated other programs to call netproc in this way when appropriate.
 	* Updated network.txt to reflect the usage for netproc (which has
 	  been wrong for several releases)
 
-Thu Dec 17 00:17:04 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Thu Dec 17 00:17:04 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Started removing the word "beta" from the docs and code.
 	  Preparing for an actual release.
 	* msgbase.c: generate an 'I' field when requested (i.e. on locally
 	  originating messages.  this was breaking parts of the network)
 
-1998-12-15 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+1998-12-15 Art Cancro <ajc@uncensored.citadel.org>
 	* msgbase.c: remove extra call to alias() which was causing
 	  Citadel-to-Citadel mail to fall into the bit bucket.
 	* msgbase.c: fixed tempfile naming problem that could cause a new
 	  outgoing netmail message to overwrite another if netproc had not been
 	  run in between
 
-1998-12-14 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+1998-12-14 Art Cancro <ajc@uncensored.citadel.org>
 	* More session table stability nonsense
 
-Sun Dec 13 17:40:08 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Dec 13 17:40:08 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* sysdep.c, citserver.c: (hopefully) fixed a session table concurrency
 	  bug which was causing the server to occasionally crash.
 	* removed serv_test.so from the default build
 
-Fri Dec 11 18:50:00 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Fri Dec 11 18:50:00 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* setup.c: default value for maxsessions is now 0 (no limit)
 	* room_ops.c: don't allow users to create a room called "Mail"
 	* serv_expire.c: fixed "number of messages purged" display
 	* commands.c: when using color, default to low-intensity colors
 
-Tue Dec  8 07:58:16 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Tue Dec  8 07:58:16 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Beta 2
 
-Sat Dec  5 01:24:03 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sat Dec  5 01:24:03 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Added a new type of module hook for adding logging functions
 	* Removed whitespace to left and right of '@' in netmail recipients
 	* sysdep.c: read citadel.config _before_ initializing loadable modules
@@ -1377,7 +1380,7 @@ Sat Dec  5 01:24:03 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  exist (paranoia)
 	* setup.c: saner defaults for nodename and fqdn
 
-Wed Dec  2 20:37:05 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Dec  2 20:37:05 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* msgbase.c: modified AddMessageToRoom() and all functions that call it
 	  to use a more reliable/accurate method to set quickroom.QRhighest
 	* weekly.in: don't sort/purge filedir where filedir doesn't exist
@@ -1385,12 +1388,12 @@ Wed Dec  2 20:37:05 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 1998-12-02 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* weekly is now generated by configure
 
-Mon Nov 30 19:48:52 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Nov 30 19:48:52 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* room_ops.c: added sort_msglist() to move and save operations
 	* sendcommand.c: added (also updated utils.txt, weekly, Makefile.in)
 	* BETA 1
 
-Sun Nov 29 23:57:39 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Nov 29 23:57:39 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Fixed cmd_regi() to not display a second result code after xfer
 	* Makefile.in: Removed "chmod 4755 citmail netmailer"
 
@@ -1401,7 +1404,7 @@ Sun Nov 29 23:57:39 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Makefile.in: split install target into install-exec, install-data,
 	  and install-doc subtargets
 
-Sat Nov 21 16:53:30 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sat Nov 21 16:53:30 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Added a fourth color mode in the client: "user" which turns color
 	  on or off according to a per-user flag stored on the server.  Added
 	  server-side support for this too, of course.
@@ -1414,37 +1417,37 @@ Sat Nov 21 16:53:30 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* netproc.c: handled incoming file transfers to correct room directory
 	* room_ops.c: fixed incorrect naming of files in info and images dirs
 
-Fri Nov 20 20:29:07 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Fri Nov 20 20:29:07 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* setup.c: removed all prompts that can be configured from within the
 	  client in order to simplify the setup procedure
 
-Thu Nov 19 23:28:33 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Thu Nov 19 23:28:33 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Fixed serv_upgrade.c and export5.c (found elsewhere) to use a new
 	  export format which treats visits as a separate section
 	* serv_expire.c: began writing functions to purge rooms and visits
 	  (neither work yet), and added a way to call defrag_databases()
 
-Wed Nov 18 23:51:17 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Nov 18 23:51:17 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Reimplemented 'visit' structs stored globally instead of as
 	  lists-per-user
 
-Tue Nov 17 22:37:48 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Tue Nov 17 22:37:48 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Started implementing global room numbers.
 
-Sun Nov 15 20:32:34 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Nov 15 20:32:34 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* room_ops.c: mailbox rooms always appear on the main floor
 	* made QR_MAILBOX rooms non-editable
 	* cmd_setr() delete old room record when room name changes
 	  (This causes a big mess that exposes a flaw in the whole design.)
 	* room_ops.c: users can delete messages from their mailboxes
 
-Thu Nov 12 23:59:13 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Thu Nov 12 23:59:13 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Rewrote cmd_rchg() and also increased the size of the "fakename"
 	  buffer.  Overruns are probably what was causing the crashes.
 	* Changed the way cmd_ent3() handles mail messages; the previous code
 	  rerouted all private mail to the trash.
 
-Wed Nov 11 17:57:39 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Nov 11 17:57:39 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* citserver.c: slight changes to cmd_rchg() and cmd_hchg() [crashes]
 	* citserver.c, msgbase.c, user_ops.c: hide the owner-prefix of mail
 	  rooms in a couple more places: set_wtmpsupp() and make_message()
@@ -1457,7 +1460,7 @@ Wed Nov 11 17:57:39 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 1998-11-11 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* serv_upgrade.c: fix uninitialized variable
 
-Wed Nov 11 00:47:32 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Nov 11 00:47:32 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* msgbase.c: fixed a bug that was misrouting incoming network msgs
 	* server.h, database.c: wrapped all GDBM calls in critical sections
 	  to avoid making those calls re-entrantly (gdbm fatal: lseek error)
@@ -1471,13 +1474,13 @@ Wed Nov 11 00:47:32 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* commands.c, control.c, cux2ascii.c, file_ops.c, import.c,
 	  ipc_c_tcp.c: eliminate sprintf() calls
 
-Mon Nov  9 19:15:31 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Nov  9 19:15:31 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* serv_upgrade.c: added all missing fields to export/import
 	* serv_expire.c: support per-user purge time when purging users
 	* user_ops.c: added per-user purge time to AGUP and ASUP commands
 	* routines.c: added more stuff to <.A>ide <E>dit user
 
-Sun Nov  8 22:56:53 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Nov  8 22:56:53 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* serv_expire.c: created; moved message expiry from serv_test.c,
 	  moved user purge from userpurge.c
 	* userpurge.c: deleted
@@ -1491,11 +1494,11 @@ Sun Nov  8 22:56:53 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* sysdep.c: fix overrun in lprintf() described by dme/Dead Monkey
 	* citmail.c, citserver.c: convert all sprintf() call to snprintf()
 
-Sun Nov  8 13:19:36 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Nov  8 13:19:36 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* useradmin.c: removed
 	* utils.doc: removed references to useradmin and sysoputil
 
-Fri Nov  6 20:22:20 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Fri Nov  6 20:22:20 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* citadel.h (and related files): removed defunct parameters,
 	  c_defent and c_msgbase (erase your test bbs)
 	* Implemented CONF server command for site-global configs
@@ -1511,18 +1514,18 @@ Fri Nov  6 20:22:20 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* added RCS Id keyword strings to sources
 	* citmail.c: reverted to version 1.10
 
-Wed Nov  4 10:53:13 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Nov  4 10:53:13 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* messages.c: temporarily set screenwidth to a fixed value of 80
 	  during <P>rint operations.
 
-Mon Nov  2 12:59:03 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Nov  2 12:59:03 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* setup.c: looks for 'citadel', 'bbs', or 'guest' in /etc/passwd to
 	  try to get a default for bbsuid if it's currently set to 0
 	* citmail.c: changed usersupp.eternal to usersupp.usernum (why didn't
 	  it complain about this before?)
 	* serv_upgrade.c: began writing an "export" command to do sidegrades
 
-Sun Nov  1 18:47:42 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Nov  1 18:47:42 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* serv_upgrade.c: cosmetic changes
 	* Implemented message expiry by date (this really needs to be moved
 	  out of serv_test.c, but where does it belong?)
@@ -1532,7 +1535,7 @@ Sun Nov  1 18:47:42 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* acconfig.h: remove ANSI_COLOR
 	* Configure, Makefile.tmpl: removed
 
-Sat Oct 31 20:48:44 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sat Oct 31 20:48:44 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* More stoopid ANSI colour additions here and there.
 	* ANSI colour selection is now in citadel.rc instead of an option in
 	  the configure script.  "on" "off" and "auto" are available.
@@ -1549,7 +1552,7 @@ Sat Oct 31 20:48:44 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  terminal doesn't send the answerback sequence to the shell if we
 	  can't connect.
 
-Wed Oct 28 20:20:14 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us
+Wed Oct 28 20:20:14 EST 1998 Art Cancro <ajc@uncensored.citadel.org
 	* citadel.c: Added a splash of colour to the Wholist
 
 1998-10-28 Nathan Bryant <bryant@cs.usm.maine.edu>
@@ -1563,7 +1566,7 @@ Wed Oct 28 20:20:14 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us
 	* configure.in, Makefile.in: only pass -fPIC to gcc
 	* policy.c: warning fix for OSF/1 (use memset() instead of bzero())
 
-Tue Oct 27 22:25:42 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Tue Oct 27 22:25:42 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Unified the "unpacked database" format for both upgrades and
 	  sidegrades (also see export5.c elsewhere)
 	* citserver.c: clear out cmdbuf before reading a command; some server
@@ -1576,17 +1579,17 @@ Tue Oct 27 22:25:42 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  of long lines. 
 	* Makefile.in: partial support for VPATH builds, autodependency fix
 
-Tue Oct 27 00:08:16 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Tue Oct 27 00:08:16 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* minor documentation changes
 
-Sun Oct 25 14:57:40 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Oct 25 14:57:40 EST 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* messages.c: fixed an oversight that was allowing attachments even
 	  when disabled in citadel.rc
 
 1998-10-25 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* routines2.c: warning fix
 
-Sat Oct 24 22:07:56 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sat Oct 24 22:07:56 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Client: added message expiration policy questions to room edit
 	* Client: added <.A>ide <S>ystem configuration command
 
@@ -1598,13 +1601,13 @@ Sat Oct 24 22:07:56 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  portability fixes for older Unix make utilities
 	* citadel.c, citadel.h, commands.c: make client suspendable
 
-Fri Oct 23 19:34:38 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Fri Oct 23 19:34:38 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* setup.c: default node name is now obtained from uname()
 	* config.c: added put_config()
 	* policy.c: added, moved GetExpirePolicy() from room_ops.c
 	* policy.c: implemented cmd_gpex() and cmd_spex()
 
-Wed Oct 21 22:24:48 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Oct 21 22:24:48 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Mail rooms now hide their owner-prefix from the client.
 	* proxy.c: added configurability and primitive message expiry
 
@@ -1613,7 +1616,7 @@ Wed Oct 21 22:24:48 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* configure.in: autologin defaults to enabled if crypt() is available
 	* room_ops.c: fix improper null-termination bug I introduced
 
-Mon Oct 19 20:52:55 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Oct 19 20:52:55 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Client ability to force display of prompts in Mail rooms, even when
 	  the user has prompting turned off (citadel.rc option)
 
@@ -1621,7 +1624,7 @@ Mon Oct 19 20:52:55 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* sysdep.c (cprintf): generate a newline on truncated buffer
 	* room_ops.c: exploitable overrun fixes
 
-Thu Oct 15 19:27:32 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Thu Oct 15 19:27:32 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* msgbase.c: reimplemented cmd_move()
 	  room_ops.c: wrote AddMessageToRoom() which is used for both entering
 	  and moving messages.
@@ -1629,14 +1632,14 @@ Thu Oct 15 19:27:32 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  messages, 150" is now a default configuration instead of a temp hack
 	* proxy.c: cache dir create now dies on any error except EEXIST
 
-Wed Oct 14 22:41:16 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Oct 14 22:41:16 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Misc code cleanup
 
 1998-10-13 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* configure.in: don't check for -lcrypt unless autologin is enabled
 	* file_ops.c: fix another overrun
 
-Mon Oct 12 15:27:21 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Oct 12 15:27:21 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Killed the "rooms" subdirectory (it isn't used anymore)
 	* dynloader.c: Made dynamically added server commands case-insensitive
 	* import.c is now serv_upgrade.c, a module
@@ -1655,14 +1658,14 @@ Mon Oct 12 15:27:21 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* serv_upgrade.sh: remove uncnsrd-dependent absolute path
 	* .cvsignore: add *.ro
 
-Sun Oct 11 23:17:48 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Oct 11 23:17:48 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Built some more of the message expiry infrastructure
 
 1998-10-11 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* citserver.c: fix two more overruns, one of which was preventing
 	  the "From Host" from showing up in the <W>ho listing.
 
-Sun Oct 11 02:51:55 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Oct 11 02:51:55 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Moved "struct visit" and its associated defs from citadel.h to
 	  server.h where they belong
 	* Set up data structures for room policies (expiry, etc.)
@@ -1671,7 +1674,7 @@ Sun Oct 11 02:51:55 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* citserver.c: fix overrun which caused segv's on servers with long
 	  hostnames.
 
-Fri Oct  9 18:34:06 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Fri Oct  9 18:34:06 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* user_ops.c: added PurgeStaleRelationships() to do processing at
 	  session logout time to remove visits for rooms which no longer exist
 	* user_ops.c: implemented NewMailCount()
@@ -1682,18 +1685,18 @@ Fri Oct  9 18:34:06 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  and cleaned up some other strncpy()-related stuff. DON'T FORGET TO
 	  NULL-TERMINATE DESTINATION BUFFERS AFTER STRNCPY CALLS.
 
-Fri Oct  9 13:22:37 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Fri Oct  9 13:22:37 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Implemented "lazy mode" traversal - pressing the space bar will do
 	  <N>ext messsage, <G>oto next room, or read <N>ew as appropriate.
 	* room_ops.c: modify CtdlRoomAccess() to allow access to mailbox rooms
 	  only to their owners.
 
-Thu Oct  8 17:13:27 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Thu Oct  8 17:13:27 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* messages.c, citadel.rc: added the ability to display message numbers
 	  in the header when reading messages.  I think this is butt ugly, but
 	  some of the DaveCode afficionados seem to like it...
 
-Thu Oct  8 15:34:45 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Thu Oct  8 15:34:45 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* room_ops.c: Added is_noneditable() function to replace all of the
 	  duplicated code present in all functions which edit room parameters.
 
@@ -1719,10 +1722,10 @@ Thu Oct  8 15:34:45 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* client_chat.c, commands.c, serv_chat.c, sysdep.c:
 	  use HAVE_SYS_SELECT_H macro
 
-Mon Oct  5 17:01:32 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Oct  5 17:01:32 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Began fixing the stuff I broke
 
-Sun Oct  4 23:35:18 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Oct  4 23:35:18 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Did the big migration to the new data structures.  Lots of stuff is
 	  now broken.  Basic moving from room to room works, but Mail is
 	  broken, and some of the administrative commands are unimplemented.
@@ -1730,16 +1733,16 @@ Sun Oct  4 23:35:18 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 1998-10-02 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* configure.in: autologin now defaults to disabled
 
-Fri Oct  2 00:04:31 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Fri Oct  2 00:04:31 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Finally removed all three usersupp.foo[MAXROOMS] elements, and
 	  migrated all the code that used them to use "struct visit" instead.
 
-Thu Oct  1 23:02:20 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Thu Oct  1 23:02:20 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Rewrote [l][get|put]room() functions to use room names rather than
 	  room index numbers.  Temporarily prepended a "n" to these four
 	  function names until they are put to use.
 
-Thu Oct  1 16:27:13 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Thu Oct  1 16:27:13 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Removed a few more references to usersupp.lastseen[]
 
 1998-10-01 Nathan Bryant <bryant@cs.usm.maine.edu>
@@ -1764,7 +1767,7 @@ Thu Oct  1 16:27:13 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* config.guess, config.sub, install-sh: new files
 	* configure.in: don't use gcc on Digital Unix
 
-Tue Sep 29 23:17:34 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Tue Sep 29 23:17:34 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* room_ops.c: modified usergoto() to look at the new data structures
 	  for counting new messages and such.
 
@@ -1774,7 +1777,7 @@ Tue Sep 29 23:17:34 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* configure.in, Makefile.in: only build the server if we find pthreads
 	* Makefile.in: realclean removes config.{cache,log,status}
 
-Tue Sep 29 13:20:14 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Tue Sep 29 13:20:14 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Removed code from some of the utilities which was still attempting
 	  to access the old non-gdbm data store.
 	* housekeeping.c: rewrote check_ref_counts() to do a ForEachRoom()
@@ -1782,13 +1785,13 @@ Tue Sep 29 13:20:14 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* sysdep.c: set up a dummy CitContext record to be used during server
 	  startup, during which time there is no real context.
 
-Mon Sep 28 23:51:51 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Sep 28 23:51:51 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Implemented the function ForEachRoom() to handle all-rooms traversal
 	  (this will work with both the old and new paradigms, because both
 	  use a GDBM database with one room per record).  Migrated all room
 	  list commands to use it.
 
-Mon Sep 28 22:05:35 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Sep 28 22:05:35 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Implemented the function CtdlRoomAccess() to handle *all* of the
 	  user-access-to-rooms functionality.  Migrated all room list commands
 	  to use it.  Still need to migrate gotos.
@@ -1811,21 +1814,21 @@ Mon Sep 28 22:05:35 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  exists.
 	* setup.c, useradmin.c: use HAVE_CURSES_H macro
 
-Sun Sep 27 23:41:29 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Sep 27 23:41:29 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* BOTH the old and new generation systems are being written to at
 	  this point.  Code that reads stuff is still using the old system.
 
-Sun Sep 27 16:10:49 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Sep 27 16:10:49 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Changed all "generation" variables from char to long, in preparation
 	  for removing MAXROOMS.  Generations for new rooms are now timestamps.
 	* Defined "struct visit" to hold user/room relationships.
 	* Removed some #define's from citadel.h that are no longer used.
 
-Wed Sep 23 13:41:49 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Sep 23 13:41:49 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* More changes to support attachments.  They mostly work, but only
 	  in fixed-format messages.
 
-Mon Sep 21 21:19:17 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Sep 21 21:19:17 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* msgbase.c: began laying the groundwork to support attachments.
 	  Purchased Rogaine(tm) in preparation for expected hair loss.
 
@@ -1834,11 +1837,11 @@ Mon Sep 21 21:19:17 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* citadelapi.h: removed
 	* dynloader.h: prototype CtdlRegisterUserHook()
 
-Sun Sep 20 18:56:37 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Sep 20 18:56:37 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Added a UserFunctionHook category to implement hooks which perform
 	  operations on various users or usernames
 
-Fri Sep 18 21:14:41 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Fri Sep 18 21:14:41 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* citserver.c: removed cmd_extn() and related code
 
 1998-09-18 Nathan Bryant <bryant@cs.usm.maine.edu>
@@ -1846,10 +1849,10 @@ Fri Sep 18 21:14:41 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* roomstats.{c,mk}: removed
 	* Configure, Makefile.in: autodependency-related fixes
 
-Thu Sep 17 22:55:29 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Thu Sep 17 22:55:29 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Various changes to allow "new messages" to work correctly with Mail
 
-Thu Sep 17 22:21:45 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Thu Sep 17 22:21:45 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* server.h, dynloader.c, citserver.c, user_ops.c: reduced the number
 	  of hook types by inventing an EventType field to the Session hook.
 	* proxy.c: added pre-fetching
@@ -1869,7 +1872,7 @@ Thu Sep 17 22:21:45 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  in use?)
 	* Configure, Makefile.in: added autodependency support
 
-Wed Sep 16 22:25:13 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Sep 16 22:25:13 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Implemented separate structs, lists, and functions for each type
 	  of server-side hook available.
 
@@ -1879,7 +1882,7 @@ Wed Sep 16 22:25:13 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* hooks.h: removed
 	* sysdep.c, user_ops.c: removed reference to hooks.h
 
-Wed Sep 16 11:42:42 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Sep 16 11:42:42 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* ipc_c_tcp.c: Reversed any changes that have been made to this file,
 	  because something was causing abominally slow response time.
 	* proxy.c: added.  This will eventually become a caching, pre-fetching
@@ -1892,7 +1895,7 @@ Wed Sep 16 11:42:42 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* dynloader.h: prototype CtdlRegisterHook()
 	* .cvsignore: added data
 
-Mon Sep 14 20:49:08 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Sep 14 20:49:08 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Tried my hand at adding the ability for server extensions to
 	  register various types of "hooks" in addition to just adding
 	  server commands.  This is probably not final.
@@ -1901,12 +1904,12 @@ Tue Sep  8 12:11:56 EDT 1998 Brian Costello <btx@calyx.net>
 	* Added support for dynamic server modules.  Reworked serv_chat.c
 	  to be such a module.
 
-Tue Sep  1 23:09:50 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Tue Sep  1 23:09:50 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* userpurge.c: rewrote using functions from the server core, rather
 	  than the now-defunct external API.  This'll be ready once the module
 	  loading code is done.  (I just had to commit _something_ tonight.)
 
-Mon Aug 31 22:47:58 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Aug 31 22:47:58 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Yanked the citadelapi.c module.  This wasn't working out well.
 	* techdocs/citadelapi.txt - began documenting the new API to be used
 	  by modules which will be dynamic linked into the server - most of
@@ -1914,7 +1917,7 @@ Mon Aug 31 22:47:58 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Added a ForEachUser() function with callback mechanism, and reworked
 	  cmd_list() to use it.
 
-Sun Aug 30 21:52:43 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Aug 30 21:52:43 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Moved all of the gdbm databases to a separate "data" directory.
 
 1998-08-26 Nathan Bryant <bryant@cs.usm.maine.edu>
@@ -1927,7 +1930,7 @@ Sun Aug 30 21:52:43 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  citadel_decls.h, commands.c, messages.h, routines.h, routines2.h:
 	  remove duplicated declarations
 
-Mon Aug 24 23:45:01 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Aug 24 23:45:01 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* setup.c: Removed yesno_s()
 	* citadel.h, room_ops.c: added QRmtime field to struct quickroom,
 	  modified whenever a room is modified or posted in.
@@ -1939,10 +1942,10 @@ Mon Aug 24 20:04:04 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* proto.h: is bad. eliminate. I've moved the prototypes into several
 	  header files, one per .c file
 
-Mon Aug 24 00:45:55 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Aug 24 00:45:55 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Added a CtdlGotoRoom() function to the CitadelAPI.
  
-Sun Aug 23 21:47:00 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Aug 23 21:47:00 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* sysoputil is finally dead!  Removed it from the build.
 	* Added userpurge.c server extension (initial implementation)
 
@@ -1956,37 +1959,37 @@ Tue Aug 18 00:42:33 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 	  declarations still should be moved to header files. proto.h must die
 	  as well, IMHO.
 
-Mon Aug 17 23:52:13 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Aug 17 23:52:13 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Implemented a bunch of user account related functions in the
 	  CitadelAPI library.
 
-Mon Aug 17 20:01:18 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Aug 17 20:01:18 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Fixed the crash problem.  It wasn't AGUP/ASUP, but rather a buffer
 	  overrun in getuser() (thanks, Nathan).  Implemented overrun checks
 	  in getuser(), getroom(), and getfloor() to prevent future problems.
 
-Mon Aug 17 00:06:52 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Aug 17 00:06:52 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Updated citmail.c with the latest stuff from the production system.
 	* Implemented AGUP and ASUP commands, but AGUP crashes the server
 	  after its first successful use (user-not-found's don't affect it).
 
-Thu Aug  6 19:25:01 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Thu Aug  6 19:25:01 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Got the CitadelAPI library to the point where the server can start
 	  up an extension, and the extension will connect to the server, do
 	  some initialization, call a user-supplied CtdlMain(), and exit.  Also
 	  hacked together a _temporary_ form of the new EXTN server command.
  
-Wed Aug  5 23:02:22 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Wed Aug  5 23:02:22 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Second attempt at getting the server API started.  Now it runs
 	  outside of the server and builds a connection.
 
-Tue Aug  4 18:33:06 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Tue Aug  4 18:33:06 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Modified the appearance of Internet addresses when they arrive on
 	  a Citadel system.
 	* Removed the <E> field from the message format writeup in hack.txt.
 	* Fixed-up citmail.c so that it doesn't try to do database lookups.
 
-Mon Aug  3 23:01:37 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Mon Aug  3 23:01:37 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Started developing the server-side API.  This is in its very
 	  initial stages.  See serverapi.c and techdoc/api.txt
 
@@ -2014,7 +2017,7 @@ Sun Jul 19 17:26:12 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 	  top.
 	* .cvsignore: added userlist
 
-Sun Jul 12 20:58:59 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Sun Jul 12 20:58:59 EDT 1998 Art Cancro <ajc@uncensored.citadel.org>
         * Finished migrating everything to the new data store.
         * Replaced the binary "calllog" with the ASCII "citadel.log"
         * Began converting broken utilities that depend on the old data store
@@ -2022,6 +2025,6 @@ Sun Jul 12 20:58:59 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* Makefile.in: removed msgstats
 
-Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
 

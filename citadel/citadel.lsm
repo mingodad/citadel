@@ -7,11 +7,11 @@ Description:    An advanced messaging system which can be used for BBS,
 		multithreaded, client/server, database driven, and
 		accessible via a growing selection of front ends.
 Keywords:       Citadel Citadel/UX UNIX POSIX room-based BBS IGnet IGnet/Open
-Author:         Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
-Maintained-by:  Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
-Primary-site:	uncnsrd.mt-kisco.ny.us
+Author:         Art Cancro <ajc@uncensored.citadel.org>
+Maintained-by:  Art Cancro <ajc@uncensored.citadel.org>
+Primary-site:	uncensored.citadel.org
 Alternate-site:	ftp.tux.org
-Original-site:	uncnsrd.mt-kisco.ny.us
+Original-site:	uncensored.citadel.org
 Platform:	Any reasonably compliant POSIX (Unix, Linux, etc.) type
 		system with a TCP/IP stack and POSIX Threads (pthreads).
 Copying-Policy: GPL

@@ -5,7 +5,7 @@
 # uses "Makefile.in" to generate a "Makefile".  In the rare instance
 # that you have to modify something here, please take note:
 # 1. Edit Makefile.in, -not- Makefile.
-# 2. Send e-mail to ajc@uncnsrd.mt-kisco.ny.us and let me know what you
+# 2. Send e-mail to ajc@uncensored.citadel.org and let me know what you
 #    did, so any necessary changes can be put into the next release.
 #
 # $Id$

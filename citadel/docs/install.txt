@@ -320,7 +320,7 @@ less every day.
   
    That's just about all the information you need to install the system.
 For more information, visit the Citadel/UX web site at UNCENSORED! BBS,
-http://uncnsrd.mt-kisco.ny.us
+http://uncensored.citadel.org
  
    Please note: if you intend to report a problem getting the Citadel server
 to run, please first check the following:

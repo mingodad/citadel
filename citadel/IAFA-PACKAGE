@@ -5,9 +5,9 @@ Description:    An advanced messaging system which can be used for BBS,
 		online community applications.  It is multithreaded,
 		client/server, database drive, and accessible via a
 		growing selection of front ends.
-Author:         Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
-Maintained-by:  Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
-Maintained-at:  uncnsrd.mt-kisco.ny.us, ftp.tux.org
+Author:         Art Cancro <ajc@uncensored.citadel.org>
+Maintained-by:  Art Cancro <ajc@uncensored.citadel.org>
+Maintained-at:  uncensored.citadel.org, ftp.tux.org
 Platforms:      Any reasonably compliant POSIX (Unix, Linux, etc.) type
                 system with a TCP/IP stack and POSIX Threads (pthreads).
 Copying-Policy: Freely Redistributable
