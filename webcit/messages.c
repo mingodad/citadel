@@ -400,6 +400,10 @@ void read_message(long msgnum) {
 
 	wprintf("</TR></TABLE>\n");
 
+	/* Begin body */
+	wprintf("<TABLE BORDER=0 WIDTH=100%% BGCOLOR=#FFFFFF "
+		"CELLPADDING=0 CELLSPACING=0><TR><TD>");
+
 	/* 
 	 * Learn the content type
 	 */
@@ -407,7 +411,7 @@ void read_message(long msgnum) {
 	while (serv_gets(buf), (strlen(buf) > 0)) {
 		if (!strcmp(buf, "000")) {
 			wprintf("<I>unexpected end of message</I><BR><BR>\n");
-			return;
+			goto ENDBODY;
 		}
 		if (!strncasecmp(buf, "Content-type: ", 14)) {
 			safestrncpy(mime_content_type, &buf[14],
@@ -495,6 +499,8 @@ void read_message(long msgnum) {
 		part_source = NULL;
 	}
 
+ENDBODY:
+	wprintf("</TD></TR></TABLE>\n");
 }
 
 
