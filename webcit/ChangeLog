@@ -1,4 +1,8 @@
 $Log$
+Revision 504.5  2004/02/18 19:17:51  ajc
+* Force reload of frameset if someone tries to escape it.  Not perfect
+  but it mostly works at this poing.
+
 Revision 504.4  2004/02/17 03:37:11  ajc
 * Indicate to Citadel that we want Server Generated Invitations when
   calendar events are saved.  (No longer the default in Citadel server.)
@@ -1650,3 +1654,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

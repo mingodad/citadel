@@ -288,6 +288,7 @@ void output_headers(int controlcode)
 	int suppress_check = 0;
 	int cache = 0;
 	char httpnow[SIZ];
+	char onload_fcn[SIZ];
 	static int pageseq = 0;
 	print_standard_html_head	=	controlcode & 0x03;
 	refresh30			=	((controlcode & 0x04) >> 2);
@@ -329,6 +330,17 @@ void output_headers(int controlcode)
 		else svprintf("REFRESHTAG", WCS_STRING,
 			"<META HTTP-EQUIV=\"refresh\" CONTENT=\"500363689;\">\n");
 		/* script for checking for pages (not always launched) */
+
+		sprintf(onload_fcn, "function onload_fcn() { \n");
+		if (!WC->outside_frameset_allowed) {
+			strcat(onload_fcn, "  force_frameset();  \n");
+		}
+		if (!suppress_check) if (WC->HaveExpressMessages) {
+			strcat(onload_fcn, "  launch_page_popup();  \n");
+			WC->HaveExpressMessages = 0;
+		}
+		strcat(onload_fcn, "} \n");
+
 		svprintf("PAGERSCRIPT", WCS_STRING,
 			"<SCRIPT LANGUAGE=\"JavaScript\">\n"
 			"function launch_page_popup() {\n"
@@ -336,23 +348,24 @@ void output_headers(int controlcode)
 			"'toolbar=no,location=no,copyhistory=no,status=no,"
 			"scrollbars=yes,resizable=no,height=250,width=400');\n"
 			"}\n"
+			"function force_frameset() { \n"
+			" if (top.frames.length == 0) { \n"
+			"  top.location.replace('/static/mainframeset.html'); \n"
+			" } \n"
+			"} \n"
+			"%s\n"
 			"</SCRIPT>\n",
-			++pageseq
+			++pageseq,
+			onload_fcn
 		);
 		/* end script */
 
-		if (!WC->outside_frameset_allowed) {
-			/* FIXME put this here */
-		}
 
 		do_template("head");
 		clear_local_substs();
 
-		if (!suppress_check) if (WC->HaveExpressMessages) {
-			svprintf("extrabodyparms", WCS_STRING, "%s", 
-				"onload=\"launch_page_popup()\" ");
-			WC->HaveExpressMessages = 0;
-		}
+		svprintf("extrabodyparms", WCS_STRING, "%s", 
+			"onload='onload_fcn();' ");
 
 		do_template("background");
 		clear_local_substs();
