@@ -74,6 +74,19 @@ unsigned long SYM_VCARD;
 
 
 /*
+ * set global flag calling for an aide to validate new users
+ */
+void set_mm_valid(void) {
+	begin_critical_section(S_CONTROL);
+	get_control();
+	CitControl.MMflags = CitControl.MMflags | MM_VALID ;
+	put_control();
+	end_critical_section(S_CONTROL);
+}
+
+
+
+/*
  * Extract Internet e-mail addresses from a message containing a vCard, and
  * perform a callback for any found.
  */
@@ -374,6 +387,16 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			vcard_populate_cs_inet_email(v);
 			vcard_free(v);
 
+			/* Some sites want an Aide to be notified when a
+			 * user registers or re-registers...
+			 */
+			set_mm_valid();
+
+			/* ...which also means we need to flag the user */
+			lgetuser(&CC->usersupp, CC->curr_user);
+			CC->usersupp.flags |= (US_REGIS|US_NEEDVALID);
+			lputuser(&CC->usersupp);
+
 			return(0);
 		}
 
@@ -528,19 +551,7 @@ void cmd_regi(char *argbuf) {
 	vcard_set_prop(my_vcard, "adr", tmpaddress, 0);
 	vcard_write_user(&CC->usersupp, my_vcard);
 	vcard_free(my_vcard);
-
-	lgetuser(&CC->usersupp, CC->curr_user);
-	CC->usersupp.flags=(CC->usersupp.flags|US_REGIS|US_NEEDVALID);
-	lputuser(&CC->usersupp);
-
-	/* set global flag calling for validation */
-	begin_critical_section(S_CONTROL);
-	get_control();
-	CitControl.MMflags = CitControl.MMflags | MM_VALID ;
-	put_control();
-	end_critical_section(S_CONTROL);
 }
-
 
 
 /*

@@ -1,4 +1,9 @@
  $Log$
+ Revision 607.6  2003/06/25 02:40:05  ajc
+ * Per-user and global flags calling for validation need to be set in the
+   vCard upload thingie, not in the wrapper function that emulates the
+   deprecated REGI server command.  Moved it to the correct place.
+
  Revision 607.5  2003/06/22 20:49:31  error
  * citadel.c: display idle times in wholist up to 999 days
 
@@ -4780,4 +4785,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
