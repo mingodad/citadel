@@ -175,8 +175,8 @@ install_ical () {
 	if [ -r $SUMFILE ] ; then
 		OLDSUM=`cat $SUMFILE`
 		if [ $SUM = $OLDSUM ] ; then
-		echo "* libical does not need updating."
-		return;
+			echo "* libical does not need updating."
+			return
 		fi
 	fi
 	echo "* Installing libical..."
@@ -198,8 +198,8 @@ install_db () {
 	if [ -r $SUMFILE ] ; then
 		OLDSUM=`cat $SUMFILE`
 		if [ $SUM = $OLDSUM ] ; then
-		echo "* Berkeley DB does not need updating."
-		return;
+			echo "* Berkeley DB does not need updating."
+			return
 		fi
 	fi
 	echo "* Installing Berkeley DB..."
@@ -222,8 +222,8 @@ install_ldap () {
 	if [ -r $SUMFILE ] ; then
 		OLDSUM=`cat $SUMFILE`
 		if [ $SUM = $OLDSUM ] ; then
-		echo "* OpenLDAP does not need updating."
-		return;
+			echo "* OpenLDAP does not need updating."
+			return
 		fi
 	fi
 	echo "* Installing OpenLDAP..."
@@ -295,8 +295,8 @@ install_sources () {
 	if [ -r $SUMFILE ] ; then
 		OLDSUM=`cat $SUMFILE`
 		if [ $SUM = $OLDSUM ] ; then
-		echo "* Citadel does not need updating."
-		DO_INSTALL_CITADEL=no
+			echo "* Citadel does not need updating."
+			DO_INSTALL_CITADEL=no
 		fi
 	fi
 
@@ -330,8 +330,8 @@ install_sources () {
 	if [ -r $SUMFILE ] ; then
 		OLDSUM=`cat $SUMFILE`
 		if [ $SUM = $OLDSUM ] ; then
-		echo "* WebCit does not need updating."
-		DO_INSTALL_WEBCIT=no
+			echo "* WebCit does not need updating."
+			DO_INSTALL_WEBCIT=no
 		fi
 	fi
 
