@@ -258,10 +258,11 @@ clean:
 
 cleaner: clean
 	rm -f $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) \
-		$(SERV_MODULES) $(PROXY_TARGETS) so_locations
+		modules/*.[ms]o $(PROXY_TARGETS) so_locations
 
 distclean: cleaner
 	rm -f Makefile sysdep.h config.cache config.log config.status *.d weekly
+	rm -f `find . -name '*~'` `find . -name '.#*'`
 
 .c.d:
 	@echo Checking dependencies for $<
