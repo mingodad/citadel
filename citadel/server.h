@@ -273,14 +273,16 @@ struct SuppMsgInfo {
 /* Built-in debuggable stuff for checking for memory leaks */
 #ifdef DEBUG_MEMORY_LEAKS
 
-#define mallok(howbig)	tracked_malloc(howbig, __FILE__, __LINE__)
-#define phree(whichptr)	tracked_free(whichptr)
+#define mallok(howbig)		tracked_malloc(howbig, __FILE__, __LINE__)
+#define phree(whichptr)			tracked_free(whichptr)
 #define reallok(whichptr,howbig)	tracked_realloc(whichptr,howbig)
+#define strdoop(orig)		tracked_strdup(orig, __FILE__, __LINE__)
 
 void *tracked_malloc(size_t, char *, int);
 void tracked_free(void *);
 void *tracked_realloc(void *, size_t);
 void dump_tracked(void);
+char *tracked_strdup(const char *, char *, int);
 
 struct TheHeap {
 	struct TheHeap *next;
@@ -293,9 +295,11 @@ extern struct TheHeap *heap;
 
 #else
 
-#define mallok(howbig)	malloc(howbig)
-#define phree(whichptr)	free(whichptr)
+#define mallok(howbig)			malloc(howbig)
+#define phree(whichptr)			free(whichptr)
 #define reallok(whichptr,howbig)	realloc(whichptr,howbig)
+#define strdoop(orig)			strdup(orig)
+
 
 #endif
 

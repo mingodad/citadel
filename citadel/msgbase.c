@@ -29,13 +29,6 @@
 #include "tools.h"
 #include "mime_parser.h"
 
-#define MSGS_ALL	0
-#define MSGS_OLD	1
-#define MSGS_NEW	2
-#define MSGS_FIRST	3
-#define MSGS_LAST	4
-#define MSGS_GT		5
-
 #define desired_section ((char *)CtdlGetUserData(SYM_DESIRED_SECTION))
 
 extern struct config config;
@@ -1484,7 +1477,7 @@ void cmd_ent3(char *entargs)
  * FIX ... still need to implement delete by content type
  */
 int CtdlDeleteMessages(char *room_name,		/* which room */
-		       long dmsgnum,	/* or "0" for any */
+		       long dmsgnum,		/* or "0" for any */
 		       char *content_type	/* or NULL for any */
 )
 {
@@ -1548,6 +1541,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 			  msglist, (num_msgs * sizeof(long)));
 
 		qrbuf.QRhighest = msglist[num_msgs - 1];
+		phree(msglist);
 	}
 	lputroom(&qrbuf);
 	lprintf(9, "%d message(s) deleted.\n", num_deleted);
@@ -1709,17 +1703,18 @@ void PutSuppMsgInfo(struct SuppMsgInfo *smibuf)
 		delnum = (0L - msgnum);
 		cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));
 	}
-}				/*
+}
 
-				 * Write a generic object to this room
-				 */ void CtdlWriteObject(char *req_room,
-							/* Room to stuff it in */
-						      char *content_type,	/* MIME type of this object */
-						      char *tempfilename,	/* Where to fetch it from */
-							 int is_mailbox,	/* Private mailbox room? */
-							 int is_binary,		/* Is encoding necessary? */
-							 int is_unique	/* Del others of this type? */
-)
+/*
+ * Write a generic object to this room
+ */
+void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
+			char *content_type,	/* MIME type of this object */
+			char *tempfilename,	/* Where to fetch it from */
+			int is_mailbox,		/* Private mailbox room? */
+			int is_binary,		/* Is encoding necessary? */
+			int is_unique	/* Del others of this type? */
+			)
 {
 
 	FILE *fp, *tempfp;

@@ -6,6 +6,13 @@
  * has been modified rather than merely utilized because we need it to be
  * threadsafe in order to tie it into the Citadel server.
  *
+ * Incomplete list of changes I made:
+ * * All globals placed into struct ctdl_icq_handle so we can do it per-thread
+ * * References to globals changed to ThisICQ->globalname
+ * * malloc->mallok, free->phree, strdup->strdoop, for memory leak checking
+ * * Added a bunch of #include's needed by Citadel
+ * * Most of the Citadel-specific code is appended to the end
+ *
  * $Id$
  */
 
@@ -32,6 +39,7 @@
 #include "dynloader.h"
 #include "tools.h"
 #include "citserver.h"
+#include "msgbase.h"
 
 struct ctdl_icq_handle {
 	int icq_Sok;
@@ -55,8 +63,8 @@ struct ctdl_icq_handle {
 	DWORD icq_ProxyDestHost;
 	WORD icq_ProxyDestPort;
 	WORD icq_ProxyOurPort;
-	FILE *icq_MyConfigFile;		/* ig */
 	time_t icq_LastKeepAlive;	/* ig */
+	char icq_config[256];		/* ig */
 };
 
 /* <ig> */
@@ -245,7 +253,6 @@ void icq_init_handle(struct ctdl_icq_handle *i)
 	i->icq_Status = STATUS_OFFLINE;
 	i->icq_Sok = (-1);
 	i->icq_LogLevel = 9;
-	i->icq_MyConfigFile = NULL;
 }
 
 int icq_SockWrite(int sok, const void *buf, size_t count)
@@ -1121,14 +1128,14 @@ void icq_Init(DWORD uin, const char *password)
 	memset((ThisICQ->icq_ServMess), FALSE, sizeof((ThisICQ->icq_ServMess)));
 	(ThisICQ->icq_Uin) = uin;
 	if ((ThisICQ->icq_Password))
-		free((ThisICQ->icq_Password));
-	(ThisICQ->icq_Password) = strdup(password);
+		phree((ThisICQ->icq_Password));
+	(ThisICQ->icq_Password) = strdoop(password);
 }
 
 void icq_Done(void)
 {
 	if ((ThisICQ->icq_Password))
-		free((ThisICQ->icq_Password));
+		phree((ThisICQ->icq_Password));
 }
 
 /******************************
@@ -1620,7 +1627,7 @@ ContactList functions
 ***************************/
 void icq_ContAddUser(DWORD cuin)
 {
-	icq_ContactItem *p = malloc(sizeof(icq_ContactItem));
+	icq_ContactItem *p = mallok(sizeof(icq_ContactItem));
 	icq_ContactItem *ptr = (ThisICQ->icq_ContFirst);
 	p->uin = cuin;
 	p->next = 0L;
@@ -1640,13 +1647,13 @@ void icq_ContDelUser(DWORD cuin)
 		return;
 	if (ptr->uin == cuin) {
 		(ThisICQ->icq_ContFirst) = ptr->next;
-		free(ptr);
+		phree(ptr);
 		ptr = (ThisICQ->icq_ContFirst);
 	}
 	while (ptr->next) {
 		if (ptr->next->uin == cuin) {
 			ptr->next = ptr->next->next;
-			free(ptr->next);
+			phree(ptr->next);
 		}
 		ptr = ptr->next;
 	}
@@ -1657,7 +1664,7 @@ void icq_ContClear()
 	icq_ContactItem *tmp, *ptr = (ThisICQ->icq_ContFirst);
 	while (ptr) {
 		tmp = ptr->next;
-		free(ptr);
+		phree(ptr);
 		ptr = tmp;
 		(ThisICQ->icq_ContFirst) = ptr;
 	}
@@ -1722,11 +1729,11 @@ SOCKS5 Proxy support
 void icq_SetProxy(const char *phost, unsigned short pport, int pauth, const char *pname, const char *ppass)
 {
 	if ((ThisICQ->icq_ProxyHost))
-		free((ThisICQ->icq_ProxyHost));
+		phree((ThisICQ->icq_ProxyHost));
 	if ((ThisICQ->icq_ProxyName))
-		free((ThisICQ->icq_ProxyName));
+		phree((ThisICQ->icq_ProxyName));
 	if ((ThisICQ->icq_ProxyPass))
-		free((ThisICQ->icq_ProxyPass));
+		phree((ThisICQ->icq_ProxyPass));
 	if (strlen(pname) > 255) {
 		if (icq_Log && (ThisICQ->icq_LogLevel) >= ICQ_LOG_ERROR)
 			(*icq_Log) (time(0L), ICQ_LOG_ERROR, "[SOCKS] User name greater than 255 chars\n");
@@ -1740,11 +1747,11 @@ void icq_SetProxy(const char *phost, unsigned short pport, int pauth, const char
 		return;
 	}
 	(ThisICQ->icq_UseProxy) = 1;
-	(ThisICQ->icq_ProxyHost) = strdup(phost);
+	(ThisICQ->icq_ProxyHost) = strdoop(phost);
 	(ThisICQ->icq_ProxyPort) = pport;
 	(ThisICQ->icq_ProxyAuth) = pauth;
-	(ThisICQ->icq_ProxyName) = strdup(pname);
-	(ThisICQ->icq_ProxyPass) = strdup(ppass);
+	(ThisICQ->icq_ProxyName) = strdoop(pname);
+	(ThisICQ->icq_ProxyPass) = strdoop(ppass);
 }
 
 void icq_UnsetProxy()
@@ -1759,72 +1766,76 @@ void icq_UnsetProxy()
 /***********************************************************************/
 
 
-/* config file manipulation routines ... probably temporary until we can
- * get something more robust written
+/*
+ * Callback function for CtdlICQ_Read_Config()
  */
-
-/* Delete a key */
-void CtdlICQ_Config_Delete(char *key) {
-	long readpos, writepos;
-	char buf[256], keyplusspace[256];
+void CtdlICQ_Read_Config_Backend(long msgnum) {
+	struct CtdlMessage *msg;
+	int pos;
 	char *ptr;
 
-	if (ThisICQ->icq_MyConfigFile == NULL) return;
-	readpos = 0L;
-	writepos = 0L;
-	sprintf(keyplusspace, "%s ", key);
-
-	while(1) {
-		fseek(ThisICQ->icq_MyConfigFile, readpos, 0);
-		ptr = fgets(buf, 256, ThisICQ->icq_MyConfigFile);
-		readpos = ftell(ThisICQ->icq_MyConfigFile);
-		if (ptr == NULL) {
-			fflush(ThisICQ->icq_MyConfigFile);
-			ftruncate(fileno(ThisICQ->icq_MyConfigFile), writepos);
-			return;
-		} else {
-			if (strncasecmp(buf, keyplusspace,
-			   strlen(keyplusspace))) {
-				fseek(ThisICQ->icq_MyConfigFile, writepos, 0);
-				fprintf(ThisICQ->icq_MyConfigFile, "%s", buf);
-				writepos = ftell(ThisICQ->icq_MyConfigFile);
+	msg = CtdlFetchMessage(msgnum);
+	if (msg != NULL) {
+		ptr = msg->cm_fields['M'];
+		pos = pattern2(ptr, "\n\n");
+		if (pos >= 0) {
+			while (pos > 0) {
+				++ptr;
+				--pos;
 			}
+			++ptr;
+			++ptr;
+			safestrncpy(ThisICQ->icq_config, ptr, 256);
 		}
+		CtdlFreeMessage(msg);
 	}
 }
 
 
-/* Write a key */
-void CtdlICQ_Config_Write(char *key, char *contents) {
+/*
+ * If this user has an ICQ configuration on disk, read it into memory.
+ */
+void CtdlICQ_Read_Config(void) {
+	char hold_rm[ROOMNAMELEN];
+	char icq_rm[ROOMNAMELEN];
+	
+	strcpy(hold_rm, CC->quickroom.QRname);
+	MailboxName(icq_rm, &CC->usersupp, ICQROOM);
+	strcpy(ThisICQ->icq_config, "");
 
-	char buf[256]; /* FIX */
-
-	CtdlICQ_Config_Delete(key);
-	fseek(ThisICQ->icq_MyConfigFile, 0L, SEEK_END);
-	fprintf(ThisICQ->icq_MyConfigFile, "%s %s\n", key, contents);
-
-	/****** FIX ****** TEMPORARY HACK TO SEE STUFF ***********/
-
-	fflush(ThisICQ->icq_MyConfigFile);
-	sprintf(buf, "icq/%ld", CC->usersupp.usernum);
-	CtdlWriteObject(ICQROOM, ICQMIME, buf, 1, 0, 1);
-}
-
-
-/* Read a key */
-void CtdlICQ_Config_Read(char *contents, char *key) {
-	char buf[256];
-
-	strcpy(contents, "");
-	rewind(ThisICQ->icq_MyConfigFile);
-	while (fgets(buf, 256, ThisICQ->icq_MyConfigFile) != NULL) {
-		buf[strlen(buf)-1]=0;
-		if ( (!strncasecmp(buf, key, strlen(key)))
-		   && (isspace(buf[strlen(key)])) ) {
-			strcpy(contents, &buf[strlen(key)+1]);
-		}
+	if (getroom(&CC->quickroom, icq_rm) != 0) {
+		getroom(&CC->quickroom, hold_rm);
+		return;
 	}
+
+	/* We want the last (and probably only) config in this room */
+	CtdlForEachMessage(MSGS_LAST, 1, ICQMIME, CtdlICQ_Read_Config_Backend);
+	getroom(&CC->quickroom, hold_rm);
+	return;
 }
+
+
+
+/*
+ * Write our config to disk
+ */
+void CtdlICQ_Write_Config(void) {
+	char temp[PATH_MAX];
+	FILE *fp;
+
+	strcpy(temp, tmpnam(NULL));
+
+	fp = fopen(temp, "w");
+	if (fp == NULL) return;
+	fprintf(fp, "%s|\n", ThisICQ->icq_config);
+	fclose(fp);
+
+	/* this handy API function does all the work for us */
+	CtdlWriteObject(ICQROOM, ICQMIME, temp, 1, 0, 1);
+
+	unlink(temp);
+}
+
 
 
 /*
@@ -1837,15 +1848,16 @@ void CtdlICQ_Refresh_Contact_List(void) {
 	if (ThisICQ->icq_Sok < 0) return;
 
 	icq_ContClear();
-	while (fgets(buf, 256, ThisICQ->icq_MyConfigFile) != NULL) {
-		buf[strlen(buf)-1]=0;
 
-		contact_uin = atol(buf);
+	/* FIX
 		if (contact_uin > 0L) {
 			icq_ContAddUser(contact_uin);
 			icq_ContSetVis(contact_uin);
 		}
 	}
+	*/
+
+
 	icq_SendContactList();
 }
 
@@ -1875,10 +1887,12 @@ void CtdlICQ_Login_If_Possible(void) {
 	char pass[256];
 
 	CtdlICQ_Logout_If_Connected();
+	CtdlICQ_Read_Config();
 
-	CtdlICQ_Config_Read(buf, "uin");
-	uin = atol(buf);
-	CtdlICQ_Config_Read(pass, "pass");
+	uin = extract_long(ThisICQ->icq_config, 0);
+	extract(pass, ThisICQ->icq_config, 1);
+
+	lprintf(9, "Here's my config: %s\n", ThisICQ->icq_config);
 
 	if ( (uin > 0L) && (strlen(pass)>0) ) {
 		icq_Init(uin, pass);
@@ -1935,8 +1949,7 @@ void CtdlICQ_after_cmd_hook(void)
 void CtdlICQ_session_logout_hook(void)
 {
 	CtdlICQ_Logout_If_Connected();
-	if (ThisICQ->icq_MyConfigFile != NULL)
-		fclose(ThisICQ->icq_MyConfigFile);
+	icq_Done();
 }
 
 
@@ -1944,36 +1957,8 @@ void CtdlICQ_session_logout_hook(void)
  */
 void CtdlICQ_session_login_hook(void)
 {
-	char buf[256];
-	if (ThisICQ->icq_MyConfigFile != NULL)
-		fclose(ThisICQ->icq_MyConfigFile);
-
-	/* Open this user's ICQ config file; create it if it's not there */
-	sprintf(buf, "icq/%ld", CC->usersupp.usernum);
-	ThisICQ->icq_MyConfigFile = fopen(buf, "r+");
-	if (ThisICQ->icq_MyConfigFile == NULL)
-		ThisICQ->icq_MyConfigFile = fopen(buf, "w+");
-	if (ThisICQ->icq_MyConfigFile == NULL)
-		lprintf(2, "Cannot create %s: %s\n", buf, strerror(errno));
-
-	/* Login to the ICQ server if we already have info on file. */
+	/* If this user has an ICQ config on file, start it up. */
 	CtdlICQ_Login_If_Possible();
-}
-
-
-void cmd_icqa(char *argbuf) {
-	char cuin[256];
-
-	extract(cuin, argbuf, 0);
-	if (atol(cuin) > 0L) {
-		CtdlICQ_Config_Write(cuin, "");
-		icq_SendInfoReq(atol(cuin));
-		cprintf("%d %s added to your ICQ contact list.\n", OK, cuin);
-	} else {
-		cprintf("%d You must specify a numeric ICQ uin.\n", ERROR);
-	}
-
-	CtdlICQ_Refresh_Contact_List();
 }
 
 
@@ -1981,30 +1966,13 @@ void cmd_icqa(char *argbuf) {
 
 void cmd_icql(char *argbuf)
 {
-	char uin[256];
-	char password[256];
-
-	extract(uin, argbuf, 0);
-	extract(password, argbuf, 1);
-
-	CtdlICQ_Config_Write("uin", uin);
-	CtdlICQ_Config_Write("pass", password);
-
+	safestrncpy(ThisICQ->icq_config, argbuf, 256);
+	CtdlICQ_Write_Config();
+	
 	cprintf("%d Ok ... will try to log on to ICQ.\n", OK);
 	CtdlICQ_Login_If_Possible();
 }
 
-
-/*
- * When deleting a user from the server, be sure to delete
- * his/her/its ICQ config file as well.
- */
-void CtdlICQ_DeleteUserConfigFile(char *uname, long unum) {
-	char buf[256];
-
-	sprintf(buf, "icq/%ld", unum);
-	unlink(buf);
-}
 
 
 
@@ -2018,18 +1986,9 @@ void CtdlICQ_Incoming_Message(DWORD uin, BYTE hour, BYTE minute,
 	char from[256];
 	char nick[256];
 
-	sprintf(from, "%ld", uin);
-	CtdlICQ_Config_Read(nick, from);
-	if (strlen(nick) == 0) {
-		icq_SendInfoReq(atol(from));
-	}
-
-	sprintf(from, "%ld@icq (%s)", uin, nick);
+	sprintf(from, "%ld@icq", uin);
 	if (CtdlSendExpressMessageFunc) {
 		CtdlSendExpressMessageFunc(from, CC->curr_user, msg);
-
-
-
 	} else {
 		lprintf(7, "Hmm, no CtdlSendExpressMessageFunc defined!\n");
 	}
@@ -2041,24 +2000,14 @@ CtdlICQ_InfoReply(unsigned long uin, const char *nick,
 		const char *first, const char *last,
 		const char *email, char auth) {
 
-	char str_uin[256];
+/* FIX do something with this info!! */
 
-	sprintf(str_uin, "%ld", uin);
-	CtdlICQ_Config_Write(str_uin, nick);
 }
 
 
 
 char *Dynamic_Module_Init(void)
 {
-	/* Create a directory to store ICQ stuff in.
-	 * It's ok if the directory is already there.
-	 */
-	if (mkdir("icq", 0700) != 0) if (errno != EEXIST) {
-		lprintf(2, "Can't create icq subdirectory: %s\n",
-			strerror(errno));
-	}
-
 	/* Make sure we've got a valid ThisICQ for each session */
 	SYM_CTDL_ICQ = CtdlGetDynamicSymbol();
 
@@ -2068,8 +2017,6 @@ char *Dynamic_Module_Init(void)
 	CtdlRegisterSessionHook(CtdlICQ_session_login_hook, EVT_LOGIN);
 	CtdlRegisterSessionHook(CtdlICQ_after_cmd_hook, EVT_CMD);
 	CtdlRegisterProtoHook(cmd_icql, "ICQL", "Log on to ICQ");
-	CtdlRegisterProtoHook(cmd_icqa, "ICQA", "Add an ICQ contact");
-	CtdlRegisterUserHook(CtdlICQ_DeleteUserConfigFile, EVT_PURGEUSER);
 
 	/* Tell the code formerly known as icqlib about our callbacks */
 	icq_Log = CtdlICQlog;

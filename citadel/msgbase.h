@@ -36,3 +36,15 @@ int CtdlDeleteMessages(char *, long, char *);
 void CtdlWriteObject(char *, char *, char *, int, int, int);
 struct CtdlMessage *CtdlFetchMessage(long msgnum);
 void CtdlFreeMessage(struct CtdlMessage *msg);
+
+
+
+
+#define MSGS_ALL        0
+#define MSGS_OLD        1
+#define MSGS_NEW        2
+#define MSGS_FIRST      3
+#define MSGS_LAST       4
+#define MSGS_GT         5
+
+

@@ -107,6 +107,15 @@ void *tracked_malloc(size_t tsize, char *tfile, int tline) {
 	return ptr;
 	}
 
+char *tracked_strdup(const char *orig, char *tfile, int tline) {
+	char *s;
+
+	s = tracked_malloc( (strlen(orig)+1), tfile, tline);
+	if (s == NULL) return NULL;
+
+	strcpy(s, orig);
+	return s;
+}
 
 void tracked_free(void *ptr) {
 	struct TheHeap *hptr, *freeme;
