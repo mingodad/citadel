@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.111  2002/02/13 22:04:11  ajc
+ * added vcard_to_html() function
+
  Revision 590.110  2002/02/13 15:48:55  ajc
  * Allow the READ command to return packets bigger than 1 byte.  (ooops!)
 
@@ -3334,4 +3337,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

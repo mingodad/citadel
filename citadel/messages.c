@@ -595,7 +595,7 @@ int read_message(
 		fprintf(dest, "\n");
 	} else {
 		scr_printf("\n");
-		scr_flush();
+		/* scr_flush(); */
 		++lines_printed;
 		lines_printed = checkpagin(lines_printed, pagin, screenheight);
 	}
