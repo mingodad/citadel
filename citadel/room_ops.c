@@ -1295,8 +1295,14 @@ void cmd_seta(char *new_ra)
 	 * the room table, otherwise it would deadlock!
 	 */
 	if (post_notice == 1) {
-		snprintf(buf, sizeof buf, "%s is now room aide for %s>\n",
-			usbuf.fullname, CC->quickroom.QRname);
+		if (strlen(usbuf.fullname) > 0)
+			snprintf(buf, sizeof buf,
+				"%s is now room aide for %s>\n",
+				usbuf.fullname, CC->quickroom.QRname);
+		else
+			snprintf(buf, sizeof buf,
+				"There is now no room aide for %s>\n",
+				CC->quickroom.QRname);
 		aide_message(buf);
 	}
 	cprintf("%d Ok\n", CIT_OK);
