@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.67  2002/11/13 17:20:57  ajc
+ * When in curses mode, call beep() instead of putc(7, stdout) to make it beep.
+
  Revision 601.66  2002/11/12 04:30:16  ajc
  * Completed the invitation accept/decline code.  It now sends back a
    correctly formated reply!  (Tested with Evolution)
@@ -4214,3 +4217,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

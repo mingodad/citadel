@@ -219,7 +219,7 @@ void print_express(void)
 		return;
 
 	if (rc_exp_beep) {
-		scr_putc(7);
+		ctdl_beep();
 	}
 	if (strlen(rc_exp_cmd) == 0) {
 		color(BRIGHT_RED);

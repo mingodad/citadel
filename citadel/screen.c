@@ -170,6 +170,19 @@ void screen_delete(void)
 #endif
 }
 
+/*
+ * Beep.
+ */
+void ctdl_beep(void) {
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
+	if (myscreen)
+		beep();
+	else
+#endif
+	putc(7, stdout);
+}
+	
+
 
 /*
  * Set screen/IO parameters, e.g. at start of program or return from external

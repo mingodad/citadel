@@ -714,7 +714,7 @@ void download(CtdlIPC *ipc, int proto)
 
 	/* clean up the temporary directory */
 	nukedir(tempdir);
-	scr_putc(7);	/* Beep beep! */
+	ctdl_beep();	/* Beep beep! */
 }
 
 

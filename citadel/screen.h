@@ -38,3 +38,4 @@ int scr_blockread(void);
 int is_curses_enabled(void);
 RETSIGTYPE scr_winch(int signum);
 void wait_indicator(int state);
+void ctdl_beep(void);
