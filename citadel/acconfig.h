@@ -4,6 +4,9 @@
 /* define this to enable the autologin feature */
 #undef ENABLE_AUTOLOGIN
 
+/* define this to disable use of curses */
+#undef DISABLE_CURSES
+
 /* define this to enable use of the chkpwd program (for shadow passwords) */
 #undef ENABLE_CHKPWD
 
