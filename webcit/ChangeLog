@@ -1,4 +1,7 @@
 $Log$
+Revision 400.73  2002/12/28 05:44:09  ajc
+* ical_dezonify.c: brought over new version from the Citadel source (again)
+
 Revision 400.72  2002/12/28 05:12:45  ajc
 * ical_dezonify.c: brought over new version from the Citadel source.
 
@@ -1205,3 +1208,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
