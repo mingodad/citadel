@@ -1,4 +1,7 @@
 $Log$
+Revision 528.38  2005/02/03 05:13:57  ajc
+* More tuning for GroupDAV compliance.
+
 Revision 528.37  2005/02/03 04:38:40  ajc
 * VTODO components need to be encapsulated inside VCALENDAR components,
   just like we do with VEVENT components.  There's a bunch of software
@@ -2300,4 +2303,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
