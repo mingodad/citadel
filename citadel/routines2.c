@@ -694,7 +694,7 @@ void do_system_configuration(CtdlIPC *ipc)
 	snprintf(sc[26], sizeof sc[26], "%d", (boolprompt(
 	      "Allow Aides to Zap (forget) rooms",
 						     atoi(&sc[26][0]))));
-	snprintf(sc[30], sizeof sc[29], "%d", (boolprompt(
+	snprintf(sc[30], sizeof sc[30], "%d", (boolprompt(
 	      "Allow system Aides access to user mailboxes",
 						     atoi(&sc[30][0]))));
 
@@ -722,9 +722,19 @@ void do_system_configuration(CtdlIPC *ipc)
 	*/
 
 	strprompt("How often to run network jobs (in seconds)", &sc[28][0], 5);
-	strprompt("SMTP server port (-1 to disable)", &sc[24][0], 5);
 	strprompt("POP3 server port (-1 to disable)", &sc[23][0], 5);
 	strprompt("IMAP server port (-1 to disable)", &sc[27][0], 5);
+	strprompt("SMTP server port (-1 to disable)", &sc[24][0], 5);
+
+	/* This logic flips the question around, because it's one of those
+	 * situations where 0=yes and 1=no
+	 */
+	a = atoi(sc[25]);
+	a = (a ? 0 : 1);
+	a = boolprompt("Correct forged From: lines during authenticated SMTP",
+		a);
+	a = (a ? 0 : 1);
+	snprintf(sc[25], sizeof sc[25], "%d", a);
 
 	/* Expiry settings */
 	strprompt("Default user purge time (days)", &sc[16][0], 5);

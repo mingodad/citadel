@@ -190,7 +190,7 @@ void cmd_conf(char *argbuf)
 		cprintf("%d\n", config.c_max_workers);
 		cprintf("%d\n", config.c_pop3_port);
 		cprintf("%d\n", config.c_smtp_port);
-		cprintf("0\n");	/* position 25 no longer exists */
+		cprintf("%d\n", config.c_rfc822_strict_from);
 		cprintf("%d\n", config.c_aide_zap);
 		cprintf("%d\n", config.c_imap_port);
 		cprintf("%ld\n", config.c_net_freq);
@@ -306,7 +306,9 @@ void cmd_conf(char *argbuf)
 			case 24:
 				config.c_smtp_port = atoi(buf);
 				break;
-				/* case 25 no longer exists */
+			case 25:
+				config.c_rfc822_strict_from = atoi(buf);
+				break;
 			case 26:
 				config.c_aide_zap = atoi(buf);
 				if (config.c_aide_zap != 0)

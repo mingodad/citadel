@@ -121,7 +121,7 @@ struct config {
 	int c_max_workers;		/* Upper limit on number of threads */
 	int c_pop3_port;		/* POP3 listener port (usually 110) */
 	int c_smtp_port;		/* SMTP listener port (usually 25)  */
-	int c_unused_1;			/* Nothin' here anymore...          */
+	int c_rfc822_strict_from;	/* 1 = don't correct From: forgeries*/
 	int c_aide_zap;			/* Are Aides allowed to zap rooms?  */
 	int c_imap_port;		/* IMAP listener port (usually 143) */
 	time_t c_net_freq;		/* how often to run the networker   */

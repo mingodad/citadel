@@ -185,6 +185,15 @@ void bump_mailbox_generation_numbers(void) {
 }
 
 
+/*
+ * This field was originally used for something else, so when we upgrade
+ * we have to initialize it to 0 in case there was trash in that space.
+ */
+void initialize_c_rfc822_strict_from(void) {
+	get_config();
+	config.c_rfc822_strict_from = 0;
+	put_config();
+}
 
 
 
@@ -206,6 +215,7 @@ void check_server_upgrades(void) {
 
 	if (CitControl.version < 555) do_pre555_usersupp_upgrade();
 	if (CitControl.version < 591) bump_mailbox_generation_numbers();
+	if (CitControl.version < 606) initialize_c_rfc822_strict_from();
 
 	CitControl.version = REV_LEVEL;
 	put_control();

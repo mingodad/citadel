@@ -508,14 +508,15 @@ void smtp_data(void) {
 
 	/* If the user is locally authenticated, FORCE the From: header to
 	 * show up as the real sender.  Yes, this violates the RFC standard,
-	 * but IT MAKES SENSE.  Comment it out if you don't like this behavior.
+	 * but IT MAKES SENSE.  If you prefer strict RFC adherence over
+	 * common sense, you can disable this in the configuration.
 	 *
 	 * We also set the "message room name" ('O' field) to MAILROOM
 	 * (which is Mail> on most systems) to prevent it from getting set
 	 * to something ugly like "0000058008.Sent Items>" when the message
 	 * is read with a Citadel client.
 	 */
-	if (CC->logged_in) {
+	if ( (CC->logged_in) && (config.c_rfc822_strict_from == 0) ) {
 		if (msg->cm_fields['A'] != NULL) phree(msg->cm_fields['A']);
 		if (msg->cm_fields['N'] != NULL) phree(msg->cm_fields['N']);
 		if (msg->cm_fields['H'] != NULL) phree(msg->cm_fields['H']);

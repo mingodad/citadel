@@ -1750,7 +1750,7 @@ fails for any reason, ERROR is returned.
  23. Maximum number of worker threads
  24. Port number for POP3 service
  25. Port number for SMTP service
- 26. (unused)
+ 26. Flag (0 or 1) - strict RFC822 adherence - don't correct From: forgeries
  27. Flag (0 or 1) - allow Aides to zap (forget) rooms
  28. Port number for IMAP service
  29. How often (in seconds) to run the networker
