@@ -108,6 +108,9 @@ void imap_fetch_rfc822(int msgnum, char *whichfmt, struct CtdlMessage *msg) {
 	CtdlRedirectOutput(tmp, -1);
 	CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822, 0, 0, 1);
 	CtdlRedirectOutput(NULL, -1);
+	if (!is_valid_message(msg)) {
+		lprintf(1, "WARNING: output clobbered the message!\n");
+	}
 
 	/*
 	 * Now figure out where the headers/text break is.  IMAP considers the

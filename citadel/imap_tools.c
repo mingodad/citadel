@@ -99,4 +99,3 @@ void imap_mailboxname(char *buf, int bufsize, struct quickroom *qrbuf) {
 	}
 }
 
-

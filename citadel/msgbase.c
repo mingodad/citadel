@@ -863,6 +863,11 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	sprintf(mid, "%ld", msg_num);
 	nl = (crlf ? "\r\n" : "\n");
 
+	if (!is_valid_message(TheMessage)) {
+		lprintf(1, "ERROR: invalid preloaded message for output\n");
+	 	return(om_no_such_msg);
+	}
+
 	/* Are we downloading a MIME component? */
 	if (mode == MT_DOWNLOAD) {
 		if (TheMessage->cm_format_type != FMT_RFC822) {
@@ -887,7 +892,6 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 					desired_section);
 			}
 		}
-		CtdlFreeMessage(TheMessage);
 		return((CC->download_fp != NULL) ? om_ok : om_mime_error);
 	}
 
@@ -1039,7 +1043,6 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 		else if (mode == MT_MIME) {	/* list parts only */
 			mime_parser(mptr, NULL, *list_this_part, NULL, 0);
 			if (do_proto) cprintf("000\n");
-			CtdlFreeMessage(TheMessage);
 			return(om_ok);
 		}
 		else if (mode == MT_RFC822) {	/* unparsed RFC822 dump */
@@ -1054,14 +1057,12 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 				else cprintf("%c", ch);
 			}
 			if (do_proto) cprintf("000\n");
-			CtdlFreeMessage(TheMessage);
 			return(om_ok);
 		}
 	}
 
 	if (headers_only) {
 		if (do_proto) cprintf("000\n");
-		CtdlFreeMessage(TheMessage);
 		return(om_ok);
 	}
 
