@@ -1,4 +1,8 @@
 $Log$
+Revision 528.11  2005/01/15 07:19:08  ajc
+* Removed the fixed pixel width from the tree view room list so it doesn't
+  wrap around in an ugly way on aIEeeee.
+
 Revision 528.10  2005/01/15 05:26:27  ajc
 * Message entry window is now somewhat full screen.
 
@@ -2185,3 +2189,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

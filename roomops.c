@@ -2014,7 +2014,7 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 	/* Include the menu expanding/collapsing code */
 	wprintf("<script type=\"text/javascript\" src=\"/static/menuExpandable3.js\"></script>\n");
 
-	do_template("beginbox_nt");
+	/* BEGIN TREE MENU */
 	wprintf("<div id=\"mainMenu\">\n");
 	wprintf("<UL id=\"menuList\">\n");
 	levels = 0;
@@ -2092,7 +2092,7 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 	}
 	wprintf(" ' > \n");
 	wprintf("</DIV>\n");
-	do_template("endbox");
+	/* END TREE MENU */
 }
 
 /*
