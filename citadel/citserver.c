@@ -824,7 +824,7 @@ void generate_nonce(struct CitContext *con) {
  */
 void begin_session(struct CitContext *con)
 {
-	int len;
+	int len;	/* should be socklen_t but doesn't work on Macintosh */
 	struct sockaddr_in sin;
 
 	/* 
