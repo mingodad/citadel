@@ -34,24 +34,15 @@ void ical_dezonify_backend(icalcomponent *cal, icalproperty *prop) {
 
 	/* Hunt for a TZID parameter in this property. */
 	param = icalproperty_get_first_parameter(prop, ICAL_TZID_PARAMETER);
-	if (param == NULL) {
-		printf("No tzid parameter found - "
-			"perhaps this component is already UTC?\n");
-		return;
-	}
+	if (param == NULL) return;
 
 	/* Get the stringish name of this TZID. */
 	tzid = icalparameter_get_tzid(param);
-	if (tzid == NULL) {
-		printf("icalparameter_get_tzid() returned NULL\n");
-		return;
-	}
+	if (tzid == NULL) return;
 
 	/* Convert it to an icaltimezone type. */
 	t = icalcomponent_get_timezone(cal, tzid);
-	if (t == NULL) {
-		printf("icalcomponent_get_timezone(%s) returned NULL\n", tzid);
-	}
+	if (t == NULL) return;
 
 	/* Now we know the timezone.  Convert to UTC. */
 

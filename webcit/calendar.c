@@ -220,6 +220,7 @@ void cal_process_object(icalcomponent *cal,
 	if (the_method == ICAL_METHOD_REQUEST) {
 
 		/* Check for conflicts */
+		lprintf(9, "Checking server calendar for conflicts...\n");
 		serv_printf("ICAL conflicts|%ld|%s|", msgnum, cal_partnum);
 		serv_gets(buf);
 		if (buf[0] == '1') {
@@ -248,6 +249,7 @@ void cal_process_object(icalcomponent *cal,
 					"</TD></TR>\n");
 			}
 		}
+		lprintf(9, "...done.\n");
 
 		/* Display the Accept/Decline buttons */
 		wprintf("<TR><TD COLSPAN=2>"
