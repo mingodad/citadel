@@ -574,8 +574,7 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 		/* Save a copy of the message in the sender's log room,
 		 * creating the room if necessary.
 		 */
-		MailboxName(roomname, &CC->usersupp, PAGELOGROOM);
-		create_room(roomname, 4, "", 0, 1);
+		create_room(PAGELOGROOM, 4, "", 0, 1);
 		msgnum = CtdlSaveMsg(logmsg, "", roomname, MES_LOCAL);
 
 		/* Now save a copy in the global log room, if configured */

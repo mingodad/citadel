@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.112  2001/03/11 20:06:53  ajc
+ * Fixed bug that created incorrect roomnames when sending pages
+
  Revision 573.111  2001/03/11 19:23:32  ajc
  * IMAP DELETE command ... also split up access control for room delete cmds
 
@@ -2447,3 +2450,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
