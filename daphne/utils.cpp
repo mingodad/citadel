@@ -10,7 +10,7 @@ void extract(wxString& outputbuf, wxString inputbuf, int parmnum) {
 	int i;
 	wxStringTokenizer *tok = new wxStringTokenizer(inputbuf, "|", FALSE);
 
-	for (i=0; tok->HasMoreToken(); ++i) {
+	for (i=0; tok->HasMoreTokens(); ++i) {
 		outputbuf = tok->NextToken();
 		if (i == parmnum) {
 			return;

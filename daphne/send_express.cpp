@@ -171,7 +171,7 @@ SendExpress::SendExpress(	CitClient *sock,
 	} else {
 		wxStringTokenizer *wl =
 			new wxStringTokenizer(xferbuf, "\n", FALSE);
-		while (wl->HasMoreToken()) {
+		while (wl->HasMoreTokens()) {
 			buf = wl->NextToken();
                 	extract(user, buf, 1);
 			ToWhom->Append(user);

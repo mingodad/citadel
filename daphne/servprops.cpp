@@ -172,7 +172,7 @@ void ServProps::LoadServerConfigStrings()
 
 	wxStringTokenizer *cl = new wxStringTokenizer(xferbuf, "\n", FALSE);
 	i = 0;
-	while ((i<20) && (cl->HasMoreToken())) {
+	while ((i<20) && (cl->HasMoreTokens())) {
 		ServerConfigStrings[i++] = cl->NextToken();
 	}
 }

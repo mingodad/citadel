@@ -97,7 +97,7 @@ void who::LoadWholist(void) {
 	wholist->DeleteAllItems();
 
 	wl = new wxStringTokenizer(rwho, "\n", FALSE);
-	while (wl->HasMoreToken()) {
+	while (wl->HasMoreTokens()) {
 		buf = wl->NextToken();
 		extract(sess, buf, 0);
 		extract(user, buf, 1);

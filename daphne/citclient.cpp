@@ -1,36 +1,55 @@
-
 #include "includes.hpp"
-#include <unistd.h>
+#include <wx/protocol/protocol.h>
 
-
-
-//  
+//
 //	TRANSPORT LAYER OPERATIONS
 //
+
+
 
 // Attach to the Citadel server
 // FIX (add check for not allowed to log in)
 int CitClient::attach(wxString host, wxString port) {
 	wxString ServerReady;
+	wxIPV4address addr;
 
-	if (sock.is_connected())
-		sock.detach();
-	if (sock.attach(host, port)==0) {
-		serv_gets(ServerReady);
-		initialize_session();
+        if (sock->IsConnected())
+        sock->Close();
 
+        addr.Hostname(host);
+        addr.Service(port);
+        sock->SetNotify(0);
+        sock->Connect(addr, TRUE);
+        if (sock->IsConnected()) {
+                cout << "Connect succeeded\n" ;
+                serv_gets(ServerReady);
+                initialize_session();
 		curr_host = host;	// Remember host and port, in case
 		curr_port = port;	// we need to auto-reconnect later
-
-		return(0);
-	}
-	else return(1);
-
+                return(0);
+        } else {
+                cout << "Connect failed\n" ;
+                return(1);
+        }
 }
 
 
 // constructor
 CitClient::CitClient(void) {
+
+        //wxSocketHandler::Master();
+        sock = new wxSocketClient();
+
+	// The WAITALL flag causes reads to block.  Don't use it.
+        // sock->SetFlags(wxSocketBase::WAITALL);
+
+	// Guilhem Lavaux suggested using the SPEED flag to keep from
+	// blocking, but it just freezes the app in mid-transaction.
+	sock->SetFlags(wxSocketBase::SPEED);
+
+        //wxSocketHandler::Master().Register(sock);
+        // sock->SetNotify(wxSocketBase::REQ_LOST);
+
 	(void)new keepalive(this);
 }
 
@@ -38,40 +57,87 @@ CitClient::CitClient(void) {
 // destructor
 CitClient::~CitClient(void) {
 	// Be nice and log out from the server if it's still connected
-	sock.detach();
+	sock->Close();
 }
+
+
 
 void CitClient::detach(void) {
-	wxString buf;
+        wxString buf;
 
-	if (sock.is_connected()) {
-		serv_puts("QUIT");
-		serv_gets(buf);
-		sock.detach();
-	}
+        if (sock->IsConnected()) {
+                serv_puts("QUIT");
+                serv_gets(buf);
+                sock->Close();
+        }
 }
+
 
 
 // Is this client connected?  Simply return the IsConnected status of sock.
 bool CitClient::IsConnected(void) {
-	return sock.is_connected();
+        return sock->IsConnected();
 }
+
+
 
 
 
 // Read a line of text from the server
 void CitClient::serv_gets(wxString& buf) {
-	char charbuf[256];
-	
-	sock.serv_gets(charbuf);
+	static char charbuf[512];
+	static size_t nbytes = 0;
+	int i;
+	int nl_pos = (-1);
+
+	do {
+		for (i=nbytes; i>=0; --i)
+			if (charbuf[i] == 10) nl_pos = i;
+		if (nl_pos < 0) {
+			sock->Read(&charbuf[nbytes], (sizeof(charbuf)-nbytes) );
+			nbytes += sock->LastCount();
+			cout << "Read " << sock->LastCount() << " bytes \n";
+		}
+		for (i=nbytes; i>=0; --i)
+			if (charbuf[i] == 10) nl_pos = i;
+	} while (nl_pos < 0);
+
+        //if (nl_pos != nbytes)
+        //  sock->Unread(&charbuf[nl_pos], nbytes-nl_pos);
+
+	charbuf[nbytes] = 0;
+	charbuf[nl_pos] = 0;
+
 	buf = charbuf;
+	strcpy(charbuf, &charbuf[nl_pos + 1]);
+	nbytes = nbytes - (nl_pos + 1);
+
+/*
+        GetLine(sock, buf);
+*/
+
+	cout << "> " << buf << "(len=" << buf.Len() << ")\n";
 }
+
+
+
+
 
 
 // Write a line of text to the server
 void CitClient::serv_puts(wxString buf) {
-	sock.serv_puts(buf);
+
+        cout << "< " << buf << "\n" ;
+        sock->Write((const char *)buf, buf.Len());
+        sock->Write("\n", 1);
 }
+
+
+
+
+
+
+
 
 
 //
@@ -103,10 +169,14 @@ int CitClient::serv_trans(
 
 	// If a mutex is to be wrapped around this function in the future,
 	// it must begin HERE.
+	cout << "Beginning transaction\n";
+	wxBeginBusyCursor();
+	Critter.Enter();
 
 	serv_puts(command);
-	
+
 	if (IsConnected() == FALSE) {
+		wxSleep(5);	// Give a crashed server some time to restart
 		reconnect_session();
 		serv_puts(command);
 	}
@@ -149,11 +219,16 @@ int CitClient::serv_trans(
 
 	// If a mutex is to be wrapped around this function in the future,
 	// it must end HERE.
+	cout << "Ending transaction...\n";
+	Critter.Leave();
+	wxEndBusyCursor();
+	cout << "...done.\n";
 
 	if (express_messages_waiting) {
 		download_express_messages();
 	}
 
+	cout << "serv_trans() returning " << first_digit << "\n";
 	return first_digit;
 }
 
@@ -265,9 +340,6 @@ void CitClient::reconnect_session(void) {
 	wxString sendcmd;
 
 	CurrentRoom = "__ This is not the name of any valid room __";
-
-	// Give a crashed server some time to restart
-	sleep(5);
 
 	if (attach(curr_host, curr_port) != 0) {
 		// FIX do this more elegantly

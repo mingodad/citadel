@@ -26,7 +26,6 @@
 #endif
 
 
-
 TCPsocket::TCPsocket(void) {
 	serv_sock = (-1);
 }

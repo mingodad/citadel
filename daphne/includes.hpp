@@ -1,12 +1,13 @@
-#include <wx/wx.h>
+#include <wx/wx.h>		// General-purpose wxWin header
 #include <wx/listctrl.h>
-#include <wx/socket.h>
+#include <wx/socket.h>		// TCP socket client
 #include <wx/log.h>
 #include <wx/imaglist.h>
 #include <wx/treectrl.h>
 #include <wx/toolbar.h>
-#include <wx/tokenzr.h>
-#include <wxhtml/wxhtml.h>
+#include <wx/tokenzr.h>		// For the string tokenizer
+#include <wx/thread.h>		// No threads, but we need wxCriticalSection
+#include <wx/wxhtml.h>		// Vaclav Slavik's HTML display widget
 
 #define MAXFLOORS	128
 #define DEFAULT_HOST	"uncnsrd.mt-kisco.ny.us"
@@ -14,7 +15,7 @@
 
 
 // Room flags (from ipcdef.h in the main Citadel distribution)
-//
+
 #define QR_PERMANENT	1		/* Room does not purge              */
 #define QR_INUSE	2		/* Set if in use, clear if avail    */
 #define QR_PRIVATE	4		/* Set for any type of private room */
@@ -34,28 +35,8 @@
 
 
 
-// TCPsocket represents a socket-level TCP connection to a server.
-class TCPsocket {
-public:
-	TCPsocket::TCPsocket(void);
-	int attach(const char *, const char *);
-	void detach(void);
-	void serv_read(char *, int);
-	void serv_write(char *, int);
-	void serv_gets(char *);
-	void serv_puts(const char *);
-	bool is_connected(void);
-private:
-	int serv_sock;
-	int connectsock(const char *, const char *, const char *);
-	static void timeout(int);
-};
-
-
-
 // CitClient represents an application-level connection to a Citadel server.
 class CitClient {
-	friend TCPsocket::timeout(int);
 public:
 	CitClient(void);
 	~CitClient(void);
@@ -105,16 +86,15 @@ public:
 	wxString CurrentRoom;
 
 private:
-	TCPsocket sock;					// transport layer
+	wxSocketClient *sock;				// transport layer
+	wxCriticalSection Critter;
 	void serv_gets(wxString& buf);			// session layer
 	void serv_puts(wxString buf);			// session layer
 	void reconnect_session(void);			// session layer
 	void download_express_messages(void);		// presentation layer
 	void initialize_session(void);			// presentation layer
-
 	wxString curr_host;
 	wxString curr_port;
-
 };
 
 

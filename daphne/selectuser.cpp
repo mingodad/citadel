@@ -171,7 +171,7 @@ void SelectUser::AddLocalUsers(wxTreeCtrl *tree, CitClient *cit) {
 		);
 
 	ul = new wxStringTokenizer(xferbuf, "\n", FALSE);
-	while (ul->HasMoreToken()) {
+	while (ul->HasMoreTokens()) {
 		buf = ul->NextToken();
 		extract(username, buf, 0);
 		tree->AppendItem(
