@@ -177,13 +177,13 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
         wxLayoutConstraints *t2 = new wxLayoutConstraints;
         t2->top.SameAs(this, wxTop, 4);
         t2->left.SameAs(this, wxLeft, 0);
-	t2->right.PercentOf(this, wxWidth, 20);
+	t2->right.PercentOf(this, wxWidth, 25);
         t2->bottom.SameAs(this, wxBottom, 0);
         RoomList->SetConstraints(t2);
 
 	wxLayoutConstraints *t3 = new wxLayoutConstraints;
 	t3->top.SameAs(this, wxTop, 4);
-	t3->left.PercentOf(this, wxWidth, 20);
+	t3->left.PercentOf(this, wxWidth, 25);
 	t3->right.SameAs(this, wxRight, 0);
 	t3->bottom.SameAs(this, wxBottom, 0);
 	wxMDIClientWindow *children = GetClientWindow();

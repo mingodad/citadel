@@ -202,6 +202,7 @@ private:
 void ListToMultiline(wxString& outputbuf, wxStringList inputlist);
 void MultilineToList(wxStringList& outputlist, wxString inputbuf);
 void extract(wxString& outputbuf, wxString inputbuf, int parmnum);
+int extract_int(wxString inputbuf, int parmnum);
 void load_roomlist(wxTreeCtrl *tree, CitClient *citsock);
 
 

@@ -3,6 +3,7 @@
 #include <wx/wx.h>
 #include "includes.hpp"
 
+wxTreeItemId floorboards[128];
 
 // The following two functions convert between the wxStringList class used for
 // text transfers to and from the Citadel server, and the wxString class used
@@ -73,11 +74,21 @@ void extract(wxString& outputbuf, wxString inputbuf, int parmnum) {
 	}
 }
 
+int extract_int(wxString inputbuf, int parmnum) {
+	wxString buf;
+
+	extract(buf, inputbuf, parmnum);
+	return atoi(buf);
+}
+
 
 
 // Load a tree with a room list
 //
 void load_roomlist(wxTreeCtrl *tree, CitClient *citsock) {
+	wxString sendcmd, recvcmd, buf, floorname, roomname;
+	wxStringList transbuf;
+	int i, floornum;
 
 	// First, clear it out.
 	tree->DeleteAllItems();
@@ -89,4 +100,37 @@ void load_roomlist(wxTreeCtrl *tree, CitClient *citsock) {
 		-1,
 		NULL);
 
+	sendcmd = "LFLR";
+	// Bail out silently if we can't retrieve the floor list
+	if (citsock->serv_trans(sendcmd, recvcmd, transbuf) != 1) return;
+
+	// Load the floors one by one onto the tree
+        for (i=0; i<transbuf.Number(); ++i) {
+                buf.Printf("%s", (wxString *)transbuf.Nth(i)->GetData());
+		extract(floorname, buf, 1);
+		floornum = extract_int(buf, 0);
+		floorboards[floornum] = tree->AppendItem(
+			tree->GetRootItem(),
+			floorname,
+			-1,	// FIX use a floor pixmap here
+			-1,
+			NULL);
+	}
+
+	// Load the rooms into the tree
+	// FIX (do this in two passes, one for LKRN and one for LKRO)
+
+	sendcmd = "LKRA";
+	if (citsock->serv_trans(sendcmd, recvcmd, transbuf) != 1) return;
+        for (i=0; i<transbuf.Number(); ++i) {
+                buf.Printf("%s", (wxString *)transbuf.Nth(i)->GetData());
+		extract(roomname, buf, 0);
+		floornum = extract_int(buf, 2);
+		tree->AppendItem(
+			floorboards[floornum],
+			roomname,
+			-1,	// FIX use a room pixmap here
+			-1,
+			NULL);
+	}
 }
