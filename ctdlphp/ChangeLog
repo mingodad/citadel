@@ -1,4 +1,8 @@
  $Log$
+ Revision 1.2  2003/10/31 05:03:46  ajc
+ * Stabilized the session proxy
+ * Added 100 mode text downloads
+ * Print server hello banner
+
  Revision 1.1  2003/10/31 03:47:13  ajc
  * Initial CVS import
-

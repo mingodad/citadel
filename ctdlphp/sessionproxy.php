@@ -124,7 +124,13 @@ do {
 
 			if (substr($talkback, 0, 1) == "1") do {
 				$buf = fgets($ctdlsock, 4096);
-        			socket_write($msgsock, $buf, strlen($buf));
+				if (!$buf) {
+					$buf = "000\n" ;
+				}
+				else {
+        				socket_write($msgsock, $buf,
+						strlen($buf));
+				}
 			} while ($buf != "000\n");
 
 		}
