@@ -59,6 +59,14 @@
 extern struct config config;
 long config_msgnum;
 
+
+/* 
+ * This really belongs in serv_network.c, but I don't know how to export
+ * symbols between modules.
+ */
+struct FilterList *filterlist = NULL;
+
+
 /*
  * These are the four-character field headers we use when outputting
  * messages in Citadel format (as opposed to RFC822 format).

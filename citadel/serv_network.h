@@ -26,3 +26,12 @@ struct UseTable {
 	char ut_msgid[SIZ];
 	time_t ut_timestamp;
 };
+
+struct FilterList {
+	struct FilterList *next;
+	char fl_user[SIZ];
+	char fl_room[SIZ];
+	char fl_node[SIZ];
+};
+
+extern struct FilterList *filterlist;

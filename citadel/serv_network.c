@@ -74,6 +74,55 @@ struct RoomProcList *rplist = NULL;
  */
 struct NetMap *the_netmap = NULL;
 
+/*
+ * Keep track of what messages to reject
+ */
+struct FilterList *load_filter_list(void) {
+	char *serialized_list = NULL;
+	int i;
+	char buf[SIZ];
+	struct FilterList *newlist = NULL;
+	struct FilterList *nptr;
+
+	serialized_list = CtdlGetSysConfig(FILTERLIST);
+	if (serialized_list == NULL) return(NULL); /* if null, no entries */
+
+	/* Use the string tokenizer to grab one line at a time */
+	for (i=0; i<num_tokens(serialized_list, '\n'); ++i) {
+		extract_token(buf, serialized_list, i, '\n');
+		nptr = (struct FilterList *) mallok(sizeof(struct FilterList));
+		extract(nptr->fl_user, buf, 0);
+		striplt(nptr->fl_user);
+		extract(nptr->fl_room, buf, 1);
+		striplt(nptr->fl_room);
+		extract(nptr->fl_node, buf, 2);
+		striplt(nptr->fl_node);
+
+		/* Cowardly refuse to add an any/any/any entry that would
+		 * end up filtering every single message.
+		 */
+		if (strlen(nptr->fl_user) + strlen(nptr->fl_room)
+		   + strlen(nptr->fl_node) == 0) {
+			phree(nptr);
+		}
+		else {
+			nptr->next = newlist;
+			newlist = nptr;
+		}
+	}
+
+	phree(serialized_list);
+	return newlist;
+}
+
+
+void free_filter_list(struct FilterList *fl) {
+	if (fl == NULL) return;
+	free_filter_list(fl->next);
+	phree(fl);
+}
+
+
 
 /*
  * Check the use table.  This is a list of messages which have recently
@@ -1242,9 +1291,10 @@ void network_do_queue(void) {
 	network_poll_other_citadel_nodes();
 
 	/*
-	 * Load the network map into memory.
+	 * Load the network map and filter list into memory.
 	 */
 	read_network_map();
+	filterlist = load_filter_list();
 
 	/* 
 	 * Go ahead and run the queue
@@ -1266,10 +1316,13 @@ void network_do_queue(void) {
 	/* Save the network map back to disk */
 	write_network_map();
 
+	/* Free the filter list in memory */
+	free_filter_list(filterlist);
+	filterlist = NULL;
+
 	lprintf(7, "network: queue run completed\n");
 	doing_queue = 0;
 }
-
 
 
 /*

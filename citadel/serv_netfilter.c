@@ -43,27 +43,60 @@
 #include "policy.h"
 #include "database.h"
 #include "msgbase.h"
+#include "serv_network.h"
 #include "tools.h"
 
 /*
- * This handler detects whether the user is attempting to save a new
- * vCard as part of his/her personal configuration, and handles the replace
- * function accordingly (delete the user's existing vCard in the config room
- * and in the global address book).
+ * This handler detects whether an incoming network message is from some
+ * moron user who the site operator has elected to filter out.  If a match
+ * is found, the message is rejected.
  */
 int filter_the_idiots(struct CtdlMessage *msg, char *target_room) {
+	struct FilterList *fptr;
+	int zap_user = 0;
+	int zap_room = 0;
+	int zap_node = 0;
 
-	if (msg == NULL) {
+	if ( (msg == NULL) || (filterlist == NULL) ) {
 		return(0);
 	}
 
-	/* FIXME ... write it!  In the meantime, here's a temporary fix */
+	for (fptr = filterlist; fptr != NULL; fptr = fptr->next) {
 
-	if (msg->cm_fields['A'] != NULL) {
-		if (!strcasecmp(msg->cm_fields['A'],
-				"Curly Surmudgeon")) {
-			return(1);
+		zap_user = 0;
+		zap_room = 0;
+		zap_node = 0;
+
+		if (msg->cm_fields['A'] != NULL) {
+			if ( (!strcasecmp(msg->cm_fields['A'], fptr->fl_user))
+			   || (fptr->fl_user[0] == 0) ) {
+				zap_user = 1;
+			}
 		}
+
+		if (msg->cm_fields['C'] != NULL) {
+			if ( (!strcasecmp(msg->cm_fields['C'], fptr->fl_room))
+			   || (fptr->fl_room[0] == 0) ) {
+				zap_room = 1;
+			}
+		}
+
+		if (msg->cm_fields['O'] != NULL) {
+			if ( (!strcasecmp(msg->cm_fields['O'], fptr->fl_room))
+			   || (fptr->fl_room[0] == 0) ) {
+				zap_room = 1;
+			}
+		}
+
+		if (msg->cm_fields['N'] != NULL) {
+			if ( (!strcasecmp(msg->cm_fields['N'], fptr->fl_node))
+			   || (fptr->fl_node[0] == 0) ) {
+				zap_node = 1;
+			}
+		}
+	
+		if (zap_user + zap_room + zap_node == 3) return(1);
+
 	}
 
 	return(0);

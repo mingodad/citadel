@@ -1537,6 +1537,10 @@ PWOK:
 				do_ignet_configuration();
 				break;
 
+			case 92:
+				do_filterlist_configuration();
+				break;
+
 			case 6:
 				if (rc_alt_semantics)
 					updatelsa();

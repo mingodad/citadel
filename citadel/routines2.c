@@ -1195,4 +1195,114 @@ void do_ignet_configuration(void) {
 	}
 }
 
+/*
+ * Filter list configuration
+ */
+void do_filterlist_configuration(void) {
+	char buf[SIZ];
+	int num_recs = 0;
+	char **recs = NULL;
+	char ch;
+	int badkey;
+	int i, j;
+	int quitting = 0;
+	
+
+	sprintf(buf, "CONF getsys|%s", FILTERLIST);
+	serv_puts(buf);
+	serv_gets(buf);
+	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
+		++num_recs;
+		if (num_recs == 1) recs = malloc(sizeof(char *));
+		else recs = realloc(recs, (sizeof(char *)) * num_recs);
+		recs[num_recs-1] = malloc(SIZ);
+		strcpy(recs[num_recs-1], buf);
+	}
+
+	do {
+		scr_printf("\n");
+		color(BRIGHT_WHITE);
+		scr_printf(	"### "
+			"         User name           "
+			"         Room name           "
+			"    Node name    "
+			"\n");
+		color(DIM_WHITE);
+		scr_printf(	"--- "
+			"---------------------------- "
+			"---------------------------- "
+			"---------------- "
+			"\n");
+		for (i=0; i<num_recs; ++i) {
+		color(DIM_WHITE);
+		scr_printf("%3d ", i+1);
+		extract(buf, recs[i], 0);
+		color(BRIGHT_CYAN);
+		scr_printf("%-28s ", buf);
+		extract(buf, recs[i], 1);
+		color(BRIGHT_MAGENTA);
+		scr_printf("%-28s ", buf);
+		extract(buf, recs[i], 2);
+		color(BRIGHT_CYAN);
+		scr_printf("%-16s\n", buf);
+		extract(buf, recs[i], 3);
+		color(DIM_WHITE);
+		}
+
+		ch = keymenu("", "<A>dd|<D>elete|<S>ave|<Q>uit");
+		switch(ch) {
+			case 'a':
+				++num_recs;
+				if (num_recs == 1)
+					recs = malloc(sizeof(char *));
+				else recs = realloc(recs,
+					(sizeof(char *)) * num_recs);
+				newprompt("Enter user name: ", buf, 28);
+				strcat(buf, "|");
+				newprompt("Enter room name: ",
+					&buf[strlen(buf)], 28);
+				strcat(buf, "|");
+				newprompt("Enter node name: ",
+					&buf[strlen(buf)], 16);
+				strcat(buf, "|");
+				recs[num_recs-1] = strdup(buf);
+				break;
+			case 'd':
+				i = intprompt("Delete which one",
+					1, 1, num_recs) - 1;
+				free(recs[i]);
+				--num_recs;
+				for (j=i; j<num_recs; ++j)
+					recs[j] = recs[j+1];
+				break;
+			case 's':
+				sprintf(buf, "CONF putsys|%s", FILTERLIST);
+				serv_puts(buf);
+				serv_gets(buf);
+				if (buf[0] == '4') {
+					for (i=0; i<num_recs; ++i) {
+						serv_puts(recs[i]);
+					}
+					serv_puts("000");
+				}
+				else {
+					scr_printf("%s\n", &buf[4]);
+				}
+				quitting = 1;
+				break;
+			case 'q':
+				quitting = boolprompt(
+					"Quit without saving", 0);
+				break;
+			default:
+				badkey = 1;
+		}
+	} while (quitting == 0);
+
+	if (recs != NULL) {
+		for (i=0; i<num_recs; ++i) free(recs[i]);
+		free(recs);
+	}
+}
+
 

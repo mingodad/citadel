@@ -278,7 +278,7 @@ struct floor {
 #define	INTERNETCFG	"application/x-citadel-internet-config"
 #define IGNETCFG	"application/x-citadel-ignet-config"
 #define IGNETMAP	"application/x-citadel-ignet-map"
-#define USETABLE	"application/x-citadel-usetable"
+#define FILTERLIST	"application/x-citadel-filter-list"
 
 #define TRACE	lprintf(9, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
 
