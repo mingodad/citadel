@@ -35,7 +35,7 @@
 #define MAXSETUP 5
 
 #define UI_TEXT		0	/* Default setup type -- text only */
-#define UI_DIALOG	1	/* Use the 'dialog' program */
+#define UI_DIALOG	1	/* Use the 'dialog' program (REMOVED) */
 #define UI_CURSES	2	/* Use curses */
 
 #define SERVICE_NAME	"citadel"
@@ -261,10 +261,6 @@ int yesno(char *question)
 		} while ((answer < 0) || (answer > 1));
 		break;
 
-	case UI_DIALOG:
-		sprintf(buf, "dialog --yesno \"%s\" 7 80", question);
-		answer = ((system(buf) == 0) ? 1 : 0);
-		break;
 #ifdef HAVE_CURSES_H
 	case UI_CURSES:
 		do {
@@ -326,7 +322,6 @@ void print_setup(int msgnum)
 
 void important_message(char *title, char *msgtext)
 {
-	char buf[4096];
 
 	switch (setup_type) {
 
@@ -336,11 +331,6 @@ void important_message(char *title, char *msgtext)
 		hit_any_key();
 		break;
 
-	case UI_DIALOG:
-		sprintf(buf, "dialog --title \"%s\" --msgbox \"\n%s\" 20 80",
-			title, msgtext);
-		system(buf);
-		break;
 #ifdef HAVE_CURSES_H
 	case UI_CURSES:
 		clear();
@@ -375,9 +365,6 @@ void progress(char *text, long int curr, long int cmax)
 {
 	static long dots_printed;
 	long a;
-	static long prev;
-	static FILE *gauge = NULL;
-	char gcmd[256];
 
 	switch (setup_type) {
 
@@ -433,25 +420,6 @@ void progress(char *text, long int curr, long int cmax)
 		break;
 #endif
 
-	case UI_DIALOG:
-		if ((curr == 0) && (gauge == NULL)) {
-			sprintf(gcmd, "dialog --guage \"%s\" 7 80 0",
-				text);
-			gauge = (FILE *) popen(gcmd, "w");
-			prev = 0;
-		} else if (curr == cmax) {
-			fprintf(gauge, "100\n");
-			pclose(gauge);
-			gauge = NULL;
-		} else {
-			a = (curr * 100) / cmax;
-			if (a != prev) {
-				fprintf(gauge, "%ld\n", a);
-				fflush(gauge);
-			}
-			prev = a;
-		}
-		break;
 	}
 }
 
@@ -572,7 +540,6 @@ void set_str_val(int msgpos, char str[])
 	char buf[4096];
 	char setupmsg[4096];
 	char tempfile[64];
-	FILE *fp;
 
 	sprintf(tempfile, tmpnam(NULL));
 
@@ -588,22 +555,6 @@ void set_str_val(int msgpos, char str[])
 		buf[strlen(buf) - 1] = 0;
 		if (strlen(buf) != 0)
 			strcpy(str, buf);
-		break;
-	case UI_DIALOG:
-		get_setup_msg(setupmsg, msgpos);
-		sprintf(buf,
-			"dialog --title \"%s\" --inputbox \"\n%s\n\" 20 80 \"%s\" 2>%s",
-			setup_titles[msgpos],
-			setupmsg,
-			str, tempfile);
-		if (system(buf) == 0) {
-			fp = fopen(tempfile, "rb");
-			fgets(str, 4095, fp);
-			fclose(fp);
-			if (strlen(str) > 0)
-				if (str[strlen(str) - 1] == 10)
-					str[strlen(str) - 1] = 0;
-		}
 		break;
 #ifdef HAVE_CURSES_H
 	case UI_CURSES:
@@ -713,10 +664,6 @@ int discover_ui(void)
 #ifdef HAVE_CURSES_H
 	return UI_CURSES;
 #endif
-
-	if (system("dialog -h </dev/null 2>&1 |grep Savio") == 0) {
-		return UI_DIALOG;
-	}
 	return UI_TEXT;
 }
 
@@ -787,10 +734,6 @@ int main(int argc, char *argv[])
 
 	case UI_TEXT:
 		printf("\n\n\n               *** Citadel/UX setup program ***\n\n");
-		break;
-
-	case UI_DIALOG:
-		system("exec clear");
 		break;
 
 	}

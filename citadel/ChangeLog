@@ -1,4 +1,7 @@
 $Log$
+Revision 1.442  2000/01/15 04:31:44  ajc
+* Removed UI_DIALOG mode in setup.  Can't count on 'dialog' to be consistent.
+
 Revision 1.441  2000/01/15 04:07:17  ajc
 * Fixed the access rights on auto-created rooms (the same changes that were
   made to version 5.62 in the stable tree)
@@ -1544,4 +1547,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
