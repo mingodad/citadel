@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.120  2003/01/19 05:55:59  ajc
+ * serv_calendar.c: allocate dynamic symbol at module startup, not during
+   each session startup.  This error was causing crashes (of course).
+
  Revision 601.119  2003/01/18 06:18:20  ajc
  * whobbs.c: line up the columns better
  * routines2.c: when doing <.ASI> command, entering a blank hostname causes
@@ -4424,4 +4428,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

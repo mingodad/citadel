@@ -1434,10 +1434,8 @@ int ical_obj_aftersave(struct CtdlMessage *msg)
 
 
 void ical_session_startup(void) {
-	SYM_CIT_ICAL = CtdlGetDynamicSymbol();
 	CtdlAllocUserData(SYM_CIT_ICAL, sizeof(struct cit_ical));
 	memset(CIT_ICAL, 0, sizeof(struct cit_ical));
-	
 }
 
 
@@ -1449,6 +1447,7 @@ void ical_session_startup(void) {
 char *serv_calendar_init(void)
 {
 #ifdef CITADEL_WITH_CALENDAR_SERVICE
+	SYM_CIT_ICAL = CtdlGetDynamicSymbol();
 	CtdlRegisterMessageHook(ical_obj_beforesave, EVT_BEFORESAVE);
 	CtdlRegisterMessageHook(ical_obj_aftersave, EVT_AFTERSAVE);
 	CtdlRegisterSessionHook(ical_create_room, EVT_LOGIN);
