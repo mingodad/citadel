@@ -19,8 +19,9 @@ void *sd_context_loop (struct CitContext *con);
 void start_daemon (int do_close_stdio);
 void cmd_nset (char *cmdbuf);
 int convert_login (char *NameToConvert);
-void worker_thread (void);
+void *worker_thread (void *arg);
 inline void become_session(struct CitContext *which_con);
 void CtdlRedirectOutput(FILE *fp, int sock);
 
 extern int num_sessions;
+extern int time_to_die;
