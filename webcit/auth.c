@@ -249,7 +249,7 @@ void validate(void)
 		return;
 	}
 
-	wprintf("<div style=\"margin-right:1px\">"
+	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 	wprintf("<center>");
 
@@ -359,7 +359,7 @@ void display_changepw(void)
 		strcpy(WC->ImportantMessage, "");
 	}
 
-	wprintf("<div style=\"margin-right:1px\">"
+	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<CENTER><br />");

@@ -249,7 +249,7 @@ void summary(void) {
 	 * not people I consider worthwhile, I still want them to use WebCit.
 	 */
 
-	wprintf("<div style=\"margin-right:1px\">"
+	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%%><tr valign=top>");
 
 	/*

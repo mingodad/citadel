@@ -68,7 +68,7 @@ void display_floorconfig(char *prepend_html)
 		return;
 	}
 
-	wprintf("<div style=\"margin-right:1px\">"
+	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<TABLE BORDER=1 WIDTH=100%% bgcolor=\"#ffffff\">\n"
 		"<TR><TH>Floor number</TH>"
 		"<TH>Floor name</TH>"

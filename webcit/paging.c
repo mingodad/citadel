@@ -44,7 +44,7 @@ void display_page(void)
                 "</div>\n<div id=\"content\">\n"
         );
                                                                                                                              
-        wprintf("<div style=\"margin-right:1px\">"
+        wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("Send an instant message to: ");

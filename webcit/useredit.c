@@ -291,7 +291,7 @@ void display_edituser(char *supplied_username, int is_new) {
 	wprintf("</SPAN></TD></TR></TABLE>\n");
 	wprintf("</div>\n<div id=\"content\">\n");
 
-	wprintf("<div style=\"margin-right:1px\">"
+	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/edituser\">\n"
 		"<INPUT TYPE=\"hidden\" NAME=\"username\" VALUE=\"");
