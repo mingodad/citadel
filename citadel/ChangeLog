@@ -1,4 +1,9 @@
  $Log$
+ Revision 606.4  2003/05/26 05:36:25  ajc
+ * citadel.h: changed internal version number to 6.07
+ * file_ops.c: #include <ctype.h>
+ * migratenet.c: #include <ctype.h>
+
  Revision 606.3  2003/05/26 05:30:18  ajc
  * serv_calendar.c: fixed a bug in the "ICAL freebusy" subcommand which
    caused it to always fetch the logged in user's freebusy times instead
@@ -4724,3 +4729,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
