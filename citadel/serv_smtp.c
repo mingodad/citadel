@@ -470,7 +470,7 @@ void smtp_data(void) {
 
 	cprintf("354 Transmit message now; terminate with '.' by itself\r\n");
 	
-	datestring(nowstamp, time(NULL), DATESTRING_RFC822);
+	datestring(nowstamp, sizeof nowstamp, time(NULL), DATESTRING_RFC822);
 	body = mallok(4096);
 
 	/* FIXME

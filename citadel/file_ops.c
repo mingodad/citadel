@@ -661,7 +661,7 @@ void cmd_ucls(char *cmd)
 		}
 
 		/* put together an upload notice */
-		sprintf(upload_notice,
+		snprintf(upload_notice, sizeof upload_notice,
 			"NEW UPLOAD: '%s'\n %s\n",
 			CC->upl_file, CC->upl_comment);
 		quickie_message(CC->curr_user, NULL, CC->quickroom.QRname,

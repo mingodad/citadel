@@ -1091,7 +1091,7 @@ GSTA:	/* See if we have a username and password on disk */
 			serv_gets(aaa);
 			if (nonce[0])
 			{
-				sprintf(aaa, "PAS2 %s", make_apop_string(password, nonce, hexstring));
+				snprintf(aaa, sizeof aaa, "PAS2 %s", make_apop_string(password, nonce, hexstring, sizeof hexstring));
 			}
 			else	/* Else no APOP */
 			{
@@ -1149,11 +1149,11 @@ GSTA:	/* See if we have a username and password on disk */
 
 	if (nonce[0])
 	{
-		sprintf(aaa, "PAS2 %s", make_apop_string(password, nonce, hexstring));
+		snprintf(aaa, sizeof aaa, "PAS2 %s", make_apop_string(password, nonce, hexstring, sizeof hexstring));
 	}
 	else	/* Else no APOP */
 	{
-  			snprintf(aaa, sizeof(aaa)-1, "PASS %s", password);
+		snprintf(aaa, sizeof aaa, "PASS %s", password);
 	}
 	
 	serv_puts(aaa);

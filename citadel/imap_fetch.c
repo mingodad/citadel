@@ -87,7 +87,7 @@ void imap_fetch_internaldate(struct CtdlMessage *msg) {
 		msgdate = time(NULL);
 	}
 
-	datestring(buf, msgdate, DATESTRING_IMAP);
+	datestring(buf, sizeof buf, msgdate, DATESTRING_IMAP);
 	cprintf("INTERNALDATE \"%s\"", buf);
 }
 
@@ -199,7 +199,7 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 		fwrite(content, length, 1, imfp->output_fp);
 	}
 
-	sprintf(mbuf2, "%s.MIME", partnum);
+	snprintf(mbuf2, sizeof mbuf2, "%s.MIME", partnum);
 
 	if (!strcasecmp(imfp->desired_section, mbuf2)) {
 		fprintf(imfp->output_fp, "Content-type: %s", cbtype);
@@ -280,7 +280,7 @@ void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
 	else {
 		msgdate = time(NULL);
 	}
-	datestring(datestringbuf, msgdate, DATESTRING_IMAP);
+	datestring(datestringbuf, sizeof datestringbuf, msgdate, DATESTRING_IMAP);
 
 	/* Now start spewing data fields.  The order is important, as it is
 	 * defined by the protocol specification.  Nonexistent fields must
@@ -933,7 +933,7 @@ void imap_pick_range(char *supplied_range, int is_uid) {
 		extract_token(lostr, setstr, 0, ':');
 		if (num_tokens(setstr, ':') >= 2) {
 			extract_token(histr, setstr, 1, ':');
-			if (!strcmp(histr, "*")) sprintf(histr, "%d", INT_MAX);
+			if (!strcmp(histr, "*")) snprintf(histr, sizeof histr, "%d", INT_MAX);
 		} 
 		else {
 			strcpy(histr, lostr);

@@ -22,12 +22,12 @@
 
 #define PWFILENAME "%s/.citadel.passwords"
 
-void determine_pwfilename(char *pwfile) {
+static void determine_pwfilename(char *pwfile, size_t n) {
 	struct passwd *p;
 
 	p = getpwuid(getuid());
 	if (p == NULL) strcpy(pwfile, "");
-	sprintf(pwfile, PWFILENAME, p->pw_dir);
+	snprintf(pwfile, n, PWFILENAME, p->pw_dir);
 }
 
 
@@ -50,7 +50,7 @@ void get_stored_password(
 	strcpy(username, "");
 	strcpy(password, "");
 
-	determine_pwfilename(pwfile);
+	determine_pwfilename(pwfile, sizeof pwfile);
 	if (strlen(pwfile)==0) return;
 
 	fp = fopen(pwfile, "r");
@@ -88,7 +88,7 @@ void set_stored_password(
 	char buf64[SIZ];
 	char hostbuf[SIZ], portbuf[SIZ], ubuf[SIZ], pbuf[SIZ];
 
-	determine_pwfilename(pwfile);
+	determine_pwfilename(pwfile, sizeof pwfile);
 	if (strlen(pwfile)==0) return;
 
 	oldfp = fopen(pwfile, "r");
@@ -105,14 +105,14 @@ void set_stored_password(
 
 		if ( (strcasecmp(hostbuf, host)) 
 		   || (strcasecmp(portbuf, port)) ) {
-			sprintf(buf, "%s|%s|%s|%s|",
+			snprintf(buf, sizeof buf, "%s|%s|%s|%s|",
 				hostbuf, portbuf, ubuf, pbuf);
 			encode_base64(buf64, buf);
 			fprintf(fp, "%s\n", buf64);
 		}
 	}
 	if (strlen(username) > 0) {
-		sprintf(buf, "%s|%s|%s|%s|",
+		snprintf(buf, sizeof buf, "%s|%s|%s|%s|",
 			host, port, username, password);
 		encode_base64(buf64, buf);
 		fprintf(fp, "%s\n", buf64);

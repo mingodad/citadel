@@ -359,7 +359,7 @@ int read_message(
 	sigcaught = 0;
 	sttybbs(1);
 
-	sprintf(buf, "MSG0 %ld|%d", num, (pagin == READ_HEADER ? 1 : 0));
+	snprintf(buf, sizeof buf, "MSG0 %ld|%d", num, (pagin == READ_HEADER ? 1 : 0));
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '1') {
@@ -693,13 +693,14 @@ int client_make_message(char *filename,	/* temporary file name */
 	header[0] = 0;
 
 	if (room_flags & QR_ANONONLY && !recipient) {
-		sprintf(&header[strlen(header)], " ****");
+		snprintf(header, sizeof header, " ****");
 	}
 	else {
-		sprintf(&header[strlen(header)],
+		snprintf(header, sizeof header,
 			" %s from %s", datestr, fullname);
 		if (strlen(recipient) > 0) {
-			sprintf(&header[strlen(header)],
+			size_t tmp = strlen(header);
+			snprintf(&header[tmp], sizeof header - tmp,
 				" to %s", recipient);
 		}
 	}
@@ -944,7 +945,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 	 * First, check to see if we have permission to enter a message in
 	 * this room.  The server will return an error code if we can't.
 	 */
-	sprintf(cmd, "ENT0 0||0|%d", mode);
+	snprintf(cmd, sizeof cmd, "ENT0 0||0|%d", mode);
 	serv_puts(cmd);
 	serv_gets(cmd);
 
@@ -1005,7 +1006,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 
 	/* If it's mail, we've got to check the validity of the recipient... */
 	if (strlen(buf) > 0) {
-		sprintf(cmd, "ENT0 0|%s|%d|%d|%s", buf, b, mode, subject);
+		snprintf(cmd, sizeof cmd, "ENT0 0|%s|%d|%d|%s", buf, b, mode, subject);
 		serv_puts(cmd);
 		serv_gets(cmd);
 		if (cmd[0] != '2') {
@@ -1047,7 +1048,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 	}
 
 	/* Transmit message to the server */
-	sprintf(cmd, "ENT0 1|%s|%d|%d|%s|", buf, b, mode, subject);
+	snprintf(cmd, sizeof cmd, "ENT0 1|%s|%d|%d|%s|", buf, b, mode, subject);
 	serv_puts(cmd);
 	serv_gets(cmd);
 	if (cmd[0] != '4') {
@@ -1165,7 +1166,7 @@ void list_urls()
 	if ((i = num_urls) != 1)
 		i = intprompt("Display which one", 1, 1, num_urls);
 
-	sprintf(cmd, rc_url_cmd, urls[i - 1]);
+	snprintf(cmd, sizeof cmd, rc_url_cmd, urls[i - 1]);
 	system(cmd);
 	scr_printf("\n");
 }
@@ -1211,7 +1212,7 @@ void readmsgs(
 		strcat(cmd, "OLD");
 		break;
 	case 3:
-		sprintf(&cmd[strlen(cmd)], "LAST|%d", q);
+		snprintf(&cmd[5], sizeof cmd - 5, "LAST|%d", q);
 		break;
 	}
 	serv_puts(cmd);
@@ -1468,7 +1469,7 @@ RMSGREAD:	scr_flush();
 			newprompt("Enter target room: ",
 				  targ, ROOMNAMELEN - 1);
 			if (strlen(targ) > 0) {
-				sprintf(cmd, "MOVE %ld|%s|%d",
+				snprintf(cmd, sizeof cmd, "MOVE %ld|%s|%d",
 					msg_arr[a], targ,
 					(e == 'c' ? 1 : 0));
 				serv_puts(cmd);
@@ -1501,7 +1502,7 @@ RMSGREAD:	scr_flush();
 		case 'd':
 			scr_printf("*** Delete this message? ");
 			if (yesno() == 1) {
-				sprintf(cmd, "DELE %ld", msg_arr[a]);
+				snprintf(cmd, sizeof cmd, "DELE %ld", msg_arr[a]);
 				serv_puts(cmd);
 				serv_gets(cmd);
 				scr_printf("%s\n", &cmd[4]);
@@ -1534,7 +1535,7 @@ RMSGREAD:	scr_flush();
                 char buf[SIZ];
                 int founda = 0;
                 
-               	sprintf(buf, "MSG0 %ld|%d", msg_arr[finda], 1); /* read the header so we can get 'from=' */
+               	snprintf(buf, sizeof buf, "MSG0 %ld|%d", msg_arr[finda], 1); /* read the header so we can get 'from=' */
              	serv_puts(buf);
             	serv_gets(buf);
             	while (serv_gets(buf), strcmp(buf, "000")) 
@@ -1570,9 +1571,9 @@ void edit_system_message(char *which_message)
 	char read_cmd[64];
 	char write_cmd[64];
 
-	sprintf(desc, "system message '%s'", which_message);
-	sprintf(read_cmd, "MESG %s", which_message);
-	sprintf(write_cmd, "EMSG %s", which_message);
+	snprintf(desc, sizeof desc, "system message '%s'", which_message);
+	snprintf(read_cmd, sizeof read_cmd, "MESG %s", which_message);
+	snprintf(write_cmd, sizeof write_cmd, "EMSG %s", which_message);
 	do_edit(desc, read_cmd, "NOOP", write_cmd);
 }
 

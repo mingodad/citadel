@@ -69,7 +69,7 @@ int main(int argc, char **argv)
 		logoff(atoi(buf));
 	}
 
-	sprintf(buf, "IPGM %d", config.c_ipgm_secret);
+	snprintf(buf, sizeof buf, "IPGM %d", config.c_ipgm_secret);
 	serv_puts(buf);
 	serv_gets(buf);
 	fprintf(stderr, "%s\n", &buf[4]);
@@ -117,7 +117,7 @@ int main(int argc, char **argv)
 			fprintf(nodefp, "%s|", buf);
 			printf("Enter host name/IP : ");
 			gets(buf);
-			if (buf[0] == 0) sprintf(buf, "%s.citadel.org",
+			if (buf[0] == 0) snprintf(buf, sizeof buf, "%s.citadel.org",
 				d->d_name);
 			fprintf(nodefp, "%s|", buf);
 			printf("Enter port number  : ");
@@ -149,7 +149,7 @@ int main(int argc, char **argv)
 
 	/* Set up the node table */
 	printf("Creating neighbor node table\n");
-	sprintf(buf, "CONF putsys|%s", IGNETCFG);
+	snprintf(buf, sizeof buf, "CONF putsys|%s", IGNETCFG);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] == '4') {
@@ -170,7 +170,7 @@ int main(int argc, char **argv)
 
 	/* Now go through the table looking for node names to enter */
 
-	sprintf(buf, "cat %s |awk -F \"|\" '{ print $2 }' |sort -f |uniq -i",
+	snprintf(buf, sizeof buf, "cat %s |awk -F \"|\" '{ print $2 }' |sort -f |uniq -i",
 		roomfilename);
 	roomfp = popen(buf, "r");
 	if (roomfp == NULL) {
@@ -195,7 +195,7 @@ int main(int argc, char **argv)
 	while (mn != NULL) {
 		printf("Room <%s>\n", mn->roomname);
 
-		sprintf(buf, "GOTO %s", mn->roomname);
+		snprintf(buf, sizeof buf, "GOTO %s", mn->roomname);
 		serv_puts(buf);
 		serv_gets(buf);
 		printf("%s\n", &buf[4]);
@@ -205,7 +205,7 @@ int main(int argc, char **argv)
 		serv_gets(buf);
 		if (buf[0] != '4') goto roomerror;
 
-		sprintf(buf, "lastsent|%ld", highest);
+		snprintf(buf, sizeof buf, "lastsent|%ld", highest);
 		serv_puts(buf);
 
 		roomfp = fopen(roomfilename, "r");
@@ -215,7 +215,7 @@ int main(int argc, char **argv)
 				extract(node, buf, 0);
 				extract(room, buf, 1);
 				if (!strcasecmp(room, mn->roomname)) {
-					sprintf(buf, 
+					snprintf(buf, sizeof buf,
 						"ignet_push_share|%s", node);
 					serv_puts(buf);
 				}

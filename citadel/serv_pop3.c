@@ -238,7 +238,7 @@ void pop3_apop(char *argbuf)
    	return;
    }
    
-   make_apop_string(CC->usersupp.password, CC->cs_nonce, realdigest);
+   make_apop_string(CC->usersupp.password, CC->cs_nonce, realdigest, sizeof realdigest);
    if (!strncasecmp(realdigest, userdigest, MD5_HEXSTRING_SIZE-1))
    {
 	do_login();

@@ -44,7 +44,7 @@ static char *weekdays[] = {
  * Supplied with a unix timestamp, generate an RFC822-compliant textual
  * time and date stamp.
  */
-void datestring(char *buf, time_t xtime, int which_format) {
+void datestring(char *buf, size_t n, time_t xtime, int which_format) {
 	struct tm *t;
 
 	long offset;
@@ -70,7 +70,7 @@ void datestring(char *buf, time_t xtime, int which_format) {
 	switch(which_format) {
 
 		case DATESTRING_RFC822:
-			sprintf(buf, "%s, %02d %s %04d %02d:%02d:%02d %c%04ld",
+			snprintf(buf, n, "%s, %02d %s %04d %02d:%02d:%02d %c%04ld",
 				weekdays[t->tm_wday],
 				t->tm_mday,
 				months[t->tm_mon],
@@ -83,7 +83,7 @@ void datestring(char *buf, time_t xtime, int which_format) {
 		break;
 
 		case DATESTRING_IMAP:
-			sprintf(buf, "%02d-%s-%04d %02d:%02d:%02d %c%04ld",
+			snprintf(buf, n, "%02d-%s-%04d %02d:%02d:%02d %c%04ld",
 				t->tm_mday,
 				months[t->tm_mon],
 				t->tm_year + 1900,

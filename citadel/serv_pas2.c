@@ -67,7 +67,7 @@ void cmd_pas2(char *argbuf)
 		return;
 	}
 	
-	make_apop_string(CC->usersupp.password, CC->cs_nonce, hexstring);
+	make_apop_string(CC->usersupp.password, CC->cs_nonce, hexstring, sizeof hexstring);
 	
 	if (!strcmp(hexstring, pw))
 	{

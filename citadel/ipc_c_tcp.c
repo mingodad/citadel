@@ -294,7 +294,7 @@ void attach_to_server(int argc, char **argv, char *hostbuf, char *portbuf)
 
 	/* If we're using a unix domain socket we can do a bunch of stuff */
 	if (!strcmp(cithost, UDS)) {
-		sprintf(sockpath, "citadel.socket");
+		snprintf(sockpath, sizeof sockpath, "citadel.socket");
 		serv_sock = uds_connectsock(sockpath);
 		if (hostbuf != NULL) strcpy(hostbuf, cithost);
 		if (portbuf != NULL) strcpy(portbuf, sockpath);

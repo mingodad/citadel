@@ -319,7 +319,7 @@ void open_databases(void)
 		/* Arbitrary names for our tables -- we reference them by
 		 * number, so we don't have string names for them.
 		 */
-		sprintf(dbfilename, "cdb.%02x", i);
+		snprintf(dbfilename, sizeof dbfilename, "cdb.%02x", i);
 
 		ret = dbp[i]->open(dbp[i],
 				dbfilename,

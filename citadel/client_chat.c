@@ -300,7 +300,7 @@ void quiet_mode(void)
 		qstate = 1;
 	else
 		qstate = 0;
-	sprintf(buf, "DEXP %d", qstate);
+	snprintf(buf, sizeof buf, "DEXP %d", qstate);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '2') {

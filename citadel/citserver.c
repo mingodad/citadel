@@ -460,7 +460,7 @@ void cmd_iden(char *argbuf)
 	if (do_lookup) {
 		lprintf(9, "Looking up hostname '%s'\n", from_host);
 		if ((addr.s_addr = inet_addr(from_host)) != -1) {
-			locate_host(CC->cs_host, &addr);
+			locate_host(CC->cs_host, sizeof CC->cs_host, &addr);
 		}
 	   	else {
 			safestrncpy(CC->cs_host, from_host, sizeof CC->cs_host);
@@ -829,7 +829,7 @@ void begin_session(struct CitContext *con)
 	if (!CC->is_local_socket) {
 		if (!getpeername(con->client_socket,
 		   (struct sockaddr *) &sin, &len))
-			locate_host(con->cs_host, &sin.sin_addr);
+			locate_host(con->cs_host, sizeof con->cs_host, &sin.sin_addr);
 	}
 	else {
 		strcpy(con->cs_host, "");

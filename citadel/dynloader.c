@@ -488,7 +488,7 @@ void CtdlRegisterServiceHook(int tcp_port,
 
 	if (sockpath != NULL) {
 		newfcn->msock = ig_uds_server(sockpath, config.c_maxsessions);
-		sprintf(message, "Unix domain socket '%s': ", sockpath);
+		snprintf(message, sizeof message, "Unix domain socket '%s': ", sockpath);
 	}
 	else if (tcp_port <= 0) {	/* port -1 to disable */
 		lprintf(7, "Service has been manually disabled, skipping\n");
@@ -497,7 +497,7 @@ void CtdlRegisterServiceHook(int tcp_port,
 	}
 	else {
 		newfcn->msock = ig_tcp_server(tcp_port, config.c_maxsessions);
-		sprintf(message, "TCP port %d: ", tcp_port);
+		snprintf(message, sizeof message, "TCP port %d: ", tcp_port);
 	}
 
 	if (newfcn->msock > 0) {

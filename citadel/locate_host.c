@@ -28,7 +28,7 @@
 #include "config.h"
 #include "tools.h"
 
-void locate_host(char *tbuf, const struct in_addr *addr)
+void locate_host(char *tbuf, size_t n, const struct in_addr *addr)
 {
 	struct hostent *ch;
 	char *i;
@@ -48,7 +48,7 @@ void locate_host(char *tbuf, const struct in_addr *addr)
 		a2 = ((*i++) & 0xff);
 		a3 = ((*i++) & 0xff);
 		a4 = ((*i++) & 0xff);
-		sprintf(tbuf, "%d.%d.%d.%d", a1, a2, a3, a4);
+		snprintf(tbuf, n, "%d.%d.%d.%d", a1, a2, a3, a4);
 		goto end;	/* because we might need to end the critical
 				   section */
 	}

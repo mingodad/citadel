@@ -141,6 +141,7 @@ void imap_print_express_messages(void) {
 	struct ExpressMessage *ptr, *holdptr;
 	char *dumpomatic = NULL;
 	int i;
+	size_t size, size2;
 
 	if (CC->FirstExpressMessage == NULL) {
 		return;
@@ -151,7 +152,8 @@ void imap_print_express_messages(void) {
 	end_critical_section(S_SESSION_TABLE);
 
 	while (ptr != NULL) {
-		dumpomatic = mallok(strlen(ptr->text) + SIZ);
+		size = strlen(ptr->text) + SIZ;
+		dumpomatic = mallok(size);
 		strcpy(dumpomatic, "");
 		if (ptr->flags && EM_BROADCAST)
 			strcat(dumpomatic, "Broadcast message ");
@@ -161,7 +163,9 @@ void imap_print_express_messages(void) {
 			strcat(dumpomatic, "Please logoff now, as requested ");
 		else
 			strcat(dumpomatic, "Message ");
-		sprintf(&dumpomatic[strlen(dumpomatic)],
+
+		size2 = strlen(dumpomatic);
+		snprintf(&dumpomatic[size2], size - size2,
 			"from %s:\n", ptr->sender);
 		if (ptr->text != NULL)
 			strcat(dumpomatic, ptr->text);

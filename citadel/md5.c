@@ -336,7 +336,7 @@ void MD5Transform(cit_uint32_t buf[4], cit_uint32_t const in[16])
  * md5 string
  */
 
-char *make_apop_string(char *realpass, char *nonce, char *buffer)
+char *make_apop_string(char *realpass, char *nonce, char *buffer, size_t n)
 {
    struct MD5Context ctx;
    u_char rawdigest[MD5_DIGEST_LEN];
@@ -350,7 +350,7 @@ char *make_apop_string(char *realpass, char *nonce, char *buffer)
    MD5Final(rawdigest, &ctx);
    for (i=0; i<MD5_DIGEST_LEN; i++)
    {
-      sprintf(&buffer[i*2], "%02X", (unsigned char) (rawdigest[i] & 0xff));
+      snprintf(&buffer[i*2], n - i*2, "%02X", (unsigned char) (rawdigest[i] & 0xff));
       buffer[i*2] = tolower(buffer[i*2]);
       buffer[(i*2)+1] = tolower(buffer[(i*2)+1]);
    }

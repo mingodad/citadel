@@ -3,7 +3,7 @@
  *
  */
 
-void datestring(char *buf, time_t xtime, int which_format);
+void datestring(char *buf, size_t n, time_t xtime, int which_format);
 
 enum {
 	DATESTRING_RFC822,

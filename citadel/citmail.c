@@ -177,7 +177,7 @@ int main(int argc, char **argv) {
 
 	fp = tmpfile();
 	if (fp == NULL) return(errno);
-	sprintf(fromline, "From: someone@somewhere.org");
+	snprintf(fromline, sizeof fromline, "From: someone@somewhere.org");
 	while (fgets(buf, 1024, stdin) != NULL) {
 		fprintf(fp, "%s", buf);
 		if (!strncasecmp(buf, "From:", 5)) strcpy(fromline, buf);
@@ -192,12 +192,12 @@ int main(int argc, char **argv) {
 	serv_gets(buf);
 	if (buf[0]!='2') cleanup(1);
 
-	sprintf(buf, "MAIL %s", fromline);
+	snprintf(buf, sizeof buf, "MAIL %s", fromline);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]!='2') cleanup(1);
 
-	sprintf(buf, "RCPT To: %s", argv[1]);
+	snprintf(buf, sizeof buf, "RCPT To: %s", argv[1]);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]!='2') cleanup(1);

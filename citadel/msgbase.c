@@ -1165,7 +1165,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 				else if (i == 'R')
 					cprintf("To: %s%s", mptr, nl);
 				else if (i == 'T') {
-					datestring(datestamp, atol(mptr),
+					datestring(datestamp, sizeof datestamp, atol(mptr),
 						DATESTRING_RFC822 );
 					cprintf("Date: %s%s", datestamp, nl);
 				}
