@@ -293,6 +293,9 @@ void UserLogin::OnButtonPressed(wxCommandEvent& whichbutton) {
 void UserLogin::BeginSession(wxString serv_response) {
 	wxString junk;
 
+	if (citadel->IsConnected()==FALSE) {
+	citsock->curr_user = "";
+ 	} else
 	extract(citsock->curr_user, serv_response.Mid(4), 0);
 	BigMDI->SetStatusText(citsock->curr_user, 1);
 	citsock->GotoRoom("_BASEROOM_", "", junk);

@@ -19,5 +19,8 @@ daphne: main.o citclient.o userlogin.o testwindow.o who.o \
 	selectuser.o servprops.o \
 	$(LFLAGS) -o daphne
 
+install: 
+	
+	cp daphne /usr/local/bin/./
 clean:
 	rm -f *.o core daphne

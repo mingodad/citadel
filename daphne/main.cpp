@@ -339,15 +339,16 @@ void MyFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 }
 
 
-// Testing for doterm
+// doterm(inate session)
 
 void MyFrame::DoTerm(wxCommandEvent& WXUNUSED(event))
 {
 
-        // Kill the client connection
+        // Kill the client connection and don't destroy Daphne
         citadel->detach();
 	BigMDI->SetStatusText("Not connected");	
-	
+	delete TheWholist;
+	RoomList->DeleteAllItems();
 }
 
 
@@ -369,12 +370,20 @@ void MyFrame::OnUsersMenu(wxCommandEvent& cmd) {
 	
 	id = cmd.GetId();
 	if (id == UMENU_WHO) {
+	        if (citadel->IsConnected()==FALSE) {
+                wxMessageBox("You are not connected to a BBS.");
+        } else 
+
                 //if (TheWholist == NULL)
 			TheWholist = new who(citadel, this);
                 //else
                         //TheWholist->Activate();
 	}
 	else if (id == UMENU_SEND_EXPRESS)
+		        if (citadel->IsConnected()==FALSE) {
+                wxMessageBox("You are not connected to a BBS.");
+        } else 
+
 		new SendExpress(citadel, this, "");
 }
 
@@ -385,6 +394,10 @@ void MyFrame::OnRoomsMenu(wxCommandEvent& cmd) {
 	
 	id = cmd.GetId();
 	if (id == RMENU_GOTO) {
+	                if (citadel->IsConnected()==FALSE) {
+                wxMessageBox("You are not connected to a BBS.");
+        } else
+
 		new RoomView(citadel, this, RoomList->GetNextRoom());
 	}
 }
@@ -431,6 +444,10 @@ void MyFrame::OnConnect(wxCommandEvent& unused) {
 }
 
 void MyFrame::OnGotoMail(wxCommandEvent& unused) {
+	if (citadel->IsConnected()==FALSE) {
+	wxMessageBox("You are not connected to a BBS.");
+
+	} else
 	new RoomView(citadel, this, "_MAIL_");
 	}
 

@@ -48,7 +48,10 @@ who::who(CitClient *sock, wxMDIParentFrame *MyMDI)
 			"who"
 			) {
 
+
 	citsock = sock;
+
+
 
 	who_refresh *ref = new who_refresh(this);
 
@@ -77,6 +80,11 @@ who::who(CitClient *sock, wxMDIParentFrame *MyMDI)
 	wholist->InsertColumn(2, "Room", wxLIST_FORMAT_CENTER, 150);
 	wholist->InsertColumn(3, "From host", wxLIST_FORMAT_CENTER, 150);
 
+	wxLayoutConstraints *c2 = new wxLayoutConstraints;
+	c2->bottom.SameAs(this, wxBottom, 10);
+	c2->centreX.SameAs(this, wxCentreX);
+	c2->height.AsIs(); c2->width.AsIs();
+
 	SetAutoLayout(TRUE);
 	Show(TRUE);
 	LoadWholist();
@@ -86,6 +94,8 @@ who::who(CitClient *sock, wxMDIParentFrame *MyMDI)
 
 // Load up the control
 void who::LoadWholist(void) {
+
+
 	wxString sendcmd, recvcmd, buf;
 	wxString rwho;
 	int i = 0;
@@ -109,7 +119,7 @@ void who::LoadWholist(void) {
 		wholist->SetItem(i, 3, host);
 		++i;
 	}
-}
+   }
 
 
 
@@ -126,3 +136,4 @@ who_refresh::who_refresh(who *parent_who)
 void who_refresh::Notify(void) {
 	which_who->LoadWholist();
 }
+
