@@ -2422,7 +2422,13 @@ void cmd_ent0(char *entargs)
 	}
 	CC->cs_flags |= CS_POSTING;
 
-	if (CC->quickroom.QRflags & QR_MAILBOX) {
+	/* In the Mail> room we have to behave a little differently --
+	 * make sure the user has specified at least one recipient.  Then
+	 * validate the recipient(s).
+	 */
+	if ( (CC->quickroom.QRflags & QR_MAILBOX)
+	   && (!strcasecmp(&CC->quickroom.QRname[11], MAILROOM)) ) {
+
 		if (CC->usersupp.axlevel < 2) {
 			strcpy(recp, "sysop");
 		}
