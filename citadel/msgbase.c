@@ -47,7 +47,9 @@ char *msgkeys[] = {
 	"", "", "", "", "", "", "", "", 
 	"", 
 	"from",
-	"", "", "", "", "", "", 
+	"", "", "",
+	"exti",
+	"", "", 
 	"hnod",
 	"msgn",
 	"", "", "",
@@ -1214,6 +1216,7 @@ void check_repl(long msgnum) {
 	struct CtdlMessage *msg;
 	time_t timestamp = (-1L);
 
+	lprintf(9, "check_repl() found message %ld\n", msgnum);
 	msg = CtdlFetchMessage(msgnum);
 	if (msg == NULL) return;
 	if (msg->cm_fields['T'] != NULL) {
@@ -1223,8 +1226,10 @@ void check_repl(long msgnum) {
 
 	if (timestamp > msg_repl->highest) {
 		msg_repl->highest = timestamp;	/* newer! */
+		lprintf(9, "newer!\n");
 		return;
 	}
+	lprintf(9, "older!\n");
 
 	/* Existing isn't newer?  Then delete the old one(s). */
 	CtdlDeleteMessages(CC->quickroom.QRname, msgnum, NULL);
@@ -1243,13 +1248,15 @@ int ReplicationChecks(struct CtdlMessage *msg) {
 	struct CtdlMessage *template;
 	int abort_this = 0;
 
+	lprintf(9, "ReplicationChecks() started\n");
 	/* No extended id?  Don't do anything. */
 	if (msg->cm_fields['E'] == NULL) return 0;
 	if (strlen(msg->cm_fields['E']) == 0) return 0;
+	lprintf(9, "Extended ID: <%s>\n", msg->cm_fields['E']);
 
 	CtdlAllocUserData(SYM_REPL, sizeof(struct repl));
 	strcpy(msg_repl->extended_id, msg->cm_fields['E']);
-	msg_repl->highest = (-1L);
+	msg_repl->highest = atol(msg->cm_fields['T']);
 
 	template = (struct CtdlMessage *) malloc(sizeof(struct CtdlMessage));
 	memset(template, 0, sizeof(struct CtdlMessage));
@@ -1265,6 +1272,7 @@ int ReplicationChecks(struct CtdlMessage *msg) {
 		}
 
 	CtdlFreeMessage(template);
+	lprintf(9, "Returning %d\n", abort_this);
 	return(abort_this);
 }
 
