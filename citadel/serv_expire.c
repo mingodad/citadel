@@ -96,6 +96,11 @@ struct roomref {
 	long msgnum;
 };
 
+struct UPurgeList {
+	struct UPurgeList *next;
+	char up_key[SIZ];
+};
+
 
 struct PurgeList *UserPurgeList = NULL;
 struct PurgeList *RoomPurgeList = NULL;
@@ -551,8 +556,11 @@ int PurgeUseTable(void) {
 	int purged = 0;
 	struct cdbdata *cdbut;
 	struct UseTable ut;
+	struct UPurgeList *ul = NULL;
+	struct UPurgeList *uptr; 
 
-	/* Traverse through the table, purging old records... */
+	/* Phase 1: traverse through the table, discovering old records... */
+	lprintf(9, "Purge use table: phase 1\n");
 	cdb_rewind(CDB_USETABLE);
 	while(cdbut = cdb_next_item(CDB_USETABLE), cdbut != NULL) {
 
@@ -562,13 +570,27 @@ int PurgeUseTable(void) {
                 cdb_free(cdbut);
 
 		if ( (time(NULL) - ut.ut_timestamp) > USETABLE_RETAIN ) {
-			cdb_delete(CDB_USETABLE, ut.ut_msgid,
-						strlen(ut.ut_msgid) );
+			uptr = (struct UPurgeList *) mallok(sizeof(struct UPurgeList));
+			if (uptr != NULL) {
+				uptr->next = ul;
+				safestrncpy(uptr->up_key, ut.ut_msgid, SIZ);
+				ul = uptr;
+			}
 			++purged;
 		}
 
 	}
 
+	/* Phase 2: delete the records */
+	lprintf(9, "Purge use table: phase 2\n");
+	while (ul != NULL) {
+		cdb_delete(CDB_USETABLE, ul->up_key, strlen(ul->up_key));
+		uptr = ul->next;
+		phree(ul);
+		ul = uptr;
+	}
+
+	lprintf(9, "Purge use table: finished (purged %d records)\n", purged);
 	return(purged);
 }
 
