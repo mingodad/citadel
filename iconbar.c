@@ -199,8 +199,11 @@ void do_iconbar(void) {
 
 	if (ib_chat) {
 		wprintf("<SPAN CLASS=\"iconbar_link\">"
-			"<A HREF=\"/chat\" TITLE=\"Chat with other users in this room\" "
-			"TARGET=\"workspace\">"
+			"<A HREF=\"#\" onClick=\"window.open('/chat', "
+			"'ctdl_chat_window', "
+			"'toolbar=no,location=no,directories=no,copyhistory=no,"
+			"status=yes,scrollbars=yes,resizable=yes');\""
+			">"
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
