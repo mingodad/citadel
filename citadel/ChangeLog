@@ -1,3 +1,6 @@
+Sat Dec 26 16:56:46 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* internetmail.config: commented this file more clearly
+
 Wed Dec 23 20:42:49 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* citadel.c: added some experimental code to automatically reconnect
 	  to the server if the connection is broken.  For some reason, it only
