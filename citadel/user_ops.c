@@ -455,7 +455,9 @@ void logout(struct CitContext *who)
 	}
 
 	/* Do modular stuff... */
+	become_session(who);
 	PerformSessionHooks(EVT_LOGOUT);
+	become_session(NULL);
 }
 
 #ifdef ENABLE_CHKPWD
