@@ -1,4 +1,7 @@
 $Log$
+Revision 1.112  1999/12/04 21:56:59  ajc
+* Finished the overhaul.  Now to tune...
+
 Revision 1.111  1999/12/03 17:59:53  ajc
 * BROKEN BUILD.  Wrote most of the session removal code, but some of it is
   pseudocode so the build is currently broken.
@@ -331,5 +334,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
-
