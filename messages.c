@@ -489,7 +489,8 @@ void read_message(long msgnum) {
 	if (strlen(cal_partnum) > 0) {
 		part_source = load_mimepart(msgnum, cal_partnum);
 		if (part_source != NULL) {
-			cal_process_attachment(part_source);
+			cal_process_attachment(part_source,
+						msgnum, cal_partnum);
 		}
 	}
 
