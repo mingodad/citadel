@@ -1055,6 +1055,12 @@ void session_loop(struct httprequest *req)
 		do_graphics_upload("UIMG 1|_roompic_");
 	} else if (!strcasecmp(action, "select_floor_to_edit_pic")) {
 		select_floor_to_edit_pic();
+	} else if (!strcasecmp(action, "delete_floor")) {
+		delete_floor();
+	} else if (!strcasecmp(action, "rename_floor")) {
+		rename_floor();
+	} else if (!strcasecmp(action, "create_floor")) {
+		create_floor();
 	} else if (!strcasecmp(action, "display_editfloorpic")) {
 		sprintf(buf, "UIMG 0|_floorpic_|%s",
 			bstr("which_floor"));
@@ -1126,6 +1132,8 @@ void session_loop(struct httprequest *req)
 		do_stuff_to_msgs();
 	} else if (!strcasecmp(action, "change_start_page")) {
 		change_start_page();
+	} else if (!strcasecmp(action, "display_floorconfig")) {
+		display_floorconfig(NULL);
 	} else if (!strcasecmp(action, "diagnostics")) {
 		output_headers(1);
 

@@ -315,3 +315,7 @@ void display_addressbook(long msgnum, char alpha);
 void offer_start_page(void);
 void change_start_page(void);
 void output_html(void);
+void display_floorconfig(char *);
+void delete_floor(void);
+void create_floor(void);
+void rename_floor(void);

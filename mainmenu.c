@@ -177,6 +177,9 @@ void display_main_menu(void)
 			wprintf("<LI><A HREF=\"/validate\">\n");
 			wprintf("Validate new users</A>\n");
 
+			wprintf("<LI><A HREF=\"/display_floorconfig\">\n");
+			wprintf("Add, change, or delete floors</A>\n");
+
 			wprintf("<LI><A HREF=\"/select_floor_to_edit_pic\">\n");
 			wprintf("Set or change a floor label graphic</A>\n");
 
