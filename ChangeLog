@@ -1,4 +1,7 @@
 $Log$
+Revision 213.1  2000/10/20 04:27:46  ajc
+* zapped_list() -- fixed broken HTML tags.  (Closes bug #76.)
+
 Revision 213.0  2000/10/03 16:44:01  ajc
 * Tagged for 2.13 release
 
@@ -504,4 +507,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -272,7 +272,7 @@ void zapped_list(void)
 {
 	output_headers(1);
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
-	wprintf("SIZE=+1 COLOR=\"FFFFFF\"");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Zapped (forgotten) rooms</B>\n");
 	wprintf("</TD></TR></TABLE><BR>\n");
 	listrms("LZRM -1");
