@@ -1318,8 +1318,10 @@ void contemplate_ldap(void) {
 		set_init_entry(slapd_init_entry, "off");
 	}
 
-	/* Generate a unique entry name for slapd */
-	generate_entry_name(slapd_init_entry);
+	/* Otherwise, generate a unique entry name for slapd */
+	else {
+		generate_entry_name(slapd_init_entry);
+	}
 
 	/* Now write it out to /etc/inittab.
 	 * FIXME make it run as some non-root user.

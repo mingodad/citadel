@@ -1,4 +1,7 @@
  $Log$
+ Revision 627.4  2004/11/11 04:38:36  ajc
+ * setup.c: fix bug that kept creating new inittab entries for slapd
+
  Revision 627.3  2004/11/10 21:33:47  ajc
  * Go to Berkeley DB 4.3.21 in Easy Install
 
@@ -6201,3 +6204,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
