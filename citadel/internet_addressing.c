@@ -33,6 +33,11 @@
 #include "parsedate.h"
 
 
+struct trynamebuf {
+	char buffer1[256];
+	char buffer2[256];
+};
+
 
 /*
  * Return 0 if a given string fuzzy-matches a Citadel user account
@@ -218,18 +223,20 @@ void process_rfc822_addr(char *rfc822, char *user, char *node, char *name)
  * Back end for convert_internet_address()
  * (Compares an internet name [buffer1] and stores in [buffer2] if found)
  */
-void try_name(struct usersupp *us) {
+void try_name(struct usersupp *us, void *data) {
+	struct trynamebuf *tnb;
+	tnb = (struct trynamebuf *)data;
 	
-	if (!strncasecmp(CC->buffer1, "cit", 3))
-		if (atol(&CC->buffer1[3]) == us->usernum)
-			strcpy(CC->buffer2, us->fullname);
+	if (!strncasecmp(tnb->buffer1, "cit", 3))
+		if (atol(&tnb->buffer1[3]) == us->usernum)
+			strcpy(tnb->buffer2, us->fullname);
 
-	if (!collapsed_strcmp(CC->buffer1, us->fullname)) 
-			strcpy(CC->buffer2, us->fullname);
+	if (!collapsed_strcmp(tnb->buffer1, us->fullname)) 
+			strcpy(tnb->buffer2, us->fullname);
 
 	if (us->uid != BBSUID)
-		if (!strcasecmp(CC->buffer1, getpwuid(us->uid)->pw_name))
-			strcpy(CC->buffer2, us->fullname);
+		if (!strcasecmp(tnb->buffer1, getpwuid(us->uid)->pw_name))
+			strcpy(tnb->buffer2, us->fullname);
 }
 
 
@@ -243,6 +250,7 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 	char name[256];
 	struct quickroom qrbuf;
 	int i;
+	struct trynamebuf tnb;
 
 	/* Split it up */
 	process_rfc822_addr(source, user, node, name);
@@ -274,11 +282,11 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 		/* Try all local users */
 		strcpy(destuser, user);
 		strcpy(desthost, config.c_nodename);
-		strcpy(CC->buffer1, user);
-		strcpy(CC->buffer2, "");
-		ForEachUser(try_name);
-		if (strlen(CC->buffer2) == 0) return(rfc822_no_such_user);
-		strcpy(destuser, CC->buffer2);
+		strcpy(tnb.buffer1, user);
+		strcpy(tnb.buffer2, "");
+		ForEachUser(try_name, &tnb);
+		if (strlen(tnb.buffer2) == 0) return(rfc822_no_such_user);
+		strcpy(destuser, tnb.buffer2);
 		return(rfc822_address_locally_validated);
 	}
 

@@ -41,7 +41,8 @@ void cmd_lflr (void);
 void cmd_cflr (char *argbuf);
 void cmd_kflr (char *argbuf);
 void cmd_eflr (char *argbuf);
-void ForEachRoom(void (*CallBack)(struct quickroom *EachRoom));
+void ForEachRoom(void (*CallBack)(struct quickroom *EachRoom, void *out_data),
+	void *in_data);
 void assoc_file_name(char *buf, struct quickroom *qrbuf, char *prefix);
 void delete_room(struct quickroom *qrbuf);
 void list_roomname(struct quickroom *qrbuf);

@@ -992,7 +992,8 @@ void cmd_vali(char *v_args)
 /* 
  *  Traverse the user file...
  */
-void ForEachUser(void (*CallBack)(struct usersupp *EachUser)) {
+void ForEachUser(void (*CallBack)(struct usersupp *EachUser, void *out_data),
+		void *in_data) {
 	struct usersupp usbuf;
 	struct cdbdata *cdbus;
 
@@ -1004,7 +1005,7 @@ void ForEachUser(void (*CallBack)(struct usersupp *EachUser)) {
 			( (cdbus->len > sizeof(struct usersupp)) ?
 			sizeof(struct usersupp) : cdbus->len) );
 		cdb_free(cdbus);
-		(*CallBack)(&usbuf);
+		(*CallBack)(&usbuf, in_data);
 		}
 	}
 
@@ -1012,7 +1013,7 @@ void ForEachUser(void (*CallBack)(struct usersupp *EachUser)) {
 /*
  * List one user (this works with cmd_list)
  */
-void ListThisUser(struct usersupp *usbuf) {
+void ListThisUser(struct usersupp *usbuf, void *data) {
 	if (usbuf->axlevel > 0) {
 		if ((CC->usersupp.axlevel>=6)
 		   ||((usbuf->flags&US_UNLISTED)==0)
@@ -1036,7 +1037,7 @@ void ListThisUser(struct usersupp *usbuf) {
  */
 void cmd_list(void) {
 	cprintf("%d \n",LISTING_FOLLOWS);
-	ForEachUser(ListThisUser);
+	ForEachUser(ListThisUser, NULL);
 	cprintf("000\n");
 	}
 

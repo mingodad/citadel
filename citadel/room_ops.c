@@ -291,7 +291,8 @@ void lputfloor(struct floor *flbuf, int floor_num)
 /* 
  *  Traverse the room file...
  */
-void ForEachRoom(void (*CallBack) (struct quickroom * EachRoom))
+void ForEachRoom(void (*CallBack) (struct quickroom *EachRoom, void *out_data),
+		void *in_data)
 {
 	struct quickroom qrbuf;
 	struct cdbdata *cdbqr;
@@ -306,7 +307,7 @@ void ForEachRoom(void (*CallBack) (struct quickroom * EachRoom))
 		cdb_free(cdbqr);
 		room_sanity_check(&qrbuf);
 		if (qrbuf.QRflags & QR_INUSE)
-			(*CallBack) (&qrbuf);
+			(*CallBack)(&qrbuf, in_data);
 	}
 }
 
@@ -417,20 +418,23 @@ void list_roomname(struct quickroom *qrbuf)
 /* 
  * cmd_lrms()   -  List all accessible rooms, known or forgotten
  */
-void cmd_lrms_backend(struct quickroom *qrbuf)
+void cmd_lrms_backend(struct quickroom *qrbuf, void *data)
 {
+	int FloorBeingSearched = (-1);
+	FloorBeingSearched = *(int *)data;
+
 	if (((CtdlRoomAccess(qrbuf, &CC->usersupp)
 	      & (UA_KNOWN | UA_ZAPPED)))
-	    && ((qrbuf->QRfloor == (CC->FloorBeingSearched))
-		|| ((CC->FloorBeingSearched) < 0)))
+	    && ((qrbuf->QRfloor == (FloorBeingSearched))
+		|| ((FloorBeingSearched) < 0)))
 		list_roomname(qrbuf);
 }
 
 void cmd_lrms(char *argbuf)
 {
-	CC->FloorBeingSearched = (-1);
+	int FloorBeingSearched = (-1);
 	if (strlen(argbuf) > 0)
-		CC->FloorBeingSearched = extract_int(argbuf, 0);
+		FloorBeingSearched = extract_int(argbuf, 0);
 
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
@@ -442,7 +446,7 @@ void cmd_lrms(char *argbuf)
 	}
 	cprintf("%d Accessible rooms:\n", LISTING_FOLLOWS);
 
-	ForEachRoom(cmd_lrms_backend);
+	ForEachRoom(cmd_lrms_backend, &FloorBeingSearched);
 	cprintf("000\n");
 }
 
@@ -451,20 +455,23 @@ void cmd_lrms(char *argbuf)
 /* 
  * cmd_lkra()   -  List all known rooms
  */
-void cmd_lkra_backend(struct quickroom *qrbuf)
+void cmd_lkra_backend(struct quickroom *qrbuf, void *data)
 {
+	int FloorBeingSearched = (-1);
+	FloorBeingSearched = *(int *)data;
+
 	if (((CtdlRoomAccess(qrbuf, &CC->usersupp)
 	      & (UA_KNOWN)))
-	    && ((qrbuf->QRfloor == (CC->FloorBeingSearched))
-		|| ((CC->FloorBeingSearched) < 0)))
+	    && ((qrbuf->QRfloor == (FloorBeingSearched))
+		|| ((FloorBeingSearched) < 0)))
 		list_roomname(qrbuf);
 }
 
 void cmd_lkra(char *argbuf)
 {
-	CC->FloorBeingSearched = (-1);
+	int FloorBeingSearched = (-1);
 	if (strlen(argbuf) > 0)
-		CC->FloorBeingSearched = extract_int(argbuf, 0);
+		FloorBeingSearched = extract_int(argbuf, 0);
 
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
@@ -476,7 +483,7 @@ void cmd_lkra(char *argbuf)
 	}
 	cprintf("%d Known rooms:\n", LISTING_FOLLOWS);
 
-	ForEachRoom(cmd_lkra_backend);
+	ForEachRoom(cmd_lkra_backend, &FloorBeingSearched);
 	cprintf("000\n");
 }
 
@@ -485,23 +492,25 @@ void cmd_lkra(char *argbuf)
 /* 
  * cmd_lkrn()   -  List all known rooms with new messages
  */
-void cmd_lkrn_backend(struct quickroom *qrbuf)
+void cmd_lkrn_backend(struct quickroom *qrbuf, void *data)
 {
 	int ra;
+	int FloorBeingSearched = (-1);
+	FloorBeingSearched = *(int *)data;
 
 	ra = CtdlRoomAccess(qrbuf, &CC->usersupp);
 	if ((ra & UA_KNOWN)
 	    && (ra & UA_HASNEWMSGS)
-	    && ((qrbuf->QRfloor == (CC->FloorBeingSearched))
-		|| ((CC->FloorBeingSearched) < 0)))
+	    && ((qrbuf->QRfloor == (FloorBeingSearched))
+		|| ((FloorBeingSearched) < 0)))
 		list_roomname(qrbuf);
 }
 
 void cmd_lkrn(char *argbuf)
 {
-	CC->FloorBeingSearched = (-1);
+	int FloorBeingSearched = (-1);
 	if (strlen(argbuf) > 0)
-		CC->FloorBeingSearched = extract_int(argbuf, 0);
+		FloorBeingSearched = extract_int(argbuf, 0);
 
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
@@ -513,7 +522,7 @@ void cmd_lkrn(char *argbuf)
 	}
 	cprintf("%d Rooms w/ new msgs:\n", LISTING_FOLLOWS);
 
-	ForEachRoom(cmd_lkrn_backend);
+	ForEachRoom(cmd_lkrn_backend, &FloorBeingSearched);
 	cprintf("000\n");
 }
 
@@ -522,23 +531,25 @@ void cmd_lkrn(char *argbuf)
 /* 
  * cmd_lkro()   -  List all known rooms
  */
-void cmd_lkro_backend(struct quickroom *qrbuf)
+void cmd_lkro_backend(struct quickroom *qrbuf, void *data)
 {
 	int ra;
+	int FloorBeingSearched = (-1);
+	FloorBeingSearched = *(int *)data;
 
 	ra = CtdlRoomAccess(qrbuf, &CC->usersupp);
 	if ((ra & UA_KNOWN)
 	    && ((ra & UA_HASNEWMSGS) == 0)
-	    && ((qrbuf->QRfloor == (CC->FloorBeingSearched))
-		|| ((CC->FloorBeingSearched) < 0)))
+	    && ((qrbuf->QRfloor == (FloorBeingSearched))
+		|| ((FloorBeingSearched) < 0)))
 		list_roomname(qrbuf);
 }
 
 void cmd_lkro(char *argbuf)
 {
-	CC->FloorBeingSearched = (-1);
+	int FloorBeingSearched = (-1);
 	if (strlen(argbuf) > 0)
-		CC->FloorBeingSearched = extract_int(argbuf, 0);
+		FloorBeingSearched = extract_int(argbuf, 0);
 
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
@@ -550,7 +561,7 @@ void cmd_lkro(char *argbuf)
 	}
 	cprintf("%d Rooms w/o new msgs:\n", LISTING_FOLLOWS);
 
-	ForEachRoom(cmd_lkro_backend);
+	ForEachRoom(cmd_lkro_backend, &FloorBeingSearched);
 	cprintf("000\n");
 }
 
@@ -559,23 +570,25 @@ void cmd_lkro(char *argbuf)
 /* 
  * cmd_lzrm()   -  List all forgotten rooms
  */
-void cmd_lzrm_backend(struct quickroom *qrbuf)
+void cmd_lzrm_backend(struct quickroom *qrbuf, void *data)
 {
 	int ra;
+	int FloorBeingSearched = (-1);
+	FloorBeingSearched = *(int *)data;
 
 	ra = CtdlRoomAccess(qrbuf, &CC->usersupp);
 	if ((ra & UA_GOTOALLOWED)
 	    && (ra & UA_ZAPPED)
-	    && ((qrbuf->QRfloor == (CC->FloorBeingSearched))
-		|| ((CC->FloorBeingSearched) < 0)))
+	    && ((qrbuf->QRfloor == (FloorBeingSearched))
+		|| ((FloorBeingSearched) < 0)))
 		list_roomname(qrbuf);
 }
 
 void cmd_lzrm(char *argbuf)
 {
-	CC->FloorBeingSearched = (-1);
+	int FloorBeingSearched = (-1);
 	if (strlen(argbuf) > 0)
-		CC->FloorBeingSearched = extract_int(argbuf, 0);
+		FloorBeingSearched = extract_int(argbuf, 0);
 
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
@@ -587,7 +600,7 @@ void cmd_lzrm(char *argbuf)
 	}
 	cprintf("%d Zapped rooms:\n", LISTING_FOLLOWS);
 
-	ForEachRoom(cmd_lzrm_backend);
+	ForEachRoom(cmd_lzrm_backend, &FloorBeingSearched);
 	cprintf("000\n");
 }
 

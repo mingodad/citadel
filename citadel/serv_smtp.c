@@ -180,7 +180,7 @@ void smtp_auth(char *argbuf) {
 /*
  * Back end for smtp_vrfy() command
  */
-void smtp_vrfy_backend(struct usersupp *us) {
+void smtp_vrfy_backend(struct usersupp *us, void *data) {
 
 	if (!fuzzy_match(us, SMTP->vrfy_match)) {
 		++SMTP->vrfy_count;
@@ -196,7 +196,7 @@ void smtp_vrfy_backend(struct usersupp *us) {
 void smtp_vrfy(char *argbuf) {
 	SMTP->vrfy_count = 0;
 	strcpy(SMTP->vrfy_match, argbuf);
-	ForEachUser(smtp_vrfy_backend);
+	ForEachUser(smtp_vrfy_backend, NULL);
 
 	if (SMTP->vrfy_count < 1) {
 		cprintf("550 String does not match anything.\r\n");
@@ -219,7 +219,7 @@ void smtp_vrfy(char *argbuf) {
 /*
  * Back end for smtp_expn() command
  */
-void smtp_expn_backend(struct usersupp *us) {
+void smtp_expn_backend(struct usersupp *us, void *data) {
 
 	if (!fuzzy_match(us, SMTP->vrfy_match)) {
 
@@ -243,7 +243,7 @@ void smtp_expn_backend(struct usersupp *us) {
 void smtp_expn(char *argbuf) {
 	SMTP->vrfy_count = 0;
 	strcpy(SMTP->vrfy_match, argbuf);
-	ForEachUser(smtp_expn_backend);
+	ForEachUser(smtp_expn_backend, NULL);
 
 	if (SMTP->vrfy_count < 1) {
 		cprintf("550 String does not match anything.\r\n");

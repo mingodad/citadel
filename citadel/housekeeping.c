@@ -157,7 +157,7 @@ void enter_housekeeping_cmd(char *cmd) {
  * NOTE: this function pair should ONLY be called during startup.  It is NOT
  * thread safe.
  */
-void check_ref_counts_backend(struct quickroom *qrbuf) {
+void check_ref_counts_backend(struct quickroom *qrbuf, void *data) {
 	struct floor flbuf;
 
 	getfloor(&flbuf, qrbuf->QRfloor);
@@ -177,6 +177,6 @@ void check_ref_counts(void) {
 		putfloor(&flbuf, a);
 		}
 
-	ForEachRoom(check_ref_counts_backend);
+	ForEachRoom(check_ref_counts_backend, NULL);
 	}	
 

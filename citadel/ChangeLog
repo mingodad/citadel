@@ -1,4 +1,11 @@
 $Log$
+Revision 1.443  2000/01/15 18:29:15  ajc
+* Added a generic (void *) parameter to the ForEachUser() and ForEachRoom()
+  callback mechanisms, to allow callers and callbacks to pass arbitrary data
+  between each other without requiring TSD variables.
+* room_ops.c: eliminated the need for 'FloorBeingSearched' TSD variable
+* internet_addressing.c: eliminated 'buffer1' and 'buffer2' TSD variables
+
 Revision 1.442  2000/01/15 04:31:44  ajc
 * Removed UI_DIALOG mode in setup.  Can't count on 'dialog' to be consistent.
 
@@ -1547,3 +1554,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

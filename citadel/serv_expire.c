@@ -92,7 +92,7 @@ int messages_purged;
 
 extern struct CitContext *ContextList;
 
-void DoPurgeMessages(struct quickroom *qrbuf) {
+void DoPurgeMessages(struct quickroom *qrbuf, void *data) {
 	struct ExpirePolicy epbuf;
 	long delnum;
 	time_t xtime, now;
@@ -176,11 +176,11 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 void PurgeMessages(void) {
 	lprintf(5, "PurgeMessages() called\n");
 	messages_purged = 0;
-	ForEachRoom(DoPurgeMessages);
+	ForEachRoom(DoPurgeMessages, NULL);
 }
 
 
-void AddValidUser(struct usersupp *usbuf) {
+void AddValidUser(struct usersupp *usbuf, void *data) {
 	struct ValidUser *vuptr;
 
 	vuptr = (struct ValidUser *)mallok(sizeof(struct ValidUser));
@@ -189,7 +189,7 @@ void AddValidUser(struct usersupp *usbuf) {
 	ValidUserList = vuptr;
 }
 
-void AddValidRoom(struct quickroom *qrbuf) {
+void AddValidRoom(struct quickroom *qrbuf, void *data) {
 	struct ValidRoom *vrptr;
 
 	vrptr = (struct ValidRoom *)mallok(sizeof(struct ValidRoom));
@@ -199,7 +199,7 @@ void AddValidRoom(struct quickroom *qrbuf) {
 	ValidRoomList = vrptr;
 }
 
-void DoPurgeRooms(struct quickroom *qrbuf) {
+void DoPurgeRooms(struct quickroom *qrbuf, void *data) {
 	time_t age, purge_secs;
 	struct PurgeList *pptr;
 	struct ValidUser *vuptr;
@@ -263,10 +263,10 @@ int PurgeRooms(void) {
 
 	/* Load up a table full of valid user numbers so we can delete
 	 * user-owned rooms for users who no longer exist */
-	ForEachUser(AddValidUser);
+	ForEachUser(AddValidUser, NULL);
 
 	/* Then cycle through the room file */
-	ForEachRoom(DoPurgeRooms);
+	ForEachRoom(DoPurgeRooms, NULL);
 
 	/* Free the valid user list */
 	while (ValidUserList != NULL) {
@@ -300,7 +300,7 @@ int PurgeRooms(void) {
 }
 
 
-void do_user_purge(struct usersupp *us) {
+void do_user_purge(struct usersupp *us, void *data) {
 	int purge;
 	time_t now;
 	time_t purge_time;
@@ -361,7 +361,7 @@ int PurgeUsers(void) {
 
 	lprintf(5, "PurgeUsers() called\n");
 	if (config.c_userpurge > 0) {
-		ForEachUser(do_user_purge);
+		ForEachUser(do_user_purge, NULL);
 	}
 
 	transcript = mallok(256);
@@ -411,10 +411,10 @@ int PurgeVisits(void) {
 	int RoomIsValid, UserIsValid;
 
 	/* First, load up a table full of valid room/gen combinations */
-	ForEachRoom(AddValidRoom);
+	ForEachRoom(AddValidRoom, NULL);
 
 	/* Then load up a table full of valid user numbers */
-	ForEachUser(AddValidUser);
+	ForEachUser(AddValidUser, NULL);
 
 	/* Now traverse through the visits, purging irrelevant records... */
 	cdb_rewind(CDB_VISIT);

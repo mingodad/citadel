@@ -98,11 +98,7 @@ struct CitContext {
 	char fake_hostname[25];	/* Name of the fake hostname <bc>    */
 	char fake_roomname[ROOMNAMELEN];	/* Name of the fake room <bc> */
 
-	int FloorBeingSearched;	/* This is used by cmd_lrms() etc.   */
-
 	struct CtdlSessData *FirstSessData;	/* Allocated session data */
-	char buffer1[256];		/* General-purpose workspace */
-	char buffer2[256];		/* General-purpose workspace */
 };
 
 typedef struct CitContext t_context;

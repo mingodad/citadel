@@ -22,8 +22,9 @@ void cmd_invt_kick (char *iuser, int op);
 void cmd_forg (void);
 void cmd_gnur (void);
 void cmd_vali (char *v_args);
-void ForEachUser(void (*CallBack)(struct usersupp *EachUser));
-void ListThisUser(struct usersupp *usbuf);
+void ForEachUser(void (*CallBack)(struct usersupp *EachUser, void *out_data),
+	void *in_data);
+void ListThisUser(struct usersupp *usbuf, void *data);
 void cmd_list (void);
 void cmd_chek (void);
 void cmd_qusr (char *who);
