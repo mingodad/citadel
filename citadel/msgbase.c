@@ -1138,23 +1138,25 @@ int CtdlOutputPreLoadedMsg(
 	int i, k;
 	char buf[SIZ];
 	cit_uint8_t ch;
-	char allkeys[SIZ];
-	char display_name[SIZ];
+	char allkeys[30];
+	char display_name[256];
 	char *mptr;
 	char *nl;	/* newline string */
 	int suppress_f = 0;
 	int subject_found = 0;
 	struct ma_info *ma;
 
-	/* buffers needed for RFC822 translation */
-	char suser[SIZ];
-	char luser[SIZ];
-	char fuser[SIZ];
-	char snode[SIZ];
-	char lnode[SIZ];
-	char mid[SIZ];
-	char datestamp[SIZ];
-	/*                                       */
+	/* Buffers needed for RFC822 translation.  These are all filled
+	 * using functions that are bounds-checked, and therefore we can
+	 * make them substantially smaller than SIZ.
+	 */
+	char suser[100];
+	char luser[100];
+	char fuser[100];
+	char snode[100];
+	char lnode[100];
+	char mid[100];
+	char datestamp[100];
 
 	lprintf(CTDL_DEBUG, "CtdlOutputPreLoadedMsg(TheMessage=%s, %ld, %d, %d, %d, %d\n",
 		((TheMessage == NULL) ? "NULL" : "not null"),
@@ -1223,17 +1225,17 @@ int CtdlOutputPreLoadedMsg(
 
 	if ((mode == MT_CITADEL) || (mode == MT_MIME)) {
 
-		strcpy(display_name, "<unknown>");
+		safestrncpy(display_name, "<unknown>", sizeof display_name);
 		if (TheMessage->cm_fields['A']) {
 			strcpy(buf, TheMessage->cm_fields['A']);
 			if (TheMessage->cm_anon_type == MES_ANONONLY) {
-				strcpy(display_name, "****");
+				safestrncpy(display_name, "****", sizeof display_name);
 			}
 			else if (TheMessage->cm_anon_type == MES_ANONOPT) {
-				strcpy(display_name, "anonymous");
+				safestrncpy(display_name, "anonymous", sizeof display_name);
 			}
 			else {
-				strcpy(display_name, buf);
+				safestrncpy(display_name, buf, sizeof display_name);
 			}
 			if ((is_room_aide())
 			    && ((TheMessage->cm_anon_type == MES_ANONONLY)
@@ -1256,7 +1258,7 @@ int CtdlOutputPreLoadedMsg(
 		}
 		
 		/* Now spew the header fields in the order we like them. */
-		strcpy(allkeys, FORDER);
+		safestrncpy(allkeys, FORDER, sizeof allkeys);
 		for (i=0; i<strlen(allkeys); ++i) {
 			k = (int) allkeys[i];
 			if (k != 'M') {
@@ -1751,7 +1753,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 long send_message(struct CtdlMessage *msg) {
 	long newmsgid;
 	long retval;
-	char msgidbuf[SIZ];
+	char msgidbuf[256];
         struct ser_ret smr;
 	int is_bigmsg = 0;
 	char *holdM = NULL;
@@ -1905,7 +1907,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		struct recptypes *recps,	/* recipients (if mail) */
 		char *force			/* force a particular room? */
 ) {
-	char aaa[SIZ];
+	char submit_filename[128];
+	char generated_timestamp[32];
 	char hold_rm[ROOMNAMELEN];
 	char actual_rm[ROOMNAMELEN];
 	char force_room[ROOMNAMELEN];
@@ -1931,8 +1934,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 */
 	if (msg->cm_fields['T'] == NULL) {
 		lprintf(CTDL_DEBUG, "Generating timestamp\n");
-		snprintf(aaa, sizeof aaa, "%ld", (long)time(NULL));
-		msg->cm_fields['T'] = strdup(aaa);
+		snprintf(generated_timestamp, sizeof generated_timestamp, "%ld", (long)time(NULL));
+		msg->cm_fields['T'] = strdup(generated_timestamp);
 	}
 
 	/* If this message has no path, we generate one.
@@ -2132,10 +2135,10 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		
 		serialize_message(&smr, msg);
 		if (smr.len > 0) {
-			snprintf(aaa, sizeof aaa,
+			snprintf(submit_filename, sizeof submit_filename,
 				"./network/spoolin/netmail.%04lx.%04x.%04x",
                         	(long) getpid(), CC->cs_pid, ++seqnum);
-			network_fp = fopen(aaa, "wb+");
+			network_fp = fopen(submit_filename, "wb+");
 			if (network_fp != NULL) {
 				fwrite(smr.ser, smr.len, 1, network_fp);
 				fclose(network_fp);
@@ -2235,7 +2238,7 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 						   exist is ALWAYS freed  */
 			int crlf		/* CRLF newlines instead of LF */
 			) {
-	char buf[SIZ];
+	char buf[1024];
 	int linelen;
 	size_t message_len = 0;
 	size_t buffer_len = 0;
@@ -2267,7 +2270,7 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 
 	/* read in the lines of message text one by one */
 	do {
-		if (client_getln(buf, sizeof buf) < 1) finished = 1;
+		if (client_getln(buf, (sizeof buf - 3)) < 1) finished = 1;
 		if (!strcmp(buf, terminator)) finished = 1;
 		if (crlf) {
 			strcat(buf, "\r\n");

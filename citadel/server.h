@@ -44,11 +44,12 @@ struct CitContext {
 	struct CitContext *prev;	/* Link to previous session in list */
 	struct CitContext *next;	/* Link to next session in the list */
 
-	struct ctdluser user;	/* Database record buffers */
-	struct ctdlroom room;
-
 	int state;		/* thread state (see CON_ values below) */
 	int kill_me;		/* Set to nonzero to flag for termination */
+	int client_socket;
+	int cs_pid;		/* session ID */
+	time_t lastcmd;		/* time of last command executed */
+	time_t lastidle;	/* For computing idle time */
 
 	char curr_user[USERNAME_SIZE];	/* name of current user */
 	int logged_in;		/* logged in */
@@ -59,10 +60,6 @@ struct CitContext {
 	int curr_view;		/* The view type for the current user/room */
 
 	char net_node[PATH_MAX];/* Is the client another Citadel server? */
-	int client_socket;
-	int cs_pid;		/* session ID */
-	time_t lastcmd;		/* time of last command executed */
-	time_t lastidle;	/* For computing idle time */
 	time_t previous_login;	/* Date/time of previous login */
 	char lastcmdname[5];	/* name of last command executed */
 	unsigned cs_flags;	/* miscellaneous flags */
@@ -92,6 +89,9 @@ struct CitContext {
 	char upl_filedir[PATH_MAX];
 	char dl_is_net;
 	char upload_type;
+
+	struct ctdluser user;	/* Database record buffers */
+	struct ctdlroom room;
 
 	/* Beginning of cryptography - session nonce */
 	char cs_nonce[NONCE_SIZE];	/* The nonce for this session's next auth transaction */
