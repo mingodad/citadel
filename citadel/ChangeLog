@@ -1,3 +1,12 @@
+1998-10-07 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* snprintf.c, snprintf.h: new files
+	* Makefile.in, configure.in, dynloader.c, sysdep.c: support for the
+	  above; citserver now builds and runs on Digital Unix 4.0d with the
+	  GNU-style configure script. there is a bug with the hostname display
+	  in the wholist.
+	* netproc.c: sillyness fix
+	* room_ops.h: prototype delete_room()
+
 Mon Oct  5 17:01:32 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Began fixing the stuff I broke
 

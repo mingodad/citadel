@@ -1217,7 +1217,7 @@ int main(int argc, char **argv)
 	/*
 	 * Change directories if specified
 	 */
-	if (argv > 0) for (a=1; a<argc; ++a) {
+	for (a=1; a<argc; ++a) {
 		if (!strncmp(argv[a], "-h", 2)) {
 			strcpy(bbs_home_directory, argv[a]);
 			strcpy(bbs_home_directory, &bbs_home_directory[2]);

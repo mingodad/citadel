@@ -21,6 +21,11 @@
 #include "server.h"
 #include "sysdep_decls.h"
 
+#ifndef HAVE_SNPRINTF
+#include <stdarg.h>
+#include "snprintf.h"
+#endif
+
 struct CleanupFunctionHook *CleanupHookTable = NULL;
 struct SessionFunctionHook *SessionHookTable = NULL;
 struct UserFunctionHook *UserHookTable = NULL;

@@ -68,10 +68,15 @@ AC_FUNC_GETPGRP
 AC_PROG_GCC_TRADITIONAL
 AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS(mkdir mktime rmdir select socket strerror)
+AC_CHECK_FUNCS(snprintf mkdir mktime rmdir select socket strerror)
+
+if test "$ac_cv_func_snprintf" = no; then
+	SNPRINTF=snprintf.o
+fi
 
 AC_SUBST(CURSES)
 AC_SUBST(TARGETS)
 AC_SUBST(SERVER_LDFLAGS)
+AC_SUBST(SNPRINTF)
 AC_CONFIG_HEADER(sysdep.h)
 AC_OUTPUT(Makefile)

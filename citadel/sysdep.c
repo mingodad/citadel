@@ -44,6 +44,10 @@
 #include <sys/select.h>
 #endif
 
+#ifndef HAVE_SNPRINTF
+#include "snprintf.h"
+#endif
+
 pthread_mutex_t Critters[MAX_SEMAPHORES];	/* Things needing locking */
 pthread_key_t MyConKey;				/* TSD key for MyContext() */
 
