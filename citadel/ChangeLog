@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.120  2001/04/01 22:03:10  cough
+ Changed two fclose()s to pclose()s.
+
  Revision 573.119  2001/03/25 11:52:36  error
  * serv_pop3.c: Fixed APOP. Now logs in properly. Also cleaned up some non-
    RFC-compliant error messages.
@@ -2473,3 +2476,5 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
+
