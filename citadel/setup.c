@@ -541,7 +541,7 @@ void disable_other_mta(char *mta) {
 
 	/* Offer to replace other MTA with the vastly superior Citadel :)  */
 	snprintf(buf, sizeof buf,
-		"You appear to have the '%s' mail transport agent\n"
+		"You appear to have the '%s' email program\n"
 		"running on your system.  Would you like to disable it,\n"
 		"allowing Citadel to handle your system's Internet mail\n"
 		"instead?\n",
@@ -555,6 +555,49 @@ void disable_other_mta(char *mta) {
 	sprintf(buf, "/etc/init.d/%s stop >/dev/null 2>&1", mta);
 	system(buf);
 }
+
+
+
+
+/* 
+ * Check to see if our server really works.  Returns 0 on success.
+ */
+int test_server(void) {
+	char cmd[256];
+	char cookie[256];
+	FILE *fp;
+	char buf[4096];
+	int found_it = 0;
+
+	/* Generate a silly little cookie.  We're going to write it out
+	 * to the server and try to get it back.  The cookie does not
+	 * have to be secret ... just unique.
+	 */
+	sprintf(cookie, "%ld.%d", time(NULL), getpid());
+
+	sprintf(cmd, "%s/sendcommand -h%s ECHO %s 2>&1",
+		setup_directory,
+		setup_directory,
+		cookie);
+
+	fp = popen(cmd, "r");
+	if (fp == NULL) return(errno);
+
+	while (fgets(buf, sizeof buf, fp) != NULL) {
+		if ( (buf[0]=='2')
+		   && (strstr(buf, cookie) != NULL) ) {
+			++found_it;
+		}
+	}
+	pclose(fp);
+
+	if (found_it) {
+		return(0);
+	}
+	return(-1);
+}
+
+
 
 
 
@@ -781,6 +824,15 @@ int main(int argc, char *argv[])
 		sleep(1);
 	}
 
+	/* Make sure it's stopped. */
+	if (test_server() == 0) {
+		important_message("Citadel/UX Setup",
+			"The Citadel service is still running.\n"
+			"Please stop the service manually and run "
+			"setup again.");
+		cleanup(1);
+	}
+
 	/* Now begin. */
 	switch (setup_type) {
 
@@ -952,7 +1004,7 @@ NEW_INST:
 	mkdir("netconfigs", 0700);
 
 	/* Delete files and directories used by older Citadel versions */
-	system("rm -fr ./chatpipes ./expressmsgs ./sessions 2>/dev/null");
+	system("exec /bin/rm -fr ./rooms ./chatpipes ./expressmsgs ./sessions 2>/dev/null");
 	unlink("citadel.log");
 	unlink("weekly");
 
@@ -965,6 +1017,18 @@ NEW_INST:
 	disable_other_mta("sendmail");
 	disable_other_mta("postfix");
 	disable_other_mta("qmail");
+	disable_other_mta("cyrus");
+	disable_other_mta("cyrmaster");
+	disable_other_mta("saslauthd");
+	disable_other_mta("mta");
+	disable_other_mta("courier-imap");
+	disable_other_mta("courier-imap-ssl");
+	disable_other_mta("courier-authdaemon");
+	disable_other_mta("courier-pop3");
+	disable_other_mta("courier-pop3d");
+	disable_other_mta("courier-pop");
+	disable_other_mta("vmailmgrd");
+	disable_other_mta("imapd");
 #endif
 
 	if ((pw = getpwuid(config.c_bbsuid)) == NULL)
@@ -992,8 +1056,16 @@ NEW_INST:
 			if (a == 0) start_the_service();
 			sleep(1);
 		}
-		important_message("Setup finished",
-			"Setup is finished.  You may now log in.");
+		if (test_server() == 0) {
+			important_message("Setup finished",
+				"Setup is finished.  You may now log in.");
+		}
+		else {
+			important_message("Setup finished",
+				"Setup is finished, but the Citadel service "
+				"failed to start.\n"
+				"Go back and check your configuration.");
+		}
 	}
 	else {
 		important_message("Setup finished",

@@ -696,9 +696,8 @@ If you wish to place it in a different directory, you can instead do:</p>
 <p>If you've got Berkeley DB installed in a non-standard location, you
 can help the configure script find it by doing something like this:</p>
 <pre>./configure --with-db=/usr/local/BerkeleyDB-4.1<br></pre>
-<p>The configure script prefers Berkeley DB if it is available, but
-will fall
-back to GDBM if it has to.</p>
+<p>Keep in mind that if you're using Berkeley DB from a non-standard location,
+you'll have to make sure that location is available at runtime.</p>
 <p>File permissions are always a bother to work with. You don't want
 Citadel to crash because someone couldn't access a file, but you also
 don't want shell users peeking into the binaries to do things like

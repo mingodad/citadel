@@ -1,4 +1,12 @@
  $Log$
+ Revision 608.18  2003/08/12 00:39:35  ajc
+ * setup now knows about lots of other mail programs it can disable (various
+   flavors of Cyrus and Courier, for example)
+ * setup now ensures that it really did startup/shutdown the Citadel service,
+   and displays an error message when that fails.
+ * "make install" now instructs the user run "setup"
+ * Removed an old GDBM reference from the documentation
+
  Revision 608.17  2003/08/05 03:06:58  ajc
  * Added a README.txt file because some Joker kept bugging me about it
  * Reloaded the code that extracts embedded URL's to a place where it'll
@@ -4940,3 +4948,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
