@@ -504,7 +504,8 @@ static int validpw(uid_t uid, const char *pass)
 	}
 
 	close(pipev[0]);
-	write(pipev[1], buf, sprintf(buf, "%lu\n", (unsigned long) uid));
+	write(pipev[1], buf,
+	      snprintf(buf, sizeof buf, "%lu\n", (unsigned long) uid));
 	write(pipev[1], pass, strlen(pass));
 	write(pipev[1], "\n", 1);
 	close(pipev[1]);
@@ -657,11 +658,11 @@ int purge_user(char pname[])
 	cdb_delete(CDB_USERSUPP, lowercase_name, strlen(lowercase_name));
 
 	/* remove the user's bio file */
-	sprintf(filename, "./bio/%ld", usbuf.usernum);
+	snprintf(filename, sizeof filename, "./bio/%ld", usbuf.usernum);
 	unlink(filename);
 
 	/* remove the user's picture */
-	sprintf(filename, "./userpics/%ld.gif", usbuf.usernum);
+	snprintf(filename, sizeof filename, "./userpics/%ld.gif", usbuf.usernum);
 	unlink(filename);
 
 	return (0);
@@ -966,7 +967,7 @@ void cmd_slrp(char *new_ptr)
 
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 	vbuf.v_lastseen = newlr;
-	sprintf(vbuf.v_seen, "*:%ld", newlr);
+	snprintf(vbuf.v_seen, sizeof vbuf.v_seen, "*:%ld", newlr);
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
 	lputuser(&CC->usersupp);
@@ -1027,7 +1028,7 @@ void cmd_invt_kick(char *iuser, int op)
 	lputuser(&USscratch);
 
 	/* post a message in Aide> saying what we just did */
-	sprintf(bbb, "%s %s %s> by %s\n",
+	snprintf(bbb, sizeof bbb, "%s %s %s> by %s\n",
 		iuser,
 		((op == 1) ? "invited to" : "kicked out of"),
 		CC->quickroom.QRname,

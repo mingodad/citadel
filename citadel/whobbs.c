@@ -18,7 +18,7 @@ void logoff(int code)
 	exit(code);
 	}
 
-void escapize(char buf[]) {
+static void escapize(char *buf, size_t n) {
 	char hold[512];
 	int i;
 
@@ -26,14 +26,16 @@ void escapize(char buf[]) {
 	strcpy(buf, "");
 
 	for (i=0; i<strlen(hold); ++i) {
+		size_t tmp = strlen(buf);
+
 		if (hold[i]=='<')
-			sprintf(&buf[strlen(buf)], "&lt;");
+			snprintf(&buf[tmp], n - tmp, "&lt;");
 		else if (hold[i]=='>')
-			sprintf(&buf[strlen(buf)], "&gt;");
+			snprintf(&buf[tmp], n - tmp, "&gt;");
 		else if (hold[i]==34)
-			sprintf(&buf[strlen(buf)], "&quot;");
+			snprintf(&buf[tmp], n - tmp, "&quot;");
 		else
-			sprintf(&buf[strlen(buf)], "%c", hold[i]);
+			snprintf(&buf[tmp], n - tmp, "%c", hold[i]);
 	}
 }
 
@@ -125,7 +127,7 @@ int main(int argc, char **argv)
 	while (serv_gets(buf), strcmp(buf,"000")) {
 
 		/* Escape some stuff if we're using www mode */
-		if (www) escapize(buf);
+		if (www) escapize(buf, sizeof buf);
 
 		s_pid = extract_int(buf,0);
 		extract(s_user,buf,1);
@@ -168,7 +170,7 @@ char *strerror(int e)
 {
 	static char buf[32];
 
-	sprintf(buf,"errno = %d",e);
+	snprintf(buf, sizeof buf, "errno = %d",e);
 	return(buf);
 	}
 #endif
