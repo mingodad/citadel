@@ -53,9 +53,6 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf)
 	int retval = 0;
 	struct visit vbuf;
 
-	lprintf(9, "CtdlRoomAccess( %s , %s )\n",
-		roombuf->QRname, userbuf->fullname);
-
 	/* for internal programs, always do everything */
 	if (((CC->internal_pgm)) && (roombuf->QRflags & QR_INUSE)) {
 		return (UA_KNOWN | UA_GOTOALLOWED);
@@ -77,14 +74,12 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf)
 	/* If this is a public room, it's accessible... */
 	if ( ((roombuf->QRflags & QR_PRIVATE) == 0) 
 	   && ((roombuf->QRflags & QR_MAILBOX) == 0) ) {
-		lprintf(9, " -- public room, known/allowed\n");
 		retval = retval | UA_KNOWN | UA_GOTOALLOWED;
 	}
 
 	/* If this is a preferred users only room, check access level */
 	if (roombuf->QRflags & QR_PREFONLY) {
 		if (userbuf->axlevel < 5) {
-			lprintf(9, " -- not a preferred user!\n");
 			retval = retval & ~UA_KNOWN & ~UA_GOTOALLOWED;
 		}
 	}
@@ -92,11 +87,9 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf)
 	/* For private rooms, check the generation number matchups */
 	if ( (roombuf->QRflags & QR_PRIVATE) 
 	   && ((roombuf->QRflags & QR_MAILBOX) == 0) ) {
-		lprintf(9, " -- checking private room access\n");
 
 		/* An explicit match means the user belongs in this room */
 		if (vbuf.v_flags & V_ACCESS) {
-			lprintf(9, " -- explicit match!  known/allowed\n");
 			retval = retval | UA_KNOWN | UA_GOTOALLOWED;
 		}
 		/* Otherwise, check if this is a guess-name or passworded
@@ -104,7 +97,6 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf)
 		 */
 		else if ((roombuf->QRflags & QR_PRIVATE)
 			 || (roombuf->QRflags & QR_PASSWORDED)) {
-			lprintf(9, " -- guessable.\n");
 			retval = retval & ~UA_KNOWN;
 			retval = retval | UA_GOTOALLOWED;
 		}
@@ -112,42 +104,38 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf)
 
 	/* For mailbox rooms, also check the generation number matchups */
 	if (roombuf->QRflags & QR_MAILBOX) {
-		lprintf(9, " -- checking mailbox room access\n");
 		if (userbuf->usernum == atol(roombuf->QRname)) {
-			lprintf(9, " -- owner!  known/allowed\n");
 			retval = retval | UA_KNOWN | UA_GOTOALLOWED;
 		}
 		/* An explicit match means the user belongs in this room */
 		if (vbuf.v_flags & V_ACCESS) {
-			lprintf(9, " -- explicit match!  known/allowed\n");
 			retval = retval | UA_KNOWN | UA_GOTOALLOWED;
 		}
 	}
 
 	/* Check to see if the user has forgotten this room */
 	if (vbuf.v_flags & V_FORGET) {
-		lprintf(9, " -- forgotten room!\n");
 		retval = retval & ~UA_KNOWN;
-		retval = retval | UA_ZAPPED;
+		if ( ( ((roombuf->QRflags & QR_PRIVATE) == 0) 
+		      && ((roombuf->QRflags & QR_MAILBOX) == 0) )
+		   || ( (roombuf->QRflags & QR_MAILBOX) 
+		      && (atol(roombuf->QRname) == CC->usersupp.usernum))) {
+			retval = retval | UA_ZAPPED;
+		}
 	}
 	/* If user is explicitly locked out of this room, deny everything */
 	if (vbuf.v_flags & V_LOCKOUT) {
-		lprintf(9, " -- explicit lockout!\n");
 		retval = retval & ~UA_KNOWN & ~UA_GOTOALLOWED;
 	}
 
 	/* Aides get access to everything */
 	if (userbuf->axlevel >= 6) {
-		lprintf(9, " -- user is an Aide\n");
 		if (vbuf.v_flags & V_FORGET) {
-			lprintf(9, " -- forgotten room\n");
 			retval = retval | UA_GOTOALLOWED;
 		}
 		else {
-			lprintf(9, " -- goto allowed\n");
 			retval = retval | UA_GOTOALLOWED;
 			if ((roombuf->QRflags & QR_MAILBOX) == 0) {
-				lprintf(9, " -- not mailbox, make it known\n");
 				retval = retval | UA_KNOWN;
 			}
 		}
@@ -155,13 +143,11 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf)
 
 NEWMSG:	/* By the way, we also check for the presence of new messages */
 	if (is_msg_in_mset(vbuf.v_seen, roombuf->QRhighest) == 0) {
-		lprintf(9, " -- has new messages\n");
 		retval = retval | UA_HASNEWMSGS;
 	}
 
 	/* System rooms never show up in the list. */
 	if (roombuf->QRflags2 & QR2_SYSTEM) {
-		lprintf(9, " -- system room -- hide it\n");
 		retval = retval & ~UA_KNOWN;
 	}
 	return (retval);
@@ -496,8 +482,9 @@ void list_roomname(struct quickroom *qrbuf)
 {
 	char truncated_roomname[ROOMNAMELEN];
 
-	/* For mailbox rooms, chop off the owner prefix */
-	if (qrbuf->QRflags & QR_MAILBOX) {
+	/* For my own mailbox rooms, chop off the owner prefix */
+	if ( (qrbuf->QRflags & QR_MAILBOX)
+	     && (atol(qrbuf->QRname) == CC->usersupp.usernum) ) {
 		strcpy(truncated_roomname, qrbuf->QRname);
 		strcpy(truncated_roomname, &truncated_roomname[11]);
 		cprintf("%s", truncated_roomname);
@@ -764,7 +751,8 @@ void usergoto(char *where, int display_result, int *retmsgs, int *retnew)
 		raideflag = 0;
 
 	strcpy(truncated_roomname, CC->quickroom.QRname);
-	if (CC->quickroom.QRflags & QR_MAILBOX) {
+	if ( (CC->quickroom.QRflags & QR_MAILBOX)
+	   && (atol(CC->quickroom.QRname) == CC->usersupp.usernum) ) {
 		strcpy(truncated_roomname, &truncated_roomname[11]);
 	}
 
