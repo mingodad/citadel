@@ -22,6 +22,8 @@
 #include "child.h"
 #include "mime_parser.h"
 
+int fake_frames = 0;
+
 int wc_session;
 char wc_username[256];
 char wc_password[256];
@@ -204,10 +206,15 @@ void wDumpContent(int print_standard_html_footer)
 {
 	struct webcontent *wptr;
 
+	if (fake_frames) {
+		wprintf("</TD></TR></TABLE></TABLE>\n");
+		fake_frames = 0;
+		}
+
 	if (print_standard_html_footer) {
 		if ((noframes) && (print_standard_html_footer != 2)) {
 			wprintf("<BR>");
-			embed_main_menu();
+			/* embed_main_menu(); */  /* not any more */
 		}
 		wprintf("</BODY></HTML>\n");
 	}
@@ -368,8 +375,28 @@ void output_headers(int print_standard_html_head)
 			ExpressMessages = NULL;
 		}
 		wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+	
+	
+	if ((print_standard_html_head == 1) && (noframes == 1)) {
+		wprintf("<TABLE border=0 width=100%>");
+		wprintf("<TR ALIGN=TOP><TD>");
+
+		display_menubar(0);
+
+		wprintf("</TD><TD ALIGN=TOP>"
+			"<TABLE border=0 width=100%><TR ALIGN=TOP>"
+			"<TD>\n");
+
+		embed_room_banner(NULL);
+
+		wprintf("</TD></TR><TR ALIGN=TOP><TD>\n");
+		
+
+		fake_frames = 1;
+		}
 	}
 }
+
 
 
 
@@ -858,6 +885,8 @@ void session_loop(char *browser_host)
 		display_generic();
 	} else if (!strcasecmp(action, "do_generic")) {
 		do_generic();
+	} else if (!strcasecmp(action, "display_menubar")) {
+		display_menubar(1);
 	}
 	/* When all else fails... */
 	else {

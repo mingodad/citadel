@@ -309,3 +309,55 @@ void do_generic(void)
 	wprintf("<A HREF=\"/display_advanced\">Return to menu</A>\n");
 	wDumpContent(1);
 }
+
+
+
+
+/*
+ * Display the menubar.  Set as_single_page to 1 if we're inside a frameset
+ * and need to display HTML headers and footers -- otherwise it's assumed
+ * that the menubar is being embedded in another page.
+ */
+void display_menubar(int as_single_page) {
+	FILE *menubar_body;
+	char buf[256];
+	int i;
+
+	if (as_single_page) {
+		printf("HTTP/1.0 200 OK\n");
+		output_headers(0);
+		wprintf("<HTML>\n"
+			"<HEAD>\n"
+			"<TITLE>MenuBar</TITLE>\n"
+			"<STYLE TYPE=\"text/css\">\n"
+			"BODY	{ text-decoration: none; }\n"
+			"</STYLE>\n"
+			"</HEAD>\n"
+			"<BODY BACKGROUND=\"/image&name=background\" "
+			"TEXT=\"#000000\" LINK=\"#FFFFFF\" "
+			"ALINK=\"#FFFFFF\" VLINK=\"#FFFFFF\">\n");
+	}
+
+	menubar_body = fopen("static/menubar.html", "r");
+	if (menubar_body == NULL) {
+		wprintf("menubar<BR>%s", strerror(errno));
+	} else {
+		while (fgets(buf, sizeof(buf), menubar_body) != NULL) {
+			/* Sleazy hack to disable TARGET= directive */
+			if (noframes) for (i=0; i<strlen(buf); ++i) {
+				if (!strncasecmp(&buf[i], "TARGET", 6)) {
+					buf[i]='Q';
+				}
+			}
+			wprintf("%s", buf);
+		}
+		fclose(menubar_body);
+	}
+		
+
+	if (as_single_page) {
+		wDumpContent(2);
+	}
+
+
+}
