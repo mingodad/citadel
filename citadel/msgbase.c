@@ -40,6 +40,8 @@ int alias(char *name)		/* process alias and routing info for mail */
 	FILE *fp;
 	int a,b;
 	char aaa[300],bbb[300];
+
+	lprintf(9, "alias() called for <%s>\n", name);
 	
 	fp=fopen("network/mail.aliases","r");
 	if (fp==NULL) fp=fopen("/dev/null","r");
@@ -708,6 +710,16 @@ void save_message(char *mtmp,	/* file containing proper message */
 	size_t templen;
 	FILE *fp;
 	struct usersupp userbuf;
+	int a;
+
+	lprintf(9, "save_message(%s,%s,%d,%d,%d)\n",
+		mtmp, rec, mtsflag, mailtype, generate_id);
+
+	/* Strip non-printable characters out of the recipient name */
+	strcpy(recipient, rec);
+	for (a=0; a<strlen(recipient); ++a)
+		if (!isprint(recipient[a]))
+			strcpy(&recipient[a], &recipient[a+1]);
 
 	/* Measure the message */
 	stat(mtmp, &statbuf);
@@ -730,8 +742,6 @@ void save_message(char *mtmp,	/* file containing proper message */
 
 	strcpy(actual_rm, CC->quickroom.QRname);
 	strcpy(hold_rm, "");
-	strcpy(recipient, rec);
-	strproc(recipient);
 
 	/* If the user is a twit, move to the twit room for posting... */
 	if (TWITDETECT) if (CC->usersupp.axlevel==2) {
@@ -779,17 +789,17 @@ void save_message(char *mtmp,	/* file containing proper message */
 	CC->quickroom.QRhighest = newmsgid;
 	lputroom(&CC->quickroom, actual_rm);
 
-	/* Bump this user's messages posted counter. */
-	lgetuser(&CC->usersupp, CC->curr_user);
-	CC->usersupp.posted = CC->usersupp.posted + 1;
-	lputuser(&CC->usersupp, CC->curr_user);
-
 	/* Network mail - send a copy to the network program. */
 	if ( (strlen(recipient)>0) && (mailtype != M_LOCAL) ) {
 		sprintf(aaa,"./network/spoolin/nm.%d",getpid());
 		copy_file(mtmp,aaa);
 		system("exec nohup ./netproc >/dev/null 2>&1 &");
 		}
+
+	/* Bump this user's messages posted counter. */
+	lgetuser(&CC->usersupp, CC->curr_user);
+	CC->usersupp.posted = CC->usersupp.posted + 1;
+	lputuser(&CC->usersupp, CC->curr_user);
 
 	/* If we've posted in a room other than the current room, then we
 	 * have to now go back to the current room...
