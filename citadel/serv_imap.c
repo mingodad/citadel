@@ -338,8 +338,9 @@ void imap_cleanup_function(void)
 	}
 
 	if (IMAP->cached_body != NULL) {
-		fclose(IMAP->cached_body);
+		free(IMAP->cached_body);
 		IMAP->cached_body = NULL;
+		IMAP->cached_body_len = 0;
 		IMAP->cached_bodymsgnum = (-1);
 	}
 
