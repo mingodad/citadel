@@ -410,9 +410,18 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 				end = pos;
 			}
 
-			/* done with headers? */
+			/* done with headers? (commented out; see below)
 			if (   ((rfc822[pos]=='\n')
 			      ||(rfc822[pos]=='\r') )
+			   && ( (rfc822[pos+1]=='\n')
+			      ||(rfc822[pos+1]=='\r')) ) {
+				end = pos;
+				done = 1;
+			}
+			*/
+
+			/* done with headers? (try this way instead) */
+			if (   (rfc822[pos]=='\n')
 			   && ( (rfc822[pos+1]=='\n')
 			      ||(rfc822[pos+1]=='\r')) ) {
 				end = pos;

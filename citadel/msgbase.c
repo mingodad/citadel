@@ -2198,11 +2198,10 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 	/* read in the lines of message text one by one */
 	while ( (client_gets(buf)>0) && strcmp(buf, terminator) ) {
 
-		/* strip trailing newline type stuff */
-		if (buf[strlen(buf)-1]==10) buf[strlen(buf)-1]=0;
-		if (buf[strlen(buf)-1]==13) buf[strlen(buf)-1]=0;
-
+		/* Measure the line and strip trailing newline characters */
 		linelen = strlen(buf);
+		if (linelen > 0) if (buf[linelen-1]==13) buf[linelen--]=0;
+		if (linelen > 0) if (buf[linelen-1]==10) buf[linelen--]=0;
 
 		/* augment the buffer if we have to */
 		if ((message_len + linelen + 2) > buffer_len) {

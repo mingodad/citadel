@@ -18,7 +18,7 @@
 /*
  * Text description of this software
  */
-#define CITADEL	"Citadel/UX 5.91"
+#define CITADEL	"Citadel/UX 6.00"
 
 /*
  * REV_LEVEL is the current version number (multiplied by 100 to avoid having
@@ -27,7 +27,7 @@
  * are older than REV_MIN, none of the programs will work until the setup
  * program is run again to bring things up to date.
  */
-#define REV_LEVEL	591		/* This version */
+#define REV_LEVEL	600		/* This version */
 #define REV_MIN		591		/* Oldest compatible version */
 
 #define SERVER_TYPE 0	/* zero for stock Citadel/UX; other developers please

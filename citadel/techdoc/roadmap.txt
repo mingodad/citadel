@@ -3,24 +3,13 @@ we want to be going.  It's something to consult when sitting down to write
 some code and deciding what to work on.
 
 
-Goals for 5.90
---------------
-* New networker (done)
-* Database enhancements (done)
+Goals to achieve during the 6.xx cycle
+--------------------------------------
 
-
-Goals for 6.00
---------------
-* Multiple recipients allowed in Citadel protocol.  Rework the code to feed
-  all deliveries through the same set of functions, regardless of whether a
-  message is submitted through Citadel protocol, SMTP, or from the networker.
-  (Completed in 5.91)
-
-* Get the Global Address Book working
-  (Completed in 5.91, needs more polish on the UI side, though)
+* Address books: allow personal address books as well as global, and give
+  the system the ability to use those addresses as e-mail shortcuts.
  
-* Delegations
-  (Access controls complete in 5.91.  Need better presentation before 6.00)
+* Better UI presentation for delegated access to mailboxes.
 
 * Optimize the IMAP server and add the search command.
   Mozilla/Netscape makes this query:
@@ -30,17 +19,8 @@ Goals for 6.00
 (References X-Ref X-Priority X-MSMail-Priority X-MSOESRec Newsgroups)] ENVELOPE
 RFC822.SIZE UID FLAGS INTERNALDATE)
 
-* Nested folders ... at least in IMAP
-  (done)
+* LDAP directory support
 
-* "Views" (presentation hints for WebCit etc.)
-  (mostly done)
+* Calendar service
 
-
-Goals for beyond 6.00
----------------------
-* LDAP directory support?
-* Calendar server
-* Address book server
-* Integration with Evolution, Mozilla Calendar, etc.
 * NNTP

@@ -1500,7 +1500,12 @@ PWOK:
 
 			case 87:
 				network_config_management("listrecp",
-					"Mailing list recipients");
+				 "Message-by-message mailing list recipients");
+				break;
+
+			case 94:
+				network_config_management("digestrecp",
+				 "Digest mailing list recipients");
 				break;
 
 			case 89:

@@ -217,6 +217,7 @@ void imap_append(int num_parms, char *parms[]) {
 	char buf[SIZ];
 	char savedroom[ROOMNAMELEN];
 	int msgs, new;
+	int i;
 
 
 	if (num_parms < 4) {
@@ -253,7 +254,17 @@ void imap_append(int num_parms, char *parms[]) {
 		return;
 	}
 
-	lprintf(9, "Converting message...\n");
+	/* Convert RFC822 newlines (CRLF) to Unix newlines (LF) */
+	lprintf(9, "Converting newline format\n");
+	for (i=0; i<literal_length; ++i) {
+		if (!strncmp(&IMAP->transmitted_message[i], "\r\n", 2)) {
+			strcpy(&IMAP->transmitted_message[i],
+				&IMAP->transmitted_message[i+1]);
+			--literal_length;
+		}
+	}
+
+	lprintf(9, "Converting message format\n");
         msg = convert_internet_message(IMAP->transmitted_message);
 	IMAP->transmitted_message = NULL;
 	IMAP->transmitted_length = 0;
