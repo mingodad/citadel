@@ -178,6 +178,8 @@ Citadel for Internet e-mail</a></li>
 mail protocols</a></li>
     <li><a href="#Hosting_an_Internet_mailing_list">Hosting an Internet mailing
 list</a><br>
+    <li><a href="#citmail">Using Citadel in conjunction with another
+MTA</a></li>
     </li>
   </ol>
                          
@@ -1808,8 +1810,129 @@ Internet e-mail.</p>
 
 <h3><a name="Enabling_the_Internet_mail_protocols"></a>Enabling the Internet
 mail protocols</h3>
-Do stuff here.<br>
-<br>
+
+<P>As previously mentioned, Citadel contains its own SMTP, POP3, and IMAP
+services.  Enabling them is simple.</p>
+
+<P>Check for the existance of a current MTA (sendmail, qmail, etc.) by
+connecting to port 25 on your host.
+If you see something similar to the following you're running an MTA
+already and you'll need to shut it down:</p>
+
+<PRE>
+smw @ pixel % telnet localhost 25
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+220 pixel.citadel.org ESMTP Sendmail 8.9.3/8.9.3; Wed, 15 Mar 2000 19:00:53 -0500
+</PRE>
+
+<P>In the above example, we see that the host already has Sendmail listening
+on port 25.  Before Citadel can use port 25, Sendmail must be shut off.
+Please consult the documentation for your operating system for instructions
+on how to do this.  (On a Red Hat Linux system, for example, you can run
+the <TT>ntsysv</tt> utility, un-checking <tt>sendmail</tt> to disable it
+at the next reboot; then, run <tt>service sendmail stop</tt> to shut off the
+currently running service.)</p>
+
+<p>If you get a 'connection refused' message when you telnet to port 25 there's 
+nothing running and you should be able to continue. You might also want to
+turn off POP (try the above test substituting 110 for 25) and IMAP (port 143)
+and use Citadel's POP and IMAP services.</p>
+
+<p>Citadel will look for an existing pop/smtp server on startup. If they don't 
+exist (and you've configured them properly) then Citadel should 
+enable them at startup.  You can check your logs to be sure, or you can 
+start the server from a shell and watch it load.  It might look something
+like this:</p>
+
+<FONT SIZE=-2><PRE>
+smw @ pixel % ./citserver
+
+Multithreaded message server for Citadel/UX
+Copyright (C) 1987-2000 by the Citadel/UX development team.
+Citadel/UX is open source, covered by the GNU General Public License, and
+you are welcome to change it and/or distribute copies of it under certain
+conditions.  There is absolutely no warranty for this software.  Please
+read the 'COPYING.txt' file for details.
+
+Loading citadel.config
+Opening databases
+This is GDBM version 1.8.0, as of May 19, 1999.
+Checking floor reference counts
+Creating base rooms (if necessary)
+Registered a new service (TCP port 504)
+Registered a new service (TCP port 0)
+Initializing loadable modules
+Registered server command CHAT (Begin real-time chat)
+Registered server command PEXP (Poll for express messages)
+Registered server command GEXP (Get express messages)
+Registered server command SEXP (Send an express message)
+Registered server command DEXP (Disable express messages)
+Registered a new session function (type 0)
+Registered a new x-msg function (priority 0)
+Loaded module: $Id$
+Registered a new session function (type 1)
+Registered a new message function (type 201)
+Registered a new message function (type 202)
+Registered server command REGI (Enter registration info)
+Registered server command GREG (Get registration info)
+Registered a new user function (type 100)
+Loaded module: $Id$
+Server-hosted upgrade level is 5.62
+Loaded module: $Id$
+Registered server command EXPI (Expire old system objects)
+Registered server command FSCK (Check message ref counts)
+Loaded module: $Id$
+<B>citserver: Can't bind: Address already in use
+ERROR: could not bind to TCP port 25.</B>
+Registered a new service (TCP port 0)
+Registered a new session function (type 50)
+Loaded module: $Id$
+<B>citserver: Can't bind: Address already in use
+ERROR: could not bind to TCP port 110.</b>
+Registered a new session function (type 0)
+Loaded module: $Id$
+Registered a new message function (type 202)Loaded module: $Id:
+serv_inetcfg.c,v 1.2 2000/02/03 03:57:35 ajc Exp $
+Registered server command RWHO (Display who is online)
+Registered server command HCHG (Masquerade hostname)
+Registered server command RCHG (Masquerade roomname)
+Registered server command UCHG (Masquerade username)
+Registered server command STEL (Enter/exit stealth mode)
+Loaded module: $Id$
+Changing uid to 513
+Starting housekeeper thread
+</PRE></FONT>
+
+<P>The lines emphasized in boldface in the above log output tell you that
+Citadel "can't bind" to various ports.  The error 'address already in use'
+generally means that something else is already running on the requested
+port.  Make SURE you've followed the above steps to remove sendmail/pop and 
+start your Citadel server again.</p>
+
+<h3><a name="citmail"></a>Using Citadel in conjunction with another MTA</h3>
+
+<P>Occationally it is not practical to remove a non-Citadel MTA on your
+host system.  For example, you might have multiple groups of users, some of
+which are using Citadel and some of which are using a legacy Unix mail spool.
+This type of configuration is discouraged, but a tool is provided to allow
+it.</p>
+
+<P>The tool is called <tt>citmail</tt> and it is, quite simply, a local MDA
+(Mail Delivery Agent) which you can configure into your MTA for final
+delivery of incoming messages to Citadel users.  A full discussion of the
+finer points of complex Sendmail configurations is beyond the scope of this
+document; however, you might want to visit
+<a href="http://pixel.citadel.org/citadel/docs/">Pixel BBS</a> where some
+useful HOWTO documents are provided.</p>
+
+<P>For outbound mail, you can either allow Citadel to perform deliveries
+directly (this won't affect your other mail system because outbound mail
+doesn't tie up port 25) or enter <tt>127.0.0.1</tt> as your smart-host, which
+will tell Citadel to forward all of its outbound mail to your other mail
+system.</p>
+
 <h3><a name="Hosting_an_Internet_mailing_list"></a>Hosting an Internet mailing
 list</h3>
 It's fun. &nbsp;Try it.<br>

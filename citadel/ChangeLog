@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.128  2003/02/10 04:50:33  ajc
+ * More documentation updates
+
  Revision 601.127  2003/02/09 03:38:28  ajc
  * Updated the documentation some more
 
@@ -4453,4 +4456,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
