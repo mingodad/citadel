@@ -34,7 +34,8 @@ SERV_MODULES=modules/serv_chat$(SO) modules/serv_vcard$(SO) \
 	modules/serv_rwho$(SO) \
 	modules/serv_moderate$(SO) \
 	modules/serv_bio$(SO) \
-	modules/serv_expire$(SO)
+	modules/serv_expire$(SO) \
+	modules/serv_vandelay$(SO)
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform readlog rcit \
 	stats citmail netpoll mailinglist userlist sendcommand \
 	base64 qpdecode
@@ -82,7 +83,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	serv_info.c serv_test.c setup.c snprintf.c stats.c serv_vcard.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
 	whobbs.c sendcommand.c mime_parser.c base64.c qpdecode.c getutline.c \
-	auth.c chkpwd.c html.c vcard.c serv_upgrade.c \
+	auth.c chkpwd.c html.c vcard.c serv_upgrade.c serv_vandelay.c \
 	serv_smtp.c serv_pop3.c internet_addressing.c parsedate.c genstamp.c \
 	domain.c clientsocket.c serv_inetcfg.c serv_rwho.c serv_bio.c \
 	serv_moderate.c client_passwords.c serv_imap.c imap_tools.c
@@ -190,6 +191,12 @@ modules/serv_expire.so: serv_expire.mo
 
 modules/serv_expire.mo: serv_expire.mo
 	ln -f serv_expire.mo modules
+
+modules/serv_vandelay.so: serv_vandelay.mo
+	$(LINK_SHARED) -o modules/serv_vandelay.so serv_vandelay.mo
+
+modules/serv_vandelay.mo: serv_vandelay.mo
+	ln -f serv_vandelay.mo modules
 
 modules/serv_upgrade.so: serv_upgrade.mo
 	$(LINK_SHARED) -o modules/serv_upgrade.so serv_upgrade.mo
