@@ -1812,29 +1812,17 @@ void change_view(void) {
 void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 	char buf[SIZ];
 	int levels, oldlevels;
-	int nests = 0;
-	int i, k, t;
+	int i, t;
 
 	/* Output */
-	nests = 0;
 	levels = 0;
 	oldlevels = 0;
 	for (i=0; i<max_folders; ++i) {
 
 		levels = num_tokens(fold[i].name, '|');
-		if (levels > oldlevels) {
-			for (k=0; k<(levels-oldlevels); ++k) {
-				++nests;
-			}
-		}
-		if (levels < oldlevels) {
-			for (k=0; k<(oldlevels-levels); ++k) {
-				--nests;
-			}
-		}
 		oldlevels = levels;
 
-		for (t=0; t<nests; ++t) wprintf("&nbsp;&nbsp;&nbsp;");
+		for (t=0; t<levels; ++t) wprintf("&nbsp;&nbsp;&nbsp;");
 		if (fold[i].selectable) {
 			wprintf("<A HREF=\"/dotgoto?room=");
 			urlescputs(fold[i].room);
@@ -1858,7 +1846,6 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 		}
 		wprintf("<BR>\n");
 	}
-	while (nests-- > 0) ;; 
 }
 
 /*
@@ -1866,9 +1853,9 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
  */
 void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 	char buf[SIZ];
+	char boxtitle[SIZ];
 	int levels, oldlevels;
-	int nests = 0;
-	int i, k, t;
+	int i, t;
 	int num_boxes = 0;
 	static int columns = 3;
 	int boxes_per_column = 0;
@@ -1881,27 +1868,16 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 	wprintf("<TABLE BORDER=0 WIDTH=100%% CELLPADDING=5>"
 		"<TR><TD VALIGN=TOP>");
 
-	nests = 0;
 	levels = 0;
 	oldlevels = 0;
 	for (i=0; i<max_folders; ++i) {
 
 		levels = num_tokens(fold[i].name, '|');
-		if (levels > oldlevels) {
-			for (k=0; k<(levels-oldlevels); ++k) {
-				++nests;
-			}
-		}
-		if (levels < oldlevels) {
-			for (k=0; k<(oldlevels-levels); ++k) {
-				--nests;
-			}
-		}
 
 		if ((levels == 1) && (oldlevels == 2)) {
 
 			/* End inner box */
-			wprintf("</TD></TR></TABLE><BR>\n");
+			do_template("endbox");
 
 			++num_boxes;
 			if ((num_boxes % boxes_per_column) == 0) {
@@ -1913,38 +1889,46 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 		}
 
 		if (levels == 1) {
-			/* Begin inner box */
-			wprintf("<TABLE border=1 WIDTH=100%%><TR><TD>");
-		}
 
+			/* Begin inner box */
+			extract(buf, fold[i].name, levels-1);
+			stresc(boxtitle, buf, 1);
+			svprintf("BOXTITLE", WCS_STRING, boxtitle);
+			do_template("beginbox");
+
+		}
 
 		oldlevels = levels;
 
-		for (t=0; t<nests; ++t) wprintf("&nbsp;&nbsp;&nbsp;");
-		if (fold[i].selectable) {
-			wprintf("<A HREF=\"/dotgoto?room=");
-			urlescputs(fold[i].room);
-			wprintf("\">");
+		if (levels > 1) {
+			wprintf("&nbsp;");
+			if (levels>2) for (t=0; t<(levels-2); ++t) wprintf("&nbsp;&nbsp;&nbsp;");
+			if (fold[i].selectable) {
+				wprintf("<A HREF=\"/dotgoto?room=");
+				urlescputs(fold[i].room);
+				wprintf("\">");
+			}
+			else {
+				wprintf("<i>");
+			}
+			if (fold[i].hasnewmsgs) wprintf("<B>");
+			extract(buf, fold[i].name, levels-1);
+			escputs(buf);
+			if (fold[i].hasnewmsgs) wprintf("</B>");
+			if (fold[i].selectable) {
+				wprintf("</A>");
+			}
+			else {
+				wprintf("</i>");
+			}
+			if (!strcasecmp(fold[i].name, "My Folders|Mail")) {
+				wprintf(" (INBOX)");
+			}
+			wprintf("<BR>\n");
 		}
-		else {
-			wprintf("<i>");
-		}
-		if (fold[i].hasnewmsgs) wprintf("<B>");
-		extract(buf, fold[i].name, levels-1);
-		escputs(buf);
-		if (fold[i].hasnewmsgs) wprintf("</B>");
-		if (fold[i].selectable) {
-			wprintf("</A>");
-		}
-		else {
-			wprintf("</i>");
-		}
-		if (!strcasecmp(fold[i].name, "My Folders|Mail")) {
-			wprintf(" (INBOX)");
-		}
-		wprintf("<BR>\n");
 	}
-	while (nests-- > 0) ;; 
+	/* End the final inner box */
+	do_template("endbox");
 
 	wprintf("</TD></TR></TABLE>\n");
 }

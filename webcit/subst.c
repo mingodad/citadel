@@ -59,14 +59,29 @@ void svprintf(char *keyname, int keytype, const char *format,...)
 {
 	va_list arg_ptr;
 	char wbuf[1024];
-	struct wcsubst *ptr;
+	struct wcsubst *ptr = NULL;
+	struct wcsubst *scan;
 
 	va_start(arg_ptr, format);
 	vsprintf(wbuf, format, arg_ptr);
 	va_end(arg_ptr);
 
-	ptr = (struct wcsubst *) malloc(sizeof(struct wcsubst));
-	ptr->next = WC->vars;
+	/* First scan through to see if we're doing a replacement of
+	 * an existing key
+	 */
+	for (scan=WC->vars; scan!=NULL; scan=scan->next) {
+		if (!strcasecmp(scan->wcs_key, keyname)) {
+			ptr = scan;
+			free(ptr->wcs_value);
+		}
+	}
+
+	/* Otherwise allocate a new one */
+	if (ptr == NULL) {
+		ptr = (struct wcsubst *) malloc(sizeof(struct wcsubst));
+		ptr->next = WC->vars;
+	}
+
 	ptr->wcs_type = keytype;
 	strcpy(ptr->wcs_key, keyname);
 	ptr->wcs_value = malloc(strlen(wbuf)+1);

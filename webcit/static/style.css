@@ -56,6 +56,13 @@ a:active {
 	color: #FFFFEE;
 }
 
+.boxlabel {
+	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
+	font-size: 6pt;
+	font-style: bold;
+	color: #FFFFEE;
+}
+
 .youhavemail {
 	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
 	font-size: 6pt;
@@ -106,7 +113,6 @@ a:active {
 
 body {
   background-image: url("/image&name=background");
-  background: #FFFFFF;
   color: #000000;
 }
 
