@@ -2,6 +2,8 @@
  * $Id$
  *
  * Functions which handle translation between HTML and plain text
+ * Copyright (c) 2000-2001 by Art Cancro and others.   This program is
+ * released under the terms of the GNU General Public License.
  */
 
 #ifdef DLL_EXPORT
@@ -282,4 +284,3 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 	return outptr;
 
 }
-
