@@ -1,9 +1,7 @@
 /*
  * $Id$
  *
- * This is the MIME parser brought over from the Citadel server source code.
- * We use it to handle HTTP uploads, which are sent in MIME format.  In the
- * future we'll use it to output MIME messages as well.
+ * This is the MIME parser for Citadel.  Sometimes it actually works.
  *
  * Copyright (c) 1998-2001 by Art Cancro
  * This code is distributed under the terms of the GNU General Public License.
@@ -24,7 +22,6 @@
 #include "mime_parser.h"
 
 
-
 void extract_key(char *target, char *source, char *key)
 {
 	int a, b;
@@ -43,34 +40,6 @@ void extract_key(char *target, char *source, char *key)
 		}
 	}
 	strcpy(target, "");
-}
-
-
-
-/* 
- * Utility function to "readline" from memory
- * (returns new pointer)
- */
-char *memreadline(char *start, char *buf, int maxlen)
-{
-	char ch;
-	char *ptr;
-	int len = 0;	/* tally our own length to avoid strlen() delays */
-
-	ptr = start;
-	memset(buf, 0, maxlen);
-
-	while (1) {
-		ch = *ptr++;
-		if ( (len < (maxlen - 1)) && (ch != 13) && (ch != 10) ) {
-			buf[strlen(buf) + 1] = 0;
-			buf[strlen(buf)] = ch;
-			++len;
-		}
-		if ((ch == 10) || (ch == 0)) {
-			return ptr;
-		}
-	}
 }
 
 
@@ -285,7 +254,7 @@ void the_mime_parser(char *partnum,
 {
 
 	char *ptr;
-	char *part_start, *part_end;
+	char *part_start, *part_end = NULL;
 	char buf[SIZ];
 	char header[SIZ];
 	char boundary[SIZ];
@@ -313,15 +282,17 @@ void the_mime_parser(char *partnum,
 	memset(disposition, 0, sizeof disposition);
 	content_length = 0;
 
+	/* If the caller didn't supply an endpointer, generate one by measure */
+	if (content_end == NULL) {
+		content_end = &content_start[strlen(content_start)];
+	}
+
 	/* Learn interesting things from the headers */
 	strcpy(header, "");
 	do {
 		ptr = memreadline(ptr, buf, sizeof buf);
-		/* if (*ptr == 0)
-			return;	 premature end of message */
-		if (content_end != NULL)
-			if (ptr >= content_end)
-				return;
+		if (ptr >= content_end)
+			return;
 
 		for (i = 0; i < strlen(buf); ++i)
 			if (isspace(buf[i]))
@@ -379,24 +350,15 @@ void the_mime_parser(char *partnum,
 				NULL, content_type,
 				0, encoding, userdata);
 		}
-		/***********
-		if (CallBack != NULL) {
-			CallBack("", "", fixed_partnum(partnum),
-				"", NULL, content_type,
-				0, encoding, userdata);
-		}
-		 ***********/
 
 		/* Figure out where the boundaries are */
 		sprintf(startary, "--%s", boundary);
 		sprintf(endary, "--%s--", boundary);
 		do {
-			part_end = ptr;
-			if (content_end != NULL)
-				if (ptr >= content_end) goto END_MULTI;
+			/* if (ptr >= content_end) goto END_MULTI; */
 
-			if ( (!strncasecmp(buf, startary, strlen(startary)))
-			   || (!strncasecmp(buf, endary, strlen(endary))) ) {
+			if ( (!strncasecmp(ptr, startary, strlen(startary)))
+			   || (!strncasecmp(ptr, endary, strlen(endary))) ) {
 				fprintf(stderr, "hit boundary!\n");
 				if (part_start != NULL) {
 					if (strlen(partnum) > 0) {
@@ -415,14 +377,15 @@ void the_mime_parser(char *partnum,
 							userdata,
 							dont_decode);
 				}
-				part_start = ptr;
 				ptr = memreadline(ptr, buf, sizeof(buf));
+				part_start = ptr;
 			}
 			else {
+				part_end = ptr;
 				++ptr;
 			}
-		} while ( (strcasecmp(buf, endary)) && (ptr <= content_end) );
-END_MULTI:	if (PostMultiPartCallBack != NULL) {
+		} while ( (strcasecmp(ptr, endary)) && (ptr <= content_end) );
+		if (PostMultiPartCallBack != NULL) {
 			PostMultiPartCallBack("", "", partnum, "", NULL,
 				content_type, 0, encoding, userdata);
 		}
@@ -434,19 +397,11 @@ END_MULTI:	if (PostMultiPartCallBack != NULL) {
 		fprintf(stderr, "doing non-multipart thing\n");
 		part_start = ptr;
 		length = 0;
-		if (content_end == NULL) {
-			while (*ptr != 0) {
-				++length;
-				part_end = ptr++;
-			}
+		while (ptr < content_end) {
+			++ptr;
+			++length;
 		}
-		else {
-			while (ptr < content_end) {
-				++ptr;
-				++length;
-			}
-			part_end = content_end;
-		}
+		part_end = content_end;
 		
 		/* Truncate if the header told us to */
 		if ( (content_length > 0) && (length > content_length) ) {

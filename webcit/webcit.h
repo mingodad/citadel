@@ -279,3 +279,4 @@ void svprintf(char *keyname, int keytype, const char *format,...);
 void svcallback(char *keyname, void (*fcn_ptr)() );
 void do_template(void *templatename);
 int lingering_close(int fd);
+char *memreadline(char *start, char *buf, int maxlen);
