@@ -28,7 +28,8 @@ DB *dbp[MAXCDB];
 
 DB_ENV *dbenv;
 
-DBC *MYCURSOR;	/* FIXME !! */
+DBC *cursorz[999];	/* FIXME !! */
+#define MYCURSOR cursorz[CC->cs_pid]
 
 /*
  * Reclaim unused space in the databases.  We need to do each one of
@@ -87,7 +88,8 @@ void open_databases(void)
          */
         /* (void)dbenv->set_data_dir(dbenv, "/database/files"); */
         ret = dbenv->open(dbenv, "./data",
-         DB_CREATE | DB_INIT_LOCK | DB_INIT_MPOOL | DB_THREAD, 0);
+        	( DB_CREATE | DB_INIT_LOCK | DB_INIT_MPOOL | DB_THREAD ),
+		0);
 	if (ret) {
 		lprintf(1, "dbenv->open: %s\n", db_strerror(ret));
                 dbenv->close(dbenv, 0);
@@ -136,7 +138,7 @@ void close_databases(void)
 	int a;
 	int ret;
 
-	begin_critical_section(S_DATABASE);
+	/* begin_critical_section(S_DATABASE); */
 	for (a = 0; a < MAXCDB; ++a) {
 		lprintf(7, "Closing database %d\n", a);
 		ret = dbp[a]->close(dbp[a], 0);
@@ -155,7 +157,7 @@ void close_databases(void)
         }
 
 
-	end_critical_section(S_DATABASE);
+	/* end_critical_section(S_DATABASE); */
 
 }
 
@@ -179,14 +181,15 @@ int cdb_store(int cdb,
 	ddata.size = cdatalen;
 	ddata.data = cdata;
 
-	begin_critical_section(S_DATABASE);
+	/* begin_critical_section(S_DATABASE); */
+	lprintf(9, "cdb_store(%d) ...\n", cdb);
 	ret = dbp[cdb]->put(dbp[cdb],		/* db */
 				NULL,		/* transaction ID (hmm...) */
 				&dkey,		/* key */
 				&ddata,		/* data */
 				0);		/* flags */
-	end_critical_section(S_DATABASE);
-	lprintf(9, "put (  to file %d) returned %3d (%d bytes)\n",
+	/* end_critical_section(S_DATABASE); */
+	lprintf(9, "...put (  to file %d) returned %3d (%d bytes)\n",
 		cdb, ret, ddata.size);
 	if (ret) {
 		lprintf(1, "cdb_store: %s\n", db_strerror(ret));
@@ -208,9 +211,11 @@ int cdb_delete(int cdb, void *key, int keylen)
 	dkey.size = keylen;
 	dkey.data = key;
 
-	begin_critical_section(S_DATABASE);
+	/* begin_critical_section(S_DATABASE); */
+	lprintf(9, "cdb_delete(%d) ...\n", cdb);
 	ret = dbp[cdb]->del(dbp[cdb], NULL, &dkey, 0);
-	end_critical_section(S_DATABASE);
+	lprintf(9, "cdb_delete returned %d\n", ret);
+	/* end_critical_section(S_DATABASE); */
 	return (ret);
 
 }
@@ -236,9 +241,10 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
 	dkey.data = key;
 	dret.flags = DB_DBT_MALLOC;
 
-	begin_critical_section(S_DATABASE);
+	/* begin_critical_section(S_DATABASE); */
+	lprintf(9, "cdb_fetch(%d) ...\n", cdb);
 	ret = dbp[cdb]->get(dbp[cdb], NULL, &dkey, &dret, 0);
-	end_critical_section(S_DATABASE);
+	/* end_critical_section(S_DATABASE); */
 	lprintf(9, "get (from file %d) returned %3d (%d bytes)\n",
 		cdb, ret, dret.size);
 	if ((ret != 0) && (ret != DB_NOTFOUND)) {
@@ -275,12 +281,12 @@ void cdb_rewind(int cdb)
 {
 	int ret = 0;
 
-	begin_critical_section(S_DATABASE);
+	/* begin_critical_section(S_DATABASE); */
 	ret = dbp[cdb]->cursor(dbp[cdb], NULL, &MYCURSOR, 0);
 	if (ret) {
 		lprintf(1, "db_cursor: %s\n", db_strerror(ret));
 	}
-	end_critical_section(S_DATABASE);
+	/* end_critical_section(S_DATABASE); */
 }
 
 
@@ -299,10 +305,12 @@ struct cdbdata *cdb_next_item(int cdb)
         memset(&data, 0, sizeof(data));
 	data.flags = DB_DBT_MALLOC;
 
-	begin_critical_section(S_DATABASE);
+	/* begin_critical_section(S_DATABASE); */
+	lprintf(9, "cdb_next_item(%d)...\n", cdb);
 	ret = MYCURSOR->c_get(MYCURSOR,
 		&key, &data, DB_NEXT);
-	end_critical_section(S_DATABASE);
+	lprintf(9, "...returned %d\n", ret);
+	/* end_critical_section(S_DATABASE); */
 	
 	if (ret) return NULL;		/* presumably, end of file */
 
