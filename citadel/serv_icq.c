@@ -1968,6 +1968,7 @@ void CtdlICQ_Refresh_Contact_List(void) {
 	if (ThisICQ->icq_Sok < 0) return;
 	icq_ContClear();
 
+	CtdlICQ_Read_CL();
 	if (ThisICQ->icq_numcl) for (i=0; i<ThisICQ->icq_numcl; ++i) {
 		if (ThisICQ->icq_cl[i].uin > 0L) {
 			icq_ContAddUser(ThisICQ->icq_cl[i].uin);
@@ -1977,11 +1978,6 @@ void CtdlICQ_Refresh_Contact_List(void) {
 
 	icq_SendContactList();
 
-	if (ThisICQ->icq_numcl) for (i=0; i<ThisICQ->icq_numcl; ++i) {
-		if (ThisICQ->icq_cl[i].uin > 0L) {
-			icq_SendInfoReq(ThisICQ->icq_cl[i].uin);
-		}
-	}
 }
 
 
@@ -2014,13 +2010,10 @@ void CtdlICQ_Login_If_Possible(void) {
 	uin = extract_long(ThisICQ->icq_config, 0);
 	extract(pass, ThisICQ->icq_config, 1);
 
-	lprintf(9, "Here's my config: %s\n", ThisICQ->icq_config);
-
 	if ( (uin > 0L) && (strlen(pass)>0) ) {
 		icq_Init(uin, pass);
 		if (icq_Connect("icq1.mirabilis.com", 4000) >= 0) {
 			icq_Login(STATUS_ONLINE);
-			CtdlICQ_Refresh_Contact_List();
 		}
 	}
 }
@@ -2303,7 +2296,6 @@ void CtdlICQ_Status_Update(DWORD uin, DWORD status) {
 
 
 void CtdlICQ_Logged(void) {
-	CtdlICQ_Read_CL();
 	CtdlICQ_Refresh_Contact_List();
 }
 
