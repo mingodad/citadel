@@ -133,8 +133,57 @@ void display_edituser(char *supplied_username) {
 	escputs(username);
 	wprintf("</B></FONT></TD></TR></TABLE>\n");
 
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/edituser\">\n");
 
-	wprintf("this is %s", username);
+	wprintf("<CENTER><TABLE>");
+
+	wprintf("<TR><TD>Password</TD><TD>"
+		"<INPUT TYPE=\"password\" NAME=\"password\" VALUE=\"");
+	escputs(password);
+	wprintf("\" MAXLENGTH=\"20\"></TD></TR>\n");
+
+	wprintf("<TR><TD>Flags (FIXME)</TD><TD>"
+		"<INPUT TYPE=\"text\" NAME=\"flags\" VALUE=\"");
+	wprintf("%d", flags);
+	wprintf("\" MAXLENGTH=\"6\"></TD></TR>\n");
+
+	wprintf("<TR><TD>Times logged in</TD><TD>"
+		"<INPUT TYPE=\"text\" NAME=\"timescalled\" VALUE=\"");
+	wprintf("%d", timescalled);
+	wprintf("\" MAXLENGTH=\"6\"></TD></TR>\n");
+
+	wprintf("<TR><TD>Messages posted</TD><TD>"
+		"<INPUT TYPE=\"text\" NAME=\"msgsposted\" VALUE=\"");
+	wprintf("%d", msgsposted);
+	wprintf("\" MAXLENGTH=\"6\"></TD></TR>\n");
+
+	wprintf("<TR><TD>Access level (FIXME) </TD><TD>"
+		"<INPUT TYPE=\"text\" NAME=\"axlevel\" VALUE=\"");
+	wprintf("%d", axlevel);
+	wprintf("\" MAXLENGTH=\"1\"></TD></TR>\n");
+
+	wprintf("<TR><TD>User ID number</TD><TD>"
+		"<INPUT TYPE=\"text\" NAME=\"usernum\" VALUE=\"");
+	wprintf("%ld", usernum);
+	wprintf("\" MAXLENGTH=\"7\"></TD></TR>\n");
+
+	wprintf("<TR><TD>Date/time of last login</TD><TD>"
+		"<INPUT TYPE=\"text\" NAME=\"lastcall\" VALUE=\"");
+	escputs(asctime(localtime(&lastcall)));
+	wprintf("\" MAXLENGTH=\"30\"></TD></TR>\n");
+
+	wprintf("<TR><TD>Purge days (FIXME) </TD><TD>"
+		"<INPUT TYPE=\"text\" NAME=\"purgedays\" VALUE=\"");
+	wprintf("%d", purgedays);
+	wprintf("\" MAXLENGTH=\"5\"></TD></TR>\n");
+
+	wprintf("</TABLE>\n");
+
+	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"OK\">\n"
+		"<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Cancel\">\n"
+		"</CENTER>\n");
+
+	wprintf("</FORM>\n");
 
 	wDumpContent(1);
 
