@@ -629,6 +629,7 @@ void do_system_configuration(void)
 	int expire_mode = 0;
 	int expire_value = 0;
 	int a;
+	int logpages = 0;
 
 	/* Clear out the config buffers */
 	memset(&sc[0][0], 0, sizeof(sc));
@@ -686,7 +687,15 @@ void do_system_configuration(void)
 	      "Restrict Internet mail to only those with that privilege",
 						     atoi(&sc[11][0]))));
 
-	strprompt("Name of room to log pages", &sc[18][0], ROOMNAMELEN);
+	if (strlen(&sc[18][0]) > 0) logpages = 1;
+	else logpages = 0;
+	logpages = boolprompt("Log all pages", logpages);
+	if (logpages) {
+		strprompt("Name of logging room", &sc[18][0], ROOMNAMELEN);
+	}
+	else {
+		sc[18][0] = 0;
+	}
 
 
 	/* Server tuning */

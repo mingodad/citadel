@@ -1,4 +1,9 @@
  $Log$
+ Revision 573.5  2000/10/03 01:45:00  ajc
+ * Changed the <.A>ide <S>ysconfig <G>eneral command to explicitly allow the
+   global page log room to be disabled (answer "no" to set the log room to a
+   null string)
+
  Revision 573.4  2000/09/28 10:27:38  error
  * commands.c: changed sttybbs() to support HP/UX termios VMIN and VTIME
 
@@ -2066,5 +2071,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
 
