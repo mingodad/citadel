@@ -371,10 +371,14 @@ int scr_putc(int c)
 #if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	if (mainwindow) {
 		if (c == 7) beep();
-		return ((waddch(mainwindow, c) == OK) ? c : EOF);
+		if (waddch(mainwindow, c) != OK)
+			logoff(NULL, 3);
+		return c;
 	}
 #endif
-	return putc(c, stdout);
+	if (putc(c, stdout) == EOF)
+		logoff(NULL, 3);
+	return c;
 }
 
 
