@@ -34,6 +34,7 @@ void cmd_agup (char *cmdbuf);
 void cmd_asup (char *cmdbuf);
 void cmd_view (char *cmdbuf);
 int NewMailCount(void);
+int InitialMailCheck(void);
 void put_visit(struct visit *newvisit);
 void CtdlGetRelationship(struct visit *vbuf,
                         struct usersupp *rel_user,
@@ -79,3 +80,4 @@ enum {
 
 int CtdlForgetThisRoom(void);
 void cmd_seen(char *argbuf);
+void BumpNewMailCounter(long);

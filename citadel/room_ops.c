@@ -688,7 +688,11 @@ void cmd_lzrm(char *argbuf)
 }
 
 
-
+/*
+ * Make the specified room the current room for this session.  No validation
+ * or access control is done here -- the caller should make sure that the
+ * specified room exists and is ok to access.
+ */
 void usergoto(char *where, int display_result, int *retmsgs, int *retnew)
 {
 	int a;
@@ -704,26 +708,35 @@ void usergoto(char *where, int display_result, int *retmsgs, int *retnew)
 	long *msglist = NULL;
 	int num_msgs = 0;
 
-	strcpy(CC->quickroom.QRname, where);
-	getroom(&CC->quickroom, where);
+	/* If the supplied room name is NULL, the caller wants us to know that
+	 * it has already copied the quickroom record into CC->quickroom, so
+	 * we can skip the extra database fetch.
+	 */
+	if (where != NULL) {
+		strcpy(CC->quickroom.QRname, where);
+		getroom(&CC->quickroom, where);
+	}
 
-	lgetuser(&CC->usersupp, CC->curr_user);
+	/* Take care of all the formalities. */
+
+	begin_critical_section(S_USERSUPP);
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
 	/* Know the room ... but not if it's the page log room */
-	if (strcasecmp(where, config.c_logpages)) {
+	if (strcasecmp(CC->quickroom.QRname, config.c_logpages)) {
 		vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
 		vbuf.v_flags = vbuf.v_flags | V_ACCESS;
 	}
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
-	lputuser(&CC->usersupp);
+	end_critical_section(S_USERSUPP);
 
-	/* check for new mail */
+	/* Check for new mail */
 	newmailcount = NewMailCount();
 
 	/* set info to 1 if the user needs to read the room's info file */
-	if (CC->quickroom.QRinfo > vbuf.v_lastseen)
+	if (CC->quickroom.QRinfo > vbuf.v_lastseen) {
 		info = 1;
+	}
 
 	get_mm();
         cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->quickroom.QRnumber, sizeof(long));
@@ -826,9 +839,11 @@ void cmd_goto(char *gargs)
 	/* And if the room was found... */
 	if (c == 0) {
 
-		/* let internal programs go directly to any room */
+		/* Let internal programs go directly to any room. */
 		if (CC->internal_pgm) {
-			usergoto(towhere, 1, NULL, NULL);
+			memcpy(&CC->quickroom, &QRscratch,
+				sizeof(struct quickroom));
+			usergoto(NULL, 1, NULL, NULL);
 			return;
 		}
 
@@ -843,7 +858,9 @@ void cmd_goto(char *gargs)
 		if (ok == 1) {
 			if ((QRscratch.QRflags & QR_MAILBOX) &&
 			    ((ra & UA_GOTOALLOWED))) {
-				usergoto(towhere, 1, NULL, NULL);
+				memcpy(&CC->quickroom, &QRscratch,
+					sizeof(struct quickroom));
+				usergoto(NULL, 1, NULL, NULL);
 				return;
 			} else if ((QRscratch.QRflags & QR_PASSWORDED) &&
 			    ((ra & UA_KNOWN) == 0) &&
@@ -862,7 +879,9 @@ void cmd_goto(char *gargs)
 				lprintf(9, "Failed to acquire private room\n");
 				goto NOPE;
 			} else {
-				usergoto(towhere, 1, NULL, NULL);
+				memcpy(&CC->quickroom, &QRscratch,
+					sizeof(struct quickroom));
+				usergoto(NULL, 1, NULL, NULL);
 				return;
 			}
 		}

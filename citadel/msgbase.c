@@ -1906,6 +1906,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		if (getuser(&userbuf, recipient) == 0) {
 			MailboxName(actual_rm, sizeof actual_rm, &userbuf, MAILROOM);
 			CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0);
+			BumpNewMailCounter(userbuf.usernum);
 		}
 		else {
 			lprintf(9, "No user <%s>\n", recipient);

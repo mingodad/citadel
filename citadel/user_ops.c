@@ -1254,7 +1254,7 @@ void cmd_chek(void)
 	}
 
 	/* check for mail */
-	mail = NewMailCount();
+	mail = InitialMailCheck();
 
 	cprintf("%d %d|%d|%d\n", CIT_OK, mail, regis, vali);
 }
@@ -1360,46 +1360,82 @@ void cmd_asup(char *cmdbuf)
 }
 
 
+
+/*
+ * Check to see if the user who we just sent mail to is logged in.  If yes,
+ * bump the 'new mail' counter for their session.  That enables them to
+ * receive a new mail notification without having to hit the database.
+ */
+void BumpNewMailCounter(long which_user) {
+	struct CitContext *ptr;
+
+	begin_critical_section(S_SESSION_TABLE);
+
+	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
+		if (ptr->usersupp.usernum == which_user) {
+			ptr->newmail += 1;
+		}
+	}
+
+	end_critical_section(S_SESSION_TABLE);
+}
+
+
 /*
  * Count the number of new mail messages the user has
  */
 int NewMailCount()
 {
 	int num_newmsgs = 0;
-	int a;
-	char mailboxname[ROOMNAMELEN];
-	struct quickroom mailbox;
-	struct visit vbuf;
-	struct cdbdata *cdbfr;
-	long *msglist = NULL;
-	int num_msgs = 0;
 
-	MailboxName(mailboxname, sizeof mailboxname, &CC->usersupp, MAILROOM);
-	if (getroom(&mailbox, mailboxname) != 0)
-		return (0);
-	CtdlGetRelationship(&vbuf, &CC->usersupp, &mailbox);
-
-	cdbfr = cdb_fetch(CDB_MSGLISTS, &mailbox.QRnumber, sizeof(long));
-
-	if (cdbfr != NULL) {
-		msglist = mallok(cdbfr->len);
-		memcpy(msglist, cdbfr->ptr, cdbfr->len);
-		num_msgs = cdbfr->len / sizeof(long);
-		cdb_free(cdbfr);
-	}
-	if (num_msgs > 0)
-		for (a = 0; a < num_msgs; ++a) {
-			if (msglist[a] > 0L) {
-				if (msglist[a] > vbuf.v_lastseen) {
-					++num_newmsgs;
-				}
-			}
-		}
-	if (msglist != NULL)
-		phree(msglist);
+	num_newmsgs = CC->newmail;
+	CC->newmail = 0;
 
 	return (num_newmsgs);
 }
+
+
+/*
+ * Count the number of new mail messages the user has
+ */
+int InitialMailCheck()
+{
+        int num_newmsgs = 0;
+        int a;
+        char mailboxname[ROOMNAMELEN];
+        struct quickroom mailbox;
+        struct visit vbuf;
+        struct cdbdata *cdbfr;
+        long *msglist = NULL;
+        int num_msgs = 0;
+
+        MailboxName(mailboxname, sizeof mailboxname, &CC->usersupp, MAILROOM);
+        if (getroom(&mailbox, mailboxname) != 0)
+                return (0);
+        CtdlGetRelationship(&vbuf, &CC->usersupp, &mailbox);
+
+        cdbfr = cdb_fetch(CDB_MSGLISTS, &mailbox.QRnumber, sizeof(long));
+
+        if (cdbfr != NULL) {
+                msglist = mallok(cdbfr->len);
+                memcpy(msglist, cdbfr->ptr, cdbfr->len);
+                num_msgs = cdbfr->len / sizeof(long);
+                cdb_free(cdbfr);
+        }
+        if (num_msgs > 0)
+                for (a = 0; a < num_msgs; ++a) {
+                        if (msglist[a] > 0L) {
+                                if (msglist[a] > vbuf.v_lastseen) {
+                                        ++num_newmsgs;
+                                }
+                        }
+                }
+        if (msglist != NULL)
+                phree(msglist);
+
+        return (num_newmsgs);
+}
+
 
 
 /*

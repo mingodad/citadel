@@ -137,6 +137,7 @@ struct CitContext {
 	/* A linked list of all express messages sent to us. */
 	struct ExpressMessage *FirstExpressMessage;
 	int disable_exp;	/* Set to 1 to disable incoming pages */
+	int newmail;		/* Other sessions increment this */
 
 	/* Masquerade... */
 	char fake_username[USERNAME_SIZE];	/* Fake username <bc> */ 

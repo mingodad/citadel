@@ -411,7 +411,8 @@ void imap_select(int num_parms, char *parms[]) {
 	 * usergoto() formally takes us to the desired room, happily returning
 	 * the number of messages and number of new messages.
 	 */
-	usergoto(QRscratch.QRname, 0, &msgs, &new);
+	memcpy(&CC->quickroom, &QRscratch, sizeof(struct quickroom));
+	usergoto(NULL, 0, &msgs, &new);
 	IMAP->selected = 1;
 
 	if (!strcasecmp(parms[1], "EXAMINE")) {
