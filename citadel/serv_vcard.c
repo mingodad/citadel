@@ -819,6 +819,8 @@ void vcard_session_login_hook(void) {
 
 char *serv_vcard_init(void)
 {
+	struct ctdlroom qr;
+
 	CtdlRegisterSessionHook(vcard_session_startup_hook, EVT_START);
 	CtdlRegisterSessionHook(vcard_session_login_hook, EVT_LOGIN);
 	CtdlRegisterMessageHook(vcard_upload_beforesave, EVT_BEFORESAVE);
@@ -831,6 +833,16 @@ char *serv_vcard_init(void)
 	CtdlRegisterProtoHook(cmd_qdir, "QDIR", "Query Directory");
 	CtdlRegisterUserHook(vcard_purge, EVT_PURGEUSER);
 	CtdlRegisterNetprocHook(vcard_extract_from_network);
+
+	/* Create the Global ADdress Book room if necessary */
 	create_room(ADDRESS_BOOK_ROOM, 3, "", 0, 1, 0);
+
+	/* Set expiration policy to manual; otherwise objects will be lost! */
+	if (!lgetroom(&qr, ADDRESS_BOOK_ROOM)) {
+		qr.QRep.expire_mode = EXPIRE_MANUAL;
+		qr.QRdefaultview = 2;	/* 2 = address book view */
+		lputroom(&qr);
+	}
+
 	return "$Id$";
 }

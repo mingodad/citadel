@@ -1,4 +1,11 @@
  $Log$
+ Revision 614.12  2004/02/01 06:19:22  ajc
+ * policy.c: fix bug in GetExpirePolicy() that was causing the default
+   mailbox purge policy to be misinterpreted if it was set to "use
+   system default"
+ * serv_vcard.c: always set the Global Address Book room's expire policy
+   to "never expire" and its default view to "address book"
+
  Revision 614.11  2004/01/31 05:44:29  ajc
  *** empty log message ***
 
@@ -5251,3 +5258,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

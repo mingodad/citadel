@@ -68,7 +68,7 @@ void GetExpirePolicy(struct ExpirePolicy *epbuf, struct ctdlroom *qrbuf) {
 	 * If there is a default policy for mailbox rooms, return it
 	 */
 	if (qrbuf->QRflags & QR_MAILBOX) {
-		if (&config.c_mbxep.expire_mode != 0) {
+		if (config.c_mbxep.expire_mode != 0) {
 			memcpy(epbuf, &config.c_mbxep,
 				sizeof(struct ExpirePolicy));
 			return;
