@@ -191,6 +191,8 @@ if test "x$with_db" != xno -a "x$with_gdbm" != xyes; then
 	test "$db_dir" && LDFLAGS="$LDFLAGS -L$db_dir/lib"
 
 	test "$db_dir" && CPPFLAGS="$CPPFLAGS -I$db_dir/include" || \
+		( test -d /usr/include/db4 && CPPFLAGS="$CPPFLAGS -I/usr/include/db4" ) || \
+		( test -d /usr/local/include/db4 && CPPFLAGS="$CPPFLAGS -I/usr/local/include/db4" ) || \
 		( test -d /usr/include/db3 && CPPFLAGS="$CPPFLAGS -I/usr/include/db3" ) || \
 		( test -d /usr/local/include/db3 && CPPFLAGS="$CPPFLAGS -I/usr/local/include/db3" )
 
