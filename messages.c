@@ -146,7 +146,9 @@ void display_parsed_vcard(struct vCard *v, int full) {
 		}
 		else if (!strcasecmp(v->prop[i].name, "email;internet")) {
 			wprintf("<TR><TD>Internet e-mail:</TD>"
-				"<TD><A HREF=\"mailto:");
+				"<TD>"
+				"<A HREF=\"/display_enter"
+				"?force_room=_MAIL_&recp=");
 			urlescputs(v->prop[i].value);
 			wprintf("\">");
 			escputs(v->prop[i].value);
@@ -794,8 +796,9 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 		}
 
 		wprintf("<TD>");
-		wprintf("<A HREF=\"/readfwd?startmsg=%ld", addrbook[i].ab_msgnum);
-		wprintf("&maxmsgs=1&summary=0\">");
+		wprintf("<A HREF=\"/readfwd?startmsg=%ld&is_singlecard=1",
+			addrbook[i].ab_msgnum);
+		wprintf("&maxmsgs=1&summary=0&alpha=%s\">", bstr("alpha"));
 		escputs(addrbook[i].ab_name);
 		wprintf("</A></TD>\n");
 	}
@@ -843,6 +846,7 @@ void readloop(char *oper)
 	int num_displayed = 0;
 	int is_summary = 0;
 	int is_addressbook = 0;
+	int is_singlecard = 0;
 	int is_calendar = 0;
 	int is_tasks = 0;
 	int remaining_messages;
@@ -879,10 +883,17 @@ void readloop(char *oper)
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
 	}
+
 	if ((WC->wc_view == 2) && (maxmsgs > 1)) {
 		is_addressbook = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
+	}
+
+	is_singlecard = atoi(bstr("is_singlecard"));
+
+	/* Display the letter indices across the top */
+	if ((is_addressbook) || (is_singlecard)) {
 		if (strlen(bstr("alpha")) == 0) {
 			alpha = 'a';
 		}
@@ -891,19 +902,27 @@ void readloop(char *oper)
 			alpha = buf[0];
 		}
 
-		for (i='a'; i<='z'; ++i) {
-			if (i == alpha) wprintf("<FONT SIZE=+2>"
-						"%c</FONT>\n", toupper(i));
+		for (i='1'; i<='z'; ++i) if ((i=='1')||(islower(i))) {
+			if ((i != alpha) || (is_singlecard)) {
+				wprintf("<A HREF=\"/readfwd?alpha=%c\">", i);
+			}
+			if (i == alpha) wprintf("<FONT SIZE=+2>");
+			if (isalpha(i)) {
+				wprintf("%c", toupper(i));
+			}
 			else {
-				wprintf("<A HREF=\"/readfwd?alpha=%c\">"
-					"%c</A>\n", i, toupper(i));
+				wprintf("(other)");
+			}
+			if (i == alpha) wprintf("</FONT>");
+			if ((i != alpha) || (is_singlecard)) {
+				wprintf("</A>\n");
 			}
 			wprintf("&nbsp;");
 		}
-		if (!isalpha(alpha)) wprintf("<FONT SIZE=+2>(other)</FONT>\n");
-		else wprintf("<A HREF=\"/readfwd?alpha=1\">(other)</A>\n");
+
 		wprintf("<HR width=100%%>\n");
 	}
+
 	if (WC->wc_view == 3) {		/* calendar */
 		is_calendar = 1;
 		strcpy(cmd, "MSGS ALL");
@@ -1030,7 +1049,7 @@ void readloop(char *oper)
 
 	/* If we're only looking at one message, do a prev/next thing */
 	if (num_displayed == 1) {
-	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook)) {
+	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook) && (!is_singlecard)) {
 
 		wprintf("<CENTER>"
 			"<TABLE BORDER=0 WIDTH=100%% BGCOLOR=\"#DDDDDD\"><TR><TD>"
@@ -1080,7 +1099,7 @@ void readloop(char *oper)
 	 * messages, then display the selector bar
 	 */
 	if (num_displayed > 1) {
-	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook)) {
+	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook) && (!is_singlecard)) {
 		wprintf("<CENTER>"
 			"<TABLE BORDER=0 WIDTH=100%% BGCOLOR=\"#DDDDDD\"><TR><TD>"
 			"Reading #%d-%d of %d messages.</TD>\n"
