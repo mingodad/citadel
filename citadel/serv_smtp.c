@@ -398,10 +398,10 @@ void smtp_mail(char *argbuf) {
  */
 void smtp_rcpt(char *argbuf) {
 	int cvt;
+	int alias_type = 0;
 	char user[SIZ];
 	char node[SIZ];
 	char recp[SIZ];
-	int bypass_spam_checking = 0;
 
 	if (strlen(SMTP->from) == 0) {
 		cprintf("503 Need MAIL before RCPT\r\n");
@@ -417,13 +417,11 @@ void smtp_rcpt(char *argbuf) {
 	striplt(recp);
 	stripallbut(recp, '<', '>');
 
-	/* Allow relaying if it's from the Internet to another Citadel node
-	 * for whom we are providing directory service.
-	 */
-	bypass_spam_checking = IsDirectory(recp);
-
-	alias(recp);
+	alias_type = alias(recp);
 	cvt = convert_internet_address(user, node, recp);
+	if (alias_type == MES_IGNET) {
+		cvt = rfc822_address_on_citadel_network;
+	}
 	snprintf(recp, sizeof recp, "%s@%s", user, node);
 	lprintf(9, "cvt=%d, citaddr=<%s@%s>\n", cvt, user, node);
 
@@ -450,7 +448,7 @@ void smtp_rcpt(char *argbuf) {
 			return;
 
 		case rfc822_address_on_citadel_network:
-			cprintf("250 RCPT ok ignet\r\n");
+			cprintf("250 RCPT ok ignet <%s>\r\n", recp);
 			if (SMTP->valid.num_ignet > 0) {
 				strcat(SMTP->valid.recp_ignet, "|");
 			}
@@ -464,12 +462,11 @@ void smtp_rcpt(char *argbuf) {
 			return;
 
 		case rfc822_address_nonlocal:
-			if ( (SMTP->message_originated_locally == 0)
-			   && (bypass_spam_checking == 0) ) {
-				cprintf("551 Relaying denied.\r\n");
+			if (SMTP->message_originated_locally == 0) {
+				cprintf("551 Relaying denied <%s>\r\n", recp);
 			}
 			else {
-				cprintf("250 RCPT ok relay <%s>\r\n", recp);
+				cprintf("250 RCPT ok <%s>\r\n", recp);
 
 				if (SMTP->valid.num_internet > 0) {
 					strcat(SMTP->valid.recp_internet, "|");

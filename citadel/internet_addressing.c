@@ -374,8 +374,9 @@ REALIAS:
 
 	strcpy(destuser, user);
 	strcpy(desthost, node);
-	if (hostalias == hostalias_gatewaydomain)
+	if (hostalias == hostalias_gatewaydomain) {
 		return(rfc822_address_on_citadel_network);
+	}
 	return(rfc822_address_nonlocal);
 }
 
