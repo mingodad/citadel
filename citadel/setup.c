@@ -37,6 +37,7 @@
 #define UI_TEXT		0	/* Default setup type -- text only */
 #define UI_DIALOG	1	/* Use the 'dialog' program (REMOVED) */
 #define UI_CURSES	2	/* Use curses */
+#define UI_SILENT	3	/* Silent running, for use in scripts */
 
 #define SERVICE_NAME	"citadel"
 #define PROTO_NAME	"tcp"
@@ -238,8 +239,10 @@ void hit_any_key(void)
 		return;
 	}
 #endif
-	printf("Press return to continue...");
-	fgets(junk, 5, stdin);
+	if (setup_type == UI_TEXT) {
+		printf("Press return to continue...");
+		fgets(junk, 5, stdin);
+	}
 }
 
 int yesno(char *question)
@@ -701,6 +704,9 @@ int main(int argc, char *argv[])
 		if (!strcmp(argv[a], "-i")) {
 			info_only = 1;
 		}
+		if (!strcmp(argv[a], "-q")) {
+			setup_type = UI_SILENT;
+		}
 	}
 
 
@@ -856,8 +862,10 @@ int main(int argc, char *argv[])
 
 
 	/* Go through a series of dialogs prompting for config info */
-	for (curr = 1; curr <= MAXSETUP; ++curr) {
-		edit_value(curr);
+	if (setup_type != UI_SILENT) {
+		for (curr = 1; curr <= MAXSETUP; ++curr) {
+			edit_value(curr);
+		}
 	}
 
 	/*

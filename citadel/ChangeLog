@@ -1,4 +1,9 @@
  $Log$
+ Revision 590.91  2002/01/26 09:23:40  error
+ * setup now has a silent running mode (-q option) where it silently sets
+   defaults for everything.  This is intended for use in scripts such as
+   the RPM packages, eliminating a step from the installation process.
+
  Revision 590.90  2002/01/26 09:19:16  error
  * citadel.spec has been completely overhauled, we can make RPMs now!
 
@@ -3251,4 +3256,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
