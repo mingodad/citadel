@@ -72,7 +72,7 @@ struct CitContext {
 	time_t lastidle;	/* For computing idle time */
 	char lastcmdname[5];	/* name of last command executed */
 	unsigned cs_flags;	/* miscellaneous flags */
-	int client_protocol;	/* Which protocol is this client speaking? */
+	void (*h_command_function) (void) ;	/* proto command function */
 
 	/* feeping creaturisms... */
 	int cs_clientdev;	/* client developer ID */
@@ -317,6 +317,7 @@ struct ServiceFunctionHook {
 	int tcp_port;
 	void (*h_greeting_function) (void) ;
 	void (*h_command_function) (void) ;
+	int msock;
 };
 extern struct ServiceFunctionHook *ServiceHookTable;
 

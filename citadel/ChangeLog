@@ -1,4 +1,10 @@
 $Log$
+Revision 1.425  1999/12/09 00:22:58  ajc
+* Finished the "arbitrary service" registration.
+* Eliminated "special" master socket for Citadel protocol - just register it
+  like any other protocol.
+* Began initial implementation of native SMTP service.
+
 Revision 1.424  1999/12/08 18:09:10  ajc
 * Added CtdlRegisterServiceHook() and its data type, for implementing arbitrary
   TCP-based services directly in the Citadel server.  Not finished yet.
@@ -1476,4 +1482,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

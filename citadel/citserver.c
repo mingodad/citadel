@@ -847,7 +847,7 @@ void cmd_scdn(char *argbuf)
 
 
 /*
- * 
+ * Back-end function for starting a session
  */
 void begin_session(struct CitContext *con)
 {
@@ -883,7 +883,17 @@ void begin_session(struct CitContext *con)
 	if ((config.c_maxsessions > 0)&&(num_sessions > config.c_maxsessions))
 		con->nologin = 1;
 
-	if (con->nologin==1) {
+	lprintf(3, "citserver[%3d]: started.\n", con->cs_pid);
+
+	/* Run any session startup routines registered by loadable modules */
+	PerformSessionHooks(EVT_START);
+
+	rec_log(CL_CONNECT, "");
+}
+
+
+void citproto_begin_session() {
+	if (CC->nologin==1) {
 		cprintf("%d %s: Too many users are already online "
 			"(maximum is %d)\n",
 			ERROR+MAX_SESSIONS_EXCEEDED,
@@ -893,13 +903,6 @@ void begin_session(struct CitContext *con)
 		cprintf("%d %s Citadel/UX server ready.\n",
 			OK, config.c_nodename);
 		}
-
-	lprintf(3, "citserver[%3d]: started.\n", con->cs_pid);
-
-	/* Run any session startup routines registered by loadable modules */
-	PerformSessionHooks(EVT_START);
-
-	rec_log(CL_CONNECT, "");
 }
 
 

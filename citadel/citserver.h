@@ -29,6 +29,7 @@ int CtdlGetDynamicSymbol(void);
 void enter_housekeeping_cmd(char *);
 void do_command_loop(void);
 void begin_session(struct CitContext *con);
+void citproto_begin_session(void);
 void GenerateRoomDisplay(char *real_room,
                         struct CitContext *viewed,
                         struct CitContext *viewer);

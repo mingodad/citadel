@@ -64,7 +64,6 @@ struct TheHeap *heap = NULL;
 pthread_mutex_t Critters[MAX_SEMAPHORES];	/* Things needing locking */
 pthread_key_t MyConKey;				/* TSD key for MyContext() */
 
-int msock;					/* master listening socket */
 int verbosity = DEFAULT_VERBOSITY;		/* Logging level */
 
 struct CitContext masterCC;
@@ -267,9 +266,8 @@ int ig_tcp_server(int port_number, int queue_len)
 	sin.sin_addr.s_addr = INADDR_ANY;
 
 	if (port_number == 0) {
-		lprintf(1,
-			"citserver: No port number specified.  Run setup.\n");
-		exit(1);
+		lprintf(1, "citserver: illegal port number specified\n");
+		return(-1);
 	}
 	
 	sin.sin_port = htons((u_short)port_number);
@@ -278,7 +276,7 @@ int ig_tcp_server(int port_number, int queue_len)
 	if (s < 0) {
 		lprintf(1, "citserver: Can't create a socket: %s\n",
 			strerror(errno));
-		exit(errno);
+		return(-1);
 	}
 
 	/* Set the SO_REUSEADDR socket option, because it makes sense. */
@@ -287,12 +285,12 @@ int ig_tcp_server(int port_number, int queue_len)
 
 	if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
 		lprintf(1, "citserver: Can't bind: %s\n", strerror(errno));
-		exit(errno);
+		return(-1);
 	}
 
 	if (listen(s, queue_len) < 0) {
 		lprintf(1, "citserver: Can't listen: %s\n", strerror(errno));
-		exit(errno);
+		return(-1);
 	}
 
 	return(s);
@@ -485,8 +483,7 @@ int client_gets(char *buf)
  * The system-dependent part of master_cleanup() - close the master socket.
  */
 void sysdep_master_cleanup(void) {
-	lprintf(7, "Closing master socket %d\n", msock);
-	close(msock);
+	/* FIX close all protocol master sockets here */
 }
 
 
@@ -767,12 +764,10 @@ int main(int argc, char **argv)
 
 	/*
 	 * Bind the server to our favourite port.
-	 * There is no need to check for errors, because ig_tcp_server()
-	 * exits if it doesn't succeed.
 	 */
-	lprintf(7, "Attempting to bind to port %d...\n", config.c_port_number);
-	msock = ig_tcp_server(config.c_port_number, config.c_maxsessions);
-	lprintf(7, "Listening on socket %d\n", msock);
+	CtdlRegisterServiceHook(config.c_port_number,
+				citproto_begin_session,
+				do_command_loop);
 
 	/*
 	 * Now that we've bound the socket, change to the BBS user id and its
@@ -839,16 +834,26 @@ int main(int argc, char **argv)
 	 * figure out what to put there.
 	 */
 	FD_ZERO(&masterfds);
-	FD_SET(msock, &masterfds);
-	masterhighest = msock;
+	masterhighest = 0;
 	FD_SET(rescan[0], &masterfds);
 	if (rescan[0] > masterhighest) masterhighest = rescan[0];
 
 	for (serviceptr = ServiceHookTable; serviceptr != NULL;
 	    serviceptr = serviceptr->next ) {
-		FD_SET(serviceptr->tcp_port, &masterfds);
-		if (serviceptr->tcp_port > masterhighest)
-			masterhighest = serviceptr->tcp_port;
+		serviceptr->msock = ig_tcp_server(
+			serviceptr->tcp_port, config.c_maxsessions);
+		if (serviceptr->msock >= 0) {
+			FD_SET(serviceptr->msock, &masterfds);
+			if (serviceptr->msock > masterhighest)
+				masterhighest = serviceptr->msock;
+			lprintf(7, "Bound to port %-5d (socket %d)\n",
+				serviceptr->tcp_port,
+				serviceptr->msock);
+		}
+		else {
+			lprintf(1, "Unable to bind to port %d\n",
+				serviceptr->tcp_port);
+		}
 	}
 
 
@@ -889,6 +894,7 @@ void worker_thread(void) {
 	fd_set readfds;
 	int retval;
 	struct CitContext *con= NULL;	/* Temporary context pointer */
+	struct ServiceFunctionHook *serviceptr;
 	struct sockaddr_in fsin;	/* Data for master socket */
 	int alen;			/* Data for master socket */
 	int ssock;			/* Descriptor for client socket */
@@ -933,36 +939,47 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof(fd_set) );
 		/* Next, check to see if it's a new client connecting
 		 * on the master socket.
 		 */
-		else if (FD_ISSET(msock, &readfds)) {
-			alen = sizeof fsin;
-			ssock = accept(msock, (struct sockaddr *)&fsin, &alen);
-			if (ssock < 0) {
-				lprintf(2, "citserver: accept() failed: %s\n",
-					strerror(errno));
-			}
-			else {
-				lprintf(7, "citserver: New client socket %d\n",
-					ssock);
+		else for (serviceptr = ServiceHookTable; serviceptr != NULL;
+		     serviceptr = serviceptr->next ) {
 
-				/* New context will be created already set up
-				 * in the CON_EXECUTING state.
-				 */
-				con = CreateNewContext();
+			if (FD_ISSET(serviceptr->msock, &readfds)) {
+				alen = sizeof fsin;
+				ssock = accept(serviceptr->msock,
+					(struct sockaddr *)&fsin, &alen);
+				if (ssock < 0) {
+					lprintf(2, "citserver: accept(): %s\n",
+						strerror(errno));
+				}
+				else {
+					lprintf(7, "citserver: "
+						"New client socket %d\n",
+						ssock);
 
-				/* Assign our new socket number to it. */
-				con->client_socket = ssock;
-				con->client_protocol = config.c_port_number;
+					/* New context will be created already
+				 	* set up in the CON_EXECUTING state.
+				 	*/
+					con = CreateNewContext();
+
+					/* Assign new socket number to it. */
+					con->client_socket = ssock;
+					con->h_command_function =
+						serviceptr->h_command_function;
 	
-				/* Set the SO_REUSEADDR socket option */
-				i = 1;
-				setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR,
-					&i, sizeof(i));
+					/* Set the SO_REUSEADDR socket option */
+					i = 1;
+					setsockopt(ssock, SOL_SOCKET,
+						SO_REUSEADDR,
+						&i, sizeof(i));
 
-				pthread_setspecific(MyConKey, (void *)con);
-				begin_session(con);
-				pthread_setspecific(MyConKey, (void *)NULL);
-				con->state = CON_IDLE;
-				goto SETUP_FD;
+					pthread_setspecific(MyConKey,
+						(void *)con);
+					begin_session(con);
+					serviceptr->h_greeting_function();
+					pthread_setspecific(MyConKey,
+						(void *)NULL);
+					con->state = CON_IDLE;
+					goto SETUP_FD;
+				}
 			}
 		}
 
@@ -970,7 +987,7 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof(fd_set) );
 		 * thread that the &readfds needs to be refreshed with more
 		 * current data.
 		 */
-		else if (FD_ISSET(rescan[0], &readfds)) {
+		if (FD_ISSET(rescan[0], &readfds)) {
 			read(rescan[0], &junk, 1);
 			goto SETUP_FD;
 		}
@@ -1002,7 +1019,7 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof(fd_set) );
 			/* We're bound to a session, now do *one* command */
 			if (bind_me != NULL) {
 				pthread_setspecific(MyConKey, (void *)bind_me);
-				do_command_loop();
+				CC->h_command_function();
 				pthread_setspecific(MyConKey, (void *)NULL);
 				bind_me->state = CON_IDLE;
 				if (bind_me->kill_me == 1) {

@@ -240,6 +240,7 @@ void CtdlRegisterServiceHook(int tcp_port,
 	newfcn->tcp_port = tcp_port;
 	newfcn->h_greeting_function = h_greeting_function;
 	newfcn->h_command_function = h_command_function;
+	newfcn->msock = (-1);
 	ServiceHookTable = newfcn;
 	lprintf(5, "Registered a new service (TCP port %d)\n", tcp_port);
 }
