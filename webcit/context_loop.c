@@ -361,7 +361,6 @@ end:		unlock_session(TheSession);
          * to support HTTP/1.1 "persistent" connections by looping back to
          * the top of this function.  For now, we'll just close.
          */
-	printf("   Remember, the pid is %d\n", TheSession->webcit_pid);
 	printf("   Closing socket %d ... ret=%d\n", sock,
 	       lingering_close(sock));
 
