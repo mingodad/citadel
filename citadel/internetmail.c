@@ -28,13 +28,18 @@ extern char GW_DOMAIN[128];
 extern char TABLEFILE[128];
 extern int RUN_NETPROC;
 
-void StripLeadingAndTrailingWhitespace(char *str) {
-	if (strlen(str) == 0) return;
-	while (isspace(str[0])) strcpy(str, &str[1]);
-	while (isspace(str[strlen(str)-1])) str[strlen(str)-1] = 0;
-	}
+void StripLeadingAndTrailingWhitespace(char *str)
+{
+	if (strlen(str) == 0)
+		return;
+	while (isspace(str[0]))
+		strcpy(str, &str[1]);
+	while (isspace(str[strlen(str) - 1]))
+		str[strlen(str) - 1] = 0;
+}
 
-void LoadInternetConfig(void) {
+void LoadInternetConfig(void)
+{
 	char ParamName[256], ParamValue[256], buf[256];
 	FILE *conf;
 	int a, eqpos;
@@ -44,23 +49,23 @@ void LoadInternetConfig(void) {
 	if (conf == NULL) {
 		syslog(LOG_NOTICE, "Couldn't load internetmail.config");
 		exit(1);
-		}
-
+	}
 	while (fgets(buf, 256, conf) != NULL) {
-		if (strlen(buf) > 0) buf[strlen(buf) - 1] = 0;
+		if (strlen(buf) > 0)
+			buf[strlen(buf) - 1] = 0;
 		strcpy(ParamName, "");
 		strcpy(ParamValue, "");
 		if (buf[0] != '#') {
 			eqpos = (-1);
-			for (a=strlen(buf); a>=0; --a) {
-				if (buf[a] == '=') eqpos = a;
-				}
+			for (a = strlen(buf); a >= 0; --a) {
+				if (buf[a] == '=')
+					eqpos = a;
+			}
 			if (eqpos >= 0) {
 				strcpy(ParamName, buf);
 				ParamName[eqpos] = 0;
-				strcpy(ParamValue, &buf[eqpos+1]);
-				}
-
+				strcpy(ParamValue, &buf[eqpos + 1]);
+			}
 			StripLeadingAndTrailingWhitespace(ParamName);
 			StripLeadingAndTrailingWhitespace(ParamValue);
 
@@ -78,27 +83,29 @@ void LoadInternetConfig(void) {
 				strcpy(TABLEFILE, ParamValue);
 			if (!strcasecmp(ParamName, "deliver local"))
 				strcpy(metoo[mecount++], ParamValue);
-			if (!strcasecmp(ParamName, "run netproc")) 
+			if (!strcasecmp(ParamName, "run netproc"))
 				RUN_NETPROC = atoi(ParamValue);
-			}
 		}
-	fclose(conf);
 	}
+	fclose(conf);
+}
 
 
 /* 
  * returns nonzero if the specified host is listed as local
  */
-int IsHostLocal(char *WhichHost) {
+int IsHostLocal(char *WhichHost)
+{
 	int a;
 
-	if (!strcasecmp(WhichHost, FQDN)) return(1);
+	if (!strcasecmp(WhichHost, FQDN))
+		return (1);
 
 	if (mecount > 0) {
-		for (a=0; a<mecount; ++a) {
-			if (!strcasecmp(WhichHost, metoo[a])) return(1);
-			}
+		for (a = 0; a < mecount; ++a) {
+			if (!strcasecmp(WhichHost, metoo[a]))
+				return (1);
 		}
-	
-	return(0);
 	}
+	return (0);
+}
