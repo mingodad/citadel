@@ -2612,7 +2612,7 @@ static void serv_read_ssl(CtdlIPC* ipc, char *buf, unsigned int bytes)
 			}
 			error_printf("SSL_read in serv_read:\n");
 			ERR_print_errors_fp(stderr);
-			connection_died(NULL);
+			connection_died(ipc);
 			return;
 		}
 		len += rlen;
@@ -2655,7 +2655,7 @@ static void serv_write_ssl(CtdlIPC *ipc, const char *buf, unsigned int nbytes)
 			}
 			error_printf("SSL_write in serv_write:\n");
 			ERR_print_errors_fp(stderr);
-			connection_died(NULL);
+			connection_died(ipc);
 			return;
 		}
 		bytes_written += retval;

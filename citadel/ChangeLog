@@ -1,4 +1,8 @@
  $Log$
+ Revision 605.25  2003/03/20 08:37:04  error
+ * connection_died(): Don't crash before printing message, crash afterward.
+   (Bugzilla id 111)
+
  Revision 605.24  2003/03/19 11:48:06  error
  * entmsg(): Don't corrupt the msg_arr[] when replying to a message in a room
 
@@ -4580,3 +4584,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -55,8 +55,10 @@ void connection_died(CtdlIPC *ipc) {
 			"Last error: %s\n"
 			"Please re-connect and log in again.\n",
 			strerror(errno));
-#ifdef HAVE_OPENSSL
+	fflush(stderr);
+	fflush(stdout);
 
+#ifdef HAVE_OPENSSL
 	/*  ...don't try to shut down a connection on a dead socket?
 	SSL_shutdown(ipc->ssl);
 	*/
