@@ -266,7 +266,7 @@ void cmd_stls(char *params)
 	}
 	BIO_set_close(CC->ssl->rbio, BIO_NOCLOSE);
 	bits = SSL_CIPHER_get_bits(SSL_get_current_cipher(CC->ssl), &alg_bits);
-	lprintf(3, "Session %d using %s on %s (%d of %d bits)\n", CC->cs_pid,
+	lprintf(3, "SSL/TLS using %s on %s (%d of %d bits)\n",
 			SSL_CIPHER_get_name(SSL_get_current_cipher(CC->ssl)),
 			SSL_CIPHER_get_version(SSL_get_current_cipher(CC->ssl)),
 			bits, alg_bits);
@@ -316,7 +316,7 @@ void cmd_etls(char *params)
  */
 void endtls(int who)
 {
-	lprintf(7, "Session %d ending SSL/TLS%s\n", CC->cs_pid,
+	lprintf(7, "Ending SSL/TLS%s\n",
 			(who) ? "" : " at client request");
 
 	if (!who) {

@@ -545,7 +545,7 @@ void pop3_command_loop(void) {
 		CC->kill_me = 1;
 		return;
 	}
-	lprintf(5, "citserver[%3d]: %s\r\n", CC->cs_pid, cmdbuf);
+	lprintf(5, "POP3: %s\r\n", cmdbuf);
 	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
 
 	if (!strncasecmp(cmdbuf, "NOOP", 4)) {

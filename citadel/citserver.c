@@ -66,6 +66,9 @@ char *unique_session_numbers;
 int ScheduledShutdown = 0;
 int do_defrag = 0;
 
+extern long int timezone;
+extern int daylight;
+
 /*
  * Various things that need to be initialized at startup
  */
@@ -203,7 +206,7 @@ void RemoveContext (struct CitContext *con)
 
 	rec_log(CL_TERMINATE, con->curr_user);
 	unlink(con->temp);
-	lprintf(3, "citserver[%3d]: ended.\n", con->cs_pid);
+	lprintf(3, "[%3d] session ended.\n", con->cs_pid);
 	
 
 	syslog(LOG_NOTICE,"session %d: ended", con->cs_pid);
@@ -352,8 +355,9 @@ void cmd_time(void)
    time_t tv;
    
    tv = time(NULL);
+   localtime(&tv);
    
-   cprintf("%d %ld\n", OK, (long)tv);
+   cprintf("%d %ld|%ld|%d\n", OK, (long)tv, timezone, daylight);
 }
 
 /*
@@ -839,7 +843,7 @@ void begin_session(struct CitContext *con)
 	if ((config.c_maxsessions > 0)&&(num_sessions > config.c_maxsessions))
 		con->nologin = 1;
 
-	lprintf(3, "citserver[%3d]: started.\n", con->cs_pid);
+	lprintf(3, "[%3d] session started.\n", con->cs_pid);
 
 	/* Run any session startup routines registered by loadable modules */
 	PerformSessionHooks(EVT_START);
@@ -877,7 +881,7 @@ void do_command_loop(void) {
 		CC->kill_me = 1;
 		return;
 	}
-	lprintf(5, "citserver[%3d]: %s\n", CC->cs_pid, cmdbuf);
+	lprintf(5, "Citadel: %s\n", cmdbuf);
 
 	/*
 	 * Let other clients see the last command we executed, and

@@ -920,7 +920,7 @@ void imap_command_loop(void) {
 		return;
 	}
 
-	lprintf(5, "citserver[%3d]: %s\r\n", CC->cs_pid, cmdbuf);
+	lprintf(5, "IMAP: %s\r\n", cmdbuf);
 	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
 
 

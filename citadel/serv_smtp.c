@@ -572,7 +572,7 @@ void smtp_command_loop(void) {
 		CC->kill_me = 1;
 		return;
 	}
-	lprintf(5, "citserver[%3d]: %s\n", CC->cs_pid, cmdbuf);
+	lprintf(5, "SMTP: %s\n", cmdbuf);
 	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
 
 	if (SMTP->command_state == smtp_user) {

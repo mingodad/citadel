@@ -118,10 +118,20 @@ void lprintf(int loglevel, const char *format, ...) {
 		 * microsecond accuracy and your OS supports it, change
 		 * %03ld to %06ld and remove " / 1000" after tv.tv_usec.
 		 */
-		fprintf(stderr, "%04d/%02d/%02d %2d:%02d:%02d.%03ld %s",
-			tim->tm_year + 1900, tim->tm_mon + 1, tim->tm_mday,
-			tim->tm_hour, tim->tm_min, tim->tm_sec,
-			(long)tv.tv_usec / 1000, buf);
+		if (CC) {
+			fprintf(stderr,
+				"%04d/%02d/%02d %2d:%02d:%02d.%03ld [%3d] %s",
+				tim->tm_year + 1900, tim->tm_mon + 1,
+				tim->tm_mday, tim->tm_hour, tim->tm_min,
+				tim->tm_sec, (long)tv.tv_usec / 1000,
+				CC->cs_pid, buf);
+		} else {
+			fprintf(stderr,
+				"%04d/%02d/%02d %2d:%02d:%02d.%03ld %s",
+				tim->tm_year + 1900, tim->tm_mon + 1,
+				tim->tm_mday, tim->tm_hour, tim->tm_min,
+				tim->tm_sec, (long)tv.tv_usec / 1000, buf);
+		}
 		fflush(stderr);
 	}
 
