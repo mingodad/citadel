@@ -498,51 +498,44 @@ void read_message(long msgnum) {
 		wprintf("****");
 	}
 
-	wprintf("</SPAN></TD>");
-
-	wprintf("<TD ALIGN=RIGHT>\n"
-		"<TABLE BORDER=0><TR>\n");
-
-	wprintf("<TD BGCOLOR=\"#AAAADD\">"
-		"<A HREF=\"/display_enter?recp=");
-	urlescputs(reply_to);
-	if (!strncasecmp(m_subject, "Re:", 2)) {
-		wprintf("&subject=");
-		escputs(m_subject);
-	}
-	else if (strlen(m_subject) > 0) {
-		wprintf("&subject=Re:%%20");
-		escputs(m_subject);
-	}
-	wprintf("\"><FONT SIZE=-1>Reply</FONT></A></TD>\n", msgnum);
-
-	if (WC->is_room_aide) {
-		wprintf("<TD BGCOLOR=\"#AAAADD\">"
-			"<A HREF=\"/confirm_move_msg"
-			"&msgid=%ld"
-			"\"><FONT SIZE=-1>Move</FONT></A>"
-			"</TD>\n", msgnum);
-
-		wprintf("<TD BGCOLOR=\"#AAAADD\">"
-			"<A HREF=\"/delete_msg"
-			"&msgid=%ld\""
-			"onClick=\"return confirm('Delete this message?');\""
-			"><FONT SIZE=-1>Del</FONT></A>"
-			"</TD>\n", msgnum);
-	}
-
-	wprintf("</TR></TABLE>\n"
-		"</TD>\n");
-
+	wprintf("</SPAN>");
 	if (strlen(m_subject) > 0) {
-		wprintf("<TR><TD>"
+		wprintf("<BR>"
 			"<SPAN CLASS=\"message_subject\">"
 			"Subject: %s"
-			"</SPAN>"
-			"</TD><TD>&nbsp;</TD></TR>\n", m_subject);
+			"</SPAN>", m_subject
+		);
+	}
+	wprintf("</TD>\n");
+
+	/* start msg buttons */
+	wprintf("<TD ALIGN=RIGHT>\n");
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/do_stuff_to_one_msg\">\n");
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgid\" VALUE=\"%ld\">\n",
+		msgnum);
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"recp\" VALUE=\"");
+	urlescputs(reply_to);
+	wprintf("\">\n");
+
+	if (!strncasecmp(m_subject, "Re:", 2)) {
+		wprintf("<INPUT TYPE=\"hidden\" NAME=\"subject\" VALUE=\"");
+		escputs(m_subject);
+		wprintf("\">\n");
+	}
+	else if (strlen(m_subject) > 0) {
+		wprintf("<INPUT TYPE=\"hidden\" NAME=\"subject\" VALUE=\"Re: ");
+		escputs(m_subject);
+		wprintf("\">\n");
 	}
 
-	wprintf("</TR></TABLE>\n");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"msg_oper\" VALUE=\"Reply\">\n"
+		"<INPUT TYPE=\"submit\" NAME=\"msg_oper\" VALUE=\"Move\">\n"
+		"<INPUT TYPE=\"submit\" NAME=\"msg_oper\" VALUE=\"Delete\""
+		"onClick=\"return confirm('Delete this message?');\">\n"
+		"</FORM>\n");
+
+
+	wprintf("</TD></TR></TABLE>\n");
 
 	/* Begin body */
 	wprintf("<TABLE BORDER=0 WIDTH=100%% BGCOLOR=#FFFFFF "
@@ -1747,8 +1740,37 @@ void move_msg(void)
 	wDumpContent(1);
 }
 
+/*
+ * This gets called when a user selects Reply/Move/Del etc. on *one* message.
+ */
+void do_stuff_to_one_msg(void) {
+	char *msg_oper;
+
+	msg_oper = bstr("msg_oper");
+
+	if (!strcasecmp(msg_oper, "Delete")) {
+		delete_msg();	/* It's already been confirmed using JS */
+		return;
+	}
+	if (!strcasecmp(msg_oper, "Move")) {
+		confirm_move_msg();
+		return;
+	}
+	if (!strcasecmp(msg_oper, "Reply")) {
+		display_enter();	/* recp and subject already set */
+		return;
+	}
+
+	/* should never get here.  FIXME: display an error */
+
+}
 
 
+/*
+ * This gets called when a user selects multiple messages in a summary
+ * list and then clicks to perform a transformation of some sort on them
+ * (such as deleting them).
+ */
 void do_stuff_to_msgs(void) {
 	char buf[SIZ];
 	char sc[SIZ];
