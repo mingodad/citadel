@@ -1,4 +1,7 @@
  $Log$
+ Revision 1.22  2003/11/26 04:20:16  ajc
+ * Run all posts through stripslashes()
+
  Revision 1.21  2003/11/25 04:01:44  ajc
  * Completed "post" and "post html" stuffs
 
@@ -89,4 +92,3 @@
 
  Revision 1.1  2003/10/31 03:47:13  ajc
  * Initial CVS import
-

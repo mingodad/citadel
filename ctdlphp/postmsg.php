@@ -12,7 +12,7 @@
 	else {
 		serv_puts("Content-type: text/html");
 		serv_puts("");
-		text_to_server($_REQUEST["msgtext"], TRUE);
+		text_to_server(stripslashes($_REQUEST["msgtext"]), TRUE);
 	}
 
 	echo "Message has been posted.<BR>\n" ;
