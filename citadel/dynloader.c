@@ -94,7 +94,9 @@ void DLoader_Init(char *pathname)
 		exit(1);
 	}
 	while ((dptr = readdir(dir)) != NULL) {
-		if (dptr->d_name[0] == '.')
+		if (strlen(dptr->d_name) < 4)
+			continue;
+		if (strcasecmp(&dptr->d_name[strlen(dptr->d_name)-3], ".so"))
 			continue;
 
 		snprintf(pathbuf, PATH_MAX, "%s/%s", pathname, dptr->d_name);

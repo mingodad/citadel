@@ -88,6 +88,7 @@ void housekeeping_loop(void) {
         fd_set readfds;
         int did_something;
 	char house_cmd[256];	/* Housekeep cmds are always 256 bytes long */
+	char cmd[256];
 
 	if (pipe(housepipe) != 0) {
 		lprintf(1, "FATAL ERROR: can't create housekeeping pipe: %s\n",
@@ -119,16 +120,26 @@ void housekeeping_loop(void) {
 				strcpy(house_cmd, "MINUTE");
 			}
 
+			extract(cmd, house_cmd, 0);
 
 			/* Do whatever this cmd requires */
-			if (!strcmp(house_cmd, "MINUTE")) {
+
+			/* Once-every-minute housekeeper */
+			if (!strcmp(cmd, "MINUTE")) {
 				terminate_idle_sessions();
 			}
 
-			else if (!strcmp(house_cmd, "SCHED_SHUTDOWN")) {
+			/* Scheduled shutdown housekeeper */
+			else if (!strcmp(cmd, "SCHED_SHUTDOWN")) {
 				check_sched_shutdown();
 			}
 
+			/* Remove a context (session ending) */
+			else if (!strcmp(cmd, "REMOVE_CONTEXT")) {
+				RemoveContext( extract_int(house_cmd, 1) );
+			}
+
+			/* Unknown */
 			else {
 				lprintf(7, "Unknown housekeeping command\n");
 			}

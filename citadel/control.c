@@ -172,13 +172,17 @@ void cmd_conf(char *argbuf) {
 		a = 0;
 		while (client_gets(buf), strcmp(buf, "000")) {
 		    switch(a) {
-			case 0:	strncpy(config.c_nodename, buf, 16);
+			case 0:	safestrncpy(config.c_nodename, buf,
+					sizeof config.c_nodename);
 				break;
-			case 1:	strncpy(config.c_fqdn, buf, 64);
+			case 1:	safestrncpy(config.c_fqdn, buf,
+					sizeof config.c_fqdn);
 				break;
-			case 2:	strncpy(config.c_humannode, buf, 21);
+			case 2:	safestrncpy(config.c_humannode, buf,
+					sizeof config.c_humannode);
 				break;
-			case 3:	strncpy(config.c_phonenum, buf, 16);
+			case 3:	safestrncpy(config.c_phonenum, buf,
+					sizeof config.c_phonenum);
 				break;
 			case 4:	config.c_creataide = atoi(buf);
 				break;
@@ -196,31 +200,35 @@ void cmd_conf(char *argbuf) {
 				if (config.c_twitdetect != 0)
 					config.c_twitdetect = 1;
 				break;
-			case 9:	strncpy(config.c_twitroom,
-					buf, ROOMNAMELEN);
+			case 9:	safestrncpy(config.c_twitroom, buf,
+					sizeof config.c_twitroom);
 				break;
-			case 10: strncpy(config.c_moreprompt, buf, 80);
+			case 10: safestrncpy(config.c_moreprompt, buf,
+					sizeof config.c_moreprompt);
 				break;
 			case 11: config.c_restrict = atoi(buf);
 				if (config.c_restrict != 0)
 					config.c_restrict = 1;
 				break;
-			case 12: strncpy(config.c_bbs_city, buf, 32);
+			case 12: safestrncpy(config.c_bbs_city, buf,
+					sizeof config.c_bbs_city);
 				break;
-			case 13: strncpy(config.c_sysadm, buf, 26);
+			case 13: safestrncpy(config.c_sysadm, buf,
+					sizeof config.c_sysadm);
 				break;
 			case 14: config.c_maxsessions = atoi(buf);
 				if (config.c_maxsessions < 1)
 					config.c_maxsessions = 1;
 				break;
-			case 15: strncpy(config.c_net_password, buf, 20);
+			case 15: safestrncpy(config.c_net_password, buf,
+					sizeof config.c_net_password);
 				break;
 			case 16: config.c_userpurge = atoi(buf);
 				break;
 			case 17: config.c_roompurge = atoi(buf);
 				break;
-			case 18: strncpy(config.c_logpages,
-					buf, ROOMNAMELEN);
+			case 18: safestrncpy(config.c_logpages, buf,
+					sizeof config.c_logpages);
 				break;
 			case 19: config.c_createax = atoi(buf);
 				if (config.c_createax < 1)

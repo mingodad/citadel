@@ -7,7 +7,7 @@ int ig_tcp_server (int port_number, int queue_len);
 struct CitContext *MyContext (void);
 struct CitContext *CreateNewContext (void);
 void InitMyContext (struct CitContext *con);
-void RemoveContext (struct CitContext *con);
+void RemoveContext (int con);
 int session_count (void);
 void client_write (char *buf, int nbytes);
 void cprintf (const char *format, ...);

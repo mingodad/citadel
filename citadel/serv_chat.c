@@ -86,10 +86,10 @@ void allwrite(char *cmdbuf, int flag, char *roomname, char *username)
 	time(&now);
 	clnew->next = NULL;
 	clnew->chat_time = now;
-	strncpy(clnew->chat_room, roomname, sizeof clnew->chat_room);
+	safestrncpy(clnew->chat_room, roomname, sizeof clnew->chat_room);
 	clnew->chat_room[sizeof clnew->chat_room - 1] = 0;
 	if (username) {
-		strncpy(clnew->chat_username, username,
+		safestrncpy(clnew->chat_username, username,
 			sizeof clnew->chat_username);
 		clnew->chat_username[sizeof clnew->chat_username - 1] = 0;
 	} else

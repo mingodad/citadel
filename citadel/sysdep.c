@@ -67,7 +67,7 @@ pthread_mutex_t Critters[MAX_SEMAPHORES];	/* Things needing locking */
 pthread_key_t MyConKey;				/* TSD key for MyContext() */
 
 int msock;					/* master listening socket */
-int verbosity = 3;				/* Logging level */
+int verbosity = 9;				/* Logging level */
 
 struct CitContext masterCC;
 
@@ -433,13 +433,14 @@ void InitMyContext(struct CitContext *con)
 /*
  * Remove a context from the context list.
  */
-void RemoveContext(struct CitContext *con)
+void RemoveContext(int con)
 {
-	struct CitContext *ptr;
+	struct CitContext *ptr = NULL;
+	struct CitContext *ToFree = NULL;
 
 	lprintf(7, "Starting RemoveContext()\n");
-	if (con==NULL) {
-		lprintf(7, "WARNING: RemoveContext() called with null!\n");
+	if (con==0) {
+		lprintf(7, "WARNING: RemoveContext() called with 0!\n");
 		return;
 		}
 
@@ -448,21 +449,25 @@ void RemoveContext(struct CitContext *con)
 	 * so do not call it from within this loop.
 	 */
 	begin_critical_section(S_SESSION_TABLE);
-	lprintf(7, "Closing socket %d\n", con->client_socket);
-	close(con->client_socket);
 
-	if (ContextList==con) {
+	if (ContextList->client_socket == con) {
+		ToFree = ContextList;
 		ContextList = ContextList->next;
 		}
 	else {
 		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
-			if (ptr->next == con) {
-				ptr->next = con->next;
+			if (ptr->next->client_socket == con) {
+				ToFree = ptr->next;
+				ptr->next = ptr->next->next;
 				}
 			}
 		}
 
-	phree(con);
+
+	lprintf(7, "Closing socket %d\n", ToFree->client_socket);
+	close(ToFree->client_socket);
+	phree(ToFree);
+
 	end_critical_section(S_SESSION_TABLE);
 	lprintf(7, "Done with RemoveContext\n");
 	}

@@ -852,8 +852,9 @@ void cmd_rdir(void)
 				buf[strlen(buf) - 1] = 0;
 				if ((!strncasecmp(buf, flnm, strlen(flnm)))
 				    && (buf[strlen(flnm)] == ' '))
-					strncpy(comment,
-					    &buf[strlen(flnm) + 1], 255);
+					safestrncpy(comment,
+					    &buf[strlen(flnm) + 1],
+					    sizeof comment);
 			}
 			cprintf("%s|%ld|%s\n", flnm, statbuf.st_size, comment);
 		}
@@ -938,13 +939,14 @@ void cmd_setr(char *args)
 	strcpy(old_name, CC->quickroom.QRname);
 	extract(buf, args, 0);
 	buf[ROOMNAMELEN] = 0;
-	strncpy(CC->quickroom.QRname, buf, ROOMNAMELEN - 1);
+	safestrncpy(CC->quickroom.QRname, buf, sizeof CC->quickroom.QRname);
 	extract(buf, args, 1);
 	buf[10] = 0;
-	strncpy(CC->quickroom.QRpasswd, buf, 9);
+	safestrncpy(CC->quickroom.QRpasswd, buf, sizeof CC->quickroom.QRpasswd);
 	extract(buf, args, 2);
 	buf[15] = 0;
-	strncpy(CC->quickroom.QRdirname, buf, 19);
+	safestrncpy(CC->quickroom.QRdirname, buf,
+		sizeof CC->quickroom.QRdirname);
 	CC->quickroom.QRflags = (extract_int(args, 3) | QR_INUSE);
 	if (num_parms(args) >= 7)
 		CC->quickroom.QRorder = (char) new_order;
@@ -1197,8 +1199,8 @@ unsigned create_room(char *new_room_name,
 		return (0);	/* already exists */
 
 	memset(&qrbuf, 0, sizeof(struct quickroom));
-	strncpy(qrbuf.QRname, new_room_name, ROOMNAMELEN);
-	strncpy(qrbuf.QRpasswd, new_room_pass, 9);
+	safestrncpy(qrbuf.QRname, new_room_name, sizeof qrbuf.QRname);
+	safestrncpy(qrbuf.QRpasswd, new_room_pass, sizeof qrbuf.QRpasswd);
 	qrbuf.QRflags = QR_INUSE;
 	qrbuf.QRnumber = get_new_room_number();
 	if (new_room_type > 0)
@@ -1336,7 +1338,7 @@ void cmd_cre8(char *args)
 			   new_room_type, new_room_pass, new_room_floor);
 
 	/* post a message in Aide> describing the new room */
-	strncpy(aaa, new_room_name, 255);
+	safestrncpy(aaa, new_room_name, sizeof aaa);
 	strcat(aaa, "> created by ");
 	strcat(aaa, CC->usersupp.fullname);
 	if (newflags & QR_MAILBOX)
@@ -1489,7 +1491,7 @@ void cmd_cflr(char *argbuf)
 	lgetfloor(&flbuf, free_slot);
 	flbuf.f_flags = F_INUSE;
 	flbuf.f_ref_count = 0;
-	strncpy(flbuf.f_name, new_floor_name, 255);
+	safestrncpy(flbuf.f_name, new_floor_name, sizeof flbuf.f_name);
 	lputfloor(&flbuf, free_slot);
 	cprintf("%d %d\n", OK, free_slot);
 }

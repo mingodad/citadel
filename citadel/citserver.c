@@ -124,6 +124,7 @@ void deallocate_user_data(struct CitContext *con)
  */
 void cleanup_stuff(void *arg)
 {
+	char buf[256];
 
 	lprintf(9, "cleanup_stuff() called\n");
 
@@ -142,11 +143,18 @@ void cleanup_stuff(void *arg)
 	/* Deallocate any user-data attached to this session */
 	deallocate_user_data(CC);
 
-	/* Now get rid of the session and context */
-	lprintf(7, "cleanup_stuff() calling RemoveContext(%d)\n", CC->cs_pid);
-	RemoveContext(CC);
+	/* Tell the housekeeping thread to remove the session and context.
+	 * This can't be done inline because the context data gets destroyed
+	 * halfway through, and the context being destroyed can't be the one
+	 * doing the work.
+	 */
+	lprintf(7, "Scheduling housekeeper REMOVE_CONTEXT(%d)\n", CC->cs_pid);
+	sprintf(buf, "REMOVE_CONTEXT|%d", CC->cs_pid);
+	enter_housekeeping_cmd(buf);
 
-	/* Wake up the housekeeping thread */
+	/* Tell the housekeeping thread to check to see if this is the time
+	 * to initiate a scheduled shutdown event.
+	 */
 	enter_housekeeping_cmd("SCHED_SHUTDOWN");
 	}
 
@@ -240,12 +248,13 @@ void cmd_info(void) {
 
 void cmd_rchg(char *argbuf)
 {
-	char newroomname[256]; /* set to 256 to prevent buffer overruns <dme>*/
+	char newroomname[ROOMNAMELEN];
 
 	extract(newroomname, argbuf, 0);
 	newroomname[ROOMNAMELEN] = 0;
 	if (strlen(newroomname) > 0) {
-		strncpy(CC->fake_roomname, newroomname, ROOMNAMELEN);
+		safestrncpy(CC->fake_roomname, newroomname, 
+			sizeof(CC->fake_roomname) );
 		CC->fake_roomname[ROOMNAMELEN - 1] = 0;
 		}
 	else {
@@ -259,7 +268,7 @@ void cmd_hchg(char *newhostname)
    if ((newhostname) && (newhostname[0]))
    {
       memset(CC->fake_hostname, 0, 25);
-      strncpy(CC->fake_hostname, newhostname, 24);
+      safestrncpy(CC->fake_hostname, newhostname, sizeof(CC->fake_hostname));
    }
    else
       strcpy(CC->fake_hostname, "");
@@ -279,7 +288,7 @@ void cmd_uchg(char *newusername)
       CC->cs_flags &= ~CS_STEALTH;
       memset(CC->fake_username, 0, 32);
       if (strncasecmp(newusername, CC->curr_user, strlen(CC->curr_user)))
-         strncpy(CC->fake_username, newusername, 31);
+         safestrncpy(CC->fake_username, newusername, sizeof(CC->fake_username));
    }
    else
    {
@@ -390,14 +399,14 @@ void cmd_iden(char *argbuf)
 	rev_level = extract_int(argbuf,2);
 	extract(desc,argbuf,3);
 
-	strncpy(from_host,config.c_fqdn,sizeof from_host);
+	safestrncpy(from_host, config.c_fqdn, sizeof from_host);
 	from_host[sizeof from_host - 1] = 0;
 	if (num_parms(argbuf)>=5) extract(from_host,argbuf,4);
 
 	CC->cs_clientdev = dev_code;
 	CC->cs_clienttyp = cli_code;
 	CC->cs_clientver = rev_level;
-	strncpy(CC->cs_clientname,desc,31);
+	safestrncpy(CC->cs_clientname, desc, sizeof CC->cs_clientname);
 	CC->cs_clientname[31] = 0;
 
 	lprintf(9, "Looking up hostname\n");
@@ -406,7 +415,7 @@ void cmd_iden(char *argbuf)
 		if (inet_aton(from_host, &addr))
 			locate_host(CC->cs_host, &addr);
 	   	else {
-			strncpy(CC->cs_host,from_host,24);
+			safestrncpy(CC->cs_host, from_host, sizeof CC->cs_host);
 			CC->cs_host[24] = 0;
 			}
 		}
@@ -829,7 +838,7 @@ void *context_loop(struct CitContext *con)
 	strcpy(CC->curr_user,"(not logged in)");
 	strcpy(CC->net_node,"");
 	snprintf(CC->temp, sizeof CC->temp, tmpnam(NULL));
-	strncpy(CC->cs_host, config.c_fqdn, sizeof CC->cs_host);
+	safestrncpy(CC->cs_host, config.c_fqdn, sizeof CC->cs_host);
 	CC->cs_host[sizeof CC->cs_host - 1] = 0;
 	len = sizeof sin;
 	if (!getpeername(CC->client_socket, (struct sockaddr *) &sin, &len))
@@ -874,7 +883,8 @@ void *context_loop(struct CitContext *con)
 		   && (strncasecmp(cmdbuf, "PEXP", 4))
 		   && (strncasecmp(cmdbuf, "GEXP", 4)) ) {
 			strcpy(CC->lastcmdname, "    ");
-			strncpy(CC->lastcmdname, cmdbuf, 4);
+			safestrncpy(CC->lastcmdname, cmdbuf, 
+				sizeof(CC->lastcmdname) );
 			time(&CC->lastidle);
 			}
 			
