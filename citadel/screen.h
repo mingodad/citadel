@@ -1,5 +1,7 @@
 /* $Id$ */
 
+void status_line(const char *humannode, const char *bbs_city,
+		 const char *room_name, int secure, int newmailcount);
 void screen_new(void);
 void screen_delete(void);
 int screen_set(void);

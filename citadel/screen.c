@@ -38,6 +38,35 @@ extern void check_screen_dims(void);
 
 
 /*
+ * status_line() is a convenience function for writing a "typical"
+ * status line to the window.
+ */
+void status_line(const char *humannode, const char *bbs_city,
+		 const char *room_name, int secure, int newmailcount)
+{
+#ifdef HAVE_CURSES_H
+	if (statuswindow) {
+		if (secure)
+			sln_printf("Secure ");
+		else
+			sln_printf("Not secure ");
+		waddch(statuswindow, ACS_VLINE);
+		waddch(statuswindow, ' ');
+		if (humannode && bbs_city)
+			sln_printf("%s at %s ", humannode, bbs_city);
+		if (room_name)
+			sln_printf("in %s ", room_name);
+		if (newmailcount > -1) {
+			waddch(statuswindow, ACS_VLINE);
+			sln_printf(" %d unread mail", newmailcount);
+		}
+		mvwinch(statuswindow, 0, 0);
+	}
+#endif /* HAVE_CURSES_H */
+}
+
+
+/*
  * Initialize the screen.  If newterm() fails, myscreen will be NULL and
  * further handlers will assume we should be in line mode.
  */

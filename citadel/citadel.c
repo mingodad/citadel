@@ -438,18 +438,11 @@ void dotgoto(char *towhere, int display_name)
 			color(DIM_WHITE);
 		}
 		oldmailcount = newmailcount;
-		sln_printf_if("%s at %s in %s | %s | %d unread mail\n",
-				serv_info.serv_humannode,
-				serv_info.serv_bbs_city,
-				room_name,
-				secure ? "Secure" : "Not secure",
-				newmailcount);
+		status_line(serv_info.serv_humannode, serv_info.serv_bbs_city,
+				room_name, secure, newmailcount);
 	} else {
-		sln_printf_if("%s at %s in %s | %s\n",
-				serv_info.serv_humannode,
-				serv_info.serv_bbs_city,
-				room_name,
-				secure ? "Secure" : "Not secure");
+		status_line(serv_info.serv_humannode, serv_info.serv_bbs_city,
+				room_name, secure, -1);
 	}
 }
 
@@ -1025,10 +1018,8 @@ int main(int argc, char **argv)
 	scr_flush();
 
 	secure = starttls();
-	sln_printf_if("%s at %s | %s\n",
-			serv_info.serv_humannode,
-			serv_info.serv_bbs_city,
-			secure ? "Secure" : "Not secure");
+	status_line(serv_info.serv_humannode, serv_info.serv_bbs_city, NULL,
+			secure, -1);
 
 	screenwidth = 80;	/* default screen dimensions */
 	screenheight = 24;
