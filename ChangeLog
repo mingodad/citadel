@@ -1,4 +1,7 @@
 $Log$
+Revision 301.16  2001/12/11 16:02:40  ajc
+* Completed support for add/remove mailing list recipients.
+
 Revision 301.15  2001/12/11 15:22:53  ajc
 * Began constructing the listserv screen for config (not tested)
 
@@ -656,3 +659,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

@@ -929,7 +929,7 @@ void display_editroom(void)
 	/* Mailing list management */
 	if (!strcmp(tab, "listserv")) {
 
-		wprintf("<center><i>The contents of this room are being "
+		wprintf("<BR><center><i>The contents of this room are being "
 			"mailed to the following list recipients:"
 			"</i><br><br>\n");
 
@@ -948,6 +948,12 @@ void display_editroom(void)
 
 			}
 		}
+		wprintf("<BR><FORM METHOD=\"POST\" ACTION=\"/netedit\">\n"
+			"<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"listserv\">\n"
+			"<INPUT TYPE=\"hidden\" NAME=\"prefix\" VALUE=\"listrecp|\">\n");
+		wprintf("<INPUT TYPE=\"text\" NAME=\"line\">\n");
+		wprintf("<INPUT TYPE=\"submit\" NAME=\"cmd\" VALUE=\"Add\">");
+		wprintf("</FORM><BR></CENTER>\n");
 	}
 
 	wDumpContent(1);
@@ -1486,6 +1492,16 @@ void delete_room(void)
 void netedit(void) {
 	FILE *fp;
 	char buf[SIZ];
+	char line[SIZ];
+
+	if (strlen(bstr("line"))==0) {
+		display_editroom();
+		return;
+	}
+
+	strcpy(line, bstr("prefix"));
+	strcat(line, bstr("line"));
+	strcat(line, bstr("suffix"));
 
 	fp = tmpfile();
 	if (fp == NULL) {
@@ -1503,7 +1519,7 @@ void netedit(void) {
 
 	/* This loop works for add *or* remove.  Spiffy, eh? */
 	while (serv_gets(buf), strcmp(buf, "000")) {
-		if (strcasecmp(buf, bstr("line"))) {
+		if (strcasecmp(buf, line)) {
 			fprintf(fp, "%s\n", buf);
 		}
 	}
@@ -1523,7 +1539,7 @@ void netedit(void) {
 	}
 
 	if (!strcasecmp(bstr("cmd"), "add")) {
-		serv_puts(bstr("line"));
+		serv_puts(line);
 	}
 
 	serv_puts("000");
