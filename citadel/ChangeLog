@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.65  2001/01/13 06:40:26  nbryant
+ merged remaining changes from TRANSACTIONS (using cvs update -j TRANSACTIONS)
+ which should now be considered closed.
+
  Revision 573.64  2001/01/13 06:12:15  ajc
  * Added the ASYN command
 
@@ -42,6 +46,48 @@
 
  Revision 573.52  2000/12/19 20:41:55  ajc
  * Fixed generation of unique file names for network uploads etc.
+
+ Revision 573.51.2.11  2000/12/26 05:30:55  nbryant
+ remove extraneous transaction around dynamic module initializations. this will
+ fix the crash on database creation.
+
+ Revision 573.51.2.10  2000/12/24 23:00:58  nbryant
+ clean: also remove parsedate.c
+
+ Revision 573.51.2.9  2000/12/20 01:38:42  nbryant
+ require transactional cursors
+
+ Revision 573.51.2.8  2000/12/20 00:30:01  nbryant
+ release any stale db handles at the end of a server command
+ (unfinished transactions will be aborted to annoy lazy programmers)
+
+ Revision 573.51.2.7  2000/12/19 06:18:27  nbryant
+ set sched_yield as sleepycat's yield function. this should improve locking
+ performance.
+
+ Revision 573.51.2.6  2000/12/19 02:22:29  nbryant
+ added automatic transaction start/end on cdb_fetch, cdb_delete, and cdb_store
+
+ Revision 573.51.2.5  2000/12/18 03:51:13  nbryant
+ ditto S_USER_TRANS, S_CALLLOG, and S_HOUSEKEEPING, which are no longer used at
+ all
+
+ Revision 573.51.2.4  2000/12/18 02:49:17  nbryant
+ removed all references to S_MSGMAIN critical section; it wasn't really needed.
+ this should make things significantly more scaleable.
+
+ Revision 573.51.2.3  2000/12/17 22:12:48  nbryant
+ reworked shutdown sequence to wait for worker threads to terminate before
+ checkpointing and closing databases. it is no longer safe to call
+ master_cleanup() directly to force a shutdown; instead, just set
+ time_to_die to a nonzero value
+
+ Revision 573.51.2.2  2000/12/17 05:06:09  nbryant
+ added deadlock detection and cleaned up messages
+
+ Revision 573.51.2.1  2000/12/16 21:06:59  nbryant
+ created TRANSACTIONS branch
+ track cursor and transaction id's in thread-specific data
 
  Revision 573.51  2000/12/14 18:36:34  ajc
  * Fixed the "users not in chat" wholist display

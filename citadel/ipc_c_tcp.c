@@ -29,6 +29,7 @@
 #include "citadel.h"
 #include "citadel_decls.h"
 #include "ipc.h"
+#include "tools.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
@@ -132,7 +133,7 @@ int uds_connectsock(char *sockpath)
 
 	memset(&addr, 0, sizeof(addr));
 	addr.sun_family = AF_UNIX;
-	strncpy(addr.sun_path, sockpath, sizeof addr.sun_path);
+	safestrncpy(addr.sun_path, sockpath, sizeof addr.sun_path);
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {

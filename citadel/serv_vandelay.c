@@ -476,9 +476,7 @@ void artv_import_message(void) {
 	fread(mbuf, msglen, 1, fp);
 	fclose(fp);
 
-        begin_critical_section(S_MSGMAIN);
         cdb_store(CDB_MSGMAIN, &msgnum, sizeof(long), mbuf, msglen);
-        end_critical_section(S_MSGMAIN);
 
 	phree(mbuf);
 	unlink(tempfile);

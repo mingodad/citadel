@@ -51,11 +51,9 @@ void defrag_databases(void)
 
 	/* defrag the message base */
 	lprintf(7, "Defragmenting message base\n");
-	begin_critical_section(S_MSGMAIN);
 	begin_critical_section(S_DATABASE);
 	gdbm_reorganize(gdbms[CDB_MSGMAIN]);
 	end_critical_section(S_DATABASE);
-	end_critical_section(S_MSGMAIN);
 
 	/* defrag the user file, mailboxes, and user/room relationships */
 	lprintf(7, "Defragmenting user file\n");
@@ -347,4 +345,13 @@ void cdb_begin_transaction(void) {
 }
 
 void cdb_end_transaction(void) {
+}
+
+void cdb_allocate_tsd(void) {
+}
+
+void cdb_free_tsd(void) {
+}
+
+void cdb_release_handles(void) {
 }

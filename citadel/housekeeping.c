@@ -66,7 +66,7 @@ void terminate_idle_sessions(void) {
 void check_sched_shutdown(void) {
 	if ((ScheduledShutdown == 1) && (ContextList == NULL)) {
 		lprintf(3, "Scheduled shutdown initiating.\n");
-		master_cleanup();
+		time_to_die = 1;
 	}
 }
 

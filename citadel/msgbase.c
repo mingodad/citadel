@@ -1380,7 +1380,6 @@ long send_message(struct CtdlMessage *msg,	/* pointer to buffer */
         }
 
 	/* Write our little bundle of joy into the message base */
-	begin_critical_section(S_MSGMAIN);
 	if (cdb_store(CDB_MSGMAIN, &newmsgid, sizeof(long),
 		      smr.ser, smr.len) < 0) {
 		lprintf(2, "Can't store message\n");
@@ -1388,7 +1387,6 @@ long send_message(struct CtdlMessage *msg,	/* pointer to buffer */
 	} else {
 		retval = newmsgid;
 	}
-	end_critical_section(S_MSGMAIN);
 
 	/* If the caller specified that a copy should be saved to a particular
 	 * file handle, do that now too.

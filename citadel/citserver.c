@@ -80,17 +80,11 @@ void master_startup(void) {
 
 /*
  * Cleanup routine to be called when the server is shutting down.
+ * WARNING: It's no longer safe to call this function to force a shutdown.
+ * Instead, set time_to_die = 1.
  */
 void master_cleanup(void) {
 	struct CleanupFunctionHook *fcn;
-
-	/* Cancel all running sessions */
-	lprintf(7, "Cancelling running sessions...\n");
-
-/* FIXME do something here
-	while (ContextList != NULL) {
-		}
- */
 
 	/* Run any cleanup routines registered by loadable modules */
 	for (fcn = CleanupHookTable; fcn != NULL; fcn = fcn->next) {
@@ -713,7 +707,7 @@ void cmd_down(void) {
 	if (CtdlAccessCheck(ac_aide)) return;
 
 	cprintf("%d Shutting down server.  Goodbye.\n", OK);
-	master_cleanup();
+	time_to_die = 1;
 	}
 
 /*
