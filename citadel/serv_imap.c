@@ -365,6 +365,7 @@ void imap_select(int num_parms, char *parms[]) {
 	cprintf("* %d EXISTS\r\n", msgs);
 	cprintf("* %d RECENT\r\n", new);
 	cprintf("* OK [UIDVALIDITY 0] UIDs valid\r\n");
+	cprintf("* FLAGS (\\Deleted)\r\n");
 	cprintf("%s OK [%s] %s completed\r\n",
 		parms[0],
 		(IMAP->readonly ? "READ-ONLY" : "READ-WRITE"),

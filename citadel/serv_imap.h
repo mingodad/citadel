@@ -36,6 +36,10 @@ enum {
 #define IMAP_DELETED	4
 #define IMAP_DRAFT	8
 #define IMAP_SEEN	16
+
+#define IMAP_SETABLE_MASK	0x1f
+#define IMAP_INTERNAL_MASK	(~IMAP_SETABLE_MASK)
+
 #define IMAP_SELECTED	32	/* internal */
 #define IMAP_EXPUNGED	64	/* internal */
 

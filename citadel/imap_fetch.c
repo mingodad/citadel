@@ -49,6 +49,20 @@ struct imap_fetch_part {
 	FILE *output_fp;
 };
 
+
+
+/* 
+ * Output the flags associated with a message.  Note that this function
+ * expects an index number in the array, *not* a sequence or uid number.
+ */
+void imap_output_flags(int num) {
+	cprintf("FLAGS (");
+	if (IMAP->flags[num] & IMAP_DELETED) cprintf("\\Deleted ");
+	cprintf(")");
+}
+
+
+
 /*
  * Individual field functions for imap_do_fetch_msg() ...
  */
@@ -57,10 +71,6 @@ struct imap_fetch_part {
 
 void imap_fetch_uid(int seq) {
 	cprintf("UID %ld", IMAP->msgids[seq-1]);
-}
-
-void imap_fetch_flags(struct CtdlMessage *msg) {
-	cprintf("FLAGS ()");	/* FIXME do something here */
 }
 
 void imap_fetch_internaldate(struct CtdlMessage *msg) {
@@ -633,7 +643,7 @@ void imap_do_fetch_msg(int seq, struct CtdlMessage *msg,
 			imap_fetch_envelope(IMAP->msgids[seq-1], msg);
 		}
 		else if (!strcasecmp(itemlist[i], "FLAGS")) {
-			imap_fetch_flags(msg);
+			imap_output_flags(seq-1);
 		}
 		else if (!strcasecmp(itemlist[i], "INTERNALDATE")) {
 			imap_fetch_internaldate(msg);

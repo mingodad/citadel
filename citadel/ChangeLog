@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.99  2001/02/24 06:06:28  ajc
+ * Wrote a bit of the IMAP STORE command
+
  Revision 573.98  2001/02/24 04:43:13  brian
  * Fixed my listing in developers.txt (finally!  :)
 
@@ -2468,4 +2471,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
