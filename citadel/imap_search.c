@@ -77,7 +77,9 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 	struct CtdlMessage *msg = NULL;
 	int need_to_free_msg = 0;
 
-	if (num_items == 0) return(0);
+	if (num_items == 0) {
+		return(0);
+	}
 	msg = supplied_msg;
 
 	/* Initially we start at the beginning. */
@@ -427,7 +429,6 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 	}
 
 	if (need_to_free_msg) {
-		lprintf(CTDL_DEBUG, "imap search freeing message\n");
 		CtdlFreeMessage(msg);
 	}
 	return(match);

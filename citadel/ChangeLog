@@ -1,4 +1,7 @@
  $Log$
+ Revision 625.28  2004/09/21 02:09:30  ajc
+ * Tweaks to above
+
  Revision 625.27  2004/09/21 01:43:23  ajc
  * imap_search.c: when search criteria permit, do not fetch messages.
 
@@ -6100,4 +6103,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

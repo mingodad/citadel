@@ -796,6 +796,8 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	cit_uint8_t field_header;
 	size_t field_length;
 
+	lprintf(CTDL_DEBUG, "CtdlFetchMessage(%ld, %d)\n", msgnum, with_body);
+
 	dmsgtext = cdb_fetch(CDB_MSGMAIN, &msgnum, sizeof(long));
 	if (dmsgtext == NULL) {
 		return NULL;
