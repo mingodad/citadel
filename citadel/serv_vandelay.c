@@ -286,12 +286,12 @@ void artv_do_export(void) {
 
 
 
-
 void artv_import_config(void) {
 	char buf[256];
 
 	lprintf(9, "Importing config file\n");
 	client_gets(config.c_nodename);
+	lprintf(9, "c_nodename = %s\n", config.c_nodename);
 	client_gets(config.c_fqdn);
 	client_gets(config.c_humannode);
 	client_gets(config.c_phonenum);
@@ -307,6 +307,7 @@ void artv_import_config(void) {
 	client_gets(buf);	config.c_msgbase = atol(buf);
 	client_gets(config.c_bbs_city);
 	client_gets(config.c_sysadm);
+	lprintf(9, "c_sysadm = %s\n", config.c_sysadm);
 	client_gets(config.c_bucket_dir);
 	client_gets(buf);	config.c_setup_level = atoi(buf);
 	client_gets(buf);	config.c_maxsessions = atoi(buf);
@@ -324,7 +325,6 @@ void artv_import_config(void) {
 	client_gets(buf);	config.c_pop3_port = atoi(buf);
 	client_gets(buf);	config.c_smtp_port = atoi(buf);
 	client_gets(buf);	config.c_default_filter = atoi(buf);
-	
 	put_config();
 	lprintf(7, "Imported config file\n");
 }
@@ -486,7 +486,7 @@ void artv_do_import(void) {
 	cprintf("%d sock it to me\n", SEND_LISTING);
 	while (client_gets(buf), strcmp(buf, "000")) {
 
-		lprintf(9, "import directive: <%s>\n", buf);
+		lprintf(9, "import keyword: <%s>\n", buf);
 
 		if (!strcasecmp(buf, "config")) artv_import_config();
 		else if (!strcasecmp(buf, "control")) artv_import_control();
@@ -495,9 +495,11 @@ void artv_do_import(void) {
 		else if (!strcasecmp(buf, "floor")) artv_import_floor();
 		else if (!strcasecmp(buf, "visit")) artv_import_visit();
 		else if (!strcasecmp(buf, "message")) artv_import_message();
-
-
+		else goto artv_flush_import;
 	}
+artv_flush_import:
+	lprintf(7, "Invalid keyword <%s>.  Flushing input.\n", buf);
+	while (client_gets(buf), strcmp(buf, "000"))  ;;
 }
 
 

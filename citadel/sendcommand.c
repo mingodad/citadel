@@ -160,8 +160,15 @@ int main(int argc, char **argv)
 	else if (buf[0]=='4') {
 		do {
 			if (fgets(buf, 255, stdin)==NULL) strcpy(buf, "000");
+			if (strlen(buf)>0)
+				if (buf[strlen(buf)-1]=='\n')
+					buf[strlen(buf)-1]=0;
+			if (strlen(buf)>0)
+				if (buf[strlen(buf)-1]=='\r')
+					buf[strlen(buf)-1]=0;
 			if (strcmp(buf, "000")) serv_puts(buf);
 			} while (strcmp(buf, "000"));
+		serv_puts("000");
 		}
 
 	fprintf(stderr, "sendcommand: processing ended.\n");

@@ -530,6 +530,7 @@ int client_gets(char *buf)
 	buf[i] = 0;
 	while ((strlen(buf)>0)&&(!isprint(buf[strlen(buf)-1])))
 		buf[strlen(buf)-1] = 0;
+	lprintf(9, "client_gets(%s)\n", buf);
 	return(retval);
 }
 
