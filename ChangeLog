@@ -1,4 +1,10 @@
 $Log$
+Revision 400.87  2003/01/28 15:37:12  ajc
+* All functions which read binary data from the server now make use of the
+  read_server_binary() function in tools.c
+* Binary reads from server now have safety code to prevent infinite loops
+* All output of MIME objects is now done with http_transmit_thing()
+
 Revision 400.86  2003/01/19 06:28:04  ajc
 * Minimum required Citadel version 6.05
 
@@ -1252,4 +1258,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
