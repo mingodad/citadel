@@ -604,6 +604,7 @@ void set_long_val(int msgpos, long int *ip)
 void edit_value(int curr)
 {
 	int a;
+	long l;
 
 	switch (curr) {
 
@@ -612,7 +613,9 @@ void edit_value(int curr)
 		break;
 
 	case 2:
-		set_int_val(curr, &config.c_bbsuid);
+		l = config.c_bbsuid;
+		set_long_val(curr, &l);
+		config.c_bbsuid = l;
 		break;
 
 	case 3:
@@ -925,8 +928,8 @@ NEW_INST:
 	progress("Setting file permissions", 1, 5);
 	chown("citadel.config", config.c_bbsuid, gid);
 	progress("Setting file permissions", 2, 5);
-	sprintf(aaa, "find . | grep -v chkpwd | xargs chown %d:%d 2>/dev/null",
-		config.c_bbsuid, gid);
+	sprintf(aaa, "find . | grep -v chkpwd | xargs chown %ld:%ld 2>/dev/null",
+		(long)config.c_bbsuid, (long)gid);
 	system(aaa);
 	progress("Setting file permissions", 3, 5);
 	chmod("citadel.config", S_IRUSR | S_IWUSR);

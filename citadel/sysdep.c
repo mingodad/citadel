@@ -1096,7 +1096,10 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof(fd_set) );
 		 * thread that the &readfds needs to be refreshed with more
 		 * current data.
 		 */
-		if (!time_to_die) if (FD_ISSET(rescan[0], &readfds)) {
+		if (time_to_die)
+			break;
+
+		if (FD_ISSET(rescan[0], &readfds)) {
 			read(rescan[0], &junk, 1);
 			goto SETUP_FD;
 		}

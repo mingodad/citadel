@@ -417,7 +417,7 @@ static int validpw(uid_t uid, const char *pass)
 		}
 
 	close(pipev[0]);
-	write(pipev[1], buf, sprintf(buf, "%u\n", uid));
+	write(pipev[1], buf, sprintf(buf, "%lu\n", (unsigned long)uid));
 	write(pipev[1], pass, strlen(pass));
 	write(pipev[1], "\n", 1);
 	close(pipev[1]);

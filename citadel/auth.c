@@ -5,9 +5,9 @@
  * $Id$
  */
 
-#ifdef linux
-#define _XOPEN_SOURCE          /* needed for crypt() */
-#define _XOPEN_SOURCE_EXTENDED /* needed for strdup() */
+#if defined(__linux) || defined(__sun) /* needed for crypt(): */
+#define _XOPEN_SOURCE
+#define _XOPEN_SOURCE_EXTENDED 1
 #endif
 
 #include <pwd.h>

@@ -52,7 +52,7 @@ struct config {
 	char c_fqdn[64];		/* Fully Qualified Domain Name      */
 	char c_humannode[21];		/* Long name of system              */
 	char c_phonenum[16];		/* Dialup number of system          */
-	int c_bbsuid;			/* UID of the bbs-only user         */
+	uid_t c_bbsuid;			/* UID of the bbs-only user         */
 	char c_creataide;		/* room creator = room aide  flag   */
 	int c_sleeping;			/* watchdog timer setting           */
 	char c_initax;			/* initial access level             */

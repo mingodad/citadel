@@ -128,12 +128,12 @@ int connectsock(char *host, char *service, char *protocol)
 
 int uds_connectsock(char *sockpath)
 {
-	struct sockaddr_un sun;
+	struct sockaddr_un addr;
 	int s;
 
-	memset(&sun, 0, sizeof(sun));
-	sun.sun_family = AF_UNIX;
-	strncpy(sun.sun_path, sockpath, sizeof sun.sun_path);
+	memset(&addr, 0, sizeof(addr));
+	addr.sun_family = AF_UNIX;
+	strncpy(addr.sun_path, sockpath, sizeof addr.sun_path);
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
@@ -142,7 +142,7 @@ int uds_connectsock(char *sockpath)
 		logoff(3);
 	}
 
-	if (connect(s, (struct sockaddr *) &sun, sizeof(sun)) < 0) {
+	if (connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
 		fprintf(stderr, "can't connect: %s\n",
 			strerror(errno));
 		logoff(3);

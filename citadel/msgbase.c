@@ -2192,7 +2192,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	struct SuppMsgInfo smi;
 
 	lprintf(9, "CtdlDeleteMessages(%s, %ld, %s)\n",
-		room_name, dmsgnum, content_type);
+		room_name, dmsgnum, content_type ? content_type : "NULL");
 
 	/* get room record, obtaining a lock... */
 	if (lgetroom(&qrbuf, room_name) != 0) {

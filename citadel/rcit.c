@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 	char spool_only = 0;
 
 	get_config();
-	sprintf(flnm,"./network/spoolin/rcit.%d", getpid());
+	sprintf(flnm,"./network/spoolin/rcit.%ld", (long)getpid());
 	sprintf(tname, tmpnam(NULL));
 
 	for (a=1; a<argc; ++a) {

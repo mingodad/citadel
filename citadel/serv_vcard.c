@@ -324,7 +324,7 @@ void cmd_greg(char *argbuf)
 {
 	struct usersupp usbuf;
 	struct vCard *v;
-	char *tel;
+	char *s;
 	char who[256];
 	char adr[256];
 	char buf[256];
@@ -354,9 +354,11 @@ void cmd_greg(char *argbuf)
 	cprintf("%d %s\n", LISTING_FOLLOWS, usbuf.fullname);
 	cprintf("%ld\n", usbuf.usernum);
 	cprintf("%s\n", usbuf.password);
-	cprintf("%s\n", vcard_get_prop(v, "n", 0));	/* name */
+	s = vcard_get_prop(v, "n", 0);
+	cprintf("%s\n", s ? s : " ");	/* name */
 
-	sprintf(adr, "%s", vcard_get_prop(v, "adr", 0));/* address... */
+	s = vcard_get_prop(v, "adr", 0);
+	sprintf(adr, "%s", s ? s : " ");/* address... */
 
 	extract_token(buf, adr, 2, ';');
 	cprintf("%s\n", buf);				/* street */
@@ -367,10 +369,10 @@ void cmd_greg(char *argbuf)
 	extract_token(buf, adr, 5, ';');
 	cprintf("%s\n", buf);				/* zip */
 
-	tel = vcard_get_prop(v, "tel;home", 0);
-	if (tel == NULL) tel = vcard_get_prop(v, "tel", 1);
-	if (tel != NULL) {
-		cprintf("%s\n", tel);
+	s = vcard_get_prop(v, "tel;home", 0);
+	if (s == NULL) s = vcard_get_prop(v, "tel", 1);
+	if (s != NULL) {
+		cprintf("%s\n", s);
 		}
 	else {
 		cprintf(" \n");
@@ -378,7 +380,8 @@ void cmd_greg(char *argbuf)
 
 	cprintf("%d\n", usbuf.axlevel);
 
-	cprintf("%s\n", vcard_get_prop(v, "email;internet", 0));
+	s = vcard_get_prop(v, "email;internet", 0);
+	cprintf("%s\n", s ? s : " ");
 	cprintf("000\n");
 	}
 

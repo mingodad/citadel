@@ -19,6 +19,9 @@
 #ifdef HAVE_UTMP_H
 #include <utmp.h>
 #endif
+#ifdef HAVE_UTMPX_H
+#include <utmpx.h>
+#endif
 
 #ifndef HAVE_GETUTLINE
 struct utmp *getutline(struct utmp *ut);
@@ -429,7 +432,11 @@ void locate_host(char *hbuf)
 	else strncpy(hbuf,buf,24);
 #else
 	char *tty = ttyname(0);
+#ifdef HAVE_GETUTXLINE
+	struct utmpx ut, *put;
+#else
 	struct utmp ut, *put;
+#endif
 
 	if (tty == NULL) {
 	    fail:
@@ -442,19 +449,23 @@ void locate_host(char *hbuf)
 
 	safestrncpy(ut.ut_line, &tty[5], sizeof ut.ut_line);
 
+#ifdef HAVE_GETUTXLINE /* Solaris uses this */
+	if ((put = getutxline(&ut)) == NULL)
+#else
 	if ((put = getutline(&ut)) == NULL)
+#endif
 		goto fail;
 
-#ifdef HAVE_UT_TYPE
+#if defined(HAVE_UT_TYPE) || defined(HAVE_GETUTXLINE)
 	if (put->ut_type == USER_PROCESS) {
 #endif
-#ifdef HAVE_UT_HOST
+#if defined(HAVE_UT_HOST) || defined(HAVE_GETUTXLINE)
 		if (*put->ut_host)
 			safestrncpy(hbuf, put->ut_host, 24);
 		else
 #endif
 			safestrncpy(hbuf, put->ut_line, 24);
-#ifdef HAVE_UT_TYPE
+#if defined(HAVE_UT_TYPE) || defined(HAVE_GETUTXLINE)
 		}
 	else goto fail;
 #endif
