@@ -76,7 +76,7 @@ void cmd_mmod(char *argbuf) {
 	}
 
 	GetMetaData(&smi, msgnum);
-	smi.smi_mod = newlevel;
+	smi.meta_mod = newlevel;
 	PutMetaData(&smi);
 
 	cprintf("%d Message %ld is moderated to %d\n", OK, msgnum, newlevel);

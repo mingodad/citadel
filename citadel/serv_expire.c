@@ -632,7 +632,7 @@ void cmd_fsck(char *argbuf) {
 			cprintf("Message %7ld    ", msgnum);
 
 			GetMetaData(&smi, msgnum);
-			cprintf("refcount=%-2d   ", smi.smi_refcount);
+			cprintf("refcount=%-2d   ", smi.meta_refcount);
 
 			realcount = 0;
 			for (ptr = rr; ptr != NULL; ptr = ptr->next) {
@@ -640,9 +640,9 @@ void cmd_fsck(char *argbuf) {
 			}
 			cprintf("realcount=%-2d\n", realcount);
 
-			if ( (smi.smi_refcount != realcount)
+			if ( (smi.meta_refcount != realcount)
 			   || (realcount == 0) ) {
-				smi.smi_refcount = realcount;
+				smi.meta_refcount = realcount;
 				PutMetaData(&smi);
 				AdjRefCount(msgnum, 0); /* deletes if needed */
 			}

@@ -195,9 +195,9 @@ void artv_export_message(long msgnum) {
 	cprintf("message\n");
 	GetMetaData(&smi, msgnum);
 	cprintf("%ld\n", msgnum);
-	cprintf("%d\n", smi.smi_refcount);
-	cprintf("%s\n", smi.smi_content_type);
-	cprintf("%d\n", smi.smi_mod);
+	cprintf("%d\n", smi.meta_refcount);
+	cprintf("%s\n", smi.meta_content_type);
+	cprintf("%d\n", smi.meta_mod);
 
 	serialize_message(&smr, msg);
 	CtdlFreeMessage(msg);
@@ -473,10 +473,10 @@ void artv_import_message(void) {
 
 	memset(&smi, 0, sizeof(struct MetaData));
 	client_gets(buf);	msgnum = atol(buf);
-				smi.smi_msgnum = msgnum;
-	client_gets(buf);	smi.smi_refcount = atoi(buf);
-	client_gets(smi.smi_content_type);
-	client_gets(buf);	smi.smi_mod = atoi(buf);
+				smi.meta_msgnum = msgnum;
+	client_gets(buf);	smi.meta_refcount = atoi(buf);
+	client_gets(smi.meta_content_type);
+	client_gets(buf);	smi.meta_mod = atoi(buf);
 
 	lprintf(7, "message #%ld\n", msgnum);
 

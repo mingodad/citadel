@@ -390,10 +390,10 @@ struct visit {
  * fields whose values may change at some point after the message is saved.)
  */
 struct MetaData {
-	long smi_msgnum;	/* Message number in *local* message base */
-	int smi_refcount;	/* Number of rooms which point to this msg */
-	char smi_content_type[64];
-	char smi_mod;		/* Moderated to what level? */
+	long meta_msgnum;	/* Message number in *local* message base */
+	int meta_refcount;	/* Number of rooms which point to this msg */
+	char meta_content_type[64];
+	char meta_mod;		/* Moderated to what level? */
 	/* more stuff will be added to this record in the future */
 };
 

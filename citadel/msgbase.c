@@ -409,7 +409,7 @@ int CtdlForEachMessage(int mode, long ref,
 		/* Filter out messages that are moderated below the level
 		 * currently being viewed at.
 		 */
-		if (smi.smi_mod < moderation_level) {
+		if (smi.meta_mod < moderation_level) {
 			msglist[a] = 0L;
 		}
 
@@ -417,7 +417,7 @@ int CtdlForEachMessage(int mode, long ref,
 		 * out all messages which are not of the type requested.
 	 	 */
 		if (content_type != NULL) if (strlen(content_type) > 0) {
-			if (strcasecmp(smi.smi_content_type, content_type)) {
+			if (strcasecmp(smi.meta_content_type, content_type)) {
 				msglist[a] = 0L;
 			}
 		}
@@ -1854,9 +1854,9 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	 */
 	lprintf(9, "Creating MetaData record\n");
 	memset(&smi, 0, sizeof(struct MetaData));
-	smi.smi_msgnum = newmsgid;
-	smi.smi_refcount = 0;
-	safestrncpy(smi.smi_content_type, content_type, 64);
+	smi.meta_msgnum = newmsgid;
+	smi.meta_refcount = 0;
+	safestrncpy(smi.meta_content_type, content_type, 64);
 	PutMetaData(&smi);
 
 	/* Now figure out where to store the pointers */
@@ -2445,7 +2445,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 				delete_this |= 0x02;
 			} else {
 				GetMetaData(&smi, msglist[i]);
-				if (!strcasecmp(smi.smi_content_type,
+				if (!strcasecmp(smi.meta_content_type,
 						content_type)) {
 					delete_this |= 0x02;
 				}
@@ -2587,8 +2587,8 @@ void GetMetaData(struct MetaData *smibuf, long msgnum)
 	long TheIndex;
 
 	memset(smibuf, 0, sizeof(struct MetaData));
-	smibuf->smi_msgnum = msgnum;
-	smibuf->smi_refcount = 1;	/* Default reference count is 1 */
+	smibuf->meta_msgnum = msgnum;
+	smibuf->meta_refcount = 1;	/* Default reference count is 1 */
 
 	/* Use the negative of the message number for its supp record index */
 	TheIndex = (0L - msgnum);
@@ -2613,10 +2613,10 @@ void PutMetaData(struct MetaData *smibuf)
 	long TheIndex;
 
 	/* Use the negative of the message number for its supp record index */
-	TheIndex = (0L - smibuf->smi_msgnum);
+	TheIndex = (0L - smibuf->meta_msgnum);
 
 	lprintf(9, "PuttMetaData(%ld) - ref count is %d\n",
-		smibuf->smi_msgnum, smibuf->smi_refcount);
+		smibuf->meta_msgnum, smibuf->meta_refcount);
 
 	cdb_store(CDB_MSGMAIN,
 		  &TheIndex, sizeof(long),
@@ -2641,17 +2641,17 @@ void AdjRefCount(long msgnum, int incr)
 	begin_critical_section(S_SUPPMSGMAIN);
 	GetMetaData(&smi, msgnum);
 	lprintf(9, "Ref count for message <%ld> before write is <%d>\n",
-		msgnum, smi.smi_refcount);
-	smi.smi_refcount += incr;
+		msgnum, smi.meta_refcount);
+	smi.meta_refcount += incr;
 	PutMetaData(&smi);
 	end_critical_section(S_SUPPMSGMAIN);
 	lprintf(9, "Ref count for message <%ld> after write is <%d>\n",
-		msgnum, smi.smi_refcount);
+		msgnum, smi.meta_refcount);
 
 	/* If the reference count is now zero, delete the message
 	 * (and its supplementary record as well).
 	 */
-	if (smi.smi_refcount == 0) {
+	if (smi.meta_refcount == 0) {
 		lprintf(9, "Deleting message <%ld>\n", msgnum);
 		delnum = msgnum;
 		cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));
