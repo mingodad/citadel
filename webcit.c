@@ -557,7 +557,7 @@ void upload_handler(char *name, char *filename, char *encoding,
 }
 
 
-void session_loop(char *browser_host, int bd_use_frames)
+void session_loop(char *browser_host)
 {
 	char cmd[256];
 	char action[256];
@@ -874,7 +874,7 @@ int main(int argc, char *argv[])
 {
 
 	char browser[256];
-	int bd_use_frames;
+	int bd;
 
 	if (argc != 6) {
 		fprintf(stderr,
@@ -891,9 +891,13 @@ int main(int argc, char *argv[])
 	strcpy(wc_roomname, "");
 
 	strcpy(browser, argv[5]);
-	bd_use_frames = browser_braindamage_check(browser);
+	bd = browser_braindamage_check(browser);
+	if (bd == B_NO)
+		noframes = 1;
+	else
+		noframes = 0;
 
 	while (1) {
-		session_loop(argv[4], bd_use_frames);
+		session_loop(argv[4]);
 	}
 }

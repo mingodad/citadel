@@ -68,9 +68,14 @@ void display_login(char *mesg)
 	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"New User\">\n");
 	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Exit\">\n");
 
-	wprintf("<BR><INPUT TYPE=\"checkbox\" NAME=\"noframes\">");
-	wprintf("<FONT SIZE=-1>&nbsp;Check here to disable frames</FONT>\n");
-	wprintf("</FORM></CENTER>\n");
+	/* Only offer the "check to disable frames" selection if frames haven't
+	 * already been disabled by the browser braindamage check.
+	 */
+	if (noframes == 0) {
+		wprintf("<BR><INPUT TYPE=\"checkbox\" NAME=\"noframes\">");
+		wprintf("<FONT SIZE=-1>&nbsp;Check here to disable frames</FONT>\n");
+		wprintf("</FORM></CENTER>\n");
+	}
 
 	/* Da instructions */
 	wprintf("<LI><EM>If you already have an account on %s,",
@@ -110,10 +115,11 @@ void do_login(void)
 	int need_regi = 0;
 
 
+	/* Note that the initial value of noframes is set by the browser braindamage
+	 * check, so don't add an "else" clause here.
+	 */
 	if (!strcasecmp(bstr("noframes"), "on"))
 		noframes = 1;
-	else
-		noframes = 0;
 
 	if (!strcasecmp(bstr("action"), "Exit")) {
 		do_logout();
