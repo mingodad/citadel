@@ -332,9 +332,7 @@ void session_loop() {
 			serv_printf("PASS %s", c_password);
 			serv_gets(buf);
 			if (buf[0]=='2') {
-				logged_in = 1;
-				strcpy(wc_username, c_username);
-				strcpy(wc_password, c_password);
+				become_logged_in(c_username, c_password, buf);
 				}
 			}
 		}
@@ -364,16 +362,6 @@ void session_loop() {
 		output_static(buf);
 		}
 
-	if (!strncasecmp(cmd, "GET /nothing", 12)) {
-		printf("HTTP/1.0 200 OK\n");
-		output_headers();
-	
-		wprintf("<HTML><HEAD><TITLE>WebCit</TITLE></HEAD><BODY>\n");
-		wprintf("TransactionCount is %d<HR>\n", TransactionCount);
-		wprintf("You're in session %d<BR>\n", wc_session);
-		wprintf("</BODY></HTML>\n");
-		wDumpContent();
-		}
 
 	else if ((!logged_in)&&(!strncasecmp(cmd, "POST /login", 11))) {
 		do_login();
@@ -384,10 +372,21 @@ void session_loop() {
 		}
 
 	/* Various commands... */
+	
+	else if (!strncasecmp(cmd, "GET /display_main_menu", 22)) {
+		display_main_menu();
+		}
 
-	/* When all else fails, display the login page. */
+	/* When all else fails, display the oops page. */
 	else {
-		display_login_page();
+		printf("HTTP/1.0 200 OK\n");
+		output_headers();
+	
+		wprintf("<HTML><HEAD><TITLE>WebCit</TITLE></HEAD><BODY>\n");
+		wprintf("TransactionCount is %d<HR>\n", TransactionCount);
+		wprintf("You're in session %d<BR>\n", wc_session);
+		wprintf("</BODY></HTML>\n");
+		wDumpContent();
 		}
 
 	fflush(stdout);
