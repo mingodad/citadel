@@ -1,1 +1,3 @@
-Entering message -- end by hitting return twice.
+Entering message.  Word wrap will give you soft linebreaks.  Pressing the
+'enter' key will give you a hard linebreak and an indent.  Press 'enter' twice
+when finished.

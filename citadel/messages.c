@@ -213,18 +213,18 @@ void citedit(FILE *fp)
 				add_word(textlist,"\n");
 				add_newline(textlist);
 				add_word(textlist,"");
-				}
 			}
+		}
 		else {
 			wordbuf[strlen(wordbuf)+1] = 0;
 			wordbuf[strlen(wordbuf)] = a;
-			}
+		}
 		if (strlen(wordbuf)+3 > screenwidth) {
 			add_word(textlist,wordbuf);
 			strcpy(wordbuf,"");
-			}
-		prev = a;
 		}
+		prev = a;
+	}
 
 	/* get text */
 	finished = 0;
@@ -236,18 +236,28 @@ void citedit(FILE *fp)
 		if (a==10) a=13;
 		if (a==9) a=32;
 		if (a==127) a=8;
+
+
+	/******* new ***********/
+		if ((a>32)&&(a<127)&&(prev==13)) {
+			add_word(textlist,"\n");
+			printf(" ");
+		}
+	/***********************/
+
 		if ((a==32)&&(prev==13)) {
 			add_word(textlist,"\n");
 			add_newline(textlist);
-			}
+		}
+
 		if (a==8) {
 			if (strlen(wordbuf)>0) {
 				wordbuf[strlen(wordbuf)-1] = 0;
 				putc(8,stdout);
 				putc(32,stdout);
 				putc(8,stdout);
-				}
 			}
+		}
 		else if (a==13) {
 			printf("\n");
 			if (strlen(wordbuf)==0) finished = 1;
@@ -258,16 +268,16 @@ void citedit(FILE *fp)
 					add_word(textlist,wordbuf);
 					strcpy(wordbuf,&wordbuf[b+1]);
 					b=0;
-					}
+				}
 				add_word(textlist,wordbuf);
 				strcpy(wordbuf,"");
-				}
 			}
+		}
 		else {
 			putc(a,stdout);
 			wordbuf[strlen(wordbuf)+1] = 0;
 			wordbuf[strlen(wordbuf)] = a;
-			}
+		}
 		if ((strlen(wordbuf)+3) > screenwidth) {
 			last_space = (-1);
 			for (b=0; b<strlen(wordbuf); ++b)
@@ -279,22 +289,22 @@ void citedit(FILE *fp)
 					add_word(textlist,wordbuf);
 					strcpy(wordbuf,&wordbuf[b+1]);
 					b=0;
-					}
+				}
 				for (b=0; b<strlen(wordbuf); ++b) {
 					putc(8,stdout);
 					putc(32,stdout);
 					putc(8,stdout);
-					}
-				printf("\n%s",wordbuf);
 				}
+				printf("\n%s",wordbuf);
+			}
 			else {
 				add_word(textlist,wordbuf);
 				strcpy(wordbuf,"");
 				printf("\n");
-				}
 			}
+		}
 		prev = a;
-		} while (finished==0);
+	} while (finished==0);
 	async_ka_end();
 
 	/* write the buffer back to disk */
@@ -311,8 +321,8 @@ void citedit(FILE *fp)
 		ptr=textlist->next;
 		free(textlist);
 		textlist=ptr;
-		}
 	}
+}
 
 
 int read_message(long int num, char pagin) /* Read a message from the server */
