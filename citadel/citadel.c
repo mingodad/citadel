@@ -26,7 +26,6 @@
 #include "serv_info.h"
 #include "routines.h"
 #include "routines2.h"
-#include "commands.h"
 #include "rooms.h"
 #include "messages.h"
 #include "ipc.h"
