@@ -403,7 +403,6 @@ void pop3_top(char *argbuf) {
 	CC->redirect_alloc = SIZ;
 	CtdlOutputMsg(POP3->msgs[which_one - 1].msgnum,
 			MT_RFC822, HEADERS_ALL, 0, 1);
-	CC->redirect_buffer[CC->redirect_len] = 0;
 	msgtext = CC->redirect_buffer;
 	CC->redirect_buffer = NULL;
 	CC->redirect_len = 0;
@@ -414,7 +413,7 @@ void pop3_top(char *argbuf) {
 	ptr = msgtext;
 
 	while (ptr = memreadline(ptr, buf, (sizeof buf - 2)),
-	      ( (ptr!=NULL) && (done == 0))) {
+	      ( (*ptr != NULL) && (done == 0))) {
 		strcat(buf, "\r\n");
 		if (in_body == 1) {
 			if (lines_dumped >= lines_requested) {

@@ -919,7 +919,6 @@ void smtp_try(const char *key, const char *addr, int *status,
 	CC->redirect_len = 0;
 	CC->redirect_alloc = SIZ;
 	CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
-	CC->redirect_buffer[CC->redirect_len] = 0;
 	msgtext = CC->redirect_buffer;
 	msg_size = CC->redirect_len;
 	CC->redirect_buffer = NULL;
@@ -931,7 +930,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	scan_done = 0;
 	ptr = msgtext;
 	do {
-		if (ptr = memreadline(ptr, buf, sizeof buf), ptr==NULL) {
+		if (ptr = memreadline(ptr, buf, sizeof buf), *ptr == 0) {
 			scan_done = 1;
 		}
 		if (!strncasecmp(buf, "From:", 5)) {

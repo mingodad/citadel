@@ -170,13 +170,13 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 	ptr = IMAP->cached_rfc822_data;
 	do {
 		ptr = memreadline(ptr, buf, sizeof buf);
-		if (ptr != NULL) {
+		if (*ptr != 0) {
 			striplt(buf);
 			if (strlen(buf) == 0) {
 				headers_size = ptr - IMAP->cached_rfc822_data;
 			}
 		}
-	} while ( (headers_size == 0) && (ptr != NULL) );
+	} while ( (headers_size == 0) && (*ptr != 0) );
 
 	total_size = IMAP->cached_rfc822_len;
 	text_size = total_size - headers_size;
@@ -815,11 +815,14 @@ void imap_fetch_bodystructure_part(
  */
 void imap_fetch_bodystructure (long msgnum, char *item,
 		struct CtdlMessage *msg) {
-	FILE *tmp;
+	char *rfc822 = NULL;
+	char *rfc822_body = NULL;
+	size_t rfc822_len;
+	size_t rfc822_headers_len;
+	size_t rfc822_body_len;
+	char *ptr = NULL;
 	char buf[SIZ];
-	long lines = 0L;
-	long start_of_body = 0L;
-	long body_bytes = 0L;
+	int lines = 0;
 
 	/* For non-RFC822 (ordinary Citadel) messages, this is short and
 	 * sweet...
@@ -827,27 +830,34 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 	if (msg->cm_format_type != FMT_RFC822) {
 
 		/* *sigh* We have to RFC822-format the message just to be able
-		 * to measure it.
+		 * to measure it.  FIXME use smi cached fields if possible
 		 */
-		tmp = tmpfile();
-		if (tmp == NULL) return;
-		CtdlRedirectOutput(tmp);
-		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822, 0, 0, 1);
-		CtdlRedirectOutput(NULL);
 
-		rewind(tmp);
-		while (fgets(buf, sizeof buf, tmp) != NULL) {
+		CC->redirect_buffer = malloc(SIZ);
+		CC->redirect_len = 0;
+		CC->redirect_alloc = SIZ;
+		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822, 0, 0, 1);
+		rfc822 = CC->redirect_buffer;
+		rfc822_len = CC->redirect_len;
+		CC->redirect_buffer = NULL;
+		CC->redirect_len = 0;
+		CC->redirect_alloc = 0;
+
+		ptr = rfc822;
+		while (ptr = memreadline(ptr, buf, sizeof buf), *ptr != 0) {
 			++lines;
-			if ((!strcmp(buf, "\r\n")) && (start_of_body == 0L)) {
-				start_of_body = ftell(tmp);
+			if ((strlen(buf) == 0) && (rfc822_body == NULL)) {
+				rfc822_body = ptr;
 			}
 		}
-		body_bytes = ftell(tmp) - start_of_body;
-		fclose(tmp);
+
+		rfc822_headers_len = rfc822_body - rfc822;
+		rfc822_body_len = rfc822_len - rfc822_headers_len;
+		free(rfc822);
 
 		cprintf("BODYSTRUCTURE (\"TEXT\" \"PLAIN\" "
 			"(\"CHARSET\" \"US-ASCII\") NIL NIL "
-			"\"7BIT\" %ld %ld)", body_bytes, lines);
+			"\"7BIT\" %d %d)", rfc822_body_len, lines);
 
 		return;
 	}

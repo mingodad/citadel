@@ -547,13 +547,14 @@ void client_write(char *buf, int nbytes)
 #endif
 
 	if (CC->redirect_buffer != NULL) {
-		if (CC->redirect_len + nbytes >= CC->redirect_alloc) {
+		if ((CC->redirect_len + nbytes + 2) >= CC->redirect_alloc) {
 			CC->redirect_alloc = CC->redirect_alloc * 2;
 			CC->redirect_buffer = realloc(CC->redirect_buffer,
 						CC->redirect_alloc);
 		}
 		memcpy(&CC->redirect_buffer[CC->redirect_len], buf, nbytes);
 		CC->redirect_len += nbytes;
+		CC->redirect_buffer[CC->redirect_len] = 0;
 		return;
 	}
 
