@@ -345,6 +345,11 @@ void the_mime_parser(char *partnum,
 			if (!strncasecmp(header, "Content-type: ", 14)) {
 				strcpy(content_type, &header[14]);
 				extract_key(name, content_type, "name");
+				/* Deal with weird headers */
+				if (strchr(content_type, ' '))
+					*(strchr(content_type, ' ')) = '\0';
+				if (strchr(content_type, ';'))
+					*(strchr(content_type, ';')) = '\0';
 				lprintf(9, "Extracted content-type <%s>\n",
 					content_type);
 			}
