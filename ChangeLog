@@ -1,4 +1,7 @@
 $Log$
+Revision 323.32  2002/05/10 15:29:58  ajc
+* Hacked the address book view a little bit
+
 Revision 323.31  2002/05/09 03:53:56  ajc
 * Began working on address book view
 
@@ -809,3 +812,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
