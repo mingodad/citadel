@@ -781,7 +781,7 @@ void ical_handle_rsvp(long msgnum, char *partnum, char *action) {
 		}
 
 		/* Now that we've processed this message, we don't need it
-		 * anymore.  So delete it.  FIXME uncomment this when ready!
+		 * anymore.  So delete it.  (Maybe make this optional?)
 		 */
 		CtdlDeleteMessages(CC->quickroom.QRname, msgnum, "");
 
@@ -1037,18 +1037,18 @@ void ical_conflicts(long msgnum, char *partnum) {
 
 
 /*
- * Remove all properties from a VEVENT that are not supplying the
- * bare minimum for free/busy data.
+ * Look for busy time in a VEVENT and add it to the supplied VFREEBUSY.
  */
-void ical_freebusy_strip(icalcomponent *cal) {
-
+void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *cal) {
 	icalproperty *p;
-	int did_something = 1;
+	icalvalue *v;
+	struct icalperiodtype my_period;
 
 	if (cal == NULL) return;
+	my_period = icalperiodtype_null_period();
 
 	if (icalcomponent_isa(cal) != ICAL_VEVENT_COMPONENT) {
-		ical_freebusy_strip(
+		ical_add_to_freebusy(fb,
 			icalcomponent_get_first_component(
 				cal, ICAL_VEVENT_COMPONENT
 			)
@@ -1058,33 +1058,34 @@ void ical_freebusy_strip(icalcomponent *cal) {
 
 	ical_dezonify(cal);
 
-	while (did_something) {
-		did_something = 0;
-		for (	p=icalcomponent_get_first_property
-				(cal, ICAL_ANY_PROPERTY);
-			p != NULL;
-			p = icalcomponent_get_next_property
-				(cal, ICAL_ANY_PROPERTY)
-		) {
-
-			if (
-				(icalproperty_isa(p)==ICAL_DTSTART_PROPERTY)
-			   ||	(icalproperty_isa(p)==ICAL_DTEND_PROPERTY)
-			   ||	(icalproperty_isa(p)==ICAL_DURATION_PROPERTY)
-			   ||	(icalproperty_isa(p)==ICAL_FREEBUSY_PROPERTY)
-			   ||	(icalproperty_isa(p)==ICAL_TRANSP_PROPERTY)
-			   ) {
-				/* keep it */
+	/* If this event is not opaque, the user isn't publishing it as
+	 * busy time, so don't bother doing anything else.
+	 */
+	p = icalcomponent_get_first_property(cal, ICAL_TRANSP_PROPERTY);
+	if (p != NULL) {
+		v = icalproperty_get_value(p);
+		if (v != NULL) {
+			if (icalvalue_get_transp(v) != ICAL_TRANSP_OPAQUE) {
+				return;
 			}
-			else {
-				/* delete it */
-				icalcomponent_remove_property(cal, p);
-				icalproperty_free(p);
-				did_something = 1;
-			}
-
 		}
 	}
+
+	/* Convert the DTSTART and DTEND properties to an icalperiod. */
+	p = icalcomponent_get_first_property(cal, ICAL_DTSTART_PROPERTY);
+	if (p != NULL) {
+		my_period.start = icalproperty_get_dtstart(p);
+	}
+
+	p = icalcomponent_get_first_property(cal, ICAL_DTEND_PROPERTY);
+	if (p != NULL) {
+		my_period.end = icalproperty_get_dtstart(p);
+	}
+
+	/* Now add it. */
+	icalcomponent_add_property(fb,
+		icalproperty_new_freebusy(my_period)
+	);
 
 }
 
@@ -1120,7 +1121,7 @@ void ical_freebusy_backend(long msgnum, void *data) {
 
 	if (ird.cal == NULL) return;
 
-	/* FIXME  ...  now extract ird.cal's FREEBUSY info, and add to cal. */
+	ical_add_to_freebusy(cal, ird.cal);
 
 	/* Now free the memory. */
 	icalcomponent_free(ird.cal);

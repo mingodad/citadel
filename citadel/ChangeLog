@@ -1,4 +1,9 @@
  $Log$
+ Revision 605.18  2003/03/15 23:05:08  ajc
+ * Rewrite of calendar-to-freebusy conversion functions.  This one creates
+   freebusy in the correct format, instead of what I mistakenly assumed it
+   was supposed to look like.  :(
+
  Revision 605.17  2003/03/15 22:31:06  ajc
  * When scanning a user's Calendar> room for calendar events, search for
    MIME parts of type text/calendar instead of assuming that the event will
@@ -4554,4 +4559,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
