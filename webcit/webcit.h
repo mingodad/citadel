@@ -388,3 +388,4 @@ void partstat_as_string(char *buf, icalproperty *attendee);
 extern char *months[];
 extern char *days[];
 void read_server_binary(char *buffer, size_t total_len);
+void sleeeeeeeeeep(int);
