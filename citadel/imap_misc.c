@@ -229,6 +229,7 @@ void imap_append(int num_parms, char *parms[]) {
 
         /* If the user is locally authenticated, FORCE the From: header to
          * show up as the real sender.  FIXME do we really want to do this?
+	 * Probably should make it site-definable or even room-definable.
          */
         if (CC->logged_in) {
                 if (msg->cm_fields['A'] != NULL) phree(msg->cm_fields['A']);

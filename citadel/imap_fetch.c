@@ -458,8 +458,8 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 	}
 
 	/*
-	 * Be obnoxious and send the entire header, even if the client only
-	 * asks for certain fields.  FIXME this shortcut later.
+	 * If the client asked for just headers, or just particular header
+	 * fields, strip it down.
 	 */
 	else if (!strncasecmp(section, "HEADER", 6)) {
 		CtdlRedirectOutput(tmp, -1);

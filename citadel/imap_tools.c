@@ -22,29 +22,28 @@
  * Output a string to the IMAP client, either as a literal or quoted.
  * (We do a literal if it has any double-quotes or backslashes.)
  */
-void imap_strout(char *buf) {
+void imap_strout(char *buf)
+{
 	int i;
 	int is_literal = 0;
 
-	if (buf == NULL) {		/* yeah, we handle this */
+	if (buf == NULL) {	/* yeah, we handle this */
 		cprintf("NIL");
 		return;
 	}
-
-	for (i=0; i<strlen(buf); ++i) {
-		if ( (buf[i]=='\"') || (buf[i]=='\\') ) is_literal = 1;
+	for (i = 0; i < strlen(buf); ++i) {
+		if ((buf[i] == '\"') || (buf[i] == '\\'))
+			is_literal = 1;
 	}
 
 	if (is_literal) {
 		cprintf("{%d}\r\n%s", strlen(buf), buf);
-	}
-
-	else {
+	} else {
 		cprintf("\"%s\"", buf);
 	}
 }
 
-	
+
 
 
 
@@ -52,7 +51,8 @@ void imap_strout(char *buf) {
  * Break a command down into tokens, taking into consideration the
  * possibility of escaping spaces using quoted tokens
  */
-int imap_parameterize(char **args, char *buf) {
+int imap_parameterize(char **args, char *buf)
+{
 	int num = 0;
 	int start = 0;
 	int i;
@@ -63,36 +63,32 @@ int imap_parameterize(char **args, char *buf) {
 
 	original_len = strlen(buf);
 
-	for (i=0; i<original_len; ++i) {
+	for (i = 0; i < original_len; ++i) {
 
-		if ( (isspace(buf[i])) && (!in_quote) ) {
+		if ((isspace(buf[i])) && (!in_quote)) {
 			buf[i] = 0;
 			args[num] = &buf[start];
-			start = i+1;
+			start = i + 1;
 			if (args[num][0] == '\"') {
 				++args[num];
-				args[num][strlen(args[num])-1] = 0;
+				args[num][strlen(args[num]) - 1] = 0;
 			}
 			++num;
-		}
-
-		else if ( (buf[i] == '\"') && (!in_quote) ) {
+		} else if ((buf[i] == '\"') && (!in_quote)) {
 			in_quote = 1;
-		}
-
-		else if ( (buf[i] == '\"') && (in_quote) ) {
+		} else if ((buf[i] == '\"') && (in_quote)) {
 			in_quote = 0;
 		}
-
 	}
 
-	return(num);
+	return (num);
 }
-			
+
 /*
  * Convert a struct quickroom to an IMAP-compatible mailbox name.
  */
-void imap_mailboxname(char *buf, int bufsize, struct quickroom *qrbuf) {
+void imap_mailboxname(char *buf, int bufsize, struct quickroom *qrbuf)
+{
 	struct floor *fl;
 
 	/*
@@ -101,17 +97,17 @@ void imap_mailboxname(char *buf, int bufsize, struct quickroom *qrbuf) {
 	if (qrbuf->QRflags & QR_MAILBOX) {
 		safestrncpy(buf, qrbuf->QRname, bufsize);
 		strcpy(buf, &buf[11]);
-		if (!strcasecmp(buf, MAILROOM)) strcpy(buf, "INBOX");
+		if (!strcasecmp(buf, MAILROOM))
+			strcpy(buf, "INBOX");
 	}
-
 	/*
 	 * Otherwise, prefix the floor name as a "public folders" moniker
 	 */
 	else {
 		fl = cgetfloor(qrbuf->QRfloor);
 		snprintf(buf, bufsize, "%s|%s",
-			fl->f_name,
-			qrbuf->QRname);
+			 fl->f_name,
+			 qrbuf->QRname);
 	}
 }
 
@@ -127,48 +123,49 @@ void imap_mailboxname(char *buf, int bufsize, struct quickroom *qrbuf) {
  * including IR_MAILBOX if we're dealing with a personal room.
  *
  */
-int imap_roomname(char *rbuf, int bufsize, char *foldername) {
+int imap_roomname(char *rbuf, int bufsize, char *foldername)
+{
 	int levels;
 	char buf[SIZ];
 	int i;
 	struct floor *fl;
 
-	if (foldername == NULL) return(-1);
+	if (foldername == NULL)
+		return (-1);
 	levels = num_parms(foldername);
 
 	/* When we can support hierarchial mailboxes, take this out. */
-	if (levels > 2) return(-1);
+	if (levels > 2)
+		return (-1);
 
 	/*
 	 * Convert the crispy idiot's reserved names to our reserved names.
 	 */
 	if (!strcasecmp(foldername, "INBOX")) {
 		safestrncpy(rbuf, MAILROOM, bufsize);
-		return(0 | IR_MAILBOX);
+		return (0 | IR_MAILBOX);
 	}
-
 	if (levels > 1) {
 		extract(buf, foldername, 0);
-		for (i=0; i<MAXFLOORS; ++i) {
+		for (i = 0; i < MAXFLOORS; ++i) {
 			fl = cgetfloor(i);
-			lprintf(9, "floor %d: %s\n", i, fl->f_name); /* FIXME take out */
+			lprintf(9, "floor %d: %s\n", i, fl->f_name);	/* FIXME take out */
 			if (fl->f_flags & F_INUSE) {
 				if (!strcasecmp(buf, fl->f_name)) {
 					extract(rbuf, foldername, 1);
-					return(i);
+					return (i);
 				}
 			}
 		}
 
 		/* since we don't allow multi-level yet, fail.
-		extract(rbuf, buf, 1);
-		return(0);
-		*/
-		return(-1);
+		   extract(rbuf, buf, 1);
+		   return(0);
+		 */
+		return (-1);
 	}
-
 	safestrncpy(rbuf, foldername, bufsize);
-	return(0 | IR_MAILBOX);
+	return (0 | IR_MAILBOX);
 }
 
 
@@ -178,24 +175,24 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername) {
 /*
  * Output a struct internet_address_list in the form an IMAP client wants
  */
-void imap_ial_out(struct internet_address_list *ialist) {
+void imap_ial_out(struct internet_address_list *ialist)
+{
 	struct internet_address_list *iptr;
 
 	if (ialist == NULL) {
 		cprintf("NIL");
 		return;
 	}
-
-	cprintf("(");	
+	cprintf("(");
 
 	for (iptr = ialist; iptr != NULL; iptr = iptr->next) {
-		cprintf("(");	
+		cprintf("(");
 		imap_strout(iptr->ial_name);
 		cprintf(" NIL ");
 		imap_strout(iptr->ial_user);
 		cprintf(" ");
 		imap_strout(iptr->ial_node);
-		cprintf(")");	
+		cprintf(")");
 	}
 
 	cprintf(")");
@@ -209,24 +206,29 @@ void imap_ial_out(struct internet_address_list *ialist) {
  * return 1 for a valid message set.  If any other character is found, 
  * return 0.
  */
-int imap_is_message_set(char *buf) {
+int imap_is_message_set(char *buf)
+{
 	int i;
 
-	if (buf == NULL) return(0);		/* stupidity checks */
-	if (strlen(buf) == 0) return(0);
+	if (buf == NULL)
+		return (0);	/* stupidity checks */
+	if (strlen(buf) == 0)
+		return (0);
 
-	if (!strcasecmp(buf, "ALL")) return(1);	/* macro?  why?  */
+	if (!strcasecmp(buf, "ALL"))
+		return (1);	/* macro?  why?  */
 
-	for (i=0; i<strlen(buf); ++i)  {	/* now start the scan */
+	for (i = 0; i < strlen(buf); ++i) {	/* now start the scan */
 		if (
-			(!isdigit(buf[i]))
-			&& (buf[i] != ':')
-			&& (buf[i] != ',')
-			&& (buf[i] != '*')
-		) return(0);
+			   (!isdigit(buf[i]))
+			   && (buf[i] != ':')
+			   && (buf[i] != ',')
+			   && (buf[i] != '*')
+		    )
+			return (0);
 	}
 
-	return(1);				/* looks like we're good */
+	return (1);		/* looks like we're good */
 }
 
 
@@ -244,65 +246,86 @@ int imap_is_message_set(char *buf) {
 /*
  * Match text and p, return TRUE, FALSE, or ABORT.
  */
-static int do_imap_match(const char *text, const char *p) {
-  int matched;
+static int do_imap_match(const char *supplied_text, const char *supplied_p)
+{
+	int matched, i;
+	char lcase_text[SIZ], lcase_p[SIZ];
+	char *text = lcase_text;
+	char *p = lcase_p;
 
-  for ( ; *p; text++, p++) {
-    if ((*text == '\0') && (*p != '*') && (*p != '%')) {
-      return WILDMAT_ABORT;
-    }
-    switch (*p) {
-      default:
-        if (*text != *p) {
-          return WILDMAT_FALSE;
-        }
-        continue;
-      case '*':
-      star:
-        while (++p, ((*p == '*') || (*p == '%'))) {
-          /* Consecutive stars/%'s act just like one star. */
-          continue;
-        }
-        if (*p == '\0') {
-          /* Trailing star matches everything. */
-          return WILDMAT_TRUE;
-        }
-        while (*text) {
-          if ((matched = do_imap_match(text++, p)) != WILDMAT_FALSE) {
-            return matched;
-          }
-        }
-        return WILDMAT_ABORT;
-      case '%':
-        while (++p, ((*p == '*') || (*p == '%'))) {
-          /* Consecutive %'s act just like one, but even a single
-           * star makes the sequence act like one star, instead.
-           */
-          if (*p == '*') {
-            goto star;
-          }
-          continue;
-        }
-        if (*p == '\0') {
-          /* Trailing % matches everything without a delimiter. */
-          while (*text) {
-            if (*text == WILDMAT_DELIM) {
-              return WILDMAT_FALSE;
-            }
-            text++;
-          }
-          return WILDMAT_TRUE;
-        }
-        while (*text && (*(text - 1) != WILDMAT_DELIM)) {
-          if ((matched = do_imap_match(text++, p)) != WILDMAT_FALSE) {
-            return matched;
-          }
-        }
-        return WILDMAT_ABORT;
-    }
-  }
+	/* Copy both strings and lowercase them, in order to
+	 * make this entire operation case-insensitive.
+	 */
+	for (i=0; i<=strlen(supplied_text); ++i)
+		lcase_text[i] = tolower(supplied_text[i]);
+	for (i=0; i<=strlen(supplied_p); ++i)
+		p[i] = tolower(supplied_p[i]);
 
-  return (*text == '\0');
+	/* Start matching */
+	for (; *p; text++, p++) {
+		if ((*text == '\0') && (*p != '*') && (*p != '%')) {
+			return WILDMAT_ABORT;
+		}
+		switch (*p) {
+		default:
+			if (*text != *p) {
+				return WILDMAT_FALSE;
+			}
+			continue;
+		case '*':
+star:
+			while (++p, ((*p == '*') || (*p == '%'))) {
+				/* Consecutive stars or %'s act
+				 * just like one star.
+				 */
+				continue;
+			}
+			if (*p == '\0') {
+				/* Trailing star matches everything. */
+				return WILDMAT_TRUE;
+			}
+			while (*text) {
+				if ((matched = do_imap_match(text++, p))
+				   != WILDMAT_FALSE) {
+					return matched;
+				}
+			}
+			return WILDMAT_ABORT;
+		case '%':
+			while (++p, ((*p == '*') || (*p == '%'))) {
+				/* Consecutive %'s act just like one, but even
+				 * a single star makes the sequence act like
+				 * one star, instead.
+				 */
+				if (*p == '*') {
+					goto star;
+				}
+				continue;
+			}
+			if (*p == '\0') {
+				/*
+				 * Trailing % matches everything
+				 * without a delimiter.
+				 */
+				while (*text) {
+					if (*text == WILDMAT_DELIM) {
+						return WILDMAT_FALSE;
+					}
+					text++;
+				}
+				return WILDMAT_TRUE;
+			}
+			while (*text && (*(text - 1) != WILDMAT_DELIM)) {
+				if ((matched = do_imap_match(text++, p))
+				   != WILDMAT_FALSE) {
+					return matched;
+				}
+			}
+			return WILDMAT_ABORT;
+		}
+	}
+
+	return (*text == '\0');
 }
 
 
@@ -311,15 +334,11 @@ static int do_imap_match(const char *text, const char *p) {
  * Support function for mailbox pattern name matching in LIST and LSUB
  * Returns nonzero if the supplied mailbox name matches the supplied pattern.
  */
-int imap_mailbox_matches_pattern(char *pattern, char *mailboxname) {
-  /* handle just-star case quickly */
-  if ((pattern[0] == '*') && (pattern[1] == '\0')) {
-    return WILDMAT_TRUE;
-  }
-
-  return (do_imap_match(mailboxname, pattern) == WILDMAT_TRUE);
+int imap_mailbox_matches_pattern(char *pattern, char *mailboxname)
+{
+	/* handle just-star case quickly */
+	if ((pattern[0] == '*') && (pattern[1] == '\0')) {
+		return WILDMAT_TRUE;
+	}
+	return (do_imap_match(mailboxname, pattern) == WILDMAT_TRUE);
 }
-
-
-
-

@@ -498,8 +498,6 @@ void imap_lsub_listroom(struct quickroom *qrbuf, void *data) {
 
 /*
  * Implements the LSUB command
- *
- * FIXME: Handle wildcards, please.
  */
 void imap_lsub(int num_parms, char *parms[]) {
 	char pattern[SIZ];
@@ -549,8 +547,6 @@ void imap_list_listroom(struct quickroom *qrbuf, void *data) {
 
 /*
  * Implements the LIST command
- *
- * FIXME: Handle wildcards, please.
  */
 void imap_list(int num_parms, char *parms[]) {
 	char pattern[SIZ];
@@ -699,18 +695,14 @@ void imap_status(int num_parms, char *parms[]) {
 	 * it wants to know.  We happily IGnore the supplied status data item
 	 * names and simply spew all possible data items.  It's far easier to
 	 * code and probably saves us some processing time too.
-	 *
-	 * FIXME we need to implement RECENT and UNSEEN eventually...
 	 */
-
 	imap_mailboxname(buf, sizeof buf, &CC->quickroom);
 	cprintf("* STATUS ");
 	imap_strout(buf);
-	cprintf(" (MESSAGES %d RECENT 0 UIDNEXT %ld "
-		"UIDVALIDITY 0 UNSEEN 0)\r\n",
-		msgs,
-		CitControl.MMhighest + 1
-	);
+	cprintf(" (MESSAGES %d ", msgs);
+	cprintf("RECENT 0 ");	/* FIXME we need to implement this */
+	cprintf("UIDNEXT %ld ", CitControl.MMhighest + 1);
+	cprintf("UNSEEN %d)\r\n", new);
 
 	/*
 	 * If another folder is selected, go back to that room so we can resume

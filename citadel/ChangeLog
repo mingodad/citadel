@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.128  2001/04/20 03:39:54  ajc
+ * IMAP LIST/LSUB: made it case insensitive.  Also minor IMAP code cleanup.
+
  Revision 573.127  2001/04/17 00:35:19  cough
  * Modified rooms.c in the client so that it would allow inviting into
    public rooms.  This is important since there is now a V_LOCKOUT
@@ -2503,3 +2506,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
