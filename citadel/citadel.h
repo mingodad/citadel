@@ -151,20 +151,12 @@ struct quickroom {
 
 struct fullroom {
 	long FRnum[MSGSPERRM];		/* Message NUMBERS		    */
-	long FRpos[MSGSPERRM];		/* Message POSITIONS in master file */
 		};
 
-/* This structure is not 'circular'. When scrolling, each message moves
- * down a slot, and the oldest one falls off the bottom. A null message is 
- * represented by the value 0L in both fields.
+
+/*
+ * Events which might show up in the Citadel Log
  */
-
-struct calllog {
-	char CLfullname[30];		/* Name of user                     */
-	long CLtime;			/* Date/time of record              */
-	unsigned CLflags;		/* Info on record		    */
-	};
-
 #define CL_CONNECT	8		/* Connect to server                */
 #define CL_LOGIN	16		/* CLfullname logged in		    */
 #define CL_NEWUSER	32		/* CLfullname is a new user	    */

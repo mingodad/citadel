@@ -223,10 +223,6 @@ char *setup_text[] = {
 "28",
 "29",
 "30",
-"DO NOT re-create files that you wish to keep intact!",
-"They will be permanently ERASED if you do so!",
-"(Obviously, if this is the first time you are setting up the BBS,",
-"then you will want to create all of the files.)",
 
 "31",
 "Setup has detected that you currently have data files from a Citadel/UX",
@@ -662,36 +658,6 @@ void check_inittab_entry() {
 		}
 	}
 
-
-
-/*
- * Create a blank call log
- */
-void cre8clog() {
-	int file,a;
-	struct calllog calllog;
-
-	calllog.CLfullname[0]=0;
-	calllog.CLtime=0L;
-	calllog.CLflags=0;
-	a=0;
-
-	file=creat("calllog.pos",0666);
-	chmod("calllog.pos",0666);
-	write(file,&a,sizeof(int));
-	close(file);
-
-	file=creat("calllog",0666);
-	chmod("calllog",0666);
-	for (a=0; a<CALLLOG; ++a) {
-		progress("Creating call log file",
-			(long)a,
-			(long)CALLLOG-1
-			);
-		write(file,&calllog,sizeof(struct calllog));
-		}
-	close(file);
-	}
 
 
 void set_str_val(int msgpos, char str[]) {
@@ -1141,19 +1107,6 @@ NEW_INST:
 	system("rm -fr ./chatpipes 2>/dev/null");	/* Don't need these */
 	system("rm -fr ./expressmsgs 2>/dev/null");
 	unlink("sessions");
-
-	important_msgnum(30);
-
-
-	a=0;
-	fp=fopen("calllog","r");
-	if (fp==NULL) {
-		cre8clog();
-		}
-	else {
-		fclose(fp);
-		if (yesno_s("Create call log?")==1) cre8clog();
-		}
 
 	check_services_entry();		/* Check /etc/services */
 	check_inittab_entry();		/* Check /etc/inittab */

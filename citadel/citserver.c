@@ -20,37 +20,6 @@ int ScheduledShutdown = 0;
 
 	
 /*
- * record an entry in the call log
- */
-void rec_log(unsigned int lrtype, char *name)
-{
-	struct calllog record;
-	int file,file2,a,b;
-
-
-	time(&record.CLtime);
-	record.CLflags = lrtype;
-	strncpy(record.CLfullname,name,29);
-
-	begin_critical_section(S_CALLLOG);
-	file=open("calllog.pos",O_RDWR);
-
-	read(file,&a,sizeof(int));
-	b=a; ++a; if (a>=CALLLOG) a=0;
-	lseek(file,0L,0);
-	write(file,&a,sizeof(int));
-
-	file2=open("calllog",O_RDWR);
-	lseek(file2,(long)(b*sizeof(struct calllog)),0);
-	write(file2,(char *)&record,sizeof(struct calllog));
-	close(file2);
-
-	close(file);
-	end_critical_section(S_CALLLOG);
-	}
-
-
-/*
  * Various things that need to be initialized at startup
  */
 void master_startup() {
