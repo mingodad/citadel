@@ -1121,7 +1121,6 @@ void make_message(
 	while (client_gets(buf), strcmp(buf, "000")) {
 		fprintf(fp, "%s\n", buf);
 	}
-	syslog(LOG_INFO, "Closing message");
 	putc(0, fp);
 	fclose(fp);
 }
