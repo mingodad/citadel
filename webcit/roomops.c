@@ -203,10 +203,11 @@ void gotoroom(char *gname, int display_name)
 		printf("HTTP/1.0 200 OK\n");
 		printf("Window-target: top\n");
 		output_headers(0);
-        	wprintf("<HTML><HEAD></HEAD><BODY \n");
+        	wprintf("<HTML><HEAD></HEAD>\n<BODY ");
 	
 		/* automatically fire up a read-new-msgs in the bottom frame */
 		wprintf("onload=location=\"/readnew\" ");
+
         	wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
 		}
 
@@ -225,7 +226,7 @@ void gotoroom(char *gname, int display_name)
 		}
 	if (buf[0]!='2') {
 		if (display_name) {
-			wprintf("<EM>%s</EM><BR>\n",&buf[4]);
+			wprintf("<EM>%s</EM><BR></BODY></HTML>\n",&buf[4]);
 			wDumpContent();
 			}
 		return;
@@ -251,37 +252,36 @@ void gotoroom(char *gname, int display_name)
 		if ( (strlen(ugname)>0) && (strcasecmp(ugname,wc_roomname)) ) {
 			wprintf("<TD><A HREF=\"/ungoto\">");
 			wprintf("<IMG SRC=\"/static/back.gif\" border=0></A></TD>");
-
-			wprintf("<TD><H1>%s</H1>",wc_roomname);
-			wprintf("<FONT SIZE=-1>%d new of %d messages</FONT></TD>\n",
-				extract_int(&buf[4],1),
-				extract_int(&buf[4],2));
-
-			/* Display room graphic.  The server doesn't actually
-		 	 * need the room name, but we supply it in order to
-		 	 * keep the browser from using a cached graphic from 
-		 	 * another room.
-			 */
-			serv_puts("OIMG _roompic_");
-			serv_gets(buf);
-			if (buf[0]=='2') {
-				wprintf("<TD>");
-				wprintf("<IMG SRC=\"/image&name=_roompic_&room=");
-				escputs(wc_roomname);
-				wprintf("\"></TD>");
-				serv_puts("CLOS");
-				serv_gets(buf);
-				}
-
-			wprintf("<TD>");
-			readinfo(0);
-			wprintf("</TD>");
-
-			wprintf("<TD><A HREF=\"/gotonext\">");
-			wprintf("<IMG SRC=\"/static/forward.gif\" border=0></A></TD>");
-
-			wprintf("</TR></TABLE></CENTER>\n");
 			}
+
+		wprintf("<TD><H1>%s</H1>",wc_roomname);
+		wprintf("<FONT SIZE=-1>%d new of %d messages</FONT></TD>\n",
+			extract_int(&buf[4],1),
+			extract_int(&buf[4],2));
+
+		/* Display room graphic.  The server doesn't actually
+		 * need the room name, but we supply it in order to
+		 * keep the browser from using a cached graphic from 
+		 * another room.
+		 */
+		serv_puts("OIMG _roompic_");
+		serv_gets(buf);
+		if (buf[0]=='2') {
+			wprintf("<TD>");
+			wprintf("<IMG SRC=\"/image&name=_roompic_&room=");
+			escputs(wc_roomname);
+			wprintf("\"></TD>");
+			serv_puts("CLOS");
+			serv_gets(buf);
+			}
+
+		wprintf("<TD>");
+		readinfo(0);
+		wprintf("</TD>");
+
+		wprintf("<TD><A HREF=\"/gotonext\">");
+		wprintf("<IMG SRC=\"/static/forward.gif\" border=0></A></TD>");
+		wprintf("</TR></TABLE></CENTER>\n");
 		wprintf("</BODY></HTML>\n");
 		wDumpContent();
 		}
@@ -289,13 +289,6 @@ void gotoroom(char *gname, int display_name)
 	strcpy(wc_roomname, wc_roomname);
 	}
 
-
-/*
- * operation to goto a room
- */
-void dotgoto(void) {
-	gotoroom(bstr("room"), 1);
-	}
 
 
 /* Goto next room having unread messages.
@@ -915,3 +908,68 @@ void zap(void) {
 
 	gotoroom(bstr("_BASEROOM_"),1);
 	}
+
+
+
+
+/*
+ * Confirm deletion of the current room
+ */
+void confirm_delete_room(void) {
+	char buf[256];
+	
+	serv_puts("KILL 0");
+	serv_gets(buf);
+	if (buf[0] != '2') {
+		display_error(&buf[4]);
+		return;
+		}
+
+	printf("HTTP/1.0 200 OK\n");
+	output_headers(1);
+	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+	wprintf("<B>Confirm deletion of room</B>\n");
+	wprintf("</FONT></TD></TR></TABLE>\n");
+
+	wprintf("<CENTER>");
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/delete_room\">\n");
+
+	wprintf("Are you sure you want to delete <FONT SIZE=+1>");
+	escputs(wc_roomname);
+	wprintf("</FONT>?<BR>\n");
+
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Delete\">");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
+
+	wprintf("</FORM></CENTER></BODY></HTML>\n");
+	wDumpContent();
+	}
+
+
+/*
+ * Delete the current room
+ */
+void delete_room(void) {
+	char buf[256];
+	char sc[256];
+
+	strcpy(sc, bstr("sc"));
+	
+	if (strcasecmp(sc, "Delete")) {
+		display_error("Cancelled.  This room was not deleted.");
+		return;
+		}
+
+	serv_puts("KILL 1");
+	serv_gets(buf);
+	if (buf[0] != '2') {
+		display_error(&buf[4]);
+		}
+	else {
+		gotoroom("_BASEROOM_", 1);
+		}
+	}
+
+
+
