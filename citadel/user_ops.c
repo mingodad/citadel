@@ -966,7 +966,7 @@ void cmd_creu(char *cmdbuf)
 	if (a == 0) {
 		if (strlen(password) > 0) {
 			lgetuser(&tmp, username);
-			safestrncpy(tmp.password, new_pw, sizeof(tmp.password));
+			safestrncpy(tmp.password, password, sizeof(tmp.password));
 			lputuser(&tmp);
 		}
 		cprintf("%d User '%s' created %s.\n", CIT_OK, username,
