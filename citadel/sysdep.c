@@ -229,6 +229,7 @@ struct CitContext *CreateNewContext(void) {
 		lprintf(1, "citserver: can't allocate memory!!\n");
 		pthread_exit(NULL);
 		}
+	bzero(me, sizeof(struct CitContext));
 
 	begin_critical_section(S_SESSION_TABLE);
 	me->next = ContextList;
