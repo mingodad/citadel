@@ -1,4 +1,7 @@
 $Log$
+Revision 500.5  2003/06/28 03:35:23  error
+* roomops.c: Display one less floor in the first column in romlist view
+
 Revision 500.4  2003/06/26 03:37:58  ajc
 * Allow anonymous HTTP requests for /freebusy/user%20name.vcf (or .vfb)
   This will allow some groupware clients to browse the free/busy times of
@@ -1504,3 +1507,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
