@@ -2139,6 +2139,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 void quickie_message(char *from, char *to, char *room, char *text)
 {
 	struct CtdlMessage *msg;
+	struct recptypes *recp = NULL;
 
 	msg = mallok(sizeof(struct CtdlMessage));
 	memset(msg, 0, sizeof(struct CtdlMessage));
@@ -2148,13 +2149,15 @@ void quickie_message(char *from, char *to, char *room, char *text)
 	msg->cm_fields['A'] = strdoop(from);
 	msg->cm_fields['O'] = strdoop(room);
 	msg->cm_fields['N'] = strdoop(NODENAME);
-	if (to != NULL)
+	if (to != NULL) {
 		msg->cm_fields['R'] = strdoop(to);
+		recp = validate_recipients(to);
+	}
 	msg->cm_fields['M'] = strdoop(text);
 
-	CtdlSubmitMsg(msg, NULL, room);
+	CtdlSubmitMsg(msg, recp, room);
 	CtdlFreeMessage(msg);
-	syslog(LOG_NOTICE, text);
+	if (recp != NULL) phree(recp);
 }
 
 
