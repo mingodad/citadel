@@ -25,4 +25,3 @@
 # or
 #DEFAULT (echo ""; id; echo %{sVv}; date; cat) >> $CVSROOT/CVSROOT/commitlog
 htdocs/*	(cd /usr/local/share/apache/htdocs; /usr/local/bin/cvs update & )
-citadel/*	( /appl/citadel/aidepost -rCitadel\ Development )
