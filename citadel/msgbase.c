@@ -35,10 +35,6 @@
 
 extern struct config config;
 
-/* FIX dumb stub function */
-void save_message(char *junk, char *more_junk, char *foo, int wahw, int ee) {
-}
-
 /*
  * This function is self explanatory.
  * (What can I say, I'm in a weird mood today...)
@@ -1278,7 +1274,7 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 /*
  * Convenience function for generating small administrative messages.
  */
-void quickie_message(char *from, char *room, char *text)
+void quickie_message(char *from, char *to, char *room, char *text)
 {
 	struct CtdlMessage *msg;
 
@@ -1290,6 +1286,8 @@ void quickie_message(char *from, char *room, char *text)
 	msg->cm_fields['A'] = strdoop(from);
 	msg->cm_fields['O'] = strdoop(room);
 	msg->cm_fields['N'] = strdoop(NODENAME);
+	if (to != NULL)
+		msg->cm_fields['R'] = strdoop(to);
 	msg->cm_fields['M'] = strdoop(text);
 
 	CtdlSaveMsg(msg, "", room, MES_LOCAL, 1);
@@ -1569,13 +1567,13 @@ SKFALL:	b = MES_NORMAL;
 void cmd_ent3(char *entargs)
 {
 	char recp[256];
-	char buf[256];
 	int a;
 	int e = 0;
+	unsigned char ch, which_field;
 	struct usersupp tempUS;
 	long msglen;
-	long bloklen;
-	FILE *fp;
+	struct CtdlMessage *msg;
+	char *tempbuf;
 
 	if (CC->internal_pgm == 0) {
 		cprintf("%d This command is for internal programs only.\n",
@@ -1610,37 +1608,60 @@ void cmd_ent3(char *entargs)
 			}
 		}
 	}
+
 	/* At this point, message has been approved. */
 	if (extract_int(entargs, 0) == 0) {
 		cprintf("%d OK to send\n", OK);
 		return;
 	}
-	/* open a temp file to hold the message */
-	fp = fopen(CC->temp, "wb");
-	if (fp == NULL) {
-		cprintf("%d Cannot open %s: %s\n",
-			ERROR + INTERNAL_ERROR,
-			CC->temp, strerror(errno));
+
+	msglen = extract_long(entargs, 2);
+	msg = mallok(sizeof(struct CtdlMessage));
+	if (msg == NULL) {
+		cprintf("%d Out of memory\n", ERROR+INTERNAL_ERROR);
 		return;
 	}
-	msglen = extract_long(entargs, 2);
-	cprintf("%d %ld\n", SEND_BINARY, msglen);
-	while (msglen > 0L) {
-		bloklen = ((msglen >= 255L) ? 255 : msglen);
-		client_read(buf, (int) bloklen);
-		fwrite(buf, (int) bloklen, 1, fp);
-		msglen = msglen - bloklen;
-	}
-	fclose(fp);
 
-	save_message(CC->temp, recp, "", e, 0);
+	memset(msg, 0, sizeof(struct CtdlMessage));
+	tempbuf = mallok(msglen);
+	if (tempbuf == NULL) {
+		cprintf("%d Out of memory\n", ERROR+INTERNAL_ERROR);
+		phree(msg);
+		return;
+	}
+
+	cprintf("%d %ld\n", SEND_BINARY, msglen);
+
+	client_read(&ch, 1);				/* 0xFF magic number */
+	msg->cm_magic = CTDLMESSAGE_MAGIC;
+	client_read(&ch, 1);				/* anon type */
+	msg->cm_anon_type = ch;
+	client_read(&ch, 1);				/* format type */
+	msg->cm_format_type = ch;
+	msglen = msglen - 3;
+
+	while (msglen > 0) {
+		client_read(&which_field, 1);
+		--msglen;
+		tempbuf[0] = 0;
+		do {
+			client_read(&ch, 1);
+			a = strlen(tempbuf);
+			tempbuf[a+1] = 0;
+			tempbuf[a] = ch;
+		} while ( (a != 0) && (msglen > 0) );
+		msg->cm_fields[which_field] = strdoop(tempbuf);
+	}
+
+	CtdlSaveMsg(msg, recp, "", e, 0);
+	CtdlFreeMessage(msg);
+	phree(tempbuf);
 }
 
 
 /*
  * API function to delete messages which match a set of criteria
  * (returns the actual number of messages deleted)
- * FIX ... still need to implement delete by content type
  */
 int CtdlDeleteMessages(char *room_name,		/* which room */
 		       long dmsgnum,		/* or "0" for any */
@@ -1874,6 +1895,9 @@ void AdjRefCount(long msgnum, int incr)
 
 /*
  * Write a generic object to this room
+ *
+ * Note: this could be much more efficient.  Right now we use two temporary
+ * files, and still pull the message into memory as with all others.
  */
 void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 			char *content_type,	/* MIME type of this object */
@@ -1953,7 +1977,6 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 	unlink(filename);
 
 	/* Create the requested room if we have to. */
-	lprintf(9, "Checking room\n");
 	if (getroom(&qrbuf, roomname) != 0) {
 		create_room(roomname, 4, "", 0);
 	}
@@ -1965,11 +1988,6 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 			CtdlDeleteMessages(roomname, 0L, content_type));
 	}
 	/* Now write the data */
-	lprintf(9, "Calling CtdlSaveMsg()\n");
 	CtdlSaveMsg(msg, "", roomname, MES_LOCAL, 1);
-	lprintf(9, "is valid? %d\n",
-		is_valid_message(msg) );
-	lprintf(9, "Calling CtdlFreeMsg()\n");
 	CtdlFreeMessage(msg);
-	lprintf(9, "Done.\n");
 }

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-#define aide_message(text)      quickie_message("Citadel",AIDEROOM,text)
+#define aide_message(text)      quickie_message("Citadel",NULL,AIDEROOM,text)
 
 struct sermsgret {
 	size_t len;
@@ -40,7 +40,7 @@ void cmd_opna (char *cmdbuf);
 long send_message (struct CtdlMessage *, int, FILE *);
 void loadtroom (void);
 void CtdlSaveMsg(struct CtdlMessage *, char *, char *, int, int);
-void quickie_message (char *, char *, char *);
+void quickie_message (char *, char *, char *, char *);
 struct CtdlMessage *make_message (struct usersupp *, char *,
 		   char *, int, int, int, char *);
 void cmd_ent0 (char *entargs);

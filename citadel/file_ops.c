@@ -552,7 +552,7 @@ void cmd_ucls(char *cmd)
 		sprintf(upload_notice,
 			"NEW UPLOAD: '%s'\n %s\n",
 			CC->upl_file,CC->upl_comment);
-		quickie_message(CC->curr_user, CC->quickroom.QRname,
+		quickie_message(CC->curr_user, NULL, CC->quickroom.QRname,
 				upload_notice);
 		}
 	else {

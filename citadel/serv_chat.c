@@ -496,26 +496,11 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 	}
 	end_critical_section(S_SESSION_TABLE);
 
-	/* Log the page to disk if configured to do so 
-
-
-	****** FIX FIX FIX   add this back in *************
-
+	/* Log the page to disk if configured to do so  */
 	if ((strlen(config.c_logpages) > 0) && (do_send) ) {
-		fp = fopen(CC->temp, "wb");
-		fprintf(fp, "%c%c%c", 255, MES_NORMAL, 0);
-		fprintf(fp, "Psysop%c", 0);
-		fprintf(fp, "T%ld%c", (long)time(NULL), 0);
-		fprintf(fp, "A%s%c", lun, 0);
-		fprintf(fp, "R%s%c", x_user, 0);
-		fprintf(fp, "O%s%c", config.c_logpages, 0);
-		fprintf(fp, "N%s%c", NODENAME, 0);
-		fprintf(fp, "M%s\n%c", x_msg, 0);
-		fclose(fp);
-		save_message(CC->temp, "", config.c_logpages, MES_LOCAL, 1);
-		unlink(CC->temp);
+		quickie_message(lun, x_user, config.c_logpages, x_msg);
 	}
-	*************************************/
+
 	return (message_sent);
 }
 

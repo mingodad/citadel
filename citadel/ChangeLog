@@ -1,4 +1,7 @@
 $Log$
+Revision 1.367  1999/09/19 15:57:06  ajc
+* migrated cmd_ent3() to CtdlSaveMessage()
+
 Revision 1.366  1999/09/19 05:13:57  ajc
 * Debugged the new version of CtdlWriteObject()
 
@@ -1253,4 +1256,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

@@ -31,15 +31,18 @@ void get_config(void) {
 
 	if (chdir(home_specified ? bbs_home_directory : BBSDIR) != 0) {
 		fprintf(stderr,
-		 "Cannot start.\nThere is no Citadel installation in %s\n%s\n",
+			"This program could not be started.\n"
+		 	"Unable to change directory to %s\n"
+			"Error: %s\n",
 			(home_specified ? bbs_home_directory : BBSDIR),
 			strerror(errno));
 		exit(1);
 	}
 	cfp = fopen("citadel.config", "rb");
 	if (cfp == NULL) {
-		fprintf(stderr, "Cannot start.\n");
-		fprintf(stderr, "There is no citadel.config in %s\n%s\n",
+		fprintf(stderr, "This program could not be started.\n"
+			"Unable to open %s/citadel.config\n"
+			"Error: %s\n",
 			(home_specified ? bbs_home_directory : BBSDIR),
 			strerror(errno));
 		exit(1);
