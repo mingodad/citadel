@@ -1,5 +1,7 @@
 /*
- * tools.c -- Miscellaneous routines 
+ * $Id$
+ *
+ * Miscellaneous routines 
  */
 
 #include <ctype.h>

@@ -1,9 +1,8 @@
 /*
- * preferences.c
+ * $Id$
  *
  * Manage user preferences with a little help from the Citadel server.
  *
- * $Id$
  */
 
 #include <ctype.h>

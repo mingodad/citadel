@@ -1,4 +1,6 @@
 /*
+ * $Id$
+ *
  * Administrative screen for site-wide configuration
  *
  */

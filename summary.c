@@ -1,4 +1,8 @@
-/* $Id$ */
+/*
+ * $Id$
+ *
+ * Displays the "Summary Page"
+ */
 
 #include <ctype.h>
 #include <stdlib.h>

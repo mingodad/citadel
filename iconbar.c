@@ -1,4 +1,8 @@
-/* $Id$ */
+/*
+ * $Id$
+ *
+ * Displays and customizes the iconbar.
+ */
 
 #include <ctype.h>
 #include <stdlib.h>

@@ -1,9 +1,8 @@
 /* 
- * inetconf.c
+ * $Id$
  *
  * Functions which handle Internet domain configuration etc.
  *
- * $Id$
  */
 
 #include <ctype.h>

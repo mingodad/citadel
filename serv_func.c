@@ -1,9 +1,8 @@
 /*
- * serv_func.c
+ * $Id$
  *
  * Handles various types of data transfer operations with the Citadel service.
  *
- * $Id$
  */
 
 #include <ctype.h>

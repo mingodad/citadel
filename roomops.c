@@ -1,5 +1,8 @@
-/* $Id$ */
-
+/*
+ * $Id$
+ *
+ * Lots of different room-related operations.
+ */
 
 #include <ctype.h>
 #include <stdlib.h>

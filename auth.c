@@ -1,9 +1,8 @@
 /*
- * auth.c
- *
- * This file contains code which relates to authentication of users to Citadel.
- *
  * $Id$
+ *
+ * Handles authentication of users to a Citadel server.
+ *
  */
 
 

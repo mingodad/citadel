@@ -1,12 +1,11 @@
 /*
- * context_loop.c
+ * $Id$
  *
  * This is the other half of the webserver.  It handles the task of hooking
  * up HTTP requests with the sessions they belong to, using HTTP cookies to
  * keep track of things.  If the HTTP request doesn't belong to any currently
  * active session, a new session is started.
  *
- * $Id$
  */
 
 #include <ctype.h>

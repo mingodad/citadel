@@ -1,9 +1,8 @@
 /*
- * tcp_sockets.c
- * 
- * TCP socket module for WebCit
- *
  * $Id$
+ * 
+ * TCP client socket module for WebCit
+ *
  */
 
 /*

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- *
+ * Handles the HTML display of calendar items.
  */
 
 #include <ctype.h>
