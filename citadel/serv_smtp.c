@@ -148,6 +148,17 @@ void lmtp_greeting(void) {
 
 
 /*
+ * Login greeting common to all auth methods
+ */
+void smtp_auth_greeting(void) {
+		cprintf("235 2.0.0 Hello, %s\r\n", CC->user.fullname);
+		lprintf(9, "SMTP authenticated login successful\n");
+		CC->internal_pgm = 0;
+		CC->cs_flags &= ~CS_STEALTH;
+}
+
+
+/*
  * Implement HELO and EHLO commands.
  *
  * which_command:  0=HELO, 1=EHLO, 2=LHLO
@@ -187,6 +198,7 @@ void smtp_hello(char *argbuf, int which_command) {
 		cprintf("250-HELP\r\n");
 		cprintf("250-SIZE %ld\r\n", config.c_maxmsglen);
 		cprintf("250-PIPELINING\r\n");
+		cprintf("250-AUTH PLAIN LOGIN\r\n");
 		cprintf("250-AUTH=LOGIN\r\n");
 #ifdef HAVE_OPENSSL
 		cprintf("250-STARTTLS\r\n");
@@ -247,10 +259,7 @@ void smtp_get_pass(char *argbuf) {
 	CtdlDecodeBase64(password, argbuf, SIZ);
 	lprintf(9, "Trying <%s>\n", password);
 	if (CtdlTryPassword(password) == pass_ok) {
-		cprintf("235 2.0.0 Hello, %s\r\n", CC->user.fullname);
-		lprintf(9, "SMTP authenticated login successful\n");
-		CC->internal_pgm = 0;
-		CC->cs_flags &= ~CS_STEALTH;
+		smtp_auth_greeting();
 	}
 	else {
 		cprintf("535 5.7.0 Authentication failed.\r\n");
@@ -264,21 +273,55 @@ void smtp_get_pass(char *argbuf) {
  */
 void smtp_auth(char *argbuf) {
 	char buf[SIZ];
+	char method[SIZ];
+	char encoded_authstring[SIZ];
+	char decoded_authstring[SIZ];
+	char ident[SIZ];
+	char user[SIZ];
+	char pass[SIZ];
 
-	if (strncasecmp(argbuf, "login", 5) ) {
-		cprintf("504 5.7.4 We only support LOGIN authentication.\r\n");
+	if (CC->logged_in) {
+		cprintf("504 5.7.4 Already logged in.\r\n");
 		return;
 	}
 
-	if (strlen(argbuf) >= 7) {
-		smtp_get_user(&argbuf[6]);
+	extract_token(method, argbuf, 0, ' ');
+
+	if (!strncasecmp(method, "login", 5) ) {
+		if (strlen(argbuf) >= 7) {
+			smtp_get_user(&argbuf[6]);
+		}
+		else {
+			CtdlEncodeBase64(buf, "Username:", 9);
+			cprintf("334 %s\r\n", buf);
+			SMTP->command_state = smtp_user;
+		}
+		return;
 	}
 
-	else {
-		CtdlEncodeBase64(buf, "Username:", 9);
-		cprintf("334 %s\r\n", buf);
-		SMTP->command_state = smtp_user;
+	if (!strncasecmp(method, "plain", 5) ) {
+		extract_token(encoded_authstring, argbuf, 1, ' ');
+		CtdlDecodeBase64(decoded_authstring,
+				encoded_authstring,
+				strlen(encoded_authstring) );
+		strcpy(ident, decoded_authstring);
+		strcpy(user, &decoded_authstring[strlen(ident) + 1] );
+		strcpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2] );
+
+		if (CtdlLoginExistingUser(ident) == login_ok) {
+			if (CtdlTryPassword(pass) == pass_ok) {
+				smtp_auth_greeting();
+				return;
+			}
+		}
+		cprintf("504 5.7.4 Authentication failed.\r\n");
 	}
+
+	if (strncasecmp(method, "login", 5) ) {
+		cprintf("504 5.7.4 Unknown authentication method.\r\n");
+		return;
+	}
+
 }
 
 
