@@ -87,6 +87,7 @@ static int m = 1000;		/* Number of messages to send; see above */
 static volatile int count = 0;	/* Total count of messages posted */
 static volatile int total = 0;	/* Total messages to be posted */
 static pthread_mutex_t count_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t arg_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static char username[12];
 static char password[12];
@@ -151,7 +152,9 @@ void* worker(void* data)
 	strcpy(msg.author, username);
 
 	fprintf(stderr, "Trying to connect to Citadel\n");
+	pthread_mutex_lock(&arg_mutex);
 	ipc = CtdlIPC_new(*argc_, *argv_, "", "");
+	pthread_mutex_unlock(&arg_mutex);
 	if (!ipc)
 		return NULL;	/* oops, something happened... */
 
@@ -273,6 +276,8 @@ int main(int argc, char** argv)
 	int i;			/* Counters */
 	long runtime;		/* Run time for each thread */
 
+	setvbuf(stderr, NULL, _IONBF, 0);
+
 	/* Read argument list */
 	for (i = 0; i < argc; i++) {
 		if (!strcmp(argv[i], "-n")) {
@@ -320,8 +325,8 @@ int main(int argc, char** argv)
 
 	/* Then thread attributes (all defaults for now) */
 	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
-	fprintf(stderr, "Creating threads\n");
 	/* Then, create some threads */
 	for (i = 0; i < n; ++i) {
 		fprintf(stderr, "\rCreating thread %d", i);

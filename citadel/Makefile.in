@@ -21,7 +21,7 @@ all: $(TARGETS)
 
 EXEEXT=@EXEEXT@
 
-CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT)
+CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT) stress$(EXEEXT)
 SERVER_TARGETS=citserver setup $(CHKPWD)
 SERV_MODULES=serv_chat.o \
 	serv_upgrade.o \
@@ -82,9 +82,9 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c citadel.c citadel_ipc.c \
 	citmail.c citserver.c client_chat.c client_passwords.c \
 	clientsocket.c commands.c config.c control.c $(DATABASE) \
 	domain.c serv_extensions.c file_ops.c genstamp.c getutline.c \
-	housekeeping.c html.c imap_fetch.c imap_misc.c imap_search.c \
-	imap_store.c imap_tools.c internet_addressing.c ipc_c_tcp.c \
-	locate_host.c md5.c messages.c  \
+	housekeeping.c html.c ical_dezonify.c imap_fetch.c imap_misc.c \
+	imap_search.c imap_store.c imap_tools.c internet_addressing.c \
+	ipc_c_tcp.c locate_host.c md5.c messages.c  \
 	mime_parser.c msgbase.c msgform.c parsedate.c policy.c \
 	room_ops.c rooms.c routines.c routines2.c \
 	screen.c sendcommand.c serv_bio.c serv_calendar.c serv_chat.c \
@@ -93,8 +93,8 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c citadel.c citadel_ipc.c \
 	serv_newuser.c serv_pas2.c serv_pop3.c serv_rwho.c serv_smtp.c \
 	serv_spam.c serv_test.c serv_mrtg.c serv_spam.c serv_upgrade.c \
 	serv_vandelay.c serv_vcard.c server_main.c setup.c snprintf.c \
-	support.c sysdep.c tools.c user_ops.c userlist.c \
-	whobbs.c vcard.c ical_dezonify.c
+	stress.c support.c sysdep.c tools.c user_ops.c userlist.c \
+	whobbs.c vcard.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
@@ -152,6 +152,9 @@ chkpwd: chkpwd.o auth.o config.o
 
 whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o tools.o citadel_ipc.o $(LIBOBJS)
 	$(CC) whobbs.o ipc_c_tcp.o tools.o citadel_ipc.o  $(LIBOBJS) $(LDFLAGS) -o whobbs $(LIBS)
+
+stress$(EXEEXT): stress.o ipc_c_tcp.o tools.o citadel_ipc.o $(LIBOBJS)
+	$(CC) stress.o ipc_c_tcp.o tools.o citadel_ipc.o $(LIBOBJS) $(LDFLAGS) -o stress $(LIBS)
 
 sendcommand: sendcommand.o ipc_c_tcp.o citadel_ipc.o tools.o config.o $(LIBOBJS)
 	$(CC) sendcommand.o ipc_c_tcp.o citadel_ipc.o tools.o config.o \

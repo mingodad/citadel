@@ -1,4 +1,8 @@
  $Log$
+ Revision 614.83  2004/03/16 19:05:50  error
+ * Further changes to stress.c, Makefile.in to build it, .cvsignore
+   (but it's still broken)
+
  Revision 614.82  2004/03/15 18:11:34  error
  * stress.c: various fixed/improvements (but it still isn't working)
 
@@ -5534,4 +5538,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

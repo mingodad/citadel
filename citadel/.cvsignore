@@ -49,6 +49,7 @@ sendcommand
 setup
 so_locations
 stats
+stress
 sysdep.h
 sysdep.h.in
 sysoputil
