@@ -72,8 +72,8 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	}
 
 	/* Ugly hack to mess with the content type.  KOrganizer is either
-	 * not supplying one, or supplying the wrong one.  FIXME remove this
-	 * after getting clarification or a fix from Reinhold.
+	 * not supplying one, or supplying the wrong one.
+	 * FIXME - remove this after KOrg gets fixed.
 	 */
 	strcpy(dav_content_type, supplied_content_type);
 	switch (WC->wc_view) {
