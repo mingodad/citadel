@@ -101,11 +101,11 @@ void listrms(char *variety)
 			c = 1;
 			}
 		f = extract_int(buf,1);
-		if (f & QR_PRIVATE) {
+                if (f & QR_MAILBOX) {
+                        color(6);
+                        }
+		else if (f & QR_PRIVATE) {
 			color(1);
-			}
-		else if (f & QR_MAILBOX) {
-			color(6);
 			}
 		else {
 			color(2);
