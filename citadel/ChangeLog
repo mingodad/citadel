@@ -1,4 +1,7 @@
  $Log$
+ Revision 600.0  2002/09/04 03:06:58  ajc
+ * Committing the current code base as version 6.00
+
  Revision 591.109  2002/09/03 14:09:04  ajc
  * setup.c: automatically stop/start services
 
@@ -3966,4 +3969,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
