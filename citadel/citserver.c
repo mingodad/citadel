@@ -866,7 +866,7 @@ void generate_nonce(struct CitContext *con) {
  */
 void begin_session(struct CitContext *con)
 {
-	int len;	/* should be socklen_t but doesn't work on Macintosh */
+	int len;
 	struct sockaddr_in sin;
 
 	/* 
@@ -895,7 +895,7 @@ void begin_session(struct CitContext *con)
 	len = sizeof sin;
 	if (!CC->is_local_socket) {
 		if (!getpeername(con->client_socket,
-		   (struct sockaddr *) &sin, &len))
+		   (struct sockaddr *) &sin, &len))	/* should be socklen_t but doesn't work on Macintosh */
 			locate_host(con->cs_host, sizeof con->cs_host,
 				con->cs_addr, sizeof con->cs_addr,
 				&sin.sin_addr);

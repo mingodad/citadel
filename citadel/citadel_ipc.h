@@ -140,8 +140,8 @@ struct ctdlipcfile {
 	char description[80];		/* Description on server */
 	FILE *local_fd;			/* Open file on client */
 	size_t size;			/* Size of file in octets */
-	int upload:1;			/* uploading? 0 if downloading */
-	int complete:1;			/* Transfer has finished? */
+	unsigned int upload:1;		/* uploading? 0 if downloading */
+	unsigned int complete:1;	/* Transfer has finished? */
 };
 
 

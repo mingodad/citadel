@@ -1,4 +1,7 @@
  $Log$
+ Revision 626.8  2004/10/06 21:23:21  error
+ * Fixup a few more compiler warnings from icc
+
  Revision 626.7  2004/10/05 01:44:20  ajc
  * Changed a bunch of localtime() calls to localtime_r(), for great justice.
 
@@ -6144,3 +6147,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

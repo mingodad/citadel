@@ -2128,7 +2128,6 @@ size_t CtdlIPCPartialRead(CtdlIPC *ipc, void **buf, size_t offset, size_t bytes,
 	if (!buf) return 0;
 	if (!cret) return 0;
 	if (bytes < 1) return 0;
-	if (offset < 0) return 0;
 
 	CtdlIPC_lock(ipc);
 	sprintf(aaa, "READ %d|%d", (int)offset, (int)bytes);
@@ -2141,7 +2140,7 @@ size_t CtdlIPCPartialRead(CtdlIPC *ipc, void **buf, size_t offset, size_t bytes,
 		*buf = (void *)realloc(*buf, (size_t)(offset + len));
 		if (*buf) {
 			/* I know what I'm doing */
-			serv_read(ipc, (*buf + offset), len);
+			serv_read(ipc, ((char *)(*buf) + offset), len);
 		} else {
 			/* We have to read regardless */
 			serv_read(ipc, aaa, len);
@@ -2254,7 +2253,7 @@ int CtdlIPCHighSpeedReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
 		else {
 			len = extract_long(&aaa[4], 0);
 			/* I know what I'm doing */
-			serv_read(ipc, ((*buf) + (i * 4096)), len);
+			serv_read(ipc, ((char *)(*buf) + (i * 4096)), len);
 		}
 		if (progress_gauge_callback)
 			progress_gauge_callback(ipc, i * 4096 + len, bytes);
