@@ -116,7 +116,7 @@ void whobbs(void)
 				urlescputs(wlist->roomname);
 				wprintf("\" onMouseOver=\"window.status='Go to room ");
 				escputs(wlist->roomname);
-				wprintf("'; return true\">");
+				wprintf("'; return true\" TARGET=\"top\">");
 				escputs(wlist->roomname);
 				wprintf("</A>");
 			}
