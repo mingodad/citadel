@@ -336,6 +336,7 @@ void display_edituser(char *supplied_username, int is_new) {
 	wprintf("</TABLE>\n");
 
 	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"OK\">\n"
+		"&nbsp;"
 		"<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Cancel\">\n"
 		"<BR><BR></FORM>\n");
 

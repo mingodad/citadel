@@ -416,6 +416,9 @@ void gotoroom(char *gname, int display_name)
 	   maxmsgnum = extract_int(&buf[4],5);
 	   is_mail = (char) extract_int(&buf[4],7); */
 	ls = extract_long(&buf[4], 6);
+	WC->wc_floor = extract_int(&buf[4], 10);
+	WC->wc_view = extract_int(&buf[4], 11);
+	WC->wc_default_view = extract_int(&buf[4], 12);
 
 	if (WC->is_aide)
 		WC->is_room_aide = WC->is_aide;
@@ -431,9 +434,6 @@ void gotoroom(char *gname, int display_name)
 		embed_room_banner(buf);
 		wDumpContent(1);
 	}
-	strcpy(WC->wc_roomname, WC->wc_roomname);
-	WC->wc_view = extract_int(&buf[4], 11);
-	WC->wc_default_view = extract_int(&buf[4], 12);
 }
 
 
@@ -678,10 +678,15 @@ void display_editroom(void)
 	char *tab;
 	char *shared_with;
 	char *not_shared_with;
+	int roompolicy = 0;
+	int roomvalue = 0;
+	int floorpolicy = 0;
+	int floorvalue = 0;
 
 	tab = bstr("tab");
 	if (strlen(tab) == 0) tab = "admin";
 
+	load_floorlist();
 	serv_puts("GETR");
 	serv_gets(buf);
 
@@ -727,6 +732,22 @@ void display_editroom(void)
 	}
 	wprintf("Configuration");
 	if (!strcmp(tab, "config")) {
+		wprintf("</SPAN></TD>\n");
+	}
+	else {
+		wprintf("</A></TD>\n");
+	}
+
+	wprintf("<TD>&nbsp;</TD>\n");
+
+	if (!strcmp(tab, "expire")) {
+		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
+	}
+	else {
+		wprintf("<TD BGCOLOR=\"#CCCCCC\"><A HREF=\"/display_editroom&tab=expire\">");
+	}
+	wprintf("Message expire policy");
+	if (!strcmp(tab, "expire")) {
 		wprintf("</SPAN></TD>\n");
 	}
 	else {
@@ -792,7 +813,6 @@ void display_editroom(void)
 		wprintf("<INPUT TYPE=\"text\" NAME=\"er_name\" VALUE=\"%s\" MAXLENGTH=\"19\">\n", er_name);
 	
 		wprintf("<LI>Resides on floor: ");
-		load_floorlist();
 		wprintf("<SELECT NAME=\"er_floor\" SIZE=\"1\">\n");
 		for (i = 0; i < 128; ++i)
 			if (strlen(floorlist[i]) > 0) {
@@ -916,9 +936,12 @@ void display_editroom(void)
 		}
 	
 		wprintf("</UL><CENTER>\n");
-		wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
-		wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
-		wprintf("</CENTER>\n");
+		wprintf("<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"config\">\n"
+			"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">"
+			"&nbsp;"
+			"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">"
+			"</CENTER>\n"
+		);
 	}
 
 
@@ -1093,6 +1116,82 @@ void display_editroom(void)
 		wprintf("</CENTER>\n");
 	}
 
+
+	/* Mailing list management */
+	if (!strcmp(tab, "expire")) {
+
+		serv_puts("GPEX room");
+		serv_gets(buf);
+		if (buf[0] == '2') {
+			roompolicy = extract_int(&buf[4], 0);
+			roomvalue = extract_int(&buf[4], 1);
+		}
+		
+		serv_puts("GPEX floor");
+		serv_gets(buf);
+		if (buf[0] == '2') {
+			floorpolicy = extract_int(&buf[4], 0);
+			floorvalue = extract_int(&buf[4], 1);
+		}
+		
+		wprintf("<BR><FORM METHOD=\"POST\" ACTION=\"/set_room_policy\">\n");
+		wprintf("<TABLE border=0 cellspacing=5>\n");
+		wprintf("<TR><TD>Message expire policy for this room<BR>(");
+		escputs(WC->wc_roomname);
+		wprintf(")</TD><TD>");
+		wprintf("<INPUT TYPE=\"radio\" NAME=\"roompolicy\" VALUE=\"0\" %s>",
+			((roompolicy == 0) ? "CHECKED" : "") );
+		wprintf("Use the default policy for this floor<BR>\n");
+		wprintf("<INPUT TYPE=\"radio\" NAME=\"roompolicy\" VALUE=\"1\" %s>",
+			((roompolicy == 1) ? "CHECKED" : "") );
+		wprintf("Never automatically expire messages<BR>\n");
+		wprintf("<INPUT TYPE=\"radio\" NAME=\"roompolicy\" VALUE=\"2\" %s>",
+			((roompolicy == 2) ? "CHECKED" : "") );
+		wprintf("Expire by message count<BR>\n");
+		wprintf("<INPUT TYPE=\"radio\" NAME=\"roompolicy\" VALUE=\"3\" %s>",
+			((roompolicy == 3) ? "CHECKED" : "") );
+		wprintf("Expire by message age<BR>");
+		wprintf("Number of messages or days: ");
+		wprintf("<INPUT TYPE=\"text\" NAME=\"roomvalue\" MAXLENGTH=\"5\" VALUE=\"%d\">", roomvalue);
+		wprintf("</TD></TR>\n");
+
+		if (WC->axlevel >= 6) {
+			wprintf("<TR><TD COLSPAN=2><HR></TD></TR>\n");
+			wprintf("<TR><TD>Message expire policy for this floor<BR>(");
+			escputs(floorlist[WC->wc_floor]);
+			wprintf(")</TD><TD>");
+			wprintf("<INPUT TYPE=\"radio\" NAME=\"floorpolicy\" VALUE=\"0\" %s>",
+				((floorpolicy == 0) ? "CHECKED" : "") );
+			wprintf("Use the system default<BR>\n");
+			wprintf("<INPUT TYPE=\"radio\" NAME=\"floorpolicy\" VALUE=\"1\" %s>",
+				((floorpolicy == 1) ? "CHECKED" : "") );
+			wprintf("Never automatically expire messages<BR>\n");
+			wprintf("<INPUT TYPE=\"radio\" NAME=\"floorpolicy\" VALUE=\"2\" %s>",
+				((floorpolicy == 2) ? "CHECKED" : "") );
+			wprintf("Expire by message count<BR>\n");
+			wprintf("<INPUT TYPE=\"radio\" NAME=\"floorpolicy\" VALUE=\"3\" %s>",
+				((floorpolicy == 3) ? "CHECKED" : "") );
+			wprintf("Expire by message age<BR>");
+			wprintf("Number of messages or days: ");
+			wprintf("<INPUT TYPE=\"text\" NAME=\"floorvalue\" MAXLENGTH=\"5\" VALUE=\"%d\">",
+				floorvalue);
+		}
+
+		wprintf("<CENTER>\n");
+		wprintf("<TR><TD COLSPAN=2><HR><CENTER>\n");
+		wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
+		wprintf("&nbsp;");
+		wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
+		wprintf("</CENTER></TD><TR>\n");
+
+		wprintf("</TABLE>\n"
+			"<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"expire\">\n"
+			"</FORM>\n"
+		);
+
+	}
+
+
 	/* end content of whatever tab is open now */
 	wprintf("</TD></TR></TABLE>\n");
 
@@ -1131,7 +1230,7 @@ void editroom(void)
 	if (strcmp(bstr("sc"), "OK")) {
 		strcpy(WC->ImportantMessage,
 			"Cancelled.  Changes were not saved.");
-		display_main_menu();
+		display_editroom();
 		return;
 	}
 	serv_puts("GETR");
@@ -1139,7 +1238,7 @@ void editroom(void)
 
 	if (buf[0] != '2') {
 		strcpy(WC->ImportantMessage, &buf[4]);
-		display_main_menu();
+		display_editroom();
 		return;
 	}
 	extract(er_name, &buf[4], 0);
@@ -1252,7 +1351,7 @@ void editroom(void)
 	serv_gets(buf);
 	if (buf[0] != '2') {
 		strcpy(WC->ImportantMessage, &buf[4]);
-		display_main_menu();
+		display_editroom();
 		return;
 	}
 	gotoroom(er_name, 0);
@@ -1268,7 +1367,8 @@ void editroom(void)
 		}
 	}
 	gotoroom(er_name, 0);
-	display_main_menu();
+	strcpy(WC->ImportantMessage, "Your changes have been saved.");
+	display_editroom();
 	return;
 }
 
@@ -1430,6 +1530,7 @@ void display_entroom(void)
 
 	wprintf("<CENTER>\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
+	wprintf("&nbsp;");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 	wprintf("</CENTER>\n");
 	wprintf("</FORM>\n<HR>");
@@ -1624,6 +1725,7 @@ void display_zap(void)
 
 	wprintf("<FORM METHOD=\"GET\" ACTION=\"/zap\">\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
+	wprintf("&nbsp;");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 	wprintf("</FORM>\n");
 	wDumpContent(1);
@@ -2158,4 +2260,33 @@ void knrooms() {
 
 	/* Display the room list in the user's preferred format */
 	list_all_rooms_by_floor(listviewpref);
+}
+
+
+
+/* 
+ * Set the message expire policy for this room and/or floor
+ */
+void set_room_policy(void) {
+	char buf[SIZ];
+
+	if (strcmp(bstr("sc"), "OK")) {
+		strcpy(WC->ImportantMessage,
+			"Cancelled.  Changes were not saved.");
+		display_editroom();
+		return;
+	}
+
+	serv_printf("SPEX room|%d|%d", atoi(bstr("roompolicy")), atoi(bstr("roomvalue")));
+	serv_gets(buf);
+	strcpy(WC->ImportantMessage, &buf[4]);
+
+	if (WC->axlevel >= 6) {
+		strcat(WC->ImportantMessage, "<BR>\n");
+		serv_printf("SPEX floor|%d|%d", atoi(bstr("floorpolicy")), atoi(bstr("floorvalue")));
+		serv_gets(buf);
+		strcat(WC->ImportantMessage, &buf[4]);
+	}
+
+	display_editroom();
 }

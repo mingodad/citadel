@@ -287,6 +287,7 @@ void display_generic(void)
 	wprintf("<FONT SIZE=-2>Detected host header is http://%s</FONT>\n",
 		WC->http_host);
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Send command\">");
+	wprintf("&nbsp;");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
 
 	wprintf("</FORM></CENTER>\n");

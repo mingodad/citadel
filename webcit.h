@@ -193,6 +193,7 @@ struct wcsession {
 	unsigned room_flags;
 	int wc_view;
 	int wc_default_view;
+	int wc_floor;
 	char ugname[128];
 	long uglsn;
 	int upload_length;
@@ -420,6 +421,7 @@ int load_msg_ptrs(char *servcmd);
 void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen);
 int CtdlDecodeBase64(char *dest, const char *source, size_t length);
 void free_attachments(struct wcsession *sess);
+void set_room_policy(void);
 
 
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE

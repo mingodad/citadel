@@ -1,4 +1,13 @@
 $Log$
+Revision 522.12  2004/07/10 03:10:19  ajc
+* Completed web screens for THE DREADED AUTO-PURGER by adding room and
+  floor level configurations.
+* Put a space between OK and CANCEL buttons anywhere in the system where
+  there wasn't one.
+* Some more of the room config/admin screens now return to themselves
+  with a "ok, you did that" message when OK is pressed, instead of dropping
+  out to the main menu.
+
 Revision 522.11  2004/07/08 03:03:01  ajc
 * Added global settings for THE DREADED AUTO-PURGER to the site-wide
   configuration (public rooms default and mailboxes default).  Still need
@@ -1959,4 +1968,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
