@@ -17,7 +17,7 @@
 #define UUDECODE	"/usr/bin/uudecode"
 
 /* Uncomment the DEBUG def to see noisy traces */
-/* #define DEBUG 1 */
+#define DEBUG 1
 
 
 #include "sysdep.h"
@@ -307,6 +307,11 @@ int set_lockfile(void)
 			return 1;
 	}
 	lfp = fopen(LOCKFILE, "w");
+	if (lfp == NULL) {
+		syslog(LOG_NOTICE, "Cannot create %s: %s", LOCKFILE,
+			strerror(errno));
+		return(1);
+	}
 	fprintf(lfp, "%ld\n", (long) getpid());
 	fclose(lfp);
 	return (0);
@@ -846,6 +851,10 @@ void inprocess(void)
 			do {
 SKIP:				ptr = fgets(sfilename, sizeof sfilename, ls);
 				if (ptr != NULL) {
+#ifdef DEBUG
+					syslog(LOG_DEBUG,
+						"Trying %s", sfilename);
+#endif
 					sfilename[strlen(sfilename) - 1] = 0;
 					if (!strcmp(sfilename, ".")) goto SKIP;
 					if (!strcmp(sfilename, "..")) goto SKIP;
@@ -1437,8 +1446,14 @@ int main(int argc, char **argv)
 		}
 	}
 
+#ifdef DEBUG
+	syslog(LOG_DEBUG, "Calling get_config()");
+#endif
 	get_config();
 
+#ifdef DEBUG
+	syslog(LOG_DEBUG, "Creating lock file");
+#endif
 	if (set_lockfile() != 0) {
 		syslog(LOG_NOTICE, "lock file exists: already running");
 		cleanup(1);
