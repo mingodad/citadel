@@ -66,8 +66,13 @@ void calendar_month_view_display_events(time_t thetime) {
 							WC->disp_cal[i],
 							ICAL_SUMMARY_PROPERTY);
 				if (p != NULL) {
+					wprintf("<FONT SIZE=-1>"
+						"<A HREF=\"/display_edit_event?msgnum=%ld\">",
+						WC->cal_msgnum[i]
+					);
 					escputs((char *)
 						icalproperty_get_comment(p));
+					wprintf("</A></FONT>\n");
 				}
 
 			}
@@ -95,12 +100,10 @@ void calendar_month_view(int year, int month, int day) {
 	starting_tm.tm_mon = month - 1;
 	starting_tm.tm_mday = day;
 	thetime = mktime(&starting_tm);
-	lprintf(9, "Starting at %s", asctime(localtime(&thetime)));
 
 	tm = &starting_tm;
 	while (tm->tm_mday != 1) {
 		thetime = thetime - (time_t)86400;	/* go back 24 hours */
-		lprintf(9, "Backing off to %s", asctime(localtime(&thetime)));
 		tm = localtime(&thetime);
 	}
 
@@ -114,7 +117,6 @@ void calendar_month_view(int year, int month, int day) {
 	tm = localtime(&thetime);
 	while (tm->tm_wday != 0) {
 		thetime = thetime - (time_t)86400;	/* go back 24 hours */
-		lprintf(9, "Backing off to %s", asctime(localtime(&thetime)));
 		tm = localtime(&thetime);
 	}
 
@@ -202,19 +204,16 @@ void calendar_day_view(int year, int month, int day) {
 	starting_tm.tm_mon = month - 1;
 	starting_tm.tm_mday = day;
 	thetime = mktime(&starting_tm);
-	lprintf(9, "Starting at %s", asctime(localtime(&thetime)));
+
+	wprintf("<CENTER><H3>%s %d, %d</H3></CENTER>\n",
+		months[month-1], day, year);
 
 	/* put the data here, stupid */
 	calendar_month_view_display_events(thetime);
 
-	wprintf("<CENTER><I>FIXME day view for %02d/%02d/%04d</I>"
-		"</CENTER><BR>\n", month, day, year);
 	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">"
 		"Back to month view</A><BR>\n", year, month);
-
-
 }
-
 
 
 

@@ -553,4 +553,34 @@ void save_task(void) {
 	}
 }
 
+void display_edit_event(void) {
+	long msgnum = 0L;
+
+	msgnum = atol(bstr("msgnum"));
+	if (msgnum > 0L) {
+		/* existing event */
+		display_using_handler(msgnum, "text/calendar",
+				ICAL_VEVENT_COMPONENT,
+				display_edit_individual_event);
+	}
+	else {
+		/* new event */
+		display_edit_individual_event(NULL, 0L);
+	}
+}
+
+void save_event(void) {
+	long msgnum = 0L;
+
+	msgnum = atol(bstr("msgnum"));
+	if (msgnum > 0L) {
+		display_using_handler(msgnum, "text/calendar",
+				ICAL_VTODO_COMPONENT,
+				save_individual_event);
+	}
+	else {
+		save_individual_event(NULL, 0L);
+	}
+}
+
 #endif /* HAVE_ICAL_H */
