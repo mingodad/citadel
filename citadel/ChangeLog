@@ -4,6 +4,7 @@ Sat Nov 21 16:53:30 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	  server-side support for this too, of course.
 	* import.c: removed
 	* serv_expire.c: finished the code to purge stale visits
+	* sysdep.c: strip trailing nonprintables in client_gets()
 
 Fri Nov 20 20:29:07 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* setup.c: removed all prompts that can be configured from within the

@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <ctype.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -432,9 +433,11 @@ int client_gets(char *buf)
 		while (buf[i] != '\n' && retval == 1)
 			retval = client_read(&buf[i], 1);
 
-	/* Strip the trailing newline.
+	/* Strip the trailing newline and any trailing nonprintables (cr's)
 	 */
 	buf[i] = 0;
+	while ((strlen(buf)>0)&&(!isprint(buf[strlen(buf)-1])))
+		buf[strlen(buf)-1] = 0;
 	return(retval);
 	}
 
