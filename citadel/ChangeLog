@@ -1,4 +1,7 @@
  $Log$
+ Revision 620.13  2004/04/13 21:09:20  error
+ * citadel.spec: Updated for 6.20p1
+
  Revision 620.12  2004/04/13 18:31:40  ajc
  * serv_calendar.c: ICAL FREEBUSY command now tries the supplied name not
    only as a screen name, but as an email address, and then as an
@@ -5681,4 +5684,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

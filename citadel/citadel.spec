@@ -1,15 +1,16 @@
 # $Id$
 Summary: Citadel/UX, the flexible, powerful way to build online communities
 Name: citadel
-Version: 6.20
-Release: 1
+Version: 6.20p1
+Release: 2
 Copyright: GPL
 Group: Applications/Communications
-Source0: http://uncensored.citadel.org/pub/citadel/citadel-ux-%{PACKAGE_VERSION}.tar.gz
+Source0: http://my.citadel.org/download/citadel-ux-%{PACKAGE_VERSION}.tar.gz
 Buildroot: /var/tmp/citadel-%{PACKAGE_VERSION}-root
 Icon: citux-64x64.xpm
 Vendor: Citadel/UX Development Team
 URL:  http://uncensored.citadel.org/citadel/
+Requires: openldap-servers
 #Autoprov: false
 ExcludeOS: hpux
 
@@ -22,7 +23,7 @@ driven, and accessible via a growing selection of front ends.
 %setup -n citadel
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" ./configure --with-pam
+CFLAGS="$RPM_OPT_FLAGS" ./configure --with-pam --enable-autologin --with-ldap --with-newt --with-libical
 make
 
 %install
@@ -30,6 +31,11 @@ rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/etc/pam.d
 make root=$RPM_BUILD_ROOT install
 touch $RPM_BUILD_ROOT/usr/local/citadel/.hushlogin
+# Things that shouldn't be "installed" but were anyway
+rm -f $RPM_BUILD_ROOT/"/usr/local/citadel/help/?"
+rm -f $RPM_BUILD_ROOT/usr/local/citadel/README.txt
+rm -rf $RPM_BUILD_ROOT/usr/local/citadel/docs
+rm -rf $RPM_BUILD_ROOT/usr/local/citadel/techdoc
 
 %clean
 rm -rf "$RPM_BUILD_ROOT"
@@ -46,15 +52,16 @@ Obsoletes: citadel-imap
 Obsoletes: citadel-mrtg
 Obsoletes: citadel-calendar
 %description server
-Citadel/UX is an advanced messaging system which can be used for BBS,
-groupware, and online community applications.  It is multithreaded,
+Citadel/UX is an advanced messaging system which can be used for BBS, email,
+groupware and online community applications.  It is multithreaded,
 client/server, database driven, and accessible via a growing selection of
-front ends.  Remember to run /usr/local/citadel/setup after installing or
-upgrading this package.
+front ends.
 %defattr(-,root,root)
 %files server
 /etc/pam.d/citadel
-%doc docs/citadel.html
+%doc docs/*
+%doc techdoc
+%doc README.txt
 %dir /usr/local/citadel/bio
 %dir /usr/local/citadel/bitbucket
 %dir /usr/local/citadel/files
@@ -69,7 +76,6 @@ upgrading this package.
 /usr/local/citadel/msgform
 /usr/local/citadel/sendcommand
 /usr/local/citadel/setup
-/usr/local/citadel/stats
 /usr/local/citadel/stress
 /usr/local/citadel/userlist
 /usr/local/citadel/utilsmenu
@@ -80,7 +86,7 @@ upgrading this package.
 %post server
 if [ -f /etc/inittab ]; then
 	if ! grep 'citserver' /etc/inittab > /dev/null; then
-		echo "c1:2345:/usr/local/citadel/citserver -h/usr/local/citadel -x7 -llocal4" >> /etc/inittab
+		echo "c1:2345:respawn:/usr/local/citadel/citserver -h/usr/local/citadel -x7 -llocal4" >> /etc/inittab
 	fi
 fi
 if [ -f /etc/services ]; then
