@@ -413,7 +413,7 @@ struct ser_ret {
 
 
 /* Preferred field order */
-/*               *********			Important fields */
-/*                        ****************	Semi-important fields */
+/*               **********			Important fields */
+/*                         ***************	Semi-important fields */
 /*                                        * 	Message text (MUST be last) */
-#define FORDER	"IPTAONHRDBCEFGJKLQSUVWXYZM"
+#define FORDER	"IPTAFONHRDBCEGJKLQSUVWXYZM"

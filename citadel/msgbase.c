@@ -49,7 +49,8 @@ char *msgkeys[] = {
 	"from",
 	"", "", "",
 	"exti",
-	"", "", 
+	"rfca",
+	"", 
 	"hnod",
 	"msgn",
 	"", "", "",
@@ -759,6 +760,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	/* buffers needed for RFC822 translation */
 	char suser[256];
 	char luser[256];
+	char fuser[256];
 	char snode[256];
 	char lnode[256];
 	char mid[256];
@@ -897,6 +899,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 
 	strcpy(suser, "");
 	strcpy(luser, "");
+	strcpy(fuser, "");
 	strcpy(snode, NODENAME);
 	strcpy(lnode, HUMANNODE);
 	if (mode == MT_RFC822) {
@@ -943,7 +946,14 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		}
 		cprintf("Message-ID: <%s@%s>%s", mid, snode, nl);
 		PerformUserHooks(luser, (-1L), EVT_OUTPUTMSG);
-		cprintf("From: %s@%s (%s)%s", suser, snode, luser, nl);
+
+		if (strlen(fuser) > 0) {
+			cprintf("From: %s (%s)%s", fuser, luser, nl);
+		}
+		else {
+			cprintf("From: %s@%s (%s)%s", suser, snode, luser, nl);
+		}
+
 		cprintf("Organization: %s%s", lnode, nl);
 	}
 

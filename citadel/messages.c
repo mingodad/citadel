@@ -403,6 +403,15 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 			}
 		if (!struncmp(buf,"subj=",5))
 			strcpy(m_subject,&buf[5]);
+
+		if (!struncmp(buf,"rfca=",5)) {
+			color(DIM_WHITE);
+			printf("<");
+			color(BRIGHT_BLUE);
+			printf("%s",&buf[5]);
+			color(DIM_WHITE);
+			printf("> ");
+			}
 		if ((!struncmp(buf,"hnod=",5)) 
 		   && (strucmp(&buf[5],serv_info.serv_humannode))) {
 			color(DIM_WHITE);

@@ -90,6 +90,8 @@ E	Extended ID	A persistent alphanumeric Message ID used for
 			message should be deleted.  If there exist any messages
 			with the same Extended ID that are *newer*, then this
 			message should be dropped.
+F	rFc821 address	For Internet mail, this is the delivery address of the
+			message author.
 G	Gateway domain	This field is provided solely for the implementation
                         of C86Net gateways, and holds the C86Net domain of
                         the system this message originated on.  Unless you're

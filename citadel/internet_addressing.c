@@ -367,7 +367,10 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 	int colonpos = (-1);
 	int processed = 0;
 	char buf[256];
-	char *user, *node, *name;
+	char user[1024];
+	char node[1024];
+	char name[1024];
+	char addr[1024];
 	time_t parsed_date;
 
 	rfc822 = msg->cm_fields['M'];	/* M field contains rfc822 text */
@@ -404,23 +407,14 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 	}
 
 	else if (!strcasecmp(key, "From")) {
-		user = mallok(1024);
-		node = mallok(1024);
-		name = mallok(1024);
 		process_rfc822_addr(value, user, node, name);
 		lprintf(9, "Converted to <%s@%s> (%s)\n", user, node, name);
+		sprintf(addr, "%s@%s", user, node);
 		if (msg->cm_fields['A'] == NULL)
-			msg->cm_fields['A'] = user;
-		else
-			phree(user);
-		if (msg->cm_fields['N'] == NULL)
-			msg->cm_fields['N'] = node;
-		else
-			phree(node);
-		if (msg->cm_fields['H'] == NULL)
-			msg->cm_fields['H'] = name;
-		else
-			phree(name);
+			msg->cm_fields['A'] = strdoop(name);
+		processed = 1;
+		if (msg->cm_fields['F'] == NULL)
+			msg->cm_fields['F'] = strdoop(addr);
 		processed = 1;
 	}
 
