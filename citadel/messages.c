@@ -1204,11 +1204,10 @@ RMSGREAD:	fflush(stdout);
 			color(DIM_WHITE);
 			printf(") ");
 
-			keyopt
-			    ("<B>ack <A>gain <Q>uote <R>eply <N>ext <S>top M<y> next ");
+			keyopt("<B>ack <A>gain <Q>uote <R>eply <N>ext <S>top m<Y> next ");
 			if (rc_url_cmd[0] && num_urls)
-				keyopt("<U>RL View ");
-			keyopt("<?>Help/others -> ");
+				keyopt("<U>RLview ");
+			keyopt("<?>help -> ");
 
 			do {
 				lines_printed = 2;
@@ -1283,7 +1282,7 @@ RMSGREAD:	fflush(stdout);
 				printf("URL's\r");
 				break;
 			case 'y':
-				printf("My next\r");
+				printf("mY next\r");
 				break;
 			case '?':
 				printf("? <help>\r");

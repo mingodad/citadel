@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.24  2001/12/29 05:19:32  ajc
+ * Minor cosmetic hack
+
  Revision 590.23  2001/12/29 04:21:22  nixo
  stupid me. I didn't realize that asking for the header did what I wanted
  so I changed my little 'y' hack to not bother reading the text of the
@@ -3025,3 +3028,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
