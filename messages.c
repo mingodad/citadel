@@ -258,11 +258,20 @@ void readloop(char *oper)
 
 
 /*
- * post message (or don't post message)
+ * Post message (or don't post message)
+ *
+ * Note regarding the "dont_post" variable:
+ * A random value (actually, it's just a timestamp) is inserted as a hidden
+ * field called "postseq" when the display_enter page is generated.  This
+ * value is checked when posting, using the static variable dont_post.  If a
+ * user attempts to post twice using the same dont_post value, the message is
+ * discarded.  This prevents the accidental double-saving of the same message
+ * if the user happens to click the browser "back" button.
  */
 void post_message(void)
 {
 	char buf[256];
+	static long dont_post = (-1L);
 
 	printf("HTTP/1.0 200 OK\n");
 	output_headers(1);
@@ -271,6 +280,9 @@ void post_message(void)
 	strcpy(buf, bstr("sc"));
 	if (strcasecmp(buf, "Save message")) {
 		wprintf("Cancelled.  Message was not posted.<BR>\n");
+	} else if (atol(bstr("postseq")) == dont_post) {
+		wprintf("Automatically cancelled because you have already "
+			"saved this message.<BR>\n");
 	} else {
 		sprintf(buf, "ENT0 1|%s|0|0", bstr("recp"));
 		serv_puts(buf);
@@ -279,6 +291,7 @@ void post_message(void)
 			text_to_server(bstr("msgtext"));
 			serv_puts("000");
 			wprintf("Message has been posted.<BR>\n");
+			dont_post = atol(bstr("postseq"));
 		} else {
 			wprintf("<EM>%s</EM><BR>\n", &buf[4]);
 		}
@@ -350,7 +363,7 @@ void display_enter(void)
 	wprintf("formatting, indent a line at least one space.  \n");
 	wprintf("<BR>");
 
-	time(&now);
+	now = time(NULL);
 	tm = (struct tm *) localtime(&now);
 	strcpy(buf, (char *) asctime(tm));
 	buf[strlen(buf) - 1] = 0;
@@ -365,13 +378,16 @@ void display_enter(void)
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/post\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"recp\" VALUE=\"%s\">\n",
 		bstr("recp"));
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save message\">");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"postseq\" VALUE=\"%ld\">\n",
+		now);
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save message\">"
+		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
 
-	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=30 COLS=80 WIDTH=80></TEXTAREA><P>\n");
+	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=30 COLS=80 "
+		"WIDTH=80></TEXTAREA><P>\n");
 
 	wprintf("</FORM></CENTER>\n");
-      DONE:wDumpContent(1);
+DONE:	wDumpContent(1);
 	wprintf("</FONT>");
 }
 

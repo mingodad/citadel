@@ -183,9 +183,6 @@ void edit_me(void)
 {
 	char buf[256];
 
-	printf("HTTP/1.0 200 OK\n");
-	output_headers(1);
-
 	if (!strcasecmp(bstr("sc"), "Change room name")) {
 		serv_printf("RCHG %s", bstr("fake_roomname"));
 		serv_gets(buf);
@@ -201,6 +198,9 @@ void edit_me(void)
 	} else if (!strcasecmp(bstr("sc"), "Cancel")) {
 		whobbs();
 	} else {
+
+		printf("HTTP/1.0 200 OK\n");
+		output_headers(1);
 
 		wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
 		wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\" SIZE=+1 COLOR=\"FFFFFF\"><B>");

@@ -1,3 +1,8 @@
+Thu Jun  3 12:18:49 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* roomops.c: made room banner graphics more reliable
+	* messages.c: added code to prevent accidental "double-posting"
+	* who.c: fixed the "Change room/host/user" submit logic
+
 Thu Jun  2 09:48:00 EDT 1999 Nick Grossman <nick@ulster.net>
 	* Changed static/menubar.html so the text is readable
 
