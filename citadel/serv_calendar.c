@@ -107,7 +107,7 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
  * 
  * ok
  */
-void ical_write_to_cal(struct user *u, icalcomponent *cal) {
+void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 	char temp[PATH_MAX];
 	FILE *fp;
 	char *ser;
@@ -1137,7 +1137,7 @@ void ical_freebusy_backend(long msgnum, void *data) {
  * Grab another user's free/busy times
  */
 void ical_freebusy(char *who) {
-	struct user usbuf;
+	struct ctdluser usbuf;
 	char calendar_room_name[ROOMNAMELEN];
 	char hold_rm[ROOMNAMELEN];
 	char *serialized_request = NULL;
@@ -1281,7 +1281,7 @@ void cmd_ical(char *argbuf)
  */
 void ical_create_room(void)
 {
-	struct room qr;
+	struct ctdlroom qr;
 	struct visit vbuf;
 
 	/* Create the calendar room if it doesn't already exist */

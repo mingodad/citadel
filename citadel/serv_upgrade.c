@@ -46,7 +46,7 @@
 
 void do_pre555_user_upgrade(void) {
         struct pre555user usbuf;
-	struct user newus;
+	struct ctdluser newus;
         struct cdbdata *cdbus;
 	char tempfilename[PATH_MAX];
 	FILE *fp, *tp;
@@ -76,7 +76,7 @@ void do_pre555_user_upgrade(void) {
 	while (fread(&usbuf, sizeof(struct pre555user), 1, fp) > 0) {
 	    if (strlen(usbuf.fullname) > 0) {
 		lprintf(9, "Upgrading <%s>\n", usbuf.fullname);
-		memset(&newus, 0, sizeof(struct user));
+		memset(&newus, 0, sizeof(struct ctdluser));
 
 		newus.uid = usbuf.USuid;
 		strcpy(newus.password, usbuf.password);
@@ -133,10 +133,10 @@ void do_pre555_user_upgrade(void) {
 /* 
  * Back end processing function for cmd_bmbx
  */
-void cmd_bmbx_backend(struct room *qrbuf, void *data) {
+void cmd_bmbx_backend(struct ctdlroom *qrbuf, void *data) {
 	static struct RoomProcList *rplist = NULL;
 	struct RoomProcList *ptr;
-	struct room qr;
+	struct ctdlroom qr;
 
 	/* Lazy programming here.  Call this function as a ForEachRoom backend
 	 * in order to queue up the room names, or call it with a null room
@@ -188,10 +188,10 @@ void bump_mailbox_generation_numbers(void) {
 /* 
  * Back end processing function for convert_bbsuid_to_minusone()
  */
-void cbtm_backend(struct user *usbuf, void *data) {
+void cbtm_backend(struct ctdluser *usbuf, void *data) {
 	static struct UserProcList *uplist = NULL;
 	struct UserProcList *ptr;
-	struct user us;
+	struct ctdluser us;
 
 	/* Lazy programming here.  Call this function as a ForEachUser backend
 	 * in order to queue up the room names, or call it with a null user

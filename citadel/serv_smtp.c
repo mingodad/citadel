@@ -62,7 +62,7 @@
 struct citsmtp {		/* Information about the current session */
 	int command_state;
 	char helo_node[SIZ];
-	struct user vrfy_buffer;
+	struct ctdluser vrfy_buffer;
 	int vrfy_count;
 	char vrfy_match[SIZ];
 	char from[SIZ];
@@ -230,11 +230,11 @@ void smtp_auth(char *argbuf) {
 /*
  * Back end for smtp_vrfy() command
  */
-void smtp_vrfy_backend(struct user *us, void *data) {
+void smtp_vrfy_backend(struct ctdluser *us, void *data) {
 
 	if (!fuzzy_match(us, SMTP->vrfy_match)) {
 		++SMTP->vrfy_count;
-		memcpy(&SMTP->vrfy_buffer, us, sizeof(struct user));
+		memcpy(&SMTP->vrfy_buffer, us, sizeof(struct ctdluser));
 	}
 }
 
@@ -269,7 +269,7 @@ void smtp_vrfy(char *argbuf) {
 /*
  * Back end for smtp_expn() command
  */
-void smtp_expn_backend(struct user *us, void *data) {
+void smtp_expn_backend(struct ctdluser *us, void *data) {
 
 	if (!fuzzy_match(us, SMTP->vrfy_match)) {
 
@@ -281,7 +281,7 @@ void smtp_expn_backend(struct user *us, void *data) {
 		}
 
 		++SMTP->vrfy_count;
-		memcpy(&SMTP->vrfy_buffer, us, sizeof(struct user));
+		memcpy(&SMTP->vrfy_buffer, us, sizeof(struct ctdluser));
 	}
 }
 
@@ -1407,7 +1407,7 @@ void cmd_smtp(char *argbuf) {
  * Initialize the SMTP outbound queue
  */
 void smtp_init_spoolout(void) {
-	struct room qrbuf;
+	struct ctdlroom qrbuf;
 
 	/*
 	 * Create the room.  This will silently fail if the room already

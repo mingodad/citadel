@@ -24,7 +24,7 @@ by Citadel.  Here are some of the tables we keep on disk:
 user name (translated to lower case for indexing purposes).  The records in
 this file look something like this:
 
-struct user {                       /* User record                      */
+struct ctdluser {                       /* User record                      */
         int version;                    /* Cit vers. which created this rec */
         uid_t uid;                      /* Associate with a unix account?   */
         char password[32];              /* password (for BBS-only users)    */
@@ -66,7 +66,7 @@ information so we set it up dynamically.
 system, public or private or mailbox.  It's indexed by room name (also in
 lower case for easy indexing) and it contains records which look like this:
 
-struct room {
+struct ctdlroom {
         char QRname[ROOMNAMELEN];       /* Name of room                     */
         char QRpasswd[10];              /* Only valid if it's a private rm  */
         long QRroomaide;                /* User number of room aide         */

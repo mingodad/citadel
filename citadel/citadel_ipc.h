@@ -164,8 +164,8 @@ int CtdlIPCCreateUser(CtdlIPC *ipc, const char *username, int selfservice,
 int CtdlIPCChangePassword(CtdlIPC *ipc, const char *passwd, char *cret);
 int CtdlIPCKnownRooms(CtdlIPC *ipc, enum RoomList which, int floor,
 		struct march **listing, char *cret);
-int CtdlIPCGetConfig(CtdlIPC *ipc, struct user **uret, char *cret);
-int CtdlIPCSetConfig(CtdlIPC *ipc, struct user *uret, char *cret);
+int CtdlIPCGetConfig(CtdlIPC *ipc, struct ctdluser **uret, char *cret);
+int CtdlIPCSetConfig(CtdlIPC *ipc, struct ctdluser *uret, char *cret);
 int CtdlIPCGotoRoom(CtdlIPC *ipc, const char *room, const char *passwd,
 		struct ctdlipcroom **rret, char *cret);
 int CtdlIPCGetMessages(CtdlIPC *ipc, enum MessageList which, int whicharg,
@@ -179,8 +179,8 @@ int CtdlIPCReadDirectory(CtdlIPC *ipc, char **listing, char *cret);
 int CtdlIPCSetLastRead(CtdlIPC *ipc, long msgnum, char *cret);
 int CtdlIPCInviteUserToRoom(CtdlIPC *ipc, const char *username, char *cret);
 int CtdlIPCKickoutUserFromRoom(CtdlIPC *ipc, const char *username, char *cret);
-int CtdlIPCGetRoomAttributes(CtdlIPC *ipc, struct room **qret, char *cret);
-int CtdlIPCSetRoomAttributes(CtdlIPC *ipc, int forget, struct room *qret,
+int CtdlIPCGetRoomAttributes(CtdlIPC *ipc, struct ctdlroom **qret, char *cret);
+int CtdlIPCSetRoomAttributes(CtdlIPC *ipc, int forget, struct ctdlroom *qret,
 		char *cret);
 int CtdlIPCGetRoomAide(CtdlIPC *ipc, char *cret);
 int CtdlIPCSetRoomAide(CtdlIPC *ipc, const char *username, char *cret);
@@ -260,8 +260,8 @@ int CtdlIPCChangeRoomname(CtdlIPC *ipc, const char *roomname, char *cret);
 int CtdlIPCChangeUsername(CtdlIPC *ipc, const char *username, char *cret);
 time_t CtdlIPCServerTime(CtdlIPC *ipc, char *crert);
 int CtdlIPCAideGetUserParameters(CtdlIPC *ipc, const char *who,
-				 struct user **uret, char *cret);
-int CtdlIPCAideSetUserParameters(CtdlIPC *ipc, const struct user *uret, char *cret);
+				 struct ctdluser **uret, char *cret);
+int CtdlIPCAideSetUserParameters(CtdlIPC *ipc, const struct ctdluser *uret, char *cret);
 int CtdlIPCGetMessageExpirationPolicy(CtdlIPC *ipc, int which,
 		struct ExpirePolicy **policy, char *cret);
 int CtdlIPCSetMessageExpirationPolicy(CtdlIPC *ipc, int which,

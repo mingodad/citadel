@@ -71,7 +71,7 @@ time_t server_startup_time;
  */
 void master_startup(void) {
 	struct timeval tv;
-	struct room qrbuf;
+	struct ctdlroom qrbuf;
 	
 	lprintf(9, "master_startup() started\n");
 	time(&server_startup_time);

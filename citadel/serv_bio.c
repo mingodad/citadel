@@ -78,7 +78,7 @@ void cmd_ebio(char *cmdbuf) {
  */
 void cmd_rbio(char *cmdbuf)
 {
-	struct user ruser;
+	struct ctdluser ruser;
 	char buf[SIZ];
 	FILE *fp;
 
@@ -108,7 +108,7 @@ void cmd_rbio(char *cmdbuf)
 void cmd_lbio(char *cmdbuf) {
 	char buf[SIZ];
 	FILE *ls;
-	struct user usbuf;
+	struct ctdluser usbuf;
 
 	ls=popen("cd ./bio; ls","r");
 	if (ls==NULL) {

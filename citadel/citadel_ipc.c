@@ -328,14 +328,14 @@ int CtdlIPCKnownRooms(CtdlIPC *ipc, enum RoomList which, int floor, struct march
 
 
 /* GETU */
-/* Caller must free the struct user; caller may pass an existing one */
-int CtdlIPCGetConfig(CtdlIPC *ipc, struct user **uret, char *cret)
+/* Caller must free the struct ctdluser; caller may pass an existing one */
+int CtdlIPCGetConfig(CtdlIPC *ipc, struct ctdluser **uret, char *cret)
 {
 	register int ret;
 
 	if (!cret) return -2;
 	if (!uret) return -2;
-	if (!*uret) *uret = (struct user *)calloc(1, sizeof (struct user));
+	if (!*uret) *uret = (struct ctdluser *)calloc(1, sizeof (struct ctdluser));
 	if (!*uret) return -1;
 
 	ret = CtdlIPCGenericCommand(ipc, "GETU", NULL, 0, NULL, NULL, cret);
@@ -349,7 +349,7 @@ int CtdlIPCGetConfig(CtdlIPC *ipc, struct user **uret, char *cret)
 
 
 /* SETU */
-int CtdlIPCSetConfig(CtdlIPC *ipc, struct user *uret, char *cret)
+int CtdlIPCSetConfig(CtdlIPC *ipc, struct ctdluser *uret, char *cret)
 {
 	char aaa[48];
 
@@ -736,13 +736,13 @@ int CtdlIPCKickoutUserFromRoom(CtdlIPC *ipc, const char *username, char *cret)
 
 
 /* GETR */
-int CtdlIPCGetRoomAttributes(CtdlIPC *ipc, struct room **qret, char *cret)
+int CtdlIPCGetRoomAttributes(CtdlIPC *ipc, struct ctdlroom **qret, char *cret)
 {
 	register int ret;
 
 	if (!cret) return -2;
 	if (!qret) return -2;
-	if (!*qret) *qret = (struct room *)calloc(1, sizeof (struct room));
+	if (!*qret) *qret = (struct ctdlroom *)calloc(1, sizeof (struct ctdlroom));
 	if (!*qret) return -1;
 
 	ret = CtdlIPCGenericCommand(ipc, "GETR", NULL, 0, NULL, NULL, cret);
@@ -762,7 +762,7 @@ int CtdlIPCGetRoomAttributes(CtdlIPC *ipc, struct room **qret, char *cret)
 
 /* SETR */
 /* set forget to kick all users out of room */
-int CtdlIPCSetRoomAttributes(CtdlIPC *ipc, int forget, struct room *qret, char *cret)
+int CtdlIPCSetRoomAttributes(CtdlIPC *ipc, int forget, struct ctdlroom *qret, char *cret)
 {
 	register int ret;
 	char *aaa;
@@ -1663,14 +1663,14 @@ time_t CtdlIPCServerTime(CtdlIPC *ipc, char *cret)
 
 /* AGUP */
 int CtdlIPCAideGetUserParameters(CtdlIPC *ipc, const char *who,
-				 struct user **uret, char *cret)
+				 struct ctdluser **uret, char *cret)
 {
 	register int ret;
 	char aaa[SIZ];
 
 	if (!cret) return -2;
 	if (!uret) return -2;
-	if (!*uret) *uret = (struct user *)calloc(1, sizeof(struct user));
+	if (!*uret) *uret = (struct ctdluser *)calloc(1, sizeof(struct ctdluser));
 	if (!*uret) return -1;
 
 	sprintf(aaa, "AGUP %s", who);
@@ -1692,7 +1692,7 @@ int CtdlIPCAideGetUserParameters(CtdlIPC *ipc, const char *who,
 
 
 /* ASUP */
-int CtdlIPCAideSetUserParameters(CtdlIPC *ipc, const struct user *uret, char *cret)
+int CtdlIPCAideSetUserParameters(CtdlIPC *ipc, const struct ctdluser *uret, char *cret)
 {
 	register int ret;
 	char *aaa;

@@ -58,7 +58,7 @@
  * getuser()  -  retrieve named user into supplied buffer.
  *               returns 0 on success
  */
-int getuser(struct user *usbuf, char name[])
+int getuser(struct ctdluser *usbuf, char name[])
 {
 
 	char lowercase_name[USERNAME_SIZE];
@@ -67,7 +67,7 @@ int getuser(struct user *usbuf, char name[])
 	struct cdbdata *cdbus;
 	int using_sysuser = 0;
 
-	memset(usbuf, 0, sizeof(struct user));
+	memset(usbuf, 0, sizeof(struct ctdluser));
 
 #ifdef ENABLE_AUTOLOGIN
 	if (CtdlAssociateSystemUser(sysuser_name, name) == 0) {
@@ -93,8 +93,8 @@ int getuser(struct user *usbuf, char name[])
 		return(1);
 	}
 	memcpy(usbuf, cdbus->ptr,
-	       ((cdbus->len > sizeof(struct user)) ?
-		sizeof(struct user) : cdbus->len));
+	       ((cdbus->len > sizeof(struct ctdluser)) ?
+		sizeof(struct ctdluser) : cdbus->len));
 	cdb_free(cdbus);
 
 	return (0);
@@ -104,7 +104,7 @@ int getuser(struct user *usbuf, char name[])
 /*
  * lgetuser()  -  same as getuser() but locks the record
  */
-int lgetuser(struct user *usbuf, char *name)
+int lgetuser(struct ctdluser *usbuf, char *name)
 {
 	int retcode;
 
@@ -119,7 +119,7 @@ int lgetuser(struct user *usbuf, char *name)
 /*
  * putuser()  -  write user buffer into the correct place on disk
  */
-void putuser(struct user *usbuf)
+void putuser(struct ctdluser *usbuf)
 {
 	char lowercase_name[USERNAME_SIZE];
 	int a;
@@ -133,7 +133,7 @@ void putuser(struct user *usbuf)
 	usbuf->version = REV_LEVEL;
 	cdb_store(CDB_USERS,
 		  lowercase_name, strlen(lowercase_name),
-		  usbuf, sizeof(struct user));
+		  usbuf, sizeof(struct ctdluser));
 
 }
 
@@ -141,7 +141,7 @@ void putuser(struct user *usbuf)
 /*
  * lputuser()  -  same as putuser() but locks the record
  */
-void lputuser(struct user *usbuf)
+void lputuser(struct ctdluser *usbuf)
 {
 	putuser(usbuf);
 	end_critical_section(S_USERS);
@@ -199,8 +199,8 @@ void put_visit(struct visit *newvisit)
  * Define a relationship between a user and a room
  */
 void CtdlSetRelationship(struct visit *newvisit,
-			 struct user *rel_user,
-			 struct room *rel_room)
+			 struct ctdluser *rel_user,
+			 struct ctdlroom *rel_room)
 {
 
 
@@ -218,8 +218,8 @@ void CtdlSetRelationship(struct visit *newvisit,
  * Locate a relationship between a user and a room
  */
 void CtdlGetRelationship(struct visit *vbuf,
-			 struct user *rel_user,
-			 struct room *rel_room)
+			 struct ctdluser *rel_user,
+			 struct ctdlroom *rel_room)
 {
 
 	char IndexBuf[32];
@@ -256,7 +256,7 @@ void CtdlGetRelationship(struct visit *vbuf,
 }
 
 
-void MailboxName(char *buf, size_t n, const struct user *who, const char *prefix)
+void MailboxName(char *buf, size_t n, const struct ctdluser *who, const char *prefix)
 {
 	snprintf(buf, n, "%010ld.%s", who->usernum, prefix);
 }
@@ -299,17 +299,17 @@ int is_room_aide(void)
  * WARNING: don't use this function unless you absolutely have to.  It does
  *          a sequential search and therefore is computationally expensive.
  */
-int getuserbynumber(struct user *usbuf, long int number)
+int getuserbynumber(struct ctdluser *usbuf, long int number)
 {
 	struct cdbdata *cdbus;
 
 	cdb_rewind(CDB_USERS);
 
 	while (cdbus = cdb_next_item(CDB_USERS), cdbus != NULL) {
-		memset(usbuf, 0, sizeof(struct user));
+		memset(usbuf, 0, sizeof(struct ctdluser));
 		memcpy(usbuf, cdbus->ptr,
-		       ((cdbus->len > sizeof(struct user)) ?
-			sizeof(struct user) : cdbus->len));
+		       ((cdbus->len > sizeof(struct ctdluser)) ?
+			sizeof(struct ctdluser) : cdbus->len));
 		cdb_free(cdbus);
 		if (usbuf->usernum == number) {
 			cdb_close_cursor(CDB_USERS);
@@ -665,7 +665,7 @@ void cmd_pass(char *buf)
 int purge_user(char pname[])
 {
 	char filename[64];
-	struct user usbuf;
+	struct ctdluser usbuf;
 	char lowercase_name[USERNAME_SIZE];
 	int a;
 	struct CitContext *ccptr;
@@ -729,8 +729,8 @@ int purge_user(char pname[])
  */
 int create_user(char *newusername, int become_user)
 {
-	struct user usbuf;
-	struct room qrbuf;
+	struct ctdluser usbuf;
+	struct ctdlroom qrbuf;
 	struct passwd *p = NULL;
 	char username[SIZ];
 	char mailboxname[ROOMNAMELEN];
@@ -756,7 +756,7 @@ int create_user(char *newusername, int become_user)
 	}
 
 	/* Go ahead and initialize a new user record */
-	memset(&usbuf, 0, sizeof(struct user));
+	memset(&usbuf, 0, sizeof(struct ctdluser));
 	strcpy(usbuf.fullname, username);
 	strcpy(usbuf.password, "");
 	usbuf.uid = uid;
@@ -802,7 +802,7 @@ int create_user(char *newusername, int become_user)
 
 	if (become_user) {
 		/* Now become the user we just created */
-		memcpy(&CC->user, &usbuf, sizeof(struct user));
+		memcpy(&CC->user, &usbuf, sizeof(struct ctdluser));
 		strcpy(CC->curr_user, username);
 		CC->logged_in = 1;
 	
@@ -1052,7 +1052,7 @@ void cmd_gtsn(char *argbuf) {
 void cmd_invt_kick(char *iuser, int op)
 			/* user name */
 {				/* 1 = invite, 0 = kick out */
-	struct user USscratch;
+	struct ctdluser USscratch;
 	char bbb[SIZ];
 	struct visit vbuf;
 
@@ -1164,7 +1164,7 @@ void cmd_forg(void)
 void cmd_gnur(void)
 {
 	struct cdbdata *cdbus;
-	struct user usbuf;
+	struct ctdluser usbuf;
 
 	if (CtdlAccessCheck(ac_aide)) {
 		return;
@@ -1180,10 +1180,10 @@ void cmd_gnur(void)
 	 */
 	cdb_rewind(CDB_USERS);
 	while (cdbus = cdb_next_item(CDB_USERS), cdbus != NULL) {
-		memset(&usbuf, 0, sizeof(struct user));
+		memset(&usbuf, 0, sizeof(struct ctdluser));
 		memcpy(&usbuf, cdbus->ptr,
-		       ((cdbus->len > sizeof(struct user)) ?
-			sizeof(struct user) : cdbus->len));
+		       ((cdbus->len > sizeof(struct ctdluser)) ?
+			sizeof(struct ctdluser) : cdbus->len));
 		cdb_free(cdbus);
 		if ((usbuf.flags & US_NEEDVALID)
 		    && (usbuf.axlevel > 0)) {
@@ -1215,7 +1215,7 @@ void cmd_vali(char *v_args)
 {
 	char user[SIZ];
 	int newax;
-	struct user userbuf;
+	struct ctdluser userbuf;
 
 	extract(user, v_args, 0);
 	newax = extract_int(v_args, 1);
@@ -1249,19 +1249,19 @@ void cmd_vali(char *v_args)
 /* 
  *  Traverse the user file...
  */
-void ForEachUser(void (*CallBack) (struct user * EachUser, void *out_data),
+void ForEachUser(void (*CallBack) (struct ctdluser * EachUser, void *out_data),
 		 void *in_data)
 {
-	struct user usbuf;
+	struct ctdluser usbuf;
 	struct cdbdata *cdbus;
 
 	cdb_rewind(CDB_USERS);
 
 	while (cdbus = cdb_next_item(CDB_USERS), cdbus != NULL) {
-		memset(&usbuf, 0, sizeof(struct user));
+		memset(&usbuf, 0, sizeof(struct ctdluser));
 		memcpy(&usbuf, cdbus->ptr,
-		       ((cdbus->len > sizeof(struct user)) ?
-			sizeof(struct user) : cdbus->len));
+		       ((cdbus->len > sizeof(struct ctdluser)) ?
+			sizeof(struct ctdluser) : cdbus->len));
 		cdb_free(cdbus);
 		(*CallBack) (&usbuf, in_data);
 	}
@@ -1271,7 +1271,7 @@ void ForEachUser(void (*CallBack) (struct user * EachUser, void *out_data),
 /*
  * List one user (this works with cmd_list)
  */
-void ListThisUser(struct user *usbuf, void *data)
+void ListThisUser(struct ctdluser *usbuf, void *data)
 {
 	if (usbuf->axlevel > 0) {
 		if ((CC->user.axlevel >= 6)
@@ -1339,7 +1339,7 @@ void cmd_chek(void)
  */
 void cmd_qusr(char *who)
 {
-	struct user usbuf;
+	struct ctdluser usbuf;
 
 	if (getuser(&usbuf, who) == 0) {
 		cprintf("%d %s\n", CIT_OK, usbuf.fullname);
@@ -1354,7 +1354,7 @@ void cmd_qusr(char *who)
  */
 void cmd_agup(char *cmdbuf)
 {
-	struct user usbuf;
+	struct ctdluser usbuf;
 	char requested_user[SIZ];
 
 	if (CtdlAccessCheck(ac_aide)) {
@@ -1386,7 +1386,7 @@ void cmd_agup(char *cmdbuf)
  */
 void cmd_asup(char *cmdbuf)
 {
-	struct user usbuf;
+	struct ctdluser usbuf;
 	char requested_user[SIZ];
 	char notify[SIZ];
 	int np;
@@ -1485,7 +1485,7 @@ int InitialMailCheck()
         int num_newmsgs = 0;
         int a;
         char mailboxname[ROOMNAMELEN];
-        struct room mailbox;
+        struct ctdlroom mailbox;
         struct visit vbuf;
         struct cdbdata *cdbfr;
         long *msglist = NULL;

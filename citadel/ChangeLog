@@ -1,4 +1,8 @@
  $Log$
+ Revision 607.15  2003/06/29 19:54:39  ajc
+ * Renamed "struct user" to "struct ctdluser"
+ * Renamed "struct room" to "struct ctdlroom"
+
  Revision 607.14  2003/06/29 04:13:32  ajc
  * Renamed:
    S_QUICKROOM to S_ROOMS
@@ -4822,3 +4826,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

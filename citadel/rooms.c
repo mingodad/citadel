@@ -88,7 +88,7 @@ void load_floorlist(CtdlIPC *ipc)
 }
 
 
-void room_tree_list(struct roomlisting *rp)
+void room_tree_list(struct ctdlroomlisting *rp)
 {
 	static int c = 0;
 	char rmname[ROOMNAMELEN];
@@ -142,7 +142,7 @@ void room_tree_list(struct roomlisting *rp)
 /* 
  * Room ordering stuff (compare first by floor, then by order)
  */
-int rordercmp(struct roomlisting *r1, struct roomlisting *r2)
+int rordercmp(struct ctdlroomlisting *r1, struct ctdlroomlisting *r2)
 {
 	if ((r1 == NULL) && (r2 == NULL))
 		return (0);
@@ -168,9 +168,9 @@ int rordercmp(struct roomlisting *r1, struct roomlisting *r2)
 static void listrms(struct march *listing, int new_only, int floor_only)
 {
 	struct march *mptr;
-	struct roomlisting *rl = NULL;
-	struct roomlisting *rp;
-	struct roomlisting *rs;
+	struct ctdlroomlisting *rl = NULL;
+	struct ctdlroomlisting *rp;
+	struct ctdlroomlisting *rs;
 	int list_it;
 
 	for (mptr = listing; mptr != NULL; mptr = mptr->next) {
@@ -189,7 +189,7 @@ static void listrms(struct march *listing, int new_only, int floor_only)
 			list_it = 0;
 
 		if (list_it) {
-			rp = malloc(sizeof(struct roomlisting));
+			rp = malloc(sizeof(struct ctdlroomlisting));
 			strncpy(rp->rlname, mptr->march_name, ROOMNAMELEN);
 			rp->rlflags = mptr->march_flags;
 			rp->rlfloor = mptr->march_floor;
@@ -429,7 +429,7 @@ void editthisroom(CtdlIPC *ipc)
 	int rbump = 0;
 	char raide[USERNAME_SIZE];
 	char buf[SIZ];
-	struct room *attr = NULL;
+	struct ctdlroom *attr = NULL;
 	struct ExpirePolicy *eptr = NULL;
 	int r;				/* IPC response code */
 

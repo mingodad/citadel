@@ -89,9 +89,9 @@ int imap_parameterize(char **args, char *buf)
 }
 
 /*
- * Convert a struct room to an IMAP-compatible mailbox name.
+ * Convert a struct ctdlroom to an IMAP-compatible mailbox name.
  */
-void imap_mailboxname(char *buf, int bufsize, struct room *qrbuf)
+void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
 {
 	struct floor *fl;
 	int i;

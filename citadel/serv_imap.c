@@ -465,7 +465,7 @@ void imap_select(int num_parms, char *parms[]) {
 	int c = 0;
 	int ok = 0;
 	int ra = 0;
-	struct room QRscratch;
+	struct ctdlroom QRscratch;
 	int msgs, new;
 	int floornum;
 	int roomflags;
@@ -516,7 +516,7 @@ void imap_select(int num_parms, char *parms[]) {
 	 * usergoto() formally takes us to the desired room, happily returning
 	 * the number of messages and number of new messages.
 	 */
-	memcpy(&CC->room, &QRscratch, sizeof(struct room));
+	memcpy(&CC->room, &QRscratch, sizeof(struct ctdlroom));
 	usergoto(NULL, 0, 0, &msgs, &new);
 	IMAP->selected = 1;
 
@@ -625,7 +625,7 @@ void imap_list_floors(char *cmd, char *pattern) {
  * IMAP "subscribed folder" is equivocated to Citadel "known rooms."  This
  * may or may not be the desired behavior in the future.
  */
-void imap_lsub_listroom(struct room *qrbuf, void *data) {
+void imap_lsub_listroom(struct ctdlroom *qrbuf, void *data) {
 	char buf[SIZ];
 	int ra;
 	char *pattern;
@@ -673,7 +673,7 @@ void imap_lsub(int num_parms, char *parms[]) {
 /*
  * Back end for imap_list()
  */
-void imap_list_listroom(struct room *qrbuf, void *data) {
+void imap_list_listroom(struct ctdlroom *qrbuf, void *data) {
 	char buf[SIZ];
 	int ra;
 	char *pattern;
@@ -773,7 +773,7 @@ int imap_grabroom(char *returned_roomname, char *foldername) {
 	char augmented_roomname[ROOMNAMELEN];
 	char roomname[ROOMNAMELEN];
 	int c;
-	struct room QRscratch;
+	struct ctdlroom QRscratch;
 	int ra;
 	int ok = 0;
 
@@ -1012,7 +1012,7 @@ void imap_delete(int num_parms, char *parms[]) {
 /*
  * Back end function for imap_rename()
  */
-void imap_rename_backend(struct room *qrbuf, void *data) {
+void imap_rename_backend(struct ctdlroom *qrbuf, void *data) {
 	char foldername[SIZ];
 	char newfoldername[SIZ];
 	char newroomname[ROOMNAMELEN];

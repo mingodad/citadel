@@ -158,7 +158,7 @@ struct march {
 /*
  * User records.
  */
-struct user {			/* User record                      */
+struct ctdluser {			/* User record                      */
 	int version;			/* Cit vers. which created this rec */
 	uid_t uid;			/* Associate with a unix account?   */
 	char password[32];		/* password (for BBS-only users)    */
@@ -195,7 +195,7 @@ struct CitControl {
 /*
  * Room records.
  */
-struct room {
+struct ctdlroom {
 	char QRname[ROOMNAMELEN];	/* Name of room                     */
 	char QRpasswd[10];		/* Only valid if it's a private rm  */
 	long QRroomaide;		/* User number of room aide         */

@@ -31,9 +31,9 @@ void do_edit(CtdlIPC *ipc,
  * This struct holds a list of rooms for client display.
  * (oooh, a tree!)
  */
-struct roomlisting {
-        struct roomlisting *lnext;
-	struct roomlisting *rnext;
+struct ctdlroomlisting {
+        struct ctdlroomlisting *lnext;
+	struct ctdlroomlisting *rnext;
         char rlname[ROOMNAMELEN];
         unsigned rlflags;
 	int rlfloor;

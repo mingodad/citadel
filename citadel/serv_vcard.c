@@ -255,7 +255,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	char *ptr;
 	int linelen;
 	char buf[SIZ];
-	struct user usbuf;
+	struct ctdluser usbuf;
 	long what_user;
 
 	if (!CC->logged_in) return(0);	/* Only do this if logged in. */
@@ -291,7 +291,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 			if (what_user == CC->user.usernum) {
 				/* It's the logged in user.  That was easy. */
 				memcpy(&usbuf, &CC->user,
-					sizeof(struct user) );
+					sizeof(struct ctdluser) );
 			}
 			
 			else if (getuserbynumber(&usbuf, what_user) == 0) {
@@ -421,7 +421,7 @@ void vcard_gu_backend(long msgnum, void *userdata) {
  * If this user has a vcard on disk, read it into memory, otherwise allocate
  * and return an empty vCard.
  */
-struct vCard *vcard_get_user(struct user *u) {
+struct vCard *vcard_get_user(struct ctdluser *u) {
         char hold_rm[ROOMNAMELEN];
         char config_rm[ROOMNAMELEN];
 	struct CtdlMessage *msg;
@@ -458,7 +458,7 @@ struct vCard *vcard_get_user(struct user *u) {
 /*
  * Write our config to disk
  */
-void vcard_write_user(struct user *u, struct vCard *v) {
+void vcard_write_user(struct ctdluser *u, struct vCard *v) {
         char temp[PATH_MAX];
         FILE *fp;
 	char *ser;
@@ -559,7 +559,7 @@ void cmd_regi(char *argbuf) {
  */
 void cmd_greg(char *argbuf)
 {
-	struct user usbuf;
+	struct ctdluser usbuf;
 	struct vCard *v;
 	char *s;
 	char who[SIZ];

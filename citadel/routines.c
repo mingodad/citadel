@@ -107,7 +107,7 @@ void edituser(CtdlIPC *ipc)
 {
 	char buf[SIZ];
 	char who[USERNAME_SIZE];
-	struct user *user = NULL;
+	struct ctdluser *user = NULL;
 	int newnow = 0;
 	int r;				/* IPC response code */
 
@@ -204,7 +204,7 @@ int set_attr(CtdlIPC *ipc, unsigned int sval, char *prompt, unsigned int sbit, i
 void enter_config(CtdlIPC *ipc, int mode)
 {
 	char buf[SIZ];
-	struct user *user = NULL;
+	struct ctdluser *user = NULL;
 	int r;				/* IPC response code */
 
 	r = CtdlIPCGetConfig(ipc, &user, buf);

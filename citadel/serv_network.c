@@ -852,7 +852,7 @@ void network_spoolout_room(char *room_to_spool) {
 /*
  * Batch up and send all outbound traffic from the current room
  */
-void network_queue_room(struct room *qrbuf, void *data) {
+void network_queue_room(struct ctdlroom *qrbuf, void *data) {
 	struct RoomProcList *ptr;
 
 	ptr = (struct RoomProcList *) mallok(sizeof (struct RoomProcList));

@@ -44,7 +44,7 @@
 /*
  * Retrieve the applicable expire policy for a specific room
  */
-void GetExpirePolicy(struct ExpirePolicy *epbuf, struct room *qrbuf) {
+void GetExpirePolicy(struct ExpirePolicy *epbuf, struct ctdlroom *qrbuf) {
 	struct floor *fl;
 
 	/* If the room has its own policy, return it */	

@@ -1884,7 +1884,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	char recipient[SIZ];
 	long newmsgid;
 	char *mptr = NULL;
-	struct user userbuf;
+	struct ctdluser userbuf;
 	int a, i;
 	struct MetaData smi;
 	FILE *network_fp = NULL;
@@ -2292,7 +2292,7 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
  */
 
 struct CtdlMessage *CtdlMakeMessage(
-	struct user *author,	/* author's user structure */
+	struct ctdluser *author,	/* author's user structure */
 	char *recipient,		/* NULL if it's not mail */
 	char *room,			/* room where it's going */
 	int type,			/* see MES_ types in header file */
@@ -2407,7 +2407,7 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, size_t n) {
  * Check to see if the specified user has Internet mail permission
  * (returns nonzero if permission is granted)
  */
-int CtdlCheckInternetMailPermission(struct user *who) {
+int CtdlCheckInternetMailPermission(struct ctdluser *who) {
 
 	/* Globally enabled? */
 	if (config.c_restrict == 0) return(1);
@@ -2437,8 +2437,8 @@ struct recptypes *validate_recipients(char *recipients) {
 	int i, j;
 	int mailtype;
 	int invalid;
-	struct user tempUS;
-	struct room tempQR;
+	struct ctdluser tempUS;
+	struct ctdlroom tempQR;
 
 	/* Initialize */
 	ret = (struct recptypes *) malloc(sizeof(struct recptypes));
@@ -2760,7 +2760,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 )
 {
 
-	struct room qrbuf;
+	struct ctdlroom qrbuf;
 	struct cdbdata *cdbfr;
 	long *msglist = NULL;
 	long *dellist = NULL;
@@ -2909,7 +2909,7 @@ void cmd_move(char *args)
 {
 	long num;
 	char targ[SIZ];
-	struct room qtemp;
+	struct ctdlroom qtemp;
 	int err;
 	int is_copy = 0;
 
@@ -3052,7 +3052,7 @@ void AdjRefCount(long msgnum, int incr)
 void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 			char *content_type,	/* MIME type of this object */
 			char *tempfilename,	/* Where to fetch it from */
-			struct user *is_mailbox,	/* Mailbox room? */
+			struct ctdluser *is_mailbox,	/* Mailbox room? */
 			int is_binary,		/* Is encoding necessary? */
 			int is_unique,		/* Del others of this type? */
 			unsigned int flags	/* Internal save flags */
@@ -3060,7 +3060,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 {
 
 	FILE *fp;
-	struct room qrbuf;
+	struct ctdlroom qrbuf;
 	char roomname[ROOMNAMELEN];
 	struct CtdlMessage *msg;
 

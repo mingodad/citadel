@@ -91,8 +91,8 @@ struct ValidUser {
 };
 
 
-struct roomref {
-	struct roomref *next;
+struct ctdlroomref {
+	struct ctdlroomref *next;
 	long msgnum;
 };
 
@@ -108,7 +108,7 @@ struct ValidRoom *ValidRoomList = NULL;
 struct ValidUser *ValidUserList = NULL;
 int messages_purged;
 
-struct roomref *rr = NULL;
+struct ctdlroomref *rr = NULL;
 
 extern struct CitContext *ContextList;
 
@@ -117,7 +117,7 @@ extern struct CitContext *ContextList;
  * First phase of message purge -- gather the locations of messages which
  * qualify for purging and write them to a temp file.
  */
-void GatherPurgeMessages(struct room *qrbuf, void *data) {
+void GatherPurgeMessages(struct ctdlroom *qrbuf, void *data) {
 	struct ExpirePolicy epbuf;
 	long delnum;
 	time_t xtime, now;
@@ -233,7 +233,7 @@ void PurgeMessages(void) {
 }
 
 
-void AddValidUser(struct user *usbuf, void *data) {
+void AddValidUser(struct ctdluser *usbuf, void *data) {
 	struct ValidUser *vuptr;
 
 	vuptr = (struct ValidUser *)mallok(sizeof(struct ValidUser));
@@ -242,7 +242,7 @@ void AddValidUser(struct user *usbuf, void *data) {
 	ValidUserList = vuptr;
 }
 
-void AddValidRoom(struct room *qrbuf, void *data) {
+void AddValidRoom(struct ctdlroom *qrbuf, void *data) {
 	struct ValidRoom *vrptr;
 
 	vrptr = (struct ValidRoom *)mallok(sizeof(struct ValidRoom));
@@ -252,7 +252,7 @@ void AddValidRoom(struct room *qrbuf, void *data) {
 	ValidRoomList = vrptr;
 }
 
-void DoPurgeRooms(struct room *qrbuf, void *data) {
+void DoPurgeRooms(struct ctdlroom *qrbuf, void *data) {
 	time_t age, purge_secs;
 	struct PurgeList *pptr;
 	struct ValidUser *vuptr;
@@ -307,7 +307,7 @@ void DoPurgeRooms(struct room *qrbuf, void *data) {
 int PurgeRooms(void) {
 	struct PurgeList *pptr;
 	int num_rooms_purged = 0;
-	struct room qrbuf;
+	struct ctdlroom qrbuf;
 	struct ValidUser *vuptr;
 	char *transcript = NULL;
 
@@ -353,7 +353,7 @@ int PurgeRooms(void) {
 }
 
 
-void do_user_purge(struct user *us, void *data) {
+void do_user_purge(struct ctdluser *us, void *data) {
 	int purge;
 	time_t now;
 	time_t purge_time;
@@ -361,7 +361,7 @@ void do_user_purge(struct user *us, void *data) {
 
 	/* stupid recovery routine to re-create missing mailboxen.
 	 * don't enable this.
-	struct room qrbuf;
+	struct ctdlroom qrbuf;
 	char mailboxname[ROOMNAMELEN];
 	MailboxName(mailboxname, us, MAILROOM);
 	create_room(mailboxname, 4, "", 0, 1, 1);
@@ -640,15 +640,15 @@ void cmd_expi(char *argbuf) {
 
 
 void do_fsck_msg(long msgnum, void *userdata) {
-	struct roomref *ptr;
+	struct ctdlroomref *ptr;
 
-	ptr = (struct roomref *)mallok(sizeof(struct roomref));
+	ptr = (struct ctdlroomref *)mallok(sizeof(struct ctdlroomref));
 	ptr->next = rr;
 	ptr->msgnum = msgnum;
 	rr = ptr;
 }
 
-void do_fsck_room(struct room *qrbuf, void *data)
+void do_fsck_room(struct ctdlroom *qrbuf, void *data)
 {
 	getroom(&CC->room, qrbuf->QRname);
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, do_fsck_msg, NULL);
@@ -661,7 +661,7 @@ void cmd_fsck(char *argbuf) {
 	long msgnum;
 	struct cdbdata *cdbmsg;
 	struct MetaData smi;
-	struct roomref *ptr;
+	struct ctdlroomref *ptr;
 	int realcount;
 
 	if (CtdlAccessCheck(ac_aide)) return;

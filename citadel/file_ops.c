@@ -162,7 +162,7 @@ void cmd_movf(char *cmdbuf)
 	char newroom[SIZ];
 	char buf[SIZ];
 	int a;
-	struct room qrbuf;
+	struct ctdlroom qrbuf;
 
 	extract(filename, cmdbuf, 0);
 	extract(newroom, cmdbuf, 1);
@@ -393,7 +393,7 @@ void cmd_oimg(char *cmdbuf)
 {
 	char filename[SIZ];
 	char pathname[SIZ];
-	struct user usbuf;
+	struct ctdluser usbuf;
 	char which_user[USERNAME_SIZE];
 	int which_floor;
 	int a;

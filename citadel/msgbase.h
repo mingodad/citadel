@@ -99,7 +99,7 @@ int CtdlForEachMessage(int mode, long ref,
                         void (*CallBack) (long, void *),
 			void *userdata);
 int CtdlDeleteMessages(char *, long, char *);
-void CtdlWriteObject(char *, char *, char *, struct user *,
+void CtdlWriteObject(char *, char *, char *, struct ctdluser *,
 			int, int, unsigned int);
 struct CtdlMessage *CtdlFetchMessage(long msgnum);
 void CtdlFreeMessage(struct CtdlMessage *msg);
@@ -128,7 +128,7 @@ void CtdlSetSeen(long target_msgnum, int target_setting);
 struct recptypes *validate_recipients(char *recipients);
 void CtdlGetSeen(char *buf);
 struct CtdlMessage *CtdlMakeMessage(
-        struct user *author,        /* author's user structure */
+        struct ctdluser *author,        /* author's user structure */
         char *recipient,                /* NULL if it's not mail */
         char *room,                     /* room where it's going */
         int type,                       /* see MES_ types in header file */
@@ -137,5 +137,5 @@ struct CtdlMessage *CtdlMakeMessage(
         char *subject,                  /* Subject (optional) */
         char *preformatted_text         /* ...or NULL to read text from client */
 );
-int CtdlCheckInternetMailPermission(struct user *who);
+int CtdlCheckInternetMailPermission(struct ctdluser *who);
 int CtdlIsMe(char *addr);

@@ -50,7 +50,7 @@ char artv_tempfilename1[PATH_MAX];
 char artv_tempfilename2[PATH_MAX];
 FILE *artv_global_message_list;
 
-void artv_export_users_backend(struct user *usbuf, void *data) {
+void artv_export_users_backend(struct ctdluser *usbuf, void *data) {
 	cprintf("user\n");
 	cprintf("%d\n", usbuf->version);
 	cprintf("%ld\n", (long)usbuf->uid);
@@ -79,7 +79,7 @@ void artv_export_room_msg(long msgnum, void *userdata) {
 }
 
 
-void artv_export_rooms_backend(struct room *qrbuf, void *data) {
+void artv_export_rooms_backend(struct ctdlroom *qrbuf, void *data) {
 	cprintf("room\n");
 	cprintf("%s\n", qrbuf->QRname);
 	cprintf("%s\n", qrbuf->QRpasswd);
@@ -363,7 +363,7 @@ void artv_import_control(void) {
 
 void artv_import_user(void) {
 	char buf[SIZ];
-	struct user usbuf;
+	struct ctdluser usbuf;
 
 	client_gets(buf);	usbuf.version = atoi(buf);
 	client_gets(buf);	usbuf.uid = atoi(buf);
@@ -384,7 +384,7 @@ void artv_import_user(void) {
 
 void artv_import_room(void) {
 	char buf[SIZ];
-	struct room qrbuf;
+	struct ctdlroom qrbuf;
 	long msgnum;
 	int msgcount = 0;
 

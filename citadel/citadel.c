@@ -1001,7 +1001,7 @@ int main(int argc, char **argv)
 	int stored_password = 0;
 	char password[SIZ];
 	struct ctdlipcmisc chek;
-	struct user *myself = NULL;
+	struct ctdluser *myself = NULL;
 	CtdlIPC* ipc;			/* Our server connection */
 	int r;				/* IPC result code */
 

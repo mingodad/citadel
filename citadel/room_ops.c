@@ -49,7 +49,7 @@ struct floor *floorcache[MAXFLOORS];
 /*
  * Generic routine for determining user access to rooms
  */
-int CtdlRoomAccess(struct room *roombuf, struct user *userbuf)
+int CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf)
 {
 	int retval = 0;
 	struct visit vbuf;
@@ -162,7 +162,7 @@ NEWMSG:	/* By the way, we also check for the presence of new messages */
 /*
  * Self-checking stuff for a room record read into memory
  */
-void room_sanity_check(struct room *qrbuf)
+void room_sanity_check(struct ctdlroom *qrbuf)
 {
 	/* Mailbox rooms are always on the lowest floor */
 	if (qrbuf->QRflags & QR_MAILBOX) {
@@ -181,7 +181,7 @@ void room_sanity_check(struct room *qrbuf)
 /*
  * getroom()  -  retrieve room data from disk
  */
-int getroom(struct room *qrbuf, char *room_name)
+int getroom(struct ctdlroom *qrbuf, char *room_name)
 {
 	struct cdbdata *cdbqr;
 	char lowercase_name[ROOMNAMELEN];
@@ -193,7 +193,7 @@ int getroom(struct room *qrbuf, char *room_name)
 	}
 	lowercase_name[a] = 0;
 
-	memset(qrbuf, 0, sizeof(struct room));
+	memset(qrbuf, 0, sizeof(struct ctdlroom));
 
 	/* First, try the public namespace */
 	cdbqr = cdb_fetch(CDB_ROOMS,
@@ -210,8 +210,8 @@ int getroom(struct room *qrbuf, char *room_name)
 	}
 	if (cdbqr != NULL) {
 		memcpy(qrbuf, cdbqr->ptr,
-		       ((cdbqr->len > sizeof(struct room)) ?
-			sizeof(struct room) : cdbqr->len));
+		       ((cdbqr->len > sizeof(struct ctdlroom)) ?
+			sizeof(struct ctdlroom) : cdbqr->len));
 		cdb_free(cdbqr);
 
 		room_sanity_check(qrbuf);
@@ -225,7 +225,7 @@ int getroom(struct room *qrbuf, char *room_name)
 /*
  * lgetroom()  -  same as getroom() but locks the record (if supported)
  */
-int lgetroom(struct room *qrbuf, char *room_name)
+int lgetroom(struct ctdlroom *qrbuf, char *room_name)
 {
 	register int retval;
 	retval = getroom(qrbuf, room_name);
@@ -238,7 +238,7 @@ int lgetroom(struct room *qrbuf, char *room_name)
  * b_putroom()  -  back end to putroom() and b_deleteroom()
  *              (if the supplied buffer is NULL, delete the room record)
  */
-void b_putroom(struct room *qrbuf, char *room_name)
+void b_putroom(struct ctdlroom *qrbuf, char *room_name)
 {
 	char lowercase_name[ROOMNAMELEN];
 	int a;
@@ -254,7 +254,7 @@ void b_putroom(struct room *qrbuf, char *room_name)
 		time(&qrbuf->QRmtime);
 		cdb_store(CDB_ROOMS,
 			  lowercase_name, strlen(lowercase_name),
-			  qrbuf, sizeof(struct room));
+			  qrbuf, sizeof(struct ctdlroom));
 	}
 }
 
@@ -262,7 +262,7 @@ void b_putroom(struct room *qrbuf, char *room_name)
 /* 
  * putroom()  -  store room data to disk
  */
-void putroom(struct room *qrbuf) {
+void putroom(struct ctdlroom *qrbuf) {
 	b_putroom(qrbuf, qrbuf->QRname);
 }
 
@@ -279,7 +279,7 @@ void b_deleteroom(char *room_name) {
 /*
  * lputroom()  -  same as putroom() but unlocks the record (if supported)
  */
-void lputroom(struct room *qrbuf)
+void lputroom(struct ctdlroom *qrbuf)
 {
 
 	putroom(qrbuf);
@@ -381,19 +381,19 @@ void lputfloor(struct floor *flbuf, int floor_num)
 /* 
  *  Traverse the room file...
  */
-void ForEachRoom(void (*CallBack) (struct room *EachRoom, void *out_data),
+void ForEachRoom(void (*CallBack) (struct ctdlroom *EachRoom, void *out_data),
 		void *in_data)
 {
-	struct room qrbuf;
+	struct ctdlroom qrbuf;
 	struct cdbdata *cdbqr;
 
 	cdb_rewind(CDB_ROOMS);
 
 	while (cdbqr = cdb_next_item(CDB_ROOMS), cdbqr != NULL) {
-		memset(&qrbuf, 0, sizeof(struct room));
+		memset(&qrbuf, 0, sizeof(struct ctdlroom));
 		memcpy(&qrbuf, cdbqr->ptr,
-		       ((cdbqr->len > sizeof(struct room)) ?
-			sizeof(struct room) : cdbqr->len));
+		       ((cdbqr->len > sizeof(struct ctdlroom)) ?
+			sizeof(struct ctdlroom) : cdbqr->len));
 		cdb_free(cdbqr);
 		room_sanity_check(&qrbuf);
 		if (qrbuf.QRflags & QR_INUSE)
@@ -405,7 +405,7 @@ void ForEachRoom(void (*CallBack) (struct room *EachRoom, void *out_data),
 /*
  * delete_msglist()  -  delete room message pointers
  */
-void delete_msglist(struct room *whichroom)
+void delete_msglist(struct ctdlroom *whichroom)
 {
         struct cdbdata *cdbml;
 
@@ -464,7 +464,7 @@ int sort_msglist(long listptrs[], int oldcount)
 /*
  * Determine whether a given room is non-editable.
  */
-int is_noneditable(struct room *qrbuf)
+int is_noneditable(struct ctdlroom *qrbuf)
 {
 
 	/* Mail> rooms are non-editable */
@@ -481,7 +481,7 @@ int is_noneditable(struct room *qrbuf)
 /*
  * Back-back-end for all room listing commands
  */
-void list_roomname(struct room *qrbuf, int ra)
+void list_roomname(struct ctdlroom *qrbuf, int ra)
 {
 	char truncated_roomname[ROOMNAMELEN];
 
@@ -511,7 +511,7 @@ void list_roomname(struct room *qrbuf, int ra)
 /* 
  * cmd_lrms()   -  List all accessible rooms, known or forgotten
  */
-void cmd_lrms_backend(struct room *qrbuf, void *data)
+void cmd_lrms_backend(struct ctdlroom *qrbuf, void *data)
 {
 	int FloorBeingSearched = (-1);
 	int ra;
@@ -548,7 +548,7 @@ void cmd_lrms(char *argbuf)
 /* 
  * cmd_lkra()   -  List all known rooms
  */
-void cmd_lkra_backend(struct room *qrbuf, void *data)
+void cmd_lkra_backend(struct ctdlroom *qrbuf, void *data)
 {
 	int FloorBeingSearched = (-1);
 	int ra;
@@ -582,7 +582,7 @@ void cmd_lkra(char *argbuf)
 
 
 
-void cmd_lprm_backend(struct room *qrbuf, void *data)
+void cmd_lprm_backend(struct ctdlroom *qrbuf, void *data)
 {
 	int FloorBeingSearched = (-1);
 	int ra;
@@ -614,7 +614,7 @@ void cmd_lprm(char *argbuf)
 /* 
  * cmd_lkrn()   -  List all known rooms with new messages
  */
-void cmd_lkrn_backend(struct room *qrbuf, void *data)
+void cmd_lkrn_backend(struct ctdlroom *qrbuf, void *data)
 {
 	int FloorBeingSearched = (-1);
 	int ra;
@@ -652,7 +652,7 @@ void cmd_lkrn(char *argbuf)
 /* 
  * cmd_lkro()   -  List all known rooms
  */
-void cmd_lkro_backend(struct room *qrbuf, void *data)
+void cmd_lkro_backend(struct ctdlroom *qrbuf, void *data)
 {
 	int FloorBeingSearched = (-1);
 	int ra;
@@ -690,7 +690,7 @@ void cmd_lkro(char *argbuf)
 /* 
  * cmd_lzrm()   -  List all forgotten rooms
  */
-void cmd_lzrm_backend(struct room *qrbuf, void *data)
+void cmd_lzrm_backend(struct ctdlroom *qrbuf, void *data)
 {
 	int FloorBeingSearched = (-1);
 
@@ -848,7 +848,7 @@ void usergoto(char *where, int display_result, int transiently,
  */
 void cmd_goto(char *gargs)
 {
-	struct room QRscratch;
+	struct ctdlroom QRscratch;
 	int c;
 	int ok = 0;
 	int ra;
@@ -893,7 +893,7 @@ void cmd_goto(char *gargs)
 		/* Let internal programs go directly to any room. */
 		if (CC->internal_pgm) {
 			memcpy(&CC->room, &QRscratch,
-				sizeof(struct room));
+				sizeof(struct ctdlroom));
 			usergoto(NULL, 1, transiently, NULL, NULL);
 			return;
 		}
@@ -910,7 +910,7 @@ void cmd_goto(char *gargs)
 			if ((QRscratch.QRflags & QR_MAILBOX) &&
 			    ((ra & UA_GOTOALLOWED))) {
 				memcpy(&CC->room, &QRscratch,
-					sizeof(struct room));
+					sizeof(struct ctdlroom));
 				usergoto(NULL, 1, transiently, NULL, NULL);
 				return;
 			} else if ((QRscratch.QRflags & QR_PASSWORDED) &&
@@ -931,7 +931,7 @@ void cmd_goto(char *gargs)
 				goto NOPE;
 			} else {
 				memcpy(&CC->room, &QRscratch,
-					sizeof(struct room));
+					sizeof(struct ctdlroom));
 				usergoto(NULL, 1, transiently, NULL, NULL);
 				return;
 			}
@@ -944,7 +944,7 @@ NOPE:	cprintf("%d room '%s' not found\n", ERROR + ROOM_NOT_FOUND, towhere);
 
 void cmd_whok(void)
 {
-	struct user temp;
+	struct ctdluser temp;
 	struct cdbdata *cdbus;
 
 	getuser(&CC->user, CC->curr_user);
@@ -1087,8 +1087,8 @@ void cmd_getr(void)
  */
 int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 	int old_floor = 0;
-	struct room qrbuf;
-	struct room qrtmp;
+	struct ctdlroom qrbuf;
+	struct ctdlroom qrtmp;
 	int ret = 0;
 	struct floor *fl;
 	struct floor flbuf;
@@ -1343,7 +1343,7 @@ void cmd_setr(char *args)
  */
 void cmd_geta(void)
 {
-	struct user usbuf;
+	struct ctdluser usbuf;
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
@@ -1360,7 +1360,7 @@ void cmd_geta(void)
  */
 void cmd_seta(char *new_ra)
 {
-	struct user usbuf;
+	struct ctdluser usbuf;
 	long newu;
 	char buf[SIZ];
 	int post_notice;
@@ -1403,7 +1403,7 @@ void cmd_seta(char *new_ra)
  * Generate an associated file name for a room
  */
 void assoc_file_name(char *buf, size_t n,
-		     struct room *qrbuf, const char *prefix)
+		     struct ctdlroom *qrbuf, const char *prefix)
 {
 	snprintf(buf, n, "./%s/%ld", prefix, qrbuf->QRnumber);
 }
@@ -1437,7 +1437,7 @@ void cmd_rinf(void)
 /*
  * Back end processing to delete a room and everything associated with it
  */
-void delete_room(struct room *qrbuf)
+void delete_room(struct ctdlroom *qrbuf)
 {
 	struct floor flbuf;
 	char filename[100];
@@ -1480,7 +1480,7 @@ void delete_room(struct room *qrbuf)
 /*
  * Check access control for deleting a room
  */
-int CtdlDoIHavePermissionToDeleteThisRoom(struct room *qr) {
+int CtdlDoIHavePermissionToDeleteThisRoom(struct ctdlroom *qr) {
 
 	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
 		return(0);
@@ -1568,7 +1568,7 @@ unsigned create_room(char *new_room_name,
 		     int avoid_access)
 {
 
-	struct room qrbuf;
+	struct ctdlroom qrbuf;
 	struct floor flbuf;
 	struct visit vbuf;
 
@@ -1579,7 +1579,7 @@ unsigned create_room(char *new_room_name,
 	}
 
 
-	memset(&qrbuf, 0, sizeof(struct room));
+	memset(&qrbuf, 0, sizeof(struct ctdlroom));
 	safestrncpy(qrbuf.QRpasswd, new_room_pass, sizeof qrbuf.QRpasswd);
 	qrbuf.QRflags = QR_INUSE;
 	if (new_room_type > 0)
