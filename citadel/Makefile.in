@@ -31,6 +31,7 @@ SERV_MODULES=modules/serv_chat$(SO) modules/serv_vcard$(SO) \
 	modules/serv_smtp$(SO) modules/serv_pop3$(SO) \
 	modules/serv_inetcfg$(SO) \
 	modules/serv_rwho$(SO) \
+	modules/serv_moderate$(SO) \
 	modules/serv_bio$(SO) \
 	modules/serv_expire$(SO) $(SERV_ICQ)
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform readlog rcit \
@@ -83,7 +84,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	auth.c chkpwd.c client_icq.c html.c vcard.c serv_upgrade.c \
 	serv_smtp.c serv_pop3.c internet_addressing.c parsedate.c genstamp.c \
 	domain.c clientsocket.c serv_inetcfg.c serv_rwho.c serv_bio.c \
-	client_passwords.c
+	serv_moderate.c client_passwords.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
@@ -170,6 +171,12 @@ modules/serv_rwho.so: serv_rwho.mo
 
 modules/serv_rwho.mo: serv_rwho.mo
 	ln -f serv_rwho.mo modules
+
+modules/serv_moderate.so: serv_moderate.mo
+	$(LINK_SHARED) -o modules/serv_moderate.so serv_moderate.mo
+
+modules/serv_moderate.mo: serv_moderate.mo
+	ln -f serv_moderate.mo modules
 
 modules/serv_bio.so: serv_bio.mo
 	$(LINK_SHARED) -o modules/serv_bio.so serv_bio.mo

@@ -20,23 +20,14 @@
 #include "room_ops.h"
 #include "msgbase.h"
 #include "tools.h"
+#include "citserver.h"
 
 void cmd_delf(char *filename)
 {
 	char pathname[64];
 	int a;
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
-
-	if (!is_room_aide()) {
-		cprintf("%d Higher access required.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
-		return;
-		}
-
+	if (CtdlAccessCheck(ac_room_aide)) return;
 
 	if ((CC->quickroom.QRflags & QR_DIRECTORY) == 0) {
 		cprintf("%d No directory in this room.\n",ERROR+NOT_HERE);
@@ -76,16 +67,7 @@ void cmd_movf(char *cmdbuf)
 	extract(filename,cmdbuf,0);
 	extract(newroom,cmdbuf,1);
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
-
-	if (!is_room_aide()) {
-		cprintf("%d Higher access required.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
-		return;
-		}
+	if (CtdlAccessCheck(ac_room_aide)) return;
 
 	if ((CC->quickroom.QRflags & QR_DIRECTORY) == 0) {
 		cprintf("%d No directory in this room.\n",ERROR+NOT_HERE);
@@ -150,16 +132,7 @@ void cmd_netf(char *cmdbuf)
 	extract(filename,cmdbuf,0);
 	extract(destsys,cmdbuf,1);
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
-
-	if (!is_room_aide()) {
-		cprintf("%d Higher access required.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
-		return;
-		}
+	if (CtdlAccessCheck(ac_room_aide)) return;
 
 	if ((CC->quickroom.QRflags & QR_DIRECTORY) == 0) {
 		cprintf("%d No directory in this room.\n",ERROR+NOT_HERE);
@@ -254,10 +227,7 @@ void cmd_open(char *cmdbuf)
 
 	extract(filename,cmdbuf,0);
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
+	if (CtdlAccessCheck(ac_logged_in)) return;
 
 	if ((CC->quickroom.QRflags & QR_DIRECTORY) == 0) {
 		cprintf("%d No directory in this room.\n",ERROR+NOT_HERE);
@@ -361,10 +331,7 @@ void cmd_uopn(char *cmdbuf)
 	extract(CC->upl_file,cmdbuf,0);
 	extract(CC->upl_comment,cmdbuf,1);
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
+	if (CtdlAccessCheck(ac_logged_in)) return;
 
 	if ((CC->quickroom.QRflags & QR_DIRECTORY) == 0) {
 		cprintf("%d No directory in this room.\n",ERROR+NOT_HERE);

@@ -31,6 +31,7 @@
 #include "config.h"
 #include "dynloader.h"
 #include "tools.h"
+#include "citserver.h"
 
 
 /*
@@ -213,6 +214,9 @@ int is_aide(void) {
  * Is the user currently logged in an Aide *or* the room aide for this room?
  */
 int is_room_aide(void) {
+
+	if (!CC->logged_in) return(0);
+
 	if ( (CC->usersupp.axlevel >= 6)
 	   || (CC->quickroom.QRroomaide == CC->usersupp.usernum) ) {
 		return(1);
@@ -714,10 +718,8 @@ void cmd_newu(char *cmdbuf)
  */
 void cmd_setp(char *new_pw)
 {
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
+	if (CtdlAccessCheck(ac_logged_in)) return;
+
 	if (CC->usersupp.uid != BBSUID) {
 		cprintf("%d Not allowed.  Use the 'passwd' command.\n",ERROR);
 		return;
@@ -739,10 +741,9 @@ void cmd_setp(char *new_pw)
  * get user parameters
  */
 void cmd_getu(void) {
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
+
+	if (CtdlAccessCheck(ac_logged_in)) return;
+
 	getuser(&CC->usersupp,CC->curr_user);
 	cprintf("%d %d|%d|%d|%d\n",
 		OK,
@@ -760,14 +761,13 @@ void cmd_setu(char *new_parms)
 {
 	int new_mod;
 
+	if (CtdlAccessCheck(ac_logged_in)) return;
+
 	if (num_parms(new_parms) < 3) {
 		cprintf("%d Usage error.\n",ERROR);
 		return;
 		}	
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
+
 	lgetuser(&CC->usersupp,CC->curr_user);
 	CC->usersupp.USscreenwidth = extract_int(new_parms,0);
 	CC->usersupp.USscreenheight = extract_int(new_parms,1);
@@ -805,10 +805,7 @@ void cmd_slrp(char *new_ptr)
 	long newlr;
 	struct visit vbuf;
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
+	if (CtdlAccessCheck(ac_logged_in)) return;
 
 	if (!strncasecmp(new_ptr,"highest",7)) {
 		newlr = CC->quickroom.QRhighest;
@@ -838,16 +835,7 @@ void cmd_invt_kick(char *iuser, int op)
 	char bbb[256];
 	struct visit vbuf;
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
-
-	if (is_room_aide()==0) {
-		cprintf("%d Higher access required.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
-		return;
-		}
+	if (CtdlAccessCheck(ac_room_aide)) return;
 
 	if (lgetuser(&USscratch,iuser)!=0) {
 		cprintf("%d No such user.\n",ERROR);
@@ -892,10 +880,7 @@ void cmd_invt_kick(char *iuser, int op)
 void cmd_forg(void) {
 	struct visit vbuf;
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
+	if (CtdlAccessCheck(ac_logged_in)) return;
 
 	if (is_aide()) {
 		cprintf("%d Aides cannot forget rooms.\n",ERROR);
@@ -921,16 +906,7 @@ void cmd_gnur(void) {
 	struct cdbdata *cdbus;
 	struct usersupp usbuf;
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
-
-	if (CC->usersupp.axlevel < 6) {
-		cprintf("%d Higher access required.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
-		return;
-		}
+	if (CtdlAccessCheck(ac_aide)) return;
 
 	if ((CitControl.MMflags&MM_VALID)==0) {
 		cprintf("%d There are no unvalidated users.\n",OK);
@@ -981,16 +957,7 @@ void cmd_vali(char *v_args)
 	extract(user,v_args,0);
 	newax = extract_int(v_args,1);
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
-
-	if (CC->usersupp.axlevel < 6) {
-		cprintf("%d Higher access required.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
-		return;
-		}
+	if (CtdlAccessCheck(ac_aide)) return;
 
 	if (lgetuser(&userbuf,user)!=0) {
 		cprintf("%d '%s' not found.\n",ERROR+NO_SUCH_USER,user);
@@ -1078,10 +1045,7 @@ void cmd_chek(void) {
 	int regis = 0;
 	int vali = 0;
 	
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
+	if (CtdlAccessCheck(ac_logged_in)) return;
 
 	getuser(&CC->usersupp,CC->curr_user); /* no lock is needed here */
 	if ((REGISCALL!=0)&&((CC->usersupp.flags&US_REGIS)==0)) regis = 1;
@@ -1122,12 +1086,7 @@ void cmd_agup(char *cmdbuf) {
 	struct usersupp usbuf;
 	char requested_user[256];
 
-	if ( (CC->internal_pgm==0)
-	   && ( (CC->logged_in == 0) || (is_aide()==0) ) ) {
-		cprintf("%d Higher access required.\n", 
-			ERROR + HIGHER_ACCESS_REQUIRED);
-		return;
-		}
+	if (CtdlAccessCheck(ac_aide)) return;
 
 	extract(requested_user, cmdbuf, 0);
 	if (getuser(&usbuf, requested_user) != 0) {
@@ -1160,12 +1119,7 @@ void cmd_asup(char *cmdbuf) {
 	int newax;
 	int deleted = 0;
 	
-	if ( (CC->internal_pgm==0)
-	   && ( (CC->logged_in == 0) || (is_aide()==0) ) ) {
-		cprintf("%d Higher access required.\n", 
-			ERROR + HIGHER_ACCESS_REQUIRED);
-		return;
-		}
+	if (CtdlAccessCheck(ac_aide)) return;
 
 	extract(requested_user, cmdbuf, 0);
 	if (lgetuser(&usbuf, requested_user) != 0) {

@@ -499,17 +499,7 @@ void cmd_expi(char *argbuf) {
 	char cmd[256];
 	int retval;
 
-
-	if ((!(CC->logged_in))&&(!(CC->internal_pgm))) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-	}
-
-	if ((!is_room_aide()) && (!(CC->internal_pgm)) ) {
-		cprintf("%d Higher access required.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
-		return;
-	}
+	if (CtdlAccessCheck(ac_aide)) return;
 
 	extract(cmd, argbuf, 0);
 	if (!strcasecmp(cmd, "users")) {
@@ -569,11 +559,7 @@ void cmd_fsck(char *argbuf) {
 	struct roomref *ptr;
 	int realcount;
 
-	if ( (!CC->logged_in) || (CC->usersupp.axlevel < 6) ) {
-		cprintf("%d Higher access required\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
-		return;
-	}
+	if (CtdlAccessCheck(ac_aide)) return;
 
 	/* Lame way of checking whether anyone else is doing this now */
 	if (rr != NULL) {

@@ -443,10 +443,8 @@ void cmd_lrms(char *argbuf)
 	if (strlen(argbuf) > 0)
 		FloorBeingSearched = extract_int(argbuf, 0);
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
+	if (CtdlAccessCheck(ac_logged_in)) return;
+
 	if (getuser(&CC->usersupp, CC->curr_user)) {
 		cprintf("%d Can't locate user!\n", ERROR + INTERNAL_ERROR);
 		return;
@@ -480,10 +478,8 @@ void cmd_lkra(char *argbuf)
 	if (strlen(argbuf) > 0)
 		FloorBeingSearched = extract_int(argbuf, 0);
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
+	if (CtdlAccessCheck(ac_logged_in)) return;
+	
 	if (getuser(&CC->usersupp, CC->curr_user)) {
 		cprintf("%d Can't locate user!\n", ERROR + INTERNAL_ERROR);
 		return;
@@ -519,10 +515,8 @@ void cmd_lkrn(char *argbuf)
 	if (strlen(argbuf) > 0)
 		FloorBeingSearched = extract_int(argbuf, 0);
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
+	if (CtdlAccessCheck(ac_logged_in)) return;
+	
 	if (getuser(&CC->usersupp, CC->curr_user)) {
 		cprintf("%d Can't locate user!\n", ERROR + INTERNAL_ERROR);
 		return;
@@ -558,10 +552,8 @@ void cmd_lkro(char *argbuf)
 	if (strlen(argbuf) > 0)
 		FloorBeingSearched = extract_int(argbuf, 0);
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
+	if (CtdlAccessCheck(ac_logged_in)) return;
+	
 	if (getuser(&CC->usersupp, CC->curr_user)) {
 		cprintf("%d Can't locate user!\n", ERROR + INTERNAL_ERROR);
 		return;
@@ -597,10 +589,8 @@ void cmd_lzrm(char *argbuf)
 	if (strlen(argbuf) > 0)
 		FloorBeingSearched = extract_int(argbuf, 0);
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
+	if (CtdlAccessCheck(ac_logged_in)) return;
+	
 	if (getuser(&CC->usersupp, CC->curr_user)) {
 		cprintf("%d Can't locate user!\n", ERROR + INTERNAL_ERROR);
 		return;
@@ -712,10 +702,7 @@ void cmd_goto(char *gargs)
 	char towhere[256];
 	char password[256];
 
-	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
-		cprintf("%d not logged in\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
+	if (CtdlAccessCheck(ac_logged_in)) return;
 
 	extract(towhere, gargs, 0);
 	extract(password, gargs, 1);
@@ -788,17 +775,9 @@ void cmd_whok(void)
 	struct usersupp temp;
 	struct cdbdata *cdbus;
 
-	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
 	getuser(&CC->usersupp, CC->curr_user);
+	if (CtdlAccessCheck(ac_room_aide)) return;
 
-	if ((!is_room_aide()) && (!(CC->internal_pgm))) {
-		cprintf("%d Higher access required.\n",
-			ERROR + HIGHER_ACCESS_REQUIRED);
-		return;
-	}
 	cprintf("%d Who knows room:\n", LISTING_FOLLOWS);
 	cdb_rewind(CDB_USERSUPP);
 	while (cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
@@ -826,10 +805,8 @@ void cmd_rdir(void)
 	FILE *ls, *fd;
 	struct stat statbuf;
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
+	if (CtdlAccessCheck(ac_logged_in)) return;
+	
 	getroom(&CC->quickroom, CC->quickroom.QRname);
 	getuser(&CC->usersupp, CC->curr_user);
 
@@ -888,15 +865,7 @@ void cmd_rdir(void)
  */
 void cmd_getr(void)
 {
-	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
-	if ((!is_room_aide()) && (!(CC->internal_pgm))) {
-		cprintf("%d Higher access required.\n",
-			ERROR + HIGHER_ACCESS_REQUIRED);
-		return;
-	}
+	if (CtdlAccessCheck(ac_room_aide)) return;
 
 	/********
 	if (is_noneditable(&CC->quickroom)) {
@@ -929,16 +898,7 @@ void cmd_setr(char *args)
 	int new_order = 0;
 	int ne = 0;
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
-	if (!is_room_aide()) {
-		cprintf("%d Higher access required.\n",
-			ERROR + HIGHER_ACCESS_REQUIRED);
-		return;
-	}
-
+	if (CtdlAccessCheck(ac_room_aide)) return;
 
 	if (is_noneditable(&CC->quickroom)) {
 		ne = 1;
@@ -1044,10 +1004,8 @@ void cmd_geta(void)
 {
 	struct usersupp usbuf;
 
-	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
+	if (CtdlAccessCheck(ac_logged_in)) return;
+
 	if (is_noneditable(&CC->quickroom)) {
 		cprintf("%d Can't edit this room.\n", ERROR + NOT_HERE);
 		return;
@@ -1070,15 +1028,8 @@ void cmd_seta(char *new_ra)
 	char buf[256];
 	int post_notice;
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
-	if (!is_room_aide()) {
-		cprintf("%d Higher access required.\n",
-			ERROR + HIGHER_ACCESS_REQUIRED);
-		return;
-	}
+	if (CtdlAccessCheck(ac_room_aide)) return;
+
 	if (getuser(&usbuf, new_ra) != 0) {
 		newu = (-1L);
 	} else {
@@ -1188,15 +1139,8 @@ void cmd_kill(char *argbuf)
 
 	kill_ok = extract_int(argbuf, 0);
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
-	if (!is_room_aide()) {
-		cprintf("%d Higher access required.\n",
-			ERROR + HIGHER_ACCESS_REQUIRED);
-		return;
-	}
+	if (CtdlAccessCheck(ac_room_aide)) return;
+
 	if (is_noneditable(&CC->quickroom)) {
 		cprintf("%d Can't edit this room.\n", ERROR + NOT_HERE);
 		return;
@@ -1329,10 +1273,7 @@ void cmd_cre8(char *args)
 		}
 	}
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
+	if (CtdlAccessCheck(ac_logged_in)) return;
 
 	if (CC->usersupp.axlevel < config.c_createax) {
 		cprintf("%d You need higher access to create rooms.\n",
@@ -1402,15 +1343,8 @@ void cmd_einf(char *ok)
 	char infofilename[256];
 	char buf[256];
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
-	if (!is_room_aide()) {
-		cprintf("%d Higher access required.\n",
-			ERROR + HIGHER_ACCESS_REQUIRED);
-		return;
-	}
+	if (CtdlAccessCheck(ac_room_aide)) return;
+
 	if (atoi(ok) == 0) {
 		cprintf("%d Ok.\n", OK);
 		return;
@@ -1448,15 +1382,7 @@ void cmd_lflr(void)
 	int a;
 	struct floor flbuf;
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
-	/* if (getuser(&CC->usersupp,CC->curr_user)) {
-	   cprintf("%d Can't locate user!\n",ERROR+INTERNAL_ERROR);
-	   return;
-	   }
-	 */
+	if (CtdlAccessCheck(ac_logged_in)) return;
 
 	cprintf("%d Known floors:\n", LISTING_FOLLOWS);
 
@@ -1489,15 +1415,8 @@ void cmd_cflr(char *argbuf)
 	cflr_ok = extract_int(argbuf, 1);
 
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
-	if (CC->usersupp.axlevel < 6) {
-		cprintf("%d You need higher access to create rooms.\n",
-			ERROR + HIGHER_ACCESS_REQUIRED);
-		return;
-	}
+	if (CtdlAccessCheck(ac_aide)) return;
+
 	for (a = 0; a < MAXFLOORS; ++a) {
 		getfloor(&flbuf, a);
 
@@ -1548,16 +1467,8 @@ void cmd_kflr(char *argbuf)
 	floor_to_delete = extract_int(argbuf, 0);
 	kflr_ok = extract_int(argbuf, 1);
 
+	if (CtdlAccessCheck(ac_aide)) return;
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
-	if (CC->usersupp.axlevel < 6) {
-		cprintf("%d You need higher access to delete floors.\n",
-			ERROR + HIGHER_ACCESS_REQUIRED);
-		return;
-	}
 	lgetfloor(&flbuf, floor_to_delete);
 
 	delete_ok = 1;
@@ -1601,15 +1512,9 @@ void cmd_eflr(char *argbuf)
 		cprintf("%d Usage error.\n", ERROR);
 		return;
 	}
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
-	if (CC->usersupp.axlevel < 6) {
-		cprintf("%d You need higher access to edit floors.\n",
-			ERROR + HIGHER_ACCESS_REQUIRED);
-		return;
-	}
+
+	if (CtdlAccessCheck(ac_aide)) return;
+
 	floor_num = extract_int(argbuf, 0);
 	lgetfloor(&flbuf, floor_num);
 	if ((flbuf.f_flags & F_INUSE) == 0) {

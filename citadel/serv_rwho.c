@@ -170,11 +170,7 @@ void cmd_uchg(char *argbuf)
 
 	extract(newusername, argbuf, 0);
 
-	if (CC->usersupp.axlevel < 6) {
-		cprintf("%d You must be an Aide to masquerade your name.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
-		return;
-	}
+	if (CtdlAccessCheck(ac_aide)) return;
 
 	if (strlen(newusername) > 0) {
 		CC->cs_flags &= ~CS_STEALTH;
@@ -204,16 +200,7 @@ void cmd_stel(char *cmdbuf)
 	requested_mode = extract_int(cmdbuf,0);
 	if (requested_mode !=0) requested_mode = 1;
 
-	if (!CC->logged_in) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
-
-	if (CC->usersupp.axlevel < 6) {
-		cprintf("%d You must be an Aide to use stealth mode.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
-		return;
-		}
+	if (CtdlAccessCheck(ac_aide)) return;
 
 	if (CC->cs_flags & CS_STEALTH) {
 		if (requested_mode == 0)

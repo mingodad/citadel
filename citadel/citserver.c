@@ -511,11 +511,7 @@ void cmd_emsg(char *mname)
 	char *dirs[2];
 	int a;
 
-	if (CC->usersupp.axlevel < 6) {
-		cprintf("%d You must be an Aide to edit system messages.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
-		return;
-		}
+	if (CtdlAccessCheck(ac_aide)) return;
 
 	extract(buf,mname,0);
 	for (a=0; a<strlen(buf); ++a) {		/* security measure */
@@ -577,6 +573,42 @@ void GenerateRoomDisplay(char *real_room,
 
 }
 
+/*
+ * Convenience function.
+ */
+int CtdlAccessCheck(int required_level) {
+
+	if (CC->internal_pgm) return(0);
+	if (required_level >= ac_internal) {
+		cprintf("%d This is not a user-level command.\n",
+			ERROR+HIGHER_ACCESS_REQUIRED);
+		return(-1);
+	}
+
+	if (CC->usersupp.axlevel >= 6) return(0);
+ 	if (required_level >= ac_aide) {
+		cprintf("%d This command requires Aide access.\n",
+			ERROR+HIGHER_ACCESS_REQUIRED);
+		return(-1);
+	}
+
+	if (is_room_aide()) return(0);
+	if (required_level >= ac_room_aide) {
+		cprintf("%d This command requires Aide or Room Aide access.\n",
+			ERROR + HIGHER_ACCESS_REQUIRED);
+		return(-1);
+	}
+
+	if (CC->logged_in) return(0);
+	if (required_level >= ac_logged_in) {
+		cprintf("%d Not logged in.\n", ERROR+NOT_LOGGED_IN);
+		return(-1);
+	}
+
+	/* shhh ... succeed quietly */
+	return(0);
+}
+
 
 
 /*
@@ -588,16 +620,7 @@ void cmd_term(char *cmdbuf)
 	struct CitContext *ccptr;
 	int found_it = 0;
 
-	if (!CC->logged_in) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
-
-	if (CC->usersupp.axlevel < 6) {
-		cprintf("%d You must be an Aide to terminate sessions.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
-		return;
-		}
+	if (CtdlAccessCheck(ac_aide)) return;
 
 	session_num = extract_int(cmdbuf, 0);
 	if (session_num == CC->cs_pid) {
@@ -669,16 +692,8 @@ void cmd_ipgm(char *argbuf)
  * Shut down the server
  */
 void cmd_down(void) {
-	if (!CC->logged_in) {
-		cprintf("%d Not logged in.\n", ERROR+NOT_LOGGED_IN);
-		return;
-		}
 
-	if (CC->usersupp.axlevel < 6) {
-		cprintf("%d You must be an Aide to shut down the server.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
-		return;
-		}
+	if (CtdlAccessCheck(ac_aide)) return;
 
 	cprintf("%d Shutting down server.  Goodbye.\n", OK);
 	master_cleanup();
@@ -691,16 +706,7 @@ void cmd_scdn(char *argbuf)
 {
 	int new_state;
 
-	if (!CC->logged_in) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
-
-	if (CC->usersupp.axlevel < 6) {
-		cprintf("%d You must be an Aide to schedule a shutdown.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
-		return;
-		}
+	if (CtdlAccessCheck(ac_aide)) return;
 
 	new_state = extract_int(argbuf, 0);
 	if ((new_state == 0) || (new_state == 1)) {

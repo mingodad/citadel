@@ -31,3 +31,19 @@ void GenerateRoomDisplay(char *real_room,
                         struct CitContext *viewer);
 extern int do_defrag;
 char CtdlCheckExpress(void);
+
+int CtdlAccessCheck(int);
+
+/* 'required access level' values which may be passed to CtdlAccessCheck()
+ */
+enum {
+	ac_none,
+	ac_logged_in,
+	ac_room_aide,
+	ac_aide,
+	ac_internal
+};
+
+
+
+
