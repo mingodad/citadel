@@ -41,22 +41,43 @@
 #include "imap_fetch.h"
 
 
-
 /*
- * Back end function.
+ * imap_do_fetch() calls imap_do_fetch_msg() to output the deta of an
+ * individual message, once it has been successfully loaded from disk.
  */
-void imap_do_fetch(int lo, int hi, int num_items, char **itemlist) {
-	int i;
+void imap_do_fetch_msg(int seq, struct CtdlMessage *msg,
+			int num_items, char **itemlist) {
 
-	cprintf("* imap_do_fetch() lo=%d hi=%d num_items=%d\r\n",
-		lo, hi, num_items);
-
-	for (i=0; i<num_items; ++i) {
-		cprintf("* item[%d] = <%s>\r\n", i, itemlist[i]);
-	}
+	cprintf("* %d FETCH ", seq);
+	/* FIXME obviously we must do something here */
+	cprintf("\r\n");
 }
 
 
+
+/*
+ * imap_fetch() calls imap_do_fetch() to do its actual work, once it's
+ * validated and boiled down the request a bit.
+ */
+void imap_do_fetch(int lo, int hi, int num_items, char **itemlist) {
+	int i;
+	struct CtdlMessage *msg;
+
+	/*for (i=0; i<num_items; ++i) {
+		cprintf("* item[%d] = <%s>\r\n", i, itemlist[i]);
+	}*/
+
+	for (i = lo; i <= hi; ++i) {
+		msg = CtdlFetchMessage(IMAP->msgids[i-1]);
+		if (msg != NULL) {
+			imap_do_fetch_msg(i, msg, num_items, itemlist);
+			CtdlFreeMessage(msg);
+		}
+		else {
+			cprintf("* %d FETCH <internal error>\r\n", i);
+		}
+	}
+}
 
 
 
