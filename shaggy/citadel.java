@@ -65,6 +65,7 @@ public class citadel {
     if( theNet.connect(host) ) {
       System.out.println( "Connected to server." );
 
+      getReply( "IDEN 0|7|0.0|Shaggy|err.ahh.umm.com" );
       citReply rep = theNet.getReply( "INFO" );
       if( rep.listingFollows() )
 	serverInfo = new server( rep );
@@ -84,7 +85,7 @@ public class citadel {
 
   public String getSystemMessage( String name ) {
     citReply rep = getReply( "MESG " + name );
-    if( rep.listingFollows() )
+    if( (rep != null) && rep.listingFollows() )
       return rep.getData();
     else
       return "Couldn't find " + name;
@@ -169,6 +170,7 @@ public class citadel {
   }
 
   public void logoff() {
+    rooms.clear();
     cp.logoff(null);
     getReply( "QUIT" );
   }

@@ -40,6 +40,13 @@ public class roomMap {
     refreshed = false;
   }
 
+  public void clear() {
+    floors = null;
+    nrm = null;
+    srm = null;
+    refreshed = false;
+  }
+
   public void refresh() {
     if( refreshed ) return;
     if( (nrmL == null) || (srmL == null) ) return;
