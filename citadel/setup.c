@@ -48,7 +48,6 @@
 
 int setup_type;
 char setup_directory[SIZ];
-int need_init_q = 0;
 char init_entry[SIZ];
 
 char *setup_titles[] =
@@ -148,6 +147,16 @@ void set_init_entry(char *which_entry, char *new_state) {
 	while(fgets(buf, sizeof buf, fp) != NULL) {
 
 		if (num_tokens(buf, ':') == 4) {
+			extract_token(entry, buf, 0, ':');
+			extract_token(levels, buf, 1, ':');
+			extract_token(state, buf, 2, ':');
+			extract_token(prog, buf, 3, ':'); /* includes 0x0a LF */
+
+			if (!strcmp(entry, which_entry)) {
+				strcpy(state, new_state);
+				sprintf(buf, "%s:%s:%s:%s",
+					entry, levels, state, prog);
+			}
 		}
 
 		inittab = realloc(inittab, strlen(inittab) + strlen(buf) + 2);
@@ -211,8 +220,19 @@ void shutdown_service(void) {
 	if (!have_entry) return;
 
 	set_init_entry(init_entry, "off");
-
 }
+
+
+/*
+ * Start the Citadel service.
+ */
+void start_the_service(void) {
+	if (strlen(init_entry) > 0) {
+		set_init_entry(init_entry, "respawn");
+	}
+}
+
+
 
 void cleanup(int exitcode)
 {
@@ -223,8 +243,6 @@ void cleanup(int exitcode)
 		endwin();
 	}
 #endif
-
-	init_q();
 
 	exit(exitcode);
 }
@@ -473,23 +491,23 @@ void progress(char *text, long int curr, long int cmax)
  */
 void check_services_entry(void)
 {
-	char question[128];
+	int i;
 	FILE *sfp;
 
-	snprintf(question, sizeof question,
-		"There is no '%s' entry in /etc/services.  Would you like to add one?",
-		SERVICE_NAME);
-
 	if (getservbyname(SERVICE_NAME, PROTO_NAME) == NULL) {
-		if (yesno(question) == 1) {
-			sfp = fopen("/etc/services", "a");
-			if (sfp == NULL) {
-				display_error(strerror(errno));
-			} else {
-				fprintf(sfp, "%s		504/tcp\n",
-					SERVICE_NAME);
-				fclose(sfp);
+		for (i=0; i<3; ++i) {
+			progress("Adding service entry...", i, 3);
+			if (i == 0) {
+				sfp = fopen("/etc/services", "a");
+				if (sfp == NULL) {
+					display_error(strerror(errno));
+				} else {
+					fprintf(sfp, "%s		504/tcp\n",
+						SERVICE_NAME);
+					fclose(sfp);
+				}
 			}
+			sleep(1);
 		}
 	}
 }
@@ -505,39 +523,15 @@ void check_inittab_entry(void)
 	char buf[SIZ];
 	char looking_for[SIZ];
 	char question[128];
-	char *ptr;
-	int have_entry = 0;
 	char entryname[5];
 
 	/* Determine the fully qualified path name of citserver */
 	snprintf(looking_for, sizeof looking_for, "%s/citserver ", BBSDIR);
 
-	/* Pound through /etc/inittab line by line.  Set have_entry to 1 if
-	 * an entry is found which we believe starts citserver.
-	 */
-	infp = fopen("/etc/inittab", "r");
-	if (infp == NULL) {
-		return;
-	} else {
-		while (fgets(buf, sizeof buf, infp) != NULL) {
-			buf[strlen(buf) - 1] = 0;
-			ptr = strtok(buf, ":");
-			ptr = strtok(NULL, ":");
-			ptr = strtok(NULL, ":");
-			ptr = strtok(NULL, ":");
-			if (ptr != NULL) {
-				if (!strncmp(ptr, looking_for,
-				   strlen(looking_for))) {
-					++have_entry;
-				}
-			}
-		}
-		fclose(infp);
-	}
-
 	/* If there's already an entry, then we have nothing left to do. */
-	if (have_entry > 0)
+	if (strlen(init_entry) > 0) {
 		return;
+	}
 
 	/* Otherwise, prompt the user to create an entry. */
 	snprintf(question, sizeof question,
@@ -573,7 +567,7 @@ void check_inittab_entry(void)
 		fprintf(infp, "%s:2345:respawn:%s -h%s\n",
 			entryname, looking_for, setup_directory);
 		fclose(infp);
-		need_init_q = 1;
+		strcpy(init_entry, entryname);
 	}
 }
 
@@ -770,7 +764,11 @@ int main(int argc, char *argv[])
 	uname(&my_utsname);
 
 	/* See if we need to shut down the Citadel service. */
-	shutdown_service();
+	for (a=0; a<=5; ++a) {
+		progress("Shutting down the Citadel service...", a, 5);
+		if (a == 0) shutdown_service();
+		sleep(1);
+	}
 
 	/* Now begin. */
 	switch (setup_type) {
@@ -790,7 +788,7 @@ int main(int argc, char *argv[])
 	 * to read the old config parameters, they'll all come up zero.
 	 * The length of the config file will be set to what it's supposed
 	 * to be when we rewrite it, because we replace the old file with a
-	 * completely new copy.  (Neat, eh?)
+	 * completely new copy.
 	 */
 
 	if ((a = open("citadel.config", O_WRONLY | O_CREAT | O_APPEND,
@@ -815,7 +813,6 @@ int main(int argc, char *argv[])
 	}
 	fread((char *) &config, sizeof(struct config), 1, fp);
 	fclose(fp);
-
 
 	/* set some sample/default values in place of blanks... */
 	if (strlen(config.c_nodename) == 0)
@@ -898,7 +895,6 @@ int main(int argc, char *argv[])
 	if (config.c_pop3_port == 0) config.c_pop3_port = 110;
 	if (config.c_imap_port == 0) config.c_imap_port = 143;
 
-
 	/* Go through a series of dialogs prompting for config info */
 	if (setup_type != UI_SILENT) {
 		for (curr = 1; curr <= MAXSETUP; ++curr) {
@@ -962,7 +958,7 @@ NEW_INST:
 	mkdir(config.c_bucket_dir, 0700);
 
 	/* Delete a bunch of old files from Citadel v4; don't need anymore */
-	system("rm -fr ./chatpipes ./expressmsgs sessions 2>/dev/null");
+	system("rm -fr ./chatpipes ./expressmsgs ./sessions 2>/dev/null");
 
 	check_services_entry();	/* Check /etc/services */
 	check_inittab_entry();	/* Check /etc/inittab */
@@ -985,8 +981,20 @@ NEW_INST:
 	chmod("citadel.config", S_IRUSR | S_IWUSR);
 	progress("Setting file permissions", 4, 5);
 
-	important_message("Setup finished",
-	    "Setup is finished.  You may now start the Citadel server.");
+	/* See if we can start the Citadel service. */
+	if (strlen(init_entry) > 0) {
+		for (a=0; a<=5; ++a) {
+			progress("Starting the Citadel service...", a, 5);
+			if (a == 0) start_the_service();
+			sleep(1);
+		}
+		important_message("Setup finished",
+			"Setup is finished.  You may now log in.");
+	}
+	else {
+		important_message("Setup finished",
+			"Setup is finished.  You may now start the server.");
+	}
 
 	cleanup(0);
 	return 0;
