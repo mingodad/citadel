@@ -1,4 +1,9 @@
  $Log$
+ Revision 590.23  2001/12/29 04:21:22  nixo
+ stupid me. I didn't realize that asking for the header did what I wanted
+ so I changed my little 'y' hack to not bother reading the text of the
+ message. a little saving on the bandwidth.
+
  Revision 590.22  2001/12/28 22:32:38  nixo
  Added a "read m<y> next" function in read mode. It will skip to the next
  message by the user in the current message list (whatever mode you're in
@@ -3020,4 +3025,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

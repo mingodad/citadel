@@ -1419,10 +1419,10 @@ RMSGREAD:	fflush(stdout);
                 char buf[SIZ];
                 int founda = 0;
                 
-               	sprintf(buf, "MSG0 %ld|%d", msg_arr[finda], 0); /* read whole message so we can get 'from=' */
+               	sprintf(buf, "MSG0 %ld|%d", msg_arr[finda], 1); /* read the header so we can get 'from=' */
              	serv_puts(buf);
             	serv_gets(buf);
-            	while (serv_gets(buf), strncasecmp(buf, "text", 4)) 
+            	while (serv_gets(buf), strcmp(buf, "000")) 
                   {
             		if ((!strncasecmp(buf, "from=", 5)) && (finda != a)) /* Skip current message. */
             	      { 
@@ -1430,14 +1430,9 @@ RMSGREAD:	fflush(stdout);
                           {
                             a = lasta; /* meesa current */
                             founda = 1;
-                            break; /* while */
                           }
             		  }
             	  }
-                /* Now read the content of the message > /dev/null */
-        		while (serv_gets(buf), strcmp(buf, "000")) 
-        	      {
-        		  }
         	    // we are now in synch with the server
                 if (founda)
                   break; /* for */
