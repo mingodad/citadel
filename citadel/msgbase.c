@@ -187,6 +187,7 @@ GETSN:		do {
 			while (bbb[strlen(bbb) - 1] == '_')
 				bbb[strlen(bbb) - 1] = 0;
 			sprintf(name, &aaa[4], bbb);
+			lprintf(9, "returning MES_INTERNET\n");
 			return (MES_INTERNET);
 		}
 		if (!strncmp(aaa, "bin", 3)) {
@@ -203,10 +204,12 @@ GETSN:		do {
 			while (bbb[0] == ' ')
 				strcpy(bbb, &bbb[1]);
 			sprintf(name, "%s @%s", aaa, bbb);
+			lprintf(9, "returning MES_BINARY\n");
 			return (MES_BINARY);
 		}
 		return (MES_ERROR);
 	}
+	lprintf(9, "returning MES_LOCAL\n");
 	return (MES_LOCAL);
 }
 

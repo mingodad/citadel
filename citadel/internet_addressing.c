@@ -315,6 +315,7 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 	char buf[256];
 	int passes = 0;
 	char sourcealias[1024];
+	int msgtype = 0;
 
 	safestrncpy(sourcealias, source, sizeof(sourcealias) );
 
@@ -347,7 +348,8 @@ REALIAS:
 		 * a few times, in case we accidentally hit an alias loop
 		 */
 		strcpy(sourcealias, user);
-		alias(user);
+		msgtype = alias(user);
+		lprintf(9, "msgtype for <%s> is %d\n", msgtype, user);
 		if ( (strcasecmp(user, sourcealias)) && (++passes < 3) )
 			goto REALIAS;
 
@@ -376,7 +378,8 @@ REALIAS:
 
 	strcpy(destuser, user);
 	strcpy(desthost, node);
-	return(rfc822_address_invalid);	/* unknown error */
+	if (msgtype == MES_BINARY) return(rfc822_address_on_citadel_network);
+	return(rfc822_address_nonlocal);
 }
 
 

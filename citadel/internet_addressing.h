@@ -7,7 +7,7 @@ enum {
 	rfc822_address_locally_validated,
 	rfc822_no_such_user,
 	rfc822_address_on_citadel_network,
-	rfc822_address_invalid,
+	rfc822_address_nonlocal,
 	rfc822_room_delivery
 };
 

@@ -30,7 +30,6 @@
 #include "msgbase.h"
 #include "tools.h"
 #include "internet_addressing.h"
-#include "ignet.h"
 #include "genstamp.h"
 #include "domain.h"
 #include "clientsocket.h"
@@ -373,6 +372,7 @@ void smtp_rcpt(char *argbuf) {
 
 	cvt = convert_internet_address(user, node, recp);
 	sprintf(recp, "%s@%s", user, node);
+	lprintf(9, "cvt=%d, citaddr=<%s@%s>\n", cvt, user, node);
 
 	switch(cvt) {
 		case rfc822_address_locally_validated:
@@ -399,7 +399,19 @@ void smtp_rcpt(char *argbuf) {
 			cprintf("550 %s: no such user\r\n", recp);
 			return;
 
-		case rfc822_address_invalid:
+		case rfc822_address_on_citadel_network:
+			cprintf("250 %s is on the local network\r\n", recp);
+			++SMTP->number_of_recipients;
+			CtdlReallocUserData(SYM_SMTP_RECP,
+				strlen(SMTP_RECP) + 1024 );
+			strcat(SMTP_RECP, "ignet|");
+			strcat(SMTP_RECP, user);
+			strcat(SMTP_RECP, "|");
+			strcat(SMTP_RECP, node);
+			strcat(SMTP_RECP, "|0|\n");
+			return;
+
+		case rfc822_address_nonlocal:
 			if (is_spam) {
 				cprintf("551 Away with thee, spammer!\r\n");
 			}
@@ -420,6 +432,37 @@ void smtp_rcpt(char *argbuf) {
 }
 
 
+
+/*
+ * Send a message out through the local network
+ * (This is kind of ugly.  IGnet should be done using clean server-to-server
+ * code instead of the old style spool.)
+ */
+void smtp_deliver_ignet(struct CtdlMessage *msg, char *user, char *room) {
+	struct ser_ret smr;
+	char *hold_R, *hold_D;
+	FILE *fp;
+
+	hold_R = msg->cm_fields['R'];
+	hold_D = msg->cm_fields['D'];
+	msg->cm_fields['R'] = user;
+	msg->cm_fields['D'] = room;
+
+	serialize_message(&smr, msg);
+
+	msg->cm_fields['R'] = hold_R;
+	msg->cm_fields['D'] = hold_D;
+
+	if (smr.len != 0) {
+		fp = fopen(tmpnam("./network/spoolin/"), "wb");
+		if (fp != NULL) {
+			fwrite(smr.ser, smr.len, 1, fp);
+			fclose(fp);
+		}
+		phree(smr.ser);
+	}
+
+}
 
 
 
@@ -487,6 +530,11 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 			extract(room, buf, 1);
 			CtdlSaveMsgPointerInRoom(room, msgid, 0);
 			++successful_saves;
+		}
+
+		/* Delivery over the local Citadel network (IGnet) */
+		if (!strcasecmp(dtype, "ignet")) {
+			smtp_deliver_ignet(msg, user, room);
 		}
 
 		/* Remote delivery */
@@ -705,18 +753,6 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 
 	/* Parse out the host portion of the recipient address */
 	process_rfc822_addr(addr, user, node, name);
-
-	if (is_ignet(node)) {
-		if (ignet_spool_to(node, msgnum) == 0) {
-			strcpy(dsn, "Delivery via Citadel network successful");
-			*status = 2;
-		}
-		else {
-			strcpy(dsn, "Delivery via Citadel network failed");
-			*status = 5;
-		}
-		return;
-	}
 
 	lprintf(9, "Attempting SMTP delivery to <%s> @ <%s> (%s)\n",
 		user, node, name);
