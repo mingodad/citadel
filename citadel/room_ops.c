@@ -1282,7 +1282,11 @@ unsigned create_room(char *new_room_name,
 	 */
 	if (!really_create) return (qrbuf.QRflags);
 
-	cdb_begin_transaction();
+	/* cdb_begin_transaction();  commented out because a transaction
+	   is already open when creating __CtdlSMTPspoolout__ while
+	   initializing serv_smtp.c
+	 */
+
 	qrbuf.QRnumber = get_new_room_number();
 	qrbuf.QRhighest = 0L;	/* No messages in this room yet */
 	time(&qrbuf.QRgen);	/* Use a timestamp as the generation number */
@@ -1305,7 +1309,7 @@ unsigned create_room(char *new_room_name,
 	lputuser(&CC->usersupp);
 
 	/* resume our happy day */
-	cdb_end_transaction();
+	/* cdb_end_transaction(); */
 	return (qrbuf.QRflags);
 }
 
