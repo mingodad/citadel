@@ -8,6 +8,7 @@
 #include <limits.h>
 #include "citadel.h"
 #include "tools.h"
+#include "ipc.h"
 
 /*
  * This variable defines the amount of network spool data that may be carried
@@ -19,7 +20,6 @@
 
 long atol(const char *);
 
-void attach_to_server(int argc, char **argv);
 void serv_read(char *buf, int bytes);
 void serv_write(char *buf, int nbytes);
 void get_config(void);
@@ -154,7 +154,7 @@ int main(int argc, char **argv)
 	}
 	get_config();
 
-	attach_to_server(argc, argv);
+	attach_to_server(argc, argv, NULL, NULL);
 	serv_gets(buf);
 	printf("%s\n", buf);
 	if ((buf[0] != '2') && (strncmp(buf, "551", 3))) {

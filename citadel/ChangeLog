@@ -1,4 +1,7 @@
  $Log$
+ Revision 571.7  2000/05/20 23:28:20  ajc
+ * Fixed bug in client API that was causing netproc to crash
+
  Revision 571.6  2000/05/15 00:05:19  ajc
  * Double the retry interval for SMTP deliveries after each failed attempt.
 
@@ -1875,3 +1878,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

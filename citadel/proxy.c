@@ -403,7 +403,7 @@ void main(int argc, char *argv[]) {
 #ifdef ENABLE_PREFETCH
 	pid = fork();
 #endif
-	attach_to_server(argc, argv);
+	attach_to_server(argc, argv, NULL, NULL);
 #ifdef ENABLE_PREFETCH
 	if (pid == 0) do_prefetch();
 #endif

@@ -286,6 +286,7 @@ void attach_to_server(int argc, char **argv, char *hostbuf, char *portbuf)
 	strcpy(citport, DEFAULT_PORT);	/* default port */
 	strcpy(socks4, "");	/* SOCKS v4 server */
 
+
 	for (a = 0; a < argc; ++a) {
 		if (a == 0) {
 			/* do nothing */
@@ -316,16 +317,16 @@ void attach_to_server(int argc, char **argv, char *hostbuf, char *portbuf)
 	if (!strcmp(cithost, UDS)) {
 		sprintf(sockpath, "%s/citadel.socket", BBSDIR);
 		serv_sock = uds_connectsock(sockpath);
-		strcpy(hostbuf, cithost);
-		strcpy(portbuf, sockpath);
+		if (hostbuf != NULL) strcpy(hostbuf, cithost);
+		if (portbuf != NULL) strcpy(portbuf, sockpath);
 		return;
 	}
 
 	/* if not using a SOCKS proxy server, make the connection directly */
 	if (strlen(socks4) == 0) {
 		serv_sock = connectsock(cithost, citport, "tcp");
-		strcpy(hostbuf, cithost);
-		strcpy(portbuf, citport);
+		if (hostbuf != NULL) strcpy(hostbuf, cithost);
+		if (portbuf != NULL) strcpy(portbuf, citport);
 		return;
 	}
 	/* if using SOCKS, connect first to the proxy... */
