@@ -223,9 +223,11 @@ void RoomView::do_readloop(wxString readcmd) {
 		allmsgs += asctime(localtime(&message->timestamp));
 		allmsgs += " from " + message->author;
 		if (message->room.CmpNoCase(ThisRoom))
-			allmsgs += " @ " + message->room;
+			allmsgs += " in " + message->room + "> ";
 		if (message->nodename.CmpNoCase(citsock->NodeName))
 			allmsgs += " @ " + message->nodename;
+		if (message->recipient.Length() > 0)
+			allmsgs += " to " + message->recipient;
 		allmsgs += "</font></em><br>";
 		allmsgs += message->msgtext;
 

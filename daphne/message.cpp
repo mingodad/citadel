@@ -10,6 +10,7 @@ CitMessage::CitMessage(CitClient *sock, wxString getmsg_cmd, wxString inRoom) {
 
 	room.Empty();
 	author.Empty();
+	recipient.Empty();
 	msgtext.Empty();
 	timestamp = time(NULL);		// nb. this is Unix-specific
 	format_type = 0;
@@ -32,6 +33,8 @@ CitMessage::CitMessage(CitClient *sock, wxString getmsg_cmd, wxString inRoom) {
 				in_text = TRUE;
 			else if (!key.CmpNoCase("from"))
 				author = buf.Mid(5);
+			else if (!key.CmpNoCase("rcpt"))
+				recipient = buf.Mid(5);
 			else if (!key.CmpNoCase("time"))
 				timestamp = atol(buf.Mid(5));
 			else if (!key.CmpNoCase("room"))

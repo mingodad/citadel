@@ -53,6 +53,7 @@ public:
 	void GotoNewRoom(wxTreeEvent& event);
 private:
 	void OnConnect(wxCommandEvent& event);
+	void OnGotoMail(wxCommandEvent& event);
 	void OnTestWin(wxCommandEvent& event);
 	void OnUsersMenu(wxCommandEvent& cmd);
 	void OnRoomsMenu(wxCommandEvent& cmd);
@@ -83,7 +84,8 @@ enum
 	UMENU_SEND_EXPRESS,
 	RMENU_GOTO,
 	BUTTON_DO_CMD,
-	ROOMTREE_DOUBLECLICK
+	ROOMTREE_DOUBLECLICK,
+	GOTO_MAIL
 };
 
 // ----------------------------------------------------------------------------
@@ -97,6 +99,7 @@ BEGIN_EVENT_TABLE(	MyFrame, wxMDIParentFrame)
 	EVT_MENU(	IG_Quit,		MyFrame::OnQuit)
 	EVT_MENU(	IG_About,		MyFrame::OnAbout)
 	EVT_MENU(	MENU_CONNECT,		MyFrame::OnConnect)
+	EVT_MENU(	GOTO_MAIL,		MyFrame::OnGotoMail)
 	EVT_MENU(	MENU_TESTWIN,		MyFrame::OnTestWin)
 	EVT_MENU(	UMENU_WHO,		MyFrame::OnUsersMenu)
 	EVT_MENU(	UMENU_SEND_EXPRESS,	MyFrame::OnUsersMenu)
@@ -247,7 +250,7 @@ void MyFrame::InitToolBar(wxToolBar* toolBar) {
 			
 	toolBar->AddSeparator();
 
-	toolBar->AddTool(DO_NOTHING,
+	toolBar->AddTool(GOTO_MAIL,
 			*bitmaps[1],
 			wxNullBitmap,
 			FALSE,
@@ -338,6 +341,7 @@ void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
 void MyFrame::OnDoCmd(wxCommandEvent& whichbutton) {
 }
 
+
 void MyFrame::OnConnect(wxCommandEvent& unused) {
 	int retval;
 	wxString DefaultHost, DefaultPort;
@@ -361,6 +365,10 @@ void MyFrame::OnConnect(wxCommandEvent& unused) {
 		}
 	}
 }
+
+void MyFrame::OnGotoMail(wxCommandEvent& unused) {
+	new RoomView(citadel, this, "_MAIL_");
+	}
 
 void MyFrame::OnTestWin(wxCommandEvent& unused) {
 	new TestWindow(citadel, this);

@@ -262,6 +262,7 @@ class CitMessage {
 public:
 	CitMessage(CitClient *sock, wxString getmsg_cmd, wxString inRoom);
 	wxString author;
+	wxString recipient;
 	long timestamp;
 	wxString room;
 	wxString msgtext;
