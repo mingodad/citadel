@@ -45,18 +45,18 @@ void cmd_ical(char *argbuf)
 /* We don't know if the calendar room exists so we just create it at login */
 void ical_create_room(void)
 {
-	char roomname[ROOMNAMELEN];
 	struct quickroom qr;
 
 	/* Create the room if it doesn't already exist */
 	create_room(USERCALENDARROOM, 4, "", 0, 1);
 	/* Set expiration policy to manual; otherwise objects will be lost! */
-	if (lgetroom(&qr, roomname)) {
+	if (lgetroom(&qr, USERCALENDARROOM)) {
 		lprintf(3, "Couldn't get the user calendar room!\n");
 		return;
 	}
 	qr.QRep.expire_mode = EXPIRE_MANUAL;
 	lputroom(&qr);
+	lprintf(9, "Set user calendar room to manual expire\n");
 	return;
 }
 
