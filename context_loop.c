@@ -220,10 +220,19 @@ void *context_loop(int sock) {
 		write(TheSession->inpipe[1], "\n", 1);
 		}
 	printf("   Writing %d bytes of content\n", ContentLength);
-	while (ContentLength--) {
-		read(sock, buf, 1);
-		write(TheSession->inpipe[1], buf, 1);
-		}
+	if (ContentLength > 0) {
+		while (ContentLength > 0) {
+			a = ContentLength;
+			if (a > sizeof buf) a = sizeof buf;
+			if (!client_read(sock, buf, a)) goto end;
+			if (write(TheSession->inpipe[1], buf, a) != a) goto end;
+			ContentLength -= a;
+			}
+
+		/* Discard the CRLF following the POST data. Yes, this is
+		 * necessary. No, you don't want to know why. */
+		if (!client_read(sock, buf, 2)) goto end;
+		}	
 
 	/*
 	 * ...and get the response.
@@ -248,32 +257,12 @@ void *context_loop(int sock) {
 		}
 
 	/*
-	 * Now our HTTP connection is done.  It would be relatively easy
-	 * to support HTTP/1.1 "persistent" connections by looping back to
-	 * the top of this function.  For now, we'll just close.
-	 */
-
-	/* FIX ... This is a weird problem, exhibited on Linux 2.1.130...
-	 * the socket doesn't linger properly before closing, so we implement
-	 * a ten-second delay before closing the socket.
-	printf("   Lingering...\n");
-	sleep(10);
-	 */
-
-	printf("   Closing socket\n");
-	close(sock);
-
-	unlock_session(TheSession);
-
-	/*
 	 * If the last response included a "close session" directive,
 	 * remove the context now.
 	 */
 	if (CloseSession) {
 		printf("Removing session.\n");
 		pthread_mutex_lock(&MasterCritter);
-
-		lock_session(TheSession);
 
 		if (SessionList==TheSession) {
 			SessionList = SessionList->next;
@@ -293,8 +282,20 @@ void *context_loop(int sock) {
 	
 		pthread_mutex_unlock(&MasterCritter);
 		}
+	else {
+	end:
+		unlock_session(TheSession);
+		}
+
+        /*
+         * Now our HTTP connection is done.  It would be relatively easy
+         * to support HTTP/1.1 "persistent" connections by looping back to
+         * the top of this function.  For now, we'll just close.
+         */
 
 	free(req);
+        printf("   Closing socket\n");
+	close(sock);
 
 	/*
 	 * The thread handling this HTTP connection is now finished.

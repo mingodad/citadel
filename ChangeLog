@@ -1,3 +1,6 @@
+1998-12-09 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* context_loop.c, webserver.c, webserver.h: SO_LINGER and locking fix
+
 Wed Dec  9 11:13:48 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Smoothed out some of the login/logout code.  Failed authentication
 	  now works the way it should.  New user login not yet supported.
