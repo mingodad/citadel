@@ -44,6 +44,12 @@ connection to the server.  If the server is maxed out, whobbs will still be
 able to provide a listing, because it doesn't need to log in to execute the
 RWHO command.  Note that whobbs does not list its own session.
  
+   The "whobbs" utility is smart enough to know when it is being invoked by a
+web server as a CGI program.  In this situation, it will output its listing as
+a nicely formatted web page instead of plain text.  This makes it easy to just
+put a link to the whobbs binary in your cgi-bin directory, allowing a quick and
+easy way for web surfers to see who is online.
+ 
    Running the <W>ho is online command from the client does *not* call this
 utility.  It has this functionality built in.
    
