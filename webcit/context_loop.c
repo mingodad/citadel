@@ -245,6 +245,8 @@ void *context_loop(int sock) {
 		pthread_exit(NULL);
 		}
 
+	bzero(req, sizeof(char[256][256]));	/* clear it out */
+
 	printf("Reading request from socket %d\n", sock);
 
 	/*
