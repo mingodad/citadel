@@ -1684,9 +1684,9 @@ TERMN8:	scr_printf("%s logged out.\n", fullname);
 		sln_printf("\n\nType 'off' to disconnect, or next user...\n");
 	}
 	CtdlIPCLogout();
-	screen_delete();
-	sttybbs(SB_RESTORE);
 	if ((mcmd == 29) || (mcmd == 15)) {
+		screen_delete();
+		sttybbs(SB_RESTORE);
 		formout("goodbye");
 		logoff(0);
 	}
