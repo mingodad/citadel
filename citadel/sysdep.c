@@ -118,7 +118,7 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 		if (loglevel <= verbosity) {
 			/* Hackery -IO */
 			if (CC && CC->cs_pid) {
-				memmove(buf + 6, buf, sizeof(buf) - 6);
+				memmove(&buf[6], buf, sizeof(buf) - 6);
 				snprintf(buf, 6, "[%3d]", CC->cs_pid);
 				buf[5] = ' ';
 			}
