@@ -213,14 +213,17 @@ void wDumpContent(int print_standard_html_footer)
 	if (fake_frames) {
 		wprintf("<CENTER><FONT SIZE=-1>"
 			"<A HREF=\"/ungoto\">"
-			"<IMG SRC=\"/static/back.gif\" BORDER=0>"
+			"<IMG SRC=\"/static/bleft.gif\" BORDER=0>"
 			"Ungoto</A>&nbsp;&nbsp;&nbsp;");
 		wprintf("<A HREF=\"#TheTop\">"
-			"<IMG SRC=\"/static/up.gif\" BORDER=0>"
+			"<IMG SRC=\"/static/bup.gif\" BORDER=0>"
 			"Top of page</A>&nbsp;&nbsp;&nbsp;");
+		wprintf("<A HREF=\"/display_enter\">"
+			"<IMG SRC=\"/static/enter.gif\" BORDER=0>"
+			"Enter a message</A>&nbsp;&nbsp;&nbsp;");
 		wprintf("<A HREF=\"/gotonext\">"
 			"Goto next room"
-			"<IMG SRC=\"/static/forward.gif\" BORDER=0></A>"
+			"<IMG SRC=\"/static/bright.gif\" BORDER=0></A>"
 			"</FONT>\n"
 			"</TD></TR></TABLE></TABLE>\n");
 		fake_frames = 0;
