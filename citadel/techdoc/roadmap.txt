@@ -24,3 +24,5 @@ Goals to achieve during the 6.xx cycle
   connector software for various external calendar clients.
 
 * NNTP
+  This needs some research, but I think it's technically going to be more
+  trouble than it's worth. -IO

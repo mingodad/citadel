@@ -1,4 +1,7 @@
  $Log$
+ Revision 612.3  2003/12/07 19:57:48  error
+ * Added some useless comments to some of the techdocs/ files
+
  Revision 612.2  2003/12/07 19:56:24  error
  * CREU command now allows specification of an initial password
 
@@ -5105,3 +5108,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

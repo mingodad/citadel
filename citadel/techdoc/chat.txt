@@ -1,5 +1,6 @@
 Chat subsystem information
 Brian Costello <btx@calyx.net>
+[Edits in brackets by Michael Hampton <error@citadel.org>]
 
 Chat / Messaging system
 -----------------------
@@ -8,7 +9,9 @@ I envision a chat system that can be used for a variety of uses, from
 chatting in realtime to file exchange to slide presentations.
 
 Rooms will be able to have invitation lists -- perfect for scheduling a
-private meeting with various people around the world.
+private meeting with various people around the world.  [This could apply to
+both private and public rooms; though we already have chat on-demand, this
+would allow specific participants to indicate their interest in a given chat.]
 
 Meetings will be scheduled by the system scheduler.  The scheduler is not
 part of this project -- the scheduler will do the work of determining a time
@@ -29,15 +32,18 @@ the room.
 Messages should be able to be sent to anyone on the bbs from the page system
 to the chat system and vice versa.
 
-This can be implemented with the current citadel clients.
+This can be implemented with the current citadel clients.  [I can't send a
+message from a user to a chat unless that user is already in the chat or has
+access to it.  The other way round is just fine, though.]
 
-Tranfers
---------
+Transfers
+---------
 An addition that would be useful here would be the ability to send a file to
 everyone in a room as well as individual users.
 
 This cannot be implemented with the current citadel clients -- I DON'T
-THINK.  I'm not sure.
+THINK.  I'm not sure.  [You're right.  We have no way to "push" files to
+users at present.]
 
 Graphics transfers
 ------------------
@@ -46,7 +52,7 @@ will be used to send the graphics so you would be able to send slides to
 everyone or just one user.
 
 This will have to be written into the client (Unix client calls xv, for
-example)  
+example).  [I've already started on file/graphics viewing for the text client.]
 
 Structures
 ----------
@@ -94,5 +100,5 @@ Definitions
 
 Schedule
 --------
-The stuff that can be implemented in terms of the currentl client will go
+The stuff that can be implemented in terms of the current client will go
 first.  The transfers will come next.
