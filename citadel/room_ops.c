@@ -383,7 +383,7 @@ int sort_msglist(long listptrs[], int oldcount)
 int is_noneditable(struct quickroom *qrbuf) {
 	if (!strcasecmp(qrbuf->QRname, BASEROOM)) return(0);
 	else if (!strcasecmp(qrbuf->QRname, AIDEROOM)) return(0);
-	elsereturn(1);
+	else return(1);
 	}
 
 /* 
