@@ -23,6 +23,7 @@
 #include <stdarg.h>
 #include <pthread.h>
 #include <signal.h>
+#include <sys/time.h>
 #include "webcit.h"
 
 
@@ -129,4 +130,29 @@ char ch;
 		if (st[a] == ch)
 			++b;
 	return (b);
+}
+
+
+/*
+ * Format a date/time stamp for output 
+ */
+void fmt_date(char *buf, time_t thetime) {
+	struct tm *tm;
+
+	char *ascmonths[] = {
+		"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+	};
+
+	strcpy(buf, "");
+	tm = localtime(&thetime);
+
+	sprintf(buf, "%s %d %d %2d:%02d%s",
+		ascmonths[tm->tm_mon],
+		tm->tm_mday,
+		tm->tm_year + 1900,
+		( (tm->tm_hour > 12) ? (tm->tm_hour - 12) : (tm->tm_hour) ),
+		tm->tm_min,
+		( (tm->tm_hour > 12) ? "pm" : "am" )
+	);
 }
