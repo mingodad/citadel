@@ -27,7 +27,7 @@
 # wget -q -O - http://easyinstall.citadel.org/install | sh
 #
 # Note that this script installs software on your system and so it requires
-# root privileges.  Feel free to inspect the script to make sure I didn't
+# root privileges.  Feel free to inspect the script to make sure we didn't
 # do anything stupid...
 #
 # We have provided you the source code according to the terms of the respective
@@ -36,8 +36,8 @@
 #
 # We install the following versions in this release:
 # Package      Version                 Status
-# Citadel      6.24                    Latest
-# WebCit       5.23                    Latest
+# Citadel      6.27                    Latest
+# WebCit       5.27                    Latest
 # libical      0.24.RC4                Latest
 # Berkeley DB  4.3.21                  Stable
 # OpenLDAP     2.1.30 stable-20040329  Stable
