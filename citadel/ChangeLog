@@ -1,4 +1,9 @@
  $Log$
+ Revision 606.3  2003/05/26 05:30:18  ajc
+ * serv_calendar.c: fixed a bug in the "ICAL freebusy" subcommand which
+   caused it to always fetch the logged in user's freebusy times instead
+   of the user specified.
+
  Revision 606.2  2003/05/22 13:34:30  ajc
  * database_sleepycat.c: added a couple of diagnostic messages to help
    troubleshoot problems with db-4.1.25 on Red Hat Linux 9
@@ -4719,4 +4724,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

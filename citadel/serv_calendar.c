@@ -1152,7 +1152,7 @@ void ical_freebusy(char *who) {
 
 	strcpy(hold_rm, CC->quickroom.QRname);	/* save current room */
 
-	if (getroom(&CC->quickroom, USERCALENDARROOM) != 0) {
+	if (getroom(&CC->quickroom, calendar_room_name) != 0) {
 		cprintf("%d Cannot open calendar\n", ERROR+ROOM_NOT_FOUND);
 		getroom(&CC->quickroom, hold_rm);
 		return;
