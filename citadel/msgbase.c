@@ -2350,7 +2350,7 @@ void cmd_dele(char *delstr)
 int CtdlCopyMsgToRoom(long msgnum, char *dest) {
 	int err;
 
-	err = CtdlSaveMsgPointerInRoom(targ, num,
+	err = CtdlSaveMsgPointerInRoom(dest, msgnum,
 		(SM_VERIFY_GOODNESS | SM_DO_REPL_CHECK) );
 	if (err != 0) return(err);
 
