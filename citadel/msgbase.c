@@ -1,4 +1,4 @@
-/* 
+/*
  * $Id$
  *
  * Implements the message store.
@@ -85,13 +85,12 @@ void remove_any_whitespace_to_the_left_or_right_of_at_symbol(char *name)
 {
 	int i;
 
-stov:	for (i = 0; i < strlen(name); ++i) {
+	for (i = 0; i < strlen(name); ++i) {
 		if (name[i] == '@') {
-			if (i > 0)
-				if (isspace(name[i - 1])) {
-					strcpy(&name[i - 1], &name[i]);
-					goto stov; /* start over */
-				}
+			while (isspace(name[i - 1]) && i > 0) {
+				strcpy(&name[i - 1], &name[i]);
+				--i;
+			}
 			while (isspace(name[i + 1])) {
 				strcpy(&name[i + 1], &name[i + 2]);
 			}
@@ -171,7 +170,7 @@ int alias(char *name)
 			strcpy(bbb, &bbb[1]);
 		fp = fopen("network/mail.sysinfo", "r");
 		if (fp == NULL)
-			return (MES_ERROR);
+			return (MES_ERROR);    
 GETSN:		do {
 			a = getstring(fp, aaa);
 		} while ((a >= 0) && (strcasecmp(aaa, bbb)));
@@ -507,67 +506,65 @@ void memfmout(
 	strcpy(buffer, "");
 	c = 1;			/* c is the current pos */
 
-FMTA:	if (subst) {
-		while (ch = *mptr, ((ch != 0) && (strlen(buffer) < 126))) {
-			ch = *mptr++;
+	do {
+		if (subst) {
+			while (ch = *mptr, ((ch != 0) && (strlen(buffer) < 126))) {
+				ch = *mptr++;
+				buffer[strlen(buffer) + 1] = 0;
+				buffer[strlen(buffer)] = ch;
+			}
+
+			if (buffer[0] == '^')
+				do_help_subst(buffer);
+
 			buffer[strlen(buffer) + 1] = 0;
-			buffer[strlen(buffer)] = ch;
+			a = buffer[0];
+			strcpy(buffer, &buffer[1]);
+		} else {
+			ch = *mptr++;
 		}
 
-		if (buffer[0] == '^')
-			do_help_subst(buffer);
+		old = real;
+		real = ch;
 
-		buffer[strlen(buffer) + 1] = 0;
-		a = buffer[0];
-		strcpy(buffer, &buffer[1]);
-	} else {
-		ch = *mptr++;
-	}
-
-	old = real;
-	real = ch;
-	if (ch <= 0)
-		goto FMTEND;
-
-	if (((ch == 13) || (ch == 10)) && (old != 13) && (old != 10))
-		ch = 32;
-	if (((old == 13) || (old == 10)) && (isspace(real))) {
-		cprintf("%s", nl);
-		c = 1;
-	}
-	if (ch > 126)
-		goto FMTA;
-
-	if (ch > 32) {
-		if (((strlen(aaa) + c) > (width - 5)) && (strlen(aaa) > (width - 5))) {
-			cprintf("%s%s", nl, aaa);
-			c = strlen(aaa);
-			aaa[0] = 0;
-		}
-		b = strlen(aaa);
-		aaa[b] = ch;
-		aaa[b + 1] = 0;
-	}
-	if (ch == 32) {
-		if ((strlen(aaa) + c) > (width - 5)) {
+		if (((ch == 13) || (ch == 10)) && (old != 13) && (old != 10))
+			ch = 32;
+		if (((old == 13) || (old == 10)) && (isspace(real))) {
 			cprintf("%s", nl);
 			c = 1;
 		}
-		cprintf("%s ", aaa);
-		++c;
-		c = c + strlen(aaa);
-		strcpy(aaa, "");
-		goto FMTA;
-	}
-	if ((ch == 13) || (ch == 10)) {
-		cprintf("%s%s", aaa, nl);
-		c = 1;
-		strcpy(aaa, "");
-		goto FMTA;
-	}
-	goto FMTA;
+		if (ch > 126)
+			continue;
 
-FMTEND:	cprintf("%s%s", aaa, nl);
+		if (ch > 32) {
+			if (((strlen(aaa) + c) > (width - 5)) && (strlen(aaa) > (width - 5))) {
+				cprintf("%s%s", nl, aaa);
+				c = strlen(aaa);
+				aaa[0] = 0;
+			}
+			b = strlen(aaa);
+			aaa[b] = ch;
+			aaa[b + 1] = 0;
+		}
+		if (ch == 32) {
+			if ((strlen(aaa) + c) > (width - 5)) {
+				cprintf("%s", nl);
+				c = 1;
+			}
+			cprintf("%s ", aaa);
+			++c;
+			c = c + strlen(aaa);
+			strcpy(aaa, "");
+		}
+		if ((ch == 13) || (ch == 10)) {
+			cprintf("%s%s", aaa, nl);
+			c = 1;
+			strcpy(aaa, "");
+		}
+
+	} while (ch > 0);
+
+	cprintf("%s%s", aaa, nl);
 }
 
 
@@ -2029,27 +2026,26 @@ void cmd_ent0(char *entargs)
 		}
 		if (!strcasecmp(buf, "sysop")) {
 			mtsflag = 1;
-			goto SKFALL;
 		}
-		if (e != MES_LOCAL)
-			goto SKFALL;	/* don't search local file  */
-		if (!strcasecmp(buf, CC->usersupp.fullname)) {
-			cprintf("%d Can't send mail to yourself!\n",
-				ERROR + NO_SUCH_USER);
-			return;
+		else if (e == MES_LOCAL) {	/* don't search local file */
+			if (!strcasecmp(buf, CC->usersupp.fullname)) {
+				cprintf("%d Can't send mail to yourself!\n",
+					ERROR + NO_SUCH_USER);
+				return;
+			}
+			/* Check to make sure the user exists; also get the correct
+			 * upper/lower casing of the name.
+			 */
+			a = getuser(&tempUS, buf);
+			if (a != 0) {
+				cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
+				return;
+			}
+			strcpy(buf, tempUS.fullname);
 		}
-		/* Check to make sure the user exists; also get the correct
-		 * upper/lower casing of the name. 
-		 */
-		a = getuser(&tempUS, buf);
-		if (a != 0) {
-			cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
-			return;
-		}
-		strcpy(buf, tempUS.fullname);
 	}
 
-SKFALL:	b = MES_NORMAL;
+	b = MES_NORMAL;
 	if (CC->quickroom.QRflags & QR_ANONONLY)
 		b = MES_ANON;
 	if (CC->quickroom.QRflags & QR_ANONOPT) {

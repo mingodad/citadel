@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.18  2000/10/28 14:14:19  error
+ * msgbase.c: eliminated most gotos; a single goto in alias() remains because
+   it actually makes sense to do it that way...
+
  Revision 573.17  2000/10/25 21:37:09  ajc
  * Implemented the AUTHENTICATE LOGIN command in IMAP
 
@@ -2109,4 +2113,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
