@@ -59,8 +59,10 @@ public class enterPanel extends JPanel{
 		if( ri.mail ) cmd = cmd + to.getText();
 		cmd = cmd+"|0|0|0";
 
-		System.out.println( msg.getText() );
-		citadel.me.networkEvent( cmd, msg.getText(), new CallBack() {
+		String	theMsg = wrap( msg.getText() );
+
+		System.out.println( theMsg );
+		citadel.me.networkEvent( cmd, theMsg, new CallBack() {
 		    public void run( citReply r ) {
 			if( r.error() )
 			    citadel.me.warning( r.getArg(0) );
@@ -84,5 +86,21 @@ public class enterPanel extends JPanel{
 	to.setText( "" );
 
 	to.setEnabled( ri.mail );
+    }
+
+    public String wrap( String in ) {
+	StringBuffer	b = new StringBuffer( in );
+	int	last_space = 0, line_length=0;
+	for( int i = 0; i < b.length(); i++ ) {
+	    line_length++;
+	    if( line_length > 76 ) {
+		b.setCharAt( last_space, '\n' );
+		line_length = 0;
+	    }
+
+	    if( b.charAt(i) == ' ' )
+		last_space = i;
+	}
+	return b.toString();
     }
 }
