@@ -1,4 +1,8 @@
 $Log$
+Revision 1.397  1999/10/26 20:20:29  ajc
+* Removed the auto-reconnect stuff... it was locking the client in an active
+  loop more often than it was reconnecting.
+
 Revision 1.396  1999/10/26 13:59:11  ajc
 damn bugs
 
@@ -1360,4 +1364,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

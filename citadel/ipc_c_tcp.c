@@ -51,11 +51,20 @@ char server_is_local = 0;
 
 int serv_sock;
 
+void connection_died(void) {
+	fprintf(stderr, "\r"
+			"Your connection to this Citadel server is broken.\n"
+			"Please re-connect and log in again.\n");
+	logoff(3);
+}
+
+
 void timeout(int signum)
 {
 	printf("\rConnection timed out.\n");
 	logoff(3);
 }
+
 
 int connectsock(char *host, char *service, char *protocol)
 {
@@ -163,7 +172,7 @@ void serv_read(char *buf, int bytes)
 	while (len < bytes) {
 		rlen = read(serv_sock, &buf[len], bytes - len);
 		if (rlen < 1) {
-			serv_sock = (-1);
+			connection_died();
 			return;
 		}
 		len = len + rlen;
@@ -182,7 +191,7 @@ void serv_write(char *buf, int nbytes)
 		retval = write(serv_sock, &buf[bytes_written],
 			       nbytes - bytes_written);
 		if (retval < 1) {
-			serv_sock = (-1);
+			connection_died();
 			return;
 		}
 		bytes_written = bytes_written + retval;
@@ -328,11 +337,3 @@ char serv_getc(void)
 	return (ch);
 }
 
-
-
-/* 
- * Are we still connected to a Citadel server?
- */
-int is_connected(void) {
-	return ( serv_sock >= 0 );
-}

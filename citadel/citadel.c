@@ -90,15 +90,6 @@ char curr_floor = 0;		/* number of current floor */
 char floorlist[128][256];	/* names of floors */
 char express_msgs = 0;		/* express messages waiting! */
 
-jmp_buf jmp_reconnect;		/* for server reconnects */
-char re_username[32];
-char re_password[32];
-
-void sigpipehandler(int nothing)
-{
-	longjmp(jmp_reconnect, nothing);
-}
-
 /*
  * here is our 'clean up gracefully and exit' routine
  */
@@ -719,7 +710,6 @@ int set_password(void)
 		serv_puts(buf);
 		serv_gets(buf);
 		printf("%s\n", &buf[4]);
-		strcpy(re_password, pass1);
 		return (0);
 	} else {
 		printf("*** They don't match... try again.\n");
@@ -896,7 +886,6 @@ GSTA:	termn8 = 0;
 		goto TERMN8;
 	}
 	/* sign on to the server */
-	strcpy(re_username, fullname);
 	snprintf(aaa, sizeof aaa, "USER %s", fullname);
 	serv_puts(aaa);
 	serv_gets(aaa);
@@ -914,7 +903,6 @@ GSTA:	termn8 = 0;
 	serv_puts(aaa);
 	serv_gets(aaa);
 	if (aaa[0] == '2') {
-		strcpy(re_password, eee);
 		load_user_info(&aaa[4]);
 		goto PWOK;
 	}
@@ -1015,48 +1003,8 @@ GSTA:	termn8 = 0;
 
 	do {			/* MAIN LOOP OF PROGRAM */
 
-		if (!is_connected()) {
-			for (a=15; a>=0; --a) {
-				printf("\rServer connection broken; "
-					"will reconnect in %d seconds\r", a);
-				fflush(stdout);
-				sleep(1);
-			}
-			printf(	"                                "
-				"                                \r");
-			fflush(stdout);
-			attach_to_server(argc, argv);
-			printf("                                         \r");
-			fflush(stdout);
-			serv_gets(aaa);
-			if (aaa[0] != '2') {
-				printf("%s\n", &aaa[4]);
-				exit(0);
-			}
-			get_serv_info();
-			sprintf(aaa, "USER %s", re_username);
-			serv_puts(aaa);
-			serv_gets(aaa);
-			if (aaa[0] != '3') {
-				printf("%s\n", &aaa[4]);
-				exit(0);
-			}
-			sprintf(aaa, "PASS %s", re_password);
-			serv_puts(aaa);
-			serv_gets(aaa);
-			if (aaa[0] != '2') {
-				printf("%s\n", &aaa[4]);
-				exit(0);
-			}
-			load_user_info(&aaa[4]);
-			sprintf(aaa, "GOTO %s", room_name);
-			serv_puts(aaa);
-			serv_gets(aaa);
-		}
-
 		signal(SIGINT, SIG_IGN);
 		signal(SIGQUIT, SIG_IGN);
-		signal(SIGPIPE, SIG_IGN);
 		mcmd = getcmd(argbuf);
 
 #ifdef TIOCGWINSZ
