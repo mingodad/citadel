@@ -7,6 +7,7 @@
  */
 
 #define ADDRESS_BOOK_ROOM	"Global Address Book"
+#define VCARD_EXT_FORMAT	"Citadel vCard: personal card for %s at %s"
 
 #include "sysdep.h"
 #include <stdlib.h>
@@ -69,24 +70,18 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
         char config_rm[ROOMNAMELEN];
 	char buf[SIZ];
 
-
 	if (!CC->logged_in) return(0);	/* Only do this if logged in. */
-	TRACE;
 
 	/* If this isn't the configuration room, or if this isn't a MIME
 	 * message, don't bother.  (Check for NULL room first, otherwise
 	 * some messages will cause it to crash!!)
 	 */
 	if (msg->cm_fields['O'] == NULL) return(0);
-	TRACE;
 	if (strcasecmp(msg->cm_fields['O'], USERCONFIGROOM)) return(0);
-	TRACE;
 	if (msg->cm_format_type != 4) return(0);
-	TRACE;
 
 	ptr = msg->cm_fields['M'];
 	if (ptr == NULL) return(0);
-	TRACE;
 	while (ptr != NULL) {
 	
 		linelen = strcspn(ptr, "\n");
@@ -106,36 +101,26 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 			 * to make changes to another user's vCard instead of
 			 * assuming that it's always the user saving his own.
 			 */
-			TRACE;
         		MailboxName(config_rm, &CC->usersupp, USERCONFIGROOM);
-			TRACE;
 			CtdlDeleteMessages(config_rm, 0L, "text/x-vcard");
-			TRACE;
 
 			/* Set the Extended-ID to a standardized one so the
 			 * replication always works correctly
 			 */
                         if (msg->cm_fields['E'] != NULL)
                                 phree(msg->cm_fields['E']);
-			TRACE;
 
-                        sprintf(buf,
-                                "Citadel vCard: personal card for %s at %s",
+                        sprintf(buf, VCARD_EXT_FORMAT,
                                 msg->cm_fields['A'], NODENAME);
                         msg->cm_fields['E'] = strdoop(buf);
-			TRACE;
 
 			/* Now allow the save to complete. */
-			TRACE;
 			return(0);
 		}
-		TRACE;
 
 		ptr = strchr((char *)ptr, '\n');
-		TRACE;
 		if (ptr != NULL) ++ptr;
 	}
-	TRACE;
 
 	return(0);
 }
@@ -152,7 +137,6 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 	char *ptr;
 	int linelen;
 	long I;
-
 
 	if (!CC->logged_in) return(0);	/* Only do this if logged in. */
 
@@ -175,9 +159,7 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			 * copy it to the Global Address Book room.
 			 */
 
-			TRACE;
 			I = atol(msg->cm_fields['I']);
-			TRACE;
 			if (I < 0L) return(0);
 
 			CtdlSaveMsgPointerInRoom(ADDRESS_BOOK_ROOM, I,
@@ -282,7 +264,9 @@ void vcard_write_user(struct usersupp *u, struct vCard *v) {
 
 
 /*
- * old style "enter registration info" command
+ * Old style "enter registration info" command.  This function simply honors
+ * the REGI protocol command, translates the entered parameters into a vCard,
+ * and enters the vCard into the user's configuration.
  */
 void cmd_regi(char *argbuf) {
 	int a,b,c;
@@ -312,15 +296,15 @@ void cmd_regi(char *argbuf) {
 	a=0;
 	while (client_gets(buf), strcmp(buf,"000")) {
 		if (a==0) vcard_set_prop(my_vcard, "n", buf);
-		if (a==1) strcpy(tmpaddr,buf);
-		if (a==2) strcpy(tmpcity,buf);
-		if (a==3) strcpy(tmpstate,buf);
+		if (a==1) strcpy(tmpaddr, buf);
+		if (a==2) strcpy(tmpcity, buf);
+		if (a==3) strcpy(tmpstate, buf);
 		if (a==4) {
 			for (c=0; c<strlen(buf); ++c) {
-				if ((buf[c]>='0')&&(buf[c]<='9')) {
-					b=strlen(tmpzip);
-					tmpzip[b]=buf[c];
-					tmpzip[b+1]=0;
+				if ((buf[c]>='0') && (buf[c]<='9')) {
+					b = strlen(tmpzip);
+					tmpzip[b] = buf[c];
+					tmpzip[b+1] = 0;
 				}
 			}
 		}
@@ -351,7 +335,7 @@ void cmd_regi(char *argbuf) {
 
 
 /*
- * get registration info for a user
+ * Protocol command to fetch registration info for a user
  */
 void cmd_greg(char *argbuf)
 {
@@ -445,9 +429,7 @@ void vcard_purge(char *username, long usernum) {
         msg->cm_fields['N'] = strdoop(NODENAME);
         msg->cm_fields['M'] = strdoop("Purge this vCard\n");
 
-        sprintf(buf,
-                "Citadel vCard: personal card for %s at %s",
-                msg->cm_fields['A'], NODENAME);
+        sprintf(buf, VCARD_EXT_FORMAT, msg->cm_fields['A'], NODENAME);
         msg->cm_fields['E'] = strdoop(buf);
 
 	msg->cm_fields['S'] = strdoop("CANCEL");

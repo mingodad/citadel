@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.48  2002/01/08 16:34:22  ajc
+ * serv_vcard.c: cosmetic cleanup
+
  Revision 590.47  2002/01/06 22:44:21  error
  * Enable/disable encryption in client from command line and/or citadel.rc
 
@@ -3108,4 +3111,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
