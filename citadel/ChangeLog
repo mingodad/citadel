@@ -1,4 +1,7 @@
  $Log$
+ Revision 620.21  2004/04/21 03:44:50  ajc
+ * serv_crypto.c: small fix to make self-signed certs no longer invalid
+
  Revision 620.20  2004/04/21 03:00:06  ajc
  * Replace ctdl_install_certificate() with convenience functions found
    in the OpenSSL library.
@@ -5712,4 +5715,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
