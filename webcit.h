@@ -132,6 +132,7 @@ struct wcsession {
 	int http_sock;
 	int serv_sock;
 	unsigned room_flags;
+	int wc_view;
 	char ugname[128];
 	long uglsn;
 	int upload_length;

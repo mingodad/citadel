@@ -463,6 +463,9 @@ void readloop(char *oper)
 	is_summary = atoi(bstr("summary"));
 	if (maxmsgs == 0) maxmsgs = 20;
 
+	/* FIXME put in the correct constant #defs */
+	if ((is_summary == 0) && (WC->wc_view == 1)) is_summary = 1;
+
 	output_headers(1);
 
 	if (!strcmp(oper, "readnew")) {

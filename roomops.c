@@ -353,6 +353,7 @@ void embed_room_banner(char *got) {
 
 	/* Check for new mail. */
 	WC->new_mail = extract_int(&got[4], 9);
+	WC->wc_view = extract_int(&got[4], 11);
 
 	svprintf("ROOMNAME", WCS_STRING, "%s", WC->wc_roomname);
 	svprintf("NEWMSGS", WCS_STRING, "%d", extract_int(&got[4], 1));
@@ -436,6 +437,7 @@ void gotoroom(char *gname, int display_name)
 		wDumpContent(1);
 	}
 	strcpy(WC->wc_roomname, WC->wc_roomname);
+	WC->wc_view = extract_int(&buf[4], 11);
 }
 
 
