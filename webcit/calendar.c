@@ -600,6 +600,8 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	icalproperty *prop;
 	icalcomponent *vtodo;
 	int created_new_vtodo = 0;
+	int i;
+	int sequence = 0;
 
 	if (supplied_vtodo != NULL) {
 		vtodo = supplied_vtodo;
@@ -665,6 +667,33 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 				icaltime_from_webform("due")
 			)
 		);
+
+		/* Give this task a UID if it doesn't have one. */
+		lprintf(9, "Give this task a UID if it doesn't have one.\n");
+		if (icalcomponent_get_first_property(vtodo,
+		   ICAL_UID_PROPERTY) == NULL) {
+			generate_new_uid(buf);
+			icalcomponent_add_property(vtodo,
+				icalproperty_new_uid(buf)
+			);
+		}
+
+		/* Increment the sequence ID */
+		lprintf(9, "Increment the sequence ID\n");
+		while (prop = icalcomponent_get_first_property(vtodo,
+		      ICAL_SEQUENCE_PROPERTY), (prop != NULL) ) {
+			i = icalproperty_get_sequence(prop);
+			lprintf(9, "Sequence was %d\n", i);
+			if (i > sequence) sequence = i;
+			icalcomponent_remove_property(vtodo, prop);
+			icalproperty_free(prop);
+		}
+		++sequence;
+		lprintf(9, "New sequence is %d.  Adding...\n", sequence);
+		icalcomponent_add_property(vtodo,
+			icalproperty_new_sequence(sequence)
+		);
+		
 	
 		/* Serialize it and save it to the message base */
 		serv_puts("ENT0 1|||4");
