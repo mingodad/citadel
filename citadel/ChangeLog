@@ -1,4 +1,10 @@
  $Log$
+ Revision 621.1  2004/05/24 01:59:16  ajc
+ * serv_network.c: when processing incoming IGnet spool, give the <C> field
+   priority over the <R> field.  This allows messages emailed to a network
+   room to be shared properly instead of attempting to deliver via email a
+   second time.
+
  Revision 621.0  2004/05/21 01:58:16  ajc
  * THIS IS 6.21
 
@@ -5788,4 +5794,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -1160,8 +1160,17 @@ void network_process_buffer(char *buffer, long size) {
 					msg->cm_fields['P']);
 	}
 
-	/* Does it have a recipient?  If so, validate it... */
-	if (msg->cm_fields['R'] != NULL) {
+	/* Is the sending node giving us a very persuasive suggestion about
+	 * which room this message should be saved in?  If so, go with that.
+	 */
+	if (msg->cm_fields['C'] != NULL) {
+		safestrncpy(target_room,
+			msg->cm_fields['C'],
+			sizeof target_room);
+	}
+
+	/* Otherwise, does it have a recipient?  If so, validate it... */
+	else if (msg->cm_fields['R'] != NULL) {
 		recp = validate_recipients(msg->cm_fields['R']);
 		if (recp != NULL) if (recp->num_error > 0) {
 			network_bounce(msg,
@@ -1174,12 +1183,9 @@ void network_process_buffer(char *buffer, long size) {
 		strcpy(target_room, "");	/* no target room if mail */
 	}
 
-	else if (msg->cm_fields['C'] != NULL) {
-		safestrncpy(target_room,
-			msg->cm_fields['C'],
-			sizeof target_room);
-	}
-
+	/* Our last shot at finding a home for this message is to see if
+	 * it has the O field (Originating room) set.
+	 */
 	else if (msg->cm_fields['O'] != NULL) {
 		safestrncpy(target_room,
 			msg->cm_fields['O'],
