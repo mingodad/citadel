@@ -53,6 +53,13 @@ local_screen_dimensions=1
 #
 ansi_color=user
 
+# USE_BACKGROUND controls Citadel's use of the background.  If it is turned
+# off, then Citadel will set the background to black.  When it is turned on,
+# the background will be unchanged.  This is most useful with "transparent"
+# terminals.  Color must be on (see above) or this option has no effect.
+#
+use_background=off
+
 # PROMPT_CONTROL should be set to on/off/user to control whether the <N>ext
 # and <S>top keys are active when displaying the paginator prompt.  If it
 # is set to "user" then it's a user-configurable option.

@@ -1194,12 +1194,13 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 			enable_color = 0;
 	}
 
-	scr_printf("%s\nAccess level: %d (%s)\n"
+	color(BRIGHT_WHITE);
+	scr_printf("\n%s\nAccess level: %d (%s)\n"
 		   "User #%ld / Login #%d",
 		   fullname, axlevel, axdefs[(int) axlevel],
 		   usernum, timescalled);
 	if (lastcall > 0L) {
-		scr_printf(" / Last login: %s\n",
+		scr_printf(" / Last login: %s",
 			   asctime(localtime(&lastcall)));
 	}
 	scr_printf("\n");
@@ -1691,7 +1692,9 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 			}	/* end switch */
 	} while (termn8 == 0);
 
- TERMN8:	scr_printf("%s logged out.\n", fullname);
+TERMN8:	scr_printf("%s logged out.", fullname);
+	color(ORIGINAL_PAIR);
+	scr_printf("\n");
 	while (march != NULL) {
 		remove_march(march->march_name, 0);
 	}

@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.65  2002/11/11 06:21:55  error
+ * Fixed minor bugs with color handling; added explicit support for handling
+   the background color e.g. for transparent terminals
+
  Revision 601.64  2002/11/11 04:17:24  ajc
  * More work on reply to meeting invitation
 
@@ -4206,3 +4210,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

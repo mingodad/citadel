@@ -75,6 +75,7 @@ int rc_display_message_numbers;
 int rc_force_mail_prompts;
 int rc_remember_passwords;
 int rc_ansi_color;
+int rc_color_use_bg;
 int num_urls = 0;
 int rc_prompt_control = 0;
 time_t rc_idle_threshold = (time_t)900;
@@ -738,6 +739,7 @@ void load_command_set(void)
 	rc_display_message_numbers = 0;
 	rc_force_mail_prompts = 0;
 	rc_ansi_color = 0;
+	rc_color_use_bg = 0;
 	strcpy(rc_url_cmd, "");
 	strcpy(rc_gotmail_cmd, "");
 #ifdef HAVE_OPENSSL
@@ -846,6 +848,10 @@ void load_command_set(void)
 				rc_ansi_color = 2;	/* autodetect */
 			if (!strncasecmp(&buf[11], "user", 4))
 				rc_ansi_color = 3;	/* user config */
+		}
+		if (!strncasecmp(buf, "use_background=", 15)) {
+			if (!strncasecmp(&buf[15], "on", 2))
+				rc_color_use_bg = 9;
 		}
 		if (!strncasecmp(buf, "prompt_control=", 15)) {
 			if (!strncasecmp(&buf[15], "on", 2))
@@ -1423,8 +1429,8 @@ FMTEND:
  */
 void color(int colornum)
 {
-	static int is_bold = 0;
-	static int hold_color, current_color;
+	static int hold_color;
+	static int current_color;
 
 	if (colornum == COLOR_PUSH) {
 		hold_color = current_color;
@@ -1449,17 +1455,13 @@ void color(int colornum)
 		 * to mention transparent terminals.
 		 */
 		if (colornum == ORIGINAL_PAIR)
-			printf("\033[39;49m");
+			printf("\033[0;39;49m");
 		else
-			printf("\033[3%d;40m", (colornum & 7));
+			printf("\033[%d;3%d;4%dm", 
+					(colornum & 8) ? 1 : 0,
+					(colornum & 7),
+					rc_color_use_bg);
 
-		if ((colornum >= 8) && (is_bold == 0)) {
-			printf("\033[1m");
-			is_bold = 1;
-		} else if ((colornum < 8) && (is_bold == 1)) {
-			printf("\033[0m");
-			is_bold = 0;
-		}
 		scr_flush();
 	}
 }
@@ -1467,7 +1469,8 @@ void color(int colornum)
 void cls(int colornum)
 {
 	if (enable_color) {
-		printf("\033[4%dm\033[2J\033[H\033[0m", colornum);
+		printf("\033[4%dm\033[2J\033[H\033[0m",
+				colornum ? colornum : rc_color_use_bg);
 		scr_flush();
 	}
 }
