@@ -195,7 +195,9 @@ void do_logout(void)
 	else
 		wprintf("Goodbye\n");
 
-	wprintf("<HR><A HREF=\"/\">Log in again</A></CENTER>\n");
+	wprintf("<HR><A HREF=\"/\">Log in again</A>&nbsp;&nbsp;&nbsp;"
+		"<A HREF=\"javascript:window.Close();\">Close window</A>"
+		"</CENTER>\n");
 	wDumpContent(2);
 	serv_puts("QUIT");
 	close(WC->serv_sock);

@@ -1,4 +1,7 @@
 $Log$
+Revision 211.1  2000/01/11 04:20:40  ajc
+* Add "close window" option to goodbye screen
+
 Revision 211.0  2000/01/04 15:24:16  ajc
 * Worked around HTTP bugs in Internet Explorer 5.  Die, Bill, Die.
 * This will be released as v2.11; tagged everything as such.
@@ -372,3 +375,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
