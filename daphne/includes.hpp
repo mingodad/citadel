@@ -1,7 +1,3 @@
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <ctype.h>
 #include <wx/wx.h>
 #include <wx/listctrl.h>
 #include <wx/socket.h>
