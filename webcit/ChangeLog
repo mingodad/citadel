@@ -1,4 +1,7 @@
 $Log$
+Revision 522.19  2004/07/21 02:57:09  ajc
+* Internet Configuration screen looks a little neater now
+
 Revision 522.18  2004/07/21 02:45:15  ajc
 * Completed the "Internet Configuration" screen
 
@@ -1986,4 +1989,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
