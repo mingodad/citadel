@@ -329,6 +329,7 @@ void imp_globals(void) {
 void imp_config(void) { 
 	char key[256], value[256];
 	FILE *fp;
+	int fd;
 
 	while(fpgetfield(imfp, key), strcasecmp(key, "endsection")) {
 		fpgetfield(imfp, value);
@@ -386,7 +387,8 @@ void imp_config(void) {
 			config.c_roompurge = atoi(value);
 		}
 
-	fp = fopen("citadel.config", "wb");
+	fd = open("citadel.config", O_WRONLY | O_TRUNC);
+	fp = fdopen(fd, "wb");
 	fwrite(&config, sizeof(struct config), 1, fp);
 	fclose(fp);
 	}
