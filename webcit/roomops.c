@@ -366,7 +366,7 @@ void embed_room_banner(char *got) {
 	wprintf("</FONT></TD>");
 
 	/* Let the user know if new mail has arrived */
-	if (new_mail > remember_new_mail) {
+	if ( (new_mail > remember_new_mail) && (new_mail>0) ) {
 		wprintf("<TD VALIGN=TOP>"
 			"<IMG SRC=\"/static/mail.gif\" border=0 "
 			"ALT=\"You have new mail\">"

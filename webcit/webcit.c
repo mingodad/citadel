@@ -606,7 +606,7 @@ void upload_handler(char *name, char *filename, char *encoding,
 }
 
 
-void session_loop(char *browser_host)
+void session_loop(char *browser_host, char *user_agent)
 {
 	char cmd[256];
 	char action[256];
@@ -698,7 +698,7 @@ void session_loop(char *browser_host)
 		serv_sock = connectsock(c_host, c_port, "tcp");
 		connected = 1;
 		serv_gets(buf);	/* get the server welcome message */
-		get_serv_info(browser_host);
+		get_serv_info(browser_host, user_agent);
 	}
 	check_for_express_messages();
 
@@ -956,6 +956,6 @@ int main(int argc, char *argv[])
 		noframes = 0;
 
 	while (1) {
-		session_loop(argv[4]);
+		session_loop(argv[4], browser);
 	}
 }
