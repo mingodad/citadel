@@ -141,3 +141,31 @@ void free_vcard(struct vCard *v) {
 	
 	memset(v, 0, sizeof(struct vCard));
 }
+
+
+/*
+ * Set a name/value pair in the card
+ */
+void set_prop(struct vCard *v, char *name, char *value) {
+	int i;
+
+	if (v->magic != CTDL_VCARD_MAGIC) return;	/* Self-check */
+
+	/* If this key is already present, replace it */
+	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
+		if (!strcasecmp(v->prop[i].name, name)) {
+			phree(v->prop[i].name);
+			phree(v->prop[i].value);
+			v->prop[i].name = strdoop(name);
+			v->prop[i].value = strdoop(value);
+			return;
+		}
+	}
+
+	/* Otherwise, append it */
+	++v->numprops;
+	v->prop = reallok(v->prop,
+		(v->numprops * sizeof(char *) * 2) );
+	v->prop[v->numprops-1].name = strdoop(name);
+	v->prop[v->numprops-1].value = (value);
+}

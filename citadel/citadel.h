@@ -245,6 +245,7 @@ struct floor {
 #define BASEROOM	"Lobby"
 #define MAILROOM	"Mail"
 #define AIDEROOM	"Aide"
+#define CONFIGROOM	"My Citadel Config"
 
 
 /*

@@ -1,4 +1,8 @@
 $Log$
+Revision 1.370  1999/09/24 02:54:17  ajc
+* Worked a little more on the vCard stuff.  The serv_vcard module is now in
+  place, and a "read my vcard" function is there; "write my" is next...
+
 Revision 1.369  1999/09/23 03:07:56  ajc
 * The vCard 'class' is now linked into the server, though it's not really
   functional yet.  Its constructors/destructors are debugged, though.
@@ -1264,3 +1268,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

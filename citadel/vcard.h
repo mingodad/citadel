@@ -27,3 +27,4 @@ struct vCard {
 struct vCard *new_vcard(void);
 struct vCard *load_vcard(char *);
 void free_vcard(struct vCard *);
+void set_prop(struct vCard *v, char *name, char *value);
