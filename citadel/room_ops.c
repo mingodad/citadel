@@ -436,30 +436,6 @@ int is_noneditable(struct quickroom *qrbuf) {
 
 
 /*
- * Retrieve the applicable room policy for a specific room
- */
-void GetExpirePolicy(struct ExpirePolicy *epbuf, struct quickroom *qrbuf) {
-	struct floor flbuf;
-
-	/* If the room has its own policy, return it */	
-	if (qrbuf->QRep.expire_mode != 0) {
-		memcpy(epbuf, &qrbuf->QRep, sizeof(struct ExpirePolicy));
-		return;
-		}
-
-	/* Otherwise, if the floor has its own policy, return it */	
-	getfloor(&flbuf, qrbuf->QRfloor);
-	if (flbuf.f_ep.expire_mode != 0) {
-		memcpy(epbuf, &flbuf.f_ep, sizeof(struct ExpirePolicy));
-		return;
-		}
-
-	/* Otherwise, fall back on the system default */
-	memcpy(epbuf, &config.c_ep, sizeof(struct ExpirePolicy));
-	}
-
-
-/*
  * Back-back-end for all room listing commands
  */
 void list_roomname(struct quickroom *qrbuf) {

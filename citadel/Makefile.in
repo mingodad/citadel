@@ -58,12 +58,12 @@ netpoll: netpoll.o config.o ipc_c_tcp.o
 citserver: citserver.ro user_ops.ro support.ro room_ops.ro file_ops.ro \
 	msgbase.ro config.ro sysdep.ro locate_host.ro \
 	housekeeping.ro database.ro control.ro logging.ro \
-	dynloader.ro $(SNPRINTF:.o=.ro)
+	policy.ro dynloader.ro $(SNPRINTF:.o=.ro)
 	$(CC) \
 		citserver.ro user_ops.ro room_ops.ro file_ops.ro support.ro \
 		msgbase.ro config.ro sysdep.ro locate_host.ro \
 		housekeeping.ro database.ro control.ro logging.ro \
-		dynloader.ro $(SNPRINTF:.o=.ro)\
+		policy.ro dynloader.ro $(SNPRINTF:.o=.ro)\
 		$(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) -o citserver
 
 %.ro: %.c

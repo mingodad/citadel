@@ -34,13 +34,13 @@ typedef unsigned char CIT_UBYTE;
  */
 struct ExpirePolicy {
 	int expire_mode;
-	long expire_value;
+	int expire_value;
 	};
 
 #define EXPIRE_NEXTLEVEL	0	/* Inherit expiration policy    */
 #define EXPIRE_MANUAL		1	/* Don't expire messages at all */
 #define EXPIRE_NUMMSGS		2	/* Keep only latest n messages  */
-#define EXPIRE_AGE		3	/* Expire messages by age       */
+#define EXPIRE_AGE		3	/* Expire messages after n days */
 
 
 /* 

@@ -28,15 +28,15 @@ extern struct CitContext *ContextList;
 #define MODULE_AUTHOR	"Art Cancro"
 #define MODULE_EMAIL	"ajc@uncnsrd.mt-kisco.ny.us"
 #define MAJOR_VERSION	0
-#define MINOR_VERSION	2
+#define MINOR_VERSION	3
 
 static struct DLModule_Info info = {
-  MODULE_NAME,
-  MODULE_AUTHOR,
-  MODULE_EMAIL,
-  MAJOR_VERSION,
-  MINOR_VERSION
-};
+	MODULE_NAME,
+	MODULE_AUTHOR,
+	MODULE_EMAIL,
+	MAJOR_VERSION,
+	MINOR_VERSION
+	};
 
 void CleanupTest(void) {
 	lprintf(9, "--- test of adding an unload hook --- \n");
@@ -76,7 +76,7 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 
 	GetExpirePolicy(&epbuf, qrbuf);
 	
-	lprintf(9, "ExpirePolicy for <%s> is <%d> <%ld>\n",
+	lprintf(9, "ExpirePolicy for <%s> is <%d> <%d>\n",
 		qrbuf->QRname, epbuf.expire_mode, epbuf.expire_value);
 
 	/* If the room is set to never expire messages ... do nothing */
@@ -98,6 +98,10 @@ void DoPurgeMessages(struct quickroom *qrbuf) {
 				(sizeof(long)*(CC->num_msgs - 1)));
 			CC->num_msgs = CC->num_msgs - 1;
 			}
+		}
+
+	/* If the room is set to expire by age...  FIX (write this!!) (/
+	if (epbuf.expire_mode == EXPIRE_AGE) {
 		}
 
 	put_msglist(qrbuf);
