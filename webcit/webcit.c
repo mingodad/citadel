@@ -332,7 +332,7 @@ void output_headers(int controlcode)
 		/* script for checking for express msgs (not always launch) */
 		wprintf("<SCRIPT LANGUAGE=\"JavaScript\">\n");
 		wprintf("function launch_page_popup() {\n");
-		wprintf("pwin = window.open('/page_popup', 'CitaPage%d', 'toolbar=no,location=no,copyhistory=no,status=yes,scrollbars=yes');\n");
+		wprintf("pwin = window.open('/page_popup', 'CitaPage%d', 'toolbar=no,location=no,copyhistory=no,status=no,scrollbars=yes,resizable=no,height=150,width=400');\n");
 		wprintf("}\n");
 		wprintf("</SCRIPT>\n", ++pageseq);
 		/* end script */
