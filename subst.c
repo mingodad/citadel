@@ -58,12 +58,12 @@ void clear_local_substs(void) {
 void svprintf(char *keyname, int keytype, const char *format,...)
 {
 	va_list arg_ptr;
-	char wbuf[1024];
+	char wbuf[4096];
 	struct wcsubst *ptr = NULL;
 	struct wcsubst *scan;
 
 	va_start(arg_ptr, format);
-	vsprintf(wbuf, format, arg_ptr);
+	vsnprintf(wbuf, sizeof wbuf, format, arg_ptr);
 	va_end(arg_ptr);
 
 	/* First scan through to see if we're doing a replacement of
@@ -80,13 +80,12 @@ void svprintf(char *keyname, int keytype, const char *format,...)
 	if (ptr == NULL) {
 		ptr = (struct wcsubst *) malloc(sizeof(struct wcsubst));
 		ptr->next = WC->vars;
+		strcpy(ptr->wcs_key, keyname);
+		WC->vars = ptr;
 	}
 
 	ptr->wcs_type = keytype;
-	strcpy(ptr->wcs_key, keyname);
-	ptr->wcs_value = malloc(strlen(wbuf)+1);
-	strcpy(ptr->wcs_value, wbuf);
-	WC->vars = ptr;
+	ptr->wcs_value = strdup(wbuf);
 }
 
 /*

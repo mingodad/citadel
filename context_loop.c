@@ -169,7 +169,7 @@ int req_gets(int sock, char *buf, char *hold)
 		a = client_gets(sock, buf);
 		if (a<1) return(-1);
 	} else {
-		strcpy(buf, hold);
+		safestrncpy(buf, hold, SIZ);
 	}
 	strcpy(hold, "");
 
@@ -287,11 +287,11 @@ void context_loop(int sock)
 		hptr->next = NULL;
 		last = hptr;
 
-		strcpy(hptr->line, buf);
+		safestrncpy(hptr->line, buf, sizeof hptr->line);
 
 	} while (strlen(buf) > 0);
 
-	strcpy(buf, req->line);
+	safestrncpy(buf, req->line, sizeof buf);
 	lprintf(5, "HTTP: %s\n", buf);
 
 	/* Check for bogus requests */

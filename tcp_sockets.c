@@ -224,7 +224,7 @@ void serv_printf(const char *format,...)
 	char buf[SIZ];
 
 	va_start(arg_ptr, format);
-	vsprintf(buf, format, arg_ptr);
+	vsnprintf(buf, sizeof buf, format, arg_ptr);
 	va_end(arg_ptr);
 
 	strcat(buf, "\n");
