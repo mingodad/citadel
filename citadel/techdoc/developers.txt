@@ -6,28 +6,27 @@ for these fields.
 Developer codes (and where known, client codes)
 
  0	The Citadel core development team
-	(See copyright.doc for the list of people involved in the project)
+	(See copyright.txt for the list of people involved in the project)
 	Here are the client ID's we've used:
 
 	Client	Name		Status		Description
-	0	Citadel		in production	Citadel text based client
+	0	Citadel		deployed	Citadel text based client
 	1	lcit		dead		Curses-based text client
 	2	WinCit		deprecated	MS Visual Basic client.
 						Version 1.0 is stable but there
 						will be no further development.
-	4	WebCit		in production	Web-based access to Citadel
+	4	WebCit		deployed	Web-based access to Citadel
 	5	Shaggy		dead		Java-powered client
 	6	Daphne		dead		wx multiplatform "fat" client
 	7	Shaggy (new)	unknown		Java-powered client
 						<chilly@uncensored.citadel.org>
 	8	ctdlphp		development	PHP interface to Citadel
  
- 
  1	Brian Ledbetter <brian@shadowcom.net>
 
 	Client	Name		Status		Description
-	0	libCxClient	in production	Client-side API library
-	1	Infusion	in production	Groupware for Citadel
+	0	libCxClient	deployed	Client-side API library
+	1	Infusion	deployed	Groupware for Citadel
 
  2	Matthew Scott <gldnspud@telcomplus.com>
  
@@ -53,3 +52,5 @@ Developer codes (and where known, client codes)
         Don Kimberlin (err head) <donkimberlin@hotmail.com>
  
  177	Kevin Fisher <kgf@golden.net>
+ 
+ 226	David Given <dg@cowlark.com>
