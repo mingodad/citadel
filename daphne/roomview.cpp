@@ -103,8 +103,8 @@ void RoomView::OnButtonPressed(wxCommandEvent& whichbutton) {
 
 void RoomView::do_readloop(wxString readcmd) {
 	wxString sendcmd, recvcmd, buf;
-	wxStringList xferbuf;
-        int i;
+	wxStringList xferbuf, msgbuf;
+        int i, r;
 	
 	if (message_window != NULL) {
 		delete message_window;
@@ -145,15 +145,12 @@ void RoomView::do_readloop(wxString readcmd) {
         for (i=0; i<xferbuf.Number(); ++i) {
                 buf.Printf("%s", (wxString *)xferbuf.Nth(i)->GetData());
 		sendcmd = "MSG0 " + buf;
-		cout << "Sending cmd: <" << sendcmd << ">\n";
-		i = citsock->serv_trans(sendcmd, recvcmd, xferbuf, ThisRoom);
-		cout << "return code " << i << "\n";
-		if (i == 1) {
-			ListToMultiline(buf, xferbuf);
+		r = citsock->serv_trans(sendcmd, recvcmd, msgbuf, ThisRoom);
+		if (r == 1) {
+			ListToMultiline(buf, msgbuf);
 			message_window->WriteText(buf);
 			message_window->WriteText("\n\n");
 		}
-		cout << "done outputttting\n";
         }
 }
 

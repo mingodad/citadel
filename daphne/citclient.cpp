@@ -99,8 +99,10 @@ int CitClient::serv_trans(
 	// If a mutex is to be wrapped around this function in the future,
 	// it must begin HERE.
 
+	cout << "<" << command << "\n" ;
 	serv_puts(command);
 	serv_gets(response);
+	cout << ">" << response << "\n" ;
 	first_digit = (response.GetChar(0)) - '0';
 
 	if (response.GetChar(3) == '*')
