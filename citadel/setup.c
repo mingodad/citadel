@@ -968,17 +968,17 @@ int main(int argc, char *argv[])
 	else
 		gid = pw->pw_gid;
 
-	progress("Setting file permissions", 0, 4);
+	progress("Setting file permissions", 0, 5);
 	chown(".", config.c_bbsuid, gid);
-	progress("Setting file permissions", 1, 4);
+	progress("Setting file permissions", 1, 5);
 	chown("citadel.config", config.c_bbsuid, gid);
-	progress("Setting file permissions", 2, 4);
-	sprintf(aaa, "find . -exec chown %d:%d {} \\; 2>/dev/null",
+	progress("Setting file permissions", 2, 5);
+	sprintf(aaa, "find . | grep -v chkpwd | xargs chown %d:%d 2>/dev/null",
 		config.c_bbsuid, gid);
 	system(aaa);
-	progress("Setting file permissions", 2, 4);
-	system("chmod 600 citadel.config");
-	progress("Setting file permissions", 3, 4);
+	progress("Setting file permissions", 3, 5);
+	chmod("citadel.config", S_IRUSR | S_IWUSR);
+	progress("Setting file permissions", 4, 5);
 
 	important_message("Setup finished",
 	    "Setup is finished.  You may now start the Citadel server.");

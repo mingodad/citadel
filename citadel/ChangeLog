@@ -5,6 +5,9 @@ Mon Apr 12 22:13:26 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 1999-04-12 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* configure.in, Makefile.in: taught it how to generate OpenBSD shared
 	  libraries
+	* config.c, sysdep.c: fix -h option not setting proper modules dir
+	* configure.in, citadel.spec: make --enable-chkpwd the default
+	* setup.c: don't chown chkpwd
 
 1999-04-11 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* configure.in: another OpenBSD fix, but we're still not quite there yet

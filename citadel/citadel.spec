@@ -17,7 +17,7 @@ driven, and accessible via a growing selection of front ends.
 %setup -n citadel
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" ./configure --enable-chkpwd --with-pam
+CFLAGS="$RPM_OPT_FLAGS" ./configure --with-pam
 make
 
 %install

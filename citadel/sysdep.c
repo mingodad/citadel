@@ -788,11 +788,11 @@ int main(int argc, char **argv)
 	struct CitContext *con;		/* Temporary context pointer */
 	char tracefile[128];		/* Name of file to log traces to */
 	int a, i;			/* General-purpose variables */
-	char convbuf[128];
 	fd_set readfds;
 	struct timeval tv;
 	struct passwd *pw;
 	int drop_root_perms = 1;
+	char *moddir;
         
 	/* specify default port name and trace file */
 	strcpy(tracefile, "");
@@ -816,13 +816,12 @@ int main(int argc, char **argv)
 
 		/* -x specifies the desired logging level */
 		else if (!strncmp(argv[a], "-x", 2)) {
-			strcpy(convbuf, argv[a]);
-			verbosity = atoi(&convbuf[2]);
+			verbosity = atoi(&argv[a][2]);
 			}
 
 		else if (!strncmp(argv[a], "-h", 2)) {
-			strcpy(convbuf, argv[a]);
-			strcpy(bbs_home_directory, &convbuf[2]);
+			safestrncpy(bbs_home_directory, &argv[a][2],
+				    sizeof bbs_home_directory);
 			home_specified = 1;
 			}
 
@@ -885,7 +884,11 @@ int main(int argc, char **argv)
 		}
 
 	lprintf(7, "Initializing loadable modules\n");
-	DLoader_Init(BBSDIR "/modules");
+	if ((moddir = malloc(strlen(bbs_home_directory) + 9)) != NULL) {
+		sprintf(moddir, "%s/modules", bbs_home_directory);
+		DLoader_Init(moddir);
+		free(moddir);
+		}
 	lprintf(9, "Modules done initializing.\n");
 
 	/*

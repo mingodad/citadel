@@ -17,7 +17,7 @@
 #include "config.h"
 
 struct config config;
-char bbs_home_directory[PATH_MAX];
+char bbs_home_directory[PATH_MAX] = BBSDIR;
 int home_specified = 0;
 
 /*
