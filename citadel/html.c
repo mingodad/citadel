@@ -60,7 +60,8 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 	int done_reading = 0;
 	char *inptr;
 	char *outptr;
-	size_t outlen;
+	size_t outptr_buffer_size;
+	size_t output_len = 0;
 	int i, j, ch, did_out, rb;
 	int nest = 0;		/* Bracket nesting level */
 
@@ -68,10 +69,11 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 	strcpy(inbuf, "");
 	strcpy(outbuf, "");
 
-	outptr = mallok(strlen(inptr) + SIZ);
+	outptr_buffer_size = strlen(inptr) + SIZ;
+	outptr = mallok(outptr_buffer_size);
 	if (outptr == NULL) return NULL;
 	strcpy(outptr, "");
-	outlen = 0;
+	output_len = 0;
 
 	do {
 		/* Fill the input buffer */
@@ -234,9 +236,10 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 		}
 
 		/* Make sure the output buffer is big enough */
-		if ((strlen(outptr) + strlen(outbuf) + 128) > outlen) {
-			outlen += 128;
-			outptr = realloc(outptr, outlen);
+		if ((output_len + strlen(outbuf) + 128)
+		   > outptr_buffer_size) {
+			outptr_buffer_size += 128;
+			outptr = realloc(outptr, outptr_buffer_size);
 		}
 
 		/* Output any lines terminated with hard line breaks */
@@ -245,10 +248,17 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 			if (strlen(outbuf)>0)
 			    for (i = 0; i<strlen(outbuf); ++i) {
 				if ( (i<(screenwidth-2)) && (outbuf[i]=='\n')) {
-					strncat(outptr, outbuf, i+1);
-					/* strcat(outptr, "\n"); */
-					if (do_citaformat)
-						strcat(outptr, " ");
+
+					strncpy(&outptr[output_len],
+						outbuf, i+1);
+					output_len += (i+1);
+
+					if (do_citaformat) {
+						strcpy(&outptr[output_len],
+							" ");
+						++output_len;
+					}
+
 					strcpy(outbuf, &outbuf[i+1]);
 					i = 0;
 					did_out = 1;
@@ -263,26 +273,50 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 				if (outbuf[i]==32) rb = i;
 			}
 			if (rb>=0) {
-				strncat(outptr, outbuf, rb);
-				strcat(outptr, "\n");
-				if (do_citaformat)
-					strcat(outptr, " ");
+				strncpy(&outptr[output_len], outbuf, rb);
+				output_len += rb;
+				strcpy(&outptr[output_len], "\n");
+				output_len += 1;
+				if (do_citaformat) {
+					strcpy(&outptr[output_len], " ");
+					++output_len;
+				}
 				strcpy(outbuf, &outbuf[rb+1]);
 			} else {
-
-				strncat(outptr, outbuf, screenwidth-2);
-				strcat(outptr, "\n");
-				if (do_citaformat)
-					strcat(outptr, " ");
+				strncpy(&outptr[output_len], outbuf,
+					screenwidth-2);
+				output_len += (screenwidth-2);
+				strcpy(&outptr[output_len], "\n");
+				output_len += 1;
+				if (do_citaformat) {
+					strcpy(&outptr[output_len], " ");
+					++output_len;
+				}
 				strcpy(outbuf, &outbuf[screenwidth-2]);
 			}
 		}
 
 	} while (done_reading == 0);
 
-	strcat(outptr, outbuf);
-	striplt(outptr);
-	if (outptr[strlen(outptr)-1] != '\n') strcat(outptr, "\n");
+	strcpy(&outptr[output_len], outbuf);
+	output_len += strlen(outbuf);
+
+	/* Strip leading/trailing whitespace.  We can't do this with
+	 * striplt() because it uses too many strlen()'s
+	 */
+	while ((output_len > 0) && (isspace(outptr[0]))) {
+		strcpy(outptr, &outptr[1]);
+		--output_len;
+	}
+	while ((output_len > 0) && (isspace(outptr[output_len-1]))) {
+		outptr[output_len-1] = 0;
+		--output_len;
+	}
+
+	if (outptr[output_len-1] != '\n') {
+		strcat(outptr, "\n");
+		++output_len;
+	}
 
 	return outptr;
 

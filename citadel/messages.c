@@ -588,17 +588,21 @@ int read_message(CtdlIPC *ipc,
 		fr = fmout(screenwidth, NULL, message->text, dest,
 			   ((pagin == 1) ? 1 : 0), screenheight, (-1), 1);
 	} else {
-		int i;
+		char *msgtext;
+		char *lineptr;
 
-		for (i = 0; i < num_tokens(message->text, '\n'); i++) {
+		msgtext = message->text;
+
+		while (lineptr = strtok(msgtext, "\n"), lineptr != NULL) {
+			msgtext = NULL;
+
 			if (sigcaught == 0) {
-				extract_token(buf, message->text, i, '\n');
 				if (dest) {
-					fprintf(dest, "%s\n", buf);
+					fprintf(dest, "%s\n", lineptr);
 				} else {
-					scr_printf("%s\n", buf);
+					scr_printf("%s\n", lineptr);
 					lines_printed = lines_printed + 1 +
-					    (strlen(buf) / screenwidth);
+					    (strlen(lineptr) / screenwidth);
 					lines_printed =
 					    checkpagin(lines_printed, pagin,
 						       screenheight);

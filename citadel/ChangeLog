@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.15  2002/10/01 04:00:13  ajc
+ * html.c: speed improvement in html-to-ascii converter
+ * messages.c: MASSIVE speed improvement in message output
+
  Revision 601.14  2002/09/30 08:07:11  error
  * ipcdef.h: add extern "C" for linking to C++ programs
 
@@ -4036,3 +4040,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
