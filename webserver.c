@@ -57,8 +57,6 @@ char *server_cookie = NULL;
 char *defaulthost = DEFAULT_HOST;
 char *defaultport = DEFAULT_PORT;
 
-pthread_mutex_t AcceptQueue;
-
 /*
  * This is a generic function to set up a master socket for listening on
  * a TCP port.  The server shuts down if the bind fails.
@@ -298,7 +296,6 @@ int main(int argc, char **argv)
 	signal(SIGPIPE, SIG_IGN);
 
 	pthread_mutex_init(&SessionListMutex, NULL);
-	pthread_mutex_init(&AcceptQueue, NULL);
 
 	/*
 	 * Start up the housekeeping thread
@@ -325,8 +322,6 @@ int main(int argc, char **argv)
  */
 void worker_entry(void) {
 	int ssock;
-	struct sockaddr_in fsin;
-	int alen;
 	int i = 0;
 	int time_to_die = 0;
 	time_t start_time, stop_time;
@@ -334,9 +329,7 @@ void worker_entry(void) {
 	do {
 		/* Only one thread can accept at a time */
 		start_time = time(NULL);
-		pthread_mutex_lock(&AcceptQueue);
-		ssock = accept(msock, (struct sockaddr *) &fsin, &alen);
-		pthread_mutex_unlock(&AcceptQueue);
+		ssock = accept(msock, NULL, 0);
 		stop_time = time(NULL);
 
 		/* Augment the thread pool if we're not blocking at all */

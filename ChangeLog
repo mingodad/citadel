@@ -1,4 +1,14 @@
 $Log$
+Revision 410.6  2003/03/17 04:17:41  ajc
+* Call to accept() was being made with an uninitialized variable for the
+  third argument.  Changed the second and third argument to NULL and 0 because
+  we don't really need accept() to fill up a buffer full of information that
+  we'll never use.  (Thanks to SteveV for reporting the bug and helping to
+  troubleshoot it.)
+* Removed the mutex wrapper around select() because we don't need it.  All
+  idle worker threads now block on select() and one of them will wake up when
+  a connection arrives.
+
 Revision 410.5  2003/03/15 20:55:03  ajc
 * When a requested image is not available on the Citadel server, send a
   1x1 transparent GIF instead of 404 error.
@@ -1296,4 +1306,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
