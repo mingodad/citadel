@@ -429,7 +429,7 @@ int client_gets(char *buf)
  * The system-dependent part of master_cleanup() - close the master socket.
  */
 void sysdep_master_cleanup(void) {
-	lprintf(3, "Closing master socket %d\n", msock);
+	lprintf(7, "Closing master socket %d\n", msock);
 	close(msock);
 	}
 

@@ -505,7 +505,8 @@ even if your proprietary extensions aren't supported.
  -> Please contact Art Cancro <ajc@uncnsrd.mt-kisco.ny.us> and obtain a unique
 server type code, which can be assigned to your server program.
  -> If you document what you did in detail, perhaps it can be added to a
-future release of the Citadel/UX program, so everyone can enjoy it.
+future release of the Citadel/UX program, so everyone can enjoy it.  Better
+yet, just work with the Citadel development team on the main source tree.
  
  If everyone follows this scheme, we can avoid a chaotic situation with lots
 of confusion about which client program works with which server, etc.  Client

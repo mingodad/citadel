@@ -1,3 +1,7 @@
+Wed Aug  5 23:02:22 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Second attempt at getting the server API started.  Now it runs
+	  outside of the server and builds a connection.
+
 Tue Aug  4 18:33:06 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Modified the appearance of Internet addresses when they arrive on
 	  a Citadel system.
