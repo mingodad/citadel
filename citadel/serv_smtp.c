@@ -408,6 +408,10 @@ void smtp_mail(char *argbuf) {
 		return;
 	}
 
+	else if (SMTP->is_lmtp) {
+		/* Bypass forgery checking for LMTP */
+	}
+
 	/* Otherwise, make sure outsiders aren't trying to forge mail from
 	 * this system.
 	 */
