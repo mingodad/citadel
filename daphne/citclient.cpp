@@ -45,7 +45,7 @@ CitClient::CitClient(void) {
 
 	// Guilhem Lavaux suggested using the SPEED flag to keep from
 	// blocking, but it just freezes the app in mid-transaction.
-	sock->SetFlags(wxSocketBase::SPEED);
+	sock->SetFlags(wxSOCKET_NOWAIT);
 
         //wxSocketHandler::Master().Register(sock);
         // sock->SetNotify(wxSocketBase::REQ_LOST);

@@ -1,22 +1,9 @@
-<<<<<<< ChangeLog
 $Log$
-Revision 1.17  2000/01/26 18:42:24  smw
-Fixed enter so it's stable again.
-Made minor tweaks for compatibility between wxGTK and wxMSW
-Fixed roomview so that 'skip' shows up again in button bar
-Still working on windoze images.  They're only showing half-height.
-Fixed wholist so that it fires up maximized.  Fixed the button problems
-in 'wholist' under wxMSW.
-REfixed roomtree.cpp so that under wxMSW it is clickable again.
-Certain things here are for tests.  DoChat was one of them.  This is not
-yet a release version of the software, LS, so please don't give me crap
-about things I'm testing.
+Revision 1.18  2000/04/20 02:49:43  ajc
+* Changed sock->SetFlags(SPEED); to sock->SetFlags(wxSOCKET_NOWAIT); to
+  get it working with the new wxSockets API.  Thanks to Steve Yelvington
+  for this fix.
 
-Revision 1.15  2000/01/08 20:25:21  smw
-Fixed a condition in goto where the message window would eat itself
-prior to importing the messages, forcing daphne to crash.
-=======
-$Log$
 Revision 1.17  2000/01/26 18:42:24  smw
 Fixed enter so it's stable again.
 Made minor tweaks for compatibility between wxGTK and wxMSW
