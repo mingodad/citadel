@@ -21,11 +21,37 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
+#include "dynloader.h"
 
 struct ChatLine *ChatQueue = NULL;
 int ChatLastMsg = 0;
+symtab *My_Symtab = NULL;	/* dyn */
 
 extern struct CitContext *ContextList;
+
+#define MODULE_NAME 	"Chat module"
+#define MODULE_AUTHOR	"Art Cancro"
+#define MODULE_EMAIL	"ig@uncnsrd.mt-kisco.ny.us"
+#define MAJOR_VERSION	0
+#define MINOR_VERSION	1
+
+void Dynamic_Module_Init(struct DLModule_Info *info)
+{
+   add_symbol("cmd_chat", "CHAT", "Initiates a real-time chat session", &My_Symtab);
+   add_symbol("cmd_pexp", "PEXP", "Poll for express messages", &My_Symtab);
+   add_symbol("cmd_sexp", "SEXP", "Send an express message", &My_Symtab);
+   strncpy(info->module_name, MODULE_NAME, 30);
+   strncpy(info->module_author, MODULE_AUTHOR, 30);
+   strncpy(info->module_author_email, MODULE_EMAIL, 30);
+   info->major_version = MAJOR_VERSION;
+   info->minor_version = MINOR_VERSION;
+}
+
+void Get_Symtab(symtab **the_symtab)
+{
+   (*the_symtab) = My_Symtab;
+   return;
+}
 
 void allwrite(char *cmdbuf, int flag, char *roomname, char *username)
 {	
@@ -133,7 +159,6 @@ t_context *find_context(char **unstr)
 /*
  * List users in chat.  Setting allflag to 1 also lists users elsewhere.
  */
- 
 
 void do_chat_listing(int allflag)
 {
@@ -294,7 +319,7 @@ void cmd_chat(char *argbuf)
 				allwrite(cmdbuf,0, CC->chat_room, NULL);
 				}
 
-			if (!ok_cmd)
+			if ((!ok_cmd) && (cmdbuf[0]) && (cmdbuf[0] != '\n'))
 			   cprintf(":|Command %s is not understood.\n", cmdbuf);
 			   
 			strcpy(cmdbuf, "");
