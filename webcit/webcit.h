@@ -259,3 +259,4 @@ void fmt_date(char *buf, time_t thetime);
 void httpdate(char *buf, time_t thetime);
 void end_webcit_session(void);
 void page_popup(void);
+void http_redirect(char *);
