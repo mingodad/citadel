@@ -88,7 +88,7 @@ void display_login(char *mesg) {
 
 
 /*
- * This function needs to get called whenever a PASS or NEWU succeeds
+ * This function needs to get called whenever a PASS or NEWU succeeds.
  */
 void become_logged_in(char *user, char *pass, char *serv_response) {
 	logged_in = 1;
@@ -101,6 +101,7 @@ void become_logged_in(char *user, char *pass, char *serv_response) {
 
 void do_login(void) {
 	char buf[256];
+	int need_regi = 0;
 
 	if (!strcasecmp(bstr("action"), "Exit")) {
 		do_logout();
@@ -142,7 +143,18 @@ void do_login(void) {
 		}
 
 	if (logged_in) {
-		output_static("frameset.html");
+		serv_puts("CHEK");
+		serv_gets(buf);
+		if (buf[0]=='2') {
+			need_regi = extract_int(&buf[4], 1);
+			/* FIX also check for new mail etc. here */
+			}
+		if (need_regi) {
+			display_reg(1);
+			}
+		else {
+			output_static("frameset.html");
+			}
 		}
 	else {
 		display_login("Your password was not accepted.");
@@ -190,7 +202,6 @@ void do_logout(void) {
 	else wprintf("Goodbye\n");
 
 	wprintf("<HR><A HREF=\"/\">Log in again</A>\n");
-
 	wprintf("</CENTER></BODY></HTML>\n");
 	wDumpContent();
 	serv_puts("QUIT");
@@ -265,4 +276,106 @@ void validate(void) {
 		}
 	wprintf("</TR></TABLE><CENTER><BR>\n");
 	wDumpContent();
+	}
+
+
+
+
+
+
+/* 
+ * Display form for registration.
+ * (Set during_login to 1 if this registration is being performed during
+ * new user login and will require chaining to the proper screen.)
+ */
+void display_reg(int during_login) {
+	char buf[256];
+	int a;
+
+	printf("HTTP/1.0 200 OK\n");
+	output_headers(1);
+
+        wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
+        wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+        wprintf("<B>Enter registration info</B>\n");
+        wprintf("</FONT></TD></TR></TABLE>\n");
+
+	wprintf("<CENTER>");
+	serv_puts("MESG register");
+	serv_gets(buf);
+	if (buf[0]=='1') fmout(NULL);
+
+	wprintf("<FORM ACTION=\"/register\" METHOD=\"POST\">\n");
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"during_login\" VALUE=\"%d\">\n", during_login);
+
+	serv_puts("GREG _SELF_");
+	serv_gets(buf);
+	if (buf[0]!='1') {
+		wprintf("<EM>%s</EM><BR>\n",&buf[4]);
+		}
+	else {
+	
+		wprintf("<H1>%s</H1><TABLE border>\n",&buf[4]);
+		a = 0;
+		while (serv_gets(buf), strcmp(buf,"000")) {
+			++a;
+			wprintf("<TR><TD>");
+			switch(a) {
+				case 3:	wprintf("Real Name:</TD><TD><INPUT TYPE=\"text\" NAME=\"realname\" VALUE=\"%s\" MAXLENGTH=\"29\"><BR>\n",buf);
+					break;
+				case 4:	wprintf("Street Address:</TD><TD><INPUT TYPE=\"text\" NAME=\"address\" VALUE=\"%s\" MAXLENGTH=\"24\"><BR>\n",buf);
+					break;
+				case 5:	wprintf("City/town:</TD><TD><INPUT TYPE=\"text\" NAME=\"city\" VALUE=\"%s\" MAXLENGTH=\"14\"><BR>\n",buf);
+					break;
+				case 6:	wprintf("State/province:</TD><TD><INPUT TYPE=\"text\" NAME=\"state\" VALUE=\"%s\" MAXLENGTH=\"2\"><BR>\n",buf);
+					break;
+				case 7:	wprintf("ZIP code:</TD><TD><INPUT TYPE=\"text\" NAME=\"zip\" VALUE=\"%s\" MAXLENGTH=\"10\"><BR>\n",buf);
+					break;
+				case 8:	wprintf("Telephone:</TD><TD><INPUT TYPE=\"text\" NAME=\"phone\" VALUE=\"%s\" MAXLENGTH=\"14\"><BR>\n",buf);
+					break;
+				case 9:	wprintf("E-Mail:</TD><TD><INPUT TYPE=\"text\" NAME=\"email\" VALUE=\"%s\" MAXLENGTH=\"31\"><BR>\n",buf);
+					break;
+				}
+			wprintf("</TD></TR>\n");
+			}
+		wprintf("</TABLE><P>");
+		}
+	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Register\">\n");
+	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Cancel\">\n");
+	wprintf("</CENTER></BODY></HTML>\n");
+	wDumpContent();
+	}
+
+/*
+ * register
+ */
+void register_user(void) {
+	char buf[256];
+	
+	if (strcmp(bstr("action"),"Register")) {
+		display_error("Cancelled.  Registration was not saved.");
+		return;
+		}
+
+	serv_puts("REGI");
+	serv_gets(buf);
+	if (buf[0]!='4') {
+		display_error(&buf[4]);
+		}
+
+	serv_puts(bstr("realname"));
+	serv_puts(bstr("address"));
+	serv_puts(bstr("city"));
+	serv_puts(bstr("state"));
+	serv_puts(bstr("zip"));
+	serv_puts(bstr("phone"));
+	serv_puts(bstr("email"));
+	serv_puts("000");
+	
+	if (atoi(bstr("during_login"))) {
+		output_static("frameset.html");
+		}
+	else {
+		display_error("Registration information has been saved.");
+		}
 	}

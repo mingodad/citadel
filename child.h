@@ -4,7 +4,7 @@
  * $Id$
  */
 
-void become_logged_in(char *user, char *pass, char *serv_response);
+void become_logged_in(char *, char *, char *);
 void do_login(void);
 void display_login(char *mesg);
 void do_welcome(void);
@@ -81,3 +81,5 @@ void serv_puts(char *string);
 void serv_printf(const char *format, ...);
 void load_floorlist(void);
 void select_floor_to_edit_pic(void);
+void display_reg(int);
+void register_user(void);

@@ -336,8 +336,8 @@ void *context_loop(int sock) {
 			printf("Content-type: text/html\n");
 			printf("Content-length: 76\n");
 			printf("\n");
-			printf("<HTML><HEAD><TITLE>Error</TITLE></HEAD>\n");
-			printf("<BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">execlp() failed</BODY></HTML>\n");
+			printf("<HTML><HEAD><TITLE>Error</TITLE></HEAD><BODY>\n");
+			printf("execlp() failed: %s</BODY></HTML>\n", strerror(errno));
 			exit(0);
 			}
 		else {

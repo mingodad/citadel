@@ -531,12 +531,21 @@ void session_loop(void) {
 		content = NULL;
 		}
 
+	/* If there are variables in the URL, we must grab them now */	
+	for (a=0; a<strlen(cmd); ++a) if ((cmd[a]=='?')||(cmd[a]=='&')) {
+		for (b=a; b<strlen(cmd); ++b) if (isspace(cmd[b])) cmd[b]=0;
+		addurls(&cmd[a+1]);
+		cmd[a] = 0;
+		}
+
 	/*
 	 * If we're not connected to a Citadel server, try to hook up the
 	 * connection now.  Preference is given to the host and port specified
 	 * by browser cookies, if cookies have been supplied.
 	 */
 	if (!connected) {
+		if (strlen(bstr("host"))>0) strcpy(c_host, bstr("host"));
+		if (strlen(bstr("port"))>0) strcpy(c_port, bstr("port"));
 		serv_sock = connectsock(c_host, c_port, "tcp");
 		connected = 1;
 		serv_gets(buf);	/* get the server welcome message */
@@ -575,13 +584,7 @@ void session_loop(void) {
 			}
 		}
 
-	/* If there are variables in the URL, we must grab them now */	
-	for (a=0; a<strlen(cmd); ++a) if ((cmd[a]=='?')||(cmd[a]=='&')) {
-		for (b=a; b<strlen(cmd); ++b) if (isspace(cmd[b])) cmd[b]=0;
-		addurls(&cmd[a+1]);
-		cmd[a] = 0;
-		}
-
+	/* FIX unfix etc. here's where the addurls() WAS... */
 	if (!strcasecmp(action, "static")) {
 		strcpy(buf, &cmd[12]);
 		for (a=0; a<strlen(buf); ++a) if (isspace(buf[a])) buf[a]=0;
@@ -801,6 +804,14 @@ void session_loop(void) {
 		sprintf(buf, "UIMG 1|_floorpic_|%s",
 			bstr("which_floor"));
 		do_graphics_upload(buf);
+		}
+
+	else if (!strcasecmp(action, "display_reg")) {
+		display_reg(0);
+		}
+
+	else if (!strcasecmp(action, "register")) {
+		register_user();
 		}
 
 	/* When all else fails... */
