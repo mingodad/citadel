@@ -157,7 +157,7 @@ void set_init_entry(char *which_entry, char *new_state) {
 /*
  * Locate the name of an inittab entry for a specific program
  */
-void locate_init_entry(char *entrybuf, char *program) {
+void locate_init_entry(char *init_entry, char *program) {
 
 	FILE *infp;
 	char buf[SIZ];
@@ -165,7 +165,6 @@ void locate_init_entry(char *entrybuf, char *program) {
 	char looking_for[SIZ];
 	char entry[SIZ];
 	char prog[SIZ];
-	char init_entry[SIZ];
 
 	strcpy(init_entry, "");
 
@@ -432,13 +431,37 @@ void check_services_entry(void)
 
 
 /*
+ * Generate a unique entry name for a new inittab entry
+ */
+void generate_entry_name(char *entryname) {
+	char buf[SIZ];
+
+	snprintf(entryname, sizeof entryname, "c0");
+	do {
+		++entryname[1];
+		if (entryname[1] > '9') {
+			entryname[1] = 0;
+			++entryname[0];
+			if (entryname[0] > 'z') {
+				display_error(
+				   "Can't generate a unique entry name");
+				return;
+			}
+		}
+		snprintf(buf, sizeof buf,
+		     "grep %s: /etc/inittab >/dev/null 2>&1", entryname);
+	} while (system(buf) == 0);
+}
+
+
+
+/*
  * check_inittab_entry()  -- Make sure "citadel" is in /etc/inittab
  *
  */
 void check_inittab_entry(void)
 {
 	FILE *infp;
-	char buf[SIZ];
 	char looking_for[SIZ];
 	char question[SIZ];
 	char entryname[5];
@@ -462,21 +485,7 @@ void check_inittab_entry(void)
 		return;
 
 	/* Generate a unique entry name for /etc/inittab */
-	snprintf(entryname, sizeof entryname, "c0");
-	do {
-		++entryname[1];
-		if (entryname[1] > '9') {
-			entryname[1] = 0;
-			++entryname[0];
-			if (entryname[0] > 'z') {
-				display_error(
-				   "Can't generate a unique entry name");
-				return;
-			}
-		}
-		snprintf(buf, sizeof buf,
-		     "grep %s: /etc/inittab >/dev/null 2>&1", entryname);
-	} while (system(buf) == 0);
+	generate_entry_name(entryname);
 
 	/* Now write it out to /etc/inittab */
 	infp = fopen("/etc/inittab", "a");
@@ -652,8 +661,9 @@ void strprompt(char *prompt_title, char *prompt_text, char *str)
 			extract_token(buf, prompt_text, i, '\n');
 			newtFormAddComponent(form, newtLabel(1, 1+i, buf));
 		}
-		newtFormAddComponent(form, newtEntry(1, 8, str, 74, &result,
-					NEWT_FLAG_RETURNEXIT));
+		newtFormAddComponent(form,
+			newtEntry(1, 8, str, 74, &result, NEWT_FLAG_RETURNEXIT)
+		);
 		newtRunForm(form);
 		strcpy(str, result);
 
@@ -1134,6 +1144,7 @@ NEW_INST:
  */
 void contemplate_ldap(void) {
 	char question[SIZ];
+	char slapd_init_entry[SIZ];
 	FILE *fp;
 
 	/* If conditions are not ideal, give up on this idea. */
@@ -1209,5 +1220,30 @@ void contemplate_ldap(void) {
 
 	/* This is where our OpenLDAP server will keep its data. */
 	mkdir("openldap-data", 0700);
+
+	/* If inittab is already starting slapd, disable the old entry. */
+	locate_init_entry(slapd_init_entry, getenv("SLAPD_BINARY"));
+	if (strlen(slapd_init_entry) > 0) {
+		set_init_entry(slapd_init_entry, "off");
+	}
+
+	/* Generate a unique entry name for slapd */
+	generate_entry_name(slapd_init_entry);
+
+	/* Now write it out to /etc/inittab */
+	/* FIXME make it run as some non-root user */
+	fp = fopen("/etc/inittab", "a");
+	if (fp == NULL) {
+		display_error(strerror(errno));
+	} else {
+		fprintf(fp, "# Start the OpenLDAP server for Citadel...\n");
+		fprintf(fp, "%s:2345:respawn:%s -d 1 -f %s\n",
+			slapd_init_entry,
+			getenv("SLAPD_BINARY"),
+			getenv("LDAP_CONFIG")
+		);
+		fclose(fp);
+	}
+
 }
 #endif	/* HAVE_LDAP */

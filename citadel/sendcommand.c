@@ -114,6 +114,10 @@ void np_attach_to_server(void)
 	strcpy(portbuf, ".");	/* IPGM will refuse to run on the network */
 	fprintf(stderr, "Attaching to server...\n");
 	ipc = CtdlIPC_new(1, args, hostbuf, portbuf);
+	if (!ipc) {
+		fprintf(stderr, "Can't connect: %s\n", strerror(errno));
+		exit(3);
+	}
 	CtdlIPC_chat_recv(ipc, buf);
 	fprintf(stderr, "%s\n", &buf[4]);
 	snprintf(buf, sizeof buf, "IPGM %d", config.c_ipgm_secret);
