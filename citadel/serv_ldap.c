@@ -40,6 +40,8 @@
 #include "policy.h"
 #include "database.h"
 #include "msgbase.h"
+#include "serv_ldap.h"
+#include "vcard.h"
 
 #ifdef HAVE_LDAP
 
@@ -91,6 +93,38 @@ void CtdlConnectToLdap(void) {
 		dirserver = NULL;	/* FIXME disconnect from ldap */
 	}
 }
+
+
+
+
+/*
+ * Write (add, or change if already exists) a directory entry to the
+ * LDAP server, based on the information supplied in a vCard.
+ */
+void ctdl_vcard_to_ldap(struct CtdlMessage *msg) {
+	struct vCard *v = NULL;
+
+	char this_dn[SIZ];
+
+	if (msg == NULL) return;
+	if (msg->cm_fields['M'] == NULL) return;
+	if (msg->cm_fields['A'] == NULL) return;
+	if (msg->cm_fields['N'] == NULL) return;
+
+	sprintf(this_dn, "cn=%s,ou=%s,%s",
+		msg->cm_fields['A'],
+		msg->cm_fields['N'],
+		config.c_ldap_base_dn
+	);
+
+	lprintf(9, "this_dn: <%s>\n", this_dn);
+
+	v = vcard_load(msg->cm_fields['M']);
+
+	vcard_free(v);
+}
+
+
 
 
 /*

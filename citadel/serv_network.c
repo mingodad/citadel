@@ -1181,7 +1181,6 @@ void network_process_file(char *filename) {
 	long msgcur = 0L;
 	int ch;
 
-	lprintf(7, "network: processing <%s>\n", filename);
 
 	fp = fopen(filename, "rb");
 	if (fp == NULL) {
@@ -1189,6 +1188,8 @@ void network_process_file(char *filename) {
 			filename, strerror(errno));
 		return;
 	}
+
+	lprintf(5, "network: processing <%s>\n", filename);
 
 	/* Look for messages in the data stream and break them out */
 	while (ch = getc(fp), ch >= 0) {
@@ -1226,7 +1227,8 @@ void network_do_spoolin(void) {
 	if (dp == NULL) return;
 
 	while (d = readdir(dp), d != NULL) {
-		snprintf(filename, sizeof filename, "./network/spoolin/%s", d->d_name);
+		snprintf(filename, sizeof filename,
+			"./network/spoolin/%s", d->d_name);
 		network_process_file(filename);
 	}
 

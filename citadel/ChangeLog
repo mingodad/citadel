@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.6  2004/01/18 21:04:40  ajc
+ * Reworked vCard etc. functions for addition of new vCard data to LDAP
+
  Revision 614.5  2004/01/17 22:57:54  ajc
  * Added "Base DN" "Bind DN" and "Bind DN password" config options
  * serv_ldap.c: added.  (New module implementing the LDAP Connector)
@@ -5230,3 +5233,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

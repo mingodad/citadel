@@ -63,6 +63,7 @@
 #include "internet_addressing.h"
 #include "tools.h"
 #include "vcard.h"
+#include "serv_ldap.h"
 
 struct vcard_internal_info {
 	long msgnum;
@@ -172,6 +173,10 @@ void vcard_add_to_directory(long msgnum, void *data) {
 		vcard_extract_internet_addresses(msg, vcard_directory_add_user);
 	}
 
+#ifdef HAVE_LDAP
+	ctdl_vcard_to_ldap(msg);
+#endif
+
 	CtdlFreeMessage(msg);
 }
 
@@ -196,7 +201,7 @@ void cmd_igab(char *argbuf) {
 	 */
 	CtdlDirectoryInit();
 
-        /* We want the last (and probably only) vcard in this room */
+        /* We want *all* vCards in this room */
         CtdlForEachMessage(MSGS_ALL, 0, "text/x-vcard",
 		NULL, vcard_add_to_directory, NULL);
 
