@@ -163,6 +163,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	vcard_free(v);
 
 	/* Display the form */
+	do_template("beginbox_nt");
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/submit_vcard\">\n");
 	wprintf("<H2><IMG ALIGN=CENTER SRC=\"/static/vcard.gif\">"
 		"Contact information for ");
@@ -249,7 +250,8 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
                 wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
                 wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
                 wprintf("</CENTER></FORM>\n");
-
+	
+	do_template("endbox");
 	wDumpContent(1);
 }
 
