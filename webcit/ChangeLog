@@ -1,4 +1,8 @@
 $Log$
+Revision 400.71  2002/12/26 04:04:48  ajc
+* Perform CHEK command when automatically establishing sessions, not just
+  when one is explicitly created.  Some stuff is missing otherwise.
+
 Revision 400.70  2002/12/25 23:18:06  ajc
 * Be more strategic about when to call ical_dezonify()
   (This may be the last set of fixes.  I hope so.)
@@ -1198,3 +1202,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

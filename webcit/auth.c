@@ -73,6 +73,8 @@ void display_login(char *mesg)
  */
 void become_logged_in(char *user, char *pass, char *serv_response)
 {
+	char buf[SIZ];
+
 	WC->logged_in = 1;
 	extract(WC->wc_username, &serv_response[4], 0);
 	strcpy(WC->wc_password, pass);
@@ -80,15 +82,23 @@ void become_logged_in(char *user, char *pass, char *serv_response)
 	if (WC->axlevel >= 6) {
 		WC->is_aide = 1;
 	}
+
 	load_preferences();
+
+	serv_puts("CHEK");
+	serv_gets(buf);
+	if (buf[0] == '2') {
+		WC->new_mail = extract_int(&buf[4], 0);
+		WC->need_regi = extract_int(&buf[4], 1);
+		WC->need_vali = extract_int(&buf[4], 2);
+		extract(WC->cs_inet_email, &buf[4], 3);
+	}
 }
 
 
 void do_login(void)
 {
 	char buf[SIZ];
-	int need_regi = 0;
-
 
 	if (!strcasecmp(bstr("action"), "Exit")) {
 		do_logout();
@@ -125,15 +135,7 @@ void do_login(void)
 		}
 	}
 	if (WC->logged_in) {
-		serv_puts("CHEK");
-		serv_gets(buf);
-		if (buf[0] == '2') {
-			WC->new_mail = extract_int(&buf[4], 0);
-			need_regi = extract_int(&buf[4], 1);
-			WC->need_vali = extract_int(&buf[4], 2);
-			extract(WC->cs_inet_email, &buf[4], 3);
-		}
-		if (need_regi) {
+		if (WC->need_regi) {
 			display_reg(1);
 		} else {
 			do_welcome();
