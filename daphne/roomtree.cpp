@@ -36,7 +36,7 @@ END_EVENT_TABLE()
 
 
 
-RoomTree::RoomTree(wxWindow* parent, CitClient *sock)
+RoomTree::RoomTree(wxMDIParentFrame *parent, CitClient *sock)
 		: wxTreeCtrl(
                         parent,
 			ROOMTREE_CTRL,
@@ -46,6 +46,7 @@ RoomTree::RoomTree(wxWindow* parent, CitClient *sock)
                         "RoomList") {
 
 	citsock = sock;
+	citMyMDI = parent;
 	InitTreeIcons();
 
 }
@@ -155,4 +156,6 @@ void RoomTree::OnDoubleClick(wxTreeEvent& evt) {
 	r = (RoomItem *)GetItemData(itemId);
 
 	cout << r->RoomName << "\n";
+	new RoomView(citsock, citMyMDI, r->RoomName);
 }
+

@@ -3,10 +3,10 @@ LFLAGS=`wx-config --libs`
 
 daphne: main.o citclient.o userlogin.o testwindow.o who.o \
 	utils.o tcp_sockets.o express_message.o send_express.o \
-	roomtree.o
+	roomtree.o roomview.o
 	c++ main.o citclient.o userlogin.o testwindow.o who.o \
 	utils.o tcp_sockets.o express_message.o send_express.o \
-	roomtree.o \
+	roomtree.o roomview.o \
 	$(LFLAGS) -o daphne
 
 main.o: main.cpp includes.hpp
@@ -38,3 +38,6 @@ send_express.o: send_express.cpp includes.hpp
 
 roomtree.o: roomtree.cpp includes.hpp
 	c++ -c $(CFLAGS) roomtree.cpp
+
+roomview.o: roomview.cpp includes.hpp
+	c++ -c $(CFLAGS) roomview.cpp

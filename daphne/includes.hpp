@@ -199,17 +199,27 @@ private:
 
 class RoomTree : public wxTreeCtrl {
 public:
-	RoomTree(wxWindow *parent, CitClient *sock);
+	RoomTree(wxMDIParentFrame *parent, CitClient *sock);
 	void LoadRoomList(void);
 private:
 	void InitTreeIcons(void);
 	void OnDoubleClick(wxTreeEvent& evt);
 	CitClient *citsock;
+	wxMDIParentFrame *citMyMDI;
 	wxTreeItemId floorboards[MAXFLOORS];
 	wxImageList *TreeIcons;
 	DECLARE_EVENT_TABLE()
 };
 
+
+
+// A window representing an open room.
+class RoomView : public wxMDIChildFrame {
+public:
+	RoomView(CitClient *sock, wxMDIParentFrame *MyMDI, wxString roomname);
+private:
+	CitClient *citsock;
+};
 
 
 
