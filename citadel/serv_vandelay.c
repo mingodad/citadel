@@ -191,7 +191,7 @@ void artv_export_message(long msgnum) {
 	sprintf(buf, "./base64 -e >%s", tempfile);
 	fp = popen(buf, "w");
 	fwrite(smr.ser, smr.len, 1, fp);
-	fclose(fp);
+	pclose(fp);
 
 	phree(smr.ser);
 
@@ -464,7 +464,7 @@ void artv_import_message(void) {
 	while (client_gets(buf), strcasecmp(buf, END_OF_MESSAGE)) {
 		fprintf(fp, "%s\n", buf);
 	}
-	fclose(fp);
+	pclose(fp);
 	fp = fopen(tempfile, "rb");
 	fseek(fp, 0L, SEEK_END);
 	msglen = ftell(fp);
