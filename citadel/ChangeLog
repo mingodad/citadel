@@ -1,4 +1,8 @@
  $Log$
+ Revision 630.12  2005/02/03 04:36:56  ajc
+ * serv_calendar.c: beforesave hook now looks for the UID inside nested
+   VTODO components, in addition to VCALENDAR components.
+
  Revision 630.11  2005/02/01 23:11:46  ajc
  * new ENT0 syntax now also outputs EUID
 
@@ -6342,3 +6346,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

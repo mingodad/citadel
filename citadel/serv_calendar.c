@@ -1667,7 +1667,7 @@ void ical_ctdl_set_exclusive_msgid(char *name, char *filename, char *partnum,
 		char *disp, void *content, char *cbtype, size_t length,
 		char *encoding, void *cbuserdata)
 {
-	icalcomponent *cal;
+	icalcomponent *cal, *nested_event, *nested_todo;
 	icalproperty *p;
 	struct icalmessagemod *imm;
 	char new_uid[SIZ];
@@ -1683,9 +1683,18 @@ void ical_ctdl_set_exclusive_msgid(char *name, char *filename, char *partnum,
 		cal = icalcomponent_new_from_string(content);
 		if (cal != NULL) {
 			if (icalcomponent_isa(cal) == ICAL_VCALENDAR_COMPONENT) {
-				cal = icalcomponent_get_first_component(
+				nested_event = icalcomponent_get_first_component(
 					cal, ICAL_VEVENT_COMPONENT
 				);
+				nested_todo = icalcomponent_get_first_component(
+					cal, ICAL_VTODO_COMPONENT
+				);
+				if (nested_event != NULL) {
+					cal = nested_event;
+				}
+				else if (nested_todo != NULL) {
+					cal = nested_todo;
+				}
 			}
 		}
 		if (cal != NULL) {
