@@ -1,4 +1,7 @@
  $Log$
+ Revision 605.0  2003/02/19 03:46:01  ajc
+ * THIS IS 6.05
+
  Revision 601.134  2003/02/17 05:23:20  ajc
  * Fixed a small bug in the GDBM backend (deprecated, but the bug was very
    obvious and a kind user pointed it out)
