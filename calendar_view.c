@@ -432,11 +432,78 @@ void calendar_day_view(int year, int month, int day) {
 
 }
 
+/*
+ * Display today's events.
+ */
+void calendar_summary_view(void) {
+	int i;
+	icalproperty *p;
+	struct icaltimetype t;
+	time_t event_tt;
+	struct tm event_tm;
+	struct tm today_tm;
+	time_t now;
+	int all_day_event = 0;
+	char timestring[SIZ];
+
+	if (WC->num_cal == 0) {
+		return;
+	}
+
+	now = time(NULL);
+	memcpy(&today_tm, localtime(&now), sizeof(struct tm));
+
+	wprintf("<UL>");
+
+	for (i=0; i<(WC->num_cal); ++i) {
+		p = icalcomponent_get_first_property(WC->disp_cal[i],
+						ICAL_DTSTART_PROPERTY);
+		if (p != NULL) {
+			t = icalproperty_get_dtstart(p);
+			event_tt = icaltime_as_timet(t);
+			fmt_time(timestring, event_tt);
+			memcpy(&event_tm, localtime(&event_tt), sizeof(struct tm));
+			if ( (event_tm.tm_year == today_tm.tm_year)
+			   && (event_tm.tm_mon == today_tm.tm_mon)
+			   && (event_tm.tm_mday == today_tm.tm_mday)
+			   ) {
+
+				if (t.is_date) all_day_event = 1;
+
+				p = icalcomponent_get_first_property(
+							WC->disp_cal[i],
+							ICAL_SUMMARY_PROPERTY);
+				if (p != NULL) {
+					wprintf("<LI>");
+					escputs((char *)
+						icalproperty_get_comment(p));
+					wprintf(" (%s)\n", timestring);
+				}
+			}
+		}
+	}
+	wprintf("</UL>\n");
+	free_calendar_buffer();
+}
+
+
+
+void free_calendar_buffer(void) {
+	int i;
+	if (WC->num_cal) for (i=0; i<(WC->num_cal); ++i) {
+		icalcomponent_free(WC->disp_cal[i]);
+	}
+	WC->num_cal = 0;
+	free(WC->disp_cal);
+	WC->disp_cal = NULL;
+	free(WC->cal_msgnum);
+	WC->cal_msgnum = NULL;
+}
+
 
 
 
 void do_calendar_view(void) {
-	int i;
 	time_t now;
 	struct tm tm;
 	int year, month, day;
@@ -474,15 +541,8 @@ void do_calendar_view(void) {
 	}
 
 	/* Free the calendar stuff */
-	if (WC->num_cal) for (i=0; i<(WC->num_cal); ++i) {
-		icalcomponent_free(WC->disp_cal[i]);
-	}
-	WC->num_cal = 0;
-	free(WC->disp_cal);
-	WC->disp_cal = NULL;
-	free(WC->cal_msgnum);
-	WC->cal_msgnum = NULL;
-}
+	free_calendar_buffer();
 
+}
 
 #endif	/* HAVE_ICAL_H */
