@@ -90,7 +90,6 @@ void master_cleanup(void) {
  */
 void cleanup_stuff(void *arg)
 {
-	struct ExpressMessage *emptr;
 
 	lprintf(9, "cleanup_stuff() called\n");
 
@@ -108,11 +107,7 @@ void cleanup_stuff(void *arg)
 	
 	/* Deallocate any unsent express messages */
 	begin_critical_section(S_SESSION_TABLE);
-	while (CC->FirstExpressMessage != NULL) {
-		emptr = CC->FirstExpressMessage;
-		CC->FirstExpressMessage = CC->FirstExpressMessage->next;
-		phree(emptr);
-		}
+	if (CC->ExpressMessages != NULL) phree(CC->ExpressMessages);
 	end_critical_section(S_SESSION_TABLE);
 
 	/* Deallocate any message list we might have in memory */
@@ -235,7 +230,7 @@ void cmd_uchg(char *newusername)
  * space otherwise.
  */
 char check_express(void) {
-	if (CC->FirstExpressMessage == NULL) {
+	if (CC->ExpressMessages == NULL) {
 		return(' ');
 		}
 	else {
@@ -689,7 +684,7 @@ void *context_loop(struct CitContext *con)
 	CC->download_fp = NULL;
 	CC->upload_fp = NULL;
 	CC->cs_pid = con->client_socket;	/* not necessarily portable */
-	CC->FirstExpressMessage = NULL;
+	CC->ExpressMessages = NULL;
 	CC->msglist = NULL;
 	CC->num_msgs = 0;
 	time(&CC->lastcmd);

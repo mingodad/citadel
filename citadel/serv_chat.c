@@ -342,23 +342,23 @@ void cmd_chat(char *argbuf)
  */
 void cmd_pexp(char *argbuf)
 {				/* arg unused */
-	struct ExpressMessage *emptr;
+	char *ptr;
 
-	if (CC->FirstExpressMessage == NULL) {
+	if (CC->ExpressMessages == NULL) {
 		cprintf("%d No express messages waiting.\n", ERROR);
 		return;
 	}
-	cprintf("%d Express msgs:\n", LISTING_FOLLOWS);
+	begin_critical_section(S_SESSION_TABLE);
+	ptr = CC->ExpressMessages;
+	CC->ExpressMessages = NULL;
+	end_critical_section(S_SESSION_TABLE);
 
-	while (CC->FirstExpressMessage != NULL) {
-		cprintf("%s", CC->FirstExpressMessage->em_text);
-		begin_critical_section(S_SESSION_TABLE);
-		emptr = CC->FirstExpressMessage;
-		CC->FirstExpressMessage = CC->FirstExpressMessage->next;
-		phree(emptr);
-		end_critical_section(S_SESSION_TABLE);
-	}
+	cprintf("%d Express msgs:\n%s", LISTING_FOLLOWS, ptr);
+	if (ptr[strlen(ptr)] != '\n')
+		cprintf("\n");
 	cprintf("000\n");
+
+	phree(ptr);
 }
 
 
@@ -367,11 +367,13 @@ void cmd_pexp(char *argbuf)
  * Returns the number of users to which the message was sent.
  * Sending a zero-length message tests for recipients without sending messages.
  */
-int send_express_message(char *lun, char *x_user, char *x_msg) {
+int send_express_message(char *lun, char *x_user, char *x_msg)
+{
 	int message_sent = 0;
 	struct CitContext *ccptr;
-	struct ExpressMessage *emptr, *emnew;
+	char *msgptr;
 	char *un;
+	int newlen;
 	FILE *fp;
 
 	/* find the target user's context and append the message */
@@ -387,21 +389,22 @@ int send_express_message(char *lun, char *x_user, char *x_msg) {
 		    || (!strcasecmp(x_user, "broadcast"))) {
 			if (strlen(x_msg) > 0) {
 				strcpy(ccptr->last_pager, CC->curr_user);
-				emnew = (struct ExpressMessage *)
-			    		mallok(sizeof(struct ExpressMessage));
-				emnew->next = NULL;
-				sprintf(emnew->em_text, "%s from %s:\n %s\n",
-					((!strcasecmp(x_user, "broadcast")) ? "Broadcast message" : "Message"),
-					lun, x_msg);
-
-				if (ccptr->FirstExpressMessage == NULL) {
-					ccptr->FirstExpressMessage = emnew;
+				if (ccptr->ExpressMessages == NULL) {
+					newlen = strlen(x_msg) + 80;
+					msgptr = mallok(newlen);
+					bzero(msgptr, newlen);
 				} else {
-					emptr = ccptr->FirstExpressMessage;
-					while (emptr->next != NULL) {
-						emptr = emptr->next;
-					}
-					emptr->next = emnew;
+					newlen = (strlen(ccptr->ExpressMessages)
+						  + strlen(x_msg) + 80);
+					msgptr = reallok(
+					 ccptr->ExpressMessages, newlen);
+				}
+				if (msgptr != NULL) {
+					sprintf(&msgptr[strlen(msgptr)],
+						"%s from %s:\n %s\n",
+						((!strcasecmp(x_user, "broadcast")) ? "Broadcast message" : "Message"),
+						lun, x_msg);
+					ccptr->ExpressMessages = msgptr;
 				}
 			}
 			++message_sent;
@@ -410,23 +413,22 @@ int send_express_message(char *lun, char *x_user, char *x_msg) {
 	end_critical_section(S_SESSION_TABLE);
 
 	/* Log the page to disk if configured to do so */
-	if ( (strlen(config.c_logpages)>0) && (strlen(x_msg)>0) ) {
-		fp=fopen(CC->temp,"wb");
-		fprintf(fp,"%c%c%c", 255, MES_NORMAL, 0);
-		fprintf(fp,"Psysop%c", 0);
-		fprintf(fp,"T%ld%c", time(NULL), 0);
-		fprintf(fp,"A%s%c", lun, 0);
-		fprintf(fp,"R%s%c", x_user, 0);
-		fprintf(fp,"O%s%c", config.c_logpages, 0);
-		fprintf(fp,"N%s%c", NODENAME, 0);
-		fprintf(fp,"M%s\n%c", x_msg,0);
+	if ((strlen(config.c_logpages) > 0) && (strlen(x_msg) > 0)) {
+		fp = fopen(CC->temp, "wb");
+		fprintf(fp, "%c%c%c", 255, MES_NORMAL, 0);
+		fprintf(fp, "Psysop%c", 0);
+		fprintf(fp, "T%ld%c", time(NULL), 0);
+		fprintf(fp, "A%s%c", lun, 0);
+		fprintf(fp, "R%s%c", x_user, 0);
+		fprintf(fp, "O%s%c", config.c_logpages, 0);
+		fprintf(fp, "N%s%c", NODENAME, 0);
+		fprintf(fp, "M%s\n%c", x_msg, 0);
 		fclose(fp);
 		save_message(CC->temp, "", config.c_logpages, M_LOCAL, 1);
 		unlink(CC->temp);
 	}
-
-	return(message_sent);
-	}
+	return (message_sent);
+}
 
 /*
  * send express messages  <bc>
@@ -464,7 +466,6 @@ void cmd_sexp(char *argbuf)
 			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;
 	}
-
 	/* This loop handles text-transfer pages */
 	if (!strcmp(x_msg, "-")) {
 		message_sent = send_express_message(lun, x_user, "");
@@ -478,23 +479,25 @@ void cmd_sexp(char *argbuf)
 		strcpy(x_big_msgbuf, "");
 		while (client_gets(x_msg), strcmp(x_msg, "000")) {
 			x_big_msgbuf = reallok(x_big_msgbuf,
-				strlen(x_big_msgbuf) + strlen(x_msg) + 4);
-			if (strlen(x_big_msgbuf)>0) strcat(x_big_msgbuf, "\n");
+			       strlen(x_big_msgbuf) + strlen(x_msg) + 4);
+			if (strlen(x_big_msgbuf) > 0)
+				strcat(x_big_msgbuf, "\n");
 			strcat(x_big_msgbuf, x_msg);
 		}
 		send_express_message(lun, x_user, x_big_msgbuf);
 		phree(x_big_msgbuf);
 
-	/* This loop handles inline pages */
+		/* This loop handles inline pages */
 	} else {
 		message_sent = send_express_message(lun, x_user, x_msg);
 
 		if (message_sent > 0) {
-			if (strlen(x_msg)>0) 
+			if (strlen(x_msg) > 0)
 				cprintf("%d Message sent", OK);
-			else	
+			else
 				cprintf("%d Ok to send message", OK);
-			if (message_sent > 1) cprintf(" to %d users", message_sent);
+			if (message_sent > 1)
+				cprintf(" to %d users", message_sent);
 			cprintf(".\n");
 		} else {
 			cprintf("%d No user '%s' logged in.\n", ERROR, x_user);

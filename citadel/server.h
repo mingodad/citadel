@@ -2,14 +2,10 @@
 typedef pthread_t THREAD;
 
 /* Uncomment this if you want to track memory leaks.
- * (Don't do this unless you're a developer!)
+ * This incurs some overhead, so don't use it unless you're debugging the code!
  */
 /* #define DEBUG_MEMORY_LEAKS */
 
-struct ExpressMessage {
-	struct ExpressMessage *next;
-	char em_text[300];
-	};
 
 /*
  * Here's the big one... the Citadel context structure.
@@ -38,7 +34,7 @@ struct CitContext {
         char net_node[32];
 	THREAD mythread;
 	int client_socket;
-	struct ExpressMessage *FirstExpressMessage;
+	char *ExpressMessages;
 	int cs_pid;			/* session ID */
 	char cs_room[20];		/* current room */
 	time_t cs_lastupdt;		/* time of last update */
@@ -64,8 +60,6 @@ struct CitContext {
 	char dl_is_net;
 	char upload_type;
 
-	char ucache_name[32];		/* For a performance boost, we cache */
-	long ucache_pos;		/* the position of the last user rec */
 	char fake_username[32];		/* Fake username <bc>                */
 	char fake_postname[32];		/* Fake postname <bc>                */
 	char fake_hostname[25];		/* Name of the fake hostname <bc>    */
@@ -73,8 +67,6 @@ struct CitContext {
 	char last_pager[32];		/* The username of the last pager    */
 
 	int FloorBeingSearched;		/* This is used by cmd_lrms() etc.   */
-
-	int CtdlErrno;			/* Error return for CitadelAPI calls */
 	};
 
 typedef struct CitContext t_context;
@@ -131,7 +123,7 @@ struct ChatLine {
 #define MT_DATE		1		/* We're only looking for the date */
 #define MT_RFC822	2		/* RFC822 */
 #define MT_RAW		3		/* IGnet raw format */
-#define MT_MIME		4		/* We're only looking for the date */
+#define MT_MIME		4		/* MIME-formatted message */
 
 
 /*

@@ -1,3 +1,7 @@
+Sat Jan 23 14:32:19 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Changed internal storage of express messages from a linked list to
+	  a single, resizable buffer.
+
 Wed Jan 20 19:21:51 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Added some more code to the unfinished MIME parser
 	* Changed module loading path to simply "modules" because after calling
