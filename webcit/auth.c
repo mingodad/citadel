@@ -184,10 +184,19 @@ void do_logout(void)
 	serv_puts("MESG goodbye");
 	serv_gets(buf);
 
-	if (buf[0] == '1')
-		fmout(NULL);
-	else
-		wprintf("Goodbye\n");
+	if (WC->serv_sock >= 0) {
+		if (buf[0] == '1') {
+			fmout(NULL);
+		} else {
+			wprintf("Goodbye\n");
+		}
+	}
+	else {
+		wprintf("This program was unable to connect or stay "
+			"connected to the Citadel server.  Please report "
+			"this problem to your system administrator."
+		);
+	}
 
 	wprintf("<HR><A HREF=\"/\">Log in again</A>&nbsp;&nbsp;&nbsp;"
 		"<A HREF=\"javascript:window.close();\">Close window</A>"
