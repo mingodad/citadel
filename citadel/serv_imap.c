@@ -330,7 +330,9 @@ void imap_lsub_listroom(struct quickroom *qrbuf, void *data) {
 	ra = CtdlRoomAccess(qrbuf, &CC->usersupp);
 	if (ra & UA_KNOWN) {
 		imap_mailboxname(buf, sizeof buf, qrbuf);
-		cprintf("* LSUB () \"|\" \"%s\"\r\n", buf);
+		cprintf("* LSUB () \"|\" ");
+		imap_strout(buf);
+		cprintf("\r\n");
 	}
 }
 
@@ -359,7 +361,9 @@ void imap_list_listroom(struct quickroom *qrbuf, void *data) {
 	if ( (ra & UA_KNOWN) 
 	  || ((ra & UA_GOTOALLOWED) && (ra & UA_ZAPPED))) {
 		imap_mailboxname(buf, sizeof buf, qrbuf);
-		cprintf("* LIST () \"|\" \"%s\"\r\n", buf);
+		cprintf("* LIST () \"|\" ");
+		imap_strout(buf);
+		cprintf("\r\n");
 	}
 }
 

@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.76  2001/02/01 04:08:03  ajc
+ * IMAP minor change to mailbox name output
+ * Increased size of buffer in lprintf()
+
  Revision 573.75  2001/01/28 09:50:02  error
  * sysdep.c: lprintf() now generates timestamps
 
@@ -2347,3 +2351,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

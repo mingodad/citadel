@@ -85,10 +85,13 @@ static pthread_t initial_thread;		/* tid for main() thread */
 
 /*
  * lprintf()  ...   Write logging information
+ * 
+ * Note: the variable "buf" below needs to be large enough to handle any
+ * log data sent through this function.  BE CAREFUL!
  */
 void lprintf(int loglevel, const char *format, ...) {   
         va_list arg_ptr;
-	char buf[512];
+	char buf[4096];
   
         va_start(arg_ptr, format);   
         vsprintf(buf, format, arg_ptr);   
