@@ -1232,20 +1232,28 @@ void cmd_ical(char *argbuf)
 
 	/* Allow "test" and "freebusy" subcommands without logging in. */
 
-	if (!strcmp(subcmd, "test")) {
+	if (!strcasecmp(subcmd, "test")) {
 		cprintf("%d This server supports calendaring\n", CIT_OK);
 		return;
 	}
 
-	if (!strcmp(subcmd, "freebusy")) {
+	if (!strcasecmp(subcmd, "freebusy")) {
 		extract(who, argbuf, 1);
 		ical_freebusy(who);
 		return;
 	}
 
+	if (!strcasecmp(subcmd, "sgi")) {
+		CIT_ICAL->server_generated_invitations =
+			(extract_int(argbuf, 1) ? 1 : 0) ;
+		cprintf("%d %d\n",
+			CIT_OK, CIT_ICAL->server_generated_invitations);
+		return;
+	}
+
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
-	if (!strcmp(subcmd, "respond")) {
+	if (!strcasecmp(subcmd, "respond")) {
 		msgnum = extract_long(argbuf, 1);
 		extract(partnum, argbuf, 2);
 		extract(action, argbuf, 3);
@@ -1253,7 +1261,7 @@ void cmd_ical(char *argbuf)
 		return;
 	}
 
-	if (!strcmp(subcmd, "handle_rsvp")) {
+	if (!strcasecmp(subcmd, "handle_rsvp")) {
 		msgnum = extract_long(argbuf, 1);
 		extract(partnum, argbuf, 2);
 		extract(action, argbuf, 3);
@@ -1261,7 +1269,7 @@ void cmd_ical(char *argbuf)
 		return;
 	}
 
-	if (!strcmp(subcmd, "conflicts")) {
+	if (!strcasecmp(subcmd, "conflicts")) {
 		msgnum = extract_long(argbuf, 1);
 		extract(partnum, argbuf, 2);
 		ical_conflicts(msgnum, partnum);
@@ -1379,12 +1387,15 @@ void ical_send_out_invitations(icalcomponent *cal) {
 			strcpy(this_attendee, icalproperty_get_attendee(attendee) );
 			if (!strncasecmp(this_attendee, "MAILTO:", 7)) {
 				strcpy(this_attendee, &this_attendee[7]);
-				snprintf(&attendees_string[strlen(attendees_string)],
-					sizeof(attendees_string) - strlen(attendees_string),
-					"%s, ",
-					this_attendee
-				);
-				++num_attendees;
+
+				if (!CtdlIsMe(this_attendee)) {	/* don't send an invitation to myself! */
+					snprintf(&attendees_string[strlen(attendees_string)],
+						sizeof(attendees_string) - strlen(attendees_string),
+						"%s, ",
+						this_attendee
+					);
+					++num_attendees;
+				}
 			}
 		}
 	}
@@ -1466,9 +1477,12 @@ void ical_saving_vevent(icalcomponent *cal) {
 	icalproperty *organizer = NULL;
 	char organizer_string[SIZ];
 
+	/* Don't send out invitations unless the client wants us to. */
+	if (CIT_ICAL->server_generated_invitations == 0) {
+		return;
+	}
+
 	/* Don't send out invitations if we've been asked not to. */
-	lprintf(9, "CIT_ICAL->avoid_sending_invitations = %d\n",
-		CIT_ICAL->avoid_sending_invitations);
 	if (CIT_ICAL->avoid_sending_invitations > 0) {
 		return;
 	}

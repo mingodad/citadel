@@ -2048,12 +2048,16 @@ may be issued:
   TRANSP).  If there is no such user, or no calendar available, the usual
   ERROR codes will be returned.
  
+ ICAL sgi|<bool>
+ 
  Readers who are paying attention will notice that there is no subcommand to
-send out meeting invitations.  This is because that task is handled
-automatically by the Citadel server.  When an event is saved to the user's
-Calendar> room and it contains attendees, Citadel will automatically turn
-the event into vCalendar REQUEST messages and mail them out to all listed
-attendees.
+send out meeting invitations.  This is because that task can be handled
+automatically by the Citadel server.  Issue this command with <bool> set to 1
+to enable Server Generated Invitations.  In this mode, when an event is saved
+to the user's Calendar> room and it contains attendees, Citadel will
+automatically turn the event into vCalendar REQUEST messages and mail them
+out to all listed attendees.  If for some reason the client needs to disable
+Server Generated Invitations, the command may be sent again with <bool> = 0.
 
 
 
