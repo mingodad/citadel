@@ -595,6 +595,14 @@ fclose(fp);
 		move_msg();
 		}
 
+	else if (!strcasecmp(action, "userlist")) {
+		userlist();
+		}
+
+	else if (!strcasecmp(action, "showuser")) {
+		showuser();
+		}
+
 	/* When all else fails... */
 	else {
 		printf("HTTP/1.0 200 OK\n");

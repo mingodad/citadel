@@ -48,3 +48,5 @@ void confirm_delete_msg(void);
 void delete_msg(void);
 void confirm_move_msg(void);
 void move_msg(void);
+void userlist(void);
+void showuser(void);
