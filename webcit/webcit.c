@@ -379,17 +379,17 @@ void output_headers(int print_standard_html_head)
 	
 	if ((print_standard_html_head == 1) && (noframes == 1)) {
 		wprintf("<TABLE border=0 width=100%>");
-		wprintf("<TR ALIGN=TOP><TD>");
+		wprintf("<TR VALIGN=TOP><TD>");
 
 		display_menubar(0);
 
-		wprintf("</TD><TD ALIGN=TOP>"
-			"<TABLE border=0 width=100%><TR ALIGN=TOP>"
+		wprintf("</TD><TD VALIGN=TOP>"
+			"<TABLE border=0 width=100%><TR VALIGN=TOP>"
 			"<TD>\n");
 
 		embed_room_banner(NULL);
 
-		wprintf("</TD></TR><TR ALIGN=TOP><TD>\n");
+		wprintf("</TD></TR><TR VALIGN=TOP><TD>\n");
 		
 
 		fake_frames = 1;
