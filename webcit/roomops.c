@@ -384,7 +384,7 @@ void embed_room_banner(char *got) {
 	svcallback("YOUHAVEMAIL", embed_newmail_button);
 	svcallback("VIEWOMATIC", embed_view_o_matic);
 
-	do_template("roombanner.html");
+	do_template("roombanner");
 	clear_local_substs();
 }
 
@@ -416,7 +416,7 @@ void gotoroom(char *gname, int display_name)
 			"<META HTTP-EQUIV=\"expired\" CONTENT=\"28-May-1971 18:10:00 GMT\">\n"
 			"<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\">\n"
 			"</HEAD>\n");
-		do_template("background.html");
+		do_template("background");
 	}
 	if (display_name != 2) {
 		/* store ungoto information */

@@ -354,7 +354,7 @@ void output_headers(int controlcode)
 				"onload=\"launch_page_popup()\" ");
 			WC->HaveExpressMessages = 0;
 		}
-		do_template("background.html");
+		do_template("background");
 		clear_local_substs();
 
 	if (print_standard_html_head == 1) {
