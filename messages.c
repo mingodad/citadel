@@ -110,11 +110,11 @@ char *oper;
 		    && (strcasecmp(&buf[5], serv_info.serv_humannode)))
 			wprintf("(%s) ", &buf[5]);
 		if ((!strncasecmp(buf, "room=", 5))
-		    && (strcasecmp(&buf[5], wc_roomname)))
+		    && (strcasecmp(&buf[5], WC->wc_roomname)))
 			wprintf("in %s> ", &buf[5]);
 
 		if (!strncasecmp(buf, "node=", 5)) {
-			if ((room_flags & QR_NETWORK)
+			if ((WC->room_flags & QR_NETWORK)
 			|| ((strcasecmp(&buf[5], serv_info.serv_nodename)
 			&& (strcasecmp(&buf[5], serv_info.serv_fqdn))))) {
 				wprintf("@%s ", &buf[5]);
@@ -142,7 +142,7 @@ char *oper;
 		wprintf("****");
 	wprintf("</FONT></TD>");
 
-	if (is_room_aide) {
+	if (WC->is_room_aide) {
 		wprintf("<TD ALIGN=RIGHT NOWRAP><FONT FACE=\"Arial,Helvetica,sans-serif\" COLOR=\"FFFF00\"><B>");
 
 		wprintf("<A HREF=\"/confirm_move_msg");
@@ -224,7 +224,7 @@ void readloop(char *oper)
 	printf("HTTP/1.0 200 OK\n");
 	output_headers(1);
 
-	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><CENTER><B>%s - ", wc_roomname);
+	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><CENTER><B>%s - ", WC->wc_roomname);
 	if (!strcmp(oper, "readnew")) {
 		strcpy(cmd, "MSGS NEW");
 		wprintf("new messages");
@@ -370,10 +370,10 @@ void display_enter(void)
 	buf[strlen(buf) - 1] = 0;
 	strcpy(&buf[16], &buf[19]);
 	wprintf("</CENTER><FONT COLOR=\"440000\"><B> %s ", &buf[4]);
-	wprintf("from %s ", wc_username);
+	wprintf("from %s ", WC->wc_username);
 	if (strlen(bstr("recp")) > 0)
 		wprintf("to %s ", bstr("recp"));
-	wprintf("in %s&gt; ", wc_roomname);
+	wprintf("in %s&gt; ", WC->wc_roomname);
 	wprintf("</B></FONT><BR><CENTER>\n");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/post\">\n");

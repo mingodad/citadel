@@ -22,17 +22,8 @@
 #include "child.h"
 #include "mime_parser.h"
 
-int wc_session;
-char wc_username[256];
-char wc_password[256];
-char wc_roomname[256];
 int TransactionCount = 0;
-int connected = 0;
-int logged_in = 0;
-int axlevel;
 char *ExpressMessages = NULL;
-int new_mail = 0;
-int need_vali = 0;
 
 /* This variable is set to 1 if the room banner and menubar have been
  * displayed, and we need to close the <TABLE> tags.
@@ -47,9 +38,9 @@ struct urlcontent *urlstrings = NULL;
 static const char *defaulthost = DEFAULT_HOST;
 static const char *defaultport = DEFAULT_PORT;
 
-int upload_length = 0;
-char *upload;
 
+
+struct wcsession *WC = NULL; 	/* FIX take this out when multithreaded */
 
 void unescape_input(char *buf)
 {
@@ -371,8 +362,8 @@ void output_headers(int print_standard_html_head)
 		printf("Pragma: no-cache\n");
 		printf("Cache-Control: no-store\n");
 	}
-	stuff_to_cookie(cookie, wc_session, wc_username,
-			wc_password, wc_roomname);
+	stuff_to_cookie(cookie, WC->wc_session, WC->wc_username,
+			WC->wc_password, WC->wc_roomname);
 	if (print_standard_html_head == 2) {
 		printf("X-WebCit-Session: close\n");
 		printf("Set-cookie: webcit=%s\n", unset);
@@ -628,10 +619,10 @@ void upload_handler(char *name, char *filename, char *encoding,
 	fprintf(stderr, "  length = %d\n", length);
 
 	if (strlen(name) > 0) {
-		upload = malloc(length);
-		if (upload != NULL) {
-			upload_length = length;
-			memcpy(upload, content, length);
+		WC->upload = malloc(length);
+		if (WC->upload != NULL) {
+			WC->upload_length = length;
+			memcpy(WC->upload, content, length);
 		}
 	}
 }
@@ -663,8 +654,8 @@ void session_loop(char *browser_host, char *user_agent)
 	strcpy(c_password, "");
 	strcpy(c_roomname, "");
 
-	upload_length = 0;
-	upload = NULL;
+	WC->upload_length = 0;
+	WC->upload = NULL;
 
 	if (getz(cmd) == NULL)
 		return;
@@ -716,21 +707,21 @@ void session_loop(char *browser_host, char *user_agent)
 			cmd[a] = 0;
 		}
 	/*
-	 * If we're not connected to a Citadel server, try to hook up the
+	 * If we're not WC->connected to a Citadel server, try to hook up the
 	 * connection now.  Preference is given to the host and port specified
 	 * by browser cookies, if cookies have been supplied.
 	 */
-	if (!connected) {
+	if (!WC->connected) {
 		if (strlen(bstr("host")) > 0)
 			strcpy(c_host, bstr("host"));
 		if (strlen(bstr("port")) > 0)
 			strcpy(c_port, bstr("port"));
-		serv_sock = connectsock(c_host, c_port, "tcp");
-		if (serv_sock < 0) {
+		WC->serv_sock = connectsock(c_host, c_port, "tcp");
+		if (WC->serv_sock < 0) {
 			do_logout();
 		}
 
-		connected = 1;
+		WC->connected = 1;
 		serv_gets(buf);	/* get the server welcome message */
 		get_serv_info(browser_host, user_agent);
 	}
@@ -740,7 +731,7 @@ void session_loop(char *browser_host, char *user_agent)
 	 * If we're not logged in, but we have username and password cookies
 	 * supplied by the browser, try using them to log in.
 	 */
-	if ((!logged_in) && (strlen(c_username) > 0) && (strlen(c_password) > 0)) {
+	if ((!WC->logged_in) && (strlen(c_username) > 0) && (strlen(c_password) > 0)) {
 		serv_printf("USER %s", c_username);
 		serv_gets(buf);
 		if (buf[0] == '3') {
@@ -755,11 +746,11 @@ void session_loop(char *browser_host, char *user_agent)
 	 * If we don't have a current room, but a cookie specifying the
 	 * current room is supplied, make an effort to go there.
 	 */
-	if ((strlen(wc_roomname) == 0) && (strlen(c_roomname) > 0)) {
+	if ((strlen(WC->wc_roomname) == 0) && (strlen(c_roomname) > 0)) {
 		serv_printf("GOTO %s", c_roomname);
 		serv_gets(buf);
 		if (buf[0] == '2') {
-			strcpy(wc_roomname, c_roomname);
+			strcpy(WC->wc_roomname, c_roomname);
 		}
 	}
 	if (!strcasecmp(action, "static")) {
@@ -770,9 +761,9 @@ void session_loop(char *browser_host, char *user_agent)
 		output_static(buf);
 	} else if (!strcasecmp(action, "image")) {
 		output_image();
-	} else if ((!logged_in) && (!strcasecmp(action, "login"))) {
+	} else if ((!WC->logged_in) && (!strcasecmp(action, "login"))) {
 		do_login();
-	} else if (!logged_in) {
+	} else if (!WC->logged_in) {
 		display_login(NULL);
 	}
 	/* Various commands... */
@@ -850,7 +841,7 @@ void session_loop(char *browser_host, char *user_agent)
 	} else if (!strcasecmp(action, "editinfo")) {
 		save_edit("Room info", "EINF 1", 1);
 	} else if (!strcasecmp(action, "display_editbio")) {
-		sprintf(buf, "RBIO %s", wc_username);
+		sprintf(buf, "RBIO %s", WC->wc_username);
 		display_edit("Your bio", "NOOP", buf, "editbio");
 	} else if (!strcasecmp(action, "editbio")) {
 		save_edit("Your bio", "EBIO", 0);
@@ -932,7 +923,7 @@ void session_loop(char *browser_host, char *user_agent)
 		output_headers(1);
 
 		wprintf("TransactionCount is %d<BR>\n", TransactionCount);
-		wprintf("You're in session %d<HR>\n", wc_session);
+		wprintf("You're in session %d<HR>\n", WC->wc_session);
 		wprintf("Command: <BR><PRE>\n");
 		escputs(cmd);
 		wprintf("</PRE><HR>\n");
@@ -952,9 +943,9 @@ void session_loop(char *browser_host, char *user_agent)
 		content = NULL;
 	}
 	free_urls();
-	if (upload_length > 0) {
-		free(upload);
-		upload_length = 0;
+	if (WC->upload_length > 0) {
+		free(WC->upload);
+		WC->upload_length = 0;
 	}
 }
 
@@ -971,13 +962,18 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	wc_session = atoi(argv[1]);
+	WC = (struct wcsession *) malloc(sizeof(struct wcsession));
+	memset(WC, 0, sizeof(struct wcsession));
+
+
+
+	WC->wc_session = atoi(argv[1]);
 	defaulthost = argv[2];
 	defaultport = argv[3];
 
-	strcpy(wc_username, "");
-	strcpy(wc_password, "");
-	strcpy(wc_roomname, "");
+	strcpy(WC->wc_username, "");
+	strcpy(WC->wc_password, "");
+	strcpy(WC->wc_roomname, "");
 
 	/* Clear out serv_info and temporarily set the value of serv_humannode
 	 * to a default value, because it'll be used in HTML page titles

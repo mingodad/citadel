@@ -13,7 +13,7 @@
 struct serv_info serv_info;
 
 /*
- * get info about the server we've connected to
+ * get info about the server we've WC->connected to
  */
 void get_serv_info(char *browser_host, char *user_agent)
 {
