@@ -1,4 +1,7 @@
 $Log$
+Revision 213.22  2001/06/07 03:16:57  ajc
+* Brought over an updated mime parser from Citadel
+
 Revision 213.21  2001/06/06 14:44:25  ajc
 * mime_parser.c: #include <pthread.h> so it compiles cleanly
 
@@ -572,4 +575,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
