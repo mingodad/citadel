@@ -1191,6 +1191,14 @@ void cmd_move(char *args)
 		}
 
 	/* put the message into the target room */
+	lgetroom(&qtemp, targ);
+	get_msglist(&qtemp);
+	CC->num_msgs = CC->num_msgs + 1;
+	CC->msglist = realloc(CC->msglist, (CC->num_msgs * sizeof(long)) );
+	SetMessageInList(CC->num_msgs - 1, num);
+	CC->num_msgs = sort_msglist(CC->msglist, CC->num_msgs);
+	put_msglist(&qtemp);
+	lputroom(&qtemp, targ);
 
-	cprintf("%d FIX FIX FIX implement this!!!!!\n", ERROR);
+	cprintf("%d I think this worked, FIX check to make sure\n", OK);
 	}
