@@ -1,4 +1,9 @@
 $Log$
+Revision 400.69  2002/12/25 21:39:38  ajc
+* ical_dezonify.c: added.
+* calendar.c: convert incoming ical messages to UTC
+  (the usual routines will then convert them to local time for display)
+
 Revision 400.68  2002/12/25 07:06:00  ajc
 * Tweaked the code to work with libical 0.24
 
@@ -1189,3 +1194,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

@@ -366,6 +366,7 @@ void save_individual_event(icalcomponent *supplied_vtodo, long msgnum);
 void generate_new_uid(char *);
 void respond_to_request(void);
 void handle_rsvp(void);
+void ical_dezonify(icalcomponent *cal);
 #endif
 
 extern char *months[];
