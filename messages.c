@@ -1082,11 +1082,11 @@ void readloop(char *oper)
 
 		if ((!is_tasks) && (!is_calendar)) {
 			if (!strcmp(oper, "readnew")) {
-				wprintf("<EM>No new messages in this room.</EM>\n");
+				wprintf("<EM>No new messages.</EM>\n");
 			} else if (!strcmp(oper, "readold")) {
-				wprintf("<EM>No old messages in this room.</EM>\n");
+				wprintf("<EM>No old messages.</EM>\n");
 			} else {
-				wprintf("<EM>This room is empty.</EM>\n");
+				wprintf("<EM>No messages here.</EM>\n");
 			}
 		}
 
@@ -1653,7 +1653,7 @@ void confirm_move_msg(void)
 
 	wprintf("<CENTER>");
 
-	wprintf("Please select the room to which you would like this message moved:<BR>\n");
+	wprintf("Move this message to:<BR>\n");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/move_msg\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgid\" VALUE=\"%s\">\n",
