@@ -1,4 +1,9 @@
  $Log$
+ Revision 572.17  2000/07/17 02:38:08  ajc
+ * Completed serv_vandelay.c (importer/exporter module)
+ * sendcommand.c: fix behavior of SEND_LISTING mode
+ * sysdep.c: client_gets() fill buffer with "000" terminator when returning -1
+
  Revision 572.16  2000/07/14 03:06:55  ajc
  * Added .ATN (DOWN) and .ATS (SCDN 1) commands to the client
 
@@ -1949,4 +1954,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

@@ -227,7 +227,9 @@ void artv_export_messages(void) {
 
 
 void artv_do_export(void) {
-	cprintf("%d Yikes.\n", LISTING_FOLLOWS);
+	cprintf("%d Exporting all Citadel databases.\n", LISTING_FOLLOWS);
+
+	cprintf("version\n%d\n", REV_LEVEL);
 
 	/* export the config file */
 	cprintf("config\n");
@@ -313,6 +315,7 @@ void artv_import_config(void) {
 	client_gets(buf);	config.c_maxsessions = atoi(buf);
 	client_gets(config.c_net_password);
 	client_gets(buf);	config.c_port_number = atoi(buf);
+	client_gets(buf);	config.c_ipgm_secret = atoi(buf);
 	client_gets(buf);	config.c_ep.expire_mode = atoi(buf);
 	client_gets(buf);	config.c_ep.expire_value = atoi(buf);
 	client_gets(buf);	config.c_userpurge = atoi(buf);
@@ -450,6 +453,7 @@ void artv_import_message(void) {
 	client_gets(smi.smi_content_type);
 	client_gets(buf);	smi.smi_mod = atoi(buf);
 
+	lprintf(7, "message #%ld\n", msgnum);
 
 	/* decode base64 message text */
 	strcpy(tempfile, tmpnam(NULL));
@@ -458,8 +462,12 @@ void artv_import_message(void) {
 	while (client_gets(buf), strcasecmp(buf, END_OF_MESSAGE)) {
 		fprintf(fp, "%s\n", buf);
 	}
+	fclose(fp);
+	fp = fopen(tempfile, "rb");
+	fseek(fp, 0L, SEEK_END);
 	msglen = ftell(fp);
 	fclose(fp);
+	lprintf(9, "msglen = %ld\n", msglen);
 
 	mbuf = mallok(msglen);
 	fp = fopen(tempfile, "rb");
@@ -482,13 +490,23 @@ void artv_import_message(void) {
 
 void artv_do_import(void) {
 	char buf[256];
+	char s_version[256];
+	int version;
 
 	cprintf("%d sock it to me\n", SEND_LISTING);
 	while (client_gets(buf), strcmp(buf, "000")) {
 
 		lprintf(9, "import keyword: <%s>\n", buf);
 
-		if (!strcasecmp(buf, "config")) artv_import_config();
+		if (!strcasecmp(buf, "version")) {
+			client_gets(s_version);
+			version = atoi(s_version);
+			if ((version < REV_MIN) || (version > REV_LEVEL)) {
+				lprintf(7, "Version mismatch - aborting\n");
+				goto artv_flush_import;
+			}
+		}
+		else if (!strcasecmp(buf, "config")) artv_import_config();
 		else if (!strcasecmp(buf, "control")) artv_import_control();
 		else if (!strcasecmp(buf, "user")) artv_import_user();
 		else if (!strcasecmp(buf, "room")) artv_import_room();

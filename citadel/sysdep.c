@@ -289,11 +289,13 @@ int ig_tcp_server(int port_number, int queue_len)
 	if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
 		lprintf(1, "citserver: Can't bind: %s\n",
 			strerror(errno));
+		close(s);
 		return(-1);
 	}
 
 	if (listen(s, queue_len) < 0) {
 		lprintf(1, "citserver: Can't listen: %s\n", strerror(errno));
+		close(s);
 		return(-1);
 	}
 
@@ -530,7 +532,7 @@ int client_gets(char *buf)
 	buf[i] = 0;
 	while ((strlen(buf)>0)&&(!isprint(buf[strlen(buf)-1])))
 		buf[strlen(buf)-1] = 0;
-	lprintf(9, "client_gets(%s)\n", buf);
+	if (retval < 0) strcpy(buf, "000");
 	return(retval);
 }
 
