@@ -37,7 +37,7 @@ char buf[];
 	int pos;
 	int start, end;
 	char ench;
-	char urlbuf[256];
+	char urlbuf[SIZ];
 	char outbuf[1024];
 
 	start = (-1);
@@ -82,19 +82,19 @@ char buf[];
 
 
 void read_message(long msgnum, int is_summary) {
-	char buf[256];
-	char mime_partnum[256];
-	char mime_filename[256];
-	char mime_content_type[256];
-	char mime_disposition[256];
+	char buf[SIZ];
+	char mime_partnum[SIZ];
+	char mime_filename[SIZ];
+	char mime_content_type[SIZ];
+	char mime_disposition[SIZ];
 	int mime_length;
 	char *mime_http = NULL;
-	char m_subject[256];
-	char from[256];
-	char node[256];
-	char rfca[256];
+	char m_subject[SIZ];
+	char from[SIZ];
+	char node[SIZ];
+	char rfca[SIZ];
 	char reply_to[512];
-	char now[256];
+	char now[SIZ];
 	int format_type = 0;
 	int nhdr = 0;
 	int bq = 0;
@@ -319,7 +319,7 @@ void read_message(long msgnum, int is_summary) {
 int load_msg_ptrs(servcmd)
 char *servcmd;
 {
-	char buf[256];
+	char buf[SIZ];
 	int nummsgs;
 
 	nummsgs = 0;
@@ -342,7 +342,7 @@ char *servcmd;
  */
 void readloop(char *oper)
 {
-	char cmd[256];
+	char cmd[SIZ];
 	int a, b;
 	int nummsgs;
 	long startmsg;
@@ -470,7 +470,7 @@ DONE:	wDumpContent(1);
  */
 void post_message(void)
 {
-	char buf[256];
+	char buf[SIZ];
 	static long dont_post = (-1L);
 
 	output_headers(1);
@@ -533,7 +533,7 @@ void prompt_for_recipient()
  */
 void display_enter(void)
 {
-	char buf[256];
+	char buf[SIZ];
 	long now;
 	struct tm *tm;
 
@@ -599,7 +599,7 @@ DONE:	wDumpContent(1);
 void delete_msg(void)
 {
 	long msgid;
-	char buf[256];
+	char buf[SIZ];
 
 	msgid = atol(bstr("msgid"));
 
@@ -622,8 +622,8 @@ void delete_msg(void)
 void confirm_move_msg(void)
 {
 	long msgid;
-	char buf[256];
-	char targ[256];
+	char buf[SIZ];
+	char targ[SIZ];
 
 	msgid = atol(bstr("msgid"));
 
@@ -670,7 +670,7 @@ void confirm_move_msg(void)
 void move_msg(void)
 {
 	long msgid;
-	char buf[256];
+	char buf[SIZ];
 
 	msgid = atol(bstr("msgid"));
 

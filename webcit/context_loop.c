@@ -157,7 +157,7 @@ int req_gets(int sock, char *buf, char *hold)
 
 int lingering_close(int fd)
 {
-	char buf[256];
+	char buf[SIZ];
 	int i;
 	fd_set set;
 	struct timeval tv, start;
@@ -222,7 +222,7 @@ void context_loop(int sock)
 	struct httprequest *req = NULL;
 	struct httprequest *last = NULL;
 	struct httprequest *hptr;
-	char buf[256], hold[256];
+	char buf[SIZ], hold[SIZ];
 	int desired_session = 0;
 	int got_cookie = 0;
 	struct wcsession *TheSession, *sptr;

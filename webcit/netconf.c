@@ -29,15 +29,15 @@
 
 struct sharelist {
 	struct sharelist *next;
-	char shname[256];
+	char shname[SIZ];
 };
 
 
 void display_edit_node(void)
 {
-	char buf[256];
-	char node[256];
-	char sroom[256];
+	char buf[SIZ];
+	char node[SIZ];
+	char sroom[SIZ];
 
 	strcpy(node, bstr("node"));
 
@@ -82,8 +82,8 @@ void display_edit_node(void)
 
 void display_netconf(void)
 {
-	char buf[256];
-	char node[256];
+	char buf[SIZ];
+	char node[SIZ];
 
 	output_headers(1);
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
@@ -125,8 +125,8 @@ void display_netconf(void)
 
 void display_confirm_unshare(void)
 {
-	char node[256];
-	char sroom[256];
+	char node[SIZ];
+	char sroom[SIZ];
 
 	output_headers(1);
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
@@ -153,7 +153,7 @@ void display_confirm_unshare(void)
 
 void display_confirm_delete_node(void)
 {
-	char node[256];
+	char node[SIZ];
 
 	output_headers(1);
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
@@ -175,8 +175,8 @@ void display_confirm_delete_node(void)
 
 void delete_node(void)
 {
-	char node[256];
-	char buf[256];
+	char node[SIZ];
+	char buf[SIZ];
 
 	strcpy(node, bstr("node"));
 	sprintf(buf, "NSET deletenode|%s", node);
@@ -195,9 +195,9 @@ void delete_node(void)
 
 void unshare(void)
 {
-	char node[256];
-	char sroom[256];
-	char buf[256];
+	char node[SIZ];
+	char sroom[SIZ];
+	char buf[SIZ];
 
 	strcpy(node, bstr("node"));
 	strcpy(sroom, bstr("sroom"));
@@ -242,9 +242,9 @@ void display_add_node(void)
 
 void add_node(void)
 {
-	char node[256];
-	char buf[256];
-	char sc[256];
+	char node[SIZ];
+	char buf[SIZ];
+	char sc[SIZ];
 
 	strcpy(node, bstr("node"));
 	strcpy(sc, bstr("sc"));
@@ -268,9 +268,9 @@ void add_node(void)
 
 void display_share(void)
 {
-	char buf[256];
-	char node[256];
-	char sroom[256];
+	char buf[SIZ];
+	char node[SIZ];
+	char sroom[SIZ];
 	struct sharelist *shlist = NULL;
 	struct sharelist *shptr;
 	int already_shared;
@@ -342,10 +342,10 @@ void display_share(void)
 
 void share(void)
 {
-	char node[256];
-	char buf[256];
-	char sc[256];
-	char sroom[256];
+	char node[SIZ];
+	char buf[SIZ];
+	char sc[SIZ];
+	char sroom[SIZ];
 
 	strcpy(node, bstr("node"));
 	strcpy(sc, bstr("sc"));

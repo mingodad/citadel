@@ -24,7 +24,7 @@
 #define FALSE 0
 
 typedef unsigned char byte;	      /* Byte type */
-static byte dtable[256];	      /* base64 encode / decode table */
+static byte dtable[SIZ];	      /* base64 encode / decode table */
 
 /*
  * decode_base64() and encode_base64() are adaptations of code by
@@ -157,7 +157,7 @@ void decode_base64(char *dest, char *source)
  */
 void stuff_to_cookie(char *cookie, int session, char *user, char *pass, char *room)
 {
-	char buf[256];
+	char buf[SIZ];
 
 	sprintf(buf, "%d|%s|%s|%s", session, user, pass, room);
 	encode_base64(cookie, buf);
@@ -169,7 +169,7 @@ void stuff_to_cookie(char *cookie, int session, char *user, char *pass, char *ro
  */
 void cookie_to_stuff(char *cookie, int *session, char *user, char *pass, char *room)
 {
-	char buf[256];
+	char buf[SIZ];
 
 	decode_base64(buf, cookie);
 

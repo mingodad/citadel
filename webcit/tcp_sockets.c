@@ -198,7 +198,7 @@ void serv_write(char *buf, int nbytes)
  */
 void serv_puts(char *string)
 {
-	char buf[256];
+	char buf[SIZ];
 
 	sprintf(buf, "%s\n", string);
 	serv_write(buf, strlen(buf));
@@ -211,7 +211,7 @@ void serv_puts(char *string)
 void serv_printf(const char *format,...)
 {
 	va_list arg_ptr;
-	char buf[256];
+	char buf[SIZ];
 
 	va_start(arg_ptr, format);
 	vsprintf(buf, format, arg_ptr);

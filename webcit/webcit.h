@@ -1,5 +1,7 @@
 /* $Id$ */
 
+#define SIZ			4096		/* generic buffer size */
+
 #define TRACE fprintf(stderr, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
 
 #define SLEEPING		180		/* TCP connection timeout */
@@ -40,7 +42,7 @@
 
 struct httprequest {
 	struct httprequest *next;
-	char line[256];
+	char line[SIZ];
 };
 
 struct urlcontent {
@@ -58,7 +60,7 @@ struct serv_info {
 	int serv_rev_level;
 	char serv_bbs_city[64];
 	char serv_sysadm[64];
-	char serv_moreprompt[256];
+	char serv_moreprompt[SIZ];
 	int serv_ok_floors;
 };
 
@@ -117,9 +119,9 @@ enum {
 struct wcsession {
         struct wcsession *next;		/* Linked list */
 	int wc_session;			/* WebCit session ID */
-	char wc_username[256];
-	char wc_password[256];
-	char wc_roomname[256];
+	char wc_username[SIZ];
+	char wc_password[SIZ];
+	char wc_roomname[SIZ];
 	int connected;
 	int logged_in;
 	int axlevel;
@@ -147,13 +149,14 @@ struct wcsession {
 	struct wcsubst *vars;
 };
 
-
+#define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
+#define num_parms(source)		num_tokens(source, '|')
 
 #define WC ((struct wcsession *)pthread_getspecific(MyConKey))
 extern pthread_key_t MyConKey;
 
 struct serv_info serv_info;
-extern char floorlist[128][256];
+extern char floorlist[128][SIZ];
 extern char *axdefs[];
 extern char *defaulthost, *defaultport;
 extern char *server_cookie;
@@ -191,14 +194,13 @@ char *urlesc(char *);
 void urlescputs(char *);
 void output_headers(int);
 void wprintf(const char *format,...);
-void extract(char *dest, char *source, int parmnum);
-int extract_int(char *source, int parmnum);
 void output_static(char *what);
 void stresc(char *target, char *strbuf, int nbsp);
 void escputs(char *strbuf);
 void url(char *buf);
 void escputs1(char *strbuf, int nbsp);
 long extract_long(char *source, long int parmnum);
+int extract_int(char *source, int parmnum);
 void dump_vars(void);
 void embed_main_menu(void);
 void serv_read(char *buf, int bytes);
@@ -281,3 +283,6 @@ void svcallback(char *keyname, void (*fcn_ptr)() );
 void do_template(void *templatename);
 int lingering_close(int fd);
 char *memreadline(char *start, char *buf, int maxlen);
+int num_tokens (char *source, char tok);
+void extract_token(char *dest, char *source, int parmnum, char separator);
+void remove_token(char *source, int parmnum, char separator);

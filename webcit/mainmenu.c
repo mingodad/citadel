@@ -225,8 +225,8 @@ void display_generic(void)
 
 void do_generic(void)
 {
-	char buf[256];
-	char gcontent[256];
+	char buf[SIZ];
+	char gcontent[SIZ];
 	char *junk;
 	size_t len;
 

@@ -65,7 +65,7 @@ void unescape_input(char *buf)
 void addurls(char *url)
 {
 	char *up, *ptr;
-	char buf[256];
+	char buf[SIZ];
 	int a, b;
 	struct urlcontent *u;
 
@@ -287,11 +287,11 @@ void urlescputs(char *strbuf)
  */
 void output_headers(int controlcode)
 {
-	char cookie[256];
+	char cookie[SIZ];
 	int print_standard_html_head = 0;
 	int refresh30 = 0;
 	int suppress_check = 0;
-	char httpnow[256];
+	char httpnow[SIZ];
 	static int pageseq = 0;
 
 	print_standard_html_head	=	controlcode & 0x03;
@@ -389,7 +389,7 @@ void http_redirect(char *whichpage) {
 
 void check_for_express_messages()
 {
-	char buf[256];
+	char buf[SIZ];
 
 	serv_puts("NOOP");
 	serv_gets(buf);
@@ -451,7 +451,7 @@ void output_static(char *what)
  */
 void output_image()
 {
-	char buf[256];
+	char buf[SIZ];
 	char xferbuf[4096];
 	off_t bytes;
 	off_t thisblock;
@@ -501,12 +501,12 @@ void output_image()
  */
 void output_mimepart()
 {
-	char buf[256];
+	char buf[SIZ];
 	char xferbuf[4096];
 	off_t bytes;
 	off_t thisblock;
 	off_t accomplished = 0L;
-	char content_type[256];
+	char content_type[SIZ];
 	
 	serv_printf("OPNA %s|%s", bstr("msgnum"), bstr("partnum"));
 	serv_gets(buf);
@@ -648,9 +648,9 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
  */
 void session_loop(struct httprequest *req)
 {
-	char cmd[256];
-	char action[256];
-	char buf[256];
+	char cmd[SIZ];
+	char action[SIZ];
+	char buf[SIZ];
 	int a, b;
 	int ContentLength = 0;
 	int BytesRead;
@@ -658,18 +658,18 @@ void session_loop(struct httprequest *req)
 	char *content;
 	char *content_end;
 	struct httprequest *hptr;
-	char browser_host[256];
-	char user_agent[256];
+	char browser_host[SIZ];
+	char user_agent[SIZ];
 
 	/* We stuff these with the values coming from the client cookies,
 	 * so we can use them to reconnect a timed out session if we have to.
 	 */
-	char c_host[256];
-	char c_port[256];
-	char c_username[256];
-	char c_password[256];
-	char c_roomname[256];
-	char cookie[256];
+	char c_host[SIZ];
+	char c_port[SIZ];
+	char c_username[SIZ];
+	char c_password[SIZ];
+	char c_roomname[SIZ];
+	char cookie[SIZ];
 
 	strcpy(c_host, defaulthost);
 	strcpy(c_port, defaultport);

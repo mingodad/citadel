@@ -32,8 +32,8 @@ struct namelist {
  */
 void userlist(void)
 {
-	char buf[256];
-	char fl[256];
+	char buf[SIZ];
+	char fl[SIZ];
 	struct tm *tmbuf;
 	long lc;
 	struct namelist *bio = NULL;
@@ -109,8 +109,8 @@ void userlist(void)
  */
 void showuser(void)
 {
-	char who[256];
-	char buf[256];
+	char who[SIZ];
+	char buf[SIZ];
 	int have_pic;
 
 	output_headers(1);
