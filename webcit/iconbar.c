@@ -44,6 +44,7 @@ void do_iconbar(void) {
 	int ib_summary = 0;	/* Summary page icon */
 	int ib_inbox = 0;	/* Inbox icon */
 	int ib_calendar = 0;	/* Calendar icon */
+	int ib_contacts = 0;	/* Contacts icon */
 	int ib_tasks = 0;	/* Tasks icon */
 	int ib_rooms = 1;	/* Rooms icon */
 	int ib_users = 1;	/* Users icon */
@@ -64,6 +65,7 @@ void do_iconbar(void) {
 		if (!strcasecmp(key, "ib_summary")) ib_summary = atoi(value);
 		if (!strcasecmp(key, "ib_inbox")) ib_inbox = atoi(value);
 		if (!strcasecmp(key, "ib_calendar")) ib_calendar = atoi(value);
+		if (!strcasecmp(key, "ib_contacts")) ib_contacts = atoi(value);
 		if (!strcasecmp(key, "ib_tasks")) ib_tasks = atoi(value);
 		if (!strcasecmp(key, "ib_rooms")) ib_rooms = atoi(value);
 		if (!strcasecmp(key, "ib_users")) ib_users = atoi(value);
@@ -129,6 +131,22 @@ void do_iconbar(void) {
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Calendar<BR>");
+		}
+		wprintf("</A></SPAN>\n");
+	}
+
+	if (ib_contacts) {
+		wprintf("<SPAN CLASS=\"iconbar_link\">"
+			"<A HREF=\"/dotgoto?room=Contacts\" "
+			"TITLE=\"Go to your personal address book\" "
+			"TARGET=\"workspace\">"
+		);
+		if (ib_displayas != IB_TEXTONLY) {
+			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+			"SRC=\"/static/vcard.gif\"><BR>");
+		}
+		if (ib_displayas != IB_PICONLY) {
+			wprintf("Contacts<BR>");
 		}
 		wprintf("</A></SPAN>\n");
 	}
@@ -253,6 +271,7 @@ void display_customize_iconbar(void) {
 	int ib_summary = 0;	/* Summary page icon */
 	int ib_inbox = 0;	/* Inbox icon */
 	int ib_calendar = 0;	/* Calendar icon */
+	int ib_contacts = 0;	/* Contacts icon */
 	int ib_tasks = 0;	/* Tasks icon */
 	int ib_rooms = 1;	/* Rooms icon */
 	int ib_users = 1;	/* Users icon */
@@ -273,6 +292,7 @@ void display_customize_iconbar(void) {
 		if (!strcasecmp(key, "ib_summary")) ib_summary = atoi(value);
 		if (!strcasecmp(key, "ib_inbox")) ib_inbox = atoi(value);
 		if (!strcasecmp(key, "ib_calendar")) ib_calendar = atoi(value);
+		if (!strcasecmp(key, "ib_contacts")) ib_contacts = atoi(value);
 		if (!strcasecmp(key, "ib_tasks")) ib_tasks = atoi(value);
 		if (!strcasecmp(key, "ib_rooms")) ib_rooms = atoi(value);
 		if (!strcasecmp(key, "ib_users")) ib_users = atoi(value);
@@ -344,8 +364,21 @@ void display_customize_iconbar(void) {
 		(ib_inbox ? "CHECKED" : "")
 	);
 
-#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 	wprintf("<TR><TD>"
+		"<INPUT TYPE=\"checkbox\" NAME=\"ib_contacts\" "
+		"VALUE=\"yes\" %s>"
+		"</TD><TD>"
+		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
+		"SRC=\"/static/vcard.gif\" ALT=\"&nbsp;\">"
+		"</TD><TD>"
+		"<B>Contacts</B><BR>"
+		"Your personal address book."
+		"</TD></TR>\n",
+		(ib_contacts ? "CHECKED" : "")
+	);
+
+#ifdef WEBCIT_WITH_CALENDAR_SERVICE
+	wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_calendar\" "
 		"VALUE=\"yes\" %s>"
 		"</TD><TD>"
@@ -358,7 +391,7 @@ void display_customize_iconbar(void) {
 		(ib_calendar ? "CHECKED" : "")
 	);
 
-	wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
+	wprintf("<TR><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_tasks\" VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
@@ -371,7 +404,7 @@ void display_customize_iconbar(void) {
 	);
 #endif /* WEBCIT_WITH_CALENDAR_SERVICE */
 
-	wprintf("<TR><TD>"
+	wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_rooms\" VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
@@ -384,7 +417,7 @@ void display_customize_iconbar(void) {
 		(ib_rooms ? "CHECKED" : "")
 	);
 
-	wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
+	wprintf("<TR><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_users\" VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
@@ -397,7 +430,7 @@ void display_customize_iconbar(void) {
 		(ib_users ? "CHECKED" : "")
 	);
 
-	wprintf("<TR><TD>"
+	wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_advanced\" "
 		"VALUE=\"yes\" %s>"
 		"</TD><TD>"
@@ -410,7 +443,7 @@ void display_customize_iconbar(void) {
 		(ib_advanced ? "CHECKED" : "")
 	);
 
-	wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
+	wprintf("<TR><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_logoff\" "
 		"VALUE=\"yes\" %s>"
 		"</TD><TD>"
@@ -423,7 +456,7 @@ void display_customize_iconbar(void) {
 		"</TD></TR>\n",
 		(ib_logoff ? "CHECKED" : "")
 	);
-	wprintf("<TR><TD>"
+	wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_citadel\" "
 		"VALUE=\"yes\" %s>"
 		"</TD><TD>"
@@ -458,6 +491,7 @@ void commit_iconbar(void) {
 		"ib_summary",
 		"ib_inbox",
 		"ib_calendar",
+		"ib_contacts",
 		"ib_tasks",
 		"ib_rooms",
 		"ib_users",

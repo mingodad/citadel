@@ -1,4 +1,8 @@
 $Log$
+Revision 500.20  2003/08/20 03:48:55  ajc
+* Added iconbar shortcut to Contacts room
+* Minimum required Citadel is now 6.11
+
 Revision 500.19  2003/08/20 03:07:25  ajc
 * Address book "single card" view now suppresses "reading nn message" and
   instead shows the letter indices across the top
@@ -1564,4 +1568,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
