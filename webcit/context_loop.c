@@ -301,9 +301,20 @@ void *context_loop(int sock)
 	if (!strncasecmp(buf, "GET ", 4)) strcpy(buf, &buf[4]);
 	else if (!strncasecmp(buf, "HEAD ", 5)) strcpy(buf, &buf[5]);
 	if (buf[1]==' ') buf[1]=0;
-	if ( (strcmp(buf, "/")) && (got_cookie == 0)) {
+
+	/*
+	 * While we're at it, gracefully handle requests for the
+	 * robots.txt file...
+	 */
+	if (!strncasecmp(buf, "/robots.txt", 11)) {
+		strcpy(&req[0][0], "GET /static/robots.txt HTTP/1.0");
+	}
+
+	/* Do the non-root-cookie check now. */
+	else if ( (strcmp(buf, "/")) && (got_cookie == 0)) {
 		strcpy(&req[0][0], "GET /static/nocookies.html HTTP/1.0");
 	}
+
 
 
 	/*

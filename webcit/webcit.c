@@ -468,6 +468,8 @@ void output_static(char *what)
 
 		if (!strncasecmp(&what[strlen(what) - 4], ".gif", 4))
 			printf("Content-type: image/gif\n");
+		else if (!strncasecmp(&what[strlen(what) - 4], ".txt", 4))
+			printf("Content-type: text/plain\n");
 		else if (!strncasecmp(&what[strlen(what) - 4], ".jpg", 4))
 			printf("Content-type: image/jpeg\n");
 		else if (!strncasecmp(&what[strlen(what) - 5], ".html", 5))
