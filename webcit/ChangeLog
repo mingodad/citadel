@@ -1,4 +1,8 @@
 $Log$
+Revision 504.7  2004/02/19 03:32:38  ajc
+* Changed the internal version number to 5.05
+* Completed the frames fix
+
 Revision 504.6  2004/02/18 20:08:29  ajc
 * Fixed the frameset force reload logic.  Now it does the whole frameset
   without displaying an error in the main frame.
@@ -1658,3 +1662,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
