@@ -91,7 +91,7 @@ void do_iconbar(void) {
 		wprintf("<SPAN CLASS=\"iconbar_link\">"
 			"<A HREF=\"/summary\" "
 			"TITLE=\"Your summary page\" "
-			"TARGET=\"workspace\">"
+			"TARGET=\"workspace\"><P>"
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
@@ -100,11 +100,11 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Summary<BR>");
 		}
-		wprintf("</A></SPAN><BR>\n");
+		wprintf("</A></P></SPAN>\n");
 	}
 
 	if (ib_inbox) {
-		wprintf("<SPAN CLASS=\"iconbar_link\">"
+		wprintf("<SPAN CLASS=\"iconbar_link\"><P>"
 			"<A HREF=\"/dotgoto?room=_MAIL_\" "
 			"TITLE=\"Go to your e-mail inbox\" "
 			"TARGET=\"workspace\">"
@@ -116,11 +116,11 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Mail<BR>");
 		}
-		wprintf("</A></SPAN><BR>\n");
+		wprintf("</A></P></SPAN>\n");
 	}
 
 	if (ib_calendar) {
-		wprintf("<SPAN CLASS=\"iconbar_link\">"
+		wprintf("<SPAN CLASS=\"iconbar_link\"><P>"
 			"<A HREF=\"/dotgoto?room=Calendar\" "
 			"TITLE=\"Go to your personal calendar\" "
 			"TARGET=\"workspace\">"
@@ -132,11 +132,11 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Calendar<BR>");
 		}
-		wprintf("</A></SPAN><BR>\n");
+		wprintf("</A></P></SPAN>\n");
 	}
 
 	if (ib_contacts) {
-		wprintf("<SPAN CLASS=\"iconbar_link\">"
+		wprintf("<SPAN CLASS=\"iconbar_link\"><P>"
 			"<A HREF=\"/dotgoto?room=Contacts\" "
 			"TITLE=\"Go to your personal address book\" "
 			"TARGET=\"workspace\">"
@@ -148,11 +148,11 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Contacts<BR>");
 		}
-		wprintf("</A></SPAN><BR>\n");
+		wprintf("</A></P></SPAN>\n");
 	}
 
 	if (ib_tasks)  {
-		wprintf("<SPAN CLASS=\"iconbar_link\">"
+		wprintf("<SPAN CLASS=\"iconbar_link\"><P>"
 			"<A HREF=\"/dotgoto?room=Tasks\" "
 			"TITLE=\"Go to your personal task list\" "
 			"TARGET=\"workspace\">"
@@ -164,11 +164,11 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Tasks<BR>");
 		}
-		wprintf("</A></SPAN><BR>\n");
+		wprintf("</A></P></SPAN>\n");
 	}
 
 	if (ib_rooms) {
-		wprintf("<SPAN CLASS=\"iconbar_link\">"
+		wprintf("<SPAN CLASS=\"iconbar_link\"><P>"
 			"<A HREF=\"/knrooms\" TITLE=\"Shows a list of all "
 			"Rooms that you have access to\" TARGET=\"workspace\">"
 		);
@@ -179,11 +179,11 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Rooms<BR>");
 		}
-		wprintf("</A></SPAN><BR>\n");
+		wprintf("</A></P></SPAN>\n");
 	}
 
 	if (ib_users) {
-		wprintf("<SPAN CLASS=\"iconbar_link\">"
+		wprintf("<SPAN CLASS=\"iconbar_link\"><P>"
 			"<A HREF=\"/whobbs\" TITLE=\"See who is online right now\" "
 			"TARGET=\"workspace\">"
 		);
@@ -194,11 +194,11 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Users<BR>");
 		}
-		wprintf("</A></SPAN><BR>\n");
+		wprintf("</A></P></SPAN>\n");
 	}
 
 	if (ib_chat) {
-		wprintf("<SPAN CLASS=\"iconbar_link\">"
+		wprintf("<SPAN CLASS=\"iconbar_link\"><P>"
 			"<A HREF=\"#\" onClick=\"window.open('/chat', "
 			"'ctdl_chat_window', "
 			"'toolbar=no,location=no,directories=no,copyhistory=no,"
@@ -212,11 +212,11 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Chat<BR>");
 		}
-		wprintf("</A></SPAN><BR>\n");
+		wprintf("</A></P></SPAN>\n");
 	}
 
 	if (ib_advanced) {
-		wprintf("<SPAN CLASS=\"iconbar_link\">"
+		wprintf("<SPAN CLASS=\"iconbar_link\"><P>"
 			"<A HREF=\"/display_main_menu\" "
 			"TITLE=\"Advanced Options Menu: Advanced Room commands, "
 			"Account Info, and Chat\" "
@@ -229,11 +229,11 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Advanced options<BR>");
 		}
-		wprintf("</A></SPAN><BR>\n");
+		wprintf("</A></P></SPAN>\n");
 	}
 
 	if (ib_logoff) {
-		wprintf("<SPAN CLASS=\"iconbar_link\">"
+		wprintf("<SPAN CLASS=\"iconbar_link\"><P>"
 			"<A HREF=\"/termquit\" TITLE=\"Log off\" TARGET=\"_top\" "
 			"onClick=\"return confirm('Log off now?');\">"
 		);
@@ -244,26 +244,26 @@ void do_iconbar(void) {
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Log off<BR>");
 		}
-		wprintf("</A></SPAN><BR>\n");
+		wprintf("</A></P></SPAN>\n");
 	}
 
 	wprintf(
-		"<SPAN CLASS=\"customize\">"
+		"<SPAN CLASS=\"customize\"><P>"
 		"<A HREF=\"/display_customize_iconbar\" "
 		"TITLE=\"Customize this menu\" "
 		"TARGET=\"workspace\">customize this menu</A>"
-		"</SPAN><BR>\n"
+		"</P></SPAN>\n"
 	);
 
 	if (ib_citadel) if (ib_displayas != IB_TEXTONLY) wprintf(
-		"<SPAN CLASS=\"powered_by\">"
+		"<SPAN CLASS=\"powered_by\"><P>"
 		"<A HREF=\"http://uncensored.citadel.org/citadel\" "
 		"TITLE=\"Find out more about Citadel/UX\" TARGET=\"aboutcit\" "
 		"onMouseOver=\"window.status='Find out more about "
 		"Citadel/UX'; return true;\">powered by<BR><IMG "
 		"BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
 		"SRC=\"/static/citadel-logo.jpg\" ALT=\"CITADEL/UX\"></A>"
-		"</SPAN>\n"
+		"</P></SPAN>\n"
 	);
 
 	wprintf("</CENTER>\n");
