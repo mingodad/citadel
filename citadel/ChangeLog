@@ -1,4 +1,7 @@
  $Log$
+ Revision 570.12  2000/04/07 20:22:34  ajc
+ * Fixed am/pm bug in time display
+
  Revision 570.11  2000/04/07 19:22:45  ajc
  * For services disabled by setting port number to -1, administratively skip
    the bind instead of just allowing it to fail.
@@ -1808,3 +1811,6 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
+
+

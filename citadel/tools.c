@@ -351,7 +351,7 @@ void fmt_date(char *buf, time_t thetime) {
 		tm->tm_year + 1900,
 		( (tm->tm_hour > 12) ? (tm->tm_hour - 12) : (tm->tm_hour) ),
 		tm->tm_min,
-		( (tm->tm_hour > 12) ? "pm" : "am" )
+		( (tm->tm_hour >= 12) ? "pm" : "am" )
 	);
 }
 

@@ -22,14 +22,14 @@ Unix and Unix-like platforms.  The author's current development environment
     - Documentation
  
  Some knowledge of the Unix system is necessary to install and manage the
-system. It is preferable that the sysop have superuser access to the operating
+system. It is mandatory that the sysop have "root" access to the operating
 system. The following are required to install Citadel/UX:
 
     - A Unix operating system (Linux, BSD, Solaris, DEC Unix, etc.)
     - C compiler (such as gcc or egcs) and "make"
-    - POSIX threads
+    - POSIX threads (the "pthreads" library)
     - TCP/IP
-    - The "gdbm" record manager
+    - The "gdbm" library
     - Enough disk space to hold all of the programs and data
  
  If you are running Citadel/UX on a Linux system, it is STRONGLY recommended
@@ -122,8 +122,16 @@ mail, finding private rooms, etc.   The Citadel server needs to be started
 as root in order to bind to a privileged port, but as soon as its
 initialization is finished, it changes its user ID to your BBS user ID in
 order to avoid security holes.
-  
-    
+ 
+ 
+ UPGRADING
+ 
+  Upgrading to a new version uses the same build procedure as compiling the
+program for a fresh install, except that you want to do "make install-exec"
+instead of "make install".  This will overwrite the programs but not your
+data.  Be sure to shut down citserver during this process!
+   
+     
  THE CITADEL.RC FILE
  
  This is a change from the way things were done before.  All client-side setup
@@ -175,7 +183,7 @@ example, you could use a command like "cat >>$HOME/archive" to save copies
 of important messages in a textfile.
 
 
-URL VIEWING:
+ URL VIEWING
 
 urlcmd=netscape -remote "openURL(%s)"
 
