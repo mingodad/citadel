@@ -11,6 +11,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/wait.h>
+#include <ctype.h>
 #include <string.h>
 #include <limits.h>
 #include <time.h>
@@ -685,18 +686,86 @@ void smtp_command_loop(void) {
  */
 void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 {
-	char buf[256];
 	int sock = (-1);
 	char mxhosts[1024];
 	int num_mxhosts;
 	int mx;
+	int i;
 	char user[256], node[256], name[256];
+	char buf[1024];
+	char mailfrom[1024];
+	int lp, rp;
+	FILE *msg_fp = NULL;
+	size_t msg_size, blocksize;
+	int scan_done;
 
 	/* Parse out the host portion of the recipient address */
 	process_rfc822_addr(addr, user, node, name);
 	lprintf(9, "Attempting SMTP delivery to <%s> @ <%s> (%s)\n",
 		user, node, name);
 
+	/* Load the message out of the database into a temp file */
+	msg_fp = tmpfile();
+	if (msg_fp == NULL) {
+		*status = 4;
+		sprintf(dsn, "Error creating temporary file");
+		return;
+	}
+	else {
+		CtdlRedirectOutput(msg_fp, -1);
+		CtdlOutputMsg(msgnum, MT_RFC822, 0, 0, 1);
+		CtdlRedirectOutput(NULL, -1);
+		fseek(msg_fp, 0L, SEEK_END);
+		msg_size = ftell(msg_fp);
+	}
+
+
+	/* Extract something to send later in the 'MAIL From:' command */
+	strcpy(mailfrom, "");
+	rewind(msg_fp);
+	scan_done = 0;
+	do {
+		if (fgets(buf, sizeof buf, msg_fp)==NULL) scan_done = 1;
+		if (!strncasecmp(buf, "From:", 5)) {
+			safestrncpy(mailfrom, &buf[5], sizeof mailfrom);
+			striplt(mailfrom);
+			for (i=0; i<strlen(mailfrom); ++i) {
+				if (!isprint(mailfrom[i])) {
+					strcpy(&mailfrom[i], &mailfrom[i+1]);
+					i=0;
+				}
+			}
+
+			/* Strip out parenthesized names */
+			lp = (-1);
+			rp = (-1);
+			for (i=0; i<strlen(mailfrom); ++i) {
+				if (mailfrom[i] == '(') lp = i;
+				if (mailfrom[i] == ')') rp = i;
+			}
+			if ((lp>0)&&(rp>lp)) {
+				strcpy(&mailfrom[lp-1], &mailfrom[rp+1]);
+			}
+
+			/* Prefer brokketized names */
+			lp = (-1);
+			rp = (-1);
+			for (i=0; i<strlen(mailfrom); ++i) {
+				if (mailfrom[i] == '<') lp = i;
+				if (mailfrom[i] == '>') rp = i;
+			}
+			if ((lp>=0)&&(rp>lp)) {
+				mailfrom[rp] = 0;
+				strcpy(mailfrom, &mailfrom[lp]);
+			}
+
+			scan_done = 1;
+		}
+	} while (scan_done == 0);
+	if (strlen(mailfrom)==0) strcpy(mailfrom, "someone@somewhere.org");
+
+
+	/* Figure out what mail exchanger host we have to connect to */
 	num_mxhosts = getmx(mxhosts, node);
 	lprintf(9, "Number of MX hosts for <%s> is %d\n", node, num_mxhosts);
 	if (num_mxhosts < 1) {
@@ -724,22 +793,19 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	if (sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
-		sock_close(sock);
-		return;
+		goto bail;
 	}
-	lprintf(9, "%s\n", buf);
+	lprintf(9, "<%s\n", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
 			strcpy(dsn, &buf[4]);
-			sock_close(sock);
-			return;
+			goto bail;
 		}
 		else {
 			*status = 5;
 			strcpy(dsn, &buf[4]);
-			sock_close(sock);
-			return;
+			goto bail;
 		}
 	}
 
@@ -747,132 +813,125 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 
 	/* Do a HELO command */
 	sprintf(buf, "HELO %s", config.c_fqdn);
+	lprintf(9, ">%s\n", buf);
 	sock_puts(sock, buf);
 	if (sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
-		sock_close(sock);
-		return;
+		goto bail;
 	}
-	lprintf(9, "%s\n", buf);
+	lprintf(9, "<%s\n", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
 			strcpy(dsn, &buf[4]);
-			sock_close(sock);
-			return;
+			goto bail;
 		}
 		else {
 			*status = 5;
 			strcpy(dsn, &buf[4]);
-			sock_close(sock);
-			return;
+			goto bail;
 		}
 	}
 
 
 	/* HELO succeeded, now try the MAIL From: command */
-	sprintf(buf, "MAIL From: FIX@uncnsrd.mt-kisco.ny.us"); /* FIX */
+	sprintf(buf, "MAIL From: %s", mailfrom);
+	lprintf(9, ">%s\n", buf);
 	sock_puts(sock, buf);
 	if (sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
-		sock_close(sock);
-		return;
+		goto bail;
 	}
-	lprintf(9, "%s\n", buf);
+	lprintf(9, "<%s\n", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
 			strcpy(dsn, &buf[4]);
-			sock_close(sock);
-			return;
+			goto bail;
 		}
 		else {
 			*status = 5;
 			strcpy(dsn, &buf[4]);
-			sock_close(sock);
-			return;
+			goto bail;
 		}
 	}
 
 
 	/* MAIL succeeded, now try the RCPT To: command */
 	sprintf(buf, "RCPT To: %s", addr);
+	lprintf(9, ">%s\n", buf);
 	sock_puts(sock, buf);
 	if (sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
-		sock_close(sock);
-		return;
+		goto bail;
 	}
-	lprintf(9, "%s\n", buf);
+	lprintf(9, "<%s\n", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
 			strcpy(dsn, &buf[4]);
-			sock_close(sock);
-			return;
+			goto bail;
 		}
 		else {
 			*status = 5;
 			strcpy(dsn, &buf[4]);
-			sock_close(sock);
-			return;
+			goto bail;
 		}
 	}
 
 
 	/* RCPT succeeded, now try the DATA command */
+	lprintf(9, ">DATA\n");
 	sock_puts(sock, "DATA");
 	if (sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
-		sock_close(sock);
-		return;
+		goto bail;
 	}
-	lprintf(9, "%s\n", buf);
+	lprintf(9, "<%s\n", buf);
 	if (buf[0] != '3') {
 		if (buf[0] == '4') {
 			*status = 3;
 			strcpy(dsn, &buf[4]);
-			sock_close(sock);
-			return;
+			goto bail;
 		}
 		else {
 			*status = 5;
 			strcpy(dsn, &buf[4]);
-			sock_close(sock);
-			return;
+			goto bail;
 		}
 	}
 
 	/* If we reach this point, the server is expecting data */
-
-	CtdlRedirectOutput(NULL, sock);
-	CtdlOutputMsg(msgnum, MT_RFC822, 0, 0, 1);
-	CtdlRedirectOutput(NULL, -1);
+	rewind(msg_fp);
+	while (msg_size > 0) {
+		blocksize = sizeof(buf);
+		if (blocksize > msg_size) blocksize = msg_size;
+		fread(buf, blocksize, 1, msg_fp);
+		sock_write(sock, buf, blocksize);
+		msg_size -= blocksize;
+	}
 
 	sock_puts(sock, ".");
 	if (sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
-		sock_close(sock);
-		return;
+		goto bail;
 	}
 	lprintf(9, "%s\n", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
 			strcpy(dsn, &buf[4]);
-			sock_close(sock);
-			return;
+			goto bail;
 		}
 		else {
 			*status = 5;
 			strcpy(dsn, &buf[4]);
-			sock_close(sock);
-			return;
+			goto bail;
 		}
 	}
 
@@ -880,10 +939,14 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	strcpy(dsn, &buf[4]);
 	*status = 2;
 
+	lprintf(9, ">QUIT\n");
 	sock_puts(sock, "QUIT");
 	sock_gets(sock, buf);
-	lprintf(9, "%s\n", buf);
+	lprintf(9, "<%s\n", buf);
+
+bail:	if (msg_fp != NULL) fclose(msg_fp);
 	sock_close(sock);
+	return;
 }
 
 
