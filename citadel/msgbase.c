@@ -907,9 +907,12 @@ void save_message(char *mtmp,	/* file containing proper message */
 	char hold_rm[ROOMNAMELEN];
 	char actual_rm[ROOMNAMELEN];
 	char force_room[ROOMNAMELEN];
+	char content_type[256];		/* We have to learn this */
+	char ch, rch;
 	char recipient[256];
 	long newmsgid;
 	char *message_in_memory;
+	char *mptr;
 	struct stat statbuf;
 	size_t templen;
 	FILE *fp;
@@ -918,6 +921,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 	static int seqnum = 0;
 	int successful_local_recipients = 0;
 	struct quickroom qtemp;
+	struct SuppMsgInfo smi;
 
 	lprintf(9, "save_message(%s,%s,%s,%d,%d)\n",
 		mtmp, rec, force, mailtype, generate_id);
@@ -944,6 +948,45 @@ void save_message(char *mtmp,	/* file containing proper message */
 	fread(message_in_memory, templen, 1, fp);
 	fclose(fp);
 
+	/* Learn about what's inside, because it's what's inside that counts */
+	mptr = message_in_memory;
+	++mptr;	/* advance past 0xFF header */
+	++mptr;	/* advance past anon flag */
+	ch = *mptr++;
+	switch(ch) {
+	 case 0:
+		strcpy(content_type, "text/x-citadel-variformat");
+		break;
+	 case 1:
+		strcpy(content_type, "text/plain");
+		break;
+	 case 4:
+		strcpy(content_type, "text/plain");
+		/* advance past header fields */
+		while (ch = *mptr++, (ch != 'M' && ch != 0)) {
+			do {
+				rch = *mptr++;
+			} while (rch > 0);
+		}
+		a = strlen(mptr);
+		while (--a) {
+			if (!strncasecmp(mptr, "Content-type: ", 14)) {
+				lprintf(9, "%s\n", content_type);
+				strcpy(content_type, &content_type[14]);
+				for (a=0; a<strlen(content_type); ++a)
+					if (  (content_type[a]==';')
+					   || (content_type[a]==' ')
+					   || (content_type[a]==13)
+					   || (content_type[a]==10) )
+						content_type[a] = 0;
+				break;
+			}
+			++mptr;
+		}
+	}
+	lprintf(9, "Content type is <%s>\n", content_type);
+
+	/* Save it to disk */
 	newmsgid = send_message(message_in_memory, templen, generate_id);
 	phree(message_in_memory);
 	if (newmsgid <= 0L)
@@ -954,15 +997,9 @@ void save_message(char *mtmp,	/* file containing proper message */
 
 	/* If this is being done by the networker delivering a private
 	 * message, we want to BYPASS saving the sender's copy (because there
-	 * is no local sender; it would otherwise go to the Trashcan), and
-	 * consequently set successful_local_recipients to (-1) so it gets
-	 * set to 0 later on (a sleazy hack to make the reference count 1
-	 * instead of 2)
+	 * is no local sender; it would otherwise go to the Trashcan).
 	 */
-	if (CC->internal_pgm) {
-		--successful_local_recipients;
-	} else {
-
+	if (!CC->internal_pgm) {
 		/* If the user is a twit, move to the twit room for posting */
 		if (TWITDETECT)
 			if (CC->usersupp.axlevel == 2) {
@@ -995,6 +1032,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 	
 		/* update quickroom */
 		lputroom(&CC->quickroom);
+		++successful_local_recipients;
 	}
 
 	/* Network mail - send a copy to the network program. */
@@ -1032,12 +1070,15 @@ void save_message(char *mtmp,	/* file containing proper message */
 	}
 	unlink(mtmp);		/* delete the temporary file */
 
-	/* If the message was delivered to more than one location locally,
-	 * we have to bump the reference count accordingly.
+	/* Write a supplemental message info record.  This doesn't have to
+	 * be a critical section because nobody else knows about this message
+	 * yet.
 	 */
-	if (successful_local_recipients != 0) {
-		AdjRefCount(newmsgid, successful_local_recipients);
-	}
+	memset(&smi, 0, sizeof(struct SuppMsgInfo));
+	smi.smi_msgnum = newmsgid;
+	smi.smi_refcount = successful_local_recipients;
+	safestrncpy(smi.smi_content_type, content_type, 64);
+	PutSuppMsgInfo(&smi);
 }
 
 
@@ -1492,6 +1533,9 @@ void PutSuppMsgInfo(struct SuppMsgInfo *smibuf)
 	/* Use the negative of the message number for its supp record index */
 	TheIndex = (0L - smibuf->smi_msgnum);
 
+	lprintf(9, "PuttSuppMsgInfo(%ld) - ref count is %d\n",
+		smibuf->smi_msgnum, smibuf->smi_refcount);
+
 	cdb_store(CDB_MSGMAIN,
 		  &TheIndex, sizeof(long),
 		  smibuf, sizeof(struct SuppMsgInfo));
@@ -1509,9 +1553,6 @@ void AdjRefCount(long msgnum, int incr)
 
 	struct SuppMsgInfo smi;
 	long delnum;
-
-	lprintf(9, "Adjust msg <%ld> ref count by <%d>\n",
-		msgnum, incr);
 
 	/* This is a *tight* critical section; please keep it that way, as
 	 * it may get called while nested in other critical sections.  

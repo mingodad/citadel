@@ -267,8 +267,9 @@ struct visit {
  * fields whose values may change at some point after the message is saved.)
  */
 struct SuppMsgInfo {
-	long smi_msgnum;	/* Redundant, but useful for self-check */
+	long smi_msgnum;	/* Message number in *local* message base */
 	int smi_refcount;	/* Number of rooms which point to this msg */
+	char smi_content_type[64];
 	/* more stuff will be added to this record in the future */
 };
 
