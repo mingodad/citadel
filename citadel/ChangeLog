@@ -1,3 +1,7 @@
+Tue Sep 29 23:17:34 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* room_ops.c: modified usergoto() to look at the new data structures
+	  for counting new messages and such.
+
 1998-09-29 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* user_ops.c: fix compiler warning and potential memory leak,
 	  include sysdep.h

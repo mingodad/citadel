@@ -543,7 +543,9 @@ void cmd_lzrm(char *argbuf)
 
 void usergoto(int where, int display_result)
 {
-	int a,b,c;
+	int a;
+	int new_messages = 0;
+	int total_messages = 0;
 	int info = 0;
 	int rmailflag;
 	int raideflag;
@@ -570,16 +572,16 @@ void usergoto(int where, int display_result)
 	newmailcount = NewMailCount();
 
 	/* set info to 1 if the user needs to read the room's info file */
-	if (CC->quickroom.QRinfo > CC->usersupp.lastseen[CC->curr_rm]) info = 1;
+	if (CC->quickroom.QRinfo > vbuf.v_lastseen) info = 1;
 
-	b=0; c=0;
 	get_mm();
 	get_msglist(CC->curr_rm);
 	for (a=0; a<CC->num_msgs; ++a) {
 		if (MessageFromList(a)>0L) {
-			++b;
-			if (MessageFromList(a)
-			   > CC->usersupp.lastseen[CC->curr_rm]) ++c;
+			++total_messages;
+			if (MessageFromList(a) > vbuf.v_lastseen) {
+				++new_messages;
+				}
 			}
 		}
 
@@ -593,9 +595,13 @@ void usergoto(int where, int display_result)
 
 	if (display_result) cprintf("%d%c%s|%d|%d|%d|%d|%ld|%ld|%d|%d|%d|%d\n",
 		OK,check_express(),
-		CC->quickroom.QRname,c,b,info,CC->quickroom.QRflags,
-		CC->quickroom.QRhighest,CC->usersupp.lastseen[CC->curr_rm],
+		CC->quickroom.QRname,
+		new_messages, total_messages,
+		info,CC->quickroom.QRflags,
+		CC->quickroom.QRhighest,
+		vbuf.v_lastseen,
 		rmailflag,raideflag,newmailcount,CC->quickroom.QRfloor);
+
 	if (CC->quickroom.QRflags & QR_PRIVATE) {
 		set_wtmpsupp("<private room>");
 		}
