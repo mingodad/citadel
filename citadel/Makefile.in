@@ -38,28 +38,28 @@ netpoll: netpoll.c config.o ipc_c_tcp.o
 ipc_c_tcp.o: ipc_c_tcp.c sysdep.h
 	$(CC) $(CFLAGS) -c ipc_c_tcp.c
 
-citadel.o: citadel.c axdefs.h citadel.h
+citadel.o: citadel.c axdefs.h citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) -c citadel.c
 
-rooms.o: rooms.c citadel.h
+rooms.o: rooms.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) -c rooms.c
 
-messages.o: messages.c citadel.h
+messages.o: messages.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) -c messages.c
 
-commands.o: commands.c citadel.h
+commands.o: commands.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) -c commands.c
 
-routines.o: routines.c citadel.h
+routines.o: routines.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) -c routines.c
 
-routines2.o: routines2.c citadel.h
+routines2.o: routines2.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) -c routines2.c
 
-client_chat.o: client_chat.c citadel.h
+client_chat.o: client_chat.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) -c client_chat.c
 
-serv_info.o: serv_info.c citadel.h
+serv_info.o: serv_info.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) -c serv_info.c
 
 
@@ -75,62 +75,62 @@ citserver: citserver.o user_ops.o support.o room_ops.o file_ops.o \
 		hooks.o housekeeping.o database.o control.o logging.o \
 		$(LFLAGS) $(SERVER_LFLAGS) -o citserver
 
-citserver.o: citserver.c citadel.h
+citserver.o: citserver.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c citserver.c
 
-user_ops.o: user_ops.c citadel.h
+user_ops.o: user_ops.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c user_ops.c
 
-room_ops.o: room_ops.c citadel.h
+room_ops.o: room_ops.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c room_ops.c
 
-file_ops.o: file_ops.c citadel.h
+file_ops.o: file_ops.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c file_ops.c
 
-support.o: support.c citadel.h
+support.o: support.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c support.c
 
-msgbase.o: msgbase.c citadel.h
+msgbase.o: msgbase.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c msgbase.c
 
-locate_host.o: locate_host.c citadel.h
+locate_host.o: locate_host.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c locate_host.c
 
 serv_chat.so: serv_chat.o support.o
 	$(CC) -shared -o serv_chat.so serv_chat.o support.o
 
-serv_chat.o: serv_chat.c citadel.h
+serv_chat.o: serv_chat.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c serv_chat.c
 
-hooks.o: hooks.c citadel.h
+hooks.o: hooks.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c hooks.c
 
-housekeeping.o: housekeeping.c citadel.h
+housekeeping.o: housekeeping.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c housekeeping.c
 
-database.o: database.c citadel.h
+database.o: database.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c database.c
 
-control.o: control.c citadel.h
+control.o: control.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c control.c
 
-logging.o: logging.c citadel.h
+logging.o: logging.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c logging.c
 
-config.o: config.c citadel.h axdefs.h
+config.o: config.c citadel.h axdefs.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) -D_REENTRANT -c config.c
 
-sysdep.o: sysdep.c citadel.h
+sysdep.o: sysdep.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) -D_REENTRANT -c sysdep.c
 
 citadelapi.a: citadelapi.o ipc_c_tcp.o serv_info.o
 	$(AR) r citadelapi.a citadelapi.o ipc_c_tcp.o serv_info.o
 	$(RANLIB) citadelapi.a
 
-citadelapi.o: citadelapi.c citadel.h
+citadelapi.o: citadelapi.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) -D_REENTRANT -c citadelapi.c
 
-aidepost: aidepost.c config.o citadel.h
+aidepost: aidepost.c config.o citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) aidepost.c config.o $(LFLAGS) -o aidepost
 
 #
@@ -138,21 +138,24 @@ aidepost: aidepost.c config.o citadel.h
 # mail.  If it is not run setuid, all outgoing mail may always show as coming
 # from your BBSUID rather than the actual sending user.
 #
-netmailer: netmailer.c internetmail.o config.o citadel.h
+netmailer: netmailer.c internetmail.o config.o citadel.h sysdep.h sysconfig.h \
+	   ipcdef.h server.h
 	$(CC) -O $(CFLAGS) netmailer.c config.o internetmail.o $(LFLAGS) -o netmailer
 	chmod 4755 netmailer
 
 internetmail.o: internetmail.c
 	$(CC) -O $(CFLAGS) -c internetmail.c
 
-netproc: netproc.o config.o ipc_c_tcp.o citadel.h
+netproc: netproc.o config.o ipc_c_tcp.o citadel.h sysdep.h sysconfig.h \
+	 ipcdef.h server.h
 	$(CC) -O $(CFLAGS) netproc.o config.o ipc_c_tcp.o \
 		$(LFLAGS) -o netproc
 
-netproc.o: netproc.c citadel.h
+netproc.o: netproc.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) -c netproc.c
 
-citmail: citmail.c config.o internetmail.o citadel.h
+citmail: citmail.c config.o internetmail.o citadel.h sysdep.h sysconfig.h \
+	 ipcdef.h server.h
 	#
 	#                 ###### IMPORTANT ######
 	# To allow Citadel users to receive Internet mail, you must
@@ -161,14 +164,15 @@ citmail: citmail.c config.o internetmail.o citadel.h
 	$(CC) -O $(CFLAGS) citmail.c config.o internetmail.o $(LFLAGS) -o citmail
 	chmod 4755 citmail
 
-mailinglist: mailinglist.c config.o internetmail.o citadel.h
+mailinglist: mailinglist.c config.o internetmail.o citadel.h sysdep.h \
+	     sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) mailinglist.c config.o internetmail.o \
 		$(LFLAGS) -o mailinglist
 
-setup: setup.c citadel.h
+setup: setup.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) setup.c $(CURSES) $(LFLAGS) -o setup
 
-netsetup: netsetup.c config.o citadel.h
+netsetup: netsetup.c config.o citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) netsetup.c config.o $(LFLAGS) -o netsetup
 
 whobbs: whobbs.c ipc_c_tcp.o
@@ -180,10 +184,10 @@ userlist: userlist.c ipc_c_tcp.o
 msgform: msgform.c
 	$(CC) -O $(CFLAGS) msgform.c $(LFLAGS) -o msgform
 
-readlog: readlog.c config.o citadel.h
+readlog: readlog.c config.o citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) readlog.c config.o $(LFLAGS) -o readlog
 
-rcit: rcit.c config.o citadel.h
+rcit: rcit.c config.o citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) rcit.c config.o $(LFLAGS) -o rcit
 	# 
 	# NOTE: TO RECEIVE CITADEL TRAFFIC VIA THE RCIT PROGRAM (ESPECIALLY
@@ -191,11 +195,8 @@ rcit: rcit.c config.o citadel.h
 	#ln -s rcit /usr/bin/rnews
 	# 
 
-stats: stats.c config.o citadel.h
+stats: stats.c config.o citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) stats.c config.o $(LFLAGS) -o stats
-
-citadel.h: sysdep.h sysconfig.h ipcdef.h server.h
-	touch citadel.h
 
 clean:
 	find . -name \*.[o] -print -exec rm -f {} \;
@@ -204,4 +205,4 @@ cleaner: clean
 	rm -f $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS)
 
 realclean: cleaner
-	rm -f sysdep.h
+	rm -f Makefile sysdep.h
