@@ -1,4 +1,8 @@
 $Log$
+Revision 506.13  2004/04/30 04:08:47  ajc
+* Changed internal version number to 5.10
+* Updated documentation for the new HTTPS service
+
 Revision 506.12  2004/04/27 03:21:36  ajc
 * Prompt for HTTPS port number during setup.  We may make this optional.
 
@@ -493,7 +497,7 @@ Revision 410.7  2003/03/30 06:13:19  ajc
 * When reading from the server, do not treat CR as end-of-line because
   there's probably an LF coming after it.  Instead, keep reading to the LF
   and then strip both.
-* No not underline links in the icon bars
+* Do not underline links in the icon bars
 
 Revision 410.6  2003/03/17 04:17:41  ajc
 * Call to accept() was being made with an uninitialized variable for the
