@@ -364,7 +364,7 @@ void CtdlUnregisterMessageHook(int (*handler)(struct CtdlMessage *),
 }
 
 
-void CtdlRegisterNetprocHook(int (*handler)(struct CtdlMessage *) )
+void CtdlRegisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) )
 {
 	struct NetprocFunctionHook *newfcn;
 
@@ -378,7 +378,7 @@ void CtdlRegisterNetprocHook(int (*handler)(struct CtdlMessage *) )
 }
 
 
-void CtdlUnregisterNetprocHook(int (*handler)(struct CtdlMessage *) )
+void CtdlUnregisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) )
 {
 	struct NetprocFunctionHook *cur, *p;
 
@@ -578,14 +578,14 @@ int PerformMessageHooks(struct CtdlMessage *msg, int EventType)
 
 
 
-int PerformNetprocHooks(struct CtdlMessage *msg)
+int PerformNetprocHooks(struct CtdlMessage *msg, char *target_room)
 {
 	struct NetprocFunctionHook *fcn;
 	int total_retval = 0;
 
 	for (fcn = NetprocHookTable; fcn != NULL; fcn = fcn->next) {
 		total_retval = total_retval +
-			(*fcn->h_function_pointer) (msg);
+			(*fcn->h_function_pointer) (msg, target_room);
 	}
 
 	/* Return the sum of the return codes from the hook functions.

@@ -342,7 +342,7 @@ extern DLEXP struct MessageFunctionHook *MessageHookTable;
  */
 struct NetprocFunctionHook {
 	struct NetprocFunctionHook *next;
-	int (*h_function_pointer) (struct CtdlMessage *msg);
+	int (*h_function_pointer) (struct CtdlMessage *msg, char *target_room);
 };
 extern DLEXP struct NetprocFunctionHook *NetprocHookTable;
 

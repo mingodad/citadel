@@ -33,9 +33,9 @@ void CtdlUnregisterMessageHook(int (*handler)(struct CtdlMessage *),
 int PerformMessageHooks(struct CtdlMessage *, int EventType);
 
 
-void CtdlRegisterNetprocHook(int (*handler)(struct CtdlMessage *) );
-void CtdlUnregisterNetprocHook(int (*handler)(struct CtdlMessage *) );
-int PerformNetprocHooks(struct CtdlMessage *);
+void CtdlRegisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) );
+void CtdlUnregisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) );
+int PerformNetprocHooks(struct CtdlMessage *, char *);
 
 
 void CtdlRegisterCleanupHook(void (*fcn_ptr)(void));

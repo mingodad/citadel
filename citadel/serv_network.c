@@ -967,8 +967,18 @@ void network_process_buffer(char *buffer, long size) {
 			sizeof target_room);
 	}
 
+	/* Strip out fields that are only relevant during transit */
+	if (msg->cm_fields['D'] != NULL) {
+		phree(msg->cm_fields['D']);
+		msg->cm_fields['D'] = NULL;
+	}
+	if (msg->cm_fields['C'] != NULL) {
+		phree(msg->cm_fields['C']);
+		msg->cm_fields['C'] = NULL;
+	}
+
 	/* save the message into a room */
-	if (PerformNetprocHooks(msg) == 0) {
+	if (PerformNetprocHooks(msg, target_room) == 0) {
 		msg->cm_flags = CM_SKIP_HOOKS;
         	CtdlSubmitMsg(msg, recp, target_room);
 	}

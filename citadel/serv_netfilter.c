@@ -51,7 +51,7 @@
  * function accordingly (delete the user's existing vCard in the config room
  * and in the global address book).
  */
-int filter_the_idiots(struct CtdlMessage *msg) {
+int filter_the_idiots(struct CtdlMessage *msg, char *target_room) {
 
 	if (msg == NULL) {
 		return(0);

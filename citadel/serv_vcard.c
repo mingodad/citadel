@@ -551,22 +551,14 @@ void vcard_purge(char *username, long usernum) {
 /*
  * Grab vCard directory stuff out of incoming network messages
  */
-int vcard_extract_from_network(struct CtdlMessage *msg) {
+int vcard_extract_from_network(struct CtdlMessage *msg, char *target_room) {
 	char *ptr;
 	int linelen;
 
 	if (msg == NULL) return(0);
 
-	if (msg->cm_fields['C'] != NULL) {
-		if (strcasecmp(msg->cm_fields['C'], ADDRESS_BOOK_ROOM)) {
-			return(0);
-		}
-	}
-
-	if (msg->cm_fields['O'] != NULL) {
-		if (strcasecmp(msg->cm_fields['O'], ADDRESS_BOOK_ROOM)) {
-			return(0);
-		}
+	if (strcasecmp(target_room, ADDRESS_BOOK_ROOM)) {
+		return(0);
 	}
 
 	if (msg->cm_format_type != 4) return(0);
