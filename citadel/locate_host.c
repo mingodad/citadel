@@ -25,12 +25,15 @@
 #include "tools.h"
 #include "domain.h"
 
-void locate_host(char *tbuf, size_t n, const struct in_addr *addr)
+void locate_host(char *tbuf, size_t n,
+		char *abuf, size_t na,
+		const struct in_addr *addr)
 {
 	struct hostent *ch;
 	const char *i;
 	char *j;
 	int a1, a2, a3, a4;
+	char address_string[SIZ];
 
 	lprintf(9, "locate_host() called\n");
 
@@ -38,15 +41,21 @@ void locate_host(char *tbuf, size_t n, const struct in_addr *addr)
 	begin_critical_section(S_NETDB);
 #endif
 
-	if ((ch = gethostbyaddr((const char *) addr, sizeof(*addr), AF_INET)) ==
-	    NULL) {
-	      bad_dns:
-		i = (const char *) addr;
-		a1 = ((*i++) & 0xff);
-		a2 = ((*i++) & 0xff);
-		a3 = ((*i++) & 0xff);
-		a4 = ((*i++) & 0xff);
-		snprintf(tbuf, n, "%d.%d.%d.%d", a1, a2, a3, a4);
+	i = (const char *) addr;
+	a1 = ((*i++) & 0xff);
+	a2 = ((*i++) & 0xff);
+	a3 = ((*i++) & 0xff);
+	a4 = ((*i++) & 0xff);
+	sprintf(address_string, "%d.%d.%d.%d", a1, a2, a3, a4);
+
+	if (abuf != NULL) {
+		safestrncpy(abuf, address_string, na);
+	}
+
+	if ((ch = gethostbyaddr((const char *) addr,
+	   sizeof(*addr), AF_INET)) == NULL) {
+bad_dns:
+		safestrncpy(tbuf, address_string, n);
 		goto end;	/* because we might need to end the critical
 				   section */
 	}

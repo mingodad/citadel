@@ -1,4 +1,14 @@
  $Log$
+ Revision 607.16  2003/07/10 05:51:46  ajc
+ * Added cs_addr field to struct CitContext -- holds a dotted quad string
+   of the user's source IP (if applicable).  It's big enough to hold other
+   types of address strings in the future (such as IPv6).
+ * locate_host() populates cs_addr when on a network connection.
+ * serv_smtp.c now saves the IP address in the proper place in
+   the Received: header.
+ * is_public_client() no longer accepts a hostname.  It just looks at
+   CC->cs_host instead.
+
  Revision 607.15  2003/06/29 19:54:39  ajc
  * Renamed "struct user" to "struct ctdluser"
  * Renamed "struct room" to "struct ctdlroom"
@@ -4826,4 +4836,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

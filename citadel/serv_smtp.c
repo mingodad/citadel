@@ -493,14 +493,12 @@ void smtp_data(void) {
 	datestring(nowstamp, sizeof nowstamp, time(NULL), DATESTRING_RFC822);
 	body = mallok(4096);
 
-	/* FIXME
-	   it should be Received: from %s (real.name.dom [w.x.y.z])
-	 */
 	if (body != NULL) snprintf(body, 4096,
-		"Received: from %s (%s)\n"
+		"Received: from %s (%s [%s])\n"
 		"	by %s; %s\n",
 			SMTP->helo_node,
 			CC->cs_host,
+			CC->cs_addr,
 			config.c_fqdn,
 			nowstamp);
 	

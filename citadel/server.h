@@ -97,6 +97,7 @@ struct CitContext {
 	int cs_clientver;	/* client version number */
 	char cs_clientname[32];	/* name of client software */
 	char cs_host[64];	/* host logged in from */
+	char cs_addr[64];	/* address logged in from */
 
 	/* The Internet type of thing */
 	char cs_inet_email[SIZ];/* Return address of outbound Internet mail */

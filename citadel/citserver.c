@@ -404,28 +404,28 @@ static int hostnames_match(const char *realname, const char *testname) {
 }
 
 /*
- * Check a hostname against the public_clients file.  This determines
+ * Check originating host against the public_clients file.  This determines
  * whether the client is allowed to change the hostname for this session
  * (for example, to show the location of the user rather than the location
  * of the client).
  */
-int is_public_client(char *where)
+int is_public_client(void)
 {
 	char buf[SIZ];
 	FILE *fp;
 
-	lprintf(9, "Checking whether %s is a local client\n", where);
-	if (hostnames_match(where, "localhost")) return(1);
-	if (hostnames_match(where, config.c_fqdn)) return(1);
+	lprintf(9, "Checking whether %s is a local client\n",  CC->cs_host);
+	if (hostnames_match(CC->cs_host, "localhost")) return(1);
+	if (hostnames_match(CC->cs_host, config.c_fqdn)) return(1);
 
-	lprintf(9, "Checking whether %s is a public client\n", where);
+	lprintf(9, "Checking whether %s is a public client\n", CC->cs_host);
 	fp = fopen("public_clients", "r");
 	if (fp == NULL) return(0);
 
 	while (fgets(buf, sizeof buf, fp)!=NULL) {
 		while (isspace((buf[strlen(buf)-1]))) 
 			buf[strlen(buf)-1] = 0;
-		if (hostnames_match(where, buf)) {
+		if (hostnames_match(CC->cs_host, buf)) {
 			fclose(fp);
 			return(1);
 		}
@@ -471,13 +471,15 @@ void cmd_iden(char *argbuf)
 
 	if (strlen(from_host) > 0) {
 		if (CC->is_local_socket) do_lookup = 1;
-		else if (is_public_client(CC->cs_host)) do_lookup = 1;
+		else if (is_public_client()) do_lookup = 1;
 	}
 
 	if (do_lookup) {
 		lprintf(9, "Looking up hostname '%s'\n", from_host);
 		if ((addr.s_addr = inet_addr(from_host)) != -1) {
-			locate_host(CC->cs_host, sizeof CC->cs_host, &addr);
+			locate_host(CC->cs_host, sizeof CC->cs_host,
+				NULL, 0,
+				&addr);
 		}
 	   	else {
 			safestrncpy(CC->cs_host, from_host, sizeof CC->cs_host);
@@ -848,12 +850,15 @@ void begin_session(struct CitContext *con)
 	generate_nonce(con);
 	snprintf(con->temp, sizeof con->temp, tmpnam(NULL));
 	safestrncpy(con->cs_host, config.c_fqdn, sizeof con->cs_host);
+	safestrncpy(con->cs_addr, "", sizeof con->cs_addr);
 	con->cs_host[sizeof con->cs_host - 1] = 0;
 	len = sizeof sin;
 	if (!CC->is_local_socket) {
 		if (!getpeername(con->client_socket,
 		   (struct sockaddr *) &sin, &len))
-			locate_host(con->cs_host, sizeof con->cs_host, &sin.sin_addr);
+			locate_host(con->cs_host, sizeof con->cs_host,
+				con->cs_addr, sizeof con->cs_addr,
+				&sin.sin_addr);
 	}
 	else {
 		strcpy(con->cs_host, "");

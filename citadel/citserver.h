@@ -19,7 +19,6 @@ void set_wtmpsupp (char *newtext);
 void set_wtmpsupp_to_current_room(void);
 void cmd_info (void);
 void cmd_time (void);
-int is_public_client (char *where);
 void cmd_iden (char *argbuf);
 void cmd_mesg (char *mname);
 void cmd_emsg (char *mname);
