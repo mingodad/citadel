@@ -91,7 +91,9 @@ void mime_decode(char *partnum,
 		   char *cbdisp,
 		   void *cbcontent,
 		   char *cbtype,
-		   size_t cblength)
+		   size_t cblength,
+		   void *cbuserdata),
+		  void *userdata
 )
 {
 
@@ -118,7 +120,7 @@ void mime_decode(char *partnum,
 	/* If this part is not encoded, send as-is */
 	if (strlen(encoding) == 0) {
 		CallBack(name, filename, partnum, disposition, part_start,
-			 content_type, length);
+			 content_type, length, userdata);
 		return;
 	}
 	if ((strcasecmp(encoding, "base64"))
@@ -197,7 +199,7 @@ void mime_decode(char *partnum,
 
 	if (bytes_recv > 0)
 		CallBack(name, filename, partnum, disposition, decoded,
-			 content_type, bytes_recv);
+			 content_type, bytes_recv, userdata);
 
 	phree(decoded);
 }
@@ -217,7 +219,9 @@ void the_mime_parser(char *partnum,
 		       char *cbdisp,
 		       void *cbcontent,
 		       char *cbtype,
-		       size_t cblength)
+		       size_t cblength,
+		       void *cbuserdata),
+		      void *userdata
 )
 {
 
@@ -303,7 +307,7 @@ void the_mime_parser(char *partnum,
 	if (is_multipart) {
 
 		/* Tell the client about this message's multipartedness */
-		CallBack("", "", partnum, "", NULL, content_type, 0);
+		CallBack("", "", partnum, "", NULL, content_type, 0, userdata);
 
 		/* Figure out where the boundaries are */
 		sprintf(startary, "--%s", boundary);
@@ -329,7 +333,7 @@ void the_mime_parser(char *partnum,
 					}
 					the_mime_parser(nested_partnum,
 						    part_start, part_end,
-							CallBack);
+							CallBack, userdata);
 				}
 				part_start = ptr;
 			}
@@ -348,7 +352,7 @@ void the_mime_parser(char *partnum,
 		mime_decode(partnum,
 			    part_start, length,
 			    content_type, encoding, disposition,
-			    name, filename, CallBack);
+			    name, filename, CallBack, userdata);
 	}
 
 
@@ -370,10 +374,12 @@ void mime_parser(char *content_start, char *content_end,
 		   char *cbdisp,
 		   void *cbcontent,
 		   char *cbtype,
-		   size_t cblength)
+		   size_t cblength,
+		   void *cbuserdata),
+		  void *userdata
 )
 {
 
 	lprintf(9, "mime_parser() called\n");
-	the_mime_parser("", content_start, content_end, CallBack);
+	the_mime_parser("", content_start, content_end, CallBack, userdata);
 }

@@ -13,5 +13,7 @@ void mime_parser(char *content_start, char *content_end,
 			char *cbdisp,
 			void *cbcontent,
 			char *cbtype,
-			size_t cblength)
+			size_t cblength,
+			void *cbuserdata),
+		void *userdata
 		);

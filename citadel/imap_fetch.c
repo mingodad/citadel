@@ -44,6 +44,11 @@
 
 
 
+struct imap_fetch_part {
+	char desired_section[256];
+	FILE *output_fp;
+};
+
 /*
  * Individual field functions for imap_do_fetch_msg() ...
  */
@@ -160,12 +165,16 @@ void imap_fetch_rfc822(int msgnum, char *whichfmt) {
  * FIXME this is TOTALLY BROKEN!!!
  */
 void imap_fetch_part(char *name, char *filename, char *partnum, char *disp,
-		    void *content, char *cbtype, size_t length)
+		    void *content, char *cbtype, size_t length,
+		    void *cbuserdata)
 {
+	struct imap_fetch_part *imfp;
 
-	if (!strcasecmp(partnum, IMAP->desired_part)) {
+	imfp = (struct imap_fetch_part *)cbuserdata;
+
+	if (!strcasecmp(partnum, imfp->desired_section)) {
 		cprintf("part=%s|%s|%s|%s|%s|%d\r\n",
-			name, filename, partnum, disp, cbtype, length);
+			name, filename, partnum, disp, cbtype, length, NULL);
 	}
 }
 
@@ -187,6 +196,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 	long bytes_remaining = 0;
 	long blocksize;
 	long pstart, pbytes;
+	struct imap_fetch_part imfp;
 
 	/* extract section */
 	strcpy(section, item);
@@ -240,9 +250,13 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 	 * Anything else must be a part specifier.
 	 */
 	else {
-		safestrncpy(IMAP->desired_part, section,
-				sizeof(IMAP->desired_part));
-		mime_parser(msg->cm_fields['M'], NULL, *imap_fetch_part);
+		safestrncpy(imfp.desired_section, section,
+				sizeof(imfp.desired_section));
+		imfp.output_fp = tmp;
+
+		mime_parser(msg->cm_fields['M'], NULL,
+				*imap_fetch_part,
+				(void *)&imfp);
 	}
 
 
