@@ -219,8 +219,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		);
 	}
 
-	/* Determine who is the organizer of this event.  This is useless
-	 * for now, but we'll need to determine "me" or "not me" soon.
+	/* Determine who is the organizer of this event.
+	 * We need to determine "me" or "not me."
 	 */
 	organizer = icalcomponent_get_first_property(vevent,
 						ICAL_ORGANIZER_PROPERTY);
