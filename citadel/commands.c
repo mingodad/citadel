@@ -855,7 +855,8 @@ void color(int colornum)
 {
 #ifdef ANSI_COLOR
 	if (enable_color) {
-		printf("\033[3%dm\033[1m", colornum);
+		printf("\033[3%dm", colornum);
+		/* printf("\033[1m"); */ /* uncomment for bold colours */
 		fflush(stdout);
 		}
 #endif

@@ -1,3 +1,6 @@
+Sat Oct 31 20:48:44 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* More stoopid ANSI colour additions
+
 1998-10-31 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* citadel.c, commands.c, commands.h: set background color to black
 	  before clearing screen, so that we can actually see text on

@@ -18,7 +18,7 @@ all: $(TARGETS)
 
 CLIENT_TARGETS=citadel whobbs
 SERVER_TARGETS=citserver setup
-SERV_MODULES=modules/serv_chat.so modules/serv_test.so
+SERV_MODULES=modules/serv_chat.so modules/serv_test.so modules/serv_upgrade.so
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform \
 	readlog rcit stats citmail netpoll mailinglist userlist
 PROXY_TARGETS=proxy
@@ -106,6 +106,9 @@ modules/serv_chat.so: serv_chat.mo
 
 modules/serv_test.so: serv_test.mo
 	$(CC) -shared -o modules/serv_test.so serv_test.mo
+
+modules/serv_upgrade.so: serv_upgrade.mo
+	$(CC) -shared -o modules/serv_upgrade.so serv_upgrade.mo
 
 aidepost: aidepost.o config.o
 	$(CC) aidepost.o config.o $(LDFLAGS) -o aidepost

@@ -452,11 +452,6 @@ void import_databases() {
 void do_import(char *argbuf) {
 	char import_filename[PATH_MAX];
 	
-
-	if (num_parms(argbuf) != 1) {
-		cprintf("%d usage: IMPO unpacked_filename\n", ERROR);
-		return;
-		}
 	extract(import_filename, argbuf, 0);
 	imfp = fopen(import_filename, "rb");
 	if (imfp == NULL) {

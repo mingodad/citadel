@@ -385,25 +385,32 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 		if (!struncmp(buf,"type=",5))
 			format_type=atoi(&buf[5]);
 		if ((!struncmp(buf,"msgn=",5))&&(rc_display_message_numbers)) {
+			color(1);
 			printf("[#%s] ",&buf[5]);
 			}
 		if (!struncmp(buf,"from=",5)) {
+			color(3);
 			printf("from %s ",&buf[5]);
 			}
 		if (!struncmp(buf,"subj=",5))
 			strcpy(m_subject,&buf[5]);
 		if ((!struncmp(buf,"hnod=",5)) 
-		   && (strucmp(&buf[5],serv_info.serv_humannode)))
+		   && (strucmp(&buf[5],serv_info.serv_humannode))) {
+			color(6);
 			printf("(%s) ",&buf[5]);
+			}
 		if ((!struncmp(buf,"room=",5))
-		   && (strucmp(&buf[5],room_name)))
+		   && (strucmp(&buf[5],room_name))) {
+			color(4);
 			printf("in %s> ",&buf[5]);
+			}
 
 		if (!struncmp(buf,"node=",5)) {
 			if ( (room_flags&QR_NETWORK)
 			   || ((strucmp(&buf[5],serv_info.serv_nodename)
    			   &&(strucmp(&buf[5],serv_info.serv_fqdn)))))
 				{
+				color(5);
 				printf("@%s ",&buf[5]);
 				}
 			if ((!strucmp(&buf[5],serv_info.serv_nodename))
@@ -416,13 +423,16 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 				}
 			}
 
-		if (!struncmp(buf,"rcpt=",5))
+		if (!struncmp(buf,"rcpt=",5)) {
+			color(3);
 			printf("to %s ",&buf[5]);
+			}
 		if (!struncmp(buf,"time=",5)) {
 			now=atol(&buf[5]);
 			tm=(struct tm *)localtime(&now);
 			strcpy(buf,asctime(tm)); buf[strlen(buf)-1]=0;
 			strcpy(&buf[16],&buf[19]);
+			color(6);
 			printf("%s ",&buf[4]);
 			}
 		}
