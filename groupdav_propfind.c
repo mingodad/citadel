@@ -3,6 +3,16 @@
  *
  * Handles GroupDAV PROPFIND requests.
  *
+ * A few notes about our XML output:
+ *
+ * --> Yes, we are spewing tags directly instead of using an XML library.
+ *     If you would like to rewrite this using libxml2, code it up and submit
+ *     a patch.  Whining will be summarily ignored.
+ *
+ * --> XML is deliberately output with no whitespace/newlines between tags.
+ *     This makes it difficult to read, but we have discovered clients which
+ *     crash when you try to pretty it up.
+ *
  */
 
 #include <ctype.h>
@@ -80,8 +90,8 @@ void groupdav_folder_list(void) {
 
 	begin_burst();
 
-	wprintf("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-     		"<D:multistatus xmlns:D=\"DAV:\">\n"
+	wprintf("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+     		"<D:multistatus xmlns:D=\"DAV:\">"
 	);
 
 	serv_puts("LKRA");
@@ -96,11 +106,13 @@ void groupdav_folder_list(void) {
 		 * might be interested in.  In the future we may add
 		 * the rest.
 		 */
-		if ((view == VIEW_CALENDAR) || (view == VIEW_TASKS) || (view == VIEW_ADDRESSBOOK) ) {
+		if ((view == VIEW_CALENDAR)
+		   || (view == VIEW_TASKS)
+		   || (view == VIEW_ADDRESSBOOK) ) {
 
-			wprintf(" <D:response>\n");
+			wprintf("<D:response>");
 
-			wprintf("  <D:href>");
+			wprintf("<D:href>");
 			if (strlen(WC->http_host) > 0) {
 				wprintf("%s://%s",
 					(is_https ? "https" : "http"),
@@ -108,35 +120,35 @@ void groupdav_folder_list(void) {
 			}
 			wprintf("/groupdav/");
 			urlescputs(roomname);
-			wprintf("/</D:href>\n");
+			wprintf("/</D:href>");
 
-			wprintf("  <D:propstat>\n");
-			wprintf("   <D:status>HTTP/1.1 200 OK</D:status>\n");
-			wprintf("   <D:prop>\n");
-			wprintf("    <D:displayname>");
-			escputs(		roomname);
-			wprintf(			"</D:displayname>\n");
-			wprintf("    <D:resourcetype><D:collection/>");
+			wprintf("<D:propstat>");
+			wprintf("<D:status>HTTP/1.1 200 OK</D:status>");
+			wprintf("<D:prop>");
+			wprintf("<D:displayname>");
+			escputs(roomname);
+			wprintf("</D:displayname>");
+			wprintf("<D:resourcetype><D:collection/>");
 
 			switch(view) {
 				case VIEW_CALENDAR:
-					wprintf("        <G:vevent-collection />\n");
+					wprintf("<G:vevent-collection />");
 					break;
 				case VIEW_TASKS:
-					wprintf("        <G:vtodo-collection />\n");
+					wprintf("<G:vtodo-collection />");
 					break;
 				case VIEW_ADDRESSBOOK:
-					wprintf("        <G:vcard-collection />\n");
+					wprintf("<G:vcard-collection />");
 					break;
 			}
 
-			wprintf(				"</D:resourcetype>\n");
-			wprintf("   </D:prop>\n");
-			wprintf("  </D:propstat>\n");
-			wprintf(" </D:response>\n");
+			wprintf("</D:resourcetype>");
+			wprintf("</D:prop>");
+			wprintf("</D:propstat>");
+			wprintf("</D:response>");
 		}
 	}
-	wprintf("</D:multistatus>\n\n\n");
+	wprintf("</D:multistatus>\n");
 
 	end_burst();
 }
@@ -212,8 +224,8 @@ void groupdav_propfind(char *dav_pathname) {
 
 	begin_burst();
 
-	wprintf("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-     		"<D:multistatus xmlns:D=\"DAV:\">\n"
+	wprintf("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+     		"<D:multistatus xmlns:D=\"DAV:\">"
 	);
 
 	serv_puts("MSGS ALL");
@@ -235,8 +247,8 @@ void groupdav_propfind(char *dav_pathname) {
 		}
 
 		if (strlen(uid) > 0) {
-			wprintf(" <D:response>\n");
-			wprintf("  <D:href>");
+			wprintf("<D:response>");
+			wprintf("<D:href>");
 			if (strlen(WC->http_host) > 0) {
 				wprintf("%s://%s",
 					(is_https ? "https" : "http"),
@@ -246,16 +258,16 @@ void groupdav_propfind(char *dav_pathname) {
 			urlescputs(WC->wc_roomname);
 			euid_escapize(encoded_uid, uid);
 			wprintf("/%s", encoded_uid);
-			wprintf("</D:href>\n");
-			wprintf("   <D:propstat>\n");
-			wprintf("    <D:status>HTTP/1.1 200 OK</D:status>\n");
-			wprintf("    <D:prop><D:getetag>\"%ld\"</D:getetag></D:prop>\n", msgs[i]);
-			wprintf("   </D:propstat>\n");
-			wprintf(" </D:response>\n");
+			wprintf("</D:href>");
+			wprintf("<D:propstat>");
+			wprintf("<D:status>HTTP/1.1 200 OK</D:status>");
+			wprintf("<D:prop><D:getetag>\"%ld\"</D:getetag></D:prop>", msgs[i]);
+			wprintf("</D:propstat>");
+			wprintf("</D:response>");
 		}
 	}
 
-	wprintf("</D:multistatus>\n\n\n");
+	wprintf("</D:multistatus>\n");
 	end_burst();
 
 	if (msgs != NULL) {
