@@ -172,9 +172,6 @@ void do_login(void) {
 
 void do_welcome(void) {
 
-
-	fprintf(stderr, "DO_WELCOME CALLED, NOFRAMES=%d\n", noframes);
-
 	if (noframes) {
 		printf("HTTP/1.0 200 OK\n");
 		output_headers(1, "_top");
@@ -182,10 +179,6 @@ void do_welcome(void) {
 		escputs(wc_username);
 		wprintf("</H1>\n");
 		/* FIX add user stats here */
-	
-		wprintf("<HR>");
-		embed_main_menu();
-	
 		wDumpContent(1);
 		}
 
@@ -213,7 +206,7 @@ void do_logout(void) {
 	else wprintf("Goodbye\n");
 
 	wprintf("<HR><A HREF=\"/\">Log in again</A></CENTER>\n");
-	wDumpContent(1);
+	wDumpContent(2);
 	serv_puts("QUIT");
 	exit(0);
 	}
