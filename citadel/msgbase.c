@@ -906,11 +906,9 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 		else if (!strcasecmp(cbtype, "text/html")) {
 			ptr = html_to_ascii(content, 80, 0);
 			wlen = strlen(ptr);
-			wptr = ptr;
-			while (wlen--) {
-				ch = *wptr++;
-				if (ch==10) cprintf("\r\n");
-				else cprintf("%c", ch);
+			client_write(ptr, wlen);
+			if (ptr[wlen-1] != '\n') {
+				cprintf("\n");
 			}
 			phree(ptr);
 		}

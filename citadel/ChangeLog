@@ -1,4 +1,8 @@
  $Log$
+ Revision 591.28  2002/05/17 03:57:30  ajc
+ * When doing fixed_output() of converted HTML, output the whole block of
+   data at once instead of one character at a time
+
  Revision 591.27  2002/05/16 04:44:58  ajc
  * Reduce the number of socket writes when doing fixed_output() to avoid
    getting killed by overhead.  (Thanks to IO for the insight)
@@ -3664,3 +3668,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
