@@ -1,4 +1,7 @@
 $Log$
+Revision 212.12  2000/09/24 04:17:16  ajc
+* Templatized the room banner.
+
 Revision 212.11  2000/09/17 03:29:45  ajc
 * Templatized the "<BODY BACKGROUND=...>" type stuff that starts each page.
 
@@ -484,3 +487,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
