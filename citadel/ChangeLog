@@ -1,5 +1,8 @@
-1998-08-02  Nathan Bryant  <bryant@cs.usm.maine.edu>
+Mon Aug  3 23:01:37 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Started developing the server-side API.  This is in its very
+	  initial stages.  See serverapi.c and techdoc/api.txt
 
+1998-08-02  Nathan Bryant  <bryant@cs.usm.maine.edu>
 	* Makefile.in: added config_decls.h to dependencies
 
 Sun Aug  2 21:09:09 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
