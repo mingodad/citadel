@@ -10,12 +10,12 @@
 #include "includes.hpp"
 
 #ifdef __WXMOTIF__
-#include "bitmaps/globe.xpm"
-#include "bitmaps/mail.xpm"
-#include "bitmaps/who.xpm"
-#include "bitmaps/chat.xpm"
-#include "bitmaps/xglobe.xpm"
-#include "bitmaps/goto.xpm"
+#include "/usr/local/share/bitmaps/globe.xpm"
+#include "/usr/local/share/bitmaps/mail.xpm"
+#include "/usr/local/share/bitmaps/who.xpm"
+#include "/usr/local/share/bitmaps/chat.xpm"
+#include "/usr/local/share/bitmaps/xglobe.xpm"
+#include "/usr/local/share/bitmaps/goto.xpm"
 #endif
 
 
@@ -259,12 +259,12 @@ void MyFrame::InitToolBar(wxToolBar* toolBar) {
 
         // Set up the toolbar icons (BMP is available on both GTK and MSW) 
 #ifndef __WXMOTIF__
-	bitmaps[0] = new wxBitmap("bitmaps/globe.bmp",	wxBITMAP_TYPE_BMP);
-	bitmaps[1] = new wxBitmap("bitmaps/mail.bmp",	wxBITMAP_TYPE_BMP);
-	bitmaps[2] = new wxBitmap("bitmaps/who.bmp",	wxBITMAP_TYPE_BMP);
-	bitmaps[3] = new wxBitmap("bitmaps/chat.bmp",	wxBITMAP_TYPE_BMP);
-	bitmaps[4] = new wxBitmap("bitmaps/xglobe.bmp", wxBITMAP_TYPE_BMP);
-	bitmaps[5] = new wxBitmap("bitmaps/goto.bmp",   wxBITMAP_TYPE_BMP);
+	bitmaps[0] = new wxBitmap("/usr/local/share/bitmaps/globe.bmp", wxBITMAP_TYPE_BMP);
+	bitmaps[1] = new wxBitmap("/usr/local/share/bitmaps/mail.bmp", wxBITMAP_TYPE_BMP);
+	bitmaps[2] = new wxBitmap("/usr/local/share/bitmaps/who.bmp", wxBITMAP_TYPE_BMP);
+	bitmaps[3] = new wxBitmap("/usr/local/share/bitmaps/chat.bmp", wxBITMAP_TYPE_BMP);
+	bitmaps[4] = new wxBitmap("/usr/local/share/bitmaps/xglobe.bmp", wxBITMAP_TYPE_BMP);
+	bitmaps[5] = new wxBitmap("/usr/local/share/bitmaps/goto.bmp", wxBITMAP_TYPE_BMP);
 #else
 	bitmaps[0] = new wxBitmap(globe_xpm);
 	bitmaps[1] = new wxBitmap(mail_xpm);
