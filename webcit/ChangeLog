@@ -1,4 +1,7 @@
 $Log$
+Revision 323.66  2002/08/26 02:57:06  ajc
+* Rooms listed on the summary page are now clickable-gotoable
+
 Revision 323.65  2002/08/26 01:24:09  ajc
 * Added a "summary" page (rather sparse for now)
 
@@ -922,4 +925,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

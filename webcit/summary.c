@@ -98,9 +98,11 @@ void new_messages_section(void) {
 		serv_gets(buf);
 		if (buf[0] == '2') {
 			extract(room, &buf[4], 0);
-			wprintf("<TR><TD>");
+			wprintf("<TR><TD><A HREF=\"/dotgoto?room=");
+			urlescputs(room);
+			wprintf("\">");
 			escputs(room);
-			wprintf("</TD><TD>%d/%d</TD></TR>\n",
+			wprintf("</A></TD><TD>%d/%d</TD></TR>\n",
 				extract_int(&buf[4], 1),
 				extract_int(&buf[4], 2)
 			);
