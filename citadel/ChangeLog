@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.70  2002/07/21 15:43:57  error
+ * citadel_ipc.c: Fix for segfault on empty messages
+
  Revision 591.69  2002/07/20 04:05:10  ajc
  * Updated hack.txt with some fresh new information
 
@@ -3821,4 +3824,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

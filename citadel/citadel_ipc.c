@@ -448,10 +448,11 @@ int CtdlIPCGetSingleMessage(long msgnum, int headers, int as_mime,
 		if (strlen(bbb)) {
 			/* Strip trailing whitespace */
 			bbb = (char *)realloc(bbb, strlen(bbb) + 1);
-			mret[0]->text = bbb;
 		} else {
-			free(bbb);
+			bbb = (char *)realloc(bbb, 1);
+			*bbb = '\0';
 		}
+		mret[0]->text = bbb;
 	}
 	return ret;
 }
