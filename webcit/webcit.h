@@ -309,3 +309,4 @@ void set_preference(char *key, char *value);
 void knrooms(void);
 int is_msg_in_mset(char *mset, long msgnum);
 char *safestrncpy(char *dest, const char *src, size_t n);
+void display_addressbook(long msgnum, char alpha);

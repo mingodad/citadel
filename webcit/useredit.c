@@ -24,6 +24,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include "webcit.h"
+#include "webserver.h"
 
 
 
@@ -61,7 +62,8 @@ void select_user_to_edit(char *message)
         }
         wprintf("</SELECT><BR>\n");
 
-        wprintf("<input type=submit name=sc value=\"Edit\">");
+        wprintf("<input type=submit name=sc value=\"Edit configuration\">");
+        wprintf("<input type=submit name=sc value=\"Edit address book entry\">");
         wprintf("</FORM></CENTER>\n");
 
 	wprintf("</TD><TD>"
@@ -78,6 +80,109 @@ void select_user_to_edit(char *message)
 
 	wDumpContent(1);
 }
+
+
+
+/* 
+ * Display the form for editing a user's address book entry
+ */
+void display_edit_address_book_entry(char *username, long usernum) {
+	char roomname[SIZ];
+	char buf[SIZ];
+	char error_message[SIZ];
+	long vcard_msgnum = (-1L);
+	char content_type[SIZ];
+	char partnum[SIZ];
+	int already_tried_creating_one = 0;
+
+	struct stuff_t {
+		struct stuff_t *next;
+		long msgnum;
+	};
+
+	struct stuff_t *stuff = NULL;
+	struct stuff_t *ptr;
+
+
+	/* Locate the user's config room, creating it if necessary */
+	sprintf(roomname, "%010ld.My Citadel Config", usernum);
+	serv_printf("GOTO %s", roomname);
+	serv_gets(buf);
+	if (buf[0] != '2') {
+		serv_printf("CRE8 1|%s|5|", roomname);
+		serv_gets(buf);
+		serv_printf("GOTO %s", roomname);
+		serv_gets(buf);
+		if (buf[0] != '2') {
+			sprintf(error_message,
+				"<IMG SRC=\"static/error.gif\" VALIGN=CENTER>"
+				"%s<BR><BR>\n", &buf[4]);
+			select_user_to_edit(error_message);
+			return;
+		}
+	}
+
+TRYAGAIN:
+	/* Search for the user's vCard */
+	serv_puts("MSGS ALL");
+	serv_gets(buf);
+	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
+		ptr = malloc(sizeof(struct stuff_t));
+		ptr->msgnum = atol(buf);
+		ptr->next = stuff;
+		stuff = ptr;
+	}
+
+	/* Iterate throught the message list looking for vCards */
+	while (stuff != NULL) {
+		serv_printf("MSG0 %ld|2", stuff->msgnum);
+		serv_gets(buf);
+		if (buf[0]=='1') {
+			while(serv_gets(buf), strcmp(buf, "000")) {
+				if (!strncasecmp(buf, "part=", 5)) {
+					extract(partnum, &buf[5], 2);
+					extract(content_type, &buf[5], 4);
+					if (!strcasecmp(content_type,
+					   "text/x-vcard")) {
+						vcard_msgnum = stuff->msgnum;
+					}
+				}
+			}
+		}
+
+		ptr = stuff->next;
+		free(stuff);
+		stuff = ptr;
+	}
+
+	lprintf(9, "vcard_msgnum == %ld\n", vcard_msgnum);
+
+	/* If there's no vcard, create one */
+	if (vcard_msgnum < 0) if (already_tried_creating_one == 0) {
+		already_tried_creating_one = 1;
+		serv_puts("ENT0 1|||4");
+		serv_gets(buf);
+		if (buf[0] == '4') {
+			serv_puts("Content-type: text/x-vcard");
+			serv_puts("");
+			serv_puts("begin:vcard");
+			serv_puts("end:vcard");
+			serv_puts("000");
+		}
+		goto TRYAGAIN;
+	}
+
+	if (vcard_msgnum < 0) {
+		sprintf(error_message,
+			"<IMG SRC=\"static/error.gif\" VALIGN=CENTER>"
+			"Could not create/edit vCard<BR><BR>\n");
+		select_user_to_edit(error_message);
+		return;
+	}
+
+	display_addressbook(vcard_msgnum, 0);
+}
+
 
 
 
@@ -127,6 +232,11 @@ void display_edituser(char *supplied_username) {
 	usernum = extract_long(&buf[4], 6);
 	lastcall = extract_long(&buf[4], 7);
 	purgedays = extract_long(&buf[4], 8);
+
+	if (!strcmp(bstr("sc"), "Edit address book entry")) {
+		display_edit_address_book_entry(username, usernum);
+		return;
+	}
 
 	output_headers(3);	/* No room banner on this screen */
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
