@@ -53,14 +53,14 @@ unsigned long SYM_VCARD;
 #define VC ((struct vcard_internal_info *)CtdlGetUserData(SYM_VCARD))
 
 
-
 /*
- * back end function used by several functions in this module
+ * back end function used by vcard_personal_upload()
  */
-void vcard_gm_backend(long msgnum) {
-	VC->msgnum = msgnum;
+void vcard_replace_backend(long msgnum) {
+	lprintf(9, "doing the replace thing for <%ld>\n", msgnum);
+	CtdlDeleteMessages(CONFIGROOM, msgnum, NULL);
+	CtdlDeleteMessages(ADDRESS_BOOK_ROOM, msgnum, NULL);
 }
-
 
 
 /*
@@ -71,6 +71,8 @@ void vcard_gm_backend(long msgnum) {
 int vcard_personal_upload(struct CtdlMessage *msg) {
 	char *ptr;
 	int linelen;
+        char hold_rm[ROOMNAMELEN];
+        char config_rm[ROOMNAMELEN];
 
 	/* If this isn't the configuration room, or if this isn't a MIME
 	 * message, don't bother.
@@ -88,8 +90,17 @@ int vcard_personal_upload(struct CtdlMessage *msg) {
 			/* Bingo!  The user is uploading a new vCard, so
 			 * delete the old one.
 			 */
-			CtdlDeleteMessages(msg->cm_fields['O'],
-					0L, "text/x-vcard");
+
+        		strcpy(hold_rm, CC->quickroom.QRname);	/* save rm */
+        		MailboxName(config_rm, &CC->usersupp, CONFIGROOM);
+
+        		if (getroom(&CC->quickroom, config_rm) != 0) {
+                		getroom(&CC->quickroom, hold_rm);
+                		return(1);			/* abort */
+        		}
+        		CtdlForEachMessage(MSGS_ALL, 0,
+				"text/x-vcard", vcard_replace_backend);
+        		getroom(&CC->quickroom, hold_rm);	/* return rm */
 			return(0);
 		}
 
@@ -100,6 +111,14 @@ int vcard_personal_upload(struct CtdlMessage *msg) {
 	return(0);
 }
 
+
+
+/*
+ * back end function used by vcard_get_user()
+ */
+void vcard_gm_backend(long msgnum) {
+	VC->msgnum = msgnum;
+}
 
 
 /*
