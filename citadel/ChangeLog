@@ -1,4 +1,7 @@
  $Log$
+ Revision 609.2  2003/08/17 02:58:46  ajc
+ * Changed internal version number to 6.10
+
  Revision 609.1  2003/08/17 02:46:37  ajc
  * Don't fail on "data files too old to be upgraded" for NEW installations
 
@@ -4964,4 +4967,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
