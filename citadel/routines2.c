@@ -17,6 +17,7 @@
 #include <errno.h>
 #include "citadel.h"
 #include "routines2.h"
+#include "routines.h"
 
 void interr(int errnum);
 void strprompt(char *prompt, char *str, int len);
@@ -30,7 +31,6 @@ int haschar(char *st, int ch);
 void progress(long int curr, long int cmax);
 void citedit(FILE *fp, long int base_pos);
 int yesno(void);
-void nukedir(char *dirname);
 
 extern char temp[];
 extern char tempdir[];
@@ -575,4 +575,57 @@ void read_bio(void) {
 	while (serv_gets(buf), strcmp(buf,"000")) {
 		printf("%s\n",buf);
 		}
+	}
+
+
+/* 
+ * General system configuration command
+ */
+void do_system_configuration() {
+	char buf[256];
+	int expire_mode = 0;
+	int expire_value = 0;
+
+	/* Fetch the expire policy (this will silently fail on old servers,
+	 * resulting in "default" policy)
+	 */
+	serv_puts("GPEX site");
+	serv_gets(buf);
+	if (buf[0]=='2') {
+		expire_mode = extract_int(&buf[4], 0);
+		expire_value = extract_int(&buf[4], 1);
+		}
+
+	/* Angels and demons dancing in my head... */
+	do {
+		sprintf(buf, "%d", expire_mode);
+		strprompt("System default essage expire policy (? for list)",
+			buf, 1);
+		if (buf[0] == '?') {
+			printf("\n");
+			printf("1. Never automatically expire messages\n");
+			printf("2. Expire by message count\n");
+			printf("3. Expire by message age\n");
+			}
+		} while((buf[0]<49)||(buf[0]>51));
+	expire_mode = buf[0] - 48;
+
+	/* ...lunatics and monsters underneath my bed */
+	if (expire_mode == 2) {
+		sprintf(buf, "%d", expire_value);
+		strprompt("Keep how many messages online?", buf, 10);
+		expire_value = atol(buf);
+		}
+
+	if (expire_mode == 3) {
+		sprintf(buf, "%d", expire_value);
+		strprompt("Keep messages for how many days?", buf, 10);
+		expire_value = atol(buf);
+		}
+
+	/* Save it */
+	snprintf(buf, sizeof buf, "SPEX site|%d|%d",
+		expire_mode, expire_value);
+	serv_puts(buf);
+	serv_gets(buf);
 	}

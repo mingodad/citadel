@@ -1,5 +1,6 @@
 Sat Oct 24 22:07:56 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Client: added message expiration policy questions to room edit
+	* Client: added <.A>ide <S>ystem configuration command
 
 1998-10-24 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* Makefile.in: Auto dependency generation (may require GNU make, but

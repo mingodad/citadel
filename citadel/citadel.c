@@ -1147,6 +1147,10 @@ case 79:
 	who_is_online(1);
 	break;
 
+case 80:
+	do_system_configuration();
+	break;
+
 case 50:
 	enter_config(2);
 	break;

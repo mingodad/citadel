@@ -155,6 +155,8 @@ cmd=53,1,&.,&Aide,&File,&Send over net
 cmd=54,1,&.,&Aide,&File,&Move
 cmd=70,2,&.,&Aide,&Message edit:
 cmd=78,1,&.,&Aide,&Post
+cmd=80,2,&.,&Aide,&System configuration
+
 cmd=29,0,&.,&Terminate,and &Quit
 cmd=30,0,&.,&Terminate,and &Stay online
 cmd=32,0,&.,&Read,&User listing
@@ -214,7 +216,6 @@ cmd=65,2,&;,&Aide,&Kill floor
 cmd=68,0,&;,&Known rooms
 cmd=66,0,&.,&Enter,&Bio
 cmd=67,0,&.,&Read,&Bio
-
 
 cmd=79,0,&.,&Wholist,&Long
 cmd=75,0,&.,&Wholist,&Roomname
