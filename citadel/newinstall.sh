@@ -215,7 +215,7 @@ install_db () {
 
 install_ldap () {
 	SUM=`sum $LDAP_SOURCE | awk ' { print $1$2 } '`
-	SUMFILE=$SUPPORT/etc/db-easyinstall.sum
+	SUMFILE=$SUPPORT/etc/ldap-easyinstall.sum
 	if [ -r $SUMFILE ] ; then
 		OLDSUM=`cat $SUMFILE`
 		if [ $SUM = $OLDSUM ] ; then
