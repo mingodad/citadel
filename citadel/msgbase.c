@@ -1977,7 +1977,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* Goto the correct room */
-	lprintf(9, "Switching rooms\n");
+	lprintf(9, "Selected room %s\n", (recps) ? CC->room.QRname : SENTITEMS);
 	strcpy(hold_rm, CC->room.QRname);
 	strcpy(actual_rm, CC->room.QRname);
 	if (recps != NULL) {
@@ -1985,7 +1985,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* If the user is a twit, move to the twit room for posting */
-	lprintf(9, "Handling twit stuff\n");
+	lprintf(9, "Handling twit stuff: %s\n",
+			(CC->user.axlevel == 2) ? config.c_twitroom : "OK");
 	if (TWITDETECT) {
 		if (CC->user.axlevel == 2) {
 			strcpy(hold_rm, actual_rm);
@@ -1998,7 +1999,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		strcpy(actual_rm, force_room);
 	}
 
-	lprintf(9, "Possibly relocating\n");
+	lprintf(9, "Final selection: %s\n", actual_rm);
 	if (strcasecmp(actual_rm, CC->room.QRname)) {
 		getroom(&CC->room, actual_rm);
 	}
@@ -2133,7 +2134,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* Go back to the room we started from */
-	lprintf(9, "Returning to original room\n");
+	lprintf(9, "Returning to original room %s\n", hold_rm);
 	if (strcasecmp(hold_rm, CC->room.QRname))
 		getroom(&CC->room, hold_rm);
 

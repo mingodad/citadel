@@ -181,11 +181,11 @@ void RemoveContext (struct CitContext *con)
 	struct CitContext *ptr = NULL;
 	struct CitContext *ToFree = NULL;
 
-	lprintf(9, "RemoveContext() called\n");
 	if (con==NULL) {
 		lprintf(5, "WARNING: RemoveContext() called with NULL!\n");
 		return;
 	}
+	lprintf(9, "RemoveContext() called\n");
 
 	/* Remove the context from the global context list.  This needs
 	 * to get done FIRST to avoid concurrency problems.  It is *vitally*
@@ -229,7 +229,7 @@ void RemoveContext (struct CitContext *con)
 	logout(con);
 
 	unlink(con->temp);
-	lprintf(3, "[%3d] Session ended.\n", con->cs_pid);
+	lprintf(3, "Session ended.\n");
 	syslog(LOG_NOTICE,"Session %d: ended.", con->cs_pid);
 
 	/* Deallocate any user-data attached to this session */
@@ -244,7 +244,7 @@ void RemoveContext (struct CitContext *con)
 	/* Free up the memory used by this context */
 	phree(con);
 
-	lprintf(7, "Done with RemoveContext()\n");
+	lprintf(9, "Done with RemoveContext()\n");
 }
 
 
@@ -507,14 +507,14 @@ void cmd_iden(char *argbuf)
 		}
 	}
 
-	lprintf(7, "client %d/%d/%01d.%02d (%s)\n",
+	lprintf(7, "Client %d/%d/%01d.%02d (%s)\n",
 		dev_code,
 		cli_code,
 		(rev_level / 100),
 		(rev_level % 100),
 		desc);
 
-	syslog(LOG_NOTICE,"session %d: client %d/%d/%01d.%02d (%s) from %s\n",
+	syslog(LOG_NOTICE,"Session %d: Client %d/%d/%01d.%02d (%s) from %s\n",
 		CC->cs_pid,
 		dev_code,
 		cli_code,
