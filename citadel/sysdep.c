@@ -21,6 +21,7 @@
 #include <sys/wait.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <limits.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <string.h>

@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <limits.h>
 #include <netdb.h>
 #include <string.h>
 #include <pthread.h>

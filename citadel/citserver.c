@@ -39,6 +39,11 @@ void master_startup(void) {
 
 	lprintf(7, "Checking floor reference counts\n");
 	check_ref_counts();
+
+	lprintf(7, "Creating base rooms (if necessary)\n");
+	create_room(BASEROOM, 0, "", 0);
+	create_room(AIDEROOM, 4, "", 0);
+	create_room(config.c_twitroom, 0, "", 0);
 	}
 
 /*
@@ -124,8 +129,8 @@ void cleanup_stuff(void *arg)
  */
 void set_wtmpsupp(char *newtext)
 {
-	strncpy(CC->cs_room,newtext,19);
-	CC->cs_room[19] = 0;
+	strncpy(CC->cs_room,newtext,ROOMNAMELEN-1);
+	CC->cs_room[ROOMNAMELEN-1] = 0;
 	time(&CC->cs_lastupdt);
 
 	/* Run any routines registered by loadable modules */
@@ -156,8 +161,8 @@ void cmd_rchg(char *newroomname)
 {
    if ((newroomname) && (newroomname[0]))
    {
-      bzero(CC->fake_roomname, 20);
-      strncpy(CC->fake_roomname, newroomname, 19);
+      bzero(CC->fake_roomname, ROOMNAMELEN);
+      strncpy(CC->fake_roomname, newroomname, ROOMNAMELEN-1);
    }
    else
       CC->fake_roomname[0] = '\0';
@@ -642,7 +647,6 @@ void *context_loop(struct CitContext *con)
 	/* 
 	 * Initialize some variables specific to our context.
 	 */
-	CC->curr_rm = (-1);
 	CC->logged_in = 0;
 	CC->internal_pgm = 0;
 	CC->download_fp = NULL;

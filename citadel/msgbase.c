@@ -28,7 +28,6 @@
 #define MSGS_GT		5
 
 extern struct config config;
-int twitroom=-1;
 
 
 /*
@@ -169,12 +168,8 @@ void cmd_msgs(char *cmdbuf)
 		cprintf("%d not logged in\n",ERROR+NOT_LOGGED_IN);
 		return;
 		}
-	if (CC->curr_rm < 0) {
-		cprintf("%d no room\n",ERROR);
-		return;
-		}
 	get_mm();
-	get_msglist(CC->curr_rm);
+	get_msglist(&CC->quickroom);
 	getuser(&CC->usersupp,CC->curr_user);
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
@@ -249,7 +244,9 @@ void memfmout(int width, char *mptr, char subst)
          		/* where are we going to get our text from? */
            		/* nonzero if we should use hypertext mode */
 	{
-	int a,b,c,real,old;
+	int a,b,c;
+	int real = 0;
+	int old = 0;
 	CIT_UBYTE ch;
 	char aaa[140];
 	char buffer[256];
@@ -346,10 +343,6 @@ void output_message(char *msgid, int mode,
 
 	if ((!(CC->logged_in))&&(!(CC->internal_pgm))) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
-	if (CC->curr_rm < 0) {
-		cprintf("%d No room selected.\n",ERROR);
 		return;
 		}
 
@@ -650,39 +643,6 @@ long send_message(char *message_in_memory,	/* pointer to buffer */
 
 
 
-
-
-/* FIX ... rewrite this to simply check for the existence of the twitroom,
- * and create it if necessary.  No slot-numbers will need to be loaded.
- * (Actually, twitroom should be created during the same portion of startup
- * that creates Lobby/Mail/Aide.)
- */
-void loadtroom(void) {
-	struct quickroom qrbuf;
-	int a;
-	unsigned newflags;
-
-	/* first try to locate the twit room */
-	for (a=0; a<MAXROOMS; ++a) {
-		getroom(&qrbuf,a);
-		if (!strcasecmp(qrbuf.QRname,config.c_twitroom)) {
-			twitroom = a;
-			return;
-			}
-		}
-
-	/* if not found, try to create it  -  put it in the last slot */
-	twitroom = get_free_room_slot(-1);
-	if (twitroom>=0) {
-		newflags = create_room(twitroom,config.c_twitroom,0,"",0);
-		return;
-		}
-
-	/* as a last resort, point to Aide> */
-	twitroom = 2;
-	}
-
-
 /*
  * this is a simple file copy routine.
  */
@@ -717,12 +677,8 @@ void save_message(char *mtmp,	/* file containing proper message */
 		int mailtype,	/* local or remote type, see citadel.h */
 		int generate_id) /* set to 1 to generate an 'I' field */
 {
-	struct usersupp tempUS;
 	char aaa[100];
-	int hold_rm;
-	struct cdbdata *cdbmb;
-	long *dmailbox;
-	int dnum_mails;
+	char hold_rm[ROOMNAMELEN];
 	long newmsgid;
 	char *message_in_memory;
 	struct stat statbuf;
@@ -750,62 +706,63 @@ void save_message(char *mtmp,	/* file containing proper message */
 	newmsgid = send_message(message_in_memory, templen, generate_id);
 	free(message_in_memory);
 	if (newmsgid <= 0L) return;
-	hold_rm=(-1);
+
+	strcpy(hold_rm, "");
 
 	/* If the user is a twit, move to the twit room for posting... */
 	if (TWITDETECT) if (CC->usersupp.axlevel==2) {
-		if (twitroom<0) loadtroom();
-		hold_rm=CC->curr_rm;
-		CC->curr_rm=twitroom;
+		strcpy(hold_rm, CC->cs_room);
+		strcpy(CC->cs_room, config.c_twitroom);
 		}
 
 	/* ...or if this message is destined for Aide> then go there. */
 	if (mtsflag) {
-		hold_rm=CC->curr_rm;
-		CC->curr_rm=2;
+		strcpy(hold_rm, CC->cs_room);
+		strcpy(CC->cs_room, "Aide");
 		}
+
+	/* ...or if this is a private message, go to the target mailbox. */
+	/* FIX FIX FIX do this! */
 
 	/* This call to usergoto() changes rooms if necessary.  It also
 	 * causes the latest message list to be read into memory.
 	 */
-	usergoto(CC->curr_rm,0);
+	lprintf(9, "Changing rooms if necessary...\n");
+	usergoto(CC->cs_room, 0);
 
-	/* Store the message pointer, but NOT for sent mail! */
-	if (CC->curr_rm != 1) {
+	/* read in the quickroom record, obtaining a lock... */
+	lprintf(9, "Reading/locking <%s>...\n", CC->cs_room);
+	lgetroom(&CC->quickroom, CC->cs_room);
+	lprintf(9, "Fetching message list...\n");
+	get_msglist(&CC->quickroom);
 
-		/* read in the quickroom record, obtaining a lock... */
-		lgetroom(&CC->quickroom,CC->curr_rm);
-		get_msglist(CC->curr_rm);
+	/* FIX here's where we have to to message expiry!! */
 
-		/* FIX here's where we have to to message expiry!! */
-
-		/* Now add the new message */
-		CC->num_msgs = CC->num_msgs + 1;
-		CC->msglist = realloc(CC->msglist,
-			((CC->num_msgs) * sizeof(long)) );
-		if (CC->msglist == NULL) {
-			lprintf(3, "ERROR can't realloc message list!\n");
-			}
-		SetMessageInList(CC->num_msgs - 1, newmsgid);
-	
-		/* Write it back to disk. */
-		put_msglist(CC->curr_rm);
-	
-		/* update quickroom */
-		CC->quickroom.QRhighest = newmsgid;
-		lputroom(&CC->quickroom,CC->curr_rm);
+	/* Now add the new message */
+	CC->num_msgs = CC->num_msgs + 1;
+	CC->msglist = realloc(CC->msglist,
+		((CC->num_msgs) * sizeof(long)) );
+	if (CC->msglist == NULL) {
+		lprintf(3, "ERROR can't realloc message list!\n");
 		}
+	SetMessageInList(CC->num_msgs - 1, newmsgid);
+
+	/* Write it back to disk. */
+	lprintf(9, "Writing message list...\n");
+	put_msglist(&CC->quickroom);
+
+	/* update quickroom */
+	CC->quickroom.QRhighest = newmsgid;
+	lprintf(9, "Writing/unlocking room <%s>...\n", CC->cs_room);
+	lputroom(&CC->quickroom,CC->cs_room);
 
 	/* Bump this user's messages posted counter.  Also, if the user is a
 	 * twit, give them access to the twit room.
 	 */
-	lgetuser(&CC->usersupp,CC->curr_user);
+	lgetuser(&CC->usersupp, CC->curr_user);
 	CC->usersupp.posted = CC->usersupp.posted + 1;
 	/* FIX if user is twit, grant access to twitroom here */
 	lputuser(&CC->usersupp, CC->curr_user);
-
-	/* If mail, there's still more to do, if not, skip it. */
-	if ((CC->curr_rm!=1)||(mtsflag)) goto ENTFIN;
 
 	/* Network mail - send a copy to the network program. */
 	if (mailtype!=M_LOCAL) {
@@ -814,47 +771,16 @@ void save_message(char *mtmp,	/* file containing proper message */
 		system("exec nohup ./netproc >/dev/null 2>&1 &");
 		}
 
-	/* Local mail - put a copy in the recipient's mailbox. */
-	/* FIX here's where we have to handle expiry, stuffed boxes, etc. */
-	if (mailtype == M_LOCAL) {
-		if (lgetuser(&tempUS,rec)==0) {
-
-			cdbmb = cdb_fetch(CDB_MAILBOXES,
-					&tempUS.usernum, sizeof(long));
-			if (cdbmb != NULL) {
-				memcpy(dmailbox, cdbmb->ptr, cdbmb->len);
-				dnum_mails = cdbmb->len / sizeof(long);
-				cdb_free(cdbmb);
-				}
-			else {
-				dmailbox = NULL;
-				dnum_mails = 0;
-				}
-	
-			++dnum_mails;
-			if (dmailbox == NULL) {
-				dmailbox = malloc(sizeof(long) * dnum_mails);
-				}
-			else {
-				dmailbox = realloc(dmailbox,
-						sizeof(long) * dnum_mails);
-				}
-			
-			dmailbox[dnum_mails - 1] = newmsgid;
-			cdb_store(CDB_MAILBOXES, &tempUS.usernum, sizeof(long),
-				dmailbox, (dnum_mails * sizeof(long)) );
-			lputuser(&tempUS,rec);
-			free(dmailbox);
-			}
-		}
-
 	/* If we've posted in a room other than the current room, then we
 	 * have to now go back to the current room...
 	 */
-ENTFIN:	if (hold_rm!=(-1)) {
-		usergoto(hold_rm,0);
+	if (strlen(hold_rm) > 0) {
+		lprintf(9, "Returning to <%s>\n", hold_rm);
+		usergoto(hold_rm, 0);
 		}
+	lprintf(9, "Deleting temporary file\n");
 	unlink(mtmp);		/* delete the temporary file */
+	lprintf(9, "Finished with save_message()\n");
 	}
 
 
@@ -970,7 +896,8 @@ void cmd_ent0(char *entargs)
 	char newusername[256];		/* <bc> */
 	char boundary[256];
 
-	int a,b,e;
+	int a,b;
+	int e = 0;
 	int mtsflag = 0;
 	struct usersupp tempUS;
 	char buf[256];
@@ -987,13 +914,10 @@ void cmd_ent0(char *entargs)
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
 		return;
 		}
-	if (CC->curr_rm < 0) {
-		cprintf("%d No room selected.\n",ERROR);
-		return;
-		}
-	if ((CC->usersupp.axlevel<2)&&(CC->curr_rm!=1)) {
-		cprintf("%d Need to be validated to enter (except in Mail> to sysop)\n",
+	if ((CC->usersupp.axlevel<2)&&((CC->quickroom.QRflags&QR_MAILBOX)==0)) {
+		cprintf("%d Need to be validated to enter ",
 			ERROR+HIGHER_ACCESS_REQUIRED);
+		cprintf("(except in %s> to sysop)\n", MAILROOM);
 		return;
 		}
 	if ((CC->usersupp.axlevel<4)&&(CC->quickroom.QRflags&QR_NETWORK)) {
@@ -1013,7 +937,8 @@ void cmd_ent0(char *entargs)
         if (post==2) {			/* <bc> */
            if (CC->usersupp.axlevel<6)
            {
-              cprintf("%d\nYou don't have sufficient permission to do an aide post.\n", ERROR+HIGHER_ACCESS_REQUIRED);
+              cprintf("%d You don't have permission to do an aide post.\n",
+		ERROR+HIGHER_ACCESS_REQUIRED);
               return;
            }
     	   extract(newusername,entargs,4);
@@ -1026,7 +951,7 @@ void cmd_ent0(char *entargs)
 	CC->cs_flags |= CS_POSTING;
 	
 	buf[0]=0;
-	if (CC->curr_rm==1) {
+	if (CC->quickroom.QRflags & QR_MAILBOX) {
 		if (CC->usersupp.axlevel>=2) {
 			strcpy(buf,recipient);
 			}
@@ -1077,10 +1002,10 @@ void cmd_ent0(char *entargs)
 	
 SKFALL: b=MES_NORMAL;
 	if (CC->quickroom.QRflags&QR_ANONONLY) b=MES_ANON;
-	if (CC->quickroom.QRflags&QR_ANON2) {
+	if (CC->quickroom.QRflags&QR_ANONOPT) {
 		if (anon_flag==1) b=MES_AN2;
 		}
-	if (CC->curr_rm!=1) buf[0]=0;
+	if ((CC->quickroom.QRflags & QR_MAILBOX) == 0) buf[0]=0;
 
 	/* If we're only checking the validity of the request, return
 	 * success without creating the message.
@@ -1112,7 +1037,8 @@ void cmd_ent3(char *entargs)
 {
 	char recp[256];
 	char buf[256];
-	int a, e;
+	int a;
+	int e = 0;
 	struct usersupp tempUS;
 	long msglen;
 	long bloklen;
@@ -1124,12 +1050,8 @@ void cmd_ent3(char *entargs)
 		return;
 		}
 
-	if (CC->curr_rm < 0) {
-		cprintf("%d No room selected.\n",ERROR);
-		return;
-		}
-
-	if (CC->curr_rm == 1) {	/* If we're in Mail, check the recipient */
+	/* If we're in Mail, check the recipient */
+	if (CC->quickroom.QRflags & QR_MAILBOX) {
 		extract(recp, entargs, 1);
 		lprintf(9, "aliasing...\n");
 		e=alias(recp);			/* alias and mail type */
@@ -1194,14 +1116,14 @@ void cmd_dele(char *delstr)
 		}
 
 	delnum = atol(delstr);
-	if (CC->curr_rm==1) {
+	if (CC->quickroom.QRflags & QR_MAILBOX) {
 		cprintf("%d Can't delete mail.\n",ERROR);
 		return;
 		}
 	
 	/* get room records, obtaining a lock... */
-	lgetroom(&CC->quickroom,CC->curr_rm);
-	get_msglist(CC->curr_rm);
+	lgetroom(&CC->quickroom,CC->cs_room);
+	get_msglist(&CC->quickroom);
 
 	ok = 0;
 	if (CC->num_msgs > 0) for (a=0; a<(CC->num_msgs); ++a) {
@@ -1214,8 +1136,8 @@ void cmd_dele(char *delstr)
 	CC->num_msgs = sort_msglist(CC->msglist, CC->num_msgs);
 	CC->quickroom.QRhighest = MessageFromList(CC->num_msgs - 1);
 
-	put_msglist(CC->curr_rm);
-	lputroom(&CC->quickroom,CC->curr_rm);
+	put_msglist(&CC->quickroom);
+	lputroom(&CC->quickroom,CC->cs_room);
 	if (ok==1) {
 		cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));
 		cprintf("%d Message deleted.\n",OK);
@@ -1225,28 +1147,19 @@ void cmd_dele(char *delstr)
 
 
 /*
- * move a message to another room    FIX  Rework this to use name indices
+ * move a message to another room
  */
 void cmd_move(char *args)
 {
 	long num;
 	char targ[32];
 	int a;
-	int targ_slot;
 	struct quickroom qtemp;
 	int foundit;
-	struct cdbdata *cdbtarg;
-	long *targmsgs;
-	int targ_count;
 
 	num = extract_long(args,0);
 	extract(targ,args,1);
 	
-	if (CC->curr_rm < 0) {
-		cprintf("%d no room\n",ERROR);
-		return;
-		}
-
 	getuser(&CC->usersupp,CC->curr_user);
 	if ((CC->usersupp.axlevel < 6)
 	   && (CC->usersupp.usernum != CC->quickroom.QRroomaide)) {
@@ -1255,22 +1168,14 @@ void cmd_move(char *args)
 		return;
 		}
 
-	targ_slot = (-1);
-	for (a=0; a<MAXROOMS; ++a) {
-		getroom(&qtemp,a);
-		if (!strcasecmp(qtemp.QRname,targ)) {
-			targ_slot = a;
-			a = MAXROOMS;
-			}
-		}
-	if (targ_slot < 0) {
+	if (getroom(&qtemp, targ) != 0) {
 		cprintf("%d '%s' does not exist.\n",ERROR,targ);
 		return;
 		}
 
 	/* yank the message out of the current room... */
-	lgetroom(&CC->quickroom,CC->curr_rm);
-	get_msglist(CC->curr_rm);
+	lgetroom(&CC->quickroom, CC->cs_room);
+	get_msglist(&CC->quickroom);
 
 	foundit = 0;
 	for (a=0; a<(CC->num_msgs); ++a) {
@@ -1281,37 +1186,16 @@ void cmd_move(char *args)
 		}
 	if (foundit) {
 		CC->num_msgs = sort_msglist(CC->msglist, CC->num_msgs);
-		put_msglist(CC->curr_rm);
+		put_msglist(&CC->quickroom);
 		CC->quickroom.QRhighest = MessageFromList((CC->num_msgs)-1);
 		}
-	lputroom(&CC->quickroom,CC->curr_rm);
+	lputroom(&CC->quickroom,CC->cs_room);
 	if (!foundit) {
 		cprintf("%d msg %ld does not exist.\n",ERROR,num);
 		return;
 		}
 
 	/* put the message into the target room */
-	lgetroom(&qtemp,targ_slot);
-	cdbtarg = cdb_fetch(CDB_MSGLISTS, &targ_slot, sizeof(int));
-	if (cdbtarg != NULL) {
-		targmsgs = malloc(cdbtarg->len);
-		memcpy(targmsgs, cdbtarg->ptr, cdbtarg->len);
-		targ_count = cdbtarg->len / sizeof(long);
-		cdb_free(cdbtarg);
-		}
-	else {
-		targmsgs = NULL;
-		targ_count = 0;
-		}
 
-	++targ_count;
-	targmsgs = realloc(targmsgs, ((CC->num_msgs) * sizeof(long)));
-	targmsgs[targ_count - 1] = num;
-	targ_count = sort_msglist(targmsgs, targ_count);
-	qtemp.QRhighest = targmsgs[targ_count - 1];
-	cdb_store(CDB_MSGLISTS, &targ_slot, sizeof(int),
-			targmsgs, targ_count * sizeof(long));
-	free(targmsgs);
-	lputroom(&qtemp,targ_slot);
-	cprintf("%d ok\n",OK);
+	cprintf("%d FIX FIX FIX implement this!!!!!\n", ERROR);
 	}

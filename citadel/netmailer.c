@@ -20,7 +20,7 @@ void LoadInternetConfig(void);
 void get_config(void);
 struct config config;
 
-char temp[20];
+char temp[32];
 
 char ALIASES[128];
 char CIT86NET[128];

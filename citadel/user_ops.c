@@ -196,7 +196,12 @@ void CtdlGetRelationship(struct visit *vbuf,
 	
 	free(visits);
 	}
-	
+
+
+void MailboxName(char *buf, struct usersupp *who, char *prefix) {
+	sprintf(buf, "%010ld.%s", who->usernum, prefix);
+	}
+
 	
 /*
  * Is the user currently logged in an Aide?
@@ -323,7 +328,7 @@ void session_startup(void) {
 	cprintf("%d %s|%d|%d|%d|%u|%ld\n",OK,CC->usersupp.fullname,CC->usersupp.axlevel,
 		CC->usersupp.timescalled,CC->usersupp.posted,CC->usersupp.flags,
 		CC->usersupp.usernum);
-	usergoto(0,0);		/* Enter the lobby */	
+	usergoto(BASEROOM,0);		/* Enter the lobby */	
 	rec_log(CL_LOGIN,CC->curr_user);
 	}
 
@@ -461,6 +466,7 @@ int create_user(char *newusername)
 	int a;
 	struct passwd *p = NULL;
 	char username[64];
+	char mailboxname[ROOMNAMELEN];
 
 	strcpy(username, newusername);
 	strproc(username);
@@ -517,6 +523,11 @@ int create_user(char *newusername)
 	if (getuser(&CC->usersupp,CC->curr_user)) {
 		return(ERROR+INTERNAL_ERROR);
 		}
+	
+	/* give the user a private mailbox */
+	MailboxName(mailboxname, &CC->usersupp, MAILROOM);
+	create_room(mailboxname, 4, "", 0);
+
 	rec_log(CL_NEWUSER,CC->curr_user);
 	return(0);
 	}
@@ -661,16 +672,8 @@ void cmd_slrp(char *new_ptr)
 		return;
 		}
 
-	if (CC->curr_rm < 0) {
-		cprintf("%d No current room.\n",ERROR);
-		return;
-		}
-
 	if (!strncasecmp(new_ptr,"highest",7)) {
 		newlr = CC->quickroom.QRhighest;
-/* FIX ... if the current room is 1 (Mail), newlr needs to be set to the
- * number of the highest mail message
- */
 		}
 	else {
 		newlr = atol(new_ptr);
@@ -699,11 +702,6 @@ void cmd_invt_kick(char *iuser, int op)
 
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
-
-	if (CC->curr_rm < 0) {
-		cprintf("%d No current room.\n",ERROR);
 		return;
 		}
 
@@ -770,16 +768,6 @@ void cmd_forg(void) {
 		return;
 		}
 
-	if (CC->curr_rm < 0) {
-		cprintf("%d No current room.\n",ERROR);
-		return;
-		}
-
-	if (CC->curr_rm < 3) {
-		cprintf("%d You cannot forget this room.\n",ERROR+NOT_HERE);
-		return;
-		}
-
 	if (is_aide()) {
 		cprintf("%d Aides cannot forget rooms.\n",ERROR);
 		return;
@@ -793,7 +781,7 @@ void cmd_forg(void) {
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 	lputuser(&CC->usersupp,CC->curr_user);
 	cprintf("%d Ok\n",OK);
-	CC->curr_rm = (-1);
+	usergoto(BASEROOM, 0);
 	}
 
 /*
@@ -1304,8 +1292,14 @@ int NewMailCount() {
 	int num_mails;
 	long *mailbox;
 	int a;
+	char mailboxname[32];
 
-	cdbmb = cdb_fetch(CDB_MAILBOXES, &CC->usersupp.usernum, sizeof(long));
+	MailboxName(mailboxname, &CC->usersupp, MAILROOM);
+	for (a=0; a<=strlen(mailboxname); ++a) {
+		mailboxname[a] = tolower(mailboxname[a]);
+		}
+
+	cdbmb = cdb_fetch(CDB_MAILBOXES, mailboxname, strlen(mailboxname));
 	if (cdbmb != NULL) {
 		num_mails = cdbmb->len / sizeof(long);
 		mailbox = (long *) cdbmb->ptr;

@@ -1,4 +1,3 @@
-
 typedef pthread_t THREAD;
 
 
@@ -26,7 +25,6 @@ struct CitContext {
 	int num_msgs;
 
         char curr_user[32];		/* name of current user */
-        int curr_rm;			/* index of current room */
         int logged_in;			/* logged in */
         int internal_pgm;		/* authenticated as internal program */
         char temp[32];			/* temp file name */

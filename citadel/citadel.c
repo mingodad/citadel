@@ -60,7 +60,7 @@ int screenwidth;
 int screenheight;
 unsigned room_flags;
 char room_name[32];
-char ugname[20];
+char ugname[ROOMNAMELEN];
 long uglsn;				/* holds <u>ngoto info */
 char is_mail = 0;			/* nonzero when we're in a mail room */
 char axlevel = 0;			/* access level */

@@ -812,7 +812,7 @@ int entmsg(int is_reply, int c)
 		}
 
 	b=0;
-	if (room_flags&QR_ANON2) {
+	if (room_flags&QR_ANONOPT) {
 		printf("Anonymous (Y/N)? ");
 		if (yesno()==1) b=1;
 		}
@@ -944,7 +944,7 @@ void readmsgs(int c, int rdir, int q)	/* read contents of a room */
 	char prtfile[16];
 	char pagin;
 	char cmd[256];
-	char targ[20];
+	char targ[ROOMNAMELEN];
 
 	signal(SIGINT,SIG_IGN);
 	signal(SIGQUIT,SIG_IGN);
@@ -1076,7 +1076,8 @@ RMSGREAD:	fflush(stdout);
 		   case 'a':	goto RAGAIN;
 		   case 'b':	a=a-(rdir*2);
 				break;
-		   case 'm':	newprompt("Enter target room: ",targ,19);
+		   case 'm':	newprompt("Enter target room: ",
+					targ,ROOMNAMELEN-1);
 				if (strlen(targ)>0) {
 					sprintf(cmd,"MOVE %ld|%s",
 						msg_arr[a],targ);

@@ -7,6 +7,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <limits.h>
 #include <pthread.h>
 #include "citadel.h"
 #include "server.h"
@@ -67,7 +68,6 @@ void cmd_movf(char *cmdbuf)
 	char newroom[256];
 	char buf[256];
 	int a;
-	int target_room = (-1);
 	struct quickroom qrbuf;
 
 	extract(filename,cmdbuf,0);
@@ -104,16 +104,11 @@ void cmd_movf(char *cmdbuf)
 		return;
 		}
 
-	for (a=0; a<MAXROOMS; ++a) {
-		getroom(&qrbuf,a);
-		if (!strcasecmp(qrbuf.QRname,newroom)) target_room = a;
-		}
-	if (target_room < 0) {
-		cprintf("%d Room '%s' not found.\n",
-			ERROR+ROOM_NOT_FOUND,newroom);
+	if (getroom(&qrbuf, newroom)!=0) {
+		cprintf("%d '%s' does not exist.\n",
+			ERROR, newroom);
 		return;
 		}
-	getroom(&qrbuf, target_room);
 	if ((qrbuf.QRflags & QR_DIRECTORY) == 0) {
 		cprintf("%d '%s' is not a directory room.\n",
 			ERROR+NOT_HERE,qrbuf.QRname);
@@ -318,7 +313,7 @@ void cmd_oimg(char *cmdbuf)
 		sprintf(pathname, "./images/floor.%d.gif", which_floor);
 		}
 	else if (!strcasecmp(filename, "_roompic_")) {
-		sprintf(pathname, "./images/room.%d.gif", CC->curr_rm);
+		assoc_file_name(pathname, &CC->quickroom, "images");
 		}
 	else {
 		for (a=0; a<strlen(filename); ++a) {
@@ -438,7 +433,7 @@ void cmd_uimg(char *cmdbuf)
 		}
 
 	if ( (!strcasecmp(basenm, "_roompic_")) && (is_room_aide()) ) {
-		sprintf(CC->upl_path, "./images/room.%d.gif", CC->curr_rm);
+		assoc_file_name(CC->upl_path, &CC->quickroom, "images");
 		}
 
 	if (strlen(CC->upl_path) == 0) {

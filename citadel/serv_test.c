@@ -9,6 +9,7 @@
 #include <sys/time.h>
 #include <sys/wait.h>
 #include <string.h>
+#include <limits.h>
 #include <pthread.h>
 #include "citadel.h"
 #include "server.h"

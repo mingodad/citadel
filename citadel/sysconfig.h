@@ -54,8 +54,7 @@
 
 /*** STRUCTURE SIZE VARIABLES ***/
 
-/* You may NOT change these values once you set up your system.	    */
-#define MAXROOMS	128		/* Number of rooms in system        */
+/* You may NOT change this value once you set up your system.	    */
 #define MAXFLOORS	16		/* Do not set higher than 127       */
 
 /*** END OF STRUCTURE SIZE VARIABLES ***/

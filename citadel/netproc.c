@@ -52,12 +52,12 @@
 struct msglist {
 	struct msglist *next;
 	long m_num;
-	char m_rmname[20];
+	char m_rmname[ROOMNAMELEN];
 	};
 
 struct rmlist {
 	struct rmlist *next;
-	char rm_name[20];
+	char rm_name[ROOMNAMELEN];
 	long rm_lastsent;
 	};
 

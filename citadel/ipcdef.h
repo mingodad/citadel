@@ -50,11 +50,11 @@ struct CtdlServInfo {
 #define QR_DOWNLOAD	128		/* Allowed to download              */
 #define QR_VISDIR	256		/* Visible directory                */
 #define QR_ANONONLY	512		/* Anonymous-Only room              */
-#define QR_ANON2	1024		/* Anonymous-Option room            */
+#define QR_ANONOPT	1024		/* Anonymous-Option room            */
 #define QR_NETWORK	2048		/* Shared network room              */
 #define QR_PREFONLY	4096		/* Preferred status needed to enter */
 #define QR_READONLY	8192		/* Aide status required to post     */
-
+#define QR_MAILBOX	16384		/* Set if this is a private mailbox */
 
 #define US_NEEDVALID	1		/* User needs to be validated       */
 #define US_PERM		4		/* Permanent user                   */
@@ -72,18 +72,3 @@ struct CtdlServInfo {
 
 void serv_puts(char *buf);
 void serv_gets(char *buf);
-
-struct CtdlServerHandle {
-	char ServerAddress[64];
-	int ServerPort;
-	char ipgmSecret[32];
-	char UserName[32];
-	char Password[32];
-	char InitialRoom[32];
-	int AssocClientSession;
-	};
-
-struct CtdlRoomInfo {
-	char RoomName[32];
-	time_t mtime;
-	};

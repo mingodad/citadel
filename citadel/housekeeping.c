@@ -11,6 +11,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
+#include <limits.h>
 #include <pthread.h>
 #include "citadel.h"
 #include "server.h"

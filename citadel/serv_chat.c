@@ -9,6 +9,7 @@
 #include <sys/time.h>
 #include <sys/wait.h>
 #include <string.h>
+#include <limits.h>
 #include <pthread.h>
 #include "citadel.h"
 #include "server.h"
@@ -95,7 +96,7 @@ void allwrite(char *cmdbuf, int flag, char *roomname, char *username)
 	time(&now);
 	clnew->next = NULL;
 	clnew->chat_time = now;
-	strncpy(clnew->chat_room, roomname, 19);
+	strncpy(clnew->chat_room, roomname, ROOMNAMELEN-1);
 	if (username)
   	   strncpy(clnew->chat_username, username, 31); 
   	else
@@ -195,7 +196,7 @@ void cmd_chat(char *argbuf)
 	char cmdbuf[256];
 	char *un;
 	char *strptr1;
-	char hold_cs_room[20];
+	char hold_cs_room[ROOMNAMELEN];
 	int MyLastMsg, ThisLastMsg;
 	struct ChatLine *clptr;
 	struct CitContext *t_context;
@@ -308,7 +309,7 @@ void cmd_chat(char *argbuf)
 			      strcpy(CC->chat_room, "Main room");
 			   else
 			   {
-   			      strncpy(CC->chat_room, &cmdbuf[6], 20);
+   			      strncpy(CC->chat_room, &cmdbuf[6], ROOMNAMELEN);
 			   }
 		           allwrite("<joining room>",0, CC->chat_room, NULL);
 		           cprintf("\n");
@@ -337,7 +338,7 @@ void cmd_chat(char *argbuf)
 			{
  		           if ((clptr->chat_seq > MyLastMsg) && ((!clptr->chat_username[0]) || (!strncasecmp(un, clptr->chat_username, 32))))
 		           {
-			      if ((!clptr->chat_room[0]) || (!strncasecmp(CC->chat_room, clptr->chat_room, 20)))
+			      if ((!clptr->chat_room[0]) || (!strncasecmp(CC->chat_room, clptr->chat_room, ROOMNAMELEN)))
   			      {
 			         cprintf("%s\n", clptr->chat_text);
 			      }

@@ -514,12 +514,12 @@ void netsendfile(void) {
  */
 void movefile(void) {
 	char filename[64];
-	char newroom[20];
+	char newroom[ROOMNAMELEN];
 	char cmd[256];
 
 	newprompt("Filename: ",filename,63);
 	if (strlen(filename)==0) return;
-	newprompt("Enter target room: ",newroom,19);
+	newprompt("Enter target room: ",newroom,ROOMNAMELEN-1);
 
 	sprintf(cmd,"MOVF %s|%s",filename,newroom);
 	serv_puts(cmd);

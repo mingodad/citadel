@@ -1,3 +1,8 @@
+Sun Oct  4 23:35:18 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Did the big migration to the new data structures.  Lots of stuff is
+	  now broken.  Basic moving from room to room works, but Mail is
+	  broken, and some of the administrative commands are unimplemented.
+
 1998-10-02 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* configure.in: autologin now defaults to disabled
 

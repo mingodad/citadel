@@ -255,7 +255,7 @@ int select_floor(int rfloor)
  * .<A>ide <E>dit room
  */
 void editthisroom(void) {
-	char rname[20];
+	char rname[ROOMNAMELEN];
 	char rpass[10];
 	char rdir[15];
 	unsigned rflags;
@@ -284,7 +284,7 @@ void editthisroom(void) {
 	else strcpy(raide,"");
 	if (strlen(raide)==0) strcpy(raide,"none");
 
-	strprompt("Room name",rname,19);
+	strprompt("Room name",rname,ROOMNAMELEN-1);
 
 	rfloor = select_floor(rfloor);
 	rflags = set_room_attr(rflags,"Private room",QR_PRIVATE);
@@ -331,7 +331,7 @@ void editthisroom(void) {
 	if ( (rflags & QR_ANONONLY) == 0) {
 		rflags = set_room_attr(rflags,
 			"Ask users whether to make messages anonymous",
-			QR_ANON2);
+			QR_ANONOPT);
 		}
 
 	do {
@@ -690,7 +690,7 @@ void forget(void) {	/* forget the current room */
  */
 void entroom(void) {
 	char cmd[256];
-	char new_room_name[20];
+	char new_room_name[ROOMNAMELEN];
 	int new_room_type;
 	char new_room_pass[10];
 	int new_room_floor;
@@ -704,7 +704,7 @@ void entroom(void) {
 		return;
 		}
 	
-	newprompt("Name for new room? ",new_room_name,19);
+	newprompt("Name for new room? ",new_room_name,ROOMNAMELEN-1);
 	if (strlen(new_room_name)==0) return;
 	for (a=0; a<strlen(new_room_name); ++a)
 		if (new_room_name[a] == '|') new_room_name[a]='_';
