@@ -1,4 +1,8 @@
 $Log$
+Revision 212.9  2000/09/13 04:13:59  ajc
+* Completed the initial hack of the variable substitution template thingy.
+  Check out static/login.html to see the first template.
+
 Revision 212.8  2000/09/11 17:08:16  ajc
 * Started templatizing the login screen.  Not finished yet.
 
@@ -473,4 +477,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

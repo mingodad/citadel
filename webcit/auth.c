@@ -45,16 +45,23 @@ char *axdefs[] =
  */
 void display_login(char *mesg)
 {
+	char buf[256];
+
 	output_headers(3);
 
-	/*
-	mesg = mesg
-	hello = "mesg hello"
-	humannode = config.c_humannode
-	*/
+	if (mesg != NULL) if (strlen(mesg) > 0) {
+		stresc(buf, mesg, 0);
+		svprintf("mesg", WCS_STRING, "%s", buf);
+	}
+
+	stresc(buf, serv_info.serv_humannode, 1);
+	svprintf("humannode", WCS_STRING, "%s", buf);
+
+	svprintf("hello", WCS_SERVCMD, "MESG hello");
 
 	do_template("login.html");
 
+	clear_local_substs();
 	wDumpContent(0);	/* No menu here; not logged in yet! */
 }
 

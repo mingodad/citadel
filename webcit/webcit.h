@@ -104,7 +104,8 @@ struct wcsubst {
  */
 enum {
 	WCS_STRING,
-	WCS_FUNCTION
+	WCS_FUNCTION,
+	WCS_SERVCMD
 };
 	
 
@@ -190,6 +191,7 @@ void wprintf(const char *format,...);
 void extract(char *dest, char *source, int parmnum);
 int extract_int(char *source, int parmnum);
 void output_static(char *what);
+void stresc(char *target, char *strbuf, int nbsp);
 void escputs(char *strbuf);
 void url(char *buf);
 void escputs1(char *strbuf, int nbsp);
@@ -279,5 +281,5 @@ void end_webcit_session(void);
 void page_popup(void);
 void http_redirect(char *);
 void clear_local_substs(void);
-void svprintf(char *keyname, const char *format,...);
+void svprintf(char *keyname, int keytype, const char *format,...);
 void do_template(void *templatename);

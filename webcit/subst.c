@@ -41,7 +41,8 @@ void clear_local_substs(void) {
 	while (WC->vars != NULL) {
 		ptr = WC->vars->next;
 
-		if (WC->vars->wcs_type == WCS_STRING) {
+		if ((WC->vars->wcs_type == WCS_STRING)
+		   || (WC->vars->wcs_type == WCS_SERVCMD)) {
 			free(WC->vars->wcs_value);
 		}
 
@@ -54,7 +55,7 @@ void clear_local_substs(void) {
 /*
  * Add a substitution variable (local to this session)
  */
-void svprintf(char *keyname, const char *format,...)
+void svprintf(char *keyname, int keytype, const char *format,...)
 {
 	va_list arg_ptr;
 	char wbuf[1024];
@@ -66,11 +67,38 @@ void svprintf(char *keyname, const char *format,...)
 
 	ptr = (struct wcsubst *) malloc(sizeof(struct wcsubst));
 	ptr->next = WC->vars;
-	ptr->wcs_type = WCS_STRING;
+	ptr->wcs_type = keytype;
 	strcpy(ptr->wcs_key, keyname);
 	ptr->wcs_value = malloc(strlen(wbuf)+1);
 	strcpy(ptr->wcs_value, wbuf);
 	WC->vars = ptr;
+}
+
+
+
+/*
+ * back end for print_value_of() ... does a server command
+ */
+void pvo_do_cmd(char *servcmd) {
+	char buf[256];
+
+	serv_puts(servcmd);
+	serv_gets(buf);
+
+	switch(buf[0]) {
+		case '2':
+		case '3':
+		case '5':
+			wprintf("%s\n", &buf[4]);
+			break;
+		case '1':
+			fmout(NULL);
+			break;
+		case '4':
+			wprintf("%s\n", &buf[4]);
+			serv_puts("000");
+			break;
+	}
 }
 
 
@@ -85,6 +113,9 @@ void print_value_of(char *keyname) {
 		if (!strcasecmp(ptr->wcs_key, keyname)) {
 			if (ptr->wcs_type == WCS_STRING) {
 				wprintf("%s", ptr->wcs_value);
+			}
+			else if (ptr->wcs_type == WCS_SERVCMD) {
+				pvo_do_cmd(ptr->wcs_value);
 			}
 		}
 	}
@@ -132,9 +163,11 @@ void do_template(void *templatename) {
 					if (inbuf[j]=='>') pos = j;
 				}
 				if (pos > 0) {
+					wprintf("%s", outbuf);
+					strcpy(outbuf, "");
+					olen = 0;
 					strncpy(key, &inbuf[i+2], pos-i-2);
 					print_value_of(key);
-					olen = strlen(outbuf);
 					i = pos;
 				}
 				else {
