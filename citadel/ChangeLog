@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.64  2001/10/17 19:40:38  nbryant
+ warning fixes and cleanups for 64-bit machines
+
  Revision 580.63  2001/10/16 20:47:37  nbryant
  - backed out -export-dynamic, it doesn't do anything and i've found the real
  problem
@@ -2821,3 +2824,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

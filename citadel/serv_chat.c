@@ -43,6 +43,10 @@
 #include "user_ops.h"
 #include "room_ops.h"
 
+#ifndef HAVE_SNPRINTF
+#include "snprintf.h"
+#endif
+
 struct ChatLine *ChatQueue = NULL;
 int ChatLastMsg = 0;
 

@@ -123,7 +123,7 @@ void lprintf(int loglevel, const char *format, ...) {
 		fprintf(stderr, "%04d/%02d/%02d %2d:%02d:%02d.%03ld %s",
 			tim->tm_year + 1900, tim->tm_mon + 1, tim->tm_mday,
 			tim->tm_hour, tim->tm_min, tim->tm_sec,
-			tv.tv_usec / 1000, buf);
+			(long)tv.tv_usec / 1000, buf);
 		fflush(stderr);
 	}
 

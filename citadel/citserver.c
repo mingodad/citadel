@@ -57,6 +57,10 @@
 #include "control.h"
 #include "tools.h"
 
+#ifndef HAVE_SNPRINTF
+#include "snprintf.h"
+#endif
+
 struct CitContext *ContextList = NULL;
 char *unique_session_numbers;
 int ScheduledShutdown = 0;

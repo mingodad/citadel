@@ -92,11 +92,11 @@ AC_PROG_CC
 dnl Set up system-dependent compiler flags.
 if test "$GCC" = yes; then
 	case "$host" in
-		*-*-solaris*)
-			CFLAGS="$CFLAGS -Wall -Wno-char-subscripts"
+		*-*-solaris*|alpha*-dec-osf*)
+			CFLAGS="$CFLAGS -Wall -Wcast-align -Wno-char-subscripts"
 		;;
 		*)
-			CFLAGS="$CFLAGS -Wall -Wstrict-prototypes"
+			CFLAGS="$CFLAGS -Wall -Wcast-align -Wstrict-prototypes"
 		;;
 	esac
 fi

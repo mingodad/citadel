@@ -44,6 +44,9 @@
 #include "tools.h"
 #include "citserver.h"
 
+#ifndef HAVE_SNPRINTF
+#include "snprintf.h"
+#endif
 
 /*
  * network_talking_to()  --  concurrency checker

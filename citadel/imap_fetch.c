@@ -218,7 +218,7 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 			}
 			fprintf(imfp->output_fp, "\r\n");
 		}
-		fprintf(imfp->output_fp, "Content-Length: %d\r\n", length);
+		fprintf(imfp->output_fp, "Content-Length: %ld\r\n", (long)length);
 		fprintf(imfp->output_fp, "\r\n");
 	}
 			

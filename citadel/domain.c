@@ -93,13 +93,15 @@ void sort_mxrecs(struct mx *mxrecs, int num_mxrecs) {
  *
  */
 int getmx(char *mxbuf, char *dest) {
-	char answer[1024];
+	union {
+			u_char bytes[1024];
+			HEADER header;
+    } answer;
 	int ret;
 	unsigned char *startptr, *endptr, *ptr;
 	char expanded_buf[1024];
 	unsigned short pref, type;
 	int n = 0;
-	HEADER *hp;
 	int qdcount;
 
 	struct mx *mxrecs = NULL;
@@ -116,7 +118,7 @@ int getmx(char *mxbuf, char *dest) {
 	 */
 	ret = res_query(
 		dest,
-		C_IN, T_MX, (unsigned char *)answer, sizeof(answer)  );
+		C_IN, T_MX, (unsigned char *)answer.bytes, sizeof(answer)  );
 
 	if (ret < 0) {
 		mxrecs = mallok(sizeof(struct mx));
@@ -130,12 +132,11 @@ int getmx(char *mxbuf, char *dest) {
 		if (ret > sizeof(answer))
 			ret = sizeof(answer);
 	
-		hp = (HEADER *)&answer[0];
-		startptr = &answer[0];		/* start and end of buffer */
-		endptr = &answer[ret];
+		startptr = &answer.bytes[0];		/* start and end of buffer */
+		endptr = &answer.bytes[ret];
 		ptr = startptr + HFIXEDSZ;	/* advance past header */
 	
-		for (qdcount = ntohs(hp->qdcount); qdcount--; ptr += ret + QFIXEDSZ) {
+		for (qdcount = ntohs(answer.header.qdcount); qdcount--; ptr += ret + QFIXEDSZ) {
 			if ((ret = dn_skipname(ptr, endptr)) < 0) {
 				lprintf(9, "dn_skipname error\n");
 				return(0);

@@ -18,6 +18,10 @@
 #include "imap_tools.h"
 
 
+#ifndef HAVE_SNPRINTF
+#include "snprintf.h"
+#endif
+
 /*
  * Output a string to the IMAP client, either as a literal or quoted.
  * (We do a literal if it has any double-quotes or backslashes.)

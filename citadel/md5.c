@@ -89,7 +89,7 @@ void MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len)
 	}
 	memcpy(p, buf, t);
 	byteReverse(ctx->in, 16);
-	MD5Transform(ctx->buf, (cit_uint32_t *) ctx->in);
+	MD5Transform(ctx->buf, ctx->in);
 	buf += t;
 	len -= t;
     }
@@ -98,7 +98,7 @@ void MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len)
     while (len >= 64) {
 	memcpy(ctx->in, buf, 64);
 	byteReverse(ctx->in, 16);
-	MD5Transform(ctx->buf, (cit_uint32_t *) ctx->in);
+	MD5Transform(ctx->buf, ctx->in);
 	buf += 64;
 	len -= 64;
     }
@@ -122,7 +122,7 @@ void MD5Final(unsigned char digest[16], struct MD5Context *ctx)
 
     /* Set the first char of padding to 0x80.  This is safe since there is
        always at least one byte free */
-    p = ctx->in + count;
+    p = ((unsigned char*)ctx->in) + count;
     *p++ = 0x80;
 
     /* Bytes of padding needed to make 64 bytes */
@@ -133,7 +133,7 @@ void MD5Final(unsigned char digest[16], struct MD5Context *ctx)
 	/* Two lots of padding:  Pad the first block to 64 bytes */
 	memset(p, 0, count);
 	byteReverse(ctx->in, 16);
-	MD5Transform(ctx->buf, (cit_uint32_t *) ctx->in);
+	MD5Transform(ctx->buf, ctx->in);
 
 	/* Now fill the next block with 56 bytes */
 	memset(ctx->in, 0, 56);
@@ -336,7 +336,7 @@ void MD5Transform(cit_uint32_t buf[4], cit_uint32_t const in[16])
  * md5 string
  */
 
-char *make_apop_string(char *realpass, char *nonce, u_char *buffer)
+char *make_apop_string(char *realpass, char *nonce, char *buffer)
 {
    struct MD5Context ctx;
    u_char rawdigest[MD5_DIGEST_LEN];
@@ -344,9 +344,9 @@ char *make_apop_string(char *realpass, char *nonce, u_char *buffer)
    
    MD5Init(&ctx);
 //   printf("MD5@@: Adding nonce: %s\n", nonce);
-   MD5Update(&ctx, nonce, strlen(nonce));
+   MD5Update(&ctx, (u_char*)nonce, strlen(nonce));
 //   printf("MD5@@: Adding password %s\n", realpass);
-   MD5Update(&ctx, realpass, strlen(realpass));
+   MD5Update(&ctx, (u_char*)realpass, strlen(realpass));
    MD5Final(rawdigest, &ctx);
    for (i=0; i<MD5_DIGEST_LEN; i++)
    {

@@ -25,6 +25,11 @@
 #include "citadel.h"
 #include "config.h"
 
+#ifndef HAVE_SNPRINTF
+#include "snprintf.h"
+#endif
+
+
 static void make_message(FILE *fp, char *target_room, char *author)
 {
 	int a;

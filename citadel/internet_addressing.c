@@ -49,6 +49,11 @@
 #include "parsedate.h"
 
 
+#ifndef HAVE_SNPRINTF
+#include "snprintf.h"
+#endif
+
+
 struct trynamebuf {
 	char buffer1[SIZ];
 	char buffer2[SIZ];

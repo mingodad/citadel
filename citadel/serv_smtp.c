@@ -51,6 +51,10 @@
 #include "clientsocket.h"
 
 
+#ifndef HAVE_SNPRINTF
+#include "snprintf.h"
+#endif
+
 struct citsmtp {		/* Information about the current session */
 	int command_state;
 	char helo_node[SIZ];

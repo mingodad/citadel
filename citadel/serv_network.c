@@ -56,6 +56,10 @@
 #include "clientsocket.h"
 #include "file_ops.h"
 
+#ifndef HAVE_SNPRINTF
+#include "snprintf.h"
+#endif
+
 
 /*
  * When we do network processing, it's accomplished in two passes; one to
@@ -167,7 +171,7 @@ int network_usetable(int operation, struct CtdlMessage *msg) {
 					sprintf(&serialized_table[strlen(
 					  serialized_table)], "%s|%ld\n",
 					    ut->message_id,
-					    ut->timestamp);
+					    (long)ut->timestamp);
 				}
 
 				/* Now free the memory */
@@ -233,7 +237,7 @@ void write_network_map(void) {
 				sprintf(&serialized_map[strlen(serialized_map)],
 					"%s|%ld|%s\n",
 					nmptr->nodename,
-					nmptr->lastcontact,
+					(long)nmptr->lastcontact,
 					nmptr->nexthop);
 			}
 		}
@@ -442,7 +446,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 		sprintf(instr,
 			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
 			"bounceto|postmaster@%s\n" ,
-			SPOOLMIME, msgnum, time(NULL), config.c_fqdn );
+			SPOOLMIME, msgnum, (long)time(NULL), config.c_fqdn );
 	
 		/* Generate delivery instructions for each recipient */
 		for (nptr = sc->listrecps; nptr != NULL; nptr = nptr->next) {
@@ -731,7 +735,7 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 		phree(msg->cm_fields['I']);
 	}
 	sprintf(buf, "%ld.%04x.%04x@%s",
-		time(NULL), getpid(), ++serialnum, config.c_fqdn);
+		(long)time(NULL), getpid(), ++serialnum, config.c_fqdn);
 	msg->cm_fields['I'] = strdoop(buf);
 
 	/*

@@ -45,6 +45,10 @@
 #include "tools.h"
 #include "room_ops.h"
 
+#ifndef HAVE_SNPRINTF
+#include "snprintf.h"
+#endif
+
 struct CitControl CitControl;
 struct config config;
 FILE *control_fp = NULL;

@@ -1709,7 +1709,7 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	 */
 	if (msg->cm_fields['T'] == NULL) {
 		lprintf(9, "Generating timestamp\n");
-		sprintf(aaa, "%ld", time(NULL));
+		sprintf(aaa, "%ld", (long)time(NULL));
 		msg->cm_fields['T'] = strdoop(aaa);
 	}
 
@@ -1919,7 +1919,7 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 			"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
 			"bounceto|%s@%s\n"
 			"remote|%s|0||\n",
-			SPOOLMIME, newmsgid, time(NULL),
+			SPOOLMIME, newmsgid, (long)time(NULL),
 			msg->cm_fields['A'], msg->cm_fields['N'],
 			recipient );
 
@@ -2091,7 +2091,7 @@ static struct CtdlMessage *make_message(
 	sprintf(buf, "cit%ld", author->usernum);		/* Path */
 	msg->cm_fields['P'] = strdoop(buf);
 
-	sprintf(buf, "%ld", time(NULL));			/* timestamp */
+	sprintf(buf, "%ld", (long)time(NULL));			/* timestamp */
 	msg->cm_fields['T'] = strdoop(buf);
 
 	if (fake_name[0])					/* author */
@@ -2365,21 +2365,21 @@ void cmd_ent3(char *entargs)
 
 	cprintf("%d %ld\n", SEND_BINARY, msglen);
 
-	client_read(&ch, 1);				/* 0xFF magic number */
+	client_read((char*)&ch, 1);				/* 0xFF magic number */
 	msg->cm_magic = CTDLMESSAGE_MAGIC;
-	client_read(&ch, 1);				/* anon type */
+	client_read((char*)&ch, 1);				/* anon type */
 	msg->cm_anon_type = ch;
-	client_read(&ch, 1);				/* format type */
+	client_read((char*)&ch, 1);				/* format type */
 	msg->cm_format_type = ch;
 	msglen = msglen - 3;
 
 	while (msglen > 0) {
-		client_read(&which_field, 1);
+		client_read((char*)&which_field, 1);
 		if (!isalpha(which_field)) valid_msg = 0;
 		--msglen;
 		tempbuf[0] = 0;
 		do {
-			client_read(&ch, 1);
+			client_read((char*)&ch, 1);
 			--msglen;
 			a = strlen(tempbuf);
 			tempbuf[a+1] = 0;
