@@ -1066,7 +1066,7 @@ FMTEND:		omprintf("%s\n", aaa);
 	 * message to the reader's screen width.
 	 */
 	if (TheMessage->cm_format_type == FMT_CITADEL) {
-		/* memfmout(80, mptr, 0); */
+		omfmout(mptr);
 	}
 
 	/* If the message on disk is format 4 (MIME), we've gotta hand it
