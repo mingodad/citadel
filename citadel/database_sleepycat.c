@@ -250,14 +250,27 @@ static void cdb_checkpoint(void) {
 				MAX_CHECKPOINT_KBYTES,
 				MAX_CHECKPOINT_MINUTES,
 				0);
+
+/* The DB_INCOMPLETE error is no longer possible (or even defined) as of
+ * Berkeley DB v4.1.  When we get to the point where v4.0 and earlier are no
+ * longer supported, we can remove this ifdef.
+ */
+#ifdef DB_INCOMPLETE
 	if ( (ret != 0) && (ret != DB_INCOMPLETE) ) {
-		lprintf(1, "cdb_checkpoint: txn_checkpoint: %s\n", db_strerror(ret));
+		lprintf(1, "cdb_checkpoint: txn_checkpoint: %s\n",
+			db_strerror(ret));
 		abort();
 	}
-
 	if (ret == DB_INCOMPLETE) {
 		lprintf(3, "WARNING: txn_checkpoint: %s\n", db_strerror(ret));
 	}
+#else /* DB_INCOMPLETE */
+	if (ret != 0) {
+		lprintf(1, "cdb_checkpoint: txn_checkpoint: %s\n",
+			db_strerror(ret));
+		abort();
+	}
+#endif /* DB_INCOMPLETE */
 
 	/* Cull the logs if we haven't done so for 24 hours */
 	if ((time(NULL) - last_cull) > 86400L) {
@@ -344,6 +357,9 @@ void open_databases(void)
 		snprintf(dbfilename, sizeof dbfilename, "cdb.%02x", i);
 
 		ret = dbp[i]->open(dbp[i],
+#if DB_VERSION_MAJOR >= 4 && DB_VERSION_MINOR >= 1
+				NULL,			/* new parameter */
+#endif
 				dbfilename,
 				NULL,
 				DB_BTREE,

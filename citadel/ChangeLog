@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.24  2002/10/15 03:30:52  ajc
+ * Build ok on Berkeley DB 4.1
+
  Revision 601.23  2002/10/14 08:27:40  error
  * Mac OS X build fixes (everything but serv_imap now builds)
 
@@ -4064,4 +4067,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
