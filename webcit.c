@@ -315,6 +315,9 @@ void output_headers(int controlcode)
 		wprintf("Set-cookie: webcit=%s\n", unset);
 	} else {
 		wprintf("Set-cookie: webcit=%s\n", cookie);
+		if (server_cookie != NULL) {
+			wprintf("%s\n", server_cookie);
+		}
 	}
 
 	if (print_standard_html_head > 0) {
@@ -324,7 +327,7 @@ void output_headers(int controlcode)
 		wprintf("</TITLE>\n"
 			"<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">\n"
 			"<META HTTP-EQUIV=\"expired\" CONTENT=\"28-May-1971 18:10:00 GMT\">\n"
-			"<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\">\n");
+			"<META NAME=\"MSSmartTagsPreventParsing\" CONTENT=\"TRUE\">\n");
 		if (refresh30) wprintf(
 			"<META HTTP-EQUIV=\"refresh\" CONTENT=\"30\">\n");
 		else wprintf(

@@ -1,4 +1,9 @@
 $Log$
+Revision 301.6  2001/08/22 16:38:06  ajc
+* Added the "-c" command line option to generate optional cookies indicating
+  the host name of the server.  This makes it easy to put a cluster of WebCit
+  servers behind (for example) an Arrowpoint load balancer.
+
 Revision 301.5  2001/08/21 04:02:56  ajc
 * Added some more meta-tags to (hopefully) prevent the "lame goto" caused by
   unwanted page caching
@@ -619,3 +624,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

@@ -48,7 +48,7 @@ extern pthread_mutex_t SessionListMutex;
 extern pthread_key_t MyConKey;
 
 
-
+char *server_cookie = NULL;
 
 
 char *defaulthost = DEFAULT_HOST;
@@ -228,7 +228,7 @@ int main(int argc, char **argv)
 	char tracefile[PATH_MAX];
 
 	/* Parse command line */
-	while ((a = getopt(argc, argv, "hp:t:")) != EOF)
+	while ((a = getopt(argc, argv, "hp:t:c")) != EOF)
 		switch (a) {
 		case 'p':
 			port = atoi(optarg);
@@ -239,9 +239,22 @@ int main(int argc, char **argv)
 			freopen(tracefile, "w", stderr);
 			freopen(tracefile, "r", stdin);
 			break;
+		case 'c':
+			server_cookie = malloc(256);
+			if (server_cookie != NULL) {
+				strcpy(server_cookie, "Set-cookie: wcserver=");
+				if (gethostname(
+				   &server_cookie[strlen(server_cookie)],
+				   200) != 0) {
+					fprintf(stderr, "gethostname: %s\n",
+						strerror(errno));
+					free(server_cookie);
+				}
+			}
+			break;
 		default:
 			fprintf(stderr, "usage: webserver [-p localport] "
-				"[-t tracefile] "
+				"[-t tracefile] [-c] "
 				"[remotehost [remoteport]]\n");
 			return 1;
 		}
