@@ -140,7 +140,10 @@ void open_databases(void) {
 void close_databases(void) {
 	int a;
 
-	defrag_databases();
+	/* Hmm... we should decide when would be a good time to defrag.
+	 * Server shutdowns might be an opportune time.
+	defrag_databases(); */
+
 	for (a=0; a<MAXCDB; ++a) {
 		lprintf(7, "Closing database %d\n", a);
 		gdbm_close(gdbms[a]);
