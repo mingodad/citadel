@@ -40,7 +40,7 @@ void do_iconbar(void) {
 	 * configuration somewhere.
 	 */
 	int ib_displayas = 0;	/* pictures and text, pictures, text */
-	int ib_logo = 1;	/* Site logo */
+	int ib_logo = 0;	/* Site logo */
 	int ib_summary = 0;	/* Summary page icon */
 	int ib_inbox = 0;	/* Inbox icon */
 	int ib_calendar = 0;	/* Calendar icon */
@@ -285,7 +285,7 @@ void display_customize_iconbar(void) {
 	 * configuration somewhere.
 	 */
 	int ib_displayas = IB_PICTEXT;	/* pictures and text, pictures, text */
-	int ib_logo = 1;	/* Site logo */
+	int ib_logo = 0;	/* Site logo */
 	int ib_summary = 0;	/* Summary page icon */
 	int ib_inbox = 0;	/* Inbox icon */
 	int ib_calendar = 0;	/* Calendar icon */
