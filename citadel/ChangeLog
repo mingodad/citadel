@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.8  2001/07/27 01:32:07  nbryant
+ remove the automatic transaction demarcation on singleton read operations
+
  Revision 580.7  2001/07/26 21:43:46  nbryant
   - move to autoconf 2.52
   - random warning fix
@@ -2588,4 +2591,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

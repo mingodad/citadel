@@ -459,7 +459,6 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
 
 	struct cdbdata *tempcdb;
 	DBT dkey, dret;
-	DB_TXN *tid;
 	int ret;
 
 	memset(&dkey, 0, sizeof(DBT));
@@ -475,18 +474,13 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
                 memset(&dret, 0, sizeof(DBT));
                 dret.flags = DB_DBT_MALLOC;
 
-		txbegin(&tid);
+		ret = dbp[cdb]->get(dbp[cdb], NULL, &dkey, &dret, 0);
 
-		ret = dbp[cdb]->get(dbp[cdb], tid, &dkey, &dret, 0);
-
-		if (ret == DB_LOCK_DEADLOCK) {
-			txabort(tid);
+		if (ret == DB_LOCK_DEADLOCK)
 			goto retry;
-		}
+
 		if (ret && ret != DB_NOTFOUND)
 			abort();
-
-		txcommit(tid);
 	}
 
 	if ((ret != 0) && (ret != DB_NOTFOUND)) {
