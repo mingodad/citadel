@@ -1,4 +1,9 @@
  $Log$
+ Revision 590.102  2002/02/07 04:42:49  ajc
+ * Silently refuse to add directory entries for Internet addresses already
+   belonging to other users.
+ * cdb_trunc() for CtdlDirectoryInit: implemented for GDBM, stubbed for DB
+
  Revision 590.101  2002/02/05 05:05:53  ajc
  * Don't crash when posting if the user doesn't have an Internet directory address
 
@@ -3295,3 +3300,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

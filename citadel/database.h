@@ -14,4 +14,4 @@ void cdb_end_transaction(void);
 void cdb_allocate_tsd(void);
 void cdb_free_tsd(void);
 void cdb_check_handles(void);
-
+void cdb_trunc(int cdb);

@@ -576,7 +576,7 @@ int IsDirectory(char *addr) {
  * Initialize the directory database (erasing anything already there)
  */
 void CtdlDirectoryInit(void) {
-	/* FIXME ... write this */
+	cdb_trunc(CDB_DIRECTORY);
 }
 
 

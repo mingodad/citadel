@@ -388,6 +388,22 @@ struct cdbdata *cdb_next_item(int cdb)
 
 
 /*
+ * Truncate (delete every record)
+ */
+void cdb_trunc(int cdb) {
+	datum key;
+
+	begin_critical_section(S_DATABASE);
+	key = gdbm_firstkey ( dbf );
+	while (key = gdbm_firstkey(gdbms[cdb], key.dptr != NULL) {
+		gdbm_delete(gdbms[cdb], key);
+	}
+	end_critical_section(S_DATABASE);
+}
+
+
+
+/*
  * empty functions because GDBM doesn't have transaction support
  */
 

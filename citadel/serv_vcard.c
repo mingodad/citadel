@@ -4,7 +4,7 @@
  * A server-side module for Citadel which supports address book information
  * using the standard vCard format.
  * 
- * Copyright (c) 1999-2001 / released under the GNU General Public License
+ * Copyright (c) 1999-2002 / released under the GNU General Public License
  */
 
 /*
@@ -118,6 +118,37 @@ void vcard_extract_internet_addresses(struct CtdlMessage *msg,
 	vcard_free(v);
 }
 
+
+
+/*
+ * Callback for vcard_add_to_directory()
+ * (Lotsa ugly nested callbacks.  Oh well.)
+ * This little shim function makes sure we're not 
+ */
+void vcard_directory_add_user(char *internet_addr, char *citadel_addr) {
+	char buf[SIZ];
+
+	/* We have to validate that we're not stepping on someone else's
+	 * email address ... but only if we're logged in.  Otherwise it's
+	 * probably just the networker or something.
+	 */
+	if (CC->logged_in) {
+		lprintf(9, "Checking for <%s>...\n", internet_addr);
+		if (CtdlDirectoryLookup(buf, internet_addr) == 0) {
+			if (strcasecmp(buf, citadel_addr)) {
+				/* This address belongs to someone else.
+				 * Bail out silently without saving.
+				 */
+				lprintf(9, "DOOP!\n");
+				return;
+			}
+		}
+	}
+	lprintf(9, "ADDING!\n");
+	CtdlDirectoryAddUser(internet_addr, citadel_addr);
+}
+
+
 /*
  * Back end function for cmd_igab()
  */
@@ -126,7 +157,7 @@ void vcard_add_to_directory(long msgnum, void *data) {
 
 	msg = CtdlFetchMessage(msgnum);
 	if (msg != NULL) {
-		vcard_extract_internet_addresses(msg, CtdlDirectoryAddUser);
+		vcard_extract_internet_addresses(msg, vcard_directory_add_user);
 	}
 
 	CtdlFreeMessage(msg);

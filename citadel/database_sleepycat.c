@@ -664,6 +664,15 @@ struct cdbdata *cdb_next_item(int cdb)
 }
 
 
+
+/*
+ * Truncate (delete every record)
+ */
+void cdb_trunc(int cdb) {
+	/* FIXME this needs to be implemented */
+}
+
+
 /*
  * Transaction-based stuff.  I'm writing this as I bake cookies...
  */
