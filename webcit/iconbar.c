@@ -23,6 +23,11 @@
 #include "webcit.h"
 
 
+/* Values for ib_displayas */
+#define IB_PICTEXT	0
+#define IB_PICONLY	1
+#define IB_TEXTONLY	2
+
 void do_iconbar(void) {
 	char iconbar[SIZ];
 	char buf[SIZ];
@@ -34,6 +39,7 @@ void do_iconbar(void) {
 	 * their iconbars.  These should probably be set in a master
 	 * configuration somewhere.
 	 */
+	int ib_displayas = 0;	/* pictures and text, pictures, text */
 	int ib_logo = 1;	/* Site logo */
 	int ib_inbox = 0;	/* Inbox icon */
 	int ib_calendar = 0;	/* Calendar icon */
@@ -52,6 +58,7 @@ void do_iconbar(void) {
 		extract_token(key, buf, 0, '=');
 		extract_token(value, buf, 1, '=');
 
+		if (!strcasecmp(key, "ib_displayas")) ib_displayas = atoi(value);
 		if (!strcasecmp(key, "ib_logo")) ib_logo = atoi(value);
 		if (!strcasecmp(key, "ib_inbox")) ib_inbox = atoi(value);
 		if (!strcasecmp(key, "ib_calendar")) ib_calendar = atoi(value);
@@ -70,78 +77,121 @@ void do_iconbar(void) {
 
 	wprintf("<center>\n");
 
-	if (ib_logo) wprintf("\"<IMG BORDER=\"0\" WIDTH=\"48\" "
-		"HEIGHT=\"48\" SRC=\"/image&name=hello\" ALT=\"&nbsp;\">"
-		"<BR>\n"
+	if (ib_logo) if (ib_displayas != IB_TEXTONLY) wprintf(
+		"\"<IMG BORDER=\"0\" WIDTH=\"48\" "
+			"HEIGHT=\"48\" SRC=\"/image&name=hello\" ALT=\"&nbsp;\">"
+			"<BR>\n"
 	);
 
-	if (ib_inbox) wprintf(
-		"<SPAN CLASS=\"iconbar_link\">"
-		"<A HREF=\"/dotgoto?room=_MAIL_\" "
-		"TITLE=\"Go to your e-mail inbox\" "
-		"TARGET=\"workspace\">"
-		"<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-		"SRC=\"/static/mail.gif\">"
-		"<BR>Mail</A></SPAN><BR>\n"
-	);
+	if (ib_inbox) {
+		wprintf("<SPAN CLASS=\"iconbar_link\">"
+			"<A HREF=\"/dotgoto?room=_MAIL_\" "
+			"TITLE=\"Go to your e-mail inbox\" "
+			"TARGET=\"workspace\">"
+		);
+		if (ib_displayas != IB_TEXTONLY) {
+			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+				"SRC=\"/static/mail.gif\"><BR>");
+		}
+		if (ib_displayas != IB_PICONLY) {
+			wprintf("Mail<BR>");
+		}
+		wprintf("</A></SPAN>\n");
+	}
 
-	if (ib_calendar) wprintf(
-		"<SPAN CLASS=\"iconbar_link\">"
-		"<A HREF=\"/dotgoto?room=Calendar\" "
-		"TITLE=\"Go to your personal calendar\" "
-		"TARGET=\"workspace\">"
-		"<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-		"SRC=\"/static/vcalendar.gif\">"
-		"<BR>Calendar</A></SPAN><BR>\n"
-	);
+	if (ib_calendar) {
+		wprintf("<SPAN CLASS=\"iconbar_link\">"
+			"<A HREF=\"/dotgoto?room=Calendar\" "
+			"TITLE=\"Go to your personal calendar\" "
+			"TARGET=\"workspace\">"
+		);
+		if (ib_displayas != IB_TEXTONLY) {
+			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+			"SRC=\"/static/vcalendar.gif\"><BR>");
+		}
+		if (ib_displayas != IB_PICONLY) {
+			wprintf("Calendar<BR>");
+		}
+		wprintf("</A></SPAN>\n");
+	}
 
-	if (ib_tasks) wprintf(
-		"<SPAN CLASS=\"iconbar_link\">"
-		"<A HREF=\"/dotgoto?room=Tasks\" "
-		"TITLE=\"Go to your personal task list\" "
-		"TARGET=\"workspace\">"
-		"<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-		"SRC=\"/static/vcalendar.gif\">"
-		"<BR>Tasks</A></SPAN><BR>\n"
-	);
+	if (ib_tasks)  {
+		wprintf("<SPAN CLASS=\"iconbar_link\">"
+			"<A HREF=\"/dotgoto?room=Tasks\" "
+			"TITLE=\"Go to your personal task list\" "
+			"TARGET=\"workspace\">"
+		);
+		if (ib_displayas != IB_TEXTONLY) {
+			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+			"SRC=\"/static/vcalendar.gif\"><BR>");
+		}
+		if (ib_displayas != IB_PICONLY) {
+			wprintf("Tasks<BR>");
+		}
+		wprintf("</A></SPAN>\n");
+	}
 
-	if (ib_rooms) wprintf(
-		"<SPAN CLASS=\"iconbar_link\">"
-		"<A HREF=\"/knrooms\" TITLE=\"Shows a list of all "
-		"Rooms that you have access to\" TARGET=\"workspace\">"
-		"<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-		"SRC=\"/static/rooms-icon.gif\">"
-		"<BR>Rooms</A></SPAN><BR>\n"
-	);
+	if (ib_rooms) {
+		wprintf("<SPAN CLASS=\"iconbar_link\">"
+			"<A HREF=\"/knrooms\" TITLE=\"Shows a list of all "
+			"Rooms that you have access to\" TARGET=\"workspace\">"
+		);
+		if (ib_displayas != IB_TEXTONLY) {
+			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+			"SRC=\"/static/rooms-icon.gif\"><BR>");
+		}
+		if (ib_displayas != IB_PICONLY) {
+			wprintf("Rooms<BR>");
+		}
+		wprintf("</A></SPAN>\n");
+	}
 
-	if (ib_users) wprintf(
-		"<SPAN CLASS=\"iconbar_link\">"
-		"<A HREF=\"/whobbs\" TITLE=\"See who is online right now\" "
-		"TARGET=\"workspace\">"
-		"<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-		"SRC=\"/static/users-icon.gif\">"
-		"<BR>Users</A></SPAN><BR>\n"
-	);
+	if (ib_users) {
+		wprintf("<SPAN CLASS=\"iconbar_link\">"
+			"<A HREF=\"/whobbs\" TITLE=\"See who is online right now\" "
+			"TARGET=\"workspace\">"
+		);
+		if (ib_displayas != IB_TEXTONLY) {
+			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+			"SRC=\"/static/users-icon.gif\"><BR>");
+		}
+		if (ib_displayas != IB_PICONLY) {
+			wprintf("Users<BR>");
+		}
+		wprintf("</A></SPAN>\n");
+	}
 
-	if (ib_advanced) wprintf(
-		"<SPAN CLASS=\"iconbar_link\">"
-		"<A HREF=\"/display_main_menu\" "
-		"TITLE=\"Advanced Options Menu: Advanced Room commands, "
-		"Account Info, and Chat\" "
-		"TARGET=\"workspace\">"
-		"<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-		"SRC=\"/static/advanced-icon.gif\">"
-		"<BR>Advanced options</A></SPAN><BR>\n"
-	);
+	if (ib_advanced) {
+		wprintf("<SPAN CLASS=\"iconbar_link\">"
+			"<A HREF=\"/display_main_menu\" "
+			"TITLE=\"Advanced Options Menu: Advanced Room commands, "
+			"Account Info, and Chat\" "
+			"TARGET=\"workspace\">"
+		);
+		if (ib_displayas != IB_TEXTONLY) {
+			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+			"SRC=\"/static/advanced-icon.gif\"><BR>");
+		}
+		if (ib_displayas != IB_PICONLY) {
+			wprintf("Advanced options<BR>");
+		}
+		wprintf("</A></SPAN>\n");
+	}
 
-	if (ib_logoff) wprintf(
-		"<SPAN CLASS=\"iconbar_link\">"
-		"<A HREF=\"/termquit\" TITLE=\"Log off\" TARGET=\"_top\" "
-		"onClick=\"return confirm('Log off now?');\">"
-		"<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-		"SRC=\"/static/exit-icon.gif\">"
-		"<BR>Log off</A></SPAN><BR>\n"
-	);
+	if (ib_logoff) {
+		wprintf("<SPAN CLASS=\"iconbar_link\">"
+			"<A HREF=\"/termquit\" TITLE=\"Log off\" TARGET=\"_top\" "
+			"onClick=\"return confirm('Log off now?');\">"
+		);
+		if (ib_displayas != IB_TEXTONLY) {
+		wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+			"SRC=\"/static/exit-icon.gif\"><BR>");
+		}
+		if (ib_displayas != IB_PICONLY) {
+			wprintf("Log off<BR>");
+		}
+		wprintf("</A></SPAN>\n");
+	}
 
 	wprintf(
 		"<SPAN CLASS=\"customize\">"
@@ -151,7 +201,7 @@ void do_iconbar(void) {
 		"</SPAN><BR>\n"
 	);
 
-	if (ib_citadel) wprintf(
+	if (ib_citadel) if (ib_displayas != IB_TEXTONLY) wprintf(
 		"<SPAN CLASS=\"powered_by\">"
 		"<A HREF=\"http://uncensored.citadel.org/citadel\" "
 		"TITLE=\"Find out more about Citadel/UX\" TARGET=\"aboutcit\" "
@@ -180,6 +230,7 @@ void display_customize_iconbar(void) {
 	 * their iconbars.  These should probably be set in a master
 	 * configuration somewhere.
 	 */
+	int ib_displayas = IB_PICTEXT;	/* pictures and text, pictures, text */
 	int ib_logo = 1;	/* Site logo */
 	int ib_inbox = 0;	/* Inbox icon */
 	int ib_calendar = 0;	/* Calendar icon */
@@ -198,6 +249,7 @@ void display_customize_iconbar(void) {
 		extract_token(key, buf, 0, '=');
 		extract_token(value, buf, 1, '=');
 
+		if (!strcasecmp(key, "ib_displayas")) ib_displayas = atoi(value);
 		if (!strcasecmp(key, "ib_logo")) ib_logo = atoi(value);
 		if (!strcasecmp(key, "ib_inbox")) ib_inbox = atoi(value);
 		if (!strcasecmp(key, "ib_calendar")) ib_calendar = atoi(value);
@@ -214,12 +266,26 @@ void display_customize_iconbar(void) {
 	svprintf("BOXTITLE", WCS_STRING, "Customize the icon bar");
 	do_template("beginbox");
 
-	wprintf("<CENTER>Select the icons you would like to see displayed "
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/commit_iconbar\">\n");
+
+	wprintf("<CENTER>"
+		"Display icons as: ");
+	for (i=0; i<=2; ++i) {
+		wprintf("<INPUT TYPE=\"radio\" NAME=\"ib_displayas\" VALUE=\"%d\"", i);
+		if (ib_displayas == i) wprintf(" CHECKED");
+		wprintf(">");
+		if (i == IB_PICTEXT) wprintf("pictures and text");
+		if (i == IB_PICONLY) wprintf("pictures only");
+		if (i == IB_TEXTONLY) wprintf("text only");
+		wprintf("\n");
+	}
+	wprintf("<BR><BR>\n");
+
+	wprintf("Select the icons you would like to see displayed "
 		"in the &quot;icon bar&quot; menu on the left side of the "
 		"screen.</CENTER><BR>\n"
 	);
 
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/commit_iconbar\">\n");
 	wprintf("<TABLE border=0 cellspacing=0 cellpadding=3 width=100%%>\n");
 
 	wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
@@ -372,13 +438,10 @@ void commit_iconbar(void) {
 		return;
 	}
 
-	strcpy(iconbar, "");
+	sprintf(iconbar, "ib_displayas=%d,", atoi(bstr("ib_displayas")));
 
 	for (i=0; i<(sizeof(boxen)/sizeof(char *)); ++i) {
-		if (i > 0) {
-			sprintf(&iconbar[strlen(iconbar)], ",");
-		}
-		sprintf(&iconbar[strlen(iconbar)], "%s=", boxen[i]);
+		sprintf(&iconbar[strlen(iconbar)], ",%s=", boxen[i]);
 		if (!strcasecmp(bstr(boxen[i]), "yes")) {
 			sprintf(&iconbar[strlen(iconbar)], "1");
 		}
