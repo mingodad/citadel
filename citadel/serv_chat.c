@@ -443,10 +443,6 @@ void cmd_sexp(char *argbuf)
 		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
 		return;
 	}
-	if (num_parms(argbuf) < 2) {
-		cprintf("%d usage error\n", ERROR);
-		return;
-	}
 	if (CC->fake_username[0])
 		lun = CC->fake_username;
 	else
