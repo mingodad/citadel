@@ -12,3 +12,4 @@ int make_message(char *filename,	/* temporary file name */
 		int anon_type,		/* see MES_ types in header file */
 		int format_type,
 		int mode);
+void citedit(FILE *);

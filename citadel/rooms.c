@@ -18,6 +18,7 @@
 #include "rooms.h"
 #include "commands.h"
 #include "tools.h"
+#include "messages.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
@@ -36,7 +37,6 @@ void serv_read(char *buf, int bytes);
 void formout(char *name);
 int inkey(void);
 int fmout(int width, FILE *fp, char pagin, int height, int starting_lp, char subst);
-void citedit(FILE *fp, long int base_pos);
 void progress(long int curr, long int cmax);
 int pattern(char *search, char *patn);
 int file_checksum(char *filename);
@@ -960,7 +960,7 @@ void do_edit(char *desc, char *read_cmd, char *check_cmd, char *write_cmd)
 		printf("Entering %s.  ",desc);
 		printf("Press return twice when finished.\n");
 		fp=fopen(temp,"r+");
-		citedit(fp,0);
+		citedit(fp);
 		fclose(fp);
 		}
 

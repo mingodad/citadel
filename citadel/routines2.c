@@ -36,7 +36,6 @@ int inkey(void);
 void serv_write(char *buf, int nbytes);
 int haschar(char *st, int ch);
 void progress(long int curr, long int cmax);
-void citedit(FILE * fp, long int base_pos);
 int yesno(void);
 
 extern char temp[];

@@ -186,9 +186,9 @@ void add_word(struct cittext *textlist, char *wordbuf)
 
 
 /*
- * begin editing of an opened file pointed to by fp, beginning at position pos.
+ * begin editing of an opened file pointed to by fp
  */
-void citedit(FILE *fp, long int base_pos)
+void citedit(FILE *fp)
 {
 	int a,prev,finished,b,last_space;
 	int appending = 0;
@@ -206,7 +206,7 @@ void citedit(FILE *fp, long int base_pos)
 	time(&last_server_msg);
 
 	/* first, load the text into the buffer */
-	fseek(fp,base_pos,0);
+	fseek(fp, 0L, 0);
 	textlist = (struct cittext *)malloc(sizeof(struct cittext));
 	textlist->next = NULL;
 	strcpy(textlist->text,"");
@@ -314,12 +314,13 @@ void citedit(FILE *fp, long int base_pos)
 		} while (finished==0);
 
 	/* write the buffer back to disk */
-	fseek(fp,base_pos,0);
+	fseek(fp, 0L, 0);
 	for (ptr=textlist; ptr!=NULL; ptr=ptr->next) {
 		fprintf(fp,"%s",ptr->text);
 		}
 	putc(10,fp);
-	putc(0,fp);
+	fflush(fp);
+	ftruncate(fileno(fp), ftell(fp));
 
 	/* and deallocate the memory we used */
 	while (textlist!=NULL) {
@@ -569,8 +570,9 @@ void replace_string(char *filename, long int startpos)
 		}
 	fseek(fp,wpos,0);
 	if (strlen(buf)>0) fwrite((char *)buf,strlen(buf),1,fp);
-	putc(0,fp);
+	wpos = ftell(fp);
 	fclose(fp);
+	truncate(filename, wpos);
 	printf("<R>eplace made %d substitution(s).\n\n",substitutions);
 	}
 
@@ -626,7 +628,7 @@ ME1:	switch(mode) {
 
 	   case 0:
 		fp=fopen(filename,"r+");
-		citedit(fp, beg);
+		citedit(fp);
 		fclose(fp);
 		goto MECR;
 

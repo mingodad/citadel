@@ -40,7 +40,6 @@
 
 extern struct CtdlServInfo serv_info;
 extern char temp[];
-void citedit(FILE *fp, long int base_pos);
 void getline(char *, int);
 
 void chatmode(void) {
