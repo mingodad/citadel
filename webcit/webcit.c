@@ -1028,12 +1028,12 @@ void session_loop(struct httprequest *req)
         } else if (!strcasecmp(action, "display_whok")) {
                 display_whok();
 	} else if (!strcasecmp(action, "display_editinfo")) {
-		display_edit("Room info", "EINF 0", "RINF", "/editinfo");
+		display_edit("Room info", "EINF 0", "RINF", "/editinfo", 1);
 	} else if (!strcasecmp(action, "editinfo")) {
 		save_edit("Room info", "EINF 1", 1);
 	} else if (!strcasecmp(action, "display_editbio")) {
 		sprintf(buf, "RBIO %s", WC->wc_username);
-		display_edit("Your bio", "NOOP", buf, "editbio");
+		display_edit("Your bio", "NOOP", buf, "editbio", 3);
 	} else if (!strcasecmp(action, "editbio")) {
 		save_edit("Your bio", "EBIO", 0);
 	} else if (!strcasecmp(action, "confirm_delete_room")) {

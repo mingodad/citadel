@@ -818,12 +818,12 @@ void display_editroom(void)
 		wprintf("</A></TD>\n");
 	}
 
-	wprintf("<TD>&nbsp;</TD></TR>"
-		"<TR><TD BGCOLOR=\"#000077\" COLSPAN=9 HEIGHT=5> </TD></TR>"
-		"</TABLE>\n");
-
+	wprintf("</TR></TABLE>\n");
 	/* end tabbed dialog */	
 
+	/* begin content of whatever tab is open now */
+	wprintf("<TABLE border=0 width=100%% bgcolor=\"#FFFFFF\">\n"
+		"<TR><TD>\n");
 
 	if (!strcmp(tab, "admin")) {
 		wprintf("<UL>"
@@ -1138,6 +1138,9 @@ void display_editroom(void)
 
 		wprintf("</CENTER>\n");
 	}
+
+	/* end content of whatever tab is open now */
+	wprintf("</TD></TR></TABLE>\n");
 
 	wDumpContent(1);
 }

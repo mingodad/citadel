@@ -1,4 +1,7 @@
 $Log$
+Revision 410.26  2003/05/14 03:46:35  ajc
+* More background cleanup
+
 Revision 410.25  2003/05/05 17:19:46  ajc
 * Cleanups to summary page when running on a non ical enabled system
 * Use non breaking spaces in summary page box titles
@@ -1382,4 +1385,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

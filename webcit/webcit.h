@@ -300,7 +300,7 @@ void display_whok(void);
 void server_to_text(void);
 void save_edit(char *description, char *enter_cmd, int regoto);
 void display_edit(char *description, char *check_cmd,
-		  char *read_cmd, char *save_cmd);
+		  char *read_cmd, char *save_cmd, int headers_type);
 void gotoroom(char *gname, int display_name);
 void confirm_delete_room(void);
 void delete_room(void);

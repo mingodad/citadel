@@ -32,7 +32,7 @@
  * display the form for editing something (room info, bio, etc)
  */
 void display_edit(char *description, char *check_cmd,
-		  char *read_cmd, char *save_cmd)
+		  char *read_cmd, char *save_cmd, int headers_type)
 {
 	char buf[SIZ];
 
@@ -43,12 +43,10 @@ void display_edit(char *description, char *check_cmd,
 		display_error(&buf[4]);
 		return;
 	}
-	output_headers(1);
+	output_headers(headers_type);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">Edit ");
-	escputs(description);
-	wprintf("</SPAN></TD></TR></TABLE>\n");
+	svprintf("BOXTITLE", WCS_STRING, "Edit %s", description);
+	do_template("beginbox");
 
 	wprintf("<CENTER>Enter %s below.  Text is formatted to\n", description);
 	wprintf("the <EM>reader's</EM> screen width.  To defeat the\n");
@@ -56,16 +54,18 @@ void display_edit(char *description, char *check_cmd,
 	wprintf("<BR>");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"%s\">\n", save_cmd);
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save\">");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
-	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=30 COLS=80 WIDTH=80>");
+	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft "
+		"ROWS=10 COLS=80 WIDTH=80>\n");
 	serv_puts(read_cmd);
 	serv_gets(buf);
 	if (buf[0] == '1')
 		server_to_text();
-	wprintf("</TEXTAREA><P>\n");
+	wprintf("</TEXTAREA><BR><BR>\n");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save\">");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
 
 	wprintf("</FORM></CENTER>\n");
+	do_template("endbox");
 	wDumpContent(1);
 }
 
