@@ -77,6 +77,7 @@ void become_logged_in(char *user, char *pass, char *serv_response) {
 void do_login(void) {
 	char buf[256];
 
+	fprintf(stderr, "do_login() called\n");
 	if (!strcasecmp(bstr("action"), "Login")) {
 		serv_printf("USER %s", bstr("name"));
 		serv_gets(buf);
@@ -89,6 +90,8 @@ void do_login(void) {
 				}
 			}
 		}
+
+	fprintf(stderr, "logged_in==%d\n", logged_in);
 
 	if (logged_in) {
 		output_static("frameset.html");
