@@ -69,6 +69,7 @@ void lprintf(int loglevel, const char *format, ...) {
         	va_start(arg_ptr, format);   
         	vfprintf(stderr, format, arg_ptr);   
         	va_end(arg_ptr);   
+		fflush(stderr);
 		}
   
 	}   
