@@ -283,15 +283,18 @@ void import_a_user() {
 			mbox[mbox_size - 1] = msgnum;
 			}
 		if (!strcasecmp(key, "visit")) {
+			lprintf(9,"visit: ");
 			bzero(&vbuf, sizeof(struct visit));
 			bzero(&qr, sizeof(struct quickroom));
 			while(fpgetfield(imfp, vkey),
 			  strcasecmp(vkey, "endvisit")) {
-				fpgetfield(imfp, value);
+				fpgetfield(imfp, vvalue);
 				if (!strcasecmp(vkey, "vname"))	
 					strcpy(qr.QRname, vvalue);
 				if (!strcasecmp(vkey, "vgen"))	{
 					qr.QRgen = atol(vvalue);
+					lprintf(9, "<%s><%ld> ",
+						qr.QRname, qr.QRgen);
 					CtdlGetRelationship(&vbuf, &us, &qr);
 					}
 				if (!strcasecmp(vkey, "lastseen"))	
@@ -300,6 +303,7 @@ void import_a_user() {
 					vbuf.v_flags = atoi(vvalue);
 				}
 			CtdlSetRelationship(&vbuf, &us, &qr);
+			lprintf(9, ".\n");
 			}
 		}
 	
@@ -503,6 +507,6 @@ void do_import(char *argbuf) {
 struct DLModule_Info *Dynamic_Module_Init(void) {
 	CtdlRegisterProtoHook(do_import,
 				"IMPO",
-				"Import an unpacked system");
+				"Import an unpacked Cit5");
 	return &info;
 	}

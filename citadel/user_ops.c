@@ -154,6 +154,8 @@ void CtdlSetRelationship(struct visit *newvisit,
 		visits,
 		(num_visits * sizeof(struct visit)));
 	free(visits);
+	lprintf(9, "CtdlSetRelationship() user %ld room <%s> gen %ld\n",
+		rel_user->usernum, rel_room->QRname, rel_room->QRgen);
 	}
 
 /*
