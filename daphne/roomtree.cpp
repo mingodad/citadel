@@ -1,5 +1,13 @@
 #include "includes.hpp"
 
+#ifdef __WXMOTIF__
+#include "bitmaps/root.xpm"
+#include "bitmaps/floor.xpm"
+#include "bitmaps/newroom.xpm"
+#include "bitmaps/oldroom.xpm"
+#include "bitmaps/mailroom.xpm"
+#endif
+
 
 
 class RoomItem : public wxTreeItemData {
@@ -47,11 +55,19 @@ RoomTree::RoomTree(wxMDIParentFrame *parent, CitClient *sock)
 
 void RoomTree::InitTreeIcons(void) {
 	TreeIcons = new wxImageList(16, 16);
+#ifdef __WXMOTIF__
+	TreeIcons->Add(*new wxBitmap(root_xpm));
+	TreeIcons->Add(*new wxBitmap(floor_xpm));
+	TreeIcons->Add(*new wxBitmap(newroom_xpm));
+	TreeIcons->Add(*new wxBitmap(oldroom_xpm));
+	TreeIcons->Add(*new wxBitmap(mailroom_xpm));
+#else
 	TreeIcons->Add(*new wxBitmap("bitmaps/root.bmp", wxBITMAP_TYPE_BMP));
 	TreeIcons->Add(*new wxBitmap("bitmaps/floor.bmp", wxBITMAP_TYPE_BMP));
 	TreeIcons->Add(*new wxBitmap("bitmaps/newroom.bmp", wxBITMAP_TYPE_BMP));
 	TreeIcons->Add(*new wxBitmap("bitmaps/oldroom.bmp", wxBITMAP_TYPE_BMP));
 	TreeIcons->Add(*new wxBitmap("bitmaps/mailroom.bmp", wxBITMAP_TYPE_BMP));
+#endif
 	SetImageList(TreeIcons);
 }
 

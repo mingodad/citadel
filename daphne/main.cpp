@@ -9,6 +9,13 @@
 
 #include "includes.hpp"
 
+#ifdef __WXMOTIF__
+#include "bitmaps/globe.xpm"
+#include "bitmaps/mail.xpm"
+#include "bitmaps/who.xpm"
+#include "bitmaps/chat.xpm"
+#endif
+
 
 // Globals
 wxMDIParentFrame *BigMDI;
@@ -206,15 +213,22 @@ void MyFrame::InitToolBar(wxToolBar* toolBar) {
 // told how big the toolbar icons are going to be, otherwise it defaults to
 // 16x16.  Strangely, wxToolBar::SetToolBitmapSize() doesn't seem to be
 // available at all in wxGTK, hence the ifdef...
-#ifdef __WXMSW__
+#ifndef __WXGTK__
 	toolBar->SetToolBitmapSize(wxSize(32, 32));
 #endif
 
         // Set up the toolbar icons (BMP is available on both GTK and MSW) 
+#ifndef __WXMOTIF__
 	bitmaps[0] = new wxBitmap("bitmaps/globe.bmp",	wxBITMAP_TYPE_BMP);
 	bitmaps[1] = new wxBitmap("bitmaps/mail.bmp",	wxBITMAP_TYPE_BMP);
 	bitmaps[2] = new wxBitmap("bitmaps/who.bmp",	wxBITMAP_TYPE_BMP);
 	bitmaps[3] = new wxBitmap("bitmaps/chat.bmp",	wxBITMAP_TYPE_BMP);
+#else
+	bitmaps[0] = new wxBitmap(globe_xpm);
+	bitmaps[1] = new wxBitmap(mail_xpm);
+	bitmaps[2] = new wxBitmap(who_xpm);
+	bitmaps[3] = new wxBitmap(chat_xpm);
+#endif
 
 	toolBar->AddTool(MENU_CONNECT,
 			*bitmaps[0],
