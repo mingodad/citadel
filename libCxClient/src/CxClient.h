@@ -219,6 +219,7 @@ CXLIST		CxMsList(int,int);
 int		CxMsLoad(const char *, int, MESGINFO *);
 int		CxMsSaveOk(const char *);
 int		CxMsSave(MESGINFO);
+void		CxMsMark( long unsigned int );
 
 /**
  ** Room/Floor Commands

@@ -350,3 +350,30 @@ char		buf[255];
 
 	return(999);
 }
+
+/**
+ ** CxMsMark(): Mark message(s) as read.
+ **/
+void		CxMsMark( long unsigned int msgid ) {
+char		buf[1024];
+int		rc;
+
+	DPF((DFA, "Marking message %s read.", msgid));
+
+	if( msgid == MSGS_ALL ) {
+		sprintf( buf, "SLRP highest" );
+
+	} else {
+		sprintf( buf, "SLRP %ld", msgid );
+	}
+
+	CxClSend( buf );
+	rc = CxClRecv( buf );
+
+	if( rc == RC_OK ) {
+		DPF((DFA, "Done."));
+
+	} else {
+		DPF((DFA, "Failed."));
+	}
+}
