@@ -1,4 +1,7 @@
 $Log$
+Revision 1.11  2001/05/14 17:59:18  brian
+* Added quick installation notes.
+
 Revision 1.10  2001/05/14 14:01:22  brian
 * Added multi-connection support.  libCxClient can now handle
 multiple concurrent connections to different Citadel servers.
@@ -38,3 +41,4 @@ Revision 1.3  2001/02/07 22:42:24  brian
 
 Revision 1.2  2001/02/07 22:41:51  brian
 * Updated ChangeLog to conform to Citadel/UX standards (kinda)  :)
+
