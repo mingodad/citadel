@@ -33,6 +33,8 @@
 #include "room_ops.h"
 #include "control.h"
 
+#define END_OF_MESSAGE	"---eom---dbd---"
+
 char artv_tempfilename1[256];
 char artv_tempfilename2[256];
 FILE *artv_global_message_list;
@@ -162,9 +164,43 @@ void artv_export_visits(void) {
 
 
 void artv_export_message(long msgnum) {
+	struct SuppMsgInfo smi;
+	struct CtdlMessage *msg;
+	struct ser_ret smr;
+	FILE *fp;
+	char buf[256];
+	char tempfile[256];
+
+	msg = CtdlFetchMessage(msgnum);
+	if (msg == NULL) return;	/* fail silently */
+
 	cprintf("message\n");
+	GetSuppMsgInfo(&smi, msgnum);
 	cprintf("%ld\n", msgnum);
-	/* FIXME do more here of course */
+	cprintf("%d\n", smi.smi_refcount);
+	cprintf("%s\n", smi.smi_content_type);
+	cprintf("%d\n", smi.smi_mod);
+
+	serialize_message(&smr, msg);
+	CtdlFreeMessage(msg);
+
+	/* write it in base64 */
+	strcpy(tempfile, tmpnam(NULL));
+	sprintf(buf, "./base64 -e >%s", tempfile);
+	fp = popen(buf, "w");
+	fwrite(smr.ser, smr.len, 1, fp);
+	fclose(fp);
+
+	phree(smr.ser);
+
+	fp = fopen(tempfile, "r");
+	unlink(tempfile);
+	while (fgets(buf, sizeof(buf), fp) != NULL) {
+		buf[strlen(buf)-1] = 0;
+		cprintf("%s\n", buf);
+	}
+	fclose(fp);
+	cprintf("%s\n", END_OF_MESSAGE);
 }
 
 
@@ -251,9 +287,77 @@ void artv_do_export(void) {
 
 
 
-void artv_do_import(void) {
-	cprintf("%d command not yet implemented\n", ERROR);
+void artv_import_config(void) {
+	char buf[256];
 
+	client_gets(config.c_nodename);
+	client_gets(config.c_fqdn);
+	client_gets(config.c_humannode);
+	client_gets(config.c_phonenum);
+	client_gets(buf);	config.c_bbsuid = atoi(buf);
+	client_gets(buf);	config.c_creataide = atoi(buf);
+	client_gets(buf);	config.c_sleeping = atoi(buf);
+	client_gets(buf);	config.c_initax = atoi(buf);
+	client_gets(buf);	config.c_regiscall = atoi(buf);
+	client_gets(buf);	config.c_twitdetect = atoi(buf);
+	client_gets(config.c_twitroom);
+	client_gets(config.c_moreprompt);
+	client_gets(buf);	config.c_restrict = atoi(buf);
+	client_gets(buf);	config.c_msgbase = atol(buf);
+	client_gets(config.c_bbs_city);
+	client_gets(config.c_bbs_sysadm);
+	client_gets(config.c_bucket_dir);
+	client_gets(buf);	config.c_setup_level = atoi(buf);
+	client_gets(buf);	config.c_maxsessions = atoi(buf);
+	client_gets(config.c_net_password);
+	client_gets(buf);	config.c_port_number = atoi(buf);
+	client_gets(buf);	config.c_ep.expire_mode = atoi(buf);
+	client_gets(buf);	config.c_ep.expire_value = atoi(buf);
+	client_gets(buf);	config.c_userpurge = atoi(buf);
+	client_gets(buf);	config.c_roompurge = atoi(buf);
+	client_gets(config.c_logpages);
+	client_gets(buf);	config.c_createax = atoi(buf);
+	client_gets(buf);	config.c_maxmsglen = atol(buf);
+	client_gets(buf);	config.c_min_workers = atoi(buf);
+	client_gets(buf);	config.c_max_workers = atoi(buf);
+	client_gets(buf);	config.c_pop3_port = atoi(buf);
+	client_gets(buf);	config.c_smtp_port = atoi(buf);
+	client_gets(buf);	config.c_default_filter = atoi(buf);
+	
+	put_config();
+	lprintf(7, "Imported config file\n");
+}
+
+
+
+void artv_import_control(void) {
+	char buf[256];
+
+	client_gets(buf);	CitControl.MMhighest = atol(buf);
+	client_gets(buf);	CitControl.MMflags = atoi(buf);
+	client_gets(buf);	CitControl.MMnextuser = atol(buf);
+	client_gets(buf);	CitControl.MMnextroom = atol(buf);
+	client_gets(buf);	CitControl.version = atoi(buf);
+
+	put_control();
+	lprintf(7, "Imported control file\n");
+}
+
+
+
+
+
+void artv_do_import(void) {
+	char buf[256];
+
+	cprintf("%d sock it to me\n", SEND_LISTING);
+	while (client_gets(buf), strcmp(buf, "000")) {
+
+		if (!strcasecmp(buf, "config")) artv_import_config();
+		else if (!strcasecmp(buf, "control")) artv_import_control();
+
+
+	}
 }
 
 
