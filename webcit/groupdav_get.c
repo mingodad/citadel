@@ -56,9 +56,9 @@ void groupdav_get(char *dav_pathname) {
 		gotoroom(dav_roomname);
 	}
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
+		wprintf("HTTP/1.1 404 not found\n");
+		groupdav_common_headers();
 		wprintf(
-			"HTTP/1.1 404 not found\n"
-			"Connection: close\n"
 			"Content-Type: text/plain\n"
 			"\n"
 			"There is no folder called \"%s\" on this server.\n",
@@ -70,9 +70,9 @@ void groupdav_get(char *dav_pathname) {
 	serv_printf("MSG2 %s", dav_msgnum);
 	serv_gets(buf);
 	if (buf[0] != '1') {
+		wprintf("HTTP/1.1 404 not found\n");
+		groupdav_common_headers();
 		wprintf(
-			"HTTP/1.1 404 not found\n"
-			"Connection: close\n"
 			"Content-Type: text/plain\n"
 			"\n"
 			"Object \"%s\" was not found in the \"%s\" folder.\n",
@@ -83,7 +83,8 @@ void groupdav_get(char *dav_pathname) {
 	}
 
 	wprintf("HTTP/1.1 200 OK\n");
-	wprintf("ETag: %s\n", dav_msgnum);
+	groupdav_common_headers();
+	wprintf("ETag: \"%s\"\n", dav_msgnum);
 	while (serv_gets(buf), strcmp(buf, "000")) {
 		if (!strncasecmp(buf, "Content-type: ", 14)) {
 			found_content_type = 1;
