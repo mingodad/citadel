@@ -88,7 +88,8 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	auth.c chkpwd.c html.c vcard.c serv_upgrade.c serv_vandelay.c \
 	serv_smtp.c serv_pop3.c internet_addressing.c parsedate.c genstamp.c \
 	domain.c clientsocket.c serv_inetcfg.c serv_rwho.c serv_bio.c \
-	serv_moderate.c client_passwords.c serv_imap.c imap_tools.c \
+	serv_moderate.c client_passwords.c \
+	serv_imap.c imap_tools.c imap_fetch.c \
 	serv_network.c serv_pas2.c md5.c
 
 DEP_FILES=$(SOURCES:.c=.d)
@@ -232,14 +233,18 @@ modules/serv_smtp.mo: serv_smtp.mo
 modules/domain.mo: domain.mo
 	ln -f domain.mo modules
 
-modules/serv_imap.so: serv_imap.mo imap_tools.mo
-	$(LINK_SHARED) -o modules/serv_imap.so imap_tools.mo serv_imap.mo
+modules/serv_imap.so: serv_imap.mo imap_tools.mo imap_fetch.mo
+	$(LINK_SHARED) -o modules/serv_imap.so imap_tools.mo serv_imap.mo \
+		imap_fetch.mo
 
 modules/serv_imap.mo: serv_imap.mo
 	ln -f serv_imap.mo modules
 
 modules/imap_tools.mo: imap_tools.mo
 	ln -f imap_tools.mo modules
+
+modules/imap_fetch.mo: imap_fetch.mo
+	ln -f imap_fetch.mo modules
 
 aidepost: aidepost.o config.o $(LIBOBJS)
 	$(CC) aidepost.o config.o $(LIBOBJS) $(LDFLAGS) -o aidepost
