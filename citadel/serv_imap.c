@@ -487,6 +487,10 @@ int imap_do_expunge(void) {
 			CtdlDeleteMessages(CC->quickroom.QRname,
 					IMAP->msgids[i], "");
 			++num_expunged;
+			lprintf(9, "%ld ... deleted\n", IMAP->msgids[i]);
+		}
+		else {
+			lprintf(9, "%ld ... not deleted\n", IMAP->msgids[i]);
 		}
 	}
 

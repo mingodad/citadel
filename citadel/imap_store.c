@@ -65,7 +65,7 @@
  */
 void imap_do_store_msg(int seq, char *oper, unsigned int bits_to_twiddle) {
 	int silent = 0;
-	
+
 	if (!strncasecmp(oper, "FLAGS", 5)) {
 		IMAP->flags[seq] &= IMAP_MASK_SYSTEM;
 		IMAP->flags[seq] |= bits_to_twiddle;
@@ -103,31 +103,40 @@ void imap_do_store_msg(int seq, char *oper, unsigned int bits_to_twiddle) {
  * on the flags.
  */
 void imap_do_store(int num_items, char **itemlist) {
-	int i;
+	int i, j;
 	unsigned int bits_to_twiddle = 0;
 	char *oper;
 	char flag[SIZ];
+	char whichflags[SIZ];
+	char num_flags;
 
 	if (num_items < 2) return;
 	oper = itemlist[0];
 
 	for (i=1; i<num_items; ++i) {
-		strcpy(flag, itemlist[i]);
-		if (flag[0]=='(') strcpy(flag, &flag[1]);
-		if (flag[strlen(flag)-1]==')') flag[strlen(flag)-1]=0;
-		striplt(flag);
-
-		if (!strcasecmp(flag, "\\Deleted")) {
-		  if (CtdlDoIHavePermissionToDeleteMessagesFromThisRoom()) {
-			bits_to_twiddle |= IMAP_DELETED;
-		  }
+		strcpy(whichflags, itemlist[i]);
+		if (whichflags[0]=='(') strcpy(whichflags, &whichflags[1]);
+		if (whichflags[strlen(whichflags)-1]==')') {
+			whichflags[strlen(whichflags)-1]=0;
 		}
+		striplt(whichflags);
 
-		if (!strcasecmp(flag, "\\Seen")) {
-			bits_to_twiddle |= IMAP_SEEN;
+		/* A client might twiddle more than one bit at a time */
+		num_flags = num_tokens(whichflags, ' ');
+		for (j=0; j<num_flags; ++j) {
+			extract_token(flag, whichflags, j, ' ');
+
+			if (!strcasecmp(flag, "\\Deleted")) {
+				if (CtdlDoIHavePermissionToDeleteMessagesFromThisRoom()) {
+					bits_to_twiddle |= IMAP_DELETED;
+				}
+			}
+			if (!strcasecmp(flag, "\\Seen")) {
+				bits_to_twiddle |= IMAP_SEEN;
+			}
 		}
 	}
-	
+
 	if (IMAP->num_msgs > 0) {
 		for (i = 0; i < IMAP->num_msgs; ++i) {
 			if (IMAP->flags[i] & IMAP_SELECTED) {
