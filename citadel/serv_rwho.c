@@ -116,12 +116,11 @@ void cmd_rwho(char *argbuf) {
 		
 		if (((cptr->cs_flags&CS_STEALTH)==0) || (aide))
 		{
-			cprintf("%d|%s|%s|%s|%s|%ld|%s|%s|%d|",
+			cprintf("%d|%s|%s|%s|%s|%ld|%s|%s|",
 				cptr->cs_pid, un, room,
 				host, cptr->cs_clientname,
 				(long)(cptr->lastidle),
-				cptr->lastcmdname, flags,
-				cptr->logged_in
+				cptr->lastcmdname, flags
 			);
 
 			if ((user_spoofed) && (aide)) {
@@ -145,7 +144,7 @@ void cmd_rwho(char *argbuf) {
 				cprintf("|");
 			}
 	
-			cprintf("\n");
+			cprintf("%d\n", cptr->logged_in);
 		}
 	}
 

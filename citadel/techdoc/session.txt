@@ -1110,6 +1110,7 @@ from, or "localhost" if the client is local.
  8 - Actual user name, if user name is masqueraded and viewer is an Aide.
  9 - Actual room name, if room name is masqueraded and viewer is an Aide.
  10 - Actual host name, if host name is masqueraded and viewer is an Aide.
+ 11 - Nonzero if the session is a logged-in user, zero otherwise.
  
  The listing is terminated, as always, with the string "000" on a line by
 itself.
