@@ -1324,11 +1324,23 @@ void cmd_asup(char *cmdbuf) {
  */
 int NewMailCount() {
 	int num_newmsgs = 0;
+	int a;
 	char mailboxname[32];
+	struct quickroom mailbox;
+	struct visit vbuf;
 
 	MailboxName(mailboxname, &CC->usersupp, MAILROOM);
+	if (getroom(&mailbox, mailboxname)!=0) return(0);
+	CtdlGetRelationship(&vbuf, &CC->usersupp, &mailbox);
 
-	/* FIX FIX FIX FIX FIX   This needs implementation */
+	get_msglist(&mailbox);
+	for (a=0; a<CC->num_msgs; ++a) {
+		if (MessageFromList(a)>0L) {
+			if (MessageFromList(a) > vbuf.v_lastseen) {
+				++num_newmsgs;
+				}
+			}
+		}
 
 	return(num_newmsgs);
 	}
