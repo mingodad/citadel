@@ -249,7 +249,8 @@ void validate(void)
 		return;
 	}
 
-	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
+	wprintf("<div style=\"margin-right:1px\">"
+		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 	wprintf("<center>");
 
 	strcpy(user, &buf[4]);
@@ -295,7 +296,7 @@ void validate(void)
 	wprintf("<br />\n");
 
 	wprintf("</CENTER>\n");
-	wprintf("</td></tr></table></center>\n");
+	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
 
@@ -358,7 +359,8 @@ void display_changepw(void)
 		strcpy(WC->ImportantMessage, "");
 	}
 
-	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
+	wprintf("<div style=\"margin-right:1px\">"
+		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<CENTER><br />");
 	serv_puts("MESG changepw");
@@ -381,7 +383,7 @@ void display_changepw(void)
 		"&nbsp;"
 		"<INPUT type=\"submit\" name=\"action\" value=\"Cancel\">\n");
 	wprintf("</form></center>\n");
-	wprintf("</td></tr></table></center>\n");
+	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
 

@@ -155,8 +155,8 @@ void calendar_month_view(int year, int month, int day) {
 	}
 
 	/* Outer table (to get the background color) */
-	wprintf("<center>"
-		"<TABLE width=99%% border=0 cellpadding=0 cellspacing=0 "
+	wprintf("<div style=\"margin-right:1px\">"
+		"<TABLE width=100%% border=0 cellpadding=0 cellspacing=0 "
 		"bgcolor=#204B78><TR><TD>\n");
 
 	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0><tr>\n");
@@ -229,7 +229,7 @@ void calendar_month_view(int year, int month, int day) {
 
 	wprintf("</TABLE>"			/* end of inner table */
 		"</TD></TR></TABLE>"		/* end of outer table */
-		"</CENTER>\n");
+		"</div>\n");
 }
 
 
@@ -252,7 +252,7 @@ void calendar_day_view_display_events(int year, int month,
 	int all_day_event = 0;
 
 	if (WC->num_cal == 0) {
-		wprintf("<br /><br /><br />\n");
+		// FIXME wprintf("<br /><br /><br />\n");
 		return;
 	}
 
@@ -335,8 +335,8 @@ void calendar_day_view(int year, int month, int day) {
 
 
 	/* Outer table (to get the background color) */
-	wprintf("<center>"
-		"<TABLE width=99%% border=0 cellpadding=0 cellspacing=0 "
+	wprintf("<div style=\"margin-right:1px\">"
+		"<TABLE width=100%% border=0 cellpadding=0 cellspacing=0 "
 		"bgcolor=#204B78><TR><TD>\n");
 
 	/* Inner table (the real one) */
@@ -434,7 +434,7 @@ void calendar_day_view(int year, int month, int day) {
 
 
 	wprintf("</TR></TABLE>"			/* end of inner table */
-		"</TD></TR></TABLE></center>"	/* end of outer table */
+		"</TD></TR></TABLE></div>"	/* end of outer table */
 	);
 
 
@@ -614,7 +614,8 @@ void do_tasks_view(void) {
 	char buf[SIZ];
 	icalproperty *p;
 
-	wprintf("<center><table border=0 cellspacing=0 width=99%% bgcolor=\"#FFFFFF\">\n<tr>\n"
+	wprintf("<div style=\"margin-right:1px\">"
+		"<table border=0 cellspacing=0 width=100%% bgcolor=\"#FFFFFF\">\n<tr>\n"
 		"<TH>Name of task</TH>\n"
 		"<TH>Date due</TH></TR>\n"
 	);
@@ -656,7 +657,7 @@ void do_tasks_view(void) {
 		wprintf(">%s</FONT></TD></TR>\n", buf);
 	}
 
-	wprintf("</table></center>\n");
+	wprintf("</table></div>\n");
 
 	/* Free the list */
 	free_calendar_buffer();

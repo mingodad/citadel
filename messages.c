@@ -375,7 +375,8 @@ void read_message(long msgnum) {
 	}
 
 	/* begin everythingamundo table */
-	wprintf("<center><table width=99%% border=1 cellspacing=0 "
+	wprintf("<div style=\"margin-right:1px\">\n");
+	wprintf("<table width=100%% border=1 cellspacing=0 "
 		"cellpadding=0><TR><TD>\n");
 
 	/* begin message header table */
@@ -648,7 +649,8 @@ ENDBODY:
 	wprintf("</TD></TR></TABLE>\n");
 
 	/* end everythingamundo table */
-	wprintf("</TD></TR></TABLE></center><br />\n");
+	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</div>\n");
 }
 
 
@@ -1144,9 +1146,9 @@ void readloop(char *oper)
 	wprintf("<FORM NAME=\"msgomatic\" "
 		"METHOD=\"POST\" ACTION=\"/do_stuff_to_msgs\">\n");
 	if (is_summary) {
-		wprintf(
-			"<center><table border=0 cellspacing=0 "
-			"cellpadding=0 width=99%%>\n"
+		wprintf("<div style=\"margin-right:1px\">"
+			"<table border=0 cellspacing=0 "
+			"cellpadding=0 width=100%%>\n"
 			"<TR>"
 			"<TD><I>Subject</I></TD>"
 			"<TD><I>Sender</I></TD>"
@@ -1223,7 +1225,7 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {
-		wprintf("</table></center>\n");
+		wprintf("</table></div>\n");
 	}
 
 	/* Bump these because although we're thinking in zero base, the user
@@ -1236,8 +1238,8 @@ void readloop(char *oper)
 	if (num_displayed == 1) {
 	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook) && (!is_notes) && (!is_singlecard)) {
 
-		wprintf("<CENTER>"
-			"<TABLE BORDER=0 WIDTH=99%% BGCOLOR=\"#DDDDDD\"><TR><TD>"
+		wprintf("<div style=\"margin-right:1px\">"
+			"<table border=0 width=100%% bgcolor=\"#dddddd\"><tr><td>"
 			"Reading #%d of %d messages.</TD>\n"
 			"<TD ALIGN=RIGHT><FONT SIZE=+1>",
 			lowest_displayed, nummsgs);
@@ -1274,6 +1276,7 @@ void readloop(char *oper)
 			oper,
 			WC->msgarr[0]);
 
+		wprintf("</td></tr></table></div>\n");
 	    }
 	}
 
@@ -1622,7 +1625,8 @@ void display_enter(void)
 		"<input type=\"submit\" name=\"sc\" value=\"Cancel\">\n");
 
 	/* begin richedit box */
-	wprintf("<div style=\"position:absolute; left:0%%; width:100%%; top:15%; height:80%%\">\n");
+	wprintf("<div style=\"position:absolute; left:0%%; width:100%%; "
+		"top:15%; height:75%%\">\n");
 
 	wprintf("<script type=\"text/javascript\" "
 		"src=\"static/richtext.js\"></script>\n"
@@ -1646,18 +1650,23 @@ void display_enter(void)
 	wprintf("<div style=\"position:absolute; bottom:0px; left:0px; width:100%%\">\n");
 
 	/* Enumerate any attachments which are already in place... */
+	wprintf("<img src=\"/static/attachment.gif\" border=0 "
+		"align=middle height=16 width=16> Attachments: ");
+	wprintf("<select name=\"which_attachment\" size=1>");
 	for (att = WC->first_attachment; att != NULL; att = att->next) {
-		wprintf("<IMG SRC=\"/static/attachment.gif\" "
-			"BORDER=0 ALIGN=MIDDLE> Attachment: ");
+		wprintf("<option value=\"");
+		urlescputs(att->filename);
+		wprintf("\">");
 		escputs(att->filename);
-		wprintf(" (%s, %d bytes)<br />\n",
-			att->content_type, att->length);
+		/* wprintf(" (%s, %d bytes)",att->content_type,att->length); */
+		wprintf("</option>\n");
 	}
+	wprintf("</select>");
 
 	/* Now offer the ability to attach additional files... */
 	wprintf("&nbsp;&nbsp;&nbsp;"
 		"Attach file: <input NAME=\"attachfile\" "
-		"SIZE=48 TYPE=\"file\">\n&nbsp;&nbsp;"
+		"SIZE=16 TYPE=\"file\">\n&nbsp;&nbsp;"
 		"<input type=\"submit\" name=\"attach\" value=\"Add\">\n");
 
 	wprintf("</div>\n");	/* end attachments section */
@@ -1708,10 +1717,11 @@ void confirm_move_msg(void)
 
 	output_headers(1, 1, 1, 0, 0, 0, 0);
 
-	wprintf("<center><table width=99%% border=0 bgcolor=\"#444455\"><tr><td>");
+	wprintf("<div style=\"margin-right:1px\">"
+		"<table width=100%% border=0 bgcolor=\"#444455\"><tr><td>");
 	wprintf("<font size=+1 color=\"#ffffff\"");
 	wprintf("<b>Confirm move of message</b>\n");
-	wprintf("</font></td></tr></table></center>\n");
+	wprintf("</font></td></tr></table></div>\n");
 
 	wprintf("<CENTER>");
 

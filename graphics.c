@@ -46,7 +46,8 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
+	wprintf("<div style=\"margin-right:1px\">"
+		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<CENTER>\n");
 
@@ -71,7 +72,7 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 	wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" VALUE=\"Cancel\">\n");
 	wprintf("</FORM>\n");
 	wprintf("</CENTER>\n");
-	wprintf("</td></tr></table></center>\n");
+	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
 

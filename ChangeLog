@@ -1,4 +1,10 @@
 $Log$
+Revision 602.5  2005/02/19 05:22:00  ajc
+* Replaced all the "centered 99% tables" with 100% width tables wrapped
+  inside a div with margin-right:1px to remove the horizontal scrollbar
+  in Gecko without creating whitespace.  IE6's problem is much more
+  serious and will require dropping a nuclear bomb on Redmond to fix.
+
 Revision 602.4  2005/02/18 05:09:52  ajc
 * Moved the room access control screen into a tab on the edit room menu
 
@@ -2387,4 +2393,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

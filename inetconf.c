@@ -113,7 +113,8 @@ void display_inetconf(void)
 	wprintf("</TD></TR></TABLE>\n");
 	wprintf("</div>\n<div id=\"content\">\n");
 
-	wprintf("<center><table border=0 width=99%%><tr><td valign=top>\n");
+	wprintf("<div style=\"margin-right:1px\">"
+		"<table border=0 width=100%%><tr><td valign=top>\n");
 	for (which=0; which<ic_max; ++which) {
 		if (which == (ic_max / 2)) {
 			wprintf("</TD><TD VALIGN=TOP>");
@@ -148,7 +149,7 @@ void display_inetconf(void)
 			"</TD></TR></TABLE></FORM>\n");
 		do_template("endbox");
 	}
-	wprintf("</td></tr></table></center>\n");
+	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 
 	for (i=0; i<ic_max; ++i) {

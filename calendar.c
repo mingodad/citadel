@@ -529,7 +529,8 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>");
+	wprintf("<div style=\"margin-right:1px\">"
+		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>");
 	
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/save_task\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n",
@@ -588,7 +589,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 
 	wprintf("</FORM>\n");
 
-	wprintf("</td></tr></table></center>\n");
+	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 
 	if (created_new_vtodo) {

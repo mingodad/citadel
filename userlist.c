@@ -71,7 +71,8 @@ void userlist(void)
 		goto DONE;
 	}
 
-	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
+	wprintf("<div style=\"margin-right:1px\">"
+		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 	wprintf("<TR><TH>User Name</TH><TH>Number</TH><TH>Access Level</TH>");
 	wprintf("<TH>Last Login</TH><TH>Total Logins</TH><TH>Total Posts</TH></TR>\n");
 
@@ -110,7 +111,7 @@ void userlist(void)
 			extract_long(buf, 4), extract_long(buf, 5));
 
 	}
-	wprintf("</table></center>\n");
+	wprintf("</table></div>\n");
 DONE:	wDumpContent(1);
 }
 
@@ -134,7 +135,8 @@ void showuser(void)
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
+	wprintf("<div style=\"margin-right:1px\">"
+		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	serv_printf("OIMG _userpic_|%s", who);
 	serv_gets(buf);
@@ -167,6 +169,6 @@ void showuser(void)
 	escputs(who);
 	wprintf("</A>\n");
 
-	wprintf("</td></tr></table></center>\n");
+	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }

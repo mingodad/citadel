@@ -68,7 +68,8 @@ void display_floorconfig(char *prepend_html)
 		return;
 	}
 
-	wprintf("<center><TABLE BORDER=1 WIDTH=99%% bgcolor=\"#ffffff\">\n"
+	wprintf("<div style=\"margin-right:1px\">"
+		"<TABLE BORDER=1 WIDTH=100%% bgcolor=\"#ffffff\">\n"
 		"<TR><TH>Floor number</TH>"
 		"<TH>Floor name</TH>"
 		"<TH>Number of rooms</TH></TR>\n"
@@ -117,7 +118,7 @@ void display_floorconfig(char *prepend_html)
 		"</FORM></TD>"
 		"<TD>&nbsp;</TD></TR>\n");
 
-	wprintf("</table></center>\n");
+	wprintf("</table></div>\n");
 	wDumpContent(1);
 }
 

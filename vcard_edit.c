@@ -187,7 +187,8 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	);
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/submit_vcard\">\n");
-	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
+	wprintf("<div style=\"margin-right:1px\">"
+		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<TABLE border=0><TR>"
 		"<TD>Prefix</TD>"
@@ -276,7 +277,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		"</CENTER></FORM>\n"
 	);
 	
-	wprintf("</td></tr></table></center>\n");
+	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
 
