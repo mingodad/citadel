@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.107  2002/09/02 20:40:34  ajc
+ * Automation work for setup
+
  Revision 591.106  2002/08/31 04:36:26  ajc
  * IMAP APPEND no longer forces messages to appear as from the logged-in user
    when appending to a mailbox room.  (Allows migration to Citadel from some
@@ -3956,3 +3959,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -14,6 +14,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/utsname.h>
+#include <sys/wait.h>
 #include <netdb.h>
 #include <errno.h>
 #include <limits.h>
@@ -35,7 +36,7 @@
 
 #endif
 
-#define MAXSETUP 5
+#define MAXSETUP 4
 
 #define UI_TEXT		0	/* Default setup type -- text only */
 #define UI_DIALOG	1	/* Use the 'dialog' program (REMOVED) */
@@ -46,91 +47,172 @@
 #define PROTO_NAME	"tcp"
 
 int setup_type;
-char setup_directory[128];
+char setup_directory[SIZ];
 int need_init_q = 0;
+char init_entry[SIZ];
 
 char *setup_titles[] =
 {
 	"BBS Home Directory",
 	"System Administrator",
 	"BBS User ID",
-	"Name of bit bucket subdirectory",
 	"Server port number",
 };
 
 
 char *setup_text[] =
 {
+"Enter the full pathname of the directory in which the BBS you are\n"
+"creating or updating resides.  If you specify a directory other than the\n"
+"default, you will need to specify the -h flag to the server when you start\n"
+"it up.\n",
 
-"0",
-"Enter the full pathname of the directory in which the BBS you are",
-"creating or updating resides.  If you specify a directory other than the",
-"default, you will need to specify the -h flag to the server when you start",
-"it up.",
+"Enter the name of the system administrator (which is probably you).\n"
+"When an account is created with this name, it will automatically be\n"
+"assigned the highest access level.\n",
 
-"1",
-"Enter the name of the system administrator (which is probably you).",
-"When an account is created with this name, it will automatically be",
-"assigned the highest access level.",
+"You should create a user called 'bbs', 'guest', 'citadel', or something\n"
+"similar, that will allow users a way into your BBS.  The server will run\n"
+"under this user ID.  Please specify that (numeric) user ID here.\n",
 
-"2",
-"You should create a user called 'bbs', 'guest', 'citadel', or something",
-"similar, that will allow users a way into your BBS.  The server will run",
-"under this user ID.  Please specify that (numeric) user ID here.",
+"Specify the TCP port number on which your server will run.  Normally, this\n"
+"will be port 504, which is the official port assigned by the IANA for\n"
+"Citadel servers.  You'll only need to specify a different port number if\n"
+"you run multiple BBS's on the same computer and there's something else\n"
+"already using port 504.\n",
 
-"3",
-"Select the name of a subdirectory (relative to the main",
-"Citadel directory - do not type an absolute pathname!) in",
-"which to place arriving file transfers that otherwise",
-"don't have a home.",
-
-"4",
-"Specify the TCP port number on which your server will run.  Normally, this",
-"will be port 504, which is the official port assigned by the IANA for",
-"Citadel servers.  You'll only need to specify a different port number if",
-"you run multiple BBS's on the same computer and there's something else",
-"already using port 504.",
-
-"5",
-"6",
-"7",
-"8",
-"9",
-"10",
-"11",
-"12",
-"13",
-"14",
-"15",
-"16",
-"17",
-"18",
-"19",
-"20",
-"21",
-"22",
-"23",
-"24",
-"25",
-"26",
-"27",
-"28",
-"29",
-"30",
-
-"31",
-"Setup has detected that you currently have data files from a Citadel/UX",
-"version 3.2x installation.  The program 'conv_32_40' can upgrade your",
-"files to version 4.0x format.",
-" Setup will now exit.  Please either run 'conv_32_40' or delete your data",
-"files, and run setup again.",
-
-"32",
+"Setup has detected that you currently have data files from a Citadel/UX\n"
+"version 3.2x installation.  The program 'conv_32_40' can upgrade your\n"
+"files to version 4.0x format.\n"
+" Setup will now exit.  Please either run 'conv_32_40' or delete your data\n"
+"files, and run setup again.\n"
 
 };
 
 struct config config;
 int direction;
+
+/* 
+ * Do an "init q" to tell init to re-read its configuration file
+ */
+void init_q(void) {
+	pid_t cpid;
+	int status;
+
+	cpid = fork();
+	if (cpid==0) {
+		/*
+		 * We can't guarantee that telinit or init will be in the right
+		 * place, so we try a couple of different paths.  The first one
+		 * will work 99% of the time, though.
+		 */
+		execlp("/sbin/telinit", "telinit", "q", NULL);
+		execlp("/sbin/init", "init", "q", NULL);
+		execlp("/usr/sbin/init", "init", "q", NULL);
+		execlp("/bin/init", "init", "q", NULL);
+		execlp("/usr/bin/init", "init", "q", NULL);
+		execlp("init", "init", "q", NULL);
+
+		/*
+		 * Didn't find it?  Fail silently.  Perhaps we're running on
+		 * some sort of BSD system and there's no init at all.  If so,
+		 * the person installing Citadel probably knows how to handle
+		 * this task manually.
+		 */
+		exit(1);
+	}
+	else if (cpid > 0) {
+		while (waitpid(cpid, &status, 0) == -1) ;;
+	}
+}
+
+
+/*
+ * Set an entry in inittab to the desired state
+ */
+void set_init_entry(char *which_entry, char *new_state) {
+	char *inittab = NULL;
+	FILE *fp;
+	char buf[SIZ];
+	char entry[SIZ];
+	char levels[SIZ];
+	char state[SIZ];
+	char prog[SIZ];
+
+	inittab = strdup("");
+	if (inittab == NULL) return;
+
+	fp = fopen("/etc/inittab", "r");
+	if (fp == NULL) return;
+
+	while(fgets(buf, sizeof buf, fp) != NULL) {
+
+		if (num_tokens(buf, ':') == 4) {
+		}
+
+		inittab = realloc(inittab, strlen(inittab) + strlen(buf) + 2);
+		if (inittab == NULL) {
+			fclose(fp);
+			return;
+		}
+		
+		strcat(inittab, buf);
+	}
+	fclose(fp);
+	fp = fopen("/etc/inittab", "w");
+	if (fp != NULL) {
+		fwrite(inittab, strlen(inittab), 1, fp);
+		fclose(fp);
+		init_q();
+	}
+	free(inittab);
+}
+
+
+
+
+/* 
+ * Shut down the Citadel service if necessary, during setup.
+ */
+void shutdown_service(void) {
+	FILE *infp;
+	char buf[SIZ];
+	char looking_for[SIZ];
+	int have_entry = 0;
+	char entry[SIZ];
+	char prog[SIZ];
+
+	strcpy(init_entry, "");
+
+	/* Determine the fully qualified path name of citserver */
+	snprintf(looking_for, sizeof looking_for, "%s/citserver ", BBSDIR);
+
+	/* Pound through /etc/inittab line by line.  Set have_entry to 1 if
+	 * an entry is found which we believe starts citserver.
+	 */
+	infp = fopen("/etc/inittab", "r");
+	if (infp == NULL) {
+		return;
+	} else {
+		while (fgets(buf, sizeof buf, infp) != NULL) {
+			buf[strlen(buf) - 1] = 0;
+			extract_token(entry, buf, 0, ':');	
+			extract_token(prog, buf, 3, ':');
+			if (!strncasecmp(prog, looking_for,
+			   strlen(looking_for))) {
+				++have_entry;
+				strcpy(init_entry, entry);
+			}
+		}
+		fclose(infp);
+	}
+
+	/* Bail out if there's nothing to do. */
+	if (!have_entry) return;
+
+	set_init_entry(init_entry, "off");
+
+}
 
 void cleanup(int exitcode)
 {
@@ -142,18 +224,8 @@ void cleanup(int exitcode)
 	}
 #endif
 
-	/* Do an 'init q' if we need to.  When we hit the right one, init
-	 * will take over and setup won't come back because we didn't do a
-	 * fork().  If init isn't found, we fall through the bottom of the
-	 * loop and setup exits quietly.
-	 */
-	if (need_init_q) {
-		execlp("/sbin/init", "init", "q", NULL);
-		execlp("/usr/sbin/init", "init", "q", NULL);
-		execlp("/bin/init", "init", "q", NULL);
-		execlp("/usr/bin/init", "init", "q", NULL);
-		execlp("init", "init", "q", NULL);
-	}
+	init_q();
+
 	exit(exitcode);
 }
 
@@ -293,32 +365,6 @@ int yesno(char *question)
 }
 
 
-
-void get_setup_msg(char *dispbuf, int msgnum)
-{
-	int a, b;
-
-	a = 0;
-	b = 0;
-	while (atol(setup_text[a]) != msgnum)
-		++a;
-	++a;
-	strcpy(dispbuf, "");
-	do {
-		strcat(dispbuf, setup_text[a++]);
-		strcat(dispbuf, "\n");
-	} while (atol(setup_text[a]) != (msgnum + 1));
-}
-
-void print_setup(int msgnum)
-{
-	char dispbuf[4096];
-
-	get_setup_msg(dispbuf, msgnum);
-	printf("\n\n%s\n\n", dispbuf);
-}
-
-
 void important_message(char *title, char *msgtext)
 {
 
@@ -349,10 +395,7 @@ void important_message(char *title, char *msgtext)
 
 void important_msgnum(int msgnum)
 {
-	char dispbuf[4096];
-
-	get_setup_msg(dispbuf, msgnum);
-	important_message("Important Message", dispbuf);
+	important_message("Important Message", setup_text[msgnum]);
 }
 
 void display_error(char *error_message)
@@ -548,7 +591,7 @@ void set_str_val(int msgpos, char str[])
 	switch (setup_type) {
 	case UI_TEXT:
 		title(setup_titles[msgpos]);
-		print_setup(msgpos);
+		printf("\n%s\n", setup_text[msgpos]);
 		printf("This is currently set to:\n%s\n", str);
 		printf("Enter new value or press return to leave unchanged:\n");
 		fgets(buf, 4096, stdin);
@@ -564,8 +607,7 @@ void set_str_val(int msgpos, char str[])
 		printw("%s", setup_titles[msgpos]);
 		standend();
 		move(3, 0);
-		get_setup_msg(setupmsg, msgpos);
-		printw("%s", setupmsg);
+		printw("%s", setup_text[msgpos]);
 		refresh();
 		getlin(20, 0, str, 80);
 		break;
@@ -602,7 +644,6 @@ void set_long_val(int msgpos, long int *ip)
 
 void edit_value(int curr)
 {
-	int a;
 	long l;
 
 	switch (curr) {
@@ -618,15 +659,6 @@ void edit_value(int curr)
 		break;
 
 	case 3:
-		set_str_val(curr, config.c_bucket_dir);
-		config.c_bucket_dir[14] = 0;
-		for (a = 0; a < strlen(config.c_bucket_dir); ++a)
-			if (!isalpha(config.c_bucket_dir[a]))
-				strcpy(&config.c_bucket_dir[a],
-				       &config.c_bucket_dir[a + 1]);
-		break;
-
-	case 4:
 		set_int_val(curr, &config.c_port_number);
 		break;
 
@@ -724,6 +756,7 @@ int main(int argc, char *argv[])
 		important_message("Citadel/UX Setup", CITADEL);
 		cleanup(0);
 	}
+
 	/* Get started in a valid setup directory. */
 	strcpy(setup_directory, BBSDIR);
 	set_str_val(0, setup_directory);
@@ -732,8 +765,12 @@ int main(int argc, char *argv[])
 			  "The directory you specified does not exist.");
 		cleanup(errno);
 	}
+
 	/* Determine our host name, in case we need to use it as a default */
 	uname(&my_utsname);
+
+	/* See if we need to shut down the Citadel service. */
+	shutdown_service();
 
 	/* Now begin. */
 	switch (setup_type) {
