@@ -1,4 +1,7 @@
 $Log$
+Revision 505.22  2004/04/10 04:29:20  ajc
+* Changed internal version number to 5.06
+
 Revision 505.21  2004/03/29 04:30:20  ajc
 * configure.in, Makefile.in: handle $LDFLAGS
 
@@ -1749,4 +1752,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
