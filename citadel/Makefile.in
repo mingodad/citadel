@@ -257,7 +257,7 @@ cleaner: clean
 		$(SERV_MODULES) $(PROXY_TARGETS)
 
 realclean: cleaner
-	rm -f Makefile sysdep.h
+	rm -f Makefile sysdep.h config.cache config.log config.status
 
 .depend: $(wildcard *.c) $(wildcard *.h)
 	$(CC) -MM *.c > .depend

@@ -2,6 +2,7 @@
 	* user_ops.c: fix compiler warning and potential memory leak,
 	  include sysdep.h
 	* configure.in, Makefile.in: only build the server if we find pthreads
+	* Makefile.in: realclean removes config.{cache,log,status}
 
 Tue Sep 29 13:20:14 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Removed code from some of the utilities which was still attempting
