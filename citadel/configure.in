@@ -21,6 +21,7 @@ TARGETS=client
 AC_CANONICAL_HOST
 SO=.so
 PTHREAD_DEFS=-D_REENTRANT
+LINK_SHARED='$(CC) -shared'
 case "$host" in
 	dnl BSDI 3.0 wants relocatable object modules instead of shared libs
 	dnl for dlopen(), and has a wrapper script to link with shared libs.
@@ -52,6 +53,7 @@ case "$host" in
 		SERVER_LDFLAGS=-pthread
 		check_pthread=no
 		PTHREAD_DEFS=-pthread
+		LINK_SHARED="ld -x -Bshareable"
 	;;
 	*-*-cygwin32)
 		SUFFIX=.exe
@@ -236,6 +238,7 @@ AC_SUBST(chkpwd_LIBS)
 AC_SUBST(TARGETS)
 AC_SUBST(SERVER_LDFLAGS)
 AC_SUBST(PICFLAGS)
+AC_SUBST(LINK_SHARED)
 AC_SUBST(SUFFIX)
 AC_SUBST(PTHREAD_DEFS)
 AC_CONFIG_HEADER(sysdep.h)
