@@ -1,4 +1,8 @@
 $Log$
+Revision 528.48  2005/02/11 03:35:57  ajc
+* useredit.c: added an "Delete user" button, because it was unintuitive
+  to tell people "Delete a user by setting their access level to 0"
+
 Revision 528.47  2005/02/09 04:37:32  ajc
 * More GroupDAV fixes and tuning.
 
@@ -2334,4 +2338,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

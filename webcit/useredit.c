@@ -37,7 +37,16 @@ void select_user_to_edit(char *message, char *preselect)
 	char buf[SIZ];
 	char username[SIZ];
 
-	output_headers(1, 1, 0, 0, 0, 0, 0);	/* No room banner on this screen */
+	output_headers(1, 1, 2, 0, 1, 0, 0);
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<table width=100%% border=0 bgcolor=#444455><tr>"
+		"<td>"
+		"<span class=\"titlebar\">"
+		"<img src=\"/static/users-icon.gif\">"
+		"Edit or delete users"
+		"</span></td></tr></table>\n"
+		"</div>\n<div id=\"content\">\n"
+	);
 
 	if (message != NULL) wprintf(message);
 
@@ -51,7 +60,7 @@ void select_user_to_edit(char *message, char *preselect)
 	
         wprintf("<CENTER>"
 		"<FORM METHOD=\"POST\" ACTION=\"/display_edituser\">\n");
-        wprintf("<SELECT NAME=\"username\" SIZE=10>\n");
+        wprintf("<SELECT NAME=\"username\" SIZE=10 STYLE=\"width:100%%\">\n");
         serv_puts("LIST");
         serv_gets(buf);
         if (buf[0] == '1') {
@@ -70,6 +79,8 @@ void select_user_to_edit(char *message, char *preselect)
 
         wprintf("<input type=submit name=sc value=\"Edit configuration\">");
         wprintf("<input type=submit name=sc value=\"Edit address book entry\">");
+        wprintf("<input type=submit name=sc value=\"Delete user\" "
+		"onClick=\"return confirm('Delete this user?');\">");
         wprintf("</FORM></CENTER>\n");
 	do_template("endbox");
 
@@ -265,6 +276,11 @@ void display_edituser(char *supplied_username, int is_new) {
 		return;
 	}
 
+	if (!strcmp(bstr("sc"), "Delete user")) {
+		delete_user(username);
+		return;
+	}
+
 	output_headers(1, 1, 2, 0, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
@@ -400,6 +416,24 @@ void edituser(void) {
 	}
 }
 
+
+void delete_user(char *username) {
+	char buf[SIZ];
+	char message[SIZ];
+
+	serv_printf("ASUP %s|0|0|0|0|0|", username);
+	serv_gets(buf);
+	if (buf[0] != '2') {
+		sprintf(message,
+			"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
+			"%s<br /><br />\n", &buf[4]);
+	}
+	else {
+		strcpy(message, "");
+	}
+	select_user_to_edit(message, bstr("username"));
+}
+		
 
 
 
