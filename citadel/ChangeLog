@@ -1,3 +1,7 @@
+Tue Apr 20 12:45:55 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* messages.c: downloading more than MAX_MSGS messages now truncates
+	  (off the beginning of the list) rather than crashing.
+
 Mon Apr 19 12:11:48 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* whobbs.c: auto-detect when being called from a webserver, and act
 	  as a CGI (print HTTP headers and HTML output)

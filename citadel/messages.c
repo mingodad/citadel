@@ -931,6 +931,11 @@ void readmsgs(int c, int rdir, int q)	/* read contents of a room */
 		}
 	else {
 		while (serv_gets(cmd), strcmp(cmd,"000")) {
+			if (num_msgs == MAX_MSGS) {
+				memcpy(&msgarr[0], &msgarr[1],
+					(sizeof(long) * (MAX_MSGS - 1)) );
+				--num_msgs;
+				}
 			msg_arr[num_msgs++] = atol(cmd);
 			}
 		}
