@@ -1033,6 +1033,8 @@ void session_loop(struct httprequest *req)
 		output_mimepart();
 	} else if (!strcasecmp(action, "edit_vcard")) {
 		edit_vcard();
+	} else if (!strcasecmp(action, "submit_vcard")) {
+		submit_vcard();
 	} else if (!strcasecmp(action, "diagnostics")) {
 		output_headers(1);
 
