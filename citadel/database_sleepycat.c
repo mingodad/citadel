@@ -28,18 +28,20 @@ DB *dbp[MAXCDB];
 
 DB_ENV *dbenv;
 
-DBC *cursorz[999];	/* FIXME !! */
+DBC **cursorz = NULL;
+int num_cursorz = 0;
 #define MYCURSOR cursorz[CC->cs_pid]
 
 /*
  * Reclaim unused space in the databases.  We need to do each one of
  * these discretely, rather than in a loop.
+ *
+ * This is a stub function in the Sleepycat DB backend, because there is no
+ * such API call available.
  */
 void defrag_databases(void)
 {
-	/* FIXME ... do we even need this?  If not, we'll just keep it as
-	 * a stub function to keep the API consistent.
-	 */
+	/* do nothing */
 }
 
 
@@ -67,7 +69,6 @@ void open_databases(void)
 		lprintf(1, "db_env_create: %s\n", db_strerror(ret));
 		exit(ret);
 	}
-	dbenv->set_errfile(dbenv, stderr);  /* FIXME */
 	dbenv->set_errpfx(dbenv, "citserver");
 
         /*
@@ -273,14 +274,33 @@ void cdb_free(struct cdbdata *cdb)
 
 
 /* 
- * Prepare for a sequential search of an entire database.  (In the DB model,
- * use per-session key. There is guaranteed to be no more than one traversal in
+ * Prepare for a sequential search of an entire database.
+ * (There is guaranteed to be no more than one traversal in
  * progress per session at any given time.)
  */
 void cdb_rewind(int cdb)
 {
 	int ret = 0;
 
+	/*
+	 * Make sure we have a cursor allocated for this session
+	 */
+
+	if (num_cursorz <= CC->cs_pid) {
+		num_cursorz = CC->cs_pid + 1;
+		if (cursorz == NULL) {
+			cursorz = (DBC **)
+			    mallok((sizeof(DBC *) * num_cursorz));
+		} else {
+			cursorz = (DBC **)
+			    reallok(cursorz, (sizeof(DBC *) * num_cursorz));
+		}
+	}
+
+
+	/*
+	 * Now initialize the cursor
+	 */
 	begin_critical_section(S_DATABASE);
 	ret = dbp[cdb]->cursor(dbp[cdb], NULL, &MYCURSOR, 0);
 	if (ret) {

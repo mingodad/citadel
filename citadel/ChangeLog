@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.36  2000/11/30 03:23:17  ajc
+ * Got the Sleepycat DB back end working, by opening the databases in a non
+   shared, non threaded mode, and using Citadel's locking to serialize access.
+
  Revision 573.35  2000/11/29 05:00:02  ajc
  * I think the db stuff is ok, but my db library is fux0red...
 
@@ -2169,4 +2173,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
