@@ -9,14 +9,11 @@
 
 #include "includes.hpp"
 
-#include "bitmaps/new.xpm"
-#include "bitmaps/open.xpm"
-#include "bitmaps/save.xpm"
-#include "bitmaps/copy.xpm"
-#include "bitmaps/cut.xpm"
-#include "bitmaps/paste.xpm"
-#include "bitmaps/print.xpm"
-#include "bitmaps/help.xpm"
+
+#include "bitmaps/chat.xpm"
+#include "bitmaps/globe.xpm"
+#include "bitmaps/mail.xpm"
+#include "bitmaps/who.xpm"
 
 
 
@@ -73,6 +70,7 @@ private:
 // IDs for the controls and the menu commands
 enum
 {
+	DO_NOTHING,
 	IG_Quit,
 	IG_About,
 	IG_Text,
@@ -242,49 +240,53 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 void MyFrame::InitToolBar(wxToolBar* toolBar) {
 	int i;
-	wxBitmap* bitmaps[8];
-	int width = 16;
-	int currentX = 5;
+	wxBitmap* bitmaps[4];
 
-	bitmaps[0] = new wxBitmap( new_xpm );
-	bitmaps[1] = new wxBitmap( open_xpm );
-	bitmaps[2] = new wxBitmap( save_xpm );
-	bitmaps[3] = new wxBitmap( copy_xpm );
-	bitmaps[4] = new wxBitmap( cut_xpm );
-	bitmaps[5] = new wxBitmap( paste_xpm );
-	bitmaps[6] = new wxBitmap( print_xpm );
-	bitmaps[7] = new wxBitmap( help_xpm );
 
-	toolBar->AddTool(0, *bitmaps[0], wxNullBitmap, FALSE,
-			currentX, -1, (wxObject *) NULL, "New file");
-	currentX += width + 5;
-	toolBar->AddTool(1, *bitmaps[1], wxNullBitmap, FALSE,
-			currentX, -1, (wxObject *) NULL, "Open file");
-	currentX += width + 5;
-	toolBar->AddTool(2, *bitmaps[2], wxNullBitmap, FALSE,
-			currentX, -1, (wxObject *) NULL, "Save file");
-	currentX += width + 5;
-	toolBar->AddSeparator();
-	toolBar->AddTool(3, *bitmaps[3], wxNullBitmap, FALSE,
-			currentX, -1, (wxObject *) NULL, "Copy");
-	currentX += width + 5;
-	toolBar->AddTool(4, *bitmaps[4], wxNullBitmap, FALSE,
-			currentX, -1, (wxObject *) NULL, "Cut");
-	currentX += width + 5;
-	toolBar->AddTool(5, *bitmaps[5], wxNullBitmap, FALSE,
-			currentX, -1, (wxObject *) NULL, "Paste");
-	currentX += width + 5;
-	toolBar->AddSeparator();
-	toolBar->AddTool(6, *bitmaps[6], wxNullBitmap, FALSE,
-			currentX, -1, (wxObject *) NULL, "Print");
-	currentX += width + 5;
-	toolBar->AddSeparator();
-	toolBar->AddTool(7, *bitmaps[7], wxNullBitmap, TRUE,
-		 currentX, -1, (wxObject *) NULL, "Help");
+	bitmaps[0] = new wxBitmap( globe_xpm );
+	bitmaps[1] = new wxBitmap( mail_xpm );
+	bitmaps[2] = new wxBitmap( who_xpm );
+	bitmaps[3] = new wxBitmap( chat_xpm );
 
+	toolBar->AddTool(MENU_CONNECT,
+			*bitmaps[0],
+			wxNullBitmap,
+			FALSE,
+			-1, -1,
+			(wxObject *)NULL,
+			"The WORLD!!");
+			
+	toolBar->AddSeparator();
+
+	toolBar->AddTool(DO_NOTHING,
+			*bitmaps[1],
+			wxNullBitmap,
+			FALSE,
+			-1, -1,
+			(wxObject *)NULL,
+			"Open your e-mail inbox");
+			
+	toolBar->AddSeparator();
+
+	toolBar->AddTool(UMENU_WHO,
+			*bitmaps[2],
+			wxNullBitmap,
+			FALSE,
+			-1, -1,
+			(wxObject *)NULL,
+			"Who is online?");
+			
+	toolBar->AddTool(DO_NOTHING,
+			*bitmaps[3],
+			wxNullBitmap,
+			FALSE,
+			-1, -1,
+			(wxObject *)NULL,
+			"Real-time chat");
+			
 	toolBar->Realize();
 
-	for (i = 0; i < 8; i++)
+	for (i = 0; i < 4; i++)
 		delete bitmaps[i];
 }
 
