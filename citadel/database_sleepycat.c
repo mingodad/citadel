@@ -71,7 +71,7 @@ static pthread_key_t tsdkey;
 
 /* just a little helper function */
 static void txabort(DB_TXN *tid) {
-        int ret = txn_abort(tid);
+        int ret = tid->abort(tid);
 
         if (ret) {
                 lprintf(1, "cdb_*: txn_abort: %s\n", db_strerror(ret));
@@ -81,7 +81,7 @@ static void txabort(DB_TXN *tid) {
 
 /* this one is even more helpful than the last. */
 static void txcommit(DB_TXN *tid) {
-        int ret = txn_commit(tid, 0);
+        int ret = tid->commit(tid, 0);
 
         if (ret) {
                 lprintf(1, "cdb_*: txn_commit: %s\n", db_strerror(ret));
@@ -91,7 +91,7 @@ static void txcommit(DB_TXN *tid) {
 
 /* are you sensing a pattern yet? */
 static void txbegin(DB_TXN **tid) {
-        int ret = txn_begin(dbenv, NULL, tid, 0);
+        int ret = dbenv->txn_begin(dbenv, NULL, tid, 0);
 
         if (ret) {
                 lprintf(1, "cdb_*: txn_begin: %s\n", db_strerror(ret));

@@ -341,10 +341,15 @@ if test "x$with_db" != xno -a "x$with_gdbm" != xyes; then
 		dblib="db3"
 	fi
 
-	AC_SEARCH_LIBS(db_env_create, [$dblib db db4 db3], [
-		DATABASE=database_sleepycat.c
-		with_gdbm=no
-	])
+
+	AC_CHECK_DB([db db-4.1 db-4 db4 db-3.3 db-3.2 db-3.1 db-3 db3],
+		    [
+		     DATABASE=database_sleepycat.c
+		     with_gdbm=no
+		    ],
+		    AC_MSG_ERROR([[Can not locate a suitable Berkeley DB
+				  library.  Use --with-db=PATH to specify
+				  the path]]))
 
 fi
 

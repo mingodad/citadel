@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 #include "citadel.h"
 #include "citadel_ipc.h"
 #include "tools.h"

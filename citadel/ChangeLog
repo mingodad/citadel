@@ -1,4 +1,9 @@
  $Log$
+ Revision 605.22  2003/03/18 05:15:05  ajc
+ * Applied a patch sent in by Clint Adams <schizo@debian.org> to handle
+   building on Debian's unstable with Berkeley DB 4.1, compiled with
+   the --with-db-uniquename when errno is a macro (as in glibc 2.3.1).
+
  Revision 605.21  2003/03/17 11:56:35  error
  * Fix <G>oto in alternate_semantics - it actually marks messages read now.
 
@@ -4569,4 +4574,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
