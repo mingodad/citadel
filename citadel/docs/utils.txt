@@ -1,0 +1,126 @@
+                        Citadel/UX Utilities Manual 
+                 See copyright.doc for copyright information
+   
+   
+ OVERVIEW
+    
+   The following utilities will be discussed in this document:
+ aidepost     Post standard input to the Aide> room
+ whobbs       Who is on the system
+ stats        Print the calling statistics & graph
+ msgform      Format a binary message to the screen (stdin or in a file)
+ userlist     Print the userlist
+ readlog      Read the caller log
+ sendcommand  Send a server command
+   
+   It is up to you to decide which utilities should be made accessible only
+to sysops. It is important that you set the file permissions correctly. All
+utilities should have access to the BBS data files.  We will attempt to
+address each program individually.
+   
+   
+  AIDEPOST
+  
+   The nature of this program is rather simple. Standard input (stdin) is
+converted into a message, filed in the main message file (msgmain), and posted
+in the Aide> room. This is useful for keeping transcripts of system activity
+that has to do with the BBS. You might even elect to send all of your system
+logs there, too.
+ 
+   aidepost also accepts the usage "aidepost -rTargetRoom", where TargetRoom
+is the name of a room to which you'd like the message to be sent.
+   
+    
+  WHOBBS
+   
+   This program is similar to the "who" command.  It lists all of the users
+who are currently connected to your BBS server, either locally or across a
+network.  Unless you're running a standalone system, "who" and "whobbs" will
+probably not have a one-to-one correspondence (unlike earlier versions of the
+system).
+ 
+   One thing to keep in mind is that the "whobbs" utility actually opens a
+connection to the server.  If the server is maxed out, whobbs will still be
+able to provide a listing, because it doesn't need to log in to execute the
+RWHO command.  Note that whobbs does not list its own session.
+ 
+   Running the <W>ho is online command from the client does *not* call this
+utility.  It has this functionality built in.
+   
+   
+  STATS
+  
+   (NOTE: this program no longer uses the "curses" library.)   It prints
+various statistics on the screen based on the calllog file, such as number
+of connects, number of logins, number of logouts, number of disconnects,
+bad password attempts, etc. All statistics are provided in three figures:
+times per call, times per day, and total times.
+   After this screen appears, you may press return for the next screen. This
+is a graphic representation of system usage, broken down into 20 minute
+segments of the day.  This will show you when your peak usage is.
+   Press return again and the stats program will list your system's top
+20 callers.
+   The final screen lists the twenty users with the highest post per call
+ratios.  Unline the other screens, this statistic is extracted from the user
+file itself rather than the call log.
+ 
+ stats may be called with the "-b" option to run in batch mode.  In this case,
+it skips all the prompts and just prints everything out in one bulk output.
+Or it may be called with the "-p" option to only print the Post-to-Call
+ratios and nothing else.
+  
+  
+  MSGFORM
+  
+   On occasion, I have had messages in Citadel/UX binary format that I have
+wanted to view. Or needed a way to view a network spool file. Or wanted to
+directly examine parts of msgmain. This program is a simple message formatter.
+   msgform reads standard input, scanning for binary messages, starting
+with an <FF> byte and ending after the final NULL, and print as many as it
+finds until it encounters EOF.
+   You could use this utility along with netproc to provide printouts or
+archives of certain rooms.
+    
+   
+  USERLIST
+  
+   This is a program to print the userlist. There are two flags that may be
+set when running this program. When called without any arguments, userlist
+will display all users (except those who have chosen to be unlisted), their
+user numbers, times called, messages posted, screen width, and date of their
+most recent call.  
+ 
+   userlist is simply the same user listing code that is in the client, made
+into a standalone utility for convenience.
+
+   
+  READLOG
+  
+   Called without any arguments, readlog dumps the contents of the calllog
+file. This file records all times the Citadel/UX program has been started, and
+at what baud rate, as well as logins, proper logouts, loss of carrier (SIGHUP),
+bad password attempts, and new user logins.
+     
+   
+  SENDCOMMAND
+ 
+   sendcommand will interpret its arguments (except for "-hDIRNAME") as a
+server command, which is sent to the server.  Commands which require textual
+input will read it from stdin.  Commands which generate textual output will
+be sent to stdout. 
+ 
+   This utility is intended to be used to enable Citadel server commands to be
+executed from shell scripts.  Review the script called "weekly" which ships
+with the Citadel distribution for an example of how this can be used.
+ 
+   NOTE: be sure that this utility is not world-executable.  It connects to the
+server in privileged mode, and therefore could present a security hole if not
+properly restricted.
+  
+  
+  --------------------------------------------------------------------------
+   
+   That should cover all of the included utilities.
+ For more information, visit the Citadel/UX web site at UNCENSORED! BBS
+ http://uncnsrd.mt-kisco.ny.us
+
