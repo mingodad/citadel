@@ -29,6 +29,8 @@
 #include <pthread.h>
 #include <signal.h>
 #include "webcit.h"
+#include "webserver.h"
+
 
 #ifndef INADDR_NONE
 #define INADDR_NONE 0xffffffff
@@ -36,7 +38,7 @@
 
 RETSIGTYPE timeout(int signum)
 {
-	fprintf(stderr, "Connection timed out.\n");
+	lprintf(1, "Connection timed out.\n");
 	exit(3);
 }
 
@@ -56,13 +58,13 @@ int uds_connectsock(char *sockpath)
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
-		fprintf(stderr, "Can't create socket: %s\n",
+		lprintf(1, "Can't create socket: %s\n",
 			strerror(errno));
 		return(-1);
 	}
 
 	if (connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-		fprintf(stderr, "can't connect: %s\n",
+		lprintf(1, "Can't connect: %s\n",
 			strerror(errno));
 		return(-1);
 	}
@@ -89,33 +91,33 @@ int tcp_connectsock(char *host, char *service)
 	if (pse) {
 		sin.sin_port = pse->s_port;
 	} else if ((sin.sin_port = htons((u_short) atoi(service))) == 0) {
-		fprintf(stderr, "Can't get %s service entry\n", service);
+		lprintf(1, "Can't get %s service entry\n", service);
 		return (-1);
 	}
 	phe = gethostbyname(host);
 	if (phe) {
 		memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
 	} else if ((sin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE) {
-		fprintf(stderr, "Can't get %s host entry: %s\n",
+		lprintf(1, "Can't get %s host entry: %s\n",
 			host, strerror(errno));
 		return (-1);
 	}
 	if ((ppe = getprotobyname("tcp")) == 0) {
-		fprintf(stderr, "Can't get TCP protocol entry: %s\n",
+		lprintf(1, "Can't get TCP protocol entry: %s\n",
 			strerror(errno));
 		return (-1);
 	}
 
 	s = socket(PF_INET, SOCK_STREAM, ppe->p_proto);
 	if (s < 0) {
-		fprintf(stderr, "Can't create socket: %s\n", strerror(errno));
+		lprintf(1, "Can't create socket: %s\n", strerror(errno));
 		return (-1);
 	}
 	signal(SIGALRM, timeout);
 	alarm(30);
 
 	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-		fprintf(stderr, "can't connect to %s.%s: %s\n",
+		lprintf(1, "Can't connect to %s.%s: %s\n",
 			host, service, strerror(errno));
 		return (-1);
 	}
@@ -139,7 +141,7 @@ void serv_read(char *buf, int bytes)
 	while (len < bytes) {
 		rlen = read(WC->serv_sock, &buf[len], bytes - len);
 		if (rlen < 1) {
-			fprintf(stderr, "Server connection broken: %s\n",
+			lprintf(1, "Server connection broken: %s\n",
 				strerror(errno));
 			WC->connected = 0;
 			WC->logged_in = 0;
@@ -166,7 +168,7 @@ void serv_gets(char *strbuf)
 		strbuf[len++] = ch;
 	} while ((ch != 10) && (ch != 13) && (ch != 0) && (len < 255));
 	strbuf[len - 1] = 0;
-	/* fprintf(stderr, ">%s\n", strbuf); */
+	/* lprintf(9, ">%s\n", strbuf); */
 }
 
 
@@ -182,7 +184,7 @@ void serv_write(char *buf, int nbytes)
 		retval = write(WC->serv_sock, &buf[bytes_written],
 			       nbytes - bytes_written);
 		if (retval < 1) {
-			fprintf(stderr, "Server connection broken: %s\n",
+			lprintf(1, "Server connection broken: %s\n",
 				strerror(errno));
 			WC->connected = 0;
 			WC->logged_in = 0;
@@ -219,5 +221,5 @@ void serv_printf(const char *format,...)
 
 	strcat(buf, "\n");
 	serv_write(buf, strlen(buf));
-	/* fprintf(stderr, "<%s", buf); */
+	/* lprintf(9, "<%s", buf); */
 }

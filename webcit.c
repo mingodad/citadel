@@ -29,6 +29,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include "webcit.h"
+#include "webserver.h"
 #include "mime_parser.h"
 
 /*
@@ -435,7 +436,7 @@ void output_static(char *what)
 
 		fstat(fileno(fp), &statbuf);
 		bytes = statbuf.st_size;
-		fprintf(stderr, "Static: %s, %ld bytes\n", what, bytes);
+		lprintf(5, "Static: %s, %ld bytes\n", what, bytes);
 		wprintf("Content-length: %ld\n", (long) bytes);
 		wprintf("\n");
 		bigbuffer = malloc(bytes);
@@ -631,12 +632,12 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 			char *encoding, void *userdata)
 {
 
-	fprintf(stderr, "UPLOAD HANDLER CALLED\n");
-	fprintf(stderr, "    name = %s\n", name);
-	fprintf(stderr, "filename = %s\n", filename);
-	fprintf(stderr, "encoding = %s\n", encoding);
-	fprintf(stderr, "    type = %s\n", cbtype);
-	fprintf(stderr, "  length = %ld\n", (long)length);
+	lprintf(9, "UPLOAD HANDLER CALLED\n");
+	lprintf(9, "    name = %s\n", name);
+	lprintf(9, "filename = %s\n", filename);
+	lprintf(9, "encoding = %s\n", encoding);
+	lprintf(9, "    type = %s\n", cbtype);
+	lprintf(9, "  length = %ld\n", (long)length);
 
 	if (length > 0) {
 		WC->upload = malloc(length);
@@ -645,7 +646,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 			memcpy(WC->upload, content, length);
 		}
 		else {
-			fprintf(stderr, "malloc() failed: %s\n",
+			lprintf(1, "malloc() failed: %s\n",
 				strerror(errno));
 		}
 	}
@@ -717,7 +718,7 @@ void session_loop(struct httprequest *req)
 	}
 
 	if (ContentLength > 0) {
-		fprintf(stderr, "Content length: %d\n", ContentLength);
+		lprintf(5, "Content length: %d\n", ContentLength);
 		content = malloc(ContentLength + 1);
 		memset(content, 0, ContentLength+1);
 		BytesRead = 0;

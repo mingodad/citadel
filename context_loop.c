@@ -253,7 +253,7 @@ void context_loop(int sock)
 	} while (strlen(buf) > 0);
 
 	strcpy(buf, req->line);
-	fprintf(stderr, "%s\n", buf);
+	lprintf(5, "HTTP: %s\n", buf);
 
 	/* Check for bogus requests */
 	if (is_bogus(buf)) goto bail;
@@ -302,7 +302,7 @@ void context_loop(int sock)
 	 * Create a new session if we have to
 	 */
 	if (TheSession == NULL) {
-		fprintf(stderr, "Creating a new session\n");
+		lprintf(3, "Creating a new session\n");
 		TheSession = (struct wcsession *)
 			malloc(sizeof(struct wcsession));
 		memset(TheSession, 0, sizeof(struct wcsession));

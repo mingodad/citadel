@@ -18,6 +18,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include "webcit.h"
+#include "webserver.h"
 
 
 void extract_key(char *target, char *source, char *key)
@@ -164,7 +165,7 @@ void mime_decode(char *partnum,
 	char *decoded;
 	size_t bytes_decoded = 0;
 
-	fprintf(stderr, "mime_decode() called\n");
+	lprintf(9, "mime_decode() called\n");
 
 	/* Some encodings aren't really encodings */
 	if (!strcasecmp(encoding, "7bit"))
@@ -186,7 +187,7 @@ void mime_decode(char *partnum,
 	
 	if ((strcasecmp(encoding, "base64"))
 	    && (strcasecmp(encoding, "quoted-printable"))) {
-		fprintf(stderr, "ERROR: unknown MIME encoding '%s'\n", encoding);
+		lprintf(1, "ERROR: unknown MIME encoding '%s'\n", encoding);
 		return;
 	}
 	/*
@@ -195,16 +196,16 @@ void mime_decode(char *partnum,
 	 * will never be larger than the encoded data.  This is a safe
 	 * assumption with base64, uuencode, and quoted-printable.
 	 */
-	fprintf(stderr, "About to allocate %d bytes for decoded part\n",
+	lprintf(9, "About to allocate %d bytes for decoded part\n",
 		length+2048);
 	decoded = malloc(length+2048);
 	if (decoded == NULL) {
-		fprintf(stderr, "ERROR: cannot allocate memory.\n");
+		lprintf(1, "ERROR: cannot allocate memory.\n");
 		return;
 	}
-	fprintf(stderr, "Got it!\n");
+	lprintf(9, "Got it!\n");
 
-	fprintf(stderr, "Decoding %s\n", encoding);
+	lprintf(9, "Decoding %s\n", encoding);
 	if (!strcasecmp(encoding, "base64")) {
 		bytes_decoded = decode_base64(decoded, part_start);
 	}
@@ -212,7 +213,7 @@ void mime_decode(char *partnum,
 		bytes_decoded = decode_quoted_printable(decoded,
 							part_start, length);
 	}
-	fprintf(stderr, "Bytes decoded: %d\n", bytes_decoded);
+	lprintf(9, "Bytes decoded: %d\n", bytes_decoded);
 
 	if (bytes_decoded > 0) if (CallBack != NULL) {
 		CallBack(name, filename, fixed_partnum(partnum),
@@ -285,7 +286,7 @@ void the_mime_parser(char *partnum,
 	size_t length;
 	char nested_partnum[SIZ];
 
-	fprintf(stderr, "the_mime_parser() called\n");
+	lprintf(9, "the_mime_parser() called\n");
 	ptr = content_start;
 	content_length = 0;
 
@@ -336,7 +337,7 @@ void the_mime_parser(char *partnum,
 			if (!strncasecmp(header, "Content-type: ", 14)) {
 				strcpy(content_type, &header[14]);
 				extract_key(name, content_type, "name");
-				fprintf(stderr, "Extracted content-type <%s>\n",
+				lprintf(9, "Extracted content-type <%s>\n",
 					content_type);
 			}
 			if (!strncasecmp(header, "Content-Disposition: ", 21)) {
@@ -374,7 +375,7 @@ void the_mime_parser(char *partnum,
 		is_multipart = 0;
 	}
 
-	fprintf(stderr, "is_multipart=%d, boundary=<%s>\n",
+	lprintf(9, "is_multipart=%d, boundary=<%s>\n",
 		is_multipart, boundary);
 
 	/* If this is a multipart message, then recursively process it */
@@ -394,7 +395,7 @@ void the_mime_parser(char *partnum,
 		do {
 			if ( (!strncasecmp(ptr, startary, strlen(startary)))
 			   || (!strncasecmp(ptr, endary, strlen(endary))) ) {
-				fprintf(stderr, "hit boundary!\n");
+				lprintf(9, "hit boundary!\n");
 				if (part_start != NULL) {
 					if (strlen(partnum) > 0) {
 						sprintf(nested_partnum, "%s.%d",
@@ -429,7 +430,7 @@ void the_mime_parser(char *partnum,
 
 	/* If it's not a multipart message, then do something with it */
 	if (!is_multipart) {
-		fprintf(stderr, "doing non-multipart thing\n");
+		lprintf(9, "doing non-multipart thing\n");
 		part_start = ptr;
 		length = 0;
 		while (ptr < content_end) {
@@ -441,7 +442,7 @@ void the_mime_parser(char *partnum,
 		/* Truncate if the header told us to */
 		if ( (content_length > 0) && (length > content_length) ) {
 			length = content_length;
-			fprintf(stderr, "truncated to %ld\n", (long)content_length);
+			lprintf(9, "truncated to %ld\n", (long)content_length);
 		}
 		
 		mime_decode(partnum,
@@ -513,7 +514,7 @@ void mime_parser(char *content_start,
 )
 {
 
-	fprintf(stderr, "mime_parser() called\n");
+	lprintf(9, "mime_parser() called\n");
 	the_mime_parser("", content_start, content_end,
 			CallBack,
 			PreMultiPartCallBack,

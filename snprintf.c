@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include "webserver.h"
 
 static int needed(const char *fmt, va_list argp)
 {
@@ -50,7 +51,7 @@ int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp)
 	int size;
 
 	if ((p = malloc(needed(fmt, argp) + 1)) == NULL) {
-		fprintf(stderr, "vsnprintf: malloc failed, aborting\n");
+		lprintf(1, "vsnprintf: malloc failed, aborting\n");
 		abort();
 	}
 	if ((size = vsprintf(p, fmt, argp)) >= max)
