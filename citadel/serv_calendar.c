@@ -31,6 +31,7 @@
 #include "tools.h"
 #include "msgbase.h"
 #include "mime_parser.h"
+#include "internet_addressing.h"
 #include "serv_calendar.h"
 
 #ifdef CITADEL_WITH_CALENDAR_SERVICE
@@ -1141,8 +1142,71 @@ void ical_freebusy(char *who) {
 	char *serialized_request = NULL;
 	icalcomponent *encaps = NULL;
 	icalcomponent *fb = NULL;
+	int found_user = (-1);
+	struct recptypes *recp = NULL;
+	char buf[SIZ];
+	char host[SIZ];
+	char type[SIZ];
+	int i = 0;
+	int config_lines = 0;
 
-	if (getuser(&usbuf, who) != 0) {
+	/* First try an exact match. */
+	found_user = getuser(&usbuf, who);
+
+	/* If not found, try it as an unqualified email address. */
+	if (found_user != 0) {
+		strcpy(buf, who);
+		recp = validate_recipients(buf);
+		lprintf(CTDL_DEBUG, "Trying <%s>\n", buf);
+		if (recp != NULL) {
+			if (recp->num_local == 1) {
+				found_user = getuser(&usbuf, recp->recp_local);
+			}
+			free(recp);
+		}
+	}
+
+	/* If still not found, try it as an address qualified with the
+	 * primary FQDN of this Citadel node.
+	 */
+	if (found_user != 0) {
+		snprintf(buf, sizeof buf, "%s@%s", who, config.c_fqdn);
+		lprintf(CTDL_DEBUG, "Trying <%s>\n", buf);
+		recp = validate_recipients(buf);
+		if (recp != NULL) {
+			if (recp->num_local == 1) {
+				found_user = getuser(&usbuf, recp->recp_local);
+			}
+			free(recp);
+		}
+	}
+
+	/* Still not found?  Try qualifying it with every domain we
+	 * might have addresses in.
+	 */
+	if (found_user != 0) {
+		config_lines = num_tokens(inetcfg, '\n');
+		for (i=0; ((i < config_lines) && (found_user != 0)); ++i) {
+			extract_token(buf, inetcfg, i, '\n');
+			extract_token(host, buf, 0, '|');
+			extract_token(type, buf, 1, '|');
+
+			if ( (!strcasecmp(type, "localhost"))
+			   || (!strcasecmp(type, "directory")) ) {
+				snprintf(buf, sizeof buf, "%s@%s", who, host);
+				lprintf(CTDL_DEBUG, "Trying <%s>\n", buf);
+				recp = validate_recipients(buf);
+				if (recp != NULL) {
+					if (recp->num_local == 1) {
+						found_user = getuser(&usbuf, recp->recp_local);
+					}
+					free(recp);
+				}
+			}
+		}
+	}
+
+	if (found_user != 0) {
 		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
 		return;
 	}
