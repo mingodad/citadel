@@ -600,6 +600,7 @@ void ungoto(void)
 void display_editroom(void)
 {
 	char buf[SIZ];
+	char node[SIZ];
 	char er_name[20];
 	char er_password[10];
 	char er_dirname[15];
@@ -607,6 +608,10 @@ void display_editroom(void)
 	unsigned er_flags;
 	int er_floor;
 	int i;
+	char *tab;
+
+	tab = bstr("tab");
+	if (strlen(tab) == 0) tab = "admin";
 
 	serv_puts("GETR");
 	serv_gets(buf);
@@ -624,153 +629,248 @@ void display_editroom(void)
 
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Room administration</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
+	/* print the tabbed dialog */
+	wprintf("<TABLE border=0 width=100%%><TR BGCOLOR=FFFFFF><TD> </TD>");
 
-	wprintf("<UL>"
-		"<LI><A HREF=\"/confirm_delete_room\">\n"
-		"Delete this room</A>\n"
-		"<LI><A HREF=\"/display_editroompic\">\n"
-		"Set or change the graphic for this room's banner</A>\n"
-		"<LI><A HREF=\"/display_editinfo\">\n"
-		"Edit this room's Info file</A>\n"
-		"</UL>");
-
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Room editing</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
-
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/editroom\">\n");
-
-	wprintf("<UL><LI>Name of room: ");
-	wprintf("<INPUT TYPE=\"text\" NAME=\"er_name\" VALUE=\"%s\" MAXLENGTH=\"19\">\n", er_name);
-
-	wprintf("<LI>Resides on floor: ");
-	load_floorlist();
-	wprintf("<SELECT NAME=\"er_floor\" SIZE=\"1\">\n");
-	for (i = 0; i < 128; ++i)
-		if (strlen(floorlist[i]) > 0) {
-			wprintf("<OPTION ");
-			if (i == er_floor)
-				wprintf("SELECTED ");
-			wprintf("VALUE=\"%d\">", i);
-			escputs(floorlist[i]);
-			wprintf("</OPTION>\n");
-		}
-	wprintf("</SELECT>\n");
-
-	wprintf("<LI>Type of room:<UL>\n");
-
-	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"public\" ");
-	if ((er_flags & QR_PRIVATE) == 0)
-		wprintf("CHECKED ");
-	wprintf("> Public room\n");
-
-	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"guessname\" ");
-	if ((er_flags & QR_PRIVATE) &&
-	    (er_flags & QR_GUESSNAME))
-		wprintf("CHECKED ");
-	wprintf("> Private - guess name\n");
-
-	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"passworded\" ");
-	if ((er_flags & QR_PRIVATE) &&
-	    (er_flags & QR_PASSWORDED))
-		wprintf("CHECKED ");
-	wprintf("> Private - require password:\n");
-	wprintf("<INPUT TYPE=\"text\" NAME=\"er_password\" VALUE=\"%s\" MAXLENGTH=\"9\">\n", er_password);
-
-	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"invonly\" ");
-	if ((er_flags & QR_PRIVATE)
-	    && ((er_flags & QR_GUESSNAME) == 0)
-	    && ((er_flags & QR_PASSWORDED) == 0))
-		wprintf("CHECKED ");
-	wprintf("> Private - invitation only\n");
-
-	wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"bump\" VALUE=\"yes\" ");
-	wprintf("> If private, cause current users to forget room\n");
-
-	wprintf("</UL>\n");
-
-	wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"prefonly\" VALUE=\"yes\" ");
-	if (er_flags & QR_PREFONLY)
-		wprintf("CHECKED ");
-	wprintf("> Preferred users only\n");
-
-	wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"readonly\" VALUE=\"yes\" ");
-	if (er_flags & QR_READONLY)
-		wprintf("CHECKED ");
-	wprintf("> Read-only room\n");
-
-/* directory stuff */
-	wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"directory\" VALUE=\"yes\" ");
-	if (er_flags & QR_DIRECTORY)
-		wprintf("CHECKED ");
-	wprintf("> File directory room\n");
-
-	wprintf("<UL><LI>Directory name: ");
-	wprintf("<INPUT TYPE=\"text\" NAME=\"er_dirname\" VALUE=\"%s\" MAXLENGTH=\"14\">\n", er_dirname);
-
-	wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"ulallowed\" VALUE=\"yes\" ");
-	if (er_flags & QR_UPLOAD)
-		wprintf("CHECKED ");
-	wprintf("> Uploading allowed\n");
-
-	wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"dlallowed\" VALUE=\"yes\" ");
-	if (er_flags & QR_DOWNLOAD)
-		wprintf("CHECKED ");
-	wprintf("> Downloading allowed\n");
-
-	wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"visdir\" VALUE=\"yes\" ");
-	if (er_flags & QR_VISDIR)
-		wprintf("CHECKED ");
-	wprintf("> Visible directory</UL>\n");
-
-/* end of directory stuff */
-
-	wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"network\" VALUE=\"yes\" ");
-	if (er_flags & QR_NETWORK)
-		wprintf("CHECKED ");
-	wprintf("> Network shared room\n");
-
-/* start of anon options */
-
-	wprintf("<LI>Anonymous messages<UL>\n");
-
-	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"anon\" VALUE=\"no\" ");
-	if (((er_flags & QR_ANONONLY) == 0)
-	    && ((er_flags & QR_ANONOPT) == 0))
-		wprintf("CHECKED ");
-	wprintf("> No anonymous messages\n");
-
-	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"anon\" VALUE=\"anononly\" ");
-	if (er_flags & QR_ANONONLY)
-		wprintf("CHECKED ");
-	wprintf("> All messages are anonymous\n");
-
-	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"anon\" VALUE=\"anon2\" ");
-	if (er_flags & QR_ANONOPT)
-		wprintf("CHECKED ");
-	wprintf("> Prompt user when entering messages</UL>\n");
-
-/* end of anon options */
-
-	wprintf("<LI>Room aide: \n");
-	serv_puts("GETA");
-	serv_gets(buf);
-	if (buf[0] != '2') {
-		wprintf("<EM>%s</EM>\n", &buf[4]);
-	} else {
-		extract(er_roomaide, &buf[4], 0);
-		wprintf("<INPUT TYPE=\"text\" NAME=\"er_roomaide\" VALUE=\"%s\" MAXLENGTH=\"25\">\n", er_roomaide);
+	if (!strcmp(tab, "admin")) {
+		wprintf("<TD BGCOLOR=000077><FONT SIZE=+1 COLOR=\"FFFFFF\"><B>");
+	}
+	else {
+		wprintf("<TD><A HREF=\"/display_editroom&tab=admin\">");
+	}
+	wprintf("Room administration");
+	if (!strcmp(tab, "admin")) {
+		wprintf("</B></FONT></TD>\n");
+	}
+	else {
+		wprintf("</A></TD>\n");
 	}
 
-	wprintf("</UL><CENTER>\n");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
-	wprintf("</CENTER>\n");
+	wprintf("<TD> </TD>\n");
+
+	if (!strcmp(tab, "config")) {
+		wprintf("<TD BGCOLOR=000077><FONT SIZE=+1 COLOR=\"FFFFFF\"><B>");
+	}
+	else {
+		wprintf("<TD><A HREF=\"/display_editroom&tab=config\">");
+	}
+	wprintf("Room configuration");
+	if (!strcmp(tab, "config")) {
+		wprintf("</B></FONT></TD>\n");
+	}
+	else {
+		wprintf("</A></TD>\n");
+	}
+
+	wprintf("<TD> </TD>\n");
+
+	if (!strcmp(tab, "sharing")) {
+		wprintf("<TD BGCOLOR=000077><FONT SIZE=+1 COLOR=\"FFFFFF\"><B>");
+	}
+	else {
+		wprintf("<TD><A HREF=\"/display_editroom&tab=sharing\">");
+	}
+	wprintf("Sharing");
+	if (!strcmp(tab, "sharing")) {
+		wprintf("</B></FONT></TD>\n");
+	}
+	else {
+		wprintf("</A></TD>\n");
+	}
+
+	wprintf("<TD> </TD>\n");
+
+	if (!strcmp(tab, "listserv")) {
+		wprintf("<TD BGCOLOR=000077><FONT SIZE=+1 COLOR=\"FFFFFF\"><B>");
+	}
+	else {
+		wprintf("<TD><A HREF=\"/display_editroom&tab=listserv\">");
+	}
+	wprintf("Mailing list service");
+	if (!strcmp(tab, "listserv")) {
+		wprintf("</B></FONT></TD>\n");
+	}
+	else {
+		wprintf("</A></TD>\n");
+	}
+
+	wprintf("<TD> </TD></TR></TABLE>\n");
+
+	/* end tabbed dialog */	
+
+
+	if (!strcmp(tab, "admin")) {
+		wprintf("<UL>"
+			"<LI><A HREF=\"/confirm_delete_room\">\n"
+			"Delete this room</A>\n"
+			"<LI><A HREF=\"/display_editroompic\">\n"
+			"Set or change the graphic for this room's banner</A>\n"
+			"<LI><A HREF=\"/display_editinfo\">\n"
+			"Edit this room's Info file</A>\n"
+			"</UL>");
+	}
+
+	if (!strcmp(tab, "config")) {
+		wprintf("<FORM METHOD=\"POST\" ACTION=\"/editroom\">\n");
+	
+		wprintf("<UL><LI>Name of room: ");
+		wprintf("<INPUT TYPE=\"text\" NAME=\"er_name\" VALUE=\"%s\" MAXLENGTH=\"19\">\n", er_name);
+	
+		wprintf("<LI>Resides on floor: ");
+		load_floorlist();
+		wprintf("<SELECT NAME=\"er_floor\" SIZE=\"1\">\n");
+		for (i = 0; i < 128; ++i)
+			if (strlen(floorlist[i]) > 0) {
+				wprintf("<OPTION ");
+				if (i == er_floor)
+					wprintf("SELECTED ");
+				wprintf("VALUE=\"%d\">", i);
+				escputs(floorlist[i]);
+				wprintf("</OPTION>\n");
+			}
+		wprintf("</SELECT>\n");
+	
+		wprintf("<LI>Type of room:<UL>\n");
+
+		wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"public\" ");
+		if ((er_flags & QR_PRIVATE) == 0)
+		wprintf("CHECKED ");
+		wprintf("> Public room\n");
+
+		wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"guessname\" ");
+		if ((er_flags & QR_PRIVATE) &&
+		    (er_flags & QR_GUESSNAME))
+			wprintf("CHECKED ");
+		wprintf("> Private - guess name\n");
+	
+		wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"passworded\" ");
+		if ((er_flags & QR_PRIVATE) &&
+		    (er_flags & QR_PASSWORDED))
+			wprintf("CHECKED ");
+		wprintf("> Private - require password:\n");
+		wprintf("<INPUT TYPE=\"text\" NAME=\"er_password\" VALUE=\"%s\" MAXLENGTH=\"9\">\n", er_password);
+	
+		wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"invonly\" ");
+		if ((er_flags & QR_PRIVATE)
+		    && ((er_flags & QR_GUESSNAME) == 0)
+		    && ((er_flags & QR_PASSWORDED) == 0))
+			wprintf("CHECKED ");
+		wprintf("> Private - invitation only\n");
+	
+		wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"bump\" VALUE=\"yes\" ");
+		wprintf("> If private, cause current users to forget room\n");
+	
+		wprintf("</UL>\n");
+	
+		wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"prefonly\" VALUE=\"yes\" ");
+		if (er_flags & QR_PREFONLY)
+			wprintf("CHECKED ");
+		wprintf("> Preferred users only\n");
+	
+		wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"readonly\" VALUE=\"yes\" ");
+		if (er_flags & QR_READONLY)
+			wprintf("CHECKED ");
+		wprintf("> Read-only room\n");
+	
+	/* directory stuff */
+		wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"directory\" VALUE=\"yes\" ");
+		if (er_flags & QR_DIRECTORY)
+			wprintf("CHECKED ");
+		wprintf("> File directory room\n");
+
+		wprintf("<UL><LI>Directory name: ");
+		wprintf("<INPUT TYPE=\"text\" NAME=\"er_dirname\" VALUE=\"%s\" MAXLENGTH=\"14\">\n", er_dirname);
+
+		wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"ulallowed\" VALUE=\"yes\" ");
+		if (er_flags & QR_UPLOAD)
+			wprintf("CHECKED ");
+		wprintf("> Uploading allowed\n");
+	
+		wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"dlallowed\" VALUE=\"yes\" ");
+		if (er_flags & QR_DOWNLOAD)
+			wprintf("CHECKED ");
+		wprintf("> Downloading allowed\n");
+	
+		wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"visdir\" VALUE=\"yes\" ");
+		if (er_flags & QR_VISDIR)
+			wprintf("CHECKED ");
+		wprintf("> Visible directory</UL>\n");
+	
+	/* end of directory stuff */
+	
+		wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"network\" VALUE=\"yes\" ");
+		if (er_flags & QR_NETWORK)
+			wprintf("CHECKED ");
+		wprintf("> Network shared room\n");
+
+	/* start of anon options */
+	
+		wprintf("<LI>Anonymous messages<UL>\n");
+	
+		wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"anon\" VALUE=\"no\" ");
+		if (((er_flags & QR_ANONONLY) == 0)
+		    && ((er_flags & QR_ANONOPT) == 0))
+			wprintf("CHECKED ");
+		wprintf("> No anonymous messages\n");
+	
+		wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"anon\" VALUE=\"anononly\" ");
+		if (er_flags & QR_ANONONLY)
+			wprintf("CHECKED ");
+		wprintf("> All messages are anonymous\n");
+	
+		wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"anon\" VALUE=\"anon2\" ");
+		if (er_flags & QR_ANONOPT)
+			wprintf("CHECKED ");
+		wprintf("> Prompt user when entering messages</UL>\n");
+	
+	/* end of anon options */
+	
+		wprintf("<LI>Room aide: \n");
+		serv_puts("GETA");
+		serv_gets(buf);
+		if (buf[0] != '2') {
+			wprintf("<EM>%s</EM>\n", &buf[4]);
+		} else {
+			extract(er_roomaide, &buf[4], 0);
+			wprintf("<INPUT TYPE=\"text\" NAME=\"er_roomaide\" VALUE=\"%s\" MAXLENGTH=\"25\">\n", er_roomaide);
+		}
+	
+		wprintf("</UL><CENTER>\n");
+		wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
+		wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
+		wprintf("</CENTER>\n");
+	}
+
+
+
+	if (!strcmp(tab, "sharing")) {
+
+		wprintf("<CENTER>"
+			"<FORM METHOD=\"POST\" ACTION=\"/edit_sharing\">"
+			"<TABLE border=0><TR>"
+			"<TD><B><I>Neighbor node</I></B></TD>"
+			"<TD><B><I>Shared?</I></B></TD></TR>\n");
+
+		serv_puts("CONF getsys|application/x-citadel-ignet-config");
+		serv_gets(buf);
+		if (buf[0]=='1') while (serv_gets(buf), strcmp(buf, "000")) {
+			extract(node, buf, 0);
+			wprintf("<TR>");
+			wprintf("<TD>%s</TD>", node);
+			wprintf("<TD>fixme</TD>");
+			wprintf("</TR>\n");
+		}
+
+		wprintf("</TABLE></FORM>\n"
+			"<I><B>Reminder:</B> When sharing a room, "
+			"it must be shared from both ends.  Checking these "
+			"boxes sends messages out, but in order to receive "
+			"messages, the other nodes must be configured to send "
+			"messages out to this system.</I><BR>"
+			"</CENTER>\n");
+
+	}
+
 
 	wDumpContent(1);
 }
