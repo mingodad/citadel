@@ -74,7 +74,7 @@ int CtdlIPCGetMessages(int which, int whicharg, const char *template,
 int CtdlIPCGetSingleMessage(long msgnum, int headers, int as_mime,
 		struct ctdlipcmessage **mret, char *cret);
 int CtdlIPCWhoKnowsRoom(char **listing, char *cret);
-int CtdlIPCServerInfo(char **listing, char *cret);
+int CtdlIPCServerInfo(struct CtdlServInfo *ServInfo, char *cret);
 int CtdlIPCReadDirectory(char **listing, char *cret);
 int CtdlIPCSetLastRead(long msgnum, char *cret);
 int CtdlIPCInviteUserToRoom(const char *username, char *cret);

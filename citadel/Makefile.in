@@ -81,7 +81,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c \
 	logging.c messages.c msgbase.c msgform.c serv_spam.c \
 	policy.c readlog.c migratenet.c screen.c serv_mrtg.c \
 	room_ops.c rooms.c routines.c routines2.c serv_chat.c serv_crypto.c \
-	serv_info.c serv_test.c setup.c snprintf.c stats.c serv_vcard.c \
+	serv_test.c setup.c snprintf.c stats.c serv_vcard.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
 	whobbs.c sendcommand.c mime_parser.c base64.c getutline.c \
 	auth.c chkpwd.c html.c vcard.c serv_upgrade.c serv_vandelay.c \
@@ -110,10 +110,10 @@ serv_modules: $(SERV_MODULES)
 citadel$(EXEEXT): ipc_c_tcp.o citadel.o rooms.o routines.o \
 	routines2.o messages.o screen.o citadel_ipc.o \
 	client_passwords.o md5.o client_crypto.o \
-	commands.o client_chat.o serv_info.o tools.o $(LIBOBJS)
+	commands.o client_chat.o tools.o $(LIBOBJS)
 	$(CC) ipc_c_tcp.o citadel.o rooms.o routines.o \
 	routines2.o messages.o screen.o citadel_ipc.o \
-	commands.o client_chat.o serv_info.o tools.o \
+	commands.o client_chat.o tools.o \
 	client_passwords.o md5.o client_crypto.o \
 	$(LIBOBJS) $(LDFLAGS) -o citadel $(LIBS)
 
@@ -221,8 +221,8 @@ setup: setup.o tools.o
 chkpwd: chkpwd.o auth.o config.o
 	$(CC) chkpwd.o auth.o config.o $(LDFLAGS) -o chkpwd $(chkpwd_LIBS)
 
-whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o tools.o client_crypto.o $(LIBOBJS)
-	$(CC) whobbs.o ipc_c_tcp.o tools.o client_crypto.o $(LIBOBJS) $(LDFLAGS) -o whobbs $(LIBS)
+whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o tools.o client_crypto.o citadel_ipc.o $(LIBOBJS)
+	$(CC) whobbs.o ipc_c_tcp.o tools.o client_crypto.o citadel_ipc.o  $(LIBOBJS) $(LDFLAGS) -o whobbs $(LIBS)
 
 migratenet$(EXEEXT): migratenet.o config.o ipc_c_tcp.o client_crypto.o tools.o libcitserver.la $(LIBOBJS)
 	$(LIBTOOL) $(CC) migratenet.o config.o ipc_c_tcp.o client_crypto.o tools.o libcitserver.la $(LIBOBJS) $(LDFLAGS) -o migratenet $(LIBS)

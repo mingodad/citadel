@@ -35,7 +35,6 @@
 
 #include "citadel.h"
 #include "axdefs.h"
-#include "serv_info.h"
 #include "routines.h"
 #include "routines2.h"
 #include "rooms.h"
@@ -101,10 +100,10 @@ char rc_floor_mode;
 char floor_mode;
 char curr_floor = 0;		/* number of current floor */
 char floorlist[128][SIZ];	/* names of floors */
-char express_msgs = 0;		/* express messages waiting! */
 int termn8 = 0;			/* Set to nonzero to cause a logoff */
 int secure;			/* Set to nonzero when wire is encrypted */
 
+extern char express_msgs;	/* express messages waiting! */
 extern int rc_ansi_color;	/* ansi color value from citadel.rc */
 extern int next_lazy_cmd;
 
@@ -729,9 +728,9 @@ int set_password(void)
  */
 void get_serv_info(char *supplied_hostname)
 {
-	char buf[512];
+	char buf[SIZ];
 
-	CtdlInternalGetServInfo(&serv_info);
+	CtdlIPCServerInfo(&serv_info, buf);
 
 	/* be nice and identify ourself to the server */
 	CtdlIPCIdentifySoftware(SERVER_TYPE, 0, REV_LEVEL,
@@ -757,6 +756,8 @@ void who_is_online(int longlist)
 	time_t idletime, idlehours, idlemins, idlesecs;
 	int last_session = (-1);
 	int skipidle = 0;
+	char *listing = NULL;
+	int r;				/* IPC response code */
     
 	if (longlist == 2) {
 		longlist = 0;
@@ -773,11 +774,15 @@ void who_is_online(int longlist)
 		color(DIM_WHITE);
 		pprintf("--- --- ------------------------- -------------------- ------------------------\n");
 	}
-	serv_puts("RWHO");
-	serv_gets(buf);
-	if (buf[0] == '1') {
-		while (serv_gets(buf), strcmp(buf, "000")) {
-	        int isidle = 0;
+	r = CtdlIPCOnlineUsers(&listing, &timenow, buf);
+	if (r / 100 == 1) {
+		while (strlen(listing) > 0) {
+			int isidle = 0;
+			
+			/* Get another line */
+			extract_token(buf, listing, 0, '\n');
+			remove_token(listing, 0, '\n');
+
 			extract(username, buf, 1);
 			extract(roomname, buf, 2);
 			extract(fromhost, buf, 3);
@@ -794,12 +799,11 @@ void who_is_online(int longlist)
 					strcat(roomname, " ");
 				}
 				strcpy(&roomname[14], "[idle]");
-		        if (skipidle)
-                  isidle = 1;
+				if (skipidle)
+					isidle = 1;
 			}
 
 			if (longlist) {
-
 				extract(actual_user, buf, 8);
 				extract(actual_room, buf, 9);
 				extract(actual_host, buf, 10);

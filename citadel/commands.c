@@ -346,6 +346,7 @@ void set_keepalives(int s)
 static time_t idlet = 0;
 static void really_do_keepalive(void) {
 	char buf[1024];
+	int r;				/* IPC response code */
 
 	time(&idlet);
 
@@ -353,10 +354,8 @@ static void really_do_keepalive(void) {
 	 * wait for a response.
 	 */
 	if (keepalives_enabled == KA_YES) {
-		serv_puts("NOOP");
-		serv_gets(buf);
-		if (buf[3] == '*') {
-			express_msgs = 1;
+		r = CtdlIPCNoop();
+		if (express_msgs > 0) {
 			if (ok_to_interrupt == 1) {
 				scr_printf("\r%64s\r", "");
 				print_express();

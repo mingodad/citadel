@@ -5,11 +5,13 @@
  *
  */
 
+#include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
 #include "citadel.h"
+#include "citadel_ipc.h"
 #include "ipc.h"
 #include "tools.h"
 
@@ -46,7 +48,6 @@ int main(int argc, char **argv)
 {
 	char buf[512];
 	char nodetitle[SIZ];
-	int a;
 	int www = 0;
 	int s_pid = 0;
 	int my_pid = 0;
@@ -56,6 +57,10 @@ int main(int argc, char **argv)
 	char s_room[SIZ];
 	char s_host[SIZ];
 	char s_client[SIZ];
+	int r;			/* IPC response code */
+	time_t timenow;
+	char *listing = NULL;
+	struct CtdlServInfo *serv_info = NULL;
 
 	/* If this environment variable is set, we assume that the program
 	 * is being called as a cgi-bin from a webserver and will output
@@ -70,16 +75,11 @@ int main(int argc, char **argv)
 		logoff(atoi(buf));
 		}
 	strcpy(nodetitle, "this BBS");
-	serv_puts("INFO");
-	serv_gets(buf);
-	if (buf[0]=='1') {
-		a = 0;
-		while (serv_gets(buf), strcmp(buf,"000")) {
-			if (a==0) my_pid = atoi(buf);
-			if (a==2) strcpy(nodetitle, buf);
-			++a;
-			}
-		}
+	r = CtdlIPCServerInfo(serv_info, buf);
+	if (r / 100 == 1) {
+		my_pid = serv_info->serv_pid;
+		strcpy(nodetitle, serv_info->serv_humannode);
+	}
 	
 	if (www) {
 		printf(	"Content-type: text/html\n"
@@ -103,10 +103,9 @@ int main(int argc, char **argv)
 		printf("</H1>\n");
 	}
 
-	serv_puts("RWHO");
-	serv_gets(buf);
-	if (buf[0]!='1') {
-		fprintf(stderr,"%s: %s\n",argv[0],&buf[4]);
+	r = CtdlIPCOnlineUsers(&listing, &timenow, buf);
+	if (r / 100 != 1) {
+		fprintf(stderr,"%s: %s\n",argv[0], buf);
 		logoff(atoi(buf));
 	}
 
@@ -120,11 +119,13 @@ int main(int argc, char **argv)
 		printf(	"Session         User name               "
 			"Room                  From host\n");
 		printf(	"------- ------------------------- "
-			"-------------------- ------------------------\n");
+			"------------------- ------------------------\n");
 	}
 
 
-	while (serv_gets(buf), strcmp(buf,"000")) {
+	while (strlen(listing) > 0) {
+		extract_token(buf, listing, 0, '\n');
+		remove_token(listing, 0, '\n');
 
 		/* Escape some stuff if we're using www mode */
 		if (www) escapize(buf, sizeof buf);
@@ -156,10 +157,9 @@ int main(int argc, char **argv)
 			"once per minute)</FONT>\n"
 			"</BODY></HTML>\n");
 
-	serv_puts("QUIT");
-	serv_gets(buf);
-	return 0;
-	}
+	r = CtdlIPCQuit();
+	return (r / 100 == 2) ? 0 : r;
+}
 
 
 #ifndef HAVE_STRERROR

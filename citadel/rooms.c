@@ -393,6 +393,7 @@ void editthisroom(void)
 	int rorder;
 	int expire_mode = 0;
 	int expire_value = 0;
+	int r;				/* IPC response code */
 
 	/* Fetch the existing room config */
 	serv_puts("GETR");
@@ -1154,6 +1155,7 @@ void edit_floor(void)
 	char buf[SIZ];
 	int expire_mode = 0;
 	int expire_value = 0;
+	int r;				/* IPC response code */
 
 	load_floorlist();
 
@@ -1201,7 +1203,7 @@ void edit_floor(void)
 	/* Save it */
 	r = CtdlIPCSetMessageExpirationPolicy(1, expire_mode,
 					      expire_value, buf);
-	r = CtdlIPCEditFloor(curr_floor, &floorlist[(int)curr_floor][0]);
+	r = CtdlIPCEditFloor(curr_floor, &floorlist[(int)curr_floor][0], buf);
 	scr_printf("%s\n", buf);
 	load_floorlist();
 }

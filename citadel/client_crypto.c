@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include "citadel.h"
 #include "client_crypto.h"
+#include "citadel_ipc.h"
 #include "ipc.h"
 
 #ifdef HAVE_OPENSSL
@@ -149,6 +150,7 @@ int starttls(void)
 {
 #ifdef HAVE_OPENSSL
 	int a;
+	int r;				/* IPC response code */
 	char buf[SIZ];
 	SSL_METHOD *ssl_method;
 	DH *dh;
@@ -271,9 +273,16 @@ int starttls(void)
 	serv_puts("STLS");
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		error_printf("Server can't start TLS: %s\n", &buf[4]);
+		error_printf("Server can't start TLS: %s\n", buf);
 		return 0;
 	}
+	/* New code
+	r = CtdlIPCStartEncryption(buf);
+	if (r / 100 != 2) {
+		error_printf("Server can't start TLS: %s\n", buf);
+		return 0;
+	}
+	*/
 
 	/* Do SSL/TLS handshake */
 	if ((a = SSL_connect(ssl)) < 1) {

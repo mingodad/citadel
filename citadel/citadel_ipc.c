@@ -28,7 +28,7 @@
 #ifdef THREADED_CLIENT
 pthread_mutex_t rwlock;
 #endif
-extern char express_msgs;
+char express_msgs = 0;
 
 static volatile int download_in_progress = 0;	/* download file open */
 static volatile int upload_in_progress = 0;	/* upload file open */
@@ -42,14 +42,7 @@ int CtdlIPCNoop(void)
 {
 	char aaa[128];
 
-	register int ret;
-
-	netio_lock();
-	serv_puts("NOOP");
-	serv_gets(aaa);
-	ret = atoi(aaa);
-	netio_unlock();
-	return ret;
+	return CtdlIPCGenericCommand("NOOP", NULL, 0, NULL, NULL, aaa);
 }
 
 
@@ -399,11 +392,8 @@ int CtdlIPCGetSingleMessage(long msgnum, int headers, int as_mime,
 	if (ret / 100 == 1) {
 		if (!as_mime) {
 			while (strlen(bbb) > 4 && bbb[4] == '=') {
-				int a;
-
 				extract_token(aaa, bbb, 0, '\n');
-				a = strlen(aaa);
-				safestrncpy(bbb, &bbb[a + 1], strlen(bbb) - a);
+				remove_token(bbb, 0, '\n');
 
 				if (!strncasecmp(aaa, "nhdr=yes", 8))
 					mret[0]->nhdr = 1;
@@ -450,7 +440,7 @@ int CtdlIPCGetSingleMessage(long msgnum, int headers, int as_mime,
 				}
 			}
 			/* Eliminate "text\n" */
-			safestrncpy(bbb, &bbb[5], strlen(bbb) - 4);
+			remove_token(bbb, 0, '\n');
 		}
 		if (strlen(bbb)) {
 			/* Strip trailing whitespace */
@@ -480,16 +470,52 @@ int CtdlIPCWhoKnowsRoom(char **listing, char *cret)
 
 
 /* INFO */
-int CtdlIPCServerInfo(char **listing, char *cret)
+int CtdlIPCServerInfo(struct CtdlServInfo *ServInfo, char *cret)
 {
 	register int ret;
 	size_t bytes;
+	char *listing = NULL;
+	char buf[SIZ];
 
 	if (!cret) return -2;
-	if (!listing) return -2;
-	if (*listing) return -2;
+	if (!ServInfo) return -2;
 
-	ret = CtdlIPCGenericCommand("INFO", NULL, 0, listing, &bytes, cret);
+	ret = CtdlIPCGenericCommand("INFO", NULL, 0, &listing, &bytes, cret);
+	if (ret / 100 == 1) {
+		int line = 0;
+
+		while (*listing && strlen(listing)) {
+			extract_token(buf, listing, 0, '\n');
+			remove_token(listing, 0, '\n');
+			switch (line++) {
+			case 0:		ServInfo->serv_pid = atoi(buf);
+					break;
+			case 1:		strcpy(ServInfo->serv_nodename,buf);
+					break;
+			case 2:		strcpy(ServInfo->serv_humannode,buf);
+					break;
+			case 3:		strcpy(ServInfo->serv_fqdn,buf);
+					break;
+			case 4:		strcpy(ServInfo->serv_software,buf);
+					break;
+			case 5:		ServInfo->serv_rev_level = atoi(buf);
+					break;
+			case 6:		strcpy(ServInfo->serv_bbs_city,buf);
+					break;
+			case 7:		strcpy(ServInfo->serv_sysadm,buf);
+					break;
+			case 9:		strcpy(ServInfo->serv_moreprompt,buf);
+					break;
+			case 10:	ServInfo->serv_ok_floors = atoi(buf);
+					break;
+			case 11:	ServInfo->serv_paging_level = atoi(buf);
+					break;
+			case 13:	ServInfo->serv_supports_qnop = atoi(buf);
+					break;
+			}
+		}
+
+	}
 	return ret;
 }
 
