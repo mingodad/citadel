@@ -373,9 +373,45 @@ void ical_learn_uid_of_reply(char *uidbuf, icalcomponent *cal) {
 	}
 }
 
-void ical_do_FIXME(long msgnum, void *data) {
-	lprintf(9, "Found message <%ld> with correct UID\n", msgnum);
+
+/*
+ * ical_update_my_calendar_with_reply() refers to this callback function; when we
+ * locate the message containing the calendar event we're replying to, this function
+ * gets called.  It basically just sticks the message number in a supplied buffer.
+ */
+void ical_hunt_for_event_to_update(long msgnum, void *data) {
+	long *msgnumptr;
+
+	msgnumptr = (long *) data;
+	*msgnumptr = msgnum;
 }
+
+
+struct original_event_container {
+	icalcomponent *c;
+};
+
+/*
+ * Callback function for mime parser that hunts for calendar content types
+ * and turns them into calendar objects (called by ical_update_my_calendar_with_reply()
+ * to fetch the object being updated)
+ */
+void ical_locate_original_event(char *name, char *filename, char *partnum, char *disp,
+		void *content, char *cbtype, size_t length, char *encoding,
+		void *cbuserdata) {
+
+	struct original_event_container *oec = NULL;
+
+	if (strcasecmp(cbtype, "text/calendar")) {
+		return;
+	}
+	oec = (struct original_event_container *) cbuserdata;
+	if (oec->c != NULL) {
+		icalcomponent_free(oec->c);
+	}
+	oec->c = icalcomponent_new_from_string(content);
+}
+
 
 /*
  * Handle an incoming RSVP (object with method==ICAL_METHOD_REPLY) for a
@@ -389,8 +425,11 @@ void ical_do_FIXME(long msgnum, void *data) {
 int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	char uid[SIZ];
 	char hold_rm[ROOMNAMELEN];
-	int replaced_an_event = 0;
+	long msgnum_being_replaced = 0;
 	struct CtdlMessage *template = NULL;
+	struct CtdlMessage *msg;
+	struct original_event_container oec;
+	icalcomponent *original_event;
 
 	/* Figure out just what event it is we're dealing with */
 	strcpy(uid, "--==<< InVaLiD uId >>==--");
@@ -416,16 +455,47 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	memset(template, 0, sizeof(struct CtdlMessage));
 	template->cm_fields['E'] = strdoop(uid);
 	CtdlForEachMessage(MSGS_ALL, 0, "text/calendar",
-		template, ical_do_FIXME, NULL);
+		template, ical_hunt_for_event_to_update, &msgnum_being_replaced);
 	CtdlFreeMessage(template);
 	getroom(&CC->quickroom, hold_rm);	/* return to saved room */
 
-	if (replaced_an_event) {
-		return(0);
+	lprintf(9, "msgnum_being_replaced == %ld\n", msgnum_being_replaced);
+	if (msgnum_being_replaced == 0) {
+		return(1);			/* no calendar event found */
 	}
-	else {
+
+	/* Now we know the ID of the message containing the event being updated.
+	 * We don't actually have to delete it; that'll get taken care of by the
+	 * server when we save another event with the same UID.  This just gives
+	 * us the ability to load the event into memory so we can diddle the
+	 * attendees.
+	 */
+	msg = CtdlFetchMessage(msgnum_being_replaced);
+	if (msg == NULL) {
+		return(2);			/* internal error */
+	}
+	oec.c = NULL;
+	mime_parser(msg->cm_fields['M'],
+		NULL,
+		*ical_locate_original_event,	/* callback function */
+		NULL, NULL,
+		&oec,				/* user data */
+		0
+	);
+	CtdlFreeMessage(msg);
+
+	original_event = oec.c;
+	if (original_event == NULL) {
+		lprintf(3, "ERROR: Original_component is NULL.\n");
 		return(1);
 	}
+
+	/* FIXME finish this */
+	/* merge "cal" into "original_event" */
+	/* reserialize "original_event" and save to disk */
+
+	icalcomponent_free(original_event);
+	return(0);
 }
 
 
