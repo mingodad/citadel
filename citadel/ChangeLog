@@ -1,4 +1,8 @@
  $Log$
+ Revision 620.6  2004/04/01 04:41:55  ajc
+ * Put some blankety-blank values in the default generated vCard so it's
+   more acceptable to LDAP conversion
+
  Revision 620.5  2004/03/31 02:19:09  ajc
  * Change the IMAP folder delimiter from "|" to "/" because more than a few
    client programs don't follow RFC2060 strictly enough to work with
@@ -5656,3 +5660,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -702,6 +702,7 @@ void vcard_newuser(struct ctdluser *usbuf) {
 	}
 	vcard_add_prop(v, "fn", usbuf->fullname);
 	vcard_add_prop(v, "n", vname);
+	vcard_add_prop(v, "adr", "adr:;;_;_;_;00000;__");
 	vcard_add_prop(v, "email;internet", buf);
 	vcard_write_user(usbuf, v);
 	vcard_free(v);
