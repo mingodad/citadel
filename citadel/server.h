@@ -129,7 +129,7 @@ struct CitContext {
 	char *output_buffer;	/* hold output for one big dump */
 	int buffer_len;
 
-	/* A linked list of all express messages sent to us. */
+	/* A linked list of all instant messages sent to us. */
 	struct ExpressMessage *FirstExpressMessage;
 	int disable_exp;	/* Set to 1 to disable incoming pages */
 	int newmail;		/* Other sessions increment this */
@@ -378,7 +378,7 @@ extern struct DeleteFunctionHook *DeleteHookTable;
 
 /*
  * ExpressMessageFunctionHook extensions are used for hooks which implement
- * the sending of an express message through various channels.  Any function
+ * the sending of an instant message through various channels.  Any function
  * registered should return the number of recipients to whom the message was
  * successfully transmitted.
  */

@@ -361,7 +361,7 @@ void cmd_info(void) {
 
 
 /*
- * returns an asterisk if there are any express messages waiting,
+ * returns an asterisk if there are any instant messages waiting,
  * space otherwise.
  */
 char CtdlCheckExpress(void) {

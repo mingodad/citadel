@@ -94,7 +94,7 @@ struct citcmd *cmdlist = NULL;
 
 /* these variables are local to this module */
 char keepalives_enabled = KA_YES;	/* send NOOPs to server when idle */
-int ok_to_interrupt = 0;		/* print express msgs asynchronously */
+int ok_to_interrupt = 0;		/* print instant msgs asynchronously */
 time_t AnsiDetect;			/* when did we send the detect code? */
 int enable_color = 0;			/* nonzero for ANSI color */
 
@@ -199,9 +199,9 @@ void pprintf(const char *format, ...) {
 
 
 /*
- * print_express()  -  print express messages if there are any
+ * print_instant()  -  print instant messages if there are any
  */
-void print_express(void)
+void print_instant(void)
 {
 	char buf[1024];
 	FILE *outpipe;
@@ -213,7 +213,7 @@ void print_express(void)
 	char *listing = NULL;
 	int r;			/* IPC result code */
 
-	if (express_msgs == 0)
+	if (instant_msgs == 0)
 		return;
 
 	if (rc_exp_beep) {
@@ -224,12 +224,12 @@ void print_express(void)
 		scr_printf("\r---");
 	}
 	
-	while (express_msgs != 0) {
+	while (instant_msgs != 0) {
 		r = CtdlIPCGetInstantMessage(ipc_for_signal_handlers, &listing, buf);
 		if (r / 100 != 1)
 			return;
 	
-		express_msgs = extract_int(buf, 0);
+		instant_msgs = extract_int(buf, 0);
 		timestamp = extract_long(buf, 1);
 		flags = extract_int(buf, 2);
 		extract(sender, buf, 3);
@@ -274,12 +274,12 @@ void print_express(void)
 					fprintf(outpipe, " @%s", node);
 				fprintf(outpipe, ":\n%s\n", listing);
 				pclose(outpipe);
-				if (express_msgs == 0)
+				if (instant_msgs == 0)
 					return;
 				continue;
 			}
 		}
-		/* fall back to built-in express message display */
+		/* fall back to built-in instant message display */
 		scr_printf("\n");
 		lines_printed++;
 
@@ -361,10 +361,10 @@ static void really_do_keepalive(void) {
 	 */
 	if (keepalives_enabled == KA_YES) {
 		r = CtdlIPCNoop(ipc_for_signal_handlers);
-		if (express_msgs > 0) {
+		if (instant_msgs > 0) {
 			if (ok_to_interrupt == 1) {
 				scr_printf("\r%64s\r", "");
-				print_express();
+				print_instant();
 				scr_printf("%s%c ", room_name,
 				       room_prompt(room_flags));
 				scr_flush();
@@ -616,7 +616,7 @@ void strprompt(char *prompt, char *str, int len)
 	int i;
 	char buf[128];
 
-	print_express();
+	print_instant();
 	color(DIM_WHITE);
 	scr_printf("%s ", prompt);
 	color(DIM_MAGENTA);
@@ -1086,7 +1086,7 @@ int getcmd(CtdlIPC *ipc, char *argbuf)
 	/* if we're running in idiot mode, display a cute little menu */
 	IFNEXPERT formout(ipc, "mainmenu");
 
-	print_express();
+	print_instant();
 	strcpy(argbuf, "");
 	cmdpos = 0;
 	for (a = 0; a < 5; ++a)

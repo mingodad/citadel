@@ -6,9 +6,9 @@ void do_chat_listing (int allflag);
 void cmd_chat (char *argbuf);
 void cmd_pexp (char *argbuf); /* arg unused */
 void cmd_sexp (char *argbuf);
-void delete_express_messages(void);
+void delete_instant_messages(void);
 void cmd_gexp(char *);
-int send_express_message(char *, char *, char *);
+int send_instant_message(char *, char *, char *);
 
 struct savelist {
 	struct savelist *next;

@@ -225,7 +225,7 @@ RCL:		if (send_complete_line) {
 }
 
 /*
- * send an express message
+ * send an instant message
  */
 void page_user(CtdlIPC *ipc)
 {

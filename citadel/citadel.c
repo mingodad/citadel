@@ -100,7 +100,7 @@ int termn8 = 0;			/* Set to nonzero to cause a logoff */
 int secure;			/* Set to nonzero when wire is encrypted */
 int can_do_msg4 = 0;		/* Set to nonzero if the server can handle MSG4 commands */
 
-extern char express_msgs;	/* express messages waiting! */
+extern char instant_msgs;	/* instant messages waiting! */
 extern int rc_ansi_color;	/* ansi color value from citadel.rc */
 extern int next_lazy_cmd;
 

@@ -135,9 +135,9 @@ void imap_uidcopy(int num_parms, char *parms[]) {
 
 
 /*
- * Poll for express messages (yeah, we can do this in IMAP ... I think)
+ * Poll for instant messages (yeah, we can do this in IMAP ... I think)
  */
-void imap_print_express_messages(void) {
+void imap_print_instant_messages(void) {
 	struct ExpressMessage *ptr, *holdptr;
 	char *dumpomatic = NULL;
 	char tmp[SIZ];

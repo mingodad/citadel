@@ -1,11 +1,17 @@
  $Log$
+ Revision 621.8  2004/06/07 16:41:28  ajc
+ * Changed "express message" to "instant message" everywhere in the code
+   and documentation, to reflect the now industry-standard terminology for
+   this function.  (Obviously, the server command names have not changed,
+   because that would break everything.)
+
  Revision 621.7  2004/06/06 22:30:10  ajc
  * New session scheduler.  All sessions which select() marks for activity
    are now handled before select() is called again.
 
  Revision 621.6  2004/06/03 02:49:14  ajc
- * html.c: allow parsing of tags even when they're qualified (i.e. <TAG foo=bar>
-           instead of just <TAG> )
+ * html.c: allow parsing of tags even when they're qualified
+           (i.e. <TAG foo=bar> instead of just <TAG> )
  * html.c: handle escaped decimal characters (such as &#39; for an apostrophe)
 
  Revision 621.5  2004/06/03 02:28:16  ajc

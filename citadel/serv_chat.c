@@ -408,9 +408,9 @@ void cmd_chat(char *argbuf)
 
 
 /*
- * Delete any remaining express messages
+ * Delete any remaining instant messages
  */
-void delete_express_messages(void) {
+void delete_instant_messages(void) {
 	struct ExpressMessage *ptr;
 
 	begin_critical_section(S_SESSION_TABLE);
@@ -428,14 +428,14 @@ void delete_express_messages(void) {
 
 
 /*
- * Poll for express messages (OLD METHOD -- ***DEPRECATED ***)
+ * Poll for instant messages (OLD METHOD -- ***DEPRECATED ***)
  */
 void cmd_pexp(char *argbuf)
 {
 	struct ExpressMessage *ptr, *holdptr;
 
 	if (CC->FirstExpressMessage == NULL) {
-		cprintf("%d No express messages waiting.\n", ERROR + MESSAGE_NOT_FOUND);
+		cprintf("%d No instant messages waiting.\n", ERROR + MESSAGE_NOT_FOUND);
 		return;
 	}
 	begin_critical_section(S_SESSION_TABLE);
@@ -467,13 +467,13 @@ void cmd_pexp(char *argbuf)
 
 
 /*
- * Get express messages (new method)
+ * Get instant messages (new method)
  */
 void cmd_gexp(char *argbuf) {
 	struct ExpressMessage *ptr;
 
 	if (CC->FirstExpressMessage == NULL) {
-		cprintf("%d No express messages waiting.\n", ERROR + MESSAGE_NOT_FOUND);
+		cprintf("%d No instant messages waiting.\n", ERROR + MESSAGE_NOT_FOUND);
 		return;
 	}
 
@@ -499,7 +499,7 @@ void cmd_gexp(char *argbuf) {
 }
 
 /*
- * Asynchronously deliver express messages'
+ * Asynchronously deliver instant messages
  */
 void cmd_gexp_async(void) {
 
@@ -509,12 +509,12 @@ void cmd_gexp_async(void) {
 	/* And don't do it if there's nothing to send. */
 	if (CC->FirstExpressMessage == NULL) return;
 
-	cprintf("%d express msg\n", ASYNC_MSG + ASYNC_GEXP);
+	cprintf("%d instant msg\n", ASYNC_MSG + ASYNC_GEXP);
 	cmd_gexp("");
 }
 
 /*
- * Back end support function for send_express_message() and company
+ * Back end support function for send_instant_message() and company
  */
 void add_xmsg_to_context(struct CitContext *ccptr, 
 			struct ExpressMessage *newmsg) 
@@ -537,11 +537,11 @@ void add_xmsg_to_context(struct CitContext *ccptr,
 
 
 /* 
- * This is the back end to the express message sending function.  
+ * This is the back end to the instant message sending function.  
  * Returns the number of users to which the message was sent.
  * Sending a zero-length message tests for recipients without sending messages.
  */
-int send_express_message(char *lun, char *x_user, char *x_msg)
+int send_instant_message(char *lun, char *x_user, char *x_msg)
 {
 	int message_sent = 0;		/* number of successful sends */
 
@@ -652,7 +652,7 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 }
 
 /*
- * send express messages  <bc>
+ * send instant messages  <bc>
  */
 void cmd_sexp(char *argbuf)
 {
@@ -798,14 +798,14 @@ void cmd_reqt(char *argbuf) {
 char *serv_chat_init(void)
 {
 	CtdlRegisterProtoHook(cmd_chat, "CHAT", "Begin real-time chat");
-	CtdlRegisterProtoHook(cmd_pexp, "PEXP", "Poll for express messages");
-	CtdlRegisterProtoHook(cmd_gexp, "GEXP", "Get express messages");
-	CtdlRegisterProtoHook(cmd_sexp, "SEXP", "Send an express message");
-	CtdlRegisterProtoHook(cmd_dexp, "DEXP", "Disable express messages");
+	CtdlRegisterProtoHook(cmd_pexp, "PEXP", "Poll for instant messages");
+	CtdlRegisterProtoHook(cmd_gexp, "GEXP", "Get instant messages");
+	CtdlRegisterProtoHook(cmd_sexp, "SEXP", "Send an instant message");
+	CtdlRegisterProtoHook(cmd_dexp, "DEXP", "Disable instant messages");
 	CtdlRegisterProtoHook(cmd_reqt, "REQT", "Request client termination");
 	CtdlRegisterSessionHook(cmd_gexp_async, EVT_CMD);
-	CtdlRegisterSessionHook(delete_express_messages, EVT_STOP);
-	CtdlRegisterXmsgHook(send_express_message, XMSG_PRI_LOCAL);
+	CtdlRegisterSessionHook(delete_instant_messages, EVT_STOP);
+	CtdlRegisterXmsgHook(send_instant_message, XMSG_PRI_LOCAL);
 	return "$Id$";
 }
 

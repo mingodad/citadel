@@ -63,7 +63,7 @@ void CtdlIPC_SetNetworkStatusCallback(CtdlIPC *ipc, void (*hook)(int state)) {
 }
 
 
-char express_msgs = 0;
+char instant_msgs = 0;
 
 
 static void serv_read(CtdlIPC *ipc, char *buf, unsigned int bytes);
@@ -2388,7 +2388,7 @@ int CtdlIPCGenericCommand(CtdlIPC *ipc,
 	while (1) {
 		CtdlIPC_getline(ipc, proto_response);
 		if (proto_response[3] == '*')
-			express_msgs = 1;
+			instant_msgs = 1;
 		ret = atoi(proto_response);
 		strcpy(proto_response, &proto_response[4]);
 		switch (ret / 100) {

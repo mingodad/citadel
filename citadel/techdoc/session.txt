@@ -1449,11 +1449,13 @@ will be a regular server command.
 to other users currently in chat.
 
 
- SEXP   (Send EXPress messages)
+ SEXP   (Send instant message)
 
- This is one of two commands which implement "express messages" (also known
-as "paging").  An express message is a near-real-time message sent from one
-logged in user to another.  When an express message is sent, it will be
+ This is one of two commands which implement instant messages (also known
+as "paging").  Commands ending in "...EXP" are so-named because we called
+them "express messages" before the industry standardized on the term
+"instant messages."  When an instant message is sent, it will be
+logged in user to another.  When an instant message is sent, it will be
 displayed the next time the target user executes a PEXP or GEXP command.
 
  The SEXP command accepts two arguments: the name of the user to send the
@@ -1468,28 +1470,28 @@ the server to return SEND_LISTING if the requested user is logged in, and the
 client can then transmit a multi-line page.
 
  The reserved name "broadcast" may be used instead of a user name, to
-broadcast an express message to all users currently connected to the server.
+broadcast an instant message to all users currently connected to the server.
 
- Do be aware that if an express message is transmitted to a user who is logged
-in using a client that does not check for express messages, the message will
-never be received.  Also, express messages are NOT sent via the following
+ Do be aware that if an instant message is transmitted to a user who is logged
+in using a client that does not check for instant messages, the message will
+never be received.  Also, instant messages are NOT sent via the following
 transports:  SMTP, POP3.
 
 
- PEXP   (Print EXPress messages)   ***DEPRECATED***
+ PEXP   (Print instant messages)   ***DEPRECATED***
 
  This command is deprecated; it will eventually disappear from the protocol and
 its use is not recommended.  Please use the GEXP command instead.
 
  Called without any arguments, PEXP simply dumps out the contents
-of any waiting express messages.  It returns ERROR if there is a problem,
+of any waiting instant messages.  It returns ERROR if there is a problem,
 otherwise it returns LISTING_FOLLOWS followed by all messages.
 
- So how does the client know there are express messages waiting?  It could
+ So how does the client know there are instant messages waiting?  It could
 execute a random PEXP every now and then.  Or, it can check the byte in
 server return code messages, between the return code and the parameters.  In
 much the same way as FTP uses "-" to signify a continuation, Citadel uses
-an "*" in this position to signify the presence of waiting express messages.
+an "*" in this position to signify the presence of waiting instant messages.
 
 
  EBIO   (Enter BIOgraphy)
@@ -1773,7 +1775,7 @@ fails for any reason, ERROR is returned.
  16. (placeholder -- this field is no longer in use)
  17. Default purge time (in days) for users
  18. Default purge time (in days) for rooms
- 19. Name of room to log express messages to (or a zero-length name for none)
+ 19. Name of room to log instant messages to (or a zero-length name for none)
  20. Access level required to create rooms
  21. Maximum message length which may be entered into the system
  22. Minimum number of worker threads
@@ -1838,26 +1840,26 @@ appropriate ERROR code will be returned; otherwise, if the open is successful,
 this command will succeed returning the same information as an OPEN command.
 
 
- GEXP   (Get EXPress messages)
+ GEXP   (Get instant messages)
 
- This is a more sophisticated way of retrieving express messages than the old
-PEXP method.  If there are no express messages waiting, PEXP returns ERROR;
+ This is a more sophisticated way of retrieving instant messages than the old
+PEXP method.  If there are no instant messages waiting, PEXP returns ERROR;
 otherwise, it returns LISTING_FOLLOWS and the following arguments:
 
  0 - a boolean value telling the client whether there are any additional
-     express messages waiting following this one
+     instant messages waiting following this one
  1 - a Unix-style timestamp
  2 - flags (see server.h for more info)
  3 - the name of the sender
  4 - the node this message originated on (for future support of PIP, ICQ, etc.)
 
- The text sent to the client will be the body of the express message.
+ The text sent to the client will be the body of the instant message.
 
- So how does the client know there are express messages waiting?  It could
+ So how does the client know there are instant messages waiting?  It could
 execute a random GEXP every now and then.  Or, it can check the byte in
 server return code messages, between the return code and the parameters.  In
 much the same way as FTP uses "-" to signify a continuation, Citadel uses
-an "*" in this position to signify the presence of waiting express messages.
+an "*" in this position to signify the presence of waiting instant messages.
 
 
  FSCK   (check message base reference counts)
@@ -1867,11 +1869,11 @@ the user has permission to do this then LISTING_FOLLOWS is returned, followed
 by a transcript of the run.  Otherwise ERROR is returned.
 
 
- DEXP   (Disable EXPress messages)
+ DEXP   (Disable receiving instant messages)
 
- DEXP sets or clears the "disable express messages" flag.  Pass this command a
-1 or 0 to respectively set or clear the flag.  When the "disable express
-messages" flag is set, no one except Aides may send the user express messages.
+ DEXP sets or clears the "disable instant messages" flag.  Pass this command a
+1 or 0 to respectively set or clear the flag.  When the "disable instant
+messages" flag is set, no one except Aides may send the user instant messages.
 Any value other than 0 or 1 will not change the flag, only report its state.
 The command returns ERROR if it fails; otherwise, it returns OK followed by a
 number representing the current state of the flag.
@@ -1887,7 +1889,7 @@ is returned.
 should be terminated, or 0 for all clients.  When successful, the REQT command
 returns OK.
 
- It should be noted that REQT simply transmits an express message to the
+ It should be noted that REQT simply transmits an instant message to the
 specified client(s) with the EM_GO_AWAY flag set.  Older clients do not honor
 this flag, and it is certainly possible for users to re-program their client
 software to ignore it.  Therefore the effects of the REQT command should be
@@ -2133,9 +2135,9 @@ the writeup of the ASYN command above), the following messages may arrive at
 any time:
 
 
- 901  (express message arriving)
+ 901  (instant message arriving)
 
- There is an express message intended for this client.  When the client
+ One or more instant messages have arrived for this client.  When the client
 receives this message, it MUST act as if it just sent a GEXP command (the data
 following the 901 message WILL be a LISTING_FOLLOWS data transfer; in fact,
 the current implementation simply executes a GEXP command internally).

@@ -25,7 +25,7 @@ extern char arg_screen;
 #endif
 extern char rc_alt_semantics;
 extern char rc_reply_extedit;
-extern char express_msgs;
+extern char instant_msgs;
 void logoff(CtdlIPC *ipc, int code);
 void formout(CtdlIPC *ipc, char *name);
 void sighandler(int which_sig);
