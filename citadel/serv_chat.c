@@ -25,6 +25,7 @@
 struct ChatLine *ChatQueue = NULL;
 int ChatLastMsg = 0;
 
+extern struct CitContext *ContextList;
 
 void allwrite(char *cmdbuf, int flag, char *roomname, char *username)
 {	
@@ -347,19 +348,6 @@ void cmd_pexp(void) {
 		end_critical_section(S_SESSION_TABLE);
 		}
 	cprintf("000\n");
-	}
-
-/*
- * returns an asterisk if there are any express messages waiting,
- * space otherwise.
- */
-char check_express(void) {
-	if (CC->FirstExpressMessage == NULL) {
-		return(' ');
-		}
-	else {
-		return('*');
-		}
 	}
 
 
