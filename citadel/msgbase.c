@@ -1791,8 +1791,12 @@ long send_message(struct CtdlMessage *msg) {
 		retval = 0L;
 	} else {
 		if (is_bigmsg) {
-			cdb_store(CDB_BIGMSGS, &newmsgid, sizeof(long),
-				holdM, strlen(holdM) );
+			cdb_store(CDB_BIGMSGS,
+				&newmsgid,
+				sizeof(long),
+				holdM,
+				(strlen(holdM) + 1)
+			);
 		}
 		retval = newmsgid;
 	}
