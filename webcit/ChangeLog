@@ -1,4 +1,8 @@
 $Log$
+Revision 301.12  2001/12/02 07:09:13  ajc
+* Turned the room editing page into a tabbed dialog
+* Started adding some of the room sharing stuff
+
 Revision 301.11  2001/11/22 05:17:06  ajc
 * Completed the add/change/delete neighbor node screens
 
@@ -643,3 +647,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
