@@ -7,25 +7,6 @@
 #include "server.h"
 #include "proto.h"
 
-/*
- * struncmp()  -  case-insensitive version of strncmp()
- *                citadel.h will #define a strucmp() based on this
- */
-int struncmp(char *lstr, char *rstr, int len)
-{
-	int pos = 0;
-	char lc,rc;
-	while (pos<len) {
-		lc=tolower(lstr[pos]);
-		rc=tolower(rstr[pos]);
-		if ((lc==0)&&(rc==0)) return(0);
-		if (lc<rc) return(-1);
-		if (lc>rc) return(1);
-		pos=pos+1;
-		}
-	return(0);
-	}
-
 
 /*
  * strproc()  -  make a string 'nice'
@@ -175,7 +156,7 @@ int pattern2(char *search, char *patn)
 {
 	int a;
 	for (a=0; a<strlen(search); ++a) {
-		if (!struncmp(&search[a],patn,strlen(patn))) return(a);
+		if (!strncasecmp(&search[a],patn,strlen(patn))) return(a);
 		}
 	return(-1);
 	}
@@ -197,7 +178,7 @@ void mesg_locate(char *targ, char *searchfor, int numdirs, char **dirs)
 			while(fgets(buf,255,ls)!=NULL) {
 				while (isspace(buf[strlen(buf)-1]))
 					buf[strlen(buf)-1] = 0;
-				if (!strucmp(buf,searchfor)) {
+				if (!strcasecmp(buf,searchfor)) {
 					pclose(ls);
 					sprintf(targ,"%s/%s",dirs[a],buf);
 					return;

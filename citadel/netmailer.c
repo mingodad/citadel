@@ -16,7 +16,6 @@
 #include <syslog.h>
 #include "citadel.h"
 
-int struncmp();
 void LoadInternetConfig();
 void get_config();
 struct config config;
@@ -40,22 +39,6 @@ int ch; {
 	return(b);
 	}
 
-
-int struncmp(lstr,rstr,len)
-char lstr[],rstr[];
-int len; {
-	int pos = 0;
-	char lc,rc;
-	while (pos<len) {
-		lc=tolower(lstr[pos]);
-		rc=tolower(rstr[pos]);
-		if ((lc==0)&&(rc==0)) return(0);
-		if (lc<rc) return(-1);
-		if (lc>rc) return(1);
-		pos=pos+1;
-		}
-	return(0);
-	}
 
 
 void fpgetfield(fp,string)
@@ -207,7 +190,7 @@ char *argv[]; {
 	 * accept postings from subscribed addresses, we must always use the
 	 * room's address as the originating user.
 	 */
-	if ( (argc == 3) && (!strucmp(argv[2], "mlist")) ) {
+	if ( (argc == 3) && (!strcasecmp(argv[2], "mlist")) ) {
 		mlist = 1;
 		}
 
@@ -238,9 +221,9 @@ char *argv[]; {
 	 * users to receive Internet mail.
 	 */
 	fprintf(rmail,"From ");
-	if (strucmp(nbuf,NODENAME)) fprintf(rmail,"%s!",nbuf);
+	if (strcasecmp(nbuf,NODENAME)) fprintf(rmail,"%s!",nbuf);
 
-	if (!strucmp(nbuf,NODENAME)) strcpy(nbuf, FQDN);
+	if (!strcasecmp(nbuf,NODENAME)) strcpy(nbuf, FQDN);
 	
 	if (mlist) {
 		fprintf(rmail,"%s\n", rmname);
@@ -248,7 +231,7 @@ char *argv[]; {
 		}
 	else {
 
-		if (!strucmp(nbuf, NODENAME)) {		/* from this system */
+		if (!strcasecmp(nbuf, NODENAME)) {		/* from this system */
 			fprintf(rmail,"%s\n",pbuf);
 			fprintf(rmail,"From: %s@%s (%s)\n",
 				sbuf, FQDN, fstr);

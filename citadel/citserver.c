@@ -167,7 +167,7 @@ void cmd_uchg(char *newusername)
    {
       CC->cs_flags &= ~CS_STEALTH;
       bzero(CC->fake_username, 32);
-      if (struncmp(newusername, CC->curr_user, strlen(CC->curr_user)))
+      if (strncasecmp(newusername, CC->curr_user, strlen(CC->curr_user)))
          strncpy(CC->fake_username, newusername, 31);
    }
    else
@@ -195,8 +195,8 @@ int is_public_client(char *where)
 	char buf[256];
 	FILE *fp;
 
-	if (!strucmp(where,"localhost")) return(1);
-	if (!strucmp(where,config.c_fqdn)) return(1);
+	if (!strcasecmp(where,"localhost")) return(1);
+	if (!strcasecmp(where,config.c_fqdn)) return(1);
 
 	fp = fopen("public_clients","r");
 	if (fp == NULL) return(0);
@@ -204,7 +204,7 @@ int is_public_client(char *where)
 	while (fgets(buf,256,fp)!=NULL) {
 		while (isspace((buf[strlen(buf)-1]))) 
 			buf[strlen(buf)-1] = 0;
-		if (!strucmp(buf,where)) {
+		if (!strcasecmp(buf,where)) {
 			fclose(fp);
 			return(1);
 			}
@@ -658,13 +658,13 @@ void *context_loop(struct CitContext *con)
 		 * Let other clients see the last command we executed, but
 		 * exclude NOOP because that would be boring.
 		 */
-		if (struncmp(cmdbuf, "NOOP", 4)) {
+		if (strncasecmp(cmdbuf, "NOOP", 4)) {
 			strcpy(CC->lastcmdname, "    ");
 			strncpy(CC->lastcmdname, cmdbuf, 4);
 			time(&CC->lastidle);
 			}
 			
-		if ((struncmp(cmdbuf, "ENT0", 4)) && (struncmp(cmdbuf, "MESG", 4)) && (struncmp(cmdbuf, "MSGS", 4)))
+		if ((strncasecmp(cmdbuf, "ENT0", 4)) && (strncasecmp(cmdbuf, "MESG", 4)) && (strncasecmp(cmdbuf, "MSGS", 4)))
 		{
 		   CC->cs_flags &= ~CS_POSTING;
 		}
@@ -673,340 +673,340 @@ void *context_loop(struct CitContext *con)
  * This loop recognizes all server commands.
  */
 
-		if (!struncmp(cmdbuf,"NOOP",4)) {
+		if (!strncasecmp(cmdbuf,"NOOP",4)) {
 			cprintf("%d%cok\n",OK,check_express());
 			}
 
-		else if (!struncmp(cmdbuf,"QUIT",4)) {
+		else if (!strncasecmp(cmdbuf,"QUIT",4)) {
 			cprintf("%d Goodbye.\n",OK);
 			}
 
-		else if (!struncmp(cmdbuf,"LOUT",4)) {
+		else if (!strncasecmp(cmdbuf,"LOUT",4)) {
 			if (CC->logged_in) logout(CC);
 			cprintf("%d logged out.\n",OK);
 			}
 
-		else if (!struncmp(cmdbuf,"USER",4)) {
+		else if (!strncasecmp(cmdbuf,"USER",4)) {
 			cmd_user(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"PASS",4)) {
+		else if (!strncasecmp(cmdbuf,"PASS",4)) {
 			cmd_pass(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"NEWU",4)) {
+		else if (!strncasecmp(cmdbuf,"NEWU",4)) {
 			cmd_newu(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"SETP",4)) {
+		else if (!strncasecmp(cmdbuf,"SETP",4)) {
 			cmd_setp(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"LRMS",4)) {
+		else if (!strncasecmp(cmdbuf,"LRMS",4)) {
 			cmd_lrms(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"LKRA",4)) {
+		else if (!strncasecmp(cmdbuf,"LKRA",4)) {
 			cmd_lkra(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"LKRN",4)) {
+		else if (!strncasecmp(cmdbuf,"LKRN",4)) {
 			cmd_lkrn(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"LKRO",4)) {
+		else if (!strncasecmp(cmdbuf,"LKRO",4)) {
 			cmd_lkro(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"LZRM",4)) {
+		else if (!strncasecmp(cmdbuf,"LZRM",4)) {
 			cmd_lzrm(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"GETU",4)) {
+		else if (!strncasecmp(cmdbuf,"GETU",4)) {
 			cmd_getu();
 			}
 
-		else if (!struncmp(cmdbuf,"SETU",4)) {
+		else if (!strncasecmp(cmdbuf,"SETU",4)) {
 			cmd_setu(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"GOTO",4)) {
+		else if (!strncasecmp(cmdbuf,"GOTO",4)) {
 			cmd_goto(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"MSGS",4)) {
+		else if (!strncasecmp(cmdbuf,"MSGS",4)) {
 			cmd_msgs(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"WHOK",4)) {
+		else if (!strncasecmp(cmdbuf,"WHOK",4)) {
 			cmd_whok();
 			}
 
-		else if (!struncmp(cmdbuf,"RDIR",4)) {
+		else if (!strncasecmp(cmdbuf,"RDIR",4)) {
 			cmd_rdir();
 			}
 
-		else if (!struncmp(cmdbuf,"MSG0",4)) {
+		else if (!strncasecmp(cmdbuf,"MSG0",4)) {
 			cmd_msg0(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"MSG2",4)) {
+		else if (!strncasecmp(cmdbuf,"MSG2",4)) {
 			cmd_msg2(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"MSG3",4)) {
+		else if (!strncasecmp(cmdbuf,"MSG3",4)) {
 			cmd_msg3(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"INFO",4)) {
+		else if (!strncasecmp(cmdbuf,"INFO",4)) {
 			cmd_info();
 			}
 
-		else if (!struncmp(cmdbuf,"SLRP",4)) {
+		else if (!strncasecmp(cmdbuf,"SLRP",4)) {
 			cmd_slrp(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"INVT",4)) {
+		else if (!strncasecmp(cmdbuf,"INVT",4)) {
 			cmd_invt_kick(&cmdbuf[5],1);
 			}
 
-		else if (!struncmp(cmdbuf,"KICK",4)) {
+		else if (!strncasecmp(cmdbuf,"KICK",4)) {
 			cmd_invt_kick(&cmdbuf[5],0);
 			}
 
-		else if (!struncmp(cmdbuf,"GETR",4)) {
+		else if (!strncasecmp(cmdbuf,"GETR",4)) {
 			cmd_getr();
 			}
 
-		else if (!struncmp(cmdbuf,"SETR",4)) {
+		else if (!strncasecmp(cmdbuf,"SETR",4)) {
 			cmd_setr(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"GETA",4)) {
+		else if (!strncasecmp(cmdbuf,"GETA",4)) {
 			cmd_geta();
 			}
 
-		else if (!struncmp(cmdbuf,"SETA",4)) {
+		else if (!strncasecmp(cmdbuf,"SETA",4)) {
 			cmd_seta(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"ENT0",4)) {
+		else if (!strncasecmp(cmdbuf,"ENT0",4)) {
 			cmd_ent0(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"ENT3",4)) {
+		else if (!strncasecmp(cmdbuf,"ENT3",4)) {
 			cmd_ent3(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"RINF",4)) {
+		else if (!strncasecmp(cmdbuf,"RINF",4)) {
 			cmd_rinf();
 			}
 
-		else if (!struncmp(cmdbuf,"DELE",4)) {
+		else if (!strncasecmp(cmdbuf,"DELE",4)) {
 			cmd_dele(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"KILL",4)) {
+		else if (!strncasecmp(cmdbuf,"KILL",4)) {
 			cmd_kill(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"CRE8",4)) {
+		else if (!strncasecmp(cmdbuf,"CRE8",4)) {
 			cmd_cre8(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"MOVE",4)) {
+		else if (!strncasecmp(cmdbuf,"MOVE",4)) {
 			cmd_move(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"FORG",4)) {
+		else if (!strncasecmp(cmdbuf,"FORG",4)) {
 			cmd_forg();
 			}
 
-		else if (!struncmp(cmdbuf,"MESG",4)) {
+		else if (!strncasecmp(cmdbuf,"MESG",4)) {
 			cmd_mesg(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"EMSG",4)) {
+		else if (!strncasecmp(cmdbuf,"EMSG",4)) {
 			cmd_emsg(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"GNUR",4)) {
+		else if (!strncasecmp(cmdbuf,"GNUR",4)) {
 			cmd_gnur();
 			}
 
-		else if (!struncmp(cmdbuf,"GREG",4)) {
+		else if (!strncasecmp(cmdbuf,"GREG",4)) {
 			cmd_greg(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"VALI",4)) {
+		else if (!strncasecmp(cmdbuf,"VALI",4)) {
 			cmd_vali(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"EINF",4)) {
+		else if (!strncasecmp(cmdbuf,"EINF",4)) {
 			cmd_einf(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"LIST",4)) {
+		else if (!strncasecmp(cmdbuf,"LIST",4)) {
 			cmd_list();
 			}
 
-		else if (!struncmp(cmdbuf,"REGI",4)) {
+		else if (!strncasecmp(cmdbuf,"REGI",4)) {
 			cmd_regi();
 			}
 
-		else if (!struncmp(cmdbuf,"CHEK",4)) {
+		else if (!strncasecmp(cmdbuf,"CHEK",4)) {
 			cmd_chek();
 			}
 
-		else if (!struncmp(cmdbuf,"DELF",4)) {
+		else if (!strncasecmp(cmdbuf,"DELF",4)) {
 			cmd_delf(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"MOVF",4)) {
+		else if (!strncasecmp(cmdbuf,"MOVF",4)) {
 			cmd_movf(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"NETF",4)) {
+		else if (!strncasecmp(cmdbuf,"NETF",4)) {
 			cmd_netf(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"RWHO",4)) {
+		else if (!strncasecmp(cmdbuf,"RWHO",4)) {
 			cmd_rwho();
 			}
 
-		else if (!struncmp(cmdbuf,"OPEN",4)) {
+		else if (!strncasecmp(cmdbuf,"OPEN",4)) {
 			cmd_open(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"CLOS",4)) {
+		else if (!strncasecmp(cmdbuf,"CLOS",4)) {
 			cmd_clos();
 			}
 
-		else if (!struncmp(cmdbuf,"UOPN",4)) {
+		else if (!strncasecmp(cmdbuf,"UOPN",4)) {
 			cmd_uopn(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"UCLS",4)) {
+		else if (!strncasecmp(cmdbuf,"UCLS",4)) {
 			cmd_ucls(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"READ",4)) {
+		else if (!strncasecmp(cmdbuf,"READ",4)) {
 			cmd_read(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"WRIT",4)) {
+		else if (!strncasecmp(cmdbuf,"WRIT",4)) {
 			cmd_writ(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"QUSR",4)) {
+		else if (!strncasecmp(cmdbuf,"QUSR",4)) {
 			cmd_qusr(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"ECHO",4)) {
+		else if (!strncasecmp(cmdbuf,"ECHO",4)) {
 			cmd_echo(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"OIMG",4)) {
+		else if (!strncasecmp(cmdbuf,"OIMG",4)) {
 			cmd_oimg(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"MORE",4)) {
+		else if (!strncasecmp(cmdbuf,"MORE",4)) {
 			cmd_more();
 			}
 
-		else if (!struncmp(cmdbuf,"NETP",4)) {
+		else if (!strncasecmp(cmdbuf,"NETP",4)) {
 			cmd_netp(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"NDOP",4)) {
+		else if (!strncasecmp(cmdbuf,"NDOP",4)) {
 			cmd_ndop(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"NUOP",4)) {
+		else if (!strncasecmp(cmdbuf,"NUOP",4)) {
 			cmd_nuop(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"LFLR",4)) {
+		else if (!strncasecmp(cmdbuf,"LFLR",4)) {
 			cmd_lflr();
 			}
 
-		else if (!struncmp(cmdbuf,"CFLR",4)) {
+		else if (!strncasecmp(cmdbuf,"CFLR",4)) {
 			cmd_cflr(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"KFLR",4)) {
+		else if (!strncasecmp(cmdbuf,"KFLR",4)) {
 			cmd_kflr(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"EFLR",4)) {
+		else if (!strncasecmp(cmdbuf,"EFLR",4)) {
 			cmd_eflr(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"IDEN",4)) {
+		else if (!strncasecmp(cmdbuf,"IDEN",4)) {
 			cmd_iden(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"IPGM",4)) {
+		else if (!strncasecmp(cmdbuf,"IPGM",4)) {
 			cmd_ipgm(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"CHAT",4)) {
+		else if (!strncasecmp(cmdbuf,"CHAT",4)) {
 			cmd_chat(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"PEXP",4)) {
+		else if (!strncasecmp(cmdbuf,"PEXP",4)) {
 			cmd_pexp();
 			}
 
-		else if (!struncmp(cmdbuf,"SEXP",4)) {
+		else if (!strncasecmp(cmdbuf,"SEXP",4)) {
 			cmd_sexp(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"EBIO",4)) {
+		else if (!strncasecmp(cmdbuf,"EBIO",4)) {
 			cmd_ebio();
 			}
 
-		else if (!struncmp(cmdbuf,"RBIO",4)) {
+		else if (!strncasecmp(cmdbuf,"RBIO",4)) {
 			cmd_rbio(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"LBIO",4)) {
+		else if (!strncasecmp(cmdbuf,"LBIO",4)) {
 			cmd_lbio();
 			}
 
-		else if (!struncmp(cmdbuf,"STEL",4)) {
+		else if (!strncasecmp(cmdbuf,"STEL",4)) {
 			cmd_stel(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"TERM",4)) {
+		else if (!strncasecmp(cmdbuf,"TERM",4)) {
 			cmd_term(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf,"DOWN",4)) {
+		else if (!strncasecmp(cmdbuf,"DOWN",4)) {
 			cmd_down();
 			}
 
-		else if (!struncmp(cmdbuf,"SCDN",4)) {
+		else if (!strncasecmp(cmdbuf,"SCDN",4)) {
 			cmd_scdn(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf, "NSET", 4)) {
+		else if (!strncasecmp(cmdbuf, "NSET", 4)) {
 			cmd_nset(&cmdbuf[5]);
 			}
 
-		else if (!struncmp(cmdbuf, "UIMG", 4)) {
+		else if (!strncasecmp(cmdbuf, "UIMG", 4)) {
 			cmd_uimg(&cmdbuf[5]);
 			}
-		else if (!struncmp(cmdbuf, "UCHG", 4)) {
+		else if (!strncasecmp(cmdbuf, "UCHG", 4)) {
 			cmd_uchg(&cmdbuf[5]);
 			}
-		else if (!struncmp(cmdbuf, "TIME", 4)) {
+		else if (!strncasecmp(cmdbuf, "TIME", 4)) {
 			cmd_time(&cmdbuf[5]);
 			}
-		else if (!struncmp(cmdbuf, "HCHG", 4)) {
+		else if (!strncasecmp(cmdbuf, "HCHG", 4)) {
 			cmd_hchg(&cmdbuf[5]);
 			}
-		else if (!struncmp(cmdbuf, "RCHG", 4)) {
+		else if (!strncasecmp(cmdbuf, "RCHG", 4)) {
 			cmd_rchg(&cmdbuf[5]);
 			}
 		else {
@@ -1014,7 +1014,7 @@ void *context_loop(struct CitContext *con)
 				ERROR);
 			}
 
-		} while(struncmp(cmdbuf,"QUIT",4));
+		} while(strncasecmp(cmdbuf,"QUIT",4));
 
 	cleanup(EXIT_NORMAL);
 	return(NULL);

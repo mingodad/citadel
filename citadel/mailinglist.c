@@ -37,22 +37,6 @@ char TABLEFILE[128];
 char OUTGOING_FQDN[128];
 int RUN_NETPROC = 1;
 
-int struncmp(lstr,rstr,len)
-char lstr[],rstr[];
-int len; {
-        int pos = 0;
-        char lc,rc;
-        while (pos<len) {
-                lc=tolower(lstr[pos]);
-                rc=tolower(rstr[pos]);
-                if ((lc==0)&&(rc==0)) return(0);
-                if (lc<rc) return(-1);
-                if (lc>rc) return(1);
-                pos=pos+1;
-                }
-        return(0);
-        }
-
 /* 
  * Consult the mailinglists table to find out where we should send the
  * mailing list postings to.
@@ -69,7 +53,7 @@ char listaddr[]; {
 	while (fgets(buf,128,fp)!=NULL) {
 		buf[strlen(buf)-1]=0;
 		for (a=0; a<strlen(buf); ++a) {
-			if ( (buf[a]==',') && (!strucmp(&buf[a+1],room)) ) {
+			if ( (buf[a]==',') && (!strcasecmp(&buf[a+1],room)) ) {
 				strcpy(listaddr,buf);
 				listaddr[a] = 0;
 				}

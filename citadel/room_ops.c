@@ -569,28 +569,28 @@ void cmd_goto(char *gargs)
 	getuser(&CC->usersupp,CC->curr_user);
 	for (a=0; a<MAXROOMS; ++a) {
 		getroom(&QRscratch,a);
-		if ((a==0)&&(!strucmp(towhere,"_BASEROOM_"))) {
+		if ((a==0)&&(!strcasecmp(towhere,"_BASEROOM_"))) {
 			strncpy(towhere,QRscratch.QRname,31);
 			}
-		if ((a==1)&&(!strucmp(towhere,"_MAIL_"))) {
+		if ((a==1)&&(!strcasecmp(towhere,"_MAIL_"))) {
 			strncpy(towhere,QRscratch.QRname,31);
 			}
-		if ((!strucmp(QRscratch.QRname,config.c_twitroom))
-		   &&(!strucmp(towhere,"_BITBUCKET_"))) {
+		if ((!strcasecmp(QRscratch.QRname,config.c_twitroom))
+		   &&(!strcasecmp(towhere,"_BITBUCKET_"))) {
 			strncpy(towhere,QRscratch.QRname,31);
 			}
 		strcpy(bbb,QRscratch.QRname);
 		ok = 0;
 
 		/* let internal programs go directly to any room */
-		if (((CC->internal_pgm))&&(!strucmp(bbb,towhere))) {
+		if (((CC->internal_pgm))&&(!strcasecmp(bbb,towhere))) {
 			usergoto(a,1);
 			return;
 			}
 
 		/* normal clients have to pass through security */
 		if ( 
-			(strucmp(bbb,towhere)==0)
+			(strcasecmp(bbb,towhere)==0)
 			&&	((QRscratch.QRflags&QR_INUSE)!=0)
 
 			&& (	((QRscratch.QRflags&QR_PREFONLY)==0)
@@ -614,7 +614,7 @@ void cmd_goto(char *gargs)
 			if (  (QRscratch.QRflags&QR_PASSWORDED) &&
 				(CC->usersupp.axlevel<6) &&
 				(QRscratch.QRgen!=CC->usersupp.generation[a]) &&
-				(strucmp(QRscratch.QRpasswd,password))
+				(strcasecmp(QRscratch.QRpasswd,password))
 				) {
 					cprintf("%d wrong or missing passwd\n",
 						ERROR+PASSWORD_REQUIRED);
@@ -717,7 +717,7 @@ void cmd_rdir(void) {
 	ls = fopen(CC->temp,"r");
 	while (fgets(flnm,256,ls)!=NULL) {
 		flnm[strlen(flnm)-1]=0;
-		if (strucmp(flnm,"filedir")) {
+		if (strcasecmp(flnm,"filedir")) {
 			sprintf(buf,"%s/files/%s/%s",
 				BBSDIR,CC->quickroom.QRdirname,flnm);
 			stat(buf,&statbuf);
@@ -726,7 +726,7 @@ void cmd_rdir(void) {
 			while ((fgets(buf,256,fd)!=NULL)
 			    &&(strlen(comment)==0)) {
 				buf[strlen(buf)-1] = 0;
-				if ((!struncmp(buf,flnm,strlen(flnm)))
+				if ((!strncasecmp(buf,flnm,strlen(flnm)))
 				   && (buf[strlen(flnm)]==' ')) 
 					strncpy(comment,
 						&buf[strlen(flnm)+1],255);
@@ -1156,7 +1156,7 @@ void cmd_cre8(char *args)
 
 	for (a=0; a<MAXROOMS; ++a) {
 		getroom(&qrbuf,a);
-		if ( (!strucmp(qrbuf.QRname,new_room_name))
+		if ( (!strcasecmp(qrbuf.QRname,new_room_name))
 		   && (qrbuf.QRflags & QR_INUSE) ) {
 			cprintf("%d '%s' already exists.\n",
 				ERROR,qrbuf.QRname);
@@ -1302,7 +1302,7 @@ void cmd_cflr(char *argbuf)
 		     && (free_slot < 0) )  free_slot = a;
 
 		/* check to see if it already exists */
-		if ( (!strucmp(flbuf.f_name,new_floor_name))
+		if ( (!strcasecmp(flbuf.f_name,new_floor_name))
 		     && (flbuf.f_flags & F_INUSE) ) {
 			cprintf("%d Floor '%s' already exists.\n",
 				ERROR+ALREADY_EXISTS,

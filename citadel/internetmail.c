@@ -16,7 +16,6 @@
 
 extern struct config config;
 
-int struncmp();
 char metoo[10][128];
 int mecount = 0;
 
@@ -64,21 +63,21 @@ void LoadInternetConfig() {
 			StripLeadingAndTrailingWhitespace(ParamName);
 			StripLeadingAndTrailingWhitespace(ParamValue);
 
-			if (!strucmp(ParamName, "aliases"))
+			if (!strcasecmp(ParamName, "aliases"))
 				strcpy(ALIASES, ParamValue);
-			if (!strucmp(ParamName, "cit86net spoolin"))
+			if (!strcasecmp(ParamName, "cit86net spoolin"))
 				strcpy(CIT86NET, ParamValue);
-			if (!strucmp(ParamName, "sendmail"))
+			if (!strcasecmp(ParamName, "sendmail"))
 				strcpy(SENDMAIL, ParamValue);
-			if (!strucmp(ParamName, "fallback"))
+			if (!strcasecmp(ParamName, "fallback"))
 				strcpy(FALLBACK, ParamValue);
-			if (!strucmp(ParamName, "gateway domain"))
+			if (!strcasecmp(ParamName, "gateway domain"))
 				strcpy(GW_DOMAIN, ParamValue);
-			if (!strucmp(ParamName, "table file"))
+			if (!strcasecmp(ParamName, "table file"))
 				strcpy(TABLEFILE, ParamValue);
-			if (!strucmp(ParamName, "deliver local"))
+			if (!strcasecmp(ParamName, "deliver local"))
 				strcpy(metoo[mecount++], ParamValue);
-			if (!strucmp(ParamName, "run netproc")) 
+			if (!strcasecmp(ParamName, "run netproc")) 
 				RUN_NETPROC = atoi(ParamValue);
 			}
 		}
@@ -92,11 +91,11 @@ void LoadInternetConfig() {
 int IsHostLocal(char *WhichHost) {
 	int a;
 
-	if (!strucmp(WhichHost, FQDN)) return(1);
+	if (!strcasecmp(WhichHost, FQDN)) return(1);
 
 	if (mecount > 0) {
 		for (a=0; a<mecount; ++a) {
-			if (!strucmp(WhichHost, metoo[a])) return(1);
+			if (!strcasecmp(WhichHost, metoo[a])) return(1);
 			}
 		}
 	

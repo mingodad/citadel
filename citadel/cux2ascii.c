@@ -14,23 +14,9 @@
 
 long finduser();
 
-void get_config();	struct config config;
+void get_config();
+struct config config;
 
-int struncmp(lstr,rstr,len)
-char lstr[],rstr[];
-int len; {
-	int pos = 0;
-	char lc,rc;
-	while (pos<len) {
-		lc=tolower(lstr[pos]);
-		rc=tolower(rstr[pos]);
-		if ((lc==0)&&(rc==0)) return(0);
-		if (lc<rc) return(-1);
-		if (lc>rc) return(1);
-		pos=pos+1;
-		}
-	return(0);
-	}
 
 main(argc,argv)
 int argc;
@@ -187,7 +173,7 @@ char *roomname,*newsgroup; {
 		a=strlen(tbuf);
 		while (a--) if (tbuf[a]==',') commapos=a;
 		tbuf[commapos]=0;
-		if (!strucmp(&tbuf[commapos+1],roomname))
+		if (!strcasecmp(&tbuf[commapos+1],roomname))
 			strcpy(newsgroup,tbuf);
 		}
 	fclose(fp);

@@ -14,8 +14,9 @@
 
 #undef	tolower
 #define tolower(x)	( ((x>='A')&&(x<='Z')) ? (x+'a'-'A') : x )
-#define strucmp(lstr,rstr) struncmp(lstr,rstr,32767)
 #define NEW_CONFIG
+
+#define strucmp(lstr,rstr) struncmp(lstr,rstr,32767)
 
 /* 
  * The only typedef we do is an 8-bit unsigned, for screen dimensions.

@@ -211,7 +211,7 @@ void session_startup(void) {
 	/* If this user's name is the name of the system administrator
 	 * (as specified in setup), automatically assign access level 6.
 	 */
-	if (!strucmp(CC->usersupp.fullname, config.c_sysadm)) {
+	if (!strcasecmp(CC->usersupp.fullname, config.c_sysadm)) {
 		CC->usersupp.axlevel = 6;
 		}
 
@@ -279,7 +279,7 @@ void cmd_pass(char *buf)
 	if (CC->usersupp.USuid == BBSUID) {
 		strproc(password);
 		strproc(CC->usersupp.password);
-		code = strucmp(CC->usersupp.password,password);
+		code = strcasecmp(CC->usersupp.password,password);
 		}
 	else {
 		p = (struct passwd *)getpwuid(CC->usersupp.USuid);
@@ -458,9 +458,9 @@ void cmd_newu(char *cmdbuf)
 		}
 
 	a = create_user(username);
-	if ((!strucmp(username, "bbs")) ||
-	    (!strucmp(username, "new")) ||
-	    (!strucmp(username, ".")))
+	if ((!strcasecmp(username, "bbs")) ||
+	    (!strcasecmp(username, "new")) ||
+	    (!strcasecmp(username, ".")))
 	{
 	   cprintf("%d '%s' is an invalid login name.\n", ERROR);
 	   return;
@@ -565,7 +565,7 @@ void cmd_slrp(char *new_ptr)
 		return;
 		}
 
-	if (!struncmp(new_ptr,"highest",7)) {
+	if (!strncasecmp(new_ptr,"highest",7)) {
 		newlr = CC->quickroom.QRhighest;
 		}
 	else {
@@ -743,9 +743,9 @@ void cmd_greg(char *who)
 		return;
 		}
 
-	if (!strucmp(who,"_SELF_")) strcpy(who,CC->curr_user);
+	if (!strcasecmp(who,"_SELF_")) strcpy(who,CC->curr_user);
 
-	if ((CC->usersupp.axlevel < 6) && (strucmp(who,CC->curr_user))) {
+	if ((CC->usersupp.axlevel < 6) && (strcasecmp(who,CC->curr_user))) {
 		cprintf("%d Higher access required.\n",
 			ERROR+HIGHER_ACCESS_REQUIRED);
 		return;

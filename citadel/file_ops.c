@@ -100,7 +100,7 @@ void cmd_movf(char *cmdbuf)
 
 	for (a=0; a<MAXROOMS; ++a) {
 		getroom(&qrbuf,a);
-		if (!strucmp(qrbuf.QRname,newroom)) target_room = a;
+		if (!strcasecmp(qrbuf.QRname,newroom)) target_room = a;
 		}
 	if (target_room < 0) {
 		cprintf("%d Room '%s' not found.\n",
@@ -299,7 +299,7 @@ void cmd_oimg(char *cmdbuf)
 		return;
 		}
 
-	if (!strucmp(filename, "_userpic_")) {
+	if (!strcasecmp(filename, "_userpic_")) {
 		extract(which_user, cmdbuf, 1);
 		if (getuser(&usbuf, which_user) != 0) {
 			cprintf("%d No such user.\n", ERROR+NO_SUCH_USER);
@@ -307,11 +307,11 @@ void cmd_oimg(char *cmdbuf)
 			}
 		sprintf(pathname, "./userpics/%ld.gif", usbuf.usernum);
 		}
-	else if (!strucmp(filename, "_floorpic_")) {
+	else if (!strcasecmp(filename, "_floorpic_")) {
 		which_floor = extract_int(cmdbuf, 1);
 		sprintf(pathname, "./images/floor.%d.gif", which_floor);
 		}
-	else if (!strucmp(filename, "_roompic_")) {
+	else if (!strcasecmp(filename, "_roompic_")) {
 		sprintf(pathname, "./images/room.%d.gif", CC->curr_rm);
 		}
 	else {
@@ -421,17 +421,17 @@ void cmd_uimg(char *cmdbuf)
 		sprintf(CC->upl_path, "./images/%s", basenm);
 		}
 
-	if (!strucmp(basenm, "_userpic_")) {
+	if (!strcasecmp(basenm, "_userpic_")) {
 		sprintf(CC->upl_path, "./userpics/%ld.gif",
 			CC->usersupp.usernum);
 		}
 
-	if ( (!strucmp(basenm, "_floorpic_")) && (CC->usersupp.axlevel >= 6) ) {
+	if ( (!strcasecmp(basenm, "_floorpic_")) && (CC->usersupp.axlevel >= 6) ) {
 		which_floor = extract_int(cmdbuf, 2);
 		sprintf(CC->upl_path, "./images/floor.%d.gif", which_floor);
 		}
 
-	if ( (!strucmp(basenm, "_roompic_")) && (is_room_aide()) ) {
+	if ( (!strcasecmp(basenm, "_roompic_")) && (is_room_aide()) ) {
 		sprintf(CC->upl_path, "./images/room.%d.gif", CC->curr_rm);
 		}
 
@@ -511,13 +511,13 @@ void cmd_ucls(char *cmd)
 	fclose(CC->upload_fp);
 	CC->upload_fp = NULL;
 
-	if ((!strucmp(cmd,"1")) && (CC->upload_type != UPL_FILE)) {
+	if ((!strcasecmp(cmd,"1")) && (CC->upload_type != UPL_FILE)) {
 		CC->upload_type = UPL_FILE;
 		cprintf("%d Upload completed.\n", OK);
 		return;
 		}
 
-	if (!strucmp(cmd,"1")) {
+	if (!strcasecmp(cmd,"1")) {
 		cprintf("%d File '%s' saved.\n",OK,CC->upl_path);
 		fp = fopen(CC->upl_filedir,"a");
 		if (fp==NULL) fp=fopen(CC->upl_filedir,"w");
@@ -618,7 +618,7 @@ void cmd_netp(char *cmdbuf)
 	char buf[256];
 	
 	extract(buf,cmdbuf,1);
-	if (strucmp(buf,config.c_net_password)) {
+	if (strcasecmp(buf,config.c_net_password)) {
 		cprintf("%d authentication failed\n",ERROR);
 		return;
 		}

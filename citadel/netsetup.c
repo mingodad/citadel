@@ -28,28 +28,6 @@ struct netnode {
 void get_config();
 struct config config;
 
-/*
- * struncmp()  -  case-insensitive version of strncmp()
- *                citadel.h will #define a strucmp() based on this
- */
-int struncmp(lstr,rstr,len)
-char lstr[],rstr[];
-int len; {
-	int pos = 0;
-	char lc,rc;
-	while (pos<len) {
-		lc=tolower(lstr[pos]);
-		rc=tolower(rstr[pos]);
-		if ((lc==0)&&(rc==0)) return(0);
-		if (lc<rc) return(-1);
-		if (lc>rc) return(1);
-		pos=pos+1;
-		}
-	return(0);
-	}
-
-
-
 
 struct netnode *load_node(nodename)
 char *nodename; {
@@ -299,7 +277,7 @@ char *roomname; {
 		}
 
 	for (rsptr = nnptr->nn_first; rsptr != NULL; rsptr = rsptr->next) {
-		if (!strucmp(rsptr->rs_name, roomname)) {
+		if (!strcasecmp(rsptr->rs_name, roomname)) {
 			foundit = 1;
 			}
 		if (rsptr->rs_lastsent > highest) {
@@ -335,7 +313,7 @@ char *roomname; {
 		}
 
 	if (nnptr->nn_first != NULL)
-	   if (!strucmp(nnptr->nn_first->rs_name, roomname)) {
+	   if (!strcasecmp(nnptr->nn_first->rs_name, roomname)) {
 		rshold = nnptr->nn_first;
 		nnptr->nn_first = nnptr->nn_first->next;
 		free(rshold);
@@ -344,7 +322,7 @@ char *roomname; {
 
 	if (nnptr->nn_first != NULL)
 	   for (rsptr = nnptr->nn_first; rsptr->next != NULL; rsptr = rsptr->next) {
-		if (!strucmp(rsptr->next->rs_name, roomname)) {
+		if (!strcasecmp(rsptr->next->rs_name, roomname)) {
 			rshold = rsptr->next;
 			rsptr->next = rsptr->next->next;
 			free(rshold);

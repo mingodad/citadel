@@ -111,30 +111,6 @@ struct config config;
 extern char bbs_home_directory[];
 extern int home_specified;
 
-int struncmp(lstr,rstr,len)
-char lstr[],rstr[];
-int len; {
-	int pos = 0;
-	char lc,rc;
-	while (pos<len) {
-		lc=tolower(lstr[pos]);
-		rc=tolower(rstr[pos]);
-		if ((lc==0)&&(rc==0)) return(0);
-		if (lc<rc) return(-1);
-		if (lc>rc) return(1);
-		pos=pos+1;
-		}
-	return(0);
-	}
-
-/* redefine strucmp, just in case we're using an old version of citadel.h
- * that has it as a separate routine
- */
-#ifndef strucmp
-#undef strucmp
-#endif
-#define strucmp(lstr,rstr) struncmp(lstr,rstr,32767)
-
 
 #ifdef NO_STRERROR
 /*
@@ -254,7 +230,7 @@ void setup_special_nodes() {
 
 	slocal = NULL;
 	for (stemp=slist; stemp!=NULL; stemp=stemp->next) {
-		if (!strucmp(stemp->s_name,config.c_nodename)) slocal=stemp;
+		if (!strcasecmp(stemp->s_name,config.c_nodename)) slocal=stemp;
 		}
 	if (slocal==NULL) {
 		slocal =(struct syslist *)malloc(sizeof(struct syslist));
@@ -270,7 +246,7 @@ void setup_special_nodes() {
 
 	slocal = NULL;
 	for (stemp=slist; stemp!=NULL; stemp=stemp->next) {
-		if (!strucmp(stemp->s_name,"internet")) slocal=stemp;
+		if (!strcasecmp(stemp->s_name,"internet")) slocal=stemp;
 		}
 	if (slocal==NULL) {
 		slocal =(struct syslist *)malloc(sizeof(struct syslist));
@@ -298,7 +274,7 @@ void rewrite_syslist() {
 	time(&now);
 	newfp=fopen("network/mail.sysinfo","w");
 	for (stemp=slist; stemp!=NULL; stemp=stemp->next) {
-		if (!strucmp(stemp->s_name,config.c_nodename)) {
+		if (!strcasecmp(stemp->s_name,config.c_nodename)) {
 			time(&stemp->s_lastcontact);
 			strcpy(stemp->s_type,"bin");
 			strcpy(stemp->s_humannode,config.c_humannode);
@@ -472,11 +448,11 @@ char *k_person,*k_room,*k_system; {
 	struct filterlist *fptr;
 
 	for (fptr=filter; fptr!=NULL; fptr=fptr->next) if (
-	 ((!strucmp(fptr->f_person,k_person))||(!strcmp(fptr->f_person,"*")))
+	 ((!strcasecmp(fptr->f_person,k_person))||(!strcmp(fptr->f_person,"*")))
 	&&
-	 ((!strucmp(fptr->f_room,k_room))||(!strcmp(fptr->f_room,"*")))
+	 ((!strcasecmp(fptr->f_room,k_room))||(!strcmp(fptr->f_room,"*")))
 	&&
-	 ((!strucmp(fptr->f_system,k_system))||(!strcmp(fptr->f_system,"*")))
+	 ((!strcasecmp(fptr->f_system,k_system))||(!strcmp(fptr->f_system,"*")))
 	) return(1);
 
 	return(0);
@@ -486,15 +462,15 @@ int get_sysinfo_type(name)	/* determine routing from sysinfo file */
 char name[]; {
 	struct syslist *stemp;
 GETSN:	for (stemp=slist; stemp!=NULL; stemp=stemp->next) {
-	    if (!strucmp(stemp->s_name,name)) {
-		if (!strucmp(stemp->s_type,"use")) {
+	    if (!strcasecmp(stemp->s_name,name)) {
+		if (!strcasecmp(stemp->s_type,"use")) {
 			strcpy(name,stemp->s_nexthop);
 			goto GETSN;
 			}
-		if (!strucmp(stemp->s_type,"bin")) {
+		if (!strcasecmp(stemp->s_type,"bin")) {
 			return(M_BINARY);
 			}
-		if (!strucmp(stemp->s_type,"uum")) {
+		if (!strcasecmp(stemp->s_type,"uum")) {
 			return(M_INTERNET);
 			}
 		}
@@ -640,7 +616,7 @@ char *tname; {	/* name of temp file containing the whole message */
 		if (a!='M') {
 			fpgetfield(tfp,buf);
 			if (a=='O') for (b=0; b<MAXROOMS; ++b) {
-				if (!strucmp(buf,roomnames[b]))
+				if (!strcasecmp(buf,roomnames[b]))
 					strcpy(dest_dir,roomdirs[b]);
 				}
 			}
@@ -813,7 +789,7 @@ NXMSG:	/* Seek to the beginning of the next message */
 		printf("\n");
 		}
 	fflush(stdout);
-	if (!strucmp(minfo.D,FQDN)) strcpy(minfo.D,NODENAME);
+	if (!strcasecmp(minfo.D,FQDN)) strcpy(minfo.D,NODENAME);
 
 	/* this routine updates our info on the system that sent the message */
 	stemp = get_sys_ptr(minfo.N);
@@ -828,7 +804,7 @@ NXMSG:	/* Seek to the beginning of the next message */
 		strcpy(slist->s_nexthop,minfo.nexthop);
 		time(&slist->s_lastcontact);
 		}
-	else if ((stemp == NULL) && (!strucmp(minfo.N,minfo.nexthop))) {
+	else if ((stemp == NULL) && (!strcasecmp(minfo.N,minfo.nexthop))) {
 		/* add neighbor system to map */
 		printf("Adding neighbor system <%s> to map\n", slist->s_name);
 		sprintf(aaa,"%s/network/systems/%s",bbs_home_directory,minfo.N);
@@ -854,7 +830,7 @@ NXMSG:	/* Seek to the beginning of the next message */
 		}
 
 	/* route the message if necessary */
-	if ((strucmp(minfo.D,NODENAME))&&(minfo.D[0]!=0)) { 
+	if ((strcasecmp(minfo.D,NODENAME))&&(minfo.D[0]!=0)) { 
 		a = get_sysinfo_type(minfo.D);
 		printf("netproc: routing message to system <%s>\n",minfo.D);
 		fflush(stdout);
@@ -880,14 +856,14 @@ NXMSG:	/* Seek to the beginning of the next message */
 		}
 
 	/* check to see if it's a file transfer */
-	else if (!struncmp(minfo.S,"FILE",4)) {
+	else if (!strncasecmp(minfo.S,"FILE",4)) {
 		proc_file_transfer(tname);
 		}
 
 	/* otherwise process it as a normal message */
 	else {
 
-		if (!strucmp(minfo.R, "postmaster")) {
+		if (!strcasecmp(minfo.R, "postmaster")) {
 			strcpy(minfo.R, "");
 			strcpy(minfo.C, "Aide");
 			}
@@ -1038,7 +1014,7 @@ char *sysname;
 	for (cmptr=cmlist; cmptr!=NULL; cmptr=cmptr->next) {
 
 		/* make sure we're in the correct room... */
-		if (strucmp(curr_rm, cmptr->m_rmname)) {
+		if (strcasecmp(curr_rm, cmptr->m_rmname)) {
 			sprintf(buf, "GOTO %s", cmptr->m_rmname);
 			serv_puts(buf);
 			serv_gets(buf);
@@ -1139,7 +1115,7 @@ char *sysname; {
 		strip_trailing_whitespace(rmptr->rm_name);
 		rmptr->rm_lastsent = atol(lbuf);
 		if (crmlist==NULL) crmlist=rmptr;
-		else if (!strucmp(rmptr->rm_name,"control")) {
+		else if (!strcasecmp(rmptr->rm_name,"control")) {
 			/* control has to be first in room list */
 			rmptr->next = crmlist;
 			crmlist = rmptr;

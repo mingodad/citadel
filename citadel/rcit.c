@@ -54,21 +54,6 @@ void load_roomlist() {
 	fclose(fp);
 	}
 
-int struncmp(lstr,rstr,len)
-char lstr[],rstr[];
-int len; {
-	int pos = 0;
-	char lc,rc;
-	while (pos<len) {
-		lc=tolower(lstr[pos]);
-		rc=tolower(rstr[pos]);
-		if ((lc==0)&&(rc==0)) return(0);
-		if (lc<rc) return(-1);
-		if (lc>rc) return(1);
-		pos=pos+1;
-		}
-	return(0);
-	}
 
 
 int rnewsxref(room,ngroup)		/* xref table */
@@ -95,7 +80,7 @@ GNA:	strcpy(aaa,""); strcpy(bbb,"");
 		fclose(fp);
 		return(1);
 		}
-	if (strucmp(ngroup,aaa)) goto GNA;
+	if (strcasecmp(ngroup,aaa)) goto GNA;
 	fclose(fp);
 	strcpy(room,bbb);
 	return(0);
@@ -119,7 +104,7 @@ char ngroup[]; {
 			if (!rnewsxref(room,tryme)) return;
 			room[sizeof(qbuf.QRname)-1]=0;
 			for (b=0; b<MAXROOMS; ++b) {
-				if (!strucmp(roomlist[b],room)) return;
+				if (!strcasecmp(roomlist[b],room)) return;
 				}
 			strcpy(ngbuf,&ngbuf[a+1]);
 			a=(-1);

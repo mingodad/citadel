@@ -54,7 +54,7 @@ void allwrite(char *cmdbuf, int flag, char *roomname, char *username)
 	{
 		sprintf(bcast,":|<%s whispers %s>", un, cmdbuf);
 	}
-	if ((strucmp(cmdbuf,"NOOP")) && (flag !=2)) {
+	if ((strcasecmp(cmdbuf,"NOOP")) && (flag !=2)) {
 		fp = fopen(CHATLOG,"a");
 		fprintf(fp,"%s\n",bcast);
 		fclose(fp);
@@ -120,7 +120,7 @@ t_context *find_context(char **unstr)
       else
          name = t_cc->curr_user;
       tptr = *unstr;
-      if ((!struncmp(name, tptr, strlen(name))) && (tptr[strlen(name)] == ' '))
+      if ((!strncasecmp(name, tptr, strlen(name))) && (tptr[strlen(name)] == ' '))
       {
          found_cc = t_cc;
          *unstr = &(tptr[strlen(name)+1]);
@@ -143,7 +143,7 @@ void do_chat_listing(int allflag)
 	cprintf(":|\n:| Users currently in chat:\n");
 	begin_critical_section(S_SESSION_TABLE);
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
-		if ( (!strucmp(ccptr->cs_room, "<chat>"))
+		if ( (!strcasecmp(ccptr->cs_room, "<chat>"))
 		   && ((ccptr->cs_flags & CS_STEALTH) == 0)) {
 			cprintf(":| %-25s <%s>\n", (ccptr->fake_username[0]) ? ccptr->fake_username : ccptr->curr_user, ccptr->chat_room);
 			}
@@ -154,7 +154,7 @@ void do_chat_listing(int allflag)
 		cprintf(":|\n:| Users not in chat:\n");
 		for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) 
 		{
-			if ( (strucmp(ccptr->cs_room, "<chat>"))
+			if ( (strcasecmp(ccptr->cs_room, "<chat>"))
 			   && ((ccptr->cs_flags & CS_STEALTH) == 0)) 
 			{
 				cprintf(":| %-25s <%s>:\n", (ccptr->fake_username[0]) ? ccptr->fake_username : ccptr->curr_user, (ccptr->fake_roomname[0]) ? ccptr->fake_roomname : ccptr->cs_room);
@@ -212,14 +212,14 @@ void cmd_chat(char *argbuf)
 			time(&CC->lastcmd);
 			time(&CC->lastidle);
 
-			if ( (!strucmp(cmdbuf,"exit"))
-		     	||(!strucmp(cmdbuf,"/exit"))
-		     	||(!strucmp(cmdbuf,"quit"))
-		     	||(!strucmp(cmdbuf,"logout"))
-		     	||(!strucmp(cmdbuf,"logoff"))
-		     	||(!strucmp(cmdbuf,"/q"))
-		     	||(!strucmp(cmdbuf,".q"))
-		     	||(!strucmp(cmdbuf,"/quit"))
+			if ( (!strcasecmp(cmdbuf,"exit"))
+		     	||(!strcasecmp(cmdbuf,"/exit"))
+		     	||(!strcasecmp(cmdbuf,"quit"))
+		     	||(!strcasecmp(cmdbuf,"logout"))
+		     	||(!strcasecmp(cmdbuf,"logoff"))
+		     	||(!strcasecmp(cmdbuf,"/q"))
+		     	||(!strcasecmp(cmdbuf,".q"))
+		     	||(!strcasecmp(cmdbuf,"/quit"))
 				) strcpy(cmdbuf,"000");
 	
 			if (!strcmp(cmdbuf,"000")) {
@@ -233,10 +233,10 @@ void cmd_chat(char *argbuf)
 				return;
 				}
 	
-			if ((!strucmp(cmdbuf,"/help"))
-		   	||(!strucmp(cmdbuf,"help"))
-		   	||(!strucmp(cmdbuf,"/?"))
-		   	||(!strucmp(cmdbuf,"?"))) {
+			if ((!strcasecmp(cmdbuf,"/help"))
+		   	||(!strcasecmp(cmdbuf,"help"))
+		   	||(!strcasecmp(cmdbuf,"/?"))
+		   	||(!strcasecmp(cmdbuf,"?"))) {
 				cprintf(":|\n");
 				cprintf(":|Available commands: \n");
 				cprintf(":|/help   (prints this message) \n");
@@ -249,27 +249,27 @@ void cmd_chat(char *argbuf)
 				cprintf(":|\n");
 				ok_cmd = 1;
 				}
-			if (!strucmp(cmdbuf,"/who")) {
+			if (!strcasecmp(cmdbuf,"/who")) {
 				do_chat_listing(0);
 				ok_cmd = 1;
 				}
-			if (!strucmp(cmdbuf,"/whobbs")) {
+			if (!strcasecmp(cmdbuf,"/whobbs")) {
 				do_chat_listing(1);
 				ok_cmd = 1;
 				}
-			if (!struncmp(cmdbuf,"/me ",4)) {
+			if (!strncasecmp(cmdbuf,"/me ",4)) {
 				allwrite(&cmdbuf[4],1, CC->chat_room, NULL);
 				ok_cmd = 1;
 				}
 				
-			if (!struncmp(cmdbuf,"/msg ", 5))
+			if (!strncasecmp(cmdbuf,"/msg ", 5))
 			{
 			   ok_cmd =1;
 			   strptr1 = &cmdbuf[5];
                            if ((t_context = find_context(&strptr1)))
 			   {
 			      allwrite(strptr1, 2, "", CC->curr_user);
-			      if (strucmp(CC->curr_user, t_context->curr_user))
+			      if (strcasecmp(CC->curr_user, t_context->curr_user))
 			         allwrite(strptr1, 2, "", t_context->curr_user);
 			   }
 			   else
@@ -277,7 +277,7 @@ void cmd_chat(char *argbuf)
                         cprintf("\n");
                         }
 
-			if (!struncmp(cmdbuf,"/join ", 6))
+			if (!strncasecmp(cmdbuf,"/join ", 6))
 			{
 			   ok_cmd = 1;
 	          	   allwrite("<changing rooms>",0, CC->chat_room, NULL);
@@ -312,9 +312,9 @@ void cmd_chat(char *argbuf)
 			ThisLastMsg = ChatLastMsg;
 			for (clptr=ChatQueue; clptr!=NULL; clptr=clptr->next) 
 			{
- 		           if ((clptr->chat_seq > MyLastMsg) && ((!clptr->chat_username[0]) || (!struncmp(un, clptr->chat_username, 32))))
+ 		           if ((clptr->chat_seq > MyLastMsg) && ((!clptr->chat_username[0]) || (!strncasecmp(un, clptr->chat_username, 32))))
 		           {
-			      if ((!clptr->chat_room[0]) || (!struncmp(CC->chat_room, clptr->chat_room, 20)))
+			      if ((!clptr->chat_room[0]) || (!strncasecmp(CC->chat_room, clptr->chat_room, 20)))
   			      {
 			         cprintf("%s\n", clptr->chat_text);
 			      }
@@ -406,7 +406,7 @@ void cmd_sexp(char *argbuf)
    	   return;
    	}
 
-	if ( (!strucmp(x_user, "broadcast")) && (CC->usersupp.axlevel < 6) ) {
+	if ( (!strcasecmp(x_user, "broadcast")) && (CC->usersupp.axlevel < 6) ) {
 		cprintf("%d Higher access required to send a broadcast.\n",
 			ERROR+HIGHER_ACCESS_REQUIRED);
 		return;
@@ -422,14 +422,14 @@ void cmd_sexp(char *argbuf)
 	    	else
     		   un = ccptr->usersupp.fullname;
 	   	   
-		if ( (!strucmp(un, x_user))
-		   || (!strucmp(x_user, "broadcast")) ) {
+		if ( (!strcasecmp(un, x_user))
+		   || (!strcasecmp(x_user, "broadcast")) ) {
 			strcpy(ccptr->last_pager, CC->curr_user);
 			emnew = (struct ExpressMessage *)
 				malloc(sizeof(struct ExpressMessage));
 			emnew->next = NULL;
 			sprintf(emnew->em_text, "%s from %s:\n %s\n",
-				( (!strucmp(x_user, "broadcast")) ? "Broadcast message" : "Message" ),
+				( (!strcasecmp(x_user, "broadcast")) ? "Broadcast message" : "Message" ),
 				lun, x_msg);
 
 			if (ccptr->FirstExpressMessage == NULL) {

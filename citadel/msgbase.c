@@ -60,7 +60,7 @@ GNA:	strcpy(aaa,""); strcpy(bbb,"");
 		fclose(fp);
 		goto DETYPE;
 		}
-	if (strucmp(name,aaa)) goto GNA;
+	if (strcasecmp(name,aaa)) goto GNA;
 	fclose(fp);
 	strcpy(name,bbb);
 	/* cprintf("*** Mail is being forwarded to %s\n",name); */
@@ -84,7 +84,7 @@ DETYPE:	/* determine local or remote type, see citadel.h */
 		if (fp==NULL) return(M_ERROR);
 GETSN:		do {
 			a=getstring(fp,aaa);
-			} while ((a>=0)&&(strucmp(aaa,bbb)));
+			} while ((a>=0)&&(strcasecmp(aaa,bbb)));
 		a=getstring(fp,aaa);
 		if (!strncmp(aaa,"use ",4)) {
 			strcpy(bbb,&aaa[4]);
@@ -142,17 +142,17 @@ void cmd_msgs(char *cmdbuf)
 
 	mode = MSGS_ALL;
 	strcat(which,"   ");
-	if (!struncmp(which,"OLD",3))	mode = MSGS_OLD;
-	if (!struncmp(which,"NEW",3))	mode = MSGS_NEW;
-	if (!struncmp(which,"FIRST",5))	{
+	if (!strncasecmp(which,"OLD",3))	mode = MSGS_OLD;
+	if (!strncasecmp(which,"NEW",3))	mode = MSGS_NEW;
+	if (!strncasecmp(which,"FIRST",5))	{
 		mode = MSGS_FIRST;
 		cm_howmany = extract_int(cmdbuf,1);
 		}
-	if (!struncmp(which,"LAST",4))	{
+	if (!strncasecmp(which,"LAST",4))	{
 		mode = MSGS_LAST;
 		cm_howmany = extract_int(cmdbuf,1);
 		}
-	if (!struncmp(which,"GT",2))	{
+	if (!strncasecmp(which,"GT",2))	{
 		mode = MSGS_GT;
 		cm_gt = extract_long(cmdbuf,1);
 		}
@@ -469,7 +469,7 @@ void output_message(char *msgid, int mode, int headers_only)
 		}
 
 	if (mode == MT_RFC822) {
-		if (!strucmp(snode, NODENAME)) {
+		if (!strcasecmp(snode, NODENAME)) {
 			strcpy(snode, FQDN);
 			}
 		cprintf("Message-ID: <%s@%s>\n", mid, snode);
@@ -512,10 +512,10 @@ void output_message(char *msgid, int mode, int headers_only)
 		while(och=ch, ch = *mptr++, ch>0) {
 			if (ch == 13) ch = 10;
 			++len;
-			if ((ch!=10)||(och!=10)) {
+			/* if ((ch!=10)||(och!=10)) { */
 				cprintf("%c", ch);
 				if (ch==10) len = 0;
-				}
+				/* } */
 			if (len>=250) {
 				len = 0;
 				/* cprintf("%c", ch); */
@@ -635,7 +635,7 @@ void loadtroom(void) {
 	/* first try to locate the twit room */
 	for (a=0; a<MAXROOMS; ++a) {
 		getroom(&qrbuf,a);
-		if (!strucmp(qrbuf.QRname,config.c_twitroom)) {
+		if (!strcasecmp(qrbuf.QRname,config.c_twitroom)) {
 			twitroom = a;
 			return;
 			}
@@ -1018,12 +1018,12 @@ void cmd_ent0(char *entargs)
 				ERROR+HIGHER_ACCESS_REQUIRED);
 			return;
 			}
-		if (!strucmp(buf,"sysop")) {
+		if (!strcasecmp(buf,"sysop")) {
 			mtsflag=1;
 			goto SKFALL;
 			}
 		if (e!=M_LOCAL) goto SKFALL;	/* don't search local file  */
-		if (!strucmp(buf,CC->usersupp.fullname)) {
+		if (!strcasecmp(buf,CC->usersupp.fullname)) {
 			cprintf("%d Can't send mail to yourself!\n",
 				ERROR+NO_SUCH_USER);
 			return;
@@ -1225,7 +1225,7 @@ void cmd_move(char *args)
 	targ_slot = (-1);
 	for (a=0; a<MAXROOMS; ++a) {
 		getroom(&qtemp,a);
-		if (!strucmp(qtemp.QRname,targ)) {
+		if (!strcasecmp(qtemp.QRname,targ)) {
 			targ_slot = a;
 			a = MAXROOMS;
 			}

@@ -55,21 +55,6 @@ char TABLEFILE[128];
 char OUTGOING_FQDN[128];
 int RUN_NETPROC = 1;
 
-int struncmp(lstr,rstr,l)
-char lstr[],rstr[]; {
-	int pos = 0;
-	char lc,rc;
-	while (1) {
-		if (pos==l) return(0);
-		lc=tolower(lstr[pos]);
-		rc=tolower(rstr[pos]);
-		if ((lc==0)&&(rc==0)) return(0);
-		if (lc<rc) return(-1);
-		if (lc>rc) return(1);
-		pos=pos+1;
-		}
-	}
-
 long conv_date(sdbuf)
 char sdbuf[]; {
 	int a,b,cpos,tend,tval;
@@ -185,7 +170,7 @@ void host_alias(char host[]) {
 	int a;
 
 	/* What name is the local host known by? */
-	/* if (!strucmp(host, config.c_fqdn)) { */
+	/* if (!strcasecmp(host, config.c_fqdn)) { */
 	if (IsHostLocal(host)) {
 		strcpy(host, config.c_nodename);
 		return;
@@ -193,7 +178,7 @@ void host_alias(char host[]) {
 
 	/* Other hosts in the gateway domain? */
 	for (a=0; a<strlen(host); ++a) {
-		if ((host[a]=='.') && (!strucmp(&host[a+1], GW_DOMAIN))) {
+		if ((host[a]=='.') && (!strcasecmp(&host[a+1], GW_DOMAIN))) {
 			host[a] = 0;
 			for (a=0; a<strlen(host); ++a) {
 				if (host[a]=='.') host[a] = 0;
@@ -518,7 +503,7 @@ char *name; {
 		for (a=0; a<strlen(abuf); ++a) {
 			if (abuf[a]==',') {
 				abuf[a]=0;
-				if (!strucmp(name,abuf)) {
+				if (!strcasecmp(name,abuf)) {
 					strcpy(name,&abuf[a+1]);
 					}
 				}
@@ -555,7 +540,7 @@ void deliver(char recp[], int is_test, int deliver_to_ignet) {
 		syslog(LOG_NOTICE,"zapping nulled message");
 		}
 
-	else if (!struncmp(recp,"room_",5)) {
+	else if (!strncasecmp(recp,"room_",5)) {
 		syslog(LOG_NOTICE,"to room %s",recp);
 		if (is_test == 0) do_roommail(recp);
 		}
@@ -626,21 +611,21 @@ char *argv[]; {
 			buf[strlen(buf)+2] = 0;
 			buf[strlen(buf)+3] = 0;
 	
-			if (!struncmp(buf, "QUIT", 4)) {
+			if (!strncasecmp(buf, "QUIT", 4)) {
 				printf("221 Later, dude.\n");
 				}
-			else if (!struncmp(buf, "HELP", 4)) {
+			else if (!strncasecmp(buf, "HELP", 4)) {
 				printf("214 You think _you_ need help?\n");
 				}
-			else if (!struncmp(buf, "HELO", 4)) {
+			else if (!strncasecmp(buf, "HELO", 4)) {
 				printf("250 Howdy ho, Mr. Hankey!\n");
 				}
-			else if (!struncmp(buf, "MAIL", 4)) {
+			else if (!strncasecmp(buf, "MAIL", 4)) {
 				printf("250 Sure, whatever...\n");
 				}
 
 
-			else if (!struncmp(buf, "RCPT To: ", 9)) {
+			else if (!strncasecmp(buf, "RCPT To: ", 9)) {
 				if (strlen(recp) > 0) {
 					printf("571 Multiple recipients not supported.\n");
 					}
@@ -690,10 +675,10 @@ char *argv[]; {
 
 
 
-			else if (!struncmp(buf, "RCPT", 4)) {
+			else if (!strncasecmp(buf, "RCPT", 4)) {
 				printf("501 Only 'To:' commands are supported.\n");
 				}
-			else if (!struncmp(buf, "DATA", 4)) {
+			else if (!strncasecmp(buf, "DATA", 4)) {
 				if (strlen(recp) > 0) {
 					printf("354 Sock it to me, baby...\n");
 					fflush(stdout);
@@ -708,7 +693,7 @@ char *argv[]; {
 				printf("500 Huh?\n");
 				}
 	
-			} while (struncmp(buf,"QUIT",4));
+			} while (strncasecmp(buf,"QUIT",4));
 		}
 
 	else {
