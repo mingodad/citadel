@@ -669,18 +669,14 @@ int main(int argc, char **argv)
 	/* Initialize... */
 	init_sysdep();
 	openlog("citserver",LOG_PID,LOG_USER);
-        lprintf(1, "Initting modules...\n");
-        snprintf(modpath, 128, "%s/modules", BBSDIR);
-        DLoader_Init(modpath);
-        lprintf(1, "Modules done initializing...\n");
-/*
-        lprintf(1, "First symtab item:");
-        lprintf(1, my_symtab->fcn_name);
-        lprintf(1, "\n");
-*/                                                 
 	/* Load site-specific parameters */
 	lprintf(7, "Loading citadel.config\n");
 	get_config();
+
+        lprintf(7, "Initializing loadable modules\n");
+        snprintf(modpath, 128, "%s/modules", BBSDIR);
+        DLoader_Init(modpath);
+        lprintf(9, "Modules done initializing.\n");
 
 	/* Do non system dependent startup functions */
 	master_startup();
