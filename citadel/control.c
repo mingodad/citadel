@@ -196,6 +196,13 @@ void cmd_conf(char *argbuf)
 		cprintf("%d\n", config.c_disable_newu);
 		cprintf("%d\n", config.c_aide_mailboxes);
 		cprintf("%d\n", config.c_purge_hour);
+#ifdef HAVE_LDAP
+		cprintf("%s\n", config.c_ldap_host);
+		cprintf("%d\n", config.c_ldap_port);
+#else
+		cprintf("\n");
+		cprintf("0\n");
+#endif
 		cprintf("000\n");
 	}
 
@@ -335,6 +342,15 @@ void cmd_conf(char *argbuf)
 					config.c_purge_hour = atoi(buf);
 				}
 				break;
+#ifdef HAVE_LDAP
+			case 32:
+				safestrncpy(config.c_ldap_host, buf,
+					    sizeof config.c_ldap_host);
+				break;
+			case 33:
+				config.c_ldap_port = atoi(buf);
+				break;
+#endif
 			}
 			++a;
 		}

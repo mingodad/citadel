@@ -164,6 +164,10 @@ void update_config(void) {
 		config.c_purge_hour = 3;
 	}
 
+	if (CitControl.version < 615) {
+		config.c_ldap_port = 389;
+	}
+
 	put_config();
 }
 

@@ -642,8 +642,11 @@ void read_bio(CtdlIPC *ipc)
  */
 void do_system_configuration(CtdlIPC *ipc)
 {
+
+#define NUM_CONFIGS 34
+
 	char buf[SIZ];
-	char sc[32][SIZ];
+	char sc[NUM_CONFIGS][SIZ];
 	char *resp = NULL;
 	struct ExpirePolicy *site_expirepolicy = NULL;
 	struct ExpirePolicy *mbx_expirepolicy = NULL;
@@ -661,7 +664,7 @@ void do_system_configuration(CtdlIPC *ipc)
 		while (strlen(resp)) {
 			extract_token(buf, resp, 0, '\n');
 			remove_token(resp, 0, '\n');
-			if (a < 32) {
+			if (a < NUM_CONFIGS) {
 				strcpy(&sc[a][0], buf);
 			}
 			++a;
@@ -747,6 +750,22 @@ void do_system_configuration(CtdlIPC *ipc)
 	a = (a ? 0 : 1);
 	snprintf(sc[25], sizeof sc[25], "%d", a);
 
+	/* LDAP settings */
+	if (serv_info.serv_supports_qnop) {
+		a = strlen(&sc[32][0]);
+		a = (a ? 1 : 0);	/* Set only to 1 or 0 */
+		a = boolprompt("Connect this Citadel to an LDAP directory", a);
+		if (a) {
+			strprompt("Host name of LDAP server",
+				&sc[32][0], 127);
+			strprompt("Port number of LDAP service",
+				&sc[33][0], 5);
+		}
+		else {
+			strcpy(&sc[32][0], "");
+		}
+	}
+
 	/* Expiry settings */
 	strprompt("Default user purge time (days)", &sc[16][0], 5);
 	strprompt("Default room purge time (days)", &sc[17][0], 5);
@@ -811,14 +830,14 @@ void do_system_configuration(CtdlIPC *ipc)
 	scr_printf("Save this configuration? ");
 	if (yesno()) {
 		r = 1;
-		for (a = 0; a < 32; a++)
+		for (a = 0; a < NUM_CONFIGS; a++)
 			r += 1 + strlen(sc[a]);
 		resp = (char *)calloc(1, r);
 		if (!resp) {
 			err_printf("Can't save config - out of memory!\n");
 			logoff(ipc, 1);
 		}
-		for (a = 0; a < 32; a++) {
+		for (a = 0; a < NUM_CONFIGS; a++) {
 			strcat(resp, sc[a]);
 			strcat(resp, "\n");
 		}

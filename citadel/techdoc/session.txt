@@ -590,6 +590,8 @@ parts of the listing:
            authentication.  If this field is present, clients may authenticate
            in this manner.
  Line 14 - Set to nonzero if this server supports the QNOP command.
+ Line 15 - Set to nonzero if this server is capable of connecting to a
+           directory service using LDAP.
 
  *** NOTE! ***   The "server type" code is intended to promote global
 compatibility in a scenario in which developers have added proprietary
@@ -1755,12 +1757,17 @@ fails for any reason, ERROR is returned.
  30. Flag (0 or 1) - disable self-service new user registration
  31. Flag (0 or 1) - Aides are allowed access to all mailboxes
  32. Hour (0 through 23) during which database auto-purge jobs are run
+ 33. Name of host where an LDAP service may be found
+ 34. Port number of LDAP service on above host
 
  CONF also accepts two additional commands: GETSYS and PUTSYS followed by an
 arbitrary MIME type (such as application/x-citadel-internet-config) which
 provides a means of storing generic configuration data in the Global System
 Configuration room without the need to add extra get/set commands to the
 server.
+ 
+ Please note that the LDAP-specific configs have no effect on Citadel servers
+in which LDAP support is not enabled.
 
 
 

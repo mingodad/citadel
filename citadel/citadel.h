@@ -44,9 +44,9 @@ extern "C" {
  * usually more strict because you're not really supposed to dump/load and
  * upgrade at the same time.
  */
-#define REV_LEVEL	614		/* This version */
+#define REV_LEVEL	615		/* This version */
 #define REV_MIN		591		/* Oldest compatible database */
-#define EXPORT_REV_MIN	614		/* Oldest compatible export files */
+#define EXPORT_REV_MIN	615		/* Oldest compatible export files */
 
 #define SERVER_TYPE 0	/* zero for stock Citadel/UX; other developers please
 			   obtain SERVER_TYPE codes for your implementations */
@@ -130,6 +130,8 @@ struct config {
 	char c_aideroom[ROOMNAMELEN];	/* Name of aideroom (Aide)	    */
 	int c_purge_hour;		/* Hour during which db purges run  */
 	struct ExpirePolicy c_mbxep;	/* Expire policy for mailbox rooms  */
+	char c_ldap_host[128];		/* Host where LDAP service lives    */
+	int c_ldap_port;		/* Port on host where LDAP lives    */
 };
 
 /*

@@ -343,6 +343,11 @@ void cmd_info(void) {
 	cprintf("1\n"); /* 1 = we support the extended paging options */
 	cprintf("%s\n", CC->cs_nonce);
 	cprintf("1\n"); /* 1 = yes, this system supports the QNOP command */
+#ifdef HAVE_LDAP
+	cprintf("1\n"); /* 1 = yes, this server is LDAP-enabled */
+#else
+	cprintf("0\n"); /* 1 = no, this server is not LDAP-enabled */
+#endif
 	cprintf("000\n");
 }
 

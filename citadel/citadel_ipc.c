@@ -645,6 +645,7 @@ int CtdlIPCServerInfo(CtdlIPC *ipc, struct CtdlServInfo *ServInfo, char *cret)
 			case 11:	ServInfo->serv_paging_level = atoi(buf);
 					break;
 			case 13:	ServInfo->serv_supports_qnop = atoi(buf);
+			case 14:	ServInfo->serv_supports_ldap = atoi(buf);
 					break;
 			}
 		}

@@ -45,6 +45,7 @@ struct CtdlServInfo {
 	int serv_ok_floors;
 	int serv_paging_level;
 	int serv_supports_qnop;
+	int serv_supports_ldap;
 };
 
 #define QR_PERMANENT	1		/* Room does not purge              */
