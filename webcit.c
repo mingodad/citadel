@@ -152,31 +152,6 @@ char *bstr(char *key)
 }
 
 
-#ifdef HAVE_ZLIB_H
-
-ssize_t http_write(int fd, void *buf, size_t count) {
-
-	if (WC->gzfd) {
-		return gzwrite(WC->gzfd, buf, count);
-	}
-	else {
-		return write(fd, buf, count);
-	}
-
-
-}
-
-#else
-
-ssize_t http_write(int fd, void *buf, size_t count) {
-	return write(fd, buf, count);
-}
-
-#endif
-
-
-
-
 void wprintf(const char *format,...)
 {
 	va_list arg_ptr;
@@ -186,7 +161,7 @@ void wprintf(const char *format,...)
 	vsprintf(wbuf, format, arg_ptr);
 	va_end(arg_ptr);
 
-	http_write(WC->http_sock, wbuf, strlen(wbuf));
+	write(WC->http_sock, wbuf, strlen(wbuf));
 }
 
 
@@ -320,10 +295,6 @@ void output_headers(int controlcode)
 	int suppress_check = 0;
 	char httpnow[SIZ];
 	static int pageseq = 0;
-#ifdef HAVE_ZLIB_H
-	gzFile temp_gzfd = NULL;
-#endif
-
 	print_standard_html_head	=	controlcode & 0x03;
 	refresh30			=	((controlcode & 0x04) >> 2);
 	suppress_check			=	((controlcode & 0x08) >> 3);
@@ -331,12 +302,6 @@ void output_headers(int controlcode)
 	wprintf("HTTP/1.0 200 OK\n");
 
 	httpdate(httpnow, time(NULL));
-
-#ifdef HAVE_ZLIB_H
-	if (WC->gzcompressed) {
-		temp_gzfd = gzdopen(WC->http_sock, "wb9");
-	}
-#endif
 
 	if (print_standard_html_head > 0) {
 		wprintf("Content-type: text/html\n"
@@ -346,11 +311,6 @@ void output_headers(int controlcode)
 			"Pragma: no-cache\n"
 			"Cache-Control: no-store\n"
 		);
-#ifdef HAVE_ZLIB_H
-		if (temp_gzfd != NULL) {
-			wprintf("Content-Encoding: gzip\n");
-		}
-#endif
 	}
 	stuff_to_cookie(cookie, WC->wc_session, WC->wc_username,
 			WC->wc_password, WC->wc_roomname);
@@ -365,12 +325,6 @@ void output_headers(int controlcode)
 
 	if (print_standard_html_head > 0) {
 		wprintf("\n");
-
-#ifdef HAVE_ZLIB_H
-		if (temp_gzfd != NULL) {
-			WC->gzfd = temp_gzfd;
-		}
-#endif
 
 		wprintf("<HTML><HEAD><TITLE>");
 		escputs(serv_info.serv_humannode);
@@ -463,7 +417,7 @@ void http_transmit_thing(char *thing, size_t length, char *content_type) {
 		(long) length,
 		SERVER
 	);
-	http_write(WC->http_sock, thing, (size_t)length);
+	write(WC->http_sock, thing, (size_t)length);
 }
 
 
@@ -623,7 +577,7 @@ void output_mimepart()
 			else {
 				memset(xferbuf, 0, thisblock);
 			}
-			http_write(WC->http_sock, xferbuf, thisblock);
+			write(WC->http_sock, xferbuf, thisblock);
 			bytes = bytes - thisblock;
 			accomplished = accomplished + thisblock;
 		}
@@ -843,7 +797,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 /*
  * Entry point for WebCit transaction
  */
-void session_loop(struct httprequest *req, int gzip)
+void session_loop(struct httprequest *req)
 {
 	char cmd[SIZ];
 	char action[SIZ];
@@ -878,15 +832,6 @@ void session_loop(struct httprequest *req, int gzip)
 	WC->upload = NULL;
 
 	WC->is_wap = 0;
-
-#ifdef HAVE_ZLIB_H
-	if (gzip) {
-		WC->gzcompressed = 1;
-	}
-	else {
-		WC->gzcompressed = 0;
-	}
-#endif
 
 	hptr = req;
 	if (hptr == NULL) return;
@@ -1278,11 +1223,4 @@ SKIP_ALL_THIS_CRAP:
 		WC->upload_length = 0;
 	}
 
-#ifdef HAVE_ZLIB_H
-	if (WC->gzfd) {
-		gzclose(WC->gzfd);
-		WC->gzfd = NULL;
-		WC->gzcompressed = 0;
-	}
-#endif
 }

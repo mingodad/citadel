@@ -172,10 +172,6 @@ struct wcsession {
 	char this_page[SIZ];		/* address of current page */
 	char http_host[SIZ];		/* HTTP Host: header */
 	char *preferences;
-#ifdef HAVE_ZLIB_H
-	int gzcompressed;		/* nonzero if compressed output */
-	gzFile gzfd;			/* stream to send compressed */
-#endif
 #ifdef HAVE_ICAL_H
 	icalcomponent **disp_cal;	/* store calendar items for display */
 	long *cal_msgnum;		/* store calendar msgids for display */
@@ -302,7 +298,7 @@ void display_menubar(int);
 void embed_room_banner(char *);
 void smart_goto(char *);
 void worker_entry(void);
-void session_loop(struct httprequest *, int gzip);
+void session_loop(struct httprequest *);
 void fmt_date(char *buf, time_t thetime);
 void httpdate(char *buf, time_t thetime);
 void end_webcit_session(void);
@@ -354,7 +350,6 @@ void cal_process_attachment(char *part_source);
 void display_calendar(long msgnum);
 void display_task(long msgnum);
 void do_calendar_view(void);
-ssize_t http_write(int fd, void *buf, size_t count);
 
 #ifdef HAVE_ICAL_H
 void display_edit_task(void);
