@@ -20,6 +20,37 @@ straightforward.
 
 
 
+ WRITING A SERVER-SIDE APPLICATION
+ ---------------------------------
+  
+ Server-side applications written to the CitadelAPI may be written in any
+language, as long as the "citadelapi" library is linked in.  Unlike normal
+user-mode programs, you must not declare a main() function, and there will be
+no stdin/stdout/stderr available.  Instead, you must declare this:
+ 
+ void CtdlMain() {
+                 /* your program's main loop goes here */
+                 }
+ 
+ When a server-side application is started, the main() loop inside the
+CitadelAPI is invoked.  This will perform all of the necessary initialization
+(attach to the server, authenticate, identify itself, etc.) and then call
+your program's CtdlMain() loop.
+   
+ By the time CtdlMain() receives control, there will be two public symbols
+you can access, which point to data structures containing various information
+that may be useful to the program:
+ 
+ extern struct CtdlServerHandle CtdlAppHandle;
+ extern struct CtdlServInfo CtdlAppServInfo;
+
+ CtdlAppHandle contains various information about how and why this program is
+connected to the server.  CtdlAppSrvInfo contains various static information
+about the server the program is connected to.  Both CtdlServerHandle and
+CtdlServInfo are defined in the standard header files.
+ 
+ 
+ 
  ERROR HANDLING
  --------------
  

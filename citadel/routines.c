@@ -37,7 +37,7 @@ void color();
 extern unsigned userflags;
 extern char *axdefs[7];
 extern char sigcaught;
-extern struct serv_info serv_info;
+extern struct CtdlServInfo serv_info;
 extern char rc_floor_mode;
 
 int struncmp(lstr,rstr,len)

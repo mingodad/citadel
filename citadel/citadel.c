@@ -112,7 +112,7 @@ char printcmd[256];			/* print command */
 int editor_pid = (-1);
 char fullname[32];
 jmp_buf nextbuf;
-struct serv_info serv_info;		/* Info on the server connected */
+struct CtdlServInfo serv_info;		/* Info on the server connected */
 int screenwidth;
 int screenheight;
 unsigned room_flags;
@@ -262,55 +262,6 @@ void userlist() {
 	printf("\n");
 	}
 
-
-/*
- * get info about the server we've connected to
- */
-void get_serv_info() {
-	char buf[256];
-	int a;
-
-	/* fetch info */	
-	serv_puts("INFO");
-	serv_gets(buf);
-	if (buf[0]!='1') return;
-
-	a = 0;
-	while(serv_gets(buf), strcmp(buf,"000")) {
-	    switch(a) {
-		case 0:		serv_info.serv_pid = atoi(buf);
-				break;
-		case 1:		strcpy(serv_info.serv_nodename,buf);
-				break;
-		case 2:		strcpy(serv_info.serv_humannode,buf);
-				break;
-		case 3:		strcpy(serv_info.serv_fqdn,buf);
-				break;
-		case 4:		strcpy(serv_info.serv_software,buf);
-				break;
-		case 5:		serv_info.serv_rev_level = atoi(buf);
-				break;
-		case 6:		strcpy(serv_info.serv_bbs_city,buf);
-				break;
-		case 7:		strcpy(serv_info.serv_sysadm,buf);
-				break;
-		case 9:		strcpy(serv_info.serv_moreprompt,buf);
-				break;
-		case 10:	serv_info.serv_ok_floors = atoi(buf);
-				break;
-		}
-	    ++a;
-	    }
-
-	/* be nice and identify ourself to the server */
-	sprintf(buf,"IDEN %d|%d|%d|%s|",
-		SERVER_TYPE,0,REV_LEVEL,
-		(server_is_local ? "(local)" : CITADEL));
-	locate_host(&buf[strlen(buf)]);	/* append to the end */
-	serv_puts(buf);
-	serv_gets(buf); /* we don't care about the result code */
-
-	}
 
 /*
  * grab assorted info about the user...
@@ -807,6 +758,28 @@ int set_password() {
 		return(1);
 		}
 	}
+
+
+
+/*
+ * get info about the server we've connected to
+ */
+void get_serv_info() {
+	char buf[256];
+
+	CtdlInternalGetServInfo(&serv_info);
+
+	/* be nice and identify ourself to the server */
+	sprintf(buf,"IDEN %d|%d|%d|%s|",
+		SERVER_TYPE,0,REV_LEVEL,
+		(server_is_local ? "local" : CITADEL));
+	locate_host(&buf[strlen(buf)]);	/* append to the end */
+	serv_puts(buf);
+	serv_gets(buf); /* we don't care about the result code */
+	}
+
+
+
 
 
 /*

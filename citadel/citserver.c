@@ -567,7 +567,7 @@ void cmd_down(void) {
 	}
 
 /*
- * Shut down the server
+ * Schedule or cancel a server shutdown
  */
 void cmd_scdn(char *argbuf)
 {
@@ -590,6 +590,62 @@ void cmd_scdn(char *argbuf)
 		}
 	cprintf("%d %d\n", OK, ScheduledShutdown);
 	}
+
+
+/*
+ * Run a server extension (FIX FIX FIX initial hack; polish this up)
+ */
+void cmd_extn(char *argbuf) {
+	char ExtensionName[256];
+	int is_ipgm;
+	int pid;
+	char portstr[16];
+	char ipgm[32];
+	char sess[16];
+
+
+	extract(ExtensionName, argbuf, 0);
+	is_ipgm = extract_int(argbuf, 1);
+	
+	pid = fork();
+	lprintf(9, "fork() returned %d\n", pid);
+	if (pid < 0) {
+		cprintf("%d fork failed: %s\n",
+			ERROR + INTERNAL_ERROR,
+			strerror(errno));
+		return;
+		}
+	else if (pid == 0) {
+
+		sprintf(portstr, "%d", config.c_port_number);
+
+		if (is_ipgm)
+			sprintf(ipgm, "%d", config.c_ipgm_secret);
+		else
+			strcpy(ipgm, "");
+
+		sprintf(sess, "%d", CC->cs_pid);
+
+		execlp(ExtensionName, ExtensionName,
+			"localhost",			/* server address */
+			portstr,			/* port number */
+			ipgm,				/* ipgm secret */
+			CC->usersupp.fullname,		/* user name */
+			CC->usersupp.password,		/* password */
+			CC->quickroom.QRname,		/* current room */
+			sess,				/* assoc session id */
+			NULL);
+	
+		lprintf(9, "exec() failed: %s\n", strerror(errno));
+		exit(1);
+		}
+	else {
+		cprintf("%d Ok\n", OK);
+		}
+	}
+
+
+
 
 /*
  * main context loop
@@ -1008,6 +1064,9 @@ void *context_loop(struct CitContext *con)
 			}
 		else if (!strncasecmp(cmdbuf, "RCHG", 4)) {
 			cmd_rchg(&cmdbuf[5]);
+			}
+		else if (!strncasecmp(cmdbuf, "EXTN", 4)) {
+			cmd_extn(&cmdbuf[5]);
 			}
 		else {
 			cprintf("%d Unrecognized or unsupported command.\n",

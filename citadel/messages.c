@@ -46,7 +46,7 @@ int num_msgs;
 extern char room_name[];
 extern unsigned room_flags;
 extern long highest_msg_read;
-extern struct serv_info serv_info;
+extern struct CtdlServInfo serv_info;
 extern char temp[];
 extern char temp2[];
 extern int screenwidth;

@@ -1,3 +1,9 @@
+Thu Aug  6 19:25:01 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Got the CitadelAPI library to the point where the server can start
+	  up an extension, and the extension will connect to the server, do
+	  some initialization, call a user-supplied CtdlMain(), and exit.  Also
+	  hacked together a _temporary_ form of the new EXTN server command.
+ 
 Wed Aug  5 23:02:22 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Second attempt at getting the server API started.  Now it runs
 	  outside of the server and builds a connection.

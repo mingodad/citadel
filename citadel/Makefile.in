@@ -12,7 +12,7 @@
 
 client: citadel whobbs
 
-server: citserver setup
+server: citserver setup citadelapi.a
 
 utils: aidepost netmailer netproc netsetup msgform \
 readlog rcit stats sysoputil citmail netpoll mailinglist userlist
@@ -21,9 +21,9 @@ readlog rcit stats sysoputil citmail netpoll mailinglist userlist
 #
 
 citadel: ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o messages.o \
-	commands.o client_chat.o
+	commands.o client_chat.o serv_info.o
 	$(CC) $(CFLAGS) ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o \
-	messages.o commands.o client_chat.o $(LFLAGS) -o citadel
+	messages.o commands.o client_chat.o serv_info.o $(LFLAGS) -o citadel
 
 netpoll: netpoll.c config.o ipc_c_tcp.o
 	$(CC) $(CFLAGS) netpoll.c config.o ipc_c_tcp.o $(LFLAGS) -o netpoll
@@ -54,6 +54,9 @@ routines2.o: routines2.c citadel.h
 
 client_chat.o: client_chat.c citadel.h
 	$(CC) -O $(CFLAGS) -c client_chat.c
+
+serv_info.o: serv_info.c citadel.h
+	$(CC) -O $(CFLAGS) -c serv_info.c
 
 
 #
@@ -111,6 +114,13 @@ config.o: config.c config_decls.h citadel.h axdefs.h
 
 sysdep.o: sysdep.c citadel.h
 	$(CC) -O $(CFLAGS) -D_REENTRANT -c sysdep.c
+
+citadelapi.a: citadelapi.o ipc_c_tcp.o serv_info.o
+	$(AR) r citadelapi.a citadelapi.o ipc_c_tcp.o serv_info.o
+	$(RANLIB) citadelapi.a
+
+citadelapi.o: citadelapi.c citadel.h
+	$(CC) -O $(CFLAGS) -D_REENTRANT -c citadelapi.c
 
 aidepost: aidepost.c config.o citadel.h
 	$(CC) -O $(CFLAGS) aidepost.c config.o $(LFLAGS) -o aidepost

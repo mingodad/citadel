@@ -25,7 +25,7 @@
 #define NO_SUCH_SYSTEM		73
 #define ALREADY_EXISTS		74
 
-struct serv_info {
+struct CtdlServInfo {
 	int serv_pid;
 	char serv_nodename[32];
 	char serv_humannode[64];
@@ -70,3 +70,14 @@ struct serv_info {
 
 void serv_puts();
 void serv_gets();
+
+struct CtdlServerHandle {
+	char ServerAddress[64];
+	int ServerPort;
+	char ipgmSecret[32];
+	char UserName[32];
+	char Password[32];
+	char InitialRoom[32];
+	int AssocClientSession;
+	};
+

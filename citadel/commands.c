@@ -44,7 +44,7 @@ struct citcmd {
 
 extern unsigned room_flags;
 extern char room_name[];
-extern struct serv_info serv_info;
+extern struct CtdlServInfo serv_info;
 extern char axlevel;
 extern char is_room_aide;
 extern unsigned userflags;

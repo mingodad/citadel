@@ -7,18 +7,9 @@
 #include <errno.h>
 #include "citadel.h"
 
-struct CtdlServerHandle {
-	char ServerAddress[64];
-	int ServerPort;
-	char ipgmSecret[32];
-	char UserName[32];
-	char Password[32];
-	char InitialRoom[32];
-	int AssocClientSession;
-	};
-
-struct CtdlServerHandle CtdlMyHandle;
-
+struct CtdlServerHandle CtdlAppHandle;
+struct CtdlServInfo CtdlAppServInfo;
+void CtdlMain();
 
 void logoff(exitcode) {
 	exit(exitcode);
@@ -53,25 +44,25 @@ char *argv[]; {
 	if (argc < 3) exit(1);
 
 	/* Zeroing out the server handle neatly sets the values of
-	 * CtdlMyHandle to sane default values
+	 * CtdlAppHandle to sane default values
 	 */
-	bzero(&CtdlMyHandle, sizeof(struct CtdlServerHandle));
+	bzero(&CtdlAppHandle, sizeof(struct CtdlServerHandle));
 
 	/* Now parse the command-line arguments fed to us by the server */
 	for (a=0; a<argc; ++a) switch(a) {
-		case 1:	strcpy(CtdlMyHandle.ServerAddress, argv[a]);
+		case 1:	strcpy(CtdlAppHandle.ServerAddress, argv[a]);
 			break;
-		case 2:	CtdlMyHandle.ServerPort = atoi(argv[a]);
+		case 2:	CtdlAppHandle.ServerPort = atoi(argv[a]);
 			break;
-		case 3:	strcpy(CtdlMyHandle.ipgmSecret, argv[a]);
+		case 3:	strcpy(CtdlAppHandle.ipgmSecret, argv[a]);
 			break;
-		case 4:	strcpy(CtdlMyHandle.UserName, argv[a]);
+		case 4:	strcpy(CtdlAppHandle.UserName, argv[a]);
 			break;
-		case 5:	strcpy(CtdlMyHandle.Password, argv[a]);
+		case 5:	strcpy(CtdlAppHandle.Password, argv[a]);
 			break;
-		case 6:	strcpy(CtdlMyHandle.InitialRoom, argv[a]);
+		case 6:	strcpy(CtdlAppHandle.InitialRoom, argv[a]);
 			break;
-		case 7:	CtdlMyHandle.AssocClientSession = atoi(argv[a]);
+		case 7:	CtdlAppHandle.AssocClientSession = atoi(argv[a]);
 			break;
 		}
 
@@ -83,26 +74,28 @@ char *argv[]; {
 
 	/* Set up the server environment to our liking */
 
+	CtdlInternalGetServInfo(&CtdlAppServInfo, 0);
+
 	sprintf(buf, "IDEN 0|5|006|CitadelAPI Client");
 	serv_puts(buf);
 	serv_gets(buf);
 
-	if (strlen(CtdlMyHandle.ipgmSecret) > 0) {
-		sprintf(buf, "IPGM %s", CtdlMyHandle.ipgmSecret);
+	if (strlen(CtdlAppHandle.ipgmSecret) > 0) {
+		sprintf(buf, "IPGM %s", CtdlAppHandle.ipgmSecret);
 		serv_puts(buf);
 		serv_gets(buf);
 		}
 
-	if (strlen(CtdlMyHandle.UserName) > 0) {
-		sprintf(buf, "USER %s", CtdlMyHandle.UserName);
+	if (strlen(CtdlAppHandle.UserName) > 0) {
+		sprintf(buf, "USER %s", CtdlAppHandle.UserName);
 		serv_puts(buf);
 		serv_gets(buf);
-		sprintf(buf, "PASS %s", CtdlMyHandle.Password);
+		sprintf(buf, "PASS %s", CtdlAppHandle.Password);
 		serv_puts(buf);
 		serv_gets(buf);
 		}
 
-	sprintf(buf, "GOTO %s", CtdlMyHandle.InitialRoom);
+	sprintf(buf, "GOTO %s", CtdlAppHandle.InitialRoom);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '2') {
@@ -111,7 +104,7 @@ char *argv[]; {
 		}
 
 	/* Now do the loop. */
-	sleep(10);
+	CtdlMain();
 
 	/* Clean up gracefully and exit. */
 	serv_puts("QUIT");
