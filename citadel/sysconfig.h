@@ -68,15 +68,18 @@
 #define HOUSEKEEPING_WAKEUP	60
 
 
+/*
+ * NLI is the string that shows up in a <W>ho's online listing for sessions
+ * that are active, but for which no user has yet authenticated.
+ */
 #define NLI	"(not logged in)"
 
-
-/*** STRUCTURE SIZE VARIABLES ***/
-
-/* You may NOT change this value once you set up your system.	    */
-#define MAXFLOORS	16		/* Do not set higher than 127       */
-
-/*** END OF STRUCTURE SIZE VARIABLES ***/
+/*
+ * Maximum number of floors on the system.
+ * WARNING!  *Never* change this value once your system is up; THINGS WILL DIE!
+ * Also, do not set it higher than 127.
+ */
+#define MAXFLOORS	16
 
 
 /* 
@@ -85,6 +88,13 @@
  */
 #define POP3_PORT		110
 #define SMTP_PORT		25
+
+/*
+ * SMTP delivery retry and give-up times
+ * FIXME ... put this in a programmable config somewhere
+ */
+#define	SMTP_RETRY_INTERVAL	900	/* retry sends every 15 minutes */
+#define SMTP_GIVE_UP		259200	/* give up after 3 days */
 
 
 /*

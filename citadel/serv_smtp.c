@@ -976,10 +976,31 @@ void smtp_do_bounce(char *instr) {
 	int num_bounces = 0;
 	int bounce_this = 0;
 	long bounce_msgid = (-1);
+	time_t submitted = 0L;
 	struct CtdlMessage *bmsg = NULL;
+	int give_up = 0;
 
 	lprintf(9, "smtp_do_bounce() called\n");
 	strcpy(bounceto, "");
+
+	lines = num_tokens(instr, '\n');
+
+
+	/* See if it's time to give up on delivery of this message */
+	for (i=0; i<lines; ++i) {
+		extract_token(buf, instr, i, '\n');
+		extract(key, buf, 0);
+		extract(addr, buf, 1);
+		if (!strcasecmp(key, "submitted")) {
+			submitted = atol(addr);
+		}
+	}
+
+	if ( (time(NULL) - submitted) > SMTP_GIVE_UP ) {
+		give_up = 1;
+	}
+
+
 
 	bmsg = (struct CtdlMessage *) mallok(sizeof(struct CtdlMessage));
 	if (bmsg == NULL) return;
@@ -990,14 +1011,28 @@ void smtp_do_bounce(char *instr) {
         bmsg->cm_format_type = 1;
         bmsg->cm_fields['A'] = strdoop("Citadel");
         bmsg->cm_fields['N'] = strdoop(config.c_nodename);
-        bmsg->cm_fields['M'] = strdoop(
 
+	if (give_up) bmsg->cm_fields['M'] = strdoop(
+"BOUNCE!  BOUNCE!!  BOUNCE!!!\n\n"
+"FIXME ... this message should be made to look nice and stuff.\n"
+"In the meantime, you should be aware that we're giving up on the\n"
+"following deliveries because their mail servers are fux0red and\n"
+"would not accept the message for a very, very long time:\n\n"
+);
+
+        else bmsg->cm_fields['M'] = strdoop(
 "BOUNCE!  BOUNCE!!  BOUNCE!!!\n\n"
 "FIXME ... this message should be made to look nice and stuff.\n"
 "In the meantime, you should be aware that the following\n"
-"recipient addresses had permanent fatal errors:\n\n");
+"recipient addresses had permanent fatal errors:\n\n"
+);
 
-	lines = num_tokens(instr, '\n');
+
+
+	/*
+	 * Now go through the instructions checking for stuff.
+	 */
+
 	for (i=0; i<lines; ++i) {
 		extract_token(buf, instr, i, '\n');
 		extract(key, buf, 0);
@@ -1020,6 +1055,7 @@ void smtp_do_bounce(char *instr) {
 		   || (!strcasecmp(key, "room"))
 		) {
 			if (status == 5) bounce_this = 1;
+			if (give_up) bounce_this = 1;
 		}
 
 		if (bounce_this) {
@@ -1132,6 +1168,8 @@ void smtp_do_procmsg(long msgnum) {
 	char dsn[1024];
 	long text_msgid = (-1);
 	int incomplete_deliveries_remaining;
+	time_t attempted = 0L;
+	time_t last_attempted = 0L;
 
 	msg = CtdlFetchMessage(msgnum);
 	if (msg == NULL) {
@@ -1154,7 +1192,7 @@ void smtp_do_procmsg(long msgnum) {
 		}
 	}
 
-	/* Learn the message ID */
+	/* Learn the message ID and find out about recent delivery attempts */
 	lines = num_tokens(instr, '\n');
 	for (i=0; i<lines; ++i) {
 		extract_token(buf, instr, i, '\n');
@@ -1162,8 +1200,27 @@ void smtp_do_procmsg(long msgnum) {
 		if (!strcasecmp(key, "msgid")) {
 			text_msgid = extract_long(buf, 1);
 		}
+		if (!strcasecmp(key, "attempted")) {
+			attempted = extract_long(buf, 1);
+			if (attempted > last_attempted)
+				last_attempted = attempted;
+		}
 	}
 
+
+	/*
+	 * Postpone delivery if we've already tried recently.
+	 */
+	if ( (time(NULL) - last_attempted) < SMTP_RETRY_INTERVAL) {
+		lprintf(7, "Retry time not yet reached.\n");
+		phree(instr);
+		return;
+	}
+
+
+	/*
+	 * Bail out if there's no actual message associated with this
+	 */
 	if (text_msgid < 0L) {
 		lprintf(3, "SMTP: no 'msgid' directive found!\n");
 		phree(instr);

@@ -1,4 +1,8 @@
 $Log$
+Revision 1.468  2000/02/24 03:44:00  ajc
+* Implemented holdoff time (15 minutes) for SMTP send retry.
+* Implemented "try for 3 days and then give up" on SMTP send.
+
 Revision 1.467  2000/02/24 00:51:48  ajc
 * Client protocol synchronization check during exit from chat.
   This closes Bug #15.
@@ -1654,4 +1658,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
