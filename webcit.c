@@ -451,9 +451,11 @@ void check_for_instant_messages()
 {
 	char buf[SIZ];
 
+	lprintf(9, "Checking for instant messages...\n");
 	serv_puts("NOOP");
 	serv_gets(buf);
 	if (buf[3] == '*') WC->HaveInstantMessages = 1;
+	lprintf(9, "...done\n");
 }
 
 
@@ -1050,8 +1052,6 @@ void session_loop(struct httprequest *req)
 		goto SKIP_ALL_THIS_CRAP;
 	}
 
-	check_for_instant_messages();
-
 	/*
 	 * If we're not logged in, but we have username and password cookies
 	 * supplied by the browser, try using them to log in.
@@ -1080,6 +1080,11 @@ void session_loop(struct httprequest *req)
 			strcpy(WC->wc_roomname, c_roomname);
 		}
 	}
+
+	/*
+	 * If there are instant messages waiting, retrieve them for display.
+	 */
+	check_for_instant_messages();
 
 	if (!strcasecmp(action, "image")) {
 		output_image();

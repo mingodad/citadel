@@ -423,6 +423,7 @@ void changepw(void)
 	serv_gets(buf);
 	sprintf(WC->ImportantMessage, "%s", &buf[4]);
 	if (buf[0] == '2') {
+		safestrncpy(WC->wc_password, buf, sizeof WC->wc_password);
 		display_main_menu();
 	}
 	else {
