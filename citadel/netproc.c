@@ -92,6 +92,8 @@ struct config config;
 extern char bbs_home_directory[];
 extern int home_specified;
 
+GDBM_FILE use_table;
+
 
 #ifndef HAVE_STRERROR
 /*
@@ -468,22 +470,16 @@ void fpgetfield(FILE * fp, char *string)
  * Load all of the fields of a message, except the actual text, into a
  * table in memory (so we know how to process the message).
  */
-void msgfind(char *msgfile, struct minfo *buffer)
+void fpmsgfind(FILE *fp, struct minfo *buffer)
 {
 	int b, e, mtype, aflag;
 	char bbb[1024];
 	char userid[1024];
-	FILE *fp;
 
 	strcpy(userid, "");
-	fp = fopen(msgfile, "rb");
-	if (fp == NULL) {
-		syslog(LOG_ERR, "can't open message file: %s", strerror(errno));
-		return;
-	}
 	e = getc(fp);
 	if (e != 255) {
-		syslog(LOG_ERR, "incorrect message format");
+		syslog(LOG_ERR, "Magic number check failed for this message");
 		goto END;
 	}
 	mtype = getc(fp);
@@ -555,7 +551,7 @@ BONFGM:	b = getc(fp);
 		strcpy(buffer->E, bbb);
 	goto BONFGM;
 
-END:	fclose(fp);
+END:
 
 	/* NOTE: we used to use the following two lines of code to assign
 	 * the timestamp as a message-ID if there was no message-ID already
@@ -565,6 +561,24 @@ END:	fclose(fp);
 	if (buffer->I == 0L)
 		buffer->I = buffer->T;
 	 */
+}
+
+
+/*
+ * msgfind() is the same as fpmsgfind() except it accepts a filename
+ * instead of a file handle.
+ */
+void msgfind(char *msgfile, struct minfo *buffer) {
+	FILE *fp;
+
+	fp = fopen(msgfile, "rb");
+	if (fp == NULL) {
+		syslog(LOG_ERR, "can't open %s: %s", msgfile, strerror(errno));
+		return;
+	}
+
+	fpmsgfind(fp, buffer);
+	fclose(fp);
 }
 
 
@@ -817,7 +831,6 @@ void inprocess(void)
 	char buf[256];
 	long msglen;
 	int bloklen;
-	GDBM_FILE use_table;
 
 	/* temp file names */
 	sprintf(tname, tmpnam(NULL));
@@ -827,14 +840,6 @@ void inprocess(void)
 
 	/* Make sure we're in the right directory */
 	chdir(bbs_home_directory);
-
-	/* Open the use table */
-	use_table = gdbm_open("./data/usetable.gdbm", 512,
-			      GDBM_WRCREAT, 0600, 0);
-	if (use_table == NULL) {
-		syslog(LOG_ERR, "could not open use table: %s",
-		       strerror(errno));
-	}
 
 
 	/* temporary file to contain a log of rejected dups */
@@ -1080,9 +1085,6 @@ ENDSTR:			fclose(fp);
 	} while (ptr != NULL);
 	unlink(iname);
 
-	purge_use_table(use_table);
-	gdbm_close(use_table);
-
 
 	/*
 	 * If dups were rejected, post a message saying so
@@ -1132,15 +1134,17 @@ int checkpath(char *path, char *sys)
 }
 
 /*
- * implement split horizon algorithm
+ * Implement split horizon algorithm (prevent infinite spooling loops
+ * by refusing to send any node a message which already contains its
+ * nodename in the path).
  */
-int ismsgok(long int mpos, FILE * mmfp, char *sysname)
+int ismsgok(FILE *mmfp, char *sysname)
 {
 	int a;
 	int ok = 0;		/* fail safe - no path, don't send it */
 	char fbuf[256];
 
-	fseek(mmfp, mpos, 0);
+	fseek(mmfp, 0L, 0);
 	if (getc(mmfp) != 255)
 		return (0);
 	getc(mmfp);
@@ -1171,6 +1175,7 @@ int spool_out(struct msglist *cmlist, FILE * destfp, char *sysname)
 	int msgs_spooled = 0;
 	long msg_len;
 	int blok_len;
+	static struct minfo minfo;
 
 	char buf[256];
 	char curr_rm[256];
@@ -1210,7 +1215,7 @@ int spool_out(struct msglist *cmlist, FILE * destfp, char *sysname)
 
 		rewind(mmfp);
 
-		if (ismsgok(0L, mmfp, sysname)) {
+		if (ismsgok(mmfp, sysname)) {
 			++msgs_spooled;
 			fflush(stdout);
 			fseek(mmfp, 0L, 0);
@@ -1234,6 +1239,14 @@ int spool_out(struct msglist *cmlist, FILE * destfp, char *sysname)
 					putc(a, destfp);
 				} while (a > 0);
 			}
+
+		/* Get this message into the use table, so we can reject it
+		 * if a misconfigured remote system sends it back to us.
+		 */
+		fseek(mmfp, 0L, 0);
+		fpmsgfind(mmfp, &minfo);
+		already_received(use_table, &minfo);
+
 		}
 		fclose(mmfp);
 	}
@@ -1472,8 +1485,21 @@ int main(int argc, char **argv)
 		syslog(LOG_ERR, "cannot load sysinfo");
 	setup_special_nodes();
 
-	inprocess();		/* first collect incoming stuff */
+	/* Open the use table */
+	use_table = gdbm_open("./data/usetable.gdbm", 512,
+			      GDBM_WRCREAT, 0600, 0);
+	if (use_table == NULL) {
+		syslog(LOG_ERR, "could not open use table: %s",
+		       strerror(errno));
+	}
 
+	/* first collect incoming stuff */
+	inprocess();
+
+	/* Now process outbound messages, but NOT if this is just a
+	 * quick import-only run (i.e. the -i command-line option
+	 * was specified)
+	 */
 	if (import_only != 1) {
 		allfp = (FILE *) popen("cd ./network/systems; ls", "r");
 		if (allfp != NULL) {
@@ -1486,7 +1512,14 @@ int main(int argc, char **argv)
 		/* import again in case anything new was generated */
 		inprocess();
 	}
+
+	/* Update mail.sysinfo with new information we learned */
 	rewrite_syslist();
+
+	/* Close the use table */
+	purge_use_table(use_table);
+	gdbm_close(use_table);
+
 	syslog(LOG_NOTICE, "processing ended.");
 	cleanup(0);
 	return 0;

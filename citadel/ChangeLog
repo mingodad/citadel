@@ -1,4 +1,9 @@
 $Log$
+Revision 1.363  1999/09/07 00:04:13  ajc
+* netproc.c: put outgoing messages into the use table, too -- this prevents
+  locally originated messages from showing up again if a remote system is
+  misconfigured and spools them back to us.
+
 Revision 1.362  1999/09/06 03:39:15  ajc
 * citadel.c: run strproc() on new passwords
 
@@ -1233,4 +1238,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
