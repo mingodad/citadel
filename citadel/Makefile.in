@@ -22,7 +22,7 @@ all: $(TARGETS)
 EXEEXT=@EXEEXT@
 
 CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT) stress$(EXEEXT)
-SERVER_TARGETS=citserver setup $(CHKPWD) citadel-openldap.schema
+SERVER_TARGETS=citserver setup $(CHKPWD)
 SERV_MODULES=serv_chat.o \
 	serv_upgrade.o \
 	serv_smtp.o \

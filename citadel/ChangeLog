@@ -1,4 +1,8 @@
  $Log$
+ Revision 629.3  2005/01/09 03:20:41  ajc
+ * Applied a patch sent in by David Given for handling of the "&" character
+   plus Unicode characters in IMAP folder names.
+
  Revision 629.2  2005/01/07 15:56:14  ajc
  * msgbase.c: fixed an incorrect variable name in the bigmsg-handler
 
@@ -6261,4 +6265,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

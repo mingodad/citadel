@@ -3,6 +3,8 @@
  *
  * Utility functions for the IMAP module.
  *
+ * Note: most of the UTF7 and UTF8 handling in here was stolen from Evolution.
+ *
  */
 
 #include <stdlib.h>
@@ -22,10 +24,374 @@
 #include "snprintf.h"
 #endif
 
-/*
- * Output a string to the IMAP client, either as a literal or quoted.
- * (We do a literal if it has any double-quotes or backslashes.)
- */
+/* String handling helpers */
+
+/* This code uses some pretty narsty string manipulation. To make everything
+ * manageable, we use this semi-high-level string manipulation API. Strings are
+ * always \0-terminated, despite the fact that we keep track of the size. */
+
+struct string {
+	char* buffer;
+	int maxsize;
+	int size;
+};
+
+static void string_init(struct string* s, char* buf, int bufsize)
+{
+	s->buffer = buf;
+	s->maxsize = bufsize-1;
+	s->size = strlen(buf);
+}
+
+static int string_overflow(struct string* s)
+{
+	return (s->size == s->maxsize);
+}
+
+static int string_length(struct string* s)
+{
+	return s->size;
+}
+
+static char* string_ptr(struct string* s)
+{
+	return s->buffer;
+}
+
+static char* string_end(struct string* s)
+{
+	return s->buffer + s->size;
+}
+
+/* Append a UTF8 string of a particular length (in bytes). -1 to autocalculate. */
+
+static void string_append_sn(struct string* s, char* p, int len)
+{
+	if (len == -1)
+		len = strlen(p);
+	if ((s->size+len) > s->maxsize)
+		len = s->maxsize - s->size;
+	memcpy(s->buffer + s->size, p, len);
+	s->size += len;
+	s->buffer[s->size] = '\0';
+}
+
+/* As above, always autocalculate. */
+
+#define string_append_s(s, p) string_append_sn((s), (p), -1)
+
+/* Appends a UTF8 character --- which may make the size change by more than 1!
+ * If the string overflows, the last character may become invalid. */
+
+static void string_append_c(struct string* s, int c)
+{
+	char buf[5];
+	int len = 0;
+
+	/* Don't do anything if there's no room. */
+
+	if (s->size == s->maxsize)
+		return;
+
+	if (c <= 0x7F)
+	{
+		/* This is the most common case, so we optimise it. */
+
+		s->buffer[s->size++] = c;
+		s->buffer[s->size] = 0;
+		return;
+	}
+	else if (c <= 0x7FF)
+	{
+		buf[0] = 0xC0 | (c >> 6);
+		buf[1] = 0x80 | (c & 0x3F);
+		len = 2;
+	}
+	else if (c <= 0xFFFF)
+	{
+		buf[0] = 0xE0 | (c >> 12);
+		buf[1] = 0x80 | ((c >> 6) & 0x3f);
+		buf[2] = 0x80 | (c & 0x3f);
+		len = 3;
+	}
+	else
+	{
+		buf[0] = 0xf0 | c >> 18;
+		buf[1] = 0x80 | ((c >> 12) & 0x3f);
+		buf[2] = 0x80 | ((c >> 6) & 0x3f);
+		buf[3] = 0x80 | (c & 0x3f);
+		len = 4;
+	}
+
+	string_append_sn(s, buf, len);
+}	
+
+/* Append another string structure. */
+
+static void string_append(struct string* dest, struct string* src)
+{
+	string_append_sn(dest, src->buffer, src->size);
+}
+
+/* Reads a UTF8 character from a char*, advancing the pointer. */
+
+int utf8_getc(char** ptr)
+{
+	unsigned char* p = (unsigned char*) *ptr;
+	unsigned char c, r;
+	int v, m;
+
+	for (;;)
+	{
+		r = *p++;
+	loop:
+		if (r < 0x80)
+		{
+			*ptr = p;
+			v = r;
+			break;
+		}
+		else if (r < 0xf8)
+		{
+			/* valid start char? (max 4 octets) */
+			v = r;
+			m = 0x7f80;	/* used to mask out the length bits */
+			do {
+				c = *p++;
+				if ((c & 0xc0) != 0x80)
+				{
+					r = c;
+					goto loop;
+				}
+				v = (v<<6) | (c & 0x3f);
+				r<<=1;
+				m<<=5;
+			} while (r & 0x40);
+			
+			*ptr = p;
+
+			v &= ~m;
+			break;
+		}
+	}
+
+	return v;
+}
+
+/* IMAP name safety */
+
+/* IMAP has certain special requirements in its character set, which means we
+ * have to do a fair bit of work to convert Citadel's UTF8 strings to IMAP
+ * strings. The next two routines (and their data tables) do that. */
+
+static char *utf7_alphabet =
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+,";
+
+static unsigned char utf7_rank[256] = {
+	0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+	0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+	0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0x3E,0x3F,0xFF,0xFF,0xFF,
+	0x34,0x35,0x36,0x37,0x38,0x39,0x3A,0x3B,0x3C,0x3D,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+	0xFF,0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,
+	0x0F,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0xFF,0xFF,0xFF,0xFF,0xFF,
+	0xFF,0x1A,0x1B,0x1C,0x1D,0x1E,0x1F,0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x28,
+	0x29,0x2A,0x2B,0x2C,0x2D,0x2E,0x2F,0x30,0x31,0x32,0x33,0xFF,0xFF,0xFF,0xFF,0xFF,
+	0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+	0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+	0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+	0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+	0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+	0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+	0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+	0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+};
+
+/* Base64 helpers. */
+
+static void utf7_closeb64(struct string* out, int v, int i)
+{
+	int x;
+
+	if (i > 0)
+	{
+		x = (v << (6-i)) & 0x3F;
+		string_append_c(out, utf7_alphabet[x]);
+	}
+	string_append_c(out, '-');
+}
+
+/* Convert from a Citadel name to an IMAP-safe name. Returns the end of the destination. */
+
+static char* toimap(char* destp, char* destend, char* src)
+{
+	struct string dest;
+	int state = 0;
+	int v = 0;
+	int i = 0;
+
+	*destp = 0;
+	string_init(&dest, destp, destend-destp);
+	lprintf(CTDL_DEBUG, "toimap %s\r\n", src);
+
+	for (;;)
+	{
+		int c = utf8_getc(&src);
+		if (c == '\0')
+			break;
+
+		if (c >= 0x20 && c <= 0x7e)
+		{
+			if (state == 1)
+			{
+				utf7_closeb64(&dest, v, i);
+				state = 0;
+				i = 0;
+			}
+
+			switch (c)
+			{
+				case '&':
+					string_append_sn(&dest, "&-", 2);
+					break;
+
+				case '/':
+					/* Citadel extension: / becomes |, because /
+					 * isn't valid as part of an IMAP name. */
+
+					c = '|';
+					goto defaultcase;
+
+				case '\\':
+					/* Citadel extension: backslashes mark folder
+					 * seperators in the IMAP subfolder emulation
+					 * hack. We turn them into / characters,
+					 * *except* if it's the last character in the
+					 * string. */
+
+					if (*src != '\0')
+						c = '/';
+					/* fall through */
+
+				default:
+				defaultcase:
+					string_append_c(&dest, c);
+			}
+		}
+		else
+		{
+			if (state == 0)
+			{
+				string_append_c(&dest, '&');
+				state = 1;
+			}
+			v = (v << 16) | c;
+			i += 16;
+			while (i >= 6)
+			{
+				int x = (v >> (i-6)) & 0x3f;
+				string_append_c(&dest, utf7_alphabet[x]);
+				i -= 6;
+			}
+		}
+	}
+
+	if (state == 1)
+		utf7_closeb64(&dest, v, i);
+	lprintf(CTDL_DEBUG, "    -> %s\r\n", destp);
+	return string_end(&dest);
+}
+
+/* Convert from an IMAP-safe name back into a Citadel name. Returns the end of the destination. */
+
+static int cfrommap(int c);
+static char* fromimap(char* destp, char* destend, char* src)
+{
+	struct string dest;
+	unsigned char *p = (unsigned char*) src;
+	int v = 0;
+	int i = 0;
+	int state = 0;
+	int c;
+
+	*destp = 0;
+	string_init(&dest, destp, destend-destp);
+	lprintf(CTDL_DEBUG, "fromimap %s\r\n", src);
+
+	do {
+		c = *p++;
+		switch (state)
+		{
+			case 0:
+				/* US-ASCII characters. */
+				
+				if (c == '&')
+					state = 1;
+				else
+					string_append_c(&dest, cfrommap(c));
+				break;
+
+			case 1:
+				if (c == '-')
+				{
+					string_append_c(&dest, '&');
+					state = 0;
+				}
+				else if (utf7_rank[c] != 0xff)
+				{
+					v = utf7_rank[c];
+					i = 6;
+					state = 2;
+				}
+				else
+				{
+					/* invalid char */
+					string_append_sn(&dest, "&-", 2);
+					state = 0;
+				}
+				break;
+				
+			case 2:
+				if (c == '-')
+					state = 0;
+				else if (utf7_rank[c] != 0xFF)
+				{
+					v = (v<<6) | utf7_rank[c];
+					i += 6;
+					if (i >= 16)
+					{
+						int x = (v >> (i-16)) & 0xFFFF;
+						string_append_c(&dest, cfrommap(x));
+						i -= 16;
+					}
+				}
+				else
+				{
+					string_append_c(&dest, cfrommap(c));
+					state = 0;
+				}
+				break;
+			}
+	} while (c != '\0');
+
+	lprintf(CTDL_DEBUG, "      -> %s\r\n", destp);
+	return string_end(&dest);
+}
+
+/* Undoes the special character conversion. */
+
+static int cfrommap(int c)
+{
+	switch (c)
+	{
+		case '|':	return '/';
+		case '/':	return '\\';
+	}
+	return c;		
+}
+
+/* Output a string to the IMAP client, either as a literal or quoted.
+ * (We do a literal if it has any double-quotes or backslashes.) */
+
 void imap_strout(char *buf)
 {
 	int i;
@@ -47,96 +413,103 @@ void imap_strout(char *buf)
 	}
 }
 
+/* Break a command down into tokens, unquoting any escaped characters. */
 
-
-
-
-/*
- * Break a command down into tokens, taking into consideration the
- * possibility of escaping spaces using quoted tokens
- */
-int imap_parameterize(char **args, char *buf)
+int imap_parameterize(char** args, char* in)
 {
+	char* out = in;
 	int num = 0;
-	int start = 0;
-	int i;
-	int in_quote = 0;
-	int original_len;
 
-	strcat(buf, " ");
+	for (;;)
+	{
+		/* Skip whitespace. */
 
-	original_len = strlen(buf);
+		while (isspace(*in))
+			in++;
+		if (*in == 0)
+			break;
 
-	for (i = 0; i < original_len; ++i) {
+		/* Found the start of a token. */
+		
+		args[num++] = out;
 
-		if ((isspace(buf[i])) && (!in_quote)) {
-			buf[i] = 0;
-			args[num] = &buf[start];
-			start = i + 1;
-			if (args[num][0] == '\"') {
-				++args[num];
-				args[num][strlen(args[num]) - 1] = 0;
+		/* Read in the token. */
+
+		for (;;)
+		{
+			int c = *in++;
+			if (isspace(c))
+				break;
+			
+			if (c == '\"')
+			{
+				/* Found a quoted section. */
+
+				for (;;)
+				{
+					c = *in++;
+					if (c == '\"')
+						break;
+					else if (c == '\\')
+						c = *in++;
+
+					*out++ = c;
+					if (c == 0)
+						return num;
+				}
 			}
-			++num;
-		} else if ((buf[i] == '\"') && (!in_quote)) {
-			in_quote = 1;
-		} else if ((buf[i] == '\"') && (in_quote)) {
-			in_quote = 0;
+			else if (c == '\\')
+			{
+				c = *in++;
+				*out++ = c;
+			}
+			else
+				*out++ = c;
+
+			if (c == 0)
+				return num;
 		}
+		*out++ = '\0';
 	}
 
-	return (num);
+	return num;
 }
 
-/*
- * Convert a struct ctdlroom to an IMAP-compatible mailbox name.
- */
+/* Convert a struct ctdlroom to an IMAP-compatible mailbox name. */
+
 void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
 {
+	char* bufend = buf+bufsize;
 	struct floor *fl;
-	int i;
-	char buf2[SIZ];
-	int sfstart = 0;
+	char* p = buf;
 
-	/*
-	 * For mailboxes, just do it straight.
+	/* For mailboxes, just do it straight.
 	 * Do the Cyrus-compatible thing: all private folders are
-	 * subfolders of INBOX.
-	 */
-	if (qrbuf->QRflags & QR_MAILBOX) {
-		safestrncpy(buf, qrbuf->QRname, bufsize);
-		strcpy(buf, &buf[11]);
-		if (!strcasecmp(buf, MAILROOM)) {
-			strcpy(buf, "INBOX");
-			sfstart = 5;
-		}
-		else {
-			sprintf(buf2, "INBOX/%s", buf);
-			strcpy(buf, buf2);
-			sfstart = 6;
-		}
-	}
-	/*
-	 * Otherwise, prefix the floor name as a "public folders" moniker
-	 */
-	else {
-		fl = cgetfloor(qrbuf->QRfloor);
-		snprintf(buf, bufsize, "%s/%s",
-			 fl->f_name,
-			 qrbuf->QRname);
-		sfstart = strlen(fl->f_name) + 1;
-	}
+	 * subfolders of INBOX. */
 
-	/*
-	 * Replace delimiter characters with "/" for pseudo-folder-delimiting
-	 * and replace actual slashes with "|" because they're illegal here.
-	 */
-	for (i=sfstart; i<strlen(buf); ++i) {
-		if (buf[i] == FDELIM) buf[i] = '/';
-		else if (buf[i] == '/') buf[i] = '|';
+	if (qrbuf->QRflags & QR_MAILBOX)
+	{
+		if (strcasecmp(qrbuf->QRname+11, MAILROOM) == 0)
+			p = toimap(p, bufend, "INBOX");
+		else
+		{
+			p = toimap(p, bufend, "INBOX");
+			if (p < bufend)
+				*p++ = '/';
+			p = toimap(p, bufend, qrbuf->QRname+11);
+		}
+	}
+	else
+	{
+		/* Otherwise, prefix the floor name as a "public folders" moniker. */
+
+		fl = cgetfloor(qrbuf->QRfloor);
+		p = toimap(p, bufend, fl->f_name);
+		if (p < bufend)
+			*p++ = '/';
+		p = toimap(p, bufend, qrbuf->QRname);
 	}
 }
-
 
 /*
  * Convert an inputted folder name to our best guess as to what an equivalent
@@ -149,6 +522,7 @@ void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
  * including IR_MAILBOX if we're dealing with a personal room.
  *
  */
+
 int imap_roomname(char *rbuf, int bufsize, char *foldername)
 {
 	int levels;
@@ -158,59 +532,75 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 	struct floor *fl;
 	int ret = (-1);
 
-	if (foldername == NULL) return(-1);
-	levels = num_tokens(foldername, '/');
+	if (foldername == NULL)
+		return(-1);
 
-	/*
-	 * Convert the crispy idiot's reserved names to our reserved names.
-	 * Also handle Cyrus-compatible folder names.
-	 */
-	if (!strcasecmp(foldername, "INBOX")) {
-		safestrncpy(rbuf, MAILROOM, bufsize);
-		ret = (0 | IR_MAILBOX);
+	/* Unmunge the entire string into the output buffer. */
+
+	fromimap(rbuf, rbuf+bufsize, foldername);
+
+	/* Is this an IMAP inbox? */
+
+	if (strncasecmp(rbuf, "INBOX", 5) == 0)
+	{
+		if (rbuf[5] == 0)
+		{
+			/* It's the system inbox. */
+
+			safestrncpy(rbuf, MAILROOM, bufsize);
+			ret = (0 | IR_MAILBOX);
+			goto exit;
+		}
+		else if (rbuf[5] == FDELIM)
+		{
+			/* It's another personal mail folder. */
+
+			safestrncpy(rbuf, rbuf+6, bufsize);
+			ret = (0 | IR_MAILBOX);
+			goto exit;
+		}
+
+		/* If we get here, the folder just happens to start with INBOX
+		 * --- fall through. */
 	}
-	else if (!strncasecmp(foldername, "INBOX/", 6)) {
-		safestrncpy(rbuf, &foldername[6], bufsize);
-		ret = (0 | IR_MAILBOX);
-	}
-	else if (levels > 1) {
-		extract_token(floorname, foldername, 0, '/');
-		strcpy(roomname, &foldername[strlen(floorname)+1]);
-		for (i = 0; i < MAXFLOORS; ++i) {
+
+	/* Is this a multi-level room name? */
+
+	levels = num_tokens(rbuf, FDELIM);
+	if (levels > 1)
+	{
+		/* Extract the main room name. */
+		
+		extract_token(floorname, rbuf, 0, FDELIM);
+		strcpy(roomname, &rbuf[strlen(floorname)+1]);
+
+		/* Try and find it on any floor. */
+		
+		for (i = 0; i < MAXFLOORS; ++i)
+		{
 			fl = cgetfloor(i);
-			if (fl->f_flags & F_INUSE) {
-				if (!strcasecmp(floorname, fl->f_name)) {
+			if (fl->f_flags & F_INUSE)
+			{
+				if (strcasecmp(floorname, fl->f_name) == 0)
+				{
+					/* Got it! */
+
 					strcpy(rbuf, roomname);
 					ret = i;
+					goto exit;
 				}
 			}
 		}
-
-		if (ret < 0) {
-			/* No subfolderificationalisticism on this one... */
-			safestrncpy(rbuf, foldername, bufsize);
-			ret = (0 | IR_MAILBOX);
-		}
-
-	}
-	else {
-		safestrncpy(rbuf, foldername, bufsize);
-		ret = (0 | IR_MAILBOX);
 	}
 
-	/* Undelimiterizationalisticize the room name (change '/' and '|') */
-	for (i=0; i<strlen(rbuf); ++i) {
-		if (rbuf[i] == '/') rbuf[i] = FDELIM;
-		else if (rbuf[i] == '|') rbuf[i] = '/';
-	}
+	/* Meh. It's either not a multi-level room name, or else we couldn't find it. */
 
+	ret = (0 | IR_MAILBOX);
+
+exit:
 	lprintf(CTDL_DEBUG, "(That translates to \"%s\")\n", rbuf);
 	return(ret);
 }
-
-
-
-
 
 /*
  * Output a struct internet_address_list in the form an IMAP client wants
@@ -433,3 +823,4 @@ int imap_datecmp(char *datestr, time_t msgtime) {
 
 	return(0);
 }
+
