@@ -1,4 +1,7 @@
 $Log$
+Revision 1.428  1999/12/10 23:58:25  ajc
+* internet_addressing.c: added.  (Internet address to Citadel mapping)
+
 Revision 1.427  1999/12/10 21:34:19  ajc
 * serv_smtp: implemented RFC821 "VRFY" and "EXPN" commands
 
@@ -1489,3 +1492,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

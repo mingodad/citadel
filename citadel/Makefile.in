@@ -71,7 +71,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
 	whobbs.c sendcommand.c mime_parser.c base64.c qpdecode.c getutline.c \
 	auth.c chkpwd.c client_icq.c html.c vcard.c serv_upgrade.c \
-	serv_smtp.c
+	serv_smtp.c internet_addressing.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
@@ -107,7 +107,8 @@ netpoll: netpoll.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)
 SERV_OBJS = citserver.ro user_ops.ro support.ro room_ops.ro file_ops.ro \
 	msgbase.ro config.ro sysdep.ro locate_host.ro housekeeping.ro \
 	database.ro control.ro logging.ro policy.ro dynloader.ro tools.ro \
-	mime_parser.ro html.ro $(AUTH) $(LIBOBJS:.o=.ro)
+	mime_parser.ro html.ro internet_addressing.ro \
+	$(AUTH) $(LIBOBJS:.o=.ro)
 
 citserver: $(SERV_OBJS)
 	$(CC) $(SERV_OBJS) $(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) $(NETLIBS) $(GDBM) -o citserver

@@ -29,6 +29,7 @@
 #include "database.h"
 #include "msgbase.h"
 #include "tools.h"
+#include "internet_addressing.h"
 
 struct citsmtp {
 	int command_state;
@@ -154,26 +155,6 @@ void smtp_auth(char *argbuf) {
 		cprintf("334 %s\n", buf);
 		SMTP->command_state = smtp_user;
 	}
-}
-
-
-/*
- * Return 0 if a given string fuzzy-matches a Citadel user account
- *
- * FIX ... this needs to be updated to match any and all ways of addressing
- *         a user.  It may even be appropriate to move this out of SMTP and
- *         into the server core.
- */
-int fuzzy_match(struct usersupp *us, char *matchstring) {
-	int a;
-
-	for (a=0; a<strlen(us->fullname); ++a) {
-		if (!strncasecmp(&us->fullname[a],
-		   matchstring, strlen(matchstring))) {
-			return 0;
-		}
-	}
-	return -1;
 }
 
 
