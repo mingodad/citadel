@@ -156,10 +156,10 @@ void DLoader_Init(char *pathname)
 			continue;
 		}
 		h_init_fcn = (char * (*)(void))
-#ifndef __OpenBSD__
-		    dlsym(fcn_handle, "Dynamic_Module_Init");
-#else
+#if defined(__OpenBSD__) || defined(__APPLE__)
 		    dlsym(fcn_handle, "_Dynamic_Module_Init");
+#else
+		    dlsym(fcn_handle, "Dynamic_Module_Init");
 #endif
 
 		if (dlerror() != NULL) {
