@@ -66,6 +66,7 @@ void calendar_month_view_display_events(time_t thetime) {
 			   && (t.day == day)) {
 
 				if (t.is_date) all_day_event = 1;
+				else all_day_event = 0;
 
 				p = icalcomponent_get_first_property(
 							WC->disp_cal[i],
@@ -73,8 +74,8 @@ void calendar_month_view_display_events(time_t thetime) {
 				if (p != NULL) {
 
 					if (all_day_event) {
-						wprintf("<TABLE border=1 cellpadding=2><TR>"
-							"<TD BGCOLOR=#CCCCCC>"
+						wprintf("<TABLE border=0 cellpadding=2><TR>"
+							"<TD BGCOLOR=#AAAAAA>"
 						);
 					}
 

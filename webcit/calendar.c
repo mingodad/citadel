@@ -148,11 +148,23 @@ void cal_process_object(icalcomponent *cal,
 						ICAL_DTSTART_PROPERTY);
 		if (p != NULL) {
 			t = icalproperty_get_dtstart(p);
-			tt = icaltime_as_timet(t);
-			fmt_date(buf, tt);
-			wprintf("<TR><TD><B>Starting date/time:</B></TD><TD>"
-				"%s</TD></TR>", buf
-			);
+
+			if (t.is_date) {
+				wprintf("<TR><TD><B>Date:"
+					"</B></TD><TD>"
+					"%s %d, %d</TD></TR>",
+					months[t.month - 1],
+					t.day, t.year
+				);
+			}
+			else {
+				tt = icaltime_as_timet(t);
+				fmt_date(buf, tt);
+				wprintf("<TR><TD><B>Starting date/time:"
+					"</B></TD><TD>"
+					"%s</TD></TR>", buf
+				);
+			}
 		}
 	
       		p = icalcomponent_get_first_property(cal, ICAL_DTEND_PROPERTY);
