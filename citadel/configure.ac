@@ -145,7 +145,7 @@ if test "$ac_cv_func_dlopen" = no; then
                test "$with_pam" = yes && chkpwd_LIBS="-ldl $chkpwd_LIBS"])
 fi
 
-dnl Check for HP/UX dyanmic loader. This should only be in -ldld.
+dnl Check for HP/UX dynamic loader. This should only be in -ldld.
 AC_CHECK_LIB(dld, shl_load, LIBS="-ldld $LIBS")
 
 dnl Check for Solaris realtime support
@@ -185,46 +185,6 @@ if test "$enable_autologin" != no; then
 			AUTH=auth.lo
 		fi
 	fi
-fi
-
-if test "x$with_db" != xno -a "x$with_gdbm" != xyes; then
-	test "$db_dir" && LDFLAGS="$LDFLAGS -L$db_dir/lib"
-
-	dblib=""
-
-	if test -d "$db_dir/include/db4"; then
-		CPPFLAGS="$CPPFLAGS -I$db_dir/include/db4"
-		dblib="db4"
-	elif test -d "$db_dir/include/db3"; then
-		CPPFLAGS="$CPPFLAGS -I$db_dir/include/db3"
-		dblib="db3"
-	elif test "$db_dir"; then
-		CPPFLAGS="$CPPFLAGS -I$db_dir/include"
-	elif test -d /usr/include/db4; then
-		CPPFLAGS="$CPPFLAGS -I/usr/include/db4"
-		dblib="db4"
-	elif test -d /usr/include/db3; then
-		CPPFLAGS="$CPPFLAGS -I/usr/include/db3"
-		dblib="db3"
-	fi
-
-	AC_SEARCH_LIBS(db_env_create, [$dblib db db4 db3], [
-		DATABASE=database_sleepycat.c
-		with_gdbm=no
-	])
-
-fi
-
-if test "x$with_gdbm" != xno -a "x$with_db" != xyes; then
-	test -f /usr/local/lib/libgdbm.a -o -f /usr/local/lib/libgdbm.so && db_dir=/usr/local
-	test "$db_dir" && LDFLAGS="$LDFLAGS -L$db_dir/lib"
-
-	test "$db_dir" && CPPFLAGS="$CPPFLAGS -I$db_dir/include"
-
-        AC_CHECK_LIB(gdbm, gdbm_open,
-                [LIBS="-lgdbm $LIBS"
-                DATABASE=database.c
-                with_db=no])
 fi
 
 test -f /usr/local/lib/libresolv.a && LDFLAGS="$LDFLAGS -L/usr/local/lib"
@@ -350,7 +310,47 @@ if test "$with_ssl" != "no"; then
 		fi
 	fi
 fi
-	
+
+if test "x$with_db" != xno -a "x$with_gdbm" != xyes; then
+	test "$db_dir" && LDFLAGS="$LDFLAGS -L$db_dir/lib"
+
+	dblib=""
+
+	if test -d "$db_dir/include/db4"; then
+		CPPFLAGS="$CPPFLAGS -I$db_dir/include/db4"
+		dblib="db4"
+	elif test -d "$db_dir/include/db3"; then
+		CPPFLAGS="$CPPFLAGS -I$db_dir/include/db3"
+		dblib="db3"
+	elif test "$db_dir"; then
+		CPPFLAGS="$CPPFLAGS -I$db_dir/include"
+	elif test -d /usr/include/db4; then
+		CPPFLAGS="$CPPFLAGS -I/usr/include/db4"
+		dblib="db4"
+	elif test -d /usr/include/db3; then
+		CPPFLAGS="$CPPFLAGS -I/usr/include/db3"
+		dblib="db3"
+	fi
+
+	AC_SEARCH_LIBS(db_env_create, [$dblib db db4 db3], [
+		DATABASE=database_sleepycat.c
+		with_gdbm=no
+	])
+
+fi
+
+if test "x$with_gdbm" != xno -a "x$with_db" != xyes; then
+	test -f /usr/local/lib/libgdbm.a -o -f /usr/local/lib/libgdbm.so && db_dir=/usr/local
+	test "$db_dir" && LDFLAGS="$LDFLAGS -L$db_dir/lib"
+
+	test "$db_dir" && CPPFLAGS="$CPPFLAGS -I$db_dir/include"
+
+        AC_CHECK_LIB(gdbm, gdbm_open,
+                [LIBS="-lgdbm $LIBS"
+                DATABASE=database.c
+                with_db=no])
+fi
+
 dnl Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC

@@ -1,4 +1,10 @@
  $Log$
+ Revision 590.166  2002/03/26 05:58:35  nbryant
+ don't check for a database driver until after the openssl check is
+ complete. if the ld paths aren't set up for the db installation this
+ can interfere with the openssl check because it tries to run a program
+ linked against the libraries we've been finding.
+
  Revision 590.165  2002/03/26 05:20:46  nbryant
  removed last vestiges of "#ifdef CIT_CLIENT" conditional compilation,
  which has been rendered unusable by the build system simplifications
@@ -3556,3 +3562,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
