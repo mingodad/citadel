@@ -29,6 +29,7 @@ SERV_MODULES=modules/libchat.la modules/libvcard.la \
 	modules/libupgrade.la \
 	$(SMTP) \
 	modules/libpop3.la \
+	modules/libmrtg.la \
 	modules/libimap.la \
 	modules/libnetwork.la \
 	modules/libnetfilter.la \
@@ -77,7 +78,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c \
 	client_crypto.c commands.c config.c control.c $(DATABASE) \
 	dynloader.c file_ops.c housekeeping.c ipc_c_tcp.c locate_host.c \
 	logging.c messages.c msgbase.c msgform.c \
-	policy.c readlog.c migratenet.c screen.c \
+	policy.c readlog.c migratenet.c screen.c serv_mrtg.c \
 	room_ops.c rooms.c routines.c routines2.c serv_chat.c serv_crypto.c \
 	serv_info.c serv_test.c setup.c snprintf.c stats.c serv_vcard.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
@@ -85,7 +86,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c \
 	auth.c chkpwd.c html.c vcard.c serv_upgrade.c serv_vandelay.c \
 	serv_smtp.c serv_pop3.c internet_addressing.c parsedate.c genstamp.c \
 	$(DOMAIN) clientsocket.c serv_inetcfg.c serv_rwho.c serv_bio.c \
-	client_passwords.c imap_misc.c serv_netfilter.c \
+	client_passwords.c imap_misc.c serv_netfilter.c serv_mrtg.c \
 	serv_imap.c imap_tools.c imap_fetch.c imap_search.c imap_store.c \
 	serv_network.c serv_pas2.c serv_ical.c md5.c server_main.c
 
@@ -153,6 +154,9 @@ modules/libtest.la: serv_test.lo libcitserver.la $(LIBTOOL)
 
 modules/libpop3.la: serv_pop3.lo md5.lo $(LIBTOOL) libcitserver.la
 	$(LTSHARE) -o libpop3.la ../serv_pop3.lo ../md5.lo ../libcitserver.la
+
+modules/libmrtg.la: serv_mrtg.lo md5.lo $(LIBTOOL) libcitserver.la
+	$(LTSHARE) -o libmrtg.la ../serv_mrtg.lo ../md5.lo ../libcitserver.la
 
 modules/libinetcfg.la: serv_inetcfg.lo $(LIBTOOL) libcitserver.la
 	$(LTSHARE) -o libinetcfg.la ../serv_inetcfg.lo ../libcitserver.la

@@ -65,12 +65,15 @@ struct CitContext *ContextList = NULL;
 char *unique_session_numbers;
 int ScheduledShutdown = 0;
 int do_defrag = 0;
+time_t server_startup_time;
 
 /*
  * Various things that need to be initialized at startup
  */
 void master_startup(void) {
 	struct timeval tv;
+	
+	time(&server_startup_time);
 	
 	lprintf(9, "master_startup() started\n");
 	lprintf(7, "Opening databases\n");

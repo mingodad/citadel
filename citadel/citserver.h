@@ -54,4 +54,4 @@ enum {
 
 
 
-
+extern time_t server_startup_time;
