@@ -33,8 +33,11 @@ citadel: ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o messages.o \
 	$(CC) $(CFLAGS) ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o \
 	messages.o commands.o client_chat.o serv_info.o $(LFLAGS) -o citadel
 
-netpoll: netpoll.c config.o ipc_c_tcp.o
-	$(CC) $(CFLAGS) netpoll.c config.o ipc_c_tcp.o $(LFLAGS) -o netpoll
+netpoll: netpoll.o config.o ipc_c_tcp.o
+	$(CC) $(CFLAGS) netpoll.o config.o ipc_c_tcp.o $(LFLAGS) -o netpoll
+
+netpoll.o: netpoll.c
+	$(CC) $(CFLAGS) -c netpoll.c
 
 ipc_c_tcp.o: ipc_c_tcp.c
 	$(CC) $(CFLAGS) -c ipc_c_tcp.c
@@ -132,17 +135,23 @@ config.o: config.c
 sysdep.o: sysdep.c
 	$(CC) -O $(CFLAGS) -D_REENTRANT -c sysdep.c
 
-aidepost: aidepost.c config.o
-	$(CC) -O $(CFLAGS) aidepost.c config.o $(LFLAGS) -o aidepost
+aidepost: aidepost.o config.o
+	$(CC) $(CFLAGS) aidepost.o config.o $(LFLAGS) -o aidepost
+
+aidepost.o: aidepost.c
+	$(CC) -O $(CFLAGS) -c aidepost.c
 
 #
 # 'netmailer' needs to run setuid because it generates headers for Internet
 # mail.  If it is not run setuid, all outgoing mail may always show as coming
 # from your BBSUID rather than the actual sending user.
 #
-netmailer: netmailer.c internetmail.o config.o
-	$(CC) -O $(CFLAGS) netmailer.c config.o internetmail.o $(LFLAGS) -o netmailer
+netmailer: netmailer.o internetmail.o config.o
+	$(CC) $(CFLAGS) netmailer.o config.o internetmail.o $(LFLAGS) -o netmailer
 	chmod 4755 netmailer
+
+netmailer.o: netmailer.c
+	$(CC) -O $(CFLAGS) -c netmailer.c
 
 internetmail.o: internetmail.c
 	$(CC) -O $(CFLAGS) -c internetmail.c
@@ -154,50 +163,83 @@ netproc: netproc.o config.o ipc_c_tcp.o
 netproc.o: netproc.c
 	$(CC) -O $(CFLAGS) -c netproc.c
 
-citmail: citmail.c config.o internetmail.o
+citmail: citmail.o config.o internetmail.o
 	#
 	#                 ###### IMPORTANT ######
 	# To allow Citadel users to receive Internet mail, you must
 	# set this program to be your local mail delivery agent.
 	#
-	$(CC) -O $(CFLAGS) citmail.c config.o internetmail.o $(LFLAGS) -o citmail
+	$(CC) $(CFLAGS) citmail.o config.o internetmail.o $(LFLAGS) -o citmail
 	chmod 4755 citmail
 
-mailinglist: mailinglist.c config.o internetmail.o
-	$(CC) -O $(CFLAGS) mailinglist.c config.o internetmail.o \
+citmail.o: citmail.c
+	$(CC) -O $(CFLAGS) -c citmail.c
+
+mailinglist: mailinglist.o config.o internetmail.o
+	$(CC) $(CFLAGS) mailinglist.o config.o internetmail.o \
 		$(LFLAGS) -o mailinglist
 
-setup: setup.c
-	$(CC) -O $(CFLAGS) setup.c $(CURSES) $(LFLAGS) -o setup
+mailinglist.o: mailinglist.c
+	$(CC) -O $(CFLAGS) -c mailinglist.c
 
-netsetup: netsetup.c config.o
-	$(CC) -O $(CFLAGS) netsetup.c config.o $(LFLAGS) -o netsetup
+setup: setup.o
+	$(CC) $(CFLAGS) setup.o $(CURSES) $(LFLAGS) -o setup
 
-proxy: proxy.c ipc_c_tcp.o
-	$(CC) -O $(CFLAGS) proxy.c ipc_c_tcp.o $(LFLAGS) -o proxy
+setup.o: setup.c
+	$(CC) -O $(CFLAGS) -c setup.c
 
-whobbs: whobbs.c ipc_c_tcp.o
-	$(CC) -O $(CFLAGS) whobbs.c ipc_c_tcp.o $(LFLAGS) -o whobbs
+netsetup: netsetup.o config.o
+	$(CC) $(CFLAGS) netsetup.o config.o $(LFLAGS) -o netsetup
 
-userlist: userlist.c ipc_c_tcp.o
-	$(CC) -O $(CFLAGS) userlist.c ipc_c_tcp.o $(LFLAGS) -o userlist
+netsetup.o: netsetup.c
+	$(CC) -O $(CFLAGS) -c netsetup.c
 
-msgform: msgform.c
-	$(CC) -O $(CFLAGS) msgform.c $(LFLAGS) -o msgform
+proxy: proxy.o ipc_c_tcp.o
+	$(CC) $(CFLAGS) proxy.o ipc_c_tcp.o $(LFLAGS) -o proxy
 
-readlog: readlog.c config.o
-	$(CC) -O $(CFLAGS) readlog.c config.o $(LFLAGS) -o readlog
+proxy.o: proxy.c
+	$(CC) -O $(CFLAGS) -c proxy.c
 
-rcit: rcit.c config.o
-	$(CC) -O $(CFLAGS) rcit.c config.o $(LFLAGS) -o rcit
+whobbs: whobbs.o ipc_c_tcp.o
+	$(CC) $(CFLAGS) whobbs.o ipc_c_tcp.o $(LFLAGS) -o whobbs
+
+whobbs.o: whobbs.c
+	$(CC) -O $(CFLAGS) -c whobbs.c
+
+userlist: userlist.o ipc_c_tcp.o
+	$(CC) $(CFLAGS) userlist.o ipc_c_tcp.o $(LFLAGS) -o userlist
+
+userlist.o: userlist.c
+	$(CC) -O $(CFLAGS) -c userlist.c
+
+msgform: msgform.o
+	$(CC) $(CFLAGS) msgform.o $(LFLAGS) -o msgform
+
+msgform.o: msgform.c
+	$(CC) -O $(CFLAGS) -c msgform.c
+
+readlog: readlog.o config.o
+	$(CC) $(CFLAGS) readlog.o config.o $(LFLAGS) -o readlog
+
+readlog.o: readlog.c
+	$(CC) -O $(CFLAGS) -c readlog.c
+
+rcit: rcit.o config.o
+	$(CC) $(CFLAGS) rcit.o config.o $(LFLAGS) -o rcit
 	# 
 	# NOTE: TO RECEIVE CITADEL TRAFFIC VIA THE RCIT PROGRAM (ESPECIALLY
 	# IF YOU ARE GATEWAYING TO USENET) YOU MUST LINK RNEWS TO RCIT:
 	#ln -s rcit /usr/bin/rnews
 	# 
 
-stats: stats.c config.o
-	$(CC) -O $(CFLAGS) stats.c config.o $(LFLAGS) -o stats
+rcit.o: rcit.c
+	$(CC) -O $(CFLAGS) -c rcit.c
+
+stats: stats.o config.o
+	$(CC) $(CFLAGS) stats.o config.o $(LFLAGS) -o stats
+
+stats.o: stats.c
+	$(CC) -O $(CFLAGS) -c stats.c
 
 clean:
 	find . -name \*.[o] -print -exec rm -f {} \;
