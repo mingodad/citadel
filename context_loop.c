@@ -110,6 +110,43 @@ static void unlock_session(struct wc_session *session) {
 	pthread_mutex_unlock(&session->critter);
 	}
 
+/*
+ * lingering_close() a`la Apache. see
+ * http://www.apache.org/docs/misc/fin_wait_2.html for rationale
+ */
+
+static int lingering_close(int fd) {
+	char buf[256];
+	int i;
+	fd_set set;
+	struct timeval tv, start;
+
+	gettimeofday(&start, NULL);
+	shutdown(fd, 1);
+	do {
+		do {
+			gettimeofday(&tv, NULL);
+			tv.tv_sec = SLEEPING - (tv.tv_sec - start.tv_sec);
+			tv.tv_usec = start.tv_usec - tv.tv_usec;
+			if (tv.tv_usec < 0) {
+				tv.tv_sec--;
+				tv.tv_usec += 1000000;
+				}
+				
+			FD_ZERO(&set);
+			FD_SET(fd, &set);
+			i = select(fd + 1, &set, NULL, NULL, &tv);
+			} while (i == -1 && errno == EINTR);
+
+		if (i <= 0)
+			break;
+
+		i = read(fd, buf, sizeof buf);
+		} while (i != 0 && (i != -1 || errno == EINTR));
+
+	return close(fd);
+	}
+
 extern const char *defaulthost;
 extern const char *defaultport;
 
@@ -119,7 +156,6 @@ extern const char *defaultport;
 void *context_loop(int sock) {
 	char (*req)[256];
 	char buf[256], hold[256];
-	char http_method[256];
 	int num_lines = 0;
 	int a;
 	int f;
@@ -154,11 +190,6 @@ void *context_loop(int sock) {
 			}
 		strcpy(&req[num_lines++][0], buf);
 		} while(strlen(buf)>0);
-
-	strcpy(http_method, &req[0][0]);
-	for (a=0; a<strlen(http_method); ++a) {
-		if (isspace(http_method[a])) http_method[a]=0;
-		}
 
 	/*
 	 * See if there's an existing session open with the desired ID
@@ -227,16 +258,13 @@ void *context_loop(int sock) {
 		write(TheSession->inpipe[1], "\n", 1);
 		}
 	printf("   Writing %d bytes of content\n", ContentLength);
-	if (ContentLength > 0) {
-		while (ContentLength > 0) {
-			a = ContentLength;
-			if (a > sizeof buf) a = sizeof buf;
-			if (!client_read(sock, buf, a)) goto end;
-			if (write(TheSession->inpipe[1], buf, a) != a) goto end;
-			ContentLength -= a;
-			}
-
-		}	
+	while (ContentLength > 0) {
+		a = ContentLength;
+		if (a > sizeof buf) a = sizeof buf;
+		if (!client_read(sock, buf, a)) goto end;
+		if (write(TheSession->inpipe[1], buf, a) != a) goto end;
+		ContentLength -= a;
+		}
 
 	/*
 	 * ...and get the response.
@@ -293,18 +321,13 @@ void *context_loop(int sock) {
 	free(req);
 
 
-	/* Discard the CRLF following the POST data. Yes, this is
-	 * necessary. No, you don't want to know why. */
-	if (!strcasecmp(http_method, "POST")) {
-		client_read(sock, buf, 2);
-		}
-
         /*
          * Now our HTTP connection is done.  It would be relatively easy
          * to support HTTP/1.1 "persistent" connections by looping back to
          * the top of this function.  For now, we'll just close.
          */
-	printf("   Closing socket %d ... ret=%d\n", sock, close(sock));
+	printf("   Closing socket %d ... ret=%d\n", sock,
+	       lingering_close(sock));
 
 	/*
 	 * The thread handling this HTTP connection is now finished.
