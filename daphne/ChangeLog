@@ -1,6 +1,17 @@
- $Log$
- Revision 1.3  1999/11/11 04:28:29  smw
- Updated make install so it works properly.
+$Log$
+Revision 1.4  1999/11/11 04:32:00  smw
+Set up 'zapped rooms' functionality.  Made tweaks so that zapped rooms
+appear in the room tree.  Set up unzap capability.  If you click on a room
+in the zapped rooms folder it will open in the room view screen.  Clicking
+on the zapped rooms folder refreshes the room tree.  Added bitmaps for
+goto and for disconnect.  Added a 'zap' button in the room view window.
+Added disconnect features so the program will allow for closing a citadel
+session and beginning another without shutting down.  Began working on
+chat code and configurable citadel sessions (ie, clicking on connect
+should prompt you for which bbs you want to go to.)
+
+Revision 1.3  1999/11/11 04:28:29  smw
+Updated make install so it works properly.
 
 Revision 1.2  1999/11/07 18:42:52  smw
 Removed all 'cout' commands
