@@ -49,7 +49,7 @@ char *Dynamic_Module_Init(void)
 	return "$Id$";
 }
 
-void allwrite(char *cmdbuf, int flag, char *roomname, char *username)
+void allwrite(char *cmdbuf, int flag, char *username)
 {
 	FILE *fp;
 	char bcast[256];
@@ -83,7 +83,8 @@ void allwrite(char *cmdbuf, int flag, char *roomname, char *username)
 	time(&now);
 	clnew->next = NULL;
 	clnew->chat_time = now;
-	safestrncpy(clnew->chat_room, roomname, sizeof clnew->chat_room);
+	safestrncpy(clnew->chat_room, CC->quickroom.QRname,
+			sizeof clnew->chat_room);
 	clnew->chat_room[sizeof clnew->chat_room - 1] = 0;
 	if (username) {
 		safestrncpy(clnew->chat_username, username,
@@ -157,24 +158,43 @@ void do_chat_listing(int allflag)
 {
 	struct CitContext *ccptr;
 	int count = 0;
+	int count_elsewhere = 0;
 	char roomname[ROOMNAMELEN];
 
 	if ((allflag == 0) || (allflag == 1))
 		cprintf(":|\n:| Users currently in chat:\n");
 	begin_critical_section(S_SESSION_TABLE);
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
-		if (ccptr->cs_flags & CS_CHAT) ++count;
+		if (ccptr->cs_flags & CS_CHAT) {
+			if (!strcasecmp(ccptr->quickroom.QRname,
+			   CC->quickroom.QRname)) {
+				++count;
+			}
+			else {
+				++count_elsewhere;
+			}
+		}
+
+		GenerateRoomDisplay(roomname, ccptr, CC);
+		if ((CC->usersupp.axlevel < 6)
+		   && (strlen(ccptr->fake_roomname)>0)) {
+			strcpy(roomname, ccptr->fake_roomname);
+		}
+
 		if ((ccptr->cs_flags & CS_CHAT)
 		    && ((ccptr->cs_flags & CS_STEALTH) == 0)) {
-			if ((allflag == 0) || (allflag == 1))
-				cprintf(":| %-25s <%s>\n", (ccptr->fake_username[0]) ? ccptr->fake_username : ccptr->curr_user, ccptr->chat_room);
+			if ((allflag == 0) || (allflag == 1)) {
+				cprintf(":| %-25s <%s>:\n",
+					(ccptr->fake_username[0]) ? ccptr->fake_username : ccptr->curr_user,
+					roomname);
+			}
 		}
 	}
 
 	if (allflag == 1) {
 		cprintf(":|\n:| Users not in chat:\n");
 		for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
-			GenerateRoomDisplay(roomname, ccptr, CC);
+
 			if (((ccptr->cs_flags & CS_CHAT) == 0)
 			    && ((ccptr->cs_flags & CS_STEALTH) == 0)) {
 				cprintf(":| %-25s <%s>:\n",
@@ -186,10 +206,15 @@ void do_chat_listing(int allflag)
 	end_critical_section(S_SESSION_TABLE);
 
 	if (allflag == 2) {
-		if (count > 1) 
+		if (count > 1) {
 			cprintf(":|There are %d users here.\n", count);
-		else
+		}
+		else {
 			cprintf(":|Note: you are the only one here.\n");
+		}
+		if (count_elsewhere > 0) {
+			cprintf(":|There are %d users chatting in other rooms.\n", count_elsewhere);
+		}
 	}
 
 	cprintf(":|\n");
@@ -210,7 +235,6 @@ void cmd_chat(char *argbuf)
 		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
 		return;
 	}
-	strcpy(CC->chat_room, "Main room");
 
 	CC->cs_flags = CC->cs_flags | CS_CHAT;
 	cprintf("%d Entering chat mode (type '/help' for available commands)\n",
@@ -219,7 +243,7 @@ void cmd_chat(char *argbuf)
 	MyLastMsg = ChatLastMsg;
 
 	if ((CC->cs_flags & CS_STEALTH) == 0) {
-		allwrite("<entering chat>", 0, CC->chat_room, NULL);
+		allwrite("<entering chat>", 0, NULL);
 	}
 	strcpy(cmdbuf, "");
 
@@ -238,8 +262,7 @@ void cmd_chat(char *argbuf)
 
 		if (retval < 0) {	/* socket broken? */
 			if ((CC->cs_flags & CS_STEALTH) == 0) {
-				allwrite("<disconnected>", 0,
-					CC->chat_room, NULL);
+				allwrite("<disconnected>", 0, NULL);
 			}
 			return;
 		}
@@ -264,7 +287,7 @@ void cmd_chat(char *argbuf)
 
 				if (!strcmp(cmdbuf, "000")) {
 					if ((CC->cs_flags & CS_STEALTH) == 0) {
-						allwrite("<exiting chat>", 0, CC->chat_room, NULL);
+						allwrite("<exiting chat>", 0, NULL);
 					}
 					sleep(1);
 					cprintf("000\n");
@@ -282,7 +305,6 @@ void cmd_chat(char *argbuf)
 					cprintf(":|/whobbs (list users in chat -and- elsewhere) \n");
 					cprintf(":|/me     ('action' line, ala irc) \n");
 					cprintf(":|/msg    (send private message, ala irc) \n");
-					cprintf(":|/join   (join new room) \n");
 					cprintf(":|/quit   (return to the BBS) \n");
 					cprintf(":|\n");
 					ok_cmd = 1;
@@ -296,36 +318,23 @@ void cmd_chat(char *argbuf)
 					ok_cmd = 1;
 				}
 				if (!strncasecmp(cmdbuf, "/me ", 4)) {
-					allwrite(&cmdbuf[4], 1, CC->chat_room, NULL);
+					allwrite(&cmdbuf[4], 1, NULL);
 					ok_cmd = 1;
 				}
 				if (!strncasecmp(cmdbuf, "/msg ", 5)) {
 					ok_cmd = 1;
 					strptr1 = &cmdbuf[5];
 					if ((t_context = find_context(&strptr1))) {
-						allwrite(strptr1, 2, "", CC->curr_user);
+						allwrite(strptr1, 2, CC->curr_user);
 						if (strcasecmp(CC->curr_user, t_context->curr_user))
-							allwrite(strptr1, 2, "", t_context->curr_user);
+							allwrite(strptr1, 2, t_context->curr_user);
 					} else
 						cprintf(":|User not found.\n", cmdbuf);
 					cprintf("\n");
 				}
-				if (!strncasecmp(cmdbuf, "/join ", 6)) {
-					ok_cmd = 1;
-					allwrite("<changing rooms>", 0, CC->chat_room, NULL);
-					if (!cmdbuf[6])
-						strcpy(CC->chat_room, "Main room");
-					else {
-						strncpy(CC->chat_room, &cmdbuf[6],
-						   sizeof CC->chat_room);
-						CC->chat_room[sizeof CC->chat_room - 1] = 0;
-					}
-					allwrite("<joining room>", 0, CC->chat_room, NULL);
-					cprintf("\n");
-				}
 				if ((cmdbuf[0] != '/') && (strlen(cmdbuf) > 0)) {
 					ok_cmd = 1;
-					allwrite(cmdbuf, 0, CC->chat_room, NULL);
+					allwrite(cmdbuf, 0, NULL);
 				}
 				if ((!ok_cmd) && (cmdbuf[0]) && (cmdbuf[0] != '\n'))
 					cprintf(":|Command %s is not understood.\n", cmdbuf);
@@ -343,7 +352,7 @@ void cmd_chat(char *argbuf)
 			ThisLastMsg = ChatLastMsg;
 			for (clptr = ChatQueue; clptr != NULL; clptr = clptr->next) {
 				if ((clptr->chat_seq > MyLastMsg) && ((!clptr->chat_username[0]) || (!strncasecmp(un, clptr->chat_username, 32)))) {
-					if ((!clptr->chat_room[0]) || (!strncasecmp(CC->chat_room, clptr->chat_room, ROOMNAMELEN))) {
+					if ((!clptr->chat_room[0]) || (!strncasecmp(CC->quickroom.QRname, clptr->chat_room, ROOMNAMELEN))) {
 						cprintf("%s\n", clptr->chat_text);
 					}
 				}

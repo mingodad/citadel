@@ -17,7 +17,6 @@
 #include "support.h"
 #include "user_ops.h"
 #include "msgbase.h"
-#include "serv_chat.h"
 #include "citserver.h"
 #include "control.h"
 #include "tools.h"

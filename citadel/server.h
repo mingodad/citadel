@@ -88,7 +88,6 @@ struct CitContext {
 	char upl_path[256];
 	char upl_comment[256];
 	char upl_filedir[256];
-	char chat_room[20];	/* The chat room */
 	char dl_is_net;
 	char upload_type;
 
@@ -147,8 +146,8 @@ struct ChatLine {
 	int chat_seq;
 	time_t chat_time;
 	char chat_text[256];
-	char chat_room[20];
 	char chat_username[32];
+	char chat_room[ROOMNAMELEN];
 };
 
 /*
