@@ -431,6 +431,16 @@ void output_static(char *what)
 			wprintf("Content-type: image/png\n");
 		else if (!strncasecmp(&what[strlen(what) - 5], ".html", 5))
 			wprintf("Content-type: text/html\n");
+		else if (!strncasecmp(&what[strlen(what) - 4], ".wml", 4))
+			wprintf("Content-type: text/vnd.wap.wml\n");
+		else if (!strncasecmp(&what[strlen(what) - 5], ".wmls", 5))
+			wprintf("Content-type: text/vnd.wap.wmlscript\n");
+		else if (!strncasecmp(&what[strlen(what) - 5], ".wmlc", 5))
+			wprintf("Content-type: application/vnd.wap.wmlc\n");
+		else if (!strncasecmp(&what[strlen(what) - 6], ".wmlsc", 6))
+			wprintf("Content-type: application/vnd.wap.wmlscriptc\n");
+		else if (!strncasecmp(&what[strlen(what) - 5], ".wbmp", 5))
+			wprintf("Content-type: image/vnd.wap.wbmp\n");
 		else
 			wprintf("Content-type: application/octet-stream\n");
 
