@@ -1,4 +1,7 @@
 $Log$
+Revision 500.11  2003/08/02 05:25:46  ajc
+* Laid the groundwork for a customizable iconbar
+
 Revision 500.10  2003/07/30 03:57:49  ajc
 * Add config.c_purge_hour to config screen
 
@@ -1530,3 +1533,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

@@ -1156,6 +1156,10 @@ void session_loop(struct httprequest *req)
 #endif
 	} else if (!strcasecmp(action, "summary")) {
 		summary();
+	} else if (!strcasecmp(action, "iconbar")) {
+		do_iconbar();
+	} else if (!strcasecmp(action, "customize_iconbar")) {
+		customize_iconbar();
 	} else if (!strcasecmp(action, "diagnostics")) {
 		output_headers(1);
 
