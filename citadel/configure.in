@@ -192,9 +192,7 @@ AC_CACHE_CHECK([for pthread_cancel], ac_cv_func_pthread_cancel,
 	choke me
 #else
 	pthread_cancel(thread);
-#endif
- 
-	return 0;],
+#endif],
 ac_cv_func_pthread_cancel=yes, ac_cv_func_pthread_cancel=no)])
 if test "$ac_cv_func_pthread_cancel" = yes; then
 	AC_DEFINE(HAVE_PTHREAD_CANCEL)
@@ -211,9 +209,7 @@ AC_CACHE_CHECK([for pthread_create], ac_cv_func_pthread_create,
 	choke me
 #else
 	pthread_create(NULL, NULL, NULL, NULL);
-#endif
-
-	return 0;],
+#endif],
 ac_cv_func_pthread_create=yes, ac_cv_func_pthread_create=no)])
 if test "$ac_cv_func_pthread_create" = yes; then
 	TARGETS="client server utils serv_modules"
