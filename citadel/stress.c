@@ -1,7 +1,7 @@
 /* $Id$ */
 
 /* This message is exactly 1024 bytes */
-const char* const message =
+char* const message =
 "The point of this little file is to stress test a Citadel server.\n"
 "It spawns n threads, where n is a command line parameter, each of\n"
 "which writes 1000 messages total to the server.\n"
