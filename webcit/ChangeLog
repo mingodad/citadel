@@ -1,6 +1,7 @@
 Tue Dec 29 23:25:50 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Fixed a bug in the room banner display code
 	* Added "delete room"
+	* Added "validate users"
 
 Mon Dec 28 00:26:01 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Added "edit room info file"

@@ -17,7 +17,15 @@
 #include "webcit.h"
 #include "child.h"
 
-
+char *axdefs[] = {
+	"Deleted",
+	"New User",
+	"Problem User",
+	"Local User",
+	"Network User",
+	"Preferred User",
+	"Aide"
+	};
 
 /*
  * Display the login screen
@@ -187,4 +195,74 @@ void do_logout(void) {
 	wDumpContent();
 	serv_puts("QUIT");
 	exit(0);
+	}
+
+
+
+
+
+/* 
+ * validate new users
+ */
+void validate(void) {
+	char cmd[256];
+	char user[256];
+	char buf[256];
+	int a;
+
+	printf("HTTP/1.0 200 OK\n");
+	output_headers(1);
+
+	strcpy(buf,bstr("user"));
+	if (strlen(buf)>0) if (strlen(bstr("axlevel"))>0) {
+		serv_printf("VALI %s|%s",buf,bstr("axlevel"));
+		serv_gets(buf);
+		if (buf[0]!='2') {
+			wprintf("<EM>%s</EM><BR>\n", &buf[4]);
+			}
+		}
+	
+	serv_puts("GNUR");
+	serv_gets(buf);
+
+	if (buf[0]!='3') {
+		wprintf("<EM>%s</EM><BR></BODY></HTML>\n", &buf[4]);
+		wDumpContent();
+		return;
+		}
+
+	strcpy(user,&buf[4]);
+	serv_printf("GREG %s",user);
+	serv_gets(cmd);
+	if (cmd[0]=='1') {
+		a = 0;
+		do {
+			serv_gets(buf);
+			++a;
+			if (a==1) wprintf("User #%s<BR><H1>%s</H1>",
+				buf,&cmd[4]);
+			if (a==2) wprintf("PW: %s<BR>\n",buf);
+			if (a==3) wprintf("%s<BR>\n",buf);
+			if (a==4) wprintf("%s<BR>\n",buf);
+			if (a==5) wprintf("%s, ",buf);
+			if (a==6) wprintf("%s ",buf);
+			if (a==7) wprintf("%s<BR>\n",buf);
+			if (a==8) wprintf("%s<BR>\n",buf);
+			if (a==9) wprintf("Current access level: %d (%s)\n",
+				atoi(buf),axdefs[atoi(buf)]);
+			} while(strcmp(buf,"000"));
+		}
+	else {
+		wprintf("<H1>%s</H1>%s<BR>\n",user,&cmd[4]);
+		}
+
+	wprintf("<CENTER><TABLE border><CAPTION>Select access level:");
+	wprintf("</CAPTION><TR>");
+	for (a=0; a<=6; ++a) {
+		wprintf(
+		"<TD><A HREF=\"/validate&user=%s&axlevel=%d\">%s</A></TD>\n",
+			urlesc(user), a, axdefs[a]);
+		}
+	wprintf("</TR></TABLE><CENTER><BR>\n");
+	wDumpContent();
 	}

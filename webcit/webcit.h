@@ -73,3 +73,4 @@ extern struct serv_info serv_info;
 extern unsigned room_flags;
 extern char ugname[128];
 extern long uglsn;
+extern char *axdefs[];
