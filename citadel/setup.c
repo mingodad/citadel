@@ -223,10 +223,9 @@ int yesno(char *question)
 	newtComponent form = NULL;
 	newtComponent yesbutton = NULL;
 	newtComponent nobutton = NULL;
-#endif
-
-	int answer = 0;
 	int i = 0;
+#endif
+	int answer = 0;
 	char buf[SIZ];
 
 	switch (setup_type) {
@@ -276,9 +275,9 @@ void important_message(char *title, char *msgtext)
 {
 #ifdef HAVE_NEWT
 	newtComponent form = NULL;
+	int i = 0;
 #endif
 	char buf[SIZ];
-	int i = 0;
 
 	switch (setup_type) {
 
@@ -476,11 +475,11 @@ void set_str_val(int msgpos, char str[])
 #ifdef HAVE_NEWT
 	newtComponent form;
 	char *result;
+	int i;
 #endif
 	char buf[SIZ];
 	char tempfile[PATH_MAX];
 	char setupmsg[SIZ];
-	int i;
 
 	strcpy(tempfile, tmpnam(NULL));
 	strcpy(setupmsg, "");

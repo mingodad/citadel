@@ -1,4 +1,7 @@
  $Log$
+ Revision 607.8  2003/06/26 01:50:14  ajc
+ * Compiler warning fix for building setup without newt
+
  Revision 607.7  2003/06/25 15:40:57  ajc
  * setup now uses "newt" instead of "curses" to draw its pretty screens.
    Changes were made to setup.c as well as all the autoconf stuff.
@@ -4789,4 +4792,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
