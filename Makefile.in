@@ -38,10 +38,12 @@ snprintf.o: snprintf.c
 
 webcit: webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
 	roomops.o tools.o messages.o userlist.o paging.o sysmsgs.o \
-	mime_parser.o graphics.o netconf.o cookie_conversion.o siteconfig.o
+	mime_parser.o graphics.o netconf.o cookie_conversion.o siteconfig.o \
+	wildmat.o braindamage.o
 	$(CC) webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
 	tools.o roomops.o messages.o userlist.o paging.o sysmsgs.o siteconfig.o \
-	mime_parser.o graphics.o netconf.o cookie_conversion.o -o webcit
+	mime_parser.o graphics.o netconf.o cookie_conversion.o \
+	wildmat.o braindamage.o -o webcit
 
 webcit.o: webcit.c webcit.h child.h
 	$(CC) $(CFLAGS) $(DEFS) -c webcit.c
@@ -96,6 +98,12 @@ netconf.o: netconf.c webcit.h child.h
 
 locate_host.o: locate_host.c webcit.h child.h
 	$(CC) $(CFLAGS) $(DEFS) -c locate_host.c
+
+wildmat.o: wildmat.c webcit.h child.h
+	$(CC) $(CFLAGS) $(DEFS) -c wildmat.c
+
+braindamage.o: braindamage.c webcit.h child.h
+	$(CC) $(CFLAGS) $(DEFS) -c braindamage.c
 
 Makefile: $(srcdir)/Makefile.in config.status
 	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) ./config.status

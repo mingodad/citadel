@@ -26,7 +26,6 @@ int wc_session;
 char wc_username[256];
 char wc_password[256];
 char wc_roomname[256];
-char browser[256];
 int TransactionCount = 0;
 int connected = 0;
 int logged_in = 0;
@@ -48,75 +47,83 @@ char *upload;
 
 void unescape_input(char *buf)
 {
-	int a,b;
+	int a, b;
 	char hex[3];
 
-	while ((isspace(buf[strlen(buf)-1]))&&(strlen(buf)>0))
-		buf[strlen(buf)-1] = 0;
+	while ((isspace(buf[strlen(buf) - 1])) && (strlen(buf) > 0))
+		buf[strlen(buf) - 1] = 0;
 
-	for (a=0; a<strlen(buf); ++a) {
-		if (buf[a]=='+') buf[a]=' ';	
-		if (buf[a]=='%') {
-			hex[0]=buf[a+1];
-			hex[1]=buf[a+2];
-			hex[2]=0;
-			sscanf(hex,"%02x",&b);
+	for (a = 0; a < strlen(buf); ++a) {
+		if (buf[a] == '+')
+			buf[a] = ' ';
+		if (buf[a] == '%') {
+			hex[0] = buf[a + 1];
+			hex[1] = buf[a + 2];
+			hex[2] = 0;
+			sscanf(hex, "%02x", &b);
 			buf[a] = (char) b;
-			strcpy(&buf[a+1],&buf[a+3]);
-			}
+			strcpy(&buf[a + 1], &buf[a + 3]);
 		}
-
 	}
 
+}
 
-void addurls(char *url) {
+
+void addurls(char *url)
+{
 	char *up, *ptr;
 	char buf[256];
-	int a,b;
+	int a, b;
 	struct urlcontent *u;
 
 	up = url;
-	while (strlen(up)>0) {
-		
+	while (strlen(up) > 0) {
+
 		/* locate the = sign */
-		strncpy(buf,up,255);
+		strncpy(buf, up, 255);
 		b = (-1);
-		for (a=255; a>=0; --a) if (buf[a]=='=') b=a;
-		if (b<0) return;
-		buf[b]=0;
-	
-		u = (struct urlcontent *)malloc(sizeof(struct urlcontent));
+		for (a = 255; a >= 0; --a)
+			if (buf[a] == '=')
+				b = a;
+		if (b < 0)
+			return;
+		buf[b] = 0;
+
+		u = (struct urlcontent *) malloc(sizeof(struct urlcontent));
 		u->next = urlstrings;
 		urlstrings = u;
 		strcpy(u->url_key, buf);
-	
+
 		/* now chop that part off */
-		for (a=0; a<=b; ++a) ++up;
-	
+		for (a = 0; a <= b; ++a)
+			++up;
+
 		/* locate the & sign */
 		ptr = up;
 		b = strlen(up);
-		for (a=0; a<strlen(up); ++a) {
-			if (!strncmp(ptr,"&",1)) {
-				b=a;
+		for (a = 0; a < strlen(up); ++a) {
+			if (!strncmp(ptr, "&", 1)) {
+				b = a;
 				break;
-				}
-			++ptr;
 			}
+			++ptr;
+		}
 		ptr = up;
-		for (a=0; a<b; ++a) ++ptr;
-		strcpy(ptr,"");
-		
-		u->url_data = malloc(strlen(up)+1);
+		for (a = 0; a < b; ++a)
+			++ptr;
+		strcpy(ptr, "");
+
+		u->url_data = malloc(strlen(up) + 1);
 		strcpy(u->url_data, up);
 		u->url_data[b] = 0;
 		unescape_input(u->url_data);
 		up = ptr;
 		++up;
-		}
 	}
+}
 
-void free_urls(void) {
+void free_urls(void)
+{
 	struct urlcontent *u;
 
 	while (urlstrings != NULL) {
@@ -124,60 +131,64 @@ void free_urls(void) {
 		u = urlstrings->next;
 		free(urlstrings);
 		urlstrings = u;
-		}
 	}
+}
 
 /*
  * Diagnostic function to display the contents of all variables
  */
-void dump_vars(void) {
+void dump_vars(void)
+{
 	struct urlcontent *u;
 
 	for (u = urlstrings; u != NULL; u = u->next) {
 		wprintf("%38s = %s\n", u->url_key, u->url_data);
-		}
 	}
+}
 
-char *bstr(char *key) {
+char *bstr(char *key)
+{
 	struct urlcontent *u;
 
 	for (u = urlstrings; u != NULL; u = u->next) {
-		if (!strcasecmp(u->url_key, key)) return(u->url_data);
-		}
-	return("");
+		if (!strcasecmp(u->url_key, key))
+			return (u->url_data);
 	}
+	return ("");
+}
 
 
-void wprintf(const char *format, ...) {   
-        va_list arg_ptr;   
+void wprintf(const char *format,...)
+{
+	va_list arg_ptr;
 	struct webcontent *wptr;
 
-	wptr = (struct webcontent *)malloc(sizeof(struct webcontent));
+	wptr = (struct webcontent *) malloc(sizeof(struct webcontent));
 	wptr->next = NULL;
 	if (wlist == NULL) {
 		wlist = wptr;
 		wlast = wptr;
-		}
-	else {
+	} else {
 		wlast->next = wptr;
 		wlast = wptr;
-		}
-  
-       	va_start(arg_ptr, format);   
-       	vsprintf(wptr->w_data, format, arg_ptr);   
-       	va_end(arg_ptr);   
 	}
 
-int wContentLength(void) {
+	va_start(arg_ptr, format);
+	vsprintf(wptr->w_data, format, arg_ptr);
+	va_end(arg_ptr);
+}
+
+int wContentLength(void)
+{
 	struct webcontent *wptr;
 	int len = 0;
 
 	for (wptr = wlist; wptr != NULL; wptr = wptr->next) {
 		len = len + strlen(wptr->w_data);
-		}
-
-	return(len);
 	}
+
+	return (len);
+}
 
 /*
  * wDumpContent() takes all the stuff that's been queued up using
@@ -189,17 +200,17 @@ int wContentLength(void) {
  * append the main menu (if in noframes mode) and closing tags, or 2 to
  * append the closing tags only.
  */
-void wDumpContent(int print_standard_html_footer) {
+void wDumpContent(int print_standard_html_footer)
+{
 	struct webcontent *wptr;
 
 	if (print_standard_html_footer) {
-		if ( (noframes) && (print_standard_html_footer != 2) ) {
+		if ((noframes) && (print_standard_html_footer != 2)) {
 			wprintf("<BR>");
 			embed_main_menu();
-			}
-		wprintf("</BODY></HTML>\n");
 		}
-
+		wprintf("</BODY></HTML>\n");
+	}
 	printf("Content-type: text/html\n");
 	printf("Content-length: %d\n", wContentLength());
 	printf("\n");
@@ -209,77 +220,86 @@ void wDumpContent(int print_standard_html_footer) {
 		wptr = wlist->next;
 		free(wlist);
 		wlist = wptr;
-		}
-	wlast = NULL;
 	}
+	wlast = NULL;
+}
 
 
 void escputs1(char *strbuf, int nbsp)
 {
 	int a;
 
-	for (a=0; a<strlen(strbuf); ++a) {
-		if (strbuf[a]=='<') wprintf("&lt;");
-		else if (strbuf[a]=='>') wprintf("&gt;");
-		else if (strbuf[a]=='&') wprintf("&amp;");
-		else if (strbuf[a]==34) wprintf("&quot;");
-		else if (strbuf[a]==LB) wprintf("<");
-		else if (strbuf[a]==RB) wprintf(">");
-		else if (strbuf[a]==QU) wprintf("\"");
-		else if ((strbuf[a]==32)&&(nbsp==1)) {
+	for (a = 0; a < strlen(strbuf); ++a) {
+		if (strbuf[a] == '<')
+			wprintf("&lt;");
+		else if (strbuf[a] == '>')
+			wprintf("&gt;");
+		else if (strbuf[a] == '&')
+			wprintf("&amp;");
+		else if (strbuf[a] == 34)
+			wprintf("&quot;");
+		else if (strbuf[a] == LB)
+			wprintf("<");
+		else if (strbuf[a] == RB)
+			wprintf(">");
+		else if (strbuf[a] == QU)
+			wprintf("\"");
+		else if ((strbuf[a] == 32) && (nbsp == 1)) {
 			wprintf("&nbsp;");
-			}
-		else {
+		} else {
 			wprintf("%c", strbuf[a]);
-			}
 		}
 	}
+}
 
 void escputs(char *strbuf)
 {
-	escputs1(strbuf,0);
-	}
+	escputs1(strbuf, 0);
+}
 
 
 
 char *urlesc(char *strbuf)
 {
-	int a,b,c;
-        char *ec = " #&;`'|*?-~<>^()[]{}$\\";
+	int a, b, c;
+	char *ec = " #&;`'|*?-~<>^()[]{}$\\";
 	static char outbuf[512];
-	
-	strcpy(outbuf,"");
 
-	for (a=0; a<strlen(strbuf); ++a) {
+	strcpy(outbuf, "");
+
+	for (a = 0; a < strlen(strbuf); ++a) {
 		c = 0;
-		for (b=0; b<strlen(ec); ++b) {
-			if (strbuf[a]==ec[b]) c=1;
-			}
-		b = strlen(outbuf);
-		if (c==1) sprintf(&outbuf[b],"%%%02x",strbuf[a]);
-		else sprintf(&outbuf[b],"%c",strbuf[a]);
+		for (b = 0; b < strlen(ec); ++b) {
+			if (strbuf[a] == ec[b])
+				c = 1;
 		}
-	return(outbuf);
+		b = strlen(outbuf);
+		if (c == 1)
+			sprintf(&outbuf[b], "%%%02x", strbuf[a]);
+		else
+			sprintf(&outbuf[b], "%c", strbuf[a]);
 	}
+	return (outbuf);
+}
 
 void urlescputs(char *strbuf)
 {
-	wprintf("%s",urlesc(strbuf));
-	}
+	wprintf("%s", urlesc(strbuf));
+}
 
 
-char *getz(char *buf) {
+char *getz(char *buf)
+{
 	bzero(buf, 256);
 	if (fgets(buf, 256, stdin) == NULL) {
 		strcpy(buf, "");
 		return NULL;
-		}
-	else {
-		while ((strlen(buf)>0)&&(!isprint(buf[strlen(buf)-1])))
-			buf[strlen(buf)-1] = 0;
+	} else {
+		while ((strlen(buf) > 0) && (!isprint(buf[strlen(buf) - 1])))
+			buf[strlen(buf) - 1] = 0;
 		return buf;
-		}
 	}
+}
 
 /*
  * Output all that important stuff that the browser will want to see
@@ -287,7 +307,8 @@ char *getz(char *buf) {
  * If print_standard_html_head is nonzero, we also get some standard HTML
  * headers.  If it's set to 2, the session is considered to be closing.
  */
-void output_headers(int print_standard_html_head, char *target) {
+void output_headers(int print_standard_html_head, char *target)
+{
 
 	static char *unset = "; expires=28-May-1971 18:10:00 GMT";
 	char cookie[256];
@@ -295,29 +316,25 @@ void output_headers(int print_standard_html_head, char *target) {
 	printf("Server: %s\n", SERVER);
 	printf("Connection: close\n");
 
-	if ( (strlen(target)>0) && (noframes == 0) ) {
+	if ((strlen(target) > 0) && (noframes == 0)) {
 		printf("Window-target: %s\n", target);
-		}
-
-
+	}
 	if (print_standard_html_head > 0) {
 		printf("Pragma: no-cache\n");
 		printf("Cache-Control: no-store\n");
-		}
-
+	}
 	stuff_to_cookie(cookie, wc_session, wc_username, wc_password,
 			wc_roomname, noframes);
-	if (print_standard_html_head==2) {
+	if (print_standard_html_head == 2) {
 		printf("X-WebCit-Session: close\n");
 		printf("Set-cookie: webcit=%s\n", unset);
-		}
-	else {
+	} else {
 		printf("Set-cookie: webcit=%s\n", cookie);
-		}
+	}
 
 	if (print_standard_html_head > 0) {
-        	wprintf("<HTML><HEAD><TITLE>");
-		escputs("WebCit");	 /* FIX -- add BBS name here */
+		wprintf("<HTML><HEAD><TITLE>");
+		escputs("WebCit");	/* FIX -- add BBS name here */
 		wprintf("</TITLE></HEAD>");
 		if (ExpressMessages != NULL) {
 			wprintf("<SCRIPT language=\"javascript\">\n");
@@ -326,46 +343,46 @@ void output_headers(int print_standard_html_head, char *target) {
 			escputs(ExpressMessages);
 			wprintf("\")\n");
 			wprintf(" }\n </SCRIPT>\n");
-			}
+		}
 		wprintf("<BODY ");
 		if (ExpressMessages != NULL) {
 			wprintf("onload=\"ExpressMessage()\" ");
 			free(ExpressMessages);
 			ExpressMessages = NULL;
-			}
-		wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
 		}
-
+		wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
 	}
+}
 
 
 
 
-void check_for_express_messages() {
+void check_for_express_messages()
+{
 	char buf[256];
 
 	serv_puts("PEXP");
 	serv_gets(buf);
-	if (buf[0]=='1') {
+	if (buf[0] == '1') {
 		while (serv_gets(buf), strcmp(buf, "000")) {
 			if (ExpressMessages == NULL) {
 				ExpressMessages = malloc(strlen(buf) + 4);
 				strcpy(ExpressMessages, "");
-				}
-			else {
+			} else {
 				ExpressMessages = realloc(ExpressMessages,
-				 (strlen(ExpressMessages) + strlen(buf) + 4) );
-				}
+							  (strlen(ExpressMessages) + strlen(buf) + 4));
+			}
 			strcat(ExpressMessages, buf);
 			strcat(ExpressMessages, "\\n");
-			}
 		}
 	}
+}
 
 
 
 
-void output_static(char *what) {
+void output_static(char *what)
+{
 	char buf[256];
 	FILE *fp;
 	struct stat statbuf;
@@ -381,33 +398,33 @@ void output_static(char *what) {
 		printf("Content-length: %d\n", strlen(buf));
 		printf("\n");
 		fwrite(buf, strlen(buf), 1, stdout);
-		}
-	else {
+	} else {
 		printf("HTTP/1.0 200 OK\n");
 		output_headers(0, "");
 
-		if (!strncasecmp(&what[strlen(what)-4], ".gif", 4))
+		if (!strncasecmp(&what[strlen(what) - 4], ".gif", 4))
 			printf("Content-type: image/gif\n");
-		else if (!strncasecmp(&what[strlen(what)-4], ".jpg", 4))
+		else if (!strncasecmp(&what[strlen(what) - 4], ".jpg", 4))
 			printf("Content-type: image/jpeg\n");
-		else if (!strncasecmp(&what[strlen(what)-5], ".html", 5))
+		else if (!strncasecmp(&what[strlen(what) - 5], ".html", 5))
 			printf("Content-type: text/html\n");
 		else
 			printf("Content-type: application/octet-stream\n");
 
 		fstat(fileno(fp), &statbuf);
 		bytes = statbuf.st_size;
-		printf("Content-length: %ld\n", (long)bytes);
+		printf("Content-length: %ld\n", (long) bytes);
 		printf("\n");
 		while (bytes--) {
 			putc(getc(fp), stdout);
-			}
+		}
 		fflush(stdout);
 		fclose(fp);
-		}
 	}
+}
 
-void output_image() {
+void output_image()
+{
 	char buf[256];
 	char xferbuf[4096];
 	off_t bytes;
@@ -417,30 +434,31 @@ void output_image() {
 
 	serv_printf("OIMG %s|%s", bstr("name"), bstr("parm"));
 	serv_gets(buf);
-	if (buf[0]=='2') {
+	if (buf[0] == '2') {
 		bytes = extract_long(&buf[4], 0);
 		printf("HTTP/1.0 200 OK\n");
 		output_headers(0, "");
 		printf("Content-type: image/gif\n");
-		printf("Content-length: %ld\n", (long)bytes);
+		printf("Content-length: %ld\n", (long) bytes);
 		printf("\n");
 
-		while (bytes > (off_t)0) {
-			thisblock = (off_t)sizeof(xferbuf);
-			if (thisblock > bytes) thisblock = bytes;
+		while (bytes > (off_t) 0) {
+			thisblock = (off_t) sizeof(xferbuf);
+			if (thisblock > bytes)
+				thisblock = bytes;
 			serv_printf("READ %ld|%ld", accomplished, thisblock);
 			serv_gets(buf);
-			if (buf[0]=='6') thisblock = extract_long(&buf[4],0);
-			serv_read(xferbuf, (int)thisblock);
+			if (buf[0] == '6')
+				thisblock = extract_long(&buf[4], 0);
+			serv_read(xferbuf, (int) thisblock);
 			fwrite(xferbuf, thisblock, 1, stdout);
 			bytes = bytes - thisblock;
 			accomplished = accomplished + thisblock;
-			}
+		}
 		fflush(stdout);
 		serv_puts("CLOS");
 		serv_gets(buf);
-		}
-	else {
+	} else {
 		printf("HTTP/1.0 404 %s\n", strerror(errno));
 		output_headers(0, "");
 		printf("Content-Type: text/plain\n");
@@ -448,60 +466,79 @@ void output_image() {
 		printf("Content-length: %d\n", strlen(buf));
 		printf("\n");
 		fwrite(buf, strlen(buf), 1, stdout);
-		}
-
 	}
+
+}
 
 
 /*
  * Convenience functions to display a page containing only a string
  */
-void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext) {
-        printf("HTTP/1.0 200 OK\n");
-        output_headers(1, "bottom");
-        wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=%s><TR><TD>", titlebarcolor);
-        wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-        wprintf("<B>%s</B>\n", titlebarmsg);
-        wprintf("</FONT></TD></TR></TABLE><BR>\n");
+void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
+{
+	printf("HTTP/1.0 200 OK\n");
+	output_headers(1, "bottom");
+	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=%s><TR><TD>", titlebarcolor);
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+	wprintf("<B>%s</B>\n", titlebarmsg);
+	wprintf("</FONT></TD></TR></TABLE><BR>\n");
 	escputs(messagetext);
-	
+
 	if (noframes) {
 		wprintf("<HR>\n");
 		embed_main_menu();
-		}
-
-        wDumpContent(1);
 	}
+	wDumpContent(1);
+}
 
-void display_error(char *errormessage) {
+void display_error(char *errormessage)
+{
 	convenience_page("770000", "Error", errormessage);
-	}
+}
 
-void display_success(char *successmessage) {
+void display_success(char *successmessage)
+{
 	convenience_page("007700", "OK", successmessage);
-	}
+}
 
 
 
-void extract_action(char *actbuf, char *cmdbuf) {
+void extract_action(char *actbuf, char *cmdbuf)
+{
 	int i;
 
 	strcpy(actbuf, cmdbuf);
-	if (!strncasecmp(actbuf, "GET /", 5)) strcpy(actbuf, &actbuf[5]);
-	if (!strncasecmp(actbuf, "PUT /", 5)) strcpy(actbuf, &actbuf[5]);
-	if (!strncasecmp(actbuf, "POST /", 6)) strcpy(actbuf, &actbuf[6]);
+	if (!strncasecmp(actbuf, "GET /", 5))
+		strcpy(actbuf, &actbuf[5]);
+	if (!strncasecmp(actbuf, "PUT /", 5))
+		strcpy(actbuf, &actbuf[5]);
+	if (!strncasecmp(actbuf, "POST /", 6))
+		strcpy(actbuf, &actbuf[6]);
 
-	for (i=0; i<strlen(actbuf); ++i) {
-		if (actbuf[i]==' ') { actbuf[i]=0; i=0; }
-		if (actbuf[i]=='/') { actbuf[i]=0; i=0; }
-		if (actbuf[i]=='?') { actbuf[i]=0; i=0; }
-		if (actbuf[i]=='&') { actbuf[i]=0; i=0; }
+	for (i = 0; i < strlen(actbuf); ++i) {
+		if (actbuf[i] == ' ') {
+			actbuf[i] = 0;
+			i = 0;
+		}
+		if (actbuf[i] == '/') {
+			actbuf[i] = 0;
+			i = 0;
+		}
+		if (actbuf[i] == '?') {
+			actbuf[i] = 0;
+			i = 0;
+		}
+		if (actbuf[i] == '&') {
+			actbuf[i] = 0;
+			i = 0;
 		}
 	}
+}
 
 
 void upload_handler(char *name, char *filename, char *encoding,
-			void *content, char *cbtype, size_t length) {
+		    void *content, char *cbtype, size_t length)
+{
 
 	fprintf(stderr, "UPLOAD HANDLER CALLED\n");
 	fprintf(stderr, "    name = %s\n", name);
@@ -510,18 +547,18 @@ void upload_handler(char *name, char *filename, char *encoding,
 	fprintf(stderr, "    type = %s\n", cbtype);
 	fprintf(stderr, "  length = %d\n", length);
 
-        if (strlen(name)>0) {
-                upload = malloc(length);
-                if (upload != NULL) {
-                        upload_length = length;
-                        memcpy(upload, content, length);
-                        }
-                }
-
+	if (strlen(name) > 0) {
+		upload = malloc(length);
+		if (upload != NULL) {
+			upload_length = length;
+			memcpy(upload, content, length);
+		}
 	}
+}
 
 
-void session_loop(char *browser_host) {
+void session_loop(char *browser_host, int bd_use_frames)
+{
 	char cmd[256];
 	char action[256];
 	char buf[256];
@@ -549,405 +586,267 @@ void session_loop(char *browser_host) {
 	upload_length = 0;
 	upload = NULL;
 
-	if (getz(cmd)==NULL) return;
+	if (getz(cmd) == NULL)
+		return;
 	extract_action(action, cmd);
 
 	do {
-		if (getz(buf)==NULL) return;
+		if (getz(buf) == NULL)
+			return;
 
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
 			strcpy(cookie, &buf[15]);
 			cookie_to_stuff(cookie, NULL,
-					c_username, c_password, c_roomname,
+				      c_username, c_password, c_roomname,
 					&noframes);
-			}
-
+		}
 		if (!strncasecmp(buf, "Content-length: ", 16)) {
 			ContentLength = atoi(&buf[16]);
-			}
+		}
 		if (!strncasecmp(buf, "Content-type: ", 14)) {
 			strcpy(ContentType, &buf[14]);
-			}
-		} while(strlen(buf)>0);
+		}
+	} while (strlen(buf) > 0);
 
 	++TransactionCount;
 
 	if (ContentLength > 0) {
-		content = malloc(ContentLength+1);
+		content = malloc(ContentLength + 1);
 		fread(content, ContentLength, 1, stdin);
 
 		content[ContentLength] = 0;
 
 		if (!strncasecmp(ContentType,
-		   "application/x-www-form-urlencoded", 33)) {
+			      "application/x-www-form-urlencoded", 33)) {
 			addurls(content);
-			}
-		else if (!strncasecmp(ContentType, "multipart", 9)) {
+		} else if (!strncasecmp(ContentType, "multipart", 9)) {
 			mime_parser(content, ContentLength, ContentType,
-					*upload_handler);
-			}
+				    *upload_handler);
 		}
-	else {
+	} else {
 		content = NULL;
-		}
+	}
 
-	/* If there are variables in the URL, we must grab them now */	
-	for (a=0; a<strlen(cmd); ++a) if ((cmd[a]=='?')||(cmd[a]=='&')) {
-		for (b=a; b<strlen(cmd); ++b) if (isspace(cmd[b])) cmd[b]=0;
-		addurls(&cmd[a+1]);
-		cmd[a] = 0;
+	/* If there are variables in the URL, we must grab them now */
+	for (a = 0; a < strlen(cmd); ++a)
+		if ((cmd[a] == '?') || (cmd[a] == '&')) {
+			for (b = a; b < strlen(cmd); ++b)
+				if (isspace(cmd[b]))
+					cmd[b] = 0;
+			addurls(&cmd[a + 1]);
+			cmd[a] = 0;
 		}
-
 	/*
 	 * If we're not connected to a Citadel server, try to hook up the
 	 * connection now.  Preference is given to the host and port specified
 	 * by browser cookies, if cookies have been supplied.
 	 */
 	if (!connected) {
-		if (strlen(bstr("host"))>0) strcpy(c_host, bstr("host"));
-		if (strlen(bstr("port"))>0) strcpy(c_port, bstr("port"));
+		if (strlen(bstr("host")) > 0)
+			strcpy(c_host, bstr("host"));
+		if (strlen(bstr("port")) > 0)
+			strcpy(c_port, bstr("port"));
 		serv_sock = connectsock(c_host, c_port, "tcp");
 		connected = 1;
 		serv_gets(buf);	/* get the server welcome message */
 		get_serv_info(browser_host);
-		}
-
+	}
 	check_for_express_messages();
 
 	/*
 	 * If we're not logged in, but we have username and password cookies
 	 * supplied by the browser, try using them to log in.
 	 */
-	if ((!logged_in)&&(strlen(c_username)>0)&&(strlen(c_password)>0)) {
+	if ((!logged_in) && (strlen(c_username) > 0) && (strlen(c_password) > 0)) {
 		serv_printf("USER %s", c_username);
 		serv_gets(buf);
-		if (buf[0]=='3') {
+		if (buf[0] == '3') {
 			serv_printf("PASS %s", c_password);
 			serv_gets(buf);
-			if (buf[0]=='2') {
+			if (buf[0] == '2') {
 				become_logged_in(c_username, c_password, buf);
-				}
 			}
 		}
-
+	}
 	/*
 	 * If we don't have a current room, but a cookie specifying the
 	 * current room is supplied, make an effort to go there.
 	 */
-	if ((strlen(wc_roomname)==0) && (strlen(c_roomname)>0) ) {
+	if ((strlen(wc_roomname) == 0) && (strlen(c_roomname) > 0)) {
 		serv_printf("GOTO %s", c_roomname);
 		serv_gets(buf);
-		if (buf[0]=='2') {
+		if (buf[0] == '2') {
 			strcpy(wc_roomname, c_roomname);
-			}
 		}
-
+	}
 	if (!strcasecmp(action, "static")) {
 		strcpy(buf, &cmd[12]);
-		for (a=0; a<strlen(buf); ++a) if (isspace(buf[a])) buf[a]=0;
+		for (a = 0; a < strlen(buf); ++a)
+			if (isspace(buf[a]))
+				buf[a] = 0;
 		output_static(buf);
-		}
-
-	else if (!strcasecmp(action, "image")) {
+	} else if (!strcasecmp(action, "image")) {
 		output_image();
-		}
-
-	else if ((!logged_in)&&(!strcasecmp(action, "login"))) {
+	} else if ((!logged_in) && (!strcasecmp(action, "login"))) {
 		do_login();
-		}
-
-	else if (!logged_in) {
+	} else if (!logged_in) {
 		display_login(NULL);
-		}
-
+	}
 	/* Various commands... */
-	
+
 	else if (!strcasecmp(action, "do_welcome")) {
 		do_welcome();
-		}
-
-	else if (!strcasecmp(action, "display_main_menu")) {
+	} else if (!strcasecmp(action, "display_main_menu")) {
 		display_main_menu();
-		}
-
-	else if (!strcasecmp(action, "advanced")) {
+	} else if (!strcasecmp(action, "advanced")) {
 		display_advanced_menu();
-		}
-
-	else if (!strcasecmp(action, "whobbs")) {
+	} else if (!strcasecmp(action, "whobbs")) {
 		whobbs();
-		}
-
-	else if (!strcasecmp(action, "knrooms")) {
+	} else if (!strcasecmp(action, "knrooms")) {
 		list_all_rooms_by_floor();
-		}
-
-	else if (!strcasecmp(action, "gotonext")) {
+	} else if (!strcasecmp(action, "gotonext")) {
 		slrp_highest();
 		gotonext();
-		}
-
-	else if (!strcasecmp(action, "skip")) {
+	} else if (!strcasecmp(action, "skip")) {
 		gotonext();
-		}
-
-	else if (!strcasecmp(action, "ungoto")) {
+	} else if (!strcasecmp(action, "ungoto")) {
 		ungoto();
-		}
-
-	else if (!strcasecmp(action, "dotgoto")) {
+	} else if (!strcasecmp(action, "dotgoto")) {
 		slrp_highest();
 		gotoroom(bstr("room"), 1);
-		}
-
-	else if (!strcasecmp(action, "termquit")) {
+	} else if (!strcasecmp(action, "termquit")) {
 		do_logout();
-		}
-
-	else if (!strcasecmp(action, "readnew")) {
+	} else if (!strcasecmp(action, "readnew")) {
 		readloop("readnew");
-		}
-
-	else if (!strcasecmp(action, "readold")) {
+	} else if (!strcasecmp(action, "readold")) {
 		readloop("readold");
-		}
-
-	else if (!strcasecmp(action, "readfwd")) {
+	} else if (!strcasecmp(action, "readfwd")) {
 		readloop("readfwd");
-		}
-
-	else if (!strcasecmp(action, "display_enter")) {
+	} else if (!strcasecmp(action, "display_enter")) {
 		display_enter();
-		}
-
-	else if (!strcasecmp(action, "post")) {
+	} else if (!strcasecmp(action, "post")) {
 		post_message();
-		}
-
-	else if (!strcasecmp(action, "confirm_delete_msg")) {
+	} else if (!strcasecmp(action, "confirm_delete_msg")) {
 		confirm_delete_msg();
-		}
-
-	else if (!strcasecmp(action, "delete_msg")) {
+	} else if (!strcasecmp(action, "delete_msg")) {
 		delete_msg();
-		}
-
-	else if (!strcasecmp(action, "confirm_move_msg")) {
+	} else if (!strcasecmp(action, "confirm_move_msg")) {
 		confirm_move_msg();
-		}
-
-	else if (!strcasecmp(action, "move_msg")) {
+	} else if (!strcasecmp(action, "move_msg")) {
 		move_msg();
-		}
-
-	else if (!strcasecmp(action, "userlist")) {
+	} else if (!strcasecmp(action, "userlist")) {
 		userlist();
-		}
-
-	else if (!strcasecmp(action, "showuser")) {
+	} else if (!strcasecmp(action, "showuser")) {
 		showuser();
-		}
-
-	else if (!strcasecmp(action, "display_page")) {
+	} else if (!strcasecmp(action, "display_page")) {
 		display_page();
-		}
-
-	else if (!strcasecmp(action, "page_user")) {
+	} else if (!strcasecmp(action, "page_user")) {
 		page_user();
-		}
-
-	else if (!strcasecmp(action, "chat")) {
+	} else if (!strcasecmp(action, "chat")) {
 		do_chat();
-		}
-
-	else if (!strcasecmp(action, "display_private")) {
+	} else if (!strcasecmp(action, "display_private")) {
 		display_private("", 0);
-		}
-
-	else if (!strcasecmp(action, "goto_private")) {
+	} else if (!strcasecmp(action, "goto_private")) {
 		goto_private();
-		}
-
-	else if (!strcasecmp(action, "zapped_list")) {
+	} else if (!strcasecmp(action, "zapped_list")) {
 		zapped_list();
-		}
-
-	else if (!strcasecmp(action, "display_zap")) {
+	} else if (!strcasecmp(action, "display_zap")) {
 		display_zap();
-		}
-
-	else if (!strcasecmp(action, "zap")) {
+	} else if (!strcasecmp(action, "zap")) {
 		zap();
-		}
-
-	else if (!strcasecmp(action, "display_entroom")) {
+	} else if (!strcasecmp(action, "display_entroom")) {
 		display_entroom();
-		}
-
-	else if (!strcasecmp(action, "entroom")) {
+	} else if (!strcasecmp(action, "entroom")) {
 		entroom();
-		}
-
-	else if (!strcasecmp(action, "display_editroom")) {
+	} else if (!strcasecmp(action, "display_editroom")) {
 		display_editroom();
-		}
-
-	else if (!strcasecmp(action, "editroom")) {
+	} else if (!strcasecmp(action, "editroom")) {
 		editroom();
-		}
-
-	else if (!strcasecmp(action, "display_editinfo")) {
+	} else if (!strcasecmp(action, "display_editinfo")) {
 		display_edit("Room info", "EINF 0", "RINF", "/editinfo");
-		}
-
-	else if (!strcasecmp(action, "editinfo")) {
+	} else if (!strcasecmp(action, "editinfo")) {
 		save_edit("Room info", "EINF 1", 1);
-		}
-
-	else if (!strcasecmp(action, "display_editbio")) {
+	} else if (!strcasecmp(action, "display_editbio")) {
 		sprintf(buf, "RBIO %s", wc_username);
 		display_edit("Your bio", "NOOP", buf, "editbio");
-		}
-
-	else if (!strcasecmp(action, "editbio")) {
+	} else if (!strcasecmp(action, "editbio")) {
 		save_edit("Your bio", "EBIO", 0);
-		}
-
-	else if (!strcasecmp(action, "confirm_delete_room")) {
+	} else if (!strcasecmp(action, "confirm_delete_room")) {
 		confirm_delete_room();
-		}
-
-	else if (!strcasecmp(action, "delete_room")) {
+	} else if (!strcasecmp(action, "delete_room")) {
 		delete_room();
-		}
-
-	else if (!strcasecmp(action, "validate")) {
+	} else if (!strcasecmp(action, "validate")) {
 		validate();
-		}
-
-	else if (!strcasecmp(action, "display_editpic")) {
+	} else if (!strcasecmp(action, "display_editpic")) {
 		display_graphics_upload("your photo",
 					"UIMG 0|_userpic_",
 					"/editpic");
-		}
-
-	else if (!strcasecmp(action, "editpic")) {
+	} else if (!strcasecmp(action, "editpic")) {
 		do_graphics_upload("UIMG 1|_userpic_");
-		}
-
-	else if (!strcasecmp(action, "display_editroompic")) {
+	} else if (!strcasecmp(action, "display_editroompic")) {
 		display_graphics_upload("the graphic for this room",
 					"UIMG 0|_roompic_",
 					"/editroompic");
-		}
-
-	else if (!strcasecmp(action, "editroompic")) {
+	} else if (!strcasecmp(action, "editroompic")) {
 		do_graphics_upload("UIMG 1|_roompic_");
-		}
-
-	else if (!strcasecmp(action, "select_floor_to_edit_pic")) {
+	} else if (!strcasecmp(action, "select_floor_to_edit_pic")) {
 		select_floor_to_edit_pic();
-		}
-
-	else if (!strcasecmp(action, "display_editfloorpic")) {
+	} else if (!strcasecmp(action, "display_editfloorpic")) {
 		sprintf(buf, "UIMG 0|_floorpic_|%s",
 			bstr("which_floor"));
 		display_graphics_upload("the graphic for this floor",
 					buf,
 					"/editfloorpic");
-		}
-
-	else if (!strcasecmp(action, "editfloorpic")) {
+	} else if (!strcasecmp(action, "editfloorpic")) {
 		sprintf(buf, "UIMG 1|_floorpic_|%s",
 			bstr("which_floor"));
 		do_graphics_upload(buf);
-		}
-
-	else if (!strcasecmp(action, "display_reg")) {
+	} else if (!strcasecmp(action, "display_reg")) {
 		display_reg(0);
-		}
-
-	else if (!strcasecmp(action, "register")) {
+	} else if (!strcasecmp(action, "register")) {
 		register_user();
-		}
-
-	else if (!strcasecmp(action, "display_changepw")) {
+	} else if (!strcasecmp(action, "display_changepw")) {
 		display_changepw();
-		}
-
-	else if (!strcasecmp(action, "changepw")) {
+	} else if (!strcasecmp(action, "changepw")) {
 		changepw();
-		}
-
-	else if (!strcasecmp(action, "display_edit_node")) {
+	} else if (!strcasecmp(action, "display_edit_node")) {
 		display_edit_node();
-		}
-
-	else if (!strcasecmp(action, "display_netconf")) {
+	} else if (!strcasecmp(action, "display_netconf")) {
 		display_netconf();
-		}
-
-	else if (!strcasecmp(action, "display_confirm_unshare")) {
+	} else if (!strcasecmp(action, "display_confirm_unshare")) {
 		display_confirm_unshare();
-		}
-
-	else if (!strcasecmp(action, "display_confirm_delete_node")) {
+	} else if (!strcasecmp(action, "display_confirm_delete_node")) {
 		display_confirm_delete_node();
-		}
-
-	else if (!strcasecmp(action, "delete_node")) {
+	} else if (!strcasecmp(action, "delete_node")) {
 		delete_node();
-		}
-
-	else if (!strcasecmp(action, "unshare")) {
+	} else if (!strcasecmp(action, "unshare")) {
 		unshare();
-		}
-
-	else if (!strcasecmp(action, "display_add_node")) {
+	} else if (!strcasecmp(action, "display_add_node")) {
 		display_add_node();
-		}
-
-	else if (!strcasecmp(action, "add_node")) {
+	} else if (!strcasecmp(action, "add_node")) {
 		add_node();
-		}
-
-	else if (!strcasecmp(action, "display_share")) {
+	} else if (!strcasecmp(action, "display_share")) {
 		display_share();
-		}
-
-	else if (!strcasecmp(action, "share")) {
+	} else if (!strcasecmp(action, "share")) {
 		share();
-		}
-
-	else if (!strcasecmp(action, "terminate_session")) {
+	} else if (!strcasecmp(action, "terminate_session")) {
 		terminate_session();
-		}
-
-	else if (!strcasecmp(action, "edit_me")) {
+	} else if (!strcasecmp(action, "edit_me")) {
 		edit_me();
-		}
-
-	else if (!strcasecmp(action, "display_siteconfig")) {
+	} else if (!strcasecmp(action, "display_siteconfig")) {
 		display_siteconfig();
-		}
-
-	else if (!strcasecmp(action, "siteconfig")) {
+	} else if (!strcasecmp(action, "siteconfig")) {
 		siteconfig();
-		}
-
-	else if (!strcasecmp(action, "display_generic")) {
+	} else if (!strcasecmp(action, "display_generic")) {
 		display_generic();
-		}
-
-	else if (!strcasecmp(action, "do_generic")) {
+	} else if (!strcasecmp(action, "do_generic")) {
 		do_generic();
-		}
-
+	}
 	/* When all else fails... */
 	else {
 		printf("HTTP/1.0 200 OK\n");
 		output_headers(1, "");
-	
+
 		wprintf("TransactionCount is %d<BR>\n", TransactionCount);
 		wprintf("You're in session %d<HR>\n", wc_session);
 		wprintf("Command: <BR><PRE>\n");
@@ -957,29 +856,32 @@ void session_loop(char *browser_host) {
 		dump_vars();
 		wprintf("</PRE><HR>\n");
 		wDumpContent(1);
-		}
+	}
 
 	fflush(stdout);
 	if (content != NULL) {
 		free(content);
 		content = NULL;
-		}
+	}
 	free_urls();
 	if (upload_length > 0) {
 		free(upload);
 		upload_length = 0;
-		}
 	}
+}
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
+
+	char browser[256];
+	int bd_use_frames;
 
 	if (argc != 6) {
 		fprintf(stderr,
 			"webcit: usage error (argc must be 6, not %d)\n",
 			argc);
 		return 1;
-		}
-
+	}
 	wc_session = atoi(argv[1]);
 	defaulthost = argv[2];
 	defaultport = argv[3];
@@ -987,9 +889,11 @@ int main(int argc, char *argv[]) {
 	strcpy(wc_username, "");
 	strcpy(wc_password, "");
 	strcpy(wc_roomname, "");
+
 	strcpy(browser, argv[5]);
+	bd_use_frames = browser_braindamage_check(browser);
 
 	while (1) {
-		session_loop(argv[4]);
-		}
+		session_loop(argv[4], bd_use_frames);
 	}
+}

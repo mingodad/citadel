@@ -11,10 +11,11 @@
 struct sharelist {
 	struct sharelist *next;
 	char shname[256];
-	};
+};
 
 
-void display_edit_node(void) {
+void display_edit_node(void)
+{
 	char buf[256];
 	char node[256];
 	char sroom[256];
@@ -53,16 +54,16 @@ void display_edit_node(void) {
 			urlescputs(node);
 			wprintf("\">(UnShare)</A></TD>");
 			wprintf("</TR>\n");
-			}
-		wprintf("</TABLE></CENTER>\n");
 		}
-	
-	wDumpContent(1);
+		wprintf("</TABLE></CENTER>\n");
 	}
-	
+	wDumpContent(1);
+}
 
 
-void display_netconf(void) {
+
+void display_netconf(void)
+{
 	char buf[256];
 	char node[256];
 
@@ -98,15 +99,15 @@ void display_netconf(void) {
 			urlescputs(node);
 			wprintf("\">(Delete)</A></TD>");
 			wprintf("</TR>\n");
-			}
-		wprintf("</TABLE></CENTER>\n");
 		}
-	
-	wDumpContent(1);
+		wprintf("</TABLE></CENTER>\n");
 	}
+	wDumpContent(1);
+}
 
 
-void display_confirm_unshare(void) {
+void display_confirm_unshare(void)
+{
 	char node[256];
 	char sroom[256];
 
@@ -131,10 +132,11 @@ void display_confirm_unshare(void) {
 	urlescputs(node);
 	wprintf("\">No</A><BR>\n");
 	wDumpContent(1);
-	}
+}
 
 
-void display_confirm_delete_node(void) {
+void display_confirm_delete_node(void)
+{
 	char node[256];
 
 	printf("HTTP/1.0 200 OK\n");
@@ -153,56 +155,57 @@ void display_confirm_delete_node(void) {
 	wprintf("\">Yes</A>&nbsp;&nbsp;&nbsp;");
 	wprintf("<A HREF=\"/display_netconf\">No</A><BR>\n");
 	wDumpContent(1);
-	}
+}
 
 
-void delete_node(void) {
+void delete_node(void)
+{
 	char node[256];
 	char buf[256];
-	
+
 	strcpy(node, bstr("node"));
 	sprintf(buf, "NSET deletenode|%s", node);
 	serv_puts(buf);
 	serv_gets(buf);
-	if (buf[0]=='1') {
+	if (buf[0] == '1') {
 		printf("HTTP/1.0 200 OK\n");
 		output_headers(1, "bottom");
 		server_to_text();
 		wprintf("<A HREF=\"/display_netconf\">Back to menu</A>\n");
 		wDumpContent(1);
-		}
-	else {
+	} else {
 		display_error(&buf[4]);
-		}
 	}
+}
 
 
-void unshare(void) {
+void unshare(void)
+{
 	char node[256];
 	char sroom[256];
 	char buf[256];
-	
+
 	strcpy(node, bstr("node"));
 	strcpy(sroom, bstr("sroom"));
 	sprintf(buf, "NSET unshare|%s|%s", node, sroom);
 	serv_puts(buf);
 	serv_gets(buf);
-	if (buf[0]=='1') {
+	if (buf[0] == '1') {
 		printf("HTTP/1.0 200 OK\n");
 		output_headers(1, "bottom");
 		server_to_text();
 		wprintf("<A HREF=\"/display_netconf\">Back to menu</A>\n");
 		wDumpContent(1);
-		}
-	else {
+	} else {
 		display_error(&buf[4]);
-		}
 	}
+}
 
 
 
-void display_add_node(void) {
-	
+void display_add_node(void)
+{
+
 	printf("HTTP/1.0 200 OK\n");
 	output_headers(1, "bottom");
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
@@ -221,11 +224,12 @@ void display_add_node(void) {
 
 	wprintf("</FORM></CENTER>\n");
 	wDumpContent(1);
-	}
+}
 
 
 
-void add_node(void) {
+void add_node(void)
+{
 	char node[256];
 	char buf[256];
 	char sc[256];
@@ -237,23 +241,22 @@ void add_node(void) {
 		sprintf(buf, "NSET addnode|%s", node);
 		serv_puts(buf);
 		serv_gets(buf);
-		if (buf[0]=='1') {
+		if (buf[0] == '1') {
 			printf("HTTP/1.0 200 OK\n");
 			output_headers(1, "bottom");
 			server_to_text();
 			wprintf("<A HREF=\"/display_netconf\">Back to menu</A>\n");
 			wDumpContent(1);
-			}
-		else {
+		} else {
 			display_error(&buf[4]);
-			}
 		}
-
 	}
+}
 
 
 
-void display_share(void) {
+void display_share(void)
+{
 	char buf[256];
 	char node[256];
 	char sroom[256];
@@ -279,36 +282,34 @@ void display_share(void) {
 	sprintf(buf, "NSET roomlist|%s", node);
 	serv_puts(buf);
 	serv_gets(buf);
-	if (buf[0]=='1') {
-		while(serv_gets(buf), strcmp(buf,"000")) {
+	if (buf[0] == '1') {
+		while (serv_gets(buf), strcmp(buf, "000")) {
 			shptr = (struct sharelist *)
-				malloc(sizeof(struct sharelist));
-			shptr -> next = shlist;
+			    malloc(sizeof(struct sharelist));
+			shptr->next = shlist;
 			extract(shptr->shname, buf, 0);
 			shlist = shptr;
-			}
 		}
-
+	}
 	wprintf("<SELECT NAME=\"sroom\" SIZE=5 WIDTH=30>\n");
 	serv_puts("LKRA");
 	serv_gets(buf);
-	if (buf[0]=='1') {
-		while(serv_gets(buf), strcmp(buf,"000")) {
+	if (buf[0] == '1') {
+		while (serv_gets(buf), strcmp(buf, "000")) {
 			extract(sroom, buf, 0);
 			already_shared = 0;
 			for (shptr = shlist; shptr != NULL; shptr = shptr->next) {
 				if (!strcasecmp(sroom, shptr->shname))
 					already_shared = 1;
-				}
+			}
 
 			if (already_shared == 0) {
 				wprintf("<OPTION>");
 				escputs(sroom);
 				wprintf("\n");
-				}
-
 			}
 		}
+	}
 	wprintf("</SELECT>\n");
 	wprintf("<BR>\n");
 
@@ -323,18 +324,19 @@ void display_share(void) {
 		shptr = shlist->next;
 		free(shlist);
 		shlist = shptr;
-		}
-
 	}
 
+}
 
 
-void share(void) {
+
+void share(void)
+{
 	char node[256];
 	char buf[256];
 	char sc[256];
 	char sroom[256];
-	
+
 	strcpy(node, bstr("node"));
 	strcpy(sc, bstr("sc"));
 	strcpy(sroom, bstr("sroom"));
@@ -343,17 +345,15 @@ void share(void) {
 		sprintf(buf, "NSET share|%s|%s", node, sroom);
 		serv_puts(buf);
 		serv_gets(buf);
-		if (buf[0]=='1') {
+		if (buf[0] == '1') {
 			printf("HTTP/1.0 200 OK\n");
 			output_headers(1, "bottom");
 			server_to_text();
 			wprintf("<A HREF=\"/display_netconf\">Back to menu</A>\n");
 			wDumpContent(1);
-			}
-		else {
+		} else {
 			display_error(&buf[4]);
-			}
-
 		}
-	}
 
+	}
+}

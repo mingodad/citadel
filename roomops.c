@@ -19,20 +19,20 @@ struct march {
 	char march_name[32];
 	int march_floor;
 	int march_order;
-	};
+};
 
 /* 
  * This struct holds a list of rooms for client display.
  * (oooh, a tree!)
  */
 struct roomlisting {
-        struct roomlisting *lnext;
+	struct roomlisting *lnext;
 	struct roomlisting *rnext;
-        char rlname[64];
-        unsigned rlflags;
+	char rlname[64];
+	unsigned rlflags;
 	int rlfloor;
-        int rlorder;
-        };
+	int rlorder;
+};
 
 
 char floorlist[128][256];
@@ -47,22 +47,24 @@ struct march *march = NULL;
 /*
  * load the list of floors
  */
-void load_floorlist(void) {
+void load_floorlist(void)
+{
 	int a;
 	char buf[256];
 
-	for (a=0; a<128; ++a) floorlist[a][0] = 0;
+	for (a = 0; a < 128; ++a)
+		floorlist[a][0] = 0;
 
 	serv_puts("LFLR");
 	serv_gets(buf);
-	if (buf[0]!='1') {
-		strcpy(floorlist[0],"Main Floor");
+	if (buf[0] != '1') {
+		strcpy(floorlist[0], "Main Floor");
 		return;
-		}
-	while (serv_gets(buf), strcmp(buf,"000")) {
-		extract(floorlist[extract_int(buf,0)],buf,1);
-		}
 	}
+	while (serv_gets(buf), strcmp(buf, "000")) {
+		extract(floorlist[extract_int(buf, 0)], buf, 1);
+	}
+}
 
 
 /*
@@ -70,63 +72,66 @@ void load_floorlist(void) {
  */
 void remove_march(char *aaa)
 {
-	struct march *mptr,*mptr2;
+	struct march *mptr, *mptr2;
 
-	if (march==NULL) return;
+	if (march == NULL)
+		return;
 
-	if (!strcasecmp(march->march_name,aaa)) {
+	if (!strcasecmp(march->march_name, aaa)) {
 		mptr = march->next;
 		free(march);
 		march = mptr;
 		return;
-		}
-
+	}
 	mptr2 = march;
-	for (mptr=march; mptr!=NULL; mptr=mptr->next) {
-		if (!strcasecmp(mptr->march_name,aaa)) {
+	for (mptr = march; mptr != NULL; mptr = mptr->next) {
+		if (!strcasecmp(mptr->march_name, aaa)) {
 			mptr2->next = mptr->next;
 			free(mptr);
-			mptr=mptr2;
-			}
-		else {
-			mptr2=mptr;
-			}
+			mptr = mptr2;
+		} else {
+			mptr2 = mptr;
 		}
 	}
+}
 
 
 
 
 
-void room_tree_list(struct roomlisting *rp) {
+void room_tree_list(struct roomlisting *rp)
+{
 	char rmname[64];
 	int f;
 
-	if (rp == NULL) return;
+	if (rp == NULL)
+		return;
 
 	if (rp->lnext != NULL) {
 		room_tree_list(rp->lnext);
-		}
-
+	}
 	strcpy(rmname, rp->rlname);
 	f = rp->rlflags;
 
 	wprintf("<A HREF=\"/dotgoto&room=");
 	urlescputs(rmname);
 	wprintf("\">");
-	escputs1(rmname,1);
-	if ((f & QR_DIRECTORY) && (f & QR_NETWORK)) wprintf("}");
-	else if (f & QR_DIRECTORY) wprintf("]");
-	else if (f & QR_NETWORK) wprintf(")");
-	else wprintf("&gt;");
+	escputs1(rmname, 1);
+	if ((f & QR_DIRECTORY) && (f & QR_NETWORK))
+		wprintf("}");
+	else if (f & QR_DIRECTORY)
+		wprintf("]");
+	else if (f & QR_NETWORK)
+		wprintf(")");
+	else
+		wprintf("&gt;");
 	wprintf("</A><TT> </TT>\n");
 
 	if (rp->rnext != NULL) {
 		room_tree_list(rp->rnext);
-		}
-
-	free(rp);
 	}
+	free(rp);
+}
 
 
 /* 
@@ -134,15 +139,22 @@ void room_tree_list(struct roomlisting *rp) {
  */
 int rordercmp(struct roomlisting *r1, struct roomlisting *r2)
 {
-	if ((r1==NULL)&&(r2==NULL)) return(0);
-	if (r1==NULL) return(-1);
-	if (r2==NULL) return(1);
-	if (r1->rlfloor < r2->rlfloor) return(-1);
-	if (r1->rlfloor > r2->rlfloor) return(1);
-	if (r1->rlorder < r2->rlorder) return(-1);
-	if (r1->rlorder > r2->rlorder) return(1);
-	return(0);
-	}
+	if ((r1 == NULL) && (r2 == NULL))
+		return (0);
+	if (r1 == NULL)
+		return (-1);
+	if (r2 == NULL)
+		return (1);
+	if (r1->rlfloor < r2->rlfloor)
+		return (-1);
+	if (r1->rlfloor > r2->rlfloor)
+		return (1);
+	if (r1->rlorder < r2->rlorder)
+		return (-1);
+	if (r1->rlorder > r2->rlorder)
+		return (1);
+	return (0);
+}
 
 
 /*
@@ -160,7 +172,8 @@ void listrms(char *variety)
 	/* Ask the server for a room list */
 	serv_puts(variety);
 	serv_gets(buf);
-	if (buf[0]!='1') return;
+	if (buf[0] != '1')
+		return;
 	while (serv_gets(buf), strcmp(buf, "000")) {
 		rp = malloc(sizeof(struct roomlisting));
 		extract(rp->rlname, buf, 0);
@@ -173,31 +186,28 @@ void listrms(char *variety)
 		rs = rl;
 		if (rl == NULL) {
 			rl = rp;
-			}
-		else while (rp != NULL) {
-			if (rordercmp(rp, rs)<0) {
-				if (rs->lnext == NULL) {
-					rs->lnext = rp;
-					rp = NULL;
+		} else
+			while (rp != NULL) {
+				if (rordercmp(rp, rs) < 0) {
+					if (rs->lnext == NULL) {
+						rs->lnext = rp;
+						rp = NULL;
+					} else {
+						rs = rs->lnext;
 					}
-				else {
-					rs = rs->lnext;
-					}
-				}
-			else {
-				if (rs->rnext == NULL) {
-					rs->rnext = rp;
-					rp = NULL;
-					}
-				else {
-					rs = rs->rnext;
+				} else {
+					if (rs->rnext == NULL) {
+						rs->rnext = rp;
+						rp = NULL;
+					} else {
+						rs = rs->rnext;
 					}
 				}
 			}
-		}
+	}
 
 	room_tree_list(rl);
-	}
+}
 
 
 
@@ -210,70 +220,72 @@ void listrms(char *variety)
 /*
  * list all rooms by floor
  */
-void list_all_rooms_by_floor(void) {
+void list_all_rooms_by_floor(void)
+{
 	int a;
 	char buf[256];
 
 	load_floorlist();
 
-        printf("HTTP/1.0 200 OK\n");
-        output_headers(1, "bottom");
+	printf("HTTP/1.0 200 OK\n");
+	output_headers(1, "bottom");
 
 	wprintf("<TABLE width=100% border><TR><TH>Floor</TH>");
 	wprintf("<TH>Rooms with new messages</TH>");
 	wprintf("<TH>Rooms with no new messages</TH></TR>\n");
 
-	for (a=0; a<128; ++a) if (floorlist[a][0]!=0) {
+	for (a = 0; a < 128; ++a)
+		if (floorlist[a][0] != 0) {
 
-		/* Floor name column */
-		wprintf("<TR><TD>");
-	
-		serv_printf("OIMG _floorpic_|%d", a);
-		serv_gets(buf);
-		if (buf[0] == '2') {
-			serv_puts("CLOS");
+			/* Floor name column */
+			wprintf("<TR><TD>");
+
+			serv_printf("OIMG _floorpic_|%d", a);
 			serv_gets(buf);
-			wprintf("<IMG SRC=\"/image&name=_floorpic_&parm=%d\" ALT=\"%s\">",
-				a, &floorlist[a][0]);
+			if (buf[0] == '2') {
+				serv_puts("CLOS");
+				serv_gets(buf);
+				wprintf("<IMG SRC=\"/image&name=_floorpic_&parm=%d\" ALT=\"%s\">",
+					a, &floorlist[a][0]);
+			} else {
+				escputs(&floorlist[a][0]);
 			}
-		else {
-			escputs(&floorlist[a][0]);
-			}
 
-		wprintf("</TD>");
+			wprintf("</TD>");
 
-		/* Rooms with new messages column */
-		wprintf("<TD>");
-		sprintf(buf,"LKRN %d",a);
-		listrms(buf);
-		wprintf("</TD><TD>\n");
+			/* Rooms with new messages column */
+			wprintf("<TD>");
+			sprintf(buf, "LKRN %d", a);
+			listrms(buf);
+			wprintf("</TD><TD>\n");
 
-		/* Rooms with old messages column */
-		sprintf(buf,"LKRO %d",a);
-		listrms(buf);
-		wprintf("</TD></TR>\n");
+			/* Rooms with old messages column */
+			sprintf(buf, "LKRO %d", a);
+			listrms(buf);
+			wprintf("</TD></TR>\n");
 		}
 	wprintf("</TABLE>\n");
 	wDumpContent(1);
-	}
+}
 
 
 /*
  * list all forgotten rooms
  */
-void zapped_list(void) {
-        printf("HTTP/1.0 200 OK\n");
-        output_headers(1, "bottom");
-        wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
-        wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-        wprintf("<B>Zapped (forgotten) rooms</B>\n");
-        wprintf("</FONT></TD></TR></TABLE><BR>\n");
+void zapped_list(void)
+{
+	printf("HTTP/1.0 200 OK\n");
+	output_headers(1, "bottom");
+	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+	wprintf("<B>Zapped (forgotten) rooms</B>\n");
+	wprintf("</FONT></TD></TR></TABLE><BR>\n");
 	listrms("LZRM -1");
 	wprintf("<BR><BR>\n");
 	wprintf("Click on any room to un-zap it and goto that room.\n");
 	wDumpContent(1);
-	}
-	
+}
+
 
 /*
  * read this room's info file (set v to 1 for verbose mode)
@@ -284,11 +296,13 @@ void readinfo(int v)
 
 	serv_puts("RINF");
 	serv_gets(buf);
-	if (buf[0]=='1') fmout(NULL);
+	if (buf[0] == '1')
+		fmout(NULL);
 	else {
-		if (v==1) wprintf("<EM>%s</EM><BR>\n",&buf[4]);
-		}
+		if (v == 1)
+			wprintf("<EM>%s</EM><BR>\n", &buf[4]);
 	}
+}
 
 
 /*
@@ -307,62 +321,61 @@ void gotoroom(char *gname, int display_name)
 	if (display_name) {
 		printf("HTTP/1.0 200 OK\n");
 		output_headers(0, "top");
-        	wprintf("<HTML><HEAD></HEAD>\n<BODY ");
-	
+		wprintf("<HTML><HEAD></HEAD>\n<BODY ");
+
 		/* automatically fire up a read-new-msgs in the bottom frame */
 		if (!noframes)
 			wprintf("onload=location=\"/readnew\" ");
 
-        	wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
-		}
-
+		wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+	}
 	if (display_name != 2) {
 		/* store ungoto information */
 		strcpy(ugname, wc_roomname);
 		uglsn = ls;
-		}
-
+	}
 	/* move to the new room */
 	serv_printf("GOTO %s", gname);
 	serv_gets(buf);
-	if (buf[0]!='2') {
+	if (buf[0] != '2') {
 		serv_puts("GOTO _BASEROOM_");
 		serv_gets(buf);
-		}
-	if (buf[0]!='2') {
+	}
+	if (buf[0] != '2') {
 		if (display_name) {
-			wprintf("<EM>%s</EM><BR>\n",&buf[4]);
+			wprintf("<EM>%s</EM><BR>\n", &buf[4]);
 			wDumpContent(1);
-			}
-		return;
 		}
-
-	extract(wc_roomname,&buf[4],0);
-	room_flags = extract_int(&buf[4],4);
+		return;
+	}
+	extract(wc_roomname, &buf[4], 0);
+	room_flags = extract_int(&buf[4], 4);
 	/* highest_msg_read = extract_int(&buf[4],6);
-	maxmsgnum = extract_int(&buf[4],5);
-	is_mail = (char) extract_int(&buf[4],7); */
+	   maxmsgnum = extract_int(&buf[4],5);
+	   is_mail = (char) extract_int(&buf[4],7); */
 	ls = extract_long(&buf[4], 6);
 
-	if (is_aide) is_room_aide = is_aide;
-	else is_room_aide = (char) extract_int(&buf[4],8);
+	if (is_aide)
+		is_room_aide = is_aide;
+	else
+		is_room_aide = (char) extract_int(&buf[4], 8);
 
 	remove_march(wc_roomname);
-	if (!strcasecmp(gname,"_BASEROOM_")) remove_march(gname);
+	if (!strcasecmp(gname, "_BASEROOM_"))
+		remove_march(gname);
 
 	/* Display the room banner */
 	if (display_name) {
 		wprintf("<CENTER><TABLE border=0><TR>");
 
-		if ( (strlen(ugname)>0) && (strcasecmp(ugname,wc_roomname)) ) {
+		if ((strlen(ugname) > 0) && (strcasecmp(ugname, wc_roomname))) {
 			wprintf("<TD VALIGN=TOP><A HREF=\"/ungoto\">");
 			wprintf("<IMG SRC=\"/static/back.gif\" BORDER=0></A></TD>");
-			}
-
-		wprintf("<TD VALIGN=TOP><FONT FACE=\"Arial,Helvetica,sans-serif\"><H1>%s</H1>",wc_roomname);
+		}
+		wprintf("<TD VALIGN=TOP><FONT FACE=\"Arial,Helvetica,sans-serif\"><H1>%s</H1>", wc_roomname);
 		wprintf("%d new of %d messages</FONT></TD>\n",
-			extract_int(&buf[4],1),
-			extract_int(&buf[4],2));
+			extract_int(&buf[4], 1),
+			extract_int(&buf[4], 2));
 
 		/* Display room graphic.  The server doesn't actually
 		 * need the room name, but we supply it in order to
@@ -371,15 +384,14 @@ void gotoroom(char *gname, int display_name)
 		 */
 		serv_puts("OIMG _roompic_");
 		serv_gets(buf);
-		if (buf[0]=='2') {
+		if (buf[0] == '2') {
 			wprintf("<TD><FONT FACE=\"Arial,Helvetica,sans-serif\">");
 			wprintf("<IMG SRC=\"/image&name=_roompic_&room=");
 			escputs(wc_roomname);
 			wprintf("\"></FONT></TD>");
 			serv_puts("CLOS");
 			serv_gets(buf);
-			}
-
+		}
 		wprintf("<TD VALIGN=TOP><FONT FACE=\"Arial,Helvetica,sans-serif\">");
 		readinfo(0);
 		wprintf("</FONT></TD>");
@@ -389,17 +401,17 @@ void gotoroom(char *gname, int display_name)
 		wprintf("</TR></TABLE></CENTER>\n");
 
 		wDumpContent(1);
-		}
-
-	strcpy(wc_roomname, wc_roomname);
 	}
+	strcpy(wc_roomname, wc_roomname);
+}
 
 
 /*
  * Locate the room on the march list which we most want to go to.  Each room
  * is measured given a "weight" of preference based on various factors.
  */
-char *pop_march(int desired_floor) {
+char *pop_march(int desired_floor)
+{
 	static char TheRoom[64];
 	int TheFloor = 0;
 	int TheOrder = 32767;
@@ -408,7 +420,8 @@ char *pop_march(int desired_floor) {
 	struct march *mptr = NULL;
 
 	strcpy(TheRoom, "_BASEROOM_");
-	if (march == NULL) return(TheRoom);
+	if (march == NULL)
+		return (TheRoom);
 
 	for (mptr = march; mptr != NULL; mptr = mptr->next) {
 		weight = 0;
@@ -417,18 +430,18 @@ char *pop_march(int desired_floor) {
 		if (mptr->march_floor == desired_floor)
 			weight = weight + 5000;
 
-			weight = weight + ((128-(mptr->march_floor))*128);
-			weight = weight + (128-(mptr->march_order));
+		weight = weight + ((128 - (mptr->march_floor)) * 128);
+		weight = weight + (128 - (mptr->march_order));
 
 		if (weight > TheWeight) {
 			TheWeight = weight;
 			strcpy(TheRoom, mptr->march_name);
 			TheFloor = mptr->march_floor;
 			TheOrder = mptr->march_order;
-			}
 		}
-	return(TheRoom);
 	}
+	return (TheRoom);
+}
 
 
 
@@ -439,115 +452,113 @@ char *pop_march(int desired_floor) {
  * We start the search in the current room rather than the beginning to prevent
  * two or more concurrent users from dragging each other back to the same room.
  */
-void gotonext(void) {
+void gotonext(void)
+{
 	char buf[256];
-	struct march *mptr,*mptr2;
+	struct march *mptr, *mptr2;
 	char next_room[32];
 
 	/* First check to see if the march-mode list is already allocated.
 	 * If it is, pop the first room off the list and go there.
 	 */
 
-	if (march==NULL) {
+	if (march == NULL) {
 		serv_puts("LKRN");
 		serv_gets(buf);
-		if (buf[0]=='1')
-		    while (serv_gets(buf), strcmp(buf,"000")) {
-			mptr = (struct march *) malloc(sizeof(struct march));
-			mptr->next = NULL;
-			extract(mptr->march_name,buf,0);
-			mptr->march_floor = extract_int(buf, 2);
-			mptr->march_order = extract_int(buf, 3);
-			if (march==NULL) {
-				march = mptr;
-				}
-			else {
-				mptr2 = march;
-				while (mptr2->next != NULL)
-					mptr2 = mptr2->next;
-				mptr2->next = mptr;
+		if (buf[0] == '1')
+			while (serv_gets(buf), strcmp(buf, "000")) {
+				mptr = (struct march *) malloc(sizeof(struct march));
+				mptr->next = NULL;
+				extract(mptr->march_name, buf, 0);
+				mptr->march_floor = extract_int(buf, 2);
+				mptr->march_order = extract_int(buf, 3);
+				if (march == NULL) {
+					march = mptr;
+				} else {
+					mptr2 = march;
+					while (mptr2->next != NULL)
+						mptr2 = mptr2->next;
+					mptr2->next = mptr;
 				}
 			}
-
 /* add _BASEROOM_ to the end of the march list, so the user will end up
  * in the system base room (usually the Lobby>) at the end of the loop
  */
 		mptr = (struct march *) malloc(sizeof(struct march));
 		mptr->next = NULL;
-		strcpy(mptr->march_name,"_BASEROOM_");
-		if (march==NULL) {
+		strcpy(mptr->march_name, "_BASEROOM_");
+		if (march == NULL) {
 			march = mptr;
-			}
-		else {
+		} else {
 			mptr2 = march;
 			while (mptr2->next != NULL)
 				mptr2 = mptr2->next;
 			mptr2->next = mptr;
-			}
+		}
 /*
  * ...and remove the room we're currently in, so a <G>oto doesn't make us
  * walk around in circles
  */
 		remove_march(wc_roomname);
-		}
-
-
-	if (march!=NULL) {
+	}
+	if (march != NULL) {
 		strcpy(next_room, pop_march(-1));
-		}
-	else {
-		strcpy(next_room,"_BASEROOM_");
-		}
-	gotoroom(next_room,1);
-   }
+	} else {
+		strcpy(next_room, "_BASEROOM_");
+	}
+	gotoroom(next_room, 1);
+}
 
 
 
 /*
  * mark all messages in current room as having been read
  */
-void slrp_highest(void) {
+void slrp_highest(void)
+{
 	char buf[256];
 
 	/* set pointer */
 	serv_puts("SLRP HIGHEST");
 	serv_gets(buf);
-	if (buf[0]!='2') {
-		wprintf("<EM>%s</EM><BR>\n",&buf[4]);
+	if (buf[0] != '2') {
+		wprintf("<EM>%s</EM><BR>\n", &buf[4]);
 		return;
-		}
 	}
+}
 
 
 /*
  * un-goto the previous room
  */
-void ungoto(void) { 
+void ungoto(void)
+{
 	char buf[256];
-	
+
 	if (!strcmp(ugname, "")) {
 		gotoroom(wc_roomname, 1);
 		return;
-		}
+	}
 	serv_printf("GOTO %s", ugname);
 	serv_gets(buf);
-	if (buf[0]!='2') {
+	if (buf[0] != '2') {
 		gotoroom(wc_roomname, 1);
 		return;
-		}
-	if (uglsn >= 0L) {
-		serv_printf("SLRP %ld",uglsn);
-		serv_gets(buf);
-		}
-	strcpy(buf,ugname);
-	strcpy(ugname, "");
-	gotoroom(buf,1);
 	}
+	if (uglsn >= 0L) {
+		serv_printf("SLRP %ld", uglsn);
+		serv_gets(buf);
+	}
+	strcpy(buf, ugname);
+	strcpy(ugname, "");
+	gotoroom(buf, 1);
+}
 
 /*
  * display the form for editing a room
  */
-void display_editroom(void) {
+void display_editroom(void)
+{
 	char buf[256];
 	char er_name[20];
 	char er_password[10];
@@ -560,64 +571,68 @@ void display_editroom(void) {
 	serv_puts("GETR");
 	serv_gets(buf);
 
-	if (buf[0]!='2') {
+	if (buf[0] != '2') {
 		display_error(&buf[4]);
 		return;
-		}
+	}
+	extract(er_name, &buf[4], 0);
+	extract(er_password, &buf[4], 1);
+	extract(er_dirname, &buf[4], 2);
+	er_flags = extract_int(&buf[4], 3);
+	er_floor = extract_int(&buf[4], 4);
 
-	extract(er_name,&buf[4],0);
-	extract(er_password,&buf[4],1);
-	extract(er_dirname,&buf[4],2);
-	er_flags=extract_int(&buf[4],3);
-	er_floor=extract_int(&buf[4],4);
 
+	printf("HTTP/1.0 200 OK\n");
+	output_headers(1, "bottom");
 
-        printf("HTTP/1.0 200 OK\n");
-        output_headers(1, "bottom");
-
-        wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
-        wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-        wprintf("<B>Edit this room</B>\n");
-        wprintf("</FONT></TD></TR></TABLE>\n");
+	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+	wprintf("<B>Edit this room</B>\n");
+	wprintf("</FONT></TD></TR></TABLE>\n");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/editroom\">\n");
 
-	wprintf("<UL><LI>Name of room: ");	
-	wprintf("<INPUT TYPE=\"text\" NAME=\"er_name\" VALUE=\"%s\" MAXLENGTH=\"19\">\n",er_name);
+	wprintf("<UL><LI>Name of room: ");
+	wprintf("<INPUT TYPE=\"text\" NAME=\"er_name\" VALUE=\"%s\" MAXLENGTH=\"19\">\n", er_name);
 
 	wprintf("<LI>Resides on floor: ");
 	load_floorlist();
 	wprintf("<SELECT NAME=\"er_floor\" SIZE=\"1\">\n");
-	for (i=0; i<128; ++i) if (strlen(floorlist[i])>0) {
-		wprintf("<OPTION ");
-		if (i == er_floor) wprintf("SELECTED ");
-		wprintf("VALUE=\"%d\">", i);
-		escputs(floorlist[i]);
-		wprintf("</OPTION>\n");
+	for (i = 0; i < 128; ++i)
+		if (strlen(floorlist[i]) > 0) {
+			wprintf("<OPTION ");
+			if (i == er_floor)
+				wprintf("SELECTED ");
+			wprintf("VALUE=\"%d\">", i);
+			escputs(floorlist[i]);
+			wprintf("</OPTION>\n");
 		}
 	wprintf("</SELECT>\n");
 
 	wprintf("<LI>Type of room:<UL>\n");
 
 	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"public\" ");
-	if ((er_flags & QR_PRIVATE) == 0) wprintf("CHECKED ");
+	if ((er_flags & QR_PRIVATE) == 0)
+		wprintf("CHECKED ");
 	wprintf("> Public room\n");
 
 	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"guessname\" ");
-	if ((er_flags & QR_PRIVATE)&&
-	   (er_flags & QR_GUESSNAME)) wprintf("CHECKED ");
+	if ((er_flags & QR_PRIVATE) &&
+	    (er_flags & QR_GUESSNAME))
+		wprintf("CHECKED ");
 	wprintf("> Private - guess name\n");
 
 	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"passworded\" ");
-	if ((er_flags & QR_PRIVATE)&&
-	   (er_flags & QR_PASSWORDED)) wprintf("CHECKED ");
+	if ((er_flags & QR_PRIVATE) &&
+	    (er_flags & QR_PASSWORDED))
+		wprintf("CHECKED ");
 	wprintf("> Private - require password:\n");
-	wprintf("<INPUT TYPE=\"text\" NAME=\"er_password\" VALUE=\"%s\" MAXLENGTH=\"9\">\n",er_password);
+	wprintf("<INPUT TYPE=\"text\" NAME=\"er_password\" VALUE=\"%s\" MAXLENGTH=\"9\">\n", er_password);
 
 	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"invonly\" ");
-	if ( (er_flags & QR_PRIVATE)
-	   && ((er_flags & QR_GUESSNAME) == 0)
-	   && ((er_flags & QR_PASSWORDED) == 0) )
+	if ((er_flags & QR_PRIVATE)
+	    && ((er_flags & QR_GUESSNAME) == 0)
+	    && ((er_flags & QR_PASSWORDED) == 0))
 		wprintf("CHECKED ");
 	wprintf("> Private - invitation only\n");
 
@@ -627,54 +642,64 @@ void display_editroom(void) {
 	wprintf("</UL>\n");
 
 	wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"prefonly\" VALUE=\"yes\" ");
-	if (er_flags & QR_PREFONLY) wprintf("CHECKED ");
+	if (er_flags & QR_PREFONLY)
+		wprintf("CHECKED ");
 	wprintf("> Preferred users only\n");
 
 	wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"readonly\" VALUE=\"yes\" ");
-	if (er_flags & QR_READONLY) wprintf("CHECKED ");
+	if (er_flags & QR_READONLY)
+		wprintf("CHECKED ");
 	wprintf("> Read-only room\n");
 
 /* directory stuff */
 	wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"directory\" VALUE=\"yes\" ");
-	if (er_flags & QR_DIRECTORY) wprintf("CHECKED ");
+	if (er_flags & QR_DIRECTORY)
+		wprintf("CHECKED ");
 	wprintf("> File directory room\n");
 
 	wprintf("<UL><LI>Directory name: ");
-	wprintf("<INPUT TYPE=\"text\" NAME=\"er_dirname\" VALUE=\"%s\" MAXLENGTH=\"14\">\n",er_dirname);
+	wprintf("<INPUT TYPE=\"text\" NAME=\"er_dirname\" VALUE=\"%s\" MAXLENGTH=\"14\">\n", er_dirname);
 
 	wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"ulallowed\" VALUE=\"yes\" ");
-	if (er_flags & QR_UPLOAD) wprintf("CHECKED ");
+	if (er_flags & QR_UPLOAD)
+		wprintf("CHECKED ");
 	wprintf("> Uploading allowed\n");
 
 	wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"dlallowed\" VALUE=\"yes\" ");
-	if (er_flags & QR_DOWNLOAD) wprintf("CHECKED ");
+	if (er_flags & QR_DOWNLOAD)
+		wprintf("CHECKED ");
 	wprintf("> Downloading allowed\n");
 
 	wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"visdir\" VALUE=\"yes\" ");
-	if (er_flags & QR_VISDIR) wprintf("CHECKED ");
+	if (er_flags & QR_VISDIR)
+		wprintf("CHECKED ");
 	wprintf("> Visible directory</UL>\n");
 
 /* end of directory stuff */
-	
+
 	wprintf("<LI><INPUT TYPE=\"checkbox\" NAME=\"network\" VALUE=\"yes\" ");
-	if (er_flags & QR_NETWORK) wprintf("CHECKED ");
+	if (er_flags & QR_NETWORK)
+		wprintf("CHECKED ");
 	wprintf("> Network shared room\n");
 
 /* start of anon options */
 
 	wprintf("<LI>Anonymous messages<UL>\n");
-	
+
 	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"anon\" VALUE=\"no\" ");
-	if ( ((er_flags & QR_ANONONLY)==0)
-	   && ((er_flags & QR_ANONOPT)==0)) wprintf("CHECKED ");
+	if (((er_flags & QR_ANONONLY) == 0)
+	    && ((er_flags & QR_ANONOPT) == 0))
+		wprintf("CHECKED ");
 	wprintf("> No anonymous messages\n");
 
 	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"anon\" VALUE=\"anononly\" ");
-	if (er_flags & QR_ANONONLY) wprintf("CHECKED ");
+	if (er_flags & QR_ANONONLY)
+		wprintf("CHECKED ");
 	wprintf("> All messages are anonymous\n");
 
 	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"anon\" VALUE=\"anon2\" ");
-	if (er_flags & QR_ANONOPT) wprintf("CHECKED ");
+	if (er_flags & QR_ANONOPT)
+		wprintf("CHECKED ");
 	wprintf("> Prompt user when entering messages</UL>\n");
 
 /* end of anon options */
@@ -682,27 +707,27 @@ void display_editroom(void) {
 	wprintf("<LI>Room aide: \n");
 	serv_puts("GETA");
 	serv_gets(buf);
-	if (buf[0]!='2') {
-		wprintf("<EM>%s</EM>\n",&buf[4]);
-		}
-	else {
-		extract(er_roomaide,&buf[4],0);
-		wprintf("<INPUT TYPE=\"text\" NAME=\"er_roomaide\" VALUE=\"%s\" MAXLENGTH=\"25\">\n",er_roomaide);
-		}
-		
+	if (buf[0] != '2') {
+		wprintf("<EM>%s</EM>\n", &buf[4]);
+	} else {
+		extract(er_roomaide, &buf[4], 0);
+		wprintf("<INPUT TYPE=\"text\" NAME=\"er_roomaide\" VALUE=\"%s\" MAXLENGTH=\"25\">\n", er_roomaide);
+	}
+
 	wprintf("</UL><CENTER>\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 	wprintf("</CENTER>\n");
 
 	wDumpContent(1);
-	}
+}
 
 
 /*
  * save new parameters for a room
  */
-void editroom(void) {
+void editroom(void)
+{
 	char buf[256];
 	char er_name[20];
 	char er_password[10];
@@ -713,168 +738,164 @@ void editroom(void) {
 	int bump;
 
 
-	if (strcmp(bstr("sc"),"OK")) {
+	if (strcmp(bstr("sc"), "OK")) {
 		display_error("Cancelled.  Changes were not saved.");
 		return;
-		}
-	
+	}
 	serv_puts("GETR");
 	serv_gets(buf);
 
-	if (buf[0]!='2') {
+	if (buf[0] != '2') {
 		display_error(&buf[4]);
 		return;
-		}
+	}
+	extract(er_name, &buf[4], 0);
+	extract(er_password, &buf[4], 1);
+	extract(er_dirname, &buf[4], 2);
+	er_flags = extract_int(&buf[4], 3);
 
-	extract(er_name,&buf[4],0);
-	extract(er_password,&buf[4],1);
-	extract(er_dirname,&buf[4],2);
-	er_flags=extract_int(&buf[4],3);
-
-	strcpy(er_roomaide,bstr("er_roomaide"));
-	if (strlen(er_roomaide)==0) {
+	strcpy(er_roomaide, bstr("er_roomaide"));
+	if (strlen(er_roomaide) == 0) {
 		serv_puts("GETA");
 		serv_gets(buf);
-		if (buf[0]!='2') {
-			strcpy(er_roomaide,"");
-			}
-		else {
-			extract(er_roomaide,&buf[4],0);
-			}
+		if (buf[0] != '2') {
+			strcpy(er_roomaide, "");
+		} else {
+			extract(er_roomaide, &buf[4], 0);
 		}
+	}
+	strcpy(buf, bstr("er_name"));
+	buf[20] = 0;
+	if (strlen(buf) > 0)
+		strcpy(er_name, buf);
 
-	strcpy(buf,bstr("er_name"));		buf[20] = 0;
-	if (strlen(buf)>0) strcpy(er_name,buf);
+	strcpy(buf, bstr("er_password"));
+	buf[10] = 0;
+	if (strlen(buf) > 0)
+		strcpy(er_password, buf);
 
-	strcpy(buf,bstr("er_password"));	buf[10] = 0;
-	if (strlen(buf)>0) strcpy(er_password,buf);
+	strcpy(buf, bstr("er_dirname"));
+	buf[15] = 0;
+	if (strlen(buf) > 0)
+		strcpy(er_dirname, buf);
 
-	strcpy(buf,bstr("er_dirname"));		buf[15] = 0;
-	if (strlen(buf)>0) strcpy(er_dirname,buf);
+	strcpy(buf, bstr("type"));
+	er_flags &= !(QR_PRIVATE | QR_PASSWORDED | QR_GUESSNAME);
 
-	strcpy(buf,bstr("type"));
-	er_flags &= !(QR_PRIVATE|QR_PASSWORDED|QR_GUESSNAME);
-
-	if (!strcmp(buf,"invonly")) {
+	if (!strcmp(buf, "invonly")) {
 		er_flags |= (QR_PRIVATE);
-		}
-	if (!strcmp(buf,"guessname")) {
+	}
+	if (!strcmp(buf, "guessname")) {
 		er_flags |= (QR_PRIVATE | QR_GUESSNAME);
-		}
-	if (!strcmp(buf,"passworded")) {
+	}
+	if (!strcmp(buf, "passworded")) {
 		er_flags |= (QR_PRIVATE | QR_PASSWORDED);
-		}
-
-	if (!strcmp(bstr("prefonly"),"yes")) {
+	}
+	if (!strcmp(bstr("prefonly"), "yes")) {
 		er_flags |= QR_PREFONLY;
-		}
-	else {
+	} else {
 		er_flags &= ~QR_PREFONLY;
-		}
+	}
 
-	if (!strcmp(bstr("readonly"),"yes")) {
+	if (!strcmp(bstr("readonly"), "yes")) {
 		er_flags |= QR_READONLY;
-		}
-	else {
+	} else {
 		er_flags &= ~QR_READONLY;
-		}
+	}
 
-	if (!strcmp(bstr("network"),"yes")) {
+	if (!strcmp(bstr("network"), "yes")) {
 		er_flags |= QR_NETWORK;
-		}
-	else {
+	} else {
 		er_flags &= ~QR_NETWORK;
-		}
+	}
 
-	if (!strcmp(bstr("directory"),"yes")) {
+	if (!strcmp(bstr("directory"), "yes")) {
 		er_flags |= QR_DIRECTORY;
-		}
-	else {
+	} else {
 		er_flags &= ~QR_DIRECTORY;
-		}
+	}
 
-	if (!strcmp(bstr("ulallowed"),"yes")) {
+	if (!strcmp(bstr("ulallowed"), "yes")) {
 		er_flags |= QR_UPLOAD;
-		}
-	else {
+	} else {
 		er_flags &= ~QR_UPLOAD;
-		}
+	}
 
-	if (!strcmp(bstr("dlallowed"),"yes")) {
+	if (!strcmp(bstr("dlallowed"), "yes")) {
 		er_flags |= QR_DOWNLOAD;
-		}
-	else {
+	} else {
 		er_flags &= ~QR_DOWNLOAD;
-		}
+	}
 
-	if (!strcmp(bstr("visdir"),"yes")) {
+	if (!strcmp(bstr("visdir"), "yes")) {
 		er_flags |= QR_VISDIR;
-		}
-	else {
+	} else {
 		er_flags &= ~QR_VISDIR;
-		}
+	}
 
-	strcpy(buf,bstr("anon"));
+	strcpy(buf, bstr("anon"));
 
 	er_flags &= ~(QR_ANONONLY | QR_ANONOPT);
-	if (!strcmp(buf,"anononly")) er_flags |= QR_ANONONLY;
-	if (!strcmp(buf,"anon2")) er_flags |= QR_ANONOPT;
+	if (!strcmp(buf, "anononly"))
+		er_flags |= QR_ANONONLY;
+	if (!strcmp(buf, "anon2"))
+		er_flags |= QR_ANONOPT;
 
 	bump = 0;
-	if (!strcmp(bstr("bump"),"yes")) bump = 1;
+	if (!strcmp(bstr("bump"), "yes"))
+		bump = 1;
 
 	er_floor = atoi(bstr("er_floor"));
 
-	sprintf(buf,"SETR %s|%s|%s|%u|%d|%d",
-		er_name,er_password,er_dirname,er_flags,bump,er_floor);
+	sprintf(buf, "SETR %s|%s|%s|%u|%d|%d",
+	     er_name, er_password, er_dirname, er_flags, bump, er_floor);
 	serv_puts(buf);
 	serv_gets(buf);
-	if (buf[0]!='2') {
+	if (buf[0] != '2') {
 		display_error(&buf[4]);
 		return;
-		}
+	}
 	gotoroom(er_name, 0);
 
-	if (strlen(er_roomaide)>0) {
-		sprintf(buf,"SETA %s",er_roomaide);
+	if (strlen(er_roomaide) > 0) {
+		sprintf(buf, "SETA %s", er_roomaide);
 		serv_puts(buf);
 		serv_gets(buf);
-		if (buf[0]!='2') {
+		if (buf[0] != '2') {
 			display_error(&buf[4]);
 			return;
-			}
 		}
-
-	gotoroom(er_name, 1);
 	}
+	gotoroom(er_name, 1);
+}
 
 
 
 /*
  * display the form for entering a new room
  */
-void display_entroom(void) {
+void display_entroom(void)
+{
 	char buf[256];
 
 	serv_puts("CRE8 0");
 	serv_gets(buf);
-	
-	if (buf[0]!='2') {
+
+	if (buf[0] != '2') {
 		display_error(&buf[4]);
 		return;
-		}
+	}
+	printf("HTTP/1.0 200 OK\n");
+	output_headers(1, "bottom");
 
-        printf("HTTP/1.0 200 OK\n");
-        output_headers(1, "bottom");
-
-        wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
-        wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-        wprintf("<B>Enter (create) a new room</B>\n");
-        wprintf("</FONT></TD></TR></TABLE>\n");
+	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+	wprintf("<B>Enter (create) a new room</B>\n");
+	wprintf("</FONT></TD></TR></TABLE>\n");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/entroom\">\n");
 
-	wprintf("<UL><LI>Name of room: ");	
+	wprintf("<UL><LI>Name of room: ");
 	wprintf("<INPUT TYPE=\"text\" NAME=\"er_name\" MAXLENGTH=\"19\">\n");
 
 	wprintf("<LI>Type of room:<UL>\n");
@@ -898,43 +919,46 @@ void display_entroom(void) {
 	wprintf("</CENTER>\n");
 	wprintf("</FORM>\n");
 	wDumpContent(1);
-	}
+}
 
 
 
 /*
  * enter a new room
  */
-void entroom(void) {
+void entroom(void)
+{
 	char buf[256];
 	char er_name[20];
 	char er_type[20];
 	char er_password[10];
 	int er_num_type;
 
-	if (strcmp(bstr("sc"),"OK")) {
+	if (strcmp(bstr("sc"), "OK")) {
 		display_error("Cancelled.  No new room was created.");
 		return;
-		}
-	
-	strcpy(er_name,bstr("er_name"));
-	strcpy(er_type,bstr("type"));
-	strcpy(er_password,bstr("er_password"));
+	}
+	strcpy(er_name, bstr("er_name"));
+	strcpy(er_type, bstr("type"));
+	strcpy(er_password, bstr("er_password"));
 
 	er_num_type = 0;
-	if (!strcmp(er_type,"guessname")) er_num_type = 1;
-	if (!strcmp(er_type,"passworded")) er_num_type = 2;
-	if (!strcmp(er_type,"invonly")) er_num_type = 3;
+	if (!strcmp(er_type, "guessname"))
+		er_num_type = 1;
+	if (!strcmp(er_type, "passworded"))
+		er_num_type = 2;
+	if (!strcmp(er_type, "invonly"))
+		er_num_type = 3;
 
-	sprintf(buf,"CRE8 1|%s|%d|%s",er_name,er_num_type,er_password);
+	sprintf(buf, "CRE8 1|%s|%d|%s", er_name, er_num_type, er_password);
 	serv_puts(buf);
 	serv_gets(buf);
-	if (buf[0]!='2') {
+	if (buf[0] != '2') {
 		display_error(&buf[4]);
 		return;
-		}
-	gotoroom(er_name, 1);
 	}
+	gotoroom(er_name, 1);
+}
 
 
 /*
@@ -943,13 +967,13 @@ void entroom(void) {
 void display_private(char *rname, int req_pass)
 {
 
-        printf("HTTP/1.0 200 OK\n");
-        output_headers(1, "bottom");
+	printf("HTTP/1.0 200 OK\n");
+	output_headers(1, "bottom");
 
-        wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
-        wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-        wprintf("<B>Goto a private room</B>\n");
-        wprintf("</FONT></TD></TR></TABLE>\n");
+	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+	wprintf("<B>Goto a private room</B>\n");
+	wprintf("</FONT></TD></TR></TABLE>\n");
 
 	wprintf("<CENTER>\n");
 	wprintf("If you know the name of a hidden (guess-name) or\n");
@@ -958,76 +982,74 @@ void display_private(char *rname, int req_pass)
 	wprintf("room, it will appear in your regular room listings\n");
 	wprintf("so you don't have to keep returning here.\n");
 	wprintf("<BR><BR>");
-	
+
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/goto_private\">\n");
 
 	wprintf("<TABLE border><TR><TD>");
 	wprintf("Enter room name:</TD><TD>");
-	wprintf("<INPUT TYPE=\"text\" NAME=\"gr_name\" VALUE=\"%s\" MAXLENGTH=\"19\">\n",rname);
+	wprintf("<INPUT TYPE=\"text\" NAME=\"gr_name\" VALUE=\"%s\" MAXLENGTH=\"19\">\n", rname);
 
 	if (req_pass) {
 		wprintf("</TD></TR><TR><TD>");
 		wprintf("Enter room password:</TD><TD>");
 		wprintf("<INPUT TYPE=\"password\" NAME=\"gr_pass\" MAXLENGTH=\"9\">\n");
-		}
-
+	}
 	wprintf("</TD></TR></TABLE>\n");
-	
+
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 	wprintf("</FORM>\n");
 	wDumpContent(1);
-	}
+}
 
 /* 
  * goto a private room
  */
-void goto_private(void) {
+void goto_private(void)
+{
 	char hold_rm[32];
 	char buf[256];
-	
-	if (strcasecmp(bstr("sc"),"OK")) {
+
+	if (strcasecmp(bstr("sc"), "OK")) {
 		display_main_menu();
 		return;
-		}
-
-	strcpy(hold_rm,wc_roomname);
-	strcpy(buf,"GOTO ");
-	strcat(buf,bstr("gr_name"));
-	strcat(buf,"|");
-	strcat(buf,bstr("gr_pass"));
+	}
+	strcpy(hold_rm, wc_roomname);
+	strcpy(buf, "GOTO ");
+	strcat(buf, bstr("gr_name"));
+	strcat(buf, "|");
+	strcat(buf, bstr("gr_pass"));
 	serv_puts(buf);
 	serv_gets(buf);
 
-	if (buf[0]=='2') {
-		gotoroom(bstr("gr_name"),1);
+	if (buf[0] == '2') {
+		gotoroom(bstr("gr_name"), 1);
 		return;
-		}
-
-	if (!strncmp(buf,"540",3)) {
-		display_private(bstr("gr_name"),1);
+	}
+	if (!strncmp(buf, "540", 3)) {
+		display_private(bstr("gr_name"), 1);
 		return;
-		}
-
-        printf("HTTP/1.0 200 OK\n");
-        output_headers(1, "bottom");
-	wprintf("%s\n",&buf[4]);
+	}
+	printf("HTTP/1.0 200 OK\n");
+	output_headers(1, "bottom");
+	wprintf("%s\n", &buf[4]);
 	wDumpContent(1);
 	return;
-	}
+}
 
 
 /*
  * display the screen to zap a room
  */
-void display_zap(void) {
-        printf("HTTP/1.0 200 OK\n");
-        output_headers(1, "bottom");
-	
-        wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
-        wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-        wprintf("<B>Zap (forget) the current room</B>\n");
-        wprintf("</FONT></TD></TR></TABLE>\n");
+void display_zap(void)
+{
+	printf("HTTP/1.0 200 OK\n");
+	output_headers(1, "bottom");
+
+	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+	wprintf("<B>Zap (forget) the current room</B>\n");
+	wprintf("</FONT></TD></TR></TABLE>\n");
 
 	wprintf("If you select this option, <em>%s</em> will ", wc_roomname);
 	wprintf("disappear from your room list.  Is this what you wish ");
@@ -1038,36 +1060,34 @@ void display_zap(void) {
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 	wprintf("</FORM>\n");
 	wDumpContent(1);
-	}
+}
 
 
 /* 
  * zap a room
  */
-void zap(void) {
+void zap(void)
+{
 	char buf[256];
 
-	if (strcmp(bstr("sc"),"OK")) {
+	if (strcmp(bstr("sc"), "OK")) {
 		display_main_menu();
 		return;
-		}
-
+	}
 	serv_printf("GOTO %s", wc_roomname);
 	serv_gets(buf);
 	if (buf[0] != '2') {
 		display_error(&buf[4]);
 		return;
-		}
-
+	}
 	serv_puts("FORG");
 	serv_gets(buf);
 	if (buf[0] != '2') {
 		display_error(&buf[4]);
 		return;
-		}
-
-	gotoroom(bstr("_BASEROOM_"),1);
 	}
+	gotoroom(bstr("_BASEROOM_"), 1);
+}
 
 
 
@@ -1075,16 +1095,16 @@ void zap(void) {
 /*
  * Confirm deletion of the current room
  */
-void confirm_delete_room(void) {
+void confirm_delete_room(void)
+{
 	char buf[256];
-	
+
 	serv_puts("KILL 0");
 	serv_gets(buf);
 	if (buf[0] != '2') {
 		display_error(&buf[4]);
 		return;
-		}
-
+	}
 	printf("HTTP/1.0 200 OK\n");
 	output_headers(1, "bottom");
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
@@ -1104,32 +1124,28 @@ void confirm_delete_room(void) {
 
 	wprintf("</FORM></CENTER>\n");
 	wDumpContent(1);
-	}
+}
 
 
 /*
  * Delete the current room
  */
-void delete_room(void) {
+void delete_room(void)
+{
 	char buf[256];
 	char sc[256];
 
 	strcpy(sc, bstr("sc"));
-	
+
 	if (strcasecmp(sc, "Delete")) {
 		display_error("Cancelled.  This room was not deleted.");
 		return;
-		}
-
+	}
 	serv_puts("KILL 1");
 	serv_gets(buf);
 	if (buf[0] != '2') {
 		display_error(&buf[4]);
-		}
-	else {
+	} else {
 		gotoroom("_BASEROOM_", 1);
-		}
 	}
-
-
-
+}
