@@ -111,9 +111,10 @@ int getroom(struct quickroom *qrbuf, char *room_name)
 	char lowercase_name[ROOMNAMELEN];
 	int a;
 
-	for (a=0; a<=strlen(room_name); ++a) {
+	for (a=0; room_name[a] && a < sizeof lowercase_name - 1; ++a) {
 		lowercase_name[a] = tolower(room_name[a]);
 		}
+	lowercase_name[sizeof lowercase_name - 1] = 0;
 
 	memset(qrbuf, 0, sizeof(struct quickroom));
 	cdbqr = cdb_fetch(CDB_QUICKROOM,
@@ -716,7 +717,7 @@ void cmd_goto(char *gargs)
 	int c;
 	int ok = 0;
 	int ra;
-	char bbb[ROOMNAMELEN],towhere[32],password[20];
+	char bbb[ROOMNAMELEN],towhere[256],password[256];
 
 	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
 		cprintf("%d not logged in\n",ERROR+NOT_LOGGED_IN);
