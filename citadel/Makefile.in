@@ -61,10 +61,12 @@ client_chat.o: client_chat.c citadel.h
 
 citserver: citserver.o user_ops.o support.o room_ops.o file_ops.o \
 	msgbase.o config.o sysdep.o locate_host.o serv_chat.o \
-	hooks.o housekeeping.o database.o control.o logging.o
+	hooks.o housekeeping.o database.o control.o logging.o \
+	serverapi.o
 	$(CC) $(CFLAGS) citserver.o user_ops.o room_ops.o file_ops.o support.o \
 		msgbase.o config.o sysdep.o locate_host.o serv_chat.o \
 		hooks.o housekeeping.o database.o control.o logging.o \
+		serverapi.o \
 		$(LFLAGS) $(SERVER_LFLAGS) -o citserver
 
 citserver.o: citserver.c citadel.h
@@ -105,6 +107,9 @@ control.o: control.c citadel.h
 
 logging.o: logging.c citadel.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c logging.c
+
+serverapi.o: serverapi.c citadel.h
+	$(CC) $(CFLAGS) -D_REENTRANT -c serverapi.c
 
 config.o: config.c config_decls.h citadel.h axdefs.h
 	$(CC) -O $(CFLAGS) -D_REENTRANT -c config.c

@@ -68,6 +68,8 @@ struct CitContext {
 	char fake_hostname[25];		/* Name of the fake hostname <bc>    */
 	char fake_roomname[20];		/* Name of the fake room <bc>        */
 	char last_pager[32];		/* The username of the last pager    */
+
+	int CtdlErrno;			/* Error return for CitadelAPI calls */
 	};
 
 #define CS_STEALTH	1		/* stealth mode */
