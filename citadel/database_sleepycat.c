@@ -183,15 +183,12 @@ int cdb_store(int cdb,
 	ddata.data = cdata;
 
 	begin_critical_section(S_DATABASE);
-	lprintf(9, "cdb_store(%d) ...\n", cdb);
 	ret = dbp[cdb]->put(dbp[cdb],		/* db */
 				NULL,		/* transaction ID (hmm...) */
 				&dkey,		/* key */
 				&ddata,		/* data */
 				0);		/* flags */
 	end_critical_section(S_DATABASE);
-	lprintf(9, "...put (  to file %d) returned %3d (%d bytes)\n",
-		cdb, ret, ddata.size);
 	if (ret) {
 		lprintf(1, "cdb_store: %s\n", db_strerror(ret));
 		return (-1);
@@ -213,9 +210,7 @@ int cdb_delete(int cdb, void *key, int keylen)
 	dkey.data = key;
 
 	begin_critical_section(S_DATABASE);
-	lprintf(9, "cdb_delete(%d) ...\n", cdb);
 	ret = dbp[cdb]->del(dbp[cdb], NULL, &dkey, 0);
-	lprintf(9, "cdb_delete returned %d\n", ret);
 	end_critical_section(S_DATABASE);
 	return (ret);
 
@@ -243,11 +238,8 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
 	dret.flags = DB_DBT_MALLOC;
 
 	begin_critical_section(S_DATABASE);
-	lprintf(9, "cdb_fetch(%d) ...\n", cdb);
 	ret = dbp[cdb]->get(dbp[cdb], NULL, &dkey, &dret, 0);
 	end_critical_section(S_DATABASE);
-	lprintf(9, "get (from file %d) returned %3d (%d bytes)\n",
-		cdb, ret, dret.size);
 	if ((ret != 0) && (ret != DB_NOTFOUND)) {
 		lprintf(1, "cdb_fetch: %s\n", db_strerror(ret));
 	}
@@ -326,10 +318,8 @@ struct cdbdata *cdb_next_item(int cdb)
 	data.flags = DB_DBT_MALLOC;
 
 	begin_critical_section(S_DATABASE);
-	lprintf(9, "cdb_next_item(%d)...\n", cdb);
 	ret = MYCURSOR->c_get(MYCURSOR,
 		&key, &data, DB_NEXT);
-	lprintf(9, "...returned %d\n", ret);
 	end_critical_section(S_DATABASE);
 	
 	if (ret) return NULL;		/* presumably, end of file */
