@@ -221,6 +221,8 @@ void redirect(char *url) {
 	printf("Location: %s\n\n", url);
 }
 
+const char *defaulthost = DEFAULT_HOST;
+const char *defaultport = DEFAULT_PORT;
 
 /*
  * Here's where it all begins.
@@ -233,7 +235,26 @@ int main(int argc, char **argv)
 	pthread_t SessThread;		/* Thread descriptor */
         pthread_attr_t attr;		/* Thread attributes */
 	int a, i;			/* General-purpose variables */
+	int port = PORT_NUM;		/* Port to listen on */
 	char convbuf[128];
+
+	/* Parse command line */
+	while ((a = getopt(argc, argv, "hp:")) != EOF)
+		switch (a) {
+		    case 'p':
+			port = atoi(optarg);
+			break;
+		    default:
+			fprintf(stderr, "usage: webserver [-p localport] "
+				"[remotehost [remoteport]]\n");
+			return 1;
+			}
+
+	if (optind < argc) {
+		defaulthost = argv[optind];
+		if (++optind < argc)
+			defaultport = argv[optind];
+		}
         
 	/* Tell 'em who's in da house */
 	printf("WebCit v2 experimental\n");
@@ -245,8 +266,8 @@ int main(int argc, char **argv)
 	 * There is no need to check for errors, because ig_tcp_server()
 	 * exits if it doesn't succeed.
 	 */
-	printf("Attempting to bind to port %d...\n", PORT_NUM);
-	msock = ig_tcp_server(PORT_NUM, 5);
+	printf("Attempting to bind to port %d...\n", port);
+	msock = ig_tcp_server(port, 5);
 	printf("Listening on socket %d\n", msock);
 
 	pthread_mutex_init(&MasterCritter, NULL);
