@@ -348,6 +348,41 @@ void loopcopy(FILE * to, FILE * from)
 }
 
 
+
+/*
+ * Try to extract a numeric message ID
+ */
+long extract_msg_id(char *id_string) {
+	long msgid = 0L;
+	int i, j;
+	char buf[256];
+
+	strncpy(buf, id_string, sizeof buf);
+	id_string[255] = 0;
+
+	for (i=0; i<strlen(buf); ++i) {
+		if (buf[i]=='<') {
+			strcpy(buf, &buf[i]);
+			for (j=0; j<strlen(buf); ++j)
+				if (buf[j]=='>') buf[j]=0;
+		}
+	}
+
+	msgid = atol(buf);
+	if (msgid) return(msgid);
+
+	for (i=0; i<strlen(buf); ++i) {
+		if (!isdigit(buf[i])) {
+			strcpy(&buf[i], &buf[i+1]);
+			i = 0;
+		}
+	}
+
+	msgid = atol(buf);
+	return(msgid);
+}
+
+	
 /*
  * pipe message through netproc
  */
@@ -365,6 +400,7 @@ void do_citmail(char recp[], int dtype)
 	char nodebuf[256];
 	char destsys[256];
 	char subject[256];
+	long message_id = 0L;
 	char targetroom[256];
 	char content_type[256];
 	char *extra_headers = NULL;
@@ -418,6 +454,8 @@ void do_citmail(char recp[], int dtype)
 			now = conv_date(&buf[6]);
 		else if (!strncasecmp(buf, "From: ", 6))
 			strcpy(from, &buf[6]);
+		else if (!strncasecmp(buf, "Message-ID: ", 12))
+			message_id = extract_msg_id(&buf[12]);
 		else if (!strncasecmp(buf, "Content-type: ", 14))
 			strcpy(content_type, &buf[14]);
 		else if (!strncasecmp(buf, "From ", 5)) {	/* ignore */
@@ -450,6 +488,8 @@ void do_citmail(char recp[], int dtype)
 
 	/* Origination */
 	fprintf(temp, "P%s@%s%c", userbuf, nodebuf, 0);
+	if (message_id)
+		fprintf(temp, "I%ld%c", message_id, 0);
 	fprintf(temp, "T%ld%c", (long)now, 0);
 	fprintf(temp, "A%s%c", userbuf, 0);
 
