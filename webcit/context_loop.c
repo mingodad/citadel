@@ -189,6 +189,22 @@ int lingering_close(int fd)
 
 
 
+/*
+ * Check for bogus requests coming from (for example) brain-dead
+ * Windoze boxes that are infected with the latest worm-of-the-week.
+ * If we detect one of these, bail out without bothering our Citadel
+ * server.
+ */
+int is_bogus(char *http_cmd) {
+
+	if (!strncasecmp(http_cmd, "GET /scripts/root.exe", 21)) return(1);
+	if (!strncasecmp(http_cmd, "GET /c/winnt", 12)) return(2);
+	if (!strncasecmp(http_cmd, "GET /MSADC/", 11)) return(3);
+
+	return(0);	/* probably ok */
+}
+
+
 
 /*
  * This loop gets called once for every HTTP connection made to WebCit.  At
@@ -236,14 +252,17 @@ void context_loop(int sock)
 
 	} while (strlen(buf) > 0);
 
+	strcpy(buf, req->line);
+	fprintf(stderr, "%s\n", buf);
+
+	/* Check for bogus requests */
+	if (is_bogus(buf)) goto bail;
 
 	/*
 	 * If requesting a non-root page, there should already be a cookie
 	 * set.  If there isn't, the client browser has cookies turned off
 	 * (or doesn't support them) and we have to barf & bail.
 	 */
-	strcpy(buf, req->line);
-	fprintf(stderr, "%s\n", buf);
 	if (!strncasecmp(buf, "GET ", 4)) strcpy(buf, &buf[4]);
 	else if (!strncasecmp(buf, "HEAD ", 5)) strcpy(buf, &buf[5]);
 	if (buf[1]==' ') buf[1]=0;
@@ -315,7 +334,7 @@ void context_loop(int sock)
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 
 	/* Free the request buffer */
-	while (req != NULL) {
+bail:	while (req != NULL) {
 		hptr = req->next;
 		free(req);
 		req = hptr;
