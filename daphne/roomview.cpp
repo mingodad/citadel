@@ -45,6 +45,7 @@ RoomView::RoomView(
 	}
 
 	extract(ThisRoom, recvcmd.Mid(4), 0);	// actual name of room
+	SetTitle(ThisRoom);	// FIX why doesn't this work?
 
 	SetAutoLayout(TRUE);
 	Show(TRUE);

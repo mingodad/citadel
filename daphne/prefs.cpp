@@ -162,7 +162,8 @@ void Preferences::OnButtonPressed(wxCommandEvent& whichbutton) {
 		ini->Write("/Citadel Server/Host", server_host->GetValue());
 		ini->Write("/Citadel Server/Port", server_port->GetValue());
 		ini->Write("/Citadel Server/ConnectOnStartup",
-		    ((server_autoconnect->GetValue()==TRUE) ? "yes" : "no"));
+			((server_autoconnect->GetValue()==TRUE)
+			? wxString("yes") : wxString("no")));
 		ini->Flush();
 		delete this;
 	}
