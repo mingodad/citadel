@@ -38,6 +38,13 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf) {
 		return(UA_INUSE | UA_KNOWN | UA_GOTOALLOWED);
 		}
 
+	/* For mailbox rooms, only allow access to the owner */
+	if (roombuf->QRflags & QR_MAILBOX) {
+		if (userbuf->usernum != atol(roombuf->QRname)) {
+			return(retval);
+			}
+		}
+
 	/* Locate any applicable user/room relationships */
 	CtdlGetRelationship(&vbuf, userbuf, roombuf);
 
