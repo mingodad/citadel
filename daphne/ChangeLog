@@ -1,7 +1,16 @@
- $Log$
- Revision 1.8  1999/11/12 00:49:05  smw
- Updated README.  Tweaked zip slightly.  Started mods for Chat and for
- 'reply to' mail.
+$Log$
+Revision 1.9  1999/11/15 04:19:18  smw
+Killed the refresh timer in who.cpp
+Updated the who function so that refreshes are no longer automated, but
+WILL work when clicking on 'refresh' on the who window.
+who_refresh had a timer which wasn't stoppable, which would, when
+connecting to another bbs, continue running and then core dump.
+Removed the read new button from roomview.  It wasn't necessary as new
+messages dump automatically.
+
+Revision 1.8  1999/11/12 00:49:05  smw
+Updated README.  Tweaked zip slightly.  Started mods for Chat and for
+'reply to' mail.
 
 Revision 1.7  1999/11/11 05:41:38  smw
 Another zap tweak:  After zapping a room the user is taken directly to the

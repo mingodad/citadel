@@ -15,7 +15,8 @@
 // IDs for the controls and the menu commands
 enum
 {
-	BUTTON_DISMISS
+	BUTTON_REFRESH,
+	BUTTON_CLOSE,
 };
 
 // ----------------------------------------------------------------------------
@@ -26,6 +27,8 @@ enum
 // handlers) which process them. It can be also done at run-time, but for the
 // simple menu events like this the static method is much simpler.
 BEGIN_EVENT_TABLE(	who, wxMDIChildFrame)
+	EVT_BUTTON(	BUTTON_REFRESH,		who::OnButtonPressed)
+	EVT_BUTTON(	BUTTON_CLOSE,		who::OnButtonPressed)
 END_EVENT_TABLE()
 
 // ============================================================================
@@ -52,8 +55,7 @@ who::who(CitClient *sock, wxMDIParentFrame *MyMDI)
 	citsock = sock;
 
 
-
-	who_refresh *ref = new who_refresh(this);
+	/*who_refresh *ref = new who_refresh(this);*/
 
 	// set the frame icon
 	/* SetIcon(wxICON(mondrian)); */
@@ -68,10 +70,33 @@ who::who(CitClient *sock, wxMDIParentFrame *MyMDI)
 		"wholist");
 
 
+	wxButton *refresh_button = new wxButton(
+		this,
+		BUTTON_REFRESH,
+		"Refresh",
+		wxPoint(100,100),
+		wxSize(100,30),
+		0L,
+		wxDefaultValidator,
+		"refresh_button"
+		);
+
+	wxButton *close_button = new wxButton(
+		this,
+		BUTTON_CLOSE,
+		"Close",
+		wxPoint(200,200),
+		wxSize(100,30),
+		0L,
+		wxDefaultValidator,
+		"close_button"
+		);
+
+	
 	wxLayoutConstraints *c1 = new wxLayoutConstraints;
 	c1->top.SameAs(this, wxTop, 10);		// 10 from the top
 	c1->bottom.SameAs(this, wxBottom, 10);
-	c1->left.SameAs(this, wxLeft, 10);
+	c1->left.SameAs(this, wxLeft, 10); 
 	c1->right.SameAs(this, wxRight, 10);
 	wholist->SetConstraints(c1);
 
@@ -85,6 +110,20 @@ who::who(CitClient *sock, wxMDIParentFrame *MyMDI)
 	c2->centreX.SameAs(this, wxCentreX);
 	c2->height.AsIs(); c2->width.AsIs();
 
+	wxLayoutConstraints *b1 = new wxLayoutConstraints;
+	b1->bottom.SameAs(this, wxBottom, 2);
+	b1->height.AsIs(); 
+	b1->width.AsIs();
+	b1->right.SameAs(this, wxRight, 10);
+	close_button->SetConstraints(b1);
+
+	wxLayoutConstraints *b2 = new wxLayoutConstraints;
+	b2->bottom.SameAs(close_button, wxBottom);
+	b2->left.SameAs(this, wxLeft, 10);
+	b2->height.AsIs(); 
+	b2->width.AsIs();
+	refresh_button->SetConstraints(b2);
+
 	SetAutoLayout(TRUE);
 	Show(TRUE);
 	LoadWholist();
@@ -92,6 +131,17 @@ who::who(CitClient *sock, wxMDIParentFrame *MyMDI)
 }
 
 
+void who::OnButtonPressed(wxCommandEvent& whichbutton) {
+
+
+	if (whichbutton.GetId() == BUTTON_CLOSE) {
+	wholist->DeleteAllItems();	
+	delete this;
+}
+	if (whichbutton.GetId() == BUTTON_REFRESH) {
+	LoadWholist(); 
+}
+}
 // Load up the control
 void who::LoadWholist(void) {
 
@@ -101,6 +151,14 @@ void who::LoadWholist(void) {
 	int i = 0;
 	wxString sess, user, room, host;
 	wxStringTokenizer *wl;
+
+		if (wholist==NULL) {
+		return; }
+                if (citadel->IsConnected()==FALSE) { 
+                wxMessageBox("You are not connected to a BBS."); 
+		return; 
+        } else 
+
 
 	sendcmd = "RWHO";
 	if (citsock->serv_trans(sendcmd, recvcmd, rwho) != 1) return;
@@ -123,17 +181,23 @@ void who::LoadWholist(void) {
 
 
 
-
+/*
 who_refresh::who_refresh(who *parent_who)
 	: wxTimer() {
+
+	        if (citadel->IsConnected()==FALSE) {
+		Stop();
+		delete this;
+        } else
 
 	which_who = parent_who;		// Know which instance to refresh
 
 	Start(30000, FALSE);		// Call every 30 seconds
-}
+} */
 
 
-void who_refresh::Notify(void) {
+/*void who_refresh::Notify(void)  {
+
 	which_who->LoadWholist();
-}
+} */
 

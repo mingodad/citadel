@@ -174,12 +174,12 @@ int CitClient::serv_trans(
 	// wxBeginBusyCursor();
 
 	serv_puts(command);
-
+/*
 	if (IsConnected() == FALSE) {
 		wxSleep(20);	// Give a crashed server some time to restart
 		reconnect_session();
 		serv_puts(command);
-	}
+	} */
 
 	serv_gets(response);
 

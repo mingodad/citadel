@@ -237,7 +237,6 @@ private:
 };
 
 
-
 // Global server properties
 
 class ServProps : public wxMDIChildFrame {

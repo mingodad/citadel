@@ -365,11 +365,12 @@ void MyFrame::DoTerm(wxCommandEvent& WXUNUSED(event))
 
         // Kill the client connection and don't destroy Daphne
         citadel->detach();
-	BigMDI->SetStatusText("Not connected");	
-	delete TheWholist;
+	BigMDI->SetStatusText("Not connected", 0);	
 	RoomList->DeleteAllItems();
-}
-
+	BigMDI->SetStatusText("", 1);
+	BigMDI->SetStatusText("", 2);
+ }
+ 
 
 
 // Edit menu handler
@@ -416,7 +417,6 @@ void MyFrame::OnRoomsMenu(wxCommandEvent& cmd) {
 	                if (citadel->IsConnected()==FALSE) {
                 wxMessageBox("You are not connected to a BBS.");
         } else
-
 		new RoomView(citadel, this, RoomList->GetNextRoom());
 	}
 }

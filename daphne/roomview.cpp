@@ -5,10 +5,10 @@ enum {
 	BUTTON_GOTO,
 	BUTTON_SKIP,
 	BUTTON_CLOSE,
-	BUTTON_READNEW,
+/*	BUTTON_READNEW, */
 	BUTTON_READALL,
 	BUTTON_ENTER,
-	BUTTON_ZAP
+	BUTTON_ZAP 
 };
 
 
@@ -16,10 +16,10 @@ BEGIN_EVENT_TABLE(RoomView, wxMDIChildFrame)
 	EVT_BUTTON(	BUTTON_GOTO,		RoomView::OnButtonPressed)
 	EVT_BUTTON(	BUTTON_SKIP,		RoomView::OnButtonPressed)
 	EVT_BUTTON(	BUTTON_CLOSE,		RoomView::OnButtonPressed)
-	EVT_BUTTON(	BUTTON_READNEW,		RoomView::OnButtonPressed)
+/*	EVT_BUTTON(	BUTTON_READNEW,         RoomView::OnButtonPressed)*/
 	EVT_BUTTON(	BUTTON_READALL,		RoomView::OnButtonPressed)
 	EVT_BUTTON(	BUTTON_ENTER,		RoomView::OnButtonPressed)
-	EVT_BUTTON(	BUTTON_ZAP,		RoomView::OnButtonPressed)
+	EVT_BUTTON(	BUTTON_ZAP,             RoomView::OnButtonPressed)
 END_EVENT_TABLE()
 
 
@@ -147,18 +147,18 @@ RoomView::RoomView(
 	g3->right.LeftOf(goto_button, 3);
 	skip_button->SetConstraints(g3);
 
-	wxButton *readnew_button = new wxButton(
+/*	wxButton *readnew_button = new wxButton(
 		this,
 		BUTTON_READNEW,
 		" Read new ",
-		wxDefaultPosition);
+		wxDefaultPosition); 
 
 	wxLayoutConstraints *c2 = new wxLayoutConstraints;
 	c2->top.SameAs(skip_button, wxTop);
 	c2->bottom.SameAs(skip_button, wxBottom);
 	c2->width.AsIs();
 	c2->right.LeftOf(skip_button, 3);
-	readnew_button->SetConstraints(c2);
+	readnew_button->SetConstraints(c2); */
 
 	wxButton *readall_button = new wxButton(
 		this,
@@ -167,10 +167,10 @@ RoomView::RoomView(
 		wxDefaultPosition);
 
 	wxLayoutConstraints *c3 = new wxLayoutConstraints;
-	c3->top.SameAs(readnew_button, wxTop);
-	c3->bottom.SameAs(readnew_button, wxBottom);
+	c3->top.SameAs(goto_button, wxTop);
+	c3->bottom.SameAs(goto_button, wxBottom);
 	c3->width.AsIs();
-	c3->right.LeftOf(readnew_button, 3);
+	c3->right.LeftOf(goto_button, 3);
 	readall_button->SetConstraints(c3);
 
 	wxButton *enter_button = new wxButton(
@@ -225,8 +225,8 @@ void RoomView::OnButtonPressed(wxCommandEvent& whichbutton) {
 
 	if (whichbutton.GetId() == BUTTON_CLOSE) {
 		delete this;
-	} else if (whichbutton.GetId() == BUTTON_READNEW) {
-		do_readloop("MSGS NEW");
+/*	} else if (whichbutton.GetId() == BUTTON_READNEW) { 
+		do_readloop("MSGS NEW"); */
 	} else if (whichbutton.GetId() == BUTTON_READALL) {
 		do_readloop("MSGS ALL");
 	} else if (whichbutton.GetId() == BUTTON_ENTER) {
@@ -244,7 +244,7 @@ void RoomView::OnButtonPressed(wxCommandEvent& whichbutton) {
 		citsock->serv_trans(sendcmd, recvcmd, xferbuf, ThisRoom);
 		new RoomView(citsock, citMyMDI, "_BASEROOM_"); 
 		RoomList->LoadRoomList();
-		delete this;
+		delete this; 
 	}
 }
 
