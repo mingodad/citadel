@@ -567,6 +567,7 @@ void session_loop(struct httprequest *req)
 	char buf[256];
 	int a, b;
 	int ContentLength = 0;
+	int BytesRead;
 	char ContentType[512];
 	char *content;
 	struct httprequest *hptr;
@@ -622,9 +623,17 @@ void session_loop(struct httprequest *req)
 	if (ContentLength > 0) {
 		fprintf(stderr, "Content length: %d\n", ContentLength);
 		content = malloc(ContentLength + 1);
-		read(WC->http_sock, content, ContentLength);
+		memset(content, 0, ContentLength+1);
+		BytesRead = 0;
 
-		content[ContentLength] = 0;
+		while (BytesRead < ContentLength) {
+			a=read(WC->http_sock, &content[BytesRead],
+				ContentLength - BytesRead);
+			if (a <= 0) BytesRead = ContentLength;
+			else BytesRead += a;
+			fprintf(stderr, "Block: %-5d  Read: %-5d  Need: %-5d\n",
+				a, BytesRead, ContentLength);
+		}
 
 		if (!strncasecmp(ContentType,
 			      "application/x-www-form-urlencoded", 33)) {
