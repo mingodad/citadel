@@ -563,6 +563,8 @@ void display_editroom(void) {
 	char er_dirname[15];
 	char er_roomaide[26];
 	unsigned er_flags;
+	int er_floor;
+	int i;
 
 	serv_puts("GETR");
 	serv_gets(buf);
@@ -576,6 +578,7 @@ void display_editroom(void) {
 	extract(er_password,&buf[4],1);
 	extract(er_dirname,&buf[4],2);
 	er_flags=extract_int(&buf[4],3);
+	er_floor=extract_int(&buf[4],4);
 
 
         printf("HTTP/1.0 200 OK\n");
@@ -590,6 +593,18 @@ void display_editroom(void) {
 
 	wprintf("<UL><LI>Name of room: ");	
 	wprintf("<INPUT TYPE=\"text\" NAME=\"er_name\" VALUE=\"%s\" MAXLENGTH=\"19\">\n",er_name);
+
+	wprintf("<LI>Resides on floor: ");
+	load_floorlist();
+	wprintf("<SELECT NAME=\"er_floor\" SIZE=\"1\">\n");
+	for (i=0; i<128; ++i) if (strlen(floorlist[i])>0) {
+		wprintf("<OPTION ");
+		if (i == er_floor) wprintf("SELECTED ");
+		wprintf("VALUE=\"%d\">", i);
+		escputs(floorlist[i]);
+		wprintf("</OPTION>\n");
+		}
+	wprintf("</SELECT>\n");
 
 	wprintf("<LI>Type of room:<UL>\n");
 
@@ -703,6 +718,7 @@ void editroom(void) {
 	char er_password[10];
 	char er_dirname[15];
 	char er_roomaide[26];
+	int er_floor;
 	unsigned er_flags;
 	int bump;
 
@@ -817,8 +833,10 @@ void editroom(void) {
 	bump = 0;
 	if (!strcmp(bstr("bump"),"yes")) bump = 1;
 
-	sprintf(buf,"SETR %s|%s|%s|%u|%d",
-		er_name,er_password,er_dirname,er_flags,bump);
+	er_floor = atoi(bstr("er_floor"));
+
+	sprintf(buf,"SETR %s|%s|%s|%u|%d|%d",
+		er_name,er_password,er_dirname,er_flags,bump,er_floor);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]!='2') {
