@@ -157,7 +157,7 @@ int checkpagin(int lp, unsigned int pagin, unsigned int height)
 	if (!pagin) return(0);
 	if (lp>=(height-1)) {
 		set_keepalives(KA_HALF);
-		hit_any_key();
+		hit_any_key(ipc_for_signal_handlers);	/* Cheating -IO */
 		set_keepalives(KA_YES);
 		return(0);
 	}

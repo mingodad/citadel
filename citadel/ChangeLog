@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.52  2004/02/26 20:30:36  error
+ * Populate IPC into a few more places to avoid a nasty crash at MORE prompt
+
  Revision 614.51  2004/02/26 20:17:29  error
  * Client stability and enhancements:
    * CtdlServInfo structure moved inside CtdlIPC; eliminates unnecessary
@@ -5410,3 +5413,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -35,7 +35,6 @@
 
 
 void sttybbs(int cmd);
-void hit_any_key(void);
 void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto);
 void progress(CtdlIPC* ipc, unsigned long curr, unsigned long cmax);
 int pattern(char *search, char *patn);
@@ -313,7 +312,7 @@ void knrooms(CtdlIPC *ipc, int kn_floor_mode)
 	};
 
 	color(DIM_WHITE);
-	IFNEXPERT hit_any_key();
+	IFNEXPERT hit_any_key(ipc);
 }
 
 
@@ -344,7 +343,7 @@ void listzrooms(CtdlIPC *ipc)
 	};
 
 	color(DIM_WHITE);
-	IFNEXPERT hit_any_key();
+	IFNEXPERT hit_any_key(ipc);
 }
 
 
