@@ -1,5 +1,6 @@
 1998-09-18 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* user_ops.c: include dynloader.h
+	* roomstats.{c,mk}: removed
 
 Thu Sep 17 22:55:29 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Various changes to allow "new messages" to work correctly with Mail
