@@ -52,6 +52,22 @@ void select_user_to_edit(char *message, char *preselect)
 
 	wprintf("<TABLE border=0 CELLSPACING=10><TR VALIGN=TOP><TD>\n");
 
+	svprintf("BOXTITLE", WCS_STRING, "Add users");
+	do_template("beginbox");
+
+	wprintf("To create a new user account, enter the desired "
+		"user name in the box below and click 'Create'.<br /><br />");
+
+        wprintf("<CENTER><FORM METHOD=\"POST\" ACTION=\"/create_user\">\n");
+        wprintf("New user: ");
+        wprintf("<input type=text name=username><br />\n"
+        	"<input type=submit value=\"Create\">"
+		"</FORM></CENTER>\n");
+
+	do_template("endbox");
+
+	wprintf("</TD><TD>");
+
 	svprintf("BOXTITLE", WCS_STRING, "Edit or Delete users");
 	do_template("beginbox");
 
@@ -84,21 +100,6 @@ void select_user_to_edit(char *message, char *preselect)
         wprintf("</FORM></CENTER>\n");
 	do_template("endbox");
 
-	wprintf("</TD><TD>");
-
-	svprintf("BOXTITLE", WCS_STRING, "Add users");
-	do_template("beginbox");
-
-	wprintf("To create a new user account, enter the desired "
-		"user name in the box below and click 'Create'.<br /><br />");
-
-        wprintf("<CENTER><FORM METHOD=\"POST\" ACTION=\"/create_user\">\n");
-        wprintf("New user: ");
-        wprintf("<input type=text name=username><br />\n"
-        	"<input type=submit value=\"Create\">"
-		"</FORM></CENTER>\n");
-
-	do_template("endbox");
 	wprintf("</TD></TR></TABLE>\n");
 
 	wDumpContent(1);

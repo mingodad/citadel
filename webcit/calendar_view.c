@@ -425,16 +425,7 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("</TR></TABLE>\n");
 	/* End todays-date-with-left-and-right-arrows */
 
-	wprintf("<br /><br /><CENTER><font color=#FFFFFF>"
-		"&nbsp;<A HREF=\"/display_edit_event?msgnum=0"
-		"&year=%d&month=%d&day=%d\">"
-		"Add new calendar event</A>"
-		"<br /><br />\n",
-		year, month, day
-	);
-
-	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">"
-		"Back to month view</A>\n", year, month);
+	/* In the future we might want to put a month-o-matic here */
 
 	wprintf("</FONT></CENTER>\n");
 

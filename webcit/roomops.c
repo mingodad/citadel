@@ -386,7 +386,7 @@ void embed_room_banner(char *got, int navbar_style) {
 				"<td>"
 				"<A HREF=\"/readnew\">"
 				"<img align=\"middle\" src=\"/static/readmsgs.gif\" border=\"0\">"
-				"<span class=\"navbar_link\">New messages</span></A>"
+				"<span class=\"navbar_link\">Read new messages</span></A>"
 				"</td>\n"
 			);
 		}
@@ -453,7 +453,7 @@ void embed_room_banner(char *got, int navbar_style) {
 						"<img align=\"middle\" src=\"/static/readmsgs.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
-						"All messages"
+						"Read all messages"
 						"</span></a></td>\n"
 					);
 					break;
@@ -489,7 +489,8 @@ void embed_room_banner(char *got, int navbar_style) {
 
 		if (navbar_style == navbar_default) wprintf(
 			"<td>"
-			"<A HREF=\"/skip\">"
+			"<A HREF=\"/skip\" "
+			"TITLE=\"Leave all messages marked as unread, go to next room with unread messages\">"
 			"<span class=\"navbar_link\">Skip this room</span>"
 			"<img align=\"middle\" src=\"/static/forward.gif\" border=\"0\"></A>"
 			"</td>\n"
@@ -497,7 +498,8 @@ void embed_room_banner(char *got, int navbar_style) {
 
 		if (navbar_style == navbar_default) wprintf(
 			"<td>"
-			"<A HREF=\"/gotonext\">"
+			"<A HREF=\"/gotonext\" "
+			"TITLE=\"Mark all messages as read, go to next room with unread messages\">"
 			"<span class=\"navbar_link\">Goto next room</span>"
 			"<img align=\"middle\" src=\"/static/forward.gif\" border=\"0\"></A>"
 			"</td>\n"
@@ -1664,9 +1666,16 @@ void display_entroom(void)
 		display_main_menu();
 		return;
 	}
-	output_headers(1, 1, 0, 0, 0, 0, 0);
-	svprintf("BOXTITLE", WCS_STRING, "Create a new room");
-	do_template("beginbox");
+
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n"
+		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<SPAN CLASS=\"titlebar\">Create a new room</SPAN>"
+		"</TD></TR></TABLE>\n"
+		"</div>\n<div id=\"content\">\n"
+	);
+
+	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/entroom\">\n");
 
@@ -1684,6 +1693,16 @@ void display_entroom(void)
                         wprintf("</OPTION>\n");
                 }
         wprintf("</SELECT>\n");
+
+	wprintf("<LI>Default view for room: ");
+        wprintf("<SELECT NAME=\"er_view\" SIZE=\"1\">\n");
+	for (i=0; i<(sizeof viewdefs / sizeof (char *)); ++i) {
+		wprintf("<OPTION %s VALUE=\"%d\">",
+			((i == 0) ? "SELECTED" : ""), i );
+		escputs(viewdefs[i]);
+		wprintf("</OPTION>\n");
+	}
+	wprintf("</SELECT>\n");
 
 	wprintf("<LI>Type of room:<UL>\n");
 
@@ -1704,16 +1723,6 @@ void display_entroom(void)
 	wprintf("> Personal (mailbox for you only)\n");
 	wprintf("</UL>\n");
 
-	wprintf("<LI>Default view for room: "); /* FOO */
-        wprintf("<SELECT NAME=\"er_view\" SIZE=\"1\">\n");
-	for (i=0; i<(sizeof viewdefs / sizeof (char *)); ++i) {
-		wprintf("<OPTION %s VALUE=\"%d\">",
-			((i == 0) ? "SELECTED" : ""), i );
-		escputs(viewdefs[i]);
-		wprintf("</OPTION>\n");
-	}
-	wprintf("</SELECT>\n");
-
 	wprintf("<CENTER>\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 	wprintf("&nbsp;");
@@ -1725,7 +1734,7 @@ void display_entroom(void)
 	if (buf[0] == '1') {
 		fmout(NULL, "CENTER");
 	}
-	do_template("endbox");
+	wprintf("</td></tr></table></center>\n");
 	wDumpContent(1);
 }
 

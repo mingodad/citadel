@@ -124,12 +124,18 @@ void showuser(void)
 	char buf[SIZ];
 	int have_pic;
 
-	output_headers(1, 1, 0, 0, 0, 0, 0);
-
-	svprintf("BOXTITLE", WCS_STRING, "User profile");
-	do_template("beginbox");
-
 	strcpy(who, bstr("who"));
+
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n"
+		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<SPAN CLASS=\"titlebar\">User profile</SPAN>"
+		"</TD></TR></TABLE>\n"
+		"</div>\n<div id=\"content\">\n"
+	);
+
+	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
+
 	serv_printf("OIMG _userpic_|%s", who);
 	serv_gets(buf);
 	if (buf[0] == '2') {
@@ -157,9 +163,10 @@ void showuser(void)
 	wprintf("\">"
 		"<IMG SRC=\"/static/page.gif\" ALIGN=MIDDLE BORDER=0>"
 		"&nbsp;&nbsp;"
-		"Click here to page this user (send an instant message)"
-		"</A>\n");
+		"Click here to send an instant message to ");
+	escputs(who);
+	wprintf("</A>\n");
 
-	do_template("endbox");
+	wprintf("</td></tr></table></center>\n");
 	wDumpContent(1);
 }

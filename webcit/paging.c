@@ -36,10 +36,19 @@ void display_page(void)
 
 	strcpy(recp, bstr("recp"));
 
-	output_headers(1, 1, 0, 0, 0, 0, 0);
+        output_headers(1, 1, 2, 0, 0, 0, 0);
+        wprintf("<div id=\"banner\">\n"
+                "<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+                "<SPAN CLASS=\"titlebar\">Send instant message</SPAN>"
+                "</TD></TR></TABLE>\n"
+                "</div>\n<div id=\"content\">\n"
+        );
+                                                                                                                             
+        wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
 
-	svprintf("BOXTITLE", WCS_STRING, "Page: %s", recp);
-	do_template("beginbox");
+	wprintf("Send an instant message to: ");
+	escputs(recp);
+	wprintf("<br>\n");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/page_user\">\n");
 
@@ -64,7 +73,7 @@ void display_page(void)
 	wprintf("<br /><A HREF=\"javascript:window.close();\"Cancel</A>\n");
 
 	wprintf("</FORM></CENTER>\n");
-	do_template("endbox");
+	wprintf("</td></tr></table></center>\n");
 	wDumpContent(1);
 }
 
@@ -78,8 +87,14 @@ void page_user(void)
 	char buf[SIZ];
 	char closewin[SIZ];
 
-	output_headers(1, 1, 0, 0, 0, 0, 0);
-
+        output_headers(1, 1, 2, 0, 0, 0, 0);
+        wprintf("<div id=\"banner\">\n"
+                "<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+                "<SPAN CLASS=\"titlebar\">Add or edit an event</SPAN>"
+                "</TD></TR></TABLE>\n"
+                "</div>\n<div id=\"content\">\n"
+        );
+                                                                                                                             
 	strcpy(recp, bstr("recp"));
 	strcpy(sc, bstr("sc"));
 	strcpy(closewin, bstr("closewin"));

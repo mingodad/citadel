@@ -1487,8 +1487,12 @@ void post_message(void)
 		serv_gets(buf);
 		if (buf[0] == '4') {
 			post_mime_to_server();
-			sprintf(WC->ImportantMessage, 
-				"Message has been posted.\n");
+			if (strlen(bstr("recp")) > 0) {
+				sprintf(WC->ImportantMessage, "Message has been sent.\n");
+			}
+			else {
+				sprintf(WC->ImportantMessage, "Message has been posted.\n");
+			}
 			dont_post = atol(bstr("postseq"));
 		} else {
 			sprintf(WC->ImportantMessage, 
@@ -1602,8 +1606,13 @@ void display_enter(void)
 		"&nbsp;"
 	);
 
-	wprintf("<input type=\"submit\" name=\"sc\" value=\"Save message\">"
-		"&nbsp;"
+	wprintf("<input type=\"submit\" name=\"sc\" value=\"");
+	if (strlen(bstr("recp")) > 0) {
+		wprintf("Send message");
+	} else {
+		wprintf("Post message");
+	}
+	wprintf("\">&nbsp;"
 		"<input type=\"submit\" name=\"sc\" value=\"Cancel\">\n");
 
 	/* begin richedit box */

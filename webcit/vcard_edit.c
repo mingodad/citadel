@@ -256,7 +256,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	escputs(primary_inetemail);
 	wprintf("\"><br />"
 		"</TD><TD VALIGN=TOP>"
-		"Other Internet e-mail addresses<br />"
+		"Internet e-mail aliases<br />"
 		"<TEXTAREA NAME=\"other_inetemail\" ROWS=5 COLS=40 WIDTH=40>");
 	escputs(other_inetemail);
 	wprintf("</TEXTAREA></TD></TR></TABLE><br />\n");

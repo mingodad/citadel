@@ -419,7 +419,6 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 	if (do_room_banner == 1) {
 		wprintf("<div id=\"content\">\n");
 
-
 		if (strlen(WC->ImportantMessage) > 0) {
 			do_template("beginbox_nt");
 			wprintf("<SPAN CLASS=\"errormsg\">"
