@@ -34,7 +34,6 @@ webserver: webserver.o context_loop.o tools.o \
 	locate_host.o siteconfig.o subst.o vcard.o vcard_edit.o \
 	mime_parser.o graphics.o netconf.o preferences.o html2html.o \
 	$(LIBOBJS) $(LIBS) -o webserver
-	strip webserver
 
 .c.o:
 	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) -DWEBCITDIR=\"`pwd`\" $<

@@ -395,6 +395,7 @@ int lprintf(int loglevel, const char *format, ...)
 				tim->tm_sec, (long)tv.tv_usec / 1000,
 				pthread_self(), buf);
 		}
+		fflush(stderr);
 	}
 	return 1;
 }
