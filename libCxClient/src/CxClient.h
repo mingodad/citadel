@@ -210,6 +210,10 @@ char		*CxFiGet(const char *);
 /**
  ** Message Input/Output
  **/
+#define		MSGS_ALL		0	// Retrieve ALL messages in room.
+#define		MSGS_NEW		1	// Retrieve only UNREAD messages in room.
+#define		MSGS_LAST		2	// *Unsupported* Retrieve the LAST X messages in room.
+#define		MSGS_SEARCH		3	// *Unsupported* Search room for ...? .
 CXLIST		CxMsInfo(CXLIST);
 CXLIST		CxMsList(int,int);
 int		CxMsLoad(const char *, int, MESGINFO *);
