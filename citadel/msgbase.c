@@ -988,6 +988,8 @@ void save_message(char *mtmp,	/* file containing proper message */
 		a = strlen(mptr);
 		while (--a) {
 			if (!strncasecmp(mptr, "Content-type: ", 14)) {
+				safestrncpy(content_type, mptr,
+					sizeof(content_type));
 				lprintf(9, "%s\n", content_type);
 				strcpy(content_type, &content_type[14]);
 				for (a=0; a<strlen(content_type); ++a)
@@ -1432,6 +1434,9 @@ int CtdlDeleteMessages(	char *room_name,	/* which room */
 	int delete_this;
 	struct SuppMsgInfo smi;
 
+	lprintf(9, "CtdlDeleteMessages(%s, %ld, %s)\n",
+		room_name, dmsgnum, content_type);
+
 	/* get room record, obtaining a lock... */
 	if (lgetroom(&qrbuf, room_name) != 0) {
 		lprintf(7, "CtdlDeleteMessages(): Room <%s> not found\n",
@@ -1441,6 +1446,7 @@ int CtdlDeleteMessages(	char *room_name,	/* which room */
 
         cdbfr = cdb_fetch(CDB_MSGLISTS, &qrbuf.QRnumber, sizeof(long));
 
+	lprintf(9, "doing mallok/memcpy loop\n");
         if (cdbfr != NULL) {
         	msglist = mallok(cdbfr->len);
         	memcpy(msglist, cdbfr->ptr, cdbfr->len);
@@ -1448,37 +1454,45 @@ int CtdlDeleteMessages(	char *room_name,	/* which room */
         	cdb_free(cdbfr);
 	}
 
-	if (num_msgs > 0) for (i=0; i<num_msgs; ++i) {
-		delete_this = 0x00;
+	if (num_msgs > 0) {
+		for (i=0; i<num_msgs; ++i) {
+			lprintf(9, "Evaluating message d\n", i);
+			delete_this = 0x00;
 
-		/* Set/clear a bit for each criterion */
+			/* Set/clear a bit for each criterion */
 
-		if ( (dmsgnum == 0L) || (msglist[i]==dmsgnum) ) {
-			delete_this  |= 0x01;
-		}
+			lprintf(9, "Message number is <%ld>\n", msglist[i]);
+			if ( (dmsgnum == 0L) || (msglist[i]==dmsgnum) ) {
+				delete_this  |= 0x01;
+			}
 
-		if (content_type == NULL) {
-			delete_this |= 0x02;
-		} else {
-			GetSuppMsgInfo(&smi, msglist[i]);
-			if (!strcasecmp(smi.smi_content_type, content_type)) {
+			if (content_type == NULL) {
 				delete_this |= 0x02;
+			} else {
+				GetSuppMsgInfo(&smi, msglist[i]);
+				lprintf(9, "Content type is <%s>\n",
+					smi.smi_content_type);
+				if (!strcasecmp(smi.smi_content_type,
+				   content_type)) {
+					delete_this |= 0x02;
+				}
+			}
+	
+			/* Delete message only if all bits are set */
+			if (delete_this == 0x03) {
+				AdjRefCount(msglist[i], -1);
+				msglist[i] = 0L;
+				++num_deleted;
 			}
 		}
+	
+		num_msgs = sort_msglist(msglist, num_msgs);
+		cdb_store(CDB_MSGLISTS, &qrbuf.QRnumber, sizeof(long),
+			msglist, (num_msgs * sizeof(long)) );
 
-		/* Delete message only if all bits are set */
-		if (delete_this == 0x03) {
-			AdjRefCount(msglist[i], -1);
-			msglist[i] = 0L;
-			++num_deleted;
-		}
+		qrbuf.QRhighest = msglist[num_msgs - 1];
 	}
 
-	num_msgs = sort_msglist(msglist, num_msgs);
-	cdb_store(CDB_MSGLISTS, &qrbuf.QRnumber, sizeof(long),
-		msglist, (num_msgs * sizeof(long)) );
-
-	qrbuf.QRhighest = msglist[num_msgs - 1];
 	lputroom(&qrbuf);
 	lprintf(9, "%d message(s) deleted.\n", num_deleted);
 	return(num_deleted);
@@ -1653,4 +1667,73 @@ void AdjRefCount(long msgnum, int incr)
 		delnum = (0L - msgnum);
 		cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));
 	}
+}
+
+
+/*
+ * Write a generic object to this room
+ */
+void CtdlWriteObject(	char *req_room,		/* Room to stuff it in */
+			char *content_type,	/* MIME type of this object */
+			char *tempfilename,	/* Where to fetch it from */
+			int is_mailbox,		/* Private mailbox room? */
+			int is_binary,		/* Is encoding necessary? */
+			int is_unique		/* Del others of this type? */
+			) {
+
+	FILE *fp, *tempfp;
+	char filename[PATH_MAX];
+	char cmdbuf[256];
+	int ch;
+	struct quickroom qrbuf;
+	char roomname[ROOMNAMELEN];
+
+	if (is_mailbox) MailboxName(roomname, &CC->usersupp, req_room); 
+	else safestrncpy(roomname, req_room, sizeof(roomname));
+
+	strcpy(filename, tmpnam(NULL));
+	fp = fopen(filename, "w");
+	if (fp == NULL) return;
+
+	fprintf(fp, "%c%c%c", 0xFF, MES_NORMAL, 4);
+	fprintf(fp, "T%ld%c", time(NULL), 0);
+	fprintf(fp, "A%s%c", CC->usersupp.fullname, 0);
+	fprintf(fp, "O%s%c", roomname, 0);
+	fprintf(fp, "N%s%c", config.c_nodename, 0);
+	fprintf(fp, "MContent-type: %s\n", content_type);
+
+	tempfp = fopen(tempfilename, "r");
+	if (tempfp == NULL) {
+		fclose(fp);
+		unlink(filename);
+		return;
+	}
+
+	if (is_binary == 0) {
+		fprintf(fp, "Content-transfer-encoding: 7bit\n\n");
+		while (ch=getc(tempfp), ch>0) putc(ch, fp);
+		fclose(tempfp);
+		putc(0, fp);
+		fclose(fp);
+	} else {
+		fprintf(fp, "Content-transfer-encoding: base64\n\n");
+		fclose(tempfp);
+		fclose(fp);
+		sprintf(cmdbuf, "./base64 -e <%s >>%s",
+			tempfilename, filename);
+		system(cmdbuf);
+	}
+
+	/* Create the requested room if we have to. */
+	if (getroom(&qrbuf, roomname) != 0) {
+		create_room(roomname, 4, "", 0);
+	}
+
+	/* If the caller specified this object as unique, delete all
+	 * other objects of this type that are currently in the room.
+	 */
+	CtdlDeleteMessages(roomname, 0L, content_type);
+
+	/* Now write the data */
+	save_message(filename, "", roomname, MES_LOCAL, 1);
 }

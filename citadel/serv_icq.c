@@ -8,6 +8,9 @@
 
  $Id$
  $Log$
+ Revision 1.2  1999/07/23 04:27:45  ajc
+ Added CtdlWriteObject() to store generic data in the msgbase
+
  Revision 1.1  1999/07/19 04:12:49  ajc
          * serv_icq.c, serv_icq.mk: added (separate makefile is temporary)
 
@@ -84,6 +87,8 @@ struct ctdl_icq_handle {
 };
 
 /* <ig> */
+#define ICQROOM		"My ICQ Config"
+#define ICQMIME		"application/x-citadel-icq"
 unsigned long SYM_CTDL_ICQ;
 #define ThisICQ ((struct ctdl_icq_handle *)CtdlGetUserData(SYM_CTDL_ICQ))
 extern struct CitContext *ContextList;
@@ -1824,9 +1829,18 @@ void CtdlICQ_Config_Delete(char *key) {
 
 /* Write a key */
 void CtdlICQ_Config_Write(char *key, char *contents) {
+
+	char buf[256]; /* FIX */
+
 	CtdlICQ_Config_Delete(key);
 	fseek(ThisICQ->icq_MyConfigFile, 0L, SEEK_END);
 	fprintf(ThisICQ->icq_MyConfigFile, "%s %s\n", key, contents);
+
+	/****** FIX ****** TEMPORARY HACK TO SEE STUFF ***********/
+
+	fflush(ThisICQ->icq_MyConfigFile);
+	sprintf(buf, "icq/%ld", CC->usersupp.usernum);
+	CtdlWriteObject(ICQROOM, ICQMIME, buf, 1, 0, 1);
 }
 
 
