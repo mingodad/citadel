@@ -35,7 +35,7 @@
 #include <string.h>
 #include <limits.h>
 
-#ifdef HAVE_OPENSSL_XXX /* temporarily disabled due to bugs */
+#ifdef HAVE_OPENSSL
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/rand.h>
@@ -62,7 +62,7 @@
 #include "imap_store.h"
 #include "imap_misc.h"
 
-#ifdef HAVE_OPENSSL_XXX /* temporarily disabled due to bugs */
+#ifdef HAVE_OPENSSL
 #include "serv_crypto.h"
 #endif
 
@@ -75,7 +75,7 @@ struct irl {
 };
 
 /* Data which is passed between imap_rename() and imap_rename_backend() */
-struct irlparms { 
+struct irlparms {
 	char *oldname;
 	char *newname;
 	struct irl **irl;
@@ -85,7 +85,8 @@ struct irlparms {
 /*
  * If there is a message ID map in memory, free it
  */
-void imap_free_msgids(void) {
+void imap_free_msgids(void)
+{
 	if (IMAP->msgids != NULL) {
 		phree(IMAP->msgids);
 		IMAP->msgids = NULL;
@@ -101,7 +102,8 @@ void imap_free_msgids(void) {
 /*
  * If there is a transmitted message in memory, free it
  */
-void imap_free_transmitted_message(void) {
+void imap_free_transmitted_message(void)
+{
 	if (IMAP->transmitted_message != NULL) {
 		phree(IMAP->transmitted_message);
 		IMAP->transmitted_message = NULL;
@@ -113,17 +115,19 @@ void imap_free_transmitted_message(void) {
 /*
  * Set the \\Seen flag for messages which aren't new
  */
-void imap_set_seen_flags(void) {
+void imap_set_seen_flags(void)
+{
 	struct visit vbuf;
 	int i;
 
 	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
 	if (IMAP->num_msgs > 0) {
-		for (i=0; i<IMAP->num_msgs; ++i) {
+		for (i = 0; i < IMAP->num_msgs; ++i) {
 			if (is_msg_in_mset(vbuf.v_seen, IMAP->msgids[i])) {
 				IMAP->flags[i] |= IMAP_SEEN;
 			}
-			if (is_msg_in_mset(vbuf.v_answered, IMAP->msgids[i])) {
+			if (is_msg_in_mset
+			    (vbuf.v_answered, IMAP->msgids[i])) {
 				IMAP->flags[i] |= IMAP_ANSWERED;
 			}
 		}
@@ -140,24 +144,25 @@ void imap_set_seen_flags(void) {
  * allocate space in the list for REALLOC_INCREMENT messages at a time.  This
  * allows the mapping to proceed much faster.
  */
-void imap_add_single_msgid(long msgnum, void *userdata) {
-	
+void imap_add_single_msgid(long msgnum, void *userdata)
+{
+
 	IMAP->num_msgs = IMAP->num_msgs + 1;
 	if (IMAP->msgids == NULL) {
 		IMAP->msgids = mallok(IMAP->num_msgs * sizeof(long)
-					* REALLOC_INCREMENT);
-	}
-	else if (IMAP->num_msgs % REALLOC_INCREMENT == 0) {
+				      * REALLOC_INCREMENT);
+	} else if (IMAP->num_msgs % REALLOC_INCREMENT == 0) {
 		IMAP->msgids = reallok(IMAP->msgids,
-			(IMAP->num_msgs + REALLOC_INCREMENT) * sizeof(long));
+				       (IMAP->num_msgs +
+					REALLOC_INCREMENT) * sizeof(long));
 	}
 	if (IMAP->flags == NULL) {
 		IMAP->flags = mallok(IMAP->num_msgs * sizeof(long)
-					* REALLOC_INCREMENT);
-	}
-	else if (IMAP->num_msgs % REALLOC_INCREMENT == 0) {
+				     * REALLOC_INCREMENT);
+	} else if (IMAP->num_msgs % REALLOC_INCREMENT == 0) {
 		IMAP->flags = reallok(IMAP->flags,
-			(IMAP->num_msgs + REALLOC_INCREMENT) * sizeof(long));
+				      (IMAP->num_msgs +
+				       REALLOC_INCREMENT) * sizeof(long));
 	}
 	IMAP->msgids[IMAP->num_msgs - 1] = msgnum;
 	IMAP->flags[IMAP->num_msgs - 1] = 0;
@@ -168,27 +173,31 @@ void imap_add_single_msgid(long msgnum, void *userdata) {
 /*
  * Set up a message ID map for the current room (folder)
  */
-void imap_load_msgids(void) {
-	 
+void imap_load_msgids(void)
+{
+
 	if (IMAP->selected == 0) {
-		lprintf(5, "imap_load_msgids() can't run; no room selected\n");
+		lprintf(5,
+			"imap_load_msgids() can't run; no room selected\n");
 		return;
 	}
 
 	imap_free_msgids();	/* If there was already a map, free it */
 
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL,
-		imap_add_single_msgid, NULL);
+			   imap_add_single_msgid, NULL);
 
 	imap_set_seen_flags();
-	lprintf(9, "imap_load_msgids() mapped %d messages\n", IMAP->num_msgs);
+	lprintf(9, "imap_load_msgids() mapped %d messages\n",
+		IMAP->num_msgs);
 }
 
 
 /*
  * Re-scan the selected room (folder) and see if it's been changed at all
  */
-void imap_rescan_msgids(void) {
+void imap_rescan_msgids(void)
+{
 
 	int original_num_msgs = 0;
 	long original_highest = 0L;
@@ -200,7 +209,8 @@ void imap_rescan_msgids(void) {
 
 
 	if (IMAP->selected == 0) {
-		lprintf(5, "imap_load_msgids() can't run; no room selected\n");
+		lprintf(5,
+			"imap_load_msgids() can't run; no room selected\n");
 		return;
 	}
 
@@ -213,8 +223,7 @@ void imap_rescan_msgids(void) {
 		memcpy(msglist, cdbfr->ptr, cdbfr->len);
 		num_msgs = cdbfr->len / sizeof(long);
 		cdb_free(cdbfr);
-	}
-	else {
+	} else {
 		num_msgs = 0;
 	}
 
@@ -222,32 +231,37 @@ void imap_rescan_msgids(void) {
 	 * Check to see if any of the messages we know about have been expunged
 	 */
 	if (IMAP->num_msgs > 0)
-	 for (i=0; i<IMAP->num_msgs; ++i) {
+		for (i = 0; i < IMAP->num_msgs; ++i) {
 
-		message_still_exists = 0;
-		if (num_msgs > 0) for (j = 0; j < num_msgs; ++j) {
-			if (msglist[j] == IMAP->msgids[i]) {
-				message_still_exists = 1;
+			message_still_exists = 0;
+			if (num_msgs > 0)
+				for (j = 0; j < num_msgs; ++j) {
+					if (msglist[j] == IMAP->msgids[i]) {
+						message_still_exists = 1;
+					}
+				}
+
+			if (message_still_exists == 0) {
+				cprintf("* %d EXPUNGE\r\n", i + 1);
+
+				/* Here's some nice stupid nonsense.  When a message
+				 * is expunged, we have to slide all the existing
+				 * messages up in the message array.
+				 */
+				--IMAP->num_msgs;
+				memcpy(&IMAP->msgids[i],
+				       &IMAP->msgids[i + 1],
+				       (sizeof(long) *
+					(IMAP->num_msgs - i)));
+				memcpy(&IMAP->flags[i],
+				       &IMAP->flags[i + 1],
+				       (sizeof(long) *
+					(IMAP->num_msgs - i)));
+
+				--i;
 			}
+
 		}
-
-		if (message_still_exists == 0) {
-			cprintf("* %d EXPUNGE\r\n", i+1);
-
-			/* Here's some nice stupid nonsense.  When a message
-			 * is expunged, we have to slide all the existing
-			 * messages up in the message array.
-			 */
-			--IMAP->num_msgs;
-			memcpy(&IMAP->msgids[i], &IMAP->msgids[i+1],
-				(sizeof(long)*(IMAP->num_msgs-i)) );
-			memcpy(&IMAP->flags[i], &IMAP->flags[i+1],
-				(sizeof(long)*(IMAP->num_msgs-i)) );
-
-			--i;
-		}
-
-	}
 
 	/*
 	 * Remember how many messages were here before we re-scanned.
@@ -255,19 +269,19 @@ void imap_rescan_msgids(void) {
 	original_num_msgs = IMAP->num_msgs;
 	if (IMAP->num_msgs > 0) {
 		original_highest = IMAP->msgids[IMAP->num_msgs - 1];
-	}
-	else {
+	} else {
 		original_highest = 0L;
 	}
 
 	/*
 	 * Now peruse the room for *new* messages only.
 	 */
-	if (num_msgs > 0) for (j=0; j<num_msgs; ++j) {
-		if (msglist[j] > original_highest) {
-			imap_add_single_msgid(msglist[j], NULL);
+	if (num_msgs > 0)
+		for (j = 0; j < num_msgs; ++j) {
+			if (msglist[j] > original_highest) {
+				imap_add_single_msgid(msglist[j], NULL);
+			}
 		}
-	}
 	imap_set_seen_flags();
 
 	/*
@@ -277,7 +291,8 @@ void imap_rescan_msgids(void) {
 		cprintf("* %d EXISTS\r\n", IMAP->num_msgs);
 	}
 
-	if (num_msgs != 0) phree(msglist);
+	if (num_msgs != 0)
+		phree(msglist);
 }
 
 
@@ -290,10 +305,12 @@ void imap_rescan_msgids(void) {
  * This cleanup function blows away the temporary memory and files used by
  * the IMAP server.
  */
-void imap_cleanup_function(void) {
+void imap_cleanup_function(void)
+{
 
 	/* Don't do this stuff if this is not a IMAP session! */
-	if (CC->h_command_function != imap_command_loop) return;
+	if (CC->h_command_function != imap_command_loop)
+		return;
 
 	lprintf(9, "Performing IMAP cleanup hook\n");
 	imap_free_msgids();
@@ -306,7 +323,8 @@ void imap_cleanup_function(void) {
 /*
  * Here's where our IMAP session begins its happy day.
  */
-void imap_greeting(void) {
+void imap_greeting(void)
+{
 
 	strcpy(CC->cs_clientname, "IMAP session");
 	CtdlAllocUserData(SYM_IMAP, sizeof(struct citimap));
@@ -320,13 +338,14 @@ void imap_greeting(void) {
 /*
  * implements the LOGIN command (ordinary username/password login)
  */
-void imap_login(int num_parms, char *parms[]) {
+void imap_login(int num_parms, char *parms[])
+{
 	if (CtdlLoginExistingUser(parms[2]) == login_ok) {
 		if (CtdlTryPassword(parms[3]) == pass_ok) {
 			cprintf("%s OK login successful\r\n", parms[0]);
 			return;
 		}
-        }
+	}
 
 	cprintf("%s BAD Login incorrect\r\n", parms[0]);
 }
@@ -335,7 +354,8 @@ void imap_login(int num_parms, char *parms[]) {
 /*
  * Implements the AUTHENTICATE command
  */
-void imap_authenticate(int num_parms, char *parms[]) {
+void imap_authenticate(int num_parms, char *parms[])
+{
 	char buf[SIZ];
 
 	if (num_parms != 3) {
@@ -363,7 +383,8 @@ void imap_authenticate(int num_parms, char *parms[]) {
 	}
 }
 
-void imap_auth_login_user(char *cmd) {
+void imap_auth_login_user(char *cmd)
+{
 	char buf[SIZ];
 
 	CtdlDecodeBase64(buf, cmd, SIZ);
@@ -374,14 +395,15 @@ void imap_auth_login_user(char *cmd) {
 	return;
 }
 
-void imap_auth_login_pass(char *cmd) {
+void imap_auth_login_pass(char *cmd)
+{
 	char buf[SIZ];
 
 	CtdlDecodeBase64(buf, cmd, SIZ);
 	if (CtdlTryPassword(buf) == pass_ok) {
-		cprintf("%s OK authentication succeeded\r\n", IMAP->authseq);
-	}
-	else {
+		cprintf("%s OK authentication succeeded\r\n",
+			IMAP->authseq);
+	} else {
 		cprintf("%s NO authentication failed\r\n", IMAP->authseq);
 	}
 	IMAP->authstate = imap_as_normal;
@@ -392,10 +414,11 @@ void imap_auth_login_pass(char *cmd) {
 /*
  * implements the CAPABILITY command
  */
-void imap_capability(int num_parms, char *parms[]) {
+void imap_capability(int num_parms, char *parms[])
+{
 	cprintf("* CAPABILITY IMAP4 IMAP4REV1 AUTH=LOGIN");
 
-#ifdef HAVE_OPENSSL_XXX /* temporarily disabled due to bugs */
+#ifdef HAVE_OPENSSL_XXX_DISABLED
 	cprintf(" STARTTLS");
 #endif
 
@@ -405,11 +428,85 @@ void imap_capability(int num_parms, char *parms[]) {
 
 
 /*
- * implements the STARTTLS command
+ * implements the STARTTLS command (lifted-from-Cyrus version)
  */
-#ifdef HAVE_OPENSSL_XXX /* temporarily disabled due to bugs */
-void imap_starttls(int num_parms, char *parms[]) {
+#ifdef HAVE_OPENSSL
+void imap_starttls(int num_parms, char *parms[])
+{
+	int sts;
+	SSL_CIPHER *cipher;
+	const char *tls_protocol = NULL;
+	const char *tls_cipher_name = NULL;
+	int tls_cipher_usebits = 0;
+	int tls_cipher_algbits = 0;
+	SSL *tls_conn;
+	int r = 0;
+
+	lprintf(9, "imap_starttls() called\n");
+	tls_conn = (SSL *) SSL_new(ssl_ctx);
+	if (tls_conn == NULL) {
+		CC->ssl = NULL;
+		r = -1;
+		goto done;
+	}
+	SSL_clear(tls_conn);
+
+	/* set the file descriptors for SSL to use */
+	if (SSL_set_fd(tls_conn, CC->client_socket) == 0) {
+		r = -1;
+		goto done;
+	}
+
+	/*
+	 * This is the actual handshake routine. It will do all the negotiations
+	 * and will check the client cert etc.
+	 */
+	SSL_set_accept_state(tls_conn);
+
+	cprintf("%s OK begin TLS negotiation now\r\n", parms[0]);
+	if ((sts = SSL_accept(tls_conn)) <= 0) {
+		SSL_SESSION *session = SSL_get_session(tls_conn);
+		if (session) {
+			SSL_CTX_remove_session(ssl_ctx, session);
+		}
+		r = -1;
+		goto done;
+	}
+
+	tls_protocol = SSL_get_version(tls_conn);
+	cipher = SSL_get_current_cipher(tls_conn);
+	tls_cipher_name = SSL_CIPHER_get_name(cipher);
+	tls_cipher_usebits =
+		SSL_CIPHER_get_bits(cipher, &tls_cipher_algbits);
+
+	lprintf(9, "starttls: %s with cipher %s (%d/%d bits %s)\n",
+		tls_protocol, tls_cipher_name,
+		tls_cipher_usebits, tls_cipher_algbits,
+		SSL_session_reused(tls_conn) ? "reused" : "new");
+
+done:
+	if (r && tls_conn) {
+		/* error; clean up */
+		SSL_free(tls_conn);
+		tls_conn = NULL;
+		cprintf("%s NO negotiation failed\r\n", parms[0]);
+	} else {
+		CC->ssl = tls_conn;
+		CC->redirect_ssl = 1;
+	}
+}
+
+#endif
+
+
+/*
+ * implements the STARTTLS command (original version)
+ */
+#ifdef HAVE_OPENSSL_XXX
+void imap_starttls(int num_parms, char *parms[])
+{
 	int retval, bits, alg_bits;
+	long ssloptions;
 
 	if (!ssl_ctx) {
 		cprintf("%s NO No SSL_CTX available\r\n", parms[0]);
@@ -417,18 +514,26 @@ void imap_starttls(int num_parms, char *parms[]) {
 	}
 	if (!(CC->ssl = SSL_new(ssl_ctx))) {
 		lprintf(2, "SSL_new failed: %s\n",
-				ERR_reason_error_string(ERR_peek_error()));
+			ERR_reason_error_string(ERR_peek_error()));
 		cprintf("%s NO SSL_new: %s\r\n", parms[0],
-				ERR_reason_error_string(ERR_get_error()));
+			ERR_reason_error_string(ERR_get_error()));
 		return;
 	}
+
+	/* Set the options */
+	ssloptions = SSL_get_options(CC->ssl);
+	ssloptions |= SSL_OP_ALL;	/* Work around all known bugs */
+	ssloptions |= SSL_OP_NO_SSLv2;
+	ssloptions |= SSL_OP_NO_SSLv3;
+	SSL_set_options(CC->ssl, ssloptions);
+
 	if (!(SSL_set_fd(CC->ssl, CC->client_socket))) {
 		lprintf(2, "SSL_set_fd failed: %s\n",
-				ERR_reason_error_string(ERR_peek_error()));
+			ERR_reason_error_string(ERR_peek_error()));
 		SSL_free(CC->ssl);
 		CC->ssl = NULL;
 		cprintf("%s NO SSL_set_fd: %s\r\n", parms[0],
-				ERR_reason_error_string(ERR_get_error()));
+			ERR_reason_error_string(ERR_get_error()));
 		return;
 	}
 	cprintf("%s OK begin TLS negotiation now\r\n", parms[0]);
@@ -443,17 +548,19 @@ void imap_starttls(int num_parms, char *parms[]) {
 
 		errval = SSL_get_error(CC->ssl, retval);
 		lprintf(2, "SSL_accept failed: %s\n",
-				ERR_reason_error_string(ERR_get_error()));
+			ERR_reason_error_string(ERR_get_error()));
 		SSL_free(CC->ssl);
 		CC->ssl = NULL;
 		return;
 	}
 	BIO_set_close(CC->ssl->rbio, BIO_NOCLOSE);
-	bits = SSL_CIPHER_get_bits(SSL_get_current_cipher(CC->ssl), &alg_bits);
+	bits =
+	    SSL_CIPHER_get_bits(SSL_get_current_cipher(CC->ssl),
+				&alg_bits);
 	lprintf(3, "SSL/TLS using %s on %s (%d of %d bits)\n",
-			SSL_CIPHER_get_name(SSL_get_current_cipher(CC->ssl)),
-			SSL_CIPHER_get_version(SSL_get_current_cipher(CC->ssl)),
-			bits, alg_bits);
+		SSL_CIPHER_get_name(SSL_get_current_cipher(CC->ssl)),
+		SSL_CIPHER_get_version(SSL_get_current_cipher(CC->ssl)),
+		bits, alg_bits);
 	CC->redirect_ssl = 1;
 }
 #endif
@@ -463,7 +570,8 @@ void imap_starttls(int num_parms, char *parms[]) {
 /*
  * implements the SELECT command
  */
-void imap_select(int num_parms, char *parms[]) {
+void imap_select(int num_parms, char *parms[])
+{
 	char towhere[SIZ];
 	char augmented_roomname[ROOMNAMELEN];
 	int c = 0;
@@ -485,26 +593,26 @@ void imap_select(int num_parms, char *parms[]) {
 	floornum = (i & 0x00ff);
 	roomflags = (i & 0xff00);
 
-        /* First try a regular match */
-        c = getroom(&QRscratch, towhere);
+	/* First try a regular match */
+	c = getroom(&QRscratch, towhere);
 
-        /* Then try a mailbox name match */
-        if (c != 0) {
-                MailboxName(augmented_roomname, sizeof augmented_roomname,
+	/* Then try a mailbox name match */
+	if (c != 0) {
+		MailboxName(augmented_roomname, sizeof augmented_roomname,
 			    &CC->user, towhere);
-                c = getroom(&QRscratch, augmented_roomname);
-                if (c == 0)
-                        strcpy(towhere, augmented_roomname);
-        }
+		c = getroom(&QRscratch, augmented_roomname);
+		if (c == 0)
+			strcpy(towhere, augmented_roomname);
+	}
 
 	/* If the room exists, check security/access */
-        if (c == 0) {
-                /* See if there is an existing user/room relationship */
-                ra = CtdlRoomAccess(&QRscratch, &CC->user);
+	if (c == 0) {
+		/* See if there is an existing user/room relationship */
+		ra = CtdlRoomAccess(&QRscratch, &CC->user);
 
-                /* normal clients have to pass through security */
-                if (ra & UA_KNOWN) {
-                        ok = 1;
+		/* normal clients have to pass through security */
+		if (ra & UA_KNOWN) {
+			ok = 1;
 		}
 	}
 
@@ -529,8 +637,7 @@ void imap_select(int num_parms, char *parms[]) {
 
 	if (!strcasecmp(parms[1], "EXAMINE")) {
 		IMAP->readonly = 1;
-	}
-	else {
+	} else {
 		IMAP->readonly = 0;
 	}
 
@@ -550,8 +657,7 @@ void imap_select(int num_parms, char *parms[]) {
 	cprintf("* OK [UIDVALIDITY 0] UIDs valid\r\n");
 	cprintf("%s OK [%s] %s completed\r\n",
 		parms[0],
-		(IMAP->readonly ? "READ-ONLY" : "READ-WRITE"),
-		parms[1]);
+		(IMAP->readonly ? "READ-ONLY" : "READ-WRITE"), parms[1]);
 }
 
 
@@ -559,37 +665,42 @@ void imap_select(int num_parms, char *parms[]) {
 /*
  * does the real work for expunge
  */
-int imap_do_expunge(void) {
+int imap_do_expunge(void)
+{
 	int i;
 	int num_expunged = 0;
 
 	lprintf(9, "imap_do_expunge() called\n");
-	if (IMAP->selected == 0) return(0);
+	if (IMAP->selected == 0)
+		return (0);
 
-	if (IMAP->num_msgs > 0) for (i=0; i<IMAP->num_msgs; ++i) {
-		if (IMAP->flags[i] & IMAP_DELETED) {
-			CtdlDeleteMessages(CC->room.QRname,
-					IMAP->msgids[i], "");
-			++num_expunged;
-			lprintf(9, "%ld ... deleted\n", IMAP->msgids[i]);
+	if (IMAP->num_msgs > 0)
+		for (i = 0; i < IMAP->num_msgs; ++i) {
+			if (IMAP->flags[i] & IMAP_DELETED) {
+				CtdlDeleteMessages(CC->room.QRname,
+						   IMAP->msgids[i], "");
+				++num_expunged;
+				lprintf(9, "%ld ... deleted\n",
+					IMAP->msgids[i]);
+			} else {
+				lprintf(9, "%ld ... not deleted\n",
+					IMAP->msgids[i]);
+			}
 		}
-		else {
-			lprintf(9, "%ld ... not deleted\n", IMAP->msgids[i]);
-		}
-	}
 
 	if (num_expunged > 0) {
 		imap_rescan_msgids();
 	}
 
-	return(num_expunged);
+	return (num_expunged);
 }
 
 
 /*
  * implements the EXPUNGE command syntax
  */
-void imap_expunge(int num_parms, char *parms[]) {
+void imap_expunge(int num_parms, char *parms[])
+{
 	int num_expunged = 0;
 
 	num_expunged = imap_do_expunge();
@@ -600,7 +711,8 @@ void imap_expunge(int num_parms, char *parms[]) {
 /*
  * implements the CLOSE command
  */
-void imap_close(int num_parms, char *parms[]) {
+void imap_close(int num_parms, char *parms[])
+{
 
 	/* Yes, we always expunge on close. */
 	imap_do_expunge();
@@ -617,14 +729,16 @@ void imap_close(int num_parms, char *parms[]) {
 /*
  * Used by LIST and LSUB to show the floors in the listing
  */
-void imap_list_floors(char *cmd, char *pattern) {
+void imap_list_floors(char *cmd, char *pattern)
+{
 	int i;
 	struct floor *fl;
 
-	for (i=0; i<MAXFLOORS; ++i) {
+	for (i = 0; i < MAXFLOORS; ++i) {
 		fl = cgetfloor(i);
 		if (fl->f_flags & F_INUSE) {
-			if (imap_mailbox_matches_pattern(pattern, fl->f_name)) {
+			if (imap_mailbox_matches_pattern
+			    (pattern, fl->f_name)) {
 				cprintf("* %s (\\NoSelect) \"|\" ", cmd);
 				imap_strout(fl->f_name);
 				cprintf("\r\n");
@@ -641,12 +755,13 @@ void imap_list_floors(char *cmd, char *pattern) {
  * IMAP "subscribed folder" is equivocated to Citadel "known rooms."  This
  * may or may not be the desired behavior in the future.
  */
-void imap_lsub_listroom(struct ctdlroom *qrbuf, void *data) {
+void imap_lsub_listroom(struct ctdlroom *qrbuf, void *data)
+{
 	char buf[SIZ];
 	int ra;
 	char *pattern;
 
-	pattern = (char *)data;
+	pattern = (char *) data;
 
 	/* Only list rooms to which the user has access!! */
 	ra = CtdlRoomAccess(qrbuf, &CC->user);
@@ -664,7 +779,8 @@ void imap_lsub_listroom(struct ctdlroom *qrbuf, void *data) {
 /*
  * Implements the LSUB command
  */
-void imap_lsub(int num_parms, char *parms[]) {
+void imap_lsub(int num_parms, char *parms[])
+{
 	char pattern[SIZ];
 	if (num_parms < 4) {
 		cprintf("%s BAD arguments invalid\r\n", parms[0]);
@@ -672,7 +788,7 @@ void imap_lsub(int num_parms, char *parms[]) {
 	}
 	snprintf(pattern, sizeof pattern, "%s%s", parms[2], parms[3]);
 
-	if (strlen(parms[3])==0) {
+	if (strlen(parms[3]) == 0) {
 		cprintf("* LIST (\\Noselect) \"|\" \"\"\r\n");
 	}
 
@@ -689,17 +805,18 @@ void imap_lsub(int num_parms, char *parms[]) {
 /*
  * Back end for imap_list()
  */
-void imap_list_listroom(struct ctdlroom *qrbuf, void *data) {
+void imap_list_listroom(struct ctdlroom *qrbuf, void *data)
+{
 	char buf[SIZ];
 	int ra;
 	char *pattern;
 
-	pattern = (char *)data;
+	pattern = (char *) data;
 
 	/* Only list rooms to which the user has access!! */
 	ra = CtdlRoomAccess(qrbuf, &CC->user);
-	if ( (ra & UA_KNOWN) 
-	  || ((ra & UA_GOTOALLOWED) && (ra & UA_ZAPPED))) {
+	if ((ra & UA_KNOWN)
+	    || ((ra & UA_GOTOALLOWED) && (ra & UA_ZAPPED))) {
 		imap_mailboxname(buf, sizeof buf, qrbuf);
 		if (imap_mailbox_matches_pattern(pattern, buf)) {
 			cprintf("* LIST () \"|\" ");
@@ -713,7 +830,8 @@ void imap_list_listroom(struct ctdlroom *qrbuf, void *data) {
 /*
  * Implements the LIST command
  */
-void imap_list(int num_parms, char *parms[]) {
+void imap_list(int num_parms, char *parms[])
+{
 	char pattern[SIZ];
 	if (num_parms < 4) {
 		cprintf("%s BAD arguments invalid\r\n", parms[0]);
@@ -721,7 +839,7 @@ void imap_list(int num_parms, char *parms[]) {
 	}
 	snprintf(pattern, sizeof pattern, "%s%s", parms[2], parms[3]);
 
-	if (strlen(parms[3])==0) {
+	if (strlen(parms[3]) == 0) {
 		cprintf("* LIST (\\Noselect) \"|\" \"\"\r\n");
 	}
 
@@ -739,7 +857,8 @@ void imap_list(int num_parms, char *parms[]) {
  * Implements the CREATE command
  *
  */
-void imap_create(int num_parms, char *parms[]) {
+void imap_create(int num_parms, char *parms[])
+{
 	int ret;
 	char roomname[ROOMNAMELEN];
 	int floornum;
@@ -747,7 +866,8 @@ void imap_create(int num_parms, char *parms[]) {
 	int newroomtype;
 
 	if (strchr(parms[2], '\\') != NULL) {
-		cprintf("%s NO Invalid character in folder name\r\n", parms[0]);
+		cprintf("%s NO Invalid character in folder name\r\n",
+			parms[0]);
 		return;
 	}
 
@@ -757,13 +877,12 @@ void imap_create(int num_parms, char *parms[]) {
 			parms[0]);
 		return;
 	}
-	floornum = ( ret & 0x00ff );	/* lower 8 bits = floor number */
-	flags =    ( ret & 0xff00 );	/* upper 8 bits = flags        */
+	floornum = (ret & 0x00ff);	/* lower 8 bits = floor number */
+	flags = (ret & 0xff00);	/* upper 8 bits = flags        */
 
 	if (flags & IR_MAILBOX) {
 		newroomtype = 4;	/* private mailbox */
-	}
-	else {
+	} else {
 		newroomtype = 0;	/* public folder */
 	}
 
@@ -772,10 +891,10 @@ void imap_create(int num_parms, char *parms[]) {
 
 	ret = create_room(roomname, newroomtype, "", floornum, 1, 0);
 	if (ret == 0) {
-		cprintf("%s NO Mailbox already exists, or create failed\r\n",
-			parms[0]);
-	}
-	else {
+		cprintf
+		    ("%s NO Mailbox already exists, or create failed\r\n",
+		     parms[0]);
+	} else {
 		cprintf("%s OK CREATE completed\r\n", parms[0]);
 	}
 }
@@ -784,7 +903,8 @@ void imap_create(int num_parms, char *parms[]) {
 /*
  * Locate a room by its IMAP folder name, and check access to it
  */
-int imap_grabroom(char *returned_roomname, char *foldername) {
+int imap_grabroom(char *returned_roomname, char *foldername)
+{
 	int ret;
 	char augmented_roomname[ROOMNAMELEN];
 	char roomname[ROOMNAMELEN];
@@ -795,40 +915,39 @@ int imap_grabroom(char *returned_roomname, char *foldername) {
 
 	ret = imap_roomname(roomname, sizeof roomname, foldername);
 	if (ret < 0) {
-		return(1);
+		return (1);
 	}
 
-        /* First try a regular match */
-        c = getroom(&QRscratch, roomname);
+	/* First try a regular match */
+	c = getroom(&QRscratch, roomname);
 
-        /* Then try a mailbox name match */
-        if (c != 0) {
-                MailboxName(augmented_roomname, sizeof augmented_roomname,
+	/* Then try a mailbox name match */
+	if (c != 0) {
+		MailboxName(augmented_roomname, sizeof augmented_roomname,
 			    &CC->user, roomname);
-                c = getroom(&QRscratch, augmented_roomname);
-                if (c == 0)
-                        strcpy(roomname, augmented_roomname);
-        }
+		c = getroom(&QRscratch, augmented_roomname);
+		if (c == 0)
+			strcpy(roomname, augmented_roomname);
+	}
 
 	/* If the room exists, check security/access */
-        if (c == 0) {
-                /* See if there is an existing user/room relationship */
-                ra = CtdlRoomAccess(&QRscratch, &CC->user);
+	if (c == 0) {
+		/* See if there is an existing user/room relationship */
+		ra = CtdlRoomAccess(&QRscratch, &CC->user);
 
-                /* normal clients have to pass through security */
-                if (ra & UA_KNOWN) {
-                        ok = 1;
+		/* normal clients have to pass through security */
+		if (ra & UA_KNOWN) {
+			ok = 1;
 		}
 	}
 
 	/* Fail here if no such room */
 	if (!ok) {
 		strcpy(returned_roomname, "");
-		return(2);
-	}
-	else {
+		return (2);
+	} else {
 		strcpy(returned_roomname, QRscratch.QRname);
-		return(0);
+		return (0);
 	}
 }
 
@@ -837,7 +956,8 @@ int imap_grabroom(char *returned_roomname, char *foldername) {
  * Implements the STATUS command (sort of)
  *
  */
-void imap_status(int num_parms, char *parms[]) {
+void imap_status(int num_parms, char *parms[])
+{
 	int ret;
 	char roomname[ROOMNAMELEN];
 	char buf[SIZ];
@@ -846,8 +966,9 @@ void imap_status(int num_parms, char *parms[]) {
 
 	ret = imap_grabroom(roomname, parms[2]);
 	if (ret != 0) {
-		cprintf("%s NO Invalid mailbox name or location, or access denied\r\n",
-			parms[0]);
+		cprintf
+		    ("%s NO Invalid mailbox name or location, or access denied\r\n",
+		     parms[0]);
 		return;
 	}
 
@@ -895,7 +1016,8 @@ void imap_status(int num_parms, char *parms[]) {
  * Implements the SUBSCRIBE command
  *
  */
-void imap_subscribe(int num_parms, char *parms[]) {
+void imap_subscribe(int num_parms, char *parms[])
+{
 	int ret;
 	char roomname[ROOMNAMELEN];
 	char savedroom[ROOMNAMELEN];
@@ -903,8 +1025,9 @@ void imap_subscribe(int num_parms, char *parms[]) {
 
 	ret = imap_grabroom(roomname, parms[2]);
 	if (ret != 0) {
-		cprintf("%s NO Invalid mailbox name or location, or access denied\r\n",
-			parms[0]);
+		cprintf
+		    ("%s NO Invalid mailbox name or location, or access denied\r\n",
+		     parms[0]);
 		return;
 	}
 
@@ -934,7 +1057,8 @@ void imap_subscribe(int num_parms, char *parms[]) {
  * Implements the UNSUBSCRIBE command
  *
  */
-void imap_unsubscribe(int num_parms, char *parms[]) {
+void imap_unsubscribe(int num_parms, char *parms[])
+{
 	int ret;
 	char roomname[ROOMNAMELEN];
 	char savedroom[ROOMNAMELEN];
@@ -942,8 +1066,9 @@ void imap_unsubscribe(int num_parms, char *parms[]) {
 
 	ret = imap_grabroom(roomname, parms[2]);
 	if (ret != 0) {
-		cprintf("%s NO Invalid mailbox name or location, or access denied\r\n",
-			parms[0]);
+		cprintf
+		    ("%s NO Invalid mailbox name or location, or access denied\r\n",
+		     parms[0]);
 		return;
 	}
 
@@ -960,10 +1085,10 @@ void imap_unsubscribe(int num_parms, char *parms[]) {
 	 */
 	if (CtdlForgetThisRoom() == 0) {
 		cprintf("%s OK UNSUBSCRIBE completed\r\n", parms[0]);
-	}
-	else {
-		cprintf("%s NO You may not unsubscribe from this folder.\r\n",
-			parms[0]);
+	} else {
+		cprintf
+		    ("%s NO You may not unsubscribe from this folder.\r\n",
+		     parms[0]);
 	}
 
 	/*
@@ -981,7 +1106,8 @@ void imap_unsubscribe(int num_parms, char *parms[]) {
  * Implements the DELETE command
  *
  */
-void imap_delete(int num_parms, char *parms[]) {
+void imap_delete(int num_parms, char *parms[])
+{
 	int ret;
 	char roomname[ROOMNAMELEN];
 	char savedroom[ROOMNAMELEN];
@@ -1010,8 +1136,7 @@ void imap_delete(int num_parms, char *parms[]) {
 	if (CtdlDoIHavePermissionToDeleteThisRoom(&CC->room)) {
 		cprintf("%s OK DELETE completed\r\n", parms[0]);
 		delete_room(&CC->room);
-	}
-	else {
+	} else {
 		cprintf("%s NO Can't delete this folder.\r\n", parms[0]);
 	}
 
@@ -1028,7 +1153,8 @@ void imap_delete(int num_parms, char *parms[]) {
 /*
  * Back end function for imap_rename()
  */
-void imap_rename_backend(struct ctdlroom *qrbuf, void *data) {
+void imap_rename_backend(struct ctdlroom *qrbuf, void *data)
+{
 	char foldername[SIZ];
 	char newfoldername[SIZ];
 	char newroomname[ROOMNAMELEN];
@@ -1036,21 +1162,22 @@ void imap_rename_backend(struct ctdlroom *qrbuf, void *data) {
 	struct irl *irlp = NULL;	/* scratch pointer */
 	struct irlparms *irlparms;
 
-	irlparms = (struct irlparms *)data;
+	irlparms = (struct irlparms *) data;
 	imap_mailboxname(foldername, sizeof foldername, qrbuf);
 
 	/* Rename subfolders */
-	if ( (!strncasecmp(foldername, irlparms->oldname,
-	   strlen(irlparms->oldname))
-	   && (foldername[strlen(irlparms->oldname)] == '|')) ) {
+	if ((!strncasecmp(foldername, irlparms->oldname,
+			  strlen(irlparms->oldname))
+	     && (foldername[strlen(irlparms->oldname)] == '|'))) {
 
 		sprintf(newfoldername, "%s|%s",
 			irlparms->newname,
-			&foldername[strlen(irlparms->oldname)+1]
-		);
+			&foldername[strlen(irlparms->oldname) + 1]
+		    );
 
 		newfloor = imap_roomname(newroomname,
-			sizeof newroomname, newfoldername) & 0xFF;
+					 sizeof newroomname,
+					 newfoldername) & 0xFF;
 
 		irlp = (struct irl *) mallok(sizeof(struct irl));
 		strcpy(irlp->irl_newroom, newroomname);
@@ -1060,24 +1187,26 @@ void imap_rename_backend(struct ctdlroom *qrbuf, void *data) {
 		*(irlparms->irl) = irlp;
 	}
 }
-	
+
 
 /*
  * Implements the RENAME command
  *
  */
-void imap_rename(int num_parms, char *parms[]) {
+void imap_rename(int num_parms, char *parms[])
+{
 	char old_room[ROOMNAMELEN];
 	char new_room[ROOMNAMELEN];
 	int oldr, newr;
 	int new_floor;
 	int r;
-	struct irl *irl = NULL;		/* the list */
+	struct irl *irl = NULL;	/* the list */
 	struct irl *irlp = NULL;	/* scratch pointer */
 	struct irlparms irlparms;
 
 	if (strchr(parms[3], '\\') != NULL) {
-		cprintf("%s NO Invalid character in folder name\r\n", parms[0]);
+		cprintf("%s NO Invalid character in folder name\r\n",
+			parms[0]);
 		return;
 	}
 
@@ -1088,7 +1217,8 @@ void imap_rename(int num_parms, char *parms[]) {
 	r = CtdlRenameRoom(old_room, new_room, new_floor);
 
 	if (r == crr_room_not_found) {
-		cprintf("%s NO Could not locate this folder\r\n", parms[0]);
+		cprintf("%s NO Could not locate this folder\r\n",
+			parms[0]);
 		return;
 	}
 	if (r == crr_already_exists) {
@@ -1128,15 +1258,17 @@ void imap_rename(int num_parms, char *parms[]) {
 		irlparms.oldname = parms[2];
 		irlparms.newname = parms[3];
 		irlparms.irl = &irl;
-		ForEachRoom(imap_rename_backend, (void *)&irlparms);
+		ForEachRoom(imap_rename_backend, (void *) &irlparms);
 
 		/* ... and now rename them. */
 		while (irl != NULL) {
 			r = CtdlRenameRoom(irl->irl_oldroom,
-				irl->irl_newroom, irl->irl_newfloor);
+					   irl->irl_newroom,
+					   irl->irl_newfloor);
 			if (r != crr_ok) {
 				/* FIXME handle error returns better */
-				lprintf(5, "CtdlRenameRoom() error %d\n", r);
+				lprintf(5, "CtdlRenameRoom() error %d\n",
+					r);
 			}
 			irlp = irl;
 			irl = irl->next;
@@ -1153,13 +1285,14 @@ void imap_rename(int num_parms, char *parms[]) {
 /* 
  * Main command loop for IMAP sessions.
  */
-void imap_command_loop(void) {
+void imap_command_loop(void)
+{
 	char cmdbuf[SIZ];
 	char *parms[SIZ];
 	int num_parms;
 
 	time(&CC->lastcmd);
-	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
+	memset(cmdbuf, 0, sizeof cmdbuf);	/* Clear it, just in case */
 	if (client_gets(cmdbuf) < 1) {
 		lprintf(3, "IMAP socket is broken.  Ending session.\r\n");
 		CC->kill_me = 1;
@@ -1167,12 +1300,15 @@ void imap_command_loop(void) {
 	}
 
 	lprintf(5, "IMAP: %s\r\n", cmdbuf);
-	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
+	while (strlen(cmdbuf) < 5)
+		strcat(cmdbuf, " ");
 
 
 	/* strip off l/t whitespace and CRLF */
-	if (cmdbuf[strlen(cmdbuf)-1]=='\n') cmdbuf[strlen(cmdbuf)-1]=0;
-	if (cmdbuf[strlen(cmdbuf)-1]=='\r') cmdbuf[strlen(cmdbuf)-1]=0;
+	if (cmdbuf[strlen(cmdbuf) - 1] == '\n')
+		cmdbuf[strlen(cmdbuf) - 1] = 0;
+	if (cmdbuf[strlen(cmdbuf) - 1] == '\r')
+		cmdbuf[strlen(cmdbuf) - 1] = 0;
 	striplt(cmdbuf);
 
 	/* If we're in the middle of a multi-line command, handle that */
@@ -1211,8 +1347,8 @@ void imap_command_loop(void) {
 
 	/* The commands below may be executed in any state */
 
-	else if ( (!strcasecmp(parms[1], "NOOP"))
-	   || (!strcasecmp(parms[1], "CHECK")) ) {
+	else if ((!strcasecmp(parms[1], "NOOP"))
+		 || (!strcasecmp(parms[1], "CHECK"))) {
 		cprintf("%s OK This command successfully did nothing.\r\n",
 			parms[0]);
 	}
@@ -1220,7 +1356,8 @@ void imap_command_loop(void) {
 	else if (!strcasecmp(parms[1], "LOGOUT")) {
 		imap_do_expunge();	/* yes, we auto-expunge */
 		cprintf("* BYE %s logging out\r\n", config.c_fqdn);
-		cprintf("%s OK thank you for using Citadel IMAP\r\n", parms[0]);
+		cprintf("%s OK thank you for using Citadel IMAP\r\n",
+			parms[0]);
 		CC->kill_me = 1;
 		return;
 	}
@@ -1236,8 +1373,7 @@ void imap_command_loop(void) {
 	else if (!strcasecmp(parms[1], "CAPABILITY")) {
 		imap_capability(num_parms, parms);
 	}
-
-#ifdef HAVE_OPENSSL_XXX /* temporarily disabled due to bugs */
+#ifdef HAVE_OPENSSL
 	else if (!strcasecmp(parms[1], "STARTTLS")) {
 		imap_starttls(num_parms, parms);
 	}
@@ -1303,8 +1439,8 @@ void imap_command_loop(void) {
 		imap_fetch(num_parms, parms);
 	}
 
-	else if ( (!strcasecmp(parms[1], "UID"))
-		&& (!strcasecmp(parms[2], "FETCH")) ) {
+	else if ((!strcasecmp(parms[1], "UID"))
+		 && (!strcasecmp(parms[2], "FETCH"))) {
 		imap_uidfetch(num_parms, parms);
 	}
 
@@ -1312,8 +1448,8 @@ void imap_command_loop(void) {
 		imap_search(num_parms, parms);
 	}
 
-	else if ( (!strcasecmp(parms[1], "UID"))
-		&& (!strcasecmp(parms[2], "SEARCH")) ) {
+	else if ((!strcasecmp(parms[1], "UID"))
+		 && (!strcasecmp(parms[2], "SEARCH"))) {
 		imap_uidsearch(num_parms, parms);
 	}
 
@@ -1321,8 +1457,8 @@ void imap_command_loop(void) {
 		imap_store(num_parms, parms);
 	}
 
-	else if ( (!strcasecmp(parms[1], "UID"))
-		&& (!strcasecmp(parms[2], "STORE")) ) {
+	else if ((!strcasecmp(parms[1], "UID"))
+		 && (!strcasecmp(parms[2], "STORE"))) {
 		imap_uidstore(num_parms, parms);
 	}
 
@@ -1330,8 +1466,8 @@ void imap_command_loop(void) {
 		imap_copy(num_parms, parms);
 	}
 
-	else if ( (!strcasecmp(parms[1], "UID"))
-		&& (!strcasecmp(parms[2], "COPY")) ) {
+	else if ((!strcasecmp(parms[1], "UID"))
+		 && (!strcasecmp(parms[2], "COPY"))) {
 		imap_uidcopy(num_parms, parms);
 	}
 
@@ -1363,9 +1499,7 @@ void imap_command_loop(void) {
 char *serv_imap_init(void)
 {
 	CtdlRegisterServiceHook(config.c_imap_port,
-				NULL,
-				imap_greeting,
-				imap_command_loop);
+				NULL, imap_greeting, imap_command_loop);
 	CtdlRegisterSessionHook(imap_cleanup_function, EVT_STOP);
 	return "$Id$";
 }

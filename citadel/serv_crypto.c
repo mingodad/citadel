@@ -155,6 +155,7 @@ void client_write_ssl(char *buf, int nbytes)
 			}
 		}
 		retval = SSL_write(CC->ssl, &buf[nbytes - nremain], nremain);
+		lprintf(9, "SSL_write(%d) returned %d\n", nremain, retval);
 		if (retval < 1) {
 			long errval;
 
@@ -164,7 +165,10 @@ void client_write_ssl(char *buf, int nbytes)
 				sleep(1);
 				continue;
 			}
-			lprintf(9, "SSL_write got error %ld\n", errval);
+			lprintf(9, "SSL_write: error %ld: %s\n",
+				errval,
+				ERR_error_string(errval, NULL)
+			);
 			endtls();
 			client_write(&buf[nbytes - nremain], nremain);
 			return;
@@ -207,6 +211,7 @@ int client_read_ssl(char *buf, int bytes, int timeout)
 			}
 		}
 		rlen = SSL_read(CC->ssl, &buf[len], bytes-len);
+		lprintf(9, "SSL_read(%d) returned %d\n", bytes-len, rlen);
 		if (rlen<1) {
 			long errval;
 
@@ -216,7 +221,10 @@ int client_read_ssl(char *buf, int bytes, int timeout)
 				sleep(1);
 				continue;
 			}
-			lprintf(9, "SSL_read got error %ld\n", errval);
+			lprintf(9, "SSL_read: error %ld: %s\n",
+				errval,
+				ERR_error_string(errval, NULL)
+			);
 			endtls();
 			return (client_read_to(&buf[len], bytes - len, timeout));
 		}
