@@ -756,7 +756,6 @@ void ical_ctdl_set_extended_msgid(char *name, char *filename, char *partnum,
 					icalproperty_get_comment(p)
 				);
 			}
-			ical_saving_vevent(cal);
 			icalcomponent_free(cal);
 		}
 	}
@@ -836,6 +835,83 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 }
 
 
+/*
+ * Things we need to do after saving a calendar event.
+ */
+void ical_obj_aftersave_backend(char *name, char *filename, char *partnum,
+		char *disp, void *content, char *cbtype, size_t length,
+		char *encoding, void *cbuserdata)
+{
+	icalcomponent *cal;
+
+	/* If this is a text/calendar object, hunt for the UID and drop it in
+	 * the "user data" pointer for the MIME parser.  When
+	 * ical_obj_beforesave() sees it there, it'll set the Extended msgid
+	 * to that string.
+	 */
+	if (!strcasecmp(cbtype, "text/calendar")) {
+		cal = icalcomponent_new_from_string(content);
+		if (cal != NULL) {
+			ical_saving_vevent(cal);
+			icalcomponent_free(cal);
+		}
+	}
+}
+
+
+/* 
+ * Things we need to do after saving a calendar event.
+ */
+int ical_obj_aftersave(struct CtdlMessage *msg)
+{
+	char roomname[ROOMNAMELEN];
+	char *p;
+	int a;
+
+	/*
+	 * If this isn't the Calendar> room, no further action is necessary.
+	 */
+
+	/* First determine if this is our room */
+	MailboxName(roomname, sizeof roomname, &CC->usersupp, USERCALENDARROOM);
+	if (strcasecmp(roomname, CC->quickroom.QRname)) {
+		return 0;	/* It's not the Calendar room. */
+	}
+
+	/* Then determine content-type of the message */
+	
+	/* It must be an RFC822 message! */
+	/* FIXME: Not handling MIME multipart messages; implement with IMIP */
+	if (msg->cm_format_type != 4) return(1);
+	
+	/* Find the Content-Type: header */
+	p = msg->cm_fields['M'];
+	a = strlen(p);
+	while (--a > 0) {
+		if (!strncasecmp(p, "Content-Type: ", 14)) {	/* Found it */
+			if (!strncasecmp(p + 14, "text/calendar", 13)) {
+				mime_parser(msg->cm_fields['M'],
+					NULL,
+					*ical_obj_aftersave_backend,
+					NULL, NULL,
+					NULL,
+					0
+				);
+				return 0;
+			}
+			else {
+				return 1;
+			}
+		}
+		p++;
+	}
+	
+	/* Oops!  No Content-Type in this message!  How'd that happen? */
+	lprintf(7, "RFC822 message with no Content-Type header!\n");
+	return 1;
+}
+
+
 #endif	/* HAVE_ICAL_H */
 
 /*
@@ -845,6 +921,7 @@ char *Dynamic_Module_Init(void)
 {
 #ifdef HAVE_ICAL_H
 	CtdlRegisterMessageHook(ical_obj_beforesave, EVT_BEFORESAVE);
+	CtdlRegisterMessageHook(ical_obj_aftersave, EVT_AFTERSAVE);
 	CtdlRegisterSessionHook(ical_create_room, EVT_LOGIN);
 	CtdlRegisterProtoHook(cmd_ical, "ICAL", "Citadel iCal commands");
 #endif

@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.79  2002/12/01 04:48:24  ajc
+ * The code to check for sending invitations needs to happen *after* save
+
  Revision 601.78  2002/12/01 00:59:54  ajc
  * Reliably detect when the user saving an event is listed as the meeting
    organizer.  (Currently calls a stub function.  Still need to write the
@@ -4264,3 +4267,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
