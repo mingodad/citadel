@@ -213,22 +213,20 @@ void imap_do_fetch_msg(int seq, struct CtdlMessage *msg,
  * imap_fetch() calls imap_do_fetch() to do its actual work, once it's
  * validated and boiled down the request a bit.
  */
-void imap_do_fetch(int lo, int hi, int num_items, char **itemlist) {
+void imap_do_fetch(int num_items, char **itemlist) {
 	int i;
 	struct CtdlMessage *msg;
 
-	for (i=0; i<num_items; ++i) {
-		lprintf(9, "* item[%d] = <%s>\r\n", i, itemlist[i]);
-	}
-
-	for (i = lo; i <= hi; ++i) {
-		msg = CtdlFetchMessage(IMAP->msgids[i-1]);
+	if (IMAP->num_msgs > 0)
+	 for (i = 0; i < IMAP->num_msgs; ++i)
+	  if (IMAP->flags[i] && IMAP_FETCHED) {
+		msg = CtdlFetchMessage(IMAP->msgids[i]);
 		if (msg != NULL) {
-			imap_do_fetch_msg(i, msg, num_items, itemlist);
+			imap_do_fetch_msg(i+1, msg, num_items, itemlist);
 			CtdlFreeMessage(msg);
 		}
 		else {
-			cprintf("* %d FETCH <internal error>\r\n", i);
+			cprintf("* %d FETCH <internal error>\r\n", i+1);
 		}
 	}
 }
@@ -386,10 +384,17 @@ void imap_fetch(int num_parms, char *parms[]) {
 		hi = atoi(histr);
 	}
 
-	if ( (lo < 1) || (hi < 1) || (lo > hi) || (hi > IMAP->num_msgs) ) {
-		cprintf("%s BAD invalid sequence numbers %d:%d\r\n",
-			parms[0], lo, hi);
-		return;
+	/* Clear out the IMAP_FETCHED flags and then set them for the messages
+	 * we're interested in.
+	 */
+	for (i = 1; i <= IMAP->num_msgs; ++i) {
+		IMAP->flags[i-1] = IMAP->flags[i-1] & ~IMAP_FETCHED;
+	}
+
+	for (i = 1; i <= IMAP->num_msgs; ++i) {
+		if ( (i>=lo) && (i<=hi) ) {
+			IMAP->flags[i-1] = IMAP->flags[i-1] | IMAP_FETCHED;
+		}
 	}
 
 	strcpy(items, "");
@@ -404,76 +409,12 @@ void imap_fetch(int num_parms, char *parms[]) {
 		return;
 	}
 
-	imap_do_fetch(lo, hi, num_items, itemlist);
+	imap_do_fetch(num_items, itemlist);
 	cprintf("%s OK FETCH completed\r\n", parms[0]);
 }
 
 
 
-/*
- * This function is called by the main command loop.
- */
-void imap_uidfetch(int num_parms, char *parms[]) {
-	int lo = 0;
-	int hi = 0;
-	long louid, hiuid;
-	char lostr[1024], histr[1024], items[1024];
-	char *itemlist[256];
-	int num_items;
-	int i;
-	int have_uiditem = 0;
-
-	if (num_parms < 4) {
-		cprintf("%s BAD invalid parameters\r\n", parms[0]);
-		return;
-	}
-
-	extract_token(lostr, parms[3], 0, ':');
-	louid = atol(lostr);
-	extract_token(histr, parms[3], 1, ':');
-	if (!strcmp(histr, "*")) {
-		hiuid = IMAP->msgids[IMAP->num_msgs - 1];
-	}
-	else {
-		hiuid = atol(histr);
-	}
-
-	/* Convert uid to sequence nums */
-	for (i=0; i < IMAP->num_msgs; ++i) {
-		if (IMAP->msgids[i] < louid) lo = i+2;
-		if (IMAP->msgids[i] < hiuid) hi = i+2;
-	}
-
-	if (lo < 1) lo = 1;
-	if (hi > IMAP->num_msgs) hi = IMAP->num_msgs;
-
-	strcpy(items, "");
-	for (i=4; i<num_parms; ++i) {
-		strcat(items, parms[i]);
-		if (i < (num_parms-1)) strcat(items, " ");
-	}
-
-	num_items = imap_extract_data_items(itemlist, items);
-	if (num_items < 1) {
-		cprintf("%s BAD invalid data item list\r\n", parms[0]);
-		return;
-	}
-
-	/*
-	 * If the "UID" item was not specified by the client, we have to
-	 * implicitly add it, because this is a UID FETCH command.  We'll
-	 * add it at the end.
-	 */
-	for (i=0; i<num_items; ++i) {
-		if (!strcasecmp(itemlist[i], "UID")) ++have_uiditem;
-	}
-	if (have_uiditem < 1) {
-		itemlist[num_items++] = "UID";
-	}
-
-	imap_do_fetch(lo, hi, num_items, itemlist);
-	cprintf("%s OK UID FETCH completed\r\n", parms[0]);
-}
 
 
 

@@ -397,10 +397,12 @@ void imap_command_loop(void) {
 	else if (!strcasecmp(parms[1], "FETCH")) {
 		imap_fetch(num_parms, parms);
 	}
+	/*
 	else if ( (!strcasecmp(parms[1], "UID"))
 		&& (!strcasecmp(parms[2], "FETCH")) ) {
 		imap_uidfetch(num_parms, parms);
 	}
+	*/
 
 	else if (!strcasecmp(parms[1], "CLOSE")) {
 		imap_close(num_parms, parms);
