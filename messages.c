@@ -1364,17 +1364,27 @@ void post_message(void)
 {
 	char buf[SIZ];
 	static long dont_post = (-1L);
-	struct wc_attachment *att;
+	struct wc_attachment *att, *aptr;
 
 	if (WC->upload_length > 0) {
 
+		/* There's an attachment.  Save it to this struct... */
 		att = malloc(sizeof(struct wc_attachment));
 		memset(att, 0, sizeof(struct wc_attachment));
-		att->next = WC->first_attachment;
-		WC->first_attachment = att;
 		att->length = WC->upload_length;
 		strcpy(att->content_type, WC->upload_content_type);
 		strcpy(att->filename, WC->upload_filename);
+		att->next = NULL;
+
+		/* And add it to the list. */
+		if (WC->first_attachment == NULL) {
+			WC->first_attachment = att;
+		}
+		else {
+			aptr = WC->first_attachment;
+			while (aptr->next != NULL) aptr = aptr->next;
+			aptr->next = att;
+		}
 
 		/* Netscape sends a simple filename, which is what we want,
 		 * but Satan's browser sends an entire pathname.  Reduce
@@ -1397,9 +1407,12 @@ void post_message(void)
 		return;
 	}
 
-	if (strcasecmp(bstr("sc"), "Save message")) {
+	if (!strcasecmp(bstr("sc"), "Cancel")) {
 		sprintf(WC->ImportantMessage, 
 			"Cancelled.  Message was not posted.");
+	} else if (!strcasecmp(bstr("attach"), "Add")) {
+		display_enter();
+		return;
 	} else if (atol(bstr("postseq")) == dont_post) {
 		sprintf(WC->ImportantMessage, 
 			"Automatically cancelled because you have already "
