@@ -41,7 +41,7 @@ LDFLAGS=@LDFLAGS@
 SERVER_LDFLAGS=@SERVER_LDFLAGS@
 PICFLAGS=@PICFLAGS@
 CURSES=@CURSES@
-SNPRINTF=@SNPRINTF@
+LIBOBJS=@LIBOBJS@
 PTHREAD_DEFS=-D_REENTRANT
 INSTALL=@INSTALL@
 INSTALL_DATA=@INSTALL_DATA@
@@ -76,14 +76,14 @@ serv_modules: $(SERV_MODULES)
 #
 
 citadel$(SUFFIX): ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o messages.o \
-	commands.o client_chat.o serv_info.o tools.o $(SNPRINTF)
+	commands.o client_chat.o serv_info.o tools.o $(LIBOBJS)
 	$(CC) ipc_c_tcp.o citadel.o rooms.o routines.o routines2.o messages.o \
-	commands.o client_chat.o serv_info.o tools.o $(SNPRINTF) $(LDFLAGS) \
+	commands.o client_chat.o serv_info.o tools.o $(LIBOBJS) $(LDFLAGS) \
 	-o citadel
 
-netpoll: netpoll.o config.o ipc_c_tcp.o tools.o $(SNPRINTF)
+netpoll: netpoll.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)
 	$(CC) netpoll.o config.o ipc_c_tcp.o tools.o \
-	$(SNPRINTF) $(LDFLAGS) -o netpoll
+	$(LIBOBJS) $(LDFLAGS) -o netpoll
 
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c $<
@@ -94,13 +94,13 @@ netpoll: netpoll.o config.o ipc_c_tcp.o tools.o $(SNPRINTF)
 citserver: citserver.ro user_ops.ro support.ro room_ops.ro file_ops.ro \
 	msgbase.ro config.ro sysdep.ro locate_host.ro \
 	housekeeping.ro database.ro control.ro logging.ro \
-	policy.ro dynloader.ro tools.ro mime_parser.ro $(SNPRINTF:.o=.ro)
+	policy.ro dynloader.ro tools.ro mime_parser.ro $(LIBOBJS:.o=.ro)
 	$(CC) \
 		citserver.ro user_ops.ro room_ops.ro file_ops.ro support.ro \
 		msgbase.ro config.ro sysdep.ro locate_host.ro \
 		housekeeping.ro database.ro control.ro logging.ro \
 		policy.ro dynloader.ro tools.ro mime_parser.ro \
-		$(SNPRINTF:.o=.ro)\
+		$(LIBOBJS:.o=.ro)\
 		$(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) -o citserver
 
 .c.ro:
@@ -121,8 +121,8 @@ modules/serv_upgrade.so: serv_upgrade.mo
 modules/serv_expire.so: serv_expire.mo
 	$(CC) -shared -o modules/serv_expire.so serv_expire.mo
 
-aidepost: aidepost.o config.o $(SNPRINTF)
-	$(CC) aidepost.o config.o $(SNPRINTF) $(LDFLAGS) -o aidepost
+aidepost: aidepost.o config.o $(LIBOBJS)
+	$(CC) aidepost.o config.o $(LIBOBJS) $(LDFLAGS) -o aidepost
 
 #
 # 'netmailer' needs to run setuid because it generates headers for Internet
@@ -132,17 +132,17 @@ aidepost: aidepost.o config.o $(SNPRINTF)
 netmailer: netmailer.o internetmail.o config.o
 	$(CC) netmailer.o config.o internetmail.o $(LDFLAGS) -o netmailer
 
-netproc: netproc.o config.o ipc_c_tcp.o tools.o $(SNPRINTF)
+netproc: netproc.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)
 	$(CC) netproc.o config.o ipc_c_tcp.o tools.o \
-	$(SNPRINTF) $(LDFLAGS) -o netproc
+	$(LIBOBJS) $(LDFLAGS) -o netproc
 
-citmail: citmail.o config.o internetmail.o $(SNPRINTF)
+citmail: citmail.o config.o internetmail.o $(LIBOBJS)
 	@echo "*"
 	@echo "*                 ###### IMPORTANT ######"
 	@echo "* To allow Citadel users to receive Internet mail, you must"
 	@echo "* set this program to be your local mail delivery agent."
 	@echo "*"
-	$(CC) citmail.o config.o internetmail.o $(SNPRINTF) $(LDFLAGS) -o citmail
+	$(CC) citmail.o config.o internetmail.o $(LIBOBJS) $(LDFLAGS) -o citmail
 
 mailinglist: mailinglist.o config.o internetmail.o
 	$(CC) mailinglist.o config.o internetmail.o $(LDFLAGS) -o mailinglist
@@ -156,12 +156,12 @@ netsetup: netsetup.o config.o
 proxy: proxy.o ipc_c_tcp.o
 	$(CC) proxy.o ipc_c_tcp.o $(LDFLAGS) -o proxy
 
-whobbs$(SUFFIX): whobbs.o ipc_c_tcp.o tools.o $(SNPRINTF)
-	$(CC) whobbs.o ipc_c_tcp.o tools.o $(SNPRINTF) $(LDFLAGS) -o whobbs
+whobbs$(SUFFIX): whobbs.o ipc_c_tcp.o tools.o $(LIBOBJS)
+	$(CC) whobbs.o ipc_c_tcp.o tools.o $(LIBOBJS) $(LDFLAGS) -o whobbs
 
-sendcommand: sendcommand.o ipc_c_tcp.o tools.o config.o $(SNPRINTF)
+sendcommand: sendcommand.o ipc_c_tcp.o tools.o config.o $(LIBOBJS)
 	$(CC) sendcommand.o ipc_c_tcp.o tools.o config.o \
-	 $(SNPRINTF) $(LDFLAGS) -o sendcommand
+	 $(LIBOBJS) $(LDFLAGS) -o sendcommand
 
 qpdecode: qpdecode.o
 	$(CC) qpdecode.o $(LDFLAGS) -o qpdecode
@@ -169,9 +169,9 @@ qpdecode: qpdecode.o
 base64: base64.o
 	$(CC) base64.o $(LDFLAGS) -o base64
 
-userlist: userlist.o ipc_c_tcp.o tools.o $(SNPRINTF)
+userlist: userlist.o ipc_c_tcp.o tools.o $(LIBOBJS)
 	$(CC) userlist.o ipc_c_tcp.o tools.o \
-	$(SNPRINTF) $(LDFLAGS) -o userlist
+	$(LIBOBJS) $(LDFLAGS) -o userlist
 
 msgform: msgform.o
 	$(CC) msgform.o $(LDFLAGS) -o msgform
@@ -187,8 +187,8 @@ rcit: rcit.o config.o
 	@echo "* ln -s rcit /usr/bin/rnews"
 	@echo "*"
 
-stats: stats.o ipc_c_tcp.o tools.o config.o $(SNPRINTF)
-	$(CC) stats.o ipc_c_tcp.o tools.o config.o $(SNPRINTF) $(LDFLAGS) -o stats
+stats: stats.o ipc_c_tcp.o tools.o config.o $(LIBOBJS)
+	$(CC) stats.o ipc_c_tcp.o tools.o config.o $(LIBOBJS) $(LDFLAGS) -o stats
 
 .PHONY: install-data install-doc install-exec clean cleaner distclean
 

@@ -2,6 +2,10 @@
 	* configure.in: improved check for cygwin
 	* configure.in, routines.c: access utmp directly instead of calling
 	  `who' if getutline() is available.
+	* configure.in, Makefile.in, getutline.c: replace getutline() on
+	  systems which don't have it
+	* routines.c: now always access utmp directly unless we can't find
+	  utmp.h
 
 1999-02-02 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* Fixes for Cygwin:

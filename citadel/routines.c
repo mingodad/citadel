@@ -396,7 +396,7 @@ void progress(long int curr, long int cmax)
  */
 void locate_host(char *hbuf)
 {
-#ifndef HAVE_GETUTLINE
+#ifndef HAVE_UTMP_H
 	char buf[256];
 	FILE *who;
 	int a,b;
