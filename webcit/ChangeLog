@@ -1,3 +1,6 @@
+1998-12-14 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* automatically regenerate Makefile when Makefile.in changes
+
 Sun Dec 13 13:35:12 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* context_loop.c: Moved "remove session" into its own function.
 	  Check for dead webcit child process before each transaction.
