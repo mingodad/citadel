@@ -1,4 +1,7 @@
  $Log$
+ Revision 609.1  2003/08/17 02:46:37  ajc
+ * Don't fail on "data files too old to be upgraded" for NEW installations
+
  Revision 609.0  2003/08/14 03:40:55  ajc
  * THIS IS 6.09
 
@@ -4961,3 +4964,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

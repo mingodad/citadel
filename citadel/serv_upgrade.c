@@ -187,14 +187,17 @@ void check_server_upgrades(void) {
 
 	update_config();
 
-	if (CitControl.version < 555) {
+	if ((CitControl.version > 000) && (CitControl.version < 555)) {
 		lprintf(1, "Your data files are from a version of Citadel\n"
 			"that is too old to be upgraded.  Sorry.\n");
 		exit(EXIT_FAILURE);
 	}
-
-	if (CitControl.version < 591) bump_mailbox_generation_numbers();
-	if (CitControl.version < 608) convert_bbsuid_to_minusone();
+	if ((CitControl.version > 000) && (CitControl.version < 591)) {
+		bump_mailbox_generation_numbers();
+	}
+	if ((CitControl.version > 000) && (CitControl.version < 608)) {
+		convert_bbsuid_to_minusone();
+	}
 
 	CitControl.version = REV_LEVEL;
 	put_control();
