@@ -1,4 +1,8 @@
 $Log$
+Revision 400.11  2002/09/15 03:16:24  ajc
+* Changed decode_base64() to CtdlDecodeBase64() to avoid conflict with
+  function namespace in libical
+
 Revision 400.10  2002/09/15 02:50:55  ajc
 * Duh.  I don't need to twiddle CFLAGS when autoconf provides -DHAVE_ZLIB_H
 
@@ -970,3 +974,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

@@ -204,7 +204,7 @@ void mime_decode(char *partnum,
 	}
 
 	if (!strcasecmp(encoding, "base64")) {
-		bytes_decoded = decode_base64(decoded, part_start, length);
+		bytes_decoded = CtdlDecodeBase64(decoded, part_start, length);
 	}
 	else if (!strcasecmp(encoding, "quoted-printable")) {
 		bytes_decoded = decode_quoted_printable(decoded,

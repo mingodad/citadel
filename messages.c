@@ -216,13 +216,15 @@ void read_message(long msgnum) {
 	int nhdr = 0;
 	int bq = 0;
 	char vcard_partnum[SIZ];
-	char *vcard_source = NULL;
+	char cal_partnum[SIZ];
+	char *part_source = NULL;
 
 	strcpy(from, "");
 	strcpy(node, "");
 	strcpy(rfca, "");
 	strcpy(reply_to, "");
 	strcpy(vcard_partnum, "");
+	strcpy(cal_partnum, "");
 
 	serv_printf("MSG4 %ld", msgnum);
 	serv_gets(buf);
@@ -330,9 +332,16 @@ void read_message(long msgnum) {
 					msgnum, mime_partnum);
 			}
 
+			/*** begin handler prep ***/
 			if (!strcasecmp(mime_content_type, "text/x-vcard")) {
 				strcpy(vcard_partnum, mime_partnum);
 			}
+
+			if (!strcasecmp(mime_content_type, "text/calendar")) {
+				strcpy(cal_partnum, mime_partnum);
+			}
+
+			/*** end handler prep ***/
 
 		}
 
@@ -456,9 +465,10 @@ void read_message(long msgnum) {
 		free(mime_http);
 	}
 
+	/* Handler for vCard parts */
 	if (strlen(vcard_partnum) > 0) {
-		vcard_source = load_mimepart(msgnum, vcard_partnum);
-		if (vcard_source != NULL) {
+		part_source = load_mimepart(msgnum, vcard_partnum);
+		if (part_source != NULL) {
 
 			/* If it's my vCard I can edit it */
 			if ( (!strcasecmp(WC->wc_roomname, USERCONFIGROOM))
@@ -470,9 +480,21 @@ void read_message(long msgnum) {
 			}
 
 			/* In all cases, display the full card */
-			display_vcard(vcard_source, 0, 1);
-			free(vcard_source);
+			display_vcard(part_source, 0, 1);
 		}
+	}
+
+	/* Handler for calendar parts */
+	if (strlen(cal_partnum) > 0) {
+		part_source = load_mimepart(msgnum, cal_partnum);
+		if (part_source != NULL) {
+			cal_process_attachment(part_source);
+		}
+	}
+
+	if (part_source) {
+		free(part_source);
+		part_source = NULL;
 	}
 
 }
