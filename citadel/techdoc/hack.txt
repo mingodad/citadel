@@ -26,7 +26,7 @@ a data store, any record manager may be used as long as it supports the
 storage and retrieval of large binary objects (blobs) indexed by unique keys.
 Please see database.c for more information on data store primitives.
  
-   The message base (msgmain) is a big file of messages indexed by the message
+   The message base (MSGMAIN) is a big file of messages indexed by the message
 number.  Messages are numbered consecutively and start with an FF (hex)
 byte.  Except for this FF start-of-message byte, all bytes in the message
 file have the high bit set to 0.  This means that in principle it is
@@ -35,11 +35,10 @@ exists, or return error.  (Complexities, as usual, crop up when we
 try for efficiency...)
  
     Each room is basically just a list of message numbers.  Each time
-we enter a new message in a room, we slide all the old message-numbers
-down a slot, and probably the oldest one falls off the bottom (in which case
-we must delete it from the message base).  Reading a rooms is just a matter
-of looking up the messages one by one and sending them to the client for
-display, printing, or whatever.
+we enter a new message in a room, its message number is appended to the end
+of the list.  If an old message is to be expired, we must delete it from the
+message base.  Reading a room is just a matter of looking up the messages
+one by one and sending them to the client for display, printing, or whatever.
  
     Implementing the "new message" function is also trivial in principle:
 we just keep track, for each caller in the userlog, of the highest-numbered
@@ -49,7 +48,7 @@ sequence is global to the entire system, not local within a room.)  If
 we ignore all message-numbers in the room less than this, only new messages
 will be printed.  Voila! 
 
-		message format on disk	(msgmain)
+		Message format on disk	(MSGMAIN)
 
   Each message begins with an FF byte. The next byte will then be MES_NORMAL,
 MES_ANON, or MES_ANON2, depending on whether the message in anonymous or not.
@@ -79,9 +78,9 @@ P	Path		Complete path of message, as in the UseNet news
 			this path. (Note that your system name will not be
 			tacked onto this until you're sending the message to
 			someone else)
-I	ID on orig	A 32-bit integer containing the message ID on the
+I	Original ID	A 32-bit integer containing the message ID on the
 			system the message *originated* on.
-#       ID on local     A 32-bit integer containing the message ID on the
+#       Local ID	A 32-bit integer containing the message ID on the
                         system the message is *currently* on (obviously this
                         is meaningless for a message being transmitted over
                         a network).
@@ -89,7 +88,7 @@ A	Author		Name of originator of message.
 R	Recipient	Only present in Mail messages.
 O	Room		Room of origin.
 N	Nodename	Contains node name of system message originated on.
-H	HumanNodeName	Contains human name of system message originated on.
+H	HumanNodeName	Human-readable name of system message originated on.
 D	Destination	Contains name of the system this message should
 			be sent to, for mail routing (private mail only).
 U       Subject         Optional.  Developers may choose whether they wish to
@@ -111,6 +110,9 @@ S       Special field   Only meaningful for messages being spooled over a
                         IGnet/Open file transfer.
 M	Message Text	Normal ASCII, newlines seperated by CR's or LF's,
                         null terminated as always.
+X	eXtension field	Extension fields are used to carry additional RFC822
+			type lines.  X fields contain the X byte followed by
+			the RFC822 field name, a colon, a space, and the value.
   
 			EXAMPLE
 
@@ -170,7 +172,7 @@ one.  This allows greater compatibility if slight problems crop up. The current
 distribution includes netproc.c, which is basically a database replicator;
 please see network.txt on its operation and functionality (if any).
 
-			portability problems
+			Portability issues
  
  At this point, most hardware-dependent stuff has been removed from the 
 system.  On the server side, most of the OS-dependent stuff has been isolated
@@ -183,7 +185,7 @@ build ok on non-POSIX systems with porting libraries (such as the Cygnus
 Win32 stuff).
   
 
-                   "Room" records (quickroom/fullroom)
+                   "Room" records (quickroom)
  
 The rooms are basically indices into msgmain, the message database.
 As noted in the overview, each is essentially an array of pointers into
@@ -196,7 +198,7 @@ sequence at any given time.
 
 That should be enough background to tackle a full-scale room.  From citadel.h:
 
-STRUCT QUickroom {
+struct quickroom {
 	char QRname[20];		/* Max. len is 19, plus null term   */
 	char QRpasswd[10];		/* Only valid if it's a private rm  */
 	long QRroomaide;		/* User number of room aide         */
@@ -220,10 +222,6 @@ STRUCT QUickroom {
 #define QR_ANON2	1024		/* Anonymous-Option room            */
 #define QR_NETWORK	2048		/* Shared network room              */
 #define QR_PREFONLY	4096		/* Preferred users only             */
-
-struct fullroom {
-	long FRnum[MSGSPERRM];		/* Message NUMBERS		    */
-		};
 
 [Note that all components start with "QR" for quickroom, to make sure we
  don't accidentally use an offset in the wrong structure. Be very careful
@@ -274,16 +272,16 @@ The only field new to us in quickroom is QRhighest, recording the
 most recent message in the room.  When we are searching for rooms with
 messages a given caller hasn't seen, we can check this number
 and avoid a whole lot of extra disk accesses.
+ 
+   There used to also be a structure called "fullroom" which resided in one
+file for each room on the system.  This has been abandoned in favour of
+"message lists" which are variable sized and simply contain zero or more
+message numbers.  The message numbers, in turn, point to messages on disk.
 
-   The fullroom is the array of pointers into the message file. We keep one
-file for each fullroom array to keep the quickroom file small (and access time
-efficient). FRnum are the message numbers on disk of
-each message in the room. (For NIL, we stick zeroes in both fields.)
-
-			user records (usersupp)
+			User records (usersupp)
 
 This is the fun one.  Get some fresh air and plug in your thinking cap
-first.	(Time, space and complexity are the usernum software rivals.
+first.	(Time, space and complexity are the eternal software rivals.
 We've got lots of log entries times lots of messages spread over up to nnn
 rooms to worry about, and with multitasking, disk access time is important...
 so perforce, we opt for complexity to keep time and space in bounds.)
@@ -317,19 +315,16 @@ Lifting another page from citadel.h gives us:
 
 struct usersupp {			/* User record                      */
 	int USuid;			/* uid account is logged in under   */
-	char password[20];		/* password (for BBS-only users)    */
+	char password[20];		/* password                         */
 	long lastseen[MAXROOMS];	/* Last message seen in each room   */
 	char generation[MAXROOMS];	/* Generation # (for private rooms) */
 	char forget[MAXROOMS];		/* Forgotten generation number      */
-	long mailnum[MAILSLOTS];	/* Message #'s of each mail message */
-	long mailpos[MAILSLOTS];	/* Disk positions of each mail      */
 	unsigned flags;			/* See US_ flags below              */
 	int screenwidth;		/* For formatting messages          */
 	int timescalled;		/* Total number of logins           */
 	int posted;			/* Number of messages posted (ever) */
 	char fullname[26];		/* Bulletin Board name for messages */
 	char axlevel;			/* Access level                     */
-	char spare[3];			/* spare bytes for future use       */
 	long usernum;			/* Eternal user number              */
 	long lastcall;			/* Last time the user called        */
 				};
@@ -445,9 +440,8 @@ Can one have an elegant kludge?  This must come pretty close.
 
 Private mail is sent and recieved in the Mail> room, which otherwise
 behaves pretty much as any other room.	To make this work, we store
-the actual message pointers in mailnum[] and mailpos[] in the caller's
-log record, and then copy them into the Mail> room array whenever we
-enter the room.  This requires a little fiddling to get things just
+the actual message pointers in a message list for each user (MAILBOXES)
+instead of MSGLISTS.  This requires a little fiddling to get things just
 right.	We have to update quickroom[1].QRhighest at login
 to reflect the presence or absence of new messages, for example.  And
 make_message() has to be kludged to ask for the name of the recipient
