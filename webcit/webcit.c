@@ -601,7 +601,6 @@ void session_loop(struct httprequest *req)
 	struct httprequest *hptr;
 	char browser_host[256];
 	char user_agent[256];
-	FILE *fp;
 
 	/* We stuff these with the values coming from the client cookies,
 	 * so we can use them to reconnect a timed out session if we have to.
@@ -666,9 +665,6 @@ void session_loop(struct httprequest *req)
 			      "application/x-www-form-urlencoded", 33)) {
 			addurls(content);
 		} else if (!strncasecmp(ContentType, "multipart", 9)) {
-			fp = fopen("mime.out", "wb");
-			fwrite(content, ContentLength, 1, fp);
-			fclose(fp);
 			content_end = content + ContentLength;
 			mime_parser(content, content_end, *upload_handler,
 					NULL, NULL, NULL, 0);
