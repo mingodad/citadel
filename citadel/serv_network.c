@@ -340,10 +340,43 @@ void network_do_queue(void) {
 }
 
 
+
+/*
+ * Add, change, or delete network nodes
+ */
+void cmd_node(char *argbuf) {
+	char command[SIZ];
+	char nodename[SIZ];
+	char secret[SIZ];
+	FILE *fp;
+
+	if (CtdlAccessCheck(ac_aide)) return;
+
+	extract(command, argbuf, 0);
+
+	if (!strcasecmp(command, "add")) {
+		cprintf("%d bloopyblard\n", ERROR);
+		return;
+	}
+	
+	else {
+		cprintf("%d Illegal option(s) specified.\n",
+			ERROR+ILLEGAL_VALUE);
+		return;
+	}
+}
+
+
+
+
+/*
+ * Module entry point
+ */
 char *Dynamic_Module_Init(void)
 {
 	CtdlRegisterProtoHook(cmd_gnet, "GNET", "Get network config");
 	CtdlRegisterProtoHook(cmd_snet, "SNET", "Get network config");
+	CtdlRegisterProtoHook(cmd_node, "NODE", "Modify network nodes");
 	CtdlRegisterSessionHook(network_do_queue, EVT_TIMER);
 	return "$Id$";
 }

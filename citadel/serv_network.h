@@ -1,4 +1,3 @@
-
 struct namelist {
 	struct namelist *next;
 	char name[SIZ];

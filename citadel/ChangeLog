@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.19  2001/08/05 23:54:14  ajc
+ * prep for new network node infrastructure
+
  Revision 580.18  2001/08/03 16:53:21  ajc
  * Added some more "break" statements to the main switch..case loop in
    citadel.c where they were needed.
@@ -2656,3 +2659,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

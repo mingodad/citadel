@@ -36,6 +36,7 @@
 #include "support.h"
 #include "config.h"
 #include "msgbase.h"
+#include "citserver.h"
 #include "tools.h"
 #include "room_ops.h"
 
@@ -143,16 +144,7 @@ void cmd_conf(char *argbuf) {
 	char *confptr;
 	char confname[SIZ];
 
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
-
-	if (CC->usersupp.axlevel < 6) {
-		cprintf("%d Higher access required.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
-		return;
-		}
+	if (CtdlAccessCheck(ac_aide)) return;
 
 	extract(cmd, argbuf, 0);
 	if (!strcasecmp(cmd, "GET")) {
