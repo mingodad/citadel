@@ -333,17 +333,31 @@ void lgetfloor(struct floor *flbuf, int floor_num)
 struct floor *cgetfloor(int floor_num) {
 	static int initialized = 0;
 	int i;
+	int fetch_new = 0;
+	struct floor *fl = NULL;
 
+	begin_critical_section(S_FLOORCACHE);
 	if (initialized == 0) {
 		for (i=0; i<MAXFLOORS; ++i) {
 			floorcache[floor_num] = NULL;
 		}
 	initialized = 1;
 	}
-	
 	if (floorcache[floor_num] == NULL) {
-		floorcache[floor_num] = mallok(sizeof(struct floor));
-		getfloor(floorcache[floor_num], floor_num);
+		fetch_new = 1;
+	}
+	end_critical_section(S_FLOORCACHE);
+
+	if (fetch_new) {
+		lprintf(9, "fetch_new is active ... going to disk\n");
+		fl = mallok(sizeof(struct floor));
+		getfloor(fl, floor_num);
+		begin_critical_section(S_FLOORCACHE);
+		if (floorcache[floor_num] != NULL) {
+			phree(floorcache[floor_num]);
+		}
+		floorcache[floor_num] = fl;
+		end_critical_section(S_FLOORCACHE);
 	}
 
 	return(floorcache[floor_num]);
@@ -356,14 +370,17 @@ struct floor *cgetfloor(int floor_num) {
  */
 void putfloor(struct floor *flbuf, int floor_num)
 {
-	cdb_store(CDB_FLOORTAB, &floor_num, sizeof(int),
-		  flbuf, sizeof(struct floor));
-
 	/* If we've cached this, clear it out, 'cuz it's WRONG now! */
+	begin_critical_section(S_FLOORCACHE);
 	if (floorcache[floor_num] != NULL) {
 		phree(floorcache[floor_num]);
-		floorcache[floor_num] = NULL;
+		floorcache[floor_num] = mallok(sizeof(struct floor));
+		memcpy(floorcache[floor_num], flbuf, sizeof(struct floor));
 	}
+	end_critical_section(S_FLOORCACHE);
+
+	cdb_store(CDB_FLOORTAB, &floor_num, sizeof(int),
+		  flbuf, sizeof(struct floor));
 }
 
 
@@ -1692,7 +1709,12 @@ void cmd_cre8(char *args)
 
 	if (num_parms(args) >= 5) {
 		fl = cgetfloor(extract_int(args, 4));
-		if ((fl->f_flags & F_INUSE) == 0) {
+		if (fl == NULL) {
+			cprintf("%d Invalid floor number.\n",
+				ERROR + INVALID_FLOOR_OPERATION);
+			return;
+		}
+		else if ((fl->f_flags & F_INUSE) == 0) {
 			cprintf("%d Invalid floor number.\n",
 				ERROR + INVALID_FLOOR_OPERATION);
 			return;

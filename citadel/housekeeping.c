@@ -90,33 +90,43 @@ void check_sched_shutdown(void) {
 /*
  * Check (and fix) floor reference counts.  This doesn't need to be done
  * very often, since the counts should remain correct during normal operation.
- * NOTE: this function pair should ONLY be called during startup.  It is NOT
- * thread safe.
  */
 void check_ref_counts_backend(struct ctdlroom *qrbuf, void *data) {
-	struct floor flbuf;
 
-	getfloor(&flbuf, qrbuf->QRfloor);
-	++flbuf.f_ref_count;
-	flbuf.f_flags = flbuf.f_flags | QR_INUSE;
-	putfloor(&flbuf, qrbuf->QRfloor);
+	int *new_refcounts;
+
+	new_refcounts = (int *) data;
+
+	++new_refcounts[(int)qrbuf->QRfloor];
 }
 
 void check_ref_counts(void) {
 	struct floor flbuf;
 	int a;
 
+	int new_refcounts[MAXFLOORS];
+
 	lprintf(CTDL_DEBUG, "Checking floor reference counts\n");
 	for (a=0; a<MAXFLOORS; ++a) {
-		getfloor(&flbuf, a);
-		flbuf.f_ref_count = 0;
-		flbuf.f_flags = flbuf.f_flags & ~QR_INUSE;
-		putfloor(&flbuf, a);
+		new_refcounts[a] = 0;
 	}
 
 	cdb_begin_transaction();
-	ForEachRoom(check_ref_counts_backend, NULL);
+	ForEachRoom(check_ref_counts_backend, (void *)new_refcounts );
 	cdb_end_transaction();
+
+	for (a=0; a<MAXFLOORS; ++a) {
+		lgetfloor(&flbuf, a);
+		flbuf.f_ref_count = new_refcounts[a];
+		if (new_refcounts[a] > 0) {
+			flbuf.f_flags = flbuf.f_flags | QR_INUSE;
+		}
+		else {
+			flbuf.f_flags = flbuf.f_flags & ~QR_INUSE;
+		}
+		lputfloor(&flbuf, a);
+		lprintf(9, "Floor %d: %d rooms\n", a, new_refcounts[a]);
+	}
 }	
 
 /*

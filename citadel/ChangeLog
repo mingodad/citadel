@@ -1,4 +1,9 @@
  $Log$
+ Revision 614.90  2004/03/21 22:32:24  ajc
+ * room_ops.c: increased the thread safety of cgetfloor()
+ * housekeeping.c: check floor reference counts in two passes instead of
+   trying to manipulate multiple tables in O^2
+
  Revision 614.89  2004/03/21 17:14:46  error
  * stress.c: Fixed.  Now properly spawns threads and stresses out your
    favorite Citadel server by simulating large numbers of really active
@@ -5565,3 +5570,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
