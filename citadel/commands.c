@@ -913,7 +913,6 @@ void color(int colornum)
 {
 	if (enable_color) {
 		printf("\033[3%dm", colornum);
-		/* printf("\033[1m"); */ /* uncomment for bold colours */
 		fflush(stdout);
 		}
 	}
@@ -921,6 +920,7 @@ void color(int colornum)
 void cls(int colornum) {
 	if (enable_color) {
 		printf("\033[4%dm\033[2J\033[H", colornum);
+		printf("\033[0m"); /* change to 1 for bold colours */
 		fflush(stdout);
 		}
 	}

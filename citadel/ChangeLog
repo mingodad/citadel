@@ -2,6 +2,7 @@ Fri Dec 11 18:50:00 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* setup.c: default value for maxsessions is now 0 (no limit)
 	* room_ops.c: don't allow users to create a room called "Mail"
 	* serv_expire.c: fixed "number of messages purged" display
+	* commands.c: when using color, default to low-intensity colors
 
 Tue Dec  8 07:58:16 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Beta 2
