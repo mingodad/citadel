@@ -505,7 +505,6 @@ int create_user(char *newusername)
 	/********************************************************/
 	/* FIX this can safely be removed during the cutover... */
 	for (a=0; a<MAXROOMS; ++a) {
-		CC->usersupp.lastseen[a]=0L;
 		CC->usersupp.generation[a]=(-1);
 		CC->usersupp.forget[a]=(-1);
 		}

@@ -144,6 +144,7 @@ void cmd_msgs(char *cmdbuf)
 	char which[256];
 	int cm_howmany = 0;
 	long cm_gt = 0L;
+	struct visit vbuf;
 
 	extract(which,cmdbuf,0);
 
@@ -175,16 +176,18 @@ void cmd_msgs(char *cmdbuf)
 	get_mm();
 	get_msglist(CC->curr_rm);
 	getuser(&CC->usersupp,CC->curr_user);
-	cprintf("%d %d messages...\n",LISTING_FOLLOWS, CC->num_msgs);
+	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+
+	cprintf("%d Message list...\n",LISTING_FOLLOWS);
 	if (CC->num_msgs != 0) {
 	   for (a=0; a<(CC->num_msgs); ++a) 
 	       if ((MessageFromList(a) >=0)
 	       && ( 
 
 (mode==MSGS_ALL)
-|| ((mode==MSGS_OLD) && (MessageFromList(a) <= CC->usersupp.lastseen[CC->curr_rm]))
-|| ((mode==MSGS_NEW) && (MessageFromList(a) > CC->usersupp.lastseen[CC->curr_rm]))
-|| ((mode==MSGS_NEW) && (MessageFromList(a) >= CC->usersupp.lastseen[CC->curr_rm])
+|| ((mode==MSGS_OLD) && (MessageFromList(a) <= vbuf.v_lastseen))
+|| ((mode==MSGS_NEW) && (MessageFromList(a) > vbuf.v_lastseen))
+|| ((mode==MSGS_NEW) && (MessageFromList(a) >= vbuf.v_lastseen)
 		     && (CC->usersupp.flags & US_LASTOLD))
 || ((mode==MSGS_LAST)&& (a>=(CC->num_msgs-cm_howmany)))
 || ((mode==MSGS_FIRST)&&(a<cm_howmany))
