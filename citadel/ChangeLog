@@ -1,4 +1,9 @@
  $Log$
+ Revision 614.42  2004/02/18 14:46:05  ajc
+ * smtp: EHLO response now includes both "AUTH " and "AUTH=" output, due to
+   the requirement to interoperate with brain-dead Microsoft shitware that
+   doesn't follow the RFC.
+
  Revision 614.41  2004/02/17 16:56:51  ajc
  * During SSL initialization, create the "keys" directory if it does not
    exist ... generate a private key if that does not exist ... more code
@@ -5369,3 +5374,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
