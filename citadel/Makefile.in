@@ -22,7 +22,6 @@ all: $(TARGETS)
 EXEEXT=@EXEEXT@
 SO=@SO@
 CX=@CX@
-SERV_ICQ=@SERV_ICQ@
 
 CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT)
 SERVER_TARGETS=citserver setup $(CHKPWD)
@@ -35,7 +34,7 @@ SERV_MODULES=modules/serv_chat$(SO) modules/serv_vcard$(SO) \
 	modules/serv_rwho$(SO) \
 	modules/serv_moderate$(SO) \
 	modules/serv_bio$(SO) \
-	modules/serv_expire$(SO) $(SERV_ICQ)
+	modules/serv_expire$(SO)
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform readlog rcit \
 	stats citmail netpoll mailinglist userlist sendcommand \
 	base64 qpdecode
