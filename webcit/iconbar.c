@@ -390,6 +390,14 @@ void commit_iconbar(void) {
 	set_preference("iconbar", iconbar);
 
 	output_headers(3);
-	wprintf("FIXME");
+	do_template("beginbox_nt");
+	wprintf(
+		"<IMG SRC=\"/static/advanced-icon.gif\" "
+		"onLoad=\"javascript:top['iconbarframe'].location.reload();\">"
+		"&nbsp;"
+		"Your icon bar has been updated.  Please select any of its "
+		"choices to continue.\n"
+	);
+	do_template("endbox");
 	wDumpContent(2);
 }
