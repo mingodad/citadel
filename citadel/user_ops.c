@@ -141,6 +141,30 @@ int GenerateRelationshipIndex(	char *IndexBuf,
 	return(sizeof(TheIndex));
 	}
 
+
+
+/*
+ * Back end for CtdlSetRelationship()
+ */
+void put_visit(struct visit *newvisit) {
+	char IndexBuf[32];
+	int IndexLen;
+
+	/* Generate an index */
+	IndexLen = GenerateRelationshipIndex(IndexBuf,
+		newvisit->v_roomnum,
+		newvisit->v_roomgen,
+		newvisit->v_usernum);
+
+	/* Store the record */
+	cdb_store(CDB_VISIT, IndexBuf, IndexLen,
+		newvisit, sizeof(struct visit)
+		);
+}
+
+
+
+
 /*
  * Define a relationship between a user and a room
  */
@@ -148,8 +172,6 @@ void CtdlSetRelationship(struct visit *newvisit,
 			struct usersupp *rel_user,
 			struct quickroom *rel_room) {
 
-	char IndexBuf[32];
-	int IndexLen;
 
 	/* We don't use these in Citadel because they're implicit by the
 	 * index, but they must be present if the database is exported.
@@ -158,17 +180,8 @@ void CtdlSetRelationship(struct visit *newvisit,
         newvisit->v_roomgen = rel_room->QRgen;
         newvisit->v_usernum = rel_user->usernum;
 
-	/* Generate an index */
-	IndexLen = GenerateRelationshipIndex(IndexBuf,
-		rel_room->QRnumber,
-		rel_room->QRgen,
-		rel_user->usernum);
-
-	/* Store the record */
-	cdb_store(CDB_VISIT, IndexBuf, IndexLen,
-		newvisit, sizeof(struct visit)
-		);
-	}
+	put_visit(newvisit);
+}
 
 /*
  * Locate a relationship between a user and a room

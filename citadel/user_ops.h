@@ -31,6 +31,7 @@ void cmd_qusr (char *who);
 void cmd_agup (char *cmdbuf);
 void cmd_asup (char *cmdbuf);
 int NewMailCount(void);
+void put_visit(struct visit *newvisit);
 void CtdlGetRelationship(struct visit *vbuf,
                         struct usersupp *rel_user,
                         struct quickroom *rel_room);

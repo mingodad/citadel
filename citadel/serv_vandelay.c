@@ -138,7 +138,7 @@ void artv_export_floors(void) {
 
 
 /* 
- *  Traverse the room file...
+ *  Traverse the visits file...
  */
 void artv_export_visits(void) {
 	struct visit vbuf;
@@ -344,6 +344,127 @@ void artv_import_control(void) {
 }
 
 
+void artv_import_user(void) {
+	char buf[256];
+	struct usersupp usbuf;
+
+	client_gets(buf);	usbuf.version = atoi(buf);
+	client_gets(buf);	usbuf.uid = atoi(buf);
+	client_gets(usbuf.password);
+	client_gets(buf);	usbuf.flags = atoi(buf);
+	client_gets(buf);	usbuf.timescalled = atol(buf);
+	client_gets(buf);	usbuf.posted = atol(buf);
+	client_gets(buf);	usbuf.axlevel = atoi(buf);
+	client_gets(buf);	usbuf.usernum = atol(buf);
+	client_gets(buf);	usbuf.lastcall = atol(buf);
+	client_gets(buf);	usbuf.USuserpurge = atoi(buf);
+	client_gets(usbuf.fullname);
+	client_gets(buf);	usbuf.USscreenwidth = atoi(buf);
+	client_gets(buf);	usbuf.USscreenheight = atoi(buf);
+	client_gets(buf);	usbuf.moderation_filter = atoi(buf);
+	putuser(&usbuf);
+}
+
+
+void artv_import_room(void) {
+	char buf[256];
+	struct quickroom qrbuf;
+	long msgnum;
+	int msgcount = 0;
+
+	client_gets(qrbuf.QRname);
+	client_gets(qrbuf.QRpasswd);
+	client_gets(buf);	qrbuf.QRroomaide = atol(buf);
+	client_gets(buf);	qrbuf.QRhighest = atol(buf);
+	client_gets(buf);	qrbuf.QRgen = atol(buf);
+	client_gets(buf);	qrbuf.QRflags = atoi(buf);
+	client_gets(qrbuf.QRdirname);
+	client_gets(buf);	qrbuf.QRinfo = atol(buf);
+	client_gets(buf);	qrbuf.QRfloor = atoi(buf);
+	client_gets(buf);	qrbuf.QRmtime = atol(buf);
+	client_gets(buf);	qrbuf.QRep.expire_mode = atoi(buf);
+	client_gets(buf);	qrbuf.QRep.expire_value = atoi(buf);
+	client_gets(buf);	qrbuf.QRnumber = atol(buf);
+	client_gets(buf);	qrbuf.QRorder = atoi(buf);
+	putroom(&qrbuf);
+	lprintf(7, "Imported room <%s>\n", qrbuf.QRname);
+	/* format of message list export is all message numbers output
+	 * one per line terminated by a 0.
+	 */
+	while (client_gets(buf), msgnum = atol(buf), msgnum > 0) {
+		CtdlSaveMsgPointerInRoom(qrbuf.QRname, msgnum, 0);
+		++msgcount;
+	}
+	lprintf(7, "(%d messages)\n", msgcount);
+}
+
+
+void artv_import_floor(void) {
+        struct floor flbuf;
+        int i;
+	char buf[256];
+
+	serv_gets(buf);		i = atoi(buf);
+	serv_gets(buf);		flbuf.f_flags = atoi(buf);
+	serv_gets(flbuf.f_name);
+	serv_gets(buf);		flbuf.f_ref_count = atoi(buf);
+	serv_gets(buf);		flbuf.f_ep.expire_mode = atoi(buf);
+	serv_gets(buf);		flbuf.f_ep.expire_value = atoi(buf);
+	putfloor(&flbuf, i);
+	lprintf(7, "Imported floor #%d (%s)\n", i, flbuf.f_name);
+}
+
+
+/* 
+ */
+void artv_import_visit(void) {
+	struct visit vbuf;
+	char buf[256];
+
+	client_gets(buf);	vbuf.v_roomnum = atol(buf);
+	client_gets(buf);	vbuf.v_roomgen = atol(buf);
+	client_gets(buf);	vbuf.v_usernum = atol(buf);
+	client_gets(buf);	vbuf.v_lastseen = atol(buf);
+	client_gets(buf);	vbuf.v_flags = atoi(buf);
+	put_visit(&vbuf);
+	lprintf(7, "Imported visit %ld/%ld/%ld\n",
+		vbuf.v_roomnum, vbuf.v_roomgen, vbuf.v_usernum);
+}
+
+
+
+void artv_import_message(void) {
+	struct SuppMsgInfo smi;
+	struct CtdlMessage *msg;
+	long msgnum;
+	int msglen;
+	FILE *fp;
+	char buf[256];
+	char tempfile[256];
+
+	memset(&smi, 0, sizeof(struct SuppMsgInfo));
+	client_gets(buf);	msgnum = atol(buf);
+	client_gets(buf);	smi.smi_refcount = atoi(buf);
+	client_gets(smi.smi_content_type);
+	client_gets(buf);	smi.smi_mod = atoi(buf);
+
+	PutSuppMsgInfo(&smi, msgnum) FIXME get syntax and move to end
+
+	/* decode base64 message text */
+	strcpy(tempfile, tmpnam(NULL));
+	sprintf(buf, "./base64 -d >%s", tempfile);
+	fp = popen(buf, "w");
+	while (client_gets(buf), strcasecmp(buf, END_OF_MESSAGE)) {
+		fprintf(fp, "%s\n", buf);
+	}
+	msglen = ftell(fp);
+	fclose(fp);
+
+	fp = fopen(tempfile, "rb");
+	FIXME do the rest of this
+	fclose(fp);
+}
+
 
 
 
@@ -355,6 +476,11 @@ void artv_do_import(void) {
 
 		if (!strcasecmp(buf, "config")) artv_import_config();
 		else if (!strcasecmp(buf, "control")) artv_import_control();
+		else if (!strcasecmp(buf, "user")) artv_import_user();
+		else if (!strcasecmp(buf, "room")) artv_import_room();
+		else if (!strcasecmp(buf, "floor")) artv_import_floor();
+		else if (!strcasecmp(buf, "visit")) artv_import_visit();
+		else if (!strcasecmp(buf, "message")) artv_import_message();
 
 
 	}
