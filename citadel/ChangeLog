@@ -1,3 +1,6 @@
+1998-08-25 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* room_ops.c: include time.h
+
 Mon Aug 24 23:45:01 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* setup.c: Removed yesno_s()
 	* citadel.h, room_ops.c: added QRmtime field to struct quickroom,
