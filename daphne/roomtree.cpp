@@ -47,10 +47,18 @@ enum {
         ROOMTREE_CTRL
 };
 
+#ifdef __WXMSW__
 BEGIN_EVENT_TABLE(RoomTree, wxTreeCtrl)
-	EVT_TREE_ITEM_ACTIVATED(ROOMTREE_CTRL, RoomTree::OnDoubleClick)
+        EVT_LEFT_DCLICK(RoomTree::OnLeftClick)
 END_EVENT_TABLE()
 
+#else
+
+BEGIN_EVENT_TABLE(RoomTree, wxTreeCtrl)
+        EVT_TREE_ITEM_ACTIVATED(ROOMTREE_CTRL, RoomTree::OnDoubleClick)
+END_EVENT_TABLE()
+
+#endif
 
 
 RoomTree::RoomTree(wxMDIParentFrame *parent, CitClient *sock)
@@ -266,8 +274,11 @@ void RoomTree::LoadRoomList(void) {
 
 
 
-
+#ifdef __WXMSW__
+void RoomTree::OnLeftClick(wxTreeEvent& evt) {
+#else
 void RoomTree::OnDoubleClick(wxTreeEvent& evt) {
+#endif
 	wxTreeItemId itemId;
 	int i;
 	RoomItem *r;
@@ -282,7 +293,8 @@ void RoomTree::OnDoubleClick(wxTreeEvent& evt) {
 	// Ok, it's a leaf node...
 	r = (RoomItem *)GetItemData(itemId);
 
-	switch (r->NodeType) {
+        evt.Skip();
+        switch (r->NodeType) {
 
 	case RI_ROOM:
 		new RoomView(citsock, citMyMDI, r->RoomName);

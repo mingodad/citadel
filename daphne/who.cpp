@@ -96,8 +96,13 @@ who::who(CitClient *sock, wxMDIParentFrame *MyMDI)
 	
 	wxLayoutConstraints *c1 = new wxLayoutConstraints;
 	c1->top.SameAs(this, wxTop, 10);		// 10 from the top
-	c1->bottom.SameAs(this, wxBottom, 10);
-	c1->left.SameAs(this, wxLeft, 10); 
+#ifdef __WXMSW__
+        c1->bottom.SameAs(this, wxBottom, 40);
+#endif
+#ifdef __WXGTK__
+        c1->bottom.SameAs(this, wxBottom, 10);
+#endif
+	c1->left.SameAs(this, wxLeft, 10);
 	c1->right.SameAs(this, wxRight, 10);
 	wholist->SetConstraints(c1);
 
@@ -126,6 +131,7 @@ who::who(CitClient *sock, wxMDIParentFrame *MyMDI)
 	refresh_button->SetConstraints(b2);
 
 	SetAutoLayout(TRUE);
+        Maximize(TRUE);
 	Show(TRUE);
 	LoadWholist();
         Layout();

@@ -1,20 +1,51 @@
- $Log$
- Revision 1.16  2000/01/11 22:51:42  nbryant
- 	* citclient.cpp: different IDEN string depending on __WXMSW__ etc.
- 	  macros
- 	* hosts.cpp, prefs.cpp: pass FALSE to ini->Flush() as this is supposed
- 	  to be the default but WX headers appear to lack the default on
- 	  Windows
- 	* includes.hpp: renamed class DoChat to class ChatWindow -- WTF was it
- 	  named like this?
- 	* main.cpp: load bitmaps from resouces if __WXMSW__ is defined
- 	* makefile.g95: add hosts.o
- 	* daphne.rc: new file; Windows resource definitions. right now just
- 	  contains the bitmaps
+<<<<<<< ChangeLog
+$Log$
+Revision 1.17  2000/01/26 18:42:24  smw
+Fixed enter so it's stable again.
+Made minor tweaks for compatibility between wxGTK and wxMSW
+Fixed roomview so that 'skip' shows up again in button bar
+Still working on windoze images.  They're only showing half-height.
+Fixed wholist so that it fires up maximized.  Fixed the button problems
+in 'wholist' under wxMSW.
+REfixed roomtree.cpp so that under wxMSW it is clickable again.
+Certain things here are for tests.  DoChat was one of them.  This is not
+yet a release version of the software, LS, so please don't give me crap
+about things I'm testing.
 
- Revision 1.15  2000/01/08 20:25:21  smw
- Fixed a condition in goto where the message window would eat itself
- prior to importing the messages, forcing daphne to crash.
+Revision 1.15  2000/01/08 20:25:21  smw
+Fixed a condition in goto where the message window would eat itself
+prior to importing the messages, forcing daphne to crash.
+=======
+$Log$
+Revision 1.17  2000/01/26 18:42:24  smw
+Fixed enter so it's stable again.
+Made minor tweaks for compatibility between wxGTK and wxMSW
+Fixed roomview so that 'skip' shows up again in button bar
+Still working on windoze images.  They're only showing half-height.
+Fixed wholist so that it fires up maximized.  Fixed the button problems
+in 'wholist' under wxMSW.
+REfixed roomtree.cpp so that under wxMSW it is clickable again.
+Certain things here are for tests.  DoChat was one of them.  This is not
+yet a release version of the software, LS, so please don't give me crap
+about things I'm testing.
+
+Revision 1.16  2000/01/11 22:51:42  nbryant
+* citclient.cpp: different IDEN string depending on __WXMSW__ etc.
+macros
+* hosts.cpp, prefs.cpp: pass FALSE to ini->Flush() as this is supposed
+to be the default but WX headers appear to lack the default on
+ Windows
+* includes.hpp: renamed class DoChat to class ChatWindow -- WTF was it
+named like this?
+* main.cpp: load bitmaps from resouces if __WXMSW__ is defined
+* makefile.g95: add hosts.o
+* daphne.rc: new file; Windows resource definitions. right now just
+contains the bitmaps
+
+Revision 1.15  2000/01/08 20:25:21  smw
+Fixed a condition in goto where the message window would eat itself
+prior to importing the messages, forcing daphne to crash.
+>>>>>>> 1.16
 
 Revision 1.14  2000/01/08 20:06:38  smw
 Added hosts.cpp (for user configurable bbs additions to bbslist)

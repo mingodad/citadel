@@ -10,4 +10,5 @@ MY_OBJECTS	= citclient.o enter.o express_message.o main.o message.o \
 
 OBJECTS         = $(MY_OBJECTS)
 
+WXDIR = /wx2
 include $(WXDIR)/src/makeprog.g95

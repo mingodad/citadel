@@ -166,12 +166,12 @@ RoomView::RoomView(
 		" Read all ",
 		wxDefaultPosition);
 
-	wxLayoutConstraints *c3 = new wxLayoutConstraints;
-	c3->top.SameAs(goto_button, wxTop);
-	c3->bottom.SameAs(goto_button, wxBottom);
-	c3->width.AsIs();
-	c3->right.LeftOf(goto_button, 3);
-	readall_button->SetConstraints(c3);
+        wxLayoutConstraints *c2 = new wxLayoutConstraints;
+        c2->top.SameAs(skip_button, wxTop);
+        c2->bottom.SameAs(skip_button, wxBottom);
+        c2->width.AsIs();
+        c2->right.LeftOf(skip_button, 3);
+        readall_button->SetConstraints(c2);
 
 	wxButton *enter_button = new wxButton(
 		this,

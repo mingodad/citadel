@@ -109,10 +109,7 @@ EnterMessage::EnterMessage(
 	// There may also be the opportunity to present a recipient.
 	// FIX ... disable this if we're not in a mail room 
 
-	// Fixed, smw - 12/14/99
-	
-	if (roomname == "Mail") {
-	wxStaticText *tolabel = new wxStaticText(this, -1, "To: ");
+        wxStaticText *tolabel = new wxStaticText(this, -1, "To: ");
 
 	wxLayoutConstraints *c8 = new wxLayoutConstraints;
 	c8->centreY.SameAs(fromname, wxCentreY);
@@ -121,7 +118,7 @@ EnterMessage::EnterMessage(
 	c8->height.AsIs();
 	tolabel->SetConstraints(c8);
 
-	toname = new wxTextCtrl(this, -1, "",
+        toname = new wxTextCtrl(this, -1, "",
 		wxDefaultPosition, wxSize(150,25));
 	
 	wxLayoutConstraints *c9 = new wxLayoutConstraints;
@@ -144,7 +141,6 @@ EnterMessage::EnterMessage(
 	d1->height.AsIs();
 	findrecp->SetConstraints(d1);
 
-}
 
 
 	// The main portion of this screen is a text entry box.

@@ -283,7 +283,8 @@ public:
 private:
 	wxTreeItemId GetNextRoomId(void);
 	void InitTreeIcons(void);
-	void OnDoubleClick(wxTreeEvent& evt);
+        void OnLeftClick(wxTreeEvent& evt);
+        void OnDoubleClick(wxTreeEvent& evt);
 	CitClient *citsock;
 	wxMDIParentFrame *citMyMDI;
 	wxTreeItemId floorboards[MAXFLOORS];
