@@ -1,6 +1,7 @@
 Sat Feb 27 07:47:36 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* rooms.c: download_to_local_disk() prompts for a filename if a blank
 	  filename was supplied to it (for attachments without names)
+	* mime_parser.c: strip leading whitespace in content_type & disposition
 
 1999-02-24 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* configure.in: improved check for pthreads
