@@ -1,4 +1,8 @@
  $Log$
+ Revision 614.46  2004/02/22 04:42:05  ajc
+ * Initial version of function to automatically generate a Certificate
+   Signing Request if one is not present
+
  Revision 614.45  2004/02/20 19:29:05  error
  * Fix bug 112: .Goto allowed partial room match on forgotten rooms
 
@@ -5385,3 +5389,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

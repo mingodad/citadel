@@ -36,6 +36,8 @@
 #include "serv_crypto.h"
 #include "sysdep_decls.h"
 #include "serv_extensions.h"
+#include "citadel.h"
+#include "config.h"
 
 
 #ifdef HAVE_OPENSSL
@@ -90,6 +92,9 @@ void init_ssl(void)
 	SSL_METHOD *ssl_method;
 	DH *dh;
 	RSA *rsa=NULL;
+	X509_REQ *x = NULL;
+	EVP_PKEY *pk = NULL;
+	X509_NAME *name = NULL;
 	FILE *fp;
 
 	if (!access("/var/run/egd-pool", F_OK))
@@ -214,6 +219,85 @@ void init_ssl(void)
 			RSA_free(rsa);
 		}
 	}
+
+	/*
+	 * Generate a CSR if we don't have one.
+	 */
+	if (access(CTDL_CSR_PATH, R_OK) != 0) {
+		lprintf(3, "Generating a certificate signing request.\n");
+
+		/*
+		 * Read our key from the file.  No, we don't just keep this
+		 * in memory from the above key-generation function, because
+		 * there is the possibility that the key was already on disk
+		 * and we didn't just generate it now.
+		 */
+		fp = fopen(CTDL_KEY_PATH, "r");
+		if (fp) {
+			rsa = PEM_read_RSAPrivateKey(fp, NULL, NULL, NULL);
+			fclose(fp);
+		}
+
+		if (rsa) {
+
+			/* Create a public key from the private key */
+			if (pk=EVP_PKEY_new(), pk != NULL) {
+				EVP_PKEY_assign_RSA(pk, rsa);
+				if (x = X509_REQ_new(), x != NULL) {
+
+					/* Set the public key */
+					X509_REQ_set_pubkey(x, pk);
+					X509_REQ_set_version(x, 0L);
+
+					name = X509_REQ_get_subject_name(x);
+
+					/* Tell it who we are (FIXME more here later) */
+					X509_NAME_add_entry_by_txt(name, "C",
+						MBSTRING_ASC, "US", -1, -1, 0);
+
+					X509_NAME_add_entry_by_txt(name, "CN",
+						MBSTRING_ASC, config.c_fqdn, -1, -1, 0);
+				
+					X509_REQ_set_subject_name(x, name);
+
+					/* Sign the CSR */
+					if (!X509_REQ_sign(x, pk, EVP_md5())) {
+						lprintf(3, "X509_REQ_sign(): error\n");
+					}
+					else {
+						/* Write it to disk. */	
+						fp = fopen(CTDL_CSR_PATH, "w");
+						if (fp != NULL) {
+							chmod(CTDL_CSR_PATH, 0600);
+							PEM_write_X509_REQ(fp, x);
+							fclose(fp);
+						}
+					}
+
+					X509_REQ_free(x);
+				}
+			}
+
+			RSA_free(rsa);
+		}
+
+		else {
+			lprintf(3, "Unable to read private key.\n");
+		}
+	}
+
+
+
+	/*
+	 * Generate a self-signed certificate if we don't have one.
+	 */
+	if (access(CTDL_CER_PATH, R_OK) != 0) {
+		lprintf(3, "Generating a self-signed certificate.\n");
+
+
+		/* FIXME ... do it */
+	}
+
 
 	/*
 	 * Now try to bind to the key and certificate.
