@@ -229,11 +229,12 @@ void cmd_netf(char *cmdbuf)
  * It examines the file and displays the OK result code and some information
  * about the file.  NOTE: this stuff is Unix dependent.
  */
-void OpenCmdResult(void) {
+void OpenCmdResult(char *filename, char *mime_type) {
 	struct stat statbuf;
 
 	fstat(fileno(CC->download_fp), &statbuf);
-	cprintf("%d %ld|%ld\n", OK, statbuf.st_size, statbuf.st_mtime);
+	cprintf("%d %ld|%ld|%s|%s\n", OK, statbuf.st_size, statbuf.st_mtime,
+					filename, mime_type);
 	}
 
 
@@ -282,7 +283,7 @@ void cmd_open(char *cmdbuf)
 		return;
 		}
 
-	OpenCmdResult();
+	OpenCmdResult(filename, "application/octet-stream");
 	}
 
 /*
@@ -342,7 +343,7 @@ void cmd_oimg(char *cmdbuf)
 		return;
 		}
 	
-	OpenCmdResult();
+	OpenCmdResult(pathname, "image/gif");
 	}
 
 /*

@@ -1001,8 +1001,8 @@ file resides.  Possible return codes are:
  OK                            (file is open)
  
  If the file is successfully opened, OK will be returned, along with the
-size (in bytes) of the file, and (in version 5.00 and above) the time of last
-modification.
+size (in bytes) of the file, the time of last modification (if applicable),
+the filename (if known), and the MIME type of the file (if known).
  
  
  CLOS   (CLOSe the download file)
@@ -1635,3 +1635,19 @@ succeeds; otherwise it returns an ERROR code.
  
  This command is probably temporary, until we can work some sort of scheduler
 into the system.  It is implemented in the serv_expire module.
+ 
+  
+ 
+ MSG4   (read MeSsaGe, mode 4 -- enumerate MIME parts)
+ 
+     FIX ... do the writeup for this once it's done.
+ 
+
+  
+ OPNA   (OPeN Attachment)
+ 
+ Opens, as a download file, a component of a MIME-encoded message.  The two
+parameters which must be passed to this command are the message number and the
+name of the desired section.  If the message or section does not exist, an
+appropriate ERROR code will be returned; otherwise, if the open is successful,
+this command will succeed returning the same information as an OPEN command.

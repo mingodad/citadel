@@ -18,6 +18,7 @@
 #include "sysdep_decls.h"
 #include "room_ops.h"
 #include "user_ops.h"
+#include "file_ops.h"
 #include "control.h"
 #include "dynloader.h"
 #include "tools.h"
@@ -363,6 +364,41 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 
 
 /*
+ * Callback function for mime parser that opens a section for downloading
+ */
+void mime_download(char *name, char *filename, char *partnum, char *disp,
+                        void *content, char *cbtype, size_t length) {
+
+	char tmpname[PATH_MAX];
+	static int seq = 0;
+
+	/* Silently go away if there's already a download open... */
+	if (CC->download_fp != NULL) return;
+
+	/* ...or if this is not the desired section */
+	if (strcasecmp(CC->desired_section, partnum)) return;
+
+	snprintf(tmpname, sizeof tmpname,
+		"/tmp/CitServer.download.%4x.%4x", getpid(), ++seq);
+
+	CC->download_fp = fopen(tmpname, "wb+");
+	if (CC->download_fp == NULL) return;
+
+	/* Unlink the file while it's open, to guarantee that the
+	 * temp file will always be deleted.
+	 */
+	unlink(tmpname);
+
+	fwrite(content, length, 1, CC->download_fp);
+	fflush(CC->download_fp);
+	rewind(CC->download_fp);
+
+	OpenCmdResult(filename, cbtype);
+	}
+
+
+
+/*
  * Get a message off disk.  (return value is the message's timestamp)
  * 
  */
@@ -449,6 +485,41 @@ time_t output_message(char *msgid, int mode, int headers_only) {
 
 	anon_flag = *mptr++;
 	format_type = *mptr++;
+
+	/* Are we downloading a MIME component? */
+	if (mode == MT_DOWNLOAD) {
+		if (format_type != 4) {
+			cprintf("%d This is not a MIME message.\n",
+				ERROR);
+			}
+		else if (CC->download_fp != NULL) {
+			cprintf("%d You already have a download open.\n",
+				ERROR);
+			}
+		else {
+			/* Skip to the message body */
+			while(ch = *mptr++, (ch!='M' && ch!=0)) {
+				buf[0] = 0;
+				do {
+					buf[strlen(buf)+1] = 0;
+					rch = *mptr++;
+					buf[strlen(buf)] = rch;
+					} while (rch > 0);
+				}
+			/* Now parse it */
+			mime_parser(mptr, NULL, *mime_download);
+			/* If there's no file open by this time, the requested
+			 * section wasn't found, so print an error
+			 */
+			if (CC->download_fp == NULL) {
+				cprintf("%d Section %s not found.\n",
+					ERROR+FILE_NOT_FOUND,
+					CC->desired_section);
+				}
+			}
+		cdb_free(dmsgtext);
+		return(xtime);
+		}
 
 	/* Are we just looking for the message date? */
 	if (mode == MT_DATE) while(ch = *mptr++, (ch!='M' && ch!=0)) {
@@ -693,6 +764,21 @@ void cmd_msg4(char *cmdbuf)
 	extract(msgid, cmdbuf, 0);
 
 	output_message(msgid, MT_MIME, 0);
+	}
+
+
+
+/*
+ * Open a component of a MIME message as a download file 
+ */
+void cmd_opna(char *cmdbuf)
+{
+	char msgid[256];
+
+	extract(msgid, cmdbuf, 0);
+	extract(CC->desired_section, cmdbuf, 1);
+
+	output_message(msgid, MT_DOWNLOAD, 0);
 	}
 
 

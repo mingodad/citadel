@@ -36,7 +36,7 @@ struct CitContext {
 	int client_socket;
 	char *ExpressMessages;
 	int cs_pid;			/* session ID */
-	char cs_room[20];		/* current room */
+	char cs_room[ROOMNAMELEN];	/* current room */
 	time_t cs_lastupdt;		/* time of last update */
 	time_t lastcmd;			/* time of last command executed */
 	time_t lastidle;		/* For computing idle time */
@@ -67,6 +67,7 @@ struct CitContext {
 	char last_pager[32];		/* The username of the last pager    */
 
 	int FloorBeingSearched;		/* This is used by cmd_lrms() etc.   */
+	char desired_section[64];	/* This is used for MIME downloads   */
 	};
 
 typedef struct CitContext t_context;
@@ -124,6 +125,7 @@ struct ChatLine {
 #define MT_RFC822	2		/* RFC822 */
 #define MT_RAW		3		/* IGnet raw format */
 #define MT_MIME		4		/* MIME-formatted message */
+#define MT_DOWNLOAD	5		/* Download a component */
 
 
 /*

@@ -838,6 +838,10 @@ void *context_loop(struct CitContext *con)
 			cmd_msg4(&cmdbuf[5]);
 			}
 
+		else if (!strncasecmp(cmdbuf,"OPNA",4)) {
+			cmd_opna(&cmdbuf[5]);
+			}
+
 		else if (!strncasecmp(cmdbuf,"INFO",4)) {
 			cmd_info();
 			}

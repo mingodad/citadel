@@ -6,11 +6,12 @@ void help_subst (char *strbuf, char *source, char *dest);
 void do_help_subst (char *buffer);
 void memfmout (int width, char *mptr, char subst);
 void output_mime_parts(char *);
-time_t output_message (char *msgid, int mode, int headers_only);
+time_t output_message (char *, int, int);
 void cmd_msg0 (char *cmdbuf);
 void cmd_msg2 (char *cmdbuf);
 void cmd_msg3 (char *cmdbuf);
 void cmd_msg4 (char *cmdbuf);
+void cmd_opna (char *cmdbuf);
 long int send_message (char *message_in_memory, size_t message_length,
 		       int generate_id);
 void loadtroom (void);
