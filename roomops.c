@@ -1000,6 +1000,7 @@ void display_whok(void)
  */
 void display_entroom(void)
 {
+	int i;
 	char buf[256];
 
 	serv_puts("CRE8 0");
@@ -1035,6 +1036,21 @@ void display_entroom(void)
 
 	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"invonly\" ");
 	wprintf("> Private - invitation only\n");
+	wprintf("</UL>\n");
+
+        wprintf("<LI>Resides on floor: ");
+        load_floorlist(); 
+        wprintf("<SELECT NAME=\"er_floor\" SIZE=\"1\">\n");
+        for (i = 0; i < 128; ++i)
+                if (strlen(floorlist[i]) > 0) {
+                        wprintf("<OPTION ");
+                        wprintf("VALUE=\"%d\">", i);
+                        escputs(floorlist[i]);
+                        wprintf("</OPTION>\n");
+                }
+        wprintf("</SELECT>\n");                
+	wprintf("</UL>\n");
+
 
 	wprintf("<CENTER>\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
@@ -1055,6 +1071,7 @@ void entroom(void)
 	char er_name[20];
 	char er_type[20];
 	char er_password[10];
+	int er_floor;
 	int er_num_type;
 
 	if (strcmp(bstr("sc"), "OK")) {
@@ -1064,6 +1081,7 @@ void entroom(void)
 	strcpy(er_name, bstr("er_name"));
 	strcpy(er_type, bstr("type"));
 	strcpy(er_password, bstr("er_password"));
+	er_floor = atoi(bstr("er_floor"));
 
 	er_num_type = 0;
 	if (!strcmp(er_type, "guessname"))
@@ -1073,7 +1091,8 @@ void entroom(void)
 	if (!strcmp(er_type, "invonly"))
 		er_num_type = 3;
 
-	sprintf(buf, "CRE8 1|%s|%d|%s", er_name, er_num_type, er_password);
+	sprintf(buf, "CRE8 1|%s|%d|%s|%d", 
+		er_name, er_num_type, er_password, er_floor);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '2') {

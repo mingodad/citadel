@@ -1,4 +1,8 @@
 $Log$
+Revision 213.5  2001/04/01 22:13:37  cough
+* Modified roomops.c to give users the ability to pick a floor at room
+  creation time.
+
 Revision 213.4  2001/02/15 01:21:55  ajc
 * Applied a patch submitted by "cough" to add who-knows-room and
   invite/kickout functionality.
