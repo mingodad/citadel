@@ -401,7 +401,9 @@ void gotoroom(char *gname, int display_name)
                 printf("Cache-Control: no-store\n");
 		output_headers(0);
 
-		wprintf("<HTML><HEAD></HEAD>\n<BODY ");
+		wprintf("<HTML><HEAD>\n"
+			"<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">\n"
+			"</HEAD>\n<BODY ");
 		wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
 	}
 	if (display_name != 2) {
