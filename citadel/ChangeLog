@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.16  2000/10/25 19:20:37  ajc
+ * FETCH now works for ranges *and* sets, and with sequence numbers *and* UID's
+
  Revision 573.15  2000/10/24 20:39:59  ajc
  * Added RFC822, RFC822.HEADER, RFC822.SIZE, RFC822.TEXT fetch keys to IMAP
 
@@ -2103,4 +2106,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

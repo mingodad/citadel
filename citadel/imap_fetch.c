@@ -369,8 +369,10 @@ int imap_extract_data_items(char **argv, char *items) {
  *
  * This function clears out the IMAP_FETCHED bits, then sets that bit for each
  * message included in the specified range.
+ *
+ * Set is_uid to 1 to fetch by UID instead of sequence number.
  */
-void imap_pick_range(char *range) {
+void imap_pick_range(char *range, int is_uid) {
 	int i;
 	int num_sets;
 	int s;
@@ -394,6 +396,7 @@ void imap_pick_range(char *range) {
 		extract_token(lostr, setstr, 0, ':');
 		if (num_tokens(setstr, ':') >= 2) {
 			extract_token(histr, setstr, 1, ':');
+			if (!strcmp(histr, "*")) sprintf(histr, "%d", INT_MAX);
 		} 
 		else {
 			strcpy(histr, lostr);
@@ -401,10 +404,20 @@ void imap_pick_range(char *range) {
 		lo = atoi(lostr);
 		hi = atoi(histr);
 
+		/* Loop through the array, flipping bits where appropriate */
 		for (i = 1; i <= IMAP->num_msgs; ++i) {
-			if ( (i>=lo) && (i<=hi)) {
-				IMAP->flags[i-1] =
-					IMAP->flags[i-1] | IMAP_FETCHED;
+			if (is_uid) {	/* fetch by sequence number */
+				if ( (IMAP->msgids[i-1]>=lo)
+				   && (IMAP->msgids[i-1]<=hi)) {
+					IMAP->flags[i-1] =
+						IMAP->flags[i-1] | IMAP_FETCHED;
+				}
+			}
+			else {		/* fetch by uid */
+				if ( (i>=lo) && (i<=hi)) {
+					IMAP->flags[i-1] =
+						IMAP->flags[i-1] | IMAP_FETCHED;
+				}
 			}
 		}
 	}
@@ -426,7 +439,7 @@ void imap_fetch(int num_parms, char *parms[]) {
 		return;
 	}
 
-	imap_pick_range(parms[2]);
+	imap_pick_range(parms[2], 0);
 
 	strcpy(items, "");
 	for (i=3; i<num_parms; ++i) {
@@ -444,5 +457,45 @@ void imap_fetch(int num_parms, char *parms[]) {
 	cprintf("%s OK FETCH completed\r\n", parms[0]);
 }
 
+/*
+ * This function is called by the main command loop.
+ */
+void imap_uidfetch(int num_parms, char *parms[]) {
+	char items[1024];
+	char *itemlist[256];
+	int num_items;
+	int i;
+	int have_uid_item = 0;
+
+	if (num_parms < 5) {
+		cprintf("%s BAD invalid parameters\r\n", parms[0]);
+		return;
+	}
+
+	imap_pick_range(parms[3], 1);
+
+	strcpy(items, "");
+	for (i=4; i<num_parms; ++i) {
+		strcat(items, parms[i]);
+		if (i < (num_parms-1)) strcat(items, " ");
+	}
+
+	num_items = imap_extract_data_items(itemlist, items);
+	if (num_items < 1) {
+		cprintf("%s BAD invalid data item list\r\n", parms[0]);
+		return;
+	}
+
+	/* If the "UID" item was not included, we include it implicitly
+	 * because this is a UID FETCH command
+	 */
+	for (i=0; i<num_items; ++i) {
+		if (!strcasecmp(itemlist[i], "UID")) ++have_uid_item;
+	}
+	if (have_uid_item == 0) itemlist[num_items++] = "UID";
+
+	imap_do_fetch(num_items, itemlist);
+	cprintf("%s OK UID FETCH completed\r\n", parms[0]);
+}
 
 
