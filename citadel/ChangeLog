@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.134  2002/03/09 22:52:04  ajc
+ * Applied a patch submitted by <xperc@hotmail.com> to fix a potential buffer
+   overflow problem in lprintf().  I also did the same fix to cprintf().
+
  Revision 590.133  2002/03/09 16:47:57  ajc
  * Added BMBX to fix a problem
 
@@ -3411,3 +3415,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

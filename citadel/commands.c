@@ -179,7 +179,7 @@ void pprintf(const char *format, ...) {
  
 	/* Otherwise, start spewing... */ 
         va_start(arg_ptr, format);   
-        vsprintf(buf, format, arg_ptr);   
+        vsnprintf(buf, sizeof(buf), format, arg_ptr);   
         va_end(arg_ptr);   
 
 	for (i=0; i<strlen(buf); ++i) {
