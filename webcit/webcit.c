@@ -336,9 +336,9 @@ void output_headers(int print_standard_html_head, char *target)
 	printf("Server: %s\n", SERVER);
 	printf("Connection: close\n");
 
-	if ((strlen(target) > 0) && (noframes == 0)) {
+	/* if ((strlen(target) > 0) && (noframes == 0)) {
 		printf("Window-target: %s\n", target);
-	}
+	} */
 	if (print_standard_html_head > 0) {
 		printf("Pragma: no-cache\n");
 		printf("Cache-Control: no-store\n");

@@ -23,7 +23,7 @@
 # Version 4 and 5 appear to be ok.
 NO	Mozilla*MSIE 1.*
 NO	Mozilla*MSIE 2.*
-NO	Mozilla*MSIE 3.*
+YES	Mozilla*MSIE 3.*
 YES	Mozilla*MSIE 4.*
 YES	Mozilla*MSIE 5.*
 
