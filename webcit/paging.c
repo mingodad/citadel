@@ -96,3 +96,34 @@ void page_user(void) {
         wprintf("</BODY></HTML>\n");
         wDumpContent();
 	}
+
+
+
+/*
+ * multiuser chat
+ */
+void do_chat(void) {
+
+        printf("HTTP/1.0 200 OK\n");
+        output_headers(1);
+
+        wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
+        wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+        wprintf("<B>Real-time chat</B>\n");
+        wprintf("</FONT></TD></TR></TABLE>\n");
+
+	wprintf("A chat window should be appearing on your screen ");
+	wprintf("momentarily.  When you're ");
+	wprintf("done, type <TT>/quit</TT> to exit.  You can also ");
+	wprintf("type <TT>/help</TT> for more commands.\n");
+
+	wprintf("<applet codebase=\"/static\" ");
+	wprintf("code=\"wcchat\" width=2 height=2>\n");
+	wprintf("<PARAM NAME=username VALUE=\"%s\">\n", wc_username);
+	wprintf("<PARAM NAME=password VALUE=\"%s\">\n", wc_password);
+	wprintf("<H2>Oops!</H2>Looks like your browser doesn't support Java, ");
+	wprintf("so you won't be able to access Chat.  Sorry.\n");
+	wprintf("</applet>\n");
+        wprintf("</BODY></HTML>\n");
+        wDumpContent();
+	}

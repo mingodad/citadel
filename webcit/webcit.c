@@ -664,6 +664,10 @@ fclose(fp);
 		page_user();
 		}
 
+	else if (!strcasecmp(action, "chat")) {
+		do_chat();
+		}
+
 	/* When all else fails... */
 	else {
 		printf("HTTP/1.0 200 OK\n");
