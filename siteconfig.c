@@ -55,7 +55,7 @@ void display_siteconfig(void) {
 			wprintf("</TD></TR>\n");
 			break;
 		case 5:	wprintf("<TR><TD>Automatically grant room-aide status to users who create private rooms</TD><TD>");
-			wprintf("<INPUT TYPE=\"checkbox\" NAME=\"c_creataide\" VALUE=\"%s\">", (atoi(buf) ? "yes" : "no"));
+			wprintf("<INPUT TYPE=\"checkbox\" NAME=\"c_creataide\" VALUE=\"yes\" %s>", ((atoi(buf)!=0) ? "CHECKED" : ""));
 			wprintf("</TD></TR>\n");
 			break;
 		case 6:	wprintf("<TR><TD>Server connection idle timeout (in seconds)</TD><TD>");
@@ -67,11 +67,11 @@ void display_siteconfig(void) {
 			wprintf("</TD></TR>\n");
 			break;
 		case 8:	wprintf("<TR><TD>Require registration for new users</TD><TD>");
-			wprintf("<INPUT TYPE=\"checkbox\" NAME=\"c_regiscall\" VALUE=\"%s\">", (atoi(buf) ? "yes" : "no"));
+			wprintf("<INPUT TYPE=\"checkbox\" NAME=\"c_regiscall\" VALUE=\"yes\" %s>", ((atoi(buf)!=0) ? "CHECKED" : ""));
 			wprintf("</TD></TR>\n");
 			break;
 		case 9:	wprintf("<TR><TD>Move problem user messages to twitroom</TD><TD>");
-			wprintf("<INPUT TYPE=\"checkbox\" NAME=\"c_twitdetect\" VALUE=\"%s\">", (atoi(buf) ? "yes" : "no"));
+			wprintf("<INPUT TYPE=\"checkbox\" NAME=\"c_twitdetect\" VALUE=\"yes\" %s>", ((atoi(buf)!=0) ? "CHECKED" : ""));
 			wprintf("</TD></TR>\n");
 			break;
 		case 10:wprintf("<TR><TD>Name of twitroom</TD><TD>");
@@ -83,7 +83,7 @@ void display_siteconfig(void) {
 			wprintf("</TD></TR>\n");
 			break;
 		case 12:wprintf("<TR><TD>Restrict access to Internet mail</TD><TD>");
-			wprintf("<INPUT TYPE=\"checkbox\" NAME=\"c_restrict\" VALUE=\"%s\">", (atoi(buf) ? "yes" : "no"));
+			wprintf("<INPUT TYPE=\"checkbox\" NAME=\"c_restrict\" VALUE=\"yes\" %s>", ((atoi(buf)!=0) ? "CHECKED" : ""));
 			wprintf("</TD></TR>\n");
 			break;
 		case 13:wprintf("<TR><TD>Geographic location of this system</TD><TD>");
@@ -98,7 +98,7 @@ void display_siteconfig(void) {
 			wprintf("<INPUT TYPE=\"text\" NAME=\"c_maxsessions\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
 			wprintf("</TD></TR>\n");
 			break;
-		case 16:wprintf("<TR><TD>Maximum concurrent sessions</TD><TD>");
+		case 16:wprintf("<TR><TD>Server-to-server networking password</TD><TD>");
 			wprintf("<INPUT TYPE=\"password\" NAME=\"c_net_password\" MAXLENGTH=\"19\" VALUE=\"%s\">", buf);
 			wprintf("</TD></TR>\n");
 			break;
@@ -133,7 +133,7 @@ void siteconfig(void) {
 		return;
 	}
 
-	serv_printf("SEXP ignatius t foobar|-");
+	serv_printf("CONF set");
 	serv_gets(buf);
 	if (buf[0]!='4') {
 		display_error(&buf[4]);
@@ -144,14 +144,14 @@ void siteconfig(void) {
 	serv_printf("%s", bstr("c_fqdn"));
 	serv_printf("%s", bstr("c_humannode"));
 	serv_printf("%s", bstr("c_phonenum"));
-	serv_printf("%s", ( (!strcasecmp(bstr("c_creataide"), "yes") ? 1 : 0)));
+	serv_printf("%s", ( (!strcasecmp(bstr("c_creataide"), "yes") ? "1" : "0")));
 	serv_printf("%s", bstr("c_sleeping"));
 	serv_printf("%s", bstr("c_initax"));
-	serv_printf("%s", ( (!strcasecmp(bstr("c_regiscall"), "yes") ? 1 : 0)));
-	serv_printf("%s", ( (!strcasecmp(bstr("c_twitdetect"), "yes") ? 1 : 0)));
+	serv_printf("%s", ( (!strcasecmp(bstr("c_regiscall"), "yes") ? "1" : "0")));
+	serv_printf("%s", ( (!strcasecmp(bstr("c_twitdetect"), "yes") ? "1" : "0")));
 	serv_printf("%s", bstr("c_twitroom"));
 	serv_printf("%s", bstr("c_moreprompt"));
-	serv_printf("%s", ( (!strcasecmp(bstr("c_restrict"), "yes") ? 1 : 0)));
+	serv_printf("%s", ( (!strcasecmp(bstr("c_restrict"), "yes") ? "1" : "0")));
 	serv_printf("%s", bstr("c_bbs_city"));
 	serv_printf("%s", bstr("c_sysadm"));
 	serv_printf("%s", bstr("c_maxsessions"));
@@ -160,5 +160,5 @@ void siteconfig(void) {
 	serv_printf("%s", bstr("c_roompurge"));
 	serv_printf("%s", bstr("c_logpages"));
 	serv_printf("000");
-	display_main_menu();
-}
+	display_success("System configuration has been updated.");
+	}

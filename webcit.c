@@ -871,6 +871,14 @@ void session_loop(void) {
 		siteconfig();
 		}
 
+	else if (!strcasecmp(action, "display_generic")) {
+		display_generic();
+		}
+
+	else if (!strcasecmp(action, "do_generic")) {
+		do_generic();
+		}
+
 	/* When all else fails... */
 	else {
 		printf("HTTP/1.0 200 OK\n");

@@ -100,3 +100,5 @@ void terminate_session(void);
 void edit_me(void);
 void display_siteconfig(void);
 void siteconfig(void);
+void display_generic(void);
+void do_generic(void);
