@@ -99,6 +99,13 @@ void mime_decode(char *partnum,
 	size_t blocksize;
 	int write_error = 0;
 
+	lprintf(9, "mime_decode() called\n");
+
+	/* Some encodings aren't really encodings */
+	if (!strcasecmp(encoding, "7bit"))	strcpy(encoding, "");
+	if (!strcasecmp(encoding, "8bit"))	strcpy(encoding, "");
+	if (!strcasecmp(encoding, "binary"))	strcpy(encoding, "");
+
 	/* If this part is not encoded, send as-is */
 	if (strlen(encoding)==0) {
 		CallBack(name, filename, partnum, disposition, part_start,
@@ -107,7 +114,7 @@ void mime_decode(char *partnum,
 		}
 
 	if ( (strcasecmp(encoding, "base64"))
-	     && (strcasecmp(encoding, "7bit"))  ) {
+	     && (strcasecmp(encoding, "quoted-printable"))  ) {
 		lprintf(5, "ERROR: unknown MIME encoding '%s'\n", encoding);
 		return;
 		}
@@ -127,7 +134,6 @@ void mime_decode(char *partnum,
 	if (pipe(recvpipe) != 0) return;
 
 	childpid = fork();
-	lprintf(9, "fork() returned %d\n", childpid);
 	if (childpid < 0) {
 		phree(decoded);
 		return;
@@ -142,16 +148,14 @@ void mime_decode(char *partnum,
 		close(recvpipe[0]);
 		if (!strcasecmp(encoding, "base64"))
 		   execlp("./base64", "base64", "-d", NULL);
-		else if (!strcasecmp(encoding, "7bit")) /* just a test */
-		   execlp("/bin/dd", "dd", NULL);
+		else if (!strcasecmp(encoding, "quoted-printable"))
+		   execlp("./qpdecode", "qpdecode", NULL);
 		lprintf(5, "ERROR: cannot exec decoder for %s\n", encoding);
 		exit(1);
 		}
 
 	close(sendpipe[0]);	 /* Close the ends we're not using  */
 	close(recvpipe[1]);
-
-	lprintf(9, "ready to send %d bytes\n", length);
 
 	while ( (bytes_sent < length) && (write_error == 0) ) {
 		/* Empty the input pipe FIRST */
@@ -179,8 +183,6 @@ void mime_decode(char *partnum,
 	      (blocksize > 0) )  {
 		bytes_recv = bytes_recv + blocksize;
 		}
-
-	lprintf(9, "Decoded length = %d\n", bytes_recv);
 
 	if (bytes_recv > 0)
 		CallBack(name, filename, partnum, disposition, decoded,
@@ -224,6 +226,7 @@ void the_mime_parser(char *partnum,
 	size_t length;
 	char nested_partnum[256];
 
+	lprintf(9, "the_mime_parser() called\n");
 	ptr = content_start;
 	memset(boundary, 0, sizeof boundary);
 	memset(content_type, 0, sizeof content_type);
@@ -331,5 +334,6 @@ void mime_parser(char *content_start, char *content_end,
 			size_t cblength)
 		) {
 
+	lprintf(9, "mime_parser() called\n");
 	the_mime_parser("1", content_start, content_end, CallBack);
 	}

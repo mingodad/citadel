@@ -336,8 +336,9 @@ FMTEND:	cprintf("\n");
 
 
 /*
+ * Callback function for mime parser that simply lists the part
  */
-void part_handler(char *name, char *filename, char *partnum, char *disp,
+void list_this_part(char *name, char *filename, char *partnum, char *disp,
                         void *content, char *cbtype, size_t length) {
 
 	cprintf("part=%s|%s|%s|%s|%s|%d\n",
@@ -345,6 +346,20 @@ void part_handler(char *name, char *filename, char *partnum, char *disp,
 	}
 
 
+/*
+ * Callback function for mime parser that wants to display text
+ */
+void fixed_output(char *name, char *filename, char *partnum, char *disp,
+                        void *content, char *cbtype, size_t length) {
+
+	if (!strcasecmp(cbtype, "text/plain")) {
+		client_write(content, length);
+		}
+	else {
+		cprintf("Part %s: %s (%s) (%d bytes)\n",
+			partnum, filename, cbtype, length);
+		}
+	}
 
 
 /*
@@ -551,7 +566,7 @@ time_t output_message(char *msgid, int mode, int headers_only) {
 
 	/* do some sort of MIME output */
 	if ( (mode == MT_MIME) && (format_type == 4) ) {
-		mime_parser(mptr, NULL, *part_handler);
+		mime_parser(mptr, NULL, *list_this_part);
 		cprintf("000\n");
 		cdb_free(dmsgtext);
 		return(xtime);
@@ -575,10 +590,9 @@ time_t output_message(char *msgid, int mode, int headers_only) {
 
 	/* If the format type on disk is 1 (fixed-format), then we want
 	 * everything to be output completely literally ... regardless of
-	 * what message transfer format is in use.  Format type 4 is 
-	 * temporarily being output this way as well.
+	 * what message transfer format is in use.
 	 */
-	if ( (format_type == 1) || (format_type == 4)) {
+	if (format_type == 1) {
 		strcpy(buf, "");
 		while(ch = *mptr++, ch>0) {
 			if (ch == 13) ch = 10;
@@ -603,7 +617,14 @@ time_t output_message(char *msgid, int mode, int headers_only) {
 	if (format_type == 0) {
 		memfmout(80,mptr,0);
 		}
-
+	/* If the message on disk is format 4 (MIME), we've gotta hand it
+	 * off to the MIME parser.  The client has already been told that
+	 * this message is format 1 (fixed format), so the callback function
+	 * we use will display those parts as-is.
+	 */
+	if (format_type == 4) {
+		mime_parser(mptr, NULL, *fixed_output);
+		}
 
 	/* now we're done */
 	cprintf("000\n");
