@@ -12,3 +12,4 @@ void send_ansi_detect(void);
 void look_for_ansi(void);
 int inkey(void);
 void set_keepalives(int s);
+extern int enable_color;

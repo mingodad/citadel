@@ -17,6 +17,7 @@
 #include <sys/stat.h>
 #include "citadel.h"
 #include "messages.h"
+#include "commands.h"
 
 #define MAXWORDBUF 256
 #define MAXMSGS 512
@@ -31,7 +32,6 @@ struct AttachedFile {
 	char filename[256];
 	};
 
-char inkey(void);
 void sttybbs(int cmd);
 int struncmp(char *lstr, char *rstr, int len);
 int fmout(int width, FILE *fp, char pagin, int height, int starting_lp, char subst);
@@ -955,6 +955,7 @@ void readmsgs(int c, int rdir, int q)	/* read contents of a room */
 	int hold_sw = 0;
 	char arcflag = 0;
 	char quotflag = 0;
+	int hold_color = 0;
 	char prtfile[16];
 	char pagin;
 	char cmd[256];
@@ -1021,11 +1022,13 @@ RMSGREAD:	fflush(stdout);
 		if (quotflag) {
 			freopen("/dev/tty","r+",stdout);
 			quotflag=0;
+			enable_color = hold_color;
 			process_quote();
 			}
 		if (arcflag) {
 			freopen("/dev/tty","r+",stdout);
 			arcflag=0;
+			enable_color = hold_color;
 			f=fork();
 			if (f==0) {
 				freopen(prtfile,"r",stdin);
@@ -1086,10 +1089,14 @@ RMSGREAD:	fflush(stdout);
 		   case 'p':	fflush(stdout);
 				freopen(prtfile,"w",stdout);
 				arcflag = 1;
+				hold_color = enable_color;
+				enable_color = 0;
 				goto RAGAIN;
 		   case 'q':	fflush(stdout);
 				freopen(temp2,"w",stdout);
 				quotflag = 1;
+				hold_color = enable_color;
+				enable_color = 0;
 				goto RAGAIN;
 		   case 's':	return;
 		   case 'a':	goto RAGAIN;
