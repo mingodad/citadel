@@ -15,7 +15,7 @@
 #include <syslog.h>
 #include "citadel.h"
 #include "server.h"
-#include "proto.h"
+#include "logging.h"
 
 
 void rec_log(unsigned int lrtype, char *name) {

@@ -11,7 +11,6 @@
 #include <pthread.h>
 #include "citadel.h"
 #include "server.h"
-#include "proto.h"
 
 int ssv_maxrooms = 0;
 int ssv_maxfloors = 0;

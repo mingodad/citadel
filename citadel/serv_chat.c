@@ -16,12 +16,12 @@
 #ifdef NEED_SELECT_H
 #include <sys/select.h>
 #endif
-#include "proto.h"
+#include "serv_chat.h"
+#include "sysdep_decls.h"
+#include "citserver.h"
+#include "support.h"
 
 extern struct config config;
-
-typedef struct CitContext t_context;
-
 extern struct CitContext *ContextList;
 
 struct ChatLine *ChatQueue = NULL;

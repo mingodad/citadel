@@ -1,3 +1,9 @@
+Mon Aug 24 20:04:04 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
+        * Makefile.in: new target `cleaner' does the same as `realclean' 
+          without removing sysdep.h
+	* proto.h: is bad. eliminate. I've moved the prototypes into several
+	  header files, one per .c file
+
 Mon Aug 24 00:45:55 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Added a CtdlGotoRoom() function to the CitadelAPI.
  

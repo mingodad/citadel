@@ -18,7 +18,8 @@
 #include <syslog.h>
 #include "citadel.h"
 #include "server.h"
-#include "proto.h"
+#include "control.h"
+#include "sysdep_decls.h"
 
 struct CitControl CitControl;
 

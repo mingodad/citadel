@@ -15,8 +15,8 @@
 #include "sysdep.h"
 #include "citadel.h"
 #include "server.h"
-
-struct config config;
+#include "locate_host.h"
+#include "config.h"
 
 void locate_host(char *tbuf)
 {

@@ -6,7 +6,7 @@
 #include <pthread.h>
 #include "citadel.h"
 #include "server.h"
-#include "proto.h"
+#include "support.h"
 
 
 /*

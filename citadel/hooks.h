@@ -1,0 +1,10 @@
+void hook_init (void);
+void hook_start_session (int session_num);
+void hook_end_session (int session_num);
+void hook_command_received (int session_num, char *cmdbuf);
+void hook_crit_get (int session_num, int which_one);
+void hook_crit_got (int session_num, int which_one);
+void hook_crit_end (int session_num, int which_one);
+void hook_user_login (int session_num, char *user_name);
+void hook_room_name (int session_num, char *room_name);
+void hook_cleanup (void);

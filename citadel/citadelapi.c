@@ -9,6 +9,7 @@
 #include "serv_info.h"
 #include "ipc.h"
 #include "citadelapi.h"
+#include "support.h"
 
 
 struct CtdlInternalList {
@@ -414,5 +415,6 @@ int CtdlGotoRoom(char *RoomName) {
 		CtdlErrno = atoi(buf);
 		return(CtdlErrno);
 		}
-	extract(&CtdlCurrentRoom.RoomName, &buf[4], 0);
+	extract(CtdlCurrentRoom.RoomName, &buf[4], 0);
+	return 0;
 	}

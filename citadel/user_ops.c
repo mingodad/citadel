@@ -16,8 +16,16 @@
 #include <pthread.h>
 #include "citadel.h"
 #include "server.h"
-#include "proto.h"
 #include "database.h"
+#include "user_ops.h"
+#include "sysdep_decls.h"
+#include "support.h"
+#include "hooks.h"
+#include "room_ops.h"
+#include "logging.h"
+#include "file_ops.h"
+#include "control.h"
+#include "msgbase.h"
 
 extern struct config config;
 

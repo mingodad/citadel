@@ -13,3 +13,4 @@ void locate_host(char *hbuf);
 void misc_server_cmd(char *cmd);
 int nukedir(char *dirname);
 int num_parms(char *source);
+void strproc(char *string);

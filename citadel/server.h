@@ -72,6 +72,8 @@ struct CitContext {
 	int CtdlErrno;			/* Error return for CitadelAPI calls */
 	};
 
+typedef struct CitContext t_context;
+
 #define CS_STEALTH	1		/* stealth mode */
 #define CS_CHAT		2		/* chat mode */
 #define CS_POSTING	4		/* Posting */

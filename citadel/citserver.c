@@ -11,10 +11,20 @@
 #include <syslog.h>
 #include "citadel.h"
 #include "server.h"
-#include "proto.h"
 #include "sysdep_decls.h"
 #include "citserver.h"
 #include "config.h"
+#include "database.h"
+#include "housekeeping.h"
+#include "hooks.h"
+#include "user_ops.h"
+#include "logging.h"
+#include "support.h"
+#include "msgbase.h"
+#include "locate_host.h"
+#include "serv_chat.h"
+#include "room_ops.h"
+#include "file_ops.h"
 
 struct CitContext *ContextList = NULL;
 int ScheduledShutdown = 0;

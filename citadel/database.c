@@ -15,8 +15,8 @@
 #include <gdbm.h>
 #include "citadel.h"
 #include "server.h"
-#include "proto.h"
 #include "database.h"
+#include "sysdep_decls.h"
 
 
 /*

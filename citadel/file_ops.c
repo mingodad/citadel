@@ -10,7 +10,13 @@
 #include <pthread.h>
 #include "citadel.h"
 #include "server.h"
-#include "proto.h"
+#include "config.h"
+#include "file_ops.h"
+#include "sysdep_decls.h"
+#include "user_ops.h"
+#include "support.h"
+#include "room_ops.h"
+#include "msgbase.h"
 
 void cmd_delf(char *filename)
 {

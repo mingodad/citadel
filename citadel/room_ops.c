@@ -6,12 +6,15 @@
 #include <pthread.h>
 #include "citadel.h"
 #include "server.h"
-#include "proto.h"
 #include "database.h"
-
-extern struct config config;
-
-FILE *popen(const char *, const char *);
+#include "config.h"
+#include "room_ops.h"
+#include "sysdep_decls.h"
+#include "support.h"
+#include "user_ops.h"
+#include "msgbase.h"
+#include "serv_chat.h"
+#include "citserver.h"
 
 /*
  * is_known()  -  returns nonzero if room is in user's known room list

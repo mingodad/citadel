@@ -193,5 +193,8 @@ citadel.h: sysdep.h sysconfig.h ipcdef.h server.h
 clean:
 	find . -name \*.[o] -print -exec rm -f {} \;
 
-realclean: clean
-	rm -f sysdep.h $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS)
+cleaner: clean
+	rm -f $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS)
+
+realclean: cleaner
+	rm -f sysdep.h

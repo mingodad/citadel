@@ -31,9 +31,13 @@
 #include <pthread.h>
 #include "citadel.h"
 #include "server.h"
-#include "proto.h"
 #include "sysdep_decls.h"
 #include "citserver.h"
+#include "hooks.h"
+#include "support.h"
+#include "config.h"
+#include "database.h"
+#include "housekeeping.h"
 
 #ifdef NEED_SELECT_H
 #include <sys/select.h>

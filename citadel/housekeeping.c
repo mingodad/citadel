@@ -14,8 +14,11 @@
 #include <pthread.h>
 #include "citadel.h"
 #include "server.h"
-#include "proto.h"
 #include "citserver.h"
+#include "config.h"
+#include "housekeeping.h"
+#include "sysdep_decls.h"
+#include "room_ops.h"
 
 /*
  * Terminate idle sessions.  This function pounds through the session table

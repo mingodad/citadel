@@ -11,8 +11,13 @@
 #include "server.h"
 #include <errno.h>
 #include <sys/stat.h>
-#include "proto.h"
 #include "database.h"
+#include "msgbase.h"
+#include "support.h"
+#include "sysdep_decls.h"
+#include "room_ops.h"
+#include "user_ops.h"
+#include "control.h"
 
 #define MSGS_ALL	0
 #define MSGS_OLD	1
