@@ -1,3 +1,7 @@
+Tue Sep  8 12:11:56 EDT 1998 Brian Costello <btx@calyx.net>
+	* Added support for dynamic server modules.  Reworked serv_chat.c
+	  to be such a module.
+
 Tue Sep  1 23:09:50 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* userpurge.c: rewrote using functions from the server core, rather
 	  than the now-defunct external API.  This'll be ready once the module
