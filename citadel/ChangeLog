@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.35  2002/01/04 20:46:26  nbryant
+ Makefile fix for cygwin (fix migratenet linkage)
+
  Revision 590.34  2002/01/04 20:43:26  nbryant
  configure/genstamp: check for struct tm.tm_gmtoff
 
@@ -3064,4 +3067,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

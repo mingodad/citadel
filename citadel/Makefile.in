@@ -42,7 +42,7 @@ SERV_MODULES=modules/libchat.la modules/libvcard.la \
 	modules/libical.la
 UTIL_TARGETS=aidepost netsetup msgform readlog \
 	stats citmail userlist sendcommand \
-	base64 migratenet
+	base64 migratenet$(EXEEXT)
 
 prefix=@prefix@
 srcdir=@srcdir@
@@ -225,8 +225,8 @@ netsetup: netsetup.o config.o
 whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o tools.o $(LIBOBJS)
 	$(CC) whobbs.o ipc_c_tcp.o tools.o $(LIBOBJS) $(LDFLAGS) -o whobbs $(NETLIBS)
 
-migratenet$(EXEEXT): migratenet.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)
-	$(CC) migratenet.o config.o ipc_c_tcp.o tools.o $(LIBOBJS) $(LDFLAGS) -o migratenet $(NETLIBS)
+migratenet$(EXEEXT): migratenet.o config.o ipc_c_tcp.o tools.o libcitserver.la $(LIBOBJS)
+	$(LIBTOOL) $(CC) migratenet.o config.o ipc_c_tcp.o tools.o libcitserver.la $(LIBOBJS) $(LDFLAGS) -o migratenet $(NETLIBS)
 
 sendcommand: sendcommand.o ipc_c_tcp.o libcitserver.la $(LIBOBJS)
 	$(LIBTOOL) $(CC) sendcommand.o ipc_c_tcp.o libcitserver.la \
