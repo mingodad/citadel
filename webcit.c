@@ -32,7 +32,6 @@
 
 
 
-int TransactionCount = 0;
 char *ExpressMessages = NULL;
 
 /* This variable is set to 1 if the room banner and menubar have been
@@ -635,8 +634,6 @@ void session_loop(struct httprequest *req)
 		}
 	}
 
-	++TransactionCount;	/* FIX ... make session-specific OR remove */
-
 	if (ContentLength > 0) {
 		content = malloc(ContentLength + 1);
 		read(WC->http_sock, content, ContentLength);
@@ -880,7 +877,6 @@ void session_loop(struct httprequest *req)
 		wprintf("HTTP/1.0 200 OK\n");
 		output_headers(1);
 
-		wprintf("TransactionCount is %d<BR>\n", TransactionCount);
 		wprintf("You're in session %d<HR>\n", WC->wc_session);
 		wprintf("Command: <BR><PRE>\n");
 		escputs(cmd);

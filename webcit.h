@@ -84,8 +84,9 @@ struct wcsession {
 	char *upload;
 	int new_mail;
 	int need_vali;
-        pthread_mutex_t SessionMutex;	 /* mutex for exclusive access */
+        pthread_mutex_t SessionMutex;	/* mutex for exclusive access */
         time_t lastreq;			/* Timestamp of most recent HTTP */
+	int killthis;			/* Nonzero == purge this session */
 };
 
 

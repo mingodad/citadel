@@ -306,7 +306,7 @@ int main(int argc, char **argv)
 
 
 
-	/* FIX make this variable */
+	/* FIX ... we need to auto-size the thread pool */
 	for (i=0; i<10; ++i) {
 
 		/* set attributes for the new thread */
