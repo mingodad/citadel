@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.114  2001/03/11 23:00:29  ajc
+ * Mega sexy hack to deliver express messages THROUGH IMAP!  uber coolness!!
+
  Revision 573.113  2001/03/11 22:09:20  ajc
  * Replaced the "citlogin" binary wrapper with the "loginwrapper.sh" script.
 
@@ -2453,3 +2456,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

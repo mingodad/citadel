@@ -761,7 +761,10 @@ void imap_command_loop(void) {
 	}
 
 
-	/* Ok, at this point we're in normal command mode */
+	/* Ok, at this point we're in normal command mode.  The first thing
+	 * we do is print any incoming pages (yeah! we really do!)
+	 */
+	imap_print_express_messages();
 
 	/*
 	 * Before processing the command that was just entered... if we happen

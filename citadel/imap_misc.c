@@ -124,3 +124,54 @@ void imap_uidcopy(int num_parms, char *parms[]) {
 }
 
 
+/*
+ * Poll for express messages (yeah, we can do this in IMAP ... I think)
+ */
+void imap_print_express_messages(void) {
+	struct ExpressMessage *ptr, *holdptr;
+	char *dumpomatic = NULL;
+	int i;
+
+	if (CC->FirstExpressMessage == NULL) {
+		return;
+	}
+	begin_critical_section(S_SESSION_TABLE);
+	ptr = CC->FirstExpressMessage;
+	CC->FirstExpressMessage = NULL;
+	end_critical_section(S_SESSION_TABLE);
+
+	while (ptr != NULL) {
+		dumpomatic = mallok(strlen(ptr->text) + SIZ);
+		strcpy(dumpomatic, "");
+		if (ptr->flags && EM_BROADCAST)
+			strcat(dumpomatic, "Broadcast message ");
+		else if (ptr->flags && EM_CHAT)
+			strcat(dumpomatic, "Chat request ");
+		else if (ptr->flags && EM_GO_AWAY)
+			strcat(dumpomatic, "Please logoff now, as requested ");
+		else
+			strcat(dumpomatic, "Message ");
+		sprintf(&dumpomatic[strlen(dumpomatic)],
+			"from %s:\n", ptr->sender);
+		if (ptr->text != NULL)
+			strcat(dumpomatic, ptr->text);
+
+		holdptr = ptr->next;
+		if (ptr->text != NULL) phree(ptr->text);
+		phree(ptr);
+		ptr = holdptr;
+
+		for (i=0; i<strlen(dumpomatic); ++i) {
+			if (!isprint(dumpomatic[i])) dumpomatic[i] = ' ';
+			if (dumpomatic[i]=='\\') dumpomatic[i]='/';
+			if (dumpomatic[i]=='\"') dumpomatic[i]='\'';
+		}
+
+		cprintf("* OK [ALERT] %s\r\n", dumpomatic);
+		phree(dumpomatic);
+	}
+	cprintf("000\n");
+}
+
+
+
