@@ -1,3 +1,6 @@
+Thu Jun  2 09:48:00 EDT 1999 Nick Grossman <nick@ulster.net>
+	* Changed static/menubar.html so the text is readable
+
 Wed Jun  2 23:47:58 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Ditched the frames mode completely.  It wasn't working properly in,
 	  among other places, IE 5.  Die, Bill, Die.
