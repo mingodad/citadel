@@ -17,7 +17,7 @@
 /*
  * Text description of this software
  */
-#define CITADEL	"Citadel/UX 5.90 alpha1"
+#define CITADEL	"Citadel/UX 5.90"
 
 /*
  * REV_LEVEL is the current version number (multiplied by 100 to avoid having
