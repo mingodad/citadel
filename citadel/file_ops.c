@@ -670,7 +670,7 @@ void cmd_ndop(char *cmdbuf)
 	 * zero-length file if it doesn't already exist 
 	 */
 	CC->download_fp = fopen(pathname,"a");
-	fclose(CC->download_fp);
+	if (CC->download_fp != NULL) fclose(CC->download_fp);
 
 	/* now open it */
 	CC->download_fp = fopen(pathname,"r");

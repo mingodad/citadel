@@ -1,3 +1,7 @@
+1999-04-27 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* file_ops.c: fixed NDOP to not crash the server if it has trouble
+	  with a download file
+
 Mon Apr 26 22:06:57 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Repaired IGnorant security hole blunder re. citmail
 
