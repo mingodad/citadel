@@ -10,7 +10,7 @@ btx@calyx.net
 #include <stdio.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include <arpa/inet.h>
+#include <netdb.h>
 #include <sys/types.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -20,9 +20,13 @@ btx@calyx.net
 
 int citadel_connect(char *host, u_short port)
 {
-   int sock=-1, ret;
+   int sock, ret;
    struct sockaddr_in sin;
-   
+   struct hostent *he;
+ 
+   if ((he = gethostbyname(host)) == NULL)
+      return -1;
+
    if ((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
    {
       perror("Citadel_connect");
@@ -31,7 +35,7 @@ int citadel_connect(char *host, u_short port)
    
    sin.sin_family = AF_INET;
    sin.sin_port = htons(port);
-   sin.sin_addr.s_addr = inet_addr(host);
+   memcpy(&sin.sin_addr, he->h_addr, he->h_length);
    
    ret = connect(sock, &sin, sizeof(sin));
    

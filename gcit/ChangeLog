@@ -10,3 +10,4 @@
 	  libcli_cit/citadel_util.c, libcli_cit/citadel_util.h,
 	  libcli_cit/client_api.c, libcli_cit/tcp_trans.c: portability
 	  enhancements, warning fixes
+	* libcli_cit/tcp_trans.c: implement DNS lookups
