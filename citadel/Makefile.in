@@ -10,7 +10,9 @@
 #
 ########################################################################
 
-all: client server utils serv_modules
+TARGETS=@TARGETS@
+
+all: $(TARGETS)
 
 CLIENT_TARGETS=citadel whobbs
 SERVER_TARGETS=citserver setup

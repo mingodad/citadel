@@ -23,13 +23,17 @@ if test "$GCC" = yes; then
 fi
 AC_PROG_RANLIB
 
+TARGETS=client
+
 dnl Checks for libraries.
 AC_CHECK_LIB(crypt, crypt)
 AC_CHECK_LIB(dl, dlopen)
 AC_CHECK_LIB(gdbm, gdbm_open)
 AC_CHECK_LIB(curses, initscr, CURSES=-lcurses)
-AC_CHECK_LIB(pthread, pthread_create)
-AC_CHECK_LIB(pthreads, pthread_create)
+AC_CHECK_LIB(pthread, pthread_create, [LIBS="$LIBS -lpthread"
+	TARGETS="client server utils serv_modules"])
+AC_CHECK_LIB(pthreads, pthread_create, [LIBS="$LIBS -lpthreads"
+	TARGETS="client server utils serv_modules"])
 
 dnl Checks for header files.
 AC_HEADER_DIRENT
@@ -52,5 +56,6 @@ AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(mkdir mktime rmdir select socket strerror)
 
 AC_SUBST(CURSES)
+AC_SUBST(TARGETS)
 AC_CONFIG_HEADER(sysdep.h)
 AC_OUTPUT(Makefile)

@@ -27,6 +27,7 @@
 #include "msgbase.h"
 #include "config.h"
 #include "dynloader.h"
+#include "sysdep.h"
 
 
 /*
