@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.82  2002/01/23 05:04:05  ajc
+ * Add vCards from incoming network messages in the GAB to the directory.
+
  Revision 590.81  2002/01/23 03:39:32  ajc
  * Added a new hook type for handling incoming network messages
  * Wrote a skeleton module for net filtering
@@ -3220,3 +3223,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

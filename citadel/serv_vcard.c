@@ -546,8 +546,52 @@ void vcard_purge(char *username, long usernum) {
         CtdlSubmitMsg(msg, NULL, ADDRESS_BOOK_ROOM);
         CtdlFreeMessage(msg);
 }
+
+
+/*
+ * Grab vCard directory stuff out of incoming network messages
+ */
+int vcard_extract_from_network(struct CtdlMessage *msg) {
+	char *ptr;
+	int linelen;
+
+	if (msg == NULL) return(0);
+
+	if (msg->cm_fields['C'] != NULL) {
+		if (strcasecmp(msg->cm_fields['C'], ADDRESS_BOOK_ROOM)) {
+			return(0);
+		}
+	}
+
+	if (msg->cm_fields['O'] != NULL) {
+		if (strcasecmp(msg->cm_fields['O'], ADDRESS_BOOK_ROOM)) {
+			return(0);
+		}
+	}
+
+	if (msg->cm_format_type != 4) return(0);
+
+	ptr = msg->cm_fields['M'];
+	if (ptr == NULL) return(0);
+	while (ptr != NULL) {
 	
-	
+		linelen = strcspn(ptr, "\n");
+		if (linelen == 0) return(0);	/* end of headers */	
+		
+		if (!strncasecmp(ptr, "Content-type: text/x-vcard", 26)) {
+			 /* It's a vCard.  Add it to the directory. */
+			vcard_extract_internet_addresses(msg,
+							CtdlDirectoryAddUser);
+			return(0);
+		}
+
+		ptr = strchr((char *)ptr, '\n');
+		if (ptr != NULL) ++ptr;
+	}
+
+	return(0);
+}
+
 
 
 /*
@@ -570,5 +614,6 @@ char *Dynamic_Module_Init(void)
 					"Initialize Global Address Book");
 	CtdlRegisterUserHook(vcard_purge, EVT_PURGEUSER);
 	create_room(ADDRESS_BOOK_ROOM, 3, "", 0, 1);
+	CtdlRegisterNetprocHook(vcard_extract_from_network);
 	return "$Id$";
 }

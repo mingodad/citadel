@@ -430,7 +430,7 @@ void smtp_rcpt(char *argbuf) {
 	/* FIXME possible buffer overflow type of issues here. */
 	switch(cvt) {
 		case rfc822_address_locally_validated:
-			cprintf("250 RCPT ok\r\n");
+			cprintf("250 RCPT ok local\r\n");
 			if (SMTP->valid.num_local > 0) {
 				strcat(SMTP->valid.recp_local, "|");
 			}
@@ -440,7 +440,7 @@ void smtp_rcpt(char *argbuf) {
 			return;
 
 		case rfc822_room_delivery:
-			cprintf("250 RCPT ok\r\n");
+			cprintf("250 RCPT ok room\r\n");
 			if (SMTP->valid.num_room > 0) {
 				strcat(SMTP->valid.recp_room, "|");
 			}
@@ -450,7 +450,7 @@ void smtp_rcpt(char *argbuf) {
 			return;
 
 		case rfc822_address_on_citadel_network:
-			cprintf("250 RCPT ok\r\n");
+			cprintf("250 RCPT ok ignet\r\n");
 			if (SMTP->valid.num_ignet > 0) {
 				strcat(SMTP->valid.recp_ignet, "|");
 			}
@@ -469,7 +469,7 @@ void smtp_rcpt(char *argbuf) {
 				cprintf("551 Relaying denied.\r\n");
 			}
 			else {
-				cprintf("250 RCPT ok\r\n");
+				cprintf("250 RCPT ok relay <%s>\r\n", recp);
 
 				if (SMTP->valid.num_internet > 0) {
 					strcat(SMTP->valid.recp_internet, "|");
