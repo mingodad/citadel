@@ -1,4 +1,7 @@
 $Log$
+Revision 505.9  2004/02/29 05:34:25  ajc
+* Display the Chat menu option as "Chat with other users in <roomname>"
+
 Revision 505.8  2004/02/27 05:04:38  ajc
 * fix frameset bug in page popups
 
@@ -1693,3 +1696,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

@@ -143,7 +143,10 @@ void display_main_menu(void)
 
 	wprintf("<A HREF=\"/chat\">"
 		"<span class=\"mainmenu\">"
-		"Chat with other online users</span></A><BR>\n");
+		"Chat with other users in <i>"
+	);
+	escputs(WC->wc_roomname);
+	wprintf("</i></span></A><BR>\n");
 
 	wprintf("<A HREF=\"/display_generic\">\n");
 	wprintf("<span class=\"menudesc\">"
