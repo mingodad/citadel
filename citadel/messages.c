@@ -1558,7 +1558,7 @@ RMSGREAD:	scr_flush();
 			color(DIM_WHITE);
 			scr_printf(") ");
 
-			keyopt("<B>ack <A>gain <Q>uote <R>eply <N>ext <S>top m<Y> next ");
+			keyopt("<B>ack <A>gain <Q>uote <R>eply <N>ext <S>top ");
 			if (rc_url_cmd[0] && num_urls)
 				keyopt("<U>RLview ");
 			if (has_images > 0 && strlen(imagecmd) > 0)
