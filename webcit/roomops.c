@@ -1606,3 +1606,81 @@ void change_view(void) {
 	serv_gets(buf);
 	smart_goto(WC->wc_roomname);
 }
+
+
+/*
+ * Show the room list in "folders" format
+ */
+void folders(void) {
+	char buf[SIZ];
+
+	struct folder {
+		char name[SIZ];
+		char room[SIZ];
+		int hasnewmsgs;
+		int is_mailbox;
+	};
+
+	struct folder *fold = NULL;
+	struct folder ftmp;
+	int max_folders = 0;
+	int alloc_folders = 0;
+	int i, j;
+	int p;
+	int flags;
+
+	load_floorlist();
+
+	output_headers(1);
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+	wprintf("<B>Folder list</B>\n");
+	wprintf("</TD></TR></TABLE><BR>\n");
+
+	for (p = 0; p < 2; ++p) {
+		if (p == 0) serv_puts("LKRN");
+		else if (p == 1) serv_puts("LKRO");
+		else serv_puts("NOOP");
+		serv_gets(buf);
+		if (buf[0]=='1') while(serv_gets(buf), strcmp(buf, "000")) {
+			++max_folders;
+			if (max_folders > alloc_folders) {
+				alloc_folders = max_folders + 100;
+				fold = realloc(fold,
+					max_folders * sizeof(struct folder));
+			}
+			extract(fold[max_folders-1].name, buf, 0);
+			extract(fold[max_folders-1].room, buf, 0);
+			if (p == 0) fold[max_folders-1].hasnewmsgs = 1;
+			flags = extract_int(buf, 1);
+			if (flags & QR_MAILBOX) {
+				fold[max_folders-1].is_mailbox = 1;
+			}
+		}
+	}
+
+	/* Bubble-sort the folder list */
+	for (i=0; i<max_folders; ++i) {
+		for (j=0; j<max_folders-i-1; ++j) {
+			if (strcasecmp(fold[j].name, fold[j+1].name) > 0) {
+				memcpy(&ftmp, &fold[j], sizeof(struct folder));
+				memcpy(&fold[j], &fold[j+1],
+							sizeof(struct folder));
+				memcpy(&fold[j+1], &ftmp,
+							sizeof(struct folder));
+			}
+		}
+	}
+
+	/* Output */
+	for (i=0; i<max_folders; ++i) {
+		if (fold[i].hasnewmsgs) wprintf("<B>");
+		escputs(fold[i].name);
+		if (fold[i].hasnewmsgs) wprintf("</B>");
+		wprintf("<BR>\n");
+	}
+
+	free(fold);
+
+	wDumpContent(1);
+}
