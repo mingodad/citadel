@@ -1,4 +1,11 @@
  $Log$
+ Revision 614.21  2004/02/07 04:59:21  ajc
+ * Cache the IGnet config in memory, avoiding a db fetch for every single
+   operation which references it.  Invalidate the cache when a new config
+   is uploaded.
+ * When doing network spool for a room, automatically remove shares for
+   Citadel nodes which no longer exist.
+
  Revision 614.20  2004/02/07 04:22:12  ajc
  * serv_network.c: fixed a problem with an uninitialized data structure
 
@@ -5286,4 +5293,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -85,6 +85,8 @@ struct RoomProcList *rplist = NULL;
  */
 struct NetMap *the_netmap = NULL;
 
+char *ignetcfg = NULL;
+
 /*
  * Keep track of what messages to reject
  */
@@ -256,7 +258,6 @@ void write_network_map(void) {
  * shared secret.
  */
 int is_valid_node(char *nexthop, char *secret, char *node) {
-	char *ignetcfg = NULL;
 	int i;
 	char linebuf[SIZ];
 	char buf[SIZ];
@@ -270,7 +271,6 @@ int is_valid_node(char *nexthop, char *secret, char *node) {
 	/*
 	 * First try the neighbor nodes
 	 */
-	ignetcfg = CtdlGetSysConfig(IGNETCFG);
 	if (ignetcfg == NULL) {
 		if (nexthop != NULL) {
 			strcpy(nexthop, "");
@@ -298,7 +298,6 @@ int is_valid_node(char *nexthop, char *secret, char *node) {
 		}
 	}
 
-	phree(ignetcfg);
 	if (retval == 0) {
 		return(retval);		/* yup, it's a direct neighbor */
 	}
@@ -687,7 +686,7 @@ void network_spoolout_room(char *room_to_spool) {
 	char instr[SIZ];
 	FILE *fp;
 	struct SpoolControl sc;
-	struct namelist *nptr;
+	struct namelist *nptr = NULL;
 	size_t miscsize = 0;
 	size_t linesize = 0;
 	int skipthisline = 0;
@@ -825,8 +824,14 @@ void network_spoolout_room(char *room_to_spool) {
 			sc.digestrecps = nptr;
 		}
 		while (sc.ignet_push_shares != NULL) {
-			fprintf(fp, "ignet_push_share|%s\n",
-				sc.ignet_push_shares->name);
+			/* by checking each node's validity, we automatically
+			 * purge nodes which do not exist from room network
+			 * configurations at this time.
+			 */
+			if (is_valid_node(NULL, NULL, nptr->name) == 0) {
+				fprintf(fp, "ignet_push_share|%s\n",
+					sc.ignet_push_shares->name);
+			}
 			nptr = sc.ignet_push_shares->next;
 			phree(sc.ignet_push_shares);
 			sc.ignet_push_shares = nptr;
@@ -1469,7 +1474,6 @@ bail:	sock_close(sock);
  * only nodes to which we have data to send.
  */
 void network_poll_other_citadel_nodes(int full_poll) {
-	char *ignetcfg = NULL;
 	int i;
 	char linebuf[SIZ];
 	char node[SIZ];
@@ -1479,7 +1483,6 @@ void network_poll_other_citadel_nodes(int full_poll) {
 	int poll = 0;
 	char spoolfile[SIZ];
 
-	ignetcfg = CtdlGetSysConfig(IGNETCFG);
 	if (ignetcfg == NULL) return; 	/* no nodes defined */
 
 	/* Use the string tokenizer to grab one line at a time */
@@ -1505,7 +1508,6 @@ void network_poll_other_citadel_nodes(int full_poll) {
 		}
 	}
 
-	phree(ignetcfg);
 }
 
 
@@ -1540,6 +1542,11 @@ void network_do_queue(void) {
 	 */
 	if (doing_queue) return;
 	doing_queue = 1;
+
+	/* Load the IGnet Configuration into memory */
+	if (ignetcfg == NULL) {
+		ignetcfg = CtdlGetSysConfig(IGNETCFG);
+	}
 
 	/*
 	 * Poll other Citadel nodes.  Maybe.  If "full_processing" is set
@@ -1632,6 +1639,41 @@ void cmd_netp(char *cmdbuf)
 }
 
 
+/*
+ * This handler detects changes being made to the system's IGnet
+ * configuration.
+ */
+int netconfig_aftersave(struct CtdlMessage *msg) {
+	char *ptr;
+	int linelen;
+
+	/* If this isn't the configuration room, or if this isn't a MIME
+	 * message, don't bother.
+	 */
+	if (strcasecmp(msg->cm_fields['O'], SYSCONFIGROOM)) return(0);
+	if (msg->cm_format_type != 4) return(0);
+
+	ptr = msg->cm_fields['M'];
+	while (ptr != NULL) {
+	
+		linelen = strcspn(ptr, "\n");
+		if (linelen == 0) return(0);	/* end of headers */	
+		
+		if (!strncasecmp(ptr, "Content-type: ", 14)) {
+			if (!strncasecmp(&ptr[14], IGNETCFG,
+		   	   strlen(IGNETCFG))) {
+				if (ignetcfg != NULL) phree(ignetcfg);
+				ignetcfg = NULL;
+			}
+		}
+
+		ptr = strchr((char *)ptr, '\n');
+		if (ptr != NULL) ++ptr;
+	}
+
+	return(0);
+}
+
 
 
 
@@ -1645,5 +1687,6 @@ char *serv_network_init(void)
 	CtdlRegisterProtoHook(cmd_netp, "NETP", "Identify as network poller");
 	CtdlRegisterProtoHook(cmd_nsyn, "NSYN", "Synchronize room to node");
 	CtdlRegisterSessionHook(network_do_queue, EVT_TIMER);
+	CtdlRegisterMessageHook(netconfig_aftersave, EVT_AFTERSAVE);
 	return "$Id$";
 }
