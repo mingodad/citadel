@@ -65,6 +65,8 @@ icalcomponent *icalcomponent_new_citadel_vcalendar(void) {
 
 	/* Set the Version Number */
 	icalcomponent_add_property(encaps, icalproperty_new_version("2.0"));
+
+	return(encaps);
 }
 
 
@@ -1172,8 +1174,11 @@ void ical_freebusy(char *who) {
 		NULL, ical_freebusy_backend, (void *)fb
 	);
 
-	lprintf(9, "Before encapsulation:\n---------\n%s\n----------\n",
-		icalcomponent_as_ical_string(fb));
+	/* FIXME there are still more fields to be added here before we can
+	 * call this finished.  We need a DTSTAMP, and probably the user's
+	 * e-mail address as an ORGANIZER, and maybe a few others.  Add them
+	 * in this location.
+	 */
 
 	/* Put the freebusy component into the calendar component */
 	lprintf(9, "Encapsulating\n");

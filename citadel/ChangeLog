@@ -1,4 +1,7 @@
  $Log$
+ Revision 605.19  2003/03/16 05:07:12  ajc
+ * Fixed the bug that caused freebusy publishes to crash.
+
  Revision 605.18  2003/03/15 23:05:08  ajc
  * Rewrite of calendar-to-freebusy conversion functions.  This one creates
    freebusy in the correct format, instead of what I mistakenly assumed it
@@ -4559,3 +4562,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
