@@ -72,6 +72,7 @@ void get_serv_info(char *browser_host, char *user_agent)
 		switch (a) {
 		case 0:
 			serv_info.serv_pid = atoi(buf);
+			WC->ctdl_pid = serv_info.serv_pid;
 			break;
 		case 1:
 			strcpy(serv_info.serv_nodename, buf);

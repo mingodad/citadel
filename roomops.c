@@ -359,7 +359,6 @@ void embed_room_banner(char *got) {
 	svcallback("START", offer_start_page);
 
 	do_template("roombanner");
-	clear_local_substs();
 }
 
 

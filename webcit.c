@@ -367,6 +367,7 @@ void output_headers(int controlcode)
 	suppress_check			=	((controlcode & 0x08) >> 3);
 	cache				=	((controlcode & 0x10) >> 4);
 
+
 	wprintf("HTTP/1.0 200 OK\n");
 
 	httpdate(httpnow, time(NULL));
@@ -397,10 +398,15 @@ void output_headers(int controlcode)
 	if (print_standard_html_head > 0) {
 		wprintf("\n");
 
-		if (refresh30) svprintf("REFRESHTAG", WCS_STRING,
-			"<META HTTP-EQUIV=\"refresh\" CONTENT=\"30\">\n");
-		else svprintf("REFRESHTAG", WCS_STRING,
-			"<META HTTP-EQUIV=\"refresh\" CONTENT=\"500363689;\">\n");
+		if (refresh30) {
+			svprintf("REFRESHTAG", WCS_STRING, "%s",
+				"<META HTTP-EQUIV=\"refresh\" CONTENT=\"30\">\n");
+		}
+		else {
+			svprintf("REFRESHTAG", WCS_STRING, "%s",
+				"<META HTTP-EQUIV=\"refresh\" CONTENT=\"500363689;\">\n");
+		}
+
 		/* script for checking for pages (not always launched) */
 
 		sprintf(onload_fcn, "function onload_fcn() { \n");
@@ -432,15 +438,12 @@ void output_headers(int controlcode)
 		);
 		/* end script */
 
-
 		do_template("head");
-		clear_local_substs();
 
 		svprintf("extrabodyparms", WCS_STRING, "%s", 
 			"onload='onload_fcn();' ");
 
 		do_template("background");
-		clear_local_substs();
 	}
 
 	if (print_standard_html_head == 1) {
@@ -862,6 +865,7 @@ void session_loop(struct httprequest *req)
 
 	WC->upload_length = 0;
 	WC->upload = NULL;
+	WC->vars = NULL;
 
 	WC->is_wap = 0;
 
@@ -877,7 +881,7 @@ void session_loop(struct httprequest *req)
 		hptr = hptr->next;
 
 		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
-			strcpy(cookie, &buf[15]);
+			safestrncpy(cookie, &buf[15], sizeof cookie);
 			cookie_to_stuff(cookie, NULL,
 				      c_username, c_password, c_roomname);
 		}

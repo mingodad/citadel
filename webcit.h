@@ -32,10 +32,10 @@
 #define SLEEPING		180		/* TCP connection timeout */
 #define WEBCIT_TIMEOUT		900		/* WebCit session timeout */
 #define PORT_NUM		2000		/* port number to listen on */
-#define SERVER			"WebCit v5.26"	/* who's in da house */
+#define SERVER			"WebCit v5.27"	/* who's in da house */
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
-#define CLIENT_VERSION		526		/* This version of WebCit */
+#define CLIENT_VERSION		527		/* This version of WebCit */
 #define MINIMUM_CIT_VERSION	626		/* min required Citadel vers */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
@@ -230,6 +230,7 @@ struct wcsession {
 	int outside_frameset_allowed;	/* nonzero if current req is allowed
 					 * outside of the main frameset */
 	char last_chat_user[SIZ];
+	int ctdl_pid;			/* Session ID on the Citadel server */
 };
 
 #define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
@@ -251,8 +252,6 @@ extern char *axdefs[];
 extern char *ctdlhost, *ctdlport;
 extern char *server_cookie;
 extern int is_https;
-
-extern struct wcsubst *global_subst;
 
 
 void stuff_to_cookie(char *cookie, int session,

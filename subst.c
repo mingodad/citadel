@@ -29,8 +29,6 @@
 #include <signal.h>
 #include "webcit.h"
 
-struct wcsubst *global_subst = NULL;
-
 
 /*
  * Clear out the list of substitution variables local to this session
@@ -49,6 +47,8 @@ void clear_local_substs(void) {
 		free(WC->vars);
 		WC->vars = ptr;
 	}
+
+	WC->vars = NULL;
 }
 
 
@@ -58,13 +58,9 @@ void clear_local_substs(void) {
 void svprintf(char *keyname, int keytype, const char *format,...)
 {
 	va_list arg_ptr;
-	char wbuf[4096];
+	char wbuf[SIZ];
 	struct wcsubst *ptr = NULL;
 	struct wcsubst *scan;
-
-	va_start(arg_ptr, format);
-	vsnprintf(wbuf, sizeof wbuf, format, arg_ptr);
-	va_end(arg_ptr);
 
 	/* First scan through to see if we're doing a replacement of
 	 * an existing key
@@ -80,9 +76,15 @@ void svprintf(char *keyname, int keytype, const char *format,...)
 	if (ptr == NULL) {
 		ptr = (struct wcsubst *) malloc(sizeof(struct wcsubst));
 		ptr->next = WC->vars;
-		strcpy(ptr->wcs_key, keyname);
+		safestrncpy(ptr->wcs_key, keyname, sizeof ptr->wcs_key);
 		WC->vars = ptr;
 	}
+
+	/* Format the string and save it */
+
+	va_start(arg_ptr, format);
+	vsnprintf(wbuf, sizeof wbuf, format, arg_ptr);
+	va_end(arg_ptr);
 
 	ptr->wcs_type = keytype;
 	ptr->wcs_value = strdup(wbuf);
@@ -144,7 +146,7 @@ void print_value_of(char *keyname) {
 	}
 
 	if (!strcasecmp(keyname, "SERV_PID")) {
-		wprintf("%d", serv_info.serv_pid);
+		wprintf("%d", WC->ctdl_pid);
 	}
 
 	else if (!strcasecmp(keyname, "SERV_NODENAME")) {

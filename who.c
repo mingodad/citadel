@@ -91,13 +91,13 @@ void whobbs(void)
 
 			wprintf("<TD>%d</TD><TD>", sess);
 			if ((WC->is_aide) &&
-			    (sess != serv_info.serv_pid)) {
+			    (sess != WC->ctdl_pid)) {
 				wprintf(" <A HREF=\"/terminate_session&which_session=%d&session_owner=", sess);
 				urlescputs(user);
 				wprintf("\" onClick=\"return ConfirmKill();\" "
 				">(kill)</A>");
 			}
-			if (sess == serv_info.serv_pid) {
+			if (sess == WC->ctdl_pid) {
 				wprintf(" <A HREF=\"/edit_me\" "
 					">(edit)</A>");
 			}
