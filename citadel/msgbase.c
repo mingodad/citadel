@@ -821,7 +821,39 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
 
 
 /*
- * Callback function for mime parser that wants to display text
+ * Pre callback function for mime parser that wants to display text
+ */
+void fixed_output_pre(char *name, char *filename, char *partnum, char *disp,
+	  	void *content, char *cbtype, size_t length, char *encoding,
+		void *cbuserdata)
+{
+		lprintf(9, "fixed_output_pre() type=<%s>\n", cbtype);	
+		if (!strcasecmp(cbtype, "multipart/alternative")) {
+			ma->is_ma = 1;
+			ma->did_print = 0;
+			lprintf(9, "multipart/alternative: <%s>\n", ma->prefix);
+			return;
+		}
+}
+
+/*
+ * Pre callback function for mime parser that wants to display text
+ */
+void fixed_output_post(char *name, char *filename, char *partnum, char *disp,
+	  	void *content, char *cbtype, size_t length, char *encoding,
+		void *cbuserdata)
+{
+		lprintf(9, "fixed_output_post() type=<%s>\n", cbtype);	
+		if (!strcasecmp(cbtype, "multipart/alternative")) {
+			ma->is_ma = 0;
+			ma->did_print = 0;
+			lprintf(9, "multipart/alternative: <%s>\n", ma->prefix);
+			return;
+		}
+}
+
+/*
+ * Inline callback function for mime parser that wants to display text
  */
 void fixed_output(char *name, char *filename, char *partnum, char *disp,
 	  	void *content, char *cbtype, size_t length, char *encoding,
@@ -831,18 +863,10 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 		char *wptr;
 		size_t wlen;
 		CIT_UBYTE ch = 0;
+
+		lprintf(9, "fixed_output() type=<%s>\n", cbtype);	
 	
-		if (!strcasecmp(cbtype, "multipart/alternative")) {
-			strcpy(ma->prefix, partnum);
-			strcat(ma->prefix, ".");
-			ma->is_ma = 1;
-			ma->did_print = 0;
-			return;
-		}
-	
-		if ( (!strncasecmp(partnum, ma->prefix, strlen(ma->prefix)))
-	   	&& (ma->is_ma == 1) 
-	   	&& (ma->did_print == 1) ) {
+	   	if ( (ma->is_ma == 1) && (ma->did_print == 1) ) {
 			lprintf(9, "Skipping part %s (%s)\n", partnum, cbtype);
 			return;
 		}
@@ -1235,7 +1259,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 		CtdlAllocUserData(SYM_MA_INFO, sizeof(struct ma_info));
 		memset(ma, 0, sizeof(struct ma_info));
 		mime_parser(mptr, NULL,
-			*fixed_output, NULL, NULL,
+			*fixed_output, *fixed_output_pre, *fixed_output_post,
 			NULL, 0);
 	}
 

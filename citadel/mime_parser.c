@@ -308,6 +308,8 @@ void the_mime_parser(char *partnum,
 			if (!strncasecmp(header, "Content-type: ", 14)) {
 				strcpy(content_type, &header[14]);
 				extract_key(name, content_type, "name");
+				lprintf(9, "Extracted content-type <%s>\n",
+					content_type);
 			}
 			if (!strncasecmp(header, "Content-Disposition: ", 21)) {
 				strcpy(disposition, &header[21]);
