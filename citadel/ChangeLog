@@ -1,4 +1,8 @@
  $Log$
+ Revision 580.80  2001/12/01 05:26:01  ajc
+ * Added a command "SMTP" to the Citadel protocol, to do some unimportant
+   utility/diagnostic functions.
+
  Revision 580.79  2001/11/27 17:08:29  ajc
  * When calling an external editor, set the environment variable
    WINDOW_TITLE to an appropriate value.
@@ -2878,3 +2882,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

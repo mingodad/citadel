@@ -1846,8 +1846,20 @@ message to be set, and a 1 or 0 to set or clear the "seen" bit.
 occurred, in which case it returns ERROR.  Please note that no checking is
 done on the supplied data; if the requested message does not exist, the SEEN
 command simply returns OK without doing anything.
+ 
+ 
+ SMTP   (utility commands for the SMTP gateway)
+ 
+ This command, accessible only by Aides, supports several utility operations
+which examine or manipulate Citadel's SMTP support.  The first command argument
+is a subcommand telling the server what to do.  The following subcommands are
+supported:
+ 
+      SMTP mx|hostname             (display all MX hosts for 'hostname')
+      SMTP runqueue                (attempt immediate delivery of all messages
+                                    in the outbound SMTP queue, ignoring any
+                                    retry times stored there)
   
-   
   
  ASYN   (ASYNchronous message support)
  

@@ -84,6 +84,8 @@ enum {				/* Delivery modes */
 long SYM_SMTP;
 long SYM_SMTP_RECP;
 
+int run_queue_now = 0;	/* Set to 1 to ignore SMTP send retry times */
+
 
 
 /*****************************************************************************/
@@ -1331,11 +1333,10 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		}
 	}
 
-
 	/*
 	 * Postpone delivery if we've already tried recently.
 	 */
-	if ( (time(NULL) - last_attempted) < retry) {
+	if (((time(NULL) - last_attempted) < retry) && (run_queue_now == 0)) {
 		lprintf(7, "Retry time not yet reached.\n");
 		phree(instr);
 		return;
@@ -1467,8 +1468,52 @@ void smtp_do_queue(void) {
 		SPOOLMIME, NULL, smtp_do_procmsg, NULL);
 
 	lprintf(7, "SMTP: queue run completed\n");
+	run_queue_now = 0;
 	doing_queue = 0;
 }
+
+
+
+/*****************************************************************************/
+/*                          SMTP UTILITY COMMANDS                            */
+/*****************************************************************************/
+
+void cmd_smtp(char *argbuf) {
+	char cmd[SIZ];
+	char node[SIZ];
+	char buf[SIZ];
+	int i;
+	int num_mxhosts;
+
+	if (CtdlAccessCheck(ac_aide)) return;
+
+	extract(cmd, argbuf, 0);
+
+	if (!strcasecmp(cmd, "mx")) {
+		extract(node, argbuf, 1);
+		num_mxhosts = getmx(buf, node);
+		cprintf("%d %d MX hosts listed for %s\n",
+			LISTING_FOLLOWS, num_mxhosts, node);
+		for (i=0; i<num_mxhosts; ++i) {
+			extract(node, buf, i);
+			cprintf("%s\n", node);
+		}
+		cprintf("000\n");
+		return;
+	}
+
+	else if (!strcasecmp(cmd, "runqueue")) {
+		run_queue_now = 1;
+		cprintf("%d All outbound SMTP will be retried now.\n", OK);
+		return;
+	}
+
+	else {
+		cprintf("%d Invalid command.\n", ERROR+ILLEGAL_VALUE);
+	}
+
+}
+
 
 
 
@@ -1494,5 +1539,6 @@ char *Dynamic_Module_Init(void)
 
 	create_room(SMTP_SPOOLOUT_ROOM, 3, "", 0, 1);
 	CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);
+	CtdlRegisterProtoHook(cmd_smtp, "SMTP", "SMTP utility commands");
 	return "$Id$";
 }
