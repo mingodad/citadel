@@ -1,4 +1,11 @@
 $Log$
+Revision 528.21  2005/01/26 16:28:23  ajc
+* Output ETags in double quotes to conform with the new GroupDAV draft.
+* Output HTTP Server: header in GroupDAV transactions
+* Server: header now displays both WebCit and Citadel versions
+* Added groupdav_common_headers() to output HTTP headers common to all
+  GroupDAV transactions (Connection: close, Server: WebCit, etc.)
+
 Revision 528.20  2005/01/25 19:51:04  ajc
 * Accept escaped characters in GroupDAV GET URL's
 
@@ -2226,3 +2233,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

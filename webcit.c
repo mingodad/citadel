@@ -361,7 +361,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 
 	if (do_httpheaders) {
 		wprintf("Content-type: text/html\n"
-			"Server: %s\n", SERVER
+			"Server: %s / %s\n", SERVER, serv_info.serv_software
 		);
 		if (!cache)
 			wprintf("Connection: close\n"
