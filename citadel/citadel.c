@@ -46,7 +46,6 @@
 #include "citadel_decls.h"
 #include "tools.h"
 #include "acconfig.h"
-#include "client_crypto.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
@@ -962,7 +961,7 @@ int main(int argc, char **argv)
 		if (!strcmp(argv[a], "-X")) {
 #ifdef HAVE_OPENSSL
 			arg_encrypt = RC_YES;
-                        argc = shift(argc, argv, a, 1);
+			argc = shift(argc, argv, a, 1);
 #else
 			fprintf(stderr, "Not compiled with encryption support");
 			return 1;
@@ -1007,8 +1006,8 @@ int main(int argc, char **argv)
 					logoff(NULL, 3);
 				}
 				/*
-				scr_printf("Privileges changed to uid %d gid %d\n",
-						getuid(), getgid());
+				  scr_printf("Privileges changed to uid %d gid %d\n",
+				  getuid(), getgid());
 				*/
 			}
 			argc = shift(argc, argv, a, 1);
@@ -1020,6 +1019,11 @@ int main(int argc, char **argv)
 	sln_printf("Attaching to server... \r");
 	sln_flush();
 	ipc = CtdlIPC_new(argc, argv, hostbuf, portbuf);
+	if (!ipc) {
+		screen_delete();
+		error_printf("Can't connect: %s\n", strerror(errno));
+		logoff(NULL, 3);
+	}
 	ipc_for_signal_handlers = ipc;	/* KLUDGE cover your eyes */
 
 	CtdlIPC_getline(ipc, aaa);
@@ -1028,37 +1032,44 @@ int main(int argc, char **argv)
 		logoff(ipc, atoi(aaa));
 	}
 
-/* If there is a [nonce] at the end, put the nonce in <nonce>, else nonce
- * is zeroized.
- */
+	/* If there is a [nonce] at the end, put the nonce in <nonce>, else nonce
+	 * is zeroized.
+	 */
 	
 	if ((sptr = strchr(aaa, '<')) == NULL)
-	{
-	   nonce[0] = '\0';
-	}
+		{
+			nonce[0] = '\0';
+		}
 	else
-	{
-	   if ((sptr2 = strchr(sptr, '>')) == NULL)
-	   {
-	      nonce[0] = '\0';
-	   }
-	   else
-	   {
-	      sptr2++;
-	      *sptr2 = '\0';
-	      strncpy(nonce, sptr, NONCE_SIZE);
-	   }
+		{
+			if ((sptr2 = strchr(sptr, '>')) == NULL)
+				{
+					nonce[0] = '\0';
+				}
+			else
+				{
+					sptr2++;
+					*sptr2 = '\0';
+					strncpy(nonce, sptr, NONCE_SIZE);
+				}
+		}
+
+	/* Evaluate encryption preferences */
+	if (arg_encrypt != RC_NO && rc_encrypt != RC_NO) {
+		if (!ipc->isLocal || arg_encrypt == RC_YES || rc_encrypt == RC_YES) {
+			secure = (CtdlIPCStartEncryption(ipc, aaa) / 100 == 2) ? 1 : 0;
+			if (!secure)
+				error_printf("Can't encrypt: %s\n", aaa);
+		}
 	}
 
 	get_serv_info(ipc, telnet_client_host);
-
 	scr_printf("%-24s\n%s\n%s\n", serv_info.serv_software, serv_info.serv_humannode,
-		serv_info.serv_bbs_city);
+		   serv_info.serv_bbs_city);
 	scr_flush();
 
-	secure = starttls(ipc);
 	status_line(serv_info.serv_humannode, serv_info.serv_bbs_city, NULL,
-			secure, -1);
+		    secure, -1);
 
 	screenwidth = 80;	/* default screen dimensions */
 	screenheight = 24;
@@ -1068,7 +1079,7 @@ int main(int argc, char **argv)
 	formout(ipc, "hello");	/* print the opening greeting */
 	scr_printf("\n");
 
-GSTA:	/* See if we have a username and password on disk */
+ GSTA:	/* See if we have a username and password on disk */
 	if (rc_remember_passwords) {
 		get_stored_password(hostbuf, portbuf, fullname, password);
 		if (strlen(fullname) > 0) {
@@ -1076,13 +1087,13 @@ GSTA:	/* See if we have a username and password on disk */
 			CtdlIPC_putline(ipc, aaa);
 			CtdlIPC_getline(ipc, aaa);
 			if (nonce[0])
-			{
-				snprintf(aaa, sizeof aaa, "PAS2 %s", make_apop_string(password, nonce, hexstring, sizeof hexstring));
-			}
+				{
+					snprintf(aaa, sizeof aaa, "PAS2 %s", make_apop_string(password, nonce, hexstring, sizeof hexstring));
+				}
 			else	/* Else no APOP */
-			{
-	   			snprintf(aaa, sizeof(aaa)-1, "PASS %s", password);
-	   		}
+				{
+					snprintf(aaa, sizeof(aaa)-1, "PASS %s", password);
+				}
 	   		
 			CtdlIPC_putline(ipc, aaa);
 			CtdlIPC_getline(ipc, aaa);
@@ -1110,9 +1121,9 @@ GSTA:	/* See if we have a username and password on disk */
 			scr_printf("Please enter the name you wish to log in with.\n");
 		}
 	} while (
-			(!strcasecmp(fullname, "bbs"))
-			|| (!strcasecmp(fullname, "new"))
-			|| (strlen(fullname) == 0));
+		 (!strcasecmp(fullname, "bbs"))
+		 || (!strcasecmp(fullname, "new"))
+		 || (strlen(fullname) == 0));
 
 	if (!strcasecmp(fullname, "off")) {
 		mcmd = 29;
@@ -1132,20 +1143,20 @@ GSTA:	/* See if we have a username and password on disk */
 	strproc(password);
 
 	if (nonce[0])
-	{
-		snprintf(aaa, sizeof aaa, "PAS2 %s", make_apop_string(password, nonce, hexstring, sizeof hexstring));
-	}
+		{
+			snprintf(aaa, sizeof aaa, "PAS2 %s", make_apop_string(password, nonce, hexstring, sizeof hexstring));
+		}
 	else	/* Else no APOP */
-	{
-		snprintf(aaa, sizeof aaa, "PASS %s", password);
-	}
+		{
+			snprintf(aaa, sizeof aaa, "PASS %s", password);
+		}
 	
 	CtdlIPC_putline(ipc, aaa);
 	CtdlIPC_getline(ipc, aaa);
 	if (aaa[0] == '2') {
 		load_user_info(&aaa[4]);
 		offer_to_remember_password(hostbuf, portbuf,
-					fullname, password);
+					   fullname, password);
 		goto PWOK;
 	}
 	scr_printf("<< wrong password >>\n");
@@ -1153,11 +1164,11 @@ GSTA:	/* See if we have a username and password on disk */
 		logoff(ipc, 0);
 	goto GSTA;
 
-NEWUSR:	if (strlen(rc_password) == 0) {
-		scr_printf("No record. Enter as new user? ");
-		if (yesno() == 0)
-			goto GSTA;
-	}
+ NEWUSR:	if (strlen(rc_password) == 0) {
+	 scr_printf("No record. Enter as new user? ");
+	 if (yesno() == 0)
+		 goto GSTA;
+ }
 	snprintf(aaa, sizeof aaa, "NEWU %s", fullname);
 	CtdlIPC_putline(ipc, aaa);
 	CtdlIPC_getline(ipc, aaa);
@@ -1172,7 +1183,7 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 
 	enter_config(ipc, 1);
 
-PWOK:
+ PWOK:
 	/* Switch color support on or off if we're in user mode */
 	if (rc_ansi_color == 3) {
 		if (userflags & US_COLOR)
@@ -1182,12 +1193,12 @@ PWOK:
 	}
 
 	scr_printf("%s\nAccess level: %d (%s)\n"
-		"User #%ld / Login #%d",
-		fullname, axlevel, axdefs[(int) axlevel],
-		usernum, timescalled);
+		   "User #%ld / Login #%d",
+		   fullname, axlevel, axdefs[(int) axlevel],
+		   usernum, timescalled);
 	if (lastcall > 0L) {
 		scr_printf(" / Last login: %s\n",
-			asctime(localtime(&lastcall)) );
+			   asctime(localtime(&lastcall)) );
 	}
 	scr_printf("\n");
 
@@ -1249,8 +1260,8 @@ PWOK:
 	/* Enter the lobby */
 	dotgoto(ipc, "_BASEROOM_", 1, 0);
 
-/* Main loop for the system... user is logged in. */
-    uglistsize = 0;
+	/* Main loop for the system... user is logged in. */
+	uglistsize = 0;
 
 	if (newnow == 1)
 		readmsgs(ipc, 3, 1, 5);
@@ -1477,7 +1488,7 @@ PWOK:
 
 			case 85:
 				scr_printf("All users will be disconnected!  "
-					"Really terminate the server? ");
+					   "Really terminate the server? ");
 				if (yesno() == 1) {
 					r = CtdlIPCTerminateServerNow(ipc, aaa);
 					scr_printf("%s\n", aaa);
@@ -1491,18 +1502,18 @@ PWOK:
 
 			case 86:
 				scr_printf("Do you really want to schedule a "
-					"server shutdown? ");
+					   "server shutdown? ");
 				if (yesno() == 1) {
 					r = CtdlIPCTerminateServerScheduled(ipc, 1, aaa);
 					if (r / 100 == 2) {
 						if (atoi(aaa)) {
 							scr_printf(
-"The Citadel server will terminate when all users are logged off.\n"
-								);
+								   "The Citadel server will terminate when all users are logged off.\n"
+								   );
 						} else {
 							scr_printf(
-"The Citadel server will not terminate.\n"
-								);
+								   "The Citadel server will not terminate.\n"
+								   );
 						}
 					}
 				}
@@ -1510,17 +1521,17 @@ PWOK:
 
 			case 87:
 				network_config_management(ipc, "listrecp",
-				 "Message-by-message mailing list recipients");
+							  "Message-by-message mailing list recipients");
 				break;
 
 			case 94:
 				network_config_management(ipc, "digestrecp",
-				 "Digest mailing list recipients");
+							  "Digest mailing list recipients");
 				break;
 
 			case 89:
 				network_config_management(ipc, "ignet_push_share",
-					"Nodes with which we share this room");
+							  "Nodes with which we share this room");
 				break;
 
 			case 88:
@@ -1547,7 +1558,7 @@ PWOK:
 					sttybbs(SB_RESTORE);
 					snprintf(aaa, sizeof aaa, "USERNAME=\042%s\042; export USERNAME;"
 						 "exec ./subsystem %ld %d %d", fullname,
-					  usernum, screenwidth, axlevel);
+						 usernum, screenwidth, axlevel);
 					ka_system(aaa);
 					sttybbs(SB_NO_INTR);
 					screen_set();
@@ -1564,9 +1575,9 @@ PWOK:
 				who_is_online(ipc, 1);
 				break;
 
-            case 91:
-                who_is_online(ipc, 2);
-                break;
+			case 91:
+				who_is_online(ipc, 2);
+				break;
                 
 			case 80:
 				do_system_configuration(ipc);
@@ -1680,7 +1691,7 @@ PWOK:
 			}	/* end switch */
 	} while (termn8 == 0);
 
-TERMN8:	scr_printf("%s logged out.\n", fullname);
+ TERMN8:	scr_printf("%s logged out.\n", fullname);
 	while (march != NULL) {
 		remove_march(march->march_name, 0);
 	}

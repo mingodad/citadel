@@ -44,7 +44,6 @@
 #include "snprintf.h"
 #endif
 #include "screen.h"
-#include "client_crypto.h"
 
 extern char temp[];
 extern char tempdir[];

@@ -1,10 +1,60 @@
 /* $Id$ */
 
-#include "ipc.h"
+#include "sysdep.h"
+#ifdef HAVE_PTHREAD_H
+#include <pthread.h>
+#endif
+#ifdef HAVE_OPENSSL
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+#include <openssl/rand.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* Quick and dirty hack; we don't want to use malloc() in C++ */
+#ifdef __cplusplus
+#define ialloc(t)	new t()
+#define ifree(o)	delete o
+#else
+#define ialloc(t)	malloc(sizeof(t))
+#define ifree(o)	free(o);
+#endif
+
+/* This class is responsible for the server connection */
+typedef struct _CtdlIPC {
+#if defined(HAVE_OPENSSL)
+	/* NULL if not encrypted, non-NULL otherwise */
+	SSL *ssl;
+#endif
+#if defined(HAVE_PTHREAD_H)
+	/* Fast mutex, call CtdlIPC_lock() or CtdlIPC_unlock() to use */
+	pthread_mutex_t mutex;
+#endif
+	/* -1 if not connected, >= 0 otherwise */
+	int sock;
+	/* 1 if server is local, 0 otherwise or if not connected */
+	int isLocal;
+	/* 1 if a download is open on the server, 0 otherwise */
+	int downloading;
+	/* 1 if an upload is open on the server, 0 otherwise */
+	int uploading;
+	/* Time the last command was sent to the server */
+	time_t last_command_sent;
+} CtdlIPC;
+
+/* C constructor */
+CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf);
+/* C destructor */
+void CtdlIPC_delete(CtdlIPC* ipc);
+/* Convenience destructor; also nulls out caller's pointer */
+void CtdlIPC_delete_ptr(CtdlIPC** pipc);
+/* Read a line from server, discarding newline */
+void CtdlIPC_getline(CtdlIPC* ipc, char *buf);
+/* Write a line to server, adding newline */
+void CtdlIPC_putline(CtdlIPC* ipc, const char *buf);
 
 struct ctdlipcroom {
 	char RRname[ROOMNAMELEN];	/* Name of room */
@@ -59,6 +109,12 @@ struct ctdlipcmisc {
 	char needregis;			/* Nonzero if user needs to register */
 	char needvalid;			/* Nonzero if users need validation */
 };
+
+/* Shared Diffie-Hellman parameters */
+#define DH_P		"1A74527AEE4EE2568E85D4FB2E65E18C9394B9C80C42507D7A6A0DBE9A9A54B05A9A96800C34C7AA5297095B69C88901EEFD127F969DCA26A54C0E0B5C5473EBAEB00957D2633ECAE3835775425DE66C0DE6D024DBB17445E06E6B0C78415E589B8814F08531D02FD43778451E7685541079CFFB79EF0D26EFEEBBB69D1E80383"
+#define DH_G		"2"
+#define DH_L		1024
+#define CIT_CIPHERS	"ALL:RC4+RSA:+SSLv2:@STRENGTH"	/* see ciphers(1) */
 
 int CtdlIPCNoop(CtdlIPC *ipc);
 int CtdlIPCEcho(CtdlIPC *ipc, const char *arg, char *cret);
@@ -183,6 +239,14 @@ int CtdlIPCHighSpeedReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
 int CtdlIPCGenericCommand(CtdlIPC *ipc, const char *command, const char *to_send,
 		size_t bytes_to_send, char **to_receive,
 		size_t *bytes_to_receive, char *proto_response);
+
+/* Internals */
+int starttls(CtdlIPC *ipc);
+void setCryptoStatusHook(void (*hook)(char *s));
+/* This is all Ford's doing.  FIXME: figure out what it's doing */
+extern int (*error_printf)(char *s, ...);
+void setIPCDeathHook(void (*hook)(void));
+void setIPCErrorPrintf(int (*func)(char *s, ...));
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,9 @@
 /* $Id$ */
 
+#define	UDS			"_UDS_"
+#define DEFAULT_HOST		UDS
+#define DEFAULT_PORT		"citadel"
+
 #include "sysdep.h"
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -11,25 +15,62 @@
 #  include <time.h>
 # endif
 #endif
+#include <unistd.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <string.h>
 #include <malloc.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <sys/un.h>
 #ifdef THREADED_CLIENT
 #include <pthread.h>
 #endif
 #include "citadel.h"
 #include "citadel_ipc.h"
 #include "citadel_decls.h"
-#include "client_crypto.h"
 #include "tools.h"
 
 #ifdef THREADED_CLIENT
 pthread_mutex_t rwlock;
 #endif
+
+#ifdef HAVE_OPENSSL
+static SSL_CTX *ssl_ctx;
+char arg_encrypt;
+char rc_encrypt;
+#ifdef THREADED_CLIENT
+pthread_mutex_t **Critters;			/* Things that need locking */
+#endif /* THREADED_CLIENT */
+
+#endif /* HAVE_OPENSSL */
+
+
+static void (*status_hook)(char *s) = NULL;
+
+void setCryptoStatusHook(void (*hook)(char *s)) {
+	status_hook = hook;
+}
+
+
 char express_msgs = 0;
+
+
+static void serv_read(CtdlIPC *ipc, char *buf, int bytes);
+static void serv_write(CtdlIPC *ipc, const char *buf, int nbytes);
+#ifdef HAVE_OPENSSL
+static void serv_read_ssl(CtdlIPC *ipc, char *buf, int bytes);
+static void serv_write_ssl(CtdlIPC *ipc, const char *buf, int nbytes);
+static void ssl_lock(int mode, int n, const char *file, int line);
+static void endtls(SSL *ssl);
+#ifdef THREADED_CLIENT
+static unsigned long id_callback(void);
+#endif /* THREADED_CLIENT */
+#endif /* HAVE_OPENSSL */
 
 
 /*
@@ -1754,8 +1795,95 @@ int CtdlIPCSetMessageSeen(CtdlIPC *ipc, long msgnum, int seen, char *cret)
 /* STLS */
 int CtdlIPCStartEncryption(CtdlIPC *ipc, char *cret)
 {
-	return CtdlIPCGenericCommand(ipc, "STLS", NULL, 0, NULL, NULL, cret);
+	int a;
+	int r;
+	char buf[SIZ];
+
+#ifdef HAVE_OPENSSL
+	SSL *temp_ssl;
+
+	/* New SSL object */
+	temp_ssl = SSL_new(ssl_ctx);
+	if (!temp_ssl) {
+		error_printf("SSL_new failed: %s\n",
+				ERR_reason_error_string(ERR_get_error()));
+		return -2;
+	}
+	/* Pointless flag waving */
+#if SSLEAY_VERSION_NUMBER >= 0x0922
+	SSL_set_session_id_context(temp_ssl, "Citadel/UX SID", 14);
+#endif
+
+	if (!access("/var/run/egd-pool", F_OK))
+		RAND_egd("/var/run/egd-pool");
+
+	if (!RAND_status()) {
+		error_printf("PRNG not properly seeded\n");
+		return -2;
+	}
+
+	/* Associate network connection with SSL object */
+	if (SSL_set_fd(temp_ssl, ipc->sock) < 1) {
+		error_printf("SSL_set_fd failed: %s\n",
+				ERR_reason_error_string(ERR_get_error()));
+		return -2;
+	}
+
+	if (status_hook != NULL)
+		status_hook("Requesting encryption...\r");
+
+	/* Ready to start SSL/TLS */
+	/* Old code
+	CtdlIPC_putline(ipc, "STLS");
+	CtdlIPC_getline(ipc, buf);
+	if (buf[0] != '2') {
+		error_printf("Server can't start TLS: %s\n", buf);
+		return 0;
+	}
+	*/
+	r = CtdlIPCGenericCommand(ipc,
+				  "STLS", NULL, 0, NULL, NULL, cret);
+	if (r / 100 != 2) {
+		error_printf("Server can't start TLS: %s\n", buf);
+		endtls(temp_ssl);
+		return r;
+	}
+
+	/* Do SSL/TLS handshake */
+	if ((a = SSL_connect(temp_ssl)) < 1) {
+		error_printf("SSL_connect failed: %s\n",
+				ERR_reason_error_string(ERR_get_error()));
+		endtls(temp_ssl);
+		return -2;
+	}
+	ipc->ssl = temp_ssl;
+
+	BIO_set_close(ipc->ssl->rbio, BIO_NOCLOSE);
+	{
+		int bits, alg_bits;
+
+		bits = SSL_CIPHER_get_bits(SSL_get_current_cipher(ipc->ssl), &alg_bits);
+		error_printf("Encrypting with %s cipher %s (%d of %d bits)\n",
+				SSL_CIPHER_get_version(SSL_get_current_cipher(ipc->ssl)),
+				SSL_CIPHER_get_name(SSL_get_current_cipher(ipc->ssl)),
+				bits, alg_bits);
+	}
+	return r;
+#else
+	return 0;
+#endif /* HAVE_OPENSSL */
 }
+
+
+#ifdef HAVE_OPENSSL
+static void endtls(SSL *ssl)
+{
+	if (ssl) {
+		SSL_shutdown(ssl);
+		SSL_free(ssl);
+	}
+}
+#endif
 
 
 /* QDIR */
@@ -2241,4 +2369,450 @@ int CtdlIPCGenericCommand(CtdlIPC *ipc,
 	}
 	CtdlIPC_unlock(ipc);
 	return ret;
+}
+
+
+static int connectsock(char *host, char *service, char *protocol, int defaultPort)
+{
+	struct hostent *phe;
+	struct servent *pse;
+	struct protoent *ppe;
+	struct sockaddr_in sin;
+	int s, type;
+
+	memset(&sin, 0, sizeof(sin));
+	sin.sin_family = AF_INET;
+
+	pse = getservbyname(service, protocol);
+	if (pse != NULL) {
+		sin.sin_port = pse->s_port;
+	}
+	else if (atoi(service) > 0) {
+		sin.sin_port = htons(atoi(service));
+	}
+	else {
+		sin.sin_port = htons(defaultPort);
+	}
+	phe = gethostbyname(host);
+	if (phe) {
+		memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
+	} else if ((sin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE) {
+		return -1;
+	}
+	if ((ppe = getprotobyname(protocol)) == 0) {
+		return -1;
+	}
+	if (!strcmp(protocol, "udp")) {
+		type = SOCK_DGRAM;
+	} else {
+		type = SOCK_STREAM;
+	}
+
+	s = socket(PF_INET, type, ppe->p_proto);
+	if (s < 0) {
+		return -1;
+	}
+
+	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
+		return -1;
+	}
+
+	return (s);
+}
+
+static int uds_connectsock(int *isLocal, char *sockpath)
+{
+	struct sockaddr_un addr;
+	int s;
+
+	memset(&addr, 0, sizeof(addr));
+	addr.sun_family = AF_UNIX;
+	safestrncpy(addr.sun_path, sockpath, sizeof addr.sun_path);
+
+	s = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (s < 0) {
+		return -1;
+	}
+
+	if (connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+		return -1;
+	}
+
+	*isLocal = 1;
+	return s;
+}
+
+
+/*
+ * input binary data from socket
+ */
+static void serv_read(CtdlIPC *ipc, char *buf, int bytes)
+{
+	int len, rlen;
+
+#if defined(HAVE_OPENSSL)
+	if (ipc->ssl) {
+		serv_read_ssl(ipc, buf, bytes);
+		return;
+	}
+#endif
+	len = 0;
+	while (len < bytes) {
+		rlen = read(ipc->sock, &buf[len], bytes - len);
+		if (rlen < 1) {
+			connection_died(ipc);
+			return;
+		}
+		len += rlen;
+	}
+}
+
+
+/*
+ * send binary to server
+ */
+static void serv_write(CtdlIPC *ipc, const char *buf, int nbytes)
+{
+	int bytes_written = 0;
+	int retval;
+
+#if defined(HAVE_OPENSSL)
+	if (ipc->ssl) {
+		serv_write_ssl(ipc, buf, nbytes);
+		return;
+	}
+#endif
+	while (bytes_written < nbytes) {
+		retval = write(ipc->sock, &buf[bytes_written],
+			       nbytes - bytes_written);
+		if (retval < 1) {
+			connection_died(ipc);
+			return;
+		}
+		bytes_written += retval;
+	}
+}
+
+
+#ifdef HAVE_OPENSSL
+/*
+ * input binary data from encrypted connection
+ */
+static void serv_read_ssl(CtdlIPC* ipc, char *buf, int bytes)
+{
+	int len, rlen;
+	char junk[1];
+
+	len = 0;
+	while (len < bytes) {
+		if (SSL_want_read(ipc->ssl)) {
+			if ((SSL_write(ipc->ssl, junk, 0)) < 1) {
+				error_printf("SSL_write in serv_read:\n");
+				ERR_print_errors_fp(stderr);
+			}
+		}
+		rlen = SSL_read(ipc->ssl, &buf[len], bytes - len);
+		if (rlen < 1) {
+			long errval;
+
+			errval = SSL_get_error(ipc->ssl, rlen);
+			if (errval == SSL_ERROR_WANT_READ ||
+					errval == SSL_ERROR_WANT_WRITE) {
+				sleep(1);
+				continue;
+			}
+			if (errval == SSL_ERROR_ZERO_RETURN ||
+					errval == SSL_ERROR_SSL) {
+				serv_read(ipc, &buf[len], bytes - len);
+				return;
+			}
+			error_printf("SSL_read in serv_read:\n");
+			ERR_print_errors_fp(stderr);
+			connection_died();
+			return;
+		}
+		len += rlen;
+	}
+}
+
+
+/*
+ * send binary to server encrypted
+ */
+static void serv_write_ssl(CtdlIPC *ipc, const char *buf, int nbytes)
+{
+	int bytes_written = 0;
+	int retval;
+	char junk[1];
+
+	while (bytes_written < nbytes) {
+		if (SSL_want_write(ipc->ssl)) {
+			if ((SSL_read(ipc->ssl, junk, 0)) < 1) {
+				error_printf("SSL_read in serv_write:\n");
+				ERR_print_errors_fp(stderr);
+			}
+		}
+		retval = SSL_write(ipc->ssl, &buf[bytes_written],
+				nbytes - bytes_written);
+		if (retval < 1) {
+			long errval;
+
+			errval = SSL_get_error(ipc->ssl, retval);
+			if (errval == SSL_ERROR_WANT_READ ||
+					errval == SSL_ERROR_WANT_WRITE) {
+				sleep(1);
+				continue;
+			}
+			if (errval == SSL_ERROR_ZERO_RETURN ||
+					errval == SSL_ERROR_SSL) {
+				serv_write(ipc, &buf[bytes_written],
+						nbytes - bytes_written);
+				return;
+			}
+			error_printf("SSL_write in serv_write:\n");
+			ERR_print_errors_fp(stderr);
+			connection_died();
+			return;
+		}
+		bytes_written += retval;
+	}
+}
+
+
+static void CtdlIPC_init_OpenSSL(void)
+{
+	int a;
+	SSL_METHOD *ssl_method;
+	DH *dh;
+	
+	/* already done init */
+	if (ssl_ctx) {
+		return;
+	}
+
+	/* Get started */
+	ssl_ctx = NULL;
+	dh = NULL;
+	SSL_load_error_strings();
+	SSLeay_add_ssl_algorithms();
+
+	/* Set up the SSL context in which we will oeprate */
+	ssl_method = SSLv23_client_method();
+	ssl_ctx = SSL_CTX_new(ssl_method);
+	if (!ssl_ctx) {
+		error_printf("SSL_CTX_new failed: %s\n",
+				ERR_reason_error_string(ERR_get_error()));
+		return;
+	}
+	/* Any reasonable cipher we can get */
+	if (!(SSL_CTX_set_cipher_list(ssl_ctx, CIT_CIPHERS))) {
+		error_printf("No ciphers available for encryption\n");
+		return;
+	}
+	SSL_CTX_set_session_cache_mode(ssl_ctx, SSL_SESS_CACHE_BOTH);
+	
+	/* Load DH parameters into the context */
+	dh = DH_new();
+	if (!dh) {
+		error_printf("Can't allocate a DH object: %s\n",
+				ERR_reason_error_string(ERR_get_error()));
+		return;
+	}
+	if (!(BN_hex2bn(&(dh->p), DH_P))) {
+		error_printf("Can't assign DH_P: %s\n",
+				ERR_reason_error_string(ERR_get_error()));
+		DH_free(dh);
+		return;
+	}
+	if (!(BN_hex2bn(&(dh->g), DH_G))) {
+		error_printf("Can't assign DH_G: %s\n",
+				ERR_reason_error_string(ERR_get_error()));
+		DH_free(dh);
+		return;
+	}
+	dh->length = DH_L;
+	SSL_CTX_set_tmp_dh(ssl_ctx, dh);
+	DH_free(dh);
+
+#ifdef THREADED_CLIENT
+	/* OpenSSL requires callbacks for threaded clients */
+	CRYPTO_set_locking_callback(ssl_lock);
+	CRYPTO_set_id_callback(id_callback);
+
+	/* OpenSSL requires us to do semaphores for threaded clients */
+	Critters = malloc(CRYPTO_num_locks() * sizeof (pthread_mutex_t *));
+	if (!Critters) {
+		perror("malloc failed");
+		exit(1);
+	} else {
+		for (a = 0; a < CRYPTO_num_locks(); a++) {
+			Critters[a] = malloc(sizeof (pthread_mutex_t));
+			if (!Critters[a]) {
+				perror("malloc failed");
+				exit(1);
+			}
+			pthread_mutex_init(Critters[a], NULL);
+		}
+	}
+#endif /* THREADED_CLIENT */       
+}
+
+
+static void ssl_lock(int mode, int n, const char *file, int line)
+{
+#ifdef THREADED_CLIENT
+	if (mode & CRYPTO_LOCK)
+		pthread_mutex_lock(Critters[n]);
+	else
+		pthread_mutex_unlock(Critters[n]);
+#endif /* THREADED_CLIENT */
+}
+
+#ifdef THREADED_CLIENT
+static unsigned long id_callback(void) {
+	return (unsigned long)pthread_self();
+}
+#endif /* THREADED_CLIENT */
+#endif /* HAVE_OPENSSL */
+
+
+/*
+ * input string from socket - implemented in terms of serv_read()
+ */
+void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
+{
+	int i;
+
+	/* Read one character at a time. */
+	for (i = 0;; i++) {
+		serv_read(ipc, &buf[i], 1);
+		if (buf[i] == '\n' || i == (SIZ-1))
+			break;
+	}
+
+	/* If we got a long line, discard characters until the newline. */
+	if (i == (SIZ-1))
+		while (buf[i] != '\n')
+			serv_read(ipc, &buf[i], 1);
+
+	/* Strip the trailing newline.
+	 */
+	buf[i] = 0;
+}
+
+
+/*
+ * send line to server - implemented in terms of serv_write()
+ */
+void CtdlIPC_putline(CtdlIPC *ipc, const char *buf)
+{
+	/* error_printf("< %s\n", buf); */
+	serv_write(ipc, buf, strlen(buf));
+	serv_write(ipc, "\n", 1);
+
+	ipc->last_command_sent = time(NULL);
+}
+
+
+/*
+ * attach to server
+ */
+CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
+{
+	int a;
+	char cithost[SIZ];
+	char citport[SIZ];
+	char sockpath[SIZ];
+
+	CtdlIPC *ipc = ialloc(CtdlIPC);
+	if (!ipc) {
+		return 0;
+	}
+#if defined(HAVE_OPENSSL)
+	ipc->ssl = NULL;
+	CtdlIPC_init_OpenSSL();
+#endif
+#if defined(HAVE_PTHREAD_H)
+	pthread_mutex_init(&(ipc->mutex), NULL); /* Default fast mutex */
+#endif
+	ipc->sock = -1;			/* Not connected */
+	ipc->isLocal = 0;		/* Not local, of course! */
+	ipc->downloading = 0;
+	ipc->uploading = 0;
+	ipc->last_command_sent = 0L;
+
+	strcpy(cithost, DEFAULT_HOST);	/* default host */
+	strcpy(citport, DEFAULT_PORT);	/* default port */
+
+	for (a = 0; a < argc; ++a) {
+		if (a == 0) {
+			/* do nothing */
+		} else if (a == 1) {
+			strcpy(cithost, argv[a]);
+		} else if (a == 2) {
+			strcpy(citport, argv[a]);
+		} else {
+			error_printf("%s: usage: ",argv[0]);
+			error_printf("%s [host] [port] ",argv[0]);
+			ifree(ipc);
+			errno = EINVAL;
+			return 0;
+   		}
+	}
+
+	if ((!strcmp(cithost, "localhost"))
+	   || (!strcmp(cithost, "127.0.0.1"))) {
+		ipc->isLocal = 1;
+	}
+
+	/* If we're using a unix domain socket we can do a bunch of stuff */
+	if (!strcmp(cithost, UDS)) {
+		snprintf(sockpath, sizeof sockpath, "citadel.socket");
+		ipc->sock = uds_connectsock(&(ipc->isLocal), sockpath);
+		if (ipc->sock == -1) {
+			ifree(ipc);
+			return 0;
+		}
+		if (hostbuf != NULL) strcpy(hostbuf, cithost);
+		if (portbuf != NULL) strcpy(portbuf, sockpath);
+		return ipc;
+	}
+
+	ipc->sock = connectsock(cithost, citport, "tcp", 504);
+	if (ipc->sock == -1) {
+		ifree(ipc);
+		return 0;
+	}
+	if (hostbuf != NULL) strcpy(hostbuf, cithost);
+	if (portbuf != NULL) strcpy(portbuf, citport);
+	return ipc;
+}
+
+/*
+ * return the file descriptor of the server socket so we can select() on it.
+ *
+ * FIXME: This is only used in chat mode; eliminate it when chat mode gets
+ * rewritten...
+ */
+int CtdlIPC_getsockfd(CtdlIPC* ipc)
+{
+	return ipc->sock;
+}
+
+
+/*
+ * return one character
+ *
+ * FIXME: This is only used in chat mode; eliminate it when chat mode gets
+ * rewritten...
+ */
+char CtdlIPC_get(CtdlIPC* ipc)
+{
+	char buf[2];
+	char ch;
+
+	serv_read(ipc, buf, 1);
+	ch = (int) buf[0];
+
+	return (ch);
 }

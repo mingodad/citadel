@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.19  2002/10/06 18:46:30  error
+ * Move (nearly) all IPC-related code to citadel_ipc.[ch].
+
  Revision 601.18  2002/10/05 04:48:29  ajc
  * Change MAXSETUP from 4 to 3 (bug reported by mavherzog, fix suggested by IO)
 
@@ -4049,3 +4052,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
