@@ -1,3 +1,6 @@
+Sat Aug  1 18:32:52 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* ipc_c_tcp.c: fixed order of memcpy parameters after gethostbyname
+
 Sun Jul 19 17:26:12 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* ChangeLog: reordered; the GNU standard is to add new entries to the
 	  top.
