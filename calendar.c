@@ -106,8 +106,8 @@ void cal_process_object(icalcomponent *cal,
 				"<IMG ALIGN=CENTER "
 				"SRC=\"/static/vcalendar.gif\">"
 				"&nbsp;&nbsp;"	
-				"<B>Meeting invitation</B>
-				</TD></TR>\n"
+				"<B>Meeting invitation</B>"
+				"</TD></TR>\n"
 			);
 			break;
 		    case ICAL_METHOD_REPLY:
@@ -115,8 +115,8 @@ void cal_process_object(icalcomponent *cal,
 				"<IMG ALIGN=CENTER "
 				"SRC=\"/static/vcalendar.gif\">"
 				"&nbsp;&nbsp;"	
-				"<B>Attendee's reply to your invitation</B>
-				</TD></TR>\n"
+				"<B>Attendee's reply to your invitation</B>"
+				"</TD></TR>\n"
 			);
 			break;
 		    case ICAL_METHOD_PUBLISH:
@@ -124,8 +124,8 @@ void cal_process_object(icalcomponent *cal,
 				"<IMG ALIGN=CENTER "
 				"SRC=\"/static/vcalendar.gif\">"
 				"&nbsp;&nbsp;"	
-				"<B>Published event</B>
-				</TD></TR>\n"
+				"<B>Published event</B>"
+				"</TD></TR>\n"
 			);
 			break;
 		    default:

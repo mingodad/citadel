@@ -229,10 +229,8 @@ void set_value(char *prompt, char str[])
 	int i;
 #endif
 	char buf[SIZ];
-	char tempfile[PATH_MAX];
 	char setupmsg[SIZ];
 
-	strcpy(tempfile, tmpnam(NULL));
 	strcpy(setupmsg, "");
 
 	switch (setup_type) {
