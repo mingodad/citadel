@@ -64,7 +64,6 @@ void whobbs(void)
 	escputs(serv_info.serv_humannode);
 	wprintf("</B></FONT></TD></TR></TABLE>\n");
 
-	wprintf("<FONT SIZE=-2>\n");
 	wprintf("<CENTER>\n<TABLE BORDER=1 WIDTH=100%>\n<TR>\n");
 	wprintf("<TH>Session ID</TH>\n");
 	wprintf("<TH>User Name</TH>\n");
@@ -114,7 +113,7 @@ void whobbs(void)
 		}
 
 		while (wlist != NULL) {
-			wprintf("<TR>\n\t<TD ALIGN=center>%d", wlist->sessionnum);
+			wprintf("<TR>\n\t<TD ALIGN=center><FONT SIZE=-1>%d", wlist->sessionnum);
 			if ((WC->is_aide) &&
 			    (wlist->sessionnum != serv_info.serv_pid)) {
 				wprintf(" <A HREF=\"/terminate_session&which_session=%d&session_owner=", wlist->sessionnum);
@@ -126,16 +125,16 @@ void whobbs(void)
 				wprintf(" <A HREF=\"/edit_me\" "
 					">(edit)</A>");
 			}
+			wprintf("</FONT></TD>\n\t<TD><FONT SIZE=-1>");
 			/* username */
-			wprintf("</TD>\n\t<TD>");
 			escputs(wlist->username);
 			/* room */
-			wprintf("</TD>\n\t<TD>");
+			wprintf("</FONT></TD>\n\t<TD><FONT SIZE=-1>");
 			escputs(wlist->roomname);
-			wprintf("</TD>\n\t<TD>");
+			wprintf("</FONT></TD>\n\t<TD><FONT SIZE=-1>");
 			/* hostname */
 			escputs(wlist->hostname);
-			wprintf("</TD>\n</TR>");
+			wprintf("</FONT></TD>\n</TR>");
 			wptr = wlist->next;
 			free(wlist);
 			wlist = wptr;
@@ -143,7 +142,7 @@ void whobbs(void)
 	}
 	wprintf("</TABLE>\n<BR><BR>\n");
 	wprintf("<TABLE BORDER=0 BGCOLOR=\"#003399\">\n<TR><TD ALIGN=center VALIGN=center CELLPADING=20>\n");
-	wprintf("<B><A HREF=\"javascript:window.close();\">Close window</A></B>\n");
+	wprintf("<B><A HREF=\"/mainmenu\" TARGET=\"_top\">Close window</A></B>\n");
 	wprintf("</TD></TR>\n</TABLE></FONT>\n</CENTER>");
 
 	wDumpContent(1);
