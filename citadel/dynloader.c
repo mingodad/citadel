@@ -61,7 +61,7 @@ int DLoader_Exec_Cmd(char *cmdbuf)
 
   for (p = ProtoHookList; p; p = p->next)
     {
-      if (!strncmp(cmdbuf, p->cmd, 4))
+      if (!strncasecmp(cmdbuf, p->cmd, 4))
 	{
 	  p->handler(&cmdbuf[5]);
 	  return 1;

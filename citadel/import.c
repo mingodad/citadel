@@ -68,16 +68,6 @@ void imp_ssv() {
 		fpgetfield(imfp, value);
 		lprintf(9, " %s = %s\n", key, value);
 		
-		if (!strcasecmp(key, "maxrooms")) {
-			ssv_maxrooms = atol(value);
-			if (ssv_maxrooms > MAXROOMS) {
-				lprintf(3, "ERROR: maxrooms is %d, need %d\n",
-					ssv_maxrooms, MAXROOMS);
-				fclose(imfp);
-				return;
-				}
-			}
-
 		if (!strcasecmp(key, "maxfloors")) {
 			ssv_maxfloors = atol(value);
 			if (ssv_maxfloors > MAXFLOORS) {
@@ -359,6 +349,7 @@ void imp_rooms() {
 	long *msglist;
 	int num_msgs = 0;
 	long msgnum, msglen;
+	char cdbkey[256];
 	
 	while(fpgetfield(imfp, key), strcasecmp(key, "endsection")) {
 		if (!strcasecmp(key, "room")) {
@@ -412,15 +403,19 @@ void imp_rooms() {
 				}
 
 			lprintf(9, "\n");
-			if ((roomnum!=1)&&(qr.QRflags&QR_INUSE))
-			   cdb_store(CDB_QUICKROOM,
-				&roomnum, sizeof(int),
-				&qr, sizeof(struct quickroom) );
+			if ((roomnum!=1)&&(qr.QRflags&QR_INUSE)) {
+				cdb_store(CDB_QUICKROOM,
+					&roomnum, sizeof(int),
+					&qr, sizeof(struct quickroom) );
+				}
 
 			if (num_msgs > 0) {
-				if ((roomnum!=1)&&(qr.QRflags&QR_INUSE))
-                		 cdb_store(CDB_MSGLISTS, &roomnum, sizeof(int),
-					msglist, (sizeof(long)*num_msgs) );
+				if ((roomnum!=1)&&(qr.QRflags&QR_INUSE)) {
+                		 	cdb_store(CDB_MSGLISTS,
+						&roomnum, sizeof(int),
+						msglist,
+						(sizeof(long)*num_msgs) );
+					}
 				free(msglist);
 				}
 
