@@ -1,3 +1,8 @@
+Wed Jul  7 23:25:09 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* control.c: create citadel.control if it doesn't exist (yikes!)
+	* serv_expire.c: purge mailbox rooms belonging to non-existent users
+	* user_ops.c: don't delete user's mailbox at user-delete time
+
 Mon Jul  5 17:01:29 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* utilsmenu: removed menu items for defunct utilities
 

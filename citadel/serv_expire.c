@@ -175,50 +175,104 @@ void PurgeMessages(void) {
 	lprintf(5, "PurgeMessages() called\n");
 	messages_purged = 0;
 	ForEachRoom(DoPurgeMessages);
+}
+
+
+void AddValidUser(struct usersupp *usbuf) {
+	struct ValidUser *vuptr;
+
+	vuptr = (struct ValidUser *)mallok(sizeof(struct ValidUser));
+	vuptr->next = ValidUserList;
+	vuptr->vu_usernum = usbuf->usernum;
+	ValidUserList = vuptr;
 	}
 
+void AddValidRoom(struct quickroom *qrbuf) {
+	struct ValidRoom *vrptr;
+
+	vrptr = (struct ValidRoom *)mallok(sizeof(struct ValidRoom));
+	vrptr->next = ValidRoomList;
+	vrptr->vr_roomnum = qrbuf->QRnumber;
+	vrptr->vr_roomgen = qrbuf->QRgen;
+	ValidRoomList = vrptr;
+	}
 
 void DoPurgeRooms(struct quickroom *qrbuf) {
 	time_t age, purge_secs;
 	struct PurgeList *pptr;
+	struct ValidUser *vuptr;
+	int do_purge = 0;
+
+	/* For mailbox rooms, there's only one purging rule: if the user who
+	 * owns the room still exists, we keep the room; otherwise, we purge
+	 * it.  Bypass any other rules.
+	 */
+	if (qrbuf->QRflags & QR_MAILBOX) {
+		for (vuptr=ValidUserList; vuptr!=NULL; vuptr=vuptr->next) {
+			if (vuptr->vu_usernum == atol(qrbuf->QRname)) {
+				do_purge = 0;
+				goto BYPASS;
+			}
+		}
+		/* user not found */
+		do_purge = 1;
+		goto BYPASS;
+	}
 
 	/* Any of these attributes render a room non-purgable */
 	if (qrbuf->QRflags & QR_PERMANENT) return;
 	if (qrbuf->QRflags & QR_DIRECTORY) return;
 	if (qrbuf->QRflags & QR_NETWORK) return;
-	if (qrbuf->QRflags & QR_MAILBOX) return;
 	if (is_noneditable(qrbuf)) return;
 
 	/* If we don't know the modification date, be safe and don't purge */
 	if (qrbuf->QRmtime <= (time_t)0) return;
+
+	/* If no room purge time is set, be safe and don't purge */
+	if (config.c_roompurge < 0) return;
 
 	/* Otherwise, check the date of last modification */
 	age = time(NULL) - (qrbuf->QRmtime);
 	purge_secs = (time_t)config.c_roompurge * (time_t)86400;
 	if (purge_secs <= (time_t)0) return;
 	lprintf(9, "<%s> is <%ld> seconds old\n", qrbuf->QRname, age);
+	if (age > purge_secs) do_purge = 1;
 
-	if (age > purge_secs) {
-		
+BYPASS:	if (do_purge) {
 		pptr = (struct PurgeList *) mallok(sizeof(struct PurgeList));
 		pptr->next = RoomPurgeList;
 		strcpy(pptr->name, qrbuf->QRname);
 		RoomPurgeList = pptr;
-
-		}
 	}
+
+}
+	
 
 
 int PurgeRooms(void) {
 	struct PurgeList *pptr;
 	int num_rooms_purged = 0;
 	struct quickroom qrbuf;
+	struct ValidUser *vuptr;
 	char *transcript = NULL;
 
 	lprintf(5, "PurgeRooms() called\n");
-	if (config.c_roompurge > 0) {
-		ForEachRoom(DoPurgeRooms);
+
+
+	/* Load up a table full of valid user numbers so we can delete
+	 * user-owned rooms for users who no longer exist */
+	ForEachUser(AddValidUser);
+
+	/* Then cycle through the room file */
+	ForEachRoom(DoPurgeRooms);
+
+	/* Free the valid user list */
+	while (ValidUserList != NULL) {
+		vuptr = ValidUserList->next;
+		phree(ValidUserList);
+		ValidUserList = vuptr;
 		}
+
 
 	transcript = mallok(256);
 	strcpy(transcript, "The following rooms have been auto-purged:\n");
@@ -327,25 +381,6 @@ int PurgeUsers(void) {
 
 	lprintf(5, "Purged %d users.\n", num_users_purged);
 	return(num_users_purged);
-	}
-
-void AddValidUser(struct usersupp *usbuf) {
-	struct ValidUser *vuptr;
-
-	vuptr = (struct ValidUser *)mallok(sizeof(struct ValidUser));
-	vuptr->next = ValidUserList;
-	vuptr->vu_usernum = usbuf->usernum;
-	ValidUserList = vuptr;
-	}
-
-void AddValidRoom(struct quickroom *qrbuf) {
-	struct ValidRoom *vrptr;
-
-	vrptr = (struct ValidRoom *)mallok(sizeof(struct ValidRoom));
-	vrptr->next = ValidRoomList;
-	vrptr->vr_roomnum = qrbuf->QRnumber;
-	vrptr->vr_roomgen = qrbuf->QRgen;
-	ValidRoomList = vrptr;
 	}
 
 

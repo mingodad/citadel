@@ -48,7 +48,20 @@ void get_control(void) {
 	memset(&CitControl, 0, sizeof(struct CitControl));
 	if (control_fp == NULL)
 		control_fp = fopen("citadel.control", "rb+");
-	if (control_fp == NULL) return;
+	if (control_fp == NULL) {
+		control_fp = fopen("citadel.control", "wb+");
+		if (control_fp != NULL) {
+			memset(&CitControl, 0, sizeof(struct CitControl));
+			fwrite(&CitControl, sizeof(struct CitControl),
+				1, control_fp);
+			rewind(control_fp);
+		}
+	}
+	if (control_fp == NULL) {
+		lprintf(1, "ERROR opening citadel.control: %s\n",
+			strerror(errno));
+		return;
+	}
 
 	rewind(control_fp);
 	fread(&CitControl, sizeof(struct CitControl), 1, control_fp);
