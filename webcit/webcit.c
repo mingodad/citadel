@@ -490,6 +490,13 @@ void output_image()
 		free(xferbuf);
 
 	} else {
+
+		/* Instead of an ugly 404, send a 1x1 transparent GIF
+		 * when there's no such image on the server.
+		 */
+		output_static("blank.gif");
+
+		/*
 		wprintf("HTTP/1.0 404 %s\n", &buf[4]);
 		output_headers(0);
 		wprintf("Content-Type: text/plain\n"
@@ -497,6 +504,8 @@ void output_image()
 			"Error retrieving image: %s\n",
 			&buf[4]
 		);
+		*/
+
 	}
 
 
