@@ -853,21 +853,20 @@ FMTEND:	printf("\n");
  */
 void color(int colornum)
 {
-
 #ifdef ANSI_COLOR
 	if (enable_color) {
-		fflush(stdout);
-		printf("%c[3%dm%c[1m", 27, colornum, 27);
+		printf("\033[3%dm\033[1m", colornum);
 		fflush(stdout);
 		}
 #endif
 	}
 
-void cls(void) {
+void cls(int colornum) {
 #ifdef ANSI_COLOR
-	fflush(stdout);
-	printf("%c[2J%c[H", 27, 27);
-	fflush(stdout);
+	if (enable_color) {
+		printf("\033[4%dm\033[2J\033[H", colornum);
+		fflush(stdout);
+		}
 #endif
 	}
 
@@ -877,7 +876,7 @@ void cls(void) {
  */
 void send_ansi_detect(void) {
 #ifdef ANSI_COLOR
-	printf("%c[c", 27);
+	printf("\033[c");
 	fflush(stdout);
 	time(&AnsiDetect);
 #endif

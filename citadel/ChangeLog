@@ -1,3 +1,8 @@
+1998-10-31 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* citadel.c, commands.c, commands.h: set background color to black
+	  before clearing screen, so that we can actually see text on
+	  black-on-white xterms.
+
 1998-10-29 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* rooms.c: fix color of Mail>
 	* citadel.c: send ANSI detect sequence after attach_to_server() so the

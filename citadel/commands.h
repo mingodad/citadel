@@ -7,7 +7,7 @@ int fmout(int width, FILE *fp, char pagin, int height, int starting_lp,
 int getcmd(char *argbuf);
 void display_help(char *name);
 void color(int colornum);
-void cls(void);
+void cls(int colornum);
 void send_ansi_detect(void);
 void look_for_ansi(void);
 int inkey(void);

@@ -816,16 +816,19 @@ signal(SIGCONT,catch_sigcont);  /* Catch SIGCONT so we can reset terminal */
 printf("Attaching to server...\r");
 fflush(stdout);
 attach_to_server(argc,argv);
+
 send_ansi_detect();
 
-cls();
-color(7);
 serv_gets(aaa);
 if (aaa[0]!='2') {
 	printf("%s\n",&aaa[4]);
 	logoff(atoi(aaa));
 	}
 get_serv_info();
+
+look_for_ansi();
+cls(0);
+color(7);
 
 printf("%-22s\n%s\n%s\n",serv_info.serv_software,serv_info.serv_humannode,
 	serv_info.serv_bbs_city);
@@ -846,8 +849,6 @@ if (getppid()!=1) {
 		goto PWOK;
 		}
 	}
-
-look_for_ansi();
 
 GSTA:	termn8=0; newnow=0;
 	do {
