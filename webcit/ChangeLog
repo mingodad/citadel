@@ -1,4 +1,9 @@
 $Log$
+Revision 505.17  2004/03/17 18:25:31  ajc
+* When creating a new user, auto-chain to the "edit user configuration"
+  screen, and subsequently auto-chain to the "edit address book entry"
+  screen.  This creates a nice sensible workflow.
+
 Revision 505.16  2004/03/15 22:47:09  ajc
 * Prettied up the chat window a little more.
 
@@ -1727,3 +1732,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

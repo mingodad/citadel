@@ -1182,7 +1182,7 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "select_user_to_edit")) {
 		select_user_to_edit(NULL, NULL);
 	} else if (!strcasecmp(action, "display_edituser")) {
-		display_edituser(NULL);
+		display_edituser(NULL, 0);
 	} else if (!strcasecmp(action, "edituser")) {
 		edituser();
 	} else if (!strcasecmp(action, "create_user")) {
