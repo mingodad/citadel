@@ -1,4 +1,9 @@
 $Log$
+Revision 400.37  2002/10/09 04:12:44  ajc
+* Templatized trailing HTML
+* Templatized "new start page" page
+* Added global substitution macros
+
 Revision 400.36  2002/10/09 03:51:01  ajc
 * Templatized the <HEAD> section of HTML
 
@@ -1063,3 +1068,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

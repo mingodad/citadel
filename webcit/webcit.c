@@ -174,16 +174,8 @@ void wprintf(const char *format,...)
  */
 void wDumpContent(int print_standard_html_footer)
 {
-	if (WC->fake_frames) {
-		wprintf("</TABLE>\n");
-		WC->fake_frames = 0;
-	}
-
 	if (print_standard_html_footer) {
-		if (print_standard_html_footer != 2) {
-			wprintf("<BR>");
-		}
-		wprintf("</BODY></HTML>\n");
+		do_template("trailing");
 	}
 
 
@@ -326,9 +318,6 @@ void output_headers(int controlcode)
 	if (print_standard_html_head > 0) {
 		wprintf("\n");
 
-		svprintf("NODENAME", WCS_STRING, "%s",
-						serv_info.serv_humannode);
-
 		if (refresh30) svprintf("REFRESHTAG", WCS_STRING,
 			"<META HTTP-EQUIV=\"refresh\" CONTENT=\"30\">\n");
 		else svprintf("REFRESHTAG", WCS_STRING,
@@ -361,14 +350,8 @@ void output_headers(int controlcode)
 	if (print_standard_html_head == 1) {
 		wprintf("<A NAME=\"TheTop\"></A>");
 
-		wprintf("<TABLE border=0 width=100%%><TR VALIGN=TOP>"
-			"<TD>\n");
-
 		embed_room_banner(NULL);
 
-		wprintf("</TD></TR><TR VALIGN=TOP><TD>\n");
-		
-		WC->fake_frames = 1;
 		}
 	}
 }
@@ -699,21 +682,7 @@ void change_start_page(void) {
 	set_preference("startpage", bstr("startpage"));
 
 	output_headers(3);
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>New start page</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
-
-	wprintf("<CENTER>"
-		"<font size=+2>Your start page has been changed.</font>"
-		"<BR><BR>\n"
-		"<I>(Note: this does not change your browser's home page. "
-		"It changes the page you begin on when you log on to ");
-	escputs(serv_info.serv_humannode);
-	wprintf(".)</I><BR><BR>"
-		"<a href = \"javascript:history.back()\">Back...</a>"
-		"</CENTER>");
-
+	do_template("newstartpage");
 	wDumpContent(1);
 }
 
