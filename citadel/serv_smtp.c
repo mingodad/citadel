@@ -1258,6 +1258,7 @@ void smtp_do_procmsg(long msgnum) {
 	int incomplete_deliveries_remaining;
 	time_t attempted = 0L;
 	time_t last_attempted = 0L;
+	time_t retry = SMTP_RETRY_INTERVAL;
 
 	msg = CtdlFetchMessage(msgnum);
 	if (msg == NULL) {
@@ -1288,6 +1289,11 @@ void smtp_do_procmsg(long msgnum) {
 		if (!strcasecmp(key, "msgid")) {
 			text_msgid = extract_long(buf, 1);
 		}
+		if (!strcasecmp(key, "retry")) {
+			/* double the retry interval after each attempt */
+			retry = extract_long(buf, 1) * 2L;
+			remove_token(instr, i, '\n');
+		}
 		if (!strcasecmp(key, "attempted")) {
 			attempted = extract_long(buf, 1);
 			if (attempted > last_attempted)
@@ -1299,7 +1305,7 @@ void smtp_do_procmsg(long msgnum) {
 	/*
 	 * Postpone delivery if we've already tried recently.
 	 */
-	if ( (time(NULL) - last_attempted) < SMTP_RETRY_INTERVAL) {
+	if ( (time(NULL) - last_attempted) < retry) {
 		lprintf(7, "Retry time not yet reached.\n");
 		phree(instr);
 		return;
@@ -1388,8 +1394,10 @@ void smtp_do_procmsg(long msgnum) {
 		msg->cm_fields['M'] = malloc(strlen(instr)+256);
 		snprintf(msg->cm_fields['M'],
 			strlen(instr)+256,
-			"Content-type: %s\n\n%s\nattempted|%ld\n",
-			SPOOLMIME, instr, time(NULL) );
+			"Content-type: %s\n\n%s\n"
+			"attempted|%ld\n"
+			"retry|%ld\n",
+			SPOOLMIME, instr, time(NULL), retry );
 		phree(instr);
 		CtdlSaveMsg(msg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL);
 		CtdlFreeMessage(msg);

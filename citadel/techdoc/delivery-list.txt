@@ -47,6 +47,16 @@ each line.
     attempt.
  
  
+ INSTRUCTION:  retry
+ SYNTAX:       retry|9999999
+ DESCRIPTION:
+    Citadel does not retry SMTP delivery at a fixed interval.  Instead, it
+starts at a nominal interval (15 minutes by default) and then doubles the
+interval after each failed attempt.  This instruction contains the interval
+which should currently be followed (and doubled again, if the next delivery
+fails).
+  
+  
  INSTRUCTION:  bounceto
  SYNTAX:       bounceto|Big Bad Sender[@host]
  DESCRIPTION:
