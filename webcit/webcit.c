@@ -815,6 +815,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 void session_loop(struct httprequest *req)
 {
 	char cmd[SIZ];
+	char method[SIZ];
 	char action[SIZ];
 	char buf[SIZ];
 	int a, b;
@@ -851,6 +852,7 @@ void session_loop(struct httprequest *req)
 
 	strcpy(cmd, hptr->line);
 	hptr = hptr->next;
+	extract_token(method, cmd, 0, ' ');
 	extract_action(action, cmd);
 
 	while (hptr != NULL) {
@@ -888,18 +890,9 @@ void session_loop(struct httprequest *req)
 				ContentType, ContentLength);
 		body_start = strlen(content);
 
-/***** old version
-		BytesRead = 0;
-		while (BytesRead < ContentLength) {
-			a=read(WC->http_sock, &content[BytesRead+body_start],
-				ContentLength - BytesRead);
-			if (a <= 0) BytesRead = ContentLength;
-			else BytesRead += a;
-		}
-*******/
-
-		/* Now we're daring and read it all at once. */
-		client_read(WC->http_sock, &content[BytesRead+body_start], ContentLength);
+		/* Be daring and read it all at once. */
+		client_read(WC->http_sock, &content[BytesRead+body_start],
+			ContentLength);
 
 		if (!strncasecmp(ContentType,
 			      "application/x-www-form-urlencoded", 33)) {
@@ -993,6 +986,14 @@ void session_loop(struct httprequest *req)
 		goto SKIP_ALL_THIS_CRAP;
 	}
 #endif
+	/* 
+	 * The GroupDAV stuff relies on HTTP authentication instead of
+	 * our session's authentication.
+	 */
+	if (!strncasecmp(action, "groupdav", 8)) {
+		groupdav_main(cmd);
+		goto SKIP_ALL_THIS_CRAP;
+	}
 
 	check_for_instant_messages();
 

@@ -228,6 +228,8 @@ struct wcsession {
 	char ImportantMessage[SIZ];
 	char last_chat_user[SIZ];
 	int ctdl_pid;			/* Session ID on the Citadel server */
+	char httpauth_user[SIZ];	/* only for GroupDAV sessions */
+	char httpauth_pass[SIZ];	/* only for GroupDAV sessions */
 };
 
 #define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
@@ -494,3 +496,5 @@ extern char *ascmonths[];
 #define VIEW_CALENDAR		3	/* Calendar view */
 #define VIEW_TASKS		4	/* Tasks view */
 #define VIEW_NOTES		5	/* Notes view */
+
+void groupdav_main(char *);

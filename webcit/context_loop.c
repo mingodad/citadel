@@ -327,6 +327,7 @@ void context_loop(int sock)
 		&& (strncasecmp(buf, "/listsub", 8))
 		&& (strncasecmp(buf, "/freebusy", 9))
 		&& (strncasecmp(buf, "/do_logout", 10))
+		&& (strncasecmp(buf, "/groupdav", 9))
 	        && (got_cookie == 0)) {
 		strcpy(req->line, "GET /static/nocookies.html"
 				"?force_close_session=yes HTTP/1.0");
