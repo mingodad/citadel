@@ -1,4 +1,7 @@
  $Log$
+ Revision 1.20  2003/11/22 04:33:22  ajc
+ * fleshed out the message headers a bit
+
  Revision 1.19  2003/11/21 18:22:19  ajc
  * Replaced the two-second sleep (and associated race condition) for the
    session proxy to start, with a loop that attempts connection ten times
@@ -83,4 +86,3 @@
 
  Revision 1.1  2003/10/31 03:47:13  ajc
  * Initial CVS import
-

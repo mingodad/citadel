@@ -26,10 +26,25 @@ function display_message($msgnum) {
 	}
 
 	// Begin header
-	echo "<B><I>" .
-		strftime("%b %d %Y %I:%M%p ", $fields["time"]) .
-		" from " . htmlspecialchars($fields["from"]) .
-		"</I></B><BR>\n" ;
+	echo "<B><I>" ;
+	echo strftime("%b %d %Y %I:%M%p ", $fields["time"]) ;
+	echo " from " . htmlspecialchars($fields["from"]) ;
+	
+	if (strlen($fields["rfca"]) > 0) {
+		echo " &lt;" . htmlspecialchars($fields["rfca"]) . "&gt;" ;
+	}
+	else if ( (strlen($fields["node"]) > 0) 
+	     && (strcasecmp($fields["node"], $_SESSION["serv_nodename"])) ) {
+		echo " @" . htmlspecialchars($fields["node"]) ;
+		if (strlen($fields["hnod"]) > 0) {
+			echo " (" . htmlspecialchars($fields["hnod"]) . ")" ;
+		}
+	}
+
+	if (strlen($fields["rcpt"]) > 0) {
+		echo " to " . htmlspecialchars($fields["rcpt"]) ;
+	}
+	echo "</I></B><BR>\n" ;
 
 	// Do message text
 	echo $fields["text"] . "<BR>";

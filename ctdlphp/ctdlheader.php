@@ -53,12 +53,16 @@ LITERAL;
 	alink="#DD0000"
 >
 
-<div align=right>
-<A HREF="logout.php">Log out</A>
-</div>
-<HR>
 
 LITERAL;
+
+	echo '<TABLE BORDER=0 WIDTH=100%>';
+	echo '<TR>';
+	echo '<TD>' . $_SESSION["serv_humannode"] . '</TD>' ;
+	echo '<TD>' . $_SESSION["username"] . '</TD>' ;
+	echo '<TD>' . $_SESSION["room"] . '</TD>' ;
+	echo '<TD ALIGN=RIGHT><A HREF="logout.php">Log out</A></TD>' ;
+	echo '</TR></TABLE><HR>';
 }
 
 
