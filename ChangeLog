@@ -1,4 +1,9 @@
 $Log$
+Revision 400.56  2002/11/28 06:03:24  ajc
+* Issue an ISME command when editing an event, to determine whether the user
+  viewing the event is the organizer.  (Will use this later to allow/disallow
+  sending out invitations.)
+
 Revision 400.55  2002/11/26 05:01:04  ajc
 * Began handling attendee fields
 
@@ -1137,4 +1142,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
