@@ -44,7 +44,7 @@ enum {
 
 struct webcontent {
 	struct webcontent *next;
-	char w_data[256];
+	char w_data[512];
 };
 
 struct urlcontent {
