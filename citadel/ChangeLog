@@ -1,4 +1,9 @@
  $Log$
+ Revision 607.11  2003/06/29 03:58:41  ajc
+ * Renamed fields in 'struct config' which are no longer relevant (but kept
+   them in place to avoid corrupting everyone's data files).  Removed them
+   entirely from serv_vandelay.c.
+
  Revision 607.10  2003/06/28 05:12:56  ajc
  * Bump internal version number to 6.08
  * Use (-1) instead of BBSUID as the uid of user records which exist only
@@ -4803,3 +4808,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

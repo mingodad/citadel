@@ -39,10 +39,14 @@ extern "C" {
  * to fiddle with the decimal).  REV_MIN is the oldest version of Citadel
  * whose data files are compatible with the current version.  If the data files
  * are older than REV_MIN, none of the programs will work until the setup
- * program is run again to bring things up to date.
+ * program is run again to bring things up to date.  EXPORT_REV_MIN is the
+ * oldest version of Citadel whose export files we can read.  The latter is
+ * usually more strict because you're not really supposed to dump/load and
+ * upgrade at the same time.
  */
 #define REV_LEVEL	608		/* This version */
-#define REV_MIN		591		/* Oldest compatible version */
+#define REV_MIN		591		/* Oldest compatible database */
+#define EXPORT_REV_MIN	608		/* Oldest compatible export files */
 
 #define SERVER_TYPE 0	/* zero for stock Citadel/UX; other developers please
 			   obtain SERVER_TYPE codes for your implementations */
@@ -75,7 +79,12 @@ struct ExpirePolicy {
 
 
 /* 
- * Global system configuration 
+ * Global system configuration.
+ * 
+ * Developers: please do NOT remove the fields labelled "not in use".  We
+ * can't simply remove them from the struct, because that would render the
+ * configs on existing systems corrupt.  However, if you need the same number
+ * of bytes for a *new* field, feel free to use them.
  */
 struct config {
 	char c_nodename[16];		/* Unqualified "short" nodename     */
@@ -91,10 +100,10 @@ struct config {
 	char c_twitroom[ROOMNAMELEN];	/* twit detect msg move to room     */
 	char c_moreprompt[80];		/* paginator prompt                 */
 	char c_restrict;		/* restrict Internet mail flag      */
-	long c_msgbase;			/* size of message base (obsolete)  */
+	long c_niu_1;			/* (not in use)                     */
 	char c_bbs_city[32];		/* physical location of server      */
 	char c_sysadm[26];		/* name of system administrator     */
-	char c_bucket_dir[15];		/* bit bucket for files...	    */
+	char c_niu_2[15];		/* (not in use)                     */
 	int c_setup_level;		/* what rev level we've setup to    */
 	int c_maxsessions;		/* maximum concurrent sessions      */
 	char c_net_password[20];	/* system net password (obsolete)   */
@@ -120,6 +129,11 @@ struct config {
 	char c_aideroom[ROOMNAMELEN];	/* Name of aideroom (Aide)	    */
 };
 
+/*
+ * This struct stores a list of rooms with new messages which the client
+ * fetches from the server.  This allows the client to "march" through
+ * relevant rooms without having to ask the server each time where to go next.
+ */
 struct march {
 	struct march *next;
 	char march_name[ROOMNAMELEN];
@@ -142,7 +156,8 @@ struct march {
 #define RESTRICT_INTERNET	config.c_restrict
 
 /*
- * User records
+ * User records.  (It's called "usersupp" because in ancient times it was
+ * a supplement to /etc/passwd, but not anymore.)
  */
 struct usersupp {			/* User record                      */
 	int version;			/* Cit vers. which created this rec */
@@ -179,7 +194,8 @@ struct CitControl {
 #define MM_VALID	4		/* New users need validating        */
 
 /*
- * Room records
+ * Room records.  (It's called "quickroom" because it was once merely an
+ * index to a "fullroom" file, but the new database layout changed everything.)
  */
 struct quickroom {
 	char QRname[ROOMNAMELEN];	/* Name of room                     */

@@ -265,10 +265,8 @@ void artv_do_export(void) {
 	cprintf("%s\n", config.c_twitroom);
 	cprintf("%s\n", config.c_moreprompt);
 	cprintf("%d\n", config.c_restrict);
-	cprintf("%ld\n", config.c_msgbase);
 	cprintf("%s\n", config.c_bbs_city);
 	cprintf("%s\n", config.c_sysadm);
-	cprintf("%s\n", config.c_bucket_dir);
 	cprintf("%d\n", config.c_setup_level);
 	cprintf("%d\n", config.c_maxsessions);
 	cprintf("%s\n", config.c_net_password);
@@ -324,11 +322,9 @@ void artv_import_config(void) {
 	client_gets(config.c_twitroom);
 	client_gets(config.c_moreprompt);
 	client_gets(buf);	config.c_restrict = atoi(buf);
-	client_gets(buf);	config.c_msgbase = atol(buf);
 	client_gets(config.c_bbs_city);
 	client_gets(config.c_sysadm);
 	lprintf(9, "c_sysadm = %s\n", config.c_sysadm);
-	client_gets(config.c_bucket_dir);
 	client_gets(buf);	config.c_setup_level = atoi(buf);
 	client_gets(buf);	config.c_maxsessions = atoi(buf);
 	client_gets(config.c_net_password);
@@ -524,7 +520,7 @@ void artv_do_import(void) {
 		if (!strcasecmp(buf, "version")) {
 			client_gets(s_version);
 			version = atoi(s_version);
-			if ((version < REV_MIN) || (version > REV_LEVEL)) {
+			if ((version<EXPORT_REV_MIN) || (version>REV_LEVEL)) {
 				lprintf(7, "Version mismatch - aborting\n");
 				break;
 			}

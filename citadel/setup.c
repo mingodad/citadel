@@ -760,8 +760,6 @@ int main(int argc, char *argv[])
 		strcpy(config.c_moreprompt, "<more>");
 	if (strlen(config.c_twitroom) == 0)
 		strcpy(config.c_twitroom, "Trashcan");
-	if (strlen(config.c_bucket_dir) == 0)
-		strcpy(config.c_bucket_dir, "bitbucket");
 	if (strlen(config.c_net_password) == 0)
 		strcpy(config.c_net_password, "netpassword");
 	if (strlen(config.c_baseroom) == 0)
@@ -877,7 +875,6 @@ NEW_INST:
 	mkdir("help", 0700);
 	mkdir("images", 0700);
 	mkdir("netconfigs", 0700);
-	mkdir(config.c_bucket_dir, 0700);
 
 	/* Delete a bunch of old files from Citadel v4; don't need anymore */
 	system("rm -fr ./chatpipes ./expressmsgs ./sessions 2>/dev/null");
