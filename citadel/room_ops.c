@@ -135,7 +135,7 @@ NEWMSG:	/* By the way, we also check for the presence of new messages */
 	}
 
 	/* System rooms never show up in the list. */
-	if (roombuf->QRflags & QR2_SYSTEM) {
+	if (roombuf->QRflags2 & QR2_SYSTEM) {
 		retval = retval & ~UA_KNOWN;
 	}
 	return (retval);

@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.91  2001/12/03 22:48:16  ajc
+ * ooops.  Look for the QR2_SYSTEM flag in QRflags2, not QRflags.
+
  Revision 580.90  2001/12/03 17:02:50  ajc
  * dynloader.c: fixed improperly done declaration and mallok()
 
@@ -2919,4 +2922,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
