@@ -125,8 +125,7 @@ void init_ssl(void)
 	/* Finally let the server know we're here */
 	CtdlRegisterProtoHook(cmd_stls, "STLS", "Start SSL/TLS session");
 	CtdlRegisterProtoHook(cmd_gtls, "GTLS", "Get SSL/TLS session status");
-	CtdlRegisterProtoHook(cmd_etls, "ETLS", "End SSL/TLS session");
-	CtdlRegisterSessionHook(endtls_atlogout, EVT_STOP);
+	CtdlRegisterSessionHook(endtls, EVT_STOP);
 }
 
 
@@ -293,39 +292,18 @@ void cmd_gtls(char *params)
 }
 
 
-/* Logout function hook */
-void endtls_atlogout(void)
-{
-	endtls(1);
-}
-
-
-/* Command function hook */
-void cmd_etls(char *params)
-{
-	endtls(0);
-}
-
-
 /*
  * endtls() shuts down the TLS connection
- * Parameter is NULL for client request, CitContext * for server request
  *
  * WARNING:  This may make your session vulnerable to a known plaintext
  * attack in the current implmentation.
  */
-void endtls(int who)
+void endtls(void)
 {
-	lprintf(7, "Ending SSL/TLS%s\n",
-			(who) ? "" : " at client request");
+	lprintf(7, "Ending SSL/TLS%s\n");
 
-	if (!who) {
-		if (!CC->ssl) {
-			cprintf("%d Connection is not encrypted.\n", ERROR);
-			return;
-		}
-		cprintf("%d Now stop encryption.\n", OK);
-	} else if (!CC->ssl) {
+	if (!CC->ssl) {
+		CC->redirect_ssl = 0;
 		return;
 	}
 	

@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.99  2002/02/03 15:21:48  error
+ * Remove the ETLS command, it is no longer needed
+
  Revision 590.98  2002/02/02 21:44:04  ajc
  * If a user has at least one valid Internet directory address, stamp it onto
    any outgoing messages.
@@ -3286,4 +3289,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

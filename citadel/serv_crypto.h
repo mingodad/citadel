@@ -12,8 +12,6 @@ void client_write_ssl (char *buf, int nbytes);
 int client_read_ssl (char *buf, int bytes, int timeout);
 void cmd_stls(char *params);
 void cmd_gtls(char *params);
-void cmd_etls(char *params);
-void endtls_atlogout(void);
-void endtls(int who);
+void endtls(void);
 void ssl_lock(int mode, int n, const char *file, int line);
 #endif
