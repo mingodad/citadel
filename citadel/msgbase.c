@@ -1780,6 +1780,7 @@ void cmd_ent3(char *entargs)
 		msg->cm_fields[which_field] = strdoop(tempbuf);
 	}
 
+	msg->cm_flags = CM_SKIP_HOOKS;
 	CtdlSaveMsg(msg, recp, "", e, 0);
 	CtdlFreeMessage(msg);
 	phree(tempbuf);

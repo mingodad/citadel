@@ -240,7 +240,6 @@ void vcard_write_user(struct usersupp *u, struct vCard *v) {
 
         fp = fopen(temp, "w");
         if (fp == NULL) return;
-	fprintf(fp, "Content-type: text/x-vcard\r\n\r\n");
 	if (ser == NULL) {
 		fprintf(fp, "begin:vcard\r\nend:vcard\r\n");
 	} else {
