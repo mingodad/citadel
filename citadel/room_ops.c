@@ -327,8 +327,9 @@ void get_msglist(struct quickroom *whichroom) {
  */
 void put_msglist(struct quickroom *whichroom) {
 
-	cdb_store(CDB_MSGLISTS, &whichroom->QRnumber, sizeof(long),
-		CC->msglist, CC->num_msgs * sizeof(long));
+	if (CC->msglist != NULL)
+		cdb_store(CDB_MSGLISTS, &whichroom->QRnumber, sizeof(long),
+			CC->msglist, CC->num_msgs * sizeof(long));
 	}
 
 
