@@ -34,9 +34,22 @@ void groupdav_get(char *dav_pathname) {
 	char dav_msgnum[SIZ];
 	char buf[SIZ];
 	int found_content_type = 0;
+	int n = 0;
 
-	extract_token(dav_roomname, dav_pathname, 2, '/');
-	extract_token(dav_msgnum, dav_pathname, 3, '/');
+	/* First, break off the "/groupdav/" prefix */
+	remove_token(dav_pathname, 0, '/');
+	remove_token(dav_pathname, 0, '/');
+
+	/* Now extract the message number */
+	n = num_tokens(dav_pathname, '/');
+	extract_token(dav_msgnum, dav_pathname, n-1, '/');
+	remove_token(dav_pathname, n-1, '/');
+
+	/* What's left is the room name.  Remove trailing slashes. */
+	if (dav_pathname[strlen(dav_pathname)-1] == '/') {
+		dav_pathname[strlen(dav_pathname)-1] = 0;
+	}
+	strcpy(dav_roomname, dav_pathname);
 
 	/* Go to the correct room. */
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {

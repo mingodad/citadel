@@ -55,6 +55,7 @@ void unescape_input(char *buf)
 			hex[0] = buf[a + 1];
 			hex[1] = buf[a + 2];
 			hex[2] = 0;
+			b = 0;
 			sscanf(hex, "%02x", &b);
 			buf[a] = (char) b;
 			strcpy(&buf[a + 1], &buf[a + 3]);

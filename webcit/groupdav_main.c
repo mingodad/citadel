@@ -25,6 +25,10 @@
 #include "webserver.h"
 #include "groupdav.h"
 
+
+/*
+ * Main entry point for GroupDAV requests
+ */
 void groupdav_main(struct httprequest *req) {
 
 	struct httprequest *rptr;
@@ -33,7 +37,7 @@ void groupdav_main(struct httprequest *req) {
 
 	if (!WC->logged_in) {
 		wprintf(
-			"HTTP/1.1 401 Authorization Required\n"
+			"HTTP/1.1 401 Unauthorized\n"
 			"WWW-Authenticate: Basic realm=\"%s\"\n"
 			"Connection: close\n",
 			serv_info.serv_humannode
@@ -46,6 +50,7 @@ void groupdav_main(struct httprequest *req) {
 
 	extract_token(dav_method, req->line, 0, ' ');
 	extract_token(dav_pathname, req->line, 1, ' ');
+	unescape_input(dav_pathname);
 
 	/*
 	 * We like the GET method ... it's nice and simple.
@@ -59,12 +64,12 @@ void groupdav_main(struct httprequest *req) {
 	 * Couldn't find what we were looking for.  Die in a car fire.
 	 */
 	wprintf(
-		"HTTP/1.1 404 not found\n"
+		"HTTP/1.1 501 Method not implemented\n"
 		"Connection: close\n"
 		"Content-Type: text/plain\n"
 		"\n"
 	);
-	wprintf("The object or resource \"%s\" was not found.\n", dav_pathname);
+	wprintf("GroupDAV method \"%s\" is not implemented.\n", dav_method);
 
 	/*
 	 * FIXME ... after development is finished, get rid of all this
