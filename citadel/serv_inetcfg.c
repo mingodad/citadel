@@ -88,12 +88,13 @@ int inetcfg_aftersave(struct CtdlMessage *msg) {
 		linelen = strcspn(ptr, "\n");
 		if (linelen == 0) return(0);	/* end of headers */	
 		
-		if ( (!strncasecmp(ptr, "Content-type: ", 14))
-		   && (!strncasecmp(&ptr[14], INTERNETCFG,
-		   strlen(INTERNETCFG) )) ) {
-			/* Bingo!  The user is changing configs.
-			 */
-			inetcfg_setTo(msg);
+		if (!strncasecmp(ptr, "Content-type: ", 14)) {
+			if (!strncasecmp(&ptr[14], INTERNETCFG,
+		   	   strlen(INTERNETCFG))) {
+				/* Bingo!  The user is changing configs.
+			 	*/
+				inetcfg_setTo(msg);
+			}
 		}
 
 		ptr = strchr((char *)ptr, '\n');

@@ -61,13 +61,6 @@ void ical_create_room(void)
 }
 
 
-/* User is reading a message */
-int ical_obj_beforeread(struct CtdlMessage *msg)
-{
-	return 0;
-}
-
-
 /* See if we need to prevent the object from being saved */
 int ical_obj_beforesave(struct CtdlMessage *msg)
 {
@@ -114,20 +107,12 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 }
 
 
-/* aftersave processing */
-int ical_obj_aftersave(struct CtdlMessage *msg)
-{
-	return 0;
-}
-
 
 /* Register this module with the Citadel server. */
 char *Dynamic_Module_Init(void)
 {
 	CtdlRegisterSessionHook(ical_create_room, EVT_LOGIN);
-	CtdlRegisterMessageHook(ical_obj_beforeread, EVT_BEFOREREAD);
 	CtdlRegisterMessageHook(ical_obj_beforesave, EVT_BEFORESAVE);
-	CtdlRegisterMessageHook(ical_obj_aftersave, EVT_AFTERSAVE);
 	CtdlRegisterProtoHook(cmd_ical, "ICAL", "Register iCalendar support");
 	return "$Id$";
 }

@@ -284,6 +284,7 @@ enum {
 #define IGNETCFG	"application/x-citadel-ignet-config"
 #define IGNETMAP	"application/x-citadel-ignet-map"
 #define FILTERLIST	"application/x-citadel-filter-list"
+#define SPAMSTRINGS	"application/x-citadel-spam-strings"
 
 #define TRACE	lprintf(9, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
 

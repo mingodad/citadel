@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.37  2002/06/09 23:59:38  ajc
+ * Started working on the spam filter
+
  Revision 591.36  2002/06/07 22:10:51  ajc
  * Added a new message function hook type EVT_SMTPSCAN which permits modules to
    register hooks that can scan incoming SMTP messages and elect to reject them
@@ -3697,4 +3700,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
