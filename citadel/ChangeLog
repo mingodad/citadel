@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.2  2001/12/11 21:31:07  nbryant
+  - test for -ldb3 before -ldb
+
  Revision 590.1  2001/12/11 20:04:41  nbryant
   - fix library flags, includes for portability
   - malloc.h is deprecated
@@ -2945,3 +2948,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -181,11 +181,11 @@ fi
 
 test "$db_dir" && LDFLAGS="$LDFLAGS -L$db_dir/lib"
 if test "x$with_db" != xno -a "x$with_gdbm" != xyes; then
-	AC_CHECK_LIB(db, db_env_create,
-		[GDBM="$GDBM -ldb"
+	AC_CHECK_LIB(db3, db_env_create,
+		[GDBM="$GDBM -ldb3"
 		DATABASE=database_sleepycat.c
-		with_gdbm=no], [AC_CHECK_LIB(db3, db_env_create,
-					[GDBM="$GDBM -ldb3"
+		with_gdbm=no], [AC_CHECK_LIB(db, db_env_create,
+					[GDBM="$GDBM -ldb"
 					DATABASE=database_sleepycat.c
 					with_gdbm=no], [], [$NETLIBS])], [$NETLIBS])
 fi
