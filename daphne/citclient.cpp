@@ -3,7 +3,6 @@
 
 #include <wx/wx.h>
 
-#include "tcp_sockets.hpp"
 #include "citclient.hpp"
 
 
@@ -31,7 +30,7 @@ int CitClient::attach(const wxString& host, const wxString& port) {
 
 	if (sock.is_connected())
 		sock.detach();
-	if (sock.attach("uncnsrd.mt-kisco.ny.us", "citadel")==0) {
+	if (sock.attach(host, port)==0) {
 		serv_gets(ServerReady);
 		initialize_session();
 		return(0);

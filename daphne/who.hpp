@@ -7,5 +7,6 @@ private:
 	void OnButtonPressed(wxCommandEvent& whichbutton);
 	CitClient *citsock;
 	wxListCtrl *wholist;
+	void LoadWholist();
 	DECLARE_EVENT_TABLE()
 };

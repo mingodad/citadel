@@ -9,7 +9,7 @@ public:
 	void serv_puts(char *);
 	bool is_connected(void);
 private:
-	int serv_sock = (-1);
+	int serv_sock;
 	int connectsock(char *, char *, char *);
 	void timeout(int);
 };

@@ -1,5 +1,7 @@
 #include <wx/socket.h>
 
+#include "tcp_sockets.hpp"
+
 class CitClient {
 public:
 	CitClient(void);

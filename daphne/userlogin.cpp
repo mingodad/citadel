@@ -160,7 +160,7 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 	h0->top.Below(humannode, 10);
 	h0->bottom.Above(username, -10);
 	h0->left.SameAs(this, wxLeft, 10);
-	h0->width.SameAs(this, wxWidth, -20);
+	h0->right.SameAs(this, wxRight, 10);
 	hello->SetConstraints(h0);
 
 	wxLayoutConstraints *c1 = new wxLayoutConstraints;

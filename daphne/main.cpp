@@ -221,7 +221,7 @@ void MyFrame::OnConnect(wxCommandEvent& unused) {
 		wxMessageBox("You are already connected to a Citadel server.",
 			"Oops!");
 	} else {
-		retval = citadel->attach("uncnsrd.mt-kisco.ny.us", "citadel");
+		retval = citadel->attach("uncnsrd", "citadel");
 		if (retval == 0) {
     			SetStatusText("** connected **");
 			new TestWindow(citadel, this);
