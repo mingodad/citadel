@@ -198,7 +198,13 @@ void cal_process_object(icalcomponent *cal,
 	/* If the component has attendees, iterate through them. */
 	for (p = icalcomponent_get_first_property(cal, ICAL_ATTENDEE_PROPERTY); (p != NULL); p = icalcomponent_get_next_property(cal, ICAL_ATTENDEE_PROPERTY)) {
 		wprintf("<TR><TD><B>Attendee:</B></TD><TD>");
-		escputs("FIXME display attendee");
+		strcpy(buf, icalproperty_get_attendee(p));
+		if (!strncasecmp(buf, "MAILTO:", 7)) {
+			strcpy(buf, &buf[7]);
+			striplt(buf);
+			escputs(buf);
+		}
+		/* FIXME add status */
 		wprintf("</TD></TR>\n");
 	}
 

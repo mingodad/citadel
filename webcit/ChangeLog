@@ -1,4 +1,7 @@
 $Log$
+Revision 400.62  2002/12/10 23:25:47  ajc
+* Display attendees in message view of calendar objects
+
 Revision 400.61  2002/12/07 22:12:59  ajc
 * Handle incoming RSVP's for meetings.  (Note: this will not actually work
   until I implement the Citadel server function which it calls.)
@@ -1161,4 +1164,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
