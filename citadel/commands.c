@@ -51,6 +51,7 @@ int rc_exp_beep;
 char rc_exp_cmd[256];
 int rc_allow_attachments;
 int rc_display_message_numbers;
+int rc_force_mail_prompts;
 
 char *gl_string;
 int next_lazy_cmd = 5;
@@ -303,6 +304,7 @@ void load_command_set(void) {
 	rc_allow_attachments = 0;
 	strcpy(rc_exp_cmd, "");
 	rc_display_message_numbers = 0;
+	rc_force_mail_prompts = 0;
 
 	/* now try to open the citadel.rc file */
 
@@ -355,6 +357,10 @@ void load_command_set(void) {
 
 	    if (!struncmp(buf,"display_message_numbers=", 24)) {
 		rc_display_message_numbers = atoi(&buf[24]);
+		}
+
+	    if (!struncmp(buf,"force_mail_prompts=", 19)) {
+		rc_force_mail_prompts = atoi(&buf[19]);
 		}
 
 	    if (!struncmp(buf,"username=",9))

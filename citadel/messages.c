@@ -68,6 +68,7 @@ extern char editor_path[];
 extern char printcmd[];
 extern int rc_allow_attachments;
 extern int rc_display_message_numbers;
+extern int rc_force_mail_prompts;
 
 extern int editor_pid;
 
@@ -1031,7 +1032,11 @@ RMSGREAD:	fflush(stdout);
 			printf("Message printed.\n");
 			}
 		if (e==3) return;
-		if ((userflags&US_NOPROMPT)||(e==2)) e='n';
+		if ( ((userflags&US_NOPROMPT)||(e==2)) 
+		   && (((room_flags&QR_MAILBOX)==0)
+		     ||(rc_force_mail_prompts==0))  ) {
+			e='n';
+			}
 		else {
 			printf("(%d) ",num_msgs-a-1);
 			if (is_mail==1) printf("<R>eply ");

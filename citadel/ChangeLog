@@ -1,3 +1,6 @@
+Mon Oct 19 20:52:55 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Client ability to force display of prompts in Mail rooms, even when
+	  the user has prompting turned off (citadel.rc option)
 1998-10-16 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* sysdep.c (cprintf): generate a newline on truncated buffer
 	* room_ops.c: exploitable overrun fixes

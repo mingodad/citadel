@@ -38,6 +38,11 @@ local_screen_dimensions=0
 #
 display_message_numbers=0
 
+# The FORCE_MAIL_PROMPTS directive causes mail rooms to always display a
+# prompt after each message, even if the user has prompts turned off.
+#
+force_mail_prompts=1
+
 # USE_FLOORS determines whether the user sees floors, or a flat room space.
 # Set it to YES to always use floors, NO to never use floors, or DEFAULT
 # to use the setting in the user's configuration (which is normally the case).
