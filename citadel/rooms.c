@@ -201,13 +201,10 @@ void listrms(char *variety)
 			}
 		}
 
-	sigcaught = 0;
-	sttybbs(SB_YES_INTR);
 	room_tree_list(NULL);
 	room_tree_list(rl);
 	color(DIM_WHITE);
-	sttybbs(SB_NO_INTR);
-	}
+}
 
 
 void list_other_floors(void) {
@@ -900,14 +897,11 @@ void whoknows(void) {
 	if (buf[0]!='1') {
 		pprintf("%s\n",&buf[5]);
 		return;
-		}
-	sigcaught = 0;
-	sttybbs(SB_YES_INTR);
+	}
 	while (serv_gets(buf), strncmp(buf,"000",3)) {
 		if (sigcaught==0) pprintf("%s\n",buf);
-		}
-	sttybbs(SB_NO_INTR);
 	}
+}
 
 
 void do_edit(char *desc, char *read_cmd, char *check_cmd, char *write_cmd)

@@ -1,4 +1,11 @@
  $Log$
+ Revision 572.12  2000/07/09 02:27:02  ajc
+ * Eliminated the whole SIGINT/SIGQUIT based handling of Ctrl-O and Ctrl-C
+   keyboard interrupts.  Replaced with a non-blocking check for keyboard input
+   which sets the global variable 'sigcaught' if either key was pressed.
+   fmout() and pprintf() switch to 'drain mode' if sigcaught is set.
+   This closes Bug #18.
+
  Revision 572.11  2000/07/06 20:26:36  ajc
  * updated .Help SUMMARY
 
@@ -1928,3 +1935,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

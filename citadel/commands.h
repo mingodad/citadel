@@ -54,6 +54,7 @@ char keymenu(char *menuprompt, char *menustring);
 void async_ka_start(void);
 void async_ka_end(void);
 int checkpagin(int lp, int pagin, int height);
+char was_a_key_pressed(void);
 void pprintf(const char *format, ...);
 
 

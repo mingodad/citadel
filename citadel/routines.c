@@ -81,7 +81,7 @@ void hit_any_key(void) {		/* hit any key to continue */
 	sttybbs(1);
 	if (b==NEXT_KEY) sigcaught = SIGINT;
 	if (b==STOP_KEY) sigcaught = SIGQUIT;
-	}
+}
 
 /*
  * change a user's access level

@@ -84,6 +84,33 @@ int enable_color = 0;			/* nonzero for ANSI color */
 
 
 
+/*
+ * If an interesting key has been pressed, return its value, otherwise 0
+ */
+char was_a_key_pressed(void) {
+	fd_set rfds;
+	struct timeval tv;
+	int the_character;
+	int retval;
+
+	FD_ZERO(&rfds);
+	FD_SET(0, &rfds);
+	tv.tv_sec = 0;
+	tv.tv_usec = 0;
+	retval = select(1, &rfds, NULL, NULL, &tv); 
+
+	if (FD_ISSET(0, &rfds)) {
+		the_character = inkey();
+	}
+	else {
+		the_character = 0;
+	}
+	return(the_character);
+}
+
+
+
+
 
 /*
  * Check to see if we need to pause at the end of a screen.
@@ -93,6 +120,13 @@ int enable_color = 0;			/* nonzero for ANSI color */
  */
 int checkpagin(int lp, int pagin, int height)
 {
+	int thekey;
+
+	if (sigcaught) return(lp);
+	thekey = was_a_key_pressed();
+	if ( (thekey == NEXT_KEY) || (thekey == STOP_KEY)) sigcaught = thekey;
+	if (sigcaught) return(lp);
+
 	if (!pagin) return(0);
 	if (lp>=(height-1)) {
 		set_keepalives(KA_NO);
@@ -113,7 +147,13 @@ void pprintf(const char *format, ...) {
         va_list arg_ptr;
 	static char buf[4096];	/* static for performance, change if needed */
 	int i;
-  
+
+	/* If sigcaught is nonzero, a keypress has interrupted this and we
+	 * should just drain output.
+	 */
+	if (sigcaught) return;
+ 
+	/* Otherwise, start spewing... */ 
         va_start(arg_ptr, format);   
         vsprintf(buf, format, arg_ptr);   
         va_end(arg_ptr);   
@@ -790,6 +830,13 @@ int getcmd(char *argbuf)
 	int this_lazy_cmd;
 	struct citcmd *cptr;
 
+	/*
+	 * Starting a new command now, so set sigcaught to 0.  This variable
+	 * is set to nonzero (usually NEXT_KEY or STOP_KEY) if a command has
+	 * been interrupted by a keypress.
+	 */
+	sigcaught = 0;
+
 	/* Switch color support on or off if we're in user mode */
 	if (rc_ansi_color == 3) {
 		if (userflags & US_COLOR)
@@ -921,8 +968,7 @@ int getcmd(char *argbuf)
 /*
  * set tty modes.  commands are:
  * 
- * 0 - set to bbs mode, intr/quit disabled
- * 1 - set to bbs mode, intr/quit enabled
+ * 01- set to bbs mode
  * 2 - save current settings for later restoral
  * 3 - restore saved settings
  */
@@ -944,17 +990,8 @@ void sttybbs(int cmd)
 		live.c_oflag = OPOST | ONLCR;
 		live.c_lflag = ISIG | NOFLSH;
 
-		if (cmd == SB_YES_INTR) {
-			live.c_cc[VINTR] = NEXT_KEY;
-			live.c_cc[VQUIT] = STOP_KEY;
-			signal(SIGINT, *sighandler);
-			signal(SIGQUIT, *sighandler);
-		} else {
-			signal(SIGINT, SIG_IGN);
-			signal(SIGQUIT, SIG_IGN);
-			live.c_cc[VINTR] = (-1);
-			live.c_cc[VQUIT] = (-1);
-		}
+		live.c_cc[VINTR] = (-1);
+		live.c_cc[VQUIT] = (-1);
 
 		/* do we even need this stuff anymore? */
 		/* live.c_line=0; */
@@ -1011,13 +1048,13 @@ void display_help(char *name)
 /*
  * fmout()  -  Citadel text formatter and paginator
  */
-int fmout(int width, FILE * fp, char pagin, int height, int starting_lp, char subst)
-			/* screen width to use */
-			/* file to read from, or NULL to read from server */
-			/* nonzero if we should use the paginator */
-			/* screen height to use */
-			/* starting value for lines_printed, -1 for global */
-			/* nonzero if we should use hypertext mode */
+int fmout(
+	int width,	/* screen width to use */
+	FILE *fp,	/* file to read from, or NULL to read from server */
+	char pagin,	/* nonzero if we should use the paginator */
+	int height,	/* screen height to use */
+	int starting_lp,/* starting value for lines_printed, -1 for global */
+	char subst)	/* nonzero if we should use hypertext mode */
 {
 	int a, b, c, d, old;
 	int real = (-1);
@@ -1035,13 +1072,7 @@ int fmout(int width, FILE * fp, char pagin, int height, int starting_lp, char su
 	strcpy(buffer, "");
 	c = 1;			/* c is the current pos */
 
-	sigcaught = 0;
-	sttybbs(1);
-
 FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
-	
-		if (sigcaught)
-			goto OOPS;
 		if (fp != NULL) {	/* read from file */
 			if (feof(fp))
 				eof_flag = 1;
@@ -1129,17 +1160,18 @@ FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
 		c = 1;
 		++lines_printed;
 		lines_printed = checkpagin(lines_printed, pagin, height);
+		if (sigcaught) goto OOPS;
 		strcpy(aaa, "");
 		goto FMTA;
 	}
 	goto FMTA;
 
-	/* signal caught; drain the server */
-      OOPS:do {
+	/* keypress caught; drain the server */
+OOPS:	do {
 		serv_gets(aaa);
 	} while (strcmp(aaa, "000"));
 
-      FMTEND:printf("\n");
+FMTEND:	printf("\n");
 	++lines_printed;
 	lines_printed = checkpagin(lines_printed, pagin, height);
 	return (sigcaught);

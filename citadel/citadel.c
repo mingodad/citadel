@@ -128,19 +128,6 @@ void logoff(int code)
 
 
 /*
- * We handle "next" and "stop" much differently than in earlier versions.
- * The signal catching routine simply sets a flag and returns.
- */
-void sighandler(int which_sig)
-{
-	signal(SIGINT, SIG_IGN);
-	signal(SIGQUIT, SIG_IGN);
-	sigcaught = which_sig;
-	return;
-}
-
-
-/*
  * signal catching function for hangups...
  */
 void dropcarr(int signum)
@@ -193,8 +180,6 @@ void userlist(char *patn)
 		pprintf("%s\n", &buf[4]);
 		return;
 	}
-	sigcaught = 0;
-	sttybbs(SB_YES_INTR);
 	pprintf("       User Name           Num  L  LastCall  Calls Posts\n");
 	pprintf("------------------------- ----- - ---------- ----- -----\n");
 	while (serv_gets(buf), strcmp(buf, "000")) {
@@ -215,7 +200,6 @@ void userlist(char *patn)
 
 		}
 	}
-	sttybbs(SB_NO_INTR);
 	pprintf("\n");
 }
 
