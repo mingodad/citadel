@@ -191,11 +191,22 @@ if test "x$with_db" != xno -a "x$with_gdbm" != xyes; then
 	test "$db_dir" && LDFLAGS="$LDFLAGS -L$db_dir/lib"
 
 	dblib=""
-	test -d "$db_dir/include/db4" && CPPFLAGS="$CPPFLAGS -I$db_dir/include/db4" && dblib="db4" || \
-	( test -d "$db_dir/include/db3" && CPPFLAGS="$CPPFLAGS -I$db_dir/include/db3" && dblib="db3" ) || \
-	( test "$db_dir" -a -d "$db_dir/include" && CPPFLAGS="$CPPFLAGS -I$db_dir/include" ) || \
-	( test -d /usr/include/db4 && CPPFLAGS="$CPPFLAGS -I/usr/include/db4" && dblib="db4" ) || \
-	( test -d /usr/include/db3 && CPPFLAGS="$CPPFLAGS -I/usr/include/db3" && dblib="db3" )
+
+	if test -d "$db_dir/include/db4"; then
+		CPPFLAGS="$CPPFLAGS -I$db_dir/include/db4"
+		dblib="db4"
+	elif test -d "$db_dir/include/db3"; then
+		CPPFLAGS="$CPPFLAGS -I$db_dir/include/db3"
+		dblib="db3"
+	elif test "$db_dir"; then
+		CPPFLAGS="$CPPFLAGS -I$db_dir/include"
+	elif test -d /usr/include/db4; then
+		CPPFLAGS="$CPPFLAGS -I/usr/include/db4"
+		dblib="db4"
+	elif test -d /usr/include/db3; then
+		CPPFLAGS="$CPPFLAGS -I/usr/include/db3"
+		dblib="db3"
+	fi
 
 	AC_SEARCH_LIBS(db_env_create, [$dblib db db4 db3], [
 		DATABASE=database_sleepycat.c

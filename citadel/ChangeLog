@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.164  2002/03/26 05:13:32  nbryant
+ fix monstrous shell script syntax in configure.ac
+
  Revision 590.163  2002/03/26 04:38:31  nbryant
   * support autoconf 2.53
   * make a note that people should be using libtool 1.4d
@@ -3549,3 +3552,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
