@@ -1875,7 +1875,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	if ((!CC->internal_pgm) || (recps == NULL)) {
 		if (CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0) != 0) {
 			lprintf(3, "ERROR saving message pointer!\n");
-			CtdlSaveMsgPointerInRoom(AIDEROOM, newmsgid, 0);
+			CtdlSaveMsgPointerInRoom(config.c_aideroom, newmsgid, 0);
 		}
 	}
 
@@ -1916,7 +1916,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		}
 		else {
 			lprintf(9, "No user <%s>\n", recipient);
-			CtdlSaveMsgPointerInRoom(AIDEROOM, newmsgid, 0);
+			CtdlSaveMsgPointerInRoom(config.c_aideroom, newmsgid, 0);
 		}
 	}
 
@@ -2292,7 +2292,7 @@ struct recptypes *validate_recipients(char *recipients) {
 			case MES_LOCAL:
 				if (!strcasecmp(this_recp, "sysop")) {
 					++ret->num_room;
-					strcpy(this_recp, AIDEROOM);
+					strcpy(this_recp, config.c_aideroom);
 					if (strlen(ret->recp_room) > 0) {
 						strcat(ret->recp_room, "|");
 					}

@@ -783,13 +783,13 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 		valid = NULL;
 	}
 	if ( (valid == NULL) || (!strcasecmp(recipient, bouncesource)) ) {
-		strcpy(force_room, AIDEROOM);
+		strcpy(force_room, config.c_aideroom);
 	}
 	else {
 		strcpy(force_room, "");
 	}
 	if ( (valid == NULL) && (strlen(force_room) == 0) ) {
-		strcpy(force_room, AIDEROOM);
+		strcpy(force_room, config.c_aideroom);
 	}
 	CtdlSubmitMsg(msg, valid, force_room);
 

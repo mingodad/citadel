@@ -1052,7 +1052,7 @@ void smtp_do_bounce(char *instr) {
 
 		/* If not, post it in the Aide> room */
 		if (successful_bounce == 0) {
-			CtdlSubmitMsg(bmsg, NULL, AIDEROOM);
+			CtdlSubmitMsg(bmsg, NULL, config.c_aideroom);
 		}
 
 		/* Free up the memory we used */

@@ -410,7 +410,7 @@ void session_startup(void)
 	create_room(SENTITEMS, 4, "", 0, 1, 0);
 
 	/* Enter the lobby */
-	usergoto(BASEROOM, 0, NULL, NULL);
+	usergoto(config.c_baseroom, 0, NULL, NULL);
 
 	/* Record this login in the Citadel log */
 	rec_log(CL_LOGIN, CC->curr_user);
@@ -1008,13 +1008,19 @@ void cmd_invt_kick(char *iuser, int op)
 	if (is_room_aide()
 	   || (atol(CC->quickroom.QRname) == CC->usersupp.usernum) ) {
 		/* access granted */
-	}
-	else {
+	} else {
 		/* access denied */
                 cprintf("%d Higher access or room ownership required.\n",
                         ERROR + HIGHER_ACCESS_REQUIRED);
                 return;
         }
+
+	if (!strncasecmp(CC->quickroom.QRname, config.c_baseroom,
+			 ROOMNAMELEN)) {
+		cprintf("%d Can't add/remove users from this room.\n",
+			ERROR + NOT_HERE);
+		return;
+	}
 
 	if (lgetuser(&USscratch, iuser) != 0) {
 		cprintf("%d No such user.\n", ERROR);
@@ -1073,7 +1079,7 @@ int CtdlForgetThisRoom(void) {
 	lputuser(&CC->usersupp);
 
 	/* Return to the Lobby, so we don't end up in an undefined room */
-	usergoto(BASEROOM, 0, NULL, NULL);
+	usergoto(config.c_baseroom, 0, NULL, NULL);
 	return(0);
 
 }

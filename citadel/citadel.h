@@ -28,7 +28,7 @@
  * program is run again to bring things up to date.
  */
 #define REV_LEVEL	591		/* This version */
-#define REV_MIN		570		/* Oldest compatible version */
+#define REV_MIN		591		/* Oldest compatible version */
 
 #define SERVER_TYPE 0	/* zero for stock Citadel/UX; other developers please
 			   obtain SERVER_TYPE codes for your implementations */
@@ -120,6 +120,8 @@ struct config {
 	time_t c_net_freq;		/* how often to run the networker   */
 	char c_disable_newu;		/* disable NEWU command             */
 	char c_aide_mailboxes;		/* give Aides access to mailboxes   */
+	char c_baseroom[ROOMNAMELEN];	/* Name of baseroom (Lobby)	    */
+	char c_aideroom[ROOMNAMELEN];	/* Name of aideroom (Aide)	    */
 };
 
 #define NODENAME		config.c_nodename

@@ -62,7 +62,7 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf)
 	CtdlGetRelationship(&vbuf, userbuf, roombuf);
 
 	/* Force the properties of the Aide room */
-	if (!strcasecmp(roombuf->QRname, AIDEROOM)) {
+	if (!strcasecmp(roombuf->QRname, config.c_aideroom)) {
 		if (userbuf->axlevel >= 6) {
 			retval = UA_KNOWN | UA_GOTOALLOWED;
 		} else {
@@ -169,7 +169,10 @@ void room_sanity_check(struct quickroom *qrbuf)
 	}
 	/* Listing order of 0 is illegal except for base rooms */
 	if (qrbuf->QRorder == 0)
-		if (!is_noneditable(qrbuf))
+		if (!(qrbuf->QRflags & QR_MAILBOX) &&
+		    strncasecmp(qrbuf->QRname, config.c_baseroom, ROOMNAMELEN)
+		    &&
+		    strncasecmp(qrbuf->QRname, config.c_aideroom, ROOMNAMELEN))
 			qrbuf->QRorder = 64;
 }
 
@@ -463,20 +466,13 @@ int sort_msglist(long listptrs[], int oldcount)
 int is_noneditable(struct quickroom *qrbuf)
 {
 
-	/* Lobby> and Aide> are non-editable */
-	if (!strcasecmp(qrbuf->QRname, BASEROOM))
-		return (1);
-	else if (!strcasecmp(qrbuf->QRname, AIDEROOM))
-		return (1);
-
-	/* Mail> rooms are also non-editable */
-	else if ( (qrbuf->QRflags & QR_MAILBOX)
+	/* Mail> rooms are non-editable */
+	if ( (qrbuf->QRflags & QR_MAILBOX)
 	     && (!strcasecmp(&qrbuf->QRname[11], MAILROOM)) )
 		return (1);
 
 	/* Everything else is editable */
-	else
-		return (0);
+	return (0);
 }
 
 
@@ -815,7 +811,7 @@ void cmd_goto(char *gargs)
 	getuser(&CC->usersupp, CC->curr_user);
 
 	if (!strcasecmp(towhere, "_BASEROOM_"))
-		strcpy(towhere, BASEROOM);
+		strcpy(towhere, config.c_baseroom);
 
 	if (!strcasecmp(towhere, "_MAIL_"))
 		strcpy(towhere, MAILROOM);
@@ -1086,6 +1082,12 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 						sizeof(qrbuf.QRname));
 		}
 
+		/* Reject change of floor for baseroom/aideroom */
+		if (!strncasecmp(old_name, config.c_baseroom, ROOMNAMELEN) ||
+		    !strncasecmp(old_name, config.c_aideroom, ROOMNAMELEN)) {
+			new_floor = 0;
+		}
+
 		/* Take care of floor stuff */
 		old_floor = qrbuf.QRfloor;
 		if (new_floor < 0) {
@@ -1105,6 +1107,20 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 	}
 
 	end_critical_section(S_QUICKROOM);
+
+	begin_critical_section(S_CONFIG);
+
+	/* If baseroom/aideroom name changes, update config */
+	if (!strncasecmp(old_name, config.c_baseroom, ROOMNAMELEN)) {
+		safestrncpy(config.c_baseroom, new_name, ROOMNAMELEN);
+		put_config();
+	}
+	if (!strncasecmp(old_name, config.c_aideroom, ROOMNAMELEN)) {
+		safestrncpy(config.c_aideroom, new_name, ROOMNAMELEN);
+		put_config();
+	}
+
+	end_critical_section(S_CONFIG);
 
 	/* Adjust the floor reference counts if necessary */
 	if (new_floor != old_floor) {
@@ -1136,8 +1152,7 @@ void cmd_setr(char *args)
 
 	if (num_parms(args) >= 6) {
 		new_floor = extract_int(args, 5);
-	}
-	else {
+	} else {
 		new_floor = (-1);	/* don't change the floor */
 	}
 
@@ -1146,8 +1161,7 @@ void cmd_setr(char *args)
 	 */
 	if (CC->quickroom.QRflags & QR_MAILBOX) {
 		sprintf(new_name, "%010ld.", atol(CC->quickroom.QRname) );
-	}
-	else {
+	} else {
 		strcpy(new_name, "");
 	}
 	extract(&new_name[strlen(new_name)], args, 0);
@@ -1156,24 +1170,19 @@ void cmd_setr(char *args)
 
 	if (r == crr_room_not_found) {
 		cprintf("%d Internal error - room not found?\n", ERROR);
-	}
-	else if (r == crr_already_exists) {
+	} else if (r == crr_already_exists) {
 		cprintf("%d '%s' already exists.\n",
 			ERROR + ALREADY_EXISTS, new_name);
-	}
-	else if (r == crr_noneditable) {
+	} else if (r == crr_noneditable) {
 		cprintf("%d Cannot edit this room.\n", ERROR);
-	}
-	else if (r == crr_invalid_floor) {
+	} else if (r == crr_invalid_floor) {
 		cprintf("%d Target floor does not exist.\n",
 			ERROR + INVALID_FLOOR_OPERATION);
-	}
-	else if (r == crr_access_denied) {
+	} else if (r == crr_access_denied) {
 		cprintf("%d You do not have permission to edit '%s'\n",
 			ERROR + HIGHER_ACCESS_REQUIRED,
 			CC->quickroom.QRname);
-	}
-	else if (r != crr_ok) {
+	} else if (r != crr_ok) {
 		cprintf("%d Error: CtdlRenameRoom() returned %d\n",
 			ERROR, r);
 	}
@@ -1193,19 +1202,22 @@ void cmd_setr(char *args)
 		if (new_order > 127)
 			new_order = 127;
 	}
+
 	lgetroom(&CC->quickroom, CC->quickroom.QRname);
 
-	extract(buf, args, 1);
-	buf[10] = 0;
-	safestrncpy(CC->quickroom.QRpasswd, buf, sizeof CC->quickroom.QRpasswd);
+	/* Directory room */
 	extract(buf, args, 2);
 	buf[15] = 0;
 	safestrncpy(CC->quickroom.QRdirname, buf,
 		sizeof CC->quickroom.QRdirname);
-	CC->quickroom.QRflags = (extract_int(args, 3) | QR_INUSE);
-	if (num_parms(args) >= 7)
-		CC->quickroom.QRorder = (char) new_order;
 
+	/* Default view */
+	if (num_parms(args) >= 8) {
+		CC->quickroom.QRdefaultview = extract_int(args, 7);
+	}
+
+	/* Misc. flags */
+	CC->quickroom.QRflags = (extract_int(args, 3) | QR_INUSE);
 	/* Clean up a client boo-boo: if the client set the room to
 	 * guess-name or passworded, ensure that the private flag is
 	 * also set.
@@ -1214,22 +1226,42 @@ void cmd_setr(char *args)
 	    || (CC->quickroom.QRflags & QR_PASSWORDED))
 		CC->quickroom.QRflags |= QR_PRIVATE;
 
-	/* Kick everyone out if the client requested it (by changing the
-	 * room's generation number)
-	 */
-	if (extract_int(args, 4)) {
-		time(&CC->quickroom.QRgen);
+	/* Some changes can't apply to BASEROOM */
+	if (!strncasecmp(CC->quickroom.QRname, config.c_baseroom,
+			 ROOMNAMELEN)) {
+		CC->quickroom.QRorder = 0;
+		CC->quickroom.QRpasswd[0] = '\0';
+		CC->quickroom.QRflags &= ~(QR_PRIVATE & QR_PASSWORDED &
+			QR_GUESSNAME & QR_PREFONLY & QR_MAILBOX);
+		CC->quickroom.QRflags |= QR_PERMANENT;
+	} else {	
+		/* March order (doesn't apply to AIDEROOM) */
+		if (num_parms(args) >= 7)
+			CC->quickroom.QRorder = (char) new_order;
+		/* Room password */
+		extract(buf, args, 1);
+		buf[10] = 0;
+		safestrncpy(CC->quickroom.QRpasswd, buf,
+			    sizeof CC->quickroom.QRpasswd);
+		/* Kick everyone out if the client requested it
+		 * (by changing the room's generation number)
+		 */
+		if (extract_int(args, 4)) {
+			time(&CC->quickroom.QRgen);
+		}
 	}
-
-	if (num_parms(args) >= 8) {
-		CC->quickroom.QRdefaultview = extract_int(args, 7);
+	/* Some changes can't apply to AIDEROOM */
+	if (!strncasecmp(CC->quickroom.QRname, config.c_baseroom,
+			 ROOMNAMELEN)) {
+		CC->quickroom.QRorder = 0;
+		CC->quickroom.QRflags &= ~QR_MAILBOX;
+		CC->quickroom.QRflags |= QR_PERMANENT;
 	}
-
 
 	/* Write the room record back to disk */
 	lputroom(&CC->quickroom);
 
-	/* create a room directory if necessary */
+	/* Create a room directory if necessary */
 	if (CC->quickroom.QRflags & QR_DIRECTORY) {
 		snprintf(buf, sizeof buf,
 		    "mkdir ./files/%s </dev/null >/dev/null 2>/dev/null",
@@ -1252,10 +1284,6 @@ void cmd_geta(void)
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
-	if (is_noneditable(&CC->quickroom)) {
-		cprintf("%d Can't edit this room.\n", ERROR + NOT_HERE);
-		return;
-	}
 	if (getuserbynumber(&usbuf, CC->quickroom.QRroomaide) == 0) {
 		cprintf("%d %s\n", CIT_OK, usbuf.fullname);
 	} else {
@@ -1420,12 +1448,7 @@ int CtdlDoIHavePermissionToDeleteThisRoom(struct quickroom *qr) {
 	/*
 	 * For normal rooms, just check for aide or room aide status.
 	 */
-	else {
-		return(is_room_aide());
-	}
-
-	/* Should never get to this point, but to keep the compiler quiet... */
-	return(0);
+	return(is_room_aide());
 }
 
 /*
@@ -1446,7 +1469,7 @@ void cmd_kill(char *argbuf)
 	if (kill_ok) {
 		strcpy(deleted_room_name, CC->quickroom.QRname);
 		delete_room(&CC->quickroom);	/* Do the dirty work */
-		usergoto(BASEROOM, 0, NULL, NULL); /* Return to the Lobby */
+		usergoto(config.c_baseroom, 0, NULL, NULL); /* Return to the Lobby */
 
 		/* tell the world what we did */
 		snprintf(aaa, sizeof aaa, "%s> killed by %s\n",

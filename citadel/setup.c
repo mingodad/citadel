@@ -808,6 +808,10 @@ int main(int argc, char *argv[])
 		strcpy(config.c_bucket_dir, "bitbucket");
 	if (strlen(config.c_net_password) == 0)
 		strcpy(config.c_net_password, "netpassword");
+	if (strlen(config.c_baseroom) == 0)
+		strcpy(config.c_baseroom, "Lobby");
+	if (strlen(config.c_aideroom) == 0)
+		strcpy(config.c_aideroom, "Aide");
 	if (config.c_port_number == 0) {
 		config.c_port_number = 504;
 	}
