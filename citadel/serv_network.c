@@ -1059,6 +1059,18 @@ void network_process_buffer(char *buffer, long size) {
 	char filename[SIZ];
 	FILE *fp;
 	char nexthop[SIZ];
+	unsigned char firstbyte;
+	unsigned char lastbyte;
+
+	/* Validate just a little bit.  First byte should be FF and
+	 * last byte should be 00.
+	 */
+	memcpy(&firstbyte, &buffer[0], 1);
+	memcpy(&lastbyte, &buffer[size-1], 1);
+	if ( (firstbyte != 255) || (lastbyte != 0) ) {
+		lprintf(7, "Corrupt message!  Ignoring.\n");
+		return;
+	}
 
 	/* Set default target room to trash */
 	strcpy(target_room, TWITROOM);

@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.49  2004/02/24 05:09:06  ajc
+ * Better validation of incoming network messages.
+
  Revision 614.48  2004/02/23 16:10:47  nbryant
  --disable-pie by default.
 
@@ -5395,4 +5398,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
