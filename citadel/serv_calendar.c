@@ -215,19 +215,6 @@ icalproperty *ical_ctdl_get_subprop(
 
 
 /*
- * Helper function for ical_ctdl_is_overlap() to simplify the code when
- * comparing year/month/day.  The number doesn't have to be meaningful, only
- * consistent and unique for the supplied y/m/d combination.
- */
-inline int itymd(struct icaltimetype t) {
-	return (
-		(t.year * 416)
-		+ (t.month * 32)
-		+ (t.day)
-	);
-}
-
-/*
  * Check to see if two events overlap.  Returns nonzero if they do.
  */
 int ical_ctdl_is_overlap(
@@ -290,8 +277,12 @@ void vcard_hunt_for_conflicts_backend(long msgnum, void *data) {
 	struct ical_respond_data ird;
 	struct icaltimetype t1start, t1end, t2start, t2end;
 	icalproperty *p;
+	char conflict_event_uid[SIZ];
+	char conflict_event_summary[SIZ];
 
 	cal = (icalcomponent *)data;
+	strcpy(conflict_event_uid, "");
+	strcpy(conflict_event_summary, "");
 
 	msg = CtdlFetchMessage(msgnum);
 	if (msg == NULL) return;
@@ -328,11 +319,23 @@ void vcard_hunt_for_conflicts_backend(long msgnum, void *data) {
 	p = ical_ctdl_get_subprop(cal, ICAL_DTEND_PROPERTY);
 	if (p != NULL) t1end = icalproperty_get_dtend(p);
 	
+	p = ical_ctdl_get_subprop(ird.cal, ICAL_UID_PROPERTY);
+	if (p != NULL) {
+		strcpy(conflict_event_uid, icalproperty_get_comment(p));
+	}
+	p = ical_ctdl_get_subprop(ird.cal, ICAL_SUMMARY_PROPERTY);
+	if (p != NULL) {
+		strcpy(conflict_event_summary, icalproperty_get_comment(p));
+	}
+
+
 	icalcomponent_free(ird.cal);
 
 	if (ical_ctdl_is_overlap(t1start, t1end, t2start, t2end)) {
-		cprintf("%ld|FIXME put more here\n",
-			msgnum
+		cprintf("%ld||%s|%s|\n",
+			msgnum,
+			conflict_event_uid,
+			conflict_event_summary
 		);
 	}
 }
