@@ -1,3 +1,8 @@
+Mon Jun  7 21:59:45 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Session no longer locks up when an express message is cancelled
+	* The default Citadel server is now "localhost" instead of uncnsrd
+	* Added some documentation
+
 Thu Jun  3 12:18:49 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* roomops.c: made room banner graphics more reliable
 	* messages.c: added code to prevent accidental "double-posting"
