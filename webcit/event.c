@@ -366,33 +366,33 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 
 	wprintf("</FORM>\n");
 	
-	wprintf("<SCRIPT language=\"javascript\">
-		<!--
-			if (document.EventForm.alldayevent.checked) {
-				document.EventForm.dtstart_hour.value='0';
-				document.EventForm.dtstart_hour.disabled = true;
-				document.EventForm.dtstart_minute.value='0';
-				document.EventForm.dtstart_minute.disabled = true;
-				document.EventForm.dtend_hour.value='0';
-				document.EventForm.dtend_hour.disabled = true;
-				document.EventForm.dtend_minute.value='0';
-				document.EventForm.dtend_minute.disabled = true;
-				document.EventForm.dtend_month.disabled = true;
-				document.EventForm.dtend_day.disabled = true;
-				document.EventForm.dtend_year.disabled = true;
-			}
-			else {
-				document.EventForm.dtstart_hour.disabled = false;
-				document.EventForm.dtstart_minute.disabled = false;
-				document.EventForm.dtend_hour.disabled = false;
-				document.EventForm.dtend_minute.disabled = false;
-				document.EventForm.dtend_month.disabled = false;
-				document.EventForm.dtend_day.disabled = false;
-				document.EventForm.dtend_year.disabled = false;
-			}
-		//-->
-		</SCRIPT>
-	");
+	wprintf("<SCRIPT language=\"javascript\">"
+		"<!--"
+			"if (document.EventForm.alldayevent.checked) {"
+				"document.EventForm.dtstart_hour.value='0';"
+				"document.EventForm.dtstart_hour.disabled = true;"
+				"document.EventForm.dtstart_minute.value='0';"
+				"document.EventForm.dtstart_minute.disabled = true;"
+				"document.EventForm.dtend_hour.value='0';"
+				"document.EventForm.dtend_hour.disabled = true;"
+				"document.EventForm.dtend_minute.value='0';"
+				"document.EventForm.dtend_minute.disabled = true;"
+				"document.EventForm.dtend_month.disabled = true;"
+				"document.EventForm.dtend_day.disabled = true;"
+				"document.EventForm.dtend_year.disabled = true;"
+			"}"
+			"else {"
+				"document.EventForm.dtstart_hour.disabled = false;"
+				"document.EventForm.dtstart_minute.disabled = false;"
+				"document.EventForm.dtend_hour.disabled = false;"
+				"document.EventForm.dtend_minute.disabled = false;"
+				"document.EventForm.dtend_month.disabled = false;"
+				"document.EventForm.dtend_day.disabled = false;"
+				"document.EventForm.dtend_year.disabled = false;"
+			"}"
+		"//-->"
+		"</SCRIPT>\n"
+	);
 
 	do_template("endbox");
 	wDumpContent(1);

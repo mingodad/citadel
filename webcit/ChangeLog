@@ -1,4 +1,9 @@
 $Log$
+Revision 500.28  2003/10/17 02:31:45  ajc
+* Multi-line string literals are deprecated in GCC 3.1 unless each line
+  is wrapped in quotes.  Performed this fix so it'll compile.
+* setup.c: removed references to unused variable tempfile[]
+
 Revision 500.27  2003/10/09 03:17:02  ajc
 * Started prettying up the vCard display.
 
@@ -1591,4 +1596,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
