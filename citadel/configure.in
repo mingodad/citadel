@@ -8,9 +8,9 @@ else
 	AC_DEFINE_UNQUOTED(BBSDIR, "$prefix")
 fi
 
-AC_ARG_ENABLE(autologin, [  --disable-autologin     disable autologin (default is enabled)],[if test "$enableval" = yes; then
+AC_ARG_ENABLE(autologin, [  --enable-autologin      enable autologin (default is disabled)],[if test "$enableval" = yes; then
 	AC_DEFINE(ENABLE_AUTOLOGIN)
-fi],AC_DEFINE(ENABLE_AUTOLOGIN))
+fi])
 
 AC_ARG_ENABLE(ansi-color, [  --enable-ansi-color     enable ANSI color (default is disabled)],[if test "$enableval" = yes; then
 	AC_DEFINE(ANSI_COLOR)

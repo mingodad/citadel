@@ -1,3 +1,6 @@
+1998-10-02 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* configure.in: autologin now defaults to disabled
+
 Fri Oct  2 00:04:31 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Finally removed all three usersupp.foo[MAXROOMS] elements, and
 	  migrated all the code that used them to use "struct visit" instead.
