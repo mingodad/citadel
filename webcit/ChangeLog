@@ -1,7 +1,10 @@
 $Log$
+Revision 521.6  2004/06/15 02:30:21  ajc
+* Honor "maxmsgs" even when viewing a mailbox in summary mode
+
 Revision 521.5  2004/06/12 04:26:38  ajc
 * Fixed some garbled output resulting from turning things that look like
-  links into links.
+  links into links
 
 Revision 521.4  2004/06/11 16:09:36  ajc
 * Moved the room graphic to the left of the room name in the banner, to
