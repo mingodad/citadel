@@ -156,8 +156,10 @@ int main(int argc, char **argv)
 	signal(SIGHUP, cleanup);
 	signal(SIGTERM, cleanup);
 
-	fprintf(stderr, "sendcommand: started.  pid=%ld\n", (long) getpid());
-	fprintf(stderr, "Running from %s\n", bbs_home_directory);
+	fprintf(stderr, "sendcommand: started (pid=%d) "
+			"running in %s\n",
+			(int) getpid(),
+			bbs_home_directory);
 	fflush(stderr);
 	np_attach_to_server();
 	fflush(stderr);
