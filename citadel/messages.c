@@ -60,8 +60,6 @@ void newprompt(char *prompt, char *str, int len);
 int file_checksum(char *filename);
 void do_edit(char *desc, char *read_cmd, char *check_cmd, char *write_cmd);
 
-char reply_to[SIZ];
-char reply_subject[SIZ];
 long msg_arr[MAXMSGS];
 int num_msgs;
 char rc_alt_semantics;
@@ -357,13 +355,13 @@ int read_message(
 	FILE *dest) /* Destination file, NULL for screen */
 {
 	char buf[SIZ];
-	char m_subject[SIZ];
-	char from[SIZ], node[SIZ], rfca[SIZ];
 	char now[SIZ];
 	int format_type = 0;
 	int fr = 0;
 	int nhdr = 0;
 	struct ctdlipcmessage *message = NULL;
+	char reply_to[SIZ];
+	char reply_subject[SIZ];
 	int r;				/* IPC response code */
 
 	sigcaught = 0;
@@ -380,11 +378,7 @@ int read_message(
 		return (0);
 	}
 
-	strcpy(m_subject, "");
 	strcpy(reply_to, "nobody ... xxxxx");
-	strcpy(from, "");
-	strcpy(node, "");
-	strcpy(rfca, "");
 
 	if (dest) {
 		fprintf(dest, "\n ");
@@ -480,7 +474,7 @@ int read_message(
 			if ((room_flags & QR_NETWORK)
 			    || ((strcasecmp(message->node, serv_info.serv_nodename)
 			     && (strcasecmp(message->node, serv_info.serv_fqdn))))) {
-				if (strlen(rfca) == 0) {
+				if (strlen(message->email) == 0) {
 					if (dest) {
 						fprintf(dest, "@%s ", message->node);
 					} else {
@@ -493,7 +487,7 @@ int read_message(
 			}
 		}
 		if (strcasecmp(message->hnod, serv_info.serv_humannode)
-		    && (strlen(message->hnod)) && (!strlen(rfca))) {
+		    && (strlen(message->hnod)) && (!strlen(message->email))) {
 			if (dest) {
 				fprintf(dest, "(%s) ", message->hnod);
 			} else {
@@ -505,7 +499,7 @@ int read_message(
 				scr_printf(") ");
 			}
 		}
-		if (strcasecmp(message->room, room_name) && (strlen(rfca) == 0)) {
+		if (strcasecmp(message->room, room_name) && (strlen(message->email) == 0)) {
 			if (dest) {
 				fprintf(dest, "in %s> ", message->room);
 			} else {
@@ -533,10 +527,11 @@ int read_message(
 		scr_printf("\n");
 	}
 
-	if (strlen(rfca) > 0) {
-		strcpy(reply_to, rfca);
+	if (strlen(message->email) > 0) {
+		strcpy(reply_to, message->email);
 	} else {
-		snprintf(reply_to, sizeof(reply_to), "%s @ %s", from, node);
+		snprintf(reply_to, sizeof(reply_to), "%s @ %s",
+			 message->author, message->node);
 	}
 
 	if (pagin == 1 && !dest)
@@ -924,6 +919,8 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 	int mode;
 	long highmsg;
 	FILE *fp;
+	char reply_to[SIZ];
+	char reply_subject[SIZ];
 	char subject[SIZ];
 
 	if (c > 0)

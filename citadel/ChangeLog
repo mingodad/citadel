@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.53  2002/06/24 20:11:00  error
+ * Buffer overflow fixes and minor cleanup in IPC code
+
  Revision 591.52  2002/06/24 16:07:42  error
  * Message reading and other functions which use the fmout() screen
    formatter now use the new IPC code.
@@ -3764,3 +3767,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
