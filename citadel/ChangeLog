@@ -1,4 +1,7 @@
  $Log$
+ Revision 570.3  2000/03/23 02:41:50  ajc
+ *** empty log message ***
+
  Revision 570.2  2000/03/21 03:23:24  ajc
  * Experimental new linebreak mode
 
@@ -1774,4 +1777,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
