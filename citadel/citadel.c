@@ -769,10 +769,6 @@ void who_is_online(int longlist)
 		skipidle = 1;
 	}
 
-	if (!(timenow = CtdlIPCServerTime(tbuf))) {
-		time(&timenow);
-	}
-
 	if (!longlist) {
 		color(BRIGHT_WHITE);
 		pprintf("FLG ###        User Name                 Room                 From host\n");

@@ -301,8 +301,6 @@ enum {
 #define LONG_MAX 2147483647L
 #endif
 
-#endif /* CITADEL_H */
-
 
 /*
  * Views
@@ -310,3 +308,5 @@ enum {
 #define	VIEW_BBS		0	/* Traditional Citadel BBS view */
 #define VIEW_MAILBOX		1	/* Mailbox summary */
 #define VIEW_ADDRESSBOOK	2	/* Address book view */
+
+#endif /* CITADEL_H */
