@@ -429,6 +429,7 @@ void smtp_rcpt(char *argbuf) {
 			}
 			strcat(SMTP->valid.recp_local, user);
 			SMTP->valid.num_local += 1;
+			SMTP->number_of_recipients += 1;
 			return;
 
 		case rfc822_room_delivery:
@@ -439,11 +440,17 @@ void smtp_rcpt(char *argbuf) {
 			}
 			strcat(SMTP->valid.recp_room, user);
 			SMTP->valid.num_room += 1;
+			SMTP->number_of_recipients += 1;
 			return;
 
 		case rfc822_address_on_citadel_network:
-			cprintf("250 Delivering to room '%s'\r\n", user);
-			/* FIXME */
+			cprintf("250 '%s' is a valid network user.\r\n", user);
+			if (SMTP->valid.num_ignet > 0) {
+				strcat(SMTP->valid.recp_ignet, "|");
+			}
+			strcat(SMTP->valid.recp_ignet, user);
+			SMTP->valid.num_ignet += 1;
+			SMTP->number_of_recipients += 1;
 			return;
 
 		case rfc822_no_such_user:
@@ -456,8 +463,7 @@ void smtp_rcpt(char *argbuf) {
 			}
 			else {
 				cprintf("250 Remote recipient %s ok\r\n", recp);
-
-
+				SMTP->number_of_recipients += 1;
 				return;
 			}
 			return;
@@ -929,6 +935,8 @@ void smtp_do_bounce(char *instr) {
 	time_t submitted = 0L;
 	struct CtdlMessage *bmsg = NULL;
 	int give_up = 0;
+	struct recptypes *valid;
+	int successful_bounce = 0;
 
 	lprintf(9, "smtp_do_bounce() called\n");
 	strcpy(bounceto, "");
@@ -1035,23 +1043,20 @@ void smtp_do_bounce(char *instr) {
 			lprintf(7, "No bounce address specified\n");
 			bounce_msgid = (-1L);
 		}
-/* FIXME this won't work
-		else if (mes_type = alias(bounceto), mes_type == MES_ERROR) {
-			lprintf(7, "Invalid bounce address <%s>\n", bounceto);
-			bounce_msgid = (-1L);
-		}
-		else {
-			bounce_msgid = CtdlSubmitMsg(bmsg,
-				bounceto,
-				"", mes_type);
-		}
- */
-		TRACE;
 
-		/* Otherwise, go to the Aide> room */
-		lprintf(9, "bounce to room?\n");
-		if (bounce_msgid < 0L) bounce_msgid = CtdlSubmitMsg(bmsg,
-			NULL, AIDEROOM);
+		/* Can we deliver the bounce to the original sender? */
+		valid = validate_recipients(bounceto);
+		if (valid != NULL) {
+			if (valid->num_error == 0) {
+				CtdlSubmitMsg(bmsg, valid, "");
+				successful_bounce = 1;
+			}
+		}
+
+		/* If not, post it in the Aide> room */
+		if (successful_bounce == 0) {
+			CtdlSubmitMsg(bmsg, NULL, AIDEROOM);
+		}
 	}
 
 	CtdlFreeMessage(bmsg);

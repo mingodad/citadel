@@ -1839,8 +1839,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 if (recps->num_room > 0)
 	  for (i=0; i<num_tokens(recps->recp_room, '|'); ++i) {
 		extract(recipient, recps->recp_room, i);
-		lprintf(9, "Delivering to local room <%s>\n",
-			recipient);
+		lprintf(9, "Delivering to local room <%s>\n", recipient);
 		CtdlSaveMsgPointerInRoom(recipient, newmsgid, 0);
 	}
 
