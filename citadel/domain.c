@@ -1,10 +1,13 @@
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <netinet/in.h>
 #include <arpa/nameser.h>
 #include <resolv.h>
 #include "sysdep_decls.h"
+#include "citadel.h"
 #include "domain.h"
+#include "server.h"
 
 #define SMART_HOST	"gatekeeper.wdcs.com"
 
@@ -25,10 +28,10 @@ void sort_mxrecs(struct mx *mxrecs, int num_mxrecs) {
 		for (b = 0; b <= a; ++b) {
 			if (mxrecs[b].pref > mxrecs[b+1].pref) {
 
-				memcpy(hold1, mxrefs[b], sizeof(struct mx));
-				memcpy(hold2, mxrefs[b+1], sizeof(struct mx));
-				memcpy(mxrefs[b], hold2, sizeof(struct mx));
-				memcpy(mxrefs[b+1], hold1, sizeof(struct mx));
+				memcpy(&hold1, &mxrecs[b], sizeof(struct mx));
+				memcpy(&hold2, &mxrecs[b+1], sizeof(struct mx));
+				memcpy(&mxrecs[b], &hold2, sizeof(struct mx));
+				memcpy(&mxrecs[b+1], &hold1, sizeof(struct mx));
 			}
 		}
 	}
@@ -50,7 +53,6 @@ int getmx(char *mxbuf, char *dest) {
 	char answer[1024];
 	int ret;
 	unsigned char *startptr, *endptr, *ptr;
-	int expanded_size;
 	char expanded_buf[1024];
 	unsigned short pref, type;
 	int n;
@@ -138,13 +140,7 @@ int getmx(char *mxbuf, char *dest) {
 		}
 	}
 
-	lprintf(9, "unsorted...\n");
-	for (n=0; n<num_mxrecs; ++n)
-		lprintf(9, "%10d %s\n", mxrecs[n].pref, mxrecs[n].host);
 	sort_mxrecs(mxrecs, num_mxrecs);
-	lprintf(9, "sorted...\n");
-	for (n=0; n<num_mxrecs; ++n)
-		lprintf(9, "%10d %s\n", mxrecs[n].pref, mxrecs[n].host);
 
 	strcpy(mxbuf, "");
 	for (n=0; n<num_mxrecs; ++n) {
@@ -152,5 +148,5 @@ int getmx(char *mxbuf, char *dest) {
 		strcat(mxbuf, "|");
 	}
 	phree(mxrecs);
-	return(num_msrecs);
+	return(num_mxrecs);
 }
