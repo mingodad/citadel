@@ -87,6 +87,7 @@ void do_subscribe(char *room, char *email, char *subtype) {
 	FILE *ncfp;
 	char filename[SIZ];
 	char token[SIZ];
+	char confirmation_request[SIZ];
 
 	if (getroom(&qrbuf, room) != 0) {
 		cprintf("%d There is no list called '%s'\n", ERROR, room);
@@ -109,7 +110,27 @@ void do_subscribe(char *room, char *email, char *subtype) {
 	}
 	end_critical_section(S_NETCONFIGS);
 
-	/* FIXME  --  generate and send the confirmation request */
+	/* Generate and send the confirmation request */
+
+	snprintf(confirmation_request, sizeof confirmation_request,
+		"Someone (probably you) has submitted a request to subscribe\n"
+		"<%s> to the '%s' mailing list.\n\n"
+		"In order to confirm this subscription request, please\n"
+		"point your web browser at the following location:\n\n"
+		"http://FIXME.com:FIXME/blah?room=%s&token=%s\n\n"
+		"If this request has been submitted in error and you do not\n"
+		"wish to receive the '%s' mailing list, simply do nothing,\n"
+		"and you will not receive any further mailings.\n",
+
+		email, qrbuf.QRname, qrbuf.QRname, token, qrbuf.QRname
+	);
+
+	quickie_message(
+		"Citadel",
+		email,
+		qrbuf.QRname,
+		confirmation_request
+	);
 
 	cprintf("%d Subscription entered; confirmation request sent\n", CIT_OK);
 

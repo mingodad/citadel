@@ -1,4 +1,8 @@
  $Log$
+ Revision 591.91  2002/08/13 18:48:46  ajc
+ * Generate and send subscription confirmation requests.
+   (Still need to finalize the URL format)
+
  Revision 591.90  2002/08/13 17:19:11  ajc
  * Added email capability to quickie_message()
 
@@ -3897,3 +3901,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
