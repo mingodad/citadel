@@ -1858,10 +1858,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		extract(recipient, recps->recp_local, i);
 		lprintf(9, "Delivering private local mail to <%s>\n",
 			recipient);
-		if (!strcasecmp(recipient, "sysop")) {
-			CtdlSaveMsgPointerInRoom(AIDEROOM, newmsgid, 0);
-		}
-		else if (getuser(&userbuf, recipient) == 0) {
+		if (getuser(&userbuf, recipient) == 0) {
 			MailboxName(actual_rm, &userbuf, MAILROOM);
 			CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0);
 		}
@@ -2213,7 +2210,15 @@ struct recptypes *validate_recipients(char *recipients) {
 		invalid = 0;
 		switch(mailtype) {
 			case MES_LOCAL:
-				if (getuser(&tempUS, this_recp) == 0) {
+				if (!strcasecmp(this_recp, "sysop")) {
+					++ret->num_room;
+					strcpy(this_recp, AIDEROOM);
+					if (strlen(ret->recp_room) > 0) {
+						strcat(ret->recp_room, "|");
+					}
+					strcat(ret->recp_room, this_recp);
+				}
+				else if (getuser(&tempUS, this_recp) == 0) {
 					++ret->num_local;
 					strcpy(this_recp, tempUS.fullname);
 					if (strlen(ret->recp_local) > 0) {
