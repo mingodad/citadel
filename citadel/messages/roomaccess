@@ -10,8 +10,11 @@ to get access.
  Invitation-only: users may only gain access to this type of room if
 an aide gives it to them. 
  
-   Once a user has access to a private room, it shows up on the known
+ Personal: this type of room acts as a user-specific "mailbox."
+  
+ Once a user has access to a private room, it shows up on the known
 rooms list and acts the same as any other room. Aides may kick users out
-of any type of private room, and out of excludable rooms.
+of any type of private room, and out of excludable rooms.  Please also keep
+in mind that Aides have access to ALL private rooms.
  
  Before making it private, think about it. Does it really NEED to be private?
