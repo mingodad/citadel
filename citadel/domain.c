@@ -62,7 +62,7 @@ inline int mx_compare_pref(int pref1, int pref2) {
 		return(1);
 	}
 	else if (pref1 < pref2) {
-		return(1);
+		return(0);
 	}
 	else {
 		return(rand() % 2);
