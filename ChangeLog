@@ -1,4 +1,9 @@
 $Log$
+Revision 500.4  2003/06/26 03:37:58  ajc
+* Allow anonymous HTTP requests for /freebusy/user%20name.vcf (or .vfb)
+  This will allow some groupware clients to browse the free/busy times of
+  other users on the system.
+
 Revision 500.3  2003/06/21 05:17:21  ajc
 * Better alignment of system messages
 * Exterminated display_error() and replaced it with WC->ImportantMessage
@@ -1499,4 +1504,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

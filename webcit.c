@@ -902,6 +902,12 @@ void session_loop(struct httprequest *req)
 		do_listsub();
 		goto SKIP_ALL_THIS_CRAP;
 	}
+#ifdef WEBCIT_WITH_CALENDAR_SERVICE
+	if (!strcasecmp(action, "freebusy")) {
+		do_freebusy(cmd);
+		goto SKIP_ALL_THIS_CRAP;
+	}
+#endif
 
 	check_for_express_messages();
 
