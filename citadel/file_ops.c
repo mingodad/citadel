@@ -528,7 +528,7 @@ void cmd_ucls(char *cmd)
 	if (CC->upload_fp == NULL) {
 		cprintf("%d You don't have an upload file open.\n",ERROR);
 		return;
-		}
+	}
 
 	fclose(CC->upload_fp);
 	CC->upload_fp = NULL;
@@ -536,8 +536,16 @@ void cmd_ucls(char *cmd)
 	if ((!strcasecmp(cmd,"1")) && (CC->upload_type != UPL_FILE)) {
 		CC->upload_type = UPL_FILE;
 		cprintf("%d Upload completed.\n", OK);
-		return;
+
+		if (CC->upload_type == UPL_NET) {
+			if (fork()==0) {
+				execlp("./netproc", "netproc", "-i", NULL);
+				exit(errno);
+			}
 		}
+
+		return;
+	}
 
 	if (!strcasecmp(cmd,"1")) {
 		cprintf("%d File '%s' saved.\n",OK,CC->upl_path);
@@ -546,7 +554,7 @@ void cmd_ucls(char *cmd)
 		if (fp!=NULL) {
 			fprintf(fp,"%s %s\n",CC->upl_file,CC->upl_comment);
 			fclose(fp);
-			}
+		}
 
 		/* put together an upload notice */
 		sprintf(upload_notice,
@@ -554,12 +562,14 @@ void cmd_ucls(char *cmd)
 			CC->upl_file,CC->upl_comment);
 		quickie_message(CC->curr_user, NULL, CC->quickroom.QRname,
 				upload_notice);
-		}
+	}
 	else {
 		abort_upl(CC);
 		cprintf("%d File '%s' aborted.\n",OK,CC->upl_path);
-		}
 	}
+}
+
+
 
 /*
  * read from the download file
