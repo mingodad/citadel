@@ -143,6 +143,7 @@ void tasks_section(void) {
 		num_msgs = load_msg_ptrs("MSGS ALL");
 	}
 
+	wprintf("FIXME start tasks<br>\n");
 	if (num_msgs < 1) {
 		wprintf("<i>(None)</i><br />\n");
 	}
@@ -151,6 +152,7 @@ void tasks_section(void) {
 			display_task(WC->msgarr[i]);
 		}
 	}
+	wprintf("FIXME end tasks<br>\n");
 
 #else /* WEBCIT_WITH_CALENDAR_SERVICE */
 	wprintf("<I>(This server does not support task lists)</I>\n");
@@ -178,6 +180,7 @@ void calendar_section(void) {
 	else {
 		num_msgs = load_msg_ptrs("MSGS ALL");
 	}
+	wprintf("FIXME start calendar<br>\n");
 
 	if (num_msgs < 1) {
 		wprintf("<i>(Nothing)</i><br />\n");
@@ -188,6 +191,7 @@ void calendar_section(void) {
 		}
 		calendar_summary_view();
 	}
+	wprintf("FIXME end calendar<br>\n");
 
 #else /* WEBCIT_WITH_CALENDAR_SERVICE */
 	wprintf("<I>(This server does not support calendars)</I>\n");

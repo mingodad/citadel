@@ -41,8 +41,11 @@ void groupdav_common_headers(void) {
 /*
  * Main entry point for GroupDAV requests
  */
-void groupdav_main(struct httprequest *req) {
-
+void groupdav_main(struct httprequest *req,
+			char *dav_content_type,
+			int dav_content_length,
+			char *dav_content
+) {
 	struct httprequest *rptr;
 	char dav_method[SIZ];
 	char dav_pathname[SIZ];
@@ -61,7 +64,6 @@ void groupdav_main(struct httprequest *req) {
                         safestrncpy(dav_ifmatch, &rptr->line[10],
 				sizeof dav_ifmatch);
                 }
-
 	}
 
 	if (!WC->logged_in) {
@@ -96,8 +98,8 @@ void groupdav_main(struct httprequest *req) {
 	}
 
 	/*
-	 * The PROPFIND method is basically used to list all objects in a room,
-	 * or to list all relevant rooms on the server.
+	 * The PROPFIND method is basically used to list all objects in a
+	 * room, or to list all relevant rooms on the server.
 	 */
 	if (!strcasecmp(dav_method, "PROPFIND")) {
 		groupdav_propfind(dav_pathname);
@@ -105,10 +107,19 @@ void groupdav_main(struct httprequest *req) {
 	}
 
 	/*
-	 * We like the GET method ... it's nice and simple.
+	 * The GET method is used for fetching individual items.
 	 */
 	if (!strcasecmp(dav_method, "GET")) {
 		groupdav_get(dav_pathname);
+		return;
+	}
+
+	/*
+	 * The PUT method is used to add or modify items.
+	 */
+	if (!strcasecmp(dav_method, "PUT")) {
+		groupdav_put(dav_pathname, dav_ifmatch,
+				dav_content_type, dav_content);
 		return;
 	}
 
