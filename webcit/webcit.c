@@ -289,11 +289,14 @@ void output_headers(int controlcode)
 	char cookie[256];
 	int print_standard_html_head = 0;
 	int refresh30 = 0;
+	char httpnow[256];
 
 	print_standard_html_head	=	controlcode & 0x03;
 	refresh30			=	((controlcode & 0x04) >> 2);
 
 	wprintf("HTTP/1.0 200 OK\n");
+
+	httpdate(httpnow, time(NULL));
 
 	if (print_standard_html_head > 0) {
 		wprintf("Content-type: text/html\n");
@@ -301,6 +304,8 @@ void output_headers(int controlcode)
 		wprintf("Connection: close\n");
 		wprintf("Pragma: no-cache\n");
 		wprintf("Cache-Control: no-store\n");
+		wprintf("Date: %s\n"
+			"Last-modified: %s\n", httpnow, httpnow);
 	}
 	stuff_to_cookie(cookie, WC->wc_session, WC->wc_username,
 			WC->wc_password, WC->wc_roomname);
@@ -398,6 +403,7 @@ void check_for_express_messages()
 void output_static(char *what)
 {
 	char buf[4096];
+	char datebuf[256];
 	long thisblock;
 	FILE *fp;
 	struct stat statbuf;
@@ -428,6 +434,13 @@ void output_static(char *what)
 		bytes = statbuf.st_size;
 		fprintf(stderr, "Static: %s, %ld bytes\n", what, bytes);
 		wprintf("Content-length: %ld\n", (long) bytes);
+
+		httpdate(datebuf, time(NULL));
+		wprintf("Date: %s\n", datebuf);
+
+		httpdate(datebuf, statbuf.st_mtime);
+		wprintf("Last-modified: %s\n", datebuf);
+
 		wprintf("\n");
 		while (bytes > 0) {
 			thisblock = sizeof(buf);

@@ -124,7 +124,7 @@ void whobbs(void)
 			}
 			if (wlist->sessionnum == serv_info.serv_pid) {
 				wprintf(" <A HREF=\"/edit_me\" "
-					"TARGET=\"_parent\">(edit)</A>");
+					">(edit)</A>");
 			}
 			/* username */
 			wprintf("</TD>\n\t<TD>");
@@ -145,6 +145,7 @@ void whobbs(void)
 	wprintf("<TABLE BORDER=0 BGCOLOR=\"#003399\">\n<TR><TD ALIGN=center VALIGN=center CELLPADING=20>\n");
 	wprintf("<B><A HREF=\"javascript:window.close();\">Close window</A></B>\n");
 	wprintf("</TD></TR>\n</TABLE></FONT>\n</CENTER>");
+
 	wDumpContent(1);
 }
 
@@ -183,7 +184,7 @@ void edit_me(void)
 		whobbs();
 	} else {
 
-		output_headers(1);
+		output_headers(3);
 
 		wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
 		wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"><B>");

@@ -27,6 +27,14 @@
 #include "webcit.h"
 
 
+char *ascmonths[] = {
+	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+};
+
+char *ascdays[] = {
+	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+};
 
 
 char *safestrncpy(char *dest, const char *src, size_t n)
@@ -139,11 +147,6 @@ char ch;
 void fmt_date(char *buf, time_t thetime) {
 	struct tm *tm;
 
-	char *ascmonths[] = {
-		"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-	};
-
 	strcpy(buf, "");
 	tm = localtime(&thetime);
 
@@ -156,3 +159,34 @@ void fmt_date(char *buf, time_t thetime) {
 		( (tm->tm_hour > 12) ? "pm" : "am" )
 	);
 }
+
+
+
+
+/*
+ * Format a date/time stamp to the format used in HTTP headers
+ */
+void httpdate(char *buf, time_t thetime) {
+	struct tm *tm;
+
+	strcpy(buf, "");
+	tm = localtime(&thetime);
+
+	sprintf(buf, "%s, %02d %s %4d %02d:%02d:%02d",
+		ascdays[tm->tm_wday],
+		tm->tm_mday,
+		ascmonths[tm->tm_mon],
+		tm->tm_year + 1900,
+		tm->tm_hour,
+		tm->tm_min,
+		tm->tm_sec
+	);
+}
+
+
+
+
+
+
+
+

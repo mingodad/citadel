@@ -257,4 +257,5 @@ void mime_parser(char *content,
                    void *cbcontent,                                                                char *cbtype,                                                                   size_t cblength)
 );
 void fmt_date(char *buf, time_t thetime);
+void httpdate(char *buf, time_t thetime);
 void end_webcit_session(void);
