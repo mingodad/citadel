@@ -2,6 +2,7 @@
 #
 # run me after checking Citadel out of CVS.
 #
+aclocal
+libtoolize --force
 autoconf
 autoheader
-libtoolize
