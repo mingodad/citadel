@@ -151,9 +151,12 @@ int CtdlIPCTryPassword(const char *passwd, char *cret)
 
 /*
  * Create a new user.  This returns 200 plus the same arguments as TryPassword
- * unless there was a problem creating the account.
+ * if selfservice is nonzero, unless there was a problem creating the account.
+ * If selfservice is zero, creates a new user but does not log out the existing
+ * user - intended for use by system administrators to create accounts on
+ * behalf of other users.
  */
-int CtdlIPCCreateUser(const char *username, char *cret)
+int CtdlIPCCreateUser(const char *username, int selfservice, char *cret)
 {
 	register int ret;
 	char *aaa;
@@ -164,7 +167,7 @@ int CtdlIPCCreateUser(const char *username, char *cret)
 	aaa = (char *)malloc(strlen(username) + 6);
 	if (!aaa) return -1;
 
-	sprintf(aaa, "NEWU %s", username);
+	sprintf(aaa, "%s %s", selfservice ? "NEWU" : "CREU",  username);
 	ret = CtdlIPCGenericCommand(aaa, NULL, 0, NULL, NULL, cret);
 	free(aaa);
 	return ret;
@@ -1502,19 +1505,21 @@ time_t CtdlIPCServerTime(char *cret)
 
 
 /* AGUP */
-int CtdlIPCAideGetUserParameters(struct usersupp **uret, char *cret)
+int CtdlIPCAideGetUserParameters(const char *who,
+				 struct usersupp **uret, char *cret)
 {
 	register int ret;
 	char *aaa;
 
 	if (!cret) return -2;
 	if (!uret) return -2;
-	if (!*uret) return -2;
+	if (!*uret) *uret = (struct usersupp *)calloc(1, sizeof(struct usersupp));
+	if (!*uret) return -1;
 
 	aaa = (char *)malloc(strlen(uret[0]->fullname) + 6);
 	if (!aaa) return -1;
 
-	sprintf(aaa, "AGUP %s", uret[0]->fullname);
+	sprintf(aaa, "AGUP %s", who);
 	ret = CtdlIPCGenericCommand(aaa, NULL, 0, NULL, NULL, cret);
 	if (ret / 100 == 2) {
 		extract(uret[0]->fullname, cret, 0);
@@ -1658,6 +1663,22 @@ int CtdlIPCStartEncryption(char *cret)
 }
 
 
+/* QDIR */
+int CtdlIPCDirectoryLookup(const char *address, char *cret)
+{
+	char *aaa;
+
+	if (!address) return -2;
+	if (!cret) return -2;
+
+	aaa = (char *)malloc(strlen(address) + 6);
+	if (!aaa) return -1;
+
+	sprintf(aaa, "QDIR %s", address);
+	return CtdlIPCGenericCommand(aaa, NULL, 0, NULL, NULL, cret);
+}
+
+
 /*
  * Not implemented:
  * 
@@ -1723,12 +1744,12 @@ int CtdlIPCSendListing(const char *listing)
 {
 	char *text;
 
-	text = (char *)malloc(strlen(listing) + 5);
+	text = (char *)malloc(strlen(listing) + 6);
 	if (text) {
 		strcpy(text, listing);
-		if (text[strlen(text) - 1] == '\n')
+		while (text[strlen(text) - 1] == '\n')
 			text[strlen(text) - 1] = '\0';
-		strcat(text, "000");
+		strcat(text, "\n000");
 		serv_puts(text);
 		free(text);
 		text = NULL;

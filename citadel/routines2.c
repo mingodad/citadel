@@ -38,6 +38,7 @@
 #include "routines.h"
 #include "commands.h"
 #include "tools.h"
+#include "citadel_ipc.h"
 #include "messages.h"
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
@@ -95,8 +96,9 @@ void entregis(void)
 	char diruser[SIZ];
 	char dirnode[SIZ];
 	char holdemail[SIZ];
-	int a;
+	char *reg = NULL;
 	int ok = 0;
+	int r;				/* IPC response code */
 
 	strcpy(tmpname, "");
 	strcpy(tmpaddr, "");
@@ -107,26 +109,30 @@ void entregis(void)
 	strcpy(tmpemail, "");
 	strcpy(tmpcountry, "");
 
-	serv_puts("GREG _SELF_");
-	serv_gets(buf);
-	if (buf[0] == '1') {
-		a = 0;
-		while (serv_gets(buf), strcmp(buf, "000")) {
+	r = CtdlIPCGetUserRegistration(NULL, &reg, buf);
+	if (r / 100 == 1) {
+		int a = 0;
+
+		while (reg && strlen(reg) > 0) {
+
+			extract_token(buf, reg, 0, '\n');
+			remove_token(reg, 0, '\n');
+
 			if (a == 2)
 				strcpy(tmpname, buf);
-			if (a == 3)
+			else if (a == 3)
 				strcpy(tmpaddr, buf);
-			if (a == 4)
+			else if (a == 4)
 				strcpy(tmpcity, buf);
-			if (a == 5)
+			else if (a == 5)
 				strcpy(tmpstate, buf);
-			if (a == 6)
+			else if (a == 6)
 				strcpy(tmpzip, buf);
-			if (a == 7)
+			else if (a == 7)
 				strcpy(tmpphone, buf);
-			if (a == 9)
+			else if (a == 9)
 				strcpy(tmpemail, buf);
-			if (a == 10)
+			else if (a == 10)
 				strcpy(tmpcountry, buf);
 			++a;
 		}
@@ -143,12 +149,10 @@ void entregis(void)
 		ok = 1;
 		strcpy(holdemail, tmpemail);
 		strprompt("Email address", tmpemail, 31);
-		snprintf(buf, sizeof buf, "QDIR %s", tmpemail);
-		serv_puts(buf);
-		serv_gets(buf);
-		if (buf[0]=='2') {
-			extract_token(diruser, &buf[4], 0, '@');
-			extract_token(dirnode, &buf[4], 1, '@');
+		r = CtdlIPCDirectoryLookup(tmpemail, buf);
+		if (r / 100 == 2) {
+			extract_token(diruser, buf, 0, '@');
+			extract_token(dirnode, buf, 1, '@');
 			striplt(diruser);
 			striplt(dirnode);
 			if ((strcasecmp(diruser, fullname))
@@ -166,43 +170,36 @@ void entregis(void)
 	} while (ok == 0);
 
 	/* now send the registration info back to the server */
-	serv_puts("REGI");
-	serv_gets(buf);
-	if (buf[0] != '4') {
-		scr_printf("%s\n", &buf[4]);
-		return;
+	reg = (char *)realloc(reg, 4096);	/* Overkill? */
+	if (reg) {
+		sprintf(reg, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
+			tmpname, tmpaddr, tmpcity, tmpstate,
+			tmpzip, tmpphone, tmpemail, tmpcountry);
+		r = CtdlIPCSetRegistration(reg, buf);
+		if (r / 100 != 4)
+			scr_printf("%s\n", buf);
+		free(reg);
 	}
-	serv_puts(tmpname);
-	serv_puts(tmpaddr);
-	serv_puts(tmpcity);
-	serv_puts(tmpstate);
-	serv_puts(tmpzip);
-	serv_puts(tmpphone);
-	serv_puts(tmpemail);
-	serv_puts(tmpcountry);
-	serv_puts("000");
 	scr_printf("\n");
 }
 
 void updatels(void)
 {				/* make all messages old in current room */
 	char buf[SIZ];
+	int r;				/* IPC response code */
 
 	if (rc_alt_semantics) {
 		if (maxmsgnum == highest_msg_read == 0) {
 			/* err_printf("maxmsgnum == highest_msg_read == 0\n"); */
 			return;
 		}
-		snprintf(buf, sizeof(buf), "SLRP %ld",
-				(maxmsgnum > highest_msg_read) ?
-				 maxmsgnum : highest_msg_read);
-		serv_puts(buf);
+		r = CtdlIPCSetLastRead((maxmsgnum > highest_msg_read) ?
+				 maxmsgnum : highest_msg_read, buf);
 	} else {
-		serv_puts("SLRP HIGHEST");
+		r = CtdlIPCSetLastRead(0, buf);
 	}
-	serv_gets(buf);
-	if (buf[0] != '2')
-		scr_printf("%s\n", &buf[4]);
+	if (r / 100 != 2)
+		scr_printf("%s\n", buf);
 }
 
 /*
@@ -211,11 +208,10 @@ void updatels(void)
 void updatelsa(void)
 {
 	char buf[SIZ];
+	int r;				/* IPC response code */
 
-	snprintf(buf, sizeof buf, "SLRP %ld", highest_msg_read);
-	serv_puts(buf);
-	serv_gets(buf);
-	if (buf[0] != '2')
+	r = CtdlIPCSetLastRead(highest_msg_read, buf);
+	if (r / 100 != 2)
 		scr_printf("%s\n", &buf[4]);
 }
 
@@ -485,6 +481,7 @@ void val_user(char *user, int do_validate)
 	char cmd[SIZ];
 	char buf[SIZ];
 	int ax = 0;
+	int r;				/* IPC response code */
 
 	snprintf(cmd, sizeof cmd, "GREG %s", user);
 	serv_puts(cmd);
@@ -525,11 +522,9 @@ void val_user(char *user, int do_validate)
 	if (do_validate) {
 		/* now set the access level */
 		ax = intprompt("Access level", ax, 0, 6);
-		snprintf(cmd, sizeof cmd, "VALI %s|%d", user, ax);
-		serv_puts(cmd);
-		serv_gets(cmd);
-		if (cmd[0] != '2')
-			scr_printf("%s\n", &cmd[4]);
+		r = CtdlIPCValidateUser(user, ax, cmd);
+		if (r / 100 != 2)
+			scr_printf("%s\n", cmd);
 	}
 	scr_printf("\n");
 }
@@ -540,17 +535,17 @@ void validate(void)
 	char cmd[SIZ];
 	char buf[SIZ];
 	int finished = 0;
+	int r;				/* IPC response code */
 
 	do {
-		serv_puts("GNUR");
-		serv_gets(cmd);
-		if (cmd[0] != '3')
+		r = CtdlIPCNextUnvalidatedUser(cmd);
+		if (r / 100 != 3)
 			finished = 1;
-		if (cmd[0] == '2')
-			scr_printf("%s\n", &cmd[4]);
-		if (cmd[0] == '3') {
+		if (r / 100 == 2)
+			scr_printf("%s\n", cmd);
+		if (r / 100 == 3) {
 			extract(buf, cmd, 0);
-			val_user(&buf[4], 1);
+			val_user(buf, 1);
 		}
 	} while (finished == 0);
 }
@@ -581,15 +576,13 @@ void subshell(void)
 void deletefile(void)
 {
 	char filename[32];
-	char cmd[SIZ];
+	char buf[SIZ];
 
 	newprompt("Filename: ", filename, 31);
 	if (strlen(filename) == 0)
 		return;
-	snprintf(cmd, sizeof cmd, "DELF %s", filename);
-	serv_puts(cmd);
-	serv_gets(cmd);
-	err_printf("%s\n", &cmd[4]);
+	CtdlIPCDeleteFile(filename, buf);
+	err_printf("%s\n", buf);
 }
 
 /*
@@ -597,16 +590,14 @@ void deletefile(void)
  */
 void netsendfile(void)
 {
-	char filename[32], destsys[20], cmd[SIZ];
+	char filename[32], destsys[20], buf[SIZ];
 
 	newprompt("Filename: ", filename, 31);
 	if (strlen(filename) == 0)
 		return;
 	newprompt("System to send to: ", destsys, 19);
-	snprintf(cmd, sizeof cmd, "NETF %s|%s", filename, destsys);
-	serv_puts(cmd);
-	serv_gets(cmd);
-	err_printf("%s\n", &cmd[4]);
+	CtdlIPCNetSendFile(filename, destsys, buf);
+	err_printf("%s\n", buf);
 	return;
 }
 
@@ -617,17 +608,14 @@ void movefile(void)
 {
 	char filename[64];
 	char newroom[ROOMNAMELEN];
-	char cmd[SIZ];
+	char buf[SIZ];
 
 	newprompt("Filename: ", filename, 63);
 	if (strlen(filename) == 0)
 		return;
 	newprompt("Enter target room: ", newroom, ROOMNAMELEN - 1);
-
-	snprintf(cmd, sizeof cmd, "MOVF %s|%s", filename, newroom);
-	serv_puts(cmd);
-	serv_gets(cmd);
-	err_printf("%s\n", &cmd[4]);
+	CtdlIPCMoveFile(filename, newroom, buf);
+	err_printf("%s\n", buf);
 }
 
 

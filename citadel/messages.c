@@ -90,10 +90,10 @@ extern int editor_pid;
 void ka_sigcatch(int signum)
 {
 	char buf[SIZ];
+
 	alarm(S_KEEPALIVE);
 	signal(SIGALRM, ka_sigcatch);
-	serv_puts("NOOP");
-	serv_gets(buf);
+	CtdlIPCNoop();
 }
 
 
@@ -1180,6 +1180,7 @@ void readmsgs(
 	char targ[ROOMNAMELEN];
 	char filename[SIZ];
 	FILE *dest = NULL;	/* Alternate destination other than screen */
+	int r;				/* IPC response code */
 
 	if (c < 0)
 		b = (MAXMSGS - 1);
@@ -1296,9 +1297,7 @@ RMSGREAD:	scr_flush();
 		if (rc_alt_semantics && c == 1) {
 			char buf[SIZ];
 
-			snprintf(buf, sizeof(buf), "SEEN %ld", msg_arr[a]);
-			serv_puts(buf);
-			serv_gets(buf);	/* Don't need to check this? */
+			r = CtdlIPCSetMessageSeen(msg_arr[a], 1, buf);
 		}
 		if (e == 3)
 			return;
@@ -1458,19 +1457,16 @@ RMSGREAD:	scr_flush();
 			newprompt("Enter target room: ",
 				  targ, ROOMNAMELEN - 1);
 			if (strlen(targ) > 0) {
-				snprintf(cmd, sizeof cmd, "MOVE %ld|%s|%d",
-					msg_arr[a], targ,
-					(e == 'c' ? 1 : 0));
-				serv_puts(cmd);
-				serv_gets(cmd);
-				scr_printf("%s\n", &cmd[4]);
-				if (cmd[0] == '2')
+				r = CtdlIPCMoveMessage((e == 'c' ? 1 : 0),
+						       msg_arr[a], targ, cmd);
+				scr_printf("%s\n", cmd);
+				if (r / 100 == 2)
 					msg_arr[a] = 0L;
 			} else {
 				goto RMSGREAD;
 			}
-			if (cmd[0] != '2')
-				goto RMSGREAD;
+			if (r / 100 != 2)	/* r will be init'ed, FIXME */
+				goto RMSGREAD;	/* the logic here sucks */
 			break;
 		case 'f':
 			newprompt("Which section? ", filename,
@@ -1491,11 +1487,9 @@ RMSGREAD:	scr_flush();
 		case 'd':
 			scr_printf("*** Delete this message? ");
 			if (yesno() == 1) {
-				snprintf(cmd, sizeof cmd, "DELE %ld", msg_arr[a]);
-				serv_puts(cmd);
-				serv_gets(cmd);
-				scr_printf("%s\n", &cmd[4]);
-				if (cmd[0] == '2')
+				r = CtdlIPCDeleteMessage(msg_arr[a], cmd);
+				scr_printf("%s\n", cmd);
+				if (r / 100 == 2)
 					msg_arr[a] = 0L;
 			} else {
 				goto RMSGREAD;

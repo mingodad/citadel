@@ -345,7 +345,6 @@ void set_keepalives(int s)
 
 static time_t idlet = 0;
 static void really_do_keepalive(void) {
-	char buf[1024];
 	int r;				/* IPC response code */
 
 	time(&idlet);
@@ -646,7 +645,7 @@ int boolprompt(char *prompt, int prev_val)
 	color(DIM_WHITE);
 	scr_printf("%s ", prompt);
 	color(DIM_MAGENTA);
-	scr_printf(" [");
+	scr_printf("[");
 	color(BRIGHT_MAGENTA);
 	scr_printf("%s", (prev_val ? "Yes" : "No"));
 	color(DIM_MAGENTA);

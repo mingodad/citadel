@@ -515,6 +515,8 @@ void forget_all_rooms_on(int ffloor)
 {
 	char buf[SIZ];
 	struct march *flist, *fptr;
+	struct ctdlipcroom *roomrec;	/* Ignored */
+	int r;				/* IPC response code */
 
 	scr_printf("Forgetting all rooms on %s...\r", &floorlist[ffloor][0]);
 	scr_flush();
@@ -533,12 +535,9 @@ void forget_all_rooms_on(int ffloor)
 		extract(fptr->march_name, buf, 0);
 	}
 	while (flist != NULL) {
-		snprintf(buf, sizeof buf, "GOTO %s", flist->march_name);
-		serv_puts(buf);
-		serv_gets(buf);
-		if (buf[0] == '2') {
-			serv_puts("FORG");
-			serv_gets(buf);
+		r = CtdlIPCGotoRoom(flist->march_name, "", &roomrec, buf);
+		if (r / 100 == 2) {
+			r = CtdlIPCForgetRoom(buf);
 		}
 		fptr = flist;
 		flist = flist->next;

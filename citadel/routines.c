@@ -38,6 +38,8 @@
 #ifdef HAVE_UTMPX_H
 #include <utmpx.h>
 #endif
+#include "citadel.h"
+#include "citadel_ipc.h"
 #include "screen.h"
 
 #ifndef HAVE_GETUTLINE
@@ -104,75 +106,52 @@ void hit_any_key(void) {		/* hit any key to continue */
 void edituser(void)
 {
 	char buf[SIZ];
-	char who[SIZ];
-	char pass[SIZ];
-	int flags;
-	int timescalled;
-	int posted;
-	int axlevel;
-	long usernum;
-	time_t lastcall;
-	int userpurge;
+	char who[USERNAME_SIZE];
+	struct usersupp *user = NULL;
 	int newnow = 0;
+	int r;				/* IPC response code */
 
-	newprompt("User name: ",who,25);
-AGUP:	snprintf(buf, sizeof buf, "AGUP %s",who);
-	serv_puts(buf);
-	serv_gets(buf);
-	if (buf[0]!='2') {
-		scr_printf("%s\n",&buf[4]);
+	newprompt("User name: ", who, 25);
+	while ((r = CtdlIPCAideGetUserParameters(who, &user, buf)) / 100 != 2) {
+		scr_printf("%s\n", buf);
 		scr_printf("Do you want to create this user? ");
 		if (yesno()) {
-			snprintf(buf, sizeof buf, "CREU %s", who);
-			serv_puts(buf);
-			serv_gets(buf);
-			if (buf[0] == '2') {
+			r = CtdlIPCCreateUser(who, 0, buf);
+			if (r / 100 == 2) {
 				newnow = 1;
-				goto AGUP;
+				continue;
 			}
 			scr_printf("%s\n",&buf[4]);
-			return;
 		}
+		free(user);
 		return;
 	}
-	extract(who, &buf[4], 0);
-	extract(pass, &buf[4], 1);
-	flags = extract_int(&buf[4], 2);
-	timescalled = extract_int(&buf[4], 3);
-	posted = extract_int(&buf[4], 4);
-	axlevel = extract_int(&buf[4], 5);
-	usernum = extract_long(&buf[4], 6);
-	lastcall = extract_long(&buf[4], 7);
-	userpurge = extract_int(&buf[4], 8);
 
-	val_user(who, 0); /* Display registration */
+	val_user(user->fullname, 0); /* Display registration */
 
-	if (newnow) {
-		newprompt("Password: ", pass, -19);
-	}
-	else if (boolprompt("Change password", 0)) {
-		strprompt("Password", pass, -19);
+	if (newnow || boolprompt("Change password", 0)) {	/* I'm lazy */
+		strprompt("Password", user->password, -19);
 	}
 
-	axlevel = intprompt("Access level", axlevel, 0, 6);
-	if (boolprompt("Ask user to register again", !(flags & US_REGIS)))
-		flags &= ~US_REGIS;
+	user->axlevel = intprompt("Access level", user->axlevel, 0, 6);
+	if (boolprompt("Ask user to register again", !(user->flags & US_REGIS)))
+		user->flags &= ~US_REGIS;
 	else
-		flags |= US_REGIS;
-	timescalled = intprompt("Times called", timescalled, 0, INT_MAX);
-	posted = intprompt("Messages posted", posted, 0, INT_MAX);
-	lastcall = (boolprompt("Set last call to now", 0)?time(NULL):lastcall);
-	userpurge = intprompt("Purge time (in days, 0 for system default",
-				userpurge, 0, INT_MAX);
+		user->flags |= US_REGIS;
+	user->timescalled = intprompt("Times called",
+				      user->timescalled, 0, INT_MAX);
+	user->posted = intprompt("Messages posted",
+				 user->posted, 0, INT_MAX);
+	user->lastcall = boolprompt("Set last call to now", 0) ?
+						time(NULL) : user->lastcall;
+	user->USuserpurge = intprompt("Purge time (in days, 0 for system default",
+				      user->USuserpurge, 0, INT_MAX);
 
-	snprintf(buf, sizeof buf, "ASUP %s|%s|%d|%d|%d|%d|%ld|%ld|%d",
-		who, pass, flags, timescalled, posted, axlevel, usernum,
-		(long)lastcall, userpurge);
-	serv_puts(buf);
-	serv_gets(buf);
-	if (buf[0]!='2') {
-		scr_printf("%s\n",&buf[4]);
+	r = CtdlIPCAideSetUserParameters(user, buf);
+	if (r / 100 != 2) {
+		scr_printf("%s\n", buf);
 	}
+	free(user);
 }
 
 
@@ -219,112 +198,96 @@ int set_attr(int sval, char *prompt, unsigned int sbit, int backwards)
  */
 void enter_config(int mode)
 {
- 	int width, height, flags, filter;
-	char buf[128];
+	char buf[SIZ];
+	struct usersupp *user = NULL;
+	int r;				/* IPC response code */
 
-	snprintf(buf, sizeof buf, "GETU");
-	serv_puts(buf);
-	serv_gets(buf);
-	if (buf[0]!='2') {
-		scr_printf("%s\n",&buf[4]);
+	r = CtdlIPCGetConfig(&user, buf);
+	if (r / 100 != 2) {
+		scr_printf("%s\n", buf);
+		free(user);
 		return;
 	}
 
-	width = extract_int(&buf[4],0);
-	height = extract_int(&buf[4],1);
-	flags = extract_int(&buf[4],2);
-	filter = extract_int(&buf[4],3);
+	if (mode == 0 || mode == 1) {
 
-	if ((mode==0)||(mode==1)) {
-
-	 width = intprompt("Enter your screen width",width,20,255);
-	 height = intprompt("Enter your screen height",height,3,255);
+		user->USscreenwidth = intprompt("Enter your screen width",
+						user->USscreenwidth, 20, 255);
+		user->USscreenheight = intprompt("Enter your screen height",
+						 user->USscreenheight, 3, 255);
  
-	 flags = set_attr(flags,
-		"Are you an experienced Citadel user",
-		US_EXPERT,
-		0);
-	 if ( ((flags&US_EXPERT)==0) && (mode==1)) {
-		return;
-	 }
-	 flags = set_attr(flags,
-		"Print last old message on New message request",
-		US_LASTOLD,
-		0);
-
-	 flags = set_attr(flags,
-		"Prompt after each message",
-		US_NOPROMPT,
-		1);
-
-	 if ((flags & US_NOPROMPT)==0)
-	    flags = set_attr(flags,
-		"Use 'disappearing' prompts",
-		US_DISAPPEAR,
-		0);
-
-	 flags = set_attr(flags,
-		"Pause after each screenful of text",
-		US_PAGINATOR,
-		0);
-
-	 if ( (rc_prompt_control == 3) && (flags & US_PAGINATOR) ) {
-		flags = set_attr(flags,
-			"<N>ext and <S>top work at paginator prompt",
-			US_PROMPTCTL,
-			0);
-	 }
-
-	 if (rc_floor_mode == RC_DEFAULT) {
-	  flags = set_attr(flags,
-		"View rooms by floor",
-		US_FLOORS,
-		0);
-	  }
-
-	 if (rc_ansi_color == 3) {
-	  flags = set_attr(flags,
-		"Enable color support",
-		US_COLOR,
-		0);
-	  }
-	
-
-	  if ((flags&US_EXPERT)==0) formout("unlisted");
-	  flags = set_attr(flags,
-		"Be unlisted in userlog",
-		US_UNLISTED,
-		0);
-
-	 }
-
-	if (mode==2) {
-	 if (flags & US_EXPERT) {
-		flags = (flags ^ US_EXPERT);
-		scr_printf("Expert mode now OFF\n");
+		user->flags = set_attr(user->flags,
+				       "Are you an experienced Citadel user",
+				       US_EXPERT, 0);
+		if ((user->flags & US_EXPERT) == 0 && mode == 1) {
+			free(user);
+			return;
 		}
-	 else {
-		flags = (flags | US_EXPERT);
-		scr_printf("Expert mode now ON\n");
-		}
-	 }
 
-	if (mode==3) {
-	 if (flags & US_FLOORS) {
-		flags = (flags ^ US_FLOORS);
-		scr_printf("Floor mode now OFF\n");
-		}
-	 else {
-		flags = (flags | US_FLOORS);
-		scr_printf("Floor mode now ON\n");
-		}
-	 }
+		user->flags = set_attr(user->flags,
+			"Print last old message on New message request",
+			US_LASTOLD, 0);
 
-	snprintf(buf, sizeof buf, "SETU %d|%d|%d|%d",width,height,flags,filter);
-	serv_puts(buf);
-	serv_gets(buf);
-	if (buf[0]!='2') scr_printf("%s\n",&buf[4]);
-	userflags = flags;
+		user->flags = set_attr(user->flags,
+				       "Prompt after each message",
+				       US_NOPROMPT, 1);
+
+		if ((user->flags & US_NOPROMPT) == 0)
+			user->flags = set_attr(user->flags,
+					       "Use 'disappearing' prompts",
+					       US_DISAPPEAR, 0);
+
+		user->flags = set_attr(user->flags,
+				       "Pause after each screenful of text",
+				       US_PAGINATOR, 0);
+
+		if (rc_prompt_control == 3 && (user->flags & US_PAGINATOR))
+			user->flags = set_attr(user->flags,
+				"<N>ext and <S>top work at paginator prompt",
+				US_PROMPTCTL, 0);
+
+		if (rc_floor_mode == RC_DEFAULT)
+			user->flags = set_attr(user->flags,
+					       "View rooms by floor",
+					       US_FLOORS, 0);
+
+		if (rc_ansi_color == 3)
+			user->flags = set_attr(user->flags,
+					       "Enable color support",
+					       US_COLOR, 0);
+
+	 	if ((user->flags & US_EXPERT) == 0)
+			formout("unlisted");
+
+		user->flags = set_attr(user->flags,
+				       "Be unlisted in userlog",
+				       US_UNLISTED, 0);
+	}
+
+	if (mode == 2) {
+		if (user->flags & US_EXPERT) {
+			user->flags ^= US_EXPERT;
+			scr_printf("Expert mode now OFF\n");
+		} else {
+			user->flags |= US_EXPERT;
+			scr_printf("Expert mode now ON\n");
+		}
+	}
+
+	if (mode == 3) {
+		if (user->flags & US_FLOORS) {
+			user->flags ^= US_FLOORS;
+			scr_printf("Floor mode now OFF\n");
+		} else {
+			user->flags |= US_FLOORS;
+			scr_printf("Floor mode now ON\n");
+		}
+	}
+
+	r = CtdlIPCSetConfig(user, buf);
+	if (r / 100 != 2) scr_printf("%s\n", buf);
+	userflags = user->flags;
+	free(user);
 }
 
 /*
