@@ -355,41 +355,6 @@ int haschar(const char *st, int ch)
 
 
 
-/*
- * Compare two strings, insensitive to case, punctuation, and non-alnum chars
- */
-int collapsed_strcmp(char *s1, char *s2) {
-	char *c1, *c2;
-	int i, ret, pos;
-
-	c1 = malloc(strlen(s1)+1);
-	c2 = malloc(strlen(s2)+1);
-	c1[0] = 0;
-	c2[0] = 0;
-
-	pos = 0;
-	for (i=0; i<strlen(s1); ++i) {
-		if (isalnum(s1[i])) {
-			c1[pos] = tolower(s1[i]);
-			c1[++pos] = 0;
-		}
-	}
-
-	pos = 0;
-	for (i=0; i<strlen(s2); ++i) {
-		if (isalnum(s2[i])) {
-			c2[pos] = tolower(s2[i]);
-			c2[++pos] = 0;
-		}
-	}
-
-	ret = strcmp(c1, c2);
-	free(c1);
-	free(c2);
-	return(ret);
-}
-
-
 
 /*
  * Format a date/time stamp for output 

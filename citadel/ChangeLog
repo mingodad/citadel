@@ -1,4 +1,9 @@
  $Log$
+ Revision 605.35  2003/04/15 02:44:02  ajc
+ * Do not allow incoming network polls while an outbound network processing
+   session is in progress.
+ * tools.c: removed collapsed_strcmp() as it is no longer used anywhere
+
  Revision 605.34  2003/04/08 04:03:37  ajc
  * Implemented the ".SILENT" protocol option in IMAP STORE.  Certain apps seem
    to want to use it.
@@ -4628,3 +4633,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -9,7 +9,6 @@ void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen);
 int CtdlDecodeBase64(char *dest, const char *source, size_t length);
 void striplt(char *);
 int haschar(const char *st, int ch);
-int collapsed_strcmp(char *s1, char *s2);
 void remove_token(char *source, unsigned long parmnum, char separator);
 void fmt_date(char *buf, size_t n, time_t thetime, int seconds);
 int is_msg_in_mset(char *mset, long msgnum);

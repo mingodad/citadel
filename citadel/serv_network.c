@@ -17,11 +17,6 @@
  */
 
 /*
- * FIXME
- * Don't allow polls during network processing
- */
-
-/*
  * Duration of time (in seconds) after which pending list subscribe/unsubscribe
  * requests that have not been confirmed will be deleted.
  */
@@ -74,6 +69,8 @@
 #include "snprintf.h"
 #endif
 
+/* Nonzero while we are doing outbound network processing */
+static int doing_queue = 0;
 
 /*
  * When we do network processing, it's accomplished in two passes; one to
@@ -1471,7 +1468,6 @@ void network_poll_other_citadel_nodes(void) {
  * Run through the rooms doing various types of network stuff.
  */
 void network_do_queue(void) {
-	static int doing_queue = 0;
 	static time_t last_run = 0L;
 	struct RoomProcList *ptr;
 
@@ -1541,6 +1537,11 @@ void cmd_netp(char *cmdbuf)
 
 	char secret[SIZ];
 	char nexthop[SIZ];
+
+	if (doing_queue) {
+		cprintf("%d spooling - try again in a few minutes\n", ERROR);
+		return;
+	}
 
 	extract(node, cmdbuf, 0);
 	extract(pass, cmdbuf, 1);
