@@ -1,4 +1,9 @@
  $Log$
+ Revision 606.2  2003/05/22 13:34:30  ajc
+ * database_sleepycat.c: added a couple of diagnostic messages to help
+   troubleshoot problems with db-4.1.25 on Red Hat Linux 9
+ * room_ops.c: call mkdir() instead of system() to create a directory
+
  Revision 606.1  2003/05/20 01:28:50  error
  * citadel.c: don't truncate roomname when user is idle, in long who list;
    display idle time in short who list
@@ -4714,3 +4719,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

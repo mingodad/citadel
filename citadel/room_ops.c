@@ -1326,10 +1326,9 @@ void cmd_setr(char *args)
 
 	/* Create a room directory if necessary */
 	if (CC->quickroom.QRflags & QR_DIRECTORY) {
-		snprintf(buf, sizeof buf,
-		    "mkdir ./files/%s </dev/null >/dev/null 2>/dev/null",
+		snprintf(buf, sizeof buf, "./files/%s",
 			CC->quickroom.QRdirname);
-		system(buf);
+		mkdir(buf, 0755);
 	}
 	snprintf(buf, sizeof buf, "%s> edited by %s\n", CC->quickroom.QRname, CC->curr_user);
 	aide_message(buf);

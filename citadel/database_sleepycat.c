@@ -277,18 +277,23 @@ void open_databases(void)
 	int i;
 	char dbfilename[SIZ];
 	u_int32_t flags = 0;
+	char dbdirname[PATH_MAX];
+
+	getcwd(dbdirname, sizeof dbdirname);
+	strcat(dbdirname, "/data");
 
 	lprintf(9, "cdb_*: open_databases() starting\n");
-	lprintf(5, "%s\n", db_version(NULL, NULL, NULL));
+	lprintf(9, "Compiled db: %s\n", DB_VERSION_STRING);
+	lprintf(5, "  Linked db: %s\n", db_version(NULL, NULL, NULL));
 #ifdef HAVE_ZLIB
-	lprintf(5, "zlib compression version %s\n", zlibVersion());
+	lprintf(5, "Linked zlib: %s\n", zlibVersion());
 #endif
 
         /*
          * Silently try to create the database subdirectory.  If it's
          * already there, no problem.
          */
-        system("exec mkdir data 2>/dev/null");
+	mkdir(dbdirname, 0700);
 
 	lprintf(9, "cdb_*: Setting up DB environment\n");
 	db_env_set_func_yield(sched_yield);
@@ -318,7 +323,8 @@ void open_databases(void)
 
         flags = DB_CREATE|DB_RECOVER|DB_INIT_MPOOL|DB_PRIVATE|DB_INIT_TXN|
 		DB_INIT_LOCK|DB_THREAD;
-        ret = dbenv->open(dbenv, "./data", flags, 0);
+	lprintf(9, "dbenv->open(dbenv, %s, %d, 0)\n", dbdirname, flags);
+        ret = dbenv->open(dbenv, dbdirname, flags, 0);
 	if (ret) {
 		lprintf(1, "cdb_*: dbenv->open: %s\n", db_strerror(ret));
                 dbenv->close(dbenv, 0);
