@@ -1,4 +1,8 @@
 $Log$
+Revision 521.1  2004/06/10 02:58:55  ajc
+* Made all the title boxes the same background color.  The old scheme was
+  cute but not professional looking.
+
 Revision 521.0  2004/06/06 19:53:25  ajc
 * THIS IS 5.21
 
@@ -1872,4 +1876,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -135,7 +135,7 @@ void display_siteconfig(void)
 	serv_printf("CONF get");
 	serv_gets(buf);
 	if (buf[0] != '1') {
-        	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
+        	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
         	wprintf("<SPAN CLASS=\"titlebar\">Error</SPAN>\n");
         	wprintf("</TD></TR></TABLE><BR>\n");
         	wprintf("%s<BR>\n", &buf[4]);

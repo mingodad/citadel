@@ -49,7 +49,7 @@ void do_listsub(void)
 	strcpy(subtype, bstr("subtype"));
 
 	wprintf("<CENTER>"
-		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#000077\"><TR><TD>"
+		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">List subscribe/unsubscribe</SPAN>\n"
 		"</TD></TR></TABLE><BR>\n"
 	);

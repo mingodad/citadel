@@ -77,7 +77,7 @@ void edit_node(void) {
 void display_add_node(void)
 {
 	output_headers(3);
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#000077\"><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">Add new node</SPAN>");
 	wprintf("</TD></TR></TABLE>\n");
 
@@ -111,7 +111,7 @@ void display_edit_node(void)
 	strcpy(node, bstr("node"));
 
 	output_headers(3);
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#000077\"><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">Edit node configuration for ");
 	escputs(node);
 	wprintf("</SPAN>\n");
@@ -161,7 +161,7 @@ void display_netconf(void)
 	char node[SIZ];
 
 	output_headers(3);
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">Network configuration</SPAN>\n");
 	wprintf("</TD></TR></TABLE>\n");
 
@@ -170,7 +170,7 @@ void display_netconf(void)
 	wprintf("Add a new node</A><BR>\n");
 	wprintf("</CENTER>");
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#000077\"><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">Currently configured nodes</SPAN>\n");
 	wprintf("</TD></TR></TABLE>\n");
 	serv_puts("CONF getsys|application/x-citadel-ignet-config");
@@ -201,7 +201,7 @@ void display_confirm_delete_node(void)
 	char node[SIZ];
 
 	output_headers(3);
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">Confirm delete</SPAN>\n");
 	wprintf("</TD></TR></TABLE>\n");
 

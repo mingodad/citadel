@@ -158,7 +158,7 @@ void page_popup(void)
 
 		extract(pagefrom, &buf[4], 3);
 
-		wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
+		wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 		wprintf("<SPAN CLASS=\"titlebar\">Instant message from ");
 		escputs(pagefrom);
 		wprintf("</SPAN></TD></TR></TABLE>\n");
