@@ -363,7 +363,11 @@ void open_databases(void)
 				dbfilename,
 				NULL,
 				DB_BTREE,
-				DB_CREATE|DB_THREAD,
+				DB_CREATE|DB_THREAD
+#if DB_VERSION_MAJOR >= 4 && DB_VERSION_MINOR >= 1
+				|DB_AUTO_COMMIT
+#endif
+				,
 				0600);
 		if (ret) {
 			lprintf(1, "cdb_*: db_open[%d]: %s\n", i, db_strerror(ret));
