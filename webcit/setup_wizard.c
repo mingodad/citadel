@@ -26,34 +26,49 @@
 #include "webcit.h"
 
 
-
 /*
  */
 void do_setup_wizard(void)
 {
+	char *step;
+	FILE *fp;
+
+	step = bstr("step");
+
+	if (!strcasecmp(step, "Finish")) {
+		fp = fopen(wizard_filename, "w");
+		if (fp != NULL) {
+			fprintf(fp, "%d\n", serv_info.serv_rev_level);
+			fclose(fp);
+		}
+		do_welcome();
+		return;
+	}
 
 	output_headers(1, 1, 2, 0, 1, 0, 0);
 
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
-	wprintf("<IMG SRC=\"/static/users-icon.gif\" ALT=\" \" ALIGN=MIDDLE>");
+	wprintf("<IMG SRC=\"/static/citadel-logo.gif\" WIDTH=64 HEIGHT=64 ALT=\" \" ALIGN=MIDDLE>");
 	wprintf("<SPAN CLASS=\"titlebar\">&nbsp;First time setup");
 	wprintf("</SPAN></TD><TD ALIGN=RIGHT>");
-	offer_start_page();
 	wprintf("</TD></TR></TABLE>\n");
 	wprintf("</div>\n"
 		"<div id=\"content\">\n");
 
-	wprintf("<div id=\"fix_scrollbar_bug\">");
+	wprintf("<div id=\"fix_scrollbar_bug\">"
+		"<form method=\"post\" action=\"/setup_wizard\">\n"
+	);
 
-	wprintf("wow");
+	wprintf("<div align=center>"
+		"This is where the setup wizard will be placed.<br>\n"
+		"For now, just click Finish.<br><br>\n"
+	);
 
-	wprintf("</div>\n"
-		"<div align=center>"
-		"Click on a name to read user info.  Click on "
-		"<IMG ALIGN=MIDDLE SRC=\"/static/page.gif\" ALT=\"(p)\" "
-		"BORDER=0> to send "
-		"a page (instant message) to that user.</div>\n");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"step\" VALUE=\"Next\">\n");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"step\" VALUE=\"Finish\">\n");
+
+	wprintf("</form></div></div>\n");
 	wDumpContent(1);
 }
 

@@ -46,7 +46,6 @@ void display_login(char *mesg)
 	char buf[SIZ];
 
 	output_headers(1, 1, 2, 0, 0, 0, 0);
-	//wprintf("<div id=\"content\">\n");
 	wprintf("<div style=\"position:absolute; top:20px; left:20px; right:20px\">\n");
 
 	if (mesg != NULL) if (strlen(mesg) > 0) {
@@ -161,29 +160,32 @@ void do_welcome(void)
 	/*
 	 * See if we have to run the first-time setup wizard
 	 */
-	if (!setup_wizard) {
-		sprintf(wizard_filename, "setupwiz.%s.%s", ctdlhost, ctdlport);
-		for (i=0; i<strlen(wizard_filename); ++i) {
-			if (	(wizard_filename[i]==' ')
-				|| (wizard_filename[i] == '/')
-			) {
-				wizard_filename[i] = '_';
+	if (WC->is_aide) {
+		if (!setup_wizard) {
+			sprintf(wizard_filename, "setupwiz.%s.%s",
+				ctdlhost, ctdlport);
+			for (i=0; i<strlen(wizard_filename); ++i) {
+				if (	(wizard_filename[i]==' ')
+					|| (wizard_filename[i] == '/')
+				) {
+					wizard_filename[i] = '_';
+				}
+			}
+	
+			fp = fopen(wizard_filename, "r");
+			if (fp != NULL) {
+				fgets(buf, sizeof buf, fp);
+				buf[strlen(buf)-1] = 0;
+				fclose(fp);
+				if (atoi(buf) == serv_info.serv_rev_level) {
+					setup_wizard = 1; /* already run */
+				}
 			}
 		}
 
-		fp = fopen(wizard_filename, "r");
-		if (fp != NULL) {
-			fgets(buf, sizeof buf, fp);
-			buf[strlen(buf)-1] = 0;
-			fclose(fp);
-			if (atoi(buf) != serv_info.serv_rev_level) {
-				setup_wizard = 1;	/* already run */
-			}
+		if (!setup_wizard) {
+			http_redirect("/setup_wizard");
 		}
-	}
-
-	if (!setup_wizard) {
-		http_redirect("/setup_wizard");
 	}
 
 	/*
