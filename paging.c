@@ -338,11 +338,18 @@ void chat_recv(void) {
 			extract_token(cl_text, buf, 1, '|');
 
 			wprintf("parent.chat_transcript.document.write('");
-			wprintf("<FONT SIZE=-1><B>");
+			wprintf("<FONT SIZE=-1>");
+			wprintf("<B>");
+			if (!strcasecmp(cl_user, WC->wc_username)) {
+				wprintf("<I>");
+			}
 			jsescputs(cl_user);
-			wprintf(":</B> ");
+			wprintf(": ");
+			if (strcasecmp(cl_user, WC->wc_username)) {
+				wprintf("</B>");
+			}
 			jsescputs(cl_text);
-			wprintf("</FONT><BR>");
+			wprintf("</I></B></FONT><BR>");
 			wprintf("'); \n");
 		}
 
@@ -362,6 +369,7 @@ void chat_recv(void) {
 void chat_send(void) {
 	int i;
 	char send_this[SIZ];
+	char buf[SIZ];
 
 	output_headers(0);
 	wprintf("Content-type: text/html\n");
@@ -383,6 +391,10 @@ void chat_send(void) {
 			strcpy(send_this, "/help");
 		}
 
+		if (!strcasecmp(bstr("sendbutton"), "List Users")) {
+			strcpy(send_this, "/who");
+		}
+
 		if (!strcasecmp(bstr("sendbutton"), "Exit")) {
 			strcpy(send_this, "/quit");
 		}
@@ -398,7 +410,21 @@ void chat_send(void) {
 		WC->serv_sock = WC->chat_sock;
 		WC->chat_sock = i;
 
-		serv_puts(send_this);
+		while (strlen(send_this) > 0) {
+			if (strlen(send_this) < 72) {
+				serv_puts(send_this);
+				strcpy(send_this, "");
+			}
+			else {
+				for (i=60; i<72; ++i) {
+					if (send_this[i] == ' ') break;
+				}
+				strncpy(buf, send_this, i);
+				buf[i] = 0;
+				strcpy(send_this, &send_this[i]);
+				serv_puts(buf);
+			}
+		}
 
 		/* Unswap the sockets. */
 		i = WC->serv_sock;
@@ -408,9 +434,12 @@ void chat_send(void) {
 	}
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/chat_send\" NAME=\"chatsendform\">\n");
-	wprintf("<INPUT TYPE=\"text\" SIZE=\"80\" MAXLENGTH=\"80\" NAME=\"send_this\">\n");
+	wprintf("<INPUT TYPE=\"text\" SIZE=\"80\" MAXLENGTH=\"%d\" "
+		"NAME=\"send_this\">\n", SIZ-10);
+	wprintf("<BR>");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sendbutton\" VALUE=\"Send\">\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sendbutton\" VALUE=\"Help\">\n");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"sendbutton\" VALUE=\"List Users\">\n");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sendbutton\" VALUE=\"Exit\">\n");
 	wprintf("</FORM>\n");
 

@@ -202,7 +202,7 @@ void do_iconbar(void) {
 			"<A HREF=\"#\" onClick=\"window.open('/chat', "
 			"'ctdl_chat_window', "
 			"'toolbar=no,location=no,directories=no,copyhistory=no,"
-			"status=yes,scrollbars=yes,resizable=yes');\""
+			"status=no,scrollbars=yes,resizable=yes');\""
 			">"
 		);
 		if (ib_displayas != IB_TEXTONLY) {
