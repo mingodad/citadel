@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.126  2003/01/25 07:37:15  error
+ * whobbs.c: Print error message if we can't connect to server
+
  Revision 601.125  2003/01/23 05:50:59  ajc
  * citadel.c: hitting enter without entering a room name in the <.G>oto and
    <.S>kip commands now does nothing instead of exhibiting undefined behavior
@@ -4447,4 +4450,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

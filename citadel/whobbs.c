@@ -69,6 +69,10 @@ int main(int argc, char **argv)
 	if (getenv("REQUEST_METHOD") != NULL) www = 1;
 
 	ipc = CtdlIPC_new(argc, argv, hostbuf, portbuf);
+	if (!ipc) {
+		fprintf(stderr, "Server not available: %s\n", strerror(errno));
+		logoff(errno);
+	}
 	CtdlIPC_getline(ipc, buf);
 	if ((buf[0]!='2')&&(strncmp(buf,"551",3))) {
 		fprintf(stderr,"%s: %s\n",argv[0],&buf[4]);
