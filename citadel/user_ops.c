@@ -99,8 +99,8 @@ int getuser(struct ctdluser *usbuf, char name[])
 		return(1);
 	}
 	memcpy(usbuf, cdbus->ptr,
-	       ((cdbus->len > sizeof(struct ctdluser)) ?
-		sizeof(struct ctdluser) : cdbus->len));
+			((cdbus->len > sizeof(struct ctdluser)) ?
+			 sizeof(struct ctdluser) : cdbus->len));
 	cdb_free(cdbus);
 
 	return (0);
@@ -352,7 +352,6 @@ int CtdlLoginExistingUser(char *trythisname)
 	char username[SIZ];
 	int found_user;
 	struct recptypes *valid = NULL;
-	struct passwd *p = NULL;
 
 	if (trythisname == NULL) return login_not_found;
 	safestrncpy(username, trythisname, sizeof username);
@@ -385,7 +384,8 @@ int CtdlLoginExistingUser(char *trythisname)
 	 * account.
 	 */
 	if (found_user != 0) {
-		p = (struct passwd *) getpwnam(username);
+		struct passwd *p = (struct passwd *) getpwnam(username);
+
 		if (p != NULL) {
 			create_user(username, 0);
 			found_user = getuser(&CC->user, username);
@@ -776,7 +776,6 @@ int create_user(char *newusername, int become_user)
 {
 	struct ctdluser usbuf;
 	struct ctdlroom qrbuf;
-	struct passwd *p = NULL;
 	char username[SIZ];
 	char mailboxname[ROOMNAMELEN];
 	uid_t uid;
@@ -785,12 +784,15 @@ int create_user(char *newusername, int become_user)
 	strproc(username);
 
 #ifdef ENABLE_AUTOLOGIN
-	p = (struct passwd *) getpwnam(username);
-	if (p != NULL) {
-		extract_token(username, p->pw_gecos, 0, ',');
-		uid = p->pw_uid;
-	} else {
-		uid = (-1);
+	{
+		struct passwd *p = (struct passwd *) getpwnam(username);
+
+		if (p != NULL) {
+			extract_token(username, p->pw_gecos, 0, ',');
+			uid = p->pw_uid;
+		} else {
+			uid = (-1);
+		}
 	}
 #else
 	uid = (-1);
