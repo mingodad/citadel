@@ -1679,10 +1679,13 @@ void ical_ctdl_set_extended_msgid(char *name, char *filename, char *partnum,
 			p = ical_ctdl_get_subprop(cal, ICAL_UID_PROPERTY);
 			if (p != NULL) {
 				strcpy(imm->uid, icalproperty_get_comment(p));
+				strcpy(imm->subject,
+						icalproperty_get_comment(p));
 			}
 			p = ical_ctdl_get_subprop(cal, ICAL_SUMMARY_PROPERTY);
 			if (p != NULL) {
-				strcpy(imm->subject,
+				strcat(imm->subject, " ");
+				strcat(imm->subject,
 						icalproperty_get_comment(p));
 			}
 			p = ical_ctdl_get_subprop(cal, ICAL_DTSTART_PROPERTY);
@@ -1715,6 +1718,7 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 	char *p;
 	int a;
 	struct icalmessagemod imm;
+	int do_this_hook = 0;
 
 	/*
 	 * Only messages with content-type text/calendar
@@ -1723,10 +1727,19 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 	 * so that the message may not be posted.
 	 */
 
-	/* First determine if this is our room */
+	/* First determine if this is the user's calendar or tasks room */
+	do_this_hook = 0;
 	MailboxName(roomname, sizeof roomname, &CC->user, USERCALENDARROOM);
-	if (strcasecmp(roomname, CC->room.QRname)) {
-		return 0;	/* It's not the Calendar room. */
+	if (!strcasecmp(roomname, CC->room.QRname)) {
+		do_this_hook = 1;
+	}
+	MailboxName(roomname, sizeof roomname, &CC->user, USERTASKSROOM);
+	if (!strcasecmp(roomname, CC->room.QRname)) {
+		do_this_hook = 1;
+	}
+
+	if (!do_this_hook) {
+		return;		/* Not a vCalendar-centric room */
 	}
 
 	/* Then determine content-type of the message */
