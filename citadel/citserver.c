@@ -174,18 +174,17 @@ void master_cleanup(int exitcode) {
 void deallocate_user_data(struct CitContext *con)
 {
 	struct CtdlSessData *ptr;
+	int i;
 
-	begin_critical_section(S_SESSION_TABLE);
 	while (con->FirstSessData != NULL) {
-		lprintf(CTDL_DEBUG, "Deallocating user data symbol %ld\n",
-			con->FirstSessData->sym_id);
-		if (con->FirstSessData->sym_data != NULL)
+		lprintf(CTDL_DEBUG, "Deallocating user data symbol #%d\n", i++);
+		if (con->FirstSessData->sym_data != NULL) {
 			free(con->FirstSessData->sym_data);
+		}
 		ptr = con->FirstSessData->next;
 		free(con->FirstSessData);
 		con->FirstSessData = ptr;
 	}
-	end_critical_section(S_SESSION_TABLE);
 }
 
 
