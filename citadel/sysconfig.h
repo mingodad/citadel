@@ -97,6 +97,12 @@
 #define SMTP_GIVE_UP		259200	/* give up after 3 days */
 
 
+/* 
+ * Pathname template to use for Unix domain sockets
+ */
+#define USOCKPATH		"/tmp/citadel%04x"
+
+
 /*
  * The names of rooms which are automatically created by the system
  */

@@ -26,6 +26,7 @@
 #include <limits.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <sys/un.h>
 #include <string.h>
 #include <pwd.h>
 #include <errno.h>
@@ -259,24 +260,40 @@ void end_critical_section(int which_one)
 /*
  * This is a generic function to set up a master socket for listening on
  * a TCP port.  The server shuts down if the bind fails.
+ *
+ * If a negative number is specified, a Unix domain socket is created.
  */
 int ig_tcp_server(int port_number, int queue_len)
 {
 	struct sockaddr_in sin;
+	struct sockaddr_un addr;
 	int s, i;
+	int is_unix = 0;
 
-	memset(&sin, 0, sizeof(sin));
-	sin.sin_family = AF_INET;
-	sin.sin_addr.s_addr = INADDR_ANY;
-
-	if (port_number == 0) {
-		lprintf(1, "citserver: illegal port number specified\n");
-		return(-1);
+	if (port_number < 0) {
+		is_unix = 1;
 	}
-	
-	sin.sin_port = htons((u_short)port_number);
 
-	s = socket(PF_INET, SOCK_STREAM, (getprotobyname("tcp")->p_proto));
+	if (is_unix) {
+		memset(&addr, 0, sizeof(addr));
+		addr.sun_family = AF_UNIX;
+		sprintf(addr.sun_path, USOCKPATH, 0-port_number);
+	}
+	else {
+		memset(&sin, 0, sizeof(sin));
+		sin.sin_family = AF_INET;
+		sin.sin_addr.s_addr = INADDR_ANY;
+		sin.sin_port = htons((u_short)port_number);
+	}
+
+	if (is_unix) {
+		s = socket(AF_UNIX, SOCK_STREAM, 0);
+	}
+	else {
+		s = socket(PF_INET, SOCK_STREAM,
+			(getprotobyname("tcp")->p_proto));
+	}
+
 	if (s < 0) {
 		lprintf(1, "citserver: Can't create a socket: %s\n",
 			strerror(errno));
@@ -284,12 +301,24 @@ int ig_tcp_server(int port_number, int queue_len)
 	}
 
 	/* Set the SO_REUSEADDR socket option, because it makes sense. */
-	i = 1;
-	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
+	if (!is_unix) {
+		i = 1;
+		setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
+	}
 
-	if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
-		lprintf(1, "citserver: Can't bind: %s\n", strerror(errno));
-		return(-1);
+	if (is_unix) {
+		if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+			lprintf(1, "citserver: Can't bind: %s\n",
+				strerror(errno));
+			return(-1);
+		}
+	}
+	else {
+		if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
+			lprintf(1, "citserver: Can't bind: %s\n",
+				strerror(errno));
+			return(-1);
+		}
 	}
 
 	if (listen(s, queue_len) < 0) {
@@ -502,6 +531,7 @@ int client_gets(char *buf)
  */
 void sysdep_master_cleanup(void) {
 	struct ServiceFunctionHook *serviceptr;
+	char sockpath[256];
 
 	/*
 	 * close all protocol master sockets
@@ -511,6 +541,13 @@ void sysdep_master_cleanup(void) {
 		lprintf(3, "Closing listener on port %d\n",
 			serviceptr->tcp_port);
 		close(serviceptr->msock);
+
+		/* If it's a Unix domain socket, remove the file. */
+		if (serviceptr->tcp_port < 0) {
+			sprintf(sockpath, USOCKPATH, 0-(serviceptr->tcp_port));
+			lprintf(9, "Removing <%s>\n", sockpath);
+			unlink(sockpath);
+		}
 	}
 }
 
@@ -829,7 +866,10 @@ int main(int argc, char **argv)
 	/*
 	 * Bind the server to our favorite ports.
 	 */
-	CtdlRegisterServiceHook(config.c_port_number,
+	CtdlRegisterServiceHook(config.c_port_number,		/* TCP */
+				citproto_begin_session,
+				do_command_loop);
+	CtdlRegisterServiceHook(0-config.c_port_number,		/* Unix */
 				citproto_begin_session,
 				do_command_loop);
 

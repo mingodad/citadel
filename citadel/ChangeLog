@@ -1,4 +1,7 @@
 $Log$
+Revision 1.478  2000/03/05 07:33:23  ajc
+* Added support for protocols over Unix domain sockets.
+
 Revision 1.477  2000/03/04 22:36:23  ajc
 * Remove nulls appended to editor files during replace, edit, and print
   operations.  Truncate temp files during same operations.
@@ -1696,4 +1699,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
