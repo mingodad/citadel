@@ -1,3 +1,11 @@
+1998-09-30 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* Makefile.in: new variable PTHREAD_DEFS for portability
+	* aidepost.c, citadel.c, citmail.c, mailinglist.c, msgform.c,
+	  netmailer.c, netpoll.c, netproc.c, rcit.c, readlog.c, setup.c,
+	  stats.c, userlist.c, whobbs.c: return type of main() is int
+	* citadel.c, commands.c, messages.c: use time_t properly
+	* citserver.c: include <limits.h>
+
 Tue Sep 29 23:17:34 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* room_ops.c: modified usergoto() to look at the new data structures
 	  for counting new messages and such.

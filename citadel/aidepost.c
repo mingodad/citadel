@@ -41,7 +41,7 @@ void make_message(char *filename)
 	fclose(fp);
 	}
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	char tempbase[32];
 	char temptmp[64];

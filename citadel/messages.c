@@ -191,7 +191,7 @@ void citedit(FILE *fp, long int base_pos)
 	struct cittext *ptr;
 	char wordbuf[MAXWORDBUF];
 	char buf[256];
-	long last_server_msg,now;
+	time_t last_server_msg,now;
 
 	/*
 	 * we're going to keep track of the last time we talked to
@@ -332,7 +332,7 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 	char buf[256];
 	char m_subject[256];
 	char from[256];
-	long now;
+	time_t now;
 	struct tm *tm;
 	int format_type = 0;
 	int fr = 0;
@@ -532,7 +532,8 @@ int make_message(char *filename, char *recipient, int anon_type, int format_type
 { 
 	FILE *fp, *atpipe;
 	int a,b,e_ex_code;
-	long now,beg;
+	time_t now;
+	long beg;
 	char datestr[64];
 	int cksum = 0;
 	struct AttachedFile *AttachList = NULL;
@@ -665,7 +666,7 @@ MECR2:	b=inkey();
 		printf("attach File\n");
 		if (strlen(boundary)==0) {
 			sprintf(boundary, "Citadel-Attachment-%ld.%d",
-				time(NULL), getpid() );
+				(long)time(NULL), getpid() );
 			}
 		newprompt("Filename: ", buf, 68);
 		if (access(buf, R_OK)==0) {

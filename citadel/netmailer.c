@@ -158,7 +158,7 @@ BONFGM:	b=getc(fp); if (b<0) goto END;
 	goto BONFGM;
 	}
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	int a;
 	FILE *fp,*rmail;

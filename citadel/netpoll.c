@@ -204,7 +204,7 @@ ABORTUPL:
 
 
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	char buf[256];
 	char remote_nodename[32];

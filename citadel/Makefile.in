@@ -24,6 +24,7 @@ CFLAGS=@CFLAGS@ @DEFS@
 CC=@CC@
 SERVER_LFLAGS=@LIBS@
 CURSES=@CURSES@
+PTHREAD_DEFS=-D_REENTRANT
 
 client: $(CLIENT_TARGETS)
 
@@ -90,58 +91,58 @@ citserver: citserver.o user_ops.o support.o room_ops.o file_ops.o \
 		$(LFLAGS) $(SERVER_LFLAGS) -o citserver
 
 citserver.o: citserver.c
-	$(CC) $(CFLAGS) -D_REENTRANT -c citserver.c
+	$(CC) $(CFLAGS) $(PTHREAD_DEFS) -c citserver.c
 
 user_ops.o: user_ops.c
-	$(CC) $(CFLAGS) -D_REENTRANT -c user_ops.c
+	$(CC) $(CFLAGS) $(PTHREAD_DEFS) -c user_ops.c
 
 room_ops.o: room_ops.c
-	$(CC) $(CFLAGS) -D_REENTRANT -c room_ops.c
+	$(CC) $(CFLAGS) $(PTHREAD_DEFS) -c room_ops.c
 
 dynloader.o: dynloader.c
-	$(CC) $(CFLAGS) -D_REENTRANT -c dynloader.c
+	$(CC) $(CFLAGS) $(PTHREAD_DEFS) -c dynloader.c
 
 file_ops.o: file_ops.c
-	$(CC) $(CFLAGS) -D_REENTRANT -c file_ops.c
+	$(CC) $(CFLAGS) $(PTHREAD_DEFS) -c file_ops.c
 
 support.o: support.c
-	$(CC) $(CFLAGS) -D_REENTRANT -c support.c
+	$(CC) $(CFLAGS) $(PTHREAD_DEFS) -c support.c
 
 msgbase.o: msgbase.c
-	$(CC) $(CFLAGS) -D_REENTRANT -c msgbase.c
+	$(CC) $(CFLAGS) $(PTHREAD_DEFS) -c msgbase.c
 
 locate_host.o: locate_host.c
-	$(CC) $(CFLAGS) -D_REENTRANT -c locate_host.c
+	$(CC) $(CFLAGS) $(PTHREAD_DEFS) -c locate_host.c
 
 modules/serv_chat.so: serv_chat.o
 	$(CC) -shared -o modules/serv_chat.so serv_chat.o
 
 serv_chat.o: serv_chat.c
-	$(CC) $(CFLAGS) -D_REENTRANT -fPIC -c serv_chat.c
+	$(CC) $(CFLAGS) $(PTHREAD_DEFS) -fPIC -c serv_chat.c
 
 modules/serv_test.so: serv_test.o
 	$(CC) -shared -o modules/serv_test.so serv_test.o
 
 serv_test.o: serv_test.c
-	$(CC) $(CFLAGS) -D_REENTRANT -fPIC -c serv_test.c
+	$(CC) $(CFLAGS) $(PTHREAD_DEFS) -fPIC -c serv_test.c
 
 housekeeping.o: housekeeping.c
-	$(CC) $(CFLAGS) -D_REENTRANT -c housekeeping.c
+	$(CC) $(CFLAGS) $(PTHREAD_DEFS) -c housekeeping.c
 
 database.o: database.c
-	$(CC) $(CFLAGS) -D_REENTRANT -c database.c
+	$(CC) $(CFLAGS) $(PTHREAD_DEFS) -c database.c
 
 control.o: control.c
-	$(CC) $(CFLAGS) -D_REENTRANT -c control.c
+	$(CC) $(CFLAGS) $(PTHREAD_DEFS) -c control.c
 
 logging.o: logging.c
-	$(CC) $(CFLAGS) -D_REENTRANT -c logging.c
+	$(CC) $(CFLAGS) $(PTHREAD_DEFS) -c logging.c
 
 config.o: config.c
-	$(CC) $(CFLAGS) -D_REENTRANT -c config.c
+	$(CC) $(CFLAGS) $(PTHREAD_DEFS) -c config.c
 
 sysdep.o: sysdep.c
-	$(CC) $(CFLAGS) -D_REENTRANT -c sysdep.c
+	$(CC) $(CFLAGS) $(PTHREAD_DEFS) -c sysdep.c
 
 aidepost: aidepost.o config.o
 	$(CC) $(CFLAGS) aidepost.o config.o $(LFLAGS) -o aidepost

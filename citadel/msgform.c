@@ -41,7 +41,7 @@ char *strerror(int e)
 	}
 #endif
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	struct tm *tm;
 	int a,b,e,mtype,aflag;

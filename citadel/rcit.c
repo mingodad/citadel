@@ -68,7 +68,7 @@ GNA:	strcpy(aaa,""); strcpy(bbb,"");
 	}
 
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	char aaa[128],bbb[128],ccc[128];
 	char author[128],recipient[128],room[128],node[128],path[512];

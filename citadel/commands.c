@@ -111,8 +111,8 @@ void set_keepalives(int s)
  */
 void do_keepalive(void) {
 	char buf[256];
-	static long idlet = 0L;
-	long now;
+	static time_t idlet = 0;
+	time_t now;
 
 	time(&now);
 	if ((now - idlet) < ((long)S_KEEPALIVE)) return;
@@ -141,7 +141,7 @@ int inkey(void) {		/* get a character from the keyboard, with   */
 	int a;		/* the watchdog timer in effect if necessary */
         fd_set rfds;
         struct timeval tv;
-	long start_time, now;
+	time_t start_time, now;
 	char inbuf[2];
 
 	time(&start_time);

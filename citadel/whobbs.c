@@ -66,7 +66,7 @@ void logoff(int code)
 	exit(code);
 	}
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	char buf[256];
 	char nodetitle[256];
@@ -119,7 +119,7 @@ void main(int argc, char **argv)
 
 	serv_puts("QUIT");
 	serv_gets(buf);
-	exit(0);
+	return 0;
 	}
 
 

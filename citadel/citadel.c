@@ -165,7 +165,7 @@ void userlist(void) {
 	char buf[256];
 	char fl[256];
 	struct tm *tmbuf;
-	long lc;
+	time_t lc;
 	int linecount = 2;
 
 	serv_puts("LIST");
@@ -762,7 +762,7 @@ void who_is_online(int longlist)
 					flags, extract_int(buf,0), username, roomname);
 				printf("from <%s> using <%s>, idle %ld:%02ld:%02ld\n",
 					fromhost, clientsoft,
-					idlehours, idlemins, idlesecs);
+					(long)idlehours, (long)idlemins, (long)idlesecs);
 
 				}
 			else {
@@ -784,7 +784,7 @@ void enternew(char *desc, char *buf, int maxlen)
 /*
  * main
  */
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 int a,b,mcmd;
 int termn8 = 0;

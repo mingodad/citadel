@@ -852,7 +852,7 @@ int discover_ui(void) {
 
 
 
-void main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
 	int a;
 	int curr;
 	char aaa[128];
@@ -1057,4 +1057,5 @@ NEW_INST:
 
 
 	cleanup(0);
+	return 0;
 }

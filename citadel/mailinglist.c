@@ -68,7 +68,7 @@ void xref(char *room, char *listaddr)		/* xref table */
 /*
  * The main loop.  We don't need any command-line parameters to this program.
  */
-void main(void) {
+int main(void) {
 
 	char header[3];
 	char fields[32][1024];

@@ -508,7 +508,7 @@ void deliver(char recp[], int is_test, int deliver_to_ignet) {
 
 
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	int is_test = 0;
 	int deliver_to_ignet = 0;

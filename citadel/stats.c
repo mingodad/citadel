@@ -91,7 +91,7 @@ progress (long int curr, long int max)
 
 
 
-void
+int
 main (int argc, char **argv)
 {
   time_t LogTime;
@@ -368,4 +368,5 @@ main (int argc, char **argv)
       exit (0);
  */
     }
+    return 0;
 }

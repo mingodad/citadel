@@ -14,7 +14,7 @@
 void get_config (void);
 struct config config;
 
-void 
+int 
 main (int argc, char **argv)
 {
   time_t LogTime;

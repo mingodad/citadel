@@ -1205,7 +1205,7 @@ void np_attach_to_server(void) {
 /*
  * main
  */
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	char allst[32];
 	FILE *allfp;
@@ -1268,5 +1268,6 @@ void main(int argc, char **argv)
 	rewrite_syslist();
 	printf("netproc: processing ended.\n");
 	cleanup(0);
+	return 0;
 	}
 
