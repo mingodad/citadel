@@ -26,9 +26,7 @@ void display_login(char *mesg) {
 	char buf[256];
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers();
-
-	wprintf("<HTML><BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+	output_headers(1);
 
 	/* Da banner */
 	wprintf("<CENTER><TABLE border=0 width=100%><TR><TD>\n");
@@ -147,8 +145,7 @@ void do_login(void) {
 
 void do_welcome(void) {
 	printf("HTTP/1.0 200 OK\n");
-	output_headers();
-	wprintf("<HTML><BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+	output_headers(1);
 	wprintf("<CENTER><H1>");
 	escputs(wc_username);
 	wprintf("</H1>\n");
@@ -175,11 +172,10 @@ void do_logout(void) {
 	strcpy(wc_port, "");
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers();
 	printf("X-WebCit-Session: close\n");
-	
-	wprintf("<HTML><HEAD><TITLE>Goodbye</TITLE></HEAD><BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\"><CENTER>\n");
+	output_headers(1);
 
+	wprintf("<CENTER>");	
 	serv_puts("MESG goodbye");
 	serv_gets(buf);
 
