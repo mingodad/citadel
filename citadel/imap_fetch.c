@@ -156,13 +156,9 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 		 * Load the message into a temp file for translation
 		 * and measurement
 		 */
-		TRACE;
 		CtdlRedirectOutput(tmp, -1);
-		TRACE;
 		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
-		TRACE;
 		CtdlRedirectOutput(NULL, -1);
-		TRACE;
 
 		IMAP->cached_fetch = tmp;
 		IMAP->cached_msgnum = msgnum;
@@ -581,37 +577,28 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 			return;
 		}
 		msg = CtdlFetchMessage(msgnum, 1);
-TRACE;
 	}
 
 	/* Now figure out what the client wants, and get it */
-TRACE;
 
 	if (IMAP->cached_body != NULL) {
 		tmp = IMAP->cached_body;
-TRACE;
 	}
 	else if ( (!strcmp(section, "1")) && (msg->cm_format_type != 4) ) {
-TRACE;
 		CtdlRedirectOutput(tmp, -1);
 		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
 						HEADERS_NONE, 0, 1);
 		CtdlRedirectOutput(NULL, -1);
-TRACE;
 	}
 
 	else if (!strcmp(section, "")) {
-TRACE;
 		CtdlRedirectOutput(tmp, -1);
-TRACE;
 		lprintf(CTDL_DEBUG, "calling CtdlOutputPreLoadedMsg()\n");
 		lprintf(CTDL_DEBUG, "msg %s null\n", ((msg == NULL) ? "is" : "is not") );
 		lprintf(CTDL_DEBUG, "msgnum is %ld\n", msgnum);
 		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
 						HEADERS_ALL, 0, 1);
-TRACE;
 		CtdlRedirectOutput(NULL, -1);
-TRACE;
 	}
 
 	/*
@@ -619,15 +606,12 @@ TRACE;
 	 * fields, strip it down.
 	 */
 	else if (!strncasecmp(section, "HEADER", 6)) {
-TRACE;
 		CtdlRedirectOutput(tmp, -1);
-TRACE;
 		lprintf(CTDL_DEBUG, "calling CtdlOutputPreLoadedMsg()\n");
 		lprintf(CTDL_DEBUG, "msg %s null\n", ((msg == NULL) ? "is" : "is not") );
 		lprintf(CTDL_DEBUG, "msgnum is %ld\n", msgnum);
 		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
 						HEADERS_ONLY, 0, 1);
-TRACE;
 		CtdlRedirectOutput(NULL, -1);
 		imap_strip_headers(tmp, section);
 	}
@@ -642,9 +626,7 @@ TRACE;
 		lprintf(CTDL_DEBUG, "msgnum is %ld\n", msgnum);
 		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
 						HEADERS_NONE, 0, 1);
-TRACE;
 		CtdlRedirectOutput(NULL, -1);
-TRACE;
 	}
 
 	/*
@@ -652,83 +634,57 @@ TRACE;
 	 * (Note value of 1 passed as 'dont_decode' so client gets it encoded)
 	 */
 	else {
-TRACE;
 		safestrncpy(imfp.desired_section, section,
 				sizeof(imfp.desired_section));
-TRACE;
 		imfp.output_fp = tmp;
-TRACE;
 
 		mime_parser(msg->cm_fields['M'], NULL,
 				*imap_load_part, NULL, NULL,
 				(void *)&imfp,
 				1);
-TRACE;
 	}
 
 
-TRACE;
 	fseek(tmp, 0L, SEEK_END);
-TRACE;
 	bytes_remaining = ftell(tmp);
-TRACE;
 
 	if (is_partial == 0) {
-TRACE;
 		rewind(tmp);
 		cprintf("BODY[%s] {%ld}\r\n", section, bytes_remaining);
-TRACE;
 	}
 	else {
-TRACE;
 		sscanf(partial, "%ld.%ld", &pstart, &pbytes);
 		if ((bytes_remaining - pstart) < pbytes) {
 			pbytes = bytes_remaining - pstart;
 		}
-TRACE;
 		fseek(tmp, pstart, SEEK_SET);
-TRACE;
 		bytes_remaining = pbytes;
-TRACE;
 		cprintf("BODY[%s]<%ld> {%ld}\r\n",
 			section, pstart, bytes_remaining);
 	}
-TRACE;
 
 	blocksize = (long)sizeof(buf);
-TRACE;
 	while (bytes_remaining > 0L) {
-TRACE;
 		if (blocksize > bytes_remaining) blocksize = bytes_remaining;
-TRACE;
 		fread(buf, blocksize, 1, tmp);
-TRACE;
 		client_write(buf, (int)blocksize);
-TRACE;
 		bytes_remaining = bytes_remaining - blocksize;
-TRACE;
 	}
 
-TRACE;
 	/* Don't close it ... cache it! */
 	/* fclose(tmp); */
-TRACE;
 	IMAP->cached_body = tmp;
 	IMAP->cached_bodymsgnum = msgnum;
 	strcpy(IMAP->cached_bodypart, section);
-TRACE;
 
 	if (msg != NULL) {
-TRACE;
 		CtdlFreeMessage(msg);
 	}
 
 	/* Mark this message as "seen" *unless* this is a "peek" operation */
-TRACE;
 	if (is_peek == 0) {
 		CtdlSetSeen(msgnum, 1, ctdlsetseen_seen);
 	}
-TRACE;
 }
 
 /*

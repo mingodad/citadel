@@ -567,15 +567,10 @@ STARTOVER:
 				 * reply's copy will have the same address, but an updated
 				 * status.)
 				 */
-				TRACE;
 				icalcomponent_remove_property(event, e_attendee);
-				TRACE;
 				icalproperty_free(e_attendee);
-				TRACE;
 				icalcomponent_remove_property(reply, r_attendee);
-				TRACE;
 				icalcomponent_add_property(event, r_attendee);
-				TRACE;
 
 				/* Since we diddled both sets of attendees, we have to start
 				 * the iteration over again.  This will not create an infinite

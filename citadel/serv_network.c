@@ -91,14 +91,18 @@ char *working_ignetcfg = NULL;
  */
 void load_working_ignetcfg(void) {
 	char *cfg;
+	char *oldcfg;
 
 	cfg = CtdlGetSysConfig(IGNETCFG);
 	if (cfg == NULL) {
 		cfg = strdup("");
 	}
 
-	working_ignetcfg = realloc(working_ignetcfg, strlen(cfg) + 1 );
-	strcpy(working_ignetcfg, cfg);
+	oldcfg = working_ignetcfg;
+	working_ignetcfg = cfg;
+	if (oldcfg != NULL) {
+		free(oldcfg);
+	}
 }
 
 

@@ -1527,11 +1527,11 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 			"attempted|%ld\n"
 			"retry|%ld\n",
 			SPOOLMIME, instr, (long)time(NULL), (long)retry );
-		free(instr);
 		CtdlSubmitMsg(msg, NULL, SMTP_SPOOLOUT_ROOM);
 		CtdlFreeMessage(msg);
 	}
 
+	free(instr);
 }
 
 

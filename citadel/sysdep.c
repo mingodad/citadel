@@ -117,7 +117,7 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 	if (syslog_facility >= 0) {
 		if (loglevel <= verbosity) {
 			/* Hackery -IO */
-			if (CC && CC->cs_pid) {
+			if (CC->cs_pid != 0) {
 				memmove(&buf[6], buf, sizeof(buf) - 6);
 				snprintf(buf, 6, "[%3d]", CC->cs_pid);
 				buf[5] = ' ';
@@ -134,22 +134,7 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 		/* Promote to time_t; types differ on some OSes (like darwin) */
 		unixtime = tv.tv_sec;
 		localtime_r(&unixtime, &tim);
-		/*
-		 * Log provides millisecond accuracy.  If you need
-		 * microsecond accuracy and your OS supports it, change
-		 * %03ld to %06ld and remove " / 1000" after tv.tv_usec.
-		 */
-		if (CC && CC->cs_pid) {
-#if 0
-			/* Millisecond display */
-			fprintf(stderr,
-				"%04d/%02d/%02d %2d:%02d:%02d.%03ld [%3d] %s",
-				tim.tm_year + 1900, tim.tm_mon + 1,
-				tim.tm_mday, tim.tm_hour, tim.tm_min,
-				tim.tm_sec, (long)tv.tv_usec / 1000,
-				CC->cs_pid, buf);
-#endif
-			/* Microsecond display */
+		if (CC->cs_pid != 0) {
 			fprintf(stderr,
 				"%04d/%02d/%02d %2d:%02d:%02d.%06ld [%3d] %s",
 				tim.tm_year + 1900, tim.tm_mon + 1,
@@ -157,15 +142,6 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 				tim.tm_sec, (long)tv.tv_usec,
 				CC->cs_pid, buf);
 		} else {
-#if 0
-			/* Millisecond display */
-			fprintf(stderr,
-				"%04d/%02d/%02d %2d:%02d:%02d.%03ld %s",
-				tim.tm_year + 1900, tim.tm_mon + 1,
-				tim.tm_mday, tim.tm_hour, tim.tm_min,
-				tim.tm_sec, (long)tv.tv_usec / 1000, buf);
-#endif
-			/* Microsecond display */
 			fprintf(stderr,
 				"%04d/%02d/%02d %2d:%02d:%02d.%06ld %s",
 				tim.tm_year + 1900, tim.tm_mon + 1,

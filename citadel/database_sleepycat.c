@@ -366,8 +366,7 @@ void open_databases(void)
 				dbfilename,
 				NULL,
 				DB_BTREE,
-				DB_CREATE|DB_THREAD
-				|DB_AUTO_COMMIT
+				DB_CREATE|DB_AUTO_COMMIT|DB_THREAD
 				,
 				0600);
 		if (ret) {

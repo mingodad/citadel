@@ -1102,12 +1102,10 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		return(om_no_such_msg);
 	}
 	
-	TRACE;
 	retcode = CtdlOutputPreLoadedMsg(
 			TheMessage, msg_num, mode,
 			headers_only, do_proto, crlf);
 
-	TRACE;
 	CtdlFreeMessage(TheMessage);
 
 	return(retcode);
@@ -1151,11 +1149,9 @@ int CtdlOutputPreLoadedMsg(
 		msg_num,
 		mode, headers_only, do_proto, crlf);
 
-	TRACE;
 	snprintf(mid, sizeof mid, "%ld", msg_num);
 	nl = (crlf ? "\r\n" : "\n");
 
-	TRACE;
 	if (!is_valid_message(TheMessage)) {
 		lprintf(CTDL_ERR,
 			"ERROR: invalid preloaded message for output\n");
@@ -1163,7 +1159,6 @@ int CtdlOutputPreLoadedMsg(
 	}
 
 	/* Are we downloading a MIME component? */
-	TRACE;
 	if (mode == MT_DOWNLOAD) {
 		if (TheMessage->cm_format_type != FMT_RFC822) {
 			if (do_proto)
@@ -1189,10 +1184,8 @@ int CtdlOutputPreLoadedMsg(
 					desired_section);
 			}
 		}
-		TRACE;
 		return((CC->download_fp != NULL) ? om_ok : om_mime_error);
 	}
-	TRACE;
 
 	/* now for the user-mode message reading loops */
 	if (do_proto) cprintf("%d Message %ld:\n", LISTING_FOLLOWS, msg_num);
@@ -1215,7 +1208,6 @@ int CtdlOutputPreLoadedMsg(
 
 	/* begin header processing loop for Citadel message format */
 
-	TRACE;
 	if ((mode == MT_CITADEL) || (mode == MT_MIME)) {
 
 		strcpy(display_name, "<unknown>");
@@ -1279,20 +1271,16 @@ int CtdlOutputPreLoadedMsg(
 	}
 
 	/* begin header processing loop for RFC822 transfer format */
-	TRACE;
 
 	strcpy(suser, "");
 	strcpy(luser, "");
 	strcpy(fuser, "");
 	strcpy(snode, NODENAME);
 	strcpy(lnode, HUMANNODE);
-	TRACE;
 	if (mode == MT_RFC822) {
 		for (i = 0; i < 256; ++i) {
-	TRACE;
 			if (TheMessage->cm_fields[i]) {
 				mptr = TheMessage->cm_fields[i];
-	TRACE;
 
 				if (i == 'A') {
 					safestrncpy(luser, mptr, sizeof luser);
@@ -1323,23 +1311,19 @@ int CtdlOutputPreLoadedMsg(
 			}
 		}
 		if (subject_found == 0) {
-	TRACE;
 			cprintf("Subject: (no subject)%s", nl);
 		}
 	}
-	TRACE;
 
 	for (i=0; i<strlen(suser); ++i) {
 		suser[i] = tolower(suser[i]);
 		if (!isalnum(suser[i])) suser[i]='_';
 	}
-	TRACE;
 
 	if (mode == MT_RFC822) {
 		if (!strcasecmp(snode, NODENAME)) {
 			safestrncpy(snode, FQDN, sizeof snode);
 		}
-	TRACE;
 
 		/* Construct a fun message id */
 		cprintf("Message-ID: <%s", mid);
@@ -1347,7 +1331,6 @@ int CtdlOutputPreLoadedMsg(
 			cprintf("@%s", snode);
 		}
 		cprintf(">%s", nl);
-	TRACE;
 
 		if (!is_room_aide() && (TheMessage->cm_anon_type == MES_ANONONLY)) {
 			cprintf("From: x@x.org (----)%s", nl);
@@ -1363,7 +1346,6 @@ int CtdlOutputPreLoadedMsg(
 		}
 
 		cprintf("Organization: %s%s", lnode, nl);
-	TRACE;
 
 		/* Blank line signifying RFC822 end-of-headers */
 		if (TheMessage->cm_format_type != FMT_RFC822) {
@@ -1373,7 +1355,6 @@ int CtdlOutputPreLoadedMsg(
 
 	/* end header processing loop ... at this point, we're in the text */
 START_TEXT:
-	TRACE;
 	if (headers_only == HEADERS_FAST) goto DONE;
 	mptr = TheMessage->cm_fields['M'];
 
@@ -1440,13 +1421,11 @@ START_TEXT:
 	if ( (mode == MT_CITADEL) || (mode == MT_MIME) ) {
 		if (do_proto) cprintf("text\n");
 	}
-	TRACE;
 
 	/* If the format type on disk is 1 (fixed-format), then we want
 	 * everything to be output completely literally ... regardless of
 	 * what message transfer format is in use.
 	 */
-	TRACE;
 	if (TheMessage->cm_format_type == FMT_FIXED) {
 		if (mode == MT_MIME) {
 			cprintf("Content-type: text/plain\n\n");
@@ -1474,7 +1453,6 @@ START_TEXT:
 	 * for new paragraphs is correct and the client will reformat the
 	 * message to the reader's screen width.
 	 */
-	TRACE;
 	if (TheMessage->cm_format_type == FMT_CITADEL) {
 		if (mode == MT_MIME) {
 			cprintf("Content-type: text/x-citadel-variformat\n\n");
@@ -1487,7 +1465,6 @@ START_TEXT:
 	 * this message is format 1 (fixed format), so the callback function
 	 * we use will display those parts as-is.
 	 */
-	TRACE;
 	if (TheMessage->cm_format_type == FMT_RFC822) {
 		CtdlAllocUserData(SYM_MA_INFO, sizeof(struct ma_info));
 		memset(ma, 0, sizeof(struct ma_info));
@@ -1509,7 +1486,6 @@ START_TEXT:
 
 DONE:	/* now we're done */
 	if (do_proto) cprintf("000\n");
-	TRACE;
 	return(om_ok);
 }
 

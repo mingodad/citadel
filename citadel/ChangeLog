@@ -1,4 +1,7 @@
  $Log$
+ Revision 629.8  2005/01/19 20:49:46  ajc
+ * Minor fixenbugs after running with Valgrind
+
  Revision 629.7  2005/01/19 03:03:36  ajc
  * Minor and/or cosmetic changes made during x64 troubleshooting
 
@@ -6280,3 +6283,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
