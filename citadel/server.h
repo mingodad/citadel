@@ -474,6 +474,6 @@ struct ser_ret {
 /*               **********			Important fields */
 /*                         ***************	Semi-important fields */
 /*                                        * 	Message text (MUST be last) */
-#define FORDER	"IPTAFONHRDBCEGJKLQSUVWXYZM"
+#define FORDER	"IPTAFONHRDBCEGJKLQSVWXYZUM"
 
 #endif /* SERVER_H */

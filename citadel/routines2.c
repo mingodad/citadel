@@ -874,7 +874,7 @@ void do_internet_configuration(CtdlIPC *ipc)
 					err_printf("Can't save config - out of memory!\n");
 					logoff(ipc, 1);
 				}
-				for (i = 0; i < num_recs; i++) {
+				if (num_recs) for (i = 0; i < num_recs; i++) {
 					strcat(resp, recs[i]);
 					strcat(resp, "\n");
 				}

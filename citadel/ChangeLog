@@ -1,4 +1,9 @@
  $Log$
+ Revision 605.12  2003/03/10 05:38:21  ajc
+ * Tweaks to msgbase.c and imap_fetch.c to fix slightly incorrect byte counts
+   reported in the numerous variations of IMAP FETCH.  This silences a number of
+   error messages reported by Pine.
+
  Revision 605.11  2003/03/10 03:40:08  ajc
  * Fixed bug that caused segv when <R>eplying to certain messages
 
@@ -4528,4 +4533,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

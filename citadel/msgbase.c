@@ -1096,6 +1096,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	char *mptr;
 	char *nl;	/* newline string */
 	int suppress_f = 0;
+	int subject_found = 0;
 
 	/* buffers needed for RFC822 translation */
 	char suser[SIZ];
@@ -1254,8 +1255,10 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 					cprintf("Path: %s%s", mptr, nl);
 				}
  ****/
-				else if (i == 'U')
+				else if (i == 'U') {
 					cprintf("Subject: %s%s", mptr, nl);
+					subject_found = 1;
+				}
 				else if (i == 'I')
 					safestrncpy(mid, mptr, sizeof mid);
 				else if (i == 'H')
@@ -1275,6 +1278,9 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 					cprintf("Date: %s%s", datestamp, nl);
 				}
 			}
+		}
+		if (subject_found == 0) {
+			cprintf("Subject: (no subject)%s", nl);
 		}
 	}
 
@@ -1305,6 +1311,9 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 		}
 
 		cprintf("Organization: %s%s", lnode, nl);
+
+		/* Blank line signifying RFC822 end-of-headers */
+		cprintf("%s", nl);
 	}
 
 	/* end header processing loop ... at this point, we're in the text */
@@ -1344,12 +1353,6 @@ START_TEXT:
 	/* signify start of msg text */
 	if ( (mode == MT_CITADEL) || (mode == MT_MIME) ) {
 		if (do_proto) cprintf("text\n");
-	}
-	if (mode == MT_RFC822) {
-		if (TheMessage->cm_fields['U'] == NULL) {
-			cprintf("Subject: (no subject)%s", nl);
-		}
-		cprintf("%s", nl);
 	}
 
 	/* If the format type on disk is 1 (fixed-format), then we want

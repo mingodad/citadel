@@ -407,7 +407,6 @@ void imap_strip_headers(FILE *fp, char *section) {
 	fflush(fp);
 	ftruncate(fileno(fp), ftell(fp));
 	fflush(fp);
-	fprintf(fp, "\r\n");	/* add the trailing newline */
 	rewind(fp);
 	phree(which_fields);
 	phree(boiled_headers);
@@ -486,6 +485,16 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 						HEADERS_ONLY, 0, 1);
 		CtdlRedirectOutput(NULL, -1);
 		imap_strip_headers(tmp, section);
+	}
+
+	/*
+	 * Strip it down if the client asked for everything _except_ headers.
+	 */
+	else if (!strncasecmp(section, "TEXT", 4)) {
+		CtdlRedirectOutput(tmp, -1);
+		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
+						HEADERS_NONE, 0, 1);
+		CtdlRedirectOutput(NULL, -1);
 	}
 
 	/*
@@ -643,7 +652,8 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 	FILE *tmp;
 	char buf[1024];
 	long lines = 0L;
-	long bytes = 0L;
+	long start_of_body = 0L;
+	long body_bytes = 0L;
 
 	/* For non-RFC822 (ordinary Citadel) messages, this is short and
 	 * sweet...
@@ -660,13 +670,18 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 		CtdlRedirectOutput(NULL, -1);
 
 		rewind(tmp);
-		while (fgets(buf, sizeof buf, tmp) != NULL) ++lines;
-		bytes = ftell(tmp);
+		while (fgets(buf, sizeof buf, tmp) != NULL) {
+			++lines;
+			if ((!strcmp(buf, "\r\n")) && (start_of_body == 0L)) {
+				start_of_body = ftell(tmp);
+			}
+		}
+		body_bytes = ftell(tmp) - start_of_body;
 		fclose(tmp);
 
 		cprintf("BODYSTRUCTURE (\"TEXT\" \"PLAIN\" "
 			"(\"CHARSET\" \"US-ASCII\") NIL NIL "
-			"\"7BIT\" %ld %ld)", bytes, lines);
+			"\"7BIT\" %ld %ld)", body_bytes, lines);
 
 		return;
 	}
