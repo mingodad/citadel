@@ -35,6 +35,7 @@
 #ifdef HAVE_ICAL_H
 
 #include <ical.h>
+#include "ical_dezonify.h"
 
 struct ical_respond_data {
 	char desired_partnum[SIZ];
@@ -138,6 +139,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 	}
 
 	the_reply = icalcomponent_new_clone(request);
+	ical_dezonify(the_reply);
 	if (the_reply == NULL) {
 		lprintf(3, "ERROR: cannot clone request\n");
 		return;
@@ -271,6 +273,7 @@ void ical_locate_part(char *name, char *filename, char *partnum, char *disp,
 	}
 	if (strcasecmp(partnum, ird->desired_partnum)) return;
 	ird->cal = icalcomponent_new_from_string(content);
+	ical_dezonify(ird->cal);
 }
 
 
@@ -412,6 +415,7 @@ void ical_locate_original_event(char *name, char *filename, char *partnum, char 
 		icalcomponent_free(oec->c);
 	}
 	oec->c = icalcomponent_new_from_string(content);
+	ical_dezonify(oec->c);
 }
 
 
@@ -447,6 +451,7 @@ void ical_merge_attendee_reply(icalcomponent *event, icalcomponent *reply) {
 
 	/* Clone the reply, because we're going to rip its guts out. */
 	reply = icalcomponent_new_clone(reply);
+	ical_dezonify(reply);
 
 	/* At this point we're looking at the correct subcomponents.
 	 * Iterate through the attendees looking for a match.
@@ -1065,6 +1070,7 @@ void ical_send_out_invitations(icalcomponent *cal) {
 		lprintf(3, "ERROR: cannot clone calendar object\n");
 		return;
 	}
+	ical_dezonify(the_request);
 
 	/* Extract the summary string -- we'll use it as the
 	 * message subject for the request
@@ -1240,6 +1246,7 @@ void ical_ctdl_set_extended_msgid(char *name, char *filename, char *partnum,
 	 */
 	if (!strcasecmp(cbtype, "text/calendar")) {
 		cal = icalcomponent_new_from_string(content);
+		ical_dezonify(cal);
 		if (cal != NULL) {
 			p = ical_ctdl_get_subprop(cal, ICAL_UID_PROPERTY);
 			if (p != NULL) {
@@ -1366,6 +1373,7 @@ void ical_obj_aftersave_backend(char *name, char *filename, char *partnum,
 	if (!strcasecmp(cbtype, "text/calendar")) {
 		cal = icalcomponent_new_from_string(content);
 		if (cal != NULL) {
+			ical_dezonify(cal);
 			ical_saving_vevent(cal);
 			icalcomponent_free(cal);
 		}

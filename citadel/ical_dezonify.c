@@ -1,3 +1,14 @@
+/* 
+ * $Id$ 
+ *
+ * Function to go through an ical component set and convert all non-UTC
+ * DTSTART and DTEND properties to UTC.  It also strips out any VTIMEZONE
+ * subcomponents afterwards, because they're irrelevant.
+ *
+ */
+
+#ifdef HAVE_ICAL_H
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -5,8 +16,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <ical.h>
-
-void ical_dezonify(icalcomponent *cal);
+#include "ical_dezonify.h"
 
 /*
  * Back end function for ical_dezonify()
@@ -54,12 +64,10 @@ void ical_dezonify_backend(icalcomponent *cal, icalproperty *prop) {
 	}
 
 	/* Do the conversion.
-	 * (I had to specify the 'from' and 'to' timezones backwards.  Is the
-	 * API documentation wrong?)
 	 */
 	icaltimezone_convert_time(&TheTime,
-				icaltimezone_get_utc_timezone(),
-				t
+				t,
+				icaltimezone_get_utc_timezone()
 	);
 
 	/* Now strip the TZID parameter, because it's incorrect now. */
@@ -133,3 +141,5 @@ void ical_dezonify(icalcomponent *cal) {
 		icalcomponent_free(vt);
 	}
 }
+
+#endif /* HAVE_ICAL_H */

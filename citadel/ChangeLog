@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.94  2002/12/25 07:05:26  ajc
+ * set up ical_dezonify() to be called at appropriate times
+   (but it doesn't seem to work correctly yet)
+
  Revision 601.93  2002/12/25 06:41:44  ajc
  * ical_dezonify.c: added (function to strip localized timestamps out of
    a component and replace them with UTC timestamps)
@@ -4319,4 +4323,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
