@@ -1,4 +1,7 @@
 $Log$
+Revision 500.1  2003/06/20 03:04:26  ajc
+* "Reply" button on messages now handles IGnet recipients correctly
+
 Revision 500.0  2003/06/10 04:23:08  ajc
 * THIS IS 5.00
 
@@ -1486,3 +1489,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
