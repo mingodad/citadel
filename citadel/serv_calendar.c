@@ -192,6 +192,94 @@ void ical_respond(long msgnum, char *partnum, char *action) {
 }
 
 
+/*
+ * Search for a property in both the top level and in a VEVENT subcomponent
+ */
+icalproperty *ical_ctdl_get_subprop(
+		icalcomponent *cal,
+		icalproperty_kind which_prop
+) {
+	icalproperty *p;
+	icalcomponent *c;
+
+	p = icalcomponent_get_first_property(cal, which_prop);
+	if (p == NULL) {
+		c = icalcomponent_get_first_component(cal,
+							ICAL_VEVENT_COMPONENT);
+		if (c != NULL) {
+			p = icalcomponent_get_first_property(c, which_prop);
+		}
+	}
+	return p;
+}
+
+
+/*
+ * Helper function for ical_ctdl_is_overlap() to simplify the code when
+ * comparing year/month/day.  The number doesn't have to be meaningful, only
+ * consistent and unique for the supplied y/m/d combination.
+ */
+inline int itymd(struct icaltimetype t) {
+	return (
+		(t.year * 416)
+		+ (t.month * 32)
+		+ (t.day)
+	);
+}
+
+/*
+ * Check to see if two events overlap.  Returns nonzero if they do.
+ */
+int ical_ctdl_is_overlap(
+			struct icaltimetype t1start,
+			struct icaltimetype t1end,
+			struct icaltimetype t2start,
+			struct icaltimetype t2end
+) {
+
+	if (icaltime_is_null_time(t1start)) return(0);
+	if (icaltime_is_null_time(t2start)) return(0);
+
+	/* First, check for all-day events */
+	if (t1start.is_date) {
+		if (!icaltime_compare_date_only(t1start, t2start)) {
+			return(1);
+		}
+		if (!icaltime_is_null_time(t2end)) {
+			if (!icaltime_compare_date_only(t1start, t2end)) {
+				return(1);
+			}
+		}
+	}
+
+	if (t2start.is_date) {
+		if (!icaltime_compare_date_only(t2start, t1start)) {
+			return(1);
+		}
+		if (!icaltime_is_null_time(t1end)) {
+			if (!icaltime_compare_date_only(t2start, t1end)) {
+				return(1);
+			}
+		}
+	}
+
+	/* Now check for overlaps using date *and* time. */
+
+	/* First, bail out if either event 1 or event 2 is missing end time. */
+	if (icaltime_is_null_time(t1end)) return(0);
+	if (icaltime_is_null_time(t2end)) return(0);
+
+	/* If event 1 ends before event 2 starts, we're in the clear. */
+	if (icaltime_compare(t1end, t2start) <= 0) return(0);
+
+	/* If event 2 ends before event 1 starts, we're also ok. */
+	if (icaltime_compare(t2end, t1start) <= 0) return(0);
+
+	/* Otherwise, they overlap. */
+	return(1);
+}
+
+
 
 /*
  * Backend for ical_hunt_for_conflicts()
@@ -200,6 +288,8 @@ void vcard_hunt_for_conflicts_backend(long msgnum, void *data) {
 	icalcomponent *cal;
 	struct CtdlMessage *msg;
 	struct ical_respond_data ird;
+	struct icaltimetype t1start, t1end, t2start, t2end;
+	icalproperty *p;
 
 	cal = (icalcomponent *)data;
 
@@ -218,10 +308,33 @@ void vcard_hunt_for_conflicts_backend(long msgnum, void *data) {
 
 	if (ird.cal == NULL) return;
 
-	/* Now compare cal to ird.cal */
-	cprintf("hunted msg %ld\n", msgnum);
+	t1start = icaltime_null_time();
+	t1end = icaltime_null_time();
+	t2start = icaltime_null_time();
+	t1end = icaltime_null_time();
 
+	/* Now compare cal to ird.cal */
+	p = ical_ctdl_get_subprop(ird.cal, ICAL_DTSTART_PROPERTY);
+	if (p == NULL) return;
+	if (p != NULL) t2start = icalproperty_get_dtstart(p);
+	
+	p = ical_ctdl_get_subprop(ird.cal, ICAL_DTEND_PROPERTY);
+	if (p != NULL) t2end = icalproperty_get_dtend(p);
+
+	p = ical_ctdl_get_subprop(cal, ICAL_DTSTART_PROPERTY);
+	if (p == NULL) return;
+	if (p != NULL) t1start = icalproperty_get_dtstart(p);
+	
+	p = ical_ctdl_get_subprop(cal, ICAL_DTEND_PROPERTY);
+	if (p != NULL) t1end = icalproperty_get_dtend(p);
+	
 	icalcomponent_free(ird.cal);
+
+	if (ical_ctdl_is_overlap(t1start, t1end, t2start, t2end)) {
+		cprintf("%ld|FIXME put more here\n",
+			msgnum
+		);
+	}
 }
 
 

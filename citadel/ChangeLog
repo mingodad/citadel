@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.43  2002/10/21 17:14:42  ajc
+ * More work on conflict detects
+
  Revision 601.42  2002/10/20 21:42:54  ajc
  * More conflict checking stuff
 
@@ -4129,3 +4132,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
