@@ -1178,7 +1178,7 @@ int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part,
 	time_t last_mod;
 	char filename[SIZ];
 	char mimetype[SIZ];
-	char *aaa;
+	char aaa[SIZ];
 
 	if (!cret) return -2;
 	if (!buf) return -2;
@@ -1187,12 +1187,8 @@ int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part,
 	if (!msgnum) return -2;
 	if (ipc->downloading) return -2;
 
-	aaa = (char *)malloc(strlen(part) + 17);
-	if (!aaa) return -1;
-
 	sprintf(aaa, "OPNA %ld|%s", msgnum, part);
 	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
-	free(aaa);
 	if (ret / 100 == 2) {
 		ipc->downloading = 1;
 		bytes = extract_long(cret, 0);
