@@ -40,6 +40,7 @@
 
 struct CitContext *ContextList = NULL;
 int ScheduledShutdown = 0;
+int do_defrag = 0;
 
 /*
  * Various things that need to be initialized at startup
@@ -47,6 +48,9 @@ int ScheduledShutdown = 0;
 void master_startup(void) {
 	lprintf(7, "Opening databases\n");
 	open_databases();
+
+	if (do_defrag)
+		defrag_databases();
 
 	lprintf(7, "Checking floor reference counts\n");
 	check_ref_counts();

@@ -207,7 +207,7 @@ port for each one.
 program is the main Citadel server.  Before we cover the recommended method of
 starting the server, let's examine its usage options:
  
- citserver [-hHomeDir] [-xDebugLevel] [-tTraceFile] [-d]
+ citserver [-hHomeDir] [-xDebugLevel] [-tTraceFile] [-d] [-f]
  
  The options are as follows:
  
@@ -233,6 +233,10 @@ Normally it is sent to stdout.
 starting the Citadel server, for example, from an rc.local script (which is 
 not recommended, because this won't allow the server to automatically restart
 when it is shut down).
+ 
+ -f            - Defragment all the databases upon startup.  This isn't
+normally necessary due to the nature of the data stored in Citadel, but the
+option is provided in case you need it.
  
  
    The preferred method of starting the Citadel server is to place an entry in

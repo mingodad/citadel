@@ -34,35 +34,35 @@
 
 struct CitControl CitControl;
 struct config config;
+FILE *control_fp = NULL;
 
 /*
  * get_control  -  read the control record into memory.
  */
 void get_control(void) {
-	FILE *fp;
 
 	/* Zero it out.  If the control record on disk is missing or short,
 	 * the system functions with all control record fields initialized
 	 * to zero.
 	 */
 	memset(&CitControl, 0, sizeof(struct CitControl));
-	fp = fopen("citadel.control", "rb");
-	if (fp == NULL) return;
+	if (control_fp == NULL)
+		control_fp = fopen("citadel.control", "rb+");
+	if (control_fp == NULL) return;
 
-	fread(&CitControl, sizeof(struct CitControl), 1, fp);
-	fclose(fp);
+	rewind(control_fp);
+	fread(&CitControl, sizeof(struct CitControl), 1, control_fp);
 	}
 
 /*
  * put_control  -  write the control record to disk.
  */
 void put_control(void) {
-	FILE *fp;
 
-	fp = fopen("citadel.control", "wb");
-	if (fp != NULL) {
-		fwrite(&CitControl, sizeof(struct CitControl), 1, fp);
-		fclose(fp);
+	if (control_fp != NULL) {
+		rewind(control_fp);
+		fwrite(&CitControl, sizeof(struct CitControl), 1, control_fp);
+		fflush(control_fp);
 		}
 	}
 

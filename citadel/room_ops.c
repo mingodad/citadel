@@ -361,7 +361,8 @@ long AddMessageToRoom(struct quickroom *whichroom, long newmsgid) {
 	int num_msgs;
 	long *msglist;
 	long highest_msg = 0L;
-	
+
+	lprintf(9, "AddMessageToRoom(%s, %ld)\n", whichroom->QRname, newmsgid);	
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &whichroom->QRnumber, sizeof(long));
 	if (cdbfr == NULL) {
 		msglist = NULL;
@@ -369,6 +370,7 @@ long AddMessageToRoom(struct quickroom *whichroom, long newmsgid) {
 		}
 	else {
 		msglist = mallok(cdbfr->len);
+		if (msglist==NULL)  lprintf(3, "ERROR malloc msglist!\n");
 		num_msgs = cdbfr->len / sizeof(long);
 		memcpy(msglist, cdbfr->ptr, cdbfr->len);
 		cdb_free(cdbfr);

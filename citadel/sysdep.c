@@ -825,6 +825,10 @@ int main(int argc, char **argv)
 			home_specified = 1;
 			}
 
+		else if (!strncmp(argv[a], "-f", 2)) {
+			do_defrag = 1;
+			}
+
 		/* -r tells the server not to drop root permissions. don't use
 		 * this unless you know what you're doing. this should be
 		 * removed in the next release if it proves unnecessary. */
@@ -833,9 +837,9 @@ int main(int argc, char **argv)
 
 		/* any other parameter makes it crash and burn */
 		else {
-			lprintf(1, "citserver: usage: ");
-			lprintf(1, "citserver [-tTraceFile]");
-			lprintf(1, " [-d] [-xLogLevel] [-hHomeDir]\n");
+			lprintf(1,	"citserver: usage: "
+					"citserver [-tTraceFile] [-d] [-f]"
+					" [-xLogLevel] [-hHomeDir]\n");
 			exit(1);
 			}
 

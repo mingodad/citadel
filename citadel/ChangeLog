@@ -1,3 +1,7 @@
+Thu Jun 24 11:13:23 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* added server command line option "-f" to defrag databases on startup
+	* control.c: better performance and reliability in [get|put]_control()
+
 Mon Jun 21 00:04:15 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* netproc.c: started writing a vortex checker.  Not finished.
 
