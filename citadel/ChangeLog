@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.121  2003/01/19 08:59:02  error
+ * Remove irrelevant file hpsux.h (was part of dynloader)
+
  Revision 601.120  2003/01/19 05:55:59  ajc
  * serv_calendar.c: allocate dynamic symbol at module startup, not during
    each session startup.  This error was causing crashes (of course).
@@ -4428,3 +4431,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
