@@ -1,6 +1,7 @@
 1999-05-11 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* chkpwd.c: fixed excessive paranoia; it used to refuse to run when
 	  invoked by root and BBSUID != 0
+	* Makefile.in: ignore errors while installing /etc/pam.d/citadel
 
 1999-04-27 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* file_ops.c: fixed NDOP to not crash the server if it has trouble

@@ -225,7 +225,7 @@ install-data:
 		echo $(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
 		$(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
 	done
-	@if test -d $(root)/etc/pam.d; then \
+	-@if test -d $(root)/etc/pam.d; then \
 		echo $(INSTALL_DATA) citadel.pam $(root)/etc/pam.d/citadel; \
 		$(INSTALL_DATA) citadel.pam $(root)/etc/pam.d/citadel; \
 	fi
