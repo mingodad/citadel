@@ -314,7 +314,7 @@ void print_express(void)
 	
 		scr_printf(":\n");
 		lines_printed++;
-		fmout(screenwidth, NULL, listing, NULL, 1, screenheight, -1, 0);
+		fmout2(screenwidth, NULL, listing, NULL, 1, screenheight, -1, 0);
 		free(listing);
 
 		/* when running in curses mode, the scroll bar in most
@@ -1537,7 +1537,7 @@ int fmout2(
 				column++;
 			}
 			/* ONLY eat the FIRST space on a line */
-			old = 0;
+			old = ' ';
 			continue;
 		}
 		old = *e;

@@ -766,7 +766,7 @@ int client_make_message(CtdlIPC *ipc,
 	if (mode == 0) {
 		fp = fopen(filename, "r");
 		if (fp != NULL) {
-			fmout(screenwidth, fp, NULL, NULL, 0, screenheight, 0, 0);
+			fmout2(screenwidth, fp, NULL, NULL, 0, screenheight, 0, 0);
 			beg = ftell(fp);
 			fclose(fp);
 		} else {
@@ -876,7 +876,7 @@ MECR:	if (mode == 2) {
 		}
 		fp = fopen(filename, "r");
 		if (fp != NULL) {
-			fmout(screenwidth, fp, NULL, NULL,
+			fmout2(screenwidth, fp, NULL, NULL,
 			      ((userflags & US_PAGINATOR) ? 1 : 0),
 			      screenheight, 0, 0);
 			beg = ftell(fp);
