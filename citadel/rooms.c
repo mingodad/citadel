@@ -996,6 +996,7 @@ void readinfo(void)
 		scr_printf("Room aide is %s.\n\n", raide);
 	} else {
 		strcpy(raide, "");
+	}
 
 	serv_puts("RINF");
 	serv_gets(cmd);

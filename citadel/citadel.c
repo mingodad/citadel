@@ -332,6 +332,7 @@ void dotgoto(char *towhere, int display_name, int fromungoto)
 	char aaa[SIZ], bbb[SIZ], psearch[SIZ];
 	static long ls = 0L;
 	int newmailcount = 0;
+	static int oldmailcount = (-1);
 	int partial_match, best_match;
 	char from_floor;
     int ugpos = uglistsize;
