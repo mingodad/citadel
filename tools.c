@@ -377,3 +377,16 @@ void stripout(char *str, char leftboundary, char rightboundary) {
 }
 
 
+
+/*
+ * Replacement for sleep() that uses select() in order to avoid SIGALRM
+ */
+void sleeeeeeeeeep(int seconds)
+{
+	struct timeval tv;
+
+	tv.tv_sec = seconds;
+	tv.tv_usec = 0;
+	select(0, NULL, NULL, NULL, &tv);
+}
+

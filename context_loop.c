@@ -63,7 +63,8 @@ void do_housekeeping(void)
 			/* Remove sessions flagged for kill */
 			if (sptr->killthis) {
 
-				lprintf(3, "Destroying session\n");
+				lprintf(3, "Destroying session %d\n",
+					sptr->wc_session);
 
 				/* remove session from linked list */
 				if (sptr == SessionList) {
@@ -101,7 +102,7 @@ BREAKOUT:	pthread_mutex_unlock(&SessionListMutex);
 void housekeeping_loop(void)
 {
 	while (1) {
-		sleep(HOUSEKEEPING);
+		sleeeeeeeeeep(HOUSEKEEPING);
 		do_housekeeping();
 	}
 }
@@ -111,7 +112,7 @@ void housekeeping_loop(void)
  * Generate a unique WebCit session ID (which is not the same thing as the
  * Citadel session ID).
  *
- * FIX ... ensure that session number is truly unique
+ * FIXME ... ensure that session number is truly unique
  *
  */
 int GenerateSessionID(void)
