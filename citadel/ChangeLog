@@ -1,4 +1,7 @@
  $Log$
+ Revision 629.0  2005/01/04 03:57:32  ajc
+ * THIS IS 6.29
+
  Revision 628.2  2005/01/04 03:57:21  ajc
  * newinstall.sh: save tarball checksums after successful install of each
    component; skip subsequent installs for components which have not changed
