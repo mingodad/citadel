@@ -1,4 +1,7 @@
 $Log$
+Revision 1.353  1999/08/29 19:56:43  ajc
+* HTML updates
+
 Revision 1.352  1999/08/24 02:01:03  ajc
 * html.c: added.  This is an overly simplistic HTML-to-text converter.
 
@@ -1201,3 +1204,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
