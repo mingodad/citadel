@@ -1,4 +1,8 @@
 $Log$
+Revision 523.8  2004/09/24 04:21:41  ajc
+* Fixed display bug for room list mode when we dropped down multiple
+  sublevels at once (such as, from 3 to 1 instead of from 2 to 1)
+
 Revision 523.7  2004/09/24 04:08:25  ajc
 * Put our <SPAN> tags back in to denote floors, rooms with new msgs, and
   rooms without new msgs
@@ -2060,4 +2064,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
