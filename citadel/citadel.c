@@ -303,9 +303,9 @@ void get_serv_info() {
 	    }
 
 	/* be nice and identify ourself to the server */
-	sprintf(buf,"IDEN %d|%d|%d|%s%s|",
-		SERVER_TYPE,0,REV_LEVEL,CITADEL,
-		(server_is_local ? "(local)" : ""));
+	sprintf(buf,"IDEN %d|%d|%d|%s|",
+		SERVER_TYPE,0,REV_LEVEL,
+		(server_is_local ? "(local)" : CITADEL));
 	locate_host(&buf[strlen(buf)]);	/* append to the end */
 	serv_puts(buf);
 	serv_gets(buf); /* we don't care about the result code */
