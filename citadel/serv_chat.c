@@ -49,8 +49,11 @@
 struct ChatLine *ChatQueue = NULL;
 int ChatLastMsg = 0;
 
-
-
+/*
+ * This message can be set to anything you want, but it is
+ * checked for consistency so don't move it away from here.
+ */
+#define KICKEDMSG "You have been kicked out of this room."
 
 void allwrite(char *cmdbuf, int flag, char *username)
 {
@@ -70,6 +73,8 @@ void allwrite(char *cmdbuf, int flag, char *username)
 		snprintf(bcast, sizeof bcast, "%s|%s", un, cmdbuf);
 	} else if (flag == 2) {
 		snprintf(bcast, sizeof bcast, ":|<%s whispers %s>", un, cmdbuf);
+	} else if (flag == 3) {
+		snprintf(bcast, sizeof bcast, ":|%s", KICKEDMSG);
 	}
 	if ((strcasecmp(cmdbuf, "NOOP")) && (flag != 2)) {
 		fp = fopen(CHATLOG, "a");
@@ -310,6 +315,9 @@ void cmd_chat(char *argbuf)
 					cprintf(":|/whobbs (list users in chat -and- elsewhere) \n");
 					cprintf(":|/me     ('action' line, ala irc) \n");
 					cprintf(":|/msg    (send private message, ala irc) \n");
+					if (is_room_aide()) {
+						cprintf(":|/kick   (kick another user out of this room) \n");
+					}
 					cprintf(":|/quit   (return to the BBS) \n");
 					cprintf(":|\n");
 					ok_cmd = 1;
@@ -337,6 +345,22 @@ void cmd_chat(char *argbuf)
 						cprintf(":|User not found.\n");
 					cprintf("\n");
 				}
+				/* The /kick function is implemented by sending a specific
+				 * message to the kicked-out user's context.  When that message
+				 * is processed by the read loop, that context will exit.
+				 */
+				if ( (!strncasecmp(cmdbuf, "/kick ", 6)) && (is_room_aide()) ) {
+					ok_cmd = 1;
+					strptr1 = &cmdbuf[6];
+					strcat(strptr1, " ");
+					if ((t_context = find_context(&strptr1))) {
+						allwrite(strptr1, 3, CC->curr_user);
+						if (strcasecmp(CC->curr_user, t_context->curr_user))
+							allwrite(strptr1, 2, t_context->curr_user);
+					} else
+						cprintf(":|User not found.\n");
+					cprintf("\n");
+				}
 				if ((cmdbuf[0] != '/') && (strlen(cmdbuf) > 0)) {
 					ok_cmd = 1;
 					allwrite(cmdbuf, 0, NULL);
@@ -358,7 +382,15 @@ void cmd_chat(char *argbuf)
 			for (clptr = ChatQueue; clptr != NULL; clptr = clptr->next) {
 				if ((clptr->chat_seq > MyLastMsg) && ((!clptr->chat_username[0]) || (!strncasecmp(un, clptr->chat_username, 32)))) {
 					if ((!clptr->chat_room[0]) || (!strncasecmp(CC->room.QRname, clptr->chat_room, ROOMNAMELEN))) {
+						/* Output new chat data */
 						cprintf("%s\n", clptr->chat_text);
+
+						/* See if we've been force-quitted (kicked etc.) */
+						if (!strcmp(&clptr->chat_text[2], KICKEDMSG)) {
+							cprintf("000\n");
+							CC->cs_flags = CC->cs_flags - CS_CHAT;
+							return;
+						}
 					}
 				}
 			}

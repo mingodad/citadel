@@ -1129,8 +1129,8 @@ void cmd_invt_kick(char *iuser, int op)
 		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
 		return;
 	}
-	CtdlGetRelationship(&vbuf, &USscratch, &CC->room);
 
+	CtdlGetRelationship(&vbuf, &USscratch, &CC->room);
 	if (op == 1) {
 		vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
 		vbuf.v_flags = vbuf.v_flags | V_ACCESS;
