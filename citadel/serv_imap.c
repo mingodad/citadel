@@ -115,6 +115,69 @@ void imap_load_msgids(void) {
 }
 
 
+/*
+ * Re-scan the selected room (folder) and see if it's been changed at all
+ */
+void imap_rescan_msgids(void) {
+
+	int original_num_msgs = 0;
+	long original_highest = 0L;
+	int i;
+	int count;
+
+	if (IMAP->selected == 0) {
+		lprintf(5, "imap_load_msgids() can't run; no room selected\n");
+		return;
+	}
+
+
+	/*
+	 * Check to see if any of the messages we know about have been expunged
+	 */
+	if (IMAP->num_msgs > 0)
+	 for (i=0; i<IMAP->num_msgs; ++i)
+	  if ((IMAP->flags[i] & IMAP_EXPUNGED) == 0) {
+
+		count = CtdlForEachMessage(MSGS_EQ, IMAP->msgids[i],
+			(-63), NULL, NULL, NULL, NULL);
+
+		if (count == 0) {
+			IMAP->flags[i] = IMAP->flags[i] | IMAP_EXPUNGED;
+			cprintf("* %d EXPUNGE\r\n", i+1);
+		}
+
+	}
+
+	/*
+	 * Remember how many messages were here before we re-scanned.
+	 */
+	original_num_msgs = IMAP->num_msgs;
+	if (IMAP->num_msgs > 0) {
+		original_highest = IMAP->msgids[IMAP->num_msgs - 1];
+	}
+	else {
+		original_highest = 0L;
+	}
+
+	/*
+	 * Now peruse the room for *new* messages only.
+	 */
+	CtdlForEachMessage(MSGS_GT, original_highest, (-63), NULL, NULL,
+		imap_add_single_msgid, NULL);
+
+	/*
+	 * If new messages have arrived, tell the client about them.
+	 */
+	if (IMAP->num_msgs > original_num_msgs) {
+		cprintf("* %d EXISTS\r\n", IMAP->num_msgs);
+	}
+
+}
+
+
+
+
+
 
 
 /*
@@ -486,6 +549,18 @@ void imap_command_loop(void) {
 
 
 	/* Ok, at this point we're in normal command mode */
+
+	/*
+	 * Before processing the command that was just entered... if we happen
+	 * to have a folder selected, we'd like to rescan that folder for new
+	 * messages, and for deletions/changes of existing messages.  This
+	 * could probably be optimized somehow, but IMAP sucks...
+	 */
+	if (IMAP->selected) {
+		imap_rescan_msgids();
+	}
+
+	/* Now for the command set. */
 
 	/* Grab the tag, command, and parameters.  Check syntax. */
 	num_parms = imap_parameterize(parms, cmdbuf);

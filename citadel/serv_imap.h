@@ -37,6 +37,7 @@ enum {
 #define IMAP_DRAFT	8
 #define IMAP_SEEN	16
 #define IMAP_FETCHED	32	/* internal */
+#define IMAP_EXPUNGED	64	/* internal */
 
 
 #define IMAP ((struct citimap *)CtdlGetUserData(SYM_IMAP))

@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.93  2001/02/19 22:24:41  ajc
+ * IMAP server: added untagged, unsolicited server messages for newly arrived
+   messages, and messages expunged by another session.
+
  Revision 573.92  2001/02/17 05:53:35  ajc
  * Repaired the creation of page log rooms in the wrong namespace when the
    recipient does not yet have his/her log room created.
@@ -2417,4 +2421,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

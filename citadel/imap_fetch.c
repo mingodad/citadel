@@ -672,7 +672,7 @@ void imap_do_fetch(int num_items, char **itemlist) {
 
 	if (IMAP->num_msgs > 0)
 	 for (i = 0; i < IMAP->num_msgs; ++i)
-	  if (IMAP->flags[i] && IMAP_FETCHED) {
+	  if (IMAP->flags[i] & IMAP_FETCHED) {
 		msg = CtdlFetchMessage(IMAP->msgids[i]);
 		if (msg != NULL) {
 			imap_do_fetch_msg(i+1, msg, num_items, itemlist);
@@ -839,8 +839,8 @@ void imap_pick_range(char *range, int is_uid) {
 	/*
 	 * Clear out the IMAP_FETCHED flags for all messages.
 	 */
-	for (i = 1; i <= IMAP->num_msgs; ++i) {
-		IMAP->flags[i-1] = IMAP->flags[i-1] & ~IMAP_FETCHED;
+	for (i = 0; i < IMAP->num_msgs; ++i) {
+		IMAP->flags[i] = IMAP->flags[i] & ~IMAP_FETCHED;
 	}
 
 	/*
@@ -878,6 +878,17 @@ void imap_pick_range(char *range, int is_uid) {
 			}
 		}
 	}
+
+	/*
+	 * Make sure we didn't select any expunged messages.
+	 */
+	for (i = 0; i < IMAP->num_msgs; ++i) {
+		if (IMAP->flags[i] & IMAP_EXPUNGED) {
+			lprintf(9, "eliminating %d because expunged\n", i);
+			IMAP->flags[i] = IMAP->flags[i] & ~IMAP_FETCHED;
+		}
+	}
+
 }
 
 
