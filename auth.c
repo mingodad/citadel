@@ -17,12 +17,12 @@
 /*
  * This function needs to get called whenever a PASS or NEWU succeeds
  */
-void become_logged_in(char *user, char *pass) {
-
+void become_logged_in(char *user, char *pass, char *serv_response) {
 	logged_in = 1;
-	strcpy(wc_username, user);
+	extract(wc_username, &serv_response[4], 0);
 	strcpy(wc_password, pass);
-	
+	axlevel = extract_int(&serv_response[4], 1);
+	if (axlevel >=6) is_aide = 1;
 	}
 
 
@@ -37,8 +37,8 @@ void do_login() {
 			serv_printf("PASS %s", bstr("pass"));
 			serv_gets(buf);
 			if (buf[0]=='2') {
-				extract(actual_username, &buf[4], 0);
-				become_logged_in(actual_username, bstr("pass"));
+				become_logged_in(bstr("name"),
+					bstr("pass"), buf);
 				}
 			}
 		}
