@@ -65,13 +65,6 @@
 #define DEFAULT_VERBOSITY	9
 
 
-/*
- * HOUSEKEEPING_WAKEUP is the number of seconds which pass between each pass
- * of the housekeeping thread.  This normally happens once per minute and there
- * isn't any good reason to change it.
- */
-#define HOUSEKEEPING_WAKEUP	60
-
 
 /*
  * NLI is the string that shows up in a <W>ho's online listing for sessions

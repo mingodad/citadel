@@ -22,7 +22,6 @@ void *CtdlGetUserData(unsigned long requested_sym);
 void CtdlAllocUserData(unsigned long requested_sym, size_t num_bytes);
 void CtdlReallocUserData(unsigned long requested_sym, size_t num_bytes);
 int CtdlGetDynamicSymbol(void);
-void enter_housekeeping_cmd(char *);
 void do_command_loop(void);
 void begin_session(struct CitContext *con);
 void citproto_begin_session(void);

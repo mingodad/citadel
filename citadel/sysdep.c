@@ -89,8 +89,6 @@ int num_sessions = 0;				/* Current number of sessions */
 fd_set masterfds;				/* Master sockets etc. */
 int masterhighest;
 
-time_t last_timer = 0L;				/* Last timer hook processing */
-
 static pthread_t initial_thread;		/* tid for main() thread */
 
 
@@ -1295,12 +1293,7 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 
 		}
 		dead_session_purge();
-		if ((time(NULL) - last_timer) > 60L) {
-			last_timer = time(NULL);
-			cdb_check_handles(); /* suggested by Justin Case */
-			PerformSessionHooks(EVT_TIMER);
-		}
-
+		do_housekeeping();
 		check_sched_shutdown();
 	}
 
