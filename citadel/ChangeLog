@@ -1,4 +1,10 @@
  $Log$
+ Revision 591.40  2002/06/14 20:37:03  ajc
+ * Disabled the spam strings checker I wrote a few days ago.
+ * When receiving SMTP, check to see if spamd (the SpamAssassin daemon) is
+   running on the local machine.  If yes, run the message through it and
+   reject if spam.
+
  Revision 591.39  2002/06/12 03:42:21  ajc
  * "Suppress message prompts" has been changed to "Prompt after each message"
    and of course the effect has been reversed.
@@ -3710,3 +3716,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

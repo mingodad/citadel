@@ -71,6 +71,7 @@ void inetcfg_setTo(struct CtdlMessage *msg) {
 }
 
 
+#ifdef ___NOT_CURRENTLY_IN_USE___
 void spamstrings_setTo(struct CtdlMessage *msg) {
 	char buf[SIZ];
 	char *conf;
@@ -100,6 +101,7 @@ void spamstrings_setTo(struct CtdlMessage *msg) {
 	}
 
 }
+#endif
 
 
 /*
@@ -127,10 +129,12 @@ int inetcfg_aftersave(struct CtdlMessage *msg) {
 		   	   strlen(INTERNETCFG))) {
 				inetcfg_setTo(msg);	/* changing configs */
 			}
+#ifdef ___NOT_CURRENTLY_IN_USE___
 			if (!strncasecmp(&ptr[14], SPAMSTRINGS,
 		   	   strlen(INTERNETCFG))) {
 				spamstrings_setTo(msg);	/* changing configs */
 			}
+#endif
 		}
 
 		ptr = strchr((char *)ptr, '\n');
@@ -152,6 +156,7 @@ void inetcfg_init_backend(long msgnum, void *userdata) {
 }
 
 
+#ifdef ___NOT_CURRENTLY_IN_USE___
 void spamstrings_init_backend(long msgnum, void *userdata) {
 	struct CtdlMessage *msg;
 
@@ -161,14 +166,17 @@ void spamstrings_init_backend(long msgnum, void *userdata) {
                	CtdlFreeMessage(msg);
 	}
 }
+#endif
 
 
 void inetcfg_init(void) {
 	if (getroom(&CC->quickroom, SYSCONFIGROOM) != 0) return;
 	CtdlForEachMessage(MSGS_LAST, 1, INTERNETCFG, NULL,
 		inetcfg_init_backend, NULL);
+/*
 	CtdlForEachMessage(MSGS_LAST, 1, SPAMSTRINGS, NULL,
 		spamstrings_init_backend, NULL);
+ */
 }
 
 
