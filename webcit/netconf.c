@@ -42,7 +42,7 @@ void display_edit_node(void)
 	strcpy(node, bstr("node"));
 
 	output_headers(1);
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Edit share list for ");
 	escputs(node);
@@ -86,7 +86,7 @@ void display_netconf(void)
 	char node[256];
 
 	output_headers(1);
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Network configuration</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
@@ -96,7 +96,7 @@ void display_netconf(void)
 	wprintf("Add a new node</A><BR>\n");
 	wprintf("</CENTER>");
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Currently configured nodes</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
@@ -129,7 +129,7 @@ void display_confirm_unshare(void)
 	char sroom[256];
 
 	output_headers(1);
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Confirm unshare</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
@@ -156,7 +156,7 @@ void display_confirm_delete_node(void)
 	char node[256];
 
 	output_headers(1);
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Confirm delete</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
@@ -220,7 +220,7 @@ void display_add_node(void)
 {
 
 	output_headers(1);
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Add a new node</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
@@ -278,7 +278,7 @@ void display_share(void)
 	strcpy(node, bstr("node"));
 
 	output_headers(1);
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Add a shared room</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");

@@ -59,12 +59,12 @@ void whobbs(void)
 		"</SCRIPT>\n"
 	);
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>Users currently on ");
 	escputs(serv_info.serv_humannode);
 	wprintf("</B></FONT></TD></TR></TABLE>\n");
 
-	wprintf("<CENTER>\n<TABLE BORDER=1 WIDTH=100%>\n<TR>\n");
+	wprintf("<CENTER>\n<TABLE BORDER=1 WIDTH=100%%>\n<TR>\n");
 	wprintf("<TH>Session ID</TH>\n");
 	wprintf("<TH>User Name</TH>\n");
 	wprintf("<TH>Room</TH>");
@@ -184,7 +184,7 @@ void edit_me(void)
 
 		output_headers(3);
 
-		wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
+		wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
 		wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"><B>");
 		wprintf("Edit your session display");
 		wprintf("</B></FONT></TD></TR></TABLE>\n");
@@ -197,7 +197,7 @@ void edit_me(void)
 
 		wprintf("<FORM METHOD=\"POST\" ACTION=\"/edit_me\">\n");
 
-		wprintf("<TABLE border=0 width=100%>\n");
+		wprintf("<TABLE border=0 width=100%%>\n");
 
 		wprintf("<TR><TD><B>Room name:</B></TD>\n<TD>");
 		wprintf("<INPUT TYPE=\"text\" NAME=\"fake_roomname\" MAXLENGTH=\"64\">\n");

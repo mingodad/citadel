@@ -276,7 +276,7 @@ void display_reg(int during_login)
 
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Enter registration info</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
@@ -379,7 +379,7 @@ void display_changepw(void)
 
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Change your password</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");

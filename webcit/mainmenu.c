@@ -98,10 +98,10 @@ void embed_main_menu(void)
 void embed_advanced_menu(void)
 {
 
-	wprintf("<TABLE WIDTH=100%><TR VALIGN=TOP><TD>");
+	wprintf("<TABLE WIDTH=100%%><TR VALIGN=TOP><TD>");
 
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Interaction</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
@@ -120,7 +120,7 @@ void embed_advanced_menu(void)
 
 	wprintf("</TD><TD>");
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Your info</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
@@ -143,7 +143,7 @@ void embed_advanced_menu(void)
 
 	wprintf("</TD></TR><TR VALIGN=TOP><TD>");
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Advanced room commands</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
@@ -166,7 +166,7 @@ void embed_advanced_menu(void)
 	wprintf("</TD><TD>");
 
 	if ((WC->axlevel >= 6) || (WC->is_room_aide)) {
-		wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007777><TR><TD>");
+		wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007777><TR><TD>");
 		wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 		wprintf("<B>Administrative functions</B>\n");
 		wprintf("</FONT></TD></TR></TABLE>\n");
@@ -192,7 +192,7 @@ void embed_advanced_menu(void)
 	}
 	wprintf("</TD></TR></TABLE>");
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770077><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770077><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Basic commands</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
@@ -229,7 +229,7 @@ void display_generic(void)
 {
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770077><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770077><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Enter a server command</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
@@ -271,7 +271,7 @@ void do_generic(void)
 	serv_printf("%s", bstr("g_cmd"));
 	serv_gets(buf);
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770077><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770077><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Server command results</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");

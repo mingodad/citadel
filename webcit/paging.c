@@ -32,7 +32,7 @@ void display_page(void)
 
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Page another user</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
@@ -120,7 +120,7 @@ void do_chat(void)
 
 	output_headers(1);
 
-	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Real-time chat</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
@@ -157,7 +157,7 @@ void page_popup(void)
 
 		extract(pagefrom, &buf[4], 3);
 
-		wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
+		wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
 		wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\""
 			"<B>Express message from ");
 		escputs(pagefrom);
