@@ -27,6 +27,7 @@
 #include "support.h"
 #include "config.h"
 #include "tools.h"
+#include "msgbase.h"
 #include "internet_addressing.h"
 #include "user_ops.h"
 #include "room_ops.h"
@@ -129,7 +130,6 @@ void unfold_rfc822_field(char *field) {
 
 /*
  * Split an RFC822-style address into userid, host, and full name
- * (Originally from citmail.c, and unchanged so far)
  *
  */
 void process_rfc822_addr(char *rfc822, char *user, char *node, char *name)
@@ -241,22 +241,35 @@ void process_rfc822_addr(char *rfc822, char *user, char *node, char *name)
 			if (node[a] == '>')
 				node[a] = 0;
 	}
-	/* strip anything to the left of a @ */
-	while ((strlen(node) > 0) && (haschar(node, '@') > 0))
-		strcpy(node, &node[1]);
 
-	/* strip anything to the left of a % */
-	while ((strlen(node) > 0) && (haschar(node, '%') > 0))
-		strcpy(node, &node[1]);
+	/* If no node specified, tack ours on instead */
+	if (
+		(haschar(node, '@')==0)
+		&& (haschar(node, '%')==0)
+		&& (haschar(node, '!')==0)
+	) {
+		strcpy(node, config.c_nodename);
+	}
 
-	/* reduce multiple system bang paths to node!user */
-	while ((strlen(node) > 0) && (haschar(node, '!') > 1))
-		strcpy(node, &node[1]);
+	else {
 
-	/* now get rid of the user portion of a node!user string */
-	for (a = 0; a < strlen(node); ++a)
-		if (node[a] == '!')
-			node[a] = 0;
+		/* strip anything to the left of a @ */
+		while ((strlen(node) > 0) && (haschar(node, '@') > 0))
+			strcpy(node, &node[1]);
+	
+		/* strip anything to the left of a % */
+		while ((strlen(node) > 0) && (haschar(node, '%') > 0))
+			strcpy(node, &node[1]);
+	
+		/* reduce multiple system bang paths to node!user */
+		while ((strlen(node) > 0) && (haschar(node, '!') > 1))
+			strcpy(node, &node[1]);
+	
+		/* now get rid of the user portion of a node!user string */
+		for (a = 0; a < strlen(node); ++a)
+			if (node[a] == '!')
+				node[a] = 0;
+	}
 
 	/* strip leading and trailing spaces in all strings */
 	striplt(user);
@@ -300,9 +313,16 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 	int hostalias;
 	struct trynamebuf tnb;
 	char buf[256];
+	int passes = 0;
+	char sourcealias[1024];
 
+	safestrncpy(sourcealias, source, sizeof(sourcealias) );
+
+REALIAS:
 	/* Split it up */
-	process_rfc822_addr(source, user, node, name);
+	process_rfc822_addr(sourcealias, user, node, name);
+	lprintf(9, "process_rfc822_addr() converted to <%s@%s> (%s)\n",
+		user, node, name);
 
 	/* Map the FQDN to a Citadel node name
 	 */
@@ -321,6 +341,16 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 	 * FIXME ... do the multiple-addresses thing
 	 */
 	if (!strcasecmp(node, config.c_nodename)) {
+
+
+		/* First, see if we hit an alias.  Don't do this more than
+		 * a few times, in case we accidentally hit an alias loop
+		 */
+		strcpy(sourcealias, user);
+		alias(user);
+		if ( (strcasecmp(user, sourcealias)) && (++passes < 3) )
+			goto REALIAS;
+
 		/* Try all local rooms */
 		if (!strncasecmp(user, "room_", 5)) {
 			strcpy(name, &user[5]);

@@ -373,7 +373,6 @@ void smtp_rcpt(char *argbuf) {
 	cvt = convert_internet_address(user, node, recp);
 	sprintf(recp, "%s@%s", user, node);
 
-
 	switch(cvt) {
 		case rfc822_address_locally_validated:
 			cprintf("250 %s is a valid recipient.\r\n", user);
