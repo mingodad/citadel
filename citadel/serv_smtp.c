@@ -667,12 +667,78 @@ void smtp_command_loop(void) {
 /*               SMTP CLIENT (OUTBOUND PROCESSING) STUFF                     */
 /*****************************************************************************/
 
+
+
+/*
+ * smtp_do_procmsg()
+ *
+ * Called by smtp_do_queue() to handle an individual message.
+ */
+void smtp_do_procmsg(long msgnum) {
+	struct CtdlMessage *msg;
+	char *instr;
+	int i;
+	int lines;
+	char buf[256];
+	char key[256];
+	long msgid = (-1);
+
+	msg = CtdlFetchMessage(msgnum);
+	if (msg == NULL) {
+		lprintf(3, "SMTP: tried %ld but no such message!\n", msgnum);
+		return;
+	}
+
+	instr = msg->cm_fields['M'];
+
+	/* Strip out the headers amd any other non-instruction line */
+	lines = num_tokens(instr, '\n');
+	for (i=0; i<lines; ++i) {
+		extract_token(buf, instr, '\n');
+		if (num_tokens(buf, '|') < 2) {
+			lprintf(9, "removing <%s>\n", buf);
+			remove_token(instr, i, '|');
+			--lines;
+			--i;
+		}
+	}
+
+	/* Learn the message ID */
+	lines = num_tokens(instr, '\n');
+	for (i=0; i<lines; ++i) {
+		extract_token(buf, instr, '\n');
+		extract(key, buf, 0);
+		if (!strcasecmp(key, "msgid")) {
+			msgid = extract_long(buf, 1);
+		}
+	}
+
+
+/****** FIX    this is nowhere near done   *******/
+
+
+
+
+	CtdlFreeMessage(msg);
+}
+
+
+
 /*
  * smtp_do_queue()
  * 
  * Run through the queue sending out messages.
  */
 void smtp_do_queue(void) {
+	lprintf(5, "SMTP: processing outbound queue\n");
+
+	if (getroom(&CC->quickroom, SMTP_SPOOLOUT_ROOM) != 0) {
+		lprintf(3, "Cannot find room <%s>\n", SMTP_SPOOLOUT_ROOM);
+		return;
+	}
+	CtdlForEachMessage(MSGS_ALL, 0L, SPOOLMIME, NULL, smtp_do_procmsg);
+
+	lprintf(5, "SMTP: queue run completed\n");
 }
 
 

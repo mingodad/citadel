@@ -30,22 +30,22 @@ char *safestrncpy(char *dest, const char *src, size_t n)
 
 
 /*
- * num_parms()  -  discover number of parameters...
+ * num_tokens()  -  discover number of parameters/tokens in a string
  */
-int num_parms(char *source)
-{
+int num_tokens(char *source, char tok) {
 	int a;
 	int count = 1;
 
-	for (a=0; a<strlen(source); ++a) 
-		if (source[a]=='|') ++count;
+	for (a=0; a<strlen(source); ++a) {
+		if (source[a]==tok) ++count;
+	}
 	return(count);
 }
 
 /*
- * extract()  -  a smarter string tokenizer
+ * extract_token()  -  a smarter string tokenizer
  */
-void extract_token(char *dest, char *source, int parmnum, char separator)
+void extract_token(char *dest, char *source, int parmnum, char separator) 
 {
 	int i;
 	int len;
@@ -69,6 +69,51 @@ void extract_token(char *dest, char *source, int parmnum, char separator)
 		}
 	}
 }
+
+
+
+/*
+ * remove_token()  -  a tokenizer that kills, maims, and destroys
+ */
+void remove_token(char *source, int parmnum, char separator)
+{
+	int i;
+	int len;
+	int curr_parm;
+	int start, end;
+
+	len = 0;
+	curr_parm = 0;
+	start = (-1);
+	end = (-1);
+
+	if (strlen(source)==0) {
+		return;
+		}
+
+	for (i=0; i<strlen(source); ++i) {
+		if ( (start < 0) && (curr_parm == parmnum) ) {
+			start = i;
+		}
+
+		if ( (end < 0) && (curr_parm == (parmnum+1)) ) {
+			end = i;
+		}
+
+		if (source[i]==separator) {
+			++curr_parm;
+		}
+	}
+
+	if (end < 0) end = strlen(source);
+
+	printf("%d .. %d\n", start, end);
+
+	strcpy(&source[start], &source[end]);
+}
+
+
+
 
 /*
  * extract_int()  -  extract an int parm w/o supplying a buffer
