@@ -75,17 +75,15 @@ struct usersupp {			/* User record                      */
 	char generation[MAXROOMS];	/* Generation # (for private rooms) */
 	char forget[MAXROOMS];		/* Forgotten generation number      */
 	long mailnum[MAILSLOTS];	/* Message #'s of each mail message */
-	long mailpos[MAILSLOTS];	/* Disk positions of each mail      */
 	unsigned flags;			/* See US_ flags below              */
 	int timescalled;		/* Total number of logins           */
 	int posted;			/* Number of messages posted (ever) */
 	char fullname[26];		/* Name for Citadel messages & mail */
 	char axlevel;			/* Access level                     */
-	CIT_UBYTE USscreenwidth;	/* Screen width                     */
-	CIT_UBYTE USscreenheight;	/* Screen height                    */
-	char spare[1];			/* spare bytes in the user account  */
-	long usernum;			/* Eternal (non-recycled) user num  */
-	long lastcall;			/* Last time the user called        */
+	CIT_UBYTE USscreenwidth;	/* Screen width (for textmode users)*/
+	CIT_UBYTE USscreenheight;	/* Screen height(for textmode users)*/
+	long usernum;			/* User number (never recycled)     */
+	time_t lastcall;		/* Last time the user called        */
 	char USname[30];		/* Real name (i.e. not a handle)    */
 	char USaddr[25];		/* Street address                   */
 	char UScity[15];		/* Municipality                     */
@@ -193,7 +191,6 @@ struct floor {
 	unsigned short f_flags;		/* flags */
 	char f_name[256];		/* name of floor */
 	int f_ref_count;		/* reference count */
-	int f_reserved;			/* for future use */
 	};
 
 #define F_INUSE		1		/* floor is in use */
