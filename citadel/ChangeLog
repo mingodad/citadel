@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.75  2002/07/31 04:01:57  ajc
+ * Began implementing "digest mode" for listserving.  (Not complete)
+
  Revision 591.74  2002/07/28 20:33:13  ajc
  * Augmented the "headers only" functionality of the message reading API (as
    well as the options of the server commands which expose it) to allow
@@ -3842,3 +3845,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -28,6 +28,16 @@ out messages should do stuff.
 is used for "list serve" applications.
  
  
+ INSTRUCTION:  digestrecp
+ SYNTAX:       digestrecp|friko@mumjiboolean.com
+ DESCRIPTION:
+    Defines a recipient to whom all messages in this room should be sent.  This
+is used for "list serve" applications.  The difference between listrecps and
+digestrecps is that the latter will have messages embedded inside a message
+sent by the listserver.  The message will appear to be sent by the room's
+e-mail address instead of the sender's e-mail address.
+ 
+ 
  INSTRUCTION:  ignet_push_share
  SYNTAX:       ignet_push_share|uncnsrd
  DESCRIPTION:

@@ -452,6 +452,18 @@ void network_spool_msg(long msgnum, void *userdata) {
 		CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM);
 		CtdlFreeMessage(imsg);
 	}
+
+	/*
+	 * Process digest recipients
+	 */
+	if ((sc->digestrecps != NULL) && (sc->digestfp != NULL)) {
+		fprintf(sc->digestfp,	" -----------------------------------"
+					"------------------------------------"
+					"-------\r\n");
+		CtdlRedirectOutput(sc->digestfp, -1);
+		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
+		CtdlRedirectOutput(NULL, -1);
+	}
 	
 	/*
 	 * Process IGnet push shares
@@ -565,7 +577,6 @@ void network_spoolout_room(char *room_to_spool) {
 	char instr[SIZ];
 	FILE *fp;
 	struct SpoolControl sc;
-	/* struct namelist *digestrecps = NULL; */
 	struct namelist *nptr;
 
 	lprintf(7, "Spooling <%s>\n", room_to_spool);
@@ -601,6 +612,13 @@ void network_spoolout_room(char *room_to_spool) {
 			extract(nptr->name, buf, 1);
 			sc.listrecps = nptr;
 		}
+		else if (!strcasecmp(instr, "digestrecp")) {
+			nptr = (struct namelist *)
+				mallok(sizeof(struct namelist));
+			nptr->next = sc.digestrecps;
+			extract(nptr->name, buf, 1);
+			sc.digestrecps = nptr;
+		}
 		else if (!strcasecmp(instr, "ignet_push_share")) {
 			nptr = (struct namelist *)
 				mallok(sizeof(struct namelist));
@@ -613,11 +631,23 @@ void network_spoolout_room(char *room_to_spool) {
 	}
 	fclose(fp);
 
+	/* If there are digest recipients, we have to build a digest */
+	if (sc.digestrecps != NULL) {
+		sc.digestfp = tmpfile();
+	}
 
 	/* Do something useful */
 	CtdlForEachMessage(MSGS_GT, sc.lastsent, NULL, NULL,
 		network_spool_msg, &sc);
 
+	/* If we wrote a digest, deliver it and then close it */
+	if (sc.digestfp != NULL) {
+		fprintf(sc->digestfp,	" -----------------------------------"
+					"------------------------------------"
+					"-------\r\n");
+		/* FIXME deliver it! */
+		fclose(sc.digestfp);
+	}
 
 	/* Now rewrite the config file */
 	fp = fopen(filename, "w");
@@ -636,6 +666,13 @@ void network_spoolout_room(char *room_to_spool) {
 			nptr = sc.listrecps->next;
 			phree(sc.listrecps);
 			sc.listrecps = nptr;
+		}
+		/* Do the same for digestrecps */
+		while (sc.digestrecps != NULL) {
+			fprintf(fp, "digestrecp|%s\n", sc.digestrecps->name);
+			nptr = sc.digestrecps->next;
+			phree(sc.digestrecps);
+			sc.digestrecps = nptr;
 		}
 		while (sc.ignet_push_shares != NULL) {
 			fprintf(fp, "ignet_push_share|%s\n",

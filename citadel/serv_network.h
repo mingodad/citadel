@@ -6,7 +6,9 @@ struct namelist {
 struct SpoolControl {
 	long lastsent;
 	struct namelist *listrecps;
+	struct namelist *digestrecps;
 	struct namelist *ignet_push_shares;
+	FILE *digestfp;
 };
 
 struct NetMap {
