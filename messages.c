@@ -531,13 +531,15 @@ void read_message(long msgnum) {
 	wprintf("<INPUT TYPE=\"image\" NAME=\"msg_oper\" "
 		"SRC=\"static/reply.gif\" VALUE=\"Reply\">\n");
 
-	wprintf("<INPUT TYPE=\"image\" NAME=\"msg_oper\" "
-		"SRC=\"static/move.gif\" VALUE=\"Move\">\n");
-
-	wprintf("<INPUT TYPE=\"image\" NAME=\"msg_oper\" "
-		"SRC=\"static/delete.gif\" VALUE=\"Delete\""
-		"onClick=\"return confirm('Delete this message?');\">\n");
+	if (WC->is_room_aide)  {
+		wprintf("<INPUT TYPE=\"image\" NAME=\"msg_oper\" "
+			"SRC=\"static/move.gif\" VALUE=\"Move\">\n");
 	
+		wprintf("<INPUT TYPE=\"image\" NAME=\"msg_oper\" "
+			"SRC=\"static/delete.gif\" VALUE=\"Delete\" "
+			"onClick=\"return confirm('Delete this message?');\">\n");
+	}
+
 	wprintf("</FORM>\n"
 		"</TD></TR></TABLE>\n");
 
