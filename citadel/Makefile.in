@@ -12,7 +12,7 @@
 
 CLIENT_TARGETS=citadel whobbs
 SERVER_TARGETS=citserver setup
-SERV_MODULES=serv_chat.so
+SERV_MODULES=$(MODDIR)/serv_chat.so
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform \
 	readlog rcit stats citmail netpoll mailinglist userlist
 
@@ -68,11 +68,13 @@ serv_info.o: serv_info.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 
 citserver: citserver.o user_ops.o support.o room_ops.o file_ops.o \
 	msgbase.o config.o sysdep.o locate_host.o \
-	hooks.o housekeeping.o database.o control.o logging.o 
+	hooks.o housekeeping.o database.o control.o logging.o \
+	dynloader.o
 	$(CC) $(CFLAGS) -rdynamic \
 		citserver.o user_ops.o room_ops.o file_ops.o support.o \
 		msgbase.o config.o sysdep.o locate_host.o \
 		hooks.o housekeeping.o database.o control.o logging.o \
+		dynloader.o \
 		$(LFLAGS) $(SERVER_LFLAGS) -o citserver
 
 citserver.o: citserver.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
@@ -83,6 +85,9 @@ user_ops.o: user_ops.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 
 room_ops.o: room_ops.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c room_ops.c
+
+dynloader.o: dynloader.c dynloader.h
+	$(CC) $(CFLAGS) -D_REENTRANT -c dynloader.c
 
 file_ops.o: file_ops.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c file_ops.c
@@ -96,8 +101,8 @@ msgbase.o: msgbase.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 locate_host.o: locate_host.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c locate_host.c
 
-serv_chat.so: serv_chat.o support.o
-	$(CC) -shared -o serv_chat.so serv_chat.o support.o
+$(MODDIR)/serv_chat.so: serv_chat.o support.o
+	$(CC) -shared -o $(MODDIR)/serv_chat.so serv_chat.o support.o
 
 serv_chat.o: serv_chat.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c serv_chat.c
