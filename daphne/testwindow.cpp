@@ -98,7 +98,7 @@ TestWindow::TestWindow(CitClient *sock, wxMDIParentFrame *MyMDI)
 		panel,
 		BUTTON_CLOSE,
 		"Close",
-		wxPoint(100,300),
+		wxPoint(150,300),
 		wxSize(100,30),
 		0L,
 		wxDefaultValidator,

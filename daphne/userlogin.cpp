@@ -34,6 +34,8 @@ enum
 // simple menu events like this the static method is much simpler.
 BEGIN_EVENT_TABLE(	UserLogin, wxMDIChildFrame)
 	EVT_BUTTON(	BUTTON_LOGIN,		UserLogin::OnButtonPressed)
+	EVT_BUTTON(	BUTTON_NEWUSER,		UserLogin::OnButtonPressed)
+	EVT_BUTTON(	BUTTON_EXIT,		UserLogin::OnButtonPressed)
 END_EVENT_TABLE()
 
 // ============================================================================
@@ -49,20 +51,25 @@ END_EVENT_TABLE()
 UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
        : wxMDIChildFrame(MyMDI,	//parent
 			-1,	//window id
-			"Please log in",
+			" Please log in ",
 			wxDefaultPosition,
 			wxDefaultSize,
 			wxDEFAULT_FRAME_STYLE,
 			"UserLogin"
 			) {
 
+	citsock = sock;
+
 	// set the frame icon
 	/* SetIcon(wxICON(mondrian)); */
 
-	panel = new wxPanel(this);
+	wxStaticText *username_label = new wxStaticText(
+		this, -1, "User name:",
+		wxDefaultPosition, wxDefaultSize, 0, ""
+		);
 
 	username = new wxTextCtrl(
-		panel,
+		this,
 		-1,
 		"",
 		wxPoint(10,10),
@@ -72,8 +79,13 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 		"sendcmd"
 		);
 
+	wxStaticText *password_label = new wxStaticText(
+		this, -1, "Password:",
+		wxDefaultPosition, wxDefaultSize, 0, ""
+		);
+
 	password = new wxTextCtrl(
-		panel,
+		this,
 		-1,
 		"",
 		wxPoint(10,100),
@@ -84,10 +96,10 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 		);
 
 	login_button = new wxButton(
-		panel,
+		this,
 		BUTTON_LOGIN,
 		"Login",
-		wxPoint(10,300),
+		wxPoint(100,100),
 		wxSize(100,30),
 		0L,
 		wxDefaultValidator,
@@ -95,10 +107,10 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 		);
 
 	newuser_button = new wxButton(
-		panel,
+		this,
 		BUTTON_NEWUSER,
 		"New user",
-		wxPoint(120,300),
+		wxPoint(200,200),
 		wxSize(100,30),
 		0L,
 		wxDefaultValidator,
@@ -106,23 +118,100 @@ UserLogin::UserLogin(CitClient *sock, wxMDIParentFrame *MyMDI)
 		);
 
 	exit_button = new wxButton(
-		panel,
+		this,
 		BUTTON_EXIT,
 		"Exit",
-		wxPoint(230,300),
+		wxPoint(300,300),
 		wxSize(100,30),
 		0L,
 		wxDefaultValidator,
 		"exit_button"
 		);
 
+	wxLayoutConstraints *c1 = new wxLayoutConstraints;
+	c1->bottom.SameAs(this, wxBottom, 10);		// 10 from the bottom
+	c1->centreX.SameAs(this, wxCentreX);		// in the middle
+	c1->height.AsIs(); c1->width.AsIs();
+	newuser_button->SetConstraints(c1);
+
+	wxLayoutConstraints *c2 = new wxLayoutConstraints;
+	c2->bottom.SameAs(newuser_button, wxBottom);
+	c2->right.LeftOf(newuser_button, 10);		// 10 from middle btn
+	c2->height.AsIs(); c2->width.AsIs();
+	login_button->SetConstraints(c2);
+
+	wxLayoutConstraints *c3 = new wxLayoutConstraints;
+	c3->bottom.SameAs(newuser_button, wxBottom);
+	c3->left.RightOf(newuser_button, 10);		// 10 from middle btn
+	c3->height.AsIs(); c3->width.AsIs();
+	exit_button->SetConstraints(c3);
+
+	wxLayoutConstraints *c4 = new wxLayoutConstraints;
+	c4->bottom.Above(newuser_button, -10);
+	c4->left.SameAs(newuser_button, wxCentreX);
+	c4->height.AsIs();
+	c4->right.SameAs(this, wxRight, 10);
+	password->SetConstraints(c4);
+
+	wxLayoutConstraints *c5 = new wxLayoutConstraints;
+	c5->bottom.Above(password, -10);
+	c5->left.SameAs(password, wxLeft);
+	c5->height.AsIs();
+	c5->width.SameAs(password, wxWidth);
+	username->SetConstraints(c5);
+
+	wxLayoutConstraints *c6 = new wxLayoutConstraints;
+	c6->right.LeftOf(password, 10);
+	c6->bottom.SameAs(password, wxBottom);
+	c6->width.AsIs(); c6->height.AsIs();
+	password_label->SetConstraints(c6);
+
+	wxLayoutConstraints *c7 = new wxLayoutConstraints;
+	c7->right.LeftOf(username, 10);
+	c7->bottom.SameAs(username, wxBottom);
+	c7->width.AsIs(); c7->height.AsIs();
+	username_label->SetConstraints(c7);
+
+	SetAutoLayout(TRUE);
 	Show(TRUE);
 }
 
 
 
 void UserLogin::OnButtonPressed(wxCommandEvent& whichbutton) {
+	wxString sendbuf;
+	wxString recvbuf;
+	int r;
+
 	if (whichbutton.GetId() == BUTTON_EXIT) {
 		delete this;
+	}
+
+	if (whichbutton.GetId() == BUTTON_LOGIN) {
+		sendbuf = "USER ";
+		sendbuf += username->GetValue();
+		r = citsock->serv_trans(sendbuf, recvbuf);
+		if (r != 3) {
+			wxMessageDialog nouser(this,
+				recvbuf,
+				"Error",
+				wxOK | wxCENTRE | wxICON_INFORMATION,
+				wxDefaultPosition);
+			nouser.ShowModal();
+		} else {
+			sendbuf = "PASS ";
+			sendbuf += password->GetValue();
+			r = citsock->serv_trans(sendbuf, recvbuf);
+			if (r != 3) {
+				wxMessageDialog nopass(this,
+					recvbuf,
+					"Error",
+					wxOK | wxCENTRE | wxICON_INFORMATION,
+					wxDefaultPosition);
+				nopass.ShowModal();
+			} else {
+				// FIX do login procedure here
+			}
+		}
 	}
 }

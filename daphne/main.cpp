@@ -224,8 +224,8 @@ void MyFrame::OnConnect(wxCommandEvent& unused) {
 		retval = citadel->attach("uncnsrd.mt-kisco.ny.us", "citadel");
 		if (retval == 0) {
     			SetStatusText("** connected **");
-			new UserLogin(citadel, this);
 			new TestWindow(citadel, this);
+			new UserLogin(citadel, this);
 		} else {
 			wxMessageBox("Could not connect to server.", "Error");
 		}

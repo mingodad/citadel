@@ -11,5 +11,6 @@ private:
 	wxButton *newuser_button;
 	wxButton *exit_button;
 	void OnButtonPressed(wxCommandEvent& whichbutton);
+	CitClient *citsock;
 	DECLARE_EVENT_TABLE()
 };
