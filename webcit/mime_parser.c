@@ -21,14 +21,18 @@
 void process_part(char *content, int part_length) {
 	FILE *fp;
 	char filename[256];
+	static char partno = 0;
 
 	fprintf(stderr, "MIME: process_part() called with a length o' %d\n",
 		part_length);
 
-	
+	sprintf(filename, "content.%04x.%04x", getpid(), ++partno);
+	fp = fopen(filename, "wb");
+	fwrite(content, part_length, 1, fp);
+	fclose(fp);
 	}
 
-
+	
 /*
  * Main function of parser
  */
@@ -49,8 +53,11 @@ void mime_parser(char *content, int ContentLength, char *ContentType) {
 	strcpy(boundary, ContentType);
 	for (a=0; a<strlen(boundary); ++a) {
 		if (!strncasecmp(&boundary[a], "boundary=", 9)) {
-			strcpy(boundary, &boundary[a+10]);
+			boundary[0]='-';
+			boundary[1]='-';
+			strcpy(&boundary[2], &boundary[a+9]);
 			have_boundary = 1;
+			a = 0;
 			}
 		if ((boundary[a]==13) || (boundary[a]==10)) {
 			boundary[a] = 0;
@@ -61,14 +68,19 @@ void mime_parser(char *content, int ContentLength, char *ContentType) {
 	if (have_boundary == 0) return;
 	strcpy(endary, boundary);
 	strcat(endary, "--");
+	fprintf(stderr, "MIME: boundary is %s\n", boundary);
+	fprintf(stderr, "MIME:   endary is %s\n", endary);
 
 	ptr = content;
 
 	/* Seek to the beginning of the next boundary */
-	while ( (bytes_processed < ContentLength)
-	      && (strncasecmp(ptr, boundary, strlen(boundary))) ) {
-		++ptr;
-		++bytes_processed;
+	while (bytes_processed < ContentLength) {
+	      /* && (strncasecmp(ptr, boundary, strlen(boundary))) ) { */
+
+		if (strncasecmp(ptr, boundary, strlen(boundary))) {
+			++ptr;
+			++bytes_processed;
+			}
 
 		/* See if we're at the end */
 		if (!strncasecmp(ptr, endary, strlen(endary))) {
