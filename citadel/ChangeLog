@@ -1,4 +1,7 @@
  $Log$
+ Revision 609.0  2003/08/14 03:40:55  ajc
+ * THIS IS 6.09
+
  Revision 608.21  2003/08/13 18:08:24  ajc
  * Removed the last vestiges of the now-obsolete global networking password
 
