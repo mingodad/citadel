@@ -145,9 +145,12 @@ void calendar_month_view(int year, int month, int day) {
 
 	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0>"
 		"<TR><TD align=left><font color=#FFFFFF>"
-		"&nbsp;<A HREF=\"/display_edit_event?msgnum=0\">"
+		"&nbsp;<A HREF=\"/display_edit_event?msgnum=0"
+		"&year=%d&month=%d&day=%d\">"
 		"Add new calendar event</A>"
-		"</font></TD>\n");
+		"</font></TD>\n",
+		year, month, day
+	);
 
 	wprintf("<TD><CENTER><H3>");
 
@@ -330,13 +333,17 @@ void calendar_day_view(int year, int month, int day) {
 	wprintf("<A HREF=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
 		tomorrow.year, tomorrow.month, tomorrow.day
 	);
-	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/forward.gif\" BORDER=0></A>\n");
+	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/forward.gif\""
+		" BORDER=0></A>\n");
 	wprintf("</H3></CENTER>\n");
 
 	wprintf("<CENTER><font color=#FFFFFF>"
-		"&nbsp;<A HREF=\"/display_edit_event?msgnum=0\">"
+		"&nbsp;<A HREF=\"/display_edit_event?msgnum=0"
+		"&year=%d&month=%d&day=%d\">"
 		"Add new calendar event</A>"
-		"<BR><BR>\n");
+		"<BR><BR>\n",
+		year, month, day
+	);
 
 	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">"
 		"Back to month view</A>\n", year, month);
@@ -360,7 +367,11 @@ void calendar_day_view(int year, int month, int day) {
 	/* Now the middle of the day... */	
 	for (hour = 8; hour <= 17; ++hour) {	/* could do HEIGHT=xx */
 		wprintf("<TR><TD BGCOLOR=FFFFFF VALIGN=TOP>");
-		wprintf("%d:00%s ",
+		wprintf("<A HREF=\"/display_edit_event?msgnum=0"
+			"&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
+			year, month, day, hour
+		);
+		wprintf("%d:00%s</A> ",
 			(hour <= 12 ? hour : hour-12),
 			(hour < 12 ? "am" : "pm")
 		);

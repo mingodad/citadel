@@ -1,4 +1,9 @@
 $Log$
+Revision 400.52  2002/11/16 05:40:54  ajc
+* When adding new events to the calendar, default to the month [and day]
+  currently being viewed.
+* Hotlink each hour of the day view to an add-new-event for that day/hour.
+
 Revision 400.51  2002/11/15 05:05:47  ajc
 * Put in back/forward (yesterday/tomorrow) links in calendar day view
 
@@ -1121,4 +1126,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

@@ -113,7 +113,19 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		}
 	}
 	else {
-		t_start = icaltime_from_timet(now, 0);
+		memset(&t_start, 0, sizeof t_start);
+		t_start.year = atoi(bstr("year"));
+		t_start.month = atoi(bstr("month"));
+		t_start.day = atoi(bstr("day"));
+		if (strlen(bstr("hour")) > 0) {
+			t_start.hour = atoi(bstr("hour"));
+			t_start.minute = atoi(bstr("minute"));
+		}
+		else {
+			t_start.hour = 9;
+			t_start.minute = 0;
+		}
+		/* t_start = icaltime_from_timet(now, 0); */
 	}
 	display_icaltimetype_as_webform(&t_start, "dtstart");
 
@@ -165,7 +177,14 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 			t_end = icalproperty_get_dtend(p);
 		}
 		else {
-			t_end = icaltime_from_timet(now, 0);
+			/* If this is not an all-day event and there is no
+			 * end time specified, make the default one hour
+			 * from the start time.
+			 */
+			t_end = t_start;
+			t_end.hour += 1;
+			t_end = icaltime_normalize(t_end);
+			/* t_end = icaltime_from_timet(now, 0); */
 		}
 	}
 	display_icaltimetype_as_webform(&t_end, "dtend");
