@@ -324,5 +324,4 @@ enum {
 }
 #endif
 
-
 #endif /* CITADEL_H */

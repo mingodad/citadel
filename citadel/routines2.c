@@ -5,7 +5,6 @@
  *
  */
 
-#include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -31,6 +30,7 @@
 #include <pwd.h>
 #include <errno.h>
 #include <stdarg.h>
+#include "sysdep.h"
 #include "citadel.h"
 #include "citadel_ipc.h"
 #include "citadel_decls.h"

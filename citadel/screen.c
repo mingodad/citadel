@@ -4,13 +4,14 @@
  * Handle full-screen curses stuff
  */
 
-#include "sysdep.h"
+#include <stdlib.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
 #include <stdarg.h>
-#include <unistd.h>
 #include <sys/types.h>
+#include "sysdep.h"
 #ifdef HAVE_VW_PRINTW
 #define _vwprintw vw_printw
 #else

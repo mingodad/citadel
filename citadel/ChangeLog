@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.97  2004/03/24 03:46:40  ajc
+ * Reorg header stuff to make it more compatible with leak checkers
+
  Revision 614.96  2004/03/24 03:25:19  ajc
  * Removed the built-in memory leak checker.  It wasn't threadsafe and
    there now exist third-party utilities that do this job better.
@@ -5594,4 +5597,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
