@@ -1032,6 +1032,7 @@ void readloop(char *oper)
 	int is_singlecard = 0;
 	int is_calendar = 0;
 	int is_tasks = 0;
+	int is_notes = 0;
 	int remaining_messages;
 	int lo, hi;
 	int lowest_displayed = (-1);
@@ -1103,11 +1104,16 @@ void readloop(char *oper)
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
 	}
+	if (WC->wc_view == VIEW_NOTES) {		/* notes */
+		is_notes = 1;
+		strcpy(cmd, "MSGS ALL");
+		maxmsgs = 32767;
+	}
 
 	nummsgs = load_msg_ptrs(cmd);
 	if (nummsgs == 0) {
 
-		if ((!is_tasks) && (!is_calendar)) {
+		if ((!is_tasks) && (!is_calendar) && (!is_notes)) {
 			if (!strcmp(oper, "readnew")) {
 				wprintf("<EM>No new messages.</EM>\n");
 			} else if (!strcmp(oper, "readold")) {
@@ -1188,6 +1194,9 @@ void readloop(char *oper)
 			else if (is_tasks) {
 				display_task(WC->msgarr[a]);
 			}
+			else if (is_notes) {
+				display_note(WC->msgarr[a]);
+			}
 			else {
 				read_message(WC->msgarr[a]);
 			}
@@ -1217,7 +1226,7 @@ void readloop(char *oper)
 
 	/* If we're only looking at one message, do a prev/next thing */
 	if (num_displayed == 1) {
-	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook) && (!is_singlecard)) {
+	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook) && (!is_notes) && (!is_singlecard)) {
 
 		wprintf("<CENTER>"
 			"<TABLE BORDER=0 WIDTH=100%% BGCOLOR=\"#DDDDDD\"><TR><TD>"
@@ -1266,7 +1275,7 @@ void readloop(char *oper)
 	 * messages, then display the selector bar
 	 */
 	if (num_displayed > 1) {
-	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook) && (!is_singlecard)) {
+	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook) && (!is_notes) && (!is_singlecard)) {
 		wprintf("<CENTER>"
 			"<TABLE BORDER=0 WIDTH=100%% BGCOLOR=\"#DDDDDD\"><TR><TD>"
 			"Reading #%d-%d of %d messages.</TD>\n"
