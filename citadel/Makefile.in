@@ -174,10 +174,28 @@ rcit: rcit.o config.o
 stats: stats.o config.o
 	$(CC) stats.o config.o $(LDFLAGS) -o stats
 
-install: all
-	for i in modules techdoc bio bitbucket files help images info \
-		 messages network/spoolin network/spoolout network/systems \
-		 userpics; do \
+.PHONY: install-data install-doc install-exec clean cleaner distclean
+
+install: install-exec install-data install-doc
+
+install-data:
+	for i in help messages network/spoolin network/spoolout \
+		 network/systems; do \
+		./mkinstalldirs $(prefix)/$$i; \
+	done
+	for i in citadel.rc public_clients \
+		 `find help messages network -type f | grep -v CVS`; do \
+		$(INSTALL_DATA) $$i $(prefix)/$$i; \
+	done
+
+install-doc:
+	./mkinstalldirs $(prefix)/techdoc
+	for i in *.txt `find techdoc -type f | grep -v CVS`; do \
+		$(INSTALL_DATA) $$i $(prefix)/$$i; \
+	done
+
+install-exec: all
+	for i in bio bitbucket files images info modules userpics; do \
 		./mkinstalldirs $(prefix)/$$i; \
 	done
 	for i in $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) \
@@ -186,11 +204,6 @@ install: all
 		test -f $$i && $(INSTALL) $$i $(prefix)/$$i; \
 	done
 	test -f netmailer && chmod 4755 $(prefix)/netmailer $(prefix)/citmail
-	for i in *.txt citadel.rc public_clients \
-		 `find help messages network techdoc -type f | \
-		  grep -v CVS`; do \
-		$(INSTALL_DATA) $$i $(prefix)/$$i; \
-	done
 
 clean:
 	rm -f *.o *.ro *.mo
