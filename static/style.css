@@ -13,6 +13,10 @@ a:active {
   text-decoration: none;
 }
 
+a:hover {
+  text-decoration: underline;
+}
+
 .menubar_link {
 	font-family: Bitstream Vera Sans,Tahoma,Arial,Helvetica,sans-serif;
 	font-size: 9pt;
