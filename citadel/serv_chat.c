@@ -30,6 +30,8 @@
 #include "dynloader.h"
 #include "tools.h"
 #include "msgbase.h"
+#include "user_ops.h"
+#include "room_ops.h"
 
 struct ChatLine *ChatQueue = NULL;
 int ChatLastMsg = 0;
@@ -453,12 +455,20 @@ void cmd_gexp(char *argbuf) {
  */
 int send_express_message(char *lun, char *x_user, char *x_msg)
 {
-	int message_sent = 0;
+	int message_sent = 0;		/* number of successful sends */
+
 	struct CitContext *ccptr;
 	struct ExpressMessage *newmsg, *findend;
 	char *un;
 	size_t msglen = 0;
-	int do_send = 0;
+	int do_send = 0;		/* set to 1 to actually page, not
+					 * just check to see if we can.
+					 */
+	struct savelist *sl = NULL;	/* list of rooms to save this page */
+	struct savelist *sptr;
+	struct CtdlMessage *logmsg;
+	char roomname[ROOMNAMELEN];
+	long msgnum;
 
 	if (strlen(x_msg) > 0) {
 		msglen = strlen(x_msg) + 4;
@@ -498,6 +508,16 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 						findend = findend->next;
 					findend->next = newmsg;
 				}
+
+				/* and log it ... */
+				if (ccptr != CC) {
+					sptr = (struct savelist *)
+						malloc(sizeof(struct savelist));
+					sptr->next = sl;
+					MailboxName(sptr->roomname,
+						&ccptr->usersupp, PAGELOGROOM);
+					sl = sptr;
+				}
 			}
 			++message_sent;
 		}
@@ -505,8 +525,35 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 	end_critical_section(S_SESSION_TABLE);
 
 	/* Log the page to disk if configured to do so  */
-	if ((strlen(config.c_logpages) > 0) && (do_send) ) {
-		quickie_message(lun, x_user, config.c_logpages, x_msg);
+	if ( (do_send) && (message_sent) ) {
+
+		logmsg = mallok(sizeof(struct CtdlMessage));
+		memset(logmsg, 0, sizeof(struct CtdlMessage));
+		logmsg->cm_magic = CTDLMESSAGE_MAGIC;
+		logmsg->cm_anon_type = MES_NORMAL;
+		logmsg->cm_format_type = 0;
+		logmsg->cm_fields['A'] = strdoop(lun);
+		logmsg->cm_fields['N'] = strdoop(NODENAME);
+		logmsg->cm_fields['O'] = strdoop(PAGELOGROOM);
+		logmsg->cm_fields['R'] = strdoop(x_user);
+		logmsg->cm_fields['M'] = strdoop(x_msg);
+
+		MailboxName(roomname, &CC->usersupp, PAGELOGROOM);
+		create_room(roomname, 4, "", 0);
+		msgnum = CtdlSaveMsg(logmsg, "", roomname, MES_LOCAL);
+		if (strlen(config.c_logpages) > 0) {
+			create_room(config.c_logpages, 3, "", 0);
+			CtdlSaveMsgPointerInRoom(config.c_logpages, msgnum, 0);
+		}
+		while (sl != NULL) {
+			create_room(sl->roomname, 4, "", 0);
+			CtdlSaveMsgPointerInRoom(sl->roomname, msgnum, 0);
+			sptr = sl->next;
+			phree(sl);
+			sl = sptr;
+		}
+
+		CtdlFreeMessage(logmsg);
 	}
 
 	return (message_sent);

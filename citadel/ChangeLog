@@ -1,4 +1,7 @@
  $Log$
+ Revision 1.491  2000/03/17 16:26:57  ajc
+ * Set up a private "Sent/Received Pages" room for each user
+
  Revision 1.490  2000/03/17 04:11:24  ajc
  * Moved bio-related commands out to a loadable module
 
@@ -1753,4 +1756,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
