@@ -99,6 +99,7 @@ struct config {
 	int c_pop3_port;		/* POP3 listener port (usually 110) */
 	int c_smtp_port;		/* SMTP listener port (usually 25)  */
 	int c_default_filter;		/* Default moderation filter level  */
+	int c_aide_zap;			/* Are Aides allowed to zap rooms?  */
 };
 
 #define NODENAME		config.c_nodename

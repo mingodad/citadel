@@ -1694,6 +1694,7 @@ fails for any reason, ERROR is returned.
  20. Access level required to create rooms
  21. Maximum message length which may be entered into the system
  22. Default moderation filter level for new users (-63 to +63)
+ 23. Flag (0 or 1) - allow Aides to zap (forget) rooms
  
   
  

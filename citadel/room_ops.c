@@ -99,12 +99,18 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf)
 	if (vbuf.v_flags & V_LOCKOUT) {
 		retval = retval & ~UA_KNOWN & ~UA_GOTOALLOWED;
 	}
+
 	/* Aides get access to everything */
 	if (userbuf->axlevel >= 6) {
-		retval = retval | UA_KNOWN | UA_GOTOALLOWED;
-		retval = retval & ~UA_ZAPPED;
+		if (vbuf.v_flags & V_FORGET) {
+			retval = retval | UA_GOTOALLOWED;
+		}
+		else {
+			retval = retval | UA_KNOWN | UA_GOTOALLOWED;
+		}
 	}
-      NEWMSG:			/* By the way, we also check for the presence of new messages */
+
+NEWMSG:	/* By the way, we also check for the presence of new messages */
 	if ((roombuf->QRhighest) > (vbuf.v_lastseen)) {
 		retval = retval | UA_HASNEWMSGS;
 	}

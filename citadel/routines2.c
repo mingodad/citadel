@@ -625,7 +625,7 @@ void read_bio(void)
 void do_system_configuration(void)
 {
 	char buf[256];
-	char sc[26][256];
+	char sc[27][256];
 	int expire_mode = 0;
 	int expire_value = 0;
 	int a;
@@ -640,7 +640,7 @@ void do_system_configuration(void)
 	if (buf[0] == '1') {
 		a = 0;
 		while (serv_gets(buf), strcmp(buf, "000")) {
-			if (a < 26)
+			if (a < 27)
 				strcpy(&sc[a][0], buf);
 			++a;
 		}
@@ -686,6 +686,9 @@ void do_system_configuration(void)
 	sprintf(&sc[11][0], "%d", (boolprompt(
 	      "Restrict Internet mail to only those with that privilege",
 						     atoi(&sc[11][0]))));
+	sprintf(&sc[26][0], "%d", (boolprompt(
+	      "Allow Aides to Zap (forget) rooms",
+						     atoi(&sc[26][0]))));
 
 	if (strlen(&sc[18][0]) > 0) logpages = 1;
 	else logpages = 0;
@@ -745,7 +748,7 @@ void do_system_configuration(void)
 		serv_puts("CONF set");
 		serv_gets(buf);
 		if (buf[0] == '4') {
-			for (a = 0; a < 26; ++a)
+			for (a = 0; a < 27; ++a)
 				serv_puts(&sc[a][0]);
 			serv_puts("000");
 		}

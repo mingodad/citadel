@@ -172,6 +172,7 @@ void cmd_conf(char *argbuf) {
 		cprintf("%d\n", config.c_pop3_port);
 		cprintf("%d\n", config.c_smtp_port);
 		cprintf("%d\n", config.c_default_filter);
+		cprintf("%d\n", config.c_aide_zap);
 		cprintf("000\n");
 		}
 
@@ -256,6 +257,10 @@ void cmd_conf(char *argbuf) {
 			case 24: config.c_smtp_port = atoi(buf);
 				break;
 			case 25: config.c_default_filter = atoi(buf);
+				break;
+			case 26: config.c_aide_zap = atoi(buf);
+				if (config.c_aide_zap != 0)
+					config.c_aide_zap = 1;
 				break;
 			}
 		    ++a;

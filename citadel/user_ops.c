@@ -43,35 +43,34 @@
  * getuser()  -  retrieve named user into supplied buffer.
  *               returns 0 on success
  */
-int getuser(struct usersupp *usbuf, char name[]) {
+int getuser(struct usersupp *usbuf, char name[])
+{
 
 	char lowercase_name[32];
 	int a;
 	struct cdbdata *cdbus;
 
 	memset(usbuf, 0, sizeof(struct usersupp));
-	for (a=0; a<=strlen(name); ++a) {
+	for (a = 0; a <= strlen(name); ++a) {
 		if (a < sizeof(lowercase_name))
 			lowercase_name[a] = tolower(name[a]);
-		}
-	lowercase_name[sizeof(lowercase_name)-1] = 0;
+	}
+	lowercase_name[sizeof(lowercase_name) - 1] = 0;
 
 	cdbus = cdb_fetch(CDB_USERSUPP, lowercase_name, strlen(lowercase_name));
 	if (cdbus == NULL) {
-		return(1);	/* user not found */
-		}
-
+		return (1);	/* user not found */
+	}
 	memcpy(usbuf, cdbus->ptr,
-		( (cdbus->len > sizeof(struct usersupp)) ?
-		sizeof(struct usersupp) : cdbus->len) );
+	       ((cdbus->len > sizeof(struct usersupp)) ?
+		sizeof(struct usersupp) : cdbus->len));
 	cdb_free(cdbus);
 
 	if (usbuf->version < 573) {
 		CC->usersupp.moderation_filter = config.c_default_filter;
 	}
-
-	return(0);
-	}
+	return (0);
+}
 
 
 /*
@@ -81,12 +80,12 @@ int lgetuser(struct usersupp *usbuf, char *name)
 {
 	int retcode;
 
-	retcode = getuser(usbuf,name);
+	retcode = getuser(usbuf, name);
 	if (retcode == 0) {
 		begin_critical_section(S_USERSUPP);
-		}
-	return(retcode);
 	}
+	return (retcode);
+}
 
 
 /*
@@ -97,69 +96,72 @@ void putuser(struct usersupp *usbuf)
 	char lowercase_name[32];
 	int a;
 
-	for (a=0; a<=strlen(usbuf->fullname); ++a) {
+	for (a = 0; a <= strlen(usbuf->fullname); ++a) {
 		if (a < sizeof(lowercase_name))
 			lowercase_name[a] = tolower(usbuf->fullname[a]);
-		}
-	lowercase_name[sizeof(lowercase_name)-1] = 0;
+	}
+	lowercase_name[sizeof(lowercase_name) - 1] = 0;
 
 	usbuf->version = REV_LEVEL;
 	cdb_store(CDB_USERSUPP,
-		lowercase_name, strlen(lowercase_name),
-		usbuf, sizeof(struct usersupp));
+		  lowercase_name, strlen(lowercase_name),
+		  usbuf, sizeof(struct usersupp));
 
-	}
+}
 
 
 /*
  * lputuser()  -  same as putuser() but locks the record
  */
-void lputuser(struct usersupp *usbuf) {
+void lputuser(struct usersupp *usbuf)
+{
 	putuser(usbuf);
 	end_critical_section(S_USERSUPP);
-	}
+}
 
 /*
  * Index-generating function used by Ctdl[Get|Set]Relationship
  */
-int GenerateRelationshipIndex(	char *IndexBuf,
-				long RoomID,
-				long RoomGen,
-				long UserID) {
+int GenerateRelationshipIndex(char *IndexBuf,
+			      long RoomID,
+			      long RoomGen,
+			      long UserID)
+{
 
 	struct {
 		long iRoomID;
 		long iRoomGen;
 		long iUserID;
-		} TheIndex;
+	} TheIndex;
 
 	TheIndex.iRoomID = RoomID;
 	TheIndex.iRoomGen = RoomGen;
 	TheIndex.iUserID = UserID;
 
 	memcpy(IndexBuf, &TheIndex, sizeof(TheIndex));
-	return(sizeof(TheIndex));
-	}
+	return (sizeof(TheIndex));
+}
 
 
 
 /*
  * Back end for CtdlSetRelationship()
  */
-void put_visit(struct visit *newvisit) {
+void put_visit(struct visit *newvisit)
+{
 	char IndexBuf[32];
 	int IndexLen;
 
 	/* Generate an index */
 	IndexLen = GenerateRelationshipIndex(IndexBuf,
-		newvisit->v_roomnum,
-		newvisit->v_roomgen,
-		newvisit->v_usernum);
+					     newvisit->v_roomnum,
+					     newvisit->v_roomgen,
+					     newvisit->v_usernum);
 
 	/* Store the record */
 	cdb_store(CDB_VISIT, IndexBuf, IndexLen,
-		newvisit, sizeof(struct visit)
-		);
+		  newvisit, sizeof(struct visit)
+	);
 }
 
 
@@ -169,16 +171,17 @@ void put_visit(struct visit *newvisit) {
  * Define a relationship between a user and a room
  */
 void CtdlSetRelationship(struct visit *newvisit,
-			struct usersupp *rel_user,
-			struct quickroom *rel_room) {
+			 struct usersupp *rel_user,
+			 struct quickroom *rel_room)
+{
 
 
 	/* We don't use these in Citadel because they're implicit by the
 	 * index, but they must be present if the database is exported.
 	 */
-        newvisit->v_roomnum = rel_room->QRnumber;
-        newvisit->v_roomgen = rel_room->QRgen;
-        newvisit->v_usernum = rel_user->usernum;
+	newvisit->v_roomnum = rel_room->QRnumber;
+	newvisit->v_roomgen = rel_room->QRgen;
+	newvisit->v_usernum = rel_user->usernum;
 
 	put_visit(newvisit);
 }
@@ -187,8 +190,9 @@ void CtdlSetRelationship(struct visit *newvisit,
  * Locate a relationship between a user and a room
  */
 void CtdlGetRelationship(struct visit *vbuf,
-			struct usersupp *rel_user,
-			struct quickroom *rel_room) {
+			 struct usersupp *rel_user,
+			 struct quickroom *rel_room)
+{
 
 	char IndexBuf[32];
 	int IndexLen;
@@ -196,9 +200,9 @@ void CtdlGetRelationship(struct visit *vbuf,
 
 	/* Generate an index */
 	IndexLen = GenerateRelationshipIndex(IndexBuf,
-		rel_room->QRnumber,
-		rel_room->QRgen,
-		rel_user->usernum);
+					     rel_room->QRnumber,
+					     rel_room->QRgen,
+					     rel_user->usernum);
 
 	/* Clear out the buffer */
 	memset(vbuf, 0, sizeof(struct visit));
@@ -206,47 +210,56 @@ void CtdlGetRelationship(struct visit *vbuf,
 	cdbvisit = cdb_fetch(CDB_VISIT, IndexBuf, IndexLen);
 	if (cdbvisit != NULL) {
 		memcpy(vbuf, cdbvisit->ptr,
-			( (cdbvisit->len > sizeof(struct visit)) ?
-			sizeof(struct visit) : cdbvisit->len) );
+		       ((cdbvisit->len > sizeof(struct visit)) ?
+			sizeof(struct visit) : cdbvisit->len));
 		cdb_free(cdbvisit);
 		return;
-		}
 	}
+}
 
 
-void MailboxName(char *buf, struct usersupp *who, char *prefix) {
+void MailboxName(char *buf, struct usersupp *who, char *prefix)
+{
 	sprintf(buf, "%010ld.%s", who->usernum, prefix);
-	}
+}
 
-	
+
 /*
  * Is the user currently logged in an Aide?
  */
-int is_aide(void) {
-	if (CC->usersupp.axlevel >= 6) return(1);
-	else return(0);
-	}
+int is_aide(void)
+{
+	if (CC->usersupp.axlevel >= 6)
+		return (1);
+	else
+		return (0);
+}
 
 
 /*
  * Is the user currently logged in an Aide *or* the room aide for this room?
  */
-int is_room_aide(void) {
+int is_room_aide(void)
+{
 
-	if (!CC->logged_in) return(0);
-
-	if ( (CC->usersupp.axlevel >= 6)
-	   || (CC->quickroom.QRroomaide == CC->usersupp.usernum) ) {
-		return(1);
-		}
-	else {
-		return(0);
-		}
+	if (!CC->logged_in) {
+		return (0);
 	}
+
+	if ((CC->usersupp.axlevel >= 6)
+	    || (CC->quickroom.QRroomaide == CC->usersupp.usernum)) {
+		return (1);
+	} else {
+		return (0);
+	}
+}
 
 /*
  * getuserbynumber()  -  get user by number
- *			 returns 0 if user was found
+ *                       returns 0 if user was found
+ *
+ * WARNING: don't use this function unless you absolutely have to.  It does
+ *          a sequential search and therefore is computationally expensive.
  */
 int getuserbynumber(struct usersupp *usbuf, long int number)
 {
@@ -254,18 +267,18 @@ int getuserbynumber(struct usersupp *usbuf, long int number)
 
 	cdb_rewind(CDB_USERSUPP);
 
-	while(cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
+	while (cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
 		memset(usbuf, 0, sizeof(struct usersupp));
 		memcpy(usbuf, cdbus->ptr,
-			( (cdbus->len > sizeof(struct usersupp)) ?
-			sizeof(struct usersupp) : cdbus->len) );
+		       ((cdbus->len > sizeof(struct usersupp)) ?
+			sizeof(struct usersupp) : cdbus->len));
 		cdb_free(cdbus);
 		if (usbuf->usernum == number) {
-			return(0);
-			}
+			return (0);
 		}
-	return(-1);
 	}
+	return (-1);
+}
 
 
 /*
@@ -284,23 +297,22 @@ int CtdlLoginExistingUser(char *username)
 	if ((CC->logged_in)) {
 		return login_already_logged_in;
 	}
-
-	found_user = getuser(&CC->usersupp,username);
+	found_user = getuser(&CC->usersupp, username);
 	if (found_user != 0) {
-		p = (struct passwd *)getpwnam(username);
-		if (p!=NULL) {
-			strcpy(autoname,p->pw_gecos);
-			for (a=0; a<strlen(autoname); ++a)
-				if (autoname[a]==',') autoname[a]=0;
-			found_user = getuser(&CC->usersupp,autoname);
+		p = (struct passwd *) getpwnam(username);
+		if (p != NULL) {
+			strcpy(autoname, p->pw_gecos);
+			for (a = 0; a < strlen(autoname); ++a)
+				if (autoname[a] == ',')
+					autoname[a] = 0;
+			found_user = getuser(&CC->usersupp, autoname);
 		}
 	}
 	if (found_user == 0) {
 		if (((CC->nologin)) && (CC->usersupp.axlevel < 6)) {
 			return login_too_many_users;
-		}
-		else {
-			strcpy(CC->curr_user,CC->usersupp.fullname);
+		} else {
+			strcpy(CC->curr_user, CC->usersupp.fullname);
 			return login_ok;
 		}
 	}
@@ -317,29 +329,29 @@ void cmd_user(char *cmdbuf)
 	char username[256];
 	int a;
 
-	extract(username,cmdbuf,0);
+	extract(username, cmdbuf, 0);
 	username[25] = 0;
 	strproc(username);
 
 	a = CtdlLoginExistingUser(username);
-	switch(a) {
-		case login_already_logged_in:
-			cprintf("%d Already logged in.\n",ERROR);
-			return;
-		case login_too_many_users:
-			cprintf("%d %s: "
-				"Too many users are already online "
-				"(maximum is %d)\n",
-				ERROR+MAX_SESSIONS_EXCEEDED,
-				config.c_nodename,config.c_maxsessions);
-			return;
-		case login_ok:
-			cprintf("%d Password required for %s\n",
-				MORE_DATA,CC->curr_user);
-			return;
-		case login_not_found:
-			cprintf("%d %s not found.\n", ERROR, username);
-			return;
+	switch (a) {
+	case login_already_logged_in:
+		cprintf("%d Already logged in.\n", ERROR);
+		return;
+	case login_too_many_users:
+		cprintf("%d %s: "
+			"Too many users are already online "
+			"(maximum is %d)\n",
+			ERROR + MAX_SESSIONS_EXCEEDED,
+			config.c_nodename, config.c_maxsessions);
+		return;
+	case login_ok:
+		cprintf("%d Password required for %s\n",
+			MORE_DATA, CC->curr_user);
+		return;
+	case login_not_found:
+		cprintf("%d %s not found.\n", ERROR, username);
+		return;
 		cprintf("%d Internal error\n", ERROR);
 	}
 }
@@ -349,10 +361,11 @@ void cmd_user(char *cmdbuf)
 /*
  * session startup code which is common to both cmd_pass() and cmd_newu()
  */
-void session_startup(void) {
-	syslog(LOG_NOTICE,"user <%s> logged in",CC->curr_user);
+void session_startup(void)
+{
+	syslog(LOG_NOTICE, "user <%s> logged in", CC->curr_user);
 
-	lgetuser(&CC->usersupp,CC->curr_user);
+	lgetuser(&CC->usersupp, CC->curr_user);
 	++(CC->usersupp.timescalled);
 	time(&CC->usersupp.lastcall);
 
@@ -361,19 +374,19 @@ void session_startup(void) {
 	 */
 	if (!strcasecmp(CC->usersupp.fullname, config.c_sysadm)) {
 		CC->usersupp.axlevel = 6;
-		}
-
+	}
 	lputuser(&CC->usersupp);
 
-        /* Run any cleanup routines registered by loadable modules */
+	/* Run any cleanup routines registered by loadable modules */
 	PerformSessionHooks(EVT_LOGIN);
 
 	usergoto(BASEROOM, 0, NULL, NULL);	/* Enter the lobby */
-	rec_log(CL_LOGIN,CC->curr_user);
-	}
+	rec_log(CL_LOGIN, CC->curr_user);
+}
 
 
-void logged_in_response(void) {
+void logged_in_response(void)
+{
 	cprintf("%d %s|%d|%d|%d|%u|%ld\n",
 		OK, CC->usersupp.fullname, CC->usersupp.axlevel,
 		CC->usersupp.timescalled, CC->usersupp.posted,
@@ -392,14 +405,13 @@ void logout(struct CitContext *who)
 	if (who->download_fp != NULL) {
 		fclose(who->download_fp);
 		who->download_fp = NULL;
-		}
+	}
 	if (who->upload_fp != NULL) {
 		abort_upl(who);
-		}
-
+	}
 	/* Do modular stuff... */
 	PerformSessionHooks(EVT_LOGOUT);
-	}
+}
 
 #ifdef ENABLE_CHKPWD
 /*
@@ -414,33 +426,32 @@ static int validpw(uid_t uid, const char *pass)
 
 	if (pipe(pipev)) {
 		lprintf(1, "pipe failed (%s): denying autologin access for "
-			   "uid %u\n", strerror(errno), uid);
+			"uid %u\n", strerror(errno), uid);
 		return 0;
-		}
-
+	}
 	switch (pid = fork()) {
-	    case -1:
+	case -1:
 		lprintf(1, "fork failed (%s): denying autologin access for "
-			   "uid %u\n", strerror(errno), uid);
+			"uid %u\n", strerror(errno), uid);
 		close(pipev[0]);
 		close(pipev[1]);
 		return 0;
 
-	    case 0:
+	case 0:
 		close(pipev[1]);
 		if (dup2(pipev[0], 0) == -1) {
 			perror("dup2");
 			exit(1);
-			}
+		}
 		close(pipev[0]);
 
 		execl(BBSDIR "/chkpwd", BBSDIR "/chkpwd", NULL);
 		perror(BBSDIR "/chkpwd");
 		exit(1);
-		}
+	}
 
 	close(pipev[0]);
-	write(pipev[1], buf, sprintf(buf, "%lu\n", (unsigned long)uid));
+	write(pipev[1], buf, sprintf(buf, "%lu\n", (unsigned long) uid));
 	write(pipev[1], pass, strlen(pass));
 	write(pipev[1], "\n", 1);
 	close(pipev[1]);
@@ -448,16 +459,15 @@ static int validpw(uid_t uid, const char *pass)
 	while (waitpid(pid, &status, 0) == -1)
 		if (errno != EINTR) {
 			lprintf(1, "waitpid failed (%s): denying autologin "
-				   "access for uid %u\n",
+				"access for uid %u\n",
 				strerror(errno), uid);
 			return 0;
-			}
-
+		}
 	if (WIFEXITED(status) && !WEXITSTATUS(status))
 		return 1;
 
 	return 0;
-	}
+}
 #endif
 
 void do_login()
@@ -473,20 +483,19 @@ int CtdlTryPassword(char *password)
 
 	if ((CC->logged_in)) {
 		return pass_already_logged_in;
-		}
+	}
 	if (!strcmp(CC->curr_user, NLI)) {
 		return pass_no_user;
-		}
+	}
 	if (getuser(&CC->usersupp, CC->curr_user)) {
 		return pass_internal_error;
-		}
-
+	}
 	code = (-1);
 	if (CC->usersupp.uid == BBSUID) {
 		strproc(password);
 		strproc(CC->usersupp.password);
-		code = strcasecmp(CC->usersupp.password,password);
-		}
+		code = strcasecmp(CC->usersupp.password, password);
+	}
 #ifdef ENABLE_AUTOLOGIN
 	else {
 		if (validpw(CC->usersupp.uid, password)) {
@@ -495,19 +504,18 @@ int CtdlTryPassword(char *password)
 			safestrncpy(CC->usersupp.password, password,
 				    sizeof CC->usersupp.password);
 			lputuser(&CC->usersupp);
-			}
 		}
+	}
 #endif
 
 	if (!code) {
 		do_login();
 		return pass_ok;
-		}
-	else {
-		rec_log(CL_BADPW,CC->curr_user);
+	} else {
+		rec_log(CL_BADPW, CC->curr_user);
 		return pass_wrong_password;
-		}
 	}
+}
 
 
 void cmd_pass(char *buf)
@@ -519,21 +527,21 @@ void cmd_pass(char *buf)
 	a = CtdlTryPassword(password);
 
 	switch (a) {
-		case pass_already_logged_in:
-			cprintf("%d Already logged in.\n",ERROR);
-			return;
-		case pass_no_user:
-			cprintf("%d You must send a name with USER first.\n",
-				ERROR);
-			return;
-		case pass_wrong_password:
-			cprintf("%d Wrong password.\n", ERROR);
-			return;
-		case pass_ok:
-			logged_in_response();
-			return;
+	case pass_already_logged_in:
+		cprintf("%d Already logged in.\n", ERROR);
+		return;
+	case pass_no_user:
+		cprintf("%d You must send a name with USER first.\n",
+			ERROR);
+		return;
+	case pass_wrong_password:
+		cprintf("%d Wrong password.\n", ERROR);
+		return;
+	case pass_ok:
+		logged_in_response();
+		return;
 		cprintf("%d Can't find user record!\n",
-			ERROR+INTERNAL_ERROR);
+			ERROR + INTERNAL_ERROR);
 	}
 }
 
@@ -542,7 +550,8 @@ void cmd_pass(char *buf)
 /*
  * Delete a user record *and* all of its related resources.
  */
-int purge_user(char pname[]) {
+int purge_user(char pname[])
+{
 	char filename[64];
 	struct usersupp usbuf;
 	char lowercase_name[32];
@@ -550,34 +559,32 @@ int purge_user(char pname[]) {
 	struct CitContext *ccptr;
 	int user_is_logged_in = 0;
 
-	for (a=0; a<=strlen(pname); ++a) {
+	for (a = 0; a <= strlen(pname); ++a) {
 		lowercase_name[a] = tolower(pname[a]);
-		}
+	}
 
 	if (getuser(&usbuf, pname) != 0) {
 		lprintf(5, "Cannot purge user <%s> - not found\n", pname);
-		return(ERROR+NO_SUCH_USER);
-		}
-
+		return (ERROR + NO_SUCH_USER);
+	}
 	/* Don't delete a user who is currently logged in.  Instead, just
 	 * set the access level to 0, and let the account get swept up
 	 * during the next purge.
 	 */
 	user_is_logged_in = 0;
 	begin_critical_section(S_SESSION_TABLE);
-	for (ccptr=ContextList; ccptr!=NULL; ccptr=ccptr->next) {
+	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 		if (ccptr->usersupp.usernum == usbuf.usernum) {
 			user_is_logged_in = 1;
-			}
 		}
+	}
 	end_critical_section(S_SESSION_TABLE);
 	if (user_is_logged_in == 1) {
 		lprintf(5, "User <%s> is logged in; not deleting.\n", pname);
 		usbuf.axlevel = 0;
 		putuser(&usbuf);
-		return(1);
-		}
-
+		return (1);
+	}
 	lprintf(5, "Deleting user <%s>\n", pname);
 
 	/* Perform any purge functions registered by server extensions */
@@ -589,7 +596,7 @@ int purge_user(char pname[]) {
 	/* delete the userlog entry */
 	cdb_delete(CDB_USERSUPP, lowercase_name, strlen(lowercase_name));
 
-	/* remove the user's bio file */	
+	/* remove the user's bio file */
 	sprintf(filename, "./bio/%ld", usbuf.usernum);
 	unlink(filename);
 
@@ -597,8 +604,8 @@ int purge_user(char pname[]) {
 	sprintf(filename, "./userpics/%ld.gif", usbuf.usernum);
 	unlink(filename);
 
-	return(0);
-	}
+	return (0);
+}
 
 
 /*
@@ -616,30 +623,29 @@ int create_user(char *newusername)
 	strproc(username);
 
 #ifdef ENABLE_AUTOLOGIN
-	p = (struct passwd *)getpwnam(username);
+	p = (struct passwd *) getpwnam(username);
 #endif
 	if (p != NULL) {
 		strcpy(username, p->pw_gecos);
-		for (a=0; a<strlen(username); ++a) {
-			if (username[a] == ',') username[a] = 0;
-			}
+		for (a = 0; a < strlen(username); ++a) {
+			if (username[a] == ',')
+				username[a] = 0;
+		}
 		CC->usersupp.uid = p->pw_uid;
-		}
-	else {
+	} else {
 		CC->usersupp.uid = BBSUID;
-		}
+	}
 
-	if (!getuser(&usbuf,username)) {
-		return(ERROR+ALREADY_EXISTS);
-		}
-
-	strcpy(CC->curr_user,username);
-	strcpy(CC->usersupp.fullname,username);
-	strcpy(CC->usersupp.password,"");
+	if (!getuser(&usbuf, username)) {
+		return (ERROR + ALREADY_EXISTS);
+	}
+	strcpy(CC->curr_user, username);
+	strcpy(CC->usersupp.fullname, username);
+	strcpy(CC->usersupp.password, "");
 	(CC->logged_in) = 1;
 
 	/* These are the default flags on new accounts */
-	CC->usersupp.flags = US_LASTOLD|US_DISAPPEAR|US_PAGINATOR|US_FLOORS;
+	CC->usersupp.flags = US_LASTOLD | US_DISAPPEAR | US_PAGINATOR | US_FLOORS;
 
 	CC->usersupp.timescalled = 0;
 	CC->usersupp.posted = 0;
@@ -654,21 +660,19 @@ int create_user(char *newusername)
 
 	if (CC->usersupp.usernum == 1L) {
 		CC->usersupp.axlevel = 6;
-		}
-
+	}
 	/* add user to userlog */
 	putuser(&CC->usersupp);
-	if (getuser(&CC->usersupp,CC->curr_user)) {
-		return(ERROR+INTERNAL_ERROR);
-		}
-
+	if (getuser(&CC->usersupp, CC->curr_user)) {
+		return (ERROR + INTERNAL_ERROR);
+	}
 	/* give the user a private mailbox */
 	MailboxName(mailboxname, &CC->usersupp, MAILROOM);
 	create_room(mailboxname, 4, "", 0);
 
-	rec_log(CL_NEWUSER,CC->curr_user);
-	return(0);
-	}
+	rec_log(CL_NEWUSER, CC->curr_user);
+	return (0);
+}
 
 
 
@@ -682,52 +686,45 @@ void cmd_newu(char *cmdbuf)
 	char username[256];
 
 	if ((CC->logged_in)) {
-		cprintf("%d Already logged in.\n",ERROR);
+		cprintf("%d Already logged in.\n", ERROR);
 		return;
-		}
-
+	}
 	if ((CC->nologin)) {
 		cprintf("%d %s: Too many users are already online (maximum is %d)\n",
-		ERROR+MAX_SESSIONS_EXCEEDED,
-		config.c_nodename,config.c_maxsessions);
-		}
-
-	extract(username,cmdbuf,0);
+			ERROR + MAX_SESSIONS_EXCEEDED,
+			config.c_nodename, config.c_maxsessions);
+	}
+	extract(username, cmdbuf, 0);
 	username[25] = 0;
 	strproc(username);
 
-	if (strlen(username)==0) {
-		cprintf("%d You must supply a user name.\n",ERROR);
+	if (strlen(username) == 0) {
+		cprintf("%d You must supply a user name.\n", ERROR);
 		return;
-		}
-
+	}
 	a = create_user(username);
 	if ((!strcasecmp(username, "bbs")) ||
 	    (!strcasecmp(username, "new")) ||
-	    (!strcasecmp(username, ".")))
-	{
-	   cprintf("%d '%s' is an invalid login name.\n", ERROR);
-	   return;
+	    (!strcasecmp(username, "."))) {
+		cprintf("%d '%s' is an invalid login name.\n", ERROR);
+		return;
 	}
-	if (a==ERROR+ALREADY_EXISTS) {
+	if (a == ERROR + ALREADY_EXISTS) {
 		cprintf("%d '%s' already exists.\n",
-			ERROR+ALREADY_EXISTS,username);
+			ERROR + ALREADY_EXISTS, username);
 		return;
-		}
-	else if (a==ERROR+INTERNAL_ERROR) {
+	} else if (a == ERROR + INTERNAL_ERROR) {
 		cprintf("%d Internal error - user record disappeared?\n",
-			ERROR+INTERNAL_ERROR);
+			ERROR + INTERNAL_ERROR);
 		return;
-		}
-	else if (a==0) {
+	} else if (a == 0) {
 		session_startup();
 		logged_in_response();
-		}
-	else {
-		cprintf("%d unknown error\n",ERROR);
-		}
-	rec_log(CL_NEWUSER,CC->curr_user);
+	} else {
+		cprintf("%d unknown error\n", ERROR);
 	}
+	rec_log(CL_NEWUSER, CC->curr_user);
+}
 
 
 
@@ -736,41 +733,44 @@ void cmd_newu(char *cmdbuf)
  */
 void cmd_setp(char *new_pw)
 {
-	if (CtdlAccessCheck(ac_logged_in)) return;
+	if (CtdlAccessCheck(ac_logged_in))
+		return;
 
 	if (CC->usersupp.uid != BBSUID) {
-		cprintf("%d Not allowed.  Use the 'passwd' command.\n",ERROR);
+		cprintf("%d Not allowed.  Use the 'passwd' command.\n", ERROR);
 		return;
-		}
-	strproc(new_pw);
-	if (strlen(new_pw)==0) {
-		cprintf("%d Password unchanged.\n",OK);
-		return;
-		}
-	lgetuser(&CC->usersupp,CC->curr_user);
-	strcpy(CC->usersupp.password,new_pw);
-	lputuser(&CC->usersupp);
-	cprintf("%d Password changed.\n",OK);
-	rec_log(CL_PWCHANGE,CC->curr_user);
-	PerformSessionHooks(EVT_SETPASS);
 	}
+	strproc(new_pw);
+	if (strlen(new_pw) == 0) {
+		cprintf("%d Password unchanged.\n", OK);
+		return;
+	}
+	lgetuser(&CC->usersupp, CC->curr_user);
+	strcpy(CC->usersupp.password, new_pw);
+	lputuser(&CC->usersupp);
+	cprintf("%d Password changed.\n", OK);
+	rec_log(CL_PWCHANGE, CC->curr_user);
+	PerformSessionHooks(EVT_SETPASS);
+}
 
 /*
  * get user parameters
  */
-void cmd_getu(void) {
+void cmd_getu(void)
+{
 
-	if (CtdlAccessCheck(ac_logged_in)) return;
+	if (CtdlAccessCheck(ac_logged_in))
+		return;
 
-	getuser(&CC->usersupp,CC->curr_user);
+	getuser(&CC->usersupp, CC->curr_user);
 	cprintf("%d %d|%d|%d|%d\n",
 		OK,
 		CC->usersupp.USscreenwidth,
 		CC->usersupp.USscreenheight,
 		(CC->usersupp.flags & US_USER_SET),
 		CC->usersupp.moderation_filter
-		);
-	}
+	    );
+}
 
 /*
  * set user parameters
@@ -779,41 +779,42 @@ void cmd_setu(char *new_parms)
 {
 	int new_mod;
 
-	if (CtdlAccessCheck(ac_logged_in)) return;
+	if (CtdlAccessCheck(ac_logged_in))
+		return;
 
 	if (num_parms(new_parms) < 3) {
-		cprintf("%d Usage error.\n",ERROR);
+		cprintf("%d Usage error.\n", ERROR);
 		return;
-		}	
-
-	lgetuser(&CC->usersupp,CC->curr_user);
-	CC->usersupp.USscreenwidth = extract_int(new_parms,0);
-	CC->usersupp.USscreenheight = extract_int(new_parms,1);
+	}
+	lgetuser(&CC->usersupp, CC->curr_user);
+	CC->usersupp.USscreenwidth = extract_int(new_parms, 0);
+	CC->usersupp.USscreenheight = extract_int(new_parms, 1);
 	CC->usersupp.flags = CC->usersupp.flags & (~US_USER_SET);
-	CC->usersupp.flags = CC->usersupp.flags | 
-		(extract_int(new_parms,2) & US_USER_SET);
+	CC->usersupp.flags = CC->usersupp.flags |
+	    (extract_int(new_parms, 2) & US_USER_SET);
 
 	if (num_parms(new_parms) >= 4) {
 		new_mod = extract_int(new_parms, 3);
 		lprintf(9, "new_mod extracted to %d\n", new_mod);
 
-		/* Aides cannot set the filter level lower than -100 */	
-		if (new_mod < (-100) ) new_mod = -100;
+		/* Aides cannot set the filter level lower than -100 */
+		if (new_mod < (-100))
+			new_mod = -100;
 
 		/* Normal users cannot set the filter level lower than -63 */
-		if ( (new_mod < (-63)) && (CC->usersupp.axlevel < 6) )
+		if ((new_mod < (-63)) && (CC->usersupp.axlevel < 6))
 			new_mod = -63;
 
 		/* Nobody can set the filter level higher than +63 */
-		if (new_mod > 63) new_mod = 63;
+		if (new_mod > 63)
+			new_mod = 63;
 
 		CC->usersupp.moderation_filter = new_mod;
 		lprintf(9, "new_mod processed to %d\n", new_mod);
 	}
-
 	lputuser(&CC->usersupp);
-	cprintf("%d Ok\n",OK);
-	}
+	cprintf("%d Ok\n", OK);
+}
 
 /*
  * set last read pointer
@@ -823,14 +824,14 @@ void cmd_slrp(char *new_ptr)
 	long newlr;
 	struct visit vbuf;
 
-	if (CtdlAccessCheck(ac_logged_in)) return;
+	if (CtdlAccessCheck(ac_logged_in))
+		return;
 
-	if (!strncasecmp(new_ptr,"highest",7)) {
+	if (!strncasecmp(new_ptr, "highest", 7)) {
 		newlr = CC->quickroom.QRhighest;
-		}
-	else {
+	} else {
 		newlr = atol(new_ptr);
-		}
+	}
 
 	lgetuser(&CC->usersupp, CC->curr_user);
 
@@ -839,45 +840,43 @@ void cmd_slrp(char *new_ptr)
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
 	lputuser(&CC->usersupp);
-	cprintf("%d %ld\n",OK,newlr);
-	}
+	cprintf("%d %ld\n", OK, newlr);
+}
 
 
 /*
  * INVT and KICK commands
  */
 void cmd_invt_kick(char *iuser, int op)
-            		/* user name */
-        {		/* 1 = invite, 0 = kick out */
+			/* user name */
+{				/* 1 = invite, 0 = kick out */
 	struct usersupp USscratch;
 	char bbb[256];
 	struct visit vbuf;
 
-	if (CtdlAccessCheck(ac_room_aide)) return;
-
-	if (lgetuser(&USscratch,iuser)!=0) {
-		cprintf("%d No such user.\n",ERROR);
+	if (CtdlAccessCheck(ac_room_aide))
 		return;
-		}
 
+	if (lgetuser(&USscratch, iuser) != 0) {
+		cprintf("%d No such user.\n", ERROR);
+		return;
+	}
 	CtdlGetRelationship(&vbuf, &USscratch, &CC->quickroom);
 
-	if (op==1) {
+	if (op == 1) {
 		vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
 		vbuf.v_flags = vbuf.v_flags | V_ACCESS;
-		}
-
-	if (op==0) {
+	}
+	if (op == 0) {
 		vbuf.v_flags = vbuf.v_flags & ~V_ACCESS;
 		vbuf.v_flags = vbuf.v_flags | V_FORGET | V_LOCKOUT;
-		}
-
+	}
 	CtdlSetRelationship(&vbuf, &USscratch, &CC->quickroom);
 
 	lputuser(&USscratch);
 
 	/* post a message in Aide> saying what we just did */
-	sprintf(bbb,"%s %s %s> by %s\n",
+	sprintf(bbb, "%s %s %s> by %s\n",
 		iuser,
 		((op == 1) ? "invited to" : "kicked out of"),
 		CC->quickroom.QRname,
@@ -889,23 +888,26 @@ void cmd_invt_kick(char *iuser, int op)
 		((op == 1) ? "invited to" : "kicked out of"),
 		CC->quickroom.QRname);
 	return;
-	}
+}
 
 
 /*
  * forget (Zap) the current room
  */
-void cmd_forg(void) {
+void cmd_forg(void)
+{
 	struct visit vbuf;
 
-	if (CtdlAccessCheck(ac_logged_in)) return;
-
-	if (is_aide()) {
-		cprintf("%d Aides cannot forget rooms.\n",ERROR);
+	if (CtdlAccessCheck(ac_logged_in)) {
 		return;
-		}
+	}
 
-	lgetuser(&CC->usersupp,CC->curr_user);
+	if (is_aide() && (config.c_aide_zap == 0)) {
+		cprintf("%d Aides cannot forget rooms.\n", ERROR);
+		return;
+	}
+
+	lgetuser(&CC->usersupp, CC->curr_user);
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
 	vbuf.v_flags = vbuf.v_flags | V_FORGET;
@@ -913,23 +915,26 @@ void cmd_forg(void) {
 
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 	lputuser(&CC->usersupp);
-	cprintf("%d Ok\n",OK);
+	cprintf("%d Ok\n", OK);
 	usergoto(BASEROOM, 0, NULL, NULL);
-	}
+}
 
 /*
  * Get Next Unregistered User
  */
-void cmd_gnur(void) {
+void cmd_gnur(void)
+{
 	struct cdbdata *cdbus;
 	struct usersupp usbuf;
 
-	if (CtdlAccessCheck(ac_aide)) return;
-
-	if ((CitControl.MMflags&MM_VALID)==0) {
-		cprintf("%d There are no unvalidated users.\n",OK);
+	if (CtdlAccessCheck(ac_aide)) {
 		return;
-		}
+	}
+
+	if ((CitControl.MMflags & MM_VALID) == 0) {
+		cprintf("%d There are no unvalidated users.\n", OK);
+		return;
+	}
 
 	/* There are unvalidated users.  Traverse the usersupp database,
 	 * and return the first user we find that needs validation.
@@ -938,15 +943,15 @@ void cmd_gnur(void) {
 	while (cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
 		memset(&usbuf, 0, sizeof(struct usersupp));
 		memcpy(&usbuf, cdbus->ptr,
-			( (cdbus->len > sizeof(struct usersupp)) ?
-			sizeof(struct usersupp) : cdbus->len) );
+		       ((cdbus->len > sizeof(struct usersupp)) ?
+			sizeof(struct usersupp) : cdbus->len));
 		cdb_free(cdbus);
 		if ((usbuf.flags & US_NEEDVALID)
-		   &&(usbuf.axlevel > 0)) {
-			cprintf("%d %s\n",MORE_DATA,usbuf.fullname);
+		    && (usbuf.axlevel > 0)) {
+			cprintf("%d %s\n", MORE_DATA, usbuf.fullname);
 			return;
-			}
-		} 
+		}
+	}
 
 	/* If we get to this point, there are no more unvalidated users.
 	 * Therefore we clear the "users need validation" flag.
@@ -954,13 +959,13 @@ void cmd_gnur(void) {
 
 	begin_critical_section(S_CONTROL);
 	get_control();
-	CitControl.MMflags = CitControl.MMflags&(~MM_VALID);
+	CitControl.MMflags = CitControl.MMflags & (~MM_VALID);
 	put_control();
 	end_critical_section(S_CONTROL);
-	cprintf("%d *** End of registration.\n",OK);
+	cprintf("%d *** End of registration.\n", OK);
 
 
-	}
+}
 
 
 /*
@@ -972,15 +977,17 @@ void cmd_vali(char *v_args)
 	int newax;
 	struct usersupp userbuf;
 
-	extract(user,v_args,0);
-	newax = extract_int(v_args,1);
+	extract(user, v_args, 0);
+	newax = extract_int(v_args, 1);
 
-	if (CtdlAccessCheck(ac_aide)) return;
-
-	if (lgetuser(&userbuf,user)!=0) {
-		cprintf("%d '%s' not found.\n",ERROR+NO_SUCH_USER,user);
+	if (CtdlAccessCheck(ac_aide)) {
 		return;
-		}
+	}
+
+	if (lgetuser(&userbuf, user) != 0) {
+		cprintf("%d '%s' not found.\n", ERROR + NO_SUCH_USER, user);
+		return;
+	}
 
 	userbuf.axlevel = newax;
 	userbuf.flags = (userbuf.flags & ~US_NEEDVALID);
@@ -989,46 +996,47 @@ void cmd_vali(char *v_args)
 
 	/* If the access level was set to zero, delete the user */
 	if (newax == 0) {
-		if (purge_user(user)==0) {
+		if (purge_user(user) == 0) {
 			cprintf("%d %s Deleted.\n", OK, userbuf.fullname);
 			return;
-			}
 		}
-
-	cprintf("%d User '%s' validated.\n", OK, userbuf.fullname);
 	}
+	cprintf("%d User '%s' validated.\n", OK, userbuf.fullname);
+}
 
 
 
 /* 
  *  Traverse the user file...
  */
-void ForEachUser(void (*CallBack)(struct usersupp *EachUser, void *out_data),
-		void *in_data) {
+void ForEachUser(void (*CallBack) (struct usersupp * EachUser, void *out_data),
+		 void *in_data)
+{
 	struct usersupp usbuf;
 	struct cdbdata *cdbus;
 
 	cdb_rewind(CDB_USERSUPP);
 
-	while(cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
+	while (cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
 		memset(&usbuf, 0, sizeof(struct usersupp));
 		memcpy(&usbuf, cdbus->ptr,
-			( (cdbus->len > sizeof(struct usersupp)) ?
-			sizeof(struct usersupp) : cdbus->len) );
+		       ((cdbus->len > sizeof(struct usersupp)) ?
+			sizeof(struct usersupp) : cdbus->len));
 		cdb_free(cdbus);
-		(*CallBack)(&usbuf, in_data);
-		}
+		(*CallBack) (&usbuf, in_data);
 	}
+}
 
 
 /*
  * List one user (this works with cmd_list)
  */
-void ListThisUser(struct usersupp *usbuf, void *data) {
+void ListThisUser(struct usersupp *usbuf, void *data)
+{
 	if (usbuf->axlevel > 0) {
-		if ((CC->usersupp.axlevel>=6)
-		   ||((usbuf->flags&US_UNLISTED)==0)
-		   ||((CC->internal_pgm))) {
+		if ((CC->usersupp.axlevel >= 6)
+		    || ((usbuf->flags & US_UNLISTED) == 0)
+		    || ((CC->internal_pgm))) {
 			cprintf("%s|%d|%ld|%ld|%d|%d|",
 				usbuf->fullname,
 				usbuf->axlevel,
@@ -1037,20 +1045,21 @@ void ListThisUser(struct usersupp *usbuf, void *data) {
 				usbuf->timescalled,
 				usbuf->posted);
 			if (CC->usersupp.axlevel >= 6)
-				cprintf("%s",usbuf->password);
+				cprintf("%s", usbuf->password);
 			cprintf("\n");
-			}
 		}
 	}
+}
 
 /* 
  *  List users
  */
-void cmd_list(void) {
-	cprintf("%d \n",LISTING_FOLLOWS);
+void cmd_list(void)
+{
+	cprintf("%d \n", LISTING_FOLLOWS);
 	ForEachUser(ListThisUser, NULL);
 	cprintf("000\n");
-	}
+}
 
 
 
@@ -1058,27 +1067,31 @@ void cmd_list(void) {
 /*
  * assorted info we need to check at login
  */
-void cmd_chek(void) {
+void cmd_chek(void)
+{
 	int mail = 0;
 	int regis = 0;
 	int vali = 0;
-	
-	if (CtdlAccessCheck(ac_logged_in)) return;
 
-	getuser(&CC->usersupp,CC->curr_user); /* no lock is needed here */
-	if ((REGISCALL!=0)&&((CC->usersupp.flags&US_REGIS)==0)) regis = 1;
+	if (CtdlAccessCheck(ac_logged_in)) {
+		return;
+	}
+
+	getuser(&CC->usersupp, CC->curr_user);	/* no lock is needed here */
+	if ((REGISCALL != 0) && ((CC->usersupp.flags & US_REGIS) == 0))
+		regis = 1;
 
 	if (CC->usersupp.axlevel >= 6) {
 		get_control();
-		if (CitControl.MMflags&MM_VALID) vali = 1;
-		}
-
+		if (CitControl.MMflags & MM_VALID)
+			vali = 1;
+	}
 
 	/* check for mail */
 	mail = NewMailCount();
 
-	cprintf("%d %d|%d|%d\n",OK,mail,regis,vali);
-	}
+	cprintf("%d %d|%d|%d\n", OK, mail, regis, vali);
+}
 
 
 /*
@@ -1088,128 +1101,136 @@ void cmd_qusr(char *who)
 {
 	struct usersupp usbuf;
 
-	if (getuser(&usbuf,who) == 0) {
-		cprintf("%d %s\n",OK,usbuf.fullname);
-		}
-	else {
-		cprintf("%d No such user.\n",ERROR+NO_SUCH_USER);
-		}
+	if (getuser(&usbuf, who) == 0) {
+		cprintf("%d %s\n", OK, usbuf.fullname);
+	} else {
+		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
 	}
+}
 
 
 /*
  * Administrative Get User Parameters
  */
-void cmd_agup(char *cmdbuf) {
+void cmd_agup(char *cmdbuf)
+{
 	struct usersupp usbuf;
 	char requested_user[256];
 
-	if (CtdlAccessCheck(ac_aide)) return;
+	if (CtdlAccessCheck(ac_aide)) {
+		return;
+	}
 
 	extract(requested_user, cmdbuf, 0);
 	if (getuser(&usbuf, requested_user) != 0) {
 		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
 		return;
-		}
-
-	cprintf("%d %s|%s|%u|%d|%d|%d|%ld|%ld|%d\n", 
+	}
+	cprintf("%d %s|%s|%u|%d|%d|%d|%ld|%ld|%d\n",
 		OK,
 		usbuf.fullname,
 		usbuf.password,
 		usbuf.flags,
 		usbuf.timescalled,
 		usbuf.posted,
-		(int)usbuf.axlevel,
+		(int) usbuf.axlevel,
 		usbuf.usernum,
 		usbuf.lastcall,
 		usbuf.USuserpurge);
-	}
+}
 
 
 
 /*
  * Administrative Set User Parameters
  */
-void cmd_asup(char *cmdbuf) {
+void cmd_asup(char *cmdbuf)
+{
 	struct usersupp usbuf;
 	char requested_user[256];
 	int np;
 	int newax;
 	int deleted = 0;
-	
-	if (CtdlAccessCheck(ac_aide)) return;
+
+	if (CtdlAccessCheck(ac_aide))
+		return;
 
 	extract(requested_user, cmdbuf, 0);
 	if (lgetuser(&usbuf, requested_user) != 0) {
 		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
 		return;
-		}
-
+	}
 	np = num_parms(cmdbuf);
-	if (np > 1) extract(usbuf.password, cmdbuf, 1);
-	if (np > 2) usbuf.flags = extract_int(cmdbuf, 2);
-	if (np > 3) usbuf.timescalled = extract_int(cmdbuf, 3);
-	if (np > 4) usbuf.posted = extract_int(cmdbuf, 4);
+	if (np > 1)
+		extract(usbuf.password, cmdbuf, 1);
+	if (np > 2)
+		usbuf.flags = extract_int(cmdbuf, 2);
+	if (np > 3)
+		usbuf.timescalled = extract_int(cmdbuf, 3);
+	if (np > 4)
+		usbuf.posted = extract_int(cmdbuf, 4);
 	if (np > 5) {
 		newax = extract_int(cmdbuf, 5);
-		if ((newax >=0) && (newax <= 6)) {
+		if ((newax >= 0) && (newax <= 6)) {
 			usbuf.axlevel = extract_int(cmdbuf, 5);
-			}
 		}
+	}
 	if (np > 7) {
 		usbuf.lastcall = extract_long(cmdbuf, 7);
-		}
+	}
 	if (np > 8) {
 		usbuf.USuserpurge = extract_int(cmdbuf, 8);
-		}
-
+	}
 	lputuser(&usbuf);
 	if (usbuf.axlevel == 0) {
-		if (purge_user(requested_user)==0) {
+		if (purge_user(requested_user) == 0) {
 			deleted = 1;
-			}
 		}
-	cprintf("%d Ok", OK);
-	if (deleted) cprintf(" (%s deleted)", requested_user);
-	cprintf("\n");
 	}
+	cprintf("%d Ok", OK);
+	if (deleted)
+		cprintf(" (%s deleted)", requested_user);
+	cprintf("\n");
+}
 
 
 /*
  * Count the number of new mail messages the user has
  */
-int NewMailCount() {
+int NewMailCount()
+{
 	int num_newmsgs = 0;
 	int a;
 	char mailboxname[ROOMNAMELEN];
 	struct quickroom mailbox;
 	struct visit vbuf;
-        struct cdbdata *cdbfr;
+	struct cdbdata *cdbfr;
 	long *msglist = NULL;
 	int num_msgs = 0;
 
 	MailboxName(mailboxname, &CC->usersupp, MAILROOM);
-	if (getroom(&mailbox, mailboxname)!=0) return(0);
+	if (getroom(&mailbox, mailboxname) != 0)
+		return (0);
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &mailbox);
 
-        cdbfr = cdb_fetch(CDB_MSGLISTS, &mailbox.QRnumber, sizeof(long));
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &mailbox.QRnumber, sizeof(long));
 
-        if (cdbfr != NULL) {
-        	msglist = mallok(cdbfr->len);
-        	memcpy(msglist, cdbfr->ptr, cdbfr->len);
-        	num_msgs = cdbfr->len / sizeof(long);
-        	cdb_free(cdbfr);
+	if (cdbfr != NULL) {
+		msglist = mallok(cdbfr->len);
+		memcpy(msglist, cdbfr->ptr, cdbfr->len);
+		num_msgs = cdbfr->len / sizeof(long);
+		cdb_free(cdbfr);
 	}
-
-	if (num_msgs > 0) for (a=0; a<num_msgs; ++a) {
-		if (msglist[a]>0L) {
-			if (msglist[a] > vbuf.v_lastseen) {
-				++num_newmsgs;
+	if (num_msgs > 0)
+		for (a = 0; a < num_msgs; ++a) {
+			if (msglist[a] > 0L) {
+				if (msglist[a] > vbuf.v_lastseen) {
+					++num_newmsgs;
 				}
 			}
 		}
+	if (msglist != NULL)
+		phree(msglist);
 
-	if (msglist != NULL) phree(msglist);
-
-	return(num_newmsgs);
-	}
+	return (num_newmsgs);
+}
