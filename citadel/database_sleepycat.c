@@ -174,31 +174,28 @@ void defrag_databases(void)
  * Cull the database logs
  */
 static void cdb_cull_logs(void) {
-	DIR *dp;
-	struct dirent *d;
-	char filename[SIZ];
-	struct stat statbuf;
+	u_int32_t flags;
+	int ret;
+	char **file, **list;
 
 	lprintf(5, "Database log file cull started.\n");
 
-	dp = opendir("data");
-	if (dp == NULL) return;
+	flags = DB_ARCH_ABS;
 
-	while (d = readdir(dp), d != NULL) {
-		if (!strncasecmp(d->d_name, "log.", 4)) {
-			sprintf(filename, "./data/%s", d->d_name);
-			stat(filename, &statbuf);
-			if ((time(NULL) - statbuf.st_mtime) > 432000L) {
-				lprintf(5, "%s ... deleted\n", filename);
-				unlink(filename);
-			}
-			else {
-				lprintf(5, "%s ... kept\n", filename);
-			}
-		}
+	/* Get the list of names. */
+	if ((ret = log_archive(dbenv, &list, flags)) != 0) {
+		lprintf(1, "cdb_cull_logs: %s\n", db_strerror(ret));
+		return;
 	}
 
-	closedir(dp);
+	/* Print the list of names. */
+	if (list != NULL) {
+		for (file = list; *file != NULL; ++file) {
+			lprintf(9, "Deleting log: %s\n", *file);
+			unlink(*file);
+		}
+		free(list);
+	}
 
 	lprintf(5, "Database log file cull ended.\n");
 }
