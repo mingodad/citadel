@@ -32,7 +32,9 @@
 #include <limits.h>
 #include <syslog.h>
 
-#include "webcit.h"
+#include "citadel.h"
+#include "server.h"
+#include "support.h"
 #include "vcard.h"
 
 /* 
@@ -41,7 +43,7 @@
 struct vCard *vcard_new() {
 	struct vCard *v;
 
-	v = (struct vCard *) malloc(sizeof(struct vCard));
+	v = (struct vCard *) mallok(sizeof(struct vCard));
 	if (v == NULL) return v;
 
 	v->magic = CTDL_VCARD_MAGIC;
@@ -63,7 +65,7 @@ struct vCard *vcard_load(char *vtext) {
 	int i;
 	int colonpos, nlpos;
 
-	mycopy = strdup(vtext);
+	mycopy = strdoop(vtext);
 	if (mycopy == NULL) return NULL;
 
 	/* First, fix this big pile o' vCard to make it more parseable.
@@ -90,8 +92,8 @@ struct vCard *vcard_load(char *vtext) {
 		nlpos = pattern2(ptr, "\n");
 
 		if (nlpos > colonpos > 0) {
-			namebuf = malloc(colonpos + 1);
-			valuebuf = malloc(nlpos - colonpos + 1);
+			namebuf = mallok(colonpos + 1);
+			valuebuf = mallok(nlpos - colonpos + 1);
 			strncpy(namebuf, ptr, colonpos);
 			namebuf[colonpos] = 0;
 			strncpy(valuebuf, &ptr[colonpos+1], nlpos-colonpos-1);
@@ -104,14 +106,14 @@ struct vCard *vcard_load(char *vtext) {
 
 			if ( (valid) && (strcasecmp(namebuf, "begin")) ) {
 				++v->numprops;
-				v->prop = realloc(v->prop,
+				v->prop = reallok(v->prop,
 					(v->numprops * sizeof(char *) * 2) );
 				v->prop[v->numprops-1].name = namebuf;
 				v->prop[v->numprops-1].value = valuebuf;
 			} 
 			else {
-				free(namebuf);
-				free(valuebuf);
+				phree(namebuf);
+				phree(valuebuf);
 			}
 
 		}
@@ -122,20 +124,21 @@ struct vCard *vcard_load(char *vtext) {
 		if (*ptr == '\n') ++ptr;
 	}
 
-	free(mycopy);
+	phree(mycopy);
 	return v;
 }
 
 
 /*
- * Fetch the value of a particular key
+ * Fetch the value of a particular key.
  * If is_partial is set to 1, a partial match is ok (for example,
- * a key of "tel;home" will satisfy a search for "tel")
+ * a key of "tel;home" will satisfy a search for "tel").
  * Set "instance" to a value higher than 0 to return subsequent instances
- * of the same key
+ * of the same key.
+ * Set "get_propname" to nonzero to fetch the property name instead of value.
  */
 char *vcard_get_prop(struct vCard *v, char *propname,
-			int is_partial, int instance) {
+			int is_partial, int instance, int get_propname) {
 	int i;
 	int found_instance = 0;
 
@@ -147,7 +150,12 @@ char *vcard_get_prop(struct vCard *v, char *propname,
 			 && (v->prop[i].name[strlen(propname)] == ';')
 			 && (is_partial) ) ) {
 			if (instance == found_instance++) {
-				return(v->prop[i].value);
+				if (get_propname) {
+					return(v->prop[i].name);
+				}
+				else {
+					return(v->prop[i].value);
+				}
 			}
 		}
 	}
@@ -167,14 +175,14 @@ void vcard_free(struct vCard *v) {
 	if (v->magic != CTDL_VCARD_MAGIC) return;	/* Self-check */
 	
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
-		free(v->prop[i].name);
-		free(v->prop[i].value);
+		phree(v->prop[i].name);
+		phree(v->prop[i].value);
 	}
 
-	if (v->prop != NULL) free(v->prop);
+	if (v->prop != NULL) phree(v->prop);
 	
 	memset(v, 0, sizeof(struct vCard));
-	free(v);
+	phree(v);
 }
 
 
@@ -191,20 +199,20 @@ void vcard_set_prop(struct vCard *v, char *name, char *value, int append) {
 	/* If this key is already present, replace it */
 	if (!append) if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 		if (!strcasecmp(v->prop[i].name, name)) {
-			free(v->prop[i].name);
-			free(v->prop[i].value);
-			v->prop[i].name = strdup(name);
-			v->prop[i].value = strdup(value);
+			phree(v->prop[i].name);
+			phree(v->prop[i].value);
+			v->prop[i].name = strdoop(name);
+			v->prop[i].value = strdoop(value);
 			return;
 		}
 	}
 
 	/* Otherwise, append it */
 	++v->numprops;
-	v->prop = realloc(v->prop,
+	v->prop = reallok(v->prop,
 		(v->numprops * sizeof(char *) * 2) );
-	v->prop[v->numprops-1].name = strdup(name);
-	v->prop[v->numprops-1].value = strdup(value);
+	v->prop[v->numprops-1].name = strdoop(name);
+	v->prop[v->numprops-1].value = strdoop(value);
 }
 
 
@@ -230,7 +238,7 @@ char *vcard_serialize(struct vCard *v)
 			strlen(v->prop[i].value) + 4;
 	}
 
-	ser = malloc(len);
+	ser = mallok(len);
 	if (ser == NULL) return NULL;
 
 	strcpy(ser, "begin:vcard\r\n");

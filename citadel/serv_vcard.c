@@ -98,7 +98,7 @@ void vcard_extract_internet_addresses(struct CtdlMessage *msg,
 	 * the "email;internet" key
 	 */
 	do {
-		s = vcard_get_prop(v, "email;internet", 0, instance++);
+		s = vcard_get_prop(v, "email;internet", 0, instance++, 0);
 		if (s != NULL) {
 			addr = strdoop(s);
 			striplt(addr);
@@ -216,7 +216,7 @@ void vcard_populate_cs_inet_email(struct vCard *v) {
 	 * the "email;internet" key
 	 */
 	do {
-		s = vcard_get_prop(v, "email;internet", 0, instance++);
+		s = vcard_get_prop(v, "email;internet", 0, instance++, 0);
 		if (s != NULL) {
 			continue_searching = 1;
 			addr = strdoop(s);
@@ -560,10 +560,10 @@ void cmd_greg(char *argbuf)
 	cprintf("%d %s\n", LISTING_FOLLOWS, usbuf.fullname);
 	cprintf("%ld\n", usbuf.usernum);
 	cprintf("%s\n", usbuf.password);
-	s = vcard_get_prop(v, "n", 0, 0);
+	s = vcard_get_prop(v, "n", 0, 0, 0);
 	cprintf("%s\n", s ? s : " ");	/* name */
 
-	s = vcard_get_prop(v, "adr", 0, 0);
+	s = vcard_get_prop(v, "adr", 0, 0, 0);
 	sprintf(adr, "%s", s ? s : " ");/* address... */
 
 	extract_token(buf, adr, 2, ';');
@@ -575,8 +575,8 @@ void cmd_greg(char *argbuf)
 	extract_token(buf, adr, 5, ';');
 	cprintf("%s\n", buf);				/* zip */
 
-	s = vcard_get_prop(v, "tel;home", 0, 0);
-	if (s == NULL) s = vcard_get_prop(v, "tel", 1, 0);
+	s = vcard_get_prop(v, "tel;home", 0, 0, 0);
+	if (s == NULL) s = vcard_get_prop(v, "tel", 1, 0, 0);
 	if (s != NULL) {
 		cprintf("%s\n", s);
 	}
@@ -586,9 +586,9 @@ void cmd_greg(char *argbuf)
 
 	cprintf("%d\n", usbuf.axlevel);
 
-	s = vcard_get_prop(v, "email;internet", 0, 0);
+	s = vcard_get_prop(v, "email;internet", 0, 0, 0);
 	cprintf("%s\n", s ? s : " ");
-	s = vcard_get_prop(v, "adr", 0, 0);
+	s = vcard_get_prop(v, "adr", 0, 0, 0);
 	sprintf(adr, "%s", s ? s : " ");/* address... */
 
 	extract_token(buf, adr, 6, ';');
