@@ -123,8 +123,12 @@ function ctdl_get_serv_info() {
 		$i = 0;
 		do {
 			$buf = serv_gets();
+			if ($i == 1) $_SESSION["serv_nodename"] = $buf;
 			if ($i == 2) $_SESSION["serv_humannode"] = $buf;
+			if ($i == 3) $_SESSION["serv_fqdn"] = $buf;
 			if ($i == 4) $_SESSION["serv_software"] = $buf;
+			if ($i == 6) $_SESSION["serv_city"] = $buf;
+			if ($i == 7) $_SESSION["serv_sysadmin"] = $buf;
 			$i = $i + 1;
 		} while (strcasecmp($buf, "000"));
 	}
@@ -133,40 +137,30 @@ function ctdl_get_serv_info() {
 
 
 //
-// Temporary function to verify communication with the Citadel server.
-//
-function test_for_echo() {
-	global $clientsocket, $session;
-
-	$command = "ECHO Video vertigo ... test for echo.";
-	serv_puts($command);
-	$response = serv_gets();
-	echo $response, "<BR>";
-	flush();
-}
-
-
-//
-// Display a system banner.
+// Display a system banner.  (Returns completed HTML.)
 // (This is probably temporary because it outputs more or less finalized
 // markup.  For now it's just usable.)
 //
 function ctdl_mesg($msgname) {
 	global $clientsocket;
 
+	$msgtext = "<DIV ALIGN=CENTER>\n";
+
 	serv_puts("MESG " . $msgname);
 	$response = serv_gets();
-	
+
 	if (substr($response, 0, 1) == "1") {
-		echo "<DIV ALIGN=CENTER>\n";
 		while (strcmp($buf = serv_gets(), "000")) {
-			echo "<TT>", $buf, "</TT><BR>\n" ;
+			$msgtext .= "<TT>" . htmlspecialchars($buf)
+				. "</TT><BR>\n" ;
 		}
-		echo "</DIV>\n";
 	}
 	else {
-		echo "<B><I>", substr($response, 4), "</I></B><BR>\n";
+		$msgtext .= "<B><I>" . substr($response, 4) . "</I></B><BR>\n";
 	}
+
+	$msgtext .= "</DIV>\n";
+	return($msgtext);
 }
 
 

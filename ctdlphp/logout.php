@@ -12,7 +12,7 @@
 
 	bbs_page_header();
 
-	ctdl_mesg("goodbye");
+	echo ctdl_mesg("goodbye");
 
 	echo "<a href=\"index.php\">Log in again</a><BR>\n" ;
 

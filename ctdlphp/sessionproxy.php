@@ -107,6 +107,9 @@ if (substr($buf, 0, 1) != "2") {
 
 do {
 	// Wait for connections, but time out after 15 minutes.
+	// socket_select() is completely b0rken in PHP 4.1, which is why
+	// this program requires PHP 4.3 or newer.
+	//
 	if (socket_select($readsock = array($sock),
 			$writesock = NULL,
 			$exceptsock = NULL,

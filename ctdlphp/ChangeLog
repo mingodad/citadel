@@ -1,4 +1,9 @@
  $Log$
+ Revision 1.11  2003/11/03 05:32:57  ajc
+ * Minor code cleanups
+ * ctdl_mesg() now returns ready-to-output HTML to the caller, instead of
+   outputting it itself.
+
  Revision 1.10  2003/11/02 05:35:11  ajc
  * who.php: added
  * ctdlprotocol.php: worked out a tentative data API using this function.
@@ -45,3 +50,4 @@
 
  Revision 1.1  2003/10/31 03:47:13  ajc
  * Initial CVS import
+

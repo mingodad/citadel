@@ -11,7 +11,7 @@
 	include "ctdlheader.php";
 	bbs_page_header();
 
-	ctdl_mesg("hello");
+	echo ctdl_mesg("hello");
 ?>
 
 	<div align=center>
