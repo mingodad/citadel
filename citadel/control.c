@@ -125,6 +125,8 @@ void cmd_conf(char *argbuf) {
 	char cmd[256];
 	char buf[256];
 	int a;
+	char *confptr;
+	char confname[256];
 
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
@@ -255,8 +257,33 @@ void cmd_conf(char *argbuf) {
 			create_room(config.c_logpages, 4, "", 0);
 		}
 
+	else if (!strcasecmp(cmd, "GETSYS")) {
+		extract(confname, argbuf, 1);
+		confptr = CtdlGetSysConfig(confname);
+		if (confptr != NULL) {
+			cprintf("%d %s\n", LISTING_FOLLOWS, confname);
+			client_write(confptr, strlen(confptr));
+			if (confptr[strlen(confptr)-1] != 10)
+				client_write("\n", 1);
+			cprintf("000\n");
+			phree(confptr);
+		}
+		else {
+			cprintf("%d No such configuration.\n",
+				ERROR+ILLEGAL_VALUE);
+		}
+	}
+
+	else if (!strcasecmp(cmd, "PUTSYS")) {
+		extract(confname, argbuf, 1);
+		cprintf("%d %s\n", SEND_LISTING, confname);
+		confptr = CtdlReadMessageBody("000", config.c_maxmsglen, NULL);
+		CtdlPutSysConfig(confname, confptr);
+		phree(confptr);
+	}
+
 	else {
-		cprintf("%d The only valid options are GET and SET.\n",
+		cprintf("%d Illegal option(s) specified.\n",
 			ERROR+ILLEGAL_VALUE);
 		}
 	}

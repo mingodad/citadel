@@ -55,9 +55,10 @@ void master_startup(void) {
 	check_ref_counts();
 
 	lprintf(7, "Creating base rooms (if necessary)\n");
-	create_room(BASEROOM, 0, "", 0);
-	create_room(AIDEROOM, 4, "", 0);
-	create_room(config.c_twitroom, 0, "", 0);
+	create_room(BASEROOM,		0, "", 0);
+	create_room(AIDEROOM,		4, "", 0);
+	create_room(SYSCONFIGROOM,	4, "", 0);
+	create_room(config.c_twitroom,	0, "", 0);
 	}
 
 /*

@@ -67,7 +67,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	/* If this isn't the configuration room, or if this isn't a MIME
 	 * message, don't bother.
 	 */
-	if (strcasecmp(msg->cm_fields['O'], CONFIGROOM)) return(0);
+	if (strcasecmp(msg->cm_fields['O'], USERCONFIGROOM)) return(0);
 	if (msg->cm_format_type != 4) return(0);
 
 	ptr = msg->cm_fields['M'];
@@ -90,7 +90,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 			 * to make changes to another user's vCard instead of
 			 * assuming that it's always the user saving his own.
 			 */
-        		MailboxName(config_rm, &CC->usersupp, CONFIGROOM);
+        		MailboxName(config_rm, &CC->usersupp, USERCONFIGROOM);
 			CtdlDeleteMessages(config_rm, 0L, "text/x-vcard");
 
 			/* Set the Extended-ID to a standardized one so the
@@ -134,7 +134,7 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 	/* If this isn't the configuration room, or if this isn't a MIME
 	 * message, don't bother.
 	 */
-	if (strcasecmp(msg->cm_fields['O'], CONFIGROOM)) return(0);
+	if (strcasecmp(msg->cm_fields['O'], USERCONFIGROOM)) return(0);
 	if (msg->cm_format_type != 4) return(0);
 
 	ptr = msg->cm_fields['M'];
@@ -185,7 +185,7 @@ struct vCard *vcard_get_user(struct usersupp *u) {
 	struct vCard *v;
 
         strcpy(hold_rm, CC->quickroom.QRname);	/* save current room */
-        MailboxName(config_rm, u, CONFIGROOM);
+        MailboxName(config_rm, u, USERCONFIGROOM);
 
         if (getroom(&CC->quickroom, config_rm) != 0) {
                 getroom(&CC->quickroom, hold_rm);
@@ -239,7 +239,7 @@ void vcard_write_user(struct usersupp *u, struct vCard *v) {
 	 * have to, because the vcard_upload_beforesave() hook above
 	 * is going to notice what we're trying to do, and delete the old vCard.
 	 */
-        CtdlWriteObject(CONFIGROOM,	/* which room */
+        CtdlWriteObject(USERCONFIGROOM,	/* which room */
 			"text/x-vcard",	/* MIME type */
 			temp,		/* temp file */
 			u,		/* which user */

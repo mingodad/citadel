@@ -96,7 +96,7 @@ void do_pre555_usersupp_upgrade(void) {
 		fwrite(vcard, strlen(vcard)+1, 1, tp);
 		fclose(tp);
 
-        	CtdlWriteObject(CONFIGROOM, "text/x-vcard",
+        	CtdlWriteObject(USERCONFIGROOM, "text/x-vcard",
 			tempfilename, &newus, 0, 1, CM_SKIP_HOOKS);
 		unlink(tempfilename);
 	    }

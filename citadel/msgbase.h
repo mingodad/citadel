@@ -71,3 +71,5 @@ int is_valid_message(struct CtdlMessage *);
 int ReplicationChecks(struct CtdlMessage *);
 int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags);
 char *CtdlReadMessageBody(char *terminator, size_t maxlen, char *exist);
+char *CtdlGetSysConfig(char *sysconfname);
+void CtdlPutSysConfig(char *sysconfname, char *sysconfdata);

@@ -85,4 +85,14 @@
  */
 #define POP3_PORT		1110
 #define SMTP_PORT		2525
+
+
+/*
+ * The names of rooms which are automatically created by the system
+ */
+#define BASEROOM		"Lobby"
+#define MAILROOM		"Mail"
+#define AIDEROOM		"Aide"
+#define USERCONFIGROOM		"My Citadel Config"
+#define SYSCONFIGROOM		"Local System Configuration"
 #define SMTP_SPOOLOUT_ROOM	"__CitadelSMTPspoolout__"

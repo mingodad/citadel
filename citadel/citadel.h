@@ -239,11 +239,6 @@ struct floor {
 #define GF_ZAP		2		/* <;Z>ap floor mode */
 
 
-#define BASEROOM	"Lobby"
-#define MAILROOM	"Mail"
-#define AIDEROOM	"Aide"
-#define CONFIGROOM	"My Citadel Config"
-
 #define SPOOLMIME	"application/x-citadel-delivery-list"
 
 /*

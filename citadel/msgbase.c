@@ -32,6 +32,7 @@
 #define msg_repl ((struct repl *)CtdlGetUserData(SYM_REPL))
 
 extern struct config config;
+long config_msgnum;
 
 char *msgkeys[] = {
 	"", "", "", "", "", "", "", "", 
@@ -2361,3 +2362,80 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 	CtdlSaveMsg(msg, "", roomname, MES_LOCAL, 1);
 	CtdlFreeMessage(msg);
 }
+
+
+
+
+
+
+void CtdlGetSysConfigBackend(long msgnum) {
+	config_msgnum = msgnum;
+}
+
+
+char *CtdlGetSysConfig(char *sysconfname) {
+	char hold_rm[ROOMNAMELEN];
+	long msgnum;
+	char *conf;
+	struct CtdlMessage *msg;
+	char buf[256];
+	
+	strcpy(hold_rm, CC->quickroom.QRname);
+	if (getroom(&CC->quickroom, SYSCONFIGROOM) != 0) {
+		getroom(&CC->quickroom, hold_rm);
+		return NULL;
+	}
+
+
+	/* We want the last (and probably only) config in this room */
+	begin_critical_section(S_CONFIG);
+	config_msgnum = (-1L);
+	CtdlForEachMessage(MSGS_LAST, 1, sysconfname, NULL,
+		CtdlGetSysConfigBackend);
+	msgnum = config_msgnum;
+	end_critical_section(S_CONFIG);
+
+	if (msgnum < 0L) {
+		conf = NULL;
+	}
+	else {
+        	msg = CtdlFetchMessage(msgnum);
+        	if (msg != NULL) {
+                	conf = strdoop(msg->cm_fields['M']);
+                	CtdlFreeMessage(msg);
+		}
+		else {
+			conf = NULL;
+		}
+	}
+
+	getroom(&CC->quickroom, hold_rm);
+
+	if (conf != NULL) do {
+		extract_token(buf, conf, 0, '\n');
+		strcpy(conf, &conf[strlen(buf)+1]);
+	} while ( (strlen(conf)>0) && (strlen(buf)>0) );
+
+	return(conf);
+}
+
+void CtdlPutSysConfig(char *sysconfname, char *sysconfdata) {
+	char temp[PATH_MAX];
+	FILE *fp;
+
+	strcpy(temp, tmpnam(NULL));
+
+	fp = fopen(temp, "w");
+	if (fp == NULL) return;
+	fprintf(fp, "Content-type: %s\n\n", sysconfname);
+	fprintf(fp, "%s", sysconfdata);
+	fclose(fp);
+
+	/* this handy API function does all the work for us */
+	CtdlWriteObject(SYSCONFIGROOM, sysconfname, temp,
+		&CC->usersupp, 0, 1, 0);
+
+	unlink(temp);
+}
+
+

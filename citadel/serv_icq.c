@@ -1788,7 +1788,7 @@ void CtdlICQ_Read_Config(void) {
 	char icq_rm[ROOMNAMELEN];
 	
 	strcpy(hold_rm, CC->quickroom.QRname);
-	MailboxName(icq_rm, &CC->usersupp, CONFIGROOM);
+	MailboxName(icq_rm, &CC->usersupp, USERCONFIGROOM);
 	strcpy(ThisICQ->icq_config, "");
 
 	if (getroom(&CC->quickroom, icq_rm) != 0) {
@@ -1822,7 +1822,7 @@ void CtdlICQ_Write_Config(void) {
 	fclose(fp);
 
 	/* this handy API function does all the work for us */
-	CtdlWriteObject(CONFIGROOM, ICQMIME, temp, &CC->usersupp, 0, 1, 0);
+	CtdlWriteObject(USERCONFIGROOM, ICQMIME, temp, &CC->usersupp, 0, 1, 0);
 
 	unlink(temp);
 }
@@ -1852,7 +1852,7 @@ void CtdlICQ_Write_CL(void) {
 	fclose(fp);
 
 	/* this handy API function does all the work for us */
-	CtdlWriteObject(CONFIGROOM, ICQCLMIME, temp, &CC->usersupp, 0, 1, 0);
+	CtdlWriteObject(USERCONFIGROOM, ICQCLMIME, temp, &CC->usersupp, 0, 1, 0);
 
 	unlink(temp);
 }
@@ -1913,7 +1913,7 @@ void CtdlICQ_Read_CL(void) {
 	char icq_rm[ROOMNAMELEN];
 	
 	strcpy(hold_rm, CC->quickroom.QRname);
-	MailboxName(icq_rm, &CC->usersupp, CONFIGROOM);
+	MailboxName(icq_rm, &CC->usersupp, USERCONFIGROOM);
 	strcpy(ThisICQ->icq_config, "");
 
 	if (getroom(&CC->quickroom, icq_rm) != 0) {
