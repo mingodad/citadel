@@ -411,7 +411,7 @@ void vcard_purge(char *username, long usernum) {
 
 	msg->cm_fields['S'] = strdoop("CANCEL");
 
-        CtdlSaveMsg(msg, "", ADDRESS_BOOK_ROOM, MES_LOCAL, 1);
+        CtdlSaveMsg(msg, "", ADDRESS_BOOK_ROOM, MES_LOCAL);
         CtdlFreeMessage(msg);
 
 	/* Start a netproc run in the background, so the "purge" message

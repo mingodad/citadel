@@ -458,6 +458,38 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 		processed = 1;
 	}
 
+	else if (!strcasecmp(key, "Message-ID")) {
+		if (msg->cm_fields['I'] != NULL) {
+			lprintf(5, "duplicate message id\n");
+		}
+
+		if (msg->cm_fields['I'] == NULL) {
+			msg->cm_fields['I'] = strdoop(value);
+
+			/* Strip angle brackets */
+			if ((haschar(msg->cm_fields['I'], '<') == 1)
+			   && (haschar(msg->cm_fields['I'], '>') == 1)) {
+				while ((strlen(msg->cm_fields['I']) > 0)
+				      && (msg->cm_fields['I'][0] != '<')) {
+					strcpy(&msg->cm_fields['I'][0],
+						&msg->cm_fields['I'][1]);
+				}
+				strcpy(&msg->cm_fields['I'][0],
+					&msg->cm_fields['I'][1]);
+				for (i = 0; i<strlen(msg->cm_fields['I']); ++i)
+					if (msg->cm_fields['I'][i] == '>')
+						msg->cm_fields['I'][i] = 0;
+			}
+		}
+
+		if (msg->cm_fields['I'] != NULL) {
+			TRACE;
+			lprintf(9, "Converted message id <%s>\n",
+				msg->cm_fields['I'] );
+		}
+		processed = 1;
+	}
+
 	/* Clean up and move on. */
 	phree(key);	/* Don't free 'value', it's actually the same buffer */
 	return(processed);
@@ -490,6 +522,7 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 
 	while (!done) {
 
+		TRACE; lprintf(9, "I field is %s\n", msg->cm_fields['I']);
 		/* Locate beginning and end of field, keeping in mind that
 		 * some fields might be multiline
 		 */
@@ -523,6 +556,7 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 	}
 
 	/* Follow-up sanity checks... */
+	TRACE; lprintf(9, "I field is %s\n", msg->cm_fields['I']);
 
 	/* If there's no timestamp on this message, set it to now. */
 	if (msg->cm_fields['T'] == NULL) {
@@ -530,6 +564,7 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 		msg->cm_fields['T'] = strdoop(buf);
 	}
 
+	TRACE; lprintf(9, "I field is %s\n", msg->cm_fields['I']);
 	lprintf(9, "RFC822 length remaining after conversion = %d\n",
 		strlen(rfc822));
 	return msg;

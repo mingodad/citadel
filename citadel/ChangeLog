@@ -1,4 +1,8 @@
 $Log$
+Revision 1.481  2000/03/10 21:40:04  ajc
+* Changes to message base and networker to support Internet-style message
+  ID's instead of the conventional Citadel style.
+
 Revision 1.480  2000/03/08 03:36:37  ajc
 * Shut off hostname resolution when dealing with Unix domain sockets
 * Cleaned up the 'citmail' MDA tool
@@ -1707,3 +1711,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

@@ -55,9 +55,9 @@ void cmd_msg2 (char *cmdbuf);
 void cmd_msg3 (char *cmdbuf);
 void cmd_msg4 (char *cmdbuf);
 void cmd_opna (char *cmdbuf);
-long send_message (struct CtdlMessage *, int, FILE *);
+long send_message (struct CtdlMessage *, FILE *);
 void loadtroom (void);
-long CtdlSaveMsg(struct CtdlMessage *, char *, char *, int, int);
+long CtdlSaveMsg(struct CtdlMessage *, char *, char *, int);
 void quickie_message (char *, char *, char *, char *);
 struct CtdlMessage *make_message (struct usersupp *, char *,
 		   char *, int, int, int, char *);

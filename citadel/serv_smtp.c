@@ -513,8 +513,7 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 	msgid = CtdlSaveMsg(msg,
 		"",
 		SMTP_SPOOLOUT_ROOM,
-		MES_LOCAL,
-		1);
+		MES_LOCAL);
 	++successful_saves;
 
 	instr = mallok(1024);
@@ -576,7 +575,7 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 		imsg->cm_anon_type = MES_NORMAL;
 		imsg->cm_format_type = FMT_RFC822;
 		imsg->cm_fields['M'] = instr;
-		CtdlSaveMsg(imsg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL, 1);
+		CtdlSaveMsg(imsg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL);
 		CtdlFreeMessage(imsg);
 	}
 
@@ -1161,14 +1160,14 @@ void smtp_do_bounce(char *instr) {
 		else {
 			bounce_msgid = CtdlSaveMsg(bmsg,
 				bounceto,
-				"", mes_type, 1);
+				"", mes_type);
 		}
 
 		/* Otherwise, go to the Aide> room */
 		lprintf(9, "bounce to room?\n");
 		if (bounce_msgid < 0L) bounce_msgid = CtdlSaveMsg(bmsg,
 			"", AIDEROOM,
-			MES_LOCAL, 1);
+			MES_LOCAL);
 	}
 
 	CtdlFreeMessage(bmsg);
@@ -1377,7 +1376,7 @@ void smtp_do_procmsg(long msgnum) {
 			"Content-type: %s\n\n%s\nattempted|%ld\n",
 			SPOOLMIME, instr, time(NULL) );
 		phree(instr);
-		CtdlSaveMsg(msg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL, 1);
+		CtdlSaveMsg(msg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL);
 		CtdlFreeMessage(msg);
 	}
 
@@ -1405,7 +1404,7 @@ void smtp_do_queue(void) {
 	/* 
 	 * Go ahead and run the queue
 	 */
-	lprintf(5, "SMTP: processing outbound queue\n");
+	lprintf(7, "SMTP: processing outbound queue\n");
 
 	if (getroom(&CC->quickroom, SMTP_SPOOLOUT_ROOM) != 0) {
 		lprintf(3, "Cannot find room <%s>\n", SMTP_SPOOLOUT_ROOM);
@@ -1413,7 +1412,7 @@ void smtp_do_queue(void) {
 	}
 	CtdlForEachMessage(MSGS_ALL, 0L, SPOOLMIME, NULL, smtp_do_procmsg);
 
-	lprintf(5, "SMTP: queue run completed\n");
+	lprintf(7, "SMTP: queue run completed\n");
 	doing_queue = 0;
 }
 

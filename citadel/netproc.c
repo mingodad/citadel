@@ -83,6 +83,33 @@ struct syslist {
 };
 
 
+
+/*
+ * This structure is used to hold all of the fields of a message
+ * during conversion, processing, or whatever.
+ */
+struct minfo {
+	char A[512];
+	char B[512];
+	char C[512];
+	char D[512];
+	char E[512];
+	char G[512];
+	char H[512];
+	char I[512];
+	char N[512];
+	char O[512];
+	char P[512];
+	char R[512];
+	char S[512];
+	long T;
+	char U[512];
+	char Z[512];
+	char nexthop[512];
+	};
+
+
+
 void attach_to_server(int argc, char **argv);
 void serv_read(char *buf, int bytes);
 void serv_write(char *buf, int nbytes);
@@ -539,7 +566,7 @@ BONFGM:	b = getc(fp);
 	if (b == 'T')
 		buffer->T = atol(bbb);
 	if (b == 'I')
-		buffer->I = atol(bbb);
+		strcpy(buffer->I, bbb);
 	if (b == 'H')
 		strcpy(buffer->H, bbb);
 	if (b == 'B')
@@ -554,14 +581,6 @@ BONFGM:	b = getc(fp);
 
 END:
 
-	/* NOTE: we used to use the following two lines of code to assign
-	 * the timestamp as a message-ID if there was no message-ID already
-	 * in the message.  We don't do this anymore because it screws up
-	 * the loopzapper.
-	 *
-	if (buffer->I == 0L)
-		buffer->I = buffer->T;
-	 */
 }
 
 
@@ -726,7 +745,12 @@ void bounce(struct minfo *bminfo)
 void strmsgid(char *buf, struct minfo *msginfo) {
 	int i;
 
-	sprintf(buf, "%ld@%s", msginfo->I, msginfo->N);
+	strcpy(buf, msginfo->I);
+	if (strchr(buf, '@') == NULL) {
+		strcat(buf, "@");
+		strcat(buf, msginfo->N);
+	}
+
 	for (i=0; i<strlen(buf); ++i) {
 		if (isspace(buf[i])) {
 			strcpy(&buf[i], &buf[i+1]);
@@ -749,7 +773,7 @@ int already_received(GDBM_FILE ut, struct minfo *msginfo) {
 	int retval = 0;
 
 	/* We can't check for dups on a zero msgid, so just pass them through */
-	if ((msginfo->I)==0L) {
+	if (strlen(msginfo->I)==0) {
 		return 0;
 	}
 
@@ -825,7 +849,6 @@ void inprocess(void)
 {
 	FILE *fp, *message, *testfp, *ls, *duplist;
 	static struct minfo minfo;
-	struct recentmsg recentmsg;
 	char tname[128], aaa[1024], iname[256], sfilename[256], pfilename[256];
 	int a, b;
 	int FieldID;
@@ -931,9 +954,6 @@ NXMSG:	/* Seek to the beginning of the next message */
 
 			/* process the individual mesage */
 			msgfind(tname, &minfo);
-			strncpy(recentmsg.RMnodename, minfo.N, 9);
-			recentmsg.RMnodename[9] = 0;
-			recentmsg.RMnum = minfo.I;
 			syslog(LOG_NOTICE, "#%ld fm <%s> in <%s> @ <%s>",
 			       minfo.I, minfo.A, minfo.O, minfo.N);
 			if (strlen(minfo.R) > 0) {
@@ -991,7 +1011,7 @@ NXMSG:	/* Seek to the beginning of the next message */
 			/* Check the use table; reject message if it's been here before */
 			if (already_received(use_table, &minfo)) {
 				syslog(LOG_NOTICE, "rejected duplicate message");
-				fprintf(duplist, "#%ld fm <%s> in <%s> @ <%s>\n",
+				fprintf(duplist, "#<%s> fm <%s> in <%s> @ <%s>\n",
 			       		minfo.I, minfo.A, minfo.O, minfo.N);
 			}
 

@@ -963,7 +963,14 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		if (!strcasecmp(snode, NODENAME)) {
 			strcpy(snode, FQDN);
 		}
-		cprintf("Message-ID: <%s@%s>%s", mid, snode, nl);
+
+		/* Construct a fun message id */
+		cprintf("Message-ID: <%s", mid);
+		if (strchr(mid, '@')==NULL) {
+			cprintf("@%s", snode);
+		}
+		cprintf(">%s", nl);
+
 		PerformUserHooks(luser, (-1L), EVT_OUTPUTMSG);
 
 		if (strlen(fuser) > 0) {
@@ -1304,19 +1311,19 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
  *
  */
 long send_message(struct CtdlMessage *msg,	/* pointer to buffer */
-		int generate_id,		/* generate 'I' field? */
 		FILE *save_a_copy)		/* save a copy to disk? */
 {
 	long newmsgid;
 	long retval;
-	char msgidbuf[32];
+	char msgidbuf[256];
         struct ser_ret smr;
 
 	/* Get a new message number */
 	newmsgid = get_new_message_number();
-	sprintf(msgidbuf, "%ld", newmsgid);
+	sprintf(msgidbuf, "%ld@%s", newmsgid, config.c_fqdn);
 
-	if (generate_id) {
+	/* Generate an ID if we don't have one already */
+	if (msg->cm_fields['I']==NULL) {
 		msg->cm_fields['I'] = strdoop(msgidbuf);
 	}
 	
@@ -1479,8 +1486,7 @@ int ReplicationChecks(struct CtdlMessage *msg) {
 long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 		char *rec,			/* Recipient (mail) */
 		char *force,			/* force a particular room? */
-		int supplied_mailtype,		/* local or remote type */
-		int generate_id)		/* 1 = generate 'I' field */
+		int supplied_mailtype)		/* local or remote type */
 {
 	char aaa[100];
 	char hold_rm[ROOMNAMELEN];
@@ -1639,7 +1645,7 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* Save it to disk */
 	lprintf(9, "Saving to disk\n");
-	newmsgid = send_message(msg, generate_id, network_fp);
+	newmsgid = send_message(msg, network_fp);
 	if (network_fp != NULL) {
 		fclose(network_fp);
 		system("exec nohup ./netproc -i >/dev/null 2>&1 &");
@@ -1729,7 +1735,7 @@ long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 		imsg->cm_format_type = FMT_RFC822;
 		imsg->cm_fields['A'] = strdoop("Citadel");
 		imsg->cm_fields['M'] = instr;
-		CtdlSaveMsg(imsg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL, 1);
+		CtdlSaveMsg(imsg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL);
 		CtdlFreeMessage(imsg);
 	}
 
@@ -1757,7 +1763,7 @@ void quickie_message(char *from, char *to, char *room, char *text)
 		msg->cm_fields['R'] = strdoop(to);
 	msg->cm_fields['M'] = strdoop(text);
 
-	CtdlSaveMsg(msg, "", room, MES_LOCAL, 1);
+	CtdlSaveMsg(msg, "", room, MES_LOCAL);
 	CtdlFreeMessage(msg);
 	syslog(LOG_NOTICE, text);
 }
@@ -2055,7 +2061,7 @@ SKFALL:	b = MES_NORMAL;
 			CC->quickroom.QRname, b, e, format_type, "");
 
 	if (msg != NULL)
-		CtdlSaveMsg(msg, buf, (mtsflag ? AIDEROOM : ""), e, 1);
+		CtdlSaveMsg(msg, buf, (mtsflag ? AIDEROOM : ""), e);
 		CtdlFreeMessage(msg);
 	CC->fake_postname[0] = '\0';
 	return;
@@ -2160,7 +2166,7 @@ void cmd_ent3(char *entargs)
 	}
 
 	msg->cm_flags = CM_SKIP_HOOKS;
-	if (valid_msg) CtdlSaveMsg(msg, recp, "", e, 0);
+	if (valid_msg) CtdlSaveMsg(msg, recp, "", e);
 	CtdlFreeMessage(msg);
 	phree(tempbuf);
 }
@@ -2501,7 +2507,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 			CtdlDeleteMessages(roomname, 0L, content_type));
 	}
 	/* Now write the data */
-	CtdlSaveMsg(msg, "", roomname, MES_LOCAL, 1);
+	CtdlSaveMsg(msg, "", roomname, MES_LOCAL);
 	CtdlFreeMessage(msg);
 }
 

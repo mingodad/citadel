@@ -180,14 +180,7 @@ struct quickroom {
 
 /****************************************************************************/
 
-struct recentmsg {
-	char RMnodename[10];
-	long RMnum;			/* Number or time of message        */
-	};
-
-
-/****************************************************************************
- *
+/*
  * Floor record.  The floor number is implicit in its location in the file.
  */
 struct floor {
@@ -245,29 +238,5 @@ struct floor {
  */
 #define SPOOLMIME	"application/x-citadel-delivery-list"
 #define	INTERNETCFG	"application/x-citadel-internet-config"
-
-/*
- * This structure is used to hold all of the fields of a message
- * during conversion, processing, or whatever.
- */
-struct minfo {
-	char A[512];
-	char B[512];
-	char C[512];
-	char D[512];
-	char E[512];
-	char G[512];
-	char H[512];
-	long I;
-	char N[512];
-	char O[512];
-	char P[512];
-	char R[512];
-	char S[512];
-	long T;
-	char U[512];
-	char Z[512];
-	char nexthop[512];
-	};
 
 #define TRACE	lprintf(9, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
