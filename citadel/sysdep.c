@@ -945,12 +945,14 @@ void *worker_thread(void *arg) {
 
 		/* 
 		 * A naive implementation would have all idle threads
-		 * calling select() and then they'd all wake up at once.  We
-		 * solve this problem by putting the select() in a critical
-		 * section, so only one thread has the opportunity to wake
-		 * up.  If we wake up on a master socket, create a new
-		 * session context; otherwise, just bind the thread to the
-		 * context we want and go on our merry way.
+		 * calling select() and then they'd all wake up at once
+		 * (known in computer science as the "thundering herd"
+		 * problem).  We solve this problem by putting the select()
+		 * in a critical section, so only one thread has the
+		 * opportunity to wake up.  If we wake up on a master
+		 * socket, create a new session context; otherwise, just
+		 * bind the thread to the context we want and go on our
+		 * merry way.
 		 */
 
 		/* make doubly sure we're not holding any stale db handles
