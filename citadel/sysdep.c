@@ -788,8 +788,6 @@ void create_worker(void) {
  */
 void dead_session_purge(void) {
 	struct CitContext *ptr, *rem;
-	struct worker_node **node, *tmp;
-	pthread_t self;
 
 	if ( (time(NULL) - last_purge) < 5 ) return;	/* Too soon, go away */
 	time(&last_purge);
@@ -814,12 +812,7 @@ void dead_session_purge(void) {
 
 	} while (rem != NULL);
 
-
-	/* Raise or lower the size of the worker thread pool if such
-	 * an action is appropriate.
-	 */
-
-	self = pthread_self();
+	/* Raise the size of the worker thread pool if necessary. */
 
 	if ( (num_sessions > num_threads)
 	   && (num_threads < config.c_max_workers) ) {
@@ -827,33 +820,6 @@ void dead_session_purge(void) {
 		create_worker();
 		end_critical_section(S_WORKER_LIST);
 	}
-	
-	/* don't let the initial thread die since it's responsible for
-	   waiting for all the other threads to terminate. */
-	else if ( (num_sessions < num_threads)
-	   && (num_threads > config.c_min_workers)
-	   && (self != initial_thread) ) {
-		cdb_free_tsd();
-		begin_critical_section(S_WORKER_LIST);
-		--num_threads;
-
-		/* we're exiting before server shutdown... unlink ourself from
-		   the worker list and detach our thread to avoid memory leaks
-		 */
-
-		for (node = &worker_list; *node != NULL; node = &(*node)->next)
-			if ((*node)->tid == self) {
-				tmp = *node;
-				*node = (*node)->next;
-				free(tmp);
-				break;
-			}
-
-		pthread_detach(self);
-		end_critical_section(S_WORKER_LIST);
-		pthread_exit(NULL);
-	}
-
 }
 
 
@@ -1054,15 +1020,15 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 			}
 		}
 
-		/* If the rescan pipe went active, someone is telling this
-		 * thread that the &readfds needs to be refreshed with more
-		 * current data.
-		 */
 		if (time_to_die) {
 			end_critical_section(S_I_WANNA_SELECT);
 			break;
 		}
 
+		/* If the rescan pipe went active, someone is telling this
+		 * thread that the &readfds needs to be refreshed with more
+		 * current data.
+		 */
 		if (FD_ISSET(rescan[0], &readfds)) {
 			read(rescan[0], &junk, 1);
 			goto SETUP_FD;
@@ -1114,9 +1080,6 @@ find_session:		if (next_session == NULL)
 				CC->h_command_function();
 				become_session(NULL);
 				bind_me->state = CON_IDLE;
-				if (bind_me->kill_me == 1) {
-					RemoveContext(bind_me);
-				} 
 				write(rescan[1], &junk, 1);
 			}
 

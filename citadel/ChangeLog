@@ -1,4 +1,10 @@
  $Log$
+ Revision 620.26  2004/05/06 03:38:26  ajc
+ * Never reduce the size of the thread pool, only increase it (still
+   observing the max ceiling, of course)
+ * Don't explicitly call RemoveContext() when a session exits.  The
+   subsequent call to dead_session_purge() will handle it.
+
  Revision 620.25  2004/05/03 00:12:27  ajc
  * Found and removed a bug that caused network rooms to be un-shared with
    all nodes instead of only with nodes that no longer exist.
@@ -5732,3 +5738,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
