@@ -825,6 +825,8 @@ icalproperty *ical_ctdl_get_subprop(
 
 /*
  * Check to see if two events overlap.  Returns nonzero if they do.
+ * (This function is used in both Citadel and WebCit.  If you change it in
+ * one place, change it in the other.  Better yet, put it in a library.)
  */
 int ical_ctdl_is_overlap(
 			struct icaltimetype t1start,
