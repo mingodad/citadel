@@ -1,4 +1,8 @@
 $Log$
+Revision 522.23  2004/08/05 21:32:17  ajc
+* Reply/Move/Delete are now buttons instead of links.  This should enable
+  us to add some JavaScript magic for "Reply quoted" ...
+
 Revision 522.22  2004/08/05 02:47:21  ajc
 * Removed the "pull_quote" style and used the <BLOCKQUOTE> tag instead.  It
   has a more predictable and attractive behavior, and can still be
@@ -2005,4 +2009,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

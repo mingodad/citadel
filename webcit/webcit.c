@@ -1098,10 +1098,8 @@ void session_loop(struct httprequest *req)
 		display_enter();
 	} else if (!strcasecmp(action, "post")) {
 		post_message();
-	} else if (!strcasecmp(action, "delete_msg")) {
-		delete_msg();
-	} else if (!strcasecmp(action, "confirm_move_msg")) {
-		confirm_move_msg();
+	} else if (!strcasecmp(action, "do_stuff_to_one_msg")) {
+		do_stuff_to_one_msg();
 	} else if (!strcasecmp(action, "move_msg")) {
 		move_msg();
 	} else if (!strcasecmp(action, "userlist")) {
