@@ -69,3 +69,4 @@ void display_edit(char *description, char *check_cmd,
 void gotoroom(char *gname, int display_name);
 void confirm_delete_room(void);
 void delete_room(void);
+void validate(void);

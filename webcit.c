@@ -749,6 +749,10 @@ fclose(fp);
 		delete_room();
 		}
 
+	else if (!strcasecmp(action, "validate")) {
+		validate();
+		}
+
 	/* When all else fails... */
 	else {
 		printf("HTTP/1.0 200 OK\n");
