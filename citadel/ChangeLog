@@ -1,4 +1,10 @@
  $Log$
+ Revision 620.14  2004/04/13 22:44:35  nbryant
+  * citadel.spec: commented out Icon line and the openldap-servers dependency.
+  * citadel.spec: added several BuildRequires. Some of these are, strictly
+    speaking, compile time options, but the goal is to document the runtime
+    dependencies and make sure our RPM's are always built consistently.
+
  Revision 620.13  2004/04/13 21:09:20  error
  * citadel.spec: Updated for 6.20p1
 
@@ -5684,3 +5690,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -7,10 +7,29 @@ Copyright: GPL
 Group: Applications/Communications
 Source0: http://my.citadel.org/download/citadel-ux-%{PACKAGE_VERSION}.tar.gz
 Buildroot: /var/tmp/citadel-%{PACKAGE_VERSION}-root
-Icon: citux-64x64.xpm
+#Icon: citux-64x64.xpm
 Vendor: Citadel/UX Development Team
 URL:  http://uncensored.citadel.org/citadel/
-Requires: openldap-servers
+
+# I don't think we should actually Require this because we can be configured
+# not to connect to an LDAP server. So we really only require the client
+# libraries, and the runtime dependency on that is detected automatically by
+# RPM.
+#Requires: openldap-servers
+
+# Note some of these BuildRequire's are Linux specific and possibly even
+# distribution specific, but I am adding them FOR NOW just to document the
+# dependencies and make it more likely that everyone is building identical
+# packages.
+BuildRequires: gcc
+BuildRequires: glibc-devel
+BuildRequires: openldap-devel
+BuildRequires: db4-devel >= 4.1
+BuildRequires: pam-devel
+BuildRequires: newt-devel
+BuildRequires: openssl-devel
+BuildRequires: ncurses-devel
+BuildRequires: zlib-devel
 #Autoprov: false
 ExcludeOS: hpux
 
