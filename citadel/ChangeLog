@@ -1,4 +1,9 @@
  $Log$
+ Revision 621.16  2004/06/16 04:17:43  ajc
+ * More scheduler changes.  Removed the rescan pipe again, and also
+   removed the mutex wrapper around select().  In my initial testing I am
+   getting reliable, fast service, but further testing is needed.
+
  Revision 621.15  2004/06/16 03:13:02  ajc
  * Scheduler fix ... added the rescan pipe back in
 
@@ -5850,4 +5855,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

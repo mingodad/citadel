@@ -94,7 +94,6 @@ struct CitContext masterCC;
 time_t last_purge = 0;				/* Last dead session purge */
 static int num_threads = 0;			/* Current number of threads */
 int num_sessions = 0;				/* Current number of sessions */
-static int rescan[2];				/* The rescan pipe */
 
 pthread_t initial_thread;		/* tid for main() thread */
 
@@ -237,17 +236,6 @@ void init_sysdep(void) {
 	 * socket breaks.
 	 */
 	signal(SIGPIPE, SIG_IGN);
-
-	/*
-	 * Set up the rescan pipe.  When a session goes idle, it writes a
-	 * single byte to this pipe to wake up the thread calling select(),
-	 * which tells it to rescan the list of session sockets.
-	 */
-	if (pipe(rescan) != 0) {
-		lprintf(CTDL_EMERG, "Cannot create rescan pipe: %s\n",
-			strerror(errno));
-		abort();
-	}
 }
 
 
@@ -906,10 +894,9 @@ void *worker_thread(void *arg) {
 do_select:	force_purge = 0;
 		bind_me = NULL;		/* Which session shall we handle? */
 
-		/* Initialize the fdset.  Start with the rescan pipe. */
+		/* Initialize the fdset. */
 		FD_ZERO(&readfds);
-		FD_SET(rescan[0], &readfds);
-		highest = rescan[0] + 1;
+		highest = 0;
 
 		begin_critical_section(S_SESSION_TABLE);
 		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
@@ -945,13 +932,7 @@ do_select:	force_purge = 0;
 		if (!time_to_die) {
 			tv.tv_sec = 1;		/* wake up every second if no input */
 			tv.tv_usec = 0;
-			/*
-			 * Avoid the "thundering herd" problem by letting only
-			 * one thread select() at a time.
-			 */
-			begin_critical_section(S_I_WANNA_SELECT);
 			retval = select(highest + 1, &readfds, NULL, NULL, &tv);
-			end_critical_section(S_I_WANNA_SELECT);
 		}
 		else {
 			break;
@@ -1018,25 +999,13 @@ do_select:	force_purge = 0;
 					serviceptr->h_greeting_function();
 					become_session(NULL);
 					con->state = CON_IDLE;
-
-					/* Wake up the currently blocking select() by
-			 		 * writing a dummy byte to the rescan pipe.
-			 		 */
-					write(rescan[1], &i, 1);
 					goto do_select;
 				}
 			}
 		}
 
 		if (time_to_die) {
-			end_critical_section(S_I_WANNA_SELECT);
 			break;
-		}
-
-		/* If the rescan pipe went active, read a dummy byte from it */
-		if (FD_ISSET(rescan[0], &readfds)) {
-			read(rescan[0], &i, 1);
-			goto do_select;
 		}
 
 		/* It must be a client socket.  Find a context that has data
@@ -1083,11 +1052,6 @@ SKIP_SELECT:
 			force_purge = CC->kill_me;
 			become_session(NULL);
 			bind_me->state = CON_IDLE;
-
-			/* Wake up the currently blocking select() by writing
-			 * a dummy byte to the rescan pipe.
-			 */
-			write(rescan[1], &i, 1);
 		}
 
 		dead_session_purge(force_purge);
