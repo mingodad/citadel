@@ -47,21 +47,23 @@ void output_html(void) {
 	while (serv_gets(buf), strcmp(buf, "000")) {
 		line_length = strlen(buf);
 		total_length = total_length + line_length + 1;
-		msg = realloc(msg, total_length);
+		msg = realloc(msg, total_length + 1);
 		strcpy(msgend, buf);
-		strcat(msgend, "\n");
-		msgend = &msgend[line_length + 1];
+		msgend[line_length++] = '\n' ;
+		msgend[line_length] = 0;
+		msgend = &msgend[line_length];
 	}
 
 	ptr = msg;
 	msgstart = msg;
-	msgend = &msg[total_length];
+	/* msgend is already set correctly */
 
 	while (ptr < msgend) {
 
 		/* Advance to next tag */
 		ptr = strchr(ptr, '<');
 		++ptr;
+		if ((ptr == NULL) || (ptr >= msgend)) break;
 
 		/* Any of these tags cause everything up to and including
 		 * the tag to be removed.
@@ -71,7 +73,9 @@ void output_html(void) {
 		   ||(!strncasecmp(ptr, "/HEAD", 5))
 		   ||(!strncasecmp(ptr, "BODY", 4)) ) {
 			ptr = strchr(ptr, '>');
+			if ((ptr == NULL) || (ptr >= msgend)) break;
 			++ptr;
+			if ((ptr == NULL) || (ptr >= msgend)) break;
 			msgstart = ptr;
 		}
 
