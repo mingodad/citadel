@@ -1,4 +1,9 @@
 $Log$
+Revision 400.85  2003/01/16 04:41:26  ajc
+* When displaying edit controls for time of day in the calendar, only show
+  minutes that are multiples of 5 ... unless the existing value is not a
+  multiple of 5, in which case we show that too.
+
 Revision 400.84  2003/01/15 17:34:04  ajc
 * event.c: fixed a misspelling
 * config.guess, config.sub: updated using latest from ftp.gnu.org
@@ -1244,3 +1249,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
