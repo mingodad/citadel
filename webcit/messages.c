@@ -84,10 +84,28 @@ char buf[];
 
 /* display_vcard() calls this after parsing the textual vCard into
  * our 'struct vCard' data object.
+ *
+ * Set 'full' to nonzero to display the full card, otherwise it will only
+ * show a summary line.
  */
-void display_parsed_vcard(struct vCard *v) {
+void display_parsed_vcard(struct vCard *v, int full) {
 	int i, j;
 	char buf[SIZ];
+	char *name;
+
+	if (!full) {
+		wprintf("<TD>");
+		name = vcard_get_prop(v, "n", 1, 0, 0);
+		if (name != NULL) {
+			strcpy(buf, name);
+			escputs(buf);
+		}
+		else {
+			wprintf("&nbsp;");
+		}
+		wprintf("</TD>");
+		return;
+	}
 
 	wprintf("<TABLE bgcolor=#888888>");
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
@@ -144,9 +162,11 @@ void display_parsed_vcard(struct vCard *v) {
 
 
 /*
- * Experimental output type of thing
+ * Display a textual vCard
+ * (Converts to a vCard object and then calls the actual display function)
+ * Set 'full' to nonzero to display the whole card instead of a one-liner
  */
-void display_vcard(char *vcard_source, char alpha) {
+void display_vcard(char *vcard_source, char alpha, int full) {
 	struct vCard *v;
 	char *name;
 	char buf[SIZ];
@@ -165,7 +185,7 @@ void display_vcard(char *vcard_source, char alpha) {
 	   || ((isalpha(alpha)) && (tolower(alpha) == tolower(this_alpha)) )
 	   || ((!isalpha(alpha)) && (!isalpha(this_alpha))) ) {
 
-		display_parsed_vcard(v);
+		display_parsed_vcard(v, full);
 
 	}
 
@@ -420,8 +440,8 @@ void read_message(long msgnum) {
 				wprintf("(edit)</A>");
 			}
 
-			/* In all cases, display it */
-			display_vcard(vcard_source, 0);
+			/* In all cases, display the full card */
+			display_vcard(vcard_source, 0, 1);
 			free(vcard_source);
 		}
 	}
@@ -543,6 +563,9 @@ void display_addressbook(long msgnum, char alpha) {
 		vcard_source = load_mimepart(msgnum, vcard_partnum);
 		if (vcard_source != NULL) {
 
+			/* Display the summary line */
+			display_vcard(vcard_source, alpha, 0);
+
 			/* If it's my vCard I can edit it */
 			if ( (!strcasecmp(WC->wc_roomname, USERCONFIGROOM))
 			   || (!strcasecmp(&WC->wc_roomname[11], USERCONFIGROOM))) {
@@ -552,8 +575,6 @@ void display_addressbook(long msgnum, char alpha) {
 				wprintf("(edit)</A>");
 			}
 
-			/* In all cases, display it */
-			display_vcard(vcard_source, alpha);
 			free(vcard_source);
 		}
 	}
@@ -652,7 +673,8 @@ void readloop(char *oper)
 			}
 			wprintf("&nbsp;");
 		}
-		wprintf("<A HREF=\"/readfwd?alpha=1\">(other)</A>\n");
+		if (!isalpha(alpha)) wprintf("<FONT SIZE=+2>(other)</FONT>\n");
+		else wprintf("<A HREF=\"/readfwd?alpha=1\">(other)</A>\n");
 		wprintf("<HR width=100%%>\n");
 	}
 
@@ -690,6 +712,12 @@ void readloop(char *oper)
 		);
 	}
 
+	if (is_addressbook) {
+		wprintf("<TABLE border=0 cellspacing=0 "
+			"cellpadding=0 width=100%%>\n"
+		);
+	}
+
 	for (a = 0; a < nummsgs; ++a) {
 		if ((WC->msgarr[a] >= startmsg) && (num_displayed < maxmsgs)) {
 
@@ -698,14 +726,17 @@ void readloop(char *oper)
 			if (a > 0) pn_previous = WC->msgarr[a-1];
 			if (a < (nummsgs-1)) pn_next = WC->msgarr[a+1];
 
-			/* Display the message */
-			if (is_summary) {
+			/* If a tabular view, set up the line */
+			if ( (is_summary) || (is_addressbook) ) {
 				bg = 1 - bg;
 				wprintf("<TR BGCOLOR=%s>",
 					(bg ? "DDDDDD" : "FFFFFF")
 				);
+			}
+
+			/* Display the message */
+			if (is_summary) {
 				summarize_message(WC->msgarr[a]);
-				wprintf("</TR>\n");
 			}
 			else if (is_addressbook) {
 				display_addressbook(WC->msgarr[a], alpha);
@@ -713,6 +744,12 @@ void readloop(char *oper)
 			else {
 				read_message(WC->msgarr[a]);
 			}
+
+			/* If a tabular view, finish the line */
+			if ( (is_summary) || (is_addressbook) ) {
+				wprintf("</TR>\n");
+			}
+
 			if (lowest_displayed < 0) lowest_displayed = a;
 			highest_displayed = a;
 
@@ -722,6 +759,10 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {
+		wprintf("</TABLE>\n");
+	}
+
+	if (is_addressbook) {
 		wprintf("</TABLE>\n");
 	}
 
