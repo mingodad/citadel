@@ -113,7 +113,7 @@ void do_housekeeping(void)
 		pthread_mutex_unlock(&sessions_to_kill->SessionMutex);
 		sptr = sessions_to_kill->next;
 		free(sessions_to_kill);
-		sessions_to_kill = sessions_to_kill->next;
+		sessions_to_kill = sptr;
 		--num_sessions;
 	}
 
@@ -267,6 +267,7 @@ void context_loop(int sock)
 	char buf[SIZ], hold[SIZ];
 	int desired_session = 0;
 	int got_cookie = 0;
+	int gzip_ok = 0;
 	struct wcsession *TheSession, *sptr;
 	char httpauth_string[SIZ];
 	char httpauth_user[SIZ];
@@ -282,6 +283,15 @@ void context_loop(int sock)
 	memset(hold, 0, sizeof(hold));
 	do {
 		if (req_gets(sock, buf, hold) < 0) return;
+
+		/*
+		 * Can we compress?
+		 */
+		if (!strncasecmp(buf, "Accept-encoding:", 16)) {
+			if (strstr(&buf[16], "gzip")) {
+				gzip_ok = 1;
+			}
+		}
 
 		/*
 		 * Browser-based sessions use cookies for session authentication
@@ -416,6 +426,7 @@ void context_loop(int sock)
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	TheSession->http_sock = sock;
 	TheSession->lastreq = time(NULL);			/* log */
+	TheSession->gzip_ok = gzip_ok;
 	session_loop(req);				/* do transaction */
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 

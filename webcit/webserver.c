@@ -43,6 +43,10 @@
 #include "webcit.h"
 #include "webserver.h"
 
+#ifdef HAVE_ZLIB
+#include <zlib.h>
+#endif
+
 #ifndef HAVE_SNPRINTF
 int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp);
 #endif
@@ -75,8 +79,7 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 	sin.sin_family = AF_INET;
 	if (ip_addr == NULL) {
 		sin.sin_addr.s_addr = INADDR_ANY;
-	}
-	else {
+	} else {
 		sin.sin_addr.s_addr = inet_addr(ip_addr);
 	}
 
@@ -92,8 +95,7 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 
 	s = socket(PF_INET, SOCK_STREAM, (getprotobyname("tcp")->p_proto));
 	if (s < 0) {
-		lprintf(1, "Can't create a socket: %s\n",
-		       strerror(errno));
+		lprintf(1, "Can't create a socket: %s\n", strerror(errno));
 		exit(errno);
 	}
 	/* Set some socket options that make sense. */
@@ -129,7 +131,7 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
 
 #ifdef HAVE_OPENSSL
 	if (is_https) {
-		return(client_read_ssl(buf, bytes, timeout));
+		return (client_read_ssl(buf, bytes, timeout));
 	}
 #endif
 
@@ -140,8 +142,7 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
 		tv.tv_sec = timeout;
 		tv.tv_usec = 0;
 
-		retval = select((sock) + 1,
-				&rfds, NULL, NULL, &tv);
+		retval = select((sock) + 1, &rfds, NULL, NULL, &tv);
 		if (FD_ISSET(sock, &rfds) == 0) {
 			return (0);
 		}
@@ -150,8 +151,8 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
 
 		if (rlen < 1) {
 			lprintf(2, "client_read() failed: %s\n",
-			       strerror(errno));
-			return(-1);
+				strerror(errno));
+			return (-1);
 		}
 		len = len + rlen;
 	}
@@ -165,19 +166,20 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
 }
 
 
-ssize_t client_write(const void *buf, size_t count) {
+ssize_t client_write(const void *buf, size_t count)
+{
 
 	if (WC->burst != NULL) {
-		WC->burst = realloc(WC->burst, (WC->burst_len + count + 2));
+		WC->burst =
+		    realloc(WC->burst, (WC->burst_len + count + 2));
 		memcpy(&WC->burst[WC->burst_len], buf, count);
 		WC->burst_len += count;
-		return(count);
+		return (count);
 	}
-
 #ifdef HAVE_OPENSSL
 	if (is_https) {
-		client_write_ssl((char *)buf, count);
-		return(count);
+		client_write_ssl((char *) buf, count);
+		return (count);
 	}
 #endif
 #ifdef HTTP_TRACING
@@ -185,11 +187,12 @@ ssize_t client_write(const void *buf, size_t count) {
 	write(2, buf, count);
 	write(2, "\033[30m", 5);
 #endif
-	return(write(WC->http_sock, buf, count));
+	return (write(WC->http_sock, buf, count));
 }
 
 
-void begin_burst(void) {
+void begin_burst(void)
+{
 	if (WC->burst != NULL) {
 		free(WC->burst);
 		WC->burst = NULL;
@@ -198,11 +201,75 @@ void begin_burst(void) {
 	WC->burst = malloc(SIZ);
 }
 
-void end_burst(void) {
+
+/*
+ * compress_gzip() uses the same calling syntax as compress2(), but it
+ * creates a stream compatible with HTTP "Content-encoding: gzip"
+ */
+#ifdef HAVE_ZLIB
+#define DEF_MEM_LEVEL 8
+#define OS_CODE 0x03	/* unix */
+int ZEXPORT compress_gzip(Bytef * dest, uLongf * destLen,
+			  const Bytef * source, uLong sourceLen, int level)
+{
+	const int gz_magic[2] = { 0x1f, 0x8b };	/* gzip magic header */
+
+	/* write gzip header */
+	sprintf((char *) dest, "%c%c%c%c%c%c%c%c%c%c",
+		gz_magic[0], gz_magic[1], Z_DEFLATED,
+		0 /*flags */ , 0, 0, 0, 0 /*time */ , 0 /*xflags */ ,
+		OS_CODE);
+
+	/* normal deflate */
+	z_stream stream;
+	int err;
+	stream.next_in = (Bytef *) source;
+	stream.avail_in = (uInt) sourceLen;
+	stream.next_out = dest + 10L;	// after header
+	stream.avail_out = (uInt) * destLen;
+	if ((uLong) stream.avail_out != *destLen)
+		return Z_BUF_ERROR;
+
+	stream.zalloc = (alloc_func) 0;
+	stream.zfree = (free_func) 0;
+	stream.opaque = (voidpf) 0;
+
+	err = deflateInit2(&stream, level, Z_DEFLATED, -MAX_WBITS,
+			   DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY);
+	if (err != Z_OK)
+		return err;
+
+	err = deflate(&stream, Z_FINISH);
+	if (err != Z_STREAM_END) {
+		deflateEnd(&stream);
+		return err == Z_OK ? Z_BUF_ERROR : err;
+	}
+	*destLen = stream.total_out + 10L;
+
+	/* write CRC and Length */
+	uLong crc = crc32(0L, source, sourceLen);
+	int n;
+	for (n = 0; n < 4; ++n, ++*destLen) {
+		dest[*destLen] = (int) (crc & 0xff);
+		crc >>= 8;
+	}
+	uLong len = stream.total_in;
+	for (n = 0; n < 4; ++n, ++*destLen) {
+		dest[*destLen] = (int) (len & 0xff);
+		len >>= 8;
+	}
+	err = deflateEnd(&stream);
+	return err;
+}
+#endif
+
+void end_burst(void)
+{
 	size_t the_len;
 	char *the_data;
 
-	if (WC->burst == NULL) return;
+	if (WC->burst == NULL)
+		return;
 
 	the_len = WC->burst_len;
 	the_data = WC->burst;
@@ -210,9 +277,33 @@ void end_burst(void) {
 	WC->burst_len = 0;
 	WC->burst = NULL;
 
+#ifdef HAVE_ZLIB
+	/* Handle gzip compression */
+	if (WC->gzip_ok) {
+		char *compressed_data = NULL;
+		uLongf compressed_len;
+
+		compressed_len = (uLongf) ((the_len * 101) / 100) + 100;
+		compressed_data = malloc(compressed_len);
+
+		if (compress_gzip((Bytef *) compressed_data,
+				  &compressed_len,
+				  (Bytef *) the_data,
+				  (uLongf) the_len, 9) == Z_OK) {
+			wprintf("Content-encoding: gzip\r\n");
+			free(the_data);
+			the_data = compressed_data;
+			the_len = compressed_len;
+		} else {
+			free(compressed_data);
+		}
+	}
+#endif				/* HAVE_ZLIB */
+
 	wprintf("Content-length: %d\r\n\r\n", the_len);
 	client_write(the_data, the_len);
 	free(the_data);
+	return;
 }
 
 
@@ -279,7 +370,8 @@ void start_daemon(int do_close_stdio)
 		exit(0);
 }
 
-void spawn_another_worker_thread() {
+void spawn_another_worker_thread()
+{
 	pthread_t SessThread;	/* Thread descriptor */
 	pthread_attr_t attr;	/* Thread attributes */
 	int ret;
@@ -295,16 +387,16 @@ void spawn_another_worker_thread() {
 	 * 64-bit Linux.
 	 */
 	if ((ret = pthread_attr_setstacksize(&attr, 1024 * 1024))) {
-		lprintf(1, "pthread_attr_setstacksize: %s\n", strerror(ret));
+		lprintf(1, "pthread_attr_setstacksize: %s\n",
+			strerror(ret));
 		pthread_attr_destroy(&attr);
 	}
 
 	/* now create the thread */
 	if (pthread_create(&SessThread, &attr,
-			(void *(*)(void *)) worker_entry, NULL)
-		   != 0) {
-		lprintf(1, "Can't create thread: %s\n",
-			strerror(errno));
+			   (void *(*)(void *)) worker_entry, NULL)
+	    != 0) {
+		lprintf(1, "Can't create thread: %s\n", strerror(errno));
 	}
 
 	/* free up the attributes */
@@ -348,10 +440,11 @@ int main(int argc, char **argv)
 		case 'c':
 			server_cookie = malloc(SIZ);
 			if (server_cookie != NULL) {
-				strcpy(server_cookie, "Set-cookie: wcserver=");
-				if (gethostname(
-				   &server_cookie[strlen(server_cookie)],
-				   200) != 0) {
+				strcpy(server_cookie,
+				       "Set-cookie: wcserver=");
+				if (gethostname
+				    (&server_cookie[strlen(server_cookie)],
+				     200) != 0) {
 					lprintf(2, "gethostname: %s\n",
 						strerror(errno));
 					free(server_cookie);
@@ -379,21 +472,21 @@ int main(int argc, char **argv)
 	}
 	/* Tell 'em who's in da house */
 	lprintf(1, SERVER "\n"
-"Copyright (C) 1996-2005 by the Citadel/UX development team.\n"
-"This software is distributed under the terms of the GNU General Public\n"
-"License.  If you paid for this software, someone is ripping you off.\n\n");
+		"Copyright (C) 1996-2005 by the Citadel/UX development team.\n"
+		"This software is distributed under the terms of the GNU General Public\n"
+		"License.  If you paid for this software, someone is ripping you off.\n\n");
 
 	if (chdir(WEBCITDIR) != 0)
 		perror("chdir");
 
-        /*
-         * Set up a place to put thread-specific data.
-         * We only need a single pointer per thread - it points to the
-         * wcsession struct to which the thread is currently bound.
-         */
-        if (pthread_key_create(&MyConKey, NULL) != 0) {
-                lprintf(1, "Can't create TSD key: %s\n", strerror(errno));
-        }
+	/*
+	 * Set up a place to put thread-specific data.
+	 * We only need a single pointer per thread - it points to the
+	 * wcsession struct to which the thread is currently bound.
+	 */
+	if (pthread_key_create(&MyConKey, NULL) != 0) {
+		lprintf(1, "Can't create TSD key: %s\n", strerror(errno));
+	}
 
 	/*
 	 * Set up a place to put thread-specific SSL data.
@@ -402,9 +495,9 @@ int main(int argc, char **argv)
 	 * transactions.
 	 */
 #ifdef HAVE_OPENSSL
-        if (pthread_key_create(&ThreadSSL, NULL) != 0) {
-                lprintf(1, "Can't create TSD key: %s\n", strerror(errno));
-        }
+	if (pthread_key_create(&ThreadSSL, NULL) != 0) {
+		lprintf(1, "Can't create TSD key: %s\n", strerror(errno));
+	}
 #endif
 
 	/*
@@ -438,7 +531,7 @@ int main(int argc, char **argv)
 #endif
 
 	/* Start a few initial worker threads */
-	for (i=0; i<(MIN_WORKER_THREADS); ++i) {
+	for (i = 0; i < (MIN_WORKER_THREADS); ++i) {
 		spawn_another_worker_thread();
 	}
 
@@ -451,7 +544,8 @@ int main(int argc, char **argv)
 /*
  * Entry point for worker threads
  */
-void worker_entry(void) {
+void worker_entry(void)
+{
 	int ssock;
 	int i = 0;
 	int time_to_die = 0;
@@ -462,12 +556,13 @@ void worker_entry(void) {
 		fail_this_transaction = 0;
 		ssock = accept(msock, NULL, 0);
 		if (ssock < 0) {
-			lprintf(2, "accept() failed: %s\n", strerror(errno));
+			lprintf(2, "accept() failed: %s\n",
+				strerror(errno));
 		} else {
 			/* Set the SO_REUSEADDR socket option */
 			i = 1;
 			setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR,
-			   	&i, sizeof(i));
+				   &i, sizeof(i));
 
 			/* If we are an HTTPS server, go crypto now. */
 #ifdef HAVE_OPENSSL

@@ -233,6 +233,7 @@ struct wcsession {
 
 	size_t burst_len;
 	char *burst;
+	int gzip_ok;			/* Nonzero if Accept-encoding: gzip */
 };
 
 #define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
