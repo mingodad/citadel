@@ -881,7 +881,9 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 		} else {
 			/* Parse the message text component */
 			mptr = TheMessage->cm_fields['M'];
-			mime_parser(mptr, NULL, *mime_download, NULL, 0);
+			mime_parser(mptr, NULL,
+				*mime_download, NULL, NULL,
+				NULL, 0);
 			/* If there's no file open by this time, the requested
 			 * section wasn't found, so print an error
 			 */
@@ -1044,10 +1046,14 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	/* Tell the client about the MIME parts in this message */
 	if (TheMessage->cm_format_type == FMT_RFC822) {
 		if (mode == MT_CITADEL) {
-			mime_parser(mptr, NULL, *list_this_part, NULL, 0);
+			mime_parser(mptr, NULL,
+				*list_this_part, NULL, NULL,
+				NULL, 0);
 		}
 		else if (mode == MT_MIME) {	/* list parts only */
-			mime_parser(mptr, NULL, *list_this_part, NULL, 0);
+			mime_parser(mptr, NULL,
+				*list_this_part, NULL, NULL,
+				NULL, 0);
 			if (do_proto) cprintf("000\n");
 			return(om_ok);
 		}
@@ -1122,7 +1128,9 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	if (TheMessage->cm_format_type == FMT_RFC822) {
 		CtdlAllocUserData(SYM_MA_INFO, sizeof(struct ma_info));
 		memset(ma, 0, sizeof(struct ma_info));
-		mime_parser(mptr, NULL, *fixed_output, NULL, 0);
+		mime_parser(mptr, NULL,
+			*fixed_output, NULL, NULL,
+			NULL, 0);
 	}
 
 	/* now we're done */

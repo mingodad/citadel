@@ -36,7 +36,6 @@
 #include "msgbase.h"
 #include "tools.h"
 #include "internet_addressing.h"
-#include "mime_parser.h"
 #include "serv_imap.h"
 #include "imap_tools.h"
 #include "imap_fetch.h"

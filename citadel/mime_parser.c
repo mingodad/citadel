@@ -94,6 +94,26 @@ void mime_decode(char *partnum,
 		   size_t cblength,
 		   char *cbencoding,
 		   void *cbuserdata),
+		 void (*PreMultiPartCallBack)
+		  (char *cbname,
+		   char *cbfilename,
+		   char *cbpartnum,
+		   char *cbdisp,
+		   void *cbcontent,
+		   char *cbtype,
+		   size_t cblength,
+		   char *cbencoding,
+		   void *cbuserdata),
+		 void (*PostMultiPartCallBack)
+		  (char *cbname,
+		   char *cbfilename,
+		   char *cbpartnum,
+		   char *cbdisp,
+		   void *cbcontent,
+		   char *cbtype,
+		   size_t cblength,
+		   char *cbencoding,
+		   void *cbuserdata),
 		  void *userdata,
 		  int dont_decode
 )
@@ -224,6 +244,26 @@ void the_mime_parser(char *partnum,
 		       size_t cblength,
 		       char *cbencoding,
 		       void *cbuserdata),
+		     void (*PreMultiPartCallBack)
+		      (char *cbname,
+		       char *cbfilename,
+		       char *cbpartnum,
+		       char *cbdisp,
+		       void *cbcontent,
+		       char *cbtype,
+		       size_t cblength,
+		       char *cbencoding,
+		       void *cbuserdata),
+		     void (*PostMultiPartCallBack)
+		      (char *cbname,
+		       char *cbfilename,
+		       char *cbpartnum,
+		       char *cbdisp,
+		       void *cbcontent,
+		       char *cbtype,
+		       size_t cblength,
+		       char *cbencoding,
+		       void *cbuserdata),
 		      void *userdata,
 		      int dont_decode
 )
@@ -311,8 +351,10 @@ void the_mime_parser(char *partnum,
 	if (is_multipart) {
 
 		/* Tell the client about this message's multipartedness */
-		CallBack("", "", partnum, "", NULL, content_type, 0,
-				encoding, userdata);
+		PreMultiPartCallBack("", "", partnum, "", NULL, content_type,
+				0, encoding, userdata);
+		CallBack("", "", partnum, "", NULL, content_type,
+				0, encoding, userdata);
 
 		/* Figure out where the boundaries are */
 		sprintf(startary, "--%s", boundary);
@@ -320,11 +362,9 @@ void the_mime_parser(char *partnum,
 		do {
 			part_end = ptr;
 			ptr = memreadline(ptr, buf, sizeof buf);
-			if (*ptr == 0)
-				return;		/* premature end of message */
+			if (*ptr == 0) goto END_MULTI;	/* premature end */
 			if (content_end != NULL)
-				if (ptr >= content_end)
-					return;
+				if (ptr >= content_end) goto END_MULTI;
 			if ((!strcasecmp(buf, startary))
 			    || (!strcasecmp(buf, endary))) {
 				if (part_start != NULL) {
@@ -338,12 +378,18 @@ void the_mime_parser(char *partnum,
 					}
 					the_mime_parser(nested_partnum,
 						    part_start, part_end,
-							CallBack, userdata,
+							CallBack,
+							PreMultiPartCallBack,
+							PostMultiPartCallBack,
+							userdata,
 							dont_decode);
 				}
 				part_start = ptr;
 			}
 		} while (strcasecmp(buf, endary));
+END_MULTI:	PostMultiPartCallBack("", "", partnum, "", NULL, content_type,
+				0, encoding, userdata);
+		return;
 	}
 
 	/* If it's not a multipart message, then do something with it */
@@ -358,7 +404,9 @@ void the_mime_parser(char *partnum,
 		mime_decode(partnum,
 			    part_start, length,
 			    content_type, encoding, disposition,
-			    name, filename, CallBack, userdata, dont_decode);
+			    name, filename,
+			    CallBack, NULL, NULL,
+			    userdata, dont_decode);
 	}
 
 
@@ -372,7 +420,9 @@ void the_mime_parser(char *partnum,
  * Note: NULL can be supplied as content_end; in this case, the message is
  * considered to have ended when the parser encounters a 0x00 byte.
  */
-void mime_parser(char *content_start, char *content_end,
+void mime_parser(char *content_start,
+		char *content_end,
+
 		 void (*CallBack)
 		  (char *cbname,
 		   char *cbfilename,
@@ -383,12 +433,38 @@ void mime_parser(char *content_start, char *content_end,
 		   size_t cblength,
 		   char *cbencoding,
 		   void *cbuserdata),
+
+		 void (*PreMultiPartCallBack)
+		  (char *cbname,
+		   char *cbfilename,
+		   char *cbpartnum,
+		   char *cbdisp,
+		   void *cbcontent,
+		   char *cbtype,
+		   size_t cblength,
+		   char *cbencoding,
+		   void *cbuserdata),
+
+		 void (*PostMultiPartCallBack)
+		  (char *cbname,
+		   char *cbfilename,
+		   char *cbpartnum,
+		   char *cbdisp,
+		   void *cbcontent,
+		   char *cbtype,
+		   size_t cblength,
+		   char *cbencoding,
+		   void *cbuserdata),
+
 		  void *userdata,
 		  int dont_decode
 )
 {
 
 	lprintf(9, "mime_parser() called\n");
-	the_mime_parser("", content_start, content_end, CallBack,
+	the_mime_parser("", content_start, content_end,
+			CallBack,
+			PreMultiPartCallBack,
+			PostMultiPartCallBack,
 			userdata, dont_decode);
 }

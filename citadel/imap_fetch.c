@@ -417,7 +417,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 		imfp.output_fp = tmp;
 
 		mime_parser(msg->cm_fields['M'], NULL,
-				*imap_load_part,
+				*imap_load_part, NULL, NULL,
 				(void *)&imfp,
 				1);
 	}
@@ -454,6 +454,32 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 	if (is_peek) {
 		/* FIXME set the last read pointer or something */
 	}
+}
+
+/*
+ * Called immediately before outputting a multipart bodystructure
+ */
+void imap_fetch_bodystructure_pre(
+		char *name, char *filename, char *partnum, char *disp,
+		void *content, char *cbtype, size_t length, char *encoding,
+		void *cbuserdata
+		) {
+
+	cprintf("*PRE*");	/* FIXME obviously wrong */
+}
+
+
+
+/*
+ * Called immediately after outputting a multipart bodystructure
+ */
+void imap_fetch_bodystructure_post(
+		char *name, char *filename, char *partnum, char *disp,
+		void *content, char *cbtype, size_t length, char *encoding,
+		void *cbuserdata
+		) {
+
+	cprintf("*POST*");	/* FIXME obviously wrong */
 }
 
 
@@ -561,7 +587,9 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 	cprintf("BODYSTRUCTURE (");
 	mime_parser(msg->cm_fields['M'],
 			NULL,
-			*imap_fetch_bodystructure_part,
+			*imap_fetch_bodystructure_part,	/* part */
+			*imap_fetch_bodystructure_pre,	/* pre-multi */
+			*imap_fetch_bodystructure_post,	/* post-multi */
 			NULL,
 			0);
 	cprintf(") ");
