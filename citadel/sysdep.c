@@ -871,12 +871,12 @@ int main(int argc, char **argv)
 	/*
 	 * Bind the server to our favorite ports.
 	 */
-	CtdlRegisterServiceHook(config.c_port_number,		/* TCP */
-				NULL,
-				citproto_begin_session,
-				do_command_loop);
 	CtdlRegisterServiceHook(0,				/* Unix */
 				"citadel.socket",
+				citproto_begin_session,
+				do_command_loop);
+	CtdlRegisterServiceHook(config.c_port_number,		/* TCP */
+				NULL,
 				citproto_begin_session,
 				do_command_loop);
 
@@ -915,6 +915,8 @@ int main(int argc, char **argv)
 
 	for (serviceptr = ServiceHookTable; serviceptr != NULL;
 	    serviceptr = serviceptr->next ) {
+		lprintf(9, "Will listen on master socket %d\n",
+			serviceptr->msock);
 		FD_SET(serviceptr->msock, &masterfds);
 		if (serviceptr->msock > masterhighest) {
 			masterhighest = serviceptr->msock;

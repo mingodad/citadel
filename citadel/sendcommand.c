@@ -20,7 +20,7 @@
 #include "ipc.h"
 #include "config.h"
 
-#define LOCKFILE "/var/lock/LCK.sendcommand"
+#define LOCKFILE "/tmp/LCK.sendcommand"
 
 struct config config;
 extern int home_specified;
@@ -88,13 +88,10 @@ void logoff(int e)
 void np_attach_to_server(void) {
 	char hostbuf[256], portbuf[256];
 	char buf[256];
-	char portname[8];
-	char *args[] = { "sendcommand", NULL, NULL, NULL } ;
+	char *args[] = { "sendcommand", NULL } ;
 
 	fprintf(stderr, "Attaching to server...\n");
-	sprintf(portname, "%d", config.c_port_number);
-	args[2] = portname;
-	attach_to_server(3, args, hostbuf, portbuf);
+	attach_to_server(1, args, hostbuf, portbuf);
 	serv_gets(buf);
 	fprintf(stderr, "%s\n",&buf[4]);
 	sprintf(buf,"IPGM %d", config.c_ipgm_secret);

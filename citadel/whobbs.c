@@ -55,7 +55,7 @@ int main(int argc, char **argv)
 	 */	
 	if (getenv("REQUEST_METHOD") != NULL) www = 1;
 
-	attach_to_server(argc,argv, hostbuf, portbuf);
+	attach_to_server(argc, argv, hostbuf, portbuf);
 	serv_gets(buf);
 	if ((buf[0]!='2')&&(strncmp(buf,"551",3))) {
 		fprintf(stderr,"%s: %s\n",argv[0],&buf[4]);

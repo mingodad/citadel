@@ -1,4 +1,8 @@
  $Log$
+ Revision 572.2  2000/06/02 03:38:50  ajc
+ * Bind unix socket prior to TCP socket for citadel protocol
+ * Fixed bug in sendcommand.c which was causing it to crash on attach
+
  Revision 572.1  2000/05/26 19:27:51  ajc
  * Changed some of the rev-level sensitive stuff to look at the actual version
    of Citadel running, not the last version with which we ran setup
@@ -1890,4 +1894,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

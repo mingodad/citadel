@@ -1504,13 +1504,10 @@ void outprocess(char *sysname)
 void np_attach_to_server(void)
 {
 	char buf[256];
-	char portname[8];
 	char *args[] =
 	{ "netproc", NULL };
 
 	syslog(LOG_NOTICE, "Attaching to server...");
-	sprintf(portname, "%d", config.c_port_number);
-	args[2] = portname;
 	attach_to_server(1, args, NULL, NULL);
 	serv_gets(buf);
 	syslog(LOG_NOTICE, "%s", &buf[4]);

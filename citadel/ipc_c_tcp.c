@@ -131,6 +131,7 @@ int uds_connectsock(char *sockpath)
 	struct sockaddr_un addr;
 	int s;
 
+
 	memset(&addr, 0, sizeof(addr));
 	addr.sun_family = AF_UNIX;
 	strncpy(addr.sun_path, sockpath, sizeof addr.sun_path);
