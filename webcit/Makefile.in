@@ -6,12 +6,13 @@ CFLAGS=@CFLAGS@
 DEFS=@DEFS@
 LIBOBJS=@LIBOBJS@
 LIBS=@LIBS@
+SETUP_LIBS=@SETUP_LIBS@
 PTHREAD_DEFS=@PTHREAD_DEFS@
 srcdir=@srcdir@
 
 # End of configuration section
 
-all: webserver
+all: webserver setup
 
 .SUFFIXES: .c .o
 
@@ -21,6 +22,8 @@ clean:
 distclean: clean
 	rm -f Makefile config.cache config.log config.status
 
+setup: setup.o tools.o
+	$(CC) setup.o tools.o  $(LIBOBJS) $(LIBS) $(SETUP_LIBS) -o setup
 
 webserver: webserver.o context_loop.o tools.o ical_dezonify.o \
 	cookie_conversion.o locate_host.o floors.o summary.o \

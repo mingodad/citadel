@@ -44,7 +44,6 @@ static byte dtable[256];	/* base64 encode / decode table */
 char *safestrncpy(char *dest, const char *src, size_t n)
 {
 	if (dest == NULL || src == NULL) {
-		lprintf(1, "safestrncpy: NULL argument\n");
 		abort();
 	}
 	strncpy(dest, src, n);
