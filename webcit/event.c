@@ -39,7 +39,6 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	struct icaltimetype t_start, t_end;
 	time_t now;
 	int created_new_vevent = 0;
-	icalorganizertype me_as_organizer;
 	icalproperty *organizer = NULL;
 	char organizer_string[SIZ];
 	icalproperty *attendee = NULL;
@@ -215,9 +214,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	if (icalcomponent_get_first_property(vevent, ICAL_ORGANIZER_PROPERTY)
 	   == NULL) {
 		sprintf(organizer_string, "MAILTO:%s", WC->cs_inet_email);
-		memset(&me_as_organizer, 0, sizeof(icalorganizertype));
-		me_as_organizer.value = strdup(organizer_string);
-		icalcomponent_set_organizer(vevent, me_as_organizer);
+		icalcomponent_add_property(vevent,
+			icalproperty_new_organizer(organizer_string)
+		);
 	}
 
 	/* Determine who is the organizer of this event.  This is useless
@@ -237,10 +236,11 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 			}
 		}
 	}
-	wprintf("<TR><TD>Organizer<BR>(FIXME)</TD><TD>");
+	wprintf("<TR><TD><B>Organizer</B></TD><TD>");
 	escputs(organizer_string);
 	if (organizer_is_me) {
-		wprintf("(you. FIXME)\n");
+		wprintf(" <FONT SIZE=-1><I>"
+			"(you are the organizer)</I></FONT>\n");
 	}
 	wprintf("</TD></TR>\n");
 
@@ -248,8 +248,10 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	wprintf("<TR><TD><B>Attendes</B><BR>"
 		"<FONT SIZE=-2>(Separate multiple attendees with commas)"
 		"</FONT></TD><TD>"
-		"<TEXTAREA NAME=\"attendees\" wrap=soft "
-		"ROWS=3 COLS=80 WIDTH=80>\n");
+		"<TEXTAREA %s NAME=\"attendees\" wrap=soft "
+		"ROWS=3 COLS=80 WIDTH=80>\n",
+		(organizer_is_me ? "" : "DISABLED ")
+	);
 	i = 0;
 	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDEE_PROPERTY); attendee != NULL; attendee = icalcomponent_get_next_property(vevent, ICAL_ATTENDEE_PROPERTY)) {
 		strcpy(attendee_string, icalproperty_get_attendee(attendee));
