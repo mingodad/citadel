@@ -1,4 +1,7 @@
 /* $Id$ */
+
+#define SMTP_PORT	2525
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -138,7 +141,7 @@ void smtp_auth(char *argbuf) {
 	char buf[256];
 
 	if (strncasecmp(argbuf, "login", 5) ) {
-		cprintf("500 We only support LOGIN authentication.\n");
+		cprintf("550 We only support LOGIN authentication.\n");
 		return;
 	}
 
@@ -324,7 +327,7 @@ void smtp_command_loop(void) {
 char *Dynamic_Module_Init(void)
 {
 	SYM_SMTP = CtdlGetDynamicSymbol();
-	CtdlRegisterServiceHook(25,
+	CtdlRegisterServiceHook(SMTP_PORT,
 				smtp_greeting,
 				smtp_command_loop);
 	return "$Id$";
