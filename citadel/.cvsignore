@@ -1,4 +1,5 @@
 aidepost
+aclocal.m4
 .AppleDouble
 .libs
 base64
@@ -29,6 +30,7 @@ Makefile
 msgform
 netconfigs
 netmailer
+netpoll
 netproc
 netsetup
 parsedate.c
