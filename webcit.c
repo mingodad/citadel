@@ -32,12 +32,12 @@
 
 
 
-char *ExpressMessages = NULL;
+char *ExpressMessages = NULL;	/* FIX move to session context */
 
 /* This variable is set to 1 if the room banner and menubar have been
  * displayed, and we need to close the <TABLE> tags.
  */
-int fake_frames = 0;
+int fake_frames = 0;	/* FIX move to session context */
 
 struct urlcontent *urlstrings = NULL;
 
