@@ -1,4 +1,8 @@
 $Log$
+Revision 410.24  2003/05/04 04:22:41  ajc
+* Display body of messages on a white background.  I am doing this in order
+  to prepare for making the general background of the screen a darker color.
+
 Revision 410.23  2003/05/04 02:54:55  ajc
 * Summary page now uses our cutesy new rounded window boxes
 
@@ -1374,4 +1378,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
