@@ -1,4 +1,7 @@
  $Log$
+ Revision 620.1  2004/03/27 23:04:59  error
+ * citadel.lsm: update version number, sending to ibiblio
+
  Revision 620.0  2004/03/27 02:33:26  ajc
  * THIS IS 6.20
 
@@ -5636,4 +5639,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
