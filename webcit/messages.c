@@ -262,7 +262,8 @@ void read_message(long msgnum) {
 		    && (strcasecmp(&buf[5], serv_info.serv_humannode)))
 			wprintf("(%s) ", &buf[5]);
 		if ((!strncasecmp(buf, "room=", 5))
-		    && (strcasecmp(&buf[5], WC->wc_roomname)))
+		    && (strcasecmp(&buf[5], WC->wc_roomname))
+		    && (strlen(&buf[5])>0) )
 			wprintf("in %s> ", &buf[5]);
 		if (!strncasecmp(buf, "rfca=", 5)) {
 			strcpy(rfca, &buf[5]);

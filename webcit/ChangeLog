@@ -1,4 +1,7 @@
 $Log$
+Revision 400.35  2002/10/07 23:03:38  ajc
+* messages.c: don't display room name field when it's blank
+
 Revision 400.34  2002/10/07 04:10:37  ajc
 * When displaying meeting invitations, only show date/time for VEVENT
   subcomponents.  Date/time for other subcomponents are irrelevant.
@@ -1057,3 +1060,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
