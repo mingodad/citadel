@@ -67,13 +67,11 @@ something like this:
  Several command-line options are also available.  Here's the usage for
 the "webserver" program:
   
- webserver [-p http_port] [-s https_port] [-t tracefile]
-           [-c] [remotehost [remoteport]]
+ webserver [-p http_port] [-s] [-t tracefile] [-c] [remotehost [remoteport]]
  
    *or*
  
- webserver [-p http_port] [-s https_port] [-t tracefile]
-           [-c] uds /your/citadel/directory
+ webserver [-p http_port] [-s] [-t tracefile] [-c] uds /your/citadel/directory
  
  Explained: 
   
@@ -84,11 +82,6 @@ the "webserver" program:
      are installing WebCit on a dedicated server, then you might choose to
      use port 80 after all.
  
-  -> https_port: an optional TCP port on which you wish your WebCit server
-     to run an SSL-encrypted web service.  The standard port number for this
-     is 443, and if you're not already running a secure web server you might
-     choose to use that port.  Otherwise, select any free port number.
- 
   -> tracefile: where you want WebCit to log to.  This can be a file, a
      virtual console, or /dev/null to suppress logging altogether.
  
@@ -98,6 +91,10 @@ the "webserver" program:
      This is useful if you have a cluster of WebCit servers sitting behind a
      load balancer, and the load balancer has the ability to use cookies to
      keep track of which server to send HTTP requests to.
+ 
+  -> The "-s" option causes WebCit to present an HTTPS (SSL-encrypted) web
+     service.  If you want to do both HTTP and HTTPS, you can simply run two
+     instances of WebCit on two different ports.
  
   -> remotehost: the name or IP address of the host on which your Citadel/UX
      server is running.  The default is "localhost".
@@ -142,7 +139,9 @@ be automatically configured and installed if your host system supports it.
  WebCit also provides Kolab-compatible free/busy data for calendar clients.
 Unlike the Kolab server, however, there is no need for each user to "publish"
 free/busy data -- it is generated on-the-fly from the server-side calendar
-of the user being queried.
+of the user being queried.  Note: in order to support Kolab clients, you must
+have WebCit running in HTTPS mode on port 443, because that is what Kolab
+clients will be expecting.
   
  
  HTTPS (encryption) SUPPORT

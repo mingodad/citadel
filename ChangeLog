@@ -1,4 +1,8 @@
 $Log$
+Revision 510.9  2004/06/01 18:44:20  ajc
+* Return to the old command-line usage (-s for https, service is either
+  http or https but not both)
+
 Revision 510.8  2004/06/01 03:32:28  ajc
 * Add "permanent room" setting to room edit screen
 * create room -- allow longer strings
@@ -1838,3 +1842,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
