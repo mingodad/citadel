@@ -256,3 +256,125 @@ DONE:	wprintf("</BODY></HTML>\n");
 	}
 
 
+
+
+/*
+ * post message (or don't post message)
+ */
+void post_message(void) {
+	char buf[256];
+
+	printf("HTTP/1.0 200 OK\n");
+	output_headers();
+        wprintf("<HTML>");
+        wprintf("<BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+
+	strcpy(buf, bstr("sc"));
+	if (strcasecmp(buf, "Save message")) {
+		wprintf("Cancelled.  Message was not posted.<BR>\n");
+		dump_vars();
+		}
+
+	else {
+		sprintf(buf,"ENT0 1|%s|0|0",bstr("recp"));
+		serv_puts(buf);
+		serv_gets(buf);
+		if (buf[0]=='4') {
+			text_to_server(bstr("msgtext"));
+			serv_puts("000");
+			wprintf("Message has been posted.<BR>\n");
+			}
+		else {
+			wprintf("<EM>%s</EM><BR>\n",&buf[4]);
+			}
+		}
+
+	wprintf("</BODY></HTML>\n");
+	wDumpContent();
+	}	
+
+
+
+
+
+
+
+
+/*
+ * prompt for a recipient (to be called from display_enter() only)
+ */
+void prompt_for_recipient() {
+
+        wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
+        wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+        wprintf("<B>Send private e-mail</B>\n");
+        wprintf("</FONT></TD></TR></TABLE>\n");
+
+	wprintf("<CENTER>");
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/display_enter\">\n");
+	wprintf("Enter recipient: ");
+	wprintf("<INPUT TYPE=\"text\" NAME=\"recp\" MAXLENGTH=\"64\"><BR>\n");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Enter message\">");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
+	wprintf("</FORM></CENTER>\n");
+	}
+
+
+
+/*
+ * display the message entry screen
+ */
+void display_enter(void) {
+	char buf[256];
+	long now;
+	struct tm *tm;
+
+	printf("HTTP/1.0 200 OK\n");
+	output_headers();
+        wprintf("<HTML>");
+        wprintf("</HEAD><BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+
+	sprintf(buf,"ENT0 0|%s|0|0",bstr("recp"));
+	serv_puts(buf);
+	serv_gets(buf);
+
+	if (!strncmp(buf,"570",3)) {
+		if (strlen(bstr("recp"))>0) {
+			wprintf("<EM>%s</EM><BR>\n",&buf[4]);
+			}
+		prompt_for_recipient();
+		goto DONE;
+		}
+
+	if (buf[0]!='2') {
+		wprintf("<EM>%s</EM><BR>\n",&buf[4]);
+		goto DONE;
+		}
+
+	wprintf("<CENTER>Enter message below.  Messages are formatted to\n");
+	wprintf("the <EM>reader's</EM> screen width.  To defeat the\n");
+	wprintf("formatting, indent a line at least one space.  \n");
+	wprintf("<BR>");
+
+	time(&now);
+	tm=(struct tm *)localtime(&now);
+	strcpy(buf,(char *)asctime(tm)); buf[strlen(buf)-1]=0;
+	strcpy(&buf[16],&buf[19]);
+	wprintf("</CENTER><FONT COLOR=\"440000\"><B> %s ",&buf[4]);
+	wprintf("from %s ",wc_username);
+	if (strlen(bstr("recp"))>0) wprintf("to %s ",bstr("recp"));
+	wprintf("in %s&gt; ",wc_roomname);
+	wprintf("</B></FONT><BR><CENTER>\n");
+
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/post\">\n");
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"recp\" VALUE=\"%s\">\n",
+		bstr("recp"));
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save message\">");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
+
+	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=30 COLS=80 WIDTH=80></TEXTAREA><P>\n");
+
+	wprintf("</FORM></CENTER>\n");
+DONE:	wprintf("</BODY></HTML>\n");
+	wDumpContent();
+	}

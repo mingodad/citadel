@@ -1,5 +1,5 @@
 Fri Dec 11 21:14:36 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
-	* Brought over message reading functions from old WebCit
+	* Brought over message reading and entry functions from old WebCit
 
 1998-12-10 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* context_loop.c: really fix the SO_LINGER stuff

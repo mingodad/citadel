@@ -41,3 +41,6 @@ void embed_main_menu(void);
 void serv_read(char *buf, int bytes);
 int haschar(char *st, char ch);
 void readloop(char *oper);
+void text_to_server(char *ptr);
+void display_enter(void);
+void post_message(void);

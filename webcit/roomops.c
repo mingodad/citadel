@@ -237,7 +237,20 @@ void gotoroom(char *gname, int display_name)
 			extract_int(&buf[4],1),
 			extract_int(&buf[4],2));
 
-		/* FIX add room image here */
+		/* Display room graphic.  The server doesn't actually need the
+		 * room name, but we supply it in order to keep the browser
+		 * from using a cached graphic from another room.
+		 */
+		serv_puts("OIMG _roompic_");
+		serv_gets(buf);
+		if (buf[0]=='2') {
+			wprintf("<TD>");
+			wprintf("<IMG SRC=\"/image&name=_roompic_&room=");
+			escputs(wc_roomname);
+			wprintf("\"></TD>");
+			serv_puts("CLOS");
+			serv_gets(buf);
+			}
 
 		wprintf("<TD>");
 		readinfo(0);
