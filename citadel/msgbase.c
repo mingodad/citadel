@@ -1212,17 +1212,18 @@ void serialize_message(struct ser_ret *ret,		/* return values */
  */
 void check_repl(long msgnum) {
 	struct CtdlMessage *msg;
-	time_t timestamp;
+	time_t timestamp = (-1L);
 
-	msg = NULL;  /* FIX change to get */
-
-
+	msg = CtdlFetchMessage(msgnum);
+	if (msg == NULL) return;
 	if (msg->cm_fields['T'] != NULL) {
 		timestamp = atol(msg->cm_fields['T']);
-		if (timestamp > msg_repl->highest) {
-			msg_repl->highest = timestamp;	/* newer! */
-			return;
-		}
+	}
+	CtdlFreeMessage(msg);
+
+	if (timestamp > msg_repl->highest) {
+		msg_repl->highest = timestamp;	/* newer! */
+		return;
 	}
 
 	/* Existing isn't newer?  Then delete the old one(s). */
