@@ -762,7 +762,7 @@ void create_worker(void) {
 	 * the MIME parser crashes on FreeBSD, and the IMAP service crashes on
 	 * 64-bit Linux.
 	 */
-	if ((ret = pthread_attr_setstacksize(&attr, 256 * 1024))) {
+	if ((ret = pthread_attr_setstacksize(&attr, 1024 * 1024))) {
 		lprintf(CTDL_EMERG, "pthread_attr_setstacksize: %s\n", strerror(ret));
 		time_to_die = -1;
 		pthread_attr_destroy(&attr);
