@@ -1,4 +1,7 @@
  $Log$
+ Revision 630.3  2005/01/25 15:02:12  error
+ * Updated SSL/TLS code to actually use the TLS cipher suites
+
  Revision 630.2  2005/01/22 04:15:32  ajc
  * Increased per-thread stack size again, this time to 1MB
 
@@ -6305,4 +6308,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
