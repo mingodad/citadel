@@ -87,6 +87,8 @@ struct NetMap *the_netmap = NULL;
 
 char *ignetcfg = NULL;
 
+char *working_ignetcfg = NULL;
+
 /*
  * Keep track of what messages to reject
  */
@@ -271,7 +273,7 @@ int is_valid_node(char *nexthop, char *secret, char *node) {
 	/*
 	 * First try the neighbor nodes
 	 */
-	if (ignetcfg == NULL) {
+	if (working_ignetcfg == NULL) {
 		if (nexthop != NULL) {
 			strcpy(nexthop, "");
 		}
@@ -284,8 +286,8 @@ int is_valid_node(char *nexthop, char *secret, char *node) {
 	}
 
 	/* Use the string tokenizer to grab one line at a time */
-	for (i=0; i<num_tokens(ignetcfg, '\n'); ++i) {
-		extract_token(linebuf, ignetcfg, i, '\n');
+	for (i=0; i<num_tokens(working_ignetcfg, '\n'); ++i) {
+		extract_token(linebuf, working_ignetcfg, i, '\n');
 		extract(buf, linebuf, 0);
 		if (!strcasecmp(buf, node)) {
 			if (nexthop != NULL) {
@@ -1538,11 +1540,11 @@ void network_poll_other_citadel_nodes(int full_poll) {
 	int poll = 0;
 	char spoolfile[SIZ];
 
-	if (ignetcfg == NULL) return; 	/* no nodes defined */
+	if (working_ignetcfg == NULL) return; 	/* no nodes defined */
 
 	/* Use the string tokenizer to grab one line at a time */
-	for (i=0; i<num_tokens(ignetcfg, '\n'); ++i) {
-		extract_token(linebuf, ignetcfg, i, '\n');
+	for (i=0; i<num_tokens(working_ignetcfg, '\n'); ++i) {
+		extract_token(linebuf, working_ignetcfg, i, '\n');
 		extract(node, linebuf, 0);
 		extract(secret, linebuf, 1);
 		extract(host, linebuf, 2);
@@ -1599,8 +1601,8 @@ void network_do_queue(void) {
 	doing_queue = 1;
 
 	/* Load the IGnet Configuration into memory */
-	if (ignetcfg == NULL) {
-		ignetcfg = CtdlGetSysConfig(IGNETCFG);
+	if (working_ignetcfg == NULL) {
+		working_ignetcfg = CtdlGetSysConfig(IGNETCFG);
 	}
 
 	/*
@@ -1651,6 +1653,7 @@ void network_do_queue(void) {
 	}
 
 	doing_queue = 0;
+	free(working_ignetcfg);
 }
 
 

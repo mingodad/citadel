@@ -1,4 +1,9 @@
  $Log$
+ Revision 623.5  2004/07/15 02:54:49  ajc
+ * serv_network.c: grab and use a networker-local copy of the network
+   configuration, ensuring that it doesn't accidentally get clobbered while
+   the network is running.
+
  Revision 623.4  2004/07/11 18:41:39  ajc
  * Updated roadmap document slightly
 
@@ -5918,4 +5923,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
