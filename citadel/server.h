@@ -165,7 +165,7 @@ typedef struct CitContext t_context;
 enum {
 	CON_IDLE,		/* This context is doing nothing */
 	CON_READY,		/* This context needs attention */
-	CON_EXECUTING,		/* This context is bound to a thread */
+	CON_EXECUTING		/* This context is bound to a thread */
 };
 
 
@@ -454,7 +454,7 @@ struct MetaData {
  */
 struct ser_ret {
         size_t len;
-        char *ser;
+        unsigned char *ser;
 };
 
 

@@ -704,8 +704,6 @@ void cmd_pass(char *buf)
 	case pass_ok:
 		logged_in_response();
 		return;
-		cprintf("%d Can't find user record!\n",
-			ERROR + INTERNAL_ERROR);
 	}
 }
 

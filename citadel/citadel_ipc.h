@@ -157,7 +157,7 @@ enum RoomList {
 	SubscribedRoomsWithNoNewMessages,
 	UnsubscribedRooms,
 	AllAccessibleRooms,
-	AllPublicRooms,
+	AllPublicRooms
 };
 #define AllFloors -1
 enum MessageList {
@@ -167,11 +167,11 @@ enum MessageList {
 	LastMessages,
 	FirstMessages,
 	MessagesGreaterThan,
-	MessagesLessThan,
+	MessagesLessThan
 };
 enum MessageDirection {
 	ReadReverse = -1,
-	ReadForward = 1,
+	ReadForward = 1
 };
 
 /* Shared Diffie-Hellman parameters */

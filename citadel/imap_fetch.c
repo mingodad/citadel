@@ -936,8 +936,7 @@ void imap_fetch_bodystructure (long msgnum, char *item,
  * imap_do_fetch() calls imap_do_fetch_msg() to output the data of an
  * individual message, once it has been selected for output.
  */
-void imap_do_fetch_msg(int seq,
-			int num_items, char **itemlist) {
+void imap_do_fetch_msg(int seq, int num_items, char **itemlist) {
 	int i;
 	struct CtdlMessage *msg = NULL;
 

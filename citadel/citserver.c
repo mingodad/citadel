@@ -887,7 +887,7 @@ void begin_session(struct CitContext *con)
 	strcpy(con->fake_hostname, "");
 	strcpy(con->fake_roomname, "");
 	generate_nonce(con);
-	snprintf(con->temp, sizeof con->temp, tmpnam(NULL));
+	safestrncpy(con->temp, tmpnam(NULL), sizeof con->temp);
 	safestrncpy(con->cs_host, config.c_fqdn, sizeof con->cs_host);
 	safestrncpy(con->cs_addr, "", sizeof con->cs_addr);
 	con->cs_host[sizeof con->cs_host - 1] = 0;

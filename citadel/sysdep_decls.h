@@ -30,7 +30,7 @@ enum LogLevel {
 	/* Unimportant progress messages, etc. */
 	 CTDL_INFO,	/* informational */
 	/* Debugging messages */
-	 CTDL_DEBUG,	/* debug-level messages */
+	 CTDL_DEBUG	/* debug-level messages */
 };
 
 #ifdef __GNUC__

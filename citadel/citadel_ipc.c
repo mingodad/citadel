@@ -2826,7 +2826,7 @@ static void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
 
 void CtdlIPC_chat_recv(CtdlIPC* ipc, char* buf)
 {
-	return CtdlIPC_getline(ipc, buf);
+	CtdlIPC_getline(ipc, buf);
 }
 
 /*
@@ -2856,7 +2856,7 @@ static void CtdlIPC_putline(CtdlIPC *ipc, const char *buf)
 
 void CtdlIPC_chat_send(CtdlIPC* ipc, const char* buf)
 {
-	return CtdlIPC_putline(ipc, buf);
+	CtdlIPC_putline(ipc, buf);
 }
 
 

@@ -466,9 +466,9 @@ void cdb_decompress_if_necessary(struct cdbdata *cdb) {
 	uncompressed_data = malloc(zheader.uncompressed_len);
 
 	if (uncompress(	(Bytef *) uncompressed_data,
-			&destLen,
-			compressed_data,
-			sourceLen
+			(uLongf *)&destLen,
+			(const Bytef *)compressed_data,
+			(uLong)sourceLen
 	) != Z_OK) {
 		lprintf(CTDL_EMERG, "uncompress() error\n");
 		abort();
@@ -761,7 +761,7 @@ void cdb_rewind(int cdb)
 	if (MYCURSORS[cdb] != NULL) {
 		lprintf(CTDL_EMERG, "cdb_rewind: must close cursor on database %d before reopening.\n", cdb);
 		abort();
-		//cclose(MYCURSORS[cdb]);
+		/* cclose(MYCURSORS[cdb]); */
 	}
 
 	/*

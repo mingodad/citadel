@@ -1426,7 +1426,7 @@ void image_view(CtdlIPC *ipc, unsigned long msg)
 				void *file = NULL; /* The downloaded file */
 				int r;
 	
-				// view image
+				/* view image */
 				found = -found;
 				r = CtdlIPCAttachmentDownload(ipc, msg, ptr->number, &file, progress, buf);
 				if (r / 100 != 2) {

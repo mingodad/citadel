@@ -71,7 +71,7 @@ int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
 	char buf[SIZ];
 	int buf_length = 0;
 	int soft_line_break = 0;
-	int ch;
+	unsigned int ch;
 	int decoded_length = 0;
 	int i;
 

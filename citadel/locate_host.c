@@ -140,7 +140,7 @@ int rbl_check(char *message_to_spammer) {
 	struct sockaddr_in sin;
 	int len;	/* should be socklen_t but doesn't work on Macintosh */
 
-	if (!getpeername(CC->client_socket, (struct sockaddr *) &sin, &len)) {
+	if (!getpeername(CC->client_socket, (struct sockaddr *) &sin, (socklen_t *)&len)) {
 		return(rbl_check_addr(&sin.sin_addr, message_to_spammer));
 	}
 	return(0);

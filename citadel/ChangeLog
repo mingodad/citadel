@@ -1,4 +1,7 @@
  $Log$
+ Revision 629.7  2005/01/19 03:03:36  ajc
+ * Minor and/or cosmetic changes made during x64 troubleshooting
+
  Revision 629.6  2005/01/18 17:58:38  ajc
  * Trying to fix IMAP brokenness on Linux-x64.  Committing changes even
    though there are a lot of annoying trace messages in this tree, because
@@ -6277,4 +6280,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

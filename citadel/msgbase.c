@@ -1580,7 +1580,7 @@ void cmd_msg3(char *cmdbuf)
 	}
 
 	cprintf("%d %ld\n", BINARY_FOLLOWS, (long)smr.len);
-	client_write(smr.ser, smr.len);
+	client_write((char *)smr.ser, (int)smr.len);
 	free(smr.ser);
 }
 
@@ -1859,7 +1859,7 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 
 	for (i=0; i<26; ++i) if (msg->cm_fields[(int)forder[i]] != NULL) {
 		ret->ser[wlen++] = (char)forder[i];
-		strcpy(&ret->ser[wlen], msg->cm_fields[(int)forder[i]]);
+		strcpy((char *)&ret->ser[wlen], msg->cm_fields[(int)forder[i]]);
 		wlen = wlen + strlen(msg->cm_fields[(int)forder[i]]) + 1;
 	}
 	if (ret->len != wlen) lprintf(CTDL_ERR, "ERROR: len=%ld wlen=%ld\n",
