@@ -46,6 +46,7 @@
 #include "imap_tools.h"
 #include "imap_fetch.h"
 #include "imap_search.h"
+#include "imap_store.h"
 
 
 long SYM_IMAP;
@@ -294,7 +295,7 @@ void imap_capability(int num_parms, char *parms[]) {
  */
 void imap_select(int num_parms, char *parms[]) {
 	char towhere[SIZ];
-	char augmented_roomname[SIZ];
+	char augmented_roomname[ROOMNAMELEN];
 	int c = 0;
 	int ok = 0;
 	int ra = 0;
@@ -476,7 +477,7 @@ void imap_list(int num_parms, char *parms[]) {
  */
 void imap_create(int num_parms, char *parms[]) {
 	int ret;
-	char roomname[SIZ];
+	char roomname[ROOMNAMELEN];
 	int floornum;
 	int flags;
 	int newroomtype;
@@ -509,6 +510,102 @@ void imap_create(int num_parms, char *parms[]) {
 		cprintf("%s OK CREATE completed\r\n", parms[0]);
 	}
 }
+
+
+/*
+ * Implements the STATUS command (sort of)
+ *
+ */
+void imap_status(int num_parms, char *parms[]) {
+	int ret;
+	char augmented_roomname[ROOMNAMELEN];
+	char roomname[ROOMNAMELEN];
+	char buf[SIZ];
+	int c;
+	struct quickroom QRscratch;
+	int ra;
+	int ok = 0;
+	char savedroom[ROOMNAMELEN];
+	int msgs, new;
+
+	ret = imap_roomname(roomname, sizeof roomname, parms[2]);
+	if (ret < 0) {
+		cprintf("%s NO Invalid mailbox name or location\r\n",
+			parms[0]);
+		return;
+	}
+
+        /* First try a regular match */
+        c = getroom(&QRscratch, roomname);
+
+        /* Then try a mailbox name match */
+        if (c != 0) {
+                MailboxName(augmented_roomname, &CC->usersupp, roomname);
+                c = getroom(&QRscratch, augmented_roomname);
+                if (c == 0)
+                        strcpy(roomname, augmented_roomname);
+        }
+
+	/* If the room exists, check security/access */
+        if (c == 0) {
+                /* See if there is an existing user/room relationship */
+                ra = CtdlRoomAccess(&QRscratch, &CC->usersupp);
+
+                /* normal clients have to pass through security */
+                if (ra & UA_KNOWN) {
+                        ok = 1;
+		}
+	}
+
+	/* Fail here if no such room */
+	if (!ok) {
+		cprintf("%s NO ... no such room, or access denied\r\n",
+			parms[0]);
+		return;
+	}
+
+	/*
+	 * usergoto() formally takes us to the desired room, happily returning
+	 * the number of messages and number of new messages.  (If another
+	 * folder is selected, save its name so we can return there!!!!!)
+	 */
+	if (IMAP->selected) {
+		strcpy(savedroom, CC->quickroom.QRname);
+	}
+	usergoto(QRscratch.QRname, 0, &msgs, &new);
+
+	/*
+	 * Tell the client what it wants to know.  In fact, tell it *more* than
+	 * it wants to know.  We happily IGnore the supplied status data item
+	 * names and simply spew all possible data items.  It's far easier to
+	 * code and probably saves us some processing time too.
+	 *
+	 * FIXME we need to implement RECENT and UNSEEN eventually...
+	 */
+
+	imap_mailboxname(buf, sizeof buf, &QRscratch);
+	cprintf("* STATUS ");
+	imap_strout(buf);
+	cprintf(" (MESSAGES %d RECENT 0 UIDNEXT %ld "
+		"UIDVALIDITY 0 UNSEEN 0)\r\n",
+		msgs,
+		CitControl.MMhighest + 1
+	);
+
+	/*
+	 * If another folder is selected, go back to that room so we can resume
+	 * our happy day without violent explosions.
+	 */
+	if (IMAP->selected) {
+		usergoto(savedroom, 0, &msgs, &new);
+	}
+
+	/*
+	 * Oooh, look, we're done!
+	 */
+	cprintf("%s OK STATUS completed\r\n", parms[0]);
+}
+
 
 
 
@@ -621,6 +718,10 @@ void imap_command_loop(void) {
 		imap_create(num_parms, parms);
 	}
 
+	else if (!strcasecmp(parms[1], "STATUS")) {
+		imap_status(num_parms, parms);
+	}
+
 	else if (IMAP->selected == 0) {
 		cprintf("%s BAD no folder selected\r\n", parms[0]);
 	}
@@ -643,6 +744,15 @@ void imap_command_loop(void) {
 	else if ( (!strcasecmp(parms[1], "UID"))
 		&& (!strcasecmp(parms[2], "SEARCH")) ) {
 		imap_uidsearch(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "STORE")) {
+		imap_store(num_parms, parms);
+	}
+
+	else if ( (!strcasecmp(parms[1], "UID"))
+		&& (!strcasecmp(parms[2], "STORE")) ) {
+		imap_uidstore(num_parms, parms);
 	}
 
 	else if (!strcasecmp(parms[1], "CLOSE")) {
