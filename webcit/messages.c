@@ -982,6 +982,67 @@ DONE:
 }
 
 
+/*
+ * Back end for post_message() ... this is where the actual message
+ * gets transmitted to the server.
+ */
+void post_mime_to_server(void) {
+	char boundary[SIZ];
+	int is_multipart = 0;
+	static int seq = 0;
+	struct wc_attachment *att;
+	char *encoded;
+	size_t encoded_length;
+	
+	/* If there are attachments, we have to do multipart/mixed */
+	if (WC->first_attachment != NULL) {
+		is_multipart = 1;
+	}
+
+	if (is_multipart) {
+		sprintf(boundary, "---Citadel-Multipart-%s-%04x%04x---",
+			serv_info.serv_fqdn,
+			getpid(),
+			++seq
+		);
+
+		/* Remember, serv_printf() appends an extra newline */
+		serv_printf("Content-type: multipart/mixed; "
+			"boundary=\"%s\"\n", boundary);
+		serv_printf("This is a multipart message in MIME format.\n");
+		serv_printf("--%s", boundary);
+	}
+
+	serv_puts("Content-type: text/html");
+	serv_puts("");
+	text_to_server(bstr("msgtext"), 1);
+
+	if (is_multipart) {
+
+		/* Add in the attachments */
+		for (att = WC->first_attachment; att!=NULL; att=att->next) {
+
+			encoded_length = ((att->length * 150) / 100);
+			encoded = malloc(encoded_length);
+			if (encoded == NULL) break;
+			CtdlEncodeBase64(encoded, att->data, att->length);
+
+			serv_printf("--%s", boundary);
+			serv_printf("Content-type: %s", att->content_type);
+			serv_printf("Content-disposition: attachment; "
+				"filename=\"%s\"", att->filename);
+			serv_puts("Content-transfer-encoding: base64");
+			serv_puts("");
+			serv_write(encoded, strlen(encoded));
+			serv_puts("");
+			serv_puts("");
+			free(encoded);
+		}
+		serv_printf("--%s--", boundary);
+	}
+
+	serv_puts("000");
+}
 
 
 /*
@@ -999,11 +1060,31 @@ void post_message(void)
 {
 	char buf[SIZ];
 	static long dont_post = (-1L);
+	struct wc_attachment *att;
+
+	if (WC->upload_length > 0) {
+
+		att = malloc(sizeof(struct wc_attachment));
+		memset(att, 0, sizeof(struct wc_attachment));
+		att->next = WC->first_attachment;
+		WC->first_attachment = att;
+		att->length = WC->upload_length;
+		strcpy(att->content_type, WC->upload_content_type);
+		strcpy(att->filename, WC->upload_filename);
+
+		/* Transfer control of this memory from the upload struct
+		 * to the attachment struct.
+		 */
+		att->data = WC->upload;
+		WC->upload_length = 0;
+		WC->upload = NULL;
+		display_enter();
+		return;
+	}
 
 	output_headers(1);
 
-	strcpy(buf, bstr("sc"));
-	if (strcasecmp(buf, "Save message")) {
+	if (strcasecmp(bstr("sc"), "Save message")) {
 		wprintf("Cancelled.  Message was not posted.<BR>\n");
 	} else if (atol(bstr("postseq")) == dont_post) {
 		wprintf("Automatically cancelled because you have already "
@@ -1015,10 +1096,7 @@ void post_message(void)
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] == '4') {
-			serv_puts("Content-type: text/html");
-			serv_puts("");
-			text_to_server(bstr("msgtext"), 1);
-			serv_puts("000");
+			post_mime_to_server();
 			wprintf("Message has been posted.<BR>\n");
 			dont_post = atol(bstr("postseq"));
 		} else {
@@ -1027,6 +1105,7 @@ void post_message(void)
 	}
 
 	wDumpContent(1);
+	free_attachments(WC);
 }
 
 
@@ -1040,6 +1119,7 @@ void display_enter(void)
 	char buf[SIZ];
 	long now;
 	struct tm *tm;
+	struct wc_attachment *att;
 
 	output_headers(1);
 
@@ -1074,20 +1154,39 @@ void display_enter(void)
 	wprintf("in %s&gt; ", WC->wc_roomname);
 	wprintf("</B></FONT><BR><CENTER>\n");
 
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/post\" "
+	wprintf("<FORM ENCTYPE=\"multipart/form-data\" "
+		"METHOD=\"POST\" ACTION=\"/post\" "
 		"NAME=\"enterform\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"recp\" VALUE=\"%s\">\n",
 		bstr("recp"));
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"postseq\" VALUE=\"%ld\">\n",
 		now);
 	wprintf("<FONT SIZE=-1>Subject (optional):</FONT>"
-		"<INPUT TYPE=\"text\" NAME=\"subject\" MAXLENGTH=70>"
+		"<INPUT TYPE=\"text\" NAME=\"subject\" VALUE=\"");
+	escputs(bstr("subject"));
+	wprintf("\" MAXLENGTH=70>"
 		"&nbsp;&nbsp;&nbsp;"
 		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save message\">"
 		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
 
 	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=30 COLS=80 "
-		"WIDTH=80></TEXTAREA><P>\n");
+		"WIDTH=80>");
+	escputs(bstr("msgtext"));
+	wprintf("</TEXTAREA><BR>\n");
+
+	/* Enumerate any attachments which are already in place... */
+	for (att = WC->first_attachment; att != NULL; att = att->next) {
+		wprintf("<IMG SRC=\"/static/attachment.gif\" "
+			"BORDER=0 ALIGN=MIDDLE> Attachment: ");
+		escputs(att->filename);
+		wprintf(" (%s, %d bytes)<BR>\n",
+			att->content_type, att->length);
+	}
+
+	/* Now offer the ability to attach additional files... */
+	wprintf("Attach file: <input NAME=\"attachfile\" "
+		"SIZE=48 TYPE=\"file\">\n&nbsp;&nbsp;"
+		"<input type=\"submit\" name=\"attach\" value=\"Add\">\n");
 
 	wprintf("</FORM></CENTER>\n");
 DONE:	wDumpContent(1);

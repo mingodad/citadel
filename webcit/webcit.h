@@ -151,7 +151,16 @@ enum {
 	WCS_FUNCTION,
 	WCS_SERVCMD
 };
-	
+
+
+struct wc_attachment {
+	struct wc_attachment *next;
+	size_t length;
+	char content_type[SIZ];
+	char filename[SIZ];
+	char *data;
+};
+
 
 /*
  * One of these is kept for each active Citadel session.
@@ -177,6 +186,8 @@ struct wcsession {
 	long uglsn;
 	int upload_length;
 	char *upload;
+	char upload_filename[SIZ];
+	char upload_content_type[SIZ];
 	int new_mail;
 	int remember_new_mail;
 	int need_regi;			/* This user needs to register. */
@@ -201,6 +212,7 @@ struct wcsession {
 	long *cal_msgnum;		/* store calendar msgids for display */
 	int num_cal;
 #endif
+	struct wc_attachment *first_attachment;
 };
 
 #define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
@@ -338,7 +350,6 @@ char *memreadline(char *start, char *buf, int maxlen);
 int num_tokens (char *source, char tok);
 void extract_token(char *dest, char *source, int parmnum, char separator);
 void remove_token(char *source, int parmnum, char separator);
-int CtdlDecodeBase64(char *dest, char *source, size_t length);
 char *load_mimepart(long msgnum, char *partnum);
 int pattern2(char *search, char *patn);
 void do_edit_vcard(long, char *, char *);
@@ -378,6 +389,10 @@ void do_calendar_view(void);
 void free_calendar_buffer(void);
 void calendar_summary_view(void);
 int load_msg_ptrs(char *servcmd);
+void CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen);
+int CtdlDecodeBase64(char *dest, const char *source, size_t length);
+void free_attachments(struct wcsession *sess);
+
 
 #ifdef HAVE_ICAL_H
 void display_edit_task(void);

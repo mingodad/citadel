@@ -248,6 +248,7 @@ void read_server_binary(char *buffer, size_t total_len) {
 		serv_gets(buf);
 		if (buf[0] == '6') {
 			thisblock = (size_t)atoi(&buf[4]);
+			if (!WC->connected) return;
 			serv_read(&buffer[bytes], thisblock);
 			bytes += thisblock;
 		}

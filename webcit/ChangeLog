@@ -1,4 +1,8 @@
 $Log$
+Revision 410.15  2003/04/30 05:00:00  ajc
+* Added the ability to compose messages with file attachments uploaded from
+  the browser
+
 Revision 410.14  2003/04/27 04:46:02  ajc
 * Replace LKRN/LKRO in "folders view" room list with a single LKRA that
   observes the flag designating the presence of new messages.  (The "rooms
@@ -1344,3 +1348,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
