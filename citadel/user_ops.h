@@ -32,6 +32,7 @@ void cmd_chek (void);
 void cmd_qusr (char *who);
 void cmd_agup (char *cmdbuf);
 void cmd_asup (char *cmdbuf);
+void cmd_view (char *cmdbuf);
 int NewMailCount(void);
 void put_visit(struct visit *newvisit);
 void CtdlGetRelationship(struct visit *vbuf,

@@ -399,6 +399,7 @@ a regular Aide (this makes access checks easy).
    9. The number of new Mail messages the user has (useful for alerting the
 user to the arrival of new mail during a session)
   10. The floor number this room resides on
+  11. The current "view" for this room (see views.txt for more info)
   
   
  MSGS   (get pointers to MeSsaGeS in this room)
@@ -660,6 +661,7 @@ and the room aide associated with the current room, can access this command.
  3. Various flags (bits) associated with the room (see LKRN cmd above)
  4. The floor number on which the room resides
  5. The room listing order
+ 6. The default view for the room (see views.txt)
   
   
  SETR   (SET Room attributes)
@@ -674,6 +676,7 @@ should be passed the following arguments:
  4. "Bump" flag (see below)
  5. The floor number on which the room should reside
  6. The room listing order
+ 7. The default view for the room (see views.txt)
  
  *Important: You should always use GETR to retrieve the current attributes of
 the room, then change what you want to change, and then use SETR to write it
@@ -1896,8 +1899,14 @@ call QDIR with one parameter, the Internet e-mail address to look up.  QDIR
 returns OK followed by a Citadel address if there is a match, otherwise it
 returns ERROR+NOT_LOGGED_IN.
  
-  
+ 
+ VIEW   (set the VIEW for a room)
+ 
+ Set the preferred view for the current user in the current room.  Please see
+views.txt for more information on views.  The sole parameter for this command
+is the type of view requested.  VIEW returns OK on success or ERROR on failure.
    
+    
  ASYN   (ASYNchronous message support)
  
  Negotiate the use of asynchronous, or unsolicited, protocol messages.  The

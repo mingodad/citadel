@@ -19,3 +19,23 @@ char *axdefs[]={
 extern char *axdefs[];
 
 #endif
+
+
+
+
+#ifndef VIEWDEFS
+
+char *viewdefs[]={
+	"Messages",
+	"Summary",
+	"Address book"
+};
+
+#define VIEWDEFS 1
+
+#else
+
+extern char *viewdefs[];
+
+#endif
+

@@ -229,6 +229,12 @@ void CtdlGetRelationship(struct visit *vbuf,
 			sizeof(struct visit) : cdbvisit->len));
 		cdb_free(cdbvisit);
 	}
+	else {
+		/* If this is the first time the user has seen this room,
+		 * set the view to be the default for the room.
+		 */
+		vbuf->v_view = rel_room->QRdefaultview;
+	}
 
 	/* Set v_seen if necessary */
 	if (vbuf->v_seen[0] == 0) {
@@ -1419,4 +1425,25 @@ int NewMailCount()
 		phree(msglist);
 
 	return (num_newmsgs);
+}
+
+
+/*
+ * Set the preferred view for the current user/room combination
+ */
+void cmd_view(char *cmdbuf) {
+	int requested_view;
+	struct visit vbuf;
+
+	if (CtdlAccessCheck(ac_logged_in)) {
+		return;
+	}
+
+	requested_view = extract_int(cmdbuf, 0);
+
+	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+	vbuf.v_view = requested_view;
+	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+	
+	cprintf("%d ok\n", CIT_OK);
 }

@@ -97,6 +97,7 @@ void artv_export_rooms_backend(struct quickroom *qrbuf, void *data) {
 	cprintf("%ld\n", qrbuf->QRnumber);
 	cprintf("%d\n", qrbuf->QRorder);
 	cprintf("%u\n", qrbuf->QRflags2);
+	cprintf("%d\n", qrbuf->QRdefaultview);
 
 	getroom(&CC->quickroom, qrbuf->QRname);
 	/* format of message list export is all message numbers output
@@ -178,6 +179,7 @@ void artv_export_visits(void) {
 		}
 
 		cprintf("%u\n", vbuf.v_flags);
+		cprintf("%d\n", vbuf.v_view);
 	}
 }
 
@@ -410,6 +412,7 @@ void artv_import_room(void) {
 	client_gets(buf);	qrbuf.QRnumber = atol(buf);
 	client_gets(buf);	qrbuf.QRorder = atoi(buf);
 	client_gets(buf);	qrbuf.QRflags2 = atoi(buf);
+	client_gets(buf);	qrbuf.QRdefaultview = atoi(buf);
 	putroom(&qrbuf);
 	lprintf(7, "Imported room <%s>\n", qrbuf.QRname);
 	/* format of message list export is all message numbers output
@@ -457,6 +460,7 @@ void artv_import_visit(void) {
 	if (is_textual_seen)	strcpy(vbuf.v_seen, buf);
 
 	client_gets(buf);	vbuf.v_flags = atoi(buf);
+	client_gets(buf);	vbuf.v_view = atoi(buf);
 	put_visit(&vbuf);
 	lprintf(7, "Imported visit %ld/%ld/%ld\n",
 		vbuf.v_roomnum, vbuf.v_roomgen, vbuf.v_usernum);

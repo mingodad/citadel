@@ -188,6 +188,7 @@ struct quickroom {
 	long QRnumber;			/* Globally unique room number      */
 	char QRorder;			/* Sort key for room listing order  */
 	unsigned QRflags2;		/* Additional flags                 */
+	int QRdefaultview;		/* How to display the contents      */
 };
 
 /* Private rooms are always flagged with QR_PRIVATE.  If neither QR_PASSWORDED
@@ -289,3 +290,11 @@ struct floor {
 #endif
 
 #endif /* CITADEL_H */
+
+
+/*
+ * Views
+ */
+#define	VIEW_BBS		0	/* Traditional Citadel BBS view */
+#define VIEW_MAILBOX		1	/* Mailbox summary */
+#define VIEW_ADDRESSBOOK	2	/* Address book view */

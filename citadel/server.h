@@ -409,6 +409,7 @@ struct visit {
 	long v_lastseen;
 	unsigned int v_flags;
 	char v_seen[SIZ];
+	int v_view;
 };
 
 #define V_FORGET	1	/* User has zapped this room        */

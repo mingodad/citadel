@@ -158,7 +158,7 @@ void RemoveContext (struct CitContext *con)
 	if (con==NULL) {
 		lprintf(5, "WARNING: RemoveContext() called with NULL!\n");
 		return;
-		}
+	}
 
 	/* Remove the context from the global context list.  This needs
 	 * to get done FIRST to avoid concurrency problems.  It is *vitally*
@@ -170,16 +170,16 @@ void RemoveContext (struct CitContext *con)
 		ToFree = ContextList;
 		ContextList = ContextList->next;
 		--num_sessions;
-		}
+	}
 	else {
 		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 			if (ptr->next == con) {
 				ToFree = ptr->next;
 				ptr->next = ptr->next->next;
 				--num_sessions;
-				}
 			}
 		}
+	}
 	end_critical_section(S_SESSION_TABLE);
 
 	if (ToFree == NULL) {
@@ -341,11 +341,11 @@ void cmd_info(void) {
 char CtdlCheckExpress(void) {
 	if (CC->FirstExpressMessage == NULL) {
 		return(' ');
-		}
+	}
 	else {
 		return('*');
-		}
 	}
+}
 
 void cmd_time(void)
 {
@@ -374,23 +374,26 @@ static int hostnames_match(const char *realname, const char *testname) {
 	struct hostent *he;
 	int retval = 0;
 
-	if (!strcasecmp(realname, testname))
-		return 1;
+	if (!strcasecmp(realname, testname)) {
+		return(1);
+	}
 
 #ifdef HAVE_NONREENTRANT_NETDB
 	begin_critical_section(S_NETDB);
 #endif
 
-	if ((he = gethostbyname(testname)) != NULL)
-		if (!strcasecmp(realname, he->h_name))
+	if ((he = gethostbyname(testname)) != NULL) {
+		if (!strcasecmp(realname, he->h_name)) {
 			retval = 1;
+		}
+	}
 
 #ifdef HAVE_NONREENTRANT_NETDB
 	end_critical_section(S_NETDB);
 #endif
 
 	return retval;
-	}
+}
 
 /*
  * check a hostname against the public_clients file
@@ -414,12 +417,12 @@ int is_public_client(char *where)
 		if (hostnames_match(where,buf)) {
 			fclose(fp);
 			return(1);
-			}
 		}
+	}
 
 	fclose(fp);
 	return(0);
-	}
+}
 
 
 /*
@@ -515,25 +518,25 @@ void cmd_mesg(char *mname)
 	if (strlen(targ)==0) {
 		cprintf("%d '%s' not found.\n",ERROR,mname);
 		return;
-		}
+	}
 
 	mfp = fopen(targ,"r");
 	if (mfp==NULL) {
 		cprintf("%d Cannot open '%s': %s\n",
 			ERROR,targ,strerror(errno));
 		return;
-		}
+	}
 	cprintf("%d %s\n",LISTING_FOLLOWS,buf);
 
 	while (fgets(buf, (SIZ-1), mfp)!=NULL) {
 		buf[strlen(buf)-1] = 0;
 		do_help_subst(buf);
 		cprintf("%s\n",buf);
-		}
+	}
 
 	fclose(mfp);
 	cprintf("000\n");
-	}
+}
 
 
 /*
@@ -552,7 +555,7 @@ void cmd_emsg(char *mname)
 	extract(buf,mname,0);
 	for (a=0; a<strlen(buf); ++a) {		/* security measure */
 		if (buf[a] == '/') buf[a] = '.';
-		}
+	}
 
 	dirs[0]=mallok(64);
 	dirs[1]=mallok(64);
@@ -564,22 +567,22 @@ void cmd_emsg(char *mname)
 
 	if (strlen(targ)==0) {
 		snprintf(targ, sizeof targ, "./help/%s", buf);
-		}
+	}
 
 	mfp = fopen(targ,"w");
 	if (mfp==NULL) {
 		cprintf("%d Cannot open '%s': %s\n",
 			ERROR,targ,strerror(errno));
 		return;
-		}
+	}
 	cprintf("%d %s\n", SEND_LISTING, targ);
 
 	while (client_gets(buf), strcmp(buf, "000")) {
 		fprintf(mfp, "%s\n", buf);
-		}
+	}
 
 	fclose(mfp);
-	}
+}
 
 
 /* Don't show the names of private rooms unless the viewing
@@ -702,16 +705,16 @@ void cmd_term(char *cmdbuf)
  * get the paginator prompt
  */
 void cmd_more(void) {
-	cprintf("%d %s\n",CIT_OK,config.c_moreprompt);
-	}
+	cprintf("%d %s\n", CIT_OK, config.c_moreprompt);
+}
 
 /*
  * echo 
  */
 void cmd_echo(char *etext)
 {
-	cprintf("%d %s\n",CIT_OK,etext);
-	}
+	cprintf("%d %s\n", CIT_OK, etext);
+}
 
 
 
@@ -728,12 +731,12 @@ void cmd_ipgm(char *argbuf)
 		strcpy(CC->curr_user, "<internal program>");
 		CC->cs_flags = CC->cs_flags|CS_STEALTH;
 		cprintf("%d Authenticated as an internal program.\n",CIT_OK);
-		}
+	}
 	else {
 		cprintf("%d Authentication failed.\n",ERROR);
 		lprintf(3, "Warning: ipgm authentication failed.\n");
-		}
 	}
+}
 
 
 /*
@@ -745,7 +748,7 @@ void cmd_down(void) {
 
 	cprintf("%d Shutting down server.  Goodbye.\n", CIT_OK);
 	time_to_die = 1;
-	}
+}
 
 /*
  * Schedule or cancel a server shutdown
@@ -759,7 +762,7 @@ void cmd_scdn(char *argbuf)
 	new_state = extract_int(argbuf, 0);
 	if ((new_state == 0) || (new_state == 1)) {
 		ScheduledShutdown = new_state;
-		}
+	}
 	cprintf("%d %d\n", CIT_OK, ScheduledShutdown);
 }
 
@@ -861,11 +864,11 @@ void citproto_begin_session() {
 			"(maximum is %d)\n",
 			ERROR+MAX_SESSIONS_EXCEEDED,
 			config.c_nodename, config.c_maxsessions);
-		}
+	}
 	else {
 		cprintf("%d %s Citadel/UX server ready.\n",
 			CIT_OK, config.c_nodename);
-		}
+	}
 }
 
 
@@ -897,7 +900,7 @@ void do_command_loop(void) {
 		safestrncpy(CC->lastcmdname, cmdbuf, 
 			sizeof(CC->lastcmdname) );
 		time(&CC->lastidle);
-		}
+	}
 		
 	if ((strncasecmp(cmdbuf, "ENT0", 4))
 	   && (strncasecmp(cmdbuf, "MESG", 4))
@@ -908,333 +911,335 @@ void do_command_loop(void) {
 		   
 	if (!strncasecmp(cmdbuf,"NOOP",4)) {
 		cprintf("%d%cok\n",CIT_OK,CtdlCheckExpress());
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"QUIT",4)) {
 		cprintf("%d Goodbye.\n",CIT_OK);
 		CC->kill_me = 1;
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"ASYN",4)) {
 		cmd_asyn(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"LOUT",4)) {
 		if (CC->logged_in) logout(CC);
 		cprintf("%d logged out.\n",CIT_OK);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"USER",4)) {
 		cmd_user(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"PASS",4)) {
 		cmd_pass(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"NEWU",4)) {
 		cmd_newu(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"CREU",4)) {
 		cmd_creu(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"SETP",4)) {
 		cmd_setp(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"LRMS",4)) {
 		cmd_lrms(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"LKRA",4)) {
 		cmd_lkra(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"LKRN",4)) {
 		cmd_lkrn(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"LKRO",4)) {
 		cmd_lkro(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"LZRM",4)) {
 		cmd_lzrm(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"GETU",4)) {
 		cmd_getu();
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"SETU",4)) {
 		cmd_setu(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"GOTO",4)) {
 		cmd_goto(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"MSGS",4)) {
 		cmd_msgs(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"WHOK",4)) {
 		cmd_whok();
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"RDIR",4)) {
 		cmd_rdir();
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"MSG0",4)) {
 		cmd_msg0(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"MSG2",4)) {
 		cmd_msg2(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"MSG3",4)) {
 		cmd_msg3(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"MSG4",4)) {
 		cmd_msg4(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"OPNA",4)) {
 		cmd_opna(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"INFO",4)) {
 		cmd_info();
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"SLRP",4)) {
 		cmd_slrp(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"INVT",4)) {
 		cmd_invt_kick(&cmdbuf[5],1);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"KICK",4)) {
 		cmd_invt_kick(&cmdbuf[5],0);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"GETR",4)) {
 		cmd_getr();
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"SETR",4)) {
 		cmd_setr(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"GETA",4)) {
 		cmd_geta();
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"SETA",4)) {
 		cmd_seta(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"ENT0",4)) {
 		cmd_ent0(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"RINF",4)) {
 		cmd_rinf();
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"DELE",4)) {
 		cmd_dele(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"KILL",4)) {
 		cmd_kill(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"CRE8",4)) {
 		cmd_cre8(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"MOVE",4)) {
 		cmd_move(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"FORG",4)) {
 		cmd_forg();
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"MESG",4)) {
 		cmd_mesg(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"EMSG",4)) {
 		cmd_emsg(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"GNUR",4)) {
 		cmd_gnur();
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"VALI",4)) {
 		cmd_vali(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"EINF",4)) {
 		cmd_einf(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"LIST",4)) {
 		cmd_list();
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"CHEK",4)) {
 		cmd_chek();
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"DELF",4)) {
 		cmd_delf(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"MOVF",4)) {
 		cmd_movf(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"NETF",4)) {
 		cmd_netf(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"OPEN",4)) {
 		cmd_open(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"CLOS",4)) {
 		cmd_clos();
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"UOPN",4)) {
 		cmd_uopn(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"UCLS",4)) {
 		cmd_ucls(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"READ",4)) {
 		cmd_read(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"WRIT",4)) {
 		cmd_writ(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"QUSR",4)) {
 		cmd_qusr(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"ECHO",4)) {
 		cmd_echo(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"OIMG",4)) {
 		cmd_oimg(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"MORE",4)) {
 		cmd_more();
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"NDOP",4)) {
 		cmd_ndop(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"NUOP",4)) {
 		cmd_nuop(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"LFLR",4)) {
 		cmd_lflr();
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"CFLR",4)) {
 		cmd_cflr(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"KFLR",4)) {
 		cmd_kflr(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"EFLR",4)) {
 		cmd_eflr(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"IDEN",4)) {
 		cmd_iden(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"IPGM",4)) {
 		cmd_ipgm(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"TERM",4)) {
 		cmd_term(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"DOWN",4)) {
 		cmd_down();
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf,"SCDN",4)) {
 		cmd_scdn(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf, "UIMG", 4)) {
 		cmd_uimg(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf, "TIME", 4)) {
 		cmd_time();
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf, "AGUP", 4)) {
 		cmd_agup(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf, "ASUP", 4)) {
 		cmd_asup(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf, "GPEX", 4)) {
 		cmd_gpex(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf, "SPEX", 4)) {
 		cmd_spex(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf, "CONF", 4)) {
 		cmd_conf(&cmdbuf[5]);
-		}
+	}
 
 	else if (!strncasecmp(cmdbuf, "SEEN", 4)) {
 		cmd_seen(&cmdbuf[5]);
-		}
+	}
+
+	else if (!strncasecmp(cmdbuf, "VIEW", 4)) {
+		cmd_view(&cmdbuf[5]);
+	}
 
 #ifdef DEBUG_MEMORY_LEAKS
 	else if (!strncasecmp(cmdbuf, "LEAK", 4)) {
 		dump_tracked();
-		}
+	}
 #endif
 
-	else if (!DLoader_Exec_Cmd(cmdbuf))
-		{
-		   cprintf("%d Unrecognized or unsupported command.\n",
-		            ERROR);
-	        }
+	else if (!DLoader_Exec_Cmd(cmdbuf)) {
+		cprintf("%d Unrecognized or unsupported command.\n", ERROR);
+	       }
 
 	/* Run any after-each-command outines registered by modules */
 	PerformSessionHooks(EVT_CMD);

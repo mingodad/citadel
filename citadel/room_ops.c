@@ -768,7 +768,7 @@ void usergoto(char *where, int display_result, int *retmsgs, int *retnew)
 		CC->quickroom.QRname, new_messages, total_messages);
 
 	if (display_result)
-		cprintf("%d%c%s|%d|%d|%d|%d|%ld|%ld|%d|%d|%d|%d\n",
+		cprintf("%d%c%s|%d|%d|%d|%d|%ld|%ld|%d|%d|%d|%d|%d\n",
 			CIT_OK, CtdlCheckExpress(),
 			truncated_roomname,
 			new_messages, total_messages,
@@ -776,8 +776,8 @@ void usergoto(char *where, int display_result, int *retmsgs, int *retnew)
 			CC->quickroom.QRhighest,
 			vbuf.v_lastseen,
 			rmailflag, raideflag, newmailcount,
-			CC->quickroom.QRfloor);
-
+			CC->quickroom.QRfloor,
+			vbuf.v_view);
 }
 
 
@@ -984,7 +984,7 @@ void cmd_getr(void)
 	if (CtdlAccessCheck(ac_room_aide)) return;
 
 	getroom(&CC->quickroom, CC->quickroom.QRname);
-	cprintf("%d%c%s|%s|%s|%d|%d|%d\n",
+	cprintf("%d%c%s|%s|%s|%d|%d|%d|%d\n",
 		CIT_OK,
 		CtdlCheckExpress(),
 
@@ -999,7 +999,9 @@ void cmd_getr(void)
 
 		CC->quickroom.QRflags,
 		(int) CC->quickroom.QRfloor,
-		(int) CC->quickroom.QRorder);
+		(int) CC->quickroom.QRorder,
+
+		CC->quickroom.QRdefaultview);
 }
 
 
@@ -1199,6 +1201,11 @@ void cmd_setr(char *args)
 	if (extract_int(args, 4)) {
 		time(&CC->quickroom.QRgen);
 	}
+
+	if (num_parms(args) >= 8) {
+		CC->quickroom.QRdefaultview = extract_int(args, 7);
+	}
+
 
 	/* Write the room record back to disk */
 	lputroom(&CC->quickroom);
