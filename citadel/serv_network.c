@@ -735,16 +735,19 @@ void network_learn_topology(char *node, char *path) {
  * Bounce a message back to the sender
  */
 void network_bounce(struct CtdlMessage *msg, char *reason) {
-	static int serialnum = 0;
-	FILE *fp;
-	char filename[SIZ];
-	struct ser_ret sermsg;
 	char *oldpath = NULL;
 	char buf[SIZ];
+	char bouncesource[SIZ];
+	char recipient[SIZ];
+	struct recptypes *valid = NULL;
+	char force_room[ROOMNAMELEN];
+	static int serialnum = 0;
 
 	lprintf(9, "entering network_bounce()\n");
 
 	if (msg == NULL) return;
+
+	sprintf(bouncesource, "%s@%s", BOUNCESOURCE, config.c_nodename);
 
 	/* 
 	 * Give it a fresh message ID
@@ -777,27 +780,20 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 		phree(msg->cm_fields['D']);
 	}
 
-	msg->cm_fields['R'] = msg->cm_fields['A'];
-	msg->cm_fields['D'] = msg->cm_fields['N'];
+	snprintf(recipient, sizeof recipient, "%s@%s",
+		msg->cm_fields['A'], msg->cm_fields['N']);
+
+	if (msg->cm_fields['A'] == NULL) {
+		phree(msg->cm_fields['A']);
+	}
+
+	if (msg->cm_fields['N'] == NULL) {
+		phree(msg->cm_fields['N']);
+	}
+
 	msg->cm_fields['A'] = strdoop(BOUNCESOURCE);
 	msg->cm_fields['N'] = strdoop(config.c_nodename);
 	
-	if (!strcasecmp(msg->cm_fields['D'], config.c_nodename)) {
-		phree(msg->cm_fields['D']);
-	}
-
-	/*
-	 * If this is a bounce of a bounce, send it to the Aide> room
-	 * instead of looping around forever
-	 */
-	if (msg->cm_fields['D'] == NULL) if (msg->cm_fields['R'] != NULL)
-	   if (!strcasecmp(msg->cm_fields['R'], BOUNCESOURCE)) {
-		phree(msg->cm_fields['R']);
-		if (msg->cm_fields['C'] != NULL) {
-			phree(msg->cm_fields['C']);
-		}
-		msg->cm_fields['C'] = strdoop(AIDEROOM);
-	}
 
 	/* prepend our node to the path */
 	if (msg->cm_fields['P'] != NULL) {
@@ -811,20 +807,19 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 	sprintf(msg->cm_fields['P'], "%s!%s", config.c_nodename, oldpath);
 	phree(oldpath);
 
-	/* serialize the message */
-	serialize_message(&sermsg, msg);
-
-	/* now send it */
-	sprintf(filename, "./network/spoolin/bounce.%04x.%04x",
-		getpid(), serialnum);
-
-	fp = fopen(filename, "ab");
-	if (fp != NULL) {
-		fwrite(sermsg.ser,
-			sermsg.len, 1, fp);
-		fclose(fp);
+	/* Now submit the message */
+	valid = validate_recipients(recipient);
+	if (valid != NULL) if (valid->num_error > 0) phree(valid);
+	if ( (valid == NULL) || (!strcasecmp(recipient, bouncesource)) ) {
+		strcpy(force_room, AIDEROOM);
 	}
-	phree(sermsg.ser);
+	else {
+		strcpy(force_room, "");
+	}
+	CtdlSubmitMsg(msg, valid, force_room);
+
+	/* Clean up */
+	if (valid != NULL) phree(valid);
 	CtdlFreeMessage(msg);
 	lprintf(9, "leaving network_bounce()\n");
 }
@@ -840,10 +835,7 @@ void network_process_buffer(char *buffer, long size) {
 	struct CtdlMessage *msg;
 	long pos;
 	int field;
-	int a;
-	int e = MES_LOCAL;
-	struct usersupp tempUS;
-	char recp[SIZ];
+	struct recptypes *recp = NULL;
 	char target_room[ROOMNAMELEN];
 	struct ser_ret sermsg;
 	char *oldpath = NULL;
@@ -923,8 +915,14 @@ void network_process_buffer(char *buffer, long size) {
 	 * Check to see if we already have a copy of this message
 	 */
 	if (network_usetable(UT_INSERT, msg) != 0) {
-		sprintf(buf, "Loopzapper rejected message <%s>\n",
-			msg->cm_fields['I']);
+		sprintf(buf,
+			"Loopzapper rejected message <%s> "
+			"from <%s> in <%s> @ <%s>\n",
+			((msg->cm_fields['I']!=NULL)?(msg->cm_fields['I']):""),
+			((msg->cm_fields['A']!=NULL)?(msg->cm_fields['A']):""),
+			((msg->cm_fields['O']!=NULL)?(msg->cm_fields['O']):""),
+			((msg->cm_fields['N']!=NULL)?(msg->cm_fields['N']):"")
+		);
 		aide_message(buf);
 		CtdlFreeMessage(msg);
 		msg = NULL;
@@ -939,35 +937,17 @@ void network_process_buffer(char *buffer, long size) {
 
 	/* Does it have a recipient?  If so, validate it... */
 	if (msg->cm_fields['R'] != NULL) {
-
-		safestrncpy(recp, msg->cm_fields['R'], sizeof(recp));
-
-                e = alias(recp);        /* alias and mail type */
-                if ((recp[0] == 0) || (e == MES_ERROR)) {
-
+		recp = validate_recipients(msg->cm_fields['R']);
+		if (recp != NULL) if (recp->num_error > 0) {
 			network_bounce(msg,
 "A message you sent could not be delivered due to an invalid address.\n"
 "Please check the address and try sending the message again.\n");
 			msg = NULL;
+			phree(recp);
 			return;
-
                 }
-                else if (e == MES_LOCAL) {
-                        a = getuser(&tempUS, recp);
-                        if (a != 0) {
-
-				network_bounce(msg,
-"A message you sent could not be delivered because the user does not exist\n"
-"on this system.  Please check the address and try again.\n");
-				msg = NULL;
-				return;
-
-                        }
-			else {
-				MailboxName(target_room, &tempUS, MAILROOM);
-			}
-                }
-        }
+		strcpy(target_room, "");	/* no target room if mail */
+	}
 
 	else if (msg->cm_fields['C'] != NULL) {
 		safestrncpy(target_room,
@@ -983,8 +963,9 @@ void network_process_buffer(char *buffer, long size) {
 
 	/* save the message into a room */
 	msg->cm_flags = CM_SKIP_HOOKS;
-        CtdlSubmitMsg(msg, NULL, target_room);
+        CtdlSubmitMsg(msg, recp, target_room);
 	CtdlFreeMessage(msg);
+	phree(recp);
 }
 
 
