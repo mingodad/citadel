@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.25  2000/11/12 04:20:49  ajc
+ * Optimized server side input of message text
+
  Revision 573.24  2000/11/10 03:55:06  ajc
  * Ford's Fix for Faster Functionality (save position during reply)
 
@@ -2131,3 +2134,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

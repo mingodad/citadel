@@ -1801,9 +1801,10 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 						   exist is ALWAYS freed  */
 			) {
 	char buf[256];
+	int linelen;
 	size_t message_len = 0;
 	size_t buffer_len = 0;
-	char *ptr, *append;
+	char *ptr;
 	char *m;
 
 	if (exist == NULL) {
@@ -1822,11 +1823,16 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 		message_len = 0;
 	}
 	/* read in the lines of message text one by one */
-	append = NULL;
 	while ( (client_gets(buf)>0) && strcmp(buf, terminator) ) {
 
+		/* strip trailing newline type stuff */
+		if (buf[strlen(buf)-1]==10) buf[strlen(buf)-1]=0;
+		if (buf[strlen(buf)-1]==13) buf[strlen(buf)-1]=0;
+
+		linelen = strlen(buf);
+
 		/* augment the buffer if we have to */
-		if ((message_len + strlen(buf) + 2) > buffer_len) {
+		if ((message_len + linelen + 2) > buffer_len) {
 			lprintf(9, "realloking\n");
 			ptr = reallok(m, (buffer_len * 2) );
 			if (ptr == NULL) {	/* flush if can't allocate */
@@ -1836,20 +1842,23 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 			} else {
 				buffer_len = (buffer_len * 2);
 				m = ptr;
-				append = NULL;
 				lprintf(9, "buffer_len is %d\n", buffer_len);
 			}
 		}
 
-		if (append == NULL) append = m;
-		while (strlen(append) > 0) ++append;
-		strcpy(append, buf);
-		strcat(append, "\n");
-		message_len = message_len + strlen(buf) + 1;
+		/* Add the new line to the buffer.  We avoid using strcat()
+		 * because that would involve traversing the entire message
+		 * after each line, and this function needs to run fast.
+		 */
+		strcpy(&m[message_len], buf);
+		m[message_len + linelen] = '\n';
+		m[message_len + linelen + 1] = 0;
+		message_len = message_len + linelen + 1;
 
 		/* if we've hit the max msg length, flush the rest */
 		if (message_len >= maxlen) {
-			while ( (client_gets(buf)>0) && strcmp(buf, terminator)) ;;
+			while ( (client_gets(buf)>0)
+				&& strcmp(buf, terminator)) ;;
 			return(m);
 		}
 	}
