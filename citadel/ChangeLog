@@ -1,4 +1,11 @@
  $Log$
+ Revision 614.76  2004/03/14 06:35:46  ajc
+ * Cache IMAP "BODY" fetches in an already-converted format.  This speeds
+   up clients like Mozilla and Thunderbird that request big messages in
+   chunks -- we don't have to load and convert the message every time
+   another chunk is requested.
+ * Fixed a potential memory leak in fetch
+
  Revision 614.75  2004/03/13 23:26:10  ajc
  * imap_fetch.c: don't fetch the message from disk at all for UID and FLAGS
    fetch items.  (It's rare, but sometimes IMAP optimizations are actually
@@ -5498,3 +5505,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -523,14 +523,14 @@ void imap_strip_headers(FILE *fp, char *section) {
 /*
  * Implements the BODY and BODY.PEEK fetch items
  */
-void imap_fetch_body(long msgnum, char *item, int is_peek,
-		struct CtdlMessage *msg) {
+void imap_fetch_body(long msgnum, char *item, int is_peek) {
+	struct CtdlMessage *msg = NULL;
 	char section[1024];
 	char partial[1024];
 	int is_partial = 0;
 	char buf[1024];
 	int i;
-	FILE *tmp;
+	FILE *tmp = NULL;
 	long bytes_remaining = 0;
 	long blocksize;
 	long pstart, pbytes;
@@ -546,6 +546,19 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 	}
 	lprintf(CTDL_DEBUG, "Section is %s\n", section);
 
+	/* Burn the cache if we don't have the same section of the 
+	 * same message again.
+	 */
+	if (IMAP->cached_body != NULL) {
+		if ((IMAP->cached_bodymsgnum != msgnum)
+		   || (strcasecmp(IMAP->cached_bodypart, section)) ) {
+			fclose(IMAP->cached_body);
+			IMAP->cached_body = NULL;
+			IMAP->cached_bodymsgnum = (-1);
+			strcpy(IMAP->cached_bodypart, "");
+		}
+	}
+
 	/* extract partial */
 	strcpy(partial, item);
 	for (i=0; i<strlen(partial); ++i) {
@@ -560,15 +573,21 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 	if (is_partial == 0) strcpy(partial, "");
 	if (strlen(partial) > 0) lprintf(CTDL_DEBUG, "Partial is %s\n", partial);
 
-	tmp = tmpfile();
-	if (tmp == NULL) {
-		lprintf(CTDL_CRIT, "Cannot open temp file: %s\n", strerror(errno));
-		return;
+	if (IMAP->cached_body == NULL) {
+		tmp = tmpfile();
+		if (tmp == NULL) {
+			lprintf(CTDL_CRIT, "Cannot open temp file: %s\n", strerror(errno));
+			return;
+		}
+		msg = CtdlFetchMessage(msgnum);
 	}
 
 	/* Now figure out what the client wants, and get it */
 
-	if ( (!strcmp(section, "1")) && (msg->cm_format_type != 4) ) {
+	if (IMAP->cached_body != NULL) {
+		tmp = IMAP->cached_body;
+	}
+	else if ( (!strcmp(section, "1")) && (msg->cm_format_type != 4) ) {
 		CtdlRedirectOutput(tmp, -1);
 		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
 						HEADERS_NONE, 0, 1);
@@ -646,7 +665,15 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 		bytes_remaining = bytes_remaining - blocksize;
 	}
 
-	fclose(tmp);
+	/* Don't close it ... cache it! */
+	/* fclose(tmp); */
+	IMAP->cached_body = tmp;
+	IMAP->cached_bodymsgnum = msgnum;
+	strcpy(IMAP->cached_bodypart, section);
+
+	if (msg != NULL) {
+		CtdlFreeMessage(msg);
+	}
 
 	/* Mark this message as "seen" *unless* this is a "peek" operation */
 	if (is_peek == 0) {
@@ -864,7 +891,6 @@ void imap_do_fetch_msg(int seq,
 	int i;
 	struct CtdlMessage *msg = NULL;
 
-
 	cprintf("* %d FETCH (", seq);
 
 	for (i=0; i<num_items; ++i) {
@@ -893,25 +919,27 @@ void imap_do_fetch_msg(int seq,
 			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i]);
 		}
 
-		/* Otherwise, load the message into memory.
-		 */
-		msg = CtdlFetchMessage(IMAP->msgids[seq-1]);
-		if (!strncasecmp(itemlist[i], "BODY[", 5)) {
-			imap_fetch_body(IMAP->msgids[seq-1], itemlist[i],
-					0, msg);
+		/* BODY fetches do their own fetching and caching too. */
+		else if (!strncasecmp(itemlist[i], "BODY[", 5)) {
+			imap_fetch_body(IMAP->msgids[seq-1], itemlist[i], 0);
 		}
 		else if (!strncasecmp(itemlist[i], "BODY.PEEK[", 10)) {
-			imap_fetch_body(IMAP->msgids[seq-1], itemlist[i],
-					1, msg);
+			imap_fetch_body(IMAP->msgids[seq-1], itemlist[i], 1);
 		}
+
+		/* Otherwise, load the message into memory.
+		 */
 		else if (!strcasecmp(itemlist[i], "BODYSTRUCTURE")) {
+			if (msg == NULL) msg = CtdlFetchMessage(IMAP->msgids[seq-1]);
 			imap_fetch_bodystructure(IMAP->msgids[seq-1],
 					itemlist[i], msg);
 		}
 		else if (!strcasecmp(itemlist[i], "ENVELOPE")) {
+			if (msg == NULL) msg = CtdlFetchMessage(IMAP->msgids[seq-1]);
 			imap_fetch_envelope(IMAP->msgids[seq-1], msg);
 		}
 		else if (!strcasecmp(itemlist[i], "INTERNALDATE")) {
+			if (msg == NULL) msg = CtdlFetchMessage(IMAP->msgids[seq-1]);
 			imap_fetch_internaldate(msg);
 		}
 

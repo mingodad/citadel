@@ -315,6 +315,12 @@ void imap_cleanup_function(void)
 		IMAP->cached_msgnum = (-1);
 	}
 
+	if (IMAP->cached_body != NULL) {
+		fclose(IMAP->cached_body);
+		IMAP->cached_body = NULL;
+		IMAP->cached_bodymsgnum = (-1);
+	}
+
 	lprintf(CTDL_DEBUG, "Finished IMAP cleanup hook\n");
 }
 
