@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- *
+ * Miscellaneous functions which handle calendar components.
  */
 
 #include <ctype.h>

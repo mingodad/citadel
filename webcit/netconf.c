@@ -1,9 +1,8 @@
 /* 
- * netconf.c
+ * $Id$
  *
  * Functions which handle network and sharing configuration.
  *
- * $Id$
  */
 
 #include <ctype.h>

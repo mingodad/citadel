@@ -1,5 +1,7 @@
 /*
- * locate the originating host
+ * $Id$
+ *
+ * Examine a socket and determine the name/address of the originating host.
  */
 
 
@@ -23,9 +25,6 @@
 #include <pthread.h>
 #include <signal.h>
 #include "webcit.h"
-
-
-
 
 void locate_host(char *tbuf, int client_socket)
 {

@@ -1,4 +1,8 @@
-
+/*
+ * $Id$
+ *
+ * Editing of various text files on the Citadel server.
+ */
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -20,12 +24,6 @@
 #include <pthread.h>
 #include <signal.h>
 #include "webcit.h"
-
-
-
-
-
-
 
 
 /*

@@ -1,7 +1,10 @@
-/* $Id$ */
+/*
+ * $Id$
+ *
+ * Provides HTTPS, when the OpenSSL library is available.
+ */
 
 #ifdef HAVE_OPENSSL
-
 
 #include <stdlib.h>
 #include <unistd.h>

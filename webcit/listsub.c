@@ -1,3 +1,10 @@
+/*
+ * $Id$
+ *
+ * Web forms for handling mailing list subscribe/unsubscribe requests.
+ *
+ */
+
 #include <ctype.h>
 #include <stdlib.h>
 #include <unistd.h>

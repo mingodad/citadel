@@ -1,3 +1,10 @@
+/*
+ * $Id$
+ *
+ * Display a list of all accounts on a Citadel system.
+ *
+ */
+
 #include <ctype.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -18,9 +25,6 @@
 #include <pthread.h>
 #include <signal.h>
 #include "webcit.h"
-
-
-
 
 struct namelist {
 	struct namelist *next;
@@ -66,7 +70,7 @@ void userlist(void)
 	wprintf("<CENTER>");
 	wprintf("<TABLE border=0 width=100%%>");
 	wprintf("<TR><TH>User Name</TH><TH>Number</TH><TH>Access Level</TH>");
-	wprintf("<TH>Last Call</TH><TH>Total Calls</TH><TH>Total Posts</TH></TR>\n");
+	wprintf("<TH>Last Login</TH><TH>Total Logins</TH><TH>Total Posts</TH></TR>\n");
 
 	while (serv_gets(buf), strcmp(buf, "000")) {
 		extract(fl, buf, 0);

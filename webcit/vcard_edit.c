@@ -1,9 +1,8 @@
 /*
- * vcard_edit.c
+ * $Id$
  *
  * Handles editing of vCard objects.
  *
- * $Id$
  */
 
 #include <ctype.h>

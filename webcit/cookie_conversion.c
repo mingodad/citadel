@@ -1,3 +1,10 @@
+/*
+ * $Id$
+ *
+ * Utility functions which convert the HTTP cookie format we use to and
+ * from user/password/room strings.
+ *
+ */
 
 #include <ctype.h>
 #include <stdlib.h>

@@ -1,4 +1,8 @@
-/* $Id$ */
+/*
+ * $Id$
+ *
+ * Display a list of all users currently logged on to the Citadel server.
+ */
 
 #include <ctype.h>
 #include <stdlib.h>

@@ -1,3 +1,8 @@
+/*
+ * $Id$
+ *
+ * Handles HTTP upload of graphics files into the system.
+ */
 
 #include <ctype.h>
 #include <stdlib.h>

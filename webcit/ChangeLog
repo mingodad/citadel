@@ -1,4 +1,7 @@
 $Log$
+Revision 528.40  2005/02/04 17:22:18  ajc
+* Cleaned up the rcs/cvs Id tags and leading comments at the top of some files
+
 Revision 528.39  2005/02/04 03:43:31  ajc
 * fixed the tasks view in the summary screen
 
@@ -2306,4 +2309,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

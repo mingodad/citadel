@@ -1,7 +1,9 @@
-/* $Id$ */
-
-
-
+/*
+ * $Id$
+ *
+ * Displays the "advanced" (main) menu.
+ *
+ */
 
 #include <ctype.h>
 #include <stdlib.h>
