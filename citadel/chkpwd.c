@@ -25,8 +25,9 @@ int main(void)
   char buf[256];
 
   get_config();
+  uid = getuid();
 
-  if ((uid = getuid()) != BBSUID)
+  if (uid != BBSUID && uid)
     {
       pw = getpwuid(uid);
       openlog("chkpwd", LOG_CONS, LOG_AUTH);
