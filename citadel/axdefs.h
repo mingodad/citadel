@@ -28,7 +28,9 @@ extern char *axdefs[];
 char *viewdefs[]={
 	"Messages",
 	"Summary",
-	"Address book"
+	"Address book",
+	"Calendar",
+	"Tasks"
 };
 
 #define VIEWDEFS 1
