@@ -81,10 +81,10 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf);
 void CtdlIPC_delete(CtdlIPC* ipc);
 /* Convenience destructor; also nulls out caller's pointer */
 void CtdlIPC_delete_ptr(CtdlIPC** pipc);
-/* Read a line from server, discarding newline */
-void CtdlIPC_getline(CtdlIPC* ipc, char *buf);
-/* Write a line to server, adding newline */
-void CtdlIPC_putline(CtdlIPC* ipc, const char *buf);
+/* Read a line from server, discarding newline, for chat, will go away */
+void CtdlIPC_chat_recv(CtdlIPC* ipc, char *buf);
+/* Write a line to server, adding newline, for chat, will go away */
+void CtdlIPC_chat_send(CtdlIPC* ipc, const char *buf);
 
 struct ctdlipcroom {
 	char RRname[ROOMNAMELEN];	/* Name of room */
@@ -300,6 +300,8 @@ int CtdlIPCGetSystemConfigByType(CtdlIPC *ipc, const char *mimetype,
 	       	char **listing, char *cret);
 int CtdlIPCSetSystemConfigByType(CtdlIPC *ipc, const char *mimetype,
 	       const char *listing, char *cret);
+int CtdlIPCGetRoomNetworkConfig(CtdlIPC *ipc, char **listing, char *cret);
+int CtdlIPCSetRoomNetworkConfig(CtdlIPC *ipc, const char *listing, char *cret);
 int CtdlIPCRequestClientLogout(CtdlIPC *ipc, int session, char *cret);
 int CtdlIPCSetMessageSeen(CtdlIPC *ipc, long msgnum, int seen, char *cret);
 int CtdlIPCStartEncryption(CtdlIPC *ipc, char *cret);

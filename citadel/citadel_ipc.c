@@ -77,6 +77,8 @@ static void endtls(SSL *ssl);
 static unsigned long id_callback(void);
 #endif /* THREADED_CLIENT */
 #endif /* HAVE_OPENSSL */
+/* static */ void CtdlIPC_getline(CtdlIPC* ipc, char *buf);
+/* static */ void CtdlIPC_putline(CtdlIPC *ipc, const char *buf);
 
 
 /*
@@ -118,13 +120,23 @@ int CtdlIPCEcho(CtdlIPC *ipc, const char *arg, char *cret)
  */
 int CtdlIPCQuit(CtdlIPC *ipc)
 {
-	register int ret;
+	register int ret = 221;		/* Default to successful quit */
 	char aaa[128];
 
 	CtdlIPC_lock(ipc);
-	CtdlIPC_putline(ipc, "QUIT");
-	CtdlIPC_getline(ipc, aaa);
-	ret = atoi(aaa);
+	if (ipc->sock > -1) {
+		CtdlIPC_putline(ipc, "QUIT");
+		CtdlIPC_getline(ipc, aaa);
+		ret = atoi(aaa);
+	}
+#ifdef HAVE_OPENSSL
+	if (ipc->ssl)
+		SSL_shutdown(ipc->ssl);
+	ipc->ssl = NULL;
+#endif
+	if (ipc->sock)
+		shutdown(ipc->sock, 2);	/* Close connection; we're dead */
+	ipc->sock = -1;
 	CtdlIPC_unlock(ipc);
 	return ret;
 }
@@ -1828,6 +1840,31 @@ int CtdlIPCSetSystemConfigByType(CtdlIPC *ipc, const char *mimetype,
 }
 
 
+/* GNET */
+int CtdlIPCGetRoomNetworkConfig(CtdlIPC *ipc, char **listing, char *cret)
+{
+	size_t bytes;
+
+	if (!cret) return -2;
+	if (!listing) return -2;
+	if (*listing) return -2;
+
+	return CtdlIPCGenericCommand(ipc, "GNET", NULL, 0,
+			listing, &bytes, cret);
+}
+
+
+/* SNET */
+int CtdlIPCSetRoomNetworkConfig(CtdlIPC *ipc, const char *listing, char *cret)
+{
+	if (!cret) return -2;
+	if (!listing) return -2;
+
+	return CtdlIPCGenericCommand(ipc, "SNET", listing, strlen(listing),
+			NULL, NULL, cret);
+}
+
+
 /* REQT */
 int CtdlIPCRequestClientLogout(CtdlIPC *ipc, int session, char *cret)
 {
@@ -2765,7 +2802,7 @@ static unsigned long id_callback(void) {
 /*
  * input string from socket - implemented in terms of serv_read()
  */
-void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
+/* static */ void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
 {
 	int i;
 
@@ -2786,17 +2823,26 @@ void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
 	if (buf[i] == 13) buf[i--] = 0;
 }
 
+void CtdlIPC_chat_recv(CtdlIPC* ipc, char* buf)
+{
+	return CtdlIPC_getline(ipc, buf);
+}
 
 /*
  * send line to server - implemented in terms of serv_write()
  */
-void CtdlIPC_putline(CtdlIPC *ipc, const char *buf)
+/* static */ void CtdlIPC_putline(CtdlIPC *ipc, const char *buf)
 {
 	/* error_printf("< %s\n", buf); */
 	serv_write(ipc, buf, strlen(buf));
 	serv_write(ipc, "\n", 1);
 
 	ipc->last_command_sent = time(NULL);
+}
+
+void CtdlIPC_chat_send(CtdlIPC* ipc, const char* buf)
+{
+	return CtdlIPC_putline(ipc, buf);
 }
 
 
@@ -2888,6 +2934,38 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 	if (portbuf != NULL) strcpy(portbuf, citport);
 	return ipc;
 }
+
+
+/*
+ * Disconnect and delete the IPC class (destructor)
+ */
+void CtdlIPC_delete(CtdlIPC* ipc)
+{
+#ifdef HAVE_OPENSSL
+	if (ipc->ssl) {
+		SSL_shutdown(ipc->ssl);
+		SSL_free(ipc->ssl);
+		ipc->ssl = NULL;
+	}
+#endif
+	if (ipc->sock > -1) {
+		shutdown(ipc->sock, 2);	/* Close it up */
+		ipc->sock = -1;
+	}
+	ifree(ipc);
+}
+
+
+/*
+ * Disconnect and delete the IPC class (destructor)
+ * Also NULLs out the pointer
+ */
+void CtdlIPC_delete_ptr(CtdlIPC** pipc)
+{
+	CtdlIPC_delete(*pipc);
+	*pipc = NULL;
+}
+
 
 /*
  * return the file descriptor of the server socket so we can select() on it.

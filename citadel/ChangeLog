@@ -1,4 +1,9 @@
  $Log$
+ Revision 614.70  2004/03/12 19:28:04  error
+ * Implement GNET/SNET commands in IPC code; provide a CtdlIPC_delete();
+   emit warnings when client code uses CtdlIPC_getline() or CtdlIPC_putline()
+   (These are reserved and should not be used by client code.)
+
  Revision 614.69  2004/03/10 04:50:04  ajc
  * serv_expire.c: auto-purge any Citadel account that is associated with
    a Unix account that no longer exists.
@@ -5476,3 +5481,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
