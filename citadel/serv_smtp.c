@@ -187,7 +187,7 @@ void smtp_get_pass(char *argbuf) {
 	decode_base64(password, argbuf, SIZ);
 	lprintf(9, "Trying <%s>\n", password);
 	if (CtdlTryPassword(password) == pass_ok) {
-		cprintf("235 Authentication successful.\r\n");
+		cprintf("235 Hello, %s\r\n", CC->usersupp.fullname);
 		lprintf(9, "SMTP authenticated login successful\n");
 		CC->internal_pgm = 0;
 		CC->cs_flags &= ~CS_STEALTH;
@@ -401,6 +401,7 @@ void smtp_rcpt(char *argbuf) {
 	char user[SIZ];
 	char node[SIZ];
 	char recp[SIZ];
+	int bypass_spam_checking = 0;
 
 	if (strlen(SMTP->from) == 0) {
 		cprintf("503 Need MAIL before RCPT\r\n");
@@ -415,6 +416,12 @@ void smtp_rcpt(char *argbuf) {
 	strcpy(recp, &argbuf[3]);
 	striplt(recp);
 	stripallbut(recp, '<', '>');
+
+	/* Allow relaying if it's from the Internet to another Citadel node
+	 * for whom we are providing directory service.
+	 */
+	bypass_spam_checking = IsDirectory(recp);
+
 	alias(recp);
 	cvt = convert_internet_address(user, node, recp);
 	snprintf(recp, sizeof recp, "%s@%s", user, node);
@@ -423,7 +430,7 @@ void smtp_rcpt(char *argbuf) {
 	/* FIXME possible buffer overflow type of issues here. */
 	switch(cvt) {
 		case rfc822_address_locally_validated:
-			cprintf("250 %s is a valid local user.\r\n", user);
+			cprintf("250 RCPT ok\r\n");
 			if (SMTP->valid.num_local > 0) {
 				strcat(SMTP->valid.recp_local, "|");
 			}
@@ -433,7 +440,7 @@ void smtp_rcpt(char *argbuf) {
 			return;
 
 		case rfc822_room_delivery:
-			cprintf("250 Delivering to room '%s'\r\n", user);
+			cprintf("250 RCPT ok\r\n");
 			if (SMTP->valid.num_room > 0) {
 				strcat(SMTP->valid.recp_room, "|");
 			}
@@ -443,7 +450,7 @@ void smtp_rcpt(char *argbuf) {
 			return;
 
 		case rfc822_address_on_citadel_network:
-			cprintf("250 '%s' is a valid network user.\r\n", user);
+			cprintf("250 RCPT ok\r\n");
 			if (SMTP->valid.num_ignet > 0) {
 				strcat(SMTP->valid.recp_ignet, "|");
 			}
@@ -457,11 +464,12 @@ void smtp_rcpt(char *argbuf) {
 			return;
 
 		case rfc822_address_nonlocal:
-			if (SMTP->message_originated_locally == 0) {
+			if ( (SMTP->message_originated_locally == 0)
+			   && (bypass_spam_checking == 0) ) {
 				cprintf("551 Relaying denied.\r\n");
 			}
 			else {
-				cprintf("250 Remote recipient %s ok\r\n", recp);
+				cprintf("250 RCPT ok\r\n");
 
 				if (SMTP->valid.num_internet > 0) {
 					strcat(SMTP->valid.recp_internet, "|");
@@ -1042,7 +1050,6 @@ void smtp_do_bounce(char *instr) {
 
 		/* First try the user who sent the message */
 		lprintf(9, "bounce to user? <%s>\n", bounceto);
-		TRACE;
 		if (strlen(bounceto) == 0) {
 			lprintf(7, "No bounce address specified\n");
 			bounce_msgid = (-1L);
