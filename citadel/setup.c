@@ -238,9 +238,9 @@ int yesno(char *question)
 	newtComponent form = NULL;
 	newtComponent yesbutton = NULL;
 	newtComponent nobutton = NULL;
-	int i = 0;
 	int prompt_window_height = 0;
 #endif
+	int i = 0;
 	int answer = 0;
 	char buf[SIZ];
 
