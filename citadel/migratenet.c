@@ -12,6 +12,9 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <errno.h>
+#ifdef HAVE_LIMITS_H
+#include <limits.h>
+#endif
 #include "citadel.h"
 #include "ipc.h"
 #include "tools.h"

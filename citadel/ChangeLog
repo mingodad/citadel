@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.68  2002/01/17 10:16:09  error
+ * migratenet.c: cygwin fix: include limits.h
+
  Revision 590.67  2002/01/17 10:13:31  error
  * serv_ical.c: set expire policy for My Calendar> to manual
 
@@ -3175,3 +3178,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
