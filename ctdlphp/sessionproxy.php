@@ -18,8 +18,9 @@
 // sock_gets() -- reads one line of text from a socket
 // 
 function sock_gets($sock) {
+	socket_clear_error($msgsock);
 	$buf = socket_read($sock, 4096, PHP_NORMAL_READ);
-	if ($buf == false) return false;
+	if (socket_last_error($buf)) return false;
 
 	if (preg_match("'\n$'s", $buf)) {
 		$buf = substr($buf, 0, strpos($buf, "\n"));
@@ -157,8 +158,9 @@ do {
 
 			// SEND_LISTING mode
 			if (substr($talkback, 0, 1) == "4") do {
+				socket_clear_error($msgsock);
 				$buf = sock_gets($msgsock);
-				if (!$buf) {
+				if (socket_last_error($msgsock)) {
 					$buf = "000" ;
 				}
 				if (!fwrite($ctdlsock, $buf . "\n")) {

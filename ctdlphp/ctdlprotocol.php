@@ -43,7 +43,7 @@ function text_to_server($thetext, $convert_to_html) {
 
 	$this_line = strtok($thetext, "\n");
 
-	while ($this_line) {
+	while ($this_line !== FALSE) {
 		$this_line = trim($this_line, "\n\r");
 		if ($this_line == "000") $this_line = "-000" ;
 		serv_puts($this_line);
