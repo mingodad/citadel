@@ -1887,8 +1887,16 @@ is normally run internally when the server determines it necessary, but is
 also provided as a server command to be used as a troubleshooting/maintenenance
 tool.  Only a system Aide can run the command.  It returns OK on success or
 ERROR on failure.
-
-
+ 
+ 
+ QDIR   (Query global DIRectory)
+ 
+ Look up an internet address in the global directory.  Any logged-in user may
+call QDIR with one parameter, the Internet e-mail address to look up.  QDIR
+returns OK followed by a Citadel address if there is a match, otherwise it
+returns ERROR+NOT_LOGGED_IN.
+ 
+ 
  ASYN   (ASYNchronous message support)
  
  Negotiate the use of asynchronous, or unsolicited, protocol messages.  The

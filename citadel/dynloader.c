@@ -399,7 +399,7 @@ void CtdlUnregisterNetprocHook(int (*handler)(struct CtdlMessage *, char *) )
 }
 
 
-void CtdlRegisterDeleteHook(int (*handler)(char *, long) )
+void CtdlRegisterDeleteHook(void (*handler)(char *, long) )
 {
 	struct DeleteFunctionHook *newfcn;
 
@@ -413,7 +413,7 @@ void CtdlRegisterDeleteHook(int (*handler)(char *, long) )
 }
 
 
-void CtdlUnregisterDeleteHook(int (*handler)(char *, long) )
+void CtdlUnregisterDeleteHook(void (*handler)(char *, long) )
 {
 	struct DeleteFunctionHook *cur, *p;
 

@@ -608,6 +608,27 @@ void vcard_delete_remove(char *room, long msgnum) {
 }
 
 
+/*
+ * Query Directory
+ */
+void cmd_qdir(char *argbuf) {
+	char citadel_addr[SIZ];
+	char internet_addr[SIZ];
+
+	if (CtdlAccessCheck(ac_logged_in)) return;
+
+	extract(internet_addr, argbuf, 0);
+
+	if (CtdlDirectoryLookup(citadel_addr, internet_addr) != 0) {
+		cprintf("%d %s was not found.\n",
+			ERROR+NO_SUCH_USER, internet_addr);
+		return;
+	}
+
+	cprintf("%d %s\n", OK, citadel_addr);
+}
+
+
 
 
 /*
@@ -629,6 +650,7 @@ char *Dynamic_Module_Init(void)
 	CtdlRegisterProtoHook(cmd_greg, "GREG", "Get registration info");
 	CtdlRegisterProtoHook(cmd_igab, "IGAB",
 					"Initialize Global Address Book");
+	CtdlRegisterProtoHook(cmd_qdir, "QDIR", "Query Directory");
 	CtdlRegisterUserHook(vcard_purge, EVT_PURGEUSER);
 	CtdlRegisterNetprocHook(vcard_extract_from_network);
 	create_room(ADDRESS_BOOK_ROOM, 3, "", 0, 1);

@@ -101,7 +101,11 @@ void entregis(void)
 	char tmpphone[SIZ];
 	char tmpemail[SIZ];
 	char tmpcountry[SIZ];
+	char diruser[SIZ];
+	char dirnode[SIZ];
+	char holdemail[SIZ];
 	int a;
+	int ok = 0;
 
 	strcpy(tmpname, "");
 	strcpy(tmpaddr, "");
@@ -143,7 +147,32 @@ void entregis(void)
 	strprompt("ZIP/Postal Code", tmpzip, 10);
 	strprompt("Country", tmpcountry, 31);
 	strprompt("Telephone number", tmpphone, 14);
-	strprompt("Email address", tmpemail, 31);
+
+	do {
+		ok = 1;
+		strcpy(holdemail, tmpemail);
+		strprompt("Email address", tmpemail, 31);
+		sprintf(buf, "QDIR %s", tmpemail);
+		serv_puts(buf);
+		serv_gets(buf);
+		if (buf[0]=='2') {
+			extract_token(diruser, &buf[4], 0, '@');
+			extract_token(dirnode, &buf[4], 1, '@');
+			striplt(diruser);
+			striplt(dirnode);
+			if ((strcasecmp(diruser, fullname))
+			   || (strcasecmp(dirnode, serv_info.serv_nodename))) {
+				scr_printf(
+					"\nYou can't use %s as your address.\n",
+					tmpemail);
+				scr_printf(
+					"It is already in use by %s @ %s.\n",
+					diruser, dirnode);
+				ok = 0;
+				strcpy(tmpemail, holdemail);
+			}
+		}
+	} while (ok == 0);
 
 	/* now send the registration info back to the server */
 	serv_puts("REGI");
