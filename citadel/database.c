@@ -135,7 +135,7 @@ void close_databases(void) {
 	/* Hmm... we should decide when would be a good time to defrag.
 	 * Server shutdowns might be an opportune time.
 	 */
-	defrag_databases();
+	/* defrag_databases(); */
 
 	for (a=0; a<MAXCDB; ++a) {
 		lprintf(7, "Closing database %d\n", a);

@@ -1,3 +1,10 @@
+/*
+ * This module imports an "unpacked" system.  The unpacked data may come from
+ * an older version of Citadel, or a different hardware architecture, or
+ * whatever.  You should only run an import when your installed system is
+ * brand new and _empty_ !!
+ */
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -31,16 +38,15 @@ FILE *imfp;
 #define MODULE_AUTHOR	"Art Cancro"
 #define MODULE_EMAIL	"ajc@uncnsrd.mt-kisco.ny.us"
 #define MAJOR_VERSION	0
-#define MINOR_VERSION	2
+#define MINOR_VERSION	3
 
 static struct DLModule_Info info = {
-  MODULE_NAME,
-  MODULE_AUTHOR,
-  MODULE_EMAIL,
-  MAJOR_VERSION,
-  MINOR_VERSION
-};
-
+	MODULE_NAME,
+	MODULE_AUTHOR,
+	MODULE_EMAIL,
+	MAJOR_VERSION,
+	MINOR_VERSION
+	};
 
 
 
@@ -143,7 +149,7 @@ void imp_rooms(void) {
 
 				if (!strcasecmp(tag, "qrname")) {
 					strcpy(qr.QRname, tval);
-					lprintf(9, "<%s>", qr.QRname);
+					lprintf(9, "<%s> ", qr.QRname);
 					}
 				if (!strcasecmp(tag, "qrpasswd"))
 					strcpy(qr.QRpasswd, tval);
@@ -162,7 +168,6 @@ void imp_rooms(void) {
 				if (!strcasecmp(tag, "qrfloor"))
 					qr.QRfloor = atoi(tval);
 				if (!strcasecmp(tag, "message")) {
-					lprintf(9, ".");
 					fpgetfield(imfp, tval);
 					msgnum = atol(tval);
 					fpgetfield(imfp, tval);
@@ -176,7 +181,7 @@ void imp_rooms(void) {
 
 				}
 
-			lprintf(9, "\n");
+			lprintf(9, "(%d messages)\n", num_msgs);
 			if ((roomnum!=1)&&(qr.QRflags&QR_INUSE)) {
 				putroom(&qr, qr.QRname);
 				}
@@ -204,14 +209,13 @@ void imp_rooms(void) {
 
 
 
-
-
 void import_a_user(void) {
 	char key[256], value[256];
 	char vkey[256], vvalue[256];
 	struct usersupp us;
 	struct quickroom qr;
 	struct visit vbuf;
+	int visits = 0;
 
 	bzero(&us, sizeof(struct usersupp));	
 	while(fpgetfield(imfp, key), strcasecmp(key, "enduser")) {
@@ -237,7 +241,7 @@ void import_a_user(void) {
 			us.posted = atoi(value);
 		if (!strcasecmp(key, "fullname")) {
 			strcpy(us.fullname, value);
-			lprintf(9, "User <%s>", us.fullname);
+			lprintf(9, "User <%s> ", us.fullname);
 			}
 		if (!strcasecmp(key, "axlevel"))
 			us.axlevel = atoi(value);
@@ -245,8 +249,10 @@ void import_a_user(void) {
 			us.USscreenwidth = atoi(value);
 		if (!strcasecmp(key, "usscreenheight"))
 			us.USscreenheight = atoi(value);
-		if (!strcasecmp(key, "usernum"))
+		if (!strcasecmp(key, "usernum")) {
 			us.usernum = atol(value);
+			lprintf(9, "<#%ld> ", us.usernum);
+			}
 		if (!strcasecmp(key, "lastcall"))
 			us.lastcall = atol(value);
 		if (!strcasecmp(key, "usname"))
@@ -264,7 +270,7 @@ void import_a_user(void) {
 		if (!strcasecmp(key, "usemail"))
 			strcpy(us.USemail, value);
 		if (!strcasecmp(key, "visit")) {
-			lprintf(9,"v");
+			++visits;
 			bzero(&vbuf, sizeof(struct visit));
 			bzero(&qr, sizeof(struct quickroom));
 			while(fpgetfield(imfp, vkey),
@@ -287,7 +293,7 @@ void import_a_user(void) {
 	
 	putuser(&us, us.fullname);
 
-	lprintf(9, "\n");
+	lprintf(9, "(%d rooms)\n", visits);
 	}
 
 
@@ -301,16 +307,12 @@ void imp_usersupp(void) {
 		else {
 			strcpy(value, "");
 			}
-		lprintf(9, " %s = %s\n", key, value);
 
 		if (!strcasecmp(key, "user")) {
 			import_a_user();
 			}
 		}		
 	}
-
-
-
 
 
 void imp_globals(void) {
@@ -460,13 +462,17 @@ void do_import(char *argbuf) {
 		}
 
 	import_databases();
-	cprintf("%d ok\n", OK);
+	lprintf(9, "Defragmenting databases (this may take a while)...\n");
+	defrag_databases();
+	lprintf(1, "Import is finished.  Shutting down Citadel...\n");
+	cprintf("%d Import finished.  Shutting down Citadel...\n", OK);
+	master_cleanup();
 	}
 
 
 struct DLModule_Info *Dynamic_Module_Init(void) {
 	CtdlRegisterProtoHook(do_import,
 				"IMPO",
-				"Import an unpacked Cit5");
+				"Import an unpacked system");
 	return &info;
 	}
