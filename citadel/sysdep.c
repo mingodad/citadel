@@ -73,13 +73,8 @@ time_t last_purge = 0;				/* Last dead session purge */
 int num_threads = 0;				/* Current number of threads */
 int num_sessions = 0;				/* Current number of sessions */
 
-/*
- * This fd_set will be loaded up with all the master sockets, so we can
- * quickly copy it into a working fd_set every time we need it.
- */
-fd_set masterfds;
+fd_set masterfds;				/* Master sockets etc. */
 int masterhighest;
-
 
 
 /*
@@ -700,6 +695,7 @@ int main(int argc, char **argv)
 	struct passwd *pw;
 	int drop_root_perms = 1;
 	char *moddir;
+	struct ServiceFunctionHook *serviceptr;
         
 	/* specify default port name and trace file */
 	strcpy(tracefile, "");
@@ -836,6 +832,27 @@ int main(int argc, char **argv)
 	}
 
 	/*
+	 * Set up a fd_set containing all the master sockets to which we
+	 * always listen.  It's computationally less expensive to just copy
+	 * this to a local fd_set when starting a new select() and then add
+	 * the client sockets than it is to initialize a new one and then
+	 * figure out what to put there.
+	 */
+	FD_ZERO(&masterfds);
+	FD_SET(msock, &masterfds);
+	masterhighest = msock;
+	FD_SET(rescan[0], &masterfds);
+	if (rescan[0] > masterhighest) masterhighest = rescan[0];
+
+	for (serviceptr = ServiceHookTable; serviceptr != NULL;
+	    serviceptr = serviceptr->next ) {
+		FD_SET(serviceptr->tcp_port, &masterfds);
+		if (serviceptr->tcp_port > masterhighest)
+			masterhighest = serviceptr->tcp_port;
+	}
+
+
+	/*
 	 * Now create a bunch of worker threads.
 	 */
 	for (i=0; i<(config.c_min_workers-1); ++i) {
@@ -866,7 +883,6 @@ int main(int argc, char **argv)
 void worker_thread(void) {
 	int i;
 	char junk;
-	int numselect = 0;
 	int highest;
 	struct CitContext *ptr;
 	struct CitContext *bind_me = NULL;
@@ -891,20 +907,14 @@ void worker_thread(void) {
 		 */
 
 		begin_critical_section(S_I_WANNA_SELECT);
-SETUP_FD:	FD_ZERO(&readfds);
-		FD_SET(msock, &readfds);
-		highest = msock;
-		FD_SET(rescan[0], &readfds);
-		if (rescan[0] > highest) highest = rescan[0];
-		numselect = 2;
-
+SETUP_FD:	memcpy(&readfds, &masterfds, sizeof(fd_set) );
+		highest = masterhighest;
 		begin_critical_section(S_SESSION_TABLE);
 		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 			if (ptr->state == CON_IDLE) {
 				FD_SET(ptr->client_socket, &readfds);
 				if (ptr->client_socket > highest)
 					highest = ptr->client_socket;
-				++numselect;
 			}
 		}
 		end_critical_section(S_SESSION_TABLE);
@@ -941,6 +951,7 @@ SETUP_FD:	FD_ZERO(&readfds);
 
 				/* Assign our new socket number to it. */
 				con->client_socket = ssock;
+				con->client_protocol = config.c_port_number;
 	
 				/* Set the SO_REUSEADDR socket option */
 				i = 1;
@@ -949,7 +960,6 @@ SETUP_FD:	FD_ZERO(&readfds);
 
 				pthread_setspecific(MyConKey, (void *)con);
 				begin_session(con);
-				/* do_command_loop(); */
 				pthread_setspecific(MyConKey, (void *)NULL);
 				con->state = CON_IDLE;
 				goto SETUP_FD;

@@ -72,6 +72,7 @@ struct CitContext {
 	time_t lastidle;	/* For computing idle time */
 	char lastcmdname[5];	/* name of last command executed */
 	unsigned cs_flags;	/* miscellaneous flags */
+	int client_protocol;	/* Which protocol is this client speaking? */
 
 	/* feeping creaturisms... */
 	int cs_clientdev;	/* client developer ID */
