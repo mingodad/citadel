@@ -1,4 +1,7 @@
 $Log$
+Revision 505.18  2004/03/18 04:00:44  ajc
+* Rounded web boxes now look correct in all browsers.
+
 Revision 505.17  2004/03/17 18:25:31  ajc
 * When creating a new user, auto-chain to the "edit user configuration"
   screen, and subsequently auto-chain to the "edit address book entry"
@@ -1732,4 +1735,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
