@@ -458,8 +458,6 @@ void calendar_summary_view(void) {
 	now = time(NULL);
 	memcpy(&today_tm, localtime(&now), sizeof(struct tm));
 
-	wprintf("<UL>");
-
 	for (i=0; i<(WC->num_cal); ++i) {
 		p = icalcomponent_get_first_property(WC->disp_cal[i],
 						ICAL_DTSTART_PROPERTY);
@@ -479,15 +477,13 @@ void calendar_summary_view(void) {
 							WC->disp_cal[i],
 							ICAL_SUMMARY_PROPERTY);
 				if (p != NULL) {
-					wprintf("<LI>");
 					escputs((char *)
 						icalproperty_get_comment(p));
-					wprintf(" (%s)\n", timestring);
+					wprintf(" (%s)<BR>\n", timestring);
 				}
 			}
 		}
 	}
-	wprintf("</UL>\n");
 	free_calendar_buffer();
 }
 

@@ -1,4 +1,11 @@
 $Log$
+Revision 410.47  2003/06/06 03:26:03  ajc
+* Satan's Browser insists on putting bloody acres of whitespace to the
+  right of any bulleted list items, making any multi-column table containing
+  a list take more than the entire screen.  Removed all such lists so it
+  looks ok.  If you are reading this and you are a Microsoft employee, please
+  commit suicide before you break anything else.
+
 Revision 410.46  2003/06/06 02:22:07  ajc
 * Changed the upper left and upper right bounded box corners to a solid
   blue (#204B78) instead of gradiated, because it was looking funny in
@@ -1466,3 +1473,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

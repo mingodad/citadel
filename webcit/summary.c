@@ -147,11 +147,9 @@ void tasks_section(void) {
 		wprintf("<i>(None)</i><BR>\n");
 	}
 	else {
-		wprintf("<UL>");
 		for (i=0; i<num_msgs; ++i) {
 			display_task(WC->msgarr[i]);
 		}
-		wprintf("</UL>\n");
 	}
 
 #else /* WEBCIT_WITH_CALENDAR_SERVICE */

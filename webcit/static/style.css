@@ -29,6 +29,19 @@ a:active {
 	color: #FFFFEE;
 }
 
+.mainmenu {
+	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
+	font-size: 10pt;
+	font-weight: bold;
+	color: #880000;
+}
+
+.menudesc {
+	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
+	font-size: 8pt;
+	color: #000088;
+}
+
 .message_header {
 	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
 	font-size: 10pt;
@@ -52,14 +65,14 @@ a:active {
 .tablabel {
 	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
 	font-size: 10pt;
-	font-style: bold;
+	font-weight: bold;
 	color: #000000;
 }
 
 .boxlabel {
 	font-family: Bitstream Vera Sans,Arial,Helvetica,sans-serif;
 	font-size: 9pt;
-	font-style: bold;
+	font-weight: bold;
 	color: #FFFFEE;
 }
 

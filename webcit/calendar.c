@@ -492,13 +492,13 @@ void display_individual_task(icalcomponent *vtodo, long msgnum) {
 	icalproperty *p;
 
 	p = icalcomponent_get_first_property(vtodo, ICAL_SUMMARY_PROPERTY);
-	wprintf("<LI><A HREF=\"/display_edit_task?msgnum=%ld&taskrm=", msgnum);
+	wprintf("<A HREF=\"/display_edit_task?msgnum=%ld&taskrm=", msgnum);
 	urlescputs(WC->wc_roomname);
 	wprintf("\">");
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_comment(p));
 	}
-	wprintf("</A>\n");
+	wprintf("</A><BR>\n");
 }
 
 
