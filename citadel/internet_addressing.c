@@ -598,9 +598,12 @@ void CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr) {
 
 
 /*
- * Delete an Internet e-mail address from the directory
+ * Delete an Internet e-mail address from the directory.
+ *
+ * (NOTE: we don't actually use or need the citadel_addr variable; it's merely
+ * here because the callback API expects to be able to send it.)
  */
-void CtdlDirectoryDelUser(char *internet_addr) {
+void CtdlDirectoryDelUser(char *internet_addr, char *citadel_addr) {
 	char key[SIZ];
 
 	directory_key(key, internet_addr);

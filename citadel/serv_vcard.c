@@ -586,6 +586,30 @@ int vcard_extract_from_network(struct CtdlMessage *msg, char *target_room) {
 
 
 
+/* 
+ * When a vCard is being removed from the Global Address Book room, remove it
+ * from the directory as well.
+ */
+void vcard_delete_remove(char *room, long msgnum) {
+	struct CtdlMessage *msg;
+
+	if (msgnum <= 0L) return;
+
+	if (strcasecmp(room, ADDRESS_BOOK_ROOM)) {
+		return;
+	}
+
+	msg = CtdlFetchMessage(msgnum);
+	if (msg != NULL) {
+		vcard_extract_internet_addresses(msg, CtdlDirectoryDelUser);
+	}
+
+	CtdlFreeMessage(msg);
+}
+
+
+
+
 /*
  * Session startup, allocate some per-session data
  */
@@ -600,12 +624,13 @@ char *Dynamic_Module_Init(void)
 	CtdlRegisterSessionHook(vcard_session_startup_hook, EVT_START);
 	CtdlRegisterMessageHook(vcard_upload_beforesave, EVT_BEFORESAVE);
 	CtdlRegisterMessageHook(vcard_upload_aftersave, EVT_AFTERSAVE);
+	CtdlRegisterDeleteHook(vcard_delete_remove);
 	CtdlRegisterProtoHook(cmd_regi, "REGI", "Enter registration info");
 	CtdlRegisterProtoHook(cmd_greg, "GREG", "Get registration info");
 	CtdlRegisterProtoHook(cmd_igab, "IGAB",
 					"Initialize Global Address Book");
 	CtdlRegisterUserHook(vcard_purge, EVT_PURGEUSER);
-	create_room(ADDRESS_BOOK_ROOM, 3, "", 0, 1);
 	CtdlRegisterNetprocHook(vcard_extract_from_network);
+	create_room(ADDRESS_BOOK_ROOM, 3, "", 0, 1);
 	return "$Id$";
 }

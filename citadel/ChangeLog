@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.96  2002/01/31 05:13:44  ajc
+ * When deleting a vCard from the Global Address Book room, remove the
+   corresponding address in the directory.  (Not tested.)
+
  Revision 590.95  2002/01/30 19:03:41  ajc
  * Added a new DeleteFunctionHook type of thing.  These get called when a
    message is being deleted from a room.
@@ -3274,3 +3278,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

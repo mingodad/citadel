@@ -20,7 +20,7 @@ char *rfc822_fetch_field(char *rfc822, char *fieldname);
 int IsDirectory(char *addr);
 void CtdlDirectoryInit(void);
 void CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr);
-void CtdlDirectoryDelUser(char *internet_addr);
+void CtdlDirectoryDelUser(char *internet_addr, char *citadel_addr);
 int CtdlDirectoryLookup(char *target, char *internet_addr);
 struct CtdlMessage *convert_internet_message(char *rfc822);
 int CtdlHostAlias(char *fqdn);
