@@ -162,10 +162,12 @@ void text_to_server(char *ptr)
 	while (ptr[pos] != 0) {
 		ch = ptr[pos++];
 		if (ch == 10) {
-			while (isspace(buf[strlen(buf) - 1]))
+			while ( (isspace(buf[strlen(buf) - 1]))
+			  && (strlen(buf) > 1) )
 				buf[strlen(buf) - 1] = 0;
 			serv_puts(buf);
 			strcpy(buf, "");
+			if (ptr[pos] != 0) strcat(buf, " ");
 		} else {
 			a = strlen(buf);
 			buf[a + 1] = 0;

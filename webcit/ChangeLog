@@ -1,4 +1,8 @@
 $Log$
+Revision 211.11  2000/03/31 03:48:52  ajc
+* text_to_server() now behaves the way web users expect text entry to work.
+  Soft linebreaks are soft, hard linebreaks are hard.  No indentation.
+
 Revision 211.10  2000/03/31 02:39:06  ajc
 * Fixed bugs in "Site configuration" and added new fields.
 
@@ -408,3 +412,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
