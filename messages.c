@@ -365,11 +365,12 @@ void readloop(char *oper)
 		hi = b+maxmsgs+1;
 		if (hi > nummsgs) hi = nummsgs;
 			if (WC->msgarr[b] != startmsg) {
-				wprintf("<A HREF=\"/readfwd"
+				wprintf("<A HREF=\"/%s"
 					"?startmsg=%ld"
 					"&maxmsgs=%d"
 					"&summary=%d\">"
 					"%d-%d</A> \n",
+						oper,
 						WC->msgarr[b],
 						maxmsgs,
 						is_summary,
@@ -380,10 +381,11 @@ void readloop(char *oper)
 			}
 
 		}
-		wprintf("<A HREF=\"/readfwd?startmsg=%ld"
+		wprintf("<A HREF=\"/%s?startmsg=%ld"
 			"&maxmsgs=999999&summary=%d\">"
 			"ALL"
 			"</A>&nbsp;&nbsp;&nbsp;",
+			oper,
 			WC->msgarr[0], is_summary);
 		wprintf("</TD></TR></TABLE></CENTER><HR>\n");
 	}
