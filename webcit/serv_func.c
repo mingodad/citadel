@@ -1,6 +1,10 @@
-/* $Id$ */
-
-
+/*
+ * serv_func.c
+ *
+ * Handles various types of data transfer operations with the Citadel service.
+ *
+ * $Id$
+ */
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -22,12 +26,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include "webcit.h"
-
-
-
-
-
-
+#include "webserver.h"
 
 struct serv_info serv_info;
 
@@ -152,8 +151,6 @@ void fmout(FILE * fp)
 
 
 
-
-
 /*
  * Transmit message text (in memory) to the server.
  * If convert_to_html is set to 1, the message is converted into something
@@ -210,9 +207,6 @@ void text_to_server(char *ptr, int convert_to_html)
 
 
 
-
-
-
 /*
  * translate server message output to text
  * (used for editing room info files and such)
@@ -231,3 +225,37 @@ void server_to_text()
 		++count;
 	}
 }
+
+
+
+/*
+ * Read binary data from server into memory using a series of
+ * server READ commands.
+ */
+void read_server_binary(char *buffer, size_t total_len) {
+	char buf[SIZ];
+	size_t bytes = 0;
+	size_t thisblock = 0;
+
+	memset(buffer, 0, total_len);
+	while (bytes < total_len) {
+		thisblock = 4095;
+		if ((total_len - bytes) < thisblock) {
+			thisblock = total_len - bytes;
+			if (thisblock == 0) return;
+		}
+		serv_printf("READ %d|%d", (int)bytes, (int)thisblock);
+		serv_gets(buf);
+		if (buf[0] == '6') {
+			thisblock = (size_t)atoi(&buf[4]);
+			serv_read(&buffer[bytes], thisblock);
+			bytes += thisblock;
+		}
+		else {
+			lprintf(3, "Error: %s\n", &buf[4]);
+			return;
+		}
+	}
+}
+
+

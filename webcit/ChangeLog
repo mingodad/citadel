@@ -1,4 +1,7 @@
 $Log$
+Revision 400.88  2003/01/29 22:32:07  ajc
+* Shuffled some code and comments around; minor cleanup
+
 Revision 400.87  2003/01/28 15:37:12  ajc
 * All functions which read binary data from the server now make use of the
   read_server_binary() function in tools.c
@@ -1258,3 +1261,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
