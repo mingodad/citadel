@@ -46,7 +46,6 @@ void load_floorlist(void) {
 	}
 
 
-
 /*
  * remove a room from the march list
  */
@@ -127,11 +126,17 @@ void list_all_rooms_by_floor(void) {
 		/* Floor name column */
 		wprintf("<TR><TD>");
 	
-/* FIX ... don't link to a floor pic that doesn't exist
-		wprintf("<IMG SRC=\"/dynamic/_floorpic_/%d\" ALT=\"%s\">",
-			&floorlist[a][0]);
- */
-		escputs(&floorlist[a][0]);
+		serv_printf("OIMG _floorpic_|%d", a);
+		serv_gets(buf);
+		if (buf[0] == '2') {
+			serv_puts("CLOS");
+			serv_gets(buf);
+			wprintf("<IMG SRC=\"/image&name=_floorpic_&parm=%d\" ALT=\"%s\">",
+				a, &floorlist[a][0]);
+			}
+		else {
+			escputs(&floorlist[a][0]);
+			}
 
 		wprintf("</TD>");
 

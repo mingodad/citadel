@@ -76,3 +76,4 @@ extern long uglsn;
 extern char *axdefs[];
 extern int upload_length;
 extern char *upload;
+extern char floorlist[128][256];

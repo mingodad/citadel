@@ -27,8 +27,9 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl) {
         wprintf("</FONT></TD></TR></TABLE>\n");
 
 	wprintf("<CENTER>\n");
+
+	wprintf("<FORM ENCTYPE=\"multipart/form-data\" ACTION=\"%s&which_room=%s\" METHOD=\"POST\">\n", uplurl, bstr("which_room"));
 	wprintf("Please select a file to upload:<BR>\n");
-	wprintf("<FORM ENCTYPE=\"multipart/form-data\" ACTION=\"%s\" METHOD=\"POST\">\n", uplurl);
         wprintf("<INPUT TYPE=\"FILE\" NAME=\"filename\" SIZE=\"35\">\n");
 	wprintf("<BR>");
         wprintf("<INPUT TYPE=\"SUBMIT\" VALUE=\"Upload\">\n");
@@ -81,4 +82,28 @@ void do_graphics_upload(char *upl_cmd) {
 		display_error(&buf[4]);
 		return;
 		}
+	}
+
+
+
+void select_floor_to_edit_pic(void) {
+	int a;
+
+	printf("HTTP/1.0 200 OK\n");
+	output_headers(1);
+
+        wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+        wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+        wprintf("<B>Select floor to edit label graphic</B>\n");
+        wprintf("</FONT></TD></TR></TABLE>\n");
+
+	load_floorlist();
+	for (a=0; a<128; ++a) if (strlen(floorlist[a])>0) {
+		wprintf("<A HREF=\"/display_editfloorpic&which_floor=%d\">", a);
+		escputs(floorlist[a]);
+		wprintf("</A>\n");
+		}
+	
+	wprintf("</BODY></HTML>\n");
+	wDumpContent();
 	}

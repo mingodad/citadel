@@ -3,6 +3,9 @@ Thu Dec 31 21:53:20 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* "Finished" the MIME parser.
 	* Got image uploads working.
 	* Added "add/edit user photo" screens.
+	* Added "add/edit room graphic" screens.
+	* Added "add/edit floor graphic" screens.
+	* Fixed display of floor graphic in known rooms list.
 
 Wed Dec 30 20:36:13 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Wrote mime_parser.c for handling of image uploads.  This will also
