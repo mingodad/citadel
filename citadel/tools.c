@@ -482,6 +482,10 @@ void stripout(char *str, char leftboundary, char rightboundary) {
                 strcpy(&str[lb - 1], &str[rb + 1]);
         }
 
+        else if ( (lb == 0) && (rb > lb) ) {
+                strcpy(str, &str[rb + 1]);
+        }
+
 }
 
 

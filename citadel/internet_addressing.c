@@ -268,6 +268,14 @@ void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name)
 	striplt(user);
 	striplt(node);
 	striplt(name);
+
+	/* If we processed a string that had the address in angle brackets
+	 * but no name outside the brackets, we now have an empty name.  In
+	 * this case, use the user portion of the address as the name.
+	 */
+	if ((strlen(name) == 0) && (strlen(user) > 0)) {
+		strcpy(name, user);
+	}
 }
 
 
