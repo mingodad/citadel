@@ -131,6 +131,7 @@ struct config {
 struct march {
 	struct march *next;
 	char march_name[ROOMNAMELEN];
+	unsigned int march_flags;
 	char march_floor;
 	char march_order;
 };

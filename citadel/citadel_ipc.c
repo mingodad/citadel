@@ -194,6 +194,28 @@ int CtdlIPCTryPassword(CtdlIPC *ipc, const char *passwd, char *cret)
 
 
 /*
+ * Second stage of authentication - provide password.  The server returns
+ * 200 and several arguments in cret relating to the user's account.
+ */
+int CtdlIPCTryApopPassword(CtdlIPC *ipc, const char *response, char *cret)
+{
+	register int ret;
+	char *aaa;
+
+	if (!response) return -2;
+	if (!cret) return -2;
+
+	aaa = (char *)malloc((size_t)(strlen(response) + 6));
+	if (!aaa) return -1;
+
+	sprintf(aaa, "PAS2 %s", response);
+	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
+	free(aaa);
+	return ret;
+}
+
+
+/*
  * Create a new user.  This returns 200 plus the same arguments as TryPassword
  * if selfservice is nonzero, unless there was a problem creating the account.
  * If selfservice is zero, creates a new user but does not log out the existing
@@ -241,13 +263,14 @@ int CtdlIPCChangePassword(CtdlIPC *ipc, const char *passwd, char *cret)
 
 /* LKRN */
 /* Caller must free the march list */
-/* which is 0 = LRMS, 1 = LKRN, 2 = LKRO, 3 = LKRA, 4 = LZRM */
+/* Room types are defined in enum RoomList; keep these in sync! */
 /* floor is -1 for all, or floornum */
-int CtdlIPCKnownRooms(CtdlIPC *ipc, int which, int floor, struct march **listing, char *cret)
+int CtdlIPCKnownRooms(CtdlIPC *ipc, enum RoomList which, int floor, struct march **listing, char *cret)
 {
 	register int ret;
 	struct march *march = NULL;
-	static char *proto[] = {"LRMS", "LKRN", "LKRO", "LKRA", "LZRM" };
+	static char *proto[] =
+		{"LKRA", "LKRN", "LKRO", "LZRM", "LRMS", "LPRM" };
 	char aaa[SIZ];
 	char *bbb = NULL;
 	size_t bbbsize;
@@ -255,7 +278,7 @@ int CtdlIPCKnownRooms(CtdlIPC *ipc, int which, int floor, struct march **listing
 	if (!listing) return -2;
 	if (*listing) return -2;	/* Free the listing first */
 	if (!cret) return -2;
-	if (which < 0 || which > 4) return -2;
+	/* if (which < 0 || which > 4) return -2; */
 	if (floor < -1) return -2;	/* Can't validate upper bound, sorry */
 
 	sprintf(aaa, "%s %d", proto[which], floor);
@@ -273,6 +296,7 @@ int CtdlIPCKnownRooms(CtdlIPC *ipc, int which, int floor, struct march **listing
 			if (mptr) {
 				mptr->next = NULL;
 				extract(mptr->march_name, aaa, 0);
+				mptr->march_flags = (unsigned int) extract_int(aaa, 1);
 				mptr->march_floor = (char) extract_int(aaa, 2);
 				mptr->march_order = (char) extract_int(aaa, 3);
 				if (march == NULL)
@@ -710,6 +734,8 @@ int CtdlIPCGetRoomAttributes(CtdlIPC *ipc, struct quickroom **qret, char *cret)
 		qret[0]->QRflags = extract_int(cret, 3);
 		qret[0]->QRfloor = extract_int(cret, 4);
 		qret[0]->QRorder = extract_int(cret, 5);
+		qret[0]->QRdefaultview = extract_int(cret, 6);
+		qret[0]->QRflags2 = extract_int(cret, 7);
 	}
 	return ret;
 }
@@ -1667,33 +1693,47 @@ int CtdlIPCAideSetUserParameters(CtdlIPC *ipc, const struct usersupp *uret, char
 
 /* GPEX */
 /* which is 0 = room, 1 = floor, 2 = site */
-int CtdlIPCGetMessageExpirationPolicy(CtdlIPC *ipc, int which, char *cret)
+/* caller must free the struct ExpirePolicy */
+int CtdlIPCGetMessageExpirationPolicy(CtdlIPC *ipc, int which,
+		struct ExpirePolicy **policy, char *cret)
 {
 	static char *proto[] = {"room", "floor", "site"};
 	char aaa[11];
+	register int ret;
 
 	if (!cret) return -2;
+	if (!policy) return -2;
+	if (!*policy) *policy = (struct ExpirePolicy *)calloc(1, sizeof(struct ExpirePolicy));
+	if (!*policy) return -1;
 	if (which < 0 || which > 2) return -2;
 	
 	sprintf(aaa, "GPEX %s", proto[which]);
-	return CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
+	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
+	if (ret / 100 == 2) {
+		policy[0]->expire_mode = extract_int(cret, 0);
+		policy[0]->expire_value = extract_int(cret, 1);
+	}
+	return ret;
+
 }
 
 
 /* SPEX */
 /* which is 0 = room, 1 = floor, 2 = site */
 /* policy is 0 = inherit, 1 = no purge, 2 = by count, 3 = by age (days) */
-int CtdlIPCSetMessageExpirationPolicy(CtdlIPC *ipc, int which, int policy, int value,
-		char *cret)
+int CtdlIPCSetMessageExpirationPolicy(CtdlIPC *ipc, int which,
+		struct ExpirePolicy *policy, char *cret)
 {
 	char aaa[38];
 
 	if (!cret) return -2;
 	if (which < 0 || which > 2) return -2;
-	if (policy < 0 || policy > 3) return -2;
-	if (policy >= 2 && value < 1) return -2;
+	if (!policy) return -2;
+	if (policy->expire_mode < 0 || policy->expire_mode > 3) return -2;
+	if (policy->expire_mode >= 2 && policy->expire_value < 1) return -2;
 
-	sprintf(aaa, "SPEX %d|%d|%d", which, policy, value);
+	sprintf(aaa, "SPEX %d|%d|%d", which,
+			policy->expire_mode, policy->expire_value);
 	return CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
 }
 

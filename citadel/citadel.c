@@ -335,7 +335,7 @@ char *pop_march(int desired_floor)
  */
 void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 {
-	char aaa[SIZ], bbb[SIZ], psearch[SIZ];
+	char aaa[SIZ], bbb[SIZ];
 	static long ls = 0L;
 	int newmailcount = 0;
 	int partial_match, best_match;
@@ -381,25 +381,36 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 	 * has the highest-weighted match.
 	 */
 	if (r / 100 != 2) {
+		struct march *march = NULL;
+		int r;	/* IPC result code; hides higher-level r */
+
 		best_match = 0;
 		strcpy(bbb, "");
-		CtdlIPC_putline(ipc, "LKRA");
-		CtdlIPC_getline(ipc, aaa);
-		if (aaa[0] == '1')
-			while (CtdlIPC_getline(ipc, aaa), strcmp(aaa, "000")) {
-				extract(psearch, aaa, 0);
+
+		r = CtdlIPCKnownRooms(ipc, AllAccessibleRooms, -1, &march, aaa);
+		if (r / 100 == 1) {
+			/* Run the roomlist; free the data as we go */
+			struct march *mp = march;	/* Current */
+
+			while (mp) {
 				partial_match = 0;
-				if (pattern(psearch, towhere) >= 0) {
+				if (pattern(mp->march_name, towhere) >= 0) {
 					partial_match = 1;
 				}
-				if (!strncasecmp(towhere, psearch, strlen(towhere))) {
+				if (!strncasecmp(mp->march_name, towhere, strlen(towhere))) {
 					partial_match = 2;
 				}
 				if (partial_match > best_match) {
-					strcpy(bbb, psearch);
+					strcpy(bbb, mp->march_name);
 					best_match = partial_match;
 				}
+				/* Both pointers are NULL at end of list */
+				march = mp->next;
+				free(mp);
+				mp = march;
 			}
+		}
+
 		if (strlen(bbb) == 0) {
 			scr_printf("No room '%s'.\n", towhere);
 			return;
@@ -407,7 +418,7 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 		roomrec = NULL;
 		r = CtdlIPCGotoRoom(ipc, bbb, "", &roomrec, aaa);
 	}
-	if (r / 100 != 2) {
+	if (r / 100 != 1 && r / 100 != 2) {
 		scr_printf("%s\n", aaa);
 		return;
 	}
@@ -488,7 +499,7 @@ void gotonext(CtdlIPC *ipc)
 	 * If it is, pop the first room off the list and go there.
 	 */
 	if (march == NULL) {
-		r = CtdlIPCKnownRooms(ipc, 1, -1, &march, buf);
+		r = CtdlIPCKnownRooms(ipc, SubscribedRoomsWithNewMessages, -1, &march, buf);
 /* add _BASEROOM_ to the end of the march list, so the user will end up
  * in the system base room (usually the Lobby>) at the end of the loop
  */
@@ -530,21 +541,12 @@ void forget_all_rooms_on(CtdlIPC *ipc, int ffloor)
 
 	scr_printf("Forgetting all rooms on %s...\r", &floorlist[ffloor][0]);
 	scr_flush();
-	snprintf(buf, sizeof buf, "LKRA %d", ffloor);
-	CtdlIPC_putline(ipc, buf);
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] != '1') {
-		scr_printf("%-72s\n", &buf[4]);
+	r = CtdlIPCKnownRooms(ipc, AllAccessibleRooms, ffloor, &flist, buf);
+	if (r / 100 != 1) {
+		scr_printf("%-72s\n", buf);
 		return;
 	}
-	flist = NULL;
-	while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
-		fptr = (struct march *) malloc(sizeof(struct march));
-		fptr->next = flist;
-		flist = fptr;
-		extract(fptr->march_name, buf, 0);
-	}
-	while (flist != NULL) {
+	while (flist) {
 		r = CtdlIPCGotoRoom(ipc, flist->march_name, "", &roomrec, buf);
 		if (r / 100 == 2) {
 			r = CtdlIPCForgetRoom(ipc, buf);
@@ -588,6 +590,7 @@ void gf_toroom(CtdlIPC *ipc, char *towhere, int mode)
 void gotofloor(CtdlIPC *ipc, char *towhere, int mode)
 {
 	int a, tofloor;
+	int r;		/* IPC response code */
 	struct march *mptr;
 	char buf[SIZ], targ[SIZ];
 
@@ -621,14 +624,20 @@ void gotofloor(CtdlIPC *ipc, char *towhere, int mode)
 	}
 
 	strcpy(targ, "");
-	snprintf(buf, sizeof buf, "LKRA %d", tofloor);
-	CtdlIPC_putline(ipc, buf);
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] == '1')
-		while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
-			if ((extract_int(buf, 2) == tofloor) && (strlen(targ) == 0))
-				extract(targ, buf, 0);
+	mptr = NULL;
+	r = CtdlIPCKnownRooms(ipc, AllAccessibleRooms, tofloor, &mptr, buf);
+	if (r / 100 == 1) {
+		struct march *tmp = mptr;
+
+		/* TODO: room order is being ignored? */
+		if (mptr)
+			strncpy(targ, mptr->march_name, ROOMNAMELEN);
+		while (mptr) {
+			tmp = mptr->next;
+			free(mptr);
+			mptr = tmp;
 		}
+	}
 	if (strlen(targ) > 0) {
 		gf_toroom(ipc, targ, mode);
 	} else {
@@ -1086,26 +1095,20 @@ int main(int argc, char **argv)
 	if (rc_remember_passwords) {
 		get_stored_password(hostbuf, portbuf, fullname, password);
 		if (strlen(fullname) > 0) {
-			snprintf(aaa, sizeof(aaa)-1, "USER %s", fullname);
-			CtdlIPC_putline(ipc, aaa);
-			CtdlIPC_getline(ipc, aaa);
-			if (nonce[0])
-				{
-					snprintf(aaa, sizeof aaa, "PAS2 %s", make_apop_string(password, nonce, hexstring, sizeof hexstring));
+			r = CtdlIPCTryLogin(ipc, fullname, aaa);
+			if (r / 100 == 3) {
+				if (*nonce) {
+					r = CtdlIPCTryApopPassword(ipc, make_apop_string(password, nonce, hexstring, sizeof hexstring), aaa);
+				} else {
+					r = CtdlIPCTryPassword(ipc, password, aaa);
 				}
-			else	/* Else no APOP */
-				{
-					snprintf(aaa, sizeof(aaa)-1, "PASS %s", password);
-				}
-	   		
-			CtdlIPC_putline(ipc, aaa);
-			CtdlIPC_getline(ipc, aaa);
-			if (aaa[0] == '2') {
-				load_user_info(&aaa[4]);
+			}
+
+			if (r / 100 == 2) {
+				load_user_info(aaa);
 				stored_password = 1;
 				goto PWOK;
-			}
-			else {
+			} else {
 				set_stored_password(hostbuf, portbuf, "", "");
 			}
 		}
@@ -1145,19 +1148,14 @@ int main(int argc, char **argv)
 	}
 	strproc(password);
 
-	if (nonce[0])
-		{
-			snprintf(aaa, sizeof aaa, "PAS2 %s", make_apop_string(password, nonce, hexstring, sizeof hexstring));
-		}
-	else	/* Else no APOP */
-		{
-			snprintf(aaa, sizeof aaa, "PASS %s", password);
-		}
+	if (*nonce) {
+		r = CtdlIPCTryApopPassword(ipc, make_apop_string(password, nonce, hexstring, sizeof hexstring), aaa);
+	} else {
+		r = CtdlIPCTryPassword(ipc, password, aaa);
+	}
 	
-	CtdlIPC_putline(ipc, aaa);
-	CtdlIPC_getline(ipc, aaa);
-	if (aaa[0] == '2') {
-		load_user_info(&aaa[4]);
+	if (r / 100 == 2) {
+		load_user_info(aaa);
 		offer_to_remember_password(hostbuf, portbuf,
 					   fullname, password);
 		goto PWOK;
@@ -1167,21 +1165,20 @@ int main(int argc, char **argv)
 		logoff(ipc, 0);
 	goto GSTA;
 
- NEWUSR:	if (strlen(rc_password) == 0) {
-	 scr_printf("No record. Enter as new user? ");
-	 if (yesno() == 0)
-		 goto GSTA;
- }
-	snprintf(aaa, sizeof aaa, "NEWU %s", fullname);
-	CtdlIPC_putline(ipc, aaa);
-	CtdlIPC_getline(ipc, aaa);
-	if (aaa[0] != '2') {
+NEWUSR:	if (strlen(rc_password) == 0) {
+		scr_printf("No record. Enter as new user? ");
+		if (yesno() == 0)
+			goto GSTA;
+	}
+
+	r = CtdlIPCCreateUser(ipc, fullname, 0, aaa);
+	if (r / 100 != 2) {
 		scr_printf("%s\n", aaa);
 		goto GSTA;
 	}
-	load_user_info(&aaa[4]);
+	load_user_info(aaa);
 
-	while (set_password(ipc) != 0);;
+	while (set_password(ipc) != 0);
 	newnow = 1;
 
 	enter_config(ipc, 1);
@@ -1201,7 +1198,7 @@ int main(int argc, char **argv)
 		   usernum, timescalled);
 	if (lastcall > 0L) {
 		scr_printf(" / Last login: %s\n",
-			   asctime(localtime(&lastcall)) );
+			   asctime(localtime(&lastcall)));
 	}
 	scr_printf("\n");
 

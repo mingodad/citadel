@@ -166,29 +166,33 @@ int rordercmp(struct roomlisting *r1, struct roomlisting *r2)
 /*
  * Common code for all room listings
  */
-void listrms(CtdlIPC *ipc, char *variety)
+static void listrms(CtdlIPC *ipc, enum RoomList variety, int floor)
 {
 	char buf[SIZ];
-
+	struct march *listing = NULL;
+	struct march *tmp = NULL;
 	struct roomlisting *rl = NULL;
 	struct roomlisting *rp;
 	struct roomlisting *rs;
-
+	int r;		/* IPC response code */
 
 	/* Ask the server for a room list */
-	CtdlIPC_putline(ipc, variety);
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] != '1') {
+	r = CtdlIPCKnownRooms(ipc, variety, floor, &listing, buf);
+	if (r / 100 != 1) {
 		return;
 	}
-	while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
+	while (listing) {
 		rp = malloc(sizeof(struct roomlisting));
-		extract(rp->rlname, buf, 0);
-		rp->rlflags = extract_int(buf, 1);
-		rp->rlfloor = extract_int(buf, 2);
-		rp->rlorder = extract_int(buf, 3);
+		strncpy(rp->rlname, listing->march_name, ROOMNAMELEN);
+		rp->rlflags = listing->march_flags;
+		rp->rlfloor = listing->march_floor;
+		rp->rlorder = listing->march_order;
 		rp->lnext = NULL;
 		rp->rnext = NULL;
+
+		tmp = listing->next;
+		free(listing);
+		listing = tmp;
 
 		rs = rl;
 		if (rl == NULL) {
@@ -244,7 +248,6 @@ void list_other_floors(void)
  */
 void knrooms(CtdlIPC *ipc, int kn_floor_mode)
 {
-	char buf[SIZ];
 	int a;
 
 	load_floorlist(ipc);
@@ -252,10 +255,10 @@ void knrooms(CtdlIPC *ipc, int kn_floor_mode)
 	if (kn_floor_mode == 0) {
 		color(BRIGHT_CYAN);
 		pprintf("\n   Rooms with unread messages:\n");
-		listrms(ipc, "LKRN");
+		listrms(ipc, SubscribedRoomsWithNewMessages, -1);
 		color(BRIGHT_CYAN);
 		pprintf("\n\n   No unseen messages in:\n");
-		listrms(ipc, "LKRO");
+		listrms(ipc, SubscribedRoomsWithNoNewMessages, -1);
 		pprintf("\n");
 	}
 
@@ -263,13 +266,11 @@ void knrooms(CtdlIPC *ipc, int kn_floor_mode)
 		color(BRIGHT_CYAN);
 		pprintf("\n   Rooms with unread messages on %s:\n",
 			floorlist[(int) curr_floor]);
-		snprintf(buf, sizeof buf, "LKRN %d", curr_floor);
-		listrms(ipc, buf);
+		listrms(ipc, SubscribedRoomsWithNewMessages, curr_floor);
 		color(BRIGHT_CYAN);
 		pprintf("\n\n   Rooms with no new messages on %s:\n",
 			floorlist[(int) curr_floor]);
-		snprintf(buf, sizeof buf, "LKRO %d", curr_floor);
-		listrms(ipc, buf);
+		listrms(ipc, SubscribedRoomsWithNoNewMessages, curr_floor);
 		color(BRIGHT_CYAN);
 		pprintf("\n\n   Other floors:\n");
 		list_other_floors();
@@ -282,8 +283,7 @@ void knrooms(CtdlIPC *ipc, int kn_floor_mode)
 				color(BRIGHT_CYAN);
 				pprintf("\n   Rooms on %s:\n",
 					floorlist[a]);
-				snprintf(buf, sizeof buf, "LKRA %d", a);
-				listrms(ipc, buf);
+				listrms(ipc, AllAccessibleRooms, a);
 				pprintf("\n");
 			}
 		}
@@ -298,7 +298,7 @@ void listzrooms(CtdlIPC *ipc)
 {				/* list public forgotten rooms */
 	color(BRIGHT_CYAN);
 	pprintf("\n   Forgotten public rooms:\n");
-	listrms(ipc, "LZRM");
+	listrms(ipc, UnsubscribedRooms, -1);
 	pprintf("\n");
 	color(DIM_WHITE);
 	IFNEXPERT hit_any_key();
@@ -376,46 +376,26 @@ int select_floor(CtdlIPC *ipc, int rfloor)
  */
 void editthisroom(CtdlIPC *ipc)
 {
-	char rname[ROOMNAMELEN];
-	char rpass[10];
-	char rdir[15];
-	unsigned rflags;
-	unsigned rflags2;
-	int rbump;
+	int rbump = 0;
 	char raide[32];
 	char buf[SIZ];
-	int rfloor;
-	int rorder;
-	int rview;
-	int expire_mode = 0;
-	int expire_value = 0;
+	struct quickroom *attr = NULL;
+	struct ExpirePolicy *eptr = NULL;
 	int r;				/* IPC response code */
 
 	/* Fetch the existing room config */
-	CtdlIPC_putline(ipc, "GETR");
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] != '2') {
-		scr_printf("%s\n", &buf[4]);
+	r = CtdlIPCGetRoomAttributes(ipc, &attr, buf);
+	if (r / 100 != 2) {
+		scr_printf("%s\n", buf);
 		return;
 	}
-
-	extract(rname, &buf[4], 0);
-	extract(rpass, &buf[4], 1);
-	extract(rdir, &buf[4], 2);
-	rflags = extract_int(&buf[4], 3);
-	rfloor = extract_int(&buf[4], 4);
-	rorder = extract_int(&buf[4], 5);
-	rview = extract_int(&buf[4], 6);
-	rflags2 = extract_int(&buf[4], 7);
-	rbump = 0;
+	eptr = &(attr->QRep);
 
 	/* Fetch the name of the current room aide */
-	CtdlIPC_putline(ipc, "GETA");
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] == '2') {
-		safestrncpy(raide, &buf[4], sizeof raide);
-	}
-	else {
+	r = CtdlIPCGetRoomAide(ipc, buf);
+	if (r / 100 == 2) {
+		safestrncpy(raide, buf, sizeof raide);
+	} else {
 		strcpy(raide, "");
 	}
 	if (strlen(raide) == 0) {
@@ -425,78 +405,71 @@ void editthisroom(CtdlIPC *ipc)
 	/* Fetch the expire policy (this will silently fail on old servers,
 	 * resulting in "default" policy)
 	 */
-	CtdlIPC_putline(ipc, "GPEX room");
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] == '2') {
-		expire_mode = extract_int(&buf[4], 0);
-		expire_value = extract_int(&buf[4], 1);
-	}
+	r = CtdlIPCGetMessageExpirationPolicy(ipc, 0, &eptr, buf);
 
 	/* Now interact with the user. */
 
-	rfloor = select_floor(ipc, rfloor);
-	rflags = set_room_attr(ipc, rflags, "Private room", QR_PRIVATE);
-	if (rflags & QR_PRIVATE) {
-		rflags = set_room_attr(ipc, rflags,
+	attr->QRfloor = select_floor(ipc, attr->QRfloor);
+	attr->QRflags = set_room_attr(ipc, attr->QRflags, "Private room", QR_PRIVATE);
+	if (attr->QRflags & QR_PRIVATE) {
+		attr->QRflags = set_room_attr(ipc, attr->QRflags,
 				       "Accessible by guessing room name",
 				       QR_GUESSNAME);
 	}
 
 	/* if it's public, clear the privacy classes */
-	if ((rflags & QR_PRIVATE) == 0) {
-		if (rflags & QR_GUESSNAME) {
-			rflags = rflags - QR_GUESSNAME;
+	if ((attr->QRflags & QR_PRIVATE) == 0) {
+		if (attr->QRflags & QR_GUESSNAME) {
+			attr->QRflags = attr->QRflags - QR_GUESSNAME;
 		}
-		if (rflags & QR_PASSWORDED) {
-			rflags = rflags - QR_PASSWORDED;
+		if (attr->QRflags & QR_PASSWORDED) {
+			attr->QRflags = attr->QRflags - QR_PASSWORDED;
 		}
 	}
 
 	/* if it's private, choose the privacy classes */
-	if ((rflags & QR_PRIVATE)
-	    && ((rflags & QR_GUESSNAME) == 0)) {
-		rflags = set_room_attr(ipc, rflags,
+	if ((attr->QRflags & QR_PRIVATE)
+	    && ((attr->QRflags & QR_GUESSNAME) == 0)) {
+		attr->QRflags = set_room_attr(ipc, attr->QRflags,
 				       "Accessible by entering a password",
 				       QR_PASSWORDED);
 	}
-	if ((rflags & QR_PRIVATE)
-	    && ((rflags & QR_PASSWORDED) == QR_PASSWORDED)) {
-		strprompt("Room password", rpass, 9);
+	if ((attr->QRflags & QR_PRIVATE)
+	    && ((attr->QRflags & QR_PASSWORDED) == QR_PASSWORDED)) {
+		strprompt("Room password", attr->QRpasswd, 9);
 	}
 
-	if ((rflags & QR_PRIVATE) == QR_PRIVATE) {
-		rbump =
-		    boolprompt("Cause current users to forget room", 0);
+	if ((attr->QRflags & QR_PRIVATE) == QR_PRIVATE) {
+		rbump = boolprompt("Cause current users to forget room", 0);
 	}
 
-	rflags =
-	    set_room_attr(ipc, rflags, "Preferred users only", QR_PREFONLY);
-	rflags = set_room_attr(ipc, rflags, "Read-only room", QR_READONLY);
-	rflags = set_room_attr(ipc, rflags, "Directory room", QR_DIRECTORY);
-	rflags = set_room_attr(ipc, rflags, "Permanent room", QR_PERMANENT);
-	if (rflags & QR_DIRECTORY) {
-		strprompt("Directory name", rdir, 14);
-		rflags =
-		    set_room_attr(ipc, rflags, "Uploading allowed", QR_UPLOAD);
-		rflags =
-		    set_room_attr(ipc, rflags, "Downloading allowed",
+	attr->QRflags = set_room_attr(ipc, attr->QRflags, "Preferred users only", QR_PREFONLY);
+	attr->QRflags = set_room_attr(ipc, attr->QRflags, "Read-only room", QR_READONLY);
+	attr->QRflags = set_room_attr(ipc, attr->QRflags, "Directory room", QR_DIRECTORY);
+	attr->QRflags = set_room_attr(ipc, attr->QRflags, "Permanent room", QR_PERMANENT);
+	if (attr->QRflags & QR_DIRECTORY) {
+		strprompt("Directory name", attr->QRdirname, 14);
+		attr->QRflags =
+		    set_room_attr(ipc, attr->QRflags, "Uploading allowed", QR_UPLOAD);
+		attr->QRflags =
+		    set_room_attr(ipc, attr->QRflags, "Downloading allowed",
 				  QR_DOWNLOAD);
-		rflags =
-		    set_room_attr(ipc, rflags, "Visible directory", QR_VISDIR);
+		attr->QRflags =
+		    set_room_attr(ipc, attr->QRflags, "Visible directory", QR_VISDIR);
 	}
-	rflags = set_room_attr(ipc, rflags, "Network shared room", QR_NETWORK);
-	rflags2 = set_room_attr(ipc, rflags2,
+	attr->QRflags = set_room_attr(ipc, attr->QRflags, "Network shared room", QR_NETWORK);
+	attr->QRflags2 = set_room_attr(ipc, attr->QRflags2,
 				"Self-service list subscribe/unsubscribe",
 				QR2_SELFLIST);
-	rflags = set_room_attr(ipc, rflags,
+	attr->QRflags = set_room_attr(ipc, attr->QRflags,
 			       "Automatically make all messages anonymous",
 			       QR_ANONONLY);
-	if ((rflags & QR_ANONONLY) == 0) {
-		rflags = set_room_attr(ipc, rflags,
+	if ((attr->QRflags & QR_ANONONLY) == 0) {
+		attr->QRflags = set_room_attr(ipc, attr->QRflags,
 				       "Ask users whether to make messages anonymous",
 				       QR_ANONOPT);
 	}
-	rorder = intprompt("Listing order", rorder, 1, 127);
+	attr->QRorder = intprompt("Listing order", attr->QRorder, 1, 127);
 
 	/* Ask about the room aide */
 	do {
@@ -518,7 +491,7 @@ void editthisroom(CtdlIPC *ipc)
 
 	/* Angels and demons dancing in my head... */
 	do {
-		snprintf(buf, sizeof buf, "%d", expire_mode);
+		snprintf(buf, sizeof buf, "%d", attr->QRep.expire_mode);
 		strprompt("Message expire policy (? for list)", buf, 1);
 		if (buf[0] == '?') {
 			scr_printf("\n"
@@ -528,19 +501,19 @@ void editthisroom(CtdlIPC *ipc)
 				"3. Expire by message age\n");
 		}
 	} while ((buf[0] < 48) || (buf[0] > 51));
-	expire_mode = buf[0] - 48;
+	attr->QRep.expire_mode = buf[0] - 48;
 
 	/* ...lunatics and monsters underneath my bed */
-	if (expire_mode == 2) {
-		snprintf(buf, sizeof buf, "%d", expire_value);
+	if (attr->QRep.expire_mode == 2) {
+		snprintf(buf, sizeof buf, "%d", attr->QRep.expire_value);
 		strprompt("Keep how many messages online?", buf, 10);
-		expire_value = atol(buf);
+		attr->QRep.expire_value = atol(buf);
 	}
 
-	if (expire_mode == 3) {
-		snprintf(buf, sizeof buf, "%d", expire_value);
+	if (attr->QRep.expire_mode == 3) {
+		snprintf(buf, sizeof buf, "%d", attr->QRep.expire_value);
 		strprompt("Keep messages for how many days?", buf, 10);
-		expire_value = atol(buf);
+		attr->QRep.expire_value = atol(buf);
 	}
 
 	/* Give 'em a chance to change their minds */
@@ -548,22 +521,23 @@ void editthisroom(CtdlIPC *ipc)
 
 	if (yesno() == 1) {
 		r = CtdlIPCSetRoomAide(ipc, raide, buf);
-		if (r != 2) {
+		if (r / 100 != 2) {
 			scr_printf("%s\n", buf);
 		}
 
-		r = CtdlIPCSetMessageExpirationPolicy(ipc, 0, expire_mode,
-						      expire_value, buf);
+		r = CtdlIPCSetMessageExpirationPolicy(ipc, 0, eptr, buf);
+		if (r / 100 != 2) {
+			scr_printf("%s\n", buf);
+		}
 
-		snprintf(buf, sizeof buf, "SETR %s|%s|%s|%d|%d|%d|%d|%d|%d",
-			 rname, rpass, rdir, rflags, rbump, rfloor,
-			 rorder, rview, rflags2);
-		CtdlIPC_putline(ipc, buf);
-		CtdlIPC_getline(ipc, buf);
-		scr_printf("%s\n", &buf[4]);
-		if (buf[0] == '2')
-			dotgoto(ipc, rname, 2, 0);
+		r = CtdlIPCSetRoomAttributes(ipc, rbump, attr, buf);
+		scr_printf("%s\n", buf);
+		strncpy(buf, attr->QRname, ROOMNAMELEN);
+		free(attr);
+		if (r / 100 == 2)
+			dotgoto(ipc, buf, 2, 0);
 	}
+	else free(attr);
 }
 
 
@@ -1117,8 +1091,7 @@ void create_floor(CtdlIPC *ipc)
 void edit_floor(CtdlIPC *ipc)
 {
 	char buf[SIZ];
-	int expire_mode = 0;
-	int expire_value = 0;
+	struct ExpirePolicy *ep = NULL;
 	int r;				/* IPC response code */
 
 	load_floorlist(ipc);
@@ -1126,11 +1099,7 @@ void edit_floor(CtdlIPC *ipc)
 	/* Fetch the expire policy (this will silently fail on old servers,
 	 * resulting in "default" policy)
 	 */
-	r = CtdlIPCGetMessageExpirationPolicy(ipc, 1, buf);
-	if (r / 100 == 2) {
-		expire_mode = extract_int(buf, 0);
-		expire_value = extract_int(buf, 1);
-	}
+	r = CtdlIPCGetMessageExpirationPolicy(ipc, 1, &ep, buf);
 
 	/* Interact with the user */
 	scr_printf("You are editing the floor called \"%s\"\n", 
@@ -1139,7 +1108,7 @@ void edit_floor(CtdlIPC *ipc)
 
 	/* Angels and demons dancing in my head... */
 	do {
-		snprintf(buf, sizeof buf, "%d", expire_mode);
+		snprintf(buf, sizeof buf, "%d", ep->expire_mode);
 		strprompt
 		    ("Floor default message expire policy (? for list)",
 		     buf, 1);
@@ -1151,24 +1120,23 @@ void edit_floor(CtdlIPC *ipc)
 				"3. Expire by message age\n");
 		}
 	} while ((buf[0] < '0') || (buf[0] > '3'));
-	expire_mode = buf[0] - '0';
+	ep->expire_mode = buf[0] - '0';
 
 	/* ...lunatics and monsters underneath my bed */
-	if (expire_mode == 2) {
-		snprintf(buf, sizeof buf, "%d", expire_value);
+	if (ep->expire_mode == 2) {
+		snprintf(buf, sizeof buf, "%d", ep->expire_value);
 		strprompt("Keep how many messages online?", buf, 10);
-		expire_value = atol(buf);
+		ep->expire_value = atol(buf);
 	}
 
-	if (expire_mode == 3) {
-		snprintf(buf, sizeof buf, "%d", expire_value);
+	if (ep->expire_mode == 3) {
+		snprintf(buf, sizeof buf, "%d", ep->expire_value);
 		strprompt("Keep messages for how many days?", buf, 10);
-		expire_value = atol(buf);
+		ep->expire_value = atol(buf);
 	}
 
 	/* Save it */
-	r = CtdlIPCSetMessageExpirationPolicy(ipc, 1, expire_mode,
-					      expire_value, buf);
+	r = CtdlIPCSetMessageExpirationPolicy(ipc, 1, ep, buf);
 	r = CtdlIPCEditFloor(ipc, curr_floor, &floorlist[(int)curr_floor][0], buf);
 	scr_printf("%s\n", buf);
 	load_floorlist(ipc);

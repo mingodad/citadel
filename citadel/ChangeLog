@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.32  2002/10/17 11:13:27  error
+ * Convert room listings and some aide functions to new IPC code
+
  Revision 601.31  2002/10/16 13:46:19  ajc
  * Remove some trace messages
 
@@ -4090,4 +4093,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
