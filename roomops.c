@@ -756,11 +756,11 @@ void display_editroom(void)
 
 	/* print the tabbed dialog */
 	wprintf("<TABLE border=0 cellspacing=0 cellpadding=0 width=100%%>"
-		"<TR ALIGN=CENTER BGCOLOR=\"#FFFFFF\">"
+		"<TR ALIGN=CENTER>"
 		"<TD>&nbsp;</TD>\n");
 
 	if (!strcmp(tab, "admin")) {
-		wprintf("<TD BGCOLOR=\"#000077\"><SPAN CLASS=\"tablabel\">");
+		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
 		wprintf("<TD BGCOLOR=\"#AAAAAA\"><A HREF=\"/display_editroom&tab=admin\">");
@@ -776,7 +776,7 @@ void display_editroom(void)
 	wprintf("<TD>&nbsp;</TD>\n");
 
 	if (!strcmp(tab, "config")) {
-		wprintf("<TD BGCOLOR=\"#000077\"><SPAN CLASS=\"tablabel\">");
+		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
 		wprintf("<TD BGCOLOR=\"#AAAAAA\"><A HREF=\"/display_editroom&tab=config\">");
@@ -792,7 +792,7 @@ void display_editroom(void)
 	wprintf("<TD>&nbsp;</TD>\n");
 
 	if (!strcmp(tab, "sharing")) {
-		wprintf("<TD BGCOLOR=\"#000077\"><SPAN CLASS=\"tablabel\">");
+		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
 		wprintf("<TD BGCOLOR=\"#AAAAAA\"><A HREF=\"/display_editroom&tab=sharing\">");
@@ -808,7 +808,7 @@ void display_editroom(void)
 	wprintf("<TD>&nbsp;</TD>\n");
 
 	if (!strcmp(tab, "listserv")) {
-		wprintf("<TD BGCOLOR=\"#000077\"><SPAN CLASS=\"tablabel\">");
+		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
 		wprintf("<TD BGCOLOR=\"#AAAAAA\"><A HREF=\"/display_editroom&tab=listserv\">");
