@@ -6,6 +6,7 @@ CFLAGS=@CFLAGS@
 DEFS=@DEFS@
 LIBOBJS=@LIBOBJS@
 LIBS=@LIBS@
+LDFLAGS=@LDFLAGS@
 SETUP_LIBS=@SETUP_LIBS@
 PTHREAD_DEFS=@PTHREAD_DEFS@
 srcdir=@srcdir@
@@ -23,7 +24,8 @@ distclean: clean
 	rm -f Makefile config.cache config.log config.status
 
 setup: setup.o tools.o
-	$(CC) setup.o tools.o  $(LIBOBJS) $(LIBS) $(SETUP_LIBS) -o setup
+	$(CC) setup.o tools.o \
+	$(LIBOBJS) $(LIBS) $(LDFLAGS) $(SETUP_LIBS) -o setup
 
 webserver: webserver.o context_loop.o tools.o ical_dezonify.o \
 	cookie_conversion.o locate_host.o floors.o summary.o \
@@ -41,7 +43,7 @@ webserver: webserver.o context_loop.o tools.o ical_dezonify.o \
 	mime_parser.o graphics.o netconf.o preferences.o html2html.o \
 	summary.o calendar.o calendar_tools.o calendar_view.o event.o \
 	availability.o ical_dezonify.o iconbar.o \
-	$(LIBOBJS) $(LIBS) -o webserver
+	$(LIBOBJS) $(LIBS) $(LDFLAGS) -o webserver
 
 .c.o:
 	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) -DWEBCITDIR=\"`pwd`\" $<

@@ -1,4 +1,7 @@
 $Log$
+Revision 505.21  2004/03/29 04:30:20  ajc
+* configure.in, Makefile.in: handle $LDFLAGS
+
 Revision 505.20  2004/03/20 05:03:14  ajc
 * Original startup thread becomes a worker thread after initialization.
   Doing otherwise turns it into a zombie (at least on Linux) and possibly
@@ -1746,3 +1749,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
