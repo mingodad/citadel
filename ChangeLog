@@ -1,4 +1,8 @@
 $Log$
+Revision 400.59  2002/11/30 04:46:46  ajc
+* First cut at adding/removing attendees to an event
+  (Actual invitations should be sent by the Citadel server)
+
 Revision 400.58  2002/11/29 23:56:19  ajc
 * Completed "me as organizer" -- the user's own e-mail address is inserted
   as the organizer of new events.  Detect when the user is the organizer and
@@ -1150,3 +1154,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

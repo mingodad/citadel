@@ -323,6 +323,11 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 	int created_new_vevent = 0;
 	int all_day_event = 0;
 	struct icaltimetype event_start;
+	icalproperty *attendee = NULL;
+	char attendee_string[SIZ];
+	int i;
+	int foundit;
+	char form_attendees[SIZ];
 
 	if (supplied_vevent != NULL) {
 		vevent = supplied_vevent;
@@ -368,7 +373,6 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 
 		if (!strcmp(bstr("alldayevent"), "yes")) {
 			all_day_event = 1;
-			lprintf(9, "*** all day event ***\n");
 		}
 		else {
 			all_day_event = 0;
@@ -430,7 +434,59 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 			);
 		}
 
-		/* Serialize it and save it to the message base */
+		/*
+		 * Add any new attendees listed in the web form
+		 */
+		strcpy(form_attendees, bstr("attendees"));
+		for (i=0; i<num_tokens(form_attendees, ','); ++i) {
+			extract_token(buf, form_attendees, i, ',');
+			striplt(buf);
+			if (strlen(buf) > 0) {
+				lprintf(9, "Attendee: <%s>\n", buf);
+				sprintf(attendee_string, "MAILTO:%s", buf);
+				foundit = 0;
+
+				for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDEE_PROPERTY); attendee != NULL; attendee = icalcomponent_get_next_property(vevent, ICAL_ATTENDEE_PROPERTY)) {
+					if (!strcasecmp(attendee_string,
+					   icalproperty_get_attendee(attendee)))
+						++foundit;
+				}
+
+
+				if (foundit == 0) {
+					icalcomponent_add_property(vevent,
+						icalproperty_new_attendee(attendee_string)
+					);
+				}
+			}
+		}
+
+		/*
+		 * Remove any attendees *not* listed in the web form
+		 */
+STARTOVER:
+		for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDEE_PROPERTY); attendee != NULL; attendee = icalcomponent_get_next_property(vevent, ICAL_ATTENDEE_PROPERTY)) {
+			strcpy(attendee_string, icalproperty_get_attendee(attendee));
+			if (!strncasecmp(attendee_string, "MAILTO:", 7)) {
+				strcpy(attendee_string, &attendee_string[7]);
+				striplt(attendee_string);
+				foundit = 0;
+				for (i=0; i<num_tokens(form_attendees, ','); ++i) {
+					extract_token(buf, form_attendees, i, ',');
+					striplt(buf);
+					if (!strcasecmp(buf, attendee_string)) ++foundit;
+				}
+				if (foundit == 0) {
+					icalcomponent_remove_property(vevent, attendee);
+					icalproperty_free(attendee);
+					goto STARTOVER;
+				}
+			}
+		}
+
+		/*
+		 * Serialize it and save it to the message base
+		 */
 		serv_puts("ENT0 1|||4");
 		serv_gets(buf);
 		if (buf[0] == '4') {
