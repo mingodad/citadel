@@ -1,5 +1,5 @@
                   SESSION LAYER PROTOCOL FOR CITADEL/UX
-         (c) 1995-1998 by Art Cancro et. al.    All Rights Reserved
+         (c) 1995-1999 by Art Cancro et. al.    All Rights Reserved
    
   
  INTRODUCTION
@@ -30,30 +30,15 @@ what you did, so that your new commands can be added to this document.
  ----------------------
   
  The protocols used below the session layer are beyond the scope of this
-document, but we will briefly cover a few of the currently used methods. 
-Keep in mind that the server program itself does not speak any protocols
-lower than the session layer.  Instead, it reads all input from stdin, and
-writes all output to stdout.  This implies that it is the responsibility of
-other programs to provide a usable transport to the client programs.
+document, but we will briefly cover the methodology employed by Citadel/UX.
  
- One way to connect to a server is to use a set of pipes.  This does of
-course assume that the client and server are running on the same computer. 
-When the client starts up, the first thing that it does is create two pipes,
-which it temporarily dup()'s to stdin and stdout.  Then it proceeds to
-fork() and exec() to a copy of the server program, which inherits the
-pipes as its standard input and output - exactly the desired effect.  The
-client program can then re-connect its own stdin and stdout to where they're
-supposed to be, and use the pipes to send and receive server messages.
+ Citadel/UX offers Citadel BBS service using TCP/IP.  It does so via a
+multithreaded server listening on a TCP port.  Older (4.xx) versions employed
+an inetd-based server.
  
- Another way is to use TCP/IP.  Under Unix-like systems this is easily
-accomplished using the "inetd" superserver program, which can take programs
-like the Citadel/UX server and offer connections to clients over a TCP or
-UDP port.  See the install documentation (or the inetd documentation from
-your OS) for information on how to do this.  Always use TCP ports for
-Citadel/UX sessions.  Since our session layer assumes a clean, reliable,
-sequenced connection, the use of UDP would render the server unstable and
-unusable.  When operating in a TCP/IP environment, the port number officially
-assigned to Citadel is 504.
+ The port number officially assigned to Citadel by the IANA is TCP/504.  Since
+our session layer assumes a clean, reliable, sequenced connection, the use
+of UDP would render the server unstable and unusable, so we stick with TCP.
    
    
  GENERAL INFORMATION ABOUT THE SERVER
@@ -197,14 +182,6 @@ logged in, or ERROR if another user already exists with this name.  If OK,
 it will also return the same parameters that PASS returns.
  
   
- AUTO   (AUTOmatic login   **OBSLETE** )
-   
- Citadel/UX no longer supports this type of authentication.  It was formerly
-used to automatically authenticate a user based on the user ID under which
-the server was running.  Due to the new multithreaded architecture of the
-server, this is no longer possible.
-  
-   
  SETP   (SET new Password)
  
  This command sets a new password for the currently logged in user.  The
@@ -336,11 +313,11 @@ GOTO command to _BASEROOM_ is guaranteed to succeed.  This is useful to
 allow client software to return to the base room when it doesn't know
 where else to go.
  
- Citadel/UX server v4.01 and above, also has two additional reserved room
-names.  "_MAIL_" translates to the system's designated room for e-mail
-messages, and "_BITBUCKET_" goes to whatever room has been chosen for messages
+ There are also two additional reserved room names:
+ "_MAIL_" translates to the system's designated room for e-mail messages.
+ "_BITBUCKET_" goes to whatever room has been chosen for messages
 without a home.
- 
+
  The second (and optional) parameter is a password, if one is required for
 access to the room.  This allows for all types of rooms to be accessed via
 this command: for public rooms, invitation-only rooms to which the user
@@ -387,12 +364,8 @@ in.
    7. Boolean flag: 1 if this is a Mail> room, 0 otherwise.
    8. Aide flag: 1 if the user is either the Room Aide for this room, *or* is
 a regular Aide (this makes access checks easy).
- 
-  ...and in server 4.01 and above:
    9. The number of new Mail messages the user has (useful for alerting the
 user to the arrival of new mail during a session)
-  
-  ...and in server 4.03 and above:
   10. The floor number this room resides on
   
   
@@ -487,8 +460,6 @@ parts of the listing:
  Line 8  - The name of the system administrator
  Line 9  - A number identifying the server type (see below)
  Line 10 - The text of the system's paginator prompt
- 
- (version 4.01 and above only)
  Line 11 - Floor Flag.  1 if the system supports floors, 0 otherwise.
  
  *** NOTE! ***   The "server type" code is intended to promote global
@@ -593,8 +564,6 @@ and the room aide associated with the current room, can access this command.
  1. The room's password (if it's a passworded room)
  2. The name of the room's directory (if it's a directory room)
  3. Various flags (bits) associated with the room (see LKRN cmd above)
-
- (And on server version 4.01 and above ... )
  4. The floor number on which the room resides
   
   
@@ -608,8 +577,6 @@ should be passed the following arguments:
  2. The name of the room's directory (if it's a directory room)
  3. Various flags (bits) associated with the room (see LKRN cmd above)
  4. "Bump" flag (see below)
- 
- (And on server version 4.01 and above, the client may also send ... )
  5. The floor number on which the room should reside
  
  *Important: You should always use GETR to retrieve the current attributes of
@@ -760,8 +727,7 @@ or ERROR or ERROR+HIGHER_ACCESS_REQUIRED if the command will not succeed.
        2  -  Private; can be entered by knowing the name *and* password
        3  -  Private; invitation only (sometimes called "exclusive")
  3  -  Password for new room (if it is a type 2 room)
- 4  -  Floor number on which the room should reside (optional, and in server
-       version 4.01 and above only)
+ 4  -  Floor number on which the room should reside (optional)
  
  If the create flag is set to 1, the room is created (unless something
 went wrong and an ERROR return is sent), and the server returns OK, but
@@ -1131,12 +1097,6 @@ images which are likely to exist on most servers:
                 opposed to the floor picture's use in a floor listing).
  
    
-  
- ---------------------------------------------------------------------------
- The following commands are available only in Citadel/UX server version 4.01
- and above.
- ---------------------------------------------------------------------------
- 
  NETP   (authenticate as network session with system NET Password) 
  
  This command is used by client software to identify itself as a transport
@@ -1228,10 +1188,6 @@ floor name would change the floor's name.
  If the command succeeds, it will return OK.  Otherwise it will return
 ERROR (plus perhaps HIGHER_ACCESS_REQUIRED or INVALID_FLOOR_OPERATION)
   
- ---------------------------------------------------------------------------
- The following commands are available only in Citadel/UX server version 4.02
- and above.
- ---------------------------------------------------------------------------
 
 IDEN (IDENtify the client software)
 
@@ -1256,10 +1212,6 @@ otherwise it should use the host name it has detected itself.
  IDEN always returns OK, but since that's the only way it ever returns
 there's no point in checking the result code.
   
- ---------------------------------------------------------------------------
- The following commands are available only in Citadel/UX server version 4.03
- and above.
- ---------------------------------------------------------------------------
 
 IPGM (identify as an Internal ProGraM)
  
@@ -1345,10 +1297,6 @@ server return code messages, between the return code and the parameters.  In
 much the same way as FTP uses "-" to signify a continuation, Citadel uses
 an "*" in this position to signify the presence of waiting express messages.
   
- ---------------------------------------------------------------------------
- The following commands are available only in Citadel/UX server version 4.10
- and above.
- ---------------------------------------------------------------------------
  
  EBIO   (Enter BIOgraphy)
  
@@ -1367,10 +1315,6 @@ LISTING_FOLLOWS plus the bio file if the user exists and has a bio on file,
 ERROR+NO_SUCH_USER if the named user does not exist, or ERROR+FILE_NOT_FOUND
 if the user exists but has no bio on file.
   
- ---------------------------------------------------------------------------
- The following commands are available only in Citadel/UX server version 4.11
- and above.
- ---------------------------------------------------------------------------
   
  STEL   (enter STEaLth mode)
  
@@ -1404,10 +1348,6 @@ easier to implement, and to provide some sort of multimedia support in the
 future.  Keep in mind that when this command is used, all messages will be
 output in fixed 80-column format.
   
- ---------------------------------------------------------------------------
- The following commands are available only in Citadel/UX server version 5.00
- and above.
- ---------------------------------------------------------------------------
    
  MSG3   (read MeSsaGe, mode 3 -- internal command)
  
@@ -1568,14 +1508,10 @@ addition, the RWHO listing will include both the spoofed and real usernames.
  TIME	(get server local TIME)
 
  TIME returns OK followed by the current time measured in seconds since
-00:00:00 GMT, Jan 1, 1970.
+00:00:00 GMT, Jan 1, 1970 (standard Unix format).
 
  This is used in allowing a client to calculate idle times.
 
-
-----------------------------------------------
-The following are for citserver 5.50 and above
-----------------------------------------------
 
  AGUP   (Administrative Get User Parameters)
  ASUP   (Administrative Set User Parameters)
