@@ -1,0 +1,64 @@
+<html>
+
+<head>
+<title>Buttons test</title>
+
+<!--button mouseover script-->
+<script language="JavaScript" type="text/javascript">
+<!--
+if (document.images) {
+	// Active Images
+	img2on = new Image(); 
+	img2on.src = "zippy.gif";  
+
+	// Inactive images
+	img2off = new Image(); 
+	img2off.src = "marcellas.gif";  
+}
+            
+// Function to 'activate' images.
+function imgOn(imgName) {
+        if (document.images) {
+        	document[imgName].src = eval(imgName + "on.src");
+        }
+}
+
+// Function to 'deactivate' images.
+function imgOff(imgName) {
+	if (document.images) {
+		document[imgName].src = eval(imgName + "off.src");
+	}
+}
+
+
+
+//-->
+</script>
+
+</head>
+<body>
+
+<TABLE border>
+<TR>
+<TD>Button mouseover demo</TD>
+</TR>
+
+<TR>
+
+<td>
+	<a href="about:mozilla"
+	onmouseover="imgOn('img2')"
+	onmouseout="imgOff('img2')">
+	<img name="img2" src="marcellas.gif" width=100 height=50 border=0>
+</TD>
+
+</TR>
+
+</TABLE>
+
+
+
+</body>
+
+</html>
+
