@@ -112,7 +112,7 @@ void calendar_month_view_display_events(time_t thetime) {
 
 void calendar_month_view(int year, int month, int day) {
 	struct tm starting_tm;
-	struct tm *tm;
+	struct tm tm;
 	time_t thetime;
 	int i;
 	time_t previous_month;
@@ -127,10 +127,10 @@ void calendar_month_view(int year, int month, int day) {
 	starting_tm.tm_mday = day;
 	thetime = mktime(&starting_tm);
 
-	tm = &starting_tm;
-	while (tm->tm_mday != 1) {
+	memcpy(&tm, &starting_tm, sizeof(struct tm));
+	while (tm.tm_mday != 1) {
 		thetime = thetime - (time_t)86400;	/* go back 24 hours */
-		tm = localtime(&thetime);
+		memcpy(&tm, localtime(&thetime), sizeof(struct tm));
 	}
 
 	/* Determine previous and next months ... for links */
@@ -138,10 +138,10 @@ void calendar_month_view(int year, int month, int day) {
 	next_month = thetime + (time_t)(31L * 86400L);	/* ahead 31 days */
 
 	/* Now back up until we're on a Sunday */
-	tm = localtime(&thetime);
-	while (tm->tm_wday != 0) {
+	memcpy(&tm, localtime(&thetime), sizeof(struct tm));
+	while (tm.tm_wday != 0) {
 		thetime = thetime - (time_t)86400;	/* go back 24 hours */
-		tm = localtime(&thetime);
+		memcpy(&tm, localtime(&thetime), sizeof(struct tm));
 	}
 
 	/* Outer table (to get the background color) */
@@ -159,9 +159,9 @@ void calendar_month_view(int year, int month, int day) {
 
 	wprintf("<TD><CENTER><H3>");
 
-	tm = localtime(&previous_month);
+	memcpy(&tm, localtime(&previous_month), sizeof(struct tm));
 	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
-		(int)(tm->tm_year)+1900, tm->tm_mon + 1);
+		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
 	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/back.gif\" BORDER=0></A>\n");
 
 	wprintf("&nbsp;&nbsp;"
@@ -170,9 +170,9 @@ void calendar_month_view(int year, int month, int day) {
 		"</FONT>"
 		"&nbsp;&nbsp;", months[month-1], year);
 
-	tm = localtime(&next_month);
+	memcpy(&tm, localtime(&next_month), sizeof(struct tm));
 	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
-		(int)(tm->tm_year)+1900, tm->tm_mon + 1);
+		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
 	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/forward.gif\" BORDER=0></A>\n");
 
 	wprintf("</H3></TD><TD align=right><font color=#FFFFFF size=-2>"
@@ -188,32 +188,35 @@ void calendar_month_view(int year, int month, int day) {
 
 	/* Now do 35 days */
 	for (i = 0; i < 35; ++i) {
-		tm = localtime(&thetime);
-		if (tm->tm_wday == 0) {
+		memcpy(&tm, localtime(&thetime), sizeof(struct tm));
+
+		/* Before displaying Sunday, start a new row */
+		if ((i % 7) == 0) {
 			wprintf("<TR>");
 		}
 
 		wprintf("<TD BGCOLOR=%s WIDTH=14%% HEIGHT=60 VALIGN=TOP><B>",
-			((tm->tm_mon != month-1) ? "DDDDDD" :
-			((tm->tm_wday==0 || tm->tm_wday==6) ? "EEEECC" :
+			((tm.tm_mon != month-1) ? "DDDDDD" :
+			((tm.tm_wday==0 || tm.tm_wday==6) ? "EEEECC" :
 			"FFFFFF"))
 		);
-		if ((i==0) || (tm->tm_mday == 1)) {
-			wprintf("%s ", months[tm->tm_mon]);
+		if ((i==0) || (tm.tm_mday == 1)) {
+			wprintf("%s ", months[tm.tm_mon]);
 		}
 		wprintf("<A HREF=\"readfwd?calview=day&year=%d&month=%d&day=%d\">"
 			"%d</A></B><BR>",
-			tm->tm_year + 1900,
-			tm->tm_mon + 1,
-			tm->tm_mday,
-			tm->tm_mday);
+			tm.tm_year + 1900,
+			tm.tm_mon + 1,
+			tm.tm_mday,
+			tm.tm_mday);
 
 		/* put the data here, stupid */
 		calendar_month_view_display_events(thetime);
 
 		wprintf("</TD>");
 
-		if (tm->tm_wday == 6) {
+		/* After displaying Saturday, end the row */
+		if ((i % 7) == 6) {
 			wprintf("</TR>\n");
 		}
 
@@ -435,16 +438,16 @@ void calendar_day_view(int year, int month, int day) {
 void do_calendar_view(void) {
 	int i;
 	time_t now;
-	struct tm *tm;
+	struct tm tm;
 	int year, month, day;
 	char calview[SIZ];
 
 	/* In case no date was specified, go with today */
 	now = time(NULL);
-	tm = localtime(&now);
-	year = tm->tm_year + 1900;
-	month = tm->tm_mon + 1;
-	day = tm->tm_mday;
+	memcpy(&tm, localtime(&now), sizeof(struct tm));
+	year = tm.tm_year + 1900;
+	month = tm.tm_mon + 1;
+	day = tm.tm_mday;
 
 	/* Now see if a date was specified */
 	if (strlen(bstr("year")) > 0) year = atoi(bstr("year"));
