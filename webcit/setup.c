@@ -386,7 +386,8 @@ void check_inittab_entry(void)
 	char looking_for[SIZ];
 	char question[SIZ];
 	char entryname[5];
-	char listenport[128];
+	char http_port[128];
+	char https_port[128];
 	char hostname[128];
 	char portname[128];
 
@@ -411,8 +412,16 @@ void check_inittab_entry(void)
 		"requests?\n\nYou can use the standard port (80) if you are "
 		"not running another\nweb server (such as Apache), otherwise "
 		"select another port.");
-	sprintf(listenport, "2000");
-	set_value(question, listenport);
+	sprintf(http_port, "2000");
+	set_value(question, http_port);
+
+	snprintf(question, sizeof question,
+		"On which port do you want WebCit to listen for HTTPS "
+		"requests?\n\nYou can use the standard port (443) if you are "
+		"not running another\nweb server (such as Apache), otherwise "
+		"select another port.");
+	sprintf(https_port, "443");
+	set_value(question, https_port);
 
 	/* Find out where Citadel is. */
 	if ( (using_web_installer) && (getenv("CITADEL") != NULL) ) {
@@ -460,9 +469,9 @@ void check_inittab_entry(void)
 		display_error(strerror(errno));
 	} else {
 		fprintf(infp, "# Start the WebCit server...\n");
-		fprintf(infp, "%s:2345:respawn:%s -p%s %s %s\n",
+		fprintf(infp, "%s:2345:respawn:%s -p%s -s%s %s %s\n",
 			entryname, looking_for,
-			listenport, hostname, portname);
+			http_port, https_port, hostname, portname);
 		fclose(infp);
 		strcpy(init_entry, entryname);
 	}
