@@ -21,10 +21,12 @@
 #include <pthread.h>
 #endif
 #include <limits.h>
+#include <ctype.h>
 #include "dynloader.h"
 #include "citadel.h"
 #include "server.h"
 #include "sysdep_decls.h"
+#include "tools.h"
 
 #ifndef HAVE_SNPRINTF
 #include <stdarg.h>
@@ -74,8 +76,9 @@ int DLoader_Exec_Cmd(char *cmdbuf)
 void DLoader_Init(char *pathname)
 {
 	void *fcn_handle;
-	const char *dl_error;
+	char dl_error[256];
 	DIR *dir;
+	int i;
 	struct dirent *dptr;
 	struct DLModule_Info *(*h_init_fcn) (void);
 	struct DLModule_Info *dl_info;
@@ -89,6 +92,7 @@ void DLoader_Init(char *pathname)
 	while ((dptr = readdir(dir)) != NULL) {
 		if (dptr->d_name[0] == '.')
 			continue;
+		lprintf(9, "Attempting to load %s\n", dptr->d_name);
 
 		snprintf(pathbuf, PATH_MAX, "%s/%s", pathname, dptr->d_name);
 #ifdef RTLD_NOW
@@ -97,8 +101,12 @@ void DLoader_Init(char *pathname)
 		if (!(fcn_handle = dlopen(pathbuf, DL_LAZY)))
 #endif
 		{
-			/* dl_error = dlerror(); */
-			fprintf(stderr, "DLoader_Init dlopen failed\n");
+			safestrncpy(dl_error, dlerror(), sizeof dl_error);
+			for (i=0; i<strlen(dl_error); ++i)
+				if (!isprint(dl_error[i]))
+					dl_error[i]='.';
+			fprintf(stderr, "DLoader_Init dlopen failed: %s\n",
+				dl_error);
 			continue;
 		}
 		h_init_fcn = (struct DLModule_Info * (*)(void))
@@ -108,8 +116,8 @@ void DLoader_Init(char *pathname)
 		    dlsym(fcn_handle, "_Dynamic_Module_Init");
 #endif
 
-		if ((dl_error = dlerror()) != NULL) {
-			fprintf(stderr, "DLoader_Init dlsym failed (%s)\n", dl_error);
+		if (dlerror() != NULL) {
+			fprintf(stderr, "DLoader_Init dlsym failed\n");
 			continue;
 		}
 		dl_info = h_init_fcn();

@@ -9,3 +9,4 @@ char check_express (void);
 void cmd_sexp (char *argbuf);
 void delete_express_messages(void);
 void cmd_gexp(char *);
+int send_express_message(char *, char *, char *);

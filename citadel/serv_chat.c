@@ -59,6 +59,8 @@ static struct DLModule_Info info =
 
 struct DLModule_Info *Dynamic_Module_Init(void)
 {
+	CtdlSendExpressMessageFunc = send_express_message;
+
 	CtdlRegisterProtoHook(cmd_chat, "CHAT", "Begin real-time chat");
 	CtdlRegisterProtoHook(cmd_pexp, "PEXP", "Poll for express messages");
 	CtdlRegisterProtoHook(cmd_gexp, "GEXP", "Get express messages");

@@ -1,3 +1,6 @@
+Sun Jul 18 14:53:16 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us> 
+	* Changes to dynloader et al to handle ICQ module being written
+
 1999-07-17 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* chkpwd.c: DELETED CVS REVISION 1.3 (backed out Art's last change)
 	  use 'cvs update -r 1.2 chkpwd.c; cvs update -A chkpwd.c' NOW to

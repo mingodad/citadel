@@ -41,6 +41,7 @@
 struct CitContext *ContextList = NULL;
 int ScheduledShutdown = 0;
 int do_defrag = 0;
+int (*CtdlSendExpressMessageFunc) (char *, char *, char *) = NULL;
 
 /*
  * Various things that need to be initialized at startup
@@ -1256,6 +1257,9 @@ void *context_loop(struct CitContext *con)
 			   cprintf("%d Unrecognized or unsupported command.\n",
 			            ERROR);
 		        }
+
+		/* Run any after-each-command outines registered by modules */
+		PerformSessionHooks(EVT_CMD);
 
 		} while(strncasecmp(cmdbuf, "QUIT", 4));
 

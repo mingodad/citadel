@@ -29,3 +29,4 @@ void CtdlAllocUserData(unsigned long requested_sym, size_t num_bytes);
 int CtdlGetDynamicSymbol(void);
 
 extern int do_defrag;
+int (*CtdlSendExpressMessageFunc) (char *, char *, char *);
