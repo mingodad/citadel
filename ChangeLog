@@ -1,4 +1,8 @@
 $Log$
+Revision 1.119  1999/12/08 18:25:21  ajc
+* Increased the size of the backlog queue length passed to accept() and made
+  it a configuration parameter in webcit.h
+
 Revision 1.118  1999/12/07 16:09:26  ajc
 * Better (non fireworks display mode) handling of broken HTTP sockets
 
@@ -353,3 +357,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
