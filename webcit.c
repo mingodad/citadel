@@ -458,7 +458,7 @@ void session_loop() {
 		}
 
 	else if (!logged_in) {
-		display_login_page();
+		output_static("login.html");
 		}
 
 	/* Various commands... */
