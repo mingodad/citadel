@@ -270,6 +270,7 @@ void display_edituser(char *supplied_username, int is_new) {
 	escputs(username);
 	wprintf("</SPAN></TD></TR></TABLE>\n");
 
+	do_template("beginbox_nt");
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/edituser\">\n"
 		"<INPUT TYPE=\"hidden\" NAME=\"username\" VALUE=\"");
 	escputs(username);
@@ -341,6 +342,7 @@ void display_edituser(char *supplied_username, int is_new) {
 		"<BR><BR></FORM>\n");
 
 	wprintf("</CENTER>\n");
+	do_template("endbox");
 
 	wDumpContent(1);
 
