@@ -151,9 +151,6 @@ void display_main_menu(void)
 	wprintf("<LI><A HREF=\"/zapped_list\">");
 	wprintf("List all forgotten rooms</A>\n");
 
-	wprintf("<LI><A HREF=\"/folders\">");
-	wprintf("folders</A>\n");
-
 	wprintf("</UL>\n");
 
 	wprintf("</TD><TD>");

@@ -903,7 +903,7 @@ void session_loop(struct httprequest *req)
 	} else if (!strcasecmp(action, "whobbs")) {
 		whobbs();
 	} else if (!strcasecmp(action, "knrooms")) {
-		list_all_rooms_by_floor();
+		knrooms();
 	} else if (!strcasecmp(action, "gotonext")) {
 		slrp_highest();
 		gotonext();
