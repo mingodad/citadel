@@ -657,8 +657,14 @@ case 4:
  */
 void write_config_to_disk(void) {
 	FILE *fp;
+	int fd;
 
-	fp=fopen("citadel.config","wb");
+	if ((fd = creat("citadel.config", S_IRUSR | S_IWUSR)) == -1) {
+		display_error("setup: cannot open citadel.config");
+		cleanup(1);
+		}
+
+	fp=fdopen(fd,"wb");
 	if (fp==NULL) {
 		display_error("setup: cannot open citadel.config");
 		cleanup(1);
@@ -772,7 +778,13 @@ int main(int argc, char *argv[]) {
 	 * completely new copy.  (Neat, eh?)
 	 */
 
-	fp=fopen("citadel.config","ab");
+	if ((a = open("citadel.config", O_WRONLY | O_CREAT | O_APPEND,
+		      S_IRUSR | S_IWUSR)) == -1) {
+		display_error("setup: cannot append citadel.config");
+		cleanup(errno);
+		}
+
+	fp=fdopen(a,"ab");
 	if (fp==NULL) {
 		display_error("setup: cannot append citadel.config");
 		cleanup(errno);
