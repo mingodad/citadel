@@ -11,7 +11,6 @@
  *
  * WARNING: Mark Crispin is an idiot.  IMAP is the most brain-damaged protocol
  * you will ever have the profound lack of pleasure to encounter.
- * 
  */
 
 #include "sysdep.h"
@@ -60,6 +59,20 @@
 #include "imap_store.h"
 #include "imap_misc.h"
 
+/* imap_rename() uses this struct containing list of rooms to rename */
+struct irl {
+	struct irl *next;
+	char irl_oldroom[ROOMNAMELEN];
+	char irl_newroom[ROOMNAMELEN];
+	int irl_newfloor;
+};
+
+/* Data which is passed between imap_rename() and imap_rename_backend() */
+struct irlparms { 
+	char *oldname;
+	char *newname;
+	struct irl **irl;
+};
 
 long SYM_IMAP;
 
@@ -895,6 +908,43 @@ void imap_delete(int num_parms, char *parms[]) {
 
 
 /*
+ * Back end function for imap_rename()
+ */
+void imap_rename_backend(struct quickroom *qrbuf, void *data) {
+	char foldername[SIZ];
+	char newfoldername[SIZ];
+	char newroomname[ROOMNAMELEN];
+	int newfloor = 0;
+	struct irl *irlp = NULL;	/* scratch pointer */
+	struct irlparms *irlparms;
+
+	irlparms = (struct irlparms *)data;
+	imap_mailboxname(foldername, sizeof foldername, qrbuf);
+
+	/* Rename subfolders */
+	if ( (!strncasecmp(foldername, irlparms->oldname,
+	   strlen(irlparms->oldname))
+	   && (foldername[strlen(irlparms->oldname)] == '|')) ) {
+
+		sprintf(newfoldername, "%s|%s",
+			irlparms->newname,
+			&foldername[strlen(irlparms->oldname)+1]
+		);
+
+		newfloor = imap_roomname(newroomname,
+			sizeof newroomname, newfoldername) & 0xFF;
+
+		irlp = (struct irl *) mallok(sizeof(struct irl));
+		strcpy(irlp->irl_newroom, newroomname);
+		strcpy(irlp->irl_oldroom, qrbuf->QRname);
+		irlp->irl_newfloor = newfloor;
+		irlp->next = *(irlparms->irl);
+		*(irlparms->irl) = irlp;
+	}
+}
+	
+
+/*
  * Implements the RENAME command
  *
  */
@@ -904,49 +954,10 @@ void imap_rename(int num_parms, char *parms[]) {
 	int oldr, newr;
 	int new_floor;
 	int r;
-
-	/* struct containing list of rooms to rename */
-	struct irl {
-		struct irl *next;
-		char irl_oldroom[ROOMNAMELEN];
-		char irl_newroom[ROOMNAMELEN];
-		int irl_newfloor;
-	};
 	struct irl *irl = NULL;		/* the list */
 	struct irl *irlp = NULL;	/* scratch pointer */
+	struct irlparms irlparms;
 
-	/*
-	 * Back end function for imap_rename()
-	 */
-	void imap_rename_backend(struct quickroom *qrbuf, void *data) {
-		char foldername[SIZ];
-		char newfoldername[SIZ];
-		char newroomname[ROOMNAMELEN];
-		int newfloor;
-	
-		imap_mailboxname(foldername, sizeof foldername, qrbuf);
-	
-		if ( (!strncasecmp(foldername, parms[2], strlen(parms[2]))
-		   && (foldername[strlen(parms[2])] == '|')) ) {
-	
-			sprintf(newfoldername, "%s|%s",
-				parms[3],
-				&foldername[strlen(parms[2])+1]
-			);
-	
-			newfloor = imap_roomname(newroomname,
-				sizeof newroomname, newfoldername) & 0xFF;
-
-			irlp = (struct irl *) mallok(sizeof(struct irl));
-			strcpy(irlp->irl_newroom, newroomname);
-			strcpy(irlp->irl_oldroom, qrbuf->QRname);
-			irlp->irl_newfloor = newfloor;
-			irlp->next = irl;
-			irl = irlp;
-
-		}
-	}
-	
 	oldr = imap_roomname(old_room, sizeof old_room, parms[2]);
 	newr = imap_roomname(new_room, sizeof new_room, parms[3]);
 	new_floor = (newr & 0xFF);
@@ -991,7 +1002,10 @@ void imap_rename(int num_parms, char *parms[]) {
 
 	/* Otherwise, do the subfolders.  Build a list of rooms to rename... */
 	else {
-		ForEachRoom(imap_rename_backend, NULL);
+		irlparms.oldname = parms[2];
+		irlparms.newname = parms[3];
+		irlparms.irl = &irl;
+		ForEachRoom(imap_rename_backend, (void *)&irlparms);
 
 		/* ... and now rename them. */
 		while (irl != NULL) {

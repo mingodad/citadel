@@ -1072,6 +1072,7 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 	struct floor *fl;
 	struct floor flbuf;
 	long owner = 0L;
+	char actual_old_name[SIZ];
 
 	lprintf(9, "CtdlRenameRoom(%s, %s, %d)\n",
 		old_name, new_name, new_floor);
@@ -1106,6 +1107,7 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 
 	else {
 		/* Rename it */
+		strcpy(actual_old_name, qrbuf.QRname);
 		if (qrbuf.QRflags & QR_MAILBOX) {
 			owner = atol(qrbuf.QRname);
 		}
@@ -1150,7 +1152,7 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 		 * records, so we have to delete the old one.
 		 */
 		if (strcasecmp(new_name, old_name)) {
-			b_deleteroom(old_name);
+			b_deleteroom(actual_old_name);
 		}
 
 		ret = crr_ok;

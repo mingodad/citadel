@@ -2965,14 +2965,10 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 			)
 {
 
-	FILE *fp, *tempfp;
-	char filename[PATH_MAX];
-	char cmdbuf[SIZ];
-	char ch;
+	FILE *fp;
 	struct quickroom qrbuf;
 	char roomname[ROOMNAMELEN];
 	struct CtdlMessage *msg;
-	size_t len;
 
 	char *raw_message = NULL;
 	char *encoded_message = NULL;

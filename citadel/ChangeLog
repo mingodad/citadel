@@ -1,4 +1,9 @@
  $Log$
+ Revision 601.34  2002/10/18 03:44:13  ajc
+ * Fixed a bug in CtdlRenameRoom() that caused the old room record not to be
+   deleted when there was a mailbox namespace attached.
+ * Reworked imap_rename() and imap_rename_backend() to not use nested functions
+
  Revision 601.33  2002/10/17 12:56:44  error
  * Bug fixes:  Fix numerous char array size mismatches, signed/unsigned
    mismatches, and const correctness problems (though not nearly all)
@@ -4097,4 +4102,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
