@@ -23,7 +23,7 @@ void display_edit_node(void)
 	strcpy(node, bstr("node"));
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1, "bottom");
+	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Edit share list for ");
@@ -68,7 +68,7 @@ void display_netconf(void)
 	char node[256];
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1, "bottom");
+	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Network configuration</B>\n");
@@ -112,7 +112,7 @@ void display_confirm_unshare(void)
 	char sroom[256];
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1, "bottom");
+	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Confirm unshare</B>\n");
@@ -140,7 +140,7 @@ void display_confirm_delete_node(void)
 	char node[256];
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1, "bottom");
+	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Confirm delete</B>\n");
@@ -169,7 +169,7 @@ void delete_node(void)
 	serv_gets(buf);
 	if (buf[0] == '1') {
 		printf("HTTP/1.0 200 OK\n");
-		output_headers(1, "bottom");
+		output_headers(1);
 		server_to_text();
 		wprintf("<A HREF=\"/display_netconf\">Back to menu</A>\n");
 		wDumpContent(1);
@@ -192,7 +192,7 @@ void unshare(void)
 	serv_gets(buf);
 	if (buf[0] == '1') {
 		printf("HTTP/1.0 200 OK\n");
-		output_headers(1, "bottom");
+		output_headers(1);
 		server_to_text();
 		wprintf("<A HREF=\"/display_netconf\">Back to menu</A>\n");
 		wDumpContent(1);
@@ -207,7 +207,7 @@ void display_add_node(void)
 {
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1, "bottom");
+	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Add a new node</B>\n");
@@ -243,7 +243,7 @@ void add_node(void)
 		serv_gets(buf);
 		if (buf[0] == '1') {
 			printf("HTTP/1.0 200 OK\n");
-			output_headers(1, "bottom");
+			output_headers(1);
 			server_to_text();
 			wprintf("<A HREF=\"/display_netconf\">Back to menu</A>\n");
 			wDumpContent(1);
@@ -267,7 +267,7 @@ void display_share(void)
 	strcpy(node, bstr("node"));
 
 	printf("HTTP/1.0 200 OK\n");
-	output_headers(1, "bottom");
+	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007700><TR><TD>");
 	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Add a shared room</B>\n");
@@ -347,7 +347,7 @@ void share(void)
 		serv_gets(buf);
 		if (buf[0] == '1') {
 			printf("HTTP/1.0 200 OK\n");
-			output_headers(1, "bottom");
+			output_headers(1);
 			server_to_text();
 			wprintf("<A HREF=\"/display_netconf\">Back to menu</A>\n");
 			wDumpContent(1);
