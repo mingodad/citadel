@@ -744,13 +744,17 @@ void readloop(char *oper)
 
 	nummsgs = load_msg_ptrs(cmd);
 	if (nummsgs == 0) {
-		if (!strcmp(oper, "readnew")) {
-			wprintf("<EM>No new messages in this room.</EM>\n");
-		} else if (!strcmp(oper, "readold")) {
-			wprintf("<EM>No old messages in this room.</EM>\n");
-		} else {
-			wprintf("<EM>This room is empty.</EM>\n");
+
+		if ((!is_tasks) && (!is_calendar)) {
+			if (!strcmp(oper, "readnew")) {
+				wprintf("<EM>No new messages in this room.</EM>\n");
+			} else if (!strcmp(oper, "readold")) {
+				wprintf("<EM>No old messages in this room.</EM>\n");
+			} else {
+				wprintf("<EM>This room is empty.</EM>\n");
+			}
 		}
+
 		goto DONE;
 	}
 

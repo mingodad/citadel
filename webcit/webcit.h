@@ -356,3 +356,6 @@ void save_task(void);
 void display_icaltimetype_as_webform(struct icaltimetype *, char *);
 struct icaltimetype icaltime_from_webform(char *prefix);
 #endif
+
+extern char *months[];
+extern char *days[];
