@@ -1,4 +1,7 @@
 $Log$
+Revision 400.36  2002/10/09 03:51:01  ajc
+* Templatized the <HEAD> section of HTML
+
 Revision 400.35  2002/10/07 23:03:38  ajc
 * messages.c: don't display room name field when it's blank
 
@@ -1060,4 +1063,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
