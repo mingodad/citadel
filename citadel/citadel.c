@@ -882,6 +882,15 @@ int main(int argc, char **argv)
 	int stored_password = 0;
 	char password[SIZ];
 
+	/* Permissions sanity check - don't run citadel setuid/setgid */
+	if (getuid() != geteuid()) {
+		fprintf(stderr, "Please do not run citadel setuid!\n");
+		logoff(3);
+	} else if (getgid() != getegid()) {
+		fprintf(stderr, "Please do not run citadel setgid!\n");
+		logoff(3);
+	}
+
 	sttybbs(SB_SAVE);	/* Store the old terminal parameters */
 	load_command_set();	/* parse the citadel.rc file */
 	sttybbs(SB_NO_INTR);	/* Install the new ones */
@@ -899,6 +908,36 @@ int main(int argc, char **argv)
 			argc = shift(argc, argv, a, 2);
 		}
 		if (!strcmp(argv[a], "-p")) {
+			struct stat st;
+		
+			if (chdir(BBSDIR) < 0) {
+				perror("can't change to " BBSDIR);
+				logoff(3);
+			}
+
+			/*
+			 * Drop privileges if necessary. We stat
+			 * citadel.config to get the uid/gid since it's
+			 * guaranteed to have the uid/gid we want.
+			 */
+			if (!getuid() || !getgid()) {
+				if (stat(BBSDIR "/citadel.config", &st) < 0) {
+					perror("couldn't stat citadel.config");
+					logoff(3);
+				}
+				if (!getgid() && (setgid(st.st_gid) < 0)) {
+					perror("couldn't change gid");
+					logoff(3);
+				}
+				if (!getuid() && (setuid(st.st_uid) < 0)) {
+					perror("couldn't change uid");
+					logoff(3);
+				}
+				/*
+				printf("Privileges changed to uid %d gid %d\n",
+						getuid(), getgid());
+				*/
+			}
 			argc = shift(argc, argv, a, 1);
 		}
 	}

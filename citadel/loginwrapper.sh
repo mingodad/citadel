@@ -1,3 +1,3 @@
 #!/bin/sh
-
-exec /bin/login $* bbs
+# This file is obsolete.  See docs/install.txt
+#exec /bin/login $* bbs

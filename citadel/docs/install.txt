@@ -105,10 +105,26 @@ computer.
  If you normally log in to your host system using some method other than
 telnet (such as ssh), you might want the telnet service to go straight to
 the Citadel BBS, instead of displaying the "login:" prompt first.  You can
-do this using the "loginwrapper.sh" wrapper program.
+do this by having telnetd start citadel directly instead of /bin/login.
+
+ An example for inetd:
  
- telnet stream tcp nowait root /usr/sbin/tcpd in.telnetd -L /usr/local/citadel/loginwrapper.sh
-  
+ telnet stream tcp nowait root /usr/sbin/tcpd in.telnetd -L /usr/local/citadel/citadel
+ 
+ An example for xinetd:
+
+ service telnet
+ {
+         flags           = REUSE
+	 socket_type     = stream
+	 wait            = no
+	 user            = root
+	 server          = /usr/sbin/in.telnetd
+	 server_args     = -L /usr/local/citadel/citadel
+	 log_on_failure  += USERID
+	 disable         = no
+ }
+
  Please make sure you know what you're doing before you install this!
   
      

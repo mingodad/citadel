@@ -1,4 +1,9 @@
  $Log$
+ Revision 590.25  2001/12/30 05:50:46  error
+ * Security:  Citadel now drops privileges when called from telnetd, also
+   checks to make sure you didn't set the setuid/setgid bits.  No more
+   loginwrapper.sh!
+
  Revision 590.24  2001/12/29 05:19:32  ajc
  * Minor cosmetic hack
 
@@ -3028,4 +3033,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
