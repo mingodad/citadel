@@ -1,4 +1,7 @@
  $Log$
+ Revision 623.0  2004/07/06 18:15:04  ajc
+ * THIS IS 6.23
+
  Revision 622.7  2004/07/06 18:09:13  ajc
  * When writing a message body to the CDB_BIGMSGS table instead of the main
    message base, increase data length by one byte in order to include the
@@ -5900,3 +5903,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
