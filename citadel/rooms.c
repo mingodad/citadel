@@ -722,16 +722,34 @@ int save_buffer(void *file, size_t filelen, const char *pathname)
  */
 void destination_directory(char *dest, const char *supplied_filename)
 {
-	scr_printf("Enter the name of the directory to save '%s'\n"
-		"to, or press return for the current directory.\n",
-		supplied_filename);
-	newprompt("Directory: ", dest, PATH_MAX);
-	if (strlen(dest) == 0) {
-		dest[0] = '.';
-		dest[1] = 0;
+	static char save_dir[SIZ] = { 0 };
+
+	if (strlen(save_dir) == 0) {
+		if (getenv("HOME") == NULL) {
+			strcpy(save_dir, ".");
+		}
+		else {
+			sprintf(save_dir, "%s/Desktop", getenv("HOME"));
+			if (access(save_dir, W_OK) != 0) {
+				sprintf(save_dir, "%s", getenv("HOME"));
+				if (access(save_dir, W_OK) != 0) {
+					sprintf(save_dir, ".");
+				}
+			}
+		}
 	}
-	strcat(dest, "/");
-	strcat(dest, supplied_filename);
+
+	sprintf(dest, "%s/%s", save_dir, supplied_filename);
+	strprompt("Save as", dest, PATH_MAX);
+
+	/* Remember the directory for next time */
+	strcpy(save_dir, dest);
+	if (strrchr(save_dir, '/') != NULL) {
+		strcpy(strrchr(save_dir, '/'), "");
+	}
+	else {
+		strcpy(save_dir, ".");
+	}
 }
 
 
