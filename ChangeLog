@@ -1,4 +1,7 @@
 $Log$
+Revision 410.50  2003/06/10 04:22:58  ajc
+* Updated docs and headers for 5.00 release
+
 Revision 410.49  2003/06/10 04:05:23  ajc
 * De-tabled the left side icon bar and reduced one of the graphics, so
   that all of the rounded corners show up in Satan's Browser.
@@ -1480,4 +1483,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

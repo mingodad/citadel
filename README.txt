@@ -1,5 +1,5 @@
                       WEBCIT for the Citadel/UX System
-                               version 4.10
+                               version 5.00
  
    Copyright (C) 1996-2003 by the authors.  Portions written by:
 	Art Cancro
