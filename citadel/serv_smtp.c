@@ -37,10 +37,10 @@ struct citsmtp {		/* Information about the current session */
 	int vrfy_count;
 	char vrfy_match[256];
 	char from[256];
-	char recipient[256];
 	int number_of_recipients;
 	int delivery_mode;
 };
+
 
 enum {				/* Command states for login authentication */
 	smtp_command,
@@ -53,10 +53,11 @@ enum {				/* Delivery modes */
 	smtp_deliver_remote
 };
 
-#define SMTP ((struct citsmtp *)CtdlGetUserData(SYM_SMTP))
+#define SMTP		((struct citsmtp *)CtdlGetUserData(SYM_SMTP))
+#define SMTP_RECP	((char *)CtdlGetUserData(SYM_SMTP_RECP))
 
 long SYM_SMTP;
-
+long SYM_SMTP_RECP;
 
 /*
  * Here's where our SMTP session begins its happy day.
@@ -67,6 +68,8 @@ void smtp_greeting(void) {
 	CC->internal_pgm = 1;
 	CC->cs_flags |= CS_STEALTH;
 	CtdlAllocUserData(SYM_SMTP, sizeof(struct citsmtp));
+	CtdlAllocUserData(SYM_SMTP_RECP, 256);
+	sprintf(SMTP_RECP, "%s", "");
 
 	cprintf("220 Welcome to the Citadel/UX ESMTP server at %s\n",
 		config.c_fqdn);
@@ -335,14 +338,11 @@ void smtp_rcpt(char *argbuf) {
 	int cvt;
 	char user[256];
 	char node[256];
+	char recp[256];
+	int is_spam = 0;	/* FIX implement anti-spamming */
 
 	if (strlen(SMTP->from) == 0) {
 		cprintf("503 MAIL first, then RCPT.  Duh.\n");
-		return;
-	}
-
-	if (SMTP->number_of_recipients > 0) {
-		cprintf("552 Only one recipient allowed (FIX)\n");
 		return;
 	}
 
@@ -351,24 +351,47 @@ void smtp_rcpt(char *argbuf) {
 		return;
 	}
 
-	strcpy(SMTP->recipient, &argbuf[3]);
-	striplt(SMTP->recipient);
-	alias(SMTP->recipient);
+	strcpy(recp, &argbuf[3]);
+	striplt(recp);
+	alias(recp);
 
-	cvt = convert_internet_address(user, node, SMTP->recipient);
+	cvt = convert_internet_address(user, node, recp);
+	sprintf(recp, "%s@%s", user, node);
+
+
 	switch(cvt) {
 		case rfc822_address_locally_validated:
 			cprintf("250 %s is a valid recipient.\n", user);
 			++SMTP->number_of_recipients;
+			CtdlReallocUserData(SYM_SMTP_RECP,
+				strlen(SMTP_RECP) + 1024 );
+			strcat(SMTP_RECP, "local|");
+			strcat(SMTP_RECP, user);
+			strcat(SMTP_RECP, "|0\n");
 			return;
+
 		case rfc822_no_such_user:
-			cprintf("550 %s: no such user\n", SMTP->recipient);
-			strcpy(SMTP->recipient, "");
+			cprintf("550 %s: no such user\n", recp);
+			return;
+
+		case rfc822_address_invalid:
+			if (is_spam) {
+				cprintf("551 Away with thee, spammer!\n");
+			}
+			else {
+				cprintf("250 Remote recipient %s ok\n", recp);
+				++SMTP->number_of_recipients;
+				CtdlReallocUserData(SYM_SMTP_RECP,
+					strlen(SMTP_RECP) + 1024 );
+				strcat(SMTP_RECP, "remote|");
+				strcat(SMTP_RECP, recp);
+				strcat(SMTP_RECP, "|0\n");
+				return;
+			}
 			return;
 	}
 
-	strcpy(SMTP->recipient, "");
-	cprintf("599 Unknown error (FIX)\n");
+	cprintf("599 Unknown error\n");
 }
 
 
@@ -386,7 +409,6 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 	int successful_saves = 0;
 	int failed_saves = 0;
 	long msgid = (-1L);
-	int cvt;
 
 	lprintf(9, "smtp_message_delivery() called\n");
 
@@ -396,31 +418,18 @@ int smtp_message_delivery(struct CtdlMessage *msg) {
 	if (msg->cm_fields['N']==NULL) msg->cm_fields['N'] = strdoop(node);
 	if (msg->cm_fields['H']==NULL) msg->cm_fields['H'] = strdoop(name);
 
-	/* Stuff the boxes */
-	/* FIX modify to handle multiple recipients */
-	cvt = convert_internet_address(user, node, SMTP->recipient);
-	switch(cvt) {
-		case rfc822_address_locally_validated:
-			lprintf(9, "Delivering to %s\n", user);
+	/* Save the message in the queue */
+	msgid = CtdlSaveMsg(msg,
+		"",
+		SMTP_SPOOLOUT_ROOM,
+		MES_LOCAL,
+		1);
+	++successful_saves;
 
-			if (msgid < 0L) {
-				CtdlSaveMsg(msg,
-					user,
-					"",
-					MES_LOCAL,
-					1);
-			}
-			else {
-				/* FIX copy the msgid to another room */
-			}
-
-			++successful_saves;
-			break;
-
-		case rfc822_no_such_user:
-			++failed_saves;
-			break;
-	}
+		/* FIX go thru each local user and save to boxes
+			then stuff remote users in queue list
+			then delete from queue if num remote users is 0
+		*/
 
 	return(failed_saves);
 }
@@ -577,6 +586,7 @@ void smtp_command_loop(void) {
 char *Dynamic_Module_Init(void)
 {
 	SYM_SMTP = CtdlGetDynamicSymbol();
+	SYM_SMTP_RECP = CtdlGetDynamicSymbol();
 	CtdlRegisterServiceHook(SMTP_PORT,
 				smtp_greeting,
 				smtp_command_loop);

@@ -1393,7 +1393,7 @@ int ReplicationChecks(struct CtdlMessage *msg) {
 /*
  * Save a message to disk
  */
-void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
+long CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 		char *rec,			/* Recipient (mail) */
 		char *force,			/* force a particular room? */
 		int mailtype,			/* local or remote type */
@@ -1414,7 +1414,7 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	static int seqnum = 1;
 
 	lprintf(9, "CtdlSaveMsg() called\n");
-	if (is_valid_message(msg) == 0) return;		/* self check */
+	if (is_valid_message(msg) == 0) return(-1);	/* self check */
 
 	/* If this message has no timestamp, we take the liberty of
 	 * giving it one, right now.
@@ -1507,11 +1507,11 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* Perform "before save" hooks (aborting if any return nonzero) */
 	lprintf(9, "Performing before-save hooks\n");
-	if (PerformMessageHooks(msg, EVT_BEFORESAVE) > 0) return;
+	if (PerformMessageHooks(msg, EVT_BEFORESAVE) > 0) return(-1);
 
 	/* If this message has an Extended ID, perform replication checks */
 	lprintf(9, "Performing replication checks\n");
-	if (ReplicationChecks(msg) > 0) return;
+	if (ReplicationChecks(msg) > 0) return(-1);
 
 	/* Network mail - send a copy to the network program. */
 	if ((strlen(recipient) > 0) && (mailtype == MES_BINARY)) {
@@ -1532,7 +1532,7 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 		system("exec nohup ./netproc -i >/dev/null 2>&1 &");
 	}
 
-	if (newmsgid <= 0L) return;
+	if (newmsgid <= 0L) return(-1);
 
 	/* Write a supplemental message info record.  This doesn't have to
 	 * be a critical section because nobody else knows about this message
@@ -1589,6 +1589,8 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 	lprintf(9, "Returning to original room\n");
 	if (strcasecmp(hold_rm, CC->quickroom.QRname))
 		getroom(&CC->quickroom, hold_rm);
+
+	return(newmsgid);
 }
 
 

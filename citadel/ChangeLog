@@ -1,4 +1,10 @@
 $Log$
+Revision 1.436  2000/01/08 05:00:09  ajc
+* Reworked some of the data structures to handle multiple recipients
+* Began implementation of the delivery queue
+* Added CtdlReallocUserData()
+* CtdlSaveMsg() now returns the local message ID in the database
+
 Revision 1.435  2000/01/06 03:50:34  ajc
 * Replaced citmail.c with a new one that simply SMTP-forwards to Citadel
 * Started outbound SMTP queue work
@@ -1518,4 +1524,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

@@ -252,13 +252,6 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 		strcpy(node, config.c_nodename);
 	}
 
-	/* Return an error condition if the node is not known.
-	 * FIX ... make this work for non-local systems
-	 */
-	if (strcasecmp(node, config.c_nodename)) {
-		return(rfc822_address_invalid);
-	}
-	
 	/* Now try to resolve the name
 	 * FIX ... do the multiple-addresses thing
 	 */
@@ -273,6 +266,8 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 		return(rfc822_address_locally_validated);
 	}
 
+	strcpy(destuser, user);
+	strcpy(desthost, node);
 	return(rfc822_address_invalid);	/* unknown error */
 }
 

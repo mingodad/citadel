@@ -254,6 +254,25 @@ void CtdlAllocUserData(unsigned long requested_sym, size_t num_bytes)
 }
 
 
+/* 
+ * Change the size of a buffer allocated with CtdlAllocUserData()
+ */
+void CtdlReallocUserData(unsigned long requested_sym, size_t num_bytes)
+{
+	struct CtdlSessData *ptr;
+
+	for (ptr = CC->FirstSessData; ptr != NULL; ptr = ptr->next)  {
+		if (ptr->sym_id == requested_sym) {
+			ptr->sym_data = reallok(ptr->sym_data, num_bytes);
+			return;
+		}
+	}
+
+	lprintf(2, "CtdlReallocUserData() ERROR: symbol %ld not found!\n",
+		requested_sym);
+}
+
+
 
 
 
