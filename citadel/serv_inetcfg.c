@@ -187,7 +187,7 @@ void inetcfg_init(void) {
 /*****************************************************************************/
 
 
-char *Dynamic_Module_Init(void)
+char *serv_inetcfg_init(void)
 {
 	CtdlRegisterMessageHook(inetcfg_aftersave, EVT_AFTERSAVE);
 	inetcfg_init();

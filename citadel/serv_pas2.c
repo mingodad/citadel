@@ -85,7 +85,7 @@ void cmd_pas2(char *argbuf)
 
 
 
-char *Dynamic_Module_Init(void)
+char *serv_pas2_init(void)
 {
         CtdlRegisterProtoHook(cmd_pas2, "PAS2", "APOP-based login");
         return "$Id$";

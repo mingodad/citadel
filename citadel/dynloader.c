@@ -6,21 +6,10 @@
  *
  */
 
-#ifdef DLL_EXPORT
-#define IN_LIBCIT
-#endif
-
 #include "sysdep.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#ifdef HAVE_DLFCN_H
-#include <dlfcn.h>
-#endif
-#ifdef HAVE_DL_H
-#include <dl.h>
-#include "hpsux.h"
-#endif
 #include <sys/types.h>
 #include <dirent.h>
 #include <string.h>
@@ -112,64 +101,28 @@ int DLoader_Exec_Cmd(char *cmdbuf)
 	return 0;
 }
 
-void DLoader_Init(char *pathname)
+void initialize_server_extensions(void)
 {
-	void *fcn_handle;
-	char dl_error[SIZ];
-	DIR *dir;
-	int i;
-	struct dirent *dptr;
-	char *(*h_init_fcn) (void);
-	char *dl_info;
-
-	char pathbuf[PATH_MAX];
-
-	if ((dir = opendir(pathname)) == NULL) {
-		perror("opendir");
-		exit(1);
-	}
-	while ((dptr = readdir(dir)) != NULL) {
-		if (strlen(dptr->d_name) < 4)
-			continue;
-#ifndef __CYGWIN__
-		if (strcasecmp(&dptr->d_name[strlen(dptr->d_name)-3], ".so"))
-#else
-		if (strcasecmp(&dptr->d_name[strlen(dptr->d_name)-4], ".dll"))
-#endif
-			continue;
-
-		snprintf(pathbuf, PATH_MAX, "%s/%s", pathname, dptr->d_name);
-		lprintf(7, "Initializing %s...\n", pathbuf);
-
-#ifdef RTLD_LAZY
-		if (!(fcn_handle = dlopen(pathbuf, RTLD_LAZY)))
-#else				/* OpenBSD */
-		if (!(fcn_handle = dlopen(pathbuf, DL_LAZY)))
-#endif
-		{
-			safestrncpy(dl_error, dlerror(), sizeof dl_error);
-			for (i=0; i<strlen(dl_error); ++i)
-				if (!isprint(dl_error[i]))
-					dl_error[i]='.';
-			fprintf(stderr, "DLoader_Init dlopen failed: %s\n",
-				dl_error);
-			continue;
-		}
-		h_init_fcn = (char * (*)(void))
-#if defined(__OpenBSD__) || defined(__APPLE__)
-		    dlsym(fcn_handle, "_Dynamic_Module_Init");
-#else
-		    dlsym(fcn_handle, "Dynamic_Module_Init");
-#endif
-
-		if (dlerror() != NULL) {
-			fprintf(stderr, "DLoader_Init dlsym failed\n");
-			continue;
-		}
-		dl_info = h_init_fcn();
-
-		lprintf(3, "Loaded module: %s\n", dl_info);
-	}	/* While */
+	serv_bio_init();
+	serv_calendar_init();
+	serv_inithat_init();
+	serv_expire_init();
+	serv_imap_init();
+	serv_inetcfg_init();
+	serv_listsub_init();
+	serv_mrtg_init();
+	serv_netfilter_init();
+	serv_network_init();
+	serv_newuser_init();
+	serv_pas2_init();
+	serv_pop3_init();
+	serv_rwho_init();
+	serv_smtp_init();
+	serv_spam_init();
+	/* serv_test_init(); */
+	serv_upgrade_init();
+	serv_vandelay_init();
+	serv_vcard_init();
 }
 
 

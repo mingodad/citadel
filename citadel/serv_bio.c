@@ -127,7 +127,7 @@ void cmd_lbio(char *cmdbuf) {
 
 
 
-char *Dynamic_Module_Init(void)
+char *serv_bio_init(void)
 {
         CtdlRegisterProtoHook(cmd_ebio, "EBIO", "Enter your bio");
         CtdlRegisterProtoHook(cmd_rbio, "RBIO", "Read a user's bio");

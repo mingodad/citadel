@@ -771,7 +771,7 @@ void vcard_session_login_hook(void) {
 
 
 
-char *Dynamic_Module_Init(void)
+char *serv_vcard_init(void)
 {
 	SYM_VCARD = CtdlGetDynamicSymbol();
 	CtdlRegisterSessionHook(vcard_session_startup_hook, EVT_START);

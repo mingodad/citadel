@@ -94,7 +94,7 @@ void CopyNewUserGreetings(void) {
 }
 
 
-char *Dynamic_Module_Init(void)
+char *serv_newuser_init(void)
 {
    CtdlRegisterSessionHook(CopyNewUserGreetings, EVT_LOGIN);
    return "$Id$";

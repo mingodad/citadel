@@ -5,7 +5,7 @@
 
 #include "server.h"
 
-void DLoader_Init(char *pathname);
+void initialize_server_extensions(void);
 int DLoader_Exec_Cmd(char *cmdbuf);
 char *Dynamic_Module_Init(void);
 

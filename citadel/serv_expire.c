@@ -724,7 +724,7 @@ void cmd_fsck(char *argbuf) {
 
 /*****************************************************************************/
 
-char *Dynamic_Module_Init(void)
+char *serv_expire_init(void)
 {
 	CtdlRegisterProtoHook(cmd_expi, "EXPI", "Expire old system objects");
 	CtdlRegisterProtoHook(cmd_fsck, "FSCK", "Check message ref counts");

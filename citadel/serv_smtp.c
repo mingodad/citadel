@@ -1393,7 +1393,7 @@ void smtp_init_spoolout(void) {
 /*****************************************************************************/
 
 
-char *Dynamic_Module_Init(void)
+char *serv_smtp_init(void)
 {
 	SYM_SMTP = CtdlGetDynamicSymbol();
 

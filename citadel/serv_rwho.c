@@ -253,7 +253,7 @@ void cmd_stel(char *cmdbuf)
 
 
 
-char *Dynamic_Module_Init(void)
+char *serv_rwho_init(void)
 {
         CtdlRegisterProtoHook(cmd_rwho, "RWHO", "Display who is online");
         CtdlRegisterProtoHook(cmd_hchg, "HCHG", "Masquerade hostname");

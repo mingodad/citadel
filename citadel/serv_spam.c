@@ -177,7 +177,7 @@ bail:	close(sock);
 
 
 
-char *Dynamic_Module_Init(void)
+char *serv_spam_init(void)
 {
 
 /* (disabled built-in scanner, see above)

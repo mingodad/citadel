@@ -1573,7 +1573,7 @@ void cmd_netp(char *cmdbuf)
 /*
  * Module entry point
  */
-char *Dynamic_Module_Init(void)
+char *serv_network_init(void)
 {
 	CtdlRegisterProtoHook(cmd_gnet, "GNET", "Get network config");
 	CtdlRegisterProtoHook(cmd_snet, "SNET", "Set network config");

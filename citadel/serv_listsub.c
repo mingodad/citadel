@@ -506,7 +506,7 @@ void cmd_subs(char *cmdbuf) {
 /*
  * Module entry point
  */
-char *Dynamic_Module_Init(void)
+char *serv_listsub_init(void)
 {
 	CtdlRegisterProtoHook(cmd_subs, "SUBS", "List subscribe/unsubscribe");
 	return "$Id$";

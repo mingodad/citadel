@@ -127,7 +127,7 @@ void cmd_mrtg(char *argbuf) {
 }
 
 
-char *Dynamic_Module_Init(void)
+char *serv_mrtg_init(void)
 {
         CtdlRegisterProtoHook(cmd_mrtg, "MRTG", "Supply stats to MRTG");
         return "$Id$";

@@ -1231,7 +1231,7 @@ void imap_command_loop(void) {
  * This function is called by dynloader.c to register the IMAP module
  * with the Citadel server.
  */
-char *Dynamic_Module_Init(void)
+char *serv_imap_init(void)
 {
 	SYM_IMAP = CtdlGetDynamicSymbol();
 	CtdlRegisterServiceHook(config.c_imap_port,

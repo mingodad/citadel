@@ -1446,7 +1446,7 @@ void ical_session_startup(void) {
 /*
  * Register this module with the Citadel server.
  */
-char *Dynamic_Module_Init(void)
+char *serv_calendar_init(void)
 {
 #ifdef CITADEL_WITH_CALENDAR_SERVICE
 	CtdlRegisterMessageHook(ical_obj_beforesave, EVT_BEFORESAVE);

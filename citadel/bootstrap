@@ -31,21 +31,16 @@ fi
 
 echo ... running aclocal ...
 $aclocal
-echo ... running libtoolize ...
-libtoolize -c --force
 echo ... running autoconf ...
 $autoconf
 echo ... running autoheader ...
 $autoheader
 
 echo
-echo This script has been tested with autoconf 2.53, libtool 1.4d, and
+echo This script has been tested with autoconf 2.53 and
 echo automake 1.5. Other versions may work, but I recommend the latest
 echo compatible versions of these.
 echo
-echo libtool 1.4.2 is not sufficient to build portable configure scripts;
-echo at least version 1.4d from alpha.gnu.org is needed.
-echo
-echo Also note that autoconf, automake, and libtool should all be configured
+echo Also note that autoconf and automake should be configured
 echo with the same prefix.
 echo

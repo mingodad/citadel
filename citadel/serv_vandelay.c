@@ -574,7 +574,7 @@ void cmd_artv(char *cmdbuf) {
 
 
 
-char *Dynamic_Module_Init(void)
+char *serv_vandelay_init(void)
 {
 	CtdlRegisterProtoHook(cmd_artv, "ARTV", "import/export data store");
 	return "$Id$";

@@ -221,7 +221,7 @@ void check_server_upgrades(void) {
 
 
 
-char *Dynamic_Module_Init(void)
+char *serv_upgrade_init(void)
 {
 	check_server_upgrades();
 	return "$Id$";

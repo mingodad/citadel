@@ -616,7 +616,7 @@ void pop3_command_loop(void) {
 
 
 
-char *Dynamic_Module_Init(void)
+char *serv_pop3_init(void)
 {
 	SYM_POP3 = CtdlGetDynamicSymbol();
 	CtdlRegisterServiceHook(config.c_pop3_port,

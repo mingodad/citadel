@@ -120,11 +120,7 @@ if test "$GCC" = yes; then
 		;;
 	esac
 fi
-AC_LIBTOOL_DLOPEN
-AC_LIBTOOL_WIN32_DLL
 AC_DISABLE_STATIC
-AC_PROG_LIBTOOL
-AC_SUBST(LIBTOOL_DEPS)
 AC_PROG_INSTALL
 AC_PROG_YACC
 missing_dir=`cd $ac_aux_dir && pwd`
@@ -145,7 +141,7 @@ dnl Checks for libraries.
 dnl We want to test for the following in libc before checking for their
 dnl respective libraries, because some systems (like Irix) have both, and the
 dnl non-libc versions may be broken.
-AC_CHECK_FUNCS(crypt dlopen gethostbyname connect)
+AC_CHECK_FUNCS(crypt gethostbyname connect)
 
 if test "$ac_cv_func_gethostbyname" = no; then
 	AC_CHECK_LIB(nsl, gethostbyname)
@@ -154,14 +150,6 @@ fi
 if test "$ac_cv_func_connect" = no; then
         AC_CHECK_LIB(socket, connect)
 fi
-
-if test "$ac_cv_func_dlopen" = no; then
-        AC_CHECK_LIB(dl, dlopen, [LIBS="-ldl $LIBS"
-               test "$with_pam" = yes && chkpwd_LIBS="-ldl $chkpwd_LIBS"])
-fi
-
-dnl Check for HP/UX dynamic loader. This should only be in -ldld.
-AC_CHECK_LIB(dld, shl_load, LIBS="-ldld $LIBS")
 
 dnl Check for Solaris realtime support
 AC_CHECK_LIB(rt, sched_yield)
@@ -446,7 +434,7 @@ if test "x$with_ncurses" != xno; then
 	AC_CHECK_HEADERS(ncurses.h,,,[ ])
 fi
 
-AC_CHECK_HEADER(resolv.h, [SMTP=modules/libsmtp.la; DOMAIN=domain.c],,
+AC_CHECK_HEADER(resolv.h, [SMTP=serv_smtp.o; DOMAIN=domain.c],,
 [#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -526,7 +514,7 @@ AC_CACHE_CHECK([for pthread_create], ac_cv_func_pthread_create,
 #endif],
 ac_cv_func_pthread_create=yes, ac_cv_func_pthread_create=no)])
 if test "$ac_cv_func_pthread_create" = yes; then
-	test "$DATABASE" && TARGETS="client server utils serv_modules"
+	test "$DATABASE" && TARGETS="client server utils"
 	if test "x$enable_threaded_client" != xno; then
 		AC_DEFINE(THREADED_CLIENT)
 	fi

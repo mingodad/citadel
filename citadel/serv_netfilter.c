@@ -103,7 +103,7 @@ int filter_the_idiots(struct CtdlMessage *msg, char *target_room) {
 }
 
 
-char *Dynamic_Module_Init(void)
+char *serv_netfilter_init(void)
 {
 	CtdlRegisterNetprocHook(filter_the_idiots);
 	return "$Id$";

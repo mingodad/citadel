@@ -68,7 +68,6 @@ int main(int argc, char **argv)
 	int a, i;			/* General-purpose variables */
 	struct passwd *pw;
 	int drop_root_perms = 1;
-	char *moddir;
 	struct worker_node *wnp;
 	size_t size;
         
@@ -168,15 +167,11 @@ int main(int argc, char **argv)
 				do_command_loop);
 
 	/*
-	 * Load any server-side modules (plugins) available here.
+	 * Load any server-side extensions available here.
 	 */
-	lprintf(7, "Initializing loadable modules\n");
+	lprintf(7, "Initializing server extensions\n");
 	size = strlen(bbs_home_directory) + 9;
-	if ((moddir = mallok(size)) != NULL) {
-		snprintf(moddir, size, "%s/modules", bbs_home_directory);
-		DLoader_Init(moddir);
-		free(moddir);
-	}
+	initialize_server_extensions();
 
 	/*
 	 * The rescan pipe exists so that worker threads can be woken up and

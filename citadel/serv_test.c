@@ -78,7 +78,7 @@ void LogTest(char *buf) {
 	}
 
 
-char *Dynamic_Module_Init(void)
+char *serv_test_init(void)
 {
    CtdlRegisterCleanupHook(CleanupTest);
    CtdlRegisterSessionHook(NewRoomTest, EVT_NEWROOM);
