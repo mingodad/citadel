@@ -210,6 +210,39 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 }
 
 
+/* 
+ * Called by imap_fetch_envelope() to output the "From" field.
+ * This is in its own function because its logic is kind of complex.  We
+ * really need to make this suck less.
+ */
+void imap_output_envelope_from(struct CtdlMessage *msg) {
+	char user[1024], node[1024], name[1024];
+
+	cprintf("((");				/* open double-parens */
+	imap_strout(msg->cm_fields['A']);	/* personal name */
+	cprintf(" NIL ");			/* source route (not used) */
+
+	if (msg->cm_fields['F'] != NULL) {
+		process_rfc822_addr(msg->cm_fields['F'], user, node, name);
+		imap_strout(user);		/* mailbox name (user id) */
+		cprintf(" ");
+		if (!strcasecmp(node, config.c_nodename)) {
+			imap_strout(config.c_fqdn);
+		}
+		else {
+			imap_strout(node);		/* host name */
+		}
+	}
+	else {
+		imap_strout(msg->cm_fields['A']); /* mailbox name (user id) */
+		cprintf(" ");
+		imap_strout(msg->cm_fields['N']);	/* host name */
+	}
+	
+	cprintf(")) ");				/* close double-parens */
+}
+
+
 /*
  * Implements the ENVELOPE fetch item
  * 
@@ -220,34 +253,50 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
  * so we don't have to check for that condition like we do elsewhere.
  */
 void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
-	char buf[256];
+	char datestringbuf[256];
 	time_t msgdate;
 
+
+	/* Parse the message date into an IMAP-format date string */
 	if (msg->cm_fields['T'] != NULL) {
 		msgdate = atol(msg->cm_fields['T']);
 	}
 	else {
 		msgdate = time(NULL);
 	}
+	datestring(datestringbuf, msgdate, DATESTRING_IMAP);
 
-	datestring(buf, msgdate, DATESTRING_IMAP);
-
+	/* Now start spewing data fields.  The order is important, as it is
+	 * defined by the protocol specification.  Nonexistent fields must
+	 * be output as NIL, existent fields must be quoted or literalled.
+	 * The imap_strout() function conveniently does all this for us.
+	 */
 	cprintf("ENVELOPE (");
 
 	/* date */
-	cprintf("\"%s\" ", buf);
+	imap_strout(datestringbuf);
+	cprintf(" ");
 
 	/* subject */
 	imap_strout(msg->cm_fields['U']);
 	cprintf(" ");
 
-	cprintf("NIL ");	/* from */
-	cprintf("NIL ");	/* sender */
+	/* from */
+	imap_output_envelope_from(msg);
+
+	/* Sender (always in the RFC822 header) */
+	cprintf("NIL ");
+
 	cprintf("NIL ");	/* reply-to */
+
 	cprintf("NIL ");	/* to */
+
 	cprintf("NIL ");	/* cc */
+
 	cprintf("NIL ");	/* bcc */
+
 	cprintf("NIL ");	/* in-reply-to */
+
 
 	/* message ID */
 	imap_strout(msg->cm_fields['I']);

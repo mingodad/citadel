@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.55  2000/12/25 20:43:24  ajc
+ * imap_fetch.c: added support for fetch-->envelope-->from
+
  Revision 573.54  2000/12/20 04:09:24  ajc
  * A few memory handling fixes to netproc.
 
@@ -2234,4 +2237,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

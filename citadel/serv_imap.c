@@ -382,7 +382,6 @@ void imap_command_loop(void) {
 	char cmdbuf[256];
 	char *parms[256];
 	int num_parms;
-	int i;
 
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
@@ -416,9 +415,6 @@ void imap_command_loop(void) {
 
 	/* grab the tag */
 	num_parms = imap_parameterize(parms, cmdbuf);
-	for (i=0; i<num_parms; ++i) {
-		lprintf(9, " parms[%d]='%s'\n", i, parms[i]);
-	}
 
 	/* commands which may be executed in any state */
 
