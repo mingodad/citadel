@@ -94,6 +94,7 @@ int imap_parameterize(char **args, char *buf)
 void imap_mailboxname(char *buf, int bufsize, struct quickroom *qrbuf)
 {
 	struct floor *fl;
+	int i;
 
 	/*
 	 * For mailboxes, just do it straight...
@@ -113,6 +114,13 @@ void imap_mailboxname(char *buf, int bufsize, struct quickroom *qrbuf)
 			 fl->f_name,
 			 qrbuf->QRname);
 	}
+
+	/*
+	 * Replace "/" characters with "|" for pseudo-folder-delimiting
+	 */
+	for (i=0; i<strlen(buf); ++i) {
+		if (buf[i] == '/') buf[i] = '|';
+	}
 }
 
 
@@ -130,45 +138,52 @@ void imap_mailboxname(char *buf, int bufsize, struct quickroom *qrbuf)
 int imap_roomname(char *rbuf, int bufsize, char *foldername)
 {
 	int levels;
-	char buf[SIZ];
+	char floorname[SIZ];
+	char roomname[SIZ];
 	int i;
 	struct floor *fl;
+	int ret = (-1);
 
-	if (foldername == NULL)
-		return (-1);
+	if (foldername == NULL) return(-1);
 	levels = num_parms(foldername);
-
-	/* When we can support hierarchial mailboxes, take this out. */
-	if (levels > 2)
-		return (-1);
 
 	/*
 	 * Convert the crispy idiot's reserved names to our reserved names.
 	 */
 	if (!strcasecmp(foldername, "INBOX")) {
 		safestrncpy(rbuf, MAILROOM, bufsize);
-		return (0 | IR_MAILBOX);
+		ret = (0 | IR_MAILBOX);
 	}
+
 	if (levels > 1) {
-		extract(buf, foldername, 0);
+		extract(floorname, foldername, 0);
+		strcpy(roomname, &foldername[strlen(floorname)+1]);
 		for (i = 0; i < MAXFLOORS; ++i) {
 			fl = cgetfloor(i);
 			if (fl->f_flags & F_INUSE) {
-				if (!strcasecmp(buf, fl->f_name)) {
-					extract(rbuf, foldername, 1);
-					return (i);
+				if (!strcasecmp(floorname, fl->f_name)) {
+					strcpy(rbuf, roomname);
+					ret = i;
 				}
 			}
 		}
 
-		/* since we don't allow multi-level yet, fail.
-		   extract(rbuf, buf, 1);
-		   return(0);
-		 */
-		return (-1);
+		/* No subfolderificationalisticism on this one... */
+		strcpy(rbuf, roomname);
+		ret = 0;
+
 	}
-	safestrncpy(rbuf, foldername, bufsize);
-	return (0 | IR_MAILBOX);
+	else {
+		safestrncpy(rbuf, foldername, bufsize);
+		ret = (0 | IR_MAILBOX);
+	}
+
+	/* Undelimiterizationalize the room name (change '|' to '/') */
+	for (i=0; i<strlen(rbuf); ++i) {
+		if (rbuf[i] == '|') rbuf[i] = '/';
+	}
+
+	return(ret);
 }
 
 
