@@ -361,6 +361,9 @@ void AddMessageToRoom(struct quickroom *whichroom, long newmsgid) {
 
 	msglist[num_msgs - 1] = newmsgid;
 
+	/* Sort the message list, so all the msgid's are in order */
+	num_msgs = sort_msglist(msglist, num_msgs);
+
 	/* Write it back to disk. */
 	cdb_store(CDB_MSGLISTS, &whichroom->QRnumber, sizeof(long),
 		msglist, num_msgs * sizeof(long));
