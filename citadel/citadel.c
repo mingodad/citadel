@@ -728,10 +728,10 @@ void get_serv_info(void)
  */
 void who_is_online(int longlist)
 {
-	char buf[128], username[128], roomname[128], fromhost[128];
-	char flags[128];
-	char actual_user[128], actual_room[128], actual_host[128];
-	char tbuf[128], clientsoft[128];
+	char buf[256], username[256], roomname[256], fromhost[256];
+	char flags[256];
+	char actual_user[256], actual_room[256], actual_host[256];
+	char tbuf[256], clientsoft[256];
 	time_t timenow = 0;
 	time_t idletime, idlehours, idlemins, idlesecs;
 	int last_session = (-1);

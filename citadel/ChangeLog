@@ -1,4 +1,8 @@
  $Log$
+ Revision 572.21  2000/07/30 04:36:12  ajc
+ * Set up the SNET (Send NETwork config) and GNET (Get NETwork config) commands
+   for the network overhaul.
+
  Revision 572.20  2000/07/29 05:29:19  ajc
  * Changed the format of RWHO output to provide non-masqueraded user/room/host
    names (to Aides only) as additional fields rather than an extra line of
@@ -1968,4 +1972,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
