@@ -1,4 +1,7 @@
 $Log$
+Revision 212.2  2000/06/07 04:11:28  ajc
+* HTML changes to room banner
+
 Revision 212.1  2000/05/31 04:29:54  ajc
 * Initial support for "summary" (headers only, no body) mode of reading
   messages, and "read one" mode.  For future support of 'traditional' email.
@@ -451,3 +454,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

@@ -291,8 +291,11 @@ void readinfo(int v)
 
 	serv_puts("RINF");
 	serv_gets(buf);
-	if (buf[0] == '1')
+	if (buf[0] == '1') {
+		wprintf("<FONT SIZE=-2>");
 		fmout(NULL);
+		wprintf("</FONT>");
+	}
 	else {
 		if (v == 1)
 			wprintf("<EM>%s</EM><BR>\n", &buf[4]);
@@ -319,14 +322,16 @@ void embed_room_banner(char *got) {
 	WC->new_mail = extract_int(&got[4], 9);
 
 	/* Now start spewing HTML. */
-	wprintf("<CENTER><TABLE border=0><TR>");
+	wprintf("<CENTER><TABLE width=100%% border=0 cellpadding=5><TR>");
 
 	if ((strlen(WC->ugname) > 0) && (strcasecmp(WC->ugname, WC->wc_roomname))) {
 		wprintf("<TD VALIGN=TOP><A HREF=\"/ungoto\">");
-		wprintf("<IMG SRC=\"/static/back.gif\" BORDER=0></A></TD>");
+		wprintf("<IMG SRC=\"/static/back.gif\" BORDER=0>");
+		wprintf("<BR><FONT SIZE=-3>Previous room</FONT></A></TD>");
 	}
-	wprintf("<TD VALIGN=TOP><FONT SIZE=+2>%s</FONT><BR>", WC->wc_roomname);
-	wprintf("%d new of %d messages</TD>\n",
+	wprintf("<TD VALIGN=TOP BGCOLOR=666677>");
+	wprintf("<FONT SIZE=+2 COLOR=FFFFEE>%s</FONT><BR>", WC->wc_roomname);
+	wprintf("<FONT COLOR=DDDDCC>%d new of %d messages</FONT></TD>\n",
 		extract_int(&got[4], 1),
 		extract_int(&got[4], 2));
 
@@ -354,12 +359,14 @@ void embed_room_banner(char *got) {
 		wprintf("<TD VALIGN=TOP>"
 			"<IMG SRC=\"/static/mail.gif\" border=0 "
 			"ALT=\"You have new mail\">"
-			"<BR><BLINK>%d</BLINK></TD>", WC->new_mail);
+			"<BR><BLINK>%d</BLINK>", WC->new_mail);
+		wprintf("<FONT SIZE=-3> new mail messages</FONT></TD>");
 		remember_new_mail = WC->new_mail;
 	}
 
 	wprintf("<TD VALIGN=TOP><A HREF=\"/gotonext\">");
-	wprintf("<IMG SRC=\"/static/forward.gif\" border=0></A></TD>");
+	wprintf("<IMG SRC=\"/static/forward.gif\" border=0>");
+	wprintf("<BR><FONT SIZE=-3>Next room</FONT></A></TD>");
 	wprintf("</TR></TABLE></CENTER>\n");
 }
 
