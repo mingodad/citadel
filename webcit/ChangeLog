@@ -1,4 +1,7 @@
 $Log$
+Revision 323.31  2002/05/09 03:53:56  ajc
+* Began working on address book view
+
 Revision 323.30  2002/05/08 03:38:58  ajc
 * Preferences framework
 
@@ -806,4 +809,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

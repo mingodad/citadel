@@ -286,7 +286,6 @@ void context_loop(int sock)
 	}
 
 
-
 	/*
 	 * See if there's an existing session open with the desired ID
 	 */
