@@ -128,7 +128,13 @@ void calendar_month_view(int year, int month, int day) {
 	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0 "
 		"bgcolor=#4444FF><TR><TD>\n");
 
-	wprintf("<CENTER><H3>");
+	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0>"
+		"<TR><TD align=left><font color=#FFFFFF>"
+		"&nbsp;<A HREF=\"/display_edit_event?msgnum=0\">"
+		"Add new calendar event</A>"
+		"</font></TD>\n");
+
+	wprintf("<TD><CENTER><H3>");
 
 	tm = localtime(&previous_month);
 	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
@@ -146,7 +152,9 @@ void calendar_month_view(int year, int month, int day) {
 		(int)(tm->tm_year)+1900, tm->tm_mon + 1);
 	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/forward.gif\" BORDER=0></A>\n");
 
-	wprintf("</H3>");
+	wprintf("</H3></TD><TD align=right><font color=#FFFFFF size=-2>"
+		"Click on any date for day view&nbsp;"
+		"</FONT></TD></TR></TABLE>\n");
 
 	/* Inner table (the real one) */
 	wprintf("<TABLE width=100%% border=0 cellpadding=1 cellspacing=1 "
@@ -200,6 +208,7 @@ void calendar_week_view(int year, int month, int day) {
 void calendar_day_view(int year, int month, int day) {
 	struct tm starting_tm;
 	time_t thetime;
+	int i;
 
 	/* Determine what day we're viewing.
 	 */
@@ -209,14 +218,58 @@ void calendar_day_view(int year, int month, int day) {
 	starting_tm.tm_mday = day;
 	thetime = mktime(&starting_tm);
 
-	wprintf("<CENTER><H3>%s %d, %d</H3></CENTER>\n",
+
+/**********************************************************************/
+
+	/* Outer table (to get the background color) */
+	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0 "
+		"bgcolor=#4444FF><TR><TD>\n");
+
+	/* Inner table (the real one) */
+	wprintf("<TABLE width=100%% border=0 cellpadding=1 cellspacing=1 "
+		"bgcolor=#4444FF><TR>\n");
+
+	wprintf("<TD WIDTH=50%% VALIGN=top>");	/* begin stuff-on-the-left */
+
+	wprintf("<CENTER><H3><FONT COLOR=#FFFFFF>"
+		"%s %d, %d"
+		"</FONT></H3></CENTER>\n",
 		months[month-1], day, year);
 
-	/* put the data here, stupid */
-	calendar_month_view_display_events(thetime);
+	wprintf("<CENTER><font color=#FFFFFF>"
+		"&nbsp;<A HREF=\"/display_edit_event?msgnum=0\">"
+		"Add new calendar event</A>"
+		"<BR><BR>\n");
 
 	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">"
-		"Back to month view</A><BR>\n", year, month);
+		"Back to month view</A>\n", year, month);
+
+	wprintf("</FONT></CENTER>\n");
+
+	wprintf("</TD>");			/* end stuff-on-the-left */
+
+	/* Innermost table (contains hours etc.) */
+	wprintf("<TD WIDTH=50%%>"
+		"<TABLE width=100%% border=0 cellpadding=1 cellspacing=1 "
+		"bgcolor=#4444FF>\n");
+
+	/* Now do 7 hours */
+	for (i = 0; i < 7; ++i) {
+		wprintf("<TR><TD BGCOLOR=FFFFFF HEIGHT=60 VALIGN=TOP>");
+
+		/* put the data here, stupid  ... FIXME add hour */
+		calendar_month_view_display_events(thetime);
+
+		wprintf("</TD></TR>\n");
+	}
+
+	wprintf("</TABLE>"			/* end of innermost table */
+		"</TD></TR></TABLE>"		/* end of inner table */
+		"</TD></TR></TABLE>"		/* end of outer table */
+	);
+
+
+
 }
 
 
