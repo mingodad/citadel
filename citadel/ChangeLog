@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.10  2000/10/10 19:18:12  ajc
+ * Added support of macros ALL, BODY, FAST, and FULL to the IMAP FETCH command
+
  Revision 573.9  2000/10/06 03:31:55  ajc
  * Mark Crispin is a fscking idiot.  IMAP is a convoluted mess.
 
@@ -2083,4 +2086,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

@@ -91,12 +91,14 @@ void imap_macro_replace(char *str, char *find, char *replace) {
 
 	if (!strncasecmp(str, find, strlen(find))) {
 		if (str[strlen(find)]==' ') {
-			lprintf(9, "WAS: %s\n", str);
 			strcpy(holdbuf, &str[strlen(find)+1]);
 			strcpy(str, replace);
 			strcat(str, " ");
 			strcat(str, holdbuf);
-			lprintf(9, "NOW: %s\n", str);
+		}
+		if (str[strlen(find)]==0) {
+			strcpy(holdbuf, &str[strlen(find)+1]);
+			strcpy(str, replace);
 		}
 	}
 }
@@ -109,7 +111,38 @@ void imap_macro_replace(char *str, char *find, char *replace) {
  * the computer at the other end the trouble of typing a lot of characters?)
  */
 void imap_handle_macros(char *str) {
-	imap_macro_replace(str, "meta", "foo bar baz");
+	int i;
+	int nest = 0;
+
+	for (i=0; i<strlen(str); ++i) {
+		if (str[i]=='(') ++nest;
+		if (str[i]=='[') ++nest;
+		if (str[i]=='<') ++nest;
+		if (str[i]=='{') ++nest;
+		if (str[i]==')') --nest;
+		if (str[i]==']') --nest;
+		if (str[i]=='>') --nest;
+		if (str[i]=='}') --nest;
+
+		if (nest <= 0) {
+			imap_macro_replace(&str[i],
+				"ALL",
+				"FLAGS INTERNALDATE RFC822.SIZE ENVELOPE"
+			);
+			imap_macro_replace(&str[i],
+				"BODY",
+				"BODYSTRUCTURE"
+			);
+			imap_macro_replace(&str[i],
+				"FAST",
+				"FLAGS INTERNALDATE RFC822.SIZE"
+			);
+			imap_macro_replace(&str[i],
+				"FULL",
+				"FLAGS INTERNALDATE RFC822.SIZE ENVELOPE BODY"
+			);
+		}
+	}
 }
 
 
@@ -140,6 +173,9 @@ int imap_extract_data_items(char **argv, char *items) {
 		striplt(items);
 	}
 
+	/* Parse any macro data items */
+	imap_handle_macros(items);
+
 	/*
 	 * Now break out the data items.  We throw in one trailing space in
 	 * order to avoid having to break out the last one manually.
@@ -147,7 +183,6 @@ int imap_extract_data_items(char **argv, char *items) {
 	strcat(items, " ");
 	start = items;
 	initial_len = strlen(items);
-	imap_handle_macros(start);
 	for (i=0; i<initial_len; ++i) {
 		if (items[i]=='(') ++nest;
 		if (items[i]=='[') ++nest;
@@ -162,7 +197,6 @@ int imap_extract_data_items(char **argv, char *items) {
 			items[i] = 0;
 			argv[num_items++] = start;
 			start = &items[i+1];
-			imap_handle_macros(start);
 		}
 	}
 
