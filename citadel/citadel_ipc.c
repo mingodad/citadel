@@ -1564,18 +1564,16 @@ int CtdlIPCAideGetUserParameters(const char *who,
 				 struct usersupp **uret, char *cret)
 {
 	register int ret;
-	char *aaa;
+	char aaa[SIZ];
 
 	if (!cret) return -2;
 	if (!uret) return -2;
 	if (!*uret) *uret = (struct usersupp *)calloc(1, sizeof(struct usersupp));
 	if (!*uret) return -1;
 
-	aaa = (char *)malloc(strlen(uret[0]->fullname) + 6);
-	if (!aaa) return -1;
-
 	sprintf(aaa, "AGUP %s", who);
 	ret = CtdlIPCGenericCommand(aaa, NULL, 0, NULL, NULL, cret);
+
 	if (ret / 100 == 2) {
 		extract(uret[0]->fullname, cret, 0);
 		extract(uret[0]->password, cret, 1);
@@ -1587,7 +1585,6 @@ int CtdlIPCAideGetUserParameters(const char *who,
 		uret[0]->lastcall = extract_long(cret, 7);
 		uret[0]->USuserpurge = extract_int(cret, 8);
 	}
-	free(aaa);
 	return ret;
 }
 
