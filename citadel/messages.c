@@ -1066,7 +1066,10 @@ RMSGREAD:	fflush(stdout);
 				e=(inkey()&127); e=tolower(e);
 /* return key same as <N> */ 	if (e==13) e='n';
 /* space key same as <N> */ 	if (e==32) e='n';
-/* del/move for aides only */	if (!is_room_aide) if ((e=='d')||(e=='m')) e=0;
+/* del/move for aides only */	if ((!is_room_aide)
+				    &&((room_flags&QR_MAILBOX)==0)) {
+					if ((e=='d')||(e=='m')) e=0;
+					}
 /* print only if available */	if ((e=='p')&&(strlen(printcmd)==0)) e=0;
 /* can't move from Mail> */	if ((e=='m')&&(is_mail==1)) e=0;
 /* can't reply in public rms */	if ((e=='r')&&(is_mail!=1)) e=0;
