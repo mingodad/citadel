@@ -35,7 +35,6 @@
 #include <stdarg.h>
 #include <pthread.h>
 #include <signal.h>
-
 #include "webcit.h"
 #include "webserver.h"
 
@@ -45,6 +44,7 @@ int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp);
 
 int verbosity = 9;		/* Logging level */
 int msock;			/* master listening socket */
+int is_https = 0;		/* Nonzero if I am an HTTPS service */
 extern void *context_loop(int);
 extern void *housekeeping_loop(void);
 extern pthread_mutex_t SessionListMutex;
@@ -228,7 +228,11 @@ int main(int argc, char **argv)
 	char tracefile[PATH_MAX];
 
 	/* Parse command line */
+#ifdef HAVE_OPENSSL
+	while ((a = getopt(argc, argv, "hp:t:cs")) != EOF)
+#else
 	while ((a = getopt(argc, argv, "hp:t:c")) != EOF)
+#endif
 		switch (a) {
 		case 'p':
 			port = atoi(optarg);
@@ -255,9 +259,15 @@ int main(int argc, char **argv)
 				}
 			}
 			break;
+		case 's':
+			is_https = 1;
+			break;
 		default:
 			fprintf(stderr, "usage: webserver [-p localport] "
 				"[-t tracefile] [-c] "
+#ifdef HAVE_OPENSSL
+				"[-s] "
+#endif
 				"[remotehost [remoteport]]\n");
 			return 1;
 		}
@@ -306,6 +316,15 @@ int main(int argc, char **argv)
 		       (void *(*)(void *)) housekeeping_loop, NULL);
 
 
+	/*
+	 * If this is an HTTPS server, fire up SSL
+	 */
+#ifdef HAVE_OPENSSL
+	if (is_https) {
+		init_ssl();
+	}
+#endif
+
 	/* Start a few initial worker threads */
 	for (i=0; i<(MIN_WORKER_THREADS); ++i) {
 		spawn_another_worker_thread();
@@ -324,9 +343,11 @@ void worker_entry(void) {
 	int ssock;
 	int i = 0;
 	int time_to_die = 0;
+	int fail_this_transaction = 0;
 
 	do {
 		/* Only one thread can accept at a time */
+		fail_this_transaction = 0;
 		ssock = accept(msock, NULL, 0);
 		if (ssock < 0) {
 			lprintf(2, "accept() failed: %s\n", strerror(errno));
@@ -336,8 +357,19 @@ void worker_entry(void) {
 			setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR,
 			   	&i, sizeof(i));
 
+			/* If we are an HTTPS server, go crypto now. */
+#ifdef HAVE_OPENSSL
+			if (is_https) {
+				if (starttls() != 0) {
+					fail_this_transaction = 1;
+				}
+			}
+#endif
+
 			/* Perform an HTTP transaction... */
-			context_loop(ssock);
+			if (fail_this_transaction == 0) {
+				context_loop(ssock);
+			}
 
 			/* ...and close the socket. */
 			lingering_close(ssock);

@@ -1,0 +1,448 @@
+/* $Id$ */
+
+#ifdef HAVE_OPENSSL
+
+
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <pthread.h>
+
+#include <sys/time.h>
+#include "webcit.h"
+#include "webserver.h"
+
+#define	CTDL_CRYPTO_DIR		"./keys"
+#define CTDL_KEY_PATH		CTDL_CRYPTO_DIR "/citadel.key"
+#define CTDL_CSR_PATH		CTDL_CRYPTO_DIR "/citadel.csr"
+#define CTDL_CER_PATH		CTDL_CRYPTO_DIR "/citadel.cer"
+#define SIGN_DAYS		3650	/* Ten years */
+
+
+/* Shared Diffie-Hellman parameters */
+#define DH_P		"1A74527AEE4EE2568E85D4FB2E65E18C9394B9C80C42507D7A6A0DBE9A9A54B05A9A96800C34C7AA5297095B69C88901EEFD127F969DCA26A54C0E0B5C5473EBAEB00957D2633ECAE3835775425DE66C0DE6D024DBB17445E06E6B0C78415E589B8814F08531D02FD43778451E7685541079CFFB79EF0D26EFEEBBB69D1E80383"
+#define DH_G		"2"
+#define DH_L		1024
+#define CIT_CIPHERS	"ALL:RC4+RSA:+SSLv2:@STRENGTH"	/* see ciphers(1) */
+
+SSL_CTX *ssl_ctx;		/* SSL context */
+pthread_mutex_t **SSLCritters;	/* Things needing locking */
+
+static unsigned long id_callback(void)
+{
+	return (unsigned long) pthread_self();
+}
+
+ /*
+  * Set up the cert things on the server side. We do need both the
+  * private key (in key_file) and the cert (in cert_file).
+  * Both files may be identical.
+  *
+  * This function is taken from OpenSSL apps/s_cb.c
+  */
+
+static int ctdl_install_certificate(SSL_CTX * ctx,
+			  const char *cert_file, const char *key_file)
+{
+	if (cert_file != NULL) {
+		if (SSL_CTX_use_certificate_file(ctx, cert_file,
+						 SSL_FILETYPE_PEM) <= 0) {
+			lprintf(3, "unable to get certificate from '%s'",
+				cert_file);
+			return (0);
+		}
+		if (key_file == NULL)
+			key_file = cert_file;
+		if (SSL_CTX_use_PrivateKey_file(ctx, key_file,
+						SSL_FILETYPE_PEM) <= 0) {
+			lprintf(3, "unable to get private key from '%s'",
+				key_file);
+			return (0);
+		}
+		/* Now we know that a key and cert have been set against
+		 * the SSL context */
+		if (!SSL_CTX_check_private_key(ctx)) {
+			lprintf(3,
+				"Private key does not match the certificate public key");
+			return (0);
+		}
+	}
+	return (1);
+}
+
+
+void init_ssl(void)
+{
+	SSL_METHOD *ssl_method;
+	DH *dh;
+	RSA *rsa=NULL;
+	X509_REQ *req = NULL;
+	X509 *cer = NULL;
+	EVP_PKEY *pk = NULL;
+	EVP_PKEY *req_pkey = NULL;
+	X509_NAME *name = NULL;
+	FILE *fp;
+
+	if (!access("/var/run/egd-pool", F_OK))
+		RAND_egd("/var/run/egd-pool");
+
+	if (!RAND_status()) {
+		lprintf(3,
+			"PRNG not adequately seeded, won't do SSL/TLS\n");
+		return;
+	}
+	SSLCritters =
+	    malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t *));
+	if (!SSLCritters) {
+		lprintf(1, "citserver: can't allocate memory!!\n");
+		/* Nothing's been initialized, just die */
+		exit(1);
+	} else {
+		int a;
+
+		for (a = 0; a < CRYPTO_num_locks(); a++) {
+			SSLCritters[a] = malloc(sizeof(pthread_mutex_t));
+			if (!SSLCritters[a]) {
+				lprintf(1,
+					"citserver: can't allocate memory!!\n");
+				/* Nothing's been initialized, just die */
+				exit(1);
+			}
+			pthread_mutex_init(SSLCritters[a], NULL);
+		}
+	}
+
+	/*
+	 * Initialize SSL transport layer
+	 */
+	SSL_library_init();
+	SSL_load_error_strings();
+	ssl_method = SSLv23_server_method();
+	if (!(ssl_ctx = SSL_CTX_new(ssl_method))) {
+		lprintf(3, "SSL_CTX_new failed: %s\n",
+			ERR_reason_error_string(ERR_get_error()));
+		return;
+	}
+	if (!(SSL_CTX_set_cipher_list(ssl_ctx, CIT_CIPHERS))) {
+		lprintf(3, "SSL: No ciphers available\n");
+		SSL_CTX_free(ssl_ctx);
+		ssl_ctx = NULL;
+		return;
+	}
+#if 0
+#if SSLEAY_VERSION_NUMBER >= 0x00906000L
+	SSL_CTX_set_mode(ssl_ctx, SSL_CTX_get_mode(ssl_ctx) |
+			 SSL_MODE_AUTO_RETRY);
+#endif
+#endif
+
+	CRYPTO_set_locking_callback(ssl_lock);
+	CRYPTO_set_id_callback(id_callback);
+
+	/* Load DH parameters into the context */
+	dh = DH_new();
+	if (!dh) {
+		lprintf(3, "init_ssl() can't allocate a DH object: %s\n",
+			ERR_reason_error_string(ERR_get_error()));
+		SSL_CTX_free(ssl_ctx);
+		ssl_ctx = NULL;
+		return;
+	}
+	if (!(BN_hex2bn(&(dh->p), DH_P))) {
+		lprintf(3, "init_ssl() can't assign DH_P: %s\n",
+			ERR_reason_error_string(ERR_get_error()));
+		SSL_CTX_free(ssl_ctx);
+		ssl_ctx = NULL;
+		return;
+	}
+	if (!(BN_hex2bn(&(dh->g), DH_G))) {
+		lprintf(3, "init_ssl() can't assign DH_G: %s\n",
+			ERR_reason_error_string(ERR_get_error()));
+		SSL_CTX_free(ssl_ctx);
+		ssl_ctx = NULL;
+		return;
+	}
+	dh->length = DH_L;
+	SSL_CTX_set_tmp_dh(ssl_ctx, dh);
+	DH_free(dh);
+
+	/* Get our certificates in order.
+	 * First, create the key/cert directory if it's not there already...
+	 */
+	mkdir(CTDL_CRYPTO_DIR, 0700);
+
+	/*
+	 * Generate a key pair if we don't have one.
+	 */
+	if (access(CTDL_KEY_PATH, R_OK) != 0) {
+		lprintf(5, "Generating RSA key pair.\n");
+		rsa = RSA_generate_key(1024,	/* modulus size */
+					65537,	/* exponent */
+					NULL,	/* no callback */
+					NULL);	/* no callback */
+		if (rsa == NULL) {
+			lprintf(3, "Key generation failed: %s\n",
+				ERR_reason_error_string(ERR_get_error()));
+		}
+		if (rsa != NULL) {
+			fp = fopen(CTDL_KEY_PATH, "w");
+			if (fp != NULL) {
+				chmod(CTDL_KEY_PATH, 0600);
+				if (PEM_write_RSAPrivateKey(fp,	/* the file */
+							rsa,	/* the key */
+							NULL,	/* no enc */
+							NULL,	/* no passphr */
+							0,	/* no passphr */
+							NULL,	/* no callbk */
+							NULL	/* no callbk */
+				) != 1) {
+					lprintf(3, "Cannot write key: %s\n",
+                                		ERR_reason_error_string(ERR_get_error()));
+					unlink(CTDL_KEY_PATH);
+				}
+				fclose(fp);
+			}
+			RSA_free(rsa);
+		}
+	}
+
+	/*
+	 * Generate a CSR if we don't have one.
+	 */
+	if (access(CTDL_CSR_PATH, R_OK) != 0) {
+		lprintf(5, "Generating a certificate signing request.\n");
+
+		/*
+		 * Read our key from the file.  No, we don't just keep this
+		 * in memory from the above key-generation function, because
+		 * there is the possibility that the key was already on disk
+		 * and we didn't just generate it now.
+		 */
+		fp = fopen(CTDL_KEY_PATH, "r");
+		if (fp) {
+			rsa = PEM_read_RSAPrivateKey(fp, NULL, NULL, NULL);
+			fclose(fp);
+		}
+
+		if (rsa) {
+
+			/* Create a public key from the private key */
+			if (pk=EVP_PKEY_new(), pk != NULL) {
+				EVP_PKEY_assign_RSA(pk, rsa);
+				if (req = X509_REQ_new(), req != NULL) {
+
+					/* Set the public key */
+					X509_REQ_set_pubkey(req, pk);
+					X509_REQ_set_version(req, 0L);
+
+					name = X509_REQ_get_subject_name(req);
+
+					/* Tell it who we are */
+
+					/*
+					X509_NAME_add_entry_by_txt(name, "C",
+						MBSTRING_ASC, "US", -1, -1, 0);
+
+					X509_NAME_add_entry_by_txt(name, "ST",
+						MBSTRING_ASC, "New York", -1, -1, 0);
+
+					X509_NAME_add_entry_by_txt(name, "L",
+						MBSTRING_ASC, "Mount Kisco", -1, -1, 0);
+					*/
+
+					X509_NAME_add_entry_by_txt(name, "O",
+						MBSTRING_ASC, "FIXME.FIXME.org", -1, -1, 0);
+
+					X509_NAME_add_entry_by_txt(name, "OU",
+						MBSTRING_ASC, "Citadel server", -1, -1, 0);
+
+					X509_NAME_add_entry_by_txt(name, "CN",
+						MBSTRING_ASC, "FIXME.FIXME.org", -1, -1, 0);
+				
+					X509_REQ_set_subject_name(req, name);
+
+					/* Sign the CSR */
+					if (!X509_REQ_sign(req, pk, EVP_md5())) {
+						lprintf(3, "X509_REQ_sign(): error\n");
+					}
+					else {
+						/* Write it to disk. */	
+						fp = fopen(CTDL_CSR_PATH, "w");
+						if (fp != NULL) {
+							chmod(CTDL_CSR_PATH, 0600);
+							PEM_write_X509_REQ(fp, req);
+							fclose(fp);
+						}
+					}
+
+					X509_REQ_free(req);
+				}
+			}
+
+			RSA_free(rsa);
+		}
+
+		else {
+			lprintf(3, "Unable to read private key.\n");
+		}
+	}
+
+
+
+	/*
+	 * Generate a self-signed certificate if we don't have one.
+	 */
+	if (access(CTDL_CER_PATH, R_OK) != 0) {
+		lprintf(5, "Generating a self-signed certificate.\n");
+
+		/* Same deal as before: always read the key from disk because
+		 * it may or may not have just been generated.
+		 */
+		fp = fopen(CTDL_KEY_PATH, "r");
+		if (fp) {
+			rsa = PEM_read_RSAPrivateKey(fp, NULL, NULL, NULL);
+			fclose(fp);
+		}
+
+		/* This also holds true for the CSR. */
+		req = NULL;
+		cer = NULL;
+		pk = NULL;
+		if (rsa) {
+			if (pk=EVP_PKEY_new(), pk != NULL) {
+				EVP_PKEY_assign_RSA(pk, rsa);
+			}
+
+			fp = fopen(CTDL_CSR_PATH, "r");
+			if (fp) {
+				req = PEM_read_X509_REQ(fp, NULL, NULL, NULL);
+				fclose(fp);
+			}
+
+			if (req) {
+				if (cer = X509_new(), cer != NULL) {
+
+					X509_set_issuer_name(cer, req->req_info->subject);
+					X509_set_subject_name(cer, req->req_info->subject);
+					X509_gmtime_adj(X509_get_notBefore(cer),0);
+					X509_gmtime_adj(X509_get_notAfter(cer),(long)60*60*24*SIGN_DAYS);
+					req_pkey = X509_REQ_get_pubkey(req);
+					X509_set_pubkey(cer, req_pkey);
+					EVP_PKEY_free(req_pkey);
+					
+					/* Sign the cert */
+					if (!X509_sign(cer, pk, EVP_md5())) {
+						lprintf(3, "X509_sign(): error\n");
+					}
+					else {
+						/* Write it to disk. */	
+						fp = fopen(CTDL_CER_PATH, "w");
+						if (fp != NULL) {
+							chmod(CTDL_CER_PATH, 0600);
+							PEM_write_X509(fp, cer);
+							fclose(fp);
+						}
+					}
+					X509_free(cer);
+				}
+			}
+
+			RSA_free(rsa);
+		}
+	}
+
+
+	/*
+	 * Now try to bind to the key and certificate.
+	 */
+	if (ctdl_install_certificate(ssl_ctx,
+			CTDL_CER_PATH,
+			CTDL_KEY_PATH) != 1)
+	{
+		lprintf(3, "Cannot install certificate: %s\n",
+				ERR_reason_error_string(ERR_get_error()));
+	}
+
+}
+
+
+/*
+ * starttls() starts SSL/TLS encryption for the current session.
+ */
+int starttls(void) {
+
+	int retval, bits, alg_bits;
+
+	if (!ssl_ctx) {
+		return(1);
+	}
+	if (!(WC->ssl = SSL_new(ssl_ctx))) {
+		lprintf(3, "SSL_new failed: %s\n",
+				ERR_reason_error_string(ERR_get_error()));
+		return(2);
+	}
+	if (!(SSL_set_fd(WC->ssl, WC->http_sock))) {
+		lprintf(3, "SSL_set_fd failed: %s\n",
+			ERR_reason_error_string(ERR_get_error()));
+		SSL_free(WC->ssl);
+		WC->ssl = NULL;
+		return(3);
+	}
+	retval = SSL_accept(WC->ssl);
+	if (retval < 1) {
+		/*
+		 * Can't notify the client of an error here; they will
+		 * discover the problem at the SSL layer and should
+		 * revert to unencrypted communications.
+		 */
+		long errval;
+
+		errval = SSL_get_error(WC->ssl, retval);
+		lprintf(3, "SSL_accept failed: %s\n",
+			ERR_reason_error_string(ERR_get_error()));
+		SSL_free(WC->ssl);
+		WC->ssl = NULL;
+		return(4);
+	}
+	BIO_set_close(WC->ssl->rbio, BIO_NOCLOSE);
+	bits =
+	    SSL_CIPHER_get_bits(SSL_get_current_cipher(WC->ssl),
+				&alg_bits);
+	lprintf(5, "SSL/TLS using %s on %s (%d of %d bits)\n",
+		SSL_CIPHER_get_name(SSL_get_current_cipher(WC->ssl)),
+		SSL_CIPHER_get_version(SSL_get_current_cipher(WC->ssl)),
+		bits, alg_bits);
+	return(0);
+}
+
+
+
+/*
+ * endtls() shuts down the TLS connection
+ *
+ * WARNING:  This may make your session vulnerable to a known plaintext
+ * attack in the current implmentation.
+ */
+void endtls(void)
+{
+	lprintf(5, "Ending SSL/TLS\n");
+	SSL_shutdown(WC->ssl);
+	SSL_free(WC->ssl);
+	WC->ssl = NULL;
+}
+
+
+/*
+ * ssl_lock() callback for OpenSSL mutex locks
+ */
+void ssl_lock(int mode, int n, const char *file, int line)
+{
+	if (mode & CRYPTO_LOCK)
+		pthread_mutex_lock(SSLCritters[n]);
+	else
+		pthread_mutex_unlock(SSLCritters[n]);
+}
+
+#endif				/* HAVE_OPENSSL */
