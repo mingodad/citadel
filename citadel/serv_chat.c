@@ -96,7 +96,8 @@ void allwrite(char *cmdbuf, int flag, char *roomname, char *username)
 	time(&now);
 	clnew->next = NULL;
 	clnew->chat_time = now;
-	strncpy(clnew->chat_room, roomname, ROOMNAMELEN-1);
+	strncpy(clnew->chat_room, roomname, sizeof clnew->chat_room);
+	clnew->chat_room[sizeof clnew->chat_room - 1] = 0;
 	if (username)
   	   strncpy(clnew->chat_username, username, 31); 
   	else
