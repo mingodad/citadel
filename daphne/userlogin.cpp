@@ -227,8 +227,7 @@ void UserLogin::OnButtonPressed(wxCommandEvent& whichbutton) {
 	}
 
 	if (whichbutton.GetId() == BUTTON_LOGIN) {
-		sendbuf = "USER ";
-		sendbuf += username->GetValue();
+		sendbuf = "USER " + username->GetValue();
 		r = citsock->serv_trans(sendbuf, recvbuf);
 		if (r != 3) {
 			wxMessageDialog nouser(this,
@@ -249,9 +248,39 @@ void UserLogin::OnButtonPressed(wxCommandEvent& whichbutton) {
 					wxDefaultPosition);
 				nopass.ShowModal();
 			} else {
-				// FIX do login procedure here
+				BeginSession(recvbuf);
 				delete this;	// dismiss the login box
 			}
 		}
 	}
+
+	if (whichbutton.GetId() == BUTTON_NEWUSER) {
+		sendbuf = "NEWU " + username->GetValue();
+		r = citsock->serv_trans(sendbuf, recvbuf);
+		if (r != 2) {
+			wxMessageDialog nouser(this,
+				recvbuf.Mid(4,32767),
+				"Error",
+				wxOK | wxCENTRE | wxICON_INFORMATION,
+				wxDefaultPosition);
+			nouser.ShowModal();
+		} else {
+			sendbuf = "SETP " + password->GetValue();
+			citsock->serv_trans(sendbuf);
+			BeginSession(recvbuf);
+			delete this;		// dismiss the login box
+		}
+	}
+}
+
+
+
+void UserLogin::BeginSession(wxString serv_response) {
+	wxString junk, username;
+
+	extract(username, serv_response.Mid(4, 255), 0);
+	BigMDI->SetStatusText(username, 1);
+	citsock->GotoRoom("_BASEROOM_", "", junk);
+
+	// FIX ... add code here to perform registration if necessary
 }

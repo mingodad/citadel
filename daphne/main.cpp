@@ -200,8 +200,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	SetMenuBar(menuBar);
 
 	// create a status bar just for fun (by default with 1 pane only)
-	CreateStatusBar(1);
-	SetStatusText("Not connected");
+	CreateStatusBar(3);
+	SetStatusText("Not connected", 0);
 }
 
 
@@ -320,14 +320,18 @@ void MyFrame::OnDoCmd(wxCommandEvent& whichbutton) {
 
 void MyFrame::OnConnect(wxCommandEvent& unused) {
 	int retval;
+	wxString DefaultHost, DefaultPort;
+
+	DefaultHost = "uncnsrd.mt-kisco.ny.us";
+	DefaultPort = "citadel";
 
 	if (citadel->IsConnected()) {
 		wxMessageBox("You are already connected to a Citadel server.",
 			"Oops!");
 	} else {
-		retval = citadel->attach("uncnsrd", "citadel");
+		retval = citadel->attach(DefaultHost, DefaultPort);
 		if (retval == 0) {
-    			SetStatusText("Connected to " + citadel->HumanNode);
+    			SetStatusText("Connected to " + citadel->HumanNode, 0);
 			new TestWindow(citadel, this);
 			new UserLogin(citadel, this);
 		} else {

@@ -3,12 +3,12 @@
 
 
 //  
-//              LOW LEVEL OPERATIONS
+//	TRANSPORT LAYER OPERATIONS
 //
 
 // Attach to the Citadel server
 // FIX (add check for not allowed to log in)
-int CitClient::attach(const wxString& host, const wxString& port) {
+int CitClient::attach(wxString host, wxString port) {
 	wxString ServerReady;
 
 	if (sock.is_connected())
@@ -69,7 +69,7 @@ void CitClient::serv_puts(wxString buf) {
 
 
 //
-//            HIGH LEVEL COMMANDS
+//		SESSION LAYER OPERATIONS
 //
 
 
@@ -77,13 +77,27 @@ void CitClient::serv_puts(wxString buf) {
 int CitClient::serv_trans(
 			wxString& command,
 			wxString& response,
-			wxStringList& xferbuf
+			wxStringList& xferbuf,
+			wxString desired_room
 			) {
 
 	int first_digit;
         int i;
-	wxString buf;
+	wxString buf, pw, junk;
 	bool express_messages_waiting = FALSE;
+
+	// If the caller specified that this transaction must take place
+	// in a particular room, make sure we're in that room.
+	if (desired_room.Length() > 0) {
+		if (desired_room.CmpNoCase(CurrentRoom) != 0) {
+			pw = "";
+			GotoRoom(desired_room, pw, junk);
+		}
+	}
+
+
+	// If a mutex is to be wrapped around this function in the future,
+	// it must begin HERE.
 
 	serv_puts(command);
 	serv_gets(response);
@@ -105,6 +119,9 @@ int CitClient::serv_trans(
 		serv_puts("000");
 	}
 
+	// If a mutex is to be wrapped around this function in the future,
+	// it must end HERE.
+
 	if (express_messages_waiting) {
 		download_express_messages();
 	}
@@ -113,6 +130,14 @@ int CitClient::serv_trans(
 }
 
 // Shorter forms of serv_trans()
+int CitClient::serv_trans(
+			wxString& command,
+			wxString& response,
+			wxStringList& xferbuf
+			) {
+	return serv_trans(command, response, xferbuf, "");
+}
+
 int CitClient::serv_trans(wxString& command, wxString& response) {
 	wxStringList junklist;
 	return serv_trans(command, response, junklist);
@@ -123,6 +148,25 @@ int CitClient::serv_trans(wxString& command) {
 	return serv_trans(command, junkbuf);
 }
 
+//
+//		PRESENTATION LAYER OPERATIONS
+//
+
+
+void CitClient::download_express_messages(void) {
+	wxString sendcmd, recvcmd, x_user, x_sys;
+	wxStringList xferbuf;
+
+	sendcmd = "GEXP";
+	while (serv_trans(sendcmd, recvcmd, xferbuf) == 1) {
+		extract(x_user, recvcmd, 3);
+		extract(x_sys, recvcmd, 4);
+		(void)new express_message(this, x_user, x_sys, xferbuf);
+	}
+}
+
+
+
 // Set up some things that we do at the beginning of every session
 void CitClient::initialize_session(void)  {
 	wxStringList info;
@@ -131,6 +175,8 @@ void CitClient::initialize_session(void)  {
 	int i;
 	wxString *infoptr;
 	wxString infoline;
+
+	CurrentRoom = "";
 
 	sendcmd = "IDEN 0|6|001|Daphne";
 	serv_trans(sendcmd);
@@ -161,17 +207,27 @@ void CitClient::initialize_session(void)  {
 
 
 
-void CitClient::download_express_messages(void) {
-	wxString sendcmd, recvcmd, x_user, x_sys;
-	wxStringList xferbuf;
+// Goto a room
 
-	sendcmd = "GEXP";
-	while (serv_trans(sendcmd, recvcmd, xferbuf) == 1) {
-		extract(x_user, recvcmd, 3);
-		extract(x_sys, recvcmd, 4);
-		(void)new express_message(this, x_user, x_sys, xferbuf);
-	}
+bool CitClient::GotoRoom(wxString roomname, wxString password,
+			wxString& server_response) {
+	int retval;
+	wxString sendcmd, recvcmd;
+
+	sendcmd = "GOTO " + roomname + "|" + password;
+	retval = serv_trans(sendcmd, recvcmd);
+	server_response = recvcmd;
+
+	if (retval != 2) return FALSE;
+
+	extract(CurrentRoom, recvcmd.Mid(4, 255), 0);
+	BigMDI->SetStatusText(CurrentRoom, 2);
+	return TRUE;
 }
+
+
+
+
 
 
 
@@ -190,12 +246,7 @@ keepalive::keepalive(CitClient *sock)
 
 void keepalive::Notify(void) {
 	if (which_sock->IsConnected()) {
-		which_sock->serv_trans("NOOP");
+		wxString noop = "NOOP";
+		which_sock->serv_trans(noop);
 	}
 }
-
-
-
-
-
-

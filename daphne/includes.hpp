@@ -30,7 +30,7 @@ public:
 	bool is_connected(void);
 private:
 	int serv_sock;
-	int connectsock(const char *, const char *, const char *);
+	int connectsock(char *, char *, char *);
 	void timeout(int);
 };
 
@@ -42,10 +42,16 @@ public:
 	CitClient(void);
 	~CitClient(void);
 
-	// High-level Citadel IPC methods
-	int attach(const wxString& host, const wxString& port);
+	// Citadel session-layer commands
+	int attach(wxString host, wxString port);
 	void detach(void);
 	bool IsConnected(void);
+	int CitClient::serv_trans(
+			wxString& command,
+			wxString& response,
+			wxStringList& xferbuf,
+			wxString desired_room
+                        );
 	int CitClient::serv_trans(
 			wxString& command,
 			wxString& response,
@@ -54,7 +60,11 @@ public:
 	int CitClient::serv_trans(wxString& command, wxString& response);
 	int CitClient::serv_trans(wxString& command);
 
-	// Various things we learn about the server
+	// Citadel presentation-layer commands
+	bool CitClient::GotoRoom(wxString roomname, wxString password,
+				wxString& server_response);
+
+	// Various things we learn about the server ...
 	int SessionID;
 	wxString NodeName;
 	wxString HumanNode;
@@ -67,13 +77,16 @@ public:
 	wxString MorePrompt;
 	bool UseFloors;
 	int PagingLevel;
+	
+	// Stuff we have to keep track of ...
+	wxString CurrentRoom;
 
 private:
-	void serv_gets(wxString& buf);
-	void serv_puts(wxString buf);
-	void download_express_messages(void);
-	TCPsocket sock;
-	void CitClient::initialize_session(void);
+	TCPsocket sock;					// transport layer
+	void serv_gets(wxString& buf);			// session layer
+	void serv_puts(wxString buf);			// session layer
+	void download_express_messages(void);		// presentation layer
+	void CitClient::initialize_session(void);	// presentation layer
 };
 
 
@@ -153,6 +166,7 @@ private:
 	wxButton *newuser_button;
 	wxButton *exit_button;
 	void OnButtonPressed(wxCommandEvent& whichbutton);
+	void UserLogin::BeginSession(wxString serv_response);
 	CitClient *citsock;
 	wxMDIParentFrame *citMyMDI;
 	DECLARE_EVENT_TABLE()

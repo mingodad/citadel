@@ -35,8 +35,8 @@ void TCPsocket::timeout(int signum) {
 	serv_sock = (-1);
 }
 
-int TCPsocket::connectsock(const char *host, const char *service,
-			const char *protocol)
+int TCPsocket::connectsock(char *host, char *service,
+			char *protocol)
 {
 	struct hostent *phe;
 	struct servent *pse;
