@@ -28,7 +28,7 @@ int fpgetfield(FILE *fp, char *string);
 int fmout(int width, FILE *fp);
 
 
-#ifdef NO_STRERROR
+#ifndef HAVE_STRERROR
 /*
  * replacement strerror() for systems that don't have it
  */

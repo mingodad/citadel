@@ -21,11 +21,11 @@
 #include "sysdep.h"
 #include "config.h"
 
-#ifdef CURSES_INC
+#ifdef HAVE_CURSES_H
 # ifdef OK
 # undef OK
 # endif
-#include CURSES_INC
+#include <curses.h>
 #endif
 
 #define MAXSETUP 19
@@ -228,7 +228,7 @@ struct config config;
 int direction;
 
 void cleanup(int exitcode) {
-#ifdef CURSES_INC
+#ifdef HAVE_CURSES_H
 	if (setup_type == UI_CURSES) {
 		clear();
 		refresh();
@@ -253,7 +253,7 @@ void cleanup(int exitcode) {
 	}
 
 
-#ifdef CURSES_INC
+#ifdef HAVE_CURSES_H
 void getlin(int yp, int xp, char *string, int lim)	/* Gets a line from the terminal */
           			/* Where on the screen to start */
               	 		/* Pointer to string buffer */
@@ -315,7 +315,7 @@ void title(char *text)
 void hit_any_key(void) {
 	char junk[5];
 
-#ifdef CURSES_INC
+#ifdef HAVE_CURSES_H
 	if (setup_type == UI_CURSES) {
 		mvprintw(20, 0, "Press any key to continue... ");
 		refresh();
@@ -348,7 +348,7 @@ int yesno(char *question)
 			sprintf(buf, "dialog --yesno \"%s\" 7 80", question);
 			answer = ( (system(buf)==0) ? 1 : 0);
 			break;
-#ifdef CURSES_INC
+#ifdef HAVE_CURSES_H
 		case UI_CURSES:
 			do {
 				clear();
@@ -416,7 +416,7 @@ void important_message(char *title, char *msgtext) {
 				title, msgtext);
 			system(buf);
 			break;
-#ifdef CURSES_INC
+#ifdef HAVE_CURSES_H
 		case UI_CURSES:
 			clear();
 			move(1, 20);
@@ -477,7 +477,7 @@ void progress(char *text, long int curr, long int cmax)
 				}
 			break;
 
-#ifdef CURSES_INC
+#ifdef HAVE_CURSES_H
 		case UI_CURSES:
 			if (curr==0) {
 				clear();
@@ -679,7 +679,7 @@ void set_str_val(int msgpos, char str[]) {
 						str[strlen(str)-1]=0;
 				}
 			break;
-#ifdef CURSES_INC
+#ifdef HAVE_CURSES_H
 		case UI_CURSES:
 			clear();
 			move(1, ((80-strlen(setup_titles[msgpos]))/2) );
@@ -837,7 +837,7 @@ void write_config_to_disk(void) {
  */
 int discover_ui(void) {
 
-#ifdef CURSES_INC
+#ifdef HAVE_CURSES_H
 	return UI_CURSES;
 #endif
 
@@ -883,7 +883,7 @@ void main(int argc, char *argv[]) {
 		setup_type = discover_ui();
 		}
 
-#ifdef CURSES_INC
+#ifdef HAVE_CURSES_H
 	if (setup_type == UI_CURSES) {
 		initscr();
 		raw();

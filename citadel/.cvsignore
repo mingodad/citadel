@@ -27,3 +27,8 @@ citadel.log
 data
 .depend
 import
+config.status
+configure
+config.log
+config.cache
+sysdep.h.in

@@ -1,27 +1,21 @@
 # Makefile for Citadel/UX
 #
 # NOTE: normally you should not have to modify the Makefile.  All
-# system-dependent configuration is in the "configure" script, which
-# uses "Makefile.in" to generate a "Makefile".  In the rare instance
+# system-dependent configuration is in the "Configure" script, which
+# uses "Makefile.tmpl" to generate a "Makefile".  In the rare instance
 # that you have to modify something here, please take note:
-# 1. Edit Makefile.in, -not- Makefile.
+# 1. Edit Makefile.tmpl, -not- Makefile.
 # 2. Send e-mail to ajc@uncnsrd.mt-kisco.ny.us and let me know what you
 #    did, so any necessary changes can be put into the next release.
 #
 ########################################################################
 
-all: client server utils serv_modules
-
 CLIENT_TARGETS=citadel whobbs
 SERVER_TARGETS=citserver setup
-SERV_MODULES=modules/serv_chat.so modules/serv_test.so
+SERV_MODULES=$(MODDIR)/serv_chat.so $(MODDIR)/serv_test.so
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform \
 	readlog rcit stats citmail netpoll mailinglist userlist
 PROXY_TARGETS=proxy
-CFLAGS=@CFLAGS@ @DEFS@
-CC=@CC@
-SERVER_LFLAGS=@LIBS@
-CURSES=@CURSES@
 
 client: $(CLIENT_TARGETS)
 
@@ -111,14 +105,14 @@ msgbase.o: msgbase.c
 locate_host.o: locate_host.c
 	$(CC) $(CFLAGS) -D_REENTRANT -c locate_host.c
 
-modules/serv_chat.so: serv_chat.o
-	$(CC) -shared -o modules/serv_chat.so serv_chat.o
+$(MODDIR)/serv_chat.so: serv_chat.o
+	$(CC) -shared -o $(MODDIR)/serv_chat.so serv_chat.o
 
 serv_chat.o: serv_chat.c
 	$(CC) $(CFLAGS) -D_REENTRANT -fPIC -c serv_chat.c
 
-modules/serv_test.so: serv_test.o
-	$(CC) -shared -o modules/serv_test.so serv_test.o
+$(MODDIR)/serv_test.so: serv_test.o
+	$(CC) -shared -o $(MODDIR)/serv_test.so serv_test.o
 
 serv_test.o: serv_test.c
 	$(CC) $(CFLAGS) -D_REENTRANT -fPIC -c serv_test.c
@@ -192,7 +186,7 @@ setup: setup.o
 	$(CC) $(CFLAGS) setup.o $(CURSES) $(LFLAGS) -o setup
 
 setup.o: setup.c
-	$(CC) $(CFLAGS) -c setup.c
+	$(CC) $(CFLAGS) $(CURSES_INC) -c setup.c
 
 netsetup: netsetup.o config.o
 	$(CC) $(CFLAGS) netsetup.o config.o $(LFLAGS) -o netsetup
@@ -258,4 +252,4 @@ realclean: cleaner
 	rm -f Makefile sysdep.h
 
 .depend: $(wildcard *.c) $(wildcard *.h)
-	$(CC) -MM *.c > .depend
+	gcc -MM *.c > .depend

@@ -393,7 +393,7 @@ void strproc(char *string)
 	}
 
 
-#ifdef NO_STRERROR
+#ifndef HAVE_STRERROR
 /*
  * replacement strerror() for systems that don't have it
  */

@@ -112,7 +112,7 @@ extern char bbs_home_directory[];
 extern int home_specified;
 
 
-#ifdef NO_STRERROR
+#ifndef HAVE_STRERROR
 /*
  * replacement strerror() for systems that don't have it
  */
@@ -337,29 +337,14 @@ struct syslist *get_sys_ptr(char *sysname)
  */
 int set_lockfile(void) {
 	FILE *lfp;
-	int ok = 1;
 	int onppid;
-	char buf[64];
 
-	if (access(LOCKFILE,0)==0) {
-
-	/* 
-	 * if the /proc filesystem is available, we can further check to
-	 * make sure that the process that wrote the lock file is actually
-	 * running, and didn't simply terminate and not clean up after itself
-	 */
-#ifdef HAVE_PROC_FS
-		lfp = fopen(LOCKFILE,"r");
-		fscanf(lfp,"%d",&onppid);
-		fclose(lfp);
-		sprintf(buf,"/proc/%d/cmdline",onppid);
-		if (access(buf,0)==0) ok = 0;
-#else
-		ok = 0;
-#endif
+	if ((lfp = fopen(LOCKFILE,"r")) != NULL) {
+                fscanf(lfp,"%d",&onppid);
+                fclose(lfp);
+		if (!kill(onppid, 0) || errno == EPERM) return 1;
 		}
 
-	if (ok == 0) return(1);
 	lfp=fopen(LOCKFILE,"w");
 	fprintf(lfp,"%d\n",getpid());
 	fclose(lfp);

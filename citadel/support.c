@@ -192,12 +192,12 @@ void mesg_locate(char *targ, char *searchfor, int numdirs, char **dirs)
 	}
 
 
-#ifdef NO_STRERROR
+#ifndef HAVE_STRERROR
 /*
  * replacement strerror() for systems that don't have it
  */
-char *strerror(e)
-int e; {
+char *strerror(int e)
+{
 	static char buf[32];
 
 	sprintf(buf,"errno = %d",e);

@@ -1,3 +1,21 @@
+1998-09-28 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* configure.in, acconfig.h: new files; partially functional GNU
+	  autoconf configure script. Run autoheader; autoconf; ./configure
+	  --prefix=`pwd` to test.
+	* Makefile.tmpl: new file; this is what Makefile.in used to be. Used by
+	  Configure.
+	* Makefile.in: modified to work with autoconf-style configure script
+	* Configure: modified to use Makefile.tmpl and generate autoconf-style
+	  macros. Removed procfs detection. Pass -O2 to gcc, -O to other
+	  compilers. Removed mknod/mkfifo detection; code should use mkfifo(3).
+	* citmail.c, msgform.c, netproc.c, routines.c, support.c, userlist.c,
+	  whobbs.c: use HAVE_STRERROR macro rather than NO_STRERROR
+	* commands.c: use HAVE_TERMIOS_H macro rather than POSIX_TERMIO
+	* netproc.c: remove procfs stuff. simply attempt to kill the target
+	  process with signal zero instead; this checks whether the process
+	  exists.
+	* setup.c, useradmin.c: use HAVE_CURSES_H macro
+
 Sun Sep 27 23:41:29 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* BOTH the old and new generation systems are being written to at
 	  this point.  Code that reads stuff is still using the old system.

@@ -17,7 +17,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 
-#ifdef POSIX_TERMIO
+#ifdef HAVE_TERMIOS_H
 #include <termios.h>
 #else
 #include <sgtty.h>
@@ -600,7 +600,7 @@ int getcmd(char *argbuf)
  * 2 - save current settings for later restoral
  * 3 - restore saved settings
  */
-#ifdef POSIX_TERMIO
+#ifdef HAVE_TERMIOS_H
 void sttybbs(int cmd) 		/* SysV version of sttybbs() */
          {
 	struct termios live;

@@ -123,7 +123,7 @@ void main(int argc, char **argv)
 	}
 
 
-#ifdef NO_STRERROR
+#ifndef HAVE_STRERROR
 /*
  * replacement strerror() for systems that don't have it
  */
