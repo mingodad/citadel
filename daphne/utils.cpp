@@ -31,17 +31,17 @@ void MultilineToList(wxStringList& outputlist, wxString inputbuf) {
 		// First try to locate a line break
 		pos = buf.Find('\n', FALSE);
 		if ( (pos >=0) && (pos < 256) ) {
-			outputlist.Add(buf.Mid(0, pos-1));
+			outputlist.Add(buf.Left(pos-1));
 			buf = buf.Mid(pos+1);
 		} else {
 		// Otherwise, try to find a space
 			pos = buf.Mid(0, 256).Find(' ', TRUE);
 			if ( (pos >=0) && (pos < 256) ) {
-				outputlist.Add(buf.Mid(0, pos-1));
+				outputlist.Add(buf.Left(pos-1));
 				buf = buf.Mid(pos+1);
 			} else {
 				pos = 255;
-				outputlist.Add(buf.Mid(0, pos-1));
+				outputlist.Add(buf.Left(pos-1));
 				buf = buf.Mid(pos);
 			}
 		}
@@ -67,7 +67,7 @@ void extract(wxString& outputbuf, wxString inputbuf, int parmnum) {
 
 	p = outputbuf.First('|');
 	if (p > 0) {
-		outputbuf = outputbuf.Mid(0, p);
+		outputbuf = outputbuf.Left(p);
 	}
 }
 
@@ -75,6 +75,6 @@ int extract_int(wxString inputbuf, int parmnum) {
 	wxString buf;
 
 	extract(buf, inputbuf, parmnum);
-	return atoi(buf);
+	return atoi((const char *)buf);
 }
 
