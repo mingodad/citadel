@@ -31,6 +31,9 @@
 #include <ctype.h>
 #include <string.h>
 #include <limits.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include "citadel.h"
 #include "server.h"
 #include "sysdep_decls.h"
@@ -49,6 +52,7 @@
 #include "genstamp.h"
 #include "domain.h"
 #include "clientsocket.h"
+#include "locate_host.h"
 
 
 #ifndef HAVE_SNPRINTF
@@ -401,7 +405,8 @@ void smtp_mail(char *argbuf) {
  */
 void smtp_rcpt(char *argbuf) {
 	char recp[SIZ];
-	struct recptypes *valid;
+	char message_to_spammer[SIZ];
+	struct recptypes *valid = NULL;
 
 	if (strlen(SMTP->from) == 0) {
 		cprintf("503 Need MAIL before RCPT\r\n");
@@ -420,6 +425,15 @@ void smtp_rcpt(char *argbuf) {
 	if ( (strlen(recp) + strlen(SMTP->recipients) + 1 ) >= SIZ) {
 		cprintf("452 Too many recipients\r\n");
 		return;
+	}
+
+	/* RBL check */
+	if ( (!CC->logged_in) && (!CC->is_local_socket) ) {
+		if (rbl_check(message_to_spammer)) {
+			cprintf("552 %s\r\n", message_to_spammer);
+			/* no need to phree(valid), it's not allocated yet */
+			return;
+		}
 	}
 
 	valid = validate_recipients(recp);

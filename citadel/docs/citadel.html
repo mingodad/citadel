@@ -1776,8 +1776,11 @@ installed   separately)</li>
        <li>Global address book (Users with addresses in a domain may be spread 
   out across many servers on a Citadel network)</li>
        <li>Easy-to-configure integration with <a
- href="http://www.spamassassin.org/">SpamAssassin</a> can block spam <i>before</i> 
+ href="http://www.spamassassin.org/">SpamAssassin</a> can block
+spam <i>before</i> 
   it enters the mail system</li>
+       <li>Easy-to-configuration integration with most Realtime Blackhole
+Lists (RBL) provide further defense against spammers</li>
          
 </ul>
      This section of the documentation will demonstrate how to configure
@@ -1794,7 +1797,19 @@ the <tt><b>.A</b>ide <b>S</b>ystem configuration <b>I</b>nternet</tt> command:</
 <p>This is a "clean" setup.  For a simple, standalone e-mail system you simply
   have to enter the <tt><b>A</b>dd</tt> command:</p>
           
-<pre>&lt;A&gt;dd &lt;D&gt;elete &lt;S&gt;ave &lt;Q&gt;uit  -&gt; <b>A</b>dd<br><br>Enter host name: schmeep.splorph.com<br> (1) localhost       (Alias for this computer)<br> (2) gateway domain  (Domain for all Citadel systems)<br> (3) smart-host      (Forward all outbound mail to this host)<br> (4) directory       (Consult the Global Address Book)<br> (5) SpamAssassin    (Address of SpamAssassin server)<br><br>Which one [1]:<br></pre>
+<pre>
+&lt;A&gt;dd &lt;D&gt;elete &lt;S&gt;ave &lt;Q&gt;uit  -&gt; <b>A</b>dd
+
+Enter host name: schmeep.splorph.com
+ (1) localhost       (Alias for this computer)
+ (2) gateway domain  (Domain for all Citadel systems)
+ (3) smart-host      (Forward all outbound mail to this host)
+ (4) directory       (Consult the Global Address Book)
+ (5) SpamAssassin    (Address of SpamAssassin server)
+ (6) RBL             (domain suffix of spam hunting RBL)
+
+Which one [1]:
+</pre>
           
 <p><b>localhost:</b> Basically what you're doing here is telling Citadel
 what any aliases for your machine are. If your machine were <tt>schmeep.splorph.com</tt>
@@ -1859,6 +1874,22 @@ host.    This is superior to software which files away spam in a separate
 folder,   because delivery failures will cause some spammers to assume the
 address  is invalid and remove it from their mailing lists.</p>
           
+<p><b>RBL:</b> Realtime Blackhole Lists (RBL's) provide defense against
+spammers based on their source IP address.  There are many such lists available
+on the Internet, some of which may be utilized free of charge.  Since they
+are DNS based, the lists do not require storage on your server -- they are
+queried during the SMTP conversation.</p>
+
+<p>Citadel can utilize any RBL that uses the
+<tt>z.y.x.w.nameoflist.org</tt> syntax, where <tt>w.x.y.z</tt> is the
+source IP address which is attempting to deliver mail to your server.  For
+example, <a href="http://www.spamcop.net">SpamCop</a> would use the query
+<tt>2.0.0.127.bl.spamcop.net</tt> to determine whether the host at
+<tt>127.0.0.2</tt> is a known spammer or open relay.  In this case, you
+simply select option '6' to add an RBL entry, and provide it with the
+domain suffix of <tt>bl.spamcop.net</tt> (the IP address and extra dot will
+be automatically prepended for each query).</p>
+
 <p>Now select <tt><b>S</b>ave</tt> and you are just about ready for Internet
   e-mail.</p>
           

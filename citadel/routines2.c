@@ -775,7 +775,8 @@ void get_inet_rec_type(CtdlIPC *ipc, char *buf) {
 	keyopt(" <3> smart-host     (Forward all outbound mail to this host)\n");
 	keyopt(" <4> directory      (Consult the Global Address Book)\n");
 	keyopt(" <5> SpamAssassin   (Address of SpamAssassin server)\n");
-	sel = intprompt("Which one", 1, 1, 5);
+	keyopt(" <6> RBL            (domain suffix of spam hunting RBL)\n");
+	sel = intprompt("Which one", 1, 1, 6);
 	switch(sel) {
 		case 1:	strcpy(buf, "localhost");
 			return;
@@ -786,6 +787,8 @@ void get_inet_rec_type(CtdlIPC *ipc, char *buf) {
 		case 4:	strcpy(buf, "directory");
 			return;
 		case 5:	strcpy(buf, "spamassassin");
+			return;
+		case 6:	strcpy(buf, "rbl");
 			return;
 	}
 }

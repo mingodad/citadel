@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.133  2003/02/14 16:12:04  ajc
+ * Added support for any standard RBL
+
  Revision 601.132  2003/02/13 22:33:41  ajc
  * Fixed algorithm for reporting "last login"
 
@@ -4469,3 +4472,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

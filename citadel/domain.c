@@ -142,7 +142,6 @@ int getmx(char *mxbuf, char *dest) {
 	n = get_hosts(mxbuf, "smarthost");
 	if (n > 0) return(n);
 
-
 	/*
 	 * No smart-host?  Look up the best MX for a site.
 	 */
@@ -152,16 +151,12 @@ int getmx(char *mxbuf, char *dest) {
 	/*
 	 * On systems with b0rken or non-standard resolver libraries, learn
 	 * the MX records by calling "nslookup" from the command line.
+	 *
+	 * Someday.
+	 *
 	 */
-	sprintf(buf, "nslookup -query=mx %s", dest);
-	fp = popen(buf, "r");
-	if (fp == NULL) return(0);
-	while (fgets(buf, sizeof buf, fp) != NULL) {
-		buf[strlen(buf) - 1] = 0;
-		lprintf(9, "RESOLV: %s\n", buf);
-	}
-	pclose(fp);
-	return(0);	/* FIXME */
+
+	return(0);
 
 #else /* HAVE_RESOLV_H */
 
