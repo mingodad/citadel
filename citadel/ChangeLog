@@ -1,3 +1,6 @@
+Wed Apr  7 21:36:16 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Implemented "access level required to create rooms" (client & server)
+
 1999-04-07 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* configure.in: updated help messages, OpenBSD support
 	* setup.c: if /etc/inittab doesn't exist, don't ask to create an entry

@@ -149,6 +149,7 @@ void cmd_conf(char *argbuf) {
 		cprintf("%d\n", config.c_userpurge);
 		cprintf("%d\n", config.c_roompurge);
 		cprintf("%s\n", config.c_logpages);
+		cprintf("%d\n", config.c_createax);
 		cprintf("000\n");
 		}
 
@@ -206,6 +207,12 @@ void cmd_conf(char *argbuf) {
 				break;
 			case 18: strncpy(config.c_logpages,
 					buf, ROOMNAMELEN);
+				break;
+			case 19: config.c_createax = atoi(buf);
+				if (config.c_createax < 1)
+					config.c_createax = 1;
+				if (config.c_createax > 6)
+					config.c_createax = 6;
 				break;
 				}
 		    ++a;

@@ -1379,7 +1379,7 @@ void cmd_cre8(char *args)
 		return;
 		}
 
-	if (CC->usersupp.axlevel<3) {
+	if (CC->usersupp.axlevel < config.c_createax) {
 		cprintf("%d You need higher access to create rooms.\n",
 			ERROR+HIGHER_ACCESS_REQUIRED);
 		return;

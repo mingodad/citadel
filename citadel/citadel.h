@@ -74,6 +74,7 @@ struct config {
 	int c_userpurge;		/* System default user purge (days) */
 	int c_roompurge;		/* System default room purge (days) */
 	char c_logpages[ROOMNAMELEN];	/* Room to log pages to (or not)    */
+	char c_createax;		/* Axlevel required to create rooms */
 	};
 
 #define NODENAME		config.c_nodename

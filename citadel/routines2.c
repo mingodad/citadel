@@ -582,7 +582,7 @@ void read_bio(void) {
  */
 void do_system_configuration(void) {
 	char buf[256];
-	char sc[19][256];
+	char sc[20][256];
 	int expire_mode = 0;
 	int expire_value = 0;
 	int a;
@@ -596,7 +596,7 @@ void do_system_configuration(void) {
 	if (buf[0] == '1') {
 		a = 0;
 		while (serv_gets(buf), strcmp(buf, "000")) {
-			if (a<19) strcpy(&sc[a][0], buf);
+			if (a<20) strcpy(&sc[a][0], buf);
 			++a;
 			}
 		}
@@ -622,6 +622,7 @@ void do_system_configuration(void) {
 
 	strprompt("Server connection idle timeout (in seconds)", &sc[5][0], 4);
 	strprompt("Initial access level for new users", &sc[6][0], 1);
+	strprompt("Access level required to create rooms", &sc[19][0], 1);
 
 	sprintf(&sc[7][0], "%d", (boolprompt(
 		"Require registration for new users",
@@ -679,7 +680,7 @@ void do_system_configuration(void) {
 		serv_puts("CONF set");
 		serv_gets(buf);
 		if (buf[0] == '4') {
-			for (a=0; a<19; ++a) serv_puts(&sc[a][0]);
+			for (a=0; a<20; ++a) serv_puts(&sc[a][0]);
 			serv_puts("000");
 			}
 
