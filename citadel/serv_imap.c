@@ -85,8 +85,25 @@ void imap_login(char *tag, char *cmd, char *parms) {
 	extract_token(username, parms, 0, ' ');
 	extract_token(password, parms, 1, ' ');
 
-	cprintf("%s BAD hi <%s> <%s>\r\n", username, password);
+	if (CtdlLoginExistingUser(username) == login_ok) {
+		if (CtdlTryPassword(password) == pass_ok) {
+			cprintf("%s OK login successful\r\n", tag);
+			return;
+		}
+        }
+
+	cprintf("%s BAD Login incorrect\r\n", tag);
 }
+
+
+/*
+ * implements the CAPABILITY command
+ */
+void imap_capability(char *tag, char *cmd, char *parms) {
+	cprintf("* CAPABILITY IMAP4 IMAP4REV1 AUTH=LOGIN\r\n");
+	cprintf("%s OK CAPABILITY completed\r\n", tag);
+}
+
 
 
 
@@ -128,6 +145,7 @@ void imap_command_loop(void) {
 	}
 
 	else if (!strcasecmp(cmd, "LOGOUT")) {
+		cprintf("* BYE %s logging out\r\n", config.c_fqdn);
 		cprintf("%s OK thank you for using Citadel IMAP\r\n", tag);
 		CC->kill_me = 1;
 		return;
@@ -135,6 +153,10 @@ void imap_command_loop(void) {
 
 	else if (!strcasecmp(cmd, "LOGIN")) {
 		imap_login(tag, cmd, cmdbuf);
+	}
+
+	else if (!strcasecmp(cmd, "CAPABILITY")) {
+		imap_capability(tag, cmd, cmdbuf);
 	}
 
 	else if (!CC->logged_in) {
