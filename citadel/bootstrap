@@ -1,0 +1,7 @@
+#!/bin/sh
+#
+# run me after checking Citadel out of CVS.
+#
+autoconf
+autoheader
+libtoolize

@@ -46,16 +46,13 @@ dnl figure out how to build with POSIX threads.
 TARGETS=client
 
 AC_CANONICAL_HOST
-SO=.so
 PTHREAD_DEFS=-D_REENTRANT
-LINK_SHARED='$(CC) -shared -fPIC'
 case "$host" in
 	dnl BSDI 3.0 wants relocatable object modules instead of shared libs
 	dnl for dlopen(), and has a wrapper script to link with shared libs.
 	dnl Also has stupid non-reentrant gethostbyaddr() and friends.
 	*-*-bsdi[123]*)
 		test -z "$CC" -a -x /usr/bin/shlicc2 && CC=shlicc2
-		SO=.mo
 		AC_DEFINE(HAVE_NONREENTRANT_NETDB)
 	;;
 	*-*-bsdi*)
@@ -83,7 +80,6 @@ case "$host" in
 		PTHREAD_LIBS=-pthread
 		check_pthread=no
 		PTHREAD_DEFS=-pthread
-		LINK_SHARED="ld -x -Bshareable"
 	;;
 	*-*-solaris*)
 		PTHREAD_DEFS="-D_REENTRANT -D_PTHREADS"
@@ -96,36 +92,24 @@ AC_PROG_CC
 dnl Set up system-dependent compiler flags.
 if test "$GCC" = yes; then
 	case "$host" in
-		*-*-bsdi[123]*)
-			CFLAGS="$CFLAGS -Wall -Wstrict-prototypes"
-		;;
-		mips*-sgi-irix*)
-			CFLAGS="$CFLAGS -Wall -Wstrict-prototypes"
-			PICFLAGS=-fPIC
-		;;
 		*-*-solaris*)
 			CFLAGS="$CFLAGS -Wall -Wno-char-subscripts"
-			PICFLAGS=-fPIC
-		;;
-		*-*-hpux*)
-			SERVER_LDFLAGS="$SERVER_LDFLAGS -Wl,-E"
-			PICFLAGS=-fPIC
 		;;
 		*)
 			CFLAGS="$CFLAGS -Wall -Wstrict-prototypes"
-			SERVER_LDFLAGS="$SERVER_LDFLAGS -rdynamic"
-			PICFLAGS=-fPIC
 		;;
 	esac
 fi
-AC_PROG_RANLIB
+AC_LIBTOOL_DLOPEN
+AC_DISABLE_STATIC
+AC_PROG_LIBTOOL
+AC_SUBST(LIBTOOL_DEPS)
 AC_PROG_INSTALL
 AC_PROG_YACC
 missing_dir=`cd $ac_aux_dir && pwd`
 AM_MISSING_PROG(AUTOCONF, autoconf, $missing_dir)
 
 dnl Checks for system services.
-AC_EXEEXT
 
 dnl Checks for libraries.
 
@@ -144,12 +128,12 @@ if test "$ac_cv_func_gethostbyname" = no; then
 fi
 
 if test "$ac_cv_func_connect" = no; then
-	AC_CHECK_LIB(socket, connect, NETLIBS="-lsocket $NETLIBS",, $NETLIBS)
+        AC_CHECK_LIB(socket, connect, NETLIBS="-lsocket $NETLIBS",, $NETLIBS)
 fi
 
 if test "$ac_cv_func_dlopen" = no; then
         AC_CHECK_LIB(dl, dlopen, [LIBS="-ldl $LIBS"
-		test "$with_pam" = yes && chkpwd_LIBS="-ldl $chkpwd_LIBS"])
+               test "$with_pam" = yes && chkpwd_LIBS="-ldl $chkpwd_LIBS"])
 fi
 
 dnl Check for HP/UX dyanmic loader. This should only be in -ldld.
@@ -233,7 +217,7 @@ AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 test "$db_dir" && CPPFLAGS="$CPPFLAGS -I$db_dir/include"
-AC_CHECK_HEADERS(curses.h dl.h dlfcn.h fcntl.h limits.h termios.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h utmp.h utmpx.h paths.h)
+AC_CHECK_HEADERS(curses.h dl.h fcntl.h limits.h termios.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h utmp.h utmpx.h paths.h)
 
 dnl some systems require -pthread, -D_REENTRANT, etc to be passed to cc if we
 dnl include pthread.h:
@@ -281,8 +265,6 @@ AC_CHECK_FUNCS(getspnam getutxline mkdir mkfifo mktime rmdir select socket strer
 
 dnl Now check for pthreads -- set up variables so that the compiler will be run
 dnl with proper flags for pthread programs
-save_LDFLAGS=$LDFLAGS
-LDFLAGS="$LDFLAGS $SERVER_LDFLAGS"
 save_LIBS=$LIBS
 LIBS="$PTHREAD_LIBS $LIBS"
 
@@ -335,15 +317,13 @@ if test "x$CX" != x.ro; then
 	CX=.o
 fi
 
-dnl Now restore the old ldflags so we don't pass the wrong stuff to makefile
-LDFLAGS=$save_LDFLAGS
+dnl Now restore the old libs so we don't pass the wrong stuff to makefile
 LIBS=$save_LIBS
 
 AC_REPLACE_FUNCS(snprintf getutline)
 
 dnl Done! Now write the Makefile and sysdep.h
 AC_SUBST(AUTH)
-AC_SUBST(SO)
 AC_SUBST(CHKPWD)
 AC_SUBST(CURSES)
 AC_SUBST(GDBM)
@@ -351,9 +331,6 @@ AC_SUBST(RESOLV)
 AC_SUBST(NETLIBS)
 AC_SUBST(chkpwd_LIBS)
 AC_SUBST(TARGETS)
-AC_SUBST(SERVER_LDFLAGS)
-AC_SUBST(PICFLAGS)
-AC_SUBST(LINK_SHARED)
 AC_SUBST(PTHREAD_DEFS)
 AC_SUBST(PTHREAD_LIBS)
 AC_SUBST(CLIENT_PTLIBS)

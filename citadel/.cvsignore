@@ -1,5 +1,6 @@
 aidepost
 .AppleDouble
+.libs
 base64
 chkpwd
 citadel
@@ -19,6 +20,8 @@ configure
 data
 icq
 import
+libtool
+*.lo
 mailinglist
 Makefile
 *.mo

@@ -1,4 +1,13 @@
  $Log$
+ Revision 580.11  2001/07/27 20:45:44  nbryant
+ libtool has matured a lot since the last time i looked at it (years ago)
+ so we now use it to handle the details of building shared libraries and
+ the linker flags for the main executable.
+
+ in theory this should bring a lot more portability to the dynloader
+ subsystem and enable us to do things like transparently detect GNU vs Sun
+ linkers on solaris, for example
+
  Revision 580.10  2001/07/27 03:29:04  nbryant
  missed one thing in the autoconf move
 
@@ -2597,3 +2606,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
