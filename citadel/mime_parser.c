@@ -56,21 +56,20 @@ char *memreadline(char *start, char *buf, int maxlen)
 {
 	char ch;
 	char *ptr;
+	int len = 0;	/* tally our own length to avoid strlen() delays */
 
 	ptr = start;
 	memset(buf, 0, maxlen);
 
 	while (1) {
 		ch = *ptr++;
-		if ((ch == 10) || (ch == 0)) {
-			if (strlen(buf) > 0)
-				if (buf[strlen(buf) - 1] == 13)
-					buf[strlen(buf) - 1] = 0;
-			return ptr;
-		}
-		if (strlen(buf) < (maxlen - 1)) {
+		if ( (len < (maxlen - 1)) && (ch != 13) && (ch != 10) ) {
 			buf[strlen(buf) + 1] = 0;
 			buf[strlen(buf)] = ch;
+			++len;
+		}
+		if ((ch == 10) || (ch == 0)) {
+			return ptr;
 		}
 	}
 }
@@ -387,11 +386,11 @@ void the_mime_parser(char *partnum,
 		do {
 			part_end = ptr;
 			ptr = memreadline(ptr, buf, sizeof buf);
-			if (*ptr == 0) goto END_MULTI;	/* premature end */
 			if (content_end != NULL)
 				if (ptr >= content_end) goto END_MULTI;
-			if ((!strcasecmp(buf, startary))
-			    || (!strcasecmp(buf, endary))) {
+
+			if ( (!strcasecmp(buf, startary))
+			   || (!strcasecmp(buf, endary)) ) {
 				if (part_start != NULL) {
 					if (strlen(partnum) > 0) {
 						sprintf(nested_partnum, "%s.%d",
@@ -411,7 +410,7 @@ void the_mime_parser(char *partnum,
 				}
 				part_start = ptr;
 			}
-		} while (strcasecmp(buf, endary));
+		} while ( (strcasecmp(buf, endary)) && (ptr != 0) );
 END_MULTI:	if (PostMultiPartCallBack != NULL) {
 			PostMultiPartCallBack("", "", partnum, "", NULL,
 				content_type, 0, encoding, userdata);

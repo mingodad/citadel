@@ -1,4 +1,9 @@
  $Log$
+ Revision 573.133  2001/05/18 20:12:09  ajc
+ * Fixed bug in mime_parser.c that caused parts to be dropped when the last
+   boundary was the very last line of the message.
+ * serv_smtp.c: toned down some of the command response verbage.
+
  Revision 573.132  2001/04/28 04:42:55  ajc
  * Updated some of the docs.  Bumped version number to 5.80 in anticipation
    of going into a release cycle soon.
@@ -2517,4 +2522,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

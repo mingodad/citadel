@@ -91,7 +91,7 @@ void smtp_greeting(void) {
 	CtdlAllocUserData(SYM_SMTP_RECP, SIZ);
 	sprintf(SMTP_RECP, "%s", "");
 
-	cprintf("220 Welcome to the Citadel/UX ESMTP server at %s\r\n",
+	cprintf("220 Citadel/UX ESMTP server at %s ready.\r\n",
 		config.c_fqdn);
 }
 
@@ -119,7 +119,7 @@ void smtp_hello(char *argbuf, int is_esmtp) {
  * Implement HELP command.
  */
 void smtp_help(void) {
-	cprintf("214-Here's the frequency, Kenneth:\r\n");
+	cprintf("214-Commands accepted:\r\n");
 	cprintf("214-    DATA\r\n");
 	cprintf("214-    EHLO\r\n");
 	cprintf("214-    EXPN\r\n");
@@ -131,7 +131,7 @@ void smtp_help(void) {
 	cprintf("214-    RCPT\r\n");
 	cprintf("214-    RSET\r\n");
 	cprintf("214-    VRFY\r\n");
-	cprintf("214 I could tell you more, but then I'd have to kill you.\r\n");
+	cprintf("214     \r\n");
 }
 
 
@@ -440,7 +440,7 @@ void smtp_rcpt(char *argbuf) {
 
 		case rfc822_address_nonlocal:
 			if (SMTP->message_originated_locally == 0) {
-				cprintf("551 Relaying denied\r\n");
+				cprintf("551 Third-party relaying denied.\r\n");
 			}
 			else {
 				cprintf("250 Remote recipient %s ok\r\n", recp);
@@ -672,7 +672,7 @@ void smtp_data(void) {
 	CtdlFreeMessage(msg);
 
 	if (!retval) {
-		cprintf("250 Message accepted for delivery.\r\n");
+		cprintf("250 ok terrific\r\n");
 	}
 	else {
 		cprintf("550 Internal delivery errors: %d\r\n", retval);
@@ -759,7 +759,7 @@ void smtp_command_loop(void) {
 	}
 
 	else {
-		cprintf("502 I'm sorry Dave, I'm afraid I can't do that.\r\n");
+		cprintf("502 I'm afraid I can't do that.\r\n");
 	}
 
 }
