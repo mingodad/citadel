@@ -88,6 +88,9 @@ void get_serv_info(char *browser_host, char *user_agent)
 		case 9:
 			strcpy(serv_info.serv_moreprompt, buf);
 			break;
+		case 14:
+			serv_info.serv_supports_ldap = atoi(buf);
+			break;
 		}
 		++a;
 	}
