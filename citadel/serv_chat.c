@@ -522,7 +522,7 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 		fprintf(fp, "N%s%c", NODENAME, 0);
 		fprintf(fp, "M%s\n%c", x_msg, 0);
 		fclose(fp);
-		save_message(CC->temp, "", config.c_logpages, M_LOCAL, 1);
+		save_message(CC->temp, "", config.c_logpages, MES_LOCAL, 1);
 		unlink(CC->temp);
 	}
 	return (message_sent);

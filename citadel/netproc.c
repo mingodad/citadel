@@ -408,10 +408,10 @@ GETSN:	for (stemp=slist; stemp!=NULL; stemp=stemp->next) {
 			goto GETSN;
 			}
 		if (!strcasecmp(stemp->s_type,"bin")) {
-			return(M_BINARY);
+			return(MES_BINARY);
 			}
 		if (!strcasecmp(stemp->s_type,"uum")) {
-			return(M_INTERNET);
+			return(MES_INTERNET);
 			}
 		}
 	    }
@@ -788,7 +788,7 @@ NXMSG:	/* Seek to the beginning of the next message */
 		a = get_sysinfo_type(minfo.D);
 		syslog(LOG_NOTICE, "routing message to system <%s>", minfo.D);
 		fflush(stdout);
-		if (a==M_INTERNET) {
+		if (a==MES_INTERNET) {
 			if (fork()==0) {
 				syslog(LOG_NOTICE, "netmailer %s", tname);
 				fflush(stdout);
@@ -800,7 +800,7 @@ NXMSG:	/* Seek to the beginning of the next message */
 				}
 			else while (wait(&b)!=(-1));
 			}
-		else if (a==M_BINARY) {
+		else if (a==MES_BINARY) {
 			ship_to(tname,minfo.D);
 			}
 		else {

@@ -173,10 +173,10 @@ struct quickroom {
 #define MES_ANON	66		/* "****" header                    */
 #define MES_AN2		67		/* "Anonymous" header               */
 
-#define M_ERROR		(-1)	/* Can't send message due to bad address   */
-#define M_LOCAL		0	/* Local message, do no network processing */
-#define M_INTERNET	1	/* Convert msg and send as Internet mail   */
-#define M_BINARY	2	/* Process recipient and send via C/UX net */
+#define MES_ERROR	(-1)	/* Can't send message due to bad address   */
+#define MES_LOCAL	0	/* Local message, do no network processing */
+#define MES_INTERNET	1	/* Convert msg and send as Internet mail   */
+#define MES_BINARY	2	/* Process recipient and send via C/UX net */
 
 /****************************************************************************/
 

@@ -73,7 +73,7 @@ int alias(char *name)		/* process alias and routing info for mail */
 
 	fp=fopen("network/mail.aliases","r");
 	if (fp==NULL) fp=fopen("/dev/null","r");
-	if (fp==NULL) return(M_ERROR);
+	if (fp==NULL) return(MES_ERROR);
 	strcpy(aaa,""); strcpy(bbb,"");
 	while (fgets(aaa, sizeof aaa, fp)!=NULL) {
 		while (isspace(name[0])) strcpy(name, &name[1]);
@@ -91,22 +91,22 @@ int alias(char *name)		/* process alias and routing info for mail */
 	lprintf(7, "Mail is being forwarded to %s\n", name);
 
 	/* determine local or remote type, see citadel.h */
-	for (a=0; a<strlen(name); ++a) if (name[a]=='!') return(M_INTERNET);
+	for (a=0; a<strlen(name); ++a) if (name[a]=='!') return(MES_INTERNET);
 	for (a=0; a<strlen(name); ++a)
 		if (name[a]=='@')
 			for (b=a; b<strlen(name); ++b)
-				if (name[b]=='.') return(M_INTERNET);
+				if (name[b]=='.') return(MES_INTERNET);
 	b=0; for (a=0; a<strlen(name); ++a) if (name[a]=='@') ++b;
 	if (b>1) {
 		lprintf(7, "Too many @'s in address\n");
-		return(M_ERROR);
+		return(MES_ERROR);
 		}
 	if (b==1) {
 		for (a=0; a<strlen(name); ++a)
 			if (name[a]=='@') strcpy(bbb,&name[a+1]);
 		while (bbb[0]==32) strcpy(bbb,&bbb[1]);
 		fp = fopen("network/mail.sysinfo","r");
-		if (fp==NULL) return(M_ERROR);
+		if (fp==NULL) return(MES_ERROR);
 GETSN:		do {
 			a=getstring(fp,aaa);
 			} while ((a>=0)&&(strcasecmp(aaa,bbb)));
@@ -125,7 +125,7 @@ GETSN:		do {
 				}
 			while(bbb[strlen(bbb)-1]=='_') bbb[strlen(bbb)-1]=0;
 			sprintf(name,&aaa[4],bbb);
-			return(M_INTERNET);
+			return(MES_INTERNET);
 			}
 		if (!strncmp(aaa,"bin",3)) {
 			strcpy(aaa,name); strcpy(bbb,name);
@@ -136,11 +136,11 @@ GETSN:		do {
 			strcpy(bbb,&bbb[1]);
 			while (bbb[0]==' ') strcpy(bbb,&bbb[1]);
 			sprintf(name,"%s @%s",aaa,bbb);
-			return(M_BINARY);
+			return(MES_BINARY);
 			}
-		return(M_ERROR);
+		return(MES_ERROR);
 		}
-	return(M_LOCAL);
+	return(MES_LOCAL);
 	}
 
 
@@ -924,7 +924,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 	lprintf(9, "mailbox aliasing loop\n");
 	if (strlen(recipient) > 0) {
 		/* mailtype = alias(recipient); */
-		if (mailtype == M_LOCAL) {
+		if (mailtype == MES_LOCAL) {
 			if (getuser(&userbuf, recipient)!=0) {
 				/* User not found, goto Aide */
 				strcpy(force_room, AIDEROOM);
@@ -963,7 +963,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 	lputroom(&CC->quickroom, actual_rm);
 
 	/* Network mail - send a copy to the network program. */
-	if ( (strlen(recipient)>0) && (mailtype != M_LOCAL) ) {
+	if ( (strlen(recipient)>0) && (mailtype != MES_LOCAL) ) {
 		sprintf(aaa,"./network/spoolin/netmail.%04lx.%04x.%04x",
 			(long)getpid(), CC->cs_pid, ++seqnum);
 		copy_file(mtmp,aaa);
@@ -1001,7 +1001,7 @@ void aide_message(char *text)
 	fprintf(fp,"N%s%c",NODENAME,0);
 	fprintf(fp,"M%s\n%c",text,0);
 	fclose(fp);
-	save_message(CC->temp,"",AIDEROOM,M_LOCAL,1);
+	save_message(CC->temp,"",AIDEROOM,MES_LOCAL,1);
 	syslog(LOG_NOTICE,text);
 	}
 
@@ -1030,8 +1030,8 @@ void make_message(
 	strcpy(dest_node, "");
 
 
-	/* If net_type is M_BINARY, split out the destination node. */
-	if (net_type == M_BINARY) {
+	/* If net_type is MES_BINARY, split out the destination node. */
+	if (net_type == MES_BINARY) {
 		strcpy(dest_node,NODENAME);
 		for (a=0; a<strlen(recipient); ++a) {
 			if (recipient[a]=='@') {
@@ -1041,8 +1041,8 @@ void make_message(
 			}
 		}
 
-	/* if net_type is M_INTERNET, set the dest node to 'internet' */
-	if (net_type == M_INTERNET) {
+	/* if net_type is MES_INTERNET, set the dest node to 'internet' */
+	if (net_type == MES_INTERNET) {
 		strcpy(dest_node,"internet");
 		}
 
@@ -1162,17 +1162,17 @@ void cmd_ent0(char *entargs)
 		lprintf(9, "calling alias()\n");
 		e=alias(buf);			/* alias and mail type */
 		lprintf(9, "alias() returned %d\n", e);
-		if ((buf[0]==0) || (e==M_ERROR)) {
+		if ((buf[0]==0) || (e==MES_ERROR)) {
 			cprintf("%d Unknown address - cannot send message.\n",
 				ERROR+NO_SUCH_USER);
 			return;
 			}
-		if ((e!=M_LOCAL)&&(CC->usersupp.axlevel<4)) {
+		if ((e!=MES_LOCAL)&&(CC->usersupp.axlevel<4)) {
 			cprintf("%d Net privileges required for network mail.\n",
 				ERROR+HIGHER_ACCESS_REQUIRED);
 			return;
 			}
-		if ((RESTRICT_INTERNET==1)&&(e==M_INTERNET)
+		if ((RESTRICT_INTERNET==1)&&(e==MES_INTERNET)
 		   &&((CC->usersupp.flags&US_INTERNET)==0)
 		   &&(!CC->internal_pgm) ) {
 			cprintf("%d You don't have access to Internet mail.\n",
@@ -1183,7 +1183,7 @@ void cmd_ent0(char *entargs)
 			mtsflag=1;
 			goto SKFALL;
 			}
-		if (e!=M_LOCAL) goto SKFALL;	/* don't search local file  */
+		if (e!=MES_LOCAL) goto SKFALL;	/* don't search local file  */
 		if (!strcasecmp(buf,CC->usersupp.fullname)) {
 			cprintf("%d Can't send mail to yourself!\n",
 				ERROR+NO_SUCH_USER);
@@ -1262,12 +1262,12 @@ void cmd_ent3(char *entargs)
 	/* If we're in Mail, check the recipient */
 	if (strlen(recp) > 0) {
 		e=alias(recp);			/* alias and mail type */
-		if ((recp[0]==0) || (e==M_ERROR)) {
+		if ((recp[0]==0) || (e==MES_ERROR)) {
 			cprintf("%d Unknown address - cannot send message.\n",
 				ERROR+NO_SUCH_USER);
 			return;
 			}
-		if (e == M_LOCAL) {
+		if (e == MES_LOCAL) {
 			a = getuser(&tempUS,recp);
 			if (a!=0) {
 				cprintf("%d No such user.\n",
