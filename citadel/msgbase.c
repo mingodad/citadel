@@ -131,6 +131,7 @@ int alias(char *name)
 	char testnode[SIZ];
 	char buf[SIZ];
 
+	striplt(name);
 	remove_any_whitespace_to_the_left_or_right_of_at_symbol(name);
 
 	fp = fopen("network/mail.aliases", "r");
@@ -169,15 +170,18 @@ int alias(char *name)
 		}
 	}
 
-	/* determine local or remote type, see citadel.h */
+	/* Hit the Global Address Book */
+	if (CtdlDirectoryLookup(aaa, name) == 0) {
+		strcpy(name, aaa);
+	}
 
+	/* determine local or remote type, see citadel.h */
 	at = haschar(name, '@');
 	if (at == 0) return(MES_LOCAL);		/* no @'s - local address */
 	if (at > 1) return(MES_ERROR);		/* >1 @'s - invalid address */
 	remove_any_whitespace_to_the_left_or_right_of_at_symbol(name);
 
 	/* figure out the delivery mode */
-
 	extract_token(node, name, 1, '@');
 
 	/* If there are one or more dots in the nodename, we assume that it

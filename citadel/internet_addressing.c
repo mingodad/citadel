@@ -47,6 +47,7 @@
 #include "user_ops.h"
 #include "room_ops.h"
 #include "parsedate.h"
+#include "database.h"
 
 
 #ifndef HAVE_SNPRINTF
@@ -639,6 +640,23 @@ char *rfc822_fetch_field(char *rfc822, char *fieldname) {
  *                      DIRECTORY MANAGEMENT FUNCTIONS                       *
  *****************************************************************************/
 
+/*
+ * Generate the index key for an Internet e-mail address to be looked up
+ * in the database.
+ */
+void directory_key(char *key, char *addr) {
+	int i;
+	int keylen = 0;
+
+	for (i=0; i<strlen(addr); ++i) {
+		if (!isspace(addr[i])) {
+			key[keylen++] = tolower(addr[i]);
+		}
+	}
+	key[keylen++] = 0;
+}
+
+
 
 /* Return nonzero if the supplied address is in a domain we keep in
  * the directory
@@ -673,14 +691,16 @@ void CtdlDirectoryInit(void) {
  * Add an Internet e-mail address to the directory for a user
  */
 void CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr) {
+	char key[SIZ];
 
 	lprintf(9, "Dir: %s --> %s\n",
 		internet_addr, citadel_addr);
 	if (IsDirectory(internet_addr) == 0) return;
 
-	lprintf(9, "** FIXME write to db\n");
-	/* FIXME ... write this */
+	directory_key(key, internet_addr);
 
+	cdb_store(CDB_DIRECTORY, key, strlen(key),
+		citadel_addr, strlen(citadel_addr)+1 );
 }
 
 
@@ -688,7 +708,10 @@ void CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr) {
  * Delete an Internet e-mail address from the directory
  */
 void CtdlDirectoryDelUser(char *internet_addr) {
-	/* FIXME ... write this */
+	char key[SIZ];
+
+	directory_key(key, internet_addr);
+	cdb_delete(CDB_DIRECTORY, key, strlen(key) );
 }
 
 
@@ -698,9 +721,18 @@ void CtdlDirectoryDelUser(char *internet_addr) {
  * On failure: returns nonzero
  */
 int CtdlDirectoryLookup(char *target, char *internet_addr) {
+	struct cdbdata *cdbrec;
+	char key[SIZ];
 
 	if (IsDirectory(internet_addr) == 0) return(-1);
 
-	/* FIXME ... write this */
+	directory_key(key, internet_addr);
+	cdbrec = cdb_fetch(CDB_DIRECTORY, key, strlen(key) );
+	if (cdbrec != NULL) {
+		safestrncpy(target, cdbrec->ptr, SIZ);
+		cdb_free(cdbrec);
+		return(0);
+	}
+
 	return(-1);
 }

@@ -109,7 +109,6 @@ void vcard_extract_internet_addresses(struct CtdlMessage *msg,
 
 /*
  * Back end function for cmd_igab()
- * FIXME use a callback that actually writes to the database, dumbass...
  */
 void vcard_add_to_directory(long msgnum, void *data) {
 	struct CtdlMessage *msg;
@@ -139,19 +138,16 @@ void cmd_igab(char *argbuf) {
 		return;
         }
 
-	/* FIXME empty the existing database first.  And don't be a
-	 * freakin' momo and dump addresses to the client.  We want to write
-	 * the harvested addresses into the database and send an OK to the
-	 * client when finished.
+	/* Empty the existing database first.
 	 */
-	
-	cprintf("%d Directory will be rebuilt\n", OK);
+	CtdlDirectoryInit();
 
         /* We want the last (and probably only) vcard in this room */
         CtdlForEachMessage(MSGS_ALL, 0, (-127), "text/x-vcard",
 		NULL, vcard_add_to_directory, NULL);
 
         getroom(&CC->quickroom, hold_rm);	/* return to saved room */
+	cprintf("%d Directory has been rebuilt.\n", OK);
 }
 
 
