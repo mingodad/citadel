@@ -5,6 +5,24 @@
  *
  */
 
+/*****************************************************************************
+       Tunable configuration parameters for the Sleepycat DB back end
+ *****************************************************************************/
+
+/* Set to 1 for transaction-based database logging.  This is recommended for
+ * safe recovery in the event of system or application failure.
+ */
+#define TRANSACTION_BASED	1
+
+/* Citadel will checkpoint the db at the end of every session, but only if
+ * the specified number of kilobytes has been written, or if the specified
+ * number of minutes has passed, since the last checkpoint.
+ */
+#define MAX_CHECKPOINT_KBYTES	0
+#define MAX_CHECKPOINT_MINUTES	15
+
+/*****************************************************************************/
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -20,12 +38,6 @@
 #include "database.h"
 #include "sysdep_decls.h"
 #include "dynloader.h"
-
-
-/* 
- * FIXME this should be defined somewhere else.
- */
-int transaction_based = 1;
 
 DB *dbp[MAXCDB];		/* One DB handle for each Citadel database */
 DB_ENV *dbenv;			/* The DB environment (global) */
@@ -78,6 +90,24 @@ void defrag_databases(void)
 }
 
 
+
+/*
+ * Request a checkpoint of the database.
+ */
+void cdb_checkpoint(void) {
+	int ret;
+
+	lprintf(7, "DB checkpoint\n");
+	ret = txn_checkpoint(dbenv,
+				MAX_CHECKPOINT_KBYTES,
+				MAX_CHECKPOINT_MINUTES,
+				0);
+	if (ret) {
+		lprintf(1, "txn_checkpoint: %s\n", db_strerror(ret));
+	}
+}
+
+
 /*
  * Open the various databases we'll be using.  Any database which
  * does not exist should be created.  Note that we don't need an S_DATABASE
@@ -123,8 +153,11 @@ void open_databases(void)
 	 * is serialized already, so don't bother the database manager with
 	 * it.  Besides, it locks up when we do it that way.
          */
+#ifdef TRANSACTION_BASED
+        flags = DB_CREATE | DB_INIT_MPOOL | DB_PRIVATE | DB_INIT_TXN;
+#else
         flags = DB_CREATE | DB_INIT_MPOOL | DB_PRIVATE;
-	if (transaction_based) flags = flags | DB_INIT_TXN;
+#endif
         ret = dbenv->open(dbenv, "./data", flags, 0);
 	if (ret) {
 		lprintf(1, "dbenv->open: %s\n", db_strerror(ret));
@@ -159,13 +192,13 @@ void open_databases(void)
 			lprintf(1, "db_open[%d]: %s\n", i, db_strerror(ret));
 			exit(ret);
 		}
-
 	}
 
 	cdb_allocate_ssd();
 	CtdlRegisterSessionHook(cdb_allocate_ssd, EVT_START);
-
-
+#ifdef TRANSACTION_BASED
+	CtdlRegisterSessionHook(cdb_checkpoint, EVT_STOP);
+#endif
 }
 
 
@@ -313,8 +346,6 @@ void cdb_rewind(int cdb)
 {
 	int ret = 0;
 
-	cdb_allocate_ssd();
-
 	/*
 	 * Now initialize the cursor
 	 */
@@ -362,14 +393,16 @@ struct cdbdata *cdb_next_item(int cdb)
  */
 
 void cdb_begin_transaction(void) {
-	if (!transaction_based) {
-		MYTID = NULL;
-		return;
-	}
 
+#ifdef TRANSACTION_BASED
 	txn_begin(dbenv, NULL, &MYTID, 0);
+#else
+	MYTID = NULL;
+#endif
 }
 
 void cdb_end_transaction(void) {
-	if (transaction_based) txn_commit(MYTID, 0);
+#ifdef TRANSACTION_BASED
+	txn_commit(MYTID, 0);
+#endif
 }

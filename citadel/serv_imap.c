@@ -134,7 +134,6 @@ void imap_cleanup_function(void) {
 void imap_greeting(void) {
 
 	strcpy(CC->cs_clientname, "IMAP session");
-	CC->internal_pgm = 1;
 	CtdlAllocUserData(SYM_IMAP, sizeof(struct citimap));
 	IMAP->authstate = imap_as_normal;
 
@@ -318,12 +317,20 @@ void imap_close(int num_parms, char *parms[]) {
 
 /*
  * Back end for imap_lsub()
+ *
+ * IMAP "subscribed folder" is equivocated to Citadel "known rooms."  This
+ * may or may not be the desired behavior in the future.
  */
 void imap_lsub_listroom(struct quickroom *qrbuf, void *data) {
 	char buf[256];
-	
-	imap_mailboxname(buf, sizeof buf, qrbuf);
-	cprintf("* LSUB () \"|\" \"%s\"\r\n", buf);
+	int ra;
+
+	/* Only list rooms to which the user has access!! */
+	ra = CtdlRoomAccess(qrbuf, &CC->usersupp);
+	if (ra & UA_KNOWN) {
+		imap_mailboxname(buf, sizeof buf, qrbuf);
+		cprintf("* LSUB () \"|\" \"%s\"\r\n", buf);
+	}
 }
 
 
@@ -331,8 +338,6 @@ void imap_lsub_listroom(struct quickroom *qrbuf, void *data) {
  * Implements the LSUB command
  *
  * FIXME: Handle wildcards, please.
- * FIXME: Currently we show all rooms as subscribed folders.  Need to handle
- *        subscriptions properly.
  */
 void imap_lsub(int num_parms, char *parms[]) {
 	ForEachRoom(imap_lsub_listroom, NULL);
@@ -346,9 +351,15 @@ void imap_lsub(int num_parms, char *parms[]) {
  */
 void imap_list_listroom(struct quickroom *qrbuf, void *data) {
 	char buf[256];
-	
-	imap_mailboxname(buf, sizeof buf, qrbuf);
-	cprintf("* LIST () \"|\" \"%s\"\r\n", buf);
+	int ra;
+
+	/* Only list rooms to which the user has access!! */
+	ra = CtdlRoomAccess(qrbuf, &CC->usersupp);
+	if ( (ra & UA_KNOWN) 
+	  || ((ra & UA_GOTOALLOWED) && (ra & UA_ZAPPED))) {
+		imap_mailboxname(buf, sizeof buf, qrbuf);
+		cprintf("* LIST () \"|\" \"%s\"\r\n", buf);
+	}
 }
 
 
