@@ -7,7 +7,7 @@ import java.awt.List;
 
 public class roomMap {
   Hashtable	floors, rooms;
-  Vector	nrm, srm;
+  SortedVector	nrm, srm;
   List		nrmL, srmL;
   boolean	refreshed;
 
@@ -15,8 +15,8 @@ public class roomMap {
     nrmL = null;
     srmL = null;
 
-    nrm = new Vector();
-    srm = new Vector();
+    nrm = new SortedVector( new roomCmp() );
+    srm = new SortedVector( new roomCmp() );
     floors = null;
     rooms = null;
 
@@ -26,6 +26,8 @@ public class roomMap {
   public void loadFloorInfo() {
     floors = new Hashtable();
     citReply	r = citadel.me.getReply( "LFLR" );
+
+    if( r.error() ) return;
 
     String	l;
     for( int i = 0; (l = r.getLine( i )) != null; i++ ) {
@@ -54,17 +56,17 @@ public class roomMap {
 
     rooms = new Hashtable();
 
-    nrm = new Vector();
+    nrm = new SortedVector( new roomCmp() );
     nrmL.clear(); 
     parseRooms( nrm, nrmL, citadel.me.getReply( "LKRN" ) );
 
-    srm = new Vector();
+    srm = new SortedVector( new roomCmp() );
     srmL.clear();
     parseRooms( srm, srmL, citadel.me.getReply( "LKRO" ) );
     refreshed = true;
   }
 	
-  public void parseRooms( Vector v, List l, citReply r ) {
+  public void parseRooms( SortedVector v, List l, citReply r ) {
     int		i=0;
     String	s;
 
@@ -73,9 +75,13 @@ public class roomMap {
       if( rm.valid() ) {
 	rooms.put( rm.name(), rm );
 	addRoomToFloor( rm );
-	l.addItem( rm.name() );
 	v.addElement( rm );
       }
+    }
+ 
+    for( Enumeration e=v.elements(); e.hasMoreElements(); ) {
+      room rm = (room)e.nextElement();
+      l.addItem( rm.name() );
     }
   }
 
@@ -116,22 +122,32 @@ public class roomMap {
     }
   }
 
-  public void visited( String room ) {
+  public void visited( String rm ) {
     if( (nrmL == null) || (srmL == null) ) return;
     for( int i = 0; i < nrmL.countItems(); i++ ) {
-      if( room.equals( nrmL.getItem( i ) ) ) {
+      if( rm.equals( nrmL.getItem( i ) ) ) {
 	nrmL.delItem( i );
-	srmL.addItem( room );
+	srmL.addItem( rm );
       }
     }
 
-    for( Enumeration e = nrm.elements(); e.hasMoreElements(); ) {
-      room r = (room)e.nextElement();
-      if( r.is( room ) ) {
-	nrm.removeElement( r );
-	srm.addElement( r );
-      }
-    }
+    room r = getRoom( rm );
+    if( nrm.removeElement( r ) != -1 )
+      srm.addElement( r );
+  }
+}
+
+class roomCmp extends sorter {
+  public int cmp( Object o1, Object o2 ) {
+    room	r1 = (room)o1;
+    room	r2 = (room)o2;
+
+    /* Do I want to sort on floors here, even if users don't use it? */
+
+    if( r1.order < r2.order ) return -1;
+    else if( r1.order == r2.order )
+      return r1.name().compareTo( r2.name() );
+    return 1;
   }
 }
 
@@ -176,10 +192,10 @@ class room {
 class floor {
   String	name, num;
   int		number, ref_count;
-  Vector	rooms;
+  SortedVector	rooms;
 
   public floor( String l ) {
-    rooms = new Vector();
+    rooms = new SortedVector( new roomCmp() );
 
     int	i = l.indexOf( '|' );
     num = l.substring( 0, i );
@@ -204,6 +220,7 @@ class floor {
   }
 
   public void addRoom( room r ) {
-    rooms.addElement( r );
+    if( !rooms.isElement( r ) )
+      rooms.addElement( r );
   }
 }

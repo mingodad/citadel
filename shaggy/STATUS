@@ -18,7 +18,7 @@ Basic:
 "main"
 - Splits rooms up into new and no-new
  * limited floor support (shows in message panel)
- * doesn't sort the room names, even though there's "no pressing reason not to"
+- rooms are now sorted
 
 - Go to next room with messages
 - go to any old room by double-clicking from list
