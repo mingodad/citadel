@@ -870,8 +870,9 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 		need_recp = 1;
 
 	/* If the user is a dumbass, tell them how to type. */
-	if ((userflags & US_EXPERT) == 0)
+	if ((userflags & US_EXPERT) == 0) {
 		formout("entermsg");
+	}
 
 	/* Handle the selection of a recipient, if necessary. */
 	strcpy(buf, "");
@@ -881,7 +882,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 				strcpy(buf, reply_to);
 			} else {
 				printf("Enter recipient: ");
-				getline(buf, 60);
+				getline(buf, (SIZ-100) );
 				if (strlen(buf) == 0)
 					return (1);
 			}
