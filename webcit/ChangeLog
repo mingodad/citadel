@@ -1,4 +1,8 @@
 $Log$
+Revision 410.42  2003/06/03 03:57:42  ajc
+* Tightened up the room banner a bit.  Smaller padding, smaller font,
+  smaller images.
+
 Revision 410.41  2003/05/31 21:36:45  ajc
 * Cosmetic changes
 
@@ -1443,4 +1447,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
