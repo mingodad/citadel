@@ -794,6 +794,12 @@ void cmd_goto(char *gargs)
 						ERROR+PASSWORD_REQUIRED);
 					return;
 					}
+			else if ( (QRscratch.QRflags&QR_PRIVATE) &&
+				  ((QRscratch.QRflags&QR_PASSWORDED)==0) &&
+				  ((QRscratch.QRflags&QR_GUESSNAME)==0) &&
+				  ((ra & UA_KNOWN) == 0) ) {
+					goto NOPE;
+				}
 			else {
 				usergoto(towhere, 1);
 				return;
@@ -801,7 +807,7 @@ void cmd_goto(char *gargs)
 			}
 		}
 
-	cprintf("%d room '%s' not found\n",ERROR+ROOM_NOT_FOUND,towhere);
+NOPE:	cprintf("%d room '%s' not found\n",ERROR+ROOM_NOT_FOUND,towhere);
 	}
 
 

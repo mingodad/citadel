@@ -776,6 +776,7 @@ void cmd_forg(void) {
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
 	vbuf.v_flags = vbuf.v_flags | V_FORGET;
+	vbuf.v_flags = vbuf.v_flags & ~V_ACCESS;
 
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 	lputuser(&CC->usersupp,CC->curr_user);
