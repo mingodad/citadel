@@ -37,6 +37,7 @@
 int setup_type;
 char setup_directory[SIZ];
 char init_entry[SIZ];
+int using_web_installer = 0;
 
 
 /*
@@ -414,20 +415,26 @@ void check_inittab_entry(void)
 	set_value(question, listenport);
 
 	/* Find out where Citadel is. */
-	snprintf(question, sizeof question,
-		"Is the Citadel service running on the same host as WebCit?");
-	if (yesno(question)) {
-		sprintf(hostname, "uds");
-		sprintf(portname, "/usr/local/citadel");
-		set_value("In what directory is Citadel installed?", portname);
+	if ( (using_web_installer) && (getenv("CITADEL") != NULL) ) {
+		strcpy(hostname, "uds");
+		strcpy(portname, getenv("CITADEL"));
 	}
 	else {
-		sprintf(hostname, "127.0.0.1");
-		sprintf(portname, "504");
-		set_value("Enter the host name or IP address of your "
-			"Citadel server.", hostname);
-		set_value("Enter the port number on which Citadel is "
-			"running (usually 504)", portname);
+		snprintf(question, sizeof question,
+			"Is the Citadel service running on the same host as WebCit?");
+		if (yesno(question)) {
+			sprintf(hostname, "uds");
+			sprintf(portname, "/usr/local/citadel");
+			set_value("In what directory is Citadel installed?", portname);
+		}
+		else {
+			sprintf(hostname, "127.0.0.1");
+			sprintf(portname, "504");
+			set_value("Enter the host name or IP address of your "
+				"Citadel server.", hostname);
+			set_value("Enter the port number on which Citadel is "
+				"running (usually 504)", portname);
+		}
 	}
 
 	/* Generate a unique entry name for /etc/inittab */
@@ -492,6 +499,11 @@ int main(int argc, char *argv[])
 	/* set an invalid setup type */
 	setup_type = (-1);
 
+	/* Check to see if we're running the web installer */
+	if (getenv("CITADEL_INSTALLER") != NULL) {
+		using_web_installer = 1;
+	}
+
 	/* parse command line args */
 	for (a = 0; a < argc; ++a) {
 		if (!strncmp(argv[a], "-u", 2)) {
@@ -521,8 +533,13 @@ int main(int argc, char *argv[])
 
 	/* Get started in a valid setup directory. */
 	strcpy(setup_directory, WEBCITDIR);
-	set_value("In what directory is WebCit installed?",
-		setup_directory);
+	if ( (using_web_installer) && (getenv("WEBCIT") != NULL) ) {
+		strcpy(setup_directory, getenv("WEBCIT"));
+	}
+	else {
+		set_value("In what directory is WebCit installed?",
+			setup_directory);
+	}
 	if (chdir(setup_directory) != 0) {
 		important_message("WebCit Setup",
 			  "The directory you specified does not exist.");
