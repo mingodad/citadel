@@ -1,7 +1,7 @@
                       WEBCIT for the Citadel/UX System
                                version 4.10
  
-   Copyright (C) 1996-2002 by the authors.  Portions written by:
+   Copyright (C) 1996-2003 by the authors.  Portions written by:
 	Art Cancro
 	Nathan Bryant
 	Nick Grossman

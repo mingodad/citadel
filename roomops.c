@@ -348,11 +348,24 @@ void embed_view_o_matic(void) {
 		"[selectedIndex].value\">\n");
 
 	for (i=0; i<(sizeof viewdefs / sizeof (char *)); ++i) {
-		wprintf("<OPTION %s VALUE=\"/changeview?view=%d\">",
-			((i == WC->wc_view) ? "SELECTED" : ""),
-			i );
-		escputs(viewdefs[i]);
-		wprintf("</OPTION>\n");
+		/*
+		 * Only offer the views that make sense, given the default
+		 * view for the room.  For example, don't offer a Calendar
+		 * view in a non-Calendar room.
+		 */
+		if (
+			(i == WC->wc_view)
+		   ||	(i == WC->wc_default_view)
+		   ||	( (i == 0) && (WC->wc_default_view == 1) )
+		   ||	( (i == 1) && (WC->wc_default_view == 0) )
+		) {
+
+			wprintf("<OPTION %s VALUE=\"/changeview?view=%d\">",
+				((i == WC->wc_view) ? "SELECTED" : ""),
+				i );
+			escputs(viewdefs[i]);
+			wprintf("</OPTION>\n");
+		}
 	}
 	wprintf("</SELECT></FORM>\n");
 }
@@ -467,6 +480,7 @@ void gotoroom(char *gname, int display_name)
 	}
 	strcpy(WC->wc_roomname, WC->wc_roomname);
 	WC->wc_view = extract_int(&buf[4], 11);
+	WC->wc_default_view = extract_int(&buf[4], 12);
 }
 
 
