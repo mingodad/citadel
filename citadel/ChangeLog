@@ -1,4 +1,9 @@
  $Log$
+ Revision 573.40  2000/12/07 04:50:33  ajc
+ * Wrap housekeeper and timer events in transaction open/close functions
+ * Checkpoint the DB as an EVT_TIMER event instead of after each session
+   (runs each minute, but actually limited by the parameters of the function)
+
  Revision 573.39  2000/12/06 04:44:36  ajc
  * Changed netproc to keep the use table in a flat file instead of a database
 
@@ -2183,4 +2188,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

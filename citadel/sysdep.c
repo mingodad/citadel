@@ -1195,7 +1195,9 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 		dead_session_purge();
 		if ((time(NULL) - last_timer) > 60L) {
 			last_timer = time(NULL);
+			cdb_begin_transaction();
 			PerformSessionHooks(EVT_TIMER);
+			cdb_end_transaction();
 		}
 	}
 

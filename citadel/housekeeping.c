@@ -29,6 +29,7 @@
 #include "housekeeping.h"
 #include "sysdep_decls.h"
 #include "room_ops.h"
+#include "database.h"
 
 
 int housepipe[2];	/* This is the queue for housekeeping tasks */
@@ -112,6 +113,7 @@ void housekeeping_loop(void) {
 			}
 
 			extract(cmd, house_cmd, 0);
+			cdb_begin_transaction();
 
 			/* Do whatever this cmd requires */
 
@@ -129,6 +131,8 @@ void housekeeping_loop(void) {
 			else {
 				lprintf(7, "Unknown housekeeping command\n");
 			}
+
+			cdb_end_transaction();
 
 		} while (did_something);
 	}

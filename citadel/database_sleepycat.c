@@ -154,9 +154,9 @@ void open_databases(void)
 	 * it.  Besides, it locks up when we do it that way.
          */
 #ifdef TRANSACTION_BASED
-        flags = DB_CREATE | DB_INIT_MPOOL | DB_PRIVATE | DB_INIT_TXN;
+        flags = DB_CREATE|DB_RECOVER|DB_INIT_MPOOL|DB_PRIVATE|DB_INIT_TXN;
 #else
-        flags = DB_CREATE | DB_INIT_MPOOL | DB_PRIVATE;
+        flags = DB_CREATE|DB_RECOVER|DB_INIT_MPOOL|DB_PRIVATE;
 #endif
         ret = dbenv->open(dbenv, "./data", flags, 0);
 	if (ret) {
@@ -197,7 +197,7 @@ void open_databases(void)
 	cdb_allocate_ssd();
 	CtdlRegisterSessionHook(cdb_allocate_ssd, EVT_START);
 #ifdef TRANSACTION_BASED
-	CtdlRegisterSessionHook(cdb_checkpoint, EVT_STOP);
+	CtdlRegisterSessionHook(cdb_checkpoint, EVT_TIMER);
 #endif
 }
 

@@ -22,7 +22,7 @@ lastcontact 975826743 Sun Dec  3 01:59:03 2000
 internet
 uum %s
 humannode Internet Gateway
-lastcontact 976081140 Wed Dec  6 00:39:00 2000
+lastcontact 976085942 Wed Dec  6 01:59:02 2000
 
 uncnsrd
 bin Mail
@@ -37,7 +37,7 @@ tesseract
 bin Mail
 phonenum US 800 555 1212
 humannode Tesseract Project
-lastcontact 976081158 Wed Dec  6 00:39:18 2000
+lastcontact 976085943 Wed Dec  6 01:59:03 2000
 
 pixel
 use uncnsrd
@@ -122,4 +122,9 @@ phonenum netproc[23043]: Adding non-neighbor system <catchat> to map
 gdom bor system <catchat> to map
 humannode ISCA BBS
 lastcontact 975653967 Fri Dec  1 01:59:27 2000
+
+bin Mail
+bin Mail
+humannode Ô‘hðÿ¿lðÿ¿
+lastcontact 976082265 Wed Dec  6 00:57:45 2000
 
