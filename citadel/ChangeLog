@@ -1,4 +1,7 @@
  $Log$
+ Revision 572.38  2000/09/01 20:17:08  ajc
+ * msgbase.c: cmd_opna() - increase desired_section buffer from 64 to 256 bytes
+
  Revision 572.37  2000/09/01 17:31:47  ajc
  * Fixed oopseth in control.c that might call fileno(NULL)
 
@@ -2033,6 +2036,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
-
-

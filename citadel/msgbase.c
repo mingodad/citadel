@@ -1192,7 +1192,7 @@ void cmd_opna(char *cmdbuf)
 {
 	long msgid;
 
-	CtdlAllocUserData(SYM_DESIRED_SECTION, 64);
+	CtdlAllocUserData(SYM_DESIRED_SECTION, 256);
 
 	msgid = extract_long(cmdbuf, 0);
 	extract(desired_section, cmdbuf, 1);
