@@ -181,16 +181,19 @@ void cmd_info(void) {
 	cprintf("000\n");
 	}
 
-void cmd_rchg(char *newroomname)
+void cmd_rchg(char *argbuf)
 {
-   if ((newroomname) && (newroomname[0]))
-   {
-      bzero(CC->fake_roomname, ROOMNAMELEN);
-      strncpy(CC->fake_roomname, newroomname, ROOMNAMELEN-1);
-   }
-   else
-      strcpy(CC->fake_roomname, "");
-   cprintf("%d OK\n",OK);
+	char newroomname[ROOMNAMELEN];
+
+	extract(newroomname, argbuf, 0);
+	if (strlen(newroomname) > 0) {
+		strncpy(CC->fake_roomname, newroomname, ROOMNAMELEN);
+		CC->fake_roomname[ROOMNAMELEN - 1] = 0;
+		}
+	else {
+		strcpy(CC->fake_roomname, "");
+		}
+	cprintf("%d OK\n", OK);
 }
 
 void cmd_hchg(char *newhostname)
