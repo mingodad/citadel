@@ -4,7 +4,7 @@ void mime_parser(char *content_start, char *content_end,
 		void (*CallBack)
 			(char *cbname,
 			char *cbfilename,
-			char *cbencoding,
+			char *cbpartnum,
 			void *cbcontent,
 			char *cbtype,
 			size_t cblength)

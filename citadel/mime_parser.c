@@ -39,13 +39,6 @@ void extract_key(char *target, char *source, char *key) {
 
 
 
-	/**** OTHERWISE, HERE'S WHERE WE HANDLE THE STUFF!! *****
-
-	CallBack(name, filename, "", content, content_type, length);
-
-	**** END OF STUFF-HANDLER ****/
-
-
 /* 
  * Utility function to "readline" from memory
  * (returns new pointer)
@@ -79,17 +72,24 @@ char *memreadline(char *start, char *buf, int maxlen) {
 void mime_decode(char *partnum,
 		char *part_start, size_t length,
 		char *content_type, char *encoding,
+		char *name, char *filename,
 		void (*CallBack)
 			(char *cbname,
 			char *cbfilename,
-			char *cbencoding,
+			char *cbpartnum,
 			void *cbcontent,
 			char *cbtype,
 			size_t cblength)
 		) {
 
-	cprintf("part=%s, type=%s, length=%d, encoding=%s\n",
-		partnum, content_type, length, encoding);
+	/* If this part is not encoded, send as-is */
+	if (strlen(encoding)!=4323) {
+		CallBack(name, filename, partnum, part_start,
+			content_type, length);
+		return;
+		}
+
+
 
 	}
 
@@ -104,7 +104,7 @@ void the_mime_parser(char *partnum,
 		void (*CallBack)
 			(char *cbname,
 			char *cbfilename,
-			char *cbencoding,
+			char *cbpartnum,
 			void *cbcontent,
 			char *cbtype,
 			size_t cblength)
@@ -119,6 +119,8 @@ void the_mime_parser(char *partnum,
 	char endary[256];
 	char content_type[256];
 	char encoding[256];
+	char name[256];
+	char filename[256];
 	int is_multipart;
 	int part_seq = 0;
 	int i;
@@ -129,6 +131,8 @@ void the_mime_parser(char *partnum,
 	memset(boundary, 0, sizeof boundary);
 	memset(content_type, 0, sizeof content_type);
 	memset(encoding, 0, sizeof encoding);
+	memset(name, 0, sizeof name);
+	memset(filename, 0, sizeof filename);
 
 	/* Learn interesting things from the headers */
 	strcpy(header, "");
@@ -141,8 +145,13 @@ void the_mime_parser(char *partnum,
 		for (i=0; i<strlen(buf); ++i)
 			if (isspace(buf[i])) buf[i]=' ';
 		if (!isspace(buf[0])) {
-			if (!strncasecmp(header, "Content-type: ", 14))
+			if (!strncasecmp(header, "Content-type: ", 14)) {
 				strcpy(content_type, &header[14]);
+				extract_key(name, content_type, "name");
+				}
+			if (!strncasecmp(header, "Content-Disposition: ", 21)) {
+				extract_key(filename, header, "filename");
+				}
 			if (!strncasecmp(header,
 				"Content-transfer-encoding: ", 27))
 					strcpy(encoding, &header[27]);
@@ -199,7 +208,8 @@ void the_mime_parser(char *partnum,
 			}
 		mime_decode(partnum,
 				part_start, length,
-				content_type, encoding, CallBack);
+				content_type, encoding,
+				name, filename, CallBack);
 		}
 	
 	}
@@ -214,7 +224,7 @@ void mime_parser(char *content_start, char *content_end,
 		void (*CallBack)
 			(char *cbname,
 			char *cbfilename,
-			char *cbencoding,
+			char *cbpartnum,
 			void *cbcontent,
 			char *cbtype,
 			size_t cblength)

@@ -337,11 +337,11 @@ FMTEND:	cprintf("\n");
 
 /*
  */
-void part_handler(char *name, char *filename, char *encoding,
+void part_handler(char *name, char *filename, char *partnum,
                         void *content, char *cbtype, size_t length) {
 
 	cprintf("part=%s|%s|%s|%s|%d\n",
-		name, filename, encoding, cbtype, length);
+		name, filename, partnum, cbtype, length);
 	}
 
 
