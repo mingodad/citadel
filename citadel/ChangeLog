@@ -1,4 +1,10 @@
  $Log$
+ Revision 590.138  2002/03/11 06:00:21  nbryant
+ use <db.h> before <db3/db.h> or <db4/db.h>
+ this is the only way i can think of to make it work everywhere; people on
+ systems like FreeBSD where the ports work the other way around will have to
+ specify an extra -I flag in their CPPFLAGS variable.
+
  Revision 590.137  2002/03/11 05:42:46  nbryant
  removed all references to sprintf from several files (not all files yet)
  and replace with snprintf
@@ -3428,3 +3434,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
