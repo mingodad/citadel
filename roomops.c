@@ -920,6 +920,79 @@ void editroom(void)
 	smart_goto(er_name);
 }
 
+/*
+ * Invite, Kick, and show Who Knows a room
+ */
+void display_whok(void)
+{
+        char buf[256], room[256], username[256];
+
+        serv_puts("GETR");
+        serv_gets(buf);
+
+        if (buf[0] != '2') {
+                display_error(&buf[4]);
+                return;
+        }
+        extract(room, &buf[4], 0);
+
+        strcpy(username, bstr("username"));
+
+        output_headers(1);
+
+        if(!strcmp(bstr("sc"), "Kick")) {
+                sprintf(buf, "KICK %s", username);
+                serv_puts(buf);
+                serv_gets(buf);
+
+                if (buf[0] != '2') {
+                        display_error(&buf[4]);
+                        return;
+                } else {
+                        wprintf("User %s kicked out of room %s.\n", 
+                                username, room);
+                }
+        } else if(!strcmp(bstr("sc"), "Invite")) {
+                sprintf(buf, "INVT %s", username);
+                serv_puts(buf);
+                serv_gets(buf);
+
+                if (buf[0] != '2') {
+                        display_error(&buf[4]);
+                        return;
+                } else {
+                        wprintf("User %s invited to room %s.\n", 
+                                username, room);
+                }
+        }
+        
+
+        wprintf("<FORM METHOD=\"POST\" ACTION=\"/display_whok\">\n");
+        wprintf("<SELECT NAME=\"username\" SIZE=10>\n");
+        serv_puts("WHOK");
+        serv_gets(buf);
+        if (buf[0] == '1') {
+                while (serv_gets(buf), strcmp(buf, "000")) {
+                        extract(username, buf, 0);
+                        wprintf("<OPTION>");
+                        escputs(username);
+                        wprintf("\n");
+                }
+        }
+        wprintf("</SELECT>\n");
+
+        wprintf("<CENTER>\n");
+        wprintf("<input type=submit name=sc value=\"Kick\">");
+        wprintf("</CENTER>\n");
+        wprintf("</FORM>\n");
+        wprintf("<FORM METHOD=\"POST\" ACTION=\"/display_whok\">\n");
+        wprintf("Invite: ");
+        wprintf("<input type=text name=username>\n");
+        wprintf("<input type=hidden name=sc value=\"Invite\">");
+        wprintf("<input type=submit value=\"Invite\">");
+        wDumpContent(1);
+}
+
 
 
 /*
