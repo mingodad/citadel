@@ -459,7 +459,7 @@ void session_loop() {
 		}
 
 	else if (!logged_in) {
-		output_static("login.html");
+		display_login();
 		}
 
 	/* Various commands... */
@@ -502,18 +502,8 @@ void session_loop() {
 		dotgoto();
 		}
 
-	else if (!strncasecmp(cmd, "GET /test", 9)) {
-		printf("HTTP/1.0 200 OK\n");
-		output_headers();
-	
-		wprintf("<HTML><BODY>\n");
-		wprintf("<H1>diagnostic page</H1>\n");
-		wprintf("TransactionCount is %d<HR>\n", TransactionCount);
-		wprintf("You're in session %d<BR>\n", wc_session);
-		wprintf("Logged in as <em>"); escputs(wc_username);
-		wprintf("</em><BR>\n");
-		wprintf("</BODY></HTML>\n");
-		wDumpContent();
+	else if (!strncasecmp(cmd, "GET /termquit", 13)) {
+		do_logout();
 		}
 
 	/* When all else fails... */

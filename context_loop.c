@@ -38,6 +38,9 @@ struct wc_session {
 
 struct wc_session *SessionList = NULL;
 
+/* Only one thread may manipulate SessionList at a time... */
+pthread_mutex_t MasterCritter;
+
 int GenerateSessionID() {
 	return getpid();
 	}
@@ -92,6 +95,7 @@ void *context_loop(int sock) {
 	struct wc_session *sptr;
 	struct wc_session *TheSession;
 	int ContentLength;
+	int CloseSession = 0;
 
 	printf("Reading request from socket %d\n", sock);
 
@@ -115,11 +119,13 @@ void *context_loop(int sock) {
 	 */
 	TheSession = NULL;
 	if (desired_session != 0) {
+		pthread_mutex_lock(&MasterCritter);
 		for (sptr=SessionList; sptr!=NULL; sptr=sptr->next) {
 			if (sptr->session_id == desired_session) {
 				TheSession = sptr;
 				}
 			}
+		pthread_mutex_unlock(&MasterCritter);
 		}
 
 	/*
@@ -127,6 +133,7 @@ void *context_loop(int sock) {
 	 */
 	if (TheSession == NULL) {
 		printf("Creating a new session\n");
+		pthread_mutex_lock(&MasterCritter);
 		TheSession = (struct wc_session *)
 			malloc(sizeof(struct wc_session));
 		TheSession->session_id = GenerateSessionID();
@@ -151,6 +158,7 @@ void *context_loop(int sock) {
 			printf("<BODY>execlp() failed</BODY></HTML>\n");
 			exit(0);
 			}
+		pthread_mutex_unlock(&MasterCritter);
 		}
 
 	/*
@@ -187,6 +195,9 @@ void *context_loop(int sock) {
 		write(sock, "\n", 1);
 		if (!strncasecmp(buf, "Content-length: ", 16))
 			ContentLength = atoi(&buf[16]);
+		if (!strcasecmp(buf, "X-WebCit-Session: close")) {
+			CloseSession = 1;
+			}
 		} while (strlen(buf) > 0);
 
 	printf("   Reading %d bytes of content\n");
@@ -208,6 +219,34 @@ void *context_loop(int sock) {
 	 */
 	printf("Unlocking.\n");
 	pthread_mutex_unlock(&TheSession->critter);
+
+
+
+	/*
+	 * If the last response included a "close session" directive,
+	 * remove the context now.
+	 */
+	if (CloseSession) {
+		printf("Removing session.\n");
+		pthread_mutex_lock(&MasterCritter);
+
+		if (SessionList==TheSession) {
+			SessionList = SessionList->next;
+			}
+		else {
+			for (sptr=SessionList; sptr!=NULL; sptr=sptr->next) {
+				if (sptr->next == TheSession) {
+					sptr->next = TheSession->next;
+					}
+				}
+			}
+	
+		free(TheSession);
+	
+		pthread_mutex_unlock(&MasterCritter);
+		}
+
+
 
 	/*
 	 * The thread handling this HTTP connection is now finished.

@@ -14,6 +14,50 @@
 #include "webcit.h"
 
 
+
+/*
+ * Display the login screen
+ */
+void display_login() {
+	char buf[256];
+
+	printf("HTTP/1.0 200 OK\n");
+	output_headers();
+
+	wprintf("<HTML><BODY>\n");
+	wprintf("<CENTER><TABLE border=0><TR><TD>\n");
+
+	/* FIX replace with the correct image */
+	wprintf("<IMG SRC=\"/static/velma.gif\">");
+	wprintf("</TD><TD><CENTER>\n");
+
+	serv_puts("MESG hello");
+	serv_gets(buf);
+	if (buf[0]=='1') fmout(NULL);
+
+	wprintf("</CENTER></TD></TR></TABLE></CENTER>\n");
+
+	wprintf("<HR>\n");
+	/* FIX add instructions here */
+	wprintf("<CENTER><FORM ACTION=\"/login\" METHOD=\"POST\">\n");
+	wprintf("<TABLE border><TR>\n");
+	wprintf("<TD>User Name:</TD>\n");
+	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"name\" MAXLENGTH=\"25\">\n");
+	wprintf("</TD></TR><TR>\n");
+	wprintf("<TD>Password:</TD>\n");
+	wprintf("<TD><INPUT TYPE=\"password\" NAME=\"pass\" MAXLENGTH=\"20\"></TD>\n");
+	wprintf("</TR></TABLE>\n");
+	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Login\">\n");
+        wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"New User\">\n");
+        wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Exit\">\n");
+        wprintf("</FORM></CENTER>\n");
+	wprintf("</BODY></HTML>\n");
+	wDumpContent();
+	}
+
+
+
+
 /*
  * This function needs to get called whenever a PASS or NEWU succeeds
  */
@@ -68,4 +112,32 @@ void do_welcome() {
 	/* other stuff here */
 	wprintf("</BODY></HTML>\n");
 	wDumpContent();
+	}
+
+
+void do_logout() {
+	char buf[256];
+
+	strcpy(wc_username, "");
+	strcpy(wc_password, "");
+	strcpy(wc_roomname, "");
+	strcpy(wc_host, "");
+	strcpy(wc_port, "");
+
+	printf("HTTP/1.0 200 OK\n");
+	output_headers();
+	printf("X-WebCit-Session: close\n");
+	
+	wprintf("<HTML><HEAD><TITLE>Goodbye</TITLE></HEAD><BODY><CENTER>\n");
+
+	serv_puts("MESG goodbye");
+	serv_gets(buf);
+
+	if (buf[0]=='1') fmout(NULL);
+	else wprintf("Goodbye\n");
+
+	wprintf("</CENTER></BODY></HTML>\n");
+	wDumpContent();
+	serv_puts("QUIT");
+	exit(0);
 	}
