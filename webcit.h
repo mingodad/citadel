@@ -220,8 +220,10 @@ struct wcsession {
 	char http_host[SIZ];		/* HTTP Host: header */
 	char *preferences;
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
-	icalcomponent **disp_cal;	/* store calendar items for display */
-	long *cal_msgnum;		/* store calendar msgids for display */
+	struct disp_cal {
+		icalcomponent *cal;		/* cal items for display */
+		long cal_msgnum;		/* cal msgids for display */
+	} *disp_cal;
 	int num_cal;
 #endif
 	struct wc_attachment *first_attachment;
