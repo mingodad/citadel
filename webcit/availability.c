@@ -62,6 +62,70 @@ icalcomponent *get_freebusy_for_user(char *who) {
 
 
 
+
+
+
+
+/*
+ * Check to see if two events overlap.  Returns nonzero if they do.
+ * (This function is used in both Citadel and WebCit.  If you change it in
+ * one place, change it in the other.  Better yet, put it in a library.)
+ */
+int ical_ctdl_is_overlap(
+			struct icaltimetype t1start,
+			struct icaltimetype t1end,
+			struct icaltimetype t2start,
+			struct icaltimetype t2end
+) {
+
+	if (icaltime_is_null_time(t1start)) return(0);
+	if (icaltime_is_null_time(t2start)) return(0);
+
+	/* First, check for all-day events */
+	if (t1start.is_date) {
+		if (!icaltime_compare_date_only(t1start, t2start)) {
+			return(1);
+		}
+		if (!icaltime_is_null_time(t2end)) {
+			if (!icaltime_compare_date_only(t1start, t2end)) {
+				return(1);
+			}
+		}
+	}
+
+	if (t2start.is_date) {
+		if (!icaltime_compare_date_only(t2start, t1start)) {
+			return(1);
+		}
+		if (!icaltime_is_null_time(t1end)) {
+			if (!icaltime_compare_date_only(t2start, t1end)) {
+				return(1);
+			}
+		}
+	}
+
+	/* Now check for overlaps using date *and* time. */
+
+	/* First, bail out if either event 1 or event 2 is missing end time. */
+	if (icaltime_is_null_time(t1end)) return(0);
+	if (icaltime_is_null_time(t2end)) return(0);
+
+	/* If event 1 ends before event 2 starts, we're in the clear. */
+	if (icaltime_compare(t1end, t2start) <= 0) return(0);
+
+	/* If event 2 ends before event 1 starts, we're also ok. */
+	if (icaltime_compare(t2end, t1start) <= 0) return(0);
+
+	/* Otherwise, they overlap. */
+	return(1);
+}
+
+
+
+
+
+
+
 /*
  * Back end function for check_attendee_availability()
  * This one checks an individual attendee against a supplied
@@ -76,6 +140,7 @@ void check_individual_attendee(char *attendee_string,
 	icalcomponent *fbc = NULL;
 	icalcomponent *fb = NULL;
 	icalproperty *thisfb = NULL;
+	struct icalperiodtype period;
 
 	/* Set to 'unknown' right from the beginning.  Unless we learn
 	 * something else, that's what we'll go with.
@@ -105,14 +170,20 @@ void check_individual_attendee(char *attendee_string,
 		for (thisfb = icalcomponent_get_first_property(fb, ICAL_FREEBUSY_PROPERTY);
 		    thisfb != NULL;
 		    thisfb = icalcomponent_get_next_property(fb, ICAL_FREEBUSY_PROPERTY) ) {
-	
-			/* FIXME ... do the check */
+
+			/* Do the check */
+			period = icalproperty_get_freebusy(thisfb);
+			if (ical_ctdl_is_overlap(period.start, period.end,
+			   event_start, event_end)) {
+				strcpy(annotation, "BUSY");
+			}
 
 		}
 	}
 
 	icalcomponent_free(fbc);
 }
+
 
 
 
@@ -149,6 +220,8 @@ void check_attendee_availability(icalcomponent *vevent) {
 		);
 		return;
 	}
+
+	ical_dezonify(vevent);		/* Convert everything to UTC */
 
 	/*
 	 * Learn the start and end times.
