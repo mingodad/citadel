@@ -942,7 +942,7 @@ void do_command_loop(void) {
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_gets(cmdbuf) < 1) {
-		lprintf(CTDL_ERR, "Client socket is broken.  Ending session.\n");
+		lprintf(CTDL_ERR, "Client socket is broken; ending session\n");
 		CC->kill_me = 1;
 		return;
 	}
@@ -970,7 +970,7 @@ void do_command_loop(void) {
 	}
 		   
 	if (!strncasecmp(cmdbuf,"NOOP",4)) {
-		cprintf("%d%cok\n",CIT_OK,CtdlCheckExpress());
+		cprintf("%d%cok\n", CIT_OK, CtdlCheckExpress() );
 	}
 	
 	else if (!strncasecmp(cmdbuf,"QNOP",4)) {
@@ -978,7 +978,7 @@ void do_command_loop(void) {
 	}
 
 	else if (!strncasecmp(cmdbuf,"QUIT",4)) {
-		cprintf("%d Goodbye.\n",CIT_OK);
+		cprintf("%d Goodbye.\n", CIT_OK);
 		CC->kill_me = 1;
 	}
 
@@ -988,7 +988,7 @@ void do_command_loop(void) {
 
 	else if (!strncasecmp(cmdbuf,"LOUT",4)) {
 		if (CC->logged_in) logout(CC);
-		cprintf("%d logged out.\n",CIT_OK);
+		cprintf("%d logged out.\n", CIT_OK);
 	}
 
 	else if (!strncasecmp(cmdbuf,"USER",4)) {
@@ -1312,9 +1312,10 @@ void do_command_loop(void) {
 	}
 
 	else if (!DLoader_Exec_Cmd(cmdbuf)) {
-		cprintf("%d Unrecognized or unsupported command.\n", ERROR + CMD_NOT_SUPPORTED);
+		cprintf("%d Unrecognized or unsupported command.\n",
+			ERROR + CMD_NOT_SUPPORTED);
 	       }
 
-	/* Run any after-each-command outines registered by modules */
+	/* Run any after-each-command routines registered by modules */
 	PerformSessionHooks(EVT_CMD);
 }
