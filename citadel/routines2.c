@@ -747,6 +747,27 @@ void do_system_configuration(void)
 
 
 /*
+ * support function for do_internet_configuration()
+ */
+void get_inet_rec_type(char *buf) {
+	int sel;
+
+	keyopt(" <1> localhost       (Alias for this computer)\n");
+	keyopt(" <2> gateway domain  (Domain for all Citadel systems)\n");
+	keyopt(" <3> smart-host      (Forward all outbound mail to this host)\n");
+	sel = intprompt("Which one", 1, 1, 3);
+	switch(sel) {
+		case 1:	strcpy(buf, "localhost");
+			return;
+		case 2:	strcpy(buf, "gatewaydomain");
+			return;
+		case 3:	strcpy(buf, "smarthost");
+			return;
+	}
+}
+
+
+/*
  * Internet mail configuration
  */
 void do_internet_configuration(void) {
@@ -809,8 +830,7 @@ void do_internet_configuration(void) {
 					newprompt("Enter host name: ",
 						buf, 50);
 					strcat(buf, "|");
-					newprompt("Enter record type: ",
-						&buf[strlen(buf)], 20);
+					get_inet_rec_type(&buf[strlen(buf)]);
 					recs[num_recs-1] = strdup(buf);
 					break;
 				case 'd':

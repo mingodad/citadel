@@ -8,8 +8,43 @@
 #include "citadel.h"
 #include "domain.h"
 #include "server.h"
+#include "tools.h"
+#include "internet_addressing.h"
 
-#define SMART_HOST	"gatekeeper.wdcs.com"
+
+/*
+ * get_smarthosts() checks the Internet configuration for "smarthost"
+ * entries and returns them in the same format as getmx() does -- fill the
+ * buffer with a delimited list of hosts and return the number of hosts.
+ */
+int get_smarthosts(char *mxbuf) {
+	int config_lines;
+	int i;
+	char buf[256];
+	char host[256], type[256];
+	int total_smarthosts = 0;
+
+	if (inetcfg == NULL) return(0);
+	strcpy(mxbuf, "");
+
+	config_lines = num_tokens(inetcfg, '\n');
+	for (i=0; i<config_lines; ++i) {
+		extract_token(buf, inetcfg, i, '\n');
+		extract_token(host, buf, 0, '|');
+		extract_token(type, buf, 1, '|');
+
+		if (!strcasecmp(type, "smarthost")) {
+			strcat(mxbuf, host);
+			strcat(mxbuf, "|");
+			++total_smarthosts;
+		}
+	}
+
+	return(total_smarthosts);
+}
+
+
+
 
 /*
  * sort_mxrecs()
@@ -55,22 +90,21 @@ int getmx(char *mxbuf, char *dest) {
 	unsigned char *startptr, *endptr, *ptr;
 	char expanded_buf[1024];
 	unsigned short pref, type;
-	int n;
+	int n = 0;
 	HEADER *hp;
 	int qdcount;
 
 	struct mx *mxrecs = NULL;
 	int num_mxrecs = 0;
-
+	
 	/* If we're configured to send all mail to a smart-host, then our
 	 * job here is really easy.
 	 */
-	if (0) {	/* FIX */
-		strcpy(mxbuf, SMART_HOST);
-		return(1);
-	}
+	n = get_smarthosts(mxbuf);
+	if (n > 0) return(n);
 
-	/* No smart-host?  Look up the best MX for a site.
+	/*
+	 * No smart-host?  Look up the best MX for a site.
 	 */
 	ret = res_query(
 		dest,

@@ -1003,7 +1003,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		if (do_proto) cprintf("text\n");
 	if (mode == MT_RFC822) {
 		if (TheMessage->cm_fields['U'] == NULL) {
-			cprintf("Subject: FIX bogus subject FIX%s", nl);
+			cprintf("Subject: (no subject)%s", nl);
 		}
 		cprintf("%s", nl);
 	}

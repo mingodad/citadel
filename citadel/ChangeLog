@@ -1,4 +1,9 @@
 $Log$
+Revision 1.463  2000/02/18 05:10:50  ajc
+* Made the <.ASI> command a bit friendlier.
+* SMTP sender now pays attention to "smarthost" entries in the system's
+  Internet configuration, using them if one or more is present.
+
 Revision 1.462  2000/02/17 05:27:39  ajc
 * Got the "MAIL From:" command sending the correct data.  (unnnhhhhnnhhhh...)
 
@@ -1635,3 +1640,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
