@@ -277,6 +277,7 @@ void read_message(long msgnum) {
 		}
 
 		if (!strncasecmp(buf, "node=", 5)) {
+			strcpy(node, &buf[5]);
 			if ( ((WC->room_flags & QR_NETWORK)
 			|| ((strcasecmp(&buf[5], serv_info.serv_nodename)
 			&& (strcasecmp(&buf[5], serv_info.serv_fqdn)))))
@@ -343,7 +344,9 @@ void read_message(long msgnum) {
 		strcpy(reply_to, rfca);
 	}
 	else {
-		if (strlen(node) > 0) {
+		if ( (strlen(node) > 0)
+		   && (strcasecmp(node, serv_info.serv_nodename))
+		   && (strcasecmp(node, serv_info.serv_humannode)) ) {
 			snprintf(reply_to, sizeof(reply_to), "%s @ %s",
 				from, node);
 		}
