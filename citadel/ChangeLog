@@ -1,6 +1,11 @@
 $Log$
+Revision 1.349  1999/08/08 00:25:45  ajc
+* Made one more byte available in locate_host() and in all the structs which
+  its output gets written to (client can display 24 positions but we were only
+  saving 23).
+
 Revision 1.348  1999/08/07 16:34:38  nbryant
-	* serv_icq.c: warning fixes
+* serv_icq.c: warning fixes
 
 Revision 1.347  1999/08/06 02:57:26  ajc
 * locate_host.c: use strdoop() and phree() instead of strdup() and free()
@@ -1186,4 +1191,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

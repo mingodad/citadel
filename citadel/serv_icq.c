@@ -55,7 +55,7 @@ struct CtdlICQ_CL {
 	DWORD uin;
 	char name[32];
 	DWORD status;
-	char host[25];
+	char host[26];
 };
 
 

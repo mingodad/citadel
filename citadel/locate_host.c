@@ -21,6 +21,7 @@
 #include "server.h"
 #include "locate_host.h"
 #include "config.h"
+#include "tools.h"
 
 void locate_host(char *tbuf, const struct in_addr *addr)
 {
@@ -55,7 +56,7 @@ void locate_host(char *tbuf, const struct in_addr *addr)
 	for (; *ch->h_addr_list; ch->h_addr_list++)
 		if (!memcmp(*ch->h_addr_list, addr,
 			    sizeof *addr)) {
-			safestrncpy(tbuf, ch->h_name, 24);
+			safestrncpy(tbuf, ch->h_name, 25);
 			goto end;
 		}
 	goto bad_dns;		/* they were spoofing. report a numeric IP
@@ -67,5 +68,5 @@ void locate_host(char *tbuf, const struct in_addr *addr)
 	end_critical_section(S_NETDB);
 #endif
 
-	tbuf[24] = 0;
+	tbuf[25] = 0;
 }

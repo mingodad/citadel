@@ -63,7 +63,7 @@ struct CitContext {
 	int cs_clienttyp;	/* client type code */
 	int cs_clientver;	/* client version number */
 	char cs_clientname[32];	/* name of client software */
-	char cs_host[25];	/* host logged in from */
+	char cs_host[26];	/* host logged in from */
 
 	FILE *download_fp;	/* Fields relating to file transfer */
 	FILE *upload_fp;
