@@ -118,7 +118,7 @@ void pop3_add_message(long msgnum) {
 	POP3->msgs[POP3->num_msgs-1].deleted = 0;
 	fp = tmpfile();
 	POP3->msgs[POP3->num_msgs-1].temp = fp;
-	CtdlOutputMsg(msgnum, MT_RFC822, 0, 0, fp, 0);
+	CtdlOutputMsg(msgnum, MT_RFC822, 0, 0, fp, 0, 1);
 	POP3->msgs[POP3->num_msgs-1].rfc822_length = ftell(fp);
 }
 
@@ -268,6 +268,7 @@ void pop3_top(char *argbuf) {
 	char buf[1024];
 	char *ptr;
 	int in_body = 0;
+	int done = 0;
 
 	sscanf(argbuf, "%d %d", &which_one, &lines_requested);
 	if ( (which_one < 1) || (which_one > POP3->num_msgs) ) {
@@ -283,8 +284,11 @@ void pop3_top(char *argbuf) {
 	cprintf("+OK Whoop, there it is:\r\n");
 	rewind(POP3->msgs[which_one - 1].temp);
 	while (ptr = fgets(buf, sizeof buf, POP3->msgs[which_one - 1].temp),
-	      ( (ptr!=NULL) && (lines_dumped < lines_requested) ) ) {
-		client_write(buf, strlen(buf));
+	      ( (ptr!=NULL) && (done == 0))) {
+		if (in_body == 1)
+			if (lines_dumped >= lines_requested) done = 1;
+		if ((in_body == 0) || (done == 0))
+			client_write(buf, strlen(buf));
 		if (in_body) ++lines_dumped;
 		if ((buf[0]==13)||(buf[0]==10)) in_body = 1;
 	}

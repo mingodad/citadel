@@ -89,5 +89,5 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		int headers_only,	/* eschew the message body? */
 		int do_proto,		/* do Citadel protocol responses? */
 		FILE *outfp,
-		int outsock
-);
+		int outsock,
+		int crlf);

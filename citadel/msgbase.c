@@ -688,7 +688,8 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		int headers_only,	/* eschew the message body? */
 		int do_proto,		/* do Citadel protocol responses? */
 		FILE *outfp,
-		int outsock
+		int outsock,
+		int crlf		/* Use CRLF newlines instead of LF? */
 ) {
 	int a, i, k;
 	char buf[1024];
@@ -698,6 +699,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	char display_name[256];
 	struct CtdlMessage *TheMessage;
 	char *mptr;
+	char *nl;	/* newline string */
 
 	/* buffers needed for RFC822 translation */
 	char suser[256];
@@ -752,7 +754,7 @@ FMTA:		ch = *mptr++;
 		if (((ch == 13) || (ch == 10)) && (old != 13) && (old != 10))
 			ch = 32;
 		if (((old == 13) || (old == 10)) && (isspace(real))) {
-			omprintf("\n");
+			omprintf("%s", nl);
 			c = 1;
 		}
 		if (ch > 126)
@@ -760,7 +762,7 @@ FMTA:		ch = *mptr++;
 	
 		if (ch > 32) {
 			if (((strlen(aaa) + c) > (75)) && (strlen(aaa) > (75))) {
-				omprintf("\n%s", aaa);
+				omprintf("%s%s", nl, aaa);
 				c = strlen(aaa);
 				aaa[0] = 0;
 			}
@@ -770,7 +772,7 @@ FMTA:		ch = *mptr++;
 		}
 		if (ch == 32) {
 			if ((strlen(aaa) + c) > (75)) {
-				omprintf("\n");
+				omprintf("%s", nl);
 				c = 1;
 			}
 			omprintf("%s ", aaa);
@@ -780,14 +782,14 @@ FMTA:		ch = *mptr++;
 			goto FMTA;
 		}
 		if ((ch == 13) || (ch == 10)) {
-			omprintf("%s\n", aaa);
+			omprintf("%s%s", aaa, nl);
 			c = 1;
 			strcpy(aaa, "");
 			goto FMTA;
 		}
 		goto FMTA;
 
-FMTEND:		omprintf("%s\n", aaa);
+FMTEND:		omprintf("%s%s", aaa, nl);
 	}
 	/* END NESTED FUNCTION omfmout() */
 
@@ -822,18 +824,26 @@ FMTEND:		omprintf("%s\n", aaa);
 		if (!strcasecmp(cbtype, "text/plain")) {
 			wlen = length;
 			wptr = content;
-			while (wlen--) omprintf("%c", *wptr++);
+			while (wlen--) {
+				ch = *wptr++;
+				if (ch==10) omprintf("%s", nl);
+				else omprintf("%c", ch);
+			}
 		}
 		else if (!strcasecmp(cbtype, "text/html")) {
 			ptr = html_to_ascii(content, 80, 0);
 			wlen = strlen(ptr);
 			wptr = ptr;
-			while (wlen--) omprintf("%c", *wptr++);
+			while (wlen--) {
+				ch = *wptr++;
+				if (ch==10) omprintf("%s", nl);
+				else omprintf("%c", ch);
+			}
 			phree(ptr);
 		}
 		else if (strncasecmp(cbtype, "multipart/", 10)) {
-			omprintf("Part %s: %s (%s) (%d bytes)\n",
-				partnum, filename, cbtype, length);
+			omprintf("Part %s: %s (%s) (%d bytes)%s",
+				partnum, filename, cbtype, length, nl);
 		}
 	}
 
@@ -842,6 +852,7 @@ FMTEND:		omprintf("%s\n", aaa);
 
 	TheMessage = NULL;
 	sprintf(mid, "%ld", msg_num);
+	nl = (crlf ? "\r\n" : "\n");
 
 	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
 		if (do_proto) cprintf("%d Not logged in.\n",
@@ -979,7 +990,7 @@ FMTEND:		omprintf("%s\n", aaa);
 				if (i == 'A') {
 					strcpy(luser, mptr);
 				} else if (i == 'P') {
-					omprintf("Path: %s\n", mptr);
+					omprintf("Path: %s%s", mptr, nl);
 					for (a = 0; a < strlen(mptr); ++a) {
 						if (mptr[a] == '!') {
 							strcpy(mptr, &mptr[a + 1]);
@@ -988,17 +999,18 @@ FMTEND:		omprintf("%s\n", aaa);
 					}
 					strcpy(suser, mptr);
 				} else if (i == 'U')
-					omprintf("Subject: %s\n", mptr);
+					omprintf("Subject: %s%s", mptr, nl);
 				else if (i == 'I')
 					strcpy(mid, mptr);
 				else if (i == 'H')
 					strcpy(lnode, mptr);
 				else if (i == 'O')
-					omprintf("X-Citadel-Room: %s\n", mptr);
+					omprintf("X-Citadel-Room: %s%s",
+						mptr, nl);
 				else if (i == 'N')
 					strcpy(snode, mptr);
 				else if (i == 'R')
-					omprintf("To: %s\n", mptr);
+					omprintf("To: %s%s", mptr, nl);
 				else if (i == 'T') {
 					xtime = atol(mptr);
 					omprintf("Date: %s", asctime(localtime(&xtime)));
@@ -1011,10 +1023,10 @@ FMTEND:		omprintf("%s\n", aaa);
 		if (!strcasecmp(snode, NODENAME)) {
 			strcpy(snode, FQDN);
 		}
-		omprintf("Message-ID: <%s@%s>\n", mid, snode);
+		omprintf("Message-ID: <%s@%s>%s", mid, snode, nl);
 		PerformUserHooks(luser, (-1L), EVT_OUTPUTMSG);
-		omprintf("From: %s@%s (%s)\n", suser, snode, luser);
-		omprintf("Organization: %s\n", lnode);
+		omprintf("From: %s@%s (%s)%s", suser, snode, luser, nl);
+		omprintf("Organization: %s%s", lnode, nl);
 	}
 
 	/* end header processing loop ... at this point, we're in the text */
@@ -1045,7 +1057,7 @@ FMTEND:		omprintf("%s\n", aaa);
 		if (do_proto) cprintf("text\n");
 	/* if ((mode == MT_RFC822) && (TheMessage->cm_format_type != FMT_RFC822)) { */
 	if (mode == MT_RFC822) {
-		omprintf("\n");
+		omprintf("%s", nl);
 	}
 
 	/* If the format type on disk is 1 (fixed-format), then we want
@@ -1058,7 +1070,7 @@ FMTEND:		omprintf("%s\n", aaa);
 			if (ch == 13)
 				ch = 10;
 			if ((ch == 10) || (strlen(buf) > 250)) {
-				omprintf("%s\n", buf);
+				omprintf("%s%s", buf, nl);
 				strcpy(buf, "");
 			} else {
 				buf[strlen(buf) + 1] = 0;
@@ -1066,7 +1078,7 @@ FMTEND:		omprintf("%s\n", aaa);
 			}
 		}
 		if (strlen(buf) > 0)
-			omprintf("%s\n", buf);
+			omprintf("%s%s", buf, nl);
 	}
 
 	/* If the message on disk is format 0 (Citadel vari-format), we
@@ -1110,7 +1122,7 @@ void cmd_msg0(char *cmdbuf)
 	msgid = extract_long(cmdbuf, 0);
 	headers_only = extract_int(cmdbuf, 1);
 
-	CtdlOutputMsg(msgid, MT_CITADEL, headers_only, 1, NULL, -1);
+	CtdlOutputMsg(msgid, MT_CITADEL, headers_only, 1, NULL, -1, 0);
 	return;
 }
 
@@ -1126,7 +1138,7 @@ void cmd_msg2(char *cmdbuf)
 	msgid = extract_long(cmdbuf, 0);
 	headers_only = extract_int(cmdbuf, 1);
 
-	CtdlOutputMsg(msgid, MT_RFC822, headers_only, 1, NULL, -1);
+	CtdlOutputMsg(msgid, MT_RFC822, headers_only, 1, NULL, -1, 1);
 }
 
 
@@ -1178,7 +1190,7 @@ void cmd_msg4(char *cmdbuf)
 	long msgid;
 
 	msgid = extract_long(cmdbuf, 0);
-	CtdlOutputMsg(msgid, MT_MIME, 0, 1, NULL, -1);
+	CtdlOutputMsg(msgid, MT_MIME, 0, 1, NULL, -1, 0);
 }
 
 /*
@@ -1193,7 +1205,7 @@ void cmd_opna(char *cmdbuf)
 	msgid = extract_long(cmdbuf, 0);
 	extract(desired_section, cmdbuf, 1);
 
-	CtdlOutputMsg(msgid, MT_DOWNLOAD, 0, 1, NULL, -1);
+	CtdlOutputMsg(msgid, MT_DOWNLOAD, 0, 1, NULL, -1, 1);
 }			
 
 
