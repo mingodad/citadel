@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.101  2003/01/05 07:35:03  error
+ * Add an AllFloors parameter to the citadel IPC API
+
  Revision 601.100  2003/01/01 08:07:46  error
  * commands.c: bugfix for reading from FILE pointers; affected quote, print
    and external editor.
@@ -4346,3 +4349,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

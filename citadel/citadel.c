@@ -386,7 +386,7 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 		best_match = 0;
 		strcpy(bbb, "");
 
-		r = CtdlIPCKnownRooms(ipc, AllAccessibleRooms, -1, &march, aaa);
+		r = CtdlIPCKnownRooms(ipc, AllAccessibleRooms, AllFloors, &march, aaa);
 		if (r / 100 == 1) {
 			/* Run the roomlist; free the data as we go */
 			struct march *mp = march;	/* Current */
@@ -498,7 +498,7 @@ void gotonext(CtdlIPC *ipc)
 	 * If it is, pop the first room off the list and go there.
 	 */
 	if (march == NULL) {
-		r = CtdlIPCKnownRooms(ipc, SubscribedRoomsWithNewMessages, -1, &march, buf);
+		r = CtdlIPCKnownRooms(ipc, SubscribedRoomsWithNewMessages, AllFloors, &march, buf);
 /* add _BASEROOM_ to the end of the march list, so the user will end up
  * in the system base room (usually the Lobby>) at the end of the loop
  */
@@ -758,8 +758,9 @@ void get_serv_info(CtdlIPC *ipc, char *supplied_hostname)
 	/* be nice and identify ourself to the server */
 	CtdlIPCIdentifySoftware(ipc, SERVER_TYPE, 0, REV_LEVEL,
 		 (ipc->isLocal ? "local" : CITADEL),
-		 (supplied_hostname) ? supplied_hostname : "", buf);
-		 /* (locate_host(buf), buf)); */
+		 (supplied_hostname) ? supplied_hostname : 
+		 /* Look up the , in the bible if you're confused */
+		 (locate_host(buf), buf), buf);
 
 	/* Tell the server what our preferred content formats are */
 	if ((CtdlIPCSpecifyPreferredFormats(ipc, buf, "text/html|text/plain") / 100 )== 2) {
