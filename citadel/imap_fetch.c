@@ -119,7 +119,7 @@ void imap_fetch_rfc822(int msgnum, char *whichfmt, struct CtdlMessage *msg) {
 	 * Load the message into a temp file for translation and measurement
 	 */ 
 	CtdlRedirectOutput(tmp, -1);
-	CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822, 0, 0, 1);
+	CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
 	CtdlRedirectOutput(NULL, -1);
 	if (!is_valid_message(msg)) {
 		lprintf(1, "WARNING: output clobbered the message!\n");
@@ -462,9 +462,17 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 
 	/* Now figure out what the client wants, and get it */
 
-	if (!strcmp(section, "")) {		/* the whole thing */
+	if ( (!strcmp(section, "1")) && (msg->cm_format_type != 4) ) {
 		CtdlRedirectOutput(tmp, -1);
-		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822, 0, 0, 1);
+		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
+						HEADERS_NONE, 0, 1);
+		CtdlRedirectOutput(NULL, -1);
+	}
+
+	else if (!strcmp(section, "")) {
+		CtdlRedirectOutput(tmp, -1);
+		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
+						HEADERS_ALL, 0, 1);
 		CtdlRedirectOutput(NULL, -1);
 	}
 
@@ -474,7 +482,8 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 	 */
 	else if (!strncasecmp(section, "HEADER", 6)) {
 		CtdlRedirectOutput(tmp, -1);
-		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822, 1, 0, 1);
+		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
+						HEADERS_ONLY, 0, 1);
 		CtdlRedirectOutput(NULL, -1);
 		imap_strip_headers(tmp, section);
 	}

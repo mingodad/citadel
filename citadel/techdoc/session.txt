@@ -483,15 +483,12 @@ criteria.  These criteria are applied with an AND logic.
  This is a command used to read the text of a message.  "Mode 0" implies that
 other MSG commands (MSG1, MSG2, etc.) will probably be added later on to read
 messages in more robust formats.  This command should be passed two arguments.
-The first is the message number of the message being requested.  In server 
-version 4.04 and above, the second argument may be set to either 0 to read the
-entire message, or 1 to read the headers only.
- 
- The server should, of course, make sure that the client actually has access
-to the message being requested before honoring this request.  Citadel/UX does
-so by checking the message number against the contents of the current room.  If
-it's not there, the request is denied.
- 
+The first is the message number of the message being requested.  The second
+argument specifies whether the client wants headers and/or message body:
+ 0 = Headers and body
+ 1 = Headers only
+ 2 = Body only
+   
  If the request is denied, an ERROR code will be returned.  Otherwise, the
 LISTING_FOLLOWS code will be returned, followed by the contents of the message.
 The following fields may be sent:

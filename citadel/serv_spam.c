@@ -138,7 +138,7 @@ int spam_assassin(struct CtdlMessage *msg) {
 
 	/* Message */
 	CtdlRedirectOutput(NULL, sock);
-	CtdlOutputPreLoadedMsg(msg, 0L, MT_RFC822, 0, 0, 1);
+	CtdlOutputPreLoadedMsg(msg, 0L, MT_RFC822, HEADERS_ALL, 0, 1);
 	CtdlRedirectOutput(NULL, -1);
 
 	/* Close one end of the socket connection; this tells SpamAssassin

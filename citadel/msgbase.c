@@ -1156,6 +1156,9 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 		return((CC->download_fp != NULL) ? om_ok : om_mime_error);
 	}
 
+	/* Does the caller want to skip the headers? */
+	if (headers_only == HEADERS_NONE) goto START_TEXT;
+
 	/* now for the user-mode message reading loops */
 	if (do_proto) cprintf("%d Message %ld:\n", LISTING_FOLLOWS, msg_num);
 
@@ -1317,7 +1320,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	}
 
 	/* end header processing loop ... at this point, we're in the text */
-
+START_TEXT:
 	mptr = TheMessage->cm_fields['M'];
 
 	/* Tell the client about the MIME parts in this message */
@@ -1345,7 +1348,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 		}
 	}
 
-	if (headers_only) {
+	if (headers_only == HEADERS_ONLY) {
 		if (do_proto) cprintf("000\n");
 		return(om_ok);
 	}
@@ -1436,7 +1439,7 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 void cmd_msg0(char *cmdbuf)
 {
 	long msgid;
-	int headers_only = 0;
+	int headers_only = HEADERS_ALL;
 
 	msgid = extract_long(cmdbuf, 0);
 	headers_only = extract_int(cmdbuf, 1);
@@ -1452,7 +1455,7 @@ void cmd_msg0(char *cmdbuf)
 void cmd_msg2(char *cmdbuf)
 {
 	long msgid;
-	int headers_only = 0;
+	int headers_only = HEADERS_ALL;
 
 	msgid = extract_long(cmdbuf, 0);
 	headers_only = extract_int(cmdbuf, 1);

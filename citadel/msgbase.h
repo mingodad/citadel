@@ -28,7 +28,13 @@ enum {
 	om_no_such_msg,
 	om_mime_error
 };
-	
+
+/*
+ * Values of "headers_only" when calling message output routines
+ */
+#define HEADERS_ALL	0	/* Headers and body */
+#define	HEADERS_ONLY	1	/* Headers only */
+#define	HEADERS_NONE	2	/* Body only */
 
 
 struct ma_info {

@@ -671,7 +671,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	}
 	else {
 		CtdlRedirectOutput(msg_fp, -1);
-		CtdlOutputMsg(msgnum, MT_RFC822, 0, 0, 1);
+		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
 		CtdlRedirectOutput(NULL, -1);
 		fseek(msg_fp, 0L, SEEK_END);
 		msg_size = ftell(msg_fp);
