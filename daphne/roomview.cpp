@@ -128,7 +128,7 @@ void RoomView::do_readloop(wxString readcmd) {
 
 	sendcmd = readcmd;
 	if (citsock->serv_trans(sendcmd, recvcmd, xferbuf) != 1) {
-		message_window->SetValue(recvcmd.Mid(4,32767));
+		message_window->SetValue(recvcmd.Mid(4));
 		return;
 	}
 

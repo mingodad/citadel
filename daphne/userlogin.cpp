@@ -247,7 +247,7 @@ void UserLogin::OnButtonPressed(wxCommandEvent& whichbutton) {
 		r = citsock->serv_trans(sendbuf, recvbuf);
 		if (r != 3) {
 			wxMessageDialog nouser(this,
-				recvbuf.Mid(4,32767),
+				recvbuf.Mid(4),
 				"Error",
 				wxOK | wxCENTRE | wxICON_INFORMATION,
 				wxDefaultPosition);
@@ -258,7 +258,7 @@ void UserLogin::OnButtonPressed(wxCommandEvent& whichbutton) {
 			r = citsock->serv_trans(sendbuf, recvbuf);
 			if (r != 2) {
 				wxMessageDialog nopass(this,
-					recvbuf.Mid(4,32767),
+					recvbuf.Mid(4),
 					"Error",
 					wxOK | wxCENTRE | wxICON_INFORMATION,
 					wxDefaultPosition);
@@ -275,7 +275,7 @@ void UserLogin::OnButtonPressed(wxCommandEvent& whichbutton) {
 		r = citsock->serv_trans(sendbuf, recvbuf);
 		if (r != 2) {
 			wxMessageDialog nouser(this,
-				recvbuf.Mid(4,32767),
+				recvbuf.Mid(4),
 				"Error",
 				wxOK | wxCENTRE | wxICON_INFORMATION,
 				wxDefaultPosition);

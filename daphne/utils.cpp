@@ -61,7 +61,7 @@ void extract(wxString& outputbuf, wxString inputbuf, int parmnum) {
 	for (a=0; a<parmnum; ++a) {
 		p = outputbuf.First('|');
 		if (p >= 0) {
-			outputbuf = outputbuf.Mid(p+1, 32767);
+			outputbuf = outputbuf.Mid(p+1);
 		}
 	}
 

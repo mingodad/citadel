@@ -190,7 +190,7 @@ void SendExpress::OnButtonPressed(wxCommandEvent& whichbutton) {
 		MultilineToList(msg, TheMessage->GetValue());
 		sendcmd = "SEXP " + target_user + "|-" ;
 		if (citsock->serv_trans(sendcmd, recvcmd, msg) != 4) {
-			wxMessageBox(recvcmd.Mid(4, 32767),
+			wxMessageBox(recvcmd.Mid(4),
 					"Error",
 					wxOK | wxICON_EXCLAMATION,
 					NULL, -1, -1);
