@@ -15,6 +15,9 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/time.h>
+#ifdef TIME_WITH_SYS_TIME
+#include <time.h>
+#endif
 #include <sys/wait.h>
 #include <string.h>
 #include <limits.h>
@@ -487,6 +490,7 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 					mallok(sizeof (struct ExpressMessage));
 				memset(newmsg, 0,
 					sizeof (struct ExpressMessage));
+				time(&(newmsg->timestamp));
 				safestrncpy(newmsg->sender, lun,
 					    sizeof newmsg->sender);
 				if (!strcasecmp(x_user, "broadcast"))

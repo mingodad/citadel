@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.32  2000/11/27 10:29:59  error
+ * serv_chat.c: fix send_express_message() to include timestamps
+
  Revision 573.31  2000/11/27 03:44:27  ajc
  * Initial checkin of database_sleepycat.c (doesn't work yet)
 
@@ -2156,4 +2159,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
