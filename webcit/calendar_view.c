@@ -145,7 +145,7 @@ void calendar_month_view(int year, int month, int day) {
 
 	/* Outer table (to get the background color) */
 	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0 "
-		"bgcolor=#4444FF><TR><TD>\n");
+		"bgcolor=#204B78><TR><TD>\n");
 
 	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0>"
 		"<TR><TD align=left><font color=#FFFFFF>"
@@ -180,7 +180,7 @@ void calendar_month_view(int year, int month, int day) {
 
 	/* Inner table (the real one) */
 	wprintf("<TABLE width=100%% border=0 cellpadding=1 cellspacing=1 "
-		"bgcolor=#4444FF>");
+		"bgcolor=#204B78>");
 	for (i=0; i<7; ++i) {
 		wprintf("<TH><FONT COLOR=\"#FFFFFF\">%s</FONT></TH>", days[i]);
 	}
@@ -324,16 +324,16 @@ void calendar_day_view(int year, int month, int day) {
 
 	/* Outer table (to get the background color) */
 	wprintf("<TABLE width=100%% border=0 cellpadding=0 cellspacing=0 "
-		"bgcolor=#4444FF><TR><TD>\n");
+		"bgcolor=#204B78><TR><TD>\n");
 
 	/* Inner table (the real one) */
 	wprintf("<TABLE width=100%% border=0 cellpadding=1 cellspacing=1 "
-		"bgcolor=#4444FF><TR>\n");
+		"bgcolor=#204B78><TR>\n");
 
 	/* Innermost table (contains hours etc.) */
 	wprintf("<TD WIDTH=80%%>"
 		"<TABLE width=100%% border=0 cellpadding=1 cellspacing=1 "
-		"bgcolor=#4444FF>\n");
+		"bgcolor=#204B78>\n");
 
 	/* Display events before 8:00 (hour=-1 is all-day events) */
 	wprintf("<TR>"

@@ -277,13 +277,16 @@ void tabular_room_list(void)
  */
 void zapped_list(void)
 {
-	output_headers(1);
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">Zapped (forgotten) rooms</SPAN>\n");
-	wprintf("</TD></TR></TABLE><BR>\n");
+	output_headers(3);
+
+	svprintf("BOXTITLE", WCS_STRING, "Zapped (forgotten) rooms");
+	do_template("beginbox");
+
 	listrms("LZRM -1");
+
 	wprintf("<BR><BR>\n");
 	wprintf("Click on any room to un-zap it and goto that room.\n");
+	do_template("endbox");
 	wDumpContent(1);
 }
 
@@ -1324,11 +1327,9 @@ void display_whok(void)
         strcpy(username, bstr("username"));
 
         output_headers(1);
-
-        wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
-        wprintf("<SPAN CLASS=\"titlebar\">Access control list for ");
-	escputs(WC->wc_roomname);
-        wprintf("</SPAN></TD></TR></TABLE>\n");
+	stresc(buf, WC->wc_roomname, 1);
+	svprintf("BOXTITLE", WCS_STRING, "Access control list for %s", buf);
+	do_template("beginbox");
 
         if(!strcmp(bstr("sc"), "Kick")) {
                 sprintf(buf, "KICK %s", username);
@@ -1392,6 +1393,7 @@ void display_whok(void)
 		"</FORM></CENTER>\n");
 
 	wprintf("</TD></TR></TABLE>\n");
+	do_template("endbox");
         wDumpContent(1);
 }
 
@@ -1412,11 +1414,9 @@ void display_entroom(void)
 		display_error(&buf[4]);
 		return;
 	}
-	output_headers(1);
-
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#000077\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">Enter (create) a new room</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
+	output_headers(3);
+	svprintf("BOXTITLE", WCS_STRING, "Create a new room");
+	do_template("beginbox");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/entroom\">\n");
 
@@ -1437,6 +1437,9 @@ void display_entroom(void)
 
 	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"invonly\" ");
 	wprintf("> Private - invitation only\n");
+
+	wprintf("<LI><INPUT TYPE=\"radio\" NAME=\"type\" VALUE=\"personal\" ");
+	wprintf("> Personal (mailbox for you only)\n");
 	wprintf("</UL>\n");
 
         wprintf("<LI>Resides on floor: ");
@@ -1463,6 +1466,7 @@ void display_entroom(void)
 	if (buf[0] == '1') {
 		fmout(NULL);
 	}
+	do_template("endbox");
 	wDumpContent(1);
 }
 
@@ -1496,6 +1500,8 @@ void entroom(void)
 		er_num_type = 2;
 	if (!strcmp(er_type, "invonly"))
 		er_num_type = 3;
+	if (!strcmp(er_type, "personal"))
+		er_num_type = 4;
 
 	sprintf(buf, "CRE8 1|%s|%d|%s|%d", 
 		er_name, er_num_type, er_password, er_floor);
@@ -1515,11 +1521,10 @@ void entroom(void)
 void display_private(char *rname, int req_pass)
 {
 
-	output_headers(1);
+	output_headers(3);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">Goto a private room</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
+	svprintf("BOXTITLE", WCS_STRING, "Go to a hidden room");
+	do_template("beginbox");
 
 	wprintf("<CENTER>\n");
 	wprintf("If you know the name of a hidden (guess-name) or\n");
@@ -1540,11 +1545,12 @@ void display_private(char *rname, int req_pass)
 		wprintf("Enter room password:</TD><TD>");
 		wprintf("<INPUT TYPE=\"password\" NAME=\"gr_pass\" MAXLENGTH=\"9\">\n");
 	}
-	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</TD></TR></TABLE><BR>\n");
 
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 	wprintf("</FORM>\n");
+	do_template("endbox");
 	wDumpContent(1);
 }
 
@@ -2109,7 +2115,7 @@ void knrooms() {
 
 	wprintf("</SELECT></FORM></TD><TD>\n");
 	offer_start_page();
-	wprintf("</TD></TR></TABLE><BR>\n");
+	wprintf("</TD></TR></TABLE>\n");
 
 	/* Display the room list in the user's preferred format */
 	if (!strcasecmp(listviewpref, "table")) {

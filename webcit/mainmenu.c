@@ -176,8 +176,6 @@ void display_main_menu(void)
 
 			wprintf("<LI><A HREF=\"/display_netconf\">\n");
 			wprintf("Configure networking with other systems</A>\n");
-			wprintf("<LI><A HREF=\"/static/colorpicker.html\">\n");
-			wprintf("Reconfigure color scheme</A>\n");
 		}
 		wprintf("</UL>\n");
 		do_template("endbox");
@@ -195,11 +193,10 @@ void display_main_menu(void)
  */
 void display_generic(void)
 {
-	output_headers(1);
+	output_headers(3);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770077\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">Enter a server command</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
+	svprintf("BOXTITLE", WCS_STRING, "Enter a server command");
+	do_template("beginbox");
 
 	wprintf("<CENTER>");
 	wprintf("This screen allows you to enter Citadel server commands which are\n");
@@ -220,6 +217,7 @@ void display_generic(void)
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
 
 	wprintf("</FORM></CENTER>\n");
+	do_template("endbox");
 	wDumpContent(1);
 }
 
@@ -235,14 +233,13 @@ void do_generic(void)
 		return;
 	}
 
-	output_headers(1);
+	output_headers(3);
 
 	serv_printf("%s", bstr("g_cmd"));
 	serv_gets(buf);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770077\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">Server command results</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
+	svprintf("BOXTITLE", WCS_STRING, "Server command results");
+	do_template("beginbox");
 
 	wprintf("<TABLE border=0><TR><TD>Command:</TD><TD><TT>");
 	escputs(bstr("g_cmd"));
@@ -280,6 +277,7 @@ void do_generic(void)
 	wprintf("<HR>");
 	wprintf("<A HREF=\"/display_generic\">Enter another command</A><BR>\n");
 	wprintf("<A HREF=\"/display_advanced\">Return to menu</A>\n");
+	do_template("endbox");
 	wDumpContent(1);
 }
 
