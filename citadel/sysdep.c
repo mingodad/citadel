@@ -38,6 +38,7 @@
 #include "config.h"
 #include "database.h"
 #include "housekeeping.h"
+#include "dynloader.h"
 
 #ifdef NEED_SELECT_H
 #include <sys/select.h>
@@ -45,6 +46,7 @@
 
 pthread_mutex_t Critters[MAX_SEMAPHORES];	/* Things needing locking */
 pthread_key_t MyConKey;				/* TSD key for MyContext() */
+symtab *my_symtab;				/* Dynamic modules symbol table */
 
 int msock;					/* master listening socket */
 int verbosity = 3;				/* Logging level */
@@ -82,7 +84,7 @@ void init_sysdep(void) {
 		}
 
 	/*
-	 * Set up a place to put thread-specific data.
+	 * Set up a place to put thred-specific data.
 	 * We only need a single pointer per thread - it points to the
 	 * thread's CitContext structure in the ContextList linked list.
 	 */
@@ -594,7 +596,8 @@ int main(int argc, char **argv)
 	char tracefile[128];		/* Name of file to log traces to */
 	int a, i;			/* General-purpose variables */
 	char convbuf[128];
-
+	char modpath[128];
+        
 	/* specify default port name and trace file */
 	strcpy(tracefile, "");
 
@@ -645,7 +648,15 @@ int main(int argc, char **argv)
 	/* Initialize... */
 	init_sysdep();
 	openlog("citserver",LOG_PID,LOG_USER);
-
+        lprintf(1, "Initting modules...\n");
+        snprintf(modpath, 128, "%s/modules", BBSDIR);
+        DLoader_Init(modpath, &my_symtab);
+        lprintf(1, "Modules done initializing...\n");
+/*
+        lprintf(1, "First symtab item:");
+        lprintf(1, my_symtab->fcn_name);
+        lprintf(1, "\n");
+*/                                                 
 	/* Load site-specific parameters */
 	lprintf(7, "Loading citadel.config\n");
 	get_config();
