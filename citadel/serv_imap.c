@@ -75,6 +75,19 @@ void imap_greeting(void) {
 }
 
 
+/*
+ * implements the LOGIN command (ordinary username/password login)
+ */
+void imap_login(char *tag, char *cmd, char *parms) {
+	char username[256];
+	char password[256];
+
+	extract_token(username, parms, 0, ' ');
+	extract_token(password, parms, 1, ' ');
+
+	cprintf("%s BAD hi <%s> <%s>\r\n", username, password);
+}
+
 
 
 /* 
@@ -83,6 +96,7 @@ void imap_greeting(void) {
 void imap_command_loop(void) {
 	char cmdbuf[256];
 	char tag[256];
+	char cmd[256];
 
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
@@ -103,21 +117,25 @@ void imap_command_loop(void) {
 
 	/* grab the tag */
 	extract_token(tag, cmdbuf, 0, ' ');
+	extract_token(cmd, cmdbuf, 1, ' ');
 	remove_token(cmdbuf, 0, ' ');
-	lprintf(9, "tag=<%s> cmd=<%s>\n", tag, cmdbuf);
+	remove_token(cmdbuf, 0, ' ');
+	lprintf(9, "tag=<%s> cmd=<%s> parms=<%s>\n", tag, cmd, cmdbuf);
 
-	if (!strncasecmp(cmdbuf, "NOOP", 4)) {
+	if (!strcasecmp(cmd, "NOOP")) {
 		cprintf("%s OK This command successfully did nothing.\r\n",
 			tag);
 	}
 
-	else if (!strncasecmp(cmdbuf, "LOGOUT", 4)) {
+	else if (!strcasecmp(cmd, "LOGOUT")) {
 		cprintf("%s OK thank you for using Citadel IMAP\r\n", tag);
 		CC->kill_me = 1;
 		return;
 	}
 
-	/*   FIXME   ...   implement login commands HERE      */
+	else if (!strcasecmp(cmd, "LOGIN")) {
+		imap_login(tag, cmd, cmdbuf);
+	}
 
 	else if (!CC->logged_in) {
 		cprintf("%s BAD Not logged in.\r\n", tag);
