@@ -10,12 +10,7 @@
 		echo htmlspecialchars(substr($response, 3)) . '<br>' ;
 	}
 	else {
-		echo 'Sending: ' . $_REQUEST["msgtext"] . '<BR>' ;
-		flush();
-		serv_puts($_REQUEST["msgtext"]);
-		echo 'Sending: 000<BR>' ;
-		flush();
-		serv_puts("000");
+		text_to_server($_REQUEST["msgtext"], TRUE);
 	}
 
 	echo "Message has been posted.<BR>\n" ;

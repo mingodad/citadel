@@ -31,6 +31,32 @@ function serv_puts($buf) {
 }
 
 
+// 
+// text_to_server() -- sends a block of text to the server.  Assumes that
+//                     the server just sent back a SEND_LISTING response code
+//                     and is now expecting a 000-terminated series of lines.
+//                     Set 'convert_to_html' to TRUE to convert the block of
+//                     text to HTML along the way.
+//
+function text_to_server($thetext, $convert_to_html) {
+
+
+	$this_line = strtok($thetext, "\n");
+
+	while ($this_line) {
+		$this_line = trim($this_line, "\n\r");
+		if ($this_line == "000") $this_line = "-000" ;
+		serv_puts($this_line);
+		$this_line = strtok("\n");
+	}
+
+	serv_puts("000");
+	serv_puts("ECHO echo test.");		// FIXME
+	echo "Echo test: " . serv_gets() . "<BR>\n" ;
+
+}
+
+
 
 //
 // Identify ourselves to the Citadel server (do this once after connection)
