@@ -25,7 +25,7 @@
 #include "citadel.h"
 #include "config.h"
 
-void make_message(FILE *fp, char *target_room, char *author)
+static void make_message(FILE *fp, char *target_room, char *author)
 {
 	int a;
 	long bb, cc;

@@ -2045,7 +2045,7 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
  * Build a binary message to be saved on disk.
  */
 
-struct CtdlMessage *make_message(
+static struct CtdlMessage *make_message(
 	struct usersupp *author,	/* author's usersupp structure */
 	char *recipient,		/* NULL if it's not mail */
 	char *room,			/* room where it's going */
