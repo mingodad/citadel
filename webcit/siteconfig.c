@@ -327,7 +327,7 @@ void display_siteconfig(void)
 			break;
 		case 15:
 			if (!strcasecmp(whichmenu, "tuning")) {
-				wprintf("<TR><TD>Maximum concurrent sessions</TD><TD>");
+				wprintf("<TR><TD>Maximum concurrent sessions (0 = no limit)</TD><TD>");
 				wprintf("<INPUT TYPE=\"text\" NAME=\"c_maxsessions\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
 				wprintf("</TD></TR>\n");
 			}

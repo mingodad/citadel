@@ -1,4 +1,8 @@
 $Log$
+Revision 602.1  2005/02/16 05:22:22  ajc
+* inetconf.c: fixed memory management problem that was causing all
+  the inetconf to get discarded during edit on IBM POWER5
+
 Revision 602.0  2005/02/15 05:23:10  ajc
 * THIS IS 6.02
 
@@ -2358,4 +2362,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
