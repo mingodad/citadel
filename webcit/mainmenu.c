@@ -175,6 +175,9 @@ void embed_advanced_menu(void)
 		wprintf("<LI><A HREF=\"/display_editroom\">\n");
 		wprintf("Edit or delete this room</A>\n");
 
+                wprintf("<LI><A HREF=\"/display_whok\">\n");
+                wprintf("Show who knows this room</A>\n");
+
 		wprintf("<LI><A HREF=\"/display_siteconfig\">\n");
 		wprintf("Edit site-wide configuration</A>\n");
 

@@ -830,6 +830,8 @@ void session_loop(struct httprequest *req)
 		display_editroom();
 	} else if (!strcasecmp(action, "editroom")) {
 		editroom();
+        } else if (!strcasecmp(action, "display_whok")) {
+                display_whok();
 	} else if (!strcasecmp(action, "display_editinfo")) {
 		display_edit("Room info", "EINF 0", "RINF", "/editinfo");
 	} else if (!strcasecmp(action, "editinfo")) {

@@ -226,6 +226,7 @@ void display_entroom(void);
 void entroom(void);
 void display_editroom(void);
 void editroom(void);
+void display_whok(void);
 void server_to_text(void);
 void save_edit(char *description, char *enter_cmd, int regoto);
 void display_edit(char *description, char *check_cmd,
