@@ -16,7 +16,7 @@
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
-#include "serv_ical.h"
+#include "serv_calendar.h"
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
