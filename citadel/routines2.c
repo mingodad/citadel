@@ -1020,6 +1020,8 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 	char addr[SIZ];
 	FILE *tempfp;
 	FILE *changefp;
+	char *listing = NULL;
+	int r;
 
 	if (strlen(editor_paths[0]) == 0) {
 		scr_printf("You must have an external editor configured in"
@@ -1041,16 +1043,21 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 	fprintf(tempfp, "# Specify one per line.\n"
 			"\n\n");
 
-	CtdlIPC_putline(ipc, "GNET");
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] == '1') {
-		while(CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
+	r = CtdlIPCGetRoomNetworkConfig(ipc, &listing, buf);
+	if (r / 100 == 1) {
+		while(listing && strlen(listing)) {
+			extract_token(buf, listing, 0, '\n');
+			remove_token(listing, 0, '\n');
 			extract(instr, buf, 0);
 			if (!strcasecmp(instr, entrytype)) {
 				extract(addr, buf, 1);
 				fprintf(tempfp, "%s\n", addr);
 			}
 		}
+	}
+	if (listing) {
+		free(listing);
+		listing = NULL;
 	}
 	fclose(tempfp);
 
@@ -1138,18 +1145,21 @@ void do_ignet_configuration(CtdlIPC *ipc) {
 	int badkey;
 	int i, j;
 	int quitting = 0;
-	
+	char *listing = NULL;
+	int r;
 
-	snprintf(buf, sizeof buf, "CONF getsys|%s", IGNETCFG);
-	CtdlIPC_putline(ipc, buf);
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] == '1') while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
+	r = CtdlIPCGetSystemConfigByType(ipc, IGNETCFG, listing, buf);
+	if (r / 100 == 1) while (*listing && strlen(listing)) {
+		extract_token(buf, listing, 0, '\n');
+		remove_token(listing, 0, '\n');
+
 		++num_recs;
 		if (num_recs == 1) recs = malloc(sizeof(char *));
 		else recs = realloc(recs, (sizeof(char *)) * num_recs);
 		recs[num_recs-1] = malloc(SIZ);
 		strcpy(recs[num_recs-1], buf);
 	}
+	if (listing) free(listing);
 
 	do {
 		scr_printf("\n");
@@ -1212,17 +1222,21 @@ void do_ignet_configuration(CtdlIPC *ipc) {
 					recs[j] = recs[j+1];
 				break;
 			case 's':
-				snprintf(buf, sizeof buf, "CONF putsys|%s", IGNETCFG);
-				CtdlIPC_putline(ipc, buf);
-				CtdlIPC_getline(ipc, buf);
-				if (buf[0] == '4') {
-					for (i=0; i<num_recs; ++i) {
-						CtdlIPC_putline(ipc, recs[i]);
-					}
-					CtdlIPC_putline(ipc, "000");
+				r = 1;
+				for (i = 0; i < num_recs; ++i)
+					r += 1 + strlen(recs[i]);
+				listing = (char*) calloc(1, r);
+				if (!listing) {
+					err_printf("Can't save config - out of memory!\n");
+					logoff(ipc, 1);
 				}
-				else {
-					scr_printf("%s\n", &buf[4]);
+				if (num_recs) for (i = 0; i < num_recs; ++i) {
+					strcat(listing, recs[i]);
+					strcat(listing, "\n");
+				}
+				r = CtdlIPCSetSystemConfigByType(ipc, IGNETCFG, listing, buf);
+				if (r / 100 != 4) {
+					scr_printf("%s\n", buf);
 				}
 				quitting = 1;
 				break;
@@ -1253,18 +1267,21 @@ void do_filterlist_configuration(CtdlIPC *ipc)
 	int badkey;
 	int i, j;
 	int quitting = 0;
-	
+	char *listing = NULL;
+	int r;
 
-	snprintf(buf, sizeof buf, "CONF getsys|%s", FILTERLIST);
-	CtdlIPC_putline(ipc, buf);
-	CtdlIPC_getline(ipc, buf);
-	if (buf[0] == '1') while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) {
+	r = CtdlIPCGetSystemConfigByType(ipc, FILTERLIST, listing, buf);
+	if (r / 100 == 1) while (*listing && strlen(listing)) {
+		extract_token(buf, listing, 0, '\n');
+		remove_token(listing, 0, '\n');
+
 		++num_recs;
 		if (num_recs == 1) recs = malloc(sizeof(char *));
 		else recs = realloc(recs, (sizeof(char *)) * num_recs);
 		recs[num_recs-1] = malloc(SIZ);
 		strcpy(recs[num_recs-1], buf);
 	}
+	if (listing) free(listing);
 
 	do {
 		scr_printf("\n");
@@ -1323,17 +1340,21 @@ void do_filterlist_configuration(CtdlIPC *ipc)
 					recs[j] = recs[j+1];
 				break;
 			case 's':
-				snprintf(buf, sizeof buf, "CONF putsys|%s", FILTERLIST);
-				CtdlIPC_putline(ipc, buf);
-				CtdlIPC_getline(ipc, buf);
-				if (buf[0] == '4') {
-					for (i=0; i<num_recs; ++i) {
-						CtdlIPC_putline(ipc, recs[i]);
-					}
-					CtdlIPC_putline(ipc, "000");
+				r = 1;
+				for (i = 0; i < num_recs; ++i)
+					r += 1 + strlen(recs[i]);
+				listing = (char*) calloc(1, r);
+				if (!listing) {
+					err_printf("Can't save config - out of memory!\n");
+					logoff(ipc, 1);
 				}
-				else {
-					scr_printf("%s\n", &buf[4]);
+				if (num_recs) for (i = 0; i < num_recs; ++i) {
+					strcat(listing, recs[i]);
+					strcat(listing, "\n");
+				}
+				r = CtdlIPCSetSystemConfigByType(ipc, FILTERLIST, listing, buf);
+				if (r / 100 != 4) {
+					scr_printf("%s\n", buf);
 				}
 				quitting = 1;
 				break;
