@@ -404,25 +404,28 @@ static int hostnames_match(const char *realname, const char *testname) {
 }
 
 /*
- * check a hostname against the public_clients file
+ * Check a hostname against the public_clients file.  This determines
+ * whether the client is allowed to change the hostname for this session
+ * (for example, to show the location of the user rather than the location
+ * of the client).
  */
 int is_public_client(char *where)
 {
 	char buf[SIZ];
 	FILE *fp;
 
-	lprintf(9, "Checking whether %s is a public client\n", where);
-
+	lprintf(9, "Checking whether %s is a local client\n", where);
 	if (hostnames_match(where, "localhost")) return(1);
 	if (hostnames_match(where, config.c_fqdn)) return(1);
 
-	fp = fopen("public_clients","r");
+	lprintf(9, "Checking whether %s is a public client\n", where);
+	fp = fopen("public_clients", "r");
 	if (fp == NULL) return(0);
 
 	while (fgets(buf, sizeof buf, fp)!=NULL) {
 		while (isspace((buf[strlen(buf)-1]))) 
 			buf[strlen(buf)-1] = 0;
-		if (hostnames_match(where,buf)) {
+		if (hostnames_match(where, buf)) {
 			fclose(fp);
 			return(1);
 		}

@@ -73,6 +73,8 @@ int CtdlHostAlias(char *fqdn) {
 	char buf[SIZ];
 	char host[SIZ], type[SIZ];
 
+	if (fqdn == NULL) return(hostalias_nomatch);
+	if (strlen(fqdn) == 0) return(hostalias_nomatch);
 	if (!strcasecmp(fqdn, config.c_fqdn)) return(hostalias_localhost);
 	if (!strcasecmp(fqdn, config.c_nodename)) return(hostalias_localhost);
 	if (inetcfg == NULL) return(hostalias_nomatch);
@@ -629,6 +631,13 @@ int CtdlDirectoryLookup(char *target, char *internet_addr) {
 	struct cdbdata *cdbrec;
 	char key[SIZ];
 
+	/* Dump it in there unchanged, just for kicks */
+	strcpy(target, internet_addr);
+
+	/* Only do lookups for addresses with hostnames in them */
+	if (num_tokens(internet_addr, '@') != 2) return(-1);
+
+	/* Only do lookups for domains in the directory */
 	if (IsDirectory(internet_addr) == 0) return(-1);
 
 	directory_key(key, internet_addr);
