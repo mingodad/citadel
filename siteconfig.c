@@ -47,9 +47,8 @@ void display_siteconfig(void)
 		return;
 	}
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">Site configuration");
-	wprintf("</SPAN></TD></TR></TABLE>\n");
+	svprintf("BOXTITLE", WCS_STRING, "Site configuration");
+	do_template("beginbox");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/siteconfig\">\n");
 	wprintf("<TABLE border=0>\n");
@@ -210,6 +209,7 @@ void display_siteconfig(void)
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">\n");
 	wprintf("</CENTER></FORM>\n");
+	do_template("endbox");
 	wDumpContent(1);
 }
 
