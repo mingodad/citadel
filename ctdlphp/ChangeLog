@@ -1,4 +1,8 @@
  $Log$
+ Revision 1.17  2003/11/14 17:15:19  ajc
+ * Identify our message format preference (HTML followed by plain text)
+   to the server upon connection, so MSG4 commands run properly.
+
  Revision 1.16  2003/11/14 17:09:04  ajc
  * Added a basic read loop ... currently only fetches message numbers
 
@@ -69,3 +73,4 @@
 
  Revision 1.1  2003/10/31 03:47:13  ajc
  * Initial CVS import
+

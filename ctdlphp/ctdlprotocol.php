@@ -32,12 +32,17 @@ function serv_puts($buf) {
 
 
 //
-// Identify this client, and the hostname where the user is, to Citadel.
+// Identify ourselves to the Citadel server (do this once after connection)
 //
 function ctdl_iden() {
 	global $clientsocket;
 
+	// Identify client and hostname
 	serv_puts("IDEN 0|8|001|PHP web client|" . $_SERVER['REMOTE_ADDR'] );
+	$buf = serv_gets();
+
+	// Also express our message format preferences
+	serv_puts("MSGP text/html|text/plain");
 	$buf = serv_gets();
 }
 
