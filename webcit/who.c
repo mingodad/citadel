@@ -86,10 +86,14 @@ void whobbs(void) {
 
 		while (wlist != NULL) {
 			wprintf("<TR><TD>%d", wlist->sessionnum);
-			if (is_aide) {
+			if ( (is_aide) &&
+			   (wlist->sessionnum != serv_info.serv_pid) ) {
 				wprintf(" <A HREF=\"/terminate_session&which_session=%d&session_owner=", wlist->sessionnum);
 				urlescputs(wlist->username);
 				wprintf("\">(kill)</A>");
+				}
+			if (wlist->sessionnum == serv_info.serv_pid) {
+				wprintf(" <A HREF=\"/edit_me\">(edit)</A>");
 				}
 			wprintf("</TD><TD>");
 			escputs(wlist->username);
@@ -149,3 +153,80 @@ void terminate_session(void) {
 		}
 
 	}
+
+
+
+/*
+ * Change your session info (fake roomname and hostname)
+ */
+void edit_me(void) {
+	char buf[256];
+
+	printf("HTTP/1.0 200 OK\n");
+	output_headers(1);
+
+	if (!strcasecmp(bstr("sc"), "Change room name")) {
+		serv_printf("RCHG %s", bstr("fake_roomname"));
+		serv_gets(buf);
+		whobbs();
+		}
+	else if (!strcasecmp(bstr("sc"), "Change host name")) {
+		serv_printf("HCHG %s", bstr("fake_hostname"));
+		serv_gets(buf);
+		whobbs();
+		}
+	else if (!strcasecmp(bstr("sc"), "Change user name")) {
+		serv_printf("UCHG %s", bstr("fake_username"));
+		serv_gets(buf);
+		whobbs();
+		}
+	else if (!strcasecmp(bstr("sc"), "Cancel")) {
+		whobbs();
+		}
+	else {
+
+       		wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=000077><TR><TD>");
+       		wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>");
+		wprintf("Edit your session display");
+       		wprintf("</B></FONT></TD></TR></TABLE>\n");
+	
+		wprintf("This screen allows you to change the way your\n");
+		wprintf("session appears in the 'Who is online' listing.\n");
+		wprintf("To turn off any 'fake' name you've previously\n");
+		wprintf("set, simply click the appropriate 'change' button\n");
+		wprintf("without typing anything in the corresponding box.\n");
+		wprintf("<BR>\n");
+
+	        wprintf("<FORM METHOD=\"POST\" ACTION=\"/edit_me\">\n");
+
+		wprintf("<TABLE border=0 width=100%>\n");
+
+        	wprintf("<TR><TD>Room name:</TD><TD>");
+        	wprintf("<INPUT TYPE=\"text\" NAME=\"fake_roomname\" MAXLENGTH=\"64\">\n");
+		wprintf("</TD><TD>");
+        	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Change room name\">");
+		wprintf("</TD></TR>\n");
+
+        	wprintf("<TR><TD>Host name:</TD><TD>");
+        	wprintf("<INPUT TYPE=\"text\" NAME=\"fake_hostname\" MAXLENGTH=\"64\">\n");
+		wprintf("</TD><TD>");
+        	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Change host name\">");
+		wprintf("</TD></TR>\n");
+
+		if (is_aide) {
+        		wprintf("<TR><TD>User name:</TD><TD>");
+        		wprintf("<INPUT TYPE=\"text\" NAME=\"fake_username\" MAXLENGTH=\"64\">\n");
+			wprintf("</TD><TD>");
+        		wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Change user name\">");
+			wprintf("</TD></TR>\n");
+			}
+
+		wprintf("<TR><TD></TD><TD></TD><TD>");
+        	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
+		wprintf("</TD></TR></TABLE>\n");
+
+	        wprintf("</FORM></CENTER></BODY></HTML>\n");
+		wDumpContent();
+		}
+	}
+

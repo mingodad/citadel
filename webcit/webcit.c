@@ -858,6 +858,10 @@ void session_loop(void) {
 		terminate_session();
 		}
 
+	else if (!strcasecmp(action, "edit_me")) {
+		edit_me();
+		}
+
 	/* When all else fails... */
 	else {
 		printf("HTTP/1.0 200 OK\n");
