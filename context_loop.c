@@ -5,6 +5,8 @@
  * up HTTP requests with the session they belong to, using HTTP cookies to
  * keep track of things.  If the HTTP request doesn't belong to any currently
  * active session, a new session is spawned.
+ *
+ * $Id$
  */
 
 #include <stdlib.h>
@@ -80,6 +82,8 @@ void req_gets(int sock, char *buf, char *hold) {
 		}
 	}
 
+extern const char *defaulthost;
+extern const char *defaultport;
 
 /*
  * This loop gets called once for every HTTP connection made to WebCit.
@@ -148,7 +152,8 @@ void *context_loop(int sock) {
 		if (f==0) {
 			dup2(TheSession->inpipe[0], 0);
 			dup2(TheSession->outpipe[1], 1);
-			execlp("./webcit", "webcit", str_session, NULL);
+			execlp("./webcit", "webcit", str_session, defaulthost,
+			       defaultport, NULL);
 			printf("HTTP/1.0 404 WebCit Failure\n\n");
 			printf("Server: %s\n", SERVER);
 			printf("Content-type: text/html\n");

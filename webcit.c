@@ -4,6 +4,8 @@
  * This is the actual program called by the webserver.  It maintains a
  * persistent session to the Citadel server, handling HTTP WebCit requests as
  * they arrive and presenting a user interface.
+ *
+ * $Id$
  */
 
 #include <stdlib.h>
@@ -340,6 +342,8 @@ void output_static(char *what) {
 		}
 	}
 
+static const char *defaulthost = DEFAULT_HOST;
+static const char *defaultport = DEFAULT_PORT;
 
 void session_loop() {
 	char cmd[256];
@@ -357,8 +361,8 @@ void session_loop() {
 	char c_password[256];
 	char c_roomname[256];
 
-	strcpy(c_host, DEFAULT_HOST);
-	strcpy(c_port, DEFAULT_PORT);
+	strcpy(c_host, defaulthost);
+	strcpy(c_port, defaultport);
 	strcpy(c_username, "");
 	strcpy(c_password, "");
 	strcpy(c_roomname, "");
@@ -526,16 +530,22 @@ void session_loop() {
 	free_urls();
 	}
 
-
-
 int main(int argc, char *argv[]) {
 
-	if (argc != 2) {
-		printf("%s: usage: %s <session_id>\n", argv[0], argv[0]);
-		exit(1);
+	if (argc < 2 || argc > 4) {
+		fprintf(stderr,
+			"webcit: usage: webcit <session_id> [host [port]]\n");
+		return 1;
 		}
 
 	wc_session = atoi(argv[1]);
+
+	if (argc > 2) {
+		defaulthost = argv[2];
+		if (argc > 3)
+			defaultport = argv[3];
+		}
+
 	strcpy(wc_host, "");
 	strcpy(wc_port, "");
 	strcpy(wc_username, "");
@@ -545,6 +555,4 @@ int main(int argc, char *argv[]) {
 	while (1) {
 		session_loop();
 		}
-
-	exit(0);
 	}
