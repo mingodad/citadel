@@ -1,4 +1,7 @@
  $Log$
+ Revision 625.5  2004/08/29 15:18:41  error
+ * newinstall.sh: fix detection of gmake/make
+
  Revision 625.4  2004/08/28 14:21:25  error
  * Change the logging level of some messages and add a couple of new ones to
    show when a network node is connecting.
@@ -6015,3 +6018,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -300,8 +300,8 @@ do_config () {
 
 # 1. Gather information about the target system
 
-[ x$MAKE == x ] && MAKE=`which gmake`
-[ x$MAKE == x ] && MAKE=`which make`
+[ -n $MAKE ] && MAKE=`which gmake 2>/dev/null`
+[ -n $MAKE ] && MAKE=`which make 2>/dev/null`
 clear
 
 os=`uname`
