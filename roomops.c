@@ -192,6 +192,7 @@ void gotoroom(char *gname, int display_name)
 
 
 	printf("HTTP/1.0 200 OK\n");
+	printf("Window-target: top\n");
 	output_headers(1);
 
 	if (display_name != 2) {
@@ -771,10 +772,12 @@ int entroom(void) {
 void display_private(char *rname, int req_pass)
 {
 
+        printf("HTTP/1.0 200 OK\n");
+        output_headers(1);
 
         wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
         wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-        wprintf("<B>Enter a private room</B>\n");
+        wprintf("<B>Goto a private room</B>\n");
         wprintf("</FONT></TD></TR></TABLE>\n");
 
 	wprintf("<CENTER>\n");
@@ -801,18 +804,23 @@ void display_private(char *rname, int req_pass)
 	
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
-	wprintf("</FORM>");
+	wprintf("</FORM></HTML>\n");
+	wDumpContent();
 	}
 
 /* 
  * goto a private room
  */
-int goto_private(void) {
+void goto_private(void) {
 	char hold_rm[32];
 	char buf[256];
 	
-	if (strcmp(bstr("sc"),"OK")) {
-		return(2);
+	if (strcasecmp(bstr("sc"),"OK")) {
+        	printf("HTTP/1.0 200 OK\n");
+        	output_headers(1);
+		wprintf("Cancelled.</HTML>\n");
+		wDumpContent();
+		return;
 		}
 
 	strcpy(hold_rm,wc_roomname);
@@ -825,16 +833,19 @@ int goto_private(void) {
 
 	if (buf[0]=='2') {
 		gotoroom(bstr("gr_name"),1);
-		return(0);
+		return;
 		}
 
 	if (!strncmp(buf,"540",3)) {
 		display_private(bstr("gr_name"),1);
-		return(1);
+		return;
 		}
 
-	wprintf("<EM>%s</EM>\n",&buf[4]);
-	return(2);
+        printf("HTTP/1.0 200 OK\n");
+        output_headers(1);
+	wprintf("%s\n",&buf[4]);
+	wDumpContent();
+	return;
 	}
 
 

@@ -53,3 +53,5 @@ void showuser(void);
 void display_page(void);
 void page_user(void);
 void do_chat(void);
+void display_private(char *rname, int req_pass);
+void goto_private(void);

@@ -668,6 +668,14 @@ fclose(fp);
 		do_chat();
 		}
 
+	else if (!strcasecmp(action, "display_private")) {
+		display_private("", 0);
+		}
+
+	else if (!strcasecmp(action, "goto_private")) {
+		goto_private();
+		}
+
 	/* When all else fails... */
 	else {
 		printf("HTTP/1.0 200 OK\n");
