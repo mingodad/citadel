@@ -291,9 +291,9 @@ void decode_base64(char *dest, char *source)
  */
 void striplt(char *buf)
 {
-        while ((strlen(buf) > 0) && (buf[0] == 32))
+        while ((strlen(buf) > 0) && (isspace(buf[0])))
                 strcpy(buf, &buf[1]);
-        while (buf[strlen(buf) - 1] == 32)
+        while (isspace(buf[strlen(buf) - 1]))
                 buf[strlen(buf) - 1] = 0;
 }
 

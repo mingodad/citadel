@@ -231,6 +231,24 @@ void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
 }
 
 
+/*
+ * Strip any non header information out of a chunk of RFC822 data on disk
+ */
+void imap_strip_headers(FILE *fp) {
+	char buf[1024];
+
+	rewind(fp);
+	while (fgets(buf, sizeof buf, fp) != NULL) {
+		striplt(buf);
+		if (strlen(buf) == 0) {
+			ftruncate(fileno(fp), ftell(fp));
+		}
+	}
+	fflush(fp);
+	fprintf(fp, "\r\n");	/* add the trailing newline */
+	rewind(fp);
+}
+
 
 /*
  * Implements the BODY and BODY.PEEK fetch items
@@ -293,7 +311,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 		CtdlRedirectOutput(tmp, -1);
 		CtdlOutputMsg(msgnum, MT_RFC822, 1, 0, 1);
 		CtdlRedirectOutput(NULL, -1);
-		fprintf(tmp, "\r\n");	/* add the trailing newline */
+		imap_strip_headers(tmp);
 	}
 
 	/*
