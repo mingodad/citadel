@@ -145,7 +145,6 @@ void unfold_rfc822_field(char *field) {
 void process_rfc822_addr(char *rfc822, char *user, char *node, char *name)
 {
 	int a;
-	int lb, rb;
 
 	strcpy(user, "");
 	strcpy(node, config.c_fqdn);
@@ -153,15 +152,7 @@ void process_rfc822_addr(char *rfc822, char *user, char *node, char *name)
 
 	/* extract full name - first, it's From minus <userid> */
 	strcpy(name, rfc822);
-	lb = (-1);
-	rb = (-1);
-	for (a = 0; a < strlen(name); ++a) {
-		if (name[a] == '<') lb = a;
-		if (name[a] == '>') rb = a;
-	}
-	if ( (lb > 0) && (rb > lb) ) {
-		strcpy(&name[lb - 1], &name[rb + 1]);
-	}
+	stripout(name, '<', '>');
 
 	/* strip anything to the left of a bang */
 	while ((strlen(name) > 0) && (haschar(name, '!') > 0))
@@ -178,16 +169,9 @@ void process_rfc822_addr(char *rfc822, char *user, char *node, char *name)
 	/* but if there are parentheses, that changes the rules... */
 	if ((haschar(rfc822, '(') == 1) && (haschar(rfc822, ')') == 1)) {
 		strcpy(name, rfc822);
-		while ((strlen(name) > 0) && (name[0] != '(')) {
-			strcpy(&name[0], &name[1]);
-		}
-		strcpy(&name[0], &name[1]);
-		for (a = 0; a < strlen(name); ++a) {
-			if (name[a] == ')') {
-				name[a] = 0;
-			}
-		}
+		stripallbut(name, '(', ')');
 	}
+
 	/* but if there are a set of quotes, that supersedes everything */
 	if (haschar(rfc822, 34) == 2) {
 		strcpy(name, rfc822);
@@ -203,23 +187,13 @@ void process_rfc822_addr(char *rfc822, char *user, char *node, char *name)
 	strcpy(user, rfc822);
 
 	/* first get rid of anything in parens */
-	for (a = 0; a < strlen(user); ++a)
-		if (user[a] == '(') {
-			do {
-				strcpy(&user[a], &user[a + 1]);
-			} while ((strlen(user) > 0) && (user[a] != ')'));
-			strcpy(&user[a], &user[a + 1]);
-		}
+	stripout(user, '(', ')');
+
 	/* if there's a set of angle brackets, strip it down to that */
 	if ((haschar(user, '<') == 1) && (haschar(user, '>') == 1)) {
-		while ((strlen(user) > 0) && (user[0] != '<')) {
-			strcpy(&user[0], &user[1]);
-		}
-		strcpy(&user[0], &user[1]);
-		for (a = 0; a < strlen(user); ++a)
-			if (user[a] == '>')
-				user[a] = 0;
+		stripallbut(user, '<', '>');
 	}
+
 	/* strip anything to the left of a bang */
 	while ((strlen(user) > 0) && (haschar(user, '!') > 0))
 		strcpy(user, &user[1]);
@@ -237,22 +211,11 @@ void process_rfc822_addr(char *rfc822, char *user, char *node, char *name)
 	strcpy(node, rfc822);
 
 	/* first get rid of anything in parens */
-	for (a = 0; a < strlen(node); ++a)
-		if (node[a] == '(') {
-			do {
-				strcpy(&node[a], &node[a + 1]);
-			} while ((strlen(node) > 0) && (node[a] != ')'));
-			strcpy(&node[a], &node[a + 1]);
-		}
+	stripout(node, '(', ')');
+
 	/* if there's a set of angle brackets, strip it down to that */
 	if ((haschar(node, '<') == 1) && (haschar(node, '>') == 1)) {
-		while ((strlen(node) > 0) && (node[0] != '<')) {
-			strcpy(&node[0], &node[1]);
-		}
-		strcpy(&node[0], &node[1]);
-		for (a = 0; a < strlen(node); ++a)
-			if (node[a] == '>')
-				node[a] = 0;
+		stripallbut(node, '<', '>');
 	}
 
 	/* If no node specified, tack ours on instead */

@@ -1,4 +1,10 @@
  $Log$
+ Revision 580.27  2001/08/22 04:18:17  ajc
+ * Realized that there was lots of similarly broken code in
+   process_rfc822_addr().  Wrote two new utility functions in tools.c
+   stripout() and stripallbut() and used them where appropriate.  This should
+   take care of all possible infinite loops.
+
  Revision 580.26  2001/08/22 03:43:11  ajc
  * internet_addressing.c: fixed a bug in process_rfc822_addr() that caused the
    server to jump into an endless loop when an e-mail address contained
@@ -2689,3 +2695,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

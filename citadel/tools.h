@@ -23,3 +23,5 @@ int strncasecmp(char *, char *, int)
 
 #define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
 #define num_parms(source)		num_tokens(source, '|')
+void stripout(char *str, char leftboundary, char rightboundary);
+void stripallbut(char *str, char leftboundary, char rightboundary);
