@@ -1,3 +1,7 @@
+1998-10-10 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* citserver.c: fix overrun which caused segv's on servers with long
+	  hostnames.
+
 Fri Oct  9 18:34:06 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* user_ops.c: added PurgeStaleRelationships() to do processing at
 	  session logout time to remove visits for rooms which no longer exist

@@ -666,7 +666,8 @@ void *context_loop(struct CitContext *con)
 	strcpy(CC->net_node,"");
 	sprintf(CC->temp,"/tmp/CitServer.%d.%d", getpid(), CC->cs_pid);
 	strcpy(CC->cs_room, "");
-	strcpy(CC->cs_host, config.c_fqdn);
+	strncpy(CC->cs_host, config.c_fqdn, sizeof CC->cs_host);
+	CC->cs_host[sizeof CC->cs_host - 1] = 0;
 	locate_host(CC->cs_host);
 	CC->cs_flags = 0;
 	CC->upload_type = UPL_FILE;
