@@ -55,7 +55,6 @@ void do_iconbar(void) {
 	int ib_users = 1;	/* Users icon */
 	int ib_chat = 1;	/* Chat icon */
 	int ib_advanced = 1;	/* Advanced Options icon */
-	int ib_logoff = 1;	/* Logoff button */
 	int ib_citadel = 1;	/* 'Powered by Citadel' logo */
 	/*
 	 */
@@ -78,7 +77,6 @@ void do_iconbar(void) {
 		if (!strcasecmp(key, "ib_users")) ib_users = atoi(value);
 		if (!strcasecmp(key, "ib_chat")) ib_chat = atoi(value);
 		if (!strcasecmp(key, "ib_advanced")) ib_advanced = atoi(value);
-		if (!strcasecmp(key, "ib_logoff")) ib_logoff = atoi(value);
 		if (!strcasecmp(key, "ib_citadel")) ib_citadel = atoi(value);
 	}
 
@@ -256,7 +254,23 @@ void do_iconbar(void) {
 		wprintf("</A></li>\n");
 	}
 
-	if (ib_logoff) {
+	if ((WC->axlevel >= 6) || (WC->is_room_aide)) {
+		wprintf("<li>"
+			"<A HREF=\"/display_aide_menu\" "
+			"TITLE=\"Room and system administration functions\" "
+			">"
+		);
+		if (ib_displayas != IB_TEXTONLY) {
+			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
+			"SRC=\"/static/advanced-icon.gif\">");
+		}
+		if (ib_displayas != IB_PICONLY) {
+			wprintf("Administration");
+		}
+		wprintf("</A></li>\n");
+	}
+
+	if (1) {
 		wprintf("<li>"
 			"<A HREF=\"/termquit\" TITLE=\"Log off\" "
 			"onClick=\"return confirm('Log off now?');\">"
@@ -302,6 +316,7 @@ void display_customize_iconbar(void) {
 	char buf[SIZ];
 	char key[SIZ], value[SIZ];
 	int i;
+	int bar = 0;
 
 	/* The initialized values of these variables also happen to
 	 * specify the default values for users who haven't customized
@@ -320,7 +335,6 @@ void display_customize_iconbar(void) {
 	int ib_users = 1;	/* Users icon */
 	int ib_chat = 1;	/* Chat icon */
 	int ib_advanced = 1;	/* Advanced Options icon */
-	int ib_logoff = 1;	/* Logoff button */
 	int ib_citadel = 1;	/* 'Powered by Citadel' logo */
 	/*
 	 */
@@ -343,7 +357,6 @@ void display_customize_iconbar(void) {
 		if (!strcasecmp(key, "ib_users")) ib_users = atoi(value);
 		if (!strcasecmp(key, "ib_chat")) ib_chat = atoi(value);
 		if (!strcasecmp(key, "ib_advanced")) ib_advanced = atoi(value);
-		if (!strcasecmp(key, "ib_logoff")) ib_logoff = atoi(value);
 		if (!strcasecmp(key, "ib_citadel")) ib_citadel = atoi(value);
 	}
 
@@ -379,7 +392,7 @@ void display_customize_iconbar(void) {
 
 	wprintf("<TABLE border=0 cellspacing=0 cellpadding=3 width=100%%>\n");
 
-	wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
+	wprintf("<TR BGCOLOR=%s><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_logo\" VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
@@ -388,10 +401,11 @@ void display_customize_iconbar(void) {
 		"<B>Site logo</B><br />"
 		"A graphic describing this site"
 		"</TD></TR>\n",
+		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_logo ? "CHECKED" : "")
 	);
 
-	wprintf("<TR><TD>"
+	wprintf("<TR bgcolor=%s><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_summary\" VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
@@ -400,10 +414,11 @@ void display_customize_iconbar(void) {
 		"<B>Summary</B><br />"
 		"Your summary page"
 		"</TD></TR>\n",
+		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_summary ? "CHECKED" : "")
 	);
 
-	wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
+	wprintf("<TR bgcolor=%s><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_inbox\" VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
@@ -412,10 +427,11 @@ void display_customize_iconbar(void) {
 		"<B>Mail (inbox)</B><br />"
 		"A shortcut to your e-mail Inbox."
 		"</TD></TR>\n",
+		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_inbox ? "CHECKED" : "")
 	);
 
-	wprintf("<TR><TD>"
+	wprintf("<TR bgcolor=%s><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_contacts\" "
 		"VALUE=\"yes\" %s>"
 		"</TD><TD>"
@@ -425,10 +441,11 @@ void display_customize_iconbar(void) {
 		"<B>Contacts</B><br />"
 		"Your personal address book."
 		"</TD></TR>\n",
+		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_contacts ? "CHECKED" : "")
 	);
 
-	wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
+	wprintf("<TR bgcolor=%s><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_notes\" "
 		"VALUE=\"yes\" %s>"
 		"</TD><TD>"
@@ -438,11 +455,12 @@ void display_customize_iconbar(void) {
 		"<B>Notes</B><br />"
 		"Your personal notes."
 		"</TD></TR>\n",
+		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_notes ? "CHECKED" : "")
 	);
 
 #ifdef WEBCIT_WITH_CALENDAR_SERVICE
-	wprintf("<TR><TD>"
+	wprintf("<TR bgcolor=%s><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_calendar\" "
 		"VALUE=\"yes\" %s>"
 		"</TD><TD>"
@@ -452,10 +470,11 @@ void display_customize_iconbar(void) {
 		"<B>Calendar</B><br />"
 		"A shortcut to your personal calendar."
 		"</TD></TR>\n",
+		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_calendar ? "CHECKED" : "")
 	);
 
-	wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
+	wprintf("<TR bgcolor=%s><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_tasks\" VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
@@ -464,11 +483,12 @@ void display_customize_iconbar(void) {
 		"<B>Tasks</B><br />"
 		"A shortcut to your personal task list."
 		"</TD></TR>\n",
+		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_tasks ? "CHECKED" : "")
 	);
 #endif /* WEBCIT_WITH_CALENDAR_SERVICE */
 
-	wprintf("<TR><TD>"
+	wprintf("<TR bgcolor=%s><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_rooms\" VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
@@ -478,10 +498,11 @@ void display_customize_iconbar(void) {
 		"Clicking this icon displays a list of all accesible "
 		"rooms (or folders) available."
 		"</TD></TR>\n",
+		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_rooms ? "CHECKED" : "")
 	);
 
-	wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
+	wprintf("<TR bgcolor=%s><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_users\" VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
@@ -491,10 +512,11 @@ void display_customize_iconbar(void) {
 		"Clicking this icon displays a list of all users "
 		"currently logged in."
 		"</TD></TR>\n",
+		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_users ? "CHECKED" : "")
 	);
 
-	wprintf("<TR><TD>"
+	wprintf("<TR bgcolor=%s><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_chat\" VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
@@ -504,10 +526,11 @@ void display_customize_iconbar(void) {
 		"Clicking this icon enters real-time chat mode "
 		"with other users in the same room."
 		"</TD></TR>\n",
+		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_chat ? "CHECKED" : "")
 	);
 
-	wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
+	wprintf("<TR bgcolor=%s><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_advanced\" "
 		"VALUE=\"yes\" %s>"
 		"</TD><TD>"
@@ -517,23 +540,11 @@ void display_customize_iconbar(void) {
 		"<B>Advanced options</B><br />"
 		"Access to the complete menu of Citadel functions."
 		"</TD></TR>\n",
+		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_advanced ? "CHECKED" : "")
 	);
 
-	wprintf("<TR><TD>"
-		"<INPUT TYPE=\"checkbox\" NAME=\"ib_logoff\" "
-		"VALUE=\"yes\" %s>"
-		"</TD><TD>"
-		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"SRC=\"/static/exit-icon.gif\" ALT=\"&nbsp;\">"
-		"</TD><TD>"
-		"<B>Log off</B><br />"
-		"Exit from the Citadel system.  If you remove this icon "
-		"then you will have no way out!"
-		"</TD></TR>\n",
-		(ib_logoff ? "CHECKED" : "")
-	);
-	wprintf("<TR BGCOLOR=\"#CCCCCC\"><TD>"
+	wprintf("<TR bgcolor=%s><TD>"
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_citadel\" "
 		"VALUE=\"yes\" %s>"
 		"</TD><TD>"
@@ -543,6 +554,7 @@ void display_customize_iconbar(void) {
 		"<B>Citadel logo</B><br />"
 		"Displays the &quot;Powered by Citadel&quot; graphic"
 		"</TD></TR>\n",
+		((bar = 1 - bar), (bar ? "\"#CCCCCC\"" : "\"#FFFFFF\"")),
 		(ib_citadel ? "CHECKED" : "")
 	);
 

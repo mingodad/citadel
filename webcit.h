@@ -267,6 +267,7 @@ void display_login(char *mesg);
 void do_welcome(void);
 void do_logout(void);
 void display_main_menu(void);
+void display_aide_menu(void);
 void display_advanced_menu(void);
 void slrp_highest(void);
 void gotonext(void);
@@ -333,6 +334,7 @@ void display_editroom(void);
 void netedit(void);
 void editroom(void);
 void display_whok(void);
+void do_invt_kick(void);
 void server_to_text(void);
 void save_edit(char *description, char *enter_cmd, int regoto);
 void display_edit(char *description, char *check_cmd,

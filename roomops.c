@@ -826,7 +826,7 @@ void display_editroom(void)
 	output_headers(1, 1, 1, 0, 0, 0, 0);
 
 	/* print the tabbed dialog */
-	wprintf("<br /><TABLE border=0 cellspacing=0 cellpadding=0 width=100%%>"
+	wprintf("<br /><center><TABLE border=0 cellspacing=0 cellpadding=0 width=99%%>"
 		"<TR ALIGN=CENTER>"
 		"<TD>&nbsp;</TD>\n");
 
@@ -878,6 +878,22 @@ void display_editroom(void)
 
 	wprintf("<TD>&nbsp;</TD>\n");
 
+	if (!strcmp(tab, "access")) {
+		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
+	}
+	else {
+		wprintf("<TD BGCOLOR=\"#CCCCCC\"><A HREF=\"/display_editroom&tab=access\">");
+	}
+	wprintf("Access controls");
+	if (!strcmp(tab, "access")) {
+		wprintf("</SPAN></TD>\n");
+	}
+	else {
+		wprintf("</A></TD>\n");
+	}
+
+	wprintf("<TD>&nbsp;</TD>\n");
+
 	if (!strcmp(tab, "sharing")) {
 		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
 	}
@@ -914,7 +930,7 @@ void display_editroom(void)
 	/* end tabbed dialog */	
 
 	/* begin content of whatever tab is open now */
-	wprintf("<TABLE border=0 width=100%% bgcolor=\"#FFFFFF\">\n"
+	wprintf("<TABLE border=0 width=99%% bgcolor=\"#FFFFFF\">\n"
 		"<TR><TD>\n");
 
 	if (!strcmp(tab, "admin")) {
@@ -1379,6 +1395,10 @@ void display_editroom(void)
 
 	}
 
+	/* Mailing list management */
+	if (!strcmp(tab, "access")) {
+		display_whok();
+	}
 
 	/* end content of whatever tab is open now */
 	wprintf("</TD></TR></TABLE>\n");
@@ -1560,26 +1580,25 @@ void editroom(void)
 	return;
 }
 
+
 /*
- * Invite, Kick, and show Who Knows a room
+ * Display form for Invite, Kick, and show Who Knows a room
  */
-void display_whok(void)
-{
+void do_invt_kick(void) {
         char buf[SIZ], room[SIZ], username[SIZ];
 
         serv_puts("GETR");
         serv_gets(buf);
 
         if (buf[0] != '2') {
-		strcpy(WC->ImportantMessage, &buf[4]);
-		display_main_menu();
+		escputs(&buf[4]);
 		return;
         }
         extract(room, &buf[4], 0);
 
         strcpy(username, bstr("username"));
 
-        if(!strcmp(bstr("sc"), "Kick")) {
+        if (!strcmp(bstr("sc"), "Kick")) {
                 sprintf(buf, "KICK %s", username);
                 serv_puts(buf);
                 serv_gets(buf);
@@ -1591,7 +1610,9 @@ void display_whok(void)
 				"<B><I>User %s kicked out of room %s.</I></B>\n", 
                                 username, room);
                 }
-        } else if(!strcmp(bstr("sc"), "Invite")) {
+        }
+
+	if (!strcmp(bstr("sc"), "Invite")) {
                 sprintf(buf, "INVT %s", username);
                 serv_puts(buf);
                 serv_gets(buf);
@@ -1604,19 +1625,37 @@ void display_whok(void)
                                 username, room);
                 }
         }
-        
-        output_headers(1, 1, 1, 0, 0, 0, 0);
-	stresc(buf, WC->wc_roomname, 1, 1);
-	svprintf("BOXTITLE", WCS_STRING, "Access control list for %s", buf);
-	do_template("beginbox");
 
+	display_editroom();
+}
+
+
+
+/*
+ * Display form for Invite, Kick, and show Who Knows a room
+ */
+void display_whok(void)
+{
+        char buf[SIZ], room[SIZ], username[SIZ];
+
+        serv_puts("GETR");
+        serv_gets(buf);
+
+        if (buf[0] != '2') {
+		escputs(&buf[4]);
+		return;
+        }
+        extract(room, &buf[4], 0);
+
+        
 	wprintf("<TABLE border=0 CELLSPACING=10><TR VALIGN=TOP>"
 		"<TD>The users listed below have access to this room.  "
 		"To remove a user from the access list, select the user "
 		"name from the list and click 'Kick'.<br /><br />");
 	
-        wprintf("<CENTER><FORM METHOD=\"POST\" ACTION=\"/display_whok\">\n");
-        wprintf("<SELECT NAME=\"username\" SIZE=10>\n");
+        wprintf("<CENTER><FORM METHOD=\"POST\" ACTION=\"/do_invt_kick\">\n");
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"access\">\n");
+        wprintf("<SELECT NAME=\"username\" SIZE=\"10\" style=\"width:100%%\">\n");
         serv_puts("WHOK");
         serv_gets(buf);
         if (buf[0] == '1') {
@@ -1636,15 +1675,15 @@ void display_whok(void)
 		"To grant another user access to this room, enter the "
 		"user name in the box below and click 'Invite'.<br /><br />");
 
-        wprintf("<CENTER><FORM METHOD=\"POST\" ACTION=\"/display_whok\">\n");
+        wprintf("<CENTER><FORM METHOD=\"POST\" ACTION=\"/do_invt_kick\">\n");
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"tab\" VALUE=\"access\">\n");
         wprintf("Invite: ");
-        wprintf("<input type=text name=username><br />\n"
-        	"<input type=hidden name=sc value=\"Invite\">"
-        	"<input type=submit value=\"Invite\">"
+        wprintf("<input type=\"text\" name=\"username\" style=\"width:100%%\"><br />\n"
+        	"<input type=\"hidden\" name=\"sc\" value=\"Invite\">"
+        	"<input type=\"submit\" value=\"Invite\">"
 		"</FORM></CENTER>\n");
 
 	wprintf("</TD></TR></TABLE>\n");
-	do_template("endbox");
         wDumpContent(1);
 }
 

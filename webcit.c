@@ -1104,6 +1104,8 @@ void session_loop(struct httprequest *req)
 		blank_page();
 	} else if (!strcasecmp(action, "do_template")) {
 		url_do_template();
+	} else if (!strcasecmp(action, "display_aide_menu")) {
+		display_aide_menu();
 	} else if (!strcasecmp(action, "display_main_menu")) {
 		display_main_menu();
 	} else if (!strcasecmp(action, "whobbs")) {
@@ -1164,14 +1166,16 @@ void session_loop(struct httprequest *req)
 		display_entroom();
 	} else if (!strcasecmp(action, "entroom")) {
 		entroom();
+	} else if (!strcasecmp(action, "display_whok")) {
+		display_whok();
+	} else if (!strcasecmp(action, "do_invt_kick")) {
+		do_invt_kick();
 	} else if (!strcasecmp(action, "display_editroom")) {
 		display_editroom();
 	} else if (!strcasecmp(action, "netedit")) {
 		netedit();
 	} else if (!strcasecmp(action, "editroom")) {
 		editroom();
-        } else if (!strcasecmp(action, "display_whok")) {
-                display_whok();
 	} else if (!strcasecmp(action, "display_editinfo")) {
 		display_edit("Room info", "EINF 0", "RINF", "/editinfo", 1);
 	} else if (!strcasecmp(action, "editinfo")) {

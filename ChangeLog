@@ -1,4 +1,7 @@
 $Log$
+Revision 602.4  2005/02/18 05:09:52  ajc
+* Moved the room access control screen into a tab on the edit room menu
+
 Revision 602.3  2005/02/17 04:48:26  ajc
 * After setup is complete, tell them how to log in.
 * Don't allow the creation of accounts with blank passwords.
@@ -2384,3 +2387,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

@@ -132,33 +132,6 @@ void display_main_menu(void)
 	wprintf("</TD></TR>"
 		"<TR VALIGN=TOP><TD>");
 
-	svprintf("BOXTITLE", WCS_STRING, "Interaction");
-	do_template("beginbox");
-
-	wprintf("<A HREF=\"/whobbs\">"
-		"<span class=\"mainmenu\">"
-		"Who is online now?</span></A><br />\n"
-	);
-
-	wprintf("<A HREF=\"#\" onClick=\"window.open('/chat', "
-		"'ctdl_chat_window', "
-		"'toolbar=no,location=no,directories=no,copyhistory=no,"
-		"status=no,scrollbars=yes,resizable=yes');\""
-		">"
-		"<span class=\"mainmenu\">"
-		"Chat with other users in <i>"
-	);
-	escputs(WC->wc_roomname);
-	wprintf("</i></span></A><br />\n");
-
-	wprintf("<A HREF=\"/display_generic\">\n");
-	wprintf("<span class=\"mainmenu\">"
-		"Generic server command</span></A>\n");
-
-	do_template("endbox");
-
-	wprintf("</TD><TD>");
-
 	svprintf("BOXTITLE", WCS_STRING, "Your info");
 	do_template("beginbox");
 
@@ -181,7 +154,7 @@ void display_main_menu(void)
 
 	do_template("endbox");
 
-	wprintf("</TD></TR><TR VALIGN=TOP><TD>");
+	wprintf("</TD><TD>");
 
 	svprintf("BOXTITLE", WCS_STRING, "Advanced room commands");
 	do_template("beginbox");
@@ -205,53 +178,60 @@ void display_main_menu(void)
 		"Zap (forget) this room (%s)</span></A><br />\n",
 		WC->wc_roomname);
 
-        wprintf("<A HREF=\"/display_whok\">\n"
-		"<span class=\"mainmenu\">"
-        	"Access controls for this room</span></A><br />\n");
-
 	wprintf("<A HREF=\"/zapped_list\">"
 		"<span class=\"mainmenu\">"
 		"List all forgotten rooms</span></A>\n");
 
 	do_template("endbox");
 
-	wprintf("</TD><TD>");
+	wprintf("</td></tr></table></center>");
+	wDumpContent(2);
+}
 
-	if ((WC->axlevel >= 6) || (WC->is_room_aide)) {
-		svprintf("BOXTITLE", WCS_STRING, "Administrative functions");
-		do_template("beginbox");
 
-		wprintf("<A HREF=\"/display_siteconfig\">"
-			"<span class=\"mainmenu\">"
-			"Edit site-wide configuration</span></A>\n");
+/*
+ * System administration menu
+ */
+void display_aide_menu(void)
+{
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n"
+		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<SPAN CLASS=\"titlebar\">System Administration Menu</SPAN>"
+		"</TD></TR></TABLE>\n"
+		"</div>\n<div id=\"content\">\n"
+	);
 
-		if (WC->axlevel >= 6) {
-			wprintf("<br />"
-				"<A HREF=\"/select_user_to_edit\">"
-				"<span class=\"mainmenu\">"
-				"Add, change, delete user accounts"
-				"</span></A><br />\n");
+	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
 
-			wprintf("<A HREF=\"/validate\">"
-				"<span class=\"mainmenu\">"
-				"Validate new users</span></A><br />\n");
+	wprintf("<A HREF=\"/display_siteconfig\">"
+		"<span class=\"mainmenu\">"
+		"Edit site-wide configuration</span></A>\n");
 
-			wprintf("<A HREF=\"/display_floorconfig\">"
-				"<span class=\"mainmenu\">"
-				"Add, change, or delete floors"
-				"</span></A><br />\n");
+	wprintf("<br />"
+		"<A HREF=\"/select_user_to_edit\">"
+		"<span class=\"mainmenu\">"
+		"Add, change, delete user accounts"
+		"</span></A><br />\n");
 
-			wprintf("<A HREF=\"/display_netconf\">"
-				"<span class=\"mainmenu\">"
-				"Configure networking with other systems"
-				"</span></A><br />\n");
+	wprintf("<A HREF=\"/validate\">"
+		"<span class=\"mainmenu\">"
+		"Validate new users</span></A><br />\n");
 
-			wprintf("<A HREF=\"/display_inetconf\">"
-				"<span class=\"mainmenu\">"
-				"Internet and domain configuration</span></a><br />\n");
-		}
-		do_template("endbox");
-	}
+	wprintf("<A HREF=\"/display_floorconfig\">"
+		"<span class=\"mainmenu\">"
+		"Add, change, or delete floors"
+		"</span></A><br />\n");
+
+	wprintf("<A HREF=\"/display_netconf\">"
+		"<span class=\"mainmenu\">"
+		"Configure networking with other systems"
+		"</span></A><br />\n");
+
+	wprintf("<A HREF=\"/display_inetconf\">"
+		"<span class=\"mainmenu\">"
+		"Internet and domain configuration</span></a><br />\n");
+
 	wprintf("</td></tr></table></center>");
 	wDumpContent(2);
 }
@@ -265,10 +245,15 @@ void display_main_menu(void)
  */
 void display_generic(void)
 {
-	output_headers(1, 1, 0, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n"
+		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<SPAN CLASS=\"titlebar\">Enter a server command</SPAN>"
+		"</TD></TR></TABLE>\n"
+		"</div>\n<div id=\"content\">\n"
+	);
 
-	svprintf("BOXTITLE", WCS_STRING, "Enter a server command");
-	do_template("beginbox");
+	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<CENTER>");
 	wprintf("This screen allows you to enter Citadel server commands which are\n");
@@ -290,7 +275,7 @@ void display_generic(void)
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><br />\n");
 
 	wprintf("</FORM></CENTER>\n");
-	do_template("endbox");
+	wprintf("</td></tr></table></center>\n");
 	wDumpContent(1);
 }
 
