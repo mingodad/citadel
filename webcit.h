@@ -15,6 +15,14 @@
 #include <ical.h>
 #endif
 
+#ifdef HAVE_OPENSSL
+/* Work around RedHat's b0rken OpenSSL includes */
+#define OPENSSL_NO_KRB5
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+#include <openssl/rand.h>
+#endif
+
 #define CALENDAR_ROOM_NAME	"Calendar"
 #define PRODID "-//Citadel//NONSGML Citadel Calendar//EN"
 
@@ -219,6 +227,9 @@ struct wcsession {
 	int outside_frameset_allowed;	/* nonzero if current req is allowed
 					 * outside of the main frameset */
 	char last_chat_user[SIZ];
+#ifdef HAVE_OPENSSL
+	SSL *ssl;
+#endif
 };
 
 #define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
@@ -232,6 +243,7 @@ extern char floorlist[128][SIZ];
 extern char *axdefs[];
 extern char *ctdlhost, *ctdlport;
 extern char *server_cookie;
+extern int is_https;
 
 extern struct wcsubst *global_subst;
 
@@ -437,3 +449,14 @@ void display_customize_iconbar(void);
 void commit_iconbar(void);
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
 void spawn_another_worker_thread(void);
+
+
+
+#ifdef HAVE_OPENSSL
+void init_ssl(void);
+void endtls(void);
+void ssl_lock(int mode, int n, const char *file, int line);
+int starttls(void);
+extern SSL_CTX *ssl_ctx;  
+#endif
+

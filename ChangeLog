@@ -1,4 +1,8 @@
 $Log$
+Revision 506.3  2004/04/15 03:57:00  ajc
+* Brought over the SSL/TLS stuff from Citadel.  I think it's complete but
+  it has a crashy crashy bug in it.  Don't use it yet.
+
 Revision 506.2  2004/04/13 19:41:36  ajc
 * GET /freebusy/user.vcf *and* /freebusy/user.vfb now both work.
   (freebusy data fetch for anonymous Kolab type clients)
@@ -1762,3 +1766,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
