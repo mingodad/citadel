@@ -54,14 +54,6 @@ unsigned long SYM_VCARD;
 
 
 /*
- * back end function used for callbacks
- */
-void vcard_gm_backend(long msgnum) {
-	VC->msgnum = msgnum;
-}
-
-
-/*
  * This handler detects whether the user is attempting to save a new
  * vCard as part of his/her personal configuration, and handles the replace
  * function accordingly (delete the user's existing vCard in the config room
@@ -70,7 +62,6 @@ void vcard_gm_backend(long msgnum) {
 int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	char *ptr;
 	int linelen;
-        char hold_rm[ROOMNAMELEN];
         char config_rm[ROOMNAMELEN];
 	char buf[256];
 
@@ -92,32 +83,22 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 			 * delete the old one.
 			 */
 
-        		strcpy(hold_rm, CC->quickroom.QRname);	/* save rm */
+			/* Delete the user's old vCard.  This would probably
+			 * get taken care of by the replication check, but we
+			 * want to make sure there is absolutely only one
+			 * vCard in the user's config room at all times.
+			 * 
+			 * FIX ... this needs to be tweaked to allow an admin
+			 * to make changes to another user's vCard instead of
+			 * assuming that it's always the user saving his own.
+			 */
         		MailboxName(config_rm, &CC->usersupp, CONFIGROOM);
-
-        		if (getroom(&CC->quickroom, config_rm) != 0) {
-                		getroom(&CC->quickroom, hold_rm);
-                		return(1);			/* abort */
-        		}
-			VC->msgnum = (-1L);
-        		CtdlForEachMessage(MSGS_ALL, 0,
-				"text/x-vcard", NULL, vcard_gm_backend);
-
-			if (VC->msgnum >= 0) {
-				if (msg->cm_fields['Z'] != NULL)
-					phree(msg->cm_fields['Z']);
-				sprintf(buf, "%ld@%s", VC->msgnum, NODENAME);
-				msg->cm_fields['Z'] = strdoop(buf);
-			}
-
 			CtdlDeleteMessages(config_rm, 0L, "text/x-vcard");
 
-        		getroom(&CC->quickroom, hold_rm);	/* return rm */
-
-
-			/* This will do better */
-
-                        if (msg->cm_fields['E'] != NULL) /* Free any old E */
+			/* Set the Extended-ID to a standardized one so the
+			 * replication always works correctly
+			 */
+                        if (msg->cm_fields['E'] != NULL)
                                 phree(msg->cm_fields['E']);
 
                         sprintf(buf,
@@ -125,7 +106,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
                                 msg->cm_fields['A'], NODENAME);
                         msg->cm_fields['E'] = strdoop(buf);
 
-
+			/* Now allow the save to complete. */
 			return(0);
 		}
 
@@ -170,8 +151,8 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			I = atol(msg->cm_fields['I']);
 			if (I < 0L) return(0);
 
-			/* FIX */
-
+			CtdlSaveMsgPointerInRoom(ADDRESS_BOOK_ROOM, I,
+				(SM_VERIFY_GOODNESS | SM_DO_REPL_CHECK) );
 
 			return(0);
 		}
@@ -183,6 +164,14 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 	return(0);
 }
 
+
+
+/*
+ * back end function used for callbacks
+ */
+void vcard_gu_backend(long msgnum) {
+	VC->msgnum = msgnum;
+}
 
 
 /*
@@ -206,7 +195,7 @@ struct vCard *vcard_get_user(struct usersupp *u) {
         /* We want the last (and probably only) vcard in this room */
 	VC->msgnum = (-1);
         CtdlForEachMessage(MSGS_LAST, 1, "text/x-vcard",
-		NULL, vcard_gm_backend);
+		NULL, vcard_gu_backend);
         getroom(&CC->quickroom, hold_rm);	/* return to saved room */
 
 	if (VC->msgnum < 0L) return vcard_new();
@@ -275,7 +264,6 @@ void cmd_regi(char *argbuf) {
 	char tmpcity[256];
 	char tmpstate[256];
 	char tmpzip[256];
-	char tmpphone[256];
 	char tmpaddress[512];
 
 	if (!(CC->logged_in)) {
@@ -305,17 +293,7 @@ void cmd_regi(char *argbuf) {
 					}
 				}
 			}
-		if (a==5) {
-			strcpy(tmpphone, "");
-			for (c=0; c<strlen(buf); ++c) {
-				if ((buf[c]>='0')&&(buf[c]<='9')) {
-					b=strlen(tmpphone);
-					tmpphone[b]=buf[c];
-					tmpphone[b+1]=0;
-					}
-				}
-			vcard_set_prop(my_vcard, "tel;home", tmpphone);
-			}
+		if (a==5) vcard_set_prop(my_vcard, "tel;home", buf);
 		if (a==6) vcard_set_prop(my_vcard, "email;internet", buf);
 		++a;
 		}

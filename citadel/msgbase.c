@@ -101,8 +101,6 @@ int alias(char *name)
 	int a, b;
 	char aaa[300], bbb[300];
 
-	lprintf(9, "alias() called for <%s>\n", name);
-
 	remove_any_whitespace_to_the_left_or_right_of_at_symbol(name);
 
 	fp = fopen("network/mail.aliases", "r");
@@ -635,7 +633,6 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum)
 
 	dmsgtext = cdb_fetch(CDB_MSGMAIN, &msgnum, sizeof(long));
 	if (dmsgtext == NULL) {
-		lprintf(9, "CtdlFetchMessage(%ld) failed.\n");
 		return NULL;
 	}
 	mptr = dmsgtext->ptr;
@@ -1097,6 +1094,7 @@ void cmd_opna(char *cmdbuf)
 /*
  * Save a message pointer into a specified room
  * (Returns 0 for success, nonzero for failure)
+ * roomname may be NULL to use the current room
  */
 int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 	int i;
@@ -1120,6 +1118,26 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 		if (msg == NULL) return(ERROR + ILLEGAL_VALUE);
 	}
 
+	/* Perform replication checks if necessary */
+	if ( (flags & SM_DO_REPL_CHECK) && (msg != NULL) ) {
+
+		if (getroom(&CC->quickroom,
+		   ((roomname != NULL) ? roomname : CC->quickroom.QRname) )
+	   	   != 0) {
+			lprintf(9, "No such room <%s>\n", roomname);
+			if (msg != NULL) CtdlFreeMessage(msg);
+			return(ERROR + ROOM_NOT_FOUND);
+		}
+
+		if (ReplicationChecks(msg) != 0) {
+			getroom(&CC->quickroom, hold_rm);
+			if (msg != NULL) CtdlFreeMessage(msg);
+			lprintf(9, "Did replication, and newer exists\n");
+			return(0);
+		}
+	}
+
+	/* Now the regular stuff */
 	if (lgetroom(&CC->quickroom,
 	   ((roomname != NULL) ? roomname : CC->quickroom.QRname) )
 	   != 0) {
@@ -1155,17 +1173,6 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 		}
 	}
 
-	/* Perform replication checks if necessary */
-	if ( (flags & SM_DO_REPL_CHECK) && (msg != NULL) ) {
-		if (ReplicationChecks(msg) != 0) {
-			lputroom(&CC->quickroom);	/* unlock the room */
-			getroom(&CC->quickroom, hold_rm);
-			if (msg != NULL) CtdlFreeMessage(msg);
-			lprintf(9, "Did replication, and newer exists\n");
-			return(0);
-		}
-	}
-
         /* Now add the new message */
         ++num_msgs;
         msglist = reallok(msglist,
@@ -1198,7 +1205,6 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 	AdjRefCount(msgid, +1);
 
 	/* Return success. */
-	lprintf(9, "CtdlSaveMsgPointerInRoom() succeeded\n");
 	if (msg != NULL) CtdlFreeMessage(msg);
         return (0);
 }
@@ -1281,18 +1287,12 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 	int i;
 	static char *forder = FORDER;
 
-	lprintf(9, "serialize_message() called\n");
-
 	if (is_valid_message(msg) == 0) return;		/* self check */
-
-	lprintf(9, "magic number check OK.\n");
 
 	ret->len = 3;
 	for (i=0; i<26; ++i) if (msg->cm_fields[(int)forder[i]] != NULL)
 		ret->len = ret->len +
 			strlen(msg->cm_fields[(int)forder[i]]) + 2;
-
-	lprintf(9, "message is %d bytes\n", ret->len);
 
 	lprintf(9, "calling malloc\n");
 	ret->ser = mallok(ret->len);
@@ -1306,7 +1306,6 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 	ret->ser[2] = msg->cm_format_type;
 	wlen = 3;
 
-	lprintf(9, "stuff\n");
 	for (i=0; i<26; ++i) if (msg->cm_fields[(int)forder[i]] != NULL) {
 		ret->ser[wlen++] = (char)forder[i];
 		strcpy(&ret->ser[wlen], msg->cm_fields[(int)forder[i]]);
@@ -1314,7 +1313,6 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 	}
 	if (ret->len != wlen) lprintf(3, "ERROR: len=%d wlen=%d\n",
 		ret->len, wlen);
-	lprintf(9, "done serializing\n");
 
 	return;
 }
@@ -1384,7 +1382,7 @@ int ReplicationChecks(struct CtdlMessage *msg) {
 		}
 
 	CtdlFreeMessage(template);
-	lprintf(9, "Returning %d\n", abort_this);
+	lprintf(9, "ReplicationChecks() returning %d\n", abort_this);
 	return(abort_this);
 }
 
@@ -1475,6 +1473,26 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 		}
 	}
 
+	/* Goto the correct room */
+	strcpy(hold_rm, CC->quickroom.QRname);
+	strcpy(actual_rm, CC->quickroom.QRname);
+
+	/* If the user is a twit, move to the twit room for posting */
+	if (TWITDETECT) {
+		if (CC->usersupp.axlevel == 2) {
+			strcpy(hold_rm, actual_rm);
+			strcpy(actual_rm, config.c_twitroom);
+		}
+	}
+
+	/* ...or if this message is destined for Aide> then go there. */
+	if (strlen(force_room) > 0) {
+		strcpy(actual_rm, force_room);
+	}
+
+	if (strcasecmp(actual_rm, CC->quickroom.QRname))
+		getroom(&CC->quickroom, actual_rm);
+
 	/* Perform "before save" hooks (aborting if any return nonzero) */
 	if (PerformMessageHooks(msg, EVT_BEFORESAVE) > 0) return;
 
@@ -1512,24 +1530,12 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* Now figure out where to store the pointers */
 
-	strcpy(actual_rm, CC->quickroom.QRname);
 
 	/* If this is being done by the networker delivering a private
 	 * message, we want to BYPASS saving the sender's copy (because there
 	 * is no local sender; it would otherwise go to the Trashcan).
 	 */
 	if ((!CC->internal_pgm) || (strlen(recipient) == 0)) {
-		/* If the user is a twit, move to the twit room for posting */
-		if (TWITDETECT) {
-			if (CC->usersupp.axlevel == 2) {
-				strcpy(hold_rm, actual_rm);
-				strcpy(actual_rm, config.c_twitroom);
-			}
-		}
-		/* ...or if this message is destined for Aide> then go there. */
-		if (strlen(force_room) > 0) {
-			strcpy(actual_rm, force_room);
-		}
 		CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0);
 	}
 
@@ -1550,6 +1556,10 @@ void CtdlSaveMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* Perform "after save" hooks */
 	PerformMessageHooks(msg, EVT_AFTERSAVE);
+
+	/* */
+	if (strcasecmp(hold_rm, CC->quickroom.QRname))
+		getroom(&CC->quickroom, hold_rm);
 }
 
 

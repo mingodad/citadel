@@ -561,6 +561,9 @@ void GenerateRoomDisplay(char *real_room,
 			struct CitContext *viewer) {
 
 	strcpy(real_room, viewed->quickroom.QRname);
+	if (viewed->quickroom.QRflags & QR_MAILBOX) {
+		strcpy(real_room, &real_room[11]);
+	}
 	if (viewed->quickroom.QRflags & QR_PRIVATE) {
 		if ( (CtdlRoomAccess(&viewed->quickroom, &viewer->usersupp)
 		   & UA_KNOWN) == 0) {

@@ -1,4 +1,7 @@
 $Log$
+Revision 1.392  1999/10/23 03:39:12  ajc
+* Finished moving vCard functionality to the new message base functions.
+
 Revision 1.391  1999/10/21 00:50:14  ajc
 * Finished up the flags and replication checks in CtdlSaveMsgPointerInRoom().
 
@@ -1340,4 +1343,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
