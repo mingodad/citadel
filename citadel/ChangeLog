@@ -1,4 +1,8 @@
  $Log$
+ Revision 641.2  2005/02/24 18:14:24  ajc
+ * Removed excessive trace messages that were slowing the server down
+ * Prepared for handling of setting flags in IMAP APPEND
+
  Revision 641.1  2005/02/23 04:24:57  ajc
  * When auto-creating Mail>, Sent Items>, etc... set view to VIEW_MAILBOX
 
@@ -6430,3 +6434,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

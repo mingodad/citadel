@@ -184,8 +184,8 @@ void imap_load_msgids(void)
 			   imap_add_single_msgid, NULL);
 
 	imap_set_seen_flags();
-	lprintf(CTDL_DEBUG, "imap_load_msgids() mapped %d messages\n",
-		IMAP->num_msgs);
+	/* lprintf(CTDL_DEBUG, "imap_load_msgids() mapped %d messages\n",
+		IMAP->num_msgs); */
 }
 
 

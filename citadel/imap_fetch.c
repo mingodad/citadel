@@ -182,8 +182,8 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 	fseek(tmp, 0L, SEEK_END);
 	total_size = ftell(tmp);
 	text_size = total_size - headers_size;
-	lprintf(CTDL_DEBUG, "RFC822: headers=%ld, text=%ld, total=%ld\n",
-		headers_size, text_size, total_size);
+	/* lprintf(CTDL_DEBUG, "RFC822: headers=%ld, text=%ld, total=%ld\n",
+		headers_size, text_size, total_size); */
 
 	if (!strcasecmp(whichfmt, "RFC822.SIZE")) {
 		cprintf("RFC822.SIZE %ld", total_size);
@@ -546,7 +546,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	if (strchr(section, '[') != NULL) {
 		stripallbut(section, '[', ']');
 	}
-	lprintf(CTDL_DEBUG, "Section is: %s%s\n", section, ((strlen(section)==0) ? "(empty)" : "") );
+	/* lprintf(CTDL_DEBUG, "Section is: %s%s\n", section, ((strlen(section)==0) ? "(empty)" : "") ); */
 
 	/* Burn the cache if we don't have the same section of the 
 	 * same message again.
@@ -568,7 +568,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 		is_partial = 1;
 	}
 	if (is_partial == 0) strcpy(partial, "");
-	if (strlen(partial) > 0) lprintf(CTDL_DEBUG, "Partial is %s\n", partial);
+	/* if (strlen(partial) > 0) lprintf(CTDL_DEBUG, "Partial is %s\n", partial); */
 
 	if (IMAP->cached_body == NULL) {
 		tmp = tmpfile();
@@ -593,9 +593,9 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 
 	else if (!strcmp(section, "")) {
 		CtdlRedirectOutput(tmp, -1);
-		lprintf(CTDL_DEBUG, "calling CtdlOutputPreLoadedMsg()\n");
+		/* lprintf(CTDL_DEBUG, "calling CtdlOutputPreLoadedMsg()\n");
 		lprintf(CTDL_DEBUG, "msg %s null\n", ((msg == NULL) ? "is" : "is not") );
-		lprintf(CTDL_DEBUG, "msgnum is %ld\n", msgnum);
+		lprintf(CTDL_DEBUG, "msgnum is %ld\n", msgnum); */
 		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
 						HEADERS_ALL, 0, 1);
 		CtdlRedirectOutput(NULL, -1);
@@ -607,9 +607,9 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	 */
 	else if (!strncasecmp(section, "HEADER", 6)) {
 		CtdlRedirectOutput(tmp, -1);
-		lprintf(CTDL_DEBUG, "calling CtdlOutputPreLoadedMsg()\n");
+		/* lprintf(CTDL_DEBUG, "calling CtdlOutputPreLoadedMsg()\n");
 		lprintf(CTDL_DEBUG, "msg %s null\n", ((msg == NULL) ? "is" : "is not") );
-		lprintf(CTDL_DEBUG, "msgnum is %ld\n", msgnum);
+		lprintf(CTDL_DEBUG, "msgnum is %ld\n", msgnum); */
 		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
 						HEADERS_ONLY, 0, 1);
 		CtdlRedirectOutput(NULL, -1);
@@ -621,9 +621,9 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	 */
 	else if (!strncasecmp(section, "TEXT", 4)) {
 		CtdlRedirectOutput(tmp, -1);
-		lprintf(CTDL_DEBUG, "calling CtdlOutputPreLoadedMsg()\n");
+		/* lprintf(CTDL_DEBUG, "calling CtdlOutputPreLoadedMsg()\n");
 		lprintf(CTDL_DEBUG, "msg %s null\n", ((msg == NULL) ? "is" : "is not") );
-		lprintf(CTDL_DEBUG, "msgnum is %ld\n", msgnum);
+		lprintf(CTDL_DEBUG, "msgnum is %ld\n", msgnum); */
 		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
 						HEADERS_NONE, 0, 1);
 		CtdlRedirectOutput(NULL, -1);
@@ -895,11 +895,6 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 void imap_do_fetch_msg(int seq, int num_items, char **itemlist) {
 	int i;
 	struct CtdlMessage *msg = NULL;
-
-	lprintf(CTDL_DEBUG, "imap_do_fetch_msg(%d, %d)\n", seq, num_items);
-	for (i=0; i<num_items; ++i) {
-		lprintf(CTDL_DEBUG, "                  %s\n", itemlist[i]);
-	}
 
 	cprintf("* %d FETCH (", seq);
 

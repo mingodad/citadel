@@ -234,6 +234,14 @@ void imap_append(int num_parms, char *parms[]) {
 		return;
 	}
 
+	/* if (num_parms >= 5) {
+		FIXME add flags:  parms[3]
+	} */
+
+	/* if (num_parms >= 6) {
+		FIXME add internaldate: parms[4]
+	} */
+
 	literal_length = atol(&parms[num_parms-1][1]);
 	if (literal_length < 1) {
 		cprintf("%s BAD Message length must be at least 1.\r\n",
@@ -250,8 +258,6 @@ void imap_append(int num_parms, char *parms[]) {
 	IMAP->transmitted_length = literal_length;
 
 	cprintf("+ Transmit message now.\r\n");
-	lprintf(CTDL_DEBUG, "imap_append() expecting %ld bytes\n",
-		literal_length);
 
 	bytes_transferred = 0;
 
@@ -267,11 +273,6 @@ void imap_append(int num_parms, char *parms[]) {
 		else {
 			bytes_transferred += blksize;		/* keep going */
 		}
-		lprintf(CTDL_DEBUG, "Received %ld of %ld bytes (%ld%%)\n",
-			bytes_transferred,
-			literal_length,
-			((bytes_transferred * 100) / literal_length)
-		);
 	} while (bytes_transferred < literal_length);
 
 	IMAP->transmitted_message[literal_length] = 0;
@@ -279,7 +280,6 @@ void imap_append(int num_parms, char *parms[]) {
 		cprintf("%s NO Read failed.\r\n", parms[0]);
 		return;
 	}
-	lprintf(CTDL_DEBUG, "imap_append() finished reading message\n");
 
 	/* I think there's supposed to be a trailing CRLF after the
 	 * literal (the message text) is received.  This call to
@@ -287,10 +287,8 @@ void imap_append(int num_parms, char *parms[]) {
 	 */
 	flush_output();
 	client_getln(buf, sizeof buf);
-	lprintf(CTDL_DEBUG, "Trailing CRLF: %s\n", buf);
 
 	/* Convert RFC822 newlines (CRLF) to Unix newlines (LF) */
-	lprintf(CTDL_DEBUG, "Converting newline format\n");
 	stripped_length = 0;
 	for (i=0; i<literal_length; ++i) {
 		if (strncmp(&IMAP->transmitted_message[i], "\r\n", 2)) {
