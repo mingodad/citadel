@@ -1,4 +1,10 @@
 $Log$
+Revision 528.37  2005/02/03 04:38:40  ajc
+* VTODO components need to be encapsulated inside VCALENDAR components,
+  just like we do with VEVENT components.  There's a bunch of software
+  (including the beforesave hook on our own Citadel server) that expects
+  this encapsulation.
+
 Revision 528.36  2005/02/02 23:25:21  ajc
 * Encode GroupDAV uid's using more concise string escaping, because the
   old way was making KOrganizer choke.
@@ -2294,3 +2300,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
