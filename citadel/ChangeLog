@@ -1,4 +1,7 @@
  $Log$
+ Revision 627.11  2004/12/01 16:28:58  ajc
+ * tools.c: don't crash when striplt() is called with z zero length string
+
  Revision 627.10  2004/11/26 22:44:08  ajc
  * Added a sooper-seekrit way to spool network messages to a remote node
    where the room has a different name
@@ -6228,4 +6231,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

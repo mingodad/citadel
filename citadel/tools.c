@@ -334,8 +334,10 @@ int CtdlDecodeBase64(char *dest, const char *source, size_t length)
  */
 void striplt(char *buf)
 {
+	if (strlen(buf) == 0) return;
         while ((strlen(buf) > 0) && (isspace(buf[0])))
                 strcpy(buf, &buf[1]);
+	if (strlen(buf) == 0) return;
         while ((strlen(buf) > 0) && (isspace(buf[strlen(buf) - 1])))
                 buf[strlen(buf) - 1] = 0;
 }
