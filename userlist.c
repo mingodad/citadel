@@ -140,7 +140,15 @@ void showuser(void)
 	wprintf("</TD><TD><H1>%s</H1></TD></TR></TABLE></CENTER>\n", who);
 	serv_printf("RBIO %s", who);
 	serv_gets(buf);
-	if (buf[0] == '1')
+	if (buf[0] == '1') {
 		fmout(NULL);
+	}
+	wprintf("<BR><A HREF=\"/display_page&recp=");
+	urlescputs(who);
+	wprintf("\">"
+		"<IMG SRC=\"/static/page.gif\" ALIGN=MIDDLE BORDER=0>"
+		"&nbsp;&nbsp;"
+		"Click here to page this user (send an instant message)"
+		"</A>\n");
 	wDumpContent(1);
 }
