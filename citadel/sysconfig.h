@@ -14,11 +14,10 @@
 
 /* $Id$ */
 
-/* NOTE THAT THIS FILE IS MUCH, MUCH SMALLER THAN IT USED TO BE.
- * That's because the setup program now creates a citadel.config file with
- * all of the settings that don't really need to be in a header file.
- * You can now run setup whenever you want, and change lots of parameters
- * without having to recompile the whole system!
+/*
+ * NOTE: this file is for client software tuning, not customization.  For
+ * making changes to the behavior of the client, you want to edit citadel.rc,
+ * not this file.
  */
 
 /*
@@ -26,7 +25,7 @@
  * your system, define CHATLOG to the filename to be saved to.  Otherwise,
  * set CHATLOG to "/dev/null".
  */
-#define CHATLOG		"chat.log"
+#define CHATLOG		"/dev/null"
 
 /* 
  * S_KEEPALIVE is a watchdog timer.  It is used to send "keep
@@ -39,8 +38,8 @@
 /*
  * This is the command that gets executed when a user hits <E>nter message:
  * presses the <E>nter message key.  The possible values are:
- *   46 - .<E>nter message with <E>ditor
  *   4  - .<E>nter <M>essage
+ *   46 - .<E>nter message with <E>ditor
  *   36 - .<E>nter message with <A>scii
  * Normally, this value will be set to 4, to cause the <E>nter message
  * command to run Citadel's built-in editor.  However, if you have an external
