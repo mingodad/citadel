@@ -238,7 +238,11 @@ by the '|' symbol, and then a number that may contain the following bits:
 #define QR_NETWORK	2048		/* Shared network room              */
 #define QR_PREFONLY	4096		/* Preferred status needed to enter */
 #define QR_READONLY	8192		/* Aide status required to post     */
-
+ 
+ Then it returns another '|' symbol, followed by a second set of bits comprised
+of the following:
+#define QR2_SYSTEM	1		/* System room; hide by default     */
+#define QR2_SELFLIST	2		/* Self-service mailing list mgmt   */
 
  Other bits may be defined in the future.  The listing terminates, as with
 all listings, with "000" on a line by itself.
@@ -671,6 +675,7 @@ and the room aide associated with the current room, can access this command.
  4. The floor number on which the room resides
  5. The room listing order
  6. The default view for the room (see views.txt)
+ 7. A second set of flags (bits) associated with the room
   
   
  SETR   (SET Room attributes)
@@ -686,6 +691,7 @@ should be passed the following arguments:
  5. The floor number on which the room should reside
  6. The room listing order
  7. The default view for the room (see views.txt)
+ 8. A second set of flags (buts) associated with the room
  
  *Important: You should always use GETR to retrieve the current attributes of
 the room, then change what you want to change, and then use SETR to write it

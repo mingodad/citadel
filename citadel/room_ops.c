@@ -497,10 +497,12 @@ void list_roomname(struct quickroom *qrbuf)
 	}
 
 	/* ...and now the other parameters */
-	cprintf("|%u|%d|%d\n",
+	cprintf("|%u|%d|%d|%d\n",
 		qrbuf->QRflags,
 		(int) qrbuf->QRfloor,
-		(int) qrbuf->QRorder);
+		(int) qrbuf->QRorder,
+		(int) qrbuf->QRflags2
+	);
 }
 
 
@@ -1005,7 +1007,7 @@ void cmd_getr(void)
 	if (CtdlAccessCheck(ac_room_aide)) return;
 
 	getroom(&CC->quickroom, CC->quickroom.QRname);
-	cprintf("%d%c%s|%s|%s|%d|%d|%d|%d\n",
+	cprintf("%d%c%s|%s|%s|%d|%d|%d|%d|%d|\n",
 		CIT_OK,
 		CtdlCheckExpress(),
 
@@ -1022,7 +1024,9 @@ void cmd_getr(void)
 		(int) CC->quickroom.QRfloor,
 		(int) CC->quickroom.QRorder,
 
-		CC->quickroom.QRdefaultview);
+		CC->quickroom.QRdefaultview,
+		CC->quickroom.QRflags2
+		);
 }
 
 
@@ -1220,6 +1224,11 @@ void cmd_setr(char *args)
 	/* Default view */
 	if (num_parms(args) >= 8) {
 		CC->quickroom.QRdefaultview = extract_int(args, 7);
+	}
+
+	/* Second set of flags */
+	if (num_parms(args) >= 9) {
+		CC->quickroom.QRflags2 = extract_int(args, 8);
 	}
 
 	/* Misc. flags */

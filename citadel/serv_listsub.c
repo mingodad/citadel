@@ -94,6 +94,13 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 		return;
 	}
 
+	if ((qrbuf.QRflags2 & QR2_SELFLIST) == 0) {
+		cprintf("%d '%s' "
+			"does not accept subscribe/unsubscribe requests.\n",
+			ERROR+HIGHER_ACCESS_REQUIRED, qrbuf.QRname);
+		return;
+	}
+
 	listsub_generate_token(token);
 
 	begin_critical_section(S_NETCONFIGS);
@@ -156,6 +163,13 @@ void do_confirm(char *room, char *token) {
 
 	if (getroom(&qrbuf, room) != 0) {
 		cprintf("%d There is no list called '%s'\n", ERROR, room);
+		return;
+	}
+
+	if ((qrbuf.QRflags2 & QR2_SELFLIST) == 0) {
+		cprintf("%d '%s' "
+			"does not accept subscribe/unsubscribe requests.\n",
+			ERROR+HIGHER_ACCESS_REQUIRED, qrbuf.QRname);
 		return;
 	}
 

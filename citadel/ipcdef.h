@@ -59,6 +59,7 @@ struct CtdlServInfo {
 #define QR_MAILBOX	16384		/* Set if this is a private mailbox */
 
 #define QR2_SYSTEM	1		/* System room; hide by default     */
+#define QR2_SELFLIST	2		/* Self-service mailing list mgmt   */
 
 #define US_NEEDVALID	1		/* User needs to be validated       */
 #define US_PERM		4		/* Permanent user                   */

@@ -387,11 +387,13 @@ void editthisroom(void)
 	char rpass[10];
 	char rdir[15];
 	unsigned rflags;
+	unsigned rflags2;
 	int rbump;
 	char raide[32];
 	char buf[SIZ];
 	int rfloor;
 	int rorder;
+	int rview;
 	int expire_mode = 0;
 	int expire_value = 0;
 	int r;				/* IPC response code */
@@ -410,6 +412,8 @@ void editthisroom(void)
 	rflags = extract_int(&buf[4], 3);
 	rfloor = extract_int(&buf[4], 4);
 	rorder = extract_int(&buf[4], 5);
+	rview = extract_int(&buf[4], 6);
+	rflags2 = extract_int(&buf[4], 7);
 	rbump = 0;
 
 	/* Fetch the name of the current room aide */
@@ -489,6 +493,9 @@ void editthisroom(void)
 		    set_room_attr(rflags, "Visible directory", QR_VISDIR);
 	}
 	rflags = set_room_attr(rflags, "Network shared room", QR_NETWORK);
+	rflags2 = set_room_attr(rflags2,
+				"Self-service list subscribe/unsubscribe",
+				QR2_SELFLIST);
 	rflags = set_room_attr(rflags,
 			       "Automatically make all messages anonymous",
 			       QR_ANONONLY);
@@ -556,9 +563,9 @@ void editthisroom(void)
 		r = CtdlIPCSetMessageExpirationPolicy(0, expire_mode,
 						      expire_value, buf);
 
-		snprintf(buf, sizeof buf, "SETR %s|%s|%s|%d|%d|%d|%d",
+		snprintf(buf, sizeof buf, "SETR %s|%s|%s|%d|%d|%d|%d|%d|%d",
 			 rname, rpass, rdir, rflags, rbump, rfloor,
-			 rorder);
+			 rorder, rview, rflags2);
 		serv_puts(buf);
 		serv_gets(buf);
 		scr_printf("%s\n", &buf[4]);
