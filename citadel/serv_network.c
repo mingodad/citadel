@@ -686,6 +686,8 @@ void network_spoolout_room(char *room_to_spool) {
 	char filename[SIZ];
 	char buf[SIZ];
 	char instr[SIZ];
+	char nodename[SIZ];
+	char nexthop[SIZ];
 	FILE *fp;
 	struct SpoolControl sc;
 	struct namelist *nptr = NULL;
@@ -738,15 +740,16 @@ void network_spoolout_room(char *room_to_spool) {
 			 * purge nodes which do not exist from room network
 			 * configurations at this time.
 			 */
-			nptr = (struct namelist *)
-				malloc(sizeof(struct namelist));
-			nptr->next = sc.ignet_push_shares;
-			extract(nptr->name, buf, 1);
-			if (is_valid_node(NULL, NULL, nptr->name) == 0) {
-				sc.ignet_push_shares = nptr;
-			}
-			else {
-				free(nptr);
+			extract(nodename, buf, 1);
+			strcpy(nexthop, "xxx");
+			if (is_valid_node(nexthop, NULL, nodename) == 0) {
+				if (strlen(nexthop) == 0) {
+					nptr = (struct namelist *)
+						malloc(sizeof(struct namelist));
+					nptr->next = sc.ignet_push_shares;
+					strcpy(nptr->name, nodename);
+					sc.ignet_push_shares = nptr;
+				}
 			}
 		}
 		else {
@@ -1601,9 +1604,7 @@ void network_do_queue(void) {
 	doing_queue = 1;
 
 	/* Load the IGnet Configuration into memory */
-	if (working_ignetcfg == NULL) {
-		working_ignetcfg = CtdlGetSysConfig(IGNETCFG);
-	}
+	working_ignetcfg = CtdlGetSysConfig(IGNETCFG);
 
 	/*
 	 * Poll other Citadel nodes.  Maybe.  If "full_processing" is set
