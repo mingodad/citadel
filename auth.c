@@ -329,15 +329,14 @@ void display_changepw(void)
 
 	output_headers(3);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#770000\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">Change your password</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
-
+	svprintf("BOXTITLE", WCS_STRING, "Change your password");
+	do_template("beginbox");
 	wprintf("<CENTER>");
 	serv_puts("MESG changepw");
 	serv_gets(buf);
-	if (buf[0] == '1')
+	if (buf[0] == '1') {
 		fmout(NULL);
+	}
 
 	wprintf("<FORM ACTION=\"changepw\" METHOD=\"POST\">\n");
 	wprintf("<CENTER><TABLE border><TR><TD>Enter new password:</TD>\n");
@@ -348,6 +347,7 @@ void display_changepw(void)
 	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Change\">\n");
 	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Cancel\">\n");
 	wprintf("</CENTER>\n");
+	do_template("endbox");
 	wDumpContent(1);
 }
 

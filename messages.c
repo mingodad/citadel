@@ -1121,7 +1121,6 @@ void display_enter(void)
 {
 	char buf[SIZ];
 	long now;
-	struct tm *tm;
 	struct wc_attachment *att;
 
 	output_headers(1);
@@ -1143,19 +1142,19 @@ void display_enter(void)
 	}
 
 	now = time(NULL);
-	tm = (struct tm *) localtime(&now);
-	strcpy(buf, (char *) asctime(tm));
-	buf[strlen(buf) - 1] = 0;
-	strcpy(&buf[16], &buf[19]);
-	wprintf("</CENTER><FONT COLOR=\"#440000\">\n"
-		"<IMG SRC=\"static/enter.gif\" ALIGN=MIDDLE ALT=\" \" "
-		"onLoad=\"document.enterform.msgtext.focus();\" >");
-	wprintf("<B> %s ", &buf[4]);
-	wprintf("from %s ", WC->wc_username);
-	if (strlen(bstr("recp")) > 0)
-		wprintf("to %s ", bstr("recp"));
-	wprintf("in %s&gt; ", WC->wc_roomname);
-	wprintf("</B></FONT><BR><CENTER>\n");
+	fmt_date(buf, now);
+	strcat(&buf[strlen(buf)], " <I>from</I> ");
+	stresc(&buf[strlen(buf)], WC->wc_username, 1);
+	if (strlen(bstr("recp")) > 0) {
+		strcat(&buf[strlen(buf)], " <I>to</I> ");
+		stresc(&buf[strlen(buf)], bstr("recp"), 1);
+	}
+	strcat(&buf[strlen(buf)], " <I>in</I> ");
+	stresc(&buf[strlen(buf)], WC->wc_roomname, 1);
+	svprintf("BOXTITLE", WCS_STRING, buf);
+	do_template("beginbox");
+
+	wprintf("<CENTER>\n");
 
 	wprintf("<FORM ENCTYPE=\"multipart/form-data\" "
 		"METHOD=\"POST\" ACTION=\"/post\" "
@@ -1164,6 +1163,8 @@ void display_enter(void)
 		bstr("recp"));
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"postseq\" VALUE=\"%ld\">\n",
 		now);
+	wprintf("<IMG SRC=\"static/enter.gif\" ALIGN=MIDDLE ALT=\" \" "
+		"onLoad=\"document.enterform.msgtext.focus();\" >");
 	wprintf("<FONT SIZE=-1>Subject (optional):</FONT>"
 		"<INPUT TYPE=\"text\" NAME=\"subject\" VALUE=\"");
 	escputs(bstr("subject"));
@@ -1172,7 +1173,7 @@ void display_enter(void)
 		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save message\">"
 		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
 
-	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=30 COLS=80 "
+	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=25 COLS=80 "
 		"WIDTH=80>");
 	escputs(bstr("msgtext"));
 	wprintf("</TEXTAREA><BR>\n");
@@ -1192,8 +1193,8 @@ void display_enter(void)
 		"<input type=\"submit\" name=\"attach\" value=\"Add\">\n");
 
 	wprintf("</FORM></CENTER>\n");
+	do_template("endbox");
 DONE:	wDumpContent(1);
-	wprintf("</FONT>");
 }
 
 

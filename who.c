@@ -53,6 +53,7 @@ void whobbs(void)
 	offer_start_page();
 	wprintf("</TD></TR></TABLE>\n");
 
+	do_template("beginbox");
 	wprintf("<CENTER><TABLE BORDER=1 WIDTH=100%%>\n<TR>\n");
 	wprintf("<TH>Session ID</TH>\n");
 	wprintf("<TH>User Name</TH>\n");
@@ -143,6 +144,7 @@ void whobbs(void)
 		"<IMG ALIGN=MIDDLE SRC=\"/static/page.gif\" ALT=\"(p)\" "
 		"BORDER=0> to send "
 		"a page (instant message) to that user.<BR></CENTER>\n");
+	do_template("endbox");
 	wDumpContent(1);
 }
 

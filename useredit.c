@@ -39,16 +39,16 @@ void select_user_to_edit(char *message, char *preselect)
 
 	if (message != NULL) wprintf(message);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">"
-		"Add/change/delete user accounts"
-		"</SPAN></TD></TR></TABLE>\n");
+	wprintf("<TABLE border=0 CELLSPACING=10><TR VALIGN=TOP><TD>\n");
 
-	wprintf("<TABLE border=0 CELLSPACING=10><TR VALIGN=TOP>"
-		"<TD>To edit an existing user account, select the user "
+	svprintf("BOXTITLE", WCS_STRING, "Edit or Delete users");
+	do_template("beginbox");
+
+	wprintf("To edit an existing user account, select the user "
 		"name from the list and click 'Edit'.<BR><BR>");
 	
-        wprintf("<CENTER><FORM METHOD=\"POST\" ACTION=\"/display_edituser\">\n");
+        wprintf("<CENTER>"
+		"<FORM METHOD=\"POST\" ACTION=\"/display_edituser\">\n");
         wprintf("<SELECT NAME=\"username\" SIZE=10>\n");
         serv_puts("LIST");
         serv_gets(buf);
@@ -69,9 +69,14 @@ void select_user_to_edit(char *message, char *preselect)
         wprintf("<input type=submit name=sc value=\"Edit configuration\">");
         wprintf("<input type=submit name=sc value=\"Edit address book entry\">");
         wprintf("</FORM></CENTER>\n");
+	do_template("endbox");
 
-	wprintf("</TD><TD>"
-		"To create a new user account, enter the desired "
+	wprintf("</TD><TD>");
+
+	svprintf("BOXTITLE", WCS_STRING, "Add users");
+	do_template("beginbox");
+
+	wprintf("To create a new user account, enter the desired "
 		"user name in the box below and click 'Create'.<BR><BR>");
 
         wprintf("<CENTER><FORM METHOD=\"POST\" ACTION=\"/create_user\">\n");
@@ -80,6 +85,7 @@ void select_user_to_edit(char *message, char *preselect)
         	"<input type=submit value=\"Create\">"
 		"</FORM></CENTER>\n");
 
+	do_template("endbox");
 	wprintf("</TD></TR></TABLE>\n");
 
 	wDumpContent(1);

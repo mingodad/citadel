@@ -1,55 +1,39 @@
 <CENTER>
+<?=beginbox_nt>
 <FONT COLOR="#FF0000"><?MESG></FONT>
-<table border=0 width="100%" height="100%">
-        <tr>
-                <td valign="middle" align="center">     
+<TABLE border=0>
+<TR>
+<td align=center>
+	<p><?HELLO></p>
+	<form action="/login" method="POST">
 
-                <table bgcolor="#eeeeee">
-                        <tr>
-                                <td align=center>
-				<p><?HELLO></p>
-				<form action="/login" method="POST">
-                                <table border="1">
-                                        <tr>
-                                                <td>User name:</td>
-                                                <td> <input type="text"
-						name="name" maxlength="25"></td>
-                                        </tr>
-                                        <tr>
-                                                <td>Password:</td>
-                                                <td> <input type="password"
-						name="pass" maxlength="20"></td>
-                                        </tr>
-                                </table>
-				<input type="submit" name="action"
-				value="Login">
-				<input type="submit" name="action"
-				value="New User">
-				<input type="submit" name="action"
-				value="Exit">
-				</form>
-				</td>
-				<td align="center"><P><IMG
-				SRC="/image&name=hello"></p></TD>
-			</tr>
-			<tr>
-				<td colspan="2">
-                                <p>
-                                <b>If you already have an account
-				on <?SERV_HUMANNODE></b>, enter your user name
-				and password and click
-                                &quot;Login.&quot;<br>
-                                <b>If you are a new user</b>, enter the name
-				and password you wish to use, and click
-				&quot;New User.&quot;<br>
-                                Please log off properly when finished.<br>
-                                You must use a browser that supports
-				<i>frames</i> and <i>cookies</i>.<br>
-                                </p>
-                                </td>
-                        </tr>
-                </table>
+	<table border="1">
+		<TR><TD>User name:</TD>
+		<TD><input type="text" name="name" maxlength="25"></TD></TR>
+		<TR><TD>Password:</TD>
+		<TD><input type="password" name="pass" maxlength="20"></TD></TR>
+	</TABLE>
 
-                </td>
-        </tr>
+	<input type="submit" name="action" value="Login">
+	<input type="submit" name="action" value="New User">
+	<input type="submit" name="action" value="Exit">
+	</form>
+
+	</td>
+	<td align="center"><P><IMG SRC="/image&name=hello"></p></TD>
+	</tr>
+	<tr>
+		<td colspan="2">
+		<p>
+		<b>If you already have an account on <?SERV_HUMANNODE></b>,
+		enter your user name and password and click &quot;Login.&quot;<br>
+		<b>If you are a new user</b>, enter the name and password you wish to use,
+		and click &quot;New User.&quot;<br>
+		Please log off properly when finished.<br>
+		You must use a browser that supports <i>frames</i> and <i>cookies</i>.<br>
+		</p>
+		</td>
+</tr>
 </table>
+<?=endbox>
+</CENTER>

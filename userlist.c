@@ -57,12 +57,13 @@ void userlist(void)
 		wprintf("<EM>%s</EM><BR>\n", &buf[4]);
 		goto DONE;
 	}
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">User list for ");
-	escputs(serv_info.serv_humannode);
-	wprintf("</SPAN></TD></TR></TABLE>\n");
 
-	wprintf("<CENTER><TABLE border>");
+	svprintf("BOXTITLE", WCS_STRING, "User list for %s",
+			serv_info.serv_humannode);
+
+	do_template("beginbox");
+	wprintf("<CENTER>");
+	wprintf("<TABLE border>");
 	wprintf("<TR><TH>User Name</TH><TH>Number</TH><TH>Access Level</TH>");
 	wprintf("<TH>Last Call</TH><TH>Total Calls</TH><TH>Total Posts</TH></TR>\n");
 
@@ -98,8 +99,10 @@ void userlist(void)
 			extract_long(buf, 4), extract_long(buf, 5));
 
 	}
-	wprintf("</TABLE></CENTER>\n");
-      DONE:wDumpContent(1);
+	wprintf("</TABLE>");
+	wprintf("</CENTER>\n");
+	do_template("endbox");
+DONE:	wDumpContent(1);
 }
 
 
@@ -114,10 +117,8 @@ void showuser(void)
 
 	output_headers(3);
 
-
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">User profile");
-	wprintf("</SPAN></TD></TR></TABLE>\n");
+	svprintf("BOXTITLE", WCS_STRING, "User profile");
+	do_template("beginbox");
 
 	strcpy(who, bstr("who"));
 	serv_printf("OIMG _userpic_|%s", who);
@@ -149,5 +150,7 @@ void showuser(void)
 		"&nbsp;&nbsp;"
 		"Click here to page this user (send an instant message)"
 		"</A>\n");
+
+	do_template("endbox");
 	wDumpContent(1);
 }

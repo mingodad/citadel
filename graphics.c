@@ -37,7 +37,12 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl)
 
 	wprintf("<CENTER>\n");
 
-	wprintf("<FORM ENCTYPE=\"multipart/form-data\" ACTION=\"%s&which_room=%s\" METHOD=\"POST\">\n", uplurl, bstr("which_room"));
+	wprintf("<FORM ENCTYPE=\"multipart/form-data\" ACTION=\"%s\" "
+		"METHOD=\"POST\" NAME=\"graphicsupload\">\n", uplurl);
+
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"which_room\" VALUE=\"");
+	urlescputs(bstr("which_room"));
+	wprintf("\">\n");
 
 	wprintf("You can upload any image directly from your computer,\n");
 	wprintf("as long as it is in GIF format (JPEG, PNG, etc. won't\n");

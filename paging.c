@@ -33,15 +33,10 @@ void display_page(void)
 
 	output_headers(3);
 
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#007700\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">Page another user</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
-
-	wprintf("<CENTER>This will send a page (instant message) "
-		"to %s.\n", recp);
+	svprintf("BOXTITLE", WCS_STRING, "Page: %s", recp);
+	do_template("beginbox");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/page_user\">\n");
-
 
 	wprintf("<TABLE border=0 width=100%%><TR><TD>\n");
 
@@ -64,6 +59,7 @@ void display_page(void)
 	wprintf("<BR><A HREF=\"javascript:window.close();\"Cancel</A>\n");
 
 	wprintf("</FORM></CENTER>\n");
+	do_template("endbox");
 	wDumpContent(1);
 }
 

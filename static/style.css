@@ -112,7 +112,8 @@ a:active {
 }
 
 body {
-  background-image: url("/image&name=background");
+  background: #aaaaaa;
+  <!-- background-image: url("/image&name=background"); -->
   color: #000000;
 }
 
