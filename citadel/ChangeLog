@@ -1,6 +1,8 @@
 Thu Apr  8 22:51:28 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* config.c: now requires a setup run for *any* rev level difference
 	* Updated docs & confs for 5.53b1 release
+	* setup.c: sets the 0600 permission bits on citadel.config that
+	  is checked for in config.c
 
 1999-04-08 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* citserver.c: improved is_public_client(), also if a public_client only
