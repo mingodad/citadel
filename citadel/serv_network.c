@@ -532,7 +532,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 				send = 1;
 
 				/* Check for valid node name */
-				if (is_valid_node(NULL,NULL,nptr->name) != 0) {
+				if (is_valid_node(NULL, NULL, nptr->name) != 0) {
 					lprintf(CTDL_ERR, "Invalid node <%s>\n",
 						nptr->name);
 					send = 0;
@@ -828,7 +828,8 @@ void network_spoolout_room(char *room_to_spool) {
 			 * purge nodes which do not exist from room network
 			 * configurations at this time.
 			 */
-			if (is_valid_node(NULL, NULL, nptr->name) == 0) {
+			if (is_valid_node(NULL, NULL,
+			   sc.ignet_push_shares->name) == 0) {
 				fprintf(fp, "ignet_push_share|%s\n",
 					sc.ignet_push_shares->name);
 			}
@@ -1295,7 +1296,7 @@ void network_do_spoolin(void) {
 
 /*
  * Delete any files in the outbound queue that were intended
- * to be sent to nodes which no nlonger exist.
+ * to be sent to nodes which no longer exist.
  */
 void network_purge_spoolout(void) {
 	DIR *dp;

@@ -1,4 +1,9 @@
  $Log$
+ Revision 620.25  2004/05/03 00:12:27  ajc
+ * Found and removed a bug that caused network rooms to be un-shared with
+   all nodes instead of only with nodes that no longer exist.
+ * New target "make upgrade" (to be consistent with other projects)
+
  Revision 620.24  2004/04/29 02:37:58  ajc
  * Updated the roadmap
 
@@ -5727,4 +5732,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

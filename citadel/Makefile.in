@@ -178,6 +178,12 @@ install: install-exec install-data install-doc
 	@echo Now go to your Citadel directory and run 'setup'.
 	@echo 
 
+upgrade: install-exec install-doc
+	@echo
+	@echo Upgrade is complete.
+	@echo Now go to your Citadel directory and run 'setup'.
+	@echo
+
 install-data:
 	@for i in help messages network/spoolin network/spoolout \
 		 network/systems; do \
