@@ -19,6 +19,7 @@
 #include <sys/time.h>
 #include <limits.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <string.h>
 #include <pwd.h>

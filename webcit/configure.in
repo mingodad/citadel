@@ -6,6 +6,7 @@ AC_CANONICAL_HOST
 
 dnl Set some system-specific variables which are OK to set before compiler
 dnl checks:
+PTHREAD_DEFS=-D_REENTRANT
 case "$host" in
 	dnl Tru64 Unix requires we use -pthread instead of linking the threads
 	dnl libraries directly, and we can't build threaded programs with gcc
@@ -17,8 +18,10 @@ case "$host" in
 	dnl FreeBSD is similar:
 	*-*-freebsd*)
 		LIBS=-pthread
+		PTHREAD_DEFS=-D_THREAD_SAFE
 	;;
 esac
+AC_SUBST(PTHREAD_DEFS)
 
 dnl Checks for programs.
 AC_PROG_CC

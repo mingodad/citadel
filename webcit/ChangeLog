@@ -1,4 +1,8 @@
 $Log$
+Revision 211.3  2000/02/11 23:45:04  nbryant
+* Makefile.in, configure.in: add, like, some *more* code for FreeBSD
+* tcp_sockets.c: include <arpa/inet.h>
+
 Revision 211.2  2000/02/11 23:30:04  nbryant
 configure.in: added some code for FreeBSD
 
@@ -378,3 +382,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
