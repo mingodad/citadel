@@ -986,6 +986,7 @@ FMTEND:		omprintf("%s%s", aaa, nl);
 	strcpy(snode, NODENAME);
 	strcpy(lnode, HUMANNODE);
 	if (mode == MT_RFC822) {
+		omprintf("X-UIDL: %ld%s", msg_num, nl);
 		for (i = 0; i < 256; ++i) {
 			if (TheMessage->cm_fields[i]) {
 				mptr = TheMessage->cm_fields[i];

@@ -385,10 +385,16 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 
 	lprintf(9, "Key=<%s> Value=<%s>\n", key, value);
 
-	/* Here's the big rfc822-to-citadel loop. */
+	/*
+	 * Here's the big rfc822-to-citadel loop.
+	 */
 
+	/* Date/time is converted into a unix timestamp.  If the conversion
+	 * fails, we replace it with the time the message arrived locally.
+	 */
 	if (!strcasecmp(key, "Date")) {
 		parsed_date = parsedate(value);
+		if (parsed_date < 0L) parsed_date = time(NULL);
 		lprintf(9, "Parsed date is %s",
 			asctime(localtime(&parsed_date)));
 		sprintf(buf, "%ld", parsed_date );
