@@ -335,7 +335,7 @@ void dotgoto(char *towhere, int display_name, int fromungoto)
 	char from_floor;
 	int ugpos = uglistsize;
 	int r;				/* IPC result code */
-	static struct ctdlipcroom *roomrec = NULL;
+	struct ctdlipcroom *roomrec = NULL;
 
 	/* store ungoto information */
 	if (fromungoto == 0) {
@@ -356,11 +356,6 @@ void dotgoto(char *towhere, int display_name, int fromungoto)
 		uglistlsn[ugpos] = ls;
 	}
       
-	if (roomrec) {
-		free(roomrec);
-		roomrec = NULL;
-	}
-
 	/* first try an exact match */
 	r = CtdlIPCGotoRoom(towhere, "", &roomrec, aaa);
 	if (r / 10 == 54) {
