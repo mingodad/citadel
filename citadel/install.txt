@@ -14,11 +14,8 @@ Unix and Unix-like platforms.  The author's current development environment
     - The Citadel/UX server (this is the back end that does all processing)
     - A text-based client program designed with the traditional Citadel "look
       and feel" (room prompts, dot commands, and the like)
-    - A networker that utilizes any file transfer mechanism (such as UUCP for
-      standalone systems, or ftp for Internet) and can share messages with other
-      Citadel/UX systems, as well as UseNet sites.  Gateway software to talk
-      with C86NET (Citadel-86 and its deriviatives), HengeNet (StoneHenge),
-      and NYTI FordBoard is also available.
+    - A networker that can share rooms and email between multiple systems.
+      Replication can be performed via TCP/IP or any external transport.
     - Setup programs
     - A rich set of utilities for system administration and maintenance
     - Documentation

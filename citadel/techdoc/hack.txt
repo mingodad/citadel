@@ -96,8 +96,8 @@ M	Message Text	Normal ASCII, newlines seperated by CR's or LF's,
 N	Nodename	Contains node name of system message originated on.
 O	Room		Room of origin.
 P	Path		Complete path of message, as in the UseNet news
-			standard.  A user should be able to send UUCP mail to
-			this path. (Note that your system name will not be
+			standard.  A user should be able to send Internet mail
+			to this path. (Note that your system name will not be
 			tacked onto this until you're sending the message to
 			someone else)
 R	Recipient	Only present in Mail messages.

@@ -31,10 +31,14 @@
 #include "config.h"
 #include "internetmail.h"
 
-#define LOCAL 0
-#define REMOTE 1
-#define UUCP 2
-#define CCITADEL 3
+/* message delivery classes */
+enum {
+	DELIVER_LOCAL,
+	DELIVER_REMOTE,
+	DELIVER_INTERNET,
+	DELIVER_CCITADEL
+};
+	
 
 #undef tolower
 #define tolower(x) isupper(x) ? (x+'a'-'A') : x
@@ -366,7 +370,7 @@ void do_citmail(char recp[], int dtype)
 	char *extra_headers = NULL;
 
 
-	if (dtype == REMOTE) {
+	if (dtype == DELIVER_REMOTE) {
 
 		/* get the Citadel node name out of the path */
 		strncpy(destsys, recp, sizeof(destsys));
@@ -458,7 +462,7 @@ void do_citmail(char recp[], int dtype)
 
 	fprintf(temp, "N%s%c", nodebuf, 0);
 	fprintf(temp, "H%s%c", frombuf, 0);
-	if (dtype == REMOTE) {
+	if (dtype == DELIVER_REMOTE) {
 		fprintf(temp, "D%s%c", destsys, 0);
 	}
 	if (strlen(recp) > 0) {
@@ -536,7 +540,7 @@ void deliver(char recp[], int is_test, int deliver_to_ignet)
 	if (deliver_to_ignet) {
 		syslog(LOG_NOTICE, "to Citadel network user %s", recp);
 		if (is_test == 0)
-			do_citmail(recp, REMOTE);
+			do_citmail(recp, DELIVER_REMOTE);
 	} else if (!strcmp(recp, "uudecode")) {
 		syslog(LOG_NOTICE, "uudecoding to bit bucket directory");
 		if (is_test == 0)
@@ -555,7 +559,7 @@ void deliver(char recp[], int is_test, int deliver_to_ignet)
 		 */
 		syslog(LOG_NOTICE, "to Citadel recipient %s", recp);
 		if (is_test == 0)
-			do_citmail(recp, LOCAL);
+			do_citmail(recp, DELIVER_LOCAL);
 	}
 
 }

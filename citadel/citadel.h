@@ -48,7 +48,7 @@ struct ExpirePolicy {
  * System configuration 
  */
 struct config {
-	char c_nodename[16];		/* UUCP and Citadel nodename        */
+	char c_nodename[16];		/* Unqualified "short" nodename     */
 	char c_fqdn[64];		/* Fully Qualified Domain Name      */
 	char c_humannode[21];		/* Long name of system              */
 	char c_phonenum[16];		/* Dialup number of system          */

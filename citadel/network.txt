@@ -15,8 +15,8 @@ first, let's look at the various network files and directories.
                               into Citadel/UX binary format.
  netmailer.c                  Called by the main program when a user sends a
                               network mail message.
- citmail.c                    A patch to allow Citadel/UX users to receive
-                              mail through the normal UUCP mail facility.
+ citmail.c                    A local MDA which can allow Citadel users to
+                              receive Internet mail.
  cux2ascii.c                  A filter which translates Citadel/UX binary
                               format to UseNet news format.
  network                      Directory in which all network files reside.
@@ -29,36 +29,49 @@ first, let's look at the various network files and directories.
    
   
   SETUP
-  
-  There are three options in setup which must be properly set. The
-first is NODENAME, which must be the same as your uucp system name. The second
-is HUMANNODE, which is the "long" full name of your system (for documentation).
-The third is FQDN, which is your system's fully qualified domain name.  If
-you don't have a domain, just set this value to your NODENAME followed by the
-string ".UUCP" (a traditional convention, even if you're not on a UUCP net).
+    
+  There are a few options in the Global System Configuration which pertain
+to the network.  They are:
+ 
+ -> node name: this is the unqualified "short" node name which uniquely
+identifies your system on a Citadel network.
+ -> fully-qualified domain name (FQDN): this identifies how your computer is
+named on the Internet.
+ -> Human-readable node name: this is a longer, more verbose name for your
+system.  It is also used as your "node title" on older Cit86Net-based
+networks.
      
  
    SETTING UP SYSTEMS FILES
+  
+   Please note that it is *much* easier to use the "netsetup" (command-line)
+or "dnetsetup" (curses-based) utilities to create systems files.  You should
+only work with these files manually if you need to do something special.
    
    For each of your neighboring Citadel/UX systems you must create a systems
 file. The file is called network/systems/sysname, where sysname is the other
 system's node name. The first line contains a command that transfers a spool
 file to the network/spoolin directory on the remote system. The string "%s"
 will be replaced by the name of the spool file by netproc. You may only use
-%s ONCE in the command line. Usually, some sort of UUCP transfer will be used
+%s ONCE in the command line. Usually, some sort of remote copy will be used
 to do the transfer, but you may use any facility you want, *** as long as the
-file ends up in the network/spoolin directory on the remote system ***. In
-a typical system, you will probably use uux to pipe the file through the
-command "rcit -c" on the remote system. When the remote system receives this
-command, it will copy standard input to the network/spoolin directory, and
-then begin processing the file as soon as it is there.
+file ends up in the network/spoolin directory on the remote system ***.
+ 
+   If you're on the Internet, or any TCP/IP network, your systems file should
+contain the following copy command:
+
+cat %s >>./network/spoolout/remote_system_name
+ 
+   This simply stores the outbound spool data in a file in the "spoolout"
+directory, where it will be picked up by server-to-server transfer programs.
+ 
    After the command line you should enter the names of all the rooms you
 intend to share with this system. Each room name should be followed by a
 line containing a zero - this extra field is the "last message sent" (which
 will be updated by netproc when it is run). Here is a sample systems file for
 a node called uncnsrd:
   
-cat %s |uux - uncnsrd!rcit -c
+cat %s >>./network/spoolout/uncnsrd
 Network Test
 0
 Gateway
@@ -87,30 +100,6 @@ messages travel across the network as quickly as possible.
 handle incoming messages only.
    
    
-  NETWORKING WITH A USENET NEWS SITE
-   
-   Two filters are provided that will allow a room to be equivalent to a
-UseNet newsgroup. rcit, when called without the -c argument, will assume
-that standard input is in the news format, and convert it before processing.
-Likewise, the filter cux2ascii.c converts Citadel format to news format,
-allowing you to use command lines such as
-   
- cat %s |cux2ascii |uux - uunet!rnews
-   
-  ...the remote system need not be a Citadel/UX. By default, room names are
-the same as the newsgroup names. However, if you wish the room name to be
-different, you may specify so in the network/rnews.xref file. Here is a
-sample of this file:
-       
-comp.unix.wizards,UNIX wizards
-alt.drugs,Drugs and Narcotics
-alt.music,Music
-   
-  It is rather simple, each line taking the form of newsgroupname,sysname.
-There may not be any spaces in the newsgroup name, but there may be spaces
-in the corresponding room name.
- 
- 
   USING CITADEL/UX AS YOUR LOCAL E-MAIL SYSTEM
    
    To use Citadel/UX as your local mail system, simply define the "citmail"
@@ -131,7 +120,7 @@ Pink Amoebas" at the target system.
    PLEASE NOTE that for your BBS users to be able to send mail, you should
 check the mailer command at the top of "netmailer.c" to be sure that it is
 the correct mailer command for your system.  You might need a command like
-"sendmail %s" for SMTP or "rmail %s" for UUCP.
+"sendmail %s" or "smail %s" depending on what MTA you're using.
    
      
   MAIL ALIASES
@@ -224,7 +213,7 @@ uum othersys!gateway!mailsys!%s
 information.)
  
   The "bin" entries specify neighbors, the "use" entries specify routing, and
-the "uum" entries specify regular UUCP mail. The method of delivery is totally
+the "uum" entries specify Internet mail. The method of delivery is totally
 transparent to the user, who only needs to enter the recipient as user@sysname.
 Note that netproc will probably stuff lots of other info into each entry.
   

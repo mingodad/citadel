@@ -67,7 +67,7 @@ struct CtdlServInfo {
 #define US_DISAPPEAR	512		/* Use "disappearing msg prompts"   */
 #define US_REGIS	1024		/* Registered user                  */
 #define US_PAGINATOR	2048		/* Pause after each screen of text  */
-#define US_INTERNET	4096		/* UUCP/Internet mail privileges    */
+#define US_INTERNET	4096		/* Internet mail privileges         */
 #define US_FLOORS	8192		/* User wants to see floors         */
 #define US_COLOR	16384		/* User wants ANSI color support    */
 #define US_USER_SET	(US_LASTOLD | US_EXPERT | US_UNLISTED | \
