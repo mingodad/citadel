@@ -720,11 +720,13 @@ void inprocess() {
 	struct recentmsg recentmsg;
 	char tname[128],aaa[1024],iname[256],sfilename[256],pfilename[256];
 	int a,b;
+	int FieldID;
 	struct syslist *stemp;
 	char *ptr = NULL;
 	char buf[256];
 	long msglen;
 	int bloklen;
+
 
 	sprintf(tname,"/tmp/net.t%d",getpid());	/* temp file name */
 	sprintf(iname,"/tmp/net.i%d",getpid());	/* temp file name */
@@ -756,12 +758,12 @@ void inprocess() {
 	fprintf(stderr,"netproc: processing <%s>\n", pfilename);
 	fflush(stderr);
 	
-	fp=fopen(pfilename,"r");
-	if(fp == NULL) {
+	fp = fopen(pfilename, "rb");
+	if (fp == NULL) {
 	    fprintf(stderr, "netproc: cannot open <%s>: %s\n",
-			pfilename,strerror(errno));
+			pfilename, strerror(errno));
 	    fflush(stderr);
-	    fp = fopen("/dev/null","r");
+	    fp = fopen("/dev/null" ,"rb");
 	    }
 		
 NXMSG:	/* Seek to the beginning of the next message */
@@ -769,21 +771,26 @@ NXMSG:	/* Seek to the beginning of the next message */
 		a=getc(fp);
 		} while((a!=255)&&(a>=0));
 	if (a<0) goto ENDSTR;
-	message=fopen(tname,"wb");
-	putc(255,message);
+
+	message = fopen(tname,"wb");	/* This crates the temporary file. */
+	if (message == NULL) {
+		fprintf(stderr, "Error creating %s: %s\n",
+			tname, strerror(errno));
+		goto ENDSTR;
+		}
+	putc(255,message);		/* 0xFF (start-of-message) */
+	a = getc(fp); putc(a, message);	/* type */
+	a = getc(fp); putc(a, message);	/* mode */
 	do {
+		FieldID = getc(fp);	/* Header field ID */
+		putc(FieldID, message);
 		do {
-			a=getc(fp);
-			putc(a,message);
-			} while(a>0);
-		a=getc(fp);
-		putc(a,message);
-		} while ((a!='M') && (a>0));
-	do {
-		a=getc(fp);
-		putc(a,message);
-		} while(a>0);
-	msglen = ftell(fp);
+			a = getc(fp);
+			putc(a, message);
+			} while (a > 0);
+		} while ((FieldID != 'M') && (a >= 0));	/* M is always last */
+
+	msglen = ftell(message);
 	fclose(message);
 
 	/* process the individual mesage */
@@ -916,11 +923,6 @@ NXMSG:	/* Seek to the beginning of the next message */
 			unlink(tname);
 			goto NXMSG;
 			}
-
-		/* Measure the message */
-		fseek(message, 0L, 2);
-		msglen = ftell(fp);
-		fseek(message, 0L, 0);
 
 		/* Transmit the message to the server */
 		sprintf(buf, "ENT3 1|%s|%ld", minfo.R, msglen);
