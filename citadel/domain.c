@@ -21,7 +21,11 @@
 int getmx(char *mxbuf, char *dest) {
 	char answer[1024];
 	int ret;
-
+	unsigned char *startptr, *endptr, *ptr;
+	int expanded_size;
+	char expanded_buf[1024];
+	unsigned short pref, type;
+	int n;
 
 
 	/* If we're configured to send all mail to a smart-host, then our
@@ -48,6 +52,43 @@ int getmx(char *mxbuf, char *dest) {
 	/* If we had to truncate, shrink the number to avoid fireworks */
 	if (ret > sizeof(answer))
 		ret = sizeof(answer);
+	lprintf(9, "size of answer is %d\n", ret);
+
+	startptr = &answer[0];		/* start and end of buffer */
+	endptr = &answer[ret];
+
+	ptr = startptr + HFIXEDSZ;	/* advance past header */
+
+	while(1) {
+		memset(expanded_buf, 0, sizeof(expanded_buf));
+		ret = dn_expand(startptr,
+				endptr,
+				ptr,
+				expanded_buf,
+				sizeof(expanded_buf)
+				);
+		if (ret < 0) break;
+		ptr += ret;
+
+		GETSHORT(type, ptr);
+		ptr += INT16SZ + INT32SZ;
+		GETSHORT(n, ptr);
+		ptr += n;
+
+		lprintf(9, "ret=%d, type=%d\n", ret, type);
+	}
+
+
+
+
+
+
+
+
+
+
+
+
 
 	/* FIX not done yet */
 	return(0);
