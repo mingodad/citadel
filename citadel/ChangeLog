@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.51  2002/01/09 23:12:40  ajc
+ * Allow users to zap mailbox rooms
+
  Revision 590.50  2002/01/09 04:37:32  ajc
  * Finished the callback stuff for vCard address extraction
 
@@ -3118,3 +3121,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

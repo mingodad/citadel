@@ -81,7 +81,7 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf)
 	 */
 	if (roombuf->QRflags & QR_MAILBOX) {
 		retval = UA_KNOWN | UA_GOTOALLOWED;
-		goto NEWMSG;
+		/* goto NEWMSG; allow users to zap mailboxes now */
 	}
 	/* If this is a public room, it's accessible... */
 	if ((roombuf->QRflags & QR_PRIVATE) == 0) {
