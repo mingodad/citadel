@@ -552,8 +552,10 @@ int read_message(CtdlIPC *ipc,
 				fprintf(dest, "Subject: %s\n",
 							message->subject);
 			} else {
-				color(BRIGHT_MAGENTA);
-				scr_printf("Subject: %s\n", message->subject);
+				color(DIM_WHITE);
+				scr_printf("Subject: ");
+				color(BRIGHT_CYAN);
+				scr_printf("%s\n", message->subject);
 				++lines_printed;
 				lines_printed = checkpagin(lines_printed,
 						pagin, screenheight);

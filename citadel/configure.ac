@@ -398,8 +398,31 @@ if test "x$with_libical" != xno ; then
 fi
 
 if test "x$ok_libical" = xyes ; then
-	LIBS="-lical $LIBS"
-	AC_DEFINE(HAVE_LIBICAL)
+
+	AC_TRY_RUN(
+		[
+#include <ical.h>
+main() {
+	float v;
+	int i;
+	sscanf(ICAL_VERSION, "%f", &v);
+	printf("libical version: %0.2f\n", v);
+	v = v * 100.0;
+	i = (int) v;
+	if (i >= 24) {
+		printf("This version is ok.\n");
+		return(0);
+	}
+	printf("libical 0.24 or newer required.\n");
+	printf("Citadel will be built without calendar support.\n");
+	return(1);
+}
+		], 
+		[
+			LIBS="-lical $LIBS"
+			AC_DEFINE(HAVE_LIBICAL)
+		]
+	)
 fi
 
 
