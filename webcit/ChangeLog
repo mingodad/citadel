@@ -1,4 +1,9 @@
 $Log$
+Revision 521.7  2004/06/15 03:06:11  ajc
+* Bumped internal version number to 5.22
+* Use new fast headers-only-no-mime fetch mode in Citadel for
+  message summaries
+
 Revision 521.6  2004/06/15 02:30:21  ajc
 * Honor "maxmsgs" even when viewing a mailbox in summary mode
 
@@ -1896,3 +1901,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
