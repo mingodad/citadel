@@ -1,3 +1,9 @@
+/*
+ * $Id$
+ *
+ * Functions which deal with the fetching and displaying of messages.
+ *
+ */
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -18,9 +24,6 @@
 #include <pthread.h>
 #include <signal.h>
 #include "webcit.h"
-
-
-
 
 
 /*
@@ -279,13 +282,16 @@ char *servcmd;
 void readloop(char *oper)
 {
 	char cmd[256];
-	int a;
+	int a, b;
 	int nummsgs;
 	long startmsg;
 	int maxmsgs;
 	int num_displayed = 0;
 	int is_summary = 0;
 	int remaining_messages;
+	int lo, hi;
+	int lowest_displayed = 0;
+	int highest_displayed = 0;
 
 	startmsg = atol(bstr("startmsg"));
 	maxmsgs = atoi(bstr("maxmsgs"));
@@ -294,19 +300,13 @@ void readloop(char *oper)
 
 	output_headers(1);
 
-	/* wprintf("<CENTER><B>%s - ",
-		WC->wc_roomname); */
 	if (!strcmp(oper, "readnew")) {
 		strcpy(cmd, "MSGS NEW");
-		/* wprintf("new messages"); */
 	} else if (!strcmp(oper, "readold")) {
 		strcpy(cmd, "MSGS OLD");
-		/* wprintf("old messages"); */
 	} else {
 		strcpy(cmd, "MSGS ALL");
-		/* wprintf("all messages"); */
 	}
-	/* wprintf("</B></CENTER><BR>\n"); */
 
 	nummsgs = load_msg_ptrs(cmd);
 	if (nummsgs == 0) {
@@ -320,44 +320,72 @@ void readloop(char *oper)
 		goto DONE;
 	}
 
+	if (startmsg == 0L) startmsg = WC->msgarr[0];
 	remaining_messages = 0;
+
 	for (a = 0; a < nummsgs; ++a) {
 		if (WC->msgarr[a] >= startmsg) {
 			++remaining_messages;
 		}
 	}
 
-
-
-	for (a = 0; a < nummsgs; ++a) {
+	for (a = 0; ( (a < nummsgs) && (num_displayed < maxmsgs) ) ; ++a) {
 		if (WC->msgarr[a] >= startmsg) {
 
 			read_message(WC->msgarr[a], is_summary);
+			if (lowest_displayed == 0) lowest_displayed = a;
+			highest_displayed = a;
 			if (is_summary) wprintf("<BR>");
 
 			++num_displayed;
 			--remaining_messages;
-
-			if ( (num_displayed >= maxmsgs) && (a < nummsgs) ) {
-				wprintf("<CENTER><FONT SIZE=+1>"
-					"There are %d more messages here."
-					"&nbsp;&nbsp;&nbsp;</FONT>",
-					remaining_messages);
-				wprintf("<A HREF=\"/readfwd?startmsg=%ld"
-					"&maxmsgs=999999&summary=%d\">"
-					"Read them ALL"
-					"</A>&nbsp;&nbsp;&nbsp;",
-					WC->msgarr[a+1], is_summary);
-				wprintf("<A HREF=\"/readfwd?startmsg=%ld"
-					"&maxmsgs=%d&summary=%d\">"
-					"Read next %d"
-					"</A>",
-					WC->msgarr[a+1], maxmsgs,
-					is_summary, maxmsgs);
-				wprintf("</CENTER><HR>\n");
-				goto DONE;
-			}
 		}
+	}
+
+	/* Bump these because although we're thinking in zero base, the user
+	 * is a drooling idiot and is thinking in one base.
+	 */
+	++lowest_displayed;
+	++highest_displayed;
+
+	/*
+	 * If we're not currently looking at ALL requested
+	 * messages, then display the selector bar
+	 */
+	if (num_displayed < nummsgs) {
+
+		wprintf("<CENTER>"
+			"<TABLE BORDER=0 WIDTH=100%% BGCOLOR=DDDDDD><TR><TD>"
+			"You are reading #%d-%d of %d messages.</TD>\n"
+			"<TD ALIGN=RIGHT><FONT SIZE=+1>",
+			lowest_displayed, highest_displayed, nummsgs);
+
+		for (b=0; b<nummsgs; b = b + maxmsgs) {
+		lo = b+1;
+		hi = b+maxmsgs+1;
+		if (hi > nummsgs) hi = nummsgs;
+			if (WC->msgarr[b] != startmsg) {
+				wprintf("<A HREF=\"/readfwd"
+					"?startmsg=%ld"
+					"&maxmsgs=%d"
+					"&summary=%d\">"
+					"%d-%d</A> \n",
+						WC->msgarr[b],
+						maxmsgs,
+						is_summary,
+						lo, hi);
+			}
+			else {
+				wprintf("%d-%d \n", lo, hi);
+			}
+
+		}
+		wprintf("<A HREF=\"/readfwd?startmsg=%ld"
+			"&maxmsgs=999999&summary=%d\">"
+			"ALL"
+			"</A>&nbsp;&nbsp;&nbsp;",
+			WC->msgarr[0], is_summary);
+		wprintf("</TD></TR></TABLE></CENTER><HR>\n");
 	}
 
 DONE:	wDumpContent(1);
