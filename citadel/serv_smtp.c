@@ -1256,7 +1256,7 @@ int smtp_purge_completed_deliveries(char *instr) {
  *
  * Called by smtp_do_queue() to handle an individual message.
  */
-void smtp_do_procmsg(long msgnum) {
+void smtp_do_procmsg(long msgnum, void *userdata) {
 	struct CtdlMessage *msg;
 	char *instr = NULL;
 	char *results = NULL;
@@ -1447,7 +1447,7 @@ void smtp_do_queue(void) {
 		return;
 	}
 	CtdlForEachMessage(MSGS_ALL, 0L, (-127),
-		SPOOLMIME, NULL, smtp_do_procmsg);
+		SPOOLMIME, NULL, smtp_do_procmsg, NULL);
 
 	lprintf(7, "SMTP: queue run completed\n");
 	doing_queue = 0;

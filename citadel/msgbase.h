@@ -69,13 +69,14 @@ void cmd_move (char *args);
 void GetSuppMsgInfo(struct SuppMsgInfo *, long);
 void PutSuppMsgInfo(struct SuppMsgInfo *);
 void AdjRefCount(long, int);
-void simple_listing(long);
+void simple_listing(long, void *);
 int CtdlMsgCmp(struct CtdlMessage *msg, struct CtdlMessage *template);
 int CtdlForEachMessage(int mode, long ref,
 			int moderation_level,
 			char *content_type,
 			struct CtdlMessage *compare,
-                        void (*CallBack) (long msgnum) );
+                        void (*CallBack) (long, void *),
+			void *userdata);
 int CtdlDeleteMessages(char *, long, char *);
 void CtdlWriteObject(char *, char *, char *, struct usersupp *,
 			int, int, unsigned int);

@@ -94,7 +94,7 @@ int inetcfg_aftersave(struct CtdlMessage *msg) {
 }
 
 
-void inetcfg_init_backend(long msgnum) {
+void inetcfg_init_backend(long msgnum, void *userdata) {
 	struct CtdlMessage *msg;
 
        	msg = CtdlFetchMessage(msgnum);
@@ -108,7 +108,7 @@ void inetcfg_init_backend(long msgnum) {
 void inetcfg_init(void) {
 	if (getroom(&CC->quickroom, SYSCONFIGROOM) != 0) return;
 	CtdlForEachMessage(MSGS_LAST, 1, (-127), INTERNETCFG, NULL,
-		inetcfg_init_backend);
+		inetcfg_init_backend, NULL);
 }
 
 

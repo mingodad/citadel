@@ -58,7 +58,7 @@ void cmd_mmod(char *argbuf) {
 	}
 
 	is_message_in_room = CtdlForEachMessage(MSGS_EQ, msgnum, (-127),
-				NULL, NULL, NULL);
+				NULL, NULL, NULL, NULL);
 	if (!is_message_in_room) {
 		cprintf("%d Message %ld is not in this room.\n",
 			ERROR+ILLEGAL_VALUE, msgnum);

@@ -533,7 +533,7 @@ void cmd_expi(char *argbuf) {
 /*****************************************************************************/
 
 
-void do_fsck_msg(long msgnum) {
+void do_fsck_msg(long msgnum, void *userdata) {
 	struct roomref *ptr;
 
 	ptr = (struct roomref *)mallok(sizeof(struct roomref));
@@ -545,7 +545,8 @@ void do_fsck_msg(long msgnum) {
 void do_fsck_room(struct quickroom *qrbuf, void *data)
 {
 	getroom(&CC->quickroom, qrbuf->QRname);
-	CtdlForEachMessage(MSGS_ALL, 0L, (-127), NULL, NULL, do_fsck_msg);
+	CtdlForEachMessage(MSGS_ALL, 0L, (-127), NULL, NULL,
+		do_fsck_msg, NULL);
 }
 
 /*

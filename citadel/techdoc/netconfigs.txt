@@ -20,6 +20,8 @@ we have performed outbound network processing on.  Any batch job which sends
 out messages should do stuff.
  
  
- INSTRUCTION:  foo
- SYNTAX:       lastsent|0000000
+ INSTRUCTION:  listrecp
+ SYNTAX:       listrecp|friko@mumjiboolean.com
  DESCRIPTION:
+    Defines a recipient to whom all messages in this room should be sent.  This
+is used for "list serve" applications.

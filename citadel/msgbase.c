@@ -240,7 +240,7 @@ void get_mm(void)
 
 
 
-void simple_listing(long msgnum)
+void simple_listing(long msgnum, void *userdata)
 {
 	cprintf("%ld\n", msgnum);
 }
@@ -286,7 +286,8 @@ int CtdlForEachMessage(int mode, long ref,
 			int moderation_level,
 			char *content_type,
 			struct CtdlMessage *compare,
-			void (*CallBack) (long msgnum))
+			void (*CallBack) (long, void *),
+			void *userdata)
 {
 
 	int a;
@@ -377,7 +378,7 @@ int CtdlForEachMessage(int mode, long ref,
 				|| ((mode == MSGS_EQ) && (thismsg == ref))
 			    )
 			    ) {
-				if (CallBack) CallBack(thismsg);
+				if (CallBack) CallBack(thismsg, userdata);
 				++num_processed;
 			}
 		}
@@ -448,7 +449,7 @@ void cmd_msgs(char *cmdbuf)
 
 	CtdlForEachMessage(mode, cm_ref,
 		CC->usersupp.moderation_filter,
-		NULL, template, simple_listing);
+		NULL, template, simple_listing, NULL);
 	if (template != NULL) CtdlFreeMessage(template);
 	cprintf("000\n");
 }
@@ -1442,7 +1443,7 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 /*
  * Back end for the ReplicationChecks() function
  */
-void check_repl(long msgnum) {
+void check_repl(long msgnum, void *userdata) {
 	struct CtdlMessage *msg;
 	time_t timestamp = (-1L);
 
@@ -1492,7 +1493,8 @@ int ReplicationChecks(struct CtdlMessage *msg) {
 	memset(template, 0, sizeof(struct CtdlMessage));
 	template->cm_fields['E'] = strdoop(msg->cm_fields['E']);
 
-	CtdlForEachMessage(MSGS_ALL, 0L, (-127), NULL, template, check_repl);
+	CtdlForEachMessage(MSGS_ALL, 0L, (-127), NULL, template,
+		check_repl, NULL);
 
 	/* If a newer message exists with the same Extended ID, abort
 	 * this save.
@@ -2545,7 +2547,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 
 
 
-void CtdlGetSysConfigBackend(long msgnum) {
+void CtdlGetSysConfigBackend(long msgnum, void *userdata) {
 	config_msgnum = msgnum;
 }
 
@@ -2568,7 +2570,7 @@ char *CtdlGetSysConfig(char *sysconfname) {
 	begin_critical_section(S_CONFIG);
 	config_msgnum = (-1L);
 	CtdlForEachMessage(MSGS_LAST, 1, (-127), sysconfname, NULL,
-		CtdlGetSysConfigBackend);
+		CtdlGetSysConfigBackend, NULL);
 	msgnum = config_msgnum;
 	end_critical_section(S_CONFIG);
 

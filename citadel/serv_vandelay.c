@@ -63,7 +63,7 @@ void artv_export_users(void) {
 }
 
 
-void artv_export_room_msg(long msgnum) {
+void artv_export_room_msg(long msgnum, void *userdata) {
 	cprintf("%ld\n", msgnum);
 	fprintf(artv_global_message_list, "%ld\n", msgnum);
 }
@@ -91,7 +91,7 @@ void artv_export_rooms_backend(struct quickroom *qrbuf, void *data) {
 	 * one per line terminated by a 0.
 	 */
 	CtdlForEachMessage(MSGS_ALL, 0L, (-127), NULL, NULL,
-		artv_export_room_msg);
+		artv_export_room_msg, NULL);
 	cprintf("0\n");
 
 }

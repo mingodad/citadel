@@ -7,6 +7,14 @@
  *
  */
 
+
+/* FIXME
+
+there's stuff in here that makes the assumption that /tmp is on the same
+filesystem as Citadel, and makes calls to link() on that basis.  fix this.
+
+*/
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -93,9 +101,109 @@ void cmd_snet(char *argbuf) {
 }
 
 
+
+
+/*
+ * Batch up and send all outbound traffic from the current room
+ */
+void network_spoolout_current_room(void) {
+	char filename[256];
+	char buf[256];
+	char instr[256];
+	FILE *fp;
+	long lastsent = 0L;
+	struct namelist *listrecps = NULL;
+	/* struct namelist *digestrecps = NULL; */
+	struct namelist *nptr;
+
+	assoc_file_name(filename, &CC->quickroom, "netconfigs");
+
+	fp = fopen(filename, "r");
+	if (fp == NULL) {
+		lprintf(7, "Outbound batch processing skipped for <%s>\n",
+			CC->quickroom.QRname);
+		return;
+	}
+
+	lprintf(5, "Outbound batch processing started for <%s>\n",
+		CC->quickroom.QRname);
+
+	while (fgets(buf, sizeof buf, fp) != NULL) {
+		buf[strlen(buf)-1] = 0;
+
+		extract(instr, buf, 0);
+		if (!strcasecmp(instr, "lastsent")) {
+			lastsent = extract_long(buf, 1);
+		}
+		else if (!strcasecmp(instr, "listrecp")) {
+			nptr = (struct namelist *)
+				mallok(sizeof(struct namelist));
+			nptr->next = listrecps;
+			extract(nptr->name, buf, 1);
+			listrecps = nptr;
+		}
+
+
+	}
+	fclose(fp);
+
+
+	/* Do something useful */
+
+
+
+
+
+
+
+	/* Now rewrite the config file */
+	fp = fopen(filename, "w");
+	if (fp == NULL) {
+		lprintf(1, "ERROR: cannot open %s: %s\n",
+			filename, strerror(errno));
+	}
+	else {
+		fprintf(fp, "lastsent|%ld\n", lastsent);
+
+		/* Write out the listrecps while freeing from memory at the
+		 * same time.  Am I clever or what?  :)
+		 */
+		while (listrecps != NULL) {
+			fprintf(fp, "listrecp|%s\n", listrecps->name);
+			nptr = listrecps->next;
+			phree(listrecps);
+			listrecps = nptr;
+		}
+
+		fclose(fp);
+	}
+
+	lprintf(5, "Outbound batch processing finished for <%s>\n",
+		CC->quickroom.QRname);
+}
+
+
+
+/* FIXME temporary server command for batch send */
+void cmd_batc(char *argbuf) {
+	if (CtdlAccessCheck(ac_aide)) return;
+
+	network_spoolout_current_room();
+
+	cprintf("%d ok\n", OK);
+}
+
+
+
 char *Dynamic_Module_Init(void)
 {
 	CtdlRegisterProtoHook(cmd_gnet, "GNET", "Get network config");
 	CtdlRegisterProtoHook(cmd_snet, "SNET", "Get network config");
+
+	/* FIXME
+	   temporary server command for batch send
+	 */
+	CtdlRegisterProtoHook(cmd_batc, "BATC", "send out batch (temp)");
+
 	return "$Id$";
 }

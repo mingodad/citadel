@@ -1,4 +1,9 @@
  $Log$
+ Revision 572.22  2000/08/05 04:24:00  ajc
+ * Added [idle] to client wholist display for sessions idle >15 minutes
+ * Added a generic "void *userdata" field to CtdlForEachMessage()
+ * More prep for mailing list handling in the server
+
  Revision 572.21  2000/07/30 04:36:12  ajc
  * Set up the SNET (Send NETwork config) and GNET (Get NETwork config) commands
    for the network overhaul.
@@ -1972,3 +1977,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

@@ -736,15 +736,16 @@ void who_is_online(int longlist)
 	time_t idletime, idlehours, idlemins, idlesecs;
 	int last_session = (-1);
 
-	if (longlist) {
-		serv_puts("TIME");
-		serv_gets(tbuf);
-		if (tbuf[0] == '2') {
-			timenow = extract_long(&tbuf[4], 0);
-		} else {
-			time(&timenow);
-		}
-	} else {
+	serv_puts("TIME");
+	serv_gets(tbuf);
+	if (tbuf[0] == '2') {
+		timenow = extract_long(&tbuf[4], 0);
+	}
+	else {
+		time(&timenow);
+	}
+
+	if (!longlist) {
 		color(BRIGHT_WHITE);
 		pprintf("FLG ###        User Name                 Room                 From host\n");
 		color(DIM_WHITE);
@@ -760,16 +761,24 @@ void who_is_online(int longlist)
 			extract(clientsoft, buf, 4);
 			extract(flags, buf, 7);
 
+			idletime = timenow - extract_long(buf, 5);
+			idlehours = idletime / 3600;
+			idlemins = (idletime - (idlehours * 3600)) / 60;
+			idlesecs = (idletime - (idlehours * 3600) - (idlemins * 60));
+
+			if (idletime > 900) {
+				while (strlen(roomname) < 20) {
+					strcat(roomname, " ");
+				}
+				strcpy(&roomname[14], "[idle]");
+			}
+
 			if (longlist) {
 
 				extract(actual_user, buf, 8);
 				extract(actual_room, buf, 9);
 				extract(actual_host, buf, 10);
 
-				idletime = timenow - extract_long(buf, 5);
-				idlehours = idletime / 3600;
-				idlemins = (idletime - (idlehours * 3600)) / 60;
-				idlesecs = (idletime - (idlehours * 3600) - (idlemins * 60));
 				pprintf("\nFlags: %-3s  Sess# %-3d  Name: %-25s  Room: %s\n",
 				       flags, extract_int(buf, 0), username, roomname);
 				pprintf("from <%s> using <%s>, idle %ld:%02ld:%02ld\n",

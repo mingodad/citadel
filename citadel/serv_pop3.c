@@ -120,7 +120,7 @@ void pop3_user(char *argbuf) {
 /*
  * Back end for pop3_grab_mailbox()
  */
-void pop3_add_message(long msgnum) {
+void pop3_add_message(long msgnum, void *userdata) {
 	FILE *fp;
 	lprintf(9, "in pop3_add_message()\n");
 
@@ -154,7 +154,8 @@ int pop3_grab_mailbox(void) {
 	if (getroom(&CC->quickroom, MAILROOM) != 0) return(-1);
 
 	/* Load up the messages */
-	CtdlForEachMessage(MSGS_ALL, 0L, (-63), NULL, NULL, pop3_add_message);
+	CtdlForEachMessage(MSGS_ALL, 0L, (-63), NULL, NULL,
+		pop3_add_message, NULL);
 
 	/* Figure out which are old and which are new */
         CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
