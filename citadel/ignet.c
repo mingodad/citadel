@@ -39,8 +39,17 @@
  */
 
 int is_ignet(char *node) {
+	char filename[256];
 
-	return 0;		/* FIXME */
+	/* First, check to see if the specified node is a neighbor */
+	sprintf(filename, "./network/systems/%s", node);
+	if (!access(filename, F_OK)) return(1);
+
+	/* If not, see if it's a non-neighbor node */
+	/* FIXME add this */
+
+	/* Nope */
+	return 0;
 
 }
 
