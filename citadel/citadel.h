@@ -58,7 +58,7 @@ typedef unsigned char CIT_UBYTE;
 struct ExpirePolicy {
 	int expire_mode;
 	int expire_value;
-	};
+};
 
 #define EXPIRE_NEXTLEVEL	0	/* Inherit expiration policy    */
 #define EXPIRE_MANUAL		1	/* Don't expire messages at all */
@@ -84,13 +84,13 @@ struct config {
 	char c_moreprompt[80];		/* paginator prompt                 */
 	char c_restrict;		/* restrict Internet mail flag      */
 	long c_msgbase;			/* size of message base             */
-	char c_bbs_city[32];		/* city and state you are located in*/
+	char c_bbs_city[32];		/* physical location of server      */
 	char c_sysadm[26];		/* name of system administrator     */
 	char c_bucket_dir[15];		/* bit bucket for files...	    */
 	int c_setup_level;		/* what rev level we've setup to    */
 	int c_maxsessions;		/* maximum concurrent sessions      */
 	char c_net_password[20];	/* system net password              */
-	int c_port_number;		/* TCP port to run the server on    */
+	int c_port_number;		/* Cit listener port (usually 504)  */
 	int c_ipgm_secret;		/* Internal program authentication  */
 	struct ExpirePolicy c_ep;	/* System default msg expire policy */
 	int c_userpurge;		/* System default user purge (days) */
@@ -135,10 +135,10 @@ struct usersupp {			/* User record                      */
 	CIT_UBYTE USscreenwidth;	/* Screen width (for textmode users)*/
 	CIT_UBYTE USscreenheight;	/* Screen height(for textmode users)*/
 	char moderation_filter;		/* Moderation filter level          */
-	};
+};
 
 
-/****************************************************************************
+/*
  * This is the control record for the message base... 
  */
 struct CitControl {
@@ -147,7 +147,7 @@ struct CitControl {
 	long MMnextuser;		/* highest user number on system    */
 	long MMnextroom;		/* highest room number on system    */
 	int version;			/* Server-hosted upgrade level      */
-	};
+};
 
 /* Bits which may appear in CitControl.MMflags.  Note that these don't
  * necessarily pertain to the message base -- it's just a good place to
@@ -155,7 +155,7 @@ struct CitControl {
  */
 #define MM_VALID	4		/* New users need validating        */
 
-/****************************************************************************
+/*
  * Room records
  */
 struct quickroom {
@@ -172,8 +172,7 @@ struct quickroom {
 	struct ExpirePolicy QRep;	/* Message expiration policy        */
 	long QRnumber;			/* Globally unique room number      */
 	char QRorder;			/* Sort key for room listing order  */
-	};
-
+};
 
 /* Private rooms are always flagged with QR_PRIVATE.  If neither QR_PASSWORDED
  * or QR_GUESSNAME is set, then it is invitation-only.  Passworded rooms are
@@ -219,7 +218,7 @@ struct floor {
 #define F_INUSE		1		/* floor is in use */
 
 
-/****************************************************************************
+/*
  * Values used internally for function call returns, etc.
  */
 
@@ -265,6 +264,7 @@ struct floor {
 #define	INTERNETCFG	"application/x-citadel-internet-config"
 #define IGNETCFG	"application/x-citadel-ignet-config"
 #define IGNETMAP	"application/x-citadel-ignet-map"
+#define USETABLE	"application/x-citadel-usetable"
 
 #define TRACE	lprintf(9, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
 

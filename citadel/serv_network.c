@@ -63,26 +63,47 @@
  * is global; this process *only* runs as part of the housekeeping loop and
  * therefore only one will run at a time.
  */
-struct RoomProcList {
-        struct RoomProcList *next;
-        char name[ROOMNAMELEN];
-};
-
 struct RoomProcList *rplist = NULL;
+
+/*
+ * We build a map of network nodes during processing.
+ */
+struct NetMap *the_netmap = NULL;
+
+
+
+
 
 
 /*
- * We build a map of the Citadel network during network runs.
+ * Manage the use table.  This is a list of messages which have recently
+ * arrived on the system.  It is maintained and queried to prevent the same
+ * message from being entered into the  FIXME not finished
  */
-struct NetMap {
-	struct NetMap *next;
-	char nodename[SIZ];
-	time_t lastcontact;
-	char nexthop[SIZ];
-};
+int network_usetable(int operation, struct CtdlMessage *msg) {
 
-struct NetMap *the_netmap = NULL;
+	static struct UseTable *ut = NULL;
+	struct UseTable *uptr = NULL;
 
+	switch(operation) {
+	
+		case UT_LOAD:
+			return(1);
+			break;
+
+		case UT_SAVE:
+			return(1);
+			break;
+
+		case UT_INSERT:
+			return(1);
+			break;
+
+	}
+
+	/* should never get here unless illegal operation specified */
+	return(2);
+}
 
 
 /* 
