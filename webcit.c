@@ -587,6 +587,14 @@ fclose(fp);
 		delete_msg();
 		}
 
+	else if (!strcasecmp(action, "confirm_move_msg")) {
+		confirm_move_msg();
+		}
+
+	else if (!strcasecmp(action, "move_msg")) {
+		move_msg();
+		}
+
 	/* When all else fails... */
 	else {
 		printf("HTTP/1.0 200 OK\n");

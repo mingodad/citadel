@@ -387,7 +387,6 @@ DONE:	wprintf("</BODY></HTML>\n");
 
 
 
-
 /*
  * Confirm deletion of a message
  */
@@ -448,3 +447,86 @@ void delete_msg(void) {
 	wprintf("</BODY></HTML>\n");
 	wDumpContent();
 	}
+
+
+
+
+/*
+ * Confirm move of a message
+ */
+void confirm_move_msg(void) {
+	long msgid;
+	char buf[256];
+	char targ[256];
+
+	msgid = atol(bstr("msgid"));
+	
+	printf("HTTP/1.0 200 OK\n");
+	output_headers();
+        wprintf("<HTML>");
+        wprintf("</HEAD><BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+
+	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
+	wprintf("<B>Confirm move of message</B>\n");
+	wprintf("</FONT></TD></TR></TABLE>\n");
+
+	wprintf("<CENTER>");
+
+	wprintf("Please select the room to which you would like this message moved:<BR>\n");
+
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/move_msg\">\n");
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgid\" VALUE=\"%s\">\n",
+		bstr("msgid"));
+
+
+ 	wprintf("<SELECT NAME=\"target_room\" SIZE=5>\n");
+        serv_puts("LKRA");
+        serv_gets(buf);
+        if (buf[0]=='1') {
+                while(serv_gets(buf), strcmp(buf,"000")) {
+                        extract(targ,buf,0);
+                        wprintf("<OPTION>");
+                        escputs(targ);
+                        wprintf("\n");
+                        }
+                }
+        wprintf("</SELECT>\n");
+        wprintf("<BR>\n");
+
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"yesno\" VALUE=\"Move\">");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"yesno\" VALUE=\"Cancel\">");
+	wprintf("</FORM></CENTER>\n");
+
+	wprintf("</CENTER>\n");
+	wprintf("</BODY></HTML>\n");
+	wDumpContent();
+	}
+
+
+
+void move_msg(void) {
+	long msgid;
+	char buf[256];
+
+	msgid = atol(bstr("msgid"));
+
+	printf("HTTP/1.0 200 OK\n");
+	output_headers();
+        wprintf("<HTML>");
+        wprintf("</HEAD><BODY BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+
+	if (!strcasecmp(bstr("yesno"), "Move")) {
+		sprintf(buf, "MOVE %ld|%s", msgid, bstr("target_room"));
+		serv_puts(buf);
+		serv_gets(buf);
+		wprintf("<EM>%s</EM><BR>\n", &buf[4]);
+		}
+	else {
+		wprintf("<EM>Message not deleted.</EM><BR>\n");
+		}
+
+	wprintf("</BODY></HTML>\n");
+	wDumpContent();
+	}
+
