@@ -47,6 +47,10 @@ void groupdav_main(struct httprequest *req) {
 	char dav_method[SIZ];
 	char dav_pathname[SIZ];
 
+	for (rptr=req; rptr!=NULL; rptr=rptr->next) {
+		lprintf(9, "> %s\n", rptr->line);
+	}
+
 	if (!WC->logged_in) {
 		wprintf("HTTP/1.1 401 Unauthorized\n");
 		groupdav_common_headers();
@@ -70,6 +74,14 @@ void groupdav_main(struct httprequest *req) {
 	}
 
 	/*
+	 * The PROPFIND method is basically used to list all objects in a room.
+	 */
+	if (!strcasecmp(dav_method, "PROPFIND")) {
+		groupdav_propfind(dav_pathname);
+		return;
+	}
+
+	/*
 	 * Couldn't find what we were looking for.  Die in a car fire.
 	 */
 	wprintf("HTTP/1.1 501 Method not implemented\n");
@@ -79,16 +91,4 @@ void groupdav_main(struct httprequest *req) {
 		"GroupDAV method \"%s\" is not implemented.\n",
 		dav_method
 	);
-
-	/*
-	 * FIXME ... after development is finished, get rid of all this
-	 */
-	wprintf("\n\n\n ** DEBUGGING INFO FOLLOWS ** \n\n");
-	wprintf("WC->httpauth_user = %s\n", WC->httpauth_user);
-	wprintf("WC->httpauth_pass = (%d characters)\n", strlen(WC->httpauth_pass));
-	wprintf("WC->wc_session    = %d\n", WC->wc_session);
-	
-	for (rptr=req; rptr!=NULL; rptr=rptr->next) {
-		wprintf("> %s\n", rptr->line);
-	}
 }

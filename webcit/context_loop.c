@@ -323,9 +323,7 @@ void context_loop(int sock)
 	 * set.  If there isn't, the client browser has cookies turned off
 	 * (or doesn't support them) and we have to barf & bail.
 	 */
-	if (!strncasecmp(buf, "GET ", 4)) strcpy(buf, &buf[4]);
-	else if (!strncasecmp(buf, "HEAD ", 5)) strcpy(buf, &buf[5]);
-	else if (!strncasecmp(buf, "POST ", 5)) strcpy(buf, &buf[5]);
+	remove_token(buf, 0, ' ');
 	if (buf[1]==' ') buf[1]=0;
 
 	/*
