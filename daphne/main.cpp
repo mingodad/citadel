@@ -56,6 +56,8 @@ public:
 private:
 	void OnUsersMenu(wxCommandEvent& cmd);
 	void OnWindowMenu(wxCommandEvent& cmd);
+	void OnSize(wxSizeEvent& WXUNUSED(event) );
+	wxTextCtrl *textWindow;
 	wxButton *do_cmd;
 	void InitToolBar(wxToolBar* toolBar);
 
@@ -104,6 +106,7 @@ BEGIN_EVENT_TABLE(	MyFrame, wxMDIParentFrame)
 	EVT_MENU(	WMENU_ARRANGE,		MyFrame::OnWindowMenu)
 	EVT_MENU(	WMENU_NEXT,		MyFrame::OnWindowMenu)
 	EVT_MENU(	WMENU_PREVIOUS,		MyFrame::OnWindowMenu)
+	EVT_SIZE(				MyFrame::OnSize)
 	EVT_BUTTON(	BUTTON_DO_CMD,		MyFrame::OnDoCmd)
 END_EVENT_TABLE()
 
@@ -163,10 +166,22 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 	TheWholist = NULL;
 
 
+	// Set up the left-side thingie
+
+	textWindow = new wxTextCtrl(
+			this, -1, "", wxDefaultPosition, wxDefaultSize,
+			wxTE_MULTILINE|wxSUNKEN_BORDER);
+	textWindow->SetValue("Hic!  A maus!");
+
+
+	// Set up the toolbar
+
 	CreateToolBar(wxNO_BORDER|wxTB_FLAT|wxTB_HORIZONTAL);
 	InitToolBar(GetToolBar());
 
-	// create a menu bar
+
+	// Set up the pulldown menus
+
 	wxMenu *menuFile = new wxMenu;
 	menuFile->Append(MENU_CONNECT, "&Connect");
 	menuFile->AppendSeparator(); 
@@ -338,4 +353,15 @@ void MyFrame::OnConnect(wxCommandEvent& unused) {
 			wxMessageBox("Could not connect to server.", "Error");
 		}
 	}
+}
+
+
+void MyFrame::OnSize(wxSizeEvent& WXUNUSED(event) ) {
+
+    int w, h;
+    GetClientSize(&w, &h);
+
+    textWindow->SetSize(0, 0, 200, h);
+    GetClientWindow()->SetSize(200, 0, w - 200, h);
+
 }
