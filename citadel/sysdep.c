@@ -766,7 +766,7 @@ int main(int argc, char **argv)
 	 * exits if it doesn't succeed.
 	 */
 	lprintf(7, "Attempting to bind to port %d...\n", config.c_port_number);
-	msock = ig_tcp_server(config.c_port_number, 5);
+	msock = ig_tcp_server(config.c_port_number, config.c_maxsessions);
 	lprintf(7, "Listening on socket %d\n", msock);
 
 	/*
