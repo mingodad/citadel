@@ -8,7 +8,6 @@
 #include <wx/tokenzr.h>
 #include <wxhtml/wxhtml.h>
 
-
 #define MAXFLOORS	128
 
 
@@ -293,3 +292,4 @@ void variformat_to_html(wxString& outputbuf,
 extern wxMDIParentFrame *BigMDI;
 extern RoomTree *RoomList;
 extern CitClient *citadel;
+extern wxConfig *ini;

@@ -20,6 +20,7 @@
 // Globals
 wxMDIParentFrame *BigMDI;
 RoomTree *RoomList;
+wxConfig *ini;
 
 
 // ----------------------------------------------------------------------------
@@ -130,22 +131,25 @@ CitClient *citadel;
 // `Main program' equivalent: the program execution "starts" here
 bool Daphne::OnInit()
 {
+	// Read the configuration file
+	ini = new wxConfig("daphne");
 
+	// Connect to the server
 	citadel = new CitClient();
 
-    // Create the main application window
-    MyFrame *frame = new MyFrame("Daphne",
+	// Create the main application window
+	MyFrame *frame = new MyFrame("Daphne",
                                  wxPoint(10, 10), wxSize(600, 450));
-    BigMDI = frame;
+	BigMDI = frame;
 
-    // Show it and tell the application that it's our main window
-    // @@@ what does it do exactly, in fact? is it necessary here?
-    SetTopWindow(frame);
+	// Show it and tell the application that it's our main window
+	// @@@ what does it do exactly, in fact? is it necessary here?
+	SetTopWindow(frame);
 
-    // success: wxApp::OnRun() will be called which will enter the main message
-    // loop and the application will run. If we returned FALSE here, the
-    // application would exit immediately.
-    return TRUE;
+	// success: wxApp::OnRun() will be called which will enter the main
+	// message loop and the application will run. If we returned FALSE
+	// here, the application would exit immediately.
+	return TRUE;
 }
 
 // ----------------------------------------------------------------------------
@@ -297,6 +301,9 @@ void MyFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 
 	// TRUE is to force the frame to close
 	Close(TRUE);
+
+	// Write configuration back to disk
+	delete ini;
 }
 
 // User menu handler
@@ -346,8 +353,9 @@ void MyFrame::OnConnect(wxCommandEvent& unused) {
 	int retval;
 	wxString DefaultHost, DefaultPort;
 
-	DefaultHost = "uncnsrd.mt-kisco.ny.us";
-        DefaultPort = "504";
+	ini->Read("/Citadel Server/Host", &DefaultHost,
+		"uncnsrd.mt-kisco.ny.us");
+	ini->Read("/Citadel Server/Port", &DefaultPort, "504");
 
 	if (citadel->IsConnected()) {
 		wxMessageBox("You are currently connected to "
