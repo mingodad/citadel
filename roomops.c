@@ -214,21 +214,20 @@ void gotoroom(char *gname, int display_name)
 		/* store ungoto information */
 		strcpy(ugname, wc_roomname);
 		uglsn = ls;
-		fprintf(stderr, "setting ugname to %s and uglsn to %ld\n",
-			ugname, uglsn);
 		}
 
 	/* move to the new room */
-	sprintf(buf,"GOTO %s",gname);
-	serv_puts(buf);
+	serv_printf("GOTO %s", gname);
 	serv_gets(buf);
 	if (buf[0]!='2') {
 		serv_puts("GOTO _BASEROOM_");
 		serv_gets(buf);
 		}
 	if (buf[0]!='2') {
-		if (display_name) wprintf("<EM>%s</EM><BR>\n",&buf[4]);
-		wDumpContent();
+		if (display_name) {
+			wprintf("<EM>%s</EM><BR>\n",&buf[4]);
+			wDumpContent();
+			}
 		return;
 		}
 
@@ -246,7 +245,6 @@ void gotoroom(char *gname, int display_name)
 	if (!strcasecmp(gname,"_BASEROOM_")) remove_march(gname);
 
 	/* Display the room banner */
-
 	if (display_name) {
 		wprintf("<CENTER><TABLE border=0><TR>");
 
@@ -284,6 +282,7 @@ void gotoroom(char *gname, int display_name)
 
 			wprintf("</TR></TABLE></CENTER>\n");
 			}
+		wprintf("</BODY></HTML>\n");
 		wDumpContent();
 		}
 
@@ -295,8 +294,7 @@ void gotoroom(char *gname, int display_name)
  * operation to goto a room
  */
 void dotgoto(void) {
-	fprintf(stderr, "DOTGOTO: <%s>\n", bstr("room"));
-	gotoroom(bstr("room"),1);
+	gotoroom(bstr("room"), 1);
 	}
 
 
