@@ -1,4 +1,8 @@
  $Log$
+ Revision 620.23  2004/04/26 15:11:17  ajc
+ * Enable core dumps regardless of system ulimit setting
+   (maybe temporary until we fix BOOM)
+
  Revision 620.22  2004/04/23 17:27:50  ajc
  * user_ops.c: do not attempt to save the loaded user record into the
    supplied buffer, when the supplied buffer is NULL.  (This calling
@@ -5720,4 +5724,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
