@@ -54,6 +54,7 @@ to normal users. They are:
                              Aide> may not be deleted.
  .<A>ide <R>oom <I>nvite     Invites a user to the room if it is private.
  .<A>ide <R>oom <K>ickOut    Kicks a user out of the room if it is private.
+ .<A>ide <S>ystem config     Edits global system configuration.
  .<A>ide <U>serEdit          Edits certain parameters of a user's account.
  .<A>ide <V>alidate newusers Lists users who have recently registered and
                              prompts for new access levels.

@@ -404,6 +404,8 @@ int purge_user(char pname[]) {
 	struct quickroom qrbuf;
 	char lowercase_name[32];
 	int a;
+	struct CitContext *ccptr;
+	int user_is_logged_in = 0;
 
 	for (a=0; a<=strlen(pname); ++a) {
 		lowercase_name[a] = tolower(pname[a]);
@@ -414,9 +416,26 @@ int purge_user(char pname[]) {
 		return(ERROR+NO_SUCH_USER);
 		}
 
-	lprintf(5, "Deleting user <%s>\n", pname);
+	/* Don't delete a user who is currently logged in.  Instead, just
+	 * set the access level to 0, and let the account get swept up
+	 * during the next purge.
+	 */
+	user_is_logged_in = 0;
+	begin_critical_section(S_SESSION_TABLE);
+	for (ccptr=ContextList; ccptr!=NULL; ccptr=ccptr->next) {
+		if (ccptr->usersupp.usernum == usbuf.usernum) {
+			user_is_logged_in = 1;
+			}
+		}
+	end_critical_section(S_SESSION_TABLE);
+	if (user_is_logged_in == 1) {
+		lprintf(5, "User <%s> is logged in; not deleting.\n", pname);
+		usbuf.axlevel = 0;
+		putuser(&usbuf, pname);
+		return(1);
+		}
 
-	/* FIX   Don't delete a user who is currently logged in. */
+	lprintf(5, "Deleting user <%s>\n", pname);
 
 	/* Perform any purge functions registered by server extensions */
 	PerformUserHooks(usbuf.fullname, usbuf.usernum, EVT_PURGEUSER);
