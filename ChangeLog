@@ -1,4 +1,11 @@
 $Log$
+Revision 603.11  2005/03/09 04:08:30  ajc
+* Delete room is now confirmed through a JavaScript popup instead of
+  a transition page
+* New icon for "Tasks."  In order to keep it consistent with the rest of
+  the icons, it is ugly.
+* Modified page popup style slightly.
+
 Revision 603.10  2005/03/08 04:59:31  ajc
 * More attractive display of vCards (hide unknown fields)
 * Added "title" and "organization" to vCard display/edit
@@ -2474,4 +2481,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

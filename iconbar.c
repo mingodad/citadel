@@ -192,7 +192,7 @@ void do_iconbar(void) {
 		);
 		if (ib_displayas != IB_TEXTONLY) {
 			wprintf("<IMG BORDER=\"0\" WIDTH=\"32\" HEIGHT=\"32\" "
-			"SRC=\"/static/vcalendar.gif\">");
+			"SRC=\"/static/tasks.gif\">");
 		}
 		if (ib_displayas != IB_PICONLY) {
 			wprintf("Tasks");
@@ -478,7 +478,7 @@ void display_customize_iconbar(void) {
 		"<INPUT TYPE=\"checkbox\" NAME=\"ib_tasks\" VALUE=\"yes\" %s>"
 		"</TD><TD>"
 		"<IMG BORDER=\"0\" WIDTH=\"48\" HEIGHT=\"48\" "
-		"SRC=\"/static/vcalendar.gif\" ALT=\"&nbsp;\">"
+		"SRC=\"/static/tasks.gif\" ALT=\"&nbsp;\">"
 		"</TD><TD>"
 		"<B>Tasks</B><br />"
 		"A shortcut to your personal task list."
