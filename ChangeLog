@@ -1,4 +1,7 @@
 $Log$
+Revision 410.33  2003/05/24 22:13:08  ajc
+* Changed the login banner a bit
+
 Revision 410.32  2003/05/20 03:25:41  ajc
 * Separate event invitees with newlines instead of commas.
 
@@ -1407,3 +1410,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
