@@ -1,4 +1,4 @@
-<?=beginbox_nt>
+<?=beginbox>
 <CENTER>
 <FONT COLOR="#FF0000"><?MESG></FONT>
 <TABLE border=0>
@@ -7,16 +7,19 @@
 	<p><?HELLO></p>
 	<form action="/login" method="POST">
 
-	<table border="1">
+	<table border="0" cellspacing="5" cellpadding="5" BGCOLOR="#EEEEEE">
 		<TR><TD>User name:</TD>
 		<TD><input type="text" name="name" maxlength="25"></TD></TR>
 		<TR><TD>Password:</TD>
 		<TD><input type="password" name="pass" maxlength="20"></TD></TR>
-	</TABLE>
 
+	<TR><TD align=center COLSPAN=2>
 	<input type="submit" name="action" value="Login">
 	<input type="submit" name="action" value="New User">
 	<input type="submit" name="action" value="Exit">
+	</TD></TR>
+
+	</TABLE>
 	</form>
 
 	</td>

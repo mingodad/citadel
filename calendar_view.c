@@ -382,31 +382,37 @@ void calendar_day_view(int year, int month, int day) {
 
 
 	/* Begin todays-date-with-left-and-right-arrows */
-	wprintf("<CENTER><TABLE BORDER=0 CELLSPACING=0 CELLPADDING=1><TR>\n");
+	wprintf("<TABLE BORDER=0 WIDTH=100%% "
+		"CELLSPACING=0 CELLPADDING=0 BGCOLOR=\"#FFFFFF\">\n");
+	wprintf("<TR>");
 
-	wprintf("<TD>"
-		"<A HREF=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
-		yesterday.year, yesterday.month, yesterday.day
-	);
-	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/back.gif\" BORDER=0></A>"
-		"</TD>\n");
+	/* Left arrow */	
+	wprintf("<TD ALIGN=CENTER>");
+	wprintf("<A HREF=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
+		yesterday.year, yesterday.month, yesterday.day);
+	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/back.gif\" BORDER=0></A>");
+	wprintf("</TD>");
 
-	wprintf("<TD ALIGN=MIDDLE><FONT COLOR=\"#FFFFFF\">"
-		"<H2>%s</H2><H1>%d</H1><H3>%d</H3>"
-		"</FONT></TD>",
+	/* Today's date */
+	wprintf("<TD ALIGN=CENTER>");
+	wprintf("<FONT SIZE=+2>%s</FONT><BR>"
+		"<FONT SIZE=+3>%d</FONT><BR>"
+		"<FONT SIZE=+2>%d</FONT><BR>",
 		months[month-1], day, year);
+	wprintf("</TD>");
 
-	wprintf("<TD>"
-		"<A HREF=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
-		tomorrow.year, tomorrow.month, tomorrow.day
-	);
+	/* Right arrow */
+	wprintf("<TD ALIGN=CENTER>");
+	wprintf("<A HREF=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
+		tomorrow.year, tomorrow.month, tomorrow.day);
 	wprintf("<IMG ALIGN=MIDDLE SRC=\"/static/forward.gif\""
-		" BORDER=0></A></TD>\n");
+		" BORDER=0></A>\n");
+	wprintf("</TD>");
 
-	wprintf("</TR></TABLE></CENTER>\n");
+	wprintf("</TR></TABLE>\n");
 	/* End todays-date-with-left-and-right-arrows */
 
-	wprintf("<CENTER><font color=#FFFFFF>"
+	wprintf("<BR><BR><CENTER><font color=#FFFFFF>"
 		"&nbsp;<A HREF=\"/display_edit_event?msgnum=0"
 		"&year=%d&month=%d&day=%d\">"
 		"Add new calendar event</A>"
