@@ -1233,29 +1233,33 @@ void aide_message(char *text)
 	fclose(fp);
 	save_message(CC->temp, "", AIDEROOM, MES_LOCAL, 1);
 	syslog(LOG_NOTICE, text);
-}				/*
+}
 
-				 * Build a binary message to be saved on disk.
-				 */ void make_message(
-							  char *filename,	/* temporary file name */
-						 struct usersupp *author,	/* author's usersupp structure */
-							 char *recipient,	/* NULL if it's not mail */
-							     char *room,	/* room where it's going */
-							     int type,	/* see MES_ types in header file */
-							     int net_type,	/* see MES_ types in header file */
-							 int format_type,	/* local or remote (see citadel.h) */
-							 char *fake_name)
-{				/* who we're masquerading as */
+
+/*
+ * Build a binary message to be saved on disk.
+ */
+
+void make_message(
+	char *filename,			/* temporary file name */
+	struct usersupp *author,	/* author's usersupp structure */
+	char *recipient,		/* NULL if it's not mail */
+	char *room,			/* room where it's going */
+	int type,			/* see MES_ types in header file */
+	int net_type,			/* see MES_ types in header file */
+	int format_type,		/* local or remote (see citadel.h) */
+	char *fake_name)		/* who we're masquerading as */
+{
 
 	FILE *fp;
 	int a;
 	time_t now;
 	char dest_node[32];
 	char buf[256];
+	size_t msglen = 0;
 
 	/* Don't confuse the poor folks if it's not routed mail. */
 	strcpy(dest_node, "");
-
 
 	/* If net_type is MES_BINARY, split out the destination node. */
 	if (net_type == MES_BINARY) {
@@ -1267,9 +1271,11 @@ void aide_message(char *text)
 			}
 		}
 	}
+
 	/* if net_type is MES_INTERNET, set the dest node to 'internet' */ if (net_type == MES_INTERNET) {
 		strcpy(dest_node, "internet");
 	}
+
 	while (isspace(recipient[strlen(recipient) - 1]))
 		recipient[strlen(recipient) - 1] = 0;
 
@@ -1280,6 +1286,7 @@ void aide_message(char *text)
 	putc(format_type, fp);	/* Formatted or unformatted */
 	fprintf(fp, "Pcit%ld%c", author->usernum, 0);	/* path */
 	fprintf(fp, "T%ld%c", (long) now, 0);	/* date/time */
+
 	if (fake_name[0])
 		fprintf(fp, "A%s%c", fake_name, 0);
 	else
@@ -1302,8 +1309,14 @@ void aide_message(char *text)
 	putc('M', fp);
 
 	while (client_gets(buf), strcmp(buf, "000")) {
-		fprintf(fp, "%s\n", buf);
+		if (msglen < config.c_maxmsglen) 
+			fprintf(fp, "%s\n", buf);
+		else
+			lprintf(7, "Message exceeded %d byte limit\n",
+				config.c_maxmsglen);
+		msglen = msglen + strlen(buf) + 1;
 	}
+
 	putc(0, fp);
 	fclose(fp);
 }

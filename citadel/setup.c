@@ -900,15 +900,6 @@ int main(int argc, char *argv[])
 	}
 
 
-	/* Default maximum message length is 'unlimited' (max int)
-	 * and the minimum is 8192
-	 */
-	if (config.c_maxmsglen <= 0)
-		config.c_maxmsglen = INT_MAX;
-	if (config.c_maxmsglen < 8192)
-		config.c_maxmsglen = 8192;
-
-
 	/* Go through a series of dialogs prompting for config info */
 	for (curr = 1; curr <= MAXSETUP; ++curr) {
 		edit_value(curr);

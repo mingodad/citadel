@@ -54,6 +54,7 @@ void get_config(void) {
 		exit(1);
 	}
 	fclose(cfp);
+
 	if (config.c_setup_level != REV_LEVEL) {
 		fprintf(stderr, "config: Your data files are out of date.  ");
 		fprintf(stderr, "Run setup to update them.\n");
@@ -66,6 +67,15 @@ void get_config(void) {
 			(config.c_setup_level % 100));
 		exit(1);
 	}
+
+        /* Default maximum message length is 'unlimited' (max int)
+         * and the minimum is 8192
+         */
+        if (config.c_maxmsglen <= 0)
+                config.c_maxmsglen = INT_MAX;
+        if (config.c_maxmsglen < 8192)
+                config.c_maxmsglen = 8192;
+		
 }
 
 
