@@ -227,14 +227,14 @@ void list_all_rooms_by_floor(void)
 	output_headers(1);
 
 	wprintf("<TABLE width=100% border><TR><TH>Floor</TH>");
-	wprintf("<TH><FONT FACE=\"Arial,Helvetica,sans-serif\">Rooms with new messages</FONT></TH>");
-	wprintf("<TH><FONT FACE=\"Arial,Helvetica,sans-serif\">Rooms with no new messages</FONT></TH></TR>\n");
+	wprintf("<TH>Rooms with new messages</TH>");
+	wprintf("<TH>Rooms with no new messages</TH></TR>\n");
 
 	for (a = 0; a < 128; ++a)
 		if (floorlist[a][0] != 0) {
 
 			/* Floor name column */
-			wprintf("<TR><TD><FONT FACE=\"Arial,Helvetica,sans-serif\">");
+			wprintf("<TR><TD>");
 
 			serv_printf("OIMG _floorpic_|%d", a);
 			serv_gets(buf);
@@ -247,18 +247,18 @@ void list_all_rooms_by_floor(void)
 				escputs(&floorlist[a][0]);
 			}
 
-			wprintf("</FONT></TD>");
+			wprintf("</TD>");
 
 			/* Rooms with new messages column */
-			wprintf("<TD><FONT FACE=\"Arial,Helvetica,sans-serif\">");
+			wprintf("<TD>");
 			sprintf(buf, "LKRN %d", a);
 			listrms(buf);
-			wprintf("</FONT></TD>\n<TD><FONT FACE=\"Arial,Helvetica,sans-serif\">");
+			wprintf("</TD>\n<TD>");
 
 			/* Rooms with old messages column */
 			sprintf(buf, "LKRO %d", a);
 			listrms(buf);
-			wprintf("</FONT></TD></TR>\n");
+			wprintf("</TD></TR>\n");
 		}
 	wprintf("</TABLE>\n");
 	wDumpContent(1);
@@ -272,9 +272,9 @@ void zapped_list(void)
 {
 	output_headers(1);
 	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
-	wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\" SIZE=+1 COLOR=\"FFFFFF\"");
+	wprintf("SIZE=+1 COLOR=\"FFFFFF\"");
 	wprintf("<B>Zapped (forgotten) rooms</B>\n");
-	wprintf("</FONT></TD></TR></TABLE><BR>\n");
+	wprintf("</TD></TR></TABLE><BR>\n");
 	listrms("LZRM -1");
 	wprintf("<BR><BR>\n");
 	wprintf("Click on any room to un-zap it and goto that room.\n");
@@ -325,8 +325,8 @@ void embed_room_banner(char *got) {
 		wprintf("<TD VALIGN=TOP><A HREF=\"/ungoto\">");
 		wprintf("<IMG SRC=\"/static/back.gif\" BORDER=0></A></TD>");
 	}
-	wprintf("<TD VALIGN=TOP><FONT FACE=\"Arial,Helvetica,sans-serif\"><FONT SIZE=+2>%s</FONT><BR>", WC->wc_roomname);
-	wprintf("%d new of %d messages</FONT></TD>\n",
+	wprintf("<TD VALIGN=TOP><FONT SIZE=+2>%s</FONT><BR>", WC->wc_roomname);
+	wprintf("%d new of %d messages</TD>\n",
 		extract_int(&got[4], 1),
 		extract_int(&got[4], 2));
 
@@ -338,16 +338,16 @@ void embed_room_banner(char *got) {
 	serv_puts("OIMG _roompic_");
 	serv_gets(buf);
 	if (buf[0] == '2') {
-		wprintf("<TD><FONT FACE=\"Arial,Helvetica,sans-serif\">");
+		wprintf("<TD>");
 		wprintf("<IMG SRC=\"/image&name=_roompic_&room=");
 		urlescputs(WC->wc_roomname);
-		wprintf("\"></FONT></TD>");
+		wprintf("\"></TD>");
 		serv_puts("CLOS");
 		serv_gets(buf);
 	}
-	wprintf("<TD VALIGN=TOP><FONT FACE=\"Arial,Helvetica,sans-serif\">");
+	wprintf("<TD VALIGN=TOP>");
 	readinfo(0);
-	wprintf("</FONT></TD>");
+	wprintf("</TD>");
 
 	/* Let the user know if new mail has arrived */
 	if ( (WC->new_mail > remember_new_mail) && (WC->new_mail>0) ) {
