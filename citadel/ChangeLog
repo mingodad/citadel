@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.28  2001/08/25 05:04:57  ajc
+ * Worked a little more on the in-server replacement for netproc
+
  Revision 580.27  2001/08/22 04:18:17  ajc
  * Realized that there was lots of similarly broken code in
    process_rfc822_addr().  Wrote two new utility functions in tools.c
@@ -2695,4 +2698,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

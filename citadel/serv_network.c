@@ -18,7 +18,7 @@
 #include <pwd.h>
 #include <errno.h>
 #include <sys/types.h>
-
+#include <dirent.h>
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
 # include <time.h>
@@ -405,7 +405,105 @@ void network_queue_room(struct quickroom *qrbuf, void *data) {
 	ptr->next = rplist;
 	rplist = ptr;
 }
+
+
+
+/*
+ * Process a buffer containing a single message from a single file
+ * from the inbound queue 
+ */
+void network_process_buffer(char *buffer, long size) {
+
+	/* FIXME ... do something with it! */
+
+}
+
+
+/*
+ * Process a single message from a single file from the inbound queue 
+ */
+void network_process_message(FILE *fp, long msgstart, long msgend) {
+	long hold_pos;
+	long size;
+	char *buffer;
+
+	hold_pos = ftell(fp);
+	size = msgend - msgstart + 1;
+	buffer = mallok(size);
+	if (buffer != NULL) {
+		fseek(fp, msgstart, SEEK_SET);
+		fread(buffer, size, 1, fp);
+		network_process_buffer(buffer, size);
+		phree(buffer);
+	}
+
+	fseek(fp, hold_pos, SEEK_SET);
+}
+
+
+/*
+ * Process a single file from the inbound queue 
+ */
+void network_process_file(char *filename) {
+	FILE *fp;
+	long msgstart = (-1L);
+	long msgend = (-1L);
+	long msgcur = 0L;
+	int ch;
+
+	lprintf(7, "network: processing <%s>\n", filename);
+
+	fp = fopen(filename, "rb");
+	if (fp == NULL) {
+		lprintf(5, "Error opening %s: %s\n",
+			filename, strerror(errno));
+		return;
+	}
+
+	/* Look for messages in the data stream and break them out */
+	while (ch = getc(fp), ch >= 0) {
 	
+		if (ch == 255) {
+			if (msgstart >= 0L) {
+				msgend = msgcur - 1;
+				network_process_message(fp, msgstart, msgend);
+			}
+			msgstart = msgcur;
+		}
+
+		++msgcur;
+	}
+
+	msgend = msgcur - 1;
+	if (msgstart >= 0L) {
+		network_process_message(fp, msgstart, msgend);
+	}
+
+	fclose(fp);
+	/* unlink(filename); FIXME put back in */
+}
+
+
+/*
+ * Process anything in the inbound queue
+ */
+void network_do_spoolin(void) {
+	DIR *dp;
+	struct dirent *d;
+	char filename[SIZ];
+
+	dp = opendir("./network/spoolin");
+	if (dp == NULL) return;
+
+	while (d = readdir(dp), d != NULL) {
+		sprintf(filename, "./network/spoolin/%s", d->d_name);
+		network_process_file(filename);
+	}
+
+
+	closedir(dp);
+}
+
 
 /*
  * network_do_queue()
@@ -446,6 +544,9 @@ void network_do_queue(void) {
 		rplist = rplist->next;
 		phree(ptr);
 	}
+
+	lprintf(7, "network: processing inbound queue\n");
+	network_do_spoolin();
 
 	lprintf(7, "network: queue run completed\n");
 	doing_queue = 0;
