@@ -6,7 +6,7 @@ all: daphne
 .SUFFIXES: .cpp .o .hpp
 
 .cpp.o:
-	c++ $(CFLAGS) -c $<
+	c++ $(CFLAGS) -c -lwine $<
 
 
 daphne: main.o citclient.o userlogin.o testwindow.o who.o \
