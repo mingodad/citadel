@@ -25,10 +25,10 @@
 #define SLEEPING		180		/* TCP connection timeout */
 #define WEBCIT_TIMEOUT		900		/* WebCit session timeout */
 #define PORT_NUM		2000		/* port number to listen on */
-#define SERVER			"WebCit v5.05"	/* who's in da house */
+#define SERVER			"WebCit v5.04"	/* who's in da house */
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
-#define CLIENT_VERSION		505		/* This version of WebCit */
+#define CLIENT_VERSION		504		/* This version of WebCit */
 #define MINIMUM_CIT_VERSION	611		/* min required Citadel vers */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
@@ -163,6 +163,7 @@ struct wc_attachment {
 	char *data;
 };
 
+#define CHATLINES 8
 
 /*
  * One of these is kept for each active Citadel session.
@@ -181,6 +182,7 @@ struct wcsession {
 	int is_room_aide;
 	int http_sock;
 	int serv_sock;
+	int chat_sock;
 	unsigned room_flags;
 	int wc_view;
 	int wc_default_view;
@@ -218,6 +220,7 @@ struct wcsession {
 	char ImportantMessage[SIZ];
 	int outside_frameset_allowed;	/* nonzero if current req is allowed
 					 * outside of the main frameset */
+	char chatlines[CHATLINES][SIZ];
 };
 
 #define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
@@ -343,6 +346,8 @@ void fmt_time(char *buf, time_t thetime);
 void httpdate(char *buf, time_t thetime);
 void end_webcit_session(void);
 void page_popup(void);
+void chat_recv(void);
+void chat_send(void);
 void http_redirect(char *);
 void clear_local_substs(void);
 void svprintf(char *keyname, int keytype, const char *format,...);

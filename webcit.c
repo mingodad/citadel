@@ -1123,6 +1123,10 @@ void session_loop(struct httprequest *req)
 		edit_me();
 	} else if (!strcasecmp(action, "display_siteconfig")) {
 		display_siteconfig();
+	} else if (!strcasecmp(action, "chat_recv")) {
+		chat_recv();
+	} else if (!strcasecmp(action, "chat_send")) {
+		chat_send();
 	} else if (!strcasecmp(action, "page_popup")) {
 		page_popup();
 	} else if (!strcasecmp(action, "siteconfig")) {

@@ -10,9 +10,9 @@ import java.applet.*;
 
 public class wcchat extends Applet {
 
-String ServerHost = "uncnsrd.mt-kisco.ny.us";
-int ServerPort = 504;
-	
+	String ServerHost = "uncensored.citadel.org";
+	int ServerPort = 504;
+
 	public void init() {
 
 		/* Unless overridden, the Citadel server is expected to be
@@ -21,23 +21,23 @@ int ServerPort = 504;
 		 */
 		if (getDocumentBase() != null) {
 			ServerHost = getDocumentBase().getHost();
-			}
+		}
 
 		/* The 'host' parameter tells the client to look somewhere other
 		 * than the applet host for the Citadel server.
-		 */
-		if (getParameter("host") != null) {
+		 */ if (getParameter("host") != null) {
 			ServerHost = getParameter("host");
-			}
+		}
 
 		/* The 'port' parameter tells the client to look on a
 		 * nonstandard port for the Citadel server.
 		 */
 		if (getParameter("port") != null) {
-			ServerPort = Integer.parseInt(getParameter("port"));
-			}
-
+			ServerPort =
+			    Integer.parseInt(getParameter("port"));
 		}
+
+	}
 
 	public void start() {
 		wcCitServer serv = new wcCitServer();
@@ -46,16 +46,22 @@ int ServerPort = 504;
 		serv.AttachToServer(ServerHost, ServerPort);
 		buf = serv.ServTrans("USER " + getParameter("username"));
 		if (buf.charAt(0) == '3') {
-			buf = serv.ServTrans("PASS "+getParameter("password"));
+			buf =
+			    serv.ServTrans("PASS " +
+					   getParameter("password"));
 			if (buf.charAt(0) == '2') {
-				serv.SetUserName(wcCitUtil.Extract(buf.substring(4), 0));
-				buf = serv.ServTrans("GOTO "+getParameter("roomname"));
+				serv.SetUserName(wcCitUtil.
+						 Extract(buf.substring(4),
+							 0));
+				buf =
+				    serv.ServTrans("GOTO " +
+						   getParameter
+						   ("roomname"));
 				new MultiUserChat102(serv, this);
-				}
 			}
-		else {
+		} else {
 			System.out.println("ooops...");
-			}
 		}
+	}
 
 }
