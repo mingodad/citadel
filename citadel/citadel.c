@@ -461,6 +461,9 @@ void dotgoto(char *towhere, int display_name, int fromungoto)
 					newmailcount);
 		}
 		color(DIM_WHITE);
+		if (strlen(rc_gotmail_cmd) > 0) {
+			system(rc_gotmail_cmd);
+		}
 	}
 	status_line(serv_info.serv_humannode, serv_info.serv_bbs_city,
 			room_name, secure, newmailcount);
@@ -1188,6 +1191,9 @@ PWOK:
 			if (b > 1)
 				scr_printf("*** You have %d new private messages in Mail>\n", b);
 			color(DIM_WHITE);
+			if (strlen(rc_gotmail_cmd) > 0) {
+				system(rc_gotmail_cmd);
+			}
 		}
 		if ((axlevel >= 6) && (chek.needvalid > 0)) {
 			scr_printf("*** Users need validation\n");

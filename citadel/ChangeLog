@@ -1,4 +1,9 @@
  $Log$
+ Revision 591.103  2002/08/27 04:01:03  ajc
+ * Added the ability to run an external command from the client when new mail
+   arrives.  (Ok, I admit it: I just discovered http://www.dailywav.com and I
+   just *had* to have Bear in the Big Blue House tell me I've got mail)
+
  Revision 591.102  2002/08/26 02:55:09  ajc
  * Small bugfix for memory bounds checking in the MIME parser
 
@@ -3938,3 +3943,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -112,6 +112,11 @@ remember_passwords=0
 #
 #urlcmd=netscape -remote "openURL(%s)"
 
+# If GOTMAILCMD is defined, the specified command will be executed.  This
+# might be nice for playing sounds or providing any other type of notification.
+#
+#gotmailcmd=play gotmail.wav
+
 
 # MESSAGE READING SEMANTICS (experimental)
 #

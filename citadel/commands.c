@@ -80,6 +80,7 @@ int rc_prompt_control = 0;
 time_t rc_idle_threshold = (time_t)900;
 char urls[MAXURLS][SIZ];
 char rc_url_cmd[SIZ];
+char rc_gotmail_cmd[SIZ];
 
 char *gl_string;
 int next_lazy_cmd = 5;
@@ -735,6 +736,7 @@ void load_command_set(void)
 	rc_force_mail_prompts = 0;
 	rc_ansi_color = 0;
 	strcpy(rc_url_cmd, "");
+	strcpy(rc_gotmail_cmd, "");
 #ifdef HAVE_OPENSSL
 	rc_encrypt = RC_DEFAULT;
 #endif
@@ -856,6 +858,9 @@ void load_command_set(void)
 
 		if (!strncasecmp(buf, "urlcmd=", 7))
 			strcpy(rc_url_cmd, &buf[7]);
+
+		if (!strncasecmp(buf, "gotmailcmd=", 11))
+			strcpy(rc_gotmail_cmd, &buf[11]);
 
 		if (!strncasecmp(buf, "alternate_semantics=", 20)) {
 			if (!strncasecmp(&buf[11], "yes", 3))
