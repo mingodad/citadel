@@ -1,4 +1,7 @@
 $Log$
+Revision 500.21  2003/08/22 00:25:40  ajc
+* Added a skeleton "setup" program to the tree.  It does not work yet.
+
 Revision 500.20  2003/08/20 03:48:55  ajc
 * Added iconbar shortcut to Contacts room
 * Minimum required Citadel is now 6.11
@@ -1568,3 +1571,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
