@@ -1,4 +1,14 @@
  $Log$
+ Revision 590.148  2002/03/12 22:47:17  nbryant
+ curses fix: map our normal color pairs into the 0-7 range instead of 1-8,
+ in order to make our pairs fit on terminals such as dtterm where COLOR_PAIRS=8.
+ map the white/blue color pair onto 8 instead of 9, but only if that slot
+ is available; fall back on white/black otherwise.
+
+ it seems there may be an off-by-one error in the color pair manpages for
+ the various curses packages (?) if not, our 0 entry is unusable, but that's
+ the DIM_BLACK color and we don't use it anyway.
+
  Revision 590.147  2002/03/12 22:17:20  ajc
  * Give mailbox owners access to "who knows room" command
 
@@ -3467,3 +3477,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

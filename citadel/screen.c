@@ -90,17 +90,17 @@ void screen_new(void)
 		start_color();
 		if (rc_ansi_color)
 			enable_color = 1;
-		init_pair(1+DIM_BLACK, COLOR_BLACK, COLOR_BLACK);
-		init_pair(1+DIM_RED, COLOR_RED, COLOR_BLACK);
-		init_pair(1+DIM_GREEN, COLOR_GREEN, COLOR_BLACK);
-		init_pair(1+DIM_YELLOW, COLOR_YELLOW, COLOR_BLACK);
-		init_pair(1+DIM_BLUE, COLOR_BLUE, COLOR_BLACK);
-		init_pair(1+DIM_MAGENTA, COLOR_MAGENTA, COLOR_BLACK);
-		init_pair(1+DIM_CYAN, COLOR_CYAN, COLOR_BLACK);
-		init_pair(1+DIM_WHITE, COLOR_WHITE, COLOR_BLACK);
+		init_pair(DIM_BLACK, COLOR_BLACK, COLOR_BLACK);
+		init_pair(DIM_RED, COLOR_RED, COLOR_BLACK);
+		init_pair(DIM_GREEN, COLOR_GREEN, COLOR_BLACK);
+		init_pair(DIM_YELLOW, COLOR_YELLOW, COLOR_BLACK);
+		init_pair(DIM_BLUE, COLOR_BLUE, COLOR_BLACK);
+		init_pair(DIM_MAGENTA, COLOR_MAGENTA, COLOR_BLACK);
+		init_pair(DIM_CYAN, COLOR_CYAN, COLOR_BLACK);
+		init_pair(DIM_WHITE, COLOR_WHITE, COLOR_BLACK);
 
 		if (COLOR_PAIRS > 8)
-			init_pair(9, COLOR_WHITE, COLOR_BLUE);
+			init_pair(8, COLOR_WHITE, COLOR_BLUE);
 	} else
 #endif /* HAVE_CURSES_H */
 	{
@@ -339,9 +339,9 @@ int scr_color(int colornum)
 #ifdef HAVE_CURSES_H
 	if (mainwindow) {
 #ifdef HAVE_WCOLOR_SET
-		wcolor_set(mainwindow, 1 + (colornum & 7), NULL);
+		wcolor_set(mainwindow, (colornum & 7), NULL);
 #else
-		wattron(mainwindow, COLOR_PAIR(1 + (colornum & 7)));
+		wattron(mainwindow, COLOR_PAIR((colornum & 7)));
 #endif
 		if (colornum & 8) {
 			wattron(mainwindow, A_BOLD);
@@ -436,7 +436,9 @@ void windows_new(void)
 		statuswindow = newwin(1, x, y - 1, 0);
 
 		if (COLOR_PAIRS > 8)
-			wbkgdset(statuswindow, COLOR_PAIR(9));
+			wbkgdset(statuswindow, ' ' | COLOR_PAIR(8));
+		else
+			wbkgdset(statuswindow, ' ' | COLOR_PAIR(DIM_WHITE));
 
 		werase(statuswindow);
 		immedok(statuswindow, FALSE);
