@@ -70,49 +70,51 @@ all software should be written to IGNORE fields not currently defined.
 
 BYTE	Mnemonic	Comments
 
-T	Date/Time	A 32-bit integer containing the date and time of
-                        the message in standard UNIX format (the number
-                        of seconds since January 1, 1970 GMT).
-P	Path		Complete path of message, as in the UseNet news
-			standard.  A user should be able to send UUCP mail to
-			this path. (Note that your system name will not be
-			tacked onto this until you're sending the message to
-			someone else)
-I	Original ID	A 32-bit integer containing the message ID on the
-			system the message *originated* on.
 #       Local ID	A 32-bit integer containing the message ID on the
                         system the message is *currently* on (obviously this
                         is meaningless for a message being transmitted over
                         a network).
 A	Author		Name of originator of message.
-R	Recipient	Only present in Mail messages.
-O	Room		Room of origin.
-N	Nodename	Contains node name of system message originated on.
-H	HumanNodeName	Human-readable name of system message originated on.
-D	Destination	Contains name of the system this message should
-			be sent to, for mail routing (private mail only).
-U       Subject         Optional.  Developers may choose whether they wish to
-                        generate or display subject fields.  Citadel/UX does
-                        not generate them, but it does print them when found.
 B	Phone number	The dialup number of the system this message
 			originated on.  This is optional, and is only
 			defined for helping implement C86Net gateways.
+D	Destination	Contains name of the system this message should
+			be sent to, for mail routing (private mail only).
 G	Gateway domain	This field is provided solely for the implementation
                         of C86Net gateways, and holds the C86Net domain of
                         the system this message originated on.  Unless you're
                         implementing such a gateway, there's no need to even
                         bother with this field.
+H	HumanNodeName	Human-readable name of system message originated on.
+I	Original ID	A 32-bit integer containing the message ID on the
+			system the message *originated* on.
+M	Message Text	Normal ASCII, newlines seperated by CR's or LF's,
+                        null terminated as always.
+N	Nodename	Contains node name of system message originated on.
+O	Room		Room of origin.
+P	Path		Complete path of message, as in the UseNet news
+			standard.  A user should be able to send UUCP mail to
+			this path. (Note that your system name will not be
+			tacked onto this until you're sending the message to
+			someone else)
+R	Recipient	Only present in Mail messages.
 S       Special field   Only meaningful for messages being spooled over a
                         network.  Usually means that the message isn't really
                         a message, but rather some other network function:
                         -> "S" followed by "FILE" (followed by a null, of
                         course) means that the message text is actually an
                         IGnet/Open file transfer.
-M	Message Text	Normal ASCII, newlines seperated by CR's or LF's,
-                        null terminated as always.
+T	Date/Time	A 32-bit integer containing the date and time of
+                        the message in standard UNIX format (the number
+                        of seconds since January 1, 1970 GMT).
+U       Subject         Optional.  Developers may choose whether they wish to
+                        generate or display subject fields.  Citadel/UX does
+                        not generate them, but it does print them when found.
 X	eXtension field	Extension fields are used to carry additional RFC822
 			type lines.  X fields contain the X byte followed by
 			the RFC822 field name, a colon, a space, and the value.
+Z	Separator	If there are MIME attachments following the message
+			text, the Z field specifies the separator string.
   
 			EXAMPLE
 

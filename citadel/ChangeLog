@@ -1,3 +1,7 @@
+Mon Sep 21 21:19:17 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* msgbase.c: began laying the groundwork to support attachments.
+	  Purchased Rogaine(tm) in preparation for expected hair loss.
+
 1998-09-21 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* msgbase.c: include dynloader.h
 	* citadelapi.h: removed

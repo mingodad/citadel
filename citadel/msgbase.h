@@ -17,7 +17,7 @@ void save_message (char *mtmp, char *rec, char mtsflag, int mailtype,
 void aide_message (char *text);
 void make_message (char *filename, struct usersupp *author, char *recipient,
 		   char *room, int type, int net_type, int format_type,
-		   char *fake_name);
+		   char *fake_name, char *separator);
 void cmd_ent0 (char *entargs);
 void cmd_ent3 (char *entargs);
 void cmd_dele (char *delstr);

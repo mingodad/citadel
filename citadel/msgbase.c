@@ -315,7 +315,7 @@ FMTEND:	cprintf("\n");
 void output_message(char *msgid, int mode, int headers_only)
 {
 	long msg_num;
-	int a,och,len;
+	int a;
 	CIT_UBYTE ch, rch;
 	CIT_UBYTE format_type,anon_flag;
 	char buf[1024];
@@ -498,7 +498,7 @@ void output_message(char *msgid, int mode, int headers_only)
 	if (headers_only) {
 		/* give 'em a length */
 		msg_len = 0L;
-		while(och=ch, ch = *mptr++, ch>0) {
+		while(ch = *mptr++, ch>0) {
 			++msg_len;
 			}
 		cprintf("mlen=%ld\n", msg_len);
@@ -516,22 +516,19 @@ void output_message(char *msgid, int mode, int headers_only)
 	 * what message transfer format is in use.
 	 */
 	if (format_type == 1) {
-		och = 0;
-		len = 0;
-		while(och=ch, ch = *mptr++, ch>0) {
+		strcpy(buf, "");
+		while(ch = *mptr++, ch>0) {
 			if (ch == 13) ch = 10;
-			++len;
-			/* if ((ch!=10)||(och!=10)) { */
-				cprintf("%c", ch);
-				if (ch==10) len = 0;
-				/* } */
-			if (len>=250) {
-				len = 0;
-				/* cprintf("%c", ch); */
-				cprintf("%c", 10);
+			if ( (ch == 10) || (strlen(buf)>250) ) {
+				cprintf("%s\n", buf);
+				strcpy(buf, "");
+				}
+			else {
+				buf[strlen(buf)+1] = 0;
+				buf[strlen(buf)] = ch;
 				}
 			}
-		if (len!=0) cprintf("%c", 10);
+		if (strlen(buf)>0) cprintf("%s\n", buf);
 		}
 	/* If the message on disk is format 0 (Citadel vari-format), we
 	 * output using the formatter at 80 columns.  This is the final output
@@ -866,15 +863,17 @@ void aide_message(char *text)
 /*
  * Build a binary message to be saved on disk.
  */
-void make_message(char *filename, struct usersupp *author, char *recipient, char *room, int type, int net_type, int format_type, char *fake_name)
-                	/* temporary file name */
-                        /* author's usersupp structure */
-                 	/* NULL if it's not mail */
-            		/* room where it's going */
-         		/* see MES_ types in header file */
-             		/* local or remote type, see citadel.h */
-                	/* format type (see citadel.h) */
-{ 
+void make_message(
+	char *filename,			/* temporary file name */
+	struct usersupp *author,	/* author's usersupp structure */
+	char *recipient,		/* NULL if it's not mail */
+	char *room,			/* room where it's going */
+	int type,			/* see MES_ types in header file */
+	int net_type,			/* see MES_ types in header file */
+	int format_type,		/* local or remote (see citadel.h) */
+	char *fake_name,		/* who we're masquerading as */
+	char *separator) {		/* separator (if exist attachments) */
+
 	FILE *fp;
 	int a;
 	long now;
@@ -918,8 +917,9 @@ void make_message(char *filename, struct usersupp *author, char *recipient, char
 	fprintf(fp,"N%s%c",NODENAME,0); 		/* nodename */
 	fprintf(fp,"H%s%c",HUMANNODE,0); 		/* human nodename */
 
-	if (recipient[0]!=0) fprintf(fp,"R%s%c",recipient,0);
-	if (dest_node[0]!=0) fprintf(fp,"D%s%c",dest_node,0);
+	if (recipient[0]!=0) fprintf(fp, "R%s%c", recipient, 0);
+	if (dest_node[0]!=0) fprintf(fp, "D%s%c", dest_node, 0);
+	if (separator[0]!=0) fprintf(fp, "Z%s%c", separator, 0);
 
 	putc('M',fp);
 
@@ -946,6 +946,7 @@ void cmd_ent0(char *entargs)
 	int anon_flag = 0;
 	int format_type = 0;
 	char newusername[256];		/* <bc> */
+	char separator[256];
 
 	int a,b,e;
 	int mtsflag = 0;
@@ -956,6 +957,7 @@ void cmd_ent0(char *entargs)
 	extract(recipient,entargs,1);
 	anon_flag = extract_int(entargs,2);
 	format_type = extract_int(entargs,3);
+	extract(separator, entargs, 4);
 
 	/* first check to make sure the request is valid. */
 
@@ -1068,12 +1070,12 @@ SKFALL: b=MES_NORMAL;
 	
 	cprintf("%d send message\n",SEND_LISTING);
 	if (CC->fake_postname[0])
-  	   make_message(CC->temp,&CC->usersupp,buf,CC->quickroom.QRname,b,e,format_type, CC->fake_postname);
+  	   make_message(CC->temp,&CC->usersupp,buf,CC->quickroom.QRname,b,e,format_type, CC->fake_postname, separator);
   	else
   	   if (CC->fake_username[0])
-  	      make_message(CC->temp,&CC->usersupp,buf,CC->quickroom.QRname,b,e,format_type, CC->fake_username);
+  	      make_message(CC->temp,&CC->usersupp,buf,CC->quickroom.QRname,b,e,format_type, CC->fake_username, separator);
   	   else
-  	      make_message(CC->temp,&CC->usersupp,buf,CC->quickroom.QRname,b,e,format_type, "");
+  	      make_message(CC->temp,&CC->usersupp,buf,CC->quickroom.QRname,b,e,format_type, "", separator);
 	save_message(CC->temp,buf,mtsflag,e,1);
         CC->fake_postname[0]='\0';
 	return;
