@@ -21,7 +21,7 @@
  ** CxMsInfo(): Retrieve message information for all of the message id's listed inside
  ** of a Message List.
  **/
-CXLIST		CxMsInfo(CXLIST msg_list) {
+CXLIST		CxMsInfo(int id, CXLIST msg_list) {
 CXLIST		mp, messages = NULL;
 char		buf[255], *from, *date, *subject;
 int		rc;
@@ -31,13 +31,13 @@ int		rc;
 	mp = msg_list;
 	while ( mp ) {
 		sprintf(buf,"MSG0 %s|1",mp->data);
-		CxClSend(buf);
-		rc = CxClRecv(buf);
+		CxClSend(id, buf);
+		rc = CxClRecv(id, buf);
 		if( CHECKRC(rc, RC_LISTING)) {
 			from = date = subject = 0;
 			do {
 
-				rc = CxClRecv(buf);
+				rc = CxClRecv(id, buf);
 				if(rc && strstr(buf,"from=")) {
 					DPF((DFA, "from: %s",buf));
 
@@ -74,7 +74,7 @@ int		rc;
 /**
  ** CxMsList(): Retrieve a list of messages in the current room.
  **/
-CXLIST		CxMsList(int list_type, int number_messages) {
+CXLIST		CxMsList(int id, int list_type, int number_messages) {
 int		rc;
 char		buf[255], *malleable;
 CXLIST		msgs = NULL;
@@ -87,19 +87,19 @@ CXLIST		msgs = NULL;
 			break;
 
 		case(1):
-			CxClSend("MSGS NEW");
+			CxClSend( id, "MSGS NEW");
 			break;
 
 		default:
-			CxClSend("MSGS");
+			CxClSend( id, "MSGS");
 			break;
 	}
-	rc = CxClRecv( buf );
+	rc = CxClRecv( id, buf );
 
 	if( CHECKRC(rc, RC_LISTING) ) {
 
 		do {
-			rc = CxClRecv(buf);
+			rc = CxClRecv(id, buf);
 
 			if(rc) {
 				malleable = (char *)CxMalloc(strlen(buf) + 1);
@@ -126,7 +126,7 @@ CXLIST		msgs = NULL;
  **
  ** CLIENT MUST free(toret.body) MANUALLY!!!!
  **/
-int		CxMsLoad(const char *mid, int preserve_newlines, MESGINFO *toret) {
+int		CxMsLoad(int id, const char *mid, int preserve_newlines, MESGINFO *toret) {
 char		buf[255], *newline="\n";
 int		rc, message_contents = 0, line_width;
 
@@ -138,12 +138,12 @@ int		rc, message_contents = 0, line_width;
 	toret->subject[0] = 0;
 
 	sprintf(buf,"MSG2 %s",mid);
-	CxClSend(buf);
-	rc = CxClRecv(buf);
+	CxClSend(id, buf);
+	rc = CxClRecv(id, buf);
 	if(CHECKRC(rc, RC_LISTING) ) {
 		DPF((DFA,"RC_LISTING"));
 		do {
-			rc = CxClRecv(buf);
+			rc = CxClRecv(id, buf);
 			if( rc ) {
 				if(buf[strlen(buf)-1]=='\r') 
 					buf[strlen(buf)-1]=0;
@@ -196,7 +196,7 @@ int		rc, message_contents = 0, line_width;
 					 **/
 
 					do {
-						rc = CxClRecv(buf);
+						rc = CxClRecv(id, buf);
 						if(rc) {
 							DPF((DFA,"%s",buf));
 
@@ -270,14 +270,14 @@ int		rc, message_contents = 0, line_width;
  ** CxMsSaveOk(): Verify that users can post to this room.  Returns 1 if posting is
  ** allowed, 0 if posting is not allowed.
  **/
-int		CxMsSaveOk(const char *username) {
+int		CxMsSaveOk(int id, const char *username) {
 int		rc;
 char		buf[255];
 
 	DPF((DFA,"Checking room for post permissions..."));
 	sprintf(buf,"ENT0 0|%s|0|0",username);
-	CxClSend(buf);
-	rc = CxClRecv(buf);
+	CxClSend(id, buf);
+	rc = CxClRecv(id, buf);
 	if(CHECKRC(rc, RC_OK) ) {
 		DPF((DFA,"Ok for posting"));
 		return(1);
@@ -299,7 +299,7 @@ char		buf[255];
  **  3: Message rejected for unknown reasons.
  **  ... tba
  **/
-int		CxMsSave(MESGINFO msg) {
+int		CxMsSave(int id, MESGINFO msg) {
 int		rc;
 char		buf[255];
 
@@ -312,31 +312,31 @@ char		buf[255];
 
 	DPF((DFA,"Checking for access..."));
 	sprintf(buf,"ENT0 0|%s|0|0",msg.rcpt);
-	CxClSend(buf);
-	rc = CxClRecv(buf);
+	CxClSend(id, buf);
+	rc = CxClRecv(id, buf);
 	DPF((DFA,"Server said [%s]",buf));
 
 	if( CHECKRC(rc, RC_OK)) {
 		DPF((DFA,"Permission to save"));
 
 		sprintf(buf,"ENT0 1|%s|0|4|",msg.rcpt);
-		CxClSend(buf);
+		CxClSend(id, buf);
 
-		rc = CxClRecv(buf);
+		rc = CxClRecv(id, buf);
 		if( CHECKRC(rc, RC_SENDLIST)) {
 			DPF((DFA,"Sending message to server..."));
 			sprintf(buf, "From: %s", msg.author);
-			CxClSend(buf);
+			CxClSend(id, buf);
 			sprintf(buf, "To: %s", msg.rcpt);
-			CxClSend(buf);
+			CxClSend(id, buf);
 			sprintf(buf, "X-Mailer: libCxClient %s", CXREVISION);
-			CxClSend(buf);
+			CxClSend(id, buf);
 			sprintf(buf, "Subject: %s", msg.subject);
-			CxClSend(buf);
-			CxClSend("");
-			CxClSend(msg.body);
+			CxClSend(id, buf);
+			CxClSend(id, "");
+			CxClSend(id, msg.body);
 
-			CxClSend("000");
+			CxClSend(id, "000");
 			DPF((DFA,"Done!"));
 
 			DPF((DFA,"Server accepted message"));
@@ -354,7 +354,7 @@ char		buf[255];
 /**
  ** CxMsMark(): Mark message(s) as read.
  **/
-void		CxMsMark( long unsigned int msgid ) {
+void		CxMsMark( int id, long unsigned int msgid ) {
 char		buf[1024];
 int		rc;
 
@@ -367,8 +367,8 @@ int		rc;
 		sprintf( buf, "SLRP %ld", msgid );
 	}
 
-	CxClSend( buf );
-	rc = CxClRecv( buf );
+	CxClSend( id, buf );
+	rc = CxClRecv( id, buf );
 
 	if( rc == RC_OK ) {
 		DPF((DFA, "Done."));

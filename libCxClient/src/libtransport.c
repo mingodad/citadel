@@ -40,7 +40,338 @@ static CXCBHNDL	_CbHandles = 0;
 static char	g_CxClientName[32] = "";
 static int	_CxCallback(int cmd, void *data);
 static void	timeout() {}
+static void	_CxClSend( int, const char * );
+static int	_CxClRecv( int, int*, char * );
 
+/**
+ ** CXTBL: Connection handle table.  Use this to make libCxClient thread-safe, and allow
+ ** us to maintain multiple concurrent connections.
+ **/
+typedef struct	_cx_tbl_entry {
+
+	int	cxId;		/* cxId: Connection ID */
+
+	char	host[255],	/* host: Citadel/UX hostname */
+		user[64],	/* user: Citadel/UX username */
+		pass[64];	/* pass: Citadel/UX password */
+	int	port,		/* port: Port number to connect to */
+		connected,	/* connected: (bool) Are we connected to our Citadel/UX host? */
+		asynMode,	/* asynMode: (bool) Are we actively in ASYN mode? */
+		semaphore;	/* semaphore: (bool) Prevent access to _sock at this time? */
+
+	/**
+	 ** Internal
+	 **/
+	int	_sock;		/* _sock: TCP/IP connection socket */
+
+	struct _cx_tbl_entry
+		*_next,		/* _next: Next CXTBL entry. */
+		*_prev;		/* _prev: Previous CXTBL entry. */
+
+}		CXTBLENT;
+typedef CXTBLENT* CXHNDL;
+
+/**
+ ** [GLOBAL CXTABLE] There should only exist one of these in memory at any
+ ** point in time, to ensure threadsafeness.
+ **/
+static CXHNDL		g_CxTbl = 0L;
+
+/**
+ ** _CxTbNewID(): Get the next cxId for the specified connection table.
+ **/
+static
+int		_CxTbNewID( CXHNDL tbl ) {
+CXHNDL		p;
+int		ret;
+
+	p = tbl;
+	ret = 1;
+	while( p ) {
+		if(p->cxId == ret) ret = (p->cxId)+1;
+		p = p->_next;
+	}
+
+	DPF((DFA, "Next cxId: %d", ret));
+	return(ret);
+}
+
+/**
+ ** _CxTbNew(): New CXTBL entry.
+ **/
+static
+CXHNDL		_CxTbNew( CXHNDL tbl ) {
+CXHNDL		ret = 0;
+
+	DPF((DFA, "Creating new CXTBL handle."));
+
+	ret = (CXHNDL) malloc( sizeof(CXTBLENT) );
+	if(ret<=0) return(NULL);
+
+	/**
+	 ** Initialize these pointers to prevent confusion.
+	 **/
+	ret->_next = NULL;
+	ret->_prev = NULL;
+
+	/**
+	 ** Establish Default values
+	 **/
+	ret->port = 504;
+	ret->connected = 0;
+	ret->asynMode = 0;
+	ret->semaphore = 0;
+	ret->_sock = 0;
+	ret->host[0] = 0;
+	ret->user[0] = 0;
+	ret->pass[0] = 0;
+
+	/**
+	 ** Obtain the next cxId for this particular table.
+	 **/
+	ret->cxId = _CxTbNewID( tbl );
+
+	DPF((DFA, "Returning hndl @0x%08x", ret ));
+	return(ret);
+}
+
+/**
+ ** _CxTbEntry(): Return a handle to a particular table entry.
+ **/
+static
+CXHNDL		_CxTbEntry( CXHNDL tbl, int id ) {
+CXHNDL		p;
+
+	DPF((DFA,"Resolve [tbl@0x%08x] id %d", tbl, id ));
+	p = tbl;
+	while( p ) {
+		DPF((DFA,"p->cxId: %d", p->cxId));
+		if( id == p->cxId ) {
+			DPF((DFA," ->host: %s:%d", p->host, p->port));
+			DPF((DFA," ->user: %s", p->user));
+			DPF((DFA," ->pass: %s", p->pass));
+			DPF((DFA," ->_sock: %d", p->_sock));
+			return(p);
+		}
+		p = p->_next;
+	}
+	return((CXHNDL)NULL);
+}
+
+/**
+ ** _CxTbInsert(): Insert a new CxTbl entry into the table.  Return a handle
+ ** id for the new entry.  (Parameters here can be set at a later time.)
+ **/
+static
+int		_CxTbInsert( const char *host, int port, const char *user, const char *pass ) {
+CXHNDL		p,n;
+char		*tmp;
+
+	DPF((DFA,"Insert new table entry."));
+
+	DPF((DFA,"Allocating new CXTBL block."));
+	n = _CxTbNew( g_CxTbl );
+
+	DPF((DFA,"Copying host"));
+	if(host && *host) {
+		if(strlen(host) >= 254) {
+			tmp = strdup(host);
+			tmp[254] = 0;
+			strcpy(n->host, tmp);
+			free(tmp);
+		} else {
+			strcpy(n->host, host);
+		}
+	}
+
+	DPF((DFA,"Copying user"));
+	if(user && *user) {
+		if(strlen(user) >= 64) {
+			tmp = strdup(user);
+			tmp[64] = 0;
+			strcpy(n->user, tmp);
+			free(tmp);
+		} else {
+			strcpy(n->user, user);
+		}
+	}
+
+	DPF((DFA,"Copying pass"));
+	if(pass && *pass) {
+		if(strlen(pass) >= 64) {
+			tmp = strdup(pass);
+			tmp[64] = 0;
+			strcpy(n->pass, tmp);
+			free(tmp);
+		} else {
+			strcpy(n->pass, pass);
+		}
+	}
+
+	DPF((DFA,"Copying port"));
+	if(port) n->port = port;
+
+	DPF((DFA,"Binding to g_CxTbl"));
+	if(!g_CxTbl) {
+		DPF((DFA,"new g_CxTbl"));
+		g_CxTbl = n;
+		DPF((DFA,"New table @0x%08x", g_CxTbl ));
+		return(n->cxId);
+
+	} else {
+		DPF((DFA,"existing g_CxTbl"));
+		p = g_CxTbl;
+		while( p && p->_next ) {
+			p = p->_next;
+		}
+		if( p ) {
+			p->_next = n;
+			n->_prev = p;
+		}
+	}
+
+	return(n->cxId);
+}
+
+/**
+ ** _CxTbDelete(): Delete the specified id.
+ **/
+static
+void		_CxTbDelete( int id ) {
+CXHNDL		p;
+
+	if(!g_CxTbl || !id ) return;
+
+	DPF((DFA,"Delete id %d", id));
+	p = g_CxTbl;
+	while( p ) {
+		if( p->cxId == id ) break;
+		p = p->_next;
+	}
+
+	DPF((DFA,"p @0x%08x", p));
+
+	if( p ) {
+
+		DPF((DFA,"p->_next @0x%08x", p->_next));
+		DPF((DFA,"p->_prev @0x%08x", p->_prev));
+
+		/**
+		 ** This was the only entry in the CxTbl.
+		 **/
+		if( !p->_next && !p->_prev ) {
+			free(p);
+			g_CxTbl = NULL;
+
+		/**
+		 ** Gymnastics time...
+		 **/
+		} else {
+			if( p->_next ) p->_next->_prev = p->_prev;
+			if( p->_prev ) p->_prev->_next = p->_next;
+
+			if( g_CxTbl == p ) g_CxTbl = p->_next;
+
+			free( p );
+		}
+	}
+	DPF((DFA,"g_CxTbl @0x%08x", g_CxTbl));
+}
+
+/**
+ ** CxClConnection(): Obtain a Connection handle for a new host/username/password.  This _must_ be
+ ** performed before any other CxCl functions can be called.
+ **/
+int		CxClConnection( const char *host, int port, const char *user, const char *pass ) {
+
+	DPF((DFA,"New connection hndl %s:%s@%s:%d", user, "**", host, port));
+	return(_CxTbInsert( host, port, user, pass ) );
+}
+
+/**
+ ** CxClDelete(): Delete the specified connection handle.
+ **/
+void		CxClDelete( int id ) {
+
+	DPF((DFA,"Delete hndl %d", id ));
+	_CxTbDelete( id );
+}
+
+
+/**
+ ** CxClSetHost(): Set the username for a specific connection handle.
+ **/
+void		CxClSetHost( int id, const char *host ) {
+CXHNDL		e;
+
+	if(!host || !*host) return;
+
+	e = _CxTbEntry( g_CxTbl, id );
+	if(!e) return;
+
+	DPF((DFA,"Set tbl[%d].host = '%s'", id, host ));
+	memset( &(e->host), 0, 253 );
+	strcpy( e->host, host );
+}
+
+/**
+ ** CxClSetUser(): Set the username for a specific connection handle.
+ **/
+void		CxClSetUser( int id, const char *user ) {
+CXHNDL		e;
+
+	if(!user || !*user) return;
+
+	e = _CxTbEntry( g_CxTbl, id );
+	if(!e) return;
+
+	DPF((DFA,"Set tbl[%d].user = '%s'", id, user ));
+	strcpy( e->user, user );
+}
+
+/**
+ ** CxClGetUser(): Set the username for a specific connection handle.
+ **/
+char		*CxClGetUser( int id ) {
+CXHNDL		e;
+
+	e = _CxTbEntry( g_CxTbl, id );
+	if(!e) return(NULL);
+
+	if(e->user) return(strdup(e->user));
+	else return(NULL);
+}
+
+/**
+ ** CxClSetPass(): Set the username for a specific connection handle.
+ **/
+void		CxClSetPass( int id, const char *pass ) {
+CXHNDL		e;
+
+	if(!pass || !*pass) return;
+
+	e = _CxTbEntry( g_CxTbl, id );
+	if(!e) return;
+
+	DPF((DFA,"Set tbl[%d].pass = '%s'", id, pass ));
+	strcpy( e->pass, pass );
+}
+
+/**
+ ** CxClGetPass(): Set the username for a specific connection handle.
+ **/
+char		*CxClGetPass( int id ) {
+CXHNDL		e;
+
+	e = _CxTbEntry( g_CxTbl, id );
+	if(!e) return(NULL);
+
+	if(e->user) return(strdup(e->pass));
+	else return(NULL);
+}
+
+/**
+ ** CxClSetPass(): Set the username for a specific connection handle.
 /**
  ** CxClRegClient(): (For Developers) Register your client name with
  ** libCxClient.  This gets reported along with the IDEN information passed
@@ -67,8 +398,13 @@ void		CxClRegClient(const char *cl_name) {
 /**
  ** CxClConnect(): Establish a connection to the server via the Transport layer.
  ** [Much of this code was gleaned from the "citadel" client]
+ **
+ ** [Returns]
+ **  On Success: 0
+ **  On Failure: -1: Mis-configuration
+ **              -[errno]: use abs(errno) to retrieve error message.
  **/
-int		CxClConnect(const char *host) {
+int		CxClConnect( int id ) {
 char		buf[512];
 struct 
 hostent 	*phe;
@@ -81,13 +417,27 @@ sockaddr_in 	sin;
 int 		s, type, rc;
 char		*service = "citadel";
 char		*protocol = "tcp";
+CXHNDL		e;
 
 	DPF((DFA,"(Library was built with UNIX_SOCKET support)"));
-	DPF((DFA,"Establishing connection to host \"%s\"",host));
+
+	e = _CxTbEntry( g_CxTbl, id );
+
+	if(!e) {
+		DPF((DFA,"Did not call CxConnection(), huh?"));
+		return(-1);
+	}
+
+	if(!e->host[0]) {
+		DPF((DFA,"No hostname provided.  Use CxClSetHost() first!!"));
+		return(-1);
+	}
+	DPF((DFA,"Establishing connection to host \"%s\"",e->host));
 
         memset(&sin, 0, sizeof(sin));
         sin.sin_family = AF_INET;
 
+	DPF((DFA,"-> getservbyname()"));
         pse = getservbyname(service, protocol);
         if(pse) {
                 sin.sin_port = pse->s_port;
@@ -95,19 +445,21 @@ char		*protocol = "tcp";
         } else {
 		sin.sin_port = htons((u_short)504);
 	}
-        phe = gethostbyname(host);
+
+	DPF((DFA,"-> gethostbyname(): \"%s\"", e->host));
+        phe = gethostbyname(e->host);
+	DPF((DFA,"phe@0x%08x", phe));
         if (phe) {
                 memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
 
-        } else if ((sin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE) {
-		printf("\n* * *  Fatal Error  * * *\n");
-		printf("System Error: Can't get host entry for '%s'\n", host);
-		printf("Error Details: %s\n\n", strerror(errno));
-                return(-1);
+        } else if ((sin.sin_addr.s_addr = inet_addr(e->host)) == INADDR_NONE) {
+		DPF((DFA,"Unable to get host entry.  %s", strerror(errno)));
+                return(-1*(errno));
         }
+
+	DPF((DFA,"-> getprotobyname()"));
         if ((ppe = getprotobyname(protocol)) == 0) {
-                fprintf(stderr, "Can't get %s protocol entry: %s\n",
-                        protocol, strerror(errno));
+		DPF((DFA,"Unable to get protocol entry.  %s", strerror(errno)));
                 return(-1);
         }
         if (!strcmp(protocol, "udp")) {
@@ -118,44 +470,51 @@ char		*protocol = "tcp";
 
         s = socket(PF_INET, type, ppe->p_proto);
         if (s < 0) {
-		printf("\n* * *  Fatal Error  * * *\n");
-		printf("System Error: Can't create socket\n");
-		printf("Error Details: %s\n\n", strerror(errno));
+		DPF((DFA,"Unable to create socket.  %s", strerror(errno)));
                 return(-1);
         }
         signal(SIGALRM, timeout);
         alarm(30);
-         if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-		printf("\n* * *  Fatal Error  * * *\n");
-		printf("System Error: Can't connect to '%s' [%s]\n",host, service);
-		printf("Error Details: %s\n\n", strerror(errno));
-                return(-1);
+
+	DPF((DFA,"-> connect()"));
+        if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
+/**		printf("\n* * *  Fatal Error  * * *\n");
+		printf("System Error: Can't connect to '%s' [%s]\n",e->host, service);
+		printf("Error Details: %s\n\n", strerror(errno)); 
+ **/
+                return(errno*(-1));
         }
         alarm(0);
         signal(SIGALRM, SIG_IGN);
 
-	g_CxSocket = s;
+	DPF((DFA,"Socket %d", s));
+	e->_sock = s;
+	e->connected = 1;
 
-	if(s) {
-		CxClRecv(buf);
+	if( s ) {
+
+		DPF((DFA,"-> recv"));
+		_CxClRecv( e->_sock, &(e->semaphore), buf );
 		if(g_CxClientName[0]) {
 			sprintf(buf,"IDEN 1|1|100|CX/%s (%s)|",VERSION, g_CxClientName);
 		} else {
 			sprintf(buf,"IDEN 1|1|100|CX/%s (unknown)|",VERSION);
 		}
-		CxClSend(buf);
-		CxClRecv(buf);
-		CxClSend("ASYN 1");
-		rc = CxClRecv(buf);
+		_CxClSend(s, buf);
+		_CxClRecv(e->_sock, &(e->semaphore), buf);
+		_CxClSend(s, "ASYN 1");
+		rc = _CxClRecv(e->_sock, &(e->semaphore), buf);
 
 		/**
 		 ** If the server doesn't support Asnychronous mode, then
 		 ** we shouldn't try to be asynchronous...
 		 **/
 		if(CHECKRC(rc, RC_OK)) {
-			g_CxAsynMode = 1;
+			e->asynMode = 1;
+//			g_CxAsynMode = 1;
 		} else {
-			g_CxAsynMode = 0;
+			e->asynMode = 0;
+//			g_CxAsynMode = 0;
 		}
 
 		/**
@@ -167,21 +526,34 @@ char		*protocol = "tcp";
 }
 
 /**
- ** CxClDisconnect(): Disconnect the socket.
+ ** CxClDisconnect(): Disconnect the specified socket.
  **/
-void		CxClDisconnect() {
+void		CxClDisconnect( int id ) {
+CXHNDL		e;
 
-	DPF((DFA,"Caught orders to close socket."));
+	DPF((DFA,"Caught orders to close socket %d.", id));
 
-	shutdown(g_CxSocket, 0);
+	e = _CxTbEntry( g_CxTbl, id );
+	if(!e) return;
+
+	/**
+	 ** Sleep until the semaphore is cleared.
+	 **/
+	while(e->semaphore) ;
+
+	shutdown(e->_sock, 0);
 }
 
 /**
  ** CxClStat(): Return connection status.
  **/
-int		CxClStat() {
+int		CxClStat( int id ) {
+CXHNDL		e;
 
-	if(g_CxSocket) {
+	e = _CxTbEntry( g_CxTbl, id );
+	if(!e) return(0);
+
+	if( e->connected ) {
 		return(1);
 	} else {
 		return(0);
@@ -189,19 +561,20 @@ int		CxClStat() {
 }
 
 /**
- ** CxClSend(): Send a string to the server.
+ ** _CxClSend(): REAL send.  Uses a socket instead of the ID.
  **/
-void		CxClSend(const char *s) {
+static
+void		_CxClSend( int sock, const char *s ) {
 int 		bytes_written = 0;
 int 		retval,nbytes;
 char		*ss;
 
 	/**
-	 ** Don't try to do anything if we are not connected.
+	 ** If the socket is not open, there's no point in going here.
 	 **/
-	if(!CxClStat()) return;
+	if(!sock) return;
 
-	DPF((DFA,"SEND: \"%s\"", s));
+	DPF((DFA,"REALSEND: \"%s\"", s));
 
 	ss = (char *)CxMalloc(strlen(s)+2);
 	sprintf(ss,"%s\n",s);
@@ -212,16 +585,30 @@ char		*ss;
 		return;
 	}
 
-        while (bytes_written < nbytes) {
-                retval = write(g_CxSocket, &ss[bytes_written],
-                               nbytes - bytes_written);
-                if (retval < 1) {
-			write (g_CxSocket, "\n", strlen("\n"));
-                        return;
-                }
-                bytes_written = bytes_written + retval;
-        }
+	while (bytes_written < nbytes) {
+		retval = write(sock, &ss[bytes_written],
+				nbytes - bytes_written);
+		if (retval < 1) {
+			write (sock, "\n", strlen("\n"));
+			return;
+		}
+		bytes_written = bytes_written + retval;
+	}
 	CxFree(ss);
+}
+
+/**
+ ** CxClSend(): Send a string to the server.
+ **/
+void		CxClSend(int id, const char *s) {
+CXHNDL		e;
+
+	e = _CxTbEntry( g_CxTbl, id );
+	if(!e) return;
+	if(!e->connected) return;
+
+	DPF((DFA,"SEND: \"%s\"", s));
+	_CxClSend( e->_sock, s );
 }
 
 /**
@@ -229,12 +616,12 @@ char		*ss;
  ** *********** SOURCE: citadel-source/citmail.c:serv_read()
  **/
 static
-void		ClRecvChar(char *buf, int bytes) {
+void		ClRecvChar(int socket, char *buf, int bytes) {
 int 		len, rlen;
 
         len = 0;
         while (len < bytes) {
-                rlen = read(g_CxSocket, &buf[len], bytes - len);
+                rlen = read(socket, &buf[len], bytes - len);
                 if (rlen < 1) {
                         return;
                 }
@@ -246,56 +633,55 @@ int 		len, rlen;
  ** _CxClWait(): Wait on the semaphore.
  **/
 static
-void		_CxClWait() {
+void		_CxClWait( int *e ) {
 
 	DPF((DFA,"Waiting on Semaphore..."));
-	while(g_CxSemaphore) ;
+	while(*e) ;
 
 	DPF((DFA,"*** LOCKING SESSION ***"));
-	g_CxSemaphore = 1;
+	(*e) = 1;
 }
 
 /**
  ** _CxClClear(): Clear the semaphore.
  **/
 static
-void		_CxClClear() {
+void		_CxClClear( int *e ) {
 
 	DPF((DFA,"*** CLEARING SESSION ***"));
-	g_CxSemaphore = 0;
+	(*e) = 0;
 }
 
 /**
- ** CxClRecv(): Receive a string from the server.
+ ** _CxClRecv(): REAL receive.
  **/
-int		CxClRecv(char *s) {
+static
+int		_CxClRecv( int sock, int *semaphore, char *s ) {
 char		substr[4];
 int		i, tmp;
 
 	/**
-	 ** If we are not connected, do nothing.
+	 ** If the socket is not open, there's no point in going here.
 	 **/
-	if(!CxClStat()) return(NULL);
-
-	/**
-	 ** At this point, we should wait for the semaphore to be cleared.
-	 ** This will prevent multi-threaded clients from pissing all over
-	 ** themselves when 2 threads attempt to read at the same time...
-	 **/
-	_CxClWait();
+	DPF((DFA,"Receive on %d", sock));
+	if(!sock) {
+		DPF((DFA,"No socket."));
+		return(0);
+	}
 
 	/**
 	 ** RETRY_RECV when we have a callback and need to re-synch the protocol.
 	 **/
 RETRY_RECV:
 
+	_CxClWait( semaphore );
 	DPF((DFA,"for(;message <= bottle;) ;"));
  
 	/**
 	 ** Read one character at a time.
          **/
 	for(i = 0; ; i++) {
-		ClRecvChar(&s[i], 1);
+		ClRecvChar(sock, &s[i], 1);
 		if (s[i] == '\n' || i == 255)
 			break;
 	}
@@ -305,8 +691,9 @@ RETRY_RECV:
 	 **/
 	if (i == 255)
 		while (s[i] != '\n')
-			ClRecvChar(&s[i], 1);
- 
+			ClRecvChar(sock, &s[i], 1);
+
+	_CxClClear( semaphore );
 
 	/**
 	 ** Strip all trailing nonprintables (crlf)
@@ -356,12 +743,6 @@ RETRY_RECV:
 	}
 
 	/**
-	 ** We wish to clear the semaphore BEFORE executing any callbacks.
-	 ** This will help to prevent nasty race conditions.  >:)
-	 **/
-	_CxClClear();
-
-	/**
 	 ** This is the only instance of Goto you'll find in
 	 ** libCxClient.  The point is: Once we're done handling
 	 ** an asynchronous message, we need to go back & handle
@@ -407,6 +788,29 @@ RETRY_RECV:
 	DPF((DFA,"Preparing to return rc: %d", i));
 
 	return(i);
+}
+
+/**
+ ** CxClRecv(): Receive a string from the server.
+ **/
+int		CxClRecv(int id, char *s) {
+char		substr[4];
+int		i, tmp;
+CXHNDL		e;
+
+	DPF((DFA,"Receive on handle %d", id));
+	e = _CxTbEntry( g_CxTbl, id );
+	if(!e) {
+		DPF((DFA,"Handle %d unresolvable", id));
+		return(0);
+	}
+	if(!e->connected) {
+		DPF((DFA,"Handle %d not connected", id));
+		return(0);
+	}
+
+	DPF((DFA,"Preparing to receive on %d", e->_sock));
+	return(_CxClRecv( e->_sock, &(e->semaphore), s ));
 }
 
 /**
@@ -568,7 +972,8 @@ CXCBHNDL	new;
 void		CxClCbShutdown() {
 CXCBHNDL	x, y;
 
-	return(0);
+	return;
+
 	DPF((DFA,"Shutting down callback subsystem"));
 	x = _CbHandles;
 	while( x ) {

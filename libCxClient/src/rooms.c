@@ -31,7 +31,7 @@
  **  On Success: The room's full information structure [*]
  **  On Failure: NULL
  **/
-ROOMINFO	*CxRmGoto(const char *room, int operation) {
+ROOMINFO	*CxRmGoto(int id, const char *room, int operation) {
 ROOMINFO	*room_info;
 char		*xmit, buf[255], *g_Ser[20];
 int		rc, i;
@@ -39,10 +39,10 @@ int		rc, i;
 	if((room && *room) && !operation) {
 		xmit = (char *)CxMalloc(strlen(room)+6);
 		sprintf(xmit, "GOTO %s", room);
-		CxClSend(xmit);
+		CxClSend(id, xmit);
 		CxFree(xmit);
 
-		rc = CxClRecv(buf);
+		rc = CxClRecv(id, buf);
 
 		/**
 		 ** If we successfully went to this room, return the
@@ -82,18 +82,18 @@ int		rc, i;
 		/**
 		 ** Set last-read pointer for this room.
 		 **/
-		CxClSend("SLRP highest");
-		CxClRecv(buf);
+		CxClSend(id, "SLRP highest");
+		CxClRecv(id, buf);
 
 		/**
 		 ** Retrieve a list of all rooms w/ new messages.
 		 **/
-		CxClSend("LKRN");
-		rc = CxClRecv(buf);
+		CxClSend(id, "LKRN");
+		rc = CxClRecv(id, buf);
 		i = (int) xmit = 0;
 		if(CHECKRC(rc, RC_LISTING)) {
 			do {
-				rc = CxClRecv(buf);
+				rc = CxClRecv(id, buf);
 				if(rc) {
 					if(!i) {
 						xmit = (char *)CxMalloc(strlen(buf)+6);
@@ -104,10 +104,10 @@ int		rc, i;
 			} while(rc<0);
 
 			if(xmit) {
-				CxClSend(xmit);
+				CxClSend(id, xmit);
 				CxFree(xmit);
 
-				rc = CxClRecv(buf);
+				rc = CxClRecv(id, buf);
 				if(CHECKRC(rc, RC_OK)) {
 					CxSerialize(buf, &g_Ser);
 		 
@@ -157,7 +157,7 @@ int		rc, i;
  **		 3: room exists.
  **		 4: not here/not allowed.
  **/
-int		CxRmCreate(ROOMINFO rm) {
+int		CxRmCreate(int id, ROOMINFO rm) {
 char		buf[512];
 int		rc;
 
@@ -188,8 +188,8 @@ int		rc;
 	}
 
 	sprintf(buf, "CRE8 1|%s|%d||%d", rm.name, rm.mode, rm.floor_id );
-	CxClSend(buf);
-	rc = CxClRecv(buf);
+	CxClSend(id, buf);
+	rc = CxClRecv(id, buf);
 	if( CHECKRC(rc, RC_OK)) {
 		DPF((DFA,"Success!"));
 		return(0);
@@ -204,21 +204,21 @@ int		rc;
  ** as a Character array.  THE CALLER IS RESPONSIBLE FOR DEALLOCATING THIS
  ** MEMORY!!
  **/
-CXLIST		CxRmList() {
+CXLIST		CxRmList(int id) {
 int		rc;
 char		buf[255];
 CXLIST		rooms = NULL;
 
 	DPF((DFA,"Retrieving list of rooms from the server."));
 
-	CxClSend("LKRA");
-	rc = CxClRecv( buf );
+	CxClSend(id, "LKRA");
+	rc = CxClRecv( id, buf );
 	DPF((DFA,"%s [%d]",buf,rc));
 
 	if( CHECKRC(rc, RC_LISTING)) {
 
 		do {
-			rc = CxClRecv( buf );
+			rc = CxClRecv( id, buf );
 			DPF((DFA,"%s [%d]",buf,rc));
 
 			if(rc) {
@@ -235,21 +235,21 @@ CXLIST		rooms = NULL;
 /**
  ** CxFlList(): Retrieve a list of floors.
  **/
-CXLIST		CxFlList() {
+CXLIST		CxFlList(int id) {
 int		rc;
 char		buf[255];
 CXLIST		floors = NULL;
 
 	DPF((DFA,"Retrieving list of floors from the server."));
 
-	CxClSend("LFLR");
-	rc = CxClRecv( buf );
+	CxClSend(id, "LFLR");
+	rc = CxClRecv( id, buf );
 	DPF((DFA,"%s [%d]",buf,rc));
 
 	if( CHECKRC(rc, RC_LISTING)) {
 
 		do {
-			rc = CxClRecv( buf );
+			rc = CxClRecv( id, buf );
 			DPF((DFA,"%s [%d]",buf,rc));
 
 			if(rc) {

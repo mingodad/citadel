@@ -70,17 +70,17 @@ int             i;
  **  Success: 0
  **  Failure; Unknown Error: 1
  **/
-int		CxMiExpSend(const char *user, const char *msg) {
+int		CxMiExpSend(int id, const char *user, const char *msg) {
 char		*xmit, buf[255];
 int		rc;
 
 	DPF((DFA,"Send Express Message"));
 	xmit = (char *)CxMalloc(strlen(user)+strlen(msg) + 7);
 	sprintf(xmit,"SEXP %s|%s",user, msg);
-	CxClSend(xmit);
+	CxClSend(id, xmit);
 	CxFree(xmit);
 
-	rc = CxClRecv(buf);
+	rc = CxClRecv(id, buf);
 	if( CHECKRC(rc, RC_OK) ) {
 		return(0);
 
@@ -97,7 +97,7 @@ int		rc;
  **  Success: Ptr to malloc()ed EXPRMESG struct.  [*]
  **  Failure: NULL
  **/
-EXPRMESG	*CxMiExpRecv() {
+EXPRMESG	*CxMiExpRecv( int id ) {
 char		buf[255], *Ser[20];
 EXPRMESG	*toret;
 int		rc;
@@ -106,8 +106,8 @@ int		rc;
 	 ** Ask the server for the latest Express Message [GEXP].
 	 **/
 	DPF((DFA,"Receive Express Message"));
-	CxClSend("GEXP");
-	rc = CxClRecv(buf);
+	CxClSend(id, "GEXP");
+	rc = CxClRecv(id, buf);
 	DPF((DFA,"buf=%s\n",buf));
 	toret = 0L;
 
@@ -130,7 +130,7 @@ int		rc;
 		strcpy( toret->node, Ser[4] );
 		toret->message = 0L;
 		do {
-			if((rc = CxClRecv(buf))) {
+			if((rc = CxClRecv(id, buf))) {
 				DPF((DFA, "%s", buf));
 				toret->message = (char *) realloc(toret, strlen(toret->message)+strlen(buf)+1);
 				strcat(toret->message, buf);
@@ -141,7 +141,7 @@ int		rc;
 		strcpy(toret,buf);
 		strcat(toret,"|");
 		do {
-			if((rc = CxClRecv(buf))) {
+			if((rc = CxClRecv(id, buf))) {
 				DPF((DFA,"%s",buf));
 				toret = (char *) realloc(toret, strlen(toret)+strlen(buf)+1);
 				strcat(toret,buf);
@@ -161,14 +161,14 @@ int		rc;
  **  Message Waiting: 1
  **  No Messages: 0
  **/
-int		CxMiExpCheck() {
+int		CxMiExpCheck( int id ) {
 int		rc;
 char		buf[255];
 
 	DPF((DFA,"Sending NOOP"));
-	CxClSend("NOOP");
+	CxClSend(id, "NOOP");
 	DPF((DFA,"Checking response"));
-	rc = CxClRecv(buf);
+	rc = CxClRecv(id, buf);
 
 	/**
 	 ** CxClRecv() tacks on a RC_MESGWAIT flag to the result
@@ -192,14 +192,14 @@ char		buf[255];
  ** [Not Intended For External Use]
  **/
 static
-void		_CxMiExpHook(const void* data) {
+void		_CxMiExpHook(int id, const void* data) {
 char		buf[512], *user_buf, *data_buf;
 int		rc;
 
 	DPF((DFA, "Received RC_901 message"));
 	DPF((DFA, "Raw data: %s\n", (char *)data));
 
-	rc = CxClRecv(buf);
+	rc = CxClRecv(id, buf);
 	user_buf = (char *)CxMalloc(strlen(buf)+1);
 	strcpy(user_buf, buf);
 
@@ -211,7 +211,7 @@ int		rc;
 	 **/
 	if(CHECKRC(rc, RC_LISTING)) {
 		do {
-			rc = CxClRecv(buf);
+			rc = CxClRecv( id, buf);
 			if(rc<0) {
 				realloc(data_buf, strlen(data_buf)+strlen(buf));
 				strcat(data_buf, buf);
@@ -273,18 +273,18 @@ void		CxMiExpHook(void (*func)(const char*, const char *)) {
  **  Success: Ptr to malloc()ed file data.  [*]
  **  Failure; File not found: NULL
  **/
-char		*CxMiMessage(const char *file) {
+char		*CxMiMessage(int id, const char *file) {
 char		buf[255], *toret;
 int		rc;
 
 	if((file!=NULL) && file[0]) {
 		DPF((DFA,"Requesting %s from server.",file));
 		sprintf(buf,"MESG %s", file);
-		CxClSend(buf);
-		rc = CxClRecv(buf);
+		CxClSend(id, buf);
+		rc = CxClRecv(id, buf);
 		if(CHECKRC(rc, RC_LISTING)) {
 			DPF((DFA,"Retrieving line from file..."));
-			rc = CxClRecv(buf);
+			rc = CxClRecv(id, buf);
 			if(rc < 0) {
 				toret = (char *)CxMalloc(strlen(buf)+1);
 				strcpy(toret, buf);
@@ -299,7 +299,7 @@ int		rc;
 	} else {
 
 		DPF((DFA,"Retrieving line from file..."));
-		rc = CxClRecv(buf);
+		rc = CxClRecv( id, buf);
 		if(rc < 0) {
 			toret = (char *)CxMalloc(strlen(buf)+1);
 			strcpy(toret,buf);
@@ -328,7 +328,7 @@ int		rc;
  **  Success: Ptr to malloc()ed image data.  [*]
  **  Failure; File not found: NULL
  **/
-char		*CxMiImage(const char *img) {
+char		*CxMiImage(int id, const char *img) {
 
 	/**
 	 ** Hmm.. Not sure how similar this is to MESG...

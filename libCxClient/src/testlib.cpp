@@ -37,10 +37,13 @@ int		hndl;
 	printf("Registering callbacks\n");
 	CxMiExpHook(chathook);
 
-	if(!(hndl = CxClConnection( argv[1], 504, argv[2], argv[3] ))) {
+	if(!(hndl = CxClConnection( NULL, 504, NULL, NULL ))) {
 		printf("Failed creating connection handle.  Dying.\n");
 		exit(-1);
 	}
+	CxClSetHost( hndl, argv[1] );
+	CxClSetUser( hndl, argv[2] );
+	CxClSetPass( hndl, argv[3] );
 
 	// I suggest 'tesseract.citadel.org'
 	printf("Connecting to '%s'...\n",argv[1]);
@@ -48,11 +51,11 @@ int		hndl;
 
 		printf("Logging in\n");
 		if(user_info = CxUsAuth(hndl, NULL, NULL)) {
-			CxFree(user_info);
+			free(user_info);
 			user_info = 0;
 
 			room_info = CxRmGoto(hndl, "_BASEROOM_",0);
-			CxFree(room_info);
+			free(room_info);
 			room_info = 0;
 
 			fl = CxLlFlush(fl);

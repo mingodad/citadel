@@ -203,24 +203,32 @@ void		CxSerialize(const char *, char **);
  ** Client/Server Communications
  **/
 void		CxClRegClient(const char *);
-int		CxClConnect(const char *);
-void		CxClDisconnect();
-int		CxClStat();
-void		CxClSend(const char *s);
-int		CxClRecv(char *s);
+int		CxClConnection( const char *, int, const char *, const char * );
+void		CxClSetHost( int, const char *);
+void		CxClSetUser( int, const char *);
+char		*CxClGetUser( int );
+void		CxClSetPass( int, const char *);
+char		*CxClGetPass( int );
+void		CxClDelete( int );
+int		CxClConnect( int );
+void		CxClDisconnect( int );
+int		CxClStat( int );
+void		CxClSend( int, const char *s );
+int		CxClRecv( int, char *s );
+
 int		CxClChatInit();
 void		CxClChatShutdown();
 int		CxClCbRegister(int, void *);
 void		CxClCbShutdown();
-void		CxClCbRemove(int);
-CXCBHNDL	CxClCbExists(int);
+void		CxClCbRemove( int);
+CXCBHNDL	CxClCbExists( int);
 
 /**
  ** File Input/Output
  **/
-CXLIST		CxFiIndex();
-int		CxFiPut(FILEINFO, int);
-char		*CxFiGet(const char *);
+CXLIST		CxFiIndex( int );
+int		CxFiPut( int, FILEINFO, int);
+char		*CxFiGet(int, const char *);
 
 /**
  ** Message Input/Output
@@ -229,30 +237,30 @@ char		*CxFiGet(const char *);
 #define		MSGS_NEW		1	// Retrieve only UNREAD messages in room.
 #define		MSGS_LAST		2	// *Unsupported* Retrieve the LAST X messages in room.
 #define		MSGS_SEARCH		3	// *Unsupported* Search room for ...? .
-CXLIST		CxMsInfo(CXLIST);
-CXLIST		CxMsList(int,int);
-int		CxMsLoad(const char *, int, MESGINFO *);
-int		CxMsSaveOk(const char *);
-int		CxMsSave(MESGINFO);
-void		CxMsMark( long unsigned int );
+CXLIST		CxMsInfo(int, CXLIST);
+CXLIST		CxMsList(int, int,int);
+int		CxMsLoad(int, const char *, int, MESGINFO *);
+int		CxMsSaveOk(int, const char *);
+int		CxMsSave(int, MESGINFO);
+void		CxMsMark(int, long unsigned int );
 
 /**
  ** Room/Floor Commands
  **/
-ROOMINFO	*CxRmGoto(const char *, int);
-CXLIST		CxRmList();
-CXLIST		CxFlList();
-int		CxRmCreate(ROOMINFO);
+ROOMINFO	*CxRmGoto(int, const char *, int);
+CXLIST		CxRmList(int);
+CXLIST		CxFlList(int);
+int		CxRmCreate(int, ROOMINFO);
 
 /**
  ** Miscellaneous Commands
  **/
-int		CxMiExpSend(const char *, const char *);
-EXPRMESG	*CxMiExpRecv();
-int		CxMiExpCheck();
+int		CxMiExpSend(int,const char *, const char *);
+EXPRMESG	*CxMiExpRecv(int);
+int		CxMiExpCheck(int);
 void		CxMiExpHook(void (*)(const char *, const char*));
-char		*CxMiMessage(const char *);
-char		*CxMiImage(const char *);
+char		*CxMiMessage(int,const char *);
+char		*CxMiImage(int,const char *);
 
 /**
  ** Linked-List Handlers
@@ -264,10 +272,10 @@ CXLIST		CxLlFlush(CXLIST);
 /**
  ** User Info Commands
  **/
-CXLIST          CxUsOnline(int);
-CXLIST          CxUsList();
-int		CxUsCreate(USERINFO);
-USERINFO	*CxUsAuth(const char *, const char *);
+CXLIST          CxUsOnline(int, int);
+CXLIST          CxUsList(int );
+int		CxUsCreate(int, USERINFO);
+USERINFO	*CxUsAuth(int, const char *, const char *);
 
 #ifdef		__cplusplus
 } // extern "C"

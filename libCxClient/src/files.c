@@ -28,7 +28,7 @@ static void	(*_CxFiFunc)(const char *, void *);
  **  Success, No Files: 1 blank entry
  **  Failure: NULL list.
  **/
-CXLIST		CxFiIndex() {
+CXLIST		CxFiIndex( int id ) {
 int		rc;
 char		buf[512];
 CXLIST		flist = 0;
@@ -39,8 +39,8 @@ CXLIST		flist = 0;
 	 ** Request directory listing from server.
 	 **/
 	DPF((DFA,"Sending request..."));
-	CxClSend("RDIR");
-	rc = CxClRecv(buf);
+	CxClSend(id, "RDIR");
+	rc = CxClRecv(id, buf);
 
 	/**
 	 ** If this room allows directory listings...
@@ -49,7 +49,7 @@ CXLIST		flist = 0;
 		DPF((DFA,"LISTING_FOLLOWS..."));
 
 		do {
-			rc = CxClRecv(buf);
+			rc = CxClRecv(id, buf);
 			DPF((DFA,"%s", buf));
 			if(rc<0) {
 				flist = CxLlInsert(flist, buf);
@@ -82,7 +82,7 @@ CXLIST		flist = 0;
  **  Failure; File Exists: 3
  **  Failure; Nonexistent FILE pointer.
  **/
-int		CxFiPut(FILEINFO f_info, int f_ptr) {
+int		CxFiPut(int id, FILEINFO f_info, int f_ptr) {
 	return(0);
 }
 
@@ -96,7 +96,7 @@ int		CxFiPut(FILEINFO f_info, int f_ptr) {
  **  Success: Ptr to malloc()ed tmp filename containing file data.
  **  Failure: NULL
  **/
-char		*CxFiGet(const char *name) {
+char		*CxFiGet(int id, const char *name) {
 
 
 	/**
