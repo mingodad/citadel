@@ -1,4 +1,9 @@
 $Log$
+Revision 1.328  1999/07/24 22:14:21  ajc
+cmd_move() now uses CtdlDeleteMessages().
+WARNING: build is temporarily broken.  Currently removing all references
+to the "msglist" kept in CitContext.  It's ugly and must die.
+
 Revision 1.327  1999/07/24 21:32:01  ajc
 Test of automatically updating ChangeLog
 
@@ -1100,3 +1105,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import
+

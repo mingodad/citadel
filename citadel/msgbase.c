@@ -1536,7 +1536,6 @@ void cmd_move(char *args)
 {
 	long num;
 	char targ[32];
-	int a;
 	struct quickroom qtemp;
 	int foundit;
 
@@ -1554,33 +1553,19 @@ void cmd_move(char *args)
 		cprintf("%d '%s' does not exist.\n", ERROR, targ);
 		return;
 	}
+
 	/* yank the message out of the current room... */
-	lgetroom(&CC->quickroom, CC->quickroom.QRname);
-	get_msglist(&CC->quickroom);
+	foundit = CtdlDeleteMessages(CC->quickroom.QRname, num, NULL);
 
-	foundit = 0;
-	for (a = 0; a < (CC->num_msgs); ++a) {
-		if (MessageFromList(a) == num) {
-			foundit = 1;
-			SetMessageInList(a, 0L);
-		}
-	}
 	if (foundit) {
-		CC->num_msgs = sort_msglist(CC->msglist, CC->num_msgs);
-		put_msglist(&CC->quickroom);
-		CC->quickroom.QRhighest = MessageFromList((CC->num_msgs) - 1);
-	}
-	lputroom(&CC->quickroom);
-	if (!foundit) {
+		/* put the message into the target room */
+		lgetroom(&qtemp, targ);
+		qtemp.QRhighest = AddMessageToRoom(&qtemp, num);
+		lputroom(&qtemp);
+		cprintf("%d Message moved.\n", OK);
+	} else {
 		cprintf("%d msg %ld does not exist.\n", ERROR, num);
-		return;
 	}
-	/* put the message into the target room */
-	lgetroom(&qtemp, targ);
-	qtemp.QRhighest = AddMessageToRoom(&qtemp, num);
-	lputroom(&qtemp);
-
-	cprintf("%d Message moved.\n", OK);
 }
 
 
@@ -1732,7 +1717,10 @@ void CtdlWriteObject(	char *req_room,		/* Room to stuff it in */
 	/* If the caller specified this object as unique, delete all
 	 * other objects of this type that are currently in the room.
 	 */
-	CtdlDeleteMessages(roomname, 0L, content_type);
+	if (is_unique) {
+		lprintf(9, "Deleted %d other msgs of this type\n",
+			CtdlDeleteMessages(roomname, 0L, content_type) );
+	}
 
 	/* Now write the data */
 	save_message(filename, "", roomname, MES_LOCAL, 1);
