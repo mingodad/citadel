@@ -63,9 +63,9 @@ void imap_do_fetch(int lo, int hi, int num_items, char **itemlist) {
 	int i;
 	struct CtdlMessage *msg;
 
-	/*for (i=0; i<num_items; ++i) {
-		cprintf("* item[%d] = <%s>\r\n", i, itemlist[i]);
-	}*/
+	for (i=0; i<num_items; ++i) {
+		lprintf(9, "* item[%d] = <%s>\r\n", i, itemlist[i]);
+	}
 
 	for (i = lo; i <= hi; ++i) {
 		msg = CtdlFetchMessage(IMAP->msgids[i-1]);
@@ -79,6 +79,38 @@ void imap_do_fetch(int lo, int hi, int num_items, char **itemlist) {
 	}
 }
 
+
+
+/*
+ * Back end for imap_handle_macros()
+ * Note that this function *only* looks at the beginning of the string.  It
+ * is not a generic search-and-replace function.
+ */
+void imap_macro_replace(char *str, char *find, char *replace) {
+	char holdbuf[1024];
+
+	if (!strncasecmp(str, find, strlen(find))) {
+		if (str[strlen(find)]==' ') {
+			lprintf(9, "WAS: %s\n", str);
+			strcpy(holdbuf, &str[strlen(find)+1]);
+			strcpy(str, replace);
+			strcat(str, " ");
+			strcat(str, holdbuf);
+			lprintf(9, "NOW: %s\n", str);
+		}
+	}
+}
+
+
+
+/*
+ * Handle macros embedded in FETCH data items.
+ * (What the heck are macros doing in a wire protocol?  Are we trying to save
+ * the computer at the other end the trouble of typing a lot of characters?)
+ */
+void imap_handle_macros(char *str) {
+	imap_macro_replace(str, "meta", "foo bar baz");
+}
 
 
 /*
@@ -115,6 +147,7 @@ int imap_extract_data_items(char **argv, char *items) {
 	strcat(items, " ");
 	start = items;
 	initial_len = strlen(items);
+	imap_handle_macros(start);
 	for (i=0; i<initial_len; ++i) {
 		if (items[i]=='(') ++nest;
 		if (items[i]=='[') ++nest;
@@ -129,14 +162,13 @@ int imap_extract_data_items(char **argv, char *items) {
 			items[i] = 0;
 			argv[num_items++] = start;
 			start = &items[i+1];
+			imap_handle_macros(start);
 		}
 	}
 
 	return(num_items);
 
 }
-
-
 
 
 
