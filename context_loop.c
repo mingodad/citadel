@@ -96,6 +96,8 @@ void *context_loop(int *socknumptr) {
 
 	sock = *socknumptr;
 
+	printf("Reading request from socket %d\n", sock);
+
 	/*
 	 * Find out what it is that the web browser is asking for
 	 */
@@ -154,22 +156,32 @@ void *context_loop(int *socknumptr) {
 			}
 		}
 
-	/* 
-	 * Send the request to the appropriate session
+	/*
+	 * Grab a lock on the session, so other threads don't try to access
+	 * the pipes at the same time.
 	 */
+	printf("Locking...\n");
 	pthread_mutex_lock(&TheSession->critter);
+
+	/* 
+	 * Send the request to the appropriate session...
+	 */
+	printf("   Writing %d lines of command\n", num_lines);
+	printf("%s\n", &req[0][0]);
 	for (a=0; a<num_lines; ++a) {
 		write(TheSession->inpipe[1], &req[a][0], strlen(&req[a][0]));
 		write(TheSession->inpipe[1], "\n", 1);
 		}
+	printf("   Writing %d bytes of content\n", ContentLength);
 	while (ContentLength--) {
 		read(sock, buf, 1);
 		write(TheSession->inpipe[1], buf, 1);
 		}
 
 	/*
-	 * ...and get the response (FIX for non-text)
+	 * ...and get the response.
 	 */
+	printf("   Reading response\n");
 	ContentLength = 0;
 	do {
 		gets0(TheSession->outpipe[0], buf);
@@ -179,18 +191,28 @@ void *context_loop(int *socknumptr) {
 			ContentLength = atoi(&buf[16]);
 		} while (strlen(buf) > 0);
 
+	printf("   Reading %d bytes of content\n");
 	while(ContentLength--) {
 		read(TheSession->outpipe[0], buf, 1);
 		write(sock, buf, 1);
 		}
 
-	pthread_mutex_unlock(&TheSession->critter);
-
 	/*
 	 * Now our HTTP connection is done.  It would be relatively easy
 	 * to support HTTP/1.1 "persistent" connections by looping back to
-	 * the top of this function.  For now, we'll just exit.
+	 * the top of this function.  For now, we'll just close.
 	 */
+	printf("   Closing socket\n");
 	close(sock);
+
+	/*
+	 * Let go of the lock
+	 */
+	printf("Unlocking.\n");
+	pthread_mutex_unlock(&TheSession->critter);
+
+	/*
+	 * The thread handling this HTTP connection is now finished.
+	 */
 	pthread_exit(NULL);
 	}

@@ -37,6 +37,7 @@ int ig_tcp_server(int port_number, int queue_len)
 {
 	struct sockaddr_in sin;
 	int s, i;
+	struct linger WebLinger = { 1, 9000 };
 
 	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = AF_INET;
@@ -56,9 +57,10 @@ int ig_tcp_server(int port_number, int queue_len)
 		exit(errno);
 		}
 
-	/* Set the SO_REUSEADDR socket option, because it makes sense. */
+	/* Set some socket options that make sense. */
 	i = 1;
 	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
+	setsockopt(s, SOL_SOCKET, SO_LINGER, &WebLinger, sizeof(WebLinger));
 
 	if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
 		printf("webcit: Can't bind: %s\n", strerror(errno));

@@ -148,7 +148,7 @@ char strbuf[]; {
 		strbuf[len++] = ch;
 		} while((ch!=10)&&(ch!=13)&&(ch!=0)&&(len<255));
 	strbuf[len-1] = 0;
-	fprintf(stderr, ">%s\n", strbuf);
+	/* fprintf(stderr, ">%s\n", strbuf); */
 	}
 
 
@@ -222,7 +222,7 @@ void serv_printf(const char *format, ...) {
 
 	strcat(buf, "\n");
 	serv_write(buf, strlen(buf));
-	fprintf(stderr, "<%s", buf);
+	/* fprintf(stderr, "<%s", buf); */
 	}
 
 

@@ -51,9 +51,9 @@ void output_frameset() {
 	output_headers();
 
 	wprintf("<HTML><HEAD><TITLE>FrameSet</TITLE></HEAD>\n");
-	wprintf("<FRAMESET cols=\"20%, 80%\">\n");
-	wprintf("    <FRAME name=\"left\" src=\"/static/velma.gif\">\n");
-	wprintf("    <FRAME name=\"right\" src=\"/display_main_menu\">\n");
+	wprintf("<FRAMESET cols=\"15%, 80%\">\n");
+	wprintf("  <FRAME name=\"left\" src=\"/static/velma.gif\">\n");
+	wprintf("  <FRAME name=\"right\" src=\"/display_main_menu\">\n");
 	wprintf("<NOFRAMES>\n");
 	wprintf("Your browser doesn't support frames.<BR>\n");
 	wprintf("This site uses frames.<BR>\n");
