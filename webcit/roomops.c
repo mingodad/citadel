@@ -971,7 +971,7 @@ void display_editroom(void)
 			"<TD><B><I>Not shared with</I></B></TD></TR>\n"
 			"<TR><TD>\n");
 
-		wprintf("<TABLE border=1><TR>"
+		wprintf("<TABLE border=0 cellpadding=5><TR BGCOLOR=\"#CCCCCC\">"
 			"<TD>Remote node name</TD>"
 			"<TD>Remote room name</TD>"
 			"<TD>Actions</TD>"
@@ -1019,13 +1019,18 @@ void display_editroom(void)
 		}
 
 		wprintf("</TD></TR>"
-			"</TABLE><BR>\n"
-			"<I><B>Reminder:</B> When sharing a room, "
+			"</TABLE></CENTER><BR>\n"
+			"<I><B>Notes:</B><UL><LI>When sharing a room, "
 			"it must be shared from both ends.  Adding a node to "
 			"the 'shared' list sends messages out, but in order to"
 			" receive messages, the other nodes must be configured"
-			" to send messages out to your system as well.</I><BR>"
-			"</CENTER>\n");
+			" to send messages out to your system as well.\n"
+			"<LI>If the remote room name is blank, it is assumed "
+			"that the room name is identical on the remote node."
+			"<LI>If the remote room name is different, the remote "
+			"node must also configure the name of the room here."
+			"</UL></I><BR>\n"
+		);
 
 	}
 
