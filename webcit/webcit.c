@@ -775,6 +775,34 @@ void session_loop(void) {
 		do_graphics_upload("UIMG 1|_userpic_");
 		}
 
+	else if (!strcasecmp(action, "display_editroompic")) {
+		display_graphics_upload("the graphic for this room",
+					"UIMG 0|_roompic_",
+					"/editroompic");
+		}
+
+	else if (!strcasecmp(action, "editroompic")) {
+		do_graphics_upload("UIMG 1|_roompic_");
+		}
+
+	else if (!strcasecmp(action, "select_floor_to_edit_pic")) {
+		select_floor_to_edit_pic();
+		}
+
+	else if (!strcasecmp(action, "display_editfloorpic")) {
+		sprintf(buf, "UIMG 0|_floorpic_|%s",
+			bstr("which_floor"));
+		display_graphics_upload("the graphic for this floor",
+					buf,
+					"/editfloorpic");
+		}
+
+	else if (!strcasecmp(action, "editfloorpic")) {
+		sprintf(buf, "UIMG 1|_floorpic_|%s",
+			bstr("which_floor"));
+		do_graphics_upload(buf);
+		}
+
 	/* When all else fails... */
 	else {
 		printf("HTTP/1.0 200 OK\n");
