@@ -434,7 +434,6 @@ void smtp_rcpt(char *argbuf) {
 
 		case rfc822_room_delivery:
 			cprintf("250 Delivering to room '%s'\r\n", user);
-			cprintf("250 %s is a valid recipient.\r\n", user);
 			if (SMTP->valid.num_room > 0) {
 				strcat(SMTP->valid.recp_room, "|");
 			}
@@ -463,6 +462,12 @@ void smtp_rcpt(char *argbuf) {
 			}
 			else {
 				cprintf("250 Remote recipient %s ok\r\n", recp);
+
+				if (SMTP->valid.num_internet > 0) {
+					strcat(SMTP->valid.recp_internet, "|");
+				}
+				strcat(SMTP->valid.recp_internet, user);
+				SMTP->valid.num_internet += 1;
 				SMTP->number_of_recipients += 1;
 				return;
 			}

@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.32  2002/01/03 21:35:07  ajc
+ * I think this is the last of the fixes for the new submit queue.
+
  Revision 590.31  2002/01/03 12:27:35  error
  * Fixed my name in docs/copyright.txt, why didn't I notice that before?
 
@@ -3055,3 +3058,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

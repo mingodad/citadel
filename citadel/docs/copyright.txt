@@ -2,13 +2,13 @@
                          Citadel/UX version 5.90
                          -----------------------
  
- Copyright (c) 1987-2001 by the Citadel development team.
+ Copyright (c) 1987-2002 by the Citadel development team.
   
      Steven M. Bellovin (author of public domain 'parsedate' function)
-     Michael Hampton    (cosmetics, misc. bug fixes, additional commands)
      Nathan Bryant      (build system, security, database access, and others)
      Art Cancro         (overall system design and lead developer)
      Brian Costello     (cosmetics, additional commands)
+     Michael Hampton    (cosmetics, misc. bug fixes, additional commands)
      Andru Luvisi       (troubleshooting and development assistance)
      Daniel Malament    (string compare function for IMAP server)
      Stu Mark           (additional client features, IGnet protocol design)

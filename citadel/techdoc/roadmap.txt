@@ -14,6 +14,8 @@ Goals for 6.00
 * Multiple recipients allowed in Citadel protocol.  Rework the code to feed
   all deliveries through the same set of functions, regardless of whether a
   message is submitted through Citadel protocol, SMTP, or from the networker.
+  (Done.  Needs to be tested more extensively.)
+
 * Optimize the IMAP server and add the search command
 * Get the Global Address Book working
 * LDAP directory support?

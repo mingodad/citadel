@@ -4,7 +4,7 @@
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
- * Copyright (C) 2000-2001 by Art Cancro and others.
+ * Copyright (C) 2000-2002 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.
  *
  */
@@ -809,12 +809,18 @@ void network_bounce(struct CtdlMessage *msg, char *reason) {
 
 	/* Now submit the message */
 	valid = validate_recipients(recipient);
-	if (valid != NULL) if (valid->num_error > 0) phree(valid);
+	if (valid != NULL) if (valid->num_error > 0) {
+		phree(valid);
+		valid = NULL;
+	}
 	if ( (valid == NULL) || (!strcasecmp(recipient, bouncesource)) ) {
 		strcpy(force_room, AIDEROOM);
 	}
 	else {
 		strcpy(force_room, "");
+	}
+	if ( (valid == NULL) && (strlen(force_room) == 0) ) {
+		strcpy(force_room, AIDEROOM);
 	}
 	CtdlSubmitMsg(msg, valid, force_room);
 
