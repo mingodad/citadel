@@ -1,6 +1,6 @@
 /* $Id$ */
 
-#include "dynloader.h"
+#include "serv_extensions.h"
 
 /* Simple linked list structure ... used in a bunch of different places. */
 struct RoomProcList {

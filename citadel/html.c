@@ -35,7 +35,7 @@
 #include <syslog.h>
 #include "citadel.h"
 #include "server.h"
-#include "dynloader.h"
+#include "serv_extensions.h"
 #include "control.h"
 #include "sysdep_decls.h"
 #include "support.h"

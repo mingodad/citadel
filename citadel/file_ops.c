@@ -33,7 +33,7 @@
 #include <limits.h>
 #include "citadel.h"
 #include "server.h"
-#include "dynloader.h"
+#include "serv_extensions.h"
 #include "config.h"
 #include "file_ops.h"
 #include "sysdep_decls.h"

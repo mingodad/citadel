@@ -18,7 +18,7 @@
 #include <ctype.h>
 #include "citadel.h"
 #include "server.h"
-#include "dynloader.h"
+#include "serv_extensions.h"
 #include "sysdep_decls.h"
 #include "msgbase.h"
 #include "tools.h"

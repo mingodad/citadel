@@ -44,7 +44,7 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "dynloader.h"
+#include "serv_extensions.h"
 #include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
@@ -1228,8 +1228,7 @@ void imap_command_loop(void) {
 
 
 /*
- * This function is called by dynloader.c to register the IMAP module
- * with the Citadel server.
+ * This function is called to register the IMAP extension with Citadel.
  */
 char *serv_imap_init(void)
 {

@@ -34,7 +34,7 @@
 #include "server.h"
 #include "serv_crypto.h"
 #include "sysdep_decls.h"
-#include "dynloader.h"
+#include "serv_extensions.h"
 
 
 #ifdef HAVE_OPENSSL

@@ -3,7 +3,7 @@
  *
  */
 
-#include "dynloader.h"
+#include "serv_extensions.h"
 
 void get_config(void);
 void put_config(void);

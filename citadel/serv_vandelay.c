@@ -36,7 +36,7 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "dynloader.h"
+#include "serv_extensions.h"
 #include "database.h"
 #include "msgbase.h"
 #include "tools.h"

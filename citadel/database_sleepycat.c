@@ -46,7 +46,7 @@
 #include <pthread.h>
 #include "citadel.h"
 #include "server.h"
-#include "dynloader.h"
+#include "serv_extensions.h"
 #include "citserver.h"
 #include "database.h"
 #include "msgbase.h"

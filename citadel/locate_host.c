@@ -22,7 +22,7 @@
 #include <string.h>
 #include "citadel.h"
 #include "server.h"
-#include "dynloader.h"
+#include "serv_extensions.h"
 #include "locate_host.h"
 #include "sysdep_decls.h"
 #include "config.h"

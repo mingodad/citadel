@@ -1,9 +1,37 @@
 /* $Id$ */
 
-#ifndef DYNLOADER_H
-#define DYNLOADER_H
+#ifndef SERV_EXTENSIONS_H
+#define SERV_EXTENSIONS_H
 
 #include "server.h"
+
+/*
+ * This is where we declare all of the server extensions we have.
+ * We'll probably start moving these to a more sane location in the near
+ * future.  For now, this just shuts up the compiler.
+ */
+char *serv_bio_init(void);
+char *serv_calendar_init(void);
+char *serv_inithat_init(void);
+char *serv_expire_init(void);
+char *serv_imap_init(void);
+char *serv_inetcfg_init(void);
+char *serv_listsub_init(void);
+char *serv_mrtg_init(void);
+char *serv_netfilter_init(void);
+char *serv_network_init(void);
+char *serv_newuser_init(void);
+char *serv_pas2_init(void);
+char *serv_pop3_init(void);
+char *serv_rwho_init(void);
+char *serv_smtp_init(void);
+char *serv_spam_init(void);
+char *serv_test_init(void);
+char *serv_upgrade_init(void);
+char *serv_vandelay_init(void);
+char *serv_vcard_init(void);
+/*
+ */
 
 void initialize_server_extensions(void);
 int DLoader_Exec_Cmd(char *cmdbuf);
@@ -55,4 +83,4 @@ void CtdlUnregisterServiceHook(int tcp_port,
                         void (*h_greeting_function) (void),
                         void (*h_command_function) (void) ) ;
 
-#endif /* DYNLOADER_H */
+#endif /* SERV_EXTENSIONS_H */

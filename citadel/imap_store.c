@@ -37,7 +37,7 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "dynloader.h"
+#include "serv_extensions.h"
 #include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"

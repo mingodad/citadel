@@ -30,7 +30,7 @@
 #include "citadel.h"
 #include "server.h"
 #include "database.h"
-#include "dynloader.h"
+#include "serv_extensions.h"
 #include "config.h"
 #include "room_ops.h"
 #include "sysdep_decls.h"

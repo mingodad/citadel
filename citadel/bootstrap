@@ -5,9 +5,12 @@
 # $Id$
 #
 
+# Remove any vestiges of pre-6.05 build environments
+rm -f .libs modules *.so *.lo *.la
+
 # Goofy red hat 7.3 stuff
-if [ -s /etc/redhat-release ] ; then
-	[ `cut -f 5 -d ' ' /etc/redhat-release` = 7.3 ] && redhat73=true
+if grep 7.3 /etc/redhat-release >/dev/null 2>&1 ; then
+	redhat73=true
 else
 	redhat73=false
 fi

@@ -24,7 +24,7 @@
 #include "sysdep_decls.h"
 #include "support.h"
 #include "config.h"
-#include "dynloader.h"
+#include "serv_extensions.h"
 #include "user_ops.h"
 #include "room_ops.h"
 #include "tools.h"

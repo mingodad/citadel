@@ -36,7 +36,7 @@
 #include "support.h"
 #include "config.h"
 #include "control.h"
-#include "dynloader.h"
+#include "serv_extensions.h"
 #include "database.h"
 #include "room_ops.h"
 #include "user_ops.h"

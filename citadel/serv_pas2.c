@@ -26,7 +26,7 @@
 #include "server.h"
 #include "citserver.h"
 #include "support.h"
-#include "dynloader.h"
+#include "serv_extensions.h"
 #include "user_ops.h"
 #include "md5.h"
 #include "tools.h"
