@@ -20,6 +20,9 @@ case "$host" in
 		LIBS=-pthread
 		PTHREAD_DEFS=-D_THREAD_SAFE
 	;;
+	*-*-solaris*)
+		PTHREAD_DEFS=-D_REENTRANT -D_PTHREADS
+	;;
 esac
 AC_SUBST(PTHREAD_DEFS)
 
@@ -34,6 +37,8 @@ if test "$LIBS" != -pthread; then
 	AC_CHECK_LIB(pthread, pthread_create)
 	AC_CHECK_LIB(pthreads, pthread_create)
 fi
+AC_SEARCH_LIBS(gethostbyname, nsl)
+AC_SEARCH_LIBS(connect, socket)
 
 dnl Checks for header files.
 AC_HEADER_STDC
