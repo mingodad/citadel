@@ -1,5 +1,6 @@
 Wed Jun 30 19:19:59 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Added support for "robots.txt" telling spiders to go away.
+	* Do a slrp_highest() when logging off.
 
 Sat Jun 26 22:52:13 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Rearranged the code in "Site-wide configuration" and "Generic
