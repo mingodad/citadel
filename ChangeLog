@@ -1,4 +1,8 @@
 $Log$
+Revision 500.7  2003/06/28 04:09:37  error
+* roomops.c: Backout change to display one less box in the first column in
+  roomlist view, it doesn't seem to work for everyone
+
 Revision 500.6  2003/06/28 03:52:51  error
 * Don't tell browsers not to cache static documents
 
@@ -1510,3 +1514,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
