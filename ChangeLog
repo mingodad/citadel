@@ -1,4 +1,7 @@
 $Log$
+Revision 521.8  2004/06/16 02:07:22  ajc
+* Removed a couple of lines of debugging code leftover from last night
+
 Revision 521.7  2004/06/15 03:06:11  ajc
 * Bumped internal version number to 5.22
 * Use new fast headers-only-no-mime fetch mode in Citadel for
@@ -1901,4 +1904,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

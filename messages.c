@@ -1046,7 +1046,6 @@ void readloop(char *oper)
 		wprintf("<UL>");
 	}
 
-	started = time(NULL);
 	nummsgs = load_msg_ptrs(cmd);
 	if (nummsgs == 0) {
 
@@ -1204,7 +1203,6 @@ void readloop(char *oper)
 		wprintf("</TD></TR></TABLE></CENTER>\n");
 	    }
 	}
-	finished = time(NULL);
 
 	/*
 	 * If we're not currently looking at ALL requested
