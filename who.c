@@ -95,11 +95,22 @@ void whobbs(void) {
 			if (wlist->sessionnum == serv_info.serv_pid) {
 				wprintf(" <A HREF=\"/edit_me\">(edit)</A>");
 				}
-			wprintf("</TD><TD>");
+			/* username */
+			wprintf("</TD><TD><A HREF=\"/static/page_user_popup.html\" onMouseOver=\"window.status='Page ");
 			escputs(wlist->username);
-			wprintf("</TD><TD>");
+			wprintf("'; return true\">");
+			escputs(wlist->username);
+			wprintf("</A>");
+			/* room */
+			wprintf("</TD><TD><A HREF=\"/dotgoto&room=");
 			escputs(wlist->roomname);
+			wprintf("\" onMouseOver=\"window.status='Go to room ");
+			escputs(wlist->roomname);
+			wprintf("'; return true\">");
+			escputs(wlist->roomname);
+			wprintf("</A>");
 			wprintf("</TD><TD>");
+			/* hostname */
 			escputs(wlist->hostname);
 			wprintf("</TD></TR>\n");
 			wptr = wlist->next;
