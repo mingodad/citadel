@@ -20,6 +20,7 @@ void cmd_setp (char *new_pw);
 void cmd_getu (void);
 void cmd_setu (char *new_parms);
 void cmd_slrp (char *new_ptr);
+int CtdlInvtKick(char *iuser, int op);
 void cmd_invt_kick (char *iuser, int op);
 void cmd_forg (void);
 void cmd_gnur (void);

@@ -354,9 +354,8 @@ void cmd_chat(char *argbuf)
 					strptr1 = &cmdbuf[6];
 					strcat(strptr1, " ");
 					if ((t_context = find_context(&strptr1))) {
-						allwrite(strptr1, 3, CC->curr_user);
 						if (strcasecmp(CC->curr_user, t_context->curr_user))
-							allwrite(strptr1, 2, t_context->curr_user);
+							allwrite(strptr1, 3, t_context->curr_user);
 					} else
 						cprintf(":|User not found.\n");
 					cprintf("\n");
@@ -389,6 +388,12 @@ void cmd_chat(char *argbuf)
 						if (!strcmp(&clptr->chat_text[2], KICKEDMSG)) {
 							cprintf("000\n");
 							CC->cs_flags = CC->cs_flags - CS_CHAT;
+
+							/* Kick user out of room */
+							CtdlInvtKick(CC->user.fullname, 0);
+
+							/* And return to the Lobby */
+							usergoto(config.c_baseroom, 0, 0, NULL, NULL);
 							return;
 						}
 					}

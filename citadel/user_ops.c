@@ -1093,16 +1093,48 @@ void cmd_gtsn(char *argbuf) {
 }
 
 
+/*
+ * API function for cmd_invt_kick() and anything else that needs to
+ * invite or kick out a user to/from a room.
+ * 
+ * Set iuser to the name of the user, and op to 1=invite or 0=kick
+ */
+int CtdlInvtKick(char *iuser, int op) {
+	struct ctdluser USscratch;
+	struct visit vbuf;
+	char bbb[SIZ];
+
+	if (getuser(&USscratch, iuser) != 0) {
+		return(1);
+	}
+
+	CtdlGetRelationship(&vbuf, &USscratch, &CC->room);
+	if (op == 1) {
+		vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
+		vbuf.v_flags = vbuf.v_flags | V_ACCESS;
+	}
+	if (op == 0) {
+		vbuf.v_flags = vbuf.v_flags & ~V_ACCESS;
+		vbuf.v_flags = vbuf.v_flags | V_FORGET | V_LOCKOUT;
+	}
+	CtdlSetRelationship(&vbuf, &USscratch, &CC->room);
+
+	/* post a message in Aide> saying what we just did */
+	snprintf(bbb, sizeof bbb, "%s %s %s> by %s\n",
+		iuser,
+		((op == 1) ? "invited to" : "kicked out of"),
+		CC->room.QRname,
+		CC->user.fullname);
+	aide_message(bbb);
+
+	return(0);
+}
+
 
 /*
  * INVT and KICK commands
  */
-void cmd_invt_kick(char *iuser, int op)
-			/* user name */
-{				/* 1 = invite, 0 = kick out */
-	struct ctdluser USscratch;
-	char bbb[SIZ];
-	struct visit vbuf;
+void cmd_invt_kick(char *iuser, int op) {
 
 	/*
 	 * These commands are only allowed by aides, room aides,
@@ -1125,31 +1157,10 @@ void cmd_invt_kick(char *iuser, int op)
 		return;
 	}
 
-	if (lgetuser(&USscratch, iuser) != 0) {
+	if (CtdlInvtKick(iuser, op) != 0) {
 		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
 		return;
 	}
-
-	CtdlGetRelationship(&vbuf, &USscratch, &CC->room);
-	if (op == 1) {
-		vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
-		vbuf.v_flags = vbuf.v_flags | V_ACCESS;
-	}
-	if (op == 0) {
-		vbuf.v_flags = vbuf.v_flags & ~V_ACCESS;
-		vbuf.v_flags = vbuf.v_flags | V_FORGET | V_LOCKOUT;
-	}
-	CtdlSetRelationship(&vbuf, &USscratch, &CC->room);
-
-	lputuser(&USscratch);
-
-	/* post a message in Aide> saying what we just did */
-	snprintf(bbb, sizeof bbb, "%s %s %s> by %s\n",
-		iuser,
-		((op == 1) ? "invited to" : "kicked out of"),
-		CC->room.QRname,
-		CC->user.fullname);
-	aide_message(bbb);
 
 	cprintf("%d %s %s %s.\n",
 		CIT_OK, iuser,
