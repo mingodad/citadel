@@ -70,39 +70,27 @@ int alias(char *name)		/* process alias and routing info for mail */
 	lprintf(9, "alias() called for <%s>\n", name);
 
 	remove_any_whitespace_to_the_left_or_right_of_at_symbol(name);
-	
+
 	fp=fopen("network/mail.aliases","r");
 	if (fp==NULL) fp=fopen("/dev/null","r");
 	if (fp==NULL) return(M_ERROR);
-GNA:	strcpy(aaa,""); strcpy(bbb,"");
-	do {
-		a=getc(fp);
-		if (a==',') a=0;
-		if (a>0) {
-			b=strlen(aaa);
-			aaa[b]=a;
-			aaa[b+1]=0;
+	strcpy(aaa,""); strcpy(bbb,"");
+	while (fgets(aaa, sizeof aaa, fp)!=NULL) {
+		while (isspace(name[0])) strcpy(name, &name[1]);
+		aaa[strlen(aaa)-1] = 0;
+		strcpy(bbb, "");
+		for (a=0; a<strlen(aaa); ++a) {
+			if (aaa[a] == ',') {
+				strcpy(bbb, &aaa[a+1]);
+				aaa[a] = 0;
+				}
 			}
-		} while(a>0);
-	do {
-		a=getc(fp);
-		if (a==10) a=0;
-		if (a>0) {
-			b=strlen(bbb);
-			bbb[b]=a;
-			bbb[b+1]=0;
-			}
-		} while(a>0);
-	if (a<0) {
-		fclose(fp);
-		goto DETYPE;
+		if (!strcasecmp(name, aaa)) strcpy(name, bbb);
 		}
-	if (strcasecmp(name,aaa)) goto GNA;
 	fclose(fp);
-	strcpy(name,bbb);
 	lprintf(7, "Mail is being forwarded to %s\n", name);
 
-DETYPE:	/* determine local or remote type, see citadel.h */
+	/* determine local or remote type, see citadel.h */
 	for (a=0; a<strlen(name); ++a) if (name[a]=='!') return(M_INTERNET);
 	for (a=0; a<strlen(name); ++a)
 		if (name[a]=='@')
@@ -934,21 +922,15 @@ void save_message(char *mtmp,	/* file containing proper message */
 
 	/* ...or if this is a private message, go to the target mailbox. */
 	lprintf(9, "mailbox aliasing loop\n");
-lprintf(9, "1\n");
 	if (strlen(recipient) > 0) {
-lprintf(9, "2\n");
 		/* mailtype = alias(recipient); */
 		if (mailtype == M_LOCAL) {
-lprintf(9, "3\n");
 			if (getuser(&userbuf, recipient)!=0) {
 				/* User not found, goto Aide */
-lprintf(9, "4\n");
 				strcpy(force_room, AIDEROOM);
 				}
 			else {
-lprintf(9, "5\n");
 				strcpy(hold_rm, actual_rm);
-lprintf(9, "6\n");
 				MailboxName(actual_rm, &userbuf, MAILROOM);
 				}
 			}
@@ -1177,7 +1159,9 @@ void cmd_ent0(char *entargs)
 			strcpy(buf,recipient);
 			}
 		else strcpy(buf,"sysop");
+		lprintf(9, "calling alias()\n");
 		e=alias(buf);			/* alias and mail type */
+		lprintf(9, "alias() returned %d\n", e);
 		if ((buf[0]==0) || (e==M_ERROR)) {
 			cprintf("%d Unknown address - cannot send message.\n",
 				ERROR+NO_SUCH_USER);
@@ -1209,7 +1193,7 @@ void cmd_ent0(char *entargs)
 		/* Check to make sure the user exists; also get the correct
 	 	* upper/lower casing of the name. 
 	 	*/
-		a = getuser(&tempUS,buf);
+		a = getuser(&tempUS, buf);
 		if (a != 0) {
 			cprintf("%d No such user.\n",ERROR+NO_SUCH_USER);
 			return;

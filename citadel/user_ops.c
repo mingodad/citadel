@@ -52,8 +52,10 @@ int getuser(struct usersupp *usbuf, char name[]) {
 
 	memset(usbuf, 0, sizeof(struct usersupp));
 	for (a=0; a<=strlen(name); ++a) {
-		lowercase_name[a] = tolower(name[a]);
+		if (a < sizeof(lowercase_name))
+			lowercase_name[a] = tolower(name[a]);
 		}
+	lowercase_name[sizeof(lowercase_name)-1] = 0;
 
 	cdbus = cdb_fetch(CDB_USERSUPP, lowercase_name, strlen(lowercase_name));
 	if (cdbus == NULL) {
@@ -92,8 +94,10 @@ void putuser(struct usersupp *usbuf, char *name)
 	int a;
 
 	for (a=0; a<=strlen(name); ++a) {
-		lowercase_name[a] = tolower(name[a]);
+		if (a < sizeof(lowercase_name))
+			lowercase_name[a] = tolower(name[a]);
 		}
+	lowercase_name[sizeof(lowercase_name)-1] = 0;
 
 	cdb_store(CDB_USERSUPP,
 		lowercase_name, strlen(lowercase_name),
