@@ -1,4 +1,7 @@
 $Log$
+Revision 522.0  2004/06/19 03:21:35  ajc
+* THIS IS 5.22
+
 Revision 521.10  2004/06/19 03:11:07  ajc
 * Instead of a crufty "the topmost Internet email address will be used
   for outgoing email" explanation, separated it into "Primary Internet
