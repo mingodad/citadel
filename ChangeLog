@@ -1,4 +1,7 @@
 $Log$
+Revision 322.3  2002/01/05 06:19:17  error
+* Add MIME types text/css and image/png
+
 Revision 322.2  2002/01/03 22:32:38  ajc
 * templatized the "prompt for recipient" screen
 
@@ -704,3 +707,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

@@ -422,8 +422,12 @@ void output_static(char *what)
 			wprintf("Content-type: image/gif\n");
 		else if (!strncasecmp(&what[strlen(what) - 4], ".txt", 4))
 			wprintf("Content-type: text/plain\n");
+		else if (!strncasecmp(&what[strlen(what) - 4], ".css", 4))
+			wprintf("Content-type: text/css\n");
 		else if (!strncasecmp(&what[strlen(what) - 4], ".jpg", 4))
 			wprintf("Content-type: image/jpeg\n");
+		else if (!strncasecmp(&what[strlen(what) - 4], ".png", 4))
+			wprintf("Content-type: image/png\n");
 		else if (!strncasecmp(&what[strlen(what) - 5], ".html", 5))
 			wprintf("Content-type: text/html\n");
 		else
