@@ -916,6 +916,17 @@ void transmit_message(FILE *fp)
 	scr_flush();
 }
 
+/*
+ * Make sure there's room in msg_arr[] for at least one more.
+ */
+void check_msg_arr_size(void) {
+	if ((num_msgs + 1) > msg_arr_size) {
+		msg_arr_size += 512;
+		msg_arr = realloc(msg_arr,
+			((sizeof(long)) * msg_arr_size) );
+	}
+}
+
 
 
 /*
@@ -1027,13 +1038,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 		scr_printf("%s\n", &cmd[5]);
 	} else {
 		while (serv_gets(cmd), strcmp(cmd, "000")) {
-
-			if ((num_msgs + 1) > msg_arr_size) {
-				msg_arr_size += 512;
-				msg_arr = realloc(msg_arr,
-					((sizeof(long)) * msg_arr_size) );
-			}
-
+			check_msg_arr_size();
 			msg_arr[num_msgs++] = atol(cmd);
 		}
 	}
@@ -1070,7 +1075,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 
 	fclose(fp);
 
-	highmsg = msg_arr[num_msgs - 1];
+	if (num_msgs >= 1) highmsg = msg_arr[num_msgs - 1];
 	num_msgs = 0;
 	serv_puts("MSGS NEW");
 	serv_gets(cmd);
@@ -1078,6 +1083,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 		scr_printf("%s\n", &cmd[5]);
 	} else {
 		while (serv_gets(cmd), strcmp(cmd, "000")) {
+			check_msg_arr_size();
 			msg_arr[num_msgs++] = atol(cmd);
 		}
 	}
@@ -1231,13 +1237,7 @@ void readmsgs(
 		scr_printf("%s\n", &cmd[5]);
 	} else {
 		while (serv_gets(cmd), strcmp(cmd, "000")) {
-
-			if ((num_msgs + 1) > msg_arr_size) {
-				msg_arr_size += 512;
-				msg_arr = realloc(msg_arr,
-					((sizeof(long)) * msg_arr_size) );
-			}
-
+			check_msg_arr_size();
 			msg_arr[num_msgs++] = atol(cmd);
 		}
 	}
