@@ -20,7 +20,6 @@
 #define IFNAIDE if (axlevel<6)
 
 
-long finduser(int file, char *name);
 void sttybbs(int cmd);
 void extract(char *dest, char *source, int parmnum);
 int extract_int(char *source, int parmnum);

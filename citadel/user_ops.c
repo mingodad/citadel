@@ -30,19 +30,6 @@
 
 
 /*
- * hash()  -  hash table function for user lookup
- */
-int hash(char *str)
-{
-	int h = 0;
-	int i;
-
-	for (i=0; i<strlen(str); ++i) h=h+((i+1)*tolower(str[i]));
-	return(h);
-	}
-
-
-/*
  * getuser()  -  retrieve named user into supplied buffer.
  *               returns 0 on success
  */
@@ -338,7 +325,7 @@ int purge_user(char *pname) {
 
 	if (getuser(&usbuf, pname) != 0) {
 		lprintf(5, "Cannot purge user <%s> - not found\n", pname);
-		return(1);
+		return(ERROR+NO_SUCH_USER);
 		}
 
 	/* FIX   Don't delete a user who is currently logged in. */
@@ -864,14 +851,13 @@ void cmd_vali(char *v_args)
 
 
 /* 
- *  List users
+ *  Traverse the user file...
  */
-void cmd_list(void) {
+void ForEachUser(void (*CallBack)(struct usersupp *EachUser)) {
 	struct usersupp usbuf;
 	struct cdbdata *cdbus;
 
 	cdb_rewind(CDB_USERSUPP);
-	cprintf("%d \n",LISTING_FOLLOWS);
 
 	while(cdbus = cdb_next_item(CDB_USERSUPP), cdbus != NULL) {
 		bzero(&usbuf, sizeof(struct usersupp));
@@ -879,25 +865,42 @@ void cmd_list(void) {
 			( (cdbus->len > sizeof(struct usersupp)) ?
 			sizeof(struct usersupp) : cdbus->len) );
 		cdb_free(cdbus);
+		(*CallBack)(&usbuf);
+		}
+	}
 
-	    if (usbuf.axlevel > 0) {
+
+/*
+ * List one user (this works with cmd_list)
+ */
+void ListThisUser(struct usersupp *usbuf) {
+	if (usbuf->axlevel > 0) {
 		if ((CC->usersupp.axlevel>=6)
-		   ||((usbuf.flags&US_UNLISTED)==0)
+		   ||((usbuf->flags&US_UNLISTED)==0)
 		   ||((CC->internal_pgm))) {
 			cprintf("%s|%d|%ld|%ld|%d|%d|",
-				usbuf.fullname,
-				usbuf.axlevel,
-				usbuf.usernum,
-				usbuf.lastcall,
-				usbuf.timescalled,
-				usbuf.posted);
-			if (CC->usersupp.axlevel >= 6) cprintf("%s",usbuf.password);
+				usbuf->fullname,
+				usbuf->axlevel,
+				usbuf->usernum,
+				usbuf->lastcall,
+				usbuf->timescalled,
+				usbuf->posted);
+			if (CC->usersupp.axlevel >= 6)
+				cprintf("%s",usbuf->password);
 			cprintf("\n");
 			}
-		    }
 		}
+	}
+
+/* 
+ *  List users
+ */
+void cmd_list(void) {
+	cprintf("%d \n",LISTING_FOLLOWS);
+	ForEachUser(ListThisUser);
 	cprintf("000\n");
 	}
+
 
 /*
  * enter registration info

@@ -11,7 +11,7 @@
 ########################################################################
 
 CLIENT_TARGETS=citadel whobbs
-SERVER_TARGETS=citserver setup citadelapi.a
+SERVER_TARGETS=citserver setup
 SERV_MODULES=serv_chat.so
 UTIL_TARGETS=aidepost netmailer netproc netsetup msgform \
 	readlog rcit stats citmail netpoll mailinglist userlist
@@ -122,13 +122,6 @@ config.o: config.c citadel.h axdefs.h sysdep.h sysconfig.h ipcdef.h server.h
 
 sysdep.o: sysdep.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) -D_REENTRANT -c sysdep.c
-
-citadelapi.a: citadelapi.o ipc_c_tcp.o serv_info.o
-	$(AR) r citadelapi.a citadelapi.o ipc_c_tcp.o serv_info.o
-	$(RANLIB) citadelapi.a
-
-citadelapi.o: citadelapi.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
-	$(CC) -O $(CFLAGS) -D_REENTRANT -c citadelapi.c
 
 aidepost: aidepost.c config.o citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) -O $(CFLAGS) aidepost.c config.o $(LFLAGS) -o aidepost

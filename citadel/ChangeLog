@@ -1,3 +1,11 @@
+Mon Aug 31 22:47:58 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Yanked the citadelapi.c module.  This wasn't working out well.
+	* techdocs/citadelapi.txt - began documenting the new API to be used
+	  by modules which will be dynamic linked into the server - most of
+	  this API is existing server functions.
+	* Added a ForEachUser() function with callback mechanism, and reworked
+	  cmd_list() to use it.
+
 Sun Aug 30 21:52:43 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Moved all of the gdbm databases to a separate "data" directory.
 

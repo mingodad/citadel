@@ -393,35 +393,6 @@ void strproc(char *string)
 	}
 
 
-int hash(char *str)
-{
-	int h = 0;
-	int i;
-
-	for (i=0; i<strlen(str); ++i) h=h+((i+1)*tolower(str[i]));
-	return(h);
-	}
-
-long finduser(int file, char *name)
-{
-	FILE *fp;
-	int uh,fh;
-	long pp=0L;
-	
-	uh=hash(name);
-	fp=fopen("hashtab","r");
-	while(fread((char *)&fh,sizeof(int),1,fp)>0) {
-		if (uh==fh) {
-			lseek(file,pp,0);
-			return(pp);
-			}
-		pp = pp + (long)sizeof(struct usersupp);
-		}
-	fclose(fp);
-	return(-1L);
-	}
-
-
 int alias(char *name)		/* process alias and routing info for mail */
              {
 	FILE *fp;

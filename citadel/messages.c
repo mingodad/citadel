@@ -26,7 +26,6 @@ struct cittext {
 	char text[MAXWORDBUF];
 	};
 
-long finduser(int file, char *name);
 char inkey(void);
 void sttybbs(int cmd);
 int struncmp(char *lstr, char *rstr, int len);

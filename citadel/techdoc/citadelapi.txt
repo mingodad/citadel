@@ -1,0 +1,63 @@
+Here's "take two" on the CitadelAPI extension library.  These days it's not
+really a library at all, but rather a list of stuff that's inside the server that
+might be useful.  Sort of.  We'll see how it evolves.
+
+ 
+  USER RELATED FUNCTIONS
+  ----------------------
+ 
+ The fundamental user data is stored in "struct usersupp" which is defined
+in citadel.h.  The following functions are available:
+  
+ 
+ int getuser(struct usersupp *usbuf, char name[])
+ 
+ Given the name of a requested user and a buffer to store the usersupp
+record in, getuser() will search the userlog for the named user and load its
+data into the buffer.  getuser() returns 0 upon success or a nonzero error
+code if the requested operation could not be performed.
+ 
+ 
+ void putuser(struct usersupp *usbuf, char *name)
+ 
+ After reading in a user record with getuser() and perhaps modifying the data
+in some way, a program may use putuser() to write it back to disk.
+ 
+ 
+ int lgetuser(struct usersupp *usbuf, char *name)
+ void lputuser(struct usersupp *usbuf, char *name)
+ 
+ If critical-section operation is required, this pair of calls may be used.
+They function the same as getuser() and putuser(), except that lgetuser()
+locks the user file immediately after retrieving the record and lputuser()
+unlocks it.  This will guarantee that no other threads manipulate the same
+user record at the same time.
+ 
+ NOTE: do NOT attempt to combine the locking lgetuser/lputuser calls with any
+other locking calls in this API.  Attempting to obtain concurrent locks on
+multiple files may result in a deadlock condition which would freeze the
+entire server.
+ 
+   
+ void ForEachUser(void (*CallBack)(struct usersupp *EachUser))
+ 
+ This allows a user-supplied function to be called once for each user on
+the system.  The user-supplied function will be called with a pointer to a
+usersupp structure as its only argument.
+  
+ 
+ int getuserbynumber(struct usersupp *usbuf, long int number)
+ 
+ getuserbynumber() functions similarly to getuser(), except that it is
+supplied with a user number rather than a name.  Calling this function
+results in a sequential search of the user file, so use it sparingly if at
+all.
+ 
+ 
+ int purge_user(char *pname)
+ 
+ This function deletes the named user off the system and erases all related
+objects: bio, photo, etc.  It returns 0 upon success or a nonzero error code
+if the requested operation could not be performed.
+ 
+ 
