@@ -24,4 +24,4 @@
 #DEFAULT (echo ""; id; echo %s; date; cat) >> $CVSROOT/CVSROOT/commitlog
 # or
 #DEFAULT (echo ""; id; echo %{sVv}; date; cat) >> $CVSROOT/CVSROOT/commitlog
-htdocs/*	(echo wacko fun stuff) >/dev/ttypa
+citadel/*	(cd /usr/local/share/apache/htdocs; /usr/local/bin/cvs update)
