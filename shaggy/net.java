@@ -71,7 +71,7 @@ public class net implements Runnable {
     public void run() {
 	String	server = citadel.me.server;
 	int		port = citadel.me.port;
-	boolean		proxy = true;
+	boolean		proxy = false;
 
 	done = false;
 	try {
