@@ -602,6 +602,7 @@ void display_editroom(void)
 	char buf[SIZ];
 	char cmd[SIZ];
 	char node[SIZ];
+	char recp[SIZ];
 	char er_name[20];
 	char er_password[10];
 	char er_dirname[15];
@@ -927,7 +928,26 @@ void display_editroom(void)
 
 	/* Mailing list management */
 	if (!strcmp(tab, "listserv")) {
-		wprintf("<CENTER><I>Under construction</I></CENTER>\n");
+
+		wprintf("<center><i>The contents of this room are being "
+			"mailed to the following list recipients:"
+			"</i><br><br>\n");
+
+		serv_puts("GNET");
+		serv_gets(buf);
+		if (buf[0]=='1') while (serv_gets(buf), strcmp(buf, "000")) {
+			extract(cmd, buf, 0);
+			if (!strcasecmp(cmd, "listrecp")) {
+				extract(recp, buf, 1);
+			
+				escputs(recp);
+				wprintf(" <A HREF=\"/netedit&cmd=remove&line="
+					"listrecp|");
+				urlescputs(recp);
+				wprintf("&tab=listserv\">(remove)</A><BR>");
+
+			}
+		}
 	}
 
 	wDumpContent(1);
