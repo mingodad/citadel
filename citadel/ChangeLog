@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.52  2002/10/26 06:01:19  ajc
+ * Increase size of temp file name buffer in struct CitContext
+
  Revision 601.51  2002/10/25 09:38:38  error
  * Fixed broken .Goto by partial match
 
@@ -4162,4 +4165,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

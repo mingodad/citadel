@@ -89,11 +89,11 @@ struct CitContext {
 	char curr_user[USERNAME_SIZE];	/* name of current user */
 	int logged_in;		/* logged in */
 	int internal_pgm;	/* authenticated as internal program */
-	char temp[32];		/* temp file name */
+	char temp[PATH_MAX];	/* temp file name */
 	int nologin;		/* not allowed to log in */
 	int is_local_socket;	/* set to 1 if client is on unix domain sock */
 
-	char net_node[32];	/* Is the client another Citadel server? */
+	char net_node[PATH_MAX];/* Is the client another Citadel server? */
 	int client_socket;
 	int cs_pid;		/* session ID */
 	time_t cs_lastupdt;	/* time of last update */
@@ -116,10 +116,10 @@ struct CitContext {
 
 	FILE *download_fp;	/* Fields relating to file transfer */
 	FILE *upload_fp;
-	char upl_file[SIZ];
-	char upl_path[SIZ];
+	char upl_file[PATH_MAX];
+	char upl_path[PATH_MAX];
 	char upl_comment[SIZ];
-	char upl_filedir[SIZ];
+	char upl_filedir[PATH_MAX];
 	char dl_is_net;
 	char upload_type;
 
