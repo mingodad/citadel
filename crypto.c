@@ -542,7 +542,7 @@ int client_read_ssl(char *buf, int bytes, int timeout)
 			lprintf(9, "SSL_read got error %ld\n", errval);
 			endtls();
 			return (client_read_to
-				(&buf[len], bytes - len, timeout));
+				(WC->http_sock, &buf[len], bytes - len, timeout));
 		}
 		len += rlen;
 	}
