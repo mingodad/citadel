@@ -158,7 +158,7 @@ void display_siteconfig(void)
 			wprintf("</TD></TR>\n");
 			break;
 		case 22:
-			wprintf("<TR><TD>Minumum number of worker threads</TD><TD>");
+			wprintf("<TR><TD>Minimum number of worker threads</TD><TD>");
 			wprintf("<INPUT TYPE=\"text\" NAME=\"c_min_workers\" MAXLENGTH=\"5\" VALUE=\"%s\">", buf);
 			wprintf("</TD></TR>\n");
 			break;

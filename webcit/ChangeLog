@@ -1,4 +1,12 @@
 $Log$
+Revision 410.35  2003/05/25 04:25:12  ajc
+* siteconfig.c: fixed a spelling error
+* event.c: add a "Check attendee availability" button, and the code to
+  bypass saving the event to the server, do something with it, and then
+  feed the twiddled data structure back to the form display function for
+  further editing.  What's still missing is the code to do the actual
+  availability check.
+
 Revision 410.34  2003/05/24 22:22:35  ajc
 * Small stylesheet hack to make it work with b0rken IE
 
@@ -1413,3 +1421,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

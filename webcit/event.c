@@ -57,8 +57,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	if (supplied_vevent != NULL) {
 		vevent = supplied_vevent;
 		/* If we're looking at a fully encapsulated VCALENDAR
-		 * rather than a VTODO component, attempt to use the first
-		 * relevant VTODO subcomponent.  If there is none, the
+		 * rather than a VEVENT component, attempt to use the first
+		 * relevant VEVENT subcomponent.  If there is none, the
 		 * NULL returned by icalcomponent_get_first_component() will
 		 * tell the next iteration of this function to create a
 		 * new one.
@@ -357,6 +357,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		"&nbsp;&nbsp;"
 		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Delete\">\n"
 		"&nbsp;&nbsp;"
+		"<INPUT TYPE=\"submit\" NAME=\"sc\" "
+				"VALUE=\"Check attendee availability\">\n"
+		"&nbsp;&nbsp;"
 		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">\n"
 		"</CENTER>\n"
 	);
@@ -422,8 +425,8 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 	if (supplied_vevent != NULL) {
 		vevent = supplied_vevent;
 		/* If we're looking at a fully encapsulated VCALENDAR
-		 * rather than a VTODO component, attempt to use the first
-		 * relevant VTODO subcomponent.  If there is none, the
+		 * rather than a VEVENT component, attempt to use the first
+		 * relevant VEVENT subcomponent.  If there is none, the
 		 * NULL returned by icalcomponent_get_first_component() will
 		 * tell the next iteration of this function to create a
 		 * new one.
@@ -431,7 +434,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		if (icalcomponent_isa(vevent) == ICAL_VCALENDAR_COMPONENT) {
 			save_individual_event(
 				icalcomponent_get_first_component(
-					vevent, ICAL_VTODO_COMPONENT
+					vevent, ICAL_VEVENT_COMPONENT
 				), msgnum
 			);
 			return;
@@ -442,7 +445,8 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		created_new_vevent = 1;
 	}
 
-	if (!strcasecmp(bstr("sc"), "Save")) {
+	if ( (!strcasecmp(bstr("sc"), "Save"))
+	   || (!strcasecmp(bstr("sc"), "Check attendee availability")) ) {
 
 		/* Replace values in the component with ones from the form */
 
@@ -648,7 +652,7 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 		}
 
 		/*
-		 * Serialize it and save it to the message base.  We clone it first,
+		 * Encapsulate event into full VCALENDAR component.  Clone it first,
 		 * for two reasons: one, it's easier to just free the whole thing
 		 * when we're done instead of unbundling, but more importantly, we
 		 * can't encapsulate something that may already be encapsulated
@@ -656,8 +660,10 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 		 */
 		lprintf(9, "Encapsulating into full VCALENDAR component\n");
 		encaps = ical_encapsulate_subcomponent(icalcomponent_new_clone(vevent));
+
+		/* If the user clicked 'Save' then save it to the server. */
 		lprintf(9, "Serializing it for saving\n");
-		if (encaps != NULL) {
+		if ( (encaps != NULL) && (!strcasecmp(bstr("sc"), "Save")) ) {
 			serv_puts("ENT0 1|||4");
 			serv_gets(buf);
 			if (buf[0] == '4') {
@@ -668,6 +674,18 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 			}
 			icalcomponent_free(encaps);
 		}
+
+		/* Or, check attendee availability if the user asked for that. */
+		if ( (encaps != NULL) && (!strcasecmp(bstr("sc"), "Check attendee availability")) ) {
+
+			/* FIXME ... do the checking and annotating here, idiot */
+
+			/* This displays the form again, with our annotations */
+			display_edit_individual_event(encaps, msgnum);
+
+			icalcomponent_free(encaps);
+		}
+
 	}
 
 	/*
@@ -683,8 +701,10 @@ STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 		icalcomponent_free(vevent);
 	}
 
-	/* Go back to the event list */
-	readloop("readfwd");
+	/* If this was a save or deelete, go back to the calendar view. */
+	if (strcasecmp(bstr("sc"), "Check attendee availability")) {
+		readloop("readfwd");
+	}
 }
 
 
