@@ -58,6 +58,9 @@ void master_cleanup() {
 /*
  * Gracefully terminate the session and thread.
  * (This is called as a cleanup handler by the thread library.)
+ *
+ * All NON-system-dependent stuff is done in this function.
+ * System-dependent session/thread cleanup is in cleanup() in sysdep.c
  */
 void cleanup_stuff()
 {
@@ -82,6 +85,9 @@ void cleanup_stuff()
 		free(emptr);
 		}
 	end_critical_section(S_SESSION_TABLE);
+
+	/* Deallocate any message list we might have in memory */
+	if (CC->msglist != NULL) free(CC->msglist);
 
 	/* Now get rid of the session and context */
 	lprintf(7, "cleanup_stuff() is calling RemoveContext(%d)\n", CC->cs_pid);
@@ -608,6 +614,8 @@ void *context_loop(struct CitContext *con)
 	CC->upload_fp = NULL;
 	CC->cs_pid = con->client_socket;	/* not necessarily portable */
 	CC->FirstExpressMessage = NULL;
+	CC->msglist = NULL;
+	CC->num_msgs = 0;
 	time(&CC->lastcmd);
 	time(&CC->lastidle);
 	strcpy(CC->lastcmdname, "    ");

@@ -19,6 +19,9 @@
 #include "proto.h"
 
 extern struct config config;
+
+typedef struct CitContext t_context;
+
 extern struct CitContext *ContextList;
 
 struct ChatLine *ChatQueue = NULL;
@@ -51,7 +54,7 @@ void allwrite(char *cmdbuf, int flag, char *roomname, char *username)
 	{
 		sprintf(bcast,":|<%s whispers %s>", un, cmdbuf);
 	}
-	if (strucmp(cmdbuf,"NOOP")) {
+	if ((strucmp(cmdbuf,"NOOP")) && (flag !=2)) {
 		fp = fopen(CHATLOG,"a");
 		fprintf(fp,"%s\n",bcast);
 		fclose(fp);
@@ -100,14 +103,45 @@ void allwrite(char *cmdbuf, int flag, char *roomname, char *username)
 DONE_FREEING:	end_critical_section(S_CHATQUEUE);
 	}
 
+
+t_context *find_context(char **unstr)
+{
+   t_context *t_cc, *found_cc = NULL;
+   char *name, *tptr;
+   
+   if ((!*unstr) || (!unstr))
+      return(NULL);
+      
+   begin_critical_section(S_SESSION_TABLE);
+   for (t_cc = ContextList; ((t_cc) && (!found_cc)); t_cc = t_cc->next)
+   {
+      if (t_cc->fake_username[0])
+         name = t_cc->fake_username;
+      else
+         name = t_cc->curr_user;
+      tptr = *unstr;
+      if ((!struncmp(name, tptr, strlen(name))) && (tptr[strlen(name)] == ' '))
+      {
+         found_cc = t_cc;
+         *unstr = &(tptr[strlen(name)+1]);
+      }
+   }
+   end_critical_section(S_SESSION_TABLE);
+
+   return(found_cc);
+}
+
 /*
  * List users in chat.  Setting allflag to 1 also lists users elsewhere.
  */
+ 
+
 void do_chat_listing(int allflag)
 {
 	struct CitContext *ccptr;
 
 	cprintf(":|\n:| Users currently in chat:\n");
+	begin_critical_section(S_SESSION_TABLE);
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 		if ( (!strucmp(ccptr->cs_room, "<chat>"))
 		   && ((ccptr->cs_flags & CS_STEALTH) == 0)) {
@@ -123,11 +157,12 @@ void do_chat_listing(int allflag)
 			if ( (strucmp(ccptr->cs_room, "<chat>"))
 			   && ((ccptr->cs_flags & CS_STEALTH) == 0)) 
 			{
-				cprintf(":| %-25s <%s>:\n", (ccptr->fake_username[0]) ? ccptr->fake_username : ccptr->curr_user, ccptr->cs_room);
+				cprintf(":| %-25s <%s>:\n", (ccptr->fake_username[0]) ? ccptr->fake_username : ccptr->curr_user, (ccptr->fake_roomname[0]) ? ccptr->fake_roomname : ccptr->cs_room);
 			}
 		}
 	}
 	
+	end_critical_section(S_SESSION_TABLE);
 	cprintf(":|\n");
 	}
 
@@ -140,6 +175,7 @@ void cmd_chat(char *argbuf)
 	char hold_cs_room[20];
 	int MyLastMsg, ThisLastMsg;
 	struct ChatLine *clptr;
+	struct CitContext *t_context;
 	int retval;
 
 	if (!(CC->logged_in)) {
@@ -164,6 +200,9 @@ void cmd_chat(char *argbuf)
 	strcpy(cmdbuf, "");
 
 	while(1) {
+	        int ok_cmd;
+	        
+	        ok_cmd = 0;
 		cmdbuf[strlen(cmdbuf) + 1] = 0;
 		retval = client_read_to(&cmdbuf[strlen(cmdbuf)], 1, 2);
 
@@ -208,35 +247,39 @@ void cmd_chat(char *argbuf)
 				cprintf(":|/join   (join new room) \n"); 
 				cprintf(":|/quit   (return to the BBS) \n");
 				cprintf(":|\n");
+				ok_cmd = 1;
 				}
 			if (!strucmp(cmdbuf,"/who")) {
 				do_chat_listing(0);
+				ok_cmd = 1;
 				}
 			if (!strucmp(cmdbuf,"/whobbs")) {
 				do_chat_listing(1);
+				ok_cmd = 1;
 				}
 			if (!struncmp(cmdbuf,"/me ",4)) {
 				allwrite(&cmdbuf[4],1, CC->chat_room, NULL);
+				ok_cmd = 1;
 				}
 				
 			if (!struncmp(cmdbuf,"/msg ", 5))
 			{
-			   strptr1 = strtok(cmdbuf, " ");
-			   if (strptr1)
+			   ok_cmd =1;
+			   strptr1 = &cmdbuf[5];
+                           if ((t_context = find_context(&strptr1)))
 			   {
- 			      strptr1 = strtok(NULL, " ");
- 			      if (strptr1)
- 			      {
-			         allwrite(&strptr1[strlen(strptr1)+1], 2, CC->chat_room, CC->curr_user);
-			         if (struncmp(CC->curr_user, strptr1, strlen(CC->curr_user)))
-  			            allwrite(&strptr1[strlen(strptr1)+1], 2, CC->chat_room, strptr1);
-			      }
- 			   }
- 			   cprintf("\n");
- 			}
+			      allwrite(strptr1, 2, "", CC->curr_user);
+			      if (strucmp(CC->curr_user, t_context->curr_user))
+			         allwrite(strptr1, 2, "", t_context->curr_user);
+			   }
+			   else
+			      cprintf(":|User not found.\n", cmdbuf);
+                        cprintf("\n");
+                        }
 
 			if (!struncmp(cmdbuf,"/join ", 6))
 			{
+			   ok_cmd = 1;
 	          	   allwrite("<changing rooms>",0, CC->chat_room, NULL);
 			   if (!cmdbuf[6])
 			      strcpy(CC->chat_room, "Main room");
@@ -246,12 +289,15 @@ void cmd_chat(char *argbuf)
 			   }
 		           allwrite("<joining room>",0, CC->chat_room, NULL);
 		           cprintf("\n");
-		           
 			}
 			if ((cmdbuf[0]!='/')&&(strlen(cmdbuf)>0)) {
+			        ok_cmd = 1;
 				allwrite(cmdbuf,0, CC->chat_room, NULL);
 				}
 
+			if (!ok_cmd)
+			   cprintf(":|Command %s is not understood.\n", cmdbuf);
+			   
 			strcpy(cmdbuf, "");
 
 			}
@@ -266,14 +312,13 @@ void cmd_chat(char *argbuf)
 			ThisLastMsg = ChatLastMsg;
 			for (clptr=ChatQueue; clptr!=NULL; clptr=clptr->next) 
 			{
-				if (
-				(clptr->chat_seq > MyLastMsg) && 
-				(!struncmp(CC->chat_room, clptr->chat_room, 20)) &&
-				((!clptr->chat_username[0]) || (!struncmp(un, clptr->chat_username, 32)))
-				)
-				{
-					cprintf("%s\n", clptr->chat_text);
-				}
+ 		           if ((clptr->chat_seq > MyLastMsg) && ((!clptr->chat_username[0]) || (!struncmp(un, clptr->chat_username, 32))))
+		           {
+			      if ((!clptr->chat_room[0]) || (!struncmp(CC->chat_room, clptr->chat_room, 20)))
+  			      {
+			         cprintf("%s\n", clptr->chat_text);
+			      }
+			   }
 			}
 			MyLastMsg = ThisLastMsg;
 			}

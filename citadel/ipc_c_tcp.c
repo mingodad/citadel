@@ -77,7 +77,7 @@ char *protocol; {
 	
 	phe=gethostbyname(host);
 	if (phe) {
-		bcopy(phe->h_addr,(char *)&sin.sin_addr,phe->h_length);
+		memcpy(phe->h_addr,(char *)&sin.sin_addr,phe->h_length);
 		}
 	else if ((sin.sin_addr.s_addr = inet_addr(host))==INADDR_NONE) {
 		fprintf(stderr,"Can't get %s host entry: %s\n",

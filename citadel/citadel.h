@@ -74,7 +74,6 @@ struct usersupp {			/* User record                      */
 	long lastseen[MAXROOMS];	/* Last message seen in each room   */
 	char generation[MAXROOMS];	/* Generation # (for private rooms) */
 	char forget[MAXROOMS];		/* Forgotten generation number      */
-	long mailnum[MAILSLOTS];	/* Message #'s of each mail message */
 	unsigned flags;			/* See US_ flags below              */
 	int timescalled;		/* Total number of logins           */
 	int posted;			/* Number of messages posted (ever) */
@@ -116,15 +115,6 @@ struct CitControl {
 #define MM_VALID	4		/* New users need validating        */
 
 /****************************************************************************
- * Information returned when a message is written to the message base
- */
-struct smreturn {			/* Return from the send_message()   */
-	long smnumber;			/* Message number (if sent)	    */
-	long smpos;			/* Position in file (if sent)       */
-	int smerror;			/* Error code                       */
-	};
-
-/****************************************************************************
  * Room records
  */
 struct quickroom {
@@ -146,11 +136,6 @@ struct quickroom {
  * flagged with both QR_PRIVATE and QR_GUESSNAME. DO NOT set all three flags.
  *
  ****************************************************************************/
-
-struct fullroom {
-	long FRnum[MSGSPERRM];		/* Message NUMBERS		    */
-		};
-
 
 /*
  * Events which might show up in the Citadel Log

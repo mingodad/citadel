@@ -211,13 +211,11 @@ void session_startup(void) {
 	hook_user_login(CC->cs_pid, CC->curr_user);
 	lgetuser(&CC->usersupp,CC->curr_user);
 	++(CC->usersupp.timescalled);
-	/* <bc> */
 	CC->fake_username[0] = '\0';
 	CC->fake_postname[0] = '\0';
 	CC->fake_hostname[0] = '\0';
 	CC->fake_roomname[0] = '\0';
 	CC->last_pager[0] = '\0';
-	/* <bc> */
 	time(&CC->usersupp.lastcall);
 
 	/* If this user's name is the name of the system administrator
@@ -329,6 +327,9 @@ void purge_user(char *pname) {
 	char filename[64];
 	struct usersupp usbuf;
 	int a;
+	struct cdbdata *cdbmb;
+	long *mailbox;
+	int num_mails;
 
 	if (getuser(&usbuf, pname) != 0) {
 		lprintf(5, "Cannot purge user <%s> - not found\n", pname);
@@ -336,12 +337,18 @@ void purge_user(char *pname) {
 		}
 
 	/* delete any messages in the user's mailbox */
-	for (a=0; a<MAILSLOTS; ++a) {
-		if (usbuf.mailnum[a] > 0L) {
-			cdb_delete(CDB_MSGMAIN, &usbuf.mailnum[a],
-					sizeof(long));
+	cdbmb = cdb_fetch(CDB_MAILBOXES, &usbuf.usernum, sizeof(long));
+	if (cdbmb != NULL) {
+		num_mails = cdbmb->len / sizeof(long);
+		mailbox = (long *) cdbmb->ptr;
+		if (num_mails > 0) for (a=0; a<num_mails; ++a) {
+			cdb_delete(CDB_MSGMAIN, &mailbox[a], sizeof(long));
 			}
+		cdb_free(cdbmb);
+		/* now delete the mailbox itself */
+		cdb_delete(CDB_MAILBOXES, &usbuf.usernum, sizeof(long));
 		}
+
 
 	/* delete the userlog entry */
 	cdb_delete(CDB_USERSUPP, pname, strlen(pname));
@@ -396,9 +403,6 @@ int create_user(char *newusername)
 		CC->usersupp.lastseen[a]=0L;
 		CC->usersupp.generation[a]=(-1);
 		CC->usersupp.forget[a]=(-1);
-		}
-	for (a=0; a<MAILSLOTS; ++a) {
-		CC->usersupp.mailnum[a]=0L;
 		}
 	strcpy(CC->usersupp.password,"");
 
@@ -975,6 +979,10 @@ void cmd_chek(void) {
 	int regis = 0;
 	int vali = 0;
 	int a;
+	struct cdbdata *cdbmb;
+	long *mailbox;
+	int num_mails;
+	
 
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
@@ -989,10 +997,19 @@ void cmd_chek(void) {
 		if (CitControl.MMflags&MM_VALID) vali = 1;
 		}
 
-	mail=0;				/* check for mail */
-	for (a=0; a<MAILSLOTS; ++a)
-		if ((CC->usersupp.mailnum[a])>(CC->usersupp.lastseen[1]))
-			++mail;
+
+	/* check for mail */
+	mail = 0;
+	cdbmb = cdb_fetch(CDB_MAILBOXES, &CC->usersupp.usernum, sizeof(long));
+	if (cdbmb != NULL) {
+		num_mails = cdbmb->len / sizeof(long);
+		mailbox = (long *) cdbmb->ptr;
+		if (num_mails > 0) for (a=0; a<num_mails; ++a) {
+			if (mailbox[a] > (CC->usersupp.lastseen[1])) ++mail;
+			}
+		cdb_free(cdbmb);
+		}
+
 
 	cprintf("%d %d|%d|%d\n",OK,mail,regis,vali);
 	}

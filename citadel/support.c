@@ -169,24 +169,6 @@ int getstring(FILE *fp, char *string)
 
 
 /*
- * sort message pointers
- */
-void sort_fullroom(struct fullroom *frptr)
-{
-	int a,b;
-	long hold;
-	for (a=MSGSPERRM-2; a>=0; --a) {
-		for (b=0; b<=a; ++b) {
-			if ((frptr->FRnum[b]) > (frptr->FRnum[b+1])) {
-				hold = frptr->FRnum[b];
-				frptr->FRnum[b] = frptr->FRnum[b+1];
-				frptr->FRnum[b+1] = hold;
-				}
-			}
-		}
-	}
-
-/*
  * pattern2()  -  searches for patn within search string, returns pos 
  */ 
 int pattern2(char *search, char *patn)

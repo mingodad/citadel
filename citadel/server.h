@@ -21,7 +21,9 @@ struct CitContext {
 
         struct usersupp usersupp;	/* Database record buffers */
         struct quickroom quickroom;
-        struct fullroom fullroom;
+	
+	long *msglist;
+	int num_msgs;
 
         char curr_user[32];		/* name of current user */
         int curr_rm;			/* index of current room */
@@ -119,9 +121,10 @@ struct ChatLine {
 #define CDB_MSGMAIN	0	/* message base */
 #define CDB_USERSUPP	1	/* user file */
 #define CDB_QUICKROOM	2	/* room index */
-#define CDB_FULLROOM	3	/* room message lists */
-#define CDB_FLOORTAB	4	/* floor index */
-#define MAXCDB		5	/* total number of CDB's defined */
+#define CDB_FLOORTAB	3	/* floor index */
+#define CDB_MSGLISTS	4	/* room message lists */
+#define CDB_MAILBOXES	5	/* mailbox message lists */
+#define MAXCDB		6	/* total number of CDB's defined */
 
 struct cdbdata {
 	size_t len;

@@ -882,7 +882,7 @@ void readmsgs(int c, int rdir, int q)	/* read contents of a room */
 	signal(SIGINT,SIG_IGN);
 	signal(SIGQUIT,SIG_IGN);
 
-	if (c<0) b=(MSGSPERRM-1);
+	if (c<0) b=(MAXMSGS-1);
 	else b=0;
 
 	sprintf(prtfile,"/tmp/CPrt%d",getpid());
@@ -916,7 +916,7 @@ void readmsgs(int c, int rdir, int q)	/* read contents of a room */
 	start = ( (rdir==1) ? 0 : (num_msgs-1) );
 	for (a=start; ((a<num_msgs)&&(a>=0)); a=a+rdir) {
 		while (msg_arr[a]==0L) {
-			a=a+rdir; if ((a==MSGSPERRM)||(a==(-1))) return;
+			a=a+rdir; if ((a==MAXMSGS)||(a==(-1))) return;
 			}
 
 RAGAIN:		pagin=((arcflag==0)&&(quotflag==0)&&

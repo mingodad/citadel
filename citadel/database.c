@@ -42,15 +42,16 @@ void defrag_databases() {
 	gdbm_reorganize(gdbms[CDB_MSGMAIN]);
 	end_critical_section(S_MSGMAIN);
 
-	/* defrag the user file */
+	/* defrag the user file and mailboxes */
 	begin_critical_section(S_USERSUPP);
 	gdbm_reorganize(gdbms[CDB_USERSUPP]);
+	gdbm_reorganize(gdbms[CDB_MAILBOXES]);
 	end_critical_section(S_USERSUPP);
 
-	/* defrag the room files */
+	/* defrag the room files and message lists */
 	begin_critical_section(S_QUICKROOM);
 	gdbm_reorganize(gdbms[CDB_QUICKROOM]);
-	gdbm_reorganize(gdbms[CDB_FULLROOM]);
+	gdbm_reorganize(gdbms[CDB_MSGLISTS]);
 	end_critical_section(S_QUICKROOM);
 
 	/* defrag the floor table */
@@ -88,17 +89,24 @@ void open_databases() {
 			gdbm_strerror(gdbm_errno));
 		}
 
-	gdbms[CDB_FULLROOM] = gdbm_open("fullroom.gdbm", 0,
-		GDBM_WRCREAT, 0600, NULL);
-	if (gdbms[CDB_FULLROOM] == NULL) {
-		lprintf(2, "Cannot open fullroom: %s\n",
-			gdbm_strerror(gdbm_errno));
-		}
-
 	gdbms[CDB_FLOORTAB] = gdbm_open("floortab.gdbm", 0,
 		GDBM_WRCREAT, 0600, NULL);
 	if (gdbms[CDB_FLOORTAB] == NULL) {
 		lprintf(2, "Cannot open floortab: %s\n",
+			gdbm_strerror(gdbm_errno));
+		}
+
+	gdbms[CDB_MSGLISTS] = gdbm_open("msglists.gdbm", 0,
+		GDBM_WRCREAT, 0600, NULL);
+	if (gdbms[CDB_MSGLISTS] == NULL) {
+		lprintf(2, "Cannot open msglists: %s\n",
+			gdbm_strerror(gdbm_errno));
+		}
+
+	gdbms[CDB_MAILBOXES] = gdbm_open("mailboxes.gdbm", 0,
+		GDBM_WRCREAT, 0600, NULL);
+	if (gdbms[CDB_MAILBOXES] == NULL) {
+		lprintf(2, "Cannot open mailboxes: %s\n",
 			gdbm_strerror(gdbm_errno));
 		}
 

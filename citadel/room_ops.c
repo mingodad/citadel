@@ -21,9 +21,6 @@ int is_known(struct quickroom *roombuf, int roomnum, struct usersupp *userbuf)
 	/* for internal programs, always succeed */
 	if (((CC->internal_pgm))&&(roombuf->QRflags & QR_INUSE)) return(1);
 
-	/* mail */
-	if (roomnum==1) roombuf->QRhighest=userbuf->mailnum[MAILSLOTS-1];
-
 	/* for regular rooms, check the permissions */
 	if ((roombuf->QRflags & QR_INUSE)
 		&& ( (roomnum!=2) || (userbuf->axlevel>=6))
@@ -58,7 +55,6 @@ int has_newmsgs(struct quickroom *roombuf, int roomnum, struct usersupp *userbuf
  */
 int is_zapped(struct quickroom *roombuf, int roomnum, struct usersupp *userbuf)
 {
-	if (roomnum==1) roombuf->QRhighest=userbuf->mailnum[MAILSLOTS-1];
 	if ((roombuf->QRflags & QR_INUSE)
 		&& (roombuf->QRgen == (userbuf->forget[roomnum]) )
 		&& ( (roomnum!=2) || ((userbuf->axlevel)>=6))
@@ -198,69 +194,115 @@ void lputfloor(struct floor *flbuf, int floor_num)
 
 
 
-void readmail(void) {
-	int a;
-	for (a=0; a<MSGSPERRM; ++a) {
-		CC->fullroom.FRnum[a]=0L;
-		}
-	for (a=0; a<MAILSLOTS; ++a) {
-		CC->fullroom.FRnum[a+(MSGSPERRM-MAILSLOTS)] =
-			CC->usersupp.mailnum[a];
-		}
-	CC->quickroom.QRhighest = CC->usersupp.mailnum[MAILSLOTS-1];
-	}
-
-
-void writemail(void) {
-	int a;
-	lgetuser(&CC->usersupp,CC->curr_user);
-	for (a=0; a<MAILSLOTS; ++a) {
-		CC->usersupp.mailnum[a] =
-			CC->fullroom.FRnum[a+(MSGSPERRM-MAILSLOTS)];
-		}
-	lputuser(&CC->usersupp,CC->curr_user);
-	}
-
-
-
-
 /*
- * get_fullroom()  -  retrieve room message pointers
+ * get_msglist()  -  retrieve room message pointers
  */
-void get_fullroom(struct fullroom *frbuf, int room_num)
+void get_msglist(int room_num)
 {
 	struct cdbdata *cdbfr;
 
-	if (room_num != 1) {
-		bzero(frbuf, sizeof(struct fullroom));
-		cdbfr = cdb_fetch(CDB_FULLROOM, &room_num, sizeof(int));
-		if (cdbfr != NULL) {
-			memcpy(frbuf, cdbfr->ptr, cdbfr->len);
-			cdb_free(cdbfr);
-			}
+	if (CC->msglist != NULL) {
+		free(CC->msglist);
+		}
+	CC->msglist = NULL;
+	CC->num_msgs = 0;
 
+	if (room_num != 1) {
+		cdbfr = cdb_fetch(CDB_MSGLISTS, &room_num, sizeof(int));
 		}
 	else {
-		readmail();
+		cdbfr = cdb_fetch(CDB_MAILBOXES, &CC->usersupp.usernum,
+					sizeof(long));
+		}
+
+	if (cdbfr == NULL) {
+		return;
+		}
+
+	CC->msglist = malloc(cdbfr->len);
+	memcpy(CC->msglist, cdbfr->ptr, cdbfr->len);
+	CC->num_msgs = cdbfr->len / sizeof(long);
+	cdb_free(cdbfr);
+	}
+
+
+/*
+ * put_msglist()  -  retrieve room message pointers
+ */
+void put_msglist(int room_num)
+{
+
+	if (room_num != 1) {
+		cdb_store(CDB_MSGLISTS, &room_num, sizeof(int),
+			CC->msglist, (CC->num_msgs * sizeof(long)) );
+		}
+	else {
+		cdb_store(CDB_MAILBOXES, &CC->usersupp.usernum, sizeof(long),
+			CC->msglist, (CC->num_msgs * sizeof(long)) );
 		}
 	}
 
 
 /*
- * put_fullroom()  -  retrieve room message pointers
+ * MessageFromList()  -  get a message number from the list currently in memory
  */
-void put_fullroom(struct fullroom *frbuf, int room_num)
-{
+long MessageFromList(int whichpos) {
 
-	if (room_num != 1) {
-		cdb_store(CDB_FULLROOM, &room_num, sizeof(int),
-			frbuf, sizeof(struct fullroom));
-		}
-	else {
-		writemail();	
-		}
+	/* Return zero if the position is invalid */
+	if (whichpos >= CC->num_msgs) return 0L;
+
+	return(CC->msglist[whichpos]);
 	}
 
+/* 
+ * SetMessageInList()  -  set a message number in the list currently in memory
+ */
+void SetMessageInList(int whichpos, long newmsgnum) {
+
+	/* Return zero if the position is invalid */
+	if (whichpos >= CC->num_msgs) return;
+
+	CC->msglist[whichpos] = newmsgnum;
+	}
+
+
+
+/*
+ * sort message pointers
+ * (returns new msg count)
+ */
+int sort_msglist(long listptrs[], int oldcount)
+{
+	int a,b;
+	long hold1, hold2;
+	int numitems;
+
+	numitems = oldcount;
+	if (numitems < 2) return(oldcount);
+
+	/* do the sort */
+	for (a=numitems-2; a>=0; --a) {
+		for (b=0; b<=a; ++b) {
+			if (listptrs[b] > (listptrs[b+1])) {
+				hold1 = listptrs[b];
+				hold2 = listptrs[b+1];
+				listptrs[b] = hold2;
+				listptrs[b+1] = hold1;
+				}
+			}
+		}
+
+	/* and yank any nulls */
+	while ( (numitems > 0) && (listptrs[0] == 0L) ) {
+		memcpy(&listptrs[0], &listptrs[1],
+			(sizeof(long) * (CC->num_msgs - 1)) );
+		--numitems;
+		}
+
+	return(numitems);
+	}
+
+ 
 
 
 /* 
@@ -444,6 +486,9 @@ void usergoto(int where, int display_result)
 	int rmailflag;
 	int raideflag;
 	int newmailcount = 0;
+	struct cdbdata *cdbmb;
+	int num_mails;
+	long *mailbox;
 
 	CC->curr_rm=where;
 	getroom(&CC->quickroom,CC->curr_rm);
@@ -452,19 +497,31 @@ void usergoto(int where, int display_result)
 	CC->usersupp.generation[CC->curr_rm]=CC->quickroom.QRgen;
 	lputuser(&CC->usersupp,CC->curr_user);
 
-	for (a=0; a<MAILSLOTS; ++a)
-		if (CC->usersupp.mailnum[a] > CC->usersupp.lastseen[1]) ++newmailcount;
+	/* check for new mail */
+	newmailcount = 0;
+
+	cdbmb = cdb_fetch(CDB_MAILBOXES, &CC->usersupp.usernum, sizeof(long));
+	if (cdbmb != NULL) {
+		num_mails = cdbmb->len / sizeof(long);
+		mailbox = (long *) cdbmb->ptr;
+		if (num_mails > 0) for (a=0; a<num_mails; ++a) {
+			if (mailbox[a] > (CC->usersupp.lastseen[1]))
+				++newmailcount;
+			}
+		cdb_free(cdbmb);
+		}
 
 	/* set info to 1 if the user needs to read the room's info file */
 	if (CC->quickroom.QRinfo > CC->usersupp.lastseen[CC->curr_rm]) info = 1;
 
 	b=0; c=0;
 	get_mm();
-	get_fullroom(&CC->fullroom,CC->curr_rm);
-	for (a=0; a<MSGSPERRM; ++a) {
-		if (CC->fullroom.FRnum[a]>0L) {
+	get_msglist(CC->curr_rm);
+	for (a=0; a<CC->num_msgs; ++a) {
+		if (MessageFromList(a)>0L) {
 			++b;
-			if (CC->fullroom.FRnum[a]>CC->usersupp.lastseen[CC->curr_rm]) ++c;
+			if (MessageFromList(a)
+			   > CC->usersupp.lastseen[CC->curr_rm]) ++c;
 			}
 		}
 
@@ -914,7 +971,7 @@ void cmd_kill(char *argbuf)
 	int a;
 	int kill_ok;
 	struct floor flbuf;
-	struct fullroom frbuf;
+	long MsgToDelete;
 	
 	kill_ok = extract_int(argbuf,0);
 
@@ -941,11 +998,15 @@ void cmd_kill(char *argbuf)
 		CC->quickroom.QRflags=0;
 
 		/* then delete the messages in the room */
-		get_fullroom(&frbuf, CC->curr_rm);
-		for (a=0; a<MSGSPERRM; ++a) {
-			cdb_delete(CDB_MSGMAIN, &frbuf.FRnum[a], sizeof(long));
+		get_msglist(CC->curr_rm);
+		if (CC->num_msgs > 0) for (a=0; a < CC->num_msgs; ++a) {
+			MsgToDelete = MessageFromList(a);
+			cdb_delete(CDB_MSGMAIN, &MsgToDelete, sizeof(long));
 			}
-		put_fullroom(&frbuf, CC->curr_rm);
+		put_msglist(CC->curr_rm);
+		free(CC->msglist);
+		CC->num_msgs = 0;
+		cdb_delete(CDB_MSGLISTS, &CC->curr_rm, sizeof(int));
 
 		lputroom(&CC->quickroom,CC->curr_rm);
 
@@ -993,9 +1054,7 @@ int get_free_room_slot(int search_dir)
 unsigned create_room(int free_slot, char *new_room_name, int new_room_type, char *new_room_pass, int new_room_floor)
 {
 	struct quickroom qrbuf;
-	struct fullroom frbuf;
 	struct floor flbuf;
-	int a;
 
 	lgetroom(&qrbuf,free_slot);
 	strncpy(qrbuf.QRname,new_room_name,19);
@@ -1010,13 +1069,6 @@ unsigned create_room(int free_slot, char *new_room_name, int new_room_type, char
 	qrbuf.QRhighest = 0L;
 	++qrbuf.QRgen; if (qrbuf.QRgen>=126) qrbuf.QRgen=10;
 	qrbuf.QRfloor = new_room_floor;
-
-	/* Initialize a blank fullroom structure */
-	get_fullroom(&frbuf,free_slot);
-	for (a=0; a<MSGSPERRM; ++a) {
-		frbuf.FRnum[a]=0L;
-		}
-	put_fullroom(&frbuf,free_slot);
 
 	/* save what we just did... */
 	lputroom(&qrbuf,free_slot);

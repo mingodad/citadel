@@ -57,13 +57,5 @@
 /* You may NOT change these values once you set up your system.	    */
 #define MAXROOMS	128		/* Number of rooms in system        */
 #define MAXFLOORS	16		/* Do not set higher than 127       */
-#define MAILSLOTS	35		/* Number of mail slots per user    */
-#define MSGSPERRM	150		/* Messages per room                */
-#define CALLLOG		1000		/* Number of entries in call log    */
-/* Do not set MAILSLOTS higher than MSGSPERRM 				    */
-
-/* These may be changed at any time. */
-#define MAXUCACHE	10		/* Entries in server user cache     */
-
 
 /*** END OF STRUCTURE SIZE VARIABLES ***/

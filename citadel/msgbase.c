@@ -165,25 +165,28 @@ void cmd_msgs(char *cmdbuf)
 		return;
 		}
 	get_mm();
-	get_fullroom(&CC->fullroom,CC->curr_rm);
+	get_msglist(CC->curr_rm);
 	getuser(&CC->usersupp,CC->curr_user);
-	cprintf("%d messages...\n",LISTING_FOLLOWS);
-	for (a=0; a<MSGSPERRM; ++a) 
-	       if ((CC->fullroom.FRnum[a] >=0)
+	cprintf("%d %d messages...\n",LISTING_FOLLOWS, CC->num_msgs);
+	if (CC->num_msgs != 0) {
+	   for (a=0; a<(CC->num_msgs); ++a) 
+	       if ((MessageFromList(a) >=0)
 	       && ( 
 
 (mode==MSGS_ALL)
-|| ((mode==MSGS_OLD) && (CC->fullroom.FRnum[a] <= CC->usersupp.lastseen[CC->curr_rm]))
-|| ((mode==MSGS_NEW) && (CC->fullroom.FRnum[a] > CC->usersupp.lastseen[CC->curr_rm]))
-|| ((mode==MSGS_NEW) && (CC->fullroom.FRnum[a] >= CC->usersupp.lastseen[CC->curr_rm])
+|| ((mode==MSGS_OLD) && (MessageFromList(a) <= CC->usersupp.lastseen[CC->curr_rm]))
+|| ((mode==MSGS_NEW) && (MessageFromList(a) > CC->usersupp.lastseen[CC->curr_rm]))
+|| ((mode==MSGS_NEW) && (MessageFromList(a) >= CC->usersupp.lastseen[CC->curr_rm])
 		     && (CC->usersupp.flags & US_LASTOLD))
-|| ((mode==MSGS_LAST)&& (a>=(MSGSPERRM-cm_howmany)))
+|| ((mode==MSGS_LAST)&& (a>=(CC->num_msgs-cm_howmany)))
 || ((mode==MSGS_FIRST)&&(a<cm_howmany))
-|| ((mode==MSGS_GT) && (CC->fullroom.FRnum[a] > cm_gt))
+|| ((mode==MSGS_GT) && (MessageFromList(a) > cm_gt))
 
 			)
-		)
-		cprintf("%ld\n",CC->fullroom.FRnum[a]);
+		) {
+			cprintf("%ld\n", MessageFromList(a));
+			}
+	   }
 	cprintf("000\n");
 	}
 
@@ -336,14 +339,21 @@ void output_message(char *msgid, int mode, int headers_only)
 		return;
 		}
 
-	/* We used to need to check in the current room's fullroom table
+	/* We used to need to check in the current room's message list
 	 * to determine where the message's disk position.  We no longer need
 	 * to do this, but we do it anyway as a security measure, in order to
 	 * prevent rogue clients from reading messages not in the current room.
 	 */
-	for (a=0; a<MSGSPERRM; ++a) if (CC->fullroom.FRnum[a] == msg_num) {
-		msg_ok = 1;
+
+	msg_ok = 0;
+	if (CC->num_msgs > 0) {
+		for (a=0; a<CC->num_msgs; ++a) {
+			if (MessageFromList(a) == msg_num) {
+				msg_ok = 1;
+				}
+			}
 		}
+
 	if (!msg_ok) {
 		cprintf("%d Message %ld is not in this room.\n",
 			ERROR, msg_num);
@@ -586,11 +596,11 @@ void cmd_msg3(char *cmdbuf)
 
 
 /*
- * message base operation to send a message to the master file
+ * Message base operation to send a message to the master file
+ * (returns new message number)
  */
-void send_message(char *filename, struct smreturn *retbuf, int generate_id)
-                		/* tempfilename of proper message */
-                        	/* return information */
+long send_message(char *filename, int generate_id)
+                /* tempfilename of proper message */
                 		/* set to 1 to generate an 'I' field */
 {
 
@@ -613,9 +623,7 @@ void send_message(char *filename, struct smreturn *retbuf, int generate_id)
 	if (message_in_memory == NULL) {
 		lprintf(2, "Can't allocate memory to save message!\n");
 		fclose(fp);	
-		retbuf->smnumber = 0L;
-		retbuf->smpos = 0L;
-		return;
+		return 0L;
 		}
 
 	lprintf(9, "Reading it into memory\n");	
@@ -633,17 +641,16 @@ void send_message(char *filename, struct smreturn *retbuf, int generate_id)
 	if ( cdb_store(CDB_MSGMAIN, &newmsgid, sizeof(long),
 			message_in_memory, templen) < 0 ) {
 		lprintf(2, "Can't store message\n");
-		retbuf->smnumber = 0L;
-		retbuf->smpos = 0L;
-		return;
+		end_critical_section(S_MSGMAIN);
+		free(message_in_memory);
+		return 0L;
 		}
 	end_critical_section(S_MSGMAIN);
 	free(message_in_memory);
 
 
 	/* Finally, return the pointers */
-	retbuf->smnumber = newmsgid;
-	retbuf->smpos= 1L; /* FIX we really won't be needing this */
+	return(newmsgid);
 	}
 
 
@@ -711,13 +718,16 @@ void save_message(char *mtmp,	/* file containing proper message */
 		int mailtype,	/* local or remote type, see citadel.h */
 		int generate_id) /* set to 1 to generate an 'I' field */
 {
-	int a,e;
 	struct usersupp tempUS;
 	char aaa[100];
-	struct smreturn smreturn;
 	int hold_rm;
+	struct cdbdata *cdbmb;
+	long *dmailbox;
+	int dnum_mails;
+	long newmsgid;
 
-	send_message(mtmp,&smreturn,generate_id);
+	newmsgid = send_message(mtmp,generate_id);
+	if (newmsgid <= 0L) return;
 	hold_rm=(-1);
 
 	/* if the user is a twit, move to the twit room for posting */
@@ -734,7 +744,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 		}
 
 	/* this call to usergoto() changes rooms if necessary.  It also
-	   causes the latest fullroom structure to be read into memory */
+	   causes the latest message list to be read into memory */
 	usergoto(CC->curr_rm,0);
 
 	/* Store the message pointer, but NOT for sent mail! */
@@ -742,27 +752,24 @@ void save_message(char *mtmp,	/* file containing proper message */
 
 		/* read in the quickroom record, obtaining a lock... */
 		lgetroom(&CC->quickroom,CC->curr_rm);
-		get_fullroom(&CC->fullroom,CC->curr_rm);
+		get_msglist(CC->curr_rm);
 
-		/* Delete the oldest message if there is one */
-		if (CC->fullroom.FRnum[0] != 0L) {
-			cdb_delete(CDB_MSGMAIN,
-				&CC->fullroom.FRnum[0], sizeof(long));
-			}
+		/* FIX here's where we have to to message expiry!! */
 
-		/* Now scroll... */
-		for (a=0; a<(MSGSPERRM-1); ++a) {
-			CC->fullroom.FRnum[a]=CC->fullroom.FRnum[a+1];
+		/* Now add the new message */
+		CC->num_msgs = CC->num_msgs + 1;
+		CC->msglist = realloc(CC->msglist,
+			((CC->num_msgs) * sizeof(long)) );
+		if (CC->msglist == NULL) {
+			lprintf(3, "ERROR can't realloc message list!\n");
 			}
-	
-		/* ...and add the new message */
-		CC->fullroom.FRnum[MSGSPERRM-1]=smreturn.smnumber;
+		SetMessageInList(CC->num_msgs - 1, newmsgid);
 	
 		/* Write it back to disk. */
-		put_fullroom(&CC->fullroom,CC->curr_rm);
+		put_msglist(CC->curr_rm);
 	
 		/* update quickroom */
-		CC->quickroom.QRhighest=CC->fullroom.FRnum[MSGSPERRM-1];
+		CC->quickroom.QRhighest = newmsgid;
 		lputroom(&CC->quickroom,CC->curr_rm);
 		}
 
@@ -784,17 +791,35 @@ void save_message(char *mtmp,	/* file containing proper message */
 		}
 
 	/* local mail - put a copy in the recipient's mailbox */
+	/* FIX here's where we have to handle expiry, stuffed boxes, etc. */
 	if (mailtype==M_LOCAL) {
 		if (lgetuser(&tempUS,rec)==0) {
-			if (tempUS.mailnum[0] != 0L) {
-				cdb_delete(CDB_MSGMAIN, &tempUS.mailnum[0],
-					sizeof(long));
+
+			cdbmb = cdb_fetch(CDB_MAILBOXES, &tempUS.usernum, sizeof(long));
+			if (cdbmb != NULL) {
+				memcpy(dmailbox, cdbmb->ptr, cdbmb->len);
+				dnum_mails = cdbmb->len / sizeof(long);
+				cdb_free(cdbmb);
 				}
-			for (e=0; e<(MAILSLOTS-1); ++e) {
-				tempUS.mailnum[e]=tempUS.mailnum[e+1];
+			else {
+				dmailbox = NULL;
+				dnum_mails = 0;
 				}
-			tempUS.mailnum[MAILSLOTS-1]=smreturn.smnumber;
+	
+			++dnum_mails;
+			if (dmailbox == NULL) {
+				dmailbox = malloc(sizeof(long) * dnum_mails);
+				}
+			else {
+				dmailbox = realloc(dmailbox,
+						sizeof(long) * dnum_mails);
+				}
+			
+			dmailbox[dnum_mails - 1] = newmsgid;
+			cdb_store(CDB_MAILBOXES, &tempUS.usernum, sizeof(long),
+				dmailbox, (dnum_mails * sizeof(long)) );
 			lputuser(&tempUS,rec);
+			free(dmailbox);
 			}
 		}
 
@@ -1145,19 +1170,20 @@ void cmd_dele(char *delstr)
 	
 	/* get room records, obtaining a lock... */
 	lgetroom(&CC->quickroom,CC->curr_rm);
-	get_fullroom(&CC->fullroom,CC->curr_rm);
+	get_msglist(CC->curr_rm);
 
 	ok = 0;
-	for (a=0; a<MSGSPERRM; ++a)
-		if (CC->fullroom.FRnum[a]==delnum) {
-			CC->fullroom.FRnum[a]=0L;
+	if (CC->num_msgs > 0) for (a=0; a<(CC->num_msgs); ++a) {
+		if (MessageFromList(a) == delnum) {
+			SetMessageInList(a, 0L);
 			ok = 1;
 			}
+		}
 
-	sort_fullroom(&CC->fullroom);
-	CC->quickroom.QRhighest = CC->fullroom.FRnum[MSGSPERRM-1];
+	CC->num_msgs = sort_msglist(CC->msglist, CC->num_msgs);
+	CC->quickroom.QRhighest = MessageFromList(CC->num_msgs - 1);
 
-	put_fullroom(&CC->fullroom,CC->curr_rm);
+	put_msglist(CC->curr_rm);
 	lputroom(&CC->quickroom,CC->curr_rm);
 	if (ok==1) {
 		cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));
@@ -1177,8 +1203,10 @@ void cmd_move(char *args)
 	int a;
 	int targ_slot;
 	struct quickroom qtemp;
-	struct fullroom ftemp;
 	int foundit;
+	struct cdbdata *cdbtarg;
+	long *targmsgs;
+	int targ_count;
 
 	num = extract_long(args,0);
 	extract(targ,args,1);
@@ -1211,19 +1239,19 @@ void cmd_move(char *args)
 
 	/* yank the message out of the current room... */
 	lgetroom(&CC->quickroom,CC->curr_rm);
-	get_fullroom(&CC->fullroom,CC->curr_rm);
+	get_msglist(CC->curr_rm);
 
 	foundit = 0;
-	for (a=0; a<MSGSPERRM; ++a) {
-		if (CC->fullroom.FRnum[a] == num) {
+	for (a=0; a<(CC->num_msgs); ++a) {
+		if (MessageFromList(a) == num) {
 			foundit = 1;
-			CC->fullroom.FRnum[a] = 0L;
+			SetMessageInList(a, 0L);
 			}
 		}
 	if (foundit) {
-		sort_fullroom(&CC->fullroom);
-		put_fullroom(&CC->fullroom,CC->curr_rm);
-		CC->quickroom.QRhighest = CC->fullroom.FRnum[MSGSPERRM-1];
+		CC->num_msgs = sort_msglist(CC->msglist, CC->num_msgs);
+		put_msglist(CC->curr_rm);
+		CC->quickroom.QRhighest = MessageFromList((CC->num_msgs)-1);
 		}
 	lputroom(&CC->quickroom,CC->curr_rm);
 	if (!foundit) {
@@ -1231,18 +1259,28 @@ void cmd_move(char *args)
 		return;
 		}
 
+	/* put the message into the target room */
 	lgetroom(&qtemp,targ_slot);
-	get_fullroom(&ftemp,targ_slot);
-	if (CC->fullroom.FRnum[0] != 0L) {
-		cdb_delete(CDB_MSGMAIN, &CC->fullroom.FRnum[0], sizeof(long));
+	cdbtarg = cdb_fetch(CDB_MSGLISTS, &targ_slot, sizeof(int));
+	if (cdbtarg != NULL) {
+		targmsgs = malloc(cdbtarg->len);
+		memcpy(targmsgs, cdbtarg->ptr, cdbtarg->len);
+		targ_count = cdbtarg->len / sizeof(long);
+		cdb_free(cdbtarg);
 		}
-	for (a=0; a<MSGSPERRM-1; ++a) {
-		ftemp.FRnum[a]=ftemp.FRnum[a+1];
+	else {
+		targmsgs = NULL;
+		targ_count = 0;
 		}
-	ftemp.FRnum[MSGSPERRM-1] = num;
-	sort_fullroom(&ftemp);
-	qtemp.QRhighest = ftemp.FRnum[MSGSPERRM-1];
-	put_fullroom(&ftemp,targ_slot);
+
+	++targ_count;
+	targmsgs = realloc(targmsgs, ((CC->num_msgs) * sizeof(long)));
+	targmsgs[targ_count - 1] = num;
+	targ_count = sort_msglist(targmsgs, targ_count);
+	qtemp.QRhighest = targmsgs[targ_count - 1];
+	cdb_store(CDB_MSGLISTS, &targ_slot, sizeof(int),
+			targmsgs, targ_count * sizeof(long));
+	free(targmsgs);
 	lputroom(&qtemp,targ_slot);
 	cprintf("%d ok\n",OK);
 	}
