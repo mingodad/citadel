@@ -129,20 +129,26 @@ void imap_do_store(int num_items, char **itemlist) {
 		}
 		striplt(whichflags);
 
-		/* A client might twiddle more than one bit at a time */
+		/* A client might twiddle more than one bit at a time.
+		 * Note that we check for the flag names without the leading
+		 * backslash because imap_parameterize() strips them out.
+		 */
 		num_flags = num_tokens(whichflags, ' ');
 		for (j=0; j<num_flags; ++j) {
 			extract_token(flag, whichflags, j, ' ');
 
-			if (!strcasecmp(flag, "\\Deleted")) {
+			if ((!strcasecmp(flag, "\\Deleted"))
+			   || (!strcasecmp(flag, "\\Deleted"))) {
 				if (CtdlDoIHavePermissionToDeleteMessagesFromThisRoom()) {
 					bits_to_twiddle |= IMAP_DELETED;
 				}
 			}
-			if (!strcasecmp(flag, "\\Seen")) {
+			if ((!strcasecmp(flag, "\\Seen"))
+			   || (!strcasecmp(flag, "Seen"))) {
 				bits_to_twiddle |= IMAP_SEEN;
 			}
-			if (!strcasecmp(flag, "\\Answered")) {
+			if ((!strcasecmp(flag, "\\Answered")) 
+			   || (!strcasecmp(flag, "\\Answered"))) {
 				bits_to_twiddle |= IMAP_ANSWERED;
 			}
 		}
@@ -220,6 +226,7 @@ void imap_uidstore(int num_parms, char *parms[]) {
 
 	strcpy(items, "");
 	for (i=4; i<num_parms; ++i) {
+		lprintf(9, "item %d: %s\n", i, parms[i]);
 		strcat(items, parms[i]);
 		if (i < (num_parms-1)) strcat(items, " ");
 	}

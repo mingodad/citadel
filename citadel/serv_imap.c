@@ -1266,7 +1266,7 @@ void imap_command_loop(void)
 		return;
 	}
 
-	lprintf(CTDL_INFO, "IMAP: %s\r\n", cmdbuf);
+	lprintf(CTDL_INFO, "IMAP: %s\n", cmdbuf);
 	while (strlen(cmdbuf) < 5)
 		strcat(cmdbuf, " ");
 

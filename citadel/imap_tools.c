@@ -3,7 +3,7 @@
  *
  * Utility functions for the IMAP module.
  *
- * Note: most of the UTF7 and UTF8 handling in here was stolen from Evolution.
+ * Note: most of the UTF7 and UTF8 handling in here was lifted from Evolution.
  *
  */
 
@@ -160,7 +160,8 @@ int utf8_getc(char** ptr)
 
 /* IMAP has certain special requirements in its character set, which means we
  * have to do a fair bit of work to convert Citadel's UTF8 strings to IMAP
- * strings. The next two routines (and their data tables) do that. */
+ * strings. The next two routines (and their data tables) do that.
+ */
 
 static char *utf7_alphabet =
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+,";
@@ -198,8 +199,9 @@ static void utf7_closeb64(struct string* out, int v, int i)
 	string_append_c(out, '-');
 }
 
-/* Convert from a Citadel name to an IMAP-safe name. Returns the end of the destination. */
-
+/* Convert from a Citadel name to an IMAP-safe name. Returns the end
+ * of the destination.
+ */
 static char* toimap(char* destp, char* destend, char* src)
 {
 	struct string dest;
@@ -209,7 +211,7 @@ static char* toimap(char* destp, char* destend, char* src)
 
 	*destp = 0;
 	string_init(&dest, destp, destend-destp);
-	lprintf(CTDL_DEBUG, "toimap %s\r\n", src);
+	/* lprintf(CTDL_DEBUG, "toimap %s\r\n", src); */
 
 	for (;;)
 	{
@@ -275,7 +277,7 @@ static char* toimap(char* destp, char* destend, char* src)
 
 	if (state == 1)
 		utf7_closeb64(&dest, v, i);
-	lprintf(CTDL_DEBUG, "    -> %s\r\n", destp);
+	/* lprintf(CTDL_DEBUG, "    -> %s\r\n", destp); */
 	return string_end(&dest);
 }
 
@@ -293,7 +295,7 @@ static char* fromimap(char* destp, char* destend, char* src)
 
 	*destp = 0;
 	string_init(&dest, destp, destend-destp);
-	lprintf(CTDL_DEBUG, "fromimap %s\r\n", src);
+	/* lprintf(CTDL_DEBUG, "fromimap %s\r\n", src); */
 
 	do {
 		c = *p++;
@@ -351,7 +353,7 @@ static char* fromimap(char* destp, char* destend, char* src)
 			}
 	} while (c != '\0');
 
-	lprintf(CTDL_DEBUG, "      -> %s\r\n", destp);
+	/* lprintf(CTDL_DEBUG, "      -> %s\r\n", destp); */
 	return string_end(&dest);
 }
 
@@ -571,8 +573,9 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 		}
 	}
 
-	/* Meh. It's either not a multi-level room name, or else we couldn't find it. */
-
+	/* Meh. It's either not a multi-level room name, or else we
+	 * couldn't find it.
+	 */
 	ret = (0 | IR_MAILBOX);
 
 exit:
