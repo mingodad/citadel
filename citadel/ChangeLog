@@ -1,3 +1,7 @@
+Fri Oct  9 18:34:06 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* user_ops.c: added PurgeStaleRelationships() to do processing at
+	  session logout time to remove visits for rooms which no longer exist
+
 1998-10-09 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* serv_chat.c: fix buffer overrun that was resulting in segv's
 

@@ -41,3 +41,4 @@ void CtdlSetRelationship(struct visit *newvisit,
                         struct usersupp *rel_user,
                         struct quickroom *rel_room);
 void MailboxName(char *buf, struct usersupp *who, char *prefix);
+void PurgeStaleRelationships(void);
