@@ -23,13 +23,13 @@
 #include "webcit.h"
 
 
-
-
-
-
+char *viewdefs[] = {
+	"Messages",
+	"Summary",
+	"Address Book"
+};
 
 char floorlist[128][SIZ];
-
 
 /*
  * load the list of floors
@@ -339,6 +339,29 @@ void embed_newmail_button(void) {
 
 
 
+/*
+ * Display the current view and offer an option to change it
+ */
+void embed_view_o_matic(void) {
+	int i;
+
+	wprintf("<FORM NAME=\"viewomatic\">\n"
+		"<SELECT NAME=\"newview\" SIZE=\"1\" "
+		"OnChange=\"location.href=viewomatic.newview.options"
+		"[selectedIndex].value\">\n");
+
+	for (i=0; i<(sizeof viewdefs / sizeof (char *)); ++i) {
+		wprintf("<OPTION %s VALUE=\"/changeview?view=%d\">",
+			((i == WC->wc_view) ? "SELECTED" : ""),
+			i );
+		escputs(viewdefs[i]);
+		wprintf("</OPTION>\n");
+	}
+	wprintf("</SELECT></FORM>\n");
+}
+
+
+
 void embed_room_banner(char *got) {
 	char fakegot[SIZ];
 
@@ -361,6 +384,7 @@ void embed_room_banner(char *got) {
 	svcallback("ROOMPIC", embed_room_graphic);
 	svcallback("ROOMINFO", readinfo);
 	svcallback("YOUHAVEMAIL", embed_newmail_button);
+	svcallback("VIEWOMATIC", embed_view_o_matic);
 
 	do_template("roombanner.html");
 	clear_local_substs();
@@ -1565,4 +1589,20 @@ void netedit(void) {
 	serv_puts("000");
 	fclose(fp);
 	display_editroom();
+}
+
+
+
+/*
+ * Change the view for this room
+ */
+void change_view(void) {
+	int view;
+	char buf[SIZ];
+
+	view = atol(bstr("view"));
+
+	serv_printf("VIEW %d", view);
+	serv_gets(buf);
+	smart_goto(WC->wc_roomname);
 }

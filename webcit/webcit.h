@@ -297,3 +297,4 @@ void select_user_to_edit(char *message);
 void display_edituser(char *who);
 void create_user(void);
 void edituser(void);
+void change_view(void);
