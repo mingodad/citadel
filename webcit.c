@@ -31,17 +31,6 @@
 #include "webcit.h"
 
 
-
-char *ExpressMessages = NULL;	/* FIX move to session context */
-
-/* This variable is set to 1 if the room banner and menubar have been
- * displayed, and we need to close the <TABLE> tags.
- */
-int fake_frames = 0;	/* FIX move to session context */
-
-struct urlcontent *urlstrings = NULL;
-
-
 void unescape_input(char *buf)
 {
 	int a, b;
@@ -87,8 +76,8 @@ void addurls(char *url)
 		buf[b] = 0;
 
 		u = (struct urlcontent *) malloc(sizeof(struct urlcontent));
-		u->next = urlstrings;
-		urlstrings = u;
+		u->next = WC->urlstrings;
+		WC->urlstrings = u;
 		strcpy(u->url_key, buf);
 
 		/* now chop that part off */
@@ -123,11 +112,11 @@ void free_urls(void)
 {
 	struct urlcontent *u;
 
-	while (urlstrings != NULL) {
-		free(urlstrings->url_data);
-		u = urlstrings->next;
-		free(urlstrings);
-		urlstrings = u;
+	while (WC->urlstrings != NULL) {
+		free(WC->urlstrings->url_data);
+		u = WC->urlstrings->next;
+		free(WC->urlstrings);
+		WC->urlstrings = u;
 	}
 }
 
@@ -138,7 +127,7 @@ void dump_vars(void)
 {
 	struct urlcontent *u;
 
-	for (u = urlstrings; u != NULL; u = u->next) {
+	for (u = WC->urlstrings; u != NULL; u = u->next) {
 		wprintf("%38s = %s\n", u->url_key, u->url_data);
 	}
 }
@@ -147,7 +136,7 @@ char *bstr(char *key)
 {
 	struct urlcontent *u;
 
-	for (u = urlstrings; u != NULL; u = u->next) {
+	for (u = WC->urlstrings; u != NULL; u = u->next) {
 		if (!strcasecmp(u->url_key, key))
 			return (u->url_data);
 	}
@@ -177,7 +166,7 @@ void wprintf(const char *format,...)
  */
 void wDumpContent(int print_standard_html_footer)
 {
-	if (fake_frames) {
+	if (WC->fake_frames) {
 		wprintf("<CENTER><FONT SIZE=-1>"
 			"<TABLE border=0 width=100%><TR>"
 			"<TD><A HREF=\"/ungoto\">"
@@ -195,7 +184,7 @@ void wDumpContent(int print_standard_html_footer)
 			"</TR></TABLE>"
 			"</FONT>\n"
 			"</TD></TR></TABLE></TABLE>\n");
-		fake_frames = 0;
+		WC->fake_frames = 0;
 	}
 
 	if (print_standard_html_footer) {
@@ -316,11 +305,11 @@ void output_headers(int print_standard_html_head)
 		wprintf("</TITLE>\n"
 			"<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">\n"
 			"</HEAD>\n");
-		if (ExpressMessages != NULL) {
+		if (WC->ExpressMessages != NULL) {
 			wprintf("<SCRIPT language=\"javascript\">\n");
 			wprintf("function ExpressMessage() {\n");
 			wprintf(" alert(\"");
-			escputs(ExpressMessages);
+			escputs(WC->ExpressMessages);
 			wprintf("\")\n");
 			wprintf(" }\n </SCRIPT>\n");
 		}
@@ -332,10 +321,10 @@ void output_headers(int print_standard_html_head)
 		 */
 
 		wprintf("<BODY ");
-		if (ExpressMessages != NULL) {
+		if (WC->ExpressMessages != NULL) {
 			wprintf("onload=\"ExpressMessage()\" ");
-			free(ExpressMessages);
-			ExpressMessages = NULL;
+			free(WC->ExpressMessages);
+			WC->ExpressMessages = NULL;
 		}
 		wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
 	
@@ -355,7 +344,7 @@ void output_headers(int print_standard_html_head)
 
 		wprintf("</TD></TR><TR VALIGN=TOP><TD>\n");
 		
-		fake_frames = 1;
+		WC->fake_frames = 1;
 		}
 	}
 }
@@ -363,15 +352,15 @@ void output_headers(int print_standard_html_head)
 
 
 void ExpressMessageCat(char *buf) {
-	if (ExpressMessages == NULL) {
-		ExpressMessages = malloc(strlen(buf) + 4);
-		strcpy(ExpressMessages, "");
+	if (WC->ExpressMessages == NULL) {
+		WC->ExpressMessages = malloc(strlen(buf) + 4);
+		strcpy(WC->ExpressMessages, "");
 	} else {
-		ExpressMessages = realloc(ExpressMessages,
-			(strlen(ExpressMessages) + strlen(buf) + 4));
+		WC->ExpressMessages = realloc(WC->ExpressMessages,
+			(strlen(WC->ExpressMessages) + strlen(buf) + 4));
 	}
-	strcat(ExpressMessages, buf);
-	strcat(ExpressMessages, "\\n");
+	strcat(WC->ExpressMessages, buf);
+	strcat(WC->ExpressMessages, "\\n");
 }
 
 
