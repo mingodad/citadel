@@ -1,4 +1,7 @@
 $Log$
+Revision 1.344  1999/08/03 11:34:35  ajc
+* Added client_icq.c and client_icq.h
+
 Revision 1.343  1999/08/03 03:14:51  ajc
 * Wrote the client side of the ICQ gateway.  Now on to other projects.  :)
 
@@ -1170,3 +1173,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
