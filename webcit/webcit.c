@@ -351,7 +351,7 @@ void output_headers(int print_standard_html_head)
 
 	if (print_standard_html_head > 0) {
 		wprintf("<HTML><HEAD><TITLE>");
-		escputs("WebCit");	/* FIX -- add BBS name here */
+		escputs(serv_info.serv_humannode);
 		wprintf("</TITLE></HEAD>");
 		if (ExpressMessages != NULL) {
 			wprintf("<SCRIPT language=\"javascript\">\n");
@@ -899,6 +899,7 @@ int main(int argc, char *argv[])
 			argc);
 		return 1;
 	}
+
 	wc_session = atoi(argv[1]);
 	defaulthost = argv[2];
 	defaultport = argv[3];
@@ -906,6 +907,12 @@ int main(int argc, char *argv[])
 	strcpy(wc_username, "");
 	strcpy(wc_password, "");
 	strcpy(wc_roomname, "");
+
+	/* Clear out serv_info and temporarily set the value of serv_humannode
+	 * to a default value, because it'll be used in HTML page titles
+	 */
+	memset(&serv_info, 0, sizeof(serv_info));
+	strcpy(serv_info.serv_humannode, "WebCit");
 
 	strcpy(browser, argv[5]);
 	bd = browser_braindamage_check(browser);
