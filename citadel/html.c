@@ -132,6 +132,14 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 					strcat(outbuf, "\n\n");
 				}
 
+				if (!strcasecmp(tag, "LI")) {
+					strcat(outbuf, "\n * ");
+				}
+
+				else if (!strcasecmp(tag, "/UL")) {
+					strcat(outbuf, "\n\n");
+				}
+
 				else if (!strcasecmp(tag, "H1")) {
 					strcat(outbuf, "\n\n");
 				}

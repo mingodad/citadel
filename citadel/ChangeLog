@@ -1,4 +1,7 @@
  $Log$
+ Revision 624.6  2004/08/23 21:41:26  error
+ * html.c: Try to something sane with lists
+
  Revision 624.5  2004/08/23 21:40:04  error
  * No longer accept MD5 as a hash when encrypting
 
@@ -5987,4 +5990,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
