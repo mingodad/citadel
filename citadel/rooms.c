@@ -37,7 +37,7 @@ void hit_any_key(void);
 int yesno(void);
 void strprompt(char *prompt, char *str, int len);
 void newprompt(char *prompt, char *str, int len);
-void dotgoto(char *towhere, int display_name);
+void dotgoto(char *towhere, int display_name, int fromungoto);
 void serv_read(char *buf, int bytes);
 void formout(char *name);
 int inkey(void);
@@ -63,7 +63,9 @@ extern char curr_floor;
 
 extern int ugnum;
 extern long uglsn;
-extern char ugname[];
+extern char *uglist[];
+extern long uglistlsn[];
+extern int uglistsize;
 
 extern char floorlist[128][SIZ];
 
@@ -561,7 +563,7 @@ void editthisroom(void)
 		serv_gets(buf);
 		scr_printf("%s\n", &buf[4]);
 		if (buf[0] == '2')
-			dotgoto(rname, 2);
+			dotgoto(rname, 2, 0);
 	}
 }
 
@@ -572,25 +574,25 @@ void editthisroom(void)
 void ungoto(void)
 {
 	char buf[SIZ];
-
-	if (!strcmp(ugname, ""))
-		return;
-	snprintf(buf, sizeof buf, "GOTO %s", ugname);
+    if (uglistsize == 0)
+      return;
+	snprintf(buf, sizeof buf, "GOTO %s", uglist[uglistsize-1]); 
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '2') {
 		scr_printf("%s\n", &buf[4]);
 		return;
 	}
-	sprintf(buf, "SLRP %ld", uglsn);
+	sprintf(buf, "SLRP %ld", uglistlsn[uglistsize-1]); 
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '2') {
 		scr_printf("%s\n", &buf[4]);
 	}
-	safestrncpy(buf, ugname, sizeof buf);
-	strcpy(ugname, "");
-	dotgoto(buf, 0);
+    safestrncpy (buf, uglist[uglistsize-1], sizeof(buf));
+    uglistsize--;
+    free(uglist[uglistsize]);
+	dotgoto(buf, 0, 1); /* Don't queue ungoto info or we end up in a loop */
 }
 
 
@@ -869,7 +871,7 @@ void killroom(void)
 	scr_printf("%s\n", &aaa[4]);
 	if (aaa[0] != '2')
 		return;
-	dotgoto("_BASEROOM_", 0);
+	dotgoto("_BASEROOM_", 0, 0);
 }
 
 void forget(void)
@@ -888,7 +890,7 @@ void forget(void)
 	}
 
 	/* now return to the lobby */
-	dotgoto("_BASEROOM_", 0);
+	dotgoto("_BASEROOM_", 0, 0);
 }
 
 
@@ -976,7 +978,7 @@ void entroom(void)
 	}
 
 	/* command succeeded... now GO to the new room! */
-	dotgoto(new_room_name, 0);
+	dotgoto(new_room_name, 0, 0);
 }
 
 

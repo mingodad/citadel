@@ -83,8 +83,9 @@ int screenwidth;
 int screenheight;
 unsigned room_flags;
 char room_name[ROOMNAMELEN];
-char ugname[ROOMNAMELEN];
-long uglsn;			/* holds <u>ngoto info */
+char *uglist[UGLISTLEN]; /* size of the ungoto list */
+long uglistlsn[UGLISTLEN]; /* current read position for all the ungoto's. Not going to make any friends with this one. */
+int uglistsize = 0;
 char is_mail = 0;		/* nonzero when we're in a mail room */
 char axlevel = 0;		/* access level */
 char is_room_aide = 0;		/* boolean flag, 1 if room aide */
@@ -117,9 +118,15 @@ extern int rc_ansi_color;	/* ansi color value from citadel.rc */
  */
 void logoff(int code)
 {
+    int lp;
 	if (editor_pid > 0) {	/* kill the editor if it's running */
 		kill(editor_pid, SIGHUP);
 	}
+
+    /* Free the ungoto list */
+    for (lp = 0; lp < uglistsize; lp++)
+      free (uglist[lp]);
+
 /* shut down the server... but not if the logoff code is 3, because
  * that means we're exiting because we already lost the server
  */
@@ -319,7 +326,7 @@ char *pop_march(int desired_floor)
 /*
  * jump directly to a room
  */
-void dotgoto(char *towhere, int display_name)
+void dotgoto(char *towhere, int display_name, int fromungoto)
 {
 	char aaa[SIZ], bbb[SIZ], psearch[SIZ];
 	static long ls = 0L;
@@ -327,11 +334,30 @@ void dotgoto(char *towhere, int display_name)
 	static int oldmailcount = (-1);
 	int partial_match, best_match;
 	char from_floor;
+    int ugpos = uglistsize;
 
 	/* store ungoto information */
-	strcpy(ugname, room_name);
-	uglsn = ls;
-
+    if (fromungoto == 0)
+      {
+        if (uglistsize >= (UGLISTLEN-1))
+          {  /* sloppy slide them all down, hey it's the client, who cares. :-) */
+            int lp;
+            free (uglist[0]);
+            for (lp = 0; lp < (UGLISTLEN-1); lp++)
+              {
+                uglist[lp] = uglist[lp+1];
+                uglistlsn[lp] = uglistlsn[lp+1];
+              }
+            ugpos--;
+          }
+        else
+          uglistsize++;
+        
+        uglist[ugpos] = malloc(strlen(room_name)+1);
+        strcpy(uglist[ugpos], room_name);
+        uglistlsn[ugpos] = ls;
+      }
+      
 	/* first try an exact match */
 	snprintf(aaa, sizeof aaa, "GOTO %s", towhere);
 	serv_puts(aaa);
@@ -505,7 +531,7 @@ void gotonext(void)
 		strcpy(next_room, "_BASEROOM_");
 	}
 	remove_march(next_room, 0);
-	dotgoto(next_room, 1);
+	dotgoto(next_room, 1, 0);
 }
 
 /*
@@ -559,14 +585,14 @@ void gf_toroom(char *towhere, int mode)
 
 	if (mode == GF_GOTO) {	/* <;G>oto mode */
 		updatels();
-		dotgoto(towhere, 1);
+		dotgoto(towhere, 1, 0);
 	}
 	if (mode == GF_SKIP) {	/* <;S>kip mode */
-		dotgoto(towhere, 1);
+		dotgoto(towhere, 1, 0);
 		remove_march("_FLOOR_", floor_being_left);
 	}
 	if (mode == GF_ZAP) {	/* <;Z>ap mode */
-		dotgoto(towhere, 1);
+		dotgoto(towhere, 1, 0);
 		remove_march("_FLOOR_", floor_being_left);
 		forget_all_rooms_on(floor_being_left);
 	}
@@ -1215,11 +1241,10 @@ PWOK:
 
 
 	/* Enter the lobby */
-	dotgoto("_BASEROOM_", 1);
+	dotgoto("_BASEROOM_", 1, 0);
 
 /* Main loop for the system... user is logged in. */
-	strcpy(ugname, "");
-	uglsn = 0L;
+    uglistsize = 0;
 
 	if (newnow == 1)
 		readmsgs(3, 1, 5);
@@ -1270,20 +1295,20 @@ PWOK:
 			case 90:
 				if (!rc_alt_semantics)
 					updatelsa();
-				dotgoto(argbuf, 0);
+				dotgoto(argbuf, 0, 0);
 				break;
 			case 58:
 				updatelsa();
-				dotgoto("_MAIL_", 1);
+				dotgoto("_MAIL_", 1, 0);
 				break;
 			case 20:
 				updatels();
-				dotgoto(argbuf, 0);
+				dotgoto(argbuf, 0, 0);
 				break;
 			case 52:
 				if (rc_alt_semantics)
 					updatelsa();
-				dotgoto(argbuf, 0);
+				dotgoto(argbuf, 0, 0);
 				break;
 			case 10:
 				readmsgs(0, 1, 0);

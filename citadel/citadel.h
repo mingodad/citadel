@@ -55,6 +55,7 @@ typedef unsigned char CIT_UBYTE;
 
 /* Various length constants */
 
+#define UGLISTLEN   100   /* you get a ungoto list of this size */
 #define ROOMNAMELEN	128		/* The size of a roomname string */
 #define NONCE_SIZE	128		/* Added by <bc> to allow for APOP auth 
 					 * it is BIG becuase there is a hostname
