@@ -307,6 +307,18 @@ enum {
 
 
 
+/*
+ * ServiceFunctionHook extensions are used for hooks which implement various
+ * non-Citadel services (on TCP protocols) directly in the Citadel server.
+ */
+struct ServiceFunctionHook {
+	struct ServiceFunctionHook *next;
+	int tcp_port;
+	void (*h_greeting_function) (void) ;
+	void (*h_command_function) (void) ;
+};
+extern struct ServiceFunctionHook *ServiceHookTable;
+
 
 
 /* Defines the relationship of a user to a particular room */

@@ -37,6 +37,7 @@ struct SessionFunctionHook *SessionHookTable = NULL;
 struct UserFunctionHook *UserHookTable = NULL;
 struct XmsgFunctionHook *XmsgHookTable = NULL;
 struct MessageFunctionHook *MessageHookTable = NULL;
+struct ServiceFunctionHook *ServiceHookTable = NULL;
 
 struct ProtoFunctionHook {
 	void (*handler) (char *cmdbuf);
@@ -226,6 +227,23 @@ void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *), int order)
 	XmsgHookTable = newfcn;
 	lprintf(5, "Registered a new x-msg function (priority %d)\n", order);
 }
+
+void CtdlRegisterServiceHook(int tcp_port,
+			void (*h_greeting_function) (void),
+			void (*h_command_function) (void) )
+{
+	struct ServiceFunctionHook *newfcn;
+
+	newfcn = (struct ServiceFunctionHook *)
+	    mallok(sizeof(struct ServiceFunctionHook));
+	newfcn->next = ServiceHookTable;
+	newfcn->tcp_port = tcp_port;
+	newfcn->h_greeting_function = h_greeting_function;
+	newfcn->h_command_function = h_command_function;
+	ServiceHookTable = newfcn;
+	lprintf(5, "Registered a new service (TCP port %d)\n", tcp_port);
+}
+
 
 
 void PerformSessionHooks(int EventType)
