@@ -1,4 +1,8 @@
 $Log$
+Revision 213.19  2001/05/30 22:37:09  ajc
+* Fix to upload handler to recognize browser uploads based on *either* a "name"
+  or a "filename" from the MIME parser.
+
 Revision 213.18  2001/05/30 01:06:57  ajc
 * Changes to mime parser ... still something wrong
 
@@ -562,3 +566,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
