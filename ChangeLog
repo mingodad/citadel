@@ -1,3 +1,7 @@
+Wed Jun 23 21:43:30 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* webcit.c: added "back, top, next" buttons to bottom of each page
+	* menubar.html: replaced "User list" with "Page another user"
+
 Tue Jun 22 14:53:05 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* context_loop.c: rearranged some code to try to eliminate deadlocks
 

@@ -211,7 +211,18 @@ void wDumpContent(int print_standard_html_footer)
 	struct webcontent *wptr;
 
 	if (fake_frames) {
-		wprintf("</TD></TR></TABLE></TABLE>\n");
+		wprintf("<CENTER><FONT SIZE=-1>"
+			"<A HREF=\"/ungoto\">"
+			"<IMG SRC=\"/static/back.gif\" BORDER=0>"
+			"Ungoto</A>&nbsp;&nbsp;&nbsp;");
+		wprintf("<A HREF=\"#TheTop\">"
+			"<IMG SRC=\"/static/up.gif\" BORDER=0>"
+			"Top of page</A>&nbsp;&nbsp;&nbsp;");
+		wprintf("<A HREF=\"/gotonext\">"
+			"Goto next room"
+			"<IMG SRC=\"/static/forward.gif\" BORDER=0></A>"
+			"</FONT>\n"
+			"</TD></TR></TABLE></TABLE>\n");
 		fake_frames = 0;
 	}
 
@@ -384,7 +395,8 @@ void output_headers(int print_standard_html_head)
 	
 	
 	if (print_standard_html_head == 1) {
-		wprintf("<TABLE border=0 width=100%>"
+		wprintf("<A NAME=\"TheTop\"></A>"
+			"<TABLE border=0 width=100%>"
 			"<TR VALIGN=TOP><TD>");
 
 		display_menubar(0);
