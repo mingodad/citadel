@@ -823,7 +823,7 @@ void display_edit_task(void) {
 
 	/* Force change the room if we have to */
 	if (strlen(bstr("taskrm")) > 0) {
-		gotoroom(bstr("taskrm"), 0);
+		gotoroom(bstr("taskrm"));
 	}
 
 	msgnum = atol(bstr("msgnum"));

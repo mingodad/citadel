@@ -37,7 +37,7 @@
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
 #define CLIENT_VERSION		523		/* This version of WebCit */
-#define MINIMUM_CIT_VERSION	623		/* min required Citadel vers */
+#define MINIMUM_CIT_VERSION	626		/* min required Citadel vers */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define LB			(1)		/* Internal escape chars */
@@ -331,7 +331,7 @@ void server_to_text(void);
 void save_edit(char *description, char *enter_cmd, int regoto);
 void display_edit(char *description, char *check_cmd,
 		  char *read_cmd, char *save_cmd, int headers_type);
-void gotoroom(char *gname, int display_name);
+void gotoroom(char *gname);
 void confirm_delete_room(void);
 void delete_room(void);
 void validate(void);

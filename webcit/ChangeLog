@@ -1,4 +1,7 @@
 $Log$
+Revision 523.4  2004/09/16 02:42:37  ajc
+* Set default view of new rooms during CRE8 command instead of afterwards
+
 Revision 523.3  2004/09/15 03:08:50  ajc
 * Support config of seaperate MSA port in Citadel 6.26
 
@@ -2046,4 +2049,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

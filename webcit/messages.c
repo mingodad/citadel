@@ -1505,7 +1505,7 @@ void display_enter(void)
 	struct wc_attachment *att;
 
 	if (strlen(bstr("force_room")) > 0) {
-		gotoroom(bstr("force_room"), 0);
+		gotoroom(bstr("force_room"));
 	}
 
 	/* Are we perhaps in an address book view?  If so, then an "enter
