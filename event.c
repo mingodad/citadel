@@ -546,11 +546,13 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 				icalproperty_free(prop);
 			}
 
-			lprintf(9, "adding new property\n");
+			lprintf(9, "adding new property...\n");
 			icalcomponent_add_property(vevent, icalproperty_new_transp(formtransp));
+			lprintf(9, "...added it.\n");
 		}
 
 		/* Give this event a UID if it doesn't have one. */
+		lprintf(9, "Give this event a UID if it doesn't have one.\n");
 		if (icalcomponent_get_first_property(vevent,
 		   ICAL_UID_PROPERTY) == NULL) {
 			generate_new_uid(buf);
@@ -560,14 +562,17 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		}
 
 		/* Increment the sequence ID */
+		lprintf(9, "Increment the sequence ID\n");
 		while (prop = icalcomponent_get_first_property(vevent,
 		      ICAL_SEQUENCE_PROPERTY), (prop != NULL) ) {
 			i = icalproperty_get_sequence(prop);
+			lprintf(9, "Sequence was %d\n", i);
 			if (i > sequence) sequence = i;
 			icalcomponent_remove_property(vevent, prop);
 			icalproperty_free(prop);
 		}
 		++sequence;
+		lprintf(9, "New sequence is %d.  Adding...\n", sequence);
 		icalcomponent_add_property(vevent,
 			icalproperty_new_sequence(sequence)
 		);
@@ -575,6 +580,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		/* Set the organizer, only if one does not already exist *and*
 		 * the form is supplying one
 		 */
+		lprintf(9, "Setting the organizer...\n");
 		strcpy(buf, bstr("organizer"));
 		if ( (icalcomponent_get_first_property(vevent,
 		   ICAL_ORGANIZER_PROPERTY) == NULL) 
@@ -591,6 +597,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		/*
 		 * Add any new attendees listed in the web form
 		 */
+		lprintf(9, "Add any new attendees\n");
 
 		/* First, strip out the parenthesized partstats.  */
 		strcpy(form_attendees, bstr("attendees"));
@@ -623,7 +630,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum) {
 		/*
 		 * Remove any attendees *not* listed in the web form
 		 */
-STARTOVER:
+STARTOVER:	lprintf(9, "Remove unlisted attendees\n");
 		for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDEE_PROPERTY); attendee != NULL; attendee = icalcomponent_get_next_property(vevent, ICAL_ATTENDEE_PROPERTY)) {
 			strcpy(attendee_string, icalproperty_get_attendee(attendee));
 			if (!strncasecmp(attendee_string, "MAILTO:", 7)) {
@@ -646,7 +653,9 @@ STARTOVER:
 		/*
 		 * Serialize it and save it to the message base
 		 */
+		lprintf(9, "Encapsulating into full VCALENDAR component\n");
 		encaps = ical_encapsulate_subcomponent(vevent);
+		lprintf(9, "Serializing it for saving\n");
 		if (encaps != NULL) {
 			serv_puts("ENT0 1|||4");
 			serv_gets(buf);
@@ -666,6 +675,7 @@ STARTOVER:
 	/*
 	 * If the user clicked 'Delete' then delete it.
 	 */
+	lprintf(9, "Checking to see if we have to delete an old event\n");
 	if ( (!strcasecmp(bstr("sc"), "Delete")) && (msgnum > 0L) ) {
 		serv_printf("DELE %ld", atol(bstr("msgnum")));
 		serv_gets(buf);
