@@ -1429,6 +1429,15 @@ void display_enter(void)
 		gotoroom(bstr("force_room"), 0);
 	}
 
+	/* Are we perhaps in an address book view?  If so, then an "enter
+	 * message" command really means "add new entry."
+	 */
+	if (WC->wc_view == 2) {
+		do_edit_vcard(-1, "", "");
+		return;
+	}
+
+	/* Otherwise proceed normally */
 	output_headers(1);
 	sprintf(buf, "ENT0 0|%s|0|0", bstr("recp"));
 	serv_puts(buf);
