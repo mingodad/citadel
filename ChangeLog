@@ -1,4 +1,7 @@
 $Log$
+Revision 506.12  2004/04/27 03:21:36  ajc
+* Prompt for HTTPS port number during setup.  We may make this optional.
+
 Revision 506.11  2004/04/27 03:16:31  ajc
 * When running on the same host as Citadel, if no key/cert are found,
   symlink to Citadel's if possible.
@@ -1799,4 +1802,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
