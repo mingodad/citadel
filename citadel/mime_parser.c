@@ -450,6 +450,9 @@ void the_mime_parser(char *partnum,
 			++length;
 		}
 		part_end = content_end;
+                /* fix an off-by-one error */
+                --part_end;
+                --length;
 		
 		/* Truncate if the header told us to */
 		if ( (content_length > 0) && (length > content_length) ) {
