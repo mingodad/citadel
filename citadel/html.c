@@ -19,7 +19,7 @@ void html_to_ascii(int screenwidth) {
 	char tag[1024];
 	int done_reading = 0;
 	char *ptr;
-	int i, ch;
+	int i, ch, did_out, rb;
 	int nest = 0;		/* Bracket nesting level */
 
 	strcpy(inbuf, "");
@@ -63,19 +63,54 @@ void html_to_ascii(int screenwidth) {
 					strcat(outbuf, "\n\n");
 				}
 
-				if (!strcasecmp(tag, "HR")) {
-					strcat(outbuf, "\n ----- \n");
+				else if (!strcasecmp(tag, "H1")) {
+					strcat(outbuf, "\n\n");
 				}
 
-				if (!strcasecmp(tag, "BR")) {
+				else if (!strcasecmp(tag, "H2")) {
+					strcat(outbuf, "\n\n");
+				}
+
+				else if (!strcasecmp(tag, "H3")) {
+					strcat(outbuf, "\n\n");
+				}
+
+				else if (!strcasecmp(tag, "H4")) {
+					strcat(outbuf, "\n\n");
+				}
+
+				else if (!strcasecmp(tag, "/H1")) {
 					strcat(outbuf, "\n");
 				}
 
-				if (!strcasecmp(tag, "TR")) {
+				else if (!strcasecmp(tag, "/H2")) {
 					strcat(outbuf, "\n");
 				}
 
-				if (!strcasecmp(tag, "/TABLE")) {
+				else if (!strcasecmp(tag, "/H3")) {
+					strcat(outbuf, "\n");
+				}
+
+				else if (!strcasecmp(tag, "/H4")) {
+					strcat(outbuf, "\n");
+				}
+
+				else if (!strcasecmp(tag, "HR")) {
+					strcat(outbuf, "\n ");
+					for (i=0; i<screenwidth-2; ++i)
+						strcat(outbuf, "-");
+					strcat(outbuf, "\n");
+				}
+
+				else if (!strcasecmp(tag, "BR")) {
+					strcat(outbuf, "\n");
+				}
+
+				else if (!strcasecmp(tag, "TR")) {
+					strcat(outbuf, "\n");
+				}
+
+				else if (!strcasecmp(tag, "/TABLE")) {
 					strcat(outbuf, "\n");
 				}
 
@@ -123,11 +158,40 @@ void html_to_ascii(int screenwidth) {
 
 		}
 
-		/* Output our finely-crafted plain ASCII */
-		printf("%s", outbuf);	/* FIX ... genericize this */
-		strcpy(outbuf, "");
+		/* Output any lines terminated with hard line breaks */
+		do {
+			did_out = 0;
+			if (strlen(outbuf)>0)
+			    for (i = 0; i<strlen(outbuf); ++i) {
+				if ( (i<(screenwidth-2)) && (outbuf[i]=='\n')) {
+					fwrite(outbuf, i+1, 1, stdout);
+					strcpy(outbuf, &outbuf[i+1]);
+					i = 0;
+					did_out = 1;
+				}
+			}
+		} while (did_out);
+
+		/* Add soft line breaks */
+		if (strlen(outbuf) > (screenwidth - 2)) {
+			rb = (-1);
+			for (i=0; i<(screenwidth-2); ++i) {
+				if (outbuf[i]==32) rb = i;
+			}
+			if (rb>=0) {
+				fwrite(outbuf, rb, 1, stdout);
+				fwrite("\n", 1, 1, stdout);
+				strcpy(outbuf, &outbuf[rb+1]);
+			} else {
+				fwrite(outbuf, screenwidth-2, 1, stdout);
+				fwrite("\n", 1, 1, stdout);
+				strcpy(outbuf, &outbuf[screenwidth-2]);
+			}
+		}
 
 	} while (done_reading == 0);
+	fwrite(outbuf, strlen(outbuf), 1, stdout);
+	fwrite("\n", 1, 1, stdout);
 
 }
 
