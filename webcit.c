@@ -832,7 +832,7 @@ void session_loop(struct httprequest *req)
 	struct httprequest *hptr;
 	char browser_host[SIZ];
 	char user_agent[SIZ];
-	int body_start;
+	int body_start = 0;
 
 	/* We stuff these with the values coming from the client cookies,
 	 * so we can use them to reconnect a timed out session if we have to.
@@ -1138,10 +1138,10 @@ void session_loop(struct httprequest *req)
 		display_enter();
 	} else if (!strcasecmp(action, "post")) {
 		post_message();
-	} else if (!strcasecmp(action, "do_stuff_to_one_msg")) {
-		do_stuff_to_one_msg();
 	} else if (!strcasecmp(action, "move_msg")) {
 		move_msg();
+	} else if (!strcasecmp(action, "delete_msg")) {
+		delete_msg();
 	} else if (!strcasecmp(action, "userlist")) {
 		userlist();
 	} else if (!strcasecmp(action, "showuser")) {
@@ -1185,6 +1185,8 @@ void session_loop(struct httprequest *req)
 		display_edit("Your bio", "NOOP", buf, "editbio", 3);
 	} else if (!strcasecmp(action, "editbio")) {
 		save_edit("Your bio", "EBIO", 0);
+	} else if (!strcasecmp(action, "confirm_move_msg")) {
+		confirm_move_msg();
 	} else if (!strcasecmp(action, "confirm_delete_room")) {
 		confirm_delete_room();
 	} else if (!strcasecmp(action, "delete_room")) {

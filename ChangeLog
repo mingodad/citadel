@@ -1,4 +1,10 @@
 $Log$
+Revision 602.7  2005/02/20 06:27:53  ajc
+* Switched the Reply/Move/Delete buttons back to ordinary links, because
+  the nested forms were causing the bottom part of the outer form to stop
+  working (message range selector went dead).  Thanks to triLcat for
+  reporting this.
+
 Revision 602.6  2005/02/19 06:01:14  ajc
 * The previous <div style=\"margin-right:1px\"> has been replaced by a
   named div in the stylesheet.  This allows us to perform a vile, sleazy
@@ -2400,4 +2406,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
