@@ -1,4 +1,10 @@
 $Log$
+Revision 400.50  2002/11/15 04:11:46  ajc
+* Added even more nifty JavaScript to cause the hour/minute and end date
+  fields of a calendar event form to render as disabled when the "all day
+  event" box is checked -- not just when the user checks the box, but also
+  when the box begins its life already checked.
+
 Revision 400.49  2002/11/14 04:59:40  ajc
 * Correctly serialize and save all day events using date instead of date/time
 
@@ -1112,4 +1118,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
