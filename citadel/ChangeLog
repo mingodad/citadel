@@ -1,5 +1,5 @@
 Sat Mar  6 01:55:55 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
-	* client_chat.c: use memfmout(), *not* cprintf() to transmit express
+	* serv_chat.c: use memfmout(), *not* cprintf() to transmit express
 	  messages.  Calling cprintf() on strings >256 bytes crashes the server
 	* msgbase.c: minor logging fix in save_message()
 
