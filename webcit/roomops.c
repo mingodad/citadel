@@ -450,6 +450,7 @@ void embed_room_banner(char *got, int navbar_style) {
 						"<img align=\"middle\" src=\"/static/readmsgs.gif\" "
 						"border=\"0\">"
 						"<span class=\"navbar_link\">"
+						"All messages"
 						"</span></a></td>\n"
 					);
 					break;
