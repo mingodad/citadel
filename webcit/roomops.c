@@ -699,7 +699,7 @@ void display_editroom(void)
 	output_headers(1);
 
 	/* print the tabbed dialog */
-	wprintf("<TABLE border=0 cellspacing=0 cellpadding=0 width=100%%>"
+	wprintf("<BR><TABLE border=0 cellspacing=0 cellpadding=0 width=100%%>"
 		"<TR ALIGN=CENTER>"
 		"<TD>&nbsp;</TD>\n");
 
@@ -707,7 +707,7 @@ void display_editroom(void)
 		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
-		wprintf("<TD BGCOLOR=\"#AAAAAA\"><A HREF=\"/display_editroom&tab=admin\">");
+		wprintf("<TD BGCOLOR=\"#CCCCCC\"><A HREF=\"/display_editroom&tab=admin\">");
 	}
 	wprintf("Room administration");
 	if (!strcmp(tab, "admin")) {
@@ -723,7 +723,7 @@ void display_editroom(void)
 		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
-		wprintf("<TD BGCOLOR=\"#AAAAAA\"><A HREF=\"/display_editroom&tab=config\">");
+		wprintf("<TD BGCOLOR=\"#CCCCCC\"><A HREF=\"/display_editroom&tab=config\">");
 	}
 	wprintf("Room configuration");
 	if (!strcmp(tab, "config")) {
@@ -739,7 +739,7 @@ void display_editroom(void)
 		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
-		wprintf("<TD BGCOLOR=\"#AAAAAA\"><A HREF=\"/display_editroom&tab=sharing\">");
+		wprintf("<TD BGCOLOR=\"#CCCCCC\"><A HREF=\"/display_editroom&tab=sharing\">");
 	}
 	wprintf("Sharing");
 	if (!strcmp(tab, "sharing")) {
@@ -755,7 +755,7 @@ void display_editroom(void)
 		wprintf("<TD BGCOLOR=\"#FFFFFF\"><SPAN CLASS=\"tablabel\">");
 	}
 	else {
-		wprintf("<TD BGCOLOR=\"#AAAAAA\"><A HREF=\"/display_editroom&tab=listserv\">");
+		wprintf("<TD BGCOLOR=\"#CCCCCC\"><A HREF=\"/display_editroom&tab=listserv\">");
 	}
 	wprintf("Mailing list service");
 	if (!strcmp(tab, "listserv")) {
@@ -764,6 +764,8 @@ void display_editroom(void)
 	else {
 		wprintf("</A></TD>\n");
 	}
+
+	wprintf("<TD>&nbsp;</TD>\n");
 
 	wprintf("</TR></TABLE>\n");
 	/* end tabbed dialog */	
