@@ -8,6 +8,7 @@ Sat Nov 21 16:53:30 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* routines2.c: fixed <.AS> command; all configs now work properly
 	* Moved num_parms() and all the extract() type functions into tools.c
 	  and removed them from all other files.  Linked in tools.[o|ro] there.
+	* netproc.c: handled incoming file transfers to correct room directory
 
 Fri Nov 20 20:29:07 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* setup.c: removed all prompts that can be configured from within the
