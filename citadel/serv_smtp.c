@@ -696,7 +696,8 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	char mailfrom[1024];
 	int lp, rp;
 	FILE *msg_fp = NULL;
-	size_t msg_size, blocksize;
+	size_t msg_size;
+	size_t blocksize = 0;
 	int scan_done;
 
 	/* Parse out the host portion of the recipient address */
@@ -914,8 +915,13 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 		sock_write(sock, buf, blocksize);
 		msg_size -= blocksize;
 	}
+	if (buf[blocksize-1] != 10) {
+		lprintf(5, "Possible problem: message did not correctly "
+			"terminate. (expecting 0x10, got 0x%02x)\n",
+				buf[blocksize-1]);
+	}
 
-	sock_puts(sock, ".");
+	sock_write(sock, ".\r\n", 3);
 	if (sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");

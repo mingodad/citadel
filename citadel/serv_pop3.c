@@ -265,7 +265,7 @@ void pop3_stat(char *argbuf) {
  */
 void pop3_retr(char *argbuf) {
 	int which_one;
-	int ch;
+	int ch = 0;
 	size_t bytes_remaining;
 
 	which_one = atoi(argbuf);
@@ -285,6 +285,9 @@ void pop3_retr(char *argbuf) {
 	while (bytes_remaining-- > 0) {
 		ch = getc(POP3->msgs[which_one - 1].temp);
 		cprintf("%c", ch);
+	}
+	if (ch != 10) {
+		lprintf(5, "Problem: message ends with 0x%2x, not 0x0a\n", ch);
 	}
 	cprintf(".\r\n");
 }
