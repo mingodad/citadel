@@ -157,16 +157,7 @@ void embed_advanced_menu(void)
 
 		wprintf("<UL>");
 		wprintf("<LI><A HREF=\"/display_editroom\">\n");
-		wprintf("Edit this room</A>\n");
-
-		wprintf("<LI><A HREF=\"/confirm_delete_room\">\n");
-		wprintf("Delete this room</A>\n");
-
-		wprintf("<LI><A HREF=\"/display_editroompic\">\n");
-		wprintf("Set or change the graphic for this room's banner</A>\n");
-
-		wprintf("<LI><A HREF=\"/display_editinfo\">\n");
-		wprintf("Edit this room's Info file</A>\n");
+		wprintf("Edit or delete this room</A>\n");
 
 		wprintf("<LI><A HREF=\"/display_siteconfig\">\n");
 		wprintf("Edit site-wide configuration</A>\n");

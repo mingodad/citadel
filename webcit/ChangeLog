@@ -1,4 +1,7 @@
 $Log$
+Revision 1.104  1999/10/25 02:25:09  ajc
+* Shuffled around the room editing commands
+
 Revision 1.103  1999/10/14 04:07:18  ajc
 * Cleaned up the bottom-of-page icons
 
@@ -303,3 +306,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
