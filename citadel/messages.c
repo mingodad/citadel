@@ -1330,7 +1330,7 @@ RMSGREAD:	scr_flush();
 				lines_printed = 2;
 				e = (inkey() & 127);
 				e = tolower(e);
-/* return key same as <N> */ if (e == 13)
+/* return key same as <N> */ if (e == 10)
 					e = 'n';
 /* space key same as <N> */ if (e == 32)
 					e = 'n';
