@@ -392,9 +392,12 @@ void smtp_data(void) {
 
 	fprintf(stderr, "Converting message...\n");
 	msg = convert_internet_message(body);
-
 	phree(body);
-	cprintf("599 command unfinished\n");
+
+	CtdlSaveMsg(msg, "", BASEROOM, MES_LOCAL, 1);	/* FIX temporary */
+	CtdlFreeMessage(msg);
+
+	cprintf("599 command unfinished but message saved\n");
 }
 
 

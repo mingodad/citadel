@@ -29,6 +29,7 @@
 #include "tools.h"
 #include "internet_addressing.h"
 #include "user_ops.h"
+#include "parsedate.h"
 
 
 /*
@@ -281,29 +282,74 @@ int convert_internet_address(char *destuser, char *desthost, char *source)
 /*
  * convert_field() is a helper function for convert_internet_message().
  * Given start/end positions for an rfc822 field, it converts it to a Citadel
- * field if it wants to, and unfolds it if necessary
+ * field if it wants to, and unfolds it if necessary.
+ *
+ * Returns 1 if the field was converted and inserted into the Citadel message
+ * structure, implying that the source field should be removed from the
+ * message text.
  */
-void convert_field(struct CtdlMessage *msg, int beg, int end) {
+int convert_field(struct CtdlMessage *msg, int beg, int end) {
 	char *rfc822;
-	char *fieldbuf;
-	char field[256];
+	char *key, *value;
 	int i;
+	int colonpos = (-1);
+	int processed = 0;
+	char buf[256];
+	char *user, *node, *name;
 
 	rfc822 = msg->cm_fields['M'];	/* M field contains rfc822 text */
-	strcpy(field, "");
-	for (i = beg; i <= end; ++i) {
-		if ((rfc822[i] == ':') && ((i-beg)<sizeof(field))) {
-			if (strlen(field)==0) {
-			   safestrncpy(field, &rfc822[beg], i-beg+1);
-			}
-		}
+	for (i = end; i >= beg; --i) {
+		if (rfc822[i] == ':') colonpos = i;
 	}
 
-	fieldbuf = mallok(end - beg + 2);
-	safestrncpy(fieldbuf, &rfc822[beg], end-beg+1);
-	unfold_rfc822_field(fieldbuf);
-	lprintf(9, "Field: key=<%s> value=<%s>\n", field, fieldbuf);
-	phree(fieldbuf);
+	if (colonpos < 0) return(0);	/* no colon? not a valid header line */
+
+	value = mallok((end - beg) + 2);
+	safestrncpy(value, &rfc822[beg], (end-beg)+1);
+	key = value;
+	key[colonpos - beg] = 0;
+	value = &key[(colonpos - beg) + 1];
+	unfold_rfc822_field(value);
+
+	/* Here's the big rfc822-to-citadel loop. */
+
+	if (!strcasecmp(key, "Date")) {
+		lprintf(9, "converting date <%s>\n", value);
+		sprintf(buf, "%ld", parsedate(value) );
+		lprintf(9, "parsed value is <%s>\n", buf);
+		if (msg->cm_fields['T'] != NULL)
+			msg->cm_fields['T'] = strdoop(buf);
+		processed = 1;
+	}
+
+	else if (!strcasecmp(key, "From")) {
+		user = mallok(strlen(value));
+		node = mallok(strlen(value));
+		name = mallok(strlen(value));
+		process_rfc822_addr(value, user, node, name);
+		if (msg->cm_fields['A'] != NULL)
+			msg->cm_fields['A'] = strdoop(user);
+		if (msg->cm_fields['N'] != NULL)
+			msg->cm_fields['N'] = strdoop(node);
+		if (msg->cm_fields['H'] != NULL)
+			msg->cm_fields['H'] = strdoop(name);
+		phree(user);
+		phree(node);
+		phree(name);
+		processed = 1;
+	}
+
+	else if (!strcasecmp(key, "Subject")) {
+		if (msg->cm_fields['U'] != NULL)
+			msg->cm_fields['U'] = strdoop(key);
+		processed = 1;
+	}
+
+	/* Clean up and move on. */
+	lprintf(9, "Field: key=<%s> value=<%s> processed=%d\n",
+		key, value, processed);
+	phree(key);	/* Don't free 'value', it's actually the same buffer */
+	return(processed);
 }
 
 
@@ -317,6 +363,7 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 	int msglen;
 	int done;
 	char buf[256];
+	int converted;
 
 	msg = mallok(sizeof(struct CtdlMessage));
 	if (msg == NULL) return msg;
@@ -354,7 +401,11 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 		}
 
 		/* At this point we have a field.  Are we interested in it? */
-		convert_field(msg, beg, end);
+		converted = convert_field(msg, beg, end);
+		if (converted) {
+			strcpy(&rfc822[beg], &rfc822[pos]);
+			pos = beg;
+		}
 
 		/* If we've hit the end of the message, bail out */
 		if (pos > strlen(rfc822)) done = 1;

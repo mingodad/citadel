@@ -22,6 +22,7 @@
 #include <sys/types.h>
 #include <ctype.h>
 #include <time.h>
+#include "parsedate.h"
 
 int date_lex(void);
 
@@ -437,8 +438,7 @@ static TABLE	TimezoneTable[] = {
 
 /* ARGSUSED */
 static void
-date_error(s)
-    char	*s;
+date_error(char *s)
 {
     /* NOTREACHED */
 }
