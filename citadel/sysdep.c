@@ -264,6 +264,9 @@ void init_sysdep(void) {
 void begin_critical_section(int which_one)
 {
 	/* lprintf(9, "begin_critical_section(%d)\n", which_one); */
+	/* ensure nobody ever tries to do a critical section within a
+	   transaction; this could lead to deadlock. */
+	cdb_check_handles();
 	pthread_mutex_lock(&Critters[which_one]);
 }
 
@@ -459,7 +462,6 @@ void client_write(char *buf, int nbytes)
 	}
 
 	while (bytes_written < nbytes) {
-		signal(SIGPIPE, SIG_IGN);
 		retval = write(sock, &buf[bytes_written],
 			nbytes - bytes_written);
 		if (retval < 1) {
@@ -1144,7 +1146,7 @@ void *worker_thread(void *arg) {
 		/* make doubly sure we're not holding any stale db handles
 		 * which might cause a deadlock.
 		 */
-		cdb_release_handles();
+		cdb_check_handles();
 
 		begin_critical_section(S_I_WANNA_SELECT);
 SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
@@ -1284,7 +1286,7 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 		dead_session_purge();
 		if ((time(NULL) - last_timer) > 60L) {
 			last_timer = time(NULL);
-			cdb_release_handles(); /* suggested by Justin Case */
+			cdb_check_handles(); /* suggested by Justin Case */
 			PerformSessionHooks(EVT_TIMER);
 		}
 

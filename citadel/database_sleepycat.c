@@ -51,62 +51,63 @@ static pthread_key_t tsdkey;
 #define MYTID		(((struct cdbtsd*)pthread_getspecific(tsdkey))->tid)
 
 /* just a little helper function */
-static int txabort(DB_TXN *tid) {
+static void txabort(DB_TXN *tid) {
         int ret = txn_abort(tid);
 
         if (ret) {
                 lprintf(1, "cdb_*: txn_abort: %s\n", db_strerror(ret));
 		abort();
 	}
-
-        return ret;
 }
 
 /* this one is even more helpful than the last. */
-static int txcommit(DB_TXN *tid) {
+static void txcommit(DB_TXN *tid) {
         int ret = txn_commit(tid, 0);
 
         if (ret) {
                 lprintf(1, "cdb_*: txn_commit: %s\n", db_strerror(ret));
 		abort();
 	}
-
-        return ret;
 }
 
 /* are you sensing a pattern yet? */
-static int txbegin(DB_TXN **tid) {
+static void txbegin(DB_TXN **tid) {
         int ret = txn_begin(dbenv, NULL, tid, 0);
 
         if (ret) {
                 lprintf(1, "cdb_*: txn_begin: %s\n", db_strerror(ret));
 		abort();
 	}
-
-        return ret;
 }
 
-static void release_handles(void *arg) {
+static void cclose(DBC *cursor) {
+	int ret;
+
+	if ((ret = cursor->c_close(cursor))) {
+		lprintf(1, "cdb_*: c_close: %s\n", db_strerror(ret));
+		abort();
+	}
+}
+
+static void check_handles(void *arg) {
 	if (arg != NULL) {
 		struct cdbtsd *tsd = (struct cdbtsd *)arg;
 
 		if (tsd->cursor != NULL) {
-			lprintf(1, "cdb_*: WARNING: cursor still in progress; "
-				"closing!\n");
-			tsd->cursor->c_close(tsd->cursor);
+			lprintf(1, "cdb_*: cursor still in progress!");
+			abort();
 		}
 
 		if (tsd->tid != NULL) {
-			lprintf(1, "cdb_*: ERROR: transaction still in progress; "
-				"aborting!\n");
-			txabort(tsd->tid);
+			lprintf(1, "cdb_*: transaction still in progress!");
+			abort();
 		}
 	}
 }
 
 static void dest_tsd(void *arg) {
 	if (arg != NULL) {
-		release_handles(arg);
+		check_handles(arg);
 		phree(arg);
 	}
 }
@@ -120,7 +121,12 @@ static void dest_tsd(void *arg) {
  * to use database calls, except for whatever thread calls open_databases.
  */
 void cdb_allocate_tsd(void) {
-	struct cdbtsd *tsd = mallok(sizeof *tsd);
+	struct cdbtsd *tsd;
+
+	if (pthread_getspecific(tsdkey) != NULL)
+		return;
+
+	tsd = mallok(sizeof *tsd);
 
 	tsd->tid = NULL;
 	tsd->cursor = NULL;
@@ -132,8 +138,8 @@ void cdb_free_tsd(void) {
 	pthread_setspecific(tsdkey, NULL);
 }
 
-void cdb_release_handles(void) {
-	release_handles(pthread_getspecific(tsdkey));
+void cdb_check_handles(void) {
+	check_handles(pthread_getspecific(tsdkey));
 }
 
 
@@ -330,8 +336,7 @@ int cdb_store(int cdb,
 		return ret;
 	} else {
 	    retry:
-		if (txbegin(&tid))
-			return -1;
+		txbegin(&tid);
 
 		if ((ret = dbp[cdb]->put(dbp[cdb],	/* db */
 					 tid,		/* transaction ID */
@@ -339,17 +344,16 @@ int cdb_store(int cdb,
 					 &ddata,	/* data */
 					 0))) {		/* flags */
 			if (ret == DB_LOCK_DEADLOCK) {
-				if (txabort(tid))
-					return ret;
-				else
-					goto retry;
+				txabort(tid);
+				goto retry;
 			} else {
 				lprintf(1, "cdb_store(%d): %s\n", cdb,
 					db_strerror(ret));
 				abort();
 			}
 		} else {
-			return txcommit(tid);
+			txcommit(tid);
+			return ret;
 		}
 	}
 }
@@ -371,30 +375,31 @@ int cdb_delete(int cdb, void *key, int keylen)
 
 	if (MYTID != NULL) {
 		ret = dbp[cdb]->del(dbp[cdb], MYTID, &dkey, 0);
-		return (ret);
+		if (ret) {
+			lprintf(1, "cdb_delete(%d): %s\n", cdb,
+				db_strerror(ret));
+			if (ret != DB_NOTFOUND)
+				abort();
+		}
 	} else {
 	    retry:
-		if (txbegin(&tid))
-			return -1;
+		txbegin(&tid);
 
-		if ((ret = dbp[cdb]->del(dbp[cdb], tid, &dkey, 0))) {
+		if ((ret = dbp[cdb]->del(dbp[cdb], tid, &dkey, 0))
+		    && ret != DB_NOTFOUND) {
 			if (ret == DB_LOCK_DEADLOCK) {
-					if (txabort(tid))
-						return ret;
-					else
-						goto retry;
+					txabort(tid);
+					goto retry;
 			} else {
 				lprintf(1, "cdb_delete(%d): %s\n", cdb,
 					db_strerror(ret));
-				if (ret != DB_NOTFOUND) {
-					abort();
-				}
+				abort();
 			}
 		} else {
-			return txcommit(tid);
+			txcommit(tid);
 		}
 	}
-	return(0);
+	return ret;
 }
 
 
@@ -423,18 +428,18 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
 		ret = dbp[cdb]->get(dbp[cdb], MYTID, &dkey, &dret, 0);
 	} else {
 	    retry:
-		if (txbegin(&tid))
-			return NULL;
+		txbegin(&tid);
 
 		ret = dbp[cdb]->get(dbp[cdb], tid, &dkey, &dret, 0);
 
 		if (ret == DB_LOCK_DEADLOCK) {
-			if (txabort(tid))
-				return NULL;
-			else
-				goto retry;
-		} else if (txcommit(tid))
-			return NULL;
+			txabort(tid);
+			goto retry;
+		}
+		if (ret && ret != DB_NOTFOUND)
+			abort();
+
+		txcommit(tid);
 	}
 
 	if ((ret != 0) && (ret != DB_NOTFOUND)) {
@@ -474,7 +479,7 @@ void cdb_rewind(int cdb)
 	int ret = 0;
 
 	if (MYCURSOR != NULL)
-		MYCURSOR->c_close(MYCURSOR);
+		cclose(MYCURSOR);
 
 	if (MYTID == NULL) {
 		lprintf(1, "cdb_rewind: ERROR: cursor use outside transaction\n");
@@ -511,7 +516,12 @@ struct cdbdata *cdb_next_item(int cdb)
 		&key, &data, DB_NEXT);
 	
 	if (ret) {
-		MYCURSOR->c_close(MYCURSOR);
+		if (ret != DB_NOTFOUND) {
+			lprintf(1, "cdb_next_item(%d): %s\n",
+				cdb, db_strerror(ret));
+			abort();
+		}
+		cclose(MYCURSOR);
 		MYCURSOR = NULL;
 		return NULL;		/* presumably, end of file */
 	}
@@ -542,7 +552,7 @@ void cdb_begin_transaction(void) {
 void cdb_end_transaction(void) {
 	if (MYCURSOR != NULL) {
 		lprintf(1, "cdb_end_transaction: WARNING: cursor still open at transaction end\n");
-		MYCURSOR->c_close(MYCURSOR);
+		cclose(MYCURSOR);
 		MYCURSOR = NULL;
 	}
 	if (MYTID == NULL) {

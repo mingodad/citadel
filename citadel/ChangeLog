@@ -1,4 +1,9 @@
  $Log$
+ Revision 573.107  2001/03/06 03:31:58  nbryant
+ database-related cleanups and paranoia tests;
+ fixed a transaction-leak/deadlock problem in cdb_delete;
+ solved the SIGPIPE mystery (GDB stops on SIGPIPE is all it was)
+
  Revision 573.106  2001/03/05 04:59:31  ajc
  * IMAP COPY
 
@@ -2430,4 +2435,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
