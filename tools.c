@@ -193,15 +193,19 @@ char ch;
  */
 void fmt_date(char *buf, time_t thetime) {
 	struct tm *tm;
+	int hour;
 
 	strcpy(buf, "");
 	tm = localtime(&thetime);
+	hour = tm->tm_hour;
+	if (hour == 0) hour = 12;
+	else if (hour > 12) hour = hour - 12;
 
 	sprintf(buf, "%s %d %d %2d:%02d%s",
 		ascmonths[tm->tm_mon],
 		tm->tm_mday,
 		tm->tm_year + 1900,
-		( (tm->tm_hour > 12) ? (tm->tm_hour - 12) : (tm->tm_hour) ),
+		hour,
 		tm->tm_min,
 		( (tm->tm_hour > 12) ? "pm" : "am" )
 	);

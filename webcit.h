@@ -299,3 +299,4 @@ void create_user(void);
 void edituser(void);
 void change_view(void);
 void folders(void);
+void do_stuff_to_msgs(void);

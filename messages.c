@@ -467,12 +467,9 @@ void summarize_message(long msgnum) {
 	wprintf(" </TD><TD>");
 	escputs(summ.date);
 	wprintf(" </TD>");
-	wprintf("<TD BGCOLOR=\"AAAADD\">"
-		"<A HREF=\"/delete_msg"
-		"&msgid=%ld\""
-		"onClick=\"return confirm('Delete this message?');\""
-		"><FONT SIZE=-1>Del</FONT></A>"
-		" </TD>\n", msgnum);
+	wprintf("<TD>"
+		"<INPUT TYPE=\"checkbox\" NAME=\"msg_%ld\" VALUE=\"yes\">"
+		"</TD>\n");
 
 	return;
 }
@@ -567,7 +564,9 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {
-		wprintf("<TABLE border=0 width=100%%>\n"
+		wprintf("<FORM METHOD=\"POST\" ACTION=\"/do_stuff_to_msgs\">\n"
+			"<TABLE border=0 cellspacing=0 "
+			"cellpadding=0 width=100%%>\n"
 			"<TR>"
 			"<TD><I>Subject</I></TD>"
 			"<TD><I>Sender</I></TD>"
@@ -624,25 +623,30 @@ void readloop(char *oper)
 			"<TD ALIGN=RIGHT><FONT SIZE=+1>",
 			lowest_displayed, nummsgs);
 
-			if (pn_previous > 0L) {
-				wprintf("<A HREF=\"/%s"
-					"?startmsg=%ld"
-					"&maxmsgs=1"
-					"&summary=0\">"
-					"Previous</A> \n",
-						oper,
-						pn_previous );
-			}
+		if (is_summary) {
+			wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" "
+				"VALUE=\"Delete selected\">\n");
+		}
 
-			if (pn_next > 0L) {
-				wprintf("<A HREF=\"/%s"
-					"?startmsg=%ld"
-					"&maxmsgs=1"
-					"&summary=0\">"
-					"Next</A> \n",
-						oper,
-						pn_next );
-			}
+		if (pn_previous > 0L) {
+			wprintf("<A HREF=\"/%s"
+				"?startmsg=%ld"
+				"&maxmsgs=1"
+				"&summary=0\">"
+				"Previous</A> \n",
+					oper,
+					pn_previous );
+		}
+
+		if (pn_next > 0L) {
+			wprintf("<A HREF=\"/%s"
+				"?startmsg=%ld"
+				"&maxmsgs=1"
+				"&summary=0\">"
+				"Next</A> \n",
+					oper,
+					pn_next );
+		}
 
 		wprintf("<A HREF=\"/%s?startmsg=%ld"
 			"&maxmsgs=999999&summary=1\">"
@@ -665,6 +669,12 @@ void readloop(char *oper)
 			"Reading #%d-%d of %d messages.</TD>\n"
 			"<TD ALIGN=RIGHT><FONT SIZE=+1>",
 			lowest_displayed, highest_displayed, nummsgs);
+
+		if (is_summary) {
+			wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" "
+				"VALUE=\"Delete selected\">\n");
+		}
+
 
 		for (b=0; b<nummsgs; b = b + maxmsgs) {
 		lo = b+1;
@@ -703,6 +713,7 @@ void readloop(char *oper)
 
 		wprintf("</TD></TR></TABLE></CENTER>\n");
 	}
+	if (is_summary) wprintf("</FORM>\n");
 
 DONE:	wDumpContent(1);
 }
@@ -914,7 +925,7 @@ void move_msg(void)
 		serv_gets(buf);
 		wprintf("<EM>%s</EM><BR>\n", &buf[4]);
 	} else {
-		wprintf("<EM>Message not deleted.</EM><BR>\n");
+		wprintf("<EM>Message not moved.</EM><BR>\n");
 	}
 
 	wDumpContent(1);
@@ -922,3 +933,47 @@ void move_msg(void)
 
 
 
+void do_stuff_to_msgs(void) {
+	char buf[SIZ];
+	char sc[SIZ];
+
+	struct stuff_t {
+		struct stuff_t *next;
+		long msgnum;
+	};
+
+	struct stuff_t *stuff = NULL;
+	struct stuff_t *ptr;
+
+
+	serv_puts("MSGS ALL");
+	serv_gets(buf);
+
+	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
+		ptr = malloc(sizeof(struct stuff_t));
+		ptr->msgnum = atol(buf);
+		ptr->next = stuff;
+		stuff = ptr;
+	}
+
+	strcpy(sc, bstr("sc"));
+
+	while (stuff != NULL) {
+
+		sprintf(buf, "msg_%ld", stuff->msgnum);
+		if (!strcasecmp(bstr(buf), "yes")) {
+
+			if (!strcasecmp(sc, "Delete selected")) {
+				serv_printf("DELE %ld", stuff->msgnum);
+				serv_gets(buf);
+			}
+
+		}
+
+		ptr = stuff->next;
+		free(stuff);
+		stuff = ptr;
+	}
+
+	readloop("readfwd");
+}
