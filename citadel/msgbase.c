@@ -1646,10 +1646,11 @@ void cmd_ent3(char *entargs)
 		tempbuf[0] = 0;
 		do {
 			client_read(&ch, 1);
+			--msglen;
 			a = strlen(tempbuf);
 			tempbuf[a+1] = 0;
 			tempbuf[a] = ch;
-		} while ( (a != 0) && (msglen > 0) );
+		} while ( (ch != 0) && (msglen > 0) );
 		msg->cm_fields[which_field] = strdoop(tempbuf);
 	}
 

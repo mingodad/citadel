@@ -450,7 +450,6 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 	struct CitContext *ccptr;
 	struct ExpressMessage *newmsg, *findend;
 	char *un;
-	FILE *fp;
 	size_t msglen = 0;
 	int do_send = 0;
 
