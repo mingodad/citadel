@@ -197,7 +197,12 @@ void smtp_hello(char *argbuf, int which_command) {
 		}
 		cprintf("250-HELP\r\n");
 		cprintf("250-SIZE %ld\r\n", config.c_maxmsglen);
-		cprintf("250-PIPELINING\r\n");
+
+		/* PIPELINING and STARTTLS are mutually exclusive. */
+		if (!CC->redirect_ssl) {
+			cprintf("250-PIPELINING\r\n");
+		}
+
 		cprintf("250-AUTH LOGIN PLAIN\r\n");
 		cprintf("250-AUTH=LOGIN PLAIN\r\n");
 #ifdef HAVE_OPENSSL
