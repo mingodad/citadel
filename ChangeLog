@@ -1,3 +1,6 @@
+Sun Jul 18 20:17:58 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Did neat stuff to the bottom of the page
+
 Mon Jul 12 23:30:24 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us> 
 	* webcit.c: exit Webcit sessions semi-gracefully when the connection
 	  to a Citadel server fails.
