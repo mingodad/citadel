@@ -1,4 +1,7 @@
 $Log$
+Revision 510.1  2004/05/24 03:02:38  ajc
+* CSS change to make folder names stand out more in the "Folder View"
+
 Revision 510.0  2004/04/30 04:08:58  ajc
 * THIS IS 5.10
 
@@ -1809,3 +1812,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
