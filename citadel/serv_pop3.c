@@ -34,6 +34,10 @@
 long SYM_POP3;
 
 
+/*
+ * This cleanup function blows away the temporary memory and files used by
+ * the POP3 server.
+ */
 void pop3_cleanup_function(void) {
 	int i;
 
@@ -92,24 +96,59 @@ void pop3_user(char *argbuf) {
 }
 
 
+
+/*
+ * Back end for pop3_grab_mailbox()
+ */
+void pop3_add_message(long msgnum) {
+	FILE *fp;
+	lprintf(9, "in pop3_add_message()\n");
+
+	++POP3->num_msgs;
+	if (POP3->num_msgs < 2) POP3->msgs = mallok(sizeof(struct pop3msg));
+	else POP3->msgs = reallok(POP3->msgs, 
+		(POP3->num_msgs * sizeof(struct pop3msg)) ) ;
+	POP3->msgs[POP3->num_msgs-1].msgnum = msgnum;
+	POP3->msgs[POP3->num_msgs-1].deleted = 0;
+	fp = tmpfile();
+	POP3->msgs[POP3->num_msgs-1].temp = fp;
+	CtdlOutputMsg(msgnum, MT_RFC822, 0, 0, fp, 0);
+	POP3->msgs[POP3->num_msgs-1].rfc822_length = ftell(fp);
+}
+
+
+
+/*
+ * Open the inbox and read its contents.
+ * (This should be called only once, by pop3_pass(), and returns the number
+ * of messages in the inbox, or -1 for error)
+ */
+int pop3_grab_mailbox(void) {
+	if (getroom(&CC->quickroom, MAILROOM) != 0) return(-1);
+	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, pop3_add_message);
+	return(POP3->num_msgs);
+}
+
 /*
  * Authorize with password (implements POP3 "PASS" command)
  */
 void pop3_pass(char *argbuf) {
 	char password[256];
+	int msgs;
 
 	strcpy(password, argbuf);
 	striplt(password);
 
 	lprintf(9, "Trying <%s>\n", password);
 	if (CtdlTryPassword(password) == pass_ok) {
-		if (getroom(&CC->quickroom, MAILROOM) == 0) {
-			cprintf("+OK %s is logged in!\r\n",
-				CC->usersupp.fullname);
+		msgs = pop3_grab_mailbox();
+		if (msgs >= 0) {
+			cprintf("+OK %s is logged in (%d messages)\r\n",
+				CC->usersupp.fullname, msgs);
 			lprintf(9, "POP3 password login successful\n");
 		}
 		else {
-			cprintf("-ERR can't find your mailbox\r\n");
+			cprintf("-ERR Can't open your mailbox\r\n");
 		}
 	}
 	else {
