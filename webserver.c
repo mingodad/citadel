@@ -115,9 +115,7 @@ void client_write(int sock, char *buf, int nbytes)
 
 
 /*
- * cprintf()  ...   Send formatted printable data to the client.   It is
- *                  implemented in terms of client_write() but remains in
- *                  sysdep.c in case we port to somewhere without va_args...
+ * cprintf()  ...   Send formatted printable data to the client.
  */
 void cprintf(int sock, const char *format, ...) {   
         va_list arg_ptr;   
