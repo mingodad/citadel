@@ -546,12 +546,12 @@ void forget_all_rooms_on(CtdlIPC *ipc, int ffloor)
 	struct ctdlipcroom *room;	/* Ignored */
 	int r;				/* IPC response code */
 
-	scr_printf("Forgetting all rooms on %s...\r", &floorlist[ffloor][0]);
+	scr_printf("Forgetting all rooms on %s...\n", &floorlist[ffloor][0]);
 	scr_flush();
 	remove_march("_FLOOR_", ffloor);
 	r = CtdlIPCKnownRooms(ipc, AllAccessibleRooms, ffloor, &flist, buf);
 	if (r / 100 != 1) {
-		scr_printf("%-72s\n", buf);
+		scr_printf("%s\n", buf);
 		return;
 	}
 	while (flist) {
@@ -563,7 +563,6 @@ void forget_all_rooms_on(CtdlIPC *ipc, int ffloor)
 		flist = flist->next;
 		free(fptr);
 	}
-	scr_printf("%-72s\r", "");
 }
 
 
@@ -626,9 +625,10 @@ void gotofloor(CtdlIPC *ipc, char *towhere, int mode)
 		return;
 	}
 	for (mptr = march; mptr != NULL; mptr = mptr->next) {
-		if ((mptr->march_floor) == tofloor)
+		if ((mptr->march_floor) == tofloor) {
 			gf_toroom(ipc, mptr->march_name, mode);
-		return;
+			return;
+		}
 	}
 
 	/* Find first known room on the floor */
@@ -683,17 +683,18 @@ void gotofloor(CtdlIPC *ipc, char *towhere, int mode)
  */
 void forget_this_floor(CtdlIPC *ipc)
 {
-
 	if (curr_floor == 0) {
 		scr_printf("Can't forget this floor.\n");
 		return;
 	}
-	if (floorlist[0][0] == 0)
+	if (floorlist[0][0] == 0) {
 		load_floorlist(ipc);
+	}
 	scr_printf("Are you sure you want to forget all rooms on %s? ",
 	       &floorlist[(int) curr_floor][0]);
-	if (yesno() == 0)
+	if (yesno() == 0) {
 		return;
+	}
 
 	gf_toroom(ipc, "_BASEROOM_", GF_ZAP);
 }

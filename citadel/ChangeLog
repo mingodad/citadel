@@ -1,4 +1,7 @@
  $Log$
+ Revision 626.11  2004/10/12 11:24:42  ajc
+ * Tracing a problem with ;Z command
+
  Revision 626.10  2004/10/12 02:48:11  ajc
  * Reworked shutdown sequence to avoid thread deadlock
 
@@ -6156,4 +6159,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
