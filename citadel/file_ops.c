@@ -697,7 +697,7 @@ void cmd_read(char *cmdbuf)
 
 	fseek(CC->download_fp, start_pos, 0);
 	actual_bytes = fread(buf, 1, bytes, CC->download_fp);
-	cprintf("%d %d\n", BINARY_FOLLOWS, actual_bytes);
+	cprintf("%d %d\n", BINARY_FOLLOWS, (int)actual_bytes);
 	client_write(buf, actual_bytes);
 }
 

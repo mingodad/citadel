@@ -250,6 +250,9 @@ void setCryptoStatusHook(void (*hook)(char *s));
 extern int (*error_printf)(char *s, ...);
 void setIPCDeathHook(void (*hook)(void));
 void setIPCErrorPrintf(int (*func)(char *s, ...));
+void connection_died(CtdlIPC *ipc);
+int CtdlIPC_getsockfd(CtdlIPC* ipc);
+char CtdlIPC_get(CtdlIPC* ipc);
 
 #ifdef __cplusplus
 }

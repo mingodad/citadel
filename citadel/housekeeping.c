@@ -128,6 +128,7 @@ void do_housekeeping(void) {
 	static int housekeeping_in_progress = 0;
 	static time_t last_timer = 0L;
 	int do_housekeeping_now = 0;
+	time_t now;
 
 	/*
 	 * We do it this way instead of wrapping the whole loop in an
@@ -135,14 +136,19 @@ void do_housekeeping(void) {
 	 * potentially have multiple concurrent mutexes in progress.
 	 */
 	begin_critical_section(S_HOUSEKEEPING);
-	if ( ((time(NULL) - last_timer) > 60L)
-	   && (housekeeping_in_progress == 0) ) {
-		do_housekeeping_now = 1;
-		housekeeping_in_progress = 1;
-		last_timer = time(NULL);
+	now = time(NULL);
+	if ( (now - last_timer) > (time_t)60 ) {
+		if (housekeeping_in_progress == 0) {
+			do_housekeeping_now = 1;
+			housekeeping_in_progress = 1;
+			last_timer = time(NULL);
+		}
 	}
 	end_critical_section(S_HOUSEKEEPING);
-	if (do_housekeeping_now == 0) return;
+
+	if (do_housekeeping_now == 0) {
+		return;
+	}
 
 	/*
 	 * Ok, at this point we've made the decision to run the housekeeping

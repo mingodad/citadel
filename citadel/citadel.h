@@ -317,4 +317,14 @@ enum {
 }
 #endif
 
+#ifdef tmpnam
+#undef tmpnam
+#endif
+#define tmpnam(x)	CtdlTempFileName(__FILE__, __LINE__)
+
+#ifdef tmpfile
+#undef tmpfile
+#endif
+#define tmpfile()	CtdlTempFile()
+
 #endif /* CITADEL_H */

@@ -1123,7 +1123,7 @@ int CtdlIPCFileDownload(CtdlIPC *ipc, const char *filename, void **buf,
 /*		ret = CtdlIPCHighSpeedReadDownload(ipc, buf, bytes, resume, progress_gauge_callback, cret); */
 		ret = CtdlIPCEndDownload(ipc, cret);
 		if (ret / 100 == 2)
-			sprintf(cret, "%d|%ld|%s|%s", bytes, last_mod,
+			sprintf(cret, "%d|%ld|%s|%s", (int)bytes, last_mod,
 					filename, mimetype);
 	}
 	return ret;
@@ -1162,7 +1162,7 @@ int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part, void 
 		ret = CtdlIPCHighSpeedReadDownload(ipc, buf, bytes, 0, progress_gauge_callback, cret);
 		ret = CtdlIPCEndDownload(ipc, cret);
 		if (ret / 100 == 2)
-			sprintf(cret, "%d|%ld|%s|%s", bytes, last_mod,
+			sprintf(cret, "%d|%ld|%s|%s", (int)bytes, last_mod,
 					filename, mimetype);
 	}
 	return ret;
@@ -1199,7 +1199,7 @@ int CtdlIPCImageDownload(CtdlIPC *ipc, const char *filename, void **buf,
 		ret = CtdlIPCReadDownload(ipc, buf, bytes, 0, progress_gauge_callback, cret);
 		ret = CtdlIPCEndDownload(ipc, cret);
 		if (ret / 100 == 2)
-			sprintf(cret, "%d|%ld|%s|%s", bytes, last_mod,
+			sprintf(cret, "%d|%ld|%s|%s", (int)bytes, last_mod,
 					filename, mimetype);
 	}
 	return ret;
@@ -2025,7 +2025,7 @@ size_t CtdlIPCPartialRead(CtdlIPC *ipc, void **buf, size_t offset, size_t bytes,
 	if (offset < 0) return -1;
 
 	CtdlIPC_lock(ipc);
-	sprintf(aaa, "READ %d|%d", offset, bytes);
+	sprintf(aaa, "READ %d|%d", (int)offset, (int)bytes);
 	CtdlIPC_putline(ipc, aaa);
 	CtdlIPC_getline(ipc, aaa);
 	if (aaa[0] != '6')
@@ -2133,7 +2133,7 @@ int CtdlIPCHighSpeedReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
 
 	/* Send all requests at once */
 	for (i = 0; i < calls; i++) {
-		sprintf(aaa, "READ %d|4096", i * 4096 + resume);
+		sprintf(aaa, "READ %d|4096", (int)(i * 4096 + resume) );
 		CtdlIPC_putline(ipc, aaa);
 	}
 
@@ -2204,7 +2204,7 @@ int CtdlIPCWriteUpload(CtdlIPC *ipc, const char *path,
 		if (!to_write) {
 			if (feof(fd) || ferror(fd)) break;
 		}
-		sprintf(aaa, "WRIT %d", to_write);
+		sprintf(aaa, "WRIT %d", (int)to_write);
 		CtdlIPC_putline(ipc, aaa);
 		CtdlIPC_getline(ipc, aaa);
 		strcpy(cret, &aaa[4]);
@@ -2538,7 +2538,7 @@ static void serv_read_ssl(CtdlIPC* ipc, char *buf, int bytes)
 			}
 			error_printf("SSL_read in serv_read:\n");
 			ERR_print_errors_fp(stderr);
-			connection_died();
+			connection_died(NULL);
 			return;
 		}
 		len += rlen;
@@ -2581,7 +2581,7 @@ static void serv_write_ssl(CtdlIPC *ipc, const char *buf, int nbytes)
 			}
 			error_printf("SSL_write in serv_write:\n");
 			ERR_print_errors_fp(stderr);
-			connection_died();
+			connection_died(NULL);
 			return;
 		}
 		bytes_written += retval;

@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.28  2002/10/15 17:41:20  ajc
+ * Numerous warning fixes and cleanups for compile on Linux for IBM S/390
+ * Name temp files with source code location of who created them
+
  Revision 601.27  2002/10/15 06:47:11  error
  * IPC support for resumable downloads
 
@@ -4076,4 +4080,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

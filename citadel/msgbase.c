@@ -1002,7 +1002,7 @@ void output_preferred(char *name, char *filename, char *partnum, char *disp,
 
 			cprintf("Content-type: %s\n", cbtype);
 			cprintf("Content-length: %d\n",
-				length + add_newline);
+				(int)(length + add_newline) );
 			cprintf("Content-transfer-encoding: %s\n", encoding);
 			cprintf("\n");
 			client_write(content, length);

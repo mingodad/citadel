@@ -101,7 +101,10 @@ int main(int argc, char **argv)
 		"./network/spoolin/ap.%04x",
 		getpid());
 
-	tempfp = tmpfile();
+	unlink(tempspool);
+
+	tempfp = fopen(tempspool, "w+b");
+	unlink(tempspool);
 	if (tempfp == NULL) {
 		perror("cannot open temp file");
 		exit(errno);
