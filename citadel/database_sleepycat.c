@@ -55,6 +55,7 @@
 #include "database.h"
 #include "msgbase.h"
 #include "sysdep_decls.h"
+#include "config.h"
 
 static DB *dbp[MAXCDB];		/* One DB handle for each Citadel database */
 static DB_ENV *dbenv;		/* The DB environment (global) */
@@ -283,6 +284,10 @@ void open_databases(void)
 	char dbfilename[SIZ];
 	u_int32_t flags = 0;
 	char dbdirname[PATH_MAX];
+	DIR *dp;
+	struct dirent *d;
+	char filename[PATH_MAX];
+
 
 	getcwd(dbdirname, sizeof dbdirname);
 	strcat(dbdirname, "/data");
@@ -300,6 +305,7 @@ void open_databases(void)
          */
 	mkdir(dbdirname, 0700);
 	chmod(dbdirname, 0700);
+	chown(dbdirname, BBSUID, (-1) );
 
 	lprintf(CTDL_DEBUG, "cdb_*: Setting up DB environment\n");
 	db_env_set_func_yield(sched_yield);
@@ -377,6 +383,23 @@ void open_databases(void)
 
 	cdb_allocate_tsd();
 	CtdlRegisterSessionHook(cdb_checkpoint, EVT_TIMER);
+
+	/* Now make sure we own all the files, because in a few milliseconds
+	 * we're going to drop root privs.
+	 */
+	dp = opendir(dbdirname);
+	if (dp != NULL) {
+		while (d = readdir(dp), d != NULL) {
+			if (d->d_name[0] != '.') {
+				snprintf(filename, sizeof filename, "%s/%s",
+					dbdirname, d->d_name);
+				chmod(filename, 0600);
+				chown(filename, BBSUID, (-1) );
+			}
+		}
+		closedir(dp);
+	}
+
 	lprintf(CTDL_DEBUG, "cdb_*: open_databases() finished\n");
 }
 

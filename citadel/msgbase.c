@@ -241,6 +241,11 @@ void get_mm(void)
 	FILE *fp;
 
 	fp = fopen("citadel.control", "r");
+	if (fp == NULL) {
+		lprintf(CTDL_CRIT, "Cannot open citadel.control: %s\n",
+			strerror(errno));
+		exit(errno);
+	}
 	fread((char *) &CitControl, sizeof(struct CitControl), 1, fp);
 	fclose(fp);
 }

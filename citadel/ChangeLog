@@ -1,4 +1,8 @@
  $Log$
+ Revision 614.95  2004/03/24 02:59:19  ajc
+ * After initializing the database, chown and chmod all files in the data/
+   directory correctly to avoid EPERM errors later on when we drop root privs
+
  Revision 614.94  2004/03/22 19:37:28  error
  * sysdep.c: worker_thread(): Make scheduling a little more fair to higher
    sessions
@@ -5586,4 +5590,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
