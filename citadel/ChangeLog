@@ -1,4 +1,8 @@
  $Log$
+ Revision 640.9  2005/02/16 18:48:39  ajc
+ * Try to reach our cleanup routine when SIGSEGV is caught.  Hopefully
+   we'll get there and we can close the databases cleanly.
+
  Revision 640.8  2005/02/16 17:37:16  ajc
  * Be more aggressive about shutting down when told to.  Getting the
    databases closed is the highest priority.
@@ -6404,4 +6408,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

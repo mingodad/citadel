@@ -171,7 +171,7 @@ void lprintf(enum LogLevel loglevel, const char *format, ...) {
 volatile int time_to_die = 0;
 
 static RETSIGTYPE signal_cleanup(int signum) {
-	lprintf(CTDL_DEBUG, "Signal %d received.\n", signum);
+	lprintf(CTDL_DEBUG, "Caught signal %d; shutting down.\n", signum);
 	time_to_die = 1;
 	master_cleanup();	/* will this work? */
 }
@@ -222,6 +222,7 @@ void init_sysdep(void) {
 	signal(SIGQUIT, signal_cleanup);
 	signal(SIGHUP, signal_cleanup);
 	signal(SIGTERM, signal_cleanup);
+	signal(SIGSEGV, signal_cleanup);
 
 	/*
 	 * Do not shut down the server on broken pipe signals, otherwise the

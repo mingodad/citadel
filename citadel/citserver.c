@@ -130,6 +130,10 @@ void master_startup(void) {
  */
 void master_cleanup(void) {
 	struct CleanupFunctionHook *fcn;
+	static int already_cleaning_up = 0;
+
+	if (already_cleaning_up) while(1) sleep(1);
+	already_cleaning_up = 1;
 
 	/* Run any cleanup routines registered by loadable modules */
 	for (fcn = CleanupHookTable; fcn != NULL; fcn = fcn->next) {
