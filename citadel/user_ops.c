@@ -58,7 +58,7 @@
  * makeuserkey() - convert a username into the format used as a database key
  *                 (it's just the username converted into lower case)
  */
-static inline void makeuserkey(char *key, char *username) {
+static INLINE void makeuserkey(char *key, char *username) {
 	int i, len;
 
 	len = strlen(username);

@@ -9,6 +9,7 @@
 #define DEFAULT_PORT		"citadel"
 
 #include "sysdep.h"
+#include "server.h"
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
@@ -292,8 +293,8 @@ int CtdlIPCMessageBaseCheck(CtdlIPC *ipc, char **mret, char *cret);
 /*             Stuff below this line is not for public consumption            */
 /* ************************************************************************** */
 
-inline void CtdlIPC_lock(CtdlIPC *ipc);
-inline void CtdlIPC_unlock(CtdlIPC *ipc);
+INLINE void CtdlIPC_lock(CtdlIPC *ipc);
+INLINE void CtdlIPC_unlock(CtdlIPC *ipc);
 char *CtdlIPCReadListing(CtdlIPC *ipc, char *dest);
 int CtdlIPCSendListing(CtdlIPC *ipc, const char *listing);
 size_t CtdlIPCPartialRead(CtdlIPC *ipc, void **buf, size_t offset,

@@ -10,7 +10,7 @@
 #define SERVER_H
 
 #ifdef __GNUC__
-#define INLINE inline
+#define INLINE __inline__
 #else
 #define INLINE
 #endif

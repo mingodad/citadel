@@ -1653,7 +1653,7 @@ RMSGREAD:	scr_flush();
                           }
             		  }
             	  }
-        	    // we are now in synch with the server
+        	    /* we are now in synch with the server */
                 if (founda)
                   break; /* for */
                 lasta = finda; /* keep one behind or we skip on the reentrance to the for */

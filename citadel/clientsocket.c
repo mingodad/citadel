@@ -137,7 +137,7 @@ int sock_read_to(int sock, char *buf, int bytes, int timeout)
  * sock_read() - input binary data from socket.
  * Returns the number of bytes read, or -1 for error.
  */
-inline int sock_read(int sock, char *buf, int bytes)
+INLINE int sock_read(int sock, char *buf, int bytes)
 {
 	return sock_read_to(sock, buf, bytes, CLIENT_TIMEOUT);
 }

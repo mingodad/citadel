@@ -411,7 +411,7 @@ int ig_uds_server(char *sockpath, int queue_len)
  *
  * It's inlined because it's used *VERY* frequently.
  */
-inline struct CitContext *MyContext(void) {
+INLINE struct CitContext *MyContext(void) {
 	return ((pthread_getspecific(MyConKey) == NULL)
 		? &masterCC
 		: (struct CitContext *) pthread_getspecific(MyConKey)
@@ -633,7 +633,7 @@ int client_read_to(char *buf, int bytes, int timeout)
  * (This is implemented in terms of client_read_to() and could be
  * justifiably moved out of sysdep.c)
  */
-inline int client_read(char *buf, int bytes)
+INLINE int client_read(char *buf, int bytes)
 {
 	return(client_read_to(buf, bytes, config.c_sleeping));
 }

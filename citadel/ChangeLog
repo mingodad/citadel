@@ -1,4 +1,12 @@
  $Log$
+ Revision 612.9  2003/12/09 06:39:19  nbryant
+ did a minimal amount of ANSIfication without changing anything that would
+ affect the compiler output in any way. I was just trying to get enough warnings
+ enabled to be able to tell if there are any nested functions lurking about...
+
+ If we get rid of nested functions we can get some big security gains under
+ Fedora.
+
  Revision 612.8  2003/12/09 05:12:49  ajc
  * Don't give away anonymous poster information in IMAP or RFC822
 
@@ -5131,4 +5139,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
