@@ -84,6 +84,7 @@ void cal_process_object(icalcomponent *cal,
 	time_t tt;
 	char buf[SIZ];
 	char conflict_name[SIZ];
+	int is_update = 0;
 
 	/* Leading HTML for the display of this object */
 	if (recursion_level == 0) {
@@ -190,10 +191,22 @@ void cal_process_object(icalcomponent *cal,
 		if (buf[0] == '1') {
 			while (serv_gets(buf), strcmp(buf, "000")) {
 				extract(conflict_name, buf, 3);
-				wprintf("<TR><TD><B><I>CONFLICT:</I></B></TD>"
+				is_update = extract_int(buf, 4);
+				wprintf("<TR><TD><B><I>%s</I></B></TD>"
 					"<TD>"
-					"This event would conflict with "
-					"<I>&quot;"
+					"%s "
+					"<I>&quot;",
+
+					(is_update ?
+						"Update:" :
+						"CONFLICT:"
+					),
+
+					(is_update ?
+						"This is an update of" :
+						"This event would conflict with"
+					)
+		
 				);
 				escputs(conflict_name);
 				wprintf("&quot;</I> "

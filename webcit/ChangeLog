@@ -1,4 +1,8 @@
 $Log$
+Revision 400.45  2002/10/23 04:11:38  ajc
+* Detect when a meeting invitation is actually an update for an existing UID
+  and tell the user so.
+
 Revision 400.44  2002/10/21 20:16:38  ajc
 * Display conflicts nicely
 
@@ -1090,3 +1094,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
