@@ -1527,5 +1527,279 @@ files that will be automatically substituted with other strings.  They are:</p>
 course, if you still have trouble, you could always bug ^sysadm about it!"
 </PRE>
        
+
+<h3>Site configuration</h3>
+
+<p>Once your Citadel server is up and running, the first thing you'll
+want to do is customize and tune it.  This can be done from the
+text-based client with the
+<tt><b>.A</b>ide <b>S</b>ystem configuration <b>G</b>eneral</tt>
+command,
+or from WebCit (if you have it installed) by clicking 'Advanced Options'
+followed by 'Edit site-wide configuration.'   Either method will offer the
+same configuration options.  This document shows the text mode client
+being used.</p>
+
+<p>The first set of options deal with the identification of your system.</p>
+  
+<pre>
+Lobby> . Aide System configuration General
+Node name [uncnsrd]: 
+Fully qualified domain name [uncensored.citadel.org]: 
+Human readable node name [Uncensored]: 
+Modem dialup number [US 914 999 9999]: 
+Geographic location of this system [Mount Kisco, NY]: 
+Name of system administrator [IGnatius T Foobar]: 
+Paginator prompt [<jinkies!  more text on the next screen!>]: 
+</pre>
+
+<p>'Node name' refers to the short, unqualified node name by which your
+system is known on a Citadel network.  Generally it will be the same as the
+unqualified host name of your computer; this is, in fact, the default
+setting.</p>
+
+<p>Then enter the fully-qualified domain name (FQDN) of your system.  If you
+are not on the Internet, you can simply set it to the same as your
+unqualified host name.  Otherwise you should set this value
+to the host name by which your system is most commonly known.</p>
+
+<p>The field called 'Human-readable node name' (also known as the 'node
+title' or 'organization name' in other software) is used solely for display
+purposes.  Set it to the actual name of your system as you want it to appear
+in banners, messages, etc.</p>
+
+<p>If you have a modem or bank of modems answering data calls for your
+system, enter it in the field marked 'Modem dialup number.'  Otherwise you
+may leave it blank.</p>
+
+<p>'Geographic location of this system' is another display field.  Enter a 
+city and state, or city and country. </P>
+
+<p>'Name of system administrator' is important!  Any user who logs on with 
+the name you enter here will automatically be granted Aide privileges.
+This is one of two ways for the system administrator to grant
+himself/herself Aide access to the system when initially setting it up.  (The
+other is simply to have the first account created on a new installation.)</p>
+  
+
+<p>The next set of options are your system's security settings.  Before
+delving into the actual options, we should review the various access
+levels available on the system.  Citadel has seven access levels:</p>
+
+<ul>
+<li>0 (Deleted).  A user whose access level is set to 0 will
+automatically be deleted by the system. 
+<li>1 (New User).   Users at this level may only read messages.  Entering
+messages is prohibited, except in the <tt>Mail&gt;</tt> room, where a message
+to 'sysop' may be entered. 
+<li>2 (Problem User).  Also known as 'Twit.' 
+<li>3 (Local User).  May enter messages, except in rooms shared on a  
+Citadel network. 
+<li>4 (Network User).  May enter messages in every accessible room. 
+<li>5 (Preferred User).  Use of this level is up to the whim of the
+system administrator. 
+<li>6 (Aide).  Access is granted to the administrative functions of the
+system.  (This access level may also be granted to a user only for
+a specific room, please see 'Room Aide' for
+more information.) 
+</ul>
+
+<pre>
+Require registration for new users [No]: No
+Disable self-service user account creation [No]: No
+Initial access level for new users [4]:
+Access level required to create rooms [4]: 
+Automatically give room aide privs to a user who creates a private room [No]: No
+
+Automatically move problem user messages to twit room [Yes]: Yes
+Name of twit room [Trashcan]: 
+Restrict Internet mail to only those with that privilege [No]: No
+Allow Aides to Zap (forget) rooms [Yes]: Yes
+Allow system Aides access to user mailboxes [Yes]: Yes
+Log all pages [No]: No
+</pre>
+  
+<p>'Registration' refers to the process of a user entering various personal
+contact information (real name, address, telephone number, etc.) into the
+system.  When enabled, this information is stored as a vCard object on
+the system in two places: the user's <tt>My Citadel Config&gt;</tt>
+room, and in
+the <tt>Global Address Book&gt;</tt>
+room.  (Note: the latter should be made private
+on publicly-accessible systems, for obvious reasons.)</p>
+
+<p>If you answer Yes to 'Require registration for new users' then each new
+user, upon creating a new account, will immediately be entered into the
+registration process.  On the other hand, if you answer Yes to
+'Disable self-service user account creation' then new users will not
+be able to log in at all -- all accounts must be created by an Aide.</p>
+
+<p>'Initial access level for new users' should be set to 1 (New User) if you  
+would like to review each new user's registration info before granting
+them higher access.  This would be done periodically with the
+<tt><b>.A</b>ide <b>V</b>alidate new users</tt>
+command.   If you do not require registration, you
+should set the initial access level to 4 (Network User).</p>
+
+<p>Given the above options, it then becomes clear that there are generally
+two ways you can set up your Citadel system, depending on its purpose:</p>
+
+<ul>
+<li><b>A public access BBS or message board</b> - since you do not know who
+might want to log in, self-service account creation needs to stay enabled.
+If you want to be strict about users identifying themselves, then you should
+also require users to register (just remember to post a privacy policy if
+you're going to collect personal information) -- then set the initial
+access level to 1 (New User), so new users cannot post messages until after
+you've validated them.  For a more lax environment, you can remove the
+registration requirement and grant new accounts level 4 (Normal User)
+access on the first visit.
+<li><b>A private email/groupware system for your organization</b> - in this
+case, disable self-service account creation; you don't want strangers welcoming
+themselves to your system.  You'll probably also want to disable registration,
+because you or some other site administrator will be entering users' contact
+info when you create their accounts.  Since this is also how you assign
+their Internet e-mail addresses, it's probably a good idea to do it yourself
+instead of expecting them to do it.
+</ul>
+
+<p>'Access level required to create rooms' is up to you.  You might wish to
+restrict the creation of new rooms only to Aides, or you might wish to
+allow anyone to create a room.  The latter is one of the Citadel
+culture's most long-standing traditions; the former may be appropriate if
+users are abusing this privilege.</p>
+
+<p>You have the ability to 'Automatically give room aide privs to a user who  
+creates a private room.'  If you answer Yes, then any user who creates a
+guess-name, passworded, or invitation-only room will automatically become
+the room aide, and will have access to a subset of the <tt><b>.A</b>ide</tt>
+command set while in that room.  If you would rather grant this permission  
+manually, answer No.</p>
+
+<p>Another tradition in the Citadel culture is to refrain from deleting 
+problem users, but instead to 'twit' them (reduce their access level to 2
+[Problem User]).   You can then 'Automatically move problem user messages
+to twit room' (answer Yes, then specify 'Name of twit room' and remember
+to create that room).  If you employ this logic, any user with level 2
+(Problem User) access will continue to have access to the same set of
+rooms, but all messages posted will automatically be routed to the
+Trashcan (or whatever you call your twit room).</p>
+
+<p>If you have Internet mail configured, you have the option of
+restricting its use on a user-by-user basis.  If you wish to do this,
+answer Yes to 'Restrict Internet mail to only those with that privilege.'
+Obviously this makes no sense for an internal e-mail system, but for a
+public BBS it might be appropriate.</p>
+
+<p>Normally, Aides have access to every room, public or private, except
+for user mailboxes.  They are also forbidden from <tt><b>Z</b>ap</tt>ping
+rooms, because the review of content is considered one of their roles.  If
+you wish to change these policies, the next two options allow you to.  You
+may 'Allow Aides to Zap (forget) rooms', in which case they may use the
+<tt><b>Z</b>ap</tt> command just like any other user.  Furthermore, if you
+'Allow system Aides access to user mailboxes', then they may
+<tt><b>.G</b>oto</tt> any private mailbox belonging to any user, using a
+special room name format.</p>
+
+<P>If your local security and/or privacy policy dictates that you keep a
+log of all pages (instant messages) that go through the system, then answer
+Yes to 'Log all pages'.  If you answer Yes, you will be prompted for the
+name of a room to which all pages will be logged.  If you answer No, then
+only the sender and recipient of each individual message will receive a
+copy.</p>
+
+<p>The next set of options deals with the tuning of your system.  It is
+usually safe to leave these untouched.</p>
+
+<pre>
+Server connection idle timeout (in seconds) [900]: 
+Maximum concurrent sessions [20]: 
+Maximum message length [2147483647]: 
+Minimum number of worker threads [5]: 
+Maximum number of worker threads [256]: 
+</pre>
+
+<p>The 'Server connection idle timeout' is for the connection between client
+and server software.  It is <b>not</b> an idle timer for the user interface.
+900 seconds (15 minutes) is the default and a sane setting.</p>
+
+<p>'Maximum concurrent sessions' is the highest number of user sessions you
+wish to allow on your system at any given time.  Citadel can scale to
+hundreds of concurrent users, but if you have limited hardware or (more
+likely) limited bandwidth, you might wish to set a maximum.  You can also
+set it to zero for no limit.</p>
+
+<p>'Maximum message length' is just that.  This could be a good way to
+prevent enormous multimedia files from finding their way into your
+message base.  This maximum is enforced in all protocols and is also
+advertised by the ESMTP service.</p>
+
+<p>The minimum and maximum number of worker threads can be tuned to your
+liking.  Citadel will attempt to keep one worker thread running per
+session, within these constraints.  You should be aware that due to the
+use of the worker thread model, Citadel can handle a large number of
+concurrent sessions with a much smaller thread pool.  If you don't know
+the programming theory behind multithreaded servers, you should leave
+these parameters alone.</p>
+
+<p>The next set of options affect how Citadel behaves on a network.</p>
+
+<PRE>
+How often to run network jobs (in seconds) [3600]: 
+SMTP server port (-1 to disable) [25]: 
+POP3 server port (-1 to disable) [110]:
+IMAP server port (-1 to disable) [143]:
+</pre>
+
+<P>'How often to run network jobs' refers to the sharing of content on a
+Citadel network.  If your system is on a Citadel network, this configuration
+item dictates how often the Citadel server will contact other Citadel
+servers to send and receive messages.  In reality, this will happen more
+frequently than you specify, because other Citadel servers will be contacting
+yours at regular intervals as well.</p>
+
+<P>Then you can specify TCP port numbers for the SMTP, POP3, and IMAP
+services.  For a system being used primarily for Internet e-mail, these are
+essential, so you'll want to specify the standard port numbers: 25, 110,
+and 143.  If Citadel is running alongside some other mail system, though, then
+you might want to choose other, unused port numbers, or enter -1 for any
+protocol to disable it entirely.</p>
+
+<p>The final set of options configures system-wide defaults for the
+auto-purger:</p>
+
+<PRE>
+Default user purge time (days) [120]: 
+Default room purge time (days) [30]: 
+System default message expire policy (? for list) [2]: 
+Keep how many messages online? [150]:
+</pre>
+
+<p>Any user who does not log in for the period specified in 'Default user
+purge time' will be deleted the next time a purge is run.  This setting
+may be modified on a per-user basis.</p>
+
+<p>'Default room purge time' behaves the same way, and may also be modified
+on a per-room basis.</p>
+
+<p>'System default message expire policy' defines the way in which old
+messages are expired (purged) off the system.  You can specify any of:</p>
+
+<UL>
+<LI>Purge by age (specify in days) 
+<LI>Purge by message count in the room (specify number of messages) 
+<LI>Do not purge at all
+</UL>
+
+<p>Again, this setting may be overridden on a per-floor basis, and the
+floor setting may be overridden on a per-room basis.</p>
+  
+<PRE>
+Save this configuration? No
+</PRE>
+
+<P>When you're done, enter 'Yes' to confirm the changes, or 'No' to discard
+the changes.</p>
+
 </body>
 </html>
