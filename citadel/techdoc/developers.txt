@@ -4,6 +4,7 @@ Developer codes (and where known, client codes)
 	Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	Nathan Bryant
 	Brian Costello
+	Nick Grossman
 
 	0 = Citadel/UX text based client
 	2 = WinCit	(MS Visual Basic client.  This project reached version
@@ -22,4 +23,6 @@ Developer codes (and where known, client codes)
  4	Brian Costello <btx@calyx.net>
  
  5	Robert Abatecola <robert@tsgus.com> 
+ 
+ 6	Bastille <tdf@area51.v-wave.com>
  
