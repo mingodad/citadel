@@ -1,3 +1,12 @@
+Tue Jan 12 22:30:00 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Various changes to begin work on support for MIME messages
+		- Defined format type 4 for MIME
+		- msgbase.c: *temporary* hacks in output_message() for Type 4
+		- citmail.c: added more robust header parsing, and support
+		             for Type 4.  Also eliminated the crappy built-in
+		             SMTP server.
+		- Updated some of the technical documentation
+
 Sun Jan 10 13:34:36 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Fixed access to page log room
 

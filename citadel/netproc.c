@@ -74,23 +74,6 @@ struct syslist {
 	char s_gdom[64];
 	};
 
-struct minfo {
-	char A[512];
-	char E[512];
-	long I;
-	char N[512];
-	char O[512];
-	char R[512];
-	long T;
-	char D[512];
-	char C[512];
-	char nexthop[512];
-	char H[512];
-	char S[512];
-	char B[512];
-	char G[512];
-	};
-
 
 void attach_to_server(int argc, char **argv);
 void serv_read(char *buf, int bytes);

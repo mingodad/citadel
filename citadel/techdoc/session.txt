@@ -408,15 +408,17 @@ it's not there, the request is denied.
 LISTING_FOLLOWS code will be returned, followed by the contents of the message.
 The following fields may be sent:
   
- type=   Formatting type.  Currently, there are two defined types.  Type 0 is
-"traditional" Citadel formatting.  This means that newlines should be treated
-as spaces UNLESS the first character on the next line is a space.  In other
-words, only indented lines should generate a newline on the user's screen when
-the message is being displayed.  This allows a message to be formatted to the
-reader's screen width.  It also allows the use of proportional fonts.
-Type 1 is a simple fixed-format message.  The message should be displayed to
+ type=   Formatting type.  The currently defined types are:
+  0 = "traditional" Citadel formatting.  This means that newlines should be
+treated as spaces UNLESS the first character on the next line is a space.  In
+other words, only indented lines should generate a newline on the user's screen 
+when the message is being displayed.  This allows a message to be formatted to
+the reader's screen width.  It also allows the use of proportional fonts.
+  1 = a simple fixed-format message.  The message should be displayed to
 the user's screen as is, preferably in a fixed-width font that will fit 80
 columns on a screen.
+  4 = MIME format message.  The message text is expected to contain a header
+with the "Content-type:" directive (and possibly others).
   
  msgn=   The message ID of this message on the system it originated on.
  path=   An e-mailable path back to the user who wrote the message.

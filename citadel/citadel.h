@@ -251,4 +251,26 @@ struct floor {
 #define AIDEROOM	"Aide"
 
 
+/*
+ * This structure is used to hold all of the fields of a message
+ * during conversion, processing, or whatever.
+ */
+struct minfo {
+	char A[512];
+	char B[512];
+	char C[512];
+	char D[512];
+	char E[512];
+	char G[512];
+	char H[512];
+	long I;
+	char N[512];
+	char O[512];
+	char P[512];
+	char R[512];
+	char S[512];
+	long T;
+	char U[512];
+	char nexthop[512];
+	};
 

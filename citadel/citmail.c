@@ -1,5 +1,5 @@
 /*
- * citmail.c v4.1
+ * citmail.c v4.2
  * $Id$
  *
  * This program may be used as a local mail delivery agent, which will allow
@@ -12,7 +12,6 @@
  *
  * citmail <recipient>       - Deliver a message
  * citmail -t <recipient>    - Address test mode (will not deliver)
- * citmail -i                - Run as an SMTP daemon (typically from inetd)
  *
  */
 
@@ -339,6 +338,7 @@ void do_citmail(char recp[], int dtype) {
 	time_t now;
 	FILE *temp;
 	int a;
+	int format_type = 0;
 	char buf[128];
 	char from[512];
 	char userbuf[256];
@@ -347,6 +347,8 @@ void do_citmail(char recp[], int dtype) {
 	char destsys[256];
 	char subject[256];
 	char targetroom[256];
+	char content_type[256];
+	char *extra_headers = NULL;
 
 
 	if (dtype==REMOTE) {
@@ -381,25 +383,56 @@ void do_citmail(char recp[], int dtype) {
 	snprintf(buf, sizeof buf, "./network/spoolin/citmail.%d", getpid());
 	temp = fopen(buf,"w");
 
-	putc(255,temp); putc(MES_NORMAL,temp); putc(1,temp);
-	strcpy(subject,"");
+	strcpy(subject, "");
 	strcpy(nodebuf, config.c_nodename);
+	strcpy(content_type, "text/plain");
+
 	do {
 		if (fgets(buf,128,stdin) == NULL) strcpy(buf, ".");
 		strip_trailing_whitespace(buf);
 
-		if (!strncmp(buf,"Subject: ",9)) strcpy(subject,&buf[9]);
-		if (!strncmp(buf,"Date: ",6)) now = conv_date(&buf[6]);
-		if (!strncmp(buf,"From: ",6)) strcpy(from, &buf[6]);
+		if (!strncasecmp(buf,"Subject: ",9))
+			strcpy(subject,&buf[9]);
+		else if (!strncasecmp(buf,"Date: ",6))
+			now = conv_date(&buf[6]);
+		else if (!strncasecmp(buf,"From: ",6))
+			strcpy(from, &buf[6]);
+		else if (!strncasecmp(buf,"Content-type: ",14))
+			strcpy(content_type, &buf[14]);
+		else {
+			if (extra_headers == NULL) {
+				extra_headers = malloc(strlen(buf)+2);
+				strcpy(extra_headers, "");
+				}
+			else {
+				extra_headers = realloc(extra_headers,
+					(strlen(extra_headers)+strlen(buf)+2));
+				}
+			strcat(extra_headers, buf);
+			strcat(extra_headers, "\n");
+			}
 		} while ( (strcmp(buf, ".")) && (strcmp(buf, "")) );
 
 	process_rfc822_addr(from, userbuf, nodebuf, frombuf);
 
+	if (!strncasecmp(content_type, "text/plain", 10))
+		format_type = 1;	/* plain ASCII message */
+	else
+		format_type = 4;	/* MIME message */
+
 	/* now convert it to Citadel format */
+
+	/* Header bytes */
+	putc(255, temp);		/* 0xFF = start-of-message byte */
+	putc(MES_NORMAL, temp);		/* Non-anonymous message */
+	putc(format_type, temp);	/* Format type */
+
+	/* Origination */
 	fprintf(temp,"P%s@%s%c", userbuf, nodebuf, 0);
 	fprintf(temp,"T%ld%c", now, 0);
 	fprintf(temp,"A%s%c", userbuf, 0);
 
+	/* Destination */
 	if (strlen(targetroom) > 0) {
 		fprintf(temp, "O%s%c", targetroom, 0);
 		}
@@ -417,10 +450,18 @@ void do_citmail(char recp[], int dtype) {
 		fprintf(temp,"R%s%c", recp, 0);
 		}
 
+	/* Subject and text */
 	if (strlen(subject)>0) {
 		fprintf(temp,"U%s%c", subject, 0);
 		}
 	putc('M',temp);
+	if (format_type == 4) {
+		fprintf(temp, "Content-type: %s\n", content_type);
+		if (extra_headers != NULL)
+			fprintf(temp, "%s", extra_headers);
+		fprintf(temp, "\n");
+		}
+	if (extra_headers != NULL) free(extra_headers);
 	if (strcmp(buf, ".")) loopcopy(temp, stdin);
 	putc(0,temp);
 	fclose(temp);
@@ -513,7 +554,6 @@ int main(int argc, char **argv)
 {
 	int is_test = 0;
 	int deliver_to_ignet = 0;
-	int smtp = 0;
 	static char recp[1024], buf[1024];
 	static char user[1024], node[1024], name[1024];
 	int a;
@@ -526,160 +566,46 @@ int main(int argc, char **argv)
 		is_test = 1;
 		syslog(LOG_NOTICE,"test mode - will not deliver");
 		}
-	if (!strcmp(argv[1], "-i")) {
-		smtp = 1;
-		syslog(LOG_NOTICE,"started as an SMTP daemon");
-		}
 
-
-	if (smtp) {
-		strcpy(recp, "");
-		}
-	else if (is_test == 0) {
+	if (is_test == 0) {
 		strcpy(recp,argv[1]);
 		}
 	else {
 		strcpy(recp,argv[2]);
 		}
 
-
-	if (smtp) {
-		/*** SMTP delivery mode ***/
-
-		printf("200 Citadel/UX SMTP gateway ready.\n");
+	/*** Non-SMTP delivery mode ***/
+	syslog(LOG_NOTICE,"recp: %s",recp);
+	for (a=0; a<2; ++a) {
+		alias(recp);
+		}
 	
-		do {
-			fflush(stdout);
-			fflush(stderr);
-			fgets(buf, 1024, stdin);
-			while ( (strlen(buf)>0) && (buf[strlen(buf)-1]>0) && (buf[strlen(buf)-1]<32) ) {
-				buf[strlen(buf)-1] = 0;
-				}
+	/* did we alias it back to a remote address? */
+	if (	(haschar(recp,'%'))
+   	||	(haschar(recp,'@'))
+   	||	(haschar(recp,'!')) ) {
 
-			/* null-pad to allow some lazy compares */
-			buf[strlen(buf)+1] = 0;
-			buf[strlen(buf)+2] = 0;
-			buf[strlen(buf)+3] = 0;
+		process_rfc822_addr(recp, user, node, name);
+		host_alias(node);
 	
-			if (!strncasecmp(buf, "QUIT", 4)) {
-				printf("221 Later, dude.\n");
-				}
-			else if (!strncasecmp(buf, "HELP", 4)) {
-				printf("214 You think _you_ need help?\n");
-				}
-			else if (!strncasecmp(buf, "HELO", 4)) {
-				printf("250 Howdy ho, Mr. Hankey!\n");
-				}
-			else if (!strncasecmp(buf, "MAIL", 4)) {
-				printf("250 Sure, whatever...\n");
-				}
+		/* If there are dots, it's an Internet host, so feed it
+	 	* back to an external mail transport agent such as sendmail.
+	 	*/
+		if (haschar(node, '.')) {
+			snprintf(buf, sizeof buf, SENDMAIL, recp);
+			system(buf);
+			exit(0);
+			}
 
+		/* Otherwise, we're dealing with Citadel mail. */
+		else {
+			snprintf(recp, sizeof recp, "%s!%s", node, user);
+			deliver_to_ignet = 1;
+			}
 
-			else if (!strncasecmp(buf, "RCPT To: ", 9)) {
-				if (strlen(recp) > 0) {
-					printf("571 Multiple recipients not supported.\n");
-					}
-				else {
-					strcpy(recp, &buf[9]);
-					if (haschar(recp, ',')) {
-						printf("571 Multiple recipients not supported.\n");
-						strcpy(recp, "");
-						}
-					else {
-						syslog(LOG_NOTICE,"recp: %s",recp);
-						for (a=0; a<2; ++a) {
-							alias(recp);
-							}
-
-						/* did we alias it back to a remote address? */
-						if (	(haschar(recp,'%'))
-	   					||	(haschar(recp,'@'))
-	   					||	(haschar(recp,'!')) ) {
-	
-							process_rfc822_addr(recp, user, node, name);
-							host_alias(node);
-		
-							/* If there are dots, it's an Internet host, so feed it
-		 				 	* back to an external mail transport agent such as sendmail.
-		 				 	*/
-							if (haschar(node, '.')) {
-								printf("571 Away with thee, spammer!\n");
-								strcpy(recp, "");
-								}
-		
-							/* Otherwise, we're dealing with Citadel mail. */
-							else {
-								snprintf(recp, sizeof recp, "%s!%s", node, user);
-								deliver_to_ignet = 1;
-								printf("250 IGnet recipient.\n");
-								}
-							}
-						else {
-							printf("250 Local recipient.\n");
-							}
-	
-						}
-	
-					}
-				}
-
-
-
-			else if (!strncasecmp(buf, "RCPT", 4)) {
-				printf("501 Only 'To:' commands are supported.\n");
-				}
-			else if (!strncasecmp(buf, "DATA", 4)) {
-				if (strlen(recp) > 0) {
-					printf("354 Sock it to me, baby...\n");
-					fflush(stdout);
-					deliver(recp, is_test, deliver_to_ignet);
-					printf("250 Cool beans!\n");
-					}
-				else {
-					printf("503 No recipient has been specified.\n");
-					}
-				}
-			else {
-				printf("500 Huh?\n");
-				}
-	
-			} while (strncasecmp(buf,"QUIT",4));
 		}
 
-	else {
-		/*** Non-SMTP delivery mode ***/
-		syslog(LOG_NOTICE,"recp: %s",recp);
-		for (a=0; a<2; ++a) {
-			alias(recp);
-			}
-	
-		/* did we alias it back to a remote address? */
-		if (	(haschar(recp,'%'))
-	   	||	(haschar(recp,'@'))
-	   	||	(haschar(recp,'!')) ) {
-	
-			process_rfc822_addr(recp, user, node, name);
-			host_alias(node);
-		
-			/* If there are dots, it's an Internet host, so feed it
-		 	* back to an external mail transport agent such as sendmail.
-		 	*/
-			if (haschar(node, '.')) {
-				snprintf(buf, sizeof buf, SENDMAIL, recp);
-				system(buf);
-				exit(0);
-				}
-	
-			/* Otherwise, we're dealing with Citadel mail. */
-			else {
-				snprintf(recp, sizeof recp, "%s!%s", node, user);
-				deliver_to_ignet = 1;
-				}
-	
-			}
-	
-		deliver(recp, is_test, deliver_to_ignet);
-		}
+	deliver(recp, is_test, deliver_to_ignet);
 
 	if (RUN_NETPROC) execlp("./netproc", "netproc", "-i", NULL);
 	exit(0);

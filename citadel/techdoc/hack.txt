@@ -42,20 +42,27 @@ one by one and sending them to the client for display, printing, or whatever.
  
     Implementing the "new message" function is also trivial in principle:
 we just keep track, for each caller in the userlog, of the highest-numbered
-message which existed on the >last< call.  (Remember, message numbers are
+message which existed on the *last* call.  (Remember, message numbers are
 simply assigned sequentially each time a message is created.  This
 sequence is global to the entire system, not local within a room.)  If
 we ignore all message-numbers in the room less than this, only new messages
 will be printed.  Voila! 
-
+ 
+ 
 		Message format on disk	(MSGMAIN)
 
-  Each message begins with an FF byte. The next byte will then be MES_NORMAL,
-MES_ANON, or MES_ANON2, depending on whether the message in anonymous or not.
-The next byte is either a 0 or 1. If it is 0, the message will be printed
-with the Citadel formatter.  If it is a 1, the
-message is printed directly to the screen, as is.  External editors generate
-this type of message.  After these three opening bytes, the remainder of
+   As discussed above, each message begins with an FF byte.
+ 
+   The next byte denotes whether this is an anonymous message.  The codes
+available are MES_NORMAL, MES_ANON, or MES_AN2 (defined in citadel.h).
+ 
+   The third byte is a "message type" code.  The following codes are defined:
+ 0 - "Traditional" Citadel format.  Message is to be displayed "formatted."
+ 1 - Plain pre-formatted ASCII text (otherwise known as text/plain)
+ 4 - MIME formatted message.  The text of the message which follows is
+     expected to begin with a "Content-type:" header.
+ 
+   After these three opening bytes, the remainder of
 the message consists of a sequence of character strings.  Each string
 begins with a type byte indicating the meaning of the string and is
 ended with a null.  All strings are printable ASCII: in particular,
@@ -70,10 +77,6 @@ all software should be written to IGNORE fields not currently defined.
 
 BYTE	Mnemonic	Comments
 
-#       Local ID	A 32-bit integer containing the message ID on the
-                        system the message is *currently* on (obviously this
-                        is meaningless for a message being transmitted over
-                        a network).
 A	Author		Name of originator of message.
 B	Phone number	The dialup number of the system this message
 			originated on.  This is optional, and is only
@@ -110,11 +113,6 @@ T	Date/Time	A 32-bit integer containing the date and time of
 U       Subject         Optional.  Developers may choose whether they wish to
                         generate or display subject fields.  Citadel/UX does
                         not generate them, but it does print them when found.
-X	eXtension field	Extension fields are used to carry additional RFC822
-			type lines.  X fields contain the X byte followed by
-			the RFC822 field name, a colon, a space, and the value.
-Z	Boundary	If there are MIME attachments following the message
-			text, the Z field specifies the boundary string.
   
 			EXAMPLE
 
@@ -176,7 +174,7 @@ please see network.txt on its operation and functionality (if any).
 
 			Portability issues
  
- At this point, most hardware-dependent stuff has been removed from the 
+ At this point, all hardware-dependent stuff has been removed from the 
 system.  On the server side, most of the OS-dependent stuff has been isolated
 into the sysdep.c source module.  The server should compile on any POSIX
 compliant system with a full pthreads implementation and TCP/IP support.  In
@@ -205,7 +203,7 @@ struct quickroom {
 	char QRpasswd[10];		/* Only valid if it's a private rm  */
 	long QRroomaide;		/* User number of room aide         */
 	long QRhighest;			/* Highest message NUMBER in room   */
-	char QRgen;			/* Generation number of room        */
+	long QRgen;			/* Generation number of room        */
 	unsigned QRflags;		/* See flag values below            */
 	char QRdirname[15];		/* Directory name, if applicable    */
 	char QRfloor;			/* (not yet implemented)            */
@@ -438,14 +436,16 @@ the room to be skipped. Very simple.
 
 		     SUPPORTING PRIVATE MAIL
 
-Can one have an elegant kludge?  This must come pretty close.
+   Can one have an elegant kludge?  This must come pretty close.
+ 
+   Private mail is sent and recieved in the Mail> room, which otherwise
+behaves pretty much as any other room.	To make this work, we have a
+separate Mail> room for each user behind the scenes.  The actual room name
+in the database looks like "0000001234.Mail" (where '1234' is the user
+number) and it's flagged with the QR_MAILBOX flag.  The user number is
+stripped off by the server before the name is presented to the client.
 
-Private mail is sent and recieved in the Mail> room, which otherwise
-behaves pretty much as any other room.	To make this work, we store
-the actual message pointers in a message list for each user (MAILBOXES)
-instead of MSGLISTS.  This requires a little fiddling to get things just
-right.	We have to update quickroom[1].QRhighest at login
-to reflect the presence or absence of new messages, for example.  And
+   This requires a little fiddling to get things just right.  For example,
 make_message() has to be kludged to ask for the name of the recipient
 of the message whenever a message is entered in Mail>.	But basically
 it works pretty well, keeping the code and user interface simple and

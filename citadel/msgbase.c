@@ -357,7 +357,7 @@ time_t output_message(char *msgid, int mode,
 	char lnode[256];
 	char mid[256];
 	time_t xtime = 0L;
-	/* */
+	/*                                       */
 
 	msg_num = atol(msgid);
 
@@ -442,7 +442,7 @@ time_t output_message(char *msgid, int mode,
 	/* now for the user-mode message reading loops */
 	cprintf("%d Message %ld:\n",LISTING_FOLLOWS,msg_num);
 
-	if (mode == MT_CITADEL) cprintf("type=%d\n",format_type);
+	if (mode == MT_CITADEL) cprintf("type=%d\n", format_type);
 
 	if ( (anon_flag == MES_ANON) && (mode == MT_CITADEL) ) {
 		cprintf("nhdr=yes\n");
@@ -553,9 +553,10 @@ time_t output_message(char *msgid, int mode,
 
 	/* If the format type on disk is 1 (fixed-format), then we want
 	 * everything to be output completely literally ... regardless of
-	 * what message transfer format is in use.
+	 * what message transfer format is in use.  Format type 4 is 
+	 * temporarily being output this way as well.
 	 */
-	if (format_type == 1) {
+	if ( (format_type == 1) || (format_type == 4)) {
 		strcpy(buf, "");
 		while(ch = *mptr++, ch>0) {
 			if (ch == 13) ch = 10;
@@ -602,7 +603,7 @@ void cmd_msg0(char *cmdbuf)
 	headers_only = extract_int(cmdbuf, 1);
 	desired_section = extract_int(cmdbuf, 2);
 
-	output_message(msgid,MT_CITADEL, headers_only, desired_section);
+	output_message(msgid, MT_CITADEL, headers_only, desired_section);
 	return;
 	}
 
