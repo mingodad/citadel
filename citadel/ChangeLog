@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.87  2004/03/21 06:15:06  ajc
+ * docs/citadel.html: documented TLS support and administration procedures
+
  Revision 614.86  2004/03/20 22:32:06  ajc
  * citadel.rc: changed the comments around local_screen_dimensions= to
    reflect its legacy type of situation
@@ -5553,4 +5556,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
