@@ -170,6 +170,17 @@ download_sources () {
 }
 
 install_ical () {
+
+SRC=/appl/citadel/files/citadel/libical-0.24.RC4.tar.gz
+
+	SUM=`sum $ICAL_SOURCE | awk ' { print $1$2 } '`
+	SUMFILE=$SUPPORT/etc/libical-easyinstall.sum
+	if [ -r $SUMFILE ] ; then
+		OLDSUM=`cat $SUMFILE`
+		if [ $SUM = $OLDSUM ] ; then
+		echo "* libical does not need updating."
+		fi
+	fi
 	echo "* Installing libical..."
 	cd $BUILD 2>&1 >>$LOG || die
 	( gzip -dc $ICAL_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
@@ -178,6 +189,7 @@ install_ical () {
 	$MAKE $MAKEOPTS 2>&1 >>$LOG || die
 	$MAKE install 2>&1 >>$LOG || die
 	echo "  Complete."
+	echo $SUM >$SUMFILE
 }
 
 install_db () {
