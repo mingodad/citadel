@@ -905,9 +905,9 @@ void do_internet_configuration(void) {
 
 
 /*
- * Edit mailing list configuration
+ * Edit network configuration for room sharing, mailing lists, etc.
  */
-void mailing_list_management(void) {
+void network_config_management(char *entrytype, char *comment) {
 	char filename[PATH_MAX];
 	char changefile[PATH_MAX];
 	int e_ex_code;
@@ -935,8 +935,9 @@ void mailing_list_management(void) {
 		return;
 	}
 
-	fprintf(tempfp, "# Mailing list recipients for: %s\n", room_name);
-	fprintf(tempfp, "# Specify recipients one per line.\n"
+	fprintf(tempfp, "# Configuration for room: %s\n", room_name);
+	fprintf(tempfp, "# %s\n", comment);
+	fprintf(tempfp, "# Specify one per line.\n"
 			"\n\n");
 
 	serv_puts("GNET");
@@ -944,7 +945,7 @@ void mailing_list_management(void) {
 	if (buf[0] == '1') {
 		while(serv_gets(buf), strcmp(buf, "000")) {
 			extract(instr, buf, 0);
-			if (!strcasecmp(instr, "listrecp")) {
+			if (!strcasecmp(instr, entrytype)) {
 				extract(addr, buf, 1);
 				fprintf(tempfp, "%s\n", addr);
 			}
@@ -982,7 +983,7 @@ void mailing_list_management(void) {
 		if (buf[0] == '1') {
 			while(serv_gets(buf), strcmp(buf, "000")) {
 				extract(instr, buf, 0);
-				if (strcasecmp(instr, "listrecp")) {
+				if (strcasecmp(instr, entrytype)) {
 					fprintf(changefp, "%s\n", buf);
 				}
 			}
@@ -994,7 +995,7 @@ void mailing_list_management(void) {
 			}
 			striplt(buf);
 			if (strlen(buf) > 0) {
-				fprintf(changefp, "listrecp|%s\n", buf);
+				fprintf(changefp, "%s|%s\n", entrytype, buf);
 			}
 		}
 		fclose(tempfp);

@@ -182,6 +182,7 @@ cmd=88,2,&.,&Aide,&System configuration,&Network
 cmd=85,2,&.,&Aide,&Terminate server,&Now
 cmd=86,2,&.,&Aide,&Terminate server,&Scheduled
 cmd=87,1,&.,&Aide,mailing &List management
+cmd=89,1,&.,&Aide,&Network room sharing
 
 cmd=29,0,&.,&Terminate,and &Quit
 cmd=30,0,&.,&Terminate,and &Stay online

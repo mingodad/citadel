@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.39  2001/09/08 18:58:38  ajc
+ * More changes to the new networker.  Added client command for room sharing.
+
  Revision 580.38  2001/09/07 04:05:27  ajc
  * You guessed it: still more code for the new networker.
 
@@ -2731,4 +2734,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

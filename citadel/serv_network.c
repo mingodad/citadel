@@ -625,8 +625,18 @@ void network_process_buffer(char *buffer, long size) {
 	if (msg->cm_fields['D'] != NULL) {
 		if (strcasecmp(msg->cm_fields['D'], config.c_nodename)) {
 
-			/* FIXME route the message, stupid */
+			if (is_valid_node(NULL, msg->cm_fields['D']) == 0) {
 
+				/* FIXME route the message, stupid */
+
+
+			}
+			
+			else {	/* invalid destination node name */
+
+				/* FIXME bounce the msg */
+
+			}
 		}
 	}
 

@@ -1386,7 +1386,13 @@ PWOK:
 				break;
 
 			case 87:
-				mailing_list_management();
+				network_config_management("listrecp",
+					"Mailing list recipients");
+				break;
+
+			case 89:
+				network_config_management("ignet_push_share",
+					"Nodes with which we share this room");
 				break;
 
 			case 88:
