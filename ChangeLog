@@ -1,3 +1,8 @@
+Thu Mar 18 00:23:05 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* webcit.c: modified getz() to *exit* the program when fgets()
+	  returns an error.  This is actually the desired behavior; it would
+	  otherwise busy-loop forever on a broken pipe.
+
 Sat Mar  6 19:56:07 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* webcit.c: added to getz() the ability to return an error code;
 	  implemented this in the main loop, hopefully fixing problems

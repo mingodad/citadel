@@ -401,6 +401,7 @@ void *context_loop(int sock)
 	} while (strlen(buf) > 0);
 
 	printf("   Reading %d bytes of content\n", ContentLength);
+
 	while (ContentLength--) {
 		read(TheSession->outpipe[0], buf, 1);
 		write(sock, buf, 1);
