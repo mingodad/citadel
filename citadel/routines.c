@@ -16,6 +16,9 @@
 #include <errno.h>
 #include <time.h>
 #include <limits.h>
+#ifdef HAVE_UTMP_H
+#include <utmp.h>
+#endif
 
 #define ROUTINES_C
 
@@ -393,6 +396,7 @@ void progress(long int curr, long int cmax)
  */
 void locate_host(char *hbuf)
 {
+#ifndef HAVE_GETUTLINE
 	char buf[256];
 	FILE *who;
 	int a,b;
@@ -425,6 +429,32 @@ void locate_host(char *hbuf)
 
 	if (strlen(buf)==0) strcpy(hbuf,serv_info.serv_fqdn);
 	else strncpy(hbuf,buf,24);
+#else
+	char *tty = ttyname(0);
+	struct utmp ut, *put;
+
+	if (tty == NULL) {
+	    fail:
+		safestrncpy(hbuf, serv_info.serv_fqdn, 24);
+		return;
+		}
+
+	if (strncmp(tty, "/dev/", 5))
+		goto fail;
+
+	safestrncpy(ut.ut_line, &tty[5], sizeof ut.ut_line);
+
+	if ((put = getutline(&ut)) == NULL)
+		goto fail;
+
+	if (put->ut_type == USER_PROCESS) {
+		if (*put->ut_host)
+			safestrncpy(hbuf, put->ut_host, 24);
+		else
+			safestrncpy(hbuf, put->ut_line, 24);
+		}
+	else goto fail;
+#endif
 	}
 
 /*

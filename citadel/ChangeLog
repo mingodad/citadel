@@ -1,5 +1,7 @@
 1999-02-04 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* configure.in: improved check for cygwin
+	* configure.in, routines.c: access utmp directly instead of calling
+	  `who' if getutline() is available.
 
 1999-02-02 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* Fixes for Cygwin:
