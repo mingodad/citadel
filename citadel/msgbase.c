@@ -1123,14 +1123,16 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 				else if (i == 'U')
 					cprintf("Subject: %s%s", mptr, nl);
 				else if (i == 'I')
-					strcpy(mid, mptr);
+					safestrncpy(mid, mptr, sizeof mid);
 				else if (i == 'H')
-					strcpy(lnode, mptr);
+					safestrncpy(lnode, mptr, sizeof lnode);
+				else if (i == 'F')
+					safestrncpy(fuser, mptr, sizeof fuser);
 				else if (i == 'O')
 					cprintf("X-Citadel-Room: %s%s",
 						mptr, nl);
 				else if (i == 'N')
-					strcpy(snode, mptr);
+					safestrncpy(snode, mptr, sizeof snode);
 				else if (i == 'R')
 					cprintf("To: %s%s", mptr, nl);
 				else if (i == 'T') {
@@ -2119,6 +2121,10 @@ static struct CtdlMessage *make_message(
 	}
 	if (dest_node[0] != 0) {
 		msg->cm_fields['D'] = strdoop(dest_node);
+	}
+
+	if (author == &CC->usersupp) {
+		msg->cm_fields['F'] = strdoop(CC->cs_inet_email);
 	}
 
 	msg->cm_fields['M'] = CtdlReadMessageBody("000",

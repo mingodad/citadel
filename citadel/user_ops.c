@@ -454,6 +454,14 @@ void logout(struct CitContext *who)
 		network_talking_to(who->net_node, NTT_REMOVE);
 	}
 
+	/*
+	 * Yes, we really need to free EVERY LAST BYTE we allocated.
+	 */
+	if (who->cs_inet_email != NULL) {
+		phree(who->cs_inet_email);
+		who->cs_inet_email = NULL;
+	}
+
 	/* Do modular stuff... */
 	PerformSessionHooks(EVT_LOGOUT);
 }

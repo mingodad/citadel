@@ -163,6 +163,49 @@ void cmd_igab(char *argbuf) {
 
 
 
+
+/*
+ * See if there is a valid Internet address in a vCard to use for outbound
+ * Interet messages.  If there is, stick it in CC->cs_inet_email.
+ */
+void vcard_populate_cs_inet_email(struct vCard *v) {
+	char *s, *addr;
+	int continue_searching = 1;
+	int instance = 0;
+
+	/* 
+	 * Clear whatever was in there previously.
+	 */
+	if (CC->cs_inet_email != NULL) {
+		phree(CC->cs_inet_email);
+		CC->cs_inet_email = NULL;
+	}
+
+	/* Go through the vCard searching for *all* instances of
+	 * the "email;internet" key
+	 */
+	do {
+		s = vcard_get_prop(v, "email;internet", 0, instance++);
+		if (s != NULL) {
+			continue_searching = 1;
+			addr = strdoop(s);
+			striplt(addr);
+			if (strlen(addr) > 0) {
+				if (IsDirectory(addr)) {
+					continue_searching = 0;
+					CC->cs_inet_email = strdoop(addr);
+				}
+			}
+			phree(addr);
+		}
+		else {
+			continue_searching = 0;
+		}
+	} while(continue_searching);
+}
+
+
+
 /*
  * This handler detects whether the user is attempting to save a new
  * vCard as part of his/her personal configuration, and handles the replace
@@ -242,6 +285,7 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 	char *ptr;
 	int linelen;
 	long I;
+	struct vCard *v;
 
 	if (!CC->logged_in) return(0);	/* Only do this if logged in. */
 
@@ -273,6 +317,11 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 
 			/* ...and also in the directory database. */
 			vcard_add_to_directory(I, NULL);
+
+			/* Store our Internet return address in memory */
+			v = vcard_load(msg->cm_fields['M']);
+			vcard_populate_cs_inet_email(v);
+			vcard_free(v);
 
 			return(0);
 		}
@@ -639,10 +688,36 @@ void vcard_session_startup_hook(void) {
 }
 
 
+/*
+ * When a user logs in...
+ */
+void vcard_session_login_hook(void) {
+	struct vCard *v;
+
+	v = vcard_get_user(&CC->usersupp);
+	vcard_populate_cs_inet_email(v);
+
+	vcard_free(v);
+}
+
+
+/*
+ * When a user logs out...
+ */
+void vcard_session_logout_hook(void) {
+	if (CC->cs_inet_email != NULL) {
+		phree(CC->cs_inet_email);
+		CC->cs_inet_email = NULL;
+	}
+}
+
+
 char *Dynamic_Module_Init(void)
 {
 	SYM_VCARD = CtdlGetDynamicSymbol();
 	CtdlRegisterSessionHook(vcard_session_startup_hook, EVT_START);
+	CtdlRegisterSessionHook(vcard_session_login_hook, EVT_LOGIN);
+	CtdlRegisterSessionHook(vcard_session_logout_hook, EVT_LOGOUT);
 	CtdlRegisterMessageHook(vcard_upload_beforesave, EVT_BEFORESAVE);
 	CtdlRegisterMessageHook(vcard_upload_aftersave, EVT_AFTERSAVE);
 	CtdlRegisterDeleteHook(vcard_delete_remove);

@@ -111,8 +111,8 @@ struct CitContext {
 	char cs_clientname[32];	/* name of client software */
 	char cs_host[64];	/* host logged in from */
 
-	/* Beginning of cryptography - session nonce */
-	char cs_nonce[NONCE_SIZE];	/* The nonce for this session's next auth transaction */
+	/* The Internet type of thing */
+	char *cs_inet_email;	/* Return address of outbound Internet mail */
 
 	FILE *download_fp;	/* Fields relating to file transfer */
 	FILE *upload_fp;
@@ -122,6 +122,9 @@ struct CitContext {
 	char upl_filedir[SIZ];
 	char dl_is_net;
 	char upload_type;
+
+	/* Beginning of cryptography - session nonce */
+	char cs_nonce[NONCE_SIZE];	/* The nonce for this session's next auth transaction */
 
 	/* Redirect this session's output to somewhere else? */
 	FILE *redirect_fp;
@@ -138,7 +141,7 @@ struct CitContext {
 	/* Masquerade... */
 	char fake_username[USERNAME_SIZE];	/* Fake username <bc> */ 
 	char fake_postname[USERNAME_SIZE];	/* Fake postname <bc> */
-	char fake_hostname[25];			/* Fake hostname <bc> */
+	char fake_hostname[64];			/* Fake hostname <bc> */
 	char fake_roomname[ROOMNAMELEN];	/* Fake roomname <bc> */
 
 	/* Dynamically allocated session data */
@@ -353,7 +356,7 @@ extern DLEXP struct NetprocFunctionHook *NetprocHookTable;
  */
 struct DeleteFunctionHook {
 	struct DeleteFunctionHook *next;
-	int (*h_function_pointer) (char *target_room, long msgnum);
+	void (*h_function_pointer) (char *target_room, long msgnum);
 };
 extern DLEXP struct DeleteFunctionHook *DeleteHookTable;
 

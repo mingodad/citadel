@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.98  2002/02/02 21:44:04  ajc
+ * If a user has at least one valid Internet directory address, stamp it onto
+   any outgoing messages.
+
  Revision 590.97  2002/02/01 05:11:26  ajc
  * Added a QDIR protocol command to do quick-and-dirty queries of the directory
  * In the client, check the directory for conflicts when selecting email addr.
@@ -3282,3 +3286,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
