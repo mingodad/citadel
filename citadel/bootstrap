@@ -4,14 +4,39 @@
 #
 # $Id$
 #
+
+# Goofy red hat 7.3 stuff
+[ `cut -f 5 -d ' ' /etc/redhat-release` = 7.3 ] && redhat73=true
+if [ "$redhat73" = "true" ]; then
+	aclocal=/usr/bin/aclocal-1.5
+	autoconf=/usr/bin/autoconf-2.53
+	autoheader=/usr/bin/autoheader-2.53
+
+	if test -z $aclocal ; then
+		echo "Please install the automake15 RPM package"
+		redhat73=missing
+	fi
+	if test -z $autoconf || test -z $autoheader ; then
+		echo "Please install the autoconf253 RPM package"
+		redhat73=missing
+	fi
+	if test "$redhat73" = "missing" ; then
+		exit 1
+	fi
+else
+	aclocal=aclocal
+	autoconf=autoconf
+	autoheader=autoheader
+fi
+
 echo ... running aclocal ...
-aclocal
+$aclocal
 echo ... running libtoolize ...
 libtoolize -c --force
 echo ... running autoconf ...
-autoconf
+$autoconf
 echo ... running autoheader ...
-autoheader
+$autoheader
 
 echo
 echo This script has been tested with autoconf 2.53, libtool 1.4d, and

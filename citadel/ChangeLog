@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.17  2002/10/04 07:11:56  error
+ * Fix bootstrap for Red Hat 7.3
+
  Revision 601.16  2002/10/02 04:07:27  error
  * status_line() now shows "new mail" only when there is new mail
 
@@ -4043,3 +4046,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
