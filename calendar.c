@@ -292,6 +292,8 @@ void display_edit_individual_task(icalcomponent *vtodo, long msgnum) {
 
         wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save\">"
 		"&nbsp;&nbsp;"
+        	"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Delete\">\n"
+		"&nbsp;&nbsp;"
         	"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">\n"
 		"</CENTER>\n"
 	);
@@ -305,6 +307,7 @@ void display_edit_individual_task(icalcomponent *vtodo, long msgnum) {
  * Save an edited task
  */
 void edit_individual_task(icalcomponent *vtodo, long msgnum) {
+	char buf[SIZ];
 
 	if (!strcasecmp(bstr("sc"), "Save")) {
 
@@ -316,6 +319,12 @@ void edit_individual_task(icalcomponent *vtodo, long msgnum) {
 			5. Save the new message
 		*/
 
+	}
+
+	if ( (!strcasecmp(bstr("sc"), "Save"))
+	   || (!strcasecmp(bstr("sc"), "Delete")) ) {
+		serv_printf("DELE %ld", atol(bstr("msgnum")));
+		serv_gets(buf);
 	}
 
 	/* Go back to the task list */
