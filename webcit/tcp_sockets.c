@@ -28,17 +28,9 @@
 #include <signal.h>
 #include "webcit.h"
 
-
-
-
-
-char server_is_local = 0;
-
 #ifndef INADDR_NONE
 #define INADDR_NONE 0xffffffff
 #endif
-
-extern int errno;
 
 RETSIGTYPE timeout(int signum)
 {

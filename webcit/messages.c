@@ -27,7 +27,7 @@
 
 
 
-char reply_to[512];
+char reply_to[512];	/* FIX make these session-specific!!! */
 long msgarr[1024];
 
 /*
