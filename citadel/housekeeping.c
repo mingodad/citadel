@@ -109,7 +109,9 @@ void check_ref_counts(void) {
 		putfloor(&flbuf, a);
 	}
 
+	cdb_begin_transaction();
 	ForEachRoom(check_ref_counts_backend, NULL);
+	cdb_end_transaction();
 }	
 
 /*

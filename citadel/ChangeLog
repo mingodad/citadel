@@ -1,4 +1,15 @@
  $Log$
+ Revision 580.14  2001/07/29 20:56:09  nbryant
+ change ForEachRoom to use read-only cursors by default. it can be overridden to
+ still use read/write cursors by doing:
+
+  cdb_begin_transaction();
+  ForEachRoom(...);
+  cdb_end_transaction();
+
+ the only place I found where it appears necessary to do so is check_ref_counts,
+ so this checkin affects that function too.
+
  Revision 580.13  2001/07/29 20:06:33  nbryant
  generate symlinks to .libs in modules directory
 
@@ -2622,4 +2633,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
