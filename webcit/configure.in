@@ -2,12 +2,20 @@ dnl Process this file with autoconf to produce a configure script.
 dnl $Id$
 AC_INIT(webserver.c)
 
-dnl Check for Digital Unix; it has a different way of building for pthreads,
-dnl and we can't build pthreads programs with gcc due to header problems.
 AC_CANONICAL_HOST
+
+dnl Set some system-specific variables which are OK to set before compiler
+dnl checks:
 case "$host" in
+	dnl Tru64 Unix requires we use -pthread instead of linking the threads
+	dnl libraries directly, and we can't build threaded programs with gcc
+	dnl due to header file problems.
 	alpha*-dec-osf*)
 		test -z "$CC" && CC=cc
+		LIBS=-pthread
+	;;
+	dnl FreeBSD is similar:
+	*-*-freebsd*)
 		LIBS=-pthread
 	;;
 esac
