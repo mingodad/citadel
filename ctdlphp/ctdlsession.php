@@ -79,6 +79,7 @@ function ctdl_end_session() {
 
 	// Tell the Citadel server to terminate our connection.
 	fwrite($clientsocket, "QUIT\n");
+	$response = fgets($clientsocket, 4096);		// IGnore response
 	fclose($clientsocket);
 	unset($clientsocket);
 

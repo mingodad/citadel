@@ -107,9 +107,26 @@ do {
 	if ($msgsock >= 0) do {
 		$buf = sock_gets($msgsock);
 		if ($buf !== false) {
-			fwrite($ctdlsock, $buf . "\n", (strlen($buf)+1) );
+			if (!fwrite($ctdlsock, $buf . "\n")) {
+				fclose($ctdlsock);
+				socket_close($sock);
+				system("/bin/rm -f " . $sockname);
+				exit(8);
+			}
 			$talkback = fgets($ctdlsock, 4096);
+			if (!$talkback) {
+				fclose($ctdlsock);
+				socket_close($sock);
+				system("/bin/rm -f " . $sockname);
+				exit(9);
+			}
         		socket_write($msgsock, $talkback, strlen($talkback));
+
+			if (substr($talkback, 0, 1) == "1") do {
+				$buf = fgets($ctdlsock, 4096);
+        			socket_write($msgsock, $buf, strlen($buf));
+			} while ($buf != "000\n");
+
 		}
 	} while($buf !== false);
 
@@ -118,7 +135,7 @@ do {
 } while (true);
 
 socket_close($sock);
-socket_close($ctdlsock);
+fclose($ctdlsock);
 system("/bin/rm -f " . $sockname);
 exit(0);
 

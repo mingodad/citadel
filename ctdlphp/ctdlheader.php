@@ -9,7 +9,8 @@ function bbs_page_header() {
 
 	establish_citadel_session();
 
-	echo <<<CITADEL_HEADER_DATA
+
+	echo <<<LITERAL
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
@@ -27,18 +28,13 @@ function bbs_page_header() {
 	link="#0000FF"
 	vlink="#990066"
 	alink="#DD0000"
->
 
-Citadel test PHP thing.<BR>
-CITADEL_HEADER_DATA;
+LITERAL;
 
-echo "Your session ID is ", $session, "<BR>\n";
-echo "Dude, we're in ", `pwd`, "<BR>";
-echo "<A HREF=\"logout.php\">Log out</A><HR>";
-flush();
-
-test_for_echo();
-
+	echo "Your session ID is ", $session, "<BR>\n";
+	echo "<A HREF=\"logout.php\">Log out</A><HR>";
+	// flush();
+	// test_for_echo();
 }
 
 
