@@ -309,10 +309,10 @@ FMTEND:	cprintf("\n");
 
 
 /*
- * get a message off disk.
+ * Get a message off disk.  (return value is the message's timestamp)
  * 
  */
-void output_message(char *msgid, int mode,
+time_t output_message(char *msgid, int mode,
 			int headers_only, int desired_section) {
 	long msg_num;
 	int a;
@@ -334,16 +334,16 @@ void output_message(char *msgid, int mode,
 	char snode[256];
 	char lnode[256];
 	char mid[256];
-	time_t xtime;
+	time_t xtime = 0L;
 	/* */
 
 	strcpy(boundary, "");
 	msg_num = atol(msgid);
 
 
-	if ((!(CC->logged_in))&&(!(CC->internal_pgm))) {
+	if ((!(CC->logged_in))&&(!(CC->internal_pgm))&&(mode!=MT_DATE)) {
 		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
+		return(xtime);
 		}
 
 	/* We used to need to check in the current room's message list
@@ -362,17 +362,20 @@ void output_message(char *msgid, int mode,
 		}
 
 	if (!msg_ok) {
-		cprintf("%d Message %ld is not in this room.\n",
-			ERROR, msg_num);
-		return;
+		if (mode != MT_DATE)
+			cprintf("%d Message %ld is not in this room.\n",
+				ERROR, msg_num);
+		return(xtime);
 		}
 	
 
 	dmsgtext = cdb_fetch(CDB_MSGMAIN, &msg_num, sizeof(long));
 	
 	if (dmsgtext == NULL) {
-		cprintf("%d Can't find message %ld\n", ERROR+INTERNAL_ERROR);
-		return;
+		if (mode != MT_DATE)
+			cprintf("%d Can't find message %ld\n",
+				ERROR+INTERNAL_ERROR);
+		return(xtime);
 		}
 
 	msg_len = (long) dmsgtext->len;
@@ -383,7 +386,7 @@ void output_message(char *msgid, int mode,
 		cprintf("%d %ld\n", BINARY_FOLLOWS, msg_len);
 		client_write(dmsgtext->ptr, (int) msg_len);
 		cdb_free(dmsgtext);
-		return;
+		return(xtime);
 		}
 
 	/* Otherwise, we'll start parsing it field by field... */
@@ -392,11 +395,28 @@ void output_message(char *msgid, int mode,
 		cprintf("%d Illegal message format on disk\n",
 			ERROR+INTERNAL_ERROR);
 		cdb_free(dmsgtext);
-		return;
+		return(xtime);
 		}
 
 	anon_flag = *mptr++;
 	format_type = *mptr++;
+
+	/* Are we just looking for the message date? */
+	if (mode == MT_DATE) while(ch = *mptr++, (ch!='M' && ch!=0)) {
+		buf[0] = 0;
+		do {
+			buf[strlen(buf)+1] = 0;
+			rch = *mptr++;
+			buf[strlen(buf)] = rch;
+			} while (rch > 0);
+
+		if (ch=='T') {
+			xtime = atol(buf);
+			cdb_free(dmsgtext);
+			return(xtime);
+			}
+		}
+
 
 	/* now for the user-mode message reading loops */
 	cprintf("%d Message %ld:\n",LISTING_FOLLOWS,msg_num);
@@ -495,7 +515,7 @@ void output_message(char *msgid, int mode,
 	if (ch==0) {
 		cprintf("text\n*** ?Message truncated\n000\n");
 		cdb_free(dmsgtext);
-		return;
+		return(xtime);
 		}
 
 	if (headers_only) {
@@ -507,7 +527,7 @@ void output_message(char *msgid, int mode,
 		cprintf("mlen=%ld\n", msg_len);
 		cprintf("000\n");
 		cdb_free(dmsgtext);
-		return;
+		return(xtime);
 		}
 
 	/* signify start of msg text */
@@ -555,6 +575,7 @@ void output_message(char *msgid, int mode,
 	/* now we're done */
 	cprintf("000\n");
 	cdb_free(dmsgtext);
+	return(xtime);
 	}
 
 
@@ -572,6 +593,7 @@ void cmd_msg0(char *cmdbuf)
 	desired_section = extract_int(cmdbuf, 2);
 
 	output_message(msgid,MT_CITADEL, headers_only, desired_section);
+	return;
 	}
 
 

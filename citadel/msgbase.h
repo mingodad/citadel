@@ -4,7 +4,7 @@ void cmd_msgs (char *cmdbuf);
 void help_subst (char *strbuf, char *source, char *dest);
 void do_help_subst (char *buffer);
 void memfmout (int width, char *mptr, char subst);
-void output_message (char *msgid, int mode,
+time_t output_message (char *msgid, int mode,
 			int headers_only, int desired_section);
 void cmd_msg0 (char *cmdbuf);
 void cmd_msg2 (char *cmdbuf);

@@ -240,6 +240,7 @@ struct floor {
 #define MT_CITADEL	0		/* Citadel proprietary */
 #define MT_RFC822	2		/* RFC822 */
 #define MT_RAW		3		/* IGnet raw format */
+#define MT_DATE		4		/* We're only looking for the date */
 
 
 
