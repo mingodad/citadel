@@ -1,4 +1,9 @@
  $Log$
+ Revision 641.20  2005/03/04 02:24:31  ajc
+ * SMTP: only offer TLS on the MSA port (587), not on the MTA port (25).
+   There seem to be some other MTA's out there that make things go haywire
+   when TLS is offered.
+
  Revision 641.19  2005/03/04 02:18:46  ajc
  * config.c: default setting for "maxmsglen" is now 10 megabytes, not INT_MAX
 
@@ -6503,3 +6508,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

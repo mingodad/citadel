@@ -222,11 +222,13 @@ void smtp_hello(char *argbuf, int which_command) {
 
 #ifdef HAVE_OPENSSL
 
-		/* Only offer the PIPELINING command if TLS is inactive, because
-		 * of flow control issues.  Also, avoid offering TLS if TLS is
-		 * already active.
+		/* Only offer the PIPELINING command if TLS is inactive,
+		 * because of flow control issues.  Also, avoid offering TLS
+		 * if TLS is already active.  Finally, we only offer TLS on
+		 * the SMTP-MSA port, not on the SMTP-MTA port, due to
+		 * questionable reliability of TLS in certain sending MTA's.
 		 */
-		if (!CC->redirect_ssl) {
+		if ( (!CC->redirect_ssl) && (SMTP->is_msa) ) {
 			cprintf("250-PIPELINING\r\n");
 			cprintf("250-STARTTLS\r\n");
 		}
