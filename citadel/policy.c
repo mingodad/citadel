@@ -79,7 +79,7 @@ void cmd_spex(char *argbuf) {
 	struct floor flbuf;
 	char which[256];
 
-	bzero(&exp, sizeof(struct ExpirePolicy));
+	memset(&exp, 0, sizeof(struct ExpirePolicy));
 	extract(which, argbuf, 0);
 	exp.expire_mode = extract_int(argbuf, 1);
 	exp.expire_value = extract_int(argbuf, 2);
