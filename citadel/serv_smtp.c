@@ -30,6 +30,7 @@
 #include "msgbase.h"
 #include "tools.h"
 #include "internet_addressing.h"
+#include "ignet.h"
 #include "genstamp.h"
 #include "domain.h"
 #include "clientsocket.h"
@@ -704,6 +705,19 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 
 	/* Parse out the host portion of the recipient address */
 	process_rfc822_addr(addr, user, node, name);
+
+	if (is_ignet(node)) {
+		if (ignet_spool_to(node, msgnum) == 0) {
+			strcpy(dsn, "Delivery via Citadel network successful");
+			*status = 2;
+		}
+		else {
+			strcpy(dsn, "Delivery via Citadel network failed");
+			*status = 5;
+		}
+		return;
+	}
+
 	lprintf(9, "Attempting SMTP delivery to <%s> @ <%s> (%s)\n",
 		user, node, name);
 
@@ -1321,6 +1335,20 @@ void smtp_do_procmsg(long msgnum) {
  * Run through the queue sending out messages.
  */
 void smtp_do_queue(void) {
+	static int doing_queue = 0;
+
+	/*
+	 * This is a simple concurrency check to make sure only one queue run
+	 * is done at a time.  We could do this with a mutex, but since we
+	 * don't really require extremely fine granularity here, we'll do it
+	 * with a static variable instead.
+	 */
+	if (doing_queue) return;
+	doing_queue = 1;
+
+	/* 
+	 * Go ahead and run the queue
+	 */
 	lprintf(5, "SMTP: processing outbound queue\n");
 
 	if (getroom(&CC->quickroom, SMTP_SPOOLOUT_ROOM) != 0) {
@@ -1330,6 +1358,7 @@ void smtp_do_queue(void) {
 	CtdlForEachMessage(MSGS_ALL, 0L, SPOOLMIME, NULL, smtp_do_procmsg);
 
 	lprintf(5, "SMTP: queue run completed\n");
+	doing_queue = 0;
 }
 
 

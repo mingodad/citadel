@@ -1085,9 +1085,6 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof(fd_set) );
 				} 
 				write(rescan[1], &junk, 1);
 			}
-			else {
-				lprintf(9, "Thread found nothing to do!\n");
-			}
 
 		}
 		dead_session_purge();
