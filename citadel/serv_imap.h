@@ -16,6 +16,7 @@ struct citimap {
 	int selected;			/* set to 1 if in the SELECTED state */
 	int readonly;			/* mailbox is open read only */
 	int num_msgs;			/* Number of messages being mapped */
+	int num_alloc;			/* Number of messages for which we've allocated space */
 	long *msgids;
 	unsigned int *flags;
 	char *transmitted_message;	/* for APPEND command... */

@@ -787,9 +787,9 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	struct cdbdata *dmsgtext;
 	struct CtdlMessage *ret = NULL;
 	char *mptr;
+	char *upper_bound;
 	cit_uint8_t ch;
 	cit_uint8_t field_header;
-	size_t field_length;
 
 	lprintf(CTDL_DEBUG, "CtdlFetchMessage(%ld, %d)\n", msgnum, with_body);
 
@@ -798,6 +798,7 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 		return NULL;
 	}
 	mptr = dmsgtext->ptr;
+	upper_bound = mptr + dmsgtext->len;
 
 	/* Parse the three bytes that begin EVERY message on disk.
 	 * The first is always 0xFF, the on-disk magic number.
@@ -825,16 +826,15 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	 * have just processed the 'M' (message text) field.
 	 */
 	do {
-		field_length = strlen(mptr);
-		if (field_length == 0)
+		if (mptr >= upper_bound) {
 			break;
+		}
 		field_header = *mptr++;
-		ret->cm_fields[field_header] = malloc(field_length + 1);
-		strcpy(ret->cm_fields[field_header], mptr);
+		ret->cm_fields[field_header] = strdup(mptr);
 
 		while (*mptr++ != 0);	/* advance to next field */
 
-	} while ((field_length > 0) && (field_header != 'M'));
+	} while ((mptr < upper_bound) && (field_header != 'M'));
 
 	cdb_free(dmsgtext);
 

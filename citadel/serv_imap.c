@@ -85,6 +85,7 @@ void imap_free_msgids(void)
 		free(IMAP->msgids);
 		IMAP->msgids = NULL;
 		IMAP->num_msgs = 0;
+		IMAP->num_alloc = 0;
 	}
 	if (IMAP->flags != NULL) {
 		free(IMAP->flags);
@@ -144,22 +145,11 @@ void imap_set_seen_flags(void)
 void imap_add_single_msgid(long msgnum, void *userdata)
 {
 
-	IMAP->num_msgs = IMAP->num_msgs + 1;
-	if (IMAP->msgids == NULL) {
-		IMAP->msgids = malloc(IMAP->num_msgs * sizeof(long)
-				      * REALLOC_INCREMENT);
-	} else if (IMAP->num_msgs % REALLOC_INCREMENT == 0) {
-		IMAP->msgids = realloc(IMAP->msgids,
-				       (IMAP->num_msgs +
-					REALLOC_INCREMENT) * sizeof(long));
-	}
-	if (IMAP->flags == NULL) {
-		IMAP->flags = malloc(IMAP->num_msgs * sizeof(long)
-				     * REALLOC_INCREMENT);
-	} else if (IMAP->num_msgs % REALLOC_INCREMENT == 0) {
-		IMAP->flags = realloc(IMAP->flags,
-				      (IMAP->num_msgs +
-				       REALLOC_INCREMENT) * sizeof(long));
+	++IMAP->num_msgs;
+	if (IMAP->num_msgs > IMAP->num_alloc) {
+		IMAP->num_alloc += REALLOC_INCREMENT;
+		IMAP->msgids = realloc(IMAP->msgids, (IMAP->num_alloc * sizeof(long)));
+		IMAP->flags = realloc(IMAP->flags, (IMAP->num_alloc * sizeof(long)));
 	}
 	IMAP->msgids[IMAP->num_msgs - 1] = msgnum;
 	IMAP->flags[IMAP->num_msgs - 1] = 0;
