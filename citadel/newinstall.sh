@@ -156,15 +156,15 @@ determine_distribution () {
 
 download_sources () {
 	echo "* Downloading Berkeley DB..."
-	wget -c $DOWNLOAD_SITE/$DB_SOURCE 2>&1 >>$LOG || die
+	$WGET $DOWNLOAD_SITE/$DB_SOURCE 2>&1 >>$LOG || die
 	echo "* Downloading libical..."
-	wget -c $DOWNLOAD_SITE/$ICAL_SOURCE 2>&1 >>$LOG || die
+	$WGET $DOWNLOAD_SITE/$ICAL_SOURCE 2>&1 >>$LOG || die
 	echo "* Downloading OpenLDAP..."
-	wget -c $DOWNLOAD_SITE/$LDAP_SOURCE 2>&1 >>$LOG || die
+	$WGET $DOWNLOAD_SITE/$LDAP_SOURCE 2>&1 >>$LOG || die
 	echo "* Downloading Citadel..."
-	wget -c $DOWNLOAD_SITE/$CITADEL_SOURCE 2>&1 >>$LOG || die
+	$WGET $DOWNLOAD_SITE/$CITADEL_SOURCE 2>&1 >>$LOG || die
 	echo "* Downloading WebCit..."
-	wget -c $DOWNLOAD_SITE/$WEBCIT_SOURCE 2>&1 >>$LOG || die
+	$WGET $DOWNLOAD_SITE/$WEBCIT_SOURCE 2>&1 >>$LOG || die
 }
 
 install_ical () {
@@ -300,11 +300,17 @@ do_config () {
 
 # 1. Gather information about the target system
 
-[ -n $MAKE ] && MAKE=`which gmake`
-[ -z $MAKE ] && MAKE=`which make`
+[ -n "$MAKE" ] && [ -x `which gmake` ] && MAKE=`which gmake`
+[ -z "$MAKE" ] && [ -x `which make` ] && MAKE=`which make`
 clear
 
 os=`uname`
+
+[ -n "$WGET" ] && [ -x `which wget` ] && WGET=`which wget`
+[ -z "$WGET" ] && [ -x `which curl` ] && WGET=`which curl`\ -O
+
+echo MAKE is $MAKE
+echo WGET is $WGET 
 
 # 1A. Do we use the native packaging system or build our own copy of Citadel?
 
@@ -313,6 +319,9 @@ if [ "$os" = "Linux" ]; then
 elif [ "$os" = "FreeBSD" ]; then
 	# TODO: We detect FreeBSD but the port is still out of date...
 	DISTRO_MAJOR=FreeBSD
+elif [ "$os" = "Darwin" ]; then
+	# TODO: Deal with Apple weirdness
+	DISTRO_MAJOR=Darwin
 fi
 
 
