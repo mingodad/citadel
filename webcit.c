@@ -29,6 +29,102 @@ int logged_in = 0;
 struct webcontent *wlist = NULL;
 struct webcontent *wlast = NULL;
 
+struct urlcontent *urlstrings = NULL;
+
+
+void unescape_input(buf)
+char buf[]; {
+	int a,b;
+	char hex[3];
+
+	while ((isspace(buf[strlen(buf)-1]))&&(strlen(buf)>0))
+		buf[strlen(buf)-1] = 0;
+
+	for (a=0; a<strlen(buf); ++a) {
+		if (buf[a]=='+') buf[a]=' ';	
+		if (buf[a]=='%') {
+			hex[0]=buf[a+1];
+			hex[1]=buf[a+2];
+			hex[2]=0;
+			sscanf(hex,"%02x",&b);
+			buf[a] = (char) b;
+			strcpy(&buf[a+1],&buf[a+3]);
+			}
+		}
+
+	}
+
+
+void addurls(char *url) {
+	char *up, *ptr;
+	char buf[256];
+	int a,b;
+	struct urlcontent *u;
+
+	up = url;
+	while (strlen(up)>0) {
+		
+		/* locate the = sign */
+		strncpy(buf,up,255);
+		b = (-1);
+		for (a=255; a>=0; --a) if (buf[a]=='=') b=a;
+		if (b<0) goto DONE;
+		buf[b]=0;
+	
+		u = (struct urlcontent *)malloc(sizeof(struct urlcontent));
+		u->next = urlstrings;
+		urlstrings = u;
+		strcpy(u->url_key, buf);
+	
+		/* now chop that part off */
+		for (a=0; a<=b; ++a) ++up;
+	
+		/* locate the & sign */
+		ptr = up;
+		b = strlen(up);
+		for (a=0; a<strlen(up); ++a) {
+			if (!strncmp(ptr,"&",1)) {
+				b=a;
+				goto FOUNDIT;
+				}
+			++ptr;
+			}
+FOUNDIT:	ptr = up;
+		for (a=0; a<b; ++a) ++ptr;
+		strcpy(ptr,"");
+		
+		u->url_data = malloc(strlen(up));
+		strcpy(u->url_data, up);
+		unescape_input(u->url_data);
+
+		up = ptr;
+		++up;
+
+		fprintf(stderr, "%s=%s\n", u->url_key, u->url_data);
+		}
+DONE:
+	}
+
+void free_urls() {
+	struct urlcontent *u;
+
+	while (urlstrings != NULL) {
+		free(urlstrings->url_data);
+		u = urlstrings->next;
+		free(urlstrings);
+		urlstrings = u;
+		}
+	}
+
+char *bstr(char *key) {
+	struct urlcontent *u;
+
+	for (u = urlstrings; u != NULL; u = u->next) {
+		if (!strcasecmp(u->url_key, key)) return(u->url_data);
+		}
+	return("");
+	}
+
 
 void wprintf(const char *format, ...) {   
         va_list arg_ptr;   
@@ -144,7 +240,7 @@ void output_static(char *what) {
 void session_loop() {
 	char cmd[256];
 	char buf[256];
-	int a;
+	int a, b;
 	int ContentLength = 0;
 	char *content;
 
@@ -196,6 +292,7 @@ void session_loop() {
 		fread(content, ContentLength, 1, stdin);
 		content[ContentLength] = 0;
 		fprintf(stderr, "CONTENT:\n%s\n", content);
+		addurls(content);
 		}
 	else {
 		content = NULL;
@@ -209,6 +306,7 @@ void session_loop() {
 	if (!connected) {
 		serv_sock = connectsock(c_host, c_port, "tcp");
 		connected = 1;
+		serv_gets(buf);	/* get the server welcome message */
 		strcpy(wc_host, c_host);
 		strcpy(wc_port, c_port);
 		serv_printf("IDEN %d|%d|%d|%s|%s",
@@ -218,7 +316,8 @@ void session_loop() {
 			SERVER,
 			""
 			);
-		serv_gets(buf);	/* FIX find out where the user is */
+		serv_gets(buf);
+		/* FIX find out where the user is */
 		}
 
 
@@ -252,10 +351,21 @@ void session_loop() {
 			}
 		}
 
+	/* If there are variables in the URL, we must grab them now */	
+	for (a=0; a<strlen(cmd); ++a) if (cmd[a]=='?') {
+		for (b=a; b<strlen(cmd); ++b) if (isspace(cmd[b])) cmd[b]=0;
+		addurls(&cmd[a+1]);
+		cmd[a] = 0;
+		}
+
 	if (!strncasecmp(cmd, "GET /static/", 12)) {
 		strcpy(buf, &cmd[12]);
 		for (a=0; a<strlen(buf); ++a) if (isspace(buf[a])) buf[a]=0;
 		output_static(buf);
+		}
+
+	else if ((!logged_in)&&(!strncasecmp(cmd, "POST /login", 11))) {
+		do_login();
 		}
 
 	else if (!logged_in) {
@@ -278,6 +388,7 @@ void session_loop() {
 		free(content);
 		content = NULL;
 		}
+	free_urls();
 	}
 
 

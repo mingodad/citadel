@@ -21,4 +21,11 @@ struct webcontent {
 	char w_data[256];
 	};
 
+struct urlcontent {
+	struct urlcontent *next;
+	char url_key[32];
+	char *url_data;
+	};
+
 void serv_printf(const char *format, ...);
+char *bstr();
