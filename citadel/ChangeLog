@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.42  2002/01/06 10:33:10  error
+ * SSL/TLS support for the Citadel/UX wire protocol
+
  Revision 590.41  2002/01/06 08:54:58  error
  * user_ops.c: fixed become_session() when calling EVT_LOGOUT session hooks
 
@@ -3086,4 +3089,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

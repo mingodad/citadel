@@ -62,6 +62,7 @@
 #include "database.h"
 #include "housekeeping.h"
 #include "tools.h"
+#include "serv_crypto.h"
 
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
@@ -233,6 +234,10 @@ static RETSIGTYPE signal_cleanup(int signum) {
  */
 void init_sysdep(void) {
 	int a;
+
+#ifdef HAVE_OPENSSL
+	init_ssl();
+#endif
 
 	/* Set up a bunch of semaphores to be used for critical sections */
 	for (a=0; a<MAX_SEMAPHORES; ++a) {
@@ -464,7 +469,6 @@ DONE:	++num_sessions;
 }
 
 
-
 /*
  * client_write()   ...    Send binary data to the client.
  */
@@ -474,6 +478,13 @@ void client_write(char *buf, int nbytes)
 	int retval;
 	int sock;
 
+
+#ifdef HAVE_OPENSSL
+	if (CC->redirect_ssl) {
+		client_write_ssl(buf, nbytes);
+		return;
+	}
+#endif
 
 	if (CC->redirect_fp != NULL) {
 		fwrite(buf, nbytes, 1, CC->redirect_fp);
@@ -533,6 +544,11 @@ int client_read_to(char *buf, int bytes, int timeout)
 	struct timeval tv;
 	int retval;
 
+#ifdef HAVE_OPENSSL
+	if (CC->redirect_ssl) {
+		return (client_read_ssl(buf, bytes, timeout));
+	}
+#endif
 	len = 0;
 	while(len<bytes) {
 		FD_ZERO(&rfds);
@@ -1074,6 +1090,3 @@ SETUP_FD:	memcpy(&readfds, &masterfds, sizeof masterfds);
 	--num_threads;
 	return NULL;
 }
-
-
-

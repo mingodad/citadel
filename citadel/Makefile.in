@@ -63,6 +63,7 @@ LIBOBJS=@LIBOBJS@
 CL_LIBOBJS=@CL_LIBOBJS@
 PTHREAD_DEFS=@PTHREAD_DEFS@
 PTHREAD_LIBS=@PTHREAD_LIBS@
+SSL_LIBS=@SSL_LIBS@
 CLIENT_PTLIBS=@CLIENT_PTLIBS@
 INSTALL=@INSTALL@
 INSTALL_DATA=@INSTALL_DATA@
@@ -81,12 +82,12 @@ VPATH=$(srcdir)
 
 DOMAIN=@DOMAIN@
 
-SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
-	config.c control.c $(DATABASE) dynloader.c file_ops.c \
-	housekeeping.c ipc_c_tcp.c locate_host.c \
+SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c \
+	client_crypto.c commands.c config.c control.c $(DATABASE) \
+	dynloader.c file_ops.c housekeeping.c ipc_c_tcp.c locate_host.c \
 	logging.c messages.c msgbase.c msgform.c \
 	netsetup.c policy.c readlog.c migratenet.c \
-	room_ops.c rooms.c routines.c routines2.c serv_chat.c \
+	room_ops.c rooms.c routines.c routines2.c serv_chat.c serv_crypto.c \
 	serv_info.c serv_test.c setup.c snprintf.c stats.c serv_vcard.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
 	whobbs.c sendcommand.c mime_parser.c base64.c getutline.c \
@@ -114,13 +115,13 @@ serv_modules: $(SERV_MODULES)
 
 citadel$(EXEEXT): ipc_c_tcp$(CX) citadel$(CX) rooms$(CX) routines$(CX) \
 	routines2$(CX) messages$(CX)  \
-	client_passwords$(CX) md5$(CX) \
+	client_passwords$(CX) md5$(CX) client_crypto$(CX) \
 	commands$(CX) client_chat$(CX) serv_info$(CX) tools$(CX) $(LIBOBJS)
 	$(CC) ipc_c_tcp$(CX) citadel$(CX) rooms$(CX) routines$(CX) \
 	routines2$(CX) messages$(CX) \
 	commands$(CX) client_chat$(CX) serv_info$(CX) tools$(CX) \
-	client_passwords$(CX) md5$(CX) \
-	$(LIBOBJS) $(LDFLAGS) -o citadel $(NETLIBS) $(CLIENT_PTLIBS)
+	client_passwords$(CX) md5$(CX) client_crypto$(CX) \
+	$(LIBOBJS) $(LDFLAGS) -o citadel $(NETLIBS) $(SSL_LIBS) $(CLIENT_PTLIBS)
 
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c $<
@@ -139,11 +140,11 @@ parsedate.ro: parsedate.c
 LIBSERV_OBJS = user_ops.lo citserver.lo sysdep.lo dynloader.lo tools.lo $(DATABASE:.c=.lo) \
 	control.lo policy.lo config.lo support.lo room_ops.lo file_ops.lo msgbase.lo \
 	locate_host.lo housekeeping.lo logging.lo mime_parser.lo html.lo internet_addressing.lo \
-	parsedate.lo genstamp.lo clientsocket.lo $(AUTH) $(LIBOBJS:.o=.lo)
+	serv_crypto.lo parsedate.lo genstamp.lo clientsocket.lo $(AUTH) $(LIBOBJS:.o=.lo)
 
 libcitserver.la: $(LIBSERV_OBJS)
 	$(LIBTOOL) $(CC) $(LDFLAGS) -rpath $(prefix) -no-undefined -avoid-version \
-	-o libcitserver.la $(LIBSERV_OBJS) $(GDBM) $(LIBS) $(PTHREAD_LIBS) $(NETLIBS) $(RESOLV)
+	-o libcitserver.la $(LIBSERV_OBJS) $(GDBM) $(LIBS) $(PTHREAD_LIBS) $(NETLIBS) $(SSL_LIBS) $(RESOLV)
 
 citserver: $(SERV_OBJS) $(LIBTOOL) libcitserver.la
 	$(LIBTOOL) --mode=link $(CC) $(SERV_OBJS) $(LDFLAGS) libcitserver.la -o \

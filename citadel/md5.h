@@ -19,7 +19,9 @@ char *make_apop_string(char *realpass, char *nonce, char *buffer);
 /*
  * This is needed to make RSAREF happy on some MS-DOS compilers.
  */
+#ifndef HAVE_OPENSSL
 typedef struct MD5Context MD5_CTX;
+#endif
 
 #define MD5_DIGEST_LEN		16
 #define MD5_HEXSTRING_SIZE	33

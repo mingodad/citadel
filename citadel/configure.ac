@@ -316,7 +316,8 @@ if test "$with_ssl" != "no"; then
 	
 	if test "x$ac_cv_openssldir" != "xno" ; then
 		AC_DEFINE(HAVE_OPENSSL)
-		LIBS="$saved_LIBS -lssl -lcrypto"
+		LIBS="$saved_LIBS"
+		SSL_LIBS="-lssl -lcrypto"
 		dnl Need to recover ssldir - test above runs in subshell
 		ssldir=$ac_cv_openssldir
 		if test ! -z "$ssldir" -a "x$ssldir" != "x/usr" -a "x$ssldir" != "x(system)"; then
@@ -472,6 +473,7 @@ AC_SUBST(CLIENT_PTLIBS)
 AC_SUBST(CL_LIBOBJS)
 AC_SUBST(CX)
 AC_SUBST(DATABASE)
+AC_SUBST(SSL_LIBS)
 AC_CONFIG_HEADER(sysdep.h)
 AC_CONFIG_FILES([Makefile weekly])
 AC_OUTPUT

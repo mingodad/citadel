@@ -1828,8 +1828,57 @@ supported:
       SMTP runqueue                (attempt immediate delivery of all messages
                                     in the outbound SMTP queue, ignoring any
                                     retry times stored there)
+
+
+ STLS   (Start Transport Layer Security)
+
+ This command starts TLS on the current connection.  The current
+implementation uses OpenSSL on both the client and server end.  For future
+compatibility all clients must support at least TLSv1, and servers are
+guaranteed to support TLSv1.  During TLS negotiation (see below) the server
+and client may agree to use a different protocol.
+
+ The server returns ERROR if it does not support SSL or SSL initialization
+failed on the server; otherwise it returns OK.  Once the server returns OK and
+the client has read the response, the server and client immediately negotiate
+TLS (in OpenSSL, using SSL_connect() on the client and SSL_accept() on the
+server).  If negotiation fails, the server and client should attempt to resume
+the session unencrypted.  If either end is unable to resume the session, the
+connection should be closed.
+
+ This command may be run at any time.
   
   
+ GTLS   (Get Transport Layer Security Status)
+
+ This command returns information about the current connection.  The server
+returns OK plus several parameters if the connection is encrypted, and ERROR
+if the connection is not encrypted.  It is primarily used for debugging.  The
+command may be run at any time.
+ 
+ 0 - Protocol name, e.g. "SSLv3"
+ 1 - Cipher suite name, e.g. "ADH-RC4-MD5"
+ 2 - Cipher strength bits, e.g. 128
+ 3 - Cipher strength bits actually in use, e.g. 128
+
+
+ ETLS   (End Transport Layer Security)
+
+ This command shuts down TLS and resumes an unencrypted communications
+channel.  This command returns OK and then negotiates TLS shutdown.  The
+client should read the response before negotiating TLS shutdown (e.g. with
+SSL_shutdown() in OpenSSL).  The connection is then unencrypted.  The
+server may return ERROR if it does not support SSL or if the connection was
+not encrypted to begin with.  If either end is unable to resume the connection
+unencrypted, the connection should be closed.
+ 
+ This command is primarily for debugging.  Clients may end TLS at any time
+without calling this command.  If a client needs to end TLS and resume
+unencrypted communications, it should do so through the SSL/TLS layer (e.g.
+with SSL_shutdown() in OpenSSL) rather than using this command.  This command
+may be removed from future versions of Citadel/UX.
+
+
  ASYN   (ASYNchronous message support)
  
  Negotiate the use of asynchronous, or unsolicited, protocol messages.  The

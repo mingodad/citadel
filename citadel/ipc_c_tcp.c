@@ -30,6 +30,9 @@
 #include "citadel_decls.h"
 #include "ipc.h"
 #include "tools.h"
+#if defined(HAVE_OPENSSL) && defined(CIT_CLIENT)
+#include "client_crypto.h"
+#endif
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
@@ -52,6 +55,11 @@ int server_is_local = 0;
 #endif
 
 int serv_sock;
+
+#if defined(HAVE_OPENSSL) && defined(CIT_CLIENT)
+extern int ssl_is_connected;
+#endif
+
 
 void connection_died(void) {
 	fprintf(stderr, "\r"
@@ -161,6 +169,12 @@ void serv_read(char *buf, int bytes)
 {
 	int len, rlen;
 
+#if defined(HAVE_OPENSSL) && defined(CIT_CLIENT)
+	if (ssl_is_connected) {
+		serv_read_ssl(buf, bytes);
+		return;
+	}
+#endif
 	len = 0;
 	while (len < bytes) {
 		rlen = read(serv_sock, &buf[len], bytes - len);
@@ -168,7 +182,7 @@ void serv_read(char *buf, int bytes)
 			connection_died();
 			return;
 		}
-		len = len + rlen;
+		len += rlen;
 	}
 }
 
@@ -180,6 +194,13 @@ void serv_write(char *buf, int nbytes)
 {
 	int bytes_written = 0;
 	int retval;
+
+#if defined(HAVE_OPENSSL) && defined(CIT_CLIENT)
+	if (ssl_is_connected) {
+		serv_write_ssl(buf, nbytes);
+		return;
+	}
+#endif
 	while (bytes_written < nbytes) {
 		retval = write(serv_sock, &buf[bytes_written],
 			       nbytes - bytes_written);
@@ -187,7 +208,7 @@ void serv_write(char *buf, int nbytes)
 			connection_died();
 			return;
 		}
-		bytes_written = bytes_written + retval;
+		bytes_written += retval;
 	}
 }
 
@@ -301,4 +322,3 @@ char serv_getc(void)
 
 	return (ch);
 }
-

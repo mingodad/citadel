@@ -32,6 +32,9 @@
 #endif /* __CYGWIN__ */
 
 #include "citadel.h"
+#ifdef HAVE_OPENSSL
+#include <openssl/ssl.h>
+#endif
 
 #define	CTDLMESSAGE_MAGIC		0x159d
 struct CtdlMessage {
@@ -123,6 +126,10 @@ struct CitContext {
 	/* Redirect this session's output to somewhere else? */
 	FILE *redirect_fp;
 	int redirect_sock;
+#ifdef HAVE_OPENSSL
+	SSL *ssl;
+	int redirect_ssl;
+#endif
 
 	/* A linked list of all express messages sent to us. */
 	struct ExpressMessage *FirstExpressMessage;
