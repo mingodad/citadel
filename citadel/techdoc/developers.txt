@@ -39,6 +39,12 @@ Developer codes (and where known, client codes)
  6	Bastille <tdf@area51.v-wave.com>
  
  7      Walden Leverich <waldenl@techsoftinc.com>
+
+ 8      Michael Hampton <error@canandstring.com>
+
+        Client  Name            Status          Description
+	0       (unnamed)       in design       Client-side API library
+	1       D.O.C.          in development  Dave's Own Citadel look-alike
  
  69     Anticlimactic Teleservices
         Don Kimberlin (err head) <donkimberlin@hotmail.com>
