@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.59  2004/03/01 17:33:30  error
+ * Rewrite m<Y> next function; now uses CtdlIPC code.
+
  Revision 614.58  2004/03/01 04:08:34  ajc
  * Revoke access to room when /kicked
 
@@ -5434,4 +5437,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

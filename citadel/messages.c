@@ -1813,30 +1813,24 @@ RMSGREAD:	scr_flush();
             int lasta = a;
             for (finda = a; ((finda < num_msgs) && (finda >= 0)); finda += rdir)
               {
-                /* This is repetitively dumb, but that's what computers are for.
-                   We have to load up messages until we find one by us */
-                char buf[SIZ];
-                int founda = 0;
+		/* This is repetitively dumb, but that's what computers are for.
+		   We have to load up messages until we find one by us */
+		char buf[SIZ];
+		int founda = 0;
+		struct ctdlipcmessage *msg;
                 
 		/* read the header so we can get 'from=' */
-               	snprintf(buf, sizeof buf, "MSG0 %ld|1", msg_arr[finda]);
-             	CtdlIPC_putline(ipc, buf);
-            	CtdlIPC_getline(ipc, buf);
-            	while (CtdlIPC_getline(ipc, buf), strcmp(buf, "000")) 
-                  {
-            		if ((!strncasecmp(buf, "from=", 5)) && (finda != a)) /* Skip current message. */
-            	      { 
-                        if (strcasecmp(buf+5, fullname) == 0)
-                          {
-                            a = lasta; /* meesa current */
-                            founda = 1;
-                          }
-            		  }
-            	  }
-        	    /* we are now in synch with the server */
-                if (founda)
-                  break; /* for */
-                lasta = finda; /* keep one behind or we skip on the reentrance to the for */
+		r = CtdlIPCGetSingleMessage(ipc, msg_arr[finda], 1, 0, &msg, buf);
+		if (!strncasecmp(msg->author, fullname)) {
+			a = lasta; /* meesa current */
+			founda = 1;
+		}
+
+		free(msg);
+
+		if (founda)
+			break; /* for */
+		lasta = finda; /* keep one behind or we skip on the reentrance to the for */
               } /* for */
           } /* case 'y' */
       } /* switch */
