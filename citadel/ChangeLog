@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.68  2001/10/23 03:37:33  ajc
+ * Threw a few more lines of code into migratenet.c
+
  Revision 580.67  2001/10/20 18:10:50  ajc
  * migratenet.c: added (not even close to being finished)
 
@@ -2834,3 +2837,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
