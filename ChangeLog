@@ -1,4 +1,8 @@
 $Log$
+Revision 410.49  2003/06/10 04:05:23  ajc
+* De-tabled the left side icon bar and reduced one of the graphics, so
+  that all of the rounded corners show up in Satan's Browser.
+
 Revision 410.48  2003/06/10 03:47:41  ajc
 * style.css: added font selection to default <BODY> tag
 
@@ -1476,3 +1480,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
