@@ -170,9 +170,6 @@ download_sources () {
 }
 
 install_ical () {
-
-SRC=/appl/citadel/files/citadel/libical-0.24.RC4.tar.gz
-
 	SUM=`sum $ICAL_SOURCE | awk ' { print $1$2 } '`
 	SUMFILE=$SUPPORT/etc/libical-easyinstall.sum
 	if [ -r $SUMFILE ] ; then
@@ -194,6 +191,15 @@ SRC=/appl/citadel/files/citadel/libical-0.24.RC4.tar.gz
 }
 
 install_db () {
+	SUM=`sum $DB_SOURCE | awk ' { print $1$2 } '`
+	SUMFILE=$SUPPORT/etc/db-easyinstall.sum
+	if [ -r $SUMFILE ] ; then
+		OLDSUM=`cat $SUMFILE`
+		if [ $SUM = $OLDSUM ] ; then
+		echo "* Berkeley DB does not need updating."
+		return;
+		fi
+	fi
 	echo "* Installing Berkeley DB..."
 	cd $BUILD 2>&1 >>$LOG || die
 	( gzip -dc $DB_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
@@ -204,9 +210,19 @@ install_db () {
 	$MAKE $MAKEOPTS 2>&1 >>$LOG || die
 	$MAKE install 2>&1 >>$LOG || die
 	echo "  Complete."
+	echo $SUM >$SUMFILE
 }
 
 install_ldap () {
+	SUM=`sum $LDAP_SOURCE | awk ' { print $1$2 } '`
+	SUMFILE=$SUPPORT/etc/db-easyinstall.sum
+	if [ -r $SUMFILE ] ; then
+		OLDSUM=`cat $SUMFILE`
+		if [ $SUM = $OLDSUM ] ; then
+		echo "* OpenLDAP does not need updating."
+		return;
+		fi
+	fi
 	echo "* Installing OpenLDAP..."
 	CFLAGS="${CFLAGS} -I${SUPPORT}/include"
 	CPPFLAGS="${CFLAGS}"
@@ -223,6 +239,7 @@ install_ldap () {
 	export SLAPD_BINARY
 	$MAKE install 2>&1 >>$LOG || die
 	echo "  Complete."
+	echo $SUM >$SUMFILE
 }
 
 
