@@ -1,5 +1,4 @@
 sysdep.h
-testing.c
 Makefile
 citadel
 whobbs
@@ -18,14 +17,7 @@ sysoputil
 citmail
 netpoll
 mailinglist
-citadel.config
-calllog.pos
-calllog
-citadel.control
 userlist
-citadel.log
-data
-.depend
 import
 config.status
 configure
