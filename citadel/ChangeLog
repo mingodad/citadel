@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.58  2000/12/27 05:09:58  ajc
+ * Added a skeleton IMAP "SEARCH" command (based on the FETCH logic)
+
  Revision 573.57  2000/12/26 03:46:50  ajc
  * More IMAP tweaks
 
@@ -2245,3 +2248,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

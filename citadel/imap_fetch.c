@@ -735,6 +735,10 @@ void imap_pick_range(char *range, int is_uid) {
 	int s;
 	char setstr[1024], lostr[1024], histr[1024];
 	int lo, hi;
+	char *actual_range;
+
+	actual_range = range;
+	if (!strcasecmp(range, "ALL")) actual_range = "1:*";
 
 	/*
 	 * Clear out the IMAP_FETCHED flags for all messages.
@@ -746,9 +750,9 @@ void imap_pick_range(char *range, int is_uid) {
 	/*
 	 * Now set it for all specified messages.
 	 */
-	num_sets = num_tokens(range, ',');
+	num_sets = num_tokens(actual_range, ',');
 	for (s=0; s<num_sets; ++s) {
-		extract_token(setstr, range, s, ',');
+		extract_token(setstr, actual_range, s, ',');
 
 		extract_token(lostr, setstr, 0, ':');
 		if (num_tokens(setstr, ':') >= 2) {

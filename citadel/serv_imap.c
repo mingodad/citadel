@@ -41,6 +41,7 @@
 #include "serv_imap.h"
 #include "imap_tools.h"
 #include "imap_fetch.h"
+#include "imap_search.h"
 
 
 long SYM_IMAP;
@@ -478,6 +479,15 @@ void imap_command_loop(void) {
 	else if ( (!strcasecmp(parms[1], "UID"))
 		&& (!strcasecmp(parms[2], "FETCH")) ) {
 		imap_uidfetch(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "SEARCH")) {
+		imap_search(num_parms, parms);
+	}
+
+	else if ( (!strcasecmp(parms[1], "UID"))
+		&& (!strcasecmp(parms[2], "SEARCH")) ) {
+		imap_uidsearch(num_parms, parms);
 	}
 
 	else if (!strcasecmp(parms[1], "CLOSE")) {
