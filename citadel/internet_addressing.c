@@ -349,6 +349,12 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 		processed = 1;
 	}
 
+	else if (!strcasecmp(key, "To")) {
+		if (msg->cm_fields['R'] == NULL)
+			msg->cm_fields['R'] = strdoop(value);
+		processed = 1;
+	}
+
 	else if (!strcasecmp(key, "Message-ID")) {
 		if (msg->cm_fields['I'] != NULL) {
 			lprintf(5, "duplicate message id\n");

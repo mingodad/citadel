@@ -1,4 +1,8 @@
  $Log$
+ Revision 612.1  2003/12/04 04:20:08  ajc
+ * Incoming RFC822 messages get the To: field translated directly to
+   a Citadel <R> field.
+
  Revision 612.0  2003/12/01 04:11:48  ajc
  * THIS IS 6.12
 
@@ -5098,3 +5102,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
