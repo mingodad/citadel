@@ -29,6 +29,10 @@ btx@calyx.net
 #include "gui.h"
 #include "gtk_misc.h"
 
+#ifndef HAVE_SNPRINTF
+int snprintf (char *buf, size_t max, const char *fmt, ...);
+#endif
+
 client_context our_context;
 extern GtkWidget *page_user, *page_msg, *user_e, *pass_e, *host_e;
 extern GtkWidget *user_info_window;
@@ -506,7 +510,7 @@ int main(int argc, char **argv)
    path[sizeof(path)-1] = '\0';
    gtk_rc_parse(path);
    
-   bzero(&our_context, sizeof(our_context));
+   memset(&our_context, 0, sizeof(our_context));
    
    create_main_window();
    

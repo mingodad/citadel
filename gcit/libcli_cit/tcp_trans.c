@@ -15,6 +15,7 @@ btx@calyx.net
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#include <string.h>
 #include "client_api.h"
 #include "transport.h"
 
@@ -37,7 +38,7 @@ int citadel_connect(char *host, u_short port)
    sin.sin_port = htons(port);
    memcpy(&sin.sin_addr, he->h_addr, he->h_length);
    
-   ret = connect(sock, &sin, sizeof(sin));
+   ret = connect(sock, (struct sockaddr*)&sin, sizeof(sin));
    
    if (ret < 0)
    {

@@ -22,6 +22,10 @@ These routines deal with the two citadel structures, parms and lists.
 #include "transport.h"
 #include "citadel_util.h"
 
+#ifndef HAVE_SNPRINTF
+int snprintf (char *buf, size_t max, const char *fmt, ...);
+#endif
+
 int get_num_args(char *line)
 {
    int nargs;
@@ -153,7 +157,7 @@ citadel_parms *newparms(void)
       exit(1);
    }
    
-   bzero(parms, sizeof(citadel_parms));
+   memset(parms, 0, sizeof(citadel_parms));
    parms->argc = 0;
    
    return(parms);

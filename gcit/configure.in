@@ -4,12 +4,20 @@ AM_INIT_AUTOMAKE(gcit, 0.1)
 
 dnl Checks for programs.
 AM_PROG_LIBTOOL
-test "$GCC" = yes && XTRA_CFLAGS='-Wall -Wstrict-prototypes'
+if test "$GCC" = yes; then
+	case "$host" in
+	    alpha*-dec-osf*)
+		XTRA_CFLAGS='-Wall -Wstrict-prototypes -Wno-implicit-int'
+	    ;;
+	    *)
+		XTRA_CFLAGS='-Wall -Wstrict-prototypes'
+	    ;;
+	esac
+fi
 AC_SUBST(XTRA_CFLAGS)
 
 dnl Checks for libraries.
 AM_PATH_GDK_IMLIB
-AM_PATH_GLIB
 AM_PATH_GTK
 
 dnl Checks for header files.
@@ -21,6 +29,9 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 dnl Checks for library functions.
 dnl AC_FUNC_VPRINTF
 dnl AC_CHECK_FUNCS(socket strdup strtol uname)
+AC_REPLACE_FUNCS(snprintf)
 
 AM_CONFIG_HEADER(config.h)
+LTLIBOBJS=`echo "$LIBOBJS" | sed 's/\.o/.lo/g'`
+AC_SUBST(LTLIBOBJS)
 AC_OUTPUT(libcli_cit/Makefile gtk/Makefile Makefile)

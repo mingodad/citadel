@@ -6,13 +6,19 @@ btx@calyx.net
 
 */
 
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include "client_api.h"
 #include "citadel_util.h"
 #include "citadel_api.h"
 #include "transport.h"
+
+#ifndef HAVE_SNPRINTF
+int snprintf (char *buf, size_t max, const char *fmt, ...);
+#endif
 
 /* 
 
