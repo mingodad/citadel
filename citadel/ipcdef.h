@@ -1,4 +1,9 @@
 /* $Id$ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define LISTING_FOLLOWS		100
 #define CIT_OK			200
 #define MORE_DATA		300
@@ -78,5 +83,6 @@ struct CtdlServInfo {
 			US_NOPROMPT | US_DISAPPEAR | US_PAGINATOR | \
 			US_FLOORS | US_COLOR | US_PROMPTCTL )
 
-void serv_puts(char *buf);
-void serv_gets(char *buf);
+#ifdef __cplusplus
+}
+#endif
