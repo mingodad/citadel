@@ -1158,8 +1158,8 @@ void session_loop(struct httprequest *req)
 		summary();
 	} else if (!strcasecmp(action, "iconbar")) {
 		do_iconbar();
-	} else if (!strcasecmp(action, "customize_iconbar")) {
-		customize_iconbar();
+	} else if (!strcasecmp(action, "display_customize_iconbar")) {
+		display_customize_iconbar();
 	} else if (!strcasecmp(action, "diagnostics")) {
 		output_headers(1);
 
