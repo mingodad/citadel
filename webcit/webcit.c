@@ -328,17 +328,18 @@ void output_headers(int controlcode)
 			"<META HTTP-EQUIV=\"refresh\" CONTENT=\"30\">\n");
 		wprintf("</HEAD>\n");
 
-		/* script for checking for express msgs (not always launch) */
+		/* script for checking for pages (not always launched) */
 		wprintf("<SCRIPT LANGUAGE=\"JavaScript\">\n");
 		wprintf("function launch_page_popup() {\n");
-		wprintf("pwin = window.open('/page_popup', 'CitaPage%d', 'toolbar=no,location=no,copyhistory=no,status=no,scrollbars=yes,resizable=no,height=150,width=400');\n");
+		wprintf("pwin = window.open('/page_popup', 'CitaPage%d', "
+			"'toolbar=no,location=no,copyhistory=no,status=no,"
+			"scrollbars=yes,resizable=no,height=150,width=400');\n",
+			++pageseq);
 		wprintf("}\n");
-		wprintf("</SCRIPT>\n", ++pageseq);
+		wprintf("</SCRIPT>\n");
 		/* end script */
 
-		/* JavaScript keyboard-based navigation would go here if it
-		 * were finished
-		 */
+		/* (JavaScript keyboard-based navigation would go here) */
 
 		if (!suppress_check) if (WC->HaveExpressMessages) {
 			svprintf("extrabodyparms", WCS_STRING, "%s", 

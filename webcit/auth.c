@@ -365,7 +365,7 @@ void register_user(void)
 	if (atoi(bstr("during_login"))) {
 		do_welcome();
 	} else {
-		display_error("Registration information has been saved.");
+		display_success("Registration information has been saved.");
 	}
 }
 
