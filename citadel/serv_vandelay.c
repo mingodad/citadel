@@ -290,6 +290,7 @@ void artv_do_export(void) {
 void artv_import_config(void) {
 	char buf[256];
 
+	lprintf(9, "Importing config file\n");
 	client_gets(config.c_nodename);
 	client_gets(config.c_fqdn);
 	client_gets(config.c_humannode);
@@ -333,12 +334,12 @@ void artv_import_config(void) {
 void artv_import_control(void) {
 	char buf[256];
 
+	lprintf(9, "Importing control file\n");
 	client_gets(buf);	CitControl.MMhighest = atol(buf);
 	client_gets(buf);	CitControl.MMflags = atoi(buf);
 	client_gets(buf);	CitControl.MMnextuser = atol(buf);
 	client_gets(buf);	CitControl.MMnextroom = atol(buf);
 	client_gets(buf);	CitControl.version = atoi(buf);
-
 	put_control();
 	lprintf(7, "Imported control file\n");
 }
@@ -404,12 +405,12 @@ void artv_import_floor(void) {
         int i;
 	char buf[256];
 
-	serv_gets(buf);		i = atoi(buf);
-	serv_gets(buf);		flbuf.f_flags = atoi(buf);
-	serv_gets(flbuf.f_name);
-	serv_gets(buf);		flbuf.f_ref_count = atoi(buf);
-	serv_gets(buf);		flbuf.f_ep.expire_mode = atoi(buf);
-	serv_gets(buf);		flbuf.f_ep.expire_value = atoi(buf);
+	client_gets(buf);		i = atoi(buf);
+	client_gets(buf);		flbuf.f_flags = atoi(buf);
+	client_gets(flbuf.f_name);
+	client_gets(buf);		flbuf.f_ref_count = atoi(buf);
+	client_gets(buf);		flbuf.f_ep.expire_mode = atoi(buf);
+	client_gets(buf);		flbuf.f_ep.expire_value = atoi(buf);
 	putfloor(&flbuf, i);
 	lprintf(7, "Imported floor #%d (%s)\n", i, flbuf.f_name);
 }
@@ -435,20 +436,20 @@ void artv_import_visit(void) {
 
 void artv_import_message(void) {
 	struct SuppMsgInfo smi;
-	struct CtdlMessage *msg;
 	long msgnum;
 	int msglen;
 	FILE *fp;
 	char buf[256];
 	char tempfile[256];
+	char *mbuf;
 
 	memset(&smi, 0, sizeof(struct SuppMsgInfo));
 	client_gets(buf);	msgnum = atol(buf);
+				smi.smi_msgnum = msgnum;
 	client_gets(buf);	smi.smi_refcount = atoi(buf);
 	client_gets(smi.smi_content_type);
 	client_gets(buf);	smi.smi_mod = atoi(buf);
 
-	PutSuppMsgInfo(&smi, msgnum) FIXME get syntax and move to end
 
 	/* decode base64 message text */
 	strcpy(tempfile, tmpnam(NULL));
@@ -460,9 +461,20 @@ void artv_import_message(void) {
 	msglen = ftell(fp);
 	fclose(fp);
 
+	mbuf = mallok(msglen);
 	fp = fopen(tempfile, "rb");
-	FIXME do the rest of this
+	fread(mbuf, msglen, 1, fp);
 	fclose(fp);
+
+        begin_critical_section(S_MSGMAIN);
+        cdb_store(CDB_MSGMAIN, &msgnum, sizeof(long), mbuf, msglen);
+        end_critical_section(S_MSGMAIN);
+
+	phree(mbuf);
+	unlink(tempfile);
+
+	PutSuppMsgInfo(&smi);
+	lprintf(7, "Imported message %ld\n", msgnum);
 }
 
 
@@ -473,6 +485,8 @@ void artv_do_import(void) {
 
 	cprintf("%d sock it to me\n", SEND_LISTING);
 	while (client_gets(buf), strcmp(buf, "000")) {
+
+		lprintf(9, "import directive: <%s>\n", buf);
 
 		if (!strcasecmp(buf, "config")) artv_import_config();
 		else if (!strcasecmp(buf, "control")) artv_import_control();
