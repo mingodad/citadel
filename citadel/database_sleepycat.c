@@ -355,6 +355,7 @@ int cdb_delete(int cdb, void *key, int keylen)
 	DB_TXN *tid;
 	int ret;
 
+	memset(&dkey, 0, sizeof dkey);
 	dkey.size = keylen;
 	dkey.data = key;
 
