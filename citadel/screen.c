@@ -40,6 +40,8 @@ extern int rc_ansi_color;
 extern void check_screen_dims(void);
 #endif
 
+void do_keepalive(void);
+
 
 /*
  * status_line() is a convenience function for writing a "typical"
@@ -268,12 +270,26 @@ int sln_printf_if(char *fmt, ...)
 int scr_getc(void)
 {
 #ifdef HAVE_CURSES_H
+    /* This looks scary, the program will hang if mainwindow is null */
 	if (mainwindow)
 		return wgetch(mainwindow);
 #endif
 	return getchar();
 }
-
+int scr_blockread(void)
+  {
+    int a;
+    wtimeout(mainwindow, S_KEEPALIVE); 
+    while (1)
+      {
+        do_keepalive();
+        a = wgetch(mainwindow); /* will block for food */
+        if (a != ERR)
+          break;
+        /* a = scr_getc(); */
+      }
+    return a;
+  }
 
 /*
  * scr_putc() outputs a single character

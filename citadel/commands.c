@@ -380,7 +380,11 @@ static void async_ka_exec(void)
 }
 #endif /* THREADED_CLIENT */
 
-static void do_keepalive(void)
+/* I changed this from static to not because I need to call it from
+   screen.c, either that or make something in screen.c not static.
+   Fix it how you like. Why all the staticness? stu */
+   
+void do_keepalive(void)
 {
 	time_t now;
 
@@ -429,16 +433,20 @@ void async_ka_start(void)
 int inkey(void)
 {				/* get a character from the keyboard, with   */
 	int a;			/* the watchdog timer in effect if necessary */
+#ifndef HAVE_CURSES_H /* avoid compiler warning */
 	fd_set rfds;
 	struct timeval tv;
-	time_t start_time, now;
+#endif
+	time_t start_time;
 
 	scr_flush();
 	lines_printed = 0;
 	time(&start_time);
 
 	do {
-
+#ifdef HAVE_CURSES_H /* IO, maybe you wanna move this to screen.c */
+        a = scr_blockread();
+#else
 		/* This loop waits for keyboard input.  If the keepalive
 		 * timer expires, it sends a keepalive to the server if
 		 * necessary and then waits again.
@@ -451,17 +459,16 @@ int inkey(void)
 			tv.tv_sec = S_KEEPALIVE;
 			tv.tv_usec = 0;
 
-			time(&now);
 			select(1, &rfds, NULL, NULL, &tv);
 		} while (!FD_ISSET(0, &rfds));
-
-
-
 
 		/* At this point, there's input, so fetch it.
 		 * (There's a hole in the bucket...)
 		 */
 		a = scr_getc();
+#endif
+
+
 		if (a == 127)
 			a = 8;
 		if (a > 126)
