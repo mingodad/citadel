@@ -1062,10 +1062,6 @@ void *context_loop(struct CitContext *con)
 			cmd_gnur();
 			}
 
-		else if (!strncasecmp(cmdbuf,"GREG",4)) {
-			cmd_greg(&cmdbuf[5]);
-			}
-
 		else if (!strncasecmp(cmdbuf,"VALI",4)) {
 			cmd_vali(&cmdbuf[5]);
 			}

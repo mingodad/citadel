@@ -30,6 +30,7 @@
 #include "policy.h"
 #include "database.h"
 #include "msgbase.h"
+#include "tools.h"
 #include "vcard.h"
 
 struct vcard_internal_info {
@@ -60,7 +61,6 @@ int vcard_personal_upload(struct CtdlMessage *msg) {
 	while (ptr != NULL) {
 	
 		linelen = strcspn(ptr, "\n");
-		lprintf(9, "linelen == %d\n", linelen);
 		if (linelen == 0) return(0);	/* end of headers */	
 		
 		if (!strncasecmp(ptr, "Content-type: text/x-vcard", 26)) {
@@ -82,7 +82,7 @@ int vcard_personal_upload(struct CtdlMessage *msg) {
 
 
 /*
- * back end function used by vcard_get_my()
+ * back end function used by vcard_get_user()
  */
 void vcard_gm_backend(long msgnum) {
 	VC->msgnum = msgnum;
@@ -93,14 +93,14 @@ void vcard_gm_backend(long msgnum) {
  * If this user has a vcard on disk, read it into memory, otherwise allocate
  * and return an empty vCard.
  */
-struct vCard *vcard_get_my(void) {
+struct vCard *vcard_get_user(struct usersupp *u) {
         char hold_rm[ROOMNAMELEN];
         char config_rm[ROOMNAMELEN];
 	struct CtdlMessage *msg;
 	struct vCard *v;
 
         strcpy(hold_rm, CC->quickroom.QRname);	/* save current room */
-        MailboxName(config_rm, &CC->usersupp, CONFIGROOM);
+        MailboxName(config_rm, u, CONFIGROOM);
 
         if (getroom(&CC->quickroom, config_rm) != 0) {
                 getroom(&CC->quickroom, hold_rm);
@@ -129,10 +129,11 @@ struct vCard *vcard_get_my(void) {
 /*
  * Write our config to disk
  */
-void vcard_write_my(struct vCard *v) {
+void vcard_write_user(struct usersupp *u, struct vCard *v) {
         char temp[PATH_MAX];
         FILE *fp;
 	char *ser;
+        char config_rm[ROOMNAMELEN];
 
         strcpy(temp, tmpnam(NULL));
 	ser = vcard_serialize(v);
@@ -148,8 +149,9 @@ void vcard_write_my(struct vCard *v) {
 	}
         fclose(fp);
 
-        /* this handy API function does all the work for us */
-        CtdlWriteObject(CONFIGROOM, "text/x-vcard", temp, 1, 0, 1);
+        /* these handy API functions do all the work for us */
+        MailboxName(config_rm, u, CONFIGROOM);
+        CtdlWriteObject(config_rm, "text/x-vcard", temp, 1, 0, 1);
 
         unlink(temp);
 }
@@ -176,7 +178,7 @@ void cmd_regi(char *argbuf) {
 		return;
 		}
 
-	my_vcard = vcard_get_my();
+	my_vcard = vcard_get_user(&CC->usersupp);
 	strcpy(tmpaddr, "");
 	strcpy(tmpcity, "");
 	strcpy(tmpstate, "");
@@ -214,20 +216,15 @@ void cmd_regi(char *argbuf) {
 		}
 	sprintf(tmpaddress, ";;%s;%s;%s;%s;USA",
 		tmpaddr, tmpcity, tmpstate, tmpzip);
-	lprintf(9, "setting address\n");
 	vcard_set_prop(my_vcard, "adr", tmpaddress);
-	lprintf(9, "writing my vcard\n");
-	vcard_write_my(my_vcard);
-	lprintf(9, "freeing my vcard\n");
+	vcard_write_user(&CC->usersupp, my_vcard);
 	vcard_free(my_vcard);
 
-	lprintf(9, "marking account as needing validation\n");
-	lgetuser(&CC->usersupp,CC->curr_user);
+	lgetuser(&CC->usersupp, CC->curr_user);
 	CC->usersupp.flags=(CC->usersupp.flags|US_REGIS|US_NEEDVALID);
 	lputuser(&CC->usersupp);
 
 	/* set global flag calling for validation */
-	lprintf(9, "setting global flag\n");
 	begin_critical_section(S_CONTROL);
 	get_control();
 	CitControl.MMflags = CitControl.MMflags | MM_VALID ;
@@ -236,9 +233,78 @@ void cmd_regi(char *argbuf) {
 	}
 
 
+
+/*
+ * get registration info for a user
+ */
+void cmd_greg(char *argbuf)
+{
+	struct usersupp usbuf;
+	struct vCard *v;
+	char *tel;
+	char who[256];
+	char adr[256];
+	char buf[256];
+
+	extract(who, argbuf, 0);
+
+	if (!(CC->logged_in)) {
+		cprintf("%d Not logged in.\n", ERROR+NOT_LOGGED_IN);
+		return;
+	}
+
+	if (!strcasecmp(who,"_SELF_")) strcpy(who,CC->curr_user);
+
+	if ((CC->usersupp.axlevel < 6) && (strcasecmp(who,CC->curr_user))) {
+		cprintf("%d Higher access required.\n",
+			ERROR+HIGHER_ACCESS_REQUIRED);
+		return;
+	}
+
+	if (getuser(&usbuf, who) != 0) {
+		cprintf("%d '%s' not found.\n", ERROR+NO_SUCH_USER, who);
+		return;
+	}
+
+	v = vcard_get_user(&usbuf);
+
+	cprintf("%d %s\n", LISTING_FOLLOWS, usbuf.fullname);
+	cprintf("%ld\n", usbuf.usernum);
+	cprintf("%s\n", usbuf.password);
+	cprintf("%s\n", vcard_get_prop(v, "n", 0));	/* name */
+
+	strcpy(adr, vcard_get_prop(v, "adr", 0));	/* address... */
+
+	extract_token(buf, adr, 2, ';');
+	cprintf("%s\n", buf);				/* street */
+	extract_token(buf, adr, 2, ';');
+	cprintf("%s\n", buf);				/* city */
+	extract_token(buf, adr, 2, ';');
+	cprintf("%s\n", buf);				/* state */
+	extract_token(buf, adr, 2, ';');
+	cprintf("%s\n", buf);				/* zip */
+
+	tel = vcard_get_prop(v, "tel;home", 0);
+	if (tel == NULL) tel = vcard_get_prop(v, "tel", 1);
+	if (tel != NULL) {
+		cprintf("%s\n", tel);
+		}
+	else {
+		cprintf(" \n");
+	}
+
+	cprintf("%d\n", usbuf.axlevel);
+
+	cprintf("%s\n", vcard_get_prop(v, "email;internet", 0));
+	cprintf("000\n");
+	}
+
+
+
 void vcard_session_startup_hook(void) {
 	CtdlAllocUserData(SYM_VCARD, sizeof(struct vcard_internal_info));
 }
+
 
 
 char *Dynamic_Module_Init(void)
@@ -247,5 +313,6 @@ char *Dynamic_Module_Init(void)
 	CtdlRegisterSessionHook(vcard_session_startup_hook, EVT_START);
 	CtdlRegisterMessageHook(vcard_personal_upload, EVT_BEFORESAVE);
 	CtdlRegisterProtoHook(cmd_regi, "REGI", "Enter registration info");
+	CtdlRegisterProtoHook(cmd_greg, "GREG", "Get registration info");
 	return "$Id$";
 }

@@ -34,7 +34,6 @@ void newprompt(char *prompt, char *str, int len);
 void sttybbs(int cmd);
 int inkey(void);
 void serv_write(char *buf, int nbytes);
-void extract(char *dest, char *source, int parmnum);
 int haschar(char *st, int ch);
 void progress(long int curr, long int cmax);
 void citedit(FILE *fp, long int base_pos);

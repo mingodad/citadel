@@ -37,7 +37,7 @@ int num_parms(char *source)
 /*
  * extract()  -  extract a parameter from a series of "|" separated...
  */
-void extract(char *dest, char *source, int parmnum)
+void extract_token(char *dest, char *source, int parmnum, char separator)
 {
 	char buf[256];
 	int count = 0;
@@ -58,16 +58,16 @@ void extract(char *dest, char *source, int parmnum)
 	if ( (parmnum == 0) && (n == 1) ) {
 		strcpy(dest,buf);
 		for (n=0; n<strlen(dest); ++n)
-			if (dest[n]=='|') dest[n] = 0;
+			if (dest[n]==separator) dest[n] = 0;
 		return;
 		}
 
 	while (count++ < parmnum) do {
 		strcpy(buf,&buf[1]);
-		} while( (strlen(buf)>0) && (buf[0]!='|') );
-	if (buf[0]=='|') strcpy(buf,&buf[1]);
+		} while( (strlen(buf)>0) && (buf[0]!=separator) );
+	if (buf[0]==separator) strcpy(buf,&buf[1]);
 	for (count = 0; count<strlen(buf); ++count)
-		if (buf[count] == '|') buf[count] = 0;
+		if (buf[count] == separator) buf[count] = 0;
 	strcpy(dest,buf);
 	}
 

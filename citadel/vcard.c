@@ -93,18 +93,18 @@ struct vCard *vcard_load(char *vtext) {
 			strncpy(valuebuf, &ptr[colonpos+1], nlpos-colonpos-1);
 			valuebuf[nlpos-colonpos-1] = 0;
 
-			if ( (!strcasecmp(namebuf, "begin"))
-			   && (!strcasecmp(valuebuf, "vcard")) )  valid = 1;
 			if ( (!strcasecmp(namebuf, "end"))
 			   && (!strcasecmp(valuebuf, "vcard")) )  valid = 0;
+			if ( (!strcasecmp(namebuf, "begin"))
+			   && (!strcasecmp(valuebuf, "vcard")) )  valid = 1;
 
-			if (valid) {
+			if ( (valid) && (strcasecmp(namebuf, "begin")) ) {
 				++v->numprops;
 				v->prop = reallok(v->prop,
 					(v->numprops * sizeof(char *) * 2) );
 				v->prop[v->numprops-1].name = namebuf;
 				v->prop[v->numprops-1].value = valuebuf;
-			}
+			} 
 			else {
 				phree(namebuf);
 				phree(valuebuf);
@@ -152,7 +152,7 @@ char *vcard_get_prop(struct vCard *v, char *propname, int is_partial) {
  */
 void vcard_free(struct vCard *v) {
 	int i;
-
+	
 	if (v->magic != CTDL_VCARD_MAGIC) return;	/* Self-check */
 	
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
@@ -163,6 +163,7 @@ void vcard_free(struct vCard *v) {
 	if (v->prop != NULL) phree(v->prop);
 	
 	memset(v, 0, sizeof(struct vCard));
+	phree(v);
 }
 
 
@@ -190,7 +191,7 @@ void vcard_set_prop(struct vCard *v, char *name, char *value) {
 	v->prop = reallok(v->prop,
 		(v->numprops * sizeof(char *) * 2) );
 	v->prop[v->numprops-1].name = strdoop(name);
-	v->prop[v->numprops-1].value = (value);
+	v->prop[v->numprops-1].value = strdoop(value);
 }
 
 

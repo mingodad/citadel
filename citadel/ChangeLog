@@ -1,4 +1,7 @@
 $Log$
+Revision 1.373  1999/09/28 03:27:37  ajc
+* Fully migrated cmd_greg() and cmd_regi() into serv_vcard (still has bugs)
+
 Revision 1.372  1999/09/27 03:33:40  ajc
 * cmd_regi() is now in serv_vcard and writes to the vcard instead of to the
   usersupp file.  Still needs tweaking.
@@ -1275,4 +1278,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

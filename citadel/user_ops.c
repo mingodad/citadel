@@ -889,67 +889,6 @@ void cmd_gnur(void) {
 
 
 /*
- * get registration info for a user
- */
-void cmd_greg(char *who)
-{
-	struct usersupp usbuf;
-	int a,b;
-	char pbuf[32];
-
-	if (!(CC->logged_in)) {
-		cprintf("%d Not logged in.\n",ERROR+NOT_LOGGED_IN);
-		return;
-		}
-
-	if (!strcasecmp(who,"_SELF_")) strcpy(who,CC->curr_user);
-
-	if ((CC->usersupp.axlevel < 6) && (strcasecmp(who,CC->curr_user))) {
-		cprintf("%d Higher access required.\n",
-			ERROR+HIGHER_ACCESS_REQUIRED);
-		return;
-		}
-
-	if (getuser(&usbuf,who) != 0) {
-		cprintf("%d '%s' not found.\n",ERROR+NO_SUCH_USER,who);
-		return;
-		}
-
-	cprintf("%d %s\n",LISTING_FOLLOWS,usbuf.fullname);
-	cprintf("%ld\n",usbuf.usernum);
-	cprintf("%s\n",usbuf.password);
-	cprintf("%s\n",usbuf.USname);
-	cprintf("%s\n",usbuf.USaddr);
-	cprintf("%s\n%s\n%s\n",
-		usbuf.UScity,usbuf.USstate,usbuf.USzip);
-	strcpy(pbuf,usbuf.USphone);
-	usbuf.USphone[0]=0;
-	for (a=0; a<strlen(pbuf); ++a) {
-		if ((pbuf[a]>='0')&&(pbuf[a]<='9')) {
-			b=strlen(usbuf.USphone);
-			usbuf.USphone[b]=pbuf[a];
-			usbuf.USphone[b+1]=0;
-			}
-		}
-	while(strlen(usbuf.USphone)<10) {
-		strcpy(pbuf,usbuf.USphone);
-		strcpy(usbuf.USphone," ");
-		strcat(usbuf.USphone,pbuf);
-		}
-
-	cprintf("(%c%c%c) %c%c%c-%c%c%c%c\n",
-		usbuf.USphone[0],usbuf.USphone[1],
-		usbuf.USphone[2],usbuf.USphone[3],
-		usbuf.USphone[4],usbuf.USphone[5],
-		usbuf.USphone[6],usbuf.USphone[7],
-		usbuf.USphone[8],usbuf.USphone[9]);
-
-	cprintf("%d\n",usbuf.axlevel);
-	cprintf("%s\n",usbuf.USemail);
-	cprintf("000\n");
-	}
-
-/*
  * validate a user
  */
 void cmd_vali(char *v_args)
