@@ -88,7 +88,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c \
 	serv_smtp.c serv_pop3.c internet_addressing.c parsedate.c genstamp.c \
 	$(DOMAIN) clientsocket.c serv_inetcfg.c serv_rwho.c serv_bio.c \
 	client_passwords.c imap_misc.c serv_netfilter.c serv_mrtg.c \
-	serv_spam.c \
+	serv_spam.c citadel_ipc.c \
 	serv_imap.c imap_tools.c imap_fetch.c imap_search.c imap_store.c \
 	serv_network.c serv_pas2.c serv_ical.c md5.c server_main.c
 
@@ -108,11 +108,11 @@ serv_modules: $(SERV_MODULES)
 #
 
 citadel$(EXEEXT): ipc_c_tcp.o citadel.o rooms.o routines.o \
-	routines2.o messages.o screen.o \
+	routines2.o messages.o screen.o citadel_ipc.o \
 	client_passwords.o md5.o client_crypto.o \
 	commands.o client_chat.o serv_info.o tools.o $(LIBOBJS)
 	$(CC) ipc_c_tcp.o citadel.o rooms.o routines.o \
-	routines2.o messages.o screen.o \
+	routines2.o messages.o screen.o citadel_ipc.o \
 	commands.o client_chat.o serv_info.o tools.o \
 	client_passwords.o md5.o client_crypto.o \
 	$(LIBOBJS) $(LDFLAGS) -o citadel $(LIBS)

@@ -124,6 +124,13 @@ struct config {
 	char c_aideroom[ROOMNAMELEN];	/* Name of aideroom (Aide)	    */
 };
 
+struct march {
+	struct march *next;
+	char march_name[ROOMNAMELEN];
+	char march_floor;
+	char march_order;
+};
+
 #define NODENAME		config.c_nodename
 #define FQDN			config.c_fqdn
 #define HUMANNODE		config.c_humannode

@@ -42,6 +42,7 @@
 #include "messages.h"
 #include "commands.h"
 #include "ipc.h"
+#include "citadel_ipc.h"
 #include "client_chat.h"
 #include "client_passwords.h"
 #include "citadel_decls.h"
@@ -54,13 +55,6 @@
 #include "screen.h"
 
 #include "md5.h"
-
-struct march {
-	struct march *next;
-	char march_name[ROOMNAMELEN];
-	char march_floor;
-	char march_order;
-	};
 
 #define IFEXPERT if (userflags&US_EXPERT)
 #define IFNEXPERT if ((userflags&US_EXPERT)==0)
@@ -132,7 +126,7 @@ void logoff(int code)
  * that means we're exiting because we already lost the server
  */
 	if (code != 3)
-		serv_puts("QUIT");
+		CtdlIPCQuit();
 
 /*
  * now clean up various things
@@ -335,47 +329,43 @@ void dotgoto(char *towhere, int display_name, int fromungoto)
 	static int oldmailcount = (-1);
 	int partial_match, best_match;
 	char from_floor;
-    int ugpos = uglistsize;
+	int ugpos = uglistsize;
+	int r;				/* IPC result code */
+	static struct ctdlipcroom *roomrec = NULL;
 
 	/* store ungoto information */
-    if (fromungoto == 0)
-      {
-        if (uglistsize >= (UGLISTLEN-1))
-          {  /* sloppy slide them all down, hey it's the client, who cares. :-) */
-            int lp;
-            free (uglist[0]);
-            for (lp = 0; lp < (UGLISTLEN-1); lp++)
-              {
-                uglist[lp] = uglist[lp+1];
-                uglistlsn[lp] = uglistlsn[lp+1];
-              }
-            ugpos--;
-          }
-        else
-          uglistsize++;
+	if (fromungoto == 0) {
+		/* sloppy slide them all down, hey it's the client, who cares. :-) */
+        	if (uglistsize >= (UGLISTLEN-1)) {
+			int lp;
+			free (uglist[0]);
+			for (lp = 0; lp < (UGLISTLEN-1); lp++) {
+				uglist[lp] = uglist[lp+1];
+				uglistlsn[lp] = uglistlsn[lp+1];
+			}
+			ugpos--;
+		} else
+			uglistsize++;
         
-        uglist[ugpos] = malloc(strlen(room_name)+1);
-        strcpy(uglist[ugpos], room_name);
-        uglistlsn[ugpos] = ls;
-      }
-      
-	/* first try an exact match */
-	snprintf(aaa, sizeof aaa, "GOTO %s", towhere);
-	serv_puts(aaa);
-	serv_gets(aaa);
-	if (aaa[3] == '*')
-		express_msgs = 1;
-	if (!strncmp(aaa, "54", 2)) {
-		newprompt("Enter room password: ", bbb, 9);
-		snprintf(aaa, sizeof aaa, "GOTO %s|%s", towhere, bbb);
-		serv_puts(aaa);
-		serv_gets(aaa);
-		if (aaa[3] == '*')
-			express_msgs = 1;
+		uglist[ugpos] = malloc(strlen(room_name)+1);
+		strcpy(uglist[ugpos], room_name);
+		uglistlsn[ugpos] = ls;
 	}
-	if (!strncmp(aaa, "54", 2)) {
-		scr_printf("Wrong password.\n");
-		return;
+      
+	if (roomrec) {
+		free(roomrec);
+		roomrec = NULL;
+	}
+
+	/* first try an exact match */
+	r = CtdlIPCGotoRoom(towhere, "", &roomrec, aaa);
+	if (r / 10 == 54) {
+		newprompt("Enter room password: ", bbb, 9);
+		r = CtdlIPCGotoRoom(towhere, bbb, &roomrec, aaa);
+		if (r / 10 == 54) {
+			scr_printf("Wrong password.\n");
+			return;
+		}
 	}
 	/*
 	 * If a match is not found, try a partial match.
@@ -383,7 +373,7 @@ void dotgoto(char *towhere, int display_name, int fromungoto)
 	 * left-aligned matches carry a weight of 2.  Pick the room that
 	 * has the highest-weighted match.
 	 */
-	if (aaa[0] != '2') {
+	if (r / 100 != 2) {
 		best_match = 0;
 		strcpy(bbb, "");
 		serv_puts("LKRA");
@@ -407,25 +397,21 @@ void dotgoto(char *towhere, int display_name, int fromungoto)
 			scr_printf("No room '%s'.\n", towhere);
 			return;
 		}
-		snprintf(aaa, sizeof aaa, "GOTO %s", bbb);
-		serv_puts(aaa);
-		serv_gets(aaa);
-		if (aaa[3] == '*')
-			express_msgs = 1;
+		r = CtdlIPCGotoRoom(bbb, "", &roomrec, aaa);
 	}
-	if (aaa[0] != '2') {
+	if (r / 100 != 2) {
 		scr_printf("%s\n", aaa);
 		return;
 	}
-	extract(room_name, &aaa[4], 0);
-	room_flags = extract_int(&aaa[4], 4);
+	safestrncpy(room_name, roomrec->RRname, ROOMNAMELEN);
+	room_flags = roomrec->RRflags;
 	from_floor = curr_floor;
-	curr_floor = extract_int(&aaa[4], 10);
+	curr_floor = roomrec->RRfloor;
 
 	remove_march(room_name, 0);
 	if (!strcasecmp(towhere, "_BASEROOM_"))
 		remove_march(towhere, 0);
-	if (!extract_int(&aaa[4], 1))
+	if (!roomrec->RRunread)
 		next_lazy_cmd = 5;	/* Don't read new if no new msgs */
 	if ((from_floor != curr_floor) && (display_name > 0) && (floor_mode == 1)) {
 		if (floorlist[(int) curr_floor][0] == 0)
@@ -440,41 +426,36 @@ void dotgoto(char *towhere, int display_name, int fromungoto)
 	}
 	if (display_name != 2) {
 		color(BRIGHT_YELLOW);
-		scr_printf("%d ", extract_int(&aaa[4], 1));
+		scr_printf("%d ", roomrec->RRunread);
 		color(DIM_WHITE);
 		scr_printf("new of ");
 		color(BRIGHT_YELLOW);
-		scr_printf("%d ", extract_int(&aaa[4], 2));
+		scr_printf("%d ", roomrec->RRtotal);
 		color(DIM_WHITE);
 		scr_printf("messages.\n");
 	}
-	highest_msg_read = extract_int(&aaa[4], 6);
-	maxmsgnum = extract_int(&aaa[4], 5);
-	is_mail = (char) extract_int(&aaa[4], 7);
-	is_room_aide = (char) extract_int(&aaa[4], 8);
-	ls = extract_long(&aaa[4], 6);
+	highest_msg_read = roomrec->RRlastread;
+	maxmsgnum = roomrec->RRhighest;
+	is_mail = roomrec->RRismailbox;
+	is_room_aide = roomrec->RRaide;
+	ls = roomrec->RRlastread;
 
 	/* read info file if necessary */
-	if (extract_int(&aaa[4], 3) > 0)
+	if (roomrec->RRinfoupdated > 0)
 		readinfo();
 
 	/* check for newly arrived mail if we can */
-	if (num_parms(&aaa[4]) >= 10) {
-		newmailcount = extract_int(&aaa[4], 9);
-		if (newmailcount > 0) {
-			color(BRIGHT_RED);
-			scr_printf("*** You have %d new mail message%s\n",
-					newmailcount - oldmailcount,
-					(newmailcount - oldmailcount == 1) ?
-					"" : "s");
-			color(DIM_WHITE);
-		}
-		status_line(serv_info.serv_humannode, serv_info.serv_bbs_city,
-				room_name, secure, newmailcount);
-	} else {
-		status_line(serv_info.serv_humannode, serv_info.serv_bbs_city,
-				room_name, secure, -1);
+	newmailcount = roomrec->RRnewmail;
+	if (newmailcount > 0) {
+		color(BRIGHT_RED);
+		scr_printf("*** You have %d new mail message%s\n",
+				newmailcount - oldmailcount,
+				(newmailcount - oldmailcount == 1) ?
+				"" : "s");
+		color(DIM_WHITE);
 	}
+	status_line(serv_info.serv_humannode, serv_info.serv_bbs_city,
+			room_name, secure, newmailcount);
 }
 
 /* Goto next room having unread messages.
@@ -748,10 +729,8 @@ int set_password(void)
 	strproc(pass1);
 	strproc(pass2);
 	if (!strcasecmp(pass1, pass2)) {
-		snprintf(buf, sizeof buf, "SETP %s", pass1);
-		serv_puts(buf);
-		serv_gets(buf);
-		scr_printf("%s\n", &buf[4]);
+		CtdlIPCChangePassword(pass1, buf);
+		scr_printf("%s\n", buf);
 		offer_to_remember_password(hostbuf, portbuf, fullname, pass1);
 		return (0);
 	} else {
@@ -772,20 +751,10 @@ void get_serv_info(char *supplied_hostname)
 	CtdlInternalGetServInfo(&serv_info);
 
 	/* be nice and identify ourself to the server */
-	snprintf(buf, sizeof buf, "IDEN %d|%d|%d|%s|",
-		 SERVER_TYPE, 0, REV_LEVEL,
-		 (server_is_local ? "local" : CITADEL));
-
-	/* Append a hostname */
-	if (supplied_hostname != NULL) {
-		strcat(buf, supplied_hostname);
-	}
-	else {
-		locate_host(&buf[strlen(buf)]);	/* append to the end */
-	}
-
-	serv_puts(buf);
-	serv_gets(buf);		/* we don't care about the result code */
+	CtdlIPCIdentifySoftware(SERVER_TYPE, 0, REV_LEVEL,
+		 (server_is_local ? "local" : CITADEL),
+		 (supplied_hostname) ? supplied_hostname : "", buf);
+		 /* (locate_host(buf), buf)); */
 }
 
 
@@ -804,20 +773,14 @@ void who_is_online(int longlist)
 	time_t timenow = 0;
 	time_t idletime, idlehours, idlemins, idlesecs;
 	int last_session = (-1);
-    int skipidle = 0;
+	int skipidle = 0;
     
-    if (longlist == 2)
-      {
-        longlist = 0;
-        skipidle = 1;
-      }
-
-	serv_puts("TIME");
-	serv_gets(tbuf);
-	if (tbuf[0] == '2') {
-		timenow = extract_long(&tbuf[4], 0);
+	if (longlist == 2) {
+		longlist = 0;
+		skipidle = 1;
 	}
-	else {
+
+	if (!(timenow = CtdlIPCServerTime(tbuf))) {
 		time(&timenow);
 	}
 
@@ -942,6 +905,9 @@ int main(int argc, char **argv)
 	char hexstring[MD5_HEXSTRING_SIZE];
 	int stored_password = 0;
 	char password[SIZ];
+	struct ctdlipcmisc chek;
+	struct usersupp *myself;
+	int r;				/* IPC result code */
 
 	setIPCDeathHook(screen_delete);
 	setIPCErrorPrintf(err_printf);
@@ -1147,10 +1113,8 @@ GSTA:	/* See if we have a username and password on disk */
 		goto TERMN8;
 	}
 	/* sign on to the server */
-	snprintf(aaa, sizeof aaa, "USER %s", fullname);
-	serv_puts(aaa);
-	serv_gets(aaa);
-	if (aaa[0] != '3')
+	r = CtdlIPCTryLogin(fullname, aaa);
+	if (r / 100 != 3)
 		goto NEWUSR;
 
 	/* password authentication */
@@ -1221,10 +1185,9 @@ PWOK:
 	}
 	scr_printf("\n");
 
-	serv_puts("CHEK");
-	serv_gets(aaa);
-	if (aaa[0] == '2') {
-		b = extract_int(&aaa[4], 0);
+	r = CtdlIPCMiscCheck(&chek, aaa);
+	if (r / 100 == 2) {
+		b = chek.newmail;
 		if (b > 0) {
 			color(BRIGHT_RED);
 			if (b == 1)
@@ -1233,10 +1196,10 @@ PWOK:
 				scr_printf("*** You have %d new private messages in Mail>\n", b);
 			color(DIM_WHITE);
 		}
-		if ((axlevel >= 6) && (extract_int(&aaa[4], 2) > 0)) {
+		if ((axlevel >= 6) && (chek.needvalid > 0)) {
 			scr_printf("*** Users need validation\n");
 		}
-		if (extract_int(&aaa[4], 1) > 0) {
+		if (chek.needregis > 0) {
 			scr_printf("*** Please register.\n");
 			formout("register");
 			entregis();
@@ -1258,11 +1221,10 @@ PWOK:
 	 */
 	screenwidth = 80;
 	screenheight = 24;
-	serv_puts("GETU");
-	serv_gets(aaa);
-	if (aaa[0] == '2') {
-		screenwidth = extract_int(&aaa[4], 0);
-		screenheight = extract_int(&aaa[4], 1);
+	r = CtdlIPCGetConfig(&myself, aaa);
+	if (r == 2) {
+		screenwidth = myself->USscreenwidth;
+		screenheight = myself->USscreenheight;
 	}
 	if (getenv("TERM") != NULL)
 		if (!strcmp(getenv("TERM"), "xterm")) {
@@ -1463,26 +1425,20 @@ PWOK:
 
 			case 75:
 				enternew("roomname", aaa, 20);
-				snprintf(bbb, sizeof bbb, "RCHG %s", aaa);
-				serv_puts(bbb);
-				serv_gets(aaa);
-				if (strncmp("200", aaa, 3))
+				r = CtdlIPCChangeRoomname(aaa, bbb);
+				if (r / 100 != 2)
 					scr_printf("\n%s\n", aaa);
 				break;
 			case 76:
 				enternew("hostname", aaa, 25);
-				snprintf(bbb, sizeof bbb, "HCHG %s", aaa);
-				serv_puts(bbb);
-				serv_gets(aaa);
-				if (strncmp("200", aaa, 3))
+				r = CtdlIPCChangeHostname(aaa, bbb);
+				if (r / 100 != 2)
 					scr_printf("\n%s\n", aaa);
 				break;
 			case 77:
 				enternew("username", aaa, 32);
-				snprintf(bbb, sizeof bbb, "UCHG %s", aaa);
-				serv_puts(bbb);
-				serv_gets(aaa);
-				if (strncmp("200", aaa, 3))
+				r = CtdlIPCChangeUsername(aaa, bbb);
+				if (r / 100 != 2)
 					scr_printf("\n%s\n", aaa);
 				break;
 
@@ -1514,10 +1470,9 @@ PWOK:
 				scr_printf("All users will be disconnected!  "
 					"Really terminate the server? ");
 				if (yesno() == 1) {
-					serv_puts("DOWN");
-					serv_gets(aaa);
-					scr_printf("%s\n", &aaa[4]);
-					if (aaa[0]=='2') {
+					r = CtdlIPCTerminateServerNow(aaa);
+					scr_printf("%s\n", aaa);
+					if (r / 100 == 2) {
 						updatels();
 						a = 0;
 						termn8 = 1;
@@ -1529,15 +1484,13 @@ PWOK:
 				scr_printf("Do you really want to schedule a "
 					"server shutdown? ");
 				if (yesno() == 1) {
-					serv_puts("SCDN 1");
-					serv_gets(aaa);
-					if (aaa[0]=='2') {
-						if (atoi(&aaa[4])) {
+					r = CtdlIPCTerminateServerScheduled(1, aaa);
+					if (r / 100 == 2) {
+						if (atoi(aaa)) {
 							scr_printf(
 "The Citadel server will terminate when all users are logged off.\n"
 								);
-						}
-						else {
+						} else {
 							scr_printf(
 "The Citadel server will not terminate.\n"
 								);
@@ -1720,9 +1673,7 @@ TERMN8:	scr_printf("%s logged out.\n", fullname);
 	if (mcmd == 30) {
 		sln_printf("\n\nType 'off' to disconnect, or next user...\n");
 	}
-	snprintf(aaa, sizeof aaa, "LOUT");
-	serv_puts(aaa);
-	serv_gets(aaa);
+	CtdlIPCLogout();
 	screen_delete();
 	sttybbs(SB_RESTORE);
 	if ((mcmd == 29) || (mcmd == 15)) {
