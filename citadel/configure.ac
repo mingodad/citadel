@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl $Id$
 AC_PREREQ(2.52)
-AC_INIT([Citadel/UX], [5.80], [http://uncensored.citadel.org/])
+AC_INIT([Citadel/UX], [5.91], [http://uncensored.citadel.org/])
 AC_REVISION([$Revision$])
 AC_CONFIG_SRCDIR([citserver.c])
 AC_PREFIX_DEFAULT(/usr/local/citadel)
@@ -220,10 +220,8 @@ dnl Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
-test "$db_dir" && CPPFLAGS="$CPPFLAGS -I$db_dir/include" || \
-	( test -d /usr/include/db3 && CPPFLAGS="$CPPFLAGS -I/usr/include/db3" ) || \
-	( test -d /usr/local/include/db3 && CPPFLAGS="$CPPFLAGS -I/usr/local/include/db3" )
-AC_CHECK_HEADERS(curses.h dl.h fcntl.h limits.h termios.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h utmp.h utmpx.h paths.h)
+test "$db_dir" && CPPFLAGS="$CPPFLAGS -I$db_dir/include"
+AC_CHECK_HEADERS(curses.h dl.h fcntl.h limits.h termios.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h utmp.h utmpx.h paths.h db3/db.h)
 
 AC_CHECK_HEADER(resolv.h, [SMTP=modules/libsmtp.la; DOMAIN=domain.c])
 AC_SUBST(SMTP)

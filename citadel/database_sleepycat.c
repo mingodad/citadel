@@ -32,7 +32,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
+
+#ifdef HAVE_DB3_DB_H
+#include <db3/db.h>
+#else
 #include <db.h>
+#endif
+
 #include <pthread.h>
 #include "citadel.h"
 #include "server.h"
