@@ -149,6 +149,113 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 
 
 /*
+ * Enter an unsubscription request
+ */
+void do_unsubscribe(char *room, char *email, char *webpage) {
+	struct quickroom qrbuf;
+	FILE *ncfp;
+	char filename[SIZ];
+	char token[SIZ];
+	char buf[SIZ];
+	char confirmation_request[SIZ];
+	char urlroom[SIZ];
+	char scancmd[SIZ];
+	char scanemail[SIZ];
+	int found_sub = 0;
+
+	if (getroom(&qrbuf, room) != 0) {
+		cprintf("%d There is no list called '%s'\n",
+			ERROR+ROOM_NOT_FOUND, room);
+		return;
+	}
+
+	if ((qrbuf.QRflags2 & QR2_SELFLIST) == 0) {
+		cprintf("%d '%s' "
+			"does not accept subscribe/unsubscribe requests.\n",
+			ERROR+HIGHER_ACCESS_REQUIRED, qrbuf.QRname);
+		return;
+	}
+
+	listsub_generate_token(token);
+
+	assoc_file_name(filename, sizeof filename, &qrbuf, "netconfigs");
+
+	/* 
+	 * Make sure there's actually a subscription there to remove
+	 */
+	begin_critical_section(S_NETCONFIGS);
+	ncfp = fopen(filename, "a");
+	if (ncfp != NULL) {
+		while (fgets(buf, sizeof buf, ncfp) != NULL) {
+			extract(scancmd, buf, 0);
+			extract(scanemail, buf, 1);
+			if ((!strcasecmp(scancmd, "listrecp"))
+			   || (!strcasecmp(scancmd, "digestrecp"))) {
+				if (!strcasecmp(scanemail, email)) {
+					++found_sub;
+				}
+			}
+		}
+		fclose(ncfp);
+	}
+	end_critical_section(S_NETCONFIGS);
+
+	if (found_sub == 0) {
+		cprintf("%d <%s> is not subscribed to '%s'.\n",
+			ERROR+NO_SUCH_USER,
+			email, qrbuf.QRname);
+	}
+	
+	/* 
+	 * Ok, now enter the unsubscribe-pending entry.
+	 */
+	begin_critical_section(S_NETCONFIGS);
+	ncfp = fopen(filename, "a");
+	if (ncfp != NULL) {
+		fprintf(ncfp, "unsubpending|%s|%s|%ld|%s\n",
+			email,
+			token,
+			time(NULL),
+			webpage
+		);
+		fclose(ncfp);
+	}
+	end_critical_section(S_NETCONFIGS);
+
+	/* Generate and send the confirmation request */
+
+	urlesc(urlroom, qrbuf.QRname);
+
+	snprintf(confirmation_request, sizeof confirmation_request,
+		"Content-type: text/html\n\n"
+		"<HTML><BODY>"
+		"Someone (probably you) has submitted a request "
+		"to un subscribe\n"
+		"&lt;%s&gt; from the <B>%s</B> mailing list.<BR><BR>\n"
+		"<A HREF=\"http://%s?room=%s&token=%s&cmd=confirm\">"
+		"Please click here to confirm this request.</A><BR><BR>\n"
+		"If this request has been submitted in error and you do not\n"
+		"wish to unsubscribe from the "
+		"'%s' mailing list, simply do nothing,\n"
+		"and you will remain subscribed to the list.\n"
+		"</BODY></HTML>\n",
+
+		email, qrbuf.QRname, webpage, urlroom, token, qrbuf.QRname
+	);
+
+	quickie_message(	/* This delivers the message */
+		"Citadel",
+		email,
+		NULL,
+		confirmation_request,
+		FMT_RFC822
+	);
+
+	cprintf("%d Subscription entered; confirmation request sent\n", CIT_OK);
+}
+
+
+/*
  * Confirm a subscribe/unsubscribe request.
  */
 void do_confirm(char *room, char *token) {
@@ -165,7 +272,8 @@ void do_confirm(char *room, char *token) {
 	int success = 0;
 
 	if (getroom(&qrbuf, room) != 0) {
-		cprintf("%d There is no list called '%s'\n", ERROR, room);
+		cprintf("%d There is no list called '%s'\n",
+			ERROR+ROOM_NOT_FOUND, room);
 		return;
 	}
 
@@ -253,7 +361,10 @@ void cmd_subs(char *cmdbuf) {
 		}
 	}
 	else if (!strcasecmp(opr, "unsubscribe")) {
-		cprintf("%d not yet implemented\n", ERROR);
+		extract(room, cmdbuf, 1);
+		extract(email, cmdbuf, 2);
+		extract(webpage, cmdbuf, 4);
+		do_unsubscribe(room, email, webpage);
 	}
 	else if (!strcasecmp(opr, "confirm")) {
 		extract(room, cmdbuf, 1);
