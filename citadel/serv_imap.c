@@ -47,6 +47,60 @@ long SYM_IMAP;
 
 
 /*
+ * If there is a message ID map in memory, free it
+ */
+void imap_free_msgids(void) {
+	if (IMAP->msgids != NULL) {
+		phree(IMAP->msgids);
+		IMAP->msgids = NULL;
+		IMAP->num_msgs = 0;
+	}
+}
+
+
+/*
+ * Back end for imap_load_msgids()
+ *
+ * FIXME: this should be optimized by figuring out a way to allocate memory
+ * once rather than doing a reallok() for each message.
+ */
+void imap_add_single_msgid(long msgnum, void *userdata) {
+	
+	IMAP->num_msgs = IMAP->num_msgs + 1;
+	if (IMAP->msgids == NULL) {
+		IMAP->msgids = mallok(IMAP->num_msgs * sizeof(long));
+	}
+	else {
+		IMAP->msgids = reallok(IMAP->msgids,
+			IMAP->num_msgs * sizeof(long));
+	}
+	IMAP->msgids[IMAP->num_msgs - 1] = msgnum;
+}
+
+
+
+/*
+ * Set up a message ID map for the current room (folder)
+ */
+void imap_load_msgids(void) {
+	 
+	if (IMAP->selected == 0) {
+		lprintf(5, "imap_load_msgids() can't run; no room selected\n");
+		return;
+	}
+
+	imap_free_msgids();	/* If there was already a map, free it */
+
+	CtdlForEachMessage(MSGS_ALL, 0L, (-63), NULL, NULL,
+		imap_add_single_msgid, NULL);
+
+	lprintf(9, "imap_load_msgids() mapped %d messages\n", IMAP->num_msgs);
+}
+
+
+
+
+/*
  * This cleanup function blows away the temporary memory and files used by
  * the IMAP server.
  */
@@ -56,8 +110,7 @@ void imap_cleanup_function(void) {
 	if (CC->h_command_function != imap_command_loop) return;
 
 	lprintf(9, "Performing IMAP cleanup hook\n");
-
-
+	imap_free_msgids();
 	lprintf(9, "Finished IMAP cleanup hook\n");
 }
 
@@ -167,6 +220,8 @@ void imap_select(int num_parms, char *parms[]) {
 		IMAP->readonly = 0;
 	}
 
+	imap_load_msgids();
+
 	/* FIXME ... much more info needs to be supplied here */
 	cprintf("* %d EXISTS\r\n", msgs);
 	cprintf("* %d RECENT\r\n", new);
@@ -185,6 +240,7 @@ void imap_select(int num_parms, char *parms[]) {
 void imap_close(int num_parms, char *parms[]) {
 	IMAP->selected = 0;
 	IMAP->readonly = 0;
+	imap_free_msgids();
 	cprintf("%s OK CLOSE completed\r\n", parms[0]);
 }
 
@@ -196,14 +252,19 @@ void imap_close(int num_parms, char *parms[]) {
  * Back end for imap_lsub()
  */
 void imap_lsub_listroom(struct quickroom *qrbuf, void *data) {
-	cprintf("* LSUB () \"|\" %s\r\n", qrbuf->QRname);
+	char buf[256];
+	
+	imap_mailboxname(buf, sizeof buf, qrbuf);
+	cprintf("* LSUB () \"|\" \"%s\"\r\n", buf);
 }
 
 
 /*
  * Implements the LSUB command
  *
- * FIXME: Handle wildcards, please.  Handle subscriptions, for that matter.
+ * FIXME: Handle wildcards, please.
+ * FIXME: Currently we show all rooms as subscribed folders.  Need to handle
+ *        subscriptions properly.
  */
 void imap_lsub(int num_parms, char *parms[]) {
 	ForEachRoom(imap_lsub_listroom, NULL);
@@ -216,7 +277,10 @@ void imap_lsub(int num_parms, char *parms[]) {
  * Back end for imap_list()
  */
 void imap_list_listroom(struct quickroom *qrbuf, void *data) {
-	cprintf("* LIST () \"|\" %s\r\n", qrbuf->QRname);
+	char buf[256];
+	
+	imap_mailboxname(buf, sizeof buf, qrbuf);
+	cprintf("* LIST () \"|\" \"%s\"\r\n", buf);
 }
 
 
@@ -227,7 +291,6 @@ void imap_list_listroom(struct quickroom *qrbuf, void *data) {
  */
 void imap_list(int num_parms, char *parms[]) {
 	ForEachRoom(imap_list_listroom, NULL);
-	cprintf("* LIST () \"|\" INBOX\r\n");
 	cprintf("%s OK LIST completed\r\n", parms[0]);
 }
 

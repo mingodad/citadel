@@ -9,6 +9,8 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <string.h>
+#include "citadel.h"
+#include "tools.h"
 #include "imap_tools.h"
 
 /*
@@ -52,5 +54,14 @@ int imap_parameterize(char **args, char *buf) {
 	return(num);
 }
 			
+/*
+ * Convert a struct quickroom to an IMAP-compatible mailbox name.
+ */
+void imap_mailboxname(char *buf, int bufsize, struct quickroom *qrbuf) {
 
-
+	safestrncpy(buf, qrbuf->QRname, bufsize);
+	if (qrbuf->QRflags & QR_MAILBOX) {
+		strcpy(buf, &buf[11]);
+		if (!strcasecmp(buf, MAILROOM)) strcpy(buf, "INBOX");
+	}
+}
