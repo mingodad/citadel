@@ -3,7 +3,7 @@
  *
  * vCard data type implementation for Citadel/UX
  *
- * Copyright (C) 1999-2004 by Art Cancro
+ * Copyright (C) 1999-2005 by Art Cancro
  * This code is freely redistributable under the terms of the GNU General
  * Public License.  All other rights reserved.
  */
@@ -63,6 +63,7 @@ struct vCard *vcard_load(char *vtext) {
 	int i;
 	int colonpos, nlpos;
 
+	if (vtext == NULL) return vcard_new();
 	mycopy = strdup(vtext);
 	if (mycopy == NULL) return NULL;
 
@@ -97,15 +98,20 @@ struct vCard *vcard_load(char *vtext) {
 			strncpy(valuebuf, &ptr[colonpos+1], nlpos-colonpos-1);
 			valuebuf[nlpos-colonpos-1] = 0;
 
-			if ( (!strcasecmp(namebuf, "end"))
-			   && (!strcasecmp(valuebuf, "vcard")) )  valid = 0;
-			if ( (!strcasecmp(namebuf, "begin"))
-			   && (!strcasecmp(valuebuf, "vcard")) )  valid = 1;
+			if (!strcasecmp(namebuf, "end")) {
+				valid = 0;
+			}
+			if (	(!strcasecmp(namebuf, "begin"))
+				&& (!strcasecmp(valuebuf, "vcard"))
+			) {
+				valid = 1;
+			}
 
 			if ( (valid) && (strcasecmp(namebuf, "begin")) ) {
 				++v->numprops;
 				v->prop = realloc(v->prop,
-					(v->numprops * sizeof(char *) * 2) );
+					(v->numprops * sizeof(struct vCardProp))
+				);
 				v->prop[v->numprops-1].name = namebuf;
 				v->prop[v->numprops-1].value = valuebuf;
 			} 
@@ -208,7 +214,7 @@ void vcard_set_prop(struct vCard *v, char *name, char *value, int append) {
 	/* Otherwise, append it */
 	++v->numprops;
 	v->prop = realloc(v->prop,
-		(v->numprops * sizeof(char *) * 2) );
+		(v->numprops * sizeof(struct vCardProp)) );
 	v->prop[v->numprops-1].name = strdup(name);
 	v->prop[v->numprops-1].value = strdup(value);
 }

@@ -106,13 +106,13 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		}
 	
 		total_len = atoi(&buf[4]);
-		serialized_vcard = malloc(total_len + 1);
+		serialized_vcard = malloc(total_len + 2);
 	
 		read_server_binary(serialized_vcard, total_len);
 	
 		serv_puts("CLOS");
 		serv_gets(buf);
-		serialized_vcard[total_len + 1] = 0;
+		serialized_vcard[total_len] = 0;
 	
 		v = vcard_load(serialized_vcard);
 		free(serialized_vcard);

@@ -102,11 +102,11 @@ void whobbs(void)
 				wprintf(" <A HREF=\"/terminate_session&which_session=%d&session_owner=", sess);
 				urlescputs(user);
 				wprintf("\" onClick=\"return ConfirmKill();\" "
-				">(kill)</A>");
+				">[kill]</A>");
 			}
 			if (sess == WC->ctdl_pid) {
 				wprintf(" <A HREF=\"/edit_me\" "
-					">(edit)</A>");
+					">[edit]</A>");
 			}
 			wprintf("</TD>");
 
