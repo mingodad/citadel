@@ -12,3 +12,6 @@
 
 /* define this if the OS has broken non-reentrant gethostby{name,addr}() */
 #undef HAVE_NONREENTRANT_NETDB
+
+/* define this if you have the pthread_cancel() function */
+#undef HAVE_PTHREAD_CANCEL

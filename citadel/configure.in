@@ -34,6 +34,7 @@ case "$host" in
 	dnl build pthreads programs with gcc due to header problems.
 	alpha*-dec-osf*)
 		test -z "$CC" && CC=cc
+		PTHREAD_DEFS=-pthread
 		SERVER_LDFLAGS=-pthread
 		check_pthread=no
 	;;
@@ -171,10 +172,54 @@ AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(getspnam mkdir mkfifo mktime rmdir select socket strerror)
 
+dnl Now check for pthreads -- set up variables so that the compiler will be run
+dnl with proper flags for pthread programs
 save_LDFLAGS=$LDFLAGS
 LDFLAGS="$LDFLAGS $SERVER_LDFLAGS"
-AC_CHECK_FUNCS(pthread_cancel)
-AC_CHECK_FUNC(pthread_create, TARGETS="client server utils serv_modules")
+
+dnl On some platforms, AC_CHECK_FUNC[S] doesn't work for pthreads programs;
+dnl we need to include pthread.h
+dnl AC_CHECK_FUNCS(pthread_cancel)
+
+AC_CACHE_CHECK([for pthread_cancel], ac_cv_func_pthread_cancel,
+[AC_TRY_LINK([#include <pthread.h>],
+[	pthread_t thread;
+
+	/* The GNU C library defines this for functions which it implements
+	   to always fail with ENOSYS.  Some functions are actually named
+	   something starting with __ and the normal name is an alias.  */
+#if defined (__stub_pthread_cancel) || defined (__stub___pthread_cancel)
+	choke me
+#else
+	pthread_cancel(thread);
+#endif
+ 
+	return 0;],
+ac_cv_func_pthread_cancel=yes, ac_cv_func_pthread_cancel=no)])
+if test "$ac_cv_func_pthread_cancel" = yes; then
+	AC_DEFINE(HAVE_PTHREAD_CANCEL)
+fi
+
+dnl AC_CHECK_FUNC(pthread_create, TARGETS="client server utils serv_modules")
+
+AC_CACHE_CHECK([for pthread_create], ac_cv_func_pthread_create,
+[AC_TRY_LINK([#include <pthread.h>],
+[	/* The GNU C library defines this for functions which it implements
+	   to always fail with ENOSYS.  Some functions are actually named
+	   something starting with __ and the normal name is an alias.  */
+#if defined (__stub_pthread_cancel) || defined (__stub___pthread_cancel)
+	choke me
+#else
+	pthread_create(NULL, NULL, NULL, NULL);
+#endif
+
+	return 0;],
+ac_cv_func_pthread_create=yes, ac_cv_func_pthread_create=no)])
+if test "$ac_cv_func_pthread_create" = yes; then
+	TARGETS="client server utils serv_modules"
+fi
+
+dnl Now restore the old ldflags so we don't pass the wrong stuff to makefile
 LDFLAGS=$save_LDFLAGS
 
 AC_REPLACE_FUNCS(snprintf getutline)
