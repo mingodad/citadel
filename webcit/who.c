@@ -109,8 +109,8 @@ void whobbs(void) {
 		}
 	wprintf("</TABLE>\n");
 	wprintf("<A HREF=\"/whobbs\">Refresh</A>\n");
-        wprintf("</CENTER></BODY></HTML>\n");
-        wDumpContent();
+        wprintf("</CENTER>\n");
+        wDumpContent(1);
 	}
 
 
@@ -148,8 +148,7 @@ void terminate_session(void) {
 			bstr("which_session"));
 		wprintf("Yes</A>&nbsp;&nbsp;&nbsp;");
 		wprintf("<A HREF=\"/whobbs\">No</A>");
-		wprintf("</BODY></HTML>\n");
-		wDumpContent();
+		wDumpContent(1);
 		}
 
 	}
@@ -225,8 +224,8 @@ void edit_me(void) {
         	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 		wprintf("</TD></TR></TABLE>\n");
 
-	        wprintf("</FORM></CENTER></BODY></HTML>\n");
-		wDumpContent();
+	        wprintf("</FORM></CENTER>\n");
+		wDumpContent(1);
 		}
 	}
 

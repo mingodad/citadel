@@ -57,8 +57,7 @@ void display_edit_node(void) {
 		wprintf("</TABLE></CENTER>\n");
 		}
 	
-	wprintf("<HR></BODY></HTML>\n");
-	wDumpContent();
+	wDumpContent(1);
 	}
 	
 
@@ -103,8 +102,7 @@ void display_netconf(void) {
 		wprintf("</TABLE></CENTER>\n");
 		}
 	
-	wprintf("<HR></BODY></HTML>\n");
-	wDumpContent();
+	wDumpContent(1);
 	}
 
 
@@ -131,8 +129,8 @@ void display_confirm_unshare(void) {
 	wprintf("\">Yes</A>&nbsp;&nbsp;&nbsp;");
 	wprintf("<A HREF=\"/display_edit_node&node=");
 	urlescputs(node);
-	wprintf("\">No</A><BR></BODY></HTML>\n");
-	wDumpContent();
+	wprintf("\">No</A><BR>\n");
+	wDumpContent(1);
 	}
 
 
@@ -154,8 +152,7 @@ void display_confirm_delete_node(void) {
 	urlescputs(node);
 	wprintf("\">Yes</A>&nbsp;&nbsp;&nbsp;");
 	wprintf("<A HREF=\"/display_netconf\">No</A><BR>\n");
-	wprintf("</BODY></HTML>\n");
-	wDumpContent();
+	wDumpContent(1);
 	}
 
 
@@ -172,8 +169,7 @@ void delete_node(void) {
 		output_headers(1, "bottom");
 		server_to_text();
 		wprintf("<A HREF=\"/display_netconf\">Back to menu</A>\n");
-		wprintf("</BODY></HTML>\n");
-		wDumpContent();
+		wDumpContent(1);
 		}
 	else {
 		display_error(&buf[4]);
@@ -196,8 +192,7 @@ void unshare(void) {
 		output_headers(1, "bottom");
 		server_to_text();
 		wprintf("<A HREF=\"/display_netconf\">Back to menu</A>\n");
-		wprintf("</BODY></HTML>\n");
-		wDumpContent();
+		wDumpContent(1);
 		}
 	else {
 		display_error(&buf[4]);
@@ -224,8 +219,8 @@ void display_add_node(void) {
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Add\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 
-	wprintf("</FORM></CENTER></BODY></HTML>\n");
-	wDumpContent();
+	wprintf("</FORM></CENTER>\n");
+	wDumpContent(1);
 	}
 
 
@@ -247,8 +242,7 @@ void add_node(void) {
 			output_headers(1, "bottom");
 			server_to_text();
 			wprintf("<A HREF=\"/display_netconf\">Back to menu</A>\n");
-			wprintf("</BODY></HTML>\n");
-			wDumpContent();
+			wDumpContent(1);
 			}
 		else {
 			display_error(&buf[4]);
@@ -321,8 +315,8 @@ void display_share(void) {
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Share\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 
-	wprintf("</FORM></CENTER></BODY></HTML>\n");
-	wDumpContent();
+	wprintf("</FORM></CENTER>\n");
+	wDumpContent(1);
 
 	/* free the list */
 	while (shlist != NULL) {
@@ -354,8 +348,7 @@ void share(void) {
 			output_headers(1, "bottom");
 			server_to_text();
 			wprintf("<A HREF=\"/display_netconf\">Back to menu</A>\n");
-			wprintf("</BODY></HTML>\n");
-			wDumpContent();
+			wDumpContent(1);
 			}
 		else {
 			display_error(&buf[4]);

@@ -46,8 +46,8 @@ void display_edit(char *description, char *check_cmd,
 	if (buf[0] == '1') server_to_text();
 	wprintf("</TEXTAREA><P>\n");
 
-	wprintf("</FORM></CENTER></BODY></HTML>\n");
-	wDumpContent();
+	wprintf("</FORM></CENTER>\n");
+	wDumpContent(1);
 	}
 
 
@@ -61,7 +61,7 @@ void save_edit(char *description, char *enter_cmd, int regoto) {
         	printf("HTTP/1.0 200 OK\n");
 		output_headers(1, "bottom");
 		wprintf("Cancelled.  %s was not saved.<BR>\n", description);
-		wDumpContent();
+		wDumpContent(1);
 		return;
 		}
 
@@ -81,7 +81,7 @@ void save_edit(char *description, char *enter_cmd, int regoto) {
 	else {
         	printf("HTTP/1.0 200 OK\n");
 		output_headers(1, "bottom");
-		wprintf("%s has been saved.</BODY></HTML>\n", description);
-		wDumpContent();
+		wprintf("%s has been saved.\n", description);
+		wDumpContent(1);
 		}
 	}	

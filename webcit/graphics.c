@@ -41,8 +41,8 @@ void display_graphics_upload(char *description, char *check_cmd, char *uplurl) {
         wprintf("<INPUT TYPE=\"RESET\" VALUE=\"Reset Form\">\n");
         wprintf("</FORM>\n");
 	wprintf("<A HREF=\"/display_main_menu\">Cancel</A>\n");
-	wprintf("</CENTER></BODY></HTML>\n");
-	wDumpContent();
+	wprintf("</CENTER>\n");
+	wDumpContent(1);
 	}
 
 void do_graphics_upload(char *upl_cmd) {
@@ -108,6 +108,5 @@ void select_floor_to_edit_pic(void) {
 		wprintf("</A>\n");
 		}
 	
-	wprintf("</BODY></HTML>\n");
-	wDumpContent();
+	wDumpContent(1);
 	}
