@@ -12,7 +12,7 @@
 # messages.  If you want the external editor to be used by default, be sure
 # to reflect this in the command set below.
 #
-editor=/usr/local/bin/simped
+editor=/usr/local/bin/safe-pico
 
 # If you define PRINTCMD, it will be a pipe through which messages are
 # printed when the user hits the <P>rint key after a message.
