@@ -428,7 +428,7 @@ void smtp_rcpt(char *argbuf) {
 	/* RBL check */
 	if ( (!CC->logged_in) && (!CC->is_local_socket) ) {
 		if (rbl_check(message_to_spammer)) {
-			cprintf("552 %s\r\n", message_to_spammer);
+			cprintf("550 %s\r\n", message_to_spammer);
 			/* no need to phree(valid), it's not allocated yet */
 			return;
 		}
