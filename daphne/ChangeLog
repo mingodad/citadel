@@ -1,7 +1,10 @@
- $Log$
- Revision 1.13  2000/01/08 20:02:43  smw
- Restabilized 'goto'.
- Started adding support for adding your own list of BBSes to choose from.
+$Log$
+Revision 1.14  2000/01/08 20:06:38  smw
+Added hosts.cpp (for user configurable bbs additions to bbslist)
+
+Revision 1.13  2000/01/08 20:02:43  smw
+Restabilized 'goto'.
+Started adding support for adding your own list of BBSes to choose from.
 
 Revision 1.12  1999/12/15 03:01:07  smw
 Changed 'enter' so that it ONLY asks for a recipient when in mail.
