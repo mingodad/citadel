@@ -47,8 +47,6 @@
 # This is the general stuff we're going to do, in order:
 #
 # 1. Gather information about the target system
-#    A. Do we use the native packaging system or build our own copy of Citadel?
-#    B. If we build our own, are its prerequisites present and usable?
 # 2. Present the installation steps (from 1 above) to the user
 # 3. Present any pre-install customizations to the user
 # 4. Do the installation
@@ -99,26 +97,12 @@ export CITADEL_INSTALLER
 DOWNLOAD_SITE=http://my.citadel.org/download
 
 # Original source code packages.
-CITADEL_SOURCE=citadel-6.24.tar.gz
-WEBCIT_SOURCE=webcit-5.22.tar.gz
 DB_SOURCE=db-4.1.25.tar.gz
 DB_PATCHES=db-4.1.25.patches
 ICAL_SOURCE=libical-0.24.RC4.tar.gz
 LDAP_SOURCE=openldap-stable-20040329.tgz
-
-# Binary RPM package names.
-# DB and LDAP are assumed to come with the distro
-CITADEL_RPM=citadel-client-6.23-1.i386.rpm
-CITDATA_RPM=citadel-data-6.23-1.i386.rpm
-CITSERVER_RPM=citadel-server-6.23-1.i386.rpm
-WEBCIT_RPM=webcit-5.22-1.i386.rpm
-ICAL_RPM=libical-0.24.RC4-1.i386.rpm
-
-# Source RPMs used for this build.
-# These are for your reference only; the script doesn't use them.
-CITADEL_SRC_RPM=$DOWNLOAD_SITE/SRPMS/citadel-6.23-1.src.rpm
-WEBCIT_SRC_RPM=$DOWNLOAD_SITE/SRPMS/webcit-5.22-1.src.rpm
-ICAL_SRC_RPM=$DOWNLOAD_SITE/SRPMS/libical-0.24.RC4-1.src.rpm
+CITADEL_SOURCE=citadel-6.24.tar.gz
+WEBCIT_SOURCE=webcit-5.22.tar.gz
 
 SETUP="Citadel Easy Install"
 
@@ -170,83 +154,13 @@ determine_distribution () {
 	# TODO: check for Debian
 }
 
-find_libical () {
-	for path in $SUPPORT /usr/local/ctdlsupport /usr/local /usr
-	do
-		if [ -x $path/lib/libical.so.0.0.0 -a -f $path/include/ical.h ]
-		then
-			# Verify correct version
-			if grep "define ICAL_VERSION" $path/include/ical.h | grep "0.24" >/dev/null
-			then
-				OK_ICAL=$path
-				return
-			else
-				echo "Warning: Wrong libical version found"
-			fi
-		fi
-	done
-}
-
-find_openldap () {
-	for path in $SUPPORT /usr/local/ctdlsupport /usr/local /usr
-	do
-		if [ -x $path/libexec/slapd -o -x $path/lib/openldap/slapd -o -x $path/sbin/slapd ]
-		then
-			if [ -f $path/lib/libldap.so.2 -a -f $path/include/ldap.h ]
-			then
-				OK_LDAP=$path
-				return
-			fi
-		fi
-	done
-}
-
-find_berkeley_db () {
-	for path in $SUPPORT /usr/local/ctdlsupport /usr/local/BerkeleyDB.4.1.25 /usr
-	do
-		if [ -x $path/lib/libdb-4.1.so -a -f $path/include/db.h ]
-		then
-			OK_DB=$path
-			return
-		fi
-	done
-}
-
-show_prerequisites_to_install () {
-	if [ -z "$OK_ICAL" ]
-	then
-		echo "* libical"
-	fi
-	if [ -z "$OK_DB" ]
-	then
-		echo "* Berkeley DB"
-	fi
-	if [ -z "$OK_LDAP" ]
-	then
-		echo "* OpenLDAP"
-	fi
-}
-
-download_prerequisite_sources () {
-	if [ -z "$OK_ICAL" ]
-	then
-		echo "* Downloading libical..."
-		wget -c $DOWNLOAD_SITE/$ICAL_SOURCE 2>&1 >>$LOG || die
-	fi
-	if [ -z "$OK_DB" ]
-	then
-		echo "* Downloading Berkeley DB..."
-		wget -c $DOWNLOAD_SITE/$DB_SOURCE 2>&1 >>$LOG || die
-		#wget -c $DOWNLOAD_SITE/$DB_PATCHES 2>&1 >>$LOG || die
-	fi
-	if [ -z "$OK_LDAP" ]
-	then
-		echo "* Downloading OpenLDAP..."
-		wget -c $DOWNLOAD_SITE/$LDAP_SOURCE 2>&1 >>$LOG || die
-	fi
-}
-
 download_sources () {
+	echo "* Downloading Berkeley DB..."
+	wget -c $DOWNLOAD_SITE/$DB_SOURCE 2>&1 >>$LOG || die
+	echo "* Downloading libical..."
+	wget -c $DOWNLOAD_SITE/$ICAL_SOURCE 2>&1 >>$LOG || die
+	echo "* Downloading OpenLDAP..."
+	wget -c $DOWNLOAD_SITE/$LDAP_SOURCE 2>&1 >>$LOG || die
 	echo "* Downloading Citadel..."
 	wget -c $DOWNLOAD_SITE/$CITADEL_SOURCE 2>&1 >>$LOG || die
 	echo "* Downloading WebCit..."
@@ -291,6 +205,19 @@ install_ldap () {
 }
 
 install_prerequisites () {
+
+	# Create the support directories if they don't already exist
+
+	mkdir $SUPPORT		2>/dev/null
+	mkdir $SUPPORT/bin	2>/dev/null
+	mkdir $SUPPORT/sbin	2>/dev/null
+	mkdir $SUPPORT/lib	2>/dev/null
+	mkdir $SUPPORT/libexec	2>/dev/null
+	mkdir $SUPPORT/include	2>/dev/null
+	mkdir $SUPPORT/etc	2>/dev/null
+
+	# Now have phun!
+
 	if [ -z "$OK_ICAL" ]
 	then
 		install_ical
@@ -354,14 +281,6 @@ elif [ "$os" = "FreeBSD" ]; then
 	DISTRO_MAJOR=FreeBSD
 fi
 
-# 1B. If we build our own, are its prerequisites present and usable?
-
-if [ -z "$prepackaged" ]; then
-	find_libical
-	find_openldap
-	find_berkeley_db
-fi
-
 # 2. Present the installation steps (from 1 above) to the user
 
 echo "$SETUP will perform the following actions:"
@@ -375,7 +294,7 @@ echo "Installation:"
 if [ "$prepackaged" ]; then
 	show_packages_to_install
 else
-	show_prerequisites_to_install
+	echo "* Install supporting libraries"
 	echo "* Install Citadel"
 	echo "* Install WebCit"
 fi
@@ -419,9 +338,7 @@ else
 
 # 4C. If we build our own, compile and install prerequisites then Citadel
 
-	download_prerequisite_sources
 	download_sources
-	
 	install_prerequisites
 	install_sources
 fi
