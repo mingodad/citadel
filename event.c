@@ -59,12 +59,14 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		"</FONT></TD></TR></TABLE><BR>\n"
 	);
 
+	/************************************************************
+	 * Uncomment this to see the UID in calendar events for debugging
 	wprintf("UID == ");
 	p = icalcomponent_get_first_property(vevent, ICAL_UID_PROPERTY);
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_comment(p));
 	}
-	wprintf(" (FIXME remove this when done)<BR>\n");
+	*************************************************************/
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/save_event\">\n");
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n",
