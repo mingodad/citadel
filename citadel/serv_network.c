@@ -1424,8 +1424,10 @@ bail:	sock_close(sock);
 
 /*
  * Poll other Citadel nodes and transfer inbound/outbound network data.
+ * Set "full" to nonzero to force a poll of every node, or to zero to poll
+ * only nodes to which we have data to send.
  */
-void network_poll_other_citadel_nodes(void) {
+void network_poll_other_citadel_nodes(int full_poll) {
 	char *ignetcfg = NULL;
 	int i;
 	char linebuf[SIZ];
@@ -1433,6 +1435,8 @@ void network_poll_other_citadel_nodes(void) {
 	char host[SIZ];
 	char port[SIZ];
 	char secret[SIZ];
+	int poll = 0;
+	char spoolfile[SIZ];
 
 	ignetcfg = CtdlGetSysConfig(IGNETCFG);
 	if (ignetcfg == NULL) return; 	/* no nodes defined */
@@ -1446,7 +1450,17 @@ void network_poll_other_citadel_nodes(void) {
 		extract(port, linebuf, 3);
 		if ( (strlen(node) > 0) && (strlen(secret) > 0) 
 		   && (strlen(host) > 0) && strlen(port) > 0) {
-			network_poll_node(node, secret, host, port);
+			poll = full_poll;
+			if (poll == 0) {
+				sprintf(spoolfile, "./network/spoolout/%s",
+					node);
+				if (access(spoolfile, R_OK) == 0) {
+					poll = 1;
+				}
+			}
+			if (poll) {
+				network_poll_node(node, secret, host, port);
+			}
 		}
 	}
 
@@ -1487,11 +1501,11 @@ void network_do_queue(void) {
 	doing_queue = 1;
 
 	/*
-	 * Poll other Citadel nodes.
+	 * Poll other Citadel nodes.  Maybe.  If "full_processing" is set
+	 * then we poll everyone.  Otherwise we only poll nodes we have stuff
+	 * to send to.
 	 */
-	if (full_processing) {
-		network_poll_other_citadel_nodes();
-	}
+	network_poll_other_citadel_nodes(full_processing);
 
 	/*
 	 * Load the network map and filter list into memory.
