@@ -1,4 +1,10 @@
 $Log$
+Revision 1.416  1999/11/17 04:15:05  ajc
+* Removed the session_count() function.  Instead, keep a reference count
+  updated when sessions begin and end.
+* Replaced fixed number of worker threads with lower and upper limits; current
+  code now tries to make thread count == session count, within these limits
+
 Revision 1.415  1999/11/15 03:17:39  ajc
 * Put lockfile in /tmp instead of in /var/lock.   The latter is not guaranteed
   to exist, nor is it guaranteed to be writable by BBSUID
@@ -1439,3 +1445,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

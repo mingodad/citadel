@@ -70,6 +70,8 @@ int verbosity = DEFAULT_VERBOSITY;		/* Logging level */
 struct CitContext masterCC;
 int rescan[2];					/* The Rescan Pipe */
 time_t last_purge = 0;				/* Last dead session purge */
+int num_threads = 0;				/* Current number of threads */
+int num_sessions = 0;				/* Current number of sessions */
 
 /*
  * lprintf()  ...   Write logging information
@@ -344,29 +346,12 @@ struct CitContext *CreateNewContext(void) {
 	me->cs_pid = num;
 	me->next = ContextList;
 	ContextList = me;
+	++num_sessions;
 
 	end_critical_section(S_SESSION_TABLE);
 	return(me);
 }
 
-
-
-/*
- * Return the number of sessions currently running.
- * (This should probably be moved out of sysdep.c)
- */
-int session_count(void) {
-	struct CitContext *ptr;
-	int TheCount = 0;
-
-	begin_critical_section(S_SESSION_TABLE);
-	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
-		++TheCount;
-	}
-	end_critical_section(S_SESSION_TABLE);
-
-	return(TheCount);
-}
 
 
 /*
@@ -632,9 +617,14 @@ int convert_login(char NameToConvert[]) {
  * This function has code to prevent it from running more than once every
  * few seconds, because running it after every single unbind would waste a lot
  * of CPU time and keep the context list locked too much.
+ *
+ * After that's done, we raise or lower the size of the worker thread pool
+ * if such an action is appropriate.
  */
 void dead_session_purge(void) {
 	struct CitContext *ptr, *rem;
+        pthread_attr_t attr;
+	pthread_t newthread;
 
 	if ( (time(NULL) - last_purge) < 5 ) return;	/* Too soon, go away */
 	time(&last_purge);
@@ -644,7 +634,7 @@ void dead_session_purge(void) {
 		begin_critical_section(S_SESSION_TABLE);
 		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 			if ( (ptr->state == CON_IDLE) && (ptr->kill_me) ) {
-				rem = ptr;	
+				rem = ptr;
 			}
 		}
 		end_critical_section(S_SESSION_TABLE);
@@ -658,6 +648,31 @@ void dead_session_purge(void) {
 		}
 
 	} while (rem != NULL);
+
+
+	/* Raise or lower the size of the worker thread pool if such
+	 * an action is appropriate.
+	 */
+
+	if ( (num_sessions > num_threads)
+	   && (num_threads < config.c_max_workers) ) {
+
+		pthread_attr_init(&attr);
+       		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+		if (pthread_create(&newthread, &attr,
+	   	   (void* (*)(void*)) worker_thread, NULL) != 0) {
+			lprintf(1, "Can't create worker thead: %s\n",
+			strerror(errno));
+		}
+
+	}
+	
+	else if ( (num_sessions < num_threads)
+	   && (num_threads > config.c_min_workers) ) {
+		--num_threads;
+		pthread_exit(NULL);
+	}
+
 }
 
 
@@ -813,7 +828,7 @@ int main(int argc, char **argv)
 	/*
 	 * Now create a bunch of worker threads.
 	 */
-	for (i=0; i<(config.c_worker_threads-1); ++i) {
+	for (i=0; i<(config.c_min_workers-1); ++i) {
 		pthread_attr_init(&attr);
        		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 		if (pthread_create(&HousekeepingThread, &attr,
@@ -852,10 +867,11 @@ void worker_thread(void) {
 	int alen;			/* Data for master socket */
 	int ssock;			/* Descriptor for client socket */
 
+	++num_threads;
 	while (!time_to_die) {
 
 		/* 
-		 * In a stupid environment, we would have all idle threads
+		 * A naive implementation would have all idle threads
 		 * calling select() and then they'd all wake up at once.  We
 		 * solve this problem by putting the select() in a critical
 		 * section, so only one thread has the opportunity to wake
@@ -984,6 +1000,7 @@ SETUP_FD:	FD_ZERO(&readfds);
 
 	/* If control reaches this point, the server is shutting down */	
 	master_cleanup();
+	--num_threads;
 	pthread_exit(NULL);
 }
 

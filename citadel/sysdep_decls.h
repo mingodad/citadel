@@ -7,7 +7,6 @@ int ig_tcp_server (int port_number, int queue_len);
 struct CitContext *MyContext (void);
 struct CitContext *CreateNewContext (void);
 void InitMyContext (struct CitContext *con);
-int session_count (void);
 void client_write (char *buf, int nbytes);
 void cprintf (const char *format, ...);
 int client_read_to (char *buf, int bytes, int timeout);
@@ -20,3 +19,5 @@ void start_daemon (int do_close_stdio);
 void cmd_nset (char *cmdbuf);
 int convert_login (char *NameToConvert);
 void worker_thread (void);
+
+extern int num_sessions;

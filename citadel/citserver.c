@@ -130,19 +130,22 @@ void RemoveContext (struct CitContext *con)
 		}
 
 	/* Remove the context from the global context list.  This needs
-	 * to get done FIRST to avoid concurrency problems.
+	 * to get done FIRST to avoid concurrency problems.  It is *vitally*
+	 * important to keep num_sessions accurate!!
 	 */
 	lprintf(7, "Removing context for session %d\n", con->cs_pid);
 	begin_critical_section(S_SESSION_TABLE);
 	if (ContextList == con) {
 		ToFree = ContextList;
 		ContextList = ContextList->next;
+		--num_sessions;
 		}
 	else {
 		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 			if (ptr->next == con) {
 				ToFree = ptr->next;
 				ptr->next = ptr->next->next;
+				--num_sessions;
 				}
 			}
 		}
@@ -847,7 +850,7 @@ void cmd_scdn(char *argbuf)
  */
 void begin_session(struct CitContext *con)
 {
-	int num_sessions, len;
+	int len;
 	struct sockaddr_in sin;
 
 	/* 
@@ -875,7 +878,6 @@ void begin_session(struct CitContext *con)
 	con->dl_is_net = 0;
 	con->FirstSessData = NULL;
 
-	num_sessions = session_count();
 	con->nologin = 0;
 	if ((config.c_maxsessions > 0)&&(num_sessions > config.c_maxsessions))
 		con->nologin = 1;
