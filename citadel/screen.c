@@ -13,7 +13,7 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <sys/types.h>
-#ifdef VW_PRINTW_IN_CURSES
+#ifdef HAVE_VW_PRINTW
 #define _vwprintw vw_printw
 #else
 /* Ancient curses implementations, this needs testing. Anybody got XENIX? */
@@ -336,7 +336,9 @@ int scr_color(int colornum)
 {
 #ifdef HAVE_CURSES_H
 	if (mainwindow) {
+#ifdef HAVE_WCOLOR_SET
 		wcolor_set(mainwindow, 1 + (colornum & 7), NULL);
+#endif
 		if (colornum & 8) {
 			wattron(mainwindow, A_BOLD);
 		} else {

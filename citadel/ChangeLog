@@ -1,4 +1,9 @@
  $Log$
+ Revision 590.135  2002/03/11 03:55:24  nbryant
+  - fixes for building without OpenSSL
+  - setenv doesn't exist on all systems, use putenv instead
+  - support Solaris' curses implementation
+
  Revision 590.134  2002/03/09 22:52:04  ajc
  * Applied a patch submitted by <xperc@hotmail.com> to fix a potential buffer
    overflow problem in lprintf().  I also did the same fix to cprintf().
@@ -3415,4 +3420,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

@@ -775,10 +775,13 @@ ME1:	switch (mode) {
 		editor_pid = fork();
 		cksum = file_checksum(filename);
 		if (editor_pid == 0) {
+			char tmp[SIZ];
+
 			chmod(filename, 0600);
 			screen_reset();
 			sttybbs(SB_RESTORE);
-			setenv("WINDOW_TITLE", header, 1);
+			snprintf(tmp, sizeof tmp, "WINDOW_TITLE=%s", header);
+			putenv(tmp);
 			execlp(editor_path, editor_path, filename, NULL);
 			exit(1);
 		}

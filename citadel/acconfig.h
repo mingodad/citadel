@@ -24,6 +24,3 @@
 
 /* Define if you have OpenSSL. */
 #undef HAVE_OPENSSL
-
-/* Define if curses implementation has vw_printw */
-#undef VW_PRINTW_IN_CURSES

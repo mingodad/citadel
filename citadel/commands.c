@@ -698,7 +698,9 @@ void load_command_set(void)
 	rc_force_mail_prompts = 0;
 	rc_ansi_color = 0;
 	strcpy(rc_url_cmd, "");
+#ifdef HAVE_OPENSSL
 	rc_encrypt = RC_DEFAULT;
+#endif
 #ifdef HAVE_CURSES_H
 	rc_screen = RC_DEFAULT;
 #endif
@@ -730,12 +732,22 @@ void load_command_set(void)
 			buf[strlen(buf) - 1] = 0;
 
 		if (!strncasecmp(buf, "encrypt=", 8)) {
-			if (!strcasecmp(&buf[8], "yes"))
+			if (!strcasecmp(&buf[8], "yes")) {
+#ifdef HAVE_OPENSSL
 				rc_encrypt = RC_YES;
-			else if (!strcasecmp(&buf[8], "no"))
+#else
+				fprintf(stderr, "citadel.rc requires encryption support but citadel is not compiled with OpenSSL");
+				logoff(1);
+#endif
+			}
+#ifdef HAVE_OPENSSL
+			else if (!strcasecmp(&buf[8], "no")) {
 				rc_encrypt = RC_NO;
-			else if (!strcasecmp(&buf[8], "default"))
+			}
+			else if (!strcasecmp(&buf[8], "default")) {
 				rc_encrypt = RC_DEFAULT;
+			}
+#endif
 		}
 
 #ifdef HAVE_CURSES_H

@@ -222,10 +222,9 @@ save_LIBS=$LIBS
 LIBS=$CURSES
 AC_SEARCH_LIBS(tgetent, [curses termcap])
 AC_SEARCH_LIBS(initscr, [curses ncurses])
+AC_CHECK_FUNCS(vw_printw wcolor_set)
 CURSES=$LIBS
 LIBS=$save_LIBS
-SCURS=`echo $CURSES | sed -e s/-l//`
-AC_CHECK_LIB($SCURS, vw_printw, AC_DEFINE(VW_PRINTW_IN_CURSES))
 
 dnl Check for libpthread(s) if we're not using Digital UNIX or FreeBSD. (On
 dnl which the -pthread flag takes care of this.)

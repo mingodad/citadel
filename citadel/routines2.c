@@ -1018,7 +1018,7 @@ void network_config_management(char *entrytype, char *comment) {
 		chmod(filename, 0600);
 		screen_reset();
 		sttybbs(SB_RESTORE);
-		setenv("WINDOW_TITLE", "Network configuration", 1);
+		putenv("WINDOW_TITLE=Network configuration");
 		execlp(editor_path, editor_path, filename, NULL);
 		exit(1);
 	}

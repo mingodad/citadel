@@ -952,7 +952,9 @@ int main(int argc, char **argv)
 	signal(SIGTERM, dropcarr);	/* Cleanup gracefully if terminated */
 	signal(SIGCONT, catch_sigcont);		/* Catch SIGCONT so we can reset terminal */
 
+#ifdef HAVE_OPENSSL
 	arg_encrypt = RC_DEFAULT;
+#endif
 #ifdef HAVE_CURSES_H
 	arg_screen = RC_DEFAULT;
 #endif
@@ -967,12 +969,19 @@ int main(int argc, char **argv)
 			argc = shift(argc, argv, a, 2);
 		}
 		if (!strcmp(argv[a], "-x")) {
+#ifdef HAVE_OPENSSL
 			arg_encrypt = RC_NO;
+#endif
 			argc = shift(argc, argv, a, 1);
 		}
 		if (!strcmp(argv[a], "-X")) {
+#ifdef HAVE_OPENSSL
 			arg_encrypt = RC_YES;
-			argc = shift(argc, argv, a, 1);
+                        argc = shift(argc, argv, a, 1);
+#else
+			fprintf(stderr, "Not compiled with encryption support");
+			return 1;
+#endif
 		}
 		if (!strcmp(argv[a], "-s")) {
 #ifdef HAVE_CURSES_H
