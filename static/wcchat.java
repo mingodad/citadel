@@ -49,6 +49,7 @@ int ServerPort = 504;
 			buf = serv.ServTrans("PASS "+getParameter("password"));
 			if (buf.charAt(0) == '2') {
 				serv.SetUserName(wcCitUtil.Extract(buf.substring(4), 0));
+				buf = serv.ServTrans("GOTO "+getParameter("roomname"));
 				new MultiUserChat102(serv, this);
 				}
 			}
