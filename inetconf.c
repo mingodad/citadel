@@ -39,11 +39,11 @@ void display_inetconf(void)
 
 	enum {
 		ic_localhost,
-		ic_gwdom,
 		ic_directory,
-		ic_spamass,
-		ic_rbl,
+		ic_gwdom,
 		ic_smarthost,
+		ic_rbl,
+		ic_spamass,
 		ic_max
 	};
 	char *ic_spec[ic_max];
@@ -51,29 +51,29 @@ void display_inetconf(void)
 
 	char *ic_keyword[] = {
 		"localhost",
-		"gatewaydomain",
 		"directory",
-		"spamassassin",
+		"gatewaydomain",
+		"smarthost",
 		"rbl",
-		"smarthost"
+		"spamassassin",
 	};
 
 	char *ic_boxtitle[] = {
 		"Local host aliases",
-		"Gateway domains",
 		"Directory domains",
-		"SpamAssassin hosts",
+		"Gateway domains",
+		"Smart hosts",
 		"RBL hosts",
-		"Smart hosts"
+		"SpamAssassin hosts",
 	};
 
 	char *ic_desc[] = {
 		"(domains for which this host receives mail)",
-		"(domains whose subdomains match Citadel hosts)",
 		"(domains mapped with the Global Address Book)",
-		"(hosts running the SpamAssassin service)",
+		"(domains whose subdomains match Citadel hosts)",
+		"(if present, forward all outbound mail to one of these hosts)",
 		"(hosts running a Realtime Blackhole List)",
-		"(if present, forward all outbound mail to one of these hosts)"
+		"(hosts running the SpamAssassin service)",
 	};
 
 	for (i=0; i<ic_max; ++i) {
@@ -112,12 +112,11 @@ void display_inetconf(void)
 
 	}
 
-	wprintf("<TABLE border=0 width=100%%>\n");
+	wprintf("<TABLE border=0 width=100%%><TR><TD VALIGN=TOP>\n");
 	for (which=0; which<ic_max; ++which) {
-		if (which % 2 == 0) {
-			wprintf("<TR>");
+		if (which == (ic_max / 2)) {
+			wprintf("</TD><TD VALIGN=TOP>");
 		}
-		wprintf("<TD>");
 		svprintf("BOXTITLE", WCS_STRING, ic_boxtitle[which]);
 		do_template("beginbox");
 		wprintf("<span class=\"menudesc\">");
@@ -147,12 +146,8 @@ void display_inetconf(void)
 			"<INPUT TYPE=\"submit\" NAME=\"oper\" VALUE=\"Add\">"
 			"</TD></TR></TABLE></FORM>\n");
 		do_template("endbox");
-		wprintf("</TD>");
-		if (which % 2 != 0) {
-			wprintf("</TR>");
-		}
 	}
-	wprintf("</TABLE>\n");
+	wprintf("</TD></TR></TABLE>\n");
 
 	wDumpContent(1);
 
