@@ -47,7 +47,7 @@ void display_login(char *mesg)
 	char buf[SIZ];
 
 	output_headers(1, 1, 2, 0, 0, 0, 0);
-	wprintf("<div id=\"text\">\n");
+	wprintf("<div id=\"content\">\n");
 
 	if (mesg != NULL) if (strlen(mesg) > 0) {
 		stresc(buf, mesg, 0, 0);

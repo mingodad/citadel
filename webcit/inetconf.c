@@ -86,7 +86,7 @@ void display_inetconf(void)
 	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
 	wprintf("<SPAN CLASS=\"titlebar\">Internet configuration</SPAN>\n");
 	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div>\n<div id=\"text\">\n");
+	wprintf("</div>\n<div id=\"content\">\n");
 
 	serv_printf("CONF GETSYS|application/x-citadel-internet-config");
 	serv_gets(buf);
