@@ -1,4 +1,8 @@
 $Log$
+Revision 1.393  1999/10/24 19:22:51  nbryant
+	* Makefile.in, configure.in: added --enable-icq flag; made checks for
+	  authentication libraries more intelligent.
+
 Revision 1.392  1999/10/23 03:39:12  ajc
 * Finished moving vCard functionality to the new message base functions.
 
@@ -1343,3 +1347,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
