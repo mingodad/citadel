@@ -1122,8 +1122,9 @@ void display_zap(void)
 	wprintf("disappear from your room list.  Is this what you wish ");
 	wprintf("to do?<BR>\n");
 
-	wprintf("<FORM METHOD=\"POST\" ACTION=\"/zap\">\n");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/zap\"");
+	if (!noframes) wprintf(" TARGET=top");
+	wprintf(">\n<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"OK\">");
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\">");
 	wprintf("</FORM>\n");
 	wDumpContent(1);
@@ -1136,24 +1137,29 @@ void display_zap(void)
 void zap(void)
 {
 	char buf[256];
+	char final_destination[256];
 
-	if (strcmp(bstr("sc"), "OK")) {
-		display_main_menu();
-		return;
+	/* If the forget-room routine fails for any reason, we fall back
+	 * to the current room; otherwise, we go to the Lobby
+	 */
+	strcpy(final_destination, wc_roomname);
+
+	if (!strcasecmp(bstr("sc"), "OK")) {
+		serv_printf("GOTO %s", wc_roomname);
+		serv_gets(buf);
+		if (buf[0] != '2') {
+			ExpressMessageCat(&buf[4]);
+		} else {
+			serv_puts("FORG");
+			serv_gets(buf);
+			if (buf[0] != '2') {
+				ExpressMessageCat(&buf[4]);
+			} else {
+				strcpy(final_destination, "_BASEROOM_");
+			}
+		}
 	}
-	serv_printf("GOTO %s", wc_roomname);
-	serv_gets(buf);
-	if (buf[0] != '2') {
-		display_error(&buf[4]);
-		return;
-	}
-	serv_puts("FORG");
-	serv_gets(buf);
-	if (buf[0] != '2') {
-		display_error(&buf[4]);
-		return;
-	}
-	smart_goto(bstr("_BASEROOM_"));
+	smart_goto(final_destination);
 }
 
 

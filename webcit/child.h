@@ -104,3 +104,4 @@ int browser_braindamage_check(char *);
 void display_menubar(int);
 void embed_room_banner(char *);
 void smart_goto(char *);
+void ExpressMessageCat(char *);
