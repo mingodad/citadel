@@ -1,4 +1,7 @@
 $Log$
+Revision 602.10  2005/02/21 21:57:55  ajc
+* Various debugging type of everythingism to help chat mode to work.
+
 Revision 602.9  2005/02/21 04:47:41  ajc
 * When creating rooms:
 * 1. Selecting a view other than "Bulletin Board" causes the room access
@@ -2420,3 +2423,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
