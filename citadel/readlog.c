@@ -40,6 +40,7 @@ main (int argc, char **argv)
       while (fgets (buf, 256, logfp) != NULL)
 	{
 	  buf[strlen (buf) - 1] = 0;
+	  strcat(buf, " ");
 
 	  LogTime = atol (strtok(buf, "|"));
           LogType = atol (strtok(NULL, "|"));
