@@ -1,0 +1,5 @@
+Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* Makefile.in: removed msgstats
+
+Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Initial CVS import

@@ -15,7 +15,7 @@ client: citadel whobbs
 server: citserver setup
 
 utils: aidepost netmailer netproc netsetup useradmin msgform \
-msgstats readlog rcit stats sysoputil citmail netpoll mailinglist
+readlog rcit stats sysoputil citmail netpoll mailinglist
 
 #
 #
@@ -159,9 +159,6 @@ useradmin: useradmin.c config.o citadel.h axdefs.h
 
 msgform: msgform.c
 	$(CC) -O $(CFLAGS) msgform.c $(LFLAGS) -o msgform
-
-msgstats: msgstats.c config.o citadel.h
-	$(CC) -O $(CFLAGS) msgstats.c config.o $(LFLAGS) -o msgstats
 
 readlog: readlog.c config.o citadel.h
 	$(CC) -O $(CFLAGS) readlog.c config.o $(LFLAGS) -o readlog
