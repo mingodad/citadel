@@ -675,6 +675,55 @@ void imap_status(int num_parms, char *parms[]) {
 
 
 
+/*
+ * Implements the DELETE command
+ *
+ */
+void imap_delete(int num_parms, char *parms[]) {
+	int ret;
+	char roomname[ROOMNAMELEN];
+	char savedroom[ROOMNAMELEN];
+	int msgs, new;
+
+	ret = imap_grabroom(roomname, parms[2]);
+	if (ret != 0) {
+		cprintf("%s NO Invalid mailbox name, or access denied\r\n",
+			parms[0]);
+		return;
+	}
+
+	/*
+	 * usergoto() formally takes us to the desired room, happily returning
+	 * the number of messages and number of new messages.  (If another
+	 * folder is selected, save its name so we can return there!!!!!)
+	 */
+	if (IMAP->selected) {
+		strcpy(savedroom, CC->quickroom.QRname);
+	}
+	usergoto(roomname, 0, &msgs, &new);
+
+	/*
+	 * Now delete the room.
+	 */
+	if (CtdlDoIHavePermissionToDeleteThisRoom(&CC->quickroom)) {
+		cprintf("%s OK DELETE completed\r\n", parms[0]);
+		delete_room(&CC->quickroom);
+	}
+	else {
+		cprintf("%s NO Can't delete this folder.\r\n", parms[0]);
+	}
+
+	/*
+	 * If another folder is selected, go back to that room so we can resume
+	 * our happy day without violent explosions.
+	 */
+	if (IMAP->selected) {
+		usergoto(savedroom, 0, &msgs, &new);
+	}
+}
+
+
+
 
 /* 
  * Main command loop for IMAP sessions.
@@ -783,6 +832,10 @@ void imap_command_loop(void) {
 
 	else if (!strcasecmp(parms[1], "CREATE")) {
 		imap_create(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "DELETE")) {
+		imap_delete(num_parms, parms);
 	}
 
 	else if (!strcasecmp(parms[1], "STATUS")) {

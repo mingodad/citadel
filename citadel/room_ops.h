@@ -50,3 +50,4 @@ void delete_room(struct quickroom *qrbuf);
 void list_roomname(struct quickroom *qrbuf);
 int is_noneditable(struct quickroom *qrbuf);
 int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf);
+int CtdlDoIHavePermissionToDeleteThisRoom(struct quickroom *qr);

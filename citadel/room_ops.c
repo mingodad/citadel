@@ -1187,6 +1187,49 @@ void delete_room(struct quickroom *qrbuf)
 }
 
 
+
+/*
+ * Check access control for deleting a room
+ */
+int CtdlDoIHavePermissionToDeleteThisRoom(struct quickroom *qr) {
+
+	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
+		return(0);
+	}
+
+	if (is_noneditable(qr)) {
+		return(0);
+	}
+
+	/*
+	 * For mailboxes, check stuff
+	 */
+	if (qr->QRflags & QR_MAILBOX) {
+
+		if (strlen(qr->QRname) < 12) return(0); /* bad name */
+
+		if (atol(qr->QRname) != CC->usersupp.usernum) {
+			return(0);	/* not my room */
+		}
+
+		/* Can't delete your Mail> room */
+		if (!strcasecmp(&qr->QRname[12], MAILROOM)) return(0);
+
+		/* Otherwise it's ok */
+		return(1);
+	}
+
+	/*
+	 * For normal rooms, just check for aide or room aide status.
+	 */
+	else {
+		return(is_room_aide());
+	}
+
+	/* Should never get to this point, but to keep the compiler quiet... */
+	return(0);
+}
+
 /*
  * aide command: kill the current room
  */
@@ -1198,10 +1241,8 @@ void cmd_kill(char *argbuf)
 
 	kill_ok = extract_int(argbuf, 0);
 
-	if (CtdlAccessCheck(ac_room_aide)) return;
-
-	if (is_noneditable(&CC->quickroom)) {
-		cprintf("%d Can't edit this room.\n", ERROR + NOT_HERE);
+	if (CtdlDoIHavePermissionToDeleteThisRoom(&CC->quickroom) == 0) {
+		cprintf("%d Can't delete this room.\n", ERROR + NOT_HERE);
 		return;
 	}
 	if (kill_ok) {
