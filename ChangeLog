@@ -1,4 +1,9 @@
 $Log$
+Revision 400.53  2002/11/16 23:15:02  ajc
+* Make the "all day event" shadebox smaller (month view) - no border.
+* Fixed bug that caused any events following an all day event to also appear
+  with the shadebox.
+
 Revision 400.52  2002/11/16 05:40:54  ajc
 * When adding new events to the calendar, default to the month [and day]
   currently being viewed.
@@ -1126,3 +1131,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
