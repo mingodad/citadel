@@ -33,12 +33,14 @@ void display_main_menu(void)
 {
 	output_headers(1);
 
-	wprintf("<BR>");
+	wprintf("<TABLE>"
+		"<TR><TD COLSPAN=2>\n");
 
 	svprintf("BOXTITLE", WCS_STRING, "Basic commands");
 	do_template("beginbox");
 
-	wprintf("<TABLE border=0 align=center><TR>");
+	wprintf("\n"
+		"<TABLE border=0 cellspacing=1 cellpadding=1><TR>");
 	wprintf("<TD>");	/* start of first column */
 
 	wprintf("<UL>");
@@ -87,10 +89,11 @@ void display_main_menu(void)
 	wprintf("Log off</B></A><BR>Bye!</LI>\n");
 	wprintf("</UL>\n");
 
-	wprintf("</TR></TABLE>\n");
+	wprintf("</TD></TR></TABLE>\n");
 	do_template("endbox");
 
-	wprintf("<TABLE WIDTH=100%%><TR VALIGN=TOP><TD>");
+	wprintf("</TD></TR>"
+		"<TR VALIGN=TOP><TD>");
 
 	svprintf("BOXTITLE", WCS_STRING, "Interaction");
 	do_template("beginbox");
