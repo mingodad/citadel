@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.8  2002/04/14 22:27:05  ajc
+ * Added access control checking to CtdlRenameRoom()
+
  Revision 591.7  2002/04/14 22:11:22  ajc
  * New back end function CtdlRenameRoom() which is used to rename a room and/or
    move it to a different floor.
@@ -3596,3 +3599,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -62,5 +62,6 @@ enum {
 	crr_room_not_found,		/* room not found */
 	crr_already_exists,		/* new name already exists */
 	crr_noneditable,		/* cannot edit this room */
-	crr_invalid_floor		/* target floor does not exist */
+	crr_invalid_floor,		/* target floor does not exist */
+	crr_access_denied		/* not allowed to edit this room */
 };

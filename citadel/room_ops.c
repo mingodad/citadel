@@ -1041,6 +1041,12 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 		ret = crr_room_not_found;
 	}
 
+	else if ( (CC->usersupp.axlevel < 6)
+		  && (CC->usersupp.usernum != qrbuf.QRroomaide)
+		  && ( (((qrbuf.QRflags & QR_MAILBOX) == 0) || (atol(qrbuf.QRname) != CC->usersupp.usernum))) )  {
+		ret = crr_access_denied;
+	}
+
 	else if (is_noneditable(&qrbuf)) {
 		ret = crr_noneditable;
 	}
@@ -1092,7 +1098,7 @@ void cmd_setr(char *args)
 	int new_floor;
 	char new_name[ROOMNAMELEN];
 
-	if (CtdlAccessCheck(ac_room_aide)) return;
+	if (CtdlAccessCheck(ac_logged_in)) return;
 
 	if (num_parms(args) >= 6) {
 		new_floor = extract_int(args, 5);
@@ -1127,6 +1133,11 @@ void cmd_setr(char *args)
 	else if (r == crr_invalid_floor) {
 		cprintf("%d Target floor does not exist.\n",
 			ERROR + INVALID_FLOOR_OPERATION);
+	}
+	else if (r == crr_access_denied) {
+		cprintf("%d You do not have permission to edit '%s'\n",
+			ERROR + HIGHER_ACCESS_REQUIRED,
+			CC->quickroom.QRname);
 	}
 	else if (r != crr_ok) {
 		cprintf("%d Error: CtdlRenameRoom() returned %d\n",
