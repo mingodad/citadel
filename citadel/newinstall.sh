@@ -130,6 +130,14 @@ export CFLAGS CPPFLAGS LDFLAGS
 
 ##### BEGIN Functions #####
 
+die () {
+	echo Easy Install is aborting.
+	echo Please report this problem to the Citadel developers.
+	rm -fr $BUILD
+	exit 1
+}
+
+
 determine_distribution () {
 	# First look for Red Hat in general
 	if [ -x /bin/rpm ]; then
