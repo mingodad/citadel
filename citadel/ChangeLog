@@ -1,4 +1,9 @@
 $Log$
+Revision 1.420  1999/11/21 18:30:16  ajc
+* Protected cmd_move() from buffer overrun (no longer crashes the server)
+* cmd_chat() -- truncate input at 100 characters to prevent buffer overruns.
+  Also handle broken client sockets properly.  (Thanks to DME for bug report)
+
 Revision 1.419  1999/11/19 01:57:40  ajc
 * Fixed a *serious* memory leak in the database function wrappers.
 * Updated version number to 5.60 -- run setup when installing this version.
@@ -1457,3 +1462,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

@@ -116,7 +116,8 @@ void allwrite(char *cmdbuf, int flag, char *roomname, char *username)
 		ChatQueue = ChatQueue->next;
 		phree(clptr);
 	}
-      DONE_FREEING:end_critical_section(S_CHATQUEUE);
+DONE_FREEING:
+	end_critical_section(S_CHATQUEUE);
 }
 
 
@@ -226,10 +227,22 @@ void cmd_chat(char *argbuf)
 
 	while (1) {
 		int ok_cmd;
+		int linelen;
 
 		ok_cmd = 0;
-		cmdbuf[strlen(cmdbuf) + 1] = 0;
-		retval = client_read_to(&cmdbuf[strlen(cmdbuf)], 1, 2);
+		linelen = strlen(cmdbuf);
+		if (linelen > 100) --linelen;	/* truncate too-long lines */
+		cmdbuf[linelen + 1] = 0;
+
+		retval = client_read_to(&cmdbuf[linelen], 1, 2);
+
+		if (retval < 0) {	/* socket broken? */
+			if ((CC->cs_flags & CS_STEALTH) == 0) {
+				allwrite("<disconnected>", 0,
+					CC->chat_room, NULL);
+			}
+			return;
+		}
 
 		/* if we have a complete line, do send processing */
 		if (strlen(cmdbuf) > 0)

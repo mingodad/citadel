@@ -397,7 +397,8 @@ void cprintf(const char *format, ...) {
  * Return values are:
  *	1	Requested number of bytes has been read.
  *	0	Request timed out.
- * If the socket breaks, the session is immediately terminated.
+ *	-1	The socket is broken.
+ * If the socket breaks, the session will be terminated.
  */
 int client_read_to(char *buf, int bytes, int timeout)
 {

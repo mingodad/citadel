@@ -2078,13 +2078,14 @@ void cmd_dele(char *delstr)
 void cmd_move(char *args)
 {
 	long num;
-	char targ[32];
+	char targ[256];
 	struct quickroom qtemp;
 	int err;
 	int is_copy = 0;
 
 	num = extract_long(args, 0);
 	extract(targ, args, 1);
+	targ[ROOMNAMELEN - 1] = 0;
 	is_copy = extract_int(args, 2);
 
 	getuser(&CC->usersupp, CC->curr_user);
