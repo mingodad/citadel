@@ -1281,6 +1281,35 @@ void network_do_spoolin(void) {
 }
 
 
+/*
+ * Delete any files in the outbound queue that were intended
+ * to be sent to nodes which no nlonger exist.
+ */
+void network_purge_spoolout(void) {
+	DIR *dp;
+	struct dirent *d;
+	char filename[SIZ];
+	char nexthop[SIZ];
+	int i;
+
+	dp = opendir("./network/spoolout");
+	if (dp == NULL) return;
+
+	while (d = readdir(dp), d != NULL) {
+		snprintf(filename, sizeof filename,
+			"./network/spoolout/%s", d->d_name);
+
+		strcpy(nexthop, "");
+		i = is_valid_node(nexthop, NULL, d->d_name);
+	
+		if ( (i != 0) || (strlen(nexthop) > 0) ) {
+			unlink(filename);
+		}
+	}
+
+
+	closedir(dp);
+}
 
 
 
@@ -1586,6 +1615,8 @@ void network_do_queue(void) {
 	/* Free the filter list in memory */
 	free_filter_list(filterlist);
 	filterlist = NULL;
+
+	network_purge_spoolout();
 
 	lprintf(7, "network: queue run completed\n");
 

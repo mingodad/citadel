@@ -1,4 +1,8 @@
  $Log$
+ Revision 614.22  2004/02/07 05:28:10  ajc
+ * Automatically purge files from ./network/spoolout which were intended
+   for nodes which no longer exist
+
  Revision 614.21  2004/02/07 04:59:21  ajc
  * Cache the IGnet config in memory, avoiding a db fetch for every single
    operation which references it.  Invalidate the cache when a new config
@@ -5293,3 +5297,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
