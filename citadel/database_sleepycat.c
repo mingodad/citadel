@@ -55,7 +55,7 @@ static int txabort(DB_TXN *tid) {
         int ret = txn_abort(tid);
 
         if (ret)
-                lprintf(1, "txn_abort: %s\n", db_strerror(ret));
+                lprintf(1, "cdb_*: txn_abort: %s\n", db_strerror(ret));
 
         return ret;
 }
@@ -65,7 +65,7 @@ static int txcommit(DB_TXN *tid) {
         int ret = txn_commit(tid, 0);
 
         if (ret)
-                lprintf(1, "txn_commit: %s\n", db_strerror(ret));
+                lprintf(1, "cdb_*: txn_commit: %s\n", db_strerror(ret));
 
         return ret;
 }
@@ -75,7 +75,7 @@ static int txbegin(DB_TXN **tid) {
         int ret = txn_begin(dbenv, NULL, tid, 0);
 
         if (ret)
-                lprintf(1, "txn_begin: %s\n", db_strerror(ret));
+                lprintf(1, "cdb_*: txn_begin: %s\n", db_strerror(ret));
 
         return ret;
 }
@@ -85,13 +85,13 @@ static void release_handles(void *arg) {
 		struct cdbtsd *tsd = (struct cdbtsd *)arg;
 
 		if (tsd->cursor != NULL) {
-			lprintf(1, "WARNING: cursor still in progress; "
+			lprintf(1, "cdb_*: WARNING: cursor still in progress; "
 				"closing!\n");
 			tsd->cursor->c_close(tsd->cursor);
 		}
 
 		if (tsd->tid != NULL) {
-			lprintf(1, "ERROR: transaction still in progress; "
+			lprintf(1, "cdb_*: ERROR: transaction still in progress; "
 				"aborting!\n");
 			txabort(tsd->tid);
 		}
@@ -156,7 +156,7 @@ static void cdb_checkpoint(void) {
 				MAX_CHECKPOINT_MINUTES,
 				0);
 	if (ret) {
-		lprintf(1, "txn_checkpoint: %s\n", db_strerror(ret));
+		lprintf(1, "cdb_checkpoint: txn_checkpoint: %s\n", db_strerror(ret));
 	}
 }
 
@@ -173,18 +173,18 @@ void open_databases(void)
 	char dbfilename[SIZ];
 	u_int32_t flags = 0;
 
-	lprintf(9, "open_databases() starting\n");
+	lprintf(9, "cdb_*: open_databases() starting\n");
         /*
          * Silently try to create the database subdirectory.  If it's
          * already there, no problem.
          */
         system("exec mkdir data 2>/dev/null");
 
-	lprintf(9, "Setting up DB environment\n");
+	lprintf(9, "cdb_*: Setting up DB environment\n");
 	db_env_set_func_yield(sched_yield);
 	ret = db_env_create(&dbenv, 0);
 	if (ret) {
-		lprintf(1, "db_env_create: %s\n", db_strerror(ret));
+		lprintf(1, "cdb_*: db_env_create: %s\n", db_strerror(ret));
 		exit(ret);
 	}
 	dbenv->set_errpfx(dbenv, "citserver");
@@ -195,13 +195,13 @@ void open_databases(void)
          */
         ret = dbenv->set_cachesize(dbenv, 0, 64 * 1024, 0);
 	if (ret) {
-		lprintf(1, "set_cachesize: %s\n", db_strerror(ret));
+		lprintf(1, "cdb_*: set_cachesize: %s\n", db_strerror(ret));
                 dbenv->close(dbenv, 0);
                 exit(ret);
         }
 
 	if ((ret = dbenv->set_lk_detect(dbenv, DB_LOCK_DEFAULT))) {
-		lprintf(1, "set_lk_detect: %s\n", db_strerror(ret));
+		lprintf(1, "cdb_*: set_lk_detect: %s\n", db_strerror(ret));
 		dbenv->close(dbenv, 0);
 		exit(ret);
 	}
@@ -210,19 +210,19 @@ void open_databases(void)
 		DB_INIT_LOCK|DB_THREAD;
         ret = dbenv->open(dbenv, "./data", flags, 0);
 	if (ret) {
-		lprintf(1, "dbenv->open: %s\n", db_strerror(ret));
+		lprintf(1, "cdb_*: dbenv->open: %s\n", db_strerror(ret));
                 dbenv->close(dbenv, 0);
                 exit(ret);
         }
 
-	lprintf(7, "Starting up DB\n");
+	lprintf(7, "cdb_*: Starting up DB\n");
 
 	for (i = 0; i < MAXCDB; ++i) {
 
 		/* Create a database handle */
 		ret = db_create(&dbp[i], dbenv, 0);
 		if (ret) {
-			lprintf(1, "db_create: %s\n", db_strerror(ret));
+			lprintf(1, "cdb_*: db_create: %s\n", db_strerror(ret));
 			exit(ret);
 		}
 
@@ -239,19 +239,19 @@ void open_databases(void)
 				DB_CREATE,
 				0600);
 		if (ret) {
-			lprintf(1, "db_open[%d]: %s\n", i, db_strerror(ret));
+			lprintf(1, "cdb_*: db_open[%d]: %s\n", i, db_strerror(ret));
 			exit(ret);
 		}
 	}
 
 	if ((ret = pthread_key_create(&tsdkey, dest_tsd))) {
-		lprintf(1, "pthread_key_create: %s\n", strerror(ret));
+		lprintf(1, "cdb_*: pthread_key_create: %s\n", strerror(ret));
 		exit(1);
 	}
 
 	cdb_allocate_tsd();
 	CtdlRegisterSessionHook(cdb_checkpoint, EVT_TIMER);
-	lprintf(9, "open_databases() finished\n");
+	lprintf(9, "cdb_*: open_databases() finished\n");
 }
 
 
@@ -267,14 +267,14 @@ void close_databases(void)
 	cdb_free_tsd();
 
 	if ((ret = txn_checkpoint(dbenv, 0, 0, 0))) {
-		lprintf(1, "txn_checkpoint: %s\n", db_strerror(ret));
+		lprintf(1, "cdb_*: txn_checkpoint: %s\n", db_strerror(ret));
 	}
 
 	for (a = 0; a < MAXCDB; ++a) {
-		lprintf(7, "Closing database %d\n", a);
+		lprintf(7, "cdb_*: Closing database %d\n", a);
 		ret = dbp[a]->close(dbp[a], 0);
 		if (ret) {
-			lprintf(1, "db_close: %s\n", db_strerror(ret));
+			lprintf(1, "cdb_*: db_close: %s\n", db_strerror(ret));
 		}
 		
 	}
@@ -282,7 +282,7 @@ void close_databases(void)
         /* Close the handle. */
         ret = dbenv->close(dbenv, 0);
 	if (ret) {
-                lprintf(1, "DBENV->close: %s\n", db_strerror(ret));
+                lprintf(1, "cdb_*: DBENV->close: %s\n", db_strerror(ret));
         }
 }
 
@@ -431,7 +431,7 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
 	if (ret != 0) return NULL;
 	tempcdb = (struct cdbdata *) mallok(sizeof(struct cdbdata));
 	if (tempcdb == NULL) {
-		lprintf(2, "Cannot allocate memory!\n");
+		lprintf(2, "cdb_fetch: Cannot allocate memory!\n");
 	}
 	tempcdb->len = dret.size;
 	tempcdb->ptr = dret.data;
@@ -463,7 +463,7 @@ void cdb_rewind(int cdb)
 		MYCURSOR->c_close(MYCURSOR);
 
 	if (MYTID == NULL) {
-		lprintf(1, "ERROR: cursor use outside transaction\n");
+		lprintf(1, "cdb_rewind: ERROR: cursor use outside transaction\n");
 		abort();
 	}
 
@@ -472,7 +472,7 @@ void cdb_rewind(int cdb)
 	 */
 	ret = dbp[cdb]->cursor(dbp[cdb], MYTID, &MYCURSOR, 0);
 	if (ret) {
-		lprintf(1, "db_cursor: %s\n", db_strerror(ret));
+		lprintf(1, "cdb_rewind: db_cursor: %s\n", db_strerror(ret));
 	}
 }
 
@@ -516,7 +516,7 @@ struct cdbdata *cdb_next_item(int cdb)
 void cdb_begin_transaction(void) {
 
 	if (MYTID != NULL) {	/* FIXME this slows it down, take it out */
-		lprintf(1, "ERROR: opening a new transaction with one already open!\n");
+		lprintf(1, "cdb_begin_transaction: ERROR: opening a new transaction with one already open!\n");
 		abort();
 	}
 	else {
@@ -526,11 +526,11 @@ void cdb_begin_transaction(void) {
 
 void cdb_end_transaction(void) {
 	if (MYCURSOR != NULL) {
-		lprintf(1, "WARNING: cursor still open at transaction end\n");
+		lprintf(1, "cdb_end_transaction: WARNING: cursor still open at transaction end\n");
 		MYCURSOR->c_close(MYCURSOR);
 		MYCURSOR = NULL;
 	}
-	if (MYTID == NULL) lprintf(1, "ERROR: txcommit(NULL) !!\n");
+	if (MYTID == NULL) lprintf(1, "cdb_end_transaction: ERROR: txcommit(NULL) !!\n");
 	else txcommit(MYTID);
 	MYTID = NULL;
 }

@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.101  2001/02/26 19:56:13  nbryant
+ modified lprintf strings to begin with "cdb_" to simplify grepping for
+ sleepycat-related errors.
+
  Revision 573.100  2001/02/24 17:23:21  ajc
  * More of IMAP STORE.  Works for \Deleted now, but we don't have EXPUNGE yet
 
@@ -2474,4 +2478,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
