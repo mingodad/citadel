@@ -534,3 +534,17 @@ void stripallbut(char *str, char leftboundary, char rightboundary) {
 	}
 
 }
+
+char *myfgets(char *s, int size, FILE *stream) {
+	char *ret = fgets(s, size, stream);
+	char *nl;
+
+	if (ret != NULL) {
+		nl = strchr(s, '\n');
+
+		if (nl != NULL)
+			*nl = 0;
+	}
+
+	return ret;
+}

@@ -112,11 +112,11 @@ int main(int argc, char **argv)
 
 			fprintf(nodefp, "%s|", d->d_name);
 			printf("Enter shared secret: ");
-			fgets(buf, sizeof buf, stdin);
+			myfgets(buf, sizeof buf, stdin);
 			if (buf[0] == 0) strcpy(buf, config.c_net_password);
 			fprintf(nodefp, "%s|", buf);
 			printf("Enter host name/IP : ");
-			fgets(buf, sizeof buf, stdin);
+			myfgets(buf, sizeof buf, stdin);
 			if (buf[0] == 0) snprintf(buf, sizeof buf, "%s.citadel.org",
 				d->d_name);
 			fprintf(nodefp, "%s|", buf);
