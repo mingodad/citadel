@@ -77,6 +77,11 @@ struct visit {
 #define V_LOCKOUT	2		/* User is locked out of this room  */
 #define V_ACCESS	4		/* Access is granted to this room   */
 
+#define UA_INUSE                1
+#define UA_KNOWN                2
+#define UA_GOTOALLOWED          4
+#define UA_HASNEWMSGS           8
+#define UA_ZAPPED		16
 
 /* Defines the actual user record */
 struct usersupp {			/* User record                      */

@@ -182,12 +182,6 @@ void CtdlGetRelationship(struct visit *vbuf,
 
 	for (a=0; a<num_visits; ++a) {
 	
-		lprintf(9, "Visit: %20s %15ld %4ld %4d\n",
-			visits[a].v_roomname,
-			visits[a].v_generation,
-			visits[a].v_lastseen,
-			visits[a].v_flags);
-
 		if ( (!strcasecmp(visits[a].v_roomname, rel_room->QRname))
 		   && (visits[a].v_generation == rel_room->QRgen) ) {
 			memcpy(vbuf, &visits[a], sizeof(struct visit));

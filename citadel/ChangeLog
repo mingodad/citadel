@@ -1,3 +1,8 @@
+Mon Sep 28 22:05:35 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Implemented the function CtdlRoomAccess() to handle *all* of the
+	  user-access-to-rooms functionality.  Migrated all room list commands
+	  to use it.  Still need to migrate gotos.
+
 1998-09-28 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* configure.in, acconfig.h: new files; partially functional GNU
 	  autoconf configure script. Run autoheader; autoconf; ./configure

@@ -18,67 +18,82 @@
 #include "citserver.h"
 
 /*
- * is_known()  -  returns nonzero if room is in user's known room list
+ * Generic routine for determining user access to rooms
  */
-int is_known(struct quickroom *roombuf, int roomnum, struct usersupp *userbuf)
-{
+int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf) {
+	int retval = 0;
+	struct visit vbuf;
 
-	/* for internal programs, always succeed */
-	if (((CC->internal_pgm))&&(roombuf->QRflags & QR_INUSE)) return(1);
-
-	/* for regular rooms, check the permissions */
-	if ((roombuf->QRflags & QR_INUSE)
-		&& ( (roomnum!=2) || (userbuf->axlevel>=6))
-		&& (roombuf->QRgen != (userbuf->forget[roomnum]) )
-
-		&& (	((roombuf->QRflags&QR_PREFONLY)==0)
-		||	((userbuf->axlevel)>=5)
-		)
-
-		&& (	((roombuf->QRflags&QR_PRIVATE)==0)
-   		||	((userbuf->axlevel)>=6)
-   		||	(roombuf->QRgen==(userbuf->generation[roomnum]))
-   		)
-
-		) return(1);
-	else return(0);
-	}
-
-
-/*
- * has_newmsgs()  -  returns nonzero if room has new messages
- */
-int has_newmsgs(struct quickroom *roombuf, int roomnum, struct usersupp *userbuf)
-{
-	if (roomnum == 1) {
-		return ( (NewMailCount() > 0) ? 1 : 0 );
+	/* Make sure we're dealing with a real, existing room */
+	if (roombuf->QRflags & QR_INUSE) {
+		retval = retval | UA_INUSE;
 		}
 	else {
-		if (roombuf->QRhighest > (userbuf->lastseen[roomnum]) ) {
-			return(1);
-			}
-		else {
-			return(0);
+		return(0);
+		}
+
+	/* for internal programs, always do everything */
+	if (((CC->internal_pgm))&&(roombuf->QRflags & QR_INUSE)) {
+		return(UA_INUSE | UA_KNOWN | UA_GOTOALLOWED);
+		}
+
+	/* Locate any applicable user/room relationships */
+	CtdlGetRelationship(&vbuf, userbuf, roombuf);
+
+	/* If this is a public room, it's accessible... */
+	if ((roombuf->QRflags & QR_PRIVATE) == 0) {
+		retval = retval | UA_KNOWN | UA_GOTOALLOWED;
+		}
+
+	/* If this is a preferred users only room, check access level */
+	if (roombuf->QRflags & QR_PREFONLY) {
+		if (userbuf->axlevel < 5) {
+			retval = retval & ~UA_KNOWN & ~UA_GOTOALLOWED;
 			}
 		}
+
+	/* For private rooms, check the generation number matchups */
+	if (roombuf->QRflags & QR_PRIVATE) {
+
+		/* An explicit match means the user belongs in this room */
+		if (vbuf.v_flags & V_ACCESS) {
+			retval = retval | UA_KNOWN | UA_GOTOALLOWED;
+			}
+		/* Otherwise, check if this is a guess-name or passworded
+		 * room.  If it is, a goto may at least be attempted
+		 */
+		else if ((roombuf->QRflags & QR_PRIVATE)
+		     ||(roombuf->QRflags & QR_PASSWORDED)) {
+			retval = retval & ~UA_KNOWN;
+			retval = retval | UA_GOTOALLOWED;
+			}
+		}
+
+	/* Check to see if the user has forgotten this room */
+	if (vbuf.v_flags & V_FORGET) {
+		retval = retval & ~UA_KNOWN;
+		retval = retval | UA_ZAPPED;
+		}
+
+	/* If user is explicitly locked out of this room, deny everything */
+	if (vbuf.v_flags & V_LOCKOUT) {
+		retval = retval & ~UA_KNOWN & ~UA_GOTOALLOWED;
+		}
+
+	/* Aides get access to everything */
+	if (userbuf->axlevel >= 6) {
+		retval = retval | UA_INUSE | UA_KNOWN | UA_GOTOALLOWED;
+		retval = retval & ~UA_ZAPPED;
+		}
+
+	/* By the way, we also check for the presence of new messages */
+	if ( (roombuf->QRhighest) > (vbuf.v_lastseen) ) {
+		retval = retval | UA_HASNEWMSGS;
+		}
+
+	return(retval);
 	}
 
-
-/*
- * is_zapped()  -  returns nonzero if room is on forgotten rooms list
- */
-int is_zapped(struct quickroom *roombuf, int roomnum, struct usersupp *userbuf)
-{
-	if ((roombuf->QRflags & QR_INUSE)
-		&& (roombuf->QRgen == (userbuf->forget[roomnum]) )
-		&& ( (roomnum!=2) || ((userbuf->axlevel)>=6))
-		&& (	((roombuf->QRflags&QR_PRIVATE)==0)
-   		||	((userbuf->axlevel)>=6)
-   		||	(roombuf->QRgen==(userbuf->generation[roomnum]))
-   		)
-		) return(1);
-	else return(0);
-	}
 
 /*
  * getroom()  -  retrieve room data from disk
@@ -348,9 +363,9 @@ void cmd_lrms(char *argbuf)
 	
 	for (a=0; a<MAXROOMS; ++a) {
 		getroom(&qrbuf,a);
-		if ( ( (is_known(&qrbuf,a,&CC->usersupp))
-		   ||	(is_zapped(&qrbuf,a,&CC->usersupp)) )
-		&& ((qrbuf.QRfloor == target_floor)||(target_floor<0)) )
+		if ( ((CtdlRoomAccess(&qrbuf, &CC->usersupp)
+		     & (UA_KNOWN | UA_ZAPPED)))
+		&& ((qrbuf.QRfloor == target_floor)||(target_floor<0)) ) 
 			cprintf("%s|%u|%d\n",
 				qrbuf.QRname,qrbuf.QRflags,qrbuf.QRfloor);
 		}
@@ -362,7 +377,7 @@ void cmd_lrms(char *argbuf)
  */
 void cmd_lkra(char *argbuf)
 {
-	int a;
+	int a, ra;
 	struct quickroom qrbuf;
 	int target_floor = (-1);
 
@@ -382,7 +397,8 @@ void cmd_lkra(char *argbuf)
 	
 	for (a=0; a<MAXROOMS; ++a) {
 		getroom(&qrbuf,a);
-		if ((is_known(&qrbuf,a,&CC->usersupp))
+		ra = CtdlRoomAccess(&qrbuf, &CC->usersupp);
+		if ( (ra & UA_KNOWN)
 		   && ((qrbuf.QRfloor == target_floor)||(target_floor<0)) )
 			cprintf("%s|%u|%d\n",
 				qrbuf.QRname,qrbuf.QRflags,qrbuf.QRfloor);
@@ -395,7 +411,7 @@ void cmd_lkra(char *argbuf)
  */
 void cmd_lkrn(char *argbuf)
 {
-	int a;
+	int a, ra;
 	struct quickroom qrbuf;
 	int target_floor = (-1);
 
@@ -415,8 +431,9 @@ void cmd_lkrn(char *argbuf)
 	
 	for (a=0; a<MAXROOMS; ++a) {
 		getroom(&qrbuf,a);
-		if ( ( (is_known(&qrbuf,a,&CC->usersupp))
-		   &&	(has_newmsgs(&qrbuf,a,&CC->usersupp)) )
+		ra = CtdlRoomAccess(&qrbuf, &CC->usersupp);
+		if ( (ra & UA_KNOWN)
+		   && (ra & UA_HASNEWMSGS)
 		   && ((qrbuf.QRfloor == target_floor)||(target_floor<0)) )
 			cprintf("%s|%u|%d\n",
 				qrbuf.QRname,qrbuf.QRflags,qrbuf.QRfloor);
@@ -429,7 +446,7 @@ void cmd_lkrn(char *argbuf)
  */
 void cmd_lkro(char *argbuf)
 {
-	int a;
+	int a, ra;
 	struct quickroom qrbuf;
 	int target_floor = (-1);
 
@@ -449,8 +466,9 @@ void cmd_lkro(char *argbuf)
 	
 	for (a=0; a<MAXROOMS; ++a) {
 		getroom(&qrbuf,a);
-		if ( ( (is_known(&qrbuf,a,&CC->usersupp))
-		   &&	(!has_newmsgs(&qrbuf,a,&CC->usersupp)) ) 
+		ra = CtdlRoomAccess(&qrbuf, &CC->usersupp);
+		   if ((ra & UA_KNOWN)
+		   && ((ra & UA_HASNEWMSGS) == 0)
 		   && ((qrbuf.QRfloor == target_floor)||(target_floor<0)) ) {
 			if (!strcmp(qrbuf.QRname,"000")) cprintf(">");
 			cprintf("%s|%u|%d\n",
@@ -465,7 +483,7 @@ void cmd_lkro(char *argbuf)
  */
 void cmd_lzrm(char *argbuf)
 {
-	int a;
+	int a, ra;
 	struct quickroom qrbuf;
 	int target_floor = (-1);
 
@@ -485,7 +503,9 @@ void cmd_lzrm(char *argbuf)
 	
 	for (a=0; a<MAXROOMS; ++a) {
 		getroom(&qrbuf,a);
-		if ( (is_zapped(&qrbuf,a,&CC->usersupp))
+		ra = CtdlRoomAccess(&qrbuf, &CC->usersupp);
+		if ( (ra & UA_GOTOALLOWED)
+		   && (ra & UA_ZAPPED)
 		   && ((qrbuf.QRfloor == target_floor)||(target_floor<0)) ) {
 			if (!strcmp(qrbuf.QRname,"000")) cprintf(">");
 			cprintf("%s|%u|%d\n",
