@@ -799,7 +799,7 @@ main(int ac, char *av[])
     for ( ; ; ) {
 	(void)printf("\t> ");
 	(void)fflush(stdout);
-	if (gets(buff) == NULL || buff[0] == '\n')
+	if (fgets(buff, sizeof buff, stdin) == NULL || buff[0] == '\n')
 	    break;
 #if YYDEBUG
 	if (strcmp(buff, "yydebug") == 0) {

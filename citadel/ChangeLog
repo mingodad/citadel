@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.142  2002/03/12 03:36:55  nbryant
+ replace calls to gets with fgets
+
  Revision 590.141  2002/03/12 03:19:09  nbryant
  more sprintf bashing. now the only ones left are in mime_parser
 
@@ -3444,3 +3447,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -56,7 +56,7 @@ int main(int argc, char **argv)
 "ERASE any 5.90 configuration files that you have already set up.\n\n"
 "Are you sure you want to do this? ");
 
-	gets(buf);
+	fgets(buf, sizeof buf, stdin);
 	if (tolower(buf[0]) != 'y') exit(0);
 
 	get_config();
@@ -112,16 +112,16 @@ int main(int argc, char **argv)
 
 			fprintf(nodefp, "%s|", d->d_name);
 			printf("Enter shared secret: ");
-			gets(buf);
+			fgets(buf, sizeof buf, stdin);
 			if (buf[0] == 0) strcpy(buf, config.c_net_password);
 			fprintf(nodefp, "%s|", buf);
 			printf("Enter host name/IP : ");
-			gets(buf);
+			fgets(buf, sizeof buf, stdin);
 			if (buf[0] == 0) snprintf(buf, sizeof buf, "%s.citadel.org",
 				d->d_name);
 			fprintf(nodefp, "%s|", buf);
 			printf("Enter port number  : ");
-			gets(buf);
+			fgets(buf, sizeof buf, stdin);
 			if (buf[0] == 0) strcpy(buf, "504");
 			fprintf(nodefp, "%s\n", buf);
 
@@ -239,7 +239,7 @@ roomerror:	/* free this record */
 		"old network configuration files.  Delete them now? "
 	);
 
-	gets(buf);
+	fgets(buf, sizeof buf, stdin);
 	if (tolower(buf[0]) != 'y') exit(0);
 
 	get_config();
