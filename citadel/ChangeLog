@@ -1,4 +1,10 @@
  $Log$
+ Revision 608.6  2003/07/23 03:57:05  ajc
+ * Optimized the updating of visit records in several places by checking to
+   see if they've changed and aborting the db update if they haven't.
+ * Functions which read/write user records are now slightly faster due to
+   an improvement of the algorithm used to generate the database keys.
+
  Revision 608.5  2003/07/22 03:07:50  nbryant
  fix build for Solaris
 
@@ -4884,3 +4890,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

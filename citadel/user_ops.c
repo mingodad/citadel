@@ -55,15 +55,28 @@
 
 
 /*
+ * makeuserkey() - convert a username into the format used as a database key
+ *                 (it's just the username converted into lower case)
+ */
+static inline void makeuserkey(char *key, char *username) {
+	int i, len;
+
+	len = strlen(username);
+	for (i=0; i<=len; ++i) {
+		key[i] = tolower(username[i]);
+	}
+}
+
+
+/*
  * getuser()  -  retrieve named user into supplied buffer.
  *               returns 0 on success
  */
 int getuser(struct ctdluser *usbuf, char name[])
 {
 
-	char lowercase_name[USERNAME_SIZE];
+	char usernamekey[USERNAME_SIZE];
 	char sysuser_name[USERNAME_SIZE];
-	int a;
 	struct cdbdata *cdbus;
 	int using_sysuser = 0;
 
@@ -76,19 +89,13 @@ int getuser(struct ctdluser *usbuf, char name[])
 #endif
 
 	if (using_sysuser) {
-		for (a = 0; a <= strlen(sysuser_name); ++a) {
-			lowercase_name[a] = tolower(sysuser_name[a]);
-		}
+		makeuserkey(usernamekey, sysuser_name);
 	}
 	else {
-		for (a = 0; a <= strlen(name); ++a) {
-			if (a < sizeof(lowercase_name))
-				lowercase_name[a] = tolower(name[a]);
-		}
+		makeuserkey(usernamekey, name);
 	}
-	lowercase_name[sizeof(lowercase_name) - 1] = 0;
 
-	cdbus = cdb_fetch(CDB_USERS, lowercase_name, strlen(lowercase_name));
+	cdbus = cdb_fetch(CDB_USERS, usernamekey, strlen(usernamekey));
 	if (cdbus == NULL) {	/* user not found */
 		return(1);
 	}
@@ -121,18 +128,13 @@ int lgetuser(struct ctdluser *usbuf, char *name)
  */
 void putuser(struct ctdluser *usbuf)
 {
-	char lowercase_name[USERNAME_SIZE];
-	int a;
+	char usernamekey[USERNAME_SIZE];
 
-	for (a = 0; a <= strlen(usbuf->fullname); ++a) {
-		if (a < sizeof(lowercase_name))
-			lowercase_name[a] = tolower(usbuf->fullname[a]);
-	}
-	lowercase_name[sizeof(lowercase_name) - 1] = 0;
+	makeuserkey(usernamekey, usbuf->fullname);
 
 	usbuf->version = REV_LEVEL;
 	cdb_store(CDB_USERS,
-		  lowercase_name, strlen(lowercase_name),
+		  usernamekey, strlen(usernamekey),
 		  usbuf, sizeof(struct ctdluser));
 
 }
@@ -667,14 +669,11 @@ int purge_user(char pname[])
 {
 	char filename[64];
 	struct ctdluser usbuf;
-	char lowercase_name[USERNAME_SIZE];
-	int a;
+	char usernamekey[USERNAME_SIZE];
 	struct CitContext *ccptr;
 	int user_is_logged_in = 0;
 
-	for (a = 0; a <= strlen(pname); ++a) {
-		lowercase_name[a] = tolower(pname[a]);
-	}
+	makeuserkey(usernamekey, pname);
 
 	if (getuser(&usbuf, pname) != 0) {
 		lprintf(5, "Cannot purge user <%s> - not found\n", pname);
@@ -707,7 +706,7 @@ int purge_user(char pname[])
 	cdb_delete(CDB_VISIT, &usbuf.usernum, sizeof(long));
 
 	/* delete the userlog entry */
-	cdb_delete(CDB_USERS, lowercase_name, strlen(lowercase_name));
+	cdb_delete(CDB_USERS, usernamekey, strlen(usernamekey));
 
 	/* remove the user's bio file */
 	snprintf(filename, sizeof filename, "./bio/%ld", usbuf.usernum);
@@ -990,6 +989,7 @@ void cmd_slrp(char *new_ptr)
 {
 	long newlr;
 	struct visit vbuf;
+	struct visit original_vbuf;
 
 	if (CtdlAccessCheck(ac_logged_in)) {
 		return;
@@ -1004,9 +1004,15 @@ void cmd_slrp(char *new_ptr)
 	lgetuser(&CC->user, CC->curr_user);
 
 	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
+	memcpy(&original_vbuf, &vbuf, sizeof(struct visit));
 	vbuf.v_lastseen = newlr;
 	snprintf(vbuf.v_seen, sizeof vbuf.v_seen, "*:%ld", newlr);
-	CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
+
+	/* Only rewrite the record if it changed */
+	if ( (vbuf.v_lastseen != original_vbuf.v_lastseen)
+	   || (strcmp(vbuf.v_seen, original_vbuf.v_seen)) ) {
+		CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
+	}
 
 	lputuser(&CC->user);
 	cprintf("%d %ld\n", CIT_OK, newlr);

@@ -745,6 +745,7 @@ void usergoto(char *where, int display_result, int transiently,
         struct cdbdata *cdbfr;
 	long *msglist = NULL;
 	int num_msgs = 0;
+	unsigned int original_v_flags;
 
 	/* If the supplied room name is NULL, the caller wants us to know that
 	 * it has already copied the room record into CC->room, so
@@ -759,6 +760,7 @@ void usergoto(char *where, int display_result, int transiently,
 
 	begin_critical_section(S_USERS);
 	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
+	original_v_flags = vbuf.v_flags;
 
 	/* Know the room ... but not if it's the page log room, or if the
 	 * caller specified that we're only entering this room transiently.
@@ -768,7 +770,11 @@ void usergoto(char *where, int display_result, int transiently,
 		vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
 		vbuf.v_flags = vbuf.v_flags | V_ACCESS;
 	}
-	CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
+	
+	/* Only rewrite the database record if we changed something */
+	if (vbuf.v_flags != original_v_flags) {
+		CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
+	}
 	end_critical_section(S_USERS);
 
 	/* Check for new mail */
