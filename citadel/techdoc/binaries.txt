@@ -23,13 +23,23 @@ We build in /usr/src.
  
  (FIXME still not detected properly)
 
-3. Build Citadel with:
+3. If LDAP support is required, build OpenLDAP with:
 
- export CFLAGS='-I/usr/local/ctdlsupport/include'
- export LDFLAGS='-L/usr/local/ctdlsupport/lib -Wl,--rpath -Wl,/usr/local/ctdlsupport/lib'
- ./configure --prefix=/usr/local/citadel --with-db=/usr/local/ctdlsupport
- make
- make install
+export CFLAGS='-I/usr/local/ctdlsupport/include'
+export CPPFLAGS='-I/usr/local/ctdlsupport/include'
+export LDFLAGS='-L/usr/local/ctdlsupport/lib -Wl,--rpath -Wl,/usr/local/ctdlsupport/lib'
+./configure --prefix=/usr/local/citadel --with-db=/usr/local/ctdlsupport
+make
+make depend
+make install
+
+4. Build Citadel with:
+
+export CFLAGS='-I/usr/local/ctdlsupport/include'
+export LDFLAGS='-L/usr/local/ctdlsupport/lib -Wl,--rpath -Wl,/usr/local/ctdlsupport/lib'
+./configure --prefix=/usr/local/citadel --with-db=/usr/local/ctdlsupport
+make
+make install
  
  -L tells the build system where to find libraries during the build process,
 while -Wl,--rpath inserts that same library path into the Citadel binaries
