@@ -95,6 +95,12 @@ void defrag_databases(void)
 	gdbm_reorganize(gdbms[CDB_FLOORTAB]);
 	end_critical_section(S_DATABASE);
 	end_critical_section(S_FLOORTAB);
+
+	/* defrag the directory */
+	lprintf(7, "Defragmenting the directory\n");
+	begin_critical_section(S_DIRECTORY);
+	gdbm_reorganize(gdbms[CDB_DIRECTORY]);
+	end_critical_section(S_DIRECTORY);
 }
 
 
@@ -158,6 +164,13 @@ void open_databases(void)
 					GDBM_WRCREAT, 0600, NULL);
 	if (gdbms[CDB_MSGLISTS] == NULL) {
 		lprintf(2, "Cannot open msglists: %s\n",
+			gdbm_strerror(gdbm_errno));
+		exit(1);
+	}
+	gdbms[CDB_DIRECTORY] = gdbm_open("data/directory.gdbm", 0,
+					GDBM_WRCREAT, 0600, NULL);
+	if (gdbms[CDB_DIRECTORY] == NULL) {
+		lprintf(2, "Cannot open directory: %s\n",
 			gdbm_strerror(gdbm_errno));
 		exit(1);
 	}

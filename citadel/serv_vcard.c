@@ -114,7 +114,7 @@ void vcard_extract_internet_addresses(struct CtdlMessage *msg,
  * Back end function for cmd_igab()
  * FIXME use a callback that actually writes to the database, dumbass...
  */
-void vcard_igab_backend(long msgnum, void *data) {
+void vcard_add_to_directory(long msgnum, void *data) {
 	struct CtdlMessage *msg;
 
 	msg = CtdlFetchMessage(msgnum);
@@ -152,7 +152,7 @@ void cmd_igab(char *argbuf) {
 
         /* We want the last (and probably only) vcard in this room */
         CtdlForEachMessage(MSGS_ALL, 0, (-127), "text/x-vcard",
-		NULL, vcard_igab_backend, NULL);
+		NULL, vcard_add_to_directory, NULL);
 
         getroom(&CC->quickroom, hold_rm);	/* return to saved room */
 	cprintf("000\n");
@@ -264,8 +264,12 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			I = atol(msg->cm_fields['I']);
 			if (I < 0L) return(0);
 
+			/* Put it in the Global Address Book room... */
 			CtdlSaveMsgPointerInRoom(ADDRESS_BOOK_ROOM, I,
 				(SM_VERIFY_GOODNESS | SM_DO_REPL_CHECK) );
+
+			/* ...and also in the directory database. */
+			vcard_add_to_directory(I, NULL);
 
 			return(0);
 		}

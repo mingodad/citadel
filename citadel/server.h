@@ -205,6 +205,7 @@ enum {
 	S_WORKER_LIST,
 	S_HOUSEKEEPING,
 	S_NTTLIST,
+	S_DIRECTORY,
 	MAX_SEMAPHORES
 };
 
@@ -245,6 +246,7 @@ enum {
 	CDB_FLOORTAB,		/* floor index                   */
 	CDB_MSGLISTS,		/* room message lists            */
 	CDB_VISIT,		/* user/room relationships       */
+	CDB_DIRECTORY,		/* address book directory        */
 	MAXCDB			/* total number of CDB's defined */
 };
 

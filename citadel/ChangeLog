@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.52  2002/01/10 04:29:28  ajc
+ * Minor updates for directory service
+
  Revision 590.51  2002/01/09 23:12:40  ajc
  * Allow users to zap mailbox rooms
 
@@ -3121,4 +3124,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
