@@ -793,6 +793,7 @@ int main(int argc, char **argv)
 	 * comes in, create a socket, a context, and a thread.
 	 */	
 	while (1) {
+		alen = sizeof fsin;
 		ssock = accept(msock, (struct sockaddr *)&fsin, &alen);
 		if (ssock < 0) {
 			lprintf(2, "citserver: accept() failed: %s\n",

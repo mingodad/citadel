@@ -1,3 +1,6 @@
+1999-02-15 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* sysdep.c(main): initialize alen before call to accept()
+
 1999-02-04 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* configure.in: improved check for cygwin
 	* configure.in, routines.c: access utmp directly instead of calling
