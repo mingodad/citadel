@@ -71,8 +71,6 @@ void display_task(long msgnum) {
  * Process a calendar object
  * ...at this point it's already been deserialized by cal_process_attachment()
  *
- * ok for complete vcalendar objects
- *
  */
 void cal_process_object(icalcomponent *cal,
 			int recursion_level,
@@ -327,7 +325,6 @@ void cal_process_object(icalcomponent *cal,
 /*
  * Deserialize a calendar object in a message so it can be processed.
  * (This is the main entry point for these things)
- * ok for complete vcalendar objects
  */
 void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) {
 	icalcomponent *cal;
@@ -505,7 +502,6 @@ void display_individual_task(icalcomponent *vtodo, long msgnum) {
 /*
  * Display a task by itself (for editing)
  *
- * ok for complete vcalendar objects
  */
 void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	icalcomponent *vtodo;
@@ -610,7 +606,6 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 /*
  * Save an edited task
  *
- * ok 
  */
 void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
 	char buf[SIZ];
@@ -729,7 +724,6 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum) {
  * the relevant part, deserialize it into a libical component, filter it for
  * the requested object type, and feed it to the specified handler.
  *
- * ok
  */
 void display_using_handler(long msgnum,
 			char *mimetype,
