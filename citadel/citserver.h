@@ -2,6 +2,12 @@
 
 #include "dynloader.h"
 
+/* Simple linked list structure ... used in a bunch of different places. */
+struct RoomProcList {
+        struct RoomProcList *next;
+        char name[ROOMNAMELEN];
+};
+
 void master_startup (void);
 void master_cleanup (void);
 void RemoveContext (struct CitContext *);

@@ -9,11 +9,6 @@ struct SpoolControl {
 	struct namelist *ignet_push_shares;
 };
 
-struct RoomProcList {
-        struct RoomProcList *next;
-        char name[ROOMNAMELEN];
-};
-
 struct NetMap {
 	struct NetMap *next;
 	char nodename[SIZ];

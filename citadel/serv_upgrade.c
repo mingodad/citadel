@@ -38,8 +38,10 @@
 #include "control.h"
 #include "dynloader.h"
 #include "database.h"
+#include "room_ops.h"
 #include "user_ops.h"
 #include "msgbase.h"
+#include "tools.h"
 #include "serv_upgrade.h"
 
 void do_pre555_usersupp_upgrade(void) {
@@ -152,8 +154,94 @@ void check_server_upgrades(void) {
 
 
 
+
+
+
+
+
+
+
+/* 
+ * Back end processing function for cmd_bmbx
+ */
+void cmd_bmbx_backend(struct quickroom *qrbuf, void *data) {
+	static struct RoomProcList *rplist = NULL;
+	struct RoomProcList *ptr;
+	struct quickroom qr;
+
+	/* Lazy programming here.  Call this function as a ForEachRoom backend
+	 * in order to queue up the room names, or call it with a null room
+	 * to make it do the processing.
+	 */
+	if (qrbuf != NULL) {
+		ptr = (struct RoomProcList *)
+			mallok(sizeof (struct RoomProcList));
+		if (ptr == NULL) return;
+
+		safestrncpy(ptr->name, qrbuf->QRname, sizeof ptr->name);
+		ptr->next = rplist;
+		rplist = ptr;
+		return;
+	}
+
+	while (rplist != NULL) {
+
+		if (lgetroom(&qr, rplist->name) == 0) {
+			lprintf(9, "Processing <%s>...\n", rplist->name);
+			if ( (qr.QRflags & QR_MAILBOX) == 0) {
+				lprintf(9, "  -- not a mailbox\n");
+			}
+			else {
+
+				qr.QRgen = time(NULL);
+				lprintf(9, "  -- bumped!\n");
+			}
+			lputroom(&qr);
+		}
+
+		ptr = rplist;
+		rplist = rplist->next;
+		phree(ptr);
+	}
+}
+
+/*
+ * quick fix command to bump mailbox generation numbers
+ */
+void cmd_bmbx(char *argbuf) {
+	int really_do_this  = 0;
+
+	if (CtdlAccessCheck(ac_internal)) return;
+	really_do_this = extract_int(argbuf, 0);
+
+	if (really_do_this != 1) {
+		cprintf("%d You didn't really want to do that.\n", OK);
+		return;
+	}
+
+	ForEachRoom(cmd_bmbx_backend, NULL);
+	cmd_bmbx_backend(NULL, NULL);
+
+	cprintf("%d Mailbox generation numbers bumped.\n", OK);
+	return;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 char *Dynamic_Module_Init(void)
 {
 	check_server_upgrades();
+	CtdlRegisterProtoHook(cmd_bmbx, "BMBX", "Bump mailboxes");
 	return "$Id$";
 }
