@@ -903,14 +903,14 @@ NEW_INST:
 
 	write_config_to_disk();
 
-	system("mkdir info 2>/dev/null");	/* Create these */
-	system("mkdir bio 2>/dev/null");
-	system("mkdir userpics 2>/dev/null");
-	system("mkdir messages 2>/dev/null");
-	system("mkdir help 2>/dev/null");
-	system("mkdir images 2>/dev/null");
-	sprintf(aaa, "mkdir %s 2>/dev/null", config.c_bucket_dir);
-	system(aaa);
+	mkdir("info", 0700);
+	mkdir("bio", 0700);
+	mkdir("userpics", 0700);
+	mkdir("messages", 0700);
+	mkdir("help", 0700);
+	mkdir("images", 0700);
+	mkdir("netconfigs", 0700);
+	mkdir(config.c_bucket_dir, 0700);
 
 	/* Delete a bunch of old files from Citadel v4; don't need anymore */
 	system("rm -fr ./chatpipes ./expressmsgs sessions 2>/dev/null");

@@ -1118,6 +1118,10 @@ void delete_room(struct quickroom *qrbuf)
 	assoc_file_name(filename, qrbuf, "images");
 	unlink(filename);
 
+	/* Delete the room's network config file */
+	assoc_file_name(filename, qrbuf, "netconfigs");
+	unlink(filename);
+
 	/* Delete the messages in the room
 	 * (Careful: this opens an S_QUICKROOM critical section!)
 	 */

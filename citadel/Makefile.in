@@ -30,6 +30,7 @@ SERV_MODULES=modules/serv_chat$(SO) modules/serv_vcard$(SO) \
 	modules/serv_smtp$(SO) \
 	modules/serv_pop3$(SO) \
 	modules/serv_imap$(SO) \
+	modules/serv_network$(SO) \
 	modules/serv_inetcfg$(SO) \
 	modules/serv_rwho$(SO) \
 	modules/serv_moderate$(SO) \
@@ -86,7 +87,8 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	auth.c chkpwd.c html.c vcard.c serv_upgrade.c serv_vandelay.c \
 	serv_smtp.c serv_pop3.c internet_addressing.c parsedate.c genstamp.c \
 	domain.c clientsocket.c serv_inetcfg.c serv_rwho.c serv_bio.c \
-	serv_moderate.c client_passwords.c serv_imap.c imap_tools.c
+	serv_moderate.c client_passwords.c serv_imap.c imap_tools.c \
+	serv_network.c
 
 DEP_FILES=$(SOURCES:.c=.d)
 
@@ -197,6 +199,12 @@ modules/serv_vandelay.so: serv_vandelay.mo
 
 modules/serv_vandelay.mo: serv_vandelay.mo
 	ln -f serv_vandelay.mo modules
+
+modules/serv_network.so: serv_network.mo
+	$(LINK_SHARED) -o modules/serv_network.so serv_network.mo
+
+modules/serv_network.mo: serv_network.mo
+	ln -f serv_network.mo modules
 
 modules/serv_upgrade.so: serv_upgrade.mo
 	$(LINK_SHARED) -o modules/serv_upgrade.so serv_upgrade.mo

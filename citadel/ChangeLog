@@ -1,4 +1,7 @@
  $Log$
+ Revision 572.18  2000/07/22 03:44:17  ajc
+ * Prepared infrastructure for the networker rewrite
+
  Revision 572.17  2000/07/17 02:38:08  ajc
  * Completed serv_vandelay.c (importer/exporter module)
  * sendcommand.c: fix behavior of SEND_LISTING mode
@@ -1954,3 +1957,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
