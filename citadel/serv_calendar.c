@@ -671,6 +671,67 @@ void ical_create_room(void)
 }
 
 
+/*
+ * ical_send_out_invitations() is called by ical_saving_vevent() when it
+ * finds a VEVENT.
+ */
+void ical_send_out_invitations(icalcomponent *cal) {
+	lprintf(9, "Sending out invitations!\n");
+}
+
+
+/*
+ * When a calendar object is being saved, determine whether it's a VEVENT
+ * and the user saving it is the organizer.  If so, send out invitations
+ * to any listed attendees.
+ *
+ *
+ * FIXME, FIXME, FIXME!!  This doesn't work, for some reason.
+ *
+ */
+void ical_saving_vevent(icalcomponent *cal) {
+	icalcomponent *c;
+	icalproperty *organizer = NULL;
+	char organizer_string[SIZ];
+
+
+	lprintf(9, "ical_saving_vevent() called\n");
+	strcpy(organizer_string, "");
+	/*
+ 	 * The VEVENT subcomponent is the one we're interested in.
+	 * Send out invitations if, and only if, this user is the Organizer.
+	 */
+	if (icalcomponent_isa(cal) == ICAL_VEVENT_COMPONENT) {
+		organizer = icalcomponent_get_first_property(cal, ICAL_ORGANIZER_PROPERTY);
+		if (organizer != NULL) {
+			lprintf(9, "Organizer found\n");
+			if (icalproperty_get_organizer(organizer)) {
+				strcpy(organizer_string,
+					icalproperty_get_organizer(organizer) );
+			}
+		}
+		lprintf(9, "organizer: <%s>\n", organizer_string);
+		if (!strncasecmp(organizer_string, "MAILTO:", 7)) {
+			strcpy(organizer_string, &organizer_string[7]);
+			striplt(organizer_string);
+			if (CtdlIsMe(organizer_string)) {
+				ical_send_out_invitations(cal);
+			}
+		}
+	}
+
+	/* If the component has subcomponents, recurse through them. */
+	for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
+	    (c != NULL);
+	    c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
+		/* Recursively process subcomponent */
+		ical_saving_vevent(c);
+	}
+
+}
+
+
+
 
 /*
  * Back end for ical_obj_beforesave()
@@ -697,6 +758,7 @@ void ical_ctdl_set_extended_msgid(char *name, char *filename, char *partnum,
 					icalproperty_get_comment(p)
 				);
 			}
+			ical_saving_vevent(cal);
 			icalcomponent_free(cal);
 		}
 	}

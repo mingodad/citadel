@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.76  2002/11/30 05:39:28  ajc
+ * Started banging out some code to determine when a saved vEvent needs to
+   send out meeting invites.
+
  Revision 601.75  2002/11/29 16:24:59  ajc
  * When calling ical*_remove_*() routines, the caller then owns the object
    which is removed.  Added ical*_free() calls to free the memory.
@@ -4252,4 +4256,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

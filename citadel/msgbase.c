@@ -3180,36 +3180,48 @@ void CtdlPutSysConfig(char *sysconfname, char *sysconfdata) {
 }
 
 
-void cmd_isme(char *argbuf) {
-	char addr[SIZ];
+/*
+ * Determine whether a given Internet address belongs to the current user
+ */
+int CtdlIsMe(char *addr) {
 	struct recptypes *recp;
 	int i;
 
-	if (CtdlAccessCheck(ac_logged_in)) return;
-	extract(addr, argbuf, 0);
 	recp = validate_recipients(addr);
-
-	if (recp == NULL) {
-		cprintf("%d Error parsing \n", ERROR + INTERNAL_ERROR);
-		return;
-	}
+	if (recp == NULL) return(0);
 
 	if (recp->num_local == 0) {
-		cprintf("%d Not you.\n", ERROR);
 		phree(recp);
-		return;
+		return(0);
 	}
 
 	for (i=0; i<recp->num_local; ++i) {
 		extract(addr, recp->recp_local, i);
 		if (!strcasecmp(addr, CC->usersupp.fullname)) {
-			cprintf("%d %s\n", CIT_OK, addr);
 			phree(recp);
-			return;
+			return(1);
 		}
 	}
 
-	cprintf("%d Not you.\n", ERROR);
 	phree(recp);
-	return;
+	return(0);
+}
+
+
+/*
+ * Citadel protocol command to do the same
+ */
+void cmd_isme(char *argbuf) {
+	char addr[SIZ];
+
+	if (CtdlAccessCheck(ac_logged_in)) return;
+	extract(addr, argbuf, 0);
+
+	if (CtdlIsMe(addr)) {
+		cprintf("%d %s\n", CIT_OK, addr);
+	}
+	else {
+		cprintf("%d Not you.\n", ERROR);
+	}
+
 }
