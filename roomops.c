@@ -366,36 +366,18 @@ void embed_room_banner(char *got) {
 
 
 /*
- * generic routine to take the session to a new room
+ * back end routine to take the session to a new room
  *
- * display_name values:  0 = goto only
- *                       1 = goto and display
- *                       2 = display only
  */
-void gotoroom(char *gname, int display_name)
+void gotoroom(char *gname)
 {
 	char buf[SIZ];
 	static long ls = (-1L);
 
+	/* store ungoto information */
+	strcpy(WC->ugname, WC->wc_roomname);
+	WC->uglsn = ls;
 
-	if (display_name) {
-		output_headers(0);
-                wprintf("Pragma: no-cache\n");
-                wprintf("Cache-Control: no-store\n");
-
-		wprintf("<HTML><HEAD>\n"
-			"<META HTTP-EQUIV=\"refresh\" CONTENT=\"500363689;\">\n"
-			"<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">\n"
-			"<META HTTP-EQUIV=\"expired\" CONTENT=\"28-May-1971 18:10:00 GMT\">\n"
-			"<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\">\n"
-			"</HEAD>\n");
-		do_template("background");
-	}
-	if (display_name != 2) {
-		/* store ungoto information */
-		strcpy(WC->ugname, WC->wc_roomname);
-		WC->uglsn = ls;
-	}
 	/* move to the new room */
 	serv_printf("GOTO %s", gname);
 	serv_gets(buf);
@@ -404,10 +386,6 @@ void gotoroom(char *gname, int display_name)
 		serv_gets(buf);
 	}
 	if (buf[0] != '2') {
-		if (display_name) {
-			wprintf("<EM>%s</EM><BR>\n", &buf[4]);
-			wDumpContent(1);
-		}
 		return;
 	}
 	extract(WC->wc_roomname, &buf[4], 0);
@@ -428,12 +406,6 @@ void gotoroom(char *gname, int display_name)
 	remove_march(WC->wc_roomname);
 	if (!strcasecmp(gname, "_BASEROOM_"))
 		remove_march(gname);
-
-	/* Display the room banner */
-	if (display_name) {
-		embed_room_banner(buf);
-		wDumpContent(1);
-	}
 }
 
 
@@ -544,7 +516,7 @@ void gotonext(void)
 
 
 void smart_goto(char *next_room) {
-	gotoroom(next_room, 0);
+	gotoroom(next_room);
 	readloop("readnew");
 }
 
@@ -1354,7 +1326,7 @@ void editroom(void)
 		display_editroom();
 		return;
 	}
-	gotoroom(er_name, 0);
+	gotoroom(er_name);
 
 	if (strlen(er_roomaide) > 0) {
 		sprintf(buf, "SETA %s", er_roomaide);
@@ -1366,7 +1338,7 @@ void editroom(void)
 			return;
 		}
 	}
-	gotoroom(er_name, 0);
+	gotoroom(er_name);
 	strcpy(WC->ImportantMessage, "Your changes have been saved.");
 	display_editroom();
 	return;
@@ -1593,6 +1565,7 @@ void entroom(void)
 	char er_password[SIZ];
 	int er_floor;
 	int er_num_type;
+	int er_view;
 
 	if (strcmp(bstr("sc"), "OK")) {
 		strcpy(WC->ImportantMessage,
@@ -1604,6 +1577,7 @@ void entroom(void)
 	strcpy(er_type, bstr("type"));
 	strcpy(er_password, bstr("er_password"));
 	er_floor = atoi(bstr("er_floor"));
+	er_view = atoi(bstr("er_view"));
 
 	er_num_type = 0;
 	if (!strcmp(er_type, "guessname"))
@@ -1615,8 +1589,8 @@ void entroom(void)
 	if (!strcmp(er_type, "personal"))
 		er_num_type = 4;
 
-	sprintf(buf, "CRE8 1|%s|%d|%s|%d", 
-		er_name, er_num_type, er_password, er_floor);
+	sprintf(buf, "CRE8 1|%s|%d|%s|%d|%d|%d", 
+		er_name, er_num_type, er_password, er_floor, 0, er_view);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '2') {
@@ -1624,9 +1598,8 @@ void entroom(void)
 		display_main_menu();
 		return;
 	}
-	gotoroom(er_name, 0);
-	er_set_default_view(atoi(bstr("er_view")));	/* Set default view */
-	do_change_view(atoi(bstr("er_view")));		/* Now go there */
+	gotoroom(er_name);
+	do_change_view(er_view);		/* Now go there */
 }
 
 
@@ -1932,6 +1905,7 @@ void do_change_view(int newview) {
 
 	serv_printf("VIEW %d", newview);
 	serv_gets(buf);
+	WC->wc_view = newview;
 	smart_goto(WC->wc_roomname);
 }
 
