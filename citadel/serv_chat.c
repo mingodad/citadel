@@ -558,6 +558,7 @@ int send_express_message(char *lun, char *x_user, char *x_msg)
 						malloc(sizeof(struct savelist));
 					sptr->next = sl;
 					MailboxName(sptr->roomname,
+						    sizeof sptr->roomname,
 						&ccptr->usersupp, PAGELOGROOM);
 					sl = sptr;
 				}

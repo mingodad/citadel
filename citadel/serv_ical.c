@@ -83,7 +83,7 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
 	 */
 
 	/* First determine if this is our room */
-	MailboxName(roomname, &CC->usersupp, USERCALENDARROOM);
+	MailboxName(roomname, sizeof roomname, &CC->usersupp, USERCALENDARROOM);
 	if (strncmp(roomname, msg->cm_fields['O'], ROOMNAMELEN))
 		return 0;	/* It's not us... */
 

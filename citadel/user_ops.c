@@ -232,14 +232,14 @@ void CtdlGetRelationship(struct visit *vbuf,
 
 	/* Set v_seen if necessary */
 	if (vbuf->v_seen[0] == 0) {
-		sprintf(vbuf->v_seen, "*:%ld", vbuf->v_lastseen);
+		snprintf(vbuf->v_seen, sizeof vbuf->v_seen, "*:%ld", vbuf->v_lastseen);
 	}
 }
 
 
-void MailboxName(char *buf, struct usersupp *who, char *prefix)
+void MailboxName(char *buf, size_t n, const struct usersupp *who, const char *prefix)
 {
-	sprintf(buf, "%010ld.%s", who->usernum, prefix);
+	snprintf(buf, n, "%010ld.%s", who->usernum, prefix);
 }
 
 
@@ -729,7 +729,7 @@ int create_user(char *newusername, int become_user)
 	putuser(&usbuf);
 
 	/* give the user a private mailbox */
-	MailboxName(mailboxname, &usbuf, MAILROOM);
+	MailboxName(mailboxname, sizeof mailboxname, &usbuf, MAILROOM);
 	create_room(mailboxname, 5, "", 0, 1);
 
 	/*** Everything below this line can be bypassed if we are administratively
@@ -1379,7 +1379,7 @@ int NewMailCount()
 	long *msglist = NULL;
 	int num_msgs = 0;
 
-	MailboxName(mailboxname, &CC->usersupp, MAILROOM);
+	MailboxName(mailboxname, sizeof mailboxname, &CC->usersupp, MAILROOM);
 	if (getroom(&mailbox, mailboxname) != 0)
 		return (0);
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &mailbox);

@@ -515,7 +515,7 @@ int read_message(
 			}
 		}
 		else if (!strncasecmp(buf, "time=", 5)) {
-			fmt_date(now, atol(&buf[5]), 0);
+			fmt_date(now, sizeof now, atol(&buf[5]), 0);
 			if (dest) {
 				fprintf(dest, "%s ", now);
 			} else {
@@ -689,7 +689,7 @@ int client_make_message(char *filename,	/* temporary file name */
 			mode = 0;
 		}
 
-	fmt_date(datestr, time(NULL), 0);
+	fmt_date(datestr, sizeof datestr, time(NULL), 0);
 	header[0] = 0;
 
 	if (room_flags & QR_ANONONLY && !recipient) {

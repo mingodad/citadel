@@ -280,7 +280,8 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 			 * to make changes to another user's vCard instead of
 			 * assuming that it's always the user saving his own.
 			 */
-        		MailboxName(config_rm, &CC->usersupp, USERCONFIGROOM);
+        		MailboxName(config_rm, sizeof config_rm,
+				    &CC->usersupp, USERCONFIGROOM);
 			CtdlDeleteMessages(config_rm, 0L, "text/x-vcard");
 
 			/* Set the Extended-ID to a standardized one so the
@@ -385,7 +386,7 @@ struct vCard *vcard_get_user(struct usersupp *u) {
 	struct vCard *v;
 
         strcpy(hold_rm, CC->quickroom.QRname);	/* save current room */
-        MailboxName(config_rm, u, USERCONFIGROOM);
+        MailboxName(config_rm, sizeof config_rm, u, USERCONFIGROOM);
 
         if (getroom(&CC->quickroom, config_rm) != 0) {
                 getroom(&CC->quickroom, hold_rm);

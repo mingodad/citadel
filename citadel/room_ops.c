@@ -811,7 +811,8 @@ void cmd_goto(char *gargs)
 
 	/* Then try a mailbox name match */
 	if (c != 0) {
-		MailboxName(augmented_roomname, &CC->usersupp, towhere);
+		MailboxName(augmented_roomname, sizeof augmented_roomname,
+			    &CC->usersupp, towhere);
 		c = getroom(&QRscratch, augmented_roomname);
 		if (c == 0)
 			strcpy(towhere, augmented_roomname);
@@ -1344,7 +1345,7 @@ unsigned create_room(char *new_room_name,
 	 * name accordingly (prepend the user number)
 	 */
 	if (new_room_type == 4) {
-		MailboxName(qrbuf.QRname, &CC->usersupp, new_room_name);
+		MailboxName(qrbuf.QRname, sizeof qrbuf.QRname, &CC->usersupp, new_room_name);
 	}
 	else {
 		safestrncpy(qrbuf.QRname, new_room_name, sizeof qrbuf.QRname);

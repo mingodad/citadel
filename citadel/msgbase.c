@@ -1903,7 +1903,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		lprintf(9, "Delivering private local mail to <%s>\n",
 			recipient);
 		if (getuser(&userbuf, recipient) == 0) {
-			MailboxName(actual_rm, &userbuf, MAILROOM);
+			MailboxName(actual_rm, sizeof actual_rm, &userbuf, MAILROOM);
 			CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0);
 		}
 		else {
@@ -2843,7 +2843,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 	size_t len;
 
 	if (is_mailbox != NULL)
-		MailboxName(roomname, is_mailbox, req_room);
+		MailboxName(roomname, sizeof roomname, is_mailbox, req_room);
 	else
 		safestrncpy(roomname, req_room, sizeof(roomname));
 	lprintf(9, "CtdlWriteObject() to <%s> (flags=%d)\n", roomname, flags);

@@ -393,7 +393,7 @@ int collapsed_strcmp(char *s1, char *s2) {
  * Format a date/time stamp for output 
  * seconds is whether to print the seconds
  */
-void fmt_date(char *buf, time_t thetime, int seconds) {
+void fmt_date(char *buf, size_t n, time_t thetime, int seconds) {
 	struct tm *tm;
 	int hour;
 
@@ -410,7 +410,7 @@ void fmt_date(char *buf, time_t thetime, int seconds) {
 	else if (hour > 12) hour = hour - 12;
 
 	if (seconds) {
-		sprintf(buf, "%s %d %4d %d:%02d:%02d%s",
+		snprintf(buf, n, "%s %d %4d %d:%02d:%02d%s",
 			ascmonths[tm->tm_mon],
 			tm->tm_mday,
 			tm->tm_year + 1900,
@@ -420,7 +420,7 @@ void fmt_date(char *buf, time_t thetime, int seconds) {
 			( (tm->tm_hour >= 12) ? "pm" : "am" )
 		);
 	} else {
-		sprintf(buf, "%s %d %4d %d:%02d%s",
+		snprintf(buf, n, "%s %d %4d %d:%02d%s",
 			ascmonths[tm->tm_mon],
 			tm->tm_mday,
 			tm->tm_year + 1900,
@@ -454,7 +454,7 @@ int is_msg_in_mset(char *mset, long msgnum) {
 		if (num_tokens(setstr, ':') >= 2) {
 			extract_token(histr, setstr, 1, ':');
 			if (!strcmp(histr, "*")) {
-				sprintf(histr, "%ld", LONG_MAX);
+				snprintf(histr, sizeof histr, "%ld", LONG_MAX);
 			}
 		} 
 		else {

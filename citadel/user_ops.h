@@ -40,7 +40,8 @@ void CtdlGetRelationship(struct visit *vbuf,
 void CtdlSetRelationship(struct visit *newvisit,
                         struct usersupp *rel_user,
                         struct quickroom *rel_room);
-void MailboxName(char *buf, struct usersupp *who, char *prefix);
+void MailboxName(char *buf, size_t n, const struct usersupp *who,
+		 const char *prefix);
 int GenerateRelationshipIndex(  char *IndexBuf,
                                 long RoomID,
                                 long RoomGen,

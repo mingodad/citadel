@@ -382,7 +382,8 @@ void imap_select(int num_parms, char *parms[]) {
 
         /* Then try a mailbox name match */
         if (c != 0) {
-                MailboxName(augmented_roomname, &CC->usersupp, towhere);
+                MailboxName(augmented_roomname, sizeof augmented_roomname,
+			    &CC->usersupp, towhere);
                 c = getroom(&QRscratch, augmented_roomname);
                 if (c == 0)
                         strcpy(towhere, augmented_roomname);
@@ -671,7 +672,8 @@ int imap_grabroom(char *returned_roomname, char *foldername) {
 
         /* Then try a mailbox name match */
         if (c != 0) {
-                MailboxName(augmented_roomname, &CC->usersupp, roomname);
+                MailboxName(augmented_roomname, sizeof augmented_roomname,
+			    &CC->usersupp, roomname);
                 c = getroom(&QRscratch, augmented_roomname);
                 if (c == 0)
                         strcpy(roomname, augmented_roomname);
