@@ -784,10 +784,9 @@ void save_message(char *mtmp,	/* file containing proper message */
 		}
 
 	/* Add the message pointer to the room */
-	AddMessageToRoom(&CC->quickroom, newmsgid);
+	CC->quickroom.QRhighest = AddMessageToRoom(&CC->quickroom, newmsgid);
 
 	/* update quickroom */
-	CC->quickroom.QRhighest = newmsgid;
 	lputroom(&CC->quickroom, actual_rm);
 
 	/* Network mail - send a copy to the network program. */
@@ -1232,7 +1231,7 @@ void cmd_move(char *args)
 
 	/* put the message into the target room */
 	lgetroom(&qtemp, targ);
-	AddMessageToRoom(&qtemp, num);
+	qtemp.QRhighest = AddMessageToRoom(&qtemp, num);
 	lputroom(&qtemp, targ);
 
 	cprintf("%d Message moved.\n", OK);

@@ -332,11 +332,16 @@ void delete_msglist(struct quickroom *whichroom) {
  * So, why doesn't this function use the get_msglist() and put_msglist() stuff
  * defined above?  Because the room the message number is being written to
  * may not be the current room (as is the case with cmd_move() for example).
+ *
+ * This function returns the highest message number present in the room after
+ * the add operation is performed - which is not necessarily the message
+ * being added.
  */
-void AddMessageToRoom(struct quickroom *whichroom, long newmsgid) {
+long AddMessageToRoom(struct quickroom *whichroom, long newmsgid) {
 	struct cdbdata *cdbfr;
 	int num_msgs;
 	long *msglist;
+	long highest_msg = 0L;
 	
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &whichroom->QRnumber, sizeof(long));
 	if (cdbfr == NULL) {
@@ -364,12 +369,16 @@ void AddMessageToRoom(struct quickroom *whichroom, long newmsgid) {
 	/* Sort the message list, so all the msgid's are in order */
 	num_msgs = sort_msglist(msglist, num_msgs);
 
+	/* Determine the highest message number */
+	highest_msg = msglist[num_msgs - 1];
+
 	/* Write it back to disk. */
 	cdb_store(CDB_MSGLISTS, &whichroom->QRnumber, sizeof(long),
 		msglist, num_msgs * sizeof(long));
 
 	/* And finally, free up the memory we used. */
 	free(msglist);
+	return(highest_msg);
 	}
 
 
