@@ -1913,6 +1913,35 @@ to get out of sync.
 easy way to mess things up.  Therefore, client software should first check
 the output of an INFO command to ensure that the server supports quiet noops.
  
+  
+ 
+ MRTG   (Multi Router Traffic Grapher)
+ 
+ Multi Router Traffic Grapher (please see http://www.mrtg.org for more info) is
+a tool which creates pretty graphs of network activity, usually collected from
+routers using SNMP.  However, its ability to call external scripts has spawned
+a small community of people using it to graph anything which can be graphed.
+The MRTG command can output Citadel server activity in the format MRTG expects.
+ 
+ This format is as follows:
+ 
+ LISTING_FOLLOWS
+ Line 1: variable #1
+ Line 2: variable #2
+ Line 3: uptime of system
+ Line 4: name of system
+ 000
+ 
+ MRTG accepts two different keywords.  "MRTG users" will return two variables,
+the number of connected users and the number of active users.  "MRTG messages"
+will return one variable (and a zero in the second field), showing the current
+highest message number on the system.  Any other keyword, or a missing keyword,
+will cause the MRTG command to return an ERROR code.
+ 
+ Please get in touch with the Citadel developers if you wish to experiment with
+this.
+ 
+  
  
  ASYN   (ASYNchronous message support)
  
