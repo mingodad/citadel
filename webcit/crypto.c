@@ -18,7 +18,7 @@
 #define CTDL_KEY_PATH		CTDL_CRYPTO_DIR "/citadel.key"
 #define CTDL_CSR_PATH		CTDL_CRYPTO_DIR "/citadel.csr"
 #define CTDL_CER_PATH		CTDL_CRYPTO_DIR "/citadel.cer"
-#define SIGN_DAYS		3650	/* Ten years */
+#define SIGN_DAYS		365
 
 
 /* Shared Diffie-Hellman parameters */
@@ -29,6 +29,8 @@
 
 SSL_CTX *ssl_ctx;		/* SSL context */
 pthread_mutex_t **SSLCritters;	/* Things needing locking */
+
+pthread_key_t ThreadSSL;	/* Per-thread SSL context */
 
 static unsigned long id_callback(void)
 {
@@ -371,26 +373,27 @@ void init_ssl(void)
 /*
  * starttls() starts SSL/TLS encryption for the current session.
  */
-int starttls(void) {
-
+int starttls(int sock) {
 	int retval, bits, alg_bits;
+	SSL *newssl;
+
+	pthread_setspecific(ThreadSSL, NULL);
 
 	if (!ssl_ctx) {
 		return(1);
 	}
-	if (!(WC->ssl = SSL_new(ssl_ctx))) {
+	if (!(newssl = SSL_new(ssl_ctx))) {
 		lprintf(3, "SSL_new failed: %s\n",
 				ERR_reason_error_string(ERR_get_error()));
 		return(2);
 	}
-	if (!(SSL_set_fd(WC->ssl, WC->http_sock))) {
+	if (!(SSL_set_fd(newssl, sock))) {
 		lprintf(3, "SSL_set_fd failed: %s\n",
 			ERR_reason_error_string(ERR_get_error()));
-		SSL_free(WC->ssl);
-		WC->ssl = NULL;
+		SSL_free(newssl);
 		return(3);
 	}
-	retval = SSL_accept(WC->ssl);
+	retval = SSL_accept(newssl);
 	if (retval < 1) {
 		/*
 		 * Can't notify the client of an error here; they will
@@ -399,21 +402,23 @@ int starttls(void) {
 		 */
 		long errval;
 
-		errval = SSL_get_error(WC->ssl, retval);
+		errval = SSL_get_error(newssl, retval);
 		lprintf(3, "SSL_accept failed: %s\n",
 			ERR_reason_error_string(ERR_get_error()));
-		SSL_free(WC->ssl);
-		WC->ssl = NULL;
+		SSL_free(newssl);
+		newssl = NULL;
 		return(4);
 	}
-	BIO_set_close(WC->ssl->rbio, BIO_NOCLOSE);
+	BIO_set_close(newssl->rbio, BIO_NOCLOSE);
 	bits =
-	    SSL_CIPHER_get_bits(SSL_get_current_cipher(WC->ssl),
+	    SSL_CIPHER_get_bits(SSL_get_current_cipher(newssl),
 				&alg_bits);
 	lprintf(5, "SSL/TLS using %s on %s (%d of %d bits)\n",
-		SSL_CIPHER_get_name(SSL_get_current_cipher(WC->ssl)),
-		SSL_CIPHER_get_version(SSL_get_current_cipher(WC->ssl)),
+		SSL_CIPHER_get_name(SSL_get_current_cipher(newssl)),
+		SSL_CIPHER_get_version(SSL_get_current_cipher(newssl)),
 		bits, alg_bits);
+
+	pthread_setspecific(ThreadSSL, newssl);
 	return(0);
 }
 
@@ -428,9 +433,9 @@ int starttls(void) {
 void endtls(void)
 {
 	lprintf(5, "Ending SSL/TLS\n");
-	SSL_shutdown(WC->ssl);
-	SSL_free(WC->ssl);
-	WC->ssl = NULL;
+	SSL_shutdown(THREADSSL);
+	SSL_free(THREADSSL);
+	pthread_setspecific(ThreadSSL, NULL);
 }
 
 
@@ -444,5 +449,105 @@ void ssl_lock(int mode, int n, const char *file, int line)
 	else
 		pthread_mutex_unlock(SSLCritters[n]);
 }
+
+/*
+ * client_write_ssl() Send binary data to the client encrypted.
+ */
+void client_write_ssl(char *buf, int nbytes)
+{
+	int retval;
+	int nremain;
+	char junk[1];
+
+	nremain = nbytes;
+
+	while (nremain > 0) {
+		if (SSL_want_write(THREADSSL)) {
+			if ((SSL_read(THREADSSL, junk, 0)) < 1) {
+				lprintf(9, "SSL_read in client_write: %s\n", ERR_reason_error_string(ERR_get_error()));
+			}
+		}
+		retval =
+		    SSL_write(THREADSSL, &buf[nbytes - nremain], nremain);
+		if (retval < 1) {
+			long errval;
+
+			errval = SSL_get_error(THREADSSL, retval);
+			if (errval == SSL_ERROR_WANT_READ ||
+			    errval == SSL_ERROR_WANT_WRITE) {
+				sleep(1);
+				continue;
+			}
+			lprintf(9, "SSL_write got error %ld, ret %d\n", errval, retval);
+			if (retval == -1)
+				lprintf(9, "errno is %d\n", errno);
+			endtls();
+			client_write(&buf[nbytes - nremain], nremain);
+			return;
+		}
+		nremain -= retval;
+	}
+}
+
+
+/*
+ * client_read_ssl() - read data from the encrypted layer.
+ */
+int client_read_ssl(char *buf, int bytes, int timeout)
+{
+#if 0
+	fd_set rfds;
+	struct timeval tv;
+	int retval;
+	int s;
+#endif
+	int len, rlen;
+	char junk[1];
+
+	len = 0;
+	while (len < bytes) {
+#if 0
+		/*
+		 * This code is disabled because we don't need it when
+		 * using blocking reads (which we are). -IO
+		 */
+		FD_ZERO(&rfds);
+		s = BIO_get_fd(THREADSSL->rbio, NULL);
+		FD_SET(s, &rfds);
+		tv.tv_sec = timeout;
+		tv.tv_usec = 0;
+
+		retval = select(s + 1, &rfds, NULL, NULL, &tv);
+
+		if (FD_ISSET(s, &rfds) == 0) {
+			return (0);
+		}
+
+#endif
+		if (SSL_want_read(THREADSSL)) {
+			if ((SSL_write(THREADSSL, junk, 0)) < 1) {
+				lprintf(9, "SSL_write in client_read: %s\n", ERR_reason_error_string(ERR_get_error()));
+			}
+		}
+		rlen = SSL_read(THREADSSL, &buf[len], bytes - len);
+		if (rlen < 1) {
+			long errval;
+
+			errval = SSL_get_error(THREADSSL, rlen);
+			if (errval == SSL_ERROR_WANT_READ ||
+			    errval == SSL_ERROR_WANT_WRITE) {
+				sleep(1);
+				continue;
+			}
+			lprintf(9, "SSL_read got error %ld\n", errval);
+			endtls();
+			return (client_read_to
+				(&buf[len], bytes - len, timeout));
+		}
+		len += rlen;
+	}
+	return (1);
+}
+
 
 #endif				/* HAVE_OPENSSL */

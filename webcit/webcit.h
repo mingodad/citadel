@@ -227,16 +227,20 @@ struct wcsession {
 	int outside_frameset_allowed;	/* nonzero if current req is allowed
 					 * outside of the main frameset */
 	char last_chat_user[SIZ];
-#ifdef HAVE_OPENSSL
-	SSL *ssl;
-#endif
 };
 
 #define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
 #define num_parms(source)		num_tokens(source, '|')
 
+/* Per-session data */
 #define WC ((struct wcsession *)pthread_getspecific(MyConKey))
 extern pthread_key_t MyConKey;
+
+/* Per-thread SSL context */
+#ifdef HAVE_OPENSSL
+#define THREADSSL ((SSL *)pthread_getspecific(ThreadSSL))
+extern pthread_key_t ThreadSSL;
+#endif
 
 struct serv_info serv_info;
 extern char floorlist[128][SIZ];
@@ -456,7 +460,9 @@ void spawn_another_worker_thread(void);
 void init_ssl(void);
 void endtls(void);
 void ssl_lock(int mode, int n, const char *file, int line);
-int starttls(void);
+int starttls(int sock);
 extern SSL_CTX *ssl_ctx;  
+int client_read_ssl(char *buf, int bytes, int timeout);
+void client_write_ssl(char *buf, int nbytes);
 #endif
 

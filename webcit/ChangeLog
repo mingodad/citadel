@@ -1,4 +1,8 @@
 $Log$
+Revision 506.4  2004/04/16 02:59:01  ajc
+* Completed SSL support.  Still doesn't work with all browsers... gotta
+  figure out why
+
 Revision 506.3  2004/04/15 03:57:00  ajc
 * Brought over the SSL/TLS stuff from Citadel.  I think it's complete but
   it has a crashy crashy bug in it.  Don't use it yet.
@@ -1766,4 +1770,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

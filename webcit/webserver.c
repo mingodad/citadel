@@ -112,6 +112,13 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
 	struct timeval tv;
 	int retval;
 
+
+#ifdef HAVE_OPENSSL
+	if (is_https) {
+		return(client_read_ssl(buf, bytes, timeout));
+	}
+#endif
+
 	len = 0;
 	while (len < bytes) {
 		FD_ZERO(&rfds);
@@ -124,7 +131,9 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
 		if (FD_ISSET(sock, &rfds) == 0) {
 			return (0);
 		}
+
 		rlen = read(sock, &buf[len], bytes - len);
+
 		if (rlen < 1) {
 			lprintf(2, "client_read() failed: %s\n",
 			       strerror(errno));
@@ -134,6 +143,18 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
 	}
 	return (1);
 }
+
+
+ssize_t client_write(const void *buf, size_t count) {
+#ifdef HAVE_OPENSSL
+	if (is_https) {
+		client_write_ssl((char *)buf, count);
+		return(count);
+	}
+#endif
+	return(write(WC->http_sock, buf, count));
+}
+
 
 /*
  * Read data from the client socket with default timeout.
@@ -296,6 +317,18 @@ int main(int argc, char **argv)
         }
 
 	/*
+	 * Set up a place to put thread-specific SSL data.
+	 * We don't stick this in the wcsession struct because SSL starts
+	 * up before the session is bound, and it gets torn down between
+	 * transactions.
+	 */
+#ifdef HAVE_OPENSSL
+        if (pthread_key_create(&ThreadSSL, NULL) != 0) {
+                lprintf(1, "Can't create TSD key: %s\n", strerror(errno));
+        }
+#endif
+
+	/*
 	 * Bind the server to our favorite port.
 	 * There is no need to check for errors, because ig_tcp_server()
 	 * exits if it doesn't succeed.
@@ -360,7 +393,7 @@ void worker_entry(void) {
 			/* If we are an HTTPS server, go crypto now. */
 #ifdef HAVE_OPENSSL
 			if (is_https) {
-				if (starttls() != 0) {
+				if (starttls(ssock) != 0) {
 					fail_this_transaction = 1;
 				}
 			}
