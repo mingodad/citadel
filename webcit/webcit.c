@@ -364,13 +364,23 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 
 	if (do_httpheaders) {
 		wprintf("Content-type: text/html\r\n"
-			"Server: %s / %s\n", SERVER, serv_info.serv_software
+			"Server: %s / %s\n"
+			"Connection: close\r\n",
+			SERVER, serv_info.serv_software
 		);
-		if (!cache)
-			wprintf("Connection: close\r\n"
-				"Pragma: no-cache\r\n"
-				"Cache-Control: no-store\r\n"
-			);
+	}
+
+	if (cache) {
+		wprintf("Pragma: public\r\n"
+			"Cache-Control: max-age=3600, must-revalidate\r\n"
+			"Last-modified: %s\r\n",
+			httpnow
+		);
+	}
+	else {
+		wprintf("Pragma: no-cache\r\n"
+			"Cache-Control: no-store\r\n"
+		);
 	}
 
 	stuff_to_cookie(cookie, WC->wc_session, WC->wc_username,
@@ -469,20 +479,44 @@ void check_for_instant_messages()
  */
 void http_transmit_thing(char *thing, size_t length, char *content_type,
 			 int is_static) {
-	if (is_static) {
-		output_headers(0, 0, 0, 0, 0, 0, 1);
-	}
-	else {
-		output_headers(0, 0, 0, 0, 0, 0, 0);
-	}
+
+	output_headers(0, 0, 0, 0, 0, 0, is_static);
+
 	wprintf("Content-type: %s\r\n"
-		"Content-length: %ld\r\n"
 		"Server: %s\r\n"
-		"Connection: close\r\n"
-		"\r\n",
+		"Connection: close\r\n",
 		content_type,
-		(long) length,
-		SERVER
+		SERVER);
+
+#ifdef HAVE_ZLIB
+	/* If we can send the data out compressed, please do so. */
+	if (WC->gzip_ok) {
+		char *compressed_data = NULL;
+		uLongf compressed_len;
+
+		compressed_len = (uLongf) ((length * 101) / 100) + 100;
+		compressed_data = malloc(compressed_len);
+
+		if (compress_gzip((Bytef *) compressed_data,
+				  &compressed_len,
+				  (Bytef *) thing,
+				  (uLongf) length, Z_BEST_SPEED) == Z_OK) {
+			wprintf("Content-encoding: gzip\r\n"
+				"Content-length: %ld\r\n"
+				"\r\n",
+				(long) compressed_len
+			);
+			client_write(compressed_data, (size_t)compressed_len);
+			free(compressed_data);
+			return;
+		}
+	}
+#endif
+
+	/* No compression ... just send it out as-is */
+	wprintf("Content-length: %ld\r\n"
+		"\r\n",
+		(long) length
 	);
 	client_write(thing, (size_t)length);
 }
