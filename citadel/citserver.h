@@ -37,7 +37,7 @@ void citproto_begin_session(void);
 void GenerateRoomDisplay(char *real_room,
                         struct CitContext *viewed,
                         struct CitContext *viewer);
-extern DLEXP int do_defrag;
+extern int do_defrag;
 char CtdlCheckExpress(void);
 
 int CtdlAccessCheck(int);

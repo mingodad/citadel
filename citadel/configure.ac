@@ -434,7 +434,7 @@ if test "x$with_ncurses" != xno; then
 	AC_CHECK_HEADERS(ncurses.h,,,[ ])
 fi
 
-AC_CHECK_HEADER(resolv.h, [SMTP=serv_smtp.o; DOMAIN=domain.c],,
+AC_CHECK_HEADER(resolv.h, [SMTP=serv_smtp.o serv_spam.o; DOMAIN=domain.c],,
 [#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif

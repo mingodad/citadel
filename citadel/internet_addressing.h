@@ -35,7 +35,7 @@ enum {
 	hostalias_directory
 };
 
-extern DLEXP char *inetcfg;
+extern char *inetcfg;
 
 
 struct spamstrings_t {
@@ -43,5 +43,5 @@ struct spamstrings_t {
 	char *string;
 };
 
-extern DLEXP struct spamstrings_t *spamstrings;
+extern struct spamstrings_t *spamstrings;
 

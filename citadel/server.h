@@ -18,19 +18,6 @@
 #define INLINE
 #endif
 
-#ifdef __CYGWIN__
-
-#ifdef IN_LIBCIT
-#define DLEXP __declspec(dllexport)
-#else
-#define DLEXP __declspec(dllimport)
-#endif
-
-#else
-#define DLEXP
-
-#endif /* __CYGWIN__ */
-
 #include "citadel.h"
 #ifdef HAVE_OPENSSL
 #include <openssl/ssl.h>
@@ -167,9 +154,9 @@ enum {
 struct CitContext *MyContext(void);
 #define CC ((struct CitContext *)MyContext())
 
-extern DLEXP struct CitContext *ContextList;
-extern DLEXP int ScheduledShutdown;
-extern DLEXP struct CitControl CitControl;
+extern struct CitContext *ContextList;
+extern int ScheduledShutdown;
+extern struct CitControl CitControl;
 
 
 struct ExpressMessage {
@@ -272,13 +259,13 @@ struct LogFunctionHook {
 	int loglevel;
 	void (*h_function_pointer) (char *);
 };
-extern DLEXP struct LogFunctionHook *LogHookTable;
+extern struct LogFunctionHook *LogHookTable;
 
 struct CleanupFunctionHook {
 	struct CleanupFunctionHook *next;
 	void (*h_function_pointer) (void);
 };
-extern DLEXP struct CleanupFunctionHook *CleanupHookTable;
+extern struct CleanupFunctionHook *CleanupHookTable;
 
 
 
@@ -294,7 +281,7 @@ struct SessionFunctionHook {
 	void (*h_function_pointer) (void);
 	int eventtype;
 };
-extern DLEXP struct SessionFunctionHook *SessionHookTable;
+extern struct SessionFunctionHook *SessionHookTable;
 
 /* 
  * Event types can't be enum'ed, because they must remain consistent between
@@ -322,7 +309,7 @@ struct UserFunctionHook {
 	void (*h_function_pointer) (char *username, long usernum);
 	int eventtype;
 };
-extern DLEXP struct UserFunctionHook *UserHookTable;
+extern struct UserFunctionHook *UserHookTable;
 
 #define EVT_PURGEUSER	100	/* Deleting a user */
 #define EVT_OUTPUTMSG	101	/* Outputting a message */
@@ -336,7 +323,7 @@ struct MessageFunctionHook {
 	int (*h_function_pointer) (struct CtdlMessage *msg);
 	int eventtype;
 };
-extern DLEXP struct MessageFunctionHook *MessageHookTable;
+extern struct MessageFunctionHook *MessageHookTable;
 
 #define EVT_BEFOREREAD	200
 #define EVT_BEFORESAVE	201
@@ -353,7 +340,7 @@ struct NetprocFunctionHook {
 	struct NetprocFunctionHook *next;
 	int (*h_function_pointer) (struct CtdlMessage *msg, char *target_room);
 };
-extern DLEXP struct NetprocFunctionHook *NetprocHookTable;
+extern struct NetprocFunctionHook *NetprocHookTable;
 
 
 /*
@@ -364,7 +351,7 @@ struct DeleteFunctionHook {
 	struct DeleteFunctionHook *next;
 	void (*h_function_pointer) (char *target_room, long msgnum);
 };
-extern DLEXP struct DeleteFunctionHook *DeleteHookTable;
+extern struct DeleteFunctionHook *DeleteHookTable;
 
 
 /*
@@ -378,7 +365,7 @@ struct XmsgFunctionHook {
 	int (*h_function_pointer) (char *, char *, char *);
 	int order;
 };
-extern DLEXP struct XmsgFunctionHook *XmsgHookTable;
+extern struct XmsgFunctionHook *XmsgHookTable;
 
 /* Priority levels for paging functions (lower is better) */
 enum {
@@ -402,7 +389,7 @@ struct ServiceFunctionHook {
 	void (*h_command_function) (void) ;
 	int msock;
 };
-extern DLEXP struct ServiceFunctionHook *ServiceHookTable;
+extern struct ServiceFunctionHook *ServiceHookTable;
 
 
 
@@ -461,7 +448,7 @@ struct TheHeap {
 	void *h_ptr;
 };
 
-extern DLEXP struct TheHeap *heap;
+extern struct TheHeap *heap;
 
 #else
 
