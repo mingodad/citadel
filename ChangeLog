@@ -1,4 +1,7 @@
 $Log$
+Revision 505.6  2004/02/26 03:07:26  ajc
+* Put the /favicon.ico --> /static/favicon.ico hack back in.  Why not?
+
 Revision 505.5  2004/02/25 23:10:28  ajc
 * Allow "/do_logout" as a no-frames page
 
@@ -1681,4 +1684,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

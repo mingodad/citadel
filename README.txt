@@ -122,6 +122,9 @@ ones which you may be interested in are:
  -> hello.gif: your system's logo.  It is displayed along with the logon
     banner, and on the top left corner of each page.
  
+ If you would like to deploy a "favicon.ico" graphic, please put it in
+the static/ directory.  WebCit will properly serve it from there.
+ 
  
  CALENDAR SERVICE
  ----------------
