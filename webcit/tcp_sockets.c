@@ -149,6 +149,7 @@ void serv_read(char *buf, int bytes)
 			WC->serv_sock = (-1);
 			WC->connected = 0;
 			WC->logged_in = 0;
+			memset(buf, 0, bytes);
 			return;
 		}
 		len = len + rlen;
