@@ -183,7 +183,8 @@ void get_mm(void)
 
 
 
-void simple_listing(long msgnum) {
+void simple_listing(long msgnum)
+{
 	cprintf("%ld\n", msgnum);
 }
 
@@ -194,11 +195,12 @@ void simple_listing(long msgnum) {
  */
 void CtdlForEachMessage(int mode, long ref,
 			char *content_type,
-			void (*CallBack) (long msgnum) ) {
+			void (*CallBack) (long msgnum))
+{
 
 	int a;
 	struct visit vbuf;
-        struct cdbdata *cdbfr;
+	struct cdbdata *cdbfr;
 	long *msglist = NULL;
 	int num_msgs = 0;
 	long thismsg;
@@ -210,12 +212,12 @@ void CtdlForEachMessage(int mode, long ref,
 	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
 	/* Load the message list */
-        cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->quickroom.QRnumber, sizeof(long));
-        if (cdbfr != NULL) {
-        	msglist = mallok(cdbfr->len);
-        	memcpy(msglist, cdbfr->ptr, cdbfr->len);
-        	num_msgs = cdbfr->len / sizeof(long);
-        	cdb_free(cdbfr);
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->quickroom.QRnumber, sizeof(long));
+	if (cdbfr != NULL) {
+		msglist = mallok(cdbfr->len);
+		memcpy(msglist, cdbfr->ptr, cdbfr->len);
+		num_msgs = cdbfr->len / sizeof(long);
+		cdb_free(cdbfr);
 	} else {
 		return;		/* No messages at all?  No further action. */
 	}
@@ -225,38 +227,37 @@ void CtdlForEachMessage(int mode, long ref,
 	 * out all messages which are not of the type requested.
 	 */
 	if (num_msgs > 0)
-	 if (content_type != NULL)
-	  if (strlen(content_type) > 0) for (a = 0; a < num_msgs; ++a) {
-		GetSuppMsgInfo(&smi, msglist[a]);
-		if (strcasecmp(smi.smi_content_type, content_type)) {
-			msglist[a] = 0L;
-		}
-	}
-
-
+		if (content_type != NULL)
+			if (strlen(content_type) > 0)
+				for (a = 0; a < num_msgs; ++a) {
+					GetSuppMsgInfo(&smi, msglist[a]);
+					if (strcasecmp(smi.smi_content_type, content_type)) {
+						msglist[a] = 0L;
+					}
+				}
 	/*
 	 * Now iterate through the message list, according to the
 	 * criteria supplied by the caller.
 	 */
-	if (num_msgs > 0) for (a = 0; a < num_msgs; ++a) {
-		thismsg = msglist[a];
-		if ((thismsg >= 0)
-		    && (
+	if (num_msgs > 0)
+		for (a = 0; a < num_msgs; ++a) {
+			thismsg = msglist[a];
+			if ((thismsg >= 0)
+			    && (
 
-			       (mode == MSGS_ALL)
-			       || ((mode == MSGS_OLD) && (thismsg <= vbuf.v_lastseen))
-			       || ((mode == MSGS_NEW) && (thismsg > vbuf.v_lastseen))
-			       || ((mode == MSGS_NEW) && (thismsg >= vbuf.v_lastseen)
-			    && (CC->usersupp.flags & US_LASTOLD))
-			       || ((mode == MSGS_LAST) && (a >= (num_msgs - ref)))
-		    || ((mode == MSGS_FIRST) && (a < ref))
-			       || ((mode == MSGS_GT) && (thismsg > ref))
-		    )
-		    ) {
-			CallBack(thismsg);
+				       (mode == MSGS_ALL)
+				       || ((mode == MSGS_OLD) && (thismsg <= vbuf.v_lastseen))
+				       || ((mode == MSGS_NEW) && (thismsg > vbuf.v_lastseen))
+				       || ((mode == MSGS_NEW) && (thismsg >= vbuf.v_lastseen)
+				    && (CC->usersupp.flags & US_LASTOLD))
+				       || ((mode == MSGS_LAST) && (a >= (num_msgs - ref)))
+				   || ((mode == MSGS_FIRST) && (a < ref))
+				|| ((mode == MSGS_GT) && (thismsg > ref))
+			    )
+			    ) {
+				CallBack(thismsg);
+			}
 		}
-	}
-
 	phree(msglist);		/* Clean up */
 }
 
@@ -292,7 +293,6 @@ void cmd_msgs(char *cmdbuf)
 		cprintf("%d not logged in\n", ERROR + NOT_LOGGED_IN);
 		return;
 	}
-
 	cprintf("%d Message list...\n", LISTING_FOLLOWS);
 	CtdlForEachMessage(mode, cm_ref, NULL, simple_listing);
 	cprintf("000\n");
@@ -359,7 +359,7 @@ void memfmout(int width, char *mptr, char subst)
 	strcpy(buffer, "");
 	c = 1;			/* c is the current pos */
 
-FMTA:	if (subst) {
+      FMTA:if (subst) {
 		while (ch = *mptr, ((ch != 0) && (strlen(buffer) < 126))) {
 			ch = *mptr++;
 			buffer[strlen(buffer) + 1] = 0;
@@ -418,7 +418,7 @@ FMTA:	if (subst) {
 	}
 	goto FMTA;
 
-FMTEND:	cprintf("%s\n", aaa);
+      FMTEND:cprintf("%s\n", aaa);
 }
 
 
@@ -486,21 +486,21 @@ void mime_download(char *name, char *filename, char *partnum, char *disp,
  * NOTE: Caller is responsible for freeing the returned CtdlMessage struct
  *       using the CtdlMessageFree() function.
  */
-struct CtdlMessage *CtdlFetchMessage(long msgnum) {
+struct CtdlMessage *CtdlFetchMessage(long msgnum)
+{
 	struct cdbdata *dmsgtext;
 	struct CtdlMessage *ret = NULL;
 	char *mptr;
 	CIT_UBYTE ch;
 	CIT_UBYTE field_header;
 	size_t field_length;
-	
+
 
 	dmsgtext = cdb_fetch(CDB_MSGMAIN, &msgnum, sizeof(long));
 	if (dmsgtext == NULL) {
 		lprintf(9, "CtdlMessage(%ld) failed.\n");
 		return NULL;
 	}
-
 	mptr = dmsgtext->ptr;
 
 	/* Parse the three bytes that begin EVERY message on disk.
@@ -514,13 +514,12 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum) {
 		cdb_free(dmsgtext);
 		return NULL;
 	}
-
 	ret = (struct CtdlMessage *) mallok(sizeof(struct CtdlMessage));
 	memset(ret, 0, sizeof(struct CtdlMessage));
 
 	ret->cm_magic = CTDLMESSAGE_MAGIC;
-	ret->cm_anon_type = *mptr++;		/* Anon type byte */
-	ret->cm_format_type = *mptr++;		/* Format type byte */
+	ret->cm_anon_type = *mptr++;	/* Anon type byte */
+	ret->cm_format_type = *mptr++;	/* Format type byte */
 
 	/*
 	 * The rest is zero or more arbitrary fields.  Load them in.
@@ -529,32 +528,34 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum) {
 	 */
 	do {
 		field_length = strlen(mptr);
-		if (field_length == 0) break;
+		if (field_length == 0)
+			break;
 		field_header = *mptr++;
 		ret->cm_fields[field_header] = mallok(field_length);
 		strcpy(ret->cm_fields[field_header], mptr);
 
-		while (*mptr++ != 0) ;	/* advance to next field */
+		while (*mptr++ != 0);	/* advance to next field */
 
-	} while ( (field_length > 0) && (field_header != 'M') );
+	} while ((field_length > 0) && (field_header != 'M'));
 
 	cdb_free(dmsgtext);
-	return(ret);
+	return (ret);
 }
 
 /*
  * 'Destructor' for struct CtdlMessage
  */
-void CtdlFreeMessage(struct CtdlMessage *msg) {
+void CtdlFreeMessage(struct CtdlMessage *msg)
+{
 	int i;
 
-	if (msg == NULL) return;
+	if (msg == NULL)
+		return;
 	if ((msg->cm_magic) != CTDLMESSAGE_MAGIC) {
 		lprintf(3, "CtdlFreeMessage() -- self-check failed\n");
 		return;
 	}
-
-	for (i=0; i<256; ++i)
+	for (i = 0; i < 256; ++i)
 		if (msg->cm_fields[i] != NULL)
 			phree(msg->cm_fields[i]);
 
@@ -570,14 +571,13 @@ void CtdlFreeMessage(struct CtdlMessage *msg) {
 void output_message(char *msgid, int mode, int headers_only)
 {
 	long msg_num;
-	int a;
-	CIT_UBYTE ch, rch;
-	CIT_UBYTE format_type, anon_flag;
+	int a, i;
 	char buf[1024];
-	long msg_len;
 	time_t xtime;
+	CIT_UBYTE ch;
 
-	struct cdbdata *dmsgtext;
+	struct CtdlMessage *TheMessage = NULL;
+
 	char *mptr;
 
 	/* buffers needed for RFC822 translation */
@@ -590,72 +590,43 @@ void output_message(char *msgid, int mode, int headers_only)
 
 	msg_num = atol(msgid);
 
-	if ( (!(CC->logged_in)) && (!(CC->internal_pgm)) ) {
+	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
 		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
 		return;
 	}
-
 	/* FIX ... small security issue
 	 * We need to check to make sure the requested message is actually
 	 * in the current room, and set msg_ok to 1 only if it is.  This
 	 * functionality is currently missing because I'm in a hurry to replace
 	 * broken production code with nonbroken pre-beta code.  :(   -- ajc
 	 *
-	if (!msg_ok) {
-		cprintf("%d Message %ld is not in this room.\n",
-			ERROR, msg_num);
-		return;
-	}
+	 if (!msg_ok) {
+	 cprintf("%d Message %ld is not in this room.\n",
+	 ERROR, msg_num);
+	 return;
+	 }
 	 */
 
-
-	dmsgtext = cdb_fetch(CDB_MSGMAIN, &msg_num, sizeof(long));
-
-	if (dmsgtext == NULL) {
-		cprintf("%d Can't find message %ld\n",
-			(ERROR + INTERNAL_ERROR), msg_num);
+	/*
+	 * Fetch the message from disk
+	 */
+	TheMessage = CtdlFetchMessage(msg_num);
+	if (TheMessage == NULL) {
+		cprintf("%d Can't locate message %ld on disk\n", ERROR, msg_num);
 		return;
 	}
-	msg_len = (long) dmsgtext->len;
-	mptr = dmsgtext->ptr;
-
-	/* this loop spews out the whole message if we're doing raw format */
-	if (mode == MT_RAW) {
-		cprintf("%d %ld\n", BINARY_FOLLOWS, msg_len);
-		client_write(dmsgtext->ptr, (int) msg_len);
-		cdb_free(dmsgtext);
-		return;
-	}
-	/* Otherwise, we'll start parsing it field by field... */
-	ch = *mptr++;
-	if (ch != 255) {
-		cprintf("%d Illegal message format on disk\n",
-			ERROR + INTERNAL_ERROR);
-		cdb_free(dmsgtext);
-		return;
-	}
-	anon_flag = *mptr++;
-	format_type = *mptr++;
 
 	/* Are we downloading a MIME component? */
 	if (mode == MT_DOWNLOAD) {
-		if (format_type != 4) {
+		if (TheMessage->cm_format_type != 4) {
 			cprintf("%d This is not a MIME message.\n",
 				ERROR);
 		} else if (CC->download_fp != NULL) {
 			cprintf("%d You already have a download open.\n",
 				ERROR);
 		} else {
-			/* Skip to the message body */
-			while (ch = *mptr++, (ch != 'M' && ch != 0)) {
-				buf[0] = 0;
-				do {
-					buf[strlen(buf) + 1] = 0;
-					rch = *mptr++;
-					buf[strlen(buf)] = rch;
-				} while (rch > 0);
-			}
-			/* Now parse it */
+			/* Parse the message text component */
+			mptr = TheMessage->cm_fields['M'];
 			mime_parser(mptr, NULL, *mime_download);
 			/* If there's no file open by this time, the requested
 			 * section wasn't found, so print an error
@@ -666,103 +637,104 @@ void output_message(char *msgid, int mode, int headers_only)
 					desired_section);
 			}
 		}
-		cdb_free(dmsgtext);
+		CtdlFreeMessage(TheMessage);
 		return;
 	}
-
 	/* now for the user-mode message reading loops */
 	cprintf("%d Message %ld:\n", LISTING_FOLLOWS, msg_num);
 
 	if (mode == MT_CITADEL)
-		cprintf("type=%d\n", format_type);
+		cprintf("type=%d\n", TheMessage->cm_format_type);
 
-	if ((anon_flag == MES_ANON) && (mode == MT_CITADEL)) {
+	if ((TheMessage->cm_anon_type == MES_ANON) && (mode == MT_CITADEL)) {
 		cprintf("nhdr=yes\n");
 	}
 	/* begin header processing loop for Citadel message format */
 
-	if ((mode == MT_CITADEL) || (mode == MT_MIME))
-		while (ch = *mptr++, (ch != 'M' && ch != 0)) {
-			buf[0] = 0;
-			do {
-				buf[strlen(buf) + 1] = 0;
-				rch = *mptr++;
-				buf[strlen(buf)] = rch;
-			} while (rch > 0);
+	if ((mode == MT_CITADEL) || (mode == MT_MIME)) {
 
-			if (ch == 'A') {
-				PerformUserHooks(buf, (-1L), EVT_OUTPUTMSG);
-				if (anon_flag == MES_ANON)
-					cprintf("from=****");
-				else if (anon_flag == MES_AN2)
-					cprintf("from=anonymous");
-				else
-					cprintf("from=%s", buf);
-				if ((is_room_aide()) && ((anon_flag == MES_ANON)
-					      || (anon_flag == MES_AN2)))
-					cprintf(" [%s]", buf);
-				cprintf("\n");
-			} else if (ch == 'P')
-				cprintf("path=%s\n", buf);
-			else if (ch == 'U')
-				cprintf("subj=%s\n", buf);
-			else if (ch == 'I')
-				cprintf("msgn=%s\n", buf);
-			else if (ch == 'H')
-				cprintf("hnod=%s\n", buf);
-			else if (ch == 'O')
-				cprintf("room=%s\n", buf);
-			else if (ch == 'N')
-				cprintf("node=%s\n", buf);
-			else if (ch == 'R')
-				cprintf("rcpt=%s\n", buf);
-			else if (ch == 'T')
-				cprintf("time=%s\n", buf);
-			/* else cprintf("fld%c=%s\n",ch,buf); */
+		if (TheMessage->cm_fields['P']) {
+			cprintf("path=%s\n", TheMessage->cm_fields['P']);
 		}
+		if (TheMessage->cm_fields['I']) {
+			cprintf("msgn=%s\n", TheMessage->cm_fields['I']);
+		}
+		if (TheMessage->cm_fields['T']) {
+			cprintf("time=%s\n", TheMessage->cm_fields['T']);
+		}
+		if (TheMessage->cm_fields['A']) {
+			strcpy(buf, TheMessage->cm_fields['A']);
+			PerformUserHooks(buf, (-1L), EVT_OUTPUTMSG);
+			if (TheMessage->cm_anon_type == MES_ANON)
+				cprintf("from=****");
+			else if (TheMessage->cm_anon_type == MES_AN2)
+				cprintf("from=anonymous");
+			else
+				cprintf("from=%s", buf);
+			if ((is_room_aide())
+			    && ((TheMessage->cm_anon_type == MES_ANON)
+			     || (TheMessage->cm_anon_type == MES_AN2))) {
+				cprintf(" [%s]", buf);
+			}
+			cprintf("\n");
+		}
+		if (TheMessage->cm_fields['O']) {
+			cprintf("room=%s\n", TheMessage->cm_fields['O']);
+		}
+		if (TheMessage->cm_fields['N']) {
+			cprintf("node=%s\n", TheMessage->cm_fields['N']);
+		}
+		if (TheMessage->cm_fields['H']) {
+			cprintf("hnod=%s\n", TheMessage->cm_fields['H']);
+		}
+		if (TheMessage->cm_fields['R']) {
+			cprintf("rcpt=%s\n", TheMessage->cm_fields['R']);
+		}
+		if (TheMessage->cm_fields['U']) {
+			cprintf("subj=%s\n", TheMessage->cm_fields['U']);
+		}
+	}
 	/* begin header processing loop for RFC822 transfer format */
 
 	strcpy(suser, "");
 	strcpy(luser, "");
 	strcpy(snode, NODENAME);
 	strcpy(lnode, HUMANNODE);
-	if (mode == MT_RFC822)
-		while (ch = *mptr++, (ch != 'M' && ch != 0)) {
-			buf[0] = 0;
-			do {
-				buf[strlen(buf) + 1] = 0;
-				rch = *mptr++;
-				buf[strlen(buf)] = rch;
-			} while (rch > 0);
+	if (mode == MT_RFC822) {
+		for (i = 0; i < 256; ++i) {
+			if (TheMessage->cm_fields[i]) {
+				mptr = TheMessage->cm_fields[i];
 
-			if (ch == 'A')
-				strcpy(luser, buf);
-			else if (ch == 'P') {
-				cprintf("Path: %s\n", buf);
-				for (a = 0; a < strlen(buf); ++a) {
-					if (buf[a] == '!') {
-						strcpy(buf, &buf[a + 1]);
-						a = 0;
+				if (i == 'A') {
+					strcpy(luser, mptr);
+				} else if (i == 'P') {
+					cprintf("Path: %s\n", mptr);
+					for (a = 0; a < strlen(mptr); ++a) {
+						if (mptr[a] == '!') {
+							strcpy(mptr, &mptr[a + 1]);
+							a = 0;
+						}
 					}
+					strcpy(suser, mptr);
+				} else if (i == 'U')
+					cprintf("Subject: %s\n", mptr);
+				else if (i == 'I')
+					strcpy(mid, mptr);
+				else if (i == 'H')
+					strcpy(lnode, mptr);
+				else if (i == 'O')
+					cprintf("X-Citadel-Room: %s\n", mptr);
+				else if (i == 'N')
+					strcpy(snode, mptr);
+				else if (i == 'R')
+					cprintf("To: %s\n", mptr);
+				else if (i == 'T') {
+					xtime = atol(mptr);
+					cprintf("Date: %s", asctime(localtime(&xtime)));
 				}
-				strcpy(suser, buf);
-			} else if (ch == 'U')
-				cprintf("Subject: %s\n", buf);
-			else if (ch == 'I')
-				strcpy(mid, buf);
-			else if (ch == 'H')
-				strcpy(lnode, buf);
-			else if (ch == 'O')
-				cprintf("X-Citadel-Room: %s\n", buf);
-			else if (ch == 'N')
-				strcpy(snode, buf);
-			else if (ch == 'R')
-				cprintf("To: %s\n", buf);
-			else if (ch == 'T') {
-				xtime = atol(buf);
-				cprintf("Date: %s", asctime(localtime(&xtime)));
 			}
 		}
+	}
 	if (mode == MT_RFC822) {
 		if (!strcasecmp(snode, NODENAME)) {
 			strcpy(snode, FQDN);
@@ -775,44 +747,35 @@ void output_message(char *msgid, int mode, int headers_only)
 	}
 	/* end header processing loop ... at this point, we're in the text */
 
-	if (ch == 0) {
-		cprintf("text\n*** ?Message truncated\n000\n");
-		cdb_free(dmsgtext);
-		return;
-	}
+	mptr = TheMessage->cm_fields['M'];
+
 	/* do some sort of MIME output */
-	if (format_type == 4) {
+	if (TheMessage->cm_format_type == 4) {
 		if ((mode == MT_CITADEL) || (mode == MT_MIME)) {
 			mime_parser(mptr, NULL, *list_this_part);
 		}
 		if (mode == MT_MIME) {	/* If MT_MIME then it's parts only */
 			cprintf("000\n");
-			cdb_free(dmsgtext);
+			CtdlFreeMessage(TheMessage);
 			return;
 		}
 	}
 	if (headers_only) {
-		/* give 'em a length */
-		msg_len = 0L;
-		while (ch = *mptr++, ch > 0) {
-			++msg_len;
-		}
-		cprintf("mlen=%ld\n", msg_len);
 		cprintf("000\n");
-		cdb_free(dmsgtext);
+		CtdlFreeMessage(TheMessage);
 		return;
 	}
 	/* signify start of msg text */
 	if (mode == MT_CITADEL)
 		cprintf("text\n");
-	if ((mode == MT_RFC822) && (format_type != 4))
+	if ((mode == MT_RFC822) && (TheMessage->cm_format_type != 4))
 		cprintf("\n");
 
 	/* If the format type on disk is 1 (fixed-format), then we want
 	 * everything to be output completely literally ... regardless of
 	 * what message transfer format is in use.
 	 */
-	if (format_type == 1) {
+	if (TheMessage->cm_format_type == 1) {
 		strcpy(buf, "");
 		while (ch = *mptr++, ch > 0) {
 			if (ch == 13)
@@ -835,7 +798,7 @@ void output_message(char *msgid, int mode, int headers_only)
 	 * for new paragraphs is correct and the client will reformat the
 	 * message to the reader's screen width.
 	 */
-	if (format_type == 0) {
+	if (TheMessage->cm_format_type == 0) {
 		memfmout(80, mptr, 0);
 	}
 	/* If the message on disk is format 4 (MIME), we've gotta hand it
@@ -843,14 +806,15 @@ void output_message(char *msgid, int mode, int headers_only)
 	 * this message is format 1 (fixed format), so the callback function
 	 * we use will display those parts as-is.
 	 */
-	if (format_type == 4) {
+	if (TheMessage->cm_format_type == 4) {
 		mime_parser(mptr, NULL, *fixed_output);
 	}
 	/* now we're done */
 	cprintf("000\n");
-	cdb_free(dmsgtext);
+	CtdlFreeMessage(TheMessage);
 	return;
 }
+
 
 
 /*
@@ -883,24 +847,35 @@ void cmd_msg2(char *cmdbuf)
 	output_message(msgid, MT_RFC822, headers_only);
 }
 
+
+
 /* 
  * display a message (mode 3 - IGnet raw format - internal programs only)
  */
 void cmd_msg3(char *cmdbuf)
 {
-	char msgid[256];
-	int headers_only = 0;
+	long msgnum;
+	struct cdbdata *dmsgtext;
 
 	if (CC->internal_pgm == 0) {
 		cprintf("%d This command is for internal programs only.\n",
 			ERROR);
 		return;
 	}
-	extract(msgid, cmdbuf, 0);
-	headers_only = extract_int(cmdbuf, 1);
 
-	output_message(msgid, MT_RAW, headers_only);
+	msgnum = extract_long(cmdbuf, 0);
+
+	dmsgtext = cdb_fetch(CDB_MSGMAIN, &msgnum, sizeof(long));
+	if (dmsgtext == NULL) {
+		cprintf("%d Message %ld not found\n", ERROR, msgnum);
+	}
+
+	cprintf("%d %ld\n", BINARY_FOLLOWS, dmsgtext->len);
+	client_write(dmsgtext->ptr, dmsgtext->len);
+	cdb_free(dmsgtext);
 }
+
+
 
 /* 
  * display a message (mode 4 - MIME) (FIX ... still evolving, not complete)
@@ -913,8 +888,6 @@ void cmd_msg4(char *cmdbuf)
 
 	output_message(msgid, MT_MIME, 0);
 }
-
-
 
 /*
  * Open a component of a MIME message as a download file 
@@ -929,17 +902,16 @@ void cmd_opna(char *cmdbuf)
 	extract(desired_section, cmdbuf, 1);
 
 	output_message(msgid, MT_DOWNLOAD, 0);
-}
-
-
+}			
 
 /*
  * Message base operation to send a message to the master file
  * (returns new message number)
  */
-long send_message(char *message_in_memory,	/* pointer to buffer */
-		  size_t message_length,	/* length of buffer */
-		  int generate_id)
+long send_message(char *message_in_memory,
+							/* pointer to buffer */
+						   size_t message_length,	/* length of buffer */
+						      int generate_id)
 {				/* 1 to generate an I field */
 
 	long newmsgid;
@@ -1023,7 +995,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 	char hold_rm[ROOMNAMELEN];
 	char actual_rm[ROOMNAMELEN];
 	char force_room[ROOMNAMELEN];
-	char content_type[256];		/* We have to learn this */
+	char content_type[256];	/* We have to learn this */
 	char ch, rch;
 	char recipient[256];
 	long newmsgid;
@@ -1066,17 +1038,17 @@ void save_message(char *mtmp,	/* file containing proper message */
 
 	/* Learn about what's inside, because it's what's inside that counts */
 	mptr = message_in_memory;
-	++mptr;	/* advance past 0xFF header */
-	++mptr;	/* advance past anon flag */
+	++mptr;			/* advance past 0xFF header */
+	++mptr;			/* advance past anon flag */
 	ch = *mptr++;
-	switch(ch) {
-	 case 0:
+	switch (ch) {
+	case 0:
 		strcpy(content_type, "text/x-citadel-variformat");
 		break;
-	 case 1:
+	case 1:
 		strcpy(content_type, "text/plain");
 		break;
-	 case 4:
+	case 4:
 		strcpy(content_type, "text/plain");
 		/* advance past header fields */
 		while (ch = *mptr++, (ch != 'M' && ch != 0)) {
@@ -1088,14 +1060,14 @@ void save_message(char *mtmp,	/* file containing proper message */
 		while (--a) {
 			if (!strncasecmp(mptr, "Content-type: ", 14)) {
 				safestrncpy(content_type, mptr,
-					sizeof(content_type));
+					    sizeof(content_type));
 				lprintf(9, "%s\n", content_type);
 				strcpy(content_type, &content_type[14]);
-				for (a=0; a<strlen(content_type); ++a)
-					if (  (content_type[a]==';')
-					   || (content_type[a]==' ')
-					   || (content_type[a]==13)
-					   || (content_type[a]==10) )
+				for (a = 0; a < strlen(content_type); ++a)
+					if ((content_type[a] == ';')
+					    || (content_type[a] == ' ')
+					    || (content_type[a] == 13)
+					    || (content_type[a] == 10))
 						content_type[a] = 0;
 				break;
 			}
@@ -1117,7 +1089,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 	 * message, we want to BYPASS saving the sender's copy (because there
 	 * is no local sender; it would otherwise go to the Trashcan).
 	 */
-	if ( (!CC->internal_pgm) || (strlen(recipient)==0) ) {
+	if ((!CC->internal_pgm) || (strlen(recipient) == 0)) {
 		/* If the user is a twit, move to the twit room for posting */
 		if (TWITDETECT)
 			if (CC->usersupp.axlevel == 2) {
@@ -1131,28 +1103,26 @@ void save_message(char *mtmp,	/* file containing proper message */
 			strcpy(actual_rm, force_room);
 		}
 		/* This call to usergoto() changes rooms if necessary.  It also
-	 	* causes the latest message list to be read into memory.
-	 	*/
+		   * causes the latest message list to be read into memory.
+		 */
 		usergoto(actual_rm, 0);
-	
+
 		/* read in the quickroom record, obtaining a lock... */
 		lgetroom(&CC->quickroom, actual_rm);
-	
+
 		/* Fix an obscure bug */
 		if (!strcasecmp(CC->quickroom.QRname, AIDEROOM)) {
 			CC->quickroom.QRflags =
-				CC->quickroom.QRflags & ~QR_MAILBOX;
+			    CC->quickroom.QRflags & ~QR_MAILBOX;
 		}
-
 		/* Add the message pointer to the room */
 		CC->quickroom.QRhighest =
-			AddMessageToRoom(&CC->quickroom, newmsgid);
-	
+		    AddMessageToRoom(&CC->quickroom, newmsgid);
+
 		/* update quickroom */
 		lputroom(&CC->quickroom);
 		++successful_local_recipients;
 	}
-
 	/* Network mail - send a copy to the network program. */
 	if ((strlen(recipient) > 0) && (mailtype != MES_LOCAL)) {
 		sprintf(aaa, "./network/spoolin/netmail.%04lx.%04x.%04x",
@@ -1174,7 +1144,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 			lprintf(9, "Targeting mailbox: <%s>\n", actual_rm);
 			if (lgetroom(&qtemp, actual_rm) == 0) {
 				qtemp.QRhighest =
-					AddMessageToRoom(&qtemp, newmsgid);
+				    AddMessageToRoom(&qtemp, newmsgid);
 				lputroom(&qtemp);
 				++successful_local_recipients;
 			}
@@ -1218,22 +1188,18 @@ void aide_message(char *text)
 	fclose(fp);
 	save_message(CC->temp, "", AIDEROOM, MES_LOCAL, 1);
 	syslog(LOG_NOTICE, text);
-}
+}				/*
 
-
-
-/*
- * Build a binary message to be saved on disk.
- */
-void make_message(
-			 char *filename,	/* temporary file name */
-			 struct usersupp *author,	/* author's usersupp structure */
-			 char *recipient,	/* NULL if it's not mail */
-			 char *room,	/* room where it's going */
-			 int type,	/* see MES_ types in header file */
-			 int net_type,	/* see MES_ types in header file */
-			 int format_type,	/* local or remote (see citadel.h) */
-			 char *fake_name)
+				 * Build a binary message to be saved on disk.
+				 */ void make_message(
+							  char *filename,	/* temporary file name */
+						 struct usersupp *author,	/* author's usersupp structure */
+							 char *recipient,	/* NULL if it's not mail */
+							     char *room,	/* room where it's going */
+							     int type,	/* see MES_ types in header file */
+							     int net_type,	/* see MES_ types in header file */
+							 int format_type,	/* local or remote (see citadel.h) */
+							 char *fake_name)
 {				/* who we're masquerading as */
 
 	FILE *fp;
@@ -1256,8 +1222,7 @@ void make_message(
 			}
 		}
 	}
-	/* if net_type is MES_INTERNET, set the dest node to 'internet' */
-	if (net_type == MES_INTERNET) {
+	/* if net_type is MES_INTERNET, set the dest node to 'internet' */ if (net_type == MES_INTERNET) {
 		strcpy(dest_node, "internet");
 	}
 	while (isspace(recipient[strlen(recipient) - 1]))
@@ -1460,8 +1425,7 @@ void cmd_ent3(char *entargs)
 			ERROR);
 		return;
 	}
-	/* See if there's a recipient, but make sure it's a real one */
-	extract(recp, entargs, 1);
+	/* See if there's a recipient, but make sure it's a real one */ extract(recp, entargs, 1);
 	for (a = 0; a < strlen(recp); ++a)
 		if (!isprint(recp[a]))
 			strcpy(&recp[a], &recp[a + 1]);
@@ -1519,13 +1483,14 @@ void cmd_ent3(char *entargs)
  * (returns the actual number of messages deleted)
  * FIX ... still need to implement delete by content type
  */
-int CtdlDeleteMessages(	char *room_name,	/* which room */
-			long dmsgnum,		/* or "0" for any */
-			char *content_type	/* or NULL for any */
-			) {
+int CtdlDeleteMessages(char *room_name,		/* which room */
+		       long dmsgnum,	/* or "0" for any */
+		       char *content_type	/* or NULL for any */
+)
+{
 
 	struct quickroom qrbuf;
-        struct cdbdata *cdbfr;
+	struct cdbdata *cdbfr;
 	long *msglist = NULL;
 	int num_msgs = 0;
 	int i;
@@ -1540,39 +1505,36 @@ int CtdlDeleteMessages(	char *room_name,	/* which room */
 	if (lgetroom(&qrbuf, room_name) != 0) {
 		lprintf(7, "CtdlDeleteMessages(): Room <%s> not found\n",
 			room_name);
-		return(0);	/* room not found */
+		return (0);	/* room not found */
 	}
-
-        cdbfr = cdb_fetch(CDB_MSGLISTS, &qrbuf.QRnumber, sizeof(long));
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &qrbuf.QRnumber, sizeof(long));
 
 	lprintf(9, "doing mallok/memcpy loop\n");
-        if (cdbfr != NULL) {
-        	msglist = mallok(cdbfr->len);
-        	memcpy(msglist, cdbfr->ptr, cdbfr->len);
-        	num_msgs = cdbfr->len / sizeof(long);
-        	cdb_free(cdbfr);
+	if (cdbfr != NULL) {
+		msglist = mallok(cdbfr->len);
+		memcpy(msglist, cdbfr->ptr, cdbfr->len);
+		num_msgs = cdbfr->len / sizeof(long);
+		cdb_free(cdbfr);
 	}
-
 	if (num_msgs > 0) {
-		for (i=0; i<num_msgs; ++i) {
+		for (i = 0; i < num_msgs; ++i) {
 			delete_this = 0x00;
 
 			/* Set/clear a bit for each criterion */
 
-			if ( (dmsgnum == 0L) || (msglist[i]==dmsgnum) ) {
-				delete_this  |= 0x01;
+			if ((dmsgnum == 0L) || (msglist[i] == dmsgnum)) {
+				delete_this |= 0x01;
 			}
-
 			if (content_type == NULL) {
 				delete_this |= 0x02;
 			} else {
 				GetSuppMsgInfo(&smi, msglist[i]);
 				if (!strcasecmp(smi.smi_content_type,
-				   content_type)) {
+						content_type)) {
 					delete_this |= 0x02;
 				}
 			}
-	
+
 			/* Delete message only if all bits are set */
 			if (delete_this == 0x03) {
 				AdjRefCount(msglist[i], -1);
@@ -1580,17 +1542,16 @@ int CtdlDeleteMessages(	char *room_name,	/* which room */
 				++num_deleted;
 			}
 		}
-	
+
 		num_msgs = sort_msglist(msglist, num_msgs);
 		cdb_store(CDB_MSGLISTS, &qrbuf.QRnumber, sizeof(long),
-			msglist, (num_msgs * sizeof(long)) );
+			  msglist, (num_msgs * sizeof(long)));
 
 		qrbuf.QRhighest = msglist[num_msgs - 1];
 	}
-
 	lputroom(&qrbuf);
 	lprintf(9, "%d message(s) deleted.\n", num_deleted);
-	return(num_deleted);
+	return (num_deleted);
 }
 
 
@@ -1617,7 +1578,7 @@ void cmd_dele(char *delstr)
 
 	if (num_deleted) {
 		cprintf("%d %d message%s deleted.\n", OK,
-			num_deleted, ((num_deleted!=1) ? "s" : "") );
+			num_deleted, ((num_deleted != 1) ? "s" : ""));
 	} else {
 		cprintf("%d Message %ld not found.\n", ERROR, delnum);
 	}
@@ -1648,7 +1609,6 @@ void cmd_move(char *args)
 		cprintf("%d '%s' does not exist.\n", ERROR, targ);
 		return;
 	}
-
 	/* Bump the reference count, otherwise the message will be deleted
 	 * from disk when we remove it from the source room.
 	 */
@@ -1716,15 +1676,11 @@ void PutSuppMsgInfo(struct SuppMsgInfo *smibuf)
 		  &TheIndex, sizeof(long),
 		  smibuf, sizeof(struct SuppMsgInfo));
 
-}
+}				/*
 
-
-
-/*
- * AdjRefCount  -  change the reference count for a message;
- *                 delete the message if it reaches zero
- */
-void AdjRefCount(long msgnum, int incr)
+				 * AdjRefCount  -  change the reference count for a message;
+				 *                 delete the message if it reaches zero
+				 */ void AdjRefCount(long msgnum, int incr)
 {
 
 	struct SuppMsgInfo smi;
@@ -1753,19 +1709,18 @@ void AdjRefCount(long msgnum, int incr)
 		delnum = (0L - msgnum);
 		cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));
 	}
-}
+}				/*
 
-
-/*
- * Write a generic object to this room
- */
-void CtdlWriteObject(	char *req_room,		/* Room to stuff it in */
-			char *content_type,	/* MIME type of this object */
-			char *tempfilename,	/* Where to fetch it from */
-			int is_mailbox,		/* Private mailbox room? */
-			int is_binary,		/* Is encoding necessary? */
-			int is_unique		/* Del others of this type? */
-			) {
+				 * Write a generic object to this room
+				 */ void CtdlWriteObject(char *req_room,
+							/* Room to stuff it in */
+						      char *content_type,	/* MIME type of this object */
+						      char *tempfilename,	/* Where to fetch it from */
+							 int is_mailbox,	/* Private mailbox room? */
+							 int is_binary,		/* Is encoding necessary? */
+							 int is_unique	/* Del others of this type? */
+)
+{
 
 	FILE *fp, *tempfp;
 	char filename[PATH_MAX];
@@ -1774,12 +1729,15 @@ void CtdlWriteObject(	char *req_room,		/* Room to stuff it in */
 	struct quickroom qrbuf;
 	char roomname[ROOMNAMELEN];
 
-	if (is_mailbox) MailboxName(roomname, &CC->usersupp, req_room); 
-	else safestrncpy(roomname, req_room, sizeof(roomname));
+	if (is_mailbox)
+		MailboxName(roomname, &CC->usersupp, req_room);
+	else
+		safestrncpy(roomname, req_room, sizeof(roomname));
 
 	strcpy(filename, tmpnam(NULL));
 	fp = fopen(filename, "w");
-	if (fp == NULL) return;
+	if (fp == NULL)
+		return;
 
 	fprintf(fp, "%c%c%c", 0xFF, MES_NORMAL, 4);
 	fprintf(fp, "T%ld%c", time(NULL), 0);
@@ -1794,10 +1752,10 @@ void CtdlWriteObject(	char *req_room,		/* Room to stuff it in */
 		unlink(filename);
 		return;
 	}
-
 	if (is_binary == 0) {
 		fprintf(fp, "Content-transfer-encoding: 7bit\n\n");
-		while (ch=getc(tempfp), ch>0) putc(ch, fp);
+		while (ch = getc(tempfp), ch > 0)
+			putc(ch, fp);
 		fclose(tempfp);
 		putc(0, fp);
 		fclose(fp);
@@ -1814,15 +1772,13 @@ void CtdlWriteObject(	char *req_room,		/* Room to stuff it in */
 	if (getroom(&qrbuf, roomname) != 0) {
 		create_room(roomname, 4, "", 0);
 	}
-
 	/* If the caller specified this object as unique, delete all
 	 * other objects of this type that are currently in the room.
 	 */
 	if (is_unique) {
 		lprintf(9, "Deleted %d other msgs of this type\n",
-			CtdlDeleteMessages(roomname, 0L, content_type) );
+			CtdlDeleteMessages(roomname, 0L, content_type));
 	}
-
 	/* Now write the data */
 	save_message(filename, "", roomname, MES_LOCAL, 1);
 }

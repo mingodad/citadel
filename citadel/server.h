@@ -156,7 +156,6 @@ enum {
 enum {
 	MT_CITADEL,		/* Citadel proprietary */
 	MT_RFC822,		/* RFC822 */
-	MT_RAW,			/* IGnet raw format */
 	MT_MIME,		/* MIME-formatted message */
 	MT_DOWNLOAD		/* Download a component */
 };
