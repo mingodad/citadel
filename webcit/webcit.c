@@ -556,7 +556,7 @@ void upload_handler(char *name, char *filename, char *encoding,
 	fprintf(stderr, "filename = %s\n", filename);
 	fprintf(stderr, "encoding = %s\n", encoding);
 	fprintf(stderr, "    type = %s\n", cbtype);
-	fprintf(stderr, "  length = %d\n", length);
+	fprintf(stderr, "  length = %ld\n", (long)length);
 
 	if (strlen(name) > 0) {
 		WC->upload = malloc(length);
