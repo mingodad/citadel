@@ -61,33 +61,34 @@ char *setup_titles[] =
 };
 
 
-char *setup_text[] =
-{
-"Enter the full pathname of the directory in which the Citadel installation\n"
-"you are creating or updating resides.  If you specify a directory other\n"
-"than the default, you will need to specify the -h flag to the server when\n"
-"you start it up.\n",
+char *setup_text[] = {
+"Enter the full pathname of the directory in which the Citadel\n"
+"installation you are creating or updating resides.  If you\n"
+"specify a directory other than the default, you will need to\n"
+"specify the -h flag to the server when you start it up.\n",
 
-"Enter the name of the system administrator (which is probably you).\n"
-"When an account is created with this name, it will automatically be\n"
-"assigned the highest access level.\n",
+"Enter the name of the system administrator (which is probably\n"
+"you).  When an account is created with this name, it will\n"
+"automatically be assigned the highest access level.\n",
 
-"Citadel needs to run under its own user ID.  This would typically be\n"
-"called \"citadel\", but if you are running Citadel as a public BBS, you\n"
-"might also call it \"bbs\" or \"guest\".  The server will run under this\n"
-"user ID.  Please specify that user ID here.  You may specify either a\n"
-"user name or a numeric UID.\n",
+"Citadel needs to run under its own user ID.  This would\n"
+"typically be called \"citadel\", but if you are running Citadel\n"
+"as a public BBS, you might also call it \"bbs\" or \"guest\".\n"
+"The server will run under this user ID.  Please specify that\n"
+"user ID here.  You may specify either a user name or a numeric\n"
+"UID.\n",
 
-"Specify the IP address on which your server will run.  If you leave this\n"
-"blank, or if you specify 0.0.0.0, Citadel will listen on all addresses.\n"
-"You can usually skip this unless you are running multiple instances of\n"
-"Citadel on the same computer.\n",
+"Specify the IP address on which your server will run.  If you\n"
+"leave this blank, or if you specify 0.0.0.0, Citadel will listen\n"
+"on all addresses.  You can usually skip this unless you are\n"
+"running multiple instances of Citadel on the same computer.\n",
 
-"Specify the TCP port number on which your server will run.  Normally, this\n"
-"will be port 504, which is the official port assigned by the IANA for\n"
-"Citadel servers.  You will only need to specify a different port number if\n"
-"you run multiple instances of Citadel on the same computer and there is\n"
-"something else already using port 504.\n",
+"Specify the TCP port number on which your server will run.\n"
+"Normally, this will be port 504, which is the official port\n"
+"assigned by the IANA for Citadel servers.  You will only need\n"
+"to specify a different port number if you run multiple instances\n"
+"of Citadel on the same computer and there is something else\n"
+"already using port 504.\n",
 
 };
 
@@ -259,14 +260,16 @@ int yesno(char *question)
 		break;
 
 	case UI_DIALOG:
-		sprintf(buf, "%s --yesno '%s' 0 0",
+		sprintf(buf, "exec %s --yesno '%s' 10 72",
 			getenv("CTDL_DIALOG"),
 			question);
 		i = system(buf);
-		if (buf == 0)
+		if (i == 0) {
 			answer = 1;
-		else
+		}
+		else {
 			answer = 0;
+		}
 		break;
 
 #ifdef HAVE_NEWT
@@ -317,7 +320,7 @@ void important_message(char *title, char *msgtext)
 		break;
 
 	case UI_DIALOG:
-		sprintf(buf, "%s --backtitle '%s' --msgbox '%s' 0 0",
+		sprintf(buf, "exec %s --backtitle '%s' --msgbox '%s' 19 72",
 			getenv("CTDL_DIALOG"),
 			title,
 			msgtext);
@@ -395,7 +398,7 @@ void progress(char *text, long int curr, long int cmax)
 
 	case UI_DIALOG:
 		if (curr == 0) {
-			sprintf(buf, "%s --gauge '%s' 7 72",
+			sprintf(buf, "exec %s --gauge '%s' 7 72",
 				getenv("CTDL_DIALOG"),
 				text);
 			fp = popen(buf, "w");
@@ -702,7 +705,7 @@ void strprompt(char *prompt_title, char *prompt_text, char *str)
 
 	case UI_DIALOG:
 		dialog_result = tmpnam(NULL);
-		sprintf(buf, "%s --backtitle '%s' --inputbox '%s' 0 0 '%s' 2>%s",
+		sprintf(buf, "exec %s --backtitle '%s' --inputbox '%s' 19 72 '%s' 2>%s",
 			getenv("CTDL_DIALOG"),
 			prompt_title,
 			prompt_text,

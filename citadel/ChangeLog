@@ -1,4 +1,8 @@
  $Log$
+ Revision 625.19  2004/09/10 02:54:26  ajc
+ * Added flush_output() calls to IMAP modules.  (Do we need them?  Are we
+   buffering IMAP output?  Should we?)
+
  Revision 625.18  2004/09/09 02:26:45  ajc
  * Completed (I think) the 'dialog' mode in setup
 
@@ -6069,3 +6073,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

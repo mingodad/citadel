@@ -259,6 +259,7 @@ void imap_append(int num_parms, char *parms[]) {
 		blksize = literal_length - bytes_transferred;
 		if (blksize > SIZ) blksize = SIZ;
 
+		flush_output();
 		ret = client_read(&IMAP->transmitted_message[bytes_transferred], blksize);
 		if (ret < 1) {
 			bytes_transferred = literal_length;	/* bail out */
@@ -284,6 +285,7 @@ void imap_append(int num_parms, char *parms[]) {
 	 * literal (the message text) is received.  This call to
 	 * client_gets() absorbs it.
 	 */
+	flush_output();
 	client_gets(buf);
 	lprintf(CTDL_DEBUG, "Trailing CRLF: %s\n", buf);
 
