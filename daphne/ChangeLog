@@ -1,4 +1,16 @@
-$Log$
+ $Log$
+ Revision 1.12  1999/12/15 03:01:07  smw
+ Changed 'enter' so that it ONLY asks for a recipient when in mail.
+ Changed goto so that it no longer deletes the message window when clicked
+ on.  This results in a potential infinitate number of room menus, which
+ I'll fix when I have time.  This was the ONLY instability.  Previously
+ clicking on goto (in the menu, the arrow button OR the 'goto' button) more
+ than once would cause the program to crash.  That's no longer the case.
+ The *ix version is now stable.
+
+ Fixed various problems in the MSW version, which will be released only in
+ executable form when stabilized.
+
 Revision 1.11  1999/11/15 05:22:11  smw
 On disconnect, changed the SetStatusText() to "" for 1, and 2 to blank
 the 2nd and 3rd status fields.  Also fixed zap again.  Replaced the
