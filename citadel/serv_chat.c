@@ -241,6 +241,8 @@ void cmd_chat(char *argbuf)
 	struct CitContext *t_context;
 	int retval;
 
+	unbuffer_output();
+
 	if (!(CC->logged_in)) {
 		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
 		return;

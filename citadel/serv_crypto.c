@@ -515,6 +515,8 @@ void cmd_stls(char *params)
 	char nosup_response[SIZ];
 	char error_response[SIZ];
 
+	unbuffer_output();
+
 	sprintf(ok_response,
 		"%d Begin TLS negotiation now\n",
 		CIT_OK);

@@ -482,8 +482,10 @@ void flush_output(void) {
  */
 void unbuffer_output(void) {
 	if (CC->buffering == 1) {
-		flush_output();
 		CC->buffering = 0;
+		/* We don't call flush_output because we can't. */
+		client_write(CC->output_buffer, CC->buffer_len);
+		CC->buffer_len = 0;
 		free(CC->output_buffer);
 		CC->output_buffer = NULL;
 	}

@@ -2834,9 +2834,22 @@ void CtdlIPC_chat_recv(CtdlIPC* ipc, char* buf)
  */
 static void CtdlIPC_putline(CtdlIPC *ipc, const char *buf)
 {
-	/* error_printf("< %s\n", buf); */
-	serv_write(ipc, buf, strlen(buf));
-	serv_write(ipc, "\n", 1);
+	char *cmd = NULL;
+	int len;
+
+	len = strlen(buf);
+	cmd = malloc(len + 2);
+	if (!cmd) {
+		/* This requires no extra memory */
+		serv_write(ipc, buf, len);
+		serv_write(ipc, "\n", 1);
+	} else {
+		/* This is network-optimized */
+		strncpy(cmd, buf, len);
+		strcpy(cmd + len, "\n");
+		serv_write(ipc, cmd, len + 1);
+		free(cmd);
+	}
 
 	ipc->last_command_sent = time(NULL);
 }

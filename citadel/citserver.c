@@ -948,6 +948,8 @@ void do_command_loop(void) {
 	}
 	lprintf(CTDL_INFO, "Citadel: %s\n", cmdbuf);
 
+	buffer_output();
+
 	/*
 	 * Let other clients see the last command we executed, and
 	 * update the idle time, but not NOOP, QNOP, PEXP, or GEXP.
@@ -1315,6 +1317,8 @@ void do_command_loop(void) {
 		cprintf("%d Unrecognized or unsupported command.\n",
 			ERROR + CMD_NOT_SUPPORTED);
 	       }
+
+	unbuffer_output();
 
 	/* Run any after-each-command routines registered by modules */
 	PerformSessionHooks(EVT_CMD);
