@@ -303,6 +303,7 @@ void output_headers(int print_standard_html_head) {
 			ExpressMessages = NULL;
 			}
 		wprintf("BACKGROUND=\"/image&name=background\" TEXT=\"#000000\" LINK=\"#004400\">\n");
+		wprintf("<FONT SIZE=-2>heloooooooooooo!  isn't it a beautiful day?<BR></FONT>\n");
 		}
 
 	}
