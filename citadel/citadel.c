@@ -708,7 +708,7 @@ int set_password(void) {
  * get info about the server we've connected to
  */
 void get_serv_info(void) {
-	char buf[256];
+	char buf[512];
 
 	CtdlInternalGetServInfo(&serv_info);
 

@@ -1,3 +1,6 @@
+Mon Feb 15 22:59:00 EST 1999 Vaggelis Tsirkas (applied by Art Cancro)
+	* citadel.c: increased hostname buffer size to handle very big names
+
 1999-02-15 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* sysdep.c(main): initialize alen before call to accept()
 
