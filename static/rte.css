@@ -29,3 +29,8 @@
 	letter-spacing: 0;
 	padding: 2px;
 }
+
+.rteBack tbody tr td, .rteBack tr td {
+	background: #D3D3D3;
+	padding: 0;
+}

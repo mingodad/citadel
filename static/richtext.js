@@ -1,6 +1,7 @@
 // Cross-Browser Rich Text Editor
 // http://www.kevinroth.com/rte/demo.htm
 // Written by Kevin Roth (kevin@NOSPAMkevinroth.com - remove NOSPAM)
+// Visit the support forums at http://www.kevinroth.com/forums/index.php?c=2
 
 //init variables
 var isRichText = false;
@@ -196,7 +197,7 @@ function writeRTE(rte, html, width, height, buttons, readOnly) {
 		document.writeln('	</tr>');
 		document.writeln('</table>');
 	}
-	document.writeln('<iframe id="' + rte + '" name="' + rte + '" width="' + width + 'px" height="' + height + 'px"></iframe>');
+	document.writeln('<iframe id="' + rte + '" name="' + rte + '" width="' + width + 'px" height="' + height + 'px" src="' + includesPath + 'blank.htm"></iframe>');
 	if (!readOnly) document.writeln('<br /><input type="checkbox" id="chkSrc' + rte + '" onclick="toggleHTMLSrc(\'' + rte + '\');" />&nbsp;View Source');
 	document.writeln('<iframe width="154" height="104" id="cp' + rte + '" src="' + includesPath + 'palette.htm" marginwidth="0" marginheight="0" scrolling="no" style="visibility:hidden; display: none; position: absolute;"></iframe>');
 	document.writeln('<input type="hidden" id="hdn' + rte + '" name="' + rte + '" value="">');
@@ -256,6 +257,13 @@ function enableDesignMode(rte, html, readOnly) {
 			}
 		}
 	}
+	//contributed by TotalJSNoob and archv1le (thanks guys!)
+	//if the following gets uncommented, indenting and list items will not function correctly
+//	if (isIE) {
+//		var hack = function () {rteKeyPress(document.getElementById(rte).contentWindow);};
+//		var oRTE = document.getElementById(rte).contentWindow;
+//		oRTE.document.onkeypress = hack;
+//	}
 }
 
 function updateRTEs() {
@@ -597,4 +605,17 @@ function trim(inputString) {
       retValue = retValue.substring(0, retValue.indexOf("  ")) + retValue.substring(retValue.indexOf("  ")+1, retValue.length);
    }
    return retValue; // Return the trimmed string back to the user
+}
+
+//contributed by archv1le (thanks archv1le!)
+function rteKeyPress(window) {
+	if (window.event.keyCode == 13) {
+		var range = window.document.selection.createRange();
+		var obj = range.parentElement();
+		if (obj.tagName != "LI") {
+			window.event.returnValue = false; // cancel Standard-event
+			range.pasteHTML('<br>');
+			range.select(); // re-sets the cursor to the right position
+		}
+	}
 }
