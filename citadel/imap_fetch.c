@@ -672,7 +672,7 @@ void imap_do_fetch(int num_items, char **itemlist) {
 
 	if (IMAP->num_msgs > 0)
 	 for (i = 0; i < IMAP->num_msgs; ++i)
-	  if (IMAP->flags[i] & IMAP_FETCHED) {
+	  if (IMAP->flags[i] & IMAP_SELECTED) {
 		msg = CtdlFetchMessage(IMAP->msgids[i]);
 		if (msg != NULL) {
 			imap_do_fetch_msg(i+1, msg, num_items, itemlist);
@@ -813,14 +813,14 @@ int imap_extract_data_items(char **argv, char *items) {
 /*
  * One particularly hideous aspect of IMAP is that we have to allow the client
  * to specify arbitrary ranges and/or sets of messages to fetch.  Citadel IMAP
- * handles this by setting the IMAP_FETCHED flag for each message specified in
+ * handles this by setting the IMAP_SELECTED flag for each message specified in
  * the ranges/sets, then looping through the message array, outputting messages
  * with the flag set.  We don't bother returning an error if an out-of-range
  * number is specified (we just return quietly) because any client braindead
  * enough to request a bogus message number isn't going to notice the
  * difference anyway.
  *
- * This function clears out the IMAP_FETCHED bits, then sets that bit for each
+ * This function clears out the IMAP_SELECTED bits, then sets that bit for each
  * message included in the specified range.
  *
  * Set is_uid to 1 to fetch by UID instead of sequence number.
@@ -844,10 +844,10 @@ void imap_pick_range(char *supplied_range, int is_uid) {
 	}
 
 	/*
-	 * Clear out the IMAP_FETCHED flags for all messages.
+	 * Clear out the IMAP_SELECTED flags for all messages.
 	 */
 	for (i = 0; i < IMAP->num_msgs; ++i) {
-		IMAP->flags[i] = IMAP->flags[i] & ~IMAP_FETCHED;
+		IMAP->flags[i] = IMAP->flags[i] & ~IMAP_SELECTED;
 	}
 
 	/*
@@ -874,13 +874,13 @@ void imap_pick_range(char *supplied_range, int is_uid) {
 				if ( (IMAP->msgids[i-1]>=lo)
 				   && (IMAP->msgids[i-1]<=hi)) {
 					IMAP->flags[i-1] =
-						IMAP->flags[i-1] | IMAP_FETCHED;
+						IMAP->flags[i-1] | IMAP_SELECTED;
 				}
 			}
 			else {		/* fetch by uid */
 				if ( (i>=lo) && (i<=hi)) {
 					IMAP->flags[i-1] =
-						IMAP->flags[i-1] | IMAP_FETCHED;
+						IMAP->flags[i-1] | IMAP_SELECTED;
 				}
 			}
 		}

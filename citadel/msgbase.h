@@ -100,3 +100,4 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *,
 		int headers_only,	/* eschew the message body? */
 		int do_proto,		/* do Citadel protocol responses? */
 		int crlf);
+int CtdlCopyMsgToRoom(long msgnum, char *dest);

@@ -89,7 +89,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c commands.c \
 	auth.c chkpwd.c html.c vcard.c serv_upgrade.c serv_vandelay.c \
 	serv_smtp.c serv_pop3.c internet_addressing.c parsedate.c genstamp.c \
 	domain.c clientsocket.c serv_inetcfg.c serv_rwho.c serv_bio.c \
-	serv_moderate.c client_passwords.c \
+	serv_moderate.c client_passwords.c imap_misc.c \
 	serv_imap.c imap_tools.c imap_fetch.c imap_search.c imap_store.c \
 	serv_network.c serv_pas2.c serv_ical.c md5.c
 
@@ -153,106 +153,46 @@ citserver: $(SERV_OBJS)
 modules/serv_chat.so: serv_chat.mo
 	$(LINK_SHARED) -o modules/serv_chat.so serv_chat.mo
 
-modules/serv_chat.mo: serv_chat.mo
-	ln -f serv_chat.mo modules
-
 modules/serv_test.so: serv_test.mo
 	$(LINK_SHARED) -o modules/serv_test.so serv_test.mo
-
-modules/serv_test.mo: serv_test.mo
-	ln -f serv_test.mo modules
 
 modules/serv_pop3.so: serv_pop3.mo md5.mo
 	$(LINK_SHARED) -o modules/serv_pop3.so serv_pop3.mo md5.mo
 
-modules/serv_pop3.mo: serv_pop3.mo
-	ln -f serv_pop3.mo modules
-
 modules/serv_inetcfg.so: serv_inetcfg.mo
 	$(LINK_SHARED) -o modules/serv_inetcfg.so serv_inetcfg.mo
-
-modules/serv_inetcfg.mo: serv_inetcfg.mo
-	ln -f serv_inetcfg.mo modules
 
 modules/serv_rwho.so: serv_rwho.mo
 	$(LINK_SHARED) -o modules/serv_rwho.so serv_rwho.mo
 
-modules/serv_rwho.mo: serv_rwho.mo
-	ln -f serv_rwho.mo modules
-
 modules/serv_moderate.so: serv_moderate.mo
 	$(LINK_SHARED) -o modules/serv_moderate.so serv_moderate.mo
-
-modules/serv_moderate.mo: serv_moderate.mo
-	ln -f serv_moderate.mo modules
 
 modules/serv_bio.so: serv_bio.mo
 	$(LINK_SHARED) -o modules/serv_bio.so serv_bio.mo
 
-modules/serv_bio.mo: serv_bio.mo
-	ln -f serv_bio.mo modules
-
 modules/serv_expire.so: serv_expire.mo
 	$(LINK_SHARED) -o modules/serv_expire.so serv_expire.mo
-
-modules/serv_expire.mo: serv_expire.mo
-	ln -f serv_expire.mo modules
 
 modules/serv_vandelay.so: serv_vandelay.mo
 	$(LINK_SHARED) -o modules/serv_vandelay.so serv_vandelay.mo
 
-modules/serv_vandelay.mo: serv_vandelay.mo
-	ln -f serv_vandelay.mo modules
-
 modules/serv_network.so: serv_network.mo
 	$(LINK_SHARED) -o modules/serv_network.so serv_network.mo
-
-modules/serv_network.mo: serv_network.mo
-	ln -f serv_network.mo modules
 
 modules/serv_upgrade.so: serv_upgrade.mo
 	$(LINK_SHARED) -o modules/serv_upgrade.so serv_upgrade.mo
 
-modules/serv_upgrade.mo: serv_upgrade.mo
-	ln -f serv_upgrade.mo modules
-
 modules/serv_vcard.so: serv_vcard.mo vcard.mo
 	$(LINK_SHARED) -o modules/serv_vcard.so serv_vcard.mo vcard.mo
-
-modules/serv_vcard.mo: serv_vcard.mo
-	ln -f serv_vcard.mo modules
-
-modules/vcard.mo: vcard.mo
-	ln -f vcard.mo modules
 
 modules/serv_smtp.so: serv_smtp.mo domain.mo
 	$(LINK_SHARED) -o modules/serv_smtp.so serv_smtp.mo domain.mo
 
-modules/serv_smtp.mo: serv_smtp.mo
-	ln -f serv_smtp.mo modules
-
-modules/domain.mo: domain.mo
-	ln -f domain.mo modules
-
 modules/serv_imap.so: serv_imap.mo imap_tools.mo imap_fetch.mo \
-	imap_search.mo imap_store.mo
+	imap_search.mo imap_store.mo imap_misc.mo
 	$(LINK_SHARED) -o modules/serv_imap.so imap_tools.mo serv_imap.mo \
-		imap_fetch.mo imap_search.mo imap_store.mo
-
-modules/serv_imap.mo: serv_imap.mo
-	ln -f serv_imap.mo modules
-
-modules/imap_tools.mo: imap_tools.mo
-	ln -f imap_tools.mo modules
-
-modules/imap_fetch.mo: imap_fetch.mo
-	ln -f imap_fetch.mo modules
-
-modules/imap_search.mo: imap_search.mo
-	ln -f imap_search.mo modules
-
-modules/imap_store.mo: imap_store.mo
-	ln -f imap_store.mo modules
+		imap_fetch.mo imap_search.mo imap_store.mo imap_misc.mo
 
 aidepost: aidepost.o config.o $(LIBOBJS)
 	$(CC) aidepost.o config.o $(LIBOBJS) $(LDFLAGS) -o aidepost
@@ -260,17 +200,8 @@ aidepost: aidepost.o config.o $(LIBOBJS)
 modules/serv_pas2.so: serv_pas2.mo md5.mo
 	$(LINK_SHARED) -o modules/serv_pas2.so serv_pas2.mo md5.mo
 
-modules/serv_pas2.mo: serv_pas2.mo
-	ln -f serv_pas2.mo modules
-
-modules/md5.mo: md5.mo
-	ln -f md5.mo modules
-
 modules/serv_ical.so: serv_ical.mo
 	$(LINK_SHARED) -o modules/serv_ical.so serv_ical.mo
-
-modules/serv_ical.mo: serv_ical.mo
-	ln -f serv_ical.mo modules
 
 
 

@@ -2345,6 +2345,21 @@ void cmd_dele(char *delstr)
 
 
 /*
+ * Back end API function for moves and deletes
+ */
+int CtdlCopyMsgToRoom(long msgnum, char *dest) {
+	int err;
+
+	err = CtdlSaveMsgPointerInRoom(targ, num,
+		(SM_VERIFY_GOODNESS | SM_DO_REPL_CHECK) );
+	if (err != 0) return(err);
+
+	return(0);
+}
+
+
+
+/*
  * move or copy a message to another room
  */
 void cmd_move(char *args)
@@ -2373,8 +2388,7 @@ void cmd_move(char *args)
 		return;
 	}
 
-	err = CtdlSaveMsgPointerInRoom(targ, num,
-		(SM_VERIFY_GOODNESS | SM_DO_REPL_CHECK) );
+	err = CtdlCopyMsgToRoom(num, targ);
 	if (err != 0) {
 		cprintf("%d Cannot store message in %s: error %d\n",
 			err, targ, err);

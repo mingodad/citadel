@@ -68,7 +68,7 @@ void imap_do_store(int num_items, char **itemlist, int is_uid) {
 
 	if (IMAP->num_msgs > 0)
 	 for (i = 0; i < IMAP->num_msgs; ++i)
-	  if (IMAP->flags[i] && IMAP_FETCHED) {
+	  if (IMAP->flags[i] && IMAP_SELECTED) {
 		msg = CtdlFetchMessage(IMAP->msgids[i]);
 		if (msg != NULL) {
 			imap_do_store_msg(i+1, msg, num_items,
@@ -96,14 +96,16 @@ void imap_store(int num_parms, char *parms[]) {
 		return;
 	}
 
-	for (i=1; i<num_parms; ++i) {
-		if (imap_is_message_set(parms[i])) {
-			imap_pick_range(parms[2], 0);
-		}
+	if (imap_is_message_set(parms[2])) {
+		imap_pick_range(parms[2], 0);
+	}
+	else {
+		cprintf("%s BAD invalid parameters\r\n", parms[0]);
+		return;
 	}
 
 	strcpy(items, "");
-	for (i=2; i<num_parms; ++i) {
+	for (i=3; i<num_parms; ++i) {
 		strcat(items, parms[i]);
 		if (i < (num_parms-1)) strcat(items, " ");
 	}
@@ -132,10 +134,12 @@ void imap_uidstore(int num_parms, char *parms[]) {
 		return;
 	}
 
-	for (i=1; i<num_parms; ++i) {
-		if (imap_is_message_set(parms[i])) {
-			imap_pick_range(parms[2], 1);
-		}
+	if (imap_is_message_set(parms[3])) {
+		imap_pick_range(parms[3], 1);
+	}
+	else {
+		cprintf("%s BAD invalid parameters\r\n", parms[0]);
+		return;
 	}
 
 	strcpy(items, "");

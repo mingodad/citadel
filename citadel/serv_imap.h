@@ -7,6 +7,8 @@ extern long SYM_IMAP;
 void imap_cleanup_function(void);
 void imap_greeting(void);
 void imap_command_loop(void);
+int imap_grabroom(char *returned_roomname, char *foldername);
+
 
 
 struct citimap {
@@ -36,7 +38,7 @@ enum {
 #define IMAP_DELETED	4
 #define IMAP_DRAFT	8
 #define IMAP_SEEN	16
-#define IMAP_FETCHED	32	/* internal */
+#define IMAP_SELECTED	32	/* internal */
 
 
 #define IMAP ((struct citimap *)CtdlGetUserData(SYM_IMAP))

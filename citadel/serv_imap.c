@@ -47,6 +47,7 @@
 #include "imap_fetch.h"
 #include "imap_search.h"
 #include "imap_store.h"
+#include "imap_misc.h"
 
 
 long SYM_IMAP;
@@ -523,26 +524,20 @@ void imap_create(int num_parms, char *parms[]) {
 
 
 /*
- * Implements the STATUS command (sort of)
- *
+ * Locate a room by its IMAP folder name, and check access to it
  */
-void imap_status(int num_parms, char *parms[]) {
+int imap_grabroom(char *returned_roomname, char *foldername) {
 	int ret;
 	char augmented_roomname[ROOMNAMELEN];
 	char roomname[ROOMNAMELEN];
-	char buf[SIZ];
 	int c;
 	struct quickroom QRscratch;
 	int ra;
 	int ok = 0;
-	char savedroom[ROOMNAMELEN];
-	int msgs, new;
 
-	ret = imap_roomname(roomname, sizeof roomname, parms[2]);
+	ret = imap_roomname(roomname, sizeof roomname, foldername);
 	if (ret < 0) {
-		cprintf("%s NO Invalid mailbox name or location\r\n",
-			parms[0]);
-		return;
+		return(1);
 	}
 
         /* First try a regular match */
@@ -569,7 +564,31 @@ void imap_status(int num_parms, char *parms[]) {
 
 	/* Fail here if no such room */
 	if (!ok) {
-		cprintf("%s NO ... no such room, or access denied\r\n",
+		strcpy(returned_roomname, "");
+		return(1);
+	}
+	else {
+		strcpy(returned_roomname, QRscratch.QRname);
+		return(0);
+	}
+}
+
+
+/*
+ * Implements the STATUS command (sort of)
+ *
+ */
+void imap_status(int num_parms, char *parms[]) {
+	int ret;
+	char roomname[ROOMNAMELEN];
+	char buf[SIZ];
+	struct quickroom QRscratch;
+	char savedroom[ROOMNAMELEN];
+	int msgs, new;
+
+	ret = imap_grabroom(roomname, parms[2]);
+	if (ret != 0) {
+		cprintf("%s NO Invalid mailbox name or location, or access denied\r\n",
 			parms[0]);
 		return;
 	}
@@ -582,7 +601,7 @@ void imap_status(int num_parms, char *parms[]) {
 	if (IMAP->selected) {
 		strcpy(savedroom, CC->quickroom.QRname);
 	}
-	usergoto(QRscratch.QRname, 0, &msgs, &new);
+	usergoto(roomname, 0, &msgs, &new);
 
 	/*
 	 * Tell the client what it wants to know.  In fact, tell it *more* than
@@ -763,6 +782,15 @@ void imap_command_loop(void) {
 	else if ( (!strcasecmp(parms[1], "UID"))
 		&& (!strcasecmp(parms[2], "STORE")) ) {
 		imap_uidstore(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "COPY")) {
+		imap_copy(num_parms, parms);
+	}
+
+	else if ( (!strcasecmp(parms[1], "UID"))
+		&& (!strcasecmp(parms[2], "COPY")) ) {
+		imap_uidcopy(num_parms, parms);
 	}
 
 	else if (!strcasecmp(parms[1], "CLOSE")) {

@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.106  2001/03/05 04:59:31  ajc
+ * IMAP COPY
+
  Revision 573.105  2001/03/04 23:49:41  ajc
  * IMAP EXPUNGE responses -should- be correct now
 
@@ -2427,3 +2430,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
