@@ -1,5 +1,6 @@
 1998-11-04 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* added RCS Id keyword strings to sources
+	* citmail.c: reverted to version 1.10
 
 Wed Nov  4 10:53:13 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* messages.c: temporarily set screenwidth to a fixed value of 80
