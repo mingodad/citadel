@@ -1,4 +1,9 @@
  $Log$
+ Revision 605.17  2003/03/15 22:31:06  ajc
+ * When scanning a user's Calendar> room for calendar events, search for
+   MIME parts of type text/calendar instead of assuming that the event will
+   always appear as part "1"
+
  Revision 605.16  2003/03/14 05:08:25  ajc
  * Clone calendar subcomponents before encapsulating in case they already
    happen to have a parent.
@@ -4549,3 +4554,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

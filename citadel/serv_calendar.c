@@ -47,6 +47,28 @@ long SYM_CIT_ICAL;
 
 
 /*
+ * Utility function to create a new VCALENDAR component with some of the
+ * required fields already set the way we like them.
+ */
+icalcomponent *icalcomponent_new_citadel_vcalendar(void) {
+	icalcomponent *encaps;
+
+	encaps = icalcomponent_new(ICAL_VCALENDAR_COMPONENT);
+	if (encaps == NULL) {
+		lprintf(3, "Error at %s:%d - could not allocate component!\n",
+			__FILE__, __LINE__);
+		return NULL;
+	}
+
+	/* Set the Product ID */
+	icalcomponent_add_property(encaps, icalproperty_new_prodid(PRODID));
+
+	/* Set the Version Number */
+	icalcomponent_add_property(encaps, icalproperty_new_version("2.0"));
+}
+
+
+/*
  * Utility function to encapsulate a subcomponent into a full VCALENDAR
  */
 icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
@@ -60,18 +82,8 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 	}
 
 	/* Encapsulate the VEVENT component into a complete VCALENDAR */
-	encaps = icalcomponent_new(ICAL_VCALENDAR_COMPONENT);
-	if (encaps == NULL) {
-		lprintf(3, "Error at %s:%d - could not allocate component!\n",
-			__FILE__, __LINE__);
-		return NULL;
-	}
-
-	/* Set the Product ID */
-	icalcomponent_add_property(encaps, icalproperty_new_prodid(PRODID));
-
-	/* Set the Version Number */
-	icalcomponent_add_property(encaps, icalproperty_new_version("2.0"));
+	encaps = icalcomponent_new_citadel_vcalendar();
+	if (encaps == NULL) return NULL;
 
 	/* Encapsulate the subcomponent inside */
 	icalcomponent_add_component(encaps, subcomp);
@@ -330,11 +342,26 @@ void ical_locate_part(char *name, char *filename, char *partnum, char *disp,
 	struct ical_respond_data *ird = NULL;
 
 	ird = (struct ical_respond_data *) cbuserdata;
+
+	/* desired_partnum can be set to "_HUNT_" to have it just look for
+	 * the first part with a content type of text/calendar.  Otherwise
+	 * we have to only process the right one.
+	 */
+	if (strcasecmp(ird->desired_partnum, "_HUNT_")) {
+		if (strcasecmp(partnum, ird->desired_partnum)) {
+			return;
+		}
+	}
+
+	if (strcasecmp(cbtype, "text/calendar")) {
+		return;
+	}
+
 	if (ird->cal != NULL) {
 		icalcomponent_free(ird->cal);
 		ird->cal = NULL;
 	}
-	if (strcasecmp(partnum, ird->desired_partnum)) return;
+
 	ird->cal = icalcomponent_new_from_string(content);
 	if (ird->cal != NULL) {
 		ical_dezonify(ird->cal);
@@ -869,7 +896,7 @@ void ical_hunt_for_conflicts_backend(long msgnum, void *data) {
 	msg = CtdlFetchMessage(msgnum);
 	if (msg == NULL) return;
 	memset(&ird, 0, sizeof ird);
-	strcpy(ird.desired_partnum, "1");	/* hopefully it's always 1 */
+	strcpy(ird.desired_partnum, "_HUNT_");
 	mime_parser(msg->cm_fields['M'],
 		NULL,
 		*ical_locate_part,		/* callback function */
@@ -915,7 +942,6 @@ void ical_hunt_for_conflicts_backend(long msgnum, void *data) {
 	if (p != NULL) {
 		strcpy(conflict_event_summary, icalproperty_get_comment(p));
 	}
-
 
 	icalcomponent_free(ird.cal);
 
@@ -1082,7 +1108,7 @@ void ical_freebusy_backend(long msgnum, void *data) {
 	msg = CtdlFetchMessage(msgnum);
 	if (msg == NULL) return;
 	memset(&ird, 0, sizeof ird);
-	strcpy(ird.desired_partnum, "1");	/* hopefully it's always 1 */
+	strcpy(ird.desired_partnum, "_HUNT_");
 	mime_parser(msg->cm_fields['M'],
 		NULL,
 		*ical_locate_part,		/* callback function */
@@ -1094,13 +1120,10 @@ void ical_freebusy_backend(long msgnum, void *data) {
 
 	if (ird.cal == NULL) return;
 
-	/* Strip it!  Strip it good! */
-	ical_freebusy_strip(ird.cal);
+	/* FIXME  ...  now extract ird.cal's FREEBUSY info, and add to cal. */
 
-	/* Encapsulate ird.cal inside cal (thereby also transferring
-	 * ownership of the memory it consumes).
-	 */
-	icalcomponent_add_component(cal, ird.cal);
+	/* Now free the memory. */
+	icalcomponent_free(ird.cal);
 }
 
 
@@ -1114,6 +1137,7 @@ void ical_freebusy(char *who) {
 	char hold_rm[ROOMNAMELEN];
 	char *serialized_request = NULL;
 	icalcomponent *encaps = NULL;
+	icalcomponent *fb = NULL;
 
 	if (getuser(&usbuf, who) != 0) {
 		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
@@ -1132,8 +1156,8 @@ void ical_freebusy(char *who) {
 	}
 
 
-	/* Create a VCALENDAR in which we will encapsulate all the VEVENTs */
-	encaps = icalcomponent_new(ICAL_VCALENDAR_COMPONENT);
+	/* Create a VCALENDAR in which we will encapsulate all the VFREEBUSYs */
+	encaps = icalcomponent_new_citadel_vcalendar();
 	if (encaps == NULL) {
 		cprintf("%d Internal error: cannot allocate memory.\n",
 			ERROR+INTERNAL_ERROR);
@@ -1141,17 +1165,21 @@ void ical_freebusy(char *who) {
 		return;
 	}
 
-	/* Set the Product ID */
-	icalcomponent_add_property(encaps, icalproperty_new_prodid(PRODID));
+	/* Create a VFREEBUSY subcomponent */
+	fb = icalcomponent_new(ICAL_VFREEBUSY_COMPONENT);
+	if (fb == NULL) {
+		cprintf("%d Internal error: cannot allocate memory.\n",
+			ERROR+INTERNAL_ERROR);
+		icalcomponent_free(encaps);
+		getroom(&CC->quickroom, hold_rm);
+		return;
+	}
 
-	/* Set the Version Number */
-	icalcomponent_add_property(encaps, icalproperty_new_version("2.0"));
-
-	/* Set the method to ???? FIXME
-	icalcomponent_set_method(encaps, ICAL_METHOD_REQUEST); */
+	/* Put the freebusy component into the calendar component */
+	icalcomponent_add_component(encaps, fb);
 
 	CtdlForEachMessage(MSGS_ALL, 0, "text/calendar",
-		NULL, ical_freebusy_backend, (void *)encaps
+		NULL, ical_freebusy_backend, (void *)fb
 	);
 
 	/* Serialize it */
