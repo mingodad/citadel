@@ -222,6 +222,7 @@ private:
 	wxHtmlWindow *message_window;
         wxPanel *banner;
         wxButton *close_button;
+	wxGauge *progress;
 	wxString ThisRoom;
 };
 

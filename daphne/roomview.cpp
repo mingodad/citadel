@@ -97,11 +97,23 @@ RoomView::RoomView(
 		wxDefaultPosition);
 
 	wxLayoutConstraints *c3 = new wxLayoutConstraints;
-	c3->top.SameAs(close_button, wxTop);
+	c3->top.SameAs(readnew_button, wxTop);
 	c3->bottom.SameAs(readnew_button, wxBottom);
 	c3->width.AsIs();
 	c3->right.LeftOf(readnew_button, 5);
 	readall_button->SetConstraints(c3);
+
+
+	// Progress bar -- consumes *remainder* of space
+	progress = new wxGauge(this, -1, 1);
+
+	wxLayoutConstraints *c9 = new wxLayoutConstraints;
+	c9->top.SameAs(readall_button, wxTop);
+	c9->bottom.SameAs(readall_button, wxBottom);
+	c9->left.SameAs(this, wxLeft, 5);
+	c9->right.LeftOf(readall_button, 5);
+	progress->SetConstraints(c9);
+
 }
 
 
@@ -152,9 +164,11 @@ void RoomView::do_readloop(wxString readcmd) {
 
 
 	// Read the messages into the window, one at a time
-	message_window->SetPage("<html><body>Loading...</body></html>");
+	progress->SetRange(xferbuf.Number());
 	allmsgs = "<HTML><BODY><CENTER><H1>List of Messages</H1></CENTER><HR>";
         for (i=0; i<xferbuf.Number(); ++i) {
+		progress->SetValue(i);
+		progress->Refresh();
                 buf.Printf("%s", (wxString *)xferbuf.Nth(i)->GetData());
 
 		sendcmd = "MSG0 " + buf;
@@ -174,6 +188,7 @@ void RoomView::do_readloop(wxString readcmd) {
 
 		allmsgs += "<HR>";
         }
+	progress->SetValue(i);
 	allmsgs += "</BODY></HTML>";
 	message_window->SetPage(allmsgs);
 }
