@@ -663,7 +663,17 @@ void session_loop(struct httprequest *req)
 			strcpy(c_host, bstr("host"));
 		if (strlen(bstr("port")) > 0)
 			strcpy(c_port, bstr("port"));
-		WC->serv_sock = connectsock(c_host, c_port, "tcp");
+
+		if (!strcasecmp(c_host, "uds")) {
+			/* unix domain socket */
+			sprintf(buf, "%s/citadel.socket", c_port);
+			WC->serv_sock = uds_connectsock(buf);
+		}
+		else {
+			/* tcp socket */
+			WC->serv_sock = tcp_connectsock(c_host, c_port);
+		}
+
 		if (WC->serv_sock < 0) {
 			do_logout();
 		}

@@ -20,6 +20,7 @@
 #include <limits.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/un.h>
 #include <netdb.h>
 #include <string.h>
 #include <pwd.h>
@@ -39,18 +40,52 @@ RETSIGTYPE timeout(int signum)
 	exit(3);
 }
 
-int connectsock(char *host, char *service, char *protocol)
+
+
+/*
+ * Connect a unix domain socket
+ */
+int uds_connectsock(char *sockpath)
+{
+	struct sockaddr_un sun;
+	int s;
+
+	memset(&sun, 0, sizeof(sun));
+	sun.sun_family = AF_UNIX;
+	strncpy(sun.sun_path, sockpath, sizeof sun.sun_path);
+
+	s = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (s < 0) {
+		fprintf(stderr, "Can't create socket: %s\n",
+			strerror(errno));
+		return(-1);
+	}
+
+	if (connect(s, (struct sockaddr *) &sun, sizeof(sun)) < 0) {
+		fprintf(stderr, "can't connect: %s\n",
+			strerror(errno));
+		return(-1);
+	}
+
+	return s;
+}
+
+
+/*
+ * Connect a TCP/IP socket
+ */
+int tcp_connectsock(char *host, char *service)
 {
 	struct hostent *phe;
 	struct servent *pse;
 	struct protoent *ppe;
 	struct sockaddr_in sin;
-	int s, type;
+	int s;
 
 	bzero((char *) &sin, sizeof(sin));
 	sin.sin_family = AF_INET;
 
-	pse = getservbyname(service, protocol);
+	pse = getservbyname(service, "tcp");
 	if (pse) {
 		sin.sin_port = pse->s_port;
 	} else if ((sin.sin_port = htons((u_short) atoi(service))) == 0) {
@@ -65,17 +100,13 @@ int connectsock(char *host, char *service, char *protocol)
 			host, strerror(errno));
 		return (-1);
 	}
-	if ((ppe = getprotobyname(protocol)) == 0) {
-		fprintf(stderr, "Can't get %s protocol entry: %s\n",
-			protocol, strerror(errno));
+	if ((ppe = getprotobyname("tcp")) == 0) {
+		fprintf(stderr, "Can't get TCP protocol entry: %s\n",
+			strerror(errno));
 		return (-1);
 	}
-	if (!strcmp(protocol, "udp"))
-		type = SOCK_DGRAM;
-	else
-		type = SOCK_STREAM;
 
-	s = socket(PF_INET, type, ppe->p_proto);
+	s = socket(PF_INET, SOCK_STREAM, ppe->p_proto);
 	if (s < 0) {
 		fprintf(stderr, "Can't create socket: %s\n", strerror(errno));
 		return (-1);

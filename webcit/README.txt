@@ -1,7 +1,7 @@
                       WEBCIT for the Citadel/UX System
-                               version 2.11
+                               version 2.12
  
-   Copyright (C) 1996-1999 by Art Cancro, Nathan Bryant, and Nick Grossman
+   Copyright (C) 1996-2000 by Art Cancro, Nathan Bryant, and Nick Grossman
 This program is free software released under the terms of the GNU General
 Public License.  Please read COPYING.txt for more licensing information.
  
@@ -56,6 +56,10 @@ the "webserver" program:
   
  webserver [-p localport] [-t tracefile] [remotehost [remoteport]]
  
+   *or*
+ 
+ webserver [-p localport] [-t tracefile] uds /your/citadel/directory
+ 
  Explained: 
   
   -> localport: the TCP port on which you wish your WebCit server to run.
@@ -74,6 +78,13 @@ the "webserver" program:
  
   -> remoteport: the port number on which your Citadel/UX server is running.
      The default is port 504, the IANA-designated standard port for Citadel.
+ 
+  -> "uds" is a keyword which tells WebCit that you wish to connect to a
+     Citadel server running on the same computer, rather than using a TCP/IP
+     socket.  /your/citadel/directory should be set to the actual name of the
+     directory in which you have Citadel installed
+     (such as /usr/local/citadel).  If you run Citadel and WebCit on the same
+     computer, you should set it up this way; it runs a bit faster.
  
  
  GRAPHICS

@@ -3,10 +3,10 @@
 #define SLEEPING		180		/* TCP connection timeout */
 #define WEBCIT_TIMEOUT		900		/* WebCit session timeout */
 #define PORT_NUM		2000		/* port number to listen on */
-#define SERVER			"WebCit v2.11"	/* who's in da house */
+#define SERVER			"WebCit v2.12"	/* who's in da house */
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
-#define CLIENT_VERSION		211
+#define CLIENT_VERSION		212
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define LB			(1)		/* Internal escape chars */
@@ -154,7 +154,8 @@ void slrp_highest(void);
 void gotonext(void);
 void ungoto(void);
 void get_serv_info(char *, char *);
-int connectsock(char *host, char *service, char *protocol);
+int uds_connectsock(char *);
+int tcp_connectsock(char *, char *);
 void serv_gets(char *strbuf);
 void serv_puts(char *string);
 void whobbs(void);
