@@ -279,8 +279,8 @@ void cmd_conf(char *argbuf)
 				break;
 			case 14:
 				config.c_maxsessions = atoi(buf);
-				if (config.c_maxsessions < 1)
-					config.c_maxsessions = 1;
+				if (config.c_maxsessions < 0)
+					config.c_maxsessions = 0;
 				break;
 			case 15:
 				/* placeholder -- field no longer in use */
