@@ -910,7 +910,7 @@ int main(int argc, char **argv)
 	int stored_password = 0;
 	char password[SIZ];
 	struct ctdlipcmisc chek;
-	struct usersupp *myself;
+	struct usersupp *myself = NULL;
 	int r;				/* IPC result code */
 
 	setIPCDeathHook(screen_delete);

@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.54  2002/06/24 20:17:43  error
+ * Fixed code for client segfault at login
+
  Revision 591.53  2002/06/24 20:11:00  error
  * Buffer overflow fixes and minor cleanup in IPC code
 
@@ -3767,4 +3770,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
