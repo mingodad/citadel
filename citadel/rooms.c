@@ -606,17 +606,15 @@ void download(int proto)
 {
 	char buf[256];
 	char filename[256];
+	char tempname[256];
+	char transmit_cmd[256];
 	long total_bytes = 0L;
-#ifdef HAVE_MKFIFO
 	char dbuf[4096];
 	long transmitted_bytes = 0L;
 	long aa,bb;
-	int a,b;
 	int packet;
 	FILE *tpipe = NULL;
-	int proto_pid;
 	int broken = 0;
-#endif
 
 	if ((room_flags & QR_DOWNLOAD) == 0) {
 		printf("*** You cannot download from this room.\n");
@@ -640,65 +638,13 @@ void download(int proto)
 		return;
 		}
 
-#ifdef HAVE_MKFIFO
 	/* Meta-download for public clients */
-	mkdir(tempdir,0700);
-	snprintf(buf,sizeof buf,"%s/%s",tempdir,filename);
-	mkfifo(buf, 0777);
-
-	/* We do the remainder of this function as a separate process in
-	 * order to allow recovery if the transfer is aborted.  If the
-	 * file transfer program aborts, the first child process receives a
-	 * "broken pipe" signal and aborts.  We *should* be able to catch
-	 * this condition with signal(), but it doesn't seem to work on all
-	 * systems.
-	 */
-	a = fork();
-	if (a!=0) {
-		/* wait for the download to finish */
-		while (wait(&b)!=a) ;;
-		sttybbs(0);
-		/* close the download file at the server */
-		serv_puts("CLOS");
-		serv_gets(buf);
-		if (buf[0]!='2') {
-			printf("%s\n",&buf[4]);
-			}
-		/* clean up the temporary directory */
-		nukedir(tempdir);
-		return;
-		}
-
-	snprintf(buf,sizeof buf,"%s/%s",tempdir,filename); /* full pathname */
-
-	/* The next fork() creates a second child process that is used for
-	 * the actual file transfer program (usually sz).
-	 */
-	proto_pid = fork();
-	if (proto_pid == 0) {
-		if (proto==0)  {
-			sttybbs(0);
-			signal(SIGINT,SIG_DFL);
-			signal(SIGQUIT,SIG_DFL);
-			snprintf(dbuf,sizeof dbuf,"SHELL=/dev/null; export SHELL; TERM=dumb; export TERM; exec more -d <%s",buf);
-			system(dbuf);
-			sttybbs(SB_NO_INTR);
-			exit(0);
-			}
-		sttybbs(3);
-		signal(SIGINT,SIG_DFL);
-		signal(SIGQUIT,SIG_DFL);
-		if (proto==1) execlp("sx","sx",buf,NULL);
-		if (proto==2) execlp("cat","cat",buf,NULL);
-		if (proto==3) execlp("sb","sb",buf,NULL);
-		if (proto==4) execlp("sz","sz",buf,NULL);
-		execlp("cat","cat",buf,NULL);
-		exit(1);
-		}
-
-	tpipe = fopen(buf,"w");
-
+	printf("Fetching file from Citadel server...\n");
+	mkdir(tempdir, 0700);
+	snprintf(tempname, sizeof tempname, "%s/%s", tempdir, filename);
+	tpipe = fopen(tempname, "wb");
 	while ( (transmitted_bytes < total_bytes) && (broken == 0) ) {
+		progress(transmitted_bytes, total_bytes);
 		bb = total_bytes - transmitted_bytes;
 		aa = ((bb < 4096) ? bb : 4096);
 		sprintf(buf,"READ %ld|%ld",transmitted_bytes,aa);
@@ -706,23 +652,36 @@ void download(int proto)
 		serv_gets(buf);
 		if (buf[0]!='6') {
 			printf("%s\n",&buf[4]);
-			return;
-			}
+		}
 		packet = extract_int(&buf[4],0);
 		serv_read(dbuf,packet);
 		if (fwrite(dbuf,packet,1,tpipe) < 1) broken = 1;
 		transmitted_bytes = transmitted_bytes + (long)packet;
-		}
-	if (tpipe!=NULL) fclose(tpipe);
-
-	/* Hang out and wait for the file transfer program to finish */
-	while (wait(&a) != proto_pid) ;;
-
-
-	putc(7,stdout);
-	exit(0);	/* transfer control back to the main program */
-#endif
 	}
+	fclose(tpipe);
+	progress(transmitted_bytes, total_bytes);
+
+	/* close the download file at the server */
+	serv_puts("CLOS");
+	serv_gets(buf);
+	if (buf[0]!='2') {
+		printf("%s\n",&buf[4]);
+	}
+
+	if (proto==0)		sprintf(transmit_cmd, "SHELL=/dev/null; export SHELL; TERM=dumb; export TERM; exec more -d <%s",tempname);
+	else if (proto==1)	sprintf(transmit_cmd, "exec sx %s", tempname);
+	else if (proto==3)	sprintf(transmit_cmd, "exec sb %s", tempname);
+	else if (proto==4)	sprintf(transmit_cmd, "exec sz %s", tempname);
+	else 			sprintf(transmit_cmd, "exec cat %s", tempname);
+
+	sttybbs(SB_RESTORE);
+	system(transmit_cmd);
+	sttybbs(SB_NO_INTR);
+	
+	/* clean up the temporary directory */
+	nukedir(tempdir);
+	putc(7,stdout);
+}
 
 
 /*

@@ -1,4 +1,9 @@
 $Log$
+Revision 1.438  2000/01/09 19:03:16  ajc
+* Removed the fifo-based protocol downloads and replaced it with a less
+  elegant "download temporary file to client, then sx/sb/sz" because
+  downloading through a fifo was confusing some software.
+
 Revision 1.437  2000/01/08 22:19:44  ajc
 * Completed spool to outbound delivery queue (still no queue sender implemented)
 
@@ -1527,4 +1532,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
