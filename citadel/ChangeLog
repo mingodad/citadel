@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.77  2001/02/02 20:18:18  ajc
+ * Changed the error message in cdb_delete() to actually *say* cdb_delete
+   instead of cdb_store.  Useful to know which function failed...
+
  Revision 573.76  2001/02/01 04:08:03  ajc
  * IMAP minor change to mailbox name output
  * Increased size of buffer in lprintf()
@@ -2351,4 +2355,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

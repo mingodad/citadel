@@ -256,7 +256,7 @@ void open_databases(void)
 
 
 /*
- * Close all of the gdbm database files we've opened.  This can be done
+ * Close all of the db database files we've opened.  This can be done
  * in a loop, since it's just a bunch of closes.
  */
 void close_databases(void)
@@ -373,7 +373,7 @@ int cdb_delete(int cdb, void *key, int keylen)
 					else
 						goto retry;
 			} else {
-				lprintf(1, "cdb_store(%d): %s\n", cdb,
+				lprintf(1, "cdb_delete(%d): %s\n", cdb,
 					db_strerror(ret));
 				txabort(tid);
 				return ret;
