@@ -72,3 +72,15 @@ void delete_room(void);
 void validate(void);
 void mime_parser(char *, int, char *);
 void handle_multipart(char *, int, char *);
+void display_graphics_upload(char *description, char *check_cmd, char *uplurl);
+void do_graphics_upload(char *upl_cmd);
+void serv_read(char *buf, int bytes);
+void serv_gets(char *strbuf);
+void serv_write(char *buf, int nbytes);
+void serv_puts(char *string);
+void serv_printf(const char *format, ...);
+
+
+
+
+

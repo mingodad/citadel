@@ -74,3 +74,5 @@ extern unsigned room_flags;
 extern char ugname[128];
 extern long uglsn;
 extern char *axdefs[];
+extern int upload_length;
+extern char *upload;
