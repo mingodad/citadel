@@ -1,4 +1,8 @@
  $Log$
+ Revision 621.11  2004/06/11 01:26:02  ajc
+ * Optimized the scheduler some more.  The S_I_WANNA_SELECT mutex now
+   wraps only the select() call itself.
+
  Revision 621.10  2004/06/09 03:54:07  ajc
  * The scheduler can now "wake up" a session to deliver async messages.
  * Renumbered the "instant msgs waiting" message and changed its usage
@@ -5830,3 +5834,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

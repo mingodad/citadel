@@ -887,26 +887,12 @@ void *worker_thread(void *arg) {
 
 	while (!time_to_die) {
 
-		/* 
-		 * A naive implementation would have all idle threads
-		 * calling select() and then they'd all wake up at once
-		 * (known in computer science as the "thundering herd"
-		 * problem).  We solve this problem by putting the select()
-		 * in a critical section, so only one thread has the
-		 * opportunity to wake up.  If we wake up on a master
-		 * socket, create a new session context; otherwise, just
-		 * bind the thread to the context we want and go on our
-		 * merry way.
-		 */
-
 		/* make doubly sure we're not holding any stale db handles
 		 * which might cause a deadlock.
 		 */
 		cdb_check_handles();
-		force_purge = 0;
+do_select:	force_purge = 0;
 		bind_me = NULL;		/* Which session shall we handle? */
-
-		begin_critical_section(S_I_WANNA_SELECT);
 
 		/* Initialize the fdset. */
 		FD_ZERO(&readfds);
@@ -928,9 +914,12 @@ void *worker_thread(void *arg) {
 
 		if (bind_me) goto SKIP_SELECT;
 
-do_select:	/* Only select() if the server isn't being told to shut down. */
+		/* If we got this far, it means that there are no sessions
+		 * which a previous thread marked for attention, so we go
+		 * ahead and get ready to select().
+		 */
 
-		/* Add the various master sockets to the fdset. */
+		/* First, add the various master sockets to the fdset. */
 		for (serviceptr = ServiceHookTable; serviceptr != NULL;
 	    	serviceptr = serviceptr->next ) {
 			m = serviceptr->msock;
@@ -943,10 +932,15 @@ do_select:	/* Only select() if the server isn't being told to shut down. */
 		if (!time_to_die) {
 			tv.tv_sec = 1;		/* wake up every second if no input */
 			tv.tv_usec = 0;
+			/*
+			 * Avoid the "thundering herd" problem by letting only
+			 * one thread select() at a time.
+			 */
+			begin_critical_section(S_I_WANNA_SELECT);
 			retval = select(highest + 1, &readfds, NULL, NULL, &tv);
+			end_critical_section(S_I_WANNA_SELECT);
 		}
 		else {
-			end_critical_section(S_I_WANNA_SELECT);
 			break;
 		}
 
@@ -1042,8 +1036,8 @@ do_select:	/* Only select() if the server isn't being told to shut down. */
 			}
 		}
 		end_critical_section(S_SESSION_TABLE);
-SKIP_SELECT:	end_critical_section(S_I_WANNA_SELECT);
 
+SKIP_SELECT:
 		/* We're bound to a session */
 		if (bind_me != NULL) {
 			become_session(bind_me);
