@@ -1,4 +1,8 @@
  $Log$
+ Revision 611.4  2003/11/12 04:28:22  ajc
+ * Replaced bmstrcasestr() with a more generic function, bmstrstr(), which
+   can be supplied with *any* strncmp()-compatible compare function.
+
  Revision 611.3  2003/11/08 06:46:08  ajc
  * IMAP FETCH BODY<xxx.yyy> was outputting the offset and length in the
    wrong order.  Fixed.
@@ -5069,4 +5073,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

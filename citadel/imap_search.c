@@ -116,7 +116,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos], "BODY")) {
-		if (bmstrcasestr(msg->cm_fields['M'], itemlist[pos+1])) {
+		if (bmstrstr(msg->cm_fields['M'], itemlist[pos+1], strncasecmp)) {
 			match = 1;
 		}
 		pos += 2;
@@ -149,7 +149,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos], "FROM")) {
-		if (bmstrcasestr(msg->cm_fields['A'], itemlist[pos+1])) {
+		if (bmstrstr(msg->cm_fields['A'], itemlist[pos+1], strncasecmp)) {
 			match = 1;
 		}
 		pos += 2;
@@ -252,7 +252,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos], "SUBJECT")) {
-		if (bmstrcasestr(msg->cm_fields['U'], itemlist[pos+1])) {
+		if (bmstrstr(msg->cm_fields['U'], itemlist[pos+1], strncasecmp)) {
 			match = 1;
 		}
 		pos += 2;
@@ -260,7 +260,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 
 	else if (!strcasecmp(itemlist[pos], "TEXT")) {
 		for (i='A'; i<='Z'; ++i) {
-			if (bmstrcasestr(msg->cm_fields[i], itemlist[pos+1])) {
+			if (bmstrstr(msg->cm_fields[i], itemlist[pos+1], strncasecmp)) {
 				match = 1;
 			}
 		}
@@ -268,7 +268,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos], "TO")) {
-		if (bmstrcasestr(msg->cm_fields['R'], itemlist[pos+1])) {
+		if (bmstrstr(msg->cm_fields['R'], itemlist[pos+1], strncasecmp)) {
 			match = 1;
 		}
 		pos += 2;

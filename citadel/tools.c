@@ -579,13 +579,16 @@ FILE *CtdlTempFile(void) {
 
 
 /*
- * bmstrcasestr() is a variant of strstr() that is both case-insensitive
- * and uses the Boyer-Moore search algorithm.
+ * bmstrstr() is a variant of strstr() that uses the Boyer-Moore search
+ * algorithm, and can use any caller-supplied string compare function whose
+ * calling syntax is similar to strncmp().  For example, we can supply it
+ * with strncasecmp() to do a case-insensitive search.
  * 
  * Original code: copyright (c) 1997-1998 by Urs Janssen <urs@tin.org>
  * Modifications: copyright (c) 2003 by Art Cancro <ajc@uncensored.citadel.org>
  */
-char *bmstrcasestr(char *text, char *pattern)
+char *bmstrstr(char *text, char *pattern,
+	int (*cmpfunc(const char *, const char *, size_t)) )
 {
 	register unsigned char *p, *t;
 	register int i, j, *delta;
@@ -628,7 +631,7 @@ char *bmstrcasestr(char *text, char *pattern)
 	i = textlen - patlen;
 	while (1) {
 		if (tolower(*p) == tolower(*t)
-		   && strncasecmp((p - p1), (t - p1), p1) == 0)
+		   && cmpfunc((p - p1), (t - p1), p1) == 0)
 			return ((char *) t - p1);
 		j = delta[*t];
 		if (i < j)
