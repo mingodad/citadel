@@ -1,222 +1,198 @@
-/* citadel.java
- *
- * the "main" object
- */
-
-import java.util.*;
-import java.net.InetAddress;
 
 public class citadel {
-  public static String		VERSION="0.0";
+    public final static String	NAME="Shaggy", VERSION="0.1";
+    public static citadel	me;
 
-  String			host;
-  boolean			applet;
-  net				theNet;
-  server			serverInfo;
-  user				theUser;
-  private citPanel			cp;
+    String		server;
+    int			port;
 
-  boolean			floors;
-  whoWindow			wo;
-  roomMap			rooms;
+    citGui		cg;
+    net			theNet;
 
-  public static citadel	me;
+    server		serverInfo;
+    user	      	theUser;
+    roomMap		rooms;
+    roomFrame		rf;
 
-  public static void main( String args[] ) {
-    citadel cb = new citadel( false );
-    if( args.length > 0 )
-      cb.openConnection( args[0] );
-    else
-      cb.openConnection();
-    citFrame cf = new citFrame();
-  }
-
-  public static int atoi( String s ) {
-    try {
-      return Integer.parseInt( s );
-    } catch( Exception e ) {
-      return 0;
+    public static void main( String args[] ) {
+	new citadel();
     }
-  }
 
-  public citadel( boolean applet ) {
-    me = this;
-    this.applet = false;
-    theUser = null;
-    wo = null;
-    rooms = new roomMap();
-  }
-
-  public void setCitPanel( citPanel cp ) {
-    this.cp = cp;
-  }
-
-  public void lostNetwork( String reason ) {
-    theNet = null;
-    if( cp == null )
-      System.out.println( "lost network connection:" + reason );
-    else
-      cp.logoff( "lost network connection: " + reason );
-  }
-
-  public boolean openConnection( ) {
-    return openConnection( "127.0.0.1" );
-  }
-
-  public boolean openConnection( String host ) {
-    this.host = host;
-    if( theNet == null ) theNet = new net( );
-
-    if( theNet.connect(host) ) {
-      System.out.println( "Connected to server." );
-
-      getReply( "IDEN 0|7|" + VERSION + "|Shaggy " + VERSION + " (" + getArch() + ")|" + getHostName() );
-      citReply rep = theNet.getReply( "INFO" );
-      if( rep.listingFollows() )
-	serverInfo = new server( rep );
-
-      return true;
+    public static int atoi( String s ) {
+	if( s == null ) return 0;
+	try {
+	    return Integer.parseInt( s );
+	} catch( NumberFormatException nfe ) {
+	    return 0;
+	}
     }
-    else {
-      System.out.println( "Couldn't connect to server." );
+
+    public citadel() {
+	me = this;
+	cg = new citGui();
+	theNet = new net();
+	serverInfo = null;
+	rf = null;
     }
-    return false;
-  }
 
-  public String getArch() {
-    try {
-      Properties	p = System.getProperties();
-      return p.get( "os.name" ) + "/" + p.get( "os.arch" );
-    } catch( SecurityException se ) {
-      return "<unknown>";
+    public void showHostBrowser() {
+	cg.showHostBrowser();
     }
-  }
 
-  public String getHostName() {
-    try {
-      InetAddress	me = InetAddress.getLocalHost();
-      return me.getHostName();
-    } catch( Exception e ) {
-      return "dunno";
+    public void setServer( String server, String port ) {
+	int	p = atoi( port );
+	if( p == 0 ) p = 504;
+	setServer( server, p );
     }
-  }
 
-  public String getBlurb() {
-    if( serverInfo != null ) return serverInfo.blurb;
-    return "";
-  }
+    public void setServer( String server, int port ) {
+	this.server = server;
+	this.port = port;
 
-  public String getSystemMessage( String name ) {
-    citReply rep = getReply( "MESG " + name );
-    if( (rep != null) && rep.listingFollows() )
-      return rep.getData();
-    else
-      return "Couldn't find " + name;
-  }
+	Thread	t = new Thread( theNet );
+	t.start();
+    }
 
-  public void loggedIn( citReply r ) {
-    theUser = new user( r );
-    floors = serverInfo.floor_flag != 0;
-    floors &= theUser.floors();
-    cp.mainMenu();
-  }
+    public void setServerInfo( server s ) {
+	serverInfo = s;
+    }
 
-  public boolean floors() {
-    return floors;
-  }
+    public void showLoginPanel() {
+	cg.showLoginPanel();
+    }
 
-  public citReply getReply( String s ) {
-    return getReply( s, (String)null );
-  }
+    public void showLoginPanel( String user, String pass ) {
+	cg.showLoginPanel( user, pass );
+    }
 
-  public citReply getReply( String s, String d ) {
-    if( theNet == null ) return null;
+    public void showMainPanel() {
+	cg.showMainPanel();
+    }
 
-    return theNet.getReply( s,d  );
-  }
+    public void expressMsg() {
+	System.out.println( "got an express message!" );
+    }
 
-  public void gotoRoom( ) {
-    gotoRoom( null, false );
-  }
+    public void gotoRoom( String name ) {
+	System.out.println( "goto room:" + name );
+    }
 
-  public void gotoRoom( String name, boolean flag ) {
-    new promptWindow( new gotoPrompt( name ) );
-  }
+    public void lostNetwork( String reason ) {
+	cg.errMsg( reason );
+	cg.showHostBrowser();
+    }
 
-  public void enterRoom( String room ) {
-    enterRoom( room, null );
-  }
+    public void warning( String text ) {
+	cg.warning( text );
+    }
 
-  public void enterRoom( String room, String pass ) {
-    String cmd = "GOTO " + room;
-    if( pass != null )
-      cmd = cmd + "|" + pass;
-    citReply	r=getReply( cmd );
-    if( r.ok() ) {
-      rooms.visited( room );
-      cp.enterRoom( r );
-    } else if( r.res_code == 540 ) /* ERROR+PASSWORD_REQUIRED */
-      new promptWindow( new roomPassPrompt( room ) );
-  }
+    public void closeFrame() {
+	System.out.println( "Closed the friggin frame." );
+    }
 
-  public void showMsgPane() {
-    cp.deck.show( cp, "Message" );
-  }
+    public void networkEvent( String cmd ) {
+	networkEvent( cmd, null, null );
+    }
 
-  public void login() {
-    cp.login();
-  }
+    public void networkEvent( String cmd, CallBack cb ) {
+	networkEvent( cmd, null, cb );
+    }
 
-  public void mainMenu() {
-    cp.mainMenu();
-  }
+    public void networkEvent( String cmd, String data, CallBack cb ) {
+	theNet.append( new MsgCmd( cmd, data, cb ) );
+    }
 
-  public void enterMsg( String room ) {
-    cp.enterMsg( room );
-  }
+    public void getServerInfo( CallBack	cb ) {
+	networkEvent( "INFO", cb );
+    }
 
-  public void nextNewRoom() {
-    enterRoom( rooms.nextNewRoom() );
-  }
+    public void getSystemMessage( String f_name, CallBack cb ) {
+	networkEvent( "MESG " + f_name, cb );
+    }
 
-  public void expressMsg() {
-    citReply	r=getReply( "GEXP" );
-    System.out.println( "EXPRESS MSG" );
-    if( !r.error() ) new expressWindow( r );
-  }
+    public void authenticate( final String user, final String pass ) {
+	networkEvent( "USER " + user, new CallBack() {
+	    public void run( citReply r ) {
+		if( r.moreData() ) {
+		    networkEvent( "PASS "+ pass, new CallBack() {
+			public void run( citReply r ) {
+			    if( r.error() ) {
+				warning( "Wrong Password" );
+			    } else {
+				citadel.me.setUser( new user( r ) );
+			    }
+			} });
+		} else {
+		    warning( user + ":No such user" );
+		}
+	    }
+	} );
+    }
 
-  public void sendMessage( String body, String rec, boolean mail ) {
-    String cmd = "ENT0 1|";
-    if( mail ) cmd = cmd + rec;
-    cmd = cmd + "|0|0|0";
+    public void enterRoom( String s ) {
+	enterRoom( s, null );
+    }
 
-    citReply	r = getReply( cmd, body );
-    if( r.error() )
-      error( r );
-  }
+    public void enterRoom( String s, String p ) {
+	enterRoom( cg.mp.rooms.getRoom( s ), p );
+    }
 
-  public void logoff() {
-    rooms.clear();
-    cp.logoff(null);
-    getReply( "QUIT" );
-  }
+    public void enterRoom( room r ) {
+	enterRoom( r, null );
+    }
 
-  public void who_online() {
-    if( wo == null )
-      wo = new whoWindow();
-    else
-      wo.show();
-  }
+    public void enterRoom( final room rm, String pass ) {
+	String	cmd = "GOTO " + rm.name;
+	if( pass != null )
+	    cmd = cmd + "|" + pass;
 
-  public void page_user() {
-    page_user( null );
-  }
+	networkEvent( cmd, new CallBack() {
+	    public void run( citReply r ) {
+		if( r.ok() ) {
+		    System.out.println( "Going to room: " + rm.name );
+		    rm.setNew( false );
 
-  public void page_user( String who ) {
-    new pageWindow( who );
-  }
+		    roomInfo	ri = new roomInfo( rm, r );
 
-  public void error( citReply r ) {
-    System.out.println( r.line );
-  }
+		    /* check ri.mail and act accordingly */
+
+		    if( rf == null )
+			rf = new roomFrame();
+
+		    rf.setRoom( ri );
+		    cg.mp.updateLists( rooms.getFloor().name() );	// hack
+		} else if( r.res_code == 540 ) {
+		    System.out.println( "NEED A PASSWORD FOR THIS ROOM" );
+		}
+	    } } );
+    }
+
+    public void logoff() {
+	/* close windows */
+	if( rf != null )
+	    rf.dispose();
+	rf = null;
+	cg.showLogoffPanel();
+	networkEvent( "QUIT", new CallBack() {
+	    public void run( citReply r ) {
+		theNet.done();
+	    } } );
+    }
+
+    public void setUser( user theUser ) {
+	this.theUser = theUser;
+	showMainPanel();
+	networkEvent( "CHEK", new CallBack() {
+	    public void run( citReply r ) {
+		int	msg = atoi( r.getArg( 0 ) );
+		if( msg != 0 )
+		    enterRoom( "Mail" );
+	    } } );
+    }
+
+    public boolean floors() {
+	return true;	// FIXME
+    }
 }
+
+

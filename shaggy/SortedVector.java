@@ -11,7 +11,7 @@ public class SortedVector {
 	
   public SortedVector() {
     theList = new Vector();
-    cmpr = null;
+    cmpr = new sorter();
   }
 
   public SortedVector( sorter s ) {
@@ -23,10 +23,7 @@ public class SortedVector {
     int		i, cmp;
     for( i = 0; i < theList.size(); i++ ) {
 
-      if( cmpr == null )
-	cmp = ((String)theList.elementAt(i)).compareTo( (String)theId );
-      else
-	cmp = cmpr.cmp( theList.elementAt( i ), theId );
+      cmp = cmpr.cmp( theList.elementAt( i ), theId );
 
       if( cmp == 0 ) return -1;
       if( cmp > 0 )
@@ -53,10 +50,7 @@ public class SortedVector {
   public int removeElement( Object theItem ) {
     for( int i = 0; i < theList.size(); i++ ) {
       boolean equal;
-      if( cmpr == null )
-	equal = ((String)theList.elementAt( i )).equalsIgnoreCase( (String)theItem );
-      else
-	equal = cmpr.cmp( theList.elementAt( i ), theItem ) == 0;
+      equal = cmpr.cmp( theList.elementAt( i ), theItem ) == 0;
       if( equal ) {
 	theList.removeElementAt( i );
 	return i;
@@ -67,13 +61,8 @@ public class SortedVector {
 	
   public boolean isElement( Object theItem ) {
     for( int i = 0; i < theList.size(); i++ ) {
-      if( cmpr == null ) {
-	if( ((String)theList.elementAt( i )).equalsIgnoreCase( (String)theItem ) )
-	  return true;
-      } else {
-	if( cmpr.cmp( theList.elementAt( i ), theItem ) == 0 )
-	  return true;
-      }
+      if( cmpr.cmp( theList.elementAt( i ), theItem ) == 0 )
+	return true;
     }
     return false;
   }

@@ -4,38 +4,46 @@
 
 import java.awt.*;
 
-public class PairPanel extends Panel
-	{
-	GridBagLayout           gbLayout;
-	GridBagConstraints      gbLeft, gbRight;
+public class PairPanel extends Panel {
+  GridBagLayout           gbLayout;
+  GridBagConstraints      gbLeft, gbRight;
 
-	PairPanel() {
-		this( 0, 0 );
-		}
+  PairPanel() {
+    this( 0, 0 );
+  }
 
-	PairPanel( int x, int y ) {
-		setLayout( gbLayout = new GridBagLayout() );
+  PairPanel( int x, int y ) {
+    Insets     	i = null;
 
-		gbLeft = new GridBagConstraints();
-		gbLeft.gridwidth = 1;
-		gbLeft.ipadx = x;
-		gbLeft.ipady = y;
-		gbLeft.anchor = GridBagConstraints.EAST;
+    if( x + y != 0 )
+      i = new Insets( x, y, x, y );
 
-		gbRight = new GridBagConstraints();
-		gbRight.ipadx = x;
-		gbRight.ipady = y;
-		gbRight.gridwidth = GridBagConstraints.REMAINDER;
-		gbRight.anchor = GridBagConstraints.WEST;
-		}
+    setLayout( gbLayout = new GridBagLayout() );
 
-	public void addLeft( Component c ) {
-		gbLayout.setConstraints( c, gbLeft );
-		add( c );
-		}
+    gbLeft = new GridBagConstraints();
+    gbLeft.gridwidth = 1;
+    //    gbLeft.ipadx = x;
+    //    gbLeft.ipady = y;
+    if( i != null )
+      gbLeft.insets = i;
+    gbLeft.anchor = GridBagConstraints.EAST;
 
-	public void addRight( Component c ) {
-		gbLayout.setConstraints( c, gbRight );
-		add( c );
-		}
-	}
+    gbRight = new GridBagConstraints();
+    //    gbRight.ipadx = x;
+    //    gbRight.ipady = y;
+    if( i != null )
+      gbRight.insets = i;
+    gbRight.gridwidth = GridBagConstraints.REMAINDER;
+    gbRight.anchor = GridBagConstraints.WEST;
+  }
+
+  public void addLeft( Component c ) {
+    gbLayout.setConstraints( c, gbLeft );
+    add( c );
+  }
+
+  public void addRight( Component c ) {
+    gbLayout.setConstraints( c, gbRight );
+    add( c );
+  }
+}

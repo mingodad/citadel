@@ -1,4 +1,4 @@
-mod: 29 Jul 1999
+mod: 04 Aug 1999
 
 Basic:
 - Connect to server and login (connects, gets "hello" and throws up window)
@@ -6,33 +6,33 @@ Basic:
 - can log off (shows goodbye, and in application lets you connect to a
   different server)
 
-- can recieve express messages (GEXP style, will get all messages that
+* can't recieve express messages (GEXP style, will get all messages that
   are there.
-- can send and "reply" to express messages, uses either single or multi
+* can't send and "reply" to express messages, uses either single or multi
   depending on server support.
-- who is online (double clicking on list will send express msg to user)
+* no who is online
 - supports the IDEN command
+- Automaticcaly goes to mail room if you have new messages
 * can't change password or other config stuff
 
 
 "main"
 - Splits rooms up into new and no-new
- * limited floor support (shows in message panel)
+- floor support
 - rooms are now sorted
 
 - Go to next room with messages
 - go to any old room by double-clicking from list
-- can get to hidden or guessable-named rooms
-- can go to password protected rooms (tested)
-- can zap rooms
- * can't list zapped rooms
+* can't get to hidden or guessable-named rooms
+* can't go to password protected rooms (tested)
+* can't zap rooms
+* can't list zapped rooms
 
 "message"
 - read new, all, or last-5 message in a room
-- forward and 
+- forward and  reverse
 - enter messages in room (only type 0)
- - handles Mail room, but 1) depends on the fact that the room is named
-   "Mail" (ie: doesn't pass the flag returned from GOTO)
+- handles Mail room
 * doesn't say anything about having mail or going there first, just lists
   Mail in the "new" list.
 * No reply button when in mail room.
@@ -44,6 +44,6 @@ Basic:
   go to the next room, the three unread messages will still be unread with
   the java client while they wouldn't be with the text client.  I like it
   better personally, but hey, that's me.
-- can view room info
+* can't view room info
 
 everything else isn't done.

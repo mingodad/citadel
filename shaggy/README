@@ -1,14 +1,11 @@
 Shaggy: java-powered citadel/ux client
 by Will Schenk (chilly@alumni.psu.edu, chilly @ uncnsrd)
 
-Last mod: 27 Jul 1999
+Last mod: 04 Aug 1999
 
-This is the java client.  I would like this to be both an application and
-an applet.  Mostly this should be straight forward, but with an applet
-you're stuck in the "sandbox" so connecting to a different bbs won't work
-(unless you set up some sort of ugly proxy) and I'm not sure how downloading
-files will work -- there may be an ugly way using Applet.showUrl()
-to make it possible.
+This is the java client.  It has been re-written to be multithreaded and to
+use the JFC/Swing library.  You need Swing for this application to work;
+either with Java > 1.1.3, or Java 1.2 (aka Java 2).
 
 At the moment, my aim is just use this client to connect, so basically 
 that means that I should get the client to do all the stuff that I use 
@@ -21,15 +18,6 @@ layout the gui and it's behavior.  Ideas are welcome.
 
 I'll try and keep the STATUS file up-to-date with the current niftyness
 of the features and lack thereof.
-
-I'm developing with sun's jdk 1.1.7 (linuxppc) but trying to stay with
-the 1.0.2 api.  This is for two reasons: 1) I know the 1.0 api well
-enough so I don't have to go messing around with the docs to figure out
-the calls and 2) if we do want to use this as an applet it will allow
-the largest availability of compatable browsers.  (netscape implemented
-1.1 in 4.0, but not the new awt event model (I think it wasn't until 4.05).
-IE did something similarily goofy.)  Ergo, there will be many complaints
-about using a deprecated api when compiling.
 
 - BUILDING
 I've including a copy of my "java make script", a perl script called "jmake".
@@ -63,5 +51,13 @@ to use a different port.
 ideally, when it's distributed there should be either a zip or jar file
 (both are actually zip files, only difference is the letters) with all the
 classes.  This makes the applet load faster, and it's cleaner.
+
+REMEMBER: if you are using java 1.1.x, you'll need to download the swing
+libraries.  To use the libraries, you will need to put them in the
+CLASSPATH environment variable, or pass them on the command line.  Remember
+to put "." in the classpath.  
+
+example:
+export CLASSPATH=.:/usr/local/jdk/lib/classes.zip:/usr/local/swing/swingall.jar
 
 -- will 

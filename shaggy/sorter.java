@@ -1,7 +1,6 @@
-/* sorted.java
- * interface for use in SortedVector
- */
-
-public abstract class sorter {
-  public abstract int cmp( Object o1, Object o2 );	/* -1, 0 (equal), 1 */
+public class sorter {
+  public int cmp( Object o1, Object o2 ) {
+	String	s1 = (String)o1, s2 = (String)o2;
+	return s1.compareTo( s2 );
+	}
 }

@@ -1,83 +1,63 @@
-/* enterPanel.java
- * For entering messages
- */
-
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 
-public class enterPanel extends Panel {
-  boolean	mail;
-  String	room, recip;
-  NamedPanel	np;
+/* Quick quick quick hack */
 
-  TextField	who;
-  TextArea	msg;
+public class enterPanel extends JPanel{
+    roomFrame	rf;
+    roomInfo	ri;
 
-  Button	ok, cancel;
+    JTextField	to;
+    JTextArea	msg;
 
-  public enterPanel() {
-    PairPanel	pp = new PairPanel();
-    pp.addLeft( new Label( "Recipient : " ) );
-    pp.addRight( who = new TextField( 10 ) );
+    public enterPanel( final roomFrame rf ) {
+	this.rf = rf;
+	setLayout( new BorderLayout() );
 
-    setLayout( new BorderLayout() );
-    add( "North", pp );
+	add( "North", to = new JTextField() );
+	to.addActionListener( new ActionListener() {
+	    public void actionPerformed( ActionEvent e ) {
+		msg.requestFocus();
+	    } } );
 
-    np = new NamedPanel( "room name" );
-    np.setLayout( new BorderLayout() );
-    np.add( "Center", msg = new TextArea() );
+	add( "Center", msg = new JTextArea() );
 
-    add( "Center", np );
+	JPanel	p = new JPanel();
+	JButton	b;
 
-    Panel p = new Panel();
+	p.add( b = new JButton( "Send" ) );
+	b.addActionListener( new ActionListener() {
+	    public void actionPerformed( ActionEvent e ) {
+		String cmd = "ENT0 1|";
 
-    p.add( ok = new Button ( "Send" ) );
-    p.add( cancel = new Button ( "Cancel" ) );
-    add( "South", p );
-    mail = false;
-  }
+		if( ri.mail ) cmd = cmd + to.getText();
+		cmd = cmd+"|0|0|0";
 
-  public void refresh( String room, String r ) {
-    if( room.equalsIgnoreCase( "Mail" ) ) {
-      who.enable();
-      who.setText( r );
-      if( r == null )
-	who.requestFocus();
-      else
-	msg.requestFocus();
-      mail = true;
-    } else {
-      who.disable();
-      who.setText( "DISABLED" );
-      msg.requestFocus();
-      mail = false;
+		System.out.println( msg.getText() );
+		citadel.me.networkEvent( cmd, msg.getText(), new CallBack() {
+		    public void run( citReply r ) {
+			if( r.error() )
+			    citadel.me.warning( r.getArg(0) );
+			rf.showRoom();
+		    } } );
+	    }
+	} );
+
+	p.add( b = new JButton( "Cancel" ) );
+	b.addActionListener( new ActionListener() {
+	    public void actionPerformed( ActionEvent e ) {
+		rf.showRoom();
+	    } } );
+
+	add( "South", p );
     }
 
-    msg.setText( "" );
+    public void refresh( roomInfo ri ) {
+	this.ri = ri;
+	msg.setText( "" );
+	to.setText( "" );
 
-    np.setLabel( room + (citadel.me.floors() ? 
-		 " (" + citadel.me.rooms.getRoomsFloorName( room  )+")" : "" ) );
-    this.room = room;
-    this.recip = r;
-
-    msg.enable();
-    if( !mail ) {
-      citReply rep = citadel.me.getReply( "ENT0 0|0|0|0|0" );
-      if( !rep.ok() ) {
-	msg.setText( "You aren't allowed to post here." );
-	msg.disable();
-      }
+	to.setEnabled( ri.mail );
     }
-  }
-
-  public boolean action( Event e, Object o ) {
-    if( e.target == ok ) {
-      System.out.println( who.getText() );
-      citadel.me.sendMessage( msg.getText(), who.getText(), mail );
-      citadel.me.showMsgPane();
-    } else if( e.target == cancel ) {
-      citadel.me.showMsgPane();
-      msg.requestFocus();
-    }
-    return super.action( e, o );
-  }
 }
