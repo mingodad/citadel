@@ -96,3 +96,4 @@ void display_add_node(void);
 void add_node(void);
 void display_share(void);
 void share(void);
+void terminate_session(void);

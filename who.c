@@ -85,7 +85,13 @@ void whobbs(void) {
 			}
 
 		while (wlist != NULL) {
-			wprintf("<TR><TD>%d</TD><TD>", wlist->sessionnum);
+			wprintf("<TR><TD>%d", wlist->sessionnum);
+			if (is_aide) {
+				wprintf(" <A HREF=\"/terminate_session&which_session=%d&session_owner=", wlist->sessionnum);
+				urlescputs(wlist->username);
+				wprintf("\">(kill)</A>");
+				}
+			wprintf("</TD><TD>");
 			escputs(wlist->username);
 			wprintf("</TD><TD>");
 			escputs(wlist->roomname);
@@ -97,9 +103,49 @@ void whobbs(void) {
 			wlist = wptr;
 			}
 		}
-	wprintf("</TABLE></CENTER>\n");
-        wprintf("</BODY></HTML>\n");
+	wprintf("</TABLE>\n");
+	wprintf("<A HREF=\"/whobbs\">Refresh</A>\n");
+        wprintf("</CENTER></BODY></HTML>\n");
         wDumpContent();
 	}
 
 
+void terminate_session(void) {
+	char buf[256];
+
+	if (!strcasecmp(bstr("confirm"), "Yes")) {
+		serv_printf("TERM %s", bstr("which_session"));
+		serv_gets(buf);
+		if (buf[0]=='2') {
+			whobbs();
+			}
+		else {
+			display_error(&buf[4]);
+			}
+		}
+
+	else {
+		printf("HTTP/1.0 200 OK\n");
+		output_headers(1);
+        	wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=770000><TR><TD>");
+        	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>Confirm session termination");
+        	wprintf("</B></FONT></TD></TR></TABLE>\n");
+	
+		wprintf("Are you sure you want to terminate session %s",
+			bstr("which_session"));
+		if (strlen(bstr("session_owner"))>0) {
+			wprintf(" (");
+			escputs(bstr("session_owner"));
+			wprintf(")");
+			}
+		wprintf("?<BR><BR>\n");
+	
+		wprintf("<A HREF=\"/terminate_session&which_session=%s&confirm=yes\">",
+			bstr("which_session"));
+		wprintf("Yes</A>&nbsp;&nbsp;&nbsp;");
+		wprintf("<A HREF=\"/whobbs\">No</A>");
+		wprintf("</BODY></HTML>\n");
+		wDumpContent();
+		}
+
+	}
