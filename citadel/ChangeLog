@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.159  2002/03/20 19:03:27  ajc
+ * Don't re-declare timezone variables ('cuz FreeBSD chokes on that)
+
  Revision 590.158  2002/03/19 04:34:42  ajc
  * mime_parser.c: minor changes for easier porting between Citadel and WebCit
 
@@ -3522,4 +3525,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

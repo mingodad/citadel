@@ -66,8 +66,11 @@ char *unique_session_numbers;
 int ScheduledShutdown = 0;
 int do_defrag = 0;
 
+/* These are commented out.  Why do we need them?  They're defined in time.h
+ * anyway, and declaring them again here makes FreeBSD barf on it.
 extern long int timezone;
 extern int daylight;
+ */
 
 /*
  * Various things that need to be initialized at startup
