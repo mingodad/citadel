@@ -383,9 +383,11 @@ int ig_uds_server(char *sockpath, int queue_len)
  * It's inlined because it's used *VERY* frequently.
  */
 INLINE struct CitContext *MyContext(void) {
-	return ((pthread_getspecific(MyConKey) == NULL)
-		? &masterCC
-		: (struct CitContext *) pthread_getspecific(MyConKey)
+
+	register struct CitContext *c;
+
+	return ((c = (struct CitContext *) pthread_getspecific(MyConKey),
+		c == NULL) ? &masterCC : c
 	);
 }
 
