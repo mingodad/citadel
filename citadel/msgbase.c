@@ -731,6 +731,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 	strcpy(actual_rm, CC->quickroom.QRname);
 	strcpy(hold_rm, "");
 	strcpy(recipient, rec);
+	strproc(recipient);
 
 	/* If the user is a twit, move to the twit room for posting... */
 	if (TWITDETECT) if (CC->usersupp.axlevel==2) {
@@ -757,7 +758,6 @@ void save_message(char *mtmp,	/* file containing proper message */
 		strcpy(hold_rm, actual_rm);
 		strcpy(actual_rm, AIDEROOM);
 		}
-
 
 	/* This call to usergoto() changes rooms if necessary.  It also
 	 * causes the latest message list to be read into memory.
