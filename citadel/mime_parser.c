@@ -48,33 +48,6 @@ void extract_key(char *target, char *source, char *key)
 
 
 
-/* 
- * Utility function to "readline" from memory
- * (returns new pointer)
- */
-char *memreadline(char *start, char *buf, int maxlen)
-{
-	char ch;
-	char *ptr;
-	int len = 0;	/* tally our own length to avoid strlen() delays */
-
-	ptr = start;
-	memset(buf, 0, maxlen);
-
-	while (1) {
-		ch = *ptr++;
-		if ( (len < (maxlen - 1)) && (ch != 13) && (ch != 10) ) {
-			buf[strlen(buf) + 1] = 0;
-			buf[strlen(buf)] = ch;
-			++len;
-		}
-		if ((ch == 10) || (ch == 0)) {
-			return ptr;
-		}
-	}
-}
-
-
 /*
  * For non-multipart messages, we need to generate a quickie partnum of "1"
  * to return to callback functions.  Some callbacks demand it.

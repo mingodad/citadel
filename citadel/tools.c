@@ -420,3 +420,32 @@ int is_msg_in_mset(char *mset, long msgnum) {
 
 	return(0);
 }
+
+
+/*
+ * Utility function to "readline" from memory
+ * (returns new pointer)
+ */
+char *memreadline(char *start, char *buf, int maxlen)
+{
+        char ch;
+        char *ptr;
+        int len = 0;    /* tally our own length to avoid strlen() delays */
+
+        ptr = start;
+        memset(buf, 0, maxlen);
+
+        while (1) {
+                ch = *ptr++;
+                if ( (len < (maxlen - 1)) && (ch != 13) && (ch != 10) ) {
+                        buf[strlen(buf) + 1] = 0;
+                        buf[strlen(buf)] = ch;
+                        ++len;
+                }
+                if ((ch == 10) || (ch == 0)) {
+                        return ptr;
+                }
+        }
+}
+
+

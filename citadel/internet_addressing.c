@@ -463,19 +463,13 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 			msg->cm_fields['I'] = strdoop(value);
 
 			/* Strip angle brackets */
-			if ((haschar(msg->cm_fields['I'], '<') == 1)
-			   && (haschar(msg->cm_fields['I'], '>') == 1)) {
-				while ((strlen(msg->cm_fields['I']) > 0)
-				      && (msg->cm_fields['I'][0] != '<')) {
-					strcpy(&msg->cm_fields['I'][0],
-						&msg->cm_fields['I'][1]);
-				}
+			while (haschar(msg->cm_fields['I'], '<') > 0) {
 				strcpy(&msg->cm_fields['I'][0],
 					&msg->cm_fields['I'][1]);
-				for (i = 0; i<strlen(msg->cm_fields['I']); ++i)
-					if (msg->cm_fields['I'][i] == '>')
-						msg->cm_fields['I'][i] = 0;
 			}
+			for (i = 0; i<strlen(msg->cm_fields['I']); ++i)
+				if (msg->cm_fields['I'][i] == '>')
+					msg->cm_fields['I'][i] = 0;
 		}
 
 		processed = 1;
@@ -497,7 +491,7 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 struct CtdlMessage *convert_internet_message(char *rfc822) {
 
 	struct CtdlMessage *msg;
-	int pos, beg, end;
+	int pos, beg, end, msglen;
 	int done;
 	char buf[SIZ];
 	int converted;
@@ -522,17 +516,30 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 		 */
 		beg = pos;
 		end = (-1);
-		for (pos=beg; ((pos<=strlen(rfc822))&&(end<0)); ++pos) {
+
+		msglen = strlen(rfc822);	
+		while ( (end < 0) && (done == 0) ) {
+
 			if ((rfc822[pos]=='\n')
 			   && (!isspace(rfc822[pos+1]))) {
 				end = pos;
 			}
-			if ( (rfc822[pos]=='\n')	/* done w. headers? */
+
+			/* done with headers? */
+			if (   ((rfc822[pos]=='\n')
+			      ||(rfc822[pos]=='\r') )
 			   && ( (rfc822[pos+1]=='\n')
-			      ||(rfc822[pos+1]=='\r'))) {
+			      ||(rfc822[pos+1]=='\r')) ) {
 				end = pos;
 				done = 1;
 			}
+
+			if (pos >= (msglen-1) ) {
+				end = pos;
+				done = 1;
+			}
+
+			++pos;
 
 		}
 

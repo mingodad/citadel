@@ -1,4 +1,9 @@
  $Log$
+ Revision 573.135  2001/06/06 04:22:25  ajc
+ * Moved memreadline() to tools.c
+ * internet_addressing.c: fixed conversion of fields to (hopefully) never get
+   into an active loop when encountering badly formed headers
+
  Revision 573.134  2001/05/27 05:23:03  ajc
  * Added a "no new messages" response in the client, displayed when a read
    command turns up a zero message count.
@@ -2526,4 +2531,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
