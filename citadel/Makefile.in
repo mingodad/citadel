@@ -140,7 +140,7 @@ citserver: $(SERV_OBJS) $(LIBTOOL) libcitserver.la
 	citserver $(LIBS)
 
 .c.o:
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -DCIT_CLIENT -c $< -o $@
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c $< -o $@
 
 .c.lo: $(LIBTOOL)
 	@test -d modules || mkdir -p modules

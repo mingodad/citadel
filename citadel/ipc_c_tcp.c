@@ -177,7 +177,7 @@ void serv_read(char *buf, int bytes)
 {
 	int len, rlen;
 
-#if defined(HAVE_OPENSSL) && defined(CIT_CLIENT)
+#if defined(HAVE_OPENSSL)
 	if (ssl_is_connected) {
 		serv_read_ssl(buf, bytes);
 		return;
@@ -203,7 +203,7 @@ void serv_write(char *buf, int nbytes)
 	int bytes_written = 0;
 	int retval;
 
-#if defined(HAVE_OPENSSL) && defined(CIT_CLIENT)
+#if defined(HAVE_OPENSSL)
 	if (ssl_is_connected) {
 		serv_write_ssl(buf, nbytes);
 		return;
