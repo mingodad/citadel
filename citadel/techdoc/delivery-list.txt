@@ -82,7 +82,7 @@ fails).
  
  
  INSTRUCTION:  remote
- SYNTAX:       remote|billg@microsoft.com|0|delivery status message
+ SYNTAX:       remote|friko@mumjiboolean.com|0|delivery status message
  DESCRIPTION:
     Names a recipient on a remote system to which the message should be
     delivered.  The third parameter may contain any of the following values:

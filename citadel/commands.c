@@ -1037,22 +1037,22 @@ int getcmd(char *argbuf)
 		}
 
 		if (ch == '?') {
-			printf("\rOne of ...                         \n");
+			pprintf("\rOne of ...                         \n");
 			for (cptr = cmdlist; cptr != NULL; cptr = cptr->next) {
 				if (cmdmatch(cmdbuf, cptr, cmdpos)) {
 					for (a = 0; a < 5; ++a) {
-						printf("%s ", cmd_expand(cptr->c_keys[a], 1));
+						pprintf("%s ", cmd_expand(cptr->c_keys[a], 1));
 					}
-					printf("\n");
+					pprintf("\n");
 				}
 			}
 
-			printf("\n%s%c ", room_name, room_prompt(room_flags));
+			pprintf("\n%s%c ", room_name, room_prompt(room_flags));
 			got = 0;
 			for (cptr = cmdlist; cptr != NULL; cptr = cptr->next) {
 				if ((got == 0) && (cmdmatch(cmdbuf, cptr, cmdpos))) {
 					for (a = 0; a < cmdpos; ++a) {
-						printf("%s ",
+						pprintf("%s ",
 						       cmd_expand(cptr->c_keys[a], 0));
 					}
 					got = 1;

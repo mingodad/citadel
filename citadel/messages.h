@@ -12,3 +12,4 @@ int make_message(char *filename,	/* temporary file name */
 		int format_type,
 		int mode);
 void citedit(FILE *);
+int file_checksum(char *filename);

@@ -5,7 +5,7 @@ capable system. Once you are through with this document you should be able to
 have your users send mail from, and receive mail to 
 systemname@system.citadel.org. For example to send e-mail to a user at
 Uncensored! BBS via e-mail you would do the following:
-mail Patriot@uncnsrd.citadel.org 
+mail patriot@uncensored.citadel.org 
 
 To set this up is almost insanely simple. 
 
@@ -29,12 +29,12 @@ bbs e-mail, which is described in inetmailsetupmx.txt.
      
 If you get a 'connection refused' message when you telnet to port 25 there's 
 nothing running and you should be able to continue. You might also want to
-turn off pop (try the above test substituting 110 for 25) and use
-citadel's pop server.
+turn off POP (try the above test substituting 110 for 25) and IMAP (port 143)
+and use Citadel's POP and IMAP services.
 
-This pop server will ONLY allow pop'ing of mail for your BBS users.
+The POP and IMAP services will ONLY allow retrieval of mail for Citadel users.
 For those of you who are running some kind of mail transport agent
-(as Pixel is, above) or  pop server, the following will show how to remove
+(as Pixel is, above) or POP server, the following will show how to remove
 it from a RedHat Linux system:
 
 
@@ -48,7 +48,7 @@ it from a RedHat Linux system:
           You can either reboot or /etc/rc.d/init.d/sendmail stop, OR do a
           ps and kill sendmail manually. Your method of choice is up to you.
 
-                             Removing Pop 
+                             Removing POP and IMAP
 
           cd /etc and edit inetd.conf. Look for a few lines similar to:
 

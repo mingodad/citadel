@@ -1,8 +1,10 @@
 /*
  * $Id$ 
  *
- * This module will eventually replace netproc and some of its utilities.
- * Copyright (C) 2000 by Art Cancro and others.
+ * This module will eventually replace netproc and some of its utilities.  In
+ * the meantime, it serves as a mailing list manager.
+ *
+ * Copyright (C) 2000-2001 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.
  *
  */
@@ -115,7 +117,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 	struct namelist *nptr;
 	int err;
 	char *instr = NULL;
-	int instr_len = 0;
+	size_t instr_len = SIZ;
 	struct CtdlMessage *imsg;
 
 	sc = (struct SpoolControl *)userdata;
@@ -129,14 +131,37 @@ void network_spool_msg(long msgnum, void *userdata) {
 	err = CtdlSaveMsgPointerInRoom(SMTP_SPOOLOUT_ROOM, msgnum, 0);
 	if (err != 0) return;
 
+	/* 
+	 * Figure out how big a buffer we need to allocate
+	 */
+	for (nptr = sc->listrecps; nptr != NULL; nptr = nptr->next) {
+		instr_len = instr_len + strlen(nptr->name);
+	}
+
+	/*
+	 * allocate...
+	 */
 	lprintf(9, "Generating delivery instructions\n");
-	instr_len = 4096;
 	instr = mallok(instr_len);
+	if (instr == NULL) {
+		lprintf(1, "Cannot allocate %d bytes for instr...\n",
+			instr_len);
+		abort();
+	}
 	sprintf(instr,
 		"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
 		"bounceto|postmaster@%s\n" ,
 		SPOOLMIME, msgnum, time(NULL), config.c_fqdn );
 
+	/* Generate delivery instructions for each recipient */
+	for (nptr = sc->listrecps; nptr != NULL; nptr = nptr->next) {
+		sprintf(&instr[strlen(instr)], "remote|%s|0||\n",
+			nptr->name);
+	}
+
+	/*
+	 * Generate a message from the instructions
+	 */
        	imsg = mallok(sizeof(struct CtdlMessage));
 	memset(imsg, 0, sizeof(struct CtdlMessage));
 	imsg->cm_magic = CTDLMESSAGE_MAGIC;
@@ -144,16 +169,6 @@ void network_spool_msg(long msgnum, void *userdata) {
 	imsg->cm_format_type = FMT_RFC822;
 	imsg->cm_fields['A'] = strdoop("Citadel");
 	imsg->cm_fields['M'] = instr;
-
-	/* Generate delivery instructions for each recipient */
-	for (nptr = sc->listrecps; nptr != NULL; nptr = nptr->next) {
-		if (instr_len - strlen(instr) < SIZ) {
-			instr_len = instr_len * 2;
-			instr = reallok(instr, instr_len);
-		}
-		sprintf(&instr[strlen(instr)], "remote|%s|0||\n",
-			nptr->name);
-	}
 
 	/* Save delivery instructions in spoolout room */
 	CtdlSaveMsg(imsg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL);
@@ -169,7 +184,7 @@ void network_spool_msg(long msgnum, void *userdata) {
 /*
  * Batch up and send all outbound traffic from the current room
  */
-void network_spoolout_current_room(void) {
+void network_spoolout_room(struct quickroom *qrbuf, void *data) {
 	char filename[SIZ];
 	char buf[SIZ];
 	char instr[SIZ];
@@ -177,6 +192,8 @@ void network_spoolout_current_room(void) {
 	struct SpoolControl sc;
 	/* struct namelist *digestrecps = NULL; */
 	struct namelist *nptr;
+
+	memcpy(&CC->quickroom, qrbuf, sizeof(struct quickroom));
 
 	memset(&sc, 0, sizeof(struct SpoolControl));
 	assoc_file_name(filename, &CC->quickroom, "netconfigs");
@@ -243,27 +260,45 @@ void network_spoolout_current_room(void) {
 }
 
 
+/*
+ * network_do_queue()
+ * 
+ * Run through the rooms doing various types of network stuff.
+ */
+void network_do_queue(void) {
+	static int doing_queue = 0;
+	static time_t last_run = 0L;
 
-/* FIXME temporary server command for batch send */
-void cmd_batc(char *argbuf) {
-	if (CtdlAccessCheck(ac_aide)) return;
+#define NETWORK_QUEUE_FREQUENCY 3600	/* one hour ... FIXME put in config */
+	/*
+	 * Run no more frequently than once every n seconds
+	 */
+	if ( (time(NULL) - last_run) < NETWORK_QUEUE_FREQUENCY ) return;
 
-	network_spoolout_current_room();
+	/*
+	 * This is a simple concurrency check to make sure only one queue run
+	 * is done at a time.  We could do this with a mutex, but since we
+	 * don't really require extremely fine granularity here, we'll do it
+	 * with a static variable instead.
+	 */
+	if (doing_queue) return;
+	doing_queue = 1;
+	last_run = time(NULL);
 
-	cprintf("%d FIXME cmd_batc() ok\n", OK);
+	/* 
+	 * Go ahead and run the queue
+	 */
+	lprintf(7, "network: processing outbound queue\n");
+	ForEachRoom(network_spoolout_room, NULL);
+	lprintf(7, "network: queue run completed\n");
+	doing_queue = 0;
 }
-
 
 
 char *Dynamic_Module_Init(void)
 {
 	CtdlRegisterProtoHook(cmd_gnet, "GNET", "Get network config");
 	CtdlRegisterProtoHook(cmd_snet, "SNET", "Get network config");
-
-	/* FIXME
-	   temporary server command for batch send
-	 */
-	CtdlRegisterProtoHook(cmd_batc, "BATC", "send out batch (temp)");
-
+	CtdlRegisterSessionHook(network_do_queue, EVT_TIMER);
 	return "$Id$";
 }

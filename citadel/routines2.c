@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <limits.h>
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -32,6 +33,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include "citadel.h"
+#include "citadel_decls.h"
 #include "routines2.h"
 #include "routines.h"
 #include "commands.h"
@@ -898,4 +900,123 @@ void do_internet_configuration(void) {
 		for (i=0; i<num_recs; ++i) free(recs[i]);
 		free(recs);
 	}
+}
+
+
+
+/*
+ * Edit mailing list configuration
+ */
+void mailing_list_management(void) {
+	char filename[PATH_MAX];
+	char changefile[PATH_MAX];
+	int e_ex_code;
+	pid_t editor_pid;
+	int cksum;
+	int b, i;
+	char buf[SIZ];
+	char instr[SIZ];
+	char addr[SIZ];
+	FILE *tempfp;
+	FILE *changefp;
+
+	if (strlen(editor_path) == 0) {
+		printf("You must have an external editor configured in order"
+			" to use this function.\n");
+		return;
+	}
+
+	snprintf(filename, sizeof filename, "%s.listedit", tmpnam(NULL));
+	snprintf(changefile, sizeof changefile, "%s.listedit", tmpnam(NULL));
+
+	tempfp = fopen(filename, "w");
+	if (tempfp == NULL) {
+		printf("Cannot open %s: %s\n", filename, strerror(errno));
+		return;
+	}
+
+	fprintf(tempfp, "# Mailing list recipients for: %s\n", room_name);
+	fprintf(tempfp, "# Specify recipients one per line.\n"
+			"\n\n");
+
+	serv_puts("GNET");
+	serv_gets(buf);
+	if (buf[0] == '1') {
+		while(serv_gets(buf), strcmp(buf, "000")) {
+			extract(instr, buf, 0);
+			if (!strcasecmp(instr, "listrecp")) {
+				extract(addr, buf, 1);
+				fprintf(tempfp, "%s\n", addr);
+			}
+		}
+	}
+	fclose(tempfp);
+
+	e_ex_code = 1;	/* start with a failed exit code */
+	editor_pid = fork();
+	cksum = file_checksum(filename);
+	if (editor_pid == 0) {
+		chmod(filename, 0600);
+		sttybbs(SB_RESTORE);
+		execlp(editor_path, editor_path, filename, NULL);
+		exit(1);
+	}
+	if (editor_pid > 0) {
+		do {
+			e_ex_code = 0;
+			b = ka_wait(&e_ex_code);
+		} while ((b != editor_pid) && (b >= 0));
+	editor_pid = (-1);
+	sttybbs(0);
+	}
+
+	if (file_checksum(filename) == cksum) {
+		printf("*** Not saving changes.\n");
+		e_ex_code = 1;
+	}
+
+	if (e_ex_code == 0) { 		/* Save changes */
+		changefp = fopen(changefile, "w");
+		serv_puts("GNET");
+		serv_gets(buf);
+		if (buf[0] == '1') {
+			while(serv_gets(buf), strcmp(buf, "000")) {
+				extract(instr, buf, 0);
+				if (strcasecmp(instr, "listrecp")) {
+					fprintf(changefp, "%s\n", buf);
+				}
+			}
+		}
+		tempfp = fopen(filename, "r");
+		while (fgets(buf, sizeof buf, tempfp) != NULL) {
+			for (i=0; i<strlen(buf); ++i) {
+				if (buf[i] == '#') buf[i] = 0;
+			}
+			striplt(buf);
+			if (strlen(buf) > 0) {
+				fprintf(changefp, "listrecp|%s\n", buf);
+			}
+		}
+		fclose(tempfp);
+		fclose(changefp);
+
+		/* now write it to the server... */
+		serv_puts("SNET");
+		serv_gets(buf);
+		if (buf[0] == '4') {
+			changefp = fopen(changefile, "r");
+			if (changefp != NULL) {
+				while (fgets(buf, sizeof buf,
+				       changefp) != NULL) {
+					buf[strlen(buf) - 1] = 0;
+					serv_puts(buf);
+				}
+				fclose(changefp);
+			}
+			serv_puts("000");
+		}
+	}
+
+	unlink(filename);		/* Delete the temporary files */
+	unlink(changefile);
 }

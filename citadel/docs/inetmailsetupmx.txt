@@ -52,12 +52,12 @@ them to this document.
      bbs.pixel.citadel.org   preference = 10, mail exchanger = pixel.citadel.org
      citadel.org     nameserver = linux.compucomis.net
      citadel.org     nameserver = linux2.compucomis.net
-     citadel.org     nameserver = uncnsrd.mt-kisco.ny.us
+     citadel.org     nameserver = uncensored.citadel.org
      citadel.org     nameserver = mansrv.manhasset.techsoftwareinc.com
      pixel.citadel.org       internet address = 207.245.90.41
      linux.compucomis.net    internet address = 207.8.143.10
      linux2.compucomis.net   internet address = 207.8.143.13
-     uncnsrd.mt-kisco.ny.us  internet address = 168.100.205.221
+     uncensored.citadel.org  internet address = 66.9.37.38
      >
 
      As you can see pixel.citadel.org is listed as a mail exchanger for

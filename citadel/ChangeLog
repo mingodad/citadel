@@ -1,4 +1,9 @@
  $Log$
+ Revision 580.6  2001/07/24 13:17:54  ajc
+ * New UI for mailing list setup
+ * rooms.c: code cleanup
+ * docs update
+
  Revision 580.5  2001/07/20 23:48:23  nbryant
  fix build on solaris, check default install location for db 3.2, and silence
  gcc 3.0
@@ -2578,4 +2583,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

@@ -13,3 +13,4 @@ void read_bio(void);
 void cli_image_upload(char *keyname);
 int room_prompt(int qrflags);
 void do_internet_configuration(void);
+void mailing_list_management(void);

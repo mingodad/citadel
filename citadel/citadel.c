@@ -1383,6 +1383,10 @@ PWOK:
 					}
 				}
 
+			case 87:
+				mailing_list_management();
+				break;
+
 			case 6:
 				gotonext();
 				break;

@@ -102,25 +102,10 @@ handle incoming messages only.
    
   USING CITADEL/UX AS YOUR LOCAL E-MAIL SYSTEM
    
-   To use Citadel/UX as your local mail system, simply define the "citmail"
-program as your *local* mail delivery agent.  You can plug citmail into any
-popular mail routing system, including sendmail, smail, MMDF, etc.
-
-   Once you are using citmail as your local mail delivery agent, all users
-on your BBS may receive mail.  They can use addresses like
-"my_user_name@yoursite.com" (note the spaces in the user's name are replaced
-by underscores) or "cit1234@yoursite.com" (where 1234 is the user's user
-number).
-  
-   Messages may be posted by mail if you have this program installed.  Simply
-use the prefix "room_" -- for example, a message addressed to
-"room_hot_pink_amoebas@uncnsrd.mt-kisco.ny.us would be posted in the room "Hot
-Pink Amoebas" at the target system.
- 
-   PLEASE NOTE that for your BBS users to be able to send mail, you should
-check the mailer command at the top of "netmailer.c" to be sure that it is
-the correct mailer command for your system.  You might need a command like
-"sendmail %s" or "smail %s" depending on what MTA you're using.
+ This has changed markedly in the last few versions.  Citadel used to require
+extensive patching into your system's MTA.  Now it is a fully functional
+standalone e-mail system, complete with its own SMTP, POP3, and IMAP4
+implementations.  Please refer to "inetmailsetup.txt" for more information.
    
      
   MAIL ALIASES
@@ -251,5 +236,5 @@ disabling all incoming messages.  Obviously you don't want to do this.
    That should cover everything you need to get running. By the way, gateway
 software for StoneHenge and NYTI FordBoard systems is available upon special
 request.  And, a Cit86Net gateway is now available.  For the latest version
-of this program, or to leave comments/suggestions, call my board  -  
-UNCENSORED! BBS at (914) 244-3252 (modem) or uncnsrd.mt-kisco.ny.us (Internet).
+of this program, or to leave comments/suggestions, visit UNCENSORED! BBS at
+uncensored.citadel.org.
