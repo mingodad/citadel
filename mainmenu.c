@@ -185,6 +185,8 @@ void display_main_menu(void)
 
 			wprintf("<LI><A HREF=\"/display_netconf\">\n");
 			wprintf("Configure networking with other systems</A>\n");
+			wprintf("<LI><A HREF=\"/static/colorpicker.html\">\n");
+			wprintf("Reconfigure color scheme</A>\n");
 		}
 		wprintf("</UL>\n");
 	}

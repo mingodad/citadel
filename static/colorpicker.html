@@ -1,0 +1,597 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd"><html><head><title>pantsblazing: Web Color Picker</title>
+	
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<meta http-equiv="Content-Language" content="en">
+	<meta name="description" content="pantsblazing.com | Web Color Picker generates BODY and CSS tags with live preview.">
+	<meta name="keywords" content="color,web,rgb,hex,hexadecimal,selector,picker">
+	<meta name="author" content="Nick Grossman - pantsblazing.com">
+	<style type="text/css" media="screen">
+		form			{ margin: 0 0 0 0; }
+		P				{ font-family: Arial,Helvetica,sans-serif; font-size: 10pt; }
+		.hex-code 		{ font-family: Arial,Helvetica,sans-serif; font-size: 7pt; }
+		.text 			{ font-family: Arial,Helvetica,sans-serif; font-size: 9pt;  font-weight: bold; color: #000066; }
+		.head 			{ font-family: Arial,Helvetica,sans-serif; font-size: 16pt; font-weight: bold; color: #333300; }
+		.section-head 	{ font-family: Arial,Helvetica,sans-serif; font-size: 12pt; font-weight: bold; color: #000066; }
+		.footer			{ font-family: Arial,Helvetica,sans-serif; font-size: 7pt; padding-top: 15px; }
+
+		#preview-bg 	{ background-color: #FFFFFF; }
+		#preview-text 	{ color: #000000; }
+		#preview-link 	{ color: #FF0000; }
+		#preview-alink 	{ color: #006633; }
+		#preview-vlink 	{ color: #9900CC; }
+	
+		#chip-bg 		{ background-color: #FFFFFF; }
+		#chip-text 		{ background-color: #000000; }
+		#chip-link 		{ background-color: #FF0000; }
+		#chip-alink 	{ background-color: #006633; }
+		#chip-vlink 	{ background-color: #9900CC; }
+	</style>
+
+	<script language="JavaScript">
+	<!--
+	
+		function Color(color_code) {
+			if (document.getElementById) {
+	
+				var prop = GetSelectedRadio();
+				document.forms.cp[prop].value = color_code;
+
+				var chip = document.getElementById("chip-" + prop);
+				chip.style.backgroundColor = "#" + color_code;
+
+				var preview = document.getElementById("preview-" + prop);
+				if(prop == "bg") {
+					preview.style.backgroundColor = "#" + color_code;
+				} else {
+					preview.style.color = "#" + color_code;
+				}
+
+				var code = document.getElementById("code-" + prop);
+				code.innerHTML = "#" + color_code;
+
+				RenderTags();
+
+			} else {
+				alert("Sorry, your browser won't run this!");
+			}
+		}
+
+
+		function GetSelectedRadio() {
+			var ctr;
+
+			for(ctr = 0; ctr <= 4; ctr++) {
+				if(document.forms.cp.ass[ctr].checked) {
+					return(document.forms.cp.ass[ctr].value);
+				}
+			}
+
+			return(false);
+		}
+
+
+		function RenderTags() {
+			document.forms.cp.body_tag.value =
+				"<BODY "      + 
+				"BGCOLOR=\"#" + document.forms.cp.bg.value    + "\" " +
+				"TEXT=\"#"    + document.forms.cp.text.value  + "\" " +
+				"LINK=\"#"    + document.forms.cp.link.value  + "\" " +
+				"ALINK=\"#"   + document.forms.cp.alink.value + "\" " +
+				"VLINK=\"#"   + document.forms.cp.vlink.value + "\"" +
+				">";
+
+			document.forms.cp.css_tag.value =
+				"<STYLE TYPE=\"text/css\" MEDIA=\"screen\">\n" + 
+				"\tBODY      { background-color: #" + document.forms.cp.bg.value    + "; }\n" +
+				"\tP         { color: #"            + document.forms.cp.text.value  + "; }\n" +
+				"\tA         { color: #"            + document.forms.cp.link.value  + "; }\n" +
+				"\tA:active  { color: #"            + document.forms.cp.alink.value + "; }\n" +
+				"\tA:visited { color: #"            + document.forms.cp.vlink.value + "; }\n" +
+				"</STYLE>";
+		}
+	
+	// -->
+	</script></head>
+
+<body bgcolor="#ffcc66" link="#cc0000" alink="#999999" vlink="#cc0000" onload="RenderTags();">
+
+<form action="#" name="cp">
+<input type="hidden" name="bg" value="FFFFFF">
+<input type="hidden" name="text" value="000000">
+<input type="hidden" name="link" value="FF0000">
+<input type="hidden" name="alink" value="FF0000">
+<input type="hidden" name="vlink" value="9900CC">
+
+<table border="0" cellpadding="10">
+<tbody><tr>
+	<td colspan="2">
+		<table border="0" width="100%" cellpadding="10" cellspacing="0">
+		<tbody><tr>
+			<td align="center" bgcolor="#ff9933"><span class="head">Web Color Picker</span></td>
+		</tr>
+		</tbody></table>
+	</td>
+</tr><tr>
+	<td width="425" valign="top">
+
+		<table border="0" width="100%" cellpadding="3" cellspacing="0">
+		<tbody><tr>
+			<td align="center" bgcolor="#ffccff"><span class="section-head">Preview</span></td>
+		</tr>
+		</tbody></table>
+
+		<table border="0" width="100%" cellpadding="1" cellspacing="0" bgcolor="#000000">
+		<tbody><tr>
+			<td>
+				<table border="0" cellpadding="10" cellspacing="0" width="100%" height="100%">
+				<tbody><tr>
+					<td id="preview-bg">
+						<p id="preview-text">Text<br><br>Blah blah blah blah blah blah blah. Blah blah blah blah blah blah blah. Blah blah blah blah. Blah blah blah blah blah blah blah.</p>
+						<p id="preview-link">Unvisited Link</p>
+						<p id="preview-alink" style="color: rgb(255, 0, 0);">Active Link</p>
+						<p id="preview-vlink">Visited Link</p>
+					</td>
+				</tr>
+				</tbody></table>
+			</td>
+		</tr>
+		</tbody></table>
+
+		<br><br>
+
+		<table border="0" width="100%" cellpadding="3" cellspacing="0">
+		<tbody><tr>
+			<td align="center" bgcolor="#ffccff"><span class="section-head">Choose Element</span></td>
+		</tr>
+		</tbody></table>
+		
+		<table border="0" width="100%" cellpadding="1" cellspacing="0">
+		<tbody><tr>
+			<td width="20%" bgcolor="#ffffff">
+				<table border="0" width="80">
+				<tbody><tr>
+					<td align="center">
+						<input type="radio" name="ass" value="bg" checked="checked">
+						<br>
+						<table border="0" cellpadding="1" cellspacing="0" bgcolor="#000000">
+						<tbody><tr>
+							<td>
+								<table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%">
+								<tbody><tr>
+									<td id="chip-bg"><img src="blank.gif" width="40" height="30" alt="spacer"></td>
+								</tr>
+								</tbody></table>
+							</td>
+						</tr>
+						</tbody></table>
+						<span class="hex-code"><div id="code-bg">#FFFFFF</div></span>
+						<span class="text">Background</span>
+					</td>
+				</tr>
+				</tbody></table>
+			</td>
+		
+			<td width="20%" bgcolor="#ffffff">
+				<table border="0" width="80">
+				<tbody><tr>
+					<td align="center">
+						<input type="radio" name="ass" value="text">
+						<br>
+						<table border="0" cellpadding="1" cellspacing="0" bgcolor="#000000">
+						<tbody><tr>
+							<td>
+								<table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%">
+								<tbody><tr>
+									<td id="chip-text"><img src="blank.gif" width="40" height="30" alt="spacer"></td>
+								</tr>
+								</tbody></table>
+							</td>
+						</tr>
+						</tbody></table>
+						<span class="hex-code"><div id="code-text">#FFFFFF</div></span>
+						<span class="text">Text</span>
+					</td>
+				</tr>
+				</tbody></table>
+			</td>
+		
+			<td width="20%" bgcolor="#ffffff">
+				<table border="0" width="80">
+				<tbody><tr>
+					<td align="center">
+						<input type="radio" name="ass" value="link">
+						<br>
+						<table border="0" cellpadding="1" cellspacing="0" bgcolor="#000000">
+						<tbody><tr>
+							<td>
+								<table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%">
+								<tbody><tr>
+									<td id="chip-link"><img src="blank.gif" width="40" height="30" alt="spacer"></td>
+								</tr>
+								</tbody></table>
+							</td>
+						</tr>
+						</tbody></table>
+						<span class="hex-code"><div id="code-link">#FF0000</div></span>
+						<span class="text">Link</span>
+					</td>
+				</tr>
+				</tbody></table>
+			</td>
+		
+			<td width="20%" bgcolor="#ffffff">
+				<table border="0" width="80">
+				<tbody><tr>
+					<td align="center">
+						<input type="radio" name="ass" value="alink">
+						<br>
+						<table border="0" cellpadding="1" cellspacing="0" bgcolor="#000000">
+						<tbody><tr>
+							<td>
+								<table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%">
+								<tbody><tr>
+									<td id="chip-alink" style="background-color: rgb(255, 0, 0);"><img src="blank.gif" width="40" height="30" alt="spacer"></td>
+								</tr>
+								</tbody></table>
+							</td>
+						</tr>
+						</tbody></table>
+						<span class="hex-code"><div id="code-alink">#FF0000</div></span>
+						<span class="text">Active Link</span>
+					</td>
+				</tr>
+				</tbody></table>
+			</td>
+		
+			<td width="20%" bgcolor="#ffffff">
+				<table border="0" width="80">
+				<tbody><tr>
+					<td align="center">
+						<input type="radio" name="ass" value="vlink">
+						<br>
+						<table border="0" cellpadding="1" cellspacing="0" bgcolor="#000000">
+						<tbody><tr>
+							<td>
+								<table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%" id="chip-vlink">
+								<tbody><tr>
+									<td><img src="blank.gif" width="40" height="30" alt="spacer"></td>
+								</tr>
+								</tbody></table>
+							</td>
+						</tr>
+						</tbody></table>
+						<span class="hex-code"><div id="code-vlink">#9900CC</div></span>
+						<span class="text">Visited Link</span>
+					</td>
+				</tr>
+				</tbody></table>
+			</td>
+		
+		</tr>
+		</tbody></table>
+		
+		<br><br>
+		
+		<table border="0" width="100%" cellpadding="3" cellspacing="0">
+		<tbody><tr>
+			<td align="center" bgcolor="#ffccff"><span class="section-head">Copy Tags</span></td>
+		</tr><tr>
+			<td bgcolor="#ffffff">
+				<span class="section-head">BODY</span><br>
+				<span class="hex-code"><input type="text" name="body_tag" size="85" class="hex-code"></span>
+
+				<br><br>
+
+				<span class="section-head">CSS</span><br>
+				<span class="hex-code"><textarea name="css_tag" rows="7" cols="60" class="hex-code"></textarea></span>
+			</td>
+		</tr>
+		</tbody></table>
+
+		
+
+	</td>
+	<td valign="top">
+<!-- Color pallette -->
+		<table border="0" cellpadding="3" cellspacing="0" width="100%">
+		<tbody><tr>
+			<td align="center" bgcolor="#ffccff"><span class="section-head">Choose Color</span></td>
+		</tr>
+		</tbody></table>
+
+		<table cellpadding="0" cellspacing="0" border="0">
+		<tbody><tr>
+			<td bgcolor="#ffffff">
+				<table cellpadding="0" cellspacing="0" border="0">
+				<tbody><tr>
+					<td bgcolor="#ffffff"><a href="javascript:Color('FFFFFF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ffccff"><a href="javascript:Color('FFCCFF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff99ff"><a href="javascript:Color('FF99FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff66ff"><a href="javascript:Color('FF66FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff33ff"><a href="javascript:Color('FF33FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff00ff"><a href="javascript:Color('FF00FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#ccffff"><a href="javascript:Color('CCFFFF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ccccff"><a href="javascript:Color('CCCCFF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc99ff"><a href="javascript:Color('CC99FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc66ff"><a href="javascript:Color('CC66FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc33ff"><a href="javascript:Color('CC33FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc00ff"><a href="javascript:Color('CC00FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#99ffff"><a href="javascript:Color('99FFFF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#99ccff"><a href="javascript:Color('99CCFF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#9999ff"><a href="javascript:Color('9999FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#9966ff"><a href="javascript:Color('9966FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#9933ff"><a href="javascript:Color('9933FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#9900ff"><a href="javascript:Color('9900FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#66ffff"><a href="javascript:Color('66FFFF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#66ccff"><a href="javascript:Color('66CCFF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#6699ff"><a href="javascript:Color('6699FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#6666ff"><a href="javascript:Color('6666FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#6633ff"><a href="javascript:Color('6633FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#6600ff"><a href="javascript:Color('6600FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#33ffff"><a href="javascript:Color('33FFFF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#33ccff"><a href="javascript:Color('33CCFF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#3399ff"><a href="javascript:Color('3399FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#3366ff"><a href="javascript:Color('3366FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#3333ff"><a href="javascript:Color('3333FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#3300ff"><a href="javascript:Color('3300FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#00ffff"><a href="javascript:Color('00FFFF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#00ccff"><a href="javascript:Color('00CCFF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#0099ff"><a href="javascript:Color('0099FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#0066ff"><a href="javascript:Color('0066FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#0033ff"><a href="javascript:Color('0033FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#0000ff"><a href="javascript:Color('0000FF')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr>
+				</tbody></table>
+			</td>
+			<td bgcolor="#ffffff">
+				<table cellpadding="0" cellspacing="0" border="0">
+				<tbody><tr>
+					<td bgcolor="#ffff66"><a href="javascript:Color('FFFF66')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ffcc66"><a href="javascript:Color('FFCC66')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff9966"><a href="javascript:Color('FF9966')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff6666"><a href="javascript:Color('FF6666')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff3366"><a href="javascript:Color('FF3366')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff0066"><a href="javascript:Color('FF0066')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#ccff66"><a href="javascript:Color('CCFF66')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cccc66"><a href="javascript:Color('CCCC66')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc9966"><a href="javascript:Color('CC9966')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc6666"><a href="javascript:Color('CC6666')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc3366"><a href="javascript:Color('CC3366')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc0066"><a href="javascript:Color('CC0066')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#99ff66"><a href="javascript:Color('99FF66')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#99cc66"><a href="javascript:Color('99CC66')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#999966"><a href="javascript:Color('999966')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#996666"><a href="javascript:Color('996666')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#993366"><a href="javascript:Color('993366')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#990066"><a href="javascript:Color('990066')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#66ff66"><a href="javascript:Color('66FF66')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#66cc66"><a href="javascript:Color('66CC66')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#669966"><a href="javascript:Color('669966')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#666666"><a href="javascript:Color('666666')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#663366"><a href="javascript:Color('663366')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#660066"><a href="javascript:Color('660066')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#33ff66"><a href="javascript:Color('33FF66')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#33cc66"><a href="javascript:Color('33CC66')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#339966"><a href="javascript:Color('339966')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#336666"><a href="javascript:Color('336666')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#333366"><a href="javascript:Color('333366')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#330066"><a href="javascript:Color('330066')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#00ff66"><a href="javascript:Color('00FF66')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#00cc66"><a href="javascript:Color('00CC66')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#009966"><a href="javascript:Color('009966')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#006666"><a href="javascript:Color('006666')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#003366"><a href="javascript:Color('003366')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#000066"><a href="javascript:Color('000066')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr>
+				</tbody></table>
+			</td>
+		</tr><tr>
+			<td bgcolor="#ffffff">
+				<table cellpadding="0" cellspacing="0" border="0">
+				<tbody><tr>
+					<td bgcolor="#ffffcc"><a href="javascript:Color('FFFFCC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ffcccc"><a href="javascript:Color('FFCCCC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff99cc"><a href="javascript:Color('FF99CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff66cc"><a href="javascript:Color('FF66CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff33cc"><a href="javascript:Color('FF33CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff00cc"><a href="javascript:Color('FF00CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#ccffcc"><a href="javascript:Color('CCFFCC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cccccc"><a href="javascript:Color('CCCCCC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc99cc"><a href="javascript:Color('CC99CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc66cc"><a href="javascript:Color('CC66CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc33cc"><a href="javascript:Color('CC33CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc00cc"><a href="javascript:Color('CC00CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#99ffcc"><a href="javascript:Color('99FFCC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#99cccc"><a href="javascript:Color('99CCCC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#9999cc"><a href="javascript:Color('9999CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#9966cc"><a href="javascript:Color('9966CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#9933cc"><a href="javascript:Color('9933CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#9900cc"><a href="javascript:Color('9900CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#66ffcc"><a href="javascript:Color('66FFCC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#66cccc"><a href="javascript:Color('66CCCC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#6699cc"><a href="javascript:Color('6699CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#6666cc"><a href="javascript:Color('6666CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#6633cc"><a href="javascript:Color('6633CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#6600cc"><a href="javascript:Color('6600CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#33ffcc"><a href="javascript:Color('33FFCC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#33cccc"><a href="javascript:Color('33CCCC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#3399cc"><a href="javascript:Color('3399CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#3366cc"><a href="javascript:Color('3366CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#3333cc"><a href="javascript:Color('3333CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#3300cc"><a href="javascript:Color('3300CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#00ffcc"><a href="javascript:Color('00FFCC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#00cccc"><a href="javascript:Color('00CCCC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#0099cc"><a href="javascript:Color('0099CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#0066cc"><a href="javascript:Color('0066CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#0033cc"><a href="javascript:Color('0033CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#0000cc"><a href="javascript:Color('0000CC')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr>
+				</tbody></table>
+			</td>
+			<td bgcolor="#ffffff">
+				<table cellpadding="0" cellspacing="0" border="0">
+				<tbody><tr>
+					<td bgcolor="#ffff33"><a href="javascript:Color('FFFF33')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ffcc33"><a href="javascript:Color('FFCC33')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff9933"><a href="javascript:Color('FF9933')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff6633"><a href="javascript:Color('FF6633')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff3333"><a href="javascript:Color('FF3333')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff0033"><a href="javascript:Color('FF0033')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#ccff33"><a href="javascript:Color('CCFF33')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cccc33"><a href="javascript:Color('CCCC33')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc9933"><a href="javascript:Color('CC9933')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc6633"><a href="javascript:Color('CC6633')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc3333"><a href="javascript:Color('CC3333')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc0033"><a href="javascript:Color('CC0033')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#99ff33"><a href="javascript:Color('99FF33')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#99cc33"><a href="javascript:Color('99CC33')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#999933"><a href="javascript:Color('999933')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#996633"><a href="javascript:Color('996633')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#993333"><a href="javascript:Color('993333')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#990033"><a href="javascript:Color('990033')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#66ff33"><a href="javascript:Color('66FF33')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#66cc33"><a href="javascript:Color('66CC33')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#669933"><a href="javascript:Color('669933')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#666633"><a href="javascript:Color('666633')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#663333"><a href="javascript:Color('663333')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#660033"><a href="javascript:Color('660033')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#33ff33"><a href="javascript:Color('33FF33')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#33cc33"><a href="javascript:Color('33CC33')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#339933"><a href="javascript:Color('339933')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#336633"><a href="javascript:Color('336633')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#333333"><a href="javascript:Color('333333')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#330033"><a href="javascript:Color('330033')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#00ff33"><a href="javascript:Color('00FF33')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#00cc33"><a href="javascript:Color('00CC33')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#009933"><a href="javascript:Color('009933')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#006633"><a href="javascript:Color('006633')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#003333"><a href="javascript:Color('003333')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#000033"><a href="javascript:Color('000033')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr>
+				</tbody></table>
+			</td>
+		</tr><tr>
+			<td bgcolor="#ffffff">
+				<table cellpadding="0" cellspacing="0" border="0">
+				<tbody><tr>
+					<td bgcolor="#ffff99"><a href="javascript:Color('FFFF99')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ffcc99"><a href="javascript:Color('FFCC99')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff9999"><a href="javascript:Color('FF9999')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff6699"><a href="javascript:Color('FF6699')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff3399"><a href="javascript:Color('FF3399')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff0099"><a href="javascript:Color('FF0099')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#ccff99"><a href="javascript:Color('CCFF99')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cccc99"><a href="javascript:Color('CCCC99')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc9999"><a href="javascript:Color('CC9999')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc6699"><a href="javascript:Color('CC6699')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc3399"><a href="javascript:Color('CC3399')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc0099"><a href="javascript:Color('CC0099')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#99ff99"><a href="javascript:Color('99FF99')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#99cc99"><a href="javascript:Color('99CC99')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#999999"><a href="javascript:Color('999999')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#996699"><a href="javascript:Color('996699')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#993399"><a href="javascript:Color('993399')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#990099"><a href="javascript:Color('990099')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#66ff99"><a href="javascript:Color('66FF99')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#66cc99"><a href="javascript:Color('66CC99')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#669999"><a href="javascript:Color('669999')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#666699"><a href="javascript:Color('666699')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#663399"><a href="javascript:Color('663399')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#660099"><a href="javascript:Color('660099')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#33ff99"><a href="javascript:Color('33FF99')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#33cc99"><a href="javascript:Color('33CC99')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#339999"><a href="javascript:Color('339999')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#336699"><a href="javascript:Color('336699')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#333399"><a href="javascript:Color('333399')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#330099"><a href="javascript:Color('330099')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#00ff99"><a href="javascript:Color('00FF99')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#00cc99"><a href="javascript:Color('00CC99')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#009999"><a href="javascript:Color('009999')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#006699"><a href="javascript:Color('006699')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#003399"><a href="javascript:Color('003399')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#000099"><a href="javascript:Color('000099')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr>
+				</tbody></table>
+			</td>
+			<td bgcolor="#ffffff">
+				<table cellpadding="0" cellspacing="0" border="0">
+				<tbody><tr>
+					<td bgcolor="#ffff00"><a href="javascript:Color('FFFF00')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ffcc00"><a href="javascript:Color('FFCC00')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff9900"><a href="javascript:Color('FF9900')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff6600"><a href="javascript:Color('FF6600')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff3300"><a href="javascript:Color('FF3300')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#ff0000"><a href="javascript:Color('FF0000')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#ccff00"><a href="javascript:Color('CCFF00')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cccc00"><a href="javascript:Color('CCCC00')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc9900"><a href="javascript:Color('CC9900')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc6600"><a href="javascript:Color('CC6600')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc3300"><a href="javascript:Color('CC3300')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#cc0000"><a href="javascript:Color('CC0000')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#99ff00"><a href="javascript:Color('99FF00')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#99cc00"><a href="javascript:Color('99CC00')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#999900"><a href="javascript:Color('999900')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#996600"><a href="javascript:Color('996600')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#993300"><a href="javascript:Color('993300')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#990000"><a href="javascript:Color('990000')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#66ff00"><a href="javascript:Color('66FF00')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#66cc00"><a href="javascript:Color('66CC00')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#669900"><a href="javascript:Color('669900')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#666600"><a href="javascript:Color('666600')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#663300"><a href="javascript:Color('663300')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#660000"><a href="javascript:Color('660000')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#33ff00"><a href="javascript:Color('33FF00')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#33cc00"><a href="javascript:Color('33CC00')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#339900"><a href="javascript:Color('339900')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#336600"><a href="javascript:Color('336600')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#333300"><a href="javascript:Color('333300')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#330000"><a href="javascript:Color('330000')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr><tr>
+					<td bgcolor="#00ff00"><a href="javascript:Color('00FF00')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#00cc00"><a href="javascript:Color('00CC00')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#009900"><a href="javascript:Color('009900')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#006600"><a href="javascript:Color('006600')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#003300"><a href="javascript:Color('003300')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+					<td bgcolor="#000000"><a href="javascript:Color('000000')"><img src="blank.gif" border="0" height="15" width="15"></a></td>
+				</tr>
+				</tbody></table>
+			</td>
+		</tr>
+		</tbody></table>
+
+	</td>
+</tr>
+</tbody></table>
+
+<br>
+
+</form></body></html>
