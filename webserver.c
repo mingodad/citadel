@@ -36,6 +36,10 @@
 #include <pthread.h>
 #include "webcit.h"
 
+#ifndef HAVE_SNPRINTF
+int vsnprintf (char *buf, size_t max, const char *fmt, va_list argp);
+#endif
+
 int msock;					/* master listening socket */
 extern void *context_loop(int);
 extern pthread_mutex_t MasterCritter;
