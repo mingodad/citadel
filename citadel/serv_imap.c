@@ -238,14 +238,18 @@ void imap_select(int num_parms, char *parms[]) {
 	struct quickroom QRscratch;
 	int msgs, new;
 	int floornum;
+	int roomflags;
+	int i;
 
 	/* Convert the supplied folder name to a roomname */
-	floornum = imap_roomname(towhere, sizeof towhere, parms[2]);
-	if (floornum < 0) {
+	i = imap_roomname(towhere, sizeof towhere, parms[2]);
+	if (i < 0) {
 		cprintf("%s NO Invalid mailbox name.\r\n", parms[0]);
 		IMAP->selected = 0;
 		return;
 	}
+	floornum = (i & 0x00ff);
+	roomflags = (i & 0xff00);
 
         /* First try a regular match */
         c = getroom(&QRscratch, towhere);
@@ -388,16 +392,36 @@ void imap_list(int num_parms, char *parms[]) {
  *
  */
 void imap_create(int num_parms, char *parms[]) {
-	int floornum;
+	int ret;
 	char roomname[SIZ];
+	int floornum;
+	int flags;
+	int newroomtype;
 
-	floornum = imap_roomname(roomname, sizeof roomname, parms[1]);
-	if (floornum < 0) {
-		cprintf("%s NO Invalid name\r\n", parms[0]);
+	ret = imap_roomname(roomname, sizeof roomname, parms[1]);
+	if (ret < 0) {
+		cprintf("%s NO Invalid mailbox name or location\r\n",
+			parms[0]);
 		return;
 	}
+	floornum = ( ret & 0x00ff );	/* lower 8 bits = floor number */
+	flags =    ( ret & 0xff00 );	/* upper 8 bits = flags        */
 
-	cprintf("%s NO CREATE unimplemented\r\n", parms[0]);
+	if (flags & IR_MAILBOX) {
+		newroomtype = 4;	/* private mailbox */
+	}
+	else {
+		newroomtype = 0;	/* public folder */
+	}
+
+	ret = create_room(roomname, newroomtype, "", floornum);
+	if (ret == 0) {
+		cprintf("%s NO Mailbox already exists, or create failed\r\n",
+			parms[0]);
+	}
+	else {
+		cprintf("%s OK CREATE completed\r\n", parms[0]);
+	}
 }
 
 

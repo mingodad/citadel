@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.82  2001/02/04 23:17:28  ajc
+ * Implemented the IMAP CREATE command
+
  Revision 573.81  2001/02/04 02:40:07  ajc
  * more imap.  imap sucks.  die crispin die.
 
@@ -2368,3 +2371,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

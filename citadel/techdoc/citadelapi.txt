@@ -167,3 +167,29 @@ contain:
 #define UA_GOTOALLOWED          4	/* User may <.G>oto this room */
 #define UA_HASNEWMSGS           8	/* Room contains new messages */
 #define UA_ZAPPED		16	/* User has forgotten this room */
+
+
+
+
+   ROOM RELATED FUNCTIONS
+   ----------------------
+ 
+ 
+unsigned create_room(char *new_room_name,
+                     int new_room_type,
+                     char *new_room_pass,
+                     int new_room_floor)
+
+ This function is used to create a new room.  new_room_name should be set to
+the desired name for the new room.  new_room_type should be set to 0 for a
+public room, 1 for a guessname room, 2 for a passworded room, 3 for an
+invitation-only room, or 4 for a personal room (a mailbox).  If the room is
+a type 2 (passworded) room, new_room_pass should be set to the desired
+password.  new_room_floor should be set to the number of the floor upon which
+the new room should reside.
+ 
+ create_room() returns the flags associated with the new room (as in the
+data structure item quickroom.QRflags).  If the room cannot be created (for
+example, a room with the name already exists), it returns 0.
+ 
+ 

@@ -118,8 +118,14 @@ void imap_mailboxname(char *buf, int bufsize, struct quickroom *qrbuf) {
 
 /*
  * Convert an inputted folder name to our best guess as to what an equivalent
- * room name should be.  It returns the floor number that the room is on (or
- * will be on), or -1 if an error occurred.
+ * room name should be.
+ *
+ * If an error occurs, it returns -1.  Otherwise...
+ *
+ * The lower eight bits of the return value are the floor number on which the
+ * room most likely resides.   The upper eight bits may contain flags,
+ * including IR_MAILBOX if we're dealing with a personal room.
+ *
  */
 int imap_roomname(char *rbuf, int bufsize, char *foldername) {
 	int levels;
@@ -127,7 +133,7 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername) {
 	int i;
 	struct floor *fl;
 
-	if (foldername == NULL) return(0);
+	if (foldername == NULL) return(-1);
 	levels = num_parms(foldername);
 
 	/* When we can support hierarchial mailboxes, take this out. */
@@ -138,7 +144,7 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername) {
 	 */
 	if (!strcasecmp(foldername, "INBOX")) {
 		safestrncpy(rbuf, MAILROOM, bufsize);
-		return(0);
+		return(0 | IR_MAILBOX);
 	}
 
 	if (levels > 1) {
@@ -158,7 +164,7 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername) {
 	}
 
 	safestrncpy(rbuf, foldername, bufsize);
-	return(0);
+	return(0 | IR_MAILBOX);
 }
 
 
