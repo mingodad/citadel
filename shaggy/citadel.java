@@ -12,6 +12,7 @@ public class citadel {
   citPanel			cp;
 
   boolean			floors;
+  whoWindow			wo;
 
   public static citadel	me;
 
@@ -28,11 +29,15 @@ public class citadel {
     me = this;
     this.applet = false;
     theUser = null;
+    wo = null;
   }
 
   public void lostNetwork( String reason ) {
     theNet = null;
-    cp.logoff( "lost network connection: " + reason );
+    if( cp == null )
+      System.out.println( "lost network connection:" + reason );
+    else
+      cp.logoff( "lost network connection: " + reason );
   }
 
   public boolean openConnection( ) {
@@ -132,7 +137,10 @@ public class citadel {
   }
 
   public void who_online() {
-    System.out.println( "Who, pray tell, is online?" );
+    if( wo == null )
+      wo = new whoWindow();
+    else
+      wo.show();
   }
 
   public void page_user() {

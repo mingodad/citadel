@@ -80,9 +80,10 @@ public class loginPanel extends Panel {
   }
 
   public void refresh() {
-    text.setText( citadel.me.getSystemMessage( "hello" ) );
+    text.setText( "" );
     user.setText( "" );
     pass.setText( "" );
+    text.setText( citadel.me.getSystemMessage( "hello" ) );
   }
 }
 

@@ -40,10 +40,15 @@ public class enterPanel extends Panel {
     if( room.equalsIgnoreCase( "Mail" ) ) {
       who.enable();
       who.setText( r );
+      if( r == null )
+	who.requestFocus();
+      else
+	msg.requestFocus();
       mail = true;
     } else {
       who.disable();
       who.setText( "DISABLED" );
+      msg.requestFocus();
       mail = false;
     }
 

@@ -25,7 +25,7 @@ public class logoffPanel extends Panel {
     Panel	p = new Panel();
 
     if( !applet ) {
-      p.add( host = new TextField() );
+      p.add( host = new TextField(20) );
       host.setText( citadel.me.host );
     }
 
@@ -38,7 +38,7 @@ public class logoffPanel extends Panel {
   }
 
   public boolean action ( Event e, Object o ) {
-    if( e.target == connect ) {
+    if( (e.target == connect) || (e.target == host) ) {
       if( !applet )
 	citadel.me.host = host.getText();
 

@@ -25,7 +25,8 @@ public class citReply {
     res_code = ERROR;
     expressmsg = false;
 
-    parseLine();
+    if( line != null )
+      parseLine();
   }
 
   public void parseLine() {

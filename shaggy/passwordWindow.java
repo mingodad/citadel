@@ -39,7 +39,8 @@ public class passwordWindow extends Frame {
       String	s = text.getText();
       citReply	r = citadel.me.getReply( "GOTO " + room + " " + s );
       if( r.ok() ) {
-	citadel.me.enterRoom( r );
+	citadel.me.cp.mp.visited( room );
+	citadel.me.cp.enterRoom( r );
 	dispose();
       } else {
 	dispose();

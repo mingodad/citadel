@@ -90,6 +90,9 @@ public class messagePanel extends Panel {
     mail_num = atoi( r.getArg( 9 ) ); 
     floor = atoi( r.getArg( 10 ) );
 
+    msgInfo.setText( "" );
+    theMsg.setText( "" );
+
     if( info != 0 ) new displayInfo( name );
     getMsgsPtrs();
   }
@@ -143,17 +146,10 @@ public class messagePanel extends Panel {
       return;
     }
 
-    int	n = atoi( num );
-    if( n > highest_read ) {
-      highest_read = n;
-      citadel.me.getReply( "SLRP " + num );
-    }
-
     Vector	msg = r.listing;
     String	s, from="", time="", room="", node="", rcpt="";
     do {
       s = (String)msg.firstElement();
-      System.out.println( s );
       msg.removeElementAt( 0 );
       from = begin( from, s, "from=" );
       time = begin( time, s, "time=" );
@@ -174,6 +170,12 @@ public class messagePanel extends Panel {
    
     msgInfo.setText( sum );
     theMsg.setText( r.getData() ); /* this relies on the fact that we've removed the header lines above.  probably a messy way to deal with references. */
+
+    int	n = atoi( num );
+    if( n > highest_read ) {
+      highest_read = n;
+      citadel.me.getReply( "SLRP " + num );
+    }
   }
 
   public String makeDate( String time ) {

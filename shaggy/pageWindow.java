@@ -6,8 +6,9 @@ import java.awt.*;
 public class pageWindow extends Frame {
   String	user;
   Choice	who;
-  TextField	msg;
+  TextComponent	msg;
   Button	send, cancel;
+  boolean	multi_line;
 
   public pageWindow( String user ) {
     this.user = user;
@@ -23,7 +24,14 @@ public class pageWindow extends Frame {
 
     NamedPanel	np = new NamedPanel( "Message" );
     np.setLayout( new BorderLayout() );
-    np.add( "Center", msg = new TextField() );
+
+    multi_line = citadel.me.serverInfo.page_level == 1;
+    if( multi_line )
+      msg = new	TextArea();
+    else 
+      msg = new TextField();
+
+    np.add( "Center", msg );
 
     add( "Center", np );
 
@@ -32,18 +40,22 @@ public class pageWindow extends Frame {
     p.add( cancel = new Button( "Cancel" ) );
     add( "South", p );
 
-    citReply	r = citadel.me.getReply( "RWHO" );
-    int	i=0, which=0;
-    String	s;
-    while( (s=r.getLine( i++ )) != null ) {
-      String u = getUser(s);
-      if( u.equalsIgnoreCase( user ) ) which = i-1;
-      who.addItem( u );
+    if( user != null )
+      who.addItem( user );
+    else {
+      citReply	r = citadel.me.getReply( "RWHO" );
+      int	i=0, which=0;
+      String	s;
+      while( (s=r.getLine( i++ )) != null ) {
+	String u = getUser(s);
+	if( u.equalsIgnoreCase( user ) ) which = i-1;
+	who.addItem( u );
+      }
+
+      who.select( which );
     }
 
-    who.select( which );
-
-    resize( 300, 150 );
+    resize( 300, multi_line?300:150 );
     show();
   }
 
@@ -60,11 +72,20 @@ public class pageWindow extends Frame {
   }
 
   public boolean action( Event e, Object o ) {
-    if( (e.target == msg) || (e.target == send) ) {
+    if( (e.target == send) || (!multi_line && (e.target == msg)) ) {
       String user = who.getSelectedItem();
       String m = msg.getText();
-      if( m.length() > 0 )
-	 citadel.me.getReply( "SEXP " + user + "|" + m );
+      if( m.length() > 0 ) {
+	if( multi_line ) {
+	  citReply	r = citadel.me.getReply( "SEXP " + user + "|-" );
+	  if( r.sendListing() ) {
+	    citadel.me.theNet.println( m );
+	    citadel.me.theNet.println( "" );
+	    citadel.me.theNet.println( "000" );
+	  }
+	} else
+	  citadel.me.getReply( "SEXP " + user + "|" + m );
+      }
       dispose();
     } else if( e.target == cancel )
       dispose();
