@@ -572,7 +572,7 @@ int CtdlIPCGetSingleMessage(CtdlIPC *ipc, long msgnum, int headers, int as_mime,
 					}
 					remove_token(bbb, 0, '\n');
 				} while ((bbb[0] != 0) && (bbb[0] != '\n'));
-		/*ooga*/		remove_token(bbb, 0, '\n');
+				remove_token(bbb, 0, '\n');
 			}
 
 
@@ -2775,9 +2775,9 @@ void CtdlIPC_getline(CtdlIPC* ipc, char *buf)
 		while (buf[i] != '\n')
 			serv_read(ipc, &buf[i], 1);
 
-	/* Strip the trailing newline.
-	 */
-	buf[i] = 0;
+	/* Strip the trailing newline (and carriage return, if present) */
+	if (buf[i] == 10) buf[i--] = 0;
+	if (buf[i] == 13) buf[i--] = 0;
 }
 
 

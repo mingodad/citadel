@@ -1,4 +1,7 @@
  $Log$
+ Revision 605.30  2003/03/31 04:55:58  ajc
+ * Repaired the formatting of text/plain messages with blank lines.
+
  Revision 605.29  2003/03/30 06:16:52  ajc
  * Optimized CtdlReadMessageBody() and also gave it an option to store
    messages with CRLF newlines instead of LF.  This option is used when
@@ -4603,4 +4606,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

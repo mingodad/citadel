@@ -68,11 +68,11 @@ void imap_do_search_msg(int seq, struct CtdlMessage *msg,
 
 	/*** FIXME ***
 	 * We haven't written the search command logic yet.  Instead we
-	 * simply return every message as valid.  This will probably surprise
+	 * simply return nothing.  This will probably surprise
 	 * some users.  Could someone out there please be the hero of the
 	 * century and write this function?
 	 */
-	is_valid = 1;
+	is_valid = 0;
 
 	/*
 	 * If the message meets the specified search criteria, output its

@@ -361,6 +361,10 @@ int read_message(CtdlIPC *ipc,
 	struct ctdlipcmessage *message = NULL;
 	int r;				/* IPC response code */
 	char *converted_text = NULL;
+	char *lineptr;
+	char *nextline;
+	int linelen;
+	int final_line_is_blank = 0;
 
 	sigcaught = 0;
 	sttybbs(1);
@@ -593,37 +597,49 @@ int read_message(CtdlIPC *ipc,
 		fr = fmout(screenwidth, NULL, message->text, dest,
 			   ((pagin == 1) ? 1 : 0), screenheight, (-1), 1);
 	} else {
-		/* FIXME: renderer for text/plain */
-		char *msgtext;
-		char *lineptr;
+		/* renderer for text/plain */
 
-		msgtext = message->text;
+		lineptr = message->text;
 
-		while (lineptr = strtok(msgtext, "\n"), lineptr != NULL) {
-			msgtext = NULL;
+		do {
+			nextline = strchr(lineptr, '\n');
+			if (nextline != NULL) {
+				*nextline = 0;
+				++nextline;
+				if (*nextline == 0) nextline = NULL;
+			}
 
 			if (sigcaught == 0) {
+				linelen = strlen(lineptr);
+				if (lineptr[linelen-1] == '\r') {
+					lineptr[--linelen] = 0;
+				}
 				if (dest) {
 					fprintf(dest, "%s\n", lineptr);
 				} else {
 					scr_printf("%s\n", lineptr);
 					lines_printed = lines_printed + 1 +
-					    (strlen(lineptr) / screenwidth);
+					    (linelen / screenwidth);
 					lines_printed =
 					    checkpagin(lines_printed, pagin,
 						       screenheight);
 				}
 			}
-		}
+			if (lineptr[0] == 0) final_line_is_blank = 1;
+			else final_line_is_blank = 0;
+			lineptr = nextline;
+		} while (nextline);
 		fr = sigcaught;
 	}
-	if (dest) {
-		fprintf(dest, "\n");
-	} else {
-		scr_printf("\n");
-		/* scr_flush(); */
-		++lines_printed;
-		lines_printed = checkpagin(lines_printed, pagin, screenheight);
+	if (!final_line_is_blank) {
+		if (dest) {
+			fprintf(dest, "\n");
+		}
+		else {
+			scr_printf("\n");
+			++lines_printed;
+			lines_printed = checkpagin(lines_printed, pagin, screenheight);
+		}
 	}
 
 	/* Enumerate any attachments */
