@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.134  2001/05/27 05:23:03  ajc
+ * Added a "no new messages" response in the client, displayed when a read
+   command turns up a zero message count.
+
  Revision 573.133  2001/05/18 20:12:09  ajc
  * Fixed bug in mime_parser.c that caused parts to be dropped when the last
    boundary was the very last line of the message.
@@ -2522,3 +2526,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

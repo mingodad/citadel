@@ -1104,6 +1104,14 @@ void readmsgs(
 		}
 	}
 
+	if (num_msgs == 0) {
+		printf("*** There are no ");
+		if (c == 1) printf("new ");
+		if (c == 2) printf("old ");
+		printf("messages in this room.\n");
+		return;
+	}
+
 	lines_printed = 0;
 
 	/* this loop cycles through each message... */
