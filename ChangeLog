@@ -1,4 +1,10 @@
 $Log$
+Revision 400.66  2002/12/18 05:03:39  ajc
+* In the calendar code, changed all "struct tm *" to "struct tm" and changed
+  all "tm = localtime(foo)" to "memcpy(&tm, localtime(foo), sizeof(struct tm))"
+  Because the libc-allocated buffer was getting clobbered.
+* This fixes the problem fleeb reported with Feb 1 events making it go nuts.
+
 Revision 400.65  2002/12/17 05:01:39  ajc
 * Prettied up the calendar day view layout
 * Hour/minute editing fields now use am/pm hours and 2-digit minutes
@@ -1177,4 +1183,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

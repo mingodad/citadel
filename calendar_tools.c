@@ -67,27 +67,27 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	int i;
 
 	time_t now;
-	struct tm *tm_now;
+	struct tm tm_now;
 	int this_year;
 
 	time_t tt;
-	struct tm *tm;
+	struct tm tm;
 
 	const int span = 10;
 
 	now = time(NULL);
-	tm_now = localtime(&now);
-	this_year = tm_now->tm_year + 1900;
+	memcpy(&tm_now, localtime(&now), sizeof(struct tm));
+	this_year = tm_now.tm_year + 1900;
 
 	if (t == NULL) return;
 	tt = icaltime_as_timet(*t);
-	tm = localtime(&tt);
+	memcpy(&tm, localtime(&tt), sizeof(struct tm));
 
 	wprintf("Month: ");
 	wprintf("<SELECT NAME=\"%s_month\" SIZE=\"1\">\n", prefix);
 	for (i=0; i<=11; ++i) {
 		wprintf("<OPTION %s VALUE=\"%d\">%s</OPTION>\n",
-			((tm->tm_mon == i) ? "SELECTED" : ""),
+			((tm.tm_mon == i) ? "SELECTED" : ""),
 			i+1,
 			months[i]
 		);
@@ -98,7 +98,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	wprintf("<SELECT NAME=\"%s_day\" SIZE=\"1\">\n", prefix);
 	for (i=1; i<=31; ++i) {
 		wprintf("<OPTION %s VALUE=\"%d\">%d</OPTION>\n",
-			((tm->tm_mday == i) ? "SELECTED" : ""),
+			((tm.tm_mday == i) ? "SELECTED" : ""),
 			i, i
 		);
 	}
@@ -126,7 +126,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	wprintf("<SELECT NAME=\"%s_hour\" SIZE=\"1\">\n", prefix);
 	for (i=0; i<=23; ++i) {
 		wprintf("<OPTION %s VALUE=\"%d\">%s</OPTION>\n",
-			((tm->tm_hour == i) ? "SELECTED" : ""),
+			((tm.tm_hour == i) ? "SELECTED" : ""),
 			i, hourname[i]
 		);
 	}
@@ -136,7 +136,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	wprintf("<SELECT NAME=\"%s_minute\" SIZE=\"1\">\n", prefix);
 	for (i=0; i<=59; ++i) {
 		wprintf("<OPTION %s VALUE=\"%d\">:%02d</OPTION>\n",
-			((tm->tm_min == i) ? "SELECTED" : ""),
+			((tm.tm_min == i) ? "SELECTED" : ""),
 			i, i
 		);
 	}
