@@ -153,6 +153,21 @@ struct		_user_info {
 } USERINFO;
 
 /**
+ ** struct _Exp_Mesg: This record contains a single Express Message, including any
+ ** text bound to the message.  It is an encapuslated GEXP message.
+ **/
+typedef struct	_Exp_Mesg {
+
+ int		more_follows;
+ unsigned long int timestamp;
+ unsigned long int flags;
+ char		sender[255];
+ char		node[255];
+ char		*message;	/** This MUST be freed. **/
+
+} EXPRMESG;
+
+/**
  ** struct _Cmd_Callback: This record contains information regarding Server->Client
  ** message callbacks.  The general rule is such: IF the client wishes to handle
  ** certain types of Server-to-Client traffic [currently unimplemented], the author
@@ -233,7 +248,7 @@ int		CxRmCreate(ROOMINFO);
  ** Miscellaneous Commands
  **/
 int		CxMiExpSend(const char *, const char *);
-char		*CxMiExpRecv();
+EXPRMESG	*CxMiExpRecv();
 int		CxMiExpCheck();
 void		CxMiExpHook(void (*)(const char *, const char*));
 char		*CxMiMessage(const char *);

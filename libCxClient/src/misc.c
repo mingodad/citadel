@@ -94,22 +94,50 @@ int		rc;
  ** called after a NOOP loop returns RC_xxxx...
  **
  ** [Returns]
- **  Success: Ptr to malloc()ed message text.  [*]
+ **  Success: Ptr to malloc()ed EXPRMESG struct.  [*]
  **  Failure: NULL
  **/
-char		*CxMiExpRecv() {
-char		buf[255], *toret;
+EXPRMESG	*CxMiExpRecv() {
+char		buf[255], *Ser[20];
+EXPRMESG	*toret;
 int		rc;
 
+	/**
+	 ** Ask the server for the latest Express Message [GEXP].
+	 **/
 	DPF((DFA,"Receive Express Message"));
 	CxClSend("GEXP");
 	rc = CxClRecv(buf);
 	DPF((DFA,"buf=%s\n",buf));
-	toret = 0;
+	toret = 0L;
+
+	/**
+	 ** If rc==RC_LISTING, then we have a valid Express Message.
+	 **/
 	DPF((DFA,"Checking result = ", rc));
 	if( CHECKRC(rc, RC_LISTING)) {
+
 		DPF((DFA,"Preparing to return"));
-		toret = (char *) CxMalloc(strlen(buf)+2);
+		toret = (EXPRMESG *) CxMalloc( sizeof(EXPRMESG) );
+		bzero( &toret, sizeof(EXPRMESG) );
+
+		CxSerialize( buf, &Ser );
+
+		toret->more_follows = atoi( Ser[0] );
+		toret->timestamp = (time_t) strtoul( Ser[1], 0, 10 );
+		toret->flags = atoi( Ser[2] );
+		strcpy( toret->sender, Ser[3] );
+		strcpy( toret->node, Ser[4] );
+		toret->message = 0L;
+		do {
+			if((rc = CxClRecv(buf))) {
+				DPF((DFA, "%s", buf));
+				toret->message = (char *) realloc(toret, strlen(toret->message)+strlen(buf)+1);
+				strcat(toret->message, buf);
+			}
+		} while( rc < 0 );
+
+/****		toret = (char *) CxMalloc(strlen(buf)+2);
 		strcpy(toret,buf);
 		strcat(toret,"|");
 		do {
@@ -119,9 +147,8 @@ int		rc;
 				strcat(toret,buf);
 			}
 		} while(rc<0);
+ ****/
 	}
-
-	DPF((DFA," toret = %s", toret));
 
 	return(toret);
 }
