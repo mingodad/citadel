@@ -101,11 +101,11 @@ msgbase.o: msgbase.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 locate_host.o: locate_host.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c locate_host.c
 
-$(MODDIR)/serv_chat.so: serv_chat.o support.o
-	$(CC) -shared -o $(MODDIR)/serv_chat.so serv_chat.o support.o
+$(MODDIR)/serv_chat.so: serv_chat.o
+	$(CC) -shared -o $(MODDIR)/serv_chat.so serv_chat.o
 
 serv_chat.o: serv_chat.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
-	$(CC) $(CFLAGS) -D_REENTRANT -c serv_chat.c
+	$(CC) $(CFLAGS) -D_REENTRANT -fPIC -c serv_chat.c
 
 housekeeping.o: housekeeping.c citadel.h sysdep.h sysconfig.h ipcdef.h server.h
 	$(CC) $(CFLAGS) -D_REENTRANT -c housekeeping.c

@@ -1,3 +1,10 @@
+1998-09-15 Nathan Bryant <bryant@cs.usm.maine.edu>
+	* Makefile.in: remove support.o from serv_chat.so, add -fPIC to compile
+	  flags for serv_chat.o
+	* dynloader.c: include "sysdep_decls.h", use RTLD_NOW not RTLD_LAZY
+	* dynloader.h: prototype CtdlRegisterHook()
+	* .cvsignore: added data
+
 Mon Sep 14 20:49:08 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Tried my hand at adding the ability for server extensions to
 	  register various types of "hooks" in addition to just adding

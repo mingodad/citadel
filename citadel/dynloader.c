@@ -18,6 +18,7 @@
 #include "dynloader.h"
 #include "citadel.h"
 #include "server.h"
+#include "sysdep_decls.h"
 
 symtab *global_symtab;
 
@@ -35,7 +36,7 @@ int DLoader_Exec_Cmd(char *cmdbuf)
       
    if (t_sym)
    {
-      if (!(fcn_handle = dlopen(t_sym->module_path, RTLD_LAZY)))
+      if (!(fcn_handle = dlopen(t_sym->module_path, RTLD_NOW)))
       {
          dl_error = dlerror();
          syslog(LOG_NOTICE, "WARNING: module %s failed to load", t_sym->module_path);
@@ -117,7 +118,7 @@ void DLoader_Init(char *pathname, symtab **my_symtab)
    
       filename = strdup(dptr->d_name);
       snprintf(pathbuf, 512, "%s/%s", pathname, filename);
-      if (!(fcn_handle = dlopen(pathbuf, RTLD_LAZY)))
+      if (!(fcn_handle = dlopen(pathbuf, RTLD_NOW)))
       {
          dl_error = dlerror();
          fprintf(stderr, "DLoader_Init dlopen failed (%s)", dl_error);
