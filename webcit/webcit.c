@@ -99,8 +99,6 @@ FOUNDIT:	ptr = up;
 
 		up = ptr;
 		++up;
-
-		fprintf(stderr, "%s=%s\n", u->url_key, u->url_data);
 		}
 DONE:
 	}
@@ -363,13 +361,9 @@ void session_loop() {
 	strcpy(c_roomname, "");
 
 	getz(cmd);
-	fprintf(stderr, "\nCmd: %s\n", cmd);
-	fflush(stderr);
 
 	do {
 		getz(buf);
-		fprintf(stderr, "Buf: %s\n", buf);
-		fflush(stderr);
 
 		if (!strncasecmp(buf, "Cookie: wc_host=", 16))
 			strcpy(c_host, &buf[16]);
@@ -394,7 +388,6 @@ void session_loop() {
 		content = malloc(ContentLength+1);
 		fread(content, ContentLength, 1, stdin);
 		content[ContentLength] = 0;
-		fprintf(stderr, "CONTENT:\n%s\n", content);
 		addurls(content);
 		}
 	else {

@@ -81,6 +81,6 @@ void display_main_menu() {
 	output_headers();
 	wprintf("<HTML><HEAD><TITLE>WebCit main menu</TITLE></HEAD><BODY>\n");
 	embed_main_menu();
-	printf("</BODY></HTML>\n");
+	wprintf("</BODY></HTML>\n");
 	wDumpContent();
 	}
