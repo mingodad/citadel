@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-15">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 1.0.3  (Linux)">
+	<META NAME="CREATED" CONTENT="20031103;22165400">
+	<META NAME="CHANGED" CONTENT="20031103;22264800">
+	<STYLE>
+	<!--
+		@page { size: 21.59cm 27.94cm; margin-left: 3.18cm; margin-right: 3.18cm; margin-top: 2.54cm; margin-bottom: 2.54cm }
+		P { margin-bottom: 0.21cm }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US">
+<P ALIGN=CENTER STYLE="margin-bottom: 0cm"><FONT FACE="Sans-serif">Citadel/UX
+Web Framework for PHP</FONT></P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0cm"><FONT FACE="Sans-serif"><I>something
+resembling documentation</I></FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal"><BR>
+</P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal"><FONT FACE="Sans-serif"><U>Global
+variables</U></FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">You can count on these being available:</FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<BR>
+</P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">$_SESSION[&quot;serv_nodename&quot;] &ndash;
+Short nodename of the Citadel server.</FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">$_SESSION[&quot;serv_humannode&quot;] &ndash;
+Human-readable name of the site.</FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">$_SESSION[&quot;serv_fqdn&quot;] &ndash;
+Fully-qualified domain name of the Citadel server.</FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">$_SESSION[&quot;serv_software&quot;] &ndash;
+The server software (e.g. Citadel/UX 9.99)</FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">$_SESSION[&quot;serv_city&quot;] &ndash;
+Geographic location of the Citadel server.</FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">$_SESSION[&quot;serv_sysadmin&quot;] &ndash;
+Name of the system administrator.</FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<BR>
+</P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">$_SESSION[&quot;ctdlsession&quot;] &ndash;
+Name of the session ID.  Not very useful.</FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">$_SESSION[&quot;username&quot;] &ndash; Name
+of the user currently logged in.</FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">$_SESSION[&quot;password&quot;] &ndash;
+Current user's password.  Don't use this.</FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<BR>
+</P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal"><FONT FACE="Sans-serif"><U>Session
+stuff</U></FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">Upon establishment of a new PHP session, a
+copy of &ldquo;sessionproxy.php&rdquo; will be spawned.  This is a
+session proxy which maintains a connection to the Citadel server.  It
+will time out after 15 minutes if no additional connections are made.</FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<BR>
+</P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">Only the login.php, do_login.php, and
+logout.php pages may be displayed when there is no user logged in. 
+Any attempt to load another page without logging in will
+automatically be redirected to login.php.</FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<BR>
+</P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">When a successful login is completed,
+welcome.php will be loaded.</FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<BR>
+</P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">To end the session, simply link to
+logout.php.  There is code on that page to end the session and shut
+everything down.</FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<BR>
+</P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal"><FONT FACE="Sans-serif"><U>Protocol
+library</U></FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<BR>
+</P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">ctdl_iden() </FONT>
+</P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">Called without any arguments.  This just
+identifies our client to the Citadel server.  This is called by
+ctdlsession.php so you probably don't need to use it.</FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<BR>
+</P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">ctdl_get_server_info()</FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">Also called by ctdlsession.php, this loads up
+most of the global variables listed above.</FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<BR>
+</P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">login_existing_user($user, $pass)</FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-style: normal"><FONT FACE="Sans-serif">create_new_user($user,
+$pass)</FONT></SPAN></SPAN></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">ctdl_mesg($banner_name)</FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<FONT FACE="Sans-serif">ctdl_rwho()</FONT></P>
+<P ALIGN=LEFT STYLE="margin-bottom: 0cm; font-style: normal; text-decoration: none">
+<BR>
+</P>
+</BODY>
+</HTML>
