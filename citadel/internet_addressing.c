@@ -232,7 +232,6 @@ void try_name(struct usersupp *us) {
 }
 
 
-
 /*
  * Convert an Internet email address to a Citadel user/host combination
  */
@@ -315,10 +314,8 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 	/* Here's the big rfc822-to-citadel loop. */
 
 	if (!strcasecmp(key, "Date")) {
-		lprintf(9, "converting date <%s>\n", value);
 		sprintf(buf, "%ld", parsedate(value) );
-		lprintf(9, "parsed value is <%s>\n", buf);
-		if (msg->cm_fields['T'] != NULL)
+		if (msg->cm_fields['T'] == NULL)
 			msg->cm_fields['T'] = strdoop(buf);
 		processed = 1;
 	}
@@ -328,11 +325,11 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 		node = mallok(strlen(value));
 		name = mallok(strlen(value));
 		process_rfc822_addr(value, user, node, name);
-		if (msg->cm_fields['A'] != NULL)
+		if (msg->cm_fields['A'] == NULL)
 			msg->cm_fields['A'] = strdoop(user);
-		if (msg->cm_fields['N'] != NULL)
+		if (msg->cm_fields['N'] == NULL)
 			msg->cm_fields['N'] = strdoop(node);
-		if (msg->cm_fields['H'] != NULL)
+		if (msg->cm_fields['H'] == NULL)
 			msg->cm_fields['H'] = strdoop(name);
 		phree(user);
 		phree(node);
@@ -341,14 +338,12 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 	}
 
 	else if (!strcasecmp(key, "Subject")) {
-		if (msg->cm_fields['U'] != NULL)
-			msg->cm_fields['U'] = strdoop(key);
+		if (msg->cm_fields['U'] == NULL)
+			msg->cm_fields['U'] = strdoop(value);
 		processed = 1;
 	}
 
 	/* Clean up and move on. */
-	lprintf(9, "Field: key=<%s> value=<%s> processed=%d\n",
-		key, value, processed);
 	phree(key);	/* Don't free 'value', it's actually the same buffer */
 	return(processed);
 }
@@ -375,7 +370,6 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 	msg->cm_format_type = 4;		/* always MIME */
 	msg->cm_fields['M'] = rfc822;
 
-	/* FIX   there's plenty to do here. */
 	msglen = strlen(rfc822);
 	pos = 0;
 	done = 0;
@@ -411,7 +405,6 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 		/* If we've hit the end of the message, bail out */
 		if (pos > strlen(rfc822)) done = 1;
 	}
-
 
 	/* Follow-up sanity checks... */
 

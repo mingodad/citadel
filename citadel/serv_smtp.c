@@ -58,7 +58,7 @@ long SYM_SMTP;
  */
 void smtp_greeting(void) {
 
-	strcpy(CC->cs_clientname, "Citadel SMTP");
+	strcpy(CC->cs_clientname, "SMTP session");
 	CC->internal_pgm = 1;
 	CC->cs_flags |= CS_STEALTH;
 	CtdlAllocUserData(SYM_SMTP, sizeof(struct citsmtp));
@@ -396,9 +396,10 @@ void smtp_data(void) {
 
 	fprintf(stderr, "Converting message...\n");
 	msg = convert_internet_message(body);
-	phree(body);
 
-	CtdlSaveMsg(msg, "", BASEROOM, MES_LOCAL, 1);	/* FIX temporary */
+	/*   FIX do something with it!  */
+	CtdlSaveMsg(msg, "", BASEROOM, MES_LOCAL, 1);
+
 	CtdlFreeMessage(msg);
 
 	cprintf("599 command unfinished but message saved\n");

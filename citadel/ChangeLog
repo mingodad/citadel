@@ -1,4 +1,7 @@
 $Log$
+Revision 1.431  1999/12/23 04:46:23  ajc
+* "Finished" initial hack of RFC822 import
+
 Revision 1.430  1999/12/22 04:46:34  ajc
 * Fixed up the "Date:" headers to be RFC822-compliant
 
@@ -1499,4 +1502,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
