@@ -1,4 +1,7 @@
  $Log$
+ Revision 620.0  2004/03/27 02:33:26  ajc
+ * THIS IS 6.20
+
  Revision 614.105  2004/03/27 02:33:10  ajc
  * Bumped the version number to 6.20
  * Corrected session.txt writeup for CONF command (three of the five LDAP
