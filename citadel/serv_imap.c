@@ -2,13 +2,12 @@
  * $Id$ 
  *
  * IMAP server for the Citadel/UX system
- * Copyright (C) 2000-2001 by Art Cancro and others.
+ * Copyright (C) 2000-2002 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.
  *
- * WARNING: this is an incomplete implementation.  It is now good enough to
- * be usable with much of the popular IMAP client software available, but it
- * is by no means perfect.  Some commands (particularly SEARCH)
- * are implemented either incompletely or not at all.
+ * WARNING: this is a workable implementation, but it could use some
+ * additional tweaking.  Some commands may be implemented incompletely.  The
+ * 'SEARCH' command is not implemented at all.
  *
  * WARNING: Mark Crispin is an idiot.  IMAP is the most brain-damaged protocol
  * you will ever have the profound lack of pleasure to encounter.

@@ -3,7 +3,7 @@
  *
  * This is the MIME parser for Citadel.  Sometimes it actually works.
  *
- * Copyright (c) 1998-2001 by Art Cancro
+ * Copyright (c) 1998-2002 by Art Cancro
  * This code is distributed under the terms of the GNU General Public License.
  *
  */
