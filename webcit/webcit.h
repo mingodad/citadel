@@ -28,7 +28,7 @@
 #define SERVER			"WebCit v5.00"	/* who's in da house */
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
-#define CLIENT_VERSION		500		/* This version of WebCit */
+#define CLIENT_VERSION		501		/* This version of WebCit */
 #define MINIMUM_CIT_VERSION	611		/* min required Citadel vers */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"

@@ -1,5 +1,5 @@
                       WEBCIT for the Citadel/UX System
-                               version 5.00
+                               version 5.01
  
    Copyright (C) 1996-2003 by the authors.  Portions written by:
 	Art Cancro
@@ -53,7 +53,14 @@ can try it out.  Point your web browser to WebCit using a URL such as:
 want it to, you should set it up to be automatically started by the system at
 boot time.  The recommended way to do this is with an entry in /etc/inittab,
 because init can then automatically restart WebCit if it happens to crash for
-any reason.  Open /etc/inittab and add an entry something like this:
+any reason.
+ 
+ The included "setup" program is basically just an installation helper that
+asks a series of questions and then adds the appropriate line to inittab to
+start WebCit.  For most installations, this will do just fine.  If you have
+special circumstances, or if you'd prefer to configure WebCit manually, you
+may skip the setup program.  Instead, open /etc/inittab and add an entry
+something like this:
  
  wc:2345:respawn:/usr/local/webcit/webserver
  
