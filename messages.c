@@ -103,6 +103,11 @@ void fetchname_parsed_vcard(struct vCard *v, char *storename) {
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 		if (!strcasecmp(v->prop[i].name, "n")) {
 			strcpy(storename, v->prop[i].value);
+			if ((strlen(storename)>0) && (storename[0] != ';')) {
+				while(storename[strlen(storename)-1] == ';') {
+					storename[strlen(storename)-1] = 0;
+				}
+			}
 		}
 	}
 }
@@ -142,10 +147,11 @@ void display_parsed_vcard(struct vCard *v, int full) {
 	if (!full) {
 		wprintf("<TD>");
 		name = vcard_get_prop(v, "fn", 1, 0, 0);
-		if (name == NULL) name = vcard_get_prop(v, "n", 1, 0, 0);
 		if (name != NULL) {
-			strcpy(buf, name);
-			escputs(buf);
+			escputs(name);
+		}
+		else if (name = vcard_get_prop(v, "n", 1, 0, 0), name != NULL) {
+			escputs(name);
 		}
 		else {
 			wprintf("&nbsp;");
