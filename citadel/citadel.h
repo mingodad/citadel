@@ -8,8 +8,8 @@
 #include "sysdep.h"
 #include "sysconfig.h"
 #include "ipcdef.h"
-#define CITADEL	"Citadel/UX 5.55"
-#define REV_LEVEL 555
+#define CITADEL	"Citadel/UX 5.60"
+#define REV_LEVEL 560
 #define SERVER_TYPE 0	/* zero for stock Citadel/UX; other developers please
 			   obtain SERVER_TYPE codes for your implementations */
 

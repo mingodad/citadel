@@ -24,26 +24,28 @@ Unix and Unix-like platforms.  The author's current development environment
 system. It is preferable that the sysop have superuser access to the operating
 system. The following are required to install Citadel/UX:
 
-    - A Unix operating system (Linux, Solaris, DEC Unix, etc.)
+    - A Unix operating system (Linux, BSD, Solaris, DEC Unix, etc.)
     - C compiler (such as gcc or egcs) and "make"
     - POSIX threads
     - TCP/IP
     - The "gdbm" record manager
     - Enough disk space to hold all of the programs and data
  
-   
+ If you are running Citadel/UX on a Linux system, it is STRONGLY recommended
+that you use a version based on glibc v2 (also called libc6).  libc5 contains
+a number of thread safety problems.  Furthermore, most modern Linux
+distributions have libc6, pthreads, gdbm, and the compiler already installed
+and integrated for you.
+  
+    
  NOW AVAILABLE:
  
     - "WebCit", a gateway program to allow full access to Citadel/UX BBS's
       via the World Wide Web.  Interactive access through any Web browser.
- 
-    - A point-and-click client program for MS Windows.  (The text-based client
-      is now available for Windows as well.)
- 
+  
  COMING SOON: 
   
-    - A client program written in Java that will be portable to all operating
-      systems.
+    - Newer and better GUI based clients.
    
  
   
@@ -94,16 +96,23 @@ computer.
  COMPILING THE PROGRAMS
    
  
-   You can easily compile Citadel with the following two commands:
+   You can easily compile Citadel with the following commands:
  
-   ./configure --prefix=`pwd`
+   ./configure
    make
+   make install
  
    The 'configure' script will generate a Makefile from the Makefile.in, and
 it will also write the file "sysdep.h" to your Citadel directory.  Please do
 not edit sysdep.h or Makefile.in yourself.  The configure script will figure
 out your system dependencies and set everything correctly.
  
+   By default, the Citadel system will install in /usr/local/citadel.  If you
+wish to place it in a different directory, you can instead do:
+ 
+   ./configure --prefix=/opt/citadel      (or whatever)
+   
+  
    File permissions are always a bother to work with. You don't want the
 board to crash because someone couldn't access a file, but you also don't
 want shell users peeking into the binaries to do things like reading others'
@@ -347,5 +356,25 @@ other.  Please refer these questions to your local sendmail wizard.
    That's just about all the information you need to install the system.
  For more information, visit the Citadel/UX web site at UNCENSORED! BBS
  http://uncnsrd.mt-kisco.ny.us
+ 
+   Please note: if you intend to report a problem getting the Citadel server
+to run, please first check the following:
+ 
+ 1. Did you do ./configure && make && make install  ??
+ 2. Did you run setup?
+ 3. Did you start the server?
+ 
+   To report a problem, you can log on to UNCENSORED! or any other BBS on the
+Citadel network which carries the Citadel/UX> room.  Please remember to mention
+all of the following information:
+ 
+ 1. The exact nature of your difficulty
+ 2. A transcript of the error message(s) if possible
+ 3. The version of Citadel you are running
+ 4. The version of GDBM present on your system
+ 5. Which operating system you are running, and what version
+ 6. If you are running a Linux system, we need to know which distribution, and
+the version of the kernel, libc, and pthreads you are using (it would help to
+post the output of a "ldd ./citserver" command).
 
 

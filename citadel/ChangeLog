@@ -1,4 +1,8 @@
 $Log$
+Revision 1.417  1999/11/18 02:31:50  ajc
+* Updated some of the documentation
+* Brought the internal version number up to 5.60
+
 Revision 1.416  1999/11/17 04:15:05  ajc
 * Removed the session_count() function.  Instead, keep a reference count
   updated when sessions begin and end.
@@ -1445,4 +1449,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
