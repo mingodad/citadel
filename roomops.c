@@ -969,7 +969,7 @@ void display_editroom(void)
 			"<TABLE border=1 cellpadding=5><TR>"
 			"<TD><B><I>Shared with</I></B></TD>"
 			"<TD><B><I>Not shared with</I></B></TD></TR>\n"
-			"<TR><TD>\n");
+			"<TR><TD VALIGN=TOP>\n");
 
 		wprintf("<TABLE border=0 cellpadding=5><TR BGCOLOR=\"#CCCCCC\">"
 			"<TD>Remote node name</TD>"
@@ -983,7 +983,9 @@ void display_editroom(void)
 			extract_token(node, buf, 0, '|');
 			extract_token(remote_room, buf, 1, '|');
 			if (strlen(node) > 0) {
-				wprintf("<TR><TD>%s</TD>\n", node);
+				wprintf("<FORM METHOD=\"POST\" "
+					"ACTION=\"/netedit\">"
+					"<TR><TD>%s</TD>\n", node);
 
 				wprintf("<TD>");
 				if (strlen(remote_room) > 0) {
@@ -992,32 +994,62 @@ void display_editroom(void)
 				wprintf("</TD>");
 
 				wprintf("<TD>");
-				wprintf("<A HREF=\"/netedit&cmd=remove&line="
-					"ignet_push_share|");
+		
+				wprintf("<INPUT TYPE=\"hidden\" NAME=\"line\" "
+					"VALUE=\"ignet_push_share|");
 				urlescputs(node);
 				if (strlen(remote_room) > 0) {
 					wprintf("|");
 					urlescputs(remote_room);
 				}
-				wprintf("&tab=sharing\">unshare</A>");
-				wprintf("</TD></TR>\n");
+				wprintf("\">");
+				wprintf("<INPUT TYPE=\"hidden\" NAME=\"tab\" "
+					"VALUE=\"sharing\">\n");
+				wprintf("<INPUT TYPE=\"hidden\" NAME=\"cmd\" "
+					"VALUE=\"remove\">\n");
+				wprintf("<INPUT TYPE=\"submit\" "
+					"NAME=\"sc\" VALUE=\"Unshare\">");
+				wprintf("</TD></TR></FORM>\n");
 			}
 		}
 
 		wprintf("</TABLE>\n");
-		wprintf("</TD><TD>\n");
+		wprintf("</TD><TD VALIGN=TOP>\n");
+		wprintf("<TABLE border=0 cellpadding=5><TR BGCOLOR=\"#CCCCCC\">"
+			"<TD>Remote node name</TD>"
+			"<TD>Remote room name</TD>"
+			"<TD>Actions</TD>"
+			"</TR>\n"
+		);
 
 		for (i=0; i<num_tokens(not_shared_with, '\n'); ++i) {
 			extract_token(node, not_shared_with, i, '\n');
 			if (strlen(node) > 0) {
-				wprintf("%s ", node);
-				wprintf("<A HREF=\"/netedit&cmd=add&line="
-					"ignet_push_share|");
+				wprintf("<FORM METHOD=\"POST\" "
+					"ACTION=\"/netedit\">"
+					"<TR><TD>");
+				escputs(node);
+				wprintf("</TD><TD>"
+					"<INPUT TYPE=\"INPUT\" "
+					"NAME=\"suffix\" "
+					"MAXLENGTH=128>"
+					"</TD><TD>");
+				wprintf("<INPUT TYPE=\"hidden\" "
+					"NAME=\"line\" "
+					"VALUE=\"ignet_push_share|");
 				urlescputs(node);
-				wprintf("&tab=sharing\">(share)</A><BR>");
+				wprintf("|\">");
+				wprintf("<INPUT TYPE=\"hidden\" NAME=\"tab\" "
+					"VALUE=\"sharing\">\n");
+				wprintf("<INPUT TYPE=\"hidden\" NAME=\"cmd\" "
+					"VALUE=\"add\">\n");
+				wprintf("<INPUT TYPE=\"submit\" "
+					"NAME=\"sc\" VALUE=\"Share\">");
+				wprintf("</TD></TR></FORM>\n");
 			}
 		}
 
+		wprintf("</TABLE>\n");
 		wprintf("</TD></TR>"
 			"</TABLE></CENTER><BR>\n"
 			"<I><B>Notes:</B><UL><LI>When sharing a room, "
@@ -1844,6 +1876,10 @@ void netedit(void) {
 	FILE *fp;
 	char buf[SIZ];
 	char line[SIZ];
+	char cmpa0[SIZ];
+	char cmpa1[SIZ];
+	char cmpb0[SIZ];
+	char cmpb1[SIZ];
 
 	if (strlen(bstr("line"))==0) {
 		display_editroom();
@@ -1870,7 +1906,12 @@ void netedit(void) {
 
 	/* This loop works for add *or* remove.  Spiffy, eh? */
 	while (serv_gets(buf), strcmp(buf, "000")) {
-		if (strcasecmp(buf, line)) {
+		extract(cmpa0, buf, 0);
+		extract(cmpa1, buf, 1);
+		extract(cmpb0, line, 0);
+		extract(cmpb1, line, 1);
+		if ( (strcasecmp(cmpa0, cmpb0)) 
+		   || (strcasecmp(cmpa1, cmpb1)) ) {
 			fprintf(fp, "%s\n", buf);
 		}
 	}
