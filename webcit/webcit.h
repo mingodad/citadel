@@ -5,17 +5,17 @@
 #define SLEEPING		180		/* TCP connection timeout */
 #define WEBCIT_TIMEOUT		900		/* WebCit session timeout */
 #define PORT_NUM		2000		/* port number to listen on */
-#define SERVER			"WebCit v2.13"	/* who's in da house */
+#define SERVER			"WebCit v3.00"	/* who's in da house */
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
-#define CLIENT_VERSION		213
+#define CLIENT_VERSION		300
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define LB			(1)		/* Internal escape chars */
 #define RB			(2)
 #define QU			(3)
 #define TARGET			"webcit01"	/* Target for inline URL's */
-#define HOUSEKEEPING		60		/* Housekeeping frequency */
+#define HOUSEKEEPING		15		/* Housekeeping frequency */
 #define INITIAL_WORKER_THREADS	5
 #define LISTEN_QUEUE_LENGTH	20		/* listen() backlog queue */
 
@@ -287,3 +287,4 @@ void clear_local_substs(void);
 void svprintf(char *keyname, int keytype, const char *format,...);
 void svcallback(char *keyname, void (*fcn_ptr)() );
 void do_template(void *templatename);
+int lingering_close(int fd);
