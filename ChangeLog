@@ -1,5 +1,6 @@
 1998-12-06 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: prototype vsnprintf
+	* context_loop.c: warning fix
 
 1998-12-05 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* tcp_sockets.c: removed some dead code

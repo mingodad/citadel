@@ -53,7 +53,7 @@ struct wc_session *SessionList = NULL;
 /* Only one thread may manipulate SessionList at a time... */
 pthread_mutex_t MasterCritter;
 
-int GenerateSessionID() {
+int GenerateSessionID(void) {
 	return getpid();
 	}
 
