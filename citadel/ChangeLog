@@ -1,4 +1,7 @@
  $Log$
+ Revision 590.157  2002/03/19 04:19:33  ajc
+ * Saw what IO did with strchr() and did the same in a few more places
+
  Revision 590.156  2002/03/17 00:08:02  error
  * mime_parser.c: more robust parsing of Content-Type header
 
@@ -3516,4 +3519,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

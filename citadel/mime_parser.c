@@ -371,16 +371,12 @@ void the_mime_parser(char *partnum,
 			strcat(header, buf);
 	} while ((strlen(buf) > 0) && (*ptr != 0));
 
-	for (i = 0; i < strlen(disposition); ++i)
-		if (disposition[i] == ';')
-			disposition[i] = 0;
-	while (isspace(disposition[0]))
-		strcpy(disposition, &disposition[1]);
-	for (i = 0; i < strlen(content_type); ++i)
-		if (content_type[i] == ';')
-			content_type[i] = 0;
-	while (isspace(content_type[0]))
-		strcpy(content_type, &content_type[1]);
+	if (strchr(disposition, ';'))
+		*(strchr(disposition, ';')) = '\0';
+	striplt(disposition);
+	if (strchr(content_type, ';'))
+		*(strchr(content_type, ';')) = '\0';
+	striplt(content_type);
 
 	if (strlen(boundary) > 0) {
 		is_multipart = 1;
