@@ -10,6 +10,7 @@ void striplt(char *);
 int haschar(char *st, int ch);
 int collapsed_strcmp(char *s1, char *s2);
 void remove_token(char *source, int parmnum, char separator);
+void fmt_date(char *buf, time_t thetime);
 
 #define extract(dest,source,parmnum)	extract_token(dest,source,parmnum,'|')
 #define num_parms(source)		num_tokens(source, '|')

@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <sys/time.h>
 #include "tools.h"
 
 #define TRUE  1
@@ -327,3 +328,35 @@ int collapsed_strcmp(char *s1, char *s2) {
 	free(c2);
 	return(ret);
 }
+
+
+
+/*
+ * Format a date/time stamp for output 
+ */
+void fmt_date(char *buf, time_t thetime) {
+	struct tm *tm;
+
+	char *ascmonths[] = {
+		"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+	};
+
+	strcpy(buf, "");
+	tm = localtime(&thetime);
+
+	sprintf(buf, "%s %d %d %d:%02d%s",
+		ascmonths[tm->tm_mon],
+		tm->tm_mday,
+		tm->tm_year + 1900,
+		( (tm->tm_hour > 12) ? (tm->tm_hour - 12) : (tm->tm_hour) ),
+		tm->tm_min,
+		( (tm->tm_hour > 12) ? "pm" : "am" )
+	);
+}
+
+
+
+
+
+

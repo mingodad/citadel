@@ -12,12 +12,12 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include <time.h>
 #include <signal.h>
 #include <errno.h>
 #include <limits.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <stdarg.h>
 #include "citadel.h"
 #include "messages.h"
@@ -322,8 +322,7 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 	char buf[256];
 	char m_subject[256];
 	char from[256], node[256], rfca[256];
-	time_t now;
-	struct tm *tm;
+	char now[256];
 	int format_type = 0;
 	int fr = 0;
 	int nhdr = 0;
@@ -443,12 +442,8 @@ int read_message(long int num, char pagin) /* Read a message from the server */
 			printf("%s ",&buf[5]);
 			}
 		if (!struncmp(buf,"time=",5)) {
-			now=atol(&buf[5]);
-			tm=(struct tm *)localtime(&now);
-			strcpy(buf,asctime(tm)); buf[strlen(buf)-1]=0;
-			strcpy(&buf[16],&buf[19]);
-			color(BRIGHT_MAGENTA);
-			printf("%s ",&buf[4]);
+			fmt_date(now, atol(&buf[5]));
+			printf("%s ", now);
 			}
 		}
 
@@ -570,7 +565,6 @@ int make_message(char *filename,	/* temporary file name */
 { 
 	FILE *fp;
 	int a,b,e_ex_code;
-	time_t now;
 	long beg;
 	char datestr[64];
 	int cksum = 0;
@@ -580,9 +574,7 @@ int make_message(char *filename,	/* temporary file name */
 		mode=0;
 		}
 
-	time(&now);
-	strcpy(datestr,asctime(localtime(&now)));
-	datestr[strlen(datestr)-1] = 0;
+	fmt_date(datestr, time(NULL));
 
 	if (room_flags & QR_ANONONLY) {
 		printf(" ****");
