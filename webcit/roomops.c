@@ -600,6 +600,7 @@ void ungoto(void)
 void display_editroom(void)
 {
 	char buf[SIZ];
+	char cmd[SIZ];
 	char node[SIZ];
 	char er_name[20];
 	char er_password[10];
@@ -607,8 +608,10 @@ void display_editroom(void)
 	char er_roomaide[26];
 	unsigned er_flags;
 	int er_floor;
-	int i;
+	int i, j;
 	char *tab;
+	char *shared_with;
+	char *not_shared_with;
 
 	tab = bstr("tab");
 	if (strlen(tab) == 0) tab = "admin";
@@ -625,7 +628,6 @@ void display_editroom(void)
 	extract(er_dirname, &buf[4], 2);
 	er_flags = extract_int(&buf[4], 3);
 	er_floor = extract_int(&buf[4], 4);
-
 
 	output_headers(1);
 
@@ -842,35 +844,91 @@ void display_editroom(void)
 	}
 
 
-
+	/* Sharing the room with other Citadel nodes... */
 	if (!strcmp(tab, "sharing")) {
 
-		wprintf("<CENTER>"
-			"<FORM METHOD=\"POST\" ACTION=\"/edit_sharing\">"
-			"<TABLE border=0><TR>"
-			"<TD><B><I>Neighbor node</I></B></TD>"
-			"<TD><B><I>Shared?</I></B></TD></TR>\n");
+		shared_with = strdup("");
+		not_shared_with = strdup("");
 
+		/* Learn the current configuration */
 		serv_puts("CONF getsys|application/x-citadel-ignet-config");
 		serv_gets(buf);
 		if (buf[0]=='1') while (serv_gets(buf), strcmp(buf, "000")) {
 			extract(node, buf, 0);
-			wprintf("<TR>");
-			wprintf("<TD>%s</TD>", node);
-			wprintf("<TD>fixme</TD>");
-			wprintf("</TR>\n");
+			not_shared_with = realloc(not_shared_with,
+					strlen(not_shared_with) + 32);
+			strcat(not_shared_with, node);
+			strcat(not_shared_with, "|");
 		}
 
-		wprintf("</TABLE></FORM>\n"
+		serv_puts("GNET");
+		serv_gets(buf);
+		if (buf[0]=='1') while (serv_gets(buf), strcmp(buf, "000")) {
+			extract(cmd, buf, 0);
+			extract(node, buf, 1);
+			if (!strcasecmp(cmd, "ignet_push_share")) {
+				shared_with = realloc(shared_with,
+						strlen(shared_with) + 32);
+				strcat(shared_with, node);
+				strcat(shared_with, "|");
+			}
+		}
+
+		for (i=0; i<num_tokens(shared_with, '|'); ++i) {
+			extract(node, shared_with, i);
+			for (j=0; j<num_tokens(not_shared_with, '|'); ++j) {
+				extract(cmd, not_shared_with, j);
+				if (!strcasecmp(node, cmd)) {
+					remove_token(not_shared_with, j, '|');
+				}
+			}
+		}
+
+		/* Display the stuff */
+		wprintf("<CENTER><BR>"
+			"<TABLE border=1 cellpadding=5><TR>"
+			"<TD><B><I>Shared with</I></B></TD>"
+			"<TD><B><I>Not shared with</I></B></TD></TR>\n"
+			"<TR><TD>\n");
+
+		for (i=0; i<num_tokens(shared_with, '|'); ++i) {
+			extract(node, shared_with, i);
+			if (strlen(node) > 0) {
+				wprintf("%s ", node);
+				wprintf("<A HREF=\"/netedit&cmd=remove&line="
+					"ignet_push_share|");
+				urlescputs(node);
+				wprintf("&tab=sharing\">(unshare)</A><BR>");
+			}
+		}
+
+		wprintf("</TD><TD>\n");
+
+		for (i=0; i<num_tokens(not_shared_with, '|'); ++i) {
+			extract(node, not_shared_with, i);
+			if (strlen(node) > 0) {
+				wprintf("%s ", node);
+				wprintf("<A HREF=\"/netedit&cmd=add&line="
+					"ignet_push_share|");
+				urlescputs(node);
+				wprintf("&tab=sharing\">(share)</A><BR>");
+			}
+		}
+
+		wprintf("</TD></TR></TABLE><BR>\n"
 			"<I><B>Reminder:</B> When sharing a room, "
-			"it must be shared from both ends.  Checking these "
-			"boxes sends messages out, but in order to receive "
-			"messages, the other nodes must be configured to send "
-			"messages out to this system.</I><BR>"
+			"it must be shared from both ends.  Adding a node to "
+			"the 'shared' list sends messages out, but in order to"
+			" receive messages, the other nodes must be configured"
+			" to send messages out to your system as well.</I><BR>"
 			"</CENTER>\n");
 
 	}
 
+	/* Mailing list management */
+	if (!strcmp(tab, "listserv")) {
+		wprintf("<CENTER><I>Under construction</I></CENTER>\n");
+	}
 
 	wDumpContent(1);
 }
@@ -1398,4 +1456,57 @@ void delete_room(void)
 	} else {
 		smart_goto("_BASEROOM_");
 	}
+}
+
+
+
+/*
+ * Perform changes to a room's network configuration
+ */
+void netedit(void) {
+	FILE *fp;
+	char buf[SIZ];
+
+	fp = tmpfile();
+	if (fp == NULL) {
+		display_editroom();
+		return;
+	}
+
+	serv_puts("GNET");
+	serv_gets(buf);
+	if (buf[0] != '1') {
+		fclose(fp);
+		display_editroom();
+		return;
+	}
+
+	/* This loop works for add *or* remove.  Spiffy, eh? */
+	while (serv_gets(buf), strcmp(buf, "000")) {
+		if (strcasecmp(buf, bstr("line"))) {
+			fprintf(fp, "%s\n", buf);
+		}
+	}
+
+	rewind(fp);
+	serv_puts("SNET");
+	serv_gets(buf);
+	if (buf[0] != '4') {
+		fclose(fp);
+		display_editroom();
+		return;
+	}
+
+	while (fgets(buf, sizeof buf, fp) != NULL) {
+		buf[strlen(buf)-1] = 0;
+		serv_puts(buf);
+	}
+
+	if (!strcasecmp(bstr("cmd"), "add")) {
+		serv_puts(bstr("line"));
+	}
+
+	serv_puts("000");
+	fclose(fp);
+	display_editroom();
 }
