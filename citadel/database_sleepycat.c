@@ -197,7 +197,7 @@ void cdb_cull_logs(void) {
  */
 static void cdb_checkpoint(void) {
 	int ret;
-	time_t last_checkpoint = 0L;
+	static time_t last_cull = 0L;
 
 	ret = txn_checkpoint(dbenv,
 				MAX_CHECKPOINT_KBYTES,
@@ -210,8 +210,8 @@ static void cdb_checkpoint(void) {
 
 
 	/* Cull the logs if we haven't done so for 24 hours */
-	if ((time(NULL) - last_checkpoint) > 86400L) {
-		last_checkpoint = time(NULL);
+	if ((time(NULL) - last_cull) > 86400L) {
+		last_cull = time(NULL);
 		cdb_cull_logs();
 	}
 

@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.140  2001/06/19 03:41:04  ajc
+ * Ooops... last_cull needs to be declared static
+
  Revision 573.139  2001/06/19 03:33:19  ajc
  * imap_fetch.c: download MIME parts without decoding first.  We like that.
  * database_sleepycat.c: added automatic culling of log files which have not
@@ -2546,3 +2549,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
