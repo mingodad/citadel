@@ -847,6 +847,8 @@ void usergoto(char *where, int display_result, int transiently,
 		new_messages, total_messages
 	);
 
+	CC->curr_view = (int)vbuf.v_view;
+
 	if (display_result) {
 		cprintf("%d%c%s|%d|%d|%d|%d|%ld|%ld|%d|%d|%d|%d|%d|%d|\n",
 			CIT_OK, CtdlCheckExpress(),

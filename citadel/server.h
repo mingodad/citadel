@@ -82,6 +82,7 @@ struct CitContext {
 	char temp[PATH_MAX];	/* temp file name */
 	int nologin;		/* not allowed to log in */
 	int is_local_socket;	/* set to 1 if client is on unix domain sock */
+	int curr_view;		/* The view type for the current user/room */
 
 	char net_node[PATH_MAX];/* Is the client another Citadel server? */
 	int client_socket;

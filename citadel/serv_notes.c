@@ -41,9 +41,69 @@
 #include "policy.h"
 #include "database.h"
 #include "msgbase.h"
+#include "tools.h"
+
+
+/*
+ * If we are in a "notes" view room, and the client has sent an RFC822
+ * message containing an X-KOrg-Note-Id: field (Aethera does this, as
+ * do some Kolab clients) then set both the Subject and the Extended ID
+ * of the message to that.  It's going to be a UUID so we want to replace
+ * any existing message containing that UUID.
+ */
+int serv_notes_beforesave(struct CtdlMessage *msg)
+{
+	char *p;
+	int a, i;
+	char uuid[SIZ];
+
+	/* First determine if this room has the "notes" view set */
+
+	if (CC->curr_view != VIEW_NOTES) {
+		return(0);			/* not notes; do nothing */
+	}
+
+	/* It must be an RFC822 message! */
+	if (msg->cm_format_type != 4) {
+		return(0);	/* You tried to save a non-RFC822 message! */
+	}
+	
+	/* Find the X-KOrg-Note-Id: header */
+	strcpy(uuid, "");
+	p = msg->cm_fields['M'];
+	a = strlen(p);
+	while (--a > 0) {
+		if (!strncasecmp(p, "X-KOrg-Note-Id: ", 16)) {	/* Found it */
+			safestrncpy(uuid, p + 16, sizeof(uuid));
+			for (i = 0; i<strlen(uuid); ++i) {
+				if ( (uuid[i] == '\r') || (uuid[i] == '\n') ) {
+					uuid[i] = 0;
+				}
+			}
+
+			lprintf(9, "UUID of note is: %s\n", uuid);
+			if (strlen(uuid) > 0) {
+
+				if (msg->cm_fields['E'] != NULL) {
+					free(msg->cm_fields['E']);
+				}
+				msg->cm_fields['E'] = strdup(uuid);
+
+				if (msg->cm_fields['U'] != NULL) {
+					free(msg->cm_fields['U']);
+				}
+				msg->cm_fields['U'] = strdup(uuid);
+			}
+		}
+		p++;
+	}
+	
+	return(0);
+}
 
 
 char *serv_notes_init(void)
 {
-   return "$Id$";
+	CtdlRegisterMessageHook(serv_notes_beforesave, EVT_BEFORESAVE);
+	return "$Id$";
 }
