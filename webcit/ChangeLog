@@ -1,4 +1,7 @@
 $Log$
+Revision 323.37  2002/05/22 02:34:56  ajc
+* Finished room/folder view selector.  Pretty cool.
+
 Revision 323.36  2002/05/22 01:53:23  ajc
 * Room list or folder list?  Give the user a choice.  (Has bugs.)
 
@@ -825,4 +828,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
