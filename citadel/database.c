@@ -55,6 +55,7 @@ datum dtkey[MAXKEYS];
 void defrag_databases(void) {
 
 	/* defrag the message base */
+	lprintf(7, "Defragmenting message base\n");
 	begin_critical_section(S_MSGMAIN);
 	begin_critical_section(S_DATABASE);
 	gdbm_reorganize(gdbms[CDB_MSGMAIN]);
@@ -62,6 +63,7 @@ void defrag_databases(void) {
 	end_critical_section(S_MSGMAIN);
 
 	/* defrag the user file, mailboxes, and user/room relationships */
+	lprintf(7, "Defragmenting user file\n");
 	begin_critical_section(S_USERSUPP);
 	begin_critical_section(S_DATABASE);
 	gdbm_reorganize(gdbms[CDB_USERSUPP]);
@@ -70,6 +72,7 @@ void defrag_databases(void) {
 	end_critical_section(S_USERSUPP);
 
 	/* defrag the room files and message lists */
+	lprintf(7, "Defragmenting room files and message lists\n");
 	begin_critical_section(S_QUICKROOM);
 	begin_critical_section(S_DATABASE);
 	gdbm_reorganize(gdbms[CDB_QUICKROOM]);
@@ -78,6 +81,7 @@ void defrag_databases(void) {
 	end_critical_section(S_QUICKROOM);
 
 	/* defrag the floor table */
+	lprintf(7, "Defragmenting floor table\n");
 	begin_critical_section(S_FLOORTAB);
 	begin_critical_section(S_DATABASE);
 	gdbm_reorganize(gdbms[CDB_FLOORTAB]);
