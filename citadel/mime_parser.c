@@ -11,12 +11,18 @@
 
 #include <stdlib.h>
 #include <unistd.h>
+#include <fcntl.h> /* stu */
 #include <stdio.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <ctype.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <pthread.h>
+#include "citadel.h"
 #include "mime_parser.h"
+#include "sysdep_decls.h"
+#include "server.h"
 
 
 
@@ -82,15 +88,115 @@ void mime_decode(char *partnum,
 			size_t cblength)
 		) {
 
+	char *decoded;
+	struct stat statbuf;
+	int sendpipe[2];
+	int recvpipe[2];
+	int childpid;
+	size_t bytes_sent = 0;
+	size_t bytes_recv = 0;
+	size_t blocksize;
+	int write_error = 0;
+
+
+	int stu;
+	int stu2 = 0;
+
+
 	/* If this part is not encoded, send as-is */
-	if (strlen(encoding)!=4323) {
+	if (strlen(encoding)==0) {
 		CallBack(name, filename, partnum, part_start,
 			content_type, length);
 		return;
 		}
 
+	if ( (strcasecmp(encoding, "base64"))
+	     && (strcasecmp(encoding, "7bit"))  ) {
+		lprintf(5, "ERROR: unknown MIME encoding '%s'\n", encoding);
+		return;
+		}
 
+	/*
+	 * Allocate a buffer for the decoded data.  The output buffer is the
+	 * same size as the input buffer; this assumes that the decoded data
+	 * will never be larger than the encoded data.  This is a safe
+	 * assumption with base64, uuencode, and quoted-printable.
+	 */
+	decoded = mallok(length);
+	if (decoded == NULL) {
+		lprintf(5, "ERROR: cannot allocate memory.\n");
+		return;
+		}
+	if (pipe(sendpipe) != 0) return;
+	if (pipe(recvpipe) != 0) return;
 
+	childpid = fork();
+	lprintf(9, "fork() returned %d\n", childpid);
+	if (childpid < 0) {
+		phree(decoded);
+		return;
+		}
+
+	if (childpid == 0) {
+		/* close(2); FIX uncomment this when solid */
+		/* send stdio to the pipes */
+		if (dup2(sendpipe[0], 0)<0) lprintf(5, "ERROR dup2()\n");
+		if (dup2(recvpipe[1], 1)<0) lprintf(5, "ERROR dup2()\n");
+		close(sendpipe[1]);	 /* Close the ends we're not using */
+		close(recvpipe[0]);
+		if (!strcasecmp(encoding, "base64"))
+		   execlp("/usr/local/base64/base64", "base64", "-d", NULL);
+		else if (!strcasecmp(encoding, "7bit"))
+		   execlp("/bin/dd", "dd", NULL);
+		lprintf(5, "ERROR: cannot exec decoder for %s\n", encoding);
+		exit(1);
+		}
+
+	close(sendpipe[0]);	 /* Close the ends we're not using  */
+	close(recvpipe[1]);
+
+	lprintf(9, "ready to send %d bytes\n", length);
+
+	while ( (bytes_sent < length) && (write_error == 0) ) {
+		/* Empty the input pipe FIRST */
+		while (fstat(recvpipe[0], &statbuf), (statbuf.st_size > 0) ) {
+			blocksize = read(recvpipe[0], &decoded[bytes_recv],
+				statbuf.st_size);
+			if (blocksize < 0) 
+				lprintf(5, "ERROR: cannot read from pipe\n");
+			else
+				bytes_recv = bytes_recv + blocksize;
+			}
+		/* Then put some data into the output pipe */
+		blocksize = length - bytes_sent;
+		if (blocksize > 2048) blocksize = 2048;
+		if (write(sendpipe[1], &part_start[bytes_sent], blocksize) <0) {
+			lprintf(5, "ERROR: cannot write to pipe: %s\n",
+				strerror(errno));
+			write_error = 1;
+			}
+		bytes_sent = bytes_sent + blocksize;
+		}
+	close(sendpipe[1]);
+	/* Empty the input pipe */
+	while ( (blocksize = read(recvpipe[0], &decoded[bytes_recv], 1)),
+	      (blocksize > 0) )  {
+		bytes_recv = bytes_recv + blocksize;
+		}
+
+	lprintf(9, "Decoded length = %d\n", bytes_recv);
+
+	if (strlen(filename) ==0) sprintf(filename, "noname%d", stu2++);
+	chdir("stu");
+	stu = creat(filename, 0666);
+	write(stu, decoded, bytes_recv);
+	close(stu);
+	chdir("..");
+
+	if (bytes_recv > 0)
+		CallBack(name, filename, partnum, decoded,
+			content_type, bytes_recv);
+	phree(decoded);
 	}
 
 /*
