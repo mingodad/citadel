@@ -1463,11 +1463,15 @@ void network_poll_other_citadel_nodes(void) {
 void network_do_queue(void) {
 	static time_t last_run = 0L;
 	struct RoomProcList *ptr;
+	int full_processing = 1;
 
 	/*
-	 * Run no more frequently than once every n seconds
+	 * Run the full set of processing tasks no more frequently
+	 * than once every n seconds
 	 */
-	if ( (time(NULL) - last_run) < config.c_net_freq ) return;
+	if ( (time(NULL) - last_run) < config.c_net_freq ) {
+		full_processing = 0;
+	}
 
 	/*
 	 * This is a simple concurrency check to make sure only one queue run
@@ -1482,7 +1486,9 @@ void network_do_queue(void) {
 	/*
 	 * Poll other Citadel nodes.
 	 */
-	network_poll_other_citadel_nodes();
+	if (full_processing) {
+		network_poll_other_citadel_nodes();
+	}
 
 	/*
 	 * Load the network map and filter list into memory.
@@ -1493,15 +1499,17 @@ void network_do_queue(void) {
 	/* 
 	 * Go ahead and run the queue
 	 */
-	lprintf(7, "network: loading outbound queue\n");
-	ForEachRoom(network_queue_room, NULL);
+	if (full_processing) {
+		lprintf(7, "network: loading outbound queue\n");
+		ForEachRoom(network_queue_room, NULL);
 
-	lprintf(7, "network: running outbound queue\n");
-	while (rplist != NULL) {
-		network_spoolout_room(rplist->name);
-		ptr = rplist;
-		rplist = rplist->next;
-		phree(ptr);
+		lprintf(7, "network: running outbound queue\n");
+		while (rplist != NULL) {
+			network_spoolout_room(rplist->name);
+			ptr = rplist;
+			rplist = rplist->next;
+			phree(ptr);
+		}
 	}
 
 	lprintf(7, "network: processing inbound queue\n");
