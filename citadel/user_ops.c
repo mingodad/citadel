@@ -84,14 +84,14 @@ int lgetuser(struct usersupp *usbuf, char *name)
 /*
  * putuser()  -  write user buffer into the correct place on disk
  */
-void putuser(struct usersupp *usbuf, char *name)
+void putuser(struct usersupp *usbuf)
 {
 	char lowercase_name[32];
 	int a;
 
-	for (a=0; a<=strlen(name); ++a) {
+	for (a=0; a<=strlen(usbuf->fullname); ++a) {
 		if (a < sizeof(lowercase_name))
-			lowercase_name[a] = tolower(name[a]);
+			lowercase_name[a] = tolower(usbuf->fullname[a]);
 		}
 	lowercase_name[sizeof(lowercase_name)-1] = 0;
 
@@ -105,8 +105,8 @@ void putuser(struct usersupp *usbuf, char *name)
 /*
  * lputuser()  -  same as putuser() but locks the record
  */
-void lputuser(struct usersupp *usbuf, char *name) {
-	putuser(usbuf,name);
+void lputuser(struct usersupp *usbuf) {
+	putuser(usbuf);
 	end_critical_section(S_USERSUPP);
 	}
 
@@ -313,7 +313,7 @@ void session_startup(void) {
 		CC->usersupp.axlevel = 6;
 		}
 
-	lputuser(&CC->usersupp,CC->curr_user);
+	lputuser(&CC->usersupp);
 
         /* Run any cleanup routines registered by loadable modules */
 	PerformSessionHooks(EVT_LOGIN);
@@ -436,7 +436,7 @@ void cmd_pass(char *buf)
 			lgetuser(&CC->usersupp, CC->curr_user);
 			safestrncpy(CC->usersupp.password, password,
 				    sizeof CC->usersupp.password);
-			lputuser(&CC->usersupp, CC->curr_user);
+			lputuser(&CC->usersupp);
 			}
 		}
 #endif
@@ -487,7 +487,7 @@ int purge_user(char pname[]) {
 	if (user_is_logged_in == 1) {
 		lprintf(5, "User <%s> is logged in; not deleting.\n", pname);
 		usbuf.axlevel = 0;
-		putuser(&usbuf, pname);
+		putuser(&usbuf);
 		return(1);
 		}
 
@@ -576,7 +576,7 @@ int create_user(char *newusername)
 		}
 
 	/* add user to userlog */
-	putuser(&CC->usersupp,CC->curr_user);
+	putuser(&CC->usersupp);
 	if (getuser(&CC->usersupp,CC->curr_user)) {
 		return(ERROR+INTERNAL_ERROR);
 		}
@@ -669,7 +669,7 @@ void cmd_setp(char *new_pw)
 		}
 	lgetuser(&CC->usersupp,CC->curr_user);
 	strcpy(CC->usersupp.password,new_pw);
-	lputuser(&CC->usersupp,CC->curr_user);
+	lputuser(&CC->usersupp);
 	cprintf("%d Password changed.\n",OK);
 	rec_log(CL_PWCHANGE,CC->curr_user);
 	PerformSessionHooks(EVT_SETPASS);
@@ -712,7 +712,7 @@ void cmd_setu(char *new_parms)
 	CC->usersupp.flags = CC->usersupp.flags & (~US_USER_SET);
 	CC->usersupp.flags = CC->usersupp.flags | 
 		(extract_int(new_parms,2) & US_USER_SET);
-	lputuser(&CC->usersupp,CC->curr_user);
+	lputuser(&CC->usersupp);
 	cprintf("%d Ok\n",OK);
 	}
 
@@ -742,7 +742,7 @@ void cmd_slrp(char *new_ptr)
 	vbuf.v_lastseen = newlr;
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
 
-	lputuser(&CC->usersupp, CC->curr_user);
+	lputuser(&CC->usersupp);
 	cprintf("%d %ld\n",OK,newlr);
 	}
 
@@ -787,7 +787,7 @@ void cmd_invt_kick(char *iuser, int op)
 
 	CtdlSetRelationship(&vbuf, &USscratch, &CC->quickroom);
 
-	lputuser(&USscratch,iuser);
+	lputuser(&USscratch);
 
 	/* post a message in Aide> saying what we just did */
 	sprintf(bbb,"%s %s %s> by %s",
@@ -828,7 +828,7 @@ void cmd_forg(void) {
 	vbuf.v_flags = vbuf.v_flags & ~V_ACCESS;
 
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
-	lputuser(&CC->usersupp,CC->curr_user);
+	lputuser(&CC->usersupp);
 	cprintf("%d Ok\n",OK);
 	usergoto(BASEROOM, 0);
 	}
@@ -980,7 +980,7 @@ void cmd_vali(char *v_args)
 	userbuf.axlevel = newax;
 	userbuf.flags = (userbuf.flags & ~US_NEEDVALID);
 
-	lputuser(&userbuf,user);
+	lputuser(&userbuf);
 
 	/* If the access level was set to zero, delete the user */
 	if (newax == 0) {
@@ -1121,7 +1121,7 @@ void cmd_regi(void) {
 	strcpy(CC->usersupp.USphone,tmpphone);
 	strcpy(CC->usersupp.USemail,tmpemail);
 	CC->usersupp.flags=(CC->usersupp.flags|US_REGIS|US_NEEDVALID);
-	lputuser(&CC->usersupp,CC->curr_user);
+	lputuser(&CC->usersupp);
 
 	/* set global flag calling for validation */
 	begin_critical_section(S_CONTROL);
@@ -1328,7 +1328,7 @@ void cmd_asup(char *cmdbuf) {
 		usbuf.USuserpurge = extract_int(cmdbuf, 8);
 		}
 
-	lputuser(&usbuf, requested_user);
+	lputuser(&usbuf);
 	if (usbuf.axlevel == 0) {
 		if (purge_user(requested_user)==0) {
 			cprintf("%d %s deleted.\n", OK, requested_user);

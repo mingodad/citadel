@@ -284,7 +284,7 @@ void import_a_user(void) {
 			}
 		}
 	
-	putuser(&us, us.fullname);
+	putuser(&us);
 
 	lprintf(9, "\n");
 	}

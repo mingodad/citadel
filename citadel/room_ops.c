@@ -740,7 +740,7 @@ void usergoto(char *where, int display_result)
 		vbuf.v_flags = vbuf.v_flags | V_ACCESS;
 	}
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
-	lputuser(&CC->usersupp, CC->curr_user);
+	lputuser(&CC->usersupp);
 
 	/* check for new mail */
 	newmailcount = NewMailCount();
@@ -775,6 +775,7 @@ void usergoto(char *where, int display_result)
 	if (CC->quickroom.QRflags & QR_MAILBOX) {
 		strcpy(truncated_roomname, &truncated_roomname[11]);
 	}
+
 	if (display_result)
 		cprintf("%d%c%s|%d|%d|%d|%d|%ld|%ld|%d|%d|%d|%d\n",
 			OK, check_express(),
@@ -783,7 +784,8 @@ void usergoto(char *where, int display_result)
 			info, CC->quickroom.QRflags,
 			CC->quickroom.QRhighest,
 			vbuf.v_lastseen,
-			rmailflag, raideflag, newmailcount, CC->quickroom.QRfloor);
+			rmailflag, raideflag, newmailcount,
+			CC->quickroom.QRfloor);
 
 	set_wtmpsupp_to_current_room();
 }
@@ -806,6 +808,7 @@ void cmd_goto(char *gargs)
 		cprintf("%d not logged in\n", ERROR + NOT_LOGGED_IN);
 		return;
 	}
+
 	extract(towhere, gargs, 0);
 	extract(password, gargs, 1);
 
@@ -831,6 +834,7 @@ void cmd_goto(char *gargs)
 		if (c == 0)
 			strcpy(towhere, augmented_roomname);
 	}
+
 	/* And if the room was found... */
 	if (c == 0) {
 
@@ -839,6 +843,7 @@ void cmd_goto(char *gargs)
 			usergoto(towhere, 1);
 			return;
 		}
+
 		/* See if there is an existing user/room relationship */
 		ra = CtdlRoomAccess(&QRscratch, &CC->usersupp);
 
@@ -865,7 +870,8 @@ void cmd_goto(char *gargs)
 			}
 		}
 	}
-      NOPE:cprintf("%d room '%s' not found\n", ERROR + ROOM_NOT_FOUND, towhere);
+
+NOPE:	cprintf("%d room '%s' not found\n", ERROR + ROOM_NOT_FOUND, towhere);
 }
 
 
@@ -1351,7 +1357,7 @@ unsigned create_room(char *new_room_name,
 	vbuf.v_flags = vbuf.v_flags & ~V_FORGET & ~V_LOCKOUT;
 	vbuf.v_flags = vbuf.v_flags | V_ACCESS;
 	CtdlSetRelationship(&vbuf, &CC->usersupp, &qrbuf);
-	lputuser(&CC->usersupp, CC->curr_user);
+	lputuser(&CC->usersupp);
 
 	/* resume our happy day */
 	return (qrbuf.QRflags);

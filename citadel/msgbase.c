@@ -992,7 +992,7 @@ void save_message(char *mtmp,	/* file containing proper message */
 	/* Bump this user's messages posted counter. */
 	lgetuser(&CC->usersupp, CC->curr_user);
 	CC->usersupp.posted = CC->usersupp.posted + 1;
-	lputuser(&CC->usersupp, CC->curr_user);
+	lputuser(&CC->usersupp);
 
 	/* If this is private, local mail, make a copy in the
 	 * recipient's mailbox and bump the reference count.

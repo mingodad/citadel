@@ -1,9 +1,9 @@
 /* $Id$ */
 int hash (char *str);
-int getuser (struct usersupp *usbuf, char *name);
-int lgetuser (struct usersupp *usbuf, char *name);
-void putuser (struct usersupp *usbuf, char *name);
-void lputuser (struct usersupp *usbuf, char *name);
+int getuser (struct usersupp *, char *);
+int lgetuser (struct usersupp *, char *);
+void putuser (struct usersupp *);
+void lputuser (struct usersupp *);
 int is_aide (void);
 int is_room_aide (void);
 int getuserbynumber (struct usersupp *usbuf, long int number);

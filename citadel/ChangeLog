@@ -1,3 +1,7 @@
+Thu Jul 15 22:57:32 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* eliminate redundant "name" parameter in [l]putuser(), now uses
+	  usbuf->fullname to guarantee the correct name for the index
+
 1999-07-12 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* Makefile.in, configure.in: link netproc with gdbm
 	* netproc.c: only include gdbm.h if HAVE_GDBM_H
