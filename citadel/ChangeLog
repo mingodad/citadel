@@ -1,4 +1,8 @@
  $Log$
+ Revision 614.33  2004/02/16 18:14:00  error
+ * Fixed IMAP STARTTLS; trouble was in client_read_ssl the whole time.
+   It should now be possible to implement SSL/TLS for any protocol.
+
  Revision 614.32  2004/02/16 18:13:10  error
  * Log session IDs in syslog as well as stderr
 
@@ -5337,4 +5341,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

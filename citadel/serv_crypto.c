@@ -141,6 +141,9 @@ void init_ssl(void)
 			 SSL_MODE_AUTO_RETRY);
 #endif
 #endif
+	SSL_CTX_set_mode(ssl_ctx, SSL_CTX_get_mode(ssl_ctx) |
+			SSL_MODE_AUTO_RETRY);
+
 	CRYPTO_set_locking_callback(ssl_lock);
 	CRYPTO_set_id_callback(id_callback);
 
@@ -173,8 +176,8 @@ void init_ssl(void)
 
 	/* Get our certificates in order */
 	if (set_cert_stuff(ssl_ctx,
-			   "/etc/ssh/mail01.jemcaterers.net.cer",
-			   "/etc/ssh/ssh_host_rsa_key") != 1) {
+			   BBSDIR "/keys/citadel.cer",
+			   BBSDIR "/keys/citadel.key") != 1) {
 
 		lprintf(3, "SSL ERROR: cert is bad!\n");
 
@@ -217,7 +220,9 @@ void client_write_ssl(char *buf, int nbytes)
 				sleep(1);
 				continue;
 			}
-			lprintf(9, "SSL_write got error %ld\n", errval);
+			lprintf(9, "SSL_write got error %ld, ret %d\n", errval, retval);
+			if (retval == -1)
+				lprintf(9, "errno is %d\n", errno);
 			endtls();
 			client_write(&buf[nbytes - nremain], nremain);
 			return;
@@ -232,15 +237,22 @@ void client_write_ssl(char *buf, int nbytes)
  */
 int client_read_ssl(char *buf, int bytes, int timeout)
 {
-	int len, rlen;
+#if 0
 	fd_set rfds;
 	struct timeval tv;
 	int retval;
 	int s;
+#endif
+	int len, rlen;
 	char junk[1];
 
 	len = 0;
 	while (len < bytes) {
+#if 0
+		/*
+		 * This code is disabled because we don't need it when
+		 * using blocking reads (which we are). -IO
+		 */
 		FD_ZERO(&rfds);
 		s = BIO_get_fd(CC->ssl->rbio, NULL);
 		FD_SET(s, &rfds);
@@ -253,6 +265,7 @@ int client_read_ssl(char *buf, int bytes, int timeout)
 			return (0);
 		}
 
+#endif
 		if (SSL_want_read(CC->ssl)) {
 			if ((SSL_write(CC->ssl, junk, 0)) < 1) {
 				lprintf(9, "SSL_write in client_read:\n");
