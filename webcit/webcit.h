@@ -71,6 +71,16 @@
 #define QR2_SELFLIST	2		/* Self-service mailing list mgmt   */
 
 
+#define UA_KNOWN                2
+#define UA_GOTOALLOWED          4
+#define UA_HASNEWMSGS           8
+#define UA_ZAPPED               16
+
+
+
+
+
+
 struct httprequest {
 	struct httprequest *next;
 	char line[SIZ];

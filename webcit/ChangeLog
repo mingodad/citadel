@@ -1,4 +1,10 @@
 $Log$
+Revision 410.14  2003/04/27 04:46:02  ajc
+* Replace LKRN/LKRO in "folders view" room list with a single LKRA that
+  observes the flag designating the presence of new messages.  (The "rooms
+  view" uses an LKRN/LKRO pair *per floor* and has the same inefficiency,
+  but that view may get axed soon.)
+
 Revision 410.13  2003/04/26 21:57:53  ajc
 * tcp_sockets.c: when an outgoing socket connection fails, close the socket
   before returning an error code to avoid a file descriptor leak
@@ -1338,4 +1344,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
