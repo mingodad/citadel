@@ -237,15 +237,23 @@ int main(int argc, char **argv)
 	pthread_attr_t attr;	/* Thread attributes */
 	int a, i;		/* General-purpose variables */
 	int port = PORT_NUM;	/* Port to listen on */
+	char tracefile[PATH_MAX];
 
 	/* Parse command line */
-	while ((a = getopt(argc, argv, "hp:")) != EOF)
+	while ((a = getopt(argc, argv, "hp:t:")) != EOF)
 		switch (a) {
 		case 'p':
 			port = atoi(optarg);
 			break;
+		case 't':
+			strcpy(tracefile, optarg);
+			freopen(tracefile, "w", stdout);
+			freopen(tracefile, "w", stderr);
+			freopen(tracefile, "r", stdin);
+			break;
 		default:
 			fprintf(stderr, "usage: webserver [-p localport] "
+				"[-t tracefile] "
 				"[remotehost [remoteport]]\n");
 			return 1;
 		}
