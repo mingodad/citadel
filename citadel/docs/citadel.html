@@ -1704,21 +1704,41 @@ behind multithreaded servers, you should leave these parameters alone.</p>
                 
 <p>The next set of options affect how Citadel behaves on a network.</p>
                 
-<pre>How often to run network jobs (in seconds) [3600]: <br>SMTP server port (-1 to disable) [25]: <br>POP3 server port (-1 to disable) [110]:<br>IMAP server port (-1 to disable) [143]:<br></pre>
+<pre>
+How often to run network jobs (in seconds) [3600]: <br>
+POP3 server port (-1 to disable) [110]:<br>
+IMAP server port (-1 to disable) [143]:<br>
+SMTP server port (-1 to disable) [25]: <br>
+Correct forged From: lines during authenticated SMTP [Yes]:<br>
+</pre>
                 
 <p>'How often to run network jobs' refers to the sharing of content on a
 Citadel network.  If your system is on a Citadel network, this configuration
 item dictates how often the Citadel server will contact other Citadel servers 
-   to send and receive messages.  In reality, this will happen more frequently 
-   than you specify, because other Citadel servers will be contacting yours 
-  at regular intervals as well.</p>
+to send and receive messages.  In reality, this will happen more frequently 
+than you specify, because other Citadel servers will be contacting yours 
+at regular intervals as well.</p>
                 
-<p>Then you can specify TCP port numbers for the SMTP, POP3, and IMAP services. 
-    For a system being used primarily for Internet e-mail, these are essential, 
-   so you'll want to specify the standard port numbers: 25, 110, and 143. 
- If  Citadel is running alongside some other mail system, though, then you 
- might  want to choose other, unused port numbers, or enter -1 for any protocol 
- to  disable it entirely.</p>
+<p>Then you can specify TCP port numbers for the SMTP, POP3, and IMAP services.
+For a system being used primarily for Internet e-mail, these are essential,
+so you'll want to specify the standard port numbers: 25, 110, and 143.
+If  Citadel is running alongside some other mail system, though, then you
+might  want to choose other, unused port numbers, or enter -1 for any protocol
+to disable it entirely.</p>
+
+<p>The question about correcting forged From: lines affects how Citadel
+behaves with authenticated SMTP clients.  Citadel does not ever allow
+third-party SMTP relaying from unauthenticated clients -- any incoming
+messages must be addressed to a user on the system or somewhere in a Citadel
+network.  To use Citadel with SMTP client software such as Netscape, Outlook,
+Eudora, or whatever, users must log in with a username and password.  In order
+to prevent message forgeries, Citadel discards the <TT>From:</TT> line in any
+message entered by an authenticated user, and replaces it with a
+<TT>From:</TT> line containing the user's genuine name and e-mail address.
+Technically, this violates RFC822, because headers are never supposed to be
+altered, but common sense dictates that this is a good idea.  Nevertheless,
+if you want to suppress this behavior, answer 'No' at the prompt (the default
+is 'Yes') and the headers will never be altered.</p>
                 
 <p>The final set of options configures system-wide defaults for the auto-purger:</p>
                 
