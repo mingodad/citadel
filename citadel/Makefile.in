@@ -271,7 +271,7 @@ netmailer: netmailer.o internetmail.o config.o genstamp.o
 
 netproc: netproc.o config.o ipc_c_tcp.o tools.o $(LIBOBJS)
 	$(CC) netproc.o config.o ipc_c_tcp.o tools.o \
-	$(LIBOBJS) $(LDFLAGS) -o netproc $(NETLIBS) $(GDBM)
+	$(LIBOBJS) $(LDFLAGS) -o netproc $(NETLIBS)
 
 citmail: citmail.o config.o
 	$(CC) citmail.o config.o $(LDFLAGS) -o citmail $(NETLIBS)

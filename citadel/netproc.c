@@ -38,9 +38,6 @@
 #include <signal.h>
 #include <errno.h>
 #include <syslog.h>
-#ifdef HAVE_GDBM_H
-#include <gdbm.h>
-#endif
 #include "citadel.h"
 #include "tools.h"
 #include "ipc.h"
@@ -112,6 +109,14 @@ struct minfo {
 	};
 
 
+struct usetable {
+	struct usetable *next;
+	char msgid[256];
+	time_t timestamp;
+};
+
+
+
 
 void serv_read(char *buf, int bytes);
 void serv_write(char *buf, int nbytes);
@@ -120,12 +125,11 @@ void get_config(void);
 struct filterlist *filter = NULL;
 struct syslist *slist = NULL;
 struct msglist *purgelist = NULL;
+struct usetable *usetable = NULL;
 
 struct config config;
 extern char bbs_home_directory[];
 extern int home_specified;
-
-GDBM_FILE use_table;
 
 
 #ifndef HAVE_STRERROR
@@ -768,11 +772,10 @@ void strmsgid(char *buf, struct minfo *msginfo) {
  * Returns 1 if the message is a duplicate; otherwise, it returns
  * 0 and the message ID is added to the use table.
  */
-int already_received(GDBM_FILE ut, struct minfo *msginfo) {
+int already_received(struct minfo *msginfo) {
 	char buf[256];
+	struct usetable *u;
 	time_t now;
-	datum mkey, newrec;
-	int retval = 0;
 
 	/* We can't check for dups on a zero msgid, so just pass them through */
 	if (strlen(msginfo->I)==0) {
@@ -782,62 +785,68 @@ int already_received(GDBM_FILE ut, struct minfo *msginfo) {
 	strmsgid(buf, msginfo);
 	now = time(NULL);
 
-	mkey.dptr = buf;
-	mkey.dsize = strlen(buf);
-
 	/* Set return value to 1 if message exists */
-	if (gdbm_exists(ut, mkey)) {
-		retval = 1;
+	for (u=usetable; u!=NULL; u=u->next) {
+		if (!strcasecmp(buf, u->msgid)) {
+			u->timestamp = time(NULL);	/* keep it fresh */
+			return(1);
+		}
 	}
 
-	/* Write a record into the use table for this message.
-	 * Replace existing records; this keeps the timestamp fresh.
-	 */
-	newrec.dptr = (char *)&now;
-	newrec.dsize = sizeof(now);
-	gdbm_store(ut, mkey, newrec, GDBM_REPLACE);
+	/* Not found, so we're ok, but add it to the use table now */
+	u = (struct usetable *) malloc(sizeof (struct usetable));
+	u->next = usetable;
+	u->timestamp = time(NULL);
+	strncpy(u->msgid, buf, 255);
+	usetable = u;
 
-	return(retval);
+	return(0);
+}
+
+
+/*
+ * Load the use table from disk
+ */
+void read_use_table(void) {
+	struct usetable *u;
+	struct usetable ubuf;
+	FILE *fp;
+
+	unlink("data/usetable.gdbm");	/* we don't use this anymore */
+
+	fp = fopen("usetable", "rb");
+	if (fp == NULL) return;
+
+	while (fread(&ubuf, sizeof (struct usetable), 1, fp) > 0) {
+		u = (struct usetable *) malloc(sizeof (struct usetable));
+		memcpy(u, &ubuf, sizeof (struct usetable));
+		u->next = usetable;
+		usetable = u;
+	}
+
+	fclose(fp);
 }
 
 
 
 /*
- * Purge any old entries out of the use table.
+ * Purge any old entries out of the use table as we write them back to disk.
  * 
- * Yes, you're reading this correctly: it keeps traversing the table until
- * it manages to do a complete pass without deleting any records.  Read the
- * gdbm man page to find out why.
- *
  */
-void purge_use_table(GDBM_FILE ut) {
-	datum mkey, nextkey, therec;
-	int purged_anything = 0;
-	time_t rec_timestamp, now;
+void write_use_table(void) {
+	struct usetable *u;
+	time_t now;
+	FILE *fp;
 
 	now = time(NULL);
-
-	do {
-		purged_anything = 0;
-		mkey = gdbm_firstkey(ut);
-		while (mkey.dptr != NULL) {
-			therec = gdbm_fetch(ut, mkey);
-			if (therec.dptr != NULL) {
-				memcpy(&rec_timestamp, therec.dptr,
-					sizeof(time_t));
-				free(therec.dptr);
-
-				if ((now - rec_timestamp) > USE_TIME) {
-					gdbm_delete(ut, mkey);
-					purged_anything = 1;
-				}
-
-			}
-			nextkey = gdbm_nextkey(ut, mkey);
-			free(mkey.dptr);
-			mkey = nextkey;
+	fp = fopen("usetable", "wb");
+	if (fp == NULL) return;
+	for (u=usetable; u!=NULL; u=u->next) {
+		if ((now - u->timestamp) <= USE_TIME) {
+			fwrite(u, sizeof(struct usetable), 1, fp);
 		}
-	} while (purged_anything != 0);
+	}
+	fclose(fp);
 }
 
 
@@ -1011,7 +1020,7 @@ NXMSG:	/* Seek to the beginning of the next message */
 			}
 
 			/* Check the use table; reject message if it's been here before */
-			if (already_received(use_table, &minfo)) {
+			if (already_received(&minfo)) {
 				syslog(LOG_NOTICE, "rejected duplicate message");
 				fprintf(duplist, "#<%s> fm <%s> in <%s> @ <%s>\n",
 			       		minfo.I, minfo.A, minfo.O, minfo.N);
@@ -1343,7 +1352,7 @@ int spool_out(struct msglist *cmlist, FILE * destfp, char *sysname)
 		 */
 		fseek(mmfp, 0L, 0);
 		fpmsgfind(mmfp, &minfo);
-		already_received(use_table, &minfo);
+		already_received(&minfo);
 
 		}
 		fclose(mmfp);
@@ -1581,12 +1590,7 @@ int main(int argc, char **argv)
 	setup_special_nodes();
 
 	/* Open the use table */
-	use_table = gdbm_open("./data/usetable.gdbm", 512,
-			      GDBM_WRCREAT, 0600, 0);
-	if (use_table == NULL) {
-		syslog(LOG_ERR, "could not open use table: %s",
-		       strerror(errno));
-	}
+	read_use_table();
 
 	/* first collect incoming stuff */
 	inprocess();
@@ -1617,8 +1621,7 @@ int main(int argc, char **argv)
 	process_purgelist();
 
 	/* Close the use table */
-	purge_use_table(use_table);
-	gdbm_close(use_table);
+	write_use_table();
 
 	syslog(LOG_NOTICE, "processing ended.");
 	cleanup(0);

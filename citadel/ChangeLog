@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.39  2000/12/06 04:44:36  ajc
+ * Changed netproc to keep the use table in a flat file instead of a database
+
  Revision 573.38  2000/12/05 05:32:58  ajc
  * Added support for non-USA country identities in vCard and registration
  * User edit now asks whether it should prompt to change the password
@@ -2180,3 +2183,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
