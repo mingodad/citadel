@@ -971,9 +971,59 @@ void create_floor(void) {
  */
 void edit_floor(void) {
 	char buf[256];
+	int expire_mode = 0;
+	int expire_value = 0;
 
 	if (floorlist[(int)curr_floor][0]==0) load_floorlist();
-	strprompt("New floor name",&floorlist[(int)curr_floor][0],255);
+
+	/* Fetch the expire policy (this will silently fail on old servers,
+	 * resulting in "default" policy)
+	 */
+	serv_puts("GPEX floor");
+	serv_gets(buf);
+	if (buf[0]=='2') {
+		expire_mode = extract_int(&buf[4], 0);
+		expire_value = extract_int(&buf[4], 1);
+		}
+
+	/* Interact with the user */
+	strprompt("Floor name",&floorlist[(int)curr_floor][0],255);
+
+	/* Angels and demons dancing in my head... */
+	do {
+		sprintf(buf, "%d", expire_mode);
+		strprompt("Floor default essage expire policy (? for list)",
+			buf, 1);
+		if (buf[0] == '?') {
+			printf("\n");
+			printf("0. Use the system default\n");
+			printf("1. Never automatically expire messages\n");
+			printf("2. Expire by message count\n");
+			printf("3. Expire by message age\n");
+			}
+		} while((buf[0]<48)||(buf[0]>51));
+	expire_mode = buf[0] - 48;
+
+	/* ...lunatics and monsters underneath my bed */
+	if (expire_mode == 2) {
+		sprintf(buf, "%d", expire_value);
+		strprompt("Keep how many messages online?", buf, 10);
+		expire_value = atol(buf);
+		}
+
+	if (expire_mode == 3) {
+		sprintf(buf, "%d", expire_value);
+		strprompt("Keep messages for how many days?", buf, 10);
+		expire_value = atol(buf);
+		}
+
+	/* Save it */
+	snprintf(buf, sizeof buf, "SPEX floor|%d|%d",
+		expire_mode, expire_value);
+	serv_puts(buf);
+	serv_gets(buf);
+	if (buf[0]!='2') printf("%s\n",&buf[4]);
+
 	snprintf(buf,sizeof buf,"EFLR %d|%s",curr_floor,
 		 &floorlist[(int)curr_floor][0]);
 	serv_puts(buf);
