@@ -108,6 +108,7 @@ function create_new_user($user, $pass) {
 //
 function become_logged_in($server_parms) {
 	$_SESSION["logged_in"] = 1;
+	ctdl_goto("_BASEROOM_");
 }
 
 
@@ -205,6 +206,26 @@ function ctdl_rwho() {
 	}
 
 	return array($num_lines, $all_lines);
+
+}
+
+
+//
+// Goto a room.
+//
+function ctdl_goto($to_where) {
+	
+	serv_puts("GOTO " . $to_where);
+	$response = serv_gets();
+
+	if (substr($response, 0, 1) == "2") {
+		$_SESSION["room"] = strtok(substr($response, 4), "|");
+		return array(TRUE, substr($response, 0, 3));
+	}
+
+	else {
+		return array(FALSE, substr($response, 0, 3));
+	}
 
 }
 

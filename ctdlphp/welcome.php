@@ -5,6 +5,7 @@
 
 <h1>You're online!</h1>
 <h2><?PHP echo "Welcome to ", $_SESSION["serv_humannode"]; ?></h2>
+<h3><?PHP echo "You're in: ", $_SESSION["room"]; ?></h3>
 
 <P>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Vestibulum
 ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae;

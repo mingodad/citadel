@@ -42,7 +42,7 @@ function establish_citadel_session() {
 		// Ok, now try again.
 		$clientsocket = fsockopen($sockname, 0, $errno, $errstr, 5);
 
-		// Try to log the user back in.
+		// Try to log the user back in and go back to the correct room.
 		if ($clientsocket) {
 
 			ctdl_iden();	// Identify client
@@ -52,6 +52,13 @@ function establish_citadel_session() {
 					$_SESSION["username"],
 					$_SESSION["password"]
 				);
+			}
+
+			if ($_SESSION["room"]) {
+				ctdl_goto($_SESSION["room"]);
+			}
+			else {
+				ctdl_goto("_BASEROOM_");
 			}
 		}
 	}

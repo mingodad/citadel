@@ -1,4 +1,7 @@
  $Log$
+ Revision 1.12  2003/11/04 19:17:16  ajc
+ * Added an initial version of the goto command
+
  Revision 1.11  2003/11/03 05:32:57  ajc
  * Minor code cleanups
  * ctdl_mesg() now returns ready-to-output HTML to the caller, instead of
@@ -50,4 +53,3 @@
 
  Revision 1.1  2003/10/31 03:47:13  ajc
  * Initial CVS import
-
