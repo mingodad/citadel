@@ -1,4 +1,9 @@
 $Log$
+Revision 528.31  2005/02/01 14:55:12  ajc
+* Reworked the PROPFIND xml output based on an example transaction
+  supplied by Reinhold Kainhofer.  Groupware folder enumeration works
+  properly in Kontact now.
+
 Revision 528.30  2005/02/01 03:49:09  ajc
 * Completed "folder list" PROPFIND, now listing all rooms set to a
   calendar, tasks, or address view, using the GroupDAV properties.
@@ -2270,3 +2275,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
