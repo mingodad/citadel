@@ -1,5 +1,6 @@
 1998-10-20 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* Makefile.tmpl: fix to build client with old Configure script
+	* configure.in: autologin defaults to enabled if crypt() is available
 
 Mon Oct 19 20:52:55 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Client ability to force display of prompts in Mail rooms, even when
