@@ -452,7 +452,7 @@ void cmd_iden(char *argbuf)
 	lprintf(9, "Looking up hostname '%s'\n", from_host);
 	if ((strlen(from_host)>0) && 
 	   (is_public_client(CC->cs_host))) {
-		if (inet_aton(from_host, &addr))
+		if ((addr.s_addr = inet_addr(from_host)) != INADDR_NONE)
 			locate_host(CC->cs_host, &addr);
 	   	else {
 			safestrncpy(CC->cs_host, from_host, sizeof CC->cs_host);
