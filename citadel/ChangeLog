@@ -1,4 +1,7 @@
  $Log$
+ Revision 608.11  2003/07/28 04:17:24  ajc
+ * migratenet.c: removed.  Adjusted Makefile.in accordingly.
+
  Revision 608.10  2003/07/27 21:15:23  ajc
  * Implemented all IMAP date-based search criteria.  Note that Citadel does
    not record an "internal date" of a message, so the "sent date" and "internal
@@ -4911,4 +4914,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

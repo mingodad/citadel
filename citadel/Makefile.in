@@ -46,7 +46,7 @@ SERV_MODULES=serv_chat.o \
 
 UTIL_TARGETS=aidepost msgform \
 	citmail userlist sendcommand \
-	base64 migratenet$(EXEEXT)
+	base64
 
 prefix=@prefix@
 srcdir=@srcdir@
@@ -82,7 +82,7 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c citadel.c citadel_ipc.c \
 	domain.c serv_extensions.c file_ops.c genstamp.c getutline.c \
 	housekeeping.c html.c imap_fetch.c imap_misc.c imap_search.c \
 	imap_store.c imap_tools.c internet_addressing.c ipc_c_tcp.c \
-	locate_host.c md5.c messages.c migratenet.c \
+	locate_host.c md5.c messages.c  \
 	mime_parser.c msgbase.c msgform.c parsedate.c policy.c \
 	room_ops.c rooms.c routines.c routines2.c \
 	screen.c sendcommand.c serv_bio.c serv_calendar.c serv_chat.c \
@@ -150,9 +150,6 @@ chkpwd: chkpwd.o auth.o config.o
 
 whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o tools.o citadel_ipc.o $(LIBOBJS)
 	$(CC) whobbs.o ipc_c_tcp.o tools.o citadel_ipc.o  $(LIBOBJS) $(LDFLAGS) -o whobbs $(LIBS)
-
-migratenet$(EXEEXT): migratenet.o config.o ipc_c_tcp.o citadel_ipc.o tools.o $(LIBOBJS)
-	$(CC) migratenet.o config.o ipc_c_tcp.o citadel_ipc.o tools.o $(LIBOBJS) $(LDFLAGS) -o migratenet $(LIBS)
 
 sendcommand: sendcommand.o ipc_c_tcp.o citadel_ipc.o tools.o config.o $(LIBOBJS)
 	$(CC) sendcommand.o ipc_c_tcp.o citadel_ipc.o tools.o config.o \
