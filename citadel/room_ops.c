@@ -53,6 +53,7 @@ int CtdlRoomAccess(struct quickroom *roombuf, struct usersupp *userbuf)
 	int retval = 0;
 	struct visit vbuf;
 
+
 	/* for internal programs, always do everything */
 	if (((CC->internal_pgm)) && (roombuf->QRflags & QR_INUSE)) {
 		return (UA_KNOWN | UA_GOTOALLOWED);
@@ -815,11 +816,16 @@ void cmd_goto(char *gargs)
 		ra = CtdlRoomAccess(&QRscratch, &CC->usersupp);
 
 		/* normal clients have to pass through security */
-		if (ra & UA_GOTOALLOWED)
+		if (ra & UA_GOTOALLOWED) {
 			ok = 1;
+		}
 
 		if (ok == 1) {
-			if ((QRscratch.QRflags & QR_PASSWORDED) &&
+			if ((QRscratch.QRflags & QR_MAILBOX) &&
+			    ((ra & UA_GOTOALLOWED))) {
+				usergoto(towhere, 1, NULL, NULL);
+				return;
+			} else if ((QRscratch.QRflags & QR_PASSWORDED) &&
 			    ((ra & UA_KNOWN) == 0) &&
 			    (strcasecmp(QRscratch.QRpasswd, password)) &&
 			    (CC->usersupp.axlevel < 6)
@@ -833,6 +839,7 @@ void cmd_goto(char *gargs)
 				   ((ra & UA_KNOWN) == 0) &&
 			           (CC->usersupp.axlevel < 6)
                                   ) {
+				lprintf(9, "Failed to acquire private room\n");
 				goto NOPE;
 			} else {
 				usergoto(towhere, 1, NULL, NULL);

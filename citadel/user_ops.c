@@ -670,13 +670,18 @@ int purge_user(char pname[])
 
 /*
  * create_user()  -  back end processing to create a new user
+ *
+ * Set 'newusername' to the desired account name.
+ * Set 'become_user' to nonzero if this is self-service account creation and we want
+ * to actually log in as the user we just created, otherwise set it to 0.
  */
-int create_user(char *newusername)
+int create_user(char *newusername, int become_user)
 {
 	struct usersupp usbuf;
-	int a;
 	struct passwd *p = NULL;
-	char username[64];
+	char username[SIZ];
+	char mailboxname[ROOMNAMELEN];
+	uid_t uid;
 
 	strcpy(username, newusername);
 	strproc(username);
@@ -685,50 +690,66 @@ int create_user(char *newusername)
 	p = (struct passwd *) getpwnam(username);
 #endif
 	if (p != NULL) {
-		strcpy(username, p->pw_gecos);
-		for (a = 0; a < strlen(username); ++a) {
-			if (username[a] == ',')
-				username[a] = 0;
-		}
-		CC->usersupp.uid = p->pw_uid;
+		extract_token(username, p->pw_gecos, 0, ',');
+		uid = p->pw_uid;
 	} else {
-		CC->usersupp.uid = BBSUID;
+		uid = BBSUID;
 	}
 
 	if (!getuser(&usbuf, username)) {
 		return (ERROR + ALREADY_EXISTS);
 	}
-	strcpy(CC->curr_user, username);
-	strcpy(CC->usersupp.fullname, username);
-	strcpy(CC->usersupp.password, "");
-	(CC->logged_in) = 1;
+
+	/* Go ahead and initialize a new user record */
+	memset(&usbuf, 0, sizeof(struct usersupp));
+	strcpy(usbuf.fullname, username);
+	strcpy(usbuf.password, "");
+	usbuf.uid = uid;
 
 	/* These are the default flags on new accounts */
-	CC->usersupp.flags = US_LASTOLD | US_DISAPPEAR | US_PAGINATOR | US_FLOORS;
+	usbuf.flags = US_LASTOLD | US_DISAPPEAR | US_PAGINATOR | US_FLOORS;
 
-	CC->usersupp.timescalled = 0;
-	CC->usersupp.posted = 0;
-	CC->usersupp.axlevel = config.c_initax;
-	CC->usersupp.USscreenwidth = 80;
-	CC->usersupp.USscreenheight = 24;
-	time(&CC->usersupp.lastcall);
-	CC->usersupp.moderation_filter = config.c_default_filter;
+	usbuf.timescalled = 0;
+	usbuf.posted = 0;
+	usbuf.axlevel = config.c_initax;
+	usbuf.USscreenwidth = 80;
+	usbuf.USscreenheight = 24;
+	usbuf.lastcall = time(NULL);
+	usbuf.moderation_filter = config.c_default_filter;
 
 	/* fetch a new user number */
-	CC->usersupp.usernum = get_new_user_number();
+	usbuf.usernum = get_new_user_number();
 
-	if (CC->usersupp.usernum == 1L) {
-		CC->usersupp.axlevel = 6;
+	/* The very first user created on the system will always be an Aide */
+	if (usbuf.usernum == 1L) {
+		usbuf.axlevel = 6;
 	}
+
 	/* add user to userlog */
-	putuser(&CC->usersupp);
-	if (getuser(&CC->usersupp, CC->curr_user)) {
-		return (ERROR + INTERNAL_ERROR);
-	}
-	/* give the user a private mailbox */
-	create_room(MAILROOM, 4, "", 0, 1);
+	putuser(&usbuf);
 
-	rec_log(CL_NEWUSER, CC->curr_user);
+	/* give the user a private mailbox */
+	MailboxName(mailboxname, &usbuf, MAILROOM);
+	create_room(mailboxname, 5, "", 0, 1);
+
+	/*** Everything below this line can be bypassed if we are administratively
+	     creating a user, instead of doing self-service account creation
+	 ***/
+
+	if (become_user) {
+		/* Now become the user we just created */
+		memcpy(&CC->usersupp, &usbuf, sizeof(struct usersupp));
+		strcpy(CC->curr_user, username);
+		CC->logged_in = 1;
+	
+		/* Check to make sure we're still who we think we are */
+		if (getuser(&CC->usersupp, CC->curr_user)) {
+			return (ERROR + INTERNAL_ERROR);
+		}
+	
+		rec_log(CL_NEWUSER, CC->curr_user);
+	}
+
 	return (0);
 }
 
@@ -743,11 +764,11 @@ void cmd_newu(char *cmdbuf)
 	int a;
 	char username[SIZ];
 
-	if ((CC->logged_in)) {
+	if (CC->logged_in) {
 		cprintf("%d Already logged in.\n", ERROR);
 		return;
 	}
-	if ((CC->nologin)) {
+	if (CC->nologin) {
 		cprintf("%d %s: Too many users are already online (maximum is %d)\n",
 			ERROR + MAX_SESSIONS_EXCEEDED,
 			config.c_nodename, config.c_maxsessions);
@@ -760,14 +781,20 @@ void cmd_newu(char *cmdbuf)
 		cprintf("%d You must supply a user name.\n", ERROR);
 		return;
 	}
-	a = create_user(username);
+
 	if ((!strcasecmp(username, "bbs")) ||
 	    (!strcasecmp(username, "new")) ||
 	    (!strcasecmp(username, "."))) {
 		cprintf("%d '%s' is an invalid login name.\n", ERROR, username);
 		return;
 	}
-	if (a == ERROR + ALREADY_EXISTS) {
+
+	a = create_user(username, 1);
+
+	if (a == 0) {
+		session_startup();
+		logged_in_response();
+	} else if (a == ERROR + ALREADY_EXISTS) {
 		cprintf("%d '%s' already exists.\n",
 			ERROR + ALREADY_EXISTS, username);
 		return;
@@ -775,9 +802,6 @@ void cmd_newu(char *cmdbuf)
 		cprintf("%d Internal error - user record disappeared?\n",
 			ERROR + INTERNAL_ERROR);
 		return;
-	} else if (a == 0) {
-		session_startup();
-		logged_in_response();
 	} else {
 		cprintf("%d unknown error\n", ERROR);
 	}
@@ -791,8 +815,9 @@ void cmd_newu(char *cmdbuf)
  */
 void cmd_setp(char *new_pw)
 {
-	if (CtdlAccessCheck(ac_logged_in))
+	if (CtdlAccessCheck(ac_logged_in)) {
 		return;
+	}
 
 	if (CC->usersupp.uid != BBSUID) {
 		cprintf("%d Not allowed.  Use the 'passwd' command.\n", ERROR);

@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.121  2002/03/03 06:05:16  ajc
+ * Split up some of the code in order to prepare for user accounts to be
+   administratively created without logging in to them.
+
  Revision 590.120  2002/03/02 05:56:48  ajc
  * Properly implemented the network filter list.  Finished the server module and
    did a client-side <.A>ide <S>ysconfig <F>ilterlist command.
@@ -3368,5 +3372,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
-

@@ -15,3 +15,4 @@ int room_prompt(int qrflags);
 void do_internet_configuration(void);
 void do_ignet_configuration(void);
 void network_config_management(char *entrytype, char *comment);
+void do_filterlist_configuration(void);
