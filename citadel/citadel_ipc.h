@@ -282,6 +282,7 @@ int CtdlIPCGenericCommand(CtdlIPC *ipc, const char *command,
 /* Internals */
 int starttls(CtdlIPC *ipc);
 void setCryptoStatusHook(void (*hook)(char *s));
+void setLockHook(void (*hook)(int onoff));
 /* This is all Ford's doing.  FIXME: figure out what it's doing */
 extern int (*error_printf)(char *s, ...);
 void setIPCDeathHook(void (*hook)(void));

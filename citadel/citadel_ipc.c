@@ -62,6 +62,12 @@ void setCryptoStatusHook(void (*hook)(char *s)) {
 	status_hook = hook;
 }
 
+static void (*lock_hook)(int onoff) = NULL;
+
+void setLockHook(void (*hook)(int onoff)) {
+	lock_hook = hook;
+}
+
 
 char express_msgs = 0;
 
@@ -1990,6 +1996,8 @@ int CtdlIPCInternalProgram(CtdlIPC *ipc, int secret, char *cret)
 
 inline void CtdlIPC_lock(CtdlIPC *ipc)
 {
+	if (lock_hook != NULL)
+		lock_hook(1);
 #ifdef THREADED_CLIENT
 	pthread_mutex_lock(&(ipc->mutex));
 #endif
@@ -2001,6 +2009,8 @@ inline void CtdlIPC_unlock(CtdlIPC *ipc)
 #ifdef THREADED_CLIENT
 	pthread_mutex_unlock(&(ipc->mutex));
 #endif
+	if (lock_hook != NULL)
+		lock_hook(0);
 }
 
 

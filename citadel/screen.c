@@ -80,6 +80,27 @@ void status_line(const char *humannode, const char *bbs_city,
 
 
 /*
+ * Display a 3270-style "wait" indicator at the bottom of the screen
+ */
+#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
+void wait_indicator(int onoff) {
+	if (statuswindow) {
+
+		mvwinch(statuswindow, 0, 78);
+		if (onoff) {
+			waddch(statuswindow, 'X');
+		}
+		else {
+			waddch(statuswindow, ' ');
+		}
+		wrefresh(statuswindow);
+		wrefresh(mainwindow);	/* this puts the cursor back */
+	}
+}
+#endif
+
+
+/*
  * Initialize the screen.  If newterm() fails, myscreen will be NULL and
  * further handlers will assume we should be in line mode.
  */
@@ -109,6 +130,9 @@ void screen_new(void)
 
 		if (COLOR_PAIRS > 8)
 			init_pair(8, COLOR_WHITE, COLOR_BLUE);
+
+		setLockHook(wait_indicator);
+
 	} else
 #endif /* HAVE_CURSES_H */
 	{
