@@ -489,6 +489,10 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 
 /*
  * Convert an RFC822 message (headers + body) to a CtdlMessage structure.
+ * NOTE: the supplied buffer becomes part of the CtdlMessage structure, and
+ * will be deallocated when CtdlFreeMessage() is called.  Therefore, the
+ * supplied buffer should be DEREFERENCED.  It should not be freed or used
+ * again.
  */
 struct CtdlMessage *convert_internet_message(char *rfc822) {
 

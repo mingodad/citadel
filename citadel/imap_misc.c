@@ -207,7 +207,7 @@ void imap_append(int num_parms, char *parms[]) {
 	}
 
 	imap_free_transmitted_message();	/* just in case. */
-	IMAP->transmitted_message = mallok(literal_length);
+	IMAP->transmitted_message = mallok(literal_length + 1);
 	if (IMAP->transmitted_message == NULL) {
 		cprintf("%s NO Cannot allocate memory.\r\n", parms[0]);
 		return;
@@ -216,6 +216,7 @@ void imap_append(int num_parms, char *parms[]) {
 
 	cprintf("+ Transmit message now.\r\n");
 	ret = client_read(IMAP->transmitted_message, literal_length);
+	IMAP->transmitted_message[literal_length] = 0;
 	if (ret != 1) {
 		cprintf("%s NO Read failed.\r\n", parms[0]);
 		return;
@@ -223,6 +224,8 @@ void imap_append(int num_parms, char *parms[]) {
 
 	lprintf(9, "Converting message...\n");
         msg = convert_internet_message(IMAP->transmitted_message);
+	IMAP->transmitted_message = NULL;
+	IMAP->transmitted_length = 0;
 
         /* If the user is locally authenticated, FORCE the From: header to
          * show up as the real sender.  FIXME do we really want to do this?

@@ -1,4 +1,8 @@
  $Log$
+ Revision 573.125  2001/04/14 04:26:44  ajc
+ * Fixed an unterminated string bug in IMAP APPEND.  Storing messages should
+   work now.
+
  Revision 573.124  2001/04/10 01:04:10  ajc
  * Finished coding IMAP APPEND.  It works, but there's a bug in it somewhere
    that is corrupting the memory.
@@ -2489,4 +2493,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
