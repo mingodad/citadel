@@ -434,7 +434,7 @@ void *context_loop(int sock)
 	} else {
 end:		unlock_session(TheSession);
 	}
-end2:	free(req);
+	free(req);
 
 
 	/*

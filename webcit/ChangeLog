@@ -1,3 +1,6 @@
+Sat May  8 01:07:06 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* webserver.c: added "-t" option to send traces somewhere else
+
 Tue Apr 27 23:36:35 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* context_loop.c: display an error page if the client browser
 	  requests a non-root page and there is no cookie set
