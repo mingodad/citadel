@@ -11,10 +11,29 @@
 #include "webcit.h"
 #include "child.h"
 
+/*
+ * This struct holds a list of rooms for <G>oto operations.
+ */
 struct march {
 	struct march *next;
 	char march_name[32];
+	int march_floor;
+	int march_order;
 	};
+
+/* 
+ * This struct holds a list of rooms for client display.
+ * (oooh, a tree!)
+ */
+struct roomlisting {
+        struct roomlisting *lnext;
+	struct roomlisting *rnext;
+        char rlname[64];
+        unsigned rlflags;
+	int rlfloor;
+        int rlorder;
+        };
+
 
 char floorlist[128][256];
 char ugname[128];
@@ -76,32 +95,115 @@ void remove_march(char *aaa)
 	}
 
 
+
+
+
+void room_tree_list(struct roomlisting *rp) {
+	char rmname[64];
+	int f;
+
+	if (rp == NULL) return;
+
+	if (rp->lnext != NULL) {
+		room_tree_list(rp->lnext);
+		}
+
+	strcpy(rmname, rp->rlname);
+	f = rp->rlflags;
+
+	wprintf("<A HREF=\"/dotgoto&room=");
+	urlescputs(rmname);
+	wprintf("\" TARGET=\"top\">");
+	escputs1(rmname,1);
+	if ((f & QR_DIRECTORY) && (f & QR_NETWORK)) wprintf("}");
+	else if (f & QR_DIRECTORY) wprintf("]");
+	else if (f & QR_NETWORK) wprintf(")");
+	else wprintf("&gt;");
+	wprintf("</A><TT> </TT>\n");
+
+	if (rp->rnext != NULL) {
+		room_tree_list(rp->rnext);
+		}
+
+	free(rp);
+	}
+
+
+/* 
+ * Room ordering stuff (compare first by floor, then by order)
+ */
+int rordercmp(struct roomlisting *r1, struct roomlisting *r2)
+{
+	if ((r1==NULL)&&(r2==NULL)) return(0);
+	if (r1==NULL) return(-1);
+	if (r2==NULL) return(1);
+	if (r1->rlfloor < r2->rlfloor) return(-1);
+	if (r1->rlfloor > r2->rlfloor) return(1);
+	if (r1->rlorder < r2->rlorder) return(-1);
+	if (r1->rlorder > r2->rlorder) return(1);
+	return(0);
+	}
+
+
+/*
+ * Common code for all room listings
+ */
 void listrms(char *variety)
 {
 	char buf[256];
-	char rmname[32];
-	int f;
 
-	fprintf(stderr, "doing listrms(%s)\n", variety);
+	struct roomlisting *rl = NULL;
+	struct roomlisting *rp;
+	struct roomlisting *rs;
+
+
+	/* Ask the server for a room list */
 	serv_puts(variety);
 	serv_gets(buf);
 	if (buf[0]!='1') return;
-	while (serv_gets(buf), strcmp(buf,"000")) {
-		extract(rmname,buf,0);
-		wprintf("<A HREF=\"/dotgoto&room=");
-		urlescputs(rmname);
-		wprintf("\" TARGET=\"top\">");
-		escputs1(rmname,1);
-		f = extract_int(buf,1);
-		if ((f & QR_DIRECTORY) && (f & QR_NETWORK)) wprintf("}");
-		else if (f & QR_DIRECTORY) wprintf("]");
-		else if (f & QR_NETWORK) wprintf(")");
-		else wprintf("&gt;");
+	while (serv_gets(buf), strcmp(buf, "000")) {
+		rp = malloc(sizeof(struct roomlisting));
+		extract(rp->rlname, buf, 0);
+		rp->rlflags = extract_int(buf, 1);
+		rp->rlfloor = extract_int(buf, 2);
+		rp->rlorder = extract_int(buf, 3);
+		rp->lnext = NULL;
+		rp->rnext = NULL;
 
-		wprintf("</A><TT> </TT>\n");
-		};
-	wprintf("<BR>\n");
+		rs = rl;
+		if (rl == NULL) {
+			rl = rp;
+			}
+		else while (rp != NULL) {
+			if (rordercmp(rp, rs)<0) {
+				if (rs->lnext == NULL) {
+					rs->lnext = rp;
+					rp = NULL;
+					}
+				else {
+					rs = rs->lnext;
+					}
+				}
+			else {
+				if (rs->rnext == NULL) {
+					rs->rnext = rp;
+					rp = NULL;
+					}
+				else {
+					rs = rs->rnext;
+					}
+				}
+			}
+		}
+
+	room_tree_list(rl);
 	}
+
+
+
+
+
+
 
 
 
@@ -255,11 +357,11 @@ void gotoroom(char *gname, int display_name)
 		wprintf("<CENTER><TABLE border=0><TR>");
 
 		if ( (strlen(ugname)>0) && (strcasecmp(ugname,wc_roomname)) ) {
-			wprintf("<TD><A HREF=\"/ungoto\">");
+			wprintf("<TD VALIGN=TOP><A HREF=\"/ungoto\">");
 			wprintf("<IMG SRC=\"/static/back.gif\" border=0></A></TD>");
 			}
 
-		wprintf("<TD><H1>%s</H1>",wc_roomname);
+		wprintf("<TD VALIGN=TOP><H1>%s</H1>",wc_roomname);
 		wprintf("<FONT SIZE=-1>%d new of %d messages</FONT></TD>\n",
 			extract_int(&buf[4],1),
 			extract_int(&buf[4],2));
@@ -280,11 +382,11 @@ void gotoroom(char *gname, int display_name)
 			serv_gets(buf);
 			}
 
-		wprintf("<TD>");
+		wprintf("<TD VALIGN=TOP>");
 		readinfo(0);
 		wprintf("</TD>");
 
-		wprintf("<TD><A HREF=\"/gotonext\">");
+		wprintf("<TD VALIGN=TOP><A HREF=\"/gotonext\">");
 		wprintf("<IMG SRC=\"/static/forward.gif\" border=0></A></TD>");
 		wprintf("</TR></TABLE></CENTER>\n");
 		wprintf("</BODY></HTML>\n");
@@ -292,6 +394,49 @@ void gotoroom(char *gname, int display_name)
 		}
 
 	strcpy(wc_roomname, wc_roomname);
+	}
+
+
+/*
+ * Locate the room on the march list which we most want to go to
+ */
+char *pop_march(int desired_floor) {
+	static char TheRoom[64];
+	int TheFloor = 0;
+	int TheOrder = 32767;
+	struct march *mptr = NULL;
+
+	strcpy(TheRoom, "_BASEROOM_");
+	if (march == NULL) return(TheRoom);
+
+	for (mptr = march; mptr != NULL; mptr = mptr->next) {
+		if ((strcasecmp(mptr->march_name, "_BASEROOM_"))
+		   &&(!strcasecmp(TheRoom, "_BASEROOM_"))) {
+			strcpy(TheRoom, mptr->march_name);
+			TheFloor = mptr->march_floor;
+			TheOrder = mptr->march_order;
+			}
+		else if ( (mptr->march_floor == desired_floor)
+		   && (TheFloor != desired_floor)
+		   && (strcasecmp(mptr->march_name, "_BASEROOM_")) ) {
+			strcpy(TheRoom, mptr->march_name);
+			TheFloor = mptr->march_floor;
+			TheOrder = mptr->march_order;
+			}
+		else if ((mptr->march_floor < TheFloor)
+		     && (strcasecmp(mptr->march_name, "_BASEROOM_")) ) {
+			strcpy(TheRoom, mptr->march_name);
+			TheFloor = mptr->march_floor;
+			TheOrder = mptr->march_order;
+			}
+		else if ((mptr->march_order < TheOrder)
+		     && (strcasecmp(mptr->march_name, "_BASEROOM_")) ) {
+			strcpy(TheRoom, mptr->march_name);
+			TheFloor = mptr->march_floor;
+			TheOrder = mptr->march_order;
+			}
+		}
+	return(TheRoom);
 	}
 
 
@@ -320,6 +465,8 @@ void gotonext(void) {
 			mptr = (struct march *) malloc(sizeof(struct march));
 			mptr->next = NULL;
 			extract(mptr->march_name,buf,0);
+			mptr->march_floor = extract_int(buf, 2);
+			mptr->march_order = extract_int(buf, 3);
 			if (march==NULL) {
 				march = mptr;
 				}
@@ -355,7 +502,7 @@ void gotonext(void) {
 
 
 	if (march!=NULL) {
-		strcpy(next_room,march->march_name);
+		strcpy(next_room, pop_march(-1));
 		}
 	else {
 		strcpy(next_room,"_BASEROOM_");

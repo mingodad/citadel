@@ -1,3 +1,7 @@
+Sat Jan 23 19:36:10 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Brought over the new room listing code and <G>oto heuristics
+	  from the main Citadel tree, to pay attention to floor/room ordering
+
 Thu Jan 14 17:14:11 EST 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Modified the back end of mime_parser to use callbacks instead of
 	  doing something specific.  Now we can use it elsewhere.
