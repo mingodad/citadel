@@ -447,6 +447,75 @@ void check_for_express_messages()
 
 
 
+/* 
+ * Output a piece of content to the web browser, compressing if necessary
+ */
+void http_transmit_thing(char *thing, size_t length, char *content_type) {
+
+	int do_compress = 0;
+	char *compressed_xferbuf = NULL;
+
+#ifdef WITH_ZLIB
+	uLongf compressed_size = 0;
+#endif
+
+#ifdef WITH_ZLIB
+	do_compress = WC->gzcompressed;
+#endif
+
+#ifdef WITH_ZLIB
+	if (do_compress) {
+		/* Write it to the browser -- compressed */
+		compressed_size = (uLongf)
+				((length * 101) / 100) + 4096;
+		compressed_xferbuf = malloc(compressed_size);
+		lprintf(9, "uncompressed size: %d\n", length);
+		compress2(compressed_xferbuf, &compressed_size,
+			thing, (uLong)length, 9);
+		lprintf(9, "  compressed size: %d\n", compressed_size);
+
+		if (compressed_size < length) {
+			output_headers(0);
+			wprintf("Content-type: %s\n"
+				"Content-length: %ld\n"
+				"Content-Encoding: gzip\n"
+				"\n",
+				content_type,
+				(long) compressed_size
+			);
+			http_write(WC->http_sock, compressed_xferbuf,
+							compressed_size);
+		}
+		else {
+			do_compress = 0;
+		}
+	}
+#endif
+
+	if (!do_compress) {
+		/* Write it to the browser -- no compression */
+		output_headers(0);
+		wprintf("Content-type: %s\n"
+			"Content-length: %ld\n"
+			"\n",
+		content_type,
+		(long) length
+		);
+		http_write(WC->http_sock, thing, length);
+	}
+
+	if (compressed_xferbuf) {
+		free(compressed_xferbuf);
+	}
+}
+
+
+
+
+
+
+
+
 void output_static(char *what)
 {
 	char buf[4096];
@@ -454,6 +523,7 @@ void output_static(char *what)
 	struct stat statbuf;
 	off_t bytes;
 	char *bigbuffer;
+	char content_type[SIZ];
 
 	sprintf(buf, "static/%s", what);
 	fp = fopen(buf, "rb");
@@ -463,42 +533,39 @@ void output_static(char *what)
 		wprintf("\n");
 		wprintf("Cannot open %s: %s\n", what, strerror(errno));
 	} else {
-		output_headers(0);
-
 		if (!strncasecmp(&what[strlen(what) - 4], ".gif", 4))
-			wprintf("Content-type: image/gif\n");
+			strcpy(content_type, "image/gif");
 		else if (!strncasecmp(&what[strlen(what) - 4], ".txt", 4))
-			wprintf("Content-type: text/plain\n");
+			strcpy(content_type, "text/plain");
 		else if (!strncasecmp(&what[strlen(what) - 4], ".css", 4))
-			wprintf("Content-type: text/css\n");
+			strcpy(content_type, "text/css");
 		else if (!strncasecmp(&what[strlen(what) - 4], ".jpg", 4))
-			wprintf("Content-type: image/jpeg\n");
+			strcpy(content_type, "image/jpeg");
 		else if (!strncasecmp(&what[strlen(what) - 4], ".png", 4))
-			wprintf("Content-type: image/png\n");
+			strcpy(content_type, "image/png");
 		else if (!strncasecmp(&what[strlen(what) - 5], ".html", 5))
-			wprintf("Content-type: text/html\n");
+			strcpy(content_type, "text/html");
 		else if (!strncasecmp(&what[strlen(what) - 4], ".wml", 4))
-			wprintf("Content-type: text/vnd.wap.wml\n");
+			strcpy(content_type, "text/vnd.wap.wml");
 		else if (!strncasecmp(&what[strlen(what) - 5], ".wmls", 5))
-			wprintf("Content-type: text/vnd.wap.wmlscript\n");
+			strcpy(content_type, "text/vnd.wap.wmlscript");
 		else if (!strncasecmp(&what[strlen(what) - 5], ".wmlc", 5))
-			wprintf("Content-type: application/vnd.wap.wmlc\n");
+			strcpy(content_type, "application/vnd.wap.wmlc");
 		else if (!strncasecmp(&what[strlen(what) - 6], ".wmlsc", 6))
-			wprintf("Content-type: application/vnd.wap.wmlscriptc\n");
+			strcpy(content_type, "application/vnd.wap.wmlscriptc");
 		else if (!strncasecmp(&what[strlen(what) - 5], ".wbmp", 5))
-			wprintf("Content-type: image/vnd.wap.wbmp\n");
+			wprintf("Content-type: image/vnd.wap.wbmp");
 		else
-			wprintf("Content-type: application/octet-stream\n");
+			wprintf("Content-type: application/octet-stream");
 
 		fstat(fileno(fp), &statbuf);
 		bytes = statbuf.st_size;
 		lprintf(3, "Static: %s, %ld bytes\n", what, bytes);
-		wprintf("Content-length: %ld\n", (long) bytes);
-		wprintf("\n");
 		bigbuffer = malloc(bytes);
 		fread(bigbuffer, bytes, 1, fp);
 		fclose(fp);
-		http_write(WC->http_sock, bigbuffer, bytes);
+
+		http_transmit_thing(bigbuffer, (size_t)bytes, content_type);
 		free(bigbuffer);
 	}
 	if (!strcasecmp(bstr("force_close_session"), "yes")) {
@@ -515,20 +582,11 @@ void output_image()
 {
 	char buf[SIZ];
 	char *xferbuf = NULL;
-	char *compressed_xferbuf = NULL;
 	off_t bytes;
 	off_t thisblock;
 	off_t accomplished = 0L;
-#ifdef WITH_ZLIB
-	uLongf compressed_size = 0;
-#endif
-	int do_compress = 0;
 
-#ifdef WITH_ZLIB
-	do_compress = WC->gzcompressed;
-#endif
-
-	lprintf(5, "output_image() called; do_compress=%d\n", do_compress);
+	lprintf(5, "output_image() called\n");
 	serv_printf("OIMG %s|%s", bstr("name"), bstr("parm"));
 	serv_gets(buf);
 	if (buf[0] == '2') {
@@ -557,51 +615,22 @@ void output_image()
 		serv_puts("CLOS");
 		serv_gets(buf);
 
-#ifdef WITH_ZLIB
-		if (do_compress) {
-			/* Write it to the browser -- compressed */
-			compressed_size = (uLongf)
-					((accomplished * 101) / 100) + 4096;
-			compressed_xferbuf = malloc(compressed_size);
-			lprintf(9, "uncompressed size: %d\n", accomplished);
-			compress2(compressed_xferbuf, &compressed_size,
-				xferbuf, (uLong)accomplished, 9);
-			lprintf(9, "  compressed size: %d\n", compressed_size);
-			output_headers(0);
-			wprintf("Content-type: image/gif\n"
-				"Content-length: %ld\n"
-				"Content-Encoding: gzip\n"
-				"\n",
-				(long) compressed_size
-			);
-			http_write(WC->http_sock, compressed_xferbuf,
-							compressed_size);
-		}
-#endif
-		if (!do_compress) {
-			/* Write it to the browser -- no compression */
-			output_headers(0);
-			wprintf("Content-type: image/gif\n"
-			wprintf("Content-length: %ld\n"
-			wprintf("\n",
-			(long) accomplished
-			);
-			http_write(WC->http_sock, xferbuf, accomplished);
-		}
+		/* Write it to the browser */
+		http_transmit_thing(xferbuf, (size_t)accomplished,
+					"image/gif");
 
 	} else {
 		wprintf("HTTP/1.0 404 %s\n", &buf[4]);
 		output_headers(0);
-		wprintf("Content-Type: text/plain\n");
-		wprintf("\n");
-		wprintf("Error retrieving image: %s\n", &buf[4]);
+		wprintf("Content-Type: text/plain\n"
+			"\n"
+			"Error retrieving image: %s\n",
+			&buf[4]
+		);
 	}
 
 	if (xferbuf) {
 		free(xferbuf);
-	}
-	if (compressed_xferbuf) {
-		free(compressed_xferbuf);
 	}
 
 }
