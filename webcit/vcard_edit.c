@@ -58,6 +58,8 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	char primary_inetemail[SIZ];
 	char other_inetemail[SIZ];
 	char extrafields[SIZ];
+	char title[SIZ];
+	char org[SIZ];
 
 	lastname[0] = 0;
 	firstname[0] = 0;
@@ -75,6 +77,8 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	worktel[0] = 0;
 	primary_inetemail[0] = 0;
 	other_inetemail[0] = 0;
+	title[0] = 0;
+	org[0] = 0;
 	extrafields[0] = 0;
 
 	strcpy(whatuser, "");
@@ -129,6 +133,14 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 				extract_token(prefix, value, 3, ';');
 				extract_token(suffix, value, 4, ';');
 			}
+
+			else if (!strcasecmp(key, "title")) {
+				strcpy(title, value);
+			}
+	
+			else if (!strcasecmp(key, "org")) {
+				strcpy(org, value);
+			}
 	
 			else if (!strcasecmp(key, "adr")) {
 				extract_token(pobox, value, 0, ';');
@@ -178,10 +190,8 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
 		"<SPAN CLASS=\"titlebar\">"
 		"<img src=\"/static/vcard.gif\">"
-		"Contact information for "
-	);
-	escputs(whatuser);
-	wprintf("</SPAN>"
+		"Edit contact information"
+		"</SPAN>"
 		"</TD></TR></TABLE>\n"
 		"</div>\n<div id=\"content\">\n"
 	);
@@ -197,7 +207,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		"<TD>Last</TD>"
 		"<TD>Suffix</TD></TR>\n");
 	wprintf("<TR><TD><INPUT TYPE=\"text\" NAME=\"prefix\" "
-		"VALUE=\"%s\" MAXLENGTH=\"5\"></TD>",
+		"VALUE=\"%s\" MAXLENGTH=\"5\" SIZE=\"5\"></TD>",
 		prefix);
 	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"firstname\" "
 		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD>",
@@ -209,48 +219,72 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD>",
 		lastname);
 	wprintf("<TD><INPUT TYPE=\"text\" NAME=\"suffix\" "
-		"VALUE=\"%s\" MAXLENGTH=\"10\"></TD></TR></TABLE>\n",
+		"VALUE=\"%s\" MAXLENGTH=\"10\" SIZE=\"10\"></TD></TR></TABLE>\n",
 		suffix);
 
-	wprintf("<TABLE border=0><TR><TD>PO box (optional):</TD>"
-		"<TD><INPUT TYPE=\"text\" NAME=\"pobox\" "
-		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR>\n",
+	wprintf("<table border=0 width=100%% bgcolor=\"#dddddd\">");
+	wprintf("<tr><td>");
+
+	wprintf("Title:<br>"
+		"<INPUT TYPE=\"text\" NAME=\"title\" "
+		"VALUE=\"%s\" MAXLENGTH=\"40\"><br><br>\n",
+		title
+	);
+
+	wprintf("Organization:<br>"
+		"<INPUT TYPE=\"text\" NAME=\"org\" "
+		"VALUE=\"%s\" MAXLENGTH=\"40\"><br><br>\n",
+		org
+	);
+
+	wprintf("</td><td>");
+
+	wprintf("<table border=0>");
+	wprintf("<tr><td>PO box:</td><td>"
+		"<INPUT TYPE=\"text\" NAME=\"pobox\" "
+		"VALUE=\"%s\" MAXLENGTH=\"29\"></td></tr>\n",
 		pobox);
-	wprintf("<TR><TD>Address line 1:</TD>"
-		"<TD><INPUT TYPE=\"text\" NAME=\"extadr\" "
-		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR>\n",
+	wprintf("<tr><td>Address:</td><td>"
+		"<INPUT TYPE=\"text\" NAME=\"extadr\" "
+		"VALUE=\"%s\" MAXLENGTH=\"29\"></td></tr>\n",
 		extadr);
-	wprintf("<TR><TD>Address line 2:</TD>"
-		"<TD><INPUT TYPE=\"text\" NAME=\"street\" "
-		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR>\n",
+	wprintf("<tr><td> </td><td>"
+		"<INPUT TYPE=\"text\" NAME=\"street\" "
+		"VALUE=\"%s\" MAXLENGTH=\"29\"></td></tr>\n",
 		street);
-	wprintf("<TR><TD>City:</TD>"
-		"<TD><INPUT TYPE=\"text\" NAME=\"city\" "
-		"VALUE=\"%s\" MAXLENGTH=\"29\">\n",
+	wprintf("<tr><td>City:</td><td>"
+		"<INPUT TYPE=\"text\" NAME=\"city\" "
+		"VALUE=\"%s\" MAXLENGTH=\"29\"></td></tr>\n",
 		city);
-	wprintf(" State: "
+	wprintf("<tr><td>State:</td><td>"
 		"<INPUT TYPE=\"text\" NAME=\"state\" "
-		"VALUE=\"%s\" MAXLENGTH=\"2\">\n",
+		"VALUE=\"%s\" MAXLENGTH=\"2\"></td></tr>\n",
 		state);
-	wprintf(" ZIP code: "
+	wprintf("<tr><td>ZIP code:</td><td>"
 		"<INPUT TYPE=\"text\" NAME=\"zipcode\" "
-		"VALUE=\"%s\" MAXLENGTH=\"10\"></TD></TR>\n",
+		"VALUE=\"%s\" MAXLENGTH=\"10\"></td></tr>\n",
 		zipcode);
-	wprintf("<TR><TD>Country:</TD>"
-		"<TD><INPUT TYPE=\"text\" NAME=\"country\" "
-		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR></TABLE>\n",
+	wprintf("<tr><td>Country:</td><td>"
+		"<INPUT TYPE=\"text\" NAME=\"country\" "
+		"VALUE=\"%s\" MAXLENGTH=\"29\" WIDTH=\"5\"></td></tr>\n",
 		country);
+	wprintf("</table>\n");
+
+	wprintf("</table>\n");
 
 	wprintf("<TABLE BORDER=0><TR><TD>Home telephone:</TD>"
 		"<TD><INPUT TYPE=\"text\" NAME=\"hometel\" "
-		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR>\n",
+		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD>\n",
 		hometel);
-	wprintf("<TR><TD>Work telephone:</TD>"
+	wprintf("<TD>Work telephone:</TD>"
 		"<TD><INPUT TYPE=\"text\" NAME=\"worktel\" "
 		"VALUE=\"%s\" MAXLENGTH=\"29\"></TD></TR></TABLE>\n",
 		worktel);
 
-	wprintf("<br /><TABLE border=0><TR>"
+	wprintf("<table border=0 width=100%% bgcolor=\"#dddddd\">");
+	wprintf("<tr><td>");
+
+	wprintf("<TABLE border=0><TR>"
 		"<TD VALIGN=TOP>Primary Internet e-mail address<br />"
 		"<INPUT TYPE=\"text\" NAME=\"primary_inetemail\" "
 		"SIZE=40 MAXLENGTH=40 VALUE=\"");
@@ -260,7 +294,9 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 		"Internet e-mail aliases<br />"
 		"<TEXTAREA NAME=\"other_inetemail\" ROWS=5 COLS=40 WIDTH=40>");
 	escputs(other_inetemail);
-	wprintf("</TEXTAREA></TD></TR></TABLE><br />\n");
+	wprintf("</TEXTAREA></TD></TR></TABLE>\n");
+
+	wprintf("</td></tr></table>\n");
 
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"extrafields\" VALUE=\"");
 	escputs(extrafields);
@@ -321,6 +357,8 @@ void submit_vcard(void) {
 		bstr("middlename"),
 		bstr("prefix"),
 		bstr("suffix") );
+	serv_printf("title:%s", bstr("title") );
+	serv_printf("org:%s", bstr("org") );
 	serv_printf("adr:%s;%s;%s;%s;%s;%s;%s",
 		bstr("pobox"),
 		bstr("extadr"),

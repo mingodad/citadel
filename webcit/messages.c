@@ -91,25 +91,57 @@ char buf[];
 }
 
 
+/*
+ * Turn a vCard "n" (name) field into something displayable.
+ */
+void vcard_n_prettyize(char *name)
+{
+	char *original_name;
+	int i;
+
+	original_name = strdup(name);
+	for (i=0; i<5; ++i) {
+		if (strlen(original_name) > 0) {
+			if (original_name[strlen(original_name)-1] == ' ') {
+				original_name[strlen(original_name)-1] = 0;
+			}
+			if (original_name[strlen(original_name)-1] == ';') {
+				original_name[strlen(original_name)-1] = 0;
+			}
+		}
+	}
+	strcpy(name, "");
+	for (i=0; i<strlen(original_name); ++i) {
+		if (original_name[i] == ';') {
+			strcat(name, ", ");
+		}
+		else {
+			name[strlen(name)+1] = 0;
+			name[strlen(name)] = original_name[i];
+		}
+	}
+	free(original_name);
+}
+
+
+
+
 /* display_vcard() calls this after parsing the textual vCard into
  * our 'struct vCard' data object.
  * This gets called instead of display_parsed_vcard() if we are only looking
  * to extract the person's name instead of displaying the card.
  */
 void fetchname_parsed_vcard(struct vCard *v, char *storename) {
-	int i;
+	char *name;
 
 	strcpy(storename, "");
-	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
-		if (!strcasecmp(v->prop[i].name, "n")) {
-			strcpy(storename, v->prop[i].value);
-			if ((strlen(storename)>0) && (storename[0] != ';')) {
-				while(storename[strlen(storename)-1] == ';') {
-					storename[strlen(storename)-1] = 0;
-				}
-			}
-		}
+
+	name = vcard_get_prop(v, "n", 1, 0, 0);
+	if (name != NULL) {
+		strcpy(storename, name);
+		/* vcard_n_prettyize(storename); */
 	}
+
 }
 
 
@@ -137,12 +169,16 @@ void display_parsed_vcard(struct vCard *v, int full) {
 	int pass;
 
 	char displayname[SIZ];
+	char title[SIZ];
+	char org[SIZ];
 	char phone[SIZ];
 	char mailto[SIZ];
 
 	strcpy(displayname, "");
 	strcpy(phone, "");
 	strcpy(mailto, "");
+	strcpy(title, "");
+	strcpy(org, "");
 
 	if (!full) {
 		wprintf("<TD>");
@@ -151,7 +187,9 @@ void display_parsed_vcard(struct vCard *v, int full) {
 			escputs(name);
 		}
 		else if (name = vcard_get_prop(v, "n", 1, 0, 0), name != NULL) {
-			escputs(name);
+			strcpy(displayname, name);
+			vcard_n_prettyize(displayname);
+			escputs(displayname);
 		}
 		else {
 			wprintf("&nbsp;");
@@ -160,7 +198,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 		return;
 	}
 
-	wprintf("<TABLE bgcolor=#888888>");
+	wprintf("<div align=center><table bgcolor=#aaaaaa width=50%%>");
 	for (pass=1; pass<=2; ++pass) {
 
 		if (v->numprops) for (i=0; i<(v->numprops); ++i) {
@@ -203,12 +241,23 @@ void display_parsed_vcard(struct vCard *v, int full) {
 			if (!strcasecmp(firsttoken, "n")) {
 				if (strlen(displayname) == 0) {
 					strcpy(displayname, thisvalue);
+					vcard_n_prettyize(displayname);
 				}
 			}
 	
 			/* FN (full name) is a true 'display name' field */
 			else if (!strcasecmp(firsttoken, "fn")) {
 				strcpy(displayname, thisvalue);
+			}
+
+			/* title */
+			else if (!strcasecmp(firsttoken, "title")) {
+				strcpy(title, thisvalue);
+			}
+	
+			/* organization */
+			else if (!strcasecmp(firsttoken, "org")) {
+				strcpy(org, thisvalue);
 			}
 	
 			else if (!strcasecmp(firsttoken, "email")) {
@@ -248,7 +297,8 @@ void display_parsed_vcard(struct vCard *v, int full) {
 						extract_token(buf, thisvalue, j, ';');
 						if (strlen(buf) > 0) {
 							escputs(buf);
-							wprintf("<br />");
+							if (j<3) wprintf("<br />");
+							else wprintf(" ");
 						}
 					}
 					wprintf("</TD></TR>\n");
@@ -264,6 +314,8 @@ void display_parsed_vcard(struct vCard *v, int full) {
 				/* ignore */
 			}
 			else {
+
+				/*** Don't show extra fields.  They're ugly.
 				if (pass == 2) {
 					wprintf("<TR><TD>");
 					escputs(thisname);
@@ -271,6 +323,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 					escputs(thisvalue);
 					wprintf("</TD></TR>\n");
 				}
+				***/
 			}
 	
 			free(thisname);
@@ -283,7 +336,18 @@ void display_parsed_vcard(struct vCard *v, int full) {
 			"<IMG ALIGN=CENTER SRC=\"/static/vcard.gif\">"
 			"<FONT SIZE=+1><B>");
 			escputs(displayname);
-			wprintf("</B></FONT></TD></TR>\n");
+			wprintf("</B></FONT>");
+			if (strlen(title) > 0) {
+				wprintf("<div align=right>");
+				escputs(title);
+				wprintf("</div>");
+			}
+			if (strlen(org) > 0) {
+				wprintf("<div align=right>");
+				escputs(org);
+				wprintf("</div>");
+			}
+			wprintf("</TD></TR>\n");
 		
 			if (strlen(phone) > 0)
 				wprintf("<TR><TD>Telephone:</TD><TD>%s</TD></TR>\n", phone);
@@ -293,7 +357,7 @@ void display_parsed_vcard(struct vCard *v, int full) {
 
 	}
 
-	wprintf("</TABLE>\n");
+	wprintf("</table></div>\n");
 }
 
 
@@ -525,18 +589,18 @@ void read_message(long msgnum) {
 	wprintf("&subject=");
 	if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%20");
 	urlescputs(m_subject);
-	wprintf("\">Reply</a> ");
+	wprintf("\">[Reply]</a> ");
 
 	if (WC->is_room_aide)  {
 	
 		/* Move */
-		wprintf("<a href=\"/confirm_move_msg?msgid=%ld\">Move </a>",
+		wprintf("<a href=\"/confirm_move_msg?msgid=%ld\">[Move]</a> ",
 			msgnum);
 
 		/* Delete */
 		wprintf("<a href=\"/delete_msg?msgid=%ld\" "
 			"onClick=\"return confirm('Delete this message?');\">"
-			"Delete</a>", msgnum);
+			"[Delete]</a>", msgnum);
 			
 	}
 
