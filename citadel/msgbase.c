@@ -2145,6 +2145,71 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf) {
 }
 
 
+#define NYI_FIXME
+/*
+ * Validate recipients, count delivery types and errors, and handle aliasing
+ */
+struct recptypes *validate_recipients(char *recipients) {
+	struct recptypes *ret;
+	char this_recp[SIZ];
+	int num_recps;
+	int i;
+	int mailtype;
+	struct usersupp tempUS;
+
+	/* Initialize */
+	ret = (struct recptypes *) malloc(sizeof(struct recptypes));
+	if (ret == NULL) return(NULL);
+	memset(ret, 0, sizeof(struct recptypes));
+
+	ret->num_local = 0;
+	ret->num_internet = 0;
+	ret->num_ignet = 0;
+	ret->num_error = 0;
+
+	if (recipients == NULL) return(ret);
+	if (strlen(recipients) == NULL) return(ret);
+
+	/* Allow either , or ; separators by changing ; to , */
+	for (i=0; i<strlen(recipients); ++i) {
+		if (recipients[i] == ';') {
+			recipients[i] = ',';
+		}
+	}
+
+	/* Count 'em up */
+	num_recps = num_tokens(recipients, ',');
+	
+	for (i=0; i<num_recps; ++i) {
+		extract_token(this_recp, recipients, i, ',');
+		lprintf(9, "Evaluating recipient #%d <%s>\n", i, this_recp);
+		mailtype = alias(this_recp);
+		switch(mailtype) {
+			case MES_LOCAL:
+				if (getuser(&tempUS, buf) == 0) {
+					++ret->num_local;
+				}
+				else {
+					++ret->num_error;
+				}
+				break;
+			case MES_INTERNET:
+				++ret->num_internet;
+				break;
+			case MES_IGNET:
+				++ret->num_ignet;
+				break;
+			case MES_ERROR:
+				++ret->num_error;
+				break;
+		}
+
+	}
+
+	return(ret);
+}
+#endif NYI_FIXME
+
 
 
 /*
@@ -2198,8 +2263,10 @@ void cmd_ent0(char *entargs)
 	if (CC->quickroom.QRflags & QR_MAILBOX) {
 		if (CC->usersupp.axlevel >= 2) {
 			strcpy(buf, recipient);
-		} else
+		}
+		else {
 			strcpy(buf, "sysop");
+		}
 		e = alias(buf);	/* alias and mail type */
 		if ((buf[0] == 0) || (e == MES_ERROR)) {
 			cprintf("%d Unknown address - cannot send message.\n",
@@ -2260,21 +2327,25 @@ void cmd_ent0(char *entargs)
 	cprintf("%d send message\n", SEND_LISTING);
 
 	/* Read in the message from the client. */
-	if (CC->fake_postname[0])
+	if (CC->fake_postname[0]) {
 		msg = make_message(&CC->usersupp, buf,
 			CC->quickroom.QRname, b, e, format_type,
 			CC->fake_postname);
-	else if (CC->fake_username[0])
+	}
+	else if (CC->fake_username[0]) {
 		msg = make_message(&CC->usersupp, buf,
 			CC->quickroom.QRname, b, e, format_type,
 			CC->fake_username);
-	else
+	}
+	else {
 		msg = make_message(&CC->usersupp, buf,
 			CC->quickroom.QRname, b, e, format_type, "");
+	}
 
-	if (msg != NULL)
+	if (msg != NULL) {
 		CtdlSaveMsg(msg, buf, (mtsflag ? AIDEROOM : ""), e);
 		CtdlFreeMessage(msg);
+	}
 	CC->fake_postname[0] = '\0';
 	return;
 }

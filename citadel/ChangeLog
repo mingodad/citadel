@@ -1,4 +1,8 @@
  $Log$
+ Revision 580.88  2001/12/03 02:45:46  ajc
+ * Began implementing some code to handle multiple recipients (but #define'd
+   it all out because we're approaching a release)
+
  Revision 580.87  2001/12/03 01:50:17  ajc
  * When sending mail, copy to the sender's "Sent Items>" room instead of to
    the sender's "Mail>" room.
@@ -2908,3 +2912,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

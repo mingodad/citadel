@@ -43,6 +43,17 @@ struct repl {			/* Info for replication checking */
 };
 
 
+/* Data structure returned by validate_recipients() */
+struct recptypes {
+        int num_local;
+        int num_internet;
+        int num_ignet;
+        int num_error;
+	char errormsg[SIZ];
+};
+
+
+
 int alias (char *name);
 void get_mm (void);
 void cmd_msgs (char *cmdbuf);
