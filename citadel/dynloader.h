@@ -7,6 +7,8 @@ void CtdlRegisterSessionHook(void (*fcn_ptr)(void), int EventType);
 void PerformLogHooks(int loglevel, char *logmsg);
 void PerformSessionHooks(int EventType);
 void PerformUserHooks(char *username, long usernum, int EventType);
+int PerformXmsgHooks(char *, char *, char *);
 void CtdlRegisterProtoHook(void (*handler)(char *), char *cmd, char *desc);
 void CtdlRegisterUserHook(void (*fcn_ptr)(char*, long), int EventType);
+void CtdlRegisterXmsgHook(int (*fcn_ptr)(char *, char *, char *));
 char *Dynamic_Module_Init(void);

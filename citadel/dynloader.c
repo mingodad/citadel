@@ -37,6 +37,7 @@ struct LogFunctionHook *LogHookTable = NULL;
 struct CleanupFunctionHook *CleanupHookTable = NULL;
 struct SessionFunctionHook *SessionHookTable = NULL;
 struct UserFunctionHook *UserHookTable = NULL;
+struct XmsgFunctionHook *XmsgHookTable = NULL;
 
 struct ProtoFunctionHook {
 	void (*handler) (char *cmdbuf);
@@ -193,6 +194,21 @@ void CtdlRegisterUserHook(void (*fcn_ptr) (char *, long), int EventType)
 }
 
 
+void CtdlRegisterXmsgHook(int (*fcn_ptr) (char *, char *, char *) )
+{
+
+	struct XmsgFunctionHook *newfcn;
+
+	newfcn = (struct XmsgFunctionHook *)
+	    mallok(sizeof(struct XmsgFunctionHook));
+	newfcn->next = XmsgHookTable;
+	newfcn->h_function_pointer = fcn_ptr;
+	XmsgHookTable = newfcn;
+
+	lprintf(5, "Registered a new x-msg function\n");
+}
+
+
 void PerformSessionHooks(int EventType)
 {
 	struct SessionFunctionHook *fcn;
@@ -224,4 +240,16 @@ void PerformUserHooks(char *username, long usernum, int EventType)
 			(*fcn->h_function_pointer) (username, usernum);
 		}
 	}
+}
+
+int PerformXmsgHooks(char *sender, char *recp, char *msg)
+{
+	struct XmsgFunctionHook *fcn;
+	int total_sent = 0;
+
+	for (fcn = XmsgHookTable; fcn != NULL; fcn = fcn->next) {
+		total_sent +=
+			(*fcn->h_function_pointer) (sender, recp, msg);
+	}
+	return total_sent;
 }

@@ -41,7 +41,6 @@
 struct CitContext *ContextList = NULL;
 int ScheduledShutdown = 0;
 int do_defrag = 0;
-int (*CtdlSendExpressMessageFunc) (char *, char *, char *) = NULL;
 
 /*
  * Various things that need to be initialized at startup

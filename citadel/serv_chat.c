@@ -44,13 +44,12 @@ extern struct CitContext *ContextList;
 
 char *Dynamic_Module_Init(void)
 {
-	CtdlSendExpressMessageFunc = send_express_message;
-
 	CtdlRegisterProtoHook(cmd_chat, "CHAT", "Begin real-time chat");
 	CtdlRegisterProtoHook(cmd_pexp, "PEXP", "Poll for express messages");
 	CtdlRegisterProtoHook(cmd_gexp, "GEXP", "Get express messages");
 	CtdlRegisterProtoHook(cmd_sexp, "SEXP", "Send an express message");
 	CtdlRegisterSessionHook(delete_express_messages, EVT_STOP);
+	CtdlRegisterXmsgHook(send_express_message);
 	return "$Id$";
 }
 
@@ -550,7 +549,7 @@ void cmd_sexp(char *argbuf)
 	}
 	/* This loop handles text-transfer pages */
 	if (!strcmp(x_msg, "-")) {
-		message_sent = send_express_message(lun, x_user, "");
+		message_sent = PerformXmsgHooks(lun, x_user, "");
 		if (message_sent == 0) {
 			cprintf("%d No user '%s' logged in.\n", ERROR, x_user);
 			return;
@@ -567,12 +566,12 @@ void cmd_sexp(char *argbuf)
 				strcat(x_big_msgbuf, "\n");
 			strcat(x_big_msgbuf, x_msg);
 		}
-		send_express_message(lun, x_user, x_big_msgbuf);
+		PerformXmsgHooks(lun, x_user, x_big_msgbuf);
 		phree(x_big_msgbuf);
 
 		/* This loop handles inline pages */
 	} else {
-		message_sent = send_express_message(lun, x_user, x_msg);
+		message_sent = PerformXmsgHooks(lun, x_user, x_msg);
 
 		if (message_sent > 0) {
 			if (strlen(x_msg) > 0)

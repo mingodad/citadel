@@ -1995,15 +1995,11 @@ void CtdlICQ_Incoming_Message(DWORD uin, BYTE hour, BYTE minute,
 				const char *msg) {
 	
 	char from[256];
-	char nick[256];
+	int num_delivered;
 
 	sprintf(from, "%ld@icq", uin);
-	if (CtdlSendExpressMessageFunc) {
-		CtdlSendExpressMessageFunc(from, CC->curr_user, msg);
-		lprintf(9, "Converted incoming message.\n");
-	} else {
-		lprintf(7, "Hmm, no CtdlSendExpressMessageFunc defined!\n");
-	}
+	num_delivered = PerformXmsgHooks(from, CC->curr_user, msg);
+	lprintf(9, "Delivered to %d users\n", num_delivered);
 }
 
 
@@ -2015,6 +2011,28 @@ CtdlICQ_InfoReply(unsigned long uin, const char *nick,
 /* FIX do something with this info!! */
 
 }
+
+
+
+
+/* send an icq */
+
+int CtdlICQ_Send_Msg(char *from, char *recp, char *msg) {
+	int is_icq = 0;
+	int i;
+
+	/* Return quietly if this isn't an ICQ page */
+	for (i=0; i<strlen(recp); ++i)
+		if (!strcasecmp(&recp[i], "@icq")) is_icq = 1;
+	if (atol(recp)==0L) is_icq = 0;
+	if (is_icq == 0) return(0);
+
+	if (strlen(msg) > 0) icq_SendMessage(atol(recp), msg);
+	return(1);
+}
+
+
+
 
 
 
@@ -2030,6 +2048,7 @@ char *Dynamic_Module_Init(void)
 	CtdlRegisterSessionHook(CtdlICQ_session_login_hook, EVT_LOGIN);
 	CtdlRegisterSessionHook(CtdlICQ_after_cmd_hook, EVT_CMD);
 	CtdlRegisterProtoHook(cmd_icql, "ICQL", "Log on to ICQ");
+	CtdlRegisterXmsgHook(CtdlICQ_Send_Msg);
 
 	/* Tell the code formerly known as icqlib about our callbacks */
 	icq_Log = CtdlICQlog;

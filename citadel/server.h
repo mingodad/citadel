@@ -180,6 +180,7 @@ struct cdbdata {
 };
 
 
+
 /* Structures and declarations for function hooks of various types */
 
 struct LogFunctionHook {
@@ -194,6 +195,8 @@ struct CleanupFunctionHook {
 	void (*h_function_pointer) (void);
 };
 extern struct CleanupFunctionHook *CleanupHookTable;
+
+
 
 
 /*
@@ -222,6 +225,9 @@ extern struct SessionFunctionHook *SessionHookTable;
 #define EVT_CMD		6	/* Called after each server command */
 
 
+
+
+
 /*
  * UserFunctionHook extensions are used for any type of hook which implements
  * an operation on a user or username (potentially) other than the one
@@ -236,6 +242,25 @@ extern struct UserFunctionHook *UserHookTable;
 
 #define EVT_PURGEUSER	100	/* Deleting a user */
 #define EVT_OUTPUTMSG	101	/* Outputting a message */
+
+
+
+
+/*
+ * ExpressMessageFunctionHook extensions are used for hooks which implement
+ * the sending of an express message through various channels.  Any function
+ * registered should return the number of recipients to whom the message was
+ * successfully transmitted.
+ */
+struct XmsgFunctionHook {
+	struct XmsgFunctionHook *next;
+	int (*h_function_pointer) (char *, char *, char *);
+};
+extern struct XmsgFunctionHook *XmsgHookTable;
+
+
+
+
 
 
 /* Defines the relationship of a user to a particular room */
