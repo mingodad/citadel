@@ -1,4 +1,8 @@
 $Log$
+Revision 1.433  1999/12/29 04:44:00  ajc
+* client_chat.c: display "No message sent" if a send page is aborted.
+  Closes bug #2 in bugzilla.
+
 Revision 1.432  1999/12/26 21:50:07  ajc
 * serv_vcard: don't run hooks when not logged in (such as in SMTP sessions)
 * serv_pop3: added.  This is the skeleton for a module implementing POP3.
@@ -1506,4 +1510,5 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
 
