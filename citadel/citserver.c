@@ -597,7 +597,7 @@ void cmd_rwho(void) {
 	char un[40], room[40], host[40], flags[5];
 	
 	aide = CC->usersupp.axlevel >= 6;
-	cprintf("%d\n",LISTING_FOLLOWS);
+	cprintf("%d%c \n", LISTING_FOLLOWS, check_express() );
 	
 	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) 
 	{

@@ -1,4 +1,7 @@
 $Log$
+Revision 1.346  1999/08/05 17:58:59  ajc
+* RWHO command now returns express message code in postion 3
+
 Revision 1.345  1999/08/04 02:21:45  ajc
 * Fixed some bugs in the ICQ metaclient, and documented the new protocol cmds
 
@@ -1176,3 +1179,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
