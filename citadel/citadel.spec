@@ -1,8 +1,8 @@
 # $Id$
-Summary: Citadel/UX 5.50alpha3
+Summary: Citadel/UX 5.50beta1
 Name: citadel
 Version: 5.50
-Release: 0.2
+Release: 0.3
 Copyright: GPL
 Group: Applications/Communications
 Source0: citadel.tar.gz
@@ -10,10 +10,9 @@ Buildroot: /var/tmp/citadel-%{PACKAGE_VERSION}-root
 Autoprov: false
 
 %description
-An implementation of the Citadel BBS program for Unix systems. This is the de
-facto standard Unix version of Citadel, and is now an advanced client/server
-application.
-
+An advanced messaging system which can be used for BBS, groupware, and
+online community applications.  It is multithreaded, client/server, database
+driven, and accessible via a growing selection of front ends.
 %prep
 %setup -n citadel
 

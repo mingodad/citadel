@@ -1,10 +1,12 @@
 Begin3
 Title:          Citadel/UX
-Version:        5.50alpha1
-Entered-date:	Tue Nov 10 23:35:34 EST 1998
-Description:    An implementation of the Citadel BBS program for Unix systems.
-		This is the de facto standard Unix version of Citadel, and is
-                now an advanced client/server application.
+Version:        5.50beta1
+Entered-date:	Mon Nov 30 20:22:57 EST 1998
+Description:    An advanced messaging system which can be used for BBS,
+		groupware, and
+		online community applications.  It is multithreaded,
+		client/server, database
+		driven, and accessible via a growing selection of front ends.
 Keywords:       Citadel Citadel/UX UNIX POSIX room-based BBS IGnet IGnet/Open
 Author:         Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 Maintained-by:  Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
