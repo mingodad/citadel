@@ -36,6 +36,48 @@ void do_calendar_view(void) {	/* stub for non-libical builds */
 
 /****************************************************************************/
 
+void calendar_month_view_display_events(time_t thetime) {
+	int i;
+	struct tm *tm;
+	icalproperty *p;
+	struct icaltimetype t;
+	int month, day, year;
+
+	if (WC->num_cal == 0) {
+		wprintf("<BR><BR><BR>\n");
+		return;
+	}
+
+	tm = localtime(&thetime);
+	month = tm->tm_mon + 1;
+	day = tm->tm_mday;
+	year = tm->tm_year + 1900;
+
+	for (i=0; i<(WC->num_cal); ++i) {
+		p = icalcomponent_get_first_property(WC->disp_cal[i],
+						ICAL_DTSTART_PROPERTY);
+		if (p != NULL) {
+			t = icalproperty_get_dtstart(p);
+			if ((t.year == year)
+			   && (t.month == month)
+			   && (t.day == day)) {
+
+				p = icalcomponent_get_first_property(
+							WC->disp_cal[i],
+							ICAL_SUMMARY_PROPERTY);
+				if (p != NULL) {
+					escputs((char *)
+						icalproperty_get_comment(p));
+				}
+
+			}
+
+
+		}
+	}
+}
+
+
 
 void calendar_month_view(int year, int month, int day) {
 	struct tm starting_tm;
@@ -109,14 +151,20 @@ void calendar_month_view(int year, int month, int day) {
 			wprintf("<TR>");
 		}
 
-		wprintf("<TD BGCOLOR=FFFFFF WIDTH=14%%>");
+		wprintf("<TD BGCOLOR=FFFFFF WIDTH=14%% HEIGHT=60 VALIGN=TOP>"
+			"<B>");
 		if ((i==0) || (tm->tm_mday == 1)) {
 			wprintf("%s ", months[tm->tm_mon]);
 		}
-		wprintf("%d", tm->tm_mday);
+		wprintf("<A HREF=\"readfwd?calview=day&year=%d&month=%d&day=%d\">"
+			"%d</A></B><BR>",
+			tm->tm_year + 1900,
+			tm->tm_mon + 1,
+			tm->tm_mday,
+			tm->tm_mday);
 
-		/* FIXME ... put the data here, stupid */
-		wprintf("<BR><BR><BR>");
+		/* put the data here, stupid */
+		calendar_month_view_display_events(thetime);
 
 		wprintf("</TD>");
 
@@ -139,12 +187,17 @@ void calendar_week_view(int year, int month, int day) {
 
 
 void calendar_day_view(int year, int month, int day) {
-	wprintf("<CENTER><I>day view FIXME</I></CENTER><BR>\n");
+	wprintf("<CENTER><I>FIXME day view for %02d/%02d/%04d</I></CENTER><BR>\n", month, day, year);
+
+
+	wprintf("<A HREF=\"readfwd?calview=month&year=%d&month=%d&day=1\">"
+		"Back to month view</A><BR>\n", year, month);
 }
 
 
 
 void do_calendar_view(void) {
+	int i;
 	time_t now;
 	struct tm *tm;
 	int year, month, day;
@@ -180,6 +233,13 @@ void do_calendar_view(void) {
 	else {
 		calendar_month_view(year, month, day);
 	}
+
+	/* Free the calendar stuff */
+	if (WC->num_cal) for (i=0; i<(WC->num_cal); ++i) {
+		icalcomponent_free(WC->disp_cal[i]);
+	}
+	WC->num_cal = 0;
+	WC->disp_cal = NULL;
 }
 
 

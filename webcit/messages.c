@@ -852,6 +852,7 @@ void readloop(char *oper)
 
 	/* If we're only looking at one message, do a prev/next thing */
 	if (num_displayed == 1) {
+	   if ((!is_tasks) && (!is_calendar)) {
 
 		wprintf("<CENTER>"
 			"<TABLE BORDER=0 WIDTH=100%% BGCOLOR=DDDDDD><TR><TD>"
@@ -892,6 +893,7 @@ void readloop(char *oper)
 			WC->msgarr[0]);
 
 		wprintf("</TD></TR></TABLE></CENTER>\n");
+	    }
 	}
 
 
