@@ -354,6 +354,15 @@ extern struct TheHeap *heap;
 #endif
 
 
+/* 
+ * Serialization routines use this struct to return a pointer and a length
+ */
+struct ser_ret {
+        size_t len;
+        char *ser;
+};
+
+
 /*
  * New format for a message in memory
  */

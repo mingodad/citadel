@@ -134,10 +134,17 @@ void vcard_write_my(struct vCard *v) {
 	char *ser;
 
         strcpy(temp, tmpnam(NULL));
+	ser = serialize_vcard(v);
 
         fp = fopen(temp, "w");
         if (fp == NULL) return;
-	fwrite("FIXFIXFIXFIX FIX FIX", 100, 1, fp);
+	fprintf(fp, "Content-type: text/x-vcard\r\n\r\n");
+	if (ser == NULL) {
+		fprintf(fp, "begin:vcard\r\nend:vcard\r\n");
+	} else {
+		fwrite(ser, strlen(ser), 1, fp);
+		phree(ser);
+	}
         fclose(fp);
 
         /* this handy API function does all the work for us */

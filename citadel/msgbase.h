@@ -2,11 +2,6 @@
 
 #define aide_message(text)      quickie_message("Citadel",NULL,AIDEROOM,text)
 
-struct sermsgret {
-	size_t len;
-	char *ser;
-};
-
 #define MSGS_ALL        0
 #define MSGS_OLD        1
 #define MSGS_NEW        2
@@ -58,5 +53,5 @@ int CtdlDeleteMessages(char *, long, char *);
 void CtdlWriteObject(char *, char *, char *, int, int, int);
 struct CtdlMessage *CtdlFetchMessage(long msgnum);
 void CtdlFreeMessage(struct CtdlMessage *msg);
-void serialize_message(struct sermsgret *, struct CtdlMessage *);
+void serialize_message(struct ser_ret *, struct CtdlMessage *);
 int is_valid_message(struct CtdlMessage *);

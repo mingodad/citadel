@@ -169,3 +169,41 @@ void set_prop(struct vCard *v, char *name, char *value) {
 	v->prop[v->numprops-1].name = strdoop(name);
 	v->prop[v->numprops-1].value = (value);
 }
+
+
+
+
+/*
+ * Serialize a struct vcard into a standard text/x-vcard MIME type.
+ *
+ */
+char *serialize_vcard(struct vCard *v)
+{
+	char *ser;
+	int i;
+	size_t len;
+
+	if (v->magic != CTDL_VCARD_MAGIC) return NULL;	/* self check */
+
+	/* Figure out how big a buffer we need to allocate */
+	len = 64;	/* for begin, end, and a little padding for safety */
+	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
+		len = len +
+			strlen(v->prop[i].name) +
+			strlen(v->prop[i].value) + 4;
+	}
+
+	ser = mallok(len);
+	if (ser == NULL) return NULL;
+
+	strcpy(ser, "begin:vcard\r\n");
+	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
+		strcat(ser, v->prop[i].name);
+		strcat(ser, ":");
+		strcat(ser, v->prop[i].name);
+		strcat(ser, "\r\n");
+	}
+	strcat(ser, "end:vcard\r\n");
+
+	return ser;
+}

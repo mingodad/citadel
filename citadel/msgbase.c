@@ -919,7 +919,7 @@ void cmd_msg3(char *cmdbuf)
 {
 	long msgnum;
 	struct CtdlMessage *msg;
-	struct sermsgret smr;
+	struct ser_ret smr;
 
 	if (CC->internal_pgm == 0) {
 		cprintf("%d This command is for internal programs only.\n",
@@ -993,7 +993,7 @@ long send_message(struct CtdlMessage *msg,	/* pointer to buffer */
 	long newmsgid;
 	long retval;
 	char msgidbuf[32];
-        struct sermsgret smr;
+        struct ser_ret smr;
 
 	/* Get a new message number */
 	newmsgid = get_new_message_number();
@@ -1043,11 +1043,11 @@ long send_message(struct CtdlMessage *msg,	/* pointer to buffer */
 /*
  * Serialize a struct CtdlMessage into the format used on disk and network.
  * 
- * This function returns a "struct sermsgret" (defined in msgbase.h) which
+ * This function loads up a "struct ser_ret" (defined in server.h) which
  * contains the length of the serialized message and a pointer to the
  * serialized message in memory.  THE LATTER MUST BE FREED BY THE CALLER.
  */
-void serialize_message(struct sermsgret *ret,		/* return values */
+void serialize_message(struct ser_ret *ret,		/* return values */
 			struct CtdlMessage *msg)	/* unserialized msg */
 {
 	size_t wlen;
