@@ -2,7 +2,7 @@
 int ka_system(char *shc);
 int entmsg(CtdlIPC *ipc, int is_reply, int c);
 void readmsgs(CtdlIPC *ipc, int c, int rdir, int q);
-void edit_system_message(char *which_message);
+void edit_system_message(CtdlIPC *ipc, char *which_message);
 pid_t ka_wait(int *kstatus);
 void list_urls(CtdlIPC *ipc);
 void check_message_base(CtdlIPC *ipc);

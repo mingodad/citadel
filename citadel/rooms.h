@@ -21,6 +21,9 @@ void enter_bio(CtdlIPC *ipc);
 void hit_any_key(void);
 int save_buffer(void *file, size_t filelen, const char *pathname);
 void destination_directory(char *dest, const char *supplied_filename);
+void do_edit(CtdlIPC *ipc,
+		char *desc, char *read_cmd, char *check_cmd, char *write_cmd);
+
 
 
 /* 

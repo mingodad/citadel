@@ -338,6 +338,7 @@ int select_floor(CtdlIPC *ipc, int rfloor)
 			newfloor = (-1);
 			safestrncpy(floorstr, floorlist[rfloor],
 				    sizeof floorstr);
+			strprompt("Which floor", floorstr, 255);
 			for (a = 0; a < 128; ++a) {
 				if (!strcasecmp
 				    (floorstr, &floorlist[a][0]))
@@ -365,6 +366,12 @@ int select_floor(CtdlIPC *ipc, int rfloor)
 		} while (newfloor < 0);
 		return (newfloor);
 	}
+
+	else {
+		scr_printf("Floor selection bypassed because you have "
+			"floor mode disabled.\n");
+	}
+
 	return (rfloor);
 }
 
@@ -409,6 +416,7 @@ void editthisroom(CtdlIPC *ipc)
 
 	/* Now interact with the user. */
 
+	strprompt("Room name", attr->QRname, ROOMNAMELEN-1);
 	attr->QRfloor = select_floor(ipc, attr->QRfloor);
 	attr->QRflags = set_room_attr(ipc, attr->QRflags, "Private room", QR_PRIVATE);
 	if (attr->QRflags & QR_PRIVATE) {
@@ -443,21 +451,28 @@ void editthisroom(CtdlIPC *ipc)
 		rbump = boolprompt("Cause current users to forget room", 0);
 	}
 
-	attr->QRflags = set_room_attr(ipc, attr->QRflags, "Preferred users only", QR_PREFONLY);
-	attr->QRflags = set_room_attr(ipc, attr->QRflags, "Read-only room", QR_READONLY);
-	attr->QRflags = set_room_attr(ipc, attr->QRflags, "Directory room", QR_DIRECTORY);
-	attr->QRflags = set_room_attr(ipc, attr->QRflags, "Permanent room", QR_PERMANENT);
+	attr->QRflags = set_room_attr(ipc, attr->QRflags,
+					"Preferred users only", QR_PREFONLY);
+	attr->QRflags = set_room_attr(ipc, attr->QRflags,
+					"Read-only room", QR_READONLY);
+	attr->QRflags = set_room_attr(ipc, attr->QRflags,
+					"Directory room", QR_DIRECTORY);
+	attr->QRflags = set_room_attr(ipc, attr->QRflags,
+					"Permanent room", QR_PERMANENT);
 	if (attr->QRflags & QR_DIRECTORY) {
 		strprompt("Directory name", attr->QRdirname, 14);
 		attr->QRflags =
-		    set_room_attr(ipc, attr->QRflags, "Uploading allowed", QR_UPLOAD);
+		    set_room_attr(ipc, attr->QRflags,
+						"Uploading allowed", QR_UPLOAD);
 		attr->QRflags =
 		    set_room_attr(ipc, attr->QRflags, "Downloading allowed",
 				  QR_DOWNLOAD);
 		attr->QRflags =
-		    set_room_attr(ipc, attr->QRflags, "Visible directory", QR_VISDIR);
+		    set_room_attr(ipc, attr->QRflags,
+						"Visible directory", QR_VISDIR);
 	}
-	attr->QRflags = set_room_attr(ipc, attr->QRflags, "Network shared room", QR_NETWORK);
+	attr->QRflags = set_room_attr(ipc, attr->QRflags,
+					"Network shared room", QR_NETWORK);
 	attr->QRflags2 = set_room_attr(ipc, attr->QRflags2,
 				"Self-service list subscribe/unsubscribe",
 				QR2_SELFLIST);
@@ -959,7 +974,6 @@ void do_edit(CtdlIPC *ipc,
 	FILE *fp;
 	char cmd[SIZ];
 	int b, cksum, editor_exit;
-
 
 	if (strlen(editor_path) == 0) {
 		scr_printf("Do you wish to re-enter %s? ", desc);

@@ -59,7 +59,6 @@ void sttybbs(int cmd);
 int haschar(const char *st, int ch);
 void getline(char *string, int lim);
 int file_checksum(char *filename);
-void do_edit(char *desc, char *read_cmd, char *check_cmd, char *write_cmd);
 void progress(unsigned long curr, unsigned long cmax);
 
 unsigned long *msg_arr = NULL;
@@ -1619,16 +1618,16 @@ RMSGREAD:	scr_flush();
 /*
  * View and edit a system message
  */
-void edit_system_message(char *which_message)
+void edit_system_message(CtdlIPC *ipc, char *which_message)
 {
-	char desc[64];
-	char read_cmd[64];
-	char write_cmd[64];
+	char desc[SIZ];
+	char read_cmd[SIZ];
+	char write_cmd[SIZ];
 
 	snprintf(desc, sizeof desc, "system message '%s'", which_message);
 	snprintf(read_cmd, sizeof read_cmd, "MESG %s", which_message);
 	snprintf(write_cmd, sizeof write_cmd, "EMSG %s", which_message);
-	do_edit(desc, read_cmd, "NOOP", write_cmd);
+	do_edit(ipc, desc, read_cmd, "NOOP", write_cmd);
 }
 
 

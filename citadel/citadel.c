@@ -1666,7 +1666,7 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 				break;
 
 			case 70:
-				edit_system_message(argbuf);
+				edit_system_message(ipc, argbuf);
 				break;
 
 			case 19:
