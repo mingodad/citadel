@@ -140,7 +140,26 @@ remember_passwords=0
 # If IMAGECMD is defined, users can hit 'I' to view images attached to a
 # message.  (Do not enable this command for public clients.)
 #
+# Possible image viewers follow
+#
+# XV - This is an oldie but goodie, shareware with source code included, no
+# longer included with some Linux distributions due to licensing.
 #imagecmd=xv "%s"
+
+# The following 2 image viewers are included with KDE:
+# KuickShow has a brightness/gamma option and is simple and ubobtrusive
+#imagecmd=kuickshow "%s"
+
+# KView has no brightness/gamma but can do some minimal cropping and clipboard
+# operations
+#imagecmd=kview "%s"
+
+# Eye of Gnome, the Gnome/Nautilus image viewer component (bare bones
+# view/print):
+#imagecmd=eog "%s"
+
+# GIMP is a free-software attempt at a PhotoShop-like application.
+#imagecmd=gimp "%s"
 
 # MESSAGE READING SEMANTICS (experimental)
 #
