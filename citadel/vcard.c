@@ -137,9 +137,13 @@ struct vCard *vcard_load(char *vtext) {
  * Fetch the value of a particular key
  * If is_partial is set to 1, a partial match is ok (for example,
  * a key of "tel;home" will satisfy a search for "tel")
+ * Set "instance" to a value higher than 0 to return subsequent instances
+ * of the same key
  */
-char *vcard_get_prop(struct vCard *v, char *propname, int is_partial) {
+char *vcard_get_prop(struct vCard *v, char *propname,
+			int is_partial, int instance) {
 	int i;
+	int found_instance = 0;
 
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 		if ( (!strcasecmp(v->prop[i].name, propname))
@@ -147,7 +151,9 @@ char *vcard_get_prop(struct vCard *v, char *propname, int is_partial) {
 					propname, strlen(propname)))
 			 && (v->prop[i].name[strlen(propname)] == ';')
 			 && (is_partial) ) ) {
-			return(v->prop[i].value);
+			if (instance == found_instance++) {
+				return(v->prop[i].value);
+			}
 		}
 	}
 
@@ -180,13 +186,13 @@ void vcard_free(struct vCard *v) {
 /*
  * Set a name/value pair in the card
  */
-void vcard_set_prop(struct vCard *v, char *name, char *value) {
+void vcard_set_prop(struct vCard *v, char *name, char *value, int append) {
 	int i;
 
 	if (v->magic != CTDL_VCARD_MAGIC) return;	/* Self-check */
 
 	/* If this key is already present, replace it */
-	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
+	if (!append) if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 		if (!strcasecmp(v->prop[i].name, name)) {
 			phree(v->prop[i].name);
 			phree(v->prop[i].value);

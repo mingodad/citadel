@@ -83,6 +83,8 @@ void vcard_extract_internet_addresses(struct CtdlMessage *msg,
 	char *s;
 	char *addr;
 	char citadel_address[SIZ];
+	int instance = 0;
+	int found_something = 0;
 
 	if (msg->cm_fields['A'] == NULL) return;
 	if (msg->cm_fields['N'] == NULL) return;
@@ -92,17 +94,26 @@ void vcard_extract_internet_addresses(struct CtdlMessage *msg,
 	v = vcard_load(msg->cm_fields['M']);
 	if (v == NULL) return;
 
-	s = vcard_get_prop(v, "email;internet", 0); /* FIXME handle multiples */
-	if (s != NULL) {
-		addr = strdoop(s);
-		striplt(addr);
-		if (strlen(addr) > 0) {
-			if (callback != NULL) {
-				callback(addr, citadel_address);
+	/* Go through the vCard searching for *all* instances of
+	 * the "email;internet" key
+	 */
+	do {
+		s = vcard_get_prop(v, "email;internet", 0, instance++);
+		if (s != NULL) {
+			addr = strdoop(s);
+			striplt(addr);
+			if (strlen(addr) > 0) {
+				if (callback != NULL) {
+					callback(addr, citadel_address);
+				}
 			}
+			phree(addr);
+			found_something = 1;
 		}
-		phree(addr);
-	}
+		else {
+			found_something = 0;
+		}
+	} while(found_something);
 
 	vcard_free(v);
 }
@@ -393,7 +404,7 @@ void cmd_regi(char *argbuf) {
 	cprintf("%d Send registration...\n", SEND_LISTING);
 	a=0;
 	while (client_gets(buf), strcmp(buf,"000")) {
-		if (a==0) vcard_set_prop(my_vcard, "n", buf);
+		if (a==0) vcard_set_prop(my_vcard, "n", buf, 0);
 		if (a==1) strcpy(tmpaddr, buf);
 		if (a==2) strcpy(tmpcity, buf);
 		if (a==3) strcpy(tmpstate, buf);
@@ -406,15 +417,15 @@ void cmd_regi(char *argbuf) {
 				}
 			}
 		}
-		if (a==5) vcard_set_prop(my_vcard, "tel;home", buf);
-		if (a==6) vcard_set_prop(my_vcard, "email;internet", buf);
+		if (a==5) vcard_set_prop(my_vcard, "tel;home", buf, 0);
+		if (a==6) vcard_set_prop(my_vcard, "email;internet", buf, 0);
 		if (a==7) strcpy(tmpcountry, buf);
 		++a;
 	}
 
 	sprintf(tmpaddress, ";;%s;%s;%s;%s;%s",
 		tmpaddr, tmpcity, tmpstate, tmpzip, tmpcountry);
-	vcard_set_prop(my_vcard, "adr", tmpaddress);
+	vcard_set_prop(my_vcard, "adr", tmpaddress, 0);
 	vcard_write_user(&CC->usersupp, my_vcard);
 	vcard_free(my_vcard);
 
@@ -469,10 +480,10 @@ void cmd_greg(char *argbuf)
 	cprintf("%d %s\n", LISTING_FOLLOWS, usbuf.fullname);
 	cprintf("%ld\n", usbuf.usernum);
 	cprintf("%s\n", usbuf.password);
-	s = vcard_get_prop(v, "n", 0);
+	s = vcard_get_prop(v, "n", 0, 0);
 	cprintf("%s\n", s ? s : " ");	/* name */
 
-	s = vcard_get_prop(v, "adr", 0);
+	s = vcard_get_prop(v, "adr", 0, 0);
 	sprintf(adr, "%s", s ? s : " ");/* address... */
 
 	extract_token(buf, adr, 2, ';');
@@ -484,8 +495,8 @@ void cmd_greg(char *argbuf)
 	extract_token(buf, adr, 5, ';');
 	cprintf("%s\n", buf);				/* zip */
 
-	s = vcard_get_prop(v, "tel;home", 0);
-	if (s == NULL) s = vcard_get_prop(v, "tel", 1);
+	s = vcard_get_prop(v, "tel;home", 0, 0);
+	if (s == NULL) s = vcard_get_prop(v, "tel", 1, 0);
 	if (s != NULL) {
 		cprintf("%s\n", s);
 	}
@@ -495,9 +506,9 @@ void cmd_greg(char *argbuf)
 
 	cprintf("%d\n", usbuf.axlevel);
 
-	s = vcard_get_prop(v, "email;internet", 0);
+	s = vcard_get_prop(v, "email;internet", 0, 0);
 	cprintf("%s\n", s ? s : " ");
-	s = vcard_get_prop(v, "adr", 0);
+	s = vcard_get_prop(v, "adr", 0, 0);
 	sprintf(adr, "%s", s ? s : " ");/* address... */
 
 	extract_token(buf, adr, 6, ';');
