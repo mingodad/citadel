@@ -893,6 +893,7 @@ void session_loop(char *browser_host, char *user_agent)
 	} else if (!strcasecmp(action, "share")) {
 		share();
 	} else if (!strcasecmp(action, "terminate_session")) {
+		slrp_highest();
 		terminate_session();
 	} else if (!strcasecmp(action, "edit_me")) {
 		edit_me();
