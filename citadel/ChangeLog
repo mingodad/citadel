@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.60  2002/11/10 09:12:06  error
+ * citadel.c: When terminating, don't mark messages new when using new
+   message semantics
+
  Revision 601.59  2002/11/08 05:28:54  ajc
  * Reply to VEVENT invitations: generate reply by cloning the request,
    stripping out non-me attendees, setting the partstat to accept/decline,
@@ -4190,4 +4194,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

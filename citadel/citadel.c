@@ -1418,10 +1418,6 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 				validate(ipc);
 				break;
 			case 29:
-				if (!rc_alt_semantics)
-					updatels(ipc);
-				termn8 = 1;
-				break;
 			case 30:
 				if (!rc_alt_semantics)
 					updatels(ipc);
@@ -1482,7 +1478,8 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 			case 15:
 				scr_printf("Are you sure (y/n)? ");
 				if (yesno() == 1) {
-					updatels(ipc);
+					if (!rc_alt_semantics)
+						updatels(ipc);
 					a = 0;
 					termn8 = 1;
 				}
@@ -1492,10 +1489,11 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 				scr_printf("All users will be disconnected!  "
 					   "Really terminate the server? ");
 				if (yesno() == 1) {
+					if (!rc_alt_semantics)
+						updatels(ipc);
 					r = CtdlIPCTerminateServerNow(ipc, aaa);
 					scr_printf("%s\n", aaa);
 					if (r / 100 == 2) {
-						updatels(ipc);
 						a = 0;
 						termn8 = 1;
 					}
