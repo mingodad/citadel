@@ -286,9 +286,6 @@ void validate(void)
 
 
 
-
-
-
 /* 
  * Display form for registration.
  * (Set during_login to 1 if this registration is being performed during
@@ -296,105 +293,29 @@ void validate(void)
  */
 void display_reg(int during_login)
 {
-	char buf[SIZ];
-	int a;
+	long vcard_msgnum;
 
-	output_headers(3);
-
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
-	wprintf("<B>Enter registration info</B>\n");
-	wprintf("</FONT></TD></TR></TABLE>\n");
-
-	wprintf("<CENTER>");
-	serv_puts("MESG register");
-	serv_gets(buf);
-	if (buf[0] == '1')
-		fmout(NULL);
-
-	wprintf("<FORM ACTION=\"/register\" METHOD=\"POST\">\n");
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"during_login\" VALUE=\"%d\">\n", during_login);
-
-	serv_puts("GREG _SELF_");
-	serv_gets(buf);
-	if (buf[0] != '1') {
-		wprintf("<EM>%s</EM><BR>\n", &buf[4]);
-	} else {
-
-		wprintf("<H1>%s</H1><TABLE border>\n", &buf[4]);
-		a = 0;
-		while (serv_gets(buf), strcmp(buf, "000")) {
-			++a;
-			wprintf("<TR><TD>");
-			switch (a) {
-			case 3:
-				wprintf("Real Name:</TD><TD><INPUT TYPE=\"text\" NAME=\"realname\" VALUE=\"%s\" MAXLENGTH=\"29\"><BR>\n", buf);
-				break;
-			case 4:
-				wprintf("Street Address:</TD><TD><INPUT TYPE=\"text\" NAME=\"address\" VALUE=\"%s\" MAXLENGTH=\"24\"><BR>\n", buf);
-				break;
-			case 5:
-				wprintf("City/town:</TD><TD><INPUT TYPE=\"text\" NAME=\"city\" VALUE=\"%s\" MAXLENGTH=\"14\"><BR>\n", buf);
-				break;
-			case 6:
-				wprintf("State/province:</TD><TD><INPUT TYPE=\"text\" NAME=\"state\" VALUE=\"%s\" MAXLENGTH=\"2\"><BR>\n", buf);
-				break;
-			case 7:
-				wprintf("ZIP/postal code:</TD><TD><INPUT TYPE=\"text\" NAME=\"zip\" VALUE=\"%s\" MAXLENGTH=\"10\"><BR>\n", buf);
-				break;
-			case 8:
-				wprintf("Telephone:</TD><TD><INPUT TYPE=\"text\" NAME=\"phone\" VALUE=\"%s\" MAXLENGTH=\"14\"><BR>\n", buf);
-				break;
-			case 10:
-				wprintf("E-Mail:</TD><TD><INPUT TYPE=\"text\" NAME=\"email\" VALUE=\"%s\" MAXLENGTH=\"31\"><BR>\n", buf);
-				break;
-			case 11:
-				wprintf("Country:</TD><TD><INPUT TYPE=\"text\" NAME=\"country\" VALUE=\"%s\" MAXLENGTH=\"31\"><BR>\n", buf);
-				break;
-			}
-			wprintf("</TD></TR>\n");
-		}
-		wprintf("</TABLE><P>");
-	}
-	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Register\">\n");
-	wprintf("<INPUT type=\"submit\" NAME=\"action\" VALUE=\"Cancel\">\n");
-	wprintf("</CENTER>\n");
-	wDumpContent(1);
-}
-
-/*
- * register
- */
-void register_user(void)
-{
-	char buf[SIZ];
-
-	if (strcmp(bstr("action"), "Register")) {
-		display_error("Cancelled.  Registration was not saved.");
+	if (goto_config_room() != 0) {
+		if (during_login) do_welcome();
+		else display_main_menu();
 		return;
 	}
-	serv_puts("REGI");
-	serv_gets(buf);
-	if (buf[0] != '4') {
-		display_error(&buf[4]);
-	}
-	serv_puts(bstr("realname"));
-	serv_puts(bstr("address"));
-	serv_puts(bstr("city"));
-	serv_puts(bstr("state"));
-	serv_puts(bstr("zip"));
-	serv_puts(bstr("phone"));
-	serv_puts(bstr("email"));
-	serv_puts(bstr("country"));
-	serv_puts("000");
 
-	if (atoi(bstr("during_login"))) {
-		do_welcome();
-	} else {
-		display_success("Registration information has been saved.");
+	vcard_msgnum = locate_user_vcard(WC->wc_username, -1);
+	if (vcard_msgnum < 0L) {
+		if (during_login) do_welcome();
+		else display_main_menu();
+		return;
 	}
+
+	if (during_login) {
+		do_edit_vcard(vcard_msgnum, "1", "/do_welcome");
+	}
+	else {
+		do_edit_vcard(vcard_msgnum, "1", "/display_main_menu");
+	}
+
 }
-
 
 
 

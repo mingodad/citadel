@@ -88,12 +88,10 @@ void select_user_to_edit(char *message, char *preselect)
 
 
 /* 
- * Display the form for editing a user's address book entry
+ * Locate the message number of a user's vCard in the current room
  */
-void display_edit_address_book_entry(char *username, long usernum) {
-	char roomname[SIZ];
+long locate_user_vcard(char *username, long usernum) {
 	char buf[SIZ];
-	char error_message[SIZ];
 	long vcard_msgnum = (-1L);
 	char content_type[SIZ];
 	char partnum[SIZ];
@@ -107,25 +105,6 @@ void display_edit_address_book_entry(char *username, long usernum) {
 	struct stuff_t *stuff = NULL;
 	struct stuff_t *ptr;
 
-
-	/* Locate the user's config room, creating it if necessary */
-	sprintf(roomname, "%010ld.%s", usernum, USERCONFIGROOM);
-	serv_printf("GOTO %s||1", roomname);
-	serv_gets(buf);
-	if (buf[0] != '2') {
-		serv_printf("CRE8 1|%s|5|||1|", roomname);
-		serv_gets(buf);
-		serv_printf("GOTO %s||1", roomname);
-		serv_gets(buf);
-		if (buf[0] != '2') {
-			sprintf(error_message,
-				"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
-				"%s<BR><BR>\n", &buf[4]);
-			select_user_to_edit(error_message, username);
-			return;
-		}
-	}
-
 TRYAGAIN:
 	/* Search for the user's vCard */
 	serv_puts("MSGS ALL");
@@ -137,7 +116,7 @@ TRYAGAIN:
 		stuff = ptr;
 	}
 
-	/* Iterate throught the message list looking for vCards */
+	/* Iterate through the message list looking for vCards */
 	while (stuff != NULL) {
 		serv_printf("MSG0 %ld|2", stuff->msgnum);
 		serv_gets(buf);
@@ -159,8 +138,6 @@ TRYAGAIN:
 		stuff = ptr;
 	}
 
-	lprintf(9, "vcard_msgnum == %ld\n", vcard_msgnum);
-
 	/* If there's no vcard, create one */
 	if (vcard_msgnum < 0) if (already_tried_creating_one == 0) {
 		already_tried_creating_one = 1;
@@ -176,10 +153,45 @@ TRYAGAIN:
 		goto TRYAGAIN;
 	}
 
+	return(vcard_msgnum);
+}
+
+
+/* 
+ * Display the form for editing a user's address book entry
+ */
+void display_edit_address_book_entry(char *username, long usernum) {
+	char roomname[SIZ];
+	char buf[SIZ];
+	char error_message[SIZ];
+	long vcard_msgnum = (-1L);
+
+	/* Locate the user's config room, creating it if necessary */
+	sprintf(roomname, "%010ld.%s", usernum, USERCONFIGROOM);
+	serv_printf("GOTO %s||1", roomname);
+	serv_gets(buf);
+	if (buf[0] != '2') {
+		serv_printf("CRE8 1|%s|5|||1|", roomname);
+		serv_gets(buf);
+		serv_printf("GOTO %s||1", roomname);
+		serv_gets(buf);
+		if (buf[0] != '2') {
+			sprintf(error_message,
+				"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
+				"%s<BR><BR>\n", &buf[4]);
+			select_user_to_edit(error_message, username);
+			return;
+		}
+	}
+
+	vcard_msgnum = locate_user_vcard(username, usernum);
+
 	if (vcard_msgnum < 0) {
 		sprintf(error_message,
 			"<IMG SRC=\"static/error.gif\" ALIGN=CENTER>"
-			"Could not create/edit vCard<BR><BR>\n");
+			"Could not create/edit vCard"
+			"<BR><BR>\n"
+		);
 		select_user_to_edit(error_message, username);
 		return;
 	}

@@ -34,8 +34,6 @@ void load_preferences(void) {
 	char buf[SIZ];
 	long msgnum = 0L;
 
-	lprintf(9, "entering load_preferences()\n");
-
 	serv_printf("GOTO %s", USERCONFIGROOM);
 	serv_gets(buf);
 	if (buf[0] != '2') return;
@@ -80,14 +78,15 @@ void load_preferences(void) {
 	/* Go back to the room we're supposed to be in */
 	serv_printf("GOTO %s", WC->wc_roomname);
 	serv_gets(buf);
-	lprintf(9, "exiting load_preferences()\n");
 }
 
-void save_preferences(void) {
+/*
+ * Goto the user's configuration room, creating it if necessary.
+ * Returns 0 on success or nonzero upon failure.
+ */
+int goto_config_room(void) {
 	char buf[SIZ];
-	long msgnum = 0L;
 
-	lprintf(9, "entering save_preferences()\n");
 	serv_printf("GOTO %s", USERCONFIGROOM);
 	serv_gets(buf);
 	if (buf[0] != '2') { /* try to create the config room if not there */
@@ -95,9 +94,17 @@ void save_preferences(void) {
 		serv_gets(buf);
 		serv_printf("GOTO %s", USERCONFIGROOM);
 		serv_gets(buf);
-		if (buf[0] != '2') return;	/* oh well. */
+		if (buf[0] != '2') return(1);
 	}
+	return(0);
+}
 
+
+void save_preferences(void) {
+	char buf[SIZ];
+	long msgnum = 0L;
+
+	if (goto_config_room() != 0) return;	/* oh well. */
 	serv_puts("MSGS ALL|0|1");
 	serv_gets(buf);
 	if (buf[0] == '8') {
@@ -124,7 +131,6 @@ void save_preferences(void) {
 	/* Go back to the room we're supposed to be in */
 	serv_printf("GOTO %s", WC->wc_roomname);
 	serv_gets(buf);
-	lprintf(9, "exiting save_preferences()\n");
 }
 
 void get_preference(char *key, char *value) {
@@ -133,7 +139,6 @@ void get_preference(char *key, char *value) {
 	char buf[SIZ];
 	char thiskey[SIZ];
 
-	lprintf(9, "entering get_preference(%s)\n", key);
 	strcpy(value, "");
 
 	num_prefs = num_tokens(WC->preferences, '\n');
@@ -144,7 +149,6 @@ void get_preference(char *key, char *value) {
 			extract_token(value, buf, 1, '|');
 		}
 	}
-	lprintf(9, "exiting get_preference() = %s\n", value);
 }
 
 void set_preference(char *key, char *value) {
@@ -154,7 +158,6 @@ void set_preference(char *key, char *value) {
 	char thiskey[SIZ];
 	char *newprefs = NULL;
 
-	lprintf(9, "entering set_preference(%s, %s)\n", key, value);
 	num_prefs = num_tokens(WC->preferences, '\n');
 	for (i=0; i<num_prefs; ++i) {
 		extract_token(buf, WC->preferences, i, '\n');
@@ -179,5 +182,4 @@ void set_preference(char *key, char *value) {
 	WC->preferences = newprefs;
 
 	save_preferences();
-	lprintf(9, "exiting set_preference()\n");
 }

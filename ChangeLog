@@ -1,4 +1,11 @@
 $Log$
+Revision 410.1  2003/03/01 22:07:19  ajc
+* New user registration, as well as existing user re-registration, now
+  uses the vCard editing screen.
+* Administratively editing users' address book entries now works again,
+  mainly due to a fix in the Citadel server.  Now requiring Citadel 6.06
+  in order to enforce this.
+
 Revision 410.0  2003/02/19 03:49:33  ajc
 * THIS IS 4.10
 
@@ -1272,4 +1279,5 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
 
