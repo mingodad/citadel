@@ -1,4 +1,8 @@
 $Log$
+Revision 410.43  2003/06/04 03:41:25  ajc
+* Change the appearance of rooms with and without new messages in the
+  room list -- now defined using CSS
+
 Revision 410.42  2003/06/03 03:57:42  ajc
 * Tightened up the room banner a bit.  Smaller padding, smaller font,
   smaller images.
@@ -1447,3 +1451,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
