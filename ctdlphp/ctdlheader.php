@@ -95,7 +95,7 @@ function bbs_page_footer() {
 	//echo "Powered by Citadel.  And a few cups of coffee.<BR>\n";
 
 	echo '</div>' ;
-	echo '</BODY></HTML>\n';
+	echo '</BODY></HTML>';
 }
 
 
