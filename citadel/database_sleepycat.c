@@ -20,12 +20,13 @@
 #include "database.h"
 #include "sysdep_decls.h"
 
-#define DATABASE_NAME	"citadel.db"
 
 /*
  * This array holds one DB handle for each Citadel database.
  */
 DB *dbp[MAXCDB];
+
+DB_ENV *dbenv;
 
 DBC *MYCURSOR;	/* FIXME !! */
 
@@ -53,23 +54,62 @@ void open_databases(void)
 	int i;
 	char dbfilename[256];
 
+        /*
+         * Silently try to create the database subdirectory.  If it's
+         * already there, no problem.
+         */
+        system("exec mkdir data 2>/dev/null");
+
+	lprintf(9, "Setting up DB environment\n");
+	ret = db_env_create(&dbenv, 0);
+	if (ret) {
+		lprintf(1, "db_env_create: %s\n", db_strerror(ret));
+		exit(ret);
+	}
+	dbenv->set_errfile(dbenv, stderr);  /* FIXME */
+	dbenv->set_errpfx(dbenv, "citserver");
+
+        /*
+         * We want to specify the shared memory buffer pool cachesize,
+         * but everything else is the default.
+         */
+        ret = dbenv->set_cachesize(dbenv, 0, 64 * 1024, 0);
+	if (ret) {
+		lprintf(1, "set_cachesize: %s\n", db_strerror(ret));
+                dbenv->close(dbenv, 0);
+                exit(ret);
+        }
+
+        /*
+         * We have multiple processes reading/writing these files, so
+         * we need concurrency control and a shared buffer pool, but
+         * not logging or transactions.
+         */
+        /* (void)dbenv->set_data_dir(dbenv, "/database/files"); */
+        ret = dbenv->open(dbenv, "./data",
+         DB_CREATE | DB_INIT_LOCK | DB_INIT_MPOOL | DB_THREAD, 0);
+	if (ret) {
+		lprintf(1, "dbenv->open: %s\n", db_strerror(ret));
+                dbenv->close(dbenv, 0);
+                exit(ret);
+        }
+
 	lprintf(7, "Starting up DB\n");
 
 	for (i = 0; i < MAXCDB; ++i) {
 
 		/* Create a database handle */
-		ret = db_create(&dbp[i], NULL, 0);
+		ret = db_create(&dbp[i], dbenv, 0);
 		if (ret) {
 			lprintf(1, "db_create: %s\n", db_strerror(ret));
 			exit(ret);
 		}
 
-		dbp[i]->set_errfile(dbp[i], stderr);  /* FIXME */
 
 		/* Arbitrary names for our tables -- we reference them by
 		 * number, so we don't have string names for them.
 		 */
-		sprintf(dbfilename, "data/cdb.%02x", i);
+		sprintf(dbfilename, "cdb.%02x", i);
 
 		ret = dbp[i]->open(dbp[i],
 				dbfilename,
@@ -77,9 +117,8 @@ void open_databases(void)
 				DB_BTREE,
 				DB_CREATE,
 				0600);
-
 		if (ret) {
-			lprintf(1, "db_open: %s\n", db_strerror(ret));
+			lprintf(1, "db_open[%d]: %s\n", i, db_strerror(ret));
 			exit(ret);
 		}
 
@@ -106,6 +145,16 @@ void close_databases(void)
 		}
 		
 	}
+
+
+
+        /* Close the handle. */
+        ret = dbenv->close(dbenv, 0);
+	if (ret) {
+                lprintf(1, "DBENV->close: %s\n", db_strerror(ret));
+        }
+
+
 	end_critical_section(S_DATABASE);
 
 }
@@ -137,6 +186,8 @@ int cdb_store(int cdb,
 				&ddata,		/* data */
 				0);		/* flags */
 	end_critical_section(S_DATABASE);
+	lprintf(9, "put (  to file %d) returned %3d (%d bytes)\n",
+		cdb, ret, ddata.size);
 	if (ret) {
 		lprintf(1, "cdb_store: %s\n", db_strerror(ret));
 		return (-1);
@@ -183,10 +234,13 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
 	memset(&dret, 0, sizeof(DBT));
 	dkey.size = keylen;
 	dkey.data = key;
+	dret.flags = DB_DBT_MALLOC;
 
 	begin_critical_section(S_DATABASE);
 	ret = dbp[cdb]->get(dbp[cdb], NULL, &dkey, &dret, 0);
 	end_critical_section(S_DATABASE);
+	lprintf(9, "get (from file %d) returned %3d (%d bytes)\n",
+		cdb, ret, dret.size);
 	if ((ret != 0) && (ret != DB_NOTFOUND)) {
 		lprintf(1, "cdb_fetch: %s\n", db_strerror(ret));
 		return NULL;
@@ -243,6 +297,7 @@ struct cdbdata *cdb_next_item(int cdb)
         /* Initialize the key/data pair so the flags aren't set. */
         memset(&key, 0, sizeof(key));
         memset(&data, 0, sizeof(data));
+	data.flags = DB_DBT_MALLOC;
 
 	begin_critical_section(S_DATABASE);
 	ret = MYCURSOR->c_get(MYCURSOR,
