@@ -1,4 +1,7 @@
  $Log$
+ Revision 580.82  2001/12/01 17:00:23  ajc
+ * serv_smtp.c: when multiple MX's are the same preference, randomize them
+
  Revision 580.81  2001/12/01 07:18:28  ajc
  * Fixed an SMTP delivery problem that was causing certain classes of
    transient errors to cause a message to never be delivered.
@@ -2886,3 +2889,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -52,6 +52,22 @@ int get_smarthosts(char *mxbuf) {
 }
 
 
+/*
+ * Compare the preference of two MX records.  First check by the actual
+ * number listed in the MX record.  If they're identical, randomize the
+ * result.
+ */
+inline int mx_compare_pref(int pref1, int pref2) {
+	if (pref1 > pref2) {
+		return(1);
+	}
+	else if (pref1 < pref2) {
+		return(1);
+	}
+	else {
+		return(rand() % 2);
+	}
+}
 
 
 /*
@@ -69,8 +85,7 @@ void sort_mxrecs(struct mx *mxrecs, int num_mxrecs) {
 	/* do the sort */
 	for (a = num_mxrecs - 2; a >= 0; --a) {
 		for (b = 0; b <= a; ++b) {
-			if (mxrecs[b].pref > mxrecs[b+1].pref) {
-
+			if (mx_compare_pref(mxrecs[b].pref,mxrecs[b+1].pref)) {
 				memcpy(&hold1, &mxrecs[b], sizeof(struct mx));
 				memcpy(&hold2, &mxrecs[b+1], sizeof(struct mx));
 				memcpy(&mxrecs[b], &hold2, sizeof(struct mx));
