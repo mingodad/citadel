@@ -92,6 +92,7 @@ void smtp_help(void) {
 	cprintf("214-    MAIL\n");
 	cprintf("214-    NOOP\n");
 	cprintf("214-    QUIT\n");
+	cprintf("214-    RCPT\n");
 	cprintf("214-    RSET\n");
 	cprintf("214-    VRFY\n");
 	cprintf("214 I could tell you more, but then I'd have to kill you.\n");
@@ -286,7 +287,6 @@ void smtp_mail(char *argbuf) {
 	 * the user only sends email from his/her own address.
 	 */
 	if (CC->logged_in) {
-		lprintf(9, "Me-checking <%s>\n", SMTP->from);
 		cvt = convert_internet_address(user, node, SMTP->from);
 		lprintf(9, "cvt=%d, citaddr=<%s@%s>\n", cvt, user, node);
 		if ( (cvt != 0) || (strcasecmp(user, CC->usersupp.fullname))) {
@@ -296,8 +296,42 @@ void smtp_mail(char *argbuf) {
 		}
 	}
 
+	/* Otherwise, make sure outsiders aren't trying to forge mail from
+	 * this system.
+	 */
+	else {
+		cvt = convert_internet_address(user, node, SMTP->from);
+		lprintf(9, "cvt=%d, citaddr=<%s@%s>\n", cvt, user, node);
+		if (!strcasecmp(node, config.c_nodename)) { /* FIX use fcn */
+			cprintf("550 You must log in to send mail from %s\n",
+				config.c_fqdn);
+			return;
+		}
+	}
+
 	cprintf("250 Sender ok.  Groovy.\n");
 }
+
+
+
+/*
+ * Implements the "RCPT To:" command
+ */
+void smtp_rcpt(char *argbuf) {
+
+	if (strlen(SMTP->from) == 0) {
+		cprintf("503 MAIL first, then RCPT.  Duh.\n");
+		return;
+	}
+
+	if (strncasecmp(argbuf, "To:", 3)) {
+		cprintf("501 Syntax error\n");
+		return;
+	}
+
+	cprintf("599 this is unfinished\n");
+}
+
 
 
 
@@ -358,6 +392,10 @@ void smtp_command_loop(void) {
 		CC->kill_me = 1;
 		return;
 		}
+
+	else if (!strncasecmp(cmdbuf, "RCPT", 4)) {
+		smtp_rcpt(&cmdbuf[5]);
+	}
 
 	else if (!strncasecmp(cmdbuf, "RSET", 4)) {
 		smtp_rset();
