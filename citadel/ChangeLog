@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.9  2000/10/06 03:31:55  ajc
+ * Mark Crispin is a fscking idiot.  IMAP is a convoluted mess.
+
  Revision 573.8  2000/10/05 22:23:16  ajc
  * Slowly and painfully writing IMAP support
 
@@ -2080,3 +2083,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

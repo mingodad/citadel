@@ -5,9 +5,7 @@
  * Copyright (C) 2000 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.
  *
- * Current status of standards conformance:
- *
- *               ***  ABSOLUTELY NOTHING WORKS  ***
+ * *** THIS IS UNDER DEVELOPMENT.  IT DOES NOT WORK.  DO NOT USE IT. ***
  * 
  */
 
@@ -22,6 +20,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/wait.h>
+#include <ctype.h>
 #include <string.h>
 #include <limits.h>
 #include "citadel.h"
@@ -295,6 +294,56 @@ void imap_list(int num_parms, char *parms[]) {
 }
 
 
+/*
+ * Do the actual work for imap_fetch().  By the time this function is called,
+ * the "lo" and "hi" sequence numbers are already validated, and the data item
+ * names are, um... something.
+ */
+void imap_do_fetch(int lo, int hi, char *items) {
+	cprintf("* lo=%d hi=%d items=<%s>\r\n", lo, hi, items);
+}
+
+
+/*
+ * Mark Crispin is a fscking idiot.
+ */
+void imap_fetch(int num_parms, char *parms[]) {
+	int lo = 0;
+	int hi = 0;
+	char lostr[1024], histr[1024], items[1024];
+	int i;
+
+	if (num_parms < 4) {
+		cprintf("%s BAD invalid parameters\r\n", parms[0]);
+		return;
+	}
+
+	extract_token(lostr, parms[2], 0, ':');
+	lo = atoi(lostr);
+	extract_token(histr, parms[2], 1, ':');
+	hi = atoi(histr);
+
+	if ( (lo < 1) || (hi < 1) || (lo > hi) || (hi > IMAP->num_msgs) ) {
+		cprintf("%s BAD invalid sequence numbers %d:%d\r\n",
+			parms[0], lo, hi);
+		return;
+	}
+
+	strcpy(items, "");
+	for (i=3; i<num_parms; ++i) {
+		strcat(items, parms[i]);
+		if (i < (num_parms-1)) strcat(items, " ");
+	}
+	for (i=0; i<strlen(items); ++i) {
+		if (isspace(items[i])) items[i] = ' ';
+	}
+
+	imap_do_fetch(lo, hi, items);
+	cprintf("%s OK FETCH completed\r\n", parms[0]);
+}
+
+
+
 
 /* 
  * Main command loop for IMAP sessions.
@@ -378,6 +427,10 @@ void imap_command_loop(void) {
 	}
 
 	/* commands requiring the SELECT state */
+
+	else if (!strcasecmp(parms[1], "FETCH")) {
+		imap_fetch(num_parms, parms);
+	}
 
 	else if (!strcasecmp(parms[1], "CLOSE")) {
 		imap_close(num_parms, parms);
