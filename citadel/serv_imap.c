@@ -464,6 +464,10 @@ void imap_list_floors(char *cmd) {
 void imap_lsub_listroom(struct quickroom *qrbuf, void *data) {
 	char buf[SIZ];
 	int ra;
+	char *pattern;
+
+	pattern = (char *)data;
+	lprintf(9, "lsub pattern: <%s>\n", pattern);
 
 	/* Only list rooms to which the user has access!! */
 	ra = CtdlRoomAccess(qrbuf, &CC->usersupp);
@@ -482,8 +486,14 @@ void imap_lsub_listroom(struct quickroom *qrbuf, void *data) {
  * FIXME: Handle wildcards, please.
  */
 void imap_lsub(int num_parms, char *parms[]) {
+	char pattern[SIZ];
+	if (num_parms < 4) {
+		cprintf("%s BAD arguments invalid\r\n", parms[0]);
+		return;
+	}
+	sprintf(pattern, "%s%s", parms[2], parms[3]);
 	imap_list_floors("LSUB");
-	ForEachRoom(imap_lsub_listroom, NULL);
+	ForEachRoom(imap_lsub_listroom, pattern);
 	cprintf("%s OK LSUB completed\r\n", parms[0]);
 }
 
@@ -495,6 +505,10 @@ void imap_lsub(int num_parms, char *parms[]) {
 void imap_list_listroom(struct quickroom *qrbuf, void *data) {
 	char buf[SIZ];
 	int ra;
+	char *pattern;
+
+	pattern = (char *)data;
+	lprintf(9, "list pattern: <%s>\n", pattern);
 
 	/* Only list rooms to which the user has access!! */
 	ra = CtdlRoomAccess(qrbuf, &CC->usersupp);
@@ -514,8 +528,14 @@ void imap_list_listroom(struct quickroom *qrbuf, void *data) {
  * FIXME: Handle wildcards, please.
  */
 void imap_list(int num_parms, char *parms[]) {
+	char pattern[SIZ];
+	if (num_parms < 4) {
+		cprintf("%s BAD arguments invalid\r\n", parms[0]);
+		return;
+	}
+	sprintf(pattern, "%s%s", parms[2], parms[3]);
 	imap_list_floors("LIST");
-	ForEachRoom(imap_list_listroom, NULL);
+	ForEachRoom(imap_list_listroom, pattern);
 	cprintf("%s OK LIST completed\r\n", parms[0]);
 }
 
