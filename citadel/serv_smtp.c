@@ -161,10 +161,23 @@ void smtp_hello(char *argbuf, int which_command) {
 	}
 
 	if (which_command == 0) {
-		cprintf("250 Greetings and joyous salutations.\r\n");
+		cprintf("250 Hello %s (%s [%s])\r\n",
+			SMTP->helo_node,
+			CC->cs_host,
+			CC->cs_addr
+		);
 	}
 	else {
-		cprintf("250-Greetings and joyous salutations.\r\n");
+		if (which_command == 1) {
+			cprintf("250-Hello %s (%s [%s])\r\n",
+				SMTP->helo_node,
+				CC->cs_host,
+				CC->cs_addr
+			);
+		}
+		else {
+			cprintf("250-Greetings and joyous salutations.\r\n");
+		}
 		cprintf("250-HELP\r\n");
 		cprintf("250-SIZE %ld\r\n", config.c_maxmsglen);
 		cprintf("250-PIPELINING\r\n");
@@ -172,6 +185,7 @@ void smtp_hello(char *argbuf, int which_command) {
 		cprintf("250 ENHANCEDSTATUSCODES\r\n");
 	}
 }
+
 
 
 /*
