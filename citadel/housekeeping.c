@@ -169,19 +169,21 @@ void check_ref_counts_backend(struct quickroom *qrbuf, void *data) {
 	++flbuf.f_ref_count;
 	flbuf.f_flags = flbuf.f_flags | QR_INUSE;
 	putfloor(&flbuf, qrbuf->QRfloor);
-	}
+}
 
 void check_ref_counts(void) {
 	struct floor flbuf;
 	int a;
 
+	lprintf(7, "Checking floor reference counts\n");
 	for (a=0; a<MAXFLOORS; ++a) {
+		lprintf(9, "Resetting floor %d\n", a);
 		getfloor(&flbuf, a);
 		flbuf.f_ref_count = 0;
 		flbuf.f_flags = flbuf.f_flags & ~QR_INUSE;
 		putfloor(&flbuf, a);
-		}
+	}
 
 	ForEachRoom(check_ref_counts_backend, NULL);
-	}	
+}	
 

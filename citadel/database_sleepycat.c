@@ -261,7 +261,7 @@ int cdb_store(int cdb,
 				0);		/* flags */
 	end_critical_section(S_DATABASE);
 	if (ret) {
-		lprintf(1, "cdb_store: %s\n", db_strerror(ret));
+		lprintf(1, "cdb_store(%d): %s\n", cdb, db_strerror(ret));
 		return (-1);
 	}
 	return (0);

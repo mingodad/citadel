@@ -57,10 +57,12 @@ void master_startup(void) {
 	lprintf(7, "Opening databases\n");
 	open_databases();
 
-	if (do_defrag)
+	if (do_defrag) {
 		defrag_databases();
+	}
 
-	lprintf(7, "Checking floor reference counts\n");
+	cdb_begin_transaction();
+
 	check_ref_counts();
 
 	lprintf(7, "Creating base rooms (if necessary)\n");
@@ -69,11 +71,11 @@ void master_startup(void) {
 	create_room(SYSCONFIGROOM,	3, "", 0);
 	create_room(config.c_twitroom,	0, "", 0);
 
-/* Seed the PRNG */
-	
 	lprintf(7, "Seeding the pseudo-random number generator...\n");
 	gettimeofday(&tv, NULL);
 	srand(tv.tv_usec);
+
+	cdb_end_transaction();
 }
 
 /*
