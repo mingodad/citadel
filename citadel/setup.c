@@ -1180,6 +1180,7 @@ NEW_INST:
 	disable_other_mta("pop3d");
 	disable_other_mta("exim");
 	disable_other_mta("dovecot");
+	disable_other_mta("hula");
 #endif
 
 	if ((pw = getpwuid(config.c_bbsuid)) == NULL)
