@@ -1,4 +1,8 @@
  $Log$
+ Revision 605.7  2003/03/03 04:09:21  ajc
+ * When creating a user, hide the "My Citadel Config>" room of the user being
+   created, not the user currently logged in.
+
  Revision 605.6  2003/03/01 18:18:03  ajc
  * commands.c: alternate_semantics might have been getting set where it
    should not.  Fixed.
@@ -4502,3 +4506,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

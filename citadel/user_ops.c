@@ -791,7 +791,7 @@ int create_user(char *newusername, int become_user)
 
 	MailboxName(mailboxname, sizeof mailboxname, &usbuf, USERCONFIGROOM);
 	create_room(mailboxname, 5, "", 0, 1, 1);
-        if (lgetroom(&qrbuf, USERCONFIGROOM) == 0) {
+        if (lgetroom(&qrbuf, mailboxname) == 0) {
                 qrbuf.QRflags2 |= QR2_SYSTEM;
                 lputroom(&qrbuf);
         }
