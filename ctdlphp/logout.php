@@ -6,7 +6,6 @@
 //
 // Copyright (c) 2003 by Art Cancro <ajc@uncensored.citadel.org>
 // This program is released under the terms of the GNU General Public License.
-//
 
 	include "ctdlheader.php";
 
@@ -14,7 +13,7 @@
 
 	echo ctdl_mesg("goodbye");
 
-	echo "<a href=\"index.php\">Log in again</a><BR>\n" ;
+	echo "<a href=\"login.php\">Log in again</a><BR>\n" ;
 
 	bbs_page_footer();
 	ctdl_end_session();

@@ -1,10 +1,10 @@
 <?PHP
 
-	// This is an example of the use of ctdl_rwho() to display the
-	// list of users currently logged in.
-
 	include "ctdlheader.php";
 	bbs_page_header();
+
+	echo "This is an example of the use of ctdl_rwho() to display the " ;
+	echo "list of users currently logged in.<BR><BR>\n" ;
 
 	echo "<TABLE border=1>";
 	echo "<TR>";
@@ -27,6 +27,7 @@
 
 ?>
 
+<BR>Sample links<BR>
 <a href="welcome.php">Page One</a><BR>
 <a href="page3.php">Page Three</a><BR>
 

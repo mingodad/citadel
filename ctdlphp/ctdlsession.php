@@ -5,6 +5,11 @@
 // This gets called from within the header functions.  It establishes or
 // connects to a PHP session, and then connects to Citadel if necessary.
 //
+// Web designers: please make changes in ctdlheader.php, not here.
+//
+// Copyright (c) 2003 by Art Cancro <ajc@uncensored.citadel.org>
+// This program is released under the terms of the GNU General Public License.
+
 
 function establish_citadel_session() {
 

@@ -5,6 +5,8 @@
 
 <H1>Known rooms</H1>
 
+This is a sample page to demonstrate how to generate a room list.
+
 <UL>
 
 <?PHP
@@ -23,6 +25,7 @@
 
 </UL>
 
+Sample links<BR>
 <a href="welcome.php">Page One</a><BR>
 <a href="page3.php">Page Three</a><BR>
 

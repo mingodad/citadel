@@ -8,9 +8,11 @@
 // server connection.  We need one of these for each session because PHP does
 // not have a way to bind a session to a persistent socket.
 //
+// Web designers: don't touch this module.  It's not included in your web pages
+// and therefore you don't need to be here.
+//
 // Copyright (c) 2003 by Art Cancro <ajc@uncensored.citadel.org>
 // This program is released under the terms of the GNU General Public License.
-//
 
 
 // sock_gets() -- reads one line of text from a socket
