@@ -84,10 +84,15 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	}
 
 	/* Begin output */
-	output_headers(1, 1, 0, 0, 0, 0, 0);
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n"
+		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>"
+		"<SPAN CLASS=\"titlebar\">Add or edit an event</SPAN>"
+		"</TD></TR></TABLE>\n"
+		"</div>\n<div id=\"content\">\n"
+	);
+
 	do_template("beginbox_nt");
-	wprintf("<h3>&nbsp;<IMG ALIGN=CENTER SRC=\"/static/vcalendar.gif\">"
-		"&nbsp;Add or edit an event</h3>\n");
 
 	/************************************************************
 	 * Uncomment this to see the UID in calendar events for debugging
