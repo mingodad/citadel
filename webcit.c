@@ -20,6 +20,7 @@
 #include <stdarg.h>
 #include "webcit.h"
 #include "child.h"
+#include "mime_parser.h"
 
 int wc_session;
 char wc_username[256];
@@ -459,6 +460,26 @@ void extract_action(char *actbuf, char *cmdbuf) {
 	}
 
 
+void upload_handler(char *name, char *filename, char *encoding,
+			void *content, size_t length) {
+
+	fprintf(stderr, "UPLOAD HANDLER CALLED\n");
+	fprintf(stderr, "    name = %s\n", name);
+	fprintf(stderr, "filename = %s\n", filename);
+	fprintf(stderr, "encoding = %s\n", encoding);
+	fprintf(stderr, "  length = %d\n", length);
+
+        if (strlen(name)>0) {
+                upload = malloc(length);
+                if (upload != NULL) {
+                        upload_length = length;
+                        memcpy(upload, content, length);
+                        }
+                }
+
+	}
+
+
 void session_loop(void) {
 	char cmd[256];
 	char action[256];
@@ -520,7 +541,8 @@ void session_loop(void) {
 			addurls(content);
 			}
 		else if (!strncasecmp(ContentType, "multipart", 9)) {
-			mime_parser(content, ContentLength, ContentType);
+			mime_parser(content, ContentLength, ContentType,
+					*upload_handler);
 			}
 		}
 	else {

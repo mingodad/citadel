@@ -81,7 +81,7 @@ paging.o: paging.c webcit.h child.h
 sysmsgs.o: sysmsgs.c webcit.h child.h
 	$(CC) $(CFLAGS) $(DEFS) -c sysmsgs.c
 
-mime_parser.o: mime_parser.c webcit.h child.h
+mime_parser.o: mime_parser.c webcit.h child.h mime_parser.h
 	$(CC) $(CFLAGS) $(DEFS) -c mime_parser.c
 
 cookie_conversion.o: cookie_conversion.c webcit.h child.h
