@@ -31,6 +31,7 @@ SERV_MODULES=modules/serv_chat$(SO) modules/serv_vcard$(SO) \
 	modules/serv_pop3$(SO) \
 	modules/serv_imap$(SO) \
 	modules/serv_network$(SO) \
+	modules/serv_pas2$(SO) \
 	modules/serv_inetcfg$(SO) \
 	modules/serv_rwho$(SO) \
 	modules/serv_moderate$(SO) \
