@@ -1870,9 +1870,11 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 	int nests = 0;
 	int i, k, t;
 	int num_boxes = 0;
+	static int columns = 3;
 	int boxes_per_column = 0;
+	int current_column = 0;
 
-	boxes_per_column = (num_floors / 3);	/* three columns */
+	boxes_per_column = (num_floors / columns);
 	if (boxes_per_column < 1) boxes_per_column = 1;
 
 	/* Outer table (for columnization) */
@@ -1903,7 +1905,10 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 
 			++num_boxes;
 			if ((num_boxes % boxes_per_column) == 0) {
-				wprintf("</TD><TD VALIGN=TOP>\n");
+				++current_column;
+				if (current_column < columns) {
+					wprintf("</TD><TD VALIGN=TOP>\n");
+				}
 			}
 		}
 

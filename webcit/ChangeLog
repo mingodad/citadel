@@ -1,4 +1,7 @@
 $Log$
+Revision 410.20  2003/05/03 16:23:29  ajc
+* Enforce three columns in portal view of room list
+
 Revision 410.19  2003/05/03 04:52:32  ajc
 * Added an experimental new "portal view" to the room list options
 
@@ -1361,4 +1364,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
