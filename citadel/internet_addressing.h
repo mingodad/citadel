@@ -17,6 +17,7 @@ int fuzzy_match(struct usersupp *us, char *matchstring);
 void process_rfc822_addr(char *rfc822, char *user, char *node, char *name);
 char *rfc822_fetch_field(char *rfc822, char *fieldname);
 
+int IsDirectory(char *addr);
 void CtdlDirectoryInit(void);
 void CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr);
 void CtdlDirectoryDelUser(char *internet_addr);
