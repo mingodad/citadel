@@ -138,12 +138,10 @@ int getroom(struct quickroom *qrbuf, char *room_name)
                 	sizeof(struct quickroom) : cdbqr->len) );
 		cdb_free(cdbqr);
 
-/*** FIX FIX FIX REMOVE THIS!!!!  IT'S ONLY TO FIX A PROBLEM SPECIFIC TO UNCENSORED ***/
-		if (!strcasecmp(qrbuf->QRname, "Linux")) {
-			qrbuf->QRflags = qrbuf->QRflags & ~QR_MAILBOX;
+		/* Mailbox rooms are always on the lowest floor */
+		if (qrbuf->QRflags & QR_MAILBOX) {
+			qrbuf->QRfloor = 0;
 			}
-
-
 
 		return(0);
 		}
