@@ -1,4 +1,7 @@
 $Log$
+Revision 506.1  2004/04/10 04:32:59  ajc
+* Fixed some version and copyright date oopses
+
 Revision 506.0  2004/04/10 04:29:30  ajc
 * THIS IS 5.06
 
@@ -1755,3 +1758,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
