@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <ctype.h>
 #include <string.h>
 
 #if TIME_WITH_SYS_TIME
