@@ -1,4 +1,7 @@
  $Log$
+ Revision 611.7  2003/11/14 20:04:28  ajc
+ * IMAP FETCH ENVELOPE now outputs more fields correctly.
+
  Revision 611.6  2003/11/14 03:49:54  ajc
  * MUCH faster implementation of rfc822_fetch_field()
 
@@ -5081,3 +5084,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

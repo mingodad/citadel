@@ -111,24 +111,27 @@ void imap_fetch_internaldate(struct CtdlMessage *msg) {
  *	"RFC822.TEXT"	body only (without leading blank line)
  */
 void imap_fetch_rfc822(int msgnum, char *whichfmt, struct CtdlMessage *msg) {
-	FILE *tmp;
 	char buf[1024];
 	char *ptr;
 	long headers_size, text_size, total_size;
 	long bytes_remaining = 0;
 	long blocksize;
+	FILE *tmp;
 
 	tmp = tmpfile();
 	if (tmp == NULL) {
-		lprintf(1, "Cannot open temp file: %s\n", strerror(errno));
+		lprintf(1, "Cannot open temp file: %s\n",
+						strerror(errno));
 		return;
 	}
 
 	/*
-	 * Load the message into a temp file for translation and measurement
-	 */ 
+	 * Load the message into a temp file for translation
+	 * and measurement
+	 */
 	CtdlRedirectOutput(tmp, -1);
-	CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822, HEADERS_ALL, 0, 1);
+	CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822,
+				HEADERS_ALL, 0, 1);
 	CtdlRedirectOutput(NULL, -1);
 	if (!is_valid_message(msg)) {
 		lprintf(1, "WARNING: output clobbered the message!\n");
@@ -144,7 +147,9 @@ void imap_fetch_rfc822(int msgnum, char *whichfmt, struct CtdlMessage *msg) {
 		ptr = fgets(buf, sizeof buf, tmp);
 		if (ptr != NULL) {
 			striplt(buf);
-			if (strlen(buf) == 0) headers_size = ftell(tmp);
+			if (strlen(buf) == 0) {
+				headers_size = ftell(tmp);
+			}
 		}
 	} while ( (headers_size == 0L) && (ptr != NULL) );
 	fseek(tmp, 0L, SEEK_END);
@@ -289,7 +294,8 @@ void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
 	else {
 		msgdate = time(NULL);
 	}
-	datestring(datestringbuf, sizeof datestringbuf, msgdate, DATESTRING_IMAP);
+	datestring(datestringbuf, sizeof datestringbuf,
+		msgdate, DATESTRING_IMAP);
 
 	/* Now start spewing data fields.  The order is important, as it is
 	 * defined by the protocol specification.  Nonexistent fields must
@@ -310,16 +316,20 @@ void imap_fetch_envelope(long msgnum, struct CtdlMessage *msg) {
 	imap_output_envelope_from(msg);
 
 	/* Sender */
-	if (0) {
-		/* FIXME ... check for a *real* Sender: field */
+	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Sender");
+	if (fieldptr != NULL) {
+		imap_strout(fieldptr);
+		phree(fieldptr);
 	}
 	else {
 		imap_output_envelope_from(msg);
 	}
 
 	/* Reply-to */
-	if (0) {
-		/* FIXME ... check for a *real* Reply-to: field */
+	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "Reply-to");
+	if (fieldptr != NULL) {
+		imap_strout(fieldptr);
+		phree(fieldptr);
 	}
 	else {
 		imap_output_envelope_from(msg);
