@@ -50,8 +50,6 @@ struct cittext {
 };
 
 void sttybbs(int cmd);
-int fmout(int width, FILE * fp, char pagin, int height, int starting_lp,
-	  char subst);
 int haschar(char *st, int ch);
 int checkpagin(int lp, int pagin, int height);
 void getline(char *string, int lim);
@@ -346,7 +344,8 @@ void citedit(FILE * fp)
  */
 int read_message(
 	long num,   /* message number */
-	char pagin) /* 0 = normal read, 1 = read with pagination, 2 = header */
+	char pagin, /* 0 = normal read, 1 = read with pagination, 2 = header */
+	FILE *dest) /* Destination file, NULL for screen */
 {
 	char buf[SIZ];
 	char m_subject[SIZ];
@@ -377,22 +376,30 @@ int read_message(
 	strcpy(node, "");
 	strcpy(rfca, "");
 
-	scr_printf("\n");
-	++lines_printed;
-	lines_printed = checkpagin(lines_printed, pagin, screenheight);
-	scr_printf(" ");
-	if (pagin == 1) {
+	if (dest) {
+		fprintf(dest, "\n ");
+	} else {
+		scr_printf("\n");
+		++lines_printed;
+		lines_printed = checkpagin(lines_printed, pagin, screenheight);
+		scr_printf(" ");
+	}
+	if (pagin == 1 && !dest) {
 		color(BRIGHT_CYAN);
 	}
 
 	if (pagin == 2) {
 		while (serv_gets(buf), strcmp(buf, "000")) {
 			if (buf[4] == '=') {
-				scr_printf("%s\n", buf);
-				++lines_printed;
-				lines_printed =
-				    checkpagin(lines_printed,
-					       pagin, screenheight);
+				if (dest) {
+					fprintf(dest, "%s\n", buf);
+				} else {
+					scr_printf("%s\n", buf);
+					++lines_printed;
+					lines_printed =
+				   		checkpagin(lines_printed,
+						pagin, screenheight);
+				}
 			}
 		}
 		sttybbs(0);
@@ -411,48 +418,68 @@ int read_message(
 			format_type = atoi(&buf[5]);
 		if ((!strncasecmp(buf, "msgn=", 5))
 		    && (rc_display_message_numbers)) {
-			color(DIM_WHITE);
-			scr_printf("[");
-			color(BRIGHT_WHITE);
-			scr_printf("#%s", &buf[5]);
-			color(DIM_WHITE);
-			scr_printf("] ");
+			if (dest) {
+				fprintf(dest, "[#%s] ", &buf[5]);
+			} else {
+				color(DIM_WHITE);
+				scr_printf("[");
+				color(BRIGHT_WHITE);
+				scr_printf("#%s", &buf[5]);
+				color(DIM_WHITE);
+				scr_printf("] ");
+			}
 		}
 		if (!strncasecmp(buf, "from=", 5)) {
-			color(DIM_WHITE);
-			scr_printf("from ");
-			color(BRIGHT_CYAN);
-			scr_printf("%s ", &buf[5]);
+			if (dest) {
+				fprintf(dest, "from %s ", &buf[5]);
+			} else {
+				color(DIM_WHITE);
+				scr_printf("from ");
+				color(BRIGHT_CYAN);
+				scr_printf("%s ", &buf[5]);
+			}
 		}
 		if (!strncasecmp(buf, "subj=", 5))
 			strcpy(m_subject, &buf[5]);
 
 		if (!strncasecmp(buf, "rfca=", 5)) {
 			safestrncpy(rfca, &buf[5], sizeof(rfca) - 5);
-			color(DIM_WHITE);
-			scr_printf("<");
-			color(BRIGHT_BLUE);
-			scr_printf("%s", &buf[5]);
-			color(DIM_WHITE);
-			scr_printf("> ");
+			if (dest) {
+				fprintf(dest, "<%s> ", &buf[5]);
+			} else {
+				color(DIM_WHITE);
+				scr_printf("<");
+				color(BRIGHT_BLUE);
+				scr_printf("%s", &buf[5]);
+				color(DIM_WHITE);
+				scr_printf("> ");
+			}
 		}
 		if ((!strncasecmp(buf, "hnod=", 5))
 		    && (strcasecmp(&buf[5], serv_info.serv_humannode))
 		    && (strlen(rfca) == 0)) {
-			color(DIM_WHITE);
-			scr_printf("(");
-			color(BRIGHT_WHITE);
-			scr_printf("%s", &buf[5]);
-			color(DIM_WHITE);
-			scr_printf(") ");
+			if (dest) {
+				fprintf(dest, "(%s) ", &buf[5]);
+			} else {
+				color(DIM_WHITE);
+				scr_printf("(");
+				color(BRIGHT_WHITE);
+				scr_printf("%s", &buf[5]);
+				color(DIM_WHITE);
+				scr_printf(") ");
+			}
 		}
 		if ((!strncasecmp(buf, "room=", 5))
 		    && (strcasecmp(&buf[5], room_name))
 		    && (strlen(rfca) == 0)) {
-			color(DIM_WHITE);
-			scr_printf("in ");
-			color(BRIGHT_MAGENTA);
-			scr_printf("%s> ", &buf[5]);
+			if (dest) {
+				fprintf(dest, "in %s> ", &buf[5]);
+			} else {
+				color(DIM_WHITE);
+				scr_printf("in ");
+				color(BRIGHT_MAGENTA);
+				scr_printf("%s> ", &buf[5]);
+			}
 		}
 
 		if (!strncasecmp(buf, "node=", 5)) {
@@ -465,34 +492,58 @@ int read_message(
 			      (strcasecmp(&buf[5], serv_info.serv_fqdn)))))
 			{
 				if (strlen(rfca) == 0) {
-					color(DIM_WHITE);
-					scr_printf("@");
-					color(BRIGHT_YELLOW);
-					scr_printf("%s ", &buf[5]);
+					if (dest) {
+						fprintf(dest, "@%s ", &buf[5]);
+					} else {
+						color(DIM_WHITE);
+						scr_printf("@");
+						color(BRIGHT_YELLOW);
+						scr_printf("%s ", &buf[5]);
+					}
 				}
 			}
 		}
 
 		if (!strncasecmp(buf, "rcpt=", 5)) {
-			color(DIM_WHITE);
-			scr_printf("to ");
-			color(BRIGHT_CYAN);
-			scr_printf("%s ", &buf[5]);
+			if (dest) {
+				fprintf(dest, "to %s ", &buf[5]);
+			} else {
+				color(DIM_WHITE);
+				scr_printf("to ");
+				color(BRIGHT_CYAN);
+				scr_printf("%s ", &buf[5]);
+			}
 		}
 		if (!strncasecmp(buf, "time=", 5)) {
 			fmt_date(now, atol(&buf[5]), 0);
-			scr_printf("%s ", now);
+			if (dest) {
+				fprintf(dest, "%s ", now);
+			} else {
+				scr_printf("%s ", now);
+			}
 		}
 	}
 
 	if (nhdr == 1) {
 		if (!is_room_aide) {
-			scr_printf(" ****");
+			if (dest) {
+				fprintf(dest, " ****");
+			} else {
+				scr_printf(" ****");
+			}
 		} else {
-			scr_printf(" %s", from);
+			if (dest) {
+				fprintf(dest, " %s", from);
+			} else {
+				scr_printf(" %s", from);
+			}
 		}
 	}
-	scr_printf("\n");
+	if (dest) {
+		fprintf(dest, "\n");
+	} else {
+		scr_printf("\n");
+	}
 
 	if (strlen(rfca) > 0) {
 		strcpy(reply_to, rfca);
@@ -501,40 +552,54 @@ int read_message(
 			 node);
 	}
 
-	if (pagin == 1)
+	if (pagin == 1 && !dest)
 		color(BRIGHT_WHITE);
-	++lines_printed;
-	lines_printed = checkpagin(lines_printed, pagin, screenheight);
+	if (!dest) {
+		++lines_printed;
+		lines_printed = checkpagin(lines_printed, pagin, screenheight);
+	}
 
 	if (strlen(m_subject) > 0) {
-		scr_printf("Subject: %s\n", m_subject);
-		++lines_printed;
-		lines_printed =
-		    checkpagin(lines_printed, pagin, screenheight);
+		if (dest) {
+			fprintf(dest, "Subject: %s\n", m_subject);
+		} else {
+			scr_printf("Subject: %s\n", m_subject);
+			++lines_printed;
+			lines_printed = checkpagin(lines_printed,
+					pagin, screenheight);
+		}
 	}
 
 	if (format_type == 0) {
-		fr = fmout(screenwidth, NULL,
+		fr = fmout(screenwidth, NULL, dest,
 			   ((pagin == 1) ? 1 : 0), screenheight, (-1), 1);
 	} else {
 		while (serv_gets(buf), strcmp(buf, "000")) {
 			if (sigcaught == 0) {
+				if (dest) {
+					fprintf(dest, "%s\n", buf);
+				} else {
 				scr_printf("%s\n", buf);
-				lines_printed = lines_printed + 1 +
-				    (strlen(buf) / screenwidth);
-				lines_printed =
-				    checkpagin(lines_printed, pagin,
-					       screenheight);
+					lines_printed = lines_printed + 1 +
+					    (strlen(buf) / screenwidth);
+					lines_printed =
+					    checkpagin(lines_printed, pagin,
+						       screenheight);
+				}
 			}
 		}
 		fr = sigcaught;
 	}
-	scr_printf("\n");
-	scr_flush();
-	++lines_printed;
-	lines_printed = checkpagin(lines_printed, pagin, screenheight);
+	if (dest) {
+		fprintf(dest, "\n");
+	} else {
+		scr_printf("\n");
+		scr_flush();
+		++lines_printed;
+		lines_printed = checkpagin(lines_printed, pagin, screenheight);
+	}
 
-	if (pagin == 1)
+	if (pagin == 1 && !dest)
 		color(DIM_WHITE);
 	sttybbs(0);
 	return (fr);
@@ -647,7 +712,7 @@ int client_make_message(char *filename,	/* temporary file name */
 	if (mode == 0) {
 		fp = fopen(filename, "r");
 		if (fp != NULL) {
-			fmout(screenwidth, fp, 0, screenheight, 0, 0);
+			fmout(screenwidth, fp, NULL, 0, screenheight, 0, 0);
 			beg = ftell(fp);
 			fclose(fp);
 		} else {
@@ -750,7 +815,7 @@ MECR:	if (mode == 2) {
 		scr_printf("\n");
 		fp = fopen(filename, "r");
 		if (fp != NULL) {
-			fmout(screenwidth, fp,
+			fmout(screenwidth, fp, NULL,
 			      ((userflags & US_PAGINATOR) ? 1 : 0),
 			      screenheight, 0, 0);
 			beg = ftell(fp);
@@ -1088,6 +1153,7 @@ void readmsgs(
 	char cmd[SIZ];
 	char targ[ROOMNAMELEN];
 	char filename[SIZ];
+	FILE *dest = NULL;	/* Alternate destination other than screen */
 
 	if (c < 0)
 		b = (MAXMSGS - 1);
@@ -1164,7 +1230,7 @@ RAGAIN:		pagin = ((arcflag == 0)
 		}
 
 		/* now read the message... */
-		e = read_message(msg_arr[a], pagin);
+		e = read_message(msg_arr[a], pagin, dest);
 
 		/* ...and set the screenwidth back if we have to */
 		if ((quotflag) || (arcflag)) {
@@ -1173,13 +1239,15 @@ RAGAIN:		pagin = ((arcflag == 0)
 RMSGREAD:	scr_flush();
 		highest_msg_read = msg_arr[a];
 		if (quotflag) {
-			freopen("/dev/tty", "r+", stdout);
+			fclose(dest);
+			dest = NULL;
 			quotflag = 0;
 			enable_color = hold_color;
 			process_quote();
 		}
 		if (arcflag) {
-			freopen("/dev/tty", "r+", stdout);
+			fclose(dest);
+			dest = NULL;
 			arcflag = 0;
 			enable_color = hold_color;
 			f = fork();
@@ -1340,14 +1408,14 @@ RMSGREAD:	scr_flush();
 			goto RMSGREAD;
 		case 'p':
 			scr_flush();
-			freopen(prtfile, "w", stdout);
+			dest = fopen(prtfile, "w");
 			arcflag = 1;
 			hold_color = enable_color;
 			enable_color = 0;
 			goto RAGAIN;
 		case 'q':
 			scr_flush();
-			freopen(temp2, "w", stdout);
+			dest = fopen(temp2, "w");
 			quotflag = 1;
 			hold_color = enable_color;
 			enable_color = 0;
@@ -1408,7 +1476,7 @@ RMSGREAD:	scr_flush();
 			}
 			break;
 		case 'h':
-			read_message(msg_arr[a], READ_HEADER);
+			read_message(msg_arr[a], READ_HEADER, NULL);
 			goto RMSGREAD;
 		case 'r':
 			savedpos = num_msgs;

@@ -184,7 +184,7 @@ void formout(char *name)
 		scr_printf("%s\n", &cmd[4]);
 		return;
 	}
-	fmout(screenwidth, NULL,
+	fmout(screenwidth, NULL, NULL,
 	      ((userflags & US_PAGINATOR) ? 1 : 0),
 	      screenheight, 1, 1);
 }

@@ -310,7 +310,7 @@ void print_express(void)
 	
 		scr_printf(":\n");
 		lines_printed++;
-		fmout(screenwidth, NULL, 1, screenheight, -1, 0);
+		fmout(screenwidth, NULL, NULL, 1, screenheight, -1, 0);
 	}
 	scr_printf("\n---\n");
 	color(BRIGHT_WHITE);
@@ -1184,7 +1184,8 @@ void display_help(char *name)
  */
 int fmout(
 	int width,	/* screen width to use */
-	FILE *fp,	/* file to read from, or NULL to read from server */
+	FILE *fpin,	/* file to read from, or NULL to read from server */
+	FILE *fpout,	/* File to write to, or NULL to write to screen */
 	char pagin,	/* nonzero if we should use the paginator */
 	int height,	/* screen height to use */
 	int starting_lp,/* starting value for lines_printed, -1 for global */
@@ -1207,11 +1208,11 @@ int fmout(
 	c = 1;			/* c is the current pos */
 
 FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
-		if (fp != NULL) {	/* read from file */
-			if (feof(fp))
+		if (fpin != NULL) {	/* read from file */
+			if (feof(fpin))
 				eof_flag = 1;
 			if (eof_flag == 0) {
-				a = getc(fp);
+				a = getc(fpin);
 				buffer[strlen(buffer) + 1] = 0;
 				buffer[strlen(buffer)] = a;
 			}
@@ -1256,9 +1257,13 @@ FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
 	if (((a == 13) || (a == 10)) && (old != 13) && (old != 10))
 		a = 32;
 	if (((old == 13) || (old == 10)) && (isspace(real))) {
-		scr_printf("\n");
-		++lines_printed;
-		lines_printed = checkpagin(lines_printed, pagin, height);
+		if (fpout) {
+			fprintf(fpout, "\n");
+		} else {
+			scr_printf("\n");
+			++lines_printed;
+			lines_printed = checkpagin(lines_printed, pagin, height);
+		}
 		c = 1;
 	}
 	if (a > 126)
@@ -1266,11 +1271,15 @@ FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
 
 	if (a > 32) {
 		if (((strlen(aaa) + c) > (width - 5)) && (strlen(aaa) > (width - 5))) {
-			scr_printf("\n%s", aaa);
+			if (fpout) {
+				fprintf(fpout, "\n%s", aaa);
+			} else {
+				scr_printf("\n%s", aaa);
+				++lines_printed;
+				lines_printed = checkpagin(lines_printed, pagin, height);
+			}
 			c = strlen(aaa);
 			aaa[0] = 0;
-			++lines_printed;
-			lines_printed = checkpagin(lines_printed, pagin, height);
 		}
 		b = strlen(aaa);
 		aaa[b] = a;
@@ -1279,21 +1288,33 @@ FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
 	if (a == 32) {
 		if ((strlen(aaa) + c) > (width - 5)) {
 			c = 1;
-			scr_printf("\n");
-			++lines_printed;
-			lines_printed = checkpagin(lines_printed, pagin, height);
+			if (fpout) {
+				fprintf(fpout, "\n");
+			} else {
+				scr_printf("\n");
+				++lines_printed;
+				lines_printed = checkpagin(lines_printed, pagin, height);
+			}
 		}
-		scr_printf("%s ", aaa);
+		if (fpout) {
+			fprintf(fpout, "%s ", aaa);
+		} else {
+			scr_printf("%s ", aaa);
+		}
 		++c;
 		c = c + strlen(aaa);
 		strcpy(aaa, "");
 		goto FMTA;
 	}
 	if ((a == 13) || (a == 10)) {
-		scr_printf("%s\n", aaa);
+		if (fpout) {
+			fprintf(fpout, "%s\n", aaa);
+		} else {
+			scr_printf("%s\n", aaa);
+			++lines_printed;
+			lines_printed = checkpagin(lines_printed, pagin, height);
+		}
 		c = 1;
-		++lines_printed;
-		lines_printed = checkpagin(lines_printed, pagin, height);
 		if (sigcaught) goto OOPS;
 		strcpy(aaa, "");
 		goto FMTA;
@@ -1305,9 +1326,14 @@ OOPS:	do {
 		serv_gets(aaa);
 	} while (strcmp(aaa, "000"));
 
-FMTEND:	scr_printf("\n");
-	++lines_printed;
-	lines_printed = checkpagin(lines_printed, pagin, height);
+FMTEND:
+	if (fpout) {
+		fprintf(fpout, "\n");
+	} else {
+		scr_printf("\n");
+		++lines_printed;
+		lines_printed = checkpagin(lines_printed, pagin, height);
+	}
 	return (sigcaught);
 }
 

@@ -1,4 +1,8 @@
  $Log$
+ Revision 590.80  2002/01/22 10:46:25  error
+ * read_message() and fmout() now accept a FILE to which to send their
+   output; this fixes quoting in the fullscreen client
+
  Revision 590.79  2002/01/20 08:03:43  error
  * curses client: use the status line as "input" line in chat mode
 
@@ -3212,3 +3216,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+

@@ -41,8 +41,6 @@ void dotgoto(char *towhere, int display_name);
 void serv_read(char *buf, int bytes);
 void formout(char *name);
 int inkey(void);
-int fmout(int width, FILE * fp, char pagin, int height, int starting_lp,
-	  char subst);
 void progress(long int curr, long int cmax);
 int pattern(char *search, char *patn);
 int file_checksum(char *filename);
@@ -995,7 +993,7 @@ void readinfo(void)
 		return;
 	}
 
-	fmout(screenwidth, NULL,
+	fmout(screenwidth, NULL, NULL,
 	      ((userflags & US_PAGINATOR) ? 1 : 0), screenheight, 0, 1);
 }
 
