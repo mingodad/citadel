@@ -191,6 +191,48 @@ void imap_close(int num_parms, char *parms[]) {
 
 
 
+
+/*
+ * Back end for imap_lsub()
+ */
+void imap_lsub_listroom(struct quickroom *qrbuf, void *data) {
+	cprintf("* LSUB () \"|\" %s\r\n", qrbuf->QRname);
+}
+
+
+/*
+ * Implements the LSUB command
+ *
+ * FIXME: Handle wildcards, please.  Handle subscriptions, for that matter.
+ */
+void imap_lsub(int num_parms, char *parms[]) {
+	ForEachRoom(imap_lsub_listroom, NULL);
+	cprintf("%s OK LSUB completed\r\n", parms[0]);
+}
+
+
+
+/*
+ * Back end for imap_list()
+ */
+void imap_list_listroom(struct quickroom *qrbuf, void *data) {
+	cprintf("* LIST () \"|\" %s\r\n", qrbuf->QRname);
+}
+
+
+/*
+ * Implements the LIST command
+ *
+ * FIXME: Handle wildcards, please.
+ */
+void imap_list(int num_parms, char *parms[]) {
+	ForEachRoom(imap_list_listroom, NULL);
+	cprintf("* LIST () \"|\" INBOX\r\n");
+	cprintf("%s OK LIST completed\r\n", parms[0]);
+}
+
+
+
 /* 
  * Main command loop for IMAP sessions.
  */
@@ -258,6 +300,14 @@ void imap_command_loop(void) {
 
 	else if (!strcasecmp(parms[1], "EXAMINE")) {
 		imap_select(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "LSUB")) {
+		imap_lsub(num_parms, parms);
+	}
+
+	else if (!strcasecmp(parms[1], "LIST")) {
+		imap_list(num_parms, parms);
 	}
 
 	else if (IMAP->selected == 0) {

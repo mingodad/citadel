@@ -1,4 +1,7 @@
  $Log$
+ Revision 573.7  2000/10/04 22:39:06  ajc
+ * Added skeleton versions of the LIST and LSUB commands to the imap server
+
  Revision 573.6  2000/10/04 17:48:21  ajc
  * Allow Aides to zap rooms (site configurable setting)
 
@@ -2074,3 +2077,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
+
