@@ -1,5 +1,5 @@
  hack.txt for Citadel/UX
- (possibly a little out of date)
+ (some of this stuff is *very* out of date.)
    
    Much of this document is borrowed from the original hack.doc from
 Citadel-CP/M and Citadel-86, because many of the concepts are the same.  Hats

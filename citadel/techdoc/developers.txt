@@ -1,10 +1,13 @@
+Every client for the Citadel/UX system is capable of identifying itself with
+a developer code, client code, and client version.  Here are the known values
+for these fields.
+ 
+ 
 Developer codes (and where known, client codes)
 
- 0	The Citadel/UX core development team:
-	Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
-	Nathan Bryant
-	Brian Costello
-	Nick Grossman
+ 0	The Citadel/UX core development team
+	(See copyright.doc for the list of people involved in the project)
+	Here are the client ID's we've used:
 
 	Client	Name		Status		Description
 	0	Citadel		in production	Citadel/UX text based client

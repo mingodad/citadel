@@ -1,3 +1,7 @@
+Some notes on the build process...
+  
+  
+  
  Oct 28 01:57 1998 from LoanShark @uncnsrd 
 what i've done with the Makefile.in most recently is to replace all the 
 rules that explicitly generated .o files with a set of suffix rules. these 

@@ -1,6 +1,5 @@
 Chat subsystem information
-Brian Costello
-btx@calyx.net
+Brian Costello <btx@calyx.net>
 
 Chat / Messaging system
 -----------------------

@@ -28,10 +28,10 @@ a one-step migration path.
  
  
   
- Version 5.5x
- ------------
+ Version 5.5x or 5.6x
+ --------------------
  
- Upgrading from 5.5x to 5.60 is easy.  Unpack the source and run the
+ Upgrading from 5.[56]x to 5.60 is easy.  Unpack the source and run the
 configure script using "--with-prefix=/your/citadel/directory" just like you
 had done for the previous version.  After the compile is finished, shut down
 the running copy of citserver and do a "make install-exec".  This command
