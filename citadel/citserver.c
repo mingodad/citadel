@@ -192,7 +192,7 @@ void RemoveContext (struct CitContext *con)
 	lprintf(3, "citserver[%3d]: ended.\n", con->cs_pid);
 	
 
-	syslog(LOG_NOTICE,"session %d ended", con->cs_pid);
+	syslog(LOG_NOTICE,"session %d: ended", con->cs_pid);
 	
 	/* Deallocate any user-data attached to this session */
 	deallocate_user_data(con);
@@ -460,12 +460,14 @@ void cmd_iden(char *argbuf)
 		(rev_level % 100),
 		desc);
 
-	syslog(LOG_NOTICE,"client %d/%d/%01d.%02d (%s)\n",
+	syslog(LOG_NOTICE,"session %d: client %d/%d/%01d.%02d (%s) from %s\n",
+		CC->cs_pid,
 		dev_code,
 		cli_code,
 		(rev_level / 100),
 		(rev_level % 100),
-		desc);
+		desc,
+		CC->cs_host);
 	cprintf("%d Ok\n",OK);
 }
 

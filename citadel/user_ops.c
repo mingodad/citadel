@@ -363,7 +363,8 @@ void cmd_user(char *cmdbuf)
  */
 void session_startup(void)
 {
-	syslog(LOG_NOTICE, "user <%s> logged in", CC->curr_user);
+	syslog(LOG_NOTICE, "session %d: user <%s> logged in",
+	       CC->cs_pid, CC->curr_user);
 
 	lgetuser(&CC->usersupp, CC->curr_user);
 	++(CC->usersupp.timescalled);
