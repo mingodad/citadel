@@ -1,4 +1,7 @@
 $Log$
+Revision 1.430  1999/12/22 04:46:34  ajc
+* Fixed up the "Date:" headers to be RFC822-compliant
+
 Revision 1.429  1999/12/13 05:30:57  ajc
 * Removed our naive 'conv_date()' RFC822-to-unixtime conversion function
   and replaced it with the public domain 'parsedate()' function from UseNet
@@ -1496,3 +1499,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

@@ -32,6 +32,7 @@
 #include "parsedate.h"
 
 
+
 /*
  * Return 0 if a given string fuzzy-matches a Citadel user account
  *
@@ -422,3 +423,4 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 
 	return msg;
 }
+

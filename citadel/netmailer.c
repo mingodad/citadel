@@ -16,6 +16,7 @@
 #include <limits.h>
 #include <syslog.h>
 #include "citadel.h"
+#include "genstamp.h"
 
 void LoadInternetConfig(void);
 void get_config(void);
@@ -198,7 +199,8 @@ int main(int argc, char **argv)
 	FILE *fp, *rmail;
 	char sbuf[200], rbuf[200], cstr[100], fstr[128];
 	char nbuf[64], pbuf[128], rmname[128], buf[128];
-	char subject[200];
+	char datestamp[256];
+	char subject[256];
 	time_t mid_buf;
 	time_t now;
 	int mlist = 0;
@@ -286,7 +288,8 @@ int main(int argc, char **argv)
 	 */
 	fprintf(rmail, "To: %s\n", rbuf);
 	time(&now);
-	fprintf(rmail, "Date: %s", asctime(localtime(&now)));
+	generate_rfc822_datestamp(datestamp, now);
+	fprintf(rmail, "Date: %s\n", datestamp);
 	fprintf(rmail, "Message-Id: <%ld@%s>\n", (long) mid_buf, nbuf);
 	fprintf(rmail, "X-Mailer: %s\n", CITADEL);
 	fprintf(rmail, "Subject: %s\n", subject);
