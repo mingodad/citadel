@@ -48,7 +48,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	int organizer_is_me = 0;
 	int sequence = 0;
 
-	now = time(NULL);
+	now = time(NULL) % 60;	/* mod 60 to force :00 seconds */
 	strcpy(organizer_string, "");
 	strcpy(attendee_string, "");
 
@@ -138,12 +138,13 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		if (strlen(bstr("hour")) > 0) {
 			t_start.hour = atoi(bstr("hour"));
 			t_start.minute = atoi(bstr("minute"));
+			t_start.second = 0;
 		}
 		else {
 			t_start.hour = 9;
 			t_start.minute = 0;
+			t_start.second = 0;
 		}
-		/* t_start = icaltime_from_timet(now, 0); */
 	}
 	display_icaltimetype_as_webform(&t_start, "dtstart");
 
@@ -201,6 +202,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 			 */
 			t_end = t_start;
 			t_end.hour += 1;
+			t_end.second = 0;
 			t_end = icaltime_normalize(t_end);
 			/* t_end = icaltime_from_timet(now, 0); */
 		}
