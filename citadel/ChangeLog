@@ -1,3 +1,6 @@
+Fri Oct 23 19:34:38 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* setup.c: default node name is now obtained from uname()
+
 Wed Oct 21 22:24:48 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Mail rooms now hide their owner-prefix from the client.
 	* proxy.c: added configurability and primitive message expiry

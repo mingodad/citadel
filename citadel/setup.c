@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/utsname.h>
 #include <netdb.h>
 #include <errno.h>
 #include <limits.h>
@@ -859,6 +860,7 @@ int main(int argc, char *argv[]) {
 	FILE *fp;
 	int old_setup_level = 0;
 	int info_only = 0;
+	struct utsname my_utsname;
 
 	/* set an invalid setup type */
 	setup_type = (-1);
@@ -896,6 +898,7 @@ int main(int argc, char *argv[]) {
 		cleanup(0);
 		}
 
+	/* Get started in a valid setup directory. */
 	strcpy(setup_directory, BBSDIR);
 	set_str_val(0, setup_directory);
 	if (chdir(setup_directory) != 0) {
@@ -904,7 +907,10 @@ int main(int argc, char *argv[]) {
 		cleanup(errno);
 		}
 
+	/* Determine our host name, in case we need to use it as a default */
+	uname(&my_utsname);
 
+	/* Now begin. */
 	switch(setup_type) {
 		
 		case UI_TEXT:
@@ -948,9 +954,9 @@ int main(int argc, char *argv[]) {
 
 	/* set some sample/default values in place of blanks... */
 	if (strlen(config.c_nodename)==0)
-		strcpy(config.c_nodename,"mysystem");
+		strcpy(config.c_nodename, my_utsname.nodename);
 	if (strlen(config.c_fqdn)==0)
-		sprintf(config.c_fqdn,"%s.UUCP",config.c_nodename);
+		sprintf(config.c_fqdn, "%s.citadelia.org", my_utsname.nodename);
 	if (strlen(config.c_humannode)==0)
 		strcpy(config.c_humannode,"My System");
 	if (strlen(config.c_phonenum)==0)
@@ -1045,10 +1051,8 @@ NEW_INST:
 	sprintf(aaa,"mkdir %s 2>/dev/null",config.c_bucket_dir);
 	system(aaa);
 
-
-	system("rm -fr ./chatpipes 2>/dev/null");	/* Don't need these */
-	system("rm -fr ./expressmsgs 2>/dev/null");
-	unlink("sessions");
+	/* Delete a bunch of old files from Citadel v4; don't need anymore */
+	system("rm -fr ./chatpipes ./expressmsgs sessions 2>/dev/null");
 
 	check_services_entry();		/* Check /etc/services */
 	check_inittab_entry();		/* Check /etc/inittab */
