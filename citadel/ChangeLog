@@ -1,4 +1,8 @@
  $Log$
+ Revision 591.41  2002/06/14 20:42:56  ajc
+ * Discovered that spamd works even without the Content-length: command, so I
+   was able to redo the spam checker to work without a temp file.
+
  Revision 591.40  2002/06/14 20:37:03  ajc
  * Disabled the spam strings checker I wrote a few days ago.
  * When receiving SMTP, check to see if spamd (the SpamAssassin daemon) is
@@ -3716,4 +3720,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
