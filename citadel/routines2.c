@@ -427,18 +427,8 @@ void val_user(char *user)
 		}
 
 	/* now set the access level */
-	do {
-		printf("Access level (? for list): ");
-		a=inkey();
-		if (a=='?') {
-			printf("list\n");
-			for (b=0; b<7; ++b)
-				printf("%d %s\n",b,axdefs[b]);
-			}
-		a=a-48;
-		} while((a<0)||(a>6));
-	printf("%d\n\n",a);
-	sprintf(cmd,"VALI %s|%d",user,a);
+	ax = intprompt("Access level", ax, 0, 6);
+	sprintf(cmd,"VALI %s|%d",user,ax);
 	serv_puts(cmd);
 	serv_gets(cmd);
 	if (cmd[0]!='2') printf("%s\n",&cmd[4]);
