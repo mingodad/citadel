@@ -752,6 +752,7 @@ void who_is_online(int longlist)
 	time_t timenow = 0;
 	time_t idletime, idlehours, idlemins, idlesecs;
 	int last_session = (-1);
+	int linecount = 2;
 
 	if (longlist) {
 		serv_puts("TIME");
@@ -788,6 +789,7 @@ void who_is_online(int longlist)
 				       fromhost, clientsoft,
 				       (long) idlehours, (long) idlemins, (long) idlesecs);
 
+				linecount += 3;
 			} else {
 				if (extract_int(buf, 0) == last_session) {
 					printf("        ");
@@ -806,7 +808,11 @@ void who_is_online(int longlist)
 				color(BRIGHT_CYAN);
 				printf("%-24s\n", fromhost);
 				color(DIM_WHITE);
+				++linecount;
 			}
+			linecount = checkpagin(linecount,
+				    ((userflags & US_PAGINATOR) ? 1 : 0),
+					       screenheight);
 		}
 	}
 }

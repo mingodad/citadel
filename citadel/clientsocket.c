@@ -76,21 +76,11 @@ int sock_connect(char *host, char *service, char *protocol)
 		return(-1);
 	}
 
-/* FIXME ... the alarm clock is a problem for multithreaded programs because
- * all threads receive the signal.
-	signal(SIGALRM, timeout);
-	alarm(30);
- */
-
 	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
 		lprintf(3, "can't connect to %s.%s: %s\n",
 			host, service, strerror(errno));
 		return(-1);
 	}
-/*
-	alarm(0);
-	signal(SIGALRM, SIG_IGN);
- */
 
 	return (s);
 }

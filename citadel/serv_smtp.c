@@ -44,6 +44,7 @@ struct citsmtp {		/* Information about the current session */
 	char from[256];
 	int number_of_recipients;
 	int delivery_mode;
+	int message_originated_locally;
 };
 
 enum {				/* Command states for login authentication */
@@ -325,6 +326,9 @@ void smtp_mail(char *argbuf) {
 			strcpy(SMTP->from, "");
 			return;
 		}
+		else {
+			SMTP->message_originated_locally = 1;
+		}
 	}
 
 	/* Otherwise, make sure outsiders aren't trying to forge mail from
@@ -341,7 +345,7 @@ void smtp_mail(char *argbuf) {
 		}
 	}
 
-	cprintf("250 Sender ok.  Groovy.\r\n");
+	cprintf("250 Sender ok\r\n");
 }
 
 
@@ -354,10 +358,9 @@ void smtp_rcpt(char *argbuf) {
 	char user[256];
 	char node[256];
 	char recp[256];
-	int is_spam = 0;	/* FIXME implement anti-spamming */
 
 	if (strlen(SMTP->from) == 0) {
-		cprintf("503 MAIL first, then RCPT.  Duh.\r\n");
+		cprintf("503 Need MAIL before RCPT\r\n");
 		return;
 	}
 
@@ -412,8 +415,8 @@ void smtp_rcpt(char *argbuf) {
 			return;
 
 		case rfc822_address_nonlocal:
-			if (is_spam) {
-				cprintf("551 Away with thee, spammer!\r\n");
+			if (SMTP->message_originated_locally == 0) {
+				cprintf("551 Relaying denied\r\n");
 			}
 			else {
 				cprintf("250 Remote recipient %s ok\r\n", recp);

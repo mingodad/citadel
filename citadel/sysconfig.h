@@ -84,10 +84,9 @@
 
 /*
  * SMTP delivery retry and give-up times
- * FIXME ... put this in a programmable config somewhere
  */
 #define	SMTP_RETRY_INTERVAL	900	/* retry sends every 15 minutes */
-#define SMTP_GIVE_UP		259200	/* give up after 3 days */
+#define SMTP_GIVE_UP		432000	/* give up after 5 days */
 
 
 /*

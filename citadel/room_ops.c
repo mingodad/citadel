@@ -316,15 +316,21 @@ void ForEachRoom(void (*CallBack) (struct quickroom *EachRoom, void *out_data),
 
 /*
  * delete_msglist()  -  delete room message pointers
- * FIXME - this really should check first to make sure there's actually a
- *       msglist to delete.  As things stand now, calling this function on
- *       a room which has never been posted in will result in a message
- *       like "gdbm: illegal data" (no big deal, but could use fixing).
  */
 void delete_msglist(struct quickroom *whichroom)
 {
+        struct cdbdata *cdbml;
 
-	cdb_delete(CDB_MSGLISTS, &whichroom->QRnumber, sizeof(long));
+	/* Make sure the msglist we're deleting actually exists, otherwise
+	 * gdbm will complain when we try to delete an invalid record
+	 */
+        cdbml = cdb_fetch(CDB_MSGLISTS, &whichroom->QRnumber, sizeof(long));
+        if (cdbml != NULL) {
+        	cdb_free(cdbml);
+
+		/* Go ahead and delete it */
+		cdb_delete(CDB_MSGLISTS, &whichroom->QRnumber, sizeof(long));
+	}
 }
 
 
