@@ -199,22 +199,31 @@ void partstat_as_string(char *buf, icalproperty *attendee) {
 	switch(partstat) {
 		case ICAL_PARTSTAT_X:
 			strcpy(buf, "(x)");
+			break;
 		case ICAL_PARTSTAT_NEEDSACTION:
 			strcpy(buf, "(needs action)");
+			break;
 		case ICAL_PARTSTAT_ACCEPTED:
 			strcpy(buf, "(accepted)");
+			break;
 		case ICAL_PARTSTAT_DECLINED:
 			strcpy(buf, "(declined)");
+			break;
 		case ICAL_PARTSTAT_TENTATIVE:
 			strcpy(buf, "(tenative)");
+			break;
 		case ICAL_PARTSTAT_DELEGATED:
 			strcpy(buf, "(delegated)");
+			break;
 		case ICAL_PARTSTAT_COMPLETED:
 			strcpy(buf, "(completed)");
+			break;
 		case ICAL_PARTSTAT_INPROCESS:
 			strcpy(buf, "(in process)");
+			break;
 		case ICAL_PARTSTAT_NONE:
 			strcpy(buf, "(none)");
+			break;
 	}
 }
 
