@@ -245,53 +245,6 @@ void urlescputs(char *strbuf)
 	}
 
 
-/*
- * Look for URL's embedded in a buffer and make them linkable.  We use a
- * target window in order to keep the BBS session in its own window.
- */
-void url(char *buf)
-{
-
-	int pos;
-	int start,end;
-	char ench;
-	char urlbuf[256];
-	char outbuf[256];
-
-	start = (-1);
-	end = strlen(buf);
-	ench = 0;
-
-	for (pos=0; pos<strlen(buf); ++pos) {
-		if (!strncasecmp(&buf[pos],"http://",7)) start = pos;
-		if (!strncasecmp(&buf[pos],"ftp://",6)) start = pos;
-		}
-
-	if (start<0) return;
-
-	if ((start>0)&&(buf[start-1]=='<')) ench = '>';
-	if ((start>0)&&(buf[start-1]=='[')) ench = ']';
-	if ((start>0)&&(buf[start-1]=='(')) ench = ')';
-	if ((start>0)&&(buf[start-1]=='{')) ench = '}';
-
-	for (pos=strlen(buf); pos>start; --pos) {
-		if ((buf[pos]==' ')||(buf[pos]==ench)) end = pos;
-		}
-
-	strncpy(urlbuf,&buf[start],end-start);
-	urlbuf[end-start] = 0;
-
-
-	strncpy(outbuf,buf,start);
-	sprintf(&outbuf[start],"%cA HREF=%c%s%c TARGET=%c%s%c%c%s%c/A%c", 
-		LB,QU,urlbuf,QU,QU,TARGET,QU,RB,urlbuf,LB,RB);
-	strcat(outbuf,&buf[end]);
-	strcpy(buf,outbuf);
-	}
-
-
-
-
 void getz(char *buf) {
 	if (fgets(buf, 256, stdin) == NULL) strcpy(buf, "");
 	else {
@@ -604,6 +557,18 @@ fclose(fp);
 
 	else if (!strcasecmp(action, "termquit")) {
 		do_logout();
+		}
+
+	else if (!strcasecmp(action, "readnew")) {
+		readloop("readnew");
+		}
+
+	else if (!strcasecmp(action, "readold")) {
+		readloop("readold");
+		}
+
+	else if (!strcasecmp(action, "readfwd")) {
+		readloop("readfwd");
 		}
 
 	/* When all else fails... */
