@@ -20,6 +20,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <pwd.h>
+#include <time.h>
 
 #include "citadel.h"
 #include "axdefs.h"
@@ -69,7 +70,7 @@ char *setup_text[] = {
 
 "Enter the name of the system administrator (which is probably\n"
 "you).  When an account is created with this name, it will\n"
-"automatically be assigned the highest access level.\n",
+"automatically be given administrator-level access.\n",
 
 "Citadel needs to run under its own user ID.  This would\n"
 "typically be called \"citadel\", but if you are running Citadel\n"
@@ -623,9 +624,13 @@ void disable_other_mta(char *mta) {
 	/* Offer to replace other MTA with the vastly superior Citadel :)  */
 	snprintf(buf, sizeof buf,
 		"You appear to have the \"%s\" email program\n"
-		"running on your system.  Would you like to disable it,\n"
-		"allowing Citadel to handle your Internet mail instead?\n",
-		mta
+		"running on your system.  If you want Citadel mail\n"
+		"connected with %s, you will have to manually integrate\n"
+		"them.  It is preferable to disable %s, and use Citadel's\n"
+		"SMTP, POP3, and IMAP services.\n\n"
+		"May we disable %s so that Citadel has access to ports\n"
+		"25, 110, and 143?\n",
+		mta, mta, mta, mta
 	);
 	if (yesno(buf) == 0)
 		return;
@@ -653,7 +658,7 @@ int test_server(void) {
 	 * to the server and try to get it back.  The cookie does not
 	 * have to be secret ... just unique.
 	 */
-	sprintf(cookie, "%ld.%d", time(NULL), getpid());
+	sprintf(cookie, "--test--%d--", getpid());
 
 	sprintf(cmd, "%s/sendcommand -h%s ECHO %s 2>&1",
 		setup_directory,
@@ -1213,7 +1218,10 @@ NEW_INST:
 		}
 		if (test_server() == 0) {
 			important_message("Setup finished",
-				"Setup is finished.  You may now log in.");
+				"Setup of the Citadel server is complete.\n"
+				"If you will be using WebCit, please run its\n"
+				"setup program now; otherwise, run './citadel'\n"
+				"to log in.\n");
 		}
 		else {
 			important_message("Setup finished",
@@ -1299,7 +1307,7 @@ void contemplate_ldap(void) {
 	 * this password generation scheme is too weak, please submit a patch
 	 * instead of just whining about it, ok?
 	 */
-	sprintf(config.c_ldap_bind_pw, "%d%ld", getpid(), time(NULL));
+	sprintf(config.c_ldap_bind_pw, "%d%ld", getpid(), (long)time(NULL));
 
 	write_config_to_disk();
 
