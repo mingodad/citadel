@@ -1972,8 +1972,7 @@ int CtdlIPCGenericCommand(const char *command, const char *to_send,
 		if (proto_response[3] == '*')
 			express_msgs = 1;
 		ret = atoi(proto_response);
-		memmove(proto_response, &proto_response[4],
-				strlen(proto_response) - 3);
+		strcpy(proto_response, &proto_response[4]);
 		switch (ret / 100) {
 		default:			/* Unknown, punt */
 		case 2:				/* OK */
@@ -2002,7 +2001,8 @@ int CtdlIPCGenericCommand(const char *command, const char *to_send,
 			if (to_receive && !*to_receive && bytes_to_receive) {
 				*bytes_to_receive =
 					extract_long(proto_response, 0);
-				*to_receive = (char *)malloc(*bytes_to_receive);
+				*to_receive = (char *)
+					malloc((size_t)*bytes_to_receive);
 				if (!*to_receive) {
 					ret = -1;
 				} else {
