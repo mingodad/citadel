@@ -52,7 +52,7 @@ void do_graphics_upload(char *upl_cmd)
 	int pos = 0;
 	int thisblock;
 
-	if (upload_length == 0) {
+	if (WC->upload_length == 0) {
 		display_error("You didn't upload a file.\n");
 		return;
 	}
@@ -62,7 +62,7 @@ void do_graphics_upload(char *upl_cmd)
 		display_error(&buf[4]);
 		return;
 	}
-	bytes_remaining = upload_length;
+	bytes_remaining = WC->upload_length;
 	while (bytes_remaining) {
 		thisblock = ((bytes_remaining > 4096) ? 4096 : bytes_remaining);
 		serv_printf("WRIT %d", thisblock);
@@ -74,7 +74,7 @@ void do_graphics_upload(char *upl_cmd)
 			return;
 		}
 		thisblock = extract_int(&buf[4], 0);
-		serv_write(&upload[pos], thisblock);
+		serv_write(&WC->upload[pos], thisblock);
 		pos = pos + thisblock;
 		bytes_remaining = bytes_remaining - thisblock;
 	}

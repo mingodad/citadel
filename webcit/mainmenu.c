@@ -35,10 +35,10 @@ void embed_main_menu(void)
 	wprintf("Skip to next room</B></A><BR>\n");
 	wprintf("(come back here later)</LI>\n");
 
-	if ((strlen(ugname) > 0) && (strcasecmp(ugname, wc_roomname))) {
+	if ((strlen(WC->ugname) > 0) && (strcasecmp(WC->ugname, WC->wc_roomname))) {
 		wprintf("<LI><B><A HREF=\"/ungoto\">\n");
 		wprintf("Ungoto</B></A><BR>\n");
-		wprintf("(oops! Back to %s)</LI>\n", ugname);
+		wprintf("(oops! Back to %s)</LI>\n", WC->ugname);
 	}
 	wprintf("</UL>\n");
 
@@ -140,7 +140,7 @@ void embed_advanced_menu(void)
 	wprintf("Create a new room</A>\n");
 
 	wprintf("<LI><A HREF=\"/display_zap\">");
-	wprintf("Zap (forget) this room (%s)</A>\n", wc_roomname);
+	wprintf("Zap (forget) this room (%s)</A>\n", WC->wc_roomname);
 
 	wprintf("<LI><A HREF=\"/zapped_list\">");
 	wprintf("List all forgotten rooms</A>\n");
@@ -149,7 +149,7 @@ void embed_advanced_menu(void)
 
 	wprintf("</TD><TD>");
 
-	if ((axlevel >= 6) || (is_room_aide)) {
+	if ((WC->axlevel >= 6) || (WC->is_room_aide)) {
 		wprintf("<TABLE WIDTH=100% BORDER=0 BGCOLOR=007777><TR><TD>");
 		wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"");
 		wprintf("<B>Administrative functions</B>\n");
@@ -162,7 +162,7 @@ void embed_advanced_menu(void)
 		wprintf("<LI><A HREF=\"/display_siteconfig\">\n");
 		wprintf("Edit site-wide configuration</A>\n");
 
-		if (axlevel >= 6) {
+		if (WC->axlevel >= 6) {
 			wprintf("<LI><A HREF=\"/validate\">\n");
 			wprintf("Validate new users</A>\n");
 

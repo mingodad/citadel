@@ -89,7 +89,7 @@ void whobbs(void)
 
 		while (wlist != NULL) {
 			wprintf("<TR>\n\t<TD ALIGN=center><FONT FACE=\"Arial,Helvetica,sans-serif\">%d", wlist->sessionnum);
-			if ((is_aide) &&
+			if ((WC->is_aide) &&
 			    (wlist->sessionnum != serv_info.serv_pid)) {
 				wprintf(" <A HREF=\"/terminate_session&which_session=%d&session_owner=", wlist->sessionnum);
 				urlescputs(wlist->username);
@@ -230,7 +230,7 @@ void edit_me(void)
 		wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Change host name\">");
 		wprintf("</FONT></TD>\n</TR>\n");
 
-		if (is_aide) {
+		if (WC->is_aide) {
 			wprintf("<TR><TD><FONT FACE=\"Arial,Helvetica,sans-serif\"><B>User name:</B></FONT></TD><TD>");
 			wprintf("<FONT FACE=\"Arial,Helvetica,sans-serif\"><INPUT TYPE=\"text\" NAME=\"fake_username\" MAXLENGTH=\"64\">\n");
 			wprintf("</FONT></TD>\n<TD ALIGN=center>");

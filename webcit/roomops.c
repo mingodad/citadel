@@ -36,11 +36,6 @@ struct roomlisting {
 
 
 char floorlist[128][256];
-char ugname[128];
-long uglsn = (-1L);
-unsigned room_flags;
-int is_aide = 0;
-int is_room_aide = 0;
 
 struct march *march = NULL;
 
@@ -325,22 +320,22 @@ void embed_room_banner(char *got) {
 	 * If it isn't supplied, we fake it by issuing our own GOTO.
 	 */
 	if (got == NULL) {
-		serv_printf("GOTO %s", wc_roomname);
+		serv_printf("GOTO %s", WC->wc_roomname);
 		serv_gets(fakegot);
 		got = fakegot;
 	}
 
 	/* Check for new mail. */
-	new_mail = extract_int(&got[4], 9);
+	WC->new_mail = extract_int(&got[4], 9);
 
 	/* Now start spewing HTML. */
 	wprintf("<CENTER><TABLE border=0><TR>");
 
-	if ((strlen(ugname) > 0) && (strcasecmp(ugname, wc_roomname))) {
+	if ((strlen(WC->ugname) > 0) && (strcasecmp(WC->ugname, WC->wc_roomname))) {
 		wprintf("<TD VALIGN=TOP><A HREF=\"/ungoto\">");
 		wprintf("<IMG SRC=\"/static/back.gif\" BORDER=0></A></TD>");
 	}
-	wprintf("<TD VALIGN=TOP><FONT FACE=\"Arial,Helvetica,sans-serif\"><FONT SIZE=+2>%s</FONT><BR>", wc_roomname);
+	wprintf("<TD VALIGN=TOP><FONT FACE=\"Arial,Helvetica,sans-serif\"><FONT SIZE=+2>%s</FONT><BR>", WC->wc_roomname);
 	wprintf("%d new of %d messages</FONT></TD>\n",
 		extract_int(&got[4], 1),
 		extract_int(&got[4], 2));
@@ -355,7 +350,7 @@ void embed_room_banner(char *got) {
 	if (buf[0] == '2') {
 		wprintf("<TD><FONT FACE=\"Arial,Helvetica,sans-serif\">");
 		wprintf("<IMG SRC=\"/image&name=_roompic_&room=");
-		urlescputs(wc_roomname);
+		urlescputs(WC->wc_roomname);
 		wprintf("\"></FONT></TD>");
 		serv_puts("CLOS");
 		serv_gets(buf);
@@ -365,12 +360,12 @@ void embed_room_banner(char *got) {
 	wprintf("</FONT></TD>");
 
 	/* Let the user know if new mail has arrived */
-	if ( (new_mail > remember_new_mail) && (new_mail>0) ) {
+	if ( (WC->new_mail > remember_new_mail) && (WC->new_mail>0) ) {
 		wprintf("<TD VALIGN=TOP>"
 			"<IMG SRC=\"/static/mail.gif\" border=0 "
 			"ALT=\"You have new mail\">"
-			"<BR><BLINK>%d</BLINK></TD>", new_mail);
-		remember_new_mail = new_mail;
+			"<BR><BLINK>%d</BLINK></TD>", WC->new_mail);
+		remember_new_mail = WC->new_mail;
 	}
 
 	wprintf("<TD VALIGN=TOP><A HREF=\"/gotonext\">");
@@ -408,8 +403,8 @@ void gotoroom(char *gname, int display_name)
 	}
 	if (display_name != 2) {
 		/* store ungoto information */
-		strcpy(ugname, wc_roomname);
-		uglsn = ls;
+		strcpy(WC->ugname, WC->wc_roomname);
+		WC->uglsn = ls;
 	}
 	/* move to the new room */
 	serv_printf("GOTO %s", gname);
@@ -425,19 +420,19 @@ void gotoroom(char *gname, int display_name)
 		}
 		return;
 	}
-	extract(wc_roomname, &buf[4], 0);
-	room_flags = extract_int(&buf[4], 4);
+	extract(WC->wc_roomname, &buf[4], 0);
+	WC->room_flags = extract_int(&buf[4], 4);
 	/* highest_msg_read = extract_int(&buf[4],6);
 	   maxmsgnum = extract_int(&buf[4],5);
 	   is_mail = (char) extract_int(&buf[4],7); */
 	ls = extract_long(&buf[4], 6);
 
-	if (is_aide)
-		is_room_aide = is_aide;
+	if (WC->is_aide)
+		WC->is_room_aide = WC->is_aide;
 	else
-		is_room_aide = (char) extract_int(&buf[4], 8);
+		WC->is_room_aide = (char) extract_int(&buf[4], 8);
 
-	remove_march(wc_roomname);
+	remove_march(WC->wc_roomname);
 	if (!strcasecmp(gname, "_BASEROOM_"))
 		remove_march(gname);
 
@@ -446,7 +441,7 @@ void gotoroom(char *gname, int display_name)
 		embed_room_banner(buf);
 		wDumpContent(1);
 	}
-	strcpy(wc_roomname, wc_roomname);
+	strcpy(WC->wc_roomname, WC->wc_roomname);
 }
 
 
@@ -543,7 +538,7 @@ void gotonext(void)
  * ...and remove the room we're currently in, so a <G>oto doesn't make us
  * walk around in circles
  */
-		remove_march(wc_roomname);
+		remove_march(WC->wc_roomname);
 	}
 	if (march != NULL) {
 		strcpy(next_room, pop_march(-1));
@@ -587,22 +582,22 @@ void ungoto(void)
 {
 	char buf[256];
 
-	if (!strcmp(ugname, "")) {
-		smart_goto(wc_roomname);
+	if (!strcmp(WC->ugname, "")) {
+		smart_goto(WC->wc_roomname);
 		return;
 	}
-	serv_printf("GOTO %s", ugname);
+	serv_printf("GOTO %s", WC->ugname);
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		smart_goto(wc_roomname);
+		smart_goto(WC->wc_roomname);
 		return;
 	}
-	if (uglsn >= 0L) {
-		serv_printf("SLRP %ld", uglsn);
+	if (WC->uglsn >= 0L) {
+		serv_printf("SLRP %ld", WC->uglsn);
 		serv_gets(buf);
 	}
-	strcpy(buf, ugname);
-	strcpy(ugname, "");
+	strcpy(buf, WC->ugname);
+	strcpy(WC->ugname, "");
 	smart_goto(buf);
 }
 
@@ -1080,7 +1075,7 @@ void goto_private(void)
 		display_main_menu();
 		return;
 	}
-	strcpy(hold_rm, wc_roomname);
+	strcpy(hold_rm, WC->wc_roomname);
 	strcpy(buf, "GOTO ");
 	strcat(buf, bstr("gr_name"));
 	strcat(buf, "|");
@@ -1117,7 +1112,7 @@ void display_zap(void)
 	wprintf("<B>Zap (forget) the current room</B>\n");
 	wprintf("</FONT></TD></TR></TABLE>\n");
 
-	wprintf("If you select this option, <em>%s</em> will ", wc_roomname);
+	wprintf("If you select this option, <em>%s</em> will ", WC->wc_roomname);
 	wprintf("disappear from your room list.  Is this what you wish ");
 	wprintf("to do?<BR>\n");
 
@@ -1140,10 +1135,10 @@ void zap(void)
 	/* If the forget-room routine fails for any reason, we fall back
 	 * to the current room; otherwise, we go to the Lobby
 	 */
-	strcpy(final_destination, wc_roomname);
+	strcpy(final_destination, WC->wc_roomname);
 
 	if (!strcasecmp(bstr("sc"), "OK")) {
-		serv_printf("GOTO %s", wc_roomname);
+		serv_printf("GOTO %s", WC->wc_roomname);
 		serv_gets(buf);
 		if (buf[0] != '2') {
 			ExpressMessageCat(&buf[4]);
@@ -1187,7 +1182,7 @@ void confirm_delete_room(void)
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/delete_room\">\n");
 
 	wprintf("Are you sure you want to delete <FONT SIZE=+1>");
-	escputs(wc_roomname);
+	escputs(WC->wc_roomname);
 	wprintf("</FONT>?<BR>\n");
 
 	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Delete\">");

@@ -29,9 +29,6 @@ char server_is_local = 0;
 
 extern int errno;
 
-int serv_sock;
-
-
 RETSIGTYPE timeout(int signum)
 {
 	fprintf(stderr, "Connection timed out.\n");
@@ -105,12 +102,12 @@ void serv_read(char *buf, int bytes)
 
 	len = 0;
 	while (len < bytes) {
-		rlen = read(serv_sock, &buf[len], bytes - len);
+		rlen = read(WC->serv_sock, &buf[len], bytes - len);
 		if (rlen < 1) {
 			fprintf(stderr, "Server connection broken: %s\n",
 				strerror(errno));
-			connected = 0;
-			logged_in = 0;
+			WC->connected = 0;
+			WC->logged_in = 0;
 			return;
 		}
 		len = len + rlen;
@@ -147,13 +144,13 @@ void serv_write(char *buf, int nbytes)
 	int bytes_written = 0;
 	int retval;
 	while (bytes_written < nbytes) {
-		retval = write(serv_sock, &buf[bytes_written],
+		retval = write(WC->serv_sock, &buf[bytes_written],
 			       nbytes - bytes_written);
 		if (retval < 1) {
 			fprintf(stderr, "Server connection broken: %s\n",
 				strerror(errno));
-			connected = 0;
-			logged_in = 0;
+			WC->connected = 0;
+			WC->logged_in = 0;
 			return;
 		}
 		bytes_written = bytes_written + retval;

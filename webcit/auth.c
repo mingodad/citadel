@@ -91,12 +91,12 @@ void display_login(char *mesg)
  */
 void become_logged_in(char *user, char *pass, char *serv_response)
 {
-	logged_in = 1;
-	extract(wc_username, &serv_response[4], 0);
-	strcpy(wc_password, pass);
-	axlevel = extract_int(&serv_response[4], 1);
-	if (axlevel >= 6)
-		is_aide = 1;
+	WC->logged_in = 1;
+	extract(WC->wc_username, &serv_response[4], 0);
+	strcpy(WC->wc_password, pass);
+	WC->axlevel = extract_int(&serv_response[4], 1);
+	if (WC->axlevel >= 6)
+		WC->is_aide = 1;
 }
 
 
@@ -139,13 +139,13 @@ void do_login(void)
 			return;
 		}
 	}
-	if (logged_in) {
+	if (WC->logged_in) {
 		serv_puts("CHEK");
 		serv_gets(buf);
 		if (buf[0] == '2') {
-			new_mail = extract_int(&buf[4], 0);
+			WC->new_mail = extract_int(&buf[4], 0);
 			need_regi = extract_int(&buf[4], 1);
-			need_vali = extract_int(&buf[4], 2);
+			WC->need_vali = extract_int(&buf[4], 2);
 		}
 		if (need_regi) {
 			display_reg(1);
@@ -168,9 +168,9 @@ void do_logout(void)
 {
 	char buf[256];
 
-	strcpy(wc_username, "");
-	strcpy(wc_password, "");
-	strcpy(wc_roomname, "");
+	strcpy(WC->wc_username, "");
+	strcpy(WC->wc_password, "");
+	strcpy(WC->wc_roomname, "");
 
 	printf("HTTP/1.0 200 OK\n");
 	output_headers(2);	/* note "2" causes cookies to be unset */
@@ -209,8 +209,8 @@ void validate(void)
 
 	strcpy(buf, bstr("user"));
 	if (strlen(buf) > 0)
-		if (strlen(bstr("axlevel")) > 0) {
-			serv_printf("VALI %s|%s", buf, bstr("axlevel"));
+		if (strlen(bstr("WC->axlevel")) > 0) {
+			serv_printf("VALI %s|%s", buf, bstr("WC->axlevel"));
 			serv_gets(buf);
 			if (buf[0] != '2') {
 				wprintf("<EM>%s</EM><BR>\n", &buf[4]);
@@ -261,7 +261,7 @@ void validate(void)
 	wprintf("</CAPTION><TR>");
 	for (a = 0; a <= 6; ++a) {
 		wprintf(
-			       "<TD><A HREF=\"/validate&user=%s&axlevel=%d\">%s</A></TD>\n",
+			       "<TD><A HREF=\"/validate&user=%s&WC->axlevel=%d\">%s</A></TD>\n",
 			       urlesc(user), a, axdefs[a]);
 	}
 	wprintf("</TR></TABLE><CENTER><BR>\n");

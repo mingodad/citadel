@@ -66,25 +66,32 @@ struct serv_info {
 	int serv_ok_floors;
 };
 
-extern char wc_username[256];
-extern char wc_password[256];
-extern char wc_roomname[256];
-extern int connected;
-extern int logged_in;
-extern int axlevel;
-extern int is_aide;
-extern int is_room_aide;
-extern int serv_sock;
-extern struct serv_info serv_info;
-extern unsigned room_flags;
-extern char ugname[128];
-extern long uglsn;
-extern char *axdefs[];
-extern int upload_length;
-extern char *upload;
+struct wcsession {
+	int wc_session;
+	char wc_username[256];
+	char wc_password[256];
+	char wc_roomname[256];
+	int connected;
+	int logged_in;
+	int axlevel;
+	int is_aide;
+	int is_room_aide;
+	int serv_sock;
+	struct serv_info serv_info;
+	unsigned room_flags;
+	char ugname[128];
+	long uglsn;
+	int upload_length;
+	char *upload;
+	int new_mail;
+	int need_vali;
+};
+
+extern struct wcsession *WC;
+
+struct serv_info serv_info;
 extern char floorlist[128][256];
-extern int new_mail;
-extern int need_vali;
+extern char *axdefs[];
 
 void stuff_to_cookie(char *, int, char *, char *, char *);
 void cookie_to_stuff(char *, int *, char *, char *, char *);

@@ -1,4 +1,8 @@
 $Log$
+Revision 1.107  1999/11/26 03:32:59  ajc
+* Started moving all of the global variables into a struct, to facilitate
+  multithreaded server.
+
 Revision 1.106  1999/11/26 01:28:10  ajc
 * 2.01 release
 
@@ -312,4 +316,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
