@@ -479,6 +479,7 @@ int client_read_ssl(char *buf, int bytes, int timeout);
 void client_write_ssl(char *buf, int nbytes);
 #endif
 
+extern char *ascmonths[];
 
 
 /* Views (from citadel.h) */

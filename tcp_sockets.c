@@ -6,6 +6,10 @@
  * $Id$
  */
 
+/*
+ * Uncomment this to log all communications with the Citadel server
+ */
+#define SERV_TRACE 1
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -174,7 +178,9 @@ void serv_gets(char *strbuf)
 	} while ((ch != 10) && (ch != 0) && (len < (SIZ-1)));
 	if (strbuf[len-1] == 10) strbuf[--len] = 0;
 	if (strbuf[len-1] == 13) strbuf[--len] = 0;
-	/* lprintf(9, ">%s\n", strbuf); */
+#ifdef SERV_TRACE
+	lprintf(9, ">%s\n", strbuf);
+#endif
 }
 
 
@@ -210,6 +216,9 @@ void serv_puts(char *string)
 {
 	char buf[SIZ];
 
+#ifdef SERV_TRACE
+	lprintf(9, "<%s\n", string);
+#endif
 	sprintf(buf, "%s\n", string);
 	serv_write(buf, strlen(buf));
 }
@@ -229,5 +238,7 @@ void serv_printf(const char *format,...)
 
 	strcat(buf, "\n");
 	serv_write(buf, strlen(buf));
-	/* lprintf(9, "<%s", buf); */
+#ifdef SERV_TRACE
+	lprintf(9, "<%s", buf);
+#endif
 }

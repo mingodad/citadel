@@ -78,14 +78,13 @@ void calendar_month_view_display_events(time_t thetime) {
 				localtime_r(&event_tt, &event_tm);
 			}
 
-lprintf(9, "Event: %04d/%02d/%02d, Now: %04d/%02d/%02d\n",
-	event_tm.tm_year,
-	event_tm.tm_mon,
+lprintf(9, "Event: %04d-%s-%02d, Now: %04d-%s-%02d\n",
+	event_tm.tm_year + 1900,
+	ascmonths[event_tm.tm_mon],
 	event_tm.tm_mday,
-	today_tm.tm_year,
-	today_tm.tm_mon,
+	today_tm.tm_year + 1900,
+	ascmonths[today_tm.tm_mon],
 	today_tm.tm_mday);
-
 
 			if ((event_tm.tm_year == today_tm.tm_year)
 			   && (event_tm.tm_mon == today_tm.tm_mon)
