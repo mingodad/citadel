@@ -200,7 +200,6 @@ void cmd_user(char *cmdbuf)
 void session_startup(void) {
 	int a;
 	struct quickroom qr;
-        struct LoginFunctionHook *fcn;
 
 	syslog(LOG_NOTICE,"user <%s> logged in",CC->curr_user);
 
@@ -235,9 +234,7 @@ void session_startup(void) {
 	lputuser(&CC->usersupp,CC->curr_user);
 
         /* Run any cleanup routines registered by loadable modules */
-        for (fcn = LoginHookTable; fcn != NULL; fcn = fcn->next) {
-                (*fcn->h_function_pointer)();
-                }
+	PerformSessionHooks(EVT_LOGIN);
 
 	cprintf("%d %s|%d|%d|%d|%u|%ld\n",OK,CC->usersupp.fullname,CC->usersupp.axlevel,
 		CC->usersupp.timescalled,CC->usersupp.posted,CC->usersupp.flags,
@@ -261,6 +258,9 @@ void logout(struct CitContext *who)
 	if (who->upload_fp != NULL) {
 		abort_upl(who);
 		}
+
+	/* Do modular stuff... */
+	PerformSessionHooks(EVT_LOGOUT);
 	}
 
 
@@ -522,6 +522,7 @@ void cmd_setp(char *new_pw)
 	lputuser(&CC->usersupp,CC->curr_user);
 	cprintf("%d Password changed.\n",OK);
 	rec_log(CL_PWCHANGE,CC->curr_user);
+	PerformSessionHooks(EVT_SETPASS);
 	}
 
 /*

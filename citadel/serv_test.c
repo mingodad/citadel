@@ -25,7 +25,7 @@ extern struct CitContext *ContextList;
 #define MODULE_AUTHOR	"Art Cancro"
 #define MODULE_EMAIL	"ajc@uncnsrd.mt-kisco.ny.us"
 #define MAJOR_VERSION	0
-#define MINOR_VERSION	1
+#define MINOR_VERSION	2
 
 static struct DLModule_Info info = {
   MODULE_NAME,
@@ -39,16 +39,19 @@ void CleanupTest(void) {
 	lprintf(9, "--- test of adding an unload hook --- \n");
 	}
 
-void NewRoomTest(char *RoomName) {
-	lprintf(9, "--- test module was told we're now in %s ---\n", RoomName);
+void NewRoomTest(void) {
+	lprintf(9, "--- test module was told we're now in %s ---\n",
+		CC->cs_room);
 	}
 
-void SessionStartTest(int WhichSession) {
-	lprintf(9, "--- starting up session %d ---\n", WhichSession);
+void SessionStartTest(void) {
+	lprintf(9, "--- starting up session %d ---\n",
+		CC->cs_pid);
 	}
 
-void SessionStopTest(int WhichSession) {
-	lprintf(9, "--- ending session %d ---\n", WhichSession);
+void SessionStopTest(void) {
+	lprintf(9, "--- ending session %d ---\n", 
+		CC->cs_pid);
 	}
 
 void LoginTest(void) {
@@ -58,9 +61,9 @@ void LoginTest(void) {
 struct DLModule_Info *Dynamic_Module_Init(void)
 {
    CtdlRegisterCleanupHook(CleanupTest);
-   CtdlRegisterNewRoomHook(NewRoomTest);
-   CtdlRegisterSessionHook(SessionStartTest, 1);
-   CtdlRegisterSessionHook(SessionStopTest, 0);
-   CtdlRegisterLoginHook(LoginTest);
+   CtdlRegisterSessionHook(NewRoomTest, EVT_NEWROOM);
+   CtdlRegisterSessionHook(SessionStartTest, EVT_START);
+   CtdlRegisterSessionHook(SessionStopTest, EVT_STOP);
+   CtdlRegisterSessionHook(LoginTest, EVT_LOGIN);
    return &info;
 }

@@ -81,7 +81,6 @@ void master_cleanup(void) {
 void cleanup_stuff(void *arg)
 {
 	struct ExpressMessage *emptr;
-	struct SessionFunctionHook *fcn;
 
 	lprintf(9, "cleanup_stuff() called\n");
 
@@ -93,11 +92,7 @@ void cleanup_stuff(void *arg)
 	lprintf(3, "citserver[%3d]: ended.\n",CC->cs_pid);
 	
 	/* Run any cleanup routines registered by loadable modules */
-	for (fcn = SessionHookTable; fcn != NULL; fcn = fcn->next) {
-		if (fcn->startstop == 0) {
-			(*fcn->h_function_pointer)(CC->cs_pid);
-			}
-		}
+	PerformSessionHooks(EVT_STOP);
 
 	syslog(LOG_NOTICE,"session %d ended", CC->cs_pid);
 	
@@ -129,16 +124,12 @@ void cleanup_stuff(void *arg)
  */
 void set_wtmpsupp(char *newtext)
 {
-	struct NewRoomFunctionHook *fcn;
-
 	strncpy(CC->cs_room,newtext,19);
 	CC->cs_room[19] = 0;
 	time(&CC->cs_lastupdt);
 
 	/* Run any routines registered by loadable modules */
-	for (fcn = NewRoomHookTable; fcn != NULL; fcn = fcn->next) {
-		(*fcn->h_function_pointer)(CC->cs_room);
-		}
+	PerformSessionHooks(EVT_NEWROOM);
 	}
 
 
@@ -697,7 +688,6 @@ void *context_loop(struct CitContext *con)
 {
 	char cmdbuf[256];
 	int session_num;
-	struct SessionFunctionHook *fcn;
 
 	/*
 	 * Wedge our way into the context table.
@@ -747,11 +737,7 @@ void *context_loop(struct CitContext *con)
 	lprintf(3, "citserver[%3d]: started.\n", CC->cs_pid);
 
 	/* Run any session startup routines registered by loadable modules */
-	for (fcn = SessionHookTable; fcn != NULL; fcn = fcn->next) {
-		if (fcn->startstop == 1) {
-			(*fcn->h_function_pointer)(CC->cs_pid);
-			}
-		}
+	PerformSessionHooks(EVT_START);
 
 	rec_log(CL_CONNECT, "");
 

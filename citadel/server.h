@@ -144,22 +144,23 @@ struct CleanupFunctionHook {
 	};
 extern struct CleanupFunctionHook *CleanupHookTable;
 
-struct NewRoomFunctionHook {
-	struct NewRoomFunctionHook *next;
-	void *(*h_function_pointer) (char *);
-	};
-extern struct NewRoomFunctionHook *NewRoomHookTable;
 
+/*
+ * SessionFunctionHook extensions are used for any type of hook for which
+ * the context in which it's being called (which is determined by the event
+ * type) will make it obvious for the hook function to know where to look for
+ * pertinent data.
+ */
 struct SessionFunctionHook {
 	struct SessionFunctionHook *next;
-	void *(*h_function_pointer) (int);
-	int startstop;
+	void *(*h_function_pointer) (void);
+	int eventtype;
 	};
 extern struct SessionFunctionHook *SessionHookTable;
 
-struct LoginFunctionHook {
-	struct LoginFunctionHook *next;
-	void *(*h_function_pointer) (void);
-	};
-extern struct LoginFunctionHook *LoginHookTable;
-
+#define EVT_STOP	0
+#define EVT_START	1
+#define EVT_LOGIN	2
+#define EVT_NEWROOM	3
+#define EVT_LOGOUT	4
+#define EVT_SETPASS	5

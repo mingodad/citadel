@@ -1,3 +1,8 @@
+Thu Sep 17 22:21:45 EDT 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* server.h, dynloader.c, citserver.c, user_ops.c: reduced the number
+	  of hook types by inventing an EventType field to the Session hook.
+	* proxy.c: added pre-fetching
+
 1998-09-17 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* Makefile.in: add SERV_MODULES and PROXY_TARGETS to `cleaner'
 	* dynloader.[ch], serv_{chat,test}.[ch], sysdep.c: cleaned

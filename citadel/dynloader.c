@@ -22,9 +22,7 @@
 #include "sysdep_decls.h"
 
 struct CleanupFunctionHook *CleanupHookTable = NULL;
-struct NewRoomFunctionHook *NewRoomHookTable = NULL;
 struct SessionFunctionHook *SessionHookTable = NULL;
-struct LoginFunctionHook *LoginHookTable = NULL;
 
 struct ProtoFunctionHook
 {
@@ -126,20 +124,8 @@ void CtdlRegisterCleanupHook(void *fcn_ptr) {
 	lprintf(5, "Registered a new cleanup function\n");
 	}
 
-void CtdlRegisterNewRoomHook(void *fcn_ptr) {
 
-	struct NewRoomFunctionHook *newfcn;
-
-	newfcn = (struct NewRoomFunctionHook *)
-		malloc(sizeof(struct NewRoomFunctionHook));
-	newfcn->next = NewRoomHookTable;
-	newfcn->h_function_pointer = fcn_ptr;
-	NewRoomHookTable = newfcn;
-
-	lprintf(5, "Registered a new NewRoom function\n");
-	}
-
-void CtdlRegisterSessionHook(void *fcn_ptr, int StartStop) {
+void CtdlRegisterSessionHook(void *fcn_ptr, int EventType) {
 
 	struct SessionFunctionHook *newfcn;
 
@@ -147,23 +133,20 @@ void CtdlRegisterSessionHook(void *fcn_ptr, int StartStop) {
 		malloc(sizeof(struct SessionFunctionHook));
 	newfcn->next = SessionHookTable;
 	newfcn->h_function_pointer = fcn_ptr;
-	newfcn->startstop = StartStop;
+	newfcn->eventtype = EventType;
 	SessionHookTable = newfcn;
 
-	lprintf(5, "Registered a new session %s function\n",
-		(StartStop ? "start" : "stop") );
+	lprintf(5, "Registered a new session function (type %d)\n", 
+		EventType);
 	}
 
-void CtdlRegisterLoginHook(void *fcn_ptr) {
 
-	struct LoginFunctionHook *newfcn;
+void PerformSessionHooks(int EventType) {
+	struct SessionFunctionHook *fcn;
 
-	newfcn = (struct LoginFunctionHook *)
-		malloc(sizeof(struct LoginFunctionHook));
-	newfcn->next = LoginHookTable;
-	newfcn->h_function_pointer = fcn_ptr;
-	LoginHookTable = newfcn;
-
-	lprintf(5, "Registered a new login function\n");
+        for (fcn = SessionHookTable; fcn != NULL; fcn = fcn->next) {
+		if (fcn->eventtype == EventType) {
+                	(*fcn->h_function_pointer)();
+			}
+                }
 	}
-
