@@ -1,4 +1,8 @@
 $Log$
+Revision 212.1  2000/05/31 04:29:54  ajc
+* Initial support for "summary" (headers only, no body) mode of reading
+  messages, and "read one" mode.  For future support of 'traditional' email.
+
 Revision 212.0  2000/05/23 20:35:52  ajc
 * Tagged for the 2.12 release
 
@@ -447,4 +451,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-

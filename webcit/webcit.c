@@ -775,6 +775,8 @@ void session_loop(struct httprequest *req)
 		readloop("readold");
 	} else if (!strcasecmp(action, "readfwd")) {
 		readloop("readfwd");
+	} else if (!strcasecmp(action, "headers")) {
+		readloop("headers");
 	} else if (!strcasecmp(action, "display_enter")) {
 		display_enter();
 	} else if (!strcasecmp(action, "post")) {

@@ -1,7 +1,4 @@
 
-
-
-
 #include <ctype.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -81,10 +78,7 @@ char buf[];
 }
 
 
-void read_message(msgnum, oper)
-long msgnum;
-char *oper;
-{
+void read_message(long msgnum, int is_summary) {
 	char buf[256];
 	char m_subject[256];
 	char from[256];
@@ -109,7 +103,9 @@ char *oper;
 		return;
 	}
 	wprintf("<TABLE WIDTH=100% BORDER=0 CELLSPACING=0 CELLPADDING=1 BGCOLOR=000077><TR><TD>\n");
-	wprintf("<FONT SIZE=+1 COLOR=\"FFFF00\"> ");
+	wprintf("<FONT ");
+	if (!is_summary) wprintf("SIZE=+1 ");
+	wprintf("COLOR=\"FFFF00\"> ");
 	strcpy(m_subject, "");
 
 	while (serv_gets(buf), strncasecmp(buf, "text", 4)) {
@@ -180,6 +176,13 @@ char *oper;
 	wprintf("<TD ALIGN=RIGHT>\n"
 		"<TABLE BORDER=0><TR>\n");
 
+	if (is_summary) {
+		wprintf("<TD BGCOLOR=\"AAAADD\">"
+			"<A HREF=\"/readfwd?startmsg=%ld", msgnum);
+		wprintf("&maxmsgs=1&summary=0\">Read</A>"
+			"</TD>\n", msgnum);
+	}
+
 	wprintf("<TD BGCOLOR=\"AAAADD\">"
 		"<A HREF=\"/display_enter?recp=");
 	urlescputs(reply_to);
@@ -214,6 +217,11 @@ char *oper;
 	}
 
 	wprintf("</TR></TABLE>\n");
+
+	if (is_summary) {
+		while (serv_gets(buf), strcmp(buf, "000")) ;
+		return;
+	}
 
 	if (format_type == 0) {
 		fmout(NULL);
@@ -276,9 +284,11 @@ void readloop(char *oper)
 	long startmsg;
 	int maxmsgs;
 	int num_displayed = 0;
+	int is_summary = 0;
 
 	startmsg = atol(bstr("startmsg"));
 	maxmsgs = atoi(bstr("maxmsgs"));
+	is_summary = atoi(bstr("summary"));
 	if (maxmsgs == 0) maxmsgs = 20;
 
 	output_headers(1);
@@ -311,7 +321,10 @@ void readloop(char *oper)
 
 	for (a = 0; a < nummsgs; ++a) {
 		if (WC->msgarr[a] >= startmsg) {
-			read_message(WC->msgarr[a], oper);
+
+			read_message(WC->msgarr[a], is_summary);
+			if (is_summary) wprintf("<BR>");
+
 			++num_displayed;
 			if ( (num_displayed >= maxmsgs) && (a < nummsgs) ) {
 				wprintf("<CENTER><FONT SIZE=+1>"
@@ -319,15 +332,16 @@ void readloop(char *oper)
 					"&nbsp;&nbsp;&nbsp;</FONT>",
 					nummsgs - num_displayed);
 				wprintf("<A HREF=\"/readfwd?startmsg=%ld"
-					"&maxmsgs=999999\">"
+					"&maxmsgs=999999&summary=%d\">"
 					"Read them ALL"
 					"</A>&nbsp;&nbsp;&nbsp;",
-					WC->msgarr[a+1]);
+					WC->msgarr[a+1], is_summary);
 				wprintf("<A HREF=\"/readfwd?startmsg=%ld"
-					"&maxmsgs=%d\">"
+					"&maxmsgs=%d&summary=%d\">"
 					"Read next %d"
 					"</A>",
-					WC->msgarr[a+1], maxmsgs, maxmsgs);
+					WC->msgarr[a+1], maxmsgs,
+					is_summary, maxmsgs);
 				wprintf("</CENTER><HR>\n");
 				goto DONE;
 			}
@@ -602,3 +616,6 @@ void move_msg(void)
 
 	wDumpContent(1);
 }
+
+
+
