@@ -262,4 +262,16 @@ char *memreadline(char *start, char *buf, int maxlen)
 
 
 
+/*
+ * pattern2()  -  searches for patn within search string, returns pos
+ */
+int pattern2(char *search, char *patn)
+{
+        int a;
+        for (a=0; a<strlen(search); ++a) {
+                if (!strncasecmp(&search[a],patn,strlen(patn))) return(a);
+                }
+        return(-1);
+        }
+
 

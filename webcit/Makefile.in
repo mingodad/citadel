@@ -25,12 +25,12 @@ distclean: clean
 webserver: webserver.o context_loop.o tools.o \
 	cookie_conversion.o locate_host.o \
 	webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
-	roomops.o messages.o userlist.o paging.o sysmsgs.o \
+	roomops.o messages.o userlist.o paging.o sysmsgs.o vcard.o \
 	mime_parser.o graphics.o netconf.o siteconfig.o subst.o $(LIBOBJS)
 	$(CC) webserver.o context_loop.o tools.o cookie_conversion.o \
 	webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o \
 	roomops.o messages.o userlist.o paging.o sysmsgs.o \
-	locate_host.o siteconfig.o subst.o \
+	locate_host.o siteconfig.o subst.o vcard.o \
 	mime_parser.o graphics.o netconf.o \
 	$(LIBOBJS) $(LIBS) -o webserver
 	strip webserver
