@@ -14,8 +14,6 @@
 
 #define _XOPEN_SOURCE 500 /* Unix98 */
 
-#include <stdlib.h>
-#include "sysdep_decls.h"
 #include "lock.h"
 
 int lock_init(lock_t *lock) {
