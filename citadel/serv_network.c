@@ -429,12 +429,15 @@ void network_spool_msg(long msgnum, void *userdata) {
 	int bang = 0;
 	int send = 1;
 	int delete_after_send = 0;	/* Set to 1 to delete after spooling */
+	long list_msgnum = 0L;
+	int ok_to_participate = 0;
 
 	sc = (struct SpoolControl *)userdata;
 
 	/*
 	 * Process mailing list recipients
 	 */
+	instr_len = SIZ;
 	if (sc->listrecps != NULL) {
 	
 		/* First, copy it to the spoolout room */
@@ -454,7 +457,8 @@ void network_spool_msg(long msgnum, void *userdata) {
 		lprintf(CTDL_DEBUG, "Generating delivery instructions\n");
 		instr = malloc(instr_len);
 		if (instr == NULL) {
-			lprintf(CTDL_EMERG, "Cannot allocate %ld bytes for instr...\n",
+			lprintf(CTDL_EMERG,
+				"Cannot allocate %ld bytes for instr...\n",
 				(long)instr_len);
 			abort();
 		}
@@ -497,6 +501,97 @@ void network_spool_msg(long msgnum, void *userdata) {
 		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 0);
 		CtdlRedirectOutput(NULL, -1);
 		sc->num_msgs_spooled += 1;
+	}
+
+	/*
+	 * Process client-side list participations for this room
+	 */
+	instr_len = SIZ;
+	if (sc->participates != NULL) {
+		msg = CtdlFetchMessage(msgnum, 1);
+		if (msg != NULL) {
+
+			/* Only send messages which originated on our own Citadel
+			 * network, otherwise we'll end up sending the remote
+			 * mailing list's messages back to it, which is rude...
+			 */
+			ok_to_participate = 0;
+			if (msg->cm_fields['N'] != NULL) {
+				if (!strcasecmp(msg->cm_fields['N'], config.c_nodename)) {
+					ok_to_participate = 1;
+				}
+				if (is_valid_node(NULL, NULL, msg->cm_fields['N']) == 0) {
+					ok_to_participate = 1;
+				}
+			}
+			if (ok_to_participate) {
+				if (msg->cm_fields['F'] != NULL) {
+					free(msg->cm_fields['F']);
+				}
+				msg->cm_fields['F'] = malloc(SIZ);
+				/* Replace the Internet email address of the actual
+			 	* author with the email address of the room itself,
+			 	* so the remote listserv doesn't reject us.
+			 	* FIXME ... I want to be able to pick any address
+			 	*/
+				snprintf(msg->cm_fields['F'], SIZ,
+					"room_%s@%s", CC->room.QRname,
+					config.c_fqdn);
+				for (i=0; i<strlen(msg->cm_fields['F']); ++i) {
+					if (isspace(msg->cm_fields['F'][i])) {
+						msg->cm_fields['F'][i] = '_';
+					}
+				}
+
+				/* Now save it and generate delivery instructions */
+				list_msgnum = CtdlSubmitMsg(msg, NULL, SMTP_SPOOLOUT_ROOM);
+
+				/* 
+				 * Figure out how big a buffer we need to allocate
+			 	 */
+				for (nptr = sc->participates; nptr != NULL; nptr = nptr->next) {
+					instr_len = instr_len + strlen(nptr->name);
+				}
+			
+				/*
+			 	 * allocate...
+	 	 		 */
+				instr = malloc(instr_len);
+				if (instr == NULL) {
+					lprintf(CTDL_EMERG,
+						"Cannot allocate %ld bytes for instr...\n",
+						(long)instr_len);
+					abort();
+				}
+				snprintf(instr, instr_len,
+					"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
+					"bounceto|postmaster@%s\n" ,
+					SPOOLMIME, list_msgnum, (long)time(NULL), config.c_fqdn );
+			
+				/* Generate delivery instructions for each recipient */
+				for (nptr = sc->participates; nptr != NULL; nptr = nptr->next) {
+					size_t tmp = strlen(instr);
+					snprintf(&instr[tmp], instr_len - tmp,
+						 "remote|%s|0||\n", nptr->name);
+				}
+			
+				/*
+			 	 * Generate a message from the instructions
+	 			 */
+     		  		imsg = malloc(sizeof(struct CtdlMessage));
+				memset(imsg, 0, sizeof(struct CtdlMessage));
+				imsg->cm_magic = CTDLMESSAGE_MAGIC;
+				imsg->cm_anon_type = MES_NORMAL;
+				imsg->cm_format_type = FMT_RFC822;
+				imsg->cm_fields['A'] = strdup("Citadel");
+				imsg->cm_fields['M'] = instr;
+			
+				/* Save delivery instructions in spoolout room */
+				CtdlSubmitMsg(imsg, NULL, SMTP_SPOOLOUT_ROOM);
+				CtdlFreeMessage(imsg);
+			}
+			CtdlFreeMessage(msg);
+		}
 	}
 	
 	/*
@@ -757,6 +852,13 @@ void network_spoolout_room(char *room_to_spool) {
 			extract(nptr->name, buf, 1);
 			sc.listrecps = nptr;
 		}
+		else if (!strcasecmp(instr, "participate")) {
+			nptr = (struct namelist *)
+				malloc(sizeof(struct namelist));
+			nptr->next = sc.participates;
+			extract(nptr->name, buf, 1);
+			sc.participates = nptr;
+		}
 		else if (!strcasecmp(instr, "digestrecp")) {
 			nptr = (struct namelist *)
 				malloc(sizeof(struct namelist));
@@ -866,6 +968,13 @@ void network_spoolout_room(char *room_to_spool) {
 			nptr = sc.digestrecps->next;
 			free(sc.digestrecps);
 			sc.digestrecps = nptr;
+		}
+		/* Do the same for participates */
+		while (sc.participates != NULL) {
+			fprintf(fp, "participate|%s\n", sc.participates->name);
+			nptr = sc.participates->next;
+			free(sc.participates);
+			sc.participates = nptr;
 		}
 		while (sc.ignet_push_shares != NULL) {
 			/* by checking each node's validity, we automatically

@@ -13,6 +13,7 @@ struct SpoolControl {
 	long lastsent;
 	struct namelist *listrecps;
 	struct namelist *digestrecps;
+	struct namelist *participates;
 	struct maplist *ignet_push_shares;
 	char *misc;
 	FILE *digestfp;

@@ -40,11 +40,17 @@ e-mail address instead of the sender's e-mail address.
  
  INSTRUCTION:  ignet_push_share
  SYNTAX:       ignet_push_share|uncnsrd
+          (or) ignet_push_share|uncnsrd|Foo Bar Baz
  DESCRIPTION:
     Specifies that the second argument is the name of a neighboring node on an
 IGnet (Citadel networking) network, to which this room should be pushed
 (spooled).  Conceptually, this node will have a corresponding record pushing
 data in the other direction.
+ 
+    If the third argument is present, it is the name of the corresponding
+room on the remote node.  This allows a room to be shared even when the room
+name is different on each node.  Such a configuration *must* be configured
+mutually: each node must know the name of the room on the other.
  
   
  INSTRUCTION:  subpending
