@@ -745,6 +745,7 @@ void output_message(char *msgid, int mode, int headers_only)
 	/*                                       */
 
 	msg_num = atol(msgid);
+	safestrncpy(mid, msgid, sizeof mid);
 
 	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
 		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
