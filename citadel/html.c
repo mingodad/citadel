@@ -77,7 +77,7 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 
 	do {
 		/* Fill the input buffer */
-		if ( (done_reading == 0) && (strlen(inbuf) < 128) ) {
+		if ( (done_reading == 0) && (strlen(inbuf) < (SIZ-128)) ) {
 
 			ch = *inputmsg++;
 			if (ch > 0) {
@@ -236,9 +236,9 @@ char *html_to_ascii(char *inputmsg, int screenwidth, int do_citaformat) {
 		}
 
 		/* Make sure the output buffer is big enough */
-		if ((output_len + strlen(outbuf) + 128)
+		if ((output_len + strlen(outbuf) + SIZ)
 		   > outptr_buffer_size) {
-			outptr_buffer_size += 128;
+			outptr_buffer_size += SIZ;
 			outptr = realloc(outptr, outptr_buffer_size);
 		}
 

@@ -1,4 +1,9 @@
  $Log$
+ Revision 605.28  2003/03/26 05:17:12  ajc
+ * Downloading of attachments was completely broken by the change to the new
+   protocol library.  Located and fixed bugs.
+ * html.c: increased the conversion buffer size
+
  Revision 605.27  2003/03/24 03:42:14  ajc
  * Add the ability to quit out while validating users.  Also added a help
    option listing available access levels.  This closes Bugzilla #37.
@@ -4592,4 +4597,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

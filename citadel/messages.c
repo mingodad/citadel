@@ -1542,13 +1542,11 @@ RMSGREAD:	scr_flush();
 				  ((sizeof filename) - 1));
 			r = CtdlIPCAttachmentDownload(ipc, msg_arr[a],
 					filename, &attachment, progress, cmd);
-			extract(filename, cmd, 2);
-			destination_directory(save_to, filename);
-			r = CtdlIPCAttachmentDownload(ipc, msg_arr[a],
-				filename, &attachment, progress, cmd);
 			if (r / 100 != 2) {
 				scr_printf("%s\n", cmd);
 			} else {
+				extract(filename, cmd, 2);
+				destination_directory(save_to, filename);
 				save_buffer(attachment,
 						extract_unsigned_long(cmd, 0),
 						save_to);

@@ -1193,8 +1193,9 @@ int CtdlIPCAttachmentDownload(CtdlIPC *ipc, long msgnum, const char *part,
 		ipc->downloading = 1;
 		bytes = extract_long(cret, 0);
 		last_mod = extract_int(cret, 1);
-		extract(mimetype, cret, 2);
-/*		ret = CtdlIPCReadDownload(ipc, buf, bytes, 0, progress_gauge_callback, cret); */
+		extract(filename, cret, 2);
+		extract(mimetype, cret, 3);
+		/* ret = CtdlIPCReadDownload(ipc, buf, bytes, 0, progress_gauge_callback, cret); */
 		ret = CtdlIPCHighSpeedReadDownload(ipc, buf, bytes, 0, progress_gauge_callback, cret);
 		ret = CtdlIPCEndDownload(ipc, cret);
 		if (ret / 100 == 2)
@@ -2169,7 +2170,6 @@ int CtdlIPCReadDownload(CtdlIPC *ipc, void **buf, size_t bytes, size_t resume,
 	}
 	return len;
 }
-
 
 /* READ - pipelined */
 int CtdlIPCHighSpeedReadDownload(CtdlIPC *ipc, void **buf, size_t bytes,
