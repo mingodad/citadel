@@ -1,4 +1,9 @@
  $Log$
+ Revision 640.1  2005/02/11 03:51:51  ajc
+ * <.A>ide <U>ser-edit is now <.A>ide <U>ser <E>dit
+ * Added a new <.A>ide <U>ser <D>elete command, because it is unintuitive
+   to tell people "delete a user by setting their access level to 0"
+
  Revision 640.0  2005/02/10 16:52:18  ajc
  * THIS IS 6.40
 
@@ -6366,4 +6371,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

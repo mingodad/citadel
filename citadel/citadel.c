@@ -1786,7 +1786,11 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 				break;
 
 			case 25:
-				edituser(ipc);
+				edituser(ipc, 25);
+				break;
+
+			case 96:
+				edituser(ipc, 96);
 				break;
 
 			case 8:

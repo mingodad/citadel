@@ -100,9 +100,9 @@ void hit_any_key(CtdlIPC *ipc) {	/* hit any key to continue */
 }
 
 /*
- * change a user's access level
+ * Edit or delete a user (cmd=25 to edit/create, 96 to delete)
  */
-void edituser(CtdlIPC *ipc)
+void edituser(CtdlIPC *ipc, int cmd)
 {
 	char buf[SIZ];
 	char who[USERNAME_SIZE];
@@ -110,47 +110,57 @@ void edituser(CtdlIPC *ipc)
 	int newnow = 0;
 	int r;				/* IPC response code */
 
-	newprompt("User name: ", who, 25);
+	newprompt("User name: ", who, 29);
 	while ((r = CtdlIPCAideGetUserParameters(ipc, who, &user, buf)) / 100 != 2) {
 		scr_printf("%s\n", buf);
-		scr_printf("Do you want to create this user? ");
-		if (yesno()) {
-			r = CtdlIPCCreateUser(ipc, who, 0, buf);
-			if (r / 100 == 2) {
-				newnow = 1;
-				continue;
+		if (cmd == 25) {
+			scr_printf("Do you want to create this user? ");
+			if (yesno()) {
+				r = CtdlIPCCreateUser(ipc, who, 0, buf);
+				if (r / 100 == 2) {
+					newnow = 1;
+					continue;
+				}
+				scr_printf("%s\n",&buf[4]);
 			}
-			scr_printf("%s\n",&buf[4]);
 		}
 		free(user);
 		return;
 	}
 
-	val_user(ipc, user->fullname, 0); /* Display registration */
+	if (cmd == 25) {
+		val_user(ipc, user->fullname, 0); /* Display registration */
 
-	if (newnow || boolprompt("Change password", 0)) {	/* I'm lazy */
-		strprompt("Password", user->password, -19);
+		if (newnow || boolprompt("Change password", 0)) {
+			strprompt("Password", user->password, -19);
+		}
+	
+		user->axlevel = intprompt("Access level", user->axlevel, 0, 6);
+	
+		user->flags = set_attr(ipc, user->flags,
+			"Permission to send Internet mail",
+			US_INTERNET, 0);
+	
+		if (boolprompt("Ask user to register again", !(user->flags & US_REGIS)))
+			user->flags &= ~US_REGIS;
+		else
+			user->flags |= US_REGIS;
+		user->timescalled = intprompt("Times called",
+			      	user->timescalled, 0, INT_MAX);
+		user->posted = intprompt("Messages posted",
+				 	user->posted, 0, INT_MAX);
+		user->lastcall = boolprompt("Set last call to now", 0) ?
+					time(NULL) : user->lastcall;
+		user->USuserpurge = intprompt("Purge time (in days, 0 for system default",
+			      	user->USuserpurge, 0, INT_MAX);
 	}
 
-	user->axlevel = intprompt("Access level", user->axlevel, 0, 6);
-
-	user->flags = set_attr(ipc, user->flags,
-		"Permission to send Internet mail",
-		US_INTERNET, 0);
-
-	if (boolprompt("Ask user to register again", !(user->flags & US_REGIS)))
-		user->flags &= ~US_REGIS;
-	else
-		user->flags |= US_REGIS;
-	user->timescalled = intprompt("Times called",
-				      user->timescalled, 0, INT_MAX);
-	user->posted = intprompt("Messages posted",
-				 user->posted, 0, INT_MAX);
-	user->lastcall = boolprompt("Set last call to now", 0) ?
-						time(NULL) : user->lastcall;
-	user->USuserpurge = intprompt("Purge time (in days, 0 for system default",
-				      user->USuserpurge, 0, INT_MAX);
-
+	if (cmd == 96) {
+		scr_printf("Do you want to delete this user? ");
+		if (!yesno()) return;
+		user->axlevel = 0;
+	}
+	
 	r = CtdlIPCAideSetUserParameters(ipc, user, buf);
 	if (r / 100 != 2) {
 		scr_printf("%s\n", buf);
