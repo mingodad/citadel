@@ -1,4 +1,7 @@
 $Log$
+Revision 1.118  1999/12/07 16:09:26  ajc
+* Better (non fireworks display mode) handling of broken HTTP sockets
+
 Revision 1.117  1999/12/06 03:40:29  ajc
 * Moved a bunch of other global variables to per-session variables
 
@@ -350,4 +353,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
