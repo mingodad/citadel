@@ -189,6 +189,10 @@ install_db () {
 
 install_ldap () {
 	echo "* Installing OpenLDAP..."
+	CFLAGS="${CFLAGS} -I${SUPPORT}/include"
+	CPPFLAGS="${CFLAGS}"
+	LDFLAGS="-l${SUPPORT}/lib -Wl,--rpath -Wl,${SUPPORT}/lib"
+	export CFLAGS CPPFLAGS LDFLAGS
 	cd $BUILD 2>&1 >>$LOG || die
 	( gzip -dc $LDAP_SOURCE | tar -xvf - ) 2>&1 >>$LOG || die
 	cd $BUILD/openldap-2.1.29 2>&1 >>$LOG || die
