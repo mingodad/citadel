@@ -94,3 +94,9 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		int headers_only,	/* eschew the message body? */
 		int do_proto,		/* do Citadel protocol responses? */
 		int crlf);
+int CtdlOutputPreLoadedMsg(struct CtdlMessage *,
+		long,
+		int mode,		/* how would you like that message? */
+		int headers_only,	/* eschew the message body? */
+		int do_proto,		/* do Citadel protocol responses? */
+		int crlf);

@@ -785,31 +785,13 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		int do_proto,		/* do Citadel protocol responses? */
 		int crlf		/* Use CRLF newlines instead of LF? */
 ) {
-	int i, k;
-	char buf[1024];
-	CIT_UBYTE ch;
-	char allkeys[256];
-	char display_name[256];
 	struct CtdlMessage *TheMessage;
-	char *mptr;
-	char *nl;	/* newline string */
-
-	/* buffers needed for RFC822 translation */
-	char suser[256];
-	char luser[256];
-	char fuser[256];
-	char snode[256];
-	char lnode[256];
-	char mid[256];
-	char datestamp[256];
-	/*                                       */
+	int retcode;
 
 	lprintf(7, "CtdlOutputMsg() msgnum=%ld, mode=%d\n", 
 		msg_num, mode);
 
 	TheMessage = NULL;
-	sprintf(mid, "%ld", msg_num);
-	nl = (crlf ? "\r\n" : "\n");
 
 	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
 		if (do_proto) cprintf("%d Not logged in.\n",
@@ -839,6 +821,47 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 			ERROR, msg_num);
 		return(om_no_such_msg);
 	}
+	
+	retcode = CtdlOutputPreLoadedMsg(
+			TheMessage, msg_num, mode,
+			headers_only, do_proto, crlf);
+
+	CtdlFreeMessage(TheMessage);
+	return(retcode);
+}
+
+
+/*
+ * Get a message off disk.  (returns om_* values found in msgbase.h)
+ * 
+ */
+int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
+		long msg_num,
+		int mode,		/* how would you like that message? */
+		int headers_only,	/* eschew the message body? */
+		int do_proto,		/* do Citadel protocol responses? */
+		int crlf		/* Use CRLF newlines instead of LF? */
+) {
+	int i, k;
+	char buf[1024];
+	CIT_UBYTE ch;
+	char allkeys[256];
+	char display_name[256];
+	char *mptr;
+	char *nl;	/* newline string */
+
+	/* buffers needed for RFC822 translation */
+	char suser[256];
+	char luser[256];
+	char fuser[256];
+	char snode[256];
+	char lnode[256];
+	char mid[256];
+	char datestamp[256];
+	/*                                       */
+
+	sprintf(mid, "%ld", msg_num);
+	nl = (crlf ? "\r\n" : "\n");
 
 	/* Are we downloading a MIME component? */
 	if (mode == MT_DOWNLOAD) {
@@ -1097,7 +1120,6 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 
 	/* now we're done */
 	if (do_proto) cprintf("000\n");
-	CtdlFreeMessage(TheMessage);
 	return(om_ok);
 }
 

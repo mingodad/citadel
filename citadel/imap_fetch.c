@@ -88,7 +88,7 @@ void imap_fetch_internaldate(struct CtdlMessage *msg) {
  *	"RFC822.SIZE"	size of translated message
  *	"RFC822.TEXT"	body only (without leading blank line)
  */
-void imap_fetch_rfc822(int msgnum, char *whichfmt) {
+void imap_fetch_rfc822(int msgnum, char *whichfmt, struct CtdlMessage *msg) {
 	FILE *tmp;
 	char buf[1024];
 	char *ptr;
@@ -106,7 +106,7 @@ void imap_fetch_rfc822(int msgnum, char *whichfmt) {
 	 * Load the message into a temp file for translation and measurement
 	 */ 
 	CtdlRedirectOutput(tmp, -1);
-	CtdlOutputMsg(msgnum, MT_RFC822, 0, 0, 1);
+	CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822, 0, 0, 1);
 	CtdlRedirectOutput(NULL, -1);
 
 	/*
@@ -213,7 +213,8 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 /*
  * Implements the ENVELOPE fetch item
  * 
- * FIXME ... we have to actually do something useful here.
+ * FIXME ... we only output some of the fields right now.  Definitely need
+ *           to do all of them.  Accurately, too.
  *
  * Note that the imap_strout() function can cleverly output NULL fields as NIL,
  * so we don't have to check for that condition like we do elsewhere.
@@ -325,7 +326,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 
 	if (!strcmp(section, "")) {		/* the whole thing */
 		CtdlRedirectOutput(tmp, -1);
-		CtdlOutputMsg(msgnum, MT_RFC822, 0, 0, 1);
+		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822, 0, 0, 1);
 		CtdlRedirectOutput(NULL, -1);
 	}
 
@@ -335,7 +336,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 	 */
 	else if (!strncasecmp(section, "HEADER", 6)) {
 		CtdlRedirectOutput(tmp, -1);
-		CtdlOutputMsg(msgnum, MT_RFC822, 1, 0, 1);
+		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822, 1, 0, 1);
 		CtdlRedirectOutput(NULL, -1);
 		imap_strip_headers(tmp);
 	}
@@ -390,6 +391,57 @@ void imap_fetch_body(long msgnum, char *item, int is_peek,
 }
 
 
+/*
+ * Spew the BODYSTRUCTURE data for a message.  (Do you need a silencer if
+ * you're going to shoot a MIME?  Do you need a reason to shoot Mark Crispin?
+ * No, and no.)
+ *
+ * FIXME finish the implementation
+ */
+void imap_fetch_bodystructure (long msgnum, char *item,
+		struct CtdlMessage *msg) {
+	FILE *tmp;
+	char buf[1024];
+	long lines = 0L;
+	long bytes = 0L;
+
+
+	/* For non-RFC822 (ordinary Citadel) messages, this is short and
+	 * sweet...
+	 */
+	if (msg->cm_format_type != FMT_RFC822) {
+
+		/* *sigh* We have to RFC822-format the message just to be able
+		 * to measure it.
+		 */
+		tmp = tmpfile();
+		if (tmp == NULL) return;
+		CtdlRedirectOutput(tmp, -1);
+		CtdlOutputPreLoadedMsg(msg, msgnum, MT_RFC822, 0, 0, 1);
+		CtdlRedirectOutput(NULL, -1);
+
+		rewind(tmp);
+		while (fgets(buf, sizeof buf, tmp) != NULL) ++lines;
+		bytes = ftell(tmp);
+		fclose(tmp);
+
+		cprintf("BODYSTRUCTURE (\"TEXT\" \"PLAIN\" "
+			"(\"CHARSET\" \"US-ASCII\") NIL NIL "
+			"\"7BIT\" %ld %ld) ", bytes, lines);
+
+		return;
+	}
+
+	/* For messages already stored in RFC822 format, we have to parse. */
+	/* FIXME do this! */
+
+
+}
+
+
+
+
+
 
 /*
  * imap_do_fetch() calls imap_do_fetch_msg() to output the deta of an
@@ -412,7 +464,8 @@ void imap_do_fetch_msg(int seq, struct CtdlMessage *msg,
 					1, msg);
 		}
 		else if (!strcasecmp(itemlist[i], "BODYSTRUCTURE")) {
-			/* FIXME do something here */
+			imap_fetch_bodystructure(IMAP->msgids[seq-1],
+					itemlist[i], msg);
 		}
 		else if (!strcasecmp(itemlist[i], "ENVELOPE")) {
 			imap_fetch_envelope(IMAP->msgids[seq-1], msg);
@@ -424,16 +477,16 @@ void imap_do_fetch_msg(int seq, struct CtdlMessage *msg,
 			imap_fetch_internaldate(msg);
 		}
 		else if (!strcasecmp(itemlist[i], "RFC822")) {
-			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i]);
+			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i], msg);
 		}
 		else if (!strcasecmp(itemlist[i], "RFC822.HEADER")) {
-			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i]);
+			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i], msg);
 		}
 		else if (!strcasecmp(itemlist[i], "RFC822.SIZE")) {
-			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i]);
+			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i], msg);
 		}
 		else if (!strcasecmp(itemlist[i], "RFC822.TEXT")) {
-			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i]);
+			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i], msg);
 		}
 		else if (!strcasecmp(itemlist[i], "UID")) {
 			imap_fetch_uid(seq);

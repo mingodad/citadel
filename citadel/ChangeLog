@@ -1,4 +1,9 @@
  $Log$
+ Revision 573.30  2000/11/26 05:24:22  ajc
+ * msgbase.c: Added new API function CtdlOutputPreLoadedMsg(), and
+   re-implemented the existing CtdlOutputMsg() as a wrapper around it.
+ * imap_fetch.c: used the above function to do all output pre-loaded
+
  Revision 573.29  2000/11/25 09:36:18  error
  * Added a bit of detail to syslog entries; now shows session id attached to
    client, hostname, and username, and time the session ended.
@@ -2148,4 +2153,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
