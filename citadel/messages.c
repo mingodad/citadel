@@ -1065,7 +1065,7 @@ RMSGREAD:	fflush(stdout);
 /* space key same as <N> */ 	if (e==32) e='n';
 /* del/move for aides only */	if ((!is_room_aide)
 				    &&((room_flags&QR_MAILBOX)==0)) {
-					if ((e=='d')||(e=='m')) e=0;
+					if ((e=='d')||(e=='m')||(e=='c')) e=0;
 					}
 /* print only if available */	if ((e=='p')&&(strlen(printcmd)==0)) e=0;
 /* can't reply in public rms */	if ((e=='r')&&(is_mail!=1)) e=0;
@@ -1075,12 +1075,13 @@ RMSGREAD:	fflush(stdout);
 					&&(e!='d')&&(e!='m')&&(e!='p')
 					&&(e!='q')&&(e!='b')&&(e!='h')
 					&&(e!='r')&&(e!='f')&&(e!='?')
-					&&(e!='u'));
+					&&(e!='u')&&(e!='c'));
 			switch(e) {
 				case 's':	printf("Stop\r");	break;
 				case 'a':	printf("Again\r");	break;
 				case 'd':	printf("Delete\r");	break;
 				case 'm':	printf("Move\r");	break;
+				case 'c':	printf("Copy\r");	break;
 				case 'n':	printf("Next\r");	break;
 				case 'p':	printf("Print\r");	break;
 				case 'q':	printf("Quote\r");	break;
@@ -1108,6 +1109,7 @@ RMSGREAD:	fflush(stdout);
 				    ||(room_flags&QR_MAILBOX)) {
 					printf(" D  Delete this message\n");
 					printf(" M  Move message to another room\n");
+					printf(" C  Copy message to another room\n");
 					}
 				if (strlen(printcmd)>0)
 					printf(" P  Print this message\n");
@@ -1137,11 +1139,14 @@ RMSGREAD:	fflush(stdout);
 		   case 'a':	goto RAGAIN;
 		   case 'b':	a=a-(rdir*2);
 				break;
-		   case 'm':	newprompt("Enter target room: ",
+		   case 'm':
+		   case 'c':
+				newprompt("Enter target room: ",
 					targ,ROOMNAMELEN-1);
 				if (strlen(targ)>0) {
-					sprintf(cmd,"MOVE %ld|%s",
-						msg_arr[a],targ);
+					sprintf(cmd,"MOVE %ld|%s|%d",
+						msg_arr[a],targ,
+						(e=='c' ? 1 : 0) );
 					serv_puts(cmd);
 					serv_gets(cmd);
 					printf("%s\n",&cmd[4]);

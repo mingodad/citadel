@@ -1,4 +1,10 @@
 $Log$
+Revision 1.390  1999/10/20 16:46:27  ajc
+* More code shuffle.  Added some flags to CtdlSaveMessagePointerInRoom() and
+  enabled the MOVE command to also do a "copy" operation (actually just
+  creates a second link and bumps the ref count).  Implemented "<C>opy" in
+  the client.
+
 Revision 1.389  1999/10/20 16:07:48  ajc
 * Wholist fixes for users who are in chat mode
 
@@ -1331,4 +1337,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-

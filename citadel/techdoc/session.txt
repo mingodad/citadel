@@ -740,9 +740,12 @@ which will tell the client whether the file needs to be read (see GOTO above).
  Delete a message from the current room.  The one argument that should be
 passed to this command is the message number of the message to be deleted.
 The return value will be OK if the message was deleted, or an ERROR code.
+If the delete is successful, the message's reference count is decremented, and
+if the reference count reaches zero, the message is removed from the message
+base.
 
 
- MOVE   (MOVE a message to a different room)
+ MOVE   (MOVE or copy a message to a different room)
  
  Move a message to a different room.  The two arguments that should be passed
 to this command are the message number of the message to be deleted, and the
@@ -750,6 +753,13 @@ name of the target room.  If the operation succeeds, the message will be
 deleted from the current room and moved to the target room.  An ERROR code
 usually means that either the user does not have permission to perform this
 operation, or that the target room does not exist.
+ 
+ In Citadel/UX 5.55 and above, a third argument may be specified: 0 or 1 to
+designate whether the message should be moved (0) or copied (1) to the target
+room.  In the case of a "copy" operation, the message's reference count is
+incremented, and a pointer to the message will exist in both the source *and*
+target rooms.  In the case of a "move" operation, the message pointer is
+deleted from the source room and the reference count remains the same.
  
 
  KILL   (KILL current room)

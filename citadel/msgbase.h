@@ -9,6 +9,12 @@
 #define MSGS_LAST       4
 #define MSGS_GT         5
 
+/*
+ * Flags which may be passed to CtdlSaveMsgPointerInRoom()
+ */
+#define SM_VERIFY_GOODNESS	1	/* Verify this is a real msg number */
+#define SM_DO_REPL_CHECK	2	/* Perform replication checks */
+
 
 struct ma_info {
 	char prefix[256];	/* Prefix for a multipart/alternative */

@@ -1094,7 +1094,6 @@ void cmd_opna(char *cmdbuf)
 }			
 
 
-
 /*
  * Save a message pointer into a specified room
  * (Returns 0 for success, nonzero for failure)
@@ -1106,12 +1105,22 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
         int num_msgs;
         long *msglist;
         long highest_msg = 0L;
+	struct CtdlMessage *msg = NULL;
 
 	lprintf(9, "CtdlSaveMsgPointerInRoom(%s, %ld, %d)\n",
 		roomname, msgid, flags);
 
+	/* We may need to check to see if this message is real */
+	if (  (flags & SM_VERIFY_GOODNESS)
+	   || (flags & SM_DO_REPL_CHECK)
+	   ) {
+		msg = CtdlFetchMessage(msgid);
+		if (msg == NULL) return(ERROR + ILLEGAL_VALUE);
+	}
+
 	if (lgetroom(&qrbuf, roomname) != 0) {
 		lprintf(9, "No such room <%s>\n", roomname);
+		if (msg != NULL) CtdlFreeMessage(msg);
 		return(ERROR + ROOM_NOT_FOUND);
 	}
 
@@ -1136,6 +1145,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
         if (num_msgs > 0) for (i=0; i<num_msgs; ++i) {
 		if (msglist[i] == msgid) {
 			lputroom(&qrbuf);	/* unlock the room */
+			if (msg != NULL) CtdlFreeMessage(msg);
 			return(ERROR + ALREADY_EXISTS);
 		}
 	}
@@ -1172,6 +1182,7 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
 
 	/* Return success. */
 	lprintf(9, "CtdlSaveMsgPointerInRoom() succeeded\n");
+	if (msg != NULL) CtdlFreeMessage(msg);
         return (0);
 }
 
@@ -2024,18 +2035,19 @@ void cmd_dele(char *delstr)
 
 
 /*
- * move a message to another room
+ * move or copy a message to another room
  */
 void cmd_move(char *args)
 {
 	long num;
 	char targ[32];
 	struct quickroom qtemp;
-	int foundit;
 	int err;
+	int is_copy = 0;
 
 	num = extract_long(args, 0);
 	extract(targ, args, 1);
+	is_copy = extract_int(args, 2);
 
 	getuser(&CC->usersupp, CC->curr_user);
 	if ((CC->usersupp.axlevel < 6)
@@ -2050,30 +2062,19 @@ void cmd_move(char *args)
 		return;
 	}
 
-	/* Temporarily bump the reference count to avoid having the message
-	 * deleted while it's in transit.
+	err = CtdlSaveMsgPointerInRoom(targ, num, SM_VERIFY_GOODNESS);
+	if (err != 0) {
+		cprintf("%d Cannot store message in %s: error %d\n",
+			err, targ, err);
+		return;
+	}
+
+	/* Now delete the message from the source room,
+	 * if this is a 'move' rather than a 'copy' operation.
 	 */
-	AdjRefCount(num, 1);
+	if (is_copy == 0) CtdlDeleteMessages(CC->quickroom.QRname, num, NULL);
 
-	/* yank the message out of the current room... */
-	foundit = CtdlDeleteMessages(CC->quickroom.QRname, num, NULL);
-
-	if (foundit) {
-		/* put the message into the target room */
-		if (err = CtdlSaveMsgPointerInRoom(targ, num, 0), (err !=0) ) {
-			cprintf("%d Could not save message %ld in %s.\n",
-				err, num, targ);
-		}
-		else {
-			cprintf("%d Message moved.\n", OK);
-		}
-	}
-	else {
-		cprintf("%d No such message.\n", ERROR);
-	}
-
-	/* Fix the reference count. */
-	AdjRefCount(num, (-1));	
+	cprintf("%d Message %s.\n", OK, (is_copy ? "copied" : "moved") );
 }
 
 
