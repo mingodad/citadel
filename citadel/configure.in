@@ -156,6 +156,9 @@ fi
 test -f /usr/local/lib/libgdbm.a && LDFLAGS="$LDFLAGS -L/usr/local/lib"
 AC_CHECK_LIB(gdbm, gdbm_open, GDBM="$GDBM -lgdbm")
 
+test -f /usr/local/lib/libresolv.a && LDFLAGS="$LDFLAGS -L/usr/local/lib"
+AC_CHECK_LIB(resolv, res_query, RESOLV="$RESOLV -lresolv")
+
 save_LIBS=$LIBS
 AC_CHECK_LIB(termcap, tgetent, [LIBS="$LIBS -ltermcap"
 	CURSES=-ltermcap])
@@ -268,6 +271,7 @@ AC_SUBST(SO)
 AC_SUBST(CHKPWD)
 AC_SUBST(CURSES)
 AC_SUBST(GDBM)
+AC_SUBST(RESOLV)
 AC_SUBST(NETLIBS)
 AC_SUBST(chkpwd_LIBS)
 AC_SUBST(TARGETS)

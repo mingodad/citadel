@@ -44,6 +44,7 @@ CPPFLAGS=@CPPFLAGS@ -I.
 CFLAGS=@CFLAGS@
 CC=@CC@
 GDBM=@GDBM@
+RESOLV=@RESOLV@
 LINK_SHARED=@LINK_SHARED@
 LIBS=@LIBS@
 LDFLAGS=@LDFLAGS@
@@ -115,7 +116,8 @@ SERV_OBJS = citserver.ro user_ops.ro support.ro room_ops.ro file_ops.ro \
 	$(AUTH) $(LIBOBJS:.o=.ro)
 
 citserver: $(SERV_OBJS)
-	$(CC) $(SERV_OBJS) $(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) $(NETLIBS) $(GDBM) -o citserver
+	$(CC) $(SERV_OBJS) $(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) $(NETLIBS) \
+	$(GDBM) $(RESOLV) -o citserver
 
 .c.ro:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(PTHREAD_DEFS) -c $< -o $@
