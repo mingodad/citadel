@@ -895,17 +895,13 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 	
 		if ( (!strcasecmp(cbtype, "text/plain")) 
 		   || (strlen(cbtype)==0) ) {
-			wlen = length;
 			wptr = content;
-			while (wlen--) {
-				ch = *wptr++;
-				/**********
-				if (ch==10) cprintf("\r\n");
-				else cprintf("%c", ch);
-				 **********/
-				cprintf("%c", ch);
+			if (length > 0) {
+				client_write(wptr, length);
+				if (wptr[length-1] != '\n') {
+					cprintf("\n");
+				}
 			}
-			if (ch != '\n') cprintf("\n");
 		}
 		else if (!strcasecmp(cbtype, "text/html")) {
 			ptr = html_to_ascii(content, 80, 0);

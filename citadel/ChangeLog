@@ -1,4 +1,8 @@
  $Log$
+ Revision 591.27  2002/05/16 04:44:58  ajc
+ * Reduce the number of socket writes when doing fixed_output() to avoid
+   getting killed by overhead.  (Thanks to IO for the insight)
+
  Revision 591.26  2002/05/14 15:25:34  error
  * room_ops.c: clarified aide message when room aide is removed
 
@@ -3660,4 +3664,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
