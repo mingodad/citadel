@@ -49,7 +49,8 @@ void cmd_delf(char *filename)
 		}
 	for (a=0; a<strlen(filename); ++a)
 		if (filename[a]=='/') filename[a] = '_';
-	sprintf(pathname,"./files/%s/%s",CC->quickroom.QRdirname,filename);
+	snprintf(pathname,sizeof pathname,"./files/%s/%s",
+		 CC->quickroom.QRdirname,filename);
 	a=unlink(pathname);
 	if (a==0) cprintf("%d File '%s' deleted.\n",OK,pathname);
 	else cprintf("%d File '%s' not found.\n",ERROR+FILE_NOT_FOUND,pathname);
@@ -98,7 +99,8 @@ void cmd_movf(char *cmdbuf)
 
 	for (a=0; a<strlen(filename); ++a)
 		if (filename[a]=='/') filename[a] = '_';
-	sprintf(pathname,"./files/%s/%s",CC->quickroom.QRdirname,filename);
+	snprintf(pathname,sizeof pathname,"./files/%s/%s",
+		 CC->quickroom.QRdirname,filename);
 	if (access(pathname,0)!=0) {
 		cprintf("%d File '%s' not found.\n",
 			ERROR+FILE_NOT_FOUND,pathname);
@@ -115,7 +117,8 @@ void cmd_movf(char *cmdbuf)
 			ERROR+NOT_HERE,qrbuf.QRname);
 		return;
 		}
-	sprintf(newpath,"./files/%s/%s",qrbuf.QRdirname,filename);
+	snprintf(newpath,sizeof newpath,"./files/%s/%s",qrbuf.QRdirname,
+		 filename);
 	if (link(pathname,newpath)!=0) {
 		cprintf("%d Couldn't move file: %s\n",ERROR,strerror(errno));
 		return;
@@ -123,7 +126,8 @@ void cmd_movf(char *cmdbuf)
 	unlink(pathname);
 
 	/* this is a crude method of copying the file description */
-	sprintf(buf,"cat ./files/%s/filedir |grep %s >>./files/%s/filedir",
+	snprintf(buf, sizeof buf,
+		"cat ./files/%s/filedir |grep %s >>./files/%s/filedir",
 		CC->quickroom.QRdirname,
 		filename,
 		qrbuf.QRdirname);
@@ -169,20 +173,22 @@ void cmd_netf(char *cmdbuf)
 
 	for (a=0; a<strlen(filename); ++a)
 		if (filename[a]=='/') filename[a] = '_';
-	sprintf(pathname,"./files/%s/%s",CC->quickroom.QRdirname,filename);
+	snprintf(pathname,sizeof pathname,"./files/%s/%s",
+		 CC->quickroom.QRdirname,filename);
 	if (access(pathname,0)!=0) {
 		cprintf("%d File '%s' not found.\n",
 			ERROR+FILE_NOT_FOUND,pathname);
 		return;
 		}
-	sprintf(buf,"sysop@%s",destsys);
+	snprintf(buf,sizeof buf,"sysop@%s",destsys);
 	e=alias(buf);
 	if (e!=M_BINARY) {
 		cprintf("%d No such system: '%s'\n",
 			ERROR+NO_SUCH_SYSTEM,destsys);
 		return;
 		}
-	sprintf(outfile,"%s/network/spoolin/nsf.%d",BBSDIR,getpid());
+	snprintf(outfile,sizeof outfile,"%s/network/spoolin/nsf.%d",BBSDIR,
+		 getpid());
 	ofp=fopen(outfile,"a");
 	if (ofp==NULL) {
 		cprintf("%d internal error\n",ERROR);
@@ -203,7 +209,8 @@ void cmd_netf(char *cmdbuf)
 	putc('M',ofp);
 	fclose(ofp);
 
-	sprintf(buf,"cd ./files/%s; uuencode %s <%s 2>/dev/null >>%s",
+	snprintf(buf,sizeof buf,
+		"cd ./files/%s; uuencode %s <%s 2>/dev/null >>%s",
 		CC->quickroom.QRdirname,filename,filename,outfile);
 	system(buf);
 
@@ -308,11 +315,13 @@ void cmd_oimg(char *cmdbuf)
 			cprintf("%d No such user.\n", ERROR+NO_SUCH_USER);
 			return;
 			}
-		sprintf(pathname, "./userpics/%ld.gif", usbuf.usernum);
+		snprintf(pathname, sizeof pathname, "./userpics/%ld.gif",
+			 usbuf.usernum);
 		}
 	else if (!strcasecmp(filename, "_floorpic_")) {
 		which_floor = extract_int(cmdbuf, 1);
-		sprintf(pathname, "./images/floor.%d.gif", which_floor);
+		snprintf(pathname, sizeof pathname, "./images/floor.%d.gif",
+			 which_floor);
 		}
 	else if (!strcasecmp(filename, "_roompic_")) {
 		assoc_file_name(pathname, &CC->quickroom, "images");
@@ -322,7 +331,7 @@ void cmd_oimg(char *cmdbuf)
 			filename[a] = tolower(filename[a]);
 			if (filename[a]=='/') filename[a] = '_';
 			}
-		sprintf(pathname,"./images/%s.gif",filename);
+		snprintf(pathname,sizeof pathname,"./images/%s.gif",filename);
 		}
 	
 	CC->download_fp = fopen(pathname,"r");
@@ -368,8 +377,10 @@ void cmd_uopn(char *cmdbuf)
 
 	for (a=0; a<strlen(CC->upl_file); ++a)
 		if (CC->upl_file[a]=='/') CC->upl_file[a] = '_';
-	sprintf(CC->upl_path,"./files/%s/%s",CC->quickroom.QRdirname,CC->upl_file);
-	sprintf(CC->upl_filedir,"./files/%s/filedir",CC->quickroom.QRdirname);
+	snprintf(CC->upl_path,sizeof CC->upl_path,"./files/%s/%s",
+		 CC->quickroom.QRdirname,CC->upl_file);
+	snprintf(CC->upl_filedir,sizeof CC->upl_filedir,"./files/%s/filedir",
+		 CC->quickroom.QRdirname);
 	
 	CC->upload_fp = fopen(CC->upl_path,"r");
 	if (CC->upload_fp != NULL) {
@@ -421,17 +432,19 @@ void cmd_uimg(char *cmdbuf)
 		}
 
 	if (CC->usersupp.axlevel >= 6) {
-		sprintf(CC->upl_path, "./images/%s", basenm);
+		snprintf(CC->upl_path, sizeof CC->upl_path, "./images/%s",
+			 basenm);
 		}
 
 	if (!strcasecmp(basenm, "_userpic_")) {
-		sprintf(CC->upl_path, "./userpics/%ld.gif",
-			CC->usersupp.usernum);
+		snprintf(CC->upl_path, sizeof CC->upl_path,
+			 "./userpics/%ld.gif", CC->usersupp.usernum);
 		}
 
 	if ( (!strcasecmp(basenm, "_floorpic_")) && (CC->usersupp.axlevel >= 6) ) {
 		which_floor = extract_int(cmdbuf, 2);
-		sprintf(CC->upl_path, "./images/floor.%d.gif", which_floor);
+		snprintf(CC->upl_path, sizeof CC->upl_path,
+			 "./images/floor.%d.gif", which_floor);
 		}
 
 	if ( (!strcasecmp(basenm, "_roompic_")) && (is_room_aide()) ) {
@@ -476,7 +489,8 @@ void cmd_clos(void) {
 
 	if (CC->dl_is_net == 1) {
 		CC->dl_is_net = 0;
-		sprintf(buf,"%s/network/spoolout/%s",BBSDIR,CC->net_node);
+		snprintf(buf,sizeof buf,"%s/network/spoolout/%s",BBSDIR,
+			 CC->net_node);
 		unlink(buf);
 		}
 
@@ -644,7 +658,8 @@ void cmd_ndop(char *cmdbuf)
 		return;
 		}
 
-	sprintf(pathname,"%s/network/spoolout/%s",BBSDIR,CC->net_node);
+	snprintf(pathname,sizeof pathname,"%s/network/spoolout/%s",BBSDIR,
+		 CC->net_node);
 
 	/* first open the file in append mode in order to create a
 	 * zero-length file if it doesn't already exist 
@@ -686,7 +701,7 @@ void cmd_nuop(char *cmdbuf)
 		return;
 		}
 
-	sprintf(CC->upl_path,"%s/network/spoolin/%s.%d",
+	snprintf(CC->upl_path,sizeof CC->upl_path,"%s/network/spoolin/%s.%d",
 		BBSDIR,CC->net_node,getpid());
 
 	CC->upload_fp = fopen(CC->upl_path,"r");

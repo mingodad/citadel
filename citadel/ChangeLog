@@ -1,6 +1,8 @@
 1998-11-09 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* client_chat.c: eliminate calls to sprintf()
 	* commands.h, routines.c, routines2.c: warning fix
+	* commands.c, control.c, cux2ascii.c, file_ops.c, import.c,
+	  ipc_c_tcp.c: eliminate sprintf() calls
 
 Mon Nov  9 19:15:31 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* serv_upgrade.c: added all missing fields to export/import

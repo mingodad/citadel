@@ -43,7 +43,7 @@ char *argv[]; {
 
 	get_config();
 
-	sprintf(tflnm,"/tmp/c2a%d",getpid());
+	snprintf(tflnm,sizeof tflnm,"/tmp/c2a%d",getpid());
 
 	fp=stdin;
    while (1) {

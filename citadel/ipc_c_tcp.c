@@ -295,7 +295,7 @@ void attach_to_server(int argc, char **argv)
 	printf("Attaching to server...\r");
 	fflush(stdout);
 
-	sprintf(buf,"%c%c",
+	snprintf(buf,sizeof buf,"%c%c",
 		4,			/* version 4 */
 		1);			/* method = connect */
 	serv_write(buf,2);

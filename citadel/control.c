@@ -184,8 +184,9 @@ void cmd_conf(char *argbuf) {
 		    ++a;
 		    }
 		put_config();
-		sprintf(buf,"Global system configuration edited by %s",
-			CC->curr_user);
+		snprintf(buf,sizeof buf,
+			 "Global system configuration edited by %s",
+			 CC->curr_user);
 		aide_message(buf);
 		}
 

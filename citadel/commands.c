@@ -293,7 +293,7 @@ int intprompt(char *prompt, int ival, int imin, int imax)
 	int i;
 	i = ival;
 	do {
-		sprintf(buf,"%d",i);
+		snprintf(buf,sizeof buf,"%d",i);
 		strprompt(prompt,buf,15);
 		i=atoi(buf);
 		if (i<imin) printf("*** Must be no less than %d.\n",imin);
@@ -353,14 +353,14 @@ void load_command_set(void) {
 
 	ccfile = NULL;
 	if (getenv("HOME") != NULL) {
-		sprintf(buf,"%s/.citadelrc",getenv("HOME"));
+		snprintf(buf,sizeof buf,"%s/.citadelrc",getenv("HOME"));
 		ccfile = fopen(buf,"r");
 		}
 	if (ccfile==NULL) {
 		ccfile = fopen("/usr/local/lib/citadel.rc","r");
 		}
 	if (ccfile==NULL) {
-		sprintf(buf,"%s/citadel.rc",BBSDIR);
+		snprintf(buf,sizeof buf,"%s/citadel.rc",BBSDIR);
 		ccfile = fopen(buf,"r");
 		}
 	if (ccfile==NULL) {
