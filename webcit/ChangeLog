@@ -1,4 +1,7 @@
 $Log$
+Revision 301.1  2001/08/02 03:42:03  ajc
+* Changed the wholist to work with the new masquerade semantics
+
 Revision 301.0  2001/06/28 15:05:31  ajc
 * tag for 3.01
 
@@ -603,4 +606,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
