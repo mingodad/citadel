@@ -55,20 +55,6 @@ char TABLEFILE[128];
 char OUTGOING_FQDN[128];
 int RUN_NETPROC = 1;
 
-int struncmp(lstr,rstr,l)
-char lstr[],rstr[]; {
-	int pos = 0;
-	char lc,rc;
-	while (1) {
-		if (pos==l) return(0);
-		lc=tolower(lstr[pos]);
-		rc=tolower(rstr[pos]);
-		if ((lc==0)&&(rc==0)) return(0);
-		if (lc<rc) return(-1);
-		if (lc>rc) return(1);
-		pos=pos+1;
-		}
-	}
 
 long conv_date(sdbuf)
 char sdbuf[]; {
@@ -169,42 +155,6 @@ char buf[]; {
 		buf[strlen(buf)-1]=0;
 	}
 
-int islocalok(char recp[]) {
-
-	struct usersupp ust;
-	long lookfor;
-	char a_recp[128];
-	int found_closest_match = 0;
-	int a,us;
-	strcpy(a_recp,recp);
-	for (a=0; a<strlen(a_recp); ++a)
-		if (a_recp[a]=='_') a_recp[a]=32;
-	lookfor = (-1L); if (!struncmp(recp,"cit",3)) lookfor=atol(&recp[3]);
-	us=open("/appl/citadel/usersupp",O_RDONLY);
-	if (us>=0) {
-		while(read(us,&ust,sizeof(struct usersupp))>0) {
-			if (lookfor == ust.eternal) {
-				strcpy(recp,ust.fullname);
-				close(us);
-				return(2);
-				}
-			if (!strucmp(ust.fullname,a_recp)) {
-				strcpy(recp,ust.fullname);
-				close(us);
-				return(3);
-				}
-			if (!struncmp(ust.fullname,a_recp,strlen(a_recp))) {
-				strcpy(recp,ust.fullname);
-				found_closest_match = 1;
-				}
-			}
-		close(us);
-		}
-	if (getpwnam(recp)!=NULL) return(1);
-	if (found_closest_match) return(3);
-	return(0);
-	}
-
 /* strip leading and trailing spaces */
 void striplt(buf)
 char buf[]; {
@@ -221,7 +171,7 @@ void host_alias(char host[]) {
 	int a;
 
 	/* What name is the local host known by? */
-	/* if (!strucmp(host, config.c_fqdn)) { */
+	/* if (!strcasecmp(host, config.c_fqdn)) { */
 	if (IsHostLocal(host)) {
 		strcpy(host, config.c_nodename);
 		return;
@@ -229,7 +179,7 @@ void host_alias(char host[]) {
 
 	/* Other hosts in the gateway domain? */
 	for (a=0; a<strlen(host); ++a) {
-		if ((host[a]=='.') && (!strucmp(&host[a+1], GW_DOMAIN))) {
+		if ((host[a]=='.') && (!strcasecmp(&host[a+1], GW_DOMAIN))) {
 			host[a] = 0;
 			for (a=0; a<strlen(host); ++a) {
 				if (host[a]=='.') host[a] = 0;
@@ -403,6 +353,7 @@ void do_citmail(char recp[], int dtype) {
 	char nodebuf[256];
 	char destsys[256];
 	char subject[256];
+	char targetroom[256];
 
 
 	if (dtype==REMOTE) {
@@ -420,6 +371,15 @@ void do_citmail(char recp[], int dtype) {
 
 		/* now convert underscores to spaces */
 		for (a=0; a<strlen(recp); ++a) if (recp[a]=='_') recp[a]=' ';
+
+		/* Are we delivering to a room instead of a user? */
+		if (!strncasecmp(recp, "room ", 5)) {
+			strcpy(targetroom, &recp[5]);
+			strcpy(recp, "");
+			}
+		else {
+			strcpy(targetroom, "");
+			}
 
 		}
 
@@ -447,13 +407,24 @@ void do_citmail(char recp[], int dtype) {
 	fprintf(temp,"P%s@%s%c", userbuf, nodebuf, 0);
 	fprintf(temp,"T%ld%c", now, 0);
 	fprintf(temp,"A%s%c", userbuf, 0);
-	fprintf(temp,"OMail%c", 0);
+
+	if (strlen(targetroom) > 0) {
+		fprintf(temp, "O%s%c", targetroom, 0);
+		}
+	else {
+		fprintf(temp, "OMail%c", 0);
+		}
+
 	fprintf(temp,"N%s%c", nodebuf, 0);
 	fprintf(temp,"H%s%c", frombuf, 0);
 	if (dtype==REMOTE) {
 		fprintf(temp,"D%s%c", destsys, 0);
 		}
-	fprintf(temp,"R%s%c", recp, 0);
+
+	if (strlen(recp) > 0) {
+		fprintf(temp,"R%s%c", recp, 0);
+		}
+
 	if (strlen(subject)>0) {
 		fprintf(temp,"U%s%c", subject, 0);
 		}
@@ -463,58 +434,6 @@ void do_citmail(char recp[], int dtype) {
 	fclose(temp);
 	}
 
-void do_roommail(recp)  /* pipe public message through netproc */
-char recp[]; {
-	long now;
-	FILE *temp;
-	int a;
-	char buf[128],userbuf[128],frombuf[128],nodebuf[128];
-	char subject[128], from[256];
-
-	strcpy(subject,"");
-	sprintf(from, "postmaster@%s", config.c_nodename);
-	strcpy(recp,&recp[5]);
-	for (a=0; a<strlen(recp); ++a) if (recp[a]=='_') recp[a]=32;
-	time(&now);
-
-
-
-	strcpy(frombuf,"Internet Mail Gateway");
-	strcpy(nodebuf, config.c_nodename);
-	do {
-		if (fgets(buf,128,stdin) == NULL) strcpy(buf, ".");
-		strip_trailing_whitespace(buf);
-
-		if (!strncmp(buf,"Subject: ",9)) strcpy(subject,&buf[9]);
-		if (!strncmp(buf,"Date: ",6)) now = conv_date(&buf[6]);
-		if (!strncmp(buf,"From: ",6)) strcpy(from, &buf[6]);
-		} while ( (strcmp(buf, ".")) && (strcmp(buf, "")) );
-
-	process_rfc822_addr(from, userbuf, nodebuf, frombuf);
-
-	sprintf(buf,"./network/spoolin/citmail.%d",getpid());
-	temp = fopen(buf,"ab");
-	putc(255,temp); putc(MES_NORMAL,temp); putc(1,temp);
-	fprintf(temp,"P%s@%s",userbuf,nodebuf);	putc(0,temp);
-	fprintf(temp,"T%ld",now); putc(0,temp);
-	fprintf(temp,"A%s",userbuf); putc(0,temp);
-	fprintf(temp,"O%s",recp); putc(0,temp);
-	fprintf(temp,"N%s",nodebuf); putc(0,temp);
-	fprintf(temp,"H%s",frombuf); putc(0,temp);
-	if (strlen(subject)>0) {
-		fprintf(temp,"U%s",subject); putc(0,temp);
-		}
-
-	/* FIX we have to figure out how to handle metoo list loops */
-	if (IsHostLocal(nodebuf)) {
-		fprintf(temp, "C%s%c", "spoo", 0);
-		}
-
-	putc('M',temp);
-	if (strcmp(buf, ".")) loopcopy(temp, stdin);
-	putc(0,temp);
-	fclose(temp);
-	}
 
 void do_uudecode(target)
 char *target;  {
@@ -530,18 +449,6 @@ char *target;  {
 		}
 	pclose(fp);
 
-	}
-
-void do_fallback(recp)
-char recp[]; {
-	static char buf[1024];
-	FILE *fp;
-	
-	sprintf(buf, FALLBACK, recp);
-	fp=popen(buf,"w");
-	if (fp==NULL) fp = popen("cat >/dev/null", "w");
-	loopcopy(fp, stdin);
-	pclose(fp);
 	}
 
 int alias(name)
@@ -561,7 +468,7 @@ char *name; {
 		for (a=0; a<strlen(abuf); ++a) {
 			if (abuf[a]==',') {
 				abuf[a]=0;
-				if (!strucmp(name,abuf)) {
+				if (!strcasecmp(name,abuf)) {
 					strcpy(name,&abuf[a+1]);
 					}
 				}
@@ -573,9 +480,6 @@ char *name; {
 
 
 void deliver(char recp[], int is_test, int deliver_to_ignet) {
-
-	int b;
-	b=islocalok(recp);
 
 	/* various ways we can deliver mail... */
 
@@ -601,21 +505,11 @@ void deliver(char recp[], int is_test, int deliver_to_ignet) {
 		syslog(LOG_NOTICE,"zapping nulled message");
 		}
 
-	else if (!struncmp(recp,"room_",5)) {
-		syslog(LOG_NOTICE,"to room %s",recp);
-		if (is_test == 0) do_roommail(recp);
-		}
-
-	else if (b==1) {
-		syslog(LOG_NOTICE,"fallback mailer to user %s",recp);
-		if (is_test == 0) do_fallback(recp);
-		}
-
 	else {
-		/* Otherwise, the user is local (or an unknown name was specified, in
-		 * which case we let netproc handle the bounce)
+		/* Otherwise, the user is local (or an unknown name was
+		 * specified, in which case we let netproc handle the bounce)
 		 */
-		syslog(LOG_NOTICE,"to Citadel user %s",recp);
+		syslog(LOG_NOTICE,"to Citadel recipient %s",recp);
 		if (is_test == 0) do_citmail(recp, LOCAL);
 		}
 
@@ -676,21 +570,21 @@ char *argv[]; {
 			buf[strlen(buf)+2] = 0;
 			buf[strlen(buf)+3] = 0;
 	
-			if (!struncmp(buf, "QUIT", 4)) {
+			if (!strncasecmp(buf, "QUIT", 4)) {
 				printf("221 Later, dude.\n");
 				}
-			else if (!struncmp(buf, "HELP", 4)) {
+			else if (!strncasecmp(buf, "HELP", 4)) {
 				printf("214 You think _you_ need help?\n");
 				}
-			else if (!struncmp(buf, "HELO", 4)) {
+			else if (!strncasecmp(buf, "HELO", 4)) {
 				printf("250 Howdy ho, Mr. Hankey!\n");
 				}
-			else if (!struncmp(buf, "MAIL", 4)) {
+			else if (!strncasecmp(buf, "MAIL", 4)) {
 				printf("250 Sure, whatever...\n");
 				}
 
 
-			else if (!struncmp(buf, "RCPT To: ", 9)) {
+			else if (!strncasecmp(buf, "RCPT To: ", 9)) {
 				if (strlen(recp) > 0) {
 					printf("571 Multiple recipients not supported.\n");
 					}
@@ -740,10 +634,10 @@ char *argv[]; {
 
 
 
-			else if (!struncmp(buf, "RCPT", 4)) {
+			else if (!strncasecmp(buf, "RCPT", 4)) {
 				printf("501 Only 'To:' commands are supported.\n");
 				}
-			else if (!struncmp(buf, "DATA", 4)) {
+			else if (!strncasecmp(buf, "DATA", 4)) {
 				if (strlen(recp) > 0) {
 					printf("354 Sock it to me, baby...\n");
 					fflush(stdout);
@@ -758,7 +652,7 @@ char *argv[]; {
 				printf("500 Huh?\n");
 				}
 	
-			} while (struncmp(buf,"QUIT",4));
+			} while (strncasecmp(buf,"QUIT",4));
 		}
 
 	else {

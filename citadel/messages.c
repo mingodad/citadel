@@ -379,8 +379,6 @@ int read_message(long int num, char pagin)	/* Read a message from the server */
 		if (!struncmp(buf,"from=",5)) {
 			printf("from %s ",&buf[5]);
 			}
-		if (!struncmp(buf,"path=",5))
-			strcpy(reply_to,&buf[5]);
 		if (!struncmp(buf,"subj=",5))
 			strcpy(m_subject,&buf[5]);
 		if ((!struncmp(buf,"hnod=",5)) 
@@ -402,7 +400,7 @@ int read_message(long int num, char pagin)	/* Read a message from the server */
 				{
 				strcpy(reply_to,from);
 				}
-			else if (haschar(&buf[5],'.')==0) {
+			else {
 				sprintf(reply_to,"%s @ %s",from,&buf[5]);
 				}
 			}
