@@ -51,13 +51,13 @@ function establish_citadel_session() {
 		echo "Connected.  Performing echo tests.<BR>\n";
 		flush();
 		$cmd = "ECHO test echo string upon connection\n";
-		fwrite($clientsocket, $cmd, strlen($cmd));
+		fwrite($clientsocket, $cmd);
 		$response = fgets($clientsocket, 4096);
 		echo "Response is: ", $response, "<BR>\n";
 		flush();
 
 		$cmd = "ECHO second test for echo\n";
-		fwrite($clientsocket, $cmd, strlen($cmd));
+		fwrite($clientsocket, $cmd);
 		$response = fgets($clientsocket, 4096);
 		echo "Response is: ", $response, "<BR>\n";
 		flush();
@@ -71,15 +71,20 @@ function establish_citadel_session() {
 }
 
 
+//
+// Clear out both our Citadel session and our PHP session.  We're done.
+//
 function ctdl_end_session() {
 	global $clientsocket, $session;
 
-	session_destroy();
+	// Tell the Citadel server to terminate our connection.
+	fwrite($clientsocket, "QUIT\n");
+	fclose($clientsocket);
 	unset($clientsocket);
-	unset($session); 
 
-	echo "Session destroyed.<BR>\n";
-	
+	// Now clear our PHP session.
+	unset($session); 
+	session_destroy();
 }
 
 ?>

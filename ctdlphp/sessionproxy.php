@@ -60,18 +60,21 @@ system("/bin/rm -f " . $sockname);
 $sock = socket_create(AF_UNIX, SOCK_STREAM, 0);
 if ($sock < 0) {
 	echo "socket_create() failed: ", socket_strerror($sock), "\n";
+	system("/bin/rm -f " . $sockname);
 	exit(2);
 }
 
 $ret = socket_bind($sock, $sockname);
 if ($ret < 0) {
 	echo "socket_bind() failed: ", socket_strerror($ret), "\n";
+	system("/bin/rm -f " . $sockname);
 	exit(3);
 }
 
 $ret = socket_listen($sock, 5);
 if ($ret < 0) {
 	echo "socket_listen() failed: ", socket_strerror($ret), "\n";
+	system("/bin/rm -f " . $sockname);
 	exit(4);
 }
 
@@ -85,20 +88,23 @@ if (!$ctdlsock) {
 	exit(5);
 }
 
-echo "Connected to Citadel server.\n";
-$buf = fgets($ctdlsock, 4096);
-echo $buf, "\n";
+// Read the greeting from the Citadel server.
+if (!$buf = fgets($ctdlsock, 4096)) {
+	socket_close ($sock);
+	system("/bin/rm -f " . $sockname);
+	exit(6);
+}
+
+// Make sure the server is allowing logins.
+if (substr($buf, 0, 1) != "2") {
+	socket_close ($sock);
+	system("/bin/rm -f " . $sockname);
+	exit(7);
+}
 
 do {
 	$msgsock = socket_accept($sock);
-	if ($msgsock < 0) {
-		echo "socket_accept() failed: ",
-			socket_strerror($msgsock), "\n";
-        	break;
-	}
-
-	do {
-		echo "Reading a line...\n";
+	if ($msgsock >= 0) do {
 		$buf = sock_gets($msgsock);
 		if ($buf !== false) {
 			fwrite($ctdlsock, $buf . "\n", (strlen($buf)+1) );
@@ -107,13 +113,12 @@ do {
 		}
 	} while($buf !== false);
 
-	echo "Closing socket.\n";
-
 	socket_close ($msgsock);
 
 } while (true);
 
-socket_close ($sock);
+socket_close($sock);
+socket_close($ctdlsock);
 system("/bin/rm -f " . $sockname);
 exit(0);
 

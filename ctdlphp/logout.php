@@ -13,8 +13,8 @@ You are being logged out.
 
 LITERAL;
 
-	ctdl_end_session();
 	bbs_page_footer();
+	ctdl_end_session();
 
 ?>
 

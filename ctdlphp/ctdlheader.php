@@ -43,18 +43,9 @@ test_for_echo();
 
 
 function bbs_page_footer() {
-	global $clientsocket;
-
 	echo "<HR>";
-
-	if (!fclose($clientsocket)) {
-		echo "Error closing client socket.<BR>\n";
-	}
-
 	echo "Copyright &copy; 2003 by The SCO Group.<BR>\n";
 	echo "</BODY></HTML>\n";
-
-
 }
 
 ?>

@@ -10,7 +10,8 @@ function test_for_echo() {
 	flush();
 	echo "Writing...<BR>\n";
 	flush();
-	fwrite($clientsocket, $command, strlen($command));
+	// fwrite($clientsocket, $command, strlen($command));
+	fwrite($clientsocket, $command);
 	echo "Reading...<BR>\n";
 	flush();
 	$response = fgets($clientsocket, 4096);
