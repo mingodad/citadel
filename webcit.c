@@ -333,7 +333,6 @@ void output_static(char *what) {
 	struct stat statbuf;
 	off_t bytes;
 
-	fprintf(stderr, "output_static(%s)\n", what);
 	sprintf(buf, "static/%s", what);
 	fp = fopen(buf, "rb");
 	if (fp == NULL) {
@@ -346,7 +345,6 @@ void output_static(char *what) {
 		fwrite(buf, strlen(buf), 1, stdout);
 		}
 	else {
-		fprintf(stderr, "opened it ok\n");
 		printf("HTTP/1.0 200 OK\n");
 		output_headers();
 
