@@ -588,7 +588,7 @@ FILE *CtdlTempFile(void) {
  * Modifications: copyright (c) 2003 by Art Cancro <ajc@uncensored.citadel.org>
  */
 char *bmstrstr(char *text, char *pattern,
-	int (*cmpfunc(const char *, const char *, size_t)) )
+	int (*cmpfunc)(const char *, const char *, size_t) )
 {
 	register unsigned char *p, *t;
 	register int i, j, *delta;

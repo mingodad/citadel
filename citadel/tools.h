@@ -31,6 +31,6 @@ void urlesc(char *outbuf, char *strbuf);
 char *CtdlTempFileName(char *prefix1, int prefix2);
 FILE *CtdlTempFile(void);
 char *bmstrstr(char *text, char *pattern,
-        int (*cmpfunc(const char *, const char *, size_t)) );
+        int (*cmpfunc)(const char *, const char *, size_t) );
 
 char *ascmonths[12];
