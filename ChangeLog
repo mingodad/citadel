@@ -1,3 +1,7 @@
+Sun Apr 18 23:42:54 EDT 1999 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
+	* Reworked a lot of the structure, made more HTML "embeddable"
+	* Changed the noframes mode to display "fake" frames using tables
+
 Thu Apr 16 12:00:00 EDT 1999 Nick Grossman <nicl@ulster.net>
 	Changed some output formatting (mainly <FONT> tags).
 	Changed who.c to use urlescputs() rather than escputs()

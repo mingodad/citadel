@@ -314,6 +314,56 @@ void readinfo(int v)
 }
 
 
+
+void embed_room_banner(char *got) {
+	char buf[256];
+	char fakegot[256];
+
+	if (got == NULL) {
+		serv_printf("GOTO %s", wc_roomname);
+		serv_gets(fakegot);
+		got = fakegot;
+	}
+
+	wprintf("<CENTER><TABLE border=0><TR>");
+
+	if ((strlen(ugname) > 0) && (strcasecmp(ugname, wc_roomname))) {
+		wprintf("<TD VALIGN=TOP><A HREF=\"/ungoto\">");
+		wprintf("<IMG SRC=\"/static/back.gif\" BORDER=0></A></TD>");
+	}
+	wprintf("<TD VALIGN=TOP><FONT FACE=\"Arial,Helvetica,sans-serif\"><FONT SIZE=+2>%s</FONT><BR>", wc_roomname);
+	wprintf("%d new of %d messages</FONT></TD>\n",
+		extract_int(&got[4], 1),
+		extract_int(&got[4], 2));
+
+	/* Display room graphic.  The server doesn't actually
+	 * need the room name, but we supply it in order to
+	 * keep the browser from using a cached graphic from 
+	 * another room.
+	 */
+	serv_puts("OIMG _roompic_");
+	serv_gets(buf);
+	if (buf[0] == '2') {
+		wprintf("<TD><FONT FACE=\"Arial,Helvetica,sans-serif\">");
+		wprintf("<IMG SRC=\"/image&name=_roompic_&room=");
+		escputs(wc_roomname);
+		wprintf("\"></FONT></TD>");
+		serv_puts("CLOS");
+		serv_gets(buf);
+	}
+	wprintf("<TD VALIGN=TOP><FONT FACE=\"Arial,Helvetica,sans-serif\">");
+	readinfo(0);
+	wprintf("</FONT></TD>");
+
+	wprintf("<TD VALIGN=TOP><A HREF=\"/gotonext\">");
+	wprintf("<IMG SRC=\"/static/forward.gif\" border=0></A></TD>");
+	wprintf("</TR></TABLE></CENTER>\n");
+}
+
+
+
+
+
 /*
  * generic routine to take the session to a new room
  *
@@ -329,7 +379,10 @@ void gotoroom(char *gname, int display_name)
 
 	if (display_name) {
 		printf("HTTP/1.0 200 OK\n");
+                printf("Pragma: no-cache\n");
+                printf("Cache-Control: no-store\n");
 		output_headers(0);
+
 		wprintf("<HTML><HEAD></HEAD>\n<BODY ");
 
 		/* automatically fire up a read-new-msgs in the bottom frame */
@@ -375,40 +428,7 @@ void gotoroom(char *gname, int display_name)
 
 	/* Display the room banner */
 	if (display_name) {
-		wprintf("<CENTER><TABLE border=0><TR>");
-
-		if ((strlen(ugname) > 0) && (strcasecmp(ugname, wc_roomname))) {
-			wprintf("<TD VALIGN=TOP><A HREF=\"/ungoto\">");
-			wprintf("<IMG SRC=\"/static/back.gif\" BORDER=0></A></TD>");
-		}
-		wprintf("<TD VALIGN=TOP><FONT FACE=\"Arial,Helvetica,sans-serif\"><FONT SIZE=+2>%s</FONT><BR>", wc_roomname);
-		wprintf("%d new of %d messages</FONT></TD>\n",
-			extract_int(&buf[4], 1),
-			extract_int(&buf[4], 2));
-
-		/* Display room graphic.  The server doesn't actually
-		 * need the room name, but we supply it in order to
-		 * keep the browser from using a cached graphic from 
-		 * another room.
-		 */
-		serv_puts("OIMG _roompic_");
-		serv_gets(buf);
-		if (buf[0] == '2') {
-			wprintf("<TD><FONT FACE=\"Arial,Helvetica,sans-serif\">");
-			wprintf("<IMG SRC=\"/image&name=_roompic_&room=");
-			escputs(wc_roomname);
-			wprintf("\"></FONT></TD>");
-			serv_puts("CLOS");
-			serv_gets(buf);
-		}
-		wprintf("<TD VALIGN=TOP><FONT FACE=\"Arial,Helvetica,sans-serif\">");
-		readinfo(0);
-		wprintf("</FONT></TD>");
-
-		wprintf("<TD VALIGN=TOP><A HREF=\"/gotonext\">");
-		wprintf("<IMG SRC=\"/static/forward.gif\" border=0></A></TD>");
-		wprintf("</TR></TABLE></CENTER>\n");
-
+		embed_room_banner(buf);
 		wDumpContent(1);
 	}
 	strcpy(wc_roomname, wc_roomname);
@@ -515,7 +535,20 @@ void gotonext(void)
 	} else {
 		strcpy(next_room, "_BASEROOM_");
 	}
-	gotoroom(next_room, 1);
+
+	/* In noframes mode, we goto the room silently, then do a
+	 * read-new-messages which causes the banner to show up anyway.
+	 */
+	if (noframes) {
+		gotoroom(next_room, 0);
+		readloop("readnew");
+	} else {
+	/* In frames mode, we let gotoroom() bring up the banner, which then
+	 * uses JavaScript to bring up the new-messages display in the
+	 * bottom frame.
+	 */
+		gotoroom(next_room, 1);
+	}
 }
 
 
