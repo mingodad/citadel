@@ -87,7 +87,7 @@ void init_sysdep(void) {
 		}
 
 	/*
-	 * Set up a place to put thred-specific data.
+	 * Set up a place to put thread-specific data.
 	 * We only need a single pointer per thread - it points to the
 	 * thread's CitContext structure in the ContextList linked list.
 	 */
@@ -160,7 +160,8 @@ int ig_tcp_server(int port_number, int queue_len)
 	sin.sin_addr.s_addr = INADDR_ANY;
 
 	if (port_number == 0) {
-		lprintf(1, "citserver: No port number specified.  Run setup again.\n");
+		lprintf(1,
+			"citserver: No port number specified.  Run setup.\n");
 		exit(1);
 		}
 	

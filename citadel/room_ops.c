@@ -448,11 +448,18 @@ int sort_msglist(long listptrs[], int oldcount)
 
 
 /*
- * Determine whether a given room is one of the base non-editable rooms
+ * Determine whether a given room is non-editable.
  */
 int is_noneditable(struct quickroom *qrbuf) {
+
+	/* Lobby> and Aide> are non-editable */
 	if (!strcasecmp(qrbuf->QRname, BASEROOM)) return(1);
 	else if (!strcasecmp(qrbuf->QRname, AIDEROOM)) return(1);
+
+	/* Mailbox rooms are also non-editable */
+	else if (qrbuf->QRflags & QR_MAILBOX) return(1);
+
+	/* Everything else is editable */
 	else return(0);
 	}
 
