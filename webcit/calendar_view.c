@@ -63,13 +63,29 @@ void calendar_month_view_display_events(time_t thetime) {
 		if (p != NULL) {
 			t = icalproperty_get_dtstart(p);
 			event_tt = icaltime_as_timet(t);
-			memcpy(&event_tm, localtime(&event_tt), sizeof(struct tm));
+
+			if (t.is_date) all_day_event = 1;
+			else all_day_event = 0;
+
+			if (all_day_event) {
+				memcpy(&event_tm, gmtime(&event_tt), sizeof(struct tm));
+			}
+			else {
+				memcpy(&event_tm, localtime(&event_tt), sizeof(struct tm));
+			}
+
+lprintf(9, "Event: %04d/%02d/%02d, Now: %04d/%02d/%02d\n",
+	event_tm.tm_year,
+	event_tm.tm_mon,
+	event_tm.tm_mday,
+	today_tm.tm_year,
+	today_tm.tm_mon,
+	today_tm.tm_mday);
+
+
 			if ((event_tm.tm_year == today_tm.tm_year)
 			   && (event_tm.tm_mon == today_tm.tm_mon)
 			   && (event_tm.tm_mday == today_tm.tm_mday)) {
-
-				if (t.is_date) all_day_event = 1;
-				else all_day_event = 0;
 
 				p = icalcomponent_get_first_property(
 							WC->disp_cal[i],
@@ -259,14 +275,21 @@ void calendar_day_view_display_events(int year, int month,
 		if (p != NULL) {
 			t = icalproperty_get_dtstart(p);
 			event_tt = icaltime_as_timet(t);
-			event_tm = localtime(&event_tt);
+			if (t.is_date) all_day_event = 1;
+
+			if (all_day_event) {
+				event_tm = gmtime(&event_tt);
+			}
+			else {
+				event_tm = localtime(&event_tt);
+			}
+
 			if ((event_tm->tm_year == (year-1900))
 			   && (event_tm->tm_mon == (month-1))
 			   && (event_tm->tm_mday == day)
 			   && ( ((event_tm->tm_hour == hour)&&(!t.is_date)) || ((hour<0)&&(t.is_date)) )
 			   ) {
 
-				if (t.is_date) all_day_event = 1;
 
 				p = icalcomponent_get_first_property(
 							WC->disp_cal[i],
@@ -466,14 +489,21 @@ void calendar_summary_view(void) {
 		if (p != NULL) {
 			t = icalproperty_get_dtstart(p);
 			event_tt = icaltime_as_timet(t);
+			if (t.is_date) all_day_event = 1;
 			fmt_time(timestring, event_tt);
-			memcpy(&event_tm, localtime(&event_tt), sizeof(struct tm));
+
+			if (all_day_event) {
+				memcpy(&event_tm, gmtime(&event_tt), sizeof(struct tm));
+			}
+			else {
+				memcpy(&event_tm, localtime(&event_tt), sizeof(struct tm));
+			}
+
 			if ( (event_tm.tm_year == today_tm.tm_year)
 			   && (event_tm.tm_mon == today_tm.tm_mon)
 			   && (event_tm.tm_mday == today_tm.tm_mday)
 			   ) {
 
-				if (t.is_date) all_day_event = 1;
 
 				p = icalcomponent_get_first_property(
 							WC->disp_cal[i],

@@ -65,23 +65,27 @@ char *hourname[] = {
 
 void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	int i;
-
 	time_t now;
 	struct tm tm_now;
 	int this_year;
-
 	time_t tt;
 	struct tm tm;
-
 	const int span = 10;
+	int all_day_event = 0;
 
 	now = time(NULL);
 	memcpy(&tm_now, localtime(&now), sizeof(struct tm));
 	this_year = tm_now.tm_year + 1900;
 
 	if (t == NULL) return;
+	if (t->is_date) all_day_event = 1;
 	tt = icaltime_as_timet(*t);
-	memcpy(&tm, localtime(&tt), sizeof(struct tm));
+	if (all_day_event) {
+		memcpy(&tm, gmtime(&tt), sizeof(struct tm));
+	}
+	else {
+		memcpy(&tm, localtime(&tt), sizeof(struct tm));
+	}
 
 	wprintf("Month: ");
 	wprintf("<SELECT NAME=\"%s_month\" SIZE=\"1\">\n", prefix);
