@@ -198,12 +198,16 @@ void CtdlConnectToLdap(void) {
 }
 
 
-
-/*
- * Write (add, or change if already exists) a directory entry to the
+/* 
+ * vCard-to-LDAP conversions.
+ *
+ * If 'op' is set to V2L_WRITE, then write
+ * (add, or change if already exists) a directory entry to the
  * LDAP server, based on the information supplied in a vCard.
+ *
+ * If 'op' is set to V2L_DELETE, then delete the entry from LDAP.
  */
-void ctdl_vcard_to_ldap(struct CtdlMessage *msg) {
+void ctdl_vcard_to_ldap(struct CtdlMessage *msg, int op) {
 	struct vCard *v = NULL;
 	int i, j;
 	char this_dn[SIZ];
@@ -230,9 +234,6 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg) {
 	if (msg->cm_fields['A'] == NULL) return;
 	if (msg->cm_fields['N'] == NULL) return;
 
-	/* First make sure the OU for the user's home Citadel host is created */
-	CtdlCreateHostOU(msg->cm_fields['N']);
-
 	/* Initialize variables */
 	strcpy(givenname, "_");
 	strcpy(sn, "_");
@@ -248,6 +249,26 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg) {
 		msg->cm_fields['N']
 	);
 
+	/* Are we just deleting?  If so, it's simple... */
+	if (op == V2L_DELETE) {
+		lprintf(9, "Calling ldap_delete_s()\n");
+		begin_critical_section(S_LDAP);
+		i = ldap_delete_s(dirserver, this_dn);
+		end_critical_section(S_LDAP);
+		if (i != LDAP_SUCCESS) {
+			lprintf(3, "ldap_delete_s() failed: %s (%d)\n",
+				ldap_err2string(i), i);
+		}
+		return;
+	}
+
+	/*
+	 * If we get to this point then it must be a V2L_WRITE operation.
+	 */
+
+	/* First make sure the OU for the user's home Citadel host is created */
+	CtdlCreateHostOU(msg->cm_fields['N']);
+
 	/* The first LDAP attribute will be an 'objectclass' list.  Citadel
 	 * doesn't do anything with this.  It's just there for compatibility
 	 * with Kolab.
@@ -258,13 +279,8 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg) {
 	memset(attrs[0], 0, sizeof(LDAPMod));
 	attrs[0]->mod_op	= LDAP_MOD_ADD;
 	attrs[0]->mod_type	= "objectclass";
-	attrs[0]->mod_values	= mallok(2 * sizeof(char *));
+	attrs[0]->mod_values	= mallok(3 * sizeof(char *));
 	attrs[0]->mod_values[0]	= strdoop("inetOrgPerson");
-	/*
-	attrs[0]->mod_values[1]	= strdoop("organizationalPerson");
-	attrs[0]->mod_values[2]	= strdoop("person");
-	attrs[0]->mod_values[3]	= strdoop("Top");
-	*/
 	attrs[0]->mod_values[1]	= NULL;
 
 	/* Convert the vCard fields to LDAP properties */
@@ -530,7 +546,7 @@ void ctdl_vcard_to_ldap(struct CtdlMessage *msg) {
 		}
 	}
 	phree(attrs);
-	lprintf(9, "LDAP operation complete.\n");
+	lprintf(9, "LDAP write operation complete.\n");
 }
 
 

@@ -174,7 +174,7 @@ void vcard_add_to_directory(long msgnum, void *data) {
 	}
 
 #ifdef HAVE_LDAP
-	ctdl_vcard_to_ldap(msg);
+	ctdl_vcard_to_ldap(msg, V2L_WRITE);
 #endif
 
 	CtdlFreeMessage(msg);
@@ -731,6 +731,9 @@ void vcard_delete_remove(char *room, long msgnum) {
 		 	*/
 			vcard_extract_internet_addresses(msg,
 							CtdlDirectoryDelUser);
+#ifdef HAVE_LDAP
+			ctdl_vcard_to_ldap(msg, V2L_DELETE);
+#endif
 		}
 		ptr = strchr((char *)ptr, '\n');
 		if (ptr != NULL) ++ptr;

@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.16  2004/02/05 05:20:20  ajc
+ * Delete a user's LDAP entry when deleting the vCard.  NOT TESTED.
+
  Revision 614.15  2004/02/05 03:54:14  ajc
  * Completed the per-user initialization of LDAP entries.
 
@@ -5268,3 +5271,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
