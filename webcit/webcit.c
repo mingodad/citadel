@@ -302,17 +302,30 @@ void getz(char *buf) {
  * Output all that important stuff that the browser will want to see
  */
 void output_headers(void) {
+
+	static char *unset = "; expires=28-May-1971 18:10:00 GMT";
+
 	printf("Server: %s\n", SERVER);
 	printf("Connection: close\n");
 	printf("Set-cookie: wc_session=%d\n", wc_session);
+
 	if (strlen(wc_host)>0) printf("Set-cookie: wc_host=%s\n", wc_host);
+	else printf("Set-cookie: wc_host=%s\n", unset);
+
 	if (strlen(wc_port)>0) printf("Set-cookie: wc_port=%s\n", wc_port);
+	else printf("Set-cookie: wc_port=%s\n", unset);
+
 	if (strlen(wc_username)>0) printf("Set-cookie: wc_username=%s\n",
 		wc_username);
+	else printf("Set-cookie: wc_username=%s\n", unset);
+
 	if (strlen(wc_password)>0) printf("Set-cookie: wc_password=%s\n",
 		wc_password);
+	else printf("Set-cookie: wc_password=%s\n", unset);
+
 	if (strlen(wc_roomname)>0) printf("Set-cookie: wc_roomname=%s\n",
 		wc_roomname);
+	else printf("Set-cookie: wc_roomname=%s\n", unset);
 	}
 
 void output_static(char *what) {
@@ -350,6 +363,7 @@ void output_static(char *what) {
 		while (bytes--) {
 			putc(getc(fp), stdout);
 			}
+		fflush(stdout);
 		fclose(fp);
 		}
 	}
@@ -357,8 +371,27 @@ void output_static(char *what) {
 static const char *defaulthost = DEFAULT_HOST;
 static const char *defaultport = DEFAULT_PORT;
 
+
+void extract_action(char *actbuf, char *cmdbuf) {
+	int i;
+
+	strcpy(actbuf, cmdbuf);
+	if (!strncasecmp(actbuf, "GET /", 5)) strcpy(actbuf, &actbuf[5]);
+	if (!strncasecmp(actbuf, "PUT /", 5)) strcpy(actbuf, &actbuf[5]);
+	if (!strncasecmp(actbuf, "POST /", 6)) strcpy(actbuf, &actbuf[6]);
+
+	for (i=0; i<strlen(actbuf); ++i) {
+		if (actbuf[i]==' ') { actbuf[i]=0; i=0; }
+		if (actbuf[i]=='/') { actbuf[i]=0; i=0; }
+		if (actbuf[i]=='?') { actbuf[i]=0; i=0; }
+		if (actbuf[i]=='&') { actbuf[i]=0; i=0; }
+		}
+	}
+
+
 void session_loop(void) {
 	char cmd[256];
+	char action[256];
 	char buf[256];
 	int a, b;
 	int ContentLength = 0;
@@ -380,6 +413,7 @@ void session_loop(void) {
 	strcpy(c_roomname, "");
 
 	getz(cmd);
+	extract_action(action, cmd);
 
 	do {
 		getz(buf);
@@ -466,13 +500,13 @@ void session_loop(void) {
 	/* Verbose but informative; uncomment if you want to trace variables */
 	/* dump_vars(); */
 
-	if (!strncasecmp(cmd, "GET /static/", 12)) {
+	if (!strcasecmp(action, "static")) {
 		strcpy(buf, &cmd[12]);
 		for (a=0; a<strlen(buf); ++a) if (isspace(buf[a])) buf[a]=0;
 		output_static(buf);
 		}
 
-	else if ((!logged_in)&&(!strncasecmp(cmd, "POST /login", 11))) {
+	else if ((!logged_in)&&(!strcasecmp(action, "login"))) {
 		do_login();
 		}
 
@@ -482,45 +516,45 @@ void session_loop(void) {
 
 	/* Various commands... */
 	
-	else if (!strncasecmp(cmd, "GET /do_welcome", 15)) {
+	else if (!strcasecmp(action, "do_welcome")) {
 		do_welcome();
 		}
 
-	else if (!strncasecmp(cmd, "GET /display_main_menu", 22)) {
+	else if (!strcasecmp(action, "display_main_menu")) {
 		display_main_menu();
 		}
 
-	else if (!strncasecmp(cmd, "GET /advanced", 13)) {
+	else if (!strcasecmp(action, "advanced")) {
 		display_advanced_menu();
 		}
 
-	else if (!strncasecmp(cmd, "GET /whobbs", 11)) {
+	else if (!strcasecmp(action, "whobbs")) {
 		whobbs();
 		}
 
-	else if (!strncasecmp(cmd, "GET /knrooms", 12)) {
+	else if (!strcasecmp(action, "knrooms")) {
 		list_all_rooms_by_floor();
 		}
 
-	else if (!strncasecmp(cmd, "GET /gotonext", 13)) {
+	else if (!strcasecmp(action, "gotonext")) {
 		slrp_highest();
 		gotonext();
 		}
 
-	else if (!strncasecmp(cmd, "GET /skip", 9)) {
+	else if (!strcasecmp(action, "skip")) {
 		gotonext();
 		}
 
-	else if (!strncasecmp(cmd, "GET /ungoto", 11)) {
+	else if (!strcasecmp(action, "ungoto")) {
 		ungoto();
 		}
 
-	else if (!strncasecmp(cmd, "GET /dotgoto", 12)) {
+	else if (!strcasecmp(action, "dotgoto")) {
 		slrp_highest();
 		dotgoto();
 		}
 
-	else if (!strncasecmp(cmd, "GET /termquit", 13)) {
+	else if (!strcasecmp(action, "termquit")) {
 		do_logout();
 		}
 
