@@ -5,6 +5,15 @@
  * $Id$
  */
 
+/*
+ * Note that each call to a GDBM function is wrapped in an S_DATABASE critical
+ * section.  This is done because GDBM is not threadsafe.  This is the ONLY
+ * place in the entire Citadel server where any code enters two different
+ * classes of critical sections at the same time; this is why the GDBM calls
+ * are *tightly* wrapped in S_DATABASE.  Opening multiple concurrent critical
+ * sections elsewhere in the code can, and probably will, cause deadlock
+ * conditions to occur.  (Deadlock is bad.  Eliminate.)
+ */
 
 #include <stdlib.h>
 #include <unistd.h>

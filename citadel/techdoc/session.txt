@@ -1677,6 +1677,7 @@ fails for any reason, ERROR is returned.
  15. Number of maximum concurrent sessions allowed on the server
  16. Password for server-to-server networking
  17. Default purge time (in days) for users
+ 18. Default purge time (in days) for rooms
  
   
  

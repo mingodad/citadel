@@ -141,6 +141,7 @@ void cmd_conf(char *argbuf) {
 		cprintf("%d\n", config.c_maxsessions);
 		cprintf("%s\n", config.c_net_password);
 		cprintf("%d\n", config.c_userpurge);
+		cprintf("%d\n", config.c_roompurge);
 		cprintf("000\n");
 		}
 
@@ -193,6 +194,8 @@ void cmd_conf(char *argbuf) {
 			case 15: strncpy(config.c_net_password, buf, 20);
 				break;
 			case 16: config.c_userpurge = atoi(buf);
+				break;
+			case 17: config.c_roompurge = atoi(buf);
 				break;
 				}
 		    ++a;

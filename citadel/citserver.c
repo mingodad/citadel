@@ -700,7 +700,7 @@ void *context_loop(struct CitContext *con)
 
 	session_num = session_count();
 	CC->nologin = 0;
-	if ((config.c_maxsessions > 0)&&(session_num >= config.c_maxsessions))
+	if ((config.c_maxsessions > 0)&&(session_num > config.c_maxsessions))
 		CC->nologin = 1;
 
 	if (CC->nologin==1) {

@@ -72,6 +72,7 @@ struct config {
 	int c_ipgm_secret;		/* Internal program authentication  */
 	struct ExpirePolicy c_ep;	/* System default msg expire policy */
 	int c_userpurge;		/* System default user purge (days) */
+	int c_roompurge;		/* System default room purge (days) */
 	};
 
 #define NODENAME		config.c_nodename

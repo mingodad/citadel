@@ -43,15 +43,13 @@ struct oldvisit {
 	unsigned int v_flags;
 	};
 
-
-
-
-struct PurgedUser {
-	struct PurgedUser *next;
-	char name[26];
+struct PurgeList {
+	struct PurgeList *next;
+	char name[ROOMNAMELEN];	/* use the larger of username or roomname */
 	};
 
-struct PurgedUser *plist = NULL;
+struct PurgeList *UserPurgeList = NULL;
+struct PurgeList *RoomPurgeList = NULL;
 
 extern struct CitContext *ContextList;
 
@@ -136,15 +134,54 @@ void PurgeMessages(void) {
 
 
 void DoPurgeRooms(struct quickroom *qrbuf) {
-	lprintf(9, "%30s (%5ld) %s",
-		qrbuf->QRname,
-		qrbuf->QRnumber,
-		asctime(localtime(&qrbuf->QRmtime)));
+	time_t now, age;
+	struct PurgeList *pptr;
+
+	/* Any of these attributes render a room non-purgable */
+	if (qrbuf->QRflags & QR_PERMANENT) return;
+	if (qrbuf->QRflags & QR_DIRECTORY) return;
+	if (qrbuf->QRflags & QR_NETWORK) return;
+	if (qrbuf->QRflags & QR_MAILBOX) return;
+	if (is_noneditable(qrbuf)) return;
+
+	/* Otherwise, check the date of last modification */
+	time(&now);
+	age = now - (qrbuf->QRmtime);
+	lprintf(9, "<%s> is <%ld> seconds old\n", qrbuf->QRname, age);
+	if ( (qrbuf->QRmtime > 0L)
+	   && (age > (time_t)(config.c_roompurge * 86400L))) {
+		
+		pptr = (struct PurgeList *) malloc(sizeof(struct PurgeList));
+		pptr->next = RoomPurgeList;
+		strcpy(pptr->name, qrbuf->QRname);
+		RoomPurgeList = pptr;
+
+		}
 	}
 
 
-void PurgeRooms(void) {
-	ForEachRoom(DoPurgeRooms);
+int PurgeRooms(void) {
+	struct PurgeList *pptr;
+	int num_rooms_purged = 0;
+	struct quickroom qrbuf;
+
+	lprintf(5, "PurgeRooms() called\n");
+	if (config.c_roompurge > 0) {
+		ForEachRoom(DoPurgeRooms);
+		}
+
+	while (RoomPurgeList != NULL) {
+		if (getroom(&qrbuf, RoomPurgeList->name) == 0) {
+			delete_room(&qrbuf);
+			}
+		pptr = RoomPurgeList->next;
+		free(RoomPurgeList);
+		RoomPurgeList = pptr;
+		++num_rooms_purged;
+		}
+
+	lprintf(5, "Purged %d rooms.\n", num_rooms_purged);
+	return(num_rooms_purged);
 	}
 
 
@@ -152,7 +189,7 @@ void do_user_purge(struct usersupp *us) {
 	int purge;
 	time_t now;
 	time_t purge_time;
-	struct PurgedUser *pptr;
+	struct PurgeList *pptr;
 
 	/* Set purge time; if the user overrides the system default, use it */
 	if (us->USuserpurge > 0) {
@@ -192,10 +229,10 @@ void do_user_purge(struct usersupp *us) {
 	if (us->timescalled == 0) purge = 1;
 
 	if (purge == 1) {
-		pptr = (struct PurgedUser *) malloc(sizeof(struct PurgedUser));
-		pptr->next = plist;
+		pptr = (struct PurgeList *) malloc(sizeof(struct PurgeList));
+		pptr->next = UserPurgeList;
 		strcpy(pptr->name, us->fullname);
-		plist = pptr;
+		UserPurgeList = pptr;
 		}
 
 	}
@@ -203,7 +240,7 @@ void do_user_purge(struct usersupp *us) {
 
 
 int PurgeUsers(void) {
-	struct PurgedUser *pptr;
+	struct PurgeList *pptr;
 	int num_users_purged = 0;
 
 	lprintf(5, "PurgeUsers() called\n");
@@ -211,11 +248,11 @@ int PurgeUsers(void) {
 		ForEachUser(do_user_purge);
 		}
 
-	while (plist != NULL) {
-		purge_user(plist->name);
-		pptr = plist->next;
-		free(plist);
-		plist = pptr;
+	while (UserPurgeList != NULL) {
+		purge_user(UserPurgeList->name);
+		pptr = UserPurgeList->next;
+		free(UserPurgeList);
+		UserPurgeList = pptr;
 		++num_users_purged;
 		}
 
@@ -275,8 +312,8 @@ void cmd_expi(char *argbuf) {
 		return;
 		}
 	else if (!strcasecmp(cmd, "rooms")) {
-		PurgeRooms();
-		cprintf("%d Finished purging rooms.\n", OK);
+		retval = PurgeRooms();
+		cprintf("%d Purged %d rooms.\n", OK, retval);
 		return;
 		}
 	else if (!strcasecmp(cmd, "visits")) {
