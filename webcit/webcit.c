@@ -341,7 +341,7 @@ void output_headers(int controlcode)
 		 * were finished
 		 */
 
-		wprintf("<BODY ");
+		wprintf("<BODY MARGINWIDTH=0 MARGINHEIGHT=0 ");
 		if (!suppress_check) if (WC->HaveExpressMessages) {
 			wprintf("onload=\"launch_page_popup()\" ");
 			WC->HaveExpressMessages = 0;
