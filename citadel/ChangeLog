@@ -1,4 +1,8 @@
  $Log$
+ Revision 621.14  2004/06/15 20:42:42  ajc
+ * Store the body of any large (>1K) message in a separate database.  This
+   will allow fast headers-only retrieval later.
+
  Revision 621.13  2004/06/15 03:05:01  ajc
  * Bumped internal version number to 6.22
  * Added a new faster headers-only mode that excludes enumeration of
@@ -5843,4 +5847,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -239,6 +239,10 @@ all software should be written to IGNORE fields not currently defined.
 BYTE	Mnemonic	Comments
 
 A	Author		Name of originator of message.
+B	Big message	This is a flag which indicates that the message is
+                        big, and Citadel is storing the body in a separate
+                        record.  You will never see this field because the
+                        internal API handles it.
 D	Destination	Contains name of the system this message should
 			be sent to, for mail routing (private mail only).
 E	Extended ID	A persistent alphanumeric Message ID used for

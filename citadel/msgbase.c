@@ -784,6 +784,7 @@ void mime_download(char *name, char *filename, char *partnum, char *disp,
 struct CtdlMessage *CtdlFetchMessage(long msgnum)
 {
 	struct cdbdata *dmsgtext;
+	struct cdbdata *dbigmsg;
 	struct CtdlMessage *ret = NULL;
 	char *mptr;
 	cit_uint8_t ch;
@@ -833,9 +834,22 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum)
 
 	cdb_free(dmsgtext);
 
-	/* Always make sure there's something in the msg text field */
-	if (ret->cm_fields['M'] == NULL)
-		ret->cm_fields['M'] = strdup("<no text>\n");
+	/* Always make sure there's something in the msg text field.  If
+	 * it's NULL, the message text is most likely stored separately,
+	 * so go ahead and fetch that.  Failing that, just set a dummy
+	 * body so other code doesn't barf.
+	 */
+	if (ret->cm_fields['M'] == NULL) {
+
+		dbigmsg = cdb_fetch(CDB_BIGMSGS, &msgnum, sizeof(long));
+		if (dmsgtext == NULL) {
+			ret->cm_fields['M'] = strdup("<no text>\n");
+		}
+		else {
+			ret->cm_fields['M'] = strdup(dbigmsg->ptr);
+			cdb_free(dbigmsg);
+		}
+	}
 
 	/* Perform "before read" hooks (aborting if any return nonzero) */
 	if (PerformMessageHooks(ret, EVT_BEFOREREAD) > 0) {
@@ -1721,13 +1735,13 @@ int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int flags) {
  * called by server-side modules.
  *
  */
-long send_message(struct CtdlMessage *msg,	/* pointer to buffer */
-		FILE *save_a_copy)		/* save a copy to disk? */
-{
+long send_message(struct CtdlMessage *msg) {
 	long newmsgid;
 	long retval;
 	char msgidbuf[SIZ];
         struct ser_ret smr;
+	int is_bigmsg = 0;
+	char *holdM = NULL;
 
 	/* Get a new message number */
 	newmsgid = get_new_message_number();
@@ -1737,8 +1751,22 @@ long send_message(struct CtdlMessage *msg,	/* pointer to buffer */
 	if (msg->cm_fields['I']==NULL) {
 		msg->cm_fields['I'] = strdup(msgidbuf);
 	}
-	
+
+	/* If the message is big, set its body aside for storage elsewhere */
+	if (msg->cm_fields['M'] != NULL) {
+		if (strlen(msg->cm_fields['M']) > BIGMSG) {
+			is_bigmsg = 1;
+			holdM = msg->cm_fields['M'];
+			msg->cm_fields['M'] = NULL;
+		}
+	}
+
+	/* Serialize our data structure for storage in the database */	
         serialize_message(&smr, msg);
+
+	if (is_bigmsg) {
+		msg->cm_fields['M'] = holdM;
+	}
 
         if (smr.len == 0) {
                 cprintf("%d Unable to serialize message\n",
@@ -1752,14 +1780,11 @@ long send_message(struct CtdlMessage *msg,	/* pointer to buffer */
 		lprintf(CTDL_ERR, "Can't store message\n");
 		retval = 0L;
 	} else {
+		if (is_bigmsg) {
+			cdb_store(CDB_BIGMSGS, &newmsgid, sizeof(long),
+				holdM, strlen(holdM) );
+		}
 		retval = newmsgid;
-	}
-
-	/* If the caller specified that a copy should be saved to a particular
-	 * file handle, do that now too.
-	 */
-	if (save_a_copy != NULL) {
-		fwrite(smr.ser, smr.len, 1, save_a_copy);
 	}
 
 	/* Free the memory we used for the serialized message */
@@ -2031,7 +2056,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* Save it to disk */
 	lprintf(CTDL_DEBUG, "Saving to disk\n");
-	newmsgid = send_message(msg, NULL);
+	newmsgid = send_message(msg);
 	if (newmsgid <= 0L) return(-1);
 
 	/* Write a supplemental message info record.  This doesn't have to
@@ -3077,6 +3102,7 @@ void AdjRefCount(long msgnum, int incr)
 		lprintf(CTDL_DEBUG, "Deleting message <%ld>\n", msgnum);
 		delnum = msgnum;
 		cdb_delete(CDB_MSGMAIN, &delnum, sizeof(long));
+		cdb_delete(CDB_BIGMSGS, &delnum, sizeof(long));
 
 		/* We have to delete the metadata record too! */
 		delnum = (0L - msgnum);

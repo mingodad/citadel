@@ -65,6 +65,12 @@
 #define SIZ		4096
 
 /*
+ * If the body of a message is beyond this size, it will be stored in
+ * a separate table.
+ */
+#define BIGMSG		1024
+
+/*
  * SMTP delivery retry rules (all values are in seconds)
  *
  * If delivery of a message via SMTP is unsuccessful, Citadel will try again
