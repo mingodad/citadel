@@ -544,7 +544,7 @@ void smtp_data(void) {
 				"Message rejected by filter");
 		}
 
-		cprintf("552 %s\r\n", msg->cm_fields['0']);
+		cprintf("550 %s\r\n", msg->cm_fields['0']);
 	}
 	
 	else {			/* Ok, we'll accept this message. */
