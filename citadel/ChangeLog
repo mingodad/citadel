@@ -1,4 +1,8 @@
  $Log$
+ Revision 625.9  2004/09/03 04:19:17  ajc
+ * setup.c: Changes to inittab-twiddling to make it a bit more reliable
+ * ipc_c_tcp.c: don't send SIGHUP to children; it makes them very angry
+
  Revision 625.8  2004/09/01 15:34:52  ajc
  * serv_smtp.c: fix build error on hosts with no SSL support
 
@@ -6029,3 +6033,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

@@ -78,7 +78,9 @@ void connection_died(CtdlIPC* ipc, int using_ssl) {
 	ipc->sock = -1;
 
 	/* Hangup - let any children know as well */
-	kill(0, SIGHUP);
+	/* kill(0, SIGHUP); */
+	/* This is disabled because it makes the setup program and other
+	 * users of sendcommand do really unhappy things. */
 }
 
 

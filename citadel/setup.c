@@ -169,7 +169,7 @@ void locate_init_entry(char *init_entry, char *program) {
 	strcpy(init_entry, "");
 
 	/* Pound through /etc/inittab line by line.  Set have_entry to 1 if
-	 * an entry is found which we believe starts citserver.
+	 * an entry is found which we believe starts the specified program.
 	 */
 	infp = fopen("/etc/inittab", "r");
 	if (infp == NULL) {
@@ -194,10 +194,10 @@ void locate_init_entry(char *init_entry, char *program) {
 /* 
  * Shut down the Citadel service if necessary, during setup.
  */
-void shutdown_service(void) {
+void shutdown_citserver(void) {
 	char looking_for[SIZ];
 
-	snprintf(looking_for, sizeof looking_for, "%s/citserver ", BBSDIR);
+	snprintf(looking_for, sizeof looking_for, "%s/citserver", BBSDIR);
 	locate_init_entry(citserver_init_entry, looking_for);
 	if (strlen(citserver_init_entry) > 0) {
 		set_init_entry(citserver_init_entry, "off");
@@ -208,7 +208,7 @@ void shutdown_service(void) {
 /*
  * Start the Citadel service.
  */
-void start_the_service(void) {
+void start_citserver(void) {
 	if (strlen(citserver_init_entry) > 0) {
 		set_init_entry(citserver_init_entry, "respawn");
 	}
@@ -469,7 +469,7 @@ void check_inittab_entry(void)
 	char entryname[5];
 
 	/* Determine the fully qualified path name of citserver */
-	snprintf(looking_for, sizeof looking_for, "%s/citserver ", BBSDIR);
+	snprintf(looking_for, sizeof looking_for, "%s/citserver", BBSDIR);
 	locate_init_entry(citserver_init_entry, looking_for);
 
 	/* If there's already an entry, then we have nothing left to do. */
@@ -878,7 +878,7 @@ int main(int argc, char *argv[])
 	/* See if we need to shut down the Citadel service. */
 	for (a=0; a<=3; ++a) {
 		progress("Shutting down the Citadel service...", a, 3);
-		if (a == 0) shutdown_service();
+		if (a == 0) shutdown_citserver();
 		sleep(1);
 	}
 
@@ -1124,7 +1124,7 @@ NEW_INST:
 	if (strlen(citserver_init_entry) > 0) {
 		for (a=0; a<=3; ++a) {
 			progress("Starting the Citadel service...", a, 3);
-			if (a == 0) start_the_service();
+			if (a == 0) start_citserver();
 			sleep(1);
 		}
 		if (test_server() == 0) {
