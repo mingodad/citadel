@@ -416,18 +416,15 @@ void dotgoto(char *towhere, int display_name)
  * We want to skip over rooms that the user has already been to, and take the
  * user back to the lobby when done.  The room we end up in is placed in
  * newroom - which is set to 0 (the lobby) initially.
- * We start the search in the current room rather than the beginning to prevent
- * two or more concurrent users from dragging each other back to the same room.
  */
 void gotonext(void) {
 	char buf[256];
 	struct march *mptr,*mptr2;
 	char next_room[32];
 
-	/* First check to see if the march-mode list is already allocated.
+	/* Check to see if the march-mode list is already allocated.
 	 * If it is, pop the first room off the list and go there.
 	 */
-
 	if (march==NULL) {
 		serv_puts("LKRN");
 		serv_gets(buf);
