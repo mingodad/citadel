@@ -381,9 +381,9 @@ int sort_msglist(long listptrs[], int oldcount)
  * Determine whether a given room is one of the base non-editable rooms
  */
 int is_noneditable(struct quickroom *qrbuf) {
-	if (!strcasecmp(qrbuf->QRname, BASEROOM)) return(0);
-	else if (!strcasecmp(qrbuf->QRname, AIDEROOM)) return(0);
-	else return(1);
+	if (!strcasecmp(qrbuf->QRname, BASEROOM)) return(1);
+	else if (!strcasecmp(qrbuf->QRname, AIDEROOM)) return(1);
+	else return(0);
 	}
 
 /* 
