@@ -73,7 +73,7 @@ void listsub_generate_token(char *buf) {
 	);
 
 	/* Convert it to base64 so it looks cool */	
-	encode_base64(buf, sourcebuf);
+	CtdlEncodeBase64(buf, sourcebuf, strlen(sourcebuf));
 }
 
 

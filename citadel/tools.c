@@ -254,14 +254,13 @@ long extract_long(char *source, long int parmnum)
 
 
 /*
- * CtdlDecodeBase64() and encode_base64() are adaptations of code by
+ * CtdlDecodeBase64() and CtdlEncodeBase64() are adaptations of code by
  * John Walker, found in full in the file "base64.c" included with this
- * distribution.  The difference between those functions and these is that
- * these are intended to encode/decode small string buffers, and those are
- * intended to encode/decode entire MIME parts.
+ * distribution.  We are moving in the direction of eventually discarding
+ * the separate executables, and using the ones in our code exclusively.
  */
 
-void encode_base64(char *dest, char *source)
+void CtdlEncodeBase64(char *dest, char *source, int sourcelen)
 {
     int i, hiteof = FALSE;
     int spos = 0;
@@ -285,11 +284,11 @@ void encode_base64(char *dest, char *source)
 
 	igroup[0] = igroup[1] = igroup[2] = 0;
 	for (n = 0; n < 3; n++) {
-	    c = source[spos++];
-	    if (c == 0) {
+	    if (spos >= sourcelen) {
 		hiteof = TRUE;
 		break;
 	    }
+	    c = source[spos++];
 	    igroup[n] = (byte) c;
 	}
 	if (n > 0) {

@@ -4,7 +4,7 @@ int num_tokens (char *source, char tok);
 void extract_token(char *dest, char *source, int parmnum, char separator);
 int extract_int (char *source, int parmnum);
 long int extract_long (char *source, long int parmnum);
-void encode_base64(char *dest, char *source);
+void CtdlEncodeBase64(char *dest, char *source, int sourcelen);
 int CtdlDecodeBase64(char *dest, char *source, size_t length);
 void striplt(char *);
 int haschar(const char *st, int ch);

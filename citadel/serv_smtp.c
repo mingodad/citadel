@@ -167,7 +167,7 @@ void smtp_get_user(char *argbuf) {
 	CtdlDecodeBase64(username, argbuf, SIZ);
 	lprintf(9, "Trying <%s>\n", username);
 	if (CtdlLoginExistingUser(username) == login_ok) {
-		encode_base64(buf, "Password:");
+		CtdlEncodeBase64(buf, "Password:", 9);
 		cprintf("334 %s\r\n", buf);
 		SMTP->command_state = smtp_password;
 	}
@@ -215,7 +215,7 @@ void smtp_auth(char *argbuf) {
 	}
 
 	else {
-		encode_base64(buf, "Username:");
+		CtdlEncodeBase64(buf, "Username:", 9);
 		cprintf("334 %s\r\n", buf);
 		SMTP->command_state = smtp_user;
 	}

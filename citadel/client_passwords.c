@@ -108,14 +108,14 @@ void set_stored_password(
 		   || (strcasecmp(portbuf, port)) ) {
 			snprintf(buf, sizeof buf, "%s|%s|%s|%s|",
 				hostbuf, portbuf, ubuf, pbuf);
-			encode_base64(buf64, buf);
+			CtdlEncodeBase64(buf64, buf, strlen(buf));
 			fprintf(fp, "%s\n", buf64);
 		}
 	}
 	if (strlen(username) > 0) {
 		snprintf(buf, sizeof buf, "%s|%s|%s|%s|",
 			host, port, username, password);
-		encode_base64(buf64, buf);
+		CtdlEncodeBase64(buf64, buf, strlen(buf));
 		fprintf(fp, "%s\n", buf64);
 	}
 	fclose(oldfp);

@@ -299,7 +299,7 @@ void imap_authenticate(int num_parms, char *parms[]) {
 	}
 
 	if (!strcasecmp(parms[2], "LOGIN")) {
-		encode_base64(buf, "Username:");
+		CtdlEncodeBase64(buf, "Username:", 9);
 		cprintf("+ %s\r\n", buf);
 		IMAP->authstate = imap_as_expecting_username;
 		strcpy(IMAP->authseq, parms[0]);
@@ -317,7 +317,7 @@ void imap_auth_login_user(char *cmd) {
 
 	CtdlDecodeBase64(buf, cmd, SIZ);
 	CtdlLoginExistingUser(buf);
-	encode_base64(buf, "Password:");
+	CtdlEncodeBase64(buf, "Password:", 9);
 	cprintf("+ %s\r\n", buf);
 	IMAP->authstate = imap_as_expecting_password;
 	return;

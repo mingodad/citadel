@@ -2974,42 +2974,70 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 	struct CtdlMessage *msg;
 	size_t len;
 
+	char *raw_message = NULL;
+	char *encoded_message = NULL;
+	off_t raw_length = 0;
+
 	if (is_mailbox != NULL)
 		MailboxName(roomname, sizeof roomname, is_mailbox, req_room);
 	else
 		safestrncpy(roomname, req_room, sizeof(roomname));
 	lprintf(9, "CtdlWriteObject() to <%s> (flags=%d)\n", roomname, flags);
 
-	strcpy(filename, tmpnam(NULL));
-	fp = fopen(filename, "w");
-	if (fp == NULL)
-		return;
 
-	tempfp = fopen(tempfilename, "r");
-	if (tempfp == NULL) {
-		fclose(fp);
-		unlink(filename);
+	fp = fopen(tempfilename, "rb");
+	if (fp == NULL) {
+		lprintf(5, "Cannot open %s: %s\n",
+			tempfilename, strerror(errno));
 		return;
 	}
+	fseek(fp, 0L, SEEK_END);
+	raw_length = ftell(fp);
+	rewind(fp);
+	lprintf(9, "Raw length is %ld\n", (long)raw_length);
 
-	fprintf(fp, "Content-type: %s\n", content_type);
-	lprintf(9, "Content-type: %s\n", content_type);
+	raw_message = mallok((size_t)raw_length);
+	fread(raw_message, (size_t)raw_length, 1, fp);
+	fclose(fp);
 
-	if (is_binary == 0) {
-		fprintf(fp, "Content-transfer-encoding: 7bit\n\n");
-		while (ch = getc(tempfp), ch > 0)
-			putc(ch, fp);
-		fclose(tempfp);
-		putc(0, fp);
-		fclose(fp);
-	} else {
-		fprintf(fp, "Content-transfer-encoding: base64\n\n");
-		fclose(tempfp);
-		fclose(fp);
-		snprintf(cmdbuf, sizeof cmdbuf, "./base64 -e <%s >>%s",
-			tempfilename, filename);
-		system(cmdbuf);
+	if (is_binary) {
+		encoded_message = mallok((size_t)
+			(((raw_length * 134) / 100) + 4096 ) );
 	}
+	else {
+		encoded_message = mallok((size_t)(raw_length + 4096));
+	}
+
+	sprintf(encoded_message, "Content-type: %s\n", content_type);
+
+	if (is_binary) {
+		sprintf(&encoded_message[strlen(encoded_message)],
+			"Content-transfer-encoding: base64\n\n"
+		);
+	}
+	else {
+		sprintf(&encoded_message[strlen(encoded_message)],
+			"Content-transfer-encoding: 7bit\n\n"
+		);
+	}
+
+	if (is_binary) {
+		CtdlEncodeBase64(
+			&encoded_message[strlen(encoded_message)],
+			raw_message,
+			(int)raw_length
+		);
+	}
+	else {
+		raw_message[raw_length] = 0;
+		memcpy(
+			&encoded_message[strlen(encoded_message)],
+			raw_message,
+			(int)(raw_length+1)
+		);
+	}
+
+	phree(raw_message);
 
 	lprintf(9, "Allocating\n");
 	msg = mallok(sizeof(struct CtdlMessage));
@@ -3023,15 +3051,7 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 	msg->cm_fields['H'] = strdoop(config.c_humannode);
 	msg->cm_flags = flags;
 	
-	lprintf(9, "Loading\n");
-	fp = fopen(filename, "rb");
-	fseek(fp, 0L, SEEK_END);
-	len = ftell(fp);
-	rewind(fp);
-	msg->cm_fields['M'] = mallok(len);
-	fread(msg->cm_fields['M'], len, 1, fp);
-	fclose(fp);
-	unlink(filename);
+	msg->cm_fields['M'] = encoded_message;
 
 	/* Create the requested room if we have to. */
 	if (getroom(&qrbuf, roomname) != 0) {
