@@ -22,7 +22,7 @@
 #include "support.h"
 #include "config.h"
 
-#ifdef HAVE_ICAL_H
+#ifdef CITADEL_WITH_CALENDAR_SERVICE
 #include <ical.h>
 #include "ical_dezonify.h"
 
@@ -167,4 +167,4 @@ void ical_dezonify(icalcomponent *cal) {
 }
 
 
-#endif /* HAVE_ICAL_H */
+#endif /* CITADEL_WITH_CALENDAR_SERVICE */

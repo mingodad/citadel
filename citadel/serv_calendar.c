@@ -32,7 +32,7 @@
 #include "mime_parser.h"
 #include "serv_calendar.h"
 
-#ifdef HAVE_ICAL_H
+#ifdef CITADEL_WITH_CALENDAR_SERVICE
 
 #include <ical.h>
 #include "ical_dezonify.h"
@@ -1439,14 +1439,14 @@ void ical_session_startup(void) {
 }
 
 
-#endif	/* HAVE_ICAL_H */
+#endif	/* CITADEL_WITH_CALENDAR_SERVICE */
 
 /*
  * Register this module with the Citadel server.
  */
 char *Dynamic_Module_Init(void)
 {
-#ifdef HAVE_ICAL_H
+#ifdef CITADEL_WITH_CALENDAR_SERVICE
 	CtdlRegisterMessageHook(ical_obj_beforesave, EVT_BEFORESAVE);
 	CtdlRegisterMessageHook(ical_obj_aftersave, EVT_AFTERSAVE);
 	CtdlRegisterSessionHook(ical_create_room, EVT_LOGIN);

@@ -1,4 +1,7 @@
  $Log$
+ Revision 601.106  2003/01/13 02:55:07  ajc
+ * Do calendar support only if libical header *and* library are present
+
  Revision 601.105  2003/01/12 23:07:40  ajc
  * configure.ac: Attempt to check for libical 0.24 or newer
 
@@ -4361,4 +4364,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
