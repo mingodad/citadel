@@ -126,6 +126,8 @@ SERV_OBJS = citserver.ro user_ops.ro support.ro room_ops.ro file_ops.ro \
 	parsedate.ro genstamp.ro clientsocket.ro \
 	$(AUTH) $(LIBOBJS:.o=.ro)
 
+parsedate.ro: parsedate.c
+
 citserver: $(SERV_OBJS)
 	$(CC) $(SERV_OBJS) $(LDFLAGS) $(SERVER_LDFLAGS) $(PTHREAD_LIBS) \
 	$(LIBS) $(NETLIBS) $(GDBM) $(RESOLV) -o citserver

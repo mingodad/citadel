@@ -25,6 +25,7 @@ netmailer
 netpoll
 netproc
 netsetup
+parsedate.c
 proxy
 qpdecode
 rcit
