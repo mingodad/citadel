@@ -32,6 +32,8 @@ void do_listsub(void)
 	char email[SIZ];
 	char subtype[SIZ];
 
+	char buf[SIZ];
+
 	strcpy(WC->wc_username, "");
 	strcpy(WC->wc_password, "");
 	strcpy(WC->wc_roomname, "");
@@ -44,36 +46,85 @@ void do_listsub(void)
 	strcpy(email, bstr("email"));
 	strcpy(subtype, bstr("subtype"));
 
+	wprintf("<CENTER>"
+		"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=000077><TR><TD>"
+		"<FONT SIZE=+1 COLOR=\"FFFFFF\""
+		"<B>List subscribe/unsubscribe</B>\n"
+		"</TD></TR></TABLE><BR>\n"
+	);
+
 	/*
 	 * Subscribe command
 	 */
-	if (!strcasecmp(cmd, "xx")) {
+	if (!strcasecmp(cmd, "subscribe")) {
+		serv_printf("SUBS subscribe|%s|%s|digest|%s/listsub",
+			room,
+			email,
+			WC->http_host
+		);
+		serv_gets(buf);
+		if (buf[0] == '2') {
+			wprintf("<CENTER><H1>Confirmation request sent</H1>"
+				"You are subscribing <TT>");
+			escputs(email);
+			wprintf("</TT> to the &quot;");
+			escputs(room);
+			wprintf("&quot; mailing list.  The listserver has "
+				"sent you an e-mail with one additional "
+				"Web link for you to click on to confirm "
+				"your subscription.  This extra step is for "
+				"your protection, as it prevents others from "
+				"being able to subscribe you to lists.<BR><BR>"
+				"Please click on the link which is being "
+				"e-mailed to you and your subscription will "
+				"be confirmed.<BR></CENTER>\n"
+			);
+		}
+		else {
+			wprintf("<FONT SIZE=+1>ERROR: </FONT>%s<BR><BR>\n",
+				&buf[4]);
+			goto FORM;
+		}
 	}
 	
 	/*
 	 * Any other (invalid) command causes the form to be displayed
 	 */
 	else {
-		wprintf("<CENTER>"
-			"<TABLE WIDTH=100%% BORDER=0 BGCOLOR=770000><TR><TD>"
-			"<FONT SIZE=+1 COLOR=\"FFFFFF\""
-			"<B>List subscribe/unsubscribe</B>\n"
-			"</TD></TR></TABLE><BR>\n"
+FORM:		wprintf("<FORM METHOD=\"POST\" ACTION=\"/listsub\">\n"
+			"<TABLE BORDER=0>\n"
 		);
 
-		wprintf("<TABLE BORDER=0>\n"
-			"<FORM METHOD=\"POST\" ACTION=\"/listsub\">\n"
+		wprintf("<TR><TD>Name of list</TD><TD>"
+			"<INPUT TYPE=\"text\" NAME=\"room\" "
+			"VALUE=\""
 		);
+		escputs(room);
+		wprintf("\" MAXLENGTH=128></TD></TR>\n");
 
-		wprintf("<TR><TD>Name of list</TD>"
-			"<TD>xx</TD></TR>\n"
+		wprintf("<TR><TD>Your e-mail address</TD><TD>"
+			"<INPUT TYPE=\"text\" NAME=\"email\" "
+			"VALUE=\""
 		);
+		escputs(email);
+		wprintf("\" MAXLENGTH=128></TD></TR>\n");
 
 		wprintf("</TABLE>"
-			"<INPUT TYPE=\"submit\" NAME=\"sc\""
-			" VALUE=\"Submit\">\n"
-			"</CENTER></FORM>\n"
+			"<INPUT TYPE=\"submit\" NAME=\"cmd\""
+			" VALUE=\"subscribe\">\n"
+			"<INPUT TYPE=\"submit\" NAME=\"cmd\""
+			" VALUE=\"unsubscribe\">\n"
+			"</FORM>\n"
 		);
+
+		wprintf("<BR>When you attempt to subscribe or unsubscribe to "
+			"a mailing list, you will receive an e-mail containing"
+			" one additional web link to click on for final "
+			"confirmation.  This extra step is for your "
+			"protection, as it prevents others from being able to "
+			"subscribe or unsubscribe you to lists.<BR>\n"
+		);
+
 	}
 
 	/*

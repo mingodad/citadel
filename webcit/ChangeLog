@@ -1,4 +1,7 @@
 $Log$
+Revision 323.57  2002/08/15 03:49:47  ajc
+* Fleshed out the list subscription page a bit
+
 Revision 323.56  2002/08/13 19:55:12  ajc
 * Keep track of the HTTP "Host:" header being sent by the browser.
   (We're going to need this in the near future)
@@ -894,3 +897,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
