@@ -1693,12 +1693,16 @@ fails for any reason, ERROR is returned.
  19. Name of room to log express messages to (or a zero-length name for none)
  20. Access level required to create rooms
  21. Maximum message length which may be entered into the system
- 22. Default moderation filter level for new users (-63 to +63)
- 23. Flag (0 or 1) - allow Aides to zap (forget) rooms
- 
-  
- 
- EXPI   (EXPIre system objects)
+ 22. Minimum number of worker threads
+ 23. Maximum number of worker threads
+ 24. Port number for POP3 service
+ 25. Port number for SMTP service
+ 26. Default moderation filter level for new users (-63 to +63)
+ 27. Flag (0 or 1) - allow Aides to zap (forget) rooms
+ 28. Port number for IMAP service
+
+
+  EXPI   (EXPIre system objects)
  
  Begins purge operations for objects which, according to site policy, are
 "old" and should be removed.  EXPI should be called with one argument, one of:

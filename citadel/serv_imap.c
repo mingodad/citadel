@@ -403,7 +403,7 @@ void imap_command_loop(void) {
 char *Dynamic_Module_Init(void)
 {
 	SYM_IMAP = CtdlGetDynamicSymbol();
-	CtdlRegisterServiceHook(1143,	/* FIXME put in config setup */
+	CtdlRegisterServiceHook(config.c_imap_port,
 				NULL,
 				imap_greeting,
 				imap_command_loop);

@@ -625,7 +625,7 @@ void read_bio(void)
 void do_system_configuration(void)
 {
 	char buf[256];
-	char sc[27][256];
+	char sc[28][256];
 	int expire_mode = 0;
 	int expire_value = 0;
 	int a;
@@ -640,7 +640,7 @@ void do_system_configuration(void)
 	if (buf[0] == '1') {
 		a = 0;
 		while (serv_gets(buf), strcmp(buf, "000")) {
-			if (a < 27)
+			if (a < 28)
 				strcpy(&sc[a][0], buf);
 			++a;
 		}
@@ -709,8 +709,9 @@ void do_system_configuration(void)
 	strprompt("Minimum number of worker threads", &sc[21][0], 3);
 	strprompt("Maximum number of worker threads", &sc[22][0], 3);
 	strprompt("Server-to-server networking password", &sc[15][0], 19);
-	strprompt("POP3 server port (-1 to disable)", &sc[23][0], 5);
 	strprompt("SMTP server port (-1 to disable)", &sc[24][0], 5);
+	strprompt("POP3 server port (-1 to disable)", &sc[23][0], 5);
+	strprompt("IMAP server port (-1 to disable)", &sc[27][0], 5);
 
 
 	/* Expiry settings */
@@ -748,7 +749,7 @@ void do_system_configuration(void)
 		serv_puts("CONF set");
 		serv_gets(buf);
 		if (buf[0] == '4') {
-			for (a = 0; a < 27; ++a)
+			for (a = 0; a < 28; ++a)
 				serv_puts(&sc[a][0]);
 			serv_puts("000");
 		}

@@ -100,6 +100,7 @@ struct config {
 	int c_smtp_port;		/* SMTP listener port (usually 25)  */
 	int c_default_filter;		/* Default moderation filter level  */
 	int c_aide_zap;			/* Are Aides allowed to zap rooms?  */
+	int c_imap_port;		/* IMAP listener port (usually 143) */
 };
 
 #define NODENAME		config.c_nodename
