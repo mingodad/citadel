@@ -941,7 +941,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 	int a, b;
 	int need_recp = 0;
 	int mode;
-	long highmsg;
+	long highmsg = 0L;
 	FILE *fp;
 	char reply_to[SIZ];
 	char reply_subject[SIZ];
