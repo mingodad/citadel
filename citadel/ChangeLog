@@ -1,4 +1,8 @@
  $Log$
+ Revision 601.75  2002/11/29 16:24:59  ajc
+ * When calling ical*_remove_*() routines, the caller then owns the object
+   which is removed.  Added ical*_free() calls to free the memory.
+
  Revision 601.74  2002/11/29 15:44:41  ajc
  * CC->cs_inet_email is now a string buffer, not a pointer
  * Initialize CC->cs_inet_email with a default address, so it always
@@ -4248,3 +4252,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

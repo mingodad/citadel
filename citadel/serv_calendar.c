@@ -170,6 +170,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 			}
 			/* Remove it... */
 			icalcomponent_remove_property(vevent, attendee);
+			icalproperty_free(attendee);
 		}
 
 		/* We found our own address in the attendee list. */
