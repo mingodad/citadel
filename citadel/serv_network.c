@@ -1485,7 +1485,6 @@ void network_do_queue(void) {
 	 */
 	if (doing_queue) return;
 	doing_queue = 1;
-	last_run = time(NULL);
 
 	/*
 	 * Poll other Citadel nodes.
@@ -1527,6 +1526,11 @@ void network_do_queue(void) {
 	filterlist = NULL;
 
 	lprintf(7, "network: queue run completed\n");
+
+	if (full_processing) {
+		last_run = time(NULL);
+	}
+
 	doing_queue = 0;
 }
 

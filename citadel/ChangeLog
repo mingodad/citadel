@@ -1,4 +1,7 @@
  $Log$
+ Revision 610.10  2003/09/06 02:04:54  ajc
+ * Don't reset "last poll" time when not doing the "full" net processing
+
  Revision 610.9  2003/09/03 03:29:01  ajc
  * syslog messages now say session started/ended instead of ended/ended
 
@@ -5001,4 +5004,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
