@@ -126,6 +126,7 @@ void do_chat(void)
 	wprintf("code=\"wcchat\" width=2 height=2>\n");
 	wprintf("<PARAM NAME=username VALUE=\"%s\">\n", WC->wc_username);
 	wprintf("<PARAM NAME=password VALUE=\"%s\">\n", WC->wc_password);
+	wprintf("<PARAM NAME=roomname VALUE=\"%s\">\n", WC->wc_roomname);
 	wprintf("<H2>Oops!</H2>Looks like your browser doesn't support Java, ");
 	wprintf("so you won't be able to access Chat.  Sorry.\n");
 	wprintf("</applet>\n");

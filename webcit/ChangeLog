@@ -1,4 +1,7 @@
 $Log$
+Revision 211.7  2000/03/27 16:18:17  ajc
+* Implement multi-room chat as available in Citadel 5.70
+
 Revision 211.6  2000/03/23 04:45:15  ajc
 * Experimental move of wholist to a separate auto-refreshing window
 
@@ -395,3 +398,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
