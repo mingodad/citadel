@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.103  2004/03/26 05:41:25  ajc
+ * Began writing up the LDAP Connector for Citadel in the documentation
+
  Revision 614.102  2004/03/26 05:40:47  ajc
  *** empty log message ***
 
@@ -5621,3 +5624,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
