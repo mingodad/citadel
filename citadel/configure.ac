@@ -1,7 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl $Id$
-AC_PREREQ(2.13)
-AC_INIT(citserver.c)
+AC_PREREQ(2.52)
+AC_INIT([Citadel/UX])
+AC_CONFIG_SRCDIR([citserver.c])
 AC_PREFIX_DEFAULT(/usr/local/citadel)
 if test "$prefix" = NONE; then
 	AC_DEFINE_UNQUOTED(BBSDIR, "$ac_default_prefix")
@@ -17,10 +18,10 @@ AC_ARG_ENABLE(threaded-client, [  --disable-threaded-client
 
 AC_ARG_WITH(pam, [  --with-pam              use PAM if present (see PAM.txt before you try this)])
 AC_ARG_WITH(kthread, [  --with-kthread          use kernel threads (on FreeBSD) (not recommended yet)])
-AC_ARG_WITH(gdbm, [  --with-gdbm[=DIR]       use GDBM [DIR=/usr/local]])
-AC_ARG_WITH(db, [  --with-db[=DIR]         use Sleepycat DB 3.1 [DIR=/usr/local/BerkeleyDB.3.1]])
+AC_ARG_WITH(gdbm, [  --with-gdbm@<:@=DIR@:>@       use GDBM @<:@DIR=/usr/local@:>@])
+AC_ARG_WITH(db, [  --with-db@<:@=DIR@:>@         use Sleepycat DB 3.x @<:@DIR=/usr/local/BerkeleyDB.3.@<:@123@:>@@:>@])
 
-if test "x$with_gdbm" != xno -a "x$with_gdbm" != xyeso -a "$with_gdbm"; then
+if test "x$with_gdbm" != xno -a "x$with_gdbm" != xyes -a "$with_gdbm"; then
 	db_dir="$with_gdbm"
 	with_gdbm=yes
 else
@@ -33,6 +34,7 @@ if test "x$with_db" != xno -a "x$with_db" != xyes -a "$with_db"; then
 else
 	test -d /usr/local/BerkeleyDB.3.1 && db_dir=/usr/local/BerkeleyDB.3.1
 	test -d /usr/local/BerkeleyDB.3.2 && db_dir=/usr/local/BerkeleyDB.3.2
+	test -d /usr/local/BerkeleyDB.3.3 && db_dir=/usr/local/BerkeleyDB.3.3
 fi
 
 if test "x$with_gdbm" = xyes -a "x$with_db" = xyes; then
@@ -231,7 +233,7 @@ AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 test "$db_dir" && CPPFLAGS="$CPPFLAGS -I$db_dir/include"
-AC_CHECK_HEADERS(curses.h dl.h dlfcn.h fcntl.h limits.h termios.h strings.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h utmp.h utmpx.h paths.h)
+AC_CHECK_HEADERS(curses.h dl.h dlfcn.h fcntl.h limits.h termios.h sys/ioctl.h sys/select.h sys/time.h syslog.h unistd.h utmp.h utmpx.h paths.h)
 
 dnl some systems require -pthread, -D_REENTRANT, etc to be passed to cc if we
 dnl include pthread.h:
@@ -359,4 +361,5 @@ AC_SUBST(CL_LIBOBJS)
 AC_SUBST(CX)
 AC_SUBST(DATABASE)
 AC_CONFIG_HEADER(sysdep.h)
-AC_OUTPUT(Makefile weekly)
+AC_CONFIG_FILES([Makefile weekly])
+AC_OUTPUT

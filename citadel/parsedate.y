@@ -18,6 +18,9 @@
 /* SUPPRESS 593 on yyerrlab *//* Label was not used */
 /* SUPPRESS 593 on yynewstate *//* Label was not used */
 /* SUPPRESS 595 on yypvt *//* Automatic variable may be used before set */
+
+#include "sysdep.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -32,6 +35,16 @@
 # else
 #  include <time.h>
 # endif
+#endif
+
+#if HAVE_STRING_H
+# if !STDC_HEADERS && HAVE_MEMORY_H
+#  include <memory.h>
+# endif
+# include <string.h>
+#endif
+#if HAVE_STRINGS_H
+# include <strings.h>
 #endif
 
 #include "parsedate.h"

@@ -332,7 +332,7 @@ Makefile: $(srcdir)/Makefile.in config.status
 config.status: $(srcdir)/configure
 	$(SHELL) ./config.status --recheck
 
-$(srcdir)/configure: $(srcdir)/configure.in $(srcdir)/aclocal.m4
+$(srcdir)/configure: $(srcdir)/configure.ac $(srcdir)/aclocal.m4
 	cd $(srcdir) && $(AUTOCONF)
 
 weekly: $(srcdir)/weekly.in config.status
