@@ -463,6 +463,8 @@ void output_static(char *what)
 			strcpy(content_type, "image/jpeg");
 		else if (!strncasecmp(&what[strlen(what) - 4], ".png", 4))
 			strcpy(content_type, "image/png");
+		else if (!strncasecmp(&what[strlen(what) - 4], ".ico", 4))
+			strcpy(content_type, "image/x-icon");
 		else if (!strncasecmp(&what[strlen(what) - 5], ".html", 5))
 			strcpy(content_type, "text/html");
 		else if (!strncasecmp(&what[strlen(what) - 4], ".wml", 4))

@@ -1,4 +1,7 @@
 $Log$
+Revision 505.3  2004/02/25 15:20:11  ajc
+* Support for favicon.ico in the static/ directory
+
 Revision 505.2  2004/02/24 04:06:42  ajc
 * Changed the colors slightly in chat screen
 
@@ -1671,3 +1674,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
