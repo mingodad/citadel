@@ -23,6 +23,7 @@ void strproc(char *string)
 {
 	int a;
 
+	if (string == NULL) return;
 	if (strlen(string)==0) return;
 
 	/* Convert non-printable characters to blanks */

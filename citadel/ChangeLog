@@ -1,6 +1,7 @@
  $Log$
- Revision 573.69  2001/01/15 20:34:29  ajc
- *** empty log message ***
+ Revision 573.70  2001/01/15 23:59:26  ajc
+ * user_ops.c: reject NULL password in CtdlTryPassword() instead of crashing
+
 
  Revision 573.68  2001/01/15 20:34:04  ajc
  * "Path:" removed for now because it confuses brain-dead Microsoft shitware

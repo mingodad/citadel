@@ -494,6 +494,9 @@ int CtdlTryPassword(char *password)
 	if (getuser(&CC->usersupp, CC->curr_user)) {
 		return pass_internal_error;
 	}
+	if (password == NULL) {
+		return pass_wrong_password;
+	}
 	code = (-1);
 	if (CC->usersupp.uid == BBSUID) {
 		strproc(password);
