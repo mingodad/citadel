@@ -23,7 +23,7 @@ char buf[];
 	int start, end;
 	char ench;
 	char urlbuf[256];
-	char outbuf[256];
+	char outbuf[1024];
 
 	start = (-1);
 	end = strlen(buf);
@@ -61,7 +61,8 @@ char buf[];
 	sprintf(&outbuf[start], "%cA HREF=%c%s%c TARGET=%c%s%c%c%s%c/A%c",
 		LB, QU, urlbuf, QU, QU, TARGET, QU, RB, urlbuf, LB, RB);
 	strcat(outbuf, &buf[end]);
-	strcpy(buf, outbuf);
+	if ( strlen(outbuf) < 250 )
+		strcpy(buf, outbuf);
 }
 
 
