@@ -861,7 +861,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	}
 
 	/* Process the SMTP greeting from the server */
-	if (sock_gets(sock, buf) < 0) {
+	if (ml_sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
 		goto bail;
@@ -886,7 +886,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	snprintf(buf, sizeof buf, "HELO %s", config.c_fqdn);
 	lprintf(9, ">%s\n", buf);
 	sock_puts(sock, buf);
-	if (sock_gets(sock, buf) < 0) {
+	if (ml_sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
 		goto bail;
@@ -910,7 +910,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	snprintf(buf, sizeof buf, "MAIL From: %s", mailfrom);
 	lprintf(9, ">%s\n", buf);
 	sock_puts(sock, buf);
-	if (sock_gets(sock, buf) < 0) {
+	if (ml_sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
 		goto bail;
@@ -934,7 +934,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	snprintf(buf, sizeof buf, "RCPT To: %s", addr);
 	lprintf(9, ">%s\n", buf);
 	sock_puts(sock, buf);
-	if (sock_gets(sock, buf) < 0) {
+	if (ml_sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
 		goto bail;
@@ -957,7 +957,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	/* RCPT succeeded, now try the DATA command */
 	lprintf(9, ">DATA\n");
 	sock_puts(sock, "DATA");
-	if (sock_gets(sock, buf) < 0) {
+	if (ml_sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
 		goto bail;
@@ -992,7 +992,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 	}
 
 	sock_write(sock, ".\r\n", 3);
-	if (sock_gets(sock, buf) < 0) {
+	if (ml_sock_gets(sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
 		goto bail;
@@ -1017,7 +1017,7 @@ void smtp_try(char *key, char *addr, int *status, char *dsn, long msgnum)
 
 	lprintf(9, ">QUIT\n");
 	sock_puts(sock, "QUIT");
-	sock_gets(sock, buf);
+	ml_sock_gets(sock, buf);
 	lprintf(9, "<%s\n", buf);
 
 bail:	if (msg_fp != NULL) fclose(msg_fp);

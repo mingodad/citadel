@@ -1,4 +1,7 @@
  $Log$
+ Revision 1.492  2000/03/18 18:18:04  ajc
+ * Support multiline responses from SMTP servers when sending mail
+
  Revision 1.491  2000/03/17 16:26:57  ajc
  * Set up a private "Sent/Received Pages" room for each user
 
@@ -1756,3 +1759,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

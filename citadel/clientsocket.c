@@ -125,6 +125,7 @@ int sock_write(int sock, char *buf, int nbytes)
 }
 
 
+
 /*
  * Input string from socket - implemented in terms of sock_read()
  * 
@@ -155,6 +156,27 @@ int sock_gets(int sock, char *buf)
 	      || (buf[strlen(buf)-1]==10)) ) {
 		buf[strlen(buf)-1] = 0;
 	}
+	return(strlen(buf));
+}
+
+/*
+ * Multiline version of sock_gets() ... this is a convenience function for
+ * client side protocol implementations.  It only returns the first line of
+ * a multiline response, discarding the rest.
+ */
+int ml_sock_gets(int sock, char *buf) {
+	char bigbuf[1024];
+	int g;
+
+	g = sock_gets(sock, buf);
+	if (g < 0) return(g);
+	if ( (g < 4) || (buf[3] != '-')) return(g);
+
+	do {
+		g = sock_gets(sock, bigbuf);
+		if (g < 0) return(g);
+	} while ( (g >= 4) && (bigbuf[3] == '-') );
+
 	return(strlen(buf));
 }
 
