@@ -63,6 +63,11 @@ void imap_do_store_msg(int seq, char *oper, unsigned int bits_to_twiddle) {
 		IMAP->flags[seq] &= (~bits_to_twiddle);
 	}
 
+	if (bits_to_twiddle & IMAP_SEEN) {
+		CtdlSetSeen(IMAP->msgids[seq],
+				((IMAP->flags[seq] & IMAP_SEEN) ? 1 : 0) );
+	}
+
 	cprintf("* %d FETCH (", seq+1);
 	imap_fetch_flags(seq);
 	cprintf(")\r\n");
@@ -94,6 +99,10 @@ void imap_do_store(int num_items, char **itemlist) {
 		  if (CtdlDoIHavePermissionToDeleteMessagesFromThisRoom()) {
 			bits_to_twiddle |= IMAP_DELETED;
 		  }
+		}
+
+		if (!strcasecmp(flag, "\\Seen")) {
+			bits_to_twiddle |= IMAP_SEEN;
 		}
 	}
 	

@@ -861,6 +861,27 @@ void cmd_slrp(char *new_ptr)
 }
 
 
+void cmd_seen(char *argbuf) {
+	long target_msgnum = 0L;
+	int target_setting = 0;
+
+	if (CtdlAccessCheck(ac_logged_in)) {
+		return;
+	}
+
+	if (num_parms(argbuf) != 2) {
+		cprintf("%d Invalid parameters\n", ERROR);
+		return;
+	}
+
+	target_msgnum = extract_long(argbuf, 0);
+	target_setting = extract_int(argbuf, 1);
+
+	CtdlSetSeen(target_msgnum, target_setting);
+	cprintf("%d OK\n", OK);
+}
+
+
 /*
  * INVT and KICK commands
  */

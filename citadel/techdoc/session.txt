@@ -1825,7 +1825,22 @@ issue a REQT command, then wait a little while (from 30 seconds up to a few
 minutes) for well-behaved clients to voluntarily terminate, and then issue a
 TERM command to forcibly disconnect the client (or perhaps a DOWN command, if
 you are logging off users for the purpose of shutting down the server).
-    
+ 
+ 
+ SEEN   (set or clear the SEEN flag for a message)
+ 
+ Beginning with version 5.80, Citadel supports the concept of setting or
+clearing the "seen" flag for each individual message, instead of only allowing
+a "last seen" pointer.  In fact, the old semantics are implemented in terms
+of the new semantics.  This command requires two arguments: the number of the
+message to be set, and a 1 or 0 to set or clear the "seen" bit.
+ 
+ This command returns OK, unless the user is not logged in or a usage error
+occurred, in which case it returns ERROR.  Please note that no checking is
+done on the supplied data; if the requested message does not exist, the SEEN
+command simply returns OK without doing anything.
+  
+   
   
  ASYN   (ASYNchronous message support)
  

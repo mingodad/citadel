@@ -74,5 +74,5 @@ enum {
 };
 
 
-
 int CtdlForgetThisRoom(void);
+void cmd_seen(char *argbuf);

@@ -266,6 +266,81 @@ int CtdlMsgCmp(struct CtdlMessage *msg, struct CtdlMessage *template) {
 }
 
 
+/*
+ * Manipulate the "seen msgs" string.
+ */
+void CtdlSetSeen(long target_msgnum, int target_setting) {
+	char newseen[SIZ];
+	struct cdbdata *cdbfr;
+	int i;
+	int is_seen = 0;
+	int was_seen = 1;
+	long lo = (-1L);
+	long hi = (-1L);
+	struct visit vbuf;
+	long *msglist;
+	int num_msgs = 0;
+
+	/* Learn about the user and room in question */
+	get_mm();
+	getuser(&CC->usersupp, CC->curr_user);
+	CtdlGetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+
+	/* Load the message list */
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->quickroom.QRnumber, sizeof(long));
+	if (cdbfr != NULL) {
+		msglist = mallok(cdbfr->len);
+		memcpy(msglist, cdbfr->ptr, cdbfr->len);
+		num_msgs = cdbfr->len / sizeof(long);
+		cdb_free(cdbfr);
+	} else {
+		return;	/* No messages at all?  No further action. */
+	}
+
+	lprintf(9, "before optimize: %s\n", vbuf.v_seen);
+	strcpy(newseen, "");
+
+	for (i=0; i<num_msgs; ++i) {
+		is_seen = 0;
+
+		if (msglist[i] == target_msgnum) {
+			is_seen = target_setting;
+		}
+		else {
+			if (is_msg_in_mset(vbuf.v_seen, msglist[i])) {
+				is_seen = 1;
+			}
+		}
+
+		if (is_seen == 1) {
+			if (lo < 0L) lo = msglist[i];
+			hi = msglist[i];
+		}
+		if (  ((is_seen == 0) && (was_seen == 1))
+		   || ((is_seen == 1) && (i == num_msgs-1)) ) {
+			if ( (strlen(newseen) + 20) > SIZ) {
+				strcpy(newseen, &newseen[20]);
+				newseen[0] = '*';
+			}
+			if (strlen(newseen) > 0) strcat(newseen, ",");
+			if (lo == hi) {
+				sprintf(&newseen[strlen(newseen)], "%ld", lo);
+			}
+			else {
+				sprintf(&newseen[strlen(newseen)], "%ld:%ld",
+					lo, hi);
+			}
+			lo = (-1L);
+			hi = (-1L);
+		}
+		was_seen = is_seen;
+	}
+
+	safestrncpy(vbuf.v_seen, newseen, SIZ);
+	lprintf(9, " after optimize: %s\n", vbuf.v_seen);
+	phree(msglist);
+	CtdlSetRelationship(&vbuf, &CC->usersupp, &CC->quickroom);
+}
 
 
 /*
@@ -308,6 +383,9 @@ int CtdlForEachMessage(int mode, long ref,
 	}
 
 
+	/*
+	 * Now begin the traversal.
+	 */
 	if (num_msgs > 0) for (a = 0; a < num_msgs; ++a) {
 		GetSuppMsgInfo(&smi, msglist[a]);
 

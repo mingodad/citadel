@@ -1191,6 +1191,10 @@ void do_command_loop(void) {
 		cmd_conf(&cmdbuf[5]);
 		}
 
+	else if (!strncasecmp(cmdbuf, "SEEN", 4)) {
+		cmd_seen(&cmdbuf[5]);
+		}
+
 #ifdef DEBUG_MEMORY_LEAKS
 	else if (!strncasecmp(cmdbuf, "LEAK", 4)) {
 		dump_tracked();
