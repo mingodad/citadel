@@ -70,9 +70,18 @@ void imap_fetch_uid(int seq) {
 }
 
 void imap_fetch_flags(int seq) {
+	int num_flags_printed = 0;
 	cprintf("FLAGS (");
-	if (IMAP->flags[seq] & IMAP_DELETED) cprintf("\\Deleted ");
-	if (IMAP->flags[seq] & IMAP_SEEN) cprintf("\\Seen ");
+	if (IMAP->flags[seq] & IMAP_DELETED) {
+		if (num_flags_printed > 0) cprintf(" ");
+		cprintf("\\Deleted");
+		++num_flags_printed;
+	}
+	if (IMAP->flags[seq] & IMAP_SEEN) {
+		if (num_flags_printed > 0) cprintf(" ");
+		cprintf("\\Seen");
+		++num_flags_printed;
+	}
 	cprintf(")");
 }
 

@@ -1,4 +1,7 @@
  $Log$
+ Revision 611.2  2003/11/08 06:29:47  ajc
+ * IMAP FETCH FLAGS ... removed extra trailing space after last flag
+
  Revision 611.1  2003/11/06 04:25:30  ajc
  * For certain IMAP outputs (such as BODYSTRUCTURE), buffer all output until
    we've got the whole thing, then spew it all at once to avoid lots of
@@ -5062,4 +5065,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
