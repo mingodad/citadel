@@ -10,13 +10,6 @@
 #include "includes.hpp"
 
 
-#include "bitmaps/chat.xpm"
-#include "bitmaps/globe.xpm"
-#include "bitmaps/mail.xpm"
-#include "bitmaps/who.xpm"
-
-
-
 // Globals
 wxMDIParentFrame *BigMDI;
 RoomTree *RoomList;
@@ -250,10 +243,10 @@ void MyFrame::InitToolBar(wxToolBar* toolBar) {
 	wxBitmap* bitmaps[4];
 
 
-	bitmaps[0] = new wxBitmap( globe_xpm );
-	bitmaps[1] = new wxBitmap( mail_xpm );
-	bitmaps[2] = new wxBitmap( who_xpm );
-	bitmaps[3] = new wxBitmap( chat_xpm );
+	bitmaps[0] = new wxBitmap("bitmaps/globe.bmp",	wxBITMAP_TYPE_BMP);
+	bitmaps[1] = new wxBitmap("bitmaps/mail.bmp",	wxBITMAP_TYPE_BMP);
+	bitmaps[2] = new wxBitmap("bitmaps/who.bmp",	wxBITMAP_TYPE_BMP);
+	bitmaps[3] = new wxBitmap("bitmaps/chat.bmp",	wxBITMAP_TYPE_BMP);
 
 	toolBar->AddTool(MENU_CONNECT,
 			*bitmaps[0],
