@@ -36,6 +36,11 @@
  * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
  * $Log$
+ * Revision 1.3  1999/06/08 02:01:29  ajc
+ *         * Session no longer locks up when an express message is cancelled
+ *         * The default Citadel server is now "localhost" instead of uncnsrd
+ *         * Added some documentation
+ *
  * Revision 1.2  1999/06/03 03:48:52  ajc
  *         * Ditched the frames mode completely.  It wasn't working properly in,
  *           among other places, IE 5.  Die, Bill, Die.
@@ -170,7 +175,7 @@ char *source;			/* source operand */
 			return (*++pattern ? star(source, pattern) : 1);
 		case '[':
 			/* [^....] means inverse character class. */
-			if (reverse = pattern[1] == '^') {
+			if ((reverse = pattern[1]) == '^') {
 				pattern++;
 			}
 			for (last = 0400, matched = 0;

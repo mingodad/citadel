@@ -79,19 +79,18 @@ void page_user(void)
 
 	if (strcmp(sc, "Send message")) {
 		wprintf("<EM>Message was not sent.</EM><BR>\n");
-		return;
-	}
-	serv_printf("SEXP %s|%s", recp, msgtext);
-	serv_gets(buf);
-
-	if (buf[0] == '2') {
-		wprintf("<EM>Message has been sent to ");
-		escputs(recp);
-		wprintf(".</EM><BR>\n");
 	} else {
-		wprintf("<EM>%s</EM><BR>\n", &buf[4]);
-	}
+		serv_printf("SEXP %s|%s", recp, msgtext);
+		serv_gets(buf);
 
+		if (buf[0] == '2') {
+			wprintf("<EM>Message has been sent to ");
+			escputs(recp);
+			wprintf(".</EM><BR>\n");
+		} else {
+			wprintf("<EM>%s</EM><BR>\n", &buf[4]);
+		}
+	}
 	wDumpContent(1);
 }
 
