@@ -213,14 +213,21 @@ int PurgeRooms(void) {
 	struct PurgeList *pptr;
 	int num_rooms_purged = 0;
 	struct quickroom qrbuf;
+	char *transcript = NULL;
 
 	lprintf(5, "PurgeRooms() called\n");
 	if (config.c_roompurge > 0) {
 		ForEachRoom(DoPurgeRooms);
 		}
 
+	transcript = mallok(256);
+	strcpy(transcript, "The following rooms have been auto-purged:\n");
+
 	while (RoomPurgeList != NULL) {
 		if (getroom(&qrbuf, RoomPurgeList->name) == 0) {
+			transcript=reallok(transcript, strlen(transcript)+256);
+			sprintf(&transcript[strlen(transcript)], " %s\n",
+				qrbuf.QRname);
 			delete_room(&qrbuf);
 			}
 		pptr = RoomPurgeList->next;
@@ -228,6 +235,9 @@ int PurgeRooms(void) {
 		RoomPurgeList = pptr;
 		++num_rooms_purged;
 		}
+
+	if (num_rooms_purged > 0) aide_message(transcript);
+	phree(transcript);
 
 	lprintf(5, "Purged %d rooms.\n", num_rooms_purged);
 	return(num_rooms_purged);
@@ -291,19 +301,29 @@ void do_user_purge(struct usersupp *us) {
 int PurgeUsers(void) {
 	struct PurgeList *pptr;
 	int num_users_purged = 0;
+	char *transcript = NULL;
 
 	lprintf(5, "PurgeUsers() called\n");
 	if (config.c_userpurge > 0) {
 		ForEachUser(do_user_purge);
 		}
 
+	transcript = mallok(256);
+	strcpy(transcript, "The following users have been auto-purged:\n");
+
 	while (UserPurgeList != NULL) {
+		transcript=reallok(transcript, strlen(transcript)+256);
+		sprintf(&transcript[strlen(transcript)], " %s\n",
+			UserPurgeList->name);
 		purge_user(UserPurgeList->name);
 		pptr = UserPurgeList->next;
 		phree(UserPurgeList);
 		UserPurgeList = pptr;
 		++num_users_purged;
 		}
+
+	if (num_users_purged > 0) aide_message(transcript);
+	phree(transcript);
 
 	lprintf(5, "Purged %d users.\n", num_users_purged);
 	return(num_users_purged);
