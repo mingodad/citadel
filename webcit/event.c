@@ -28,7 +28,7 @@
 #include "webserver.h"
 
 
-#ifdef HAVE_ICAL_H
+#ifdef WEBCIT_WITH_CALENDAR_SERVICE
 
 /*
  * Display an event by itself (for editing)
@@ -644,4 +644,4 @@ STARTOVER:
 }
 
 
-#endif /* HAVE_ICAL_H */
+#endif /* WEBCIT_WITH_CALENDAR_SERVICE */

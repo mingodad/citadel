@@ -1,4 +1,7 @@
 $Log$
+Revision 400.82  2003/01/13 03:34:33  ajc
+* Get ready for the 6.10 release
+
 Revision 400.81  2003/01/12 23:22:53  ajc
 * configure.in: check for libical v0.24 or newer
 
@@ -1234,4 +1237,3 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
-
