@@ -139,9 +139,9 @@ char		*protocol = "tcp";
 	if(s) {
 		CxClRecv(buf);
 		if(g_CxClientName[0]) {
-			sprintf(buf,"IDEN 1|1|100|libCxClient/%s (%s)|",VERSION, g_CxClientName);
+			sprintf(buf,"IDEN 1|1|100|CX/%s (%s)|",VERSION, g_CxClientName);
 		} else {
-			sprintf(buf,"IDEN 1|1|100|libCxClient/%s (unknown)|",VERSION);
+			sprintf(buf,"IDEN 1|1|100|CX/%s (unknown)|",VERSION);
 		}
 		CxClSend(buf);
 		CxClRecv(buf);
