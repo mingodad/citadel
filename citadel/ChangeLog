@@ -1,4 +1,7 @@
 $Log$
+Revision 1.396  1999/10/26 13:59:11  ajc
+damn bugs
+
 Revision 1.395  1999/10/26 03:48:39  ajc
 * Shuffled around the order of events when a thread is terminating.  All
   mutex operations now happen prior to the freeing of the CitContext structure,
@@ -1357,3 +1360,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+

@@ -434,14 +434,14 @@ void InitMyContext(struct CitContext *con)
 /*
  * Remove a context from the context list.
  */
-void RemoveContext(int con)
+void RemoveContext(struct CitContext *con)
 {
 	struct CitContext *ptr = NULL;
 	struct CitContext *ToFree = NULL;
 
 	lprintf(7, "Starting RemoveContext()\n");
-	if (con==0) {
-		lprintf(7, "WARNING: RemoveContext() called with 0!\n");
+	if (con==NULL) {
+		lprintf(5, "WARNING: RemoveContext() called with NULL!\n");
 		return;
 		}
 
@@ -451,13 +451,13 @@ void RemoveContext(int con)
 	 */
 	begin_critical_section(S_SESSION_TABLE);
 
-	if (ContextList->client_socket == con) {
+	if (ContextList == con) {
 		ToFree = ContextList;
 		ContextList = ContextList->next;
 		}
 	else {
 		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
-			if (ptr->next->client_socket == con) {
+			if (ptr->next == con) {
 				ToFree = ptr->next;
 				ptr->next = ptr->next->next;
 				}

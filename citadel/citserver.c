@@ -147,7 +147,7 @@ void cleanup_stuff(void *arg)
 	 * doing the work.
 	 */
 	lprintf(7, "Calling RemoveContext(%d)\n", CC->cs_pid);
-	RemoveContext(CC->cs_pid);
+	RemoveContext(CC);
 	}
 
 
