@@ -1565,6 +1565,12 @@ RMSGREAD:	scr_flush();
 				scr_printf("%s\n", cmd);
 			} else {
 				extract(filename, cmd, 2);
+				/*
+				 * Part 1 won't have a filename; use the
+				 * subject of the message instead. IO
+				 */
+				if (!strlen(filename))
+					strcpy(filename, reply_subject);
 				destination_directory(save_to, filename);
 				save_buffer(attachment,
 						extract_unsigned_long(cmd, 0),
