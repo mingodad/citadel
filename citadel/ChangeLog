@@ -1,4 +1,8 @@
  $Log$
+ Revision 620.3  2004/03/29 16:05:02  ajc
+ * begin_critical_section() -- bypass transaction checking for S_FLOORCACHE
+   sections, to avoid crashing the db layer
+
  Revision 620.2  2004/03/29 02:33:19  error
  * citadel.spec: major modifications for 6.xx (hasn't been updated since 5.xx)
 
@@ -5642,4 +5646,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

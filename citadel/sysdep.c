@@ -250,16 +250,17 @@ void begin_critical_section(int which_one)
 {
 	/* lprintf(CTDL_DEBUG, "begin_critical_section(%d)\n", which_one); */
 
-
-	/* ensure nobody ever tries to do a critical section within a
-	  	transaction; this could lead to deadlock. */
+	/* For all types of critical sections except those listed here,
+	 * ensure nobody ever tries to do a critical section within a
+	 * transaction; this could lead to deadlock.
+	 */
+	if (	(which_one != S_FLOORCACHE)
 #ifdef DEBUG_MEMORY_LEAKS
-	if (which_one != S_DEBUGMEMLEAKS) {
+		&& (which_one != S_DEBUGMEMLEAKS)
 #endif
+	) {
 		cdb_check_handles();
-#ifdef DEBUG_MEMORY_LEAKS
 	}
-#endif
 	pthread_mutex_lock(&Critters[which_one]);
 }
 
@@ -268,7 +269,6 @@ void begin_critical_section(int which_one)
  */
 void end_critical_section(int which_one)
 {
-	/* lprintf(CTDL_DEBUG, "end_critical_section(%d)\n", which_one); */
 	pthread_mutex_unlock(&Critters[which_one]);
 }
 
