@@ -148,6 +148,9 @@ void display_main_menu(void)
 	wprintf("<LI><A HREF=\"/display_zap\">");
 	wprintf("Zap (forget) this room (%s)</A>\n", WC->wc_roomname);
 
+        wprintf("<LI><A HREF=\"/display_whok\">\n");
+        wprintf("Access controls for this room</A>\n");
+
 	wprintf("<LI><A HREF=\"/zapped_list\">");
 	wprintf("List all forgotten rooms</A>\n");
 
@@ -164,9 +167,6 @@ void display_main_menu(void)
 		wprintf("<UL>");
 		wprintf("<LI><A HREF=\"/display_editroom\">\n");
 		wprintf("Edit or delete this room</A>\n");
-
-                wprintf("<LI><A HREF=\"/display_whok\">\n");
-                wprintf("Show who knows this room</A>\n");
 
 		wprintf("<LI><A HREF=\"/display_siteconfig\">\n");
 		wprintf("Edit site-wide configuration</A>\n");
