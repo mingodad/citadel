@@ -202,7 +202,7 @@ void display_aide_menu(void)
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<center><table border=0 width=99%% bgcolor=\"#ffffff\"><tr><td>\n");
+	wprintf("<center><table border=1 cellpadding=5 bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<A HREF=\"/display_siteconfig\">"
 		"<span class=\"mainmenu\">"
