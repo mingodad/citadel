@@ -1605,7 +1605,12 @@ headers
 will never be altered.</p>
 <p>The final set of options configures system-wide defaults for the
 auto-purger:</p>
-<pre>Default user purge time (days) [120]: <br>Default room purge time (days) [30]: <br>System default message expire policy (? for list) [2]: <br>Keep how many messages online? [150]:<br></pre>
+<pre>Default user purge time (days) [120]: <br>
+Default room purge time (days) [30]: <br>
+System default message expire policy (? for list) [2]: <br>
+Keep how many messages online? [150]:<br>
+Mailbox default message expire policy (? for list) [1]: <br>
+</pre>
 <p>Any user who does not log in for the period specified in 'Default
 user purge time' will be deleted the next time a purge is run. This
 setting may be modified on a per-user basis.</p>
@@ -1619,7 +1624,11 @@ messages are expired (purged) off the system. You can specify any of:</p>
   <li>Do not purge at all </li>
 </ul>
 <p>Again, this setting may be overridden on a per-floor basis, and the
-floor setting may be overridden on a per-room basis.</p>
+floor setting may be overridden on a per-room basis.  You'll also notice
+that you can set a <i>different</i> default for mailbox rooms if you want
+to.  This can allow you, for example, to set a policy under which old
+messages scroll out of public rooms, but private mail stays online indefinitely
+until deleted by the mailbox owners.</p>
 <pre>Save this configuration? No<br></pre>
 <p>When you're done, enter 'Yes' to confirm the changes, or 'No' to
 discard the changes.</p>

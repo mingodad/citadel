@@ -53,11 +53,26 @@ void GetExpirePolicy(struct ExpirePolicy *epbuf, struct ctdlroom *qrbuf) {
 		return;
 	}
 
-	/* Otherwise, if the floor has its own policy, return it */
-	fl = cgetfloor(qrbuf->QRfloor);
-	if (fl->f_ep.expire_mode != 0) {
-		memcpy(epbuf, &fl->f_ep, sizeof(struct ExpirePolicy));
-		return;
+	/* (non-mailbox rooms)
+	 * If the floor has its own policy, return it
+	 */
+	if ( (qrbuf->QRflags & QR_MAILBOX) == 0) {
+		fl = cgetfloor(qrbuf->QRfloor);
+		if (fl->f_ep.expire_mode != 0) {
+			memcpy(epbuf, &fl->f_ep, sizeof(struct ExpirePolicy));
+			return;
+		}
+	}
+
+	/* (Mailbox rooms)
+	 * If there is a default policy for mailbox rooms, return it
+	 */
+	if (qrbuf->QRflags & QR_MAILBOX) {
+		if (&config.c_mbxep.expire_mode != 0) {
+			memcpy(epbuf, &config.c_mbxep,
+				sizeof(struct ExpirePolicy));
+			return;
+		}
 	}
 
 	/* Otherwise, fall back on the system default */
@@ -80,6 +95,9 @@ void cmd_gpex(char *argbuf) {
 	else if (!strcasecmp(which, "floor")) {
 		fl = cgetfloor(CC->room.QRfloor);
 		memcpy(&exp, &fl->f_ep, sizeof(struct ExpirePolicy));
+	}
+	else if (!strcasecmp(which, "mailboxes")) {
+		memcpy(&exp, &config.c_mbxep, sizeof(struct ExpirePolicy));
 	}
 	else if (!strcasecmp(which, "site")) {
 		memcpy(&exp, &config.c_ep, sizeof(struct ExpirePolicy));
@@ -135,6 +153,14 @@ void cmd_spex(char *argbuf) {
 		memcpy(&flbuf.f_ep, &exp, sizeof(struct ExpirePolicy));
 		lputfloor(&flbuf, CC->room.QRfloor);
 		cprintf("%d Floor expire policy set.\n", CIT_OK);
+		return;
+	}
+
+	else if (!strcasecmp(which, "mailboxes")) {
+		memcpy(&config.c_mbxep, &exp, sizeof(struct ExpirePolicy));
+		put_config();
+		cprintf("%d Default expire policy for mailboxes set.\n",
+			CIT_OK);
 		return;
 	}
 

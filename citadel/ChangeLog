@@ -1,4 +1,9 @@
  $Log$
+ Revision 613.11  2003/12/24 05:02:49  ajc
+ * Allow a separate default message expire policy for mailbox rooms.  The
+   floor default setting is now ignored for mailboxes.  Updated client and
+   documentation to match.
+
  Revision 613.10  2003/12/23 03:53:49  ajc
  * Expanded the size of all string fields in "struct CtdlIPCMessage" to
    the standard SIZ length, in order to accomodate "weird" messages
@@ -5199,4 +5204,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

@@ -645,7 +645,8 @@ void do_system_configuration(CtdlIPC *ipc)
 	char buf[SIZ];
 	char sc[32][SIZ];
 	char *resp = NULL;
-	struct ExpirePolicy *expirepolicy = NULL;
+	struct ExpirePolicy *site_expirepolicy = NULL;
+	struct ExpirePolicy *mbx_expirepolicy = NULL;
 	int a;
 	int logpages = 0;
 	int r;			/* IPC response code */
@@ -671,7 +672,8 @@ void do_system_configuration(CtdlIPC *ipc)
 	/* Fetch the expire policy (this will silently fail on old servers,
 	 * resulting in "default" policy)
 	 */
-	r = CtdlIPCGetMessageExpirationPolicy(ipc, 2, &expirepolicy, buf);
+	r = CtdlIPCGetMessageExpirationPolicy(ipc, 2, &site_expirepolicy, buf);
+	r = CtdlIPCGetMessageExpirationPolicy(ipc, 3, &mbx_expirepolicy, buf);
 
 	/* Identification parameters */
 
@@ -751,7 +753,7 @@ void do_system_configuration(CtdlIPC *ipc)
 
 	/* Angels and demons dancing in my head... */
 	do {
-		snprintf(buf, sizeof buf, "%d", expirepolicy->expire_mode);
+		snprintf(buf, sizeof buf, "%d", site_expirepolicy->expire_mode);
 		strprompt("System default message expire policy (? for list)",
 			  buf, 1);
 		if (buf[0] == '?') {
@@ -761,18 +763,45 @@ void do_system_configuration(CtdlIPC *ipc)
 				"3. Expire by message age\n");
 		}
 	} while ((buf[0] < '1') || (buf[0] > '3'));
-	expirepolicy->expire_mode = buf[0] - '0';
+	site_expirepolicy->expire_mode = buf[0] - '0';
 
 	/* ...lunatics and monsters underneath my bed */
-	if (expirepolicy->expire_mode == 2) {
-		snprintf(buf, sizeof buf, "%d", expirepolicy->expire_value);
+	if (site_expirepolicy->expire_mode == 2) {
+		snprintf(buf, sizeof buf, "%d", site_expirepolicy->expire_value);
 		strprompt("Keep how many messages online?", buf, 10);
-		expirepolicy->expire_value = atol(buf);
+		site_expirepolicy->expire_value = atol(buf);
 	}
-	if (expirepolicy->expire_mode == 3) {
-		snprintf(buf, sizeof buf, "%d", expirepolicy->expire_value);
+	if (site_expirepolicy->expire_mode == 3) {
+		snprintf(buf, sizeof buf, "%d", site_expirepolicy->expire_value);
 		strprompt("Keep messages for how many days?", buf, 10);
-		expirepolicy->expire_value = atol(buf);
+		site_expirepolicy->expire_value = atol(buf);
+	}
+
+	/* Media messiahs preying on my fears... */
+	do {
+		snprintf(buf, sizeof buf, "%d", mbx_expirepolicy->expire_mode);
+		strprompt("Mailbox default message expire policy (? for list)",
+			  buf, 1);
+		if (buf[0] == '?') {
+			scr_printf("\n"
+				"0. Go with the system default\n"
+				"1. Never automatically expire messages\n"
+				"2. Expire by message count\n"
+				"3. Expire by message age\n");
+		}
+	} while ((buf[0] < '0') || (buf[0] > '3'));
+	mbx_expirepolicy->expire_mode = buf[0] - '0';
+
+	/* ...Pop culture prophets playing in my ears */
+	if (mbx_expirepolicy->expire_mode == 2) {
+		snprintf(buf, sizeof buf, "%d", mbx_expirepolicy->expire_value);
+		strprompt("Keep how many messages online?", buf, 10);
+		mbx_expirepolicy->expire_value = atol(buf);
+	}
+	if (mbx_expirepolicy->expire_mode == 3) {
+		snprintf(buf, sizeof buf, "%d", mbx_expirepolicy->expire_value);
+		strprompt("Keep messages for how many days?", buf, 10);
+		mbx_expirepolicy->expire_value = atol(buf);
 	}
 
 	strprompt("How often to run network jobs (in seconds)", &sc[28][0], 5);
@@ -798,10 +827,17 @@ void do_system_configuration(CtdlIPC *ipc)
 			err_printf("%s\n", buf);
 		}
 		free(resp);
-		r = CtdlIPCSetMessageExpirationPolicy(ipc, 2, expirepolicy, buf);
+
+		r = CtdlIPCSetMessageExpirationPolicy(ipc, 2, site_expirepolicy, buf);
 		if (r / 100 != 2) {
 			err_printf("%s\n", buf);
 		}
+
+		r = CtdlIPCSetMessageExpirationPolicy(ipc, 3, mbx_expirepolicy, buf);
+		if (r / 100 != 2) {
+			err_printf("%s\n", buf);
+		}
+
 	}
 }
 

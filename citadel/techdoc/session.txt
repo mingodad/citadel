@@ -1690,7 +1690,7 @@ purging (expiration) of messages.  The following policies are available:
    3  -  Purge by message age.  (Requires a value: number of days)
 
  The format of this command is:  GPEX <which>
- The value of <which> must be one of: "room" "floor" "site"
+ The value of <which> must be one of: "room" "floor" "site" "mailboxes"
 
  If successful, GPEX returns OK followed by <policy>|<value>.
 
@@ -1703,7 +1703,7 @@ purging (expiration) of messages.  See the writeup for the GPEX command for
 the list of available policies.
 
  The format of this command is:  SPEX <which>|<policy>|<value>
- The value of <which> must be one of: "room" "floor" "site"
+ The value of <which> must be one of: "room" "floor" "site" "mailboxes"
 
  If successful, GPEX returns OK; otherwise, an ERROR code is returned.
 

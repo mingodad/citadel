@@ -1712,12 +1712,12 @@ int CtdlIPCAideSetUserParameters(CtdlIPC *ipc, const struct ctdluser *uret, char
 
 
 /* GPEX */
-/* which is 0 = room, 1 = floor, 2 = site */
+/* which is 0 = room, 1 = floor, 2 = site, 3 = default for mailboxes */
 /* caller must free the struct ExpirePolicy */
 int CtdlIPCGetMessageExpirationPolicy(CtdlIPC *ipc, int which,
 		struct ExpirePolicy **policy, char *cret)
 {
-	static char *proto[] = {"room", "floor", "site"};
+	static char *proto[] = {"room", "floor", "site", "mailboxes" };
 	char aaa[11];
 	register int ret;
 
@@ -1725,7 +1725,7 @@ int CtdlIPCGetMessageExpirationPolicy(CtdlIPC *ipc, int which,
 	if (!policy) return -2;
 	if (!*policy) *policy = (struct ExpirePolicy *)calloc(1, sizeof(struct ExpirePolicy));
 	if (!*policy) return -1;
-	if (which < 0 || which > 2) return -2;
+	if (which < 0 || which > 3) return -2;
 	
 	sprintf(aaa, "GPEX %s", proto[which]);
 	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
@@ -1739,16 +1739,16 @@ int CtdlIPCGetMessageExpirationPolicy(CtdlIPC *ipc, int which,
 
 
 /* SPEX */
-/* which is 0 = room, 1 = floor, 2 = site */
+/* which is 0 = room, 1 = floor, 2 = site, 3 = default for mailboxes */
 /* policy is 0 = inherit, 1 = no purge, 2 = by count, 3 = by age (days) */
 int CtdlIPCSetMessageExpirationPolicy(CtdlIPC *ipc, int which,
 		struct ExpirePolicy *policy, char *cret)
 {
 	char aaa[38];
-	char *whichvals[] = { "room", "floor", "site" };
+	char *whichvals[] = { "room", "floor", "site", "mailboxes" };
 
 	if (!cret) return -2;
-	if (which < 0 || which > 2) return -2;
+	if (which < 0 || which > 3) return -2;
 	if (!policy) return -2;
 	if (policy->expire_mode < 0 || policy->expire_mode > 3) return -2;
 	if (policy->expire_mode >= 2 && policy->expire_value < 1) return -2;

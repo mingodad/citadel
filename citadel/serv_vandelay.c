@@ -283,6 +283,8 @@ void artv_do_export(void) {
 	cprintf("%d\n", config.c_pop3_port);
 	cprintf("%d\n", config.c_smtp_port);
 	cprintf("%d\n", config.c_purge_hour);
+	cprintf("%d\n", config.c_mbxep.expire_mode);
+	cprintf("%d\n", config.c_mbxep.expire_value);
 
 	/* Export the control file */
 	get_control();
@@ -340,6 +342,8 @@ void artv_import_config(void) {
 	client_gets(buf);	config.c_pop3_port = atoi(buf);
 	client_gets(buf);	config.c_smtp_port = atoi(buf);
 	client_gets(buf);	config.c_purge_hour = atoi(buf);
+	client_gets(buf);	config.c_mbxep.expire_mode = atoi(buf);
+	client_gets(buf);	config.c_mbxep.expire_value = atoi(buf);
 	put_config();
 	lprintf(7, "Imported config file\n");
 }
