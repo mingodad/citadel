@@ -168,6 +168,10 @@ void update_config(void) {
 		config.c_ldap_port = 389;
 	}
 
+	if (CitControl.version < 623) {
+		strcpy(config.c_ip_addr, "0.0.0.0");
+	}
+
 	put_config();
 }
 

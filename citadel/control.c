@@ -209,6 +209,7 @@ void cmd_conf(char *argbuf)
 		cprintf("\n");
 		cprintf("\n");
 #endif
+		cprintf("%s\n", config.c_ip_addr);
 		cprintf("000\n");
 	}
 
@@ -367,6 +368,9 @@ void cmd_conf(char *argbuf)
 					    sizeof config.c_ldap_bind_pw);
 				break;
 #endif
+			case 37:
+				safestrncpy(config.c_ip_addr, buf,
+						sizeof config.c_ip_addr);
 			}
 			++a;
 		}

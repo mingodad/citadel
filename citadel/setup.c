@@ -32,7 +32,7 @@
 #endif
 
 
-#define MAXSETUP 3	/* How many setup questions to ask */
+#define MAXSETUP 4	/* How many setup questions to ask */
 
 #define UI_TEXT		0	/* Default setup type -- text only */
 #define UI_SILENT	3	/* Silent running, for use in scripts */
@@ -51,6 +51,7 @@ char *setup_titles[] =
 	"Citadel Home Directory",
 	"System Administrator",
 	"Citadel User ID",
+	"Server IP address",
 	"Server port number",
 };
 
@@ -71,6 +72,11 @@ char *setup_text[] =
 "might also call it \"bbs\" or \"guest\".  The server will run under this\n"
 "user ID.  Please specify that user ID here.  You may specify either a\n"
 "user name or a numeric UID.\n",
+
+"Specify the IP address on which your server will run.  If you leave this\n"
+"blank, or if you specify 0.0.0.0, Citadel will listen on all addresses.\n"
+"You can usually skip this unless you're running multiple instances of\n"
+"Citadel on the same computer.\n",
 
 "Specify the TCP port number on which your server will run.  Normally, this\n"
 "will be port 504, which is the official port assigned by the IANA for\n"
@@ -711,6 +717,10 @@ void edit_value(int curr)
 		break;
 
 	case 3:
+		set_str_val(curr, &config.c_ip_addr);
+		break;
+
+	case 4:
 		set_int_val(curr, &config.c_port_number);
 		break;
 

@@ -34,8 +34,8 @@ what you did, so that your new commands can be added to this document.
 document, but we will briefly cover the methodology employed by Citadel/UX.
 
  Citadel/UX offers Citadel BBS service using TCP/IP.  It does so via a
-multithreaded server listening on a TCP port.  Older (4.xx) versions employed
-an inetd-based server.
+multithreaded server listening on a TCP port.  Local connections may also
+be made using the same protocol using Unix domain sockets.
 
  The port number officially assigned to Citadel by the IANA is 504/tcp.  Since
 our session layer assumes a clean, reliable, sequenced connection, the use
@@ -1795,6 +1795,7 @@ fails for any reason, ERROR is returned.
  35. LDAP Base DN
  36. LDAP Bind DN
  37. Password for LDAP Bind DN
+ 38. Server IP address to listen on (or "0.0.0.0" for all addresses)
 
  CONF also accepts two additional commands: GETSYS and PUTSYS followed by an
 arbitrary MIME type (such as application/x-citadel-internet-config) which

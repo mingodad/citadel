@@ -644,7 +644,7 @@ void read_bio(CtdlIPC *ipc)
 void do_system_configuration(CtdlIPC *ipc)
 {
 
-#define NUM_CONFIGS 37
+#define NUM_CONFIGS 38
 
 	char buf[SIZ];
 	char sc[NUM_CONFIGS][SIZ];
@@ -734,6 +734,7 @@ void do_system_configuration(CtdlIPC *ipc)
 	strprompt("Minimum number of worker threads", &sc[21][0], 3);
 	strprompt("Maximum number of worker threads", &sc[22][0], 3);
 
+	strprompt("Server IP address (0.0.0.0 for 'any')", &sc[37][0], 15);
 	strprompt("POP3 server port (-1 to disable)", &sc[23][0], 5);
 	strprompt("IMAP server port (-1 to disable)", &sc[27][0], 5);
 	strprompt("SMTP server port (-1 to disable)", &sc[24][0], 5);
