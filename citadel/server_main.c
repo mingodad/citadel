@@ -256,6 +256,5 @@ int main(int argc, char **argv)
 	end_critical_section(S_WORKER_LIST);
 
 	master_cleanup();
-
 	return(0);
 }

@@ -1,4 +1,9 @@
  $Log$
+ Revision 614.99  2004/03/24 17:07:11  ajc
+ * Put a new memory leak checker into the server because it turns out that
+   the third-party ones all suck.  :)  This one doesn't involve renaming
+   all of the malloc() related functions, though.
+
  Revision 614.98  2004/03/24 15:04:06  ajc
  * stress.c: fix "wrong password" race condition by giving the very
    first worker thread time to finish creating the user account before the
@@ -5604,4 +5609,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

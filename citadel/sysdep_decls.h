@@ -1,5 +1,14 @@
 /* $Id$ */
 
+
+/*
+ * Uncomment this #define if you are a Citadel developer tracking
+ * down memory leaks in the server.  Do NOT do this on a production
+ * system because it definitely incurs a lot of additional overhead.
+ */
+/* #define DEBUG_MEMORY_LEAKS */
+
+
 #include <pthread.h>
 #include "sysdep.h"
 #include "server.h"
@@ -72,3 +81,16 @@ extern struct worker_node {
 
 extern int SyslogFacility(char *name);
 extern int syslog_facility;
+
+#ifdef DEBUG_MEMORY_LEAKS
+#define malloc(x) tracked_malloc(x, __FILE__, __LINE__)
+#define realloc(x,y) tracked_realloc(x, y, __FILE__, __LINE__)
+#undef strdup
+#define strdup(x) tracked_strdup(x, __FILE__, __LINE__)
+#define free(x) tracked_free(x)
+void *tracked_malloc(size_t size, char *file, int line);
+void *tracked_realloc(void *ptr, size_t size, char *file, int line);
+void tracked_free(void *ptr);
+char *tracked_strdup(const char *s, char *file, int line);
+void dump_heap(void);
+#endif

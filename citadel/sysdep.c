@@ -72,6 +72,19 @@
 #include "snprintf.h"
 #endif
 
+
+#ifdef DEBUG_MEMORY_LEAKS
+struct igheap {
+	struct igheap *next;
+	char file[32];
+	int line;
+	void *block;
+};
+
+struct igheap *igheap = NULL;
+#endif
+
+
 pthread_mutex_t Critters[MAX_SEMAPHORES];	/* Things needing locking */
 pthread_key_t MyConKey;				/* TSD key for MyContext() */
 
@@ -236,9 +249,17 @@ void init_sysdep(void) {
 void begin_critical_section(int which_one)
 {
 	/* lprintf(CTDL_DEBUG, "begin_critical_section(%d)\n", which_one); */
+
+
 	/* ensure nobody ever tries to do a critical section within a
-	   transaction; this could lead to deadlock. */
-	cdb_check_handles();
+	  	transaction; this could lead to deadlock. */
+#ifdef DEBUG_MEMORY_LEAKS
+	if (which_one != S_DEBUGMEMLEAKS) {
+#endif
+		cdb_check_handles();
+#ifdef DEBUG_MEMORY_LEAKS
+	}
+#endif
 	pthread_mutex_lock(&Critters[which_one]);
 }
 
@@ -1148,3 +1169,110 @@ int SyslogFacility(char *name)
 	return -1;
 }
 
+
+/********** MEM CHEQQER ***********/
+
+#ifdef DEBUG_MEMORY_LEAKS
+
+#undef malloc
+#undef realloc
+#undef strdup
+#undef free
+
+void *tracked_malloc(size_t size, char *file, int line) {
+	struct igheap *thisheap;
+	void *block;
+
+	block = malloc(size);
+	if (block == NULL) return(block);
+
+	thisheap = malloc(sizeof(struct igheap));
+	if (thisheap == NULL) {
+		free(block);
+		return(NULL);
+	}
+
+	thisheap->block = block;
+	strcpy(thisheap->file, file);
+	thisheap->line = line;
+	
+	begin_critical_section(S_DEBUGMEMLEAKS);
+	thisheap->next = igheap;
+	igheap = thisheap;
+	end_critical_section(S_DEBUGMEMLEAKS);
+
+	return(block);
+}
+
+
+void *tracked_realloc(void *ptr, size_t size, char *file, int line) {
+	struct igheap *thisheap;
+	void *block;
+
+	block = realloc(ptr, size);
+	if (block == NULL) return(block);
+
+	thisheap = malloc(sizeof(struct igheap));
+	if (thisheap == NULL) {
+		free(block);
+		return(NULL);
+	}
+
+	thisheap->block = block;
+	strcpy(thisheap->file, file);
+	thisheap->line = line;
+	
+	begin_critical_section(S_DEBUGMEMLEAKS);
+	thisheap->next = igheap;
+	igheap = thisheap;
+	end_critical_section(S_DEBUGMEMLEAKS);
+
+	return(block);
+}
+
+
+
+void tracked_free(void *ptr) {
+	struct igheap *thisheap;
+	struct igheap *trash;
+
+	free(ptr);
+
+	if (igheap == NULL) return;
+	begin_critical_section(S_DEBUGMEMLEAKS);
+	for (thisheap = igheap; thisheap != NULL; thisheap = thisheap->next) {
+		if (thisheap->next != NULL) {
+			if (thisheap->next->block == ptr) {
+				trash = thisheap->next;
+				thisheap->next = thisheap->next->next;
+				free(trash);
+			}
+		}
+	}
+	if (igheap->block == ptr) {
+		trash = igheap;
+		igheap = igheap->next;
+		free(trash);
+	}
+	end_critical_section(S_DEBUGMEMLEAKS);
+}
+
+char *tracked_strdup(const char *s, char *file, int line) {
+	char *ptr;
+
+	if (s == NULL) return(NULL);
+	ptr = tracked_malloc(strlen(s) + 1, file, line);
+	if (ptr == NULL) return(NULL);
+	strncpy(ptr, s, strlen(s));
+	return(ptr);
+}
+
+void dump_heap(void) {
+	struct igheap *thisheap;
+
+	for (thisheap = igheap; thisheap != NULL; thisheap = thisheap->next) {
+		lprintf(CTDL_DEBUG, "%30s : %d\n", thisheap->file, thisheap->line);
+	}
+}
+
+#endif /*  DEBUG_MEMORY_LEAKS */

@@ -142,6 +142,10 @@ void master_cleanup(void) {
 	/* Do system-dependent stuff */
 	sysdep_master_cleanup();
 
+#ifdef DEBUG_MEMORY_LEAKS
+	dump_heap();
+#endif
+
 	/* Now go away. */
 	lprintf(CTDL_NOTICE, "citserver: exiting.\n");
 	fflush(stdout); fflush(stderr);
