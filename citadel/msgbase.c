@@ -1092,9 +1092,9 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 	/* now for the user-mode message reading loops */
 	if (do_proto) cprintf("%d Message %ld:\n", LISTING_FOLLOWS, msg_num);
 
-	/* Tell the client which format type we're using.  If this is a
+	/******** (we don't do this anymore)
+	 * Tell the client which format type we're using.  If this is a
 	 * MIME message, *lie* about it and tell the user it's fixed-format.
-	 */
 	if (mode == MT_CITADEL) {
 		if (TheMessage->cm_format_type == FMT_RFC822) {
 			if (do_proto) cprintf("type=1\n");
@@ -1103,6 +1103,12 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *TheMessage,
 			if (do_proto) cprintf("type=%d\n",
 				TheMessage->cm_format_type);
 		}
+	}
+	 ***************/
+
+	/* Tell the client the truth about which format type we're using. */
+	if ( (mode == MT_CITADEL) && (do_proto) ) {
+		cprintf("type=%d\n", TheMessage->cm_format_type);
 	}
 
 	/* nhdr=yes means that we're only displaying headers, no body */
