@@ -622,7 +622,7 @@ void do_system_configuration(void) {
 		atoi(&sc[7][0]))));
 
 	sprintf(&sc[8][0], "%d", (boolprompt(
-		"Automatically move promblem user messages to twit room",
+		"Automatically move problem user messages to twit room",
 		atoi(&sc[8][0]))));
 
 	strprompt("Name of twit room", &sc[9][0], ROOMNAMELEN);
