@@ -328,10 +328,11 @@ void embed_room_graphic(void) {
 void embed_newmail_button(void) {
 	if ( (WC->new_mail > WC->remember_new_mail) && (WC->new_mail>0) ) {
 		wprintf("<TD VALIGN=TOP>"
+			"<A HREF=\"/dotgoto?room=_MAIL_\">"
 			"<IMG SRC=\"/static/mail.gif\" border=0 "
 			"ALT=\"You have new mail\">"
 			"<BR><BLINK>%d</BLINK>", WC->new_mail);
-		wprintf("<FONT SIZE=-2> new mail messages</FONT></TD>");
+		wprintf("<FONT SIZE=-2> new mail messages</FONT></A></TD>");
 		WC->remember_new_mail = WC->new_mail;
 	}
 }

@@ -348,7 +348,7 @@ void read_message(long msgnum, int is_summary) {
 
 
 	if (strlen(m_subject) > 0) {
-		wprintf("<TR><TD><FONT COLOR=\"FFFFFF\">"
+		wprintf("<TR><TD><FONT COLOR=\"0000FF\">"
 			"Subject: %s</FONT>"
 			"</TD><TD>&nbsp;</TD></TR>\n", m_subject);
 	}
@@ -570,7 +570,9 @@ void post_message(void)
 		wprintf("Automatically cancelled because you have already "
 			"saved this message.<BR>\n");
 	} else {
-		sprintf(buf, "ENT0 1|%s|0|0", bstr("recp"));
+		sprintf(buf, "ENT0 1|%s|0|0|%s",
+			bstr("recp"),
+			bstr("subject") );
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] == '4') {
@@ -639,7 +641,10 @@ void display_enter(void)
 		bstr("recp"));
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"postseq\" VALUE=\"%ld\">\n",
 		now);
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save message\">"
+	wprintf("<FONT SIZE=-1>Subject (optional):</FONT>"
+		"<INPUT TYPE=\"text\" NAME=\"subject\" MAXLENGTH=70>"
+		"&nbsp;&nbsp;&nbsp;"
+		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Save message\">"
 		"<INPUT TYPE=\"submit\" NAME=\"sc\" VALUE=\"Cancel\"><BR>\n");
 
 	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=30 COLS=80 "
