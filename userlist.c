@@ -71,7 +71,7 @@ void userlist(void)
 		goto DONE;
 	}
 
-	wprintf("<div style=\"margin-right:1px\">"
+	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 	wprintf("<TR><TH>User Name</TH><TH>Number</TH><TH>Access Level</TH>");
 	wprintf("<TH>Last Login</TH><TH>Total Logins</TH><TH>Total Posts</TH></TR>\n");
@@ -135,7 +135,7 @@ void showuser(void)
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<div style=\"margin-right:1px\">"
+	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	serv_printf("OIMG _userpic_|%s", who);

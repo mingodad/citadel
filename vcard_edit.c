@@ -187,7 +187,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to) {
 	);
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/submit_vcard\">\n");
-	wprintf("<div style=\"margin-right:1px\">"
+	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<TABLE border=0><TR>"

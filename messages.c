@@ -375,7 +375,7 @@ void read_message(long msgnum) {
 	}
 
 	/* begin everythingamundo table */
-	wprintf("<div style=\"margin-right:1px\">\n");
+	wprintf("<div id=\"fix_scrollbar_bug\">\n");
 	wprintf("<table width=100%% border=1 cellspacing=0 "
 		"cellpadding=0><TR><TD>\n");
 
@@ -1146,7 +1146,7 @@ void readloop(char *oper)
 	wprintf("<FORM NAME=\"msgomatic\" "
 		"METHOD=\"POST\" ACTION=\"/do_stuff_to_msgs\">\n");
 	if (is_summary) {
-		wprintf("<div style=\"margin-right:1px\">"
+		wprintf("<div id=\"fix_scrollbar_bug\">"
 			"<table border=0 cellspacing=0 "
 			"cellpadding=0 width=100%%>\n"
 			"<TR>"
@@ -1238,7 +1238,7 @@ void readloop(char *oper)
 	if (num_displayed == 1) {
 	   if ((!is_tasks) && (!is_calendar) && (!is_addressbook) && (!is_notes) && (!is_singlecard)) {
 
-		wprintf("<div style=\"margin-right:1px\">"
+		wprintf("<div id=\"fix_scrollbar_bug\">"
 			"<table border=0 width=100%% bgcolor=\"#dddddd\"><tr><td>"
 			"Reading #%d of %d messages.</TD>\n"
 			"<TD ALIGN=RIGHT><FONT SIZE=+1>",
@@ -1717,7 +1717,7 @@ void confirm_move_msg(void)
 
 	output_headers(1, 1, 1, 0, 0, 0, 0);
 
-	wprintf("<div style=\"margin-right:1px\">"
+	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table width=100%% border=0 bgcolor=\"#444455\"><tr><td>");
 	wprintf("<font size=+1 color=\"#ffffff\"");
 	wprintf("<b>Confirm move of message</b>\n");

@@ -1,4 +1,11 @@
 $Log$
+Revision 602.6  2005/02/19 06:01:14  ajc
+* The previous <div style=\"margin-right:1px\"> has been replaced by a
+  named div in the stylesheet.  This allows us to perform a vile, sleazy
+  hack to keep IE6 from exhibiting its horizontal scrollbar bug.  There
+  will unfortunately always be a right margin in IE6, but there
+  doesn't appear to be any easy workaround.
+
 Revision 602.5  2005/02/19 05:22:00  ajc
 * Replaced all the "centered 99% tables" with 100% width tables wrapped
   inside a div with margin-right:1px to remove the horizontal scrollbar
@@ -2393,3 +2400,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+

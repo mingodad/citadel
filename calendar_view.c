@@ -155,7 +155,7 @@ void calendar_month_view(int year, int month, int day) {
 	}
 
 	/* Outer table (to get the background color) */
-	wprintf("<div style=\"margin-right:1px\">"
+	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<TABLE width=100%% border=0 cellpadding=0 cellspacing=0 "
 		"bgcolor=#204B78><TR><TD>\n");
 
@@ -335,7 +335,7 @@ void calendar_day_view(int year, int month, int day) {
 
 
 	/* Outer table (to get the background color) */
-	wprintf("<div style=\"margin-right:1px\">"
+	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<TABLE width=100%% border=0 cellpadding=0 cellspacing=0 "
 		"bgcolor=#204B78><TR><TD>\n");
 
@@ -614,7 +614,7 @@ void do_tasks_view(void) {
 	char buf[SIZ];
 	icalproperty *p;
 
-	wprintf("<div style=\"margin-right:1px\">"
+	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 cellspacing=0 width=100%% bgcolor=\"#FFFFFF\">\n<tr>\n"
 		"<TH>Name of task</TH>\n"
 		"<TH>Date due</TH></TR>\n"

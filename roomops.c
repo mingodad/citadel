@@ -827,7 +827,7 @@ void display_editroom(void)
 
 	/* print the tabbed dialog */
 	wprintf("<br />"
-		"<div style=\"margin-right:1px\">"
+		"<div id=\"fix_scrollbar_bug\">"
 		"<TABLE border=0 cellspacing=0 cellpadding=0 width=100%%>"
 		"<TR ALIGN=CENTER>"
 		"<TD>&nbsp;</TD>\n");
@@ -932,7 +932,7 @@ void display_editroom(void)
 	/* end tabbed dialog */	
 
 	/* begin content of whatever tab is open now */
-	wprintf("<div style=\"margin-right:1px\">"
+	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<TABLE border=0 width=100%% bgcolor=\"#FFFFFF\">\n"
 		"<TR><TD>\n");
 
@@ -1717,7 +1717,7 @@ void display_entroom(void)
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<div style=\"margin-right:1px\">"
+	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	wprintf("<FORM METHOD=\"POST\" ACTION=\"/entroom\">\n");

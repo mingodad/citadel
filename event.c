@@ -92,7 +92,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 		"</div>\n<div id=\"content\">\n"
 	);
 
-	wprintf("<div style=\"margin-right:1px\">"
+	wprintf("<div id=\"fix_scrollbar_bug\">"
 		"<table border=0 width=100%% bgcolor=\"#ffffff\"><tr><td>\n");
 
 	/************************************************************
