@@ -6,28 +6,37 @@ some code and deciding what to work on.
 Goals to achieve during the 6.xx cycle
 --------------------------------------
 
-* Address books: the current implementation has both a 'Contacts' personal
-  folder and a 'Global Address Book' -- both which contain vCards.  Add more
-  places where these addresses can be pulled in and used.
+* Address books
+
+  Status: the current implementation has both a 'Contacts' personal
+  folder and a 'Global Address Book' -- both which contain vCards.  WebCit
+  can use them, and Kolab-compatible clients seem to be able to access them
+  seamlessly as well.
+ 
+  We should integrate the address books more tightly into Citadel dialogs
+  such as recipient auto-completion, etc.
  
 * Better UI presentation for delegated access to mailboxes.  (In IMAP this
   will be easy because of "other users namespace" support.)
 
 * Additional LDAP integration
+ 
+  Status: the current implementation can populate an external LDAP directory
+  with Citadel user data.
 
 * Calendar service
-  Status: full functionality is present in 6.07, including the ability to
-  keep a calendar, send/receive invitations, manage attendees, etc.  You
-  need to use WebCit to access it, though.  We are now waiting for an open
-  source, cross platform, professional quality calendar client to emerge.
-  Once this happens, we will connect it to Citadel.  Or we might want to
-  select a protocol (such as WCAP or CAP) and implement it.
-  (UPDATE: the new 'Kolab' groupware system is using a Citadel-like calendar
-  store, i.e. vCalendar objects accessed through IMAP.  We are now aiming
-  for full Kolab compatibility, as there are at least two more client projects
-  which are doing the same, and hopefully we can evolve the Kolab spec into
-  an open groupware standard.)
-
+ 
+  Status: full functionlity is present in the current implementation, including
+  the ability to keep a personal calendar, send/receive invitations, manage
+  attendees, check free/busy times, etc.  It is fully usable via WebCit
+  and also works with Kolab-compatible clients (vCalendar over IMAP for the
+  calendar store, and vCalendar over HTTPS for checking other users' free/busy
+  times).
+ 
+  Doing CAP or WCAP seems less important now that vCalendar-over-IMAP seems
+  to be the emerging standard for open source groupware.  We will monitor the
+  direction the community takes and follow along.
+  
 * NNTP
   This needs some research, but I think it's technically going to be more
   trouble than it's worth. -IO
@@ -37,5 +46,9 @@ Goals to achieve during the 6.xx cycle
  --------------------
  
  * PLAIN and CRAM-MD5 authentication mechanisms
+   (Status: PLAIN is done; CRAM-MD5 will arrive a little later.)
+
  * WebCit support for HTTP transactions performed by Kolab clients
+   (Status: DONE!  The current WebCit build works with the KDE Kolab klient
+   using HTTPS.)
  
