@@ -204,6 +204,7 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
 		cprintf("%d <%s> is not subscribed to '%s'.\n",
 			ERROR+NO_SUCH_USER,
 			email, qrbuf.QRname);
+		return;
 	}
 	
 	/* 
@@ -251,7 +252,7 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
 		FMT_RFC822
 	);
 
-	cprintf("%d Subscription entered; confirmation request sent\n", CIT_OK);
+	cprintf("%d Unubscription noted; confirmation request sent\n", CIT_OK);
 }
 
 

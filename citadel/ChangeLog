@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.97  2002/08/22 03:55:11  ajc
+ * Fixed bug in above
+
  Revision 591.96  2002/08/22 03:40:00  ajc
  * Add "unsubscribe" command (but not yet "confirm unsubscribe")
 
@@ -3919,3 +3922,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
