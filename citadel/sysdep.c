@@ -726,9 +726,10 @@ struct worker_node *worker_list = NULL;
  */
 void create_worker(void) {
 	int ret;
-	struct worker_node *n = mallok(sizeof *n);
+	struct worker_node *n;
 	pthread_attr_t attr;
 
+	n = mallok(sizeof(struct worker_node));
 	if (n == NULL) {
 		lprintf(1, "can't allocate worker_node, exiting\n");
 		time_to_die = -1;
@@ -741,8 +742,7 @@ void create_worker(void) {
 		return;
 	}
 
-	/* we seem to need something bigger than
-	   FreeBSD's default of 64K of stack. */
+	/* we seem to need something bigger than FreeBSD's default 64k stack */
 
 	if ((ret = pthread_attr_setstacksize(&attr, 128 * 1024))) {
 		lprintf(1, "pthread_attr_setstacksize: %s\n", strerror(ret));

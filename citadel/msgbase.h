@@ -1,6 +1,6 @@
 /* $Id$ */
 
-#define aide_message(text)      quickie_message("Citadel",NULL,AIDEROOM,text,0);
+#define aide_message(text)      quickie_message("Citadel",NULL,AIDEROOM,text,0,NULL)
 
 #define MSGS_ALL        0
 #define MSGS_OLD        1
@@ -83,7 +83,7 @@ void cmd_opna (char *cmdbuf);
 long send_message (struct CtdlMessage *, FILE *);
 void loadtroom (void);
 long CtdlSubmitMsg(struct CtdlMessage *, struct recptypes *, char *);
-void quickie_message (char *, char *, char *, char *, int);
+void quickie_message (char *, char *, char *, char *, int, char *);
 void cmd_ent0 (char *entargs);
 void cmd_dele (char *delstr);
 void cmd_move (char *args);

@@ -1066,7 +1066,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	else {
 		TheMessage = CtdlFetchMessage(msg_num);
 		if (CC->cached_msg != NULL) {
-			phree(CC->cached_msg);
+			phree(CC->cached_msg); /* FIXME efence? */
 		}
 		CC->cached_msg = TheMessage;
 		CC->cached_msgnum = msg_num;
@@ -2142,7 +2142,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
  * Convenience function for generating small administrative messages.
  */
 void quickie_message(char *from, char *to, char *room, char *text, 
-			int format_type)
+			int format_type, char *subject)
 {
 	struct CtdlMessage *msg;
 	struct recptypes *recp = NULL;
@@ -2158,6 +2158,9 @@ void quickie_message(char *from, char *to, char *room, char *text,
 	if (to != NULL) {
 		msg->cm_fields['R'] = strdoop(to);
 		recp = validate_recipients(to);
+	}
+	if (subject != NULL) {
+		msg->cm_fields['U'] = strdoop(subject);
 	}
 	msg->cm_fields['M'] = strdoop(text);
 

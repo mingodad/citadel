@@ -162,14 +162,18 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 		"<HTML><BODY>"
 		"Someone (probably you) has submitted a request to subscribe\n"
 		"&lt;%s&gt; to the <B>%s</B> mailing list.<BR><BR>\n"
+		"Please click here to confirm this request:<BR>\n"
 		"<A HREF=\"http://%s?room=%s&token=%s&cmd=confirm\">"
-		"Please click here to confirm this request.</A><BR><BR>\n"
+		"http://%s?room=%s&token=%s&cmd=confirm</A><BR><BR>\n"
 		"If this request has been submitted in error and you do not\n"
 		"wish to receive the '%s' mailing list, simply do nothing,\n"
 		"and you will not receive any further mailings.\n"
 		"</BODY></HTML>\n",
 
-		email, qrbuf.QRname, webpage, urlroom, token, qrbuf.QRname
+		email, qrbuf.QRname,
+		webpage, urlroom, token,
+		webpage, urlroom, token,
+		qrbuf.QRname
 	);
 
 	quickie_message(	/* This delivers the message */
@@ -177,7 +181,8 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 		email,
 		NULL,
 		confirmation_request,
-		FMT_RFC822
+		FMT_RFC822,
+		"Please confirm your list subscription"
 	);
 
 	cprintf("%d Subscription entered; confirmation request sent\n", CIT_OK);
@@ -270,15 +275,19 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
 		"Someone (probably you) has submitted a request "
 		"to unsubscribe\n"
 		"&lt;%s&gt; from the <B>%s</B> mailing list.<BR><BR>\n"
+		"Please click here to confirm this request:<BR>\n"
 		"<A HREF=\"http://%s?room=%s&token=%s&cmd=confirm\">"
-		"Please click here to confirm this request.</A><BR><BR>\n"
+		"http://%s?room=%s&token=%s&cmd=confirm</A><BR><BR>\n"
 		"If this request has been submitted in error and you do\n"
 		"<i>not</i> wish to unsubscribe from the "
 		"'%s' mailing list, simply do nothing,\n"
 		"and you will remain subscribed to the list.\n"
 		"</BODY></HTML>\n",
 
-		email, qrbuf.QRname, webpage, urlroom, token, qrbuf.QRname
+		email, qrbuf.QRname,
+		webpage, urlroom, token,
+		webpage, urlroom, token,
+		qrbuf.QRname
 	);
 
 	quickie_message(	/* This delivers the message */
@@ -286,7 +295,8 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
 		email,
 		NULL,
 		confirmation_request,
-		FMT_RFC822
+		FMT_RFC822,
+		"Please confirm your unsubscribe request"
 	);
 
 	cprintf("%d Unubscription noted; confirmation request sent\n", CIT_OK);
@@ -314,8 +324,13 @@ void do_confirm(char *room, char *token) {
 	char *holdbuf = NULL;
 	int linelen = 0;
 	int buflen = 0;
+	char success_message[SIZ];
+	char success_message_to[SIZ];
+	char address_of_list[SIZ];
+	int i;
 
 	strcpy(address_to_unsubscribe, "");
+	strcpy(success_message_to, "");
 
 	if (getroom(&qrbuf, room) != 0) {
 		cprintf("%d There is no list called '%s'\n",
@@ -330,6 +345,30 @@ void do_confirm(char *room, char *token) {
 		return;
 	}
 
+	/*
+	 * We'll just have this success message ready if we need it
+	 */
+	sprintf(address_of_list, "room_%s@%s", qrbuf.QRname, config.c_fqdn);
+	for (i=0; i<strlen(address_of_list); ++i) {
+		if (isspace(address_of_list[i])) {
+			address_of_list[i] = '_';
+		}
+	}
+	snprintf(success_message, sizeof success_message,
+		"Content-type: text/html\n\n"
+		"<HTML><BODY>"
+		"You have successfully subscribed to the <B>%s</B>\n"
+		"mailing list.<BR><BR>To post to the list, simply send "
+		"an e-mail to <TT>%s</TT>"
+		"</BODY></HTML>\n",
+		qrbuf.QRname,
+		address_of_list
+	);
+
+	/*
+	 * Now start scanning this room's netconfig file for the
+	 * specified token.
+	 */
 	assoc_file_name(filename, sizeof filename, &qrbuf, "netconfigs");
 	begin_critical_section(S_NETCONFIGS);
 	ncfp = fopen(filename, "r+");
@@ -362,6 +401,7 @@ void do_confirm(char *room, char *token) {
 					fseek(ncfp, line_offset, SEEK_SET);
 					fprintf(ncfp, "%s\n", buf);
 					++success;
+					strcpy(success_message_to, email);
 				}
 			}
 			if (!strcasecmp(cmd, "unsubpending")) {
@@ -429,6 +469,18 @@ void do_confirm(char *room, char *token) {
 		}
 		end_critical_section(S_NETCONFIGS);
 		phree(holdbuf);
+	}
+
+	/* Let 'em know it succeeded, and how to post to the list. */
+	if (strlen(success_message_to) > 0) {
+		quickie_message(
+			"Citadel",
+			success_message_to,
+			NULL,
+			success_message,
+			FMT_RFC822,
+			"Your subscription is complete"
+		);
 	}
 
 	/*
