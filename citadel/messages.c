@@ -281,7 +281,7 @@ void citedit(FILE *fp, long int base_pos)
 				for (b=0; b<strlen(wordbuf); ++b)
 				   if (wordbuf[b]==32) {
 					wordbuf[b]=0;
-					ADD_WORD(textlist,wordbuf);
+					add_word(textlist,wordbuf);
 					strcpy(wordbuf,&wordbuf[b+1]);
 					b=0;
 					}
