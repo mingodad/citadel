@@ -992,12 +992,19 @@ NEW_INST:
 	write_config_to_disk();
 
 	mkdir("info", 0700);
+	chmod("info", 0700);
 	mkdir("bio", 0700);
+	chmod("bio", 0700);
 	mkdir("userpics", 0700);
+	chmod("userpics", 0700);
 	mkdir("messages", 0700);
+	chmod("messages", 0700);
 	mkdir("help", 0700);
+	chmod("help", 0700);
 	mkdir("images", 0700);
+	chmod("images", 0700);
 	mkdir("netconfigs", 0700);
+	chmod("netconfigs", 0700);
 
 	/* Delete files and directories used by older Citadel versions */
 	system("exec /bin/rm -fr ./rooms ./chatpipes ./expressmsgs ./sessions 2>/dev/null");

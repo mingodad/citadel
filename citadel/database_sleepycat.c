@@ -294,6 +294,7 @@ void open_databases(void)
          * already there, no problem.
          */
 	mkdir(dbdirname, 0700);
+	chmod(dbdirname, 0700);
 
 	lprintf(CTDL_DEBUG, "cdb_*: Setting up DB environment\n");
 	db_env_set_func_yield(sched_yield);

@@ -1,4 +1,8 @@
  $Log$
+ Revision 614.78  2004/03/15 16:39:27  error
+ * Multiple files: Set permissions on existing Citadel directories to prevent
+   access to the database by local unix users to prevent direct database reads.
+
  Revision 614.77  2004/03/15 16:36:50  error
  * Multiple files:  Convert most remaining client code to use new Citadel IPC
    functions.  A few bits remain and will be converted when the chat system
@@ -5510,3 +5514,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
