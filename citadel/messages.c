@@ -921,7 +921,8 @@ void list_urls() {
 		printf("%3d %s\n", i+1, urls[i]);
 	}
 
-	i = intprompt("Display which one", 1, 1, num_urls);
+	if((i = num_urls) != 1)
+		i = intprompt("Display which one", 1, 1, num_urls);
 
 	sprintf(cmd, rc_url_cmd, urls[i-1]);
 	system(cmd);
@@ -1053,7 +1054,10 @@ RMSGREAD:	fflush(stdout);
 			printf(") ");
 
 			if (is_mail==1) keyopt("<R>eply ");
-			keyopt("<B>ack <A>gain <Q>uote <N>ext <S>top <?>Help/others -> ");
+			keyopt("<B>ack <A>gain <Q>uote <N>ext <S>top ");
+			if (rc_url_cmd[0] && num_urls) keyopt("<U>RL View ");
+			keyopt("<?>Help/others -> ");
+			
 			do {
 				lines_printed = 2;
 				e=(inkey()&127); e=tolower(e);

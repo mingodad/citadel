@@ -1,4 +1,8 @@
 $Log$
+Revision 1.361  1999/09/03 17:50:26  playcow
+For URL view, don't prompt user to select url if there is only one.  Display
+<U>RL View prompt if message contains url(s). -Ben
+
 Revision 1.360  1999/09/02 02:09:59  ajc
 * msgbase.c: new function serialize_message() for future use
 
@@ -1226,4 +1230,5 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
 
