@@ -1,4 +1,7 @@
  $Log$
+ Revision 572.0  2000/05/23 02:09:30  ajc
+ * Updated docs and tagged everything for the 5.72 release
+
  Revision 571.7  2000/05/20 23:28:20  ajc
  * Fixed bug in client API that was causing netproc to crash
 
@@ -1878,4 +1881,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
-
