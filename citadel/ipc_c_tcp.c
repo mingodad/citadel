@@ -36,6 +36,20 @@
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
+#ifdef CIT_CLIENT
+#include "screen.h"
+#else
+int err_printf(char *fmt, ...);
+int err_printf(char *fmt, ...)
+{
+	va_list ap;
+	int retval;
+	va_start(ap, fmt);
+	retval = fprintf(stderr, fmt, ap);
+	va_end(ap);
+	return retval;
+}
+#endif
 
 /*
  * If server_is_local is set to nonzero, the client assumes that it is running
@@ -62,8 +76,7 @@ extern int ssl_is_connected;
 
 
 void connection_died(void) {
-	fprintf(stderr, "\r"
-			"Your connection to this Citadel server is broken.\n"
+	err_printf("\rYour connection to this Citadel server is broken.\n"
 			"Please re-connect and log in again.\n");
 	logoff(3);
 }
@@ -71,7 +84,7 @@ void connection_died(void) {
 
 void timeout(int signum)
 {
-	printf("\rConnection timed out.\n");
+	err_printf("\rConnection timed out.\n");
 	logoff(3);
 }
 
@@ -101,12 +114,12 @@ static int connectsock(char *host, char *service, char *protocol, int defaultPor
 	if (phe) {
 		memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
 	} else if ((sin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE) {
-		fprintf(stderr, "Can't get %s host entry: %s\n",
+		err_printf("Can't get %s host entry: %s\n",
 			host, strerror(errno));
 		logoff(3);
 	}
 	if ((ppe = getprotobyname(protocol)) == 0) {
-		fprintf(stderr, "Can't get %s protocol entry: %s\n",
+		err_printf("Can't get %s protocol entry: %s\n",
 			protocol, strerror(errno));
 		logoff(3);
 	}
@@ -118,14 +131,14 @@ static int connectsock(char *host, char *service, char *protocol, int defaultPor
 
 	s = socket(PF_INET, type, ppe->p_proto);
 	if (s < 0) {
-		fprintf(stderr, "Can't create socket: %s\n", strerror(errno));
+		err_printf("Can't create socket: %s\n", strerror(errno));
 		logoff(3);
 	}
 	signal(SIGALRM, timeout);
 	alarm(30);
 
 	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-		fprintf(stderr, "can't connect to %s.%s: %s\n",
+		err_printf("can't connect to %s.%s: %s\n",
 			host, service, strerror(errno));
 		logoff(3);
 	}
@@ -146,14 +159,12 @@ int uds_connectsock(char *sockpath)
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
-		fprintf(stderr, "Can't create socket: %s\n",
-			strerror(errno));
+		err_printf("Can't create socket: %s\n", strerror(errno));
 		logoff(3);
 	}
 
 	if (connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-		fprintf(stderr, "can't connect: %s\n",
-			strerror(errno));
+		err_printf("can't connect: %s\n", strerror(errno));
 		logoff(3);
 	}
 
@@ -246,7 +257,7 @@ void serv_gets(char *buf)
  */
 void serv_puts(char *buf)
 {
-	/* printf("< %s\n", buf); */
+	/* err_printf("< %s\n", buf); */
 	serv_write(buf, strlen(buf));
 	serv_write("\n", 1);
 }
@@ -274,8 +285,8 @@ void attach_to_server(int argc, char **argv, char *hostbuf, char *portbuf)
 			strcpy(citport, argv[a]);
 		}
    		else {
-			fprintf(stderr,"%s: usage: ",argv[0]);
-			fprintf(stderr,"%s [host] [port] ",argv[0]);
+			err_printf("%s: usage: ",argv[0]);
+			err_printf("%s [host] [port] ",argv[0]);
 			logoff(2);
    		}
 	}

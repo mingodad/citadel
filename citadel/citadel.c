@@ -51,6 +51,7 @@
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
+#include "screen.h"
 
 #include "md5.h"
 
@@ -128,6 +129,8 @@ void logoff(int code)
  * now clean up various things
  */
 
+	screen_delete();
+
 	unlink(temp);
 	unlink(temp2);
 	nukedir(tempdir);
@@ -177,7 +180,7 @@ void formout(char *name)
 	serv_puts(cmd);
 	serv_gets(cmd);
 	if (cmd[0] != '1') {
-		printf("%s\n", &cmd[4]);
+		scr_printf("%s\n", &cmd[4]);
 		return;
 	}
 	fmout(screenwidth, NULL,
@@ -343,7 +346,7 @@ void dotgoto(char *towhere, int display_name)
 			express_msgs = 1;
 	}
 	if (!strncmp(aaa, "54", 2)) {
-		printf("Wrong password.\n");
+		scr_printf("Wrong password.\n");
 		return;
 	}
 	/*
@@ -373,7 +376,7 @@ void dotgoto(char *towhere, int display_name)
 				}
 			}
 		if (strlen(bbb) == 0) {
-			printf("No room '%s'.\n", towhere);
+			scr_printf("No room '%s'.\n", towhere);
 			return;
 		}
 		snprintf(aaa, sizeof aaa, "GOTO %s", bbb);
@@ -383,7 +386,7 @@ void dotgoto(char *towhere, int display_name)
 			express_msgs = 1;
 	}
 	if (aaa[0] != '2') {
-		printf("%s\n", aaa);
+		scr_printf("%s\n", aaa);
 		return;
 	}
 	extract(room_name, &aaa[4], 0);
@@ -397,23 +400,23 @@ void dotgoto(char *towhere, int display_name)
 	if ((from_floor != curr_floor) && (display_name > 0) && (floor_mode == 1)) {
 		if (floorlist[(int) curr_floor][0] == 0)
 			load_floorlist();
-		printf("(Entering floor: %s)\n", &floorlist[(int) curr_floor][0]);
+		scr_printf("(Entering floor: %s)\n", &floorlist[(int) curr_floor][0]);
 	}
 	if (display_name == 1) {
 		color(BRIGHT_WHITE);
-		printf("%s ", room_name);
+		scr_printf("%s ", room_name);
 		color(DIM_WHITE);
-		printf("- ");
+		scr_printf("- ");
 	}
 	if (display_name != 2) {
 		color(BRIGHT_YELLOW);
-		printf("%d ", extract_int(&aaa[4], 1));
+		scr_printf("%d ", extract_int(&aaa[4], 1));
 		color(DIM_WHITE);
-		printf("new of ");
+		scr_printf("new of ");
 		color(BRIGHT_YELLOW);
-		printf("%d ", extract_int(&aaa[4], 2));
+		scr_printf("%d ", extract_int(&aaa[4], 2));
 		color(DIM_WHITE);
-		printf("messages.\n");
+		scr_printf("messages.\n");
 	}
 	highest_msg_read = extract_int(&aaa[4], 6);
 	maxmsgnum = extract_int(&aaa[4], 5);
@@ -430,7 +433,7 @@ void dotgoto(char *towhere, int display_name)
 		newmailcount = extract_int(&aaa[4], 9);
 		if ((oldmailcount >= 0) && (newmailcount > oldmailcount)) {
 			color(BRIGHT_RED);
-			printf("*** You have new mail\n");
+			scr_printf("*** You have new mail\n");
 			color(DIM_WHITE);
 		}
 		oldmailcount = newmailcount;
@@ -507,13 +510,13 @@ void forget_all_rooms_on(int ffloor)
 	char buf[SIZ];
 	struct march *flist, *fptr;
 
-	printf("Forgetting all rooms on %s...\r", &floorlist[ffloor][0]);
-	fflush(stdout);
+	scr_printf("Forgetting all rooms on %s...\r", &floorlist[ffloor][0]);
+	scr_flush();
 	snprintf(buf, sizeof buf, "LKRA %d", ffloor);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '1') {
-		printf("%-72s\n", &buf[4]);
+		scr_printf("%-72s\n", &buf[4]);
 		return;
 	}
 	flist = NULL;
@@ -535,7 +538,7 @@ void forget_all_rooms_on(int ffloor)
 		flist = flist->next;
 		free(fptr);
 	}
-	printf("%-72s\r", "");
+	scr_printf("%-72s\r", "");
 }
 
 
@@ -593,7 +596,7 @@ void gotofloor(char *towhere, int mode)
 				tofloor = a;
 	}
 	if (tofloor < 0) {
-		printf("No floor '%s'.\n", towhere);
+		scr_printf("No floor '%s'.\n", towhere);
 		return;
 	}
 	for (mptr = march; mptr != NULL; mptr = mptr->next) {
@@ -614,7 +617,7 @@ void gotofloor(char *towhere, int mode)
 	if (strlen(targ) > 0) {
 		gf_toroom(targ, mode);
 	} else {
-		printf("There are no rooms on '%s'.\n", &floorlist[tofloor][0]);
+		scr_printf("There are no rooms on '%s'.\n", &floorlist[tofloor][0]);
 	}
 }
 
@@ -626,12 +629,12 @@ void forget_this_floor(void)
 {
 
 	if (curr_floor == 0) {
-		printf("Can't forget this floor.\n");
+		scr_printf("Can't forget this floor.\n");
 		return;
 	}
 	if (floorlist[0][0] == 0)
 		load_floorlist();
-	printf("Are you sure you want to forget all rooms on %s? ",
+	scr_printf("Are you sure you want to forget all rooms on %s? ",
 	       &floorlist[(int) curr_floor][0]);
 	if (yesno() == 0)
 		return;
@@ -642,6 +645,7 @@ void forget_this_floor(void)
 
 /* 
  * Figure out the physical screen dimensions, if we can
+ * WARNING:  this is now called from a signal handler!
  */
 void check_screen_dims(void)
 {
@@ -652,6 +656,9 @@ void check_screen_dims(void)
 		unsigned short xpixels;
 		unsigned short ypixels;		/* pixels */
 	} xwinsz;
+
+	if (scr_set_windowsize())
+		return;
 
 	if (have_xterm) {	/* dynamically size screen if on an xterm */
 		if (ioctl(0, TIOCGWINSZ, &xwinsz) == 0) {
@@ -710,11 +717,11 @@ int set_password(void)
 		snprintf(buf, sizeof buf, "SETP %s", pass1);
 		serv_puts(buf);
 		serv_gets(buf);
-		printf("%s\n", &buf[4]);
+		scr_printf("%s\n", &buf[4]);
 		offer_to_remember_password(hostbuf, portbuf, fullname, pass1);
 		return (0);
 	} else {
-		printf("*** They don't match... try again.\n");
+		scr_printf("*** They don't match... try again.\n");
 		return (1);
 	}
 }
@@ -887,10 +894,10 @@ int main(int argc, char **argv)
 	
 	/* Permissions sanity check - don't run citadel setuid/setgid */
 	if (getuid() != geteuid()) {
-		fprintf(stderr, "Please do not run citadel setuid!\n");
+		err_printf("Please do not run citadel setuid!\n");
 		logoff(3);
 	} else if (getgid() != getegid()) {
-		fprintf(stderr, "Please do not run citadel setgid!\n");
+		err_printf("Please do not run citadel setgid!\n");
 		logoff(3);
 	}
 
@@ -902,6 +909,7 @@ int main(int argc, char **argv)
 	signal(SIGCONT, catch_sigcont);		/* Catch SIGCONT so we can reset terminal */
 
 	arg_encrypt = RC_DEFAULT;
+	arg_screen = RC_DEFAULT;
 
 	/* 
 	 * Handle command line options as if we were called like /bin/login
@@ -918,6 +926,14 @@ int main(int argc, char **argv)
 		}
 		if (!strcmp(argv[a], "-X")) {
 			arg_encrypt = RC_YES;
+			argc = shift(argc, argv, a, 1);
+		}
+		if (!strcmp(argv[a], "-s")) {
+			arg_screen = RC_NO;
+			argc = shift(argc, argv, a, 1);
+		}
+		if (!strcmp(argv[a], "-S")) {
+			arg_screen = RC_YES;
 			argc = shift(argc, argv, a, 1);
 		}
 		if (!strcmp(argv[a], "-p")) {
@@ -947,7 +963,7 @@ int main(int argc, char **argv)
 					logoff(3);
 				}
 				/*
-				printf("Privileges changed to uid %d gid %d\n",
+				scr_printf("Privileges changed to uid %d gid %d\n",
 						getuid(), getgid());
 				*/
 			}
@@ -955,15 +971,15 @@ int main(int argc, char **argv)
 		}
 	}
 
-	printf("Attaching to server... \r");
-	fflush(stdout);
-	attach_to_server(argc, argv, hostbuf, portbuf);
+	screen_new();
 
-	send_ansi_detect();
+	sln_printf("Attaching to server... \r");
+	sln_flush();
+	attach_to_server(argc, argv, hostbuf, portbuf);
 
 	serv_gets(aaa);
 	if (aaa[0] != '2') {
-		printf("%s\n", &aaa[4]);
+		scr_printf("%s\n", &aaa[4]);
 		logoff(atoi(aaa));
 	}
 
@@ -991,24 +1007,20 @@ int main(int argc, char **argv)
 
 	get_serv_info(telnet_client_host);
 
-	look_for_ansi();
-	cls(0);
-	color(7);
-
 	if (!starttls()) {
-		printf("Session will not be encrypted.\n");
+		sln_printf("Session will not be encrypted.\n");
 	}
 
-	printf("%-24s\n%s\n%s\n", serv_info.serv_software, serv_info.serv_humannode,
+	scr_printf("%-24s\n%s\n%s\n", serv_info.serv_software, serv_info.serv_humannode,
 		serv_info.serv_bbs_city);
 
 	screenwidth = 80;	/* default screen dimensions */
 	screenheight = 24;
 	
-	printf(" pause    next    stop\n");
-	printf(" ctrl-s  ctrl-o  ctrl-c\n\n");
+	scr_printf(" pause    next    stop\n");
+	scr_printf(" ctrl-s  ctrl-o  ctrl-c\n\n");
 	formout("hello");	/* print the opening greeting */
-	printf("\n");
+	scr_printf("\n");
 
 GSTA:	/* See if we have a username and password on disk */
 	if (rc_remember_passwords) {
@@ -1049,7 +1061,7 @@ GSTA:	/* See if we have a username and password on disk */
 		}
 		strproc(fullname);
 		if (!strcasecmp(fullname, "new")) {	/* just in case */
-			printf("Please enter the name you wish to log in with.\n");
+			scr_printf("Please enter the name you wish to log in with.\n");
 		}
 	} while (
 			(!strcasecmp(fullname, "bbs"))
@@ -1092,13 +1104,13 @@ GSTA:	/* See if we have a username and password on disk */
 					fullname, password);
 		goto PWOK;
 	}
-	printf("<< wrong password >>\n");
+	scr_printf("<< wrong password >>\n");
 	if (strlen(rc_password) > 0)
 		logoff(0);
 	goto GSTA;
 
 NEWUSR:	if (strlen(rc_password) == 0) {
-		printf("No record. Enter as new user? ");
+		scr_printf("No record. Enter as new user? ");
 		if (yesno() == 0)
 			goto GSTA;
 	}
@@ -1106,7 +1118,7 @@ NEWUSR:	if (strlen(rc_password) == 0) {
 	serv_puts(aaa);
 	serv_gets(aaa);
 	if (aaa[0] != '2') {
-		printf("%s\n", aaa);
+		scr_printf("%s\n", aaa);
 		goto GSTA;
 	}
 	load_user_info(&aaa[4]);
@@ -1125,15 +1137,15 @@ PWOK:
 			enable_color = 0;
 	}
 
-	printf("%s\nAccess level: %d (%s)\n"
+	scr_printf("%s\nAccess level: %d (%s)\n"
 		"User #%ld / Login #%d",
 		fullname, axlevel, axdefs[(int) axlevel],
 		usernum, timescalled);
 	if (lastcall > 0L) {
-		printf(" / Last login: %s\n",
+		scr_printf(" / Last login: %s\n",
 			asctime(localtime(&lastcall)) );
 	}
-	printf("\n");
+	scr_printf("\n");
 
 	serv_puts("CHEK");
 	serv_gets(aaa);
@@ -1142,16 +1154,16 @@ PWOK:
 		if (b > 0) {
 			color(BRIGHT_RED);
 			if (b == 1)
-				printf("*** You have a new private message in Mail>\n");
+				scr_printf("*** You have a new private message in Mail>\n");
 			if (b > 1)
-				printf("*** You have %d new private messages in Mail>\n", b);
+				scr_printf("*** You have %d new private messages in Mail>\n", b);
 			color(DIM_WHITE);
 		}
 		if ((axlevel >= 6) && (extract_int(&aaa[4], 2) > 0)) {
-			printf("*** Users need validation\n");
+			scr_printf("*** Users need validation\n");
 		}
 		if (extract_int(&aaa[4], 1) > 0) {
-			printf("*** Please register.\n");
+			scr_printf("*** Please register.\n");
 			formout("register");
 			entregis();
 		}
@@ -1229,7 +1241,7 @@ PWOK:
 				serv_puts(bbb);
 				serv_gets(aaa);
 				if (strncmp("200", aaa, 3))
-					printf("\n%s\n", aaa);
+					scr_printf("\n%s\n", aaa);
 				else
 					entmsg(0, 0);
 				break;
@@ -1382,7 +1394,7 @@ PWOK:
 				serv_puts(bbb);
 				serv_gets(aaa);
 				if (strncmp("200", aaa, 3))
-					printf("\n%s\n", aaa);
+					scr_printf("\n%s\n", aaa);
 				break;
 			case 76:
 				enternew("hostname", aaa, 25);
@@ -1390,7 +1402,7 @@ PWOK:
 				serv_puts(bbb);
 				serv_gets(aaa);
 				if (strncmp("200", aaa, 3))
-					printf("\n%s\n", aaa);
+					scr_printf("\n%s\n", aaa);
 				break;
 			case 77:
 				enternew("username", aaa, 32);
@@ -1398,7 +1410,7 @@ PWOK:
 				serv_puts(bbb);
 				serv_gets(aaa);
 				if (strncmp("200", aaa, 3))
-					printf("\n%s\n", aaa);
+					scr_printf("\n%s\n", aaa);
 				break;
 
 			case 35:
@@ -1417,7 +1429,7 @@ PWOK:
 				break;
 
 			case 15:
-				printf("Are you sure (y/n)? ");
+				scr_printf("Are you sure (y/n)? ");
 				if (yesno() == 1) {
 					updatels();
 					a = 0;
@@ -1426,12 +1438,12 @@ PWOK:
 				break;
 
 			case 85:
-				printf("All users will be disconnected!  "
+				scr_printf("All users will be disconnected!  "
 					"Really terminate the server? ");
 				if (yesno() == 1) {
 					serv_puts("DOWN");
 					serv_gets(aaa);
-					printf("%s\n", &aaa[4]);
+					scr_printf("%s\n", &aaa[4]);
 					if (aaa[0]=='2') {
 						updatels();
 						a = 0;
@@ -1441,19 +1453,19 @@ PWOK:
 				break;
 
 			case 86:
-				printf("Do you really want to schedule a "
+				scr_printf("Do you really want to schedule a "
 					"server shutdown? ");
 				if (yesno() == 1) {
 					serv_puts("SCDN 1");
 					serv_gets(aaa);
 					if (aaa[0]=='2') {
 						if (atoi(&aaa[4])) {
-							printf(
+							scr_printf(
 "The Citadel server will terminate when all users are logged off.\n"
 								);
 						}
 						else {
-							printf(
+							scr_printf(
 "The Citadel server will not terminate.\n"
 								);
 						}
@@ -1487,14 +1499,16 @@ PWOK:
 
 			case 2:
 				if (server_is_local) {
+					screen_reset();
 					sttybbs(SB_RESTORE);
 					snprintf(aaa, sizeof aaa, "USERNAME=\042%s\042; export USERNAME;"
 						 "exec ./subsystem %ld %d %d", fullname,
 					  usernum, screenwidth, axlevel);
 					ka_system(aaa);
 					sttybbs(SB_NO_INTR);
+					screen_set();
 				} else {
-					printf("*** Can't run doors when server is not local.\n");
+					scr_printf("*** Can't run doors when server is not local.\n");
 				}
 				break;
 
@@ -1574,12 +1588,12 @@ PWOK:
 
 			case 8:
 				knrooms(floor_mode);
-				printf("\n");
+				scr_printf("\n");
 				break;
 
 			case 68:
 				knrooms(2);
-				printf("\n");
+				scr_printf("\n");
 				break;
 
 			case 69:
@@ -1592,7 +1606,7 @@ PWOK:
 
 			case 19:
 				listzrooms();
-				printf("\n");
+				scr_printf("\n");
 				break;
 
 			case 51:
@@ -1614,16 +1628,18 @@ PWOK:
 			}	/* end switch */
 	} while (termn8 == 0);
 
-TERMN8:	printf("%s logged out.\n", fullname);
+TERMN8:	scr_printf("%s logged out.\n", fullname);
 	while (march != NULL) {
 		remove_march(march->march_name, 0);
 	}
 	if (mcmd == 30) {
-		printf("\n\nType 'off' to disconnect, or next user...\n");
+		sln_printf("\n\nType 'off' to disconnect, or next user...\n");
 	}
 	snprintf(aaa, sizeof aaa, "LOUT");
 	serv_puts(aaa);
 	serv_gets(aaa);
+	screen_delete();
+	sttybbs(SB_RESTORE);
 	if ((mcmd == 29) || (mcmd == 15)) {
 		formout("goodbye");
 		logoff(0);

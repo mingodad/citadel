@@ -44,6 +44,7 @@
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
+#include "screen.h"
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
@@ -74,17 +75,17 @@ void chatmode(void)
 	serv_puts("CHAT");
 	serv_gets(buf);
 	if (buf[0] != '8') {
-		printf("%s\n", &buf[4]);
+		scr_printf("%s\n", &buf[4]);
 		return;
 	}
-	printf("Entering chat mode (type /quit to exit, /help for other cmds)\n");
+	scr_printf("Entering chat mode (type /quit to exit, /help for other cmds)\n");
 	set_keepalives(KA_NO);
 	last_transmit = time(NULL);
 
 	strcpy(buf, "");
 	strcpy(wbuf, "");
 	color(BRIGHT_YELLOW);
-	printf("> ");
+	scr_printf("> ");
 	send_complete_line = 0;
 	recv_complete_line = 0;
 
@@ -115,7 +116,7 @@ void chatmode(void)
 			} else if ((ch == 8) || (ch == 127)) {
 				if (strlen(wbuf) > 0) {
 					wbuf[strlen(wbuf) - 1] = 0;
-					printf("%c %c", 8, 8);
+					scr_printf("%c %c", 8, 8);
 				}
 			} else {
 				putc(ch, stdout);
@@ -150,12 +151,12 @@ void chatmode(void)
 			}
 		}
 		if (recv_complete_line) {
-			printf("\r%79s\r", "");
+			scr_printf("\r%79s\r", "");
 			if (!strcmp(buf, "000")) {
 				color(BRIGHT_WHITE);
-				printf("Exiting chat mode\n");
+				scr_printf("Exiting chat mode\n");
 
-				fflush(stdout);
+				scr_flush();
 				set_keepalives(KA_YES);
 
 
@@ -177,7 +178,7 @@ void chatmode(void)
 				extract(c_text, buf, 1);
 				if (num_parms(buf) > 2) {
 					extract(c_room, buf, 2);
-					printf("Got room %s\n", c_room);
+					scr_printf("Got room %s\n", c_room);
 				}
 				if (strcasecmp(c_text, "NOOP")) {
 					if (!strcmp(c_user, fullname)) {
@@ -200,15 +201,15 @@ void chatmode(void)
 					while (strlen(buf) < 79)
 						strcat(buf, " ");
 					if (strcmp(c_user, last_user)) {
-						printf("\r%79s\n", "");
+						scr_printf("\r%79s\n", "");
 						strcpy(last_user, c_user);
 					}
-					printf("\r%s\n", buf);
+					scr_printf("\r%s\n", buf);
 					fflush(stdout);
 				}
 			}
 			color(BRIGHT_YELLOW);
-			printf("> %s", wbuf);
+			scr_printf("> %s", wbuf);
 			recv_complete_line = 0;
 			strcpy(buf, "");
 		}
@@ -244,7 +245,7 @@ void page_user()
 		if (!strncmp(buf, "200", 3)) {
 			strcpy(last_paged, touser);
 		}
-		printf("%s\n", &buf[4]);
+		scr_printf("%s\n", &buf[4]);
 		return;
 	}
 	/* new server -- use extended paging */
@@ -253,11 +254,11 @@ void page_user()
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] != '2') {
-			printf("%s\n", &buf[4]);
+			scr_printf("%s\n", &buf[4]);
 			return;
 		}
 		if (client_make_message(temp, touser, 0, 0, 0) != 0) {
-			printf("No message sent.\n");
+			scr_printf("No message sent.\n");
 			return;
 		}
 		pagefp = fopen(temp, "r");
@@ -273,9 +274,9 @@ void page_user()
 			}
 			fclose(pagefp);
 			serv_puts("000");
-			printf("Message sent.\n");
+			scr_printf("Message sent.\n");
 		} else {
-			printf("%s\n", &buf[4]);
+			scr_printf("%s\n", &buf[4]);
 		}
 	}
 }
@@ -291,7 +292,7 @@ void quiet_mode(void)
 	serv_puts("DEXP 2");
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		printf("%s\n", &buf[4]);
+		scr_printf("%s\n", &buf[4]);
 		return;
 	}
 	qstate = atoi(&buf[4]);
@@ -303,13 +304,13 @@ void quiet_mode(void)
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		printf("%s\n", &buf[4]);
+		scr_printf("%s\n", &buf[4]);
 		return;
 	}
 	qstate = atoi(&buf[4]);
 	if (qstate) {
-		printf("Quiet mode enabled (no other users may page you)\n");
+		scr_printf("Quiet mode enabled (no other users may page you)\n");
 	} else {
-		printf("Quiet mode disabled (other users may page you)\n");
+		scr_printf("Quiet mode disabled (other users may page you)\n");
 	}
 }

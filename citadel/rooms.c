@@ -27,6 +27,7 @@
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
+#include "screen.h"
 
 #define IFNEXPERT if ((userflags&US_EXPERT)==0)
 
@@ -355,10 +356,10 @@ int select_floor(int rfloor)
 					newfloor = a;
 			}
 			if (newfloor < 0) {
-				printf("\n One of:\n");
+				scr_printf("\n One of:\n");
 				for (a = 0; a < 128; ++a) {
 					if (floorlist[a][0] != 0) {
-						printf("%s\n",
+						scr_printf("%s\n",
 						       &floorlist[a][0]);
 					}
 				}
@@ -393,7 +394,7 @@ void editthisroom(void)
 	serv_puts("GETR");
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		printf("%s\n", &buf[4]);
+		scr_printf("%s\n", &buf[4]);
 		return;
 	}
 
@@ -503,7 +504,7 @@ void editthisroom(void)
 			serv_puts(buf);
 			serv_gets(buf);
 			if (buf[0] != '2')
-				printf("%s\n", &buf[4]);
+				scr_printf("%s\n", &buf[4]);
 		}
 	} while (buf[0] != '2');
 
@@ -517,11 +518,11 @@ void editthisroom(void)
 		sprintf(buf, "%d", expire_mode);
 		strprompt("Message expire policy (? for list)", buf, 1);
 		if (buf[0] == '?') {
-			printf("\n");
-			printf("0. Use the default for this floor\n");
-			printf("1. Never automatically expire messages\n");
-			printf("2. Expire by message count\n");
-			printf("3. Expire by message age\n");
+			scr_printf("\n"
+				"0. Use the default for this floor\n"
+				"1. Never automatically expire messages\n"
+				"2. Expire by message count\n"
+				"3. Expire by message age\n");
 		}
 	} while ((buf[0] < 48) || (buf[0] > 51));
 	expire_mode = buf[0] - 48;
@@ -540,14 +541,14 @@ void editthisroom(void)
 	}
 
 	/* Give 'em a chance to change their minds */
-	printf("Save changes (y/n)? ");
+	scr_printf("Save changes (y/n)? ");
 
 	if (yesno() == 1) {
 		snprintf(buf, sizeof buf, "SETA %s", raide);
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] != '2') {
-			printf("%s\n", &buf[4]);
+			scr_printf("%s\n", &buf[4]);
 		}
 
 		snprintf(buf, sizeof buf, "SPEX room|%d|%d",
@@ -560,7 +561,7 @@ void editthisroom(void)
 			 rorder);
 		serv_puts(buf);
 		serv_gets(buf);
-		printf("%s\n", &buf[4]);
+		scr_printf("%s\n", &buf[4]);
 		if (buf[0] == '2')
 			dotgoto(rname, 2);
 	}
@@ -580,14 +581,14 @@ void ungoto(void)
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		printf("%s\n", &buf[4]);
+		scr_printf("%s\n", &buf[4]);
 		return;
 	}
 	sprintf(buf, "SLRP %ld", uglsn);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		printf("%s\n", &buf[4]);
+		scr_printf("%s\n", &buf[4]);
 	}
 	safestrncpy(buf, ugname, sizeof buf);
 	strcpy(ugname, "");
@@ -616,8 +617,8 @@ void download_to_local_disk(char *supplied_filename, long total_bytes)
 		newprompt("Filename: ", filename, 250);
 	}
 
-	printf("Enter the name of the directory to save '%s'\n", filename);
-	printf("to, or press return for the current directory.\n");
+	scr_printf("Enter the name of the directory to save '%s'\n"
+		"to, or press return for the current directory.\n", filename);
 	newprompt("Directory: ", dbuf, sizeof dbuf);
 	if (strlen(dbuf) == 0)
 		strcpy(dbuf, ".");
@@ -626,12 +627,12 @@ void download_to_local_disk(char *supplied_filename, long total_bytes)
 
 	savefp = fopen(dbuf, "w");
 	if (savefp == NULL) {
-		printf("Cannot open '%s': %s\n", dbuf, strerror(errno));
+		scr_printf("Cannot open '%s': %s\n", dbuf, strerror(errno));
 		/* close the download file at the server */
 		serv_puts("CLOS");
 		serv_gets(buf);
 		if (buf[0] != '2') {
-			printf("%s\n", &buf[4]);
+			scr_printf("%s\n", &buf[4]);
 		}
 		return;
 	}
@@ -643,7 +644,7 @@ void download_to_local_disk(char *supplied_filename, long total_bytes)
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] != '6') {
-			printf("%s\n", &buf[4]);
+			scr_printf("%s\n", &buf[4]);
 			return;
 		}
 		packet = extract_int(&buf[4], 0);
@@ -658,7 +659,7 @@ void download_to_local_disk(char *supplied_filename, long total_bytes)
 	serv_puts("CLOS");
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		printf("%s\n", &buf[4]);
+		scr_printf("%s\n", &buf[4]);
 	}
 	return;
 }
@@ -684,7 +685,7 @@ void download(int proto)
 	int broken = 0;
 
 	if ((room_flags & QR_DOWNLOAD) == 0) {
-		printf("*** You cannot download from this room.\n");
+		scr_printf("*** You cannot download from this room.\n");
 		return;
 	}
 
@@ -694,7 +695,7 @@ void download(int proto)
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		printf("%s\n", &buf[4]);
+		scr_printf("%s\n", &buf[4]);
 		return;
 	}
 	total_bytes = extract_long(&buf[4], 0);
@@ -706,7 +707,7 @@ void download(int proto)
 	}
 
 	/* Meta-download for public clients */
-	printf("Fetching file from Citadel server...\n");
+	scr_printf("Fetching file from Citadel server...\n");
 	mkdir(tempdir, 0700);
 	snprintf(tempname, sizeof tempname, "%s/%s", tempdir, filename);
 	tpipe = fopen(tempname, "wb");
@@ -718,7 +719,7 @@ void download(int proto)
 		serv_puts(buf);
 		serv_gets(buf);
 		if (buf[0] != '6') {
-			printf("%s\n", &buf[4]);
+			scr_printf("%s\n", &buf[4]);
 		}
 		packet = extract_int(&buf[4], 0);
 		serv_read(dbuf, packet);
@@ -734,7 +735,7 @@ void download(int proto)
 	serv_puts("CLOS");
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		printf("%s\n", &buf[4]);
+		scr_printf("%s\n", &buf[4]);
 	}
 
 	if (proto == 0) {
@@ -751,13 +752,15 @@ void download(int proto)
 	else
 		sprintf(transmit_cmd, "exec cat %s", tempname);
 
+	screen_reset();
 	sttybbs(SB_RESTORE);
 	system(transmit_cmd);
 	sttybbs(SB_NO_INTR);
+	screen_set();
 
 	/* clean up the temporary directory */
 	nukedir(tempdir);
-	putc(7, stdout);
+	scr_putc(7);
 }
 
 
@@ -810,7 +813,7 @@ void invite(void)
 
 	/*
 	 * if ((room_flags & QR_PRIVATE)==0) {
-	 *         printf("This is not a private room.\n");
+	 *         scr_printf("This is not a private room.\n");
 	 *         return;
 	 * }
 	 */
@@ -822,7 +825,7 @@ void invite(void)
 	snprintf(bbb, sizeof bbb, "INVT %s", aaa);
 	serv_puts(bbb);
 	serv_gets(bbb);
-	printf("%s\n", &bbb[4]);
+	scr_printf("%s\n", &bbb[4]);
 }
 
 
@@ -841,7 +844,7 @@ void kickout(void)
 	snprintf(cmd, sizeof cmd, "KICK %s", username);
 	serv_puts(cmd);
 	serv_gets(cmd);
-	printf("%s\n", &cmd[4]);
+	scr_printf("%s\n", &cmd[4]);
 }
 
 
@@ -855,17 +858,17 @@ void killroom(void)
 	serv_puts("KILL 0");
 	serv_gets(aaa);
 	if (aaa[0] != '2') {
-		printf("%s\n", &aaa[4]);
+		scr_printf("%s\n", &aaa[4]);
 		return;
 	}
 
-	printf("Are you sure you want to kill this room? ");
+	scr_printf("Are you sure you want to kill this room? ");
 	if (yesno() == 0)
 		return;
 
 	serv_puts("KILL 1");
 	serv_gets(aaa);
-	printf("%s\n", &aaa[4]);
+	scr_printf("%s\n", &aaa[4]);
 	if (aaa[0] != '2')
 		return;
 	dotgoto("_BASEROOM_", 0);
@@ -875,14 +878,14 @@ void forget(void)
 {				/* forget the current room */
 	char cmd[SIZ];
 
-	printf("Are you sure you want to forget this room? ");
+	scr_printf("Are you sure you want to forget this room? ");
 	if (yesno() == 0)
 		return;
 
 	serv_puts("FORG");
 	serv_gets(cmd);
 	if (cmd[0] != '2') {
-		printf("%s\n", &cmd[4]);
+		scr_printf("%s\n", &cmd[4]);
 		return;
 	}
 
@@ -907,7 +910,7 @@ void entroom(void)
 	serv_gets(cmd);
 
 	if (cmd[0] != '2') {
-		printf("%s\n", &cmd[4]);
+		scr_printf("%s\n", &cmd[4]);
 		return;
 	}
 
@@ -925,20 +928,20 @@ void entroom(void)
 
 	IFNEXPERT formout("roomaccess");
 	do {
-		printf("<?>Help\n<1>Public room\n<2>Guess-name room\n"
+		scr_printf("<?>Help\n<1>Public room\n<2>Guess-name room\n"
 		       "<3>Passworded room\n<4>Invitation-only room\n"
-		       "<5>Personal room\n");
-		printf("Enter room type: ");
+		       "<5>Personal room\n"
+			"Enter room type: ");
 		do {
 			b = inkey();
 		} while (((b < '1') || (b > '5')) && (b != '?'));
 		if (b == '?') {
-			printf("?\n");
+			scr_printf("?\n");
 			formout("roomaccess");
 		}
 	} while ((b < '1') || (b > '5'));
 	b = b - 48;
-	printf("%d\n", b);
+	scr_printf("%d\n", b);
 	new_room_type = b - 1;
 	if (new_room_type == 2) {
 		newprompt("Enter a room password: ", new_room_pass, 9);
@@ -949,18 +952,18 @@ void entroom(void)
 		strcpy(new_room_pass, "");
 	}
 
-	printf("\042%s\042, a", new_room_name);
+	scr_printf("\042%s\042, a", new_room_name);
 	if (b == 1)
-		printf(" public room.");
+		scr_printf(" public room.");
 	if (b == 2)
-		printf(" guess-name room.");
+		scr_printf(" guess-name room.");
 	if (b == 3)
-		printf(" passworded room, password: %s", new_room_pass);
+		scr_printf(" passworded room, password: %s", new_room_pass);
 	if (b == 4)
-		printf("n invitation-only room.");
+		scr_printf("n invitation-only room.");
 	if (b == 5)
-		printf(" personal room.");
-	printf("\nInstall it? (y/n) : ");
+		scr_printf(" personal room.");
+	scr_printf("\nInstall it? (y/n) : ");
 	if (yesno() == 0) {
 		return;
 	}
@@ -970,7 +973,7 @@ void entroom(void)
 	serv_puts(cmd);
 	serv_gets(cmd);
 	if (cmd[0] != '2') {
-		printf("%s\n", &cmd[4]);
+		scr_printf("%s\n", &cmd[4]);
 		return;
 	}
 
@@ -1024,7 +1027,7 @@ void do_edit(char *desc, char *read_cmd, char *check_cmd, char *write_cmd)
 
 
 	if (strlen(editor_path) == 0) {
-		printf("Do you wish to re-enter %s? ", desc);
+		scr_printf("Do you wish to re-enter %s? ", desc);
 		if (yesno() == 0)
 			return;
 	}
@@ -1035,7 +1038,7 @@ void do_edit(char *desc, char *read_cmd, char *check_cmd, char *write_cmd)
 	serv_puts(check_cmd);
 	serv_gets(cmd);
 	if (cmd[0] != '2') {
-		printf("%s\n", &cmd[4]);
+		scr_printf("%s\n", &cmd[4]);
 		return;
 	}
 
@@ -1058,6 +1061,7 @@ void do_edit(char *desc, char *read_cmd, char *check_cmd, char *write_cmd)
 		editor_pid = fork();
 		if (editor_pid == 0) {
 			chmod(temp, 0600);
+			screen_reset();
 			sttybbs(SB_RESTORE);
 			execlp(editor_path, editor_path, temp, NULL);
 			exit(1);
@@ -1068,25 +1072,26 @@ void do_edit(char *desc, char *read_cmd, char *check_cmd, char *write_cmd)
 				b = wait(&editor_exit);
 			} while ((b != editor_pid) && (b >= 0));
 		editor_pid = (-1);
-		printf("Executed %s\n", editor_path);
+		scr_printf("Executed %s\n", editor_path);
 		sttybbs(0);
+		screen_set();
 	} else {
-		printf("Entering %s.  ", desc);
-		printf("Press return twice when finished.\n");
+		scr_printf("Entering %s.  "
+			"Press return twice when finished.\n", desc);
 		fp = fopen(temp, "r+");
 		citedit(fp);
 		fclose(fp);
 	}
 
 	if (file_checksum(temp) == cksum) {
-		printf("*** Aborted.\n");
+		scr_printf("*** Aborted.\n");
 	}
 
 	else {
 		serv_puts(write_cmd);
 		serv_gets(cmd);
 		if (cmd[0] != '4') {
-			printf("%s\n", &cmd[4]);
+			scr_printf("%s\n", &cmd[4]);
 			return;
 		}
 
@@ -1128,7 +1133,7 @@ void create_floor(void)
 	serv_puts("CFLR xx|0");
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		printf("%s\n", &buf[4]);
+		scr_printf("%s\n", &buf[4]);
 		return;
 	}
 
@@ -1137,9 +1142,9 @@ void create_floor(void)
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] == '2') {
-		printf("Floor has been created.\n");
+		scr_printf("Floor has been created.\n");
 	} else {
-		printf("%s\n", &buf[4]);
+		scr_printf("%s\n", &buf[4]);
 	}
 
 	load_floorlist();
@@ -1176,11 +1181,11 @@ void edit_floor(void)
 		    ("Floor default essage expire policy (? for list)",
 		     buf, 1);
 		if (buf[0] == '?') {
-			printf("\n");
-			printf("0. Use the system default\n");
-			printf("1. Never automatically expire messages\n");
-			printf("2. Expire by message count\n");
-			printf("3. Expire by message age\n");
+			scr_printf("\n"
+				"0. Use the system default\n"
+				"1. Never automatically expire messages\n"
+				"2. Expire by message count\n"
+				"3. Expire by message age\n");
 		}
 	} while ((buf[0] < 48) || (buf[0] > 51));
 	expire_mode = buf[0] - 48;
@@ -1208,7 +1213,7 @@ void edit_floor(void)
 		 &floorlist[(int) curr_floor][0]);
 	serv_puts(buf);
 	serv_gets(buf);
-	printf("%s\n", &buf[4]);
+	scr_printf("%s\n", &buf[4]);
 	load_floorlist();
 }
 
@@ -1226,7 +1231,7 @@ void kill_floor(void)
 	load_floorlist();
 	do {
 		floornum_to_delete = (-1);
-		printf("(Press return to abort)\n");
+		scr_printf("(Press return to abort)\n");
 		newprompt("Delete which floor? ", buf, 255);
 		if (strlen(buf) == 0)
 			return;
@@ -1234,15 +1239,15 @@ void kill_floor(void)
 			if (!strcasecmp(&floorlist[a][0], buf))
 				floornum_to_delete = a;
 		if (floornum_to_delete < 0) {
-			printf("No such floor.  Select one of:\n");
+			scr_printf("No such floor.  Select one of:\n");
 			for (a = 0; a < 128; ++a)
 				if (floorlist[a][0] != 0)
-					printf("%s\n", &floorlist[a][0]);
+					scr_printf("%s\n", &floorlist[a][0]);
 		}
 	} while (floornum_to_delete < 0);
 	sprintf(buf, "KFLR %d|1", floornum_to_delete);
 	serv_puts(buf);
 	serv_gets(buf);
-	printf("%s\n", &buf[4]);
+	scr_printf("%s\n", &buf[4]);
 	load_floorlist();
 }

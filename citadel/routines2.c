@@ -42,6 +42,7 @@
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
+#include "screen.h"
 
 void interr(int errnum);
 void strprompt(char *prompt, char *str, int len);
@@ -67,7 +68,7 @@ int eopen(char *name, int mode)
 	int ret;
 	ret = open(name, mode);
 	if (ret < 0) {
-		fprintf(stderr, "Cannot open file '%s', mode=%d, errno=%d\n",
+		err_printf("Cannot open file '%s', mode=%d, errno=%d\n",
 			name, mode, errno);
 		interr(errno);
 	}
@@ -148,7 +149,7 @@ void entregis(void)
 	serv_puts("REGI");
 	serv_gets(buf);
 	if (buf[0] != '4') {
-		printf("%s\n", &buf[4]);
+		scr_printf("%s\n", &buf[4]);
 		return;
 	}
 	serv_puts(tmpname);
@@ -160,7 +161,7 @@ void entregis(void)
 	serv_puts(tmpemail);
 	serv_puts(tmpcountry);
 	serv_puts("000");
-	printf("\n");
+	scr_printf("\n");
 }
 
 void updatels(void)
@@ -169,7 +170,7 @@ void updatels(void)
 
 	if (rc_alt_semantics) {
 		if (maxmsgnum == highest_msg_read == 0) {
-			/* fprintf(stderr, "maxmsgnum == highest_msg_read == 0\n"); */
+			/* err_printf("maxmsgnum == highest_msg_read == 0\n"); */
 			return;
 		}
 		snprintf(buf, sizeof(buf), "SLRP %ld",
@@ -181,7 +182,7 @@ void updatels(void)
 	}
 	serv_gets(buf);
 	if (buf[0] != '2')
-		printf("%s\n", &buf[4]);
+		scr_printf("%s\n", &buf[4]);
 }
 
 /*
@@ -195,7 +196,7 @@ void updatelsa(void)
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '2')
-		printf("%s\n", &buf[4]);
+		scr_printf("%s\n", &buf[4]);
 }
 
 
@@ -226,7 +227,7 @@ void do_upload(int fd)
 				bytes_expected = atoi(&buf[4]);
 				serv_write(tbuf, bytes_expected);
 			} else {
-				printf("%s\n", &buf[4]);
+				scr_printf("%s\n", &buf[4]);
 			}
 		}
 		transmitted_bytes = transmitted_bytes + (long) bytes_to_send;
@@ -237,7 +238,7 @@ void do_upload(int fd)
 	close(fd);
 	serv_puts("UCLS 1");
 	serv_gets(buf);
-	printf("%s\n", &buf[4]);
+	scr_printf("%s\n", &buf[4]);
 }
 
 
@@ -254,16 +255,16 @@ void cli_upload(void)
 	int fd;
 
 	if ((room_flags & QR_UPLOAD) == 0) {
-		printf("*** You cannot upload to this room.\n");
+		scr_printf("*** You cannot upload to this room.\n");
 		return;
 	}
 	newprompt("File to be uploaded: ", flnm, 55);
 	fd = open(flnm, O_RDONLY);
 	if (fd < 0) {
-		printf("Cannot open '%s': %s\n", flnm, strerror(errno));
+		scr_printf("Cannot open '%s': %s\n", flnm, strerror(errno));
 		return;
 	}
-	printf("Enter a description of this file:\n");
+	scr_printf("Enter a description of this file:\n");
 	newprompt(": ", desc, 75);
 
 	/* keep generating filenames in hope of finding a unique one */
@@ -280,7 +281,7 @@ void cli_upload(void)
 		serv_puts(tbuf);
 		serv_gets(buf);
 		if (buf[0] != '2')
-			printf("%s\n", &buf[4]);
+			scr_printf("%s\n", &buf[4]);
 		++a;
 	} while (buf[0] != '2');
 
@@ -302,20 +303,20 @@ void cli_image_upload(char *keyname)
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		printf("%s\n", &buf[4]);
+		scr_printf("%s\n", &buf[4]);
 		return;
 	}
 	newprompt("Image file to be uploaded: ", flnm, 55);
 	fd = open(flnm, O_RDONLY);
 	if (fd < 0) {
-		printf("Cannot open '%s': %s\n", flnm, strerror(errno));
+		scr_printf("Cannot open '%s': %s\n", flnm, strerror(errno));
 		return;
 	}
 	sprintf(buf, "UIMG 1|%s", keyname);
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '2') {
-		printf("%s\n", &buf[4]);
+		scr_printf("%s\n", &buf[4]);
 		return;
 	}
 	do_upload(fd);
@@ -337,7 +338,7 @@ void upload(int c)
 	int fd;
 
 	if ((room_flags & QR_UPLOAD) == 0) {
-		printf("*** You cannot upload to this room.\n");
+		scr_printf("*** You cannot upload to this room.\n");
 		return;
 	}
 	/* we don't need a filename when receiving batch y/z modem */
@@ -356,7 +357,7 @@ void upload(int c)
 
 	/* create a temporary directory... */
 	if (mkdir(tempdir, 0700) != 0) {
-		printf("*** Could not create temporary directory %s: %s\n",
+		scr_printf("*** Could not create temporary directory %s: %s\n",
 		       tempdir, strerror(errno));
 		return;
 	}
@@ -367,30 +368,32 @@ void upload(int c)
 		switch (c) {
 		case 0:
 			sttybbs(0);
-			printf("Receiving %s - press Ctrl-D to end.\n", flnm);
+			scr_printf("Receiving %s - press Ctrl-D to end.\n", flnm);
 			fp = fopen(flnm, "w");
 			do {
 				b = inkey();
 				if (b == 13) {
 					b = 10;
-					printf("\r");
 				}
 				if (b != 4) {
-					printf("%c", b);
+					scr_printf("%c", b);
 					putc(b, fp);
 				}
 			} while (b != 4);
 			fclose(fp);
 			exit(0);
 		case 1:
+			screen_reset();
 			sttybbs(3);
 			execlp("rx", "rx", flnm, NULL);
 			exit(1);
 		case 2:
+			screen_reset();
 			sttybbs(3);
 			execlp("rb", "rb", NULL);
 			exit(1);
 		case 3:
+			screen_reset();
 			sttybbs(3);
 			execlp("rz", "rz", NULL);
 			exit(1);
@@ -400,13 +403,14 @@ void upload(int c)
 			b = ka_wait(&a);
 		} while ((b != xfer_pid) && (b != (-1)));
 	sttybbs(0);
+	screen_set();
 
 	if (a != 0) {
-		printf("\r*** Transfer unsuccessful.\n");
+		scr_printf("\r*** Transfer unsuccessful.\n");
 		nukedir(tempdir);
 		return;
 	}
-	printf("\r*** Transfer successful.  Sending file(s) to server...\n");
+	scr_printf("\r*** Transfer successful.  Sending file(s) to server...\n");
 	sprintf(buf, "cd %s; ls", tempdir);
 	lsfp = popen(buf, "r");
 	if (lsfp != NULL) {
@@ -439,7 +443,7 @@ void upload(int c)
 				close(fd);
 				serv_puts("UCLS 1");
 				serv_gets(buf);
-				printf("%s\n", &buf[4]);
+				scr_printf("%s\n", &buf[4]);
 			}
 		}
 		pclose(lsfp);
@@ -466,31 +470,31 @@ void val_user(char *user, int do_validate)
 			serv_gets(buf);
 			++a;
 			if (a == 1)
-				printf("User #%s - %s  ", buf, &cmd[4]);
+				scr_printf("User #%s - %s  ", buf, &cmd[4]);
 			if (a == 2)
-				printf("PW: %s\n", buf);
+				scr_printf("PW: %s\n", buf);
 			if (a == 3)
-				printf("%s\n", buf);
+				scr_printf("%s\n", buf);
 			if (a == 4)
-				printf("%s\n", buf);
+				scr_printf("%s\n", buf);
 			if (a == 5)
-				printf("%s, ", buf);
+				scr_printf("%s, ", buf);
 			if (a == 6)
-				printf("%s ", buf);
+				scr_printf("%s ", buf);
 			if (a == 7)
-				printf("%s\n", buf);
+				scr_printf("%s\n", buf);
 			if (a == 8)
-				printf("%s\n", buf);
+				scr_printf("%s\n", buf);
 			if (a == 9)
 				ax = atoi(buf);
 			if (a == 10)
-				printf("%s\n", buf);
+				scr_printf("%s\n", buf);
 			if (a == 11)
-				printf("%s\n", buf);
+				scr_printf("%s\n", buf);
 		} while (strcmp(buf, "000"));
-		printf("Current access level: %d (%s)\n", ax, axdefs[ax]);
+		scr_printf("Current access level: %d (%s)\n", ax, axdefs[ax]);
 	} else {
-		printf("%-30s\n%s\n", user, &cmd[4]);
+		scr_printf("%-30s\n%s\n", user, &cmd[4]);
 	}
 
 	if (do_validate) {
@@ -500,9 +504,9 @@ void val_user(char *user, int do_validate)
 		serv_puts(cmd);
 		serv_gets(cmd);
 		if (cmd[0] != '2')
-			printf("%s\n", &cmd[4]);
+			scr_printf("%s\n", &cmd[4]);
 	}
-	printf("\n");
+	scr_printf("\n");
 }
 
 
@@ -518,7 +522,7 @@ void validate(void)
 		if (cmd[0] != '3')
 			finished = 1;
 		if (cmd[0] == '2')
-			printf("%s\n", &cmd[4]);
+			scr_printf("%s\n", &cmd[4]);
 		if (cmd[0] == '3') {
 			extract(buf, cmd, 0);
 			val_user(&buf[4], 1);
@@ -531,17 +535,19 @@ void subshell(void)
 	int a, b;
 	a = fork();
 	if (a == 0) {
+		screen_reset();
 		sttybbs(SB_RESTORE);
 		signal(SIGINT, SIG_DFL);
 		signal(SIGQUIT, SIG_DFL);
 		execlp(getenv("SHELL"), getenv("SHELL"), NULL);
-		printf("Could not open a shell: %s\n", strerror(errno));
+		err_printf("Could not open a shell: %s\n", strerror(errno));
 		exit(errno);
 	}
 	do {
 		b = ka_wait(NULL);
 	} while ((a != b) && (a != (-1)));
 	sttybbs(0);
+	screen_set();
 }
 
 /*
@@ -558,7 +564,7 @@ void deletefile(void)
 	sprintf(cmd, "DELF %s", filename);
 	serv_puts(cmd);
 	serv_gets(cmd);
-	printf("%s\n", &cmd[4]);
+	err_printf("%s\n", &cmd[4]);
 }
 
 /*
@@ -575,7 +581,7 @@ void netsendfile(void)
 	sprintf(cmd, "NETF %s|%s", filename, destsys);
 	serv_puts(cmd);
 	serv_gets(cmd);
-	printf("%s\n", &cmd[4]);
+	err_printf("%s\n", &cmd[4]);
 	return;
 }
 
@@ -596,7 +602,7 @@ void movefile(void)
 	sprintf(cmd, "MOVF %s|%s", filename, newroom);
 	serv_puts(cmd);
 	serv_gets(cmd);
-	printf("%s\n", &cmd[4]);
+	err_printf("%s\n", &cmd[4]);
 }
 
 
@@ -766,10 +772,10 @@ void do_system_configuration(void)
 		strprompt("System default message expire policy (? for list)",
 			  buf, 1);
 		if (buf[0] == '?') {
-			printf("\n");
-			printf("1. Never automatically expire messages\n");
-			printf("2. Expire by message count\n");
-			printf("3. Expire by message age\n");
+			scr_printf("\n"
+				"1. Never automatically expire messages\n"
+				"2. Expire by message count\n"
+				"3. Expire by message age\n");
 		}
 	} while ((buf[0] < 49) || (buf[0] > 51));
 	expire_mode = buf[0] - 48;
@@ -786,7 +792,7 @@ void do_system_configuration(void)
 		expire_value = atol(buf);
 	}
 	/* Save it */
-	printf("Save this configuration? ");
+	scr_printf("Save this configuration? ");
 	if (yesno()) {
 		serv_puts("CONF set");
 		serv_gets(buf);
@@ -852,24 +858,20 @@ void do_internet_configuration(void) {
 	}
 
 	do {
-		printf("\n");
+		scr_printf("\n");
 		color(BRIGHT_WHITE);
-		printf("### ");
-		printf("                   Host or domain                  ");
-		printf("   Record type      \n");
+		scr_printf("###                    Host or domain                     Record type      \n");
 		color(DIM_WHITE);
-		printf("--- ");
-		printf("-------------------------------------------------- ");
-		printf("--------------------\n");
+		scr_printf("--- -------------------------------------------------- --------------------\n");
 		for (i=0; i<num_recs; ++i) {
 		color(DIM_WHITE);
-		printf("%3d ", i+1);
+		scr_printf("%3d ", i+1);
 		extract(buf, recs[i], 0);
 		color(BRIGHT_CYAN);
-		printf("%-50s ", buf);
+		scr_printf("%-50s ", buf);
 		extract(buf, recs[i], 1);
 		color(BRIGHT_MAGENTA);
-		printf("%-20s\n", buf);
+		scr_printf("%-20s\n", buf);
 		color(DIM_WHITE);
 		}
 
@@ -907,7 +909,7 @@ void do_internet_configuration(void) {
 					serv_puts("000");
 				}
 				else {
-					printf("%s\n", &buf[4]);
+					scr_printf("%s\n", &buf[4]);
 				}
 				quitting = 1;
 				break;
@@ -945,8 +947,8 @@ void network_config_management(char *entrytype, char *comment) {
 	FILE *changefp;
 
 	if (strlen(editor_path) == 0) {
-		printf("You must have an external editor configured in order"
-			" to use this function.\n");
+		scr_printf("You must have an external editor configured in"
+			" order to use this function.\n");
 		return;
 	}
 
@@ -955,7 +957,7 @@ void network_config_management(char *entrytype, char *comment) {
 
 	tempfp = fopen(filename, "w");
 	if (tempfp == NULL) {
-		printf("Cannot open %s: %s\n", filename, strerror(errno));
+		err_printf("Cannot open %s: %s\n", filename, strerror(errno));
 		return;
 	}
 
@@ -982,6 +984,7 @@ void network_config_management(char *entrytype, char *comment) {
 	cksum = file_checksum(filename);
 	if (editor_pid == 0) {
 		chmod(filename, 0600);
+		screen_reset();
 		sttybbs(SB_RESTORE);
 		setenv("WINDOW_TITLE", "Network configuration", 1);
 		execlp(editor_path, editor_path, filename, NULL);
@@ -994,10 +997,11 @@ void network_config_management(char *entrytype, char *comment) {
 		} while ((b != editor_pid) && (b >= 0));
 	editor_pid = (-1);
 	sttybbs(0);
+	screen_set();
 	}
 
 	if (file_checksum(filename) == cksum) {
-		printf("*** Not saving changes.\n");
+		err_printf("*** Not saving changes.\n");
 		e_ex_code = 1;
 	}
 
@@ -1073,34 +1077,34 @@ void do_ignet_configuration(void) {
 	}
 
 	do {
-		printf("\n");
+		scr_printf("\n");
 		color(BRIGHT_WHITE);
-		printf(	"### "
+		scr_printf(	"### "
 			"   Node          "
 			"  Secret           "
 			"          Host or IP             "
 			"Port#\n");
 		color(DIM_WHITE);
-		printf(	"--- "
+		scr_printf(	"--- "
 			"---------------- "
 			"------------------ "
 			"-------------------------------- "
 			"-----\n");
 		for (i=0; i<num_recs; ++i) {
 		color(DIM_WHITE);
-		printf("%3d ", i+1);
+		scr_printf("%3d ", i+1);
 		extract(buf, recs[i], 0);
 		color(BRIGHT_CYAN);
-		printf("%-16s ", buf);
+		scr_printf("%-16s ", buf);
 		extract(buf, recs[i], 1);
 		color(BRIGHT_MAGENTA);
-		printf("%-18s ", buf);
+		scr_printf("%-18s ", buf);
 		extract(buf, recs[i], 2);
 		color(BRIGHT_CYAN);
-		printf("%-32s ", buf);
+		scr_printf("%-32s ", buf);
 		extract(buf, recs[i], 3);
 		color(BRIGHT_MAGENTA);
-		printf("%-3s\n", buf);
+		scr_printf("%-3s\n", buf);
 		color(DIM_WHITE);
 		}
 
@@ -1143,7 +1147,7 @@ void do_ignet_configuration(void) {
 					serv_puts("000");
 				}
 				else {
-					printf("%s\n", &buf[4]);
+					scr_printf("%s\n", &buf[4]);
 				}
 				quitting = 1;
 				break;

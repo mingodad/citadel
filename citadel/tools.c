@@ -29,6 +29,12 @@
 #include "tools.h"
 #include "citadel.h"
 
+#ifdef CIT_CLIENT
+#include "screen.h"
+#else
+extern int err_printf(char *fmt, ...);
+#endif
+
 #define TRUE  1
 #define FALSE 0
 
@@ -39,7 +45,7 @@ static byte dtable[256];	      /* base64 encode / decode table */
 char *safestrncpy(char *dest, const char *src, size_t n)
 {
 	if (dest == NULL || src == NULL) {
-		fprintf(stderr, "safestrncpy: NULL argument\n");
+		err_printf("safestrncpy: NULL argument\n");
 		abort();
 	}
 	strncpy(dest, src, n);

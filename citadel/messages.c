@@ -39,6 +39,7 @@
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
+#include "screen.h"
 
 #define MAXWORDBUF SIZ
 #define MAXMSGS 512
@@ -255,7 +256,7 @@ void citedit(FILE * fp)
 	/******* new ***********/
 		if ((a > 32) && (a < 127) && (prev == 13)) {
 			add_word(textlist, "\n");
-			printf(" ");
+			scr_printf(" ");
 		}
 	/***********************/
 
@@ -267,12 +268,12 @@ void citedit(FILE * fp)
 		if (a == 8) {
 			if (strlen(wordbuf) > 0) {
 				wordbuf[strlen(wordbuf) - 1] = 0;
-				putc(8, stdout);
-				putc(32, stdout);
-				putc(8, stdout);
+				scr_putc(8);
+				scr_putc(32);
+				scr_putc(8);
 			}
 		} else if (a == 13) {
-			printf("\n");
+			scr_printf("\n");
 			if (strlen(wordbuf) == 0)
 				finished = 1;
 			else {
@@ -289,7 +290,7 @@ void citedit(FILE * fp)
 				strcpy(wordbuf, "");
 			}
 		} else {
-			putc(a, stdout);
+			scr_putc(a);
 			wordbuf[strlen(wordbuf) + 1] = 0;
 			wordbuf[strlen(wordbuf)] = a;
 		}
@@ -309,15 +310,15 @@ void citedit(FILE * fp)
 						b = 0;
 					}
 				for (b = 0; b < strlen(wordbuf); ++b) {
-					putc(8, stdout);
-					putc(32, stdout);
-					putc(8, stdout);
+					scr_putc(8);
+					scr_putc(32);
+					scr_putc(8);
 				}
-				printf("\n%s", wordbuf);
+				scr_printf("\n%s", wordbuf);
 			} else {
 				add_word(textlist, wordbuf);
 				strcpy(wordbuf, "");
-				printf("\n");
+				scr_printf("\n");
 			}
 		}
 		prev = a;
@@ -362,7 +363,7 @@ int read_message(
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0] != '1') {
-		printf("*** msg #%ld: %s\n", num, buf);
+		err_printf("*** msg #%ld: %s\n", num, buf);
 		++lines_printed;
 		lines_printed =
 		    checkpagin(lines_printed, pagin, screenheight);
@@ -376,10 +377,10 @@ int read_message(
 	strcpy(node, "");
 	strcpy(rfca, "");
 
-	printf("\n");
+	scr_printf("\n");
 	++lines_printed;
 	lines_printed = checkpagin(lines_printed, pagin, screenheight);
-	printf(" ");
+	scr_printf(" ");
 	if (pagin == 1) {
 		color(BRIGHT_CYAN);
 	}
@@ -387,7 +388,7 @@ int read_message(
 	if (pagin == 2) {
 		while (serv_gets(buf), strcmp(buf, "000")) {
 			if (buf[4] == '=') {
-				printf("%s\n", buf);
+				scr_printf("%s\n", buf);
 				++lines_printed;
 				lines_printed =
 				    checkpagin(lines_printed,
@@ -411,17 +412,17 @@ int read_message(
 		if ((!strncasecmp(buf, "msgn=", 5))
 		    && (rc_display_message_numbers)) {
 			color(DIM_WHITE);
-			printf("[");
+			scr_printf("[");
 			color(BRIGHT_WHITE);
-			printf("#%s", &buf[5]);
+			scr_printf("#%s", &buf[5]);
 			color(DIM_WHITE);
-			printf("] ");
+			scr_printf("] ");
 		}
 		if (!strncasecmp(buf, "from=", 5)) {
 			color(DIM_WHITE);
-			printf("from ");
+			scr_printf("from ");
 			color(BRIGHT_CYAN);
-			printf("%s ", &buf[5]);
+			scr_printf("%s ", &buf[5]);
 		}
 		if (!strncasecmp(buf, "subj=", 5))
 			strcpy(m_subject, &buf[5]);
@@ -429,29 +430,29 @@ int read_message(
 		if (!strncasecmp(buf, "rfca=", 5)) {
 			safestrncpy(rfca, &buf[5], sizeof(rfca) - 5);
 			color(DIM_WHITE);
-			printf("<");
+			scr_printf("<");
 			color(BRIGHT_BLUE);
-			printf("%s", &buf[5]);
+			scr_printf("%s", &buf[5]);
 			color(DIM_WHITE);
-			printf("> ");
+			scr_printf("> ");
 		}
 		if ((!strncasecmp(buf, "hnod=", 5))
 		    && (strcasecmp(&buf[5], serv_info.serv_humannode))
 		    && (strlen(rfca) == 0)) {
 			color(DIM_WHITE);
-			printf("(");
+			scr_printf("(");
 			color(BRIGHT_WHITE);
-			printf("%s", &buf[5]);
+			scr_printf("%s", &buf[5]);
 			color(DIM_WHITE);
-			printf(") ");
+			scr_printf(") ");
 		}
 		if ((!strncasecmp(buf, "room=", 5))
 		    && (strcasecmp(&buf[5], room_name))
 		    && (strlen(rfca) == 0)) {
 			color(DIM_WHITE);
-			printf("in ");
+			scr_printf("in ");
 			color(BRIGHT_MAGENTA);
-			printf("%s> ", &buf[5]);
+			scr_printf("%s> ", &buf[5]);
 		}
 
 		if (!strncasecmp(buf, "node=", 5)) {
@@ -465,33 +466,33 @@ int read_message(
 			{
 				if (strlen(rfca) == 0) {
 					color(DIM_WHITE);
-					printf("@");
+					scr_printf("@");
 					color(BRIGHT_YELLOW);
-					printf("%s ", &buf[5]);
+					scr_printf("%s ", &buf[5]);
 				}
 			}
 		}
 
 		if (!strncasecmp(buf, "rcpt=", 5)) {
 			color(DIM_WHITE);
-			printf("to ");
+			scr_printf("to ");
 			color(BRIGHT_CYAN);
-			printf("%s ", &buf[5]);
+			scr_printf("%s ", &buf[5]);
 		}
 		if (!strncasecmp(buf, "time=", 5)) {
 			fmt_date(now, atol(&buf[5]), 0);
-			printf("%s ", now);
+			scr_printf("%s ", now);
 		}
 	}
 
 	if (nhdr == 1) {
 		if (!is_room_aide) {
-			printf(" ****");
+			scr_printf(" ****");
 		} else {
-			printf(" %s", from);
+			scr_printf(" %s", from);
 		}
 	}
-	printf("\n");
+	scr_printf("\n");
 
 	if (strlen(rfca) > 0) {
 		strcpy(reply_to, rfca);
@@ -506,7 +507,7 @@ int read_message(
 	lines_printed = checkpagin(lines_printed, pagin, screenheight);
 
 	if (strlen(m_subject) > 0) {
-		printf("Subject: %s\n", m_subject);
+		scr_printf("Subject: %s\n", m_subject);
 		++lines_printed;
 		lines_printed =
 		    checkpagin(lines_printed, pagin, screenheight);
@@ -518,7 +519,7 @@ int read_message(
 	} else {
 		while (serv_gets(buf), strcmp(buf, "000")) {
 			if (sigcaught == 0) {
-				printf("%s\n", buf);
+				scr_printf("%s\n", buf);
 				lines_printed = lines_printed + 1 +
 				    (strlen(buf) / screenwidth);
 				lines_printed =
@@ -528,7 +529,8 @@ int read_message(
 		}
 		fr = sigcaught;
 	}
-	printf("\n");
+	scr_printf("\n");
+	scr_flush();
 	++lines_printed;
 	lines_printed = checkpagin(lines_printed, pagin, screenheight);
 
@@ -553,12 +555,12 @@ void replace_string(char *filename, long int startpos)
 	int substitutions = 0;
 	long msglen = 0L;
 
-	printf("Enter text to be replaced:\n: ");
+	scr_printf("Enter text to be replaced:\n: ");
 	getline(srch_str, 128);
 	if (strlen(srch_str) == 0)
 		return;
 
-	printf("Enter text to replace it with:\n: ");
+	scr_printf("Enter text to replace it with:\n: ");
 	getline(rplc_str, 128);
 
 	fp = fopen(filename, "r+");
@@ -594,7 +596,7 @@ void replace_string(char *filename, long int startpos)
 	wpos = ftell(fp);
 	fclose(fp);
 	truncate(filename, wpos);
-	printf("<R>eplace made %d substitution(s).\n\n", substitutions);
+	scr_printf("<R>eplace made %d substitution(s).\n\n", substitutions);
 }
 
 /*
@@ -615,7 +617,7 @@ int client_make_message(char *filename,	/* temporary file name */
 
 	if (mode == 2)
 		if (strlen(editor_path) == 0) {
-			printf
+			err_printf
 			    ("*** No editor available, using built-in editor\n");
 			mode = 0;
 		}
@@ -634,12 +636,12 @@ int client_make_message(char *filename,	/* temporary file name */
 				" to %s", recipient);
 		}
 	}
-	printf("%s\n", header);
+	scr_printf("%s\n", header);
 
 	beg = 0L;
 
 	if (mode == 1) {
-		printf("(Press ctrl-d when finished)\n");
+		scr_printf("(Press ctrl-d when finished)\n");
 	}
 
 	if (mode == 0) {
@@ -651,7 +653,7 @@ int client_make_message(char *filename,	/* temporary file name */
 		} else {
 			fp = fopen(filename, "w");
 			if (fp == NULL) {
-				printf("*** Error opening temp file!\n"
+				err_printf("*** Error opening temp file!\n"
 					"    %s: %s\n",
 					filename, strerror(errno));
 			return(1);
@@ -665,7 +667,7 @@ ME1:	switch (mode) {
 	case 0:
 		fp = fopen(filename, "r+");
 		if (fp == NULL) {
-			printf("*** Error opening temp file!\n"
+			err_printf("*** Error opening temp file!\n"
 				"    %s: %s\n",
 				filename, strerror(errno));
 			return(1);
@@ -677,7 +679,7 @@ ME1:	switch (mode) {
 	case 1:
 		fp = fopen(filename, "a");
 		if (fp == NULL) {
-			printf("*** Error opening temp file!\n"
+			err_printf("*** Error opening temp file!\n"
 				"    %s: %s\n",
 				filename, strerror(errno));
 			return(1);
@@ -690,10 +692,10 @@ ME1:	switch (mode) {
 				a = 10;
 			if (a != 4) {
 				putc(a, fp);
-				putc(a, stdout);
+				scr_putc(a);
 			}
 			if (a == 10)
-				putc(13, stdout);
+				scr_putc(10);
 		} while (a != 4);
 		fclose(fp);
 		break;
@@ -704,6 +706,7 @@ ME1:	switch (mode) {
 		cksum = file_checksum(filename);
 		if (editor_pid == 0) {
 			chmod(filename, 0600);
+			screen_reset();
 			sttybbs(SB_RESTORE);
 			setenv("WINDOW_TITLE", header, 1);
 			execlp(editor_path, editor_path, filename, NULL);
@@ -716,12 +719,13 @@ ME1:	switch (mode) {
 			} while ((b != editor_pid) && (b >= 0));
 		editor_pid = (-1);
 		sttybbs(0);
+		screen_set();
 		break;
 	}
 
 MECR:	if (mode == 2) {
 		if (file_checksum(filename) == cksum) {
-			printf("*** Aborted message.\n");
+			err_printf("*** Aborted message.\n");
 			e_ex_code = 1;
 		}
 		if (e_ex_code == 0)
@@ -740,10 +744,10 @@ MECR:	if (mode == 2) {
 	if (b == 's')
 		goto MEFIN;
 	if (b == 'p') {
-		printf(" %s from %s", datestr, fullname);
+		scr_printf(" %s from %s", datestr, fullname);
 		if (strlen(recipient) > 0)
-			printf(" to %s", recipient);
-		printf("\n");
+			scr_printf(" to %s", recipient);
+		scr_printf("\n");
 		fp = fopen(filename, "r");
 		if (fp != NULL) {
 			fmout(screenwidth, fp,
@@ -764,7 +768,7 @@ MECR:	if (mode == 2) {
 
 MEFIN:	return (0);
 
-MEABT:	printf("Are you sure? ");
+MEABT:	scr_printf("Are you sure? ");
 	if (yesno() == 0) {
 		goto ME1;
 	}
@@ -816,16 +820,16 @@ void transmit_message(FILE *fp)
 		}
 
 		if ((time(NULL) - lasttick) > 2L) {
-			printf(" %3ld%% completed\r",
+			scr_printf(" %3ld%% completed\r",
 			       ((ftell(fp) * 100L) / msglen));
-			fflush(stdout);
+			scr_flush();
 			lasttick = time(NULL);
 		}
 
 	}
 	serv_puts(buf);
-	printf("                \r");
-	fflush(stdout);
+	scr_printf("                \r");
+	scr_flush();
 }
 
 
@@ -859,7 +863,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 	serv_gets(cmd);
 
 	if ((strncmp(cmd, "570", 3)) && (strncmp(cmd, "200", 3))) {
-		printf("%s\n", &cmd[4]);
+		scr_printf("%s\n", &cmd[4]);
 		return (1);
 	}
 
@@ -882,7 +886,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 			if (is_reply) {
 				strcpy(buf, reply_to);
 			} else {
-				printf("Enter recipient: ");
+				scr_printf("Enter recipient: ");
 				getline(buf, (SIZ-100) );
 				if (strlen(buf) == 0)
 					return (1);
@@ -893,7 +897,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 
 	b = 0;
 	if (room_flags & QR_ANONOPT) {
-		printf("Anonymous (Y/N)? ");
+		scr_printf("Anonymous (Y/N)? ");
 		if (yesno() == 1)
 			b = 1;
 	}
@@ -904,7 +908,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 		serv_puts(cmd);
 		serv_gets(cmd);
 		if (cmd[0] != '2') {
-			printf("%s\n", &cmd[4]);
+			scr_printf("%s\n", &cmd[4]);
 			return (1);
 		}
 	}
@@ -916,7 +920,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 	serv_puts("MSGS LAST|1");
 	serv_gets(cmd);
 	if (cmd[0] != '1') {
-		printf("%s\n", &cmd[5]);
+		scr_printf("%s\n", &cmd[5]);
 	} else {
 		while (serv_gets(cmd), strcmp(cmd, "000")) {
 			msg_arr[num_msgs++] = atol(cmd);
@@ -935,7 +939,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 	unlink(temp);
 
 	if (fp == NULL) {
-		printf("*** Internal error while trying to save message!\n"
+		err_printf("*** Internal error while trying to save message!\n"
 			"    %s: %s\n",
 			temp, strerror(errno));
 		return(errno);
@@ -946,7 +950,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 	serv_puts(cmd);
 	serv_gets(cmd);
 	if (cmd[0] != '4') {
-		printf("%s\n", &cmd[4]);
+		scr_printf("%s\n", &cmd[4]);
 		return (1);
 	}
 
@@ -960,7 +964,7 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 	serv_puts("MSGS NEW");
 	serv_gets(cmd);
 	if (cmd[0] != '1') {
-		printf("%s\n", &cmd[5]);
+		scr_printf("%s\n", &cmd[5]);
 	} else {
 		while (serv_gets(cmd), strcmp(cmd, "000")) {
 			msg_arr[num_msgs++] = atol(cmd);
@@ -986,11 +990,11 @@ int entmsg(int is_reply,	/* nonzero if this was a <R>eply command */
 	}
 
 	if (b == 1) {
-		printf("*** 1 additional message has been entered "
+		scr_printf("*** 1 additional message has been entered "
 			"in this room by another user.\n");
 	}
 	else if (b > 1) {
-		printf("*** %d additional messages have been entered "
+		scr_printf("*** %d additional messages have been entered "
 			"in this room by other users.\n", b);
 	}
 
@@ -1016,12 +1020,12 @@ void process_quote(void)
 	line = 0;
 	fgets(buf, 128, qfile);
 	while (fgets(buf, 128, qfile) != NULL) {
-		printf("%2d %s", ++line, buf);
+		scr_printf("%2d %s", ++line, buf);
 	}
-	printf("Begin quoting at [ 1] : ");
+	scr_printf("Begin quoting at [ 1] : ");
 	getline(buf, 3);
 	qstart = (buf[0] == 0) ? (1) : atoi(buf);
-	printf("  End quoting at [%d] : ", line);
+	scr_printf("  End quoting at [%d] : ", line);
 	getline(buf, 3);
 	qend = (buf[0] == 0) ? (line) : atoi(buf);
 	rewind(qfile);
@@ -1049,12 +1053,12 @@ void list_urls()
 	char cmd[SIZ];
 
 	if (num_urls == 0) {
-		printf("There were no URL's in the previous message.\n\n");
+		scr_printf("There were no URL's in the previous message.\n\n");
 		return;
 	}
 
 	for (i = 0; i < num_urls; ++i) {
-		printf("%3d %s\n", i + 1, urls[i]);
+		scr_printf("%3d %s\n", i + 1, urls[i]);
 	}
 
 	if ((i = num_urls) != 1)
@@ -1062,7 +1066,7 @@ void list_urls()
 
 	sprintf(cmd, rc_url_cmd, urls[i - 1]);
 	system(cmd);
-	printf("\n");
+	scr_printf("\n");
 }
 
 /*
@@ -1111,7 +1115,7 @@ void readmsgs(
 	serv_puts(cmd);
 	serv_gets(cmd);
 	if (cmd[0] != '1') {
-		printf("%s\n", &cmd[5]);
+		scr_printf("%s\n", &cmd[5]);
 	} else {
 		while (serv_gets(cmd), strcmp(cmd, "000")) {
 			if (num_msgs == MAXMSGS) {
@@ -1125,10 +1129,10 @@ void readmsgs(
 
 	if (num_msgs == 0) {
 		if (c == 3) return;
-		printf("*** There are no ");
-		if (c == 1) printf("new ");
-		if (c == 2) printf("old ");
-		printf("messages in this room.\n");
+		scr_printf("*** There are no ");
+		if (c == 1) scr_printf("new ");
+		if (c == 2) scr_printf("old ");
+		scr_printf("messages in this room.\n");
 		return;
 	}
 
@@ -1166,7 +1170,7 @@ RAGAIN:		pagin = ((arcflag == 0)
 		if ((quotflag) || (arcflag)) {
 			screenwidth = hold_sw;
 		}
-RMSGREAD:	fflush(stdout);
+RMSGREAD:	scr_flush();
 		highest_msg_read = msg_arr[a];
 		if (quotflag) {
 			freopen("/dev/tty", "r+", stdout);
@@ -1181,9 +1185,11 @@ RMSGREAD:	fflush(stdout);
 			f = fork();
 			if (f == 0) {
 				freopen(prtfile, "r", stdin);
+				screen_reset();
 				sttybbs(SB_RESTORE);
 				ka_system(printcmd);
 				sttybbs(SB_NO_INTR);
+				screen_set();
 				unlink(prtfile);
 				exit(0);
 			}
@@ -1191,7 +1197,7 @@ RMSGREAD:	fflush(stdout);
 				do {
 					g = wait(NULL);
 				} while ((g != f) && (g >= 0));
-			printf("Message printed.\n");
+			scr_printf("Message printed.\n");
 		}
 		if (rc_alt_semantics && c == 1) {
 			char buf[SIZ];
@@ -1208,11 +1214,11 @@ RMSGREAD:	fflush(stdout);
 			e = 'n';
 		} else {
 			color(DIM_WHITE);
-			printf("(");
+			scr_printf("(");
 			color(BRIGHT_WHITE);
-			printf("%d", num_msgs - a - 1);
+			scr_printf("%d", num_msgs - a - 1);
 			color(DIM_WHITE);
-			printf(") ");
+			scr_printf(") ");
 
 			keyopt("<B>ack <A>gain <Q>uote <R>eply <N>ext <S>top m<Y> next ");
 			if (rc_url_cmd[0] && num_urls)
@@ -1252,97 +1258,95 @@ RMSGREAD:	fflush(stdout);
 				 && (e != 'u') && (e != 'c') && (e != 'y'));
 			switch (e) {
 			case 's':
-				printf("Stop\r");
+				scr_printf("Stop");
 				break;
 			case 'a':
-				printf("Again\r");
+				scr_printf("Again");
 				break;
 			case 'd':
-				printf("Delete\r");
+				scr_printf("Delete");
 				break;
 			case 'm':
-				printf("Move\r");
+				scr_printf("Move");
 				break;
 			case 'c':
-				printf("Copy\r");
+				scr_printf("Copy");
 				break;
 			case 'n':
-				printf("Next\r");
+				scr_printf("Next");
 				break;
 			case 'p':
-				printf("Print\r");
+				scr_printf("Print");
 				break;
 			case 'q':
-				printf("Quote\r");
+				scr_printf("Quote");
 				break;
 			case 'b':
-				printf("Back\r");
+				scr_printf("Back");
 				break;
 			case 'h':
-				printf("Header\r");
+				scr_printf("Header");
 				break;
 			case 'r':
-				printf("Reply\r");
+				scr_printf("Reply");
 				break;
 			case 'f':
-				printf("File\r");
+				scr_printf("File");
 				break;
 			case 'u':
-				printf("URL's\r");
+				scr_printf("URL's");
 				break;
 			case 'y':
-				printf("mY next\r");
+				scr_printf("mY next");
 				break;
 			case '?':
-				printf("? <help>\r");
+				scr_printf("? <help>");
 				break;
 			}
 			if (userflags & US_DISAPPEAR)
-				printf("\r%79s\r", "");
+				scr_printf("\r%79s\r", "");
 			else
-				printf("\n");
-			fflush(stdout);
+				scr_printf("\n");
+			scr_flush();
 		}
 		switch (e) {
 		case '?':
-			printf("Options available here:\n");
-			printf(" ?  Help (prints this message)\n");
-			printf(" S  Stop reading immediately\n");
-			printf(" A  Again (repeats last message)\n");
-			printf(" N  Next (continue with next message)\n");
-			printf(" Y  My Next (continue with next message you authored)\n");
-			printf(" B  Back (go back to previous message)\n");
+			scr_printf("Options available here:\n"
+				" ?  Help (prints this message)\n"
+				" S  Stop reading immediately\n"
+				" A  Again (repeats last message)\n"
+				" N  Next (continue with next message)\n"
+				" Y  My Next (continue with next message you authored)\n"
+				" B  Back (go back to previous message)\n");
 			if ((is_room_aide)
 			    || (room_flags & QR_MAILBOX)) {
-				printf(" D  Delete this message\n");
-				printf
-				    (" M  Move message to another room\n");
+				scr_printf(" D  Delete this message\n"
+					" M  Move message to another room\n");
 			}
-			printf(" C  Copy message to another room\n");
+			scr_printf(" C  Copy message to another room\n");
 			if (strlen(printcmd) > 0)
-				printf(" P  Print this message\n");
-			printf
-			    (" Q  Quote portions of this message for your next post\n");
-			printf
-			    (" H  Headers (display message headers only)\n");
+				scr_printf(" P  Print this message\n");
+			scr_printf(
+				" Q  Quote portions of this message for your next post\n"
+				" H  Headers (display message headers only)\n");
 			if (is_mail)
-				printf(" R  Reply to this message\n");
+				scr_printf(" R  Reply to this message\n");
 			if (rc_allow_attachments)
-				printf
+				scr_printf
 				    (" F  (save attachments to a file)\n");
 			if (strlen(rc_url_cmd) > 0)
-				printf(" U  (list URL's for display)\n");
-			printf("\n");
+				scr_printf(" U  (list URL's for display)\n");
+			scr_printf("\n");
 			goto RMSGREAD;
 		case 'p':
-			fflush(stdout);
+			scr_flush();
 			freopen(prtfile, "w", stdout);
 			arcflag = 1;
 			hold_color = enable_color;
 			enable_color = 0;
 			goto RAGAIN;
 		case 'q':
-			fflush(stdout);
+			scr_flush();
 			freopen(temp2, "w", stdout);
 			quotflag = 1;
 			hold_color = enable_color;
@@ -1365,7 +1369,7 @@ RMSGREAD:	fflush(stdout);
 					(e == 'c' ? 1 : 0));
 				serv_puts(cmd);
 				serv_gets(cmd);
-				printf("%s\n", &cmd[4]);
+				scr_printf("%s\n", &cmd[4]);
 				if (cmd[0] == '2')
 					msg_arr[a] = 0L;
 			} else {
@@ -1387,16 +1391,16 @@ RMSGREAD:	fflush(stdout);
 						       extract_int(&cmd[4],
 								   0));
 			} else {
-				printf("%s\n", &cmd[4]);
+				scr_printf("%s\n", &cmd[4]);
 			}
 			goto RMSGREAD;
 		case 'd':
-			printf("*** Delete this message? ");
+			scr_printf("*** Delete this message? ");
 			if (yesno() == 1) {
 				sprintf(cmd, "DELE %ld", msg_arr[a]);
 				serv_puts(cmd);
 				serv_gets(cmd);
-				printf("%s\n", &cmd[4]);
+				scr_printf("%s\n", &cmd[4]);
 				if (cmd[0] == '2')
 					msg_arr[a] = 0L;
 			} else {
@@ -1478,7 +1482,7 @@ void check_message_base(void)
 {
 	char buf[SIZ];
 
-	printf
+	scr_printf
 	    ("Please read the documentation before running this command.\n"
 	    "Having done so, do you still want to check the message base? ");
 	if (yesno() == 0)
@@ -1487,11 +1491,11 @@ void check_message_base(void)
 	serv_puts("FSCK");
 	serv_gets(buf);
 	if (buf[0] != '1') {
-		printf("%s\n", &buf[4]);
+		scr_printf("%s\n", &buf[4]);
 		return;
 	}
 
 	while (serv_gets(buf), strcmp(buf, "000")) {
-		printf("%s\n", buf);
+		scr_printf("%s\n", buf);
 	}
 }

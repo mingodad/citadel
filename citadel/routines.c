@@ -29,14 +29,16 @@
 #  include <time.h>
 # endif
 #endif
-
+#ifdef HAVE_LIMITS_H
 #include <limits.h>
+#endif
 #ifdef HAVE_UTMP_H
 #include <utmp.h>
 #endif
 #ifdef HAVE_UTMPX_H
 #include <utmpx.h>
 #endif
+#include "screen.h"
 
 #ifndef HAVE_GETUTLINE
 struct utmp *getutline(struct utmp *ut);
@@ -73,7 +75,7 @@ void back(int spaces) /* Destructive backspace */
             {
 	int a;
 	for (a=1; a<=spaces; ++a) {
-		putc(8,stdout); putc(32,stdout); putc(8,stdout);
+		scr_putc(8); scr_putc(32); scr_putc(8);
 		}
 	}
 
@@ -82,13 +84,13 @@ void hit_any_key(void) {		/* hit any key to continue */
 
 	color(COLOR_PUSH);
 	color(DIM_RED);
-	printf("%s\r",serv_info.serv_moreprompt);
+	scr_printf("%s\r",serv_info.serv_moreprompt);
 	color(COLOR_POP);
 	sttybbs(0);
 	b=inkey();
 	for (a=0; a<strlen(serv_info.serv_moreprompt); ++a)
-		putc(' ',stdout);
-	putc(13,stdout);
+		scr_putc(' ');
+	scr_putc(13);
 	sttybbs(1);
 	if (b == 'q' || b == 'Q' || b == 's' || b == 'S')
 		b = STOP_KEY;
@@ -119,7 +121,7 @@ void edituser(void)
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]!='2') {
-		printf("%s\n",&buf[4]);
+		scr_printf("%s\n",&buf[4]);
 		return;
 		}
 	extract(who, &buf[4], 0);
@@ -149,7 +151,7 @@ void edituser(void)
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]!='2') {
-		printf("%s\n",&buf[4]);
+		scr_printf("%s\n",&buf[4]);
 		}
 	}
 
@@ -161,13 +163,13 @@ int set_attr(int sval, char *prompt, unsigned int sbit)
 
 	temp = sval;
 	color(DIM_WHITE);
-	printf("%45s ", prompt);
+	scr_printf("%45s ", prompt);
 	color(DIM_MAGENTA);
-	printf("[");
+	scr_printf("[");
 	color(BRIGHT_MAGENTA);
-	printf("%3s", ((temp&sbit) ? "Yes":"No"));
+	scr_printf("%3s", ((temp&sbit) ? "Yes":"No"));
 	color(DIM_MAGENTA);
-	printf("]? ");
+	scr_printf("]? ");
 	color(BRIGHT_CYAN);
 	a=yesno_d(temp&sbit);
 	color(DIM_WHITE);
@@ -189,7 +191,7 @@ void enter_config(int mode)
 	serv_puts(buf);
 	serv_gets(buf);
 	if (buf[0]!='2') {
-		printf("%s\n",&buf[4]);
+		scr_printf("%s\n",&buf[4]);
 		return;
 		}
 
@@ -232,29 +234,29 @@ void enter_config(int mode)
 	if (mode==2) {
 	 if (flags & US_EXPERT) {
 		flags = (flags ^ US_EXPERT);
-		printf("Expert mode now OFF\n");
+		scr_printf("Expert mode now OFF\n");
 		}
 	 else {
 		flags = (flags | US_EXPERT);
-		printf("Expert mode now ON\n");
+		scr_printf("Expert mode now ON\n");
 		}
 	 }
 
 	if (mode==3) {
 	 if (flags & US_FLOORS) {
 		flags = (flags ^ US_FLOORS);
-		printf("Floor mode now OFF\n");
+		scr_printf("Floor mode now OFF\n");
 		}
 	 else {
 		flags = (flags | US_FLOORS);
-		printf("Floor mode now ON\n");
+		scr_printf("Floor mode now ON\n");
 		}
 	 }
 
 	sprintf(buf,"SETU %d|%d|%d|%d",width,height,flags,filter);
 	serv_puts(buf);
 	serv_gets(buf);
-	if (buf[0]!='2') printf("%s\n",&buf[4]);
+	if (buf[0]!='2') scr_printf("%s\n",&buf[4]);
 	userflags = flags;
 }
 
@@ -295,8 +297,8 @@ int pattern(char *search, char *patn)	/* Searches for patn in search string */
 
 void interr(int errnum)	/* display internal error as defined in errmsgs */
             {
-	printf("*** INTERNAL ERROR %d\n",errnum);
-	printf("(Press any key to continue)\n");
+	scr_printf("*** INTERNAL ERROR %d\n"
+		"(Press any key to continue)\n", errnum);
 	inkey();
 	logoff(errnum);
 }
@@ -346,7 +348,7 @@ void strproc(char *string)
  */
 char *strerror(int e)
 {
-	static char buf[32];
+	static char buf[128];
 
 	sprintf(buf,"errno = %d",e);
 	return(buf);
@@ -360,21 +362,21 @@ void progress(long int curr, long int cmax)
 	long a;
 
 	if (curr==0) {
-		printf(".......................................");
-		printf(".......................................\r");
-		fflush(stdout);
+		scr_printf(".......................................");
+		scr_printf(".......................................\r");
+		scr_flush();
 		dots_printed = 0;
 		}
 	else if (curr==cmax) {
-		printf("\r%79s\n","");
+		scr_printf("\r%79s\n","");
 		}
 	else {
 		a=(curr * 100) / cmax;
 		a=a*78; a=a/100;
 		while (dots_printed < a) {
-			printf("*");
+			scr_printf("*");
 			++dots_printed;
-			fflush(stdout);
+			scr_flush();
 			}
 		}
 	}
@@ -469,11 +471,11 @@ void misc_server_cmd(char *cmd) {
 
 	serv_puts(cmd);
 	serv_gets(buf);
-	printf("%s\n",buf);
+	scr_printf("%s\n",buf);
 	if (buf[0]=='1') {
 		set_keepalives(KA_NO);
 		while (serv_gets(buf), strcmp(buf,"000")) {
-			printf("%s\n",buf);
+			scr_printf("%s\n",buf);
 			}
 		set_keepalives(KA_YES);
 		return;

@@ -86,7 +86,7 @@ SOURCES=aidepost.c citadel.c citmail.c citserver.c client_chat.c \
 	client_crypto.c commands.c config.c control.c $(DATABASE) \
 	dynloader.c file_ops.c housekeeping.c ipc_c_tcp.c locate_host.c \
 	logging.c messages.c msgbase.c msgform.c \
-	netsetup.c policy.c readlog.c migratenet.c \
+	netsetup.c policy.c readlog.c migratenet.c screen.c \
 	room_ops.c rooms.c routines.c routines2.c serv_chat.c serv_crypto.c \
 	serv_info.c serv_test.c setup.c snprintf.c stats.c serv_vcard.c \
 	support.c sysdep.c tools.c user_ops.c userlist.c serv_expire.c \
@@ -114,14 +114,14 @@ serv_modules: $(SERV_MODULES)
 #
 
 citadel$(EXEEXT): ipc_c_tcp$(CX) citadel$(CX) rooms$(CX) routines$(CX) \
-	routines2$(CX) messages$(CX)  \
+	routines2$(CX) messages$(CX) screen$(CX) \
 	client_passwords$(CX) md5$(CX) client_crypto$(CX) \
 	commands$(CX) client_chat$(CX) serv_info$(CX) tools$(CX) $(LIBOBJS)
 	$(CC) ipc_c_tcp$(CX) citadel$(CX) rooms$(CX) routines$(CX) \
-	routines2$(CX) messages$(CX) \
+	routines2$(CX) messages$(CX) screen$(CX) \
 	commands$(CX) client_chat$(CX) serv_info$(CX) tools$(CX) \
 	client_passwords$(CX) md5$(CX) client_crypto$(CX) \
-	$(LIBOBJS) $(LDFLAGS) -o citadel $(NETLIBS) $(SSL_LIBS) $(CLIENT_PTLIBS)
+	$(LIBOBJS) $(LDFLAGS) -o citadel $(CURSES) $(NETLIBS) $(SSL_LIBS) $(CLIENT_PTLIBS)
 
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c $<

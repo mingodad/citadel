@@ -55,6 +55,7 @@
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
+#include "screen.h"
 
 struct citcmd {
 	struct citcmd *next;
@@ -181,7 +182,7 @@ void pprintf(const char *format, ...) {
         va_end(arg_ptr);   
 
 	for (i=0; i<strlen(buf); ++i) {
-		putc(buf[i], stdout);
+		scr_putc(buf[i]);
 		if (buf[i]==10) {
 			++lines_printed;
 			lines_printed = checkpagin(lines_printed,
@@ -210,11 +211,11 @@ void print_express(void)
 		return;
 
 	if (rc_exp_beep) {
-		putc(7, stdout);
+		scr_putc(7);
 	}
 	if (strlen(rc_exp_cmd) == 0) {
 		color(BRIGHT_RED);
-		printf("\r---");
+		scr_printf("\r---");
 	}
 	
 	while (express_msgs != 0) {
@@ -277,41 +278,41 @@ void print_express(void)
 			}
 		}
 		/* fall back to built-in express message display */
-		printf("\n");
+		scr_printf("\n");
 		lines_printed++;
 
 		/* Header derived from flags */
 		if (flags & 2)
-			printf("Please log off now, as requested ");
+			scr_printf("Please log off now, as requested ");
 		else if (flags & 1)
-			printf("Broadcast message ");
+			scr_printf("Broadcast message ");
 		else if (flags & 4)
-			printf("Chat request ");
+			scr_printf("Chat request ");
 		else
-			printf("Message ");
+			scr_printf("Message ");
 	
 		/* Timestamp.  Can this be improved? */
 		if (stamp->tm_hour == 0 || stamp->tm_hour == 12)/* 12am/12pm */
-			printf("at 12:%02d%cm", stamp->tm_min, 
+			scr_printf("at 12:%02d%cm", stamp->tm_min, 
 				stamp->tm_hour ? 'p' : 'a');
 		else if (stamp->tm_hour > 12)			/* pm */
-			printf("at %d:%02dpm",
+			scr_printf("at %d:%02dpm",
 				stamp->tm_hour - 12, stamp->tm_min);
 		else						/* am */
-			printf("at %d:%02dam", stamp->tm_hour, stamp->tm_min);
+			scr_printf("at %d:%02dam", stamp->tm_hour, stamp->tm_min);
 		
 		/* Sender */
-		printf(" from %s", sender);
+		scr_printf(" from %s", sender);
 	
 		/* Remote node, if any */
 		if (strncmp(serv_info.serv_nodename, node, 32))
-			printf(" @%s", node);
+			scr_printf(" @%s", node);
 	
-		printf(":\n");
+		scr_printf(":\n");
 		lines_printed++;
 		fmout(screenwidth, NULL, 1, screenheight, -1, 0);
 	}
-	printf("\n---\n");
+	scr_printf("\n---\n");
 	color(BRIGHT_WHITE);
 
 
@@ -338,11 +339,11 @@ static void really_do_keepalive(void) {
 		if (buf[3] == '*') {
 			express_msgs = 1;
 			if (ok_to_interrupt == 1) {
-				printf("\r%64s\r", "");
+				scr_printf("\r%64s\r", "");
 				print_express();
-				printf("%s%c ", room_name,
+				scr_printf("%s%c ", room_name,
 				       room_prompt(room_flags));
-				fflush(stdout);
+				scr_flush();
 			}
 		}
 	}
@@ -387,8 +388,8 @@ static void do_keepalive(void)
 		return;
 
 	/* Do a space-backspace to keep telnet sessions from idling out */
-	printf(" %c", 8);
-	fflush(stdout);
+	scr_printf(" %c", 8);
+	scr_flush();
 
 #ifdef THREADED_CLIENT
 	if (async_ka_enabled)
@@ -430,9 +431,8 @@ int inkey(void)
 	fd_set rfds;
 	struct timeval tv;
 	time_t start_time, now;
-	char inbuf[2];
 
-	fflush(stdout);
+	scr_flush();
 	lines_printed = 0;
 	time(&start_time);
 
@@ -460,15 +460,14 @@ int inkey(void)
 		/* At this point, there's input, so fetch it.
 		 * (There's a hole in the bucket...)
 		 */
-		read(0, inbuf, 1);
-		a = inbuf[0];
+		a = scr_getc();
 		if (a == 127)
 			a = 8;
 		if (a > 126)
 			a = 0;
-		if (a == 10)
-			a = 13;
-		if (((a != 4) && (a != 13) && (a != 8) && (a != NEXT_KEY) && (a != STOP_KEY))
+		if (a == 13)
+			a = 10;
+		if (((a != 4) && (a != 10) && (a != 8) && (a != NEXT_KEY) && (a != STOP_KEY))
 		    && ((a < 32) || (a > 126)))
 			a = 0;
 	} while (a == 0);
@@ -483,11 +482,11 @@ int yesno(void)
 		a = inkey();
 		a = tolower(a);
 		if (a == 'y') {
-			printf("Yes\n");
+			scr_printf("Yes\n");
 			return (1);
 		}
 		if (a == 'n') {
-			printf("No\n");
+			scr_printf("No\n");
 			return (0);
 		}
 	}
@@ -500,14 +499,14 @@ int yesno_d(int d)
 	while (1) {
 		a = inkey();
 		a = tolower(a);
-		if (a == 13)
+		if (a == 10)
 			a = (d ? 'y' : 'n');
 		if (a == 'y') {
-			printf("Yes\n");
+			scr_printf("Yes\n");
 			return (1);
 		}
 		if (a == 'n') {
-			printf("No\n");
+			scr_printf("No\n");
 			return (0);
 		}
 	}
@@ -535,18 +534,17 @@ void getline(char *string, int lim)
 	a = (a & 127);
 	if ((a == 8) && (strlen(string) == 0))
 		goto GLA;
-	if ((a != 13) && (a != 8) && (strlen(string) == lim))
+	if ((a != 10) && (a != 8) && (strlen(string) == lim))
 		goto GLA;
 	if ((a == 8) && (string[0] != 0)) {
 		string[strlen(string) - 1] = 0;
-		putc(8, stdout);
-		putc(32, stdout);
-		putc(8, stdout);
+		scr_putc(8);
+		scr_putc(32);
+		scr_putc(8);
 		goto GLA;
 	}
-	if ((a == 13) || (a == 10)) {
-		putc(13, stdout);
-		putc(10, stdout);
+	if ((a == 10)) {
+		scr_putc(10);
 		async_ka_end();
 		return;
 	}
@@ -556,9 +554,9 @@ void getline(char *string, int lim)
 	string[b] = a;
 	string[b + 1] = 0;
 	if (flag == 0)
-		putc(a, stdout);
+		scr_putc(a);
 	if (flag == 1)
-		putc('*', stdout);
+		scr_putc('*');
 	goto GLA;
 }
 
@@ -572,15 +570,15 @@ void strprompt(char *prompt, char *str, int len)
 	char buf[128];
 	print_express();
 	color(DIM_WHITE);
-	printf("%s ", prompt);
+	scr_printf("%s ", prompt);
 	color(DIM_MAGENTA);
-	printf("[");
+	scr_printf("[");
 	color(BRIGHT_MAGENTA);
-	printf("%s", str);
+	scr_printf("%s", str);
 	color(DIM_MAGENTA);
-	printf("]");
+	scr_printf("]");
 	color(DIM_WHITE);
-	printf(": ");
+	scr_printf(": ");
 	color(BRIGHT_CYAN);
 	getline(buf, len);
 	if (buf[0] != 0)
@@ -597,13 +595,13 @@ int boolprompt(char *prompt, int prev_val)
 	int r;
 
 	color(DIM_WHITE);
-	printf("%s ", prompt);
+	scr_printf("%s ", prompt);
 	color(DIM_MAGENTA);
-	printf(" [");
+	scr_printf(" [");
 	color(BRIGHT_MAGENTA);
-	printf("%s", (prev_val ? "Yes" : "No"));
+	scr_printf("%s", (prev_val ? "Yes" : "No"));
 	color(DIM_MAGENTA);
-	printf("]: ");
+	scr_printf("]: ");
 	color(BRIGHT_CYAN);
 	r = (yesno_d(prev_val));
 	color(DIM_WHITE);
@@ -631,9 +629,9 @@ int intprompt(char *prompt, int ival, int imin, int imax)
 				i = imin - 1;
 		}
 		if (i < imin)
-			printf("*** Must be no less than %d.\n", imin);
+			scr_printf("*** Must be no less than %d.\n", imin);
 		if (i > imax)
-			printf("*** Must be no more than %d.\n", imax);
+			scr_printf("*** Must be no more than %d.\n", imax);
 	} while ((i < imin) || (i > imax));
 	return (i);
 }
@@ -645,7 +643,7 @@ int intprompt(char *prompt, int ival, int imin, int imax)
 void newprompt(char *prompt, char *str, int len)
 {
 	color(BRIGHT_MAGENTA);
-	printf("%s", prompt);
+	scr_printf("%s", prompt);
 	color(DIM_MAGENTA);
 	getline(str, len);
 	color(DIM_WHITE);
@@ -690,6 +688,7 @@ void load_command_set(void)
 	rc_ansi_color = 0;
 	strcpy(rc_url_cmd, "");
 	rc_encrypt = RC_DEFAULT;
+	rc_screen = RC_DEFAULT;
 	rc_alt_semantics = 0;
 
 	/* now try to open the citadel.rc file */
@@ -724,6 +723,13 @@ void load_command_set(void)
 				rc_encrypt = RC_NO;
 			else if (!strcasecmp(&buf[8], "default"))
 				rc_encrypt = RC_DEFAULT;
+		}
+
+		if (!strncasecmp(buf, "fullscreen=", 11)) {
+			if (!strcasecmp(&buf[11], "yes"))
+				rc_screen = RC_YES;
+			else if (!strcasecmp(&buf[11], "no"))
+				rc_screen = RC_NO;
 		}
 
 		if (!strncasecmp(buf, "editor=", 7))
@@ -972,10 +978,10 @@ int getcmd(char *argbuf)
 	/* now the room prompt... */
 	ok_to_interrupt = 1;
 	color(BRIGHT_WHITE);
-	printf("\n%s", room_name);
+	scr_printf("\n%s", room_name);
 	color(DIM_WHITE);
-	printf("%c ", room_prompt(room_flags));
-	fflush(stdout);
+	scr_printf("%c ", room_prompt(room_flags));
+	scr_flush();
 
 	while (1) {
 		ch = inkey();
@@ -1000,13 +1006,13 @@ int getcmd(char *argbuf)
 				if (cptr->c_cmdnum == this_lazy_cmd) {
 					for (a = 0; a < 5; ++a)
 						if (cptr->c_keys[a][0] != 0)
-							printf("%s ", cmd_expand(
+							scr_printf("%s ", cmd_expand(
 											cptr->c_keys[a], 0));
-					printf("\n");
+					scr_printf("\n");
 					return (this_lazy_cmd);
 				}
 			}
-			printf("\n");
+			scr_printf("\n");
 			return (this_lazy_cmd);
 		}
 		/* Otherwise, process the command */
@@ -1015,12 +1021,12 @@ int getcmd(char *argbuf)
 		for (cptr = cmdlist; cptr != NULL; cptr = cptr->next) {
 			if (cmdmatch(cmdbuf, cptr, cmdpos + 1)) {
 
-				printf("%s", cmd_expand(cptr->c_keys[cmdpos], 0));
+				scr_printf("%s", cmd_expand(cptr->c_keys[cmdpos], 0));
 				cmdspaces[cmdpos] = strlen(
 				    cmd_expand(cptr->c_keys[cmdpos], 0));
 				if (cmdpos < 4)
 					if ((cptr->c_keys[cmdpos + 1]) != 0)
-						putc(' ', stdout);
+						scr_putc(' ');
 				++cmdpos;
 			}
 		}
@@ -1031,7 +1037,7 @@ int getcmd(char *argbuf)
 				if (requires_string(cptr, cmdpos)) {
 					getline(argbuf, 32);
 				} else {
-					printf("\n");
+					scr_printf("\n");
 				}
 
 				/* If this command is one that changes rooms,
@@ -1137,6 +1143,12 @@ void sttybbs(int cmd)
 {				/* BSD version of sttybbs() */
 	struct sgttyb live;
 	static struct sgttyb saved_settings;
+	static int last_cmd = 0;
+
+	if (cmd == SB_LAST)
+		cmd = last_cmd;
+	else
+		last_cmd = cmd;
 
 	if ((cmd == 0) || (cmd == 1)) {
 		gtty(0, &live);
@@ -1244,7 +1256,7 @@ FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
 	if (((a == 13) || (a == 10)) && (old != 13) && (old != 10))
 		a = 32;
 	if (((old == 13) || (old == 10)) && (isspace(real))) {
-		printf("\n");
+		scr_printf("\n");
 		++lines_printed;
 		lines_printed = checkpagin(lines_printed, pagin, height);
 		c = 1;
@@ -1254,7 +1266,7 @@ FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
 
 	if (a > 32) {
 		if (((strlen(aaa) + c) > (width - 5)) && (strlen(aaa) > (width - 5))) {
-			printf("\n%s", aaa);
+			scr_printf("\n%s", aaa);
 			c = strlen(aaa);
 			aaa[0] = 0;
 			++lines_printed;
@@ -1267,18 +1279,18 @@ FMTA:	while ((eof_flag == 0) && (strlen(buffer) < 126)) {
 	if (a == 32) {
 		if ((strlen(aaa) + c) > (width - 5)) {
 			c = 1;
-			printf("\n");
+			scr_printf("\n");
 			++lines_printed;
 			lines_printed = checkpagin(lines_printed, pagin, height);
 		}
-		printf("%s ", aaa);
+		scr_printf("%s ", aaa);
 		++c;
 		c = c + strlen(aaa);
 		strcpy(aaa, "");
 		goto FMTA;
 	}
 	if ((a == 13) || (a == 10)) {
-		printf("%s\n", aaa);
+		scr_printf("%s\n", aaa);
 		c = 1;
 		++lines_printed;
 		lines_printed = checkpagin(lines_printed, pagin, height);
@@ -1293,7 +1305,7 @@ OOPS:	do {
 		serv_gets(aaa);
 	} while (strcmp(aaa, "000"));
 
-FMTEND:	printf("\n");
+FMTEND:	scr_printf("\n");
 	++lines_printed;
 	lines_printed = checkpagin(lines_printed, pagin, height);
 	return (sigcaught);
@@ -1320,6 +1332,10 @@ void color(int colornum)
 
 	current_color = colornum;
 	if (enable_color) {
+#ifdef HAVE_CURSES_H
+		if (scr_color(colornum))
+			return;
+#endif
 		/* When switching to dim white, actually output an 'original
 		 * pair' sequence -- this looks better on black-on-white
 		 * terminals.
@@ -1336,7 +1352,7 @@ void color(int colornum)
 			printf("\033[0m");
 			is_bold = 0;
 		}
-		fflush(stdout);
+		scr_flush();
 	}
 }
 
@@ -1344,7 +1360,7 @@ void cls(int colornum)
 {
 	if (enable_color) {
 		printf("\033[4%dm\033[2J\033[H\033[0m", colornum);
-		fflush(stdout);
+		scr_flush();
 	}
 }
 
@@ -1356,7 +1372,7 @@ void send_ansi_detect(void)
 {
 	if (rc_ansi_color == 2) {
 		printf("\033[c");
-		fflush(stdout);
+		scr_flush();
 		time(&AnsiDetect);
 	}
 }
@@ -1415,13 +1431,13 @@ void keyopt(char *buf) {
 	color(DIM_WHITE);
 	for (i=0; i<strlen(buf); ++i) {
 		if (buf[i]=='<') {
-			putc(buf[i], stdout);
+			scr_putc(buf[i]);
 			color(BRIGHT_MAGENTA);
 		} else {
 			if (buf[i]=='>') {
 				color(DIM_WHITE);
 			}
-			putc(buf[i], stdout);
+			scr_putc(buf[i]);
 		}
 	}
 	color(DIM_WHITE);
@@ -1448,30 +1464,30 @@ char keymenu(char *menuprompt, char *menustring) {
 	while (1) {
 		if (display_prompt) {
 			if (do_prompt) {
-				printf("%s ", menuprompt);
+				scr_printf("%s ", menuprompt);
 			} 
 			else {
 				for (i=0; i<choices; ++i) {
 					extract(buf, menustring, i);
 					keyopt(buf);
-					printf(" ");
+					scr_printf(" ");
 				}
 			}
-			printf(" -> ");
+			scr_printf(" -> ");
 			display_prompt = 0;
 		}
 		ch = lkey();
 	
 		if ( (do_prompt) && (ch=='?') ) {
-			printf("\rOne of...                               ");
-			printf("                                      \n");
+			scr_printf("\rOne of...                               ");
+			scr_printf("                                      \n");
 			for (i=0; i<choices; ++i) {
 				extract(buf, menustring, i);
-				printf("   ");
+				scr_printf("   ");
 				keyopt(buf);
-				printf("\n");
+				scr_printf("\n");
 			}
-			printf("\n");
+			scr_printf("\n");
 			display_prompt = 1;
 		}
 
@@ -1483,10 +1499,10 @@ char keymenu(char *menuprompt, char *menustring) {
 				   && (buf[c+1]=='>') ) {
 					for (a=0; a<strlen(buf); ++a) {
 						if ( (a!=(c-1)) && (a!=(c+1))) {
-							putc(buf[a], stdout);
+							scr_putc(buf[a]);
 						}
 					}
-					printf("\n\n");
+					scr_printf("\n\n");
 					return ch;
 				}
 			}
