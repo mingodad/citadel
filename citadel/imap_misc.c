@@ -247,12 +247,22 @@ void imap_append(int num_parms, char *parms[]) {
 	IMAP->transmitted_length = literal_length;
 
 	cprintf("+ Transmit message now.\r\n");
+	lprintf(CTDL_DEBUG, "imap_append() expecting %d bytes\n",
+		literal_length);
 	ret = client_read(IMAP->transmitted_message, literal_length);
 	IMAP->transmitted_message[literal_length] = 0;
 	if (ret != 1) {
 		cprintf("%s NO Read failed.\r\n", parms[0]);
 		return;
 	}
+	lprintf(CTDL_DEBUG, "imap_append() finished reading message\n");
+
+	/* I think there's supposed to be a trailing CRLF after the
+	 * literal (the message text) is received.  This call to
+	 * client_gets() absorbs it.
+	 */
+	client_gets(buf);
+	lprintf(CTDL_DEBUG, "Trailing CRLF: %s\n", buf);
 
 	/* Convert RFC822 newlines (CRLF) to Unix newlines (LF) */
 	lprintf(CTDL_DEBUG, "Converting newline format\n");

@@ -1,4 +1,10 @@
  $Log$
+ Revision 614.67  2004/03/08 05:26:49  ajc
+ * When the last argument of an IMAP APPEND command is a binary literal
+   (i.e. all the time), the client will still be sending a CRLF after the
+   literal.  Added an extra client_read() after the message input to absorb
+   that extra CRLF, to keep client and server from getting out of sync.
+
  Revision 614.66  2004/03/06 05:09:04  ajc
  * serv_smtp.c: don't offer the STARTTLS extension if TLS is already
    active.  Done for to-the-letter compliance with RFC2487.
@@ -5463,4 +5469,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-
