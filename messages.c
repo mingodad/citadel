@@ -119,12 +119,22 @@ void display_parsed_vcard(struct vCard *v, int full) {
 	int i, j;
 	char buf[SIZ];
 	char *name;
-
+	int is_qp = 0;
+	int is_b64 = 0;
 	char *thisname, *thisvalue;
+
+	char displayname[SIZ];
+	char phone[SIZ];
+	char mailto[SIZ];
+
+	strcpy(displayname, "");
+	strcpy(phone, "");
+	strcpy(mailto, "");
 
 	if (!full) {
 		wprintf("<TD>");
-		name = vcard_get_prop(v, "n", 1, 0, 0);
+		name = vcard_get_prop(v, "fn", 1, 0, 0);
+		if (name == NULL) name = vcard_get_prop(v, "n", 1, 0, 0);
 		if (name != NULL) {
 			strcpy(buf, name);
 			escputs(buf);
@@ -140,42 +150,84 @@ void display_parsed_vcard(struct vCard *v, int full) {
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 
 		thisname = strdup(v->prop[i].name);
-		thisvalue = strdup(v->prop[i].value);
 
-		/* FIXME handle base64 and qp encodings here */
-
-		if (!strcasecmp(thisname, "n")) {
-			wprintf("<TR BGCOLOR=\"#AAAAAA\">"
-			"<TD BGCOLOR=\"#FFFFFF\">"
-			"<IMG ALIGN=CENTER SRC=\"/static/vcard.gif\"></TD>"
-			"<TD><FONT SIZE=+1><B>");
-			escputs(thisvalue);
-			wprintf("</B></FONT></TD></TR>\n");
+		for (j=0; j<num_tokens(thisname, ';'); ++j) {
+			extract_token(buf, thisname, j, ';');
+			if (!strcasecmp(buf, "encoding=quoted-printable")) {
+				is_qp = 1;
+				remove_token(thisname, j, ';');
+			}
+			if (!strcasecmp(buf, "encoding=base64")) {
+				is_b64 = 1;
+				remove_token(thisname, j, ';');
+			}
 		}
-		else if (!strcasecmp(thisname, "email;internet")) {
-			wprintf("<TR><TD>Internet e-mail:</TD>"
-				"<TD>"
+
+		if (is_qp) {
+			thisvalue = malloc(strlen(v->prop[i].value) + 50);
+			j = CtdlDecodeQuotedPrintable(
+				thisvalue, v->prop[i].value,
+				strlen(v->prop[i].value) );
+			thisvalue[j] = 0;
+		}
+		else if (is_b64) {
+			thisvalue = malloc(strlen(v->prop[i].value) + 50);
+			CtdlDecodeBase64(
+				thisvalue, v->prop[i].value,
+				strlen(v->prop[i].value) );
+		}
+		else {
+			thisvalue = strdup(v->prop[i].value);
+		}
+
+		/*** Various fields we may encounter ***/
+
+		/* N is name, but only if there's no FN already there */
+		if (!strcasecmp(thisname, "n")
+		   || (!strncasecmp(thisname, "n;", 2)) ) {
+			if (strlen(displayname) == 0) {
+				strcpy(displayname, thisvalue);
+			}
+		}
+
+		/* FN (full name) is a true 'display name' field */
+		else if (!strcasecmp(thisname, "fn")
+		   || (!strncasecmp(thisname, "fn;", 3)) ) {
+			strcpy(displayname, thisvalue);
+		}
+
+		else if (!strncasecmp(thisname, "email", 5)) {
+			if (strlen(mailto) > 0) strcat(mailto, "<BR>");
+			strcat(mailto,
 				"<A HREF=\"/display_enter"
 				"?force_room=_MAIL_&recp=");
-			urlescputs(thisvalue);
-			wprintf("\">");
-			escputs(thisvalue);
-			wprintf("</A></TD></TR>\n");
+			urlesc(&mailto[strlen(mailto)], thisvalue);
+			strcat(mailto, "\">");
+			urlesc(&mailto[strlen(mailto)], thisvalue);
+			strcat(mailto, "</A>");
+		}
+		else if (!strncasecmp(thisname, "tel;", 4)) {
+			if (strlen(phone) > 0) strcat(phone, "<BR>");
+			strcat(phone, thisvalue);
+			for (j=0; j<num_tokens(thisname, ';'); ++j) {
+				extract_token(buf, thisname, j, ';');
+				if (!strcasecmp(buf, "tel"))
+					strcat(phone, "");
+				else if (!strcasecmp(buf, "work"))
+					strcat(phone, " (work)");
+				else if (!strcasecmp(buf, "home"))
+					strcat(phone, " (home)");
+				else if (!strcasecmp(buf, "cell"))
+					strcat(phone, " (cell)");
+				else {
+					strcat(phone, " (");
+					strcat(phone, buf);
+					strcat(phone, ")");
+				}
+			}
 		}
 		else if (!strcasecmp(thisname, "adr")) {
 			wprintf("<TR><TD>Address:</TD><TD>");
-			for (j=0; j<num_tokens(thisvalue, ';'); ++j) {
-				extract_token(buf, thisvalue, j, ';');
-				if (strlen(buf) > 0) {
-					escputs(buf);
-					wprintf("<BR>");
-				}
-			}
-			wprintf("</TD></TR>\n");
-		}
-		else if (!strncasecmp(thisname, "tel;", 4)) {
-			wprintf("<TR><TD>%s telephone:</TD><TD>",
-				&thisname[4]);
 			for (j=0; j<num_tokens(thisvalue, ';'); ++j) {
 				extract_token(buf, thisvalue, j, ';');
 				if (strlen(buf) > 0) {
@@ -197,6 +249,19 @@ void display_parsed_vcard(struct vCard *v, int full) {
 		free(thisvalue);
 
 	}
+
+	wprintf("<TR BGCOLOR=\"#AAAAAA\">"
+	"<TD COLSPAN=2 BGCOLOR=\"#FFFFFF\">"
+	"<IMG ALIGN=CENTER SRC=\"/static/vcard.gif\">"
+	"<FONT SIZE=+1><B>");
+	escputs(displayname);
+	wprintf("</B></FONT></TD></TR>\n");
+
+	if (strlen(phone) > 0)
+		wprintf("<TR><TD>Telephone:</TD><TD>%s</TD></TR>\n", phone);
+	if (strlen(mailto) > 0)
+		wprintf("<TR><TD>E-mail:</TD><TD>%s</TD></TR>\n", mailto);
+
 	wprintf("</TABLE>\n");
 }
 
