@@ -167,9 +167,11 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 			}
 		}
 
-		/* No subfolderificationalisticism on this one... */
-		strcpy(rbuf, roomname);
-		ret = 0;
+		if (ret < 0) {
+			/* No subfolderificationalisticism on this one... */
+			safestrncpy(rbuf, foldername, bufsize);
+			ret = (0 | IR_MAILBOX);
+		}
 
 	}
 	else {
@@ -182,6 +184,7 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 		if (rbuf[i] == '|') rbuf[i] = '/';
 	}
 
+	lprintf(9, "(That translates to \"%s\")\n", rbuf);
 	return(ret);
 }
 

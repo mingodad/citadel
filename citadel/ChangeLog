@@ -1,4 +1,7 @@
  $Log$
+ Revision 591.3  2002/04/05 14:34:02  ajc
+ * Minor tweak to nested folder algorithm to handle nesting in mail root
+
  Revision 591.2  2002/04/05 04:25:56  ajc
  * Support nested folders in IMAP.  We might want to change the delimiter.
 
@@ -3579,4 +3582,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-
