@@ -801,6 +801,7 @@ void who_is_online(int longlist)
 				color(BRIGHT_CYAN);
 				printf("%-25s ", username);
 				color(BRIGHT_MAGENTA);
+				roomname[20] = 0;
 				printf("%-20s ", roomname);
 				color(BRIGHT_CYAN);
 				printf("%-24s\n", fromhost);
