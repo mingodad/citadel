@@ -12,6 +12,7 @@
 /*
  * FIXME
  * Don't allow polls during network processing
+ * Use table isn't saving properly across sessions
  */
 
 #include "sysdep.h"
@@ -71,33 +72,113 @@ struct RoomProcList *rplist = NULL;
 struct NetMap *the_netmap = NULL;
 
 
-
-
-
-
 /*
  * Manage the use table.  This is a list of messages which have recently
  * arrived on the system.  It is maintained and queried to prevent the same
- * message from being entered into the  FIXME not finished
+ * message from being entered into the database multiple times if it happens
+ * to arrive multiple times by accident.
  */
 int network_usetable(int operation, struct CtdlMessage *msg) {
 
 	static struct UseTable *ut = NULL;
 	struct UseTable *uptr = NULL;
+	char *serialized_table = NULL;
+	char msgid[SIZ];
+	char buf[SIZ];
+	int i;
+	size_t stlen = 0;
 
 	switch(operation) {
 	
 		case UT_LOAD:
-			return(1);
-			break;
+			serialized_table = CtdlGetSysConfig(USETABLE);
+			if (serialized_table == NULL) return(0);
 
-		case UT_SAVE:
-			return(1);
-			break;
+			for (i=0; i<num_tokens(serialized_table, '\n'); ++i) {
+				extract_token(buf, serialized_table, i, '\n');
+				uptr = (struct UseTable *)
+					mallok(sizeof(struct UseTable));
+				if (uptr != NULL) {
+					uptr->next = ut;
+					extract(msgid, buf, 0);
+					uptr->message_id = strdoop(msgid);
+					uptr->timestamp = extract_long(buf, 1);
+					ut = uptr;
+				}
+			}
+
+			phree(serialized_table);
+			serialized_table = NULL;
+			return(0);
 
 		case UT_INSERT:
-			return(1);
-			break;
+			/* Bail out if we can't generate a message ID */
+			if (msg == NULL) {
+				return(0);
+			}
+			if (msg->cm_fields['I'] == NULL) {
+				return(0);
+			}
+			if (strlen(msg->cm_fields['I']) == 0) {
+				return(0);
+			}
+
+			/* Generate the message ID */
+			strcpy(msgid, msg->cm_fields['I']);
+			if (haschar(msgid, '@') == 0) {
+				strcat(msgid, "@");
+				if (msg->cm_fields['N'] != NULL) {
+					strcat(msgid, msg->cm_fields['N']);
+				}
+				else {
+					return(0);
+				}
+			}
+
+			/* Compare to the existing list */
+			for (uptr = ut; uptr != NULL; uptr = uptr->next) {
+				if (!strcasecmp(msgid, uptr->message_id)) {
+					return(1);
+				}
+			}
+
+			/* If we got to this point, it's unique: add it. */
+			uptr = (struct UseTable *)
+				mallok(sizeof(struct UseTable));
+			if (uptr == NULL) return(0);
+			uptr->next = ut;
+			uptr->message_id = strdoop(msgid);
+			uptr->timestamp = time(NULL);
+			ut = uptr;
+			return(0);
+
+		case UT_SAVE:
+			/* Figure out how big the serialized buffer should be */
+			stlen = 0;
+			for (uptr = ut; uptr != NULL; uptr = uptr->next) {
+				stlen = stlen + strlen(uptr->message_id) + 20;
+			}
+			serialized_table = mallok(stlen);
+
+			while (ut != NULL) {
+				if (serialized_table != NULL) {
+					sprintf(&serialized_table[strlen(
+					  serialized_table)], "%s|%ld\n",
+					    ut->message_id,
+					    ut->timestamp);
+				}
+
+				/* Now free the memory */
+				uptr = ut;
+				ut = ut->next;
+				phree(uptr->message_id);
+				phree(uptr);
+			}
+
+			/* Write to disk */
+			CtdlPutSysConfig(USETABLE, serialized_table);
+			phree(serialized_table);
+			return(0);
 
 	}
 
@@ -813,7 +894,15 @@ void network_process_buffer(char *buffer, long size) {
 		}
 	}
 
-	/* FIXME check to see if we already have this message */
+	/*
+	 * Check to see if we already have a copy of this message
+	 */
+	if (network_usetable(UT_INSERT, msg) != 0) {
+		/* FIXME - post a msg in Aide> telling us what happened */
+		CtdlFreeMessage(msg);
+		msg = NULL;
+		return;
+	}
 
 	/* Learn network topology from the path */
 	if ((msg->cm_fields['N'] != NULL) && (msg->cm_fields['P'] != NULL)) {
@@ -1213,9 +1302,10 @@ void network_do_queue(void) {
 	network_poll_other_citadel_nodes();
 
 	/*
-	 * Load the network map into memory.
+	 * Load the network map and use table into memory.
 	 */
 	read_network_map();
+	network_usetable(UT_LOAD, NULL);
 
 	/* 
 	 * Go ahead and run the queue
@@ -1234,6 +1324,8 @@ void network_do_queue(void) {
 	lprintf(7, "network: processing inbound queue\n");
 	network_do_spoolin();
 
+	/* Save the usetable and network map back to disk */
+	network_usetable(UT_SAVE, NULL);
 	write_network_map();
 
 	lprintf(7, "network: queue run completed\n");

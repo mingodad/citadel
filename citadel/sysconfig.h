@@ -120,3 +120,8 @@
 #define PAGELOGROOM		"Sent/Received Pages"
 #define SYSCONFIGROOM		"Local System Configuration"
 #define SMTP_SPOOLOUT_ROOM	"__CitadelSMTPspoolout__"
+
+/*
+ * How long (in seconds) to retain message entries in the use table
+ */
+#define USETABLE_RETAIN		604800L		/* 7 days */
