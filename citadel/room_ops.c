@@ -324,6 +324,10 @@ void put_msglist(struct quickroom *whichroom) {
 
 /*
  * delete_msglist()  -  delete room message pointers
+ * FIX - this really should check first to make sure there's actually a
+ *       msglist to delete.  As things stand now, calling this function on
+ *       a room which has never been posted in will result in a message
+ *       like "gdbm: illegal data" (no big deal, but could use fixing).
  */
 void delete_msglist(struct quickroom *whichroom) {
 	char dbkey[256];
@@ -1134,6 +1138,8 @@ void delete_room(struct quickroom *qrbuf) {
 	long MsgToDelete;
 	char aaa[100];
 	int a;
+
+	lprintf(9, "Deleting room <%s>\n", qrbuf->QRname);
 
 	/* Delete the info file */
 	assoc_file_name(aaa, qrbuf, "info");

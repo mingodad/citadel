@@ -634,19 +634,18 @@ void do_system_configuration(void) {
 		"Automatically move promblem user messages to twit room",
 		atoi(&sc[8][0]))));
 
-	strprompt("Initial access level for new users", &sc[9][0], 1);
-	strprompt("Name of twit room", &sc[10][0], ROOMNAMELEN);
-	strprompt("Paginator prompt", &sc[11][0], 79);
+	strprompt("Name of twit room", &sc[9][0], ROOMNAMELEN);
+	strprompt("Paginator prompt", &sc[10][0], 79);
 
-	sprintf(&sc[12][0], "%d", (boolprompt(
+	sprintf(&sc[11][0], "%d", (boolprompt(
 		"Restrict Internet mail to only those with that privilege",
-		atoi(&sc[12][0]))));
+		atoi(&sc[11][0]))));
 
-	strprompt("Geographic location of this system", &sc[13][0], 31);
-	strprompt("Name of system administrator", &sc[14][0], 25);
-	strprompt("Maximum concurrent sessions", &sc[15][0], 4);
-	strprompt("Server-to-server networking password", &sc[16][0], 19);
-	strprompt("Default user purge time (days)", &sc[17][0], 5);
+	strprompt("Geographic location of this system", &sc[12][0], 31);
+	strprompt("Name of system administrator", &sc[13][0], 25);
+	strprompt("Maximum concurrent sessions", &sc[14][0], 4);
+	strprompt("Server-to-server networking password", &sc[15][0], 19);
+	strprompt("Default user purge time (days)", &sc[16][0], 5);
 
 	/* Angels and demons dancing in my head... */
 	do {

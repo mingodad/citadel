@@ -464,11 +464,17 @@ void cmd_pass(char *buf)
 /*
  * Delete a user record *and* all of its related resources.
  */
-int purge_user(char *pname) {
+int purge_user(char pname[]) {
 	char filename[64];
 	char mailboxname[ROOMNAMELEN];
 	struct usersupp usbuf;
 	struct quickroom qrbuf;
+	char lowercase_name[32];
+	int a;
+
+	for (a=0; a<=strlen(pname); ++a) {
+		lowercase_name[a] = tolower(pname[a]);
+		}
 
 	if (getuser(&usbuf, pname) != 0) {
 		lprintf(5, "Cannot purge user <%s> - not found\n", pname);
@@ -492,7 +498,7 @@ int purge_user(char *pname) {
 		}
 
 	/* delete the userlog entry */
-	cdb_delete(CDB_USERSUPP, pname, strlen(pname));
+	cdb_delete(CDB_USERSUPP, lowercase_name, strlen(lowercase_name));
 
 	/* remove the user's bio file */	
 	sprintf(filename, "./bio/%ld", usbuf.usernum);
