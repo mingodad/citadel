@@ -55,3 +55,7 @@ void page_user(void);
 void do_chat(void);
 void display_private(char *rname, int req_pass);
 void goto_private(void);
+void zapped_list(void);
+void display_zap(void);
+void zap(void);
+void display_error(char *errormessage);
