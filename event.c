@@ -171,33 +171,33 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum) 
 	display_icaltimetype_as_webform(&t_start, "dtstart");
 
 	wprintf("<INPUT TYPE=\"checkbox\" NAME=\"alldayevent\" "
-		"VALUE=\"yes\" onClick=\"
-
-			if (this.checked) {
-				this.form.dtstart_hour.value='0';
-				this.form.dtstart_hour.disabled = true;
-				this.form.dtstart_minute.value='0';
-				this.form.dtstart_minute.disabled = true;
-				this.form.dtend_hour.value='0';
-				this.form.dtend_hour.disabled = true;
-				this.form.dtend_minute.value='0';
-				this.form.dtend_minute.disabled = true;
-				this.form.dtend_month.disabled = true;
-				this.form.dtend_day.disabled = true;
-				this.form.dtend_year.disabled = true;
-			}
-			else {
-				this.form.dtstart_hour.disabled = false;
-				this.form.dtstart_minute.disabled = false;
-				this.form.dtend_hour.disabled = false;
-				this.form.dtend_minute.disabled = false;
-				this.form.dtend_month.disabled = false;
-				this.form.dtend_day.disabled = false;
-				this.form.dtend_year.disabled = false;
-			}
-
-
-		\" %s >All day event",
+		"VALUE=\"yes\" onClick=\""
+""
+"			if (this.checked) { "
+"				this.form.dtstart_hour.value='0'; "
+"				this.form.dtstart_hour.disabled = true; "
+"				this.form.dtstart_minute.value='0'; "
+"				this.form.dtstart_minute.disabled = true; "
+"				this.form.dtend_hour.value='0'; "
+"				this.form.dtend_hour.disabled = true; "
+"				this.form.dtend_minute.value='0'; "
+"				this.form.dtend_minute.disabled = true; "
+"				this.form.dtend_month.disabled = true; "
+"				this.form.dtend_day.disabled = true; "
+"				this.form.dtend_year.disabled = true; "
+"			} "
+"			else { "
+"				this.form.dtstart_hour.disabled = false; "
+"				this.form.dtstart_minute.disabled = false; "
+"				this.form.dtend_hour.disabled = false; "
+"				this.form.dtend_minute.disabled = false; "
+"				this.form.dtend_month.disabled = false; "
+"				this.form.dtend_day.disabled = false; "
+"				this.form.dtend_year.disabled = false; "
+"			} "
+" "
+" "
+"		\" %s >All day event",
 		(t_start.is_date ? "CHECKED" : "" )
 	);
 
