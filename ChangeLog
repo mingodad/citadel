@@ -1,4 +1,11 @@
 $Log$
+Revision 213.23  2001/06/22 17:58:20  ajc
+* A few performance and tuning cleanups.  Increased the size of the socket
+  queue length to 100 for use on big systems.  Also, during startup, the
+  initial startup thread now exits after creating the worker threads, instead
+  of becoming a worker thread itself.  For some reason Solaris had problems
+  with the latter method.
+
 Revision 213.22  2001/06/07 03:16:57  ajc
 * Brought over an updated mime parser from Citadel
 
@@ -575,3 +582,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
