@@ -109,6 +109,8 @@ void network_spool_msg(long msgnum, void *userdata) {
 	struct SpoolControl *sc;
 	struct namelist *nptr;
 	int err;
+	char *instr = NULL;
+	struct CtdlMessage *imsg;
 
 	sc = (struct SpoolControl *)userdata;
 
@@ -121,11 +123,31 @@ void network_spool_msg(long msgnum, void *userdata) {
 	err = CtdlSaveMsgPointerInRoom(SMTP_SPOOLOUT_ROOM, msgnum, 0);
 	if (err != 0) return;
 
+	lprintf(9, "Generating delivery instructions\n");
+	instr = mallok(2048);	/* FIXME this won't be enough */
+	sprintf(instr,
+		"Content-type: %s\n\nmsgid|%ld\nsubmitted|%ld\n"
+		"bounceto|postmaster@%s\n" ,
+		SPOOLMIME, msgnum, time(NULL), config.c_fqdn );
+
+       	imsg = mallok(sizeof(struct CtdlMessage));
+	memset(imsg, 0, sizeof(struct CtdlMessage));
+	imsg->cm_magic = CTDLMESSAGE_MAGIC;
+	imsg->cm_anon_type = MES_NORMAL;
+	imsg->cm_format_type = FMT_RFC822;
+	imsg->cm_fields['A'] = strdoop("Citadel");
+	imsg->cm_fields['M'] = instr;
+
+
 	/* FIXME generate delivery instructions for each recipient */
 	for (nptr = sc->listrecps; nptr != NULL; nptr = nptr->next) {
+		sprintf(&instr[strlen(instr)], "remote|%s|0||\n",
+			nptr->name);
 	}
 
 	/* FIXME save delivery instructions in spoolout room */
+	CtdlSaveMsg(imsg, "", SMTP_SPOOLOUT_ROOM, MES_LOCAL);
+	CtdlFreeMessage(imsg);
 
 	/* FIXME update lastseen */
 
