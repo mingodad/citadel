@@ -1,4 +1,15 @@
  $Log$
+ Revision 605.8  2003/03/05 04:55:32  ajc
+ * serv_smtp.c: when authenticated, do not log out when a RSET command is
+   issued.  This breaks clients which carelessly issue RSET before each
+   message, such as Pine.
+ * serv_smtp.c: when authenticated, ignore envelope FROM:<xxx> sender name
+   and replace with address of user who authenticated.  Also fixes Pine.
+ * serv_smtp.c: when authenticated, not only do we continue our glorious
+   RFC-violating condition of replacing the From: header with the user who
+   is logged in, but we also stamp it with their preferred Internet address
+   for outbound mail (which is kept in CC->cs_inet_email).
+
  Revision 605.7  2003/03/03 04:09:21  ajc
  * When creating a user, hide the "My Citadel Config>" room of the user being
    created, not the user currently logged in.
@@ -4506,4 +4517,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
-

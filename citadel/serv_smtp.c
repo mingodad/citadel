@@ -314,9 +314,18 @@ void smtp_expn(char *argbuf) {
  */
 void smtp_rset(void) {
 	memset(SMTP, 0, sizeof(struct citsmtp));
-	if (CC->logged_in) {
-		logout(CC);
-	}
+
+	/*
+	 * It is somewhat ambiguous whether we want to log out when a RSET
+	 * command is issued.  Here's the code to do it.  It is commented out
+	 * because some clients (such as Pine) issue RSET commands before
+	 * each message, but still expect to be logged in.
+	 *
+	 * if (CC->logged_in) {
+	 *	logout(CC);
+	 * }
+	 */
+
 	cprintf("250 Zap!\r\n");
 }
 
@@ -341,7 +350,6 @@ void smtp_mail(char *argbuf) {
 	char user[SIZ];
 	char node[SIZ];
 	char name[SIZ];
-	struct recptypes *valid;
 
 	if (strlen(SMTP->from) != 0) {
 		cprintf("503 Only one sender permitted\r\n");
@@ -362,25 +370,15 @@ void smtp_mail(char *argbuf) {
 		return;
 	}
 
-	/* If this SMTP connection is from a logged-in user, make sure that
-	 * the user only sends email from his/her own address.
+	/* If this SMTP connection is from a logged-in user, force the 'from'
+	 * to be the user's Internet e-mail address as Citadel knows it.
 	 */
 	if (CC->logged_in) {
-		valid = validate_recipients(SMTP->from);
-		if ( (valid->num_local == 1) &&
-		   (!strcasecmp(valid->recp_local, CC->usersupp.fullname)) ) {
-			cprintf("250 Sender ok <%s>\r\n", valid->recp_local);
-			SMTP->message_originated_locally = 1;
-		}
-		else {
-			cprintf("550 <%s> is not your address.\r\n",
-				SMTP->from);
-			strcpy(SMTP->from, "");
-		}
-		phree(valid);
+		strcpy(SMTP->from, CC->cs_inet_email);
+		cprintf("250 Sender ok <%s>\r\n", SMTP->from);
+		SMTP->message_originated_locally = 1;
 		return;
 	}
-
 
 	/* Otherwise, make sure outsiders aren't trying to forge mail from
 	 * this system.
@@ -516,9 +514,11 @@ void smtp_data(void) {
 		if (msg->cm_fields['A'] != NULL) phree(msg->cm_fields['A']);
 		if (msg->cm_fields['N'] != NULL) phree(msg->cm_fields['N']);
 		if (msg->cm_fields['H'] != NULL) phree(msg->cm_fields['H']);
+		if (msg->cm_fields['F'] != NULL) phree(msg->cm_fields['F']);
 		msg->cm_fields['A'] = strdoop(CC->usersupp.fullname);
 		msg->cm_fields['N'] = strdoop(config.c_nodename);
 		msg->cm_fields['H'] = strdoop(config.c_humannode);
+		msg->cm_fields['F'] = strdoop(CC->cs_inet_email);
 	}
 
 	/* Submit the message into the Citadel system. */
@@ -573,6 +573,8 @@ void smtp_command_loop(void) {
 	}
 	lprintf(5, "SMTP: %s\n", cmdbuf);
 	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
+
+	lprintf(9, "CC->logged_in = %d\n", CC->logged_in);
 
 	if (SMTP->command_state == smtp_user) {
 		smtp_get_user(cmdbuf);
