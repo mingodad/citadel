@@ -1,4 +1,7 @@
 $Log$
+Revision 502.0  2003/10/23 03:16:50  ajc
+* THIS IS 5.02
+
 Revision 501.2  2003/10/23 03:07:54  ajc
 * event.c: Found and removed another unquoted multi-line string literal
 * webcit.h: changed an #ifdef HAVE_ICAL_H
