@@ -388,6 +388,7 @@ void gotoroom(char *gname, int display_name)
 
 		wprintf("<HTML><HEAD>\n"
 			"<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">\n"
+			"<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\">\n"
 			"</HEAD>\n");
 		do_template("background.html");
 	}
