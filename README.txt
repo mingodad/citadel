@@ -1,7 +1,12 @@
                       WEBCIT for the Citadel/UX System
                                version 2.13
  
-   Copyright (C) 1996-2000 by Art Cancro, Nathan Bryant, and Nick Grossman
+   Copyright (C) 1996-2000 by the authors.  Portions written by:
+	Art Cancro
+	Nathan Bryant
+	Nick Grossman
+	Andru Luvisi
+ 
 This program is free software released under the terms of the GNU General
 Public License.  Please read COPYING.txt for more licensing information.
  
