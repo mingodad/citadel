@@ -1237,6 +1237,10 @@ void session_loop(struct httprequest *req, int gzip)
 		display_floorconfig(NULL);
 	} else if (!strcasecmp(action, "toggle_self_service")) {
 		toggle_self_service();
+#ifdef HAVE_ICAL_H
+	} else if (!strcasecmp(action, "display_edit_task")) {
+		display_edit_task();
+#endif
 	} else if (!strcasecmp(action, "summary")) {
 		summary();
 	} else if (!strcasecmp(action, "diagnostics")) {

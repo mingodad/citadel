@@ -344,3 +344,7 @@ ssize_t write(int fd, const void *buf, size_t count);
 void cal_process_attachment(char *part_source);
 void display_calendar(long msgnum);
 void display_task(long msgnum);
+
+#ifdef HAVE_ICAL_H
+void display_edit_task(void);
+#endif

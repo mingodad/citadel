@@ -231,37 +231,58 @@ void cal_process_attachment(char *part_source) {
 /*
  * Display handlers for message reading
  */
-void display_individual_cal(icalcomponent *cal) {
+void display_individual_cal(icalcomponent *cal, long msgnum) {
 	wprintf("display_individual_cal() called<BR>\n");
 }
 
-void display_individual_task(icalcomponent *vtodo) {
+
+
+/*
+ * Display a task in the task list
+ */
+void display_individual_task(icalcomponent *vtodo, long msgnum) {
 	icalproperty *p;
 
-	wprintf("display_individual_task() called<BR>\n");
-
-	for (
-	    p = icalcomponent_get_first_property(vtodo,
-						ICAL_ANY_PROPERTY);
-	    p != 0;
-	    p = icalcomponent_get_next_property(vtodo,
-						ICAL_ANY_PROPERTY)
-	) {
-
-		/* Get a string representation of the property's value 
-		wprintf("Prop value: %s<BR>\n",
-					icalproperty_get_comment(p) ); */
-
-		/* Spit out the property in its RFC 2445 representation */
-		wprintf("<TT>%s</TT><BR>\n",
-					icalproperty_as_ical_string(p) );
+	p = icalcomponent_get_first_property(vtodo, ICAL_SUMMARY_PROPERTY);
+	wprintf("<LI><A HREF=\"/display_edit_task?msgnum=%ld\">", msgnum);
+	if (p != NULL) escputs(icalproperty_get_comment(p));
+	wprintf("</A>\n");
+	icalproperty_free(p);
+}
 
 
-	}
+/*
+ * Display/edit a task by itself FIXME
+ */
+void display_edit_individual_task(icalcomponent *vtodo, long msgnum) {
+	icalproperty *p;
 
+	output_headers(3);
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>"
+		"<FONT SIZE=+1 COLOR=\"FFFFFF\""
+		"<B>Edit task</B>"
+		"</FONT></TD></TR></TABLE><BR>\n"
+	);
 
+	wprintf("<FORM METHOD=\"POST\" ACTION=\"/edit_task\">\n");
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n",
+		msgnum);
 
+	wprintf("Summary: "
+		"<INPUT TYPE=\"text\" NAME=\"summary\" "
+		"MAXLENGTH=\"64\" SIZE=\"64\" VALUE=\"");
+	p = icalcomponent_get_first_property(vtodo, ICAL_SUMMARY_PROPERTY);
+	if (p != NULL) escputs(icalproperty_get_comment(p));
+	icalproperty_free(p);
+	wprintf("\">\n");
 
+	wprintf("</FORM>\n");
+
+	wprintf("<BR><BR>\n"
+		"<A HREF=\"/readfwd\">"
+		"Back to task list</A>\n"
+	);
+	wDumpContent(1);
 }
 
 /*
@@ -273,7 +294,7 @@ void display_individual_task(icalcomponent *vtodo) {
 void display_using_handler(long msgnum,
 			char *mimetype,
 			icalcomponent_kind which_kind,
-			void (*callback)(icalcomponent *)
+			void (*callback)(icalcomponent *, long)
 	) {
 	char buf[SIZ];
 	char mime_partnum[SIZ];
@@ -317,7 +338,7 @@ void display_using_handler(long msgnum,
 	    			    (c != 0);
 	    			    c = icalcomponent_get_next_component(cal,
 				    which_kind)) {
-					callback(c);
+					callback(c, msgnum);
 				}
 				icalcomponent_free(cal);
 			}
@@ -337,6 +358,15 @@ void display_task(long msgnum) {
 	display_using_handler(msgnum, "text/calendar",
 				ICAL_VTODO_COMPONENT,
 				display_individual_task);
+}
+
+void display_edit_task(void) {
+	long msgnum = 0L;
+
+	msgnum = atol(bstr("msgnum"));
+	display_using_handler(msgnum, "text/calendar",
+				ICAL_VTODO_COMPONENT,
+				display_edit_individual_task);
 }
 
 #endif /* HAVE_ICAL_H */
