@@ -191,7 +191,7 @@ install-doc:
 		$(INSTALL_DATA) $$i $(root)$(prefix)/$$i; \
 	done
 
-install-exec: all weekly
+install-exec: all
 	@for i in bio bitbucket files images info userpics; do \
 		$(srcdir)/mkinstalldirs $(root)$(prefix)/$$i; \
 	done
@@ -201,7 +201,7 @@ install-exec: all weekly
 			$(INSTALL) $$i $(root)$(prefix)/$$i; \
 		fi \
 	done
-	@for i in utilsmenu weekly ; do \
+	@for i in utilsmenu ; do \
 		if test -f $(srcdir)/$$i; then \
 			echo $(INSTALL) $(srcdir)/$$i $(root)$(prefix)/$$i; \
 			$(INSTALL) $(srcdir)/$$i $(root)$(prefix)/$$i; \
@@ -220,7 +220,7 @@ cleaner: clean
 
 distclean: cleaner
 	find . -name '*~' -o -name '.#*' | xargs rm -f
-	rm -f Makefile sysdep.h config.cache config/.og config.status *.d weekly
+	rm -f Makefile sysdep.h config.cache config/.og config.status *.d 
 
 .c.d:
 	@echo Checking dependencies for $<
@@ -238,8 +238,5 @@ $(srcdir)/configure: $(srcdir)/configure.ac $(srcdir)/aclocal.m4
 
 $(srcdir)/aclocal.m4: $(srcdir)/acinclude.m4
 	cd $(srcdir) && $(ACLOCAL)
-
-weekly: $(srcdir)/weekly.in config.status
-	CONFIG_FILES=weekly CONFIG_HEADERS= $(SHELL) ./config.status
 
 -include $(DEP_FILES)

@@ -70,7 +70,6 @@ SetOutPath "$INSTDIR"
 File C:\cygwin\home\error\cvs\citadel\citserver.exe
 File C:\cygwin\bin\cygz.dll
 File C:\cygwin\home\error\cvs\citadel\base64.exe
-File C:\cygwin\home\error\cvs\citadel\weekly
 File C:\cygwin\home\error\cvs\citadel\setup.exe
 File C:\cygwin\home\error\cvs\citadel\sendcommand.exe
 File C:\cygwin\home\error\cvs\citadel\docs\citadel.html
@@ -122,7 +121,6 @@ Delete /rebootok "$INSTDIR\cygssl-0.9.7.dll"
 Delete /rebootok "$INSTDIR\rxvt.exe"
 Delete /rebootok "$INSTDIR\citserver.exe"
 Delete /rebootok "$INSTDIR\base64.exe"
-Delete /rebootok "$INSTDIR\weekly"
 Delete /rebootok "$INSTDIR\setup.exe"
 Delete /rebootok "$INSTDIR\aidepost.exe"
 Delete /rebootok "$INSTDIR\citmail.exe"

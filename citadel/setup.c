@@ -920,27 +920,17 @@ int main(int argc, char *argv[])
 
 	old_setup_level = config.c_setup_level;
 
-	if (old_setup_level == 0)
+	if (old_setup_level == 0) {
 		goto NEW_INST;
+	}
 
-	if (old_setup_level < 323) {
+	if (old_setup_level < 555) {
 		important_message("Citadel/UX Setup",
 				  "This Citadel/UX installation is too old "
 				  "to be upgraded.");
 		cleanup(1);
 	}
 	write_config_to_disk();
-
-	if ((config.c_setup_level / 10) == 32) {
-		important_msgnum(31);
-		cleanup(0);
-	}
-	if (config.c_setup_level < 400) {
-		config.c_setup_level = 400;
-	}
-	/* end of 3.23 -> 4.00 update section */
-
-	/* end of 4.00 -> 4.02 update section */
 
 	old_setup_level = config.c_setup_level;
 
@@ -961,11 +951,10 @@ NEW_INST:
 	mkdir("images", 0700);
 	mkdir("netconfigs", 0700);
 
-	/* Delete a bunch of old files from Citadel v4; don't need anymore */
+	/* Delete files and directories used by older Citadel versions */
 	system("rm -fr ./chatpipes ./expressmsgs ./sessions 2>/dev/null");
-
-	/* Delete the old citadel.log file; this facility has been removed */
 	unlink("citadel.log");
+	unlink("weekly");
 
 	check_services_entry();	/* Check /etc/services */
 #ifndef __CYGWIN__

@@ -32,7 +32,7 @@ extern "C" {
 /*
  * Text description of this software
  */
-#define CITADEL	"Citadel/UX 6.08"
+#define CITADEL	"Citadel/UX 6.09"
 
 /*
  * REV_LEVEL is the current version number (multiplied by 100 to avoid having
@@ -44,9 +44,9 @@ extern "C" {
  * usually more strict because you're not really supposed to dump/load and
  * upgrade at the same time.
  */
-#define REV_LEVEL	608		/* This version */
+#define REV_LEVEL	609		/* This version */
 #define REV_MIN		591		/* Oldest compatible database */
-#define EXPORT_REV_MIN	608		/* Oldest compatible export files */
+#define EXPORT_REV_MIN	609		/* Oldest compatible export files */
 
 #define SERVER_TYPE 0	/* zero for stock Citadel/UX; other developers please
 			   obtain SERVER_TYPE codes for your implementations */
@@ -127,6 +127,7 @@ struct config {
 	char c_aide_mailboxes;		/* give Aides access to mailboxes   */
 	char c_baseroom[ROOMNAMELEN];	/* Name of baseroom (Lobby)	    */
 	char c_aideroom[ROOMNAMELEN];	/* Name of aideroom (Aide)	    */
+	int c_purge_hour;		/* Hour during which db purges run  */
 };
 
 /*

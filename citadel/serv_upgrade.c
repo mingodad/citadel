@@ -44,90 +44,6 @@
 #include "tools.h"
 #include "serv_upgrade.h"
 
-void do_pre555_user_upgrade(void) {
-        struct pre555user usbuf;
-	struct ctdluser newus;
-        struct cdbdata *cdbus;
-	char tempfilename[PATH_MAX];
-	FILE *fp, *tp;
-	static char vcard[1024];
-
-	lprintf(5, "Upgrading user file\n");
-	fp = tmpfile();
-	if (fp == NULL) {
-		lprintf(1, "%s\n", strerror(errno));
-		exit(errno);
-	}
-	strcpy(tempfilename, tmpnam(NULL));
-
-	/* First, back out all old version records to a flat file */
-        cdb_rewind(CDB_USERS);
-        while(cdbus = cdb_next_item(CDB_USERS), cdbus != NULL) {
-                memset(&usbuf, 0, sizeof(struct pre555user));
-                memcpy(&usbuf, cdbus->ptr,
-                       	( (cdbus->len > sizeof(struct pre555user)) ?
-                       	sizeof(struct pre555user) : cdbus->len) );
-                cdb_free(cdbus);
-		fwrite(&usbuf, sizeof(struct pre555user), 1, fp);
-	}
-
-	/* ...and overwrite the records with new format records */
-	rewind(fp);
-	while (fread(&usbuf, sizeof(struct pre555user), 1, fp) > 0) {
-	    if (strlen(usbuf.fullname) > 0) {
-		lprintf(9, "Upgrading <%s>\n", usbuf.fullname);
-		memset(&newus, 0, sizeof(struct ctdluser));
-
-		newus.uid = usbuf.USuid;
-		strcpy(newus.password, usbuf.password);
-		newus.flags = usbuf.flags;
-		newus.timescalled = (long) usbuf.timescalled;
-		newus.posted = (long) usbuf.posted;
-		newus.axlevel = (cit_uint8_t) usbuf.axlevel;
-		newus.usernum = (long) usbuf.usernum;
-		newus.lastcall = (long) usbuf.lastcall;
-		newus.USuserpurge = (int) usbuf.USuserpurge;
-		strcpy(newus.fullname, usbuf.fullname);
-		newus.USscreenwidth = (cit_uint8_t) usbuf.USscreenwidth;
-		newus.USscreenheight = (cit_uint8_t) usbuf.USscreenheight;
-
-		putuser(&newus);
-
-		/* write the vcard */
-		snprintf(vcard, sizeof vcard,
-			"Content-type: text/x-vcard\n\n"
-			"begin:vcard\n"
-			"n:%s\n"
-			"tel;home:%s\n"
-			"email;internet:%s\n"
-			"adr:;;%s;%s;%s;%s;USA\n"
-			"end:vcard\n",
-			usbuf.USname,
-			usbuf.USphone,
-			usbuf.USemail,
-			usbuf.USaddr,
-			usbuf.UScity,
-			usbuf.USstate,
-			usbuf.USzip);
-
-		tp = fopen(tempfilename, "w");
-		fwrite(vcard, strlen(vcard)+1, 1, tp);
-		fclose(tp);
-
-        	CtdlWriteObject(USERCONFIGROOM, "text/x-vcard",
-			tempfilename, &newus, 0, 1, CM_SKIP_HOOKS);
-		unlink(tempfilename);
-	    }
-	}
-
-	fclose(fp);	/* this file deletes automatically */
-}
-
-
-
-
-
-
 
 
 /* 
@@ -234,14 +150,20 @@ void convert_bbsuid_to_minusone(void) {
 	return;
 }
 
-
 /*
- * This field was originally used for something else, so when we upgrade
- * we have to initialize it to 0 in case there was trash in that space.
+ * Do various things to our configuration file
  */
-void initialize_c_rfc822_strict_from(void) {
+void update_config(void) {
 	get_config();
-	config.c_rfc822_strict_from = 0;
+
+	if (CitControl.version < 606) {
+		config.c_rfc822_strict_from = 0;
+	}
+
+	if (CitControl.version < 609) {
+		config.c_purge_hour = 3;
+	}
+
 	put_config();
 }
 
@@ -263,23 +185,20 @@ void check_server_upgrades(void) {
 		return;
 	}
 
-	if (CitControl.version < 555) do_pre555_user_upgrade();
+	update_config();
+
+	if (CitControl.version < 555) {
+		lprintf(1, "Your data files are from a version of Citadel\n"
+			"that is too old to be upgraded.  Sorry.\n");
+		exit(EXIT_FAILURE);
+	}
+
 	if (CitControl.version < 591) bump_mailbox_generation_numbers();
-	if (CitControl.version < 606) initialize_c_rfc822_strict_from();
 	if (CitControl.version < 608) convert_bbsuid_to_minusone();
 
 	CitControl.version = REV_LEVEL;
 	put_control();
 }
-
-
-
-
-
-
-
-
-
 
 
 char *serv_upgrade_init(void)

@@ -82,7 +82,6 @@ upgrading this package.
 /usr/local/citadel/stats
 /usr/local/citadel/userlist
 /usr/local/citadel/utilsmenu
-/usr/local/citadel/weekly
 /usr/local/citadel/modules/libbio.so
 /usr/local/citadel/modules/libbio.la
 /usr/local/citadel/modules/libchat.so
