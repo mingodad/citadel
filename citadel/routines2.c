@@ -394,17 +394,19 @@ void upload(CtdlIPC *ipc, int c)
 }
 
 /* 
- * validate a user
+ * validate a user (returns 0 for successful validation, nonzero if quitting)
  */
-void val_user(CtdlIPC *ipc, char *user, int do_validate)
+int val_user(CtdlIPC *ipc, char *user, int do_validate)
 {
 	int a;
 	char cmd[SIZ];
 	char buf[SIZ];
 	char *resp = NULL;
 	int ax = 0;
+	char answer[2];
 	int r;				/* IPC response code */
 
+	scr_printf("\n");
 	r = CtdlIPCGetUserRegistration(ipc, user, &resp, cmd);
 	if (r / 100 == 1) {
 		a = 0;
@@ -443,12 +445,31 @@ void val_user(CtdlIPC *ipc, char *user, int do_validate)
 
 	if (do_validate) {
 		/* now set the access level */
-		ax = intprompt("Access level", ax, 0, 6);
-		r = CtdlIPCValidateUser(ipc, user, ax, cmd);
-		if (r / 100 != 2)
-			scr_printf("%s\n", cmd);
+		while(1) {
+			sprintf(answer, "%d", ax);
+			strprompt("New access level (? for help, q to quit)",
+				answer, 1);
+			if ((answer[0] >= '0') && (answer[0] <= '6')) {
+				ax = atoi(answer);
+				r = CtdlIPCValidateUser(ipc, user, ax, cmd);
+				if (r / 100 != 2)
+				scr_printf("%s\n\n", cmd);
+				return(0);
+			}
+			if (tolower(answer[0]) == 'q') {
+				scr_printf("*** Aborted.\n\n");
+				return(1);
+			}
+			if (answer[0] == '?') {
+				scr_printf("Available access levels:\n");
+				for (a=0; a<7; ++a) {
+					scr_printf("%d - %s\n",
+						a, axdefs[a]);
+				}
+			}
+		}
 	}
-	scr_printf("\n");
+	return(0);
 }
 
 
@@ -467,7 +488,7 @@ void validate(CtdlIPC *ipc)
 			scr_printf("%s\n", cmd);
 		if (r / 100 == 3) {
 			extract(buf, cmd, 0);
-			val_user(ipc, buf, 1);
+			if (val_user(ipc, buf, 1) != 0) finished = 1;
 		}
 	} while (finished == 0);
 }

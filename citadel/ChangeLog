@@ -1,4 +1,8 @@
  $Log$
+ Revision 605.27  2003/03/24 03:42:14  ajc
+ * Add the ability to quit out while validating users.  Also added a help
+   option listing available access levels.  This closes Bugzilla #37.
+
  Revision 605.26  2003/03/22 05:38:23  ajc
  * During startup, display the version string from the Berkeley DB library.
  * When deleting a mailbox, don't reveal the namespace prefix to the user.
@@ -4588,3 +4592,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+
