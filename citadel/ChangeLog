@@ -1,4 +1,9 @@
  $Log$
+ Revision 623.2  2004/07/11 03:50:31  ajc
+ * serv_network.c: removed a stray end_critical_section()
+ * serv_network.c: purge invalid ignet_push_share entries during
+   netconfig load instead of during rewrite
+
  Revision 623.1  2004/07/10 02:51:01  ajc
  * Changed "policy set" message to "policy has been updated" to make it
    clearer.
@@ -5907,3 +5912,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

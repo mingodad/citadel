@@ -701,7 +701,6 @@ void network_spoolout_room(char *room_to_spool) {
 	assoc_file_name(filename, sizeof filename, &CC->room, "netconfigs");
 
 	begin_critical_section(S_NETCONFIGS);
-	end_critical_section(S_NETCONFIGS);
 
 	fp = fopen(filename, "r");
 	if (fp == NULL) {
@@ -733,11 +732,17 @@ void network_spoolout_room(char *room_to_spool) {
 			sc.digestrecps = nptr;
 		}
 		else if (!strcasecmp(instr, "ignet_push_share")) {
-			nptr = (struct namelist *)
-				malloc(sizeof(struct namelist));
-			nptr->next = sc.ignet_push_shares;
-			extract(nptr->name, buf, 1);
-			sc.ignet_push_shares = nptr;
+			/* by checking each node's validity, we automatically
+			 * purge nodes which do not exist from room network
+			 * configurations at this time.
+			 */
+			if (is_valid_node(NULL, NULL, buf) == 0) {
+				nptr = (struct namelist *)
+					malloc(sizeof(struct namelist));
+				nptr->next = sc.ignet_push_shares;
+				extract(nptr->name, buf, 1);
+				sc.ignet_push_shares = nptr;
+			}
 		}
 		else {
 			/* Preserve 'other' lines ... *unless* they happen to
@@ -828,11 +833,10 @@ void network_spoolout_room(char *room_to_spool) {
 			 * purge nodes which do not exist from room network
 			 * configurations at this time.
 			 */
-			if (is_valid_node(NULL, NULL,
-			   sc.ignet_push_shares->name) == 0) {
-				fprintf(fp, "ignet_push_share|%s\n",
-					sc.ignet_push_shares->name);
+			if (is_valid_node(NULL, NULL, sc.ignet_push_shares->name) == 0) {
 			}
+			fprintf(fp, "ignet_push_share|%s\n",
+				sc.ignet_push_shares->name);
 			nptr = sc.ignet_push_shares->next;
 			free(sc.ignet_push_shares);
 			sc.ignet_push_shares = nptr;
