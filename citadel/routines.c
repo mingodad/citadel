@@ -210,7 +210,7 @@ void enter_config(int mode)
 		"Enable color support",US_COLOR);
 	  }
 	
-	 filter = intprompt("Moderation filter level", filter, -63, 63);
+	 /* filter = intprompt("Moderation filter level", filter, -63, 63); */
 
 	 }
 

@@ -1,4 +1,9 @@
  $Log$
+ Revision 573.103  2001/02/28 05:49:04  ajc
+ * Removed the moderation questions.
+ * Added extra ignores of SIGPIPE to the code (before every client socket
+   write, because DB screws it up somehow)
+
  Revision 573.102  2001/02/27 19:56:23  nbryant
  pass DB_THREAD to DB->open()
 
@@ -2481,4 +2486,3 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import 
-

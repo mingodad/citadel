@@ -673,7 +673,7 @@ void do_system_configuration(void)
 	strprompt("Geographic location of this system", &sc[12][0], 31);
 	strprompt("Name of system administrator", &sc[13][0], 25);
 	strprompt("Paginator prompt", &sc[10][0], 79);
-	strprompt("Default moderation filter for new users", &sc[25][0], 4);
+	/* strprompt("Default moderation filter for new users", &sc[25][0], 4); */
 
 	/* Security parameters */
 
