@@ -160,7 +160,6 @@ void terminate_session(void)
 }
 
 
-
 /*
  * Change your session info (fake roomname and hostname)
  */
@@ -171,17 +170,17 @@ void edit_me(void)
 	if (!strcasecmp(bstr("sc"), "Change room name")) {
 		serv_printf("RCHG %s", bstr("fake_roomname"));
 		serv_gets(buf);
-		whobbs();
+		http_redirect("/whobbs");
 	} else if (!strcasecmp(bstr("sc"), "Change host name")) {
 		serv_printf("HCHG %s", bstr("fake_hostname"));
 		serv_gets(buf);
-		whobbs();
+		http_redirect("/whobbs");
 	} else if (!strcasecmp(bstr("sc"), "Change user name")) {
 		serv_printf("UCHG %s", bstr("fake_username"));
 		serv_gets(buf);
-		whobbs();
+		http_redirect("/whobbs");
 	} else if (!strcasecmp(bstr("sc"), "Cancel")) {
-		whobbs();
+		http_redirect("/whobbs");
 	} else {
 
 		output_headers(3);

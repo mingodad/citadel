@@ -369,6 +369,21 @@ void output_headers(int controlcode)
 }
 
 
+/*
+ *
+ */
+void http_redirect(char *whichpage) {
+	wprintf("HTTP/1.0 302 Moved Temporarily\n");
+	wprintf("Location: %s\n", whichpage);
+	wprintf("URI: %s\n", whichpage);
+	wprintf("Content-type: text/html\n\n");
+	wprintf("<html><body>\n");
+	wprintf("you really want to be <A HREF=\"%s\">here</A> now\n",
+		whichpage);
+	wprintf("</body></html>\n");
+}
+
+
 
 void check_for_express_messages()
 {

@@ -1,4 +1,9 @@
 $Log$
+Revision 211.19  2000/05/18 02:33:39  ajc
+* Don't call whobbs() directly after changing masq room/host, it screws up the
+  refresh.  It now calls an HTTP redirect page instead.
+* added http_redirect(char *url) function to accomplish the above
+
 Revision 211.18  2000/05/08 17:24:32  ajc
 * Removed HTTP date fields because it was confusing browser caches (weird)
 * Moved express messages to a pop-up HTML window (as opposed to a dialog box)
@@ -439,3 +444,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
