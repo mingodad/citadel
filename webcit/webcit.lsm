@@ -1,7 +1,7 @@
 Begin4
 Title: WebCit
-Version: 5.04
-Entered-date: Tue Mar  9 15:18:57 EST 2004
+Version: 5.06
+Entered-date: Sat Apr 10 00:32:25 EDT 2004
 Description: The Web front-end for Citadel/UX.
         WebCit provides a high performance Web server for your Citadel/UX
 	server.  It does not require any other Web server to operate, and
