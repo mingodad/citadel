@@ -1127,6 +1127,11 @@ void display_whok(void)
 
         output_headers(1);
 
+        wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=007700><TR><TD>");
+        wprintf("<FONT SIZE=+1 COLOR=\"FFFFFF\"<B>Access control list for ");
+	escputs(WC->wc_roomname);
+        wprintf("</B></FONT></TD></TR></TABLE>\n");
+
         if(!strcmp(bstr("sc"), "Kick")) {
                 sprintf(buf, "KICK %s", username);
                 serv_puts(buf);
@@ -1136,7 +1141,7 @@ void display_whok(void)
                         display_error(&buf[4]);
                         return;
                 } else {
-                        wprintf("User %s kicked out of room %s.\n", 
+                        wprintf("<B><I>User %s kicked out of room %s.</I></B>\n", 
                                 username, room);
                 }
         } else if(!strcmp(bstr("sc"), "Invite")) {
@@ -1148,13 +1153,19 @@ void display_whok(void)
                         display_error(&buf[4]);
                         return;
                 } else {
-                        wprintf("User %s invited to room %s.\n", 
+                        wprintf("<B><I>User %s invited to room %s.</I></B>\n", 
                                 username, room);
                 }
         }
         
 
-        wprintf("<FORM METHOD=\"POST\" ACTION=\"/display_whok\">\n");
+
+	wprintf("<TABLE border=0 CELLSPACING=10><TR VALIGN=TOP>"
+		"<TD>The users listed below have access to this room.  "
+		"To remove a user from the access list, select the user "
+		"name from the list and click 'Kick'.<BR><BR>");
+	
+        wprintf("<CENTER><FORM METHOD=\"POST\" ACTION=\"/display_whok\">\n");
         wprintf("<SELECT NAME=\"username\" SIZE=10>\n");
         serv_puts("WHOK");
         serv_gets(buf);
@@ -1166,17 +1177,23 @@ void display_whok(void)
                         wprintf("\n");
                 }
         }
-        wprintf("</SELECT>\n");
+        wprintf("</SELECT><BR>\n");
 
-        wprintf("<CENTER>\n");
         wprintf("<input type=submit name=sc value=\"Kick\">");
-        wprintf("</CENTER>\n");
-        wprintf("</FORM>\n");
-        wprintf("<FORM METHOD=\"POST\" ACTION=\"/display_whok\">\n");
+        wprintf("</FORM></CENTER>\n");
+
+	wprintf("</TD><TD>"
+		"To grant another user access to this room, enter the "
+		"user name in the box below and click 'Invite'.<BR><BR>");
+
+        wprintf("<CENTER><FORM METHOD=\"POST\" ACTION=\"/display_whok\">\n");
         wprintf("Invite: ");
-        wprintf("<input type=text name=username>\n");
-        wprintf("<input type=hidden name=sc value=\"Invite\">");
-        wprintf("<input type=submit value=\"Invite\">");
+        wprintf("<input type=text name=username><BR>\n"
+        	"<input type=hidden name=sc value=\"Invite\">"
+        	"<input type=submit value=\"Invite\">"
+		"</FORM></CENTER>\n");
+
+	wprintf("</TD></TR></TABLE>\n");
         wDumpContent(1);
 }
 

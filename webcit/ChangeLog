@@ -1,4 +1,8 @@
 $Log$
+Revision 323.12  2002/03/12 23:13:57  ajc
+* Moved room access controls out of the admin menu and into the room commands
+  menu.  Prettied up the access control list screen.
+
 Revision 323.11  2002/03/10 06:07:09  ajc
 * Handle multiple Internet e-mail addresses in vCard editor
 
@@ -745,3 +749,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
