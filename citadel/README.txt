@@ -1,3 +1,9 @@
+ Citadel/UX release notes -- version 5.50
+ 
+ Please see the file "ChangeLog" for more information.
+ 
+ 
+
  Citadel/UX release notes -- version 5.01 ("Scooby")
   
  Major overhaul.  The server is now multithreaded; you run one copy of it
