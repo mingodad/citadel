@@ -1,4 +1,7 @@
 $Log$
+Revision 322.1  2001/12/28 09:43:05  error
+* Client support for hostnames up to 63 characters
+
 Revision 322.0  2001/12/26 23:11:56  ajc
 * THIS IS 3.22
 
@@ -698,3 +701,4 @@ Sun Dec  6 19:50:55 EST 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 
 1998-12-03 Nathan Bryant <bryant@cs.usm.maine.edu>
 	* webserver.c: warning fix
+
