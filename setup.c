@@ -461,7 +461,9 @@ void check_inittab_entry(void)
 	char question[SIZ];
 	char entryname[5];
 	char http_port[128];
+#ifdef HAVE_OPENSSL
 	char https_port[128];
+#endif
 	char hostname[128];
 	char portname[128];
 

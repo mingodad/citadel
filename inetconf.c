@@ -80,13 +80,6 @@ void display_inetconf(void)
 	}
 	ic_misc = strdup("");
 
-	output_headers(1, 1, 2, 0, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
-	wprintf("<SPAN CLASS=\"titlebar\">Internet configuration</SPAN>\n");
-	wprintf("</TD></TR></TABLE>\n");
-	wprintf("</div>\n<div id=\"content\">\n");
-
 	serv_printf("CONF GETSYS|application/x-citadel-internet-config");
 	serv_gets(buf);
 	if (buf[0] == '1') while (serv_gets(buf), strcmp(buf, "000")) {
@@ -113,7 +106,14 @@ void display_inetconf(void)
 
 	}
 
-	wprintf("<TABLE border=0 width=100%%><TR><TD VALIGN=TOP>\n");
+	output_headers(1, 1, 2, 0, 0, 0, 0);
+	wprintf("<div id=\"banner\">\n");
+	wprintf("<TABLE WIDTH=100%% BORDER=0 BGCOLOR=\"#444455\"><TR><TD>");
+	wprintf("<SPAN CLASS=\"titlebar\">Internet configuration</SPAN>\n");
+	wprintf("</TD></TR></TABLE>\n");
+	wprintf("</div>\n<div id=\"content\">\n");
+
+	wprintf("<center><table border=0 width=99%%><tr><td valign=top>\n");
 	for (which=0; which<ic_max; ++which) {
 		if (which == (ic_max / 2)) {
 			wprintf("</TD><TD VALIGN=TOP>");
@@ -148,8 +148,7 @@ void display_inetconf(void)
 			"</TD></TR></TABLE></FORM>\n");
 		do_template("endbox");
 	}
-	wprintf("</TD></TR></TABLE>\n");
-
+	wprintf("</td></tr></table></center>\n");
 	wDumpContent(1);
 
 	for (i=0; i<ic_max; ++i) {
@@ -160,10 +159,15 @@ void display_inetconf(void)
 
 
 void save_inetconf(void) {
-	char buf[SIZ];
-	char ename[SIZ];
-	char etype[SIZ];
-	char newconfig[65536];
+	char *buf;
+	char *ename;
+	char *etype;
+	char *newconfig;
+
+	buf = malloc(SIZ);
+	ename = malloc(SIZ);
+	etype = malloc(SIZ);
+	newconfig = malloc(65536);
 
 	strcpy(newconfig, "");
 	serv_printf("CONF GETSYS|application/x-citadel-internet-config");
@@ -198,4 +202,9 @@ void save_inetconf(void) {
 	}
 	
 	display_inetconf();
+
+	free(buf);
+	free(ename);
+	free(etype);
+	free(newconfig);
 }
