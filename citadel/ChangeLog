@@ -1,4 +1,7 @@
  $Log$
+ Revision 614.38  2004/02/16 21:54:22  ajc
+ * Support POP3 over TLS
+
  Revision 614.37  2004/02/16 21:45:43  ajc
  * Implement RFC 2487 - SMTP Service Extension for Secure SMTP over TLS
 
@@ -5353,3 +5356,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncensored.citadel.org>
 	* Initial CVS import
+

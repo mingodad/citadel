@@ -705,8 +705,6 @@ void smtp_command_loop(void) {
 	lprintf(5, "SMTP: %s\n", cmdbuf);
 	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
 
-	lprintf(9, "CC->logged_in = %d\n", CC->logged_in);
-
 	if (SMTP->command_state == smtp_user) {
 		smtp_get_user(cmdbuf);
 	}

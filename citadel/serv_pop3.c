@@ -59,6 +59,11 @@
 #include "serv_pop3.h"
 #include "md5.h"
 
+#ifdef HAVE_OPENSSL
+#include "serv_crypto.h"
+#endif
+
+
 
 /*
  * This cleanup function blows away the temporary memory and files used by
@@ -528,6 +533,30 @@ void pop3_uidl(char *argbuf) {
 }
 
 
+/*
+ * implements the STLS command (Citadel API version)
+ */
+#ifdef HAVE_OPENSSL
+void pop3_stls(void)
+{
+	char ok_response[SIZ];
+	char nosup_response[SIZ];
+	char error_response[SIZ];
+
+	sprintf(ok_response,
+		"+OK Begin TLS negotiation now\r\n");
+	sprintf(nosup_response,
+		"-ERR TLS not supported here\r\n");
+	sprintf(error_response,
+		"-ERR Internal error\r\n");
+	CtdlStartTLS(ok_response, nosup_response, error_response);
+}
+#endif
+
+
+
+
+
 
 
 /* 
@@ -569,6 +598,12 @@ void pop3_command_loop(void) {
 	{
 		pop3_apop(&cmdbuf[5]);
 	}
+
+#ifdef HAVE_OPENSSL
+	else if (!strncasecmp(cmdbuf, "STLS", 4)) {
+		pop3_stls();
+	}
+#endif
 
 	else if (!CC->logged_in) {
 		cprintf("-ERR Not logged in.\r\n");
