@@ -1,4 +1,7 @@
  $Log$
+ Revision 572.30  2000/08/28 19:51:51  ajc
+ * messages.c: cosmetic cleanup (coding convention and comments)
+
  Revision 572.29  2000/08/26 20:23:18  ajc
  * Finished up the back end code for mailing list sends.  Sends now work!
 
@@ -2005,3 +2008,4 @@ Sat Jul 11 00:20:48 EDT 1998 Nathan Bryant <bryant@cs.usm.maine.edu>
 
 Fri Jul 10 1998 Art Cancro <ajc@uncnsrd.mt-kisco.ny.us>
 	* Initial CVS import 
+
