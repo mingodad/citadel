@@ -202,6 +202,11 @@ void display_siteconfig(void)
 			wprintf("<INPUT TYPE=\"checkbox\" NAME=\"c_aide_mailboxes\" VALUE=\"yes\" %s>", ((atoi(buf) != 0) ? "CHECKED" : ""));
 			wprintf("</TD></TR>\n");
 			break;
+		case 32:
+			wprintf("<TR><TD>Hour to run database auto-purge (0-23)</TD><TD>");
+			wprintf("<INPUT TYPE=\"text\" NAME=\"c_purge_hour\" MAXLENGTH=\"2\" VALUE=\"%s\">", buf);
+			wprintf("</TD></TR>\n");
+			break;
 		}
 	}
 
@@ -260,6 +265,7 @@ void siteconfig(void)
 	serv_printf("%s", bstr("c_net_freq"));
 	serv_printf("%s", bstr("c_disable_newu"));
 	serv_printf("%s", bstr("c_aide_mailboxes"));
+	serv_printf("%s", bstr("c_purge_hour"));
 	serv_printf("000");
 	display_success("System configuration has been updated.");
 }
