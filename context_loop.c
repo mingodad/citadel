@@ -81,20 +81,17 @@ void req_gets(int sock, char *buf, char *hold) {
 /*
  * This loop gets called once for every HTTP connection made to WebCit.
  */
-void *context_loop(int *socknumptr) {
+void *context_loop(int sock) {
 	char req[256][256];
 	char buf[256], hold[256];
 	int num_lines = 0;
 	int a;
 	int f;
-	int sock;
 	int desired_session = 0;
 	char str_session[256];
 	struct wc_session *sptr;
 	struct wc_session *TheSession;
 	int ContentLength;
-
-	sock = *socknumptr;
 
 	printf("Reading request from socket %d\n", sock);
 
@@ -160,8 +157,9 @@ void *context_loop(int *socknumptr) {
 	 * Grab a lock on the session, so other threads don't try to access
 	 * the pipes at the same time.
 	 */
-	printf("Locking...\n");
+	printf("Locking session %d...\n", TheSession->session_id);
 	pthread_mutex_lock(&TheSession->critter);
+	printf("   ...got lock\n");
 
 	/* 
 	 * Send the request to the appropriate session...
