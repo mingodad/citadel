@@ -285,6 +285,7 @@ void readloop(char *oper)
 	int maxmsgs;
 	int num_displayed = 0;
 	int is_summary = 0;
+	int remaining_messages;
 
 	startmsg = atol(bstr("startmsg"));
 	maxmsgs = atoi(bstr("maxmsgs"));
@@ -319,6 +320,15 @@ void readloop(char *oper)
 		goto DONE;
 	}
 
+	remaining_messages = 0;
+	for (a = 0; a < nummsgs; ++a) {
+		if (WC->msgarr[a] >= startmsg) {
+			++remaining_messages;
+		}
+	}
+
+
+
 	for (a = 0; a < nummsgs; ++a) {
 		if (WC->msgarr[a] >= startmsg) {
 
@@ -326,11 +336,13 @@ void readloop(char *oper)
 			if (is_summary) wprintf("<BR>");
 
 			++num_displayed;
+			--remaining_messages;
+
 			if ( (num_displayed >= maxmsgs) && (a < nummsgs) ) {
 				wprintf("<CENTER><FONT SIZE=+1>"
 					"There are %d more messages here."
 					"&nbsp;&nbsp;&nbsp;</FONT>",
-					nummsgs - num_displayed);
+					remaining_messages);
 				wprintf("<A HREF=\"/readfwd?startmsg=%ld"
 					"&maxmsgs=999999&summary=%d\">"
 					"Read them ALL"
