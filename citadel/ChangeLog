@@ -1,4 +1,7 @@
  $Log$
+ Revision 608.0  2003/07/15 04:12:52  ajc
+ * THIS IS 6.08
+
  Revision 607.23  2003/07/14 17:26:42  ajc
  * strcpy() --> safestrncpy() in a few other random places
 
