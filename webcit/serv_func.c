@@ -260,3 +260,39 @@ void read_server_binary(char *buffer, size_t total_len) {
 }
 
 
+/*
+ * Read text from server, appending to a string buffer until the
+ * usual 000 terminator is found.  Caller is responsible for freeing
+ * the returned pointer.
+ */
+char *read_server_text(void) {
+	char *text = NULL;
+	size_t bytes_allocated = 0;
+	size_t bytes_read = 0;
+	int linelen;
+	char buf[SIZ];
+
+	text = malloc(SIZ);
+	if (text == NULL) {
+		return(NULL);
+	}
+	strcpy(text, "");
+	bytes_allocated = SIZ;
+
+	while (serv_gets(buf), strcmp(buf, "000")) {
+		linelen = strlen(buf);
+		buf[linelen] = '\n';
+		buf[linelen+1] = 0;
+		++linelen;
+
+		if ((bytes_read + linelen) >= (bytes_allocated - 2)) {
+			bytes_allocated = 2 * bytes_allocated;
+			text = realloc(text, bytes_allocated);
+		}
+
+		strcpy(&text[bytes_read], buf);
+		bytes_read += linelen;
+	}
+
+	return(text);
+}
