@@ -1472,7 +1472,8 @@ broadcast an express message to all users currently connected to the server.
 
  Do be aware that if an express message is transmitted to a user who is logged
 in using a client that does not check for express messages, the message will
-never be received.
+never be received.  Also, express messages are NOT sent via the following
+transports:  SMTP, POP3.
 
 
  PEXP   (Print EXPress messages)   ***DEPRECATED***

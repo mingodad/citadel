@@ -688,9 +688,13 @@ void cmd_sexp(char *argbuf)
 	if (!strcmp(x_msg, "-")) {
 		message_sent = PerformXmsgHooks(lun, x_user, "");
 		if (message_sent == 0) {
-			cprintf("%d '%s' is not logged in "
-				"or is not accepting pages.\n",
-				ERROR + NO_SUCH_USER, x_user);
+			if (getuser(NULL, x_user))
+				cprintf("%d '%s' does not exist.\n",
+						ERROR + NO_SUCH_USER, x_user);
+			else
+				cprintf("%d '%s' is not logged in "
+						"or is not accepting pages.\n",
+						ERROR + RESOURCE_NOT_OPEN, x_user);
 			return;
 		}
 		cprintf("%d Transmit message (will deliver to %d users)\n",
@@ -721,9 +725,13 @@ void cmd_sexp(char *argbuf)
 				cprintf(" to %d users", message_sent);
 			cprintf(".\n");
 		} else {
-			cprintf("%d '%s' is not logged in "
-				"or is not accepting pages.\n",
-				ERROR + NO_SUCH_USER, x_user);
+			if (getuser(NULL, x_user))
+				cprintf("%d '%s' does not exist.\n",
+						ERROR + NO_SUCH_USER, x_user);
+			else
+				cprintf("%d '%s' is not logged in "
+						"or is not accepting pages.\n",
+						ERROR + RESOURCE_NOT_OPEN, x_user);
 		}
 
 
