@@ -1,4 +1,7 @@
 $Log$
+Revision 301.0  2001/06/28 15:05:31  ajc
+* tag for 3.01
+
 Revision 300.2  2001/06/28 15:03:49  ajc
 * Every generated page now includes a meta tag to disable evil "smart tags"
   (see http://smarttags.manilasites.com/ for more information)
